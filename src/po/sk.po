@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: sk\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-07-04 21:28+0200\n"
-"PO-Revision-Date: 2024-03-08 07:16+0000\n"
+"PO-Revision-Date: 2024-03-12 12:19+0000\n"
 "Last-Translator: Juraj Adamkovic <stroje.hcnc@gmail.com>\n"
 "Language-Team: Slovak <emc-developers@lists.sourceforge.net>\n"
 "Language: sk\n"
@@ -10012,67 +10012,67 @@ msgstr "Min. Limit + Home A"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:236
 msgid "Minimum Limit + Home U"
-msgstr ""
+msgstr "Min. Limit + Home U"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:236
 msgid "Minimum Limit + Home V"
-msgstr ""
+msgstr "Min. Limit + Home V"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:237
 msgid "Maximum Limit + Home X"
-msgstr ""
+msgstr "Max. Limit + Home X"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:237
 msgid "Maximum Limit + Home Y"
-msgstr ""
+msgstr "Max. Limit + Home Y"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:238
 msgid "Maximum Limit + Home Tandem X"
-msgstr ""
+msgstr "Max. Limit + Home tandem X"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:238
 msgid "Maximum Limit + Home Tandem Y"
-msgstr ""
+msgstr "Max. Limit + Home tandem Y"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:239
 msgid "Maximum Limit + Home Z"
-msgstr ""
+msgstr "Max. Limit + Home Z"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:239
 msgid "Maximum Limit + Home A"
-msgstr ""
+msgstr "Max. Limit + Home A"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:240
 msgid "Maximum Limit + Home U"
-msgstr ""
+msgstr "Max. Limit + Home U"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:240
 msgid "Maximum Limit + Home V"
-msgstr ""
+msgstr "Max. Limit + Home V"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:241
 msgid "Both Limit + Home X"
-msgstr ""
+msgstr "Oba Limity + Home X"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:241
 msgid "Both Limit + Home Y"
-msgstr ""
+msgstr "Oba Limity + Home Y"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:242
 msgid "Both Limit + Home Z"
-msgstr ""
+msgstr "Oba Limity + Home Z"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:242
 msgid "Both Limit + Home A"
-msgstr ""
+msgstr "Oba Limity + Home A"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:243
 msgid "Both Limit + Home U"
-msgstr ""
+msgstr "Oba Limity + Home U"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:243
 msgid "Both Limit + Home V"
-msgstr ""
+msgstr "Oba Limity + Home V"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:244
 msgid "Both Limit + Home Tandem X"
@@ -10084,91 +10084,91 @@ msgstr "Limit osi + kalibr. tandem Y"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:245
 msgid "Minimum Limit X"
-msgstr ""
+msgstr "Min. limit X"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:245
 msgid "Minimum Limit Y"
-msgstr ""
+msgstr "Min. limit Y"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:246
 msgid "Minimum Limit Tandem X"
-msgstr ""
+msgstr "Min. limit tandem X"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:246
 msgid "Minimum Limit Tandem Y"
-msgstr ""
+msgstr "Min. limit tandem Y"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:247
 msgid "Minimum Limit Z"
-msgstr ""
+msgstr "Min. limit Z"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:247
 msgid "Minimum Limit A"
-msgstr ""
+msgstr "Min. limit A"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:248
 msgid "Minimum Limit U"
-msgstr ""
+msgstr "Min. limit U"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:248
 msgid "Minimum Limit V"
-msgstr ""
+msgstr "Min. Limit V"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:249
 msgid "Maximum Limit X"
-msgstr ""
+msgstr "Max. limit X"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:249
 msgid "Maximum Limit Y"
-msgstr ""
+msgstr "Max. limit Y"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:250
 msgid "Maximum Limit Tandem X"
-msgstr ""
+msgstr "Max. limit tandem X"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:250
 msgid "Maximum Limit Tandem Y"
-msgstr ""
+msgstr "Max. limit tandem Y"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:251
 msgid "Maximum Limit Z"
-msgstr ""
+msgstr "Max. limit Z"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:251
 msgid "Maximum Limit A"
-msgstr ""
+msgstr "Max. limit A"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:252
 msgid "Maximum Limit U"
-msgstr ""
+msgstr "Max. limit U"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:252
 msgid "Maximum Limit V"
-msgstr ""
+msgstr "Max. limit V"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:253
 msgid "Both Limit X"
-msgstr ""
+msgstr "Oba limity X"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:253
 msgid "Both Limit Y"
-msgstr ""
+msgstr "Oba limity Y"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:254
 msgid "Both Limit Z"
-msgstr ""
+msgstr "Oba limity Z"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:254
 msgid "Both Limit A"
-msgstr ""
+msgstr "Oba limity A"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:255
 msgid "Both Limit U"
-msgstr ""
+msgstr "Oba limity U"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:255
 msgid "Both Limit V"
-msgstr ""
+msgstr "Oba limity V"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:256
 msgid "Both Limit Tandem X"
@@ -10193,46 +10193,47 @@ msgstr "Všetky limity + kalibrácie"
 #: src/emc/usr_intf/stepconf/stepconf.py:258
 #: src/emc/usr_intf/pncconf/private_data.py:427
 msgid "Digital in 0"
-msgstr ""
+msgstr "Dig. vstup 0"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:258
 #: src/emc/usr_intf/pncconf/private_data.py:427
 msgid "Digital in 1"
-msgstr ""
+msgstr "Dig. vstup 1"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:258
 #: src/emc/usr_intf/pncconf/private_data.py:427
 msgid "Digital in 2"
-msgstr ""
+msgstr "Dig. vstup 2"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:258
 #: src/emc/usr_intf/pncconf/private_data.py:427
 msgid "Digital in 3"
-msgstr ""
+msgstr "Dig. vstup 3"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:259
 msgid "Plasma Arc Voltage"
-msgstr ""
+msgstr "Napätie plazmového oblúka"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:259
 msgid "Plasma Arc OK"
-msgstr ""
+msgstr "Plazmový oblúk OK"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:259
 msgid "Plasma Float Switch"
 msgstr "Plazmový plávajúci spínač"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:259
+#, fuzzy
 msgid "Plasma Breakaway"
-msgstr ""
+msgstr "Prerušenie plazmy"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:260
 msgid "Plasma Ohmic Contact"
-msgstr ""
+msgstr "Plazmový ohmický kontakt"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:260
 msgid "Plasma Move Up"
-msgstr ""
+msgstr "Plazma pohyb hore"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:260
 msgid "Plasma Move Down"
@@ -10246,7 +10247,7 @@ msgstr "Dopredu"
 #: src/emc/usr_intf/stepconf/stepconf.py:265
 #: src/emc/usr_intf/pncconf/private_data.py:1203
 msgid "Done"
-msgstr ""
+msgstr "Hotovo"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:266
 #: src/emc/usr_intf/pncconf/private_data.py:1204
@@ -10255,6 +10256,9 @@ msgid ""
 "Existing Custom.clp will be renamed custom_backup.clp.\n"
 "Any existing file named -custom_backup.clp- will be lost. "
 msgstr ""
+"Nahradiť existujúci vlastný ladder program?\n"
+"Existujúci súbor Custom.clp bude premenovaný na custom_backup.clp.\n"
+"Akýkoľvek existujúci súbor s názvom -custom_backup.clp- sa stratí. "
 
 #: src/emc/usr_intf/stepconf/stepconf.py:267
 #: src/emc/usr_intf/pncconf/pages.py:1538
@@ -10266,6 +10270,11 @@ msgid ""
 "\n"
 "Are you sure?  "
 msgstr ""
+"Upravili ste ladder program a vybrali ste iný program na skopírovanie do "
+"vášho konfiguračného súboru.\n"
+"Upravený program sa stratí.\n"
+"\n"
+"Si si istý?  "
 
 #: src/emc/usr_intf/stepconf/stepconf.py:268
 #: src/emc/usr_intf/pncconf/private_data.py:1206
@@ -10273,6 +10282,8 @@ msgid ""
 "You need to designate an E-stop input pin in the Parallel Port Setup page "
 "for this program."
 msgstr ""
+"Pre tento program musíte na stránke Parallel Port Setup určiť vstupný pin "
+"E-stop."
 
 #: src/emc/usr_intf/stepconf/stepconf.py:269
 msgid ""
@@ -10280,10 +10291,14 @@ msgid ""
 "Existing custompanel.xml will be renamed custompanel_backup.xml.\n"
 "Any existing file named custompanel_backup.xml will be lost. "
 msgstr ""
+"Nahradiť existujúci súbor vlastného panela pyvcp?\n"
+"Existujúci súbor custompanel.xml bude premenovaný na custompanel_backup.xml."
+"\n"
+"Akýkoľvek existujúci súbor s názvom custompanel_backup.xml sa stratí. "
 
 #: src/emc/usr_intf/stepconf/stepconf.py:270
 msgid "Quit Stepconf and discard changes?"
-msgstr ""
+msgstr "Ukončiť Stepconf a zahodiť zmeny?"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:271
 #: src/emc/usr_intf/pncconf/private_data.py:1210
@@ -10291,6 +10306,8 @@ msgid ""
 "The configuration has been built and saved.\n"
 "Do you want to quit?"
 msgstr ""
+"Konfigurácia bola vytvorená a uložená.\n"
+"Chcete skončiť?"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:272
 #: src/emc/usr_intf/pncconf/private_data.py:1211
@@ -10298,6 +10315,8 @@ msgid ""
 "You are using a simulated-realtime version of LinuxCNC, so testing / tuning "
 "of hardware is unavailable."
 msgstr ""
+"Používate simulovanú verziu LinuxCNC v reálnom čase, takže testovanie/"
+"ladenie hardvéru nie je k dispozícii."
 
 #: src/emc/usr_intf/stepconf/stepconf.py:273
 #: src/emc/usr_intf/pncconf/private_data.py:1212
@@ -10309,21 +10328,29 @@ msgid ""
 "You are using the {} kernel.\n"
 "You need to use kernel:"
 msgstr ""
+"Používate verziu LinuxCNC v reálnom čase, ale nenačítali ste jadro v reálnom "
+"čase, takže testovanie / ladenie hardvéru nie je k dispozícii.\n"
+"Je to možno preto, že ste aktualizovali OS a ten už automaticky nenačítava "
+"jadro RTAI.\n"
+"Používate jadro {}.\n"
+"Musíte použiť jadro:"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:293
 msgid "my-mill"
-msgstr ""
+msgstr "mojstroj"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:641
 #, python-format
 msgid "File %r was modified since it was written by stepconf"
-msgstr ""
+msgstr "Súbor %r bol upravený, pretože ho napísal stepconf"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:644
 msgid ""
 "Saving this configuration file will discard configuration changes made "
 "outside stepconf."
 msgstr ""
+"Uložením tohto konfiguračného súboru sa zrušia konfiguračné zmeny vykonané "
+"mimo stepconf."
 
 #: src/emc/usr_intf/stepconf/stepconf.py:662
 msgid "Continue? "
@@ -10332,17 +10359,17 @@ msgstr "Pokračovať? "
 #: src/emc/usr_intf/stepconf/stepconf.py:663
 #: src/emc/usr_intf/pncconf/data.py:902
 msgid "yY"
-msgstr ""
+msgstr "yY"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:748
 #: src/emc/usr_intf/pncconf/data.py:1074
 #, python-format
 msgid "launch %s"
-msgstr ""
+msgstr "Spustiť %s"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:752
 msgid "Desktop Launcher for LinuxCNC config made by Stepconf"
-msgstr ""
+msgstr "Desktop spúšťač pre konfiguráciu LinuxCNC od Stepconf"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:821
 msgid ""
@@ -10357,7 +10384,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/stepconf.py:969
 #: src/emc/usr_intf/stepconf/pages.py:152
 msgid "Other"
-msgstr ""
+msgstr "Iné"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:1548
 #: src/emc/usr_intf/pncconf/tests.py:1037
@@ -10368,17 +10395,17 @@ msgstr "%s Test osi"
 #: src/emc/usr_intf/stepconf/stepconf.py:1551
 #: src/emc/usr_intf/stepconf/pages.py:953
 msgid "deg / s"
-msgstr ""
+msgstr "stupeň / s"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:1552
 #: src/emc/usr_intf/stepconf/pages.py:954
 msgid "deg / s²"
-msgstr ""
+msgstr "stupeň / s²"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:1553
 #: src/emc/usr_intf/stepconf/pages.py:955
 msgid "deg"
-msgstr ""
+msgstr "stupeň"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:1565
 #: src/emc/usr_intf/stepconf/pages.py:959
@@ -10394,7 +10421,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/a_motor.glade:2079
 #: src/emc/usr_intf/pncconf/s_motor.glade:2130
 msgid "mm / s"
-msgstr ""
+msgstr "mm / s"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:1566
 #: src/emc/usr_intf/stepconf/pages.py:960
@@ -10410,17 +10437,17 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/a_motor.glade:2095
 #: src/emc/usr_intf/pncconf/s_motor.glade:2146
 msgid "mm / s²"
-msgstr ""
+msgstr "mm / s²"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:1579
 #: src/emc/usr_intf/stepconf/pages.py:965
 msgid "in / s"
-msgstr ""
+msgstr "palce / s"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:1580
 #: src/emc/usr_intf/stepconf/pages.py:966
 msgid "in / s²"
-msgstr ""
+msgstr "palce/ s²"
 
 #: src/emc/usr_intf/stepconf/pages.py:228
 msgid "LinuxCNC 'stepconf' configuration files"
@@ -10433,11 +10460,11 @@ msgstr "Upraviť existujúcu konfiguráciu"
 
 #: src/emc/usr_intf/stepconf/pages.py:952
 msgid "degree / rev"
-msgstr ""
+msgstr "stupne / ot"
 
 #: src/emc/usr_intf/stepconf/pages.py:956
 msgid "Steps / deg"
-msgstr ""
+msgstr "Kroky / st"
 
 #: src/emc/usr_intf/stepconf/pages.py:958
 #: src/emc/usr_intf/stepconf/axisx.glade:291
@@ -10449,7 +10476,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2219
 #: src/emc/usr_intf/pncconf/dialogs.glade:2599
 msgid "mm / rev"
-msgstr ""
+msgstr "mm / ot"
 
 #: src/emc/usr_intf/stepconf/pages.py:962
 #: src/emc/usr_intf/stepconf/axisx.glade:28
@@ -10460,15 +10487,15 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/axisa.glade:28
 #: src/emc/usr_intf/pncconf/dialogs.glade:3028
 msgid "Steps / mm"
-msgstr ""
+msgstr "Kroky / mm"
 
 #: src/emc/usr_intf/stepconf/pages.py:964
 msgid "rev / in"
-msgstr ""
+msgstr "ot / palce"
 
 #: src/emc/usr_intf/stepconf/pages.py:968
 msgid "Steps / in"
-msgstr ""
+msgstr "Kroky / palce"
 
 #: src/emc/usr_intf/stepconf/build_INI.py:54
 #: src/emc/usr_intf/stepconf/build_HAL.py:44
@@ -10477,7 +10504,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/build_HAL.py:420
 #, python-format
 msgid "# Generated by stepconf 1.1 at %s"
-msgstr ""
+msgstr "# Vygenerované stepconf 1.1 na %s"
 
 #: src/emc/usr_intf/stepconf/build_INI.py:55
 #: src/emc/usr_intf/stepconf/build_HAL.py:45
@@ -10487,7 +10514,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/build_INI.py:19
 #: src/emc/usr_intf/pncconf/build_HAL.py:55
 msgid "# If you make changes to this file, they will be"
-msgstr ""
+msgstr "# Ak v tomto súbore vykonáte zmeny, tak budú platné"
 
 #: src/emc/usr_intf/stepconf/build_INI.py:56
 #: src/emc/usr_intf/stepconf/build_HAL.py:46
@@ -10495,102 +10522,113 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/build_HAL.py:381
 #: src/emc/usr_intf/stepconf/build_HAL.py:422
 msgid "# overwritten when you run stepconf again"
-msgstr ""
+msgstr "# sa prepíše, keď znova spustíte stepconf"
 
 #: src/emc/usr_intf/stepconf/build_INI.py:229
 msgid "# add halui MDI commands here (max 64) "
-msgstr ""
+msgstr "# tu pridajte príkazy halui MDI (max 64) "
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:294
 #: src/emc/usr_intf/pncconf/build_HAL.py:766
 msgid "# **** Setup for external estop ladder program -START ****"
-msgstr ""
+msgstr "# **** Nastavenie pre externý estop ladder program -ŠTART ****"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:301
 #: src/emc/usr_intf/pncconf/build_HAL.py:773
 msgid "# **** Setup for external estop ladder program -END ****"
-msgstr ""
+msgstr "# **** Nastavenie pre externý estop ladder program -KONIEC ****"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:332
 msgid ""
 "# Load Classicladder with Modbus master included (GUI must run for Modbus)"
 msgstr ""
+"# Načítať Classicladder so zahrnutým Modbus masterom (GUI musí bežať pre "
+"Modbus)"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:335
 #: src/emc/usr_intf/pncconf/build_HAL.py:846
 msgid "# Load Classicladder without GUI (can reload LADDER GUI in AXIS GUI"
 msgstr ""
+"# Načítať Classicladder bez GUI (môže znova načítať LADDER GUI v AXIS GUI"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:345
 #: src/emc/usr_intf/pncconf/build_HAL.py:928
 msgid "Include your PyVCP panel here.\n"
-msgstr ""
+msgstr "Sem zahrňte svoj panel PyVCP.\n"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:360
 #: src/emc/usr_intf/stepconf/build_HAL.py:378
 #: src/emc/usr_intf/stepconf/build_HAL.py:419
 msgid "# These files are loaded post GUI, in the order they appear"
-msgstr ""
+msgstr "# Tieto súbory sa načítajú post GUI v poradí, v akom sa zobrazujú"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:382
 #: src/emc/usr_intf/pncconf/build_HAL.py:941
 msgid "# **** Setup of spindle speed display using pyvcp -START ****"
 msgstr ""
+"# **** Nastavenie zobrazenia rýchlosti vretena pomocou pyvcp -START ****"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:384
 msgid "# **** Use ACTUAL spindle velocity from spindle encoder"
-msgstr ""
+msgstr "# **** Použite SKUTOČNÚ rýchlosť vretena z kódovača vretena"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:385
 msgid ""
 "# **** spindle-velocity-feedback-rps bounces around so we filter it with "
 "lowpass"
 msgstr ""
+"# **** spindle-velocity-feedback-rps \"poskakuje\", takže ho filtrujeme "
+"pomocou lowpass"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:386
 msgid ""
 "# **** spindle-velocity-feedback-rps is signed so we use absolute component "
 "to remove sign"
 msgstr ""
+"# **** spindle-velocity-feedback-rps je popísané, takže na odstránenie "
+"znamienka používame absolútnu zložku"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:387
 msgid "# **** ACTUAL velocity is in RPS not RPM so we scale it."
-msgstr ""
+msgstr "# **** SKUTOČNÁ rýchlosť je v RPS, nie v RPM, takže ju škálujeme."
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:396
 msgid "# **** set up spindle at speed indicator ****"
-msgstr ""
+msgstr "# **** nastaviť vreteno na indikátor rýchlosti ****"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:409
 msgid ""
 "# **** Use COMMANDED spindle velocity from LinuxCNC because no spindle "
 "encoder was specified"
 msgstr ""
+"# **** Použite COMMANDED velocity vretena z LinuxCNC, pretože nebol "
+"špecifikovaný žiadny vretenový enkóder"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:432
 #: src/emc/usr_intf/pncconf/build_HAL.py:964
 #, python-format
 msgid "# Include your %s HAL commands here"
-msgstr ""
+msgstr "# Sem zadajte svoje %s HAL príkazy"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:433
 #: src/emc/usr_intf/stepconf/build_HAL.py:724
 #: src/emc/usr_intf/stepconf/build_HAL.py:771
 msgid "# This file will not be overwritten when you run stepconf again"
-msgstr ""
+msgstr "# Tento súbor sa pri opätovnom spustení stepconf neprepíše"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:477
 msgid "# This file sets up simulated limits/home/spindle encoder hardware."
 msgstr ""
+"# Tento súbor nastavuje simulované limity/home/spindle encoder hardware."
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:478
 msgid "# This is a generated file do not edit."
-msgstr ""
+msgstr "# Toto je vygenerovaný súbor, neupravujte."
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:723
 #: src/emc/usr_intf/pncconf/build_HAL.py:1891
 msgid "# Include your custom HAL commands here"
-msgstr ""
+msgstr "# Tu zadajte svoje vlastné príkazy HAL"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:741
 #: src/emc/usr_intf/pncconf/build_HAL.py:1907
@@ -10600,12 +10638,18 @@ msgid ""
 "\n"
 "########################################"
 msgstr ""
+"\n"
+"\n"
+"\n"
+"########################################"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:742
 #: src/emc/usr_intf/pncconf/build_HAL.py:1908
 msgid ""
 "# The following variables are available for fine tuning some parameters."
 msgstr ""
+"# Nasledujúce premenné sú k dispozícii na jemné doladenie niektorých "
+"parametrov."
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:743
 #: src/emc/usr_intf/pncconf/build_HAL.py:1909
@@ -10613,18 +10657,21 @@ msgid ""
 "# To use any of these, uncomment the required setp line and set an "
 "appropriate value.\n"
 msgstr ""
+"# Ak chcete použiť ktorýkoľvek z nich, \"odkomentujte\" požadovaný riadok("
+"zrušiť znak #) a nastavte príslušnú hodnotu.\n"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:744
 #: src/emc/usr_intf/pncconf/build_HAL.py:1910
+#, fuzzy
 msgid "# Dampen excessive noise on the arc voltage input"
-msgstr ""
+msgstr "# Nadmerne tlmenie na vstupe napätia oblúka"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:745
 #: src/emc/usr_intf/stepconf/build_HAL.py:757
 #: src/emc/usr_intf/pncconf/build_HAL.py:1911
 #: src/emc/usr_intf/pncconf/build_HAL.py:1923
 msgid "# default = 0 (volts)"
-msgstr ""
+msgstr "# predvolená hodnota = 0 (volty)"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:747
 #: src/emc/usr_intf/pncconf/build_HAL.py:1913
@@ -10632,18 +10679,23 @@ msgid ""
 "# The time delay from losing the arc ok signal until QtPlasmaC reacts to the "
 "arc loss."
 msgstr ""
+"# Časové oneskorenie od straty signálu oblúka ok, kým QtPlasmaC nereaguje na "
+"stratu oblúka."
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:748
 #: src/emc/usr_intf/pncconf/build_HAL.py:1914
 msgid "# default = 0.0 (seconds)"
-msgstr ""
+msgstr "# predvolená hodnota = 0,0 (sekundy)"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:750
 #: src/emc/usr_intf/pncconf/build_HAL.py:1916
+#, fuzzy
 msgid ""
 "# For mode 0 Arc-OK only, the number of consecutive readings within the "
 "threshold that are required to set the Arc-OK signal."
 msgstr ""
+"# For mode 0 Arc- OK only, the number of consecutive readings within the "
+"threshold that are required to set the Arc-OK signal."
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:751
 #: src/emc/usr_intf/pncconf/build_HAL.py:1917
@@ -10656,11 +10708,13 @@ msgid ""
 "# For mode 0 Arc-OK only, the maximum voltage deviation that is allowed for "
 "a valid voltage to set the Arc OK signal."
 msgstr ""
+"# Len pre režim 0 Arc-OK, maximálna odchýlka napätia, ktorá je povolená pre "
+"platné napätie na nastavenie signálu Arc OK."
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:754
 #: src/emc/usr_intf/pncconf/build_HAL.py:1920
 msgid "# default = 10 (volts)"
-msgstr ""
+msgstr "# predvolená hodnota = 10 (voltov)"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:756
 #: src/emc/usr_intf/pncconf/build_HAL.py:1922
@@ -10668,6 +10722,8 @@ msgid ""
 "# The voltage above and below 0V that will display as 0V. Prevents small "
 "fluctuations from flickering the voltage display."
 msgstr ""
+"# Napätie nad a pod 0V, ktoré sa zobrazí ako 0V. Zabraňuje malým výkyvom "
+"blikania zobrazenia napätia."
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:759
 #: src/emc/usr_intf/pncconf/build_HAL.py:1925
@@ -10675,11 +10731,13 @@ msgid ""
 "# The distance (in millimeters) away from the Z MAX_LIMIT that QtPlasmaC "
 "will allow the Z axis to travel while under machine control."
 msgstr ""
+"# Vzdialenosť (v milimetroch) od Z MAX_LIMIT, ktorú QtPlasmaC umožní prejsť "
+"osou Z, kým bude stroj pod kontrolou."
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:760
 #: src/emc/usr_intf/pncconf/build_HAL.py:1926
 msgid "# default = 5 (mm)"
-msgstr ""
+msgstr "# predvolená hodnota = 5 (mm)"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:762
 #: src/emc/usr_intf/pncconf/build_HAL.py:1928
@@ -10687,6 +10745,8 @@ msgid ""
 "# The required number of consecutive times that the threshold has been "
 "exceeded before applying the void lock to the THC."
 msgstr ""
+"# Požadovaný počet po sebe nasledujúcich prekročení prahovej hodnoty pred "
+"použitím void lock k THC."
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:763
 #: src/emc/usr_intf/pncconf/build_HAL.py:1929
@@ -10695,7 +10755,7 @@ msgstr "# default = 2"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:770
 msgid "# Include your custom_postgui HAL commands here"
-msgstr ""
+msgstr "# Tu zahrňte svoje custom_postgui HAL príkazy"
 
 #: src/emc/usr_intf/stepconf/import_mach.py:32
 msgid "Mach configuration files"
@@ -10705,7 +10765,7 @@ msgstr "Mach konfiguračné súbory"
 #: src/emc/usr_intf/pncconf/main_page.glade:35
 #: src/emc/usr_intf/pncconf/dialogs.glade:3273
 msgid "±"
-msgstr ""
+msgstr "±"
 
 #: src/emc/usr_intf/stepconf/main_page.glade:129
 msgid "mm/s"
@@ -10715,21 +10775,21 @@ msgstr "mm/s"
 #: src/emc/usr_intf/pncconf/dialogs.glade:864
 #: src/emc/usr_intf/pncconf/dialogs.glade:3504
 msgid "Jog:"
-msgstr ""
+msgstr "Jog :"
 
 #: src/emc/usr_intf/stepconf/main_page.glade:349
 #: src/emc/usr_intf/pncconf/dialogs.glade:3519
 msgid "Test Area:"
-msgstr ""
+msgstr "Testovacia oblasť:"
 
 #: src/emc/usr_intf/stepconf/main_page.glade:381
 msgid "mm/s^2"
-msgstr ""
+msgstr "mm/s^2"
 
 #: src/emc/usr_intf/stepconf/main_page.glade:400
 #: src/emc/usr_intf/pncconf/dialogs.glade:3769
 msgid "Acceleration:"
-msgstr ""
+msgstr "Axcelerácia:"
 
 #: src/emc/usr_intf/stepconf/main_page.glade:425
 msgid "Stepconf -Stepper Configuration Wizard"
@@ -10767,7 +10827,7 @@ msgstr "Stepconf - Sprievodca konfiguráciou Stepper"
 #: lib/python/gladevcp/gladevcp-test.glade:89
 #: lib/python/gladevcp/gladevcp-test.glade:102
 msgid "label"
-msgstr ""
+msgstr "label"
 
 #: src/emc/usr_intf/stepconf/main_page.glade:553
 #: src/emc/usr_intf/pncconf/main_page.glade:201
@@ -10784,40 +10844,44 @@ msgid ""
 "\n"
 "Stepconf requires a minimum 800 X 600 display resolution."
 msgstr ""
+"Tento program vytvára konfiguračné súbory (INI a HAL) pre \"krokové a "
+"smerové\" frézky a sústruhy pripojené k paralelnému portu PC.\n"
+"\n"
+"Stepconf vyžaduje minimálne rozlíšenie displeja 800 x 600."
 
 #: src/emc/usr_intf/stepconf/main_page.glade:675
 msgid "Page 1"
-msgstr ""
+msgstr "Strana 1"
 
 #: src/emc/usr_intf/stepconf/base.glade:18
 #: src/emc/usr_intf/pncconf/base.glade:12
 msgid "XYZ"
-msgstr ""
+msgstr "XYZ"
 
 #: src/emc/usr_intf/stepconf/base.glade:21
 #: src/emc/usr_intf/pncconf/base.glade:15
 msgid "XYZA"
-msgstr ""
+msgstr "XYZA"
 
 #: src/emc/usr_intf/stepconf/base.glade:24
 msgid "XZ (Lathe)"
-msgstr ""
+msgstr "XZ (sústruh)"
 
 #: src/emc/usr_intf/stepconf/base.glade:27
 msgid "XYUV (Foam)"
-msgstr ""
+msgstr "XYUV (pena)"
 
 #: src/emc/usr_intf/stepconf/base.glade:30
 msgid "XY(special)"
-msgstr ""
+msgstr "XY(special)"
 
 #: src/emc/usr_intf/stepconf/base.glade:72
 msgid "MM"
-msgstr ""
+msgstr "MM"
 
 #: src/emc/usr_intf/stepconf/base.glade:209
 msgid "Step _Time:"
-msgstr ""
+msgstr "Krok _čas:"
 
 #: src/emc/usr_intf/stepconf/base.glade:223
 msgid "Step _Space:"
@@ -10825,48 +10889,51 @@ msgstr "Krok _Priestor:"
 
 #: src/emc/usr_intf/stepconf/base.glade:237
 msgid "Direction _Hold:"
-msgstr ""
+msgstr "Smer _Podržať:"
 
 #: src/emc/usr_intf/stepconf/base.glade:251
 msgid "_Direction Setup:"
 msgstr "_Nastavenie smeru:"
 
 #: src/emc/usr_intf/stepconf/base.glade:269
+#, fuzzy
 msgid "Driver Timing Settings"
-msgstr ""
+msgstr "Nastavenia časovania"
 
 #: src/emc/usr_intf/stepconf/base.glade:283
 msgid ""
 "_Test Base\n"
 "Period Jitter "
 msgstr ""
+"_Test základ\n"
+"Period Jitter "
 
 #: src/emc/usr_intf/stepconf/base.glade:305
 msgid "D_river type:"
-msgstr ""
+msgstr "Typ D_river:"
 
 #: src/emc/usr_intf/stepconf/base.glade:429
 #: src/emc/usr_intf/pncconf/base.glade:521
 msgid "One Parport"
-msgstr ""
+msgstr "Jeden par. port"
 
 #: src/emc/usr_intf/stepconf/base.glade:446
 #: src/emc/usr_intf/pncconf/base.glade:536
 msgid "Two Parports"
-msgstr ""
+msgstr "Dva par. porty"
 
 #: src/emc/usr_intf/stepconf/base.glade:464
 #: src/emc/usr_intf/pncconf/base.glade:551
 msgid "Three Parports"
-msgstr ""
+msgstr "Tri paral. porty"
 
 #: src/emc/usr_intf/stepconf/base.glade:500
 msgid "Min Base Period:"
-msgstr ""
+msgstr "Minimálna základná perióda:"
 
 #: src/emc/usr_intf/stepconf/base.glade:537
 msgid "Max step rate:"
-msgstr ""
+msgstr "Maximálna rýchlosť krokov:"
 
 #: src/emc/usr_intf/stepconf/base.glade:577
 msgid "Machine _Name:"
@@ -10914,15 +10981,15 @@ msgstr "Upravte konfiguráciu už vytvorenú pomocou tohto programu"
 
 #: src/emc/usr_intf/stepconf/start.glade:56
 msgid "Import a Mach file"
-msgstr ""
+msgstr "Importujte súbor Mach"
 
 #: src/emc/usr_intf/stepconf/start.glade:73
 msgid "Create a desktop _shortcut (symlink) to configuration files."
-msgstr ""
+msgstr "Vytvorte na ploche _skratku (symlink) na konfiguračné súbory."
 
 #: src/emc/usr_intf/stepconf/start.glade:89
 msgid "Create a desktop _launcher to start LinuxCNC with this configuration."
-msgstr ""
+msgstr "Vytvoriť desktop _spúšťač na spustenie LinuxCNC s touto konfiguráciou."
 
 #: src/emc/usr_intf/stepconf/start.glade:105
 msgid "Create simulated hardware configuration."
@@ -10934,104 +11001,106 @@ msgid ""
 "If you have made modifications to this configuration outside this program, "
 "they will be lost when you select \"Modify a configuration\""
 msgstr ""
+"Ak ste vykonali úpravy tejto konfigurácie mimo tohto programu, budú "
+"stratené, keď vyberiete možnosť „Upraviť konfiguráciu“"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:32
 #: src/emc/usr_intf/stepconf/pport2.glade:37
 msgid "0x0378"
-msgstr ""
+msgstr "0x0378"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:46
 msgid "Xylotex"
-msgstr ""
+msgstr "Xylotex"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:49
 msgid "TB6560 3 axes"
-msgstr ""
+msgstr "TB6560 3 osi"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:52
 msgid "TB6560 4 axes"
-msgstr ""
+msgstr "TB6560 4 osi"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:74
 #: src/emc/usr_intf/stepconf/pport2.glade:74
 msgid " Pin _1:"
-msgstr ""
+msgstr " Pin _1:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:132
 #: src/emc/usr_intf/stepconf/pport2.glade:131
 #: src/emc/usr_intf/stepconf/pport2.glade:992
 msgid " Pin _2:"
-msgstr ""
+msgstr " Pin _2:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:190
 #: src/emc/usr_intf/stepconf/pport2.glade:188
 #: src/emc/usr_intf/stepconf/pport2.glade:1108
 msgid " Pin _4:"
-msgstr ""
+msgstr " Pin _4:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:248
 #: src/emc/usr_intf/stepconf/pport2.glade:245
 #: src/emc/usr_intf/stepconf/pport2.glade:1050
 msgid " Pin _3:"
-msgstr ""
+msgstr " Pin _3:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:306
 #: src/emc/usr_intf/stepconf/pport2.glade:302
 #: src/emc/usr_intf/stepconf/pport2.glade:1166
 msgid " Pin _5:"
-msgstr ""
+msgstr " Pin _5:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:364
 #: src/emc/usr_intf/stepconf/pport2.glade:359
 #: src/emc/usr_intf/stepconf/pport2.glade:1224
 msgid " Pin _6:"
-msgstr ""
+msgstr " Pin _6:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:422
 #: src/emc/usr_intf/stepconf/pport2.glade:416
 #: src/emc/usr_intf/stepconf/pport2.glade:1282
 msgid " Pin _7:"
-msgstr ""
+msgstr " Pin _7:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:480
 #: src/emc/usr_intf/stepconf/pport2.glade:473
 #: src/emc/usr_intf/stepconf/pport2.glade:1340
 msgid " Pin _8:"
-msgstr ""
+msgstr " Pin _8:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:538
 #: src/emc/usr_intf/stepconf/pport2.glade:530
 #: src/emc/usr_intf/stepconf/pport2.glade:1398
 msgid " Pin _9:"
-msgstr ""
+msgstr " Pin _9:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:596
 #: src/emc/usr_intf/stepconf/pport2.glade:588
 #: src/emc/usr_intf/pncconf/pport1.glade:1480
 #: src/emc/usr_intf/pncconf/pport2.glade:1483
 msgid "_Pin 14:"
-msgstr ""
+msgstr "_Pin 14:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:654
 #: src/emc/usr_intf/stepconf/pport2.glade:646
 #: src/emc/usr_intf/pncconf/pport1.glade:1538
 #: src/emc/usr_intf/pncconf/pport2.glade:1541
 msgid "P_in 16:"
-msgstr ""
+msgstr "P_in 16:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:712
 #: src/emc/usr_intf/stepconf/pport2.glade:704
 #: src/emc/usr_intf/pncconf/pport1.glade:1596
 #: src/emc/usr_intf/pncconf/pport2.glade:1599
 msgid "Pi_n 17:"
-msgstr ""
+msgstr "Pi_n 17:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:770
 #: src/emc/usr_intf/stepconf/pport2.glade:762
 #: src/emc/usr_intf/pncconf/pport1.glade:929
 #: src/emc/usr_intf/pncconf/pport2.glade:932
 msgid "Outputs (PC to Mill):"
-msgstr ""
+msgstr "Výstupy (PC to Mill):"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:795
 #: src/emc/usr_intf/stepconf/pport1.glade:1159
@@ -11042,49 +11111,49 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/pport2.glade:116
 #: src/emc/usr_intf/pncconf/pport2.glade:945
 msgid "Invert"
-msgstr ""
+msgstr "Invertovať"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:839
 #: src/emc/usr_intf/stepconf/pport2.glade:1462
 #: src/emc/usr_intf/pncconf/pport1.glade:603
 #: src/emc/usr_intf/pncconf/pport2.glade:606
 msgid "Pin 1_0:"
-msgstr ""
+msgstr "Pin 1_0:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:898
 #: src/emc/usr_intf/stepconf/pport2.glade:1522
 #: src/emc/usr_intf/pncconf/pport1.glade:662
 #: src/emc/usr_intf/pncconf/pport2.glade:665
 msgid "Pin 1_1:"
-msgstr ""
+msgstr "Pin 1_1:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:957
 #: src/emc/usr_intf/stepconf/pport2.glade:1582
 #: src/emc/usr_intf/pncconf/pport1.glade:721
 #: src/emc/usr_intf/pncconf/pport2.glade:724
 msgid "Pin 1_2:"
-msgstr ""
+msgstr "Pin 1_2:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:1016
 #: src/emc/usr_intf/stepconf/pport2.glade:1642
 #: src/emc/usr_intf/pncconf/pport1.glade:780
 #: src/emc/usr_intf/pncconf/pport2.glade:783
 msgid "Pin 1_3:"
-msgstr ""
+msgstr "Pin 1_3:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:1075
 #: src/emc/usr_intf/stepconf/pport2.glade:1702
 #: src/emc/usr_intf/pncconf/pport1.glade:839
 #: src/emc/usr_intf/pncconf/pport2.glade:842
 msgid "Pin 1_5:"
-msgstr ""
+msgstr "Pin 1_5:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:1134
 #: src/emc/usr_intf/stepconf/pport2.glade:943
 #: src/emc/usr_intf/pncconf/pport1.glade:99
 #: src/emc/usr_intf/pncconf/pport2.glade:102
 msgid "Inputs (Mill to PC):"
-msgstr ""
+msgstr "Vstupy (Mill to PC):"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:1222
 #: src/emc/usr_intf/stepconf/pport2.glade:817
@@ -11094,7 +11163,7 @@ msgstr "Číslo par. portu:"
 
 #: src/emc/usr_intf/stepconf/pport1.glade:1289
 msgid "Output pinout presets:"
-msgstr ""
+msgstr "Predvoľby výstupných pinov:"
 
 #: src/emc/usr_intf/stepconf/pport2.glade:48
 #: src/emc/usr_intf/pncconf/base.glade:38
@@ -11112,19 +11181,19 @@ msgstr "Vstup"
 
 #: src/emc/usr_intf/stepconf/spindle.glade:29
 msgid "_PWM 1:"
-msgstr ""
+msgstr "_PWM 1:"
 
 #: src/emc/usr_intf/stepconf/spindle.glade:43
 msgid "P_WM 2:"
-msgstr ""
+msgstr "P_WM 2:"
 
 #: src/emc/usr_intf/stepconf/spindle.glade:124
 msgid "Enter 0 Hz for \"PDM\" mode"
-msgstr ""
+msgstr "Zadajte 0 Hz pre režim \"PDM\""
 
 #: src/emc/usr_intf/stepconf/spindle.glade:136
 msgid "PWM _Rate:"
-msgstr ""
+msgstr "PWM Rate:"
 
 #: src/emc/usr_intf/stepconf/spindle.glade:150
 msgid "_Speed 1:"
@@ -11140,15 +11209,16 @@ msgstr "Kalibrácia:"
 
 #: src/emc/usr_intf/stepconf/spindle.glade:245
 msgid "12345"
-msgstr ""
+msgstr "12345"
 
 #: src/emc/usr_intf/stepconf/spindle.glade:271
 msgid "_Cycles per revolution:"
-msgstr ""
+msgstr "_Cykly na otáčku:"
 
 #: src/emc/usr_intf/stepconf/spindle.glade:285
+#, fuzzy
 msgid "Speed display filter gain:"
-msgstr ""
+msgstr "Zobrazenie rýchlosti:"
 
 #: src/emc/usr_intf/stepconf/spindle.glade:294
 msgid "Use spindle-at-speed:"
@@ -11156,7 +11226,7 @@ msgstr "Použitie spindle-at-speed:"
 
 #: src/emc/usr_intf/stepconf/spindle.glade:313
 msgid "Scale %"
-msgstr ""
+msgstr "Mierka %"
 
 #: src/emc/usr_intf/stepconf/options.glade:48
 #: src/emc/usr_intf/pncconf/private_data.py:493
@@ -11165,25 +11235,25 @@ msgstr "Os"
 
 #: src/emc/usr_intf/stepconf/options.glade:51
 msgid "Gmoccapy"
-msgstr ""
+msgstr "GMOCCAPY"
 
 #: src/emc/usr_intf/stepconf/options.glade:54
 msgid "Qtdragon"
-msgstr ""
+msgstr "QtDRAGON"
 
 #: src/emc/usr_intf/stepconf/options.glade:57
 #: src/emc/usr_intf/pncconf/screen.glade:145
 msgid "QtPlasmaC"
-msgstr ""
+msgstr "QtPLASMAC"
 
 #: src/emc/usr_intf/stepconf/options.glade:73
 msgid "Screen:  "
-msgstr ""
+msgstr "Obrazovka:  "
 
 #: src/emc/usr_intf/stepconf/options.glade:127
 #: src/emc/usr_intf/pncconf/screen.glade:3281
 msgid "Screen Aspect:"
-msgstr ""
+msgstr "Pomer obrazovky:"
 
 #: src/emc/usr_intf/stepconf/options.glade:140
 #: src/emc/usr_intf/pncconf/screen.glade:3294
@@ -11193,37 +11263,37 @@ msgstr "Tlačidlo núdzového prerušenia:"
 #: src/emc/usr_intf/stepconf/options.glade:156
 #: src/emc/usr_intf/pncconf/screen.glade:3325
 msgid "4:3"
-msgstr ""
+msgstr "4:3"
 
 #: src/emc/usr_intf/stepconf/options.glade:172
 #: src/emc/usr_intf/pncconf/screen.glade:3341
 msgid "Hidden"
-msgstr ""
+msgstr "Skryť"
 
 #: src/emc/usr_intf/stepconf/options.glade:188
 #: src/emc/usr_intf/pncconf/screen.glade:3357
 msgid "9:16"
-msgstr ""
+msgstr "9:16"
 
 #: src/emc/usr_intf/stepconf/options.glade:204
 #: src/emc/usr_intf/pncconf/screen.glade:3373
 msgid "Button"
-msgstr ""
+msgstr "Tlačidlo"
 
 #: src/emc/usr_intf/stepconf/options.glade:220
 #: src/emc/usr_intf/pncconf/screen.glade:3389
 msgid "16:9"
-msgstr ""
+msgstr "16:9"
 
 #: src/emc/usr_intf/stepconf/options.glade:234
 #: src/emc/usr_intf/pncconf/screen.glade:3403
 msgid "Indicator"
-msgstr ""
+msgstr "Indikátor"
 
 #: src/emc/usr_intf/stepconf/options.glade:301
 #: src/emc/usr_intf/pncconf/screen.glade:3457
 msgid "Bottom"
-msgstr ""
+msgstr "Spodná časť"
 
 #: src/emc/usr_intf/stepconf/options.glade:371
 #: src/emc/usr_intf/pncconf/screen.glade:3471
@@ -11233,7 +11303,7 @@ msgstr "Hore"
 #: src/emc/usr_intf/stepconf/options.glade:465
 #: src/emc/usr_intf/pncconf/screen.glade:3621
 msgid "Powermax Port:"
-msgstr ""
+msgstr "PowermaxPort:"
 
 #: src/emc/usr_intf/stepconf/options.glade:493
 #: src/emc/usr_intf/pncconf/screen.glade:3649
@@ -11267,12 +11337,12 @@ msgstr "Skryť tlačidlo Stop:"
 
 #: src/emc/usr_intf/stepconf/options.glade:571
 msgid "_Onscreen prompt for manual tool change"
-msgstr ""
+msgstr "_Výzva na obrazovke na manuálnu výmenu nástroja"
 
 #: src/emc/usr_intf/stepconf/options.glade:587
 #: src/emc/usr_intf/pncconf/vcp.glade:426
 msgid "Include custom PyVCP GUI panel"
-msgstr ""
+msgstr "Zahŕňa vlastný panel GUI PyVCP"
 
 #: src/emc/usr_intf/stepconf/options.glade:645
 #: src/emc/usr_intf/pncconf/vcp.glade:79
@@ -11290,14 +11360,14 @@ msgstr "Zobrazenie otáčok vretena"
 #: src/emc/usr_intf/pncconf/vcp.glade:504
 #: src/emc/usr_intf/pncconf/options.glade:988
 msgid "Existing custom program"
-msgstr ""
+msgstr "Existujúci vlastný program"
 
 #: src/emc/usr_intf/stepconf/options.glade:696
 #: src/emc/usr_intf/stepconf/options.glade:1189
 #: src/emc/usr_intf/pncconf/vcp.glade:146
 #: src/emc/usr_intf/pncconf/options.glade:1005
 msgid "Include connections to HAL"
-msgstr ""
+msgstr "Zahŕňa pripojenia k HAL"
 
 #: src/emc/usr_intf/stepconf/options.glade:744
 #: src/emc/usr_intf/pncconf/vcp.glade:361
@@ -11307,62 +11377,65 @@ msgid ""
 "sample\n"
 "panel"
 msgstr ""
+"_Zobraziť\n"
+"vzorový\n"
+"panel"
 
 #: src/emc/usr_intf/stepconf/options.glade:785
 msgid "Set pyVCP options"
-msgstr ""
+msgstr "Nastaviť možnosti pyVCP"
 
 #: src/emc/usr_intf/stepconf/options.glade:809
 #: src/emc/usr_intf/pncconf/options.glade:1098
 msgid "Include _Classicladder PLC"
-msgstr ""
+msgstr "Zahŕňa _Classicladder PLC"
 
 #: src/emc/usr_intf/stepconf/options.glade:948
 msgid "Number of digital in pins:"
-msgstr ""
+msgstr "Počet digitálnych pinov:"
 
 #: src/emc/usr_intf/stepconf/options.glade:964
 msgid "Number of digital  out pins:"
-msgstr ""
+msgstr "Počet digitálnych výstupných pinov:"
 
 #: src/emc/usr_intf/stepconf/options.glade:979
 #: src/emc/usr_intf/pncconf/options.glade:638
 msgid " Number of analog (s32) in pins:"
-msgstr ""
+msgstr "Počet analógových (s32) vstupných pinov:"
 
 #: src/emc/usr_intf/stepconf/options.glade:995
 #: src/emc/usr_intf/pncconf/options.glade:655
 msgid " Number of analog (s32) out pins:"
-msgstr ""
+msgstr "Počet analógových (s32) výstupných pinov:"
 
 #: src/emc/usr_intf/stepconf/options.glade:1010
 #: src/emc/usr_intf/pncconf/options.glade:671
 msgid " Number of analog (float) in pins:"
-msgstr ""
+msgstr "Počet analógových (float) vstup. pinov:"
 
 #: src/emc/usr_intf/stepconf/options.glade:1025
 #: src/emc/usr_intf/pncconf/options.glade:687
 msgid " Number of analog (float) out pins:"
-msgstr ""
+msgstr "Počet analógových (float) výstup. pinov:"
 
 #: src/emc/usr_intf/stepconf/options.glade:1059
 msgid "setup number of external pins"
-msgstr ""
+msgstr "nastavenie počtu externých pinov"
 
 #: src/emc/usr_intf/stepconf/options.glade:1074
 #: src/emc/usr_intf/pncconf/options.glade:732
 msgid "Include Modbus master support"
-msgstr ""
+msgstr "Zahŕňa podporu Modbus master"
 
 #: src/emc/usr_intf/stepconf/options.glade:1125
 #: src/emc/usr_intf/pncconf/options.glade:925
 msgid "Blank ladder program"
-msgstr ""
+msgstr "Prázdny ladder program"
 
 #: src/emc/usr_intf/stepconf/options.glade:1139
 #: src/emc/usr_intf/pncconf/options.glade:938
 msgid "Estop ladder program"
-msgstr ""
+msgstr "Estop ladderprogram"
 
 #: src/emc/usr_intf/stepconf/options.glade:1155
 #: src/emc/usr_intf/pncconf/options.glade:971
@@ -11375,6 +11448,8 @@ msgid ""
 "Edit ladder\n"
 "program"
 msgstr ""
+"Upraviť ladder\n"
+"program"
 
 #: src/emc/usr_intf/stepconf/options.glade:1281
 msgid "Set Ladder Options"
@@ -11382,23 +11457,23 @@ msgstr "Nastavte možnosti Ladder"
 
 #: src/emc/usr_intf/stepconf/options.glade:1297
 msgid "Include Halui user interface component"
-msgstr ""
+msgstr "Zahŕňa komponent používateľského rozhrania Halui"
 
 #: src/emc/usr_intf/stepconf/halui_page.glade:24
 msgid "Insert here some commands to put after MDI_COMMAND"
-msgstr ""
+msgstr "Pod MDI_COMMAND vložte niekoľko príkazov"
 
 #: src/emc/usr_intf/stepconf/halui_page.glade:75
 msgid "ADD"
-msgstr ""
+msgstr "ADD"
 
 #: src/emc/usr_intf/stepconf/halui_page.glade:99
 msgid "DELETE"
-msgstr ""
+msgstr "VYMAZAŤ"
 
 #: src/emc/usr_intf/stepconf/halui_page.glade:134
 msgid "Move UP"
-msgstr ""
+msgstr "Posunúť nahor"
 
 #: src/emc/usr_intf/stepconf/halui_page.glade:156
 #: src/emc/usr_intf/pncconf/private_data.py:466
@@ -11413,12 +11488,12 @@ msgstr "NUM"
 #: src/emc/usr_intf/stepconf/ubuttons.glade:41
 #: src/emc/usr_intf/pncconf/ubuttons.glade:43
 msgid "NAME"
-msgstr ""
+msgstr "MENO"
 
 #: src/emc/usr_intf/stepconf/ubuttons.glade:55
 #: src/emc/usr_intf/pncconf/ubuttons.glade:55
 msgid "CODE"
-msgstr ""
+msgstr "KÓD"
 
 #: src/emc/usr_intf/stepconf/ubuttons.glade:177
 #: src/emc/usr_intf/stepconf/thcad.glade:65
@@ -11427,66 +11502,66 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/thcad.glade:165
 #: src/emc/usr_intf/pncconf/dialogs.glade:1435
 msgid "10"
-msgstr ""
+msgstr "10"
 
 #: src/emc/usr_intf/stepconf/ubuttons.glade:189
 #: src/emc/usr_intf/pncconf/ubuttons.glade:197
 msgid "11"
-msgstr ""
+msgstr "11"
 
 #: src/emc/usr_intf/stepconf/ubuttons.glade:201
 #: src/emc/usr_intf/pncconf/ubuttons.glade:210
 msgid "12"
-msgstr ""
+msgstr "12"
 
 #: src/emc/usr_intf/stepconf/ubuttons.glade:213
 #: src/emc/usr_intf/pncconf/ubuttons.glade:223
 msgid "13"
-msgstr ""
+msgstr "13"
 
 #: src/emc/usr_intf/stepconf/ubuttons.glade:225
 #: src/emc/usr_intf/pncconf/ubuttons.glade:236
 msgid "14"
-msgstr ""
+msgstr "14"
 
 #: src/emc/usr_intf/stepconf/ubuttons.glade:237
 #: src/emc/usr_intf/pncconf/ubuttons.glade:249
 msgid "15"
-msgstr ""
+msgstr "15"
 
 #: src/emc/usr_intf/stepconf/ubuttons.glade:249
 #: src/emc/usr_intf/pncconf/ubuttons.glade:262
 msgid "16"
-msgstr ""
+msgstr "16"
 
 #: src/emc/usr_intf/stepconf/ubuttons.glade:261
 #: src/emc/usr_intf/pncconf/ubuttons.glade:275
 #: src/emc/usr_intf/pncconf/dialogs.glade:372
 msgid "17"
-msgstr ""
+msgstr "17"
 
 #: src/emc/usr_intf/stepconf/ubuttons.glade:273
 #: src/emc/usr_intf/pncconf/ubuttons.glade:288
 msgid "18"
-msgstr ""
+msgstr "18"
 
 #: src/emc/usr_intf/stepconf/ubuttons.glade:285
 #: src/emc/usr_intf/pncconf/ubuttons.glade:301
 msgid "19"
-msgstr ""
+msgstr "19"
 
 #: src/emc/usr_intf/stepconf/ubuttons.glade:297
 #: src/emc/usr_intf/pncconf/ubuttons.glade:314
 msgid "20"
-msgstr ""
+msgstr "20"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:12
 msgid "ENCA"
-msgstr ""
+msgstr "ENCA"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:15
 msgid "ENCB"
-msgstr ""
+msgstr "ENCB"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:18
 msgid "IDX"
@@ -11496,56 +11571,58 @@ msgstr "IDX"
 #: src/emc/usr_intf/pncconf/thcad.glade:15
 #: src/emc/usr_intf/pncconf/thcad.glade:180
 msgid "32"
-msgstr ""
+msgstr "32"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:35
 #: src/emc/usr_intf/pncconf/thcad.glade:18
 #: src/emc/usr_intf/pncconf/thcad.glade:181
 msgid "64"
-msgstr ""
+msgstr "64"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:38
 #: src/emc/usr_intf/pncconf/thcad.glade:21
 #: src/emc/usr_intf/pncconf/thcad.glade:182
 msgid "128"
-msgstr ""
+msgstr "128"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:56
 #: src/emc/usr_intf/pncconf/thcad.glade:39
 #: src/emc/usr_intf/pncconf/thcad.glade:162
+#, fuzzy
 msgid "2 (W1 down)"
-msgstr ""
+msgstr "2 (W1 dolu)"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:59
 #: src/emc/usr_intf/pncconf/thcad.glade:42
 #: src/emc/usr_intf/pncconf/thcad.glade:163
+#, fuzzy
 msgid "2 (W1 up)"
-msgstr ""
+msgstr "2 (W1 nahor)"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:68
 #: src/emc/usr_intf/pncconf/thcad.glade:51
 #: src/emc/usr_intf/pncconf/thcad.glade:166
 #: src/emc/usr_intf/gscreen/gscreen.glade:2513
 msgid "300"
-msgstr ""
+msgstr "300"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:117
 msgid "Full Scale Freq (kHz)"
-msgstr ""
+msgstr "Frek. v plnom rozsahu (kHz)"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:131
 #: src/emc/usr_intf/pncconf/thcad.glade:116
 msgid "F Jumper"
-msgstr ""
+msgstr "F_Jumper"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:143
 #: src/emc/usr_intf/pncconf/thcad.glade:128
 msgid "Divider Ratio or Series Resistance"
-msgstr ""
+msgstr "Deliaci pomer alebo sériový odpor"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:156
 msgid "0V Freq (kHz)"
-msgstr ""
+msgstr "0V Frek. (kHz)"
 
 #: src/emc/usr_intf/stepconf/thcad.glade:168
 #: src/emc/usr_intf/pncconf/thcad.glade:153
@@ -11555,7 +11632,7 @@ msgstr "Model"
 #: src/emc/usr_intf/stepconf/thcad.glade:267
 #: src/emc/usr_intf/pncconf/thcad.glade:251
 msgid "THCAD For Arc Voltage"
-msgstr ""
+msgstr "THCAD pre napätie oblúka"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:12
 #: src/emc/usr_intf/stepconf/axisy.glade:12
@@ -11568,7 +11645,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/z_axis.glade:44
 #: src/emc/usr_intf/pncconf/a_axis.glade:44
 msgid "Same"
-msgstr ""
+msgstr "To isté"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:15
 #: src/emc/usr_intf/stepconf/axisy.glade:15
@@ -11608,7 +11685,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/axisv.glade:249
 #: src/emc/usr_intf/stepconf/axisa.glade:248
 msgid "t_o"
-msgstr ""
+msgstr "t_o"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:403
 #: src/emc/usr_intf/stepconf/axisy.glade:402
@@ -11617,7 +11694,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/axisv.glade:402
 #: src/emc/usr_intf/stepconf/axisa.glade:403
 msgid "T_est this axis"
-msgstr ""
+msgstr "T_est tejto osi"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:441
 #: src/emc/usr_intf/stepconf/axisy.glade:440
@@ -11626,7 +11703,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/axisv.glade:440
 #: src/emc/usr_intf/stepconf/axisa.glade:442
 msgid "_Motor steps per revolution:"
-msgstr ""
+msgstr "_Počet krokov motora na otáčku:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:455
 #: src/emc/usr_intf/stepconf/axisy.glade:453
@@ -11635,7 +11712,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/axisv.glade:454
 #: src/emc/usr_intf/stepconf/axisa.glade:455
 msgid "_Driver Microstepping:"
-msgstr ""
+msgstr "_Microstepping ovládača:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:469
 #: src/emc/usr_intf/stepconf/axisy.glade:478
@@ -11644,7 +11721,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/axisv.glade:468
 #: src/emc/usr_intf/stepconf/axisa.glade:468
 msgid "_Pulley teeth (Motor:Leadscrew):"
-msgstr ""
+msgstr "_Prevod(zuby) (motor: skrutka):"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:483
 #: src/emc/usr_intf/stepconf/axisy.glade:491
@@ -11667,7 +11744,7 @@ msgstr "Stúpanie skrutky:"
 #: src/emc/usr_intf/pncconf/a_motor.glade:2049
 #: src/emc/usr_intf/pncconf/s_motor.glade:2100
 msgid "Maximum _Velocity:"
-msgstr ""
+msgstr "Maximálna _rýchlosť:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:511
 #: src/emc/usr_intf/stepconf/axisy.glade:517
@@ -11681,7 +11758,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/a_motor.glade:2064
 #: src/emc/usr_intf/pncconf/s_motor.glade:2115
 msgid "Maximum _Acceleration:"
-msgstr ""
+msgstr "Maximálna akcelerácia:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:537
 #: src/emc/usr_intf/stepconf/axisy.glade:542
@@ -11690,7 +11767,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/axisv.glade:536
 #: src/emc/usr_intf/stepconf/axisa.glade:532
 msgid "_Home location:"
-msgstr ""
+msgstr "_Kalib. lokalizácia:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:551
 #: src/emc/usr_intf/stepconf/axisy.glade:555
@@ -11699,7 +11776,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/axisv.glade:550
 #: src/emc/usr_intf/stepconf/axisa.glade:545
 msgid "Tab_le travel:"
-msgstr ""
+msgstr "Pracovný pojazd:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:565
 #: src/emc/usr_intf/stepconf/axisy.glade:568
@@ -11708,7 +11785,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/axisv.glade:564
 #: src/emc/usr_intf/stepconf/axisa.glade:558
 msgid "Home _Switch location:"
-msgstr ""
+msgstr "Lokalizácia kalib. snímača:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:579
 #: src/emc/usr_intf/stepconf/axisy.glade:581
@@ -11717,7 +11794,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/axisv.glade:578
 #: src/emc/usr_intf/stepconf/axisa.glade:571
 msgid "Home Sear_ch velocity:"
-msgstr ""
+msgstr "Rýchlosť hladania kalib. snímača:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:593
 #: src/emc/usr_intf/stepconf/axisy.glade:594
@@ -11725,8 +11802,9 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/axisu.glade:595
 #: src/emc/usr_intf/stepconf/axisv.glade:592
 #: src/emc/usr_intf/stepconf/axisa.glade:584
+#, fuzzy
 msgid "Home La_tch direction:"
-msgstr ""
+msgstr "Smer La_tch kalibrácie:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:618
 #: src/emc/usr_intf/stepconf/axisy.glade:619
@@ -11736,7 +11814,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/axisa.glade:609
 #: src/emc/usr_intf/pncconf/dialogs.glade:2847
 msgid "Time to accelerate to max speed:"
-msgstr ""
+msgstr "Čas zrýchlenia na maximálnu rýchlosť:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:632
 #: src/emc/usr_intf/stepconf/axisy.glade:632
@@ -11745,7 +11823,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/axisv.glade:643
 #: src/emc/usr_intf/stepconf/axisa.glade:622
 msgid "Distance to accelerate to max speed:"
-msgstr ""
+msgstr "Vzdialenosť zrýchlenia na maximálnu rýchlosť:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:646
 #: src/emc/usr_intf/stepconf/axisy.glade:645
@@ -11755,7 +11833,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/axisa.glade:635
 #: src/emc/usr_intf/pncconf/dialogs.glade:2877
 msgid "Pulse rate at max speed:"
-msgstr ""
+msgstr "Pulzy do maximálnej rýchlosti:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:658
 #: src/emc/usr_intf/stepconf/axisy.glade:466
@@ -11786,10 +11864,27 @@ msgid ""
 "-run a more thorough latency test as described on the linuxcnc.org wiki:\n"
 " http://wiki.linuxcnc.org/cgi-bin/wiki.pl?TroubleShooting"
 msgstr ""
+"Teraz sú zhromaždené všetky potrebné informácie.\n"
+"Kliknutím na „Hotovo“ zapíšete konfiguračné súbory na disk.\n"
+"\n"
+"Ak sa pri spustení LinuxCNC vyskytne zablokovanie:\n"
+"- budete musieť znížiť maximálnu rýchlosť, čo bude mať vplyv na zvýšenie\n"
+" BASE_PERIOD.\n"
+"\n"
+"Ak pri spustení LinuxCNC zaznamenáte stratu krokov:\n"
+"-najprv skontrolujte, či ste zadali správne časovanie pre ovládače stepperov."
+"\n"
+"-potom spustite dôkladnejší test latencie, ako je popísané na wiki linuxcnc."
+"org.\n"
+" http://wiki.linuxcnc.org/cgi-bin/wiki.pl?TroubleShooting\n"
+"\n"
+"Ak sa vám zobrazí správa „Neočakávané oneskorenie v reálnom čase“:\n"
+"-spustite dôkladnejší test latencie, ako je opísané na wiki linuxcnc.org:\n"
+" http://wiki.linuxcnc.org/cgi-bin/wiki.pl?TroubleShooting"
 
 #: src/emc/usr_intf/stepconf/finished.glade:55
 msgid " Simulator: will not run hardware "
-msgstr ""
+msgstr "Simulátor: nespustí hardvér "
 
 #: src/emc/usr_intf/pncconf/pncconf.py:96
 #, python-format
@@ -11800,18 +11895,22 @@ msgid ""
 "LinuxCNC Version:  %s\n"
 "\n"
 msgstr ""
+"V PNCconf sa vyskytla chyba. Nasledujúce informácie môžu byť užitočné pri "
+"riešení problémov:\n"
+"\n"
+"Verzia LinuxCNC: %s\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:172
 msgid "PnCconf is setting up"
-msgstr ""
+msgstr "PnCconf sa nastavuje"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:264
 msgid "**** PNCCONF ERROR:    custom firmware loading error"
-msgstr ""
+msgstr "**** PNCCONF ERROR: chyba načítania vlastného firmvéru"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:267
 msgid "**** PNCCONF INFO:    Found extra firmware in file"
-msgstr ""
+msgstr "**** PNCCONF INFO: V súbore sa našiel ďalší firmvér"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:401
 msgid "Discovery metadata update"
@@ -11820,17 +11919,19 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/pncconf.py:445
 #, python-format
 msgid "%s metadata update"
-msgstr ""
+msgstr "Aktualizácia metadát %s"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:465
 msgid "PnCconf setup"
-msgstr ""
+msgstr "PnCconf konfigurácia"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:485
 msgid ""
 "\n"
 "**** Debug Pause! ****"
 msgstr ""
+"\n"
+"**** Pozastavenie ladenia! ****"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:569
 msgid "Specific Help page is unavailable\n"
@@ -11851,6 +11952,14 @@ msgid ""
 "doesn't require firmware to be loaded at run time.\n"
 "Discovery option requires the advanced options checked on this page."
 msgstr ""
+"Niektoré staršie karty vyžadujú firmvér.\n"
+"V priečinku nemáte stiahnutý žiadny firmvér hostmot2:\n"
+"%s\n"
+"PNCconf použije vzorky interných údajov firmvéru, takže pokračovať môžete.\n"
+"Môžete tiež vyskúšať možnosť \"objavovania\", ak je vaša karta pripojená a "
+"nevyžaduje načítanie firmvéru za behu.\n"
+"Možnosť \"Objavovania\" vyžaduje rozšírené možnosti začiarknuté na tejto "
+"stránke."
 
 #: src/emc/usr_intf/pncconf/pncconf.py:948
 msgid "LinuxCNC 'PNCconf' configuration files"
@@ -11861,18 +11970,21 @@ msgid ""
 "It seems data in this file is from too old of a version of PNCConf to "
 "continue."
 msgstr ""
+"Zdá sa, že údaje v tomto súbore pochádzajú z príliš starej verzie PNCConf."
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1342
 msgid "PIN file is empty:\n"
-msgstr ""
+msgstr "Súbor PIN je prázdny:\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1343
+#, fuzzy
 msgid "To use PIN file discovery mode, the contents of the"
-msgstr ""
+msgstr "Ak chcete použiť režim \"objavovania\" súboru PIN, obsahu súboru"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1344
+#, fuzzy
 msgid "cards PIN file needs to be pasted into the Input tab"
-msgstr ""
+msgstr "Súbory PIN kariet je potrebné vložiť do vstupov karty"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1345
 msgid "of the Help window before clicking Board Discovery"
@@ -11880,21 +11992,21 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1354
 msgid "Address is required for ethernet card"
-msgstr ""
+msgstr "Pre ethernetovú kartu sa vyžaduje adresa"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1362
 #, python-format
 msgid "%s board was not found"
-msgstr ""
+msgstr " %s karta sa nenašla"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1364
 msgid "Is the address correct?"
-msgstr ""
+msgstr "Je adresa správna?"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1368
 #, python-format
 msgid "%s is an unsupported device"
-msgstr ""
+msgstr "%s je nepodporované zariadenie"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1381
 msgid "Unspecified Error with Discovery option"
@@ -12429,59 +12541,67 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/build_HAL.py:965
 #: src/emc/usr_intf/pncconf/build_HAL.py:1892
 msgid "# This file will not be overwritten when you run PNCconf again"
-msgstr ""
+msgstr "# Tento súbor sa pri opätovnom spustení PNCconf neprepíše"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:971
 msgid "# These commands are required for Touchy GUI"
-msgstr ""
+msgstr "# Tieto príkazy sú potrebné pre Touchy GUI"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1045
 msgid "#    Automation Direct GS2 VFD for spindle control"
-msgstr ""
+msgstr "#      Automation Direct GS2 VFD pre ovládanie vretena"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1047
 msgid "#    The communications switches must be set to RS-232C"
-msgstr ""
+msgstr "# Komunikačné prepínače musia byť nastavené na RS-232C"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1048
 msgid "#    The motor parameters must be set to match the motor"
-msgstr ""
+msgstr "# Parametre motora musia byť nastavené tak, aby im zodpovedali"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1049
 msgid ""
 "#    P3.00 (Source of Operation Command) must be set to Operation determined "
 "by RS-485 interface, 03 or 04"
 msgstr ""
+"# P3.00 (Source of Operation Command) musí byť nastavené na Operation určená "
+"rozhraním RS-485, 03 alebo 04"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1050
 msgid ""
 "#    P4.00 (Source of Frequency Command) must be set to Frequency determined "
 "by RS232C/RS485 communication interface, 05"
 msgstr ""
+"# P4.00 (Source of Frequency Command) musí byť nastavené na frekvenciu "
+"určenú komunikačným rozhraním RS232C/RS485, 05"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1051
 msgid ""
 "#    P9.01 (Transmission Speed) must be set to the specified baud, 9600 = 01"
 msgstr ""
+"# P9.01 (prenosová rýchlosť) musí byť nastavená na špecifikovanú prenosovú "
+"rýchlosť, 9600 = 01"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1052
 msgid ""
 "#    P9.02 (Communication Protocol) must be set to \"Modbus RTU mode, 8 data "
 "bits, no parity, 2 stop bits\", 03"
 msgstr ""
+"# P9.02 (Communication Protocol) musí byť nastavený na \"Modbus RTU mode, 8 "
+"dátových bitov, žiadna parita, 2 stop bity\", 03"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1065
 msgid "#    Misubishi FR VFD for spindle control"
-msgstr ""
+msgstr "# Mitsubishi FR VFD pre ovládanie vretena"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1071
 #, python-format
 msgid "Generated by PNCconf at %s"
-msgstr ""
+msgstr "Generované PNCconf na %s"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1083
 msgid "configures LinuxCNC as:\n"
-msgstr ""
+msgstr "nakonfiguruje LinuxCNC ako:\n"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1084
 msgid "type CNC\n"
@@ -12537,43 +12657,43 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1326
 msgid "# three output 3pwg"
-msgstr ""
+msgstr "# tri výstupy 3pwg"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1327
 msgid "# TODO write some commands!"
-msgstr ""
+msgstr "# TODO napíšte nejaké príkazy!"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1331
 msgid "# ---8i20 amplifier card signals/setup---"
-msgstr ""
+msgstr "# ---8i20 servoovládač _signály / nastavenie ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1341
 msgid "# ---digital potentiometer output signals/setup---"
-msgstr ""
+msgstr "# --- digitálny potenciometer _výstupné signály / nastavenie ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1358
 msgid "# ---PWM Generator signals/setup---"
-msgstr ""
+msgstr "# --- PWM Generátor _signály/nastavenie ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1383
 msgid "# enable _all_ sserial pwmgens"
-msgstr ""
+msgstr "# enable_all_ sserial pwmgens"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1413
 msgid "# Step Gen signals/setup for tandem axis"
-msgstr ""
+msgstr "# Step Gen signály/nastavenie pre tandemovú os"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1415
 msgid "# Step Gen signals/setup"
-msgstr ""
+msgstr "# Step Gen signaly/nastavenie"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1442
 msgid "# ---closedloop stepper signals---"
-msgstr ""
+msgstr "# ---closedloop krokové signály ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1456
 msgid "# ---Encoder feedback signals/setup---"
-msgstr ""
+msgstr "# --- Signály spätnej väzby enkódera / nastavenie ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1479
 msgid "# ---Resolver feedback signals/setup---"
