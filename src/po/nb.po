@@ -1,14 +1,14 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# Petter Reinholdtsen <pere-weblate@hungry.com>, 2022, 2023.
+# Petter Reinholdtsen <pere-weblate@hungry.com>, 2022, 2023, 2024.
 # Asle Næss <aness@bofh.no>, 2022, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-07-04 21:28+0200\n"
-"PO-Revision-Date: 2023-11-02 23:26+0000\n"
+"PO-Revision-Date: 2024-03-11 16:39+0000\n"
 "Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "linuxcnc/linuxcnc/nb_NO/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.2-dev\n"
+"X-Generator: Weblate 5.5-dev\n"
 
 #: src/emc/task/emctaskmain.cc:869
 #, c-format
@@ -3307,19 +3307,19 @@ msgid "Number of BIT Outputs HAL pins"
 msgstr "Antall BIT-utgangs-HAL-pinner"
 
 #: src/hal/classicladder/config_gtk.c:155
-#, fuzzy, c-format
+#, c-format
 msgid "Number of S32in HAL pins"
-msgstr "Antall digitale innganger:"
+msgstr "Antall S32in-HAL-pinner"
 
 #: src/hal/classicladder/config_gtk.c:159
-#, fuzzy, c-format
+#, c-format
 msgid "Number of S32out HAL pins"
-msgstr " Antall analoge (s32) utganger:"
+msgstr " Antall S32out-HAL-pinner"
 
 #: src/hal/classicladder/config_gtk.c:164
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Arithmetic Expressions"
-msgstr "Antall digitale innganger:"
+msgstr "Antall aritmetiske uttrykk"
 
 #: src/hal/classicladder/config_gtk.c:169
 #, c-format
@@ -3347,9 +3347,9 @@ msgid "Number of Error Bits"
 msgstr ""
 
 #: src/hal/classicladder/config_gtk.c:192
-#, fuzzy, c-format
+#, c-format
 msgid "Number of floatin HAL pins"
-msgstr "Antall digitale innganger:"
+msgstr ""
 
 #: src/hal/classicladder/config_gtk.c:196
 #, fuzzy, c-format
@@ -6617,9 +6617,8 @@ msgid "directory: <%s> not writable"
 msgstr "katalog: kan ikke skrive til <%s>"
 
 #: tcl/tooledit.tcl:287
-#, fuzzy
 msgid "Current file:"
-msgstr "Nåværende filsti/filnavn"
+msgstr "Gjeldende fil:"
 
 #: tcl/tooledit.tcl:291
 #, fuzzy
@@ -10154,7 +10153,7 @@ msgstr "Fortsett? "
 #: src/emc/usr_intf/stepconf/stepconf.py:663
 #: src/emc/usr_intf/pncconf/data.py:902
 msgid "yY"
-msgstr ""
+msgstr "yY"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:748
 #: src/emc/usr_intf/pncconf/data.py:1074
@@ -10164,7 +10163,7 @@ msgstr "kjør %s"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:752
 msgid "Desktop Launcher for LinuxCNC config made by Stepconf"
-msgstr ""
+msgstr "Skrivebordsstarter for LinuxCNC-oppsett opprettet av Stepconf"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:821
 msgid ""
@@ -10179,7 +10178,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/stepconf.py:969
 #: src/emc/usr_intf/stepconf/pages.py:152
 msgid "Other"
-msgstr ""
+msgstr "Andre"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:1548
 #: src/emc/usr_intf/pncconf/tests.py:1037
@@ -10195,12 +10194,12 @@ msgstr "grader / s"
 #: src/emc/usr_intf/stepconf/stepconf.py:1552
 #: src/emc/usr_intf/stepconf/pages.py:954
 msgid "deg / s²"
-msgstr "grad / s²"
+msgstr "grader / s²"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:1553
 #: src/emc/usr_intf/stepconf/pages.py:955
 msgid "deg"
-msgstr "grad"
+msgstr "grader"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:1565
 #: src/emc/usr_intf/stepconf/pages.py:959
@@ -10290,7 +10289,7 @@ msgstr "omdr / tomme"
 
 #: src/emc/usr_intf/stepconf/pages.py:968
 msgid "Steps / in"
-msgstr ""
+msgstr "steg / tomme"
 
 #: src/emc/usr_intf/stepconf/build_INI.py:54
 #: src/emc/usr_intf/stepconf/build_HAL.py:44
@@ -10321,17 +10320,17 @@ msgstr "# overskrevet når du kjører stepconf igjen"
 
 #: src/emc/usr_intf/stepconf/build_INI.py:229
 msgid "# add halui MDI commands here (max 64) "
-msgstr ""
+msgstr "# Legg inn halui MDI-kommandoer her (maks 64)"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:294
 #: src/emc/usr_intf/pncconf/build_HAL.py:766
 msgid "# **** Setup for external estop ladder program -START ****"
-msgstr ""
+msgstr "# **** Oppsett for eksternt estop-PLC-program - START ****"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:301
 #: src/emc/usr_intf/pncconf/build_HAL.py:773
 msgid "# **** Setup for external estop ladder program -END ****"
-msgstr ""
+msgstr "# *** Oppsett for eksternt estop PLC-program - SLUTT ****"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:332
 msgid ""
