@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: sk\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-07-04 21:28+0200\n"
-"PO-Revision-Date: 2024-03-12 16:14+0000\n"
+"PO-Revision-Date: 2024-03-14 07:22+0000\n"
 "Last-Translator: Juraj Adamkovic <stroje.hcnc@gmail.com>\n"
 "Language-Team: Slovak <emc-developers@lists.sourceforge.net>\n"
 "Language: sk\n"
@@ -1141,7 +1141,7 @@ msgstr "Kód chyby nie je g17 g18 alebo g19"
 #: src/emc/rs274ngc/rs274ngc_return.hh:33
 #, fuzzy
 msgid "Bug code not g20 or g21"
-msgstr "Kód chyby nie je g20 alebo g21"
+msgstr "Bug Kód nie je g20 alebo g21"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:34
 msgid "Bug code not g28 or g30"
@@ -1150,7 +1150,7 @@ msgstr "Bug kód nie g28 alebo g30"
 #: src/emc/rs274ngc/rs274ngc_return.hh:35
 #, fuzzy
 msgid "Bug code not g2 or g3"
-msgstr "Kód chyby nie je g2 alebo g3"
+msgstr "Bug Kód nie je g2 alebo g3"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:37
 msgid "Bug code not g4 g10 g28 g30 g52 g53 or g92 series"
@@ -1159,22 +1159,22 @@ msgstr "Kód chyby nie g4 g10 g28 g30 g52 g53 alebo g92 série"
 #: src/emc/rs274ngc/rs274ngc_return.hh:38
 #, fuzzy
 msgid "Bug code not g61 g61.1 or g64"
-msgstr "kód chyby nie je g61 g61.1 alebo g64"
+msgstr "Bug Kód nie je g61 g61.1 alebo g64"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:39
 #, fuzzy
 msgid "Bug code not g90 or g91"
-msgstr "Kód chyby nie je g90 alebo g91"
+msgstr "Bug Kód nie je g90 alebo g91"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:40
 #, fuzzy
 msgid "Bug code not g98 or g99"
-msgstr "Kód chyby nie je g98 alebo g99"
+msgstr "Bug Kód nie je g98 alebo g99"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:41
 #, fuzzy
 msgid "Bug code not in g52 or g92 series"
-msgstr "Kód chyby nie je v sérii g52 alebo g92"
+msgstr "Bug Kód nie je v sérii g52 alebo g92"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:42
 msgid "Bug code not in range g54 to g593"
@@ -1187,7 +1187,7 @@ msgstr "Kód chyby nie m0 m1 m2 m30 m60 m99"
 #: src/emc/rs274ngc/rs274ngc_return.hh:44
 #, fuzzy
 msgid "Bug distance mode not g90 or g91"
-msgstr "Režim vzdialenosti chyby nie je g90 alebo g91"
+msgstr "Bug Režim vzdialenosti nie je g90 alebo g91"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:45
 msgid "Bug function should not have been called"
@@ -1212,7 +1212,7 @@ msgstr "Bug neznámy pohybový kód"
 #: src/emc/rs274ngc/rs274ngc_return.hh:50
 #, fuzzy
 msgid "Bug unknown operation"
-msgstr "Chyba neznáma operácia"
+msgstr "Bug neznáma operácia"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:51
 msgid "Cannot change axis offsets with cutter radius comp"
@@ -2087,7 +2087,7 @@ msgstr ""
 "Načítajte komponent (pomocou 'halcmd loadrt scope_rt'), potom kliknite na "
 "'OK'\n"
 "alebo\n"
-"Kliknite na 'Quit' pre ukončenie HALSCOPE"
+"Kliknite na 'Ukončiť' pre ukončenie HALSCOPE"
 
 #: src/hal/utils/scope_horiz.c:485 src/hal/utils/scope_horiz.c:762
 #: tcl/bin/emccalib.tcl:276 tcl/bin/emcdebug.tcl:201 tcl/bin/genedit.tcl:180
@@ -2141,7 +2141,7 @@ msgstr ""
 "\n"
 "Vyberte názov vlákna a násobiteľa a potom kliknite na „OK“\n"
 "alebo\n"
-"Kliknite na 'Quit' pre ukončenie HALSCOPE"
+"Kliknite na 'Ukončiť' pre ukončenie HALSCOPE"
 
 #: src/hal/utils/scope_horiz.c:527
 msgid "Select Sample Rate"
@@ -2155,7 +2155,7 @@ msgid ""
 msgstr ""
 "Vyberte názov vlákna a násobiteľa a potom kliknite na „OK“\n"
 "alebo\n"
-"Kliknite na 'Quit' pre ukončenie HALSCOPE"
+"Kliknite na 'Ukončiť' pre ukončenie HALSCOPE"
 
 #: src/hal/utils/scope_horiz.c:535 src/hal/utils/scope_vert.c:699
 #: src/hal/utils/scope_vert.c:917
@@ -2221,7 +2221,6 @@ msgid "Realtime thread(s) not running"
 msgstr "Vlákna(o) v reálnom čase nebežia"
 
 #: src/hal/utils/scope_horiz.c:754
-#, fuzzy
 msgid ""
 "HALSCOPE uses code in a realtime HAL thread to sample\n"
 "signals for display.  The HAL thread(s) are not running.\n"
@@ -2236,8 +2235,8 @@ msgid ""
 msgstr ""
 "HALSCOPE používa na vzorkovanie kód vo vlákne HAL v reálnom čase\n"
 "signály ako obraz. Vlákna HAL nie sú spustené.\n"
-"Vlákna zvyčajne spúšťa aplikácia, ktorou ste\n"
-"sa to už pokúšali spustiť, alebo môžete použiť príkaz 'halcmd start'.\n"
+"Zvyčajne to spúšťa táto aplikácia,\n"
+"ale môžete použiť aj príkaz 'halcmd start'.\n"
 "\n"
 "Vykonajte jeden z nasledujúcich krokov:\n"
 "\n"
@@ -2931,9 +2930,9 @@ msgid "MOTION: ejoint %d pin/param export failed\n"
 msgstr "MOTION: ejoint %d pin/param export zlyhal\n"
 
 #: src/emc/motion/homing.c:188
-#, c-format, fuzzy
+#, c-format
 msgid "j%d hit limit in home state %d"
-msgstr "j%d limit zásahov v domovskom stave %d %d"
+msgstr "j%d limit zásahov v kalibračnom stave %d"
 
 #: src/emc/motion/homing.c:197
 #, c-format, fuzzy
@@ -3676,7 +3675,7 @@ msgstr "%cTM%d: Preset =%d Base=%s Mode=%s"
 #: src/hal/classicladder/edit.c:260
 #, c-format
 msgid "HAL sig: %s"
-msgstr "HAL sig: %s"
+msgstr "Hal sig: %s"
 
 #: src/hal/classicladder/edit.c:359
 msgid "Incompatible type of variable (must be an integer!)"
@@ -4100,9 +4099,7 @@ msgstr " - ok.\n"
 
 #: src/hal/classicladder/files.c:313 src/hal/classicladder/files.c:339
 msgid " - not found.\n"
-msgstr ""
-" - nenájdené.\n"
-"\n"
+msgstr " - nenájdené.\n"
 
 #: src/hal/classicladder/files.c:363
 #, c-format
@@ -4142,7 +4139,7 @@ msgstr "- výsledok = %d\n"
 #: src/hal/classicladder/files.c:580
 #, c-format
 msgid "Monostable => Base = %d , Preset = %d\n"
-msgstr "Monostable => Base = %d , Preset = %d\n"
+msgstr "Monostable => Základ = %d , Prednastavené = %d\n"
 
 #: src/hal/classicladder/files.c:828
 #, c-format
@@ -4155,9 +4152,8 @@ msgid ""
 "Section %d => Name=%s, Language=%d, SRnbr=%d, FirstRung=%d, LastRung=%d, "
 "SequentialPage=%d\n"
 msgstr ""
-"Section %d => Name =%s, Language =%d, SRnbr =%d, FirstRung =%d, LastRung "
-"=%d, SequentialPage =%d\n"
-"\n"
+"Sekcia %d => Názov =%s, Jazyk =%d, SR číslo =%d, Prvá priečka =%d, Posledná "
+"priečka =%d, Sekvenčná stránka =%d\n"
 
 #: src/hal/classicladder/files.c:1084
 #, c-format
@@ -4566,7 +4562,7 @@ msgstr "Okno sledovania"
 #: src/hal/classicladder/symbols_gtk.c:132
 #, c-format, fuzzy
 msgid "A variable name always start with '%' character !"
-msgstr "Názov premennej vždy začína znakom '%' !"
+msgstr "Názov premennej vždy začína znakom '%' character !"
 
 #: src/hal/classicladder/symbols_gtk.c:191
 msgid "opened SYMBOLS window. Press again to close"
@@ -5749,9 +5745,8 @@ msgid "Linear Jog Speed"
 msgstr "Lineárna rýchlosť pohybu"
 
 #: tcl/tklinuxcnc.tcl:1441
-#, fuzzy
 msgid "Angular Jog Speed (deg)/min:"
-msgstr "Uhlová rýchlosť posuvu (stupne)/min:"
+msgstr "Uhlová rýchlosť (stupne)/min:"
 
 #: tcl/tklinuxcnc.tcl:1465 share/axis/tcl/axis.tcl:1491
 msgid "Feed Override:"
@@ -6224,9 +6219,8 @@ msgid "Enter parms for feature "
 msgstr "Zadajte parametre funkcie"
 
 #: tcl/ngcgui.tcl:2460
-#, fuzzy
 msgid "feature"
-msgstr "feature"
+msgstr "vlastnosť"
 
 #: tcl/ngcgui.tcl:2465
 #, fuzzy
@@ -7737,12 +7731,12 @@ msgstr "Kĺby"
 #: src/emc/usr_intf/touchy/touchy.glade:584
 #: src/emc/usr_intf/gscreen/gscreen.glade:3010
 msgid "Home All"
-msgstr "Skalibrovať všetko"
+msgstr "Kalibrácia"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3570
 #, python-format
 msgid "Home all %s [Ctrl-Home]"
-msgstr "Skalibrovať všetko %s [Ctrl-Home]"
+msgstr "Skalibruje všetky %s [Ctrl-Home]"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:3573
 #, python-format
@@ -8120,11 +8114,11 @@ msgstr "_Vlastnosti..."
 
 #: share/axis/tcl/axis.tcl:86
 msgid "Edit _tool data..."
-msgstr "Upraviť údaje nástroja..."
+msgstr "Tabuľka nástrojov..."
 
 #: share/axis/tcl/axis.tcl:90
 msgid "Reload tool _data"
-msgstr "Znovu načítať údaje o nástroji"
+msgstr "Aplikovať zmeny v tabuľke nástrojov"
 
 #: share/axis/tcl/axis.tcl:96
 msgid "_Ladder Editor..."
@@ -8498,7 +8492,7 @@ msgstr "_Touch Off"
 
 #: share/axis/tcl/axis.tcl:944
 msgid "Tool Touch Off"
-msgstr "Nástrojový ofset vybranej osi"
+msgstr "Nástr. ofset"
 
 #: share/axis/tcl/axis.tcl:1021
 msgid "Spindle:"
@@ -8528,7 +8522,7 @@ msgstr "Brzda"
 
 #: share/axis/tcl/axis.tcl:1134
 msgid "Coolant:"
-msgstr "Chladiaca kvapalina:"
+msgstr "Funkcie:"
 
 #: share/axis/tcl/axis.tcl:1139 src/emc/usr_intf/gscreen/gscreen.glade:1945
 msgid "Mist"
@@ -8568,7 +8562,7 @@ msgstr "Celková rýchlosť:"
 
 #: share/axis/tcl/axis.tcl:1451
 msgid "Spindle Override:"
-msgstr "Zmeniť otáčky vretena:"
+msgstr "Otáčky vretena:"
 
 #: share/axis/tcl/axis.tcl:1453 share/axis/tcl/axis.tcl:1493
 #: share/axis/tcl/axis.tcl:1531 src/emc/usr_intf/pncconf/external.glade:2643
@@ -8706,7 +8700,7 @@ msgstr "Smer vretena proti smeru hod. ručičiek [F10]"
 
 #: share/axis/tcl/axis.tcl:2251
 msgid "Turn spindle clockwise [F9]"
-msgstr "Smer vretena proti smeru hod. ručičiek [F10]"
+msgstr "Smer vretena po smere hod. ručičiek [F10]"
 
 #: share/axis/tcl/axis.tcl:2252
 msgid "Stop spindle [F9/F10]"
@@ -10881,24 +10875,23 @@ msgstr "MM"
 
 #: src/emc/usr_intf/stepconf/base.glade:209
 msgid "Step _Time:"
-msgstr "Krok _čas:"
+msgstr "Čas trvania kroku:"
 
 #: src/emc/usr_intf/stepconf/base.glade:223
 msgid "Step _Space:"
-msgstr "Krok _Priestor:"
+msgstr "Priestor medzi krokmi:"
 
 #: src/emc/usr_intf/stepconf/base.glade:237
 msgid "Direction _Hold:"
-msgstr "Smer _Podržať:"
+msgstr "Podržanie smeru:"
 
 #: src/emc/usr_intf/stepconf/base.glade:251
 msgid "_Direction Setup:"
 msgstr "_Nastavenie smeru:"
 
 #: src/emc/usr_intf/stepconf/base.glade:269
-#, fuzzy
 msgid "Driver Timing Settings"
-msgstr "Nastavenia časovania"
+msgstr "Nastavenia časovania ovládača"
 
 #: src/emc/usr_intf/stepconf/base.glade:283
 msgid ""
@@ -11899,6 +11892,7 @@ msgstr ""
 "riešení problémov:\n"
 "\n"
 "Verzia LinuxCNC: %s\n"
+"\n"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:172
 msgid "PnCconf is setting up"
@@ -12025,9 +12019,9 @@ msgid ""
 msgstr ""
 "Discovery má chybu,\n"
 "\n"
-" Je nainštalovaný mesaflash?\n"
+"Je nainštalovaný mesaflash?\n"
 "\n"
-"  %s"
+" %s"
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1437
 msgid "Discovery is  unavailable\n"
@@ -12689,7 +12683,7 @@ msgstr "invert"
 #: src/emc/usr_intf/pncconf/build_HAL.py:1115
 #, python-format
 msgid "%(name)s Parport"
-msgstr "%(name)s  Parport"
+msgstr "%(name)s Parport"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1120
 #: src/emc/usr_intf/pncconf/build_HAL.py:1128
@@ -12720,7 +12714,7 @@ msgstr "# --- Signály/nastavenie generátora TPPWM ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1325
 msgid "# six output 3pwg"
-msgstr ""
+msgstr "# 6 výstup 3pwg"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1326
 msgid "# three output 3pwg"
@@ -12764,138 +12758,156 @@ msgstr "# --- Signály spätnej väzby enkódera / nastavenie ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1479
 msgid "# ---Resolver feedback signals/setup---"
-msgstr ""
+msgstr "# --- Spetná väzba Resolvera- signály/nastavenie ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1498
 msgid "# ---setup spindle control signals---"
-msgstr ""
+msgstr "# ---nastavenie riadiacich signálov vretena---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1514
 msgid "# ---Setup spindle at speed signals---"
-msgstr ""
+msgstr "# ---Nastavenie vretena na signály rýchlosti ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1535
 msgid "#  Use ACTUAL spindle velocity from spindle encoder"
-msgstr ""
+msgstr "# Použiť AKTUAL rýchlosť vretena z enkódera vretena"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1536
 msgid "#  spindle-velocity bounces around so we filter it with lowpass"
-msgstr ""
+msgstr "# rýchlosť vretena kolíše, takže ju filtrujeme pomocou lowpass"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1537
 msgid ""
 "#  spindle-velocity is signed so we use absolute component to remove sign"
 msgstr ""
+"# spindle-velocity is signed so we use absolute component to remove sign"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1538
 msgid "#  ACTUAL velocity is in RPS not RPM so we scale it."
-msgstr ""
+msgstr "# SKUTOČNÁ rýchlosť je v RPS, nie v RPM, takže ju škálujeme."
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1554
 msgid "# ---setup home / limit switch signals---"
-msgstr ""
+msgstr "# ---nastavenie signálov kalibrácie/koncových spínačov---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1562
 msgid "# external input signals"
-msgstr ""
+msgstr "# externé vstupné signály"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1657
 msgid "# external output signals"
-msgstr ""
+msgstr "# externé výstupné signály"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1818
 msgid ""
 "\n"
 "# ---PLASMA INPUT DEBOUNCE---"
 msgstr ""
+"\n"
+"# ---PLAZMOVÝ VSTUP DEBOUNCE---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1819
 msgid "#values for these are in custom.hal"
-msgstr ""
+msgstr "#tieto hodnoty sú v custom.hal"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1825
 msgid ""
 "\n"
 "# ---JOINT ASSOCIATED WITH THE Z AXIS---"
 msgstr ""
+"\n"
+"# ---JOINT SPOJENÝ S OSou Z---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1836
 msgid ""
 "\n"
 "# ---PLASMA INPUTS---"
 msgstr ""
+"\n"
+"# ---PLAZMOVÉ VSTUPY---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1837
 #: src/emc/usr_intf/pncconf/build_HAL.py:1850
 msgid "# ---all modes---"
-msgstr ""
+msgstr "# ---všetky režimy---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1842
 msgid "# ---modes 0 & 1"
-msgstr ""
+msgstr "# ---režimy 0 a 1"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1844
 msgid "# ---modes 1 & 2"
-msgstr ""
+msgstr "# ---režimy 1 a 2"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1846
 msgid "# ---mode 2"
-msgstr ""
+msgstr "# ---režim 2"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1849
 msgid ""
 "\n"
 "# ---PLASMA OUTPUTS---"
 msgstr ""
+"\n"
+"# ---PLAZMOVÉ VÝSTUPY---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1875
 msgid ""
 "\n"
 "# ---ARC VOLTAGE ENCODER---"
 msgstr ""
+"\n"
+"# --- KÓDER NAPÄTIA OBLUKU---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1885
 msgid ""
 "\n"
 "# ---OHMIC SENSE LINK---"
 msgstr ""
+"\n"
+"# ---OHMIC SENSE LINK ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1893
 msgid ""
 "\n"
 "# ---COMMON PLASMAC DEBOUNCE---"
 msgstr ""
+"\n"
+"# ---BEŽNÉ PLAZMOVÉ ODKAZY---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1894
 msgid "# for the float and ohmic inputs each increment in delay is"
-msgstr ""
+msgstr "# pre \"float\" a ohmický vstup je každý prírastok v oneskorení"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1895
 msgid "# is a 0.001mm (0.00004\") increase in any probed height result"
 msgstr ""
+"# je zvýšenie o 0,001 mm (0,00004\") v akomkoľvek výsledku snímanej výšky"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1898
 #: src/emc/usr_intf/pncconf/build_HAL.py:1943
 msgid "# set to zero if using internal ohmic sensing"
-msgstr ""
+msgstr "# nastavte na nulu, ak používate interné ohmické snímanie"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1976
 msgid ""
 "\n"
 "# ---OHMIC SENSE CONTACT DEBOUNCE---"
 msgstr ""
+"\n"
+"# ---OHMIC SENSE KONTAKT DEBOUNCE---"
 
 #: src/emc/usr_intf/pncconf/private_data.py:38
 msgid "PNCconf"
-msgstr ""
+msgstr "PNCconfig"
 
 #: src/emc/usr_intf/pncconf/private_data.py:41
 msgid "Screen"
-msgstr ""
+msgstr "Obrazovka"
 
 #: src/emc/usr_intf/pncconf/private_data.py:42
 msgid "VCP"
-msgstr ""
+msgstr "VCP"
 
 #: src/emc/usr_intf/pncconf/private_data.py:44
 msgid "External Controls"
@@ -12903,11 +12915,11 @@ msgstr "Externé ovládacie prvky"
 
 #: src/emc/usr_intf/pncconf/private_data.py:45
 msgid "Mesa Card 0"
-msgstr ""
+msgstr "Mesa karta 0"
 
 #: src/emc/usr_intf/pncconf/private_data.py:46
 msgid "Mesa Card 1"
-msgstr ""
+msgstr "Mesa karta 1"
 
 #: src/emc/usr_intf/pncconf/private_data.py:47
 msgid "Parallel Port 0"
@@ -12915,11 +12927,11 @@ msgstr "Paralelný port 0"
 
 #: src/emc/usr_intf/pncconf/private_data.py:49
 msgid "Mesa THCAD"
-msgstr ""
+msgstr "Mesa ThCAD"
 
 #: src/emc/usr_intf/pncconf/private_data.py:50
 msgid "X Motor"
-msgstr ""
+msgstr "Motor X"
 
 #: src/emc/usr_intf/pncconf/private_data.py:51
 #: src/emc/usr_intf/pncconf/private_data.py:539
@@ -12928,7 +12940,7 @@ msgstr "X os"
 
 #: src/emc/usr_intf/pncconf/private_data.py:52
 msgid "Y Motor"
-msgstr ""
+msgstr "Motor Y"
 
 #: src/emc/usr_intf/pncconf/private_data.py:53
 #: src/emc/usr_intf/pncconf/private_data.py:539
@@ -12937,7 +12949,7 @@ msgstr "Y os"
 
 #: src/emc/usr_intf/pncconf/private_data.py:54
 msgid "Z Motor"
-msgstr ""
+msgstr "Motor Z"
 
 #: src/emc/usr_intf/pncconf/private_data.py:55
 #: src/emc/usr_intf/pncconf/private_data.py:539
@@ -12946,7 +12958,7 @@ msgstr "Z os"
 
 #: src/emc/usr_intf/pncconf/private_data.py:56
 msgid "A Motor"
-msgstr ""
+msgstr "Motor A"
 
 #: src/emc/usr_intf/pncconf/private_data.py:57
 #: src/emc/usr_intf/pncconf/private_data.py:540
@@ -12959,29 +12971,29 @@ msgstr "Vretenový motor"
 
 #: src/emc/usr_intf/pncconf/private_data.py:60
 msgid "Realtime"
-msgstr ""
+msgstr "RealTime"
 
 #: src/emc/usr_intf/pncconf/private_data.py:110
 msgid "Not Used"
-msgstr ""
+msgstr "Nepoužité"
 
 #: src/emc/usr_intf/pncconf/private_data.py:110
 #: src/emc/usr_intf/pncconf/private_data.py:111
 #: src/emc/usr_intf/pncconf/private_data.py:168
 msgid "Dummy"
-msgstr ""
+msgstr "Dummy"
 
 #: src/emc/usr_intf/pncconf/private_data.py:111
 msgid "8i20 Servo Drive"
-msgstr ""
+msgstr "Servoovládač 8i20"
 
 #: src/emc/usr_intf/pncconf/private_data.py:113
 msgid "POT Output"
-msgstr ""
+msgstr "POT výstup"
 
 #: src/emc/usr_intf/pncconf/private_data.py:113
 msgid "POT Enable"
-msgstr ""
+msgstr "POT Povoliť"
 
 #: src/emc/usr_intf/pncconf/private_data.py:113
 msgid "POT Dir"
@@ -12989,15 +13001,15 @@ msgstr "POT smer"
 
 #: src/emc/usr_intf/pncconf/private_data.py:115
 msgid "GPIO Input"
-msgstr ""
+msgstr "GPIO vstup"
 
 #: src/emc/usr_intf/pncconf/private_data.py:115
 msgid "GPIO Output"
-msgstr ""
+msgstr "GPIO výstup"
 
 #: src/emc/usr_intf/pncconf/private_data.py:115
 msgid "GPIO O Drain"
-msgstr ""
+msgstr "GPIO O drain"
 
 #: src/emc/usr_intf/pncconf/private_data.py:117
 msgid "SSR Output"
@@ -13009,67 +13021,67 @@ msgstr "OUTM Výstup"
 
 #: src/emc/usr_intf/pncconf/private_data.py:121
 msgid "INM Input"
-msgstr ""
+msgstr "INM vstup"
 
 #: src/emc/usr_intf/pncconf/private_data.py:124
 msgid "Quad Enc-A"
-msgstr ""
+msgstr "Quad ENC-A"
 
 #: src/emc/usr_intf/pncconf/private_data.py:124
 msgid "Quad Enc-B"
-msgstr ""
+msgstr "Quad ENC-B"
 
 #: src/emc/usr_intf/pncconf/private_data.py:124
 msgid "Quad Enc-I"
-msgstr ""
+msgstr "Quad ENC-I"
 
 #: src/emc/usr_intf/pncconf/private_data.py:124
 msgid "Quad Enc-M"
-msgstr ""
+msgstr "Quad ENC-M"
 
 #: src/emc/usr_intf/pncconf/private_data.py:127
 msgid "Muxed Enc 0"
-msgstr ""
+msgstr "Muxed ENC 0"
 
 #: src/emc/usr_intf/pncconf/private_data.py:127
 msgid "Muxed Enc 1"
-msgstr ""
+msgstr "Muxed ENC 1"
 
 #: src/emc/usr_intf/pncconf/private_data.py:127
 msgid "muxed Enc I"
-msgstr ""
+msgstr "Muxed ENC I"
 
 #: src/emc/usr_intf/pncconf/private_data.py:127
 msgid "Muxed Enc M"
-msgstr ""
+msgstr "Muxed ENC M"
 
 #: src/emc/usr_intf/pncconf/private_data.py:127
 msgid "mux select"
-msgstr ""
+msgstr "mux výber"
 
 #: src/emc/usr_intf/pncconf/private_data.py:130
 msgid "Resolver 0 Encoder"
-msgstr ""
+msgstr "Resolver 0 Enkóder"
 
 #: src/emc/usr_intf/pncconf/private_data.py:130
 msgid "Resolver 1 Encoder"
-msgstr ""
+msgstr "Resolver 1 Enkóder"
 
 #: src/emc/usr_intf/pncconf/private_data.py:130
 msgid "Resolver 2 Encoder"
-msgstr ""
+msgstr "Resolver 2 Enkóder"
 
 #: src/emc/usr_intf/pncconf/private_data.py:131
 msgid "Resolver 3 Encoder"
-msgstr ""
+msgstr "Resolver 3 Enkóder"
 
 #: src/emc/usr_intf/pncconf/private_data.py:131
 msgid "Resolver 4 Encoder"
-msgstr ""
+msgstr "Resolver 4 Enkóder"
 
 #: src/emc/usr_intf/pncconf/private_data.py:131
 msgid "Resolver 5 Encoder"
-msgstr ""
+msgstr "Resolver 5 Enkóder"
 
 #: src/emc/usr_intf/pncconf/private_data.py:135
 msgid "Step Gen-A"
@@ -13077,7 +13089,7 @@ msgstr "Krok Gen-A"
 
 #: src/emc/usr_intf/pncconf/private_data.py:135
 msgid "Dir Gen-B"
-msgstr ""
+msgstr "Dir Gen.-B"
 
 #: src/emc/usr_intf/pncconf/private_data.py:135
 msgid "StepGen Phase-C"
@@ -13097,31 +13109,31 @@ msgstr "StepGen fáza -F"
 
 #: src/emc/usr_intf/pncconf/private_data.py:138
 msgid "PWM Gen-P"
-msgstr ""
+msgstr "PWM Gen.-P"
 
 #: src/emc/usr_intf/pncconf/private_data.py:138
 msgid "PWM Gen-D"
-msgstr ""
+msgstr "PWM Gen.-D"
 
 #: src/emc/usr_intf/pncconf/private_data.py:138
 msgid "PWM Gen-E"
-msgstr ""
+msgstr "PWM Gen.-E"
 
 #: src/emc/usr_intf/pncconf/private_data.py:139
 msgid "PDM Gen-P"
-msgstr ""
+msgstr "PDM Gen.-P"
 
 #: src/emc/usr_intf/pncconf/private_data.py:139
 msgid "PDM Gen-D"
-msgstr ""
+msgstr "PDM Gen.-D"
 
 #: src/emc/usr_intf/pncconf/private_data.py:139
 msgid "PDM Gen-E"
-msgstr ""
+msgstr "PDM Gen.-E"
 
 #: src/emc/usr_intf/pncconf/private_data.py:140
 msgid "UDM -Up"
-msgstr ""
+msgstr "UDM -nahor"
 
 #: src/emc/usr_intf/pncconf/private_data.py:140
 msgid "UDM-Down"
@@ -13129,163 +13141,163 @@ msgstr "UDM-Dole"
 
 #: src/emc/usr_intf/pncconf/private_data.py:140
 msgid "UDM-E"
-msgstr ""
+msgstr "UDM-E"
 
 #: src/emc/usr_intf/pncconf/private_data.py:144
 msgid "Motor Phase A"
-msgstr ""
+msgstr "Fáza motora A"
 
 #: src/emc/usr_intf/pncconf/private_data.py:144
 msgid "Motor Phase B"
-msgstr ""
+msgstr "Fáza motora B"
 
 #: src/emc/usr_intf/pncconf/private_data.py:144
 msgid "Motor Phase C"
-msgstr ""
+msgstr "Fáza motora C"
 
 #: src/emc/usr_intf/pncconf/private_data.py:145
 msgid "Motor Phase A Not"
-msgstr ""
+msgstr "Fáza motora A neg"
 
 #: src/emc/usr_intf/pncconf/private_data.py:145
 msgid "Motor Phase B Not"
-msgstr ""
+msgstr "Fáza motoraB neg"
 
 #: src/emc/usr_intf/pncconf/private_data.py:145
 msgid "Motor Phase C Not"
-msgstr ""
+msgstr "Fáza motora C neg"
 
 #: src/emc/usr_intf/pncconf/private_data.py:145
 msgid "Motor Enable"
-msgstr ""
+msgstr "Povoliť motor"
 
 #: src/emc/usr_intf/pncconf/private_data.py:145
 msgid "Motor Fault"
-msgstr ""
+msgstr "Porucha motora"
 
 #: src/emc/usr_intf/pncconf/private_data.py:157
 msgid "SSERIAL-P0-TX"
-msgstr ""
+msgstr "SSERIAL-P0-TX"
 
 #: src/emc/usr_intf/pncconf/private_data.py:157
 msgid "SSERIAL-P0-RX"
-msgstr ""
+msgstr "SSERIAL-P0-RX"
 
 #: src/emc/usr_intf/pncconf/private_data.py:157
 msgid "SSERIAL-P0-EN"
-msgstr ""
+msgstr "SSERIAL-P0-EN"
 
 #: src/emc/usr_intf/pncconf/private_data.py:158
 msgid "SSERIAL-P1-TX"
-msgstr ""
+msgstr "SSERIAL-P1-TX"
 
 #: src/emc/usr_intf/pncconf/private_data.py:158
 msgid "SSERIAL-P1-RX"
-msgstr ""
+msgstr "SSERIAL-P1-RX"
 
 #: src/emc/usr_intf/pncconf/private_data.py:158
 msgid "SSERIAL-P1-EN"
-msgstr ""
+msgstr "SSERIAL-P1-EN"
 
 #: src/emc/usr_intf/pncconf/private_data.py:159
 msgid "SSERIAL-P2-TX"
-msgstr ""
+msgstr "SSERIAL-P2-TX"
 
 #: src/emc/usr_intf/pncconf/private_data.py:159
 msgid "SSERIAL-P2-RX"
-msgstr ""
+msgstr "SSERIAL-P2-RX"
 
 #: src/emc/usr_intf/pncconf/private_data.py:159
 msgid "SSERIAL-P2-EN"
-msgstr ""
+msgstr "SSERIAL-P2-EN"
 
 #: src/emc/usr_intf/pncconf/private_data.py:160
 msgid "SSERIAL-P3-TX"
-msgstr ""
+msgstr "SSERIAL-P3-TX"
 
 #: src/emc/usr_intf/pncconf/private_data.py:160
 msgid "SSERIAL-P3-RX"
-msgstr ""
+msgstr "SSERIAL-P3-RX"
 
 #: src/emc/usr_intf/pncconf/private_data.py:160
 msgid "SSERIAL-P3-EN"
-msgstr ""
+msgstr "SSERIAL-P3-EN"
 
 #: src/emc/usr_intf/pncconf/private_data.py:161
 msgid "SSERIAL-P4-TX"
-msgstr ""
+msgstr "SSERIAL-P4-TX"
 
 #: src/emc/usr_intf/pncconf/private_data.py:161
 msgid "SSERIAL-P4-RX"
-msgstr ""
+msgstr "SSERIAL-P4-RX"
 
 #: src/emc/usr_intf/pncconf/private_data.py:161
 msgid "SSERIAL-P4-EN"
-msgstr ""
+msgstr "SSERIAL-P4-EN"
 
 #: src/emc/usr_intf/pncconf/private_data.py:162
 msgid "SSERIAL-P5-TX"
-msgstr ""
+msgstr "SSERIAL-P5-TX"
 
 #: src/emc/usr_intf/pncconf/private_data.py:162
 msgid "SSERIAL-P5-RX"
-msgstr ""
+msgstr "SSERIAL-P5-RX"
 
 #: src/emc/usr_intf/pncconf/private_data.py:162
 msgid "SSERIAL-P5-EN"
-msgstr ""
+msgstr "SSERIAL-P5-EN"
 
 #: src/emc/usr_intf/pncconf/private_data.py:163
 msgid "SSERIAL-P6-TX"
-msgstr ""
+msgstr "SSERIAL-P6-TX"
 
 #: src/emc/usr_intf/pncconf/private_data.py:163
 msgid "SSERIAL-P6-RX"
-msgstr ""
+msgstr "SSERIAL-P6-RX"
 
 #: src/emc/usr_intf/pncconf/private_data.py:163
 msgid "SSERIAL-P6-EN"
-msgstr ""
+msgstr "SSERIAL-P6-EN"
 
 #: src/emc/usr_intf/pncconf/private_data.py:164
 msgid "SSERIAL-P7-TX"
-msgstr ""
+msgstr "SSERIAL-P7-TX"
 
 #: src/emc/usr_intf/pncconf/private_data.py:164
 msgid "SSERIAL-P7-RX"
-msgstr ""
+msgstr "SSERIAL-P7-RX"
 
 #: src/emc/usr_intf/pncconf/private_data.py:164
 msgid "SSERIAL-P7-EN"
-msgstr ""
+msgstr "SSERIAL-P7-EN"
 
 #: src/emc/usr_intf/pncconf/private_data.py:165
 msgid "7i76 I/O (SS0)"
-msgstr ""
+msgstr "7i76 I/O (SS0)"
 
 #: src/emc/usr_intf/pncconf/private_data.py:165
 msgid "7i76 I/O (SS2)"
-msgstr ""
+msgstr "7i76 I/O (SS2)"
 
 #: src/emc/usr_intf/pncconf/private_data.py:165
 msgid "7i76 I/O (SS3)"
-msgstr ""
+msgstr "7i76 I/O (SS3)"
 
 #: src/emc/usr_intf/pncconf/private_data.py:166
 msgid "7i77 I/O-SS0"
-msgstr ""
+msgstr "7i77 I/O-SS0"
 
 #: src/emc/usr_intf/pncconf/private_data.py:166
 msgid "7i77 Analog-SS1"
-msgstr ""
+msgstr "7i77_Analog-SS1"
 
 #: src/emc/usr_intf/pncconf/private_data.py:166
 msgid "7i77 I/O-SS3"
-msgstr ""
+msgstr "7i77 I/O-SS3"
 
 #: src/emc/usr_intf/pncconf/private_data.py:166
 msgid "7i77 Analog-SS4"
-msgstr ""
+msgstr "7i77_Analog-SS4"
 
 #: src/emc/usr_intf/pncconf/private_data.py:168
 msgid "Analog Input"
@@ -13329,51 +13341,51 @@ msgstr "Kalibr. tandem A2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:412
 msgid "X Minimum Limit + Home"
-msgstr ""
+msgstr "X Min. Limit + kalibr"
 
 #: src/emc/usr_intf/pncconf/private_data.py:413
 msgid "Y Minimum Limit + Home"
-msgstr ""
+msgstr "Y Min. Limit + kalibr"
 
 #: src/emc/usr_intf/pncconf/private_data.py:413
 msgid "Z Minimum Limit + Home"
-msgstr ""
+msgstr "Z Min. Limit + kalibr"
 
 #: src/emc/usr_intf/pncconf/private_data.py:414
 msgid "A Minimum Limit + Home"
-msgstr ""
+msgstr "A Min. Limit + kalibr"
 
 #: src/emc/usr_intf/pncconf/private_data.py:414
 msgid "X Maximum Limit + Home"
-msgstr ""
+msgstr "X Max. Limit + kalibr"
 
 #: src/emc/usr_intf/pncconf/private_data.py:415
 msgid "Y Maximum Limit + Home"
-msgstr ""
+msgstr "Y Max. Limit + kalibr"
 
 #: src/emc/usr_intf/pncconf/private_data.py:415
 msgid "Z Maximum Limit + Home"
-msgstr ""
+msgstr "Z Max. Limit + kalibr"
 
 #: src/emc/usr_intf/pncconf/private_data.py:416
 msgid "A Maximum Limit + Home"
-msgstr ""
+msgstr "A Max. Limit + kalibr"
 
 #: src/emc/usr_intf/pncconf/private_data.py:416
 msgid "X Both Limit + Home"
-msgstr ""
+msgstr "X oba limity + kalibr"
 
 #: src/emc/usr_intf/pncconf/private_data.py:417
 msgid "Y Both Limit + Home"
-msgstr ""
+msgstr "Y oba limity + kalibr"
 
 #: src/emc/usr_intf/pncconf/private_data.py:417
 msgid "Z Both Limit + Home"
-msgstr ""
+msgstr "Z oba limity + kalibr"
 
 #: src/emc/usr_intf/pncconf/private_data.py:418
 msgid "A Both Limit + Home"
-msgstr ""
+msgstr "A oba limity + kalibr"
 
 #: src/emc/usr_intf/pncconf/private_data.py:418
 msgid "All Limits + Home"
@@ -13381,47 +13393,47 @@ msgstr "Všetky limity + kalibracia"
 
 #: src/emc/usr_intf/pncconf/private_data.py:419
 msgid "X2 Minimum Limit + Home"
-msgstr ""
+msgstr "X2 Min. limit + kalibr"
 
 #: src/emc/usr_intf/pncconf/private_data.py:420
 msgid "Y2 Minimum Limit + Home"
-msgstr ""
+msgstr "Y2 Min. limit + kalibr"
 
 #: src/emc/usr_intf/pncconf/private_data.py:420
 msgid "Z2 Minimum Limit + Home"
-msgstr ""
+msgstr "Z2 Min. limit + kalibr"
 
 #: src/emc/usr_intf/pncconf/private_data.py:421
 msgid "A2 Minimum Limit + Home"
-msgstr ""
+msgstr "A2 Min. limit + kalibr"
 
 #: src/emc/usr_intf/pncconf/private_data.py:421
 msgid "X2 Maximum Limit + Home"
-msgstr ""
+msgstr "X2 Max. limit + kalibr"
 
 #: src/emc/usr_intf/pncconf/private_data.py:422
 msgid "Y2 Maximum Limit + Home"
-msgstr ""
+msgstr "Y2 Max. limit + kalibr"
 
 #: src/emc/usr_intf/pncconf/private_data.py:422
 msgid "Z2 Maximum Limit + Home"
-msgstr ""
+msgstr "Z2 Max. limit + kalibr"
 
 #: src/emc/usr_intf/pncconf/private_data.py:423
 msgid "A2 Maximum Limit + Home"
-msgstr ""
+msgstr "A2 Max. limit + kalibr"
 
 #: src/emc/usr_intf/pncconf/private_data.py:423
 msgid "X2 Both Limit + Home"
-msgstr ""
+msgstr "X2 oba limity + kalibr"
 
 #: src/emc/usr_intf/pncconf/private_data.py:424
 msgid "Y2 Both Limit + Home"
-msgstr ""
+msgstr "Y2 oba limity + kalibr"
 
 #: src/emc/usr_intf/pncconf/private_data.py:424
 msgid "Z2 Both Limit + Home"
-msgstr ""
+msgstr "Z2 oba limity + kalibr"
 
 #: src/emc/usr_intf/pncconf/private_data.py:425
 msgid "A2 Both Limit + Home"
@@ -13429,35 +13441,35 @@ msgstr "A2 oba limit + kalibrácia"
 
 #: src/emc/usr_intf/pncconf/private_data.py:428
 msgid "Joint select A"
-msgstr ""
+msgstr "Joint výber A"
 
 #: src/emc/usr_intf/pncconf/private_data.py:428
 msgid "Joint select B"
-msgstr ""
+msgstr "Joint výber B"
 
 #: src/emc/usr_intf/pncconf/private_data.py:429
 msgid "Joint select C"
-msgstr ""
+msgstr "Joint výber C"
 
 #: src/emc/usr_intf/pncconf/private_data.py:429
 msgid "Joint select D"
-msgstr ""
+msgstr "Joint výber D"
 
 #: src/emc/usr_intf/pncconf/private_data.py:430
 msgid "Jog incr A"
-msgstr ""
+msgstr "Jog inkr. A"
 
 #: src/emc/usr_intf/pncconf/private_data.py:430
 msgid "Jog incr B"
-msgstr ""
+msgstr "Jog inkr. B"
 
 #: src/emc/usr_intf/pncconf/private_data.py:430
 msgid "Jog incr C"
-msgstr ""
+msgstr "Jog inkr. C"
 
 #: src/emc/usr_intf/pncconf/private_data.py:431
 msgid "Jog incr D"
-msgstr ""
+msgstr "Jog inkr. D"
 
 #: src/emc/usr_intf/pncconf/private_data.py:431
 msgid "Feed Override incr A"
@@ -13493,19 +13505,19 @@ msgstr "Prepis vretena incr D"
 
 #: src/emc/usr_intf/pncconf/private_data.py:434
 msgid "Max Vel Override incr A"
-msgstr ""
+msgstr "Max Vel Override inkr. A"
 
 #: src/emc/usr_intf/pncconf/private_data.py:434
 msgid "Max Vel Override incr B"
-msgstr ""
+msgstr "Max Vel Override inkr. B"
 
 #: src/emc/usr_intf/pncconf/private_data.py:434
 msgid "Max Vel Override incr C"
-msgstr ""
+msgstr "Max Vel Override inkr. C"
 
 #: src/emc/usr_intf/pncconf/private_data.py:435
 msgid "Max Vel Override incr D"
-msgstr ""
+msgstr "Max Vel Override inkr. D"
 
 #: src/emc/usr_intf/pncconf/private_data.py:435
 msgid "Feed Override enable"
@@ -13541,11 +13553,11 @@ msgstr "Výber prevodového stupňa A"
 
 #: src/emc/usr_intf/pncconf/private_data.py:439
 msgid "Cycle Start"
-msgstr ""
+msgstr "Spustenie cyklu"
 
 #: src/emc/usr_intf/pncconf/private_data.py:439
 msgid "Abort"
-msgstr ""
+msgstr "Prerušiť"
 
 #: src/emc/usr_intf/pncconf/private_data.py:439
 msgid "Single Step"
@@ -13561,175 +13573,175 @@ msgstr "Pohyb X -"
 
 #: src/emc/usr_intf/pncconf/private_data.py:441
 msgid "Jog Y +"
-msgstr ""
+msgstr "Pohyb Y +"
 
 #: src/emc/usr_intf/pncconf/private_data.py:441
 msgid "Jog Y -"
-msgstr ""
+msgstr "Pohyb Y -"
 
 #: src/emc/usr_intf/pncconf/private_data.py:442
 msgid "Jog Z +"
-msgstr ""
+msgstr "Pohyb Z +"
 
 #: src/emc/usr_intf/pncconf/private_data.py:442
 msgid "Jog Z -"
-msgstr ""
+msgstr "Pohyb Z -"
 
 #: src/emc/usr_intf/pncconf/private_data.py:442
 msgid "Jog A +"
-msgstr ""
+msgstr "Pohyb A +"
 
 #: src/emc/usr_intf/pncconf/private_data.py:442
 msgid "Jog A -"
-msgstr ""
+msgstr "Pohyb A -"
 
 #: src/emc/usr_intf/pncconf/private_data.py:443
 msgid "Jog button selected +"
-msgstr ""
+msgstr "Vybrané tlačidlo pohyb +"
 
 #: src/emc/usr_intf/pncconf/private_data.py:443
 msgid "Jog button selected -"
-msgstr ""
+msgstr "Vybrané tlačidlo pohyb -"
 
 #: src/emc/usr_intf/pncconf/private_data.py:444
 #: src/emc/usr_intf/pncconf/private_data.py:520
 msgid "X HALL 1"
-msgstr ""
+msgstr "X HALL 1"
 
 #: src/emc/usr_intf/pncconf/private_data.py:444
 #: src/emc/usr_intf/pncconf/private_data.py:520
 msgid "X HALL 2"
-msgstr ""
+msgstr "X HALL 2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:444
 #: src/emc/usr_intf/pncconf/private_data.py:520
 msgid "X HALL 3"
-msgstr ""
+msgstr "X HALL 3"
 
 #: src/emc/usr_intf/pncconf/private_data.py:445
 #: src/emc/usr_intf/pncconf/private_data.py:521
 msgid "X Gray C1"
-msgstr ""
+msgstr "X gray C1"
 
 #: src/emc/usr_intf/pncconf/private_data.py:445
 #: src/emc/usr_intf/pncconf/private_data.py:521
 msgid "X Gray C2"
-msgstr ""
+msgstr "X gray C2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:445
 #: src/emc/usr_intf/pncconf/private_data.py:521
 msgid "X Gray C4"
-msgstr ""
+msgstr "X gray C4"
 
 #: src/emc/usr_intf/pncconf/private_data.py:445
 #: src/emc/usr_intf/pncconf/private_data.py:521
 msgid "X Gray C8"
-msgstr ""
+msgstr "X gray C8"
 
 #: src/emc/usr_intf/pncconf/private_data.py:446
 #: src/emc/usr_intf/pncconf/private_data.py:522
 msgid "Y HALL 1"
-msgstr ""
+msgstr "Y HALL 1"
 
 #: src/emc/usr_intf/pncconf/private_data.py:446
 #: src/emc/usr_intf/pncconf/private_data.py:522
 msgid "Y HALL 2"
-msgstr ""
+msgstr "Y HALL 2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:446
 #: src/emc/usr_intf/pncconf/private_data.py:522
 msgid "Y HALL 3"
-msgstr ""
+msgstr "Y HALL 3"
 
 #: src/emc/usr_intf/pncconf/private_data.py:447
 #: src/emc/usr_intf/pncconf/private_data.py:523
 msgid "Y Gray C1"
-msgstr ""
+msgstr "Y gray C1"
 
 #: src/emc/usr_intf/pncconf/private_data.py:447
 #: src/emc/usr_intf/pncconf/private_data.py:523
 msgid "Y Gray C2"
-msgstr ""
+msgstr "Y gray C2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:447
 #: src/emc/usr_intf/pncconf/private_data.py:523
 msgid "Y Gray C4"
-msgstr ""
+msgstr "Y gray C4"
 
 #: src/emc/usr_intf/pncconf/private_data.py:447
 #: src/emc/usr_intf/pncconf/private_data.py:523
 msgid "Y Gray C8"
-msgstr ""
+msgstr "Y gray C8"
 
 #: src/emc/usr_intf/pncconf/private_data.py:448
 #: src/emc/usr_intf/pncconf/private_data.py:524
 msgid "Z HALL 1"
-msgstr ""
+msgstr "Z HALL 1"
 
 #: src/emc/usr_intf/pncconf/private_data.py:448
 #: src/emc/usr_intf/pncconf/private_data.py:524
 msgid "Z HALL 2"
-msgstr ""
+msgstr "Z HALL 2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:448
 #: src/emc/usr_intf/pncconf/private_data.py:524
 msgid "Z HALL 3"
-msgstr ""
+msgstr "Z HALL 3"
 
 #: src/emc/usr_intf/pncconf/private_data.py:449
 #: src/emc/usr_intf/pncconf/private_data.py:525
 msgid "Z Gray C1"
-msgstr ""
+msgstr "Z gray C1"
 
 #: src/emc/usr_intf/pncconf/private_data.py:449
 #: src/emc/usr_intf/pncconf/private_data.py:525
 msgid "Z Gray C2"
-msgstr ""
+msgstr "Z gray C2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:449
 #: src/emc/usr_intf/pncconf/private_data.py:525
 msgid "Z Gray C4"
-msgstr ""
+msgstr "Z gray C4"
 
 #: src/emc/usr_intf/pncconf/private_data.py:449
 #: src/emc/usr_intf/pncconf/private_data.py:525
 msgid "Z Gray C8"
-msgstr ""
+msgstr "Z gray C8"
 
 #: src/emc/usr_intf/pncconf/private_data.py:450
 #: src/emc/usr_intf/pncconf/private_data.py:526
 msgid "A HALL 1"
-msgstr ""
+msgstr "A HALL 1"
 
 #: src/emc/usr_intf/pncconf/private_data.py:450
 #: src/emc/usr_intf/pncconf/private_data.py:526
 msgid "A HALL 2"
-msgstr ""
+msgstr "A HALL 2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:450
 #: src/emc/usr_intf/pncconf/private_data.py:526
 msgid "A HALL 3"
-msgstr ""
+msgstr "A HALL 3"
 
 #: src/emc/usr_intf/pncconf/private_data.py:451
 #: src/emc/usr_intf/pncconf/private_data.py:527
 msgid "A Gray C1"
-msgstr ""
+msgstr "A gray C1"
 
 #: src/emc/usr_intf/pncconf/private_data.py:451
 #: src/emc/usr_intf/pncconf/private_data.py:527
 msgid "A Gray C2"
-msgstr ""
+msgstr "A gray C2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:451
 #: src/emc/usr_intf/pncconf/private_data.py:527
 msgid "A Gray C4"
-msgstr ""
+msgstr "A gray C4"
 
 #: src/emc/usr_intf/pncconf/private_data.py:451
 #: src/emc/usr_intf/pncconf/private_data.py:527
 msgid "A Gray C8"
-msgstr ""
+msgstr "A gray C8"
 
 #: src/emc/usr_intf/pncconf/private_data.py:452
 #: src/emc/usr_intf/pncconf/private_data.py:528
@@ -13749,22 +13761,22 @@ msgstr "S HALL 3"
 #: src/emc/usr_intf/pncconf/private_data.py:453
 #: src/emc/usr_intf/pncconf/private_data.py:529
 msgid "S Gray C1"
-msgstr ""
+msgstr "S gray C1"
 
 #: src/emc/usr_intf/pncconf/private_data.py:453
 #: src/emc/usr_intf/pncconf/private_data.py:529
 msgid "S Gray C2"
-msgstr ""
+msgstr "S gray C2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:453
 #: src/emc/usr_intf/pncconf/private_data.py:529
 msgid "S Gray C4"
-msgstr ""
+msgstr "S gray C4"
 
 #: src/emc/usr_intf/pncconf/private_data.py:453
 #: src/emc/usr_intf/pncconf/private_data.py:529
 msgid "S Gray C8"
-msgstr ""
+msgstr "S gray C8"
 
 #: src/emc/usr_intf/pncconf/private_data.py:454
 msgid "X Minimum Limit"
@@ -13897,8 +13909,9 @@ msgid "Float Switch"
 msgstr "\"Float\" spínač"
 
 #: src/emc/usr_intf/pncconf/private_data.py:466
+#, fuzzy
 msgid "Breakaway"
-msgstr ""
+msgstr "Odtrhnutie"
 
 #: src/emc/usr_intf/pncconf/private_data.py:466
 msgid "Move Up"
@@ -13919,7 +13932,7 @@ msgstr "Limity/kalib. zdieľané"
 #: src/emc/usr_intf/pncconf/private_data.py:470
 #: src/emc/usr_intf/pncconf/private_data.py:534
 msgid "Digital"
-msgstr ""
+msgstr "Digitálny"
 
 #: src/emc/usr_intf/pncconf/private_data.py:470
 #: src/emc/usr_intf/pncconf/private_data.py:1009
@@ -13931,8 +13944,9 @@ msgid "Overrides"
 msgstr "Prepisy"
 
 #: src/emc/usr_intf/pncconf/private_data.py:471
+#, fuzzy
 msgid "Operation"
-msgstr ""
+msgstr "operation"
 
 #: src/emc/usr_intf/pncconf/private_data.py:471
 msgid "External Control"
@@ -14199,8 +14213,9 @@ msgid "Ohmic Enable"
 msgstr "Odpor povoliť"
 
 #: src/emc/usr_intf/pncconf/private_data.py:530
+#, fuzzy
 msgid "Scribe Arm"
-msgstr ""
+msgstr "Rameno"
 
 #: src/emc/usr_intf/pncconf/private_data.py:530
 msgid "Scribe On"
@@ -14224,11 +14239,11 @@ msgstr "Chladenie"
 
 #: src/emc/usr_intf/pncconf/private_data.py:533
 msgid "Control"
-msgstr ""
+msgstr "Ovládanie"
 
 #: src/emc/usr_intf/pncconf/private_data.py:536
 msgid " S BLDC Control"
-msgstr ""
+msgstr " S BLDC Ovladanie"
 
 #: src/emc/usr_intf/pncconf/private_data.py:539
 msgid "Unused 8I20"
@@ -14240,23 +14255,23 @@ msgstr "Nepoužitý Resolver"
 
 #: src/emc/usr_intf/pncconf/private_data.py:542
 msgid "X Resolver"
-msgstr ""
+msgstr "X resolver"
 
 #: src/emc/usr_intf/pncconf/private_data.py:543
 msgid "Y Resolver"
-msgstr ""
+msgstr "Y resolver"
 
 #: src/emc/usr_intf/pncconf/private_data.py:543
 msgid "Z Resolver"
-msgstr ""
+msgstr "Z resolver"
 
 #: src/emc/usr_intf/pncconf/private_data.py:544
 msgid "A Resolver"
-msgstr ""
+msgstr "A resolver"
 
 #: src/emc/usr_intf/pncconf/private_data.py:544
 msgid "S Resolver"
-msgstr ""
+msgstr "S resolver"
 
 #: src/emc/usr_intf/pncconf/private_data.py:546
 msgid "Unused Analog Output"
@@ -14268,27 +14283,27 @@ msgstr "Výstup vretena"
 
 #: src/emc/usr_intf/pncconf/private_data.py:550
 msgid "Unused TPPWM Gen"
-msgstr ""
+msgstr "Nepoužitý TPPWM Gen"
 
 #: src/emc/usr_intf/pncconf/private_data.py:550
 msgid "X Axis BL Driver"
-msgstr ""
+msgstr "Ovládač BL osi X"
 
 #: src/emc/usr_intf/pncconf/private_data.py:551
 msgid "Y Axis BL Driver"
-msgstr ""
+msgstr "Ovládač BL osi Y"
 
 #: src/emc/usr_intf/pncconf/private_data.py:551
 msgid "Z Axis BL Driver"
-msgstr ""
+msgstr "Ovládač BL osi Z"
 
 #: src/emc/usr_intf/pncconf/private_data.py:552
 msgid "A Axis BL Driver"
-msgstr ""
+msgstr "Ovládač BL osi A"
 
 #: src/emc/usr_intf/pncconf/private_data.py:552
 msgid "S Axis BL Driver"
-msgstr ""
+msgstr "Ovládač BL osi S"
 
 #: src/emc/usr_intf/pncconf/private_data.py:555
 msgid "8i20 Amplifier Card"
@@ -14296,47 +14311,47 @@ msgstr "8i20 servoovládač"
 
 #: src/emc/usr_intf/pncconf/private_data.py:556
 msgid "7i64 I/O Card"
-msgstr ""
+msgstr "7i64 I/O karta"
 
 #: src/emc/usr_intf/pncconf/private_data.py:556
 msgid "7i69 I/O Card"
-msgstr ""
+msgstr "7i69 I/O karta"
 
 #: src/emc/usr_intf/pncconf/private_data.py:557
 msgid "7i70 I/O Card"
-msgstr ""
+msgstr "7i70 I/O karta"
 
 #: src/emc/usr_intf/pncconf/private_data.py:557
 msgid "7i71 I/O Card"
-msgstr ""
+msgstr "7i71 I/O karta"
 
 #: src/emc/usr_intf/pncconf/private_data.py:558
 msgid "7i76 Mode 0 I/O Card"
-msgstr ""
+msgstr "7i76 Mode 0 I/O karta"
 
 #: src/emc/usr_intf/pncconf/private_data.py:558
 msgid "7i76 Mode 2 I/O Card"
-msgstr ""
+msgstr "7i76 Mode 2 I/O karta"
 
 #: src/emc/usr_intf/pncconf/private_data.py:559
 msgid "7i77 Mode 0 I/O Card"
-msgstr ""
+msgstr "7i77 Mode 0 I/O karta"
 
 #: src/emc/usr_intf/pncconf/private_data.py:559
 msgid "7i77 Mode 3 I/O Card"
-msgstr ""
+msgstr "7i77 Mode 3 I/O karta"
 
 #: src/emc/usr_intf/pncconf/private_data.py:560
 msgid "7i73 Mode 1 Pendant Card"
-msgstr ""
+msgstr "7i73 Mode 1 Pendant karta"
 
 #: src/emc/usr_intf/pncconf/private_data.py:561
 msgid "7i84 Mode 1 I/O Card"
-msgstr ""
+msgstr "7i84 Mode 1 I/O karta"
 
 #: src/emc/usr_intf/pncconf/private_data.py:561
 msgid "7i84 Mode 3 I/O Card"
-msgstr ""
+msgstr "7i84 Mode 3 I/O karta"
 
 #: src/emc/usr_intf/pncconf/private_data.py:563
 msgid "Unused Analog In"
@@ -14347,52 +14362,68 @@ msgid ""
 "7i64-Input\n"
 "P3 and P4"
 msgstr ""
+"7i64-Vstup\n"
+"P3 a P4"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1017
 msgid ""
 "7i64-Output\n"
 "P2 and P5"
 msgstr ""
+"7i64-Výstup\n"
+"P2 a P5"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1017
 msgid "7i64-Analog In"
-msgstr ""
+msgstr "7i64-analóg. vstup"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1030
 msgid ""
 "7i69\n"
 "P2"
 msgstr ""
+"7i69\n"
+"P2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1030
 msgid ""
 "7i69\n"
 "P3"
 msgstr ""
+"7i69\n"
+"P3"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1042
 msgid ""
 "7i70-Input\n"
 "TB3"
 msgstr ""
+"7i70-vstup\n"
+"TB3"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1042
 msgid ""
 "7i70-Input\n"
 "TB2"
 msgstr ""
+"7i70-vstup\n"
+"TB2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1054
 msgid ""
 "7i71-Output\n"
 "TB3"
 msgstr ""
+"7i71-Výstup\n"
+"TB3"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1054
 msgid ""
 "7i71-Output\n"
 "TB2"
 msgstr ""
+"7i71-Výstup\n"
+"TB2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1066
 #: src/emc/usr_intf/pncconf/private_data.py:1078
@@ -14400,6 +14431,8 @@ msgid ""
 "7i76-I/O\n"
 "TB6"
 msgstr ""
+"7i76-I/O\n"
+"TB6"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1066
 #: src/emc/usr_intf/pncconf/private_data.py:1078
@@ -14407,6 +14440,8 @@ msgid ""
 "7i76-I/O\n"
 "TB5"
 msgstr ""
+"7i76-I/O\n"
+"TB5"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1066
 #: src/emc/usr_intf/pncconf/private_data.py:1078
@@ -14414,6 +14449,8 @@ msgid ""
 "7i76-Analog Output\n"
 "TB4"
 msgstr ""
+"7i76-Analóg. výstup\n"
+"TB4"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1090
 #: src/emc/usr_intf/pncconf/private_data.py:1102
@@ -14421,6 +14458,8 @@ msgid ""
 "7i77-I/O\n"
 "TB8"
 msgstr ""
+"7i77-I/O\n"
+"TB8"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1090
 #: src/emc/usr_intf/pncconf/private_data.py:1102
@@ -14428,6 +14467,8 @@ msgid ""
 "7i77-I/O\n"
 "TB7"
 msgstr ""
+"7i77-I/O\n"
+"TB7"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1090
 #: src/emc/usr_intf/pncconf/private_data.py:1102
@@ -14435,16 +14476,20 @@ msgid ""
 "7i77-Analog Output\n"
 "TB5"
 msgstr ""
+"7i77-Analógový výstup\n"
+"TB5"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1114
 msgid "7i73-I/O\n"
-msgstr ""
+msgstr "7i73-I/O\n"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1127
 msgid ""
 "7i84-I/O\n"
 "TB3"
 msgstr ""
+"7i84-I/O\n"
+"TB3"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1127
 #: src/emc/usr_intf/pncconf/private_data.py:1142
@@ -14452,12 +14497,16 @@ msgid ""
 "7i84-I/O\n"
 "TB2"
 msgstr ""
+"7i84-I/O\n"
+"TB2"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1142
 msgid ""
 "7i84-I/O-MPG\n"
 "TB3"
 msgstr ""
+"7i84- I/O-MPG\n"
+"TB3"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1207
 msgid ""
@@ -14467,14 +14516,19 @@ msgid ""
 "Any existing file named custompanel_backup.xml and custom_postgui.hal will "
 "be lost. "
 msgstr ""
+"OK nahradí existujúci vlastný panel pyvcp a súbor custom_postgui.hal?\n"
+"Existujúce custompanel.xml a custom_postgui.hal budú premenované na "
+"custompanel_backup.xml a postgui_backup.hal.\n"
+"Akýkoľvek existujúci súbor s názvom custompanel_backup.xml a "
+"custom_postgui.hal sa stratí. "
 
 #: src/emc/usr_intf/pncconf/private_data.py:1208
 msgid "Quit PNCconf and discard changes?"
-msgstr ""
+msgstr "Ukončiť PNCconf a zahodiť zmeny?"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1209
 msgid "Do you want to quit?"
-msgstr ""
+msgstr "Chcete skončiť?"
 
 #: src/emc/usr_intf/pncconf/private_data.py:1215
 msgid ""
@@ -14484,12 +14538,19 @@ msgid ""
 "Choosing no will mean AXIS options such as size/position and force maximum "
 "might not be as requested \n"
 msgstr ""
+"Ok nahradí súbor .axisrc AXIS?\n"
+" Ak ste do tohto skrytého súboru nepridali vlastné príkazy mimo pncconf, "
+"malo by to byť v poriadku.\n"
+"Ak zvolíte nie, bude to znamenať, že možnosti AXIS, ako je veľkosť/pozícia a "
+"maximálna sila, nemusia vyhovovať požiadavkám\n"
 
 #: src/emc/usr_intf/pncconf/tests.py:163
 msgid ""
 "You specified there is an existing gladefile, But there is not one in the "
 "machine-named folder.."
 msgstr ""
+"Uviedli ste, že existuje existujúci gladefile, ale v priečinku s názvom "
+"stroja žiadny nie je."
 
 #: src/emc/usr_intf/pncconf/tests.py:475
 msgid ""
@@ -14499,34 +14560,39 @@ msgid ""
 "\n"
 "- = move on negative side of start position"
 msgstr ""
+"± = pohyb po oboch stranách z východiskovej polohy\n"
+"\n"
+"+ = pohyb po kladnej strane z východiskovej polohy\n"
+"\n"
+"- = pohyb po zápornej strane z východiskovej polohy"
 
 #: src/emc/usr_intf/pncconf/tests.py:498
 msgid "Servo tuning is not tested in PNCconf yet\n"
-msgstr ""
+msgstr "Ladenie serva zatiaľ ešte nebolo testované v PNCconf\n"
 
 #: src/emc/usr_intf/pncconf/tests.py:507
 msgid "degrees"
-msgstr ""
+msgstr "stupne"
 
 #: src/emc/usr_intf/pncconf/tests.py:508
 msgid "degrees / minute"
-msgstr ""
+msgstr "stupne / minútu"
 
 #: src/emc/usr_intf/pncconf/tests.py:509
 msgid "degrees / second²"
-msgstr ""
+msgstr "stupne / sekundu²"
 
 #: src/emc/usr_intf/pncconf/tests.py:512
 msgid "revolutions"
-msgstr ""
+msgstr "otáčky"
 
 #: src/emc/usr_intf/pncconf/tests.py:513
 msgid "rpm"
-msgstr ""
+msgstr "Rpm"
 
 #: src/emc/usr_intf/pncconf/tests.py:514
 msgid "revs / second²"
-msgstr ""
+msgstr "otáčky / sekundu²"
 
 #: src/emc/usr_intf/pncconf/tests.py:518
 #: src/emc/usr_intf/pncconf/x_axis.glade:620
@@ -14542,15 +14608,15 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/a_axis.glade:655
 #: src/emc/usr_intf/pncconf/a_axis.glade:671
 msgid "mm / minute"
-msgstr ""
+msgstr "mm / minútu"
 
 #: src/emc/usr_intf/pncconf/tests.py:519
 msgid "mm / second²"
-msgstr ""
+msgstr "mm / sekundu²"
 
 #: src/emc/usr_intf/pncconf/tests.py:523
 msgid "inches / minute"
-msgstr ""
+msgstr "palce / minútu"
 
 #: src/emc/usr_intf/pncconf/tests.py:524
 msgid "inches / second²"
@@ -14559,19 +14625,20 @@ msgstr "palce za sekundu²"
 #: src/emc/usr_intf/pncconf/tests.py:726
 #, python-format
 msgid "%s Axis Tune"
-msgstr ""
+msgstr "Ladenie osi %s"
 
 #: src/emc/usr_intf/pncconf/tests.py:919
 msgid ""
 " You must designate a ENCODER / RESOLVER signal and an ANALOG SPINDLE signal "
 "for this axis test"
 msgstr ""
+"Pre tento test musíte určiť signál ENCODER/RESOLVER a signál ANALOG SPINDLE"
 
 #: src/emc/usr_intf/pncconf/tests.py:923
 msgid ""
 " You must designate a ENCODER / RESOLVER signal and a PWM signal for this "
 "axis test"
-msgstr ""
+msgstr "Pre tento test musíte určiť signál ENCODER / RESOLVER a signál PWM"
 
 #: src/emc/usr_intf/pncconf/tests.py:1212
 msgid ""
@@ -14581,6 +14648,12 @@ msgid ""
 "hesitate to even allow it's use but at times it's very useful.\n"
 "Do you wish to continue the test?"
 msgstr ""
+"Z technických dôvodov je možné tento testovací panel načítať iba raz bez "
+"opätovného načítania pncconf. Taktiež nebudete môcť vykonávať žiadne ďalšie "
+"testovanie, kým znova nenačítate pncconf a pravdepodobne neotvoríte terminál "
+"a nenapíšete 'halrun -U'. Váham, či to povoliť , ale niekedy je to veľmi "
+"užitočné.\n"
+"Chcete pokračovať v teste?"
 
 #: src/emc/usr_intf/pncconf/data.py:110
 msgid "my_LinuxCNC_machine"
@@ -14595,17 +14668,25 @@ msgid ""
 "If you have a REALLY large config that you wish to convert to this newer "
 "version of PNConf - ask on the LinuxCNC forum - it may be possible.."
 msgstr ""
+"Táto konfigurácia bola uložená so staršou verziou pncconf, ktorá môže byť "
+"nekompatibilná.\n"
+"Ak to zjavne nespôsobuje chybu, možno ho budete chcieť uložiť pod iným "
+"názvom a skontrolovať ho. Bezpečnejšie začať od nuly.\n"
+"Ak máte SKUTOČNE veľkú konfiguráciu, ktorú chcete previesť na túto novšiu "
+"verziu PNConf - opýtajte sa na fóre LinuxCNC ."
 
 #: src/emc/usr_intf/pncconf/data.py:879
 #, python-format
 msgid "File %r was modified since it was written by PNCconf"
-msgstr ""
+msgstr "Súbor %r bol upravený, pretože bol prepísaní v PNCconf"
 
 #: src/emc/usr_intf/pncconf/data.py:886
 msgid ""
 "Saving this configuration file will discard configuration changes made "
 "outside PNCconf."
 msgstr ""
+"Uložením tohto konfiguračného súboru sa zrušia konfiguračné zmeny vykonané "
+"mimo PNCconf."
 
 #: src/emc/usr_intf/pncconf/data.py:901
 msgid "Continue? (y/n)"
@@ -14613,11 +14694,11 @@ msgstr "Ďalej? (áno/nie)"
 
 #: src/emc/usr_intf/pncconf/data.py:1078
 msgid "Desktop Launcher for LinuxCNC config made by PNCconf"
-msgstr ""
+msgstr "Spúšťač pre LinuxCNC konfiguráciu pomocou PNCconf"
 
 #: src/emc/usr_intf/pncconf/main_page.glade:47
 msgid "PNCconf - Mesa Card Configuration Wizard"
-msgstr ""
+msgstr "PNCconf - Sprievodca konfiguráciou karty Mesa"
 
 #: src/emc/usr_intf/pncconf/main_page.glade:177
 msgid ""
@@ -14636,6 +14717,12 @@ msgid ""
 "functional then go back and add other options such as VFD spindle control  "
 "or advanced limit/home control etc."
 msgstr ""
+"Tento program vytvára konfiguračné súbory (INI a HAL) pre frézy a sústruhy "
+"pripojené na Mesa karty.\n"
+"\n"
+"Odporúča sa začať s úplne základnými možnosťami osí, sfunkčniť ich a potom "
+"sa vrátiť a pridať ďalšie možnosti, ako je ovládanie vretena VFD, vstupy/"
+"výstupy alebo pokročilé ovládanie limitov/kalibrácií atď."
 
 #: src/emc/usr_intf/pncconf/main_page.glade:315
 #: src/emc/usr_intf/pncconf/mesa0.glade:20243
@@ -14655,7 +14742,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:51479
 #: src/emc/usr_intf/pncconf/mesa1.glade:56631
 msgid "page 1"
-msgstr ""
+msgstr "strana 1"
 
 #: src/emc/usr_intf/pncconf/help.glade:6
 msgid ""
@@ -14680,6 +14767,26 @@ msgid ""
 "\n"
 "Beta 1 version"
 msgstr ""
+"PNCconf - ukážte a kliknite na KONFIGURÁTOR\n"
+"PNCconf je konfiguračný program pre Linuxcnc.\n"
+"Konfiguruje stroje pomocou I/O kariet Mesa.\n"
+"Konfiguruje servomotory, krokové motory, alebo motory s uzavretou slučkou.\n"
+"Podporuje aj niektoré Mesa sserial karty.\n"
+"Navždy to bude \"nedokončená práca\", pretože Linuxcnc sa mení.\n"
+"\n"
+"Veľká vďaka:\n"
+"Jeff Eppler - PNCconf je založený na Jeffovom výtvore. Jeff tiež pomohol s "
+"technickými problémami.\n"
+"Big John T - John nakreslil pôvodné strojové ilustrácie. Testoval ich a "
+"navrhoval.\n"
+"Peter Wallace - Technické otázky týkajúce sa I/O kariet Mesa. Dodával "
+"vybavenie na testovanie.\n"
+"Andy Pugh - návrhy, odpovedal na otázky a zmenil veľa pinov :)\n"
+"Dave Armstrong - testovanie a návrhy najmä s resolvermi.\n"
+"A každý, kto nahlásil chybu! Pretože nie je možné všetko dôkladne otestovať, "
+"takže pomáhajú všetky vaše REPORTY CHÝB.\n"
+"\n"
+"Verzia beta 1"
 
 #: src/emc/usr_intf/pncconf/help.glade:24
 msgid ""
@@ -14712,8 +14819,38 @@ msgid ""
 "  Note this is an example, Many other combinations are \n"
 "  possible"
 msgstr ""
+"Os X\n"
+"Celková dráha = 10\n"
+"Z Home Offset = vzdialenosť od nulového bodu k snímaču kalibrácie = 0\n"
+"Z Neg Travel Distance = Vzdialenosť nulového bodu k negatívnemu limitu = 0\n"
+"Z Pos Travel Distance = Celková dráha mínus negatívna dráha = 10\n"
+"Z Kalibr. poloha = vzdialenosť z nulového bodu do východiskovej pozície = 6\n"
+"\n"
+"Os Y\n"
+"Celková dráha = 8\n"
+"Z Home Offset = vzdialenosť od nulového bodu k snímaču kalibrácie = 0\n"
+"Z Neg Travel Distance = Vzdialenosť nulového bodu k negatívnemu limitu = -8\n"
+"Z Pos Travel Distance = Celková dráha mínus negatívna dráha = 0\n"
+"Z Kalibr. poloha = vzdialenosť z nulového bodu do východiskovej pozície = 0\n"
+"\n"
+"Os Z\n"
+"Celková dráha = 12\n"
+"Z Home Offset = vzdialenosť od nulového bodu k snímaču kalibrácie = 0\n"
+"Z Neg Travel Distance = Vzdialenosť nulového bodu k negatívnemu limitu = -"
+"12\n"
+"Z Pos Travel Distance = Celková dráha mínus negatívna dráha = 0\n"
+"Z Kalibr. poloha = vzdialenosť z nulového bodu do východiskovej pozície = 0\n"
+"\n"
+"Všimnite si, čo ukazujú smerové indikátory vpravo hore\n"
+"pohyb NÁSTROJA voči stroju,\n"
+"často je to stôl, ktorý sa skutočne hýbe. V tom prípade\n"
+"smery sú opačné ako sú zobrazené.\n"
+"\n"
+"Všimnite si, že toto je príklad, existuje mnoho ďalších\n"
+"možných kombinácií"
 
 #: src/emc/usr_intf/pncconf/help.glade:54
+#, fuzzy
 msgid ""
 "Separate Home and Limit Switches Example\n"
 "\n"
@@ -14748,14 +14885,46 @@ msgid ""
 "    Note that there is distance between the limit switches and actual "
 "physical hard contact for coasting after the amplifier is disabled.\n"
 msgstr ""
+"Príklad samostatného kalibračného a koncového spínača\n"
+"\n"
+"     Negatívne a pozitívne smery sú založené na pohybe nástroja, ktoré môžu "
+"byť odlišné\n"
+"      tj že na fréze sa zvyčajne pohybuje stôl a nie nástroj.\n"
+"\n"
+"     Softvérové limity sú v oblasti koncového spínača.\n"
+"\n"
+"     (Ak používate navádzanie na základe snímača), snímač(e) navádzania "
+"využívajú koncové snímače (zdieľaná kalibrácia / koncový snímač)\n"
+"     alebo sú v oblasti koncového snímača pri použití samostatného kalib. "
+"snímača.\n"
+"\n"
+"     Počiatok nuly stroja G53 je zvyčajne v oblasti mäkkých limitov, ale nie "
+"je to nevyhnutné.\n"
+"\n"
+"     Ak používate samostatný prepínač východiskovej polohy, je možné spustiť "
+"návrat do východiskovej polohy na nesprávnej strane vypínača domácej polohy,"
+"\n"
+"     čo v kombinácii s možnosťou HOME_IGNORE_LIMITS povedie k vážnemu "
+"zlyhaniu.\n"
+"     Tomuto sa môžete vyhnúť tak, že prepínač domov prepne svoj stav, keď je "
+"výletný pes na konkrétnej strane, až kým sa opäť nevráti cez bod výletu.\n"
+"     Inak povedané, stav spínača home musí reprezentovať polohu psa vzhľadom "
+"na spínač (tj pred alebo za spínačom),\n"
+"     a musí zostať tak, aj keď pes dobehne okolo spínača rovnakým smerom.\n"
+"\n"
+"     Vzdialenosť medzi koncovými spínačmi a mäkkými limitmi (-L<->A a D<-+L) "
+"je v tomto príklade zväčšená\n"
+"     Všimnite si, že medzi koncovými spínačmi a skutočným fyzickým pevným "
+"dorazom je vzdialenosť pre dobeh po vypnutí zosilňovača."
 
 #: src/emc/usr_intf/pncconf/help.glade:111
 msgid "Help Page"
 msgstr "Stránka pomoci"
 
 #: src/emc/usr_intf/pncconf/help.glade:173
+#, fuzzy
 msgid "Mill"
-msgstr ""
+msgstr "Mill"
 
 #: src/emc/usr_intf/pncconf/help.glade:191
 msgid ""
@@ -14769,10 +14938,19 @@ msgid ""
 "  This is just a sample reference other switch combinations are\n"
 "  possible."
 msgstr ""
+"Celková dráha = 4 + 6 = 10\n"
+"Z Home Offset = vzdialenosť od nulového bodu k snímaču kalibrácie = 10\n"
+"Z Neg Travel Distance = Vzdialenosť nulového bodu k negatívnemu limitu = 0\n"
+"Z Pos Travel Distance = Celková dráha mínus negatívna dráha = 10\n"
+"Z Kalibr. poloha = vzdialenosť z nulového bodu do východiskovej pozície = 4\n"
+"\n"
+"Os X by bola podobná, ale kvôli prehľadnosti by nebola úplne zobrazená.\n"
+"Toto je len vzorový príklad pre iné možné kombinácie\n"
+"snímačov."
 
 #: src/emc/usr_intf/pncconf/help.glade:235
 msgid "Lathe"
-msgstr ""
+msgstr "Sústruh"
 
 #: src/emc/usr_intf/pncconf/help.glade:266
 msgid ""
@@ -14792,7 +14970,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/help.glade:324
 msgid "Shared Home Switch"
-msgstr ""
+msgstr "Zdielaný klibr. snímač"
 
 #: src/emc/usr_intf/pncconf/help.glade:343
 msgid ""
@@ -14811,19 +14989,20 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/help.glade:412
 msgid "Separate Homing Switches"
-msgstr ""
+msgstr "Samostatné kalibračné spínače"
 
 #: src/emc/usr_intf/pncconf/help.glade:428
+#, fuzzy
 msgid "Diagram"
-msgstr ""
+msgstr "Diagram"
 
 #: src/emc/usr_intf/pncconf/help.glade:460
 msgid "Output"
-msgstr ""
+msgstr "Výstup"
 
 #: src/emc/usr_intf/pncconf/help.glade:490
 msgid "Input"
-msgstr ""
+msgstr "Vstup"
 
 #: src/emc/usr_intf/pncconf/help.glade:534
 #: src/emc/usr_intf/pncconf/help.glade:596
@@ -14833,15 +15012,16 @@ msgstr "Vytlačiť nastavenia"
 
 #: src/emc/usr_intf/pncconf/help.glade:578
 msgid "7i76"
-msgstr ""
+msgstr "7i76"
 
 #: src/emc/usr_intf/pncconf/help.glade:643
 msgid "7i77"
-msgstr ""
+msgstr "7i77"
 
 #: src/emc/usr_intf/pncconf/help.glade:659
+#, fuzzy
 msgid "Map"
-msgstr ""
+msgstr "Map"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:71
 #: src/emc/usr_intf/pncconf/mesa1.glade:71
@@ -14849,21 +15029,24 @@ msgid ""
 "Press the button to make the tabbed pages accept the changes.\n"
 "Click on each page tab to configure signal names for each connector port.\n"
 msgstr ""
+"Stlačením tlačidla , stránky príjmu zmeny.\n"
+"Kliknutím na kartu každej stránky nakonfigurujete názvy signálov pre každý "
+"port konektora.\n"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:248
 #: src/emc/usr_intf/pncconf/mesa1.glade:248
 msgid "3PWM base frequency:"
-msgstr ""
+msgstr "Základná frekvencia 3PWM:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:288
 #: src/emc/usr_intf/pncconf/mesa1.glade:288
 msgid "Card address:"
-msgstr ""
+msgstr "Adresa karty:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:300
 #: src/emc/usr_intf/pncconf/mesa1.glade:300
 msgid "Firmware:"
-msgstr ""
+msgstr "Firmware:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:338
 #: src/emc/usr_intf/pncconf/mesa1.glade:338
@@ -14873,7 +15056,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa0.glade:366
 #: src/emc/usr_intf/pncconf/mesa1.glade:366
 msgid "Total number of pins:"
-msgstr ""
+msgstr "Celkový počet pinov:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:390
 #: src/emc/usr_intf/pncconf/mesa1.glade:390
@@ -14885,82 +15068,82 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa0.glade:407
 #: src/emc/usr_intf/pncconf/mesa1.glade:407
 msgid "PWM base frequency:"
-msgstr ""
+msgstr "Základná frekvencia PWM:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:419
 #: src/emc/usr_intf/pncconf/mesa1.glade:419
 msgid "PDM base frequency:"
-msgstr ""
+msgstr "Základná frekvencia PDM:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:431
 #: src/emc/usr_intf/pncconf/mesa1.glade:431
 msgid "Watchdog timeout:"
-msgstr ""
+msgstr "Watchdog vypršania času:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:564
 #: src/emc/usr_intf/pncconf/mesa1.glade:564
 msgid "Num of encoders:"
-msgstr ""
+msgstr "Počet enkóderov:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:576
 #: src/emc/usr_intf/pncconf/mesa1.glade:576
 msgid "Num of pwm generators:"
-msgstr ""
+msgstr "Počet PWM generátorov:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:588
 #: src/emc/usr_intf/pncconf/mesa1.glade:588
 msgid "Num of step generators: "
-msgstr ""
+msgstr "Počet generátorov krokov: "
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:600
 #: src/emc/usr_intf/pncconf/mesa1.glade:600
 msgid "Board name"
-msgstr ""
+msgstr "Názov karty"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:607
 #: src/emc/usr_intf/pncconf/mesa1.glade:607
 msgid "Num of Smart Serial Ports:"
-msgstr ""
+msgstr "Počet Smart Serial portov:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:662
 #: src/emc/usr_intf/pncconf/mesa1.glade:662
 msgid "7i29 daughter board"
-msgstr ""
+msgstr "dcérska doska 7i29"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:675
 #: src/emc/usr_intf/pncconf/mesa1.glade:675
 msgid "7i30 daughter board"
-msgstr ""
+msgstr "dcérska doska 7i30"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:688
 #: src/emc/usr_intf/pncconf/mesa1.glade:688
 msgid "7i33 daughter board"
-msgstr ""
+msgstr "dcérska doska 7i33"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:701
 #: src/emc/usr_intf/pncconf/mesa1.glade:701
 msgid "7i40 daughter board"
-msgstr ""
+msgstr "dcérska doska 7i40"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:714
 #: src/emc/usr_intf/pncconf/mesa1.glade:714
 msgid "7i48 daughter board"
-msgstr ""
+msgstr "dcérska doska 7i48"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:733
 #: src/emc/usr_intf/pncconf/mesa1.glade:733
 msgid "<b>Sanity Checks</b>"
-msgstr ""
+msgstr "<b>Kontrola</b>"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:765
 #: src/emc/usr_intf/pncconf/mesa1.glade:765
 msgid "Num of channels: "
-msgstr ""
+msgstr "Počet kanálov: "
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:777
 #: src/emc/usr_intf/pncconf/mesa1.glade:777
 msgid "Num of resolvers:"
-msgstr ""
+msgstr "Počet resolverov:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:812
 #: src/emc/usr_intf/pncconf/mesa1.glade:812
@@ -15214,7 +15397,7 @@ msgstr "Pin typu"
 #: src/emc/usr_intf/pncconf/mesa1.glade:58493
 #: src/emc/usr_intf/pncconf/mesa1.glade:58795
 msgid "Inv"
-msgstr ""
+msgstr "Invert"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1209
 #: src/emc/usr_intf/pncconf/mesa0.glade:3215
@@ -15233,7 +15416,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:14703
 #: src/emc/usr_intf/pncconf/mesa1.glade:16628
 msgid "  1:"
-msgstr ""
+msgstr "  1:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1224
 #: src/emc/usr_intf/pncconf/mesa0.glade:3230
@@ -15252,7 +15435,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:14718
 #: src/emc/usr_intf/pncconf/mesa1.glade:16643
 msgid "  3:"
-msgstr ""
+msgstr "  3:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1239
 #: src/emc/usr_intf/pncconf/mesa0.glade:3245
@@ -15271,7 +15454,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:14733
 #: src/emc/usr_intf/pncconf/mesa1.glade:16658
 msgid "  5:"
-msgstr ""
+msgstr "  5:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1254
 #: src/emc/usr_intf/pncconf/mesa0.glade:3260
@@ -15290,7 +15473,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:14748
 #: src/emc/usr_intf/pncconf/mesa1.glade:16673
 msgid "  7:"
-msgstr ""
+msgstr "  7:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1269
 #: src/emc/usr_intf/pncconf/mesa0.glade:3275
@@ -15309,7 +15492,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:14763
 #: src/emc/usr_intf/pncconf/mesa1.glade:16688
 msgid "  9:"
-msgstr ""
+msgstr "  9:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1284
 #: src/emc/usr_intf/pncconf/mesa0.glade:3290
@@ -15328,7 +15511,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:14778
 #: src/emc/usr_intf/pncconf/mesa1.glade:16703
 msgid "11:"
-msgstr ""
+msgstr "11:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1299
 #: src/emc/usr_intf/pncconf/mesa0.glade:3305
@@ -15347,7 +15530,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:14793
 #: src/emc/usr_intf/pncconf/mesa1.glade:16718
 msgid "13:"
-msgstr ""
+msgstr "13:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1314
 #: src/emc/usr_intf/pncconf/mesa0.glade:3320
@@ -15366,7 +15549,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:14808
 #: src/emc/usr_intf/pncconf/mesa1.glade:16733
 msgid "15:"
-msgstr ""
+msgstr "15:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1329
 #: src/emc/usr_intf/pncconf/mesa0.glade:3335
@@ -15385,7 +15568,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:14823
 #: src/emc/usr_intf/pncconf/mesa1.glade:16748
 msgid "17:"
-msgstr ""
+msgstr "17:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1344
 #: src/emc/usr_intf/pncconf/mesa0.glade:3350
@@ -15404,7 +15587,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:14838
 #: src/emc/usr_intf/pncconf/mesa1.glade:16763
 msgid "19:"
-msgstr ""
+msgstr "19:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1359
 #: src/emc/usr_intf/pncconf/mesa0.glade:3365
@@ -15423,7 +15606,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:14853
 #: src/emc/usr_intf/pncconf/mesa1.glade:16778
 msgid "21:"
-msgstr ""
+msgstr "21:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1374
 #: src/emc/usr_intf/pncconf/mesa0.glade:3380
@@ -15442,7 +15625,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:14868
 #: src/emc/usr_intf/pncconf/mesa1.glade:16793
 msgid "23:"
-msgstr ""
+msgstr "23:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1810
 #: src/emc/usr_intf/pncconf/mesa0.glade:3816
@@ -15461,7 +15644,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:15326
 #: src/emc/usr_intf/pncconf/mesa1.glade:17251
 msgid "47:"
-msgstr ""
+msgstr "47:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1866
 #: src/emc/usr_intf/pncconf/mesa0.glade:3872
@@ -15480,7 +15663,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:15382
 #: src/emc/usr_intf/pncconf/mesa1.glade:17307
 msgid "45:"
-msgstr ""
+msgstr "45:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1883
 #: src/emc/usr_intf/pncconf/mesa0.glade:3889
@@ -15499,7 +15682,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:15399
 #: src/emc/usr_intf/pncconf/mesa1.glade:17324
 msgid "43:"
-msgstr ""
+msgstr "43:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1900
 #: src/emc/usr_intf/pncconf/mesa0.glade:3906
@@ -15518,7 +15701,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:15416
 #: src/emc/usr_intf/pncconf/mesa1.glade:17341
 msgid "41:"
-msgstr ""
+msgstr "41:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1917
 #: src/emc/usr_intf/pncconf/mesa0.glade:3923
@@ -15537,7 +15720,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:15433
 #: src/emc/usr_intf/pncconf/mesa1.glade:17358
 msgid "39:"
-msgstr ""
+msgstr "39:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1934
 #: src/emc/usr_intf/pncconf/mesa0.glade:3940
@@ -15556,7 +15739,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:15450
 #: src/emc/usr_intf/pncconf/mesa1.glade:17375
 msgid "37:"
-msgstr ""
+msgstr "37:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1951
 #: src/emc/usr_intf/pncconf/mesa0.glade:3957
@@ -15575,7 +15758,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:15467
 #: src/emc/usr_intf/pncconf/mesa1.glade:17392
 msgid "35:"
-msgstr ""
+msgstr "35:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:1968
 #: src/emc/usr_intf/pncconf/mesa0.glade:3974
@@ -15594,7 +15777,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:15484
 #: src/emc/usr_intf/pncconf/mesa1.glade:17409
 msgid "33:"
-msgstr ""
+msgstr "33:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:2258
 #: src/emc/usr_intf/pncconf/mesa0.glade:4264
@@ -15613,7 +15796,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:15774
 #: src/emc/usr_intf/pncconf/mesa1.glade:17699
 msgid "25:"
-msgstr ""
+msgstr "25:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:2275
 #: src/emc/usr_intf/pncconf/mesa0.glade:4281
@@ -15632,7 +15815,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:15791
 #: src/emc/usr_intf/pncconf/mesa1.glade:17716
 msgid "27:"
-msgstr ""
+msgstr "27:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:2292
 #: src/emc/usr_intf/pncconf/mesa0.glade:4298
@@ -15651,7 +15834,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:15808
 #: src/emc/usr_intf/pncconf/mesa1.glade:17733
 msgid "29:"
-msgstr ""
+msgstr "29:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:2309
 #: src/emc/usr_intf/pncconf/mesa0.glade:4315
@@ -15670,7 +15853,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:15825
 #: src/emc/usr_intf/pncconf/mesa1.glade:17750
 msgid "31:"
-msgstr ""
+msgstr "31:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:2482
 #: src/emc/usr_intf/pncconf/mesa0.glade:2495
@@ -15789,7 +15972,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:57126
 #: src/emc/usr_intf/pncconf/mesa1.glade:59693
 msgid "function"
-msgstr ""
+msgstr "funkcia"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:2506
 #: src/emc/usr_intf/pncconf/mesa0.glade:4512
@@ -15810,7 +15993,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:16000
 #: src/emc/usr_intf/pncconf/mesa1.glade:17925
 msgid "Launch test panel"
-msgstr ""
+msgstr "Spustiť testovací panel"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:2858
 #: src/emc/usr_intf/pncconf/mesa0.glade:2871
@@ -15929,7 +16112,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:56764
 #: src/emc/usr_intf/pncconf/mesa1.glade:59860
 msgid "Num"
-msgstr ""
+msgstr "Num"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:2891
 #: src/emc/usr_intf/pncconf/mesa1.glade:2891
@@ -15937,6 +16120,8 @@ msgid ""
 "      I/O\n"
 "Connector 1"
 msgstr ""
+"      I/O\n"
+"Konektor 1"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:4897
 #: src/emc/usr_intf/pncconf/mesa1.glade:4897
@@ -15944,6 +16129,8 @@ msgid ""
 "      I/O\n"
 "Connector 2"
 msgstr ""
+"      I/O\n"
+"Konektor 2"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:6823
 #: src/emc/usr_intf/pncconf/mesa1.glade:6823
@@ -15951,6 +16138,8 @@ msgid ""
 "       I/O\n"
 " Connector 3"
 msgstr ""
+"       I/O\n"
+" Konnektor 3"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:8579
 #: src/emc/usr_intf/pncconf/mesa0.glade:8594
@@ -16103,7 +16292,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:58895
 #: src/emc/usr_intf/pncconf/mesa1.glade:58910
 msgid " "
-msgstr ""
+msgstr " "
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:8728
 #: src/emc/usr_intf/pncconf/mesa1.glade:8728
@@ -16111,6 +16300,8 @@ msgid ""
 "       I/O\n"
 " Connector 4"
 msgstr ""
+"      I/O\n"
+" Konektor 4"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:10655
 #: src/emc/usr_intf/pncconf/mesa1.glade:10655
@@ -16118,6 +16309,8 @@ msgid ""
 "       I/O\n"
 " Connector 5"
 msgstr ""
+"      I/O\n"
+" Konektor 5"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:12580
 #: src/emc/usr_intf/pncconf/mesa1.glade:12580
@@ -16125,6 +16318,8 @@ msgid ""
 "      I/O\n"
 "Connector 6"
 msgstr ""
+"      I/O\n"
+" Konektor 6"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:14505
 #: src/emc/usr_intf/pncconf/mesa1.glade:14505
@@ -16132,6 +16327,8 @@ msgid ""
 "      I/O\n"
 "Connector 7"
 msgstr ""
+"      I/O\n"
+" Konektor 7"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:16430
 #: src/emc/usr_intf/pncconf/mesa1.glade:16430
@@ -16139,6 +16336,8 @@ msgid ""
 "      I/O\n"
 "Connector 8"
 msgstr ""
+"      I/O\n"
+" Konektor 8"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:18355
 #: src/emc/usr_intf/pncconf/mesa1.glade:18355
@@ -16146,6 +16345,8 @@ msgid ""
 "      I/O\n"
 " Connector 9"
 msgstr ""
+"      I/O\n"
+" Konektor 9"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:22137
 #: src/emc/usr_intf/pncconf/mesa0.glade:27343
@@ -16164,7 +16365,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:53373
 #: src/emc/usr_intf/pncconf/mesa1.glade:58525
 msgid "page 2"
-msgstr ""
+msgstr "strana 2"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:23546
 #: src/emc/usr_intf/pncconf/mesa0.glade:28752
@@ -16183,55 +16384,56 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:54728
 #: src/emc/usr_intf/pncconf/mesa1.glade:59892
 msgid "page 3"
-msgstr ""
+msgstr "strana 3"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:23562
 #: src/emc/usr_intf/pncconf/mesa1.glade:23562
 msgid "Smart Serial 0"
-msgstr ""
+msgstr "Smart serial 0"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:28768
 #: src/emc/usr_intf/pncconf/mesa1.glade:28768
 msgid "Smart Serial 1"
-msgstr ""
+msgstr "Smart serial 1"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:33974
 #: src/emc/usr_intf/pncconf/mesa1.glade:33974
 msgid "Smart Serial 2"
-msgstr ""
+msgstr "Smart serial 2"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:39180
 #: src/emc/usr_intf/pncconf/mesa1.glade:39180
 msgid "Smart Serial 3"
-msgstr ""
+msgstr "Smart serial 3"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:44386
 #: src/emc/usr_intf/pncconf/mesa1.glade:44386
 msgid "Smart Serial 4"
-msgstr ""
+msgstr "Smart serial 4"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:49592
 #: src/emc/usr_intf/pncconf/mesa1.glade:49592
 msgid "Smart Serial 5"
-msgstr ""
+msgstr "Smart serial 5"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:54744
 #: src/emc/usr_intf/pncconf/mesa1.glade:54744
 msgid "Smart Serial 6"
-msgstr ""
+msgstr "Smart serial 6"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:59908
 #: src/emc/usr_intf/pncconf/mesa1.glade:59908
 msgid "Smart Serial 7"
-msgstr ""
+msgstr "Smart serial 7"
 
 #: src/emc/usr_intf/pncconf/start.glade:27
 msgid "Create a desktop launcher to start LinuxCNC with this configuration."
 msgstr ""
+"Vytvoriť odkaz na pracovnej ploche na spustenie stroja s touto konfiguráciou."
 
 #: src/emc/usr_intf/pncconf/start.glade:44
 msgid "Create a desktop shortcut (symlink) to configuration files."
-msgstr ""
+msgstr "Vytvoriť odkaz na pracovnej ploche (symlink) na konfiguračné súbory."
 
 #: src/emc/usr_intf/pncconf/start.glade:129
 #, fuzzy
@@ -16240,31 +16442,31 @@ msgstr "Príklady konfigurácií"
 
 #: src/emc/usr_intf/pncconf/start.glade:158
 msgid "Use INI substitution for Mesa board names."
-msgstr ""
+msgstr "Použiť INI náhradu pre názvy dosiek Mesa."
 
 #: src/emc/usr_intf/pncconf/external.glade:157
 msgid "9600"
-msgstr ""
+msgstr "9600"
 
 #: src/emc/usr_intf/pncconf/external.glade:161
 msgid "19200"
-msgstr ""
+msgstr "19200"
 
 #: src/emc/usr_intf/pncconf/external.glade:165
 msgid "38400"
-msgstr ""
+msgstr "38400"
 
 #: src/emc/usr_intf/pncconf/external.glade:169
 msgid "57600"
-msgstr ""
+msgstr "57600"
 
 #: src/emc/usr_intf/pncconf/external.glade:173
 msgid "115200"
-msgstr ""
+msgstr "115200"
 
 #: src/emc/usr_intf/pncconf/external.glade:189
 msgid "/dev/ttyS0"
-msgstr ""
+msgstr "/dev/ttyS0"
 
 #: src/emc/usr_intf/pncconf/external.glade:389
 msgid "<b>Serial VFD</b>"
@@ -16272,11 +16474,11 @@ msgstr "<b>Serial FM</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:431
 msgid "<b>External Button Jogging</b>"
-msgstr ""
+msgstr "<b>Joging s externým tlačidlom</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:454
 msgid "<b>External MPG Jogging</b>"
-msgstr ""
+msgstr "<b>Externý MPG jogging</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:477
 msgid "<b>External Feed Override</b>"
@@ -16815,7 +17017,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/screen.glade:852
 msgid "gedit"
-msgstr ""
+msgstr "mousepad"
 
 #: src/emc/usr_intf/pncconf/screen.glade:867
 msgid "Min Angular velocity"
@@ -16885,7 +17087,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/screen.glade:1164
 msgid "Force Axis to Maximize"
-msgstr ""
+msgstr "Maximalizovať"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1189
 msgid "AXIS Defaults"
@@ -18232,7 +18434,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2153
 #: src/emc/usr_intf/pncconf/dialogs.glade:2537
 msgid "Worm turn ratio (Input:Outputl)"
-msgstr ""
+msgstr "Šnekový prevod (vstup: ýstup)"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2187
 #: src/emc/usr_intf/pncconf/dialogs.glade:2567
