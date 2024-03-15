@@ -20,14 +20,13 @@ from qtvcp.core import Status, Info, Path
 INFO = Info()
 STATUS = Status()
 PATH = Path()
-TOUCHOFF_SUBPROGRAM = os.path.abspath(os.path.join(
-            os.path.dirname(__file__), 'lib/touchoff_subprogram.py'))
-
 
 ################################################################
 # Action class
 ################################################################
 class _Lcnc_Action(object):
+    TOUCHOFF_SUBPROGRAM = PATH.TOUCHOFF_SUBPROGRAM
+
     def __init__(self):
         # only initialize once for all instances
         if self.__class__._instanceNum >= 1:
@@ -780,7 +779,7 @@ class _Lcnc_Action(object):
         self.proc.readyReadStandardOutput.connect(self.read_stdout)
         self.proc.readyReadStandardError.connect(self.read_stderror)
         self.proc.finished.connect(self.touchoff_finished)
-        self.proc.start('python3 {}'.format(TOUCHOFF_SUBPROGRAM))
+        self.proc.start('python3 {}'.format(self.TOUCHOFF_SUBPROGRAM))
         # probe
         string_to_send = "touchoff${}${}${}${}${}${}\n".format(str(search_vel),
                                         str(probe_vel),

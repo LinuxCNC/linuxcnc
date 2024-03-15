@@ -63,6 +63,10 @@ class _PStat(object):
             self.BASEDIR = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
             self.RIPCONFIGDIR = os.path.join(self.BASEDIR, "configs", "sim", "qtvcp_screens")
 
+            # specific library paths
+            self.TOUCHOFF_SUBPROGRAM = os.path.abspath(os.path.join(
+                self.BASEDIR, 'lib/python/qtvcp/lib/touchoff_subprogram.py'))
+
             # python RIP library directory
             self.PYDIR = os.path.join(self.BASEDIR, "lib", "python")
             sys.path.insert(0, self.PYDIR)
