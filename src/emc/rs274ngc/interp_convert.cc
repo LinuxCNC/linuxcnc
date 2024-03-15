@@ -2563,7 +2563,7 @@ int Interp::convert_cutter_compensation_on(CUTTER_COMP side,     //!< side of pa
       }
       radius = USER_TO_PROGRAM_LEN(settings->tool_table[idx].diameter) / 2.0;
       orientation = settings->tool_table[idx].orientation;
-      CHKS((settings->plane != CANON_PLANE::XZ && orientation != 0 && orientation != 9), _("G%d with lathe tool, but plane is not G18"), block->g_modes[7]/10);
+      CHKS((settings->plane != CANON_PLANE::XZ && orientation != 0 && orientation != 9), _("G%d with lathe tool, but plane is not G18"), block->g_modes[GM_CUTTER_COMP]/10);
   }
   if (radius < 0.0) { /* switch side & make radius positive if radius negative */
     radius = -radius;
@@ -5003,7 +5003,7 @@ int Interp::convert_spindle_mode(int dollar_number, block_pointer block, setup_p
 {
 	for (int s = 0; s < settings->num_spindles; s++){
 		if (dollar_number == -1 || s == dollar_number){
-			  if(block->g_modes[14] == G_97) {
+			  if(block->g_modes[GM_SPINDLE_MODE] == G_97) {
 				settings->spindle_mode[s] = SPINDLE_MODE::CONSTANT_RPM;
 			enqueue_SET_SPINDLE_MODE(s, 0);
 			} else { /* G_96 */
