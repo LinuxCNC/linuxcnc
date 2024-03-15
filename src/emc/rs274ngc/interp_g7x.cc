@@ -1000,7 +1000,7 @@ int Interp::convert_g7x(int mode,
     if(!block->q_flag)
     	ERS("G7x.x  requires a Q word");
 
-    int cycle=block->g_modes[1];
+    int cycle=block->g_modes[GM_MOTION];
     int subcycle=cycle%10;
     cycle/=10;
 
@@ -1089,8 +1089,8 @@ int Interp::convert_g7x(int mode,
 	if(old.distance_mode()==DISTANCE_MODE::INCREMENTAL)
 	    end+=start;
 
-	if(block->g_modes[1]!=-1)
-	    settings->motion_mode=block->g_modes[1];
+	if(block->g_modes[GM_MOTION]!=-1)
+	    settings->motion_mode=block->g_modes[GM_MOTION];
 	if(start!=end) {
 	    switch(settings->motion_mode) {
 	    case 0:

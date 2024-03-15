@@ -75,7 +75,7 @@ int Interp::write_g_codes(block_pointer block,   //!< pointer to a block of RS27
 {
   settings->active_g_codes[0] = settings->sequence_number;
   settings->active_g_codes[1] = settings->motion_mode;
-  settings->active_g_codes[2] = ((block == NULL) ? -1 : block->g_modes[0]);
+  settings->active_g_codes[2] = ((block == NULL) ? -1 : block->g_modes[GM_MODAL_0]);
   switch(settings->plane) {
   case CANON_PLANE::XY:
       settings->active_g_codes[3] = G_17;
@@ -219,7 +219,7 @@ int Interp::write_state_tag(block_pointer block,
     state.flags[GM_FLAG_EXTERNAL_FILE] = external_sub;
     state.flags[GM_FLAG_RESTORABLE] = !in_remap && !in_sub;
     state.fields[GM_FIELD_G_MODE_0] =
-	((block == NULL) ? -1 : block->g_modes[0]);
+	((block == NULL) ? -1 : block->g_modes[GM_MODAL_0]);
     state.fields[GM_FIELD_MOTION_MODE] = settings->motion_mode;
     switch(settings->plane) {
     case CANON_PLANE::XY:

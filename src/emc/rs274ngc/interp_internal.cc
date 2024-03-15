@@ -274,7 +274,7 @@ int Interp::init_block(block_pointer block)      //!< pointer to a block to be i
   block->dollar_flag = false;
   block->e_flag = false;
   block->f_flag = false;
-  for (n = 0; n < 17; n++) {
+  for (n = 0; n < GM_MAX_MODAL_GROUPS; n++) {
     block->g_modes[n] = -1;
   }
   block->h_flag = false;
