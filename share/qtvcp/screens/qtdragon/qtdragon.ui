@@ -125,7 +125,7 @@
        <bool>true</bool>
       </property>
       <property name="focusBlur_option" stdset="0">
-       <bool>true</bool>
+       <bool>false</bool>
       </property>
       <property name="focusTint_option" stdset="0">
        <bool>false</bool>
@@ -17422,7 +17422,7 @@ ZERO</string>
             <number>2</number>
            </property>
            <property name="text">
-            <string>04:26:29 PM</string>
+            <string>08:26:06 PM</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>
@@ -18502,7 +18502,7 @@ ZERO</string>
   <slot>btn_pause_clicked()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
+  <buttongroup name="page_buttonGroup"/>
  </buttongroups>
 </ui>

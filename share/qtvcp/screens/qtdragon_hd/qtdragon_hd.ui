@@ -125,7 +125,7 @@
        <bool>true</bool>
       </property>
       <property name="focusBlur_option" stdset="0">
-       <bool>true</bool>
+       <bool>false</bool>
       </property>
       <property name="entryDialog_option" stdset="0">
        <bool>true</bool>
@@ -16872,7 +16872,7 @@ ANGULAR</string>
          <number>2</number>
         </property>
         <property name="text">
-         <string>03:34:41 PM</string>
+         <string>08:27:40 PM</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
