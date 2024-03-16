@@ -609,8 +609,6 @@ int read_inputs(setup_pointer settings);
  int init_named_parameters();
     int init_python_predef_parameter(const char *name);
 
-    bool has_user_mcode(setup_pointer settings,block_pointer block);
-
     bool remap_in_progress(const char *code);
     int convert_remapped_code(block_pointer block,
 			       setup_pointer settings,
@@ -682,9 +680,10 @@ int read_inputs(setup_pointer settings);
 private:
     [[nodiscard]] static bool is_parameter_readonly(int index);
 
-    [[nodiscard]] static bool is_m_code_remappable(int m_code);
+    [[nodiscard]] static bool is_any_m_code_remapped(block_pointer block, setup_pointer settings);
     [[nodiscard]] static bool is_user_defined_m_code(block_pointer block, setup_pointer settings,
                                                      int m_group);
+    [[nodiscard]] static bool is_m_code_remappable(int m_code);
     [[nodiscard]] static bool is_g_code_remappable(int g_code);
     [[nodiscard]] bool is_user_defined_g_code(int g_code);
 

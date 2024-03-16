@@ -54,14 +54,12 @@ bool Interp::is_m_code_remappable(int m_code)
             m_code == 68);
 }
 
-bool Interp::has_user_mcode(setup_pointer settings,block_pointer block)
+bool Interp::is_any_m_code_remapped(block_pointer block, setup_pointer settings)
 {
-    unsigned i;
-    for(i = 0; i < sizeof(block->m_modes)/sizeof(int); i++) {
-	if (block->m_modes[i] == -1)
-	    continue;
-	if (is_m_code_remappable(block->m_modes[i]) &&
-	    settings->m_remapped[block->m_modes[i]])
+    for (const int m_mode : block->m_modes) {
+	if (m_mode == -1)
+            continue;
+        if (is_m_code_remappable(m_mode) && settings->m_remapped[m_mode])
 	    return true;
     }
     return false;
