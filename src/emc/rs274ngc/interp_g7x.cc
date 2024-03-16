@@ -1120,6 +1120,31 @@ int Interp::convert_g7x(int mode,
 		    if(old.ijk_distance_mode()==DISTANCE_MODE::INCREMENTAL)
 			center+=start;
 		}
+
+        /* Verify if circular motion is valid */
+        double tpx;
+        double tpy;
+        double tpz;
+        double tAA_p;
+        double tBB_p;
+        double tCC_p;
+        double tu_p;
+        double tv_p;
+        double tw_p;
+        CHP(find_ends(block, settings, &tpx, &tpy, &tpz, &tAA_p, &tBB_p, &tCC_p, &tu_p, &tv_p, &tw_p));
+
+        if(!block->r_flag){
+            double center1, center2;
+            int turn;
+            double radius_tolerance = (settings->length_units == CANON_UNITS_INCHES) ? RADIUS_TOLERANCE_INCH : RADIUS_TOLERANCE_MM;
+            double spiral_abs_tolerance = (settings->length_units == CANON_UNITS_INCHES) ? settings->center_arc_radius_tolerance_inch : settings->center_arc_radius_tolerance_mm;
+            CHP(arc_data_ijk((settings->motion_mode==30)? G_3 : G_2, settings->plane, settings->current_z, settings->current_x, tpz, tpx,
+                             (old.ijk_distance_mode() == DISTANCE_MODE::ABSOLUTE),
+                             (block->k_flag)? block->k_number : 0.0, (block->i_flag)? block->i_number : 0.0, block->p_flag? round_to_int(block->p_number) : 1,
+                             &center1, &center2, &turn, radius_tolerance, spiral_abs_tolerance, SPIRAL_RELATIVE_TOLERANCE));
+        }
+        /*************/
+
 		path.emplace_back(std::make_unique<round_segment>(
 		    settings->motion_mode==30, start, center, end
 		));
