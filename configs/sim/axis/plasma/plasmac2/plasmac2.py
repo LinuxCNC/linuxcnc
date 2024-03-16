@@ -4492,6 +4492,7 @@ if os.path.isdir(os.path.join(p2Path, 'lib')):
     TclCommands.backup_clicked = backup_clicked
     TclCommands.save_setup_clicked = save_setup_clicked
     TclCommands.load_setup_clicked = load_setup_clicked
+    TclCommands.clear_program = clear_program
     TclCommands.preview_toggle = preview_toggle
     TclCommands.setup_toggle = setup_toggle
     TclCommands.param_toggle = param_toggle
@@ -4946,6 +4947,8 @@ if os.path.isdir(os.path.join(p2Path, 'lib')):
     rE('.menu.view delete 6')
     rE('.menu delete last')
     # add new menu items
+    rE('.menu.file insert 2 command -command clear_program')
+    rE(f"setup_menu_accel .menu.file 2 {{{_('_Clear')}}}")
     rE('.menu.file add command -command close_window')
     rE(f"setup_menu_accel .menu.file end {{{_('_Quit')}}}")
     rE('.menu.view insert 0 checkbutton -variable previewLarge -command preview_toggle')
