@@ -17,7 +17,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 '''
 
-VER = '17'
+VER = '18'
 
 ##############################################################################
 # the next line suppresses undefined variable errors in VSCode               #
@@ -828,7 +828,7 @@ def enable_menus(state):
 # TABLE VIEW FUNCTIONS                                                       #
 ##############################################################################
 def set_view_t(event=None, scale=None):
-    zoomScale = scale if scale else float(rE(f"{fsetup}.l.gui.zoom get"))
+    # set button states
     widgets.view_z.configure(relief='link')
     widgets.view_z2.configure(relief='link')
     widgets.view_x.configure(relief='link')
@@ -837,17 +837,19 @@ def set_view_t(event=None, scale=None):
     widgets.view_t.configure(relief='sunken')
     widgets.view_p.configure(relief='link')
     vars.view_type.set(5)
-    mult = 1/25.4 if s.linear_units == 1 else 1
-    xLen = machineBounds['xLen'] * mult
-    yLen = machineBounds['yLen'] * mult
-    size = [xLen / zoomScale * 0.5, yLen / zoomScale * 0.5, 0]
-    mid = [xLen * 0.5, yLen * 0.5, 0]
+    # set view
+    mult = 1 if s.linear_units != 1 else 25.4
+    zoomScale = scale * 2 if scale else float(rE(f"{fsetup}.l.gui.zoom get")) * 2
+    xTableLength = machineBounds['xLen'] / mult / zoomScale
+    yTableLength = machineBounds['yLen'] / mult / zoomScale
+    xTableCenter = (machineBounds['X-'] + (machineBounds['xLen'] / 2)) / mult
+    yTableCenter = (machineBounds['Y-'] + (machineBounds['yLen'] / 2)) / mult
     o.reset()
-    glTranslatef(-mid[0], -mid[1], -mid[2])
-    o.set_eyepoint_from_extents(size[0], size[1])
+    glTranslatef(-xTableCenter, -yTableCenter, 0)
+    o.set_eyepoint_from_extents(xTableLength, yTableLength)
     o.perspective = False
     o.lat = o.lon = 0
-    glRotateScene(o, 1.0, mid[0], mid[1], mid[2], 0, 0, 0, 0)
+    glRotateScene(o, 1.0, xTableCenter, yTableCenter, 0, 0, 0, 0, 0)
     o._redraw()
 
 def get_view_type():
