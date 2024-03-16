@@ -683,10 +683,11 @@ def conv_toggle(state, convSent=False):
                    unitsPerMm, comp, PREF, getPrefs, putPrefs, open_file_guts, \
                    wcs_rotation, conv_toggle, color_change, plasmacPopUp)
             convFirstRun = False
-        set_conv_preview()
+        # set_conv_preview()
         if loaded_file:
             COPY(loaded_file, preConvFile)
         CONV.start(materialFileDict, matIndex, vars.taskfile.get(), s.g5x_index, commands.set_view_z)
+        set_conv_preview()
         keyboard_bindings(False)
         vkbData['required'] = True
         vkb_show('numpad')
@@ -726,7 +727,8 @@ def clear_program():
     t.configure(state='disabled')
 
 def set_conv_preview():
-    global convViewOptions
+    ''' configure the preview for conversational '''
+    global convViewOptions, joint_dro_format_old , dro_format_old
     convViewOptions['alpha'] = vars.program_alpha.get()
     convViewOptions['dtg'] = vars.show_distance_to_go.get()
     convViewOptions['extents'] = vars.show_extents.get()
@@ -749,10 +751,16 @@ def set_conv_preview():
     vars.show_tool.set(False)
     o.cone_basesize = .025
     o.show_small_origin = False
-    o.enable_dro = False
+    o.hide_icons = True
     o.set_view_z()
+    joint_dro_format_old = o.joint_dro_format
+    o.joint_dro_format = joint_dro_format_new
+    dro_format_old = o.dro_format
+    o.dro_format = dro_format_new
+
 
 def reset_conv_preview():
+    ''' configure the preview for gcode file '''
     global convViewOptions
     vars.program_alpha.set(convViewOptions['alpha'])
     vars.show_distance_to_go.set(convViewOptions['dtg'])
@@ -765,7 +773,27 @@ def reset_conv_preview():
     vars.show_tool.set(convViewOptions['tool'])
     o.cone_basesize = convViewOptions['cone']
     o.show_small_origin = convViewOptions['origin']
-    o.enable_dro = True
+    o.joint_dro_format = joint_dro_format_old
+    o.dro_format = dro_format_old
+    o.hide_icons = False
+
+def joint_dro_format_new(s,spd,num_of_joints,limit, homed):
+    ''' replace dro with selected material '''
+    text = conv_material_text()
+    return limit, homed, text, text
+
+def dro_format_new(s,spd,dtg,limit,homed,positions,axisdtg,g5x_offset,g92_offset,tlo_offset):
+    ''' replace dro with selected material '''
+    text = conv_material_text()
+    return limit, homed, text, text
+
+def conv_material_text():
+    ''' return a list of material parameters to display '''
+    res = 3 if s.linear_units != 1 else 2
+    text  = f"Cut Speed={materialFileDict[int(CONV.matCombo.get().split(':')[0])]['cut_speed']:.0f}"
+    text += f"   Cut Height={materialFileDict[int(CONV.matCombo.get().split(':')[0])]['cut_height']:.{res}f}"
+    text += f"   Kerf Width={materialFileDict[int(CONV.matCombo.get().split(':')[0])]['kerf_width']:.{res}f}"
+    return [text]
 
 def hide_default():
     rE('grid forget .pane')
@@ -6131,3 +6159,4 @@ def user_live_update():
     # run users custom periodic commands if it exists
     if os.path.isfile(upFile):
         exec(open(upFile).read())
+    o.tkRedraw()

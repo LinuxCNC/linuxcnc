@@ -517,6 +517,7 @@ class GlCanonDraw:
         self.show_small_origin = True
         self.foam_w_height = 1.5
         self.foam_z_height = 0
+        self.hide_icons = False
 
         try:
             system_memory_bytes = os.sysconf('SC_PAGE_SIZE') * os.sysconf('SC_PHYS_PAGES')
@@ -1210,6 +1211,9 @@ class GlCanonDraw:
         # axis coordinate letters are displayed and home
         # or limit conditions are displayed using
         # allhomedicon and somelimiticon
+
+        if self.hide_icons:
+            return -1 # no icon display
 
         # special case for extra joints after homing:
         # allow display of individual joint limit icons
