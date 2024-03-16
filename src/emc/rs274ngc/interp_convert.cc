@@ -4340,7 +4340,7 @@ int Interp::convert_motion(int motion,   //!< g_code for a line, arc, canned cyc
     enqueue_COMMENT("interpreter: motion mode set to none");
 #endif
     settings->motion_mode = G_80;
-  } else if (IS_USER_GCODE(motion)) {
+  } else if (is_user_defined_g_code(motion)) {
       CHP(convert_remapped_code(block, settings, STEP_MOTION, 'g', motion));
   } else if (is_a_cycle(motion)) {
 

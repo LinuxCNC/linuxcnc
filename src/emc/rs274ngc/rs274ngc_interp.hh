@@ -612,7 +612,6 @@ int read_inputs(setup_pointer settings);
     bool has_user_mcode(setup_pointer settings,block_pointer block);
 
 #define M_BUILTIN(m) (ems[m] != -1)
-#define G_BUILTIN(g) (gees[g] != -1)
 
     // range for user-remapped M-codes
     // and M6,M61
@@ -635,15 +634,6 @@ int read_inputs(setup_pointer settings);
      (m == 67) ||					\
      (m == 68))
 
-
-
-    // range for user-remapped G-codes
-#define G_REMAPPABLE(g)	 \
-    ((g > 0) && \
-     (g < 1000) && \
-     !G_BUILTIN(g))
-
-#define IS_USER_GCODE(x) (G_REMAPPABLE(x) && _setup.g_remapped[x])
 
 #define IS_USER_MCODE(bp,sp,mgroup) \
     ((M_REMAPPABLE((bp)->m_modes[mgroup])) && \
@@ -720,6 +710,9 @@ int read_inputs(setup_pointer settings);
 
 private:
     [[nodiscard]] static bool is_parameter_readonly(int index);
+
+    [[nodiscard]] static bool is_g_code_remappable(int g_code);
+    [[nodiscard]] bool is_user_defined_g_code(int g_code);
 
     static const int gees[];
     static const int ems[];

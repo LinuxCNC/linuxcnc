@@ -47,6 +47,12 @@ bool Interp::has_user_mcode(setup_pointer settings,block_pointer block)
     return false;
 }
 
+bool Interp::is_g_code_remappable(int g_code)
+{ return g_code > 0 && g_code < 1000 && gees[g_code] == -1; }
+
+bool Interp::is_user_defined_g_code(int g_code)
+{ return is_g_code_remappable(g_code) && _setup.g_remapped[g_code]; }
+
 bool Interp::remap_in_progress(const char *code)
 {
     remap_pointer rp = remapping(code);
