@@ -611,35 +611,6 @@ int read_inputs(setup_pointer settings);
 
     bool has_user_mcode(setup_pointer settings,block_pointer block);
 
-#define M_BUILTIN(m) (ems[m] != -1)
-
-    // range for user-remapped M-codes
-    // and M6,M61
-    // this is overdue for a bitset
-#define M_REMAPPABLE(m)					\
-    (((m > 199) && (m < 1000)) ||			\
-     ((m > 0) && (m < 100) &&				\
-      !M_BUILTIN(m)) ||					\
-     (m == 6) ||					\
-     (m == 9) ||					\
-     (m == 61) ||					\
-     (m == 0) ||					\
-     (m == 1) ||					\
-     (m == 60) ||					\
-     (m == 62) ||					\
-     (m == 63) ||					\
-     (m == 64) ||					\
-     (m == 65) ||					\
-     (m == 66) ||					\
-     (m == 67) ||					\
-     (m == 68))
-
-
-#define IS_USER_MCODE(bp,sp,mgroup) \
-    ((M_REMAPPABLE((bp)->m_modes[mgroup])) && \
-    (((bp)->m_modes[mgroup]) > -1) &&		\
-     ((sp)->m_remapped[(bp)->m_modes[mgroup]]))
-
     bool remap_in_progress(const char *code);
     int convert_remapped_code(block_pointer block,
 			       setup_pointer settings,
@@ -711,6 +682,9 @@ int read_inputs(setup_pointer settings);
 private:
     [[nodiscard]] static bool is_parameter_readonly(int index);
 
+    [[nodiscard]] static bool is_m_code_remappable(int m_code);
+    [[nodiscard]] static bool is_user_defined_m_code(block_pointer block, setup_pointer settings,
+                                                     int m_group);
     [[nodiscard]] static bool is_g_code_remappable(int g_code);
     [[nodiscard]] bool is_user_defined_g_code(int g_code);
 

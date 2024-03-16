@@ -34,17 +34,45 @@ namespace bp = boost::python;
 
 
 
+bool Interp::is_m_code_remappable(int m_code)
+{
+    // this is overdue for a bitset
+    return ((m_code > 199 && m_code < 1000) ||
+            (m_code > 0 && m_code < 100 && ems[m_code] == -1) ||
+            m_code == 0 ||
+            m_code == 1 ||
+            m_code == 6 ||
+            m_code == 9 ||
+            m_code == 60 ||
+            m_code == 61 ||
+            m_code == 62 ||
+            m_code == 63 ||
+            m_code == 64 ||
+            m_code == 65 ||
+            m_code == 66 ||
+            m_code == 67 ||
+            m_code == 68);
+}
+
 bool Interp::has_user_mcode(setup_pointer settings,block_pointer block)
 {
     unsigned i;
     for(i = 0; i < sizeof(block->m_modes)/sizeof(int); i++) {
 	if (block->m_modes[i] == -1)
 	    continue;
-	if (M_REMAPPABLE(block->m_modes[i]) &&
+	if (is_m_code_remappable(block->m_modes[i]) &&
 	    settings->m_remapped[block->m_modes[i]])
 	    return true;
     }
     return false;
+}
+
+bool Interp::is_user_defined_m_code(block_pointer block, setup_pointer settings, int m_group)
+{
+    const int m_code = block->m_modes[m_group];
+    if (m_code < 0) return false;
+
+    return (is_m_code_remappable(m_code) && settings->m_remapped[m_code]);
 }
 
 bool Interp::is_g_code_remappable(int g_code)

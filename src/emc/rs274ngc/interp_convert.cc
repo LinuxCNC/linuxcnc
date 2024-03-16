@@ -3794,7 +3794,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
      M67 reads a digital input
      M68 reads an analog input*/
 
-  if (IS_USER_MCODE(block,settings,5) &&
+  if (is_user_defined_m_code(block, settings, 5) &&
       STEP_REMAPPED_IN_BLOCK(block, STEP_M_5) &&
       ONCE_M(5))  {
       return convert_remapped_code(block, settings, STEP_M_5, 'm',
@@ -3908,7 +3908,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 
       switch (block->m_modes[6]) {
       case 6:
-      	  if (IS_USER_MCODE(block,settings,6) && remapped_in_block) {
+      	  if (is_user_defined_m_code(block, settings, 6) && remapped_in_block) {
       		  return convert_remapped_code(block,settings,
       					       STEP_M_6,
       					       'm',
@@ -3922,7 +3922,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
       	  break;
 
       case 61:
-	  if (IS_USER_MCODE(block,settings,6) && remapped_in_block) {
+	  if (is_user_defined_m_code(block, settings, 6) && remapped_in_block) {
 	      return convert_remapped_code(block, settings, STEP_M_6,'m',
 					   block->m_modes[6]);
 	  } else {
@@ -3943,7 +3943,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	  break;
 
       default:
-	  if (IS_USER_MCODE(block,settings,6)) {
+	  if (is_user_defined_m_code(block, settings, 6)) {
 	      return convert_remapped_code(block, settings, STEP_M_6,'m',
 					   block->m_modes[6]);
 	  }
@@ -3967,7 +3967,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
     }
   }
 
- if (IS_USER_MCODE(block,settings,7) && ONCE_M(7)) {
+ if (is_user_defined_m_code(block, settings, 7) && ONCE_M(7)) {
     return convert_remapped_code(block, settings, STEP_M_7, 'm',
 				   block->m_modes[7]);
  } else if ((block->m_modes[7] == 3)  && ONCE_M(7)) {
@@ -4068,7 +4068,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
       CHP(restore_settings(&_setup, _setup.call_level));
   }
 
-  if (IS_USER_MCODE(block,settings,8) && ONCE_M(8)) {
+  if (is_user_defined_m_code(block, settings, 8) && ONCE_M(8)) {
      return convert_remapped_code(block, settings, STEP_M_8, 'm',
 				   block->m_modes[8]);
   } else if ((block->m_modes[8] == 7) && ONCE_M(8)){
@@ -4100,7 +4100,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
       settings->a_axis_clamping = false;
     }
 */
-if (IS_USER_MCODE(block,settings,9) && ONCE_M(9)) {
+if (is_user_defined_m_code(block, settings, 9) && ONCE_M(9)) {
      return convert_remapped_code(block, settings, STEP_M_9, 'm',
 				   block->m_modes[9]);
  } else if ((block->m_modes[9] == 48)  && ONCE_M(9)){
@@ -4193,7 +4193,7 @@ if ((block->m_modes[9] == 53)  && ONCE_M(9)){
     }
   }
 
-if (IS_USER_MCODE(block,settings,10) && ONCE_M(10)) {
+if (is_user_defined_m_code(block, settings, 10) && ONCE_M(10)) {
     return convert_remapped_code(block,settings,STEP_M_10,'m',
 				   block->m_modes[10]);
 
