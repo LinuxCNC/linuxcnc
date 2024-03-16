@@ -24,40 +24,40 @@ class Interp : public InterpBase {
 
 public:
  Interp();
- ~Interp();
+ ~Interp() override;
 
 /* Interface functions to call to tell the interpreter what to do.
    Return values indicate status of execution.
    These functions may change the state of the interpreter. */
 
 // close the currently open NC code file
- int close();
+ int close() override;
 
 // execute a line of NC code
- int execute(const char *command);
- int execute();
+ int execute(const char *command) override;
+ int execute() override;
 
- int execute(const char *command, int line_no); //used for MDI calls to specify the pseudo MDI line number
+ int execute(const char *command, int line_no) override; //used for MDI calls to specify the pseudo MDI line number
 
 // stop running
- int exit();
+ int exit() override;
 
 // get ready to run
- int init();
- void set_loop_on_main_m99(bool state);
+ int init() override;
+ void set_loop_on_main_m99(bool state) override;
 
 // load a tool table
  int load_tool_table();
 
 // open a file of NC code
- int open(const char *filename);
+ int open(const char *filename) override;
 
 // read the mdi or the next line of the open NC code file
- int read(const char *mdi);
- int read();
+ int read(const char *mdi) override;
+ int read() override;
 
 // reset yourself
- int reset();
+ int reset() override;
 
 // restore interpreter variables from a file
  int restore_parameters(const char *filename);
@@ -67,7 +67,7 @@ public:
                                     const double parameters[]);
 
 // synchronize your internal model with the external world
- int synch();
+ int synch() override;
 
 /* Interface functions to call to get information from the interpreter.
    If a function has a return value, the return value contains the information.
@@ -76,66 +76,67 @@ public:
    the interpreter. */
 
 // copy active G-codes into array [0]..[15]
- void active_g_codes(int *codes);
+ void active_g_codes(int *codes) override;
 
 // copy active M-codes into array [0]..[9]
- void active_m_codes(int *codes);
+ void active_m_codes(int *codes) override;
 
 // copy active F, S settings into array [0]..[2]
- void active_settings(double *settings);
+ void active_settings(double *settings) override;
 
     // Update the state vectors from a state tag
     int active_modes(int *g_codes,
 		     int *mcodes,
 		     double *settings,
-		     StateTag const &tag);
+		     StateTag const &tag) override;
 
     // Print contents of state tag for debugging
-    void print_state_tag(StateTag const &tag);
+    void print_state_tag(StateTag const &tag) override;
 
 // copy the text of the error message whose number is error_code into the
 // error_text array, but stop at max_size if the text is longer.
  char *error_text(int error_code, char *error_text,
-                                size_t max_size);
+                                size_t max_size) override;
 
  void setError(const char *fmt, ...) __attribute__((format(printf,2,3)));
 
 // copy the name of the currently open file into the file_name array,
 // but stop at max_size if the name is longer
- char *file_name(char *file_name, size_t max_size);
+ char *file_name(char *file_name, size_t max_size) override;
 
 // return the length of the most recently read line
- size_t line_length();
+ size_t line_length() override;
 
 // copy the text of the most recently read line into the line_text array,
 // but stop at max_size if the text is longer
- char *line_text(char *line_text, size_t max_size);
+ char *line_text(char *line_text, size_t max_size) override;
 
 // return the current sequence number (how many lines read)
- int sequence_number();
+ int sequence_number() override;
 
 // copy the function name from the stack_index'th position of the
 // function call stack at the time of the most recent error into
 // the function name string, but stop at max_size if the name is longer
  char *stack_name(int stack_index, char *function_name,
-                                size_t max_size);
+                                size_t max_size) override;
 
 // Get the parameter file name from the INI file.
- int ini_load(const char *filename);
+ int ini_load(const char *filename) override;
 
- int line() { return sequence_number(); }
- int call_level();
+ int line() override { return sequence_number(); }
+ int call_level() override;
 
- char *command(char *buf, size_t len) { line_text(buf, len); return buf; }
+ char *command(char *buf, size_t len) override { line_text(buf, len); return buf; }
 
- char *file(char *buf, size_t len) { file_name(buf, len); return buf; }
+ char *file(char *buf, size_t len) override { file_name(buf, len); return buf; }
 
  int init_tool_parameters();
  int default_tool_parameters();
  int set_tool_parameters();
- int on_abort(int reason, const char *message);
 
-    void set_loglevel(int level);
+ int on_abort(int reason, const char *message) override;
+
+    void set_loglevel(int level) override;
 
     // for now, public - for boost.python access
  int find_named_param(const char *nameBuf, int *status, double *value);
@@ -469,7 +470,7 @@ int read_dollar(char *line, int *counter, block_pointer block,
     int free_named_parameters(context_pointer frame);
  int save_settings(setup_pointer settings);
  int restore_settings(setup_pointer settings, int from_level);
- int restore_from_tag(StateTag const &tag);
+ int restore_from_tag(StateTag const &tag) override;
  int gen_settings(
      int *int_current, int *int_saved,
      double *float_current, double *float_saved,
