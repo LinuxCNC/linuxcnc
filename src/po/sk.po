@@ -4,7 +4,7 @@ msgstr ""
 "Project-Id-Version: sk\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-07-04 21:28+0200\n"
-"PO-Revision-Date: 2024-03-14 07:22+0000\n"
+"PO-Revision-Date: 2024-03-17 10:23+0000\n"
 "Last-Translator: Juraj Adamkovic <stroje.hcnc@gmail.com>\n"
 "Language-Team: Slovak <emc-developers@lists.sourceforge.net>\n"
 "Language: sk\n"
@@ -14967,6 +14967,18 @@ msgid ""
 "    B<->D is the Positive Travel Distance  = 10 units\n"
 "    A<->D is the total travel = 10 units\n"
 msgstr ""
+"     A je záporný softvérový limit\n"
+"     B je nul. bod stroja G53\n"
+"     C je dráha ku kalibr. snímaču/ \n"
+"                                         Zdieľaný minimálny limit cesty\n"
+"     D je kladný softvérový limit\n"
+"     H je finálna kalibr. pozícia = 3 jednotky\n"
+"     -L a +L sú snímacie body kalibr. snímačov\n"
+"\n"
+"     A<->B je záporná vzdialenosť dráhy = -0 jednotiek\n"
+"     B<->C je umiestnenie kalibr. snímača = -0,7 jednotiek\n"
+"     B<->D je pozitívna vzdialenosť dráhy = 10 jednotiek\n"
+"     A<->D je celková dráha = 10 jednotiek\n"
 
 #: src/emc/usr_intf/pncconf/help.glade:324
 msgid "Shared Home Switch"
@@ -14986,6 +14998,17 @@ msgid ""
 "    B<->D is the Positive Travel Distance  = 7 units\n"
 "    A<->D is the total travel = 10 units\n"
 msgstr ""
+"     A je záporný softvérový limit\n"
+"     B je nul. bod stroja G53\n"
+"     C je dráha ku kalibr. snímaču/ \n"
+"     D je kladný softvérový limit\n"
+"     H je finálna kalibr. pozícia = 0 jednotky\n"
+"     -L a +L sú snímacie body kalibr. snímačov\n"
+"\n"
+"     A<->B je záporná vzdialenosť dráhy = -3 jednotkyk\n"
+"     B<->C je umiestnenie kalibr. snímača = -2,3 jednotiek\n"
+"     B<->D je pozitívna vzdialenosť dráhy = 7 jednotiek\n"
+"     A<->D je celková dráha = 10 jednotiek\n"
 
 #: src/emc/usr_intf/pncconf/help.glade:412
 msgid "Separate Homing Switches"
@@ -15050,8 +15073,9 @@ msgstr "Firmware:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:338
 #: src/emc/usr_intf/pncconf/mesa1.glade:338
+#, fuzzy
 msgid "Num of 3 pwm generators: "
-msgstr ""
+msgstr "Počet PWM generátorov:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:366
 #: src/emc/usr_intf/pncconf/mesa1.glade:366
@@ -15064,6 +15088,8 @@ msgid ""
 "Accept  components\n"
 "          Changes"
 msgstr ""
+"Prijať zmeny\n"
+" komponentov"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:407
 #: src/emc/usr_intf/pncconf/mesa1.glade:407
@@ -15151,6 +15177,8 @@ msgid ""
 "   Board\n"
 "Discovery"
 msgstr ""
+"  Board\n"
+"Discovery"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:886
 #: src/emc/usr_intf/pncconf/mesa1.glade:886
@@ -16486,7 +16514,7 @@ msgstr "<b> Externý posun</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:500
 msgid "<b>Max Velocity Override</b>"
-msgstr ""
+msgstr "<b>Maximálna rýchlost</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:523
 msgid "<b>Spindle Override</b>"
@@ -16502,10 +16530,14 @@ msgid ""
 "Press the corresponding info button to\n"
 "show / adjust parameters."
 msgstr ""
+"Pomocou začiarkavacích políčok povoľte možnosti.\n"
+"Stlačte príslušné informačné tlačidlo\n"
+"zobraziť / upraviť parametre."
 
 #: src/emc/usr_intf/pncconf/external.glade:738
+#, fuzzy
 msgid "Add device rule"
-msgstr ""
+msgstr "Pridať vpliv zariadenia"
 
 #: src/emc/usr_intf/pncconf/external.glade:752
 #, fuzzy
@@ -16513,8 +16545,9 @@ msgid "Test device"
 msgstr "Test zariadenia"
 
 #: src/emc/usr_intf/pncconf/external.glade:766
+#, fuzzy
 msgid "Search for device rules"
-msgstr ""
+msgstr "Vyhľadať zariadenia"
 
 #: src/emc/usr_intf/pncconf/external.glade:793
 msgid "Device Name:"
@@ -16522,11 +16555,11 @@ msgstr "Meno zariadenia:"
 
 #: src/emc/usr_intf/pncconf/external.glade:867
 msgid "A +"
-msgstr ""
+msgstr "A +"
 
 #: src/emc/usr_intf/pncconf/external.glade:878
 msgid "A -"
-msgstr ""
+msgstr "A -"
 
 #: src/emc/usr_intf/pncconf/external.glade:918
 #: src/emc/usr_intf/pncconf/external.glade:931
@@ -16534,11 +16567,11 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/external.glade:1007
 #: src/emc/usr_intf/pncconf/external.glade:1541
 msgid "mm/min "
-msgstr ""
+msgstr "mm/min "
 
 #: src/emc/usr_intf/pncconf/external.glade:1034
 msgid " <b>ab)</b>"
-msgstr ""
+msgstr " <b>ab)</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:1048
 #: src/emc/usr_intf/pncconf/external.glade:2313
@@ -16546,7 +16579,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/external.glade:3696
 #: src/emc/usr_intf/pncconf/external.glade:4639
 msgid " <b>b)</b>"
-msgstr ""
+msgstr " <b>b)</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:1060
 #: src/emc/usr_intf/pncconf/external.glade:2301
@@ -16554,7 +16587,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/external.glade:3684
 #: src/emc/usr_intf/pncconf/external.glade:4627
 msgid " <b>a)</b>"
-msgstr ""
+msgstr " <b>a)</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:1073
 #: src/emc/usr_intf/pncconf/external.glade:2185
@@ -16574,11 +16607,11 @@ msgstr "X +"
 
 #: src/emc/usr_intf/pncconf/external.glade:1131
 msgid "Y +"
-msgstr ""
+msgstr "Y +"
 
 #: src/emc/usr_intf/pncconf/external.glade:1142
 msgid "Z +"
-msgstr ""
+msgstr "Z +"
 
 #: src/emc/usr_intf/pncconf/external.glade:1153
 msgid "X -"
@@ -16586,11 +16619,11 @@ msgstr "X -"
 
 #: src/emc/usr_intf/pncconf/external.glade:1164
 msgid "Y -"
-msgstr ""
+msgstr "Y -"
 
 #: src/emc/usr_intf/pncconf/external.glade:1177
 msgid "Z -"
-msgstr ""
+msgstr "Z -"
 
 #: src/emc/usr_intf/pncconf/external.glade:1276
 msgid "Speed A"
@@ -16603,12 +16636,12 @@ msgstr "Digitálne ovládanie"
 #: src/emc/usr_intf/pncconf/external.glade:1414
 #: src/emc/usr_intf/gscreen/gscreen.glade:1009
 msgid "A"
-msgstr ""
+msgstr "A"
 
 #: src/emc/usr_intf/pncconf/external.glade:1425
 #: src/emc/usr_intf/gscreen/gscreen.glade:887
 msgid "Z"
-msgstr ""
+msgstr "Z"
 
 #: src/emc/usr_intf/pncconf/external.glade:1436
 #: src/emc/usr_intf/pncconf/screen.glade:1058
@@ -16618,39 +16651,41 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/vcp.glade:637
 #: src/emc/usr_intf/gscreen/gscreen.glade:751
 msgid "Y"
-msgstr ""
+msgstr "Y"
 
 #: src/emc/usr_intf/pncconf/external.glade:1447
 msgid "X "
-msgstr ""
+msgstr "X "
 
 #: src/emc/usr_intf/pncconf/external.glade:1456
 msgid "Analog Control"
 msgstr "Analógové ovládanie"
 
 #: src/emc/usr_intf/pncconf/external.glade:1475
+#, fuzzy
 msgid "Joy Jog"
-msgstr ""
+msgstr "Užiť si Jog"
 
 #: src/emc/usr_intf/pncconf/external.glade:1489
 msgid "shared buttons for all axis"
-msgstr ""
+msgstr "zdieľané tlačidlá pre všetky osi"
 
 #: src/emc/usr_intf/pncconf/external.glade:1504
 msgid "buttons for each axis"
-msgstr ""
+msgstr "tlačidlá pre každú os"
 
 #: src/emc/usr_intf/pncconf/external.glade:1566
 msgid "B JOG"
-msgstr ""
+msgstr "B JOG"
 
 #: src/emc/usr_intf/pncconf/external.glade:1580
+#, fuzzy
 msgid "Shared MPG / selectable axis"
-msgstr ""
+msgstr "Zdieľané MPG / prepinateľné"
 
 #: src/emc/usr_intf/pncconf/external.glade:1595
 msgid "Mpg per axis"
-msgstr ""
+msgstr "Mpg na os"
 
 #: src/emc/usr_intf/pncconf/external.glade:1610
 msgid "selectable MPG increments"
@@ -16661,106 +16696,106 @@ msgstr "voliteľné inkrementy MPG"
 #: src/emc/usr_intf/pncconf/external.glade:4207
 #: src/emc/usr_intf/pncconf/external.glade:5150
 msgid " <b>d)</b>"
-msgstr ""
+msgstr " <b>d)</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:1699
 #: src/emc/usr_intf/pncconf/external.glade:3222
 #: src/emc/usr_intf/pncconf/external.glade:4165
 #: src/emc/usr_intf/pncconf/external.glade:5108
 msgid " abcd)"
-msgstr ""
+msgstr "  abcd)"
 
 #: src/emc/usr_intf/pncconf/external.glade:1713
 #: src/emc/usr_intf/pncconf/external.glade:3236
 #: src/emc/usr_intf/pncconf/external.glade:4179
 #: src/emc/usr_intf/pncconf/external.glade:5122
 msgid " bcd)"
-msgstr ""
+msgstr " bcd)"
 
 #: src/emc/usr_intf/pncconf/external.glade:1727
 #: src/emc/usr_intf/pncconf/external.glade:3250
 #: src/emc/usr_intf/pncconf/external.glade:4193
 #: src/emc/usr_intf/pncconf/external.glade:5136
 msgid " acd)"
-msgstr ""
+msgstr "  acd)"
 
 #: src/emc/usr_intf/pncconf/external.glade:1741
 #: src/emc/usr_intf/pncconf/external.glade:3319
 #: src/emc/usr_intf/pncconf/external.glade:4262
 #: src/emc/usr_intf/pncconf/external.glade:5205
 msgid " cd)"
-msgstr ""
+msgstr " cd)"
 
 #: src/emc/usr_intf/pncconf/external.glade:1755
 #: src/emc/usr_intf/pncconf/external.glade:3291
 #: src/emc/usr_intf/pncconf/external.glade:4234
 #: src/emc/usr_intf/pncconf/external.glade:5177
 msgid " bd)"
-msgstr ""
+msgstr " bd)"
 
 #: src/emc/usr_intf/pncconf/external.glade:1769
 #: src/emc/usr_intf/pncconf/external.glade:3277
 #: src/emc/usr_intf/pncconf/external.glade:4220
 #: src/emc/usr_intf/pncconf/external.glade:5163
 msgid " ad)"
-msgstr ""
+msgstr " ad)"
 
 #: src/emc/usr_intf/pncconf/external.glade:1783
 #: src/emc/usr_intf/pncconf/external.glade:2896
 #: src/emc/usr_intf/pncconf/external.glade:3839
 #: src/emc/usr_intf/pncconf/external.glade:4782
 msgid " abc)"
-msgstr ""
+msgstr " abc)"
 
 #: src/emc/usr_intf/pncconf/external.glade:1795
 #: src/emc/usr_intf/pncconf/external.glade:2860
 #: src/emc/usr_intf/pncconf/external.glade:3803
 #: src/emc/usr_intf/pncconf/external.glade:4746
 msgid " <b>c)</b>"
-msgstr ""
+msgstr " <b>c)</b>"
 
 #: src/emc/usr_intf/pncconf/external.glade:1974
 #: src/emc/usr_intf/pncconf/external.glade:2885
 #: src/emc/usr_intf/pncconf/external.glade:3828
 #: src/emc/usr_intf/pncconf/external.glade:4771
 msgid " bc)"
-msgstr ""
+msgstr " bc)"
 
 #: src/emc/usr_intf/pncconf/external.glade:1985
 #: src/emc/usr_intf/pncconf/external.glade:2873
 #: src/emc/usr_intf/pncconf/external.glade:3816
 #: src/emc/usr_intf/pncconf/external.glade:4759
 msgid " ac)"
-msgstr ""
+msgstr " ac)"
 
 #: src/emc/usr_intf/pncconf/external.glade:2325
 #: src/emc/usr_intf/pncconf/external.glade:2765
 #: src/emc/usr_intf/pncconf/external.glade:3708
 #: src/emc/usr_intf/pncconf/external.glade:4651
 msgid " ab)"
-msgstr ""
+msgstr " ab)"
 
 #: src/emc/usr_intf/pncconf/external.glade:2336
 #: src/emc/usr_intf/pncconf/external.glade:3305
 #: src/emc/usr_intf/pncconf/external.glade:4248
 #: src/emc/usr_intf/pncconf/external.glade:5191
 msgid " abd)"
-msgstr ""
+msgstr "  abd)"
 
 #: src/emc/usr_intf/pncconf/external.glade:2401
 msgid "ignore all inputs false"
-msgstr ""
+msgstr "ignorovať všetky vstupy \"nepravda\""
 
 #: src/emc/usr_intf/pncconf/external.glade:2416
 msgid "use gray code"
-msgstr ""
+msgstr "použiť gray kód"
 
 #: src/emc/usr_intf/pncconf/external.glade:2431
 #: src/emc/usr_intf/pncconf/external.glade:3382
 #: src/emc/usr_intf/pncconf/external.glade:4308
 #: src/emc/usr_intf/pncconf/external.glade:5251
 msgid "use debounce"
-msgstr ""
+msgstr "použiť debounce"
 
 #: src/emc/usr_intf/pncconf/external.glade:2460
 #: src/emc/usr_intf/pncconf/external.glade:3344
@@ -16774,7 +16809,7 @@ msgstr "MUX nastavenie"
 #: src/emc/usr_intf/pncconf/external.glade:4372
 #: src/emc/usr_intf/pncconf/external.glade:5315
 msgid "Sec"
-msgstr ""
+msgstr "Sek"
 
 #: src/emc/usr_intf/pncconf/external.glade:2515
 msgid "increments"
@@ -16782,31 +16817,31 @@ msgstr "inkrementy"
 
 #: src/emc/usr_intf/pncconf/external.glade:2534
 msgid "MPG"
-msgstr ""
+msgstr "MPG"
 
 #: src/emc/usr_intf/pncconf/external.glade:2547
 #: src/emc/usr_intf/pncconf/external.glade:3490
 #: src/emc/usr_intf/pncconf/external.glade:4433
 msgid "Use MPG "
-msgstr ""
+msgstr "Použiť MPG "
 
 #: src/emc/usr_intf/pncconf/external.glade:2562
 #: src/emc/usr_intf/pncconf/external.glade:3505
 #: src/emc/usr_intf/pncconf/external.glade:4448
 msgid "use switches"
-msgstr ""
+msgstr "použiť prepínače"
 
 #: src/emc/usr_intf/pncconf/external.glade:3397
 #: src/emc/usr_intf/pncconf/external.glade:4323
 #: src/emc/usr_intf/pncconf/external.glade:5266
 msgid "use graycode"
-msgstr ""
+msgstr "použiť graycode"
 
 #: src/emc/usr_intf/pncconf/external.glade:3412
 #: src/emc/usr_intf/pncconf/external.glade:4338
 #: src/emc/usr_intf/pncconf/external.glade:5281
 msgid "ignore all-inputs false"
-msgstr ""
+msgstr "ignorovať all-inputs \"nepravda\""
 
 #: src/emc/usr_intf/pncconf/external.glade:3458
 #: src/emc/usr_intf/pncconf/external.glade:4401
@@ -16816,23 +16851,23 @@ msgstr "inkrementy"
 
 #: src/emc/usr_intf/pncconf/external.glade:3477
 msgid "FO"
-msgstr ""
+msgstr "FO"
 
 #: src/emc/usr_intf/pncconf/external.glade:4420
 msgid "MVO"
-msgstr ""
+msgstr "MVO"
 
 #: src/emc/usr_intf/pncconf/external.glade:5363
 msgid "SO"
-msgstr ""
+msgstr "SO"
 
 #: src/emc/usr_intf/pncconf/external.glade:5378
 msgid "Serial connected VFD"
-msgstr ""
+msgstr "Sériovo pripojený VFD"
 
 #: src/emc/usr_intf/pncconf/external.glade:5388
 msgid "Mitsubishi FR Spindle VFD"
-msgstr ""
+msgstr "Mitsubishi FR Vreteno VFD"
 
 #: src/emc/usr_intf/pncconf/external.glade:5401
 msgid "GS2 Spindle VFD"
@@ -16853,7 +16888,7 @@ msgstr "Slave číslo"
 
 #: src/emc/usr_intf/pncconf/external.glade:5464
 msgid "Baud Rate"
-msgstr ""
+msgstr "Prenosová rýchlosť"
 
 #: src/emc/usr_intf/pncconf/external.glade:5476
 msgid "Device  Name"
@@ -16861,15 +16896,15 @@ msgstr "Názov zariadenia"
 
 #: src/emc/usr_intf/pncconf/external.glade:5577
 msgid "GS2"
-msgstr ""
+msgstr "GS2"
 
 #: src/emc/usr_intf/pncconf/external.glade:5599
 msgid "VFD"
-msgstr ""
+msgstr "VFD"
 
 #: src/emc/usr_intf/pncconf/base.glade:18
 msgid "XZ Lathe"
-msgstr ""
+msgstr "Sústruh XZ"
 
 #: src/emc/usr_intf/pncconf/base.glade:97
 msgid "Machine Name:"
@@ -16889,77 +16924,79 @@ msgstr "Jednotky stroja:"
 
 #: src/emc/usr_intf/pncconf/base.glade:303
 msgid "<b>Machine Basics</b>"
-msgstr ""
+msgstr "<b>Základy stroja</b>"
 
 #: src/emc/usr_intf/pncconf/base.glade:351
 msgid "Actual Servo Period:             "
-msgstr ""
+msgstr "Skutočná perióda serva:                 "
 
 #: src/emc/usr_intf/pncconf/base.glade:404
 msgid "Recommend servo period:    1000000"
-msgstr ""
+msgstr "Odporúčaná perióda serva:    1000000"
 
 #: src/emc/usr_intf/pncconf/base.glade:414
 msgid ""
 " Test Base\n"
 "Period Jitter "
 msgstr ""
+" Test Base\n"
+"Perioda Jitter "
 
 #: src/emc/usr_intf/pncconf/base.glade:445
 msgid "<b>Computer Response Time</b>"
-msgstr ""
+msgstr "<b>Čas odozvy počítača</b>"
 
 #: src/emc/usr_intf/pncconf/base.glade:491
 msgid "Mesa0 PCI/ Etho/ Parport Card:"
-msgstr ""
+msgstr "Mesa0 PCI/ Etho/ Parport karta::"
 
 #: src/emc/usr_intf/pncconf/base.glade:576
 msgid "Mesa1 PCI/ Etho/ Parport Card:"
-msgstr ""
+msgstr "Mesa1 PCI/ Etho/ Parport karta::"
 
 #: src/emc/usr_intf/pncconf/base.glade:594
 msgid "<b>I/O Control Ports/ Boards</b>"
-msgstr ""
+msgstr "<b>I/O riadiace porty/dosky</b>"
 
 #: src/emc/usr_intf/pncconf/base.glade:646
 msgid "Force individual manual homing"
-msgstr ""
+msgstr "Individuálna manuálna kalibrácia"
 
 #: src/emc/usr_intf/pncconf/base.glade:660
 msgid "Random position toolchanger "
-msgstr ""
+msgstr "Menič nástrojov s náhodnou polohou "
 
 #: src/emc/usr_intf/pncconf/base.glade:676
 msgid "Require homing before MDI / Running"
-msgstr ""
+msgstr "Vyžaduje sa kalibrácia pred MDI/Štart"
 
 #: src/emc/usr_intf/pncconf/base.glade:688
 msgid "Popup Manual Toolchange Prompt"
-msgstr ""
+msgstr "Vyskakovacie okno s výzvou na manuálnu výmenu nástroja"
 
 #: src/emc/usr_intf/pncconf/base.glade:703
 msgid "Leave spindle on during tool change"
-msgstr ""
+msgstr "Počas výmeny nástroja nechať vreteno zapnuté"
 
 #: src/emc/usr_intf/pncconf/base.glade:717
 msgid "Move spindle up before tool change"
-msgstr ""
+msgstr "Pred výmenou nástroja vysunúť vreteno nahor"
 
 #: src/emc/usr_intf/pncconf/base.glade:731
 msgid "Restore joint position after shutdown"
-msgstr ""
+msgstr "Obnoviť polohu \"jointov\" po vypnutí"
 
 #: src/emc/usr_intf/pncconf/base.glade:751
 msgid "<b>Defaults and Options</b>"
-msgstr ""
+msgstr "<b>Predvolené nastavenia a možnosti</b>"
 
 #: src/emc/usr_intf/pncconf/screen.glade:141
 msgid "QtDragon"
-msgstr ""
+msgstr "QtDragon"
 
 #: src/emc/usr_intf/pncconf/screen.glade:230
 msgid "<b>GUI Screen list</b>"
-msgstr ""
+msgstr "<b>Obrazovka GUI</b>"
 
 #: src/emc/usr_intf/pncconf/screen.glade:398
 #, fuzzy
@@ -16986,34 +17023,34 @@ msgstr "Max rýchlosť obrábania"
 
 #: src/emc/usr_intf/pncconf/screen.glade:554
 msgid "xyzabc"
-msgstr ""
+msgstr "xyzabc"
 
 #: src/emc/usr_intf/pncconf/screen.glade:572
 msgid "Display Geometry"
-msgstr ""
+msgstr "Geometria displeja"
 
 #: src/emc/usr_intf/pncconf/screen.glade:624
 msgid "<b>General GUI Defaults</b>"
-msgstr ""
+msgstr "<b>Všeobecné predvolené nastavenia GUI</b>"
 
 #: src/emc/usr_intf/pncconf/screen.glade:718
 #: src/emc/usr_intf/pncconf/screen.glade:3657
 msgid "Default linear velocity "
-msgstr ""
+msgstr "Predvolená lin. rýchlosť"
 
 #: src/emc/usr_intf/pncconf/screen.glade:726
 #: src/emc/usr_intf/pncconf/screen.glade:3669
 msgid "Min linear velocity"
-msgstr ""
+msgstr "Min. lineárna rýchlosť"
 
 #: src/emc/usr_intf/pncconf/screen.glade:738
 #: src/emc/usr_intf/pncconf/screen.glade:3681
 msgid "Max linear velocity"
-msgstr ""
+msgstr "Max. lineárna rýchlosť"
 
 #: src/emc/usr_intf/pncconf/screen.glade:812
 msgid "Default Angular velocity "
-msgstr ""
+msgstr "Predvolená uhlová rýchlosť "
 
 #: src/emc/usr_intf/pncconf/screen.glade:852
 msgid "gedit"
@@ -17021,7 +17058,7 @@ msgstr "mousepad"
 
 #: src/emc/usr_intf/pncconf/screen.glade:867
 msgid "Min Angular velocity"
-msgstr ""
+msgstr "Minimálna uhlová rýchlosť"
 
 #: src/emc/usr_intf/pncconf/screen.glade:898
 #: src/emc/usr_intf/pncconf/screen.glade:3744
@@ -17030,11 +17067,11 @@ msgstr "Inkrementy"
 
 #: src/emc/usr_intf/pncconf/screen.glade:911
 msgid "5mm 1mm .5mm .1mm .05mm .01mm .005mm"
-msgstr ""
+msgstr "5mm 1mm 0.5mm 0.1mm 0.05mm 0.01mm 0.005mm"
 
 #: src/emc/usr_intf/pncconf/screen.glade:926
 msgid "Max Angular velocity"
-msgstr ""
+msgstr "Maximálna uhlová rýchlosť"
 
 #: src/emc/usr_intf/pncconf/screen.glade:957
 #: src/emc/usr_intf/pncconf/screen.glade:970
@@ -17049,7 +17086,7 @@ msgstr "Deg / min"
 #: src/emc/usr_intf/pncconf/vcp.glade:175
 #: src/emc/usr_intf/pncconf/vcp.glade:663
 msgid "size"
-msgstr ""
+msgstr "Veľkosť"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1043
 #: src/emc/usr_intf/pncconf/screen.glade:1692
@@ -17066,7 +17103,7 @@ msgstr "Pozícia"
 #: src/emc/usr_intf/pncconf/vcp.glade:609
 #: src/emc/usr_intf/gscreen/gscreen.glade:641
 msgid "X"
-msgstr ""
+msgstr "X"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1100
 #: src/emc/usr_intf/pncconf/screen.glade:1641
@@ -17075,7 +17112,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/vcp.glade:598
 #: src/emc/usr_intf/gscreen/gscreen.glade:1622
 msgid "W"
-msgstr ""
+msgstr "W"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1141
 #: src/emc/usr_intf/pncconf/screen.glade:1600
@@ -17083,7 +17120,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/vcp.glade:281
 #: src/emc/usr_intf/pncconf/vcp.glade:559
 msgid "H"
-msgstr ""
+msgstr "H"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1164
 msgid "Force Axis to Maximize"
@@ -17095,22 +17132,22 @@ msgstr "AXIS predvolené"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1570
 msgid "Force Touchy to Maximize after positioning"
-msgstr ""
+msgstr "Po umiestnení Touchy maximalizovať"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1773
 #: src/emc/usr_intf/pncconf/screen.glade:2970
 #: src/emc/usr_intf/pncconf/vcp.glade:760
 msgid "GTK Theme"
-msgstr ""
+msgstr "Téma GTK"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1859
 #: src/emc/usr_intf/gscreen/gscreen.glade:2392
 msgid "Absolute Text Color"
-msgstr ""
+msgstr "Absolútna farba textu"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1947
 msgid "Absolute Textcolor"
-msgstr ""
+msgstr "Absolútna farba textu"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1960
 msgid "Relative Textcolor"
@@ -17118,11 +17155,11 @@ msgstr "Relatívna farba textu"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1973
 msgid "DTG Textcolor"
-msgstr ""
+msgstr "Farba textu DTG"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1986
 msgid "Error Textcolor"
-msgstr ""
+msgstr "Farba textu Chyby"
 
 #: src/emc/usr_intf/pncconf/screen.glade:2149
 msgid "Touchy Defaults"
@@ -17130,15 +17167,15 @@ msgstr "Touchy predvolené"
 
 #: src/emc/usr_intf/pncconf/screen.glade:2767
 msgid "Force Gmoccapy to Maximize after positioning"
-msgstr ""
+msgstr "Po umiestnení Gmoccapy maximalizovať"
 
 #: src/emc/usr_intf/pncconf/screen.glade:3233
 msgid "Gmoccapy Defaults"
-msgstr ""
+msgstr "Predvolené nast. Gmoccapy"
 
 #: src/emc/usr_intf/pncconf/screen.glade:3757
 msgid "10 1 .1 .01 .001"
-msgstr ""
+msgstr "10 1 .1 .01 .001"
 
 #: src/emc/usr_intf/pncconf/screen.glade:3919
 msgid "QtPlasmaC Options"
@@ -17146,47 +17183,47 @@ msgstr "Možnosti QtPlasmaC"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:26
 msgid "<b>Virtual Control Panel</b>"
-msgstr ""
+msgstr "<b>Virtuálny ovládací panel</b>"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:113
 msgid "XYZ buttons (uses Halui)"
-msgstr ""
+msgstr "Tlačidlá XYZ (používa Halui)"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:307
 msgid "Geometry Options"
-msgstr ""
+msgstr "Možnosti geometrie"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:402
 msgid "Pyvcp Details"
-msgstr ""
+msgstr "Podrobnosti Pyvcp"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:486
 msgid "Sample display  "
-msgstr ""
+msgstr "Ukážkový displej  "
 
 #: src/emc/usr_intf/pncconf/vcp.glade:674
 msgid "Standalone Panel"
-msgstr ""
+msgstr "Samostatný panel"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:691
 msgid "Rightside Embedded"
-msgstr ""
+msgstr "Vložiť na pravú stranu"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:707
 msgid "Center Tab Embedded"
-msgstr ""
+msgstr "Vložiť vycentrovane"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:723
 msgid "Force Maximize"
-msgstr ""
+msgstr "Maximalizovať"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:774
 msgid "Display Options"
-msgstr ""
+msgstr "Možnosti zobrazenia"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:831
 msgid "Max RPM"
-msgstr ""
+msgstr "Max. RPM"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:847
 msgid "Spindle Speed Indicator"
@@ -17198,27 +17235,27 @@ msgstr "Vreteno beží LED"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:877
 msgid "Zero X Button"
-msgstr ""
+msgstr "Tlačidlo nul. X"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:892
 msgid "Zero Y Button"
-msgstr ""
+msgstr "Tlačidlo nul. Y"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:907
 msgid "Zero Z Button"
-msgstr ""
+msgstr "Tlačidlo nul. Z"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:922
 msgid "Zero A Button"
-msgstr ""
+msgstr "Tlačidlo nul. A"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:937
 msgid "Auto Z Touch Off Button"
-msgstr ""
+msgstr "Auto Z Touch Off tlačidlo"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:943
 msgid "Requires Classicladder touch-off program"
-msgstr ""
+msgstr "Vyžadovať program Classicladder touch-off"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:958
 msgid "Sample Options"
@@ -17226,82 +17263,82 @@ msgstr "Vzorové možnosti"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:1045
 msgid "Gladevcp Details"
-msgstr ""
+msgstr "Podrobnosti Gladevcp"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:1069
 msgid "Include custom GladeVCP GUI panel"
-msgstr ""
+msgstr "Zahrnúť vlastný panel GladeVCP GUI"
 
 #: src/emc/usr_intf/pncconf/thcad.glade:102
 msgid "Full Scale Frequency (kHz)"
-msgstr ""
+msgstr "Frek. v plnom rozsahu (kHz)"
 
 #: src/emc/usr_intf/pncconf/thcad.glade:141
 msgid "0V Frequency (kHz)"
-msgstr ""
+msgstr "0V frekvencia (kHz)"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:16
 #: src/emc/usr_intf/pncconf/y_axis.glade:16
 #: src/emc/usr_intf/pncconf/z_axis.glade:16
 #: src/emc/usr_intf/pncconf/a_axis.glade:16
 msgid "Type 1"
-msgstr ""
+msgstr "Typ 1"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:19
 #: src/emc/usr_intf/pncconf/y_axis.glade:19
 #: src/emc/usr_intf/pncconf/z_axis.glade:19
 #: src/emc/usr_intf/pncconf/a_axis.glade:19
 msgid "Type 2"
-msgstr ""
+msgstr "Typ 2"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:58
 #: src/emc/usr_intf/pncconf/y_axis.glade:58
 #: src/emc/usr_intf/pncconf/z_axis.glade:58
 #: src/emc/usr_intf/pncconf/a_axis.glade:58
 msgid "Towards Negative Limit"
-msgstr ""
+msgstr "Smerom k negat. limitu"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:61
 #: src/emc/usr_intf/pncconf/y_axis.glade:61
 #: src/emc/usr_intf/pncconf/z_axis.glade:61
 #: src/emc/usr_intf/pncconf/a_axis.glade:61
 msgid "Towards Positive Limit"
-msgstr ""
+msgstr "Smerom k pozit. limitu"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:152
 #: src/emc/usr_intf/pncconf/y_axis.glade:152
 #: src/emc/usr_intf/pncconf/z_axis.glade:152
 #: src/emc/usr_intf/pncconf/a_axis.glade:152
 msgid "Use Encoder Index For Home:"
-msgstr ""
+msgstr "Použiť index enkódera pri kalibrácii:"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:166
 #: src/emc/usr_intf/pncconf/y_axis.glade:166
 #: src/emc/usr_intf/pncconf/z_axis.glade:166
 #: src/emc/usr_intf/pncconf/a_axis.glade:166
 msgid "Home Final Velocity:"
-msgstr ""
+msgstr "Kalibr. konečná rýchlosť:"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:179
 #: src/emc/usr_intf/pncconf/y_axis.glade:179
 #: src/emc/usr_intf/pncconf/z_axis.glade:179
 #: src/emc/usr_intf/pncconf/a_axis.glade:179
 msgid "Home Latch Direction:"
-msgstr ""
+msgstr "Smer kalibračnej \"závory\":"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:194
 #: src/emc/usr_intf/pncconf/y_axis.glade:194
 #: src/emc/usr_intf/pncconf/z_axis.glade:194
 #: src/emc/usr_intf/pncconf/a_axis.glade:194
 msgid "Home Search Direction:"
-msgstr ""
+msgstr "Smer hľadania kalib. snímača:"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:209
 #: src/emc/usr_intf/pncconf/y_axis.glade:209
 #: src/emc/usr_intf/pncconf/z_axis.glade:209
 #: src/emc/usr_intf/pncconf/a_axis.glade:209
 msgid "Home latch Velocity:"
-msgstr ""
+msgstr "Rýchl. do kalib. \"závory\":"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:240
 #: src/emc/usr_intf/pncconf/y_axis.glade:240
@@ -17315,35 +17352,35 @@ msgstr "Použiť názov kompenzačného súboru:"
 #: src/emc/usr_intf/pncconf/z_axis.glade:256
 #: src/emc/usr_intf/pncconf/a_axis.glade:256
 msgid "Use Backlash Compensation:"
-msgstr ""
+msgstr "Použiť kompenzáciu vôle:"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:274
 #: src/emc/usr_intf/pncconf/y_axis.glade:274
 #: src/emc/usr_intf/pncconf/z_axis.glade:274
 #: src/emc/usr_intf/pncconf/a_axis.glade:274
 msgid "Final Home Position location   (Offset from machine zero Origin):"
-msgstr ""
+msgstr "Konečné umiestnenie kalibr. pozície (ofset od nul. bodu stroja):"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:291
 #: src/emc/usr_intf/pncconf/y_axis.glade:291
 #: src/emc/usr_intf/pncconf/z_axis.glade:291
 #: src/emc/usr_intf/pncconf/a_axis.glade:291
 msgid "Negative Travel Distance  (Machine zero Origin to end of - travel): "
-msgstr ""
+msgstr "Záporná vzdialenosť chodu stroja (od nul. bodu stroja po neg. limit): "
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:307
 #: src/emc/usr_intf/pncconf/y_axis.glade:307
 #: src/emc/usr_intf/pncconf/z_axis.glade:307
 #: src/emc/usr_intf/pncconf/a_axis.glade:307
 msgid "Tandem Home Switch location   (Offset from machine zero Origin):"
-msgstr ""
+msgstr "Umiestnenie tandemového kalibr. snímača   (ofset od nuly stroja):"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:323
 #: src/emc/usr_intf/pncconf/y_axis.glade:323
 #: src/emc/usr_intf/pncconf/z_axis.glade:323
 #: src/emc/usr_intf/pncconf/a_axis.glade:323
 msgid "Home Search Velocity:"
-msgstr ""
+msgstr "Rýchlosť hľadania kalibr. snímača:"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:338
 #: src/emc/usr_intf/pncconf/y_axis.glade:338
@@ -17351,20 +17388,21 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/a_axis.glade:338
 msgid "Positive Travel Distance  (Machine zero Origin to end of + travel): "
 msgstr ""
+"Pozitívna vzdialenosť chodu stroja (od nul. bodu stroja po poz. limit): "
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:354
 #: src/emc/usr_intf/pncconf/y_axis.glade:354
 #: src/emc/usr_intf/pncconf/z_axis.glade:354
 #: src/emc/usr_intf/pncconf/a_axis.glade:354
 msgid "Home Search Sequence:"
-msgstr ""
+msgstr "Poradie vyhľadávania kalibrácie:"
 
 #: src/emc/usr_intf/pncconf/x_axis.glade:369
 #: src/emc/usr_intf/pncconf/y_axis.glade:369
 #: src/emc/usr_intf/pncconf/z_axis.glade:369
 #: src/emc/usr_intf/pncconf/a_axis.glade:369
 msgid "Home Switch location   (offset from machine zero Origin):"
-msgstr ""
+msgstr "Umiestnenie kalibr. snímača (ofset od nul. bodu stroja):"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:184
 #: src/emc/usr_intf/pncconf/y_motor.glade:184
@@ -17381,7 +17419,7 @@ msgstr "Max. výstup"
 #: src/emc/usr_intf/pncconf/s_motor.glade:288
 #: src/emc/usr_intf/pncconf/dialogs.glade:3996
 msgid "FF2"
-msgstr ""
+msgstr "FF2"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:273
 #: src/emc/usr_intf/pncconf/y_motor.glade:273
@@ -17390,7 +17428,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/s_motor.glade:302
 #: src/emc/usr_intf/pncconf/dialogs.glade:3985
 msgid "FF1"
-msgstr ""
+msgstr "FF1"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:287
 #: src/emc/usr_intf/pncconf/y_motor.glade:287
@@ -17399,7 +17437,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/s_motor.glade:316
 #: src/emc/usr_intf/pncconf/dialogs.glade:3974
 msgid "FF0"
-msgstr ""
+msgstr "FF0"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:341
 #: src/emc/usr_intf/pncconf/y_motor.glade:341
@@ -17407,7 +17445,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/a_motor.glade:323
 #: src/emc/usr_intf/pncconf/s_motor.glade:370
 msgid "Deadband"
-msgstr ""
+msgstr "Mŕtve pásmo"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:355
 #: src/emc/usr_intf/pncconf/y_motor.glade:355
@@ -17416,7 +17454,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/s_motor.glade:384
 #: src/emc/usr_intf/pncconf/dialogs.glade:4214
 msgid "Bias"
-msgstr ""
+msgstr "BIAS"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:369
 #: src/emc/usr_intf/pncconf/y_motor.glade:369
@@ -17424,7 +17462,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/a_motor.glade:351
 #: src/emc/usr_intf/pncconf/s_motor.glade:398
 msgid "P"
-msgstr ""
+msgstr "P"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:381
 #: src/emc/usr_intf/pncconf/y_motor.glade:381
@@ -17440,7 +17478,7 @@ msgstr "I"
 #: src/emc/usr_intf/pncconf/a_motor.glade:377
 #: src/emc/usr_intf/pncconf/s_motor.glade:424
 msgid "D"
-msgstr ""
+msgstr "D"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:471
 #: src/emc/usr_intf/pncconf/s_motor.glade:500
@@ -17453,7 +17491,7 @@ msgstr "Informácie o PID"
 #: src/emc/usr_intf/pncconf/a_motor.glade:527
 #: src/emc/usr_intf/pncconf/s_motor.glade:586
 msgid "3pwm Scale:"
-msgstr ""
+msgstr "Mierka 3pwm:"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:563
 #: src/emc/usr_intf/pncconf/y_motor.glade:563
@@ -17461,14 +17499,14 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/a_motor.glade:539
 #: src/emc/usr_intf/pncconf/s_motor.glade:598
 msgid "3pwm Deadtime:"
-msgstr ""
+msgstr "Mŕtvy čas 3pwm:"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:577
 #: src/emc/usr_intf/pncconf/y_motor.glade:577
 #: src/emc/usr_intf/pncconf/z_motor.glade:577
 #: src/emc/usr_intf/pncconf/a_motor.glade:553
 msgid "Quad Pulses / Rev:"
-msgstr ""
+msgstr "Kvadrat. pulzy / ot:"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:670
 #: src/emc/usr_intf/pncconf/y_motor.glade:670
@@ -17479,6 +17517,8 @@ msgid ""
 "Open Loop\n"
 "      Test"
 msgstr ""
+"Otvorená slučka\n"
+"       Test"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:696
 #: src/emc/usr_intf/pncconf/y_motor.glade:696
@@ -17499,7 +17539,7 @@ msgstr "Analógový max. limit:"
 #: src/emc/usr_intf/pncconf/z_motor.glade:726
 #: src/emc/usr_intf/pncconf/a_motor.glade:697
 msgid "Analog Max Scale:"
-msgstr ""
+msgstr "Analógová max. mierka:"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:801
 #: src/emc/usr_intf/pncconf/y_motor.glade:801
@@ -17514,7 +17554,7 @@ msgstr "Informácie o výstupe"
 #: src/emc/usr_intf/pncconf/a_motor.glade:810
 #: src/emc/usr_intf/pncconf/s_motor.glade:817
 msgid "Step On-Time"
-msgstr ""
+msgstr "Krok On-Time"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:859
 #: src/emc/usr_intf/pncconf/y_motor.glade:859
@@ -17531,7 +17571,7 @@ msgstr "Priestor v kroku"
 #: src/emc/usr_intf/pncconf/a_motor.glade:872
 #: src/emc/usr_intf/pncconf/s_motor.glade:881
 msgid "Direction Hold"
-msgstr ""
+msgstr "Podržanie smeru"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:925
 #: src/emc/usr_intf/pncconf/y_motor.glade:925
@@ -17547,7 +17587,7 @@ msgstr "Nastavenie smeru"
 #: src/emc/usr_intf/pncconf/a_motor.glade:934
 #: src/emc/usr_intf/pncconf/s_motor.glade:945
 msgid "Driver Type:"
-msgstr ""
+msgstr "Typ ovládača:"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1048
 #: src/emc/usr_intf/pncconf/y_motor.glade:1042
@@ -17555,7 +17595,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/a_motor.glade:999
 #: src/emc/usr_intf/pncconf/s_motor.glade:1004
 msgid "Stepper Info"
-msgstr ""
+msgstr "Informácie o stepperi"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1101
 #: src/emc/usr_intf/pncconf/y_motor.glade:1095
@@ -17563,7 +17603,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/a_motor.glade:1052
 #: src/emc/usr_intf/pncconf/s_motor.glade:1250
 msgid "No feedback"
-msgstr ""
+msgstr "Žiadna spätná väzba"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1117
 #: src/emc/usr_intf/pncconf/y_motor.glade:1111
@@ -17571,7 +17611,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/a_motor.glade:1067
 #: src/emc/usr_intf/pncconf/s_motor.glade:1266
 msgid "Absolute Feedback"
-msgstr ""
+msgstr "Absolútna spätná väzba"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1132
 #: src/emc/usr_intf/pncconf/y_motor.glade:1126
@@ -17595,7 +17635,7 @@ msgstr "Inkrementálny enkóder"
 #: src/emc/usr_intf/pncconf/a_motor.glade:1109
 #: src/emc/usr_intf/pncconf/s_motor.glade:1311
 msgid "Hall sensors"
-msgstr ""
+msgstr "Hallove senzory"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1177
 #: src/emc/usr_intf/pncconf/y_motor.glade:1171
@@ -17603,7 +17643,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/a_motor.glade:1123
 #: src/emc/usr_intf/pncconf/s_motor.glade:1326
 msgid "Fanuc Red Cap "
-msgstr ""
+msgstr "Fanuc RedCap "
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1192
 #: src/emc/usr_intf/pncconf/y_motor.glade:1186
@@ -17619,15 +17659,16 @@ msgstr "použitie indexu enkódera"
 #: src/emc/usr_intf/pncconf/a_motor.glade:1179
 #: src/emc/usr_intf/pncconf/s_motor.glade:1384
 msgid "<b>Input Options</b>"
-msgstr ""
+msgstr "<b>Možnosti vstupu</b>"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1262
 #: src/emc/usr_intf/pncconf/y_motor.glade:1256
 #: src/emc/usr_intf/pncconf/z_motor.glade:1256
 #: src/emc/usr_intf/pncconf/a_motor.glade:1206
 #: src/emc/usr_intf/pncconf/s_motor.glade:1411
+#, fuzzy
 msgid "Digital instead of PWM outputs"
-msgstr ""
+msgstr "Digitál namiesto PWM výstupov"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1277
 #: src/emc/usr_intf/pncconf/y_motor.glade:1271
@@ -17635,15 +17676,16 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/a_motor.glade:1220
 #: src/emc/usr_intf/pncconf/s_motor.glade:1426
 msgid "6 outputs instead of 3 "
-msgstr ""
+msgstr "6 výstupov namiesto 3 "
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1292
 #: src/emc/usr_intf/pncconf/y_motor.glade:1286
 #: src/emc/usr_intf/pncconf/z_motor.glade:1286
 #: src/emc/usr_intf/pncconf/a_motor.glade:1234
 #: src/emc/usr_intf/pncconf/s_motor.glade:1441
+#, fuzzy
 msgid "Force Trapezoid Mode"
-msgstr ""
+msgstr "Vynútiť trapézový bod"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1307
 #: src/emc/usr_intf/pncconf/y_motor.glade:1301
@@ -17651,7 +17693,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/a_motor.glade:1248
 #: src/emc/usr_intf/pncconf/s_motor.glade:1456
 msgid "Emulate feedback "
-msgstr ""
+msgstr "Emulovať spätnú väzbu "
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1322
 #: src/emc/usr_intf/pncconf/y_motor.glade:1316
@@ -17659,7 +17701,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/a_motor.glade:1262
 #: src/emc/usr_intf/pncconf/s_motor.glade:1471
 msgid "Emulated Hall sensors"
-msgstr ""
+msgstr "Emulované Hallove senzory"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1338
 #: src/emc/usr_intf/pncconf/y_motor.glade:1332
@@ -17667,7 +17709,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/a_motor.glade:1277
 #: src/emc/usr_intf/pncconf/s_motor.glade:1487
 msgid "Emulated Fanuc Red Cap"
-msgstr ""
+msgstr "Emulované Fanuc Red Cap"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1374
 #: src/emc/usr_intf/pncconf/y_motor.glade:1368
@@ -17683,15 +17725,16 @@ msgstr "Maximálny prúd 8i20"
 #: src/emc/usr_intf/pncconf/a_motor.glade:1355
 #: src/emc/usr_intf/pncconf/s_motor.glade:1568
 msgid "<b>Output Options</b>"
-msgstr ""
+msgstr "<b>Možnosti výstupu</b>"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1481
 #: src/emc/usr_intf/pncconf/y_motor.glade:1475
 #: src/emc/usr_intf/pncconf/z_motor.glade:1475
 #: src/emc/usr_intf/pncconf/a_motor.glade:1413
 #: src/emc/usr_intf/pncconf/s_motor.glade:1630
+#, fuzzy
 msgid "alignment current"
-msgstr ""
+msgstr "vyrovnávanie prúdu"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1492
 #: src/emc/usr_intf/pncconf/y_motor.glade:1486
@@ -17699,7 +17742,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/a_motor.glade:1424
 #: src/emc/usr_intf/pncconf/s_motor.glade:1641
 msgid "lead angle"
-msgstr ""
+msgstr "uhol nábehu"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1606
 #: src/emc/usr_intf/pncconf/y_motor.glade:1600
@@ -17715,7 +17758,7 @@ msgstr "Obrátene"
 #: src/emc/usr_intf/pncconf/a_motor.glade:1536
 #: src/emc/usr_intf/pncconf/s_motor.glade:1766
 msgid "Input-pattern"
-msgstr ""
+msgstr "Vstupný vzor"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1628
 #: src/emc/usr_intf/pncconf/y_motor.glade:1622
@@ -17723,15 +17766,16 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/a_motor.glade:1547
 #: src/emc/usr_intf/pncconf/s_motor.glade:1777
 msgid "output-pattern"
-msgstr ""
+msgstr "výstupný vzor"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1639
 #: src/emc/usr_intf/pncconf/y_motor.glade:1633
 #: src/emc/usr_intf/pncconf/z_motor.glade:1633
 #: src/emc/usr_intf/pncconf/a_motor.glade:1558
 #: src/emc/usr_intf/pncconf/s_motor.glade:1788
+#, fuzzy
 msgid "Drive-offset"
-msgstr ""
+msgstr "offset"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1650
 #: src/emc/usr_intf/pncconf/y_motor.glade:1644
@@ -17739,7 +17783,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/a_motor.glade:1569
 #: src/emc/usr_intf/pncconf/s_motor.glade:1799
 msgid "Encoder-offset"
-msgstr ""
+msgstr "Enkóder-offset"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1661
 #: src/emc/usr_intf/pncconf/y_motor.glade:1655
@@ -17747,7 +17791,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/a_motor.glade:1580
 #: src/emc/usr_intf/pncconf/s_motor.glade:1810
 msgid "Poles"
-msgstr ""
+msgstr "Póly"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1683
 #: src/emc/usr_intf/pncconf/y_motor.glade:1677
@@ -17763,7 +17807,7 @@ msgstr "<b>Konfigurácia</b>"
 #: src/emc/usr_intf/pncconf/a_motor.glade:1619
 #: src/emc/usr_intf/pncconf/s_motor.glade:1849
 msgid "Details"
-msgstr ""
+msgstr "Podrobnosti"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1717
 #: src/emc/usr_intf/pncconf/y_motor.glade:1711
@@ -18309,6 +18353,8 @@ msgid ""
 "Save entered data and quit\n"
 "or discard changes and quit?"
 msgstr ""
+"Uložiť zadané údaje\n"
+"a skončiť?"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:749
 msgid ""
