@@ -117,14 +117,14 @@ not have the corresponding axis.
 |C | C axis of machine
 |D | Tool radius compensation number
 |F | Feed rate
-|G | General function (See table  <<cap:modal-groups,Modal Groups>>)
+|G | General function (See table  <<cap:modal-groups,G-code Modal Groups>>)
 |H | Tool length offset index
 |I | X offset for arcs and G87 canned cycles
 |J | Y offset for arcs and G87 canned cycles
 .2+|K | Z offset for arcs and G87 canned cycles.
 <| Spindle-Motion Ratio for G33 synchronized movements.
 |L | generic parameter word for G10, M66 and others
-|M | Miscellaneous function (See table  <<cap:modal-groups,Modal Groups>>)
+|M | Miscellaneous function (See table  <<tbl:mcodes-modal-groups,M-code Modal Groups>>)
 |N | Line number
 .2+|P | Dwell time in canned cycles and with G4.
 <| Key used with G10.
