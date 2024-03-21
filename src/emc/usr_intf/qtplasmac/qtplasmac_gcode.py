@@ -122,6 +122,7 @@ class Filter():
         self.errorNoMat = []
         self.errorBadMat = []
         self.errorTempMat = []
+        self.errorTempValid = []
         self.errorNewMat = []
         self.errorEditMat = []
         self.errorWriteMat = []
@@ -1072,6 +1073,7 @@ class Filter():
                     self.errorLines.append(self.lineNumOrg)
         except:
             self.set_code_error()
+            self.errorTempValid.append(self.lineNum)
             self.errorLines.append(self.lineNumOrg)
 
     def set_temporary_material(self, data):
@@ -1229,6 +1231,9 @@ class Filter():
             if self.errorTempMat:
                 msg  = 'Error attempting to add a temporary material.\n'
                 errorText += self.message_set(self.errorTempMat, msg)
+            if self.errorTempValid:
+                msg  = 'Invalid parameter in temporary material.\n'
+                errorText += self.message_set(self.errorTempValid, msg)
             if self.errorNewMat:
                 msg  = 'Cannot add new material, number is in use.\n'
                 errorText += self.message_set(self.errorNewMat, msg)
