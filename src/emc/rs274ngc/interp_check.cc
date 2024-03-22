@@ -235,11 +235,11 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
   motion = block->motion_to_be;
 
   // bypass ALL checks, argspec takes care of that
-  if (IS_USER_GCODE(motion)) {
+  if (is_user_defined_g_code(motion)) {
       return INTERP_OK;
   }
   // bypass ALL checks, argspec takes care of that
-  if (has_user_mcode(&(_setup),block)) {
+  if (is_any_m_code_remapped(block, &(_setup))) {
       return INTERP_OK;
     }
   if (block->a_flag) {

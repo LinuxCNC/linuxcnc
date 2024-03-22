@@ -34,18 +34,50 @@ namespace bp = boost::python;
 
 
 
-bool Interp::has_user_mcode(setup_pointer settings,block_pointer block)
+bool Interp::is_m_code_remappable(int m_code)
 {
-    unsigned i;
-    for(i = 0; i < sizeof(block->m_modes)/sizeof(int); i++) {
-	if (block->m_modes[i] == -1)
-	    continue;
-	if (M_REMAPPABLE(block->m_modes[i]) &&
-	    settings->m_remapped[block->m_modes[i]])
+    // this is overdue for a bitset
+    return ((m_code > 199 && m_code < 1000) ||
+            (m_code > 0 && m_code < 100 && ems[m_code] == -1) ||
+            m_code == 0 ||
+            m_code == 1 ||
+            m_code == 6 ||
+            m_code == 9 ||
+            m_code == 60 ||
+            m_code == 61 ||
+            m_code == 62 ||
+            m_code == 63 ||
+            m_code == 64 ||
+            m_code == 65 ||
+            m_code == 66 ||
+            m_code == 67 ||
+            m_code == 68);
+}
+
+bool Interp::is_any_m_code_remapped(block_pointer block, setup_pointer settings)
+{
+    for (const int m_mode : block->m_modes) {
+	if (m_mode == -1)
+            continue;
+        if (is_m_code_remappable(m_mode) && settings->m_remapped[m_mode])
 	    return true;
     }
     return false;
 }
+
+bool Interp::is_user_defined_m_code(block_pointer block, setup_pointer settings, int m_group)
+{
+    const int m_code = block->m_modes[m_group];
+    if (m_code < 0) return false;
+
+    return (is_m_code_remappable(m_code) && settings->m_remapped[m_code]);
+}
+
+bool Interp::is_g_code_remappable(int g_code)
+{ return g_code > 0 && g_code < 1000 && gees[g_code] == -1; }
+
+bool Interp::is_user_defined_g_code(int g_code)
+{ return is_g_code_remappable(g_code) && _setup.g_remapped[g_code]; }
 
 bool Interp::remap_in_progress(const char *code)
 {
