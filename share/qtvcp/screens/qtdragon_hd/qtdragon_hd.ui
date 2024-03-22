@@ -118,6 +118,9 @@
       <property name="pref_filename_string" stdset="0">
        <string>~/linuxcnc/configs/qtdragon_hd/qtdragon.pref</string>
       </property>
+      <property name="use_receive_zmq_option" stdset="0">
+       <bool>false</bool>
+      </property>
       <property name="embedded_program_option" stdset="0">
        <bool>true</bool>
       </property>
@@ -125,7 +128,26 @@
        <bool>true</bool>
       </property>
       <property name="focusBlur_option" stdset="0">
-       <bool>false</bool>
+       <bool>true</bool>
+      </property>
+      <property name="focusBlurList" stdset="0">
+       <stringlist>
+        <string>frame_buttonbar</string>
+        <string>frame_top_left</string>
+        <string>groupBox_mode</string>
+        <string>groupBox_inputs</string>
+        <string>frame_jogging</string>
+        <string>stackedWidget_dro</string>
+        <string>frame_program</string>
+        <string>frame_tool</string>
+        <string>groupBox_power</string>
+        <string>frame_offsets</string>
+        <string>frame_spindle</string>
+        <string>groupBox_status</string>
+        <string>frame_modbus</string>
+        <string>frame_macro_buttons</string>
+        <string>widget_view_buttons</string>
+       </stringlist>
       </property>
       <property name="entryDialog_option" stdset="0">
        <bool>true</bool>
@@ -17124,7 +17146,7 @@ ANGULAR</string>
          <number>2</number>
         </property>
         <property name="text">
-         <string>08:13:17 PM</string>
+         <string>10:09:17 PM</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>

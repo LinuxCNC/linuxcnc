@@ -110,7 +110,7 @@
        <bool>true</bool>
       </property>
       <property name="play_sounds_option" stdset="0">
-       <bool>false</bool>
+       <bool>true</bool>
       </property>
       <property name="use_pref_file_option" stdset="0">
        <bool>true</bool>
@@ -125,10 +125,36 @@
        <bool>true</bool>
       </property>
       <property name="focusBlur_option" stdset="0">
-       <bool>false</bool>
+       <bool>true</bool>
+      </property>
+      <property name="focusBlurList" stdset="0">
+       <stringlist>
+        <string>frame_status</string>
+        <string>frame_buttonbar</string>
+        <string>stackedWidget_dro</string>
+        <string>widget_program_tool</string>
+        <string>jogging_frame</string>
+        <string>frame_top_left</string>
+        <string>frm_backplot</string>
+        <string>frame_macro_buttons</string>
+        <string>status_frame</string>
+        <string>gcode_viewer</string>
+        <string>frm_backplot</string>
+       </stringlist>
       </property>
       <property name="focusTint_option" stdset="0">
        <bool>false</bool>
+      </property>
+      <property name="focusTintList" stdset="0">
+       <stringlist>
+        <string>frame_status</string>
+        <string>frame_buttonbar</string>
+        <string>stackedWidget_dro</string>
+        <string>widget_program_tool</string>
+        <string>frame_top_left</string>
+        <string>jogging_frame</string>
+        <string>status_frame</string>
+       </stringlist>
       </property>
       <property name="entryDialog_option" stdset="0">
        <bool>true</bool>
@@ -1139,7 +1165,7 @@ RESET</string>
                         <enum>QFrame::Raised</enum>
                        </property>
                        <property name="currentIndex">
-                        <number>3</number>
+                        <number>0</number>
                        </property>
                        <widget class="QWidget" name="gcode_page">
                         <property name="sizePolicy">
@@ -17421,261 +17447,263 @@ ZERO</string>
         </layout>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="status_layout">
-         <property name="spacing">
-          <number>6</number>
-         </property>
-         <property name="leftMargin">
-          <number>4</number>
-         </property>
-         <property name="topMargin">
-          <number>0</number>
-         </property>
-         <property name="rightMargin">
-          <number>4</number>
-         </property>
-         <property name="bottomMargin">
-          <number>2</number>
-         </property>
-         <item>
-          <widget class="QLineEdit" name="lineEdit_statusbar">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-             <horstretch>1</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>746</width>
-             <height>21</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>941</width>
-             <height>21</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="autoFillBackground">
-            <bool>false</bool>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-           <property name="placeholderText">
-            <string>STATUS</string>
-           </property>
-           <property name="clearButtonEnabled">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeType">
-            <enum>QSizePolicy::Expanding</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>185</width>
-             <height>10</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_47">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>88</width>
-             <height>21</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>88</width>
-             <height>21</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>MOTION</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="StatusLabel" name="statuslabel_motion">
-           <property name="minimumSize">
-            <size>
-             <width>84</width>
-             <height>21</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>84</width>
-             <height>21</height>
-            </size>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-           <property name="motion_type_status" stdset="0">
-            <bool>true</bool>
-           </property>
-           <property name="motion_type_list" stdset="0">
-            <stringlist>
-             <string>           </string>
-             <string>Rapid</string>
-             <string>Feed</string>
-             <string>Arc</string>
-             <string>Tool Change</string>
-             <string>Probe</string>
-             <string>Rotaty Index</string>
-            </stringlist>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_44">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>80</width>
-             <height>21</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>88</width>
-             <height>21</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>RUN TIME</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="StatusLabel" name="lbl_runtime">
-           <property name="minimumSize">
-            <size>
-             <width>88</width>
-             <height>21</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>88</width>
-             <height>21</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>00:00:00</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-           <property name="textTemplate" stdset="0">
-            <string>00:00:00</string>
-           </property>
-           <property name="feed_override_status" stdset="0">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_11">
-           <property name="minimumSize">
-            <size>
-             <width>45</width>
-             <height>21</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>45</width>
-             <height>21</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>TIME</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="StatusLabel" name="lbl_clock">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>88</width>
-             <height>21</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>88</width>
-             <height>21</height>
-            </size>
-           </property>
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Sunken</enum>
-           </property>
-           <property name="lineWidth">
-            <number>2</number>
-           </property>
-           <property name="text">
-            <string>06:06:54 PM</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-           <property name="textTemplate" stdset="0">
-            <string>%I:%M:%S %p</string>
-           </property>
-           <property name="feed_override_status" stdset="0">
-            <bool>false</bool>
-           </property>
-           <property name="time_stamp_status" stdset="0">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-        </layout>
+        <widget class="QFrame" name="status_frame">
+         <layout class="QHBoxLayout" name="status_layout">
+          <property name="spacing">
+           <number>6</number>
+          </property>
+          <property name="leftMargin">
+           <number>4</number>
+          </property>
+          <property name="topMargin">
+           <number>1</number>
+          </property>
+          <property name="rightMargin">
+           <number>4</number>
+          </property>
+          <property name="bottomMargin">
+           <number>2</number>
+          </property>
+          <item>
+           <widget class="QLineEdit" name="lineEdit_statusbar">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>1</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>746</width>
+              <height>21</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>941</width>
+              <height>21</height>
+             </size>
+            </property>
+            <property name="focusPolicy">
+             <enum>Qt::NoFocus</enum>
+            </property>
+            <property name="autoFillBackground">
+             <bool>false</bool>
+            </property>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+            <property name="placeholderText">
+             <string>STATUS</string>
+            </property>
+            <property name="clearButtonEnabled">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Expanding</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>185</width>
+              <height>10</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_47">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>88</width>
+              <height>21</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>88</width>
+              <height>21</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>MOTION</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="StatusLabel" name="statuslabel_motion">
+            <property name="minimumSize">
+             <size>
+              <width>84</width>
+              <height>21</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>84</width>
+              <height>21</height>
+             </size>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="motion_type_status" stdset="0">
+             <bool>true</bool>
+            </property>
+            <property name="motion_type_list" stdset="0">
+             <stringlist>
+              <string>           </string>
+              <string>Rapid</string>
+              <string>Feed</string>
+              <string>Arc</string>
+              <string>Tool Change</string>
+              <string>Probe</string>
+              <string>Rotaty Index</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_44">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>80</width>
+              <height>21</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>88</width>
+              <height>21</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>RUN TIME</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="StatusLabel" name="lbl_runtime">
+            <property name="minimumSize">
+             <size>
+              <width>88</width>
+              <height>21</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>88</width>
+              <height>21</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>00:00:00</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="textTemplate" stdset="0">
+             <string>00:00:00</string>
+            </property>
+            <property name="feed_override_status" stdset="0">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_11">
+            <property name="minimumSize">
+             <size>
+              <width>45</width>
+              <height>21</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>45</width>
+              <height>21</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>TIME</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="StatusLabel" name="lbl_clock">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>88</width>
+              <height>21</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>88</width>
+              <height>21</height>
+             </size>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::NoFrame</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Sunken</enum>
+            </property>
+            <property name="lineWidth">
+             <number>2</number>
+            </property>
+            <property name="text">
+             <string>09:57:12 PM</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="textTemplate" stdset="0">
+             <string>%I:%M:%S %p</string>
+            </property>
+            <property name="feed_override_status" stdset="0">
+             <bool>false</bool>
+            </property>
+            <property name="time_stamp_status" stdset="0">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -18035,310 +18063,6 @@ ZERO</string>
    </hints>
   </connection>
   <connection>
-   <sender>btn_jog_l_slow</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>slow_button_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1262</x>
-     <y>415</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>719</x>
-     <y>429</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btn_dimensions</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>btn_dimensions_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>429</x>
-     <y>410</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>0</x>
-     <y>323</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cam_zoom</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>cam_zoom_changed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>979</x>
-     <y>197</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1105</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>chk_use_tool_sensor</sender>
-   <signal>stateChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>chk_use_sensor_changed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>474</x>
-     <y>84</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>508</x>
-     <y>859</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btn_gcode_edit</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>btn_gcode_edit_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>459</x>
-     <y>598</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>515</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cam_diameter</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>cam_dia_changed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>979</x>
-     <y>375</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1124</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>chk_use_virtual</sender>
-   <signal>stateChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>chk_use_virtual_changed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>474</x>
-     <y>84</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>565</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>chk_alpha_mode</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>chk_alpha_mode_changed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>474</x>
-     <y>84</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>645</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btn_save_status</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>btn_save_status_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1004</x>
-     <y>216</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1098</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>chk_override_limits</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>chk_override_limits_checked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>474</x>
-     <y>84</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>719</x>
-     <y>429</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cam_rotate</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>cam_rot_changed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>979</x>
-     <y>553</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1156</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>chk_use_camera</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>chk_use_camera_changed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>474</x>
-     <y>84</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>656</x>
-     <y>859</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btn_copy_left</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>btn_copy_file_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>459</x>
-     <y>394</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>471</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>chk_run_from_line</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>chk_run_from_line_checked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>474</x>
-     <y>84</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>554</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btn_load_file</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>btn_load_file_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>459</x>
-     <y>114</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1059</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btn_copy_right</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>btn_copy_file_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>459</x>
-     <y>328</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>446</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btn_clear_status</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>btn_clear_status_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1004</x>
-     <y>160</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1039</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>chk_inhibit_selection</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>chk_inhibit_selection_changed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>474</x>
-     <y>84</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>719</x>
-     <y>429</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btn_jog_a_slow</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>slow_button_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1081</x>
-     <y>568</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1478</x>
-     <y>451</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>btn_home_z</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
@@ -18387,230 +18111,6 @@ ZERO</string>
    </hints>
   </connection>
   <connection>
-   <sender>pushbutton_3</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>btn_about_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>470</x>
-     <y>100</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>988</x>
-     <y>-20</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btn_ref_camera</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>btn_ref_camera_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>82</x>
-     <y>104</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>273</x>
-     <y>859</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>gcode_viewer</sender>
-   <signal>percentDone(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>percent_done_changed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>102</x>
-     <y>82</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>0</x>
-     <y>302</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btn_ref_laser</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>btn_ref_laser_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>82</x>
-     <y>104</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>238</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cmb_gcode_history</sender>
-   <signal>activated(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>cmb_gcode_history_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>102</x>
-     <y>86</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>356</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btn_goto_sensor</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>btn_goto_sensor_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>79</x>
-     <y>104</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>0</x>
-     <y>434</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btn_touch_sensor</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>btn_touchoff_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>82</x>
-     <y>104</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>322</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btn_touchplate</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>btn_touchoff_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>355</x>
-     <y>571</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>0</x>
-     <y>467</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btn_m61</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>btn_m61_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>269</x>
-     <y>571</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>0</x>
-     <y>438</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushbutton_6</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>btn_spindle_z_up_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>424</x>
-     <y>84</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>717</x>
-     <y>-11</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushbutton_7</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>btn_spindle_z_down_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>424</x>
-     <y>84</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>926</x>
-     <y>-8</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushbutton_5</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>btn_zoomin_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>424</x>
-     <y>84</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>631</x>
-     <y>-11</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushbutton_4</sender>
-   <signal>clicked(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>btn_zoomout_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>424</x>
-     <y>84</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1073</x>
-     <y>-19</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>tabWidget_utilities</sender>
-   <signal>currentChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>tab_utilities_changed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>474</x>
-     <y>84</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>0</x>
-     <y>204</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>action_home_4</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
@@ -18655,6 +18155,534 @@ ZERO</string>
     <hint type="destinationlabel">
      <x>-57</x>
      <y>560</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tabWidget_utilities</sender>
+   <signal>currentChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>tab_utilities_changed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>474</x>
+     <y>84</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>0</x>
+     <y>204</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cam_diameter</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>cam_dia_changed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>404</x>
+     <y>134</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1124</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushbutton_7</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_spindle_z_down_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>424</x>
+     <y>84</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>926</x>
+     <y>-8</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_gcode_edit</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_gcode_edit_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>459</x>
+     <y>598</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>515</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_dimensions</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_dimensions_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>429</x>
+     <y>374</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>0</x>
+     <y>323</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>chk_use_virtual</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>chk_use_virtual_changed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>474</x>
+     <y>84</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>565</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>chk_override_limits</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>chk_override_limits_checked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>474</x>
+     <y>84</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>719</x>
+     <y>429</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_ref_camera</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_ref_camera_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>82</x>
+     <y>104</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>273</x>
+     <y>859</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>chk_alpha_mode</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>chk_alpha_mode_changed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>474</x>
+     <y>84</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>645</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_goto_sensor</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_goto_sensor_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>79</x>
+     <y>104</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>0</x>
+     <y>434</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_touch_sensor</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_touchoff_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>82</x>
+     <y>104</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>322</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>chk_use_camera</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>chk_use_camera_changed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>474</x>
+     <y>84</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>656</x>
+     <y>859</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_m61</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_m61_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>269</x>
+     <y>571</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>0</x>
+     <y>438</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_jog_l_slow</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>slow_button_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1262</x>
+     <y>415</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>719</x>
+     <y>429</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cam_zoom</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>cam_zoom_changed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>404</x>
+     <y>134</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1105</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cam_rotate</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>cam_rot_changed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>404</x>
+     <y>134</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1156</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>chk_inhibit_selection</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>chk_inhibit_selection_changed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>474</x>
+     <y>84</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>719</x>
+     <y>429</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_touchplate</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_touchoff_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>355</x>
+     <y>571</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>0</x>
+     <y>467</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>chk_run_from_line</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>chk_run_from_line_checked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>474</x>
+     <y>84</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>554</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_copy_right</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_copy_file_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>459</x>
+     <y>328</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>446</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cmb_gcode_history</sender>
+   <signal>activated(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>cmb_gcode_history_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>102</x>
+     <y>86</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>356</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_load_file</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_load_file_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>459</x>
+     <y>114</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1059</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>gcode_viewer</sender>
+   <signal>percentDone(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>percent_done_changed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>109</x>
+     <y>157</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>0</x>
+     <y>302</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_jog_a_slow</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>slow_button_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1081</x>
+     <y>568</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1478</x>
+     <y>451</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_save_status</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_save_status_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>454</x>
+     <y>104</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1098</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushbutton_6</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_spindle_z_up_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>424</x>
+     <y>84</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>717</x>
+     <y>-11</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>chk_use_tool_sensor</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>chk_use_sensor_changed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>474</x>
+     <y>84</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>508</x>
+     <y>859</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushbutton_5</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_zoomin_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>424</x>
+     <y>84</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>631</x>
+     <y>-11</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_copy_left</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_copy_file_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>459</x>
+     <y>394</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>471</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushbutton_4</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_zoomout_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>424</x>
+     <y>84</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1073</x>
+     <y>-19</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_ref_laser</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_ref_laser_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>82</x>
+     <y>104</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>238</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushbutton_3</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_about_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>470</x>
+     <y>100</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>988</x>
+     <y>-20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_clear_status</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_clear_status_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>454</x>
+     <y>104</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1039</x>
+     <y>0</y>
     </hint>
    </hints>
   </connection>
@@ -18739,7 +18767,7 @@ ZERO</string>
   <slot>btn_pause_clicked()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
+  <buttongroup name="mode_buttonGroup"/>
  </buttongroups>
 </ui>

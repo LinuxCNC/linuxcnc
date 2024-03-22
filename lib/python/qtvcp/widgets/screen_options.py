@@ -15,8 +15,11 @@
 ###############################################################################
 
 import os
-
 from PyQt5 import QtCore, QtWidgets, QtGui
+from PyQt5.QtWidgets import (QGraphicsBlurEffect,
+                QGraphicsColorizeEffect)
+from PyQt5.QtCore import QVariant
+
 import linuxcnc
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
@@ -144,6 +147,8 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self._zmq_sub_socket_address = "tcp://127.0.0.1:5690"
         self._zmq_pub_socket_address = "tcp://127.0.0.1:5690"
         self._halBaseName = ''
+        self.__blurList = []
+        self.__tintList = []
 
     # self.QTVCP_INSTANCE_
     # self.HAL_GCOMP_
@@ -519,7 +524,6 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     @QtCore.pyqtSlot(bool)
     @QtCore.pyqtSlot(int)
     def showAboutDialog(self, value):
-        print(value)
         self.QTVCP_INSTANCE_.aboutDialog_.showdialog()
 
     def init_tool_dialog(self):
@@ -573,7 +577,22 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         w.focusOverlay_.hal_init(HAL_NAME='')
 
     def init_focus_effect(self):
-        STATUS.connect('focus-overlay-changed', lambda w, data, text, color:
+       if self.use_focus_blur:
+            for i in (self.__blurList):
+                self['{}_blur'.format(i)] = QGraphicsBlurEffect()
+                self['{}_blur'.format(i)].setBlurRadius(5)
+                self['{}_blur'.format(i)].setEnabled(False)
+                self.QTVCP_INSTANCE_[i].setGraphicsEffect(self['{}_blur'.format(i)])
+
+       if self.use_focus_tint:
+            for i in (self.__tintList):
+                self['{}_tint'.format(i)] = QGraphicsColorizeEffect()
+                self['{}_tint'.format(i)].setColor(QtGui.QColor(100, 0, 0, 150))
+                self['{}_tint'.format(i)].setStrength(1)
+                self['{}_tint'.format(i)].setEnabled(False)
+                self.QTVCP_INSTANCE_[i].setGraphicsEffect(self['{}_tint'.format(i)])
+
+       STATUS.connect('focus-overlay-changed', lambda w, data, text, color:
                         self.effect(data, text, color))
 
     def init_keyboard_dialog(self):
@@ -721,9 +740,18 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
 
     def effect(self, data, text, color):
         if self.use_focus_blur:
-            ACTION.SET_BLUR(self.QTVCP_INSTANCE_,data)
-        elif self.use_focus_tint:
-            ACTION.SET_TINT(self.QTVCP_INSTANCE_, data, color)
+            if self.__blurList == []:
+                ACTION.SET_BLUR(self.QTVCP_INSTANCE_,data)
+            else:
+                for i in (self.__blurList):
+                    self['{}_blur'.format(i)].setEnabled(data)
+                    self.QTVCP_INSTANCE_[i].raise_()
+        if self.use_focus_tint:
+            for i in (self.__tintList):
+                if not color is None:
+                    self['{}_tint'.format(i)].setColor(color)
+                self['{}_tint'.format(i)].setEnabled(data)
+                self.QTVCP_INSTANCE_[i].raise_()
 
     #########################################################################
     # This is how designer can interact with our widget properties.
@@ -869,6 +897,14 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self.use_focus_blur = False
     focusBlur_option = QtCore.pyqtProperty(bool, get_focusBlur, set_focusBlur, reset_focusBlur)
 
+    def set_blurList(self, data):
+        self.__blurList = data
+    def get_blurList(self):
+        return self.__blurList
+    def reset_blurList(self):
+        self.__blurList = []
+    focusBlurList = QtCore.pyqtProperty(QVariant.typeToName(QVariant.StringList), get_blurList, set_blurList, reset_blurList)
+
     def set_focusTint(self, data):
         self.use_focus_tint = data
         if data:
@@ -878,6 +914,14 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def reset_focusTint(self):
         self.use_focus_tint = False
     focusTint_option = QtCore.pyqtProperty(bool, get_focusTint, set_focusTint, reset_focusTint)
+
+    def set_tintList(self, data):
+        self.__tintList = data
+    def get_tintList(self):
+        return self.__tintList
+    def reset_tintList(self):
+        self.__tintList = []
+    focusTintList = QtCore.pyqtProperty(QVariant.typeToName(QVariant.StringList), get_tintList, set_tintList, reset_tintList)
 
     # Dialogs ##########################################
 
