@@ -1,3 +1,6 @@
+ver 3.4.8
+ - re-ordered settings pages to have all appearance-related on one page
+
 ver 3.4.7.1
  - Remember window size and position when switching back from fullscreen/maximized
  - Fix "window does not fit 1024x768 in fullscreen"
