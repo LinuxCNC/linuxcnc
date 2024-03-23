@@ -201,6 +201,7 @@ static int axis_mask = 0;
     FIELD(hal_bit_t,home_all) /* pin for homing all joints in sequence */ \
     FIELD(hal_bit_t,abort) /* pin for aborting */ \
     ARRAY(hal_bit_t,mdi_commands,MDI_MAX) \
+    FIELD(hal_bit_t,mdi_is_running) /* pin for notifying user that MDI commands is running */ \
 \
     FIELD(hal_float_t,units_per_mm) \
 
@@ -617,6 +618,12 @@ int halui_hal_init(void)
     if (retval < 0) return retval;
     retval = halui_export_pin_OUT_bit(&(halui_data->program_is_running), "halui.program.is-running");
     if (retval < 0) return retval;
+    
+    if (num_mdi_commands>0){
+    retval = halui_export_pin_OUT_bit(&(halui_data->mdi_is_running), "halui.mdi-is-running");
+    if (retval < 0) return retval;
+	}
+    
     retval = halui_export_pin_OUT_bit(&(halui_data->program_is_paused), "halui.program.is-paused");
     if (retval < 0) return retval;
     retval = halui_export_pin_OUT_bit(&(halui_data->program_os_is_on), "halui.program.optional-stop.is-on");
@@ -1030,6 +1037,10 @@ static int sendMdiCommand(int n)
         // so we can restore it when all the MDI commands finish.
         halui_old_mode = emcStatus->task.mode;
     }
+    halui_sent_mdi = 1;
+    *(halui_data->mdi_is_running) = halui_sent_mdi;
+    updateStatus();
+    
 
     // switch to MDI mode if needed
     if (emcStatus->task.mode != EMC_TASK_MODE_MDI) {
@@ -1051,7 +1062,6 @@ static int sendMdiCommand(int n)
         rtapi_print("halui: %s: failed to send mdi command %d\n", __func__, n);
 	return -1;
     }
-    halui_sent_mdi = 1;
     return 0;
 }
 
@@ -2174,6 +2184,7 @@ static void modify_hal_pins()
     *(halui_data->program_is_paused) = emcStatus->task.interpState == EMC_TASK_INTERP_PAUSED;
     *(halui_data->program_is_running) = emcStatus->task.interpState == EMC_TASK_INTERP_READING ||
                                         emcStatus->task.interpState == EMC_TASK_INTERP_WAITING;
+    *(halui_data->mdi_is_running) = halui_sent_mdi;
     *(halui_data->program_is_idle) = emcStatus->task.interpState == EMC_TASK_INTERP_IDLE;
     *(halui_data->program_os_is_on) = emcStatus->task.optional_stop_state;
     *(halui_data->program_bd_is_on) = emcStatus->task.block_delete_state;
