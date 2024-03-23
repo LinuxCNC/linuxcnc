@@ -391,8 +391,9 @@ class gmoccapy(object):
 
         self.widgets.tbtn_view_tool_path.set_active(self.prefs.getpref("view_tool_path", True, bool))
         self.widgets.tbtn_view_dimension.set_active(self.prefs.getpref("view_dimension", True, bool))
-        view = view = self.prefs.getpref("view", "p", str)
+        view = self.prefs.getpref("view", "p", str)
         self.widgets["rbt_view_{0}".format(view)].set_active(True)
+        self.widgets.gremlin.set_property("view", view)
 
         # get if run from line should be used
         rfl = self.prefs.getpref("run_from_line", "no_run", str)
