@@ -771,8 +771,10 @@ class _Lcnc_Action(object):
         self._touchoff_return = rtn_method
         self._touchoff_error_return = error_rtn
 
-        if self.proc is not None:
-            return 0
+        if not self.proc is None:
+            return "Touchoff routine is already running"
+        if not os.path.exists(self.TOUCHOFF_SUBPROGRAM):
+            return "Touchoff subroutine path not found at:{}".format(self.TOUCHOFF_SUBPROGRAM)
         self.proc = QProcess()
         self.proc.setReadChannel(QProcess.StandardOutput)
         self.proc.started.connect(self.touchoff_started)

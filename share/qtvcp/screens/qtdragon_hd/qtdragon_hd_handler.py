@@ -1240,8 +1240,8 @@ class HandlerClass:
         safe_z = self.w.lineEdit_z_safe_travel.text()
         rtn = ACTION.TOUCHPLATE_TOUCHOFF(search_vel, probe_vel, max_probe, 
                 z_offset, retract, safe_z, self.touchoff_return, self.touchoff_error)
-        if rtn == 0:
-            self.add_status("Touchoff routine is already running", WARNING)
+        if not rtn == 1:
+            self.add_status(rtn, CRITICAL)
 
     def touchoff_return(self, data):
         self.add_status("Touchplate touchoff routine returned successfully")
