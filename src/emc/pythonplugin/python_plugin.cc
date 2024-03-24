@@ -28,6 +28,7 @@
 #include <boost/python/exec.hpp>
 #include <boost/python/extract.hpp>
 #include <boost/python/import.hpp>
+#include <pyconfig.h>
 
 namespace bp = boost::python;
 
@@ -293,9 +294,11 @@ PythonPlugin::PythonPlugin(struct _inittab *inittab) :
     abs_path(0),
     log_level(0)
 {
+  PyConfig config;
+  PyConfig_InitPythonConfig(&config);
   if (abs_path) {
     wchar_t *program = Py_DecodeLocale(abs_path, NULL);
-    Py_SetProgramName(program);
+    PyConfig_SetString(&config, &config.program_name, program);
   }
     if (inittab != NULL) {
       if (!Py_IsInitialized()) {
