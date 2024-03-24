@@ -801,7 +801,7 @@ class gmoccapy(object):
             btn.add(image)
         except Exception as e:
             LOG.error(e)
-            message = _("could not resolv the image path '{0}' given for button '{1}'".format(filepath, name))
+            message = _("could not resolve the image path '{0}' given for button '{1}'".format(filepath, name))
             LOG.error(message)
             image.set_from_icon_name("image-missing", Gtk.IconSize.DIALOG)
             btn.add(image)
@@ -1077,7 +1077,7 @@ class gmoccapy(object):
         xpos, ypos, zpos, maxprobe = self.get_ini_info.get_tool_sensor_data()
         if not xpos or not ypos or not zpos or not maxprobe:
             self.widgets.lbl_tool_measurement.show()
-            LOG.info(_("No valid probe config in INI File. Tool measurement disabled."))
+            LOG.info(_("No valid probe config in INI file. Tool measurement disabled."))
             self.widgets.chk_use_tool_measurement.set_active(False)
             self.widgets.chk_use_tool_measurement.set_sensitive(False)
             return False
@@ -1105,7 +1105,7 @@ class gmoccapy(object):
 
         # We get the increments from INI File
         if len(self.jog_increments) > 10:
-            LOG.warning(_("To many increments given in INI File for this screen. "
+            LOG.warning(_("To many increments given in INI file for this screen. "
             "Only the first 10 will be reachable through this screen."))
             # we shorten the increment list to 10 (first is default = 0)
             self.jog_increments = self.jog_increments[0:11]
@@ -1303,8 +1303,7 @@ class gmoccapy(object):
         LOG.debug("found {0} Macros".format(num_macros))
 
         if num_macros > 16:
-            message = _("GMOCCAPY INFO\n")
-            message += _("found more than 16 macros, will use only the first 16")
+            message = _("Found more than 16 macros, will use only the first 16.")
             LOG.info(message)
 
             num_macros = 16
@@ -4563,7 +4562,7 @@ class gmoccapy(object):
             for widget_name, icon_name, size in icon_configs:
                 try:
                     image = self.widgets[widget_name]
-                    # TODO: Thats kind a problem, as not every image has (yet) a parent (e.g. for toggle button only one
+                    # TODO: That's kind a problem, as not every image has (yet) a parent (e.g. for toggle button only one
                     #  image is assigned at a time) and the default_style is maybe to inaccurate in terms of overridden
                     #  style attributes used by the icon loading mechanism (fg, succcss, warning and error colors)
                     # style = image.get_parent().get_style_context() if image.get_parent() else default_style
@@ -5624,7 +5623,7 @@ class gmoccapy(object):
         elif location == "right":
             container = self.widgets.vbtb_main
         else:
-            LOG.debug("got wrong location to locate the childs")
+            LOG.debug("got wrong location to locate the children")
 
         children = container.get_children()
         hidden = 0
@@ -5782,7 +5781,7 @@ class gmoccapy(object):
         pin = self.halcomp.newpin("ignore-limits", hal.HAL_BIT, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._ignore_limits)
 
-        # make pins to set optinal stops and block delete
+        # make pins to set optional stops and block delete
         pin = self.halcomp.newpin("optional-stop", hal.HAL_BIT, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._optional_blocks)
         pin = self.halcomp.newpin("blockdelete", hal.HAL_BIT, hal.HAL_IN)

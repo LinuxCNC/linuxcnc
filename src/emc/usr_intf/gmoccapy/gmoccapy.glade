@@ -3531,7 +3531,7 @@
                                               <object class="GtkSpinButton">
                                                 <property name="visible">True</property>
                                                 <property name="can-focus">True</property>
-                                                <property name="text" translatable="yes">250</property>
+                                                <property name="text">250</property>
                                                 <property name="adjustment">adj_kbd_width</property>
                                                 <property name="value">500</property>
                                               </object>
