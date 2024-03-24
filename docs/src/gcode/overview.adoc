@@ -123,14 +123,14 @@ The table includes N and O for completeness, even though, as defined above, line
 |C | C axis of machine
 |D | Tool radius compensation number
 |F | Feed rate
-|G | General function (See table  <<cap:modal-groups,Modal Groups>>)
+|G | General function (See table  <<cap:modal-groups,G-code Modal Groups>>)
 |H | Tool length offset index
 |I | X offset for arcs and G87 canned cycles
 |J | Y offset for arcs and G87 canned cycles
 .2+|K | Z offset for arcs and G87 canned cycles.
 <| Spindle-Motion Ratio for G33 synchronized movements.
 |L | generic parameter word for G10, M66 and others
-|M | Miscellaneous function (See table  <<cap:modal-groups,Modal Groups>>)
+|M | Miscellaneous function (See table  <<tbl:mcodes-modal-groups,M-code Modal Groups>>)
 |N | Line number (not recommended, see <<gcode:best-practices, Best Practices>>)
 |O | o-codes for program flow control (See <<cha:o-codes,o-Codes>>)
 .2+|P | Dwell time in canned cycles and with G4.
@@ -942,8 +942,8 @@ being in effect. The modal groups are shown in the following Table.
 |===
 |Modal Group Meaning                    | Member Words
 |Non-modal codes (Group 0)              | G4, G10 G28, G30, G52, G53, G92, G92.1, G92.2, G92.3,
-.2+|Motion (Group 1)                    | G0, G1, G2, G3, G33, G38.n, G73, G76, G80, G81
-                                        | G82, G83, G84, G85, G86, G87, G88, G89
+|Motion (Group 1)                       | G0, G1, G2, G3, G33, G38.n, G73, G76, G80, G81
+                                          G82, G83, G84, G85, G86, G87, G88, G89
 |Plane selection (Group 2)              | G17, G18, G19, G17.1, G18.1, G19.1
 |Distance Mode (Group 3)                | G90, G91
 |Arc IJK Distance Mode (Group 4)        | G90.1, G91.1
@@ -964,8 +964,9 @@ being in effect. The modal groups are shown in the following Table.
 |===
 |Modal Group Meaning         | Member Words
 |Stopping (Group 4)          | M0, M1, M2, M30, M60
-|On/Off I/O ('Group 5')      | FIXME M6 T__n__
-|Toolchange ('Group 6')      | M6 T__n__
+|I/O Pins (Group 5)          | (M62-M65 digital output), (M66 digital or analog input),
+                               (M67, M68 analog output)
+|Toolchange (Group 6)        | M6 T__n__
 |Spindle (Group 7)           | M3, M4, M5
 |Coolant (Group 8)           | (M7 M8 can both be on), M9
 |Override Switches (Group 9) | M48, M49

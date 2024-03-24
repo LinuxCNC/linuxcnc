@@ -48,8 +48,9 @@ https://linuxcnc.org/index.php/english/forum/41-guis/26314-gmoccapy-a-new-screen
 http://www.cncecke.de/forum/showthread.php?t=78549[German CNC Ecke Forum] or
 https://lists.sourceforge.net/lists/listinfo/emc-users[LinuxCNC users mailing list].
 
-The minimum screen resolution for GMOCCAPY, using it without side panels is *979 x 750 Pixel*, so it should fit to every standard screen.
-It is recommended to use screens with minimum resolution of 1024x748.
+The minimum screen resolution for GMOCCAPY for the normal layout (without side panels) is *980 x 750 Pixel*, so it should fit to every standard screen.
+It is recommended to use screens with minimum resolution of 1024x768.
+There is also a configuration which fits for 800x600 screens (introduced in GMOCCAPY 3.4.8).
 
 == How to Get GMOCCAPY
 
