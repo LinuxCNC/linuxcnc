@@ -347,6 +347,11 @@ class gmoccapy(object):
         self._show_tooledit_tab(False)
         self._show_iconview_tab(False)
 
+        # those two containers are disabled by default to allow fullscreen 
+        # with smaller display resolutions
+        self.widgets["hbx_upper"].show()
+        self.widgets["ntb_button"].show()
+
         # the velocity settings
         self.widgets.adj_spindle_bar_min.set_value(self.min_spindle_rev)
         self.widgets.adj_spindle_bar_max.set_value(self.max_spindle_rev)
@@ -386,8 +391,9 @@ class gmoccapy(object):
 
         self.widgets.tbtn_view_tool_path.set_active(self.prefs.getpref("view_tool_path", True, bool))
         self.widgets.tbtn_view_dimension.set_active(self.prefs.getpref("view_dimension", True, bool))
-        view = view = self.prefs.getpref("view", "p", str)
+        view = self.prefs.getpref("view", "p", str)
         self.widgets["rbt_view_{0}".format(view)].set_active(True)
+        self.widgets.gremlin.set_property("view", view)
 
         # get if run from line should be used
         rfl = self.prefs.getpref("run_from_line", "no_run", str)
