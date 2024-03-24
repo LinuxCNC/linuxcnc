@@ -384,7 +384,7 @@ $ ulimit -l
 == Building on Gentoo
 
 Building on Gentoo is possible, but not supported.  Be sure you are
-running a disktop profile.  This project uses the Tk Widget Set, asciidoc,
+running a desktop profile.  This project uses the Tk Widget Set, asciidoc,
 and has some other dependencies.  They should be installed as root:
 
 -----
