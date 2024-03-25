@@ -234,7 +234,7 @@ int rtapi_app_main(void){
     gpio->num_out_chips = 0;
     gpio->in_chips = NULL; // so that realloc knows that they need malloc first time throigh
     gpio->out_chips = NULL;
-    for (i = 0; inputs[i]; i++) {
+    for (i = 0; inputs[i] && strlen(inputs[i]); i++) {
 	retval = build_chips_collection(inputs[i], &gpio->in_chips, &gpio->num_in_chips);
 	if (retval < 0) goto fail0;
     }
@@ -256,7 +256,7 @@ int rtapi_app_main(void){
 	    
     }
     
-    for (i = 0; outputs[i]; i++) {
+    for (i = 0; outputs[i] && strlen(inputs[i]); i++) {
 	retval = build_chips_collection(outputs[i], &gpio->out_chips, &gpio->num_out_chips);
 	if (retval < 0) goto fail0;
     }
