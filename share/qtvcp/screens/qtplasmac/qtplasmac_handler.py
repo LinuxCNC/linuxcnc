@@ -1,4 +1,4 @@
-VERSION = '005.031'
+VERSION = '005.032'
 LCNCVER = '2.10'
 DOCSVER = LCNCVER
 
@@ -121,13 +121,14 @@ class HandlerClass:
         self.PATHS = paths
         self.iniFile = INFO.INI
         self.foreColor = '#ffee06'
-        # ensure that M190 exists in the USER_M_PATH
+        # can we find M190 in the USER_M_PATH
+        # if not we will attempt to find a valid USER_M_PATH path later
         self.mPath = self.iniFile.find('RS274NGC', 'USER_M_PATH').split(':')
         for path in self.mPath:
             if path.startswith('.'):
                 path = os.path.join(self.PATHS.CONFIGPATH, path)
             if os.path.isfile(os.path.join(path, 'M190')):
-                self.mPath = False
+                self.mPath = 'valid'
                 break
         self.machineName = self.iniFile.find('EMC', 'MACHINE')
         self.machineTitle = f'{self.machineName} - QtPlasmaC v{LCNCVER}-{VERSION}, powered by QtVCP and LinuxCNC'
@@ -343,20 +344,19 @@ class HandlerClass:
             msg2 = _translate('HandlerClass', 'QtPlasmac is closing')
             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{msg0} {LCNCVER}\n\n{msg1} {linuxcnc.version.split(".")[:2]}\n\n{msg2}')
             quit()
-        if self.mPath:
+        # if USER_M_PATH is not valid try to find a valid USER_M_PATH in the possible default locations
+        if self.mPath != 'valid':
             msg0 = _translate('HandlerClass', 'cannot be found in the path')
             msg1 = _translate('HandlerClass', 'Please edit [RS274NGC]USER_M_PATH in the .ini file')
             msg2 = _translate('HandlerClass', 'QtPlasmac is closing')
             msg3 = _translate('HandlerClass', 'does exist in')
-            if os.path.isfile(os.path.join(self.PATHS.CONFIGPATH, '../../ncfiles/plasmac/m_files', 'M190')):
-                mPath = '../../linuxcnc/ncfiles/'
-            elif os.path.isfile(os.path.join(self.PATHS.BASEDIR, 'nc_files/plasmac/m_files', 'M190')):
-                mPath = os.path.realpath(os.path.join(self.PATHS.BASEDIR, 'nc_files/plasmac/m_files'))
-            else:
-                mPath = ''
+            for path in ['/usr/share/doc/linuxcnc/examples/nc_files/plasmac/m_files', self.PATHS.BASEDIR, self.PATHS.CONFIGPATH]:
+                mPath = self.find_a_file('M190', path)
+                if mPath:
+                    break
+            if not mPath:
                 msg3 = _translate('HandlerClass', 'does not exist in the default locations')
-            msg4 = f'\n\nM190 {msg3} {mPath}'
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'M190 {msg0} {":".join(self.mPath)}\n\n{msg1}{msg4}\n\n{msg2}')
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'M190 {msg0}:\n{":".join(self.mPath)}\n\n{msg1}\n\nM190 {msg3}:\n{mPath}\n\n{msg2}')
             quit()
         ucFile = os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac_custom.py')
         if os.path.isfile(ucFile):
@@ -2535,11 +2535,11 @@ class HandlerClass:
                     self.updateData.append([restart, error, text])
                     if error:
                         return
-        # set user_m_path to include ../../nc_files/plasmac/m_files (pre V2.10-001.017 2024/01/23)
+        # set user_m_path to include the nc_files directory (pre V2.10-001.017 2024/01/23)
         mPathIni = self.iniFile.find('RS274NGC', 'USER_M_PATH')
-        if 'nc_files/plasmac/m_files' not in mPathIni:
+        if 'nc_files' not in mPathIni:
             if '/usr' in self.PATHS.BASEDIR:
-                mPath = '../../nc_files/plasmac/m_files'
+                mPath = '/usr/share/doc/linuxcnc/examples/nc_files/plasmac/m_files'
                 #simPath = os.path.join(self.PATHS.BASEDIR, 'share/doc/linuxcnc/examples/sample-configs/sim/qtplasmac')
                 # we need elevated privileges to remove a file from here so forget it...
                 # we may revisit this.
@@ -2589,6 +2589,12 @@ class HandlerClass:
             self.updateData.append([self.restart, error, text])
             if error:
                 return
+
+    def find_a_file(self, name, path):
+        ''' find a file "name" in the path "path" '''
+        for root, dirs, files in os.walk(path):
+            if name in files:
+                return os.path.join(root, name)
 
     def motion_type_changed(self, value):
         if value == 0 and STATUS.is_mdi_mode():
