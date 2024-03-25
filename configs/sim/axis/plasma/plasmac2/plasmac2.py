@@ -17,7 +17,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 '''
 
-VER = '18'
+VER = '19'
 
 ##############################################################################
 # the next line suppresses undefined variable errors in VSCode               #
@@ -43,7 +43,7 @@ def update_check():
                     for line in inFile:
                         if line.startswith('USER_M_PATH'):
                             if '/usr' in BASE:
-                                mPath = '../../nc_files/plasmac/m_files'
+                                mPath = '/usr/share/doc/linuxcnc/examples/nc_files/plasmac/m_files'
                             else:
                                 mPath = os.path.realpath(os.path.join(BASE, 'nc_files/plasmac/m_files'))
                             if line.strip().endswith(':./'):
