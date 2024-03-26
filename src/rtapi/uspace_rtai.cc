@@ -61,19 +61,20 @@ struct RtaiApp : RtapiApp {
         task->pll_correction_limit = 0;
         task->pll_correction = 0;
 
+        int ret;
         pthread_attr_t attr;
-        if(pthread_attr_init(&attr) < 0)
-            return -errno;
-        if(pthread_attr_setstacksize(&attr, task->stacksize) < 0)
-            return -errno;
-        if(pthread_attr_setschedpolicy(&attr, policy) < 0)
-            return -errno;
-        if(pthread_attr_setschedparam(&attr, &param) < 0)
-            return -errno;
-        if(pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED) < 0)
-            return -errno;
-        if(pthread_create(&task->thr, &attr, &wrapper, reinterpret_cast<void*>(task)) < 0)
-            return -errno;
+        if((ret = pthread_attr_init(&attr)) != 0)
+            return -ret;
+        if((ret = pthread_attr_setstacksize(&attr, task->stacksize)) != 0)
+            return -ret;
+        if((ret = pthread_attr_setschedpolicy(&attr, policy)) != 0)
+            return -ret;
+        if((ret = pthread_attr_setschedparam(&attr, &param)) != 0)
+            return -ret;
+        if((ret = pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED)) != 0)
+            return -ret;
+        if((ret = pthread_create(&task->thr, &attr, &wrapper, reinterpret_cast<void*>(task))) != 0)
+            return -ret;
 
         return 0;
     }
