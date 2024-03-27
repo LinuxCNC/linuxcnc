@@ -10,10 +10,10 @@ There are also <<_alternate_install_methods,Alternate Install Methods>> for the 
 If you have an existing install that you want to upgrade,
 go to the <<cha:updating-linuxcnc,Updating LinuxCNC>> section instead.
 
-NOTE: LinuxCNC requires a special kernel with real-time extensions. There are
-three possibilities here: preempt-rt, RTAI or Xenomai. In addition there
-are two versions of LinuxCNC which work with these kernels. See the table
-below for details.
+NOTE: To operate machinery LinuxCNC requires a special kernel with real-time extensions. There
+are three possibilities here: preempt-rt, RTAI or Xenomai. In addition there are two versions
+of LinuxCNC which work with these kernels. See the table below for details. However for code
+testing and simulation it is possible to run the linuxcnc-uspace application on a stock kernel. 
 
 Fresh installs of LinuxCNC are most easily created using the Live/Install
 Image. This is a hybrid ISO filesystem image that can be written to a
@@ -258,6 +258,7 @@ In addition, for experienced users who are familiar with Debian system administr
 | Debian Bullseye | amd64         | preempt-rt | linuxcnc-uspace | machine control & simulation
 | Debian Buster   | amd64 & arm64 | preempt-rt | linuxcnc-uspace | machine control & simulation
 | Debian Buster   | amd64         | RTAI       | linuxcnc        | machine control
+| Any             | Any           | Stock      | linuxcnc-uspace | simulation ONLY
 |===
 
 NOTE: LinuxCNC v2.9 is not supported on Debian 9 or older.
