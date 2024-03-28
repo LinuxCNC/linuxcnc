@@ -1410,6 +1410,9 @@ G43 <H->
 
 'G43 Hn' uses the offset for tool n.
 
+The active tool length compensation values are stored in the numbered
+parameters '5401-5409'.
+
 [NOTE]
 'G43 H0' is a little special.  Its behavior is different on random
 tool changer machines and nonrandom tool changer machines (see the
