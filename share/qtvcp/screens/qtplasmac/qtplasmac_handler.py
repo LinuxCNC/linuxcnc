@@ -1,4 +1,4 @@
-VERSION = '238.310'
+VERSION = '238.311'
 LCNCVER = '2.9'
 DOCSVER = LCNCVER
 
@@ -5015,6 +5015,9 @@ class HandlerClass:
             self.write_materials_to_dict(mat)
         self.display_materials()
         self.defaultMaterial = self.PREFS.getpref('Default material', self.materialNumList[0], int, 'GUI_OPTIONS')
+        if not self.material_exists(self.defaultMaterial):
+            self.defaultMaterial = self.materialList[0]
+            self.PREFS.putpref('Default material', self.defaultMaterial, int, 'GUI_OPTIONS')
         self.change_material(self.defaultMaterial)
         self.w.materials_box.setCurrentIndex(self.materialList.index(self.defaultMaterial))
         self.w.material_selector.setCurrentIndex(self.w.materials_box.currentIndex())
