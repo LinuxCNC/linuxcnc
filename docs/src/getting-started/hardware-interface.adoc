@@ -4,8 +4,6 @@
 [[cha:hardware-interface]]
 = System Requirements(((System Requirements)))
 
-= Linuxcnc Hardware
-
 = Hardware to run the LinuxCNC software
 A computer is required to run LinuxCNC itself.
 
