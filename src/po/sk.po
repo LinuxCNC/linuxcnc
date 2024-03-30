@@ -1,11 +1,12 @@
 # Juraj Adamkovic <stroje.hcnc@gmail.com>, 2022, 2023, 2024.
+# Petter Reinholdtsen <pere-weblate@hungry.com>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: sk\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-07-04 21:28+0200\n"
-"PO-Revision-Date: 2024-03-30 03:53+0000\n"
-"Last-Translator: Juraj Adamkovic <stroje.hcnc@gmail.com>\n"
+"PO-Revision-Date: 2024-03-30 06:05+0000\n"
+"Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
 "Language-Team: Slovak <emc-developers@lists.sourceforge.net>\n"
 "Language: sk\n"
 "MIME-Version: 1.0\n"
@@ -18271,6 +18272,7 @@ msgid "Interface type:"
 msgstr "Typ rozhrania:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:128
+#, fuzzy
 msgid ""
 "\n"
 "Pncconf will try to discover the board connected to the system.\n"
