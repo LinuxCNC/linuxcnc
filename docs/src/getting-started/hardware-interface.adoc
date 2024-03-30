@@ -7,7 +7,7 @@
 = Hardware to run the LinuxCNC software
 A computer is required to run LinuxCNC itself.
 
-Minimum computer requirements can be found in the LinuxCNC docs: http://linuxcnc.org/docs/stable/html/getting-started/system-requirements.html
+Minimum computer requirements can be found in <<cha:system-requirements,System Requirements>>
 
 The most common is to use a x86 computer (standard Intel / AMD computer)
 
