@@ -1180,6 +1180,7 @@ Camview yscale = 100
 ----
 
 These are in percent, usually the range will be 100 - 200 in one axis. +
+Negating these scales can be used to flip the image in X, Y or both axes. +
 The preference file can only be edited when QtDragon is not running.
 
 === G-codes Tab
