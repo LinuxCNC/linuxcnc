@@ -2,7 +2,7 @@
 :toc:
 
 [[cha:hardware-interface]]
-= System Requirements(((System Requirements)))
+= Hardware Interface(((Hardware Interface)))
 
 = Hardware to run the LinuxCNC software
 A computer is required to run LinuxCNC itself.
