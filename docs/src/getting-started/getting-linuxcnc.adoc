@@ -230,7 +230,7 @@ to LinuxCNC when you go on line and allow you to easily upgrade with no
 Linux knowledge needed.
 It is OK to upgrade everything except the operating system when asked to.
 
-WARNING: Do not upgrade the operating system if prompted to do so. You
+WARNING: Do not upgrade the operating system to a new version if prompted to do so. You
 should accept OS _updates_ however, especially security updates.
 
 == Install Problems
