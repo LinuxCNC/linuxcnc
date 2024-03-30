@@ -6,10 +6,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-07-04 21:28+0200\n"
-"PO-Revision-Date: 2023-07-01 22:26+0000\n"
-"Last-Translator: Michael Crusoe <mrc@commonwl.org>\n"
+"PO-Revision-Date: 2024-03-27 22:19+0000\n"
+"Last-Translator: Vasile Popescu <vallypopescu@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: ro\n"
 "MIME-Version: 1.0\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < "
 "20)) ? 1 : 2;\n"
-"X-Generator: Weblate 5.0-dev\n"
+"X-Generator: Weblate 5.5-dev\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:251
 msgid "user mode selected"
@@ -35,78 +35,81 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:259
 msgid "The file path should not contain any spaces"
-msgstr ""
+msgstr "Calea catre fisier nu ar trebui sa contina spatii"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:509
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:530
 msgid "Error in "
-msgstr "Eroarea este "
+msgstr "Eroare in "
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:510
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:531
 msgid "Please check the console output."
-msgstr ""
+msgstr "Verificati iesirea de la consola."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:670
 msgid "axis"
-msgstr ""
+msgstr "axa"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:671
 msgid "axes"
-msgstr ""
+msgstr "axe"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:676
 msgid "joint"
-msgstr ""
+msgstr "articulatie"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:677
 msgid "joints"
-msgstr ""
+msgstr "articulatii"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:693
 #, python-brace-format
 msgid "Press to home all {0}"
-msgstr ""
+msgstr "Apasati pentru a refera toate {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:706
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:999
 msgid "Press to display previous homing button"
-msgstr ""
+msgstr "Apasati pentru a afisa butonul de referinta precedent"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:722
 #, python-brace-format
 msgid "Press to home {0} {1}"
-msgstr ""
+msgstr "Apasati pentru a refera {0}{1}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:739
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1028
 msgid "Press to display next homing button"
-msgstr ""
+msgstr "Apasati pentrua a afisa urmatorul buton de referinta"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:754
 #, python-brace-format
 msgid "Press to unhome all {0}"
-msgstr ""
+msgstr "Apasati pentru a derefera toate {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:763
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1082
 msgid "Press to return to main button list"
-msgstr ""
+msgstr "Apasati pentru a reveni la lista de butoane principale"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:821
 #, python-brace-format
 msgid "could not resolv the image path '{0}' given for button '{1}'"
 msgstr ""
+"nu pot rezolva calea catre imaginea '{0}' selectata pentru butonul '{1}'"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:976
 msgid ""
 "edit\n"
 "offsets"
 msgstr ""
+"editare\n"
+"decalaje"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:985
 msgid "Press to edit the offsets"
-msgstr ""
+msgstr "Apasati pentru a edita decalajele"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1011
 #, python-brace-format
