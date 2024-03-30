@@ -196,7 +196,7 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         axis = self.tablemodel.headerdata[item.column()]
         system = self.tablemodel.Vheaderdata[item.row()]
         mess = {'NAME':self.dialog_code,'ID':'%s__' % self.objectName(),
-                'PRELOAD':float(text), 'TITLE':'{} Offset of {},{}'.format(system, axis,text),
+                'PRELOAD':locale.delocalize(text), 'TITLE':'{} Offset of {},{}'.format(system, axis,text),
                 'ITEM':item}
         STATUS.emit('dialog-request', mess)
         LOG.debug('message sent:{}'.format (mess))
