@@ -156,7 +156,7 @@ Site: https://github.com/AlexmagToast/LinuxCNC_ArduinoConnector
 
 === USB to RS485 / Modbus
 
-USB to serial (RS485 / Modbus) adaptors can be used for control of __non-realtime__ hardware such as variable frequency drives (VFD) for spindle control.
+USB to serial (RS485 / Modbus) adaptors can be used for control of __non-realtime__ hardware such as variable frequency drives (VFD) for spindle control. Not suitable for time critical tasks.
 
 
 
