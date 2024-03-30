@@ -12,7 +12,7 @@ The most common is to use a x86 computer (standard Intel / AMD computer)
 ARM computers such as the Raspberry Pi or Orange Pi can be used
 
 = Hardware Interface to CNC machine
-There are multiple different ways to interface between LinuxCNC controller software, and CNC hardware (such as stepper / servo drivers, limit switches, inputs and outputs etc.)
+An interface is necessary to transmit (and convert) signals and information between LinuxCNC (the software on the computer) and CNC hardware (such as stepper / servo drivers, limit switches, inputs and outputs etc.). There are multiple different ways to interface.
 
 Interfaces include:
 - Parallel Port
@@ -154,6 +154,9 @@ It is NOT intended for timing and security relevant IO's. Don't use it for Emerg
 
 Site: https://github.com/AlexmagToast/LinuxCNC_ArduinoConnector
 
+=== USB to RS485 / Modbus
+
+USB to serial (RS485 / Modbus) adaptors can be used for control of __non-realtime__ hardware such as variable frequency drives (VFD) for spindle control.
 
 
 
