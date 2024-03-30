@@ -106,10 +106,10 @@ class HandlerClass:
                               "sensor_x", "sensor_y", "camera_x", "camera_y",
                               "search_vel", "probe_vel", "max_probe", "eoffset_count"]
         self.onoff_list = ["frame_program", "frame_tool", "frame_offsets", "frame_dro", "frame_override"]
-        self.axis_4_list = ["label_axis_4", "dro_axis_4", "action_zero_4", "axistoolbutton_4",
+        self.axis_4_list = ["axis_select_4", "dro_axis_4", "action_zero_4", "action_cmd_4",
                             "dro_button_stack_4",  "plus_jogbutton_4", "minus_jogbutton_4",
                             "widget_home_4"]
-        self.axis_5_list = ["label_axis_5", "dro_axis_5", "action_zero_5", "axistoolbutton_5",
+        self.axis_5_list = ["axis_select_5", "dro_axis_5", "action_zero_5", "action_cmd_5",
                             "dro_button_stack_5","plus_jogbutton_5", "minus_jogbutton_5",
                             "widget_home_5"]
         self.statusbar_reset_time = 10000 # ten seconds
@@ -1062,7 +1062,7 @@ class HandlerClass:
 
     def chk_use_virtual_changed(self, state):
         codestring = "CALCULATOR" if state else "ENTRY"
-        for i in ("x", "y", "z", "4", "5"):
+        for i in ("x", "y", "z"):
             self.w["axistoolbutton_" + i].set_dialog_code(codestring)
         if self.probe:
             self.probe.dialog_code = codestring
@@ -1559,15 +1559,25 @@ class HandlerClass:
     # set axis 4/5 dro widgets to the proper axis
     # TODO do this with all the axes for more flexibility
     def initiate_axis_dro(self, num, axis):
-        self.w['label_axis_{}'.format(num)].setText(axis)
         self.w['label_home_{}'.format(num)].setText('HOME {}'.format(axis))
         jnum = INFO.GET_JOG_FROM_NAME.get(axis)
         # DRO uses axis index
         index = "XYZABCUVW".index(axis)
+        self.w['axis_select_{}'.format(num)].setText(axis)
+        self.w['axis_select_{}'.format(num)].setProperty('joint_number',jnum)
+        self.w['axis_select_{}'.format(num)].setProperty('axis_letter',axis)
         self.w['dro_axis_{}'.format(num)].setProperty('Qjoint_number',index)
         self.w['action_zero_{}'.format(num)].setProperty('axis_letter',axis)
-        self.w['axistoolbutton_{}'.format(num)].setProperty('axis_letter',axis)
-        self.w['axistoolbutton_{}'.format(num)].setText('REF {}'.format(axis))
+        try:
+            self.w['axistoolbutton_{}'.format(num)].setProperty('axis_letter',axis)
+            self.w['axistoolbutton_{}'.format(num)].setText('REF {}'.format(axis))
+        except:
+            pass
+        try:
+            cmd = 'G90 G0 {}0'.format(axis)
+            self.w['action_cmd_{}'.format(num)].setProperty('command_text_string',cmd)
+        except:
+            pass
         self.w['btn_home_{}'.format(num)].setProperty('axis_letter',axis)
         self.w['btn_home_{}'.format(num)].setProperty('joint_number_status',jnum)
         self.w['btn_home_{}'.format(num)].setProperty('joint',index)
