@@ -79,7 +79,7 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
 
         self.setMenu(SettingMenu)
         self.clicked.connect(self.selectJoint)
-
+        self.toggled.connect(self.selectJoint)
 
     def _hal_init(self):
         def homed_on_test():
@@ -106,7 +106,8 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
         for i in(self.zeroButton, self.setButton,self.divideButton,
                 self.lastButton, ):
             i.setEnabled(state)
-        self.setEnabled(state)
+        if not self._halpin_option:
+            self.setEnabled(state)
 
     def Zero(self):
         axis, now = self._a_from_j(self._axis)
