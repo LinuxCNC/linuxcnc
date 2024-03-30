@@ -5,9 +5,7 @@
 = Hardware Interface(((Hardware Interface)))
 
 = Hardware to run the LinuxCNC software
-A computer is required to run LinuxCNC itself.
-
-Minimum computer requirements can be found in <<cha:system-requirements,System Requirements>>
+A computer is required to run LinuxCNC itself. See <<cha:system-requirements,Computer System Requirements>>
 
 The most common is to use a x86 computer (standard Intel / AMD computer)
 
