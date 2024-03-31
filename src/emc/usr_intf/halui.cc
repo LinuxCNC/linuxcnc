@@ -83,6 +83,7 @@ static int axis_mask = 0;
 \
     FIELD(hal_bit_t,program_is_idle) /* pin for notifying user that program is idle */ \
     FIELD(hal_bit_t,program_is_running) /* pin for notifying user that program is running */ \
+    FIELD(hal_bit_t,mdi_is_running) /* pin for notifying user that MDI commands is running */ \
     FIELD(hal_bit_t,program_is_paused) /* pin for notifying user that program is paused */ \
     FIELD(hal_bit_t,program_run) /* pin for running program */ \
     FIELD(hal_bit_t,program_pause) /* pin for pausing program */ \
@@ -201,7 +202,6 @@ static int axis_mask = 0;
     FIELD(hal_bit_t,home_all) /* pin for homing all joints in sequence */ \
     FIELD(hal_bit_t,abort) /* pin for aborting */ \
     ARRAY(hal_bit_t,mdi_commands,MDI_MAX) \
-    FIELD(hal_bit_t,mdi_is_running) /* pin for notifying user that MDI commands is running */ \
 \
     FIELD(hal_float_t,units_per_mm) \
 
@@ -1038,9 +1038,11 @@ static int sendMdiCommand(int n)
         halui_old_mode = emcStatus->task.mode;
     }
     halui_sent_mdi = 1;
+    
+    if (num_mdi_commands>0){
     *(halui_data->mdi_is_running) = halui_sent_mdi;
     updateStatus();
-    
+    }
 
     // switch to MDI mode if needed
     if (emcStatus->task.mode != EMC_TASK_MODE_MDI) {
@@ -2140,7 +2142,6 @@ static void modify_hal_pins()
 
     if (halui_sent_mdi) { // we have an ongoing MDI command
 	if (emcStatus->status == 1) { //which seems to have finished
-	    halui_sent_mdi = 0;
 	    switch (halui_old_mode) {
 		case EMC_TASK_MODE_MANUAL: sendManual();break;
 		case EMC_TASK_MODE_MDI: break;
@@ -2184,10 +2185,22 @@ static void modify_hal_pins()
     *(halui_data->program_is_paused) = emcStatus->task.interpState == EMC_TASK_INTERP_PAUSED;
     *(halui_data->program_is_running) = emcStatus->task.interpState == EMC_TASK_INTERP_READING ||
                                         emcStatus->task.interpState == EMC_TASK_INTERP_WAITING;
-    *(halui_data->mdi_is_running) = halui_sent_mdi;
     *(halui_data->program_is_idle) = emcStatus->task.interpState == EMC_TASK_INTERP_IDLE;
     *(halui_data->program_os_is_on) = emcStatus->task.optional_stop_state;
     *(halui_data->program_bd_is_on) = emcStatus->task.block_delete_state;
+
+    if (num_mdi_commands>0){
+		// we wants initialize program_is_idle and mode_is_mdi before halui_sent_mdi
+		if (halui_sent_mdi) { // we have an ongoing MDI command
+			if (emcStatus->status == 1) { //which seems to have finished
+			halui_sent_mdi = 0;
+			esleep(0.02); //sleep for a while
+			updateStatus();
+			esleep(0.02); //sleep for a while
+			}
+		}
+		*(halui_data->mdi_is_running) = halui_sent_mdi;
+	}
 
     *(halui_data->mv_value) = emcStatus->motion.traj.maxVelocity;
     *(halui_data->fo_value) = emcStatus->motion.traj.scale; //feedoverride from 0 to 1 for 100%
