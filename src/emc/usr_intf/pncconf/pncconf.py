@@ -2274,7 +2274,6 @@ Clicking 'existing custom program' will avoid this warning. "),False):
             d = self._p.MESA_FIRMWAREDATA[search]
             if not d[self._p._BOARDTITLE] == title:continue
             temp.append(d[self._p._FIRMWARE])
-        temp.sort()
         for i in temp:
             #print(i)
             model.append_text(i)
