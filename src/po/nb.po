@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-07-04 21:28+0200\n"
-"PO-Revision-Date: 2024-03-22 03:00+0000\n"
+"PO-Revision-Date: 2024-04-03 19:14+0000\n"
 "Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "linuxcnc/linuxcnc/nb_NO/>\n"
@@ -3349,17 +3349,17 @@ msgstr ""
 #: src/hal/classicladder/config_gtk.c:192
 #, c-format
 msgid "Number of floatin HAL pins"
-msgstr ""
+msgstr "Antall floatin HAL-pinner"
 
 #: src/hal/classicladder/config_gtk.c:196
-#, fuzzy, c-format
+#, c-format
 msgid "Number of floatout HAL pins"
-msgstr "Antall digitale utganger:"
+msgstr "Antall floatout HAL-pinner"
 
 #: src/hal/classicladder/config_gtk.c:200
-#, fuzzy, c-format
+#, c-format
 msgid "Current path/filename:"
-msgstr "Nåværende filsti/filnavn"
+msgstr "Gjeldende filsti/filnavn:"
 
 #: src/hal/classicladder/config_gtk.c:327
 msgid "1st %I mapped"
@@ -4793,7 +4793,7 @@ msgstr "Vis"
 
 #: tcl/bin/halconfig.tcl:133 tcl/bin/halshow.tcl:261
 msgid "Watch"
-msgstr ""
+msgstr "Følg"
 
 #: tcl/bin/halconfig.tcl:157
 msgid "Save INI Tuning"
@@ -16525,11 +16525,11 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/screen.glade:1189
 msgid "AXIS Defaults"
-msgstr ""
+msgstr "AXIS-forvalg"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1570
 msgid "Force Touchy to Maximize after positioning"
-msgstr ""
+msgstr "Tving Touchy etter posisjonering til maksimal størrelse"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1773
 #: src/emc/usr_intf/pncconf/screen.glade:2970
@@ -16540,11 +16540,11 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/screen.glade:1859
 #: src/emc/usr_intf/gscreen/gscreen.glade:2392
 msgid "Absolute Text Color"
-msgstr ""
+msgstr "Absolutt tekstfarge"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1947
 msgid "Absolute Textcolor"
-msgstr ""
+msgstr "Absolutt tekstfarge"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1960
 msgid "Relative Textcolor"
@@ -19041,11 +19041,12 @@ msgstr ""
 "stop"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3362
-#, fuzzy
 msgid ""
 "Full\n"
 "View"
-msgstr "Se"
+msgstr ""
+"Full\n"
+"Visning"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3409
 msgid ""
@@ -19054,11 +19055,12 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3434
-#, fuzzy
 msgid ""
 "Feed\n"
 "Override"
-msgstr "Matingsoverstyring"
+msgstr ""
+"Matings-\n"
+"overstyring"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3448
 msgid ""
