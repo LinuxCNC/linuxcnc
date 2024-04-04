@@ -10,10 +10,10 @@ There are also <<_alternate_install_methods,Alternate Install Methods>> for the 
 If you have an existing install that you want to upgrade,
 go to the <<cha:updating-linuxcnc,Updating LinuxCNC>> section instead.
 
-NOTE: LinuxCNC requires a special kernel with real-time extensions. There are
-three possibilities here: preempt-rt, RTAI or Xenomai. In addition there
-are two versions of LinuxCNC which work with these kernels. See the table
-below for details.
+NOTE: To operate machinery LinuxCNC requires a special kernel with real-time extensions. There
+are three possibilities here: preempt-rt, RTAI or Xenomai. In addition there are two versions
+of LinuxCNC which work with these kernels. See the table below for details. However for code
+testing and simulation it is possible to run the linuxcnc-uspace application on a stock kernel. 
 
 Fresh installs of LinuxCNC are most easily created using the Live/Install
 Image. This is a hybrid ISO filesystem image that can be written to a
@@ -115,7 +115,7 @@ used to boot a computer.  The image is too large to fit on a CD.
 
 === Raspberry Pi Image
 
-The Raspbery Pi image is a completes SD card image and should be
+The Raspberry Pi image is a complete SD card image and should be
 written to an SD card with the [Raspberry Pi Imager App](https://www.raspberrypi.com/software/).
 
 === AMD-64 (x86-64, PC) Image using GUI tools
@@ -150,14 +150,14 @@ diskutil list
 -----
 . Insert the USB and note the name of the new disk that appears, eg
   /dev/disk5
-. unmount the USB. The number found above should be substitued in place
+. unmount the USB. The number found above should be substituted in place
   of the N
 +
 -----
 diskutil unmountDisk /dev/diskN
 -----
 . Transfer the data with dd, as for Linux above. Note that the disk name
-  has an added "r" at the begining
+  has an added "r" at the beginning
 +
 -----
 sudo dd if=/linuxcnc_2.9.2-amd64.hybrid.iso of=/dev/rdiskN bs=1m
@@ -258,6 +258,7 @@ In addition, for experienced users who are familiar with Debian system administr
 | Debian Bullseye | amd64         | preempt-rt | linuxcnc-uspace | machine control & simulation
 | Debian Buster   | amd64 & arm64 | preempt-rt | linuxcnc-uspace | machine control & simulation
 | Debian Buster   | amd64         | RTAI       | linuxcnc        | machine control
+| Any             | Any           | Stock      | linuxcnc-uspace | simulation ONLY
 |===
 
 NOTE: LinuxCNC v2.9 is not supported on Debian 9 or older.
@@ -301,7 +302,7 @@ be able to complete the following steps.
 sudo apt-get update
 sudo apt-get dist-upgrade
 ----
-
++
 NOTE: It is possible to download a version of LinuxCNC directly from Debian
 but this will install an old pre-release version, and is not recommended
 at this time.
@@ -314,9 +315,10 @@ sudo apt-get install linux-image-rt-amd64
 ----
 
 . Re-boot, and select the Linux 6.1.0-10-rt-amd64 kernel. The exact
-kernel version might be different, look for the "-rt" suffix. This might be
-hidden in the "Advanced options for Debian Bookworm" sub-menu in Grub.
-When you log in, verify that `PREEMPT RT`is reported by the following command.
+  kernel version might be different, look for the "-rt" suffix. This
+  might be hidden in the "Advanced options for Debian Bookworm"
+  sub-menu in Grub.  When you log in, verify that `PREEMPT RT`is
+  reported by the following command.
 +
 ----
 uname -v
@@ -333,10 +335,13 @@ uname -v
 . Add the LinuxCNC Archive Signing Key to your apt keyring by downloading
   [the LinuxCNC installer script](https://www.linuxcnc.org/linuxcnc-install.sh)
   You will need to make the script executable to run it:
++
 ----
 chmod +x linuxcnc-install.sh
 ----
++
   Then you can run the installer:
++
 ----
 sudo ./linuxcnc-install.sh
 ----
@@ -348,7 +353,7 @@ sudo ./linuxcnc-install.sh
   install, or alternatively on a fresh Install of Debian Bookworm 64-bit
   as described above.
 . You can add the LinuxCNC Archive signing key and repository information
-  by downloading and running the installer script as decribed above. If
+  by downloading and running the installer script as described above. If
   an RTAI kernel is detected it will stop before installing any packages. 
 
 . Update the package list from linuxcnc.org

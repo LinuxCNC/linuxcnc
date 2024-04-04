@@ -23,6 +23,7 @@
 #include <unistd.h>
 #include <ctype.h>
 #include <math.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <inttypes.h>
 
@@ -131,48 +132,34 @@ int tryNml(double retry_time, double retry_interval)
     double end;
     int good;
 
-    if ((emc_debug & EMC_DEBUG_NML) == 0) {
-	set_rcs_print_destination(RCS_PRINT_TO_NULL);	// inhibit diag
-	// messages
-    }
     end = retry_time;
     good = 0;
     do {
-	if (0 == emcTaskNmlGet()) {
-	    good = 1;
-	    break;
-	}
-	esleep(retry_interval);
-	end -= retry_interval;
+        if (0 == emcTaskNmlGet()) {
+            good = 1;
+            break;
+        }
+        esleep(retry_interval);
+        end -= retry_interval;
     } while (end > 0.0);
-    if ((emc_debug & EMC_DEBUG_NML) == 0) {
-	set_rcs_print_destination(RCS_PRINT_TO_STDOUT);	// inhibit diag
-	// messages
-    }
+
     if (!good) {
-	return -1;
+	    return -1;
     }
 
-    if ((emc_debug & EMC_DEBUG_NML) == 0) {
-	set_rcs_print_destination(RCS_PRINT_TO_NULL);	// inhibit diag
-	// messages
-    }
     end = retry_time;
     good = 0;
     do {
-	if (0 == emcErrorNmlGet()) {
-	    good = 1;
-	    break;
-	}
-	esleep(retry_interval);
-	end -= retry_interval;
+        if (0 == emcErrorNmlGet()) {
+            good = 1;
+            break;
+        }
+        esleep(retry_interval);
+        end -= retry_interval;
     } while (end > 0.0);
-    if ((emc_debug & EMC_DEBUG_NML) == 0) {
-	set_rcs_print_destination(RCS_PRINT_TO_STDOUT);	// inhibit diag
-	// messages
-    }
+
     if (!good) {
-	return -1;
+	    return -1;
     }
 
     return 0;
@@ -297,11 +284,11 @@ int emcCommandWaitDone()
 	    return 0;
 	}
 
-	if (emcStatus->status == RCS_DONE) {
+	if (emcStatus->status == RCS_STATUS::DONE) {
 	    return 0;
 	}
 
-	if (emcStatus->status == RCS_ERROR) {
+	if (emcStatus->status == RCS_STATUS::ERROR) {
 	    return -1;
 	}
 
@@ -441,7 +428,7 @@ int sendEstop()
 {
     EMC_TASK_SET_STATE state_msg;
 
-    state_msg.state = EMC_TASK_STATE_ESTOP;
+    state_msg.state = EMC_TASK_STATE::ESTOP;
     emcCommandSend(state_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived();
@@ -456,7 +443,7 @@ int sendEstopReset()
 {
     EMC_TASK_SET_STATE state_msg;
 
-    state_msg.state = EMC_TASK_STATE_ESTOP_RESET;
+    state_msg.state = EMC_TASK_STATE::ESTOP_RESET;
     emcCommandSend(state_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived();
@@ -471,7 +458,7 @@ int sendMachineOn()
 {
     EMC_TASK_SET_STATE state_msg;
 
-    state_msg.state = EMC_TASK_STATE_ON;
+    state_msg.state = EMC_TASK_STATE::ON;
     emcCommandSend(state_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived();
@@ -486,7 +473,7 @@ int sendMachineOff()
 {
     EMC_TASK_SET_STATE state_msg;
 
-    state_msg.state = EMC_TASK_STATE_OFF;
+    state_msg.state = EMC_TASK_STATE::OFF;
     emcCommandSend(state_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived();
@@ -501,7 +488,7 @@ int sendManual()
 {
     EMC_TASK_SET_MODE mode_msg;
 
-    mode_msg.mode = EMC_TASK_MODE_MANUAL;
+    mode_msg.mode = EMC_TASK_MODE::MANUAL;
     emcCommandSend(mode_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived();
@@ -516,7 +503,7 @@ int sendAuto()
 {
     EMC_TASK_SET_MODE mode_msg;
 
-    mode_msg.mode = EMC_TASK_MODE_AUTO;
+    mode_msg.mode = EMC_TASK_MODE::AUTO;
     emcCommandSend(mode_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived();
@@ -531,7 +518,7 @@ int sendMdi()
 {
     EMC_TASK_SET_MODE mode_msg;
 
-    mode_msg.mode = EMC_TASK_MODE_MDI;
+    mode_msg.mode = EMC_TASK_MODE::MDI;
     emcCommandSend(mode_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived();
@@ -562,9 +549,9 @@ int sendJogStop(int ja, int jjogmode)
     EMC_JOG_STOP emc_jog_stop_msg;
 
     if (   (   (jjogmode == JOGJOINT)
-            && (emcStatus->motion.traj.mode == EMC_TRAJ_MODE_TELEOP) )
+            && (emcStatus->motion.traj.mode == EMC_TRAJ_MODE::TELEOP) )
         || (   (jjogmode == JOGTELEOP )
-            && (emcStatus->motion.traj.mode != EMC_TRAJ_MODE_TELEOP) )
+            && (emcStatus->motion.traj.mode != EMC_TRAJ_MODE::TELEOP) )
        ) {
        return -1;
     }
@@ -586,11 +573,11 @@ int sendJogCont(int ja, int jjogmode, double speed)
 {
     EMC_JOG_CONT emc_jog_cont_msg;
 
-    if (emcStatus->task.state != EMC_TASK_STATE_ON) { return -1; }
+    if (emcStatus->task.state != EMC_TASK_STATE::ON) { return -1; }
     if (   (  (jjogmode == JOGJOINT)
-            && (emcStatus->motion.traj.mode == EMC_TRAJ_MODE_TELEOP) )
+            && (emcStatus->motion.traj.mode == EMC_TRAJ_MODE::TELEOP) )
         || (   (jjogmode == JOGTELEOP )
-            && (emcStatus->motion.traj.mode != EMC_TRAJ_MODE_TELEOP) )
+            && (emcStatus->motion.traj.mode != EMC_TRAJ_MODE::TELEOP) )
        ) {
        return -1;
     }
@@ -615,11 +602,11 @@ int sendJogIncr(int ja, int jjogmode, double speed, double incr)
 {
     EMC_JOG_INCR emc_jog_incr_msg;
 
-    if (emcStatus->task.state != EMC_TASK_STATE_ON) { return -1; }
+    if (emcStatus->task.state != EMC_TASK_STATE::ON) { return -1; }
     if (   ( (jjogmode == JOGJOINT)
-        && (  emcStatus->motion.traj.mode == EMC_TRAJ_MODE_TELEOP) )
+        && (  emcStatus->motion.traj.mode == EMC_TRAJ_MODE::TELEOP) )
         || ( (jjogmode == JOGTELEOP )
-        && (  emcStatus->motion.traj.mode != EMC_TRAJ_MODE_TELEOP) )
+        && (  emcStatus->motion.traj.mode != EMC_TRAJ_MODE::TELEOP) )
        ) {
        return -1;
     }
@@ -688,34 +675,6 @@ int sendFloodOff()
     EMC_COOLANT_FLOOD_OFF emc_coolant_flood_off_msg;
 
     emcCommandSend(emc_coolant_flood_off_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
-}
-
-int sendLubeOn()
-{
-    EMC_LUBE_ON emc_lube_on_msg;
-
-    emcCommandSend(emc_lube_on_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
-}
-
-int sendLubeOff()
-{
-    EMC_LUBE_OFF emc_lube_off_msg;
-
-    emcCommandSend(emc_lube_off_msg);
     if (emcWaitType == EMC_WAIT_RECEIVED) {
 	return emcCommandWaitReceived();
     } else if (emcWaitType == EMC_WAIT_DONE) {
@@ -976,20 +935,74 @@ static char lastProgramFile[LINELEN] = "";
 
 int sendProgramOpen(char *program)
 {
-    EMC_TASK_PLAN_OPEN emc_task_plan_open_msg;
+    int res = 0;
+    EMC_TASK_PLAN_OPEN msg;
 
-    // save this to run again
+    /* save this to run again */
     rtapi_strxcpy(lastProgramFile, program);
+    /* store filename in message */
+    rtapi_strxcpy(msg.file, program);
+    /* clear optional fields */
+    msg.remote_buffersize = 0;
+    msg.remote_filesize = 0;
+    /* if we are a remote process, we send file in chunks to linuxcnc via remote_buffer */
+    if(emcCommandBuffer->cms->ProcessType == CMS_REMOTE_TYPE && strcmp(emcCommandBuffer->cms->ProcessName, "emc") != 0) {
+        /* open file */
+        FILE *fd;
+        if(!(fd = fopen(program, "r"))) {
+            rcs_print_error("fopen(%s) error: %s\n", program, strerror(errno));
+            return -1;
+        }
+        /* get filesize */
+        if(fseek(fd, 0L, SEEK_END) != 0) {
+            fclose(fd);
+            rcs_print_error("fseek(%s) error: %s\n", program, strerror(errno));
+            return -1;
+        }
+        if((msg.remote_filesize = ftell(fd)) < 0) {
+            fclose(fd);
+            rcs_print_error("ftell(%s) error: %s\n", program, strerror(errno));
+            return -1;
+        }
+        if(fseek(fd, 0L, SEEK_SET) != 0) {
+            fclose(fd);
+            rcs_print_error("fseek(%s) error: %s\n", program, strerror(errno));
+            return -1;
+        }
 
-    rtapi_strxcpy(emc_task_plan_open_msg.file, program);
-    emcCommandSend(emc_task_plan_open_msg);
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
+        /* send complete file content in chunks of sizeof(msg.remote_buffer) */
+        while(!(feof(fd))) {
+            size_t bytes_read = fread(&msg.remote_buffer, 1, sizeof(msg.remote_buffer), fd);
+            /* read error? */
+            if(bytes_read <= 0 && ferror(fd)) {
+                rcs_print_error("fread(%s) error: %s\n", program, strerror(errno));
+                res = -1;
+                break;
+            }
+            /* save amount of bytes written to buffer */
+            msg.remote_buffersize = bytes_read;
+            /* send chunk */
+            emcCommandSend(msg);
+            /* error happened? */
+            if(emcCommandWaitDone() != 0) {
+                rcs_print_error("emcCommandSend() error\n");
+                res = -1;
+                break;
+            }
+        }
+        fclose(fd);
+        return res;
     }
 
-    return 0;
+    /* local process, just send filename */
+    emcCommandSend(msg);
+    if (emcWaitType == EMC_WAIT_RECEIVED) {
+        return emcCommandWaitReceived();
+    } else if (emcWaitType == EMC_WAIT_DONE) {
+        return emcCommandWaitDone();
+    }
+
+    return res;
 }
 
 int sendProgramRun(int line)
@@ -1168,27 +1181,6 @@ int sendJointSetBacklash(int joint, double backlash)
     return 0;
 }
 
-int sendJointEnable(int joint, int val)
-{
-    EMC_JOINT_ENABLE emc_joint_enable_msg;
-    EMC_JOINT_DISABLE emc_joint_disable_msg;
-
-    if (val) {
-	emc_joint_enable_msg.joint = joint;
-	emcCommandSend(emc_joint_enable_msg);
-    } else {
-	emc_joint_disable_msg.joint = joint;
-	emcCommandSend(emc_joint_disable_msg);
-    }
-    if (emcWaitType == EMC_WAIT_RECEIVED) {
-	return emcCommandWaitReceived();
-    } else if (emcWaitType == EMC_WAIT_DONE) {
-	return emcCommandWaitDone();
-    }
-
-    return 0;
-}
-
 int sendJointLoadComp(int joint, const char *file, int type)
 {
     EMC_JOINT_LOAD_COMP emc_joint_load_comp_msg;
@@ -1256,7 +1248,8 @@ int sendProbe(double x, double y, double z)
 int iniLoad(const char *filename)
 {
     IniFile inifile;
-    const char *inistring;
+    std::optional<const char*> inistring;
+    char version[LINELEN], machine[LINELEN];
     char displayString[LINELEN] = "";
     int t;
     int i;
@@ -1266,19 +1259,86 @@ int iniLoad(const char *filename)
 	return -1;
     }
 
-    if (NULL != (inistring = inifile.Find("DEBUG", "EMC"))) {
-	// copy to global
-	if (1 != sscanf(inistring, "%i", &emc_debug)) {
-	    emc_debug = 0;
-	}
-    } else {
-	// not found, use default
-	emc_debug = 0;
+    // EMC debugging flags
+	emc_debug = 0;  // disabled by default
+    if ((inistring = inifile.Find("DEBUG", "EMC"))) {
+        // parse to global
+        if (sscanf(*inistring, "%x", &emc_debug) < 1) {
+            perror("failed to parse [EMC] DEBUG");
+        }
     }
 
-    if (NULL != (inistring = inifile.Find("NML_FILE", "EMC"))) {
+    // set output for RCS messages
+    set_rcs_print_destination(RCS_PRINT_TO_STDOUT);   // use stdout by default
+    if ((inistring = inifile.Find("RCS_DEBUG_DEST", "EMC"))) {
+        static RCS_PRINT_DESTINATION_TYPE type;
+        if (!strcmp(*inistring, "STDOUT")) {
+            type = RCS_PRINT_TO_STDOUT;
+        } else if (!strcmp(*inistring, "STDERR")) {
+            type = RCS_PRINT_TO_STDERR;
+        } else if (!strcmp(*inistring, "FILE")) {
+            type = RCS_PRINT_TO_FILE;
+        } else if (!strcmp(*inistring, "LOGGER")) {
+            type = RCS_PRINT_TO_LOGGER;
+        } else if (!strcmp(*inistring, "MSGBOX")) {
+            type = RCS_PRINT_TO_MESSAGE_BOX;
+        } else if (!strcmp(*inistring, "NULL")) {
+            type = RCS_PRINT_TO_NULL;
+        } else {
+             type = RCS_PRINT_TO_STDOUT;
+        }
+        set_rcs_print_destination(type);
+    }
+
+    // NML/RCS debugging flags
+    set_rcs_print_flag(PRINT_RCS_ERRORS);  // only print errors by default
+    // enable all debug messages by default if RCS or NML debugging is enabled
+    if ((emc_debug & EMC_DEBUG_RCS) || (emc_debug & EMC_DEBUG_NML)) {
+        // output all RCS debug messages
+        set_rcs_print_flag(PRINT_EVERYTHING);
+    }
+
+    // set flags if RCS_DEBUG in ini file
+    if ((inistring = inifile.Find("RCS_DEBUG", "EMC"))) {
+        static long int flags;
+        if (sscanf(*inistring, "%lx", &flags) < 1) {
+            perror("failed to parse [EMC] RCS_DEBUG");
+        }
+        // clear all flags
+        clear_rcs_print_flag(PRINT_EVERYTHING);
+        // set parsed flags
+        set_rcs_print_flag(flags);
+    }
+    // output infinite RCS errors by default
+    max_rcs_errors_to_print = -1;
+    if ((inistring = inifile.Find("RCS_MAX_ERR", "EMC"))) {
+        if (sscanf(*inistring, "%d", &max_rcs_errors_to_print) < 1) {
+            perror("failed to parse [EMC] RCS_MAX_ERR");
+        }
+    }
+
+    strncpy(version, "unknown", LINELEN-1);
+    if ((inistring = inifile.Find("VERSION", "EMC"))) {
+	    strncpy(version, *inistring, LINELEN-1);
+    }
+
+
+    if ((inistring = inifile.Find("MACHINE", "EMC"))) {
+	    strncpy(machine, *inistring, LINELEN-1);
+    } else {
+	    strncpy(machine, "unknown", LINELEN-1);
+    }
+
+    extern char *program_invocation_short_name;
+    rcs_print(
+        "%s (%d) shcom: machine '%s'  version '%s'\n",
+        program_invocation_short_name, getpid(), machine, version
+    );
+
+    if ((inistring = inifile.Find("NML_FILE", "EMC"))) {
+
 	// copy to global
-	rtapi_strxcpy(emc_nmlfile, inistring);
+	rtapi_strxcpy(emc_nmlfile, *inistring);
     } else {
 	// not found, use default
     }
@@ -1286,36 +1346,36 @@ int iniLoad(const char *filename)
     for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	jogPol[t] = 1;		// set to default
 	snprintf(displayString, sizeof(displayString), "JOINT_%d", t);
-	if (NULL != (inistring =
+	if ((inistring =
 		     inifile.Find("JOGGING_POLARITY", displayString)) &&
-	    1 == sscanf(inistring, "%d", &i) && i == 0) {
+	    1 == sscanf(*inistring, "%d", &i) && i == 0) {
 	    // it read as 0, so override default
 	    jogPol[t] = 0;
 	}
     }
 
-    if (NULL != (inistring = inifile.Find("LINEAR_UNITS", "DISPLAY"))) {
-	if (!strcmp(inistring, "AUTO")) {
+    if ((inistring = inifile.Find("LINEAR_UNITS", "DISPLAY"))) {
+	if (!strcmp(*inistring, "AUTO")) {
 	    linearUnitConversion = LINEAR_UNITS_AUTO;
-	} else if (!strcmp(inistring, "INCH")) {
+	} else if (!strcmp(*inistring, "INCH")) {
 	    linearUnitConversion = LINEAR_UNITS_INCH;
-	} else if (!strcmp(inistring, "MM")) {
+	} else if (!strcmp(*inistring, "MM")) {
 	    linearUnitConversion = LINEAR_UNITS_MM;
-	} else if (!strcmp(inistring, "CM")) {
+	} else if (!strcmp(*inistring, "CM")) {
 	    linearUnitConversion = LINEAR_UNITS_CM;
 	}
     } else {
 	// not found, leave default alone
     }
 
-    if (NULL != (inistring = inifile.Find("ANGULAR_UNITS", "DISPLAY"))) {
-	if (!strcmp(inistring, "AUTO")) {
+    if ((inistring = inifile.Find("ANGULAR_UNITS", "DISPLAY"))) {
+	if (!strcmp(*inistring, "AUTO")) {
 	    angularUnitConversion = ANGULAR_UNITS_AUTO;
-	} else if (!strcmp(inistring, "DEG")) {
+	} else if (!strcmp(*inistring, "DEG")) {
 	    angularUnitConversion = ANGULAR_UNITS_DEG;
-	} else if (!strcmp(inistring, "RAD")) {
+	} else if (!strcmp(*inistring, "RAD")) {
 	    angularUnitConversion = ANGULAR_UNITS_RAD;
-	} else if (!strcmp(inistring, "GRAD")) {
+	} else if (!strcmp(*inistring, "GRAD")) {
 	    angularUnitConversion = ANGULAR_UNITS_GRAD;
 	}
     } else {

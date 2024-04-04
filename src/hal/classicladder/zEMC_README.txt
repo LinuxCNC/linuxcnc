@@ -1,3 +1,66 @@
+File changes for LinuxCNC classicladder 0.8.10 from original 0.8.10
+
+These entries will only mention the changes regarding upstream, that means
+that some of the previous entries that Chris Morley wrote, is still correct.
+With that said, several of the functions that was implemented in LinuxCNC,
+has later been included upstream, with some modifications, which is what most
+of these changes in 0.8.10 actually is.
+
+Backported from 0.9.113:
+--- Mouse scroll functionality.
+--- Minor changes related to GUI and open/save dialog.
+--- Macros in 'classicladder_gtk.h', used for compatibility with GTK 2 and GTK 3.
+--- Backport ShowMessageBoxError(), shorthand for displaying error messages.
+--- Update to upstream localization strings where ours where missing.
+
+global, some changes is quite old, but undocumented:
+--- Function sprintf() has been changed to snprintf().
+--- Almost all functions strcat() and strcpy() has been changed to rtapi_strxcat() and rtapi_strxcpy().
+--- A lot of typo's has been fixed.
+--- License header has been updated to reflect the new address.
+--- Code related to log functionality has been commented out or not included.
+--- Code related to hardware I/O is removed.
+
+config_gtk.c:
+--- CreateGeneralParametersPage() is slightly modified to make it more pretty,
+    changes include alignment of text, some white space and margins.
+--- Remove option for selecting '%I' to read to, with Modbus. The option
+    is only removed from the GUI. Previously there was a comment in
+    'protocol_modbus_master.c' in SetVarFromModbus(), which might mean that
+    this was previously handled on a lower level.
+--- Make config window narrower.
+
+edit.c:
+--- Comment out printf() in GetSizesOfAnElement(), spams a lot useless info
+    when you copy a rung.
+
+edit_copy.c:
+--- comment out printf() in GetSizesOfTheSelectionToCopy(), creates a lot of
+    useless info when you copy a rung.
+
+emc_mods.c:
+--- Check for NULL after call to ConvSymbolToVarName().
+--- Cleaned up the entire file regarding whitespace and indentation.
+
+files.c:
+--- Settings related to general Modbus configuration and IO parameters has deviated from upstream.
+    Upstream has saved general settings in a different section and used different words for IO parameters.
+    We are using what we had previously to not break backward compatibility.
+
+menu_and_toolbar.c:
+--- Rename two menu entries, 'Watch Window' and 'Bit Status Window'.
+
+protocol_modbus_master.c:
+--- Add InitModbusMasterParams() last in InitModbusMasterBeforeReadConf().
+    This was how it was done previously, and is needed for Modbus to properly
+    start when running under LinuxCNC.
+
+socket_modbus_master.c:
+--- In InitSocketModbusMaster(), comment out InitModbusMasterParams(), this is
+    moved to protocol_modbus_master.c in InitModbusMasterBeforeReadConf().
+
+============================================================
+
 File changes for EMC classicladder 7.124 from original 7.124
 Jan. 2007
 
@@ -6,7 +69,7 @@ arith_eval.c/.h:
 --- changed printf to rtapi_print on line 414
 
 arrays.c:
---- changed extensively. Removed most allocation code besides what EMC needs for realtime and user programs. 
+--- changed extensively. Removed most allocation code besides what EMC needs for realtime and user programs.
 --- added #ifndef RTAPI around INCLUDE of files.h which caused error in realtime (no directory access in realtime)
 --- this also means adding #ifndef RTAPI around 'CleanAndRemoveTmpDir' call in 'classicladder_free_all'
 --- copy GeneralParams into GeneralParamsMirror (in user code only) so config window displays proper info
@@ -32,7 +95,7 @@ classicladder.c:
 classicladder.h:
 --- small amount added. Add definitions for HAL s32 pins and For HAL support.
 --- changed define for symbols comment length from 30 to 50 for long signal names
---- add defines for new variable %QW and %IW 
+--- add defines for new variable %QW and %IW
 --- added external variable modmaster
 --- added NBR_PHYS_WORDS_INPUTS and NBR_PHYS_WORDS_OUTPUTS for support of %WQ and %IW variables
 --- added CurrentProjectFileName[ 400 ] to StrInfosGene for Filename to be stored in shared mem
@@ -40,7 +103,7 @@ classicladder.h:
 
 classicladder gtk.c:
 --- removed define for hardware.h
---- changed gtk_exit(0) to gtk_main_quit in function QuitAppliGtk() so program returns to where we called gtk_main in 
+--- changed gtk_exit(0) to gtk_main_quit in function QuitAppliGtk() so program returns to where we called gtk_main in
 --- run/stop and reset buttons send messages to statusbar
 --- classicladder will ask to confirm quit and ( if running ) reset
 --- classicladder warns you that modbus will stop if you quit GUI
@@ -54,7 +117,7 @@ config.c :
 config_gtk.c:
 --- removed define for hardware.h
 --- added #ifndef HAL_SUPPORT around any code for direct I/O to hide it from configure window
---- modified to show number of s32 in and out pins 
+--- modified to show number of s32 in and out pins
 --- modified modbus page to added options for read hold register, write register(s) and echo
 --- if no modbus config is loaded then the modbus config page tells you this, otherwise it displays normally.
 --- added a communication page for changing com settings radio buttons change settings immediately.
@@ -68,7 +131,7 @@ drawing.c:
 --- change background color of section display
 
 edit.c
---- added two calls to check for hal signal names (see GetElementPropertiesForStatusBar ) one for I, Q, and B variables and another for W variables in expressions 
+--- added two calls to check for hal signal names (see GetElementPropertiesForStatusBar ) one for I, Q, and B variables and another for W variables in expressions
 --- added code to default the variable name to I or Q for simple in or out elements
 --- added code for proper erasure of connection-to-top with eraser object.
 
@@ -87,8 +150,8 @@ files_project.c
 --- change to infosgene->CurrentProjectFileName to support filenames in shared memory
 
 emc_mods.c and emc_mods.h:
---- added Jeffs function to check for HAL signal names (called by function GetElementPropertiesForStatusBar in edit.c) 
---- added function to check the first variable in an expression, for a HAL signal (called by function GetElementPropertiesForStatusBar in edit.c) 
+--- added Jeffs function to check for HAL signal names (called by function GetElementPropertiesForStatusBar in edit.c)
+--- added function to check the first variable in an expression, for a HAL signal (called by function GetElementPropertiesForStatusBar in edit.c)
 
 manager.c:
 --- added small amount INCLUDE for HAL/RTAPI support.
@@ -113,14 +176,14 @@ spy_vars_gtk.c:
 --- added colours to variables to diffientiate between in,out and internal variables
 --- if the number of words defined is less then number of words normally displayed the window adjusts
 --- displays max 15 word variables now.
-  
+
 symbols_gtk.c:
 --- changed to show HAL signals in comment slot
 --- added messages to statusbar when window toggled
 --- change to have only one editable line (gets rid of mass of blank lines)
 
 SUBMAKEFILE:
---- completely different for EMC. This makefile is for the user program only. 
+--- completely different for EMC. This makefile is for the user program only.
 --- All the DEFINEs for user space:
 	-DSEQUENTIAL_SUPPORT -DHAL_SUPPORT -DDYNAMIC_PLCSIZE -DRT_SUPPORT -DOLD_TIMERS_MONOS_SUPPORT -DMODBUS_IO_MASTER
 	-DGNOME_PRINT_USE
@@ -144,12 +207,7 @@ vars_names_list.c:
 MAKE file:
 --- The makefile in source folder contains instructions for realtime program. added defines for modbus
 --- All the DEFINEs for realtime:
-        -DSEQUENTIAL_SUPPORT -DHAL_SUPPORT -DDYNAMIC_PLCSIZE -DRT_SUPPORT -DOLD_TIMERS_MONOS_SUPPORT -DMODBUS_IO_MASTER 
+        -DSEQUENTIAL_SUPPORT -DHAL_SUPPORT -DDYNAMIC_PLCSIZE -DRT_SUPPORT -DOLD_TIMERS_MONOS_SUPPORT -DMODBUS_IO_MASTER
 
 classicladder_rt.o includes:
 	module_hal.o,arithm_eval.o,arrays.o,calc.o,calc_sequential.o,manager.o,symbols.o,vars_access.o
-
-
-
-
-

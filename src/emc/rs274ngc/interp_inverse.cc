@@ -59,7 +59,7 @@ int Interp::inverse_time_rate_arc(double x1,     //!< x coord of start point of 
   double length;
   double rate;
 
-  if (settings->feed_mode != INVERSE_TIME) return -1;
+  if (settings->feed_mode != FEED_MODE::INVERSE_TIME) return -1;
 
   length = find_arc_length(x1, y1, z1, cx, cy, turn, x2, y2, z2);
   if (length == 0){
@@ -104,9 +104,9 @@ int Interp::inverse_time_rate_straight(double end_x,     //!< x coordinate of en
   double rate;
   double cx, cy, cz;
 
-  if (settings->feed_mode != INVERSE_TIME) return -1;
+  if (settings->feed_mode != FEED_MODE::INVERSE_TIME) return -1;
 
-  if (settings->cutter_comp_side && settings->cutter_comp_radius > 0.0 &&
+  if (settings->cutter_comp_side != CUTTER_COMP::OFF && settings->cutter_comp_radius > 0.0 &&
       !settings->cutter_comp_firstmove) {
       cx = settings->program_x;
       cy = settings->program_y;

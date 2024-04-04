@@ -17,6 +17,7 @@
 
 namespace eval linuxcnc {
     variable HOME @EMC2_HOME@
+    variable TMP_DIR @EMC2_TMP_DIR@
     variable BIN_DIR @EMC2_BIN_DIR@
     variable TCL_DIR @EMC2_TCL_DIR@
     variable TCL_LIB_DIR @EMC2_TCL_LIB_DIR@

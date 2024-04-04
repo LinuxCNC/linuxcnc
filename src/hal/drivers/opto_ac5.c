@@ -237,7 +237,6 @@ static int Device_ExportPinsParametersFunctions(board_data_t *this, int componen
 static int Device_ExportDigitalInPinsParametersFunctions(board_data_t *this, int comp_id, int boardId)
 {
     int					halError=0, channel,mask,portnum=0;
-    char				name[HAL_NAME_LEN + 1];
 
     // Export pins and parameters.
 	while (portnum<2)
@@ -268,8 +267,7 @@ static int Device_ExportDigitalInPinsParametersFunctions(board_data_t *this, int
 
     // Export functions.
     if(!halError){
-	rtapi_snprintf(name, sizeof(name), "opto-ac5.%d.digital-read", boardId);
-	halError = hal_export_funct(name, Device_DigitalInRead, this, 0, 0, comp_id);
+	halError = hal_export_functf(Device_DigitalInRead, this, 0, 0, comp_id, "opto-ac5.%d.digital-read", boardId);
     }
 
     if(halError){
@@ -290,7 +288,6 @@ static int Device_ExportDigitalInPinsParametersFunctions(board_data_t *this, int
 static int Device_ExportDigitalOutPinsParametersFunctions(board_data_t *this, int comp_id, int boardId)
 {
     int					halError=0, channel,mask,portnum=0;
-    char				name[HAL_NAME_LEN + 1];
 
     // Export pins and parameters.
     
@@ -334,8 +331,7 @@ static int Device_ExportDigitalOutPinsParametersFunctions(board_data_t *this, in
 		}
     // Export functions.
     if(!halError){
-	rtapi_snprintf(name, sizeof(name), "opto-ac5.%d.digital-write", boardId);
-	halError = hal_export_funct(name, Device_DigitalOutWrite, this, 0, 0, comp_id);
+	halError = hal_export_functf(Device_DigitalOutWrite, this, 0, 0, comp_id, "opto-ac5.%d.digital-write", boardId);
     }
 
     if(halError){

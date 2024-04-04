@@ -30,14 +30,11 @@ As GMOCCAPY 3 has been changed in code to support the joint / axis changes in Li
 It has support for integrated virtual keyboard (onboard or matchbox-keyboard), so there is no need for a hardware keyboard or mouse, but it can also be used with that hardware.
 GMOCCAPY offers a separate settings page to configure most settings of the GUI without editing files.
 
-GMOCCAPY can be localized very easy, because the corresponding files are separated from the linuxcnc.po files, so there is no need to translate unneeded stuff.
-The files are placed in */src/po/gmoccapy*.
-You could just copy the gmoccapy.pot file to something like it.po and translate that file with gtranslator or poedit.
-After rebuilding, you'd get the GUI in your preference language.
-To facilitate the sharing of the translation, GMOCCAPY is available on the https://hosted.weblate.org/projects/linuxcnc/gmocappy/[Weblate web interface].
-GMOCCAPY is currently available in English, German, Spanish, Polish, Serbian and Hungarian.
-Feel free to help me to introduce more languages, be it locally or via the web.
-If you need help, don't hesitate to contact me on *nieson@web.de*.
+GMOCCAPY can be localized very easy, because the corresponding files are separated from the linuxcnc.po files,
+so there is no need to translate unneeded stuff.
+If you want to contribute a translation, please use the
+link:https://hosted.weblate.org/projects/linuxcnc/gmocappy/[web based
+translation editor Weblate]. For more information see the section <<sec:contributing-translations,Translations>>
 
 image:images/gmoccapy_5_axis_mid.png[align="left",link="images/gmoccapy_5_axis.png"]
 
@@ -51,8 +48,9 @@ https://linuxcnc.org/index.php/english/forum/41-guis/26314-gmoccapy-a-new-screen
 http://www.cncecke.de/forum/showthread.php?t=78549[German CNC Ecke Forum] or
 https://lists.sourceforge.net/lists/listinfo/emc-users[LinuxCNC users mailing list].
 
-The minimum screen resolution for GMOCCAPY, using it without side panels is *979 x 750 Pixel*, so it should fit to every standard screen.
-It is recommended to use screens with minimum resolution of 1024x748.
+The minimum screen resolution for GMOCCAPY for the normal layout (without side panels) is *980 x 750 Pixel*, so it should fit to every standard screen.
+It is recommended to use screens with minimum resolution of 1024x768.
+There is also a configuration which fits for 800x600 screens (introduced in GMOCCAPY 3.4.8).
 
 == How to Get GMOCCAPY
 

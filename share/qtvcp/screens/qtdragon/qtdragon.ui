@@ -110,7 +110,7 @@
        <bool>true</bool>
       </property>
       <property name="play_sounds_option" stdset="0">
-       <bool>false</bool>
+       <bool>true</bool>
       </property>
       <property name="use_pref_file_option" stdset="0">
        <bool>true</bool>
@@ -125,10 +125,36 @@
        <bool>true</bool>
       </property>
       <property name="focusBlur_option" stdset="0">
-       <bool>false</bool>
+       <bool>true</bool>
+      </property>
+      <property name="focusBlurList" stdset="0">
+       <stringlist>
+        <string>frame_status</string>
+        <string>frame_buttonbar</string>
+        <string>stackedWidget_dro</string>
+        <string>widget_program_tool</string>
+        <string>jogging_frame</string>
+        <string>frame_top_left</string>
+        <string>frm_backplot</string>
+        <string>frame_macro_buttons</string>
+        <string>status_frame</string>
+        <string>gcode_viewer</string>
+        <string>frm_backplot</string>
+       </stringlist>
       </property>
       <property name="focusTint_option" stdset="0">
        <bool>false</bool>
+      </property>
+      <property name="focusTintList" stdset="0">
+       <stringlist>
+        <string>frame_status</string>
+        <string>frame_buttonbar</string>
+        <string>stackedWidget_dro</string>
+        <string>widget_program_tool</string>
+        <string>frame_top_left</string>
+        <string>jogging_frame</string>
+        <string>status_frame</string>
+       </stringlist>
       </property>
       <property name="entryDialog_option" stdset="0">
        <bool>true</bool>
@@ -1139,7 +1165,7 @@ RESET</string>
                         <enum>QFrame::Raised</enum>
                        </property>
                        <property name="currentIndex">
-                        <number>3</number>
+                        <number>0</number>
                        </property>
                        <widget class="QWidget" name="gcode_page">
                         <property name="sizePolicy">
@@ -4116,6 +4142,213 @@ View</string>
                               </property>
                               <property name="textTemplate" stdset="0">
                                <string>%1.3f in</string>
+                              </property>
+                              <property name="alt_textTemplate" stdset="0">
+                               <string>%1.2f mm</string>
+                              </property>
+                             </widget>
+                            </item>
+                            <item>
+                             <widget class="ActionButton" name="actionbutton_pan_rpyaye">
+                              <property name="sizePolicy">
+                               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                               </sizepolicy>
+                              </property>
+                              <property name="minimumSize">
+                               <size>
+                                <width>50</width>
+                                <height>40</height>
+                               </size>
+                              </property>
+                              <property name="maximumSize">
+                               <size>
+                                <width>50</width>
+                                <height>40</height>
+                               </size>
+                              </property>
+                              <property name="baseSize">
+                               <size>
+                                <width>60</width>
+                                <height>40</height>
+                               </size>
+                              </property>
+                              <property name="toolTip">
+                               <string>Clear display</string>
+                              </property>
+                              <property name="autoFillBackground">
+                               <bool>false</bool>
+                              </property>
+                              <property name="text">
+                               <string>PAN</string>
+                              </property>
+                              <property name="checkable">
+                               <bool>true</bool>
+                              </property>
+                              <property name="indicator_option" stdset="0">
+                               <bool>false</bool>
+                              </property>
+                              <property name="indicator_HAL_pin_option" stdset="0">
+                               <bool>false</bool>
+                              </property>
+                              <property name="indicator_status_option" stdset="0">
+                               <bool>false</bool>
+                              </property>
+                              <property name="checked_state_text_option" stdset="0">
+                               <bool>true</bool>
+                              </property>
+                              <property name="python_command_option" stdset="0">
+                               <bool>false</bool>
+                              </property>
+                              <property name="on_color" stdset="0">
+                               <color>
+                                <red>255</red>
+                                <green>0</green>
+                                <blue>0</blue>
+                               </color>
+                              </property>
+                              <property name="shape_option" stdset="0">
+                               <number>0</number>
+                              </property>
+                              <property name="off_color" stdset="0">
+                               <color>
+                                <red>0</red>
+                                <green>0</green>
+                                <blue>0</blue>
+                               </color>
+                              </property>
+                              <property name="indicator_size" stdset="0">
+                               <double>0.300000000000000</double>
+                              </property>
+                              <property name="circle_diameter" stdset="0">
+                               <number>10</number>
+                              </property>
+                              <property name="right_edge_offset" stdset="0">
+                               <number>0</number>
+                              </property>
+                              <property name="top_edge_offset" stdset="0">
+                               <number>0</number>
+                              </property>
+                              <property name="corner_radius" stdset="0">
+                               <double>5.000000000000000</double>
+                              </property>
+                              <property name="height_fraction" stdset="0">
+                               <double>0.300000000000000</double>
+                              </property>
+                              <property name="width_fraction" stdset="0">
+                               <double>0.900000000000000</double>
+                              </property>
+                              <property name="true_state_string" stdset="0">
+                               <string>ROT</string>
+                              </property>
+                              <property name="false_state_string" stdset="0">
+                               <string>PAN</string>
+                              </property>
+                              <property name="true_python_cmd_string" stdset="0">
+                               <string>print(&quot;true command&quot;)</string>
+                              </property>
+                              <property name="false_python_cmd_string" stdset="0">
+                               <string>print(&quot;false command&quot;)</string>
+                              </property>
+                              <property name="invert_the_status" stdset="0">
+                               <bool>false</bool>
+                              </property>
+                              <property name="is_paused_status" stdset="0">
+                               <bool>false</bool>
+                              </property>
+                              <property name="is_estopped_status" stdset="0">
+                               <bool>false</bool>
+                              </property>
+                              <property name="is_on_status" stdset="0">
+                               <bool>false</bool>
+                              </property>
+                              <property name="is_idle_status" stdset="0">
+                               <bool>false</bool>
+                              </property>
+                              <property name="is_homed_status" stdset="0">
+                               <bool>false</bool>
+                              </property>
+                              <property name="is_flood_status" stdset="0">
+                               <bool>false</bool>
+                              </property>
+                              <property name="is_mist_status" stdset="0">
+                               <bool>false</bool>
+                              </property>
+                              <property name="is_block_delete_status" stdset="0">
+                               <bool>false</bool>
+                              </property>
+                              <property name="is_optional_stop_status" stdset="0">
+                               <bool>false</bool>
+                              </property>
+                              <property name="is_joint_homed_status" stdset="0">
+                               <bool>false</bool>
+                              </property>
+                              <property name="is_limits_overridden_status" stdset="0">
+                               <bool>false</bool>
+                              </property>
+                              <property name="is_manual_status" stdset="0">
+                               <bool>false</bool>
+                              </property>
+                              <property name="is_mdi_status" stdset="0">
+                               <bool>false</bool>
+                              </property>
+                              <property name="is_auto_status" stdset="0">
+                               <bool>false</bool>
+                              </property>
+                              <property name="is_spindle_stopped_status" stdset="0">
+                               <bool>false</bool>
+                              </property>
+                              <property name="is_spindle_fwd_status" stdset="0">
+                               <bool>false</bool>
+                              </property>
+                              <property name="is_spindle_rev_status" stdset="0">
+                               <bool>false</bool>
+                              </property>
+                              <property name="joint_number_status" stdset="0">
+                               <number>0</number>
+                              </property>
+                              <property name="estop_action" stdset="0">
+                               <bool>false</bool>
+                              </property>
+                              <property name="view_change_action" stdset="0">
+                               <bool>true</bool>
+                              </property>
+                              <property name="template_label_option" stdset="0">
+                               <bool>false</bool>
+                              </property>
+                              <property name="joint_number" stdset="0">
+                               <number>0</number>
+                              </property>
+                              <property name="incr_imperial_number" stdset="0">
+                               <double>0.010000000000000</double>
+                              </property>
+                              <property name="incr_mm_number" stdset="0">
+                               <double>0.025000000000000</double>
+                              </property>
+                              <property name="incr_angular_number" stdset="0">
+                               <double>-1.000000000000000</double>
+                              </property>
+                              <property name="toggle_float_option" stdset="0">
+                               <bool>false</bool>
+                              </property>
+                              <property name="float_num" stdset="0">
+                               <double>0.300000000000000</double>
+                              </property>
+                              <property name="float_alt_num" stdset="0">
+                               <double>50.000000000000000</double>
+                              </property>
+                              <property name="view_type_string" stdset="0">
+                               <string>rotate-lock-mode</string>
+                              </property>
+                              <property name="command_text_string" stdset="0">
+                               <string/>
+                              </property>
+                              <property name="ini_mdi_number" stdset="0">
+                               <number>0</number>
+                              </property>
+                              <property name="textTemplate" stdset="0">
+                               <string/>
                               </property>
                               <property name="alt_textTemplate" stdset="0">
                                <string>%1.2f mm</string>
@@ -7784,6 +8017,9 @@ LOG</string>
                           <property name="ini_mdi_number" stdset="0">
                            <number>0</number>
                           </property>
+                          <property name="ini_mdi_key" stdset="0">
+                           <string>MACRO0</string>
+                          </property>
                           <property name="textTemplate" stdset="0">
                            <string>%1.3f in</string>
                           </property>
@@ -7875,6 +8111,9 @@ LOG</string>
                           <property name="ini_mdi_number" stdset="0">
                            <number>1</number>
                           </property>
+                          <property name="ini_mdi_key" stdset="0">
+                           <string>MACRO1</string>
+                          </property>
                           <property name="textTemplate" stdset="0">
                            <string>%1.3f in</string>
                           </property>
@@ -7962,6 +8201,9 @@ LOG</string>
                           </property>
                           <property name="ini_mdi_number" stdset="0">
                            <number>2</number>
+                          </property>
+                          <property name="ini_mdi_key" stdset="0">
+                           <string>MACRO2</string>
                           </property>
                           <property name="textTemplate" stdset="0">
                            <string>%1.3f in</string>
@@ -8051,6 +8293,9 @@ LOG</string>
                           <property name="ini_mdi_number" stdset="0">
                            <number>3</number>
                           </property>
+                          <property name="ini_mdi_key" stdset="0">
+                           <string>MACRO3</string>
+                          </property>
                           <property name="textTemplate" stdset="0">
                            <string>%1.3f in</string>
                           </property>
@@ -8139,6 +8384,9 @@ LOG</string>
                           <property name="ini_mdi_number" stdset="0">
                            <number>4</number>
                           </property>
+                          <property name="ini_mdi_key" stdset="0">
+                           <string>MACRO4</string>
+                          </property>
                           <property name="textTemplate" stdset="0">
                            <string>%1.3f in</string>
                           </property>
@@ -8226,6 +8474,9 @@ LOG</string>
                           </property>
                           <property name="ini_mdi_number" stdset="0">
                            <number>5</number>
+                          </property>
+                          <property name="ini_mdi_key" stdset="0">
+                           <string>MACRO5</string>
                           </property>
                           <property name="textTemplate" stdset="0">
                            <string>%1.3f in</string>
@@ -8321,6 +8572,9 @@ LOG</string>
                           <property name="ini_mdi_number" stdset="0">
                            <number>6</number>
                           </property>
+                          <property name="ini_mdi_key" stdset="0">
+                           <string>MACRO6</string>
+                          </property>
                           <property name="textTemplate" stdset="0">
                            <string>%1.3f in</string>
                           </property>
@@ -8415,6 +8669,9 @@ LOG</string>
                           <property name="ini_mdi_number" stdset="0">
                            <number>7</number>
                           </property>
+                          <property name="ini_mdi_key" stdset="0">
+                           <string>MACRO7</string>
+                          </property>
                           <property name="textTemplate" stdset="0">
                            <string>%1.3f in</string>
                           </property>
@@ -8503,6 +8760,9 @@ LOG</string>
                           <property name="ini_mdi_number" stdset="0">
                            <number>8</number>
                           </property>
+                          <property name="ini_mdi_key" stdset="0">
+                           <string>MACRO8</string>
+                          </property>
                           <property name="textTemplate" stdset="0">
                            <string>%1.3f in</string>
                           </property>
@@ -8590,6 +8850,9 @@ LOG</string>
                           </property>
                           <property name="ini_mdi_number" stdset="0">
                            <number>9</number>
+                          </property>
+                          <property name="ini_mdi_key" stdset="0">
+                           <string>MACRO9</string>
                           </property>
                           <property name="textTemplate" stdset="0">
                            <string>%1.3f in</string>
@@ -12035,43 +12298,6 @@ SPINDLE</string>
                         </property>
                        </widget>
                       </item>
-                      <item row="5" column="0">
-                       <widget class="QLabel" name="label_axis_5">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="minimumSize">
-                         <size>
-                          <width>58</width>
-                          <height>38</height>
-                         </size>
-                        </property>
-                        <property name="maximumSize">
-                         <size>
-                          <width>82</width>
-                          <height>64</height>
-                         </size>
-                        </property>
-                        <property name="frameShape">
-                         <enum>QFrame::WinPanel</enum>
-                        </property>
-                        <property name="frameShadow">
-                         <enum>QFrame::Raised</enum>
-                        </property>
-                        <property name="lineWidth">
-                         <number>2</number>
-                        </property>
-                        <property name="text">
-                         <string>C</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignCenter</set>
-                        </property>
-                       </widget>
-                      </item>
                       <item row="0" column="2">
                        <widget class="ActionButton" name="actionbutton_rel">
                         <property name="sizePolicy">
@@ -12497,43 +12723,6 @@ SPINDLE</string>
                         </property>
                        </widget>
                       </item>
-                      <item row="1" column="0">
-                       <widget class="QLabel" name="label_axis_x">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="minimumSize">
-                         <size>
-                          <width>58</width>
-                          <height>38</height>
-                         </size>
-                        </property>
-                        <property name="maximumSize">
-                         <size>
-                          <width>82</width>
-                          <height>64</height>
-                         </size>
-                        </property>
-                        <property name="frameShape">
-                         <enum>QFrame::WinPanel</enum>
-                        </property>
-                        <property name="frameShadow">
-                         <enum>QFrame::Raised</enum>
-                        </property>
-                        <property name="lineWidth">
-                         <number>2</number>
-                        </property>
-                        <property name="text">
-                         <string>X</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignCenter</set>
-                        </property>
-                       </widget>
-                      </item>
                       <item row="0" column="4" colspan="2">
                        <widget class="IndicatedPushButton" name="btn_home_all">
                         <property name="sizePolicy">
@@ -12757,203 +12946,6 @@ SPINDLE</string>
                         </property>
                         <property name="homed" stdset="0">
                          <bool>false</bool>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="4" column="4">
-                       <widget class="AxisToolButton" name="axistoolbutton_4">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="minimumSize">
-                         <size>
-                          <width>58</width>
-                          <height>38</height>
-                         </size>
-                        </property>
-                        <property name="maximumSize">
-                         <size>
-                          <width>82</width>
-                          <height>64</height>
-                         </size>
-                        </property>
-                        <property name="text">
-                         <string>REFA</string>
-                        </property>
-                        <property name="popupMode">
-                         <enum>QToolButton::InstantPopup</enum>
-                        </property>
-                        <property name="arrowType">
-                         <enum>Qt::NoArrow</enum>
-                        </property>
-                        <property name="joint_number" stdset="0">
-                         <number>3</number>
-                        </property>
-                        <property name="axis_letter" stdset="0">
-                         <string>A</string>
-                        </property>
-                        <property name="halpin_option" stdset="0">
-                         <bool>false</bool>
-                        </property>
-                        <property name="dialog_code_string" stdset="0">
-                         <string>CALCULATOR</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="3" column="0">
-                       <widget class="QLabel" name="label_axis_z">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="minimumSize">
-                         <size>
-                          <width>58</width>
-                          <height>38</height>
-                         </size>
-                        </property>
-                        <property name="maximumSize">
-                         <size>
-                          <width>82</width>
-                          <height>64</height>
-                         </size>
-                        </property>
-                        <property name="frameShape">
-                         <enum>QFrame::WinPanel</enum>
-                        </property>
-                        <property name="frameShadow">
-                         <enum>QFrame::Raised</enum>
-                        </property>
-                        <property name="lineWidth">
-                         <number>2</number>
-                        </property>
-                        <property name="text">
-                         <string>Z</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignCenter</set>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="2" column="0">
-                       <widget class="QLabel" name="label_axis_y">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="minimumSize">
-                         <size>
-                          <width>58</width>
-                          <height>38</height>
-                         </size>
-                        </property>
-                        <property name="maximumSize">
-                         <size>
-                          <width>82</width>
-                          <height>64</height>
-                         </size>
-                        </property>
-                        <property name="frameShape">
-                         <enum>QFrame::WinPanel</enum>
-                        </property>
-                        <property name="frameShadow">
-                         <enum>QFrame::Raised</enum>
-                        </property>
-                        <property name="lineWidth">
-                         <number>2</number>
-                        </property>
-                        <property name="text">
-                         <string>Y</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignCenter</set>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="5" column="4">
-                       <widget class="AxisToolButton" name="axistoolbutton_5">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="minimumSize">
-                         <size>
-                          <width>58</width>
-                          <height>38</height>
-                         </size>
-                        </property>
-                        <property name="maximumSize">
-                         <size>
-                          <width>82</width>
-                          <height>64</height>
-                         </size>
-                        </property>
-                        <property name="text">
-                         <string>REFA</string>
-                        </property>
-                        <property name="popupMode">
-                         <enum>QToolButton::InstantPopup</enum>
-                        </property>
-                        <property name="arrowType">
-                         <enum>Qt::NoArrow</enum>
-                        </property>
-                        <property name="joint_number" stdset="0">
-                         <number>5</number>
-                        </property>
-                        <property name="axis_letter" stdset="0">
-                         <string>C</string>
-                        </property>
-                        <property name="halpin_option" stdset="0">
-                         <bool>false</bool>
-                        </property>
-                        <property name="dialog_code_string" stdset="0">
-                         <string>CALCULATOR</string>
-                        </property>
-                       </widget>
-                      </item>
-                      <item row="4" column="0">
-                       <widget class="QLabel" name="label_axis_4">
-                        <property name="sizePolicy">
-                         <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
-                          <horstretch>0</horstretch>
-                          <verstretch>0</verstretch>
-                         </sizepolicy>
-                        </property>
-                        <property name="minimumSize">
-                         <size>
-                          <width>58</width>
-                          <height>38</height>
-                         </size>
-                        </property>
-                        <property name="maximumSize">
-                         <size>
-                          <width>82</width>
-                          <height>64</height>
-                         </size>
-                        </property>
-                        <property name="frameShape">
-                         <enum>QFrame::WinPanel</enum>
-                        </property>
-                        <property name="frameShadow">
-                         <enum>QFrame::Raised</enum>
-                        </property>
-                        <property name="lineWidth">
-                         <number>2</number>
-                        </property>
-                        <property name="text">
-                         <string>A</string>
-                        </property>
-                        <property name="alignment">
-                         <set>Qt::AlignCenter</set>
                         </property>
                        </widget>
                       </item>
@@ -13451,7 +13443,7 @@ SPINDLE</string>
                          </size>
                         </property>
                         <property name="currentIndex">
-                         <number>1</number>
+                         <number>0</number>
                         </property>
                         <widget class="QWidget" name="page_13">
                          <property name="sizePolicy">
@@ -14086,6 +14078,427 @@ ZERO</string>
                           </item>
                          </layout>
                         </widget>
+                       </widget>
+                      </item>
+                      <item row="1" column="0">
+                       <widget class="AxisToolButton" name="axis_select_x">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="minimumSize">
+                         <size>
+                          <width>58</width>
+                          <height>38</height>
+                         </size>
+                        </property>
+                        <property name="maximumSize">
+                         <size>
+                          <width>82</width>
+                          <height>64</height>
+                         </size>
+                        </property>
+                        <property name="text">
+                         <string>X</string>
+                        </property>
+                        <property name="checkable">
+                         <bool>true</bool>
+                        </property>
+                        <property name="checked">
+                         <bool>false</bool>
+                        </property>
+                        <property name="autoExclusive">
+                         <bool>false</bool>
+                        </property>
+                        <property name="axis_letter" stdset="0">
+                         <string>X</string>
+                        </property>
+                        <property name="dialog_code_string" stdset="0">
+                         <string>CALCULATOR</string>
+                        </property>
+                        <attribute name="buttonGroup">
+                         <string notr="true">buttonGroup</string>
+                        </attribute>
+                       </widget>
+                      </item>
+                      <item row="2" column="0">
+                       <widget class="AxisToolButton" name="axis_select_y">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="minimumSize">
+                         <size>
+                          <width>58</width>
+                          <height>38</height>
+                         </size>
+                        </property>
+                        <property name="maximumSize">
+                         <size>
+                          <width>82</width>
+                          <height>64</height>
+                         </size>
+                        </property>
+                        <property name="text">
+                         <string>Y</string>
+                        </property>
+                        <property name="checkable">
+                         <bool>true</bool>
+                        </property>
+                        <property name="autoExclusive">
+                         <bool>false</bool>
+                        </property>
+                        <property name="joint_number" stdset="0">
+                         <number>1</number>
+                        </property>
+                        <property name="axis_letter" stdset="0">
+                         <string>Y</string>
+                        </property>
+                        <property name="dialog_code_string" stdset="0">
+                         <string>CALCULATOR</string>
+                        </property>
+                        <attribute name="buttonGroup">
+                         <string notr="true">buttonGroup</string>
+                        </attribute>
+                       </widget>
+                      </item>
+                      <item row="3" column="0">
+                       <widget class="AxisToolButton" name="axis_select_z">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="minimumSize">
+                         <size>
+                          <width>58</width>
+                          <height>38</height>
+                         </size>
+                        </property>
+                        <property name="maximumSize">
+                         <size>
+                          <width>82</width>
+                          <height>64</height>
+                         </size>
+                        </property>
+                        <property name="text">
+                         <string>Z</string>
+                        </property>
+                        <property name="checkable">
+                         <bool>true</bool>
+                        </property>
+                        <property name="autoExclusive">
+                         <bool>false</bool>
+                        </property>
+                        <property name="joint_number" stdset="0">
+                         <number>2</number>
+                        </property>
+                        <property name="axis_letter" stdset="0">
+                         <string>Z</string>
+                        </property>
+                        <property name="dialog_code_string" stdset="0">
+                         <string>CALCULATOR</string>
+                        </property>
+                        <attribute name="buttonGroup">
+                         <string notr="true">buttonGroup</string>
+                        </attribute>
+                       </widget>
+                      </item>
+                      <item row="4" column="0">
+                       <widget class="AxisToolButton" name="axis_select_4">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="minimumSize">
+                         <size>
+                          <width>58</width>
+                          <height>38</height>
+                         </size>
+                        </property>
+                        <property name="maximumSize">
+                         <size>
+                          <width>82</width>
+                          <height>64</height>
+                         </size>
+                        </property>
+                        <property name="text">
+                         <string>A</string>
+                        </property>
+                        <property name="checkable">
+                         <bool>true</bool>
+                        </property>
+                        <property name="autoExclusive">
+                         <bool>false</bool>
+                        </property>
+                        <property name="joint_number" stdset="0">
+                         <number>3</number>
+                        </property>
+                        <property name="axis_letter" stdset="0">
+                         <string>A</string>
+                        </property>
+                        <property name="dialog_code_string" stdset="0">
+                         <string>CALCULATOR</string>
+                        </property>
+                        <attribute name="buttonGroup">
+                         <string notr="true">buttonGroup</string>
+                        </attribute>
+                       </widget>
+                      </item>
+                      <item row="5" column="0">
+                       <widget class="AxisToolButton" name="axis_select_5">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="minimumSize">
+                         <size>
+                          <width>58</width>
+                          <height>38</height>
+                         </size>
+                        </property>
+                        <property name="maximumSize">
+                         <size>
+                          <width>82</width>
+                          <height>64</height>
+                         </size>
+                        </property>
+                        <property name="text">
+                         <string>C</string>
+                        </property>
+                        <property name="checkable">
+                         <bool>true</bool>
+                        </property>
+                        <property name="autoExclusive">
+                         <bool>false</bool>
+                        </property>
+                        <property name="joint_number" stdset="0">
+                         <number>5</number>
+                        </property>
+                        <property name="axis_letter" stdset="0">
+                         <string>C</string>
+                        </property>
+                        <property name="dialog_code_string" stdset="0">
+                         <string>CALCULATOR</string>
+                        </property>
+                        <attribute name="buttonGroup">
+                         <string notr="true">buttonGroup</string>
+                        </attribute>
+                       </widget>
+                      </item>
+                      <item row="4" column="4">
+                       <widget class="ActionButton" name="action_cmd_4">
+                        <property name="enabled">
+                         <bool>true</bool>
+                        </property>
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Ignored" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="minimumSize">
+                         <size>
+                          <width>58</width>
+                          <height>38</height>
+                         </size>
+                        </property>
+                        <property name="maximumSize">
+                         <size>
+                          <width>82</width>
+                          <height>64</height>
+                         </size>
+                        </property>
+                        <property name="text">
+                         <string>GO TO
+ZERO</string>
+                        </property>
+                        <property name="indicator_option" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="indicator_HAL_pin_option" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="on_color" stdset="0">
+                         <color>
+                          <red>0</red>
+                          <green>255</green>
+                          <blue>0</blue>
+                         </color>
+                        </property>
+                        <property name="off_color" stdset="0">
+                         <color>
+                          <red>255</red>
+                          <green>0</green>
+                          <blue>0</blue>
+                         </color>
+                        </property>
+                        <property name="indicator_size" stdset="0">
+                         <double>0.200000000000000</double>
+                        </property>
+                        <property name="mdi_action" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="home_action" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="mdi_command_action" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="template_label_option" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="joint_number" stdset="0">
+                         <number>3</number>
+                        </property>
+                        <property name="axis_letter" stdset="0">
+                         <string>A</string>
+                        </property>
+                        <property name="incr_imperial_number" stdset="0">
+                         <double>0.010000000000000</double>
+                        </property>
+                        <property name="incr_mm_number" stdset="0">
+                         <double>0.025000000000000</double>
+                        </property>
+                        <property name="incr_angular_number" stdset="0">
+                         <double>-1.000000000000000</double>
+                        </property>
+                        <property name="toggle_float_option" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="float_num" stdset="0">
+                         <double>100.000000000000000</double>
+                        </property>
+                        <property name="float_alt_num" stdset="0">
+                         <double>50.000000000000000</double>
+                        </property>
+                        <property name="view_type_string" stdset="0">
+                         <string>P</string>
+                        </property>
+                        <property name="command_text_string" stdset="0">
+                         <string>G90 G0 A0</string>
+                        </property>
+                        <property name="ini_mdi_number" stdset="0">
+                         <number>0</number>
+                        </property>
+                        <property name="textTemplate" stdset="0">
+                         <string>%1.3f in</string>
+                        </property>
+                        <property name="alt_textTemplate" stdset="0">
+                         <string>%1.2f mm</string>
+                        </property>
+                       </widget>
+                      </item>
+                      <item row="5" column="4">
+                       <widget class="ActionButton" name="action_cmd_5">
+                        <property name="enabled">
+                         <bool>true</bool>
+                        </property>
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="minimumSize">
+                         <size>
+                          <width>58</width>
+                          <height>38</height>
+                         </size>
+                        </property>
+                        <property name="maximumSize">
+                         <size>
+                          <width>82</width>
+                          <height>64</height>
+                         </size>
+                        </property>
+                        <property name="text">
+                         <string>GO TO
+ZERO</string>
+                        </property>
+                        <property name="indicator_option" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="indicator_HAL_pin_option" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="on_color" stdset="0">
+                         <color>
+                          <red>0</red>
+                          <green>255</green>
+                          <blue>0</blue>
+                         </color>
+                        </property>
+                        <property name="off_color" stdset="0">
+                         <color>
+                          <red>255</red>
+                          <green>0</green>
+                          <blue>0</blue>
+                         </color>
+                        </property>
+                        <property name="indicator_size" stdset="0">
+                         <double>0.200000000000000</double>
+                        </property>
+                        <property name="mdi_action" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="home_action" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="mdi_command_action" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="template_label_option" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="joint_number" stdset="0">
+                         <number>3</number>
+                        </property>
+                        <property name="axis_letter" stdset="0">
+                         <string>A</string>
+                        </property>
+                        <property name="incr_imperial_number" stdset="0">
+                         <double>0.010000000000000</double>
+                        </property>
+                        <property name="incr_mm_number" stdset="0">
+                         <double>0.025000000000000</double>
+                        </property>
+                        <property name="incr_angular_number" stdset="0">
+                         <double>-1.000000000000000</double>
+                        </property>
+                        <property name="toggle_float_option" stdset="0">
+                         <bool>false</bool>
+                        </property>
+                        <property name="float_num" stdset="0">
+                         <double>100.000000000000000</double>
+                        </property>
+                        <property name="float_alt_num" stdset="0">
+                         <double>50.000000000000000</double>
+                        </property>
+                        <property name="view_type_string" stdset="0">
+                         <string>P</string>
+                        </property>
+                        <property name="command_text_string" stdset="0">
+                         <string>G90 G0 C0</string>
+                        </property>
+                        <property name="ini_mdi_number" stdset="0">
+                         <number>0</number>
+                        </property>
+                        <property name="textTemplate" stdset="0">
+                         <string>%1.3f in</string>
+                        </property>
+                        <property name="alt_textTemplate" stdset="0">
+                         <string>%1.2f mm</string>
+                        </property>
                        </widget>
                       </item>
                      </layout>
@@ -17184,261 +17597,263 @@ ZERO</string>
         </layout>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="status_layout">
-         <property name="spacing">
-          <number>6</number>
-         </property>
-         <property name="leftMargin">
-          <number>4</number>
-         </property>
-         <property name="topMargin">
-          <number>0</number>
-         </property>
-         <property name="rightMargin">
-          <number>4</number>
-         </property>
-         <property name="bottomMargin">
-          <number>2</number>
-         </property>
-         <item>
-          <widget class="QLineEdit" name="lineEdit_statusbar">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-             <horstretch>1</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>746</width>
-             <height>21</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>941</width>
-             <height>21</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="autoFillBackground">
-            <bool>false</bool>
-           </property>
-           <property name="readOnly">
-            <bool>true</bool>
-           </property>
-           <property name="placeholderText">
-            <string>STATUS</string>
-           </property>
-           <property name="clearButtonEnabled">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="horizontalSpacer_2">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-           <property name="sizeType">
-            <enum>QSizePolicy::Expanding</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>185</width>
-             <height>10</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_47">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>88</width>
-             <height>21</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>88</width>
-             <height>21</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>MOTION</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="StatusLabel" name="statuslabel_motion">
-           <property name="minimumSize">
-            <size>
-             <width>84</width>
-             <height>21</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>84</width>
-             <height>21</height>
-            </size>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-           <property name="motion_type_status" stdset="0">
-            <bool>true</bool>
-           </property>
-           <property name="motion_type_list" stdset="0">
-            <stringlist>
-             <string>           </string>
-             <string>Rapid</string>
-             <string>Feed</string>
-             <string>Arc</string>
-             <string>Tool Change</string>
-             <string>Probe</string>
-             <string>Rotaty Index</string>
-            </stringlist>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_44">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>80</width>
-             <height>21</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>88</width>
-             <height>21</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>RUN TIME</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="StatusLabel" name="lbl_runtime">
-           <property name="minimumSize">
-            <size>
-             <width>88</width>
-             <height>21</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>88</width>
-             <height>21</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>00:00:00</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-           <property name="textTemplate" stdset="0">
-            <string>00:00:00</string>
-           </property>
-           <property name="feed_override_status" stdset="0">
-            <bool>false</bool>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_11">
-           <property name="minimumSize">
-            <size>
-             <width>45</width>
-             <height>21</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>45</width>
-             <height>21</height>
-            </size>
-           </property>
-           <property name="text">
-            <string>TIME</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="StatusLabel" name="lbl_clock">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>88</width>
-             <height>21</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>88</width>
-             <height>21</height>
-            </size>
-           </property>
-           <property name="frameShape">
-            <enum>QFrame::NoFrame</enum>
-           </property>
-           <property name="frameShadow">
-            <enum>QFrame::Sunken</enum>
-           </property>
-           <property name="lineWidth">
-            <number>2</number>
-           </property>
-           <property name="text">
-            <string>08:26:06 PM</string>
-           </property>
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-           <property name="textTemplate" stdset="0">
-            <string>%I:%M:%S %p</string>
-           </property>
-           <property name="feed_override_status" stdset="0">
-            <bool>false</bool>
-           </property>
-           <property name="time_stamp_status" stdset="0">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-        </layout>
+        <widget class="QFrame" name="status_frame">
+         <layout class="QHBoxLayout" name="status_layout">
+          <property name="spacing">
+           <number>6</number>
+          </property>
+          <property name="leftMargin">
+           <number>4</number>
+          </property>
+          <property name="topMargin">
+           <number>1</number>
+          </property>
+          <property name="rightMargin">
+           <number>4</number>
+          </property>
+          <property name="bottomMargin">
+           <number>2</number>
+          </property>
+          <item>
+           <widget class="QLineEdit" name="lineEdit_statusbar">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>1</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>746</width>
+              <height>21</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>941</width>
+              <height>21</height>
+             </size>
+            </property>
+            <property name="focusPolicy">
+             <enum>Qt::NoFocus</enum>
+            </property>
+            <property name="autoFillBackground">
+             <bool>false</bool>
+            </property>
+            <property name="readOnly">
+             <bool>true</bool>
+            </property>
+            <property name="placeholderText">
+             <string>STATUS</string>
+            </property>
+            <property name="clearButtonEnabled">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <spacer name="horizontalSpacer_2">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeType">
+             <enum>QSizePolicy::Expanding</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>185</width>
+              <height>10</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_47">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>88</width>
+              <height>21</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>88</width>
+              <height>21</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>MOTION</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="StatusLabel" name="statuslabel_motion">
+            <property name="minimumSize">
+             <size>
+              <width>84</width>
+              <height>21</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>84</width>
+              <height>21</height>
+             </size>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="motion_type_status" stdset="0">
+             <bool>true</bool>
+            </property>
+            <property name="motion_type_list" stdset="0">
+             <stringlist>
+              <string>           </string>
+              <string>Rapid</string>
+              <string>Feed</string>
+              <string>Arc</string>
+              <string>Tool Change</string>
+              <string>Probe</string>
+              <string>Rotaty Index</string>
+             </stringlist>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_44">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>80</width>
+              <height>21</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>88</width>
+              <height>21</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>RUN TIME</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="StatusLabel" name="lbl_runtime">
+            <property name="minimumSize">
+             <size>
+              <width>88</width>
+              <height>21</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>88</width>
+              <height>21</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>00:00:00</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="textTemplate" stdset="0">
+             <string>00:00:00</string>
+            </property>
+            <property name="feed_override_status" stdset="0">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_11">
+            <property name="minimumSize">
+             <size>
+              <width>45</width>
+              <height>21</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>45</width>
+              <height>21</height>
+             </size>
+            </property>
+            <property name="text">
+             <string>TIME</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="StatusLabel" name="lbl_clock">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>88</width>
+              <height>21</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>88</width>
+              <height>21</height>
+             </size>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::NoFrame</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Sunken</enum>
+            </property>
+            <property name="lineWidth">
+             <number>2</number>
+            </property>
+            <property name="text">
+             <string>08:19:23 PM</string>
+            </property>
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="textTemplate" stdset="0">
+             <string>%I:%M:%S %p</string>
+            </property>
+            <property name="feed_override_status" stdset="0">
+             <bool>false</bool>
+            </property>
+            <property name="time_stamp_status" stdset="0">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -17724,7 +18139,7 @@ ZERO</string>
    <slot>btn_home_all_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>891</x>
+     <x>747</x>
      <y>660</y>
     </hint>
     <hint type="destinationlabel">
@@ -17740,7 +18155,7 @@ ZERO</string>
    <slot>btn_maxv_50_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>947</x>
+     <x>803</x>
      <y>681</y>
     </hint>
     <hint type="destinationlabel">
@@ -17756,7 +18171,7 @@ ZERO</string>
    <slot>slider_maxv_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1237</x>
+     <x>894</x>
      <y>681</y>
     </hint>
     <hint type="destinationlabel">
@@ -17772,7 +18187,7 @@ ZERO</string>
    <slot>slider_rapid_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1237</x>
+     <x>894</x>
      <y>753</y>
     </hint>
     <hint type="destinationlabel">
@@ -17788,316 +18203,12 @@ ZERO</string>
    <slot>btn_maxv_100_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1283</x>
+     <x>940</x>
      <y>681</y>
     </hint>
     <hint type="destinationlabel">
      <x>1064</x>
      <y>859</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btn_jog_l_slow</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>slow_button_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1613</x>
-     <y>415</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>719</x>
-     <y>429</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btn_dimensions</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>btn_dimensions_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>578</x>
-     <y>410</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>0</x>
-     <y>323</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cam_zoom</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>cam_zoom_changed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>553</x>
-     <y>134</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1105</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>chk_use_tool_sensor</sender>
-   <signal>stateChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>chk_use_sensor_changed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>623</x>
-     <y>84</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>508</x>
-     <y>859</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btn_gcode_edit</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>btn_gcode_edit_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>603</x>
-     <y>104</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>515</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cam_diameter</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>cam_dia_changed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>553</x>
-     <y>134</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1124</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>chk_use_virtual</sender>
-   <signal>stateChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>chk_use_virtual_changed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>623</x>
-     <y>84</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>565</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>chk_alpha_mode</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>chk_alpha_mode_changed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>623</x>
-     <y>84</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>645</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btn_save_status</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>btn_save_status_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>603</x>
-     <y>104</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1098</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>chk_override_limits</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>chk_override_limits_checked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>623</x>
-     <y>84</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>719</x>
-     <y>429</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cam_rotate</sender>
-   <signal>valueChanged(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>cam_rot_changed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>553</x>
-     <y>134</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1156</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>chk_use_camera</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>chk_use_camera_changed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>623</x>
-     <y>84</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>656</x>
-     <y>859</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btn_copy_left</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>btn_copy_file_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>603</x>
-     <y>114</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>471</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>chk_run_from_line</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>chk_run_from_line_checked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>623</x>
-     <y>84</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>554</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btn_load_file</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>btn_load_file_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>603</x>
-     <y>104</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1059</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btn_copy_right</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>btn_copy_file_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>603</x>
-     <y>114</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>446</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btn_clear_status</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>btn_clear_status_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>603</x>
-     <y>104</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1039</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>chk_inhibit_selection</sender>
-   <signal>toggled(bool)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>chk_inhibit_selection_changed()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>623</x>
-     <y>84</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>719</x>
-     <y>429</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btn_jog_a_slow</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>slow_button_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1432</x>
-     <y>568</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1478</x>
-     <y>451</y>
     </hint>
    </hints>
   </connection>
@@ -18108,7 +18219,7 @@ ZERO</string>
    <slot>btn_home_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>891</x>
+     <x>747</x>
      <y>777</y>
     </hint>
     <hint type="destinationlabel">
@@ -18124,7 +18235,7 @@ ZERO</string>
    <slot>btn_home_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>891</x>
+     <x>747</x>
      <y>738</y>
     </hint>
     <hint type="destinationlabel">
@@ -18140,7 +18251,7 @@ ZERO</string>
    <slot>btn_home_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>891</x>
+     <x>747</x>
      <y>699</y>
     </hint>
     <hint type="destinationlabel">
@@ -18150,18 +18261,162 @@ ZERO</string>
    </hints>
   </connection>
   <connection>
-   <sender>pushbutton_3</sender>
-   <signal>clicked(bool)</signal>
+   <sender>action_home_4</sender>
+   <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
-   <slot>btn_about_clicked()</slot>
+   <slot>btn_home_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>619</x>
-     <y>100</y>
+     <x>747</x>
+     <y>816</y>
     </hint>
     <hint type="destinationlabel">
-     <x>988</x>
-     <y>-20</y>
+     <x>717</x>
+     <y>-82</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action_home_5</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_home_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>747</x>
+     <y>855</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1045</x>
+     <y>-72</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action_pause</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_pause_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>40</x>
+     <y>679</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-57</x>
+     <y>560</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tabWidget_utilities</sender>
+   <signal>currentChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>tab_utilities_changed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>474</x>
+     <y>84</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>0</x>
+     <y>204</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cam_diameter</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>cam_dia_changed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>404</x>
+     <y>134</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1124</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushbutton_7</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_spindle_z_down_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>424</x>
+     <y>84</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>926</x>
+     <y>-8</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_gcode_edit</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_gcode_edit_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>459</x>
+     <y>598</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>515</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_dimensions</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_dimensions_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>429</x>
+     <y>374</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>0</x>
+     <y>323</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>chk_use_virtual</sender>
+   <signal>stateChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>chk_use_virtual_changed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>474</x>
+     <y>84</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>565</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>chk_override_limits</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>chk_override_limits_checked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>474</x>
+     <y>84</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>719</x>
+     <y>429</y>
     </hint>
    </hints>
   </connection>
@@ -18182,49 +18437,17 @@ ZERO</string>
    </hints>
   </connection>
   <connection>
-   <sender>gcode_viewer</sender>
-   <signal>percentDone(int)</signal>
+   <sender>chk_alpha_mode</sender>
+   <signal>toggled(bool)</signal>
    <receiver>MainWindow</receiver>
-   <slot>percent_done_changed()</slot>
+   <slot>chk_alpha_mode_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>102</x>
-     <y>82</y>
+     <x>474</x>
+     <y>84</y>
     </hint>
     <hint type="destinationlabel">
-     <x>0</x>
-     <y>302</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btn_ref_laser</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>btn_ref_laser_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>82</x>
-     <y>104</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>238</x>
-     <y>0</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>cmb_gcode_history</sender>
-   <signal>activated(int)</signal>
-   <receiver>MainWindow</receiver>
-   <slot>cmb_gcode_history_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>102</x>
-     <y>86</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>356</x>
+     <x>645</x>
      <y>0</y>
     </hint>
    </hints>
@@ -18262,18 +18485,18 @@ ZERO</string>
    </hints>
   </connection>
   <connection>
-   <sender>btn_touchplate</sender>
-   <signal>clicked()</signal>
+   <sender>chk_use_camera</sender>
+   <signal>toggled(bool)</signal>
    <receiver>MainWindow</receiver>
-   <slot>btn_touchoff_clicked()</slot>
+   <slot>chk_use_camera_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>430</x>
-     <y>571</y>
+     <x>474</x>
+     <y>84</y>
     </hint>
     <hint type="destinationlabel">
-     <x>0</x>
-     <y>467</y>
+     <x>656</x>
+     <y>859</y>
     </hint>
    </hints>
   </connection>
@@ -18284,12 +18507,204 @@ ZERO</string>
    <slot>btn_m61_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>344</x>
+     <x>269</x>
      <y>571</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
      <y>438</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_jog_l_slow</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>slow_button_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1262</x>
+     <y>415</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>719</x>
+     <y>429</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cam_zoom</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>cam_zoom_changed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>404</x>
+     <y>134</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1105</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cam_rotate</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>cam_rot_changed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>404</x>
+     <y>134</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1156</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>chk_inhibit_selection</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>chk_inhibit_selection_changed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>474</x>
+     <y>84</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>719</x>
+     <y>429</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_touchplate</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_touchoff_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>355</x>
+     <y>571</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>0</x>
+     <y>467</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>chk_run_from_line</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>chk_run_from_line_checked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>474</x>
+     <y>84</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>554</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_copy_right</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_copy_file_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>459</x>
+     <y>328</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>446</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cmb_gcode_history</sender>
+   <signal>activated(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>cmb_gcode_history_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>102</x>
+     <y>86</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>356</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_load_file</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_load_file_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>459</x>
+     <y>114</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1059</x>
+     <y>0</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>gcode_viewer</sender>
+   <signal>percentDone(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>percent_done_changed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>109</x>
+     <y>157</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>0</x>
+     <y>302</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_jog_a_slow</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>slow_button_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>1081</x>
+     <y>568</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1478</x>
+     <y>451</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_save_status</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_save_status_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>454</x>
+     <y>104</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>1098</x>
+     <y>0</y>
     </hint>
    </hints>
   </connection>
@@ -18300,7 +18715,7 @@ ZERO</string>
    <slot>btn_spindle_z_up_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>573</x>
+     <x>424</x>
      <y>84</y>
     </hint>
     <hint type="destinationlabel">
@@ -18310,18 +18725,18 @@ ZERO</string>
    </hints>
   </connection>
   <connection>
-   <sender>pushbutton_7</sender>
-   <signal>clicked(bool)</signal>
+   <sender>chk_use_tool_sensor</sender>
+   <signal>stateChanged(int)</signal>
    <receiver>MainWindow</receiver>
-   <slot>btn_spindle_z_down_clicked()</slot>
+   <slot>chk_use_sensor_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>573</x>
+     <x>474</x>
      <y>84</y>
     </hint>
     <hint type="destinationlabel">
-     <x>926</x>
-     <y>-8</y>
+     <x>508</x>
+     <y>859</y>
     </hint>
    </hints>
   </connection>
@@ -18332,12 +18747,28 @@ ZERO</string>
    <slot>btn_zoomin_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>573</x>
+     <x>424</x>
      <y>84</y>
     </hint>
     <hint type="destinationlabel">
      <x>631</x>
      <y>-11</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>btn_copy_left</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_copy_file_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>459</x>
+     <y>394</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>471</x>
+     <y>0</y>
     </hint>
    </hints>
   </connection>
@@ -18348,7 +18779,7 @@ ZERO</string>
    <slot>btn_zoomout_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>573</x>
+     <x>424</x>
      <y>84</y>
     </hint>
     <hint type="destinationlabel">
@@ -18358,66 +18789,50 @@ ZERO</string>
    </hints>
   </connection>
   <connection>
-   <sender>tabWidget_utilities</sender>
-   <signal>currentChanged(int)</signal>
+   <sender>btn_ref_laser</sender>
+   <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
-   <slot>tab_utilities_changed()</slot>
+   <slot>btn_ref_laser_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>623</x>
-     <y>84</y>
+     <x>82</x>
+     <y>104</y>
     </hint>
     <hint type="destinationlabel">
-     <x>0</x>
-     <y>204</y>
+     <x>238</x>
+     <y>0</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>action_home_4</sender>
-   <signal>clicked()</signal>
+   <sender>pushbutton_3</sender>
+   <signal>clicked(bool)</signal>
    <receiver>MainWindow</receiver>
-   <slot>btn_home_clicked()</slot>
+   <slot>btn_about_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>891</x>
-     <y>816</y>
+     <x>470</x>
+     <y>100</y>
     </hint>
     <hint type="destinationlabel">
-     <x>717</x>
-     <y>-82</y>
+     <x>988</x>
+     <y>-20</y>
     </hint>
    </hints>
   </connection>
   <connection>
-   <sender>action_home_5</sender>
+   <sender>btn_clear_status</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
-   <slot>btn_home_clicked()</slot>
+   <slot>btn_clear_status_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>891</x>
-     <y>855</y>
+     <x>454</x>
+     <y>104</y>
     </hint>
     <hint type="destinationlabel">
-     <x>1045</x>
-     <y>-72</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>action_pause</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>btn_pause_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>40</x>
-     <y>679</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-57</x>
-     <y>560</y>
+     <x>1039</x>
+     <y>0</y>
     </hint>
    </hints>
   </connection>
@@ -18502,7 +18917,8 @@ ZERO</string>
   <slot>btn_pause_clicked()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
+  <buttongroup name="mode_buttonGroup"/>
+  <buttongroup name="buttonGroup"/>
  </buttongroups>
 </ui>

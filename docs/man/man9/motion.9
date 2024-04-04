@@ -1,28 +1,62 @@
-.TH MOTION "9" "" "LinuxCNC Documentation" "HAL Component"
+.TH MOTION "9" "2023-12-22" "LinuxCNC Documentation" "HAL Component"
 
 .SH NAME
 motion \- accepts NML motion commands, interacts with HAL in realtime
 
 .SH SYNOPSIS
-\fBloadrt motmod [base_period_nsec=\fIperiod\fB] [base_thread_fp=\fI0 or 1\fB] [servo_period_nsec=\fIperiod\fB] [traj_period_nsec=\fIperiod\fB] [num_joints=\fI[1-16]\fB] [num_dio=\fI[1-64]\fB] [num_aio=\fI[1-64]\fB] [num_misc_error=\fI[0-64]\fB | names_misc_errors] [num_spindles=\fI[1-8]\fB]\fR  \fB[unlock_joints_mask=\fR\fIjointmask\fR\fB]\fR \fB[num_extrajoints=\fI[0-16]\fB]\fR
+\fBloadrt motmod [base_period_nsec=\fIperiod\fB] [base_thread_fp=\fI0 or 1\fB] [servo_period_nsec=\fIperiod\fB] [traj_period_nsec=\fIperiod\fB] [num_joints=\fI[1-16]\fB] [num_dio=\fI[1-64]\fB | names_dout=\fIname[,...]\fB names_din=\fIname[,...]\fB] [num_aio=\fI[1-64]\fB | names_aout=\fIname[,...]\fB names_ain=\fIname[,...]\fB] [num_misc_error=\fI[0-64]\fB] [num_spindles=\fI[1-8]\fB]\fR  \fB[unlock_joints_mask=\fR\fIjointmask\fR\fB]\fR \fB[num_extrajoints=\fI[0-16]\fB]\fR
 
 The limits for the following items are compile-time settings:
 .br
 .ns
 .TP
-\fBnum_joints\fR: Maximum number of joints is set by EMCMOT_MAX_JOINTS.
+\fBnum_joints\fR: Maximum number of joints is set by \fBEMCMOT_MAX_JOINTS\fR.
 .br
 .ns
 .TP
-\fBnum_dio\fR: Maximum number of digital inputs is set by EMCMOT_MAX_DIO.
+\fBnum_dio\fR: Maximum number of digital IO pins is set by \fBEMCMOT_MAX_DIO\fR.
+Minimum is 1, if \fBnum_dio\fR is not specified, it defaults to \fBDEFAULT_DIO\fR.
 .br
 .ns
 .TP
-\fBnum_aio\fR: Maximum number of analog inputs is set by EMCMOT_MAX_AIO.
+\fBnames_dout\fR: A comma-separated list of names for digital output pins.
+This parameter is mutually exclusive with \fBnum_dio\fR, but can be combined with \fBnames_din\fR. A
+maximum of \fBEMCMOT_MAX_DIO\fR names can be specified. The default digital output pin has names
+like \fBmotion.digital-out-00\fR whereas \fBnames_dout=\fIis-homing-x,is-homing-y\fR will create the
+HAL pins \fBmotion.dout-is-homing-x\fR and \fBmotion.dout-is-homing-y\fR.
 .br
 .ns
 .TP
-\fBnum_misc_error\fR: Maximum number of extra error inputs is set by EMCMOT_MAX_MISC_ERRORS.
+\fBnames_din\fR: A comma-separated list of names for digital input pins.
+This parameter is mutually exclusive with \fBnum_dio\fR, but can be combined with \fBnames_dout\fR.
+A maximum of \fBEMCMOT_MAX_DIO\fR names can be specified. The default digital input pin has names
+like \fBmotion.digital-in-00\fR whereas \fBnames_din=\fIhomed-x,homed-y\fR will create the HAL pins
+\fBmotion.din-homed-x\fR and \fBmotion.din-homed-y\fR.
+.br
+.ns
+.TP
+\fBnum_aio\fR: Maximum number of analog IO pins is set by \fBEMCMOT_MAX_AIO\fR.
+Minimum is 1, if \fBnum_aio\fR is not specified, it defaults to \fBDEFAULT_AIO\fR.
+.br
+.ns
+.TP
+\fBnames_aout\fR: A comma-separated list of names for analog output pins.
+This parameter is mutually exclusive with \fBnum_aio\fR, but can be combined with \fBnames_ain\fR. A
+maximum of \fBEMCMOT_MAX_AIO\fR names can be specified. The default analog output pin has names like
+\fBmotion.analog-out-00\fR whereas \fBnames_aout=\fIfeedrate1,feedrate2\fR will create the HAL pins
+\fBmotion.aout-feedrate1\fR and \fBmotion.aout-feedrate2\fR.
+.br
+.ns
+.TP
+\fBnames_ain\fR: A comma-separated list of names for analog input pins.
+This parameter is mutually exclusive with \fBnum_aio\fR, but can be combined with \fBnames_aout\fR.
+A maximum of \fBEMCMOT_MAX_AIO\fR names can be specified. The default analog input pin has names
+like \fBmotion.analog-in-00\fR whereas \fBnames_ain=\fIproxy1,proxy2\fR will create the HAL pins
+\fBmotion.ain-proxy1\fR and \fBmotion.ain-proxy2\fR.
+.br
+.ns
+.TP
+\fBnum_misc_error\fR: Maximum number of extra error inputs is set by \fBEMCMOT_MAX_MISC_ERRORS\fR.
 .br
 .ns
 .TP
@@ -34,12 +68,13 @@ create hal pins \fBmotion.err-overtemp\fR and \fBmotion.err-undertemp\fR
 .ns
 .TP
 \fBnum_spindles\fR: Maximum number of spindles is set by EMCMOT_MAX_SPINDLES
+.br
+.ns
+.TP
+\fBnum_spindles\fR: Maximum number of spindles is set by \fBEMCMOT_MAX_SPINDLES\fR.
 
 .P
-Optionally the number of Digital I/O is set with num_dio. The number of Analog I/O is set with num_aio. The default is 4 each.
-
-.P
-Pin names starting with "\fBjoint\fR"  or "\fBaxis\fR" are are read and updated by the motion-controller function.
+Pin names starting with "\fBjoint\fR"  or "\fBaxis\fR" are read and updated by the motion-controller function.
 
 .SH DESCRIPTION
 By default, the base thread does not support floating point.  Software stepping, software encoder counting, and software pwm do not use floating point.  \fBbase_thread_fp\fR can be used to enable floating point in the base thread (for example for brushless DC motor control).
@@ -65,12 +100,20 @@ joints.
 The \fBnum_joints\fR parameter is conventionally set using the INI file
 setting \fB[KINS]JOINTS=\fRvalue.  The \fBnum_extrajoints\fR is set by
 the additional motmod parameter \fB[EMCMOT]motmod num_extrajoints=\fRvalue.
-Hal pin numbering for all joints is zero based [\fB0 ... num_joints-1\fR].
+HAL pin numbering for all joints is zero based [\fB0 ... num_joints-1\fR].
 When specified, 'extra' joints are assigned the last \fBnum_extrajoints\fR
 in the numbering sequence.  For example, specifying [KINS]JOINTS=5 and
 [EMCMOT]motmod num_extrajoints=2 for a 3 joint trivkins configuration
 \fB[KINS] KINEMATICS=trivkins coordinates=xyz\fR uses joints 0,1,2 for
 the kinematic joints and joints 3,4 for the 'extra' joints.
+
+An equal number of digital or analog IO pins will always be created. For
+example, if \fBnames_din\fR is specified with two pins, two named input and two
+default named output pins will be created. In cases where \fBnames_dout\fR is
+specified with two pins and \fBnames_din\fR with three pins, two named output
+and one default named output pin will be created, along with three named input
+pins. This principle applies independently to digital and analog IO pins,
+allowing for scenarios such as having three digital pins and two analog pins.
 
 .SH  MOTION PINS
 

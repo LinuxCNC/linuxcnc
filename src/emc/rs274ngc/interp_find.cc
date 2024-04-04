@@ -161,11 +161,11 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
                       double *CC_p,      //!< pointer to end_c                      
                       double *u_p, double *v_p, double *w_p)
 {
-    int middle;
-    int comp;
+    bool middle;
+    CUTTER_COMP comp;
 
     middle = !s->cutter_comp_firstmove;
-    comp = (s->cutter_comp_side);
+    comp = s->cutter_comp_side;
 
     if (block->g_modes[GM_MODAL_0] == G_53) {      /* distance mode is absolute in this case */
 #ifdef DEBUG_EMC
@@ -252,20 +252,20 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
         } else {
             *w_p = s->w_current;
         }
-    } else if (s->distance_mode == MODE_ABSOLUTE) {
+    } else if (s->distance_mode == DISTANCE_MODE::ABSOLUTE) {
 
         if(block->x_flag) {
             *px = block->x_number;
         } else {
             // both cutter comp planes affect X ...
-            *px = (comp && middle) ? s->program_x : s->current_x;
+            *px = (comp != CUTTER_COMP::OFF && middle) ? s->program_x : s->current_x;
         }
 
         if(block->y_flag) {
             *py = block->y_number;
         } else {
             // but only XY affects Y ...
-            *py = (comp && middle && s->plane == CANON_PLANE_XY) ? s->program_y : s->current_y;
+            *py = (comp != CUTTER_COMP::OFF && middle && s->plane == CANON_PLANE::XY) ? s->program_y : s->current_y;
         }
 
         if(block->radius_flag && block->theta_flag) {
@@ -291,7 +291,7 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
             *pz = block->z_number;
         } else {
             // and only XZ affects Z.
-            *pz = (comp && middle && s->plane == CANON_PLANE_XZ) ? s->program_z : s->current_z;
+            *pz = (comp != CUTTER_COMP::OFF && middle && s->plane == CANON_PLANE::XZ) ? s->program_z : s->current_z;
         }
 
         if(block->a_flag) {
@@ -328,14 +328,14 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
         *v_p = (block->v_flag) ? block->v_number : s->v_current;
         *w_p = (block->w_flag) ? block->w_number : s->w_current;
 
-    } else {                      /* mode is MODE_INCREMENTAL */
+    } else {                      /* mode is DISTANCE_MODE::INCREMENTAL */
 
         // both cutter comp planes affect X ...
-        *px = (comp && middle) ? s->program_x: s->current_x;
+        *px = (comp != CUTTER_COMP::OFF && middle) ? s->program_x: s->current_x;
         if(block->x_flag) *px += block->x_number;
 
         // but only XY affects Y ...
-        *py = (comp && middle && s->plane == CANON_PLANE_XY) ? s->program_y: s->current_y;
+        *py = (comp != CUTTER_COMP::OFF && middle && s->plane == CANON_PLANE::XY) ? s->program_y: s->current_y;
         if(block->y_flag) *py += block->y_number;
 
         if(block->radius_flag) {
@@ -359,7 +359,7 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
         }
 
         // and only XZ affects Z.
-        *pz = (comp && middle && s->plane == CANON_PLANE_XZ) ? s->program_z: s->current_z;
+        *pz = (comp != CUTTER_COMP::OFF && middle && s->plane == CANON_PLANE::XZ) ? s->program_z: s->current_z;
         if(block->z_flag) *pz += block->z_number;
 
         *AA_p = s->AA_current;

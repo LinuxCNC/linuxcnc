@@ -159,13 +159,12 @@ quickly; however, some systems cannot accept overshoot.
 
 Effects of increasing parameters
 
-.Ziegler-Nichols method
-Another tuning method is formally known as the 'Ziegler-Nichols
-method', introduced by John G. Ziegler and Nathaniel B. Nichols
-footnote:[Introduced in the 1942 paper Optimum Settings for Automatic
-Controllers, link:https://doi.org/10.1115/1.2899060[DOI
-10.1115/1.2899060] also
-link:https://web.archive.org/web/20170918055307/http://staff.guilan.ac.ir/staff/users/chaibakhsh/fckeditor_repo/file/documents/Optimum%20Settings%20for%20Automatic%20Controllers%20(Ziegler%20and%20Nichols,%201942).pdf[available from The
+.Ziegler-Nichols method Another tuning method is formally known as the
+'Ziegler-Nichols method', introduced by John G. Ziegler and Nathaniel
+B. Nichols in 1942 footnote:[Ziegler, J. G. and Nichols, N. B. (1942),
+'Optimum Settings for Automatic Controllers', Transactions of the
+ASME, link:https://doi.org/10.1115/1.2899060[DOI 10.1115/1.2899060]
+and link:https://web.archive.org/web/20170918055307/http://staff.guilan.ac.ir/staff/users/chaibakhsh/fckeditor_repo/file/documents/Optimum%20Settings%20for%20Automatic%20Controllers%20(Ziegler%20and%20Nichols,%201942).pdf[The
 Internet Archive].]. It starts in the same way as the method described
 before: first set the I and D gains to zero and then increase the P
 gain and expose the loop to external interference for example knocking
@@ -187,5 +186,107 @@ D controls as the table shows:
 After tuning the axis check the following error with Halscope to make
 sure it is within your machine requirements. More information on
 Halscope is in the HAL User manual.
+
+=== Automatic PID tuning
+
+Since LinuxCNC version 2.9, the pid component support automatic tuning
+using the Relay method footnote:[Åström, Karl Johan and Hägglund, Tore
+(1984), 'Automation paper Automatic Tuning of Simple Regulators with
+Specifications on Phase and Amplitude Margins',
+link:https://doi.org/10.1016/0005-1098(84)90014-1[DOI 10.1016/0005-1098(84)90014-1]].
+This is a replacement for the now removed and obsolete at_pid
+component.
+
+The pid component uses several constants to calculate the output value
+based on current and wanted state, the most important among them being
+Pgain', 'Igain', 'Dgain', 'bias', 'FF0', 'FF1', 'FF2' and 'FF3'. All
+of these need to have a sensible value for the controller to behave
+properly.
+
+The current implementation of automatic tuning implement two different
+algorithms, selected using the tune-type pin.  When tune-type is zero,
+it affects 'Pgain', 'Igain' and 'Dgain' while setting 'FF0', 'FF1' and
+'FF2' to zero.  If tune-type is 1, it affects 'Pgain', 'Igain' and
+'FF1' while setting 'Dgain', 'FF0' and 'FF2' to zero.  Note type 1
+require scaling be set so output is in user units per second.
+
+When autotuning a motor with tune-type 0, the algorithm will produce a
+square wave pattern centered around the 'bias' value on the output pin
+of the PID controller, moving from the positive extreme to the
+negative extreme of the output range.  This can be seen using the HAL
+Scope provided by LinuxCNC.  For a motor controller taking +-10 V as
+its control signal, this might accelerate the motor full speed in one
+direction for a short period before telling it to go full speed in the
+opposite direction.  Make sure to have a lot of room on either side of
+the starting position, and start with a low `tune-effort` value to
+limit the speed used.  The `tune-effort` value define the extreme
+`output` value used, so if `tune-effort` is 1, the `output` value
+during tuning will move from 1 to -1. In other words, the extremes of
+the wave pattern is controlled by the 'tune-effort' pin.  Using too
+high 'tune-effort' might overload the motor driver.
+
+The number of cycles in the tune pattern is controlled by the
+'tune-cycles' pin.  Of course, trying to change the direction of a
+physical object instantly (as in going directly from a positive
+voltage to the equivalent negative voltage in the motor controller
+case) do not change velocity instantly, and it take some time for the
+object to slow down and move in the opposite direction.  This result
+in a more smooth wave form on the position pin, as the axis in
+question were vibrating back and forth.  When the axis reached the
+target speed in the opposing direction, the auto tuner change
+direction again.  After several of these changes, the average time
+delay between the "peaks" and "valleys" of this movement graph is used
+to calculate proposed values for `Pgain`, `Igain` and `Dgain`, and
+insert them into the HAL model to use by the pid controller.  The auto
+tuned settings are not perfect, but might provide a good starting
+point for further parameter tuning.
+
+FIXME: The author of these instructions have not tested automatic
+tuning with tune-type set to 1, so this approach remain to be
+documented.
+
+Armed with this knowledge, it is time to look at how to do the tuning.
+Lets say the HAL configuration in question load the PID component for
+X, Y and Z like this, using named pin names instead of 'count=3':
+
+ loadrt pid names=pid.x,pid.y,pid.z
+
+If the component had used 'count=3' instead, all use of pid.x, pid,y
+and pid.z need to be changed to pid.1, pid.2 and pid.3 respectively.
+To start tuning the X axis, move the axis to the middle of its range,
+to make sure it do not hit anything when it start moving back and
+forth.  You also want to extend the axis ferror limit (following
+error) to make LinuxCNC accept the higher position deviation during
+tuning.  The sensible ferror limit depends on the machine and setup, but
+1 inch or 20 mm might be useful starting points.  Next, set the
+initial 'tune-effort' to a low number in the output range, for example
+1/100 of the maximum output, and slowly increase it to get more
+accurate tuning values.  Assign 1 to the 'tune-mode' value.  Note,
+this will disable the pid controlling part and feed the 'bias' value
+to the output pin, which can cause a lot of drift.  It might be a good
+idea to tune the motor driver to ensure zero input voltage do not
+cause any motor rotation, or adjust the 'bias' value for the same
+effect.  Finally, after setting 'tune-mode', set 'tune-start' to 1 to
+activate the auto tuning.  If all go well, your axis will vibrate and
+move back and forth for a few seconds and when it is done, new values
+for Pgain, Igain and Dgain will be active.  To test them, change
+'tune-mode' back to 0.  Note that setting 'tune-mode' back to zero
+might cause the axis to suddenly jerk as it bring the axis back to its
+commanded position, which it might have drifted away from during
+tuning.  To summarize, these are the halcmd instructions you need to
+issue to do automatic tuning:
+
+ setp pid.x.tune-effort 0.1
+ setp pid.x.tune-mode 1
+ setp pid.x.tune-start 1
+ # wait for the tuning to complete
+ setp pid.x.tune-mode 0
+
+A script to help doing the automatic tuning is provided in the
+LinuxCNC code repository as 'scripts/run-auto-pid-tuner'.  This will
+ensure the machine is powered on and ready to run, home all axes if it
+is not already done, check that the extra tuning pins are available,
+move the axis to its mid point, run the auto tuning and re-enable the
+pid controller when it is done.  It can be run several times.
 
 // vim: set syntax=asciidoc:

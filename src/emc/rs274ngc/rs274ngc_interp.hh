@@ -24,40 +24,40 @@ class Interp : public InterpBase {
 
 public:
  Interp();
- ~Interp();
+ ~Interp() override;
 
 /* Interface functions to call to tell the interpreter what to do.
    Return values indicate status of execution.
    These functions may change the state of the interpreter. */
 
 // close the currently open NC code file
- int close();
+ int close() override;
 
 // execute a line of NC code
- int execute(const char *command);
- int execute();
+ int execute(const char *command) override;
+ int execute() override;
 
- int execute(const char *command, int line_no); //used for MDI calls to specify the pseudo MDI line number
+ int execute(const char *command, int line_no) override; //used for MDI calls to specify the pseudo MDI line number
 
 // stop running
- int exit();
+ int exit() override;
 
 // get ready to run
- int init();
- void set_loop_on_main_m99(bool state);
+ int init() override;
+ void set_loop_on_main_m99(bool state) override;
 
 // load a tool table
  int load_tool_table();
 
 // open a file of NC code
- int open(const char *filename);
+ int open(const char *filename) override;
 
 // read the mdi or the next line of the open NC code file
- int read(const char *mdi);
- int read();
+ int read(const char *mdi) override;
+ int read() override;
 
 // reset yourself
- int reset();
+ int reset() override;
 
 // restore interpreter variables from a file
  int restore_parameters(const char *filename);
@@ -67,7 +67,7 @@ public:
                                     const double parameters[]);
 
 // synchronize your internal model with the external world
- int synch();
+ int synch() override;
 
 /* Interface functions to call to get information from the interpreter.
    If a function has a return value, the return value contains the information.
@@ -76,66 +76,67 @@ public:
    the interpreter. */
 
 // copy active G-codes into array [0]..[15]
- void active_g_codes(int *codes);
+ void active_g_codes(int *codes) override;
 
 // copy active M-codes into array [0]..[9]
- void active_m_codes(int *codes);
+ void active_m_codes(int *codes) override;
 
 // copy active F, S settings into array [0]..[2]
- void active_settings(double *settings);
+ void active_settings(double *settings) override;
 
     // Update the state vectors from a state tag
     int active_modes(int *g_codes,
 		     int *mcodes,
 		     double *settings,
-		     StateTag const &tag);
+		     StateTag const &tag) override;
 
     // Print contents of state tag for debugging
-    void print_state_tag(StateTag const &tag);
+    void print_state_tag(StateTag const &tag) override;
 
 // copy the text of the error message whose number is error_code into the
 // error_text array, but stop at max_size if the text is longer.
  char *error_text(int error_code, char *error_text,
-                                size_t max_size);
+                                size_t max_size) override;
 
  void setError(const char *fmt, ...) __attribute__((format(printf,2,3)));
 
 // copy the name of the currently open file into the file_name array,
 // but stop at max_size if the name is longer
- char *file_name(char *file_name, size_t max_size);
+ char *file_name(char *file_name, size_t max_size) override;
 
 // return the length of the most recently read line
- size_t line_length();
+ size_t line_length() override;
 
 // copy the text of the most recently read line into the line_text array,
 // but stop at max_size if the text is longer
- char *line_text(char *line_text, size_t max_size);
+ char *line_text(char *line_text, size_t max_size) override;
 
 // return the current sequence number (how many lines read)
- int sequence_number();
+ int sequence_number() override;
 
 // copy the function name from the stack_index'th position of the
 // function call stack at the time of the most recent error into
 // the function name string, but stop at max_size if the name is longer
  char *stack_name(int stack_index, char *function_name,
-                                size_t max_size);
+                                size_t max_size) override;
 
 // Get the parameter file name from the INI file.
- int ini_load(const char *filename);
+ int ini_load(const char *filename) override;
 
- int line() { return sequence_number(); }
- int call_level();
+ int line() override { return sequence_number(); }
+ int call_level() override;
 
- char *command(char *buf, size_t len) { line_text(buf, len); return buf; }
+ char *command(char *buf, size_t len) override { line_text(buf, len); return buf; }
 
- char *file(char *buf, size_t len) { file_name(buf, len); return buf; }
+ char *file(char *buf, size_t len) override { file_name(buf, len); return buf; }
 
  int init_tool_parameters();
  int default_tool_parameters();
  int set_tool_parameters();
- int on_abort(int reason, const char *message);
 
-    void set_loglevel(int level);
+ int on_abort(int reason, const char *message) override;
+
+    void set_loglevel(int level) override;
 
     // for now, public - for boost.python access
  int find_named_param(const char *nameBuf, int *status, double *value);
@@ -152,14 +153,11 @@ public:
  int find_tool_pocket(setup_pointer settings, int toolno, int *pocket);
  int find_tool_index(setup_pointer settings, int toolno, int *index);
 
-    // private:
-    //protected:  // for boost wrapper access
-
 /* Function prototypes for all  functions */
 
  int arc_data_comp_ijk(int move,
-         int plane,
-         int side,
+         CANON_PLANE plane,
+         CUTTER_COMP side,
          double tool_radius,
          double current_x,
          double current_y,
@@ -177,8 +175,8 @@ public:
          double spiral_rel_tolerance);
 
  int arc_data_comp_r(int move,
-         int plane,
-         int side,
+         CANON_PLANE plane,
+         CUTTER_COMP side,
          double tool_radius,
          double current_x,
          double current_y,
@@ -192,7 +190,7 @@ public:
          double radius_tolerance);
 
  int arc_data_ijk(int move,
-         int plane,
+         CANON_PLANE plane,
          double current_x,
          double current_y,
          double end_x,
@@ -209,7 +207,7 @@ public:
          double spiral_rel_tolerance);
 
  int arc_data_r(int move,
-         int plane,
+         CANON_PLANE plane,
          double current_x,
          double current_y,
          double end_x,
@@ -225,6 +223,7 @@ public:
  int check_m_codes(block_pointer block);
  int check_other_codes(block_pointer block);
  int close_and_downcase(char *line);
+ void nurbs_reset_global_variables(void);
  int convert_nurbs(int move, block_pointer block, setup_pointer settings);
  int convert_spline(int move, block_pointer block, setup_pointer settings);
  int convert_g7x(int move, block_pointer block, setup_pointer settings);
@@ -254,8 +253,8 @@ public:
                        double offset_x, double offset_y,
                        double AA_end, double BB_end, double CC_end,
                        double u_end, double v_end, double w_end);
- char arc_axis1(int plane);
- char arc_axis2(int plane);
+ char arc_axis1(CANON_PLANE plane);
+ char arc_axis2(CANON_PLANE plane);
  int convert_axis_offsets(int g_code, block_pointer block,
                                 setup_pointer settings);
  int convert_param_comment(char *comment, char *expanded, int len);
@@ -267,7 +266,7 @@ public:
  int convert_cutter_compensation(int g_code, block_pointer block,
                                        setup_pointer settings);
  int convert_cutter_compensation_off(setup_pointer settings);
- int convert_cutter_compensation_on(int side, block_pointer block,
+ int convert_cutter_compensation_on(CUTTER_COMP side, block_pointer block,
                                           setup_pointer settings);
  int convert_cycle(int motion, block_pointer block,
                          setup_pointer settings);
@@ -471,7 +470,7 @@ int read_dollar(char *line, int *counter, block_pointer block,
     int free_named_parameters(context_pointer frame);
  int save_settings(setup_pointer settings);
  int restore_settings(setup_pointer settings, int from_level);
- int restore_from_tag(StateTag const &tag);
+ int restore_from_tag(StateTag const &tag) override;
  int gen_settings(
      int *int_current, int *int_saved,
      double *float_current, double *float_saved,
@@ -532,7 +531,6 @@ int read_dollar(char *line, int *counter, block_pointer block,
 		     StateTag &state);
  int write_canon_state_tag(block_pointer block, setup_pointer settings);
  int unwrap_rotary(double *, double, double, double, char);
- bool isreadonly(int index);
 
   // O_word stuff
 
@@ -611,47 +609,6 @@ int read_inputs(setup_pointer settings);
  int init_named_parameters();
     int init_python_predef_parameter(const char *name);
 
-    bool has_user_mcode(setup_pointer settings,block_pointer block);
-
-#define M_BUILTIN(m) (_ems[m] != -1)
-#define G_BUILTIN(g) (_gees[g] != -1)
-
-    // range for user-remapped M-codes
-    // and M6,M61
-    // this is overdue for a bitset
-#define M_REMAPPABLE(m)					\
-    (((m > 199) && (m < 1000)) ||			\
-     ((m > 0) && (m < 100) &&				\
-      !M_BUILTIN(m)) ||					\
-     (m == 6) ||					\
-     (m == 9) ||					\
-     (m == 61) ||					\
-     (m == 0) ||					\
-     (m == 1) ||					\
-     (m == 60) ||					\
-     (m == 62) ||					\
-     (m == 63) ||					\
-     (m == 64) ||					\
-     (m == 65) ||					\
-     (m == 66) ||					\
-     (m == 67) ||					\
-     (m == 68))
-
-
-
-    // range for user-remapped G-codes
-#define G_REMAPPABLE(g)	 \
-    ((g > 0) && \
-     (g < 1000) && \
-     !G_BUILTIN(g))
-
-#define IS_USER_GCODE(x) (G_REMAPPABLE(x) && _setup.g_remapped[x])
-
-#define IS_USER_MCODE(bp,sp,mgroup) \
-    ((M_REMAPPABLE((bp)->m_modes[mgroup])) && \
-    (((bp)->m_modes[mgroup]) > -1) &&		\
-     ((sp)->m_remapped[(bp)->m_modes[mgroup]]))
-
     bool remap_in_progress(const char *code);
     int convert_remapped_code(block_pointer block,
 			       setup_pointer settings,
@@ -707,12 +664,6 @@ int read_inputs(setup_pointer settings);
 
  FILE *log_file;
 
-/* Internal arrays */
- static const int _gees[];
- static const int _ems[];
- static const int _required_parameters[];
- static const int _readonly_parameters[];
- static const int _n_readonly_parameters;
  read_function_pointer _readers[256];
  static const read_function_pointer default_readers[256];
 
@@ -725,6 +676,22 @@ int read_inputs(setup_pointer settings);
  };
 
  InterpReturn check_g74_g84_spindle(GCodes motion, CANON_DIRECTION dir);
+
+private:
+    [[nodiscard]] static bool is_parameter_readonly(int index);
+
+    [[nodiscard]] static bool is_any_m_code_remapped(block_pointer block, setup_pointer settings);
+    [[nodiscard]] static bool is_user_defined_m_code(block_pointer block, setup_pointer settings,
+                                                     int m_group);
+    [[nodiscard]] static bool is_m_code_remappable(int m_code);
+    [[nodiscard]] static bool is_g_code_remappable(int g_code);
+    [[nodiscard]] bool is_user_defined_g_code(int g_code);
+
+    static const int gees[];
+    static const int ems[];
+    static const int required_parameters[];
+    static const int readonly_parameters[];
+    static const int n_readonly_parameters;
 };
 
 #endif

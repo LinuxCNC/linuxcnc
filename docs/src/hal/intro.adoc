@@ -324,8 +324,11 @@ Type:: (((HAL Type)))
 - float - a 64 bit floating point value, with approximately 53 bits of
   resolution and over 1000 bits of dynamic range.
 - u32 - a 32 bit unsigned integer, legal values are 0 to 4,294,967,295
-- s32 - a 32 bit signed integer, legal values are -2,147,483,647 to
+- s32 - a 32 bit signed integer, legal values are -2,147,483,648 to
   +2,147,483,647
+- u64 - a 64 bit unsigned integer, legal values are 0 to 18,446,744,073,709,551,615
+- s64 - a 64 bit signed integer, legal values are -9,223,372,036,854,775,808 to
+  +9,223,372,036,854,775,807
 
 Function:: (((HAL:Function)))
   Real hardware components tend to act immediately on their inputs.

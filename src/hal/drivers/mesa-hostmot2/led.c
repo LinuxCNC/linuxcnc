@@ -78,6 +78,9 @@ int hm2_led_parse_md(hostmot2_t *hm2, int md_index) {
     }
 
     hm2->led.led_addr = md->base_address;
+    
+    // force an update to make sure initial LED states match hal pin
+    hm2->led.written_buff = 666;
 
     // export to HAL
     {

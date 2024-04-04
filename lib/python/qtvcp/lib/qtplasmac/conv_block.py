@@ -1,8 +1,8 @@
 '''
 conv_block.py
 
-Copyright (C) 2020, 2021, 2022  Phillip A Carter
-Copyright (C) 2020, 2021, 2022  Gregory D Carl
+Copyright (C) 2020, 2021, 2022, 2023 Phillip A Carter
+Copyright (C) 2020, 2021, 2022, 2023 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -100,17 +100,17 @@ def get_parameters(P, W):
         for line in inCode:
             line = line.strip().lower()
             if line.startswith('#<array_x_offset>'):
-                W.coEntry.setText('{:0.4f}'.format(float(line.split('=')[1].strip())))
+                W.coEntry.setText(f'{float(line.split("=")[1].strip()):0.4f}')
             elif line.startswith('#<array_y_offset>'):
-                W.roEntry.setText('{:0.4f}'.format(float(line.split('=')[1].strip())))
+                W.roEntry.setText(f'{float(line.split("=")[1].strip()):0.4f}')
             elif line.startswith('#<array_columns>'):
                 W.cnEntry.setText(line.split('=')[1].strip())
             elif line.startswith('#<array_rows>'):
                 W.rnEntry.setText(line.split('=')[1].strip())
             elif line.startswith('#<origin_x_offset>'):
-                W.oxEntry.setText('{:0.4f}'.format(float(line.split('=')[1].strip())))
+                W.oxEntry.setText(f'{float(line.split("=")[1].strip()):0.4f}')
             elif line.startswith('#<origin_y_offset>'):
-                W.oyEntry.setText('{:0.4f}'.format(float(line.split('=')[1].strip())))
+                W.oyEntry.setText(f'{float(line.split("=")[1].strip()):0.4f}')
             elif line.startswith('#<array_angle>'):
                 W.aEntry.setText(line.split('=')[1].strip())
             elif line.startswith('#<blk_scale>'):
@@ -201,9 +201,9 @@ def widgets(P, W, Conv):
         W.entries.addWidget(W.mirror, 11, 1)
         W.entries.addWidget(W.flip, 11, 3)
         for r in [2,4,6,8,10]:
-            W['{}'.format(r)] = QLabel('')
-            W['{}'.format(r)].setFixedHeight(24)
-            W.entries.addWidget(W['{}'.format(r)], r, 0)
+            W[f'{r}'] = QLabel('')
+            W[f'{r}'].setFixedHeight(24)
+            W.entries.addWidget(W[f'{r}'], r, 0)
         W.entries.addWidget(W.preview, 12, 0)
         W.entries.addWidget(W.add, 12, 2)
         W.entries.addWidget(W.undo, 12, 4)
@@ -235,9 +235,9 @@ def widgets(P, W, Conv):
         W.entries.addWidget(W.mirror, 9, 1)
         W.entries.addWidget(W.flip, 9, 3)
         for r in [1,3,5,7]:
-            W['{}'.format(r)] = QLabel('')
-            W['{}'.format(r)].setFixedHeight(24)
-            W.entries.addWidget(W['{}'.format(r)], r, 0)
+            W[f'{r}'] = QLabel('')
+            W[f'{r}'].setFixedHeight(24)
+            W.entries.addWidget(W[f'{r}'], r, 0)
         W.entries.addWidget(W.preview, 10, 0)
         W.entries.addWidget(W.add, 10, 2)
         W.entries.addWidget(W.undo, 10, 4)

@@ -157,9 +157,13 @@ class INI:
         # qtplasmac has extra rs274ngc variables
         if self.d.frontend == _PD._QTPLASMAC:
             code = 21 if self.d.units == _PD._METRIC else 20
+            if '/usr' in self.d.qtplasmacbase:
+                mPath = '/usr/share/doc/linuxcnc/examples/nc_files/plasmac/m_files'
+            else:
+                mPath = os.path.realpath(os.path.join(self.d.qtplasmacbase, 'nc_files/plasmac/m_files'))
             print("RS274NGC_STARTUP_CODE = G{} G40 G49 G80 G90 G92.1 G94 G97 M52P1".format(code), file=file)
             print("SUBROUTINE_PATH = ./:../../nc_files", file=file)
-            print("USER_M_PATH = ./:../../nc_files", file=file)
+            print(f"USER_M_PATH = ./:{mPath}", file=file)
             print("", file=file)
         else:
             if self.d.units == _PD._METRIC:

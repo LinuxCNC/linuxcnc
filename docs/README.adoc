@@ -183,7 +183,18 @@ the translation level raise to a sensible level (for example not 0%),
 build rules need to be added to use the generated translations to
 build HTML and PDF editions of the translation.
 
-Add the new language code to the proper place in docs/po4a.cfg.
+At the moment, build rules are created for languages with more than 2
+percent translated
+link:https://hosted.weblate.org/projects/linuxcnc/linuxcnc-docs/[according
+to Weblate] or which have been updated the last 12 months according to
+the PO-Revision-Date field in docs/po/*.po.  Documentation packages for
+Debian are build for languages with more than 50 percent translation.
+This ensure translators and proof readers can see the result of their
+effort on https://linuxcnc.org/docs/devel/html/, while we limit the
+time spent building translations to those that are actively worked on
+or at least have a very the bare minimum translated.
+
+Add the new language code to the [po4a_langs] section of docs/po4a.cfg.
 Update build rules for the new language in `docs/src/Submakefile`.
 
 Edit debian/control.in to add the new linuxcnc-doc-$NEWLANG package.

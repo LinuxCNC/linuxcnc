@@ -100,9 +100,9 @@ class HandlerClass:
                               "search_vel", "probe_vel", "max_probe", "eoffset_count"]
         self.onoff_list = ["frame_program", "frame_tool", "frame_dro", "frame_override", "frame_status"]
         self.auto_list = ["chk_eoffsets", "cmb_gcode_history","lineEdit_eoffset_count"]
-        self.axis_4_list = ["label_axis_4", "dro_axis_4", "action_zero_4", "axistoolbutton_4",
+        self.axis_4_list = ["axis_select_4", "dro_axis_4", "action_zero_4", "action_cmd_4",
                             "dro_button_stack_4", "plus_jogbutton_4", "minus_jogbutton_4"]
-        self.axis_5_list = ["label_axis_5", "dro_axis_5", "action_zero_5", "axistoolbutton_5",
+        self.axis_5_list = ["axis_select_5", "dro_axis_5", "action_zero_5", "action_cmd_5",
                             "dro_button_stack_5",
                             "plus_jogbutton_5", "minus_jogbutton_5"]
         self.button_response_list = ["btn_start", "btn_home_all", "btn_home_x", "btn_home_y",
@@ -268,9 +268,14 @@ class HandlerClass:
         flag = True
         for b in range(0,10):
             button = self.w['macrobutton{}'.format(b)]
-            num = button.property('ini_mdi_number')
+            # prefer named INI MDI commands
+            key = button.property('ini_mdi_key')
+            if key == '' or INFO.get_ini_mdi_command(key) is None:
+                # fallback to legacy nth line
+                key = button.property('ini_mdi_number')
             try:
-                code = INFO.MDI_COMMAND_LIST[num]
+                code = INFO.get_ini_mdi_command(key)
+                if code is None: raise Exception
                 flag = False
             except:
                 button.hide()
@@ -1175,13 +1180,17 @@ class HandlerClass:
                 search_vel, probe_vel, max_probe, 
                 z_offset, retract, safe_z))
         rtn = ACTION.TOUCHPLATE_TOUCHOFF(search_vel, probe_vel, max_probe, 
-                z_offset, retract, safe_z, self.touchoff_return)
-        if rtn == 0:
-            self.add_status("Touchoff routine is already running", CRITICAL)
+                z_offset, retract, safe_z, self.touchoff_return,self.touchoff_error)
+        if not rtn == 1:
+            self.add_status(rtn, CRITICAL)
 
     def touchoff_return(self, data):
         self.add_status("Touchplate touchoff routine returned successfully")
         self.add_status("Touchplate returned: "+data, CRITICAL)
+
+    def touchoff_error(self, data):
+        ACTION.SET_ERROR_MESSAGE(data)
+        self.add_status(data, CRITICAL)
 
     def kb_jog(self, state, joint, direction, fast = False, linear = True):
         ACTION.SET_MANUAL_MODE()
@@ -1557,14 +1566,21 @@ class HandlerClass:
     # set axis 4/5 dro widgets to the proper axis
     # TODO do this with all the axes for more flexibility
     def initiate_axis_dro(self, num, axis):
-        self.w['label_axis_{}'.format(num)].setText(axis)
         jnum = INFO.GET_JOG_FROM_NAME.get(axis)
         # DRO uses axis index
         index = "XYZABCUVW".index(axis)
         self.w['dro_axis_{}'.format(num)].setProperty('Qjoint_number',index)
         self.w['action_zero_{}'.format(num)].setProperty('axis_letter',axis)
-        self.w['axistoolbutton_{}'.format(num)].setProperty('axis_letter',axis)
-        self.w['axistoolbutton_{}'.format(num)].setText('REF {}'.format(axis))
+        try:
+            self.w['axistoolbutton_{}'.format(num)].setProperty('axis_letter',axis)
+            self.w['axistoolbutton_{}'.format(num)].setText('REF {}'.format(axis))
+        except:
+            pass
+        try:
+            cmd = 'G90 G0 {}0'.format(axis)
+            self.w['action_cmd_{}'.format(num)].setProperty('command_text_string',cmd)
+        except:
+            pass
         self.w['action_home_{}'.format(num)].setProperty('axis_letter',axis)
         self.w['action_home_{}'.format(num)].setProperty('joint_number_status',jnum)
         self.w['action_home_{}'.format(num)].setProperty('joint',index)

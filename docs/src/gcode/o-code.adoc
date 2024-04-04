@@ -15,11 +15,16 @@
 O-codes provide for flow control in NC programs. Each block has an
 associated number, which is the number used after O. Care must be taken
 to properly match the O-numbers. O codes use the letter 'O' not the
-number zero as the first character in the number like O100 or o100.
+number zero as the first character in the number like O100 or o100. o-codes are also sometimes called o-words and these terms are interchangeable. 
+
+[NOTE]
+Using the lower case 'o' makes it easier to distinguish from a 0
+that might have been mistyped. For example 'o100' is easier to
+see than 'O100' that it is not a '0'.
 
 == Numbering
 
-Numbered O codes must have a unique number for each subroutine,
+Numbered o-codes must have a unique number for each subroutine,
 
 .Numbering Example
 [source,{ngc}]
@@ -40,26 +45,22 @@ o100 endsub
 [[ocode:comments]]
 == Comments(((Comments)))
 
-Comments on the same line as the O word should not be used as the behavior can
+Comments on the same line as the o-word should not be used as the behavior can
 change in the future.
 
 The behavior is undefined if:
 
 * The same number is used for more than one block.
-* Other words are used on a line with an O- word.
-* Comments are used on a line with an O-word.
+* Other words are used on a line with an o-word.
+* Comments are used on a line with an o-word.
 
-[NOTE]
-Using the lower case 'o' makes it easier to distinguish from a 0
-that might have been mistyped. For example 'o100' is easier to
-see than 'O100' that it is not a '0'.
 
 [[ocode:subroutines]]
 == Subroutines(((Subroutines)))
 
-Subroutines starts at 'Onnn sub' and ends at 'Onnn endsub'. The lines between
-'Onnn sub' and 'Onnn endsub' are not executed until the subroutine is called
-with 'Onnn call'. Each subroutine must use a unique number.
+Subroutines starts at 'oNNN sub' and ends at 'oNNN endsub'. The lines between
+'oNNN sub' and 'oNNN endsub' are not executed until the subroutine is called
+with 'oNNN call'. Each subroutine must use a unique number.
 
 .Subroutine Example
 [source,{ngc}]
@@ -76,8 +77,8 @@ M2
 See <<gcode:g53,G53>>, <<gcode:g0,G0>> and <<mcode:m2-m30,M2>> sections for more information.
 
 .O- Return
-Inside a subroutine, 'O- return' can be executed. This immediately
-returns to the calling code, just as though 'O- endsub' was encountered.
+Inside a subroutine, 'o- return' can be executed. This immediately
+returns to the calling code, just as though 'o- endsub' was encountered.
 
 .O- Return Example
 [source,{ngc}]
@@ -96,7 +97,7 @@ o100 endsub
 See the <<gcode:binary-operators,Binary Operators>> and <<sec:overview-parameters,Parameters>> sections for more information.
 
 .O- Call
-'O- Call' takes up to 30 optional arguments, which are passed to the subroutine
+'o- Call' takes up to 30 optional arguments, which are passed to the subroutine
 as '#1', '#2' , ..., #N. Parameters from #N+1 to #30 have the same
 value as in the calling context.
 On return from the subroutine, the values of
@@ -178,7 +179,7 @@ The main program must be terminated with `M02` or `M30` (or `M99`; see
 below).
 
 .'O-' subprogram definition start
-Marks the start of a numbered subprogram definition.  The block `O100`
+Marks the start of a numbered subprogram definition.  The block `o100`
 is similar to `o100 sub`, except that it must be placed later in the
 file than the `M98 P100` calling block.
 
@@ -188,7 +189,7 @@ but may only terminate a numbered program (`o100` in this example),
 and may not terminate a subroutine beginning with the `o100 sub`
 syntax.
 
-The `M98` subprogram call differs from rs274ngc `O call` in the
+The `M98` subprogram call differs from rs274ngc `o call` in the
 following ways:
 
 * The numbered subprogram must follow the `M98` call in the program file.
@@ -214,32 +215,32 @@ at a tidy point when the operator is ready.
 .Numbered Subprogram Full Example
 [source,{ngc}]
 ----
-O1                             ; Main program 1
+o1                             ; Main program 1
   #1 = 0
   (PRINT,X MAIN BEGIN:  1=#1)
   M98 P100 L5                  ; Call subprogram 100
   (PRINT,X MAIN END:  1=#1)
 M30                            ; End main program
 
-O100                           ; Subprogram 100
+o100                           ; Subprogram 100
   #1 = [#1 + 1]
   M98 P200 L5                  ; Call subprogram 200
-  (PRINT,>> O100:  #1)
+  (PRINT,>> o100:  #1)
 M99                            ; Return from Subprogram 100
 
-O200                           ; Subprogram 200
+o200                           ; Subprogram 200
   #1 = [#1 + 0.01]
-  (PRINT,>>>> O200:  #1)
+  (PRINT,>>>> o200:  #1)
 M99                            ; Return from Subprogram 200
 ----
 
 In this example, parameter `#1` is initialized to `0`.  Subprogram
-`O100` is called five times in a loop.  Nested within each call to
-`O100`, subprogram `O200` is called five times in a loop, for 25 times
+`o100` is called five times in a loop.  Nested within each call to
+`o100`, subprogram `o200` is called five times in a loop, for 25 times
 total.
 
 Note that parameter `#1` is global.  At the end of the main program,
-after updates within `O100` and `O200`, its value will equal `5.25`.
+after updates within `o100` and `o200`, its value will equal `5.25`.
 
 [[ocode:looping]]
 == Looping(((Subroutines,Looping)))
@@ -283,7 +284,7 @@ o100 while [#1 LT 3]
 M2
 ----
 
-Inside a while loop, 'O- break' immediately exits the loop, and 'O-
+Inside a while loop, 'o- break' immediately exits the loop, and 'o-
 continue' immediately skips to the next evaluation of the 'while'
 condition. If it is still true, the loop begins again at the top. If
 it is false, it exits the loop.
@@ -336,15 +337,15 @@ Several conditions may be tested for by 'elseif' statements until the
 [source,{ngc}]
 ----
 (if parameter #2 is greater than 5 set F100)
-O102 if [#2 GT 5]
+o102 if [#2 GT 5]
   F100
 (else if parameter #2 less than 2 set F200)
-O102 elseif [#2 LT 2]
+o102 elseif [#2 LT 2]
   F20
 (parameter #2 is between 2 and 5)
-O102 else
+o102 else
   F200
-O102 endif
+o102 endif
 ----
 
 [[ocode:repeat]]
@@ -370,7 +371,7 @@ G90 (Absolute mode)
 [[ocode:indirection]]
 == Indirection(((Indirection)))
 
-The O-number may be given by a parameter and/or calculation.
+The o-number may be given by a parameter and/or calculation.
 
 .Indirection Example
 [source,{ngc}]

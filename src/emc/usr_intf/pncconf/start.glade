@@ -24,7 +24,7 @@
     </child>
     <child>
       <object class="GtkCheckButton" id="createshortcut">
-        <property name="label" translatable="yes">Create a desktop launcher to start LinuxCNC with this configuration.</property>
+        <property name="label" translatable="yes">Create a desktop launcher to start LinuxCNC with this configuration</property>
         <property name="visible">True</property>
         <property name="can_focus">True</property>
         <property name="receives_default">False</property>
@@ -41,7 +41,7 @@
     </child>
     <child>
       <object class="GtkCheckButton" id="createsymlink">
-        <property name="label" translatable="yes">Create a desktop shortcut (symlink) to configuration files.</property>
+        <property name="label" translatable="yes">Create a desktop shortcut (symlink) to configuration files</property>
         <property name="visible">True</property>
         <property name="can_focus">True</property>
         <property name="receives_default">False</property>
@@ -155,7 +155,7 @@
     </child>
     <child>
       <object class="GtkCheckButton" id="useinisubstitution">
-        <property name="label" translatable="yes">Use INI substitution for Mesa board names.</property>
+        <property name="label" translatable="yes">Use INI substitution for Mesa board names</property>
         <property name="visible">True</property>
         <property name="can_focus">True</property>
         <property name="receives_default">False</property>

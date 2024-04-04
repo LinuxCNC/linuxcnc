@@ -1,8 +1,8 @@
 '''
 conv_line.py
 
-Copyright (C) 2020, 2021, 2022  Phillip A Carter
-Copyright (C) 2020, 2021, 2022  Gregory D Carl
+Copyright (C) 2020, 2021, 2022, 2023 Phillip A Carter
+Copyright (C) 2020, 2021, 2022, 2023 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -38,7 +38,7 @@ def preview(P, W, Conv):
             P.yLineEnd = reply[2]
             P.conv_gcodeLine = reply[3]
         else:
-            error_set(P, '{}\n'.format(reply[1]))
+            error_set(P, f'{reply[1]}\n')
             return
     elif W.lType.currentText() == _translate('Conversational', 'LINE BY ANGLE'):
         reply = LINE.do_line_by_angle(Conv, W.entry1.text(), W.entry2.text(), W.entry3.text(), \
@@ -48,7 +48,7 @@ def preview(P, W, Conv):
             P.yLineEnd = reply[2]
             P.conv_gcodeLine = reply[3]
         else:
-            error_set(P, '{}\n'.format(reply[1]))
+            error_set(P, f'{reply[1]}\n')
             return
     elif W.lType.currentText() == _translate('Conversational', 'ARC 3P'):
         reply = LINE.do_arc_3_points(Conv, W.entry1.text(), W.entry2.text(), W.entry3.text(), \
@@ -58,7 +58,7 @@ def preview(P, W, Conv):
             P.yLineEnd = reply[2]
             P.conv_gcodeLine = reply[3]
         else:
-            error_set(P, '{}\n'.format(reply[1]))
+            error_set(P, f'{reply[1]}\n')
             return
     elif W.lType.currentText() == _translate('Conversational', 'ARC 2P +RADIUS'):
         arcType = '3' if 'CCW' in W.g23Arc.text() else '2'
@@ -69,7 +69,7 @@ def preview(P, W, Conv):
             P.yLineEnd = reply[2]
             P.conv_gcodeLine = reply[3]
         else:
-            error_set(P, '{}\n'.format(reply[1]))
+            error_set(P, f'{reply[1]}\n')
             return
     elif W.lType.currentText() == _translate('Conversational', 'ARC ANGLE +RADIUS'):
         arcType = '3' if 'CCW' in W.g23Arc.text() else '2'
@@ -80,7 +80,7 @@ def preview(P, W, Conv):
             P.yLineEnd = reply[2]
             P.conv_gcodeLine = reply[3]
         else:
-            error_set(P, '{}\n'.format(reply[1]))
+            error_set(P, f'{reply[1]}\n')
             return
     if P.convAddSegment == 1:
         LINE.next_segment(P.fTmp, P.fNgc)
@@ -139,8 +139,8 @@ def add_shape_to_file(P, W, Conv):
     Conv.conv_add_shape_to_file(P, W)
     P.xLineStart = P.xLineEnd
     P.yLineStart = P.yLineEnd
-    W.entry1.setText('{:0.3f}'.format(P.xLineEnd))
-    W.entry2.setText('{:0.3f}'.format(P.yLineEnd))
+    W.entry1.setText(f'{P.xLineEnd:0.3f}')
+    W.entry2.setText(f'{P.yLineEnd:0.3f}')
     P.convAddSegment = 1
     line_type_changed(P, W, True)
     W.add.setEnabled(False)
@@ -168,25 +168,25 @@ def undo_shape(P, W, Conv):
 def clear_widgets(P, W, image):
     set_start_point(P, W, image)
     for n in '3456':
-        W['entry{}'.format(n)].hide()
-        W['label{}'.format(n)].setText('')
+        W[f'entry{n}'].hide()
+        W[f'label{n}'].setText('')
     W.g23Arc.hide()
 
 def set_start_point(P, W, image):
     W.iLabel.setPixmap(image)
     text = _translate('Conversational', 'START')
-    W.label1.setText(_translate('Conversational', 'X {}'.format(text)))
-    W.entry1.setText('{:0.3f}'.format(P.xLineStart))
-    W.label2.setText(_translate('Conversational', 'Y {}'.format(text)))
-    W.entry2.setText('{:0.3f}'.format(P.yLineStart))
+    W.label1.setText(_translate('Conversational', f'X {text}'))
+    W.entry1.setText(f'{P.xLineStart:0.3f}')
+    W.label2.setText(_translate('Conversational', f'Y {text}'))
+    W.entry2.setText(f'{P.yLineStart:0.3f}')
 
 def set_line_point_to_point(P, W):
     clear_widgets(P, W, P.conv_line_point)
     W.label3.setText(_translate('Conversational', 'X END'))
     W.label4.setText(_translate('Conversational', 'Y END'))
     for n in '34':
-        W['entry{}'.format(n)].setText('')
-        W['entry{}'.format(n)].show()
+        W[f'entry{n}'].setText('')
+        W[f'entry{n}'].show()
     W.entry3.setObjectName('neg')
 
 def set_line_by_angle(P, W):
@@ -195,8 +195,8 @@ def set_line_by_angle(P, W):
     W.label4.setText(_translate('Conversational', 'ANGLE'))
     W.entry4.setText('0.000')
     for n in '34':
-        W['entry{}'.format(n)].setText('')
-        W['entry{}'.format(n)].show()
+        W[f'entry{n}'].setText('')
+        W[f'entry{n}'].show()
     W.entry3.setObjectName(None)
 
 def set_arc_3_points(P, W):
@@ -206,9 +206,9 @@ def set_arc_3_points(P, W):
     W.label5.setText(_translate('Conversational', 'X END'))
     W.label6.setText(_translate('Conversational', 'Y END'))
     for n in '3456':
-        W['entry{}'.format(n)].setText('')
-        W['entry{}'.format(n)].show()
-        W['entry{}'.format(n)].setObjectName('neg')
+        W[f'entry{n}'].setText('')
+        W[f'entry{n}'].show()
+        W[f'entry{n}'].setObjectName('neg')
 
 def set_arc_2_points_radius(P, W):
     clear_widgets(P, W, P.conv_line_2pr)
@@ -219,8 +219,8 @@ def set_arc_2_points_radius(P, W):
     W.entry5.setText('0.000')
     W.label6.setText(_translate('Conversational', 'DIRECTION'))
     for n in '345':
-        W['entry{}'.format(n)].setText('')
-        W['entry{}'.format(n)].show()
+        W[f'entry{n}'].setText('')
+        W[f'entry{n}'].show()
     W.entry3.setObjectName('neg')
     W.entry5.setObjectName(None)
 
@@ -233,8 +233,8 @@ def set_arc_by_angle_radius(P, W):
     W.label5.setText(_translate('Conversational', 'RADIUS'))
     W.label6.setText(_translate('Conversational', 'DIRECTION'))
     for n in '345':
-        W['entry{}'.format(n)].setText('')
-        W['entry{}'.format(n)].show()
+        W[f'entry{n}'].setText('')
+        W[f'entry{n}'].show()
     W.entry3.setObjectName(None)
     W.entry5.setObjectName(None)
 
@@ -313,9 +313,9 @@ def widgets(P, W, Conv):
         W.entries.addWidget(W.label6, 8, 0)
         W.entries.addWidget(W.entry6, 8, 1)
         for r in [3,6,9,10,11]:
-            W['s{}'.format(r)] = QLabel('')
-            W['s{}'.format(r)].setFixedHeight(24)
-            W.entries.addWidget(W['s{}'.format(r)], r, 0)
+            W[f's{r}'] = QLabel('')
+            W[f's{r}'].setFixedHeight(24)
+            W.entries.addWidget(W[f's{r}'], r, 0)
         W.entries.addWidget(W.preview, 12, 0)
         W.entries.addWidget(W.add, 12, 2)
         W.entries.addWidget(W.undo, 12, 4)
@@ -339,9 +339,9 @@ def widgets(P, W, Conv):
         W.entries.addWidget(W.label6, 6, 2)
         W.entries.addWidget(W.entry6, 6, 3)
         for r in [3,5,7,8]:
-            W['s{}'.format(r)] = QLabel('')
-            W['s{}'.format(r)].setFixedHeight(24)
-            W.entries.addWidget(W['s{}'.format(r)], r, 0)
+            W[f's{r}'] = QLabel('')
+            W[f's{r}'].setFixedHeight(24)
+            W.entries.addWidget(W[f's{r}'], r, 0)
         W.entries.addWidget(W.preview, 9, 0)
         W.entries.addWidget(W.add, 9, 2)
         W.entries.addWidget(W.undo, 9, 4)

@@ -513,22 +513,22 @@ int Interp::lookup_named_param(const char *nameBuf,
 
     case NP_PLANE: // _plane
 	switch(_setup.plane) {
-	case CANON_PLANE_XY:
+	case CANON_PLANE::XY:
 	    *value = G_17;
 	    break;
-	case CANON_PLANE_XZ:
+	case CANON_PLANE::XZ:
 	    *value = G_18;
 	    break;
-	case CANON_PLANE_YZ:
+	case CANON_PLANE::YZ:
 	    *value = G_19;
 	    break;
-	case CANON_PLANE_UV:
+	case CANON_PLANE::UV:
 	    *value = G_17_1;
 	    break;
-	case CANON_PLANE_UW:
+	case CANON_PLANE::UW:
 	    *value = G_18_1;
 	    break;
-	case CANON_PLANE_VW:
+	case CANON_PLANE::VW:
 	    *value = G_19_1;
 	    break;
 	}
@@ -536,8 +536,8 @@ int Interp::lookup_named_param(const char *nameBuf,
 
     case NP_CCOMP: // _ccomp - cutter compensation
 	*value =
-	    (_setup.cutter_comp_side == RIGHT) ? G_42 :
-	(_setup.cutter_comp_side == LEFT) ? G_41 : G_40;
+	    (_setup.cutter_comp_side == CUTTER_COMP::RIGHT) ? G_42 :
+	(_setup.cutter_comp_side == CUTTER_COMP::LEFT) ? G_41 : G_40;
 	break;
 
     case NP_METRIC: // _metric
@@ -549,23 +549,23 @@ int Interp::lookup_named_param(const char *nameBuf,
 	break;
 
     case NP_ABSOLUTE: // _absolute - distance mode
-	*value = (_setup.distance_mode == MODE_ABSOLUTE);
+	*value = (_setup.distance_mode == DISTANCE_MODE::ABSOLUTE);
 	break;
 
     case NP_INCREMENTAL: // _incremental - distance mode
-	*value = (_setup.distance_mode == MODE_INCREMENTAL);
+	*value = (_setup.distance_mode == DISTANCE_MODE::INCREMENTAL);
 	break;
 
     case NP_INVERSE_TIME: // _inverse_time - feed mode
-	*value = (_setup.feed_mode == INVERSE_TIME);
+	*value = (_setup.feed_mode == FEED_MODE::INVERSE_TIME);
 	break;
 
     case NP_UNITS_PER_MINUTE: // _units_per_minute - feed mode
-	*value = (_setup.feed_mode == UNITS_PER_MINUTE);
+	*value = (_setup.feed_mode == FEED_MODE::UNITS_PER_MINUTE);
 	break;
 
     case NP_UNITS_PER_REV: // _units_per_rev - feed mode
-	*value = (_setup.feed_mode == UNITS_PER_REVOLUTION);
+	*value = (_setup.feed_mode == FEED_MODE::UNITS_PER_REVOLUTION);
 	break;
 
     case NP_COORD_SYSTEM: // _coord_system - 0-9
@@ -581,23 +581,23 @@ int Interp::lookup_named_param(const char *nameBuf,
 	break;
 
     case NP_RETRACT_R_PLANE: // _retract_r_plane - G98
-	*value = (_setup.retract_mode == R_PLANE);
+	*value = (_setup.retract_mode == RETRACT_MODE::R_PLANE);
 	break;
 
     case NP_RETRACT_OLD_Z: // _retract_old_z - G99
-	*value = (_setup.retract_mode == OLD_Z);
+	*value = (_setup.retract_mode == RETRACT_MODE::OLD_Z);
 	break;
 
     case NP_SPINDLE_RPM_MODE: // _spindle_rpm_mode G97 currently only reports for spindle 0
-	*value = (_setup.spindle_mode[0] == CONSTANT_RPM);
+	*value = (_setup.spindle_mode[0] == SPINDLE_MODE::CONSTANT_RPM);
 	break;
 
     case NP_SPINDLE_CSS_MODE: // _spindle_css_mode G96
-	*value = (_setup.spindle_mode[0] == CONSTANT_SURFACE);
+	*value = (_setup.spindle_mode[0] == SPINDLE_MODE::CONSTANT_SURFACE);
 	break;
 
     case NP_IJK_ABSOLUTE_MODE: //_ijk_absolute_mode - G90.1
-	*value = (_setup.ijk_distance_mode == MODE_ABSOLUTE);
+	*value = (_setup.ijk_distance_mode == DISTANCE_MODE::ABSOLUTE);
 	break;
 
     case NP_LATHE_DIAMETER_MODE: // _lathe_diameter_mode - G7
@@ -964,7 +964,7 @@ double Interp::inicheck()
 {
     IniFile inifile;
     const char *filename;
-    const char *inistring;
+    std::optional<const char*> inistring;
     double result = -1.0;
 
 	if ((filename = getenv("INI_FILE_NAME")) == NULL) {
@@ -976,8 +976,8 @@ double Interp::inicheck()
 	    return -1.0;
     }
 
-    if (NULL != (inistring = inifile.Find("LINEAR_UNITS", "TRAJ"))) {
-        if (!strcmp(inistring, "inch")) {
+    if ((inistring = inifile.Find("LINEAR_UNITS", "TRAJ"))) {
+        if (!strcmp(*inistring, "inch")) {
              result = 0.0;
         } else {
             result = 1.0;

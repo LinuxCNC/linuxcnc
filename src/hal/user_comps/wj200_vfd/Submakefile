@@ -8,7 +8,7 @@ $(call TOOBJSDEPS, $(WJ200_SRCS)) : EXTRAFLAGS += $(WJ200_CFLAGS)
 
 USERSRCS += $(WJ200_SRCS)
 
-../bin/wj200_vfd: $(call TOOBJS, $(WJ200_SRCS)) ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcncini.so.0
+../bin/wj200_vfd: $(call TOOBJS, $(WJ200_SRCS)) ../lib/liblinuxcnchal.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^ $(WJ200_LIBS) 
 

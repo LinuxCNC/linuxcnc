@@ -1,8 +1,9 @@
 :lang: en
 :toc:
+:toclevels: 3
 
-[[cha:g-code-overview]]
-= G-code Overview
+[[cha:overview-of-g-code-programming]]
+= Overview of G-Code Programming
 
 :ini: {basebackend@docbook:'':ini}
 :hal: {basebackend@docbook:'':hal}
@@ -27,7 +28,8 @@ example, 'G1 X3' is a valid line of code with two words. 'G1' is a
 command meaning 'move in a straight line at the programmed feed
 rate to the programmed end point', and 'X3' provides an argument
 value (the value of X should be 3 at the end of the move).
-Most LinuxCNC G-code commands start with either G or M (for General and Miscellaneous).
+Most LinuxCNC G-code commands start with either G or M (for
+General and Miscellaneous).
 The words for these commands are called 'G-codes' and 'M-codes'.
 Also common are subroutine codes that begin with 'o-' which are called 'o-codes'.
 
@@ -55,10 +57,14 @@ A permissible line of input code consists of the following, in order,
 with the restriction that there is a maximum (currently 256) to the
 number of characters allowed on a line.
 
-* an optional block delete character, which is a slash '/'.
-* an optional line number.
-* any number of words, parameter settings, and comments.
-* an end of line marker (carriage return or line feed or both).
+. an optional block delete character, which is a slash '/'.
+. an optional line number.
+. Any number of: 
+1. words,
+2. parameter settings, 
+3. subroutine codes, and 
+4. comments.
+. an end of line marker (carriage return or line feed or both).
 
 Any input not explicitly allowed is illegal and will cause the
 Interpreter to signal an error.
@@ -87,7 +93,7 @@ In AXIS, it is also possible to enable block delete with the following icon:
 .AXIS Block Delete Icon
 image:../gui/images/tool_blockdelete.png[]
 
-=== Line Number(((Line Number)))
+=== Optional Line Number(((Optional Line Number)))
 
 A line number is the letter N followed by an unsigned integer,
 optionally followed by a period and another unsigned integer. For
@@ -97,16 +103,16 @@ such usage. Line numbers may also be skipped, and that is normal
 practice. A line number is not required to be used, but must be in the
 proper place if used.
 
-=== Word(((Words)))
+NOTE: Line numbers are not recommended. See <<gcode:best-practices,Best Practices>>.
 
-A word is a letter other than N followed by a real value.
+=== Words, Parameters, Subroutines, Comments
+
+==== Words(((Words)))
+
+A word is a letter other than N or O ("o") followed by a real value.
 
 Words may begin with any of the letters shown in the following Table.
-The table includes N for completeness, even
-though, as defined above, line numbers are not words. Several letters
-(I, J, K, L, P, R) may have different meanings in different contexts.
-Letters which refer to axis names are not valid on a machine which does
-not have the corresponding axis.
+The table includes N and O for completeness, even though, as defined above, line numbers and program flow parameters are not words. Several letters (I, J, K, L, P, R) may have different meanings in different contexts. Letters which refer to axis names are not valid on a machine which does not have the corresponding axis.
 
 .Words and their meanings
 [width="75%",options="header",cols="^1,<5"]
@@ -125,7 +131,8 @@ not have the corresponding axis.
 <| Spindle-Motion Ratio for G33 synchronized movements.
 |L | generic parameter word for G10, M66 and others
 |M | Miscellaneous function (See table  <<tbl:mcodes-modal-groups,M-code Modal Groups>>)
-|N | Line number
+|N | Line number (not recommended, see <<gcode:best-practices, Best Practices>>)
+|O | o-codes for program flow control (See <<cha:o-codes,o-Codes>>)
 .2+|P | Dwell time in canned cycles and with G4.
 <| Key used with G10.
 |Q | Feed increment in G73, G83 canned cycles
@@ -158,9 +165,8 @@ Comments can be embedded in a line using parentheses () or for the remainder of 
 
 This is any combination of carriage return or line feed. 
 
-
 [[gcode:numbers]]
-=== Numbers(((Numbers)))
+== Numbers(((Numbers)))
 
 The following rules are used for (explicit) numbers. In these rules a
 digit is a single character between 0 and 9.
@@ -237,9 +243,9 @@ assignment statement.
 
 Persistence:: When LinuxCNC is shut down, volatile parameters lose their
 values. All parameters except numbered parameters in the current
-persistent range footnoteref:[persistent_range,The range of persistent
+persistent range footnote:[persistent_range,The range of persistent
 parameters may change as development progresses. This range is
-currently 5161- 5390. It is defined in the '_required_parameters array'
+currently 5161- 5390. It is defined in the 'required_parameters array'
 in file the src/emc/rs274ngc/interp_array.cc .]  are volatile.
 Persistent parameters are saved in the .var file and
 restored to their previous values when LinuxCNC is started again. Volatile
@@ -388,11 +394,15 @@ is written.
 |===
 
 [[sub:subroutine-parameters]]
-=== Subroutine Parameters(((Subroutine Parameters)))
+=== Subroutine Codes and Parameters(((Subroutine Codes and Parameters)))
 
-* '1-30' Subroutine local parameters of call arguments. These parameters are
-  local to the subroutine. Volatile. See also the chapter on
-  <<cha:o-codes,O-Codes>>.
+Subroutine codes, or o-codes (sometimes also called o-words), provide for  logic and flow control in NGC programs (as in if-else logic). They are called Subroutine codes because they can also form called subroutines (as in sub-endsub). 
+
+See the chapter on <<cha:o-codes,o-Codes>>.
+
+NOTE: If o-codes are used to form subroutines, then o-codes can also call those subroutines and pass up to 30 parameters, which are local to the subroutine and volatile. (Again, see <<cha:o-codes,o-Codes>> for fuller treatment and examples.)
+
+NOTE: While both lower and upper case o- are valid, best practice is using lower case "o-" because it disambiguates 0 (zero) and O (capital o).  
 
 [[gcode:named-parameters]]
 === Named Parameters(((Named Parameters)))
@@ -581,17 +591,17 @@ can be added easily without changes to the source code.
 * '#<_selected_tool>' - Return number of the selected tool post a T code. Default -1.
 * '#<_selected_pocket>' - Return the tooldata index of the selected pocket post a T code.
   Default -1 (no pocket selected).
-* '#<_value>' - Return value from the last O-word 'return' or 'endsub'. Default
+* '#<_value>' - Return value from the last O-code 'return' or 'endsub'. Default
   value 0 if no expression after 'return' or 'endsub'. Initialized
   to 0 on program start.
-* '#<_value_returned>' - 1.0 if the last O-word 'return' or 'endsub' returned a value, 0
-  otherwise. Cleared by the next O-word call.
+* '#<_value_returned>' - 1.0 if the last O-code 'return' or 'endsub' returned a value, 0
+  otherwise. Cleared by the next O-code call.
 * '#<_task>' - 1.0 if the executing interpreter instance is part of milltask, 0.0
   otherwise. Sometimes it is necessary to treat this case specially
   to retain proper preview, for instance when testing the success of
   a probe (G38.n) by inspecting #5070, which will always fail in the
   preview interpreter (e.g. Axis).
-* '#<_call_level>' - current nesting level of O-word procedures. For debugging.
+* '#<_call_level>' - current nesting level of O-code procedures. For debugging.
 * '#<_remap_level>' - current level of the remap stack. Each remap in a block adds one
   to the remap level. For debugging.
 
@@ -1019,7 +1029,7 @@ comment will in effect disable the active comment. For example, '(foo)
 A comment introduced by a semicolon is by definition the last comment
 on that line, and will always be interpreted for active comment syntax.
 
-NOTE: Inline comments on O-words should not be used see the O-code
+NOTE: Inline comments on O-codes should not be used see the O-code
 <<ocode:comments,comments>> section for more information.
 
 [[gcode:messages]]
@@ -1154,7 +1164,7 @@ part programs. In Axis sections of the preview can be turned off using
 The order of execution of items on a line is defined not by the
 position of each item on the line, but by the following list:
 
-* O-word commands (optionally followed by a comment but no other words allowed
+* O-code commands (optionally followed by a comment but no other words allowed
   on the same line)
 * Comment (including message)
 * Set feed rate mode (G93, G94).

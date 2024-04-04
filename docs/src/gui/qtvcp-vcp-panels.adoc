@@ -91,7 +91,7 @@ loadusr qtvcp spindle_belts
 Customizing the panel: +
 
 * Copy the files located in /user/share/qtvcp/qtdragon/panels/belts to:
-~/linuxcnc/configs/<my_configuration_folder>/qtvcp/panels/belts (you can use the copy dialog panel to do this)
+  ~/linuxcnc/configs/<my_configuration_folder>/qtvcp/panels/belts (you can use the copy dialog panel to do this)
 
 * Edit belts.ui with designer.
 * Edit belts_handler.py with a text editor
@@ -429,7 +429,7 @@ QtVCP will do the same process for the optional handler file: 'qtvcp/panels/PANE
 === Handler Programming Tips
 In a screen handler file, the reference used for the window is 'self.w'. +
 In QtVCP panels, that reference will refers to the panel's window. +
-To reference the main window use 'self.w.MAIN'
+To reference the main window use 'self.w.MAIN'.
 If your panel is to be able to run independently and embedded, you must trap errors from referencing objects not available.
 (Note, main screen objects are not available in an independent panel.)
 
@@ -469,13 +469,13 @@ If the panel is not embedded, both refer to the panel window.
 
 We can have QtVCP load a subclassed version of the standard handler file. in that file we can manipulate the original functions or add new ones. +
 Subclassing just means our handler file first loads the original handler file and adds our new code on top of it - so a patch of changes. +
-This is useful for changing/adding behaviour while still retaining standard handler updates from LinuxCNC repositories. +
+This is useful for changing/adding behaviour while still retaining standard handler updates from LinuxCNC repositories.
 
 You may still need to use the handler copy dialog to copy the original handler file to decide how to patch it.
 
 There should be a folder in the config folder; for panel: named '<CONFIG FOLDER>/qtvcp/panels/<PANEL NAME>/' +
-add the handle patch file there, named like so <ORIGINAL PANEL NAME>_handler.py +
-ie for cam_align the file would be called 'cam_align_handler.py' +
+add the handle patch file there, named like so <ORIGINAL PANEL NAME>_handler.py, +
+i.e. for cam_align the file would be called 'cam_align_handler.py'.
 
 Here is a sample to change the circle color in cam_align: +
 

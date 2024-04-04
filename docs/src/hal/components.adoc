@@ -340,6 +340,7 @@ hal_create_thread.3hal
 hal_del_funct_from_thread.3hal
 hal_exit.3hal
 hal_export_funct.3hal
+hal_export_functf.3hal
 hal_float_t.3hal
 hal_get_lock.3hal
 hal_init.3hal

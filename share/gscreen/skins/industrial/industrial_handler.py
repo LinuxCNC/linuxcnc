@@ -18,6 +18,7 @@
 
 import gi
 from gi.repository import Gtk as gtk
+from gi.repository import Gdk
 from gi.repository import Pango as pango
 
 import hal
@@ -200,7 +201,7 @@ class HandlerClass:
         label = gtk.Label("Enter System Unlock Code")
         label.modify_font(pango.FontDescription("sans 20"))
         calc = gladevcp.Calculator()
-        dialog.vbox.pack_start(label)
+        dialog.vbox.pack_start(label,True,True,0)
         dialog.vbox.add(calc)
         calc.set_value("")
         calc.set_property("font","sans 20")
@@ -222,35 +223,44 @@ class HandlerClass:
         _LOCKTOGGLE = 1
         return False
 
+    def _get_RGBA_color(self, color_raw):
+        def convert_color(color):
+            colortuple = ((int(color.red * 255.0), int(color.green * 255.0), int(color.blue * 255.0)))
+            return ('#' + ''.join(f'{i:02X}' for i in colortuple))
+
+        # convert string RGB to 8bit RGBA
+        if type(color_raw) == str:
+            color = Gdk.RGBA()
+            color.parse(color_raw)
+            return convert_color(Gdk.RGBA(color.red, color.green, color.blue, color.alpha))
+
+        # convert old 16bit RGB to 8bit RGBA
+        elif type(color_raw) == tuple:
+            b = Gdk.RGBA(color_raw[0], color_raw[1], color_raw[2], 0)
+            color = Gdk.RGBA()
+            color.parse(b.to_string())
+            return  convert_color(Gdk.RGBA(color.red, color.green, color.blue, color.alpha))
+
     def on_abs_colorbutton_color_set(self,widget):
         self.gscreen.set_abs_color()
-        color = self.data.abs_color
-        fg_color = pango.AttrForeground(color[0],color[1],color[2], 0, 11)
         for i in self.data.axis_list:
             axis = "dro_%s1"% i
-            attr = self.widgets[axis].get_attributes()
-            attr.insert(fg_color)
-            self.widgets[axis].set_attributes(attr)
+            color = self._get_RGBA_color(self.data.abs_color)
+            self.widgets[axis].set_style("labelcolor", color )
 
     def on_rel_colorbutton_color_set(self,widget):
         self.gscreen.set_rel_color()
-        color = self.data.rel_color
-        fg_color = pango.AttrForeground(color[0],color[1],color[2], 0, 11)
+        color = self._get_RGBA_color(self.data.rel_color)
         for i in self.data.axis_list:
             axis = "dro_%s2"% i
-            attr = self.widgets[axis].get_attributes()
-            attr.insert(fg_color)
-            self.widgets[axis].set_attributes(attr)
+            self.widgets[axis].set_style("labelcolor", color )
 
     def on_dtg_colorbutton_color_set(self,widget):
         self.gscreen.set_dtg_color()
-        color = self.data.dtg_color
-        fg_color = pango.AttrForeground(color[0],color[1],color[2], 0, 11)
+        color = self._get_RGBA_color(self.data.dtg_color)
         for i in self.data.axis_list:
             axis = "dro_%s3"% i
-            attr = self.widgets[axis].get_attributes()
-            attr.insert(fg_color)
-            self.widgets[axis].set_attributes(attr)
+            self.widgets[axis].set_style("labelcolor", color )
 
     def on_hal_status_not_all_homed(self,widget,data):
         temp =[]

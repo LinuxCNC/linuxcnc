@@ -320,9 +320,8 @@ Servo Loop::
     velocity of an motor equipped with a feedback device.
 
 Signed Integer::
-     (((Signed Integer))) A whole number that can have a positive or
-    negative sign. In HAL it is known as s32. (A signed 32-bit
-    integer has a usable range of -2,147,483,647 to +2,147,483,647.)
+     (((Signed Integer))) A whole number that can have a positive or negative sign.
+     In HAL it is usually a <<sub:hal-s32,s32>>, but could be also a <<sub:hal-s64,s64>>.
 
 Spindle::
      (((spindle))) The part of a machine tool that spins
@@ -364,9 +363,8 @@ Units::
     (((units))) See "Machine Units", "Display Units", or "Program Units".
 
 Unsigned Integer::
-     (((Unsigned Integer))) A whole number that has no sign. In HAL
-    it is known as u32. (An unsigned 32-bit integer has a usable range of
-    zero to 4,294,967,296.)
+    (((Unsigned Integer))) A whole number that has no sign.
+    In HAL it is usually a <<sub:hal-u32,u32>> but could be also a <<sub:hal-u64,u64>>.
 
 World Coordinates::
      (((world coordinates))) This is the absolute

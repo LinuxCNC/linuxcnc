@@ -43,7 +43,6 @@ def run_from_line_get(file, startLine):
                     elif 'G20' in line:
                         newData.append('G20')
                 # find the type of first move
-                    ''' IT IS POSSIBLE THERE MAY BE SPACES IN THE INCOMING LINE '''
                 if not codes['move']['isSet'] and not 'G53G0' in line.replace(' ','') and not 'G20' in line and not 'G21' in line:
                     if 'G00' in line:
                         codes['move']['isSet'] = True
@@ -144,7 +143,7 @@ def run_from_line_get(file, startLine):
                     break
             pc = float(codes['a3'].split('M67 E3 Q')[1])
             pc = pc if pc > 0 else 100
-            codes['a3'] += ' (Velocity {}%)'.format(pc)
+            codes['a3'] += f' (Velocity {pc}%)'
         if 'M68E3Q' in line.replace(' ',''):
             codes['a3'] = 'M68 E3 Q'
             tmp = line.replace(' ','').split('M68E3Q')[1]
@@ -156,7 +155,7 @@ def run_from_line_get(file, startLine):
                     break
             pc = float(codes['a3'].split('M68 E3 Q')[1])
             pc = pc if pc > 0 else 100
-            codes['a3'] += ' (Velocity {}%)'.format(pc)
+            codes['a3'] += f' (Velocity {pc}%)'
         # test if inside a subroutine
         if line.startswith('O'):
             if 'END' in line:
@@ -171,7 +170,7 @@ def run_from_line_get(file, startLine):
                             tmp = tmp[1:]
                         else:
                             break
-                    oSub.append('{}>'.format(os))
+                    oSub.append(f'{os}>')
                 else:
                     os = 'O'
                     tmp = line.replace(' ','').split('O')[1]
@@ -275,7 +274,7 @@ def run_from_line_set(rflFile, data, leadin, unitsPerMm):
     # create the rfl file
     with open(rflFile, 'w') as outFile:
         for line in data['newData']:
-            outFile.write('{}\n'.format(line))
+            outFile.write(f'{line}\n')
     return {'error':error}
 
 def set_leadin_coordinates(x, y, scale, length, angle):
@@ -283,8 +282,8 @@ def set_leadin_coordinates(x, y, scale, length, angle):
     yL = y
     try:
         if x[-1] == ']':
-            xL = '{}[[{}]+{:0.6f}]'.format(x[:1], x[1:], (length * scale) * math.cos(math.radians(angle)))
-            yL = '{}[[{}]+{:0.6f}]'.format(y[:1], y[1:], (length * scale) * math.sin(math.radians(angle)))
+            xL = f'{x[:1]}[[{x[1:]}]+{(length * scale) * math.cos(math.radians(angle)):0.6f}]'
+            yL = f'{y[:1]}[[{y[1:]}]+{(length * scale) * math.sin(math.radians(angle)):0.6f}]'
         else:
             xL = float(x) + ((length * scale) * math.cos(math.radians(angle)))
             yL = float(y) + ((length * scale) * math.sin(math.radians(angle)))
@@ -295,20 +294,20 @@ def set_leadin_coordinates(x, y, scale, length, angle):
 def set_spindle_start(xL, yL, x, y, line, newData, reply):
     leadIn = {}
     if xL != x and yL != y:
-        newData.append('G00 X{} Y{}'.format(xL, yL))
+        newData.append(f'G00 X{xL} Y{yL}')
         leadIn['x'] = x
         leadIn['y'] = y
     else:
         if x and y:
-            newData.append('G00 X{} Y{}'.format(x, y))
+            newData.append(f'G00 X{x} Y{y}')
         elif x:
-            newData.append('G00 X{}'.format(x))
+            newData.append(f'G00 X{x}')
         elif y:
-            newData.append('G00 Y{}'.format(y))
+            newData.append(f'G00 Y{y}')
     if line:
         newData.append(line)
     if leadIn:
-        newData.append('G01 X{} Y{} (leadin)'.format(leadIn['x'], leadIn['y']))
+        newData.append(f'G01 X{leadIn["x"]} Y{leadIn["y"]} (leadin)')
     return reply
 
 def get_rfl_pos(line, axisPos, axisLetter):

@@ -191,7 +191,6 @@ int rtapi_app_main(void)
 {
     char *cp;
     char *argv[MAX_TOK];
-    char name[HAL_NAME_LEN + 1];
     int n, retval;
 
     /* test for config string */
@@ -235,22 +234,18 @@ int rtapi_app_main(void)
     }
     /* export functions for each board */
     for (n = 0; n < num_boards; n++) {
-	/* make read function name */
-	rtapi_snprintf(name, sizeof(name), "ax5214h.%d.read", n);
 	/* export read function */
-	retval = hal_export_funct(name, read_board, &(board_array[n]),
-	    0, 0, comp_id);
+	retval = hal_export_functf(read_board, &(board_array[n]),
+	    0, 0, comp_id, "ax5214h.%d.read", n);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"AX5214H: ERROR: port %d read funct export failed\n", n);
 	    hal_exit(comp_id);
 	    return -1;
 	}
-	/* make write function name */
-	rtapi_snprintf(name, sizeof(name), "ax5214h.%d.write", n);
 	/* export write function */
-	retval = hal_export_funct(name, write_board, &(board_array[n]),
-	    0, 0, comp_id);
+	retval = hal_export_functf(write_board, &(board_array[n]),
+	    0, 0, comp_id, "ax5214h.%d.write", n);
 	if (retval != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"AX5214H: ERROR: port %d write funct export failed\n", n);

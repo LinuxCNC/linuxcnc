@@ -15,6 +15,7 @@ AxisToolButton {
 }
 
 QPushButton:checked,
+QToolButton:checked,
 QPushButton:pressed {
     border-color: blue;
     color: #0000FF;

@@ -1,5 +1,5 @@
 /* Classic Ladder Project */
-/* Copyright (C) 2001-2007 Marc Le Douarain */
+/* Copyright (C) 2001-2008 Marc Le Douarain */
 /* http://membres.lycos.fr/mavati/classicladder/ */
 /* http://www.sourceforge.net/projects/classicladder */
 /* February 2001 */
@@ -59,6 +59,8 @@ void InitRungs()
 				RungArray[NumRung].Element[x][y].ConnectedWithTop = 0;
 				RungArray[NumRung].Element[x][y].VarType = 0;
 				RungArray[NumRung].Element[x][y].VarNum = 0;
+				RungArray[NumRung].Element[x][y].IndexedVarType = -1; /* undefined */
+				RungArray[NumRung].Element[x][y].IndexedVarNum = 0;
 				RungArray[NumRung].Element[x][y].DynamicInput = 0;
 				RungArray[NumRung].Element[x][y].DynamicState = 0;
 				RungArray[NumRung].Element[x][y].DynamicVarBak = 0;
@@ -88,7 +90,7 @@ void PrepareRungs()
 				if ( (RungArray[NumRung].Element[x][y].Type==ELE_RISING_INPUT)
 					|| (RungArray[NumRung].Element[x][y].Type==ELE_FALLING_INPUT) )
 				{
-					StateElement = ReadVar(RungArray[NumRung].Element[x][y].VarType,RungArray[NumRung].Element[x][y].VarNum);
+					StateElement = ReadVarForElement( &RungArray[NumRung].Element[x][y] );
 					if (RungArray[NumRung].Element[x][y].Type==ELE_FALLING_INPUT)
 						StateElement = !StateElement;
 					RungArray[NumRung].Element[x][y].DynamicVarBak = StateElement;
@@ -235,6 +237,33 @@ void InitIOConf( )
 	}
 }
 
+int ReadVarForElement( StrElement * pElem )
+{
+	int VarType = pElem->VarType;
+	int VarOffset = pElem->VarNum;
+	// is an indexed one ?
+	if ( pElem->IndexedVarType!=-1 )
+	{
+		// add index value from content of the index variable
+		int IndexValue = ReadVar( pElem->IndexedVarType, pElem->IndexedVarNum );
+		VarOffset += IndexValue;
+	}
+	return ReadVar( VarType, VarOffset );
+}
+void WriteVarForElement( StrElement *pElem, int Value )
+{
+	int VarType = pElem->VarType;
+	int VarOffset = pElem->VarNum;
+	// is an indexed one ?
+	if ( pElem->IndexedVarType!=-1 )
+	{
+		// add index value from content of the index variable
+		int IndexValue = ReadVar( pElem->IndexedVarType, pElem->IndexedVarNum );
+		VarOffset += IndexValue;
+	}
+	WriteVar( VarType, VarOffset, Value );
+}
+
 char StateOnLeft(int x,int y,StrRung * TheRung)
 {
     char State = 0;
@@ -284,7 +313,7 @@ char CalcTypeInput(int x,int y,StrRung * UpdateRung,char IsNot,char OnlyFronts)
     char StateElement;
     char StateVar;
 
-    StateElement = ReadVar(UpdateRung->Element[x][y].VarType,UpdateRung->Element[x][y].VarNum);
+    StateElement = ReadVarForElement( &UpdateRung->Element[x][y] );
     if (IsNot)
         StateElement = !StateElement;
     StateVar = StateElement;
@@ -335,7 +364,7 @@ char CalcTypeOutput(int x,int y,StrRung * UpdateRung,char IsNot)
     UpdateRung->Element[x][y].DynamicState = State;
     if (IsNot)
         State = !State;
-    WriteVar(UpdateRung->Element[x][y].VarType,UpdateRung->Element[x][y].VarNum,State);
+    WriteVarForElement( &UpdateRung->Element[x][y], State );
     return State;
 }
 /* Elements : -(S)- and -(R)- */
@@ -351,7 +380,7 @@ char CalcTypeOutputSetReset(int x,int y,StrRung * UpdateRung,char IsReset)
             State = 0;  /* reset */
         else
             State = 1;  /* set */
-        WriteVar(UpdateRung->Element[x][y].VarType,UpdateRung->Element[x][y].VarNum,State);
+        WriteVarForElement( &UpdateRung->Element[x][y], State );
     }
     return State;
 }
@@ -403,7 +432,11 @@ void CalcTypeTimer(int x,int y,StrRung * UpdateRung)
     }
     else
     {
+#ifdef FORCE_INP_CONTROL_OLD_TIMERS
+        Timer->InputControl = 1;
+#else
         Timer->InputControl = StateOnLeft(x-1,y+1,UpdateRung);
+#endif
     }
     if (!Timer->InputEnable)
     {
@@ -465,8 +498,10 @@ void CalcTypeCounter(int x,int y,StrRung * UpdateRung)
 	int CounterNbr = UpdateRung->Element[x][y].VarNum;
 	StrCounter * Counter = &CounterArray[ CounterNbr ];
 	char DoneResult, EmptyResult, FullResult;
-	int CurrentValue = ReadVar( VAR_COUNTER_VALUE, CounterNbr );
 	int PresetValue = ReadVar( VAR_COUNTER_PRESET, CounterNbr );
+	int CurrentValue = ReadVar( VAR_COUNTER_VALUE, CounterNbr );
+	int ValueSave = CurrentValue; /* to detect value changed from user... */
+	int CurrentValueNow;
 	// directly connected to the "left"? if yes, ON !
 	if ( x==0 )
 	{
@@ -516,14 +551,18 @@ void CalcTypeCounter(int x,int y,StrRung * UpdateRung)
 	UpdateRung->Element[x][y].DynamicOutput = EmptyResult;
 	UpdateRung->Element[x][y + 2].DynamicOutput = FullResult;
 
+	// detect current value changed from user between start and here? not sure...?
+	CurrentValueNow = ReadVar( VAR_COUNTER_VALUE, CounterNbr );
+	if ( ValueSave!=CurrentValueNow )
+		CurrentValue = CurrentValueNow;
 	// now update public vars
 	// (we could have directly written in the counter structure)
 	// (but on another project, vars can be mapped in another way)
+	WriteVar( VAR_COUNTER_VALUE, CounterNbr, CurrentValue );
+//	WriteVar( VAR_COUNTER_PRESET, CounterNbr, PresetValue );
 	WriteVar( VAR_COUNTER_DONE, CounterNbr, DoneResult );
 	WriteVar( VAR_COUNTER_EMPTY, CounterNbr, EmptyResult );
 	WriteVar( VAR_COUNTER_FULL, CounterNbr, FullResult );
-	WriteVar( VAR_COUNTER_PRESET, CounterNbr, PresetValue );
-	WriteVar( VAR_COUNTER_VALUE, CounterNbr, CurrentValue );
 }
 /* Element : New IEC Timer with many modes (2x2 Blocks) */
 void CalcTypeTimerIEC(int x,int y,StrRung * UpdateRung)

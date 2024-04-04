@@ -10,7 +10,7 @@
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
-Updating LinuxCNC to a new minor release (ie to a new version in
+Updating LinuxCNC to a new minor release (i.e. to a new version in
 the same stable series, for example from 2.9.1 to 2.9.2) is an
 automatic process if your PC is connected to the internet. You will
 see an update prompt after a minor release along with other software
@@ -158,7 +158,7 @@ Next pick the type of computer you have: binary-amd64 for any 64-bit x86,
 binary-i386 for 32 bit, binary-armhf (32bit) or binary-arm64 (64bit) for Raspberry Pi.
 
 Next pick the version you want from the bottom of the list like
-'linuxcnc-uspace_2.8.0_amd64.deb' (choose the latest by date).
+'linuxcnc-uspace_2.9.2_amd64.deb' (choose the latest by date).
 Download the deb and copy it to your home directory. You can rename the
 file to something a bit shorter with the file manager like
 'linuxcnc_2.9.2.deb' then open a terminal and install it with the

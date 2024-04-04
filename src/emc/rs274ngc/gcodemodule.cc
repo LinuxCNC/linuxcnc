@@ -16,6 +16,32 @@
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+/*
+
+  Notes:
+
+  NURBS
+  -----
+  The code in this file for nurbs calculations is from University of Palermo.
+  The publications can be found at: http://wiki.linuxcnc.org/cgi-bin/wiki.pl?NURBS
+  AMST08_art837759.pdf and ECME14.pdf
+
+  1: 
+  M. Leto, R. Licari, E. Lo Valvo1 , M. Piacentini:
+  CAD/CAM INTEGRATION FOR NURBS PATH INTERPOLATION ON PC BASED REAL-TIME NUMERICAL CONTROL
+  Proceedings of AMST 2008 Conference, 2008, pp. 223-233
+
+  2:
+  ERNESTO LO VALVO, STEFANO DRAGO:
+  An Efficient NURBS Path Generator for a Open Source CNC
+  Recent Advances in Mechanical Engineering (pp.173-180). WSEAS Press
+
+  The code from University of Palermo is modified to work on planes xy, yz and zx by Joachim Franek
+  */
+
+
+
+
 #include <Python.h>
 #include <structmember.h>
 
@@ -30,7 +56,6 @@ int _task = 0; // control preview behaviour when remapping
 
 char _parameter_file_name[LINELEN];
 
-extern "C" PyObject* PyInit_emctask(void);
 extern "C" PyObject* PyInit_interpreter(void);
 extern "C" PyObject* PyInit_emccanon(void);
 extern "C" struct _inittab builtin_modules[];
@@ -142,6 +167,7 @@ static PyTypeObject LineCodeType = {
 static PyObject *callback;
 static int interp_error;
 static int last_sequence_number;
+static int selected_tool = 0;
 static bool metric;
 static double _pos_x, _pos_y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w;
 EmcPose tool_offset;
@@ -170,24 +196,109 @@ static void maybe_new_line(int sequence_number) {
     Py_XDECREF(result);
 }
 
-void NURBS_FEED(int line_number, std::vector<CONTROL_POINT> nurbs_control_points, unsigned int k) {
+//das ist für die Vorschau
+/* G_5_2/G_5_3*/
+void NURBS_G5_FEED(int line_number, std::vector<NURBS_CONTROL_POINT> nurbs_control_points, unsigned int nurbs_order, CANON_PLANE plane) 
+    {
     double u = 0.0;
     unsigned int n = nurbs_control_points.size() - 1;
-    double umax = n - k + 2;
+    double umax = n - nurbs_order + 2;
     unsigned int div = nurbs_control_points.size()*15;
-    std::vector<unsigned int> knot_vector = knot_vector_creator(n, k);	
-    PLANE_POINT P1;
+    std::vector<unsigned int> knot_vector = nurbs_G5_knot_vector_creator(n, nurbs_order);	
+    NURBS_PLANE_POINT P1;
     while (u+umax/div < umax) {
-        PLANE_POINT P1 = nurbs_point(u+umax/div,k,nurbs_control_points,knot_vector);
-        STRAIGHT_FEED(line_number, P1.X,P1.Y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w);
+        NURBS_PLANE_POINT P1 = nurbs_G5_point(u+umax/div,nurbs_order,nurbs_control_points,knot_vector);
+        //printf("P1 X: %8.4f Y: %8.4f pos_x: %8.4f pos_y: %8.4f pos_z: %8.4f (F: %s L: %d)\n",P1.NURBS_X,P1.NURBS_Y,_pos_x,_pos_y,_pos_z,__FILE__,__LINE__);
+
+        //STRAIGHT_FEED(line_number, P1.X,P1.Y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w);
+        if(plane==CANON_PLANE::XY) {
+            //printf("XY (F: %s L: %d)\n",__FILE__,__LINE__);
+            STRAIGHT_FEED(line_number, P1.NURBS_X, P1.NURBS_Y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w); //
+            }
+        if(plane==CANON_PLANE::YZ) {
+            //printf("YZ (F: %s L: %d)\n",__FILE__,__LINE__);
+            STRAIGHT_FEED(line_number, _pos_x, P1.NURBS_X, P1.NURBS_Y, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w); //
+            }
+        if(plane==CANON_PLANE::XZ) {
+            //printf("XZ (F: %s L: %d)\n",__FILE__,__LINE__);
+            STRAIGHT_FEED(line_number, P1.NURBS_Y, _pos_y, P1.NURBS_X, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w); //
+            }
         u = u + umax/div;
-    } 
-    P1.X = nurbs_control_points[n].X;
-    P1.Y = nurbs_control_points[n].Y;
-    STRAIGHT_FEED(line_number, P1.X,P1.Y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w);
+        } 
+    P1.NURBS_X = nurbs_control_points[n].NURBS_X;
+    P1.NURBS_Y = nurbs_control_points[n].NURBS_Y;
+    //printf("Pn X: %8.4f Y: %8.4f pos_x: %8.4f pos_y: %8.4f pos_z: %8.4f (F: %s L: %d)\n",P1.X,P1.Y,_pos_x,_pos_y,_pos_z,__FILE__,__LINE__);
+    //STRAIGHT_FEED(line_number, P1.X,P1.Y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w);
+    if(plane==CANON_PLANE::XY) {
+        STRAIGHT_FEED(line_number, P1.NURBS_X, P1.NURBS_Y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w); //
+        }
+    if(plane==CANON_PLANE::YZ) {
+        STRAIGHT_FEED(line_number, _pos_x, P1.NURBS_X, P1.NURBS_Y, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w); //
+        }
+    if(plane==CANON_PLANE::XZ) {
+        STRAIGHT_FEED(line_number, P1.NURBS_Y, _pos_y, P1.NURBS_X, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w); //
+        }
     knot_vector.clear();
 }
 
+/* G_6_2  L_option is unused */
+//-----------------------------------------------------------------------------------------------------------------------------------------
+void NURBS_G6_FEED(int line_number, std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points, unsigned int k, double feedrate, int L_option, CANON_PLANE plane) { // (L_option: NICU, NICL, NICC see publication from Lo Valvo and Drago)
+    double u = 0.0;
+    unsigned int n = nurbs_control_points.size() - 1-k;
+    double umax = nurbs_control_points[n+k].NURBS_K;
+    unsigned int div = (nurbs_control_points.size()-k)*15;
+    std::vector<double> knot_vector = nurbs_g6_knot_vector_creator(n, k, nurbs_control_points);
+
+    //printf("gcodemodule NURBS_G6_FEED cps: %ld k: %d L: %d fr: %f (F: %s L: %d)\n",nurbs_control_points.size(), k, L_option, feedrate, __FILE__, __LINE__);
+    NURBS_PLANE_POINT P1x, P1;
+    std::vector< std::vector<double> > A6;
+    A6 = nurbs_G6_Nmix_creator(u+umax/div, k, n+1, knot_vector);
+    P1 = nurbs_G6_pointx(knot_vector[0],k,nurbs_control_points,knot_vector,A6);	
+    //printf("%.3d P1  X: %8.4f Y: %8.4f pos_x: %8.4f pos_y: %8.4f pos_z: %8.4f (F: %s L: %d)\n",line_number,P1.NURBS_X,P1.NURBS_Y,_pos_x,_pos_y,_pos_z,__FILE__,__LINE__);
+    //STRAIGHT_FEED(line_number, P1.NURBS_X,P1.NURBS_Y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w);
+    if(plane==CANON_PLANE::XY) {
+		    STRAIGHT_FEED(line_number, P1.NURBS_X, P1.NURBS_Y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w);
+        }
+    if(plane==CANON_PLANE::YZ) {
+		    STRAIGHT_FEED(line_number, _pos_x, P1.NURBS_X, P1.NURBS_Y, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w);
+        }
+    if(plane==CANON_PLANE::XZ) {
+		    STRAIGHT_FEED(line_number, P1.NURBS_Y, _pos_y, P1.NURBS_X, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w);
+        }
+    u=0.1;
+    while (u+umax/div < umax) {
+        P1x = nurbs_G6_point_x(u+umax/div,k,nurbs_control_points,knot_vector);
+        //printf("%.3d P1x X: %8.4f Y: %8.4f pos_x: %8.4f pos_y: %8.4f pos_z: %8.4f (F: %s L: %d)\n",line_number,P1x.NURBS_X,P1x.NURBS_Y,_pos_x,_pos_y,_pos_z,__FILE__,__LINE__);
+        //STRAIGHT_FEED(line_number, P1x.NURBS_X,P1x.NURBS_Y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w);
+		if(plane==CANON_PLANE::XY) {
+			    STRAIGHT_FEED(line_number, P1x.NURBS_X, P1x.NURBS_Y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w);
+			}
+		if(plane==CANON_PLANE::YZ) {
+			STRAIGHT_FEED(line_number, _pos_x, P1x.NURBS_X, P1x.NURBS_Y, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w);
+			}
+		if(plane==CANON_PLANE::XZ) {
+			STRAIGHT_FEED(line_number, P1x.NURBS_Y, _pos_y, P1x.NURBS_X, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w);
+			}
+		u = u + umax/div;
+    } 
+    A6 = nurbs_G6_Nmix_creator (umax,  k, n+1, knot_vector);
+    P1 = nurbs_G6_pointx(umax,k,nurbs_control_points,knot_vector,A6);	
+    //printf("%.3d P1  X: %8.4f Y: %8.4f pos_x: %8.4f pos_y: %8.4f pos_z: %8.4f (F: %s L: %d)\n",line_number,P1.NURBS_X,P1.NURBS_Y,_pos_x,_pos_y,_pos_z,__FILE__,__LINE__);
+    //STRAIGHT_FEED(line_number, P1.NURBS_X,P1.NURBS_Y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w);
+    if(plane==CANON_PLANE::XY) {
+        STRAIGHT_FEED(line_number, P1.NURBS_X, P1.NURBS_Y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w);
+    	}
+    if(plane==CANON_PLANE::YZ) {
+		STRAIGHT_FEED(line_number, _pos_x, P1.NURBS_X, P1.NURBS_Y, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w);
+    	}
+    if(plane==CANON_PLANE::XZ) {
+		STRAIGHT_FEED(line_number, P1.NURBS_Y, _pos_y, P1.NURBS_X, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w);
+    	}
+    knot_vector.clear();
+	}
+
+//-----------------------------------------------------------------------------------------------------------------------------------------
 void ARC_FEED(int line_number,
               double first_end, double second_end, double first_axis,
               double second_axis, int rotation, double axis_end_point,
@@ -317,11 +428,11 @@ void SET_FEED_MODE(int spindle, int mode) {
 #endif
 }
 
-void CHANGE_TOOL(int pocket) {
+void CHANGE_TOOL() {
     maybe_new_line();
     if(interp_error) return;
     PyObject *result = 
-        callmethod(callback, "change_tool", "i", pocket);
+        callmethod(callback, "change_tool", "i", selected_tool);
     if(result == NULL) interp_error ++;
     Py_XDECREF(result);
 }
@@ -418,10 +529,9 @@ void PROGRAM_END() {}
 void FINISH() {}
 void ON_RESET() {}
 void PALLET_SHUTTLE() {}
-void SELECT_TOOL(int tool) {}
+void SELECT_TOOL(int tool) {selected_tool = tool;}
 void UPDATE_TAG(StateTag tag) {}
 void OPTIONAL_PROGRAM_STOP() {}
-void START_CHANGE() {}
 int  GET_EXTERNAL_TC_FAULT() {return 0;}
 int  GET_EXTERNAL_TC_REASON() {return 0;}
 
@@ -471,8 +581,6 @@ void TURN_PROBE_OFF() {}
 int UNLOCK_ROTARY(int line_no, int joint_num) {return 0;}
 int LOCK_ROTARY(int line_no, int joint_num) {return 0;}
 void INTERP_ABORT(int reason,const char *message) {}
-void PLUGIN_CALL(int len, const char *call) {}
-void IO_PLUGIN_CALL(int len, const char *call) {}
 
 void STRAIGHT_PROBE(int line_number, 
                     double x, double y, double z, 
@@ -582,7 +690,7 @@ double GET_EXTERNAL_FEED_RATE() { return 1; }
 double GET_EXTERNAL_TRAVERSE_RATE() { return 0; }
 int GET_EXTERNAL_FLOOD() { return 0; }
 int GET_EXTERNAL_MIST() { return 0; }
-CANON_PLANE GET_EXTERNAL_PLANE() { return CANON_PLANE_XY; }
+CANON_PLANE GET_EXTERNAL_PLANE() { return CANON_PLANE::XY; }
 double GET_EXTERNAL_SPEED(int spindle) { return 0; }
 void DISABLE_ADAPTIVE_FEED() {} 
 void ENABLE_ADAPTIVE_FEED() {} 

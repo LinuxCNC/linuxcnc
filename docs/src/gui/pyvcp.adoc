@@ -239,7 +239,7 @@ This is usually set as the last command so that HAL shuts down when the panel is
 == Widgets(((PyVCP Widgets Reference)))
 
 HAL signals come in two variants, bits and numbers.
-Bits are off/on signals. Numbers can be 'float', 's32' or 'u32'.
+Bits are off/on signals. Numbers can be 'float', 's32', 'u32', 's64' or 'u64'.
 For more information on HAL data types see the <<sec:hal-data,HAL Data>> section.
 The PyVCP widget can either display the value of the signal with an indicator widget,
 or modify the signal value with a control widget.

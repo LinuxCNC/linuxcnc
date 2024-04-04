@@ -65,7 +65,7 @@ For this example we named the configuration 'pyvcp_xyz' on the Basic Machine Inf
 image::images/xyz_ACO.png["PyVCP XYZ Wizard Configuration"]
 
 The StepConf Wizard will create several files and place them in the
-linuxcnc/configs/pyvcp_xyz directory. If you left the create link checked
+`linuxcnc/configs/pyvcp_xyz` directory. If you left the create link checked
 you will have a link to those files on your desktop.
 
 === Create the Widgets

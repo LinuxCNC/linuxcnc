@@ -1,8 +1,8 @@
 '''
 conv_rectangle.py
 
-Copyright (C) 2020, 2021, 2022  Phillip A Carter
-Copyright (C) 2020, 2021, 2022  Gregory D Carl
+Copyright (C) 2020, 2021, 2022, 2023 Phillip A Carter
+Copyright (C) 2020, 2021, 2022, 2023 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -30,15 +30,15 @@ def preview(P, W, Conv):
     if P.dialogError:
         return
     if not W.xsEntry.text():
-        W.xsEntry.setText('{:0.3f}'.format(P.xOrigin))
+        W.xsEntry.setText(f'{P.xOrigin:0.3f}')
     if not W.ysEntry.text():
-        W.ysEntry.setText('{:0.3f}'.format(P.yOrigin))
+        W.ysEntry.setText(f'{P.yOrigin:0.3f}')
     origin = W.centLeft.text() == 'CENTER'
     styles = [None, 'extRadius', 'extRadius', 'extRadius', 'extRadius']
     for n in range(1, 5):
-        if W['r{}Button'.format(n)].text().startswith(_translate('Conversational', 'CHAMFER')):
+        if W[f'r{n}Button'].text().startswith(_translate('Conversational', 'CHAMFER')):
             styles[n] = 'chamfer'
-        elif W['r{}Button'.format(n)].text().startswith(_translate('Conversational', 'iRADIUS')):
+        elif W[f'r{n}Button'].text().startswith(_translate('Conversational', 'iRADIUS')):
             styles[n] = 'intRadius'
     error = RECTANGLE.preview(Conv, P.fTmp, P.fNgc, P.fNgcBkp, \
             int(W.conv_material.currentText().split(':')[0]), \
@@ -81,13 +81,13 @@ def entry_changed(P, W, Conv, widget):
 def rad_button_pressed(P, W, Conv, button, value):
     if button.text().split()[0] == _translate('Conversational', 'RADIUS'):
         text = _translate('Conversational', 'CHAMFER')
-        button.setText('{} {}'.format(text, value))
+        button.setText(f'{text} {value}')
     elif button.text().split()[0] == _translate('Conversational', 'CHAMFER'):
         text = _translate('Conversational', 'iRADIUS')
-        button.setText('{} {}'.format(text, value))
+        button.setText(f'{text} {value}')
     else:
         text = _translate('Conversational', 'RADIUS')
-        button.setText('{} {}'.format(text, value))
+        button.setText(f'{text} {value}')
     auto_preview(P, W, Conv)
 
 def widgets(P, W, Conv):

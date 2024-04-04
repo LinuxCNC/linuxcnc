@@ -1,0 +1,27 @@
+G61
+G90
+F5000
+G0 X-1 Y0
+M68 E1 Q100 (set max laser power to 100)
+M11 P1 Q4 R.5 S9
+;raster program can be programmed with more than 1 M12 line
+M12 (1E282)
+M12 (C494)
+M13 (run raster)
+G0 X0
+G1 X15 F5000
+G0 X16
+M10 (stop raster)
+M68 E1 Q100 (set max laser power to 100)
+
+G0 Y1 X17
+M11 P-1 Q4 R.5 S9
+M12 (1E28FC494)
+M13 (enable raster)
+G0 X15
+G1 X0 F5000
+G0 X-1
+M10 (stop raster)
+M2
+
+

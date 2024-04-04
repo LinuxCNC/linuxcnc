@@ -1,0 +1,23 @@
+QtDragon QtDragonHD sample configs
+
+Fantastic large screen for mills/routers designed by forum personality Persei.
+Choice of basic or versa probe screens.
+Optional laser sight control
+Optional toolplate Z setting
+Optional auto lift spindle at pause
+bolt circle and basic facing wizards
+
+Basic test config for XYZ
+XYZ machine with versa tool probe remap
+basic XYZ machine with larger QtDragonHD:
+
+qtdragon
+qtdragon_auto_tool_probe
+qtdragon_hd
+
+Various versions of different gantry and rotational axis options
+
+qtdragon_XYZA
+qtdragon_XYYZ
+qtdragon_XYZY
+qtdragon_XYZYA

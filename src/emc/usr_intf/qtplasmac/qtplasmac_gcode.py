@@ -65,6 +65,7 @@ class Filter():
         response = RUN(['halcmd', 'getp', 'plasmac.max-offset'], capture_output = True)
         zMaxOffset = float(response.stdout.decode())
         RUN(['halcmd', 'setp', self.convBlockPin, '0'])
+        RUN(['halcmd', 'setp', 'plasmac.tube-cut', '0'])
         self.metric = ['mm', 4]
         self.imperial = ['in', 6]
         self.units, self.fmt = self.imperial if INI.find('TRAJ', 'LINEAR_UNITS').lower() == 'inch' else self.metric
@@ -109,11 +110,13 @@ class Filter():
         self.offsetG4x = False
         self.zSetup = False
         self.zBypass = False
+        self.tubeCut = False
         self.pathBlend = False
         self.convBlock = False
         self.filtered = False
         self.firstMove = False
         self.subList = []
+        self.pierceList = {'active': False, 'X':[], 'Y':[]}
         self.codeError = False
         self.errors  = 'The following errors will affect the process.\n'
         self.errors += 'Errors must be fixed before reloading this file.\n'
@@ -123,6 +126,7 @@ class Filter():
         self.errorBadMat = []
         self.errorTempMat = []
         self.errorTempValid = []
+        self.errorTempParm = []
         self.errorNewMat = []
         self.errorEditMat = []
         self.errorWriteMat = []
@@ -130,11 +134,13 @@ class Filter():
         self.errorCompMat = []
         self.errorFirstMove = []
         self.errorLines = []
+        self.errorG92Offset = []
         self.codeWarn = False
         self.warnings  = 'The following warnings may affect the quality of the process.\n'
         self.warnings += 'It is recommended that all warnings are fixed before running this file.\n'
         self.warnUnitsDep = []
         self.warnPierceScribe = []
+        self.warnPierceLimit = []
         self.warnMatLoad = []
         self.warnHoleDir = []
         self.warnCompTorch = []
@@ -157,7 +163,22 @@ class Filter():
             if self.rapidLine:
                 self.gcodeList.append(self.rapidLine)
             self.gcodeList.append('M02 (END)')
-        # error and warning notifications
+        # remove last G00 coordinates if no pierce afterwards
+        if self.pierceList['active']:
+            del self.pierceList['X'][-1]
+            del self.pierceList['Y'][-1]
+        # write the pierce extents hal pins
+        if GUI == 'axis':
+            RUN(['halcmd', 'setp', 'axisui.x_min_pierce_extent', str(min(self.pierceList['X']) if self.pierceList['X'] else 0)])
+            RUN(['halcmd', 'setp', 'axisui.y_min_pierce_extent', str(min(self.pierceList['Y']) if self.pierceList['Y'] else 0)])
+            RUN(['halcmd', 'setp', 'axisui.x_max_pierce_extent', str(max(self.pierceList['X']) if self.pierceList['X'] else 0)])
+            RUN(['halcmd', 'setp', 'axisui.y_max_pierce_extent', str(max(self.pierceList['Y']) if self.pierceList['Y'] else 0)])
+        else:
+            RUN(['halcmd', 'setp', 'qtplasmac.x_min_pierce_extent', str(min(self.pierceList['X']) if self.pierceList['X'] else 0)])
+            RUN(['halcmd', 'setp', 'qtplasmac.y_min_pierce_extent', str(min(self.pierceList['Y']) if self.pierceList['Y'] else 0)])
+            RUN(['halcmd', 'setp', 'qtplasmac.x_max_pierce_extent', str(max(self.pierceList['X']) if self.pierceList['X'] else 0)])
+            RUN(['halcmd', 'setp', 'qtplasmac.y_max_pierce_extent', str(max(self.pierceList['Y']) if self.pierceList['Y'] else 0)])
+         # error and warning notifications
         if self.codeError or self.codeWarn: # show errors if any
             self.write_errors()
         else: # create empty error file if no errors
@@ -265,7 +286,7 @@ class Filter():
         # set the current g-code
         self.lastG = self.set_last_gcode(data, self.lastG)
         # if data starts with axis then preface with last g-code
-        if data[0] in 'XYZAB':
+        if data[0] in 'XYZABC':
             data = f'G{self.lastG} {data}'
         # add leading 0's to G & M codes < 10
         tmp = ''
@@ -279,6 +300,21 @@ class Filter():
                         tmp += '0'
             data = data[1:]
         data = tmp
+        # get all G00 coordinates
+        if data[:3] == 'G00' and ('X' in data or 'Y' in data):
+            if 'X' in data and not self.check_math(data, 'X', 'pierce'):
+                pierceX = self.get_axis_value(data, 'X') if 'X' in data else self.lastX
+                self.pierceList['X'].append(pierceX)
+            if 'Y' in data and not self.check_math(data, 'Y', 'pierce'):
+                pierceY = self.get_axis_value(data, 'Y') if 'Y' in data else self.lastY
+                self.pierceList['Y'].append(pierceY)
+            self.pierceList['active'] = True
+        # reset G00 active flag
+        if data[:3] == 'M03' and self.pierceList['active']:
+            self.pierceList['active'] = False
+        # disallow g92 offsets in gcode
+        if 'G92' in data and not 'G92.1' in data:
+            self.set_g92_detected()
         # if incremental distance mode fix overburn coordinates
         if data[:3] in ['G00', 'G01'] and self.distMode == 91 and (self.oBurnX or self.oBurnY) and not self.spotting:
             data = self.fix_overburn_incremental_coordinates(data)
@@ -312,10 +348,10 @@ class Filter():
             if not data:
                 return(None)
         # is this a scribe
-        if data.startswith('M03 $1 S'):
+        if data.startswith('M03 $1 S') and not self.tubeCut:
             self.set_scribing()
         # is this a spot
-        if data.startswith('M03 $2 S') and not self.pierceOnly:
+        if data.startswith('M03 $2 S') and not self.pierceOnly and not self.tubeCut:
             self.spotting = True
         # test for pierce only mode
         elif data.replace(' ','').startswith('#<pierce-only>=1') or self.cutType == 1:
@@ -336,6 +372,9 @@ class Filter():
         elif data.startswith('#<h_velocity>'):
             self.set_hole_velocity(data)
             return data
+        # tube cutting
+        if data.startswith('#<tube-cut>=1'):
+            data = self.set_tube_cut(data)
         # change material
         if data[:4] == 'M190':
             self.do_material_change(data)
@@ -358,7 +397,7 @@ class Filter():
             and not self.zBypass:
             data = self.comment_z_commands(data)
         # check the feed rate
-        if 'F' in data:
+        if 'F' in data and not self.tubeCut:
             data = self.check_f_word(data)
         # if an arc command
         if (data[:3] == 'G02' or data[:3] == 'G03'):
@@ -454,15 +493,21 @@ class Filter():
                         Ypos = self.get_axis_value(data, 'Y')
         return Xpos, Ypos
 
-    def check_math(self, data, axis):
+    def check_math(self, data, axis, code='arc'):
         ''' check if math used or explicit values
         '''
         tmp1 = data.split(axis)[1]
         if tmp1.startswith('[') or tmp1.startswith('#'):
-            self.set_code_error()
-            if self.lineNum not in self.errorMath:
-                self.errorMath.append(self.lineNum)
-                self.errorLines.append(self.lineNumOrg)
+            if code == 'pierce':
+                self.codeWarn = True
+                if self.lineNum not in self.warnPierceLimit:
+                    self.warnPierceLimit.append(self.lineNum)
+                    self.errorLines.append(self.lineNumOrg)
+            else:
+                self.set_code_error()
+                if self.lineNum not in self.errorMath:
+                    self.errorMath.append(self.lineNum)
+                    self.errorLines.append(self.lineNumOrg)
             return True
         return False
 
@@ -586,6 +631,11 @@ class Filter():
         self.errorFirstMove.append(self.lineNum)
         self.errorLines.append(self.lineNumOrg)
 
+    def set_g92_detected(self):
+        self.set_code_error()
+        self.errorG92Offset.append(self.lineNum)
+        self.errorLines.append(self.lineNumOrg)
+
     def set_default_blending(self):
         blend = self.blendTolerance * self.unitMultiplier
         self.gcodeList.append(f'G64 P{blend}')
@@ -636,9 +686,48 @@ class Filter():
                     self.firstMove = False
                     self.scribePierce= False
                 return None
+            # set offsets for pierce X/Y coordinates
             if data[:3] == 'G00':
+                idx, brackets, start, end = 0, 0, 0, 0
+                tmp = ''
+                for axis in 'XY':
+                    if axis in data:
+                        if GUI == 'axis':
+                            offset = f"[#<_hal[axisui.{axis.lower()}-pierce-offset]> * {self.unitMultiplier}]"
+                        else:
+                            offset = f"[#<_hal[qtplasmac.{axis.lower()}_pierce_offset-f]> * {self.unitMultiplier}]"
+                        start = data.index(axis)
+                        tmp = data[:start]
+                        idx = start + 1
+                        while data[idx] == ' ':
+                            idx += 1
+                        if data[idx] == '[':
+                            while 1:
+                                if data[idx] == '[':
+                                    brackets += 1
+                                elif data[idx] == ']':
+                                    brackets -= 1
+                                if not brackets:
+                                    end = idx
+                                    break
+                                idx += 1
+                                if idx == len(data):
+                                    break
+                            data = f"{tmp}{data[start]}[{data[start+1:end+1]} + {offset}]{data[end+1:]}"
+                        else:
+                            while 1:
+                                if data[idx] in 'XYZABC ':
+                                    if '2.3652' in data:
+                                        print(f';idx:{idx}   char:{data[idx]}')
+                                    break
+                                idx += 1
+                                if idx == len(data):
+                                    break
+                            end = idx
+                            data = f"{tmp}{data[start]}[{data[start+1:end]} + {offset}]{data[end:]}"
                 self.rapidLine = data
                 return None
+            # create the pierce only gcode
             elif data[:3] == 'M03':
                 self.pierces += 1
                 self.gcodeList.append(f'(Pierce #{self.pierces})')
@@ -649,7 +738,7 @@ class Filter():
                 self.gcodeList.append('G90\nM05 $0')
                 self.rapidLine = ''
                 return None
-            if not self.pierces or data.startswith('o') or data.startswith('#'):
+            if not self.pierces or data.startswith('O') or data.startswith('#'):
                 self.gcodeList.append(data)
             return None
 
@@ -723,6 +812,14 @@ class Filter():
             self.codeWarn = True
             self.warnFeed.append([self.lineNum, rawFeed, self.currentMaterial[0], self.materialDict[self.currentMaterial[0]][0]])
             self.errorLines.append(self.lineNumOrg)
+        return data
+
+    def set_tube_cut(self, data):
+        self.tubeCut = True
+        self.zBypass = True
+        RUN(['halcmd', 'setp', 'plasmac.tube-cut', '1'])
+        self.lineNum += 3
+        data = f'\n;tube cutting is experimental\n{data}\n'
         return data
 
     def spindle_off(self, data):
@@ -999,8 +1096,11 @@ class Filter():
         cm = 1
         ca = 15
         cv = 100
+        if self.tubeCut:
+            ph = ch = fr = 0.0
         try:
-            if 'ph=' in data and 'pd=' in data and 'ch=' in data and 'fr=' in data:
+            if ('ph=' in data and 'pd=' in data and 'ch=' in data and 'fr=' in data) or \
+               ('pd=' in data and self.tubeCut):
                 if '(o=0' in data:
                     tmpMaterial = True
                     nu = self.tmpMatNum
@@ -1071,6 +1171,10 @@ class Filter():
                     self.set_code_error()
                     self.errorEditMat.append(self.lineNum)
                     self.errorLines.append(self.lineNumOrg)
+            else:
+                self.set_code_error()
+                self.errorTempParm.append(self.lineNum)
+                self.errorLines.append(self.lineNumOrg)
         except:
             self.set_code_error()
             self.errorTempValid.append(self.lineNum)
@@ -1234,6 +1338,9 @@ class Filter():
             if self.errorTempValid:
                 msg  = 'Invalid parameter in temporary material.\n'
                 errorText += self.message_set(self.errorTempValid, msg)
+            if self.errorTempParm:
+                msg  = 'Parameter missing from temporary material.\n'
+                errorText += self.message_set(self.errorTempParm, msg)
             if self.errorNewMat:
                 msg  = 'Cannot add new material, number is in use.\n'
                 errorText += self.message_set(self.errorNewMat, msg)
@@ -1252,6 +1359,9 @@ class Filter():
             if self.errorFirstMove:
                 msg  = 'M03 command detected before movement.\n'
                 errorText += self.message_set(self.errorFirstMove, msg)
+            if self.errorG92Offset:
+                msg  = 'G92 offsets are not allowed.\n'
+                errorText += self.message_set(self.errorG92Offset, msg)
         if self.codeWarn:
             if self.warnUnitsDep:
                 msg  = '<m_diameter> and #<i_diameter> are deprecated in favour of #<h_diameter>.\n'
@@ -1260,6 +1370,9 @@ class Filter():
             if self.warnPierceScribe:
                 msg  = 'Pierce only mode is invalid while scribing.\n'
                 warnText += self.message_set(self.warnPierceScribe, msg)
+            if self.warnPierceLimit:
+                msg  = 'Pierce limit checks require explicit X and Y values for G00 moves.\n'
+                warnText += self.message_set(self.warnPierceLimit, msg)
             if self.warnMatLoad:
                 msg  = 'Materials were not reloaded in a timely manner.\n'
                 msg  = 'Try reloading the G-Code file.\n'

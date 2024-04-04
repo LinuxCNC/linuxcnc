@@ -23,6 +23,21 @@ wait_for_pin() {
 linuxcnc motion-test.ini &
 linuxcncpid=$!
 
+# let linuxcnc come up
+TOGO=80
+while [  $TOGO -gt 0 ]; do
+    echo trying to connect to linuxcncrsh TOGO=$TOGO
+    if nc -z localhost 5007; then
+        break
+    fi
+    sleep 0.25
+    TOGO=$(($TOGO - 1))
+done
+if [  $TOGO -eq 0 ]; then
+    echo connection to linuxcncrsh timed out
+    exit 1
+fi
+
 wait_for_pin motion.in-position TRUE
 
 echo starting to capture data
@@ -33,16 +48,8 @@ samplerpid=$!
     echo hello EMC mt 1.0
     echo set enable EMCTOO
 
-    echo set mode manual
     echo set estop off
     echo set machine on
-
-    echo set home 0
-    echo set home 1
-    echo set home 2
-
-    # Wait for homing to complete
-    wait_for_pin motion.is-all-homed TRUE
 
     echo set mode mdi
     dist=1

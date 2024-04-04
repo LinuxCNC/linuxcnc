@@ -1,8 +1,8 @@
 '''
 line.py
 
-Copyright (C) 2020, 2021, 2022  Phillip A Carter
-Copyright (C) 2020, 2021, 2022  Gregory D Carl
+Copyright (C) 2020, 2021, 2022, 2023 Phillip A Carter
+Copyright (C) 2020, 2021, 2022, 2023 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -31,7 +31,7 @@ for f in sys.path:
         if '/usr' in f:
             localeDir = 'usr/share/locale'
         else:
-            localeDir = os.path.join('{}'.format(f.split('/lib')[0]),'share','locale')
+            localeDir = os.path.join(f'{f.split("/lib")[0]}','share','locale')
         break
 gettext.install("linuxcnc", localedir=localeDir)
 
@@ -42,27 +42,27 @@ def do_line_point_to_point(Conv, xStart, yStart, xEnd, yEnd):
     valid, xStart = Conv.conv_is_float(xStart)
     if not valid and xStart:
         msg0 = _('X START')
-        error += '{} {}\n\n'.format(msg0, msg1)
+        error += f'{msg0} {msg1}\n\n'
     valid, yStart = Conv.conv_is_float(yStart)
     if not valid and yStart:
         msg0 = _('Y START')
-        error += '{} {}\n\n'.format(msg0, msg1)
+        error += f'{msg0} {msg1}\n\n'
     valid, xEnd = Conv.conv_is_float(xEnd)
     if not valid and xEnd:
         msg0 = _('X END')
-        error += '{} {}\n\n'.format(msg0, msg1)
+        error += f'{msg0} {msg1}\n\n'
     valid, yEnd = Conv.conv_is_float(yEnd)
     if not valid and yEnd:
         msg0 = _('Y END')
-        error += '{} {}\n\n'.format(msg0, msg1)
+        error += f'{msg0} {msg1}\n\n'
     if error:
         return True, error
     if xEnd == xStart and yEnd == yStart:
         msg = _('Line length would be zero')
-        error += '{}\n\n'.format(msg)
+        error += f'{msg}\n\n'
     if error:
         return True, error
-    code = 'g1 x{:.6f} y{:.6f}\n'.format(float(xEnd), float(yEnd))
+    code = f'g1 x{float(xEnd):.6f} y{float(yEnd):.6f}\n'
     return False, xEnd, yEnd, code
 
 def do_line_by_angle(Conv, xStart, yStart, length, angle):
@@ -71,30 +71,30 @@ def do_line_by_angle(Conv, xStart, yStart, length, angle):
     valid, xStart = Conv.conv_is_float(xStart)
     if not valid and xStart:
         msg0 = _('X START')
-        error += '{} {}\n\n'.format(msg0, msg1)
+        error += f'{msg0} {msg1}\n\n'
     valid, yStart = Conv.conv_is_float(yStart)
     if not valid and yStart:
         msg0 = _('Y START')
-        error += '{} {}\n\n'.format(msg0, msg1)
+        error += f'{msg0} {msg1}\n\n'
     valid, length = Conv.conv_is_float(length)
     if not valid and length:
         msg0 = _('LENGTH')
-        error += '{} {}\n\n'.format(msg0, msg1)
+        error += f'{msg0} {msg1}\n\n'
     valid, angle = Conv.conv_is_float(angle)
     if not valid and angle:
         msg0 = _('ANGLE')
-        error += '{} {}\n\n'.format(msg0, msg1)
+        error += f'{msg0} {msg1}\n\n'
     if error:
         return True, error
     if length == 0:
         msg = _('LENGTH must be greater than zero')
-        error += '{}\n\n'.format(msg)
+        error += f'{msg}\n\n'
     if error:
         return True, error
     ang = math.radians(angle)
     x = xStart + (length * math.cos(ang))
     y = yStart + (length * math.sin(ang))
-    code = 'g1 x{:.6f} y{:.6f}\n'.format(x, y)
+    code = f'g1 x{x:.6f} y{y:.6f}\n'
     return False, x, y, code
 
 def do_arc_3_points(Conv, xStart, yStart, xNext, yNext, xEnd, yEnd):
@@ -103,38 +103,38 @@ def do_arc_3_points(Conv, xStart, yStart, xNext, yNext, xEnd, yEnd):
     valid, xStart = Conv.conv_is_float(xStart)
     if not valid and xStart:
         msg0 = _('X START')
-        error += '{} {}\n\n'.format(msg0, msg1)
+        error += f'{msg0} {msg1}\n\n'
     valid, yStart = Conv.conv_is_float(yStart)
     if not valid and yStart:
         msg0 = _('Y START')
-        error += '{} {}\n\n'.format(msg0, msg1)
+        error += f'{msg0} {msg1}\n\n'
     valid, xNext = Conv.conv_is_float(xNext)
     if not valid and xNext:
         msg0 = _('X NEXT')
-        error += '{} {}\n\n'.format(msg0, msg1)
+        error += f'{msg0} {msg1}\n\n'
     valid, yNext = Conv.conv_is_float(yNext)
     if not valid and yNext:
         msg0 = _('Y NEXT')
-        error += '{} {}\n\n'.format(msg0, msg1)
+        error += f'{msg0} {msg1}\n\n'
     valid, xEnd = Conv.conv_is_float(xEnd)
     if not valid and xEnd:
         msg0 = _('X END')
-        error += '{} {}\n\n'.format(msg0, msg1)
+        error += f'{msg0} {msg1}\n\n'
     valid, yEnd = Conv.conv_is_float(yEnd)
     if not valid and yEnd:
         msg0 = _('Y END')
-        error += '{} {}\n\n'.format(msg0, msg1)
+        error += f'{msg0} {msg1}\n\n'
     if error:
         return True, error
     if xNext == xEnd == xStart:
         msg = _('At least one X value must be different')
-        error += '{}\n\n'.format(msg)
+        error += f'{msg}\n\n'
     if yNext == yEnd == yStart:
         msg = _('At least one Y value must be different')
-        error += '{}\n\n'.format(msg)
+        error += f'{msg}\n\n'
     if xNext == yNext and xEnd == yEnd and xStart == yStart:
         msg = _('Cannot create a arc, check all entries')
-        error += '{}\n\n'.format(msg)
+        error += f'{msg}\n\n'
     if error:
         return True, error
     try:
@@ -155,13 +155,13 @@ def do_arc_3_points(Conv, xStart, yStart, xNext, yNext, xEnd, yEnd):
         if numpy.isnan(p[0] - xStart) or numpy.isnan(p[1] - yStart):
             msg0 = _('Unknown calculation error')
             msg1 = _('Ensure entries are correct')
-            error = '{},\n\n{}'.format(msg0, msg1)
+            error = f'{msg0},\n\n{msg1}'
             return True, error
-        code = 'g{} x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(G, xEnd, yEnd, p[0] - xStart, p[1] - yStart)
+        code = f'g{G} x{xEnd:.6f} y{yEnd:.6f} i{p[0] - xStart:.6f} j{p[1] - yStart:.6f}\n'
         return False, xEnd, yEnd, code
     except Exception as e:
         msg = _('SYSTEM ERROR')
-        error = '{}:\n\n{}'.format(msg, e)
+        error = f'{msg}:\n\n{e}'
         return True, e
 
 def do_arc_2_points_radius(Conv, xStart, yStart, xEnd, yEnd, radius, arcType):
@@ -170,31 +170,31 @@ def do_arc_2_points_radius(Conv, xStart, yStart, xEnd, yEnd, radius, arcType):
     valid, xStart = Conv.conv_is_float(xStart)
     if not valid and xStart:
         msg0 = _('X START')
-        error += '{} {}\n\n'.format(msg0, msg1)
+        error += f'{msg0} {msg1}\n\n'
     valid, yStart = Conv.conv_is_float(yStart)
     if not valid and yStart:
         msg0 = _('Y START')
-        error += '{} {}\n\n'.format(msg0, msg1)
+        error += f'{msg0} {msg1}\n\n'
     valid, xEnd = Conv.conv_is_float(xEnd)
     if not valid and xEnd:
         msg0 = _('X END')
-        error += '{} {}\n\n'.format(msg0, msg1)
+        error += f'{msg0} {msg1}\n\n'
     valid, yEnd = Conv.conv_is_float(yEnd)
     if not valid and yEnd:
         msg0 = _('Y END')
-        error += '{} {}\n\n'.format(msg0, msg1)
+        error += f'{msg0} {msg1}\n\n'
     valid, radius = Conv.conv_is_float(radius)
     if not valid and radius:
         msg0 = _('RADIUS')
-        error += '{} {}\n\n'.format(msg0, msg1)
+        error += f'{msg0} {msg1}\n\n'
     if error:
         return True, error
     if radius == 0:
         msg = _('RADIUS cannot be zero')
-        error += '{}\n\n'.format(msg)
+        error += f'{msg}\n\n'
     if xEnd == xStart and yEnd == yStart:
         msg = _('Arc length would be zero')
-        error += '{}\n\n'.format(msg)
+        error += f'{msg}\n\n'
     if error:
         return True, error
     try:
@@ -208,11 +208,11 @@ def do_arc_2_points_radius(Conv, xStart, yStart, xEnd, yEnd, radius, arcType):
         yLineCentre = (yStart + yEnd) / 2
         xArcCentre = xLineCentre + length * math.cos(angle + dir)
         yArcCentre = yLineCentre + length * math.sin(angle + dir)
-        code = ('g{} x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(arcType, xEnd, yEnd, xArcCentre - xStart, yArcCentre - yStart))
+        code = (f'g{arcType} x{xEnd:.6f} y{yEnd:.6f} i{xArcCentre - xStart:.6f} j{yArcCentre - yStart:.6f}\n')
         return False, xEnd, yEnd, code
     except Exception as e:
         msg = _('SYSTEM ERROR')
-        error = '{}:\n\n{}'.format(msg, e)
+        error = f'{msg}:\n\n{e}'
         return True, e
 
 def do_arc_by_angle_radius(Conv, xStart, yStart, length, angle, radius, arcType):
@@ -221,31 +221,31 @@ def do_arc_by_angle_radius(Conv, xStart, yStart, length, angle, radius, arcType)
     valid, xStart = Conv.conv_is_float(xStart)
     if not valid and xStart:
         msg0 = _('X START')
-        error += '{} {}\n\n'.format(msg0, msg1)
+        error += f'{msg0} {msg1}\n\n'
     valid, yStart = Conv.conv_is_float(yStart)
     if not valid and yStart:
         msg0 = _('Y START')
-        error += '{} {}\n\n'.format(msg0, msg1)
+        error += f'{msg0} {msg1}\n\n'
     valid, length = Conv.conv_is_float(length)
     if not valid and length:
         msg0 = _('LENGTH')
-        error += '{} {}\n\n'.format(msg0, msg1)
+        error += f'{msg0} {msg1}\n\n'
     valid, angle = Conv.conv_is_float(angle)
     if not valid and angle:
         msg0 = _('ANGLE')
-        error += '{} {}\n\n'.format(msg0, msg1)
+        error += f'{msg0} {msg1}\n\n'
     valid, radius = Conv.conv_is_float(radius)
     if not valid and radius:
         msg0 = _('RADIUS')
-        error += '{} {}\n\n'.format(msg0, msg1)
+        error += f'{msg0} {msg1}\n\n'
     if error:
         return True, error
     if radius == 0:
         msg = _('RADIUS cannot be zero')
-        error += '{}\n\n'.format(msg)
+        error += f'{msg}\n\n'
     if length == 0:
         msg = _('LENGTH cannot be zero')
-        error += '{}\n\n'.format(msg)
+        error += f'{msg}\n\n'
     if error:
         return True, error
     ang = math.radians(angle)
@@ -263,9 +263,9 @@ def first_segment(fTmp, fNgc, fNgcBkp, preAmble, lineType, xStart, yStart, matNu
                         if('\\n') in preAmble:
                             outNgc.write('(preamble)\n')
                             for l in preAmble.split('\\n'):
-                                outNgc.write('{}\n'.format(l))
+                                outNgc.write(f'{l}\n')
                         else:
-                            outNgc.write('\n{} (preamble)\n'.format(preAmble))
+                            outNgc.write(f'\n{preAmble} (preamble)\n')
                         break
                     elif '(postamble)' in line:
                         break
@@ -273,11 +273,11 @@ def first_segment(fTmp, fNgc, fNgcBkp, preAmble, lineType, xStart, yStart, matNu
                         continue
                     outNgc.write(line)
         outTmp.write('\n(conversational line/arc)\n')
-        outTmp.write(';using material #{}: {}\n'.format(matNumber, matName))
-        outTmp.write('M190 P{}\n'.format(matNumber))
+        outTmp.write(f';using material #{matNumber}: {matName}\n')
+        outTmp.write(f'M190 P{matNumber}\n')
         outTmp.write('M66 P3 L3 Q1\n')
         outTmp.write('f#<_hal[plasmac.cut-feed-rate]>\n')
-        outTmp.write('g0 x{:.6f} y{:.6f}\n'.format(xStart, yStart))
+        outTmp.write(f'g0 x{xStart:.6f} y{yStart:.6f}\n')
         outTmp.write('m3 $0 s1\n')
 
 def next_segment(fTmp, fNgc):
@@ -303,7 +303,7 @@ def last_segment(fTmp, fNgc, code, postAmble):
         if('\\n') in postAmble:
             outNgc.write('(postamble)\n')
             for l in postAmble.split('\\n'):
-                outNgc.write('{}\n'.format(l))
+                outNgc.write(f'{l}\n')
         else:
-            outNgc.write('\n{} (postamble)\n'.format(postAmble))
+            outNgc.write(f'\n{postAmble} (postamble)\n')
         outNgc.write('m2\n')
