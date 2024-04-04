@@ -2,15 +2,15 @@
 # Hans U. <hansunzner@gmail.com>, 2022.
 # Michael Stellmacher <michaelst78@gmail.com>, 2022.
 # mk00002 <codo1983@gmail.com>, 2022.
-# Hans Unzner <hansunzner@gmail.com>, 2022.
+# Hans Unzner <hansunzner@gmail.com>, 2022, 2024.
 # Ettore Atalan <atalanttore@googlemail.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-07-04 21:28+0200\n"
-"PO-Revision-Date: 2024-02-13 06:30+0000\n"
-"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
+"PO-Revision-Date: 2024-04-03 19:14+0000\n"
+"Last-Translator: Hans Unzner <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
 "Language: de\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.4-dev\n"
+"X-Generator: Weblate 5.5-dev\n"
 
 #: src/emc/task/emctaskmain.cc:869
 #, c-format
@@ -1114,7 +1114,7 @@ msgstr "%d: kein zugehöriges Label: '%s' (gefunden '%s' in Zeile %d)"
 #: src/emc/rs274ngc/interp_namedparams.cc:185
 #, c-format
 msgid "Named parameter #<%s> not defined"
-msgstr "Benamter Parameter #<%s> nicht definiert"
+msgstr "Benannter Parameter #<%s> nicht definiert"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:215
 #, fuzzy, c-format
@@ -1122,10 +1122,10 @@ msgid "can't open INI file '%s'"
 msgstr "INI-Datei '%s' kann nicht geöffnet werden"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:232
-#, fuzzy, c-format
+#, c-format
 msgid "Named INI parameter #<%s> not found in INI file '%s': error=0x%x"
 msgstr ""
-"Benamter ini Parameter #<%s> nicht gefunden in inifile '%s': Fehler=0x%x"
+"Benannter INI-Parameter #<%s> nicht gefunden in INI-Datei '%s': Fehler=0x%x"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:257
 #, c-format
@@ -1300,8 +1300,8 @@ msgstr "Unbekannter Befehl"
 #: src/emc/rs274ngc/rs274ngc_return.hh:51
 msgid "Cannot change axis offsets with cutter radius comp"
 msgstr ""
-"Der Versatz einer Achse kann nicht geändert werden, wenn "
-"Werkzeugbahnkorrektur aktiv ist"
+"Der Versatz einer Achse kann nicht geändert werden bei aktiver "
+"Werkzeugradiuskorrektur"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:52
 msgid "Cannot create backup file"
@@ -2525,9 +2525,9 @@ msgstr ""
 "um mehr Kanäle zu ermöglichen"
 
 #: src/hal/utils/scope_vert.c:912
-#, fuzzy, c-format
+#, c-format
 msgid "Select Channel %d Source"
-msgstr "Kanal-Quelle auswählen"
+msgstr "Quelle für Kanal %d auswählen"
 
 #: src/hal/utils/scope_vert.c:935
 msgid "Pins"
@@ -3519,7 +3519,7 @@ msgstr "Arbeitszyklus-Aktualisierungsrate (ms)"
 #: src/hal/classicladder/config_gtk.c:127
 #, fuzzy, c-format
 msgid "Number of rungs (%d%c used)"
-msgstr "Anzahl an Arbeitszyklen (%d%c genutzt)      "
+msgstr "Anzahl an Arbeitszyklen (%d%c genutzt)"
 
 #: src/hal/classicladder/config_gtk.c:131
 #, fuzzy, c-format
@@ -3537,24 +3537,24 @@ msgid "Number of Counters"
 msgstr "Anzahl der Arbeitszyklen"
 
 #: src/hal/classicladder/config_gtk.c:143
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Timers IEC"
-msgstr "Anzahl IEC Timer            "
+msgstr "Anzahl IEC-Timer"
 
 #: src/hal/classicladder/config_gtk.c:147
-#, fuzzy, c-format
+#, c-format
 msgid "Number of BIT Inputs HAL pins"
-msgstr "Anzahl BIT Eingänge HAL Pins           "
+msgstr "Anzahl BIT-Eingänge HAL-Pins"
 
 #: src/hal/classicladder/config_gtk.c:151
-#, fuzzy, c-format
+#, c-format
 msgid "Number of BIT Outputs HAL pins"
-msgstr "Anzahl BIT Ausgänge HAL Pins          "
+msgstr "Anzahl BIT-Ausgänge HAL-Pins"
 
 #: src/hal/classicladder/config_gtk.c:155
-#, fuzzy, c-format
+#, c-format
 msgid "Number of S32in HAL pins"
-msgstr "Anzahl S32in HAL Pins             "
+msgstr "Anzahl S32in HAL-Pins"
 
 #: src/hal/classicladder/config_gtk.c:159
 #, fuzzy, c-format
@@ -3602,9 +3602,9 @@ msgid "Number of floatout HAL pins"
 msgstr "Anzahl floatout HAL Pins            "
 
 #: src/hal/classicladder/config_gtk.c:200
-#, fuzzy, c-format
+#, c-format
 msgid "Current path/filename:"
-msgstr "Aktueller Pfad/Dateiname"
+msgstr "Aktueller Pfad/Dateiname:"
 
 #: src/hal/classicladder/config_gtk.c:327
 #, fuzzy
@@ -3876,9 +3876,8 @@ msgid "!!!Abnormal current type=%d in rung...(file %s,line %d)\n"
 msgstr "!!!Abnormal current type=%d in rung...(file %s,line %d)\n"
 
 #: src/hal/classicladder/edit.c:1250
-#, fuzzy
 msgid "No more free function block of this type available..."
-msgstr "Kein weiterer freier Funktionsblock verfügbar...bitte löschen!"
+msgstr "Kein weiterer freier Funktionsblock dieses Typs verfügbar.."
 
 #: src/hal/classicladder/edit.c:1262
 msgid "No more free arithmetic expression for this type available..."
@@ -4115,8 +4114,7 @@ msgstr ""
 #: src/hal/classicladder/edit_sequential.c:846
 #, fuzzy
 msgid "You haven't selected a step or a transition to link!!!"
-msgstr ""
-"Sollen nicht ausgewählte erste und letzte Transitionen verbunden werden !!??"
+msgstr "Sie haben keinen Schritt oder Übergang zum Verbinden ausgewählt!!!"
 
 #: src/hal/classicladder/edit_sequential.c:850
 #, c-format
@@ -4501,9 +4499,9 @@ msgid "ERROR CLASSICLADDER-   MODBUS-LOW LEVEL ERROR IN RESPONSE!!!\n"
 msgstr "FEHLER CLASSICLADDER-   MODBUS-LOW LEVEL ERROR IN RESPONSE!!!\n"
 
 #: src/hal/classicladder/serial_linux.c:140
-#, fuzzy, c-format
+#, c-format
 msgid "Serial speed value %d not found for serial\n"
-msgstr "Geschwindigkeits-Angabe nicht gefunden für seriell\n"
+msgstr "Serieller Geschwindigkeitswert %d nicht gefunden für serial\n"
 
 #: src/hal/classicladder/serial_linux.c:145
 #, c-format
@@ -6911,9 +6909,8 @@ msgid "directory: <%s> not writable"
 msgstr "Verzeichnis: <%s> nicht schreibbar"
 
 #: tcl/tooledit.tcl:287
-#, fuzzy
 msgid "Current file:"
-msgstr "in der aktuellen Unterdatei"
+msgstr "Aktuelle Datei:"
 
 #: tcl/tooledit.tcl:291
 #, fuzzy
@@ -7669,7 +7666,7 @@ msgstr "Laufzeit:"
 #: src/emc/usr_intf/axis/scripts/axis.py:1819
 #, fuzzy
 msgid "Tool Change List:"
-msgstr "Werkzeugwechsel"
+msgstr "Liste der Werkzeugwechsel:"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1820
 msgid "X bounds:"
@@ -10435,7 +10432,7 @@ msgid ""
 "for this program."
 msgstr ""
 "Für dieses Programm muss ein Notaus-Eingang auf der Seite zur Konfiguration "
-"der parallelen Schnitstelle festgelegt wein."
+"der parallelen Schnittstelle festgelegt werden."
 
 #: src/emc/usr_intf/stepconf/stepconf.py:269
 msgid ""
@@ -10670,7 +10667,7 @@ msgstr "# Erstellt von stepconf 1.1 am %s"
 #: src/emc/usr_intf/pncconf/build_INI.py:19
 #: src/emc/usr_intf/pncconf/build_HAL.py:55
 msgid "# If you make changes to this file, they will be"
-msgstr "# Änderungen an dieser Datei werden beim nächsten"
+msgstr "# Änderungen an dieser Datei werden"
 
 #: src/emc/usr_intf/stepconf/build_INI.py:56
 #: src/emc/usr_intf/stepconf/build_HAL.py:46
@@ -11000,7 +10997,6 @@ msgid "Back"
 msgstr "Zurück"
 
 #: src/emc/usr_intf/stepconf/main_page.glade:642
-#, fuzzy
 msgid ""
 "This program creates configuration files (INI and HAL) for \"step and "
 "direction\" milling machines and lathes connected to the PC parallel port.\n"
@@ -11011,7 +11007,7 @@ msgstr ""
 "Drehmaschinen mit »Schritt- und Richtung«-Schnittstelle, die über den "
 "Druckeranschluss mit dem PC verbunden sind.\n"
 "\n"
-"Stepconf benötigt eine Bildschirmauflösung von wenigstens 800 x 600 Punkten."
+"Stepconf benötigt eine Bildschirmauflösung von wenigstens 800 x 600 Pixel."
 
 #: src/emc/usr_intf/stepconf/main_page.glade:675
 msgid "Page 1"
@@ -11150,13 +11146,13 @@ msgstr "Importieren einer Mach-Datei"
 
 #: src/emc/usr_intf/stepconf/start.glade:73
 msgid "Create a desktop _shortcut (symlink) to configuration files."
-msgstr "Verknüpfung zu den _Konfigurationsdateien auf dem Desktop erstellen."
+msgstr "Verknüpfung zu den _Konfigurationsdateien auf dem Desktop erstellen"
 
 #: src/emc/usr_intf/stepconf/start.glade:89
 msgid "Create a desktop _launcher to start LinuxCNC with this configuration."
 msgstr ""
 "Verknüpfung zum _Starten vom LinuxCNC mit dieser Konfiguration auf dem "
-"Desktop erstellen."
+"Desktop erstellen"
 
 #: src/emc/usr_intf/stepconf/start.glade:105
 msgid "Create simulated hardware configuration."
@@ -12119,6 +12115,14 @@ msgid ""
 "doesn't require firmware to be loaded at run time.\n"
 "Discovery option requires the advanced options checked on this page."
 msgstr ""
+"Einige ältere Karten benötigen Firmware.\n"
+"Sie haben keine hostmot2 Firmware im Ordner %s heruntergeladen.\n"
+"PNCconf wird seine internen Firmware-Datenbeispiele verwenden, damit Sie "
+"fortfahren können.\n"
+"Sie könnten auch die Discovery-Option versuchen, wenn Ihre Karte verbunden "
+"ist und keine Firmware benötigt zur Laufzeit.\n"
+"Die Discovery-Option erfordert die Aktivierung der erweiterten Optionen auf "
+"dieser Seite."
 
 #: src/emc/usr_intf/pncconf/pncconf.py:948
 msgid "LinuxCNC 'PNCconf' configuration files"
@@ -12539,7 +12543,7 @@ msgstr "# Verwendete LinuxCNC version:  %s"
 #: src/emc/usr_intf/pncconf/build_INI.py:20
 #: src/emc/usr_intf/pncconf/build_HAL.py:56
 msgid "# overwritten when you run PNCconf again"
-msgstr "# wird überschrieben sobald Sie PNCconf erneut ausführen"
+msgstr "# überschrieben sobald Sie PNCconf erneut ausführen"
 
 #: src/emc/usr_intf/pncconf/build_INI.py:184
 msgid "# **** This is for info only ****"
@@ -14906,7 +14910,6 @@ msgstr ""
 "Speichern"
 
 #: src/emc/usr_intf/pncconf/main_page.glade:286
-#, fuzzy
 msgid ""
 "This program creates configuration files (INI and HAL) for milling machines "
 "and lathes connected to a Mesa Card.\n"
@@ -14918,7 +14921,7 @@ msgstr ""
 "Dieses Programm erzeugt Konfigurationsdateien (.ini und .hal) zur "
 "Ansteuerung von Fräs- und Drehmaschinen mit Mesa-Karten.\n"
 "\n"
-"Es ist empfohlen, zunächst mit den grundlegenden Optionen für die Achsen zu "
+"Es wird empfohlen zunächst mit den grundlegenden Optionen für die Achsen zu "
 "beginnen, und nachdem diese funktionieren, weitere Optionen hinzuzufügen wie "
 "Steuerung der Spindel oder erweiterte End-/Referenzschalter."
 
@@ -15288,8 +15291,8 @@ msgid ""
 "Accept  components\n"
 "          Changes"
 msgstr ""
-"Acceptiere  Komponenten\n"
-"          Änderungen"
+"Komponentenänderungen\n"
+"anwenden"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:407
 #: src/emc/usr_intf/pncconf/mesa1.glade:407
@@ -16668,11 +16671,11 @@ msgstr "Verknüpfung zu den Konfigurationsdateien auf dem Desktop erstellen."
 
 #: src/emc/usr_intf/pncconf/start.glade:129
 msgid "Show Advanced Option Pages"
-msgstr "Zeige Erweiterte Optionen"
+msgstr "Erweiterte Optionen anzeigen"
 
 #: src/emc/usr_intf/pncconf/start.glade:158
 msgid "Use INI substitution for Mesa board names."
-msgstr "Nutze INI Substitution für Mesa Board Namen."
+msgstr "INI-Substitution für Mesa Boardnamen nutzen"
 
 #: src/emc/usr_intf/pncconf/external.glade:157
 msgid "9600"
@@ -17157,7 +17160,7 @@ msgstr "<b>I/O Steuerungs-Ports/-Boards</b>"
 
 #: src/emc/usr_intf/pncconf/base.glade:646
 msgid "Force individual manual homing"
-msgstr "Erzwinge individuelle manuelle Referenzfahrt"
+msgstr "Individuelle manuelle Referenzfahrt erzwingen"
 
 #: src/emc/usr_intf/pncconf/base.glade:660
 msgid "Random position toolchanger "
@@ -17173,15 +17176,15 @@ msgstr "Aufforderung zum manuellen Werkzeugwechsel"
 
 #: src/emc/usr_intf/pncconf/base.glade:703
 msgid "Leave spindle on during tool change"
-msgstr "Lasse Spindel weiterlaufen während des Werkzeugwechsels"
+msgstr "Spindel weiterlaufen lassen während des Werkzeugwechsels"
 
 #: src/emc/usr_intf/pncconf/base.glade:717
 msgid "Move spindle up before tool change"
-msgstr "Fahre Spindel nach oben vor Werkzeugwechsel"
+msgstr "Spindel nach oben fahren vor Werkzeugwechsel"
 
 #: src/emc/usr_intf/pncconf/base.glade:731
 msgid "Restore joint position after shutdown"
-msgstr "Wiederherstellen von Gelenk-/Achsenposition nach dem Ausschalten"
+msgstr "Gelenk-/Achsenposition nach dem Ausschalten wiederherstellen"
 
 #: src/emc/usr_intf/pncconf/base.glade:751
 msgid "<b>Defaults and Options</b>"
@@ -17193,7 +17196,7 @@ msgstr "QtDragon"
 
 #: src/emc/usr_intf/pncconf/screen.glade:230
 msgid "<b>GUI Screen list</b>"
-msgstr "<b>GUI Bildschirm Liste</b>"
+msgstr "<b>GUI (Benutzeroberfläche) Auswahl</b>"
 
 #: src/emc/usr_intf/pncconf/screen.glade:398
 msgid "Position_offset"
@@ -17361,7 +17364,7 @@ msgstr "Standardwerte für Touchy"
 
 #: src/emc/usr_intf/pncconf/screen.glade:2767
 msgid "Force Gmoccapy to Maximize after positioning"
-msgstr "GMOCCAPY nach der Positionierung zu Maximierung zwingen"
+msgstr "GMOCCAPY nach der Positionierung zu maximieren"
 
 #: src/emc/usr_intf/pncconf/screen.glade:3233
 msgid "Gmoccapy Defaults"
@@ -17409,7 +17412,7 @@ msgstr "Mittig eingebunden"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:723
 msgid "Force Maximize"
-msgstr "Erzwinge Maximierung"
+msgstr "Maximierung erzwingen"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:774
 msgid "Display Options"
@@ -17879,7 +17882,7 @@ msgstr "6 Ausgaben statt 3 "
 #: src/emc/usr_intf/pncconf/a_motor.glade:1234
 #: src/emc/usr_intf/pncconf/s_motor.glade:1441
 msgid "Force Trapezoid Mode"
-msgstr "Erzwinge Trapezoid Modus"
+msgstr "Trapezoid Modus erzwingen"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1307
 #: src/emc/usr_intf/pncconf/y_motor.glade:1301
@@ -18879,9 +18882,8 @@ msgid "There was a problem initializing the notification module"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:133
-#, fuzzy
 msgid "Audio alerts are available!"
-msgstr "Pin-Namen sind nicht verfügbar\n"
+msgstr "Audio-Meldungen verfügbar!"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:136
 msgid ""
@@ -18973,22 +18975,16 @@ msgid "With main screen xml file: {}"
 msgstr "**** Gscreen GLADE ERROR:    Mit main screen xml Datei: %s"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:581
-#, fuzzy
 msgid "Screen 2 - Using custom glade file from {}"
-msgstr ""
-"\n"
-"**** GSCREEN INFO:  Screen 2 -Nutze CUSTOM glade Datei von %s ****"
+msgstr "Screen 2 - Nutze CUSTOM glade-Datei von {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:587
 msgid "Error with screen 2's xml file: {}"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:589
-#, fuzzy
 msgid "No Screen 2 glade file present"
-msgstr ""
-"\n"
-"**** GSCREEN INFO:  Keine Screen 2 glade Datei präsent"
+msgstr "Keine Screen 2 glade Datei präsent"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:600
 msgid "Audio test failed - Is gstreamer0.10-plugins-base installed?"
@@ -19004,11 +19000,8 @@ msgid "No UNITS entry found in [TRAJ] or [AXIS_X] of INI file"
 msgstr "Kein UNITS Eintrag gefunden in [TRAJ] oder [AXIS_X] der INI Datei"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:646
-#, fuzzy
 msgid "Asking for a HAL component using a name that already exists"
-msgstr ""
-"*** Gscreen FEHLER:    Frage nach HAL Komponente mit einem Name der bereits "
-"existiert."
+msgstr "Frage nach einer HAL-Komponente mit einem Namen der bereits existiert"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:661
 msgid "Handler file path: {}"
@@ -19297,11 +19290,10 @@ msgstr "Manuelle Spindelsteuerung"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3149
 #: src/emc/usr_intf/gscreen/gscreen.py:3150
-#, fuzzy
 msgid "Error with launching on-screen keyboard program - cannot find program"
 msgstr ""
 "Fehler beim Start des Programms für die Bildschirmtastatur - kann das "
-"Programm nicht finden."
+"Programm nicht finden"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3160
 msgid "Keyboard"
@@ -19521,9 +19513,8 @@ msgid " mm "
 msgstr " mm "
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4789
-#, fuzzy
 msgid "Postgui filename: {}"
-msgstr "Dateiname:"
+msgstr "Post-GUI-Dateiname: {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:38
 msgid "S 1000"
@@ -19658,9 +19649,8 @@ msgid "G-code"
 msgstr "G-code"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1869
-#, fuzzy
 msgid "<b>Active Codes</b>"
-msgstr "Aktive G-Codes"
+msgstr "<b>Aktive G-Codes</b>"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1925
 msgid "MV:100%"
