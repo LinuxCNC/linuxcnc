@@ -9,8 +9,8 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-07-04 21:28+0200\n"
-"PO-Revision-Date: 2024-04-03 19:14+0000\n"
-"Last-Translator: Hans Unzner <hansunzner@gmail.com>\n"
+"PO-Revision-Date: 2024-04-04 06:54+0000\n"
+"Last-Translator: Steffen Möller <steffen_moeller@gmx.de>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
 "Language: de\n"
@@ -246,14 +246,13 @@ msgstr ""
 #: src/emc/rs274ngc/interp_convert.cc:394
 #, fuzzy
 msgid "You must specify both X and Z coordinates for Control Points"
-msgstr "NURBS: Stützpunkte müssen mit X und Y Koordinate angegeben werden"
+msgstr "Stützpunkte müssen mit X und Y Koordinate angegeben werden"
 
 #: src/emc/rs274ngc/interp_convert.cc:216
 #, fuzzy
 msgid "Can specify P without X and Z only for the first control point"
 msgstr ""
-"NURBS: P kann nur für den ersten Stützpunkt ohne X und Y Koordinate "
-"angegeben werden"
+"P kann nur für den ersten Stützpunkt ohne X und Y Koordinate angegeben werden"
 
 #: src/emc/rs274ngc/interp_convert.cc:222
 msgid "Must specify positive weight P for every Control Point"
@@ -1117,7 +1116,7 @@ msgid "Named parameter #<%s> not defined"
 msgstr "Benannter Parameter #<%s> nicht definiert"
 
 #: src/emc/rs274ngc/interp_namedparams.cc:215
-#, fuzzy, c-format
+#, c-format
 msgid "can't open INI file '%s'"
 msgstr "INI-Datei '%s' kann nicht geöffnet werden"
 
@@ -3557,9 +3556,9 @@ msgid "Number of S32in HAL pins"
 msgstr "Anzahl S32in HAL-Pins"
 
 #: src/hal/classicladder/config_gtk.c:159
-#, fuzzy, c-format
+#, c-format
 msgid "Number of S32out HAL pins"
-msgstr "Anzahl S32out HAL Pins            "
+msgstr "Anzahl S32out HAL Pins"
 
 #: src/hal/classicladder/config_gtk.c:164
 #, fuzzy, c-format
@@ -3567,9 +3566,9 @@ msgid "Number of Arithmetic Expressions"
 msgstr "Anzahl arithmetischer Ausdrücke"
 
 #: src/hal/classicladder/config_gtk.c:169
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Sections (%d%c used)"
-msgstr "Anzahl Abschnitte (%d%c genutzt)   "
+msgstr "Anzahl Abschnitte (%d%c genutzt)"
 
 #: src/hal/classicladder/config_gtk.c:174
 #, fuzzy, c-format
@@ -3582,24 +3581,24 @@ msgid "Number of Timers"
 msgstr "Anzahl der Arbeitszyklen"
 
 #: src/hal/classicladder/config_gtk.c:183
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Monostables"
-msgstr "Anzahl monostabile            "
+msgstr "Anzahl monostabiler Kippstufen"
 
 #: src/hal/classicladder/config_gtk.c:188
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Error Bits"
-msgstr "Anzahl Fehlerbits                  "
+msgstr "Anzahl Fehlerbits"
 
 #: src/hal/classicladder/config_gtk.c:192
-#, fuzzy, c-format
+#, c-format
 msgid "Number of floatin HAL pins"
-msgstr "Anzahl floatin HAL Pins             "
+msgstr "Anzahl floatin HAL Pins"
 
 #: src/hal/classicladder/config_gtk.c:196
-#, fuzzy, c-format
+#, c-format
 msgid "Number of floatout HAL pins"
-msgstr "Anzahl floatout HAL Pins            "
+msgstr "Anzahl floatout HAL Pins"
 
 #: src/hal/classicladder/config_gtk.c:200
 #, c-format
@@ -3853,7 +3852,7 @@ msgstr "Inkompatibler Variablentyp (muss ganzzahlig sein)"
 
 #: src/hal/classicladder/edit.c:485
 msgid "Parser error for indexed variable !"
-msgstr ""
+msgstr "Parser meldet Fehler für indizierte Variable!"
 
 #: src/hal/classicladder/edit.c:491
 msgid "You must select a boolean variable !"
@@ -3881,7 +3880,7 @@ msgstr "Kein weiterer freier Funktionsblock dieses Typs verfügbar.."
 
 #: src/hal/classicladder/edit.c:1262
 msgid "No more free arithmetic expression for this type available..."
-msgstr ""
+msgstr "Kein weiterer arithmetischer Ausdruck für diesen Typ verfügbar..."
 
 #: src/hal/classicladder/edit.c:1425
 msgid "You clicked outside of the current rung actually selected..."
@@ -3990,12 +3989,16 @@ msgid ""
 "There is already a step to deactivate for this transition (clicked on top "
 "part)..."
 msgstr ""
+"Es gibt bereits einen Schritt um diese Transition zu deaktivieren (wurde "
+"bereits auf oberen Teil geklickt)..."
 
 #: src/hal/classicladder/edit_sequential.c:418
 msgid ""
 "There is already a step to activate for this transition (clicked on bottom "
 "part)..."
 msgstr ""
+"Es gibt bereits einen Schritt um diese Transition zu aktivieren (wurde "
+"bereits auf unteren Teil geklickt)..."
 
 #: src/hal/classicladder/edit_sequential.c:433
 msgid "Not selected first and last transitions to be joined !!??"
@@ -4105,11 +4108,11 @@ msgstr "Nun wähle die Transition aus."
 
 #: src/hal/classicladder/edit_sequential.c:844
 msgid "Now select the step that will be deactivated by this transition."
-msgstr ""
+msgstr "Nun wähle den Schritt, der durch diese Transition deaktiviert wird."
 
 #: src/hal/classicladder/edit_sequential.c:844
 msgid "Now select the step that will be activated by this transition."
-msgstr ""
+msgstr "Nun wähle den Schritt, der durch diese Transition aktiviert wird."
 
 #: src/hal/classicladder/edit_sequential.c:846
 #, fuzzy
@@ -4556,16 +4559,16 @@ msgstr ""
 "fehlgeschlagen...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:128
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "INFO CLASSICLADDER---I/O Modbus master Data bits %i Stop bits %i Parity %i\n"
 msgstr ""
-"INFO CLASSICLADDER---I/O modbus master Daten Bits %i Stop Bits %i Parity %i\n"
+"INFO CLASSICLADDER---I/O Modbus master Daten Bits %i Stop Bits %i Parity %i\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:131
-#, fuzzy, c-format
+#, c-format
 msgid "INFO CLASSICLADDER---I/O Modbus master (%s) init ok !\n"
-msgstr "INFO CLASSICLADDER---I/O modbus master (%s) init ok !\n"
+msgstr "INFO CLASSICLADDER---I/O Modbus Master (%s) init ok !\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:131
 msgid "Serial"
@@ -4594,9 +4597,9 @@ msgid "Connecting I/O module...\n"
 msgstr "Verbinde I/O Modul...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:229
-#, fuzzy, c-format
+#, c-format
 msgid "Not able to retrieve IP address in Modbus table, huhh?!!!\n"
-msgstr "Konnte IP Addresse in modbus Tabelle nicht finden, huhh?!!!\n"
+msgstr "Konnte IP Addresse in Modbus Tabelle nicht finden, huhh?!!!\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:234
 #, c-format
@@ -4623,9 +4626,9 @@ msgid "INFO CLASSICLADDER-   waiting for slave response...\n"
 msgstr "INFO CLASSICLADDER-   warte auf Antwort von slave...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:320
-#, fuzzy, c-format
+#, c-format
 msgid "INFO CLASSICLADDER---I/O Modbus master closed!\n"
-msgstr "INFO CLASSICLADDER---I/O modbus master closed!\n"
+msgstr "INFO CLASSICLADDER---I/O Modbus Master geschlossen (engl. closed)!\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:375
 #, c-format
@@ -4711,10 +4714,9 @@ msgid "Bit Status Window"
 msgstr "Bit Status Fenster"
 
 #: src/hal/classicladder/spy_vars_gtk.c:222
-#, fuzzy
 msgid "Offset for vars displayed below (press return to apply)"
 msgstr ""
-"Versatz für unten angzeigte Variablen (Drücke return um diesen zu setzen)"
+"Versatz für unten angzeigte Variablen (Drücke return um diesen zu anzuwenden)"
 
 #: src/hal/classicladder/spy_vars_gtk.c:522
 msgid "Watch Window"
@@ -6879,19 +6881,16 @@ msgid "NEW"
 msgstr "NEU"
 
 #: tcl/tooledit.tcl:232
-#, fuzzy
 msgid "Problem"
-msgstr "Sensor"
+msgstr "Problem"
 
 #: tcl/tooledit.tcl:233
-#, fuzzy
 msgid "Bad Entry"
-msgstr "Dateneingabe"
+msgstr "Schlechte Eingabe"
 
 #: tcl/tooledit.tcl:234
-#, fuzzy
 msgid "(must be a number)"
-msgstr "%s muss eine Zahl sein"
+msgstr "(muss eine Zahl sein)"
 
 #: tcl/tooledit.tcl:242
 #, tcl-format
@@ -6913,9 +6912,8 @@ msgid "Current file:"
 msgstr "Aktuelle Datei:"
 
 #: tcl/tooledit.tcl:291
-#, fuzzy
 msgid "Tooledit already running"
-msgstr "Projekt geladen und in Betrieb"
+msgstr "Werkzeug-Editierung läuft bereits"
 
 #: tcl/tooledit.tcl:335
 #, tcl-format
@@ -7135,9 +7133,9 @@ msgid "%s: Using: %s"
 msgstr "%s: Benutzt: %s"
 
 #: tcl/tooledit.tcl:1039
-#, fuzzy, tcl-format
+#, tcl-format
 msgid "%s"
-msgstr "s"
+msgstr "%s"
 
 #: tcl/tooledit.tcl:1040
 #, tcl-format
@@ -7147,9 +7145,8 @@ msgid ""
 msgstr ""
 
 #: tcl/tooledit.tcl:1043
-#, fuzzy
 msgid "Axis is Running"
-msgstr "Achse reagiert nicht"
+msgstr "AXIS läuft"
 
 #: tcl/tooledit.tcl:1058
 msgid "Must be On and Idle to reload tool table"
@@ -7664,7 +7661,6 @@ msgid "Run time:"
 msgstr "Laufzeit:"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1819
-#, fuzzy
 msgid "Tool Change List:"
 msgstr "Liste der Werkzeugwechsel:"
 
@@ -10692,10 +10688,9 @@ msgid "# **** Setup for external estop ladder program -END ****"
 msgstr "# **** Einstellungen for externes Notaus SPS Programm -ENDE ****"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:332
-#, fuzzy
 msgid ""
 "# Load Classicladder with Modbus master included (GUI must run for Modbus)"
-msgstr "# SPS Programm mit Modbus-Master laden (GUI muss für Modbus laufen)"
+msgstr "# Lade SPS Programm mit Modbus-Master (GUI muss für Modbus laufen)"
 
 #: src/emc/usr_intf/stepconf/build_HAL.py:335
 #: src/emc/usr_intf/pncconf/build_HAL.py:846
@@ -11146,13 +11141,13 @@ msgstr "Importieren einer Mach-Datei"
 
 #: src/emc/usr_intf/stepconf/start.glade:73
 msgid "Create a desktop _shortcut (symlink) to configuration files."
-msgstr "Verknüpfung zu den _Konfigurationsdateien auf dem Desktop erstellen"
+msgstr "Verknüpfung zu den _Konfigurationsdateien auf dem Desktop erstellen."
 
 #: src/emc/usr_intf/stepconf/start.glade:89
 msgid "Create a desktop _launcher to start LinuxCNC with this configuration."
 msgstr ""
 "Verknüpfung zum _Starten vom LinuxCNC mit dieser Konfiguration auf dem "
-"Desktop erstellen"
+"Desktop erstellen."
 
 #: src/emc/usr_intf/stepconf/start.glade:105
 msgid "Create simulated hardware configuration."
@@ -12133,7 +12128,7 @@ msgid ""
 "It seems data in this file is from too old of a version of PNCConf to "
 "continue."
 msgstr ""
-"Die Daten in dieser Datei scheinen von einer zu alten Version PNCConf zu "
+"Die Daten in dieser Datei scheinen von einer zu alten Version PnCConf zu "
 "sein um fortzufahren."
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1342
@@ -14535,7 +14530,7 @@ msgstr "7i77 Mode 3 I/O Karte"
 
 #: src/emc/usr_intf/pncconf/private_data.py:560
 msgid "7i73 Mode 1 Pendant Card"
-msgstr "7i73 Mode 1 angehängter Karte"
+msgstr "7i73 Modus 1 Pendant Karte"
 
 #: src/emc/usr_intf/pncconf/private_data.py:561
 msgid "7i84 Mode 1 I/O Card"
@@ -16675,7 +16670,7 @@ msgstr "Erweiterte Optionen anzeigen"
 
 #: src/emc/usr_intf/pncconf/start.glade:158
 msgid "Use INI substitution for Mesa board names."
-msgstr "INI-Substitution für Mesa Boardnamen nutzen"
+msgstr "INI-Substitution für Mesa Boardnamen nutzen."
 
 #: src/emc/usr_intf/pncconf/external.glade:157
 msgid "9600"
@@ -18939,9 +18934,8 @@ msgid "Trouble looking for handlers in '{}': {}"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:515
-#, fuzzy
 msgid "Skin name = {}"
-msgstr "Abschnittsname   "
+msgstr "Skin Name = {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:528
 #, fuzzy
@@ -18970,9 +18964,8 @@ msgid "Using stock glade file from: {}"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:576
-#, fuzzy
 msgid "With main screen xml file: {}"
-msgstr "**** Gscreen GLADE ERROR:    Mit main screen xml Datei: %s"
+msgstr "Mit main screen XML Datei: {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:581
 msgid "Screen 2 - Using custom glade file from {}"
@@ -19344,37 +19337,32 @@ msgid "Offset Origin"
 msgstr "Versatz des Ursprungs"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3798
-#, fuzzy
 msgid ""
 "Invalid message configuration (missing text or type) in INI File [DISPLAY] "
 "section"
 msgstr ""
-"**** Gscreen FEHLER:    Ungültige Nachrichts-Konfiguration (fehlender Text "
-"oder Typ) in INI Datei [DISPLAY] Abschnitt"
+"Ungültige Nachrichts-Konfiguration (fehlender Text oder Typ) in INI Datei "
+"[DISPLAY] Abschnitt"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3800
-#, fuzzy
 msgid ""
 "Invalid message configuration (missing pinname) in INI File [DISPLAY] section"
 msgstr ""
-"**** Gscreen FEHLER:    Ungültige Nachrichts-Konfiguration (fehlender Pin-"
-"Name) in INI Datei [DISPLAY] Abschnitt"
+"Ungültige Nachrichts-Konfiguration (fehlender Pin-Name) in INI Datei "
+"[DISPLAY] Abschnitt"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3802
-#, fuzzy
 msgid ""
 "Invalid message configuration (missing boldtext) in INI File [DISPLAY] "
 "section"
 msgstr ""
-"**** Gscreen FEHLER:    Ungültige Nachrichts-Konfiguration (fehlender "
-"Fettdruck) in INI Datei [DISPLAY] Abschnitt"
+"Ungültige Nachrichts-Konfiguration (fehlender Fettdruck) in INI Datei "
+"[DISPLAY] Abschnitt"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3806
-#, fuzzy
 msgid "Invalid message type ({})in INI File [DISPLAY] section"
 msgstr ""
-"**** Gscreen FEHLER:    Ungültige Nachrichts-Konfiguration (%s) in INI Datei "
-"[DISPLAY] Abschnitt"
+"Ungültige Nachrichts-Konfiguration ({}) in INI Datei [DISPLAY] Abschnitt"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3840
 msgid "Dialog error - Is the dialog handler missing from the handler file?"
