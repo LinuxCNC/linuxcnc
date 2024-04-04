@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-07-04 21:28+0200\n"
-"PO-Revision-Date: 2024-03-11 16:39+0000\n"
+"PO-Revision-Date: 2024-04-02 14:31+0000\n"
 "Last-Translator: Zdenek Z <zz912@seznam.cz>\n"
 "Language-Team: \n"
 "Language: cs\n"
@@ -45,7 +45,7 @@ msgstr "Chyba v "
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:510
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:531
 msgid "Please check the console output."
-msgstr ""
+msgstr "Prosím zkontrolujte výstup z konzole."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:670
 msgid "axis"
@@ -1269,7 +1269,7 @@ msgstr "Odemykat HAL pinem"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:127
 msgid "<b>Unlock settings</b>"
-msgstr "Nastavení kódu"
+msgstr "</b>Nastavení kódu</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:128
 msgid "Starting RPM"

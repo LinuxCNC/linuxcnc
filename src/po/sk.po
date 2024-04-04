@@ -5,8 +5,8 @@ msgstr ""
 "Project-Id-Version: sk\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-07-04 21:28+0200\n"
-"PO-Revision-Date: 2024-03-30 06:05+0000\n"
-"Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
+"PO-Revision-Date: 2024-04-02 14:31+0000\n"
+"Last-Translator: Juraj Adamkovic <stroje.hcnc@gmail.com>\n"
 "Language-Team: Slovak <emc-developers@lists.sourceforge.net>\n"
 "Language: sk\n"
 "MIME-Version: 1.0\n"
@@ -18543,15 +18543,15 @@ msgstr "Rozlíšenie:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2862
 msgid "Distance to acheave max speed:"
-msgstr ""
+msgstr "Vzdialenosť na dosiahnutie max. rýchlosti:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2964
 msgid "sec"
-msgstr ""
+msgstr "sek"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2980
 msgid "Khz"
-msgstr ""
+msgstr "KHZ"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2996
 msgid "Calculated Axis SCALE:"
@@ -18559,27 +18559,27 @@ msgstr "Vypočítaná mierka osi:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:3047
 msgid "Motor RPM at max speed:"
-msgstr ""
+msgstr "Otáčky motora pri max. rýchlosti:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:3121
 msgid "xmaxrpm"
-msgstr ""
+msgstr "xmax_rpm"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:3630
 msgid "Seconds"
-msgstr ""
+msgstr "sekúnd"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:3686
 msgid "Enable"
-msgstr ""
+msgstr "Povoliť"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:3805
 msgid "mm/minute^2"
-msgstr ""
+msgstr "mm/minútu^2"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:3850
 msgid "mm/minute"
-msgstr ""
+msgstr "mm/minútu"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:3930
 #: src/emc/usr_intf/pncconf/dialogs.glade:4772
@@ -18589,7 +18589,7 @@ msgstr "Aktuálne"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:3941
 msgid "P:"
-msgstr ""
+msgstr "P:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:3952
 msgid "I:"
@@ -18602,11 +18602,11 @@ msgstr "D:"
 #: src/emc/usr_intf/pncconf/dialogs.glade:4017
 #: src/emc/usr_intf/pncconf/dialogs.glade:4785
 msgid "Original"
-msgstr ""
+msgstr "Originál"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:4225
 msgid "DeadBand"
-msgstr ""
+msgstr "Deadband"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:4300
 msgid "PID Tuning"
@@ -18630,7 +18630,7 @@ msgstr "Nastavenie smeru:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:5007
 msgid "Step Timing"
-msgstr ""
+msgstr "Načasovanie krokov"
 
 #: src/emc/usr_intf/pncconf/finished.glade:6
 msgid ""
@@ -18714,100 +18714,105 @@ msgstr "Pridáva sa importný adresár {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:448
 msgid "Module '{}' skipped - import error: {}"
-msgstr ""
+msgstr "Modul '{}' preskočený - chyba importu: {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:450
 msgid "Module '{}' imported OK"
-msgstr ""
+msgstr "Modul '{}' importovaný OK"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:456
 #: src/emc/usr_intf/gscreen/gscreen.py:461
 msgid "Module '{}': '{}' function found"
-msgstr ""
+msgstr "Modul '{}': funkcia '{}' nájdená"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:466
 msgid "Module '{}': no '{}' function - registering only functions as callbacks"
 msgstr ""
+"Modul '{}': žiadna funkcia '{}' - registrácia funguje len ako spätné volanie"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:470
 msgid "Registering handlers in module '{}' object '{}'"
-msgstr ""
+msgstr "Registrácia obsluhy v module '{}' objekt '{}'"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:482
 msgid "Trouble looking for handlers in '{}': {}"
-msgstr ""
+msgstr "Problém s hľadaním obslužných nástrojov v '{}': {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:515
+#, fuzzy
 msgid "Skin name = {}"
-msgstr ""
+msgstr "Názov = {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:528
 msgid "INI file path missing from Gscreen launch command"
-msgstr ""
+msgstr "V príkaze na spustenie Gscreen chýba cesta k súboru INI"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:536
 msgid "Custom locale name = {}"
-msgstr ""
+msgstr "Vlastné lokálne meno = {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:542
+#, fuzzy
 msgid "Skin locale name = {}"
-msgstr ""
+msgstr "Vlastné lokálne meno = {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:554
 msgid "Using custom glade file from {}"
-msgstr ""
+msgstr "Použiť vlastné glade zo súboru {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:559
 msgid " Using skin glade file from {}"
-msgstr ""
+msgstr "Použitie glade skin zo súboru {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:562
 msgid "Using stock glade file from: {}"
-msgstr ""
+msgstr "Používa sa súbor glade z: {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:576
 msgid "With main screen xml file: {}"
-msgstr ""
+msgstr "Na hlavnej obrazovke so súborom xml: {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:581
 msgid "Screen 2 - Using custom glade file from {}"
-msgstr ""
+msgstr "Obrazovka 2 – Použitie vlastného glade súboru z {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:587
 msgid "Error with screen 2's xml file: {}"
-msgstr ""
+msgstr "Chyba v súbore xml obrazovky 2: {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:589
 msgid "No Screen 2 glade file present"
-msgstr ""
+msgstr "Nie je prítomný žiadny súbor glade Screen 2"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:600
 msgid "Audio test failed - Is gstreamer0.10-plugins-base installed?"
-msgstr ""
+msgstr "Test zvuku zlyhal - Je nainštalovaný gstreamer0.10-plugins-base?"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:615
 msgid "No coordinates entry found in [TRAJ] of INI file"
-msgstr ""
+msgstr "V súbore INI [TRAJ] sa nenašli žiadne súradnice"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:633
 msgid "No UNITS entry found in [TRAJ] or [AXIS_X] of INI file"
-msgstr ""
+msgstr "V súbore INI [TRAJ] alebo [AXIS_X] sa nenašla žiadna položka UNITS"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:646
 msgid "Asking for a HAL component using a name that already exists"
-msgstr ""
+msgstr "Požiadanie o komponent HAL pomocou názvu, ktorý už existuje"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:661
 msgid "Handler file path: {}"
-msgstr ""
+msgstr "Cesta k súboru obslužného programu: {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:668
 msgid "Preference file path: {}"
-msgstr ""
+msgstr "Cesta k preferovanému súboru: {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:717
 msgid "No default jog increments entry found in [DISPLAY] of INI file"
 msgstr ""
+"V súbore INI [DISPLAY] sa nenašla žiadna predvolená položka inkrementov "
+"krokovania"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:730
 msgid "No default angular jog increments entry found in [DISPLAY] of INI file"
