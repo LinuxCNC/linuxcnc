@@ -10,7 +10,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2023-07-04 21:28+0200\n"
 "PO-Revision-Date: 2024-04-04 06:54+0000\n"
-"Last-Translator: mk00002 <codo1983@gmail.com>\n"
+"Last-Translator: Hans Unzner <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
 "Language: de\n"
@@ -3337,7 +3337,7 @@ msgstr ""
 #: src/hal/classicladder/classicladder_gtk.c:651
 #, fuzzy
 msgid "Reset logic data done."
-msgstr "SPS Daten zurückgesetzt"
+msgstr "Reset der Logik-Daten durchgeführt."
 
 #: src/hal/classicladder/classicladder_gtk.c:709
 #, fuzzy
@@ -12111,7 +12111,8 @@ msgid ""
 "Discovery option requires the advanced options checked on this page."
 msgstr ""
 "Einige ältere Karten benötigen Firmware.\n"
-"Sie haben keine hostmot2 Firmware im Ordner %s heruntergeladen.\n"
+"Sie haben keine hostmot2 Firmware im Ordner \n"
+"%s heruntergeladen.\n"
 "PNCconf wird seine internen Firmware-Datenbeispiele verwenden, damit Sie "
 "fortfahren können.\n"
 "Sie könnten auch die Discovery-Option versuchen, wenn Ihre Karte verbunden "
@@ -18859,16 +18860,12 @@ msgstr ""
 " http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?TroubleShooting"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:122
-#, fuzzy
 msgid "Desktop notifications are available"
-msgstr ""
-"Desktop\n"
-"Benachrichtigung"
+msgstr "Desktop-Benachrichtigungen verfügbar"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:124
-#, fuzzy
 msgid "Desktop notifications are not available"
-msgstr "Gerätenamen sind nicht verfügbar\n"
+msgstr "Desktop-Benachrichtigungen nicht verfügbar"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:126
 msgid "There was a problem initializing the notification module"
@@ -18936,10 +18933,8 @@ msgid "Skin name = {}"
 msgstr "Skin Name = {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:528
-#, fuzzy
 msgid "INI file path missing from Gscreen launch command"
-msgstr ""
-"**** GSCREEN FEHLER: INI Dateipfad bei Gscreen Start nicht angegeben ****\n"
+msgstr "INI-Dateipfad beim Gscreen Start-Befehl nicht angegeben"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:536
 msgid "Custom locale name = {}"
@@ -19084,14 +19079,14 @@ msgid "Ready For Homing"
 msgstr "Bereit für Referenzfahrt"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1381
-#, fuzzy
 msgid ""
 "Could not initialize Vte terminal:\n"
 "                  Is libvte-2.91-0 package installed?\n"
 "                  Is a 'terminal_window' widget in the GLADE file?"
 msgstr ""
-"**** WARNUNG GSCREEN: konnte vte terminal nicht initialisieren - is das "
-"Paket vte installiert? Ist widget: terminal_window in GLADE Datei?"
+"Konnte vte terminal nicht initialisieren:\n"
+"Ist das Paket libvte-2.91-0  installiert?\n"
+"Ist das Widget: \"terminal_window\" in der GLADE Datei?"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1389
 msgid ""
