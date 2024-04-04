@@ -2165,8 +2165,8 @@ static void modify_hal_pins()
     }
 
     if (halui_sent_mdi) { // we have an ongoing MDI command
-  	if (emcStatus->status == 1) { //which seems to have finished
-    switch (halui_old_mode) {
+	if (emcStatus->status == RCS_STATUS::DONE) //which seems to have finished
+    		switch (halui_old_mode) {
 		case EMC_TASK_MODE::MANUAL: sendManual();break;
 		case EMC_TASK_MODE::MDI: break;
 		case EMC_TASK_MODE::AUTO: sendAuto();break;
@@ -2216,7 +2216,7 @@ static void modify_hal_pins()
     if (num_mdi_commands>0){
 		// we wants initialize program_is_idle and mode_is_mdi before halui_sent_mdi
 		if (halui_sent_mdi) { // we have an ongoing MDI command
-			if (emcStatus->status == 1) { //which seems to have finished
+			if (emcStatus->status == RCS_STATUS::DONE) //which seems to have finished
 			halui_sent_mdi = 0;
 			esleep(0.02); //sleep for a while
 			updateStatus();
