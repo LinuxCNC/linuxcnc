@@ -61,7 +61,7 @@ DEFAULT = 0
 WARNING = 1
 CRITICAL = 2
 
-VERSION ='1.4'
+VERSION ='1.5'
 
 class HandlerClass:
     def __init__(self, halcomp, widgets, paths):
@@ -312,6 +312,7 @@ class HandlerClass:
         self.w.chk_inhibit_selection.setChecked(self.w.PREFS_.getpref('Inhibit display mouse selection', True, bool, 'CUSTOM_FORM_ENTRIES'))
         self.cam_xscale_changed(self.w.PREFS_.getpref('Camview xscale', 100, int, 'CUSTOM_FORM_ENTRIES'))
         self.cam_yscale_changed(self.w.PREFS_.getpref('Camview yscale', 100, int, 'CUSTOM_FORM_ENTRIES'))
+        self.w.camview._camNum = self.w.PREFS_.getpref('Camview cam number', 0, int, 'CUSTOM_FORM_ENTRIES')
 
     def closing_cleanup__(self):
         if not self.w.PREFS_: return
@@ -347,6 +348,7 @@ class HandlerClass:
         self.w.PREFS_.putpref('Inhibit display mouse selection', self.w.chk_inhibit_selection.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Camview xscale', self.cam_xscale_percent(), int, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Camview yscale', self.cam_yscale_percent(), int, 'CUSTOM_FORM_ENTRIES')
+        self.w.PREFS_.putpref('Camview cam number', self.w.camview._camNum, int, 'CUSTOM_FORM_ENTRIES')
 
     def init_widgets(self):
         self.w.stackedWidget_mainTab.setCurrentIndex(0)
