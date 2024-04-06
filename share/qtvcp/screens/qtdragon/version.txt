@@ -9,3 +9,6 @@ version 1.2 allow setting of the percentage X or Y size of camview image from th
 
 version 1.3 fix units bug with 'goto sensor/home' button with imperial machines
     commit 73d228b0a6382b5a900f28e44d6357d650dbb497
+
+version 1.4 add ability to set camview camera number
+    commit 0360ccd94ee82010277d9b7e9f6e2a4fd3fb41c5
