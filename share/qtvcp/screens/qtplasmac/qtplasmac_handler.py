@@ -1,4 +1,4 @@
-VERSION = '005.033'
+VERSION = '005.034'
 LCNCVER = '2.10'
 DOCSVER = LCNCVER
 
@@ -1477,7 +1477,7 @@ class HandlerClass:
     def set_run_button_state(self):
         if STATUS.machine_is_on() and STATUS.is_all_homed() and \
            STATUS.is_interp_idle() and not self.offsetsActivePin.get() and \
-           self.plasmacStatePin.get() == 0 and not self.fileBoundsError and not self.probeBoundsError and not self.fileClear:
+           self.plasmacStatePin.get() == 0:
             if self.w.gcode_display.lines() > 1:
                 self.w.run.setEnabled(True)
                 if self.frButton:
@@ -1490,9 +1490,13 @@ class HandlerClass:
                 self.probeTest = False
             self.set_buttons_state([self.idleList, self.idleOnList, self.idleHomedList], True)
             self.w.abort.setEnabled(False)
+            if self.fileBoundsError or self.probeBoundsError or self.fileClear:
+                self.w.run.setEnabled(False)
+                if self.frButton:
+                    self.w[self.frButton].setEnabled(False)
         else:
             self.w.run.setEnabled(False)
-            if self.frButton and self.fileBoundsError:
+            if self.frButton:
                 self.w[self.frButton].setEnabled(False)
 
     def set_jog_button_state(self):
@@ -2779,9 +2783,9 @@ class HandlerClass:
         yMin = float(self.gcodeProps['y_zero_rxy'].split()[0]) * boundsMultiplier + yOffset
         yMax = float(self.gcodeProps['y_zero_rxy'].split()[2]) * boundsMultiplier + yOffset
         coordinates = [[xStart, yStart], [xMin, yMin], [xMin, yMax], [xMax, yMax], [xMax, yMin]]
-        frame_points, xMin, yMin, xMax, yMax = self.rotate_frame(coordinates)
+        framePoints, xMin, yMin, xMax, yMax = self.rotate_frame(coordinates)
         errMsg = self.bounds_compare(xMin, xMax, yMin, yMax, msg, msg1)
-        return (errMsg, frame_points)
+        return (errMsg, framePoints)
 
     def bounds_compare(self, xMin, xMax, yMin, yMax, msg, msg1=''):
         errMsg = ''
@@ -4243,16 +4247,7 @@ class HandlerClass:
         elif 'pulse-halpin' in commands.lower():
             head = _translate('HandlerClass', 'HAL Pin Error')
             msg1 = _translate('HandlerClass', 'Failed to pulse HAL pin')
-            try:
-                code, halpin, delay = commands.lower().strip().split()
-            except:
-                try:
-                    code, halpin = commands.lower().strip().split()
-                    delay = '1.0'
-                except:
-                    msg0 = _translate('HandlerClass', 'Unknown error for user button')
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum}\n{msg1} "{halpin}"\n')
-                    return
+            halpin = commands.lower().strip().split()[1]
             # halPulsePins format is: button name, pulse time, button text, remaining time, button number
             try:
                 if self.halPulsePins[halpin][3] > 0.05:
@@ -4630,13 +4625,13 @@ class HandlerClass:
             self.w.run.setEnabled(False)
             response = False
             if self.w.laser.isVisible():
-                framingError, frame_points = self.bounds_check_framing(self.laserOffsetX, self.laserOffsetY, True)
+                framingError, framePoints = self.bounds_check_framing(self.laserOffsetX, self.laserOffsetY, True)
                 if framingError:
                     head = _translate('HandlerClass', 'Axis Limit Error')
                     framingError += _translate('HandlerClass', '\n\nDo you want to try with the torch?\n')
                     response = self.dialog_show_yesno(QMessageBox.Warning, f'{head}', f'\n{framingError}')
                     if response:
-                        framingError, frame_points = self.bounds_check_framing()
+                        framingError, framePoints = self.bounds_check_framing()
                         if framingError:
                             head = _translate('HandlerClass', 'Axis Limit Error')
                             self.dialog_show_ok(QMessageBox.Warning, f'{head}', f'\n{framingError}')
@@ -4648,7 +4643,7 @@ class HandlerClass:
                 else:
                     self.laserOnPin.set(1)
             else:
-                framingError, frame_points = self.bounds_check_framing()
+                framingError, framePoints = self.bounds_check_framing()
                 if framingError:
                     head = _translate('HandlerClass', 'Axis Limit Error')
                     self.dialog_show_ok(QMessageBox.Warning, f'{head}', f'\n{framingError}')
@@ -4671,11 +4666,11 @@ class HandlerClass:
                 ACTION.CALL_MDI_WAIT(f'G64 P{0.25 * self.unitsPerMm:0.3f}')
                 if self.defaultZ:
                     ACTION.CALL_MDI(f'G53 G0 Z{zHeight:0.4f}')
-                ACTION.CALL_MDI(f'G53 G0 X{frame_points[1][0]:0.2f} Y{frame_points[1][1]:0.2f}')
-                ACTION.CALL_MDI(f'G53 G1 X{frame_points[2][0]:0.2f} Y{frame_points[2][1]:0.2f} F{feed:0.0f}')
-                ACTION.CALL_MDI(f'G53 G1 X{frame_points[3][0]:0.2f} Y{frame_points[3][1]:0.2f}')
-                ACTION.CALL_MDI(f'G53 G1 X{frame_points[4][0]:0.2f} Y{frame_points[4][1]:0.2f}')
-                ACTION.CALL_MDI(f'G53 G1 X{frame_points[1][0]:0.2f} Y{frame_points[1][1]:0.2f}')
+                ACTION.CALL_MDI(f'G53 G0 X{framePoints[1][0]:0.2f} Y{framePoints[1][1]:0.2f}')
+                ACTION.CALL_MDI(f'G53 G1 X{framePoints[2][0]:0.2f} Y{framePoints[2][1]:0.2f} F{feed:0.0f}')
+                ACTION.CALL_MDI(f'G53 G1 X{framePoints[3][0]:0.2f} Y{framePoints[3][1]:0.2f}')
+                ACTION.CALL_MDI(f'G53 G1 X{framePoints[4][0]:0.2f} Y{framePoints[4][1]:0.2f}')
+                ACTION.CALL_MDI(f'G53 G1 X{framePoints[1][0]:0.2f} Y{framePoints[1][1]:0.2f}')
                 ACTION.CALL_MDI('G0 X0 Y0')
                 ACTION.CALL_MDI(previousMode)
 
