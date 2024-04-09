@@ -2106,7 +2106,7 @@ class HandlerClass:
         while time.time() < t:
             QApplication.processEvents()
         self.w.gcodegraphics.set_view('Z')
-        mid, size = DRAW.extents_info(self.w.gcodegraphics)
+        mid = DRAW.extents_info(self.w.gcodegraphics)[0]
         mult = 1 if self.units == 'in' else 25.4
         zoomScale = (self.w.table_zoom_scale.value() * 2)
         xTableCenter = (self.xMin + self.xLen / 2) / mult - mid[0]
@@ -2809,20 +2809,20 @@ class HandlerClass:
         angle = math.radians(STATUS.stat.rotation_xy)
         cos = math.cos(angle)
         sin = math.sin(angle)
-        frame_points = [coordinates[0]]
-        ox = frame_points[0][0]
-        oy = frame_points[0][1]
+        framePoints = [coordinates[0]]
+        ox = framePoints[0][0]
+        oy = framePoints[0][1]
         for x, y in coordinates[1:]:
             tox = x - ox
             toy = y - oy
             rx = (tox * cos) - (toy * sin) + ox
             ry = (tox * sin) + (toy * cos) + oy
-            frame_points.append([rx, ry])
-        xMin = min(frame_points[1:])[0]
-        xMax = max(frame_points[1:])[0]
-        yMin = min(frame_points[1:])[1]
-        yMax = max(frame_points[1:])[1]
-        return frame_points, xMin, yMin, xMax, yMax
+            framePoints.append([rx, ry])
+        xMin = min(framePoints[1:])[0]
+        xMax = max(framePoints[1:])[0]
+        yMin = min(framePoints[1:])[1]
+        yMax = max(framePoints[1:])[1]
+        return framePoints, xMin, yMin, xMax, yMax
 
     def save_plasma_parameters(self):
         self.PREFS.putpref('Arc OK High', self.w.arc_ok_high.value(), float, 'PLASMA_PARAMETERS')
