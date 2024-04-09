@@ -14,6 +14,7 @@
 # GNU General Public License for more details.
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+from PyQt5.QtCore import pyqtProperty, pyqtSlot
 from qtvcp.widgets.widget_baseclass import (_HalWidgetBase,
         _HalToggleBase, _HalSensitiveBase, _HalScaleBase)
 from qtvcp.lib.aux_program_loader import Aux_program_loader as _loader
@@ -320,6 +321,8 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
     def __init__(self, parent=None):
         super(IndicatedPushButton, self).__init__(parent)
         self._indicator_state = False # Current State
+        # if user want to block their signals
+        self._external_block_signal = False
 
         # changing text data
         self._state_text = False # use text
@@ -344,6 +347,17 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
         self._top_edge_offset = 0
         self._on_color = QtGui.QColor("red")
         self._off_color = QtGui.QColor("black")
+        # current flash state
+        self._flashState = False
+        # is flashing on?
+        self._flashing = True
+        # should flash?
+        self._flashOption = False
+        self._flashRate = 200
+
+        self._timer = QtCore.QTimer()
+        self._timer.timeout.connect(self.toggleFlashState)
+        #self.setFlashing(True)
 
         # indicator linuxcnc's status options
         self._ind_status = False # control by status
@@ -381,6 +395,7 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
         self._is_on_sensitive = False
         self._is_idle_sensitive = False
         self._is_run_sensitive = False
+        self._is_run_paused_sensitive = False
         self._is_auto_pause_sensitive = False
         self._is_manual_sensitive = False
         self._is_mdi_sensitive = False
@@ -433,6 +448,10 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
             STATUS.connect('interp-run', lambda w: enable_logic_check(True))
             STATUS.connect('interp-paused', lambda w: self.setEnabled(False))
             STATUS.connect('interp-idle', lambda w: self.setEnabled(False))
+        elif self._is_run_paused_sensitive:
+            STATUS.connect('interp-run', lambda w: enable_logic_check(True))
+            STATUS.connect('interp-paused', lambda w: self.setEnabled(True))
+            STATUS.connect('interp-idle', lambda w: self.setEnabled(False))
         elif self._is_auto_pause_sensitive:
             STATUS.connect('interp-run', lambda w: enable_logic_check(False))
             STATUS.connect('interp-paused', lambda w: self.setEnabled(True))
@@ -450,7 +469,8 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
         if not (self._is_idle_sensitive or self._is_run_sensitive or \
                 self._is_on_sensitive or self._is_all_homed_sensitive or \
                 self._is_manual_sensitive or self._is_mdi_sensitive or \
-                self._is_auto_sensitive or self._is_auto_pause_sensitive):
+                self._is_auto_sensitive or self._is_auto_pause_sensitive or \
+                self._is_run_paused_sensitive):
             STATUS.connect('state-estop-reset', lambda w: self.setEnabled(True))
 
 
@@ -458,7 +478,7 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
         def enable_logic_check(state):
             if state:
                 temp = True
-                if self._is_run_sensitive:
+                if self._is_run_sensitive or self._is_run_paused_sensitive:
                     temp = temp and STATUS.is_interp_running()
                 if self._is_auto_pause_sensitive:
                     temp = temp and STATUS.is_auto_paused()
@@ -523,6 +543,12 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
             self.pressed.connect(lambda: _update(True))
             self.released.connect(lambda: _update(False))
         _update(self.isChecked())
+
+    # for users to indicate they want to block their signals
+    def _blockSignals(self, state):
+        self._external_block_signal = bool(state)
+    def _isSignalsBlocked(self):
+        return self._external_block_signal
 
     def _init_state_change(self):
         def only_false(data):
@@ -657,8 +683,28 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
         else:
             self.setText(None)
 
+    @pyqtSlot()
+    def toggleFlashState(self):
+        self._flashState = not self._flashState
+        self.update()
+
+    def isFlashing(self):
+        return self._flashing
+
+    @pyqtSlot(bool)
+    def setFlashing(self, value):
+        #self._flashing = value
+        if self._flashRate > 0 and value:
+            if self._timer.isActive():
+                return
+            print('starttimer')
+            self._timer.start(self._flashRate)
+        else:
+            self._timer.stop()
+        self.update()
+
     def indicator_update(self, data):
-        self._indicator_state = data
+        self._flashing = self._indicator_state = data
         self.update()
 
     # override paint function to first paint the stock button
@@ -672,7 +718,13 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
     def paintIndicator(self):
             p = QtGui.QPainter(self)
 
-            if self._indicator_state:
+ 
+            if self._flashOption and self._flashing:
+                if self._flashState:
+                    color = self._on_color
+                else:
+                    color = self._off_color
+            elif self._indicator_state:
                 color = self._on_color
             else:
                 color = self._off_color
@@ -812,6 +864,22 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
         self._off_color = value
         self.update()
 
+    # flash when state on
+    def setFlashState(self, value):
+        self._flashOption = value
+        self.setFlashing(True)
+        self.update()
+
+    def getFlashState(self):
+        return self._flashOption
+
+    def getFlashRate(self):
+        return self._flashRate
+    @pyqtSlot(int)
+    def setFlashRate(self, value):
+        self._flashRate = value
+        self.update()
+
     def set_indicator_size(self, data):
         self._size = data
         self.update()
@@ -925,6 +993,8 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
     on_color = QtCore.pyqtProperty(QtGui.QColor, get_on_color, set_on_color)
     shape_option = QtCore.pyqtProperty(int, get_shape, set_shape, reset_shape)
     off_color = QtCore.pyqtProperty(QtGui.QColor, get_off_color, set_off_color)
+    flashIndicator = pyqtProperty(bool, getFlashState, setFlashState)
+    flashRate = pyqtProperty(int, getFlashRate, setFlashRate)
     indicator_size = QtCore.pyqtProperty(float, get_indicator_size, set_indicator_size, reset_indicator_size)
     circle_diameter = QtCore.pyqtProperty(int, get_circle_diameter, set_circle_diameter, reset_circle_diameter)
     right_edge_offset = QtCore.pyqtProperty(int, get_right_edge_offset, set_right_edge_offset, reset_right_edge_offset)
@@ -1238,6 +1308,12 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
     def getisRunSensitive(self):
         return self._is_run_sensitive
     isRunSensitive = QtCore.pyqtProperty(bool, getisRunSensitive, setisRunSensitive)
+
+    def setisRunPauseSensitive(self, data):
+        self._is_run_paused_sensitive = data
+    def getisRunPauseSensitive(self):
+        return self._is_run_paused_sensitive
+    isRunPausedSensitive = QtCore.pyqtProperty(bool, getisRunPauseSensitive, setisRunPauseSensitive)
 
     def setisAutoPauseSensitive(self, data):
         self._is_auto_pause_sensitive = data
