@@ -23,7 +23,6 @@
     <file>images/tool_open.gif</file>
     <file>images/tool_optpause.gif</file>
     <file>images/tool_pause.gif</file>
-    <file>images/tool_optpause.xcf</file>
     <file>images/tool_power.gif</file>
     <file>images/tool_reload.gif</file>
     <file>images/tool_rotate.gif</file>
@@ -38,7 +37,6 @@
     <file>images/axis-24x24.png</file>
     <file>images/axis-32x32.png</file>
     <file>images/axis-48x48.png</file>
-    <file>images/axis-48x48.xcf</file>
     <file>images/close.gif</file>
     <file>images/downarrow.xbm</file>
   </qresource>
