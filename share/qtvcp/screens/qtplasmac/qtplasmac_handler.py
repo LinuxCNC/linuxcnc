@@ -1,4 +1,4 @@
-VERSION = '238.311'
+VERSION = '238.312'
 LCNCVER = '2.9'
 DOCSVER = LCNCVER
 
@@ -1039,7 +1039,7 @@ class HandlerClass:
         self.w.filemanager.loadButton.hide()
         # for copy/paste control if required
         self.w.filemanager.copy_control.hide()
-        # add vertical and horizontal scroll bars to the materials QComboBoxs 
+        # add vertical and horizontal scroll bars to the materials QComboBoxs
         self.w.material_selector.view().setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.w.material_selector.view().setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.w.conv_material.view().setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
@@ -1436,7 +1436,7 @@ class HandlerClass:
     def set_run_button_state(self):
         if STATUS.machine_is_on() and STATUS.is_all_homed() and \
            STATUS.is_interp_idle() and not self.offsetsActivePin.get() and \
-           self.plasmacStatePin.get() == 0 and not self.boundsError['loaded'] and not self.fileClear:
+           self.plasmacStatePin.get() == 0:
             if self.w.gcode_display.lines() > 1:
                 self.w.run.setEnabled(True)
                 if self.frButton:
@@ -1449,6 +1449,10 @@ class HandlerClass:
                 self.probeTest = False
             self.set_buttons_state([self.idleList, self.idleOnList, self.idleHomedList], True)
             self.w.abort.setEnabled(False)
+            if self.boundsError['loaded'] or self.fileClear:
+                self.w.run.setEnabled(False)
+                if self.frButton:
+                    self.w[self.frButton].setEnabled(False)
         else:
             self.w.run.setEnabled(False)
             if self.frButton:
@@ -1579,7 +1583,7 @@ class HandlerClass:
             self.rflActive = False
             self.startLine = 0
             self.preRflFile = ''
-        msgList, units, xMin, yMin, xMax, yMax = self.bounds_check('loaded', 0, 0)
+        msgList, units = self.bounds_check('loaded', 0, 0)
         if self.boundsError['loaded']:
             head = _translate('HandlerClass', 'Axis Limit Error')
             msgs = ''
@@ -2071,7 +2075,7 @@ class HandlerClass:
         while time.time() < t:
             QApplication.processEvents()
         self.w.gcodegraphics.set_view('Z')
-        mid, size = DRAW.extents_info(self.w.gcodegraphics)
+        mid = DRAW.extents_info(self.w.gcodegraphics)[0]
         mult = 1 if self.units == 'in' else 25.4
         zoomScale = (self.w.table_zoom_scale.value() * 2)
         xTableCenter = (self.xMin + self.xLen / 2) / mult - mid[0]
@@ -2640,7 +2644,7 @@ class HandlerClass:
             yMin = round(float(self.gcodeProps['y_zero_rxy'].split()[0]) * boundsMultiplier + yOffset, 5)
             yMax = round(float(self.gcodeProps['y_zero_rxy'].split()[2]) * boundsMultiplier + yOffset, 5)
             coordinates = [[xStart, yStart], [xMin, yMin], [xMin, yMax], [xMax, yMax], [xMax, yMin]]
-            frame_points, xMin, yMin, xMax, yMax = self.rotate_frame(coordinates)
+            framePoints, xMin, yMin, xMax, yMax = self.rotate_frame(coordinates)
         else:
             xMin = round(float(self.gcodeProps['x'].split()[0]) * boundsMultiplier + xOffset, 5)
             xMax = round(float(self.gcodeProps['x'].split()[2]) * boundsMultiplier + xOffset, 5)
@@ -2671,28 +2675,28 @@ class HandlerClass:
             msgList.append('{:0.2f}'.format(amount))
             self.boundsError[boundsType] = True
         if framing:
-            return msgList, self.units, xMin, yMin, xMax, yMax, frame_points
+            return msgList, self.units, framePoints
         else:
-            return msgList, self.units, xMin, yMin, xMax, yMax
+            return msgList, self.units
 
     def rotate_frame(self, coordinates):
         angle = math.radians(STATUS.stat.rotation_xy)
         cos = math.cos(angle)
         sin = math.sin(angle)
-        frame_points = [coordinates[0]]
-        ox = frame_points[0][0]
-        oy = frame_points[0][1]
+        framePoints = [coordinates[0]]
+        ox = framePoints[0][0]
+        oy = framePoints[0][1]
         for x, y in coordinates[1:]:
             tox = x - ox
             toy = y - oy
             rx = (tox * cos) - (toy * sin) + ox
             ry = (tox * sin) + (toy * cos) + oy
-            frame_points.append([rx, ry])
-        xMin = min(frame_points[1:])[0]
-        xMax = max(frame_points[1:])[0]
-        yMin = min(frame_points[1:])[1]
-        yMax = max(frame_points[1:])[1]
-        return frame_points, xMin, yMin, xMax, yMax
+            framePoints.append([rx, ry])
+        xMin = min(framePoints[1:])[0]
+        xMax = max(framePoints[1:])[0]
+        yMin = min(framePoints[1:])[1]
+        yMax = max(framePoints[1:])[1]
+        return framePoints, xMin, yMin, xMax, yMax
 
     def save_plasma_parameters(self):
         self.PREFS.putpref('Arc OK High', self.w.arc_ok_high.value(), float, 'PLASMA_PARAMETERS')
@@ -4046,16 +4050,7 @@ class HandlerClass:
         elif 'pulse-halpin' in commands.lower():
             head = _translate('HandlerClass', 'HAL Pin Error')
             msg1 = _translate('HandlerClass', 'Failed to pulse HAL pin')
-            try:
-                code, halpin, delay = commands.lower().strip().split()
-            except:
-                try:
-                    code, halpin = commands.lower().strip().split()
-                    delay = '1.0'
-                except:
-                    msg0 = _translate('HandlerClass', 'Unknown error for user button')
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{} "{}"\n'.format(head, msg0, bNum, msg1, halpin))
-                    return
+            halpin = commands.lower().strip().split()[1]
             # halPulsePins format is: button name, pulse time, button text, remaining time, button number
             try:
                 if self.halPulsePins[halpin][3] > 0.05:
@@ -4416,7 +4411,7 @@ class HandlerClass:
             self.w.run.setEnabled(False)
             response = False
             if self.w.laser.isVisible():
-                msgList, units, xMin, yMin, xMax, yMax, frame_points = self.bounds_check('framing', self.laserOffsetX, self.laserOffsetY)
+                msgList, units, framePoints = self.bounds_check('framing', self.laserOffsetX, self.laserOffsetY)
                 if self.boundsError['framing']:
                     head = _translate('HandlerClass', 'Axis Limit Error')
                     btn1 = _translate('HandlerClass', 'YES')
@@ -4435,7 +4430,7 @@ class HandlerClass:
                     if not response:
                         self.w.run.setEnabled(True)
                         return
-                    msgList, units, xMin, yMin, xMax, yMax, frame_points = self.bounds_check('framing', 0, 0)
+                    msgList, units, framePoints = self.bounds_check('framing', 0, 0)
                     if self.boundsError['framing']:
                         self.w.run.setEnabled(True)
                         head = _translate('HandlerClass', 'Axis Limit Error')
@@ -4452,7 +4447,7 @@ class HandlerClass:
                 if not response:
                     self.laserOnPin.set(1)
             else:
-                msgList, units, xMin, yMin, xMax, yMax, frame_points = self.bounds_check('framing', 0, 0)
+                msgList, units, framePoints = self.bounds_check('framing', 0, 0)
                 if self.boundsError['framing']:
                     self.w.run.setEnabled(True)
                     head = _translate('HandlerClass', 'Axis Limit Error')
@@ -4483,11 +4478,11 @@ class HandlerClass:
                 ACTION.CALL_MDI_WAIT('G64 P{:0.3f}'.format(0.25 * self.unitsPerMm))
                 if self.defaultZ:
                     ACTION.CALL_MDI('G53 G0 Z{:0.4f}'.format(zHeight))
-                ACTION.CALL_MDI('G53 G0 X{:0.2f} Y{:0.2f}'.format(frame_points[1][0], frame_points[1][1]))
-                ACTION.CALL_MDI('G53 G1 X{:0.2f} Y{:0.2f} F{:0.0f}'.format(frame_points[2][0], frame_points[2][1], feed))
-                ACTION.CALL_MDI('G53 G1 X{:0.2f} Y{:0.2f}'.format(frame_points[3][0], frame_points[3][1]))
-                ACTION.CALL_MDI('G53 G1 X{:0.2f} Y{:0.2f}'.format(frame_points[4][0], frame_points[4][1]))
-                ACTION.CALL_MDI('G53 G1 X{:0.2f} Y{:0.2f}'.format(frame_points[1][0], frame_points[1][1]))
+                ACTION.CALL_MDI('G53 G0 X{:0.2f} Y{:0.2f}'.format(framePoints[1][0], framePoints[1][1]))
+                ACTION.CALL_MDI('G53 G1 X{:0.2f} Y{:0.2f} F{:0.0f}'.format(framePoints[2][0], framePoints[2][1], feed))
+                ACTION.CALL_MDI('G53 G1 X{:0.2f} Y{:0.2f}'.format(framePoints[3][0], framePoints[3][1]))
+                ACTION.CALL_MDI('G53 G1 X{:0.2f} Y{:0.2f}'.format(framePoints[4][0], framePoints[4][1]))
+                ACTION.CALL_MDI('G53 G1 X{:0.2f} Y{:0.2f}'.format(framePoints[1][0], framePoints[1][1]))
                 ACTION.CALL_MDI('G0 X0 Y0')
                 ACTION.CALL_MDI(previousMode)
 
