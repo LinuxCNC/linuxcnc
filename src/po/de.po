@@ -7,9 +7,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-04-08 19:52+0200\n"
-"PO-Revision-Date: 2024-04-04 06:54+0000\n"
+"PO-Revision-Date: 2024-04-09 06:24+0000\n"
 "Last-Translator: Hans Unzner <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
@@ -8004,12 +8004,15 @@ msgid "Insert tool %d and click continue when ready"
 msgstr "Bitte Werkzeug %d einlegen und mit »Fortsetzen« bestätigen"
 
 #: src/emc/usr_intf/axis/scripts/hal_manualtoolchange.py:76
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "\n"
 "\n"
 "Error: %s"
-msgstr "Fehler: "
+msgstr ""
+"\n"
+"\n"
+"Fehler: %s"
 
 #: src/emc/usr_intf/axis/scripts/hal_manualtoolchange.py:93
 msgid "AXIS Manual Toolchanger"
@@ -11183,21 +11186,18 @@ msgid "Import a Mach file"
 msgstr "Importieren einer Mach-Datei"
 
 #: src/emc/usr_intf/stepconf/start.glade:73
-#, fuzzy
 msgid "Create a desktop _shortcut (symlink) to configuration files"
-msgstr "Verknüpfung zu den _Konfigurationsdateien auf dem Desktop erstellen."
+msgstr "Verknüpfung zu den _Konfigurationsdateien auf dem Desktop erstellen"
 
 #: src/emc/usr_intf/stepconf/start.glade:89
-#, fuzzy
 msgid "Create a desktop _launcher to start LinuxCNC with this configuration"
 msgstr ""
 "Verknüpfung zum _Starten vom LinuxCNC mit dieser Konfiguration auf dem "
-"Desktop erstellen."
+"Desktop erstellen"
 
 #: src/emc/usr_intf/stepconf/start.glade:105
-#, fuzzy
 msgid "Create simulated hardware configuration"
-msgstr "Eine neue Konfiguration erstellen."
+msgstr "Eine neue Konfiguration mit simulierter Hardware erstellen"
 
 #: src/emc/usr_intf/stepconf/start.glade:129
 #: src/emc/usr_intf/pncconf/start.glade:63
@@ -11876,7 +11876,8 @@ msgstr "Entgegengesetzt"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid "_:"
+msgid ""
+"_:"
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -16718,25 +16719,22 @@ msgid "Smart Serial 7"
 msgstr "Smart Seriell 0"
 
 #: src/emc/usr_intf/pncconf/start.glade:27
-#, fuzzy
 msgid "Create a desktop launcher to start LinuxCNC with this configuration"
 msgstr ""
-"Verknüpfung zum Starten vom LinuxCNC mit dieser Konfiguration auf dem Destop "
-"erstellen."
+"Verknüpfung zum Starten vom LinuxCNC mit dieser Konfiguration auf dem "
+"Desktop erstellen"
 
 #: src/emc/usr_intf/pncconf/start.glade:44
-#, fuzzy
 msgid "Create a desktop shortcut (symlink) to configuration files"
-msgstr "Verknüpfung zu den Konfigurationsdateien auf dem Desktop erstellen."
+msgstr "Verknüpfung zu den Konfigurationsdateien auf dem Desktop erstellen"
 
 #: src/emc/usr_intf/pncconf/start.glade:129
 msgid "Show Advanced Option Pages"
 msgstr "Erweiterte Optionen anzeigen"
 
 #: src/emc/usr_intf/pncconf/start.glade:158
-#, fuzzy
 msgid "Use INI substitution for Mesa board names"
-msgstr "INI-Substitution für Mesa Boardnamen nutzen."
+msgstr "INI-Substitution für Mesa-Boardnamen nutzen"
 
 #: src/emc/usr_intf/pncconf/external.glade:157
 msgid "9600"
