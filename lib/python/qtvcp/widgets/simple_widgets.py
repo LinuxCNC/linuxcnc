@@ -465,15 +465,6 @@ class IndicatedPushButton(QtWidgets.QPushButton, _HalWidgetBase):
             STATUS.connect('mode-mdi', lambda w: enable_logic_check(self._is_mdi_sensitive))
             STATUS.connect('mode-auto', lambda w: enable_logic_check(self._is_auto_sensitive))
 
-        # if nothing selected make estop reset sensitive
-        if not (self._is_idle_sensitive or self._is_run_sensitive or \
-                self._is_on_sensitive or self._is_all_homed_sensitive or \
-                self._is_manual_sensitive or self._is_mdi_sensitive or \
-                self._is_auto_sensitive or self._is_auto_pause_sensitive or \
-                self._is_run_paused_sensitive):
-            STATUS.connect('state-estop-reset', lambda w: self.setEnabled(True))
-
-
         # check for multiple selected enabled requests
         def enable_logic_check(state):
             if state:
