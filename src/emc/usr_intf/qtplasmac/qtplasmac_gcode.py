@@ -167,6 +167,7 @@ class Filter():
         if self.pierceList['active']:
             del self.pierceList['X'][-1]
             del self.pierceList['Y'][-1]
+            self.pierceList['active'] = False
         # write the pierce extents hal pins
         if GUI == 'axis':
             RUN(['halcmd', 'setp', 'axisui.x_min_pierce_extent', str(min(self.pierceList['X']) if self.pierceList['X'] else 0)])
@@ -302,12 +303,14 @@ class Filter():
         data = tmp
         # get all G00 coordinates
         if data[:3] == 'G00' and ('X' in data or 'Y' in data):
+            pierceX = self.lastX
+            pierceY = self.lastY
             if 'X' in data and not self.check_math(data, 'X', 'pierce'):
-                pierceX = self.get_axis_value(data, 'X') if 'X' in data else self.lastX
-                self.pierceList['X'].append(pierceX)
+                pierceX = self.get_axis_value(data, 'X')
             if 'Y' in data and not self.check_math(data, 'Y', 'pierce'):
-                pierceY = self.get_axis_value(data, 'Y') if 'Y' in data else self.lastY
-                self.pierceList['Y'].append(pierceY)
+                pierceY = self.get_axis_value(data, 'Y')
+            self.pierceList['X'].append(pierceX)
+            self.pierceList['Y'].append(pierceY)
             self.pierceList['active'] = True
         # reset G00 active flag
         if data[:3] == 'M03' and self.pierceList['active']:
@@ -1371,7 +1374,8 @@ class Filter():
                 msg  = 'Pierce only mode is invalid while scribing.\n'
                 warnText += self.message_set(self.warnPierceScribe, msg)
             if self.warnPierceLimit:
-                msg  = 'Pierce limit checks require explicit X and Y values for G00 moves.\n'
+                msg  = 'Pierce limit checks require explicit X and Y values (no math) for G00 moves.\n'
+                msg += 'Pierce points will be disregarded in G-Code limit checking.\n'
                 warnText += self.message_set(self.warnPierceLimit, msg)
             if self.warnMatLoad:
                 msg  = 'Materials were not reloaded in a timely manner.\n'
