@@ -10629,6 +10629,9 @@ START</string>
                    <property name="shape_option" stdset="0">
                     <number>1</number>
                    </property>
+                   <property name="flashIndicator" stdset="0">
+                    <bool>true</bool>
+                   </property>
                    <property name="indicator_size" stdset="0">
                     <double>0.200000000000000</double>
                    </property>
@@ -10644,11 +10647,32 @@ START</string>
                    <property name="false_state_string" stdset="0">
                     <string>PAUSE</string>
                    </property>
+                   <property name="invert_the_status" stdset="0">
+                    <bool>false</bool>
+                   </property>
                    <property name="is_paused_status" stdset="0">
                     <bool>true</bool>
                    </property>
-                   <property name="pause_action" stdset="0">
+                   <property name="is_idle_status" stdset="0">
+                    <bool>false</bool>
+                   </property>
+                   <property name="is_homed_status" stdset="0">
+                    <bool>false</bool>
+                   </property>
+                   <property name="isRunSensitive" stdset="0">
+                    <bool>false</bool>
+                   </property>
+                   <property name="isRunPausedSensitive" stdset="0">
                     <bool>true</bool>
+                   </property>
+                   <property name="isAutoPauseSensitive" stdset="0">
+                    <bool>false</bool>
+                   </property>
+                   <property name="pause_action" stdset="0">
+                    <bool>false</bool>
+                   </property>
+                   <property name="isRunPauseSensitive" stdset="0">
+                    <bool>false</bool>
                    </property>
                   </widget>
                  </item>
@@ -11108,8 +11132,7 @@ OFF</string>
                     <string>Spindle pause</string>
                    </property>
                    <property name="text">
-                    <string>PAUSE
-SPINDLE</string>
+                    <string>NO LIFT</string>
                    </property>
                    <property name="checkable">
                     <bool>true</bool>
@@ -11149,15 +11172,13 @@ SPINDLE</string>
                     <number>6</number>
                    </property>
                    <property name="true_state_string" stdset="0">
-                    <string>SPINDLE
-PAUSED</string>
+                    <string>SPINDLE LIFT</string>
                    </property>
                    <property name="false_state_string" stdset="0">
-                    <string>PAUSE
-SPINDLE</string>
+                    <string>NO LIFT</string>
                    </property>
                    <property name="isAutoPauseSensitive" stdset="0">
-                    <bool>true</bool>
+                    <bool>false</bool>
                    </property>
                   </widget>
                  </item>
@@ -17836,7 +17857,7 @@ ZERO</string>
              <number>2</number>
             </property>
             <property name="text">
-             <string>08:19:23 PM</string>
+             <string>11:52:17 AM</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -18081,22 +18102,6 @@ ZERO</string>
     <hint type="destinationlabel">
      <x>0</x>
      <y>650</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>btn_spindle_pause</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>disable_pause_buttons()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>189</x>
-     <y>872</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>358</x>
-     <y>859</y>
     </hint>
    </hints>
   </connection>
@@ -18363,8 +18368,8 @@ ZERO</string>
    <slot>btn_gcode_edit_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>459</x>
-     <y>598</y>
+     <x>454</x>
+     <y>104</y>
     </hint>
     <hint type="destinationlabel">
      <x>515</x>
@@ -18507,8 +18512,8 @@ ZERO</string>
    <slot>btn_m61_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>269</x>
-     <y>571</y>
+     <x>84</x>
+     <y>104</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -18587,8 +18592,8 @@ ZERO</string>
    <slot>btn_touchoff_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>355</x>
-     <y>571</y>
+     <x>84</x>
+     <y>104</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -18619,8 +18624,8 @@ ZERO</string>
    <slot>btn_copy_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>459</x>
-     <y>328</y>
+     <x>454</x>
+     <y>114</y>
     </hint>
     <hint type="destinationlabel">
      <x>446</x>
@@ -18651,8 +18656,8 @@ ZERO</string>
    <slot>btn_load_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>459</x>
-     <y>114</y>
+     <x>454</x>
+     <y>104</y>
     </hint>
     <hint type="destinationlabel">
      <x>1059</x>
@@ -18763,8 +18768,8 @@ ZERO</string>
    <slot>btn_copy_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>459</x>
-     <y>394</y>
+     <x>454</x>
+     <y>114</y>
     </hint>
     <hint type="destinationlabel">
      <x>471</x>
