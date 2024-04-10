@@ -3034,4 +3034,41 @@ Allows adding loadable PDFs to a screen.
 
 Use this to build/add OpenGl simulated machines.
 
+=== Hal Selection Box
+This widget is combobox that will allows selection of a pin or signal on the system. +
+
+[source,python]
+----
+from qtvcp.widgets.hal_selectionbox import HALSelectionBox
+
+    def buildComboBox(self):
+        # combo box for HAL pin selection
+        combobox = HALSelectionBox()
+        combobox.setShowTypes([combobox.PINS,combobox.SIGNALS])
+        combobox.setPinTypes([combobox.HAL_BIT], direction = [combobox.HAL_IN])
+        combobox.setSignalTypes([combobox.HAL_BIT], driven = [False,True])
+        combobox.hal_init()
+        combobox.selectionUpdated.connect(lambda w: self.signalSelected(w))
+
+    def signalSelected(self, sig):
+        print('Watching:',sig)
+
+----
+
+There are function calls
+
+[source,python]
+----
+# set the list of types to show from: PINS SIGNALS
+combobox.setShowTypes([combobox.PINS])
+
+# set the pin types to show: HAL_BIT,HAL_FLOAT,HAL_S32,HAL_U32
+# and a list of directions: HAL_IN HAL_OUT
+combobox.setPinTypes(types=[combobox.HAL_BIT], direction = [HAL_IN])
+
+# set the signal types to show: HAL_BIT,HAL_FLOAT,HAL_S32,HAL_U32
+# and a list of driven/undriven (by a connected pin) to show
+combobox.setSignalTypes( types=[combobox.HAL_BIT], driven = [True,True])
+----
+
 // vim: set syntax=asciidoc:
