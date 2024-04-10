@@ -2771,6 +2771,8 @@ These properties are available to customize the indicator (not all are applicabl
 
 *`on_color`*::
 *`off_color`*::
+*`flashIndicator`*::
+*`flashRate`*::
 *`indicator_size`*::
 *`circle_diameter`*::
 *`shape_option`*::
@@ -2871,6 +2873,7 @@ There are several properties that can be selected to aid with this:
 *`isOnSensitive`*::
 *`isIdleSensitive`*::
 *`isRunSensitive`*::
+*`isRunPausedSensitive`*::
 *`isManSensitive`*::
 *`isMDISensitive`*::
 *`isAutoSensitive`*::
