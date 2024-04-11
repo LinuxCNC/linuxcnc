@@ -332,7 +332,7 @@ class HandlerClass:
         pin.value_changed.connect(self.mb_errors_changed)
 
         pin = QHAL.newpin("spindle-modbus-connection", QHAL.HAL_BIT, QHAL.HAL_IN)
-        pin.pinValueChanged.connect(self.mb_connection_changed)
+        pin.value_changed.connect(self.mb_connection_changed)
 
         QHAL.newpin("spindle-inhibit", QHAL.HAL_BIT, QHAL.HAL_OUT)
 
