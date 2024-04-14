@@ -1,4 +1,4 @@
-VERSION = '005.035'
+VERSION = '005.036'
 LCNCVER = '2.10'
 DOCSVER = LCNCVER
 
@@ -4779,7 +4779,7 @@ class HandlerClass:
         else:
             self.w[button].setStyleSheet( \
                         f'QPushButton {{ color: {self.foreColor}; background: {self.backColor} }} \
-                         QPushButton:pressed {{ color: {self.foreColor}; background: {self.backColor} }} \
+                         QPushButton:pressed {{ color: {self.backColor}; background: {self.fore1Color} }} \
                          QPushButton:disabled {{ color: {self.disabledColor} }}')
 
 
