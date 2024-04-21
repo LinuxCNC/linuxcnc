@@ -228,7 +228,7 @@
           </sizepolicy>
          </property>
          <property name="focusPolicy">
-          <enum>Qt::NoFocus</enum>
+          <enum>Qt::ClickFocus</enum>
          </property>
          <property name="tabPosition">
           <enum>QTabWidget::South</enum>
@@ -392,7 +392,7 @@
                       </size>
                      </property>
                      <property name="focusPolicy">
-                      <enum>Qt::NoFocus</enum>
+                      <enum>Qt::ClickFocus</enum>
                      </property>
                      <property name="text">
                       <string>20</string>
@@ -408,7 +408,7 @@
                       </size>
                      </property>
                      <property name="focusPolicy">
-                      <enum>Qt::NoFocus</enum>
+                      <enum>Qt::ClickFocus</enum>
                      </property>
                      <property name="text">
                       <string>19</string>
@@ -424,7 +424,7 @@
                       </size>
                      </property>
                      <property name="focusPolicy">
-                      <enum>Qt::NoFocus</enum>
+                      <enum>Qt::ClickFocus</enum>
                      </property>
                      <property name="text">
                       <string>18</string>
@@ -440,7 +440,7 @@
                       </size>
                      </property>
                      <property name="focusPolicy">
-                      <enum>Qt::NoFocus</enum>
+                      <enum>Qt::ClickFocus</enum>
                      </property>
                      <property name="text">
                       <string>17</string>
@@ -456,7 +456,7 @@
                       </size>
                      </property>
                      <property name="focusPolicy">
-                      <enum>Qt::NoFocus</enum>
+                      <enum>Qt::ClickFocus</enum>
                      </property>
                      <property name="text">
                       <string>16</string>
@@ -472,7 +472,7 @@
                       </size>
                      </property>
                      <property name="focusPolicy">
-                      <enum>Qt::NoFocus</enum>
+                      <enum>Qt::ClickFocus</enum>
                      </property>
                      <property name="text">
                       <string>15</string>
@@ -488,7 +488,7 @@
                       </size>
                      </property>
                      <property name="focusPolicy">
-                      <enum>Qt::NoFocus</enum>
+                      <enum>Qt::ClickFocus</enum>
                      </property>
                      <property name="text">
                       <string>14</string>
@@ -504,7 +504,7 @@
                       </size>
                      </property>
                      <property name="focusPolicy">
-                      <enum>Qt::NoFocus</enum>
+                      <enum>Qt::ClickFocus</enum>
                      </property>
                      <property name="text">
                       <string>13</string>
@@ -520,7 +520,7 @@
                       </size>
                      </property>
                      <property name="focusPolicy">
-                      <enum>Qt::NoFocus</enum>
+                      <enum>Qt::ClickFocus</enum>
                      </property>
                      <property name="text">
                       <string>12</string>
@@ -536,7 +536,7 @@
                       </size>
                      </property>
                      <property name="focusPolicy">
-                      <enum>Qt::NoFocus</enum>
+                      <enum>Qt::ClickFocus</enum>
                      </property>
                      <property name="text">
                       <string>11</string>
@@ -552,7 +552,7 @@
                       </size>
                      </property>
                      <property name="focusPolicy">
-                      <enum>Qt::NoFocus</enum>
+                      <enum>Qt::ClickFocus</enum>
                      </property>
                      <property name="text">
                       <string>10</string>
@@ -568,7 +568,7 @@
                       </size>
                      </property>
                      <property name="focusPolicy">
-                      <enum>Qt::NoFocus</enum>
+                      <enum>Qt::ClickFocus</enum>
                      </property>
                      <property name="text">
                       <string>9</string>
@@ -590,7 +590,7 @@
                       </size>
                      </property>
                      <property name="focusPolicy">
-                      <enum>Qt::NoFocus</enum>
+                      <enum>Qt::ClickFocus</enum>
                      </property>
                      <property name="text">
                       <string>8</string>
@@ -618,7 +618,7 @@
                       </size>
                      </property>
                      <property name="focusPolicy">
-                      <enum>Qt::NoFocus</enum>
+                      <enum>Qt::ClickFocus</enum>
                      </property>
                      <property name="text">
                       <string>7</string>
@@ -646,7 +646,7 @@
                       </size>
                      </property>
                      <property name="focusPolicy">
-                      <enum>Qt::NoFocus</enum>
+                      <enum>Qt::ClickFocus</enum>
                      </property>
                      <property name="text">
                       <string>6</string>
@@ -674,7 +674,7 @@
                       </size>
                      </property>
                      <property name="focusPolicy">
-                      <enum>Qt::NoFocus</enum>
+                      <enum>Qt::ClickFocus</enum>
                      </property>
                      <property name="text">
                       <string>5</string>
@@ -702,7 +702,7 @@
                       </size>
                      </property>
                      <property name="focusPolicy">
-                      <enum>Qt::NoFocus</enum>
+                      <enum>Qt::ClickFocus</enum>
                      </property>
                      <property name="text">
                       <string>4</string>
@@ -730,7 +730,7 @@
                       </size>
                      </property>
                      <property name="focusPolicy">
-                      <enum>Qt::NoFocus</enum>
+                      <enum>Qt::ClickFocus</enum>
                      </property>
                      <property name="text">
                       <string>3</string>
@@ -758,7 +758,7 @@
                       </size>
                      </property>
                      <property name="focusPolicy">
-                      <enum>Qt::NoFocus</enum>
+                      <enum>Qt::ClickFocus</enum>
                      </property>
                      <property name="text">
                       <string>2</string>
@@ -786,7 +786,7 @@
                       </size>
                      </property>
                      <property name="focusPolicy">
-                      <enum>Qt::NoFocus</enum>
+                      <enum>Qt::ClickFocus</enum>
                      </property>
                      <property name="text">
                       <string>1</string>
@@ -908,7 +908,7 @@
                            </size>
                           </property>
                           <property name="focusPolicy">
-                           <enum>Qt::NoFocus</enum>
+                           <enum>Qt::ClickFocus</enum>
                           </property>
                          </widget>
                         </item>
@@ -1075,7 +1075,7 @@
                               </size>
                              </property>
                              <property name="focusPolicy">
-                              <enum>Qt::NoFocus</enum>
+                              <enum>Qt::ClickFocus</enum>
                              </property>
                              <property name="text">
                               <string>C</string>
@@ -1116,7 +1116,7 @@
                               </size>
                              </property>
                              <property name="focusPolicy">
-                              <enum>Qt::NoFocus</enum>
+                              <enum>Qt::ClickFocus</enum>
                              </property>
                              <property name="text">
                               <string>+</string>
@@ -1141,7 +1141,7 @@
                               </size>
                              </property>
                              <property name="focusPolicy">
-                              <enum>Qt::NoFocus</enum>
+                              <enum>Qt::ClickFocus</enum>
                              </property>
                              <property name="text">
                               <string>-</string>
@@ -1185,7 +1185,7 @@
                               </size>
                              </property>
                              <property name="focusPolicy">
-                              <enum>Qt::NoFocus</enum>
+                              <enum>Qt::ClickFocus</enum>
                              </property>
                              <property name="text">
                               <string>↑</string>
@@ -1210,7 +1210,7 @@
                               </size>
                              </property>
                              <property name="focusPolicy">
-                              <enum>Qt::NoFocus</enum>
+                              <enum>Qt::ClickFocus</enum>
                              </property>
                              <property name="text">
                               <string>↓</string>
@@ -1235,7 +1235,7 @@
                               </size>
                              </property>
                              <property name="focusPolicy">
-                              <enum>Qt::NoFocus</enum>
+                              <enum>Qt::ClickFocus</enum>
                              </property>
                              <property name="text">
                               <string>←</string>
@@ -1260,7 +1260,7 @@
                               </size>
                              </property>
                              <property name="focusPolicy">
-                              <enum>Qt::NoFocus</enum>
+                              <enum>Qt::ClickFocus</enum>
                              </property>
                              <property name="text">
                               <string>→</string>
@@ -1304,7 +1304,7 @@
                               </size>
                              </property>
                              <property name="focusPolicy">
-                              <enum>Qt::NoFocus</enum>
+                              <enum>Qt::ClickFocus</enum>
                              </property>
                              <property name="text">
                               <string>Z</string>
@@ -1335,7 +1335,7 @@
                               </size>
                              </property>
                              <property name="focusPolicy">
-                              <enum>Qt::NoFocus</enum>
+                              <enum>Qt::ClickFocus</enum>
                              </property>
                              <property name="text">
                               <string>P</string>
@@ -1363,7 +1363,7 @@
                               </size>
                              </property>
                              <property name="focusPolicy">
-                              <enum>Qt::NoFocus</enum>
+                              <enum>Qt::ClickFocus</enum>
                              </property>
                              <property name="text">
                               <string>T</string>
@@ -2408,7 +2408,7 @@ ORIGIN</string>
                           </size>
                          </property>
                          <property name="focusPolicy">
-                          <enum>Qt::NoFocus</enum>
+                          <enum>Qt::ClickFocus</enum>
                          </property>
                          <property name="text">
                           <string>EDIT</string>
@@ -2430,7 +2430,7 @@ ORIGIN</string>
                           </size>
                          </property>
                          <property name="focusPolicy">
-                          <enum>Qt::NoFocus</enum>
+                          <enum>Qt::ClickFocus</enum>
                          </property>
                          <property name="text">
                           <string>MDI</string>
@@ -2552,7 +2552,7 @@ ORIGIN</string>
                           </size>
                          </property>
                          <property name="focusPolicy">
-                          <enum>Qt::NoFocus</enum>
+                          <enum>Qt::ClickFocus</enum>
                          </property>
                          <property name="text">
                           <string>ESTOP</string>
@@ -2678,7 +2678,7 @@ ORIGIN</string>
                           </size>
                          </property>
                          <property name="focusPolicy">
-                          <enum>Qt::NoFocus</enum>
+                          <enum>Qt::ClickFocus</enum>
                          </property>
                          <property name="toolTip">
                           <string/>
@@ -2801,7 +2801,7 @@ ORIGIN</string>
                           </size>
                          </property>
                          <property name="focusPolicy">
-                          <enum>Qt::NoFocus</enum>
+                          <enum>Qt::ClickFocus</enum>
                          </property>
                          <property name="text">
                           <string>CYCLE START</string>
@@ -2829,7 +2829,7 @@ ORIGIN</string>
                           </size>
                          </property>
                          <property name="focusPolicy">
-                          <enum>Qt::NoFocus</enum>
+                          <enum>Qt::ClickFocus</enum>
                          </property>
                          <property name="text">
                           <string>CYCLE PAUSE</string>
@@ -3024,7 +3024,7 @@ ORIGIN</string>
                           </size>
                          </property>
                          <property name="focusPolicy">
-                          <enum>Qt::NoFocus</enum>
+                          <enum>Qt::ClickFocus</enum>
                          </property>
                          <property name="text">
                           <string>CYCLE STOP</string>
@@ -3112,7 +3112,7 @@ ORIGIN</string>
                              </size>
                             </property>
                             <property name="focusPolicy">
-                             <enum>Qt::NoFocus</enum>
+                             <enum>Qt::ClickFocus</enum>
                             </property>
                             <property name="text">
                              <string>FEED</string>
@@ -3140,7 +3140,7 @@ ORIGIN</string>
                              </size>
                             </property>
                             <property name="focusPolicy">
-                             <enum>Qt::NoFocus</enum>
+                             <enum>Qt::ClickFocus</enum>
                             </property>
                             <property name="maximum">
                              <number>100</number>
@@ -3195,7 +3195,7 @@ ORIGIN</string>
                              </size>
                             </property>
                             <property name="focusPolicy">
-                             <enum>Qt::NoFocus</enum>
+                             <enum>Qt::ClickFocus</enum>
                             </property>
                             <property name="text">
                              <string>RAPID</string>
@@ -3217,7 +3217,7 @@ ORIGIN</string>
                              </size>
                             </property>
                             <property name="focusPolicy">
-                             <enum>Qt::NoFocus</enum>
+                             <enum>Qt::ClickFocus</enum>
                             </property>
                             <property name="maximum">
                              <number>100</number>
@@ -3266,7 +3266,7 @@ ORIGIN</string>
                              </size>
                             </property>
                             <property name="focusPolicy">
-                             <enum>Qt::NoFocus</enum>
+                             <enum>Qt::ClickFocus</enum>
                             </property>
                             <property name="text">
                              <string>JOG</string>
@@ -3288,7 +3288,7 @@ ORIGIN</string>
                              </size>
                             </property>
                             <property name="focusPolicy">
-                             <enum>Qt::NoFocus</enum>
+                             <enum>Qt::ClickFocus</enum>
                             </property>
                             <property name="maximum">
                              <number>100</number>
@@ -3535,7 +3535,7 @@ ORIGIN</string>
                              </size>
                             </property>
                             <property name="focusPolicy">
-                             <enum>Qt::NoFocus</enum>
+                             <enum>Qt::ClickFocus</enum>
                             </property>
                             <property name="text">
                              <string>0</string>
@@ -3581,7 +3581,7 @@ ORIGIN</string>
                              </size>
                             </property>
                             <property name="focusPolicy">
-                             <enum>Qt::NoFocus</enum>
+                             <enum>Qt::ClickFocus</enum>
                             </property>
                             <property name="text">
                              <string>0</string>
@@ -3670,7 +3670,7 @@ ORIGIN</string>
                                 </size>
                                </property>
                                <property name="focusPolicy">
-                                <enum>Qt::NoFocus</enum>
+                                <enum>Qt::ClickFocus</enum>
                                </property>
                                <property name="text">
                                 <string/>
@@ -3714,7 +3714,7 @@ ORIGIN</string>
                                 </size>
                                </property>
                                <property name="focusPolicy">
-                                <enum>Qt::NoFocus</enum>
+                                <enum>Qt::ClickFocus</enum>
                                </property>
                                <property name="text">
                                 <string>CAMERA</string>
@@ -3742,7 +3742,7 @@ ORIGIN</string>
                                 </size>
                                </property>
                                <property name="focusPolicy">
-                                <enum>Qt::NoFocus</enum>
+                                <enum>Qt::ClickFocus</enum>
                                </property>
                                <property name="text">
                                 <string>LASER</string>
@@ -3773,7 +3773,7 @@ ORIGIN</string>
                              </size>
                             </property>
                             <property name="focusPolicy">
-                             <enum>Qt::NoFocus</enum>
+                             <enum>Qt::ClickFocus</enum>
                             </property>
                             <property name="text">
                              <string>HOME</string>
@@ -3881,7 +3881,7 @@ ORIGIN</string>
                              </size>
                             </property>
                             <property name="focusPolicy">
-                             <enum>Qt::NoFocus</enum>
+                             <enum>Qt::ClickFocus</enum>
                             </property>
                             <property name="toolTip">
                              <string/>
@@ -3953,7 +3953,7 @@ HOME ALL</string>
                              </size>
                             </property>
                             <property name="focusPolicy">
-                             <enum>Qt::NoFocus</enum>
+                             <enum>Qt::ClickFocus</enum>
                             </property>
                             <property name="text">
                              <string>HOME</string>
@@ -4071,7 +4071,7 @@ HOME ALL</string>
                              </size>
                             </property>
                             <property name="focusPolicy">
-                             <enum>Qt::NoFocus</enum>
+                             <enum>Qt::ClickFocus</enum>
                             </property>
                             <property name="text">
                              <string>HOME</string>
@@ -4222,7 +4222,7 @@ HOME ALL</string>
                              </size>
                             </property>
                             <property name="focusPolicy">
-                             <enum>Qt::NoFocus</enum>
+                             <enum>Qt::ClickFocus</enum>
                             </property>
                             <property name="text">
                              <string>X0Y0</string>
@@ -4250,7 +4250,7 @@ HOME ALL</string>
                              </size>
                             </property>
                             <property name="focusPolicy">
-                             <enum>Qt::NoFocus</enum>
+                             <enum>Qt::ClickFocus</enum>
                             </property>
                             <property name="text">
                              <string>0</string>
@@ -4333,7 +4333,7 @@ HOME ALL</string>
                              </size>
                             </property>
                             <property name="focusPolicy">
-                             <enum>Qt::NoFocus</enum>
+                             <enum>Qt::ClickFocus</enum>
                             </property>
                             <property name="text">
                              <string>HOME</string>
@@ -4472,7 +4472,7 @@ HOME ALL</string>
                              </size>
                             </property>
                             <property name="focusPolicy">
-                             <enum>Qt::NoFocus</enum>
+                             <enum>Qt::ClickFocus</enum>
                             </property>
                             <property name="text">
                              <string>HOME</string>
@@ -4667,7 +4667,7 @@ HOME ALL</string>
                              </size>
                             </property>
                             <property name="focusPolicy">
-                             <enum>Qt::NoFocus</enum>
+                             <enum>Qt::ClickFocus</enum>
                             </property>
                             <property name="text">
                              <string>0</string>
@@ -4713,7 +4713,7 @@ HOME ALL</string>
                              </size>
                             </property>
                             <property name="focusPolicy">
-                             <enum>Qt::NoFocus</enum>
+                             <enum>Qt::ClickFocus</enum>
                             </property>
                             <property name="text">
                              <string>0</string>
@@ -4840,7 +4840,7 @@ HOME ALL</string>
                              </size>
                             </property>
                             <property name="focusPolicy">
-                             <enum>Qt::NoFocus</enum>
+                             <enum>Qt::ClickFocus</enum>
                             </property>
                             <property name="text">
                              <string>HOME</string>
@@ -4899,7 +4899,7 @@ HOME ALL</string>
                              </size>
                             </property>
                             <property name="focusPolicy">
-                             <enum>Qt::NoFocus</enum>
+                             <enum>Qt::ClickFocus</enum>
                             </property>
                             <property name="text">
                              <string>0</string>
@@ -5081,7 +5081,7 @@ HOME ALL</string>
                                     </size>
                                    </property>
                                    <property name="focusPolicy">
-                                    <enum>Qt::NoFocus</enum>
+                                    <enum>Qt::ClickFocus</enum>
                                    </property>
                                    <property name="text">
                                     <string>CLEAR</string>
@@ -5118,7 +5118,7 @@ HOME ALL</string>
                                     </size>
                                    </property>
                                    <property name="focusPolicy">
-                                    <enum>Qt::NoFocus</enum>
+                                    <enum>Qt::ClickFocus</enum>
                                    </property>
                                    <property name="text">
                                     <string>OPEN</string>
@@ -5146,7 +5146,7 @@ HOME ALL</string>
                                     </size>
                                    </property>
                                    <property name="focusPolicy">
-                                    <enum>Qt::NoFocus</enum>
+                                    <enum>Qt::ClickFocus</enum>
                                    </property>
                                    <property name="text">
                                     <string>RELOAD</string>
@@ -5529,7 +5529,7 @@ HOME ALL</string>
                                     </size>
                                    </property>
                                    <property name="focusPolicy">
-                                    <enum>Qt::NoFocus</enum>
+                                    <enum>Qt::ClickFocus</enum>
                                    </property>
                                   </widget>
                                  </item>
@@ -5554,7 +5554,7 @@ HOME ALL</string>
                                     </size>
                                    </property>
                                    <property name="focusPolicy">
-                                    <enum>Qt::NoFocus</enum>
+                                    <enum>Qt::ClickFocus</enum>
                                    </property>
                                    <property name="toolTip">
                                     <string/>
@@ -5633,7 +5633,7 @@ HOME ALL</string>
                                     </size>
                                    </property>
                                    <property name="focusPolicy">
-                                    <enum>Qt::NoFocus</enum>
+                                    <enum>Qt::ClickFocus</enum>
                                    </property>
                                    <property name="iconSize">
                                     <size>
@@ -5664,7 +5664,7 @@ HOME ALL</string>
                                     </size>
                                    </property>
                                    <property name="focusPolicy">
-                                    <enum>Qt::NoFocus</enum>
+                                    <enum>Qt::ClickFocus</enum>
                                    </property>
                                    <property name="text">
                                     <string/>
@@ -5698,7 +5698,7 @@ HOME ALL</string>
                                     </size>
                                    </property>
                                    <property name="focusPolicy">
-                                    <enum>Qt::NoFocus</enum>
+                                    <enum>Qt::ClickFocus</enum>
                                    </property>
                                    <property name="iconSize">
                                     <size>
@@ -5729,7 +5729,7 @@ HOME ALL</string>
                                     </size>
                                    </property>
                                    <property name="focusPolicy">
-                                    <enum>Qt::NoFocus</enum>
+                                    <enum>Qt::ClickFocus</enum>
                                    </property>
                                    <property name="iconSize">
                                     <size>
@@ -5760,7 +5760,7 @@ HOME ALL</string>
                                     </size>
                                    </property>
                                    <property name="focusPolicy">
-                                    <enum>Qt::NoFocus</enum>
+                                    <enum>Qt::ClickFocus</enum>
                                    </property>
                                    <property name="iconSize">
                                     <size>
@@ -5791,7 +5791,7 @@ HOME ALL</string>
                                     </size>
                                    </property>
                                    <property name="focusPolicy">
-                                    <enum>Qt::NoFocus</enum>
+                                    <enum>Qt::ClickFocus</enum>
                                    </property>
                                    <property name="iconSize">
                                     <size>
@@ -5822,7 +5822,7 @@ HOME ALL</string>
                                     </size>
                                    </property>
                                    <property name="focusPolicy">
-                                    <enum>Qt::NoFocus</enum>
+                                    <enum>Qt::ClickFocus</enum>
                                    </property>
                                    <property name="iconSize">
                                     <size>
@@ -5853,7 +5853,7 @@ HOME ALL</string>
                                     </size>
                                    </property>
                                    <property name="focusPolicy">
-                                    <enum>Qt::NoFocus</enum>
+                                    <enum>Qt::ClickFocus</enum>
                                    </property>
                                    <property name="iconSize">
                                     <size>
@@ -5884,7 +5884,7 @@ HOME ALL</string>
                                     </size>
                                    </property>
                                    <property name="focusPolicy">
-                                    <enum>Qt::NoFocus</enum>
+                                    <enum>Qt::ClickFocus</enum>
                                    </property>
                                    <property name="iconSize">
                                     <size>
@@ -5915,7 +5915,7 @@ HOME ALL</string>
                                     </size>
                                    </property>
                                    <property name="focusPolicy">
-                                    <enum>Qt::NoFocus</enum>
+                                    <enum>Qt::ClickFocus</enum>
                                    </property>
                                    <property name="text">
                                     <string/>
@@ -5949,7 +5949,7 @@ HOME ALL</string>
                                     </size>
                                    </property>
                                    <property name="focusPolicy">
-                                    <enum>Qt::NoFocus</enum>
+                                    <enum>Qt::ClickFocus</enum>
                                    </property>
                                    <property name="text">
                                     <string/>
@@ -5983,7 +5983,7 @@ HOME ALL</string>
                                     </size>
                                    </property>
                                    <property name="focusPolicy">
-                                    <enum>Qt::NoFocus</enum>
+                                    <enum>Qt::ClickFocus</enum>
                                    </property>
                                    <property name="text">
                                     <string/>
@@ -7010,7 +7010,7 @@ MOVE</string>
                                 <item row="0" column="0">
                                  <widget class="CheckBox" name="thc_enable">
                                   <property name="focusPolicy">
-                                   <enum>Qt::NoFocus</enum>
+                                   <enum>Qt::ClickFocus</enum>
                                   </property>
                                  </widget>
                                 </item>
@@ -7586,7 +7586,7 @@ MOVE</string>
                                    </size>
                                   </property>
                                   <property name="focusPolicy">
-                                   <enum>Qt::NoFocus</enum>
+                                   <enum>Qt::ClickFocus</enum>
                                   </property>
                                   <property name="text">
                                    <string>OVERRIDE</string>
@@ -7638,7 +7638,7 @@ MOVE</string>
                                       </size>
                                      </property>
                                      <property name="focusPolicy">
-                                      <enum>Qt::NoFocus</enum>
+                                      <enum>Qt::ClickFocus</enum>
                                      </property>
                                      <property name="text">
                                       <string>-</string>
@@ -7682,7 +7682,7 @@ MOVE</string>
                                       </size>
                                      </property>
                                      <property name="focusPolicy">
-                                      <enum>Qt::NoFocus</enum>
+                                      <enum>Qt::ClickFocus</enum>
                                      </property>
                                      <property name="text">
                                       <string>+</string>
@@ -7804,7 +7804,7 @@ MOVE</string>
                                 </size>
                                </property>
                                <property name="focusPolicy">
-                                <enum>Qt::NoFocus</enum>
+                                <enum>Qt::ClickFocus</enum>
                                </property>
                                <property name="layoutDirection">
                                 <enum>Qt::LeftToRight</enum>
@@ -7886,7 +7886,7 @@ MOVE</string>
                                 </size>
                                </property>
                                <property name="focusPolicy">
-                                <enum>Qt::NoFocus</enum>
+                                <enum>Qt::ClickFocus</enum>
                                </property>
                               </widget>
                              </item>
@@ -7944,7 +7944,7 @@ MOVE</string>
                                 </size>
                                </property>
                                <property name="focusPolicy">
-                                <enum>Qt::NoFocus</enum>
+                                <enum>Qt::ClickFocus</enum>
                                </property>
                                <property name="layoutDirection">
                                 <enum>Qt::LeftToRight</enum>
@@ -8032,7 +8032,7 @@ MOVE</string>
                                 </size>
                                </property>
                                <property name="focusPolicy">
-                                <enum>Qt::NoFocus</enum>
+                                <enum>Qt::ClickFocus</enum>
                                </property>
                                <property name="layoutDirection">
                                 <enum>Qt::LeftToRight</enum>
@@ -8176,7 +8176,7 @@ MOVE</string>
                                 </size>
                                </property>
                                <property name="focusPolicy">
-                                <enum>Qt::NoFocus</enum>
+                                <enum>Qt::ClickFocus</enum>
                                </property>
                                <property name="layoutDirection">
                                 <enum>Qt::LeftToRight</enum>
@@ -8320,7 +8320,7 @@ MOVE</string>
                                 </size>
                                </property>
                                <property name="focusPolicy">
-                                <enum>Qt::NoFocus</enum>
+                                <enum>Qt::ClickFocus</enum>
                                </property>
                                <property name="layoutDirection">
                                 <enum>Qt::LeftToRight</enum>
@@ -8464,7 +8464,7 @@ MOVE</string>
                                 </size>
                                </property>
                                <property name="focusPolicy">
-                                <enum>Qt::NoFocus</enum>
+                                <enum>Qt::ClickFocus</enum>
                                </property>
                                <property name="layoutDirection">
                                 <enum>Qt::LeftToRight</enum>
@@ -8548,7 +8548,7 @@ MOVE</string>
                                 </size>
                                </property>
                                <property name="focusPolicy">
-                                <enum>Qt::NoFocus</enum>
+                                <enum>Qt::ClickFocus</enum>
                                </property>
                                <property name="text">
                                 <string/>
@@ -8811,7 +8811,7 @@ MOVE</string>
                        </size>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::NoFocus</enum>
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="iconSize">
                        <size>
@@ -8848,7 +8848,7 @@ MOVE</string>
                        </size>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::NoFocus</enum>
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="iconSize">
                        <size>
@@ -8879,7 +8879,7 @@ MOVE</string>
                        </size>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::NoFocus</enum>
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="text">
                        <string/>
@@ -8913,7 +8913,7 @@ MOVE</string>
                        </size>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::NoFocus</enum>
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="iconSize">
                        <size>
@@ -8950,7 +8950,7 @@ MOVE</string>
                        </size>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::NoFocus</enum>
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="iconSize">
                        <size>
@@ -8987,7 +8987,7 @@ MOVE</string>
                        </size>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::NoFocus</enum>
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="iconSize">
                        <size>
@@ -9024,7 +9024,7 @@ MOVE</string>
                        </size>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::NoFocus</enum>
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="iconSize">
                        <size>
@@ -9061,7 +9061,7 @@ MOVE</string>
                        </size>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::NoFocus</enum>
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="iconSize">
                        <size>
@@ -9098,7 +9098,7 @@ MOVE</string>
                        </size>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::NoFocus</enum>
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="iconSize">
                        <size>
@@ -9135,7 +9135,7 @@ MOVE</string>
                        </size>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::NoFocus</enum>
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="iconSize">
                        <size>
@@ -9172,7 +9172,7 @@ MOVE</string>
                        </size>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::NoFocus</enum>
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="iconSize">
                        <size>
@@ -9222,7 +9222,7 @@ MOVE</string>
                        </size>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::NoFocus</enum>
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="iconSize">
                        <size>
@@ -9378,7 +9378,7 @@ MOVE</string>
                                <item row="0" column="0">
                                 <widget class="QComboBox" name="conv_material">
                                  <property name="focusPolicy">
-                                  <enum>Qt::NoFocus</enum>
+                                  <enum>Qt::ClickFocus</enum>
                                  </property>
                                 </widget>
                                </item>
@@ -9444,7 +9444,7 @@ MOVE</string>
                              </size>
                             </property>
                             <property name="focusPolicy">
-                             <enum>Qt::NoFocus</enum>
+                             <enum>Qt::ClickFocus</enum>
                             </property>
                             <property name="text">
                              <string>NEW</string>
@@ -9472,7 +9472,7 @@ MOVE</string>
                              </size>
                             </property>
                             <property name="focusPolicy">
-                             <enum>Qt::NoFocus</enum>
+                             <enum>Qt::ClickFocus</enum>
                             </property>
                             <property name="text">
                              <string>SAVE</string>
@@ -9500,7 +9500,7 @@ MOVE</string>
                              </size>
                             </property>
                             <property name="focusPolicy">
-                             <enum>Qt::NoFocus</enum>
+                             <enum>Qt::ClickFocus</enum>
                             </property>
                             <property name="text">
                              <string>SETTINGS</string>
@@ -9528,7 +9528,7 @@ MOVE</string>
                              </size>
                             </property>
                             <property name="focusPolicy">
-                             <enum>Qt::NoFocus</enum>
+                             <enum>Qt::ClickFocus</enum>
                             </property>
                             <property name="text">
                              <string>SEND</string>
@@ -9666,7 +9666,7 @@ MOVE</string>
                     </size>
                    </property>
                    <property name="focusPolicy">
-                    <enum>Qt::NoFocus</enum>
+                    <enum>Qt::ClickFocus</enum>
                    </property>
                    <property name="text">
                     <string>SAVE</string>
@@ -9688,7 +9688,7 @@ MOVE</string>
                     </size>
                    </property>
                    <property name="focusPolicy">
-                    <enum>Qt::NoFocus</enum>
+                    <enum>Qt::ClickFocus</enum>
                    </property>
                    <property name="text">
                     <string>NEW</string>
@@ -9732,7 +9732,7 @@ MOVE</string>
                     </size>
                    </property>
                    <property name="focusPolicy">
-                    <enum>Qt::NoFocus</enum>
+                    <enum>Qt::ClickFocus</enum>
                    </property>
                    <property name="text">
                     <string>DELETE</string>
@@ -9754,7 +9754,7 @@ MOVE</string>
                     </size>
                    </property>
                    <property name="focusPolicy">
-                    <enum>Qt::NoFocus</enum>
+                    <enum>Qt::ClickFocus</enum>
                    </property>
                    <property name="text">
                     <string>RELOAD</string>
@@ -9815,7 +9815,7 @@ MOVE</string>
                     <item>
                      <widget class="QComboBox" name="materials_box">
                       <property name="focusPolicy">
-                       <enum>Qt::NoFocus</enum>
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="currentText">
                        <string/>
@@ -10892,7 +10892,7 @@ MOVE</string>
                     </size>
                    </property>
                    <property name="focusPolicy">
-                    <enum>Qt::NoFocus</enum>
+                    <enum>Qt::ClickFocus</enum>
                    </property>
                    <property name="text">
                     <string>SAVE</string>
@@ -10936,7 +10936,7 @@ MOVE</string>
                     </size>
                    </property>
                    <property name="focusPolicy">
-                    <enum>Qt::NoFocus</enum>
+                    <enum>Qt::ClickFocus</enum>
                    </property>
                    <property name="text">
                     <string>RELOAD</string>
@@ -11764,7 +11764,7 @@ MOVE</string>
                              <item row="1" column="0">
                               <widget class="CheckBox" name="thc_auto">
                                <property name="focusPolicy">
-                                <enum>Qt::NoFocus</enum>
+                                <enum>Qt::ClickFocus</enum>
                                </property>
                                <property name="layoutDirection">
                                 <enum>Qt::RightToLeft</enum>
@@ -14271,7 +14271,7 @@ MOVE</string>
                           </size>
                          </property>
                          <property name="focusPolicy">
-                          <enum>Qt::NoFocus</enum>
+                          <enum>Qt::ClickFocus</enum>
                          </property>
                         </widget>
                        </item>
@@ -14296,7 +14296,7 @@ MOVE</string>
                           </size>
                          </property>
                          <property name="focusPolicy">
-                          <enum>Qt::NoFocus</enum>
+                          <enum>Qt::ClickFocus</enum>
                          </property>
                         </widget>
                        </item>
@@ -14321,7 +14321,7 @@ MOVE</string>
                           </size>
                          </property>
                          <property name="focusPolicy">
-                          <enum>Qt::NoFocus</enum>
+                          <enum>Qt::ClickFocus</enum>
                          </property>
                         </widget>
                        </item>
@@ -14368,7 +14368,7 @@ MOVE</string>
                           </size>
                          </property>
                          <property name="focusPolicy">
-                          <enum>Qt::NoFocus</enum>
+                          <enum>Qt::ClickFocus</enum>
                          </property>
                         </widget>
                        </item>
@@ -14431,7 +14431,7 @@ MOVE</string>
                           </size>
                          </property>
                          <property name="focusPolicy">
-                          <enum>Qt::NoFocus</enum>
+                          <enum>Qt::ClickFocus</enum>
                          </property>
                         </widget>
                        </item>
@@ -14456,7 +14456,7 @@ MOVE</string>
                           </size>
                          </property>
                          <property name="focusPolicy">
-                          <enum>Qt::NoFocus</enum>
+                          <enum>Qt::ClickFocus</enum>
                          </property>
                         </widget>
                        </item>
@@ -14538,7 +14538,7 @@ MOVE</string>
                           </size>
                          </property>
                          <property name="focusPolicy">
-                          <enum>Qt::NoFocus</enum>
+                          <enum>Qt::ClickFocus</enum>
                          </property>
                         </widget>
                        </item>
@@ -14604,7 +14604,7 @@ MOVE</string>
                           </size>
                          </property>
                          <property name="focusPolicy">
-                          <enum>Qt::NoFocus</enum>
+                          <enum>Qt::ClickFocus</enum>
                          </property>
                         </widget>
                        </item>
@@ -14629,7 +14629,7 @@ MOVE</string>
                           </size>
                          </property>
                          <property name="focusPolicy">
-                          <enum>Qt::NoFocus</enum>
+                          <enum>Qt::ClickFocus</enum>
                          </property>
                         </widget>
                        </item>
@@ -14736,7 +14736,7 @@ MOVE</string>
                           </size>
                          </property>
                          <property name="focusPolicy">
-                          <enum>Qt::NoFocus</enum>
+                          <enum>Qt::ClickFocus</enum>
                          </property>
                          <property name="layoutDirection">
                           <enum>Qt::RightToLeft</enum>
@@ -14768,7 +14768,7 @@ MOVE</string>
                           </size>
                          </property>
                          <property name="focusPolicy">
-                          <enum>Qt::NoFocus</enum>
+                          <enum>Qt::ClickFocus</enum>
                          </property>
                          <property name="layoutDirection">
                           <enum>Qt::RightToLeft</enum>
@@ -14787,7 +14787,7 @@ MOVE</string>
                           </size>
                          </property>
                          <property name="focusPolicy">
-                          <enum>Qt::NoFocus</enum>
+                          <enum>Qt::ClickFocus</enum>
                          </property>
                          <property name="layoutDirection">
                           <enum>Qt::RightToLeft</enum>
@@ -14800,7 +14800,7 @@ MOVE</string>
                        <item row="2" column="0">
                         <widget class="QCheckBox" name="chk_exit_warning">
                          <property name="focusPolicy">
-                          <enum>Qt::NoFocus</enum>
+                          <enum>Qt::ClickFocus</enum>
                          </property>
                          <property name="layoutDirection">
                           <enum>Qt::RightToLeft</enum>
@@ -14864,7 +14864,7 @@ MOVE</string>
                        <item row="4" column="0">
                         <widget class="QCheckBox" name="chk_tool_tips">
                          <property name="focusPolicy">
-                          <enum>Qt::NoFocus</enum>
+                          <enum>Qt::ClickFocus</enum>
                          </property>
                          <property name="layoutDirection">
                           <enum>Qt::RightToLeft</enum>
@@ -14895,7 +14895,7 @@ MOVE</string>
                           </size>
                          </property>
                          <property name="focusPolicy">
-                          <enum>Qt::NoFocus</enum>
+                          <enum>Qt::ClickFocus</enum>
                          </property>
                          <property name="text">
                           <string/>
@@ -14959,7 +14959,7 @@ MOVE</string>
                           </size>
                          </property>
                          <property name="focusPolicy">
-                          <enum>Qt::NoFocus</enum>
+                          <enum>Qt::ClickFocus</enum>
                          </property>
                          <property name="layoutDirection">
                           <enum>Qt::RightToLeft</enum>
@@ -14990,7 +14990,7 @@ MOVE</string>
                           </size>
                          </property>
                          <property name="focusPolicy">
-                          <enum>Qt::NoFocus</enum>
+                          <enum>Qt::ClickFocus</enum>
                          </property>
                          <property name="text">
                           <string/>
@@ -15046,7 +15046,7 @@ MOVE</string>
                           </size>
                          </property>
                          <property name="focusPolicy">
-                          <enum>Qt::NoFocus</enum>
+                          <enum>Qt::ClickFocus</enum>
                          </property>
                          <property name="layoutDirection">
                           <enum>Qt::RightToLeft</enum>
@@ -15066,7 +15066,7 @@ MOVE</string>
                        <item row="7" column="0">
                         <widget class="QCheckBox" name="chk_override_jog">
                          <property name="focusPolicy">
-                          <enum>Qt::NoFocus</enum>
+                          <enum>Qt::ClickFocus</enum>
                          </property>
                          <property name="layoutDirection">
                           <enum>Qt::RightToLeft</enum>
@@ -15370,7 +15370,7 @@ MOVE</string>
                           </size>
                          </property>
                          <property name="focusPolicy">
-                          <enum>Qt::NoFocus</enum>
+                          <enum>Qt::ClickFocus</enum>
                          </property>
                         </widget>
                        </item>
@@ -15480,7 +15480,7 @@ MOVE</string>
                        </size>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::NoFocus</enum>
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="text">
                        <string>HAL SHOW</string>
@@ -15553,7 +15553,7 @@ MOVE</string>
                        </size>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::NoFocus</enum>
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="text">
                        <string>HAL SCOPE</string>
@@ -15626,7 +15626,7 @@ MOVE</string>
                        </size>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::NoFocus</enum>
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="text">
                        <string>HAL METER</string>
@@ -15699,7 +15699,7 @@ MOVE</string>
                        </size>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::NoFocus</enum>
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="text">
                        <string>CALIBRATION</string>
@@ -15730,7 +15730,7 @@ MOVE</string>
                        </size>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::NoFocus</enum>
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="text">
                        <string>STATUS</string>
@@ -15816,7 +15816,7 @@ MOVE</string>
                        </size>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::NoFocus</enum>
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="text">
                        <string>SET
@@ -15845,7 +15845,7 @@ OFFSETS</string>
                        </size>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::NoFocus</enum>
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="text">
                        <string>BACKUP
@@ -15991,7 +15991,7 @@ CONFIG</string>
                        </size>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::NoFocus</enum>
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="text">
                        <string>SAVE</string>
@@ -16041,7 +16041,7 @@ CONFIG</string>
                        </size>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::NoFocus</enum>
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="text">
                        <string>RELOAD</string>
@@ -16165,7 +16165,7 @@ CONFIG</string>
                     </size>
                    </property>
                    <property name="focusPolicy">
-                    <enum>Qt::NoFocus</enum>
+                    <enum>Qt::ClickFocus</enum>
                    </property>
                    <property name="frameShape">
                     <enum>QFrame::NoFrame</enum>
@@ -17498,7 +17498,7 @@ CONFIG</string>
                        </size>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::NoFocus</enum>
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="text">
                        <string>SAVE</string>
@@ -17548,7 +17548,7 @@ CONFIG</string>
                        </size>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::NoFocus</enum>
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="text">
                        <string>RELOAD</string>
@@ -17756,7 +17756,7 @@ CONFIG</string>
                     <item>
                      <widget class="MachineLog" name="machinelog">
                       <property name="focusPolicy">
-                       <enum>Qt::NoFocus</enum>
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="frameShape">
                        <enum>QFrame::NoFrame</enum>
@@ -17880,7 +17880,7 @@ CONFIG</string>
                        </sizepolicy>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::NoFocus</enum>
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="text">
                        <string>RESET</string>
@@ -17958,7 +17958,7 @@ CONFIG</string>
                        </sizepolicy>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::NoFocus</enum>
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="text">
                        <string>RESET</string>
@@ -17974,7 +17974,7 @@ CONFIG</string>
                        </sizepolicy>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::NoFocus</enum>
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="text">
                        <string>RESET</string>
@@ -18020,7 +18020,7 @@ CONFIG</string>
                        </sizepolicy>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::NoFocus</enum>
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="text">
                        <string>RESET</string>
@@ -18058,7 +18058,7 @@ CONFIG</string>
                        </sizepolicy>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::NoFocus</enum>
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="text">
                        <string>RESET ALL</string>
@@ -18173,7 +18173,7 @@ CONFIG</string>
                        </sizepolicy>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::NoFocus</enum>
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="text">
                        <string>RESET</string>
@@ -18209,7 +18209,7 @@ CONFIG</string>
                        </sizepolicy>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::NoFocus</enum>
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="text">
                        <string>RESET</string>
@@ -18225,7 +18225,7 @@ CONFIG</string>
                        </sizepolicy>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::NoFocus</enum>
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="text">
                        <string>RESET</string>
@@ -18301,7 +18301,7 @@ CONFIG</string>
                        </sizepolicy>
                       </property>
                       <property name="focusPolicy">
-                       <enum>Qt::NoFocus</enum>
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="text">
                        <string>RESET</string>
