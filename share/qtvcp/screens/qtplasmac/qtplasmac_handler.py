@@ -1,4 +1,4 @@
-VERSION = '005.036'
+VERSION = '006.037'
 LCNCVER = '2.10'
 DOCSVER = LCNCVER
 
@@ -282,6 +282,8 @@ class HandlerClass:
         self.realTimeDelay = False
         self.preSingleCutMaterial = None
         self.preFileSaveMaterial = None
+        self.dryRun = None
+        self.runType = {'type':'end'}
         # plasmac states
         self.IDLE           =  0
         self.PROBE_HEIGHT   =  1
@@ -1480,6 +1482,15 @@ class HandlerClass:
            self.plasmacStatePin.get() == 0:
             if self.w.gcode_display.lines() > 1:
                 self.w.run.setEnabled(True)
+                if self.dryRun:
+                    oldX = STATUS.get_position()[0][0] - self.dryRun[0]
+                    oldY = STATUS.get_position()[0][1] - self.dryRun[1]
+                    units = '20' if self.gcodeProps['gcode_units'] == 'in' else '21'
+                    ACTION.CALL_MDI_WAIT(f'G{units} G10 L20 P0 X{oldX / self.boundsMultiplier} Y{oldY / self.boundsMultiplier}')
+                    self.dryRun = None
+                    self.laserOnPin.set(0)
+                    hal.set_p('plasmac.dry-run', '0')
+                    self.w.gcodegraphics.logger.clear()
                 if self.frButton:
                     self.w[self.frButton].setEnabled(True)
             if self.manualCut:
@@ -1897,8 +1908,29 @@ class HandlerClass:
             self.rflSelected = False
             if self.developmentPin.get():
                 reload(RFL)
+            self.runType = self.dialog_rfl_type()
+            if self.runType['cancel']:
+                if 'rfl.ngc' in self.lastLoadedProgram:
+                    self.set_start_line(-1)
+                else:
+                    self.clear_rfl()
+                self.set_run_button_state()
+                return
+            lastLine = 0
+            if self.runType['type'] == 'cut':
+                count = 0
+                start = 0
+                with open(self.lastLoadedProgram, 'r') as inFile:
+                    for line in inFile:
+                        if line[:3] == 'G00':
+                            start = count
+                        if line[:3] == 'M05' and count > self.startLine:
+                            break
+                        count += 1
+                lastLine = count
+                self.startLine = start
             head = _translate('HandlerClass', 'Gcode Error')
-            data = RFL.run_from_line_get(self.lastLoadedProgram, self.startLine)
+            data = RFL.run_from_line_get(self.lastLoadedProgram, self.startLine, lastLine)
             # cannot do run from line within a subroutine or if using cutter compensation
             if data['error']:
                 if data['compError']:
@@ -1915,36 +1947,40 @@ class HandlerClass:
                 self.clear_rfl()
                 self.set_run_button_state()
             else:
+                # fake user input for this cutpath
+                if self.runType['type'] == 'cut':
+                    userInput = {'cancel':False, 'do':False, 'length':0, 'angle':0}
                 # get user input
-                userInput = self.dialog_run_from_line()
-                # rfl cancel clicked
-                if userInput['cancel']:
-                    if 'rfl.ngc' in self.lastLoadedProgram:
-                        self.set_start_line(-1)
-                    else:
-                        self.clear_rfl()
-                    self.set_run_button_state()
                 else:
-                    # rfl load clicked
-                    rflFile = f'{self.tmpPath}rfl.ngc'
-                    result = RFL.run_from_line_set(rflFile, data, userInput, self.unitsPerMm)
-                    # leadin cannot be used
-                    if result['error']:
-                        msg0 = _translate('HandlerClass', 'Unable to calculate a leadin for this cut')
-                        msg1 = _translate('HandlerClass', 'Program will run from selected line with no leadin applied')
-                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0}\n{msg1}\n')
-                    # load rfl file
-                    if ACTION.prefilter_path or self.lastLoadedProgram != 'None':
-                        self.preRflFile = ACTION.prefilter_path or self.lastLoadedProgram
-                    ACTION.OPEN_PROGRAM(rflFile)
-                    ACTION.prefilter_path = self.preRflFile
-                    self.set_run_button_state()
-                    txt0 = _translate('HandlerClass', 'RUN FROM LINE')
-                    txt1 = _translate('HandlerClass', 'CYCLE START')
-                    self.runText = f'{txt0}\n{txt1}'
-                    log = _translate('HandlerClass', 'Run from line loaded')
-                    log1 = _translate('HandlerClass', 'Start line')
-                    STATUS.emit('update-machine-log', f'{log} - {log1}: {(self.startLine + 1)}', 'TIME')
+                    userInput = self.dialog_run_from_line()
+                    # rfl cancel clicked
+                    if userInput['cancel']:
+                        if 'rfl.ngc' in self.lastLoadedProgram:
+                            self.set_start_line(-1)
+                        else:
+                            self.clear_rfl()
+                        self.set_run_button_state()
+                        return
+                # rfl load clicked
+                rflFile = f'{self.tmpPath}rfl.ngc'
+                result = RFL.run_from_line_set(rflFile, data, userInput, self.unitsPerMm)
+                # leadin cannot be used
+                if result['error']:
+                    msg0 = _translate('HandlerClass', 'Unable to calculate a leadin for this cut')
+                    msg1 = _translate('HandlerClass', 'Program will run from selected line with no leadin applied')
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0}\n{msg1}\n')
+                # load rfl file
+                if ACTION.prefilter_path or self.lastLoadedProgram != 'None':
+                    self.preRflFile = ACTION.prefilter_path or self.lastLoadedProgram
+                ACTION.OPEN_PROGRAM(rflFile)
+                ACTION.prefilter_path = self.preRflFile
+                self.set_run_button_state()
+                if self.runType['type'] == 'cut':
+                    log = _translate('HandlerClass', 'Run from line - this cutpath loaded')
+                else:
+                    log = _translate('HandlerClass', 'Run from line - here to end loaded')
+                log1 = _translate('HandlerClass', 'Start line')
+                STATUS.emit('update-machine-log', f'{log} - {log1}: {(self.startLine + 1)}', 'TIME')
         elif not self.cut_critical_check():
             self.jobRunning = True
             ACTION.RUN(0)
@@ -2728,16 +2764,16 @@ class HandlerClass:
 
     def bounds_check_file(self):
         msg = _translate('HandlerClass', 'G-code')
-        boundsMultiplier = 1
+        self.boundsMultiplier = 1
         if 'gcode_units' in self.gcodeProps:
             if self.units == 'in' and self.gcodeProps['gcode_units'] == 'mm':
-                boundsMultiplier = 0.03937
+                self.boundsMultiplier = 0.03937
             elif self.units == 'mm' and self.gcodeProps['gcode_units'] == 'in':
-                boundsMultiplier = 25.4
-        xMin = float(self.gcodeProps['x'].split()[0]) * boundsMultiplier
-        xMax = float(self.gcodeProps['x'].split()[2]) * boundsMultiplier
-        yMin = float(self.gcodeProps['y'].split()[0]) * boundsMultiplier
-        yMax = float(self.gcodeProps['y'].split()[2]) * boundsMultiplier
+                self.boundsMultiplier = 25.4
+        xMin = float(self.gcodeProps['x'].split()[0]) * self.boundsMultiplier
+        xMax = float(self.gcodeProps['x'].split()[2]) * self.boundsMultiplier
+        yMin = float(self.gcodeProps['y'].split()[0]) * self.boundsMultiplier
+        yMax = float(self.gcodeProps['y'].split()[2]) * self.boundsMultiplier
         errMsg = self.bounds_compare(xMin, xMax, yMin, yMax, msg)
         return (True, errMsg) if errMsg else (False, '')
 
@@ -2752,36 +2788,24 @@ class HandlerClass:
             if self.cutTypePin.get():
                 xPierceOffset = self.w.x_pierce_offset.value()
                 yPierceOffset = self.w.y_pierce_offset.value()
-            boundsMultiplier = 1
-            if 'gcode_units' in self.gcodeProps:
-                if self.units == 'in' and self.gcodeProps['gcode_units'] == 'mm':
-                    boundsMultiplier = 0.03937
-                elif self.units == 'mm' and self.gcodeProps['gcode_units'] == 'in':
-                    boundsMultiplier = 25.4
-            xMinP = self.xMinPierceExtentPin.get() * boundsMultiplier + self.probeOffsetX + STATUS.stat.g5x_offset[0] + xPierceOffset
-            xMaxP = self.xMaxPierceExtentPin.get() * boundsMultiplier + self.probeOffsetX + STATUS.stat.g5x_offset[0] + xPierceOffset
-            yMinP = self.yMinPierceExtentPin.get() * boundsMultiplier + self.probeOffsetY + STATUS.stat.g5x_offset[1] + yPierceOffset
-            yMaxP = self.yMaxPierceExtentPin.get() * boundsMultiplier + self.probeOffsetY + STATUS.stat.g5x_offset[1] + yPierceOffset
+            xMinP = self.xMinPierceExtentPin.get() * self.boundsMultiplier + self.probeOffsetX + STATUS.stat.g5x_offset[0] + xPierceOffset
+            xMaxP = self.xMaxPierceExtentPin.get() * self.boundsMultiplier + self.probeOffsetX + STATUS.stat.g5x_offset[0] + xPierceOffset
+            yMinP = self.yMinPierceExtentPin.get() * self.boundsMultiplier + self.probeOffsetY + STATUS.stat.g5x_offset[1] + yPierceOffset
+            yMaxP = self.yMaxPierceExtentPin.get() * self.boundsMultiplier + self.probeOffsetY + STATUS.stat.g5x_offset[1] + yPierceOffset
         errMsg = self.bounds_compare(xMinP, xMaxP, yMinP, yMaxP, msg)
         return (True, errMsg) if errMsg else (False, '')
 
     def bounds_check_framing(self, xOffset=0, yOffset=0, laser=False):
         msg = _translate('HandlerClass', 'Framing move')
         msg1 = ''
-        boundsMultiplier = 1
-        if 'gcode_units' in self.gcodeProps:
-            if self.units == 'in' and self.gcodeProps['gcode_units'] == 'mm':
-                boundsMultiplier = 0.03937
-            elif self.units == 'mm' and self.gcodeProps['gcode_units'] == 'in':
-                boundsMultiplier = 25.4
         if laser:
             msg1 = _translate('HandlerClass', 'due to laser offset')
         xStart = STATUS.stat.g5x_offset[0] + xOffset
         yStart = STATUS.stat.g5x_offset[1] + yOffset
-        xMin = float(self.gcodeProps['x_zero_rxy'].split()[0]) * boundsMultiplier + xOffset
-        xMax = float(self.gcodeProps['x_zero_rxy'].split()[2]) * boundsMultiplier + xOffset
-        yMin = float(self.gcodeProps['y_zero_rxy'].split()[0]) * boundsMultiplier + yOffset
-        yMax = float(self.gcodeProps['y_zero_rxy'].split()[2]) * boundsMultiplier + yOffset
+        xMin = float(self.gcodeProps['x_zero_rxy'].split()[0]) * self.boundsMultiplier + xOffset
+        xMax = float(self.gcodeProps['x_zero_rxy'].split()[2]) * self.boundsMultiplier + xOffset
+        yMin = float(self.gcodeProps['y_zero_rxy'].split()[0]) * self.boundsMultiplier + yOffset
+        yMax = float(self.gcodeProps['y_zero_rxy'].split()[2]) * self.boundsMultiplier + yOffset
         coordinates = [[xStart, yStart], [xMin, yMin], [xMin, yMax], [xMax, yMax], [xMax, yMin]]
         framePoints, xMin, yMin, xMax, yMax = self.rotate_frame(coordinates)
         errMsg = self.bounds_compare(xMin, xMax, yMin, yMax, msg, msg1)
@@ -3452,6 +3476,41 @@ class HandlerClass:
         else:
             return {'cancel':True}
 
+    def dialog_rfl_type(self):
+        rflT = QDialog(self.w)
+        rflT.setWindowTitle(_translate('HandlerClass', 'Run From Line'))
+        run = QRadioButton(_translate('HandlerClass', 'HERE TO END'))
+        cut = QRadioButton(_translate('HandlerClass', 'THIS CUTPATH'))
+        lbl = QLabel()
+        buttons = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+        buttonBox = QDialogButtonBox(buttons)
+        buttonBox.accepted.connect(rflT.accept)
+        buttonBox.rejected.connect(rflT.reject)
+        buttonBox.button(QDialogButtonBox.Ok).setText(_translate('HandlerClass', 'OK'))
+        buttonBox.button(QDialogButtonBox.Ok).setIcon(QIcon())
+        buttonBox.button(QDialogButtonBox.Cancel).setText(_translate('HandlerClass', 'CANCEL'))
+        buttonBox.button(QDialogButtonBox.Cancel).setIcon(QIcon())
+        layout = QGridLayout()
+        layout.addWidget(run, 0, 0)
+        layout.addWidget(cut, 1, 0)
+        layout.addWidget(lbl, 2, 0)
+        layout.addWidget(buttonBox, 3, 0)
+        rflT.setLayout(layout)
+        run.setChecked(True)
+        self.vkb_show(True)
+        result = rflT.exec_()
+        self.vkb_hide()
+        # ok clicked
+        if result:
+            if cut.isChecked():
+                type_ = 'cut'
+            else:
+                type_ = 'end'
+            return {'cancel':False, 'type':type_}
+        # cancel clicked
+        else:
+            return {'cancel':True, 'type':'end'}
+
     def invert_pin_state(self, halpin):
         if 'qtplasmac.ext_out_' in halpin:
             pin = f'out{halpin.split("out_")[1]}Pin'
@@ -3888,10 +3947,27 @@ class HandlerClass:
 
     def laser_timeout(self):
         if self.w.laser.isDown() or self.extLaserButton:
+            if self.w.run.isEnabled() and self.laserButtonState in ['reset', 'laser']:
+                framingError = self.bounds_check_framing(self.laserOffsetX, self.laserOffsetY, True)[0]
+                if framingError:
+                    head = _translate('HandlerClass', 'Axis Limit Error')
+                    self.dialog_show_ok(QMessageBox.Warning, f'{head}', f'\n{framingError}')
+                    return
+                newX = STATUS.get_position()[0][0] - STATUS.stat.g5x_offset[0] - self.laserOffsetX
+                newY = STATUS.get_position()[0][1] - STATUS.stat.g5x_offset[1] - self.laserOffsetY
+                units = '20' if self.gcodeProps['gcode_units'] == 'in' else '21'
+                ACTION.CALL_MDI_WAIT(f'G{units} G10 L20 P0 X{newX / self.boundsMultiplier} Y{newY / self.boundsMultiplier}')
+                self.dryRun = [STATUS.stat.g5x_offset[0], STATUS.stat.g5x_offset[1]]
+                self.laserOnPin.set(1)
+                hal.set_p('plasmac.dry-run', '1')
+                self.run_clicked()
+                return
+            else:
+                self.laserButtonState = 'reset'
+                self.button_press_timeout('laser')
             self.laserOnPin.set(0)
             self.laserButtonState = 'reset'
             self.w.laser.setText(_translate('HandlerClass', 'LASER'))
-            self.button_normal('laser')
             self.w.touch_xy.setEnabled(True)
             self.w.camera.setEnabled(True)
 
@@ -4782,6 +4858,9 @@ class HandlerClass:
                          QPushButton:pressed {{ color: {self.backColor}; background: {self.fore1Color} }} \
                          QPushButton:disabled {{ color: {self.disabledColor} }}')
 
+    def button_press_timeout(self, button):
+        self.w[button].setStyleSheet( \
+                    f'QPushButton:pressed {{ color: {self.foreColor}; background: {self.backColor} }}')
 
 #########################################################################################################################
 # ONBOARD VIRTUAL KEYBOARD FUNCTIONS #

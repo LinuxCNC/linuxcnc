@@ -21,8 +21,8 @@ with this program; if not, write to the Free Software Foundation, Inc
 
 import math
 
-def run_from_line_get(file, startLine):
-    preData,postData,newData,params,material = [],[],[],[],[]
+def run_from_line_get(file, startLine, lastLine=0):
+    preData,postData,newData,params,material = [],[],[],[],[None,None]
     codes = {'g2_':'','g4_':'','g6_':'','g9_':'','g9arc':'','d3':'','d2':'','a3':'','x1':'','y1':'','x2':'','y2':''}
     codes['last'] = {'feed':'', 'code':''}
     codes['move'] = {'isSet':False, 'isG00':False}
@@ -60,6 +60,10 @@ def run_from_line_get(file, startLine):
                             continue
                         codes['spindle']['line'] = line.strip()
                 postData.append(line)
+            if lastLine and count == lastLine:
+                postData.append('M02\n')
+                postData.append(';qtplasmac filtered G-code file\n')
+                break
             count += 1
     # read all lines before selected line to get last used codes
     for line in preData:
@@ -68,10 +72,10 @@ def run_from_line_get(file, startLine):
                 material = [line.strip()]
             continue
         elif line.startswith('M190'):
-            material.append(line.strip())
+            material[0] = line.strip()
             continue
         elif line.replace(' ','').startswith('M66P3'):
-            material.append(line.strip())
+            material[1] = line.strip()
             continue
         elif line.startswith('#'):
             params.append(line.strip())
@@ -228,9 +232,10 @@ def run_from_line_set(rflFile, data, leadin, unitsPerMm):
         data['newData'].append(data['codes']['a3'])
     if zMax:
         data['newData'].append(zMax)
-    if data['material']:
-        for line in data['material']:
-            data['newData'].append(line)
+    if data['material'][0]:
+        data['newData'].append(data['material'][0])
+    if data['material'][1]:
+        data['newData'].append(data['material'][1])
     if data['codes']['last']['feed']:
         data['newData'].append(data['codes']['last']['feed'])
     # if g00 is not the first motion command after selected line set x and y coordinates
