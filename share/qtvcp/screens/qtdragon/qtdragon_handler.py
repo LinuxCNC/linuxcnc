@@ -101,9 +101,9 @@ class HandlerClass:
                               "search_vel", "probe_vel", "max_probe", "eoffset_count"]
         self.onoff_list = ["frame_program", "frame_tool", "frame_dro", "frame_override", "frame_status"]
         self.auto_list = ["chk_eoffsets", "cmb_gcode_history","lineEdit_eoffset_count"]
-        self.axis_4_list = ["axis_select_4", "dro_axis_4", "action_zero_4", "action_cmd_4",
+        self.axis_4_list = ["axis_select_4", "dro_axis_4", "action_zero_4",
                             "dro_button_stack_4", "plus_jogbutton_4", "minus_jogbutton_4"]
-        self.axis_5_list = ["axis_select_5", "dro_axis_5", "action_zero_5", "action_cmd_5",
+        self.axis_5_list = ["axis_select_5", "dro_axis_5", "action_zero_5",
                             "dro_button_stack_5",
                             "plus_jogbutton_5", "minus_jogbutton_5"]
         self.button_response_list = ["btn_start", "btn_home_all", "btn_home_x", "btn_home_y",
@@ -659,7 +659,7 @@ class HandlerClass:
 
     def all_homed(self, obj):
         self.home_all = True
-        self.w.btn_home_all.setText("ALL HOMED")
+        self.w.btn_home_all.setText("ALL\nHOMED")
         if self.first_turnon is True:
             self.first_turnon = False
             if self.w.chk_reload_tool.isChecked():
@@ -676,7 +676,7 @@ class HandlerClass:
 
     def not_all_homed(self, obj, list):
         self.home_all = False
-        self.w.btn_home_all.setText("HOME ALL")
+        self.w.btn_home_all.setText("HOME\nALL")
 
     def hard_limit_tripped(self, obj, tripped, list_of_tripped):
         self.add_status("Hard limits tripped", CRITICAL)
@@ -1642,8 +1642,8 @@ class HandlerClass:
         self.w['dro_axis_{}'.format(num)].setProperty('Qjoint_number',index)
         self.w['action_zero_{}'.format(num)].setProperty('axis_letter',axis)
         try:
-            self.w['axistoolbutton_{}'.format(num)].setProperty('axis_letter',axis)
-            self.w['axistoolbutton_{}'.format(num)].setText('REF {}'.format(axis))
+            self.w['axis_select_{}'.format(num)].setProperty('axis_letter',axis)
+            self.w['axis_select_{}'.format(num)].setText('{}'.format(axis))
         except:
             pass
         try:
