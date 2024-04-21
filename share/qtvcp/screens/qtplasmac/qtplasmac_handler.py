@@ -1,4 +1,4 @@
-VERSION = '006.038'
+VERSION = '006.039'
 LCNCVER = '2.10'
 DOCSVER = LCNCVER
 
@@ -1271,7 +1271,7 @@ class HandlerClass:
             # search for the top widget of whatever widget received the event
             # then check if it's one we want the keypress events to go to
             flag = False
-            conversational = False
+            allowTab = False
             mdiBlank = False
             receiver2 = receiver
             while receiver2 is not None and not flag:
@@ -1303,21 +1303,14 @@ class HandlerClass:
                 if isinstance(receiver2, OFFSETVIEW):
                     flag = True
                     break
-                if self.w.main_tab_widget.currentIndex() == self.CONVERSATIONAL and \
-                   (isinstance(receiver2, QtWidgets.QLineEdit) or \
-                   isinstance(receiver2, QtWidgets.QComboBox) or \
-                   isinstance(receiver2, QtWidgets.QPushButton) or \
-                   isinstance(receiver2, QtWidgets.QRadioButton)):
-                    conversational = True
-                    flag = True
-                    break
-                if self.w.main_tab_widget.currentIndex() == self.SETTINGS:
+                if self.w.main_tab_widget.currentIndex() not in (self.MAIN, self.STATISTICS):
+                    allowTab = True
                     flag = True
                     break
                 receiver2 = receiver2.parent()
             if flag:
                 if is_pressed:
-                    if conversational and (code == Qt.Key_Tab or code == Qt.Key_BackTab):
+                    if allowTab and (code == Qt.Key_Tab or code == Qt.Key_BackTab):
                         self.keyPressEvent(event)
                     else:
                         receiver.keyPressEvent(event)
