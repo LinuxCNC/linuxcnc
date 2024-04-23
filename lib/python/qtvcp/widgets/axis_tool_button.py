@@ -21,6 +21,7 @@ from PyQt5.QtCore import pyqtProperty
 from PyQt5.QtGui import QIcon
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
+from qtvcp.widgets.indicatorMixIn import IndicatedMixIn
 from qtvcp.core import Status, Action, Info
 from qtvcp import logger
 
@@ -37,7 +38,7 @@ LOG = logger.getLogger(__name__)
 # Force the log level for this module
 #LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
-class AxisToolButton(QToolButton, _HalWidgetBase):
+class AxisToolButton(QToolButton, IndicatedMixIn):
     def __init__(self, parent=None):
         super(AxisToolButton, self).__init__(parent)
         self._joint = 0
@@ -81,7 +82,23 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
         self.clicked.connect(self.selectJoint)
         self.toggled.connect(self.selectJoint)
 
+    # Override setText function so we can toggle displayed text
+    def setText(self, text):
+        if not self._state_text:
+            super(AxisToolButton,self).setText(text)
+            return
+        if self.isCheckable():
+            if self.isChecked():
+                super(AxisToolButton,self).setText(self._true_string)
+            else:
+                super(AxisToolButton,self).setText(self._false_string)
+        elif self._indicator_state:
+            super(AxisToolButton,self).setText(self._true_string)
+        else:
+            super(AxisToolButton,self).setText(self._false_string)
+
     def _hal_init(self):
+        super(AxisToolButton, self)._hal_init()
         def homed_on_test():
             return (STATUS.machine_is_on()
                     and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
