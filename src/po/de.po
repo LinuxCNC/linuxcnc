@@ -9,7 +9,7 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-04-08 19:52+0200\n"
-"PO-Revision-Date: 2024-04-09 06:24+0000\n"
+"PO-Revision-Date: 2024-04-19 13:38+0000\n"
 "Last-Translator: Hans Unzner <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
@@ -3189,15 +3189,12 @@ msgstr ""
 "FEHLER CLASSICLADDER-   Error initializing classicladder user module.\n"
 
 #: src/hal/classicladder/classicladder.c:221
-#, fuzzy
 msgid "Stopped program - press run button to continue."
-msgstr ""
-"SPS Programm angehalten - drücke \"Ausführen\" um es weiterlaufen zu lassen."
+msgstr "Programm angehalten - drücke \"Ausführen\" um fortzufahren."
 
 #: src/hal/classicladder/classicladder.c:231
-#, fuzzy
 msgid "Started program - press stop to pause."
-msgstr "SPS Programm gestartet - drücke \"Stopp\" zum anhalten."
+msgstr "Programm gestartet - drücke \"Stopp\" zum Anhalten."
 
 #: src/hal/classicladder/classicladder.c:286
 msgid ""
@@ -3336,24 +3333,20 @@ msgid "Reset logic data - Now running."
 msgstr ""
 
 #: src/hal/classicladder/classicladder_gtk.c:651
-#, fuzzy
 msgid "Reset logic data done."
 msgstr "Reset der Logik-Daten durchgeführt."
 
 #: src/hal/classicladder/classicladder_gtk.c:709
-#, fuzzy
 msgid "About ClassicLadder"
-msgstr "SPS (Classicladder) einbinden"
+msgstr "Über Classicladder"
 
 #: src/hal/classicladder/classicladder_gtk.c:766
-#, fuzzy
 msgid "Save SVG File"
-msgstr "Speichern"
+msgstr "SVG-Datei speichern"
 
 #: src/hal/classicladder/classicladder_gtk.c:766
-#, fuzzy
 msgid "Save PNG File"
-msgstr "Speichern"
+msgstr "PNG-Datei speichern"
 
 #: src/hal/classicladder/classicladder_gtk.c:839
 #: src/hal/classicladder/classicladder_gtk.c:1294
@@ -4397,9 +4390,8 @@ msgid "This section is already executed the first !"
 msgstr "Dieser Abschnitt wird bereits als erster ausgeführt !"
 
 #: src/hal/classicladder/manager_gtk.c:349
-#, fuzzy
 msgid "This section is already executed the latest !"
-msgstr "Dieser Abschnitt wird bereits als erster ausgeführt !"
+msgstr "Dieser Abschnitt wird bereits als letzter ausgeführt !"
 
 #: src/hal/classicladder/manager_gtk.c:421
 msgid "Language"
@@ -4553,10 +4545,10 @@ msgid "Serial flush all!\n"
 msgstr "Alle seriellen Puffer leeren!\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:111
-#, fuzzy, c-format
+#, c-format
 msgid "ERROR CLASSICLADDER-   Failed to create thread I/O Modbus master...\n"
 msgstr ""
-"FEHLER CLASSICLADDER-   Anlegen von thread I/O modbus master "
+"FEHLER CLASSICLADDER-   Anlegen von Modbus Master I/O Thread "
 "fehlgeschlagen...\n"
 
 #: src/hal/classicladder/socket_modbus_master.c:128
@@ -7124,6 +7116,8 @@ msgid ""
 "differs from the the ini specified file:\n"
 "%s"
 msgstr ""
+"unterscheidet sich von der angegebenen Datei:\n"
+"%s"
 
 #: tcl/tooledit.tcl:1046
 msgid "Axis is Running"
@@ -7740,6 +7734,10 @@ msgid ""
 "\n"
 "            Run homing process?"
 msgstr ""
+"Nach dem Anschalten der Maschine\n"
+"müssen die Achsen ihre Nullpunkte finden.\n"
+"\n"
+"Referenzfahrt ausführen?"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2244
 msgid "All machinable files"
@@ -7997,6 +7995,12 @@ msgid ""
 "Diameter: %(diameter)s%(units)s\n"
 "Comment: %(comment)s"
 msgstr ""
+"Werkzeug einsetzen und auf \"weiter\" klicken\n"
+"\n"
+"Werkzeugnummer: %(number)s\n"
+"Durchmesser: %(diameter)s%(units)s\n"
+"Kommentar: %(comment)s\n"
+"\n"
 
 #: src/emc/usr_intf/axis/scripts/hal_manualtoolchange.py:75
 #, python-format
@@ -11626,7 +11630,6 @@ msgstr "Anzahl der externen Pins einrichten"
 
 #: src/emc/usr_intf/stepconf/options.glade:1074
 #: src/emc/usr_intf/pncconf/options.glade:732
-#, fuzzy
 msgid "Include Modbus master support"
 msgstr "Modbus-Master-Unterstützung einbinden"
 
@@ -11642,7 +11645,6 @@ msgstr "Notaus-Programm"
 
 #: src/emc/usr_intf/stepconf/options.glade:1155
 #: src/emc/usr_intf/pncconf/options.glade:971
-#, fuzzy
 msgid "Serial Modbus program"
 msgstr "Serielles Modbus-Programm"
 
@@ -11878,6 +11880,7 @@ msgstr "Entgegengesetzt"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
 msgid ""
 "_:"
+""
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -12627,10 +12630,11 @@ msgstr ""
 "gemeinsame Wert"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:351
-#, fuzzy
 msgid ""
 "# ---Chargepump StepGen: 10000 velocity-cmd = 10Khz square wave output---"
-msgstr "# ---Chargepump StepGen: 0.25 velocity = 10Khz square wave output---"
+msgstr ""
+"# ---Ladungspumpe Schrittgenerator: 10000 Geschwindigkeitsbefehel = 10 kHz "
+"Rechtecksignalausgang---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:439
 msgid "# connect miscellaneous signals"
@@ -12765,9 +12769,8 @@ msgid "#  ---manual tool change signals to gmoccapy's dialog---"
 msgstr "# ---Signale für manuellen Werkzeugwechsel für GMOCCAPYs Dialog---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:822
-#, fuzzy
 msgid "#  ---spindle-at-speed indicator---"
-msgstr "# ---Einrichtung der Signale zur Spindel-Geschwindigkeits-Steuerung---"
+msgstr "# ---Spindelgeschwindigkeit-erreicht-Indikator---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:824
 msgid "net spindle-at-speed => gmoccapy.spindle_at_speed_led"
@@ -13348,24 +13351,20 @@ msgid "Dir Gen-B"
 msgstr "Richt Gen-B"
 
 #: src/emc/usr_intf/pncconf/private_data.py:135
-#, fuzzy
 msgid "StepGen Phase-C"
-msgstr "Schritt Gen-A"
+msgstr "Schritt-Gen. Phase C"
 
 #: src/emc/usr_intf/pncconf/private_data.py:135
-#, fuzzy
 msgid "StepGen Phase-D"
-msgstr "Schritt Gen-A"
+msgstr "Schritt-Gen. Phase D"
 
 #: src/emc/usr_intf/pncconf/private_data.py:136
-#, fuzzy
 msgid "StepGen Phase-E"
-msgstr "Schritt Gen-A"
+msgstr "Schritt-Gen. Phase E"
 
 #: src/emc/usr_intf/pncconf/private_data.py:136
-#, fuzzy
 msgid "StepGen Phase-F"
-msgstr "Schritt Gen-A"
+msgstr "Schritt-Gen. Phase F"
 
 #: src/emc/usr_intf/pncconf/private_data.py:138
 msgid "PWM Gen-P"
@@ -14946,7 +14945,6 @@ msgstr ""
 "die außerhalb von PNCconf vorgenommen wurden, verworfen."
 
 #: src/emc/usr_intf/pncconf/data.py:902
-#, fuzzy
 msgid "Continue? (y/n)"
 msgstr "Fortsetzen? (y/n)"
 
@@ -16708,15 +16706,13 @@ msgstr "Smart Seriell 5"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:54744
 #: src/emc/usr_intf/pncconf/mesa1.glade:54744
-#, fuzzy
 msgid "Smart Serial 6"
-msgstr "Smart Seriell 0"
+msgstr "Smart Serial 6"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:59908
 #: src/emc/usr_intf/pncconf/mesa1.glade:59908
-#, fuzzy
 msgid "Smart Serial 7"
-msgstr "Smart Seriell 0"
+msgstr "Smart Serial 7"
 
 #: src/emc/usr_intf/pncconf/start.glade:27
 msgid "Create a desktop launcher to start LinuxCNC with this configuration"
@@ -18580,9 +18576,8 @@ msgstr "hm2_4i43"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:314
 #: src/emc/usr_intf/pncconf/dialogs.glade:340
-#, fuzzy
 msgid "Parallel Port- 7i90"
-msgstr "Parellelport- 7i90"
+msgstr "Parallelport- 7i90"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:315
 #: src/emc/usr_intf/pncconf/dialogs.glade:341
@@ -18947,7 +18942,7 @@ msgstr ""
 #: src/emc/usr_intf/gscreen/gscreen.py:286
 #: src/emc/usr_intf/gscreen/gscreen.py:290
 msgid "No widget '{}'"
-msgstr ""
+msgstr "Kein Widget '{}'"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:328
 msgid "Manual Mode"
@@ -18978,11 +18973,11 @@ msgstr "Modul '%s' erfolgreich importiert"
 #: src/emc/usr_intf/gscreen/gscreen.py:456
 #: src/emc/usr_intf/gscreen/gscreen.py:461
 msgid "Module '{}': '{}' function found"
-msgstr ""
+msgstr "Modul '{}': '{}' Funktion gefunden"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:466
 msgid "Module '{}': no '{}' function - registering only functions as callbacks"
-msgstr ""
+msgstr "Modul '{}': keine '{}' Funktion - Funktionen als callbacks registrieren"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:470
 msgid "Registering handlers in module '{}' object '{}'"

@@ -7,9 +7,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gmoccapy\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-04-07 20:07+0200\n"
-"PO-Revision-Date: 2024-03-30 03:53+0000\n"
+"PO-Revision-Date: 2024-04-19 07:40+0000\n"
 "Last-Translator: Hans Unzner <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/gmocappy/"
 "de/>\n"
@@ -97,7 +97,7 @@ msgid "Press to return to main button list"
 msgstr "Gehe zurück zur Hauptknopfleiste"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:804
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "could not resolve the image path '{0}' given for button '{1}'"
 msgstr "Konnte den Bild-Pfad '{0}' für Button '{1}' nicht auflösen"
 
@@ -147,7 +147,6 @@ msgid "Press to set the selected coordinate system to be the active one"
 msgstr "Aktiviere das gewählte Koordinatensystem"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1080
-#, fuzzy
 msgid "No valid probe config in INI file. Tool measurement disabled."
 msgstr ""
 "Keine gültige Konfiguration für die Werkzeugvermessung in der INI-Datei. "
@@ -160,13 +159,12 @@ msgstr ""
 "Automatische Werkzeugvermessung wird verwendet."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1108
-#, fuzzy
 msgid ""
 "To many increments given in INI file for this screen. Only the first 10 will "
 "be reachable through this screen."
 msgstr ""
 "Zu viele Jog-Schritte in der INI-Datei angegeben für diesen Bildschirm. Nur "
-"die ersten 10 werden erreichbar."
+"die ersten 10 werden angezeigt."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1118
 msgid "Continuous"
@@ -188,11 +186,8 @@ msgid "Press to jog joint {0}"
 msgstr "Drücken um Gelenk {0} zu verfahren"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1306
-#, fuzzy
 msgid "Found more than 16 macros, will use only the first 16."
-msgstr ""
-"Mehr als 16 Makros sind nicht erlaubt, nur die ersten 16 werden "
-"berücksichtigt"
+msgstr "Mehr als 16 Makros gefunden, nur die ersten 16 werden berücksichtigt."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1317
 msgid "Press to display previous macro button"
@@ -1226,14 +1221,12 @@ msgstr ""
 "zu prüfen."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:116
-#, fuzzy
 msgid "<b>gmoccapy messages</b>"
-msgstr "<b>Hinweise</b>"
+msgstr "<b>Gmoccapy Mitteilungen</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:117
-#, fuzzy
 msgid "Theme"
-msgstr "Themen"
+msgstr "Thema"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:118
 msgid "Icon Theme"
@@ -1252,9 +1245,8 @@ msgid "Enable sound"
 msgstr "Sound aktivieren"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:122
-#, fuzzy
 msgid "G-code Theme"
-msgstr "Icon Theme"
+msgstr "G-Code Thema"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:123
 msgid "<b>Themes and sound</b>"
@@ -1361,9 +1353,8 @@ msgid "Probe Vel."
 msgstr "Tastgeschwind."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:149
-#, fuzzy
 msgid "<b>Probe velocities</b>"
-msgstr "<b>Tastgeschwindigk.</b>"
+msgstr "<b>Tastgeschw.</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:150
 msgid ""
@@ -1436,9 +1427,8 @@ msgid "Select user dir"
 msgstr "Nutzerverz. wählen"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:172
-#, fuzzy
 msgid "<b>Jump to dir</b>"
-msgstr "<b>Wähle Sprungverz.</b>"
+msgstr "<b>Sprungverzeichnis</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:173
 msgid "Do not use run from line"
