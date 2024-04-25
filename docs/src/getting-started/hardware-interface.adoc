@@ -41,7 +41,7 @@ __Advantages:__
 __Disadvantages:__
 - Sensitive to the LinuxCNC computer's latency
 - Limited inputs/outputs 
-- Some PCI/PCIe parallel port cards do not work well or do not properly support the required EPP mode
+- Some PCI/PCIe parallel port cards do not work well or do not properly support the EPP mode (EPP mode is required for parallel port interface to Mesa / PICO cards).
 
 
 == Parallel Port FPGA Communication
