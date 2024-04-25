@@ -26,6 +26,8 @@ A mix of different interfaces can be used. For example, a combination of etherca
 
 Some of these solutions are usable for all aspects of hardware interfacing, and some have specific roles (e.g. non-realtime GPIO, for an operator inferface).
 
+Hardware interface options change over time. This list is not a 100% complete list of all hardware interfaces that can be used with LinuxCNC.
+
 == Parallel Port
 Using onboard motherboard parallel port, or a PCI/PCIe parallel port card.
 
@@ -147,6 +149,8 @@ Website: http://mesanet.com/    Store: http://store.mesanet.com/
 
 == USB
 USB devices cannot be used to control motors or perform other __"real time"__ tasks.
+
+USB to Parallel port converters are ___NOT___ usable / suitable for CNC use. 
 
 === LinuxCNC_ArduinoConnector
 This Project enables you to connect an Arduino to LinuxCNC and provides as many IO's as you could ever wish for. This Software is used as IO Expansion for LinuxCNC.
