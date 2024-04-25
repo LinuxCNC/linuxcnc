@@ -1,4 +1,4 @@
-VERSION = '006.040'
+VERSION = '006.041'
 LCNCVER = '2.10'
 DOCSVER = LCNCVER
 
@@ -1454,7 +1454,7 @@ class HandlerClass:
             self.set_buttons_state([self.idleOnList, self.idleHomedList], False)
         self.w.jog_stack.setCurrentIndex(self.JOG)
         self.w.abort.setEnabled(False)
-        if self.ccButton:
+        if self.ccButton and not self.button_normal_check(self.ccButton):
             self.button_normal(self.ccButton)
         self.set_tab_jog_states(True)
         self.set_run_button_state()
@@ -3514,32 +3514,32 @@ class HandlerClass:
 
     def set_button_color(self):
         for halpin in self.halTogglePins:
-            color = self.w[self.halTogglePins[halpin][0]].palette().color(QtGui.QPalette.Background)
             if hal.get_value(halpin):
-                if color != self.w.color_foregalt.palette().color(QPalette.Background):
+                if self.button_normal_check(self.halTogglePins[halpin][0]):
                     self.button_active(self.halTogglePins[halpin][0])
                 text = 3
             else:
-                if color != self.w.color_backgrnd.palette().color(QPalette.Background):
+                if not self.button_normal_check(self.halTogglePins[halpin][0]):
                     self.button_normal(self.halTogglePins[halpin][0])
                 text = 2
             if self.halTogglePins[halpin][3]:
                 toggleText = self.halTogglePins[halpin][text].replace('\\', '\n')
                 self.w[self.halTogglePins[halpin][0]].setText(f'{toggleText}')
         for halpin in self.halPulsePins:
-            color = self.w[self.halPulsePins[halpin][0]].palette().color(QtGui.QPalette.Background)
             if hal.get_value(halpin):
-                if color != self.w.color_foregalt.palette().color(QPalette.Background):
+                if self.button_normal_check(self.halPulsePins[halpin][0]):
                     self.button_active(self.halPulsePins[halpin][0])
             else:
-                if color != self.w.color_backgrnd.palette().color(QPalette.Background):
+                if not self.button_normal_check(self.halPulsePins[halpin][0]):
                     self.button_normal(self.halPulsePins[halpin][0])
         if self.tlButton:
             for button in self.tlButton:
                 if self.laserOnPin.get():
-                    self.button_active(button)
+                    if self.button_normal_check(button):
+                        self.button_active(button)
                 else:
-                    self.button_normal(button)
+                    if not self.button_normal_check(button):
+                        self.button_normal(button)
 
 
     def cut_critical_check(self):
@@ -4854,6 +4854,11 @@ class HandlerClass:
     def button_press_timeout(self, button):
         self.w[button].setStyleSheet( \
                     f'QPushButton:pressed {{ color: {self.foreColor}; background: {self.backColor} }}')
+
+    def button_normal_check(self, button):
+        '''Returns True if the button is in the normal state (background color of the button matches the background color of the GUI)'''
+        return self.w[button].palette().color(QtGui.QPalette.Background) \
+            == self.w.color_backgrnd.palette().color(QPalette.Background)
 
 #########################################################################################################################
 # ONBOARD VIRTUAL KEYBOARD FUNCTIONS #
