@@ -3,9 +3,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: sk\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-04-08 19:52+0200\n"
-"PO-Revision-Date: 2024-04-02 14:31+0000\n"
+"PO-Revision-Date: 2024-04-25 13:33+0000\n"
 "Last-Translator: Juraj Adamkovic <stroje.hcnc@gmail.com>\n"
 "Language-Team: Slovak <emc-developers@lists.sourceforge.net>\n"
 "Language: sk\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=((n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2);\n"
-"X-Generator: Weblate 5.5-dev\n"
+"X-Generator: Weblate 5.5.1-dev\n"
 "X-Poedit-Language: Slovak\n"
 "X-Poedit-Country: SLOVAKIA\n"
 
@@ -7535,7 +7535,7 @@ msgstr "Program prekračuje limity stroja"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1894
 msgid "Re-Check"
-msgstr ""
+msgstr "Znova skontrolovať"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1894
 msgid "Run Anyway"
@@ -7580,7 +7580,7 @@ msgstr "Vlastnosti G-kódu"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2231
 msgid "Homing request"
-msgstr ""
+msgstr "Žiadosť o kalibráciu"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2231
 msgid ""
@@ -7589,6 +7589,10 @@ msgid ""
 "\n"
 "            Run homing process?"
 msgstr ""
+"Po zapnutí napájania stroja,\n"
+"Potrebujete nájsť kalibr. bod osí.\n"
+"\n"
+"             Spustiť proces kalibrácie?"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2244
 msgid "All machinable files"
@@ -7840,6 +7844,11 @@ msgid ""
 "Diameter: %(diameter)s%(units)s\n"
 "Comment: %(comment)s"
 msgstr ""
+"Vložte nástroj a keď budete pripravený, kliknite k pokračovaniu.\n"
+"\n"
+"Číslo nástroja: %(number)s\n"
+"Priemer: %(diameter)s%(units)s\n"
+"Komentár: %(comment)s"
 
 #: src/emc/usr_intf/axis/scripts/hal_manualtoolchange.py:75
 #, python-format
@@ -9806,12 +9815,12 @@ msgstr "Keling_4030"
 #: src/emc/usr_intf/stepconf/stepconf.py:170
 #: src/emc/usr_intf/pncconf/private_data.py:1339
 msgid "DM860T v1.0"
-msgstr ""
+msgstr "DM860T v1.0"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:171
 #: src/emc/usr_intf/pncconf/private_data.py:1340
 msgid "DM860T v3.0"
-msgstr ""
+msgstr "DM860T v3.0"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:220
 msgid "X Step"
@@ -11713,7 +11722,9 @@ msgstr "Opačný"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid "_:"
+msgid ""
+"_:"
+""
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -12575,7 +12586,7 @@ msgstr "# ---Použiť externé dialógové okno manuálnej zmeny nástroja ---"
 #: src/emc/usr_intf/pncconf/build_HAL.py:799
 #: src/emc/usr_intf/pncconf/build_HAL.py:817
 msgid "#  ---signals to show tool offset in the GUI---"
-msgstr ""
+msgstr "# ---signály na zobrazenie ofsetov nástroja v GUI ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:811
 msgid "#  ---manual tool change signals to gmoccapy's dialog---"
@@ -12588,7 +12599,7 @@ msgstr "# ---Nastavenie vretena na signály rýchlosti ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:824
 msgid "net spindle-at-speed => gmoccapy.spindle_at_speed_led"
-msgstr ""
+msgstr "net spindle-at-speed = > gmoccapy.spindle_at_speed_led"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:830
 msgid "#  ---manual tool change signals to qtdragon's dialog---"
@@ -18883,6 +18894,7 @@ msgstr ""
 #: src/emc/usr_intf/gscreen/gscreen.py:730
 msgid "No default angular jog increments entry found in [DISPLAY] of INI file"
 msgstr ""
+"V [DISPLAY] súboru INI sa nenašla žiadna položka jog inkr. uhlového kroku"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:739
 #, python-format
@@ -18890,6 +18902,8 @@ msgid ""
 "No DEFAULT_LINEAR_VELOCITY entry found in [DISPLAY] of INI file: using "
 "internal default of %s"
 msgstr ""
+"V [DISPLAY] súboru INI sa nenašla žiadna položka DEFAULT_LINEAR_VELOCITY: "
+"používa sa interné predvolené nastavenie %s"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:750
 #, python-format
@@ -18897,10 +18911,12 @@ msgid ""
 "No MAX_LINEAR_VELOCITY entry found in [DISPLAY] of INI file: using internal "
 "default of %s"
 msgstr ""
+"V [DISPLAY] súboru INI sa nenašla žiadna položka MAX_LINEAR_VELOCITY: "
+"používa sa interná predvolená hodnota %s"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:757
 msgid "No MAX_LINEAR_VELOCITY found in [TRAJ] of the INI file"
-msgstr ""
+msgstr "V [TRAJ] súboru INI sa nenašla žiadna MAX_LINEAR_VELOCITY"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:770
 #, python-format
@@ -18908,6 +18924,8 @@ msgid ""
 "No DEFAULT_ANGULAR_VELOCITY entry found in [DISPLAY] of INI file: using "
 "internal default of %s"
 msgstr ""
+"V [DISPLAY] súboru INI sa nenašla žiadna položka DEFAULT_ANGULAR_VELOCITY: "
+"používa sa interné predvolené nastavenie %s"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:781
 #, python-format
@@ -18915,34 +18933,38 @@ msgid ""
 "No MAX_ANGULAR_VELOCITY entry found in [DISPLAY] of INI file: using internal "
 "default of %s"
 msgstr ""
+"V [DISPLAY] súboru INI sa nenašla žiadna položka MAX_ANGULAR_VELOCITY: "
+"používa sa interné predvolené nastavenie %s"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:789
 msgid "No MAX_SPINDLE_OVERRIDE entry found in [DISPLAY] of INI file"
-msgstr ""
+msgstr "V [DISPLAY] súboru INI sa nenašla žiadna položka MAX_SPINDLE_OVERRIDE"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:795
 msgid "No MIN_SPINDLE_OVERRIDE entry found in [DISPLAY] of INI file"
-msgstr ""
+msgstr "V [DISPLAY] súboru INI sa nenašla žiadna položka MIN_SPINDLE_OVERRIDE"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:801
 msgid "No MAX_FEED_OVERRIDE entry found in [DISPLAY] of INI file"
-msgstr ""
+msgstr "V [DISPLAY] súboru INI sa nenašla žiadna položka MAX_FEED_OVERRIDE"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:806
 msgid "This screen will be orientated for Lathe options"
-msgstr ""
+msgstr "Táto obrazovka bude orientovaná na sústruh"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:855
 msgid "CYCLE_TIME in [DISPLAY] of INI file is missing: defaulting to 100ms"
-msgstr ""
+msgstr "Chýba CYCLE_TIME v [DISPLAY] súboru INI: predvolená hodnota je 100 ms"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:858
 msgid "CYCLE_TIME in [DISPLAY] of INI file is too small: defaulting to 100ms"
 msgstr ""
+"CYCLE_TIME v [DISPLAY] súboru INI je príliš malý: predvolená hodnota je 100 "
+"ms"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1319
 msgid "Ready For Homing"
-msgstr ""
+msgstr "Pripravený na kalibráciu"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1381
 msgid ""
@@ -18950,75 +18972,80 @@ msgid ""
 "                  Is libvte-2.91-0 package installed?\n"
 "                  Is a 'terminal_window' widget in the GLADE file?"
 msgstr ""
+"Nepodarilo sa inicializovať terminál Vte:\n"
+"                   Je nainštalovaný balík libvte-2.91-0?\n"
+"                   Je v súbore GLADE miniaplikácia 'terminal_window'?"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1389
 msgid ""
 "Exception while writing to terminal:\n"
 "{}"
 msgstr ""
+"Výnimka pri zápise na terminál:\n"
+"{}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1406
 #: src/emc/usr_intf/gscreen/gscreen.py:1411
 #: src/emc/usr_intf/gscreen/gscreen.py:1412
 msgid "Local Config Theme"
-msgstr ""
+msgstr "Miestna téma konfigurácie"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1463
 msgid "Window size is fullscreen"
-msgstr ""
+msgstr "Veľkosť okna je na celú obrazovku"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1466
 msgid "Window size is maximized"
-msgstr ""
+msgstr "Veľkosť okna je maximalizovaná"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1473
 msgid "Window size set to {}x{}"
-msgstr ""
+msgstr "Veľkosť okna nastavená na {}x{}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1475
 msgid "Invalid window size specified '{}', defaulted to {}x{}"
-msgstr ""
+msgstr "Zadaná neplatná veľkosť okna '{}', predvolená hodnota je {}x{}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1477
 msgid "Using default window size: {}x{}"
-msgstr ""
+msgstr "Používa sa predvolená veľkosť okna: {}x{}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1607
 msgid "Control powered up and initialized"
-msgstr ""
+msgstr "Ovládanie je zapnuté a inicializované"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1630
 msgid "Unlock code #{}"
-msgstr ""
+msgstr "Odomknúť kód #{}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1933
 msgid "Key {} ({}) was pressed state: {} last: {}"
-msgstr ""
+msgstr "Kláves {} ({}) bol stlačený: {} naposledy: {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1936
 msgid "Control was being held down"
-msgstr ""
+msgstr "Ctrl bol stlačený"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1939
 msgid "Alt was being held down"
-msgstr ""
+msgstr "Alt bol stlačený"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1942
 msgid "Shift was being held down"
-msgstr ""
+msgstr "Shift bol stlačený"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1974
 msgid "Cycle start pressed in AUTO mode"
-msgstr ""
+msgstr "Spustenie cyklu stlačené v režime AUTO"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:1977
 msgid "Cycle start pressed in MDI mode"
-msgstr ""
+msgstr "Spustenie cyklu stlačené v režime MDI"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2012
 #, python-format
 msgid "Please change to tool # %s, then click OK."
-msgstr ""
+msgstr "Zmeňte na nástroj č. %s a potom kliknite na tlačidlo OK."
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2013
 #: src/emc/usr_intf/gscreen/gscreen.py:2025
@@ -19042,22 +19069,22 @@ msgstr ""
 #: src/emc/usr_intf/gscreen/gscreen.py:4390
 #: src/emc/usr_intf/gscreen/gscreen.py:4393
 msgid "INFO:"
-msgstr ""
+msgstr "INFO:"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2025
 #: src/emc/usr_intf/gscreen/gscreen.py:2044
 msgid "Can't start spindle manually while MDI busy"
-msgstr ""
+msgstr "Vreteno nie je možné spustiť manuálne, keď je MDI zaneprázdnené"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2028
 #: src/emc/usr_intf/gscreen/gscreen.py:2047
 msgid "can't start spindle manually in Auto mode"
-msgstr ""
+msgstr "nie je možné spustiť vreteno manuálne v režime Auto"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2053
 #: src/emc/usr_intf/gscreen/gscreen.py:4258
 msgid "No direction selected for spindle"
-msgstr ""
+msgstr "Pre vreteno nie je vybratý žiadny smer"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2066
 #: src/emc/usr_intf/gscreen/gscreen.py:2068
@@ -19067,23 +19094,23 @@ msgstr "Zadanie prednastavených otáčok vretena"
 #: src/emc/usr_intf/gscreen/gscreen.py:2101
 #: src/emc/usr_intf/gscreen/gscreen.py:2106
 msgid "Manual Tool Index Entry"
-msgstr ""
+msgstr "Manuálne zadávanie indexu nástrojov"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2278
 msgid "Entry dialog"
-msgstr ""
+msgstr "Vstupné dialógové okno"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2445
 msgid "Classicladder realtime component not detected"
-msgstr ""
+msgstr "Komponent Classicladder realtime nebol zistený"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2446
 msgid "ladder not available - is the realtime component loaded?"
-msgstr ""
+msgstr "ladder nie je dostupný - je načítaný realtime komponent?"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2452
 msgid "Estopping and killing gscreen"
-msgstr ""
+msgstr "Zastavenie a zrušenie gscreen"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2597
 #, fuzzy
@@ -19101,21 +19128,21 @@ msgstr "Stroj zastavený!"
 #: src/emc/usr_intf/gscreen/gscreen.py:2652
 #: lib/python/gladevcp/calculator.glade:33
 msgid "Calculator"
-msgstr ""
+msgstr "Kalkulačka"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2880
 #, python-format
 msgid "Axes %s are homed"
-msgstr ""
+msgstr "Osi %s sú skalibrované"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2894
 msgid "All the axes have been homed"
-msgstr ""
+msgstr "Všetky osy boli skalibrované"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2907
 #, python-format
 msgid "There are unhomed axes: %s"
-msgstr ""
+msgstr "Existujú osi bez kalibrácie: %s"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2916
 #, python-format
@@ -19127,12 +19154,16 @@ msgid ""
 "Cannot set focus to hal_mdihistory when Onboard launched - Is this widget "
 "name in glade file?"
 msgstr ""
+"Pri spustení Onboard sa nedá nastaviť zameranie na hal_mdihistory - Je tento "
+"názov miniaplikácie v súbore glade?"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2937
 msgid ""
 "Cannot set focus to gcode_view when Onboard launched - Is this widget name "
 "in glade file?"
 msgstr ""
+"Pri spustení Onboard sa nedá nastaviť zameranie na gcode_view - Je tento "
+"názov miniaplikácie v súbore glade?"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3069
 msgid "Manual Spindle Control"
@@ -19142,6 +19173,7 @@ msgstr "Manuálne ovládanie vretena"
 #: src/emc/usr_intf/gscreen/gscreen.py:3150
 msgid "Error with launching on-screen keyboard program - cannot find program"
 msgstr ""
+"Chyba pri spúšťaní programu klávesnice na obrazovke – program sa nedá nájsť"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3160
 msgid "Keyboard"

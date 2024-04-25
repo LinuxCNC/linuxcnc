@@ -8,9 +8,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-04-07 20:07+0200\n"
-"PO-Revision-Date: 2024-04-02 14:31+0000\n"
+"PO-Revision-Date: 2024-04-23 22:27+0000\n"
 "Last-Translator: Zdenek Z <zz912@seznam.cz>\n"
 "Language-Team: \n"
 "Language: cs\n"
@@ -1306,7 +1306,7 @@ msgstr "Odemykat HAL pinem"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:137
 msgid "<b>Unlock settings</b>"
-msgstr "</b>Nastavení kódu</b>"
+msgstr "<b>Nastavení kódu</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:138
 msgid "Hide turtle Jog Button"
@@ -1610,11 +1610,12 @@ msgid "delete MDI history"
 msgstr "smazat MDI historii"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:212
-#, fuzzy
 msgid ""
 "Delete\n"
 "MDI history"
-msgstr "smazat MDI historii"
+msgstr ""
+"Smazat\n"
+"MDI historii"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:214
 msgid "Cl.-ladder"
