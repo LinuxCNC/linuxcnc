@@ -372,6 +372,7 @@ def conv_entry_changed(P, W, widget, circleType=False):
             W.loEntry.setEnabled(True)
             P.invalidLeads = 0
     if value:
+        cursor_position = widget.cursorPosition()
         if name in ['intEntry', 'hsEntry', 'cnEntry', 'rnEntry']:
             good = '0123456789'
         elif name in ['xsEntry', 'ysEntry', 'aEntry', 'coEntry', 'roEntry', 'neg']:
@@ -383,24 +384,22 @@ def conv_entry_changed(P, W, widget, circleType=False):
             if t in good and not(t == '-' and len(out) > 0) and not(t == '.' and t in out):
                 out += t
         widget.setText(out)
+        widget.setCursorPosition(cursor_position)
         if value in ['', '.', '-', '-.']:
             return True
         try:
             float(value)
             reply = False
         except:
-            head = _translate('HandlerClass', 'Numeric Entry Error')
-            msg0 = _translate('HandlerClass', 'An invalid entry has been detected')
-            P.dialog_show_ok(QMessageBox.Warning, f'{head}', f'{msg0}\n')
-            widget.setText('0')
+            widget.setCursorPosition(cursor_position - 1)
             reply = True
+        if not reply and name == 'gsEntry':
+            # grid size is in inches
+            W.conv_preview.grid_size = float(value) / P.unitsPerMm / 25.4
+            W.conv_preview.set_current_view()
         return reply
     else:
         return True
-    if name == 'gsEntry':
-        # grid size is in inches
-        W.conv_preview.grid_size = float(value) / P.unitsPerMm / 25.4
-        W.conv_preview.set_current_view()
 
 def conv_is_float(entry):
     try:
@@ -681,7 +680,7 @@ def conv_widgets(P, W):
     W.hsLabel = QLabel(_translate('Conversational', 'SPEED %'))
     W.pvLabel = QLabel(_translate('Conversational', 'PREVIEW'))
     W.gsLabel = QLabel(_translate('Conversational', 'GRID SIZE'))
-    W.gsEntry = QLineEdit()
+    W.gsEntry = QLineEdit(objectName='gsEntry')
     W.save = QPushButton(_translate('Conversational', 'SAVE'))
     W.save.setFocusPolicy(Qt.ClickFocus)
     W.reload = QPushButton(_translate('Conversational', 'RELOAD'))
