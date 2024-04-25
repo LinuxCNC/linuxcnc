@@ -400,6 +400,10 @@ class _Lcnc_Action(object):
             LOG.debug('resume')
             self.cmd.auto(linuxcnc.AUTO_RESUME)
 
+    def RESUME(self):
+        if STATUS.stat.paused:
+            self.cmd.auto(linuxcnc.AUTO_RESUME)
+
     def SET_MAX_VELOCITY_RATE(self, rate):
         self.cmd.maxvel(rate / 60.0)
 

@@ -353,20 +353,17 @@ DROLabel[homed=false] {
 
 /****** RADIO BUTTON ************/
 QRadioButton {
-    border: 1px solid foregnd;
-    border-radius: 4 }
+    font: 12pt }
 
 QRadioButton::indicator {
-    width: 0;
-    background: backgnd }
+    border: 1px solid foregnd;
+    border-radius: 4;
+    width: 26;
+    height: 26 }
 
-QRadioButton:checked {
+QRadioButton::indicator:checked {
     color: backgnd;
-    background: highlight }
-
-QRadioButton:pressed {
-    color: backgnd;
-    background: highlight }
+    background: foregnd }
 
 /****** SETTINGS PUSHBUTTONS ************/
 #color_foregrnd, #color_foregalt,

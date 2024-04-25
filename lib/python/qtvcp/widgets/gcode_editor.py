@@ -188,7 +188,9 @@ class EditorBase(QsciScintilla):
         "Margins":  QColor("#666769"),      # Margins
     }
 
+    # keep track of the property value
     _styleBackgroundColor = QColor("#c0c0c0")
+    _styleCursorColor = QColor("white")
     _styleMarginsBackgroundColor = QColor("#cccccc")
     _styleMarkerBackgroundColor = QColor("#a5a526")
     _styleSelectionBackgroundColor = QColor("#001111")
@@ -431,6 +433,14 @@ class EditorBase(QsciScintilla):
         super(EditorBase, self).setMarginsForegroundColor(value)
         self._styleColor["Margins"] = value
     styleColorMarginText = pyqtProperty(QColor, getColorMarginsForeground, setColorMarginsForeground)
+
+    # Cursor Color
+    def getColorCursor(self):
+        return self._styleCursorColor
+    def setColorCursor(self, color):
+        self._styleCursorColor = color
+        super(EditorBase, self).setCaretForegroundColor(color)
+    styleColorCursor = pyqtProperty(QColor, getColorCursor, setColorCursor)
 
     # Backgrounds
     def getColorBackground(self):

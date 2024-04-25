@@ -370,7 +370,6 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
 
     def highlight(self, lineno, geometry):
         glLineWidth(3)
-
         glColor3f(*self.colors['selected'])
         glBegin(GL_LINES)
         coords = []
@@ -392,7 +391,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         glEnd()
         for line in self.dwells:
             if line[0] != lineno: continue
-            self.draw_dwells([(line[0], *self.colors['selected']) + line[2:]], 2, 0)
+            self.draw_dwells([(line[0], self.colors['selected']) + line[2:]], 2, 0)
             coords.append(line[2:5])
         glLineWidth(1)
         if coords:

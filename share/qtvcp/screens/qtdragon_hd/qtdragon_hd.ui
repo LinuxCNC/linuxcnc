@@ -8897,6 +8897,9 @@ LINE 0</string>
                  <property name="shape_option" stdset="0">
                   <number>1</number>
                  </property>
+                 <property name="flashIndicator" stdset="0">
+                  <bool>true</bool>
+                 </property>
                  <property name="indicator_size" stdset="0">
                   <double>0.200000000000000</double>
                  </property>
@@ -8915,8 +8918,11 @@ LINE 0</string>
                  <property name="is_paused_status" stdset="0">
                   <bool>true</bool>
                  </property>
-                 <property name="pause_action" stdset="0">
+                 <property name="isRunPausedSensitive" stdset="0">
                   <bool>true</bool>
+                 </property>
+                 <property name="pause_action" stdset="0">
+                  <bool>false</bool>
                  </property>
                 </widget>
                </item>
@@ -9476,7 +9482,7 @@ OFF</string>
                 <number>0</number>
                </property>
                <item>
-                <widget class="IndicatedPushButton" name="btn_pause_spindle">
+                <widget class="IndicatedPushButton" name="btn_spindle_pause">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                    <horstretch>0</horstretch>
@@ -9502,8 +9508,8 @@ OFF</string>
                   <string>Spindle pause</string>
                  </property>
                  <property name="text">
-                  <string>PAUSE
-SPINDLE</string>
+                  <string>NO SPINDLE
+ LIFT</string>
                  </property>
                  <property name="checkable">
                   <bool>true</bool>
@@ -9515,7 +9521,7 @@ SPINDLE</string>
                   <string/>
                  </property>
                  <property name="indicator_option" stdset="0">
-                  <bool>true</bool>
+                  <bool>false</bool>
                  </property>
                  <property name="indicator_HAL_pin_option" stdset="0">
                   <bool>false</bool>
@@ -9546,12 +9552,11 @@ SPINDLE</string>
                   <number>6</number>
                  </property>
                  <property name="true_state_string" stdset="0">
-                  <string>SPINDLE
-PAUSED</string>
+                  <string>SPINDLE LIFT</string>
                  </property>
                  <property name="false_state_string" stdset="0">
-                  <string>PAUSE
-SPINDLE</string>
+                  <string>NO SPINDLE
+ LIFT</string>
                  </property>
                  <property name="is_paused_status" stdset="0">
                   <bool>false</bool>
@@ -17245,7 +17250,7 @@ ANGULAR</string>
          <number>2</number>
         </property>
         <property name="text">
-         <string>09:01:17 PM</string>
+         <string>11:38:32 PM</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -17475,8 +17480,8 @@ ANGULAR</string>
    <slot>btn_load_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>627</x>
-     <y>148</y>
+     <x>598</x>
+     <y>110</y>
     </hint>
     <hint type="destinationlabel">
      <x>1059</x>
@@ -17491,8 +17496,8 @@ ANGULAR</string>
    <slot>btn_gcode_edit_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>627</x>
-     <y>157</y>
+     <x>598</x>
+     <y>110</y>
     </hint>
     <hint type="destinationlabel">
      <x>1088</x>
@@ -17507,8 +17512,8 @@ ANGULAR</string>
    <slot>btn_copy_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>627</x>
-     <y>161</y>
+     <x>598</x>
+     <y>120</y>
     </hint>
     <hint type="destinationlabel">
      <x>446</x>
@@ -17523,8 +17528,8 @@ ANGULAR</string>
    <slot>btn_copy_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>627</x>
-     <y>163</y>
+     <x>598</x>
+     <y>120</y>
     </hint>
     <hint type="destinationlabel">
      <x>471</x>
@@ -17571,8 +17576,8 @@ ANGULAR</string>
    <slot>chk_override_limits_checked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>768</x>
-     <y>92</y>
+     <x>618</x>
+     <y>90</y>
     </hint>
     <hint type="destinationlabel">
      <x>719</x>
@@ -17603,8 +17608,8 @@ ANGULAR</string>
    <slot>chk_use_virtual_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>768</x>
-     <y>87</y>
+     <x>618</x>
+     <y>90</y>
     </hint>
     <hint type="destinationlabel">
      <x>565</x>
@@ -17619,8 +17624,8 @@ ANGULAR</string>
    <slot>chk_alpha_mode_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>768</x>
-     <y>78</y>
+     <x>618</x>
+     <y>90</y>
     </hint>
     <hint type="destinationlabel">
      <x>708</x>
@@ -17651,8 +17656,8 @@ ANGULAR</string>
    <slot>disable_spindle_pause()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>768</x>
-     <y>80</y>
+     <x>618</x>
+     <y>90</y>
     </hint>
     <hint type="destinationlabel">
      <x>678</x>
@@ -17667,8 +17672,8 @@ ANGULAR</string>
    <slot>chk_use_sensor_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>768</x>
-     <y>88</y>
+     <x>618</x>
+     <y>90</y>
     </hint>
     <hint type="destinationlabel">
      <x>563</x>
@@ -17683,8 +17688,8 @@ ANGULAR</string>
    <slot>chk_use_camera_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>768</x>
-     <y>91</y>
+     <x>618</x>
+     <y>90</y>
     </hint>
     <hint type="destinationlabel">
      <x>623</x>
@@ -17699,8 +17704,8 @@ ANGULAR</string>
    <slot>cam_zoom_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>586</x>
-     <y>191</y>
+     <x>548</x>
+     <y>180</y>
     </hint>
     <hint type="destinationlabel">
      <x>1784</x>
@@ -17715,8 +17720,8 @@ ANGULAR</string>
    <slot>cam_dia_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>586</x>
-     <y>197</y>
+     <x>548</x>
+     <y>180</y>
     </hint>
     <hint type="destinationlabel">
      <x>1703</x>
@@ -17731,8 +17736,8 @@ ANGULAR</string>
    <slot>cam_rot_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>586</x>
-     <y>204</y>
+     <x>548</x>
+     <y>180</y>
     </hint>
     <hint type="destinationlabel">
      <x>1737</x>
@@ -17779,8 +17784,8 @@ ANGULAR</string>
    <slot>chk_run_from_line_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>768</x>
-     <y>85</y>
+     <x>618</x>
+     <y>90</y>
     </hint>
     <hint type="destinationlabel">
      <x>-17</x>
@@ -17837,30 +17842,14 @@ ANGULAR</string>
    </hints>
   </connection>
   <connection>
-   <sender>btn_pause_spindle</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>btn_pause_spindle_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>99</x>
-     <y>974</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-57</x>
-     <y>917</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>chk_use_touchplate</sender>
    <signal>stateChanged(int)</signal>
    <receiver>MainWindow</receiver>
    <slot>chk_use_touchplate_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>768</x>
-     <y>89</y>
+     <x>618</x>
+     <y>90</y>
     </hint>
     <hint type="destinationlabel">
      <x>635</x>
@@ -18083,8 +18072,8 @@ ANGULAR</string>
    <slot>chk_inhibit_selection_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>768</x>
-     <y>79</y>
+     <x>618</x>
+     <y>90</y>
     </hint>
     <hint type="destinationlabel">
      <x>959</x>
@@ -18115,8 +18104,8 @@ ANGULAR</string>
    <slot>btn_gripper_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>627</x>
-     <y>156</y>
+     <x>598</x>
+     <y>110</y>
     </hint>
     <hint type="destinationlabel">
      <x>1420</x>
@@ -18211,8 +18200,8 @@ ANGULAR</string>
    <slot>btn_about_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>698</x>
-     <y>119</y>
+     <x>614</x>
+     <y>110</y>
     </hint>
     <hint type="destinationlabel">
      <x>1788</x>
@@ -18227,8 +18216,8 @@ ANGULAR</string>
    <slot>btn_spindle_z_up_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>616</x>
-     <y>143</y>
+     <x>568</x>
+     <y>90</y>
     </hint>
     <hint type="destinationlabel">
      <x>829</x>
@@ -18243,8 +18232,8 @@ ANGULAR</string>
    <slot>btn_spindle_z_down_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>616</x>
-     <y>143</y>
+     <x>568</x>
+     <y>90</y>
     </hint>
     <hint type="destinationlabel">
      <x>959</x>
@@ -18259,8 +18248,8 @@ ANGULAR</string>
    <slot>btn_gcode_zoomout_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>615</x>
-     <y>139</y>
+     <x>568</x>
+     <y>90</y>
     </hint>
     <hint type="destinationlabel">
      <x>1289</x>
@@ -18275,8 +18264,8 @@ ANGULAR</string>
    <slot>btn_gcode_zoomin_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>612</x>
-     <y>139</y>
+     <x>568</x>
+     <y>90</y>
     </hint>
     <hint type="destinationlabel">
      <x>878</x>
@@ -18433,7 +18422,7 @@ ANGULAR</string>
  </slots>
  <buttongroups>
   <buttongroup name="mode_buttonGroup"/>
-  <buttongroup name="buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
+  <buttongroup name="buttonGroup"/>
  </buttongroups>
 </ui>

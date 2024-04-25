@@ -42,7 +42,7 @@ LOG = logger.getLogger(__name__)
 # Force the log level for this module
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
-class ActionButton(IndicatedPushButton, _HalWidgetBase):
+class ActionButton(IndicatedPushButton):
     def __init__(self, parent=None):
         super(ActionButton, self).__init__(parent)
         self._block_signal = False

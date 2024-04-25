@@ -179,6 +179,10 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
 
         # set digital zoom
         frame = self.zoom(frame, self.scale)
+
+        # invert image
+        frame = self.flip(frame)
+
         # make a Q image
         self.pix = self.makeImage(frame, self._qImageFormat)
 
@@ -213,9 +217,9 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
     def makeCVImage(self, frame):
         CV.imshow('CV Image',frame)
 
-    def rescaleFrame(self, frame, scale = 1, scale_x =1.0, scale_y=1.0):
-        x = scale_x * scale
-        y = scale_y * scale
+    def rescaleFrame(self, frame, scale=1, scale_x=1.0, scale_y=1.0):
+        x = abs(scale_x * scale)
+        y = abs(scale_y * scale)
         return CV.resize(frame, None, fx = x, fy = y, interpolation=CV.INTER_CUBIC)
 
     def zoom(self, frame, scale):
@@ -238,6 +242,18 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         cow = int(ow/2)
         # NOTE: its img[y: y + h, x: x + w]
         return frame[ch-coh:ch+coh, cw-cow:cw+cow]
+
+    # flip the image based on if scaleX and scaleY are negative
+    def flip(self, image):
+        if self.scaleX > 0 and self.scaleY > 0:
+            return image
+        elif self.scaleX < 0 and self.scaleY < 0:
+            flip = -1
+        elif self.scaleX < 0:
+            flip = 0
+        else:
+            flip = 1
+        return CV.flip(image, flip)
 
     # draw a circle around small holes
     #

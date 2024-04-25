@@ -2196,7 +2196,7 @@
                                                   <object class="GtkLabel" id="lbl_vc">
                                                     <property name="visible">True</property>
                                                     <property name="can-focus">False</property>
-                                                    <property name="label" translatable="yes">Vc= 0.00</property>
+                                                    <property name="label">Vc= 0.00</property>
                                                     <property name="xalign">0.949999988079071</property>
                                                   </object>
                                                   <packing>
@@ -5269,7 +5269,7 @@ to test your settings.</property>
                                               <object class="GtkLabel" id="lbl_x_probe">
                                                 <property name="visible">True</property>
                                                 <property name="can-focus">False</property>
-                                                <property name="label" translatable="yes">0.000</property>
+                                                <property name="label">0.000</property>
                                                 <property name="xalign">1</property>
                                               </object>
                                               <packing>
@@ -5281,7 +5281,7 @@ to test your settings.</property>
                                               <object class="GtkLabel" id="lbl_y_probe">
                                                 <property name="visible">True</property>
                                                 <property name="can-focus">False</property>
-                                                <property name="label" translatable="yes">0.000</property>
+                                                <property name="label">0.000</property>
                                                 <property name="xalign">1</property>
                                               </object>
                                               <packing>
@@ -5293,7 +5293,7 @@ to test your settings.</property>
                                               <object class="GtkLabel" id="lbl_z_probe">
                                                 <property name="visible">True</property>
                                                 <property name="can-focus">False</property>
-                                                <property name="label" translatable="yes">0.000</property>
+                                                <property name="label">0.000</property>
                                                 <property name="xalign">1</property>
                                               </object>
                                               <packing>
@@ -5305,7 +5305,7 @@ to test your settings.</property>
                                               <object class="GtkLabel" id="lbl_maxprobe">
                                                 <property name="visible">True</property>
                                                 <property name="can-focus">False</property>
-                                                <property name="label" translatable="yes">0.000</property>
+                                                <property name="label">0.000</property>
                                                 <property name="xalign">1</property>
                                               </object>
                                               <packing>
@@ -5432,7 +5432,7 @@ to test your settings.</property>
                                           <object class="GtkLabel" id="lbl_frm_probe_vel">
                                             <property name="visible">True</property>
                                             <property name="can-focus">False</property>
-                                            <property name="label" translatable="yes">&lt;b&gt;Probe velocitys&lt;/b&gt;</property>
+                                            <property name="label" translatable="yes">&lt;b&gt;Probe velocities&lt;/b&gt;</property>
                                             <property name="use-markup">True</property>
                                           </object>
                                         </child>

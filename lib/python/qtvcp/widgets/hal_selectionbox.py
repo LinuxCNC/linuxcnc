@@ -30,7 +30,7 @@ LOG = logger.getLogger(__name__)
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class TreeComboBox(QComboBox):
-    selectionUpdated = pyqtSignal(str)
+    selectionUpdated = pyqtSignal('PyQt_PyObject')
 
     def __init__(self, parent=None):
         super(TreeComboBox, self).__init__(parent)
@@ -43,7 +43,7 @@ class TreeComboBox(QComboBox):
         tree_view.setSelectionBehavior(tree_view.SelectItems)
         tree_view.setWordWrap(True)
         tree_view.setAllColumnsShowFocus(True)
-        tree_view.setFixedWidth(200)
+        tree_view.setFixedWidth(300)
         self.setView(tree_view)
 
         #self.view().viewport().installEventFilter(self)
@@ -91,8 +91,8 @@ class TreeComboBox(QComboBox):
 
     def selected(self,index):
         if self.getSelectionData(index) is None:
-            print ('should reset selection or expand node')
-            return
+            #print ('should reset selection or expand node')
+            self.selectionUpdated.emit(None)
         self.selectionUpdated.emit(self.getSelectionData(index))
 
 ################################################################
@@ -158,9 +158,9 @@ class HALSelectionBox(TreeComboBox, _HalWidgetBase):
 
             for i in hal.get_info_signals():
                 if i['TYPE'] in self.SIGTYPE:
-                        if not bool(i['DRIVER']is None) and bool(False) in self.SIGDRIVEN:
+                        if not bool(i['DRIVER']is None) and bool(True) == self.SIGDRIVEN[0]:
                             node_sigdriven.append((i['NAME'], [i['NAME'], True], []))
-                        elif bool(i['DRIVER']is None) and bool(True) in self.SIGDRIVEN:
+                        elif bool(i['DRIVER']is None) and bool(True) == self.SIGDRIVEN[1]:
                             node_sigundriven.append((i['NAME'], [i['NAME'], True], []))
 
         if self.PARAMS in self.SHOWTYPES:
@@ -171,7 +171,8 @@ class HALSelectionBox(TreeComboBox, _HalWidgetBase):
 
         self.addItems(model, parent_node)
         self.setModel(model)
-        self.view().expandAll()
+        self.view().setMinimumHeight(300)
+        self.view().adjustSize()
 
     def setShowTypes(self, types):
         ''' Sets the pin type: HAL_BIT,HAL_FLOAT,HAL_S32,HAL_U32 

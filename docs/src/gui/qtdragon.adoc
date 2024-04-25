@@ -516,6 +516,7 @@ qtdragon.eoffset-enable
 qtdragon.eoffset-value
 qtdragon.eoffset-spindle-count
 qtdragon.eoffset-zlevel-count
+qtdragon.eoffset-is-active
 ----
 
 These float output pins reflect the current slider jograte (in machine units):
@@ -549,6 +550,13 @@ qtversaprobe.searchvel
 qtversaprobe.backoffdist
 ----
 
+This input pin is available to toggle pause/resume of a running program.
+
+[source,{hal}]
+----
+qtdragon.external-pause
+----
+
 == HAL files
 
 The HAL files supplied are for simulation only.
@@ -576,9 +584,10 @@ It is up to the end user to supply the appropriate driver and HAL file connectio
 
 == Auto Raise Z Axis on Spindle Pause
 
-QtDragon can be set up to automatically raise and lower the Z axis when the spindle is paused. +
-When a program is paused, then you press the 'Spindle Pause' button to stop the spindle and raise it in Z. +
-Press the button again to start spindle and lower it, then unpause the program. +
+QtDragon can be set up to automatically raise and lower the Z axis and stop the spindle, when the program is paused. +
+You select the 'SPINDLE LIFT' or 'NO SPINDLE LIFT' button to select the option to raise the spindle in Z when paused. +
+Then when you press the 'PAUSE' button the spindle will lift the amount set on the 'Settings' tab and the spindle will stop. +
+Pressing 'RESUME' will start the spindle and lower the spindle. +
 If you have the HAL pin `spindle.0.at-speed` connected to a driving pin, the spindle will not lower until the pin is true +
 You typically connect this to a timer or logic that detects the speed of the spindle. +
 If that pin is not connected to a driving pin, a dialog will pop up to warn you to wait for the spindle response. +
@@ -587,7 +596,12 @@ The amount to raise is set in the 'Settings' tab under the heading 'SPINDLE RAIS
 This line edit box can only be directly set when not in Auto mode. +
 The up/down buttons can be used to adjust the raise amount at any time, including when the spindle is already raised. +
 The button increments are 1 inch or 5 mm (depending on the units the machine is based on) +
-This optional behaviour requires additions to the INI and the qtdragon_post_gui HAL file.
+
+{NOTE}
+If using the Spindle lift option, HALUI can not be used to pause/resume the program.
+There is a pin, 'QtDragon.external-pause' available to pause/resume from an external source.
+
+This optional behaviour requires additions to the INI and the QtDragon_postgui HAL file.
 
 In the INI, under the AXIS_Z heading.
 
@@ -602,9 +616,10 @@ In the qtdragon_postgui.hal file add:
 [source,{hal}]
 ----
 # Set up Z axis external offsets
-net eoffset_clear    qtdragon.eoffset-clear => axis.z.eoffset-clear
-net eoffset_count    qtdragon.eoffset-spindle-count => axis.z.eoffset-counts
-net eoffset          qtdragon.eoffset-value <= axis.z.eoffset
+net eoffset_clear    qtdragon.eoffset-clear          =>  axis.z.eoffset-clear
+net eoffset_count    qtdragon.eoffset-spindle-count  =>  axis.z.eoffset-counts
+net eoffset          qtdragon.eoffset-value          <=  axis.z.eoffset
+net eoffset-state    qtdragon.eoffset-is-active      <=  motion.eoffset-active
 
 # uncomment for dragon_hd
 #net limited          qtdragon.led-limits-tripped <= motion.eoffset-limited
@@ -691,7 +706,8 @@ setp axis.z.eoffset-enable True
 ########################################################################
 net eoffset-clear              qtdragon.eoffset-clear
 net eoffset-spindle-count   <= qtdragon.eoffset-spindle-count
-net spindle-pause              qtdragon.spindle-inhibit     spindle.0.inhibit
+net spindle-pause              qtdragon.spindle-inhibit        =>  spindle.0.inhibit
+net eoffset-state              qtdragon.eoffset-is-active      <=  motion.eoffset-active
 
 ## Z level compensation
 ####################################################
@@ -1171,15 +1187,17 @@ QtDragon_hd will also show a smaller graphics display window.
 If the recognized webcam is connected, this tab will display the video image overlaid with a cross-hair, circle and degree readout.
 This can be adjusted to suit a part feature for such things as touchoff.
 The underlying library uses openCV Python module to connect to the webcam. +
-To adjust the X or Y size aspect ratio, look in the preference file for: +
+To adjust the X or Y size aspect ratio, or camera number, look in the preference file for: +
 
 ----
 [CUSTOM_FORM_ENTRIES]
 Camview xscale = 100
 Camview yscale = 100
+Camview cam number = 0
 ----
 
 These are in percent, usually the range will be 100 - 200 in one axis. +
+Negating these scales can be used to flip the image in X, Y or both axes. +
 The preference file can only be edited when QtDragon is not running.
 
 === G-codes Tab

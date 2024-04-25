@@ -880,7 +880,7 @@ The main purpose of this is to allow a quick test for a shorted torch tip.
 |TORCH ON ENABLE |0, 1, 2 |This box toggles between Enabling and Disabling the torch. +
 This box defaults to unfilled (disabled) when QtPlasmaC is first run. +
 This box must be filled to change it to "Torch Enabled" before material cutting can commence. +
-If this box is not filled, then running a loaded program will cause the machine to run the cycle without firing the torch. This is sometimes referred to as a "dry run".
+If this box is not filled, then running a loaded program will cause the machine to run the cycle without firing the torch. This is sometimes referred to as a "dry run". If the user has a laser installed, then it is also possible to dry run with the laser. See the <<plasma:laser,LASER section>> for detailed instructions.
 |VELOCITY ANTI DIVE |0, 1, 2 |Indicates that the THC is locked at the current height due to the cut velocity falling below the Velocity Anti Dive (VAD) Threshold percentage set on the <<plasma:parameters-tab,PARAMETERS Tab>>.
 |VELOCITY ANTI DIVE ENABLE |0, 1, 2 |This box toggles between Enabling and Disabling VELOCITY ANTI DIVE.
 |VOID ANTI DIVE |0, 1 |Indicates that the THC is locked due to a void being sensed.
@@ -1758,6 +1758,11 @@ qtplasmac.laser_on
 
 If an alignment laser has been set up then it is possible to use the laser during <<plasma:cut-recovery,CUT RECOVERY>> for accurate positioning of the new start coordinates.
 
+*To dry run the G-code file with the laser:*
+. Ensure there are no bounds errors and CYCLE START is enabled.
+. Press the *LASER* button and hold for longer than 750 mSec, the laser will turn on and the dry run will start.
+. Release the *LASER* button.
+
 [[plasma:camera]]
 === CAMERA
 
@@ -2414,8 +2419,6 @@ If the user has the Run From Line option enabled in the GUI SETTINGS section of 
 . Clicking any line in the Preview Window
 . Clicking any line in the G-code Window
 
-Note that the "Run From Line"-function will run from the beginning of the selected line.
-
 It is important to note that G-code programs can be run from any selected line using this method, however a leadin may not be possible depending on the line selected.
 In this case, an error message will be displayed to let the user know the leadin calculation was not possible.
 
@@ -2430,7 +2433,13 @@ If the user selects a line while cutter compensation is active and clicks *"SELE
 
 It is possible to select a new line while Run From Line is active.
 
-image::images/qtplasmac_run_from_line.png[width=350,align="center"]
+image::images/qtplasmac_rfl_options.png[width=200,align="center"]
+
+==== HERE TO END
+
+*HERE TO END* will run from the beginning of the selected line to the end of the G-code file with the option of adding a leadin.
+
+image::images/qtplasmac_rfl_here_to_end.png[width=350,align="center"]
 
 [cols="4,16",options="header"]
 |===
@@ -2452,6 +2461,13 @@ Program will run from selected line with no leadin applied"
 
 After pressing *LOAD*, the blinking "SELECTED _nn_" button will change to *RUN FROM LINE CYCLE START* button.
 Click this button to start the program from the beginning of the selected line.
+
+==== THIS CUTPATH
+
+*THIS CUTPATH* will run only the cutpath that the seleceted segment is a part of.
+
+The blinking "SELECTED _nn_" button will change to *RUN FROM LINE CYCLE START* button.
+Click this button to run the selected cutpath.
 
 *Run From Line selections may be canceled in the following ways:*
 
@@ -4168,7 +4184,7 @@ Therefore the length of the wiggle and the feedrate need to be considered in cal
 
 For example:
 
-* A feed rate of 1080 mm/m (18 mm/s)
+* A feed rate of 1080 mm/min (18 mm/s)
 * A wiggle movement of 4mm for 3 oscillation
 
 This means that the length of the wiggle is 4 x 3 = 12mm. At the 18 mm/s feedrate, the pierce delay needs to be approx 0.7 seconds to support the wiggle distance at pierce height.
@@ -4225,27 +4241,27 @@ This code shows us the following information in order:
 ** Pierce Height is 4 mm.
 ** Pierce Delay is 1 second.
 ** Cut Height is 1.5 mm.
-** Cut Feed Rate is 490 mm/m.
+** Cut Feed Rate is 490 mm/min.
 . Mode is set to 2 which is ramp pierce.
 . Pierce Motion Delay is 50% of Pierce Delay (0.5 seconds).
 . Pierce End Height is 2.5 mm
 . Cut Height Delay is 1 second.
-. Gouge Speed is 980 mm/m.
+. Gouge Speed is 980 mm/min.
 . Gouge Distance is 5 mm
-. Creep Speed is 245 mm/m.
+. Creep Speed is 245 mm/min.
 . Creep Distance is 3 mm.
 
 With this information the following behavior can be described:
 
 It is important to note that accelerations and decelerations are omitted from the following calculations.
 
-The torch will start at Pierce Height (4 mm from the material) and start traveling at a Gouge Speed of 980 mm/m (16.3 mm/s) for a Gouge Distance of 5 mm which will consume 0.3 seconds (5 mm / 16.3 mm/s = 0.3 s) of the 0.5 s Pierce Motion Delay.
+The torch will start at Pierce Height (4 mm from the material) and start traveling at a Gouge Speed of 980 mm/min (16.3 mm/s) for a Gouge Distance of 5 mm which will consume 0.3 seconds (5 mm / 16.3 mm/s = 0.3 s) of the 0.5 s Pierce Motion Delay.
 
-When the Gouge Distance is reached, the torch speed is set to a Creep Speed of 245 mm/m (4 mm/s) for a Creep Distance of 3 mm. The Creep Distance will take roughly 0.7 seconds to complete (3 mm / 4 mm/s = 0.7 s).
+When the Gouge Distance is reached, the torch speed is set to a Creep Speed of 245 mm/min (4 mm/s) for a Creep Distance of 3 mm. The Creep Distance will take roughly 0.7 seconds to complete (3 mm / 4 mm/s = 0.7 s).
 
 The torch height will remain at 4 mm for another 0.2 seconds (0.5 s (Pierce Motion Delay) - 0.3 s (Gouge Distance at Gouge Speed) = 0.2 s) after which the torch will begin descending to a Pierce End Height of 2.5 mm over the remaining 0.5 seconds of the material's Pierce Delay. Since there are 0.5 seconds of the material's Pierce Delay remaining, as well as 0.5 seconds left at Creep Speed, the Creep Distance will be covered at the same time the Pierce End Height is reached.
 
-When the Creep Distance has been reached, the torch speed will be set to the material's Cut Feed Rate of 490 mm/m. Since there is a 1 second Cut Height Delay that started at the end of the material's Pierce Delay the transition to a Cut Height of 1.5 mm will occur after the remaining 1 second Cut Height Delay has expired.
+When the Creep Distance has been reached, the torch speed will be set to the material's Cut Feed Rate of 490 mm/min. Since there is a 1 second Cut Height Delay that started at the end of the material's Pierce Delay the transition to a Cut Height of 1.5 mm will occur after the remaining 1 second Cut Height Delay has expired.
 
 The above text should demonstrate that there is quite a bit of configuration and subtlety can be achieved through experimentation and the careful use of different parameter combinations.
 
