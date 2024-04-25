@@ -4,13 +4,14 @@
 # mk00002 <codo1983@gmail.com>, 2022, 2024.
 # Hans Unzner <hansunzner@gmail.com>, 2022, 2024.
 # Ettore Atalan <atalanttore@googlemail.com>, 2023.
+# Petter Reinholdtsen <pere-weblate@hungry.com>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-04-08 19:52+0200\n"
-"PO-Revision-Date: 2024-04-19 13:38+0000\n"
-"Last-Translator: Hans Unzner <hansunzner@gmail.com>\n"
+"PO-Revision-Date: 2024-04-20 06:08+0000\n"
+"Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
 "Language: de\n"
@@ -7987,7 +7988,7 @@ msgid "Continue"
 msgstr "Fortsetzen"
 
 #: src/emc/usr_intf/axis/scripts/hal_manualtoolchange.py:67
-#, python-format
+#, fuzzy, python-format
 msgid ""
 "Insert tool and click continue when ready.\n"
 "\n"
