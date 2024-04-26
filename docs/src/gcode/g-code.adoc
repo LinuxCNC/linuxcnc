@@ -1710,7 +1710,7 @@ It is an error if:
 
 [NOTE]
 The G71 and G72 cycles are currently somewhat fragile.
-See issues https://github.com/LinuxCNC/linuxcnc/issues/707[#707] and https://github.com/LinuxCNC/linuxcnc/issues/1146[#1146].
+See issue https://github.com/LinuxCNC/linuxcnc/issues/2939[#2939] for example.
 
 [source,{ngc}]
 ----
