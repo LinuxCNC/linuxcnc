@@ -117,7 +117,6 @@ def auto_preview(P, W, Conv):
                 preview(P, W, Conv)
 
 def line_type_changed(P, W, refresh):
-    W.entry3.setFocus()
     if W.lType.currentText() == _translate('Conversational', 'LINE POINT ~ POINT'):
         if not refresh:
             set_line_point_to_point(P, W)
@@ -133,6 +132,7 @@ def line_type_changed(P, W, refresh):
     elif W.lType.currentText() == _translate('Conversational', 'ARC ANGLE +RADIUS'):
         if not refresh:
             set_arc_by_angle_radius(P, W)
+    W.entry3.setFocus()
 
 def add_shape_to_file(P, W, Conv):
     P.conv_gcodeSave = P.conv_gcodeLine

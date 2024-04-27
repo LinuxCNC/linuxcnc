@@ -11,10 +11,12 @@ net tool-changed     hal_manualtoolchange.changed  <=  iocontrol.0.tool-changed
 net tool-prep-number hal_manualtoolchange.number   <=  iocontrol.0.tool-prep-number
 
 # external offset spindle auto raise on pause
-net spindle-pause     qtdragon.spindle-inhibit spindle.0.inhibit
-net eoffset_clear    qtdragon.eoffset-clear => axis.z.eoffset-clear
-net eoffset_count    qtdragon.eoffset-spindle-count => axis.z.eoffset-counts
-net eoffset          qtdragon.eoffset-value <= axis.z.eoffset
+net spindle-pause     qtdragon.spindle-inhibit       =>   spindle.0.inhibit
+net eoffset_clear     qtdragon.eoffset-clear         =>   axis.z.eoffset-clear
+net eoffset_count     qtdragon.eoffset-spindle-count =>   axis.z.eoffset-counts
+net eoffset           qtdragon.eoffset-value         <=   axis.z.eoffset
+net eoffset-state     qtdragon.eoffset-is-active     <=   motion.eoffset-active
+
 setp axis.z.eoffset-enable 1
 setp axis.z.eoffset-scale 1.0
 

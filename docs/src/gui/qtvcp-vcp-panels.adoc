@@ -121,7 +121,9 @@ image::images/qtvcp_test_dial.png["QtVCP test_dial Panel - Test Dial VCP",align=
 
 - This panel has a *button that will set a HAL pin*.
 - The button can be selected as a _momentary_ or a _toggle_ button.
+- A HAL pin will be created that follows the button state
 - The button's _indicator color_ can be adjusted from a drop down menu.
+- A HAL pin or signal can be selected to follow the button state 
 - You can add more buttons from the drop down menu.
 - You can load a Halmeter from the drop down menu.
 - You can load a test LED from the drop down menu.
@@ -198,7 +200,26 @@ EMBED_TAB_COMMAND = halcmd loadusr -Wn qtvcp_embed qtvcp -d -c qtvcp_embed -x {X
 EMBED_TAB_LOCATION = ntb_preview
 ----
 
-You can add window width and height size, rotation increment, and camera number from the INI with -o options.
+[NOTE]
+All `<options>` must appear before the `cam_align` panel name.
+
+.Qtvcp Options
+
+* `-c NAME` HAL component name. Default is to use the UI file name.
+* `-d` Debugging on. or remove for no minimum output
+* `-x {XID}` used for embedding into AXIS  or Gmoccapy
+* `-o <option>` Options passed to cam_align
+
+.Cam_align Options
+
+* `size=400,400` Size of the embedded window (width,height)
+* `imagesize=300,300` Size of the image inside the window (width,height)
+* `rotincr=5` Sets the increment of the crosshair rotation. (degrees)
+* `xscale=100` Scales the image in X. A negative value will flip the image in X (percent)
+* `yscale=100` Scales the image in Y. A negative value will flip the image in Y (percent)
+* `camnumber=1` Sets what system camera to use
+
+For instance you can add window width and height size, rotation increment, and camera number from the INI with -o options.
 ----
 EMBED_TAB_COMMAND = halcmd loadusr -Wn qtvcp_embed qtvcp -d -c qtvcp_embed -x {XID} -o size=400,400 -o rotincr=.2 -o camnumber=0 cam_align
 ----
@@ -219,8 +240,8 @@ To use the top buttons you have to assign a command (or a sub-routine). This cou
 [source,{ini}]
 ----
 [MDI_COMMAND_LIST]
-MDI_COMMAND=G10 L20 P1 X0 Y0,Set XY\nOrigin
-MDI_COMMAND=G0 X0 Y0,Go To\nOrigin
+MDI_COMMAND_CAM_ALIGN1=G10 L20 P1 X0 Y0,Set XY\nOrigin
+MDI_COMMAND_CAM_ALIGN2=G0 X0 Y0,Go To\nOrigin
 ----
 Where the first command is referring to the button "SET origin" and the second to the button "GOTO Origin". +
 Note the comma and text after is optional - it will override the default button text. +

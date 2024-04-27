@@ -39,7 +39,8 @@ setp axis.z.eoffset-enable True
 ##################################################
 net eoffset-clear     qtdragon.eoffset-clear
 net eoffset-spindle-count   <= qtdragon.eoffset-spindle-count    
-net spindle-pause     qtdragon.spindle-inhibit spindle.0.inhibit
+net spindle-pause     qtdragon.spindle-inhibit        =>  spindle.0.inhibit
+net eoffset-state     qtdragon.eoffset-is-active      <=  motion.eoffset-active
 
 ## Z level compensation
 ####################################################

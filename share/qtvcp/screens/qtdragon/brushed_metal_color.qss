@@ -5,7 +5,7 @@ QMainWindow {
 }
 
 /* comment for blur effect with dialogs */
-screen_options {qproperty-focusBlur_option: false;}
+#screen_options {qproperty-focusBlur_option: false;}
 
 QPushButton,
 ActionButton,
@@ -155,6 +155,48 @@ QLabel#label_axis_z {
     background: qlineargradient(spread:reflect, x1:0.5, y:0, x2:0.5, y2:1.6, stop:0 rgba(160, 160, 160, 225),  stop:0.6 rgba(110, 110, 110, 225));
 }
 
+#axis_select_x {
+    border: 2px solid black;
+    border-radius: 4px;
+    font: 20pt "Lato Heavy";
+    color: rgb(80, 255, 80);
+   background: qlineargradient(spread:reflect, x1:0.5, y:0, x2:0.5, y2:1.6, stop:0 rgba(160, 160, 160, 225),  stop:0.6 rgba(110, 110, 110, 225));
+}
+
+#axis_select_y {
+    border: 2px solid black;
+    border-radius: 4px;
+    font: 20pt "Lato Heavy";
+    color: rgb(255, 80, 80);
+    background: qlineargradient(spread:reflect, x1:0.5, y:0, x2:0.5, y2:1.6, stop:0 rgba(160, 160, 160, 225),  stop:0.6 rgba(110, 110, 110, 225));
+}
+
+#axis_select_z {
+    border: 2px solid black;
+    border-radius: 4px;
+    font: 20pt "Lato Heavy";
+    color:  rgb(80, 80, 255);
+    background: qlineargradient(spread:reflect, x1:0.5, y:0, x2:0.5, y2:1.6, stop:0 rgba(160, 160, 160, 225),  stop:0.6 rgba(110, 110, 110, 225));
+}
+
+#axis_select_4 {
+    border: 2px solid black;
+    border-radius: 4px;
+    font: 20pt "Lato Heavy";
+    color: rgb(233, 155, 37);
+    background: qlineargradient(spread:reflect, x1:0.5, y:0, x2:0.5, y2:1.6, stop:0 rgba(160, 160, 160, 225),  stop:0.6 rgba(110, 110, 110, 225));
+}
+
+#axis_select_5 {
+    border: 2px solid black;
+    border-radius: 4px;
+    font: 20pt "Lato Heavy";
+    color: rgb(223, 167, 198);
+    background: qlineargradient(spread:reflect, x1:0.5, y:0, x2:0.5, y2:1.6, stop:0 rgba(160, 160, 160, 225),  stop:0.6 rgba(110, 110, 110, 225));
+}
+
+
+
 QLabel#lbl_cycle_start,
 QLabel#lbl_home_all {
     font: 10pt "Lato Heavy";
@@ -207,8 +249,8 @@ DROLabel {
     font: 20pt "Lato Heavy";
     color: #00FF00;
     qproperty-imperial_template: '%9.4f'; 
-    qproperty-metric_template: '%10.2f'; 
-    qproperty-angular_template: '%11.1f';
+    qproperty-metric_template: '%10.3f'; 
+    qproperty-angular_template: '%11.3f';
 }
 
 DROLabel[isHomed=false] {
@@ -363,18 +405,18 @@ QSlider::sub-page:vertical {
 QSlider::handle:horizontal {
     background: lightgray;
     border: 1px solid black;
-    width: 14px;
-    margin-top: -6px;
-    margin-bottom: -6px;
+    width: 16px;
+    margin-top: -8px;
+    margin-bottom: -8px;
     border-radius: 2px;
 }
 
 QSlider::handle:vertical {
     background: lightgray;
     border: 1px solid black;
-    height: 14px;
-    margin-left: -6px;
-    margin-right: -6px;
+    height: 16px;
+    margin-left: -8px;
+    margin-right: -8px;
     border-radius: 2px;
 }
 QDialog{
@@ -426,14 +468,15 @@ QTabBar::tab:!selected {
 ToolOffsetView { 
     font: 12pt "Lato Heavy";
     qproperty-imperial_template: '%9.4f'; 
-    qproperty-metric_template: '%10.2f'; 
+    qproperty-metric_template: '%10.3f'; 
 }
 
 OriginOffsetView { 
    font: 11pt "Lato Heavy"; 
    qproperty-imperial_template: '%9.4f'; 
-   qproperty-metric_template: '%10.2f'; 
+   qproperty-metric_template: '%10.3f'; 
 }
+
 
 
 

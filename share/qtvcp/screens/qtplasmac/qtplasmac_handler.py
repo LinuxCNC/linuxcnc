@@ -1,4 +1,4 @@
-VERSION = '005.033'
+VERSION = '006.042'
 LCNCVER = '2.10'
 DOCSVER = LCNCVER
 
@@ -282,6 +282,8 @@ class HandlerClass:
         self.realTimeDelay = False
         self.preSingleCutMaterial = None
         self.preFileSaveMaterial = None
+        self.dryRun = None
+        self.runType = {'type':'end'}
         # plasmac states
         self.IDLE           =  0
         self.PROBE_HEIGHT   =  1
@@ -1269,7 +1271,7 @@ class HandlerClass:
             # search for the top widget of whatever widget received the event
             # then check if it's one we want the keypress events to go to
             flag = False
-            conversational = False
+            allowTab = False
             mdiBlank = False
             receiver2 = receiver
             while receiver2 is not None and not flag:
@@ -1301,21 +1303,14 @@ class HandlerClass:
                 if isinstance(receiver2, OFFSETVIEW):
                     flag = True
                     break
-                if self.w.main_tab_widget.currentIndex() == self.CONVERSATIONAL and \
-                   (isinstance(receiver2, QtWidgets.QLineEdit) or \
-                   isinstance(receiver2, QtWidgets.QComboBox) or \
-                   isinstance(receiver2, QtWidgets.QPushButton) or \
-                   isinstance(receiver2, QtWidgets.QRadioButton)):
-                    conversational = True
-                    flag = True
-                    break
-                if self.w.main_tab_widget.currentIndex() == self.SETTINGS:
+                if self.w.main_tab_widget.currentIndex() not in (self.MAIN, self.STATISTICS):
+                    allowTab = True
                     flag = True
                     break
                 receiver2 = receiver2.parent()
             if flag:
                 if is_pressed:
-                    if conversational and (code == Qt.Key_Tab or code == Qt.Key_BackTab):
+                    if allowTab and (code == Qt.Key_Tab or code == Qt.Key_BackTab):
                         self.keyPressEvent(event)
                     else:
                         receiver.keyPressEvent(event)
@@ -1459,7 +1454,7 @@ class HandlerClass:
             self.set_buttons_state([self.idleOnList, self.idleHomedList], False)
         self.w.jog_stack.setCurrentIndex(self.JOG)
         self.w.abort.setEnabled(False)
-        if self.ccButton:
+        if self.ccButton and not self.button_normal_check(self.ccButton):
             self.button_normal(self.ccButton)
         self.set_tab_jog_states(True)
         self.set_run_button_state()
@@ -1477,9 +1472,18 @@ class HandlerClass:
     def set_run_button_state(self):
         if STATUS.machine_is_on() and STATUS.is_all_homed() and \
            STATUS.is_interp_idle() and not self.offsetsActivePin.get() and \
-           self.plasmacStatePin.get() == 0 and not self.fileBoundsError and not self.probeBoundsError and not self.fileClear:
+           self.plasmacStatePin.get() == 0:
             if self.w.gcode_display.lines() > 1:
                 self.w.run.setEnabled(True)
+                if self.dryRun:
+                    oldX = STATUS.get_position()[0][0] - self.dryRun[0]
+                    oldY = STATUS.get_position()[0][1] - self.dryRun[1]
+                    units = '20' if self.gcodeProps['gcode_units'] == 'in' else '21'
+                    ACTION.CALL_MDI_WAIT(f'G{units} G10 L20 P0 X{oldX / self.boundsMultiplier} Y{oldY / self.boundsMultiplier}')
+                    self.dryRun = None
+                    self.laserOnPin.set(0)
+                    hal.set_p('plasmac.dry-run', '0')
+                    self.w.gcodegraphics.logger.clear()
                 if self.frButton:
                     self.w[self.frButton].setEnabled(True)
             if self.manualCut:
@@ -1490,9 +1494,13 @@ class HandlerClass:
                 self.probeTest = False
             self.set_buttons_state([self.idleList, self.idleOnList, self.idleHomedList], True)
             self.w.abort.setEnabled(False)
+            if self.fileBoundsError or self.probeBoundsError or self.fileClear:
+                self.w.run.setEnabled(False)
+                if self.frButton:
+                    self.w[self.frButton].setEnabled(False)
         else:
             self.w.run.setEnabled(False)
-            if self.frButton and self.fileBoundsError:
+            if self.frButton:
                 self.w[self.frButton].setEnabled(False)
 
     def set_jog_button_state(self):
@@ -1893,8 +1901,29 @@ class HandlerClass:
             self.rflSelected = False
             if self.developmentPin.get():
                 reload(RFL)
+            self.runType = self.dialog_rfl_type()
+            if self.runType['cancel']:
+                if 'rfl.ngc' in self.lastLoadedProgram:
+                    self.set_start_line(-1)
+                else:
+                    self.clear_rfl()
+                self.set_run_button_state()
+                return
+            lastLine = 0
+            if self.runType['type'] == 'cut':
+                count = 0
+                start = 0
+                with open(self.lastLoadedProgram, 'r') as inFile:
+                    for line in inFile:
+                        if line[:3] == 'G00':
+                            start = count
+                        if line[:3] == 'M05' and count > self.startLine:
+                            break
+                        count += 1
+                lastLine = count
+                self.startLine = start
             head = _translate('HandlerClass', 'Gcode Error')
-            data = RFL.run_from_line_get(self.lastLoadedProgram, self.startLine)
+            data = RFL.run_from_line_get(self.lastLoadedProgram, self.startLine, lastLine)
             # cannot do run from line within a subroutine or if using cutter compensation
             if data['error']:
                 if data['compError']:
@@ -1911,36 +1940,40 @@ class HandlerClass:
                 self.clear_rfl()
                 self.set_run_button_state()
             else:
+                # fake user input for this cutpath
+                if self.runType['type'] == 'cut':
+                    userInput = {'cancel':False, 'do':False, 'length':0, 'angle':0}
                 # get user input
-                userInput = self.dialog_run_from_line()
-                # rfl cancel clicked
-                if userInput['cancel']:
-                    if 'rfl.ngc' in self.lastLoadedProgram:
-                        self.set_start_line(-1)
-                    else:
-                        self.clear_rfl()
-                    self.set_run_button_state()
                 else:
-                    # rfl load clicked
-                    rflFile = f'{self.tmpPath}rfl.ngc'
-                    result = RFL.run_from_line_set(rflFile, data, userInput, self.unitsPerMm)
-                    # leadin cannot be used
-                    if result['error']:
-                        msg0 = _translate('HandlerClass', 'Unable to calculate a leadin for this cut')
-                        msg1 = _translate('HandlerClass', 'Program will run from selected line with no leadin applied')
-                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0}\n{msg1}\n')
-                    # load rfl file
-                    if ACTION.prefilter_path or self.lastLoadedProgram != 'None':
-                        self.preRflFile = ACTION.prefilter_path or self.lastLoadedProgram
-                    ACTION.OPEN_PROGRAM(rflFile)
-                    ACTION.prefilter_path = self.preRflFile
-                    self.set_run_button_state()
-                    txt0 = _translate('HandlerClass', 'RUN FROM LINE')
-                    txt1 = _translate('HandlerClass', 'CYCLE START')
-                    self.runText = f'{txt0}\n{txt1}'
-                    log = _translate('HandlerClass', 'Run from line loaded')
-                    log1 = _translate('HandlerClass', 'Start line')
-                    STATUS.emit('update-machine-log', f'{log} - {log1}: {(self.startLine + 1)}', 'TIME')
+                    userInput = self.dialog_run_from_line()
+                    # rfl cancel clicked
+                    if userInput['cancel']:
+                        if 'rfl.ngc' in self.lastLoadedProgram:
+                            self.set_start_line(-1)
+                        else:
+                            self.clear_rfl()
+                        self.set_run_button_state()
+                        return
+                # rfl load clicked
+                rflFile = f'{self.tmpPath}rfl.ngc'
+                result = RFL.run_from_line_set(rflFile, data, userInput, self.unitsPerMm)
+                # leadin cannot be used
+                if result['error']:
+                    msg0 = _translate('HandlerClass', 'Unable to calculate a leadin for this cut')
+                    msg1 = _translate('HandlerClass', 'Program will run from selected line with no leadin applied')
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0}\n{msg1}\n')
+                # load rfl file
+                if ACTION.prefilter_path or self.lastLoadedProgram != 'None':
+                    self.preRflFile = ACTION.prefilter_path or self.lastLoadedProgram
+                ACTION.OPEN_PROGRAM(rflFile)
+                ACTION.prefilter_path = self.preRflFile
+                self.set_run_button_state()
+                if self.runType['type'] == 'cut':
+                    log = _translate('HandlerClass', 'Run from line - this cutpath loaded')
+                else:
+                    log = _translate('HandlerClass', 'Run from line - here to end loaded')
+                log1 = _translate('HandlerClass', 'Start line')
+                STATUS.emit('update-machine-log', f'{log} - {log1}: {(self.startLine + 1)}', 'TIME')
         elif not self.cut_critical_check():
             self.jobRunning = True
             ACTION.RUN(0)
@@ -2106,7 +2139,7 @@ class HandlerClass:
         while time.time() < t:
             QApplication.processEvents()
         self.w.gcodegraphics.set_view('Z')
-        mid, size = DRAW.extents_info(self.w.gcodegraphics)
+        mid = DRAW.extents_info(self.w.gcodegraphics)[0]
         mult = 1 if self.units == 'in' else 25.4
         zoomScale = (self.w.table_zoom_scale.value() * 2)
         xTableCenter = (self.xMin + self.xLen / 2) / mult - mid[0]
@@ -2724,16 +2757,16 @@ class HandlerClass:
 
     def bounds_check_file(self):
         msg = _translate('HandlerClass', 'G-code')
-        boundsMultiplier = 1
+        self.boundsMultiplier = 1
         if 'gcode_units' in self.gcodeProps:
             if self.units == 'in' and self.gcodeProps['gcode_units'] == 'mm':
-                boundsMultiplier = 0.03937
+                self.boundsMultiplier = 0.03937
             elif self.units == 'mm' and self.gcodeProps['gcode_units'] == 'in':
-                boundsMultiplier = 25.4
-        xMin = float(self.gcodeProps['x'].split()[0]) * boundsMultiplier
-        xMax = float(self.gcodeProps['x'].split()[2]) * boundsMultiplier
-        yMin = float(self.gcodeProps['y'].split()[0]) * boundsMultiplier
-        yMax = float(self.gcodeProps['y'].split()[2]) * boundsMultiplier
+                self.boundsMultiplier = 25.4
+        xMin = float(self.gcodeProps['x'].split()[0]) * self.boundsMultiplier
+        xMax = float(self.gcodeProps['x'].split()[2]) * self.boundsMultiplier
+        yMin = float(self.gcodeProps['y'].split()[0]) * self.boundsMultiplier
+        yMax = float(self.gcodeProps['y'].split()[2]) * self.boundsMultiplier
         errMsg = self.bounds_compare(xMin, xMax, yMin, yMax, msg)
         return (True, errMsg) if errMsg else (False, '')
 
@@ -2748,40 +2781,28 @@ class HandlerClass:
             if self.cutTypePin.get():
                 xPierceOffset = self.w.x_pierce_offset.value()
                 yPierceOffset = self.w.y_pierce_offset.value()
-            boundsMultiplier = 1
-            if 'gcode_units' in self.gcodeProps:
-                if self.units == 'in' and self.gcodeProps['gcode_units'] == 'mm':
-                    boundsMultiplier = 0.03937
-                elif self.units == 'mm' and self.gcodeProps['gcode_units'] == 'in':
-                    boundsMultiplier = 25.4
-            xMinP = self.xMinPierceExtentPin.get() * boundsMultiplier + self.probeOffsetX + STATUS.stat.g5x_offset[0] + xPierceOffset
-            xMaxP = self.xMaxPierceExtentPin.get() * boundsMultiplier + self.probeOffsetX + STATUS.stat.g5x_offset[0] + xPierceOffset
-            yMinP = self.yMinPierceExtentPin.get() * boundsMultiplier + self.probeOffsetY + STATUS.stat.g5x_offset[1] + yPierceOffset
-            yMaxP = self.yMaxPierceExtentPin.get() * boundsMultiplier + self.probeOffsetY + STATUS.stat.g5x_offset[1] + yPierceOffset
+            xMinP = self.xMinPierceExtentPin.get() * self.boundsMultiplier + self.probeOffsetX + STATUS.stat.g5x_offset[0] + xPierceOffset
+            xMaxP = self.xMaxPierceExtentPin.get() * self.boundsMultiplier + self.probeOffsetX + STATUS.stat.g5x_offset[0] + xPierceOffset
+            yMinP = self.yMinPierceExtentPin.get() * self.boundsMultiplier + self.probeOffsetY + STATUS.stat.g5x_offset[1] + yPierceOffset
+            yMaxP = self.yMaxPierceExtentPin.get() * self.boundsMultiplier + self.probeOffsetY + STATUS.stat.g5x_offset[1] + yPierceOffset
         errMsg = self.bounds_compare(xMinP, xMaxP, yMinP, yMaxP, msg)
         return (True, errMsg) if errMsg else (False, '')
 
     def bounds_check_framing(self, xOffset=0, yOffset=0, laser=False):
         msg = _translate('HandlerClass', 'Framing move')
         msg1 = ''
-        boundsMultiplier = 1
-        if 'gcode_units' in self.gcodeProps:
-            if self.units == 'in' and self.gcodeProps['gcode_units'] == 'mm':
-                boundsMultiplier = 0.03937
-            elif self.units == 'mm' and self.gcodeProps['gcode_units'] == 'in':
-                boundsMultiplier = 25.4
         if laser:
             msg1 = _translate('HandlerClass', 'due to laser offset')
         xStart = STATUS.stat.g5x_offset[0] + xOffset
         yStart = STATUS.stat.g5x_offset[1] + yOffset
-        xMin = float(self.gcodeProps['x_zero_rxy'].split()[0]) * boundsMultiplier + xOffset
-        xMax = float(self.gcodeProps['x_zero_rxy'].split()[2]) * boundsMultiplier + xOffset
-        yMin = float(self.gcodeProps['y_zero_rxy'].split()[0]) * boundsMultiplier + yOffset
-        yMax = float(self.gcodeProps['y_zero_rxy'].split()[2]) * boundsMultiplier + yOffset
+        xMin = float(self.gcodeProps['x_zero_rxy'].split()[0]) * self.boundsMultiplier + xOffset
+        xMax = float(self.gcodeProps['x_zero_rxy'].split()[2]) * self.boundsMultiplier + xOffset
+        yMin = float(self.gcodeProps['y_zero_rxy'].split()[0]) * self.boundsMultiplier + yOffset
+        yMax = float(self.gcodeProps['y_zero_rxy'].split()[2]) * self.boundsMultiplier + yOffset
         coordinates = [[xStart, yStart], [xMin, yMin], [xMin, yMax], [xMax, yMax], [xMax, yMin]]
-        frame_points, xMin, yMin, xMax, yMax = self.rotate_frame(coordinates)
+        framePoints, xMin, yMin, xMax, yMax = self.rotate_frame(coordinates)
         errMsg = self.bounds_compare(xMin, xMax, yMin, yMax, msg, msg1)
-        return (errMsg, frame_points)
+        return (errMsg, framePoints)
 
     def bounds_compare(self, xMin, xMax, yMin, yMax, msg, msg1=''):
         errMsg = ''
@@ -2809,20 +2830,20 @@ class HandlerClass:
         angle = math.radians(STATUS.stat.rotation_xy)
         cos = math.cos(angle)
         sin = math.sin(angle)
-        frame_points = [coordinates[0]]
-        ox = frame_points[0][0]
-        oy = frame_points[0][1]
+        framePoints = [coordinates[0]]
+        ox = framePoints[0][0]
+        oy = framePoints[0][1]
         for x, y in coordinates[1:]:
             tox = x - ox
             toy = y - oy
             rx = (tox * cos) - (toy * sin) + ox
             ry = (tox * sin) + (toy * cos) + oy
-            frame_points.append([rx, ry])
-        xMin = min(frame_points[1:])[0]
-        xMax = max(frame_points[1:])[0]
-        yMin = min(frame_points[1:])[1]
-        yMax = max(frame_points[1:])[1]
-        return frame_points, xMin, yMin, xMax, yMax
+            framePoints.append([rx, ry])
+        xMin = min(framePoints[1:])[0]
+        xMax = max(framePoints[1:])[0]
+        yMin = min(framePoints[1:])[1]
+        yMax = max(framePoints[1:])[1]
+        return framePoints, xMin, yMin, xMax, yMax
 
     def save_plasma_parameters(self):
         self.PREFS.putpref('Arc OK High', self.w.arc_ok_high.value(), float, 'PLASMA_PARAMETERS')
@@ -3448,6 +3469,41 @@ class HandlerClass:
         else:
             return {'cancel':True}
 
+    def dialog_rfl_type(self):
+        rflT = QDialog(self.w)
+        rflT.setWindowTitle(_translate('HandlerClass', 'Run From Line'))
+        run = QRadioButton(_translate('HandlerClass', 'HERE TO END'))
+        cut = QRadioButton(_translate('HandlerClass', 'THIS CUTPATH'))
+        lbl = QLabel()
+        buttons = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
+        buttonBox = QDialogButtonBox(buttons)
+        buttonBox.accepted.connect(rflT.accept)
+        buttonBox.rejected.connect(rflT.reject)
+        buttonBox.button(QDialogButtonBox.Ok).setText(_translate('HandlerClass', 'OK'))
+        buttonBox.button(QDialogButtonBox.Ok).setIcon(QIcon())
+        buttonBox.button(QDialogButtonBox.Cancel).setText(_translate('HandlerClass', 'CANCEL'))
+        buttonBox.button(QDialogButtonBox.Cancel).setIcon(QIcon())
+        layout = QGridLayout()
+        layout.addWidget(run, 0, 0)
+        layout.addWidget(cut, 1, 0)
+        layout.addWidget(lbl, 2, 0)
+        layout.addWidget(buttonBox, 3, 0)
+        rflT.setLayout(layout)
+        run.setChecked(True)
+        self.vkb_show(True)
+        result = rflT.exec_()
+        self.vkb_hide()
+        # ok clicked
+        if result:
+            if cut.isChecked():
+                type_ = 'cut'
+            else:
+                type_ = 'end'
+            return {'cancel':False, 'type':type_}
+        # cancel clicked
+        else:
+            return {'cancel':True, 'type':'end'}
+
     def invert_pin_state(self, halpin):
         if 'qtplasmac.ext_out_' in halpin:
             pin = f'out{halpin.split("out_")[1]}Pin'
@@ -3458,32 +3514,32 @@ class HandlerClass:
 
     def set_button_color(self):
         for halpin in self.halTogglePins:
-            color = self.w[self.halTogglePins[halpin][0]].palette().color(QtGui.QPalette.Background)
             if hal.get_value(halpin):
-                if color != self.w.color_foregalt.palette().color(QPalette.Background):
+                if self.button_normal_check(self.halTogglePins[halpin][0]):
                     self.button_active(self.halTogglePins[halpin][0])
                 text = 3
             else:
-                if color != self.w.color_backgrnd.palette().color(QPalette.Background):
+                if not self.button_normal_check(self.halTogglePins[halpin][0]):
                     self.button_normal(self.halTogglePins[halpin][0])
                 text = 2
             if self.halTogglePins[halpin][3]:
                 toggleText = self.halTogglePins[halpin][text].replace('\\', '\n')
                 self.w[self.halTogglePins[halpin][0]].setText(f'{toggleText}')
         for halpin in self.halPulsePins:
-            color = self.w[self.halPulsePins[halpin][0]].palette().color(QtGui.QPalette.Background)
             if hal.get_value(halpin):
-                if color != self.w.color_foregalt.palette().color(QPalette.Background):
+                if self.button_normal_check(self.halPulsePins[halpin][0]):
                     self.button_active(self.halPulsePins[halpin][0])
             else:
-                if color != self.w.color_backgrnd.palette().color(QPalette.Background):
+                if not self.button_normal_check(self.halPulsePins[halpin][0]):
                     self.button_normal(self.halPulsePins[halpin][0])
         if self.tlButton:
             for button in self.tlButton:
                 if self.laserOnPin.get():
-                    self.button_active(button)
+                    if self.button_normal_check(button):
+                        self.button_active(button)
                 else:
-                    self.button_normal(button)
+                    if not self.button_normal_check(button):
+                        self.button_normal(button)
 
 
     def cut_critical_check(self):
@@ -3884,10 +3940,27 @@ class HandlerClass:
 
     def laser_timeout(self):
         if self.w.laser.isDown() or self.extLaserButton:
+            if self.w.run.isEnabled() and self.laserButtonState in ['reset', 'laser']:
+                framingError = self.bounds_check_framing(self.laserOffsetX, self.laserOffsetY, True)[0]
+                if framingError:
+                    head = _translate('HandlerClass', 'Axis Limit Error')
+                    self.dialog_show_ok(QMessageBox.Warning, f'{head}', f'\n{framingError}')
+                    return
+                newX = STATUS.get_position()[0][0] - STATUS.stat.g5x_offset[0] - self.laserOffsetX
+                newY = STATUS.get_position()[0][1] - STATUS.stat.g5x_offset[1] - self.laserOffsetY
+                units = '20' if self.gcodeProps['gcode_units'] == 'in' else '21'
+                ACTION.CALL_MDI_WAIT(f'G{units} G10 L20 P0 X{newX / self.boundsMultiplier} Y{newY / self.boundsMultiplier}')
+                self.dryRun = [STATUS.stat.g5x_offset[0], STATUS.stat.g5x_offset[1]]
+                self.laserOnPin.set(1)
+                hal.set_p('plasmac.dry-run', '1')
+                self.run_clicked()
+                return
+            else:
+                self.laserButtonState = 'reset'
+                self.button_press_timeout('laser')
             self.laserOnPin.set(0)
             self.laserButtonState = 'reset'
             self.w.laser.setText(_translate('HandlerClass', 'LASER'))
-            self.button_normal('laser')
             self.w.touch_xy.setEnabled(True)
             self.w.camera.setEnabled(True)
 
@@ -4243,16 +4316,7 @@ class HandlerClass:
         elif 'pulse-halpin' in commands.lower():
             head = _translate('HandlerClass', 'HAL Pin Error')
             msg1 = _translate('HandlerClass', 'Failed to pulse HAL pin')
-            try:
-                code, halpin, delay = commands.lower().strip().split()
-            except:
-                try:
-                    code, halpin = commands.lower().strip().split()
-                    delay = '1.0'
-                except:
-                    msg0 = _translate('HandlerClass', 'Unknown error for user button')
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum}\n{msg1} "{halpin}"\n')
-                    return
+            halpin = commands.lower().strip().split()[1]
             # halPulsePins format is: button name, pulse time, button text, remaining time, button number
             try:
                 if self.halPulsePins[halpin][3] > 0.05:
@@ -4630,13 +4694,13 @@ class HandlerClass:
             self.w.run.setEnabled(False)
             response = False
             if self.w.laser.isVisible():
-                framingError, frame_points = self.bounds_check_framing(self.laserOffsetX, self.laserOffsetY, True)
+                framingError, framePoints = self.bounds_check_framing(self.laserOffsetX, self.laserOffsetY, True)
                 if framingError:
                     head = _translate('HandlerClass', 'Axis Limit Error')
                     framingError += _translate('HandlerClass', '\n\nDo you want to try with the torch?\n')
                     response = self.dialog_show_yesno(QMessageBox.Warning, f'{head}', f'\n{framingError}')
                     if response:
-                        framingError, frame_points = self.bounds_check_framing()
+                        framingError, framePoints = self.bounds_check_framing()
                         if framingError:
                             head = _translate('HandlerClass', 'Axis Limit Error')
                             self.dialog_show_ok(QMessageBox.Warning, f'{head}', f'\n{framingError}')
@@ -4648,7 +4712,7 @@ class HandlerClass:
                 else:
                     self.laserOnPin.set(1)
             else:
-                framingError, frame_points = self.bounds_check_framing()
+                framingError, framePoints = self.bounds_check_framing()
                 if framingError:
                     head = _translate('HandlerClass', 'Axis Limit Error')
                     self.dialog_show_ok(QMessageBox.Warning, f'{head}', f'\n{framingError}')
@@ -4671,11 +4735,11 @@ class HandlerClass:
                 ACTION.CALL_MDI_WAIT(f'G64 P{0.25 * self.unitsPerMm:0.3f}')
                 if self.defaultZ:
                     ACTION.CALL_MDI(f'G53 G0 Z{zHeight:0.4f}')
-                ACTION.CALL_MDI(f'G53 G0 X{frame_points[1][0]:0.2f} Y{frame_points[1][1]:0.2f}')
-                ACTION.CALL_MDI(f'G53 G1 X{frame_points[2][0]:0.2f} Y{frame_points[2][1]:0.2f} F{feed:0.0f}')
-                ACTION.CALL_MDI(f'G53 G1 X{frame_points[3][0]:0.2f} Y{frame_points[3][1]:0.2f}')
-                ACTION.CALL_MDI(f'G53 G1 X{frame_points[4][0]:0.2f} Y{frame_points[4][1]:0.2f}')
-                ACTION.CALL_MDI(f'G53 G1 X{frame_points[1][0]:0.2f} Y{frame_points[1][1]:0.2f}')
+                ACTION.CALL_MDI(f'G53 G0 X{framePoints[1][0]:0.2f} Y{framePoints[1][1]:0.2f}')
+                ACTION.CALL_MDI(f'G53 G1 X{framePoints[2][0]:0.2f} Y{framePoints[2][1]:0.2f} F{feed:0.0f}')
+                ACTION.CALL_MDI(f'G53 G1 X{framePoints[3][0]:0.2f} Y{framePoints[3][1]:0.2f}')
+                ACTION.CALL_MDI(f'G53 G1 X{framePoints[4][0]:0.2f} Y{framePoints[4][1]:0.2f}')
+                ACTION.CALL_MDI(f'G53 G1 X{framePoints[1][0]:0.2f} Y{framePoints[1][1]:0.2f}')
                 ACTION.CALL_MDI('G0 X0 Y0')
                 ACTION.CALL_MDI(previousMode)
 
@@ -4784,9 +4848,17 @@ class HandlerClass:
         else:
             self.w[button].setStyleSheet( \
                         f'QPushButton {{ color: {self.foreColor}; background: {self.backColor} }} \
-                         QPushButton:pressed {{ color: {self.foreColor}; background: {self.backColor} }} \
+                         QPushButton:pressed {{ color: {self.backColor}; background: {self.fore1Color} }} \
                          QPushButton:disabled {{ color: {self.disabledColor} }}')
 
+    def button_press_timeout(self, button):
+        self.w[button].setStyleSheet( \
+                    f'QPushButton:pressed {{ color: {self.foreColor}; background: {self.backColor} }}')
+
+    def button_normal_check(self, button):
+        '''Returns True if the button is in the normal state (background color of the button matches the background color of the GUI)'''
+        return self.w[button].palette().color(QtGui.QPalette.Background) \
+            == self.w.color_backgrnd.palette().color(QPalette.Background)
 
 #########################################################################################################################
 # ONBOARD VIRTUAL KEYBOARD FUNCTIONS #

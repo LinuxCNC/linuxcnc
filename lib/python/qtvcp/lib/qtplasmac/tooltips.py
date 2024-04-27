@@ -313,7 +313,7 @@ def set_tool_tips(P, W):
     W.touch_xy.setToolTip(f'{text0} X & Y {text1}')
     W.wcs_button.setToolTip(_translate('ToolTips', 'Selects the active work coordinate system'))
     W.camera.setToolTip(_translate('ToolTips', 'Use camera view to set origin/rotation'))
-    W.laser.setToolTip(_translate('ToolTips', 'Use laser to set origin/rotation'))
+    W.laser.setToolTip(_translate('ToolTips', 'Use laser to set origin/rotation\nLong press to begin a dry run'))
 
     # main file widgets
     W.file_select.setToolTip(_translate('ToolTips', 'Opens the selected G-Code file'))
