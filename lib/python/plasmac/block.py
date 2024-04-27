@@ -1,8 +1,8 @@
 '''
 block.py
 
-Copyright (C) 2020, 2021, 2022, 2023 Phillip A Carter
-Copyright (C) 2020, 2021, 2022, 2023 Gregory D Carl
+Copyright (C) 2020 - 2024 Phillip A Carter
+Copyright (C) 2020 - 2024 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -109,7 +109,6 @@ def preview(Conv, fNgc, fTmp, columns, rows, cOffset, \
     outNgc = open(fNgc, 'w')
     # edit existing parameters
     if convBlock[0]:
-        indent = False
         for line in inCode:
             if line.startswith('#<array_x_offset>'):
                 line = f'#<array_x_offset> = {cOffset}\n'
@@ -182,25 +181,27 @@ def preview(Conv, fNgc, fTmp, columns, rows, cOffset, \
         # the shape
         started, ended = False, False
         for line in inCode:
-            line = line.strip().lower()
             # remove line numbers
-            if line.startswith('n'):
+            if line[0].lower() == 'n':
                 line = line[1:]
                 while line[0].isdigit() or line[0] == '.':
                     line = line[1:].lstrip()
                     if not line:
                         break
+            # no need to process comments or empty lines
+            if line[0] in ';(\n':
+                outNgc.write(f'    {line}')
+                continue
+            line = line.strip().lower()
             # remove leading 0's from G & M codes
-            elif (line.lower().startswith('g') or \
-               line.lower().startswith('m')) and \
-               len(line) > 2:
-                while line[1] == '0' and len(line) > 2:
+            if len(line) > 2 and line[0].lower() in 'gm':
+                while len(line) > 2 and line[1] == '0':
                     if line[2].isdigit():
                         line = line[:1] + line[2:]
                     else:
                         break
             # scale the shape
-            if len(line) and line[0] in 'gxyz':
+            if line[0] in 'gxyz':
                 started = True
                 rLine = scale_shape(line, convMirrorToggle, convFlipToggle)
                 if rLine is not None:
@@ -216,8 +217,6 @@ def preview(Conv, fNgc, fTmp, columns, rows, cOffset, \
                 outNgc.write('        #<this_row> = [#<this_row> + 1]\n')
                 outNgc.write('    o<count> endif\n')
                 outNgc.write('o<loop> endwhile\n')
-            elif not line:
-                outNgc.write('\n')
             elif ended and ('m2' in line or 'm30' in line or line.startswith('%')):
                 pass
             else:
@@ -238,7 +237,6 @@ def scale_shape(line, convMirrorToggle, convFlipToggle):
     namParam = False
     fWord = False
     lastAxis = ''
-    offset = ''
     while 1:
         # remove spaces
         if line[0] == ' ':
