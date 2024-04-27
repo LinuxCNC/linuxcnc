@@ -2165,7 +2165,7 @@ static void modify_hal_pins()
     }
 
     if (halui_sent_mdi) { // we have an ongoing MDI command
-	if (emcStatus->status == RCS_STATUS::DONE) //which seems to have finished
+	if (emcStatus->status == RCS_STATUS::DONE){ //which seems to have finished
     		switch (halui_old_mode) {
 		case EMC_TASK_MODE::MANUAL: sendManual();break;
 		case EMC_TASK_MODE::MDI: break;
