@@ -1014,13 +1014,14 @@ static int sendMdiCommand(int n)
         // so we can restore it when all the MDI commands finish.
         halui_old_mode = emcStatus->task.mode;
     }
-    halui_sent_mdi = 1;
     
+    halui_sent_mdi = 1;
+
     if (num_mdi_commands>0){
     *(halui_data->mdi_is_running) = halui_sent_mdi;
     updateStatus();
     }
-
+    
     // switch to MDI mode if needed
     if (emcStatus->task.mode != EMC_TASK_MODE::MDI) {
 	if (sendMdi() != 0) {
@@ -1041,6 +1042,7 @@ static int sendMdiCommand(int n)
         rtapi_print("halui: %s: failed to send mdi command %d\n", __func__, n);
 	return -1;
     }
+
     return 0;
 }
 
@@ -2165,8 +2167,8 @@ static void modify_hal_pins()
     }
 
     if (halui_sent_mdi) { // we have an ongoing MDI command
-	if (emcStatus->status == RCS_STATUS::DONE){ //which seems to have finished
-    		switch (halui_old_mode) {
+	if (emcStatus->status == RCS_STATUS::DONE) { //which seems to have finished
+	    switch (halui_old_mode) {
 		case EMC_TASK_MODE::MANUAL: sendManual();break;
 		case EMC_TASK_MODE::MDI: break;
 		case EMC_TASK_MODE::AUTO: sendAuto();break;
@@ -2210,13 +2212,11 @@ static void modify_hal_pins()
     *(halui_data->program_is_running) = emcStatus->task.interpState == EMC_TASK_INTERP::READING ||
                                         emcStatus->task.interpState == EMC_TASK_INTERP::WAITING;
     *(halui_data->program_is_idle) = emcStatus->task.interpState == EMC_TASK_INTERP::IDLE;
-    *(halui_data->program_os_is_on) = emcStatus->task.optional_stop_state;
-    *(halui_data->program_bd_is_on) = emcStatus->task.block_delete_state;
-
+    
     if (num_mdi_commands>0){
 		// we wants initialize program_is_idle and mode_is_mdi before halui_sent_mdi
 		if (halui_sent_mdi) { // we have an ongoing MDI command
-			if (emcStatus->status == RCS_STATUS::DONE) //which seems to have finished
+			if (emcStatus->status == RCS_STATUS::DONE){ //which seems to have finished
 			halui_sent_mdi = 0;
 			esleep(0.02); //sleep for a while
 			updateStatus();
@@ -2225,6 +2225,11 @@ static void modify_hal_pins()
 		}
 		*(halui_data->mdi_is_running) = halui_sent_mdi;
 	}
+
+
+    
+    *(halui_data->program_os_is_on) = emcStatus->task.optional_stop_state;
+    *(halui_data->program_bd_is_on) = emcStatus->task.block_delete_state;
 
     *(halui_data->mv_value) = emcStatus->motion.traj.maxVelocity;
     *(halui_data->fo_value) = emcStatus->motion.traj.scale; //feedoverride from 0 to 1 for 100%
