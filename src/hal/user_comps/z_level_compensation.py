@@ -102,7 +102,10 @@ method {} not recognised (outside 0-2). Defaulting to cubic(0).".format(self.h.m
         # get the nearest compensation offset and convert to counts (s32) with a scale (float) 
         # Requested offset == counts * scale
         zo = self.zi[self.Xn, self.Yn]
-        compensation = int(zo / self.scale)
+        try:
+            compensation = int(zo / self.scale)
+        except:
+            compensation = 0.0
         return compensation
 
     def run(self):
