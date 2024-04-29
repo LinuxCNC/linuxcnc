@@ -143,6 +143,16 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self._calculatorDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._machineLogDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._runFromLineDialogColor = QtGui.QColor(0, 0, 0, 150)
+        self._User1Color = QtGui.QColor(100, 0, 0, 150)
+        self._User2Color = QtGui.QColor(100, 0, 0, 150)
+        self._User3Color = QtGui.QColor(100, 0, 0, 150)
+        self._User4Color = QtGui.QColor(100, 0, 0, 150)
+        self._User5Color = QtGui.QColor(100, 0, 0, 150)
+        self._User6Color = QtGui.QColor(100, 0, 0, 150)
+        self._User7Color = QtGui.QColor(100, 0, 0, 150)
+        self._User8Color = QtGui.QColor(100, 0, 0, 150)
+        self._User9Color = QtGui.QColor(100, 0, 0, 150)
+        self._User10Color = QtGui.QColor(100, 0, 0, 150)
         self._zmq_sub_subscribe_name = b""
         self._zmq_sub_socket_address = "tcp://127.0.0.1:5690"
         self._zmq_pub_socket_address = "tcp://127.0.0.1:5690"
@@ -1122,6 +1132,66 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def set_runFromLineDialogColor(self, value):
         self._runFromLineDialogColor = value
     runFromLine_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_runFromLineDialogColor, set_runFromLineDialogColor)
+
+    def get_User1Color(self):
+        return self._User1Color
+    def set_User1Color(self, value):
+        self._User1Color = value
+    user1Color = QtCore.pyqtProperty(QtGui.QColor, get_User1Color, set_User1Color)
+
+    def get_User2Color(self):
+        return self._User2Color
+    def set_User2Color(self, value):
+        self._User2Color = value
+    user2Color = QtCore.pyqtProperty(QtGui.QColor, get_User2Color, set_User2Color)
+
+    def get_User3Color(self):
+        return self._User3Color
+    def set_User3Color(self, value):
+        self._User3Color = value
+    user3Color = QtCore.pyqtProperty(QtGui.QColor, get_User3Color, set_User3Color)
+
+    def get_User4Color(self):
+        return self._User4Color
+    def set_User4Color(self, value):
+        self._User4Color = value
+    user4Color = QtCore.pyqtProperty(QtGui.QColor, get_User4Color, set_User4Color)
+
+    def get_User5Color(self):
+        return self._User5Color
+    def set_User5Color(self, value):
+        self._User5Color = value
+    user5Color = QtCore.pyqtProperty(QtGui.QColor, get_User5Color, set_User5Color)
+
+    def get_User6Color(self):
+        return self._User6Color
+    def set_User6Color(self, value):
+        self._User6Color = value
+    user6Color = QtCore.pyqtProperty(QtGui.QColor, get_User6Color, set_User6Color)
+
+    def get_User7Color(self):
+        return self._User7Color
+    def set_User7Color(self, value):
+        self._User7Color = value
+    user7Color = QtCore.pyqtProperty(QtGui.QColor, get_User7Color, set_User7Color)
+
+    def get_User8Color(self):
+        return self._User8Color
+    def set_User8Color(self, value):
+        self._User8Color = value
+    user8Color = QtCore.pyqtProperty(QtGui.QColor, get_User8Color, set_User8Color)
+
+    def get_User9Color(self):
+        return self._User9Color
+    def set_User9Color(self, value):
+        self._User9Color = value
+    user9Color = QtCore.pyqtProperty(QtGui.QColor, get_User9Color, set_User9Color)
+
+    def get_User10Color(self):
+        return self._User10Color
+    def set_User10Color(self, value):
+        self._User10Color = value
+    user10Color = QtCore.pyqtProperty(QtGui.QColor, get_User10Color, set_User10Color)
 
     def getHalCompName(self):
         return self._halBaseName
