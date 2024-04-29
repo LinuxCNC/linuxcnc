@@ -18,7 +18,7 @@ import sys
 import os
 import locale
 
-from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant, pyqtProperty
+from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant, pyqtProperty, pyqtSlot
 from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QTableView, QAbstractItemView
 
@@ -382,6 +382,22 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         if self.filename:
             self.reload_offsets()
         return True
+
+    # moves the selection up
+    @pyqtSlot()
+    def up(self):
+        self.setCurrentIndex(self.moveCursor(QAbstractItemView.CursorAction.MoveUp,Qt.NoModifier))
+
+    # moves the selection down
+    @pyqtSlot()
+    def down(self):
+        self.setCurrentIndex(self.moveCursor(QAbstractItemView.CursorAction.MoveDown,Qt.NoModifier))
+
+    def left(self):
+        self.setCurrentIndex(self.moveCursor(QAbstractItemView.CursorAction.MoveLeft,Qt.NoModifier))
+
+    def right(self):
+        self.setCurrentIndex(self.moveCursor(QAbstractItemView.CursorAction.MoveRight,Qt.NoModifier))
 
     #########################################################################
     # This is how designer can interact with our widget properties.
