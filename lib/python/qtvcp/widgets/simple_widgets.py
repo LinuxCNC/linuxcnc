@@ -13,6 +13,12 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
+try:
+    from PyQt5.QtCore import Q_ENUM
+except:
+    # before qt5.10
+    from PyQt5.QtCore import Q_ENUMS as Q_ENUM
+
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtCore import pyqtProperty, pyqtSlot
 from qtvcp.widgets.widget_baseclass import (_HalWidgetBase,
@@ -33,6 +39,22 @@ LOG = logger.getLogger(__name__)
 
 # Force the log level for this module
 #LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+
+class HALPinType:
+    NONE = 0
+    BIT = hal.HAL_BIT
+    S32 = hal.HAL_S32
+    FLOAT = hal.HAL_FLOAT
+
+    def name(enum):
+        if enum == hal.HAL_BIT:
+            return 'BIT'
+        elif enum == hal.HAL_S32:
+            return 'S32'
+        elif enum == hal.HAL_FLOAT:
+            return 'FLOAT'
+        else:
+            return 'NONE'
 
 # reacts to HAL pin changes
 class LCDNumber(QtWidgets.QLCDNumber, _HalWidgetBase):
@@ -317,7 +339,7 @@ class RichButton(QtWidgets.QPushButton):
         self.setText('Button')
     richtext_string = QtCore.pyqtProperty(str, get_richText, set_richText, reset_richText)
 
-# LED indicator on the right corner
+# button for function callbacks rather then HAL pins
 class IndicatedPushButton(QtWidgets.QPushButton, IndicatedMixIn):
     def __init__(self, parent=None):
         super(IndicatedPushButton, self).__init__(parent)
@@ -337,9 +359,23 @@ class IndicatedPushButton(QtWidgets.QPushButton, IndicatedMixIn):
         else:
             super(IndicatedPushButton, self).setText(self._false_string)
 
-class PushButton(QtWidgets.QPushButton, IndicatedMixIn):
+# button controls HAL pins
+class PushButton(QtWidgets.QPushButton, IndicatedMixIn, HALPinType):
+    HALPinType = HALPinType
+    Q_ENUM(HALPinType)
+
+    # older version of pyqt5 need this as well as Q_ENUM
+    NONE = 0
+    BIT = hal.HAL_BIT
+    S32 = hal.HAL_S32
+    FLOAT = hal.HAL_FLOAT
+
     def __init__(self, parent=None):
         super(PushButton, self).__init__(parent)
+
+        self._pin_type = HALPinType.S32
+        self._groupPinName = ''
+        self._exclusiveValue = 0.0
 
     # Override setText function so we can toggle displayed text
     def setText(self, text):
@@ -361,11 +397,14 @@ class PushButton(QtWidgets.QPushButton, IndicatedMixIn):
     # this overrides the super class function
     # but then calls it after to connect signals etc.
     def _hal_init(self):
+        if self.autoExclusive():
+            self.makeGroupPin()
         if self._pin_name_ == '':
             pname = self.HAL_NAME_
         else:
             pname = self._pin_name_
         self.hal_pin = self.HAL_GCOMP_.newpin(str(pname), hal.HAL_BIT, hal.HAL_OUT)
+
         super(PushButton, self)._hal_init()
 
     # done so we can adjust 'checkable' signals at run time
@@ -375,13 +414,101 @@ class PushButton(QtWidgets.QPushButton, IndicatedMixIn):
         super().connectSignals()
         def _update(state):
             self.hal_pin.set(state)
-
+            if self.autoExclusive() and state:
+                self.updateGroup()
         if self.isCheckable():
             self.toggled[bool].connect(_update)
         else:
             self.pressed.connect(lambda: _update(True))
             self.released.connect(lambda: _update(False))
         _update(self.isChecked())
+
+    # find the first button in group
+    # it's the 'driver' button widget
+    # then if it's this instance, make a HAL pin for the group
+    def makeGroupPin(self):
+        for i in self.parent().children():
+            if isinstance(i, QtWidgets.QAbstractButton):
+                # are we the group's driver widget?
+                if i is self:
+                    # make pin based on type and name
+                    if not self._pin_type == HALPinType.NONE:
+                        ptype = self._pin_type
+                        if self._groupPinName == '':
+                            name = HALPinType.name(self._pin_type)
+                            pname = self.HAL_NAME_ + '.exclusive'+name
+                        else:
+                            pname = self._groupPinName
+                        self.halPinGroup = self.HAL_GCOMP_.newpin(pname , ptype, hal.HAL_OUT)
+                    break
+                break
+
+    # find the driver widget and update it's group HAL pin
+    def updateGroup(self):
+        value = 0 # flag and value of pin
+        for i in self.parent().children():
+            if isinstance(i, QtWidgets.QAbstractButton):
+                if value == 0:
+                    driver = i
+                    value = -1 # flag we found the driver
+                if i.isChecked():
+                    #print(self.objectName(),' Checked:',i.objectName()
+                    value = i._exclusiveValue
+                    #print('value:',value)
+                    break
+
+        if self._pin_type == HALPinType.BIT:
+            data = bool(value)
+        elif self._pin_type == HALPinType.FLOAT:
+            data = float(value)
+        elif self._pin_type == HALPinType.S32:
+            data = int(value)
+        else:
+            return
+
+        # update the pin of the 'driver' widget
+        try:
+            #print('driver',driver.objectName())
+            driver.halPinGroup.set(data)
+        except Exception as e:
+            print(e)
+            pass
+
+    ########################################################################
+    # This is how designer can interact with our widget properties.
+    # designer will show the QtCore.pyqtProperty properties in the editor
+    # it will use the get set and reset calls to do those actions
+    ########################################################################
+
+    def set_pin_type(self, value):
+        self._pin_type = value
+        print(value)
+    def get_pin_type(self):
+        return self._pin_type
+    def reset_pin_type(self):
+        self._pin_type = HALPinType.S32
+
+    # designer will show these properties in this order:
+    pin_type = QtCore.pyqtProperty(HALPinType, get_pin_type, set_pin_type, reset_pin_type)
+
+    def set_group_pin_name(self, value):
+        self._groupPinName = value
+    def get_group_pin_name(self):
+        return self._groupPinName
+    def reset_group_pin_name(self):
+        self._groupPinName = ''
+    groupPinName = QtCore.pyqtProperty(str, get_group_pin_name, set_group_pin_name, reset_group_pin_name)
+
+    def set_exclusive_value(self, data):
+        self._exclusiveValue = data
+        self.updateGroup()
+    def get_exclusive_value(self):
+        return self._exclusiveValue
+    def reset_exclusive_value(self):
+        self._exclusiveValue = 0.0
+        self.updateGroup()
+
+    exclusiveHALValue = QtCore.pyqtProperty(float, get_exclusive_value, set_exclusive_value, reset_exclusive_value)
 
 class ScaledLabel(QtWidgets.QLabel):
     '''
