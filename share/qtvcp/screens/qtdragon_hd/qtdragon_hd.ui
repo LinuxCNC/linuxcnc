@@ -9561,8 +9561,14 @@ OFF</string>
                  <property name="is_paused_status" stdset="0">
                   <bool>false</bool>
                  </property>
+                 <property name="isRunPausedSensitive" stdset="0">
+                  <bool>false</bool>
+                 </property>
                  <property name="isAutoPauseSensitive" stdset="0">
-                  <bool>true</bool>
+                  <bool>false</bool>
+                 </property>
+                 <property name="isManSensitive" stdset="0">
+                  <bool>false</bool>
                  </property>
                 </widget>
                </item>
@@ -17250,7 +17256,7 @@ ANGULAR</string>
          <number>2</number>
         </property>
         <property name="text">
-         <string>11:38:32 PM</string>
+         <string>12:06:34 PM</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -17337,7 +17343,7 @@ ANGULAR</string>
   </customwidget>
   <customwidget>
    <class>PushButton</class>
-   <extends>IndicatedPushButton</extends>
+   <extends>QPushButton</extends>
    <header>qtvcp.widgets.simple_widgets</header>
   </customwidget>
   <customwidget>
@@ -18421,8 +18427,8 @@ ANGULAR</string>
   <slot>btn_pause_clicked()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
   <buttongroup name="buttonGroup"/>
+  <buttongroup name="mode_buttonGroup"/>
  </buttongroups>
 </ui>
