@@ -605,6 +605,7 @@ static int init_hal_io(void)
 
     if (kinematicsSwitchable()) {
         CALL_CHECK(hal_pin_float_newf(HAL_IN, &(emcmot_hal_data->switchkins_type), mot_comp_id, "motion.switchkins-type"));
+        CALL_CHECK(hal_pin_bit_newf(HAL_IN, &(emcmot_hal_data->switchkins_update), mot_comp_id, "motion.switchkins-update"));
     }
     /* initialize machine wide pins and parameters */
     *(emcmot_hal_data->adaptive_feed) = 1.0;
