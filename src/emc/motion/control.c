@@ -345,6 +345,7 @@ static void handle_kinematicsSwitch(void) {
     }
 #endif
     tpSetPos(&emcmotInternal->coord_tp, &emcmotStatus->carte_pos_cmd);
+    axis_sync_teleop_tp_to_carte_pos(0, pcmd_p);
 } //handle_kinematicsSwitch()
 
 static void process_inputs(void)
