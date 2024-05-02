@@ -1630,6 +1630,8 @@ def rotate_frame(coordinates):
 ##############################################################################
 def bounds_check_file():
     msg = _('G-code')
+    # canon units are always returned as imperial
+    # ensure returned units are in machine units
     unitsMultiplier = 25.4 if s.linear_units == 1 else 1
     xMin = (o.canon.min_extents[0] * unitsMultiplier)
     xMax = (o.canon.max_extents[0] * unitsMultiplier)
@@ -1650,9 +1652,9 @@ def bounds_check_probe(local):
             #TODO PHILL - Do you want this from the GUI or HAL??
             xPierceOffset = comp['x-pierce-offset']
             yPierceOffset = comp['y-pierce-offset']
-        if s.linear_units == 1 and 200 in o.canon.state.gcodes:
+        if s.linear_units == 1 and not vars.metric.get():
             unitsMultiplier = 25.4
-        elif s.linear_units != 1 and 210 in o.canon.state.gcodes:
+        elif s.linear_units != 1 and vars.metric.get():
             unitsMultiplier = 1 / 25.4
         else:
             unitsMultiplier = 1
@@ -1665,17 +1667,18 @@ def bounds_check_probe(local):
 
 def bounds_check_framing(xOffset=0, yOffset=0, laser=False):
     msg = _('Framing move')
-    msg1 = ''
-    unitsMultiplier = 25.4 if s.linear_units == 1 else 1
     if laser:
         msg1 = _('due to laser offset')
-    xStart = s.g5x_offset[0]
-    yStart = s.g5x_offset[1]
+    else:
+        msg1 = ''
+    # canon units are always returned as imperial
+    # ensure returned units are in machine units
+    unitsMultiplier = 25.4 if s.linear_units == 1 else 1
     xMin = (o.canon.min_extents_zero_rxy[0] * unitsMultiplier + xOffset)
     xMax = (o.canon.max_extents_zero_rxy[0] * unitsMultiplier + xOffset)
     yMin = (o.canon.min_extents_zero_rxy[1] * unitsMultiplier + yOffset)
     yMax = (o.canon.max_extents_zero_rxy[1] * unitsMultiplier + yOffset)
-    coordinates = [[xStart, yStart], [xMin, yMin], [xMin, yMax], [xMax, yMax], [xMax, yMin]]
+    coordinates = [[s.g5x_offset[0], s.g5x_offset[1]], [xMin, yMin], [xMin, yMax], [xMax, yMax], [xMax, yMin]]
     frame_points, xMin, yMin, xMax, yMax = rotate_frame(coordinates)
     errMsg = bounds_compare(xMin, xMax, yMin, yMax, msg, msg1)
     return (errMsg, frame_points)
@@ -2098,6 +2101,29 @@ def reload_file(refilter=True):
     live_plotter.clear()
 
 def task_run(*event):
+    global dryRun
+    if event and event[0]== 'dry-run' and loaded_file:
+        if laserOffsets['X'] or laserOffsets['Y']:
+            framingError = bounds_check_framing(laserOffsets['X'], laserOffsets['Y'], True)[0]
+            if framingError:
+                title = _('AXIS LIMIT ERROR')
+                plasmacPopUp('warn', title, framingError)
+                return
+            dryRun = [s.g5x_offset[0], s.g5x_offset[1]]
+            newX = s.actual_position[0] - s.g5x_offset[0] - laserOffsets['X']
+            newY = s.actual_position[1] - s.g5x_offset[1] - laserOffsets['Y']
+            units = '21' if vars.metric.get() else '20'
+            if s.linear_units == 1 and units == '20':
+                unitsMultiplier = 1 / 25.4
+            elif s.linear_units != 1 and units == '20':
+                unitsMultiplier =  25.4
+            else:
+                unitsMultiplier = 1
+            ensure_mode(linuxcnc.MODE_MDI)
+            c.mdi(f'G{units} G10 L20 P0 X{newX * unitsMultiplier} Y{newY * unitsMultiplier}')
+            c.wait_complete()
+            comp['laser-on'] = 1
+            hal.set_p('plasmac.dry-run', '1')
     if run_warn() or not critical_button_check():
         return
     global program_start_line, program_start_line_last
@@ -4090,7 +4116,7 @@ def set_orientation():
     user_button_setup()
     populate_settings_frame()
     for box in rSpinBoxes:
-        rE(f"{box} configure -font {fontGui}")
+        rE(f"{box} configure -font fontGui")
     color_change()
     set_window_size()
     load_materials(get_displayed_material(), keepTemp=True)
@@ -4121,6 +4147,7 @@ def set_orient_frames():
     rE(f"frame {fbuttons} -relief flat")
     rE(f"frame {fruns} -relief flat")
     make_torch_button()
+    make_dry_run_button()
     make_toolmat_frame()
     make_run_panel()
 
@@ -4132,6 +4159,16 @@ def make_torch_button():
         rE(f"{fbuttons}.torch-enable configure -height 1")
     rE(f"grid {fbuttons}.torch-enable -column 0 -row 0 -sticky new -padx {{2 0}} -pady {{2 0}}")
     rE(f"bind {fbuttons}.torch-enable <ButtonPress-1> torch_enable")
+
+def make_dry_run_button():
+    if pVars.orient.get() == 'portrait':
+        col = 1
+        row = 0
+    else:
+        col = 0
+        row = 1
+    rE(f"button {fbuttons}.dry-run -takefocus 0 -width 10 -highlightthickness 0 -text {{Dry Run}} -command {{task_run dry-run}}")
+    rE(f"grid {fbuttons}.dry-run -column {col} -row {row} -sticky new -padx {{2 0}} -pady {{2 0}}")
 
 def make_toolmat_frame():
     rE(f"frame {toolmat} -borderwidth 1 -relief raised")
@@ -4280,11 +4317,11 @@ def populate_settings_frame():
 
 def populate_user_buttons():
     if pVars.orient.get() == 'portrait':
-        col = 1
-        row = 0
-    else:
         col = 0
         row = 1
+    else:
+        col = 0
+        row = 2
     width = 0
     for n in range(1, maxUserButtons + 1):
         rE(f"grid forget {fbuttons}.button{n}")
@@ -4483,6 +4520,7 @@ if os.path.isdir(os.path.join(p2Path, 'lib')):
     singleCut = {'state':False, 'G91':False}
     framingState = False
     runState = False
+    dryRun = None
     lastMotionMode = None
     laserTimer = 0.0
     laserButtonState = 'laser'
@@ -5791,7 +5829,7 @@ def user_live_update():
     global currentTool, pmx485, homeInProgress
     global materialChangePin, materialChangeNumberPin
     global materialReloadPin, materialTempPin
-    global materialChangeTimeoutPin
+    global materialChangeTimeoutPin, dryRun
     # set machine state variables
     isIdle = s.task_state == linuxcnc.STATE_ON and s.interp_state == linuxcnc.INTERP_IDLE
     isIdleHomed = isIdle and all_homed()
@@ -5906,6 +5944,21 @@ def user_live_update():
         comp['laser-on'] = 0
         framingState = False
         activeFunction = False
+        live_plotter.clear()
+    # dry run button state
+    wState = 'disabled' if rE('.toolbar.program_run cget -state') == 'disabled' or not loaded_file else 'normal'
+    rE(f"{fbuttons}.dry-run configure -state {wState}")
+    # reset after dry run
+    if dryRun and isIdle:
+        oldX = s.actual_position[0] - dryRun[0]
+        oldY = s.actual_position[1] - dryRun[1]
+        units = '20' if s.linear_units != 1 else '21'
+        ensure_mode(linuxcnc.MODE_MDI)
+        c.mdi(f'G{units} G10 L20 P0 X{oldX} Y{oldY}')
+        c.wait_complete()
+        dryRun = None
+        comp['laser-on'] = 0
+        hal.set_p('plasmac.dry-run', '0')
         live_plotter.clear()
     # set X0Y0, laser, and offset_setup buttons state
     wState = 'normal' if isIdleHomed else 'disabled'
