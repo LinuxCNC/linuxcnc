@@ -41,6 +41,7 @@ static int    ext_offset_teleop_limit = 0;
 static int    ext_offset_coord_limit  = 0;
 static bool   coord_cubic_active = 0;
 static int    switchkins_type = 0;
+static bool   switchkins_update = 0;
 /* kinematics flags */
 KINEMATICS_FORWARD_FLAGS fflags = 0;
 KINEMATICS_INVERSE_FLAGS iflags = 0;
@@ -300,9 +301,12 @@ static void handle_kinematicsSwitch(void) {
 
     if (!kinematicsSwitchable()) return;
     hal_switchkins_type = (int)*emcmot_hal_data->switchkins_type;
-    if (switchkins_type == hal_switchkins_type) return;
+    bool update_request = (bool)*emcmot_hal_data->switchkins_update;
+
+    if (switchkins_type == hal_switchkins_type && switchkins_update == update_request) return;
 
     switchkins_type = hal_switchkins_type;
+    switchkins_update = update_request;
 
     emcmot_joint_t *jointKinsSwitch;
     double joint_posKinsSwitch[EMCMOT_MAX_JOINTS] = {0,};
@@ -341,6 +345,7 @@ static void handle_kinematicsSwitch(void) {
     }
 #endif
     tpSetPos(&emcmotInternal->coord_tp, &emcmotStatus->carte_pos_cmd);
+    axis_sync_teleop_tp_to_carte_pos(0, pcmd_p);
 } //handle_kinematicsSwitch()
 
 static void process_inputs(void)
