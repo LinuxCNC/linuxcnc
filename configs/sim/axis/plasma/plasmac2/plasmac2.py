@@ -136,7 +136,9 @@ class plasmacPopUp(Tkinter.Toplevel):
         ttl = Tkinter.Label(self.frm, text=title, fg=colorBack, bg=colorFore)
         ttl.pack(fill='x')
         b1Text = b2Text = b3Text = b4Text = None
-        if func == 'rfl':
+        if func == 'rfl_type':
+            b1Text, b2Text = self.popup_rfl_type(func)
+        elif func == 'rfl':
             b1Text, b2Text = self.popup_run_from_line(func)
         elif func == 'sc':
             b1Text, b2Text = self.popup_single_cut(func)
@@ -168,6 +170,16 @@ class plasmacPopUp(Tkinter.Toplevel):
             vkbData['required'] = True
             vkb_show(vkb)
         root_window.wait_window(self)
+
+    def popup_rfl_type(self, func):
+        self.rflType = Tkinter.StringVar(self, 'run')
+        f1 = Tkinter.Frame(self.frm, bg=colorBack)
+        run = Tkinter.Radiobutton(f1, text=_('Here to end'), variable=self.rflType, value='run', width=12, bg=colorBack, highlightthickness=0, anchor='w')
+        cut = Tkinter.Radiobutton(f1, text=_('This cutpath'), variable=self.rflType, value='cut', width=12, bg=colorBack, highlightthickness=0, anchor='w')
+        run.pack(anchor='w')
+        cut.pack(anchor='w')
+        f1.pack(padx=4, pady=4, anchor='w')
+        return _('OK'), _('Cancel')
 
     def popup_run_from_line(self, func):
         self.leadIn = Tkinter.BooleanVar()
@@ -258,7 +270,9 @@ class plasmacPopUp(Tkinter.Toplevel):
             return _('OK'), _('Cancel')
 
     def popup_complete(self, value, func):
-        if func == 'rfl':
+        if func == 'rfl_type':
+            self.reply = value, self.rflType.get()
+        elif func == 'rfl':
             self.reply = value, self.leadIn.get(), float(self.leadLength.get()), float(self.leadAngle.get())
         elif func == 'sc':
             self.reply = value, self.xLength.get(), self.yLength.get()
@@ -2106,9 +2120,46 @@ def task_run_line():
         rflIn = loaded_file
     if comp['development']:
         reload(RFL)
-    setup = RFL.run_from_line_get(rflIn, pVars.startLine.get())
-    # cannot do run from line within a subroutine or if using cutter compensation
+    # get rfl type
+    rfl = {}
+    title = _('RUN FROM LINE')
+    valid, type_ = plasmacPopUp('rfl_type', title, None, 'numpad').reply
+    vkbData['required'] = False
+    if not valid:
+        pVars.rflActive = False
+        pVars.startLine.set(0)
+        return
+    lastLine = 0
+    # get start and end of cutpath
+    if type_ == 'cut':
+        count = 0
+        start = 0
+        with open(rflIn, 'r') as inFile:
+            for line in inFile:
+                line = line.strip()
+                if line[:3] == 'G00':
+                    start = count
+                if line[:3] == 'M05' and count > pVars.startLine.get():
+                    break
+                count += 1
+        lastLine = count
+        pVars.startLine.set(start)
+        rfl['do'] = False
+        rfl['length'] = 0.0
+        rfl['angle'] = 0.0
+    # get leadin parameters
+    else:
+        valid, rfl['do'], rfl['length'], rfl['angle'] = plasmacPopUp('rfl', title, None, 'numpad').reply
+        vkbData['required'] = False
+    # cancel rfl
+    if not valid:
+        pVars.rflActive = False
+        pVars.startLine.set(0)
+        return
+    # get the old data
+    setup = RFL.run_from_line_get(rflIn, pVars.startLine.get(), lastLine)
     if setup['error']:
+    # cannot do run from line within a subroutine or if using cutter compensation
         if setup['compError']:
             msg0 = _('Cannot run from line while cutter compensation is active')
             notifications.add('error', f"{msg0}\n")
@@ -2121,29 +2172,19 @@ def task_run_line():
             pVars.rflActive = False
             pVars.startLine.set(0)
     else:
-        # get user input
-        rfl = {}
-        title = _('RUN FROM LINE')
-        valid, rfl['do'], rfl['length'], rfl['angle'] = plasmacPopUp('rfl', title, None, 'numpad').reply
-        vkbData['required'] = False
-        # rfl cancel clicked
-        if not valid:
-            pVars.rflActive = False
-            pVars.startLine.set(0)
-        else:
-            # rfl load clicked
-            rflFile = os.path.join(tmpPath, 'rfl.ngc')
-            result = RFL.run_from_line_set(rflFile, setup, rfl, unitsPerMm)
-            # leadin cannot be used
-            if result['error']:
-                msg0 = _('Unable to calculate a leadin for this cut')
-                msg1 = _('Program will run from selected line with no leadin applied')
-                notifications.add('error', f"{msg0}\n{msg1}\n")
-            # load rfl file
-            if loaded_file != os.path.join(tmpPath, 'rfl.ngc'):
-                pVars.preRflFile.set(loaded_file)
-            open_file_guts(os.path.join(tmpPath, 'rfl.ngc'), False, False)
-            commands.set_view_z()
+        # set the new data
+        rflFile = os.path.join(tmpPath, 'rfl.ngc')
+        result = RFL.run_from_line_set(rflFile, setup, rfl, unitsPerMm)
+        # if leadin cannot be used
+        if result['error']:
+            msg0 = _('Unable to calculate a leadin for this cut')
+            msg1 = _('Program will run from selected line with no leadin applied')
+            notifications.add('error', f"{msg0}\n{msg1}\n")
+        # load rfl file
+        if loaded_file != os.path.join(tmpPath, 'rfl.ngc'):
+            pVars.preRflFile.set(loaded_file)
+        open_file_guts(os.path.join(tmpPath, 'rfl.ngc'), False, False)
+        commands.set_view_z()
 
 def open_file_name(f):    # from axis.py
     ''' set view to Z '''
@@ -2265,7 +2306,7 @@ def update_title(*args):
         file = name = os.path.basename(vars.taskfile.get())
     base = f"{vars.machine.get()}    plasmac2 v{VER} + AXIS {linuxcnc.version}"
     rE(f"wm title {root_window} {{{base}    ({file})}}")
-    rE(f"wm iconname {root_window} {name}")
+    rE(f"wm iconname {root_window} {{{name}}}")
 
 def update_jog_slider_vel(value):
     ''' inhibit slider update if manual cut is active

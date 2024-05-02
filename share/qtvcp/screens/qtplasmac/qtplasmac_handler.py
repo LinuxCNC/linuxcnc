@@ -2771,7 +2771,9 @@ class HandlerClass:
         return (True, errMsg) if errMsg else (False, '')
 
     def bounds_check_probe(self, static):
-        msg = _translate('HandlerClass', 'Move to probe offset')
+        if not (self.probeOffsetX or self.probeOffsetY) and not self.cutTypePin.get():
+            return(False, '')
+        msg = _translate('HandlerClass', 'Move to probe coordinate')
         xPierceOffset = yPierceOffset = xMinP = xMaxP = yMinP = yMaxP = 0
         if static:
             xMinP = xMaxP = STATUS.get_position()[0][0] + self.probeOffsetX
@@ -2781,10 +2783,12 @@ class HandlerClass:
             if self.cutTypePin.get():
                 xPierceOffset = self.w.x_pierce_offset.value()
                 yPierceOffset = self.w.y_pierce_offset.value()
-            xMinP = self.xMinPierceExtentPin.get() * self.boundsMultiplier + self.probeOffsetX + STATUS.stat.g5x_offset[0] + xPierceOffset
-            xMaxP = self.xMaxPierceExtentPin.get() * self.boundsMultiplier + self.probeOffsetX + STATUS.stat.g5x_offset[0] + xPierceOffset
-            yMinP = self.yMinPierceExtentPin.get() * self.boundsMultiplier + self.probeOffsetY + STATUS.stat.g5x_offset[1] + yPierceOffset
-            yMaxP = self.yMaxPierceExtentPin.get() * self.boundsMultiplier + self.probeOffsetY + STATUS.stat.g5x_offset[1] + yPierceOffset
+            if self.probeOffsetX or (xPierceOffset and self.cutTypePin.get()):
+                xMinP = self.xMinPierceExtentPin.get() * self.boundsMultiplier + self.probeOffsetX + STATUS.stat.g5x_offset[0] + xPierceOffset
+                xMaxP = self.xMaxPierceExtentPin.get() * self.boundsMultiplier + self.probeOffsetX + STATUS.stat.g5x_offset[0] + xPierceOffset
+            if self.probeOffsetY or (yPierceOffset and self.cutTypePin.get()):
+                yMinP = self.yMinPierceExtentPin.get() * self.boundsMultiplier + self.probeOffsetY + STATUS.stat.g5x_offset[1] + yPierceOffset
+                yMaxP = self.yMaxPierceExtentPin.get() * self.boundsMultiplier + self.probeOffsetY + STATUS.stat.g5x_offset[1] + yPierceOffset
         errMsg = self.bounds_compare(xMinP, xMaxP, yMinP, yMaxP, msg)
         return (True, errMsg) if errMsg else (False, '')
 
