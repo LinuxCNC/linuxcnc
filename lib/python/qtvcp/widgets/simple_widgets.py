@@ -376,6 +376,7 @@ class PushButton(QtWidgets.QPushButton, IndicatedMixIn, HALPinType):
         self._pin_type = HALPinType.S32
         self._groupPinName = ''
         self._exclusiveValue = 0.0
+        self.halPinGroup = None
 
     # Override setText function so we can toggle displayed text
     def setText(self, text):
@@ -428,7 +429,8 @@ class PushButton(QtWidgets.QPushButton, IndicatedMixIn, HALPinType):
     # then if it's this instance, make a HAL pin for the group
     def makeGroupPin(self):
         for i in self.parent().children():
-            if isinstance(i, QtWidgets.QAbstractButton):
+            if isinstance(i, PushButton):
+
                 # are we the group's driver widget?
                 if i is self:
                     # make pin based on type and name
@@ -468,11 +470,10 @@ class PushButton(QtWidgets.QPushButton, IndicatedMixIn, HALPinType):
 
         # update the pin of the 'driver' widget
         try:
-            #print('driver',driver.objectName())
-            driver.halPinGroup.set(data)
+            if not driver.halPinGroup is None:
+                driver.halPinGroup.set(data)
         except Exception as e:
             print(e)
-            pass
 
     ########################################################################
     # This is how designer can interact with our widget properties.
@@ -482,7 +483,6 @@ class PushButton(QtWidgets.QPushButton, IndicatedMixIn, HALPinType):
 
     def set_pin_type(self, value):
         self._pin_type = value
-        print(value)
     def get_pin_type(self):
         return self._pin_type
     def reset_pin_type(self):
