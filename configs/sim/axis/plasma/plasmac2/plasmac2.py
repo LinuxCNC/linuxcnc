@@ -17,7 +17,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 '''
 
-VER = '19'
+VER = '20'
 
 ##############################################################################
 # the next line suppresses undefined variable errors in VSCode               #
@@ -695,7 +695,7 @@ def conv_toggle(state, convSent=False):
             CONV = conversational.Conv(convFirstRun, root_window, widgets.toolFrame, \
                    widgets.convFrame, bwidget.ComboBox, imagePath, tmpPath, pVars, \
                    unitsPerMm, comp, PREF, getPrefs, putPrefs, open_file_guts, \
-                   wcs_rotation, conv_toggle, color_change, plasmacPopUp)
+                   wcs_rotation, conv_toggle, color_change, plasmacPopUp, o)
             convFirstRun = False
         # set_conv_preview()
         if loaded_file:
@@ -730,6 +730,7 @@ def conv_toggle(state, convSent=False):
             commands.set_view_t()
         else:
             commands.set_view_z()
+        CONV.oldConvButton = 'line'
 
 def clear_program():
     file = os.path.join(tmpPath, 'clear.ngc')

@@ -52,7 +52,8 @@ gettext.install("linuxcnc", localedir=localeDir)
 class Conv(tk.Tk):
     def __init__(self, convFirstRun, root, toolFrame, convFrame, combobox, \
                  imagePath, tmpPath, pVars, unitsPerMm, comp, prefs, getprefs, \
-                 putprefs, fileOpener, wcs_rotation, conv_toggle, color_change, plasmacPopUp):
+                 putprefs, fileOpener, wcs_rotation, conv_toggle, color_change, \
+                 plasmacPopUp, o):
         self.r = root
         self.rE = root.tk.eval
         self.toolFrame = toolFrame
@@ -67,6 +68,8 @@ class Conv(tk.Tk):
         self.pVars = pVars
         self.conv_toggle = conv_toggle
         self.plasmacPopUp = plasmacPopUp
+        self.o = o
+        self.shapeLen = {'x':None, 'y':None}
         self.combobox = combobox
         self.fTmp = os.path.join(tmpPath, 'temp.ngc')
         self.fNgc = os.path.join(tmpPath, 'shape.ngc')
@@ -307,6 +310,8 @@ class Conv(tk.Tk):
         self.validShape = False
         self.convLine['xLineStart'] = self.convLine['xLineEnd'] = 0
         self.convLine['yLineStart'] = self.convLine['yLineEnd'] = 0
+        self.coValue.set('')
+        self.roValue.set('')
         self.preview_button_pressed(False)
 
     def save_pressed(self):
@@ -394,6 +399,10 @@ class Conv(tk.Tk):
             return
         self.oldModule = self.module
         if shape == 'block':
+            if self.o.canon is not None:
+                unitsMultiplier = 25.4 if self.unitsPerMm == 1 else 1
+                self.shapeLen['x'] = (self.o.canon.max_extents[0] - self.o.canon.min_extents[0]) * unitsMultiplier
+                self.shapeLen['y'] = (self.o.canon.max_extents[1] - self.o.canon.min_extents[1]) * unitsMultiplier
             self.module = CONVBLCK
             if self.block_request():
                 self.toolButton[self.convShapes.index(self.oldConvButton)].invoke()
@@ -782,8 +791,6 @@ class Conv(tk.Tk):
         self.roValue = tk.StringVar()
         self.roEntry = tk.Entry(self.convFrame, width=eLength, textvariable=self.roValue, justify='right', bd=1)
 
-        self.oLabel = tk.Label(self.convFrame, width=lLength, text=_('ORIGIN OFFSET'))
-        self.ptLabel = tk.Label(self.convFrame, width=lLength, text=_('PATTERN'))
         self.bsLabel = tk.Label(self.convFrame, width=lLength, text=_('SHAPE'))
         self.scLabel = tk.Label(self.convFrame, width=lLength, anchor='e', text=_('SCALE'))
         self.scValue = tk.StringVar()
@@ -793,6 +800,7 @@ class Conv(tk.Tk):
         self.rtEntry = tk.Entry(self.convFrame, width=eLength, textvariable=self.rtValue, justify='right', bd=1)
         self.mirror = tk.Button(self.convFrame, width=eLength, padx=1, pady=1, text=_('MIRROR'))
         self.flip = tk.Button(self.convFrame, width=eLength, padx=1, pady=1, text=_('FLIP'))
+        self.oLabel = tk.Label(self.convFrame, width=lLength, text=_('ORIGIN OFFSET'))
         # lines and arcs
         self.lnLabel = tk.Label(self.convFrame, width=lLength, anchor='e', text=_('TYPE'))
         self.lineCombo = self.combobox(self.convFrame, width=lLength, justify='left', bd=1, editable=False)
@@ -866,3 +874,8 @@ class Conv(tk.Tk):
                           self.r2Button, self.r3Button, self.r4Button, self.mirror, self.flip, \
                           self.g23Arc, self.saveS, self.reloadS, self.exitS, self.previewC, \
                           self.addC, self.undoC, self.newC, self.saveC, self.settingsC, self.sendC]
+        for button in self.buttons:
+            button.configure(takefocus=0)
+        self.combos = [self.matCombo, self.polyCombo, self.lineCombo]
+        for combo in self.combos:
+            combo.configure(takefocus=0)
