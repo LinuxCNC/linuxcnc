@@ -198,6 +198,8 @@ typedef struct {
     hal_float_t *feed_mm_per_second; /* feed mm per second*/
 
     hal_float_t *switchkins_type;
+    hal_bit_t   *switchkins_update; // Force Kins update on edge
+
 } emcmot_hal_data_t;
 
 /***********************************************************************
