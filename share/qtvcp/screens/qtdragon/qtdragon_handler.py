@@ -558,6 +558,15 @@ class HandlerClass:
                 #self.add_status('{} pin not connected in a HAL FILE'.format(i))
                 LOG.warning("{} not connected".format(i))
 
+        # halui pins could cause resume without the spindle running
+        # and would not honour spindle lift. Should use qtdragon pin provided
+        for i in ('halui.program.resume','halui.program.pause'):
+            if self.h.hal.pin_has_writer(i):
+                self.spindle_lift_pins_present = False
+                LOG.warning("HALUI pause/resume pin(s) connected - spindle lift not available")
+                self.add_status('Warning: {} pin connected in a HAL file, spindle lift disabled'.format(i), WARNING)
+                break
+
     #########################
     # CALLBACKS FROM STATUS #
     #########################
@@ -1040,7 +1049,7 @@ class HandlerClass:
     def btn_pause_clicked(self, data):
         if self.w.action_pause._isSignalsBlocked(): return
         if data:
-            ACTION.PAUSE()
+            ACTION.PAUSE_MACHINE()
             self.w.btn_spindle_pause.setEnabled(False)
 
             self.h['eoffset-spindle-count'] = 0
@@ -1695,7 +1704,7 @@ class HandlerClass:
 
     def on_keycall_pause(self,event,state,shift,cntrl):
         if state and STATUS.is_auto_mode() and self.use_keyboard():
-            ACTION.PAUSE()
+            self.w.action_pause.click()
 
     def on_keycall_jograte(self,event,state,shift,cntrl,value):
         if state and self.use_keyboard():
