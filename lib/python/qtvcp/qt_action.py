@@ -393,12 +393,23 @@ class _Lcnc_Action(object):
     def ABORT(self):
         self.cmd.abort()
 
+    # much used Legacy code
     def PAUSE(self):
         if not STATUS.stat.paused:
             self.cmd.auto(linuxcnc.AUTO_PAUSE)
         else:
             LOG.debug('resume')
             self.cmd.auto(linuxcnc.AUTO_RESUME)
+
+    def TOGGLE_PAUSE(self):
+        if not STATUS.stat.paused:
+            self.cmd.auto(linuxcnc.AUTO_PAUSE)
+        else:
+            self.cmd.auto(linuxcnc.AUTO_RESUME)
+
+    def PAUSE_MACHINE(self):
+        if not STATUS.stat.paused:
+            self.cmd.auto(linuxcnc.AUTO_PAUSE)
 
     def RESUME(self):
         if STATUS.stat.paused:
