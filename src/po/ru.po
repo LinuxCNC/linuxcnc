@@ -8,15 +8,15 @@
 # Дмитрий <krdima352@gmail.com>, 2022.
 # Nikita Shubin <nikita.shubin@maquefel.me>, 2022.
 # ekam230 <ekamyshov@yandex.ru>, 2022.
-# Ilya Koubatkin <ilya@kubatkin.ru>, 2023.
+# Ilya Koubatkin <ilya@kubatkin.ru>, 2023, 2024.
 # xXx <xxx_xxx_xxxxxxxxx@mail.ru>, 2023.
 # Petter Reinholdtsen <pere-weblate@hungry.com>, 2023.
 msgid ""
 msgstr ""
 "Project-Id-Version: emc 2.2.8\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-04-08 19:52+0200\n"
-"PO-Revision-Date: 2023-11-11 19:50+0000\n"
+"PO-Revision-Date: 2024-05-03 18:07+0000\n"
 "Last-Translator: Ilya Koubatkin <ilya@kubatkin.ru>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/ru/>\n"
@@ -24,9 +24,9 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
-"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
-"X-Generator: Weblate 5.2-dev\n"
+"Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
+"X-Generator: Weblate 5.5.3\n"
 
 #: src/emc/task/emctaskmain.cc:868
 #, c-format
@@ -7573,7 +7573,7 @@ msgstr "Программа выходит за пределы станка"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1894
 msgid "Re-Check"
-msgstr ""
+msgstr "Перепроверить"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1894
 msgid "Run Anyway"
@@ -7617,9 +7617,8 @@ msgid "G-Code Properties"
 msgstr "Свойства G-кода"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2231
-#, fuzzy
 msgid "Homing request"
-msgstr "Возвращение домой"
+msgstr "Запрос возврата в исходное положение"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2231
 msgid ""
@@ -7628,6 +7627,10 @@ msgid ""
 "\n"
 "            Run homing process?"
 msgstr ""
+"После включения питания станка,\n"
+"Вам нужно найти нулевые положения осей.\n"
+"\n"
+"            Запустить процесс возврата в исходное положение?"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2244
 msgid "All machinable files"
@@ -7880,6 +7883,11 @@ msgid ""
 "Diameter: %(diameter)s%(units)s\n"
 "Comment: %(comment)s"
 msgstr ""
+"Вставьте инструмент и нажмите «Продолжить», когда будете готовы..\n"
+"\n"
+"Номер инструмента: %(number)s\n"
+"Диаметр: %(diameter)s%(units)s\n"
+"Комментарий: %(comment)s"
 
 #: src/emc/usr_intf/axis/scripts/hal_manualtoolchange.py:75
 #, python-format
@@ -7887,12 +7895,15 @@ msgid "Insert tool %d and click continue when ready"
 msgstr "Поставьте инструмент %d и нажмите Продолжить"
 
 #: src/emc/usr_intf/axis/scripts/hal_manualtoolchange.py:76
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "\n"
 "\n"
 "Error: %s"
-msgstr "Ошибка: "
+msgstr ""
+"\n"
+"\n"
+"Ошибка: %s"
 
 #: src/emc/usr_intf/axis/scripts/hal_manualtoolchange.py:93
 msgid "AXIS Manual Toolchanger"
@@ -9830,22 +9841,22 @@ msgstr "JVL-SMD41 или 42"
 #: src/emc/usr_intf/stepconf/stepconf.py:168
 #: src/emc/usr_intf/pncconf/private_data.py:1337
 msgid "Hobbycnc Pro Chopper"
-msgstr "Hobbycnc Pro Чоппер"
+msgstr "Hobbycnc Pro Chopper"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:169
 #: src/emc/usr_intf/pncconf/private_data.py:1338
 msgid "Keling 4030"
-msgstr "Давай 4030"
+msgstr "Keling 4030"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:170
 #: src/emc/usr_intf/pncconf/private_data.py:1339
 msgid "DM860T v1.0"
-msgstr ""
+msgstr "DM860T v1.0"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:171
 #: src/emc/usr_intf/pncconf/private_data.py:1340
 msgid "DM860T v3.0"
-msgstr ""
+msgstr "DM860T v3.0"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:220
 msgid "X Step"
@@ -11050,21 +11061,16 @@ msgid "Import a Mach file"
 msgstr "Импортировать файл Mach"
 
 #: src/emc/usr_intf/stepconf/start.glade:73
-#, fuzzy
 msgid "Create a desktop _shortcut (symlink) to configuration files"
-msgstr "Создать на рабочем столе_ярлык (symlink) на файлы конфигурации."
+msgstr "Создать desktop _shortcut (symlink) на файлы конфигурации"
 
 #: src/emc/usr_intf/stepconf/start.glade:89
-#, fuzzy
 msgid "Create a desktop _launcher to start LinuxCNC with this configuration"
-msgstr ""
-"Создайте на рабочем столе _пусковую установку для запуска LinuxCNC с данной "
-"конфигурацией."
+msgstr "Создайте desktop _launcher для запуска LinuxCNC с данной конфигурацией"
 
 #: src/emc/usr_intf/stepconf/start.glade:105
-#, fuzzy
 msgid "Create simulated hardware configuration"
-msgstr "Создать имитацию конфигурации оборудования."
+msgstr "Создать конфигурацию оборудования для моделирования"
 
 #: src/emc/usr_intf/stepconf/start.glade:129
 #: src/emc/usr_intf/pncconf/start.glade:63
@@ -11740,7 +11746,8 @@ msgstr "Обратное"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid "_:"
+msgid ""
+"_:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -11750,7 +11757,7 @@ msgstr ""
 #: src/emc/usr_intf/stepconf/axisv.glade:249
 #: src/emc/usr_intf/stepconf/axisa.glade:248
 msgid "t_o"
-msgstr "до"
+msgstr "t_o"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:403
 #: src/emc/usr_intf/stepconf/axisy.glade:402
@@ -12478,11 +12485,10 @@ msgstr ""
 "совместного значения"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:351
-#, fuzzy
 msgid ""
 "# ---Chargepump StepGen: 10000 velocity-cmd = 10Khz square wave output---"
 msgstr ""
-"# ---ШаговыйГенератор зарядовогоНасоса: скорость 0,25 = выходной сигнал "
+"# ---StepGen для преобразователя: 10000 velocity-cmd = выходной сигнал "
 "прямоугольной формы 10 кГц ---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:439
@@ -12601,20 +12607,19 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/build_HAL.py:799
 #: src/emc/usr_intf/pncconf/build_HAL.py:817
 msgid "#  ---signals to show tool offset in the GUI---"
-msgstr ""
+msgstr "#  ---сигналы для отображения смещения инструмента в ГИП---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:811
 msgid "#  ---manual tool change signals to gmoccapy's dialog---"
 msgstr "#  ---Сигналы ручной смены инструмента для диалога gmoccapy---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:822
-#, fuzzy
 msgid "#  ---spindle-at-speed indicator---"
-msgstr "# ---Настройка сигналов шпиндель на скорости---"
+msgstr "# ---Индикатор spindle-at-speed---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:824
 msgid "net spindle-at-speed => gmoccapy.spindle_at_speed_led"
-msgstr ""
+msgstr "net spindle-at-speed => gmoccapy.spindle_at_speed_led"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:830
 msgid "#  ---manual tool change signals to qtdragon's dialog---"
@@ -16562,27 +16567,22 @@ msgid "Smart Serial 7"
 msgstr "Смарт Серийный 7"
 
 #: src/emc/usr_intf/pncconf/start.glade:27
-#, fuzzy
 msgid "Create a desktop launcher to start LinuxCNC with this configuration"
 msgstr ""
 "Создайте программу запуска на рабочем столе для запуска LinuxCNC с этой "
-"конфигурацией."
+"конфигурацией"
 
 #: src/emc/usr_intf/pncconf/start.glade:44
-#, fuzzy
 msgid "Create a desktop shortcut (symlink) to configuration files"
-msgstr ""
-"Создайте ярлык на рабочем столе (символическую ссылку) для файлов "
-"конфигурации."
+msgstr "Создайте ярлык на рабочем столе (symlink) для файлов конфигурации"
 
 #: src/emc/usr_intf/pncconf/start.glade:129
 msgid "Show Advanced Option Pages"
 msgstr "Показать страницы глубоких настроек"
 
 #: src/emc/usr_intf/pncconf/start.glade:158
-#, fuzzy
 msgid "Use INI substitution for Mesa board names"
-msgstr "Использовать INI подстановку для имён плат Mesa."
+msgstr "Использовать INI подстановку для имён плат Mesa"
 
 #: src/emc/usr_intf/pncconf/external.glade:157
 msgid "9600"
