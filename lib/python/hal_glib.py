@@ -1067,7 +1067,8 @@ class _GStat(GObject.GObject):
         return self.stat.task_mode == linuxcnc.MODE_AUTO and self.stat.interp_state != linuxcnc.INTERP_IDLE
 
     def is_auto_paused(self):
-        return self.old['paused']
+        self.stat.poll()
+        return self.stat.paused
 
     def is_interp_running(self):
         self.stat.poll()
