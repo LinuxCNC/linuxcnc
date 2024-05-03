@@ -111,6 +111,13 @@ class LcncDialog(QMessageBox, GeometryMixin):
     def _external_request(self, w, message):
         self._message = message
         if message.get('NAME') == self._request_name:
+
+            # request to close dialog early
+            if message.get('CLOSE'):
+                self.close()
+                STATUS.emit('focus-overlay-changed', False, None, None)
+                return
+
             geo = message.get('GEONAME') or 'LncMessage-geometry'
             self.read_preference_geometry(geo)
             t = message.get('TITLE')
