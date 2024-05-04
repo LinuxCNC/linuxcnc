@@ -821,10 +821,9 @@ class HandlerClass:
             x = INFO.convert_machine_to_imperial(x)
             y = INFO.convert_machine_to_imperial(y)
 
-        ACTION.CALL_MDI("G90")
-        ACTION.CALL_MDI_WAIT("G53 G0 Z0")
-        command = "G53 G0 X{:3.4f} Y{:3.4f}".format(x, y)
-        ACTION.CALL_MDI_WAIT(command, self.calc_mdi_move_wait_time(x,y))
+        # call mdi in a background process so screen stay responsive.
+        cmd =["G90","G53 G0 Z0","G53 G0 X{:3.4f} Y{:3.4f}".format(x, y)]
+        ACTION.CALL_BACKGROUND_MDI(cmd, label='Goto Sensor Button', timeout=30)
  
     def btn_ref_laser_clicked(self):
         x = float(self.w.lineEdit_laser_x.text())
