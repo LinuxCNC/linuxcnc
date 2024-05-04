@@ -1,4 +1,4 @@
-VERSION = '007.042'
+VERSION = '007.043'
 LCNCVER = '2.10'
 DOCSVER = LCNCVER
 
@@ -472,6 +472,8 @@ class HandlerClass:
         if not os.path.isfile(updateLog):
             with open(updateLog, 'w') as f:
                 f.write(f'{time.strftime("%y-%m-%d")} Initial    V{LCNCVER}-{VERSION}\n')
+        # the gcodegraphics_patch cannot apply until the gcodegraphics widget is initialized
+        self.gcodegraphics_patch()
         self.startupTimer.start(250)
 
 # called by qtvcp.py, can override qtvcp settings or qtvcp allowed user options (via INI)
@@ -485,6 +487,7 @@ class HandlerClass:
 
 #########################################################################################################################
 # CLASS PATCHING SECTION #
+# note that the gcodegraphics_patch is called after the widgets have initialized
 #########################################################################################################################
 # called by qtvcp.py
     def class_patch__(self):
@@ -494,7 +497,6 @@ class HandlerClass:
         self.offset_table_patch()
         self.qt5_graphics_patch()
         self.screen_options_patch()
-        self.glcanon_patch()
 
 # patched file manager functions
     def file_manager_patch(self):
@@ -761,18 +763,19 @@ class HandlerClass:
                     STATUS.emit('play-sound', 'SPEAK %s ' % text)
         STATUS.emit('update-machine-log', text, 'TIME')
 
-# patched glcanon functions
-    def glcanon_patch(self):
-        self.old_draw_grid = DRAW.draw_grid
-        DRAW.draw_grid = self.new_draw_grid
+# patched gcodegraphics functions
+    def gcodegraphics_patch(self):
+        ''' required for gcodegraphics only
+            conversational is always Z view '''
+        self.old_draw_grid = self.w.gcodegraphics.draw_grid
+        self.w.gcodegraphics.draw_grid = self.new_draw_grid
 
-    # allows grid to be drawn in P view
+    # allows grid to be drawn in P view in gcodegraphics
     def new_draw_grid(self):
         rotation = math.radians(STATUS.stat.rotation_xy % 90)
         permutation = lambda x_y_z2: (x_y_z2[0], x_y_z2[1], x_y_z2[2])  # XY Z
         inverse_permutation = lambda x_y_z3: (x_y_z3[0], x_y_z3[1], x_y_z3[2])  # XY Z
-        self.w.gcodegraphics.draw_grid_permuted(rotation, permutation,
-                inverse_permutation)
+        self.w.gcodegraphics.draw_grid_permuted(rotation, permutation, inverse_permutation)
 
 
 #########################################################################################################################
