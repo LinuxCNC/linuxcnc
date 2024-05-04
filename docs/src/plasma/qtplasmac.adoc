@@ -4744,7 +4744,7 @@ Enhancements are accepted for master branch only.
 Every PR, except for changes to the QtPlasmaC documentation only, requires that the appropriate version number is incremented and also that the version history is updated.
 Version numbers are located in the following locations:
 
-[cols="5,1,2",options="header",width=100%]
+[cols="5,1,2",options="header"]
 |===
 |Location                                           |Format    |Incremented when
 |src/hal/components/plasmac.comp                    |nnn       |component code changes
