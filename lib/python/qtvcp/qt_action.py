@@ -38,6 +38,10 @@ class _Lcnc_Action(object):
         self.home_all_warning_flag = False
         self.proc = None
 
+        # imported here to advoid cicular imports
+        from qtvcp.lib.mdi_subprogram.mdi_command_process import MDICommand
+        self.MDIPROCESS = MDICommand()
+
     def SET_DEBUG_LEVEL(self, level):
         self.cmd.debug(level)
 
@@ -184,6 +188,16 @@ class _Lcnc_Action(object):
             return -1
         self.ensure_mode(linuxcnc.MODE_MDI)
         self.cmd.mdi('%s' % code)
+        return 1
+
+    def CALL_BACKGROUND_MDI(self, code, label='Background MDI',timeout=30):
+        LOG.debug('CALL_MDI Command: {} called {}'.format(label, code))
+        if STATUS.is_auto_running():
+            LOG.error('Can not run MDI command:{} when linuxcnc is running in auto mode'.format(code))
+            return -1
+        self.ensure_mode(linuxcnc.MODE_MDI)
+        self.MDIPROCESS.run(cmdList={'LABEL':label,'COMMANDS':code,'TIMEOUT':timeout})
+        return 1
 
     def CALL_MDI_WAIT(self, code, time=5, mode_return=False):
         LOG.debug('MDI_WAIT_Command= {}, maxt = {}'.format(code, time))
@@ -823,7 +837,7 @@ class _Lcnc_Action(object):
         self.proc.readyReadStandardOutput.connect(self.read_stdout)
         self.proc.readyReadStandardError.connect(self.read_stderror)
         self.proc.finished.connect(self.touchoff_finished)
-        self.proc.start('python3 {}'.format(TOUCHOFF_SUBPROGRAM))
+        self.proc.start('python3 {}'.format(self.TOUCHOFF_SUBPROGRAM))
         # block polling here, the sub program will poll now
         STATUS.block_error_polling()
         self.proc.writeData(bytes(string_to_send, 'utf-8'))
