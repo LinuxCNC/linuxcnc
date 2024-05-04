@@ -4728,6 +4728,32 @@ This issue does not affect any jogging using the GUI jog buttons.
 Disconnecting and reconnecting a keyboard during an active QtPlasmaC session will cause the autorepeat feature to re-enable itself automatically which may cause intermittent stopping and starting during jogging.
 The user must restart QtPlasmaC to disable the autorepeat feature again.
 
+== Contributing Code To QtPlasmaC
+
+Bugfixes and enhancements to QtPlasmaC are always welcome.
+The preferred method to contribute code is to submit a pull request (PR) comprised of a single commit to the LinuxCNC GitHub repository.
+For more information on creating a PR, see the http://linuxcnc.org/docs/html/code/contributing-to-linuxcnc.html[LinuxCNC documentation], the only pre-requisite is that you https://github.com/[sign up] for a GitHub account.
+All PR's are verified and then committed by one of the developers.
+If you are uncomfortable with submitting a PR then attaching the code changes on a https://forum.linuxcnc.org/plasmac[LinuxCNC Forum] thread is an acceptable method.
+
+Bugfixes are accepted for both the latest released branch and master branch.
+If a bugfix applies to both branches then it is only necessary to submit a PR for the latest released branch as it will be merged into master branch by a developer.
+
+Enhancements are accepted for master branch only.
+
+Every PR, except for changes to the QtPlasmaC documentation only, requires that the appropriate version number is incremented and also that the version history is updated.
+Version numbers are located in the following locations:
+
+[cols="5,1,2",options="header",width=100%]
+|===
+|Location                                           |Format    |Incremented when
+|src/hal/components/plasmac.comp                    |nnn       |component code changes
+|share/qtvcp/screens/qtplasmac/qtplasmac_handler.py |nnn._nnn_ |component code changes +
+                                                                _GUI code changes_
+|===
+
+The version history is located at share/qtvcp/screens/qtplasmac/versions.html.
+
 == Support
 
 Online help and support is available from the https://forum.linuxcnc.org/plasmac[PlasmaC section] of the https://forum.linuxcnc.org/[LinuxCNC Forum].
