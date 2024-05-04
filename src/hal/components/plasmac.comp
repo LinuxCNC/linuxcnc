@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC 2.10.
 
 .I VERSION:
 .br
-007
+008
 
 .I SUMMARY:
 .br
@@ -1059,28 +1059,28 @@ FUNCTION(_) {
                                     op_y_target = y_offset_counts + (offset_probe_y / offset_scale);
                                     op_x_start = x_offset_counts;
                                     op_y_start = y_offset_counts;
-                                    if(axis_x_position + (op_x_target * offset_scale) <= axis_x_min_limit){
+                                    if(axis_x_position + (op_x_target * offset_scale) < axis_x_min_limit){
                                         rtapi_print_msg(RTAPI_MSG_ERR,"probe offset would violate axis X minimum limit.\n"
                                                                       "program is paused.\n");
                                         stop_type = PAUSE;
                                         program_pause = TRUE;
                                         break;
                                     }
-                                    if(axis_y_position + (op_y_target * offset_scale) <= axis_y_min_limit){
+                                    if(axis_y_position + (op_y_target * offset_scale) < axis_y_min_limit){
                                         rtapi_print_msg(RTAPI_MSG_ERR,"probe offset would violate axis Y minimum limit.\n"
                                                                       "program is paused.\n");
                                         stop_type = PAUSE;
                                         program_pause = TRUE;
                                         break;
                                     }
-                                    if(axis_x_position + (op_x_target * offset_scale) >= axis_x_max_limit){
+                                    if(axis_x_position + (op_x_target * offset_scale) > axis_x_max_limit){
                                         rtapi_print_msg(RTAPI_MSG_ERR,"probe offset would violate axis X maximum limit.\n"
                                                                       "program is paused.\n");
                                         stop_type = PAUSE;
                                         program_pause = TRUE;
                                         break;
                                     }
-                                    if(axis_y_position + (op_y_target * offset_scale) >= axis_y_max_limit){
+                                    if(axis_y_position + (op_y_target * offset_scale) > axis_y_max_limit){
                                         rtapi_print_msg(RTAPI_MSG_ERR,"probe offset would violate axis Y maximum limit.\n"
                                                                       "program is paused.\n");
                                         stop_type = PAUSE;
