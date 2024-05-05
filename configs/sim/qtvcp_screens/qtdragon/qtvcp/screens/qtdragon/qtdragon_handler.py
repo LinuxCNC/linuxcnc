@@ -100,6 +100,7 @@ class HandlerClass:
         self.first_turnon = True
         self._maintab_cycle = 1
         self.MPGFocusWidget = None
+        self.CycleFocusWidget = None
         self.lineedit_list = ["work_height", "touch_height", "sensor_height", "laser_x", "laser_y",
                               "sensor_x", "sensor_y", "camera_x", "camera_y",
                               "search_vel", "probe_vel", "max_probe", "eoffset_count"]
@@ -470,11 +471,15 @@ class HandlerClass:
         if probe == 'versaprobe':
             LOG.info("Using Versa Probe")
             from qtvcp.widgets.versa_probe import VersaProbe
+            self._probeLibrary = VersaProbe
             self.probe = VersaProbe()
             self.probe.setObjectName('versaprobe')
+            # only use cycle start button to start probing
+            self.probe.setProperty('runImmediately',False)
         elif probe == 'basicprobe':
             LOG.info("Using Basic Probe")
             from qtvcp.widgets.basic_probe import BasicProbe
+            self._probeLibrary = BasicProbe
             self.probe = BasicProbe()
             self.probe.setObjectName('basicprobe')
         else:
@@ -489,76 +494,78 @@ class HandlerClass:
 
         if isinstance(receiver.parent(), GCODE):
             print ('Gcode editor focus',receiver.parent().parent().objectName())
-            try:
-                #self.w.stackedWidget_mainTabPage1.setStyleSheet('')
-                self.MPGFocusWidget.setStyleSheet( '')
-                name = self.MPGFocusWidgetBorder
-                self.w[name].setStyleSheet('')#%s '%(name))
-            except:
-                pass
+            self.removeMPGFocusBorder()
+
             name = receiver.parent().parent().objectName()
-            self.MPGFocusWidgetBorder = name
-            self.MPGFocusWidget = receiver.parent()
-            self.w[name].setStyleSheet('#%s {border: 3px solid %s;}'%(name,self.w.screen_options.property('user4Color').name()))
-            #self.w.gcode_page.setStyleSheet( '''#gcode_page{ border: 3px solid red};''')
+            color = self.w.screen_options.property('user4Color').name()
+            self.colorMPGFocusBorder(name, receiver.parent(), color)
 
         elif isinstance(receiver, GRAPHICS):
             print ('Gcode graphics focus',receiver,receiver.parent().objectName())
-            try:
-                self.MPGFocusWidget.setStyleSheet('')
+            self.removeMPGFocusBorder()
 
-                name = self.MPGFocusWidgetBorder
-                self.w[name].setStyleSheet('')#%s '%(name))
-            except:
-                pass
             name = receiver.parent().objectName()
-            self.MPGFocusWidgetBorder = name
-            self.MPGFocusWidget = receiver
-            self.w[name].setStyleSheet('#%s {border: 3px solid %s;}'%(name,self.w.screen_options.property('user4Color').name()))
+            color = self.w.screen_options.property('user4Color').name()
+            self.colorMPGFocusBorder(name, receiver, color)
 
         elif isinstance(receiver.parent(), FM):
-            try:
-                self.MPGFocusWidget.setStyleSheet( '')
-                name = self.MPGFocusWidgetBorder
-                self.w[name].setStyleSheet('')#%s '%(name))
-            except:
-                pass
+            self.removeMPGFocusBorder()
 
             print ('File Manager focus',receiver.parent().parent().objectName())
             name = receiver.parent().parent().objectName()
-            self.MPGFocusWidgetBorder = name
-            self.MPGFocusWidget = receiver.parent()
-            self.w[name].setStyleSheet('#%s {border: 3px solid %s;}'%(name,self.w.screen_options.property('user4Color').name()))
+            color = self.w.screen_options.property('user4Color').name()
+            self.colorMPGFocusBorder(name, receiver.parent(), color)
 
         elif isinstance(receiver, SLIDER):
             print('Slider',receiver.objectName(),receiver.parent())
-            if not receiver in(self.w.slider_jog_linear,self.w.slider_jog_angular):
-                try:
-                    self.MPGFocusWidget.setStyleSheet( '')
-                    name = self.MPGFocusWidgetBorder
-                    self.w[name].setStyleSheet('')#%s '%(name))
-                except:
-                    pass
+            if not receiver in(self.w.slider_jog_linear,self.w.slider_jog_angular,self.w.slider_maxv_ovr):
+                self.removeMPGFocusBorder()
                 name = receiver.objectName()
-                self.MPGFocusWidgetBorder = name
-                self.MPGFocusWidget = receiver
-                self.w[name].setStyleSheet('#%s {border: 3px solid %s;}'%(name,self.w.screen_options.property('user4Color').name()))
+                color = self.w.screen_options.property('user4Color').name()
+                self.colorMPGFocusBorder(name, receiver, color)
 
         elif isinstance(receiver, TOOL_TABLE):
-            try:
-                self.MPGFocusWidget.setStyleSheet( '')
-                name = self.MPGFocusWidgetBorder
-                self.w[name].setStyleSheet('')#%s '%(name))
-            except:
-                pass
+            self.removeMPGFocusBorder()
 
             print ('Tool Offset focus',receiver.parent().objectName())
             name = receiver.parent().objectName()
-            self.MPGFocusWidgetBorder = name
-            self.MPGFocusWidget = receiver
-            self.w[name].setStyleSheet('#%s {border: 3px solid %s;}'%(name,self.w.screen_options.property('user4Color').name()))
+            color = self.w.screen_options.property('user4Color').name()
+            self.colorMPGFocusBorder(name, receiver, color)
 
         elif isinstance(receiver, OFFSET_VIEW):
+            self.removeMPGFocusBorder()
+
+            print ('origon Offset focus',receiver.parent().objectName())
+            name = receiver.parent().objectName()
+            color = self.w.screen_options.property('user4Color').name()
+            self.colorMPGFocusBorder(name, receiver, color)
+
+        elif isinstance(receiver, MDI_WIDGET):
+            self.removeMPGFocusBorder()
+            self.removeCycleFocusBorder()
+
+            print ('MDI line focus',receiver.parent().objectName())
+            name = receiver.parent().objectName()
+            color = self.w.screen_options.property('user5Color').name()
+            self.colorCycleFocusBorder(name, receiver, color)
+
+        elif isinstance(receiver, self._probeLibrary):
+            self.removeCycleFocusBorder()
+
+            print ('Versa Probe focus',receiver.parent().objectName())
+            name = receiver.parent().objectName()
+            color = self.w.screen_options.property('user5Color').name()
+            self.colorCycleFocusBorder(name, receiver, color)
+
+        # show virtual keyboard
+        if not self.w.chk_use_virtual.isChecked() or STATUS.is_auto_mode(): return
+        if isinstance(receiver, QtWidgets.QLineEdit):
+            if not receiver.isReadOnly():
+                self.w.stackedWidget_dro.setCurrentIndex(1)
+        elif isinstance(receiver, QtWidgets.QTableView):
+            self.w.stackedWidget_dro.setCurrentIndex(1)
+
+    def removeMPGFocusBorder(self):
             try:
                 self.MPGFocusWidget.setStyleSheet( '')
                 name = self.MPGFocusWidgetBorder
@@ -566,22 +573,24 @@ class HandlerClass:
             except:
                 pass
 
-            print ('origon Offset focus',receiver.parent().objectName())
-            name = receiver.parent().objectName()
-            self.MPGFocusWidgetBorder = name
-            self.MPGFocusWidget = receiver
-            self.w[name].setStyleSheet('#%s {border: 3px solid %s;}'%(name,self.w.screen_options.property('user4Color').name()))
+    def removeCycleFocusBorder(self):
+            try:
+                self.CycleFocusWidget.setStyleSheet( '')
+                name = self.CycleFocusWidgetBorder
+                self.w[name].setStyleSheet('')
+            except:
+                pass
 
+    def colorMPGFocusBorder(self, name, receiver, colorName):
+        self.MPGFocusWidgetBorder = name
+        self.MPGFocusWidget = receiver
+        self.w[name].setStyleSheet('#%s {border: 3px solid %s;}'%(name,colorName))
 
-        if not self.w.chk_use_virtual.isChecked() or STATUS.is_auto_mode(): return
-        if isinstance(receiver, QtWidgets.QLineEdit):
-            if not receiver.isReadOnly():
-                self.w.stackedWidget_dro.setCurrentIndex(1)
-        elif isinstance(receiver, QtWidgets.QTableView):
-            self.w.stackedWidget_dro.setCurrentIndex(1)
-#        elif isinstance(receiver, QtWidgets.QCommonStyle):
-#            return
-    
+    def colorCycleFocusBorder(self, name, receiver, colorName):
+        self.CycleFocusWidgetBorder = name
+        self.CycleFocusWidget = receiver
+        self.w[name].setStyleSheet('#%s {border: 3px solid %s;}'%(name,colorName))
+
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions
         # so we catch and process the events directly.
@@ -841,10 +850,24 @@ class HandlerClass:
            self.add_status("Machine must be is homed", CRITICAL)
            return
         if not  os.path.exists(self.last_loaded_program):
-            self.add_status("No program to execute", WARNING)
+            self.add_status("No program to execute", WARNING, noLog=True)
             return
-        if not STATUS.is_auto_mode():
-            self.add_status("Must be in AUTO mode to run a program", WARNING)
+        if STATUS.is_man_mode():
+            self.add_status("Must be in AUTO or MDI mode to run a program", WARNING, noLog=True)
+            return
+        if STATUS.is_mdi_mode():
+            if isinstance(self.CycleFocusWidget, MDI_WIDGET):
+                if self.CycleFocusWidget.isVisible():
+                    self.add_status("Running MDI command: {}".format(str((self.CycleFocusWidget.text()).strip())))
+                    self.w.mdiline.submit()
+            elif isinstance(self.CycleFocusWidget, self._probeLibrary):
+                if self.CycleFocusWidget.isVisible():
+                    self.add_status("Running Probe routine command")
+                    self.probe.cycle_start()
+                else:
+                    self.add_status("Probe routine cycle start focus error", CRITICAL, noLog=True)
+            else:
+                self.add_status("No cycle start object selected", WARNING, noLog=True)
             return
         if self.w.stackedWidget_mainTab.currentIndex() != 0:
             self.add_status("Switch view mode to MAIN", WARNING)
@@ -1396,7 +1419,7 @@ class HandlerClass:
         else:
             ACTION.JOG(joint, 0, 0, 0)
 
-    def add_status(self, message, alertLevel = DEFAULT):
+    def add_status(self, message, alertLevel = DEFAULT, noLog = False):
         if alertLevel==DEFAULT:
             self.set_style_default()
         elif alertLevel==WARNING:
@@ -1404,6 +1427,8 @@ class HandlerClass:
         else:
             self.set_style_critical()
         self.w.lineEdit_statusbar.setText(message)
+        if noLog:
+            return
         STATUS.emit('update-machine-log', message, 'TIME')
 
     def enable_auto(self, state):
@@ -1823,6 +1848,12 @@ class HandlerClass:
                 elif isinstance(self.MPGFocusWidget, GCODE):
                     self.w.gcode_editor.jump_line(diff)
                     self.w.gcode_viewer.jump_line(diff)
+                elif isinstance(self.MPGFocusWidget, MDI_WIDGET):
+                    if diff <0:
+                       self.MPGFocusWidget.line_down()
+                    else:
+                       self.MPGFocusWidget.line_up()
+
             elif currentIndex == TAB_FILE:
                 if isinstance(self.MPGFocusWidget, FM):
                     widget =  self.MPGFocusWidget
