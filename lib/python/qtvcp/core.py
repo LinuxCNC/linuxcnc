@@ -40,16 +40,20 @@ class QPin(hal.Pin, QObject):
 
     value_changed = pyqtSignal('PyQt_PyObject')
     pinValueChanged = pyqtSignal('PyQt_PyObject','PyQt_PyObject')
+    isDrivenChanged = pyqtSignal('PyQt_PyObject','PyQt_PyObject')
     REGISTRY = []
     UPDATE = False
 
     def __init__(self, *a, **kw):
         super(QPin, self).__init__(*a, **kw)
         QObject.__init__(self, None)
+        self.hal = hal
         self._item_wrap(self._item)
         self._prev = None
+        self._prevDriven = None
         self.REGISTRY.append(self)
         self.update_start()
+        self.prefix = None
 
     def update(self):
         tmp = self.get()
@@ -57,6 +61,15 @@ class QPin(hal.Pin, QObject):
             self.value_changed.emit(tmp)
             self.pinValueChanged.emit(self, tmp)
         self._prev = tmp
+
+    def isDriven(self):
+        return hal.pin_has_writer('{}.{}'.format(self.prefix, self.get_name()))
+
+    def updateDriven(self):
+        tmp = self.isDriven()
+        if tmp != self._prevDriven:
+            self.isDrivenChanged.emit(self, tmp)
+        self._prevDriven = tmp
 
     def text(self):
         return self.get_name()
@@ -79,6 +92,9 @@ class QPin(hal.Pin, QObject):
                 kill.append(p)
                 log.error("Error updating pin {}; Removing".format(p))
                 log.exception(e)
+            if p.receivers(p.isDrivenChanged) > 0:
+                p.updateDriven()
+
         for p in kill:
             cls.REGISTRY.remove(p)
         return cls.UPDATE
@@ -179,6 +195,7 @@ class _QHal(object):
                 format(e, t[0], t[1], t[2]))
             log.error("Qhal: {}".format(traceback.format_exc()))
             p = DummyPin(*a, ERROR=e)
+        p.prefix = self.comp.getprefix()
         return p
 
     def getpin(self, *a, **kw): return QPin(_hal.component.getpin(self.comp, *a, **kw))
