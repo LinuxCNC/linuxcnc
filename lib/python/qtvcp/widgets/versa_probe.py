@@ -46,6 +46,10 @@ SUBPROGRAM = os.path.abspath(os.path.join(current_dir, 'probe_subprog.py'))
 HELP = PATH.find_widget_path()
 ICONPATH = os.path.join(PATH.find_image_path(), 'probe_icons')
 
+DEFAULT = 0
+WARNING = 1
+CRITICAL = 2
+
 class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
         super(VersaProbe, self).__init__(parent)
@@ -53,6 +57,9 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.tool_diameter = None
         self.tool_number = None
         self._nextIndex = 0
+        self._cmd = None
+        self._runImmediately = True
+
         STATUS.connect('tool-info-changed', lambda w, data: self._tool_info(data))
         if INFO.MACHINE_IS_METRIC:
             self.valid = QtGui.QRegExpValidator(QtCore.QRegExp(r'^((\d{1,4}(\.\d{1,3})?)|(\.\d{1,3}))$'))
@@ -183,6 +190,8 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.input_adj_z.installEventFilter(self)
         self.input_adj_angle.installEventFilter(self)
         self.input_rapid_vel.installEventFilter(self)
+
+        self.set_checkableButtons(not self._runImmediately)
 
         if self.PREFS_:
             self.input_search_vel.setText(str(self.PREFS_.getpref( "ps_searchvel", 300.0, float, 'VERSA_PROBE_OPTIONS')) )
@@ -358,7 +367,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             data = json.loads(return_data[1])
             self.show_results(data)
         elif "HISTORY" in line:
-            if not self.set_statusbar(line,1):
+            if not self.set_statusbar(line,DEFAULT):
                 STATUS.emit('update-machine-log', line, 'TIME')
         elif "DEBUG" in line:
             pass
@@ -373,10 +382,42 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.pop_help()
 
     def probe_btn_clicked(self, button):
-        cmd = button.property('probe')
-        print("Button clicked ", cmd)
+        cmd = button
+        #print("Button clicked ", cmd.property('probe'),self._cmd)
+
+        # run probe when buttons are pressed
+        if self._runImmediately:
+            self.set_statusbar('Versa Probe: Start Cycle: {}'.format(cmd.toolTip(),DEFAULT))
+            self.get_parms()
+            self.start_probe(cmd.property('probe'))
+
+        # select probe when buttons pressed, run when start_cycle function called 
+        else:
+            # Auto exclusive doesn't allow unchecking all buttons
+            # We force it here
+            if cmd == self._cmd:
+                button.group().setExclusive(False)
+                button.blockSignals(True)
+                button.setChecked(False)
+                button.blockSignals(False)
+                button.group().setExclusive(True)
+                self._cmd = None
+                return
+            self.set_statusbar('Versa probe: Selected: {}'.format(cmd.toolTip()),DEFAULT,noLog=True)
+            self._cmd = cmd
+
+    # called externally to run selected routine
+    # if not in _runImmediately mode
+    def cycle_start(self):
+        if self._runImmediately:
+            self.set_statusbar('Versa Probe set to run buttons immediately',WARNING)
+            return
+        if self._cmd is None:
+            self.set_statusbar('No Versa Probe probe selected',WARNING)
+            return
+        self.set_statusbar('Versa Probe: Start Cycle: {}'.format(self._cmd.toolTip(),DEFAULT))
         self.get_parms()
-        self.start_probe(cmd)
+        self.start_probe(self._cmd.property('probe'))
 
     ###### set origin offset ######################
     def pbtn_set_x_released(self):
@@ -407,6 +448,18 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             next = 0
         self.stackedWidget_probe_type.setCurrentIndex(next)
 
+        if self._runImmediately:
+            return
+        # Auto exclusive doesn't allow unchecking all buttons
+        # We force it here
+        if not self._cmd is None:
+            button = self._cmd
+            button.group().setExclusive(False)
+            button.blockSignals(True)
+            button.setChecked(False)
+            button.blockSignals(False)
+            button.group().setExclusive(True)
+            self._cmd = None
 #####################################################
 # Entry callbacks
 #####################################################
@@ -446,9 +499,9 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
 
     # return false if failed so other ways of reporting can be used.
     # there might not be a statusbar in main screen.
-    def set_statusbar(self, msg, priority = 2):
+    def set_statusbar(self, msg, priority = 2, noLog = False):
         try:
-            self.QTVCP_INSTANCE_.add_status(msg, priority)
+            self.QTVCP_INSTANCE_.add_status(msg, priority, noLog)
         except:
             return False
         return True
@@ -486,6 +539,18 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
     def pop_help(self):
         self.help.showDialog()
 
+    def set_checkableButtons(self, state):
+        for i in self.outside_buttonGroup.buttons():
+            i.setCheckable(state)
+        for i in self.inside_buttonGroup.buttons():
+            i.setCheckable(state)
+        for i in self.skew_buttonGroup.buttons():
+            i.setCheckable(state)
+        for i in self.length_buttonGroup.buttons():
+            i.setCheckable(state)
+        for i in self.tool_buttonGroup.buttons():
+            i.setCheckable(state)
+
 ########################################
 # required boiler code
 ########################################
@@ -493,6 +558,23 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         return getattr(self, item)
     def __setitem__(self, item, value):
         return setattr(self, item, value)
+
+    #########################################################################
+    # This is how designer can interact with our widget properties.
+    # designer will show the pyqtProperty properties in the editor
+    # it will use the get set and reset calls to do those actions
+    #########################################################################
+
+    def set_runImmediately(self, data):
+        self._runImmediately = data
+        self.set_checkableButtons(not data)
+    def get_runImmediately(self):
+        return self._runImmediately
+    def reset_runImmediately(self):
+        self._runImmediately = True
+
+    # toggle run on button push or run on function call
+    runImmediately = pyqtProperty(bool, get_runImmediately, set_runImmediately, reset_runImmediately)
 
 class HelpDialog(QtWidgets.QDialog, GeometryMixin):
     def __init__(self, parent=None):
@@ -612,6 +694,12 @@ class HelpDialog(QtWidgets.QDialog, GeometryMixin):
         self.set_geometry()
         retval = self.exec_()
         LOG.debug('Value of pressed button: {}'.format(retval))
+
+    #########################################################################
+    # This is how designer can interact with our widget properties.
+    # designer will show the pyqtProperty properties in the editor
+    # it will use the get set and reset calls to do those actions
+    #########################################################################
 
     def set_dialog_code(self, data):
         self.dialog_code = data
