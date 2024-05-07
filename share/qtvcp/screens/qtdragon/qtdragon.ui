@@ -190,6 +190,41 @@
       <property name="runFromLineDialog_option" stdset="0">
        <bool>true</bool>
       </property>
+      <property name="user1Color" stdset="0">
+       <color alpha="150">
+        <red>255</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
+      </property>
+      <property name="user2Color" stdset="0">
+       <color>
+        <red>255</red>
+        <green>144</green>
+        <blue>0</blue>
+       </color>
+      </property>
+      <property name="user3Color" stdset="0">
+       <color>
+        <red>255</red>
+        <green>138</green>
+        <blue>150</blue>
+       </color>
+      </property>
+      <property name="user4Color" stdset="0">
+       <color alpha="150">
+        <red>255</red>
+        <green>170</green>
+        <blue>0</blue>
+       </color>
+      </property>
+      <property name="user5Color" stdset="0">
+       <color alpha="150">
+        <red>255</red>
+        <green>0</green>
+        <blue>0</blue>
+       </color>
+      </property>
       <layout class="QVBoxLayout" name="verticalLayout_43">
        <property name="spacing">
         <number>2</number>

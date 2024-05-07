@@ -591,7 +591,8 @@ class HandlerClass:
         if data:
             self.w.lbl_mb_errors.setStyleSheet('')
         else:
-            self.w.lbl_mb_errors.setStyleSheet('''background-color:rgb(202, 0, 0);''')
+            self.w.lbl_mb_errors.setStyleSheet('background-color:{};'.format(
+                        self.w.screen_options.property('user5Color').name()))
 
     def dialog_return(self, w, message):
         rtn = message.get('RETURN')
@@ -1321,7 +1322,7 @@ class HandlerClass:
         else:
             ACTION.JOG(joint, 0, 0, 0)
 
-    def add_status(self, message, alertLevel = DEFAULT):
+    def add_status(self, message, alertLevel = DEFAULT, noLog = False):
         if alertLevel==DEFAULT:
             self.set_style_default()
         elif alertLevel==WARNING:
@@ -1329,6 +1330,8 @@ class HandlerClass:
         else:
             self.set_style_critical()
         self.w.lineEdit_statusbar.setText(message)
+        if noLog:
+            return
         STATUS.emit('update-machine-log', message, 'TIME')
 
     def enable_auto(self, state):
@@ -1498,13 +1501,20 @@ class HandlerClass:
 
     # change Status bar text color
     def set_style_default(self):
-        self.w.lineEdit_statusbar.setStyleSheet("background-color: rgb(252, 252, 252);color: rgb(0,0,0)")  #default white
+        c = self.w.screen_options.property('user1Color').name()
+        self.w.lineEdit_statusbar.setStyleSheet(
+                "background-color: {} ;color: rgb(0,0,0)".format(c))  #default white
 
     def set_style_warning(self):
-        self.w.lineEdit_statusbar.setStyleSheet("background-color: rgb(242, 246, 103);color: rgb(0,0,0)")  #yellow
+        c = self.w.screen_options.property('user2Color').name()
+        self.w.lineEdit_statusbar.setStyleSheet(
+                "background-color: {} ;color: rgb(0,0,0)".format(c))  #yellow
         self.endcolor()
+
     def set_style_critical(self):
-        self.w.lineEdit_statusbar.setStyleSheet("background-color: rgb(255, 144, 0);color: rgb(0,0,0)")   #orange
+        c = self.w.screen_options.property('user3Color').name()
+        self.w.lineEdit_statusbar.setStyleSheet(
+                "background-color: {} ;color: rgb(0,0,0)".format(c))   #orange
         self.endcolor()
 
     def adjust_stacked_widgets(self,requestedIndex,mode_change=False):
