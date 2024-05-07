@@ -1535,6 +1535,7 @@ class CalculatorDialog(Calculator, GeometryMixin):
         self._title = 'Calculator Entry'
         self._nblock = False
         self._message = None
+        self._overlay = None
         self.setWindowFlags(self.windowFlags() | Qt.Tool |
                             Qt.Dialog | Qt.WindowStaysOnTopHint |
                             Qt.WindowSystemMenuHint)
@@ -1575,6 +1576,7 @@ class CalculatorDialog(Calculator, GeometryMixin):
             overlay = message.get('OVERLAY')
             if overlay is None:
                 overlay = True
+            self._overlay = overlay
             if next:
                 self.updatedialog(preload=preload)
                 message['NEXT'] = False
@@ -1585,6 +1587,8 @@ class CalculatorDialog(Calculator, GeometryMixin):
         self.setWindowTitle(self._title);
         if self.play_sound:
             STATUS.emit('play-sound', self.sound_type)
+        if self._overlay:
+            STATUS.emit('focus-overlay-changed', True, '', self._color)
         if preload is not None:
             self.display.setText(str(preload))
 
@@ -1599,6 +1603,7 @@ class CalculatorDialog(Calculator, GeometryMixin):
         # show/hide the widget cycling buttons
         self.applyNextButton.setVisible(cycle)
         self.nextButton.setVisible(cycle)
+        self.backButton.setVisible(cycle)
 
         if self._nblock:
             self.show()
@@ -1633,11 +1638,24 @@ class CalculatorDialog(Calculator, GeometryMixin):
 
     # used for cycling between different widgets.
     # the actual cycling is done in the calling code
+    def backAction(self):
+        try:
+            if self._message is not None:
+                self._message['RETURN'] = None
+                self._message['NEXT'] = False
+                self._message['BACK'] = True
+                STATUS.emit('general', self._message)
+        except Exception as e:
+                print(e)
+
+    # used for cycling between different widgets.
+    # the actual cycling is done in the calling code
     def nextAction(self):
         try:
             if self._message is not None:
                 self._message['RETURN'] = None
                 self._message['NEXT'] = True
+                self._message['BACK'] = False
                 STATUS.emit('general', self._message)
         except Exception as e:
                 print(e)
@@ -1650,6 +1668,7 @@ class CalculatorDialog(Calculator, GeometryMixin):
             if self._message is not None:
                 self._message['RETURN'] = num
                 self._message['NEXT'] = True
+                self._message['BACK'] = False
                 STATUS.emit('general', self._message)
         except Exception as e:
                 print(e)
