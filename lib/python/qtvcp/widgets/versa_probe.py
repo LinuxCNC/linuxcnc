@@ -367,7 +367,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             data = json.loads(return_data[1])
             self.show_results(data)
         elif "HISTORY" in line:
-            if not self.set_statusbar(line,DEFAULT):
+            if not self.set_statusbar(line, DEFAULT):
                 STATUS.emit('update-machine-log', line, 'TIME')
         elif "DEBUG" in line:
             pass
@@ -442,6 +442,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         s +=  " R%.4f"% float(self.input_adj_angle.text())
         ACTION.CALL_MDI_WAIT(s, 30)
 
+    # selects probe routine group of buttons
     def input_next(self):
         next = self.stackedWidget_probe_type.currentIndex() +1
         if next == self.stackedWidget_probe_type.count():
@@ -499,7 +500,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
 
     # return false if failed so other ways of reporting can be used.
     # there might not be a statusbar in main screen.
-    def set_statusbar(self, msg, priority = 2, noLog = False):
+    def set_statusbar(self, msg, priority = DEFAULT, noLog = False):
         try:
             self.QTVCP_INSTANCE_.add_status(msg, priority, noLog)
         except:
@@ -539,7 +540,16 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
     def pop_help(self):
         self.help.showDialog()
 
+    # run-immediately buttons are momentary
+    # pre-select buttons are checkable
+    # focus policy changes for 'cycle start button steering'
+    # with pre-select option
+
     def set_checkableButtons(self, state):
+        if state:
+            policy = Qt.ClickFocus
+        else:
+            policy = Qt.NoFocus
         for i in self.outside_buttonGroup.buttons():
             i.setCheckable(state)
         for i in self.inside_buttonGroup.buttons():
@@ -564,6 +574,14 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
     # designer will show the pyqtProperty properties in the editor
     # it will use the get set and reset calls to do those actions
     #########################################################################
+
+    def set_dialog_code(self, data):
+        self.dialog_code = data
+    def get_dialog_code(self):
+        return self.dialog_code
+    def reset_dialog_code(self):
+        self.dialog_code = 'CALCULATOR'
+    dialogCodeString = pyqtProperty(str, get_dialog_code, set_dialog_code, reset_dialog_code)
 
     def set_runImmediately(self, data):
         self._runImmediately = data
@@ -694,20 +712,6 @@ class HelpDialog(QtWidgets.QDialog, GeometryMixin):
         self.set_geometry()
         retval = self.exec_()
         LOG.debug('Value of pressed button: {}'.format(retval))
-
-    #########################################################################
-    # This is how designer can interact with our widget properties.
-    # designer will show the pyqtProperty properties in the editor
-    # it will use the get set and reset calls to do those actions
-    #########################################################################
-
-    def set_dialog_code(self, data):
-        self.dialog_code = data
-    def get_dialog_code(self):
-        return self.dialog_code
-    def reset_dialog_code(self):
-        self.dialog_code = 'CALCULATOR'
-    dialog_code_string = pyqtProperty(str, get_dialog_code, set_dialog_code, reset_dialog_code)
 
 ####################################
 # Testing

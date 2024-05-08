@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="focusPolicy">
-   <enum>Qt::ClickFocus</enum>
+   <enum>Qt::NoFocus</enum>
   </property>
   <property name="windowTitle">
    <string>Form</string>
@@ -866,7 +866,7 @@
                   <cursorShape>IBeamCursor</cursorShape>
                  </property>
                  <property name="mouseTracking">
-                  <bool>true</bool>
+                  <bool>false</bool>
                  </property>
                  <property name="toolTip">
                   <string>Probe diameter</string>
@@ -5941,12 +5941,18 @@ ZERO</string>
   <slot>input_next()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="length_buttonGroup">
+  <buttongroup name="skew_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>
   </buttongroup>
+  <buttongroup name="tool_buttonGroup"/>
   <buttongroup name="inside_buttonGroup">
+   <property name="exclusive">
+    <bool>false</bool>
+   </property>
+  </buttongroup>
+  <buttongroup name="length_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>
@@ -5956,11 +5962,5 @@ ZERO</string>
     <bool>true</bool>
    </property>
   </buttongroup>
-  <buttongroup name="skew_buttonGroup">
-   <property name="exclusive">
-    <bool>false</bool>
-   </property>
-  </buttongroup>
-  <buttongroup name="tool_buttonGroup"/>
  </buttongroups>
 </ui>
