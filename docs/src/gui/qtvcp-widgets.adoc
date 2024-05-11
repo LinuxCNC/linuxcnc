@@ -785,6 +785,7 @@ The `GcodeDisplay` properties can be set in a stylesheet with the following code
 ----
 EditorBase{
     qproperty-styleColorBackground: lightblue;
+    qproperty-styleColorCursor:white;
     qproperty-styleColor0: black;
     qproperty-styleColor1: #000000; /* black */
     qproperty-styleColor2: blue;
@@ -1457,6 +1458,26 @@ These include:
   Sets up a dialog to display starting options when starting machine execution from a arbitrary line.
 *`runFromLine_overlay_color`*::
   Color of transparent layer shown when the `runFromLine` dialog is shown.
+*`user1Color`*::
+  Optional color the screen designer can use in their design.
+*`user2Color`*::
+  Optional color the screen designer can use in their design.
+*`user3Color`*::
+  Optional color the screen designer can use in their design.
+*`user4Color`*::
+  Optional color the screen designer can use in their design.
+*`user5Color`*::
+  Optional color the screen designer can use in their design.
+*`user6Color`*::
+  Optional color the screen designer can use in their design.
+*`user7Color`*::
+  Optional color the screen designer can use in their design.
+*`user8Color`*::
+  Optional color the screen designer can use in their design.
+*`user9Color`*::
+  Optional color the screen designer can use in their design.
+*`user10Color`*::
+  Optional color the screen designer can use in their design.
 
 .Setting Properties Programmatically
 The screen designer chooses the *default settings of the `screenOptions` widget*.

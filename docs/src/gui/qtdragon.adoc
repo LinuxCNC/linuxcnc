@@ -600,6 +600,7 @@ The button increments are 1 inch or 5 mm (depending on the units the machine is 
 {NOTE}
 If using the Spindle lift option, HALUI can not be used to pause/resume the program.
 There is a pin, 'QtDragon.external-pause' available to pause/resume from an external source.
+You must also enable external offets. In the setting tab check 'use external offsets'
 
 This optional behaviour requires additions to the INI and the QtDragon_postgui HAL file.
 
@@ -610,6 +611,8 @@ In the INI, under the AXIS_Z heading.
 [AXIS_Z]
 OFFSET_AV_RATIO  = 0.2
 ----
+This reserves 20% of max velocity and max acceleration for the external offsets. +
+This will limit max velocity of the machine by 20% +
 
 In the qtdragon_postgui.hal file add:
 
@@ -1329,13 +1332,26 @@ To stop the blur effect with dialogs:
 }
 ----
 
+To change status highlight/selection colors:
+[source,{ini}]
+----
+#screen_options {
+    qproperty-user1Color: white;     /*  default status     */
+    qproperty-user2Color: #ff9000;   /*  warning status     */
+    qproperty-user3Color: #ff8a96;   /*  critical status    */
+    qproperty-user4Color: #ffaa00;   /*  MPG select         */
+    qproperty-user5Color: #ff0000;   /*  Cycle Start select */
+}
+----
+
 Change the G-code text display colors/fonts:
 
 [source,{ini}]
 ----
 }
 EditorBase{
- background:black;
+background:black;
+qproperty-styleColorCursor:white;
 qproperty-styleColorBackground:grey;
 qproperty-styleColor0: black;
 qproperty-styleColor1: darkblue;
@@ -1369,6 +1385,7 @@ To have the manual spindle buttons also incrementally increase/decrease speed:
     qproperty-spindle_down_action: true;
 }
 ----
+
 
 === Qt Designer and Python code
 
