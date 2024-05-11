@@ -984,6 +984,10 @@ If QtVCP finds these it will call them, if not it will silently ignore them.
   * status of LinuxCNC connected to functions.
   * keybindings would be added.
 
+*`before_hal_init__(self):`*::
+  This function is called before the HAL-ified widgets have their hal_init_ function called. +
+  Some property changes need to be done before HAL_init is called on the widget.
+
 *`after_override__(self):`*::
   This function is called after the optional override file is loaded but +
   before the optional HAL file is loaded or HAL component is set ready.
