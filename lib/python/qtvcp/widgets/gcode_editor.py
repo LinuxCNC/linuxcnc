@@ -619,6 +619,7 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
         if self.auto_show_preference:
             STATUS.connect('show-preference', self.load_preference)
         STATUS.connect('file-loaded', self.load_program)
+        STATUS.connect('reload-display', self.load_program)
         STATUS.connect('line-changed', self.external_highlight_request)
         STATUS.connect('graphics-line-selected', self.external_highlight_request)
         STATUS.connect('command-stopped', lambda w: self.run_stopped())
