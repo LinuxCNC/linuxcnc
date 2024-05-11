@@ -600,6 +600,7 @@ class HandlerClass:
         plate_code = bool(message.get('ID') == '_touchplate_')
         sensor_code = bool(message.get('ID') == '_toolsensor_')
         wait_code = bool(message.get('ID') == '_wait_resume_')
+        lower_code = bool(message.get('ID') == '_wait_to_lower_')
         unhome_code = bool(message.get('ID') == '_unhome_')
         overwrite = bool(message.get('ID') == '_overwrite_')
         if plate_code and name == 'MESSAGE' and rtn is True:
@@ -614,7 +615,10 @@ class HandlerClass:
             if rtn is True:
                 self.do_file_copy()
             else:
-                self.add_status("File not copied")
+                self.add_status("File not copied", CRITICAL)
+        elif lower_code and name == 'MESSAGE':
+            self.h['eoffset-spindle-count'] = 0
+            self.add_status('Spindle lowered after machine stopped')
 
     def user_system_changed(self, data):
         sys = self.system_list[int(data) - 1]
@@ -1153,8 +1157,17 @@ class HandlerClass:
         self.add_status('Spindle lowering')
 
     # from abort button
-    def disable_spindle_pause(self,data):
-        pass
+    def btn_stop_clicked(self,data):
+        if not self.w.btn_spindle_pause.isChecked(): return
+        self.w.btn_spindle_pause.setChecked(False)
+        if not self.h['eoffset-spindle-count'] == 0:
+            # or wait for dialog to close before lowering spindle
+            # instantiate warning box
+                info = "Spindle lift still active. press OK to lower spindle"
+                mess = {'NAME':'MESSAGE', 'ICON':'WARNING', 'ID':'_wait_to_lower_',
+                         'MESSAGE':'CAUTION', 'MORE':info, 'TYPE':'OK'}
+                ACTION.CALL_DIALOG(mess)
+
 
     # make sure the pause button follows STATUS pause messages
     # as well as physical button pushes

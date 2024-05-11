@@ -74,7 +74,7 @@
      <number>0</number>
     </property>
     <item>
-     <widget class="ScreenOptions" name="screen_options" native="true">
+     <widget class="ScreenOptions" name="screen_options">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
         <horstretch>0</horstretch>
@@ -1297,7 +1297,7 @@ RESET</string>
                           </widget>
                          </item>
                          <item>
-                          <widget class="GcodeEditor" name="gcode_viewer" native="true">
+                          <widget class="GcodeEditor" name="gcode_viewer">
                            <property name="sizePolicy">
                             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                              <horstretch>0</horstretch>
@@ -1352,7 +1352,7 @@ RESET</string>
                           <number>2</number>
                          </property>
                          <item>
-                          <widget class="FileManager" name="filemanager_usb" native="true">
+                          <widget class="FileManager" name="filemanager_usb">
                            <property name="sizePolicy">
                             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
                              <horstretch>0</horstretch>
@@ -3140,7 +3140,7 @@ SENSOR</string>
                              </widget>
                             </item>
                             <item>
-                             <widget class="LED" name="led_probe" native="true">
+                             <widget class="LED" name="led_probe">
                               <property name="minimumSize">
                                <size>
                                 <width>20</width>
@@ -3156,10 +3156,10 @@ SENSOR</string>
                               <property name="pin_name" stdset="0">
                                <string>led-probe</string>
                               </property>
-                              <property name="diameter" stdset="0">
+                              <property name="diameter">
                                <number>17</number>
                               </property>
-                              <property name="color" stdset="0">
+                              <property name="color">
                                <color>
                                 <red>0</red>
                                 <green>255</green>
@@ -4416,7 +4416,7 @@ View</string>
                           </widget>
                          </item>
                          <item>
-                          <widget class="GCodeGraphics" name="gcodegraphics" native="true">
+                          <widget class="GCodeGraphics" name="gcodegraphics">
                            <property name="sizePolicy">
                             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                              <horstretch>0</horstretch>
@@ -4673,10 +4673,10 @@ GCODE</string>
                           </layout>
                          </item>
                          <item>
-                          <widget class="FileManager" name="filemanager" native="true"/>
+                          <widget class="FileManager" name="filemanager"/>
                          </item>
                          <item>
-                          <widget class="GcodeEditor" name="gcode_editor" native="true">
+                          <widget class="GcodeEditor" name="gcode_editor">
                            <property name="auto_show_mdi_status" stdset="0">
                             <bool>false</bool>
                            </property>
@@ -4742,19 +4742,19 @@ GCODE</string>
                               <property name="cornerButtonEnabled">
                                <bool>false</bool>
                               </property>
-                              <attribute name="horizontalHeaderDefaultSectionSize">
+                              <attribute name="horizontalHeaderMinimumSectionSize">
                                <number>80</number>
                               </attribute>
-                              <attribute name="horizontalHeaderMinimumSectionSize">
+                              <attribute name="horizontalHeaderDefaultSectionSize">
                                <number>80</number>
                               </attribute>
                               <attribute name="verticalHeaderCascadingSectionResizes">
                                <bool>false</bool>
                               </attribute>
-                              <attribute name="verticalHeaderDefaultSectionSize">
+                              <attribute name="verticalHeaderMinimumSectionSize">
                                <number>30</number>
                               </attribute>
-                              <attribute name="verticalHeaderMinimumSectionSize">
+                              <attribute name="verticalHeaderDefaultSectionSize">
                                <number>30</number>
                               </attribute>
                              </widget>
@@ -5356,7 +5356,7 @@ LOG</string>
                             <number>0</number>
                            </property>
                            <item>
-                            <widget class="CamView" name="camview" native="true"/>
+                            <widget class="CamView" name="camview"/>
                            </item>
                            <item>
                             <widget class="QWidget" name="widget_cam_controls" native="true">
@@ -5734,7 +5734,7 @@ LOG</string>
                                 <number>0</number>
                                </property>
                                <item>
-                                <widget class="WebWidget" name="webwidget" native="true"/>
+                                <widget class="WebWidget" name="webwidget"/>
                                </item>
                               </layout>
                              </widget>
@@ -13778,7 +13778,7 @@ ALL</string>
                          <number>3</number>
                         </property>
                         <property name="axis_letter" stdset="0">
-                         <string>3</string>
+                         <string/>
                         </property>
                         <property name="dialog_code_string" stdset="0">
                          <string>CALCULATOR</string>
@@ -13824,7 +13824,7 @@ ALL</string>
                          <number>4</number>
                         </property>
                         <property name="axis_letter" stdset="0">
-                         <string>4</string>
+                         <string/>
                         </property>
                         <property name="dialog_code_string" stdset="0">
                          <string>CALCULATOR</string>
@@ -15785,7 +15785,7 @@ ALL</string>
               </spacer>
              </item>
              <item>
-              <widget class="VirtualKeyboard" name="virtualkeyboard" native="true">
+              <widget class="VirtualKeyboard" name="virtualkeyboard">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                  <horstretch>0</horstretch>
@@ -16991,7 +16991,7 @@ ALL</string>
                 </widget>
                </item>
                <item row="1" column="2" alignment="Qt::AlignHCenter">
-                <widget class="StateLED" name="led_at_speed" native="true">
+                <widget class="StateLED" name="led_at_speed">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                    <horstretch>0</horstretch>
@@ -17016,10 +17016,10 @@ ALL</string>
                  <property name="halpin_option" stdset="0">
                   <bool>true</bool>
                  </property>
-                 <property name="diameter" stdset="0">
+                 <property name="diameter">
                   <number>15</number>
                  </property>
-                 <property name="color" stdset="0">
+                 <property name="color">
                   <color>
                    <red>0</red>
                    <green>255</green>
@@ -17626,7 +17626,7 @@ ALL</string>
              <number>2</number>
             </property>
             <property name="text">
-             <string>11:52:17 AM</string>
+             <string>04:50:22 PM</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -17702,7 +17702,7 @@ ALL</string>
   </customwidget>
   <customwidget>
    <class>PushButton</class>
-   <extends>IndicatedPushButton</extends>
+   <extends>QPushButton</extends>
    <header>qtvcp.widgets.simple_widgets</header>
   </customwidget>
   <customwidget>
@@ -17841,8 +17841,8 @@ ALL</string>
    <slot>btn_reload_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>96</x>
-     <y>872</y>
+     <x>93</x>
+     <y>702</y>
     </hint>
     <hint type="destinationlabel">
      <x>168</x>
@@ -17853,48 +17853,16 @@ ALL</string>
   <connection>
    <sender>action_abort</sender>
    <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>disable_spindle_pause()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>189</x>
-     <y>667</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>0</x>
-     <y>594</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>action_step</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>disable_spindle_pause()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>189</x>
-     <y>718</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>0</x>
-     <y>650</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>action_abort</sender>
-   <signal>clicked()</signal>
    <receiver>progressBar</receiver>
    <slot>reset()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>189</x>
-     <y>667</y>
+     <x>183</x>
+     <y>499</y>
     </hint>
     <hint type="destinationlabel">
-     <x>190</x>
-     <y>901</y>
+     <x>184</x>
+     <y>733</y>
     </hint>
    </hints>
   </connection>
@@ -17905,8 +17873,8 @@ ALL</string>
    <slot>btn_start_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>70</x>
-     <y>667</y>
+     <x>79</x>
+     <y>499</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -17921,8 +17889,8 @@ ALL</string>
    <slot>btn_home_all_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>747</x>
-     <y>660</y>
+     <x>703</x>
+     <y>490</y>
     </hint>
     <hint type="destinationlabel">
      <x>761</x>
@@ -17937,8 +17905,8 @@ ALL</string>
    <slot>btn_maxv_50_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>803</x>
-     <y>681</y>
+     <x>762</x>
+     <y>512</y>
     </hint>
     <hint type="destinationlabel">
      <x>719</x>
@@ -17953,8 +17921,8 @@ ALL</string>
    <slot>slider_maxv_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>894</x>
-     <y>681</y>
+     <x>888</x>
+     <y>512</y>
     </hint>
     <hint type="destinationlabel">
      <x>878</x>
@@ -17969,8 +17937,8 @@ ALL</string>
    <slot>slider_rapid_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>894</x>
-     <y>753</y>
+     <x>888</x>
+     <y>585</y>
     </hint>
     <hint type="destinationlabel">
      <x>935</x>
@@ -17985,8 +17953,8 @@ ALL</string>
    <slot>btn_maxv_100_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>940</x>
-     <y>681</y>
+     <x>937</x>
+     <y>512</y>
     </hint>
     <hint type="destinationlabel">
      <x>1064</x>
@@ -18001,8 +17969,8 @@ ALL</string>
    <slot>btn_home_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>747</x>
-     <y>777</y>
+     <x>703</x>
+     <y>606</y>
     </hint>
     <hint type="destinationlabel">
      <x>809</x>
@@ -18017,8 +17985,8 @@ ALL</string>
    <slot>btn_home_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>747</x>
-     <y>738</y>
+     <x>703</x>
+     <y>567</y>
     </hint>
     <hint type="destinationlabel">
      <x>855</x>
@@ -18033,8 +18001,8 @@ ALL</string>
    <slot>btn_home_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>747</x>
-     <y>699</y>
+     <x>703</x>
+     <y>529</y>
     </hint>
     <hint type="destinationlabel">
      <x>858</x>
@@ -18049,8 +18017,8 @@ ALL</string>
    <slot>btn_pause_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>40</x>
-     <y>679</y>
+     <x>49</x>
+     <y>550</y>
     </hint>
     <hint type="destinationlabel">
      <x>-57</x>
@@ -18130,7 +18098,7 @@ ALL</string>
    <hints>
     <hint type="sourcelabel">
      <x>429</x>
-     <y>374</y>
+     <y>285</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -18401,8 +18369,8 @@ ALL</string>
    <slot>percent_done_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>109</x>
-     <y>157</y>
+     <x>102</x>
+     <y>83</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -18561,8 +18529,8 @@ ALL</string>
    <slot>slow_button_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1262</x>
-     <y>415</y>
+     <x>1267</x>
+     <y>331</y>
     </hint>
     <hint type="destinationlabel">
      <x>719</x>
@@ -18577,8 +18545,8 @@ ALL</string>
    <slot>slow_button_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1081</x>
-     <y>568</y>
+     <x>1068</x>
+     <y>434</y>
     </hint>
     <hint type="destinationlabel">
      <x>1478</x>
@@ -18593,8 +18561,8 @@ ALL</string>
    <slot>btn_home_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>747</x>
-     <y>855</y>
+     <x>703</x>
+     <y>683</y>
     </hint>
     <hint type="destinationlabel">
      <x>1045</x>
@@ -18609,12 +18577,28 @@ ALL</string>
    <slot>btn_home_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>747</x>
-     <y>816</y>
+     <x>703</x>
+     <y>644</y>
     </hint>
     <hint type="destinationlabel">
      <x>717</x>
      <y>-82</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>action_abort</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>btn_stop_clicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>133</x>
+     <y>479</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>164</x>
+     <y>781</y>
     </hint>
    </hints>
   </connection>
@@ -18697,11 +18681,11 @@ ALL</string>
   <slot>btn_spindle_z_up_clicked()</slot>
   <slot>btn_spindle_z_down_clicked()</slot>
   <slot>btn_pause_clicked()</slot>
+  <slot>btn_stop_clicked()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="mode_buttonGroup"/>
-  <buttongroup name="buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
+  <buttongroup name="buttonGroup"/>
+  <buttongroup name="mode_buttonGroup"/>
  </buttongroups>
 </ui>
-
