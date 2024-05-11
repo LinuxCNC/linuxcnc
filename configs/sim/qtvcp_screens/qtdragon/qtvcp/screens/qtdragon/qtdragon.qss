@@ -513,3 +513,11 @@ QSplitter::handle:horizontal  {
 #stackedWidget{
 border: 1px orange;
 }
+
+#screen_options {
+    qproperty-user1Color: white;  /*  default status */
+    qproperty-user2Color: #ff9000;   /*  warning status */
+    qproperty-user3Color: #ff8a96;   /*  critical status   */
+    qproperty-user4Color: #ffaa00;   /*  MPG select     */
+    qproperty-user5Color: #ff0000;   /*  Cycle Start select*/
+}

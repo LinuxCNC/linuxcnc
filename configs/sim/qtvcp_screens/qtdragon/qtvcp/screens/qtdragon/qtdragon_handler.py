@@ -482,6 +482,9 @@ class HandlerClass:
             self._probeLibrary = BasicProbe
             self.probe = BasicProbe()
             self.probe.setObjectName('basicprobe')
+            # only use cycle start button to start probing
+            self.probe.setProperty('runImmediately',False)
+
         else:
             LOG.info("No valid probe widget specified")
             self.w.btn_probe.hide()
@@ -701,7 +704,8 @@ class HandlerClass:
         if data:
             self.w.lbl_mb_errors.setStyleSheet('')
         else:
-            self.w.lbl_mb_errors.setStyleSheet('background-color:{};'.format(self.w.screen_options.property('user5Color').name()))
+            self.w.lbl_mb_errors.setStyleSheet('background-color:{};'.format(
+                        self.w.screen_options.property('user5Color').name()))
 
     def dialog_return(self, w, message):
         rtn = message.get('RETURN')
@@ -847,14 +851,13 @@ class HandlerClass:
     # program frame
     def btn_start_clicked(self, obj):
         if not STATUS.is_all_homed():
-           self.add_status("Machine must be is homed", CRITICAL)
+           self.add_status("Machine must be all homed", CRITICAL)
            return
-        if not  os.path.exists(self.last_loaded_program):
-            self.add_status("No program to execute", WARNING, noLog=True)
-            return
+
         if STATUS.is_man_mode():
             self.add_status("Must be in AUTO or MDI mode to run a program", WARNING, noLog=True)
             return
+
         if STATUS.is_mdi_mode():
             if isinstance(self.CycleFocusWidget, MDI_WIDGET):
                 if self.CycleFocusWidget.isVisible():
@@ -868,6 +871,11 @@ class HandlerClass:
                     self.add_status("Probe routine cycle start focus error", CRITICAL, noLog=True)
             else:
                 self.add_status("No cycle start object selected", WARNING, noLog=True)
+            return
+
+        # in auto mode
+        if not  os.path.exists(self.last_loaded_program):
+            self.add_status("No program to execute", WARNING, noLog=True)
             return
         if self.w.stackedWidget_mainTab.currentIndex() != 0:
             self.add_status("Switch view mode to MAIN", WARNING)
@@ -1600,16 +1608,19 @@ class HandlerClass:
     # change Status bar text color
     def set_style_default(self):
         c = self.w.screen_options.property('user1Color').name()
-        self.w.lineEdit_statusbar.setStyleSheet("background-color: {} ;color: rgb(0,0,0)".format(c))  #default white
+        self.w.lineEdit_statusbar.setStyleSheet(
+                "background-color: {} ;color: rgb(0,0,0)".format(c))  #default white
 
     def set_style_warning(self):
         c = self.w.screen_options.property('user2Color').name()
-        self.w.lineEdit_statusbar.setStyleSheet("background-color: {} ;color: rgb(0,0,0)".format(c))  #yellow
+        self.w.lineEdit_statusbar.setStyleSheet(
+                "background-color: {} ;color: rgb(0,0,0)".format(c))  #yellow
         self.endcolor()
 
     def set_style_critical(self):
         c = self.w.screen_options.property('user3Color').name()
-        self.w.lineEdit_statusbar.setStyleSheet("background-color: {} ;color: rgb(0,0,0)".format(c))   #orange
+        self.w.lineEdit_statusbar.setStyleSheet(
+                "background-color: {} ;color: rgb(0,0,0)".format(c))   #orange
         self.endcolor()
 
     def adjust_stacked_widgets(self,requestedIndex,mode_change=False):
