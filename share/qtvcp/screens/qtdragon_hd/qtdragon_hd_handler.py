@@ -627,6 +627,7 @@ class HandlerClass:
         plate_code = bool(message.get('ID') == '_touchplate_')
         sensor_code = bool(message.get('ID') == '_toolsensor_')
         wait_code = bool(message.get('ID') == '_wait_resume_')
+        lower_code = bool(message.get('ID') == '_wait_to_lower_')
         unhome_code = bool(message.get('ID') == '_unhome_')
         overwrite = bool(message.get('ID') == '_overwrite_')
         if plate_code and name == 'MESSAGE' and rtn is True:
@@ -642,6 +643,11 @@ class HandlerClass:
                 self.do_file_copy()
             else:
                 self.add_status("File not copied", CRITICAL)
+        elif lower_code and name == 'MESSAGE':
+            self.h['eoffset-spindle-count'] = 0
+            self.add_status('Spindle lowered after machine stopped')
+            self.w.spindle_eoffset_value.setText('0')
+
 
     def user_system_changed(self, data):
         sys = self.system_list[int(data) - 1]
@@ -775,7 +781,13 @@ class HandlerClass:
     def btn_stop_clicked(self):
         if not self.w.btn_spindle_pause.isChecked(): return
         self.w.btn_spindle_pause.setChecked(False)
-        self.btn_spindle_pause_clicked(False)
+        if not self.h['eoffset-spindle-count'] == 0:
+            # or wait for dialog to close before lowering spindle
+            # instantiate warning box
+                info = "Spindle lift still active. press OK to lower spindle"
+                mess = {'NAME':'MESSAGE', 'ICON':'WARNING', 'ID':'_wait_to_lower_',
+                         'MESSAGE':'CAUTION', 'MORE':info, 'TYPE':'OK'}
+                ACTION.CALL_DIALOG(mess)
 
     def btn_reload_file_clicked(self):
         if self.last_loaded_program:
@@ -1107,17 +1119,6 @@ class HandlerClass:
         if self.h['spindle-lift-on'] == True:
             self.h['eoffset-spindle-count'] = int(fval)
 
-    def liftSpindle(self):
-        self.w.action_step.setEnabled(False)
-        # set external offsets to lift spindle
-        self.h['spindle-lift-on'] = True
-        self.h['eoffset-enable'] = self.w.chk_eoffsets.isChecked()
-        fval = int(self.w.lineEdit_eoffset_count.text())
-        self.w.spindle_eoffset_value.setText(self.w.lineEdit_eoffset_count.text())
-        self.h['eoffset-spindle-count'] = int(fval)
-        self.h['spindle-inhibit'] = True
-        self.add_status("Spindle stopped and raised {}".format(fval))
-
     # from HAL pin 'eoffset-value'
     # unpause machine if external offsets state is false 
     def external_offset_state_changed(self, data):
@@ -1134,79 +1135,92 @@ class HandlerClass:
         #print(bool(data*1000 - self.h['eoffset-zlevel-count']< .0001))
         # only if pin is false (external offsets are off)
         if data*1000 - self.h['eoffset-zlevel-count'] < .0001:
+            # spindle better be un-inhibitted
+            if self.h['spindle-inhibit'] == True:
+                self.add_status('Spindle not running - keeping paused',CRITICAL)
+                return
             self.h['spindle-lift-on'] = False
             ACTION.RESUME()
             # only enable the lift selection button if pins are connected
-            if self.spindle_lift_pins_present:
+            if self.spindle_lift_pins_present and self.w.chk_eoffsets.isChecked():
                 self.w.btn_spindle_pause.setEnabled(True)
+            else:
+                self.w.btn_spindle_pause.setEnabled(False)
+                self.w.btn_spindle_pause.setChecked(False)
+
             # make step program button active again
             self.w.action_step.setEnabled(True)
 
+    def liftSpindle(self):
+        # if we were waiting for restart dialog to return
+        # cancel it - we want to relift
+        mess = {'NAME':'MESSAGE', 'ID':'_wait_resume_', 'CLOSE':True}
+        ACTION.CALL_DIALOG(mess)
+        # cancel auto lowering when spindle at speed
+        self._spindle_wait = False
+
+        # only enable the lift selection button if pins are connected
+        if self.spindle_lift_pins_present and self.w.chk_eoffsets.isChecked():
+            pass
+        else:
+            if not self.w.chk_eoffsets.isChecked() and self.w.btn_spindle_pause.isChecked():
+                self.add_status('Eoffsets Setting Unchecked - Can Not Raise Spindle',CRITICAL)
+            self.w.btn_spindle_pause.setEnabled(False)
+            self.w.btn_spindle_pause.setChecked(False)
+            return
+        # do we need to lift spindle?
+        if int(self.w.lineEdit_eoffset_count.text()) == 0: return
+        if not self.w.btn_spindle_pause.isChecked(): return
+
+        # can't step when lifted
+        self.w.action_step.setEnabled(False)
+
+        # set external offsets to lift spindle
+        self.h['spindle-lift-on'] = True
+        self.h['eoffset-clear'] = False
+        self.h['eoffset-enable'] = True
+        fval = self.w.lineEdit_eoffset_count.text()
+        self.h['eoffset-spindle-count'] = int(fval)
+        self.w.spindle_eoffset_value.setText(fval)
+
+        # stop the spindle
+        self.h['spindle-inhibit'] = True
+        self.add_status("Spindle stopped and raising to {}".format(fval))
+
     def lowerSpindle(self):
+        # spindle better be un-inhibitted
+        if self.h['spindle-inhibit'] == True:
+            self.add_status('Spindle not running - keeping raised and paused',CRITICAL)
+            return
+
         self.h['eoffset-spindle-count'] = 0
         self.add_status('Spindle lowered')
         self.w.spindle_eoffset_value.setText('0')
 
-    def btn_spindle_pause_clicked(self, state):
-        self.w.action_pause.setEnabled(not state)
-        self.w.action_step.setEnabled(not state)
-        if state:
-        # set external offsets to lift spindle
-            self.h['spindle-lift-on'] = True
-            self.h['eoffset-enable'] = self.w.chk_eoffsets.isChecked()
-            fval = int(self.w.lineEdit_eoffset_count.text())
-            self.h['eoffset-spindle-count'] = int(fval)
-            self.w.spindle_eoffset_value.setText(self.w.lineEdit_eoffset_count.text())
-            self.h['spindle-inhibit'] = True
-            self.add_status("Spindle stopped and raised {}".format(fval))
-            if not QHAL.hal.component_exists("z_level_compensation"):
-                self.add_status("Z level compensation HAL component not loaded", CRITICAL)
-                return
-        else:
-            # turn spindle back on
-            self.h['spindle-inhibit'] = False
-            self.add_status('Spindle re-started')
 
-            # If spindle at speed is connected use it lower spindle
-            if self.h.hal.pin_has_writer('spindle.0.at-speed'):
-                self._spindle_wait=True
-                return
-            else:
-                # or wait for dialog to close before lowering spindle
-                if STATUS.is_auto_running():
-                    info = "Wait for spindle at speed signal before resuming"
-                    mess = {'NAME':'MESSAGE', 'ICON':'WARNING',
-                            'ID':'_wait_resume_', 'MESSAGE':'CAUTION',
-                            'NONBLOCKING':'True', 'MORE':info, 'TYPE':'OK'}
-                    ACTION.CALL_DIALOG(mess)
-
+    # from button click or external pause HAL pin
     def btn_pause_clicked(self, data):
-        if self.w.action_pause._isSignalsBlocked(): return
         if data:
             ACTION.PAUSE_MACHINE()
-
-            self.h['eoffset-spindle-count'] = 0
-            self.h['spindle-inhibit'] = False
-
-            if int(self.w.lineEdit_eoffset_count.text()) == 0: return
-            if not self.w.btn_spindle_pause.isChecked(): return
-
+            self.w.btn_spindle_pause.setEnabled(False)
             self.liftSpindle()
 
         # no lowering required - resume
         elif int(self.w.lineEdit_eoffset_count.text()) == 0  or \
                 not self.w.btn_spindle_pause.isChecked() or \
                 not self.h['spindle-lift-on']:
-            print('No lower reesume')
             ACTION.RESUME()
+            # only enable the lift selection button, if pins are connected
+            if self.spindle_lift_pins_present:
+                self.w.btn_spindle_pause.setEnabled(True)
 
         # lowering required before resuming
         elif STATUS.is_auto_paused():
             self.h['spindle-inhibit'] = False
-            self.add_status('Spindle re-started')
+            self.add_status('Request Spindle Speed Wait')
             # If spindle at speed is connected to a pin, use it lower spindle
             if self.h.hal.pin_has_writer('spindle.0.at-speed'):
-                self._spindle_wait=True
+                self._spindle_wait = True
                 return
             else:
             # or wait for dialog to close before lowering spindle
@@ -1223,10 +1237,8 @@ class HandlerClass:
         self.w.action_pause._blockSignals(True)
         self.w.action_pause.setChecked(data)
         # only enable the lift selection button if pins are connected
-        if data:
-            self.w.btn_spindle_pause.setEnabled(False)
-        elif self.spindle_lift_pins_present:
-            self.w.btn_spindle_pause.setEnabled(True)
+        if self.spindle_lift_pins_present and self.w.chk_eoffsets.isChecked():
+            self.w.btn_spindle_pause.setEnabled(not data)
         self.w.action_pause._blockSignals(False)
 
     def disable_spindle_pause(self):
@@ -1437,7 +1449,6 @@ class HandlerClass:
         if self._spindle_wait:
             if bool(self.h.hal.get_value('spindle.0.at-speed')):
                 self.lowerSpindle()
-                self.h['spindle-lift-on'] = False
                 self._spindle_wait = False
 
         self.update_runtimer()
