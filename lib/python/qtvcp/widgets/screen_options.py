@@ -321,7 +321,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             # check that there is a directory present
             dir = os.path.split(str(self.pref_filename))
             # expand the directoty path if there is one
-            if not dir[0] is '':
+            if not dir[0] == '':
                 dir = os.path.expanduser(dir[0])
                 if not os.path.exists(dir):
                     raise Exception('Cannot find directory: {} for preference file.'.format(dir))
