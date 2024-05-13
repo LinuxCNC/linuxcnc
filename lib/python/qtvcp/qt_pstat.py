@@ -60,7 +60,12 @@ class _PStat(object):
             self.WIDGETUI = os.path.join(self.SHAREDIR, "widgets_ui")
 
             # Linuxcnc project base directory moves when using RIP vrs installed
-            self.BASEDIR = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
+            try:
+                self.BASEDIR = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
+            except:
+                # TODO not sure if working directory is right - this is to fix an error with designer
+                # loading widget libraries
+                self.BASEDIR = self.WORKINGDIR
             self.RIPCONFIGDIR = os.path.join(self.BASEDIR, "configs", "sim", "qtvcp_screens")
 
             # python RIP library directory
@@ -68,7 +73,7 @@ class _PStat(object):
             sys.path.insert(0, self.PYDIR)
 
         except Exception as e:
-            print (e)
+            print ('qt_Pstat:',e)
             pass
 
     def set_paths(self, filename='dummy', isscreen=False):
