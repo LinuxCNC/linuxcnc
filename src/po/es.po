@@ -5,13 +5,13 @@
 # Billy Soto <cromatronix@gmail.com>, 2022.
 # Ulices <dev.n47os@aleeas.com>, 2022, 2023.
 # Roman Jesus Castañeda <rojecas@gmail.com>, 2023.
-# gallegonovato <fran-carro@hotmail.es>, 2023.
+# gallegonovato <fran-carro@hotmail.es>, 2023, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-04-08 19:52+0200\n"
-"PO-Revision-Date: 2023-10-22 20:27+0000\n"
+"PO-Revision-Date: 2024-05-14 07:44+0000\n"
 "Last-Translator: gallegonovato <fran-carro@hotmail.es>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/es/>\n"
@@ -20,7 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.1\n"
+"X-Generator: Weblate 5.5.5\n"
 
 #: src/emc/task/emctaskmain.cc:868
 #, c-format
@@ -7598,7 +7598,7 @@ msgstr "El programa excede los límites de la máquina"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1894
 msgid "Re-Check"
-msgstr ""
+msgstr "Volver a comprobar"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1894
 msgid "Run Anyway"
@@ -7642,9 +7642,8 @@ msgid "G-Code Properties"
 msgstr "Propiedades del código G"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2231
-#, fuzzy
 msgid "Homing request"
-msgstr "Homing"
+msgstr "Solicitud de referencia"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2231
 msgid ""
@@ -7653,6 +7652,10 @@ msgid ""
 "\n"
 "            Run homing process?"
 msgstr ""
+"Después de encender el ordenador,\n"
+"Necesita encontrar los orígenes de los ejes.\n"
+"\n"
+"            ¿Ejecutar el proceso de homing?"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2244
 msgid "All machinable files"
@@ -7905,6 +7908,11 @@ msgid ""
 "Diameter: %(diameter)s%(units)s\n"
 "Comment: %(comment)s"
 msgstr ""
+"Inserta la herramienta y haz clic en continuar cuando estés listo.\n"
+"\n"
+"Número de herramienta: %(number)s\n"
+"Diámetro: %(diameter)s%(units)s\n"
+"Comentario: %(comment)s"
 
 #: src/emc/usr_intf/axis/scripts/hal_manualtoolchange.py:75
 #, python-format
@@ -7912,12 +7920,15 @@ msgid "Insert tool %d and click continue when ready"
 msgstr "Inserte la herramienta %d y haga clic en continuar cuando esté listo"
 
 #: src/emc/usr_intf/axis/scripts/hal_manualtoolchange.py:76
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "\n"
 "\n"
 "Error: %s"
-msgstr "Error: "
+msgstr ""
+"\n"
+"\n"
+"Error: %s"
 
 #: src/emc/usr_intf/axis/scripts/hal_manualtoolchange.py:93
 msgid "AXIS Manual Toolchanger"
@@ -9865,12 +9876,12 @@ msgstr "Keling 4030"
 #: src/emc/usr_intf/stepconf/stepconf.py:170
 #: src/emc/usr_intf/pncconf/private_data.py:1339
 msgid "DM860T v1.0"
-msgstr ""
+msgstr "DM860T v1.0"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:171
 #: src/emc/usr_intf/pncconf/private_data.py:1340
 msgid "DM860T v3.0"
-msgstr ""
+msgstr "DM860T v3.0"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:220
 msgid "X Step"
@@ -11083,22 +11094,19 @@ msgid "Import a Mach file"
 msgstr "Importar un archivo Mach"
 
 #: src/emc/usr_intf/stepconf/start.glade:73
-#, fuzzy
 msgid "Create a desktop _shortcut (symlink) to configuration files"
 msgstr ""
-"Crear un _atajo en escritorio (enlace simbólico) a los archivos de "
-"configuración."
+"Crear un _acceso directo (enlace simbólico) de escritorio a los archivos de "
+"configuración"
 
 #: src/emc/usr_intf/stepconf/start.glade:89
-#, fuzzy
 msgid "Create a desktop _launcher to start LinuxCNC with this configuration"
 msgstr ""
-"Crear un lanzador de escritorio para iniciar LinuxCNC con esta configuración."
+"Crear un _lanzador de escritorio para iniciar LinuxCNC con esta configuración"
 
 #: src/emc/usr_intf/stepconf/start.glade:105
-#, fuzzy
 msgid "Create simulated hardware configuration"
-msgstr "Crear configuración con hardware simulado."
+msgstr "Crear una configuración de hardware simulada"
 
 #: src/emc/usr_intf/stepconf/start.glade:129
 #: src/emc/usr_intf/pncconf/start.glade:63
@@ -11774,7 +11782,8 @@ msgstr "Opuesto"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid "_:"
+msgid ""
+"_:"
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -12522,11 +12531,10 @@ msgstr ""
 "correspondiente"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:351
-#, fuzzy
 msgid ""
 "# ---Chargepump StepGen: 10000 velocity-cmd = 10Khz square wave output---"
 msgstr ""
-"# ---Chargepump StepGen: 0,25 de velocidad = 10Khz de salida de onda "
+"# ---Chargepump StepGen: 10000 velocity-cmd = 10Khz salida de onda "
 "cuadrada---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:439
@@ -12645,6 +12653,7 @@ msgstr "# ---Usar el diálogo de cambio de herramienta manual externo---"
 #: src/emc/usr_intf/pncconf/build_HAL.py:817
 msgid "#  ---signals to show tool offset in the GUI---"
 msgstr ""
+"#  ---señales para mostrar el desplazamiento de la herramienta en el GUI---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:811
 msgid "#  ---manual tool change signals to gmoccapy's dialog---"
@@ -12657,7 +12666,7 @@ msgstr "# ---Configurar el husillo a las señales de velocidad---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:824
 msgid "net spindle-at-speed => gmoccapy.spindle_at_speed_led"
-msgstr ""
+msgstr "net spindle-at-speed => gmoccapy.spindle_at_speed_led"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:830
 msgid "#  ---manual tool change signals to qtdragon's dialog---"
@@ -16607,17 +16616,15 @@ msgid "Smart Serial 7"
 msgstr "Smart Serial 7"
 
 #: src/emc/usr_intf/pncconf/start.glade:27
-#, fuzzy
 msgid "Create a desktop launcher to start LinuxCNC with this configuration"
 msgstr ""
-"Cree un iniciador de escritorio para iniciar LinuxCNC con esta configuración."
+"Crear un lanzador de escritorio para iniciar LinuxCNC con esta configuración"
 
 #: src/emc/usr_intf/pncconf/start.glade:44
-#, fuzzy
 msgid "Create a desktop shortcut (symlink) to configuration files"
 msgstr ""
-"Crear un acceso directo de escritorio (enlace simbólico) a los archivos de "
-"configuración."
+"Crear un acceso directo en el escritorio (enlace simbólico) a los archivos "
+"de configuración"
 
 #: src/emc/usr_intf/pncconf/start.glade:129
 msgid "Show Advanced Option Pages"
