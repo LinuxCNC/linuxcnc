@@ -312,20 +312,18 @@ class HandlerClass:
     #####################
 
     def focusInChanged(self, widget):
-        print ('parent:',widget.parent())
-        print (widget, widget.__class__ )
-        print (self.w.gcode_editor, self.w.gcode_editor.__class__,'\n')
+        LOG.debug('parent: {} class: {}'.format (widget.parent(), widget.parent().__class__))
+        LOG.debug('widget: {} class: {}'.format (widget, widget.__class__))
+        LOG.debug('editor: {} class: {}'.format (self.w.gcode_editor, self.w.gcode_editor.__class__))
         if isinstance(widget,type(self.w.gcode_editor.editor)):
-            print('Scroll Editor')
+            LOG.debug('Scroll Editor')
         if isinstance(widget,type(self.w.gcodegraphics)):
-            print('Scroll Gcode Display')
+            LOG.debug('Scroll Gcode Display')
         if isinstance(widget.parent(),type(self.w.mdihistory) ):
-            print('Scroll MDI')
+            LOG.debug('Scroll MDI')
         fwidget = QtWidgets.QApplication.focusWidget()
         if fwidget is not None:
-            print("focus widget name ", fwidget, fwidget.objectName())
-
-
+            LOG.debug("focus widget {} name {}".format (fwidget, fwidget.objectName()))
 
     def init_pins(self):
         # external jogging control pins
@@ -357,7 +355,7 @@ class HandlerClass:
             try:
                 win.restoreState(QtCore.QByteArray(state))
             except Exception as e:
-                print(e)
+                LOG.error("restoreSettings Exception: {}".format (e))
             else:
                 return True
         return False
@@ -424,7 +422,7 @@ class HandlerClass:
             self.w.widget_angular_jog.show()
         else:
             self.w.widget_angular_jog.hide()
-        print('trivial',INFO.IS_TRIVIAL_MACHINE)
+        LOG.debug('trivial {}'.format (INFO.IS_TRIVIAL_MACHINE))
         if INFO.IS_TRIVIAL_MACHINE:
             self.w.menuControlMode.menuAction().setVisible(False)
 
@@ -725,9 +723,9 @@ class HandlerClass:
 
     def on_keycall_dollar(self,event,state,shift,cntrl):
         if state:
-            print('Toggle joint mode before:',STATUS.get_jjogmode())
+            LOG.debug('Toggle joint mode before: {}'.format (STATUS.get_jjogmode()))
             ACTION.SET_MOTION_TELEOP(not STATUS.get_jjogmode())
-            print('Toggle joint mode after:',STATUS.get_jjogmode())
+            LOG.debug('Toggle joint mode after: {}'.format (STATUS.get_jjogmode()))
 
     ###########################
     # **** closing event **** #
