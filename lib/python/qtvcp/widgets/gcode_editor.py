@@ -326,11 +326,17 @@ class EditorBase(QsciScintilla):
 
     def load_text(self, filepath):
         self.filepath = filepath
+        if filepath is None:
+            return
         try:
             fp = os.path.expanduser(filepath)
             with open(fp) as f:
                 self.setText(f.read())
         except OSError as e:
+            LOG.error("load_text(): {}".format(e))
+            self.setText('')
+            return
+        except Exception as e:
             LOG.error("load_text(): {}".format(e))
             self.setText('')
             return
