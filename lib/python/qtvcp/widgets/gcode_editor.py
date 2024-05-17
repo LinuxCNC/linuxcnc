@@ -700,7 +700,7 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
                 LOG.debug('should reload the display')
                 self.load_text(STATUS.old['file'])
                 self._last_filename = STATUS.old['file']
-            self.emit_percent(line*100/self.lines())
+            self.emit_percent(round(line*100/self.lines()))
         self.moveMarker(line)
         self.setCursorPosition(line, 0)
         self.ensureCursorVisible()
