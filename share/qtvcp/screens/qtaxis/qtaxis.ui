@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>802</width>
-    <height>626</height>
+    <height>657</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -2364,7 +2364,7 @@
      <x>0</x>
      <y>0</y>
      <width>802</width>
-     <height>24</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -3076,8 +3076,40 @@
      <y>74</y>
     </hint>
     <hint type="destinationlabel">
-     <x>-2</x>
+     <x>0</x>
      <y>63</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>gcodegraphics</sender>
+   <signal>percentLoaded(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>percentLoaded()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>458</x>
+     <y>348</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>447</x>
+     <y>688</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>gcode_editor</sender>
+   <signal>percentDone(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>percentCompleted()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>294</x>
+     <y>566</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>312</x>
+     <y>696</y>
     </hint>
    </hints>
   </connection>
