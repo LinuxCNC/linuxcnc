@@ -414,14 +414,10 @@ class HandlerClass:
     def edit(self, widget, state):
         if state:
             self.w.gcode_editor.editMode()
-            self.w.gcode_editor.setMaximumHeight(1000)
-            self.w.frame.hide()
-            self.w.rightTab.hide()
+            self.w.horizontalSplitter.hide()
         else:
             self.w.gcode_editor.readOnlyMode()
-            self.w.gcode_editor.setMaximumHeight(500)
-            self.w.frame.show()
-            self.w.rightTab.show()
+            self.w.horizontalSplitter.show()
 
     def adjust_controls(self):
         if INFO.HAS_ANGULAR_JOINT:
