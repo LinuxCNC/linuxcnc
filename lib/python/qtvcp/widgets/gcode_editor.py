@@ -297,7 +297,7 @@ class EditorBase(QsciScintilla):
         fontmetrics = QFontMetrics(self.getFontMargins())
         self.setMarginWidth(0, fontmetrics.width("0" * width) + 6)
 
-    # reset margin width when number od lines change
+    # reset margin width when number of lines change
     def on_lines_changed(self):
         if len(str(self.lines())) < 3:
             self._marginWidth = '0000'
@@ -667,7 +667,8 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
 
         self.load_text(INFO.MDI_HISTORY_PATH)
         self._last_filename = INFO.MDI_HISTORY_PATH
-        self.setCursorPosition(self.lines(), 0)
+        self.setCursorPosition(self.lines()-1, 0)
+        self.moveMarker(self.lines()-1)
 
     # With the auto_show__mdi option, MDI history is shown
     def load_manual(self, w):
@@ -677,11 +678,11 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
 
         if self.auto_show_manual and STATUS.is_man_mode():
             self.load_text(INFO.MACHINE_LOG_HISTORY_PATH)
-            self.setCursorPosition(self.lines(), 0)
+            self.setCursorPosition(self.lines()-1, 0)
 
     def load_preference(self, w):
         self.load_text(self.PATHS_.PREFS_FILENAME)
-        self.setCursorPosition(self.lines(), 0)
+        self.setCursorPosition(self.lines()-1, 0)
 
     # external line numbers start at 1 - convert that to start at 0
     def external_highlight_request(self, w, line):
@@ -698,7 +699,7 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
         self.selectAll(False)
 
     def moveMarker(self, line):
-        if STATUS.stat.file == '':
+        if STATUS.is_auto_running() and STATUS.stat.file == '':
             self.last_line = 0
             return
         self.markerDeleteHandle(self.currentHandle)
@@ -755,8 +756,8 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
         LOG.debug(line)
         if line <0:
             line = 0
-        elif line > self.lines():
-            line = self.lines()
+        elif line > self.lines()-1:
+            line = self.lines()-1
         self.setCursorPosition(line, 0)
         self.highlight_line(None, line)
 
