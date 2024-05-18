@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>802</width>
-    <height>634</height>
+    <height>661</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -30,13 +30,16 @@
        <string>rightTab</string>
       </property>
       <property name="focusOverlay_option" stdset="0">
-       <bool>true</bool>
+       <bool>false</bool>
       </property>
       <property name="focusEffect_option" stdset="0">
        <bool>true</bool>
       </property>
       <property name="focusBlur_option" stdset="0">
        <bool>true</bool>
+      </property>
+      <property name="focusTint_option" stdset="0">
+       <bool>false</bool>
       </property>
       <property name="entryDialog_option" stdset="0">
        <bool>true</bool>
@@ -70,6 +73,13 @@
       </property>
       <property name="runFromLineDialog_option" stdset="0">
        <bool>true</bool>
+      </property>
+      <property name="user4Color" stdset="0">
+       <color alpha="150">
+        <red>85</red>
+        <green>255</green>
+        <blue>255</blue>
+       </color>
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout">
        <property name="leftMargin">
@@ -1435,16 +1445,16 @@
                        <number>3</number>
                       </property>
                       <property name="leftMargin">
-                       <number>3</number>
+                       <number>2</number>
                       </property>
                       <property name="topMargin">
-                       <number>3</number>
+                       <number>2</number>
                       </property>
                       <property name="rightMargin">
-                       <number>3</number>
+                       <number>2</number>
                       </property>
                       <property name="bottomMargin">
-                       <number>0</number>
+                       <number>2</number>
                       </property>
                       <item>
                        <widget class="MDIHistory" name="mdihistory">
@@ -1570,7 +1580,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="StatusSlider" name="statusslider">
+                     <widget class="StatusSlider" name="statusSliderFeed">
                       <property name="maximumSize">
                        <size>
                         <width>125</width>
@@ -1628,7 +1638,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="StatusSlider" name="statusslider_2">
+                     <widget class="StatusSlider" name="statusSliderRapid">
                       <property name="maximumSize">
                        <size>
                         <width>125</width>
@@ -1680,7 +1690,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="StatusSlider" name="statusslider_3">
+                     <widget class="StatusSlider" name="statusSliderSpindle">
                       <property name="maximumSize">
                        <size>
                         <width>125</width>
@@ -1738,7 +1748,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="StatusSlider" name="statusslider_4">
+                     <widget class="StatusSlider" name="statusSliderJog">
                       <property name="maximumSize">
                        <size>
                         <width>125</width>
@@ -1820,7 +1830,7 @@
                         </widget>
                        </item>
                        <item>
-                        <widget class="StatusSlider" name="statusslider_6">
+                        <widget class="StatusSlider" name="statusSliderAngularJog">
                          <property name="maximumSize">
                           <size>
                            <width>125</width>
@@ -1884,7 +1894,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="StatusSlider" name="statusslider_5">
+                     <widget class="StatusSlider" name="statusSliderMaxVelocity">
                       <property name="maximumSize">
                        <size>
                         <width>125</width>
@@ -2312,16 +2322,16 @@
                      </attribute>
                      <layout class="QVBoxLayout" name="verticalLayout">
                       <property name="leftMargin">
-                       <number>0</number>
+                       <number>2</number>
                       </property>
                       <property name="topMargin">
-                       <number>0</number>
+                       <number>2</number>
                       </property>
                       <property name="rightMargin">
-                       <number>0</number>
+                       <number>2</number>
                       </property>
                       <property name="bottomMargin">
-                       <number>0</number>
+                       <number>2</number>
                       </property>
                       <item>
                        <widget class="GCodeGraphics" name="gcodegraphics">
