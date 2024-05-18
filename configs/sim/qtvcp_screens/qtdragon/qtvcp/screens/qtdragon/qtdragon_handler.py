@@ -99,6 +99,7 @@ class HandlerClass:
         self.last_loaded_program = ""
         self.first_turnon = True
         self._maintab_cycle = 1
+        self._lastSelectButton = None
         self.MPGFocusWidget = None
         self.CycleFocusWidget = None
         self.lineedit_list = ["work_height", "touch_height", "sensor_height", "laser_x", "laser_y",
@@ -178,6 +179,7 @@ class HandlerClass:
         self.w.btn_spindle_pause.setEnabled(False)
         self.w.btn_dimensions.setChecked(True)
         self.w.page_buttonGroup.buttonClicked.connect(self.main_tab_changed)
+        self.w.selectButtonGroup.buttonClicked.connect(self.MPG_select_changed)
         self.w.filemanager_usb.showMediaDir(quiet = True)
 
     # hide or initiate 4th/5th AXIS dro/jog
@@ -476,6 +478,8 @@ class HandlerClass:
             self.probe.setObjectName('versaprobe')
             # only use cycle start button to start probing
             self.probe.setProperty('runImmediately',False)
+            self.probe.setFocusPolicy(QtCore.Qt.ClickFocus)
+
         elif probe == 'basicprobe':
             LOG.info("Using Basic Probe")
             from qtvcp.widgets.basic_probe import BasicProbe
@@ -484,6 +488,7 @@ class HandlerClass:
             self.probe.setObjectName('basicprobe')
             # only use cycle start button to start probing
             self.probe.setProperty('runImmediately',False)
+            self.probe.setFocusPolicy(QtCore.Qt.ClickFocus)
 
         else:
             LOG.info("No valid probe widget specified")
@@ -555,7 +560,7 @@ class HandlerClass:
         elif isinstance(receiver, self._probeLibrary):
             self.removeCycleFocusBorder()
 
-            print ('Versa Probe focus',receiver.parent().objectName())
+            print ('Versa/Basic Probe focus',receiver.parent().objectName())
             name = receiver.parent().objectName()
             color = self.w.screen_options.property('user5Color').name()
             self.colorCycleFocusBorder(name, receiver, color)
@@ -569,20 +574,20 @@ class HandlerClass:
             self.w.stackedWidget_dro.setCurrentIndex(1)
 
     def removeMPGFocusBorder(self):
-            try:
-                self.MPGFocusWidget.setStyleSheet( '')
-                name = self.MPGFocusWidgetBorder
-                self.w[name].setStyleSheet('')
-            except:
-                pass
+        try:
+            self.MPGFocusWidget.setStyleSheet( '')
+            name = self.MPGFocusWidgetBorder
+            self.w[name].setStyleSheet('')
+        except:
+            pass
 
     def removeCycleFocusBorder(self):
-            try:
-                self.CycleFocusWidget.setStyleSheet( '')
-                name = self.CycleFocusWidgetBorder
-                self.w[name].setStyleSheet('')
-            except:
-                pass
+        try:
+            self.CycleFocusWidget.setStyleSheet( '')
+            name = self.CycleFocusWidgetBorder
+            self.w[name].setStyleSheet('')
+        except:
+            pass
 
     def colorMPGFocusBorder(self, name, receiver, colorName):
         self.MPGFocusWidgetBorder = name
@@ -1271,6 +1276,19 @@ class HandlerClass:
         if state:
             STATUS.emit('dro-reference-change-request', 1)
 
+    def MPG_select_changed(self, button):
+        print(button)
+        # Auto exclusive doesn't allow unchecking all buttons
+        # We force it here
+        if button == self._lastSelectButton:
+                button.group().setExclusive(False)
+                button.setChecked(False)
+                button.group().setExclusive(True)
+                self._lastSelectButton = None
+                return
+        #self.set_statusbar('MPG output Selected: {}'.format(cmd.toolTip()),DEFAULT,noLog=True)
+        self._lastSelectButton = button
+
     #####################
     # GENERAL FUNCTIONS #
     #####################
@@ -1850,20 +1868,19 @@ class HandlerClass:
                     elif scaled > INFO.MAX_SPINDLE_OVERRIDE:scaled = INFO.MAX_SPINDLE_OVERRIDE
                     ACTION.SET_SPINDLE_RATE(scaled)
 
-            elif currentIndex == TAB_MAIN:
-                if isinstance(self.MPGFocusWidget, GRAPHICS):
-                    if self.w.actionbutton_pan_rpyaye.isChecked():
-                        ACTION.ADJUST_GRAPHICS_ROTATE(diff,diff)
-                    else:
-                        ACTION.ADJUST_GRAPHICS_PAN(diff,0)
-                elif isinstance(self.MPGFocusWidget, GCODE):
-                    self.w.gcode_editor.jump_line(diff)
-                    self.w.gcode_viewer.jump_line(diff)
-                elif isinstance(self.MPGFocusWidget, MDI_WIDGET):
-                    if diff <0:
-                       self.MPGFocusWidget.line_down()
-                    else:
-                       self.MPGFocusWidget.line_up()
+            elif isinstance(self.MPGFocusWidget, GRAPHICS):
+                if self.w.actionbutton_pan_rpyaye.isChecked():
+                    ACTION.ADJUST_GRAPHICS_ROTATE(diff,diff)
+                else:
+                    ACTION.ADJUST_GRAPHICS_PAN(diff,0)
+            elif isinstance(self.MPGFocusWidget, GCODE):
+                self.w.gcode_editor.jump_line(diff)
+                self.w.gcode_viewer.jump_line(diff)
+            elif isinstance(self.MPGFocusWidget, MDI_WIDGET):
+                if diff <0:
+                   self.MPGFocusWidget.line_down()
+                else:
+                   self.MPGFocusWidget.line_up()
 
             elif currentIndex == TAB_FILE:
                 if isinstance(self.MPGFocusWidget, FM):
@@ -1888,9 +1905,6 @@ class HandlerClass:
                        self.MPGFocusWidget.down()
                     else:
                        self.MPGFocusWidget.up()
-
-        self._last_count = count
-        return
 
         self._last_count = count
 

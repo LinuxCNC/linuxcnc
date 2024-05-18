@@ -11944,7 +11944,7 @@ OFF</string>
                          <string>CALCULATOR</string>
                         </property>
                         <attribute name="buttonGroup">
-                         <string notr="true">buttonGroup</string>
+                         <string notr="true">selectButtonGroup</string>
                         </attribute>
                        </widget>
                       </item>
@@ -12791,7 +12791,7 @@ ZERO</string>
                          <string>CALCULATOR</string>
                         </property>
                         <attribute name="buttonGroup">
-                         <string notr="true">buttonGroup</string>
+                         <string notr="true">selectButtonGroup</string>
                         </attribute>
                        </widget>
                       </item>
@@ -13376,7 +13376,7 @@ ALL</string>
                          <string>CALCULATOR</string>
                         </property>
                         <attribute name="buttonGroup">
-                         <string notr="true">buttonGroup</string>
+                         <string notr="true">selectButtonGroup</string>
                         </attribute>
                        </widget>
                       </item>
@@ -14014,7 +14014,7 @@ ZERO</string>
                          <string>CALCULATOR</string>
                         </property>
                         <attribute name="buttonGroup">
-                         <string notr="true">buttonGroup</string>
+                         <string notr="true">selectButtonGroup</string>
                         </attribute>
                        </widget>
                       </item>
@@ -14328,7 +14328,7 @@ ZERO</string>
                          <string>CALCULATOR</string>
                         </property>
                         <attribute name="buttonGroup">
-                         <string notr="true">buttonGroup</string>
+                         <string notr="true">selectButtonGroup</string>
                         </attribute>
                        </widget>
                       </item>
@@ -14391,7 +14391,7 @@ SCROLL</string>
                          <bool>false</bool>
                         </property>
                         <attribute name="buttonGroup">
-                         <string notr="true">buttonGroup</string>
+                         <string notr="true">selectButtonGroup</string>
                         </attribute>
                        </widget>
                       </item>
@@ -17778,7 +17778,7 @@ SCROLL</string>
              <number>2</number>
             </property>
             <property name="text">
-             <string>06:29:44 AM</string>
+             <string>03:24:59 PM</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -18864,6 +18864,6 @@ SCROLL</string>
  <buttongroups>
   <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
-  <buttongroup name="buttonGroup"/>
+  <buttongroup name="selectButtonGroup"/>
  </buttongroups>
 </ui>
