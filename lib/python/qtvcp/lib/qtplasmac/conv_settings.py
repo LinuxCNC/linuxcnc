@@ -1,8 +1,8 @@
 '''
 conv_settings.py
 
-Copyright (C) 2020, 2021, 2022, 2023 Phillip A Carter
-Copyright (C) 2020, 2021, 2022, 2023 Gregory D Carl
+Copyright (C) 2020 - 2024 Phillip A Carter
+Copyright (C) 2020 - 2024 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -24,8 +24,10 @@ from PyQt5.QtWidgets import QLabel, QMessageBox
 
 _translate = QCoreApplication.translate
 
+
 def save(P, W, Conv):
-    if P.dialogError: return
+    if P.dialogError:
+        return
     msg = []
     P.preAmble = W.preEntry.text()
     P.postAmble = W.pstEntry.text()
@@ -68,11 +70,13 @@ def save(P, W, Conv):
     W.conv_preview.set_current_view()
     P.convSettingsChanged = 1
 
+
 def reload(P, W, Conv):
     load(P, W)
     show(P, W)
     if not P.convSettingsChanged:
         P.convSettingsChanged = 2
+
 
 def exit(P, W, Conv):
     if P.convSettingsChanged != 1:
@@ -85,6 +89,7 @@ def exit(P, W, Conv):
         P.convSettingsChanged = 3
     W[P.oldConvButton].click()
 
+
 def load(P, W):
     P.preAmble = P.PREFS.getpref('Preamble', P.ambles, str, 'CONVERSATIONAL')
     P.postAmble = P.PREFS.getpref('Postamble', P.ambles, str, 'CONVERSATIONAL')
@@ -94,6 +99,7 @@ def load(P, W):
     P.holeDiameter = P.PREFS.getpref('Hole diameter', P.unitCode[2], float, 'CONVERSATIONAL')
     P.holeSpeed = P.PREFS.getpref('Hole speed', 60, int, 'CONVERSATIONAL')
     P.gridSize = P.PREFS.getpref('Grid Size', 0, float, 'CONVERSATIONAL')
+
 
 def show(P, W):
     W.preEntry.setText(P.preAmble)
@@ -111,6 +117,7 @@ def show(P, W):
     W.conv_preview.grid_size = P.gridSize / P.unitsPerMm / 25.4
     W.conv_preview.set_current_view()
 
+
 def centLeft_toggled(P, W, Conv):
     if not W.centLeft.isChecked():
         return
@@ -118,11 +125,12 @@ def centLeft_toggled(P, W, Conv):
     W.centLeft.setText(text)
     W.centLeft.setChecked(False)
 
+
 def widgets(P, W, Conv):
     W.shLabel.setText(_translate('Conversational', 'SMALL HOLES'))
     W.hLabel.setText(_translate('Conversational', 'DIAMETER'))
-    #alignment and size
-    ra = ['preLabel', 'pstLabel', 'liLabel', 'liEntry', 'loEntry', \
+    # alignment and size
+    ra = ['preLabel', 'pstLabel', 'liLabel', 'liEntry', 'loEntry',
           'hLabel', 'shEntry', 'hsEntry', 'gsLabel', 'gsEntry']
     la = ['loLabel', 'hsLabel']
     ca = ['oLabel', 'llLabel', 'shLabel', 'pvLabel']
@@ -147,16 +155,16 @@ def widgets(P, W, Conv):
         W[w].setFixedWidth(80)
         W[w].setFixedHeight(24)
     # connections
-    W.centLeft.toggled.connect(lambda:centLeft_toggled(P, W, Conv))
-    W.liEntry.textChanged.connect(lambda:Conv.conv_entry_changed(P, W, W.sender()))
-    W.loEntry.textChanged.connect(lambda:Conv.conv_entry_changed(P, W, W.sender()))
-    W.shEntry.textChanged.connect(lambda:Conv.conv_entry_changed(P, W, W.sender()))
-    W.hsEntry.textChanged.connect(lambda:Conv.conv_entry_changed(P, W, W.sender()))
-    W.gsEntry.textChanged.connect(lambda:Conv.conv_entry_changed(P, W, W.sender()))
-    W.save.pressed.connect(lambda:save(P, W, Conv))
-    W.reload.pressed.connect(lambda:reload(P, W, Conv))
-    W.cExit.pressed.connect(lambda:exit(P, W, Conv))
-    #add to layout
+    W.centLeft.toggled.connect(lambda: centLeft_toggled(P, W, Conv))
+    W.liEntry.textChanged.connect(lambda: Conv.conv_entry_changed(P, W, W.sender()))
+    W.loEntry.textChanged.connect(lambda: Conv.conv_entry_changed(P, W, W.sender()))
+    W.shEntry.textChanged.connect(lambda: Conv.conv_entry_changed(P, W, W.sender()))
+    W.hsEntry.textChanged.connect(lambda: Conv.conv_entry_changed(P, W, W.sender()))
+    W.gsEntry.textChanged.connect(lambda: Conv.conv_entry_changed(P, W, W.sender()))
+    W.save.pressed.connect(lambda: save(P, W, Conv))
+    W.reload.pressed.connect(lambda: reload(P, W, Conv))
+    W.cExit.pressed.connect(lambda: exit(P, W, Conv))
+    # add to layout
     W.entries.addWidget(W.preLabel, 0, 0)
     W.entries.addWidget(W.preEntry, 0, 1, 1, 4)
     W.entries.addWidget(W.pstLabel, 1, 0)
@@ -176,7 +184,7 @@ def widgets(P, W, Conv):
     W.entries.addWidget(W.pvLabel, 8, 1, 1, 3)
     W.entries.addWidget(W.gsLabel, 9, 0)
     W.entries.addWidget(W.gsEntry, 9, 1)
-    for r in (10,11):
+    for r in (10, 11):
         W[f's{r}'] = QLabel('')
         W[f's{r}'].setFixedHeight(24)
         W.entries.addWidget(W[f's{r}'], r, 0)

@@ -1,8 +1,8 @@
 '''
 circle.py
 
-Copyright (C) 2020, 2021, 2022, 2023 Phillip A Carter
-Copyright (C) 2020, 2021, 2022, 2023 Gregory D Carl
+Copyright (C) 2020 - 2024 Phillip A Carter
+Copyright (C) 2020 - 2024 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -29,19 +29,20 @@ for f in sys.path:
         if '/usr' in f:
             localeDir = 'usr/share/locale'
         else:
-            localeDir = os.path.join(f'{f.split("/lib")[0]}','share','locale')
+            localeDir = os.path.join(f'{f.split("/lib")[0]}', 'share', 'locale')
         break
 gettext.install("linuxcnc", localedir=localeDir)
 
+
 # Conv is the upstream calling module
-def preview(Conv, fTmp, fNgc, fNgcBkp, \
-            matNumber, matName, \
-            preAmble, postAmble, \
-            leadinLength, leadoutLength, \
-            isCenter, xOffset, yOffset, \
-            kerfWidth, isExternal, \
-            isOvercut, overCut, \
-            smallHoleDia, smallHoleSpeed, \
+def preview(Conv, fTmp, fNgc, fNgcBkp,
+            matNumber, matName,
+            preAmble, postAmble,
+            leadinLength, leadoutLength,
+            isCenter, xOffset, yOffset,
+            kerfWidth, isExternal,
+            isOvercut, overCut,
+            smallHoleDia, smallHoleSpeed,
             diameter, invalidLeads):
     error = ''
     msg1 = _('entry is invalid')
@@ -54,7 +55,7 @@ def preview(Conv, fTmp, fNgc, fNgcBkp, \
         msg0 = _('Y ORIGIN')
         error += f'{msg0} {msg1}\n\n'
     valid, leadinLength = Conv.conv_is_float(leadinLength)
-    if not valid and leadinLength :
+    if not valid and leadinLength:
         msg0 = _('LEAD IN')
         error += f'{msg0} {msg1}\n\n'
     valid, leadoutLength = Conv.conv_is_float(leadoutLength)
@@ -175,7 +176,7 @@ def preview(Conv, fTmp, fNgc, fNgcBkp, \
             outTmp.write(f'g3 x{xlEnd:.6f} y{ylEnd:.6f} i{xlcenter - xS:.6f} j{ylcenter - yS:.6f}\n')
     torch = True
     if isOvercut and sHole and not isExternal:
-        Torch = False
+        torch = False
         outTmp.write('m62 p3 (disable torch)\n')
         centerX = xS + ijOffset
         centerY = yS + ijOffset

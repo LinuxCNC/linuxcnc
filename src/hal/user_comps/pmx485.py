@@ -1,8 +1,8 @@
 '''
 pmx485.py
 
-Copyright (C) 2019, 2020, 2021, 2022, 2023 Phillip A Carter
-Copyright (C)       2020, 2021, 2022, 2023 Gregory D Carl
+Copyright (C) 2019 - 2024 Phillip A Carter
+Copyright (C) 2020 - 2024 Gregory D Carl
 
 pmx485.py makes use of some code from hpmx.py by Pedro Grijalva Mireles
 
@@ -134,9 +134,9 @@ def read_register(reg):
 
 # set machine to local mode
 def close_machine():
-    mode = write_register(rMode, f'{0:04X}')
-    current = write_register(rCurrent, f'{0:04X}')
-    pressure = write_register(rPressure, f'{0:04X}')
+    write_register(rMode, f'{0:04X}')
+    write_register(rCurrent, f'{0:04X}')
+    write_register(rPressure, f'{0:04X}')
 
 # set machine to remote mode
 def open_machine():

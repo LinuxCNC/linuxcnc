@@ -1,8 +1,8 @@
 '''
 tooltips.py
 
-Copyright (C) 2021, 2022, 2023 Phillip A Carter
-Copyright (C) 2021, 2022, 2023 Gregory D Carl
+Copyright (C) 2021 - 2024 Phillip A Carter
+Copyright (C) 2021 - 2024 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -33,97 +33,98 @@ def tool_tips_changed(P, W):
     else:
         clear_tool_tips(W)
 
+
 def clear_tool_tips(W):
     main_preview_widgets = [
-    'material_selector','velocity_show','view_p','view_z','view_clear',
-    'pan_right','pan_left','pan_up','pan_down','zoom_in','zoom_out']
+        'material_selector', 'velocity_show', 'view_p', 'view_z', 'view_clear',
+        'pan_right', 'pan_left', 'pan_up', 'pan_down', 'zoom_in', 'zoom_out']
 
     main_machine_widgets = [
-    'estop','power','run','pause','abort','feed_slider','rapid_slider',
-    'jog_slider','feed_label','rapid_label','jogs_label']
+        'estop', 'power', 'run', 'pause', 'abort', 'feed_slider', 'rapid_slider',
+        'jog_slider', 'feed_label', 'rapid_label', 'jogs_label']
 
     main_button_widgets = [
-    'file_edit','mdi_show']
+        'file_edit', 'mdi_show']
 
     main_arc_widgets = [
-    'arc_voltage','led_arc_ok','height_reset','height_lower','height_ovr_label',
-    'height_raise']
+        'arc_voltage', 'led_arc_ok', 'height_reset', 'height_lower', 'height_ovr_label',
+        'height_raise']
 
     main_control_widgets = [
-    'led_torch_on','led_corner_lock','led_void_lock']
+        'led_torch_on', 'led_corner_lock', 'led_void_lock']
 
     main_sensor_widgets = [
-    'mesh_enable','ignore_arc_ok','pmx485_label','torch_enable',
-    'cornerlock_enable','voidlock_enable','use_auto_volts',
-    'ohmic_probe_enable','pmx485_enable']
+        'mesh_enable', 'ignore_arc_ok', 'pmx485_label', 'torch_enable',
+        'cornerlock_enable', 'voidlock_enable', 'use_auto_volts',
+        'ohmic_probe_enable', 'pmx485_enable']
 
     main_thc_widgets = [
-    'led_float_switch','led_ohmic_probe','led_breakaway_switch','thc_auto',
-    'thc_enable','led_thc_up','led_thc_enabled','led_thc_down','led_thc_active']
+        'led_float_switch', 'led_ohmic_probe', 'led_breakaway_switch', 'thc_auto',
+        'thc_enable', 'led_thc_up', 'led_thc_enabled', 'led_thc_down', 'led_thc_active']
 
     main_jog_widgets = [
-    'jogincrements','jog_slow','jog_z_minus','jog_z_plus','jog_x_minus',
-    'jog_x_plus','jog_a_plus','jog_a_minus','jog_y_plus','jog_y_minus',
-    'jog_b_minus','jog_b_plus','jog_c_minus','jog_c_plus']
+        'jogincrements', 'jog_slow', 'jog_z_minus', 'jog_z_plus', 'jog_x_minus',
+        'jog_x_plus', 'jog_a_plus', 'jog_a_minus', 'jog_y_plus', 'jog_y_minus',
+        'jog_b_minus', 'jog_b_plus', 'jog_c_minus', 'jog_c_plus']
 
     main_cut_rec_widgets = [
-    'cut_rec_cancel','cut_rec_rev','cut_rec_speed','cut_rec_fwd','cut_rec_feed',
-    'cut_rec_se','cut_rec_s','cut_rec_nw','cut_rec_e','cut_rec_sw','cut_rec_w',
-    'cut_rec_n','cut_rec_ne','cut_rec_move_label']
+        'cut_rec_cancel', 'cut_rec_rev', 'cut_rec_speed', 'cut_rec_fwd', 'cut_rec_feed',
+        'cut_rec_se', 'cut_rec_s', 'cut_rec_nw', 'cut_rec_e', 'cut_rec_sw', 'cut_rec_w',
+        'cut_rec_n', 'cut_rec_ne', 'cut_rec_move_label']
 
     main_gcode_widgets = [
-    'file_open','file_reload']
+        'file_open', 'file_reload']
 
     main_dro_widgets = [
-    'dro_a','dro_b','dro_x','dro_y','dro_z','home_a','home_b','home_x','home_y',
-    'home_z','home_all','touch_a','touch_b','touch_x','touch_y','touch_z',
-    'touch_xy','wcs_button','camera','laser']
+        'dro_a', 'dro_b', 'dro_x', 'dro_y', 'dro_z', 'home_a', 'home_b', 'home_x', 'home_y',
+        'home_z', 'home_all', 'touch_a', 'touch_b', 'touch_x', 'touch_y', 'touch_z',
+        'touch_xy', 'wcs_button', 'camera', 'laser']
 
     main_file_widgets = [
-    'file_select','file_next','file_prev','file_cancel']
+        'file_select', 'file_next', 'file_prev', 'file_cancel']
 
     main_camera_widgets = [
-    'cam_dia_plus','cam_dia_minus','cam_zoom_plus','cam_zoom_minus','cam_goto',
-    'cam_mark']
+        'cam_dia_plus', 'cam_dia_minus', 'cam_zoom_plus', 'cam_zoom_minus', 'cam_goto',
+        'cam_mark']
 
     conversational_widgets = [
-    'conv_line','conv_circle','conv_ellipse','conv_triangle','conv_rectangle',
-    'conv_polygon','conv_bolt','conv_slot','conv_star','conv_gusset','conv_sector',
-    'conv_block','conv_new','conv_save','conv_settings','conv_send']
+        'conv_line', 'conv_circle', 'conv_ellipse', 'conv_triangle', 'conv_rectangle',
+        'conv_polygon', 'conv_bolt', 'conv_slot', 'conv_star', 'conv_gusset', 'conv_sector',
+        'conv_block', 'conv_new', 'conv_save', 'conv_settings', 'conv_send']
 
     parameters_configuration_widgets = [
-    'arc_fail_delay','arc_max_starts','arc_restart_delay','arc_voltage_scale',
-    'arc_voltage_offset','height_per_volt','arc_ok_high','arc_ok_low',
-    'thc_delay','thc_threshold','pid_p_gain','pid_i_gain','pid_d_gain',
-    'cornerlock_threshold','voidlock_slope','float_switch_travel',
-    'probe_feed_rate','probe_start_height','ohmic_probe_offset',
-    'ohmic_max_attempts','skip_ihs_distance','offset_feed_rate','safe_height',
-    'scribe_arm_delay','scribe_on_delay','spotting_threshold','spotting_time',
-    'setup_feed_rate','save_plasma','reload_plasma']
+        'arc_fail_delay', 'arc_max_starts', 'arc_restart_delay', 'arc_voltage_scale',
+        'arc_voltage_offset', 'height_per_volt', 'arc_ok_high', 'arc_ok_low',
+        'thc_delay', 'thc_threshold', 'pid_p_gain', 'pid_i_gain', 'pid_d_gain',
+        'cornerlock_threshold', 'voidlock_slope', 'float_switch_travel',
+        'probe_feed_rate', 'probe_start_height', 'ohmic_probe_offset',
+        'ohmic_max_attempts', 'skip_ihs_distance', 'offset_feed_rate', 'safe_height',
+        'scribe_arm_delay', 'scribe_on_delay', 'spotting_threshold', 'spotting_time',
+        'setup_feed_rate', 'save_plasma', 'reload_plasma']
 
     parameters_material_widgets = [
-    'kerf_width','pierce_height','pierce_delay','cut_height','cut_feed_rate',
-    'cut_amps','cut_volts','puddle_jump_height','puddle_jump_delay',
-    'pause_at_end','gas_pressure','cut_mode','save_material','reload_material',
-    'new_material','delete_material']
+        'kerf_width', 'pierce_height', 'pierce_delay', 'cut_height', 'cut_feed_rate',
+        'cut_amps', 'cut_volts', 'puddle_jump_height', 'puddle_jump_delay',
+        'pause_at_end', 'gas_pressure', 'cut_mode', 'save_material', 'reload_material',
+        'new_material', 'delete_material']
 
     parameters_gui_widgets = [
-        'color_foregrnd','color_foregalt','color_led','color_backgrnd',
-        'color_backgalt','color_frams','color_estop','color_disabled',
-        'color_preview','chk_soft_keyboard','chk_keyboard_shortcuts',
-        'chk_overlay','opt_stp','chk_run_from_line','chk_override_limits',
-        'chk_tool_tips','opt_blk','grid_size','cone_size','chk_exit_warning']
+        'color_foregrnd', 'color_foregalt', 'color_led', 'color_backgrnd',
+        'color_backgalt', 'color_frams', 'color_estop', 'color_disabled',
+        'color_preview', 'chk_soft_keyboard', 'chk_keyboard_shortcuts',
+        'chk_overlay', 'opt_stp', 'chk_run_from_line', 'chk_override_limits',
+        'chk_tool_tips', 'opt_blk', 'grid_size', 'cone_size', 'chk_exit_warning']
 
     parameters_utilities_widgets = [
-        'actionbutton_halshow','actionbutton_halscope','actionbutton_halmeter',
-        'actionbutton_calibration','actionbutton_lcnc_status','backup']
+        'actionbutton_halshow', 'actionbutton_halscope', 'actionbutton_halmeter',
+        'actionbutton_calibration', 'actionbutton_lcnc_status', 'backup']
 
     statistics_widgets = [
-        'pierce_reset','cut_length_reset','cut_time_reset','torch_time_reset',
-        'run_time_reset','rapid_time_reset','probe_time_reset','all_reset',
-        'pierce_count','cut_length','cut_time','torch_time','run_time',
-        'rapid_time','probe_time','pierce_count_t','cut_length_t','cut_time_t',
-        'torch_time_t','run_time_t','rapid_time_t','probe_time_t',
+        'pierce_reset', 'cut_length_reset', 'cut_time_reset', 'torch_time_reset',
+        'run_time_reset', 'rapid_time_reset', 'probe_time_reset', 'all_reset',
+        'pierce_count', 'cut_length', 'cut_time', 'torch_time', 'run_time',
+        'rapid_time', 'probe_time', 'pierce_count_t', 'cut_length_t', 'cut_time_t',
+        'torch_time_t', 'run_time_t', 'rapid_time_t', 'probe_time_t',
         'pmx_arc_time_t']
 
     W.statusbar.setToolTip('')
@@ -133,7 +134,7 @@ def clear_tool_tips(W):
         W[widget].setToolTip('')
     for widget in main_button_widgets:
         W[widget].setToolTip('')
-    for b in range(1,21):
+    for b in range(1, 21):
         W[f'button_{b}'].setToolTip(_translate('ToolTips', ''))
     for widget in main_arc_widgets:
         W[widget].setToolTip('')
@@ -167,6 +168,7 @@ def clear_tool_tips(W):
         W[widget].setToolTip('')
     for widget in statistics_widgets:
         W[widget].setToolTip('')
+
 
 def set_tool_tips(P, W):
     # main widgets
@@ -205,7 +207,7 @@ def set_tool_tips(P, W):
     W.mdi_show.setToolTip(_translate('ToolTips', 'Toggles the use of Manual Data Input mode'))
     text0 = _translate('ToolTips', 'User button')
     text1 = _translate('ToolTips', 'configured in the SETTINGS tab')
-    for b in range(1,21):
+    for b in range(1, 21):
         W[f'button_{b}'].setToolTip(_translate('ToolTips', f'{text0} #{b} {text1}'))
 
     # main_arc_widgets

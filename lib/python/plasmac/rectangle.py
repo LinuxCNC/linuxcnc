@@ -1,8 +1,8 @@
 '''
 rectangle.py
 
-Copyright (C) 2020, 2021, 2022, 2023 Phillip A Carter
-Copyright (C) 2020, 2021, 2022, 2023 Gregory D Carl
+Copyright (C) 2020 - 2024 Phillip A Carter
+Copyright (C) 2020 - 2024 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -29,20 +29,21 @@ for f in sys.path:
         if '/usr' in f:
             localeDir = 'usr/share/locale'
         else:
-            localeDir = os.path.join(f'{f.split("/lib")[0]}','share','locale')
+            localeDir = os.path.join(f'{f.split("/lib")[0]}', 'share', 'locale')
         break
 gettext.install("linuxcnc", localedir=localeDir)
 
+
 # Conv is the upstream calling module
-def preview(Conv, fTmp, fNgc, fNgcBkp, \
-            matNumber, matName, \
-            preAmble, postAmble, \
-            leadinLength, leadoutLength, \
-            isCenter, xOffset, yOffset, \
-            kerfWidth, isExternal, \
-            width, height, angle, \
-            styleR1, styleR2, styleR3, styleR4, \
-            radiusR1, radiusR2, radiusR3, radiusR4, \
+def preview(Conv, fTmp, fNgc, fNgcBkp,
+            matNumber, matName,
+            preAmble, postAmble,
+            leadinLength, leadoutLength,
+            isCenter, xOffset, yOffset,
+            kerfWidth, isExternal,
+            width, height, angle,
+            styleR1, styleR2, styleR3, styleR4,
+            radiusR1, radiusR2, radiusR3, radiusR4,
             textR1, textR2, textR3, textR4):
     error = ''
     msg1 = _('entry is invalid')
@@ -55,7 +56,7 @@ def preview(Conv, fTmp, fNgc, fNgcBkp, \
         msg0 = _('Y ORIGIN')
         error += 'f{msg0} {msg1}\n\n'
     valid, leadinLength = Conv.conv_is_float(leadinLength)
-    if not valid and leadinLength :
+    if not valid and leadinLength:
         msg0 = _('LEAD IN')
         error += 'f{msg0} {msg1}\n\n'
     valid, leadoutLength = Conv.conv_is_float(leadoutLength)
@@ -196,7 +197,7 @@ def preview(Conv, fTmp, fNgc, fNgcBkp, \
     if isCenter:
         if isExternal:
             xS = xOffset + ((yC - radius2) * math.cos(angle + up)) + (xC * math.cos(angle + right))
-            yS = yOffset +  (yC - radius2 * math.sin(angle + up)) +  (xC * math.sin(angle + right))
+            yS = yOffset + ((yC - radius2) * math.sin(angle + up)) + (xC * math.sin(angle + right))
         else:
             xS = xOffset + yC * math.cos(angle + up)
             yS = yOffset + yC * math.sin(angle + up)
@@ -428,7 +429,7 @@ def preview(Conv, fTmp, fNgc, fNgcBkp, \
             else:
                 outTmp.write(f'g1 x{xrEnd:.6f} y{yrEnd:.6f}\n')
     outTmp.write(f'g1 x{xS:.6f} y{yS:.6f}\n')
-    if leadOutOffset > 0: # and not (isExternal and radius2):
+    if leadOutOffset > 0:  # and not (isExternal and radius2):
         if isExternal and not radius2:
             dir = ['g2', down, right]
         elif isExternal and radius2:

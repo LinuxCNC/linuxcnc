@@ -1,8 +1,8 @@
 '''
 updater.py
 
-Copyright (C) 2020, 2021, 2022, 2023 Phillip A Carter
-Copyright (C) 2020, 2021, 2022, 2023 Gregory D Carl
+Copyright (C) 2020 - 2024 Phillip A Carter
+Copyright (C) 2020 - 2024 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -25,6 +25,8 @@ from shutil import copy as COPY
 ###########################################################################################################
 # set user_m_path to include ../../nc_files/plasmac/m_files (pre V2.10-001.017 2024/01/23)                #
 ###########################################################################################################
+
+
 def insert_user_m_path(configPath, simPath):
     try:
         if os.path.isfile(os.path.join(configPath, 'M190')):
@@ -34,6 +36,7 @@ def insert_user_m_path(configPath, simPath):
         return(False, False, '')
     except Exception as e:
         return(False, True, e)
+
 
 def insert_user_m_path_iniwrite(inifile, data=None):
     try:
@@ -58,6 +61,8 @@ def insert_user_m_path_iniwrite(inifile, data=None):
 ###########################################################################################################
 # change runcritical to cutcritical in <machine_name>.prefs file (pre V2.10-001.015 2023/12/23)           #
 ###########################################################################################################
+
+
 def rename_runcritical(prefs):
     with open(prefs, 'r+') as file:
         text = file.read()
@@ -71,13 +76,15 @@ def rename_runcritical(prefs):
 ###########################################################################################################
 # move default material from prefs file to material 0 in materials file (pre V2.9-236.278 2023/07/07)       #
 ###########################################################################################################
+
+
 def move_default_material(prefs, materials, unitsPerMm):
     if os.path.isfile(materials):
         with open(materials, 'r') as f_in:
             mats = f_in.readlines()
     else:
         mats = None
-    mat  = '[MATERIAL_NUMBER_0]\n'
+    mat = '[MATERIAL_NUMBER_0]\n'
     mat += f'NAME               = Default\n'
     mat += f'KERF_WIDTH         = {prefs.getpref("Kerf width", round(1 * unitsPerMm, 2), float, "DEFAULT MATERIAL")}\n'
     mat += f'PIERCE_HEIGHT      = {prefs.getpref("Pierce height", round(3 * unitsPerMm, 2), float, "DEFAULT MATERIAL")}\n'
@@ -112,6 +119,8 @@ def move_default_material(prefs, materials, unitsPerMm):
 ###########################################################################################################
 # move port info from [GUI_OPTIONS] section (if it was moved via V2.9-227.219 update) to [POWERMAX] section #
 ###########################################################################################################
+
+
 def move_port(prefs):
     if not prefs.has_option('POWERMAX', 'Port'):
         data = prefs.getpref('Port', '', str, 'GUI_OPTIONS')
@@ -124,6 +133,8 @@ def move_port(prefs):
 ###########################################################################################################
 # move qtplasmac options from INI file to prefs file (pre V2.9-227.219 2022/07/14)                          #
 ###########################################################################################################
+
+
 def move_options_to_prefs_file(inifile, prefs):
     try:
         text = prefs.getpref('shutdown_msg_detail', '', str, 'SHUTDOWN_OPTIONS')
@@ -189,13 +200,14 @@ def move_options_to_prefs_file(inifile, prefs):
     data = inifile.find('QTPLASMAC', 'PM_PORT') or None
     if data:
         prefs.putpref('Port', data, str, 'POWERMAX')
-    for bNum in range(1,21):
+    for bNum in range(1, 21):
         bName = inifile.find('QTPLASMAC', f'BUTTON_{bNum}_NAME') or None
         bCode = inifile.find('QTPLASMAC', f'BUTTON_{bNum}_CODE') or None
         if bName and bCode:
             prefs.putpref(f'{bNum} Name', bName, str, 'BUTTONS')
             prefs.putpref(f'{bNum} Code', bCode, str, 'BUTTONS')
     return(False, False, '')
+
 
 def move_options_to_prefs_file_iniwrite(inifile):
     try:
@@ -222,6 +234,7 @@ def move_options_to_prefs_file_iniwrite(inifile):
         return(False, True, e)
     return(True, False, 'Updated to V2.9-227.219')
 
+
 def get_offsets(data, oType):
     x = y = d = 0
     error = False
@@ -241,6 +254,8 @@ def get_offsets(data, oType):
 ###########################################################################################################
 # remove the qtplasmac link from the config directory (pre V2.9-225.208 2022/06/29)                         #
 ###########################################################################################################
+
+
 def remove_qtplasmac_link_iniwrite(inifile):
     try:
         tmpFile = f'{inifile}~'
@@ -248,14 +263,14 @@ def remove_qtplasmac_link_iniwrite(inifile):
         with open(tmpFile, 'r') as inFile:
             with open(inifile, 'w') as outFile:
                 for line in inFile:
-                    if line.replace(' ','').startswith('ngc='):
+                    if line.replace(' ', '').startswith('ngc='):
                         line = 'ngc = qtplasmac_gcode\n'
-                    elif line.replace(' ','').startswith('nc='):
+                    elif line.replace(' ', '').startswith('nc='):
                         line = 'nc  = qtplasmac_gcode\n'
-                    elif line.replace(' ','').startswith('tap='):
+                    elif line.replace(' ', '').startswith('tap='):
                         line = 'tap = qtplasmac_gcode\n'
                     elif (line.startswith('SUBROUTINE_PATH') or line.startswith('USER_M_PATH')) and ':./qtplasmac' in line:
-                        line = line.replace(':./qtplasmac','')
+                        line = line.replace(':./qtplasmac', '')
                     outFile.write(line)
         if os.path.isfile(tmpFile):
             os.remove(tmpFile)
@@ -267,6 +282,8 @@ def remove_qtplasmac_link_iniwrite(inifile):
 ###########################################################################################################
 # change startup parameters from a subroutine (pre V2.9-225.207 2022/06/22)                                 #
 ###########################################################################################################
+
+
 def rs274ngc_startup_code_iniwrite(inifile):
     try:
         tmpFile = f'{inifile}~'
@@ -288,6 +305,8 @@ def rs274ngc_startup_code_iniwrite(inifile):
 ###########################################################################################################
 # move [CONVERSATIONAL] prefs from qtvcp.prefs to <machine_name>.prefs (pre V2.9-222.187 2022/05/03)        #
 ###########################################################################################################
+
+
 def move_prefs(qtvcp, machine):
     try:
         deleteMachineLine = False
@@ -322,12 +341,14 @@ def move_prefs(qtvcp, machine):
 ###########################################################################################################
 # split out qtplasmac.prefs into <machine_name>.prefs and qtvcp.prefs (pre V2.9-222.170 2022/03/08)         #
 ###########################################################################################################
+
+
 def split_prefs_file(old, new, prefs):
     try:
         move = False
         copy = False
-        moves = ['[GUI_OPTIONS]','[COLOR_OPTIONS]','[ENABLE_OPTIONS]','[STATISTICS]', \
-                '[PLASMA_PARAMETERS]','[DEFAULT MATERIAL]', '[SINGLE CUT]', '[CONVERSATIONAL]']
+        moves = ['[GUI_OPTIONS]', '[COLOR_OPTIONS]', '[ENABLE_OPTIONS]', '[STATISTICS]',
+                 '[PLASMA_PARAMETERS]', '[DEFAULT MATERIAL]', '[SINGLE CUT]', '[CONVERSATIONAL]']
         copies = ['[SHUTDOWN_OPTIONS]']
         with open(old, 'r') as inFile:
             data = inFile.readlines()
@@ -364,27 +385,29 @@ def split_prefs_file(old, new, prefs):
 ###########################################################################################################
 # use qtplasmac_comp.hal for component connections (pre V2.9-221.154 2022/01/18)                            #
 ###########################################################################################################
+
+
 def add_component_hal_file(path, halfiles):
     try:
         tmpFile = None
-        pinsToCheck = ['PLASMAC COMPONENT INPUTS','plasmac.arc-ok-in','plasmac.axis-x-position',
-                    'plasmac.axis-y-position','plasmac.breakaway','plasmac.current-velocity',
-                    'plasmac.cutting-start','plasmac.cutting-stop','plasmac.feed-override',
-                    'plasmac.feed-reduction','plasmac.float-switch','plasmac.feed-upm',
-                    'plasmac.ignore-arc-ok-0','plasmac.machine-is-on','plasmac.motion-type',
-                    'plasmac.offsets-active','plasmac.ohmic-probe','plasmac.program-is-idle',
-                    'plasmac.program-is-paused','plasmac.program-is-running','plasmac.scribe-start',
-                    'plasmac.spotting-start','plasmac.thc-disable','plasmac.torch-off',
-                    'plasmac.units-per-mm','plasmac.x-offset-current','plasmac.y-offset-current',
-                    'plasmac.z-offset-current',
-                    'PLASMAC COMPONENT OUTPUTS','plasmac.adaptive-feed','plasmac.feed-hold',
-                    'plasmac.offset-scale','plasmac.program-pause','plasmac.program-resume',
-                    'plasmac.program-run','plasmac.program-stop','plasmac.torch-on',
-                    'plasmac.x-offset-counts','plasmac.y-offset-counts','plasmac.xy-offset-enable',
-                    'plasmac.z-offset-counts','plasmac.z-offset-enable','plasmac.requested-velocity']
+        pinsToCheck = ['PLASMAC COMPONENT INPUTS', 'plasmac.arc-ok-in', 'plasmac.axis-x-position',
+                       'plasmac.axis-y-position', 'plasmac.breakaway', 'plasmac.current-velocity',
+                       'plasmac.cutting-start', 'plasmac.cutting-stop', 'plasmac.feed-override',
+                       'plasmac.feed-reduction', 'plasmac.float-switch', 'plasmac.feed-upm',
+                       'plasmac.ignore-arc-ok-0', 'plasmac.machine-is-on', 'plasmac.motion-type',
+                       'plasmac.offsets-active', 'plasmac.ohmic-probe', 'plasmac.program-is-idle',
+                       'plasmac.program-is-paused', 'plasmac.program-is-running', 'plasmac.scribe-start',
+                       'plasmac.spotting-start', 'plasmac.thc-disable', 'plasmac.torch-off',
+                       'plasmac.units-per-mm', 'plasmac.x-offset-current', 'plasmac.y-offset-current',
+                       'plasmac.z-offset-current',
+                       'PLASMAC COMPONENT OUTPUTS', 'plasmac.adaptive-feed', 'plasmac.feed-hold',
+                       'plasmac.offset-scale', 'plasmac.program-pause', 'plasmac.program-resume',
+                       'plasmac.program-run', 'plasmac.program-stop', 'plasmac.torch-on',
+                       'plasmac.x-offset-counts', 'plasmac.y-offset-counts', 'plasmac.xy-offset-enable',
+                       'plasmac.z-offset-counts', 'plasmac.z-offset-enable', 'plasmac.requested-velocity']
         for f in halfiles:
             f = os.path.expanduser(f)
-            if not 'custom' in f:
+            if 'custom' not in f:
                 halfile = os.path.join(path, f)
                 with open(halfile, 'r') as inFile:
                     if 'plasmac.cutting-start' in inFile.read():
@@ -402,6 +425,7 @@ def add_component_hal_file(path, halfiles):
     except Exception as e:
         return(False, True, e)
     return(False, False, '')
+
 
 def add_component_hal_file_iniwrite(inifile):
     try:

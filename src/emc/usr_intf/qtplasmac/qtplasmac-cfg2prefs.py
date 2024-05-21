@@ -5,8 +5,8 @@ qtplasmac-cfg2prefs.py
 This file is used to convert settings in the .cfg files from a PlasmaC
 configuration to the .prefs file for a QtPlasmaC configuration.
 
-Copyright (C) 2020, 2021, 2022, 2023 Phillip A Carter
-Copyright (C) 2020, 2021, 2022, 2023 Gregory D Carl
+Copyright (C) 2020 - 2024 Phillip A Carter
+Copyright (C) 2020 - 2024 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -31,9 +31,10 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+
 class Cfg2Prefs(QMainWindow, object):
 
-# INITIALISATION
+    # INITIALISATION
     def __init__(self, parent=None):
         super(Cfg2Prefs, self).__init__(parent)
         self.setFixedWidth(600)
@@ -52,7 +53,7 @@ class Cfg2Prefs(QMainWindow, object):
         self.setWindowIcon(QIcon(os.path.join(iconBase, iconPath)))
         self.setWindowTitle('QtPlasmaC Cfg2Prefs')
         vBox = QVBoxLayout()
-        heading  = 'Convert Existing PlasmaC .cfg Files To A New QtPlasmaC .prefs File\n'
+        heading = 'Convert Existing PlasmaC .cfg Files To A New QtPlasmaC .prefs File\n'
         headerLabel = QLabel(heading)
         headerLabel.setAlignment(Qt.AlignCenter)
         vBox.addWidget(headerLabel)
@@ -89,7 +90,7 @@ class Cfg2Prefs(QMainWindow, object):
         buttonHBox.addWidget(cancel)
         vBox.addLayout(buttonHBox)
         layout.addLayout(vBox)
-        self.setStyleSheet( \
+        self.setStyleSheet(
             'QWidget {color: #ffee06; background: #16160e} \
             QLabel {height: 20} \
             QPushButton {border: 1 solid #ffee06; border-radius: 4; height: 40; width: 80; max-width: 90} \
@@ -111,8 +112,8 @@ class Cfg2Prefs(QMainWindow, object):
             QScrollBar:vertical {background: #36362e; border: 0; border-radius: 4; margin: 0; width: 20} \
             QScrollBar::handle:vertical {background: #ffee06; border: 2 solid #ffee06; border-radius: 4; margin: 2; min-height: 40} \
             QScrollBar::add-line:vertical {height: 0} \
-            QScrollBar::sub-line:vertical {height: 0} \
-            ')
+            QScrollBar::sub-line:vertical {height: 0}'
+            )
         convert.pressed.connect(self.convert_pressed)
         cancel.pressed.connect(self.cancel_pressed)
         fromFileButton.pressed.connect(self.from_pressed)
@@ -139,8 +140,7 @@ class Cfg2Prefs(QMainWindow, object):
         buttonK.setIcon(QIcon())
         buttonK.setText('OK')
         msgBox.setStyleSheet('* {color: #ffee06; background: #16160e; font: 12pt DejaVuSans} \
-                             QPushButton {border: 1px solid #ffee06; border-radius: 4; height: 20}' \
-                         )
+                             QPushButton {border: 1px solid #ffee06; border-radius: 4; height: 20}')
         ret = msgBox.exec_()
         return ret
 
@@ -192,15 +192,15 @@ class Cfg2Prefs(QMainWindow, object):
 # CONVERT
     def convert_pressed(self):
         if not self.fromFilePath:
-            msg  = 'Missing path to PlasmaC configuration\n'
+            msg = 'Missing path to PlasmaC configuration\n'
             self.dialog_ok('Path Error', msg)
             return
         if not self.toFilePath:
-            msg  = 'Missing path to QtPlasmaC configuration\n'
+            msg = 'Missing path to QtPlasmaC configuration\n'
             self.dialog_ok('Path Error', msg)
             return
         if self.toFilePath == self.fromFilePath:
-            msg  = 'Cannot operate on one folder\n'
+            msg = 'Cannot operate on one folder\n'
             self.dialog_ok('Folder Error', msg)
             return
         self.prefParms = []
@@ -492,8 +492,8 @@ class Cfg2Prefs(QMainWindow, object):
 # WRITE THE QTPLASMAC.PREFS FILE
     def write_prefs_file(self):
         inPrefs = []
-        BYPASS = ['[PLASMA_PARAMETERS]', '[ENABLE_OPTIONS]', \
-                  '[DEFAULT MATERIAL]', '[SINGLE CUT]', \
+        BYPASS = ['[PLASMA_PARAMETERS]', '[ENABLE_OPTIONS]',
+                  '[DEFAULT MATERIAL]', '[SINGLE CUT]',
                   '[CONVERSATIONAL]', '[STATISTICS]']
         bypass = False
         prefsFile = os.path.join(self.toFilePath, self.toMachine + '.prefs')
@@ -511,13 +511,14 @@ class Cfg2Prefs(QMainWindow, object):
                         outFile.write(f'{line}')
             for item in self.prefParms:
                 outFile.write(f'{item}\n')
-        msg  = 'Conversion appears successful.\n'
+        msg = 'Conversion appears successful.\n'
         msg += '\nAny time stamped backup of an original qtplasmac.prefs '
         msg += 'file or an original material.cfg file may be deleted from '
         msg += 'the configuration folder when the result of the conversion '
         msg += 'has been confirmed.\n'
         self.dialog_ok('Success', msg)
         sys.exit()
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

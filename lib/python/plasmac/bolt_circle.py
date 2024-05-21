@@ -1,8 +1,8 @@
 '''
 bolt_circle.py
 
-Copyright (C) 2020, 2021, 2022, 2023 Phillip A Carter
-Copyright (C) 2020, 2021, 2022, 2023 Gregory D Carl
+Copyright (C) 2020 - 2024 Phillip A Carter
+Copyright (C) 2020 - 2024 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -29,20 +29,21 @@ for f in sys.path:
         if '/usr' in f:
             localeDir = 'usr/share/locale'
         else:
-            localeDir = os.path.join(f'{f.split("/lib")[0]}','share','locale')
+            localeDir = os.path.join(f'{f.split("/lib")[0]}', 'share', 'locale')
         break
 gettext.install("linuxcnc", localedir=localeDir)
 
+
 # Conv is the upstream calling module
-def preview(Conv, fTmp, fNgc, fNgcBkp, \
-            matNumber, matName, \
-            preAmble, postAmble, \
-            leadinLength, leadoutLength, shapeAng, \
-            isCenter, xOffset, yOffset, \
-            kerfWidth, \
-            isOvercut, overCut, \
-            smallHoleDia, smallHoleSpeed, \
-            circleDia, holeDia, holeNum, circleAng, \
+def preview(Conv, fTmp, fNgc, fNgcBkp,
+            matNumber, matName,
+            preAmble, postAmble,
+            leadinLength, leadoutLength, shapeAng,
+            isCenter, xOffset, yOffset,
+            kerfWidth,
+            isOvercut, overCut,
+            smallHoleDia, smallHoleSpeed,
+            circleDia, holeDia, holeNum, circleAng,
             invalidLeads):
     error = ''
     msg1 = _('entry is invalid')
@@ -55,7 +56,7 @@ def preview(Conv, fTmp, fNgc, fNgcBkp, \
         msg0 = _('Y ORIGIN')
         error += f'{msg0} {msg1}\n\n'
     valid, leadinLength = Conv.conv_is_float(leadinLength)
-    if not valid and leadinLength :
+    if not valid and leadinLength:
         msg0 = _('LEAD IN')
         error += f'{msg0} {msg1}\n\n'
     valid, leadoutLength = Conv.conv_is_float(leadoutLength)
@@ -130,7 +131,6 @@ def preview(Conv, fTmp, fNgc, fNgcBkp, \
         yC = yOffset + cRadius
     right = math.radians(0)
     up = math.radians(90)
-    left = math.radians(180)
     down = math.radians(270)
     outTmp = open(fTmp, 'w')
     outNgc = open(fNgc, 'w')
@@ -180,7 +180,7 @@ def preview(Conv, fTmp, fNgc, fNgcBkp, \
         torch = True
         if sHole:
             if isOvercut:
-                Torch = False
+                torch = False
                 outTmp.write('m62 p3 (disable torch)\n')
                 centerX = xS + hRadius
                 centerY = yS
@@ -193,10 +193,10 @@ def preview(Conv, fTmp, fNgc, fNgcBkp, \
                 outTmp.write(f'g3 x{endX:.6f} y{endY:.6f} i{hRadius:.6f} j{0:.6f}\n')
         else:
             if leadoutLength and not invalidLeads:
-                xlCentre = xS + (leadinOffset * math.cos(angle + right))
-                ylCentre = yS + (leadinOffset * math.sin(angle + right))
-                xlStart = xlCentre + (leadinOffset * math.cos(angle + down))
-                ylStart = ylCentre + (leadinOffset * math.sin(angle + down))
+                xlCentre = xS + (leadoutOffset * math.cos(angle + right))
+                ylCentre = yS + (leadoutOffset * math.sin(angle + right))
+                xlStart = xlCentre + (leadoutOffset * math.cos(angle + down))
+                ylStart = ylCentre + (leadoutOffset * math.sin(angle + down))
                 outTmp.write(f'g0 x{xlStart:.6f} y{ylStart:.6f}\n')
                 outTmp.write('m3 $0 s1\n')
                 if leadinLength:

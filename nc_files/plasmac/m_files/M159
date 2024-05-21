@@ -26,6 +26,7 @@ from subprocess import run as RUN
 # P param.      Code for function to be performed
 # Q param,      Value to be used by the function selected
 
+
 def abort(msg):
     try:
         linuxcnc.command().error_msg(msg)
@@ -33,6 +34,7 @@ def abort(msg):
         exit()
     except KeyboardInterrupt:
         pass
+
 
 action = int(float(sys.argv[1]))
 value = float(sys.argv[2])

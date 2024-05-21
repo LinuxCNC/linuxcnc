@@ -1,8 +1,8 @@
 '''
 triangle.py
 
-Copyright (C) 2020, 2021, 2022, 2023, 2024 Phillip A Carter
-Copyright (C) 2020, 2021, 2022, 2023, 2024 Gregory D Carl
+Copyright (C) 2020 - 2024 Phillip A Carter
+Copyright (C) 2020 - 2024 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -29,17 +29,18 @@ for f in sys.path:
         if '/usr' in f:
             localeDir = 'usr/share/locale'
         else:
-            localeDir = os.path.join(f'{f.split("/lib")[0]}','share','locale')
+            localeDir = os.path.join(f'{f.split("/lib")[0]}', 'share', 'locale')
         break
 gettext.install("linuxcnc", localedir=localeDir)
 
+
 # Conv is the upstream calling module
-def preview(Conv, fTmp, fNgc, fNgcBkp, \
-            matNumber, matName, \
-            preAmble, postAmble, \
-            leadinLength, leadoutLength, \
-            xOffset, yOffset, \
-            kerfWidth, isExternal, \
+def preview(Conv, fTmp, fNgc, fNgcBkp,
+            matNumber, matName,
+            preAmble, postAmble,
+            leadinLength, leadoutLength,
+            xOffset, yOffset,
+            kerfWidth, isExternal,
             angA, angB, angC, sideA, sideB, sideC, angle):
     error = ''
     msg1 = _('entry is invalid')
@@ -183,12 +184,12 @@ def preview(Conv, fTmp, fNgc, fNgcBkp, \
     up = math.radians(90)
     left = math.radians(180)
     down = math.radians(270)
-    # get start point 
+    # get start point
     BX = xOffset
     BY = yOffset
     CX = round(BX + a * math.cos(angle), 3)
     CY = round(BY + a * math.sin(angle), 3)
-    Bx, By = get_offset_coordinates([CX,CY], [BX,BY], B, kerfWidth, isExternal)
+    Bx, By = get_offset_coordinates([CX, CY], [BX, BY], B, kerfWidth, isExternal)
     BX = Bx + (BX - Bx) * 2
     BY = By + (BY - By) * 2
     # get remaining points
@@ -197,9 +198,9 @@ def preview(Conv, fTmp, fNgc, fNgcBkp, \
     AX = round(BX + c * math.cos(angle + B), 3)
     AY = round(BY + c * math.sin(angle + B), 3)
     # get offset points
-    Ax, Ay = get_offset_coordinates([BX,BY], [AX,AY], A, kerfWidth, isExternal)
-    Bx, By = get_offset_coordinates([CX,CY], [BX,BY], B, kerfWidth, isExternal)
-    Cx, Cy = get_offset_coordinates([AX,AY], [CX,CY], C, kerfWidth, isExternal)
+    Ax, Ay = get_offset_coordinates([BX, BY], [AX, AY], A, kerfWidth, isExternal)
+    Bx, By = get_offset_coordinates([CX, CY], [BX, BY], B, kerfWidth, isExternal)
+    Cx, Cy = get_offset_coordinates([AX, AY], [CX, CY], C, kerfWidth, isExternal)
     # get leadin/leadout point
     hypotLength = math.sqrt((Ax - Cx) ** 2 + (Ay - Cy) ** 2)
     if Ax < Cx:
@@ -295,6 +296,7 @@ def preview(Conv, fTmp, fNgc, fNgcBkp, \
     outNgc.write('m2\n')
     outNgc.close()
     return False
+
 
 def get_offset_coordinates(fromPoint, thisPoint, angle, kerfWidth, isExternal):
     kOffset = kerfWidth / 2

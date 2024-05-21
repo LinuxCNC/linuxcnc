@@ -5,8 +5,8 @@ qtplasmac-plasmac2qt.py
 This file is used to convert settings in the .cfg files from a PlasmaC
 configuration to the .prefs file for a QtPlasmaC configuration.
 
-Copyright (C) 2020, 2021, 2022, 2023 Phillip A Carter
-Copyright (C) 2020, 2021, 2022, 2023 Gregory D Carl
+Copyright (C) 2020 - 2024 Phillip A Carter
+Copyright (C) 2020 - 2024 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -31,9 +31,10 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+
 class Converter(QMainWindow, object):
 
-# INITIALISATION
+    # INITIALISATION
     def __init__(self, parent=None):
         super(Converter, self).__init__(parent)
         self.appPath = os.path.realpath(os.path.dirname(sys.argv[0]))
@@ -68,7 +69,7 @@ class Converter(QMainWindow, object):
         self.setWindowTitle('PlasmaC2Qt')
         vBox = QVBoxLayout()
         if self.mode == 'auto':
-            heading  = 'Plasmac is not available in LinuxCNC V2.9 and later\n\n'
+            heading = 'Plasmac is not available in LinuxCNC V2.9 and later\n\n'
         else:
             heading = ''
         heading += 'Convert Existing PlasmaC Configuration To A New QtPlasmaC Configuration\n'
@@ -143,7 +144,7 @@ class Converter(QMainWindow, object):
         buttonHBox.addWidget(cancel)
         vBox.addLayout(buttonHBox)
         layout.addLayout(vBox)
-        self.setStyleSheet( \
+        self.setStyleSheet(
             'QWidget {color: #ffee06; background: #16160e} \
              QLabel {height: 20} \
              QPushButton {border: 1 solid #ffee06; border-radius: 4; height: 24; width: 80; max-width: 90} \
@@ -167,8 +168,8 @@ class Converter(QMainWindow, object):
              QScrollBar::add-line:vertical {height: 0} \
              QScrollBar::sub-line:vertical {height: 0} \
              QRadioButton::indicator {border: 1px solid #ffee06; border-radius: 4; height: 20; width: 20} \
-             QRadioButton::indicator:checked {background: #ffee06} \
-            ')
+             QRadioButton::indicator:checked {background: #ffee06}'
+             )
         convert.pressed.connect(self.convert_pressed)
         cancel.pressed.connect(self.close_app)
         if not self.mode:
@@ -182,7 +183,7 @@ class Converter(QMainWindow, object):
         self.display = 'DISPLAY                 = qtvcp qtplasmac\n'
         self.estop = 'Estop type = 0'
 
-# POPUP INFO DIALOG
+    # POPUP INFO DIALOG
     def dialog_ok(self, title, text):
         msgBox = QMessageBox()
         msgBox.setIcon(QMessageBox.Information)
@@ -199,7 +200,7 @@ class Converter(QMainWindow, object):
         ret = msgBox.exec_()
         return ret
 
-# SELECT PLASMAC INI FILE
+    # SELECT PLASMAC INI FILE
     def from_pressed(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
@@ -216,7 +217,7 @@ class Converter(QMainWindow, object):
             self.fromFile.setText('')
         self.iniIn = self.fromFile.text()
 
-# ASPECT CHANGED
+    # ASPECT CHANGED
     def aspect_group_clicked(self, button):
         if self.aspectGroup.id(button) == 0:
             self.display = 'DISPLAY                 = qtvcp qtplasmac\n'
@@ -225,7 +226,7 @@ class Converter(QMainWindow, object):
         elif self.aspectGroup.id(button) == 2:
             self.display = 'DISPLAY                 = qtvcp qtplasmac_4x3\n'
 
-# ESTOP CHANGED
+    # ESTOP CHANGED
     def estop_group_clicked(self, button):
         if self.estopGroup.id(button) == 0:
             self.estopLabel.setText('ESTOP IS AN INDICATOR ONLY')
@@ -237,36 +238,36 @@ class Converter(QMainWindow, object):
             self.estopLabel.setText('ESTOP IS A BUTTON')
             self.estop = 'Estop type = 2'
 
-# CLOSE PROGRAM
+    # CLOSE PROGRAM
     def close_app(self):
         sys.exit(2)
 
-# CONVERT
+    # CONVERT
     def convert_pressed(self):
-    # CHECK IF INI FILE NAME EXISTS
+        # CHECK IF INI FILE NAME EXISTS
         if not self.iniIn:
             return
-    # CHECK IF FULL PATH EXISTS
+        # CHECK IF FULL PATH EXISTS
         if not os.path.dirname(self.iniIn):
-            msg  = 'Missing path to a PlasmaC configuration\n'
+            msg = 'Missing path to a PlasmaC configuration\n'
             self.dialog_ok('Path Error', msg)
             self.fromFile.setFocus()
             return
-    # CHECK IF VALID PLASMAC CONFIG
+        # CHECK IF VALID PLASMAC CONFIG
         if not os.path.exists(f'{os.path.dirname(self.iniIn)}/plasmac'):
-            msg  = f'{self.iniIn}\n'
+            msg = f'{self.iniIn}\n'
             msg += '\n is not a PlasmaC configuration\n'
             self.dialog_ok('Config Error', msg)
             self.fromFile.setFocus()
             return
-    # CHECK IF SIM CONFIG
+        # CHECK IF SIM CONFIG
         simConfig = False
         with open(self.iniIn, 'r') as inFile:
             for line in inFile:
                 if 'plasmac_test.py' in line and not line.startswith('#'):
                     simConfig = True
                     break
-    # SET FILENAMES AND PATHS
+        # SET FILENAMES AND PATHS
         fName = os.path.basename(self.iniIn)
         newDir = os.path.dirname(self.iniIn)
         i = 1
@@ -277,7 +278,7 @@ class Converter(QMainWindow, object):
             i += 1
         newIniFile = os.path.join(newDir, fName)
         oldIniFile = os.path.join(oldDir, fName)
-    # CREATE NEW DIRECTORY AND BACKUPS DIRECTORY
+        # CREATE NEW DIRECTORY AND BACKUPS DIRECTORY
         try:
             os.rename(newDir, oldDir)
             os.makedirs(f'{newDir}/backups')
@@ -285,7 +286,7 @@ class Converter(QMainWindow, object):
             msg = f'Could not create directory: {newDir}/backups\n'
             self.dialog_ok('Directory Error', msg)
             return
-    # GET THE MACHINE NAME
+        # GET THE MACHINE NAME
         with open(oldIniFile) as inFile:
             while(1):
                 line = inFile.readline()
@@ -302,14 +303,14 @@ class Converter(QMainWindow, object):
                 if line.startswith('MACHINE'):
                     machineName = line.split('=')[1].strip().lower()
                     break
-    # COPY ORIGINAL BASE MACHINE FILES IF EXISTING
+        # COPY ORIGINAL BASE MACHINE FILES IF EXISTING
         try:
             for filename in os.listdir(f'{oldDir}/backups'):
                 if filename.startswith('_original'):
                     COPY(f'{oldDir}/backups/{filename}', f'{newDir}/backups/{filename}')
         except:
             pass
-    # COPY HAL FILES
+        # COPY HAL FILES
         halFiles = []
         oldPostguiFile = None
         newPostguiFile = None
@@ -320,7 +321,7 @@ class Converter(QMainWindow, object):
                 if line.startswith('[HAL]'):
                     break
                 if not line:
-                    msg  = 'Could not get [HAL] section of INI file\n'
+                    msg = 'Could not get [HAL] section of INI file\n'
                     msg += '\nConversion cannot continue'
                     self.dialog_ok('INI File Error', msg)
                     self.fromFile.setFocus()
@@ -363,10 +364,10 @@ class Converter(QMainWindow, object):
                                 COPY(f'{oldDir}/{hFile}', f'{newDir}/{hFile}')
                 if not line or line.startswith('['):
                     break
-    # COPY TOOL TABLE
+        # COPY TOOL TABLE
         if os.path.exists(f'{oldDir}/tool.tbl'):
             COPY(f'{oldDir}/tool.tbl', f'{newDir}/tool.tbl')
-    # MAKE NEW PREFERENCES FILE
+        # MAKE NEW PREFERENCES FILE
         self.prefParms = []
         self.read_ini_file(oldIniFile)
         if os.path.isfile(os.path.join(oldDir, machineName + '_config.cfg')):
@@ -390,12 +391,12 @@ class Converter(QMainWindow, object):
         else:
             print('file not found, materials can not be converted.')
         self.write_prefs_files(newDir, machineName)
-    # MAKE NEW INI FILE
+        # MAKE NEW INI FILE
         section = ''
         with open(newIniFile, 'w') as outFile:
             with open(oldIniFile, 'r') as inFile:
                 for line in inFile:
-                # SET SECTION NAMES
+                    # SET SECTION NAMES
                     if line.startswith('['):
                         section = ''
                     if line.startswith('[APPLICATIONS]'):
@@ -412,7 +413,7 @@ class Converter(QMainWindow, object):
                         section = 'DISPLAY'
                     if line.startswith('[EMC]'):
                         section = 'EMC'
-                # CONVERT SECTION PARAMETERS
+                    # CONVERT SECTION PARAMETERS
                     if section == 'APPLICATIONS':
                         continue
                     if section == 'PLASMAC':
@@ -461,7 +462,7 @@ class Converter(QMainWindow, object):
                     elif section == 'DISPLAY':
                         if line.startswith('DISPLAY'):
                             line = self.display
-                        omissions = ['OPEN_F','EDITOR','TOOL_E','USER_C','EMBED_','GLADEV','CONE_B']
+                        omissions = ['OPEN_F', 'EDITOR', 'TOOL_E', 'USER_C', 'EMBED_', 'GLADEV', 'CONE_B']
                         if line.startswith('#'):
                             continue
                         if line[:6] in omissions:
@@ -479,7 +480,7 @@ class Converter(QMainWindow, object):
                         if line.strip():
                             outFile.write(line)
                         continue
-                # NO CONVERSION REQUIRED
+                    # NO CONVERSION REQUIRED
                     else:
                         if line.strip():
                             if line.startswith('['):
@@ -487,12 +488,12 @@ class Converter(QMainWindow, object):
                             if 'marry this config' in line or 'sim testing panel' in line:
                                 continue
                             outFile.write(line)
-    # ADD A SIM POSTGUI IF A SIM CONFIG
+        # ADD A SIM POSTGUI IF A SIM CONFIG
         if simConfig:
             with open(f'{newDir}/{"sim_postgui.tcl"}', 'a') as outFile:
                 outFile.write(self.sim_postgui())
-    # WE GOT THIS FAR SO IT MAY HAVE WORKED
-        msg  = 'Conversion appears successful.\n'
+        # WE GOT THIS FAR SO IT MAY HAVE WORKED
+        msg = 'Conversion appears successful.\n'
         if self.mode == 'automatic':
             msg += '\nRestart LinuxCNC using the following INI file:\n'
         else:
@@ -502,7 +503,7 @@ class Converter(QMainWindow, object):
         print(msg)
         sys.exit(0)
 
-# READ THE ORIGINAL INI FILE TO GET PLASMAC OPTIONS
+    # READ THE ORIGINAL INI FILE TO GET PLASMAC OPTIONS
     def read_ini_file(self, oldIniFile):
         self.buttons = {}
         for n in range(1, 21):
@@ -546,7 +547,7 @@ class Converter(QMainWindow, object):
                 self.prefParms.append(f'{n} Code = {self.buttons[n][1]}')
         self.prefParms.append('')
 
-# READ THE ORIGINAL <MACHINE_NAME>_CONFIG.CFG FILE
+    # READ THE ORIGINAL <MACHINE_NAME>_CONFIG.CFG FILE
     def read_con_file(self, conFile):
         self.prefParms.append('[PLASMA_PARAMETERS]')
         with open(conFile) as inFile:
@@ -634,7 +635,7 @@ class Converter(QMainWindow, object):
                     self.prefParms.append(f'THC Threshold = {value}')
             self.prefParms.append('')
 
-# READ THE ORIGINAL <MACHINE_NAME>_RUN.CFG FILE
+    # READ THE ORIGINAL <MACHINE_NAME>_RUN.CFG FILE
     def read_run_file(self, runFile):
         self.prefParms.append('[ENABLE_OPTIONS]')
         with open(runFile) as inFile:
@@ -706,7 +707,7 @@ class Converter(QMainWindow, object):
                     self.prefParms.append(f'Y length = {value}')
             self.prefParms.append('')
 
-# READ THE ORIGINAL <MACHINE_NAME>_WIZARDS.CFG FILE
+    # READ THE ORIGINAL <MACHINE_NAME>_WIZARDS.CFG FILE
     def read_wiz_file(self, wizFile):
         self.prefParms.append('[CONVERSATIONAL]')
         with open(wizFile) as inFile:
@@ -734,7 +735,7 @@ class Converter(QMainWindow, object):
                     self.prefParms.append(f'Grid Size = {value}')
             self.prefParms.append('')
 
-# READ THE ORIGINAL PLASMAC_STATS.VAR FILE
+    # READ THE ORIGINAL PLASMAC_STATS.VAR FILE
     def read_sta_file(self, staFile):
         self.prefParms.append('[STATISTICS]')
         with open(staFile) as inFile:
@@ -762,7 +763,7 @@ class Converter(QMainWindow, object):
                     self.prefParms.append(f'Probe time = {value}')
             self.prefParms.append('')
 
-# READ THE ORIGINAL <MACHINE_NAME>_MATERIAL.CFG FILE
+    # READ THE ORIGINAL <MACHINE_NAME>_MATERIAL.CFG FILE
     def read_mat_file(self, matFile, newDir, machineName):
         newFile = f'{newDir}/{machineName}_material.cfg'
         if os.path.isfile(newFile):
@@ -775,24 +776,23 @@ class Converter(QMainWindow, object):
                         continue
                     outFile.write(line)
 
-# WRITE THE NEW QTVCP.PREFS & QTPLASMAC.PREFS FILES
+    # WRITE THE NEW QTVCP.PREFS & QTPLASMAC.PREFS FILES
     def write_prefs_files(self, newDir, machineName):
         prefsFile = f'{newDir}/qtvcp.prefs'
         with open(prefsFile, 'w') as outFile:
-            outFile.write(\
-                '[NOTIFY_OPTIONS]\n' \
-                'notify_start_greeting = False\n' \
-                'notify_start_title = Welcome To QtPlasmaC\n' \
-                'notify_start_detail = This option can be changed in qtvcp.prefs\n' \
-                'notify_start_timeout = 5\n\n')
+            outFile.write('[NOTIFY_OPTIONS]\n'
+                          'notify_start_greeting = False\n'
+                          'notify_start_title = Welcome To QtPlasmaC\n'
+                          'notify_start_detail = This option can be changed in qtvcp.prefs\n'
+                          'notify_start_timeout = 5\n\n')
         prefsFile = f'{newDir}/{machineName}.prefs'
         with open(prefsFile, 'w') as outFile:
             for item in self.prefParms:
                 outFile.write(f'{item}\n')
 
-# SIM CONFIG POSTGUI EXTRAS
+    # SIM CONFIG POSTGUI EXTRAS
     def sim_postgui(self):
-        sim  = '# QTPLASMAC SIMULATOR PANEL\n\n'
+        sim = '# QTPLASMAC SIMULATOR PANEL\n\n'
         sim += '# load the simulated torch\n'
         sim += 'loadusr -Wn sim-torch sim-torch\n\n'
         sim += '# load the sim GUI\n'
@@ -810,6 +810,7 @@ class Converter(QMainWindow, object):
         sim += 'net sim:move-up             qtplasmac_sim.move_up               =>  plasmac.move-up\n'
         sim += 'net sim:ohmic               qtplasmac_sim.sensor_ohmic          =>  db_ohmic.in\n'
         return sim
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)
