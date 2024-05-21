@@ -1,4 +1,4 @@
-VERSION = '008.043'
+VERSION = '008.044'
 LCNCVER = '2.10'
 DOCSVER = LCNCVER
 
@@ -3973,7 +3973,7 @@ class HandlerClass:
                 framingError = self.bounds_check_framing(self.laserOffsetX, self.laserOffsetY, True)[0]
                 if framingError:
                     head = _translate('HandlerClass', 'Axis Limit Error')
-                    self.dialog_show_ok(QMessageBox.Warning, f'{head}', f'\n{framingError}')
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{framingError}\n')
                     return
                 newX = STATUS.get_position()[0][0] - STATUS.stat.g5x_offset[0] - self.laserOffsetX
                 newY = STATUS.get_position()[0][1] - STATUS.stat.g5x_offset[1] - self.laserOffsetY
@@ -4731,27 +4731,17 @@ class HandlerClass:
                 framingError, framePoints = self.bounds_check_framing(self.laserOffsetX, self.laserOffsetY, True)
                 if framingError:
                     head = _translate('HandlerClass', 'Axis Limit Error')
-                    framingError += _translate('HandlerClass', '\n\nDo you want to try with the torch?\n')
+                    framingError += _translate('HandlerClass', '\n\nFrame the job using the torch instead?\n')
                     response = self.dialog_show_yesno(QMessageBox.Warning, f'{head}', f'\n{framingError}')
                     if response:
-                        framingError, framePoints = self.bounds_check_framing()
-                        if framingError:
-                            head = _translate('HandlerClass', 'Axis Limit Error')
-                            self.dialog_show_ok(QMessageBox.Warning, f'{head}', f'\n{framingError}')
-                            self.w.run.setEnabled(True)
-                            return
+                        framePoints = self.bounds_check_framing()[1]
                     else:
                         self.w.run.setEnabled(True)
                         return
                 else:
                     self.laserOnPin.set(1)
             else:
-                framingError, framePoints = self.bounds_check_framing()
-                if framingError:
-                    head = _translate('HandlerClass', 'Axis Limit Error')
-                    self.dialog_show_ok(QMessageBox.Warning, f'{head}', f'\n{framingError}')
-                    self.w.run.setEnabled(True)
-                    return
+                framePoints = self.bounds_check_framing()[1]
             if not self.frFeed:
                 feed = float(self.w.cut_feed_rate.text().replace(',', '.'))
             else:
