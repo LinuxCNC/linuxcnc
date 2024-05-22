@@ -290,11 +290,13 @@ class _Lcnc_Action(object):
         old = STATUS.stat.file
         flt = INFO.get_filter_program(str(fname))
 
-        if os.path.basename(fname).count('.') > 1:
-            e = 'Open File error: Multiple \'.\' not allowed in Linuxcnc'
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, e)
-            LOG.debug(e)
-            return
+        # probably not needed now but in case wanted
+        if INFO.INI.find("DISPLAY", "NO_MULTIPLE_DOT_FILENAME"):
+            if os.path.basename(fname).count('.') > 1:
+                e = 'Open File error: Multiple \'.\' not allowed in Linuxcnc'
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, e)
+                LOG.debug(e)
+                return
 
         if flt:
             LOG.debug('get {} filtered program {}'.format(flt, fname))
@@ -318,15 +320,20 @@ class _Lcnc_Action(object):
         # normalize to absolute path
         try:
             path = os.path.abspath(fname)
-            if '.' not in path:
-                path += ending
-            if path.count('.') > 1:
-                e = 'Save Error: Multiple \'.\' not allowed in Linuxcnc'
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, e)
-                LOG.debug(e)
-                return None
-            name, ext = path.rsplit('.')
-            npath = name + '.' + ext.lower()
+            name, ext = os.path.splitext(path)
+
+            # add extension if missing
+            if ext == '':
+                ext = ending
+            npath = name + ext.lower()
+
+            # might not need this now but here it is in case wanted
+            if INFO.INI.find("DISPLAY", "NO_MULTIPLE_DOT_FILENAME"):
+                if npath.count('.') > 1:
+                    e = 'Save Error: Multiple \'.\' not allowed in Linuxcnc'
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, e)
+                    LOG.debug(e)
+                    return None
         except Exception as e:
             LOG.debug('save error: {}'.format(e))
             LOG.debug('Original save path: {}'.format(fname))
