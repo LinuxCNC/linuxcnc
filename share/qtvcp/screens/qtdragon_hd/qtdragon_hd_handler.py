@@ -670,8 +670,9 @@ class HandlerClass:
 
     def file_loaded(self, obj, filename):
         if os.path.basename(filename).count('.') > 1:
-            self.last_loaded_program = ""
-            return
+            if INFO.INI.find("DISPLAY", "NO_MULTIPLE_DOT_FILENAME"):
+                self.last_loaded_program = ""
+                return
         if filename is not None:
             self.add_status("Loaded file {}".format(filename))
             self.w.progressBar.reset()
