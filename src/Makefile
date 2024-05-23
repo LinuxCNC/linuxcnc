@@ -1128,6 +1128,7 @@ rosekins-objs := emc/kinematics/rosekins.o
 obj-m += scorbot-kins.o
 scorbot-kins-objs := emc/kinematics/scorbot-kins.o
 
+
 ifeq ($(origin userkfuncs), undefined)
   # use template:
   USERKFUNCS = emc/kinematics/userkfuncs.o
@@ -1198,6 +1199,14 @@ obj-m += 5axiskins.o
 5axiskins-objs += emc/kinematics/kins_util.o
 5axiskins-objs += emc/kinematics/switchkins.o
 5axiskins-objs += $(USERKFUNCS)
+
+obj-m += hot-kins.o
+hot-kins-objs := emc/kinematics/hot-kins.o
+hot-kins-objs += libnml/posemath/_posemath.o
+hot-kins-objs += libnml/posemath/sincos.o $(MATHSTUB)
+hot-kins-objs += emc/kinematics/kins_util.o
+hot-kins-objs += $(USERKFUNCS)
+
 #----------------------------------------------------------------
 
 obj-$(CONFIG_MOTMOD) += motmod.o
@@ -1329,6 +1338,7 @@ endif
 ../rtlib/rotarydeltakins$(MODULE_EXT): $(addprefix objects/rt,$(rotarydeltakins-objs))
 ../rtlib/rosekins$(MODULE_EXT): $(addprefix objects/rt,$(rosekins-objs))
 ../rtlib/scorbot-kins$(MODULE_EXT): $(addprefix objects/rt,$(scorbot-kins-objs))
+../rtlib/hot-kins$(MODULE_EXT): $(addprefix objects/rt,$(hot-kins-objs))
 ../rtlib/hal_gm$(MODULE_EXT): $(addprefix objects/rt,$(hal_gm-objs))
 ../rtlib/hostmot2$(MODULE_EXT): $(addprefix objects/rt,$(hostmot2-objs))
 ../rtlib/hm2_test$(MODULE_EXT): $(addprefix objects/rt,$(hm2_test-objs))
