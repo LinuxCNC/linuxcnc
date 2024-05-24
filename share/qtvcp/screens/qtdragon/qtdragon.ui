@@ -17626,7 +17626,7 @@ ALL</string>
              <number>2</number>
             </property>
             <property name="text">
-             <string>04:50:22 PM</string>
+             <string>06:16:36 PM</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -18049,8 +18049,8 @@ ALL</string>
    <slot>cam_dia_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>404</x>
-     <y>134</y>
+     <x>441</x>
+     <y>151</y>
     </hint>
     <hint type="destinationlabel">
      <x>1124</x>
@@ -18065,8 +18065,8 @@ ALL</string>
    <slot>btn_spindle_z_down_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>424</x>
-     <y>84</y>
+     <x>549</x>
+     <y>121</y>
     </hint>
     <hint type="destinationlabel">
      <x>926</x>
@@ -18113,8 +18113,8 @@ ALL</string>
    <slot>chk_use_virtual_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>474</x>
-     <y>84</y>
+     <x>482</x>
+     <y>82</y>
     </hint>
     <hint type="destinationlabel">
      <x>565</x>
@@ -18129,8 +18129,8 @@ ALL</string>
    <slot>chk_override_limits_checked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>474</x>
-     <y>84</y>
+     <x>482</x>
+     <y>87</y>
     </hint>
     <hint type="destinationlabel">
      <x>719</x>
@@ -18161,8 +18161,8 @@ ALL</string>
    <slot>chk_alpha_mode_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>474</x>
-     <y>84</y>
+     <x>482</x>
+     <y>72</y>
     </hint>
     <hint type="destinationlabel">
      <x>645</x>
@@ -18193,8 +18193,8 @@ ALL</string>
    <slot>btn_touchoff_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>82</x>
-     <y>104</y>
+     <x>148</x>
+     <y>135</y>
     </hint>
     <hint type="destinationlabel">
      <x>322</x>
@@ -18209,8 +18209,8 @@ ALL</string>
    <slot>chk_use_camera_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>474</x>
-     <y>84</y>
+     <x>482</x>
+     <y>85</y>
     </hint>
     <hint type="destinationlabel">
      <x>656</x>
@@ -18241,8 +18241,8 @@ ALL</string>
    <slot>cam_zoom_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>404</x>
-     <y>134</y>
+     <x>441</x>
+     <y>145</y>
     </hint>
     <hint type="destinationlabel">
      <x>1105</x>
@@ -18257,8 +18257,8 @@ ALL</string>
    <slot>cam_rot_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>404</x>
-     <y>134</y>
+     <x>441</x>
+     <y>157</y>
     </hint>
     <hint type="destinationlabel">
      <x>1156</x>
@@ -18273,8 +18273,8 @@ ALL</string>
    <slot>chk_inhibit_selection_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>474</x>
-     <y>84</y>
+     <x>482</x>
+     <y>74</y>
     </hint>
     <hint type="destinationlabel">
      <x>719</x>
@@ -18305,8 +18305,8 @@ ALL</string>
    <slot>chk_run_from_line_checked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>474</x>
-     <y>84</y>
+     <x>482</x>
+     <y>81</y>
     </hint>
     <hint type="destinationlabel">
      <x>554</x>
@@ -18401,8 +18401,8 @@ ALL</string>
    <slot>btn_spindle_z_up_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>424</x>
-     <y>84</y>
+     <x>487</x>
+     <y>121</y>
     </hint>
     <hint type="destinationlabel">
      <x>717</x>
@@ -18417,7 +18417,7 @@ ALL</string>
    <slot>chk_use_sensor_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>474</x>
+     <x>482</x>
      <y>84</y>
     </hint>
     <hint type="destinationlabel">
@@ -18433,8 +18433,8 @@ ALL</string>
    <slot>btn_zoomin_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>424</x>
-     <y>84</y>
+     <x>535</x>
+     <y>128</y>
     </hint>
     <hint type="destinationlabel">
      <x>631</x>
@@ -18465,8 +18465,8 @@ ALL</string>
    <slot>btn_zoomout_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>424</x>
-     <y>84</y>
+     <x>649</x>
+     <y>128</y>
     </hint>
     <hint type="destinationlabel">
      <x>1073</x>
@@ -18602,6 +18602,22 @@ ALL</string>
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>gcodegraphics</sender>
+   <signal>percentLoaded(int)</signal>
+   <receiver>MainWindow</receiver>
+   <slot>percent_loaded_changed()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>533</x>
+     <y>102</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>484</x>
+     <y>-62</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <designerdata>
   <property name="gridDeltaX">
@@ -18684,8 +18700,8 @@ ALL</string>
   <slot>btn_stop_clicked()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="buttonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
+  <buttongroup name="page_buttonGroup"/>
  </buttongroups>
 </ui>
