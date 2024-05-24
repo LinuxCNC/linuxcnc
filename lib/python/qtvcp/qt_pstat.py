@@ -67,7 +67,7 @@ class _PStat(object):
                 # loading widget libraries
                 self.BASEDIR = self.WORKINGDIR
             self.RIPCONFIGDIR = os.path.join(self.BASEDIR, "configs", "sim", "qtvcp_screens")
-
+            self.CONFIGPATH = self.WORKINGDIR
             # specific library paths
             self.TOUCHOFF_SUBPROGRAM = os.path.abspath(os.path.join(
                 self.BASEDIR, 'lib/python/qtvcp/lib/touchoff_subprogram.py'))
