@@ -549,8 +549,8 @@ class GlCanonDraw:
                     else:
                         self.dro_mm = temp
                         self.dro_in = temp
-                self.foam_w_height = float(self.ini_file.find("[DISPLAY]", "FOAM_W") or 1.5)
-                self.foam_z_height = float(self.ini_file.find("[DISPLAY]", "FOAM_Z") or 0)
+                self.foam_w_height = float(self.inifile.find("[DISPLAY]", "FOAM_W") or 1.5)
+                self.foam_z_height = float(self.inifile.find("[DISPLAY]", "FOAM_Z") or 0)
                 size = (self.inifile.find("DISPLAY", "CONE_BASESIZE") or None)
                 if size is not None:
                     self.set_cone_basesize(float(size))
