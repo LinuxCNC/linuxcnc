@@ -527,11 +527,13 @@ class GlCanonDraw:
 
         # Set to -1 to disable the file size limit.
         # The file size limit is set to 20MB or 1/4 of the system memory, whichever is smaller.
+        # TODO I don't see any calculation for 1/4 of system_memory_gb ? CMorley 2024
         self.max_file_size = min(system_memory_gb, 20) * 1024 * 1024
 
         try:
             if os.environ["INI_FILE_NAME"]:
                 self.inifile = linuxcnc.ini(os.environ["INI_FILE_NAME"])
+
                 if self.inifile.find("DISPLAY", "DRO_FORMAT_IN"):
                     temp = self.inifile.find("DISPLAY", "DRO_FORMAT_IN")
                     try:
@@ -540,6 +542,7 @@ class GlCanonDraw:
                         print("Error: invalid [DISPLAY] DRO_FORMAT_IN in INI file")
                     else:
                         self.dro_in = temp
+
                 if self.inifile.find("DISPLAY", "DRO_FORMAT_MM"):
                     temp = self.inifile.find("DISPLAY", "DRO_FORMAT_MM")
                     try:
@@ -549,11 +552,19 @@ class GlCanonDraw:
                     else:
                         self.dro_mm = temp
                         self.dro_in = temp
+
                 self.foam_w_height = float(self.inifile.find("[DISPLAY]", "FOAM_W") or 1.5)
                 self.foam_z_height = float(self.inifile.find("[DISPLAY]", "FOAM_Z") or 0)
+
                 size = (self.inifile.find("DISPLAY", "CONE_BASESIZE") or None)
                 if size is not None:
                     self.set_cone_basesize(float(size))
+
+                # set maximum file size before showing boundary box instead
+                temp = self.inifile.find("DISPLAY", "GRAPHICAL_MAX_FILE_SIZE")
+                if not temp is None:
+                    self.max_file_size = int(temp) * 1024 * 1024
+
         except:
             # Probably started in an editor so no INI
             pass
