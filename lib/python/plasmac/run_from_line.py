@@ -73,10 +73,10 @@ def run_from_line_get(file, startLine, lastLine=0):
                 material = [line.strip()]
             continue
         elif line.startswith('M190'):
-            material[0] = line.strip()
+            material = [line.strip()]
             continue
         elif line.replace(' ', '').startswith('M66P3'):
-            material[1] = line.strip()
+            material.append(line.strip())
             continue
         elif line.startswith('#'):
             params.append(line.strip())
