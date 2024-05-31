@@ -1474,7 +1474,7 @@ static void get_pos_cmds(long period)
 	
 	/* Zero values */
 	joint_limit[joint_num][0] = 0;
-	joint_limit[joint_num][0] = 1;
+	joint_limit[joint_num][1] = 0;
 	
 	/* skip inactive or unhomed axes */
 	if ((!GET_JOINT_ACTIVE_FLAG(joint)) || (!get_homed(joint_num))) {
