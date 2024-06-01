@@ -1,5 +1,6 @@
 import os, time
 from PyQt5 import QtCore, QtWidgets, QtGui
+from PyQt5.QtCore import QCoreApplication
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
 from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
 from qtvcp.widgets.tool_offsetview import ToolOffsetView as TOOL_TABLE
@@ -33,6 +34,8 @@ try:
     from PyQt5.QtWebEngineWidgets import QWebEnginePage
 except:
     LOG.warning('QtDragon warning with loading QtWebEngineWidget - is python3-pyqt5.qtwebengine installed?')
+
+_translate = QCoreApplication.translate
 
 # constants for tab pages
 # probe is not actually a separate tab now
@@ -137,23 +140,27 @@ class HandlerClass:
         STATUS.connect('override-limits-changed', lambda w, state, data: self._check_override_limits(state, data))
         STATUS.connect('graphics-gcode-properties', lambda w, d: self.update_gcode_properties(d))
 
+        txt1 = _translate("HandlerClass","Setup Tab")
+        txt2 = _translate("HandlerClass","If you select a file with .html as a file ending, it will be shown here.")
+        txt3 = _translate("HandlerClass","Documents online")
+        txt4 = _translate("HandlerClass","QtDragon online")
+        txt5 = _translate("HandlerClass","Local files")
         self.html = """<html>
 <head>
 <title>Test page for the download:// scheme</title>
 </head>
 <body>
-<h1>Setup Tab</h1>
-<p>If you select a file with .html as a file ending, it will be shown here..</p>
-<li><a href="http://linuxcnc.org/docs/devel/html/">Documents online</a></li>
-<li><a href="http://linuxcnc.org/docs/2.9/html/gui/qtdragon.html">QtDragon online</a></li>
-<li><a href="file://%s">Local files</a></li>
+<h1>%s</h1>
+<p>%s.</p>
+<li><a href="http://linuxcnc.org/docs/devel/html/">%s</a></li>
+<li><a href="http://linuxcnc.org/docs/2.9/html/gui/qtdragon.html">%s</a></li>
+<li><a href="file://%s">%s</a></li>
 <img src="file://%s" alt="lcnc_swoop" />
 <hr />
 </body>
 </html>
-"""%(  os.path.expanduser('~/linuxcnc'),
+"""%( txt1, txt2, txt3, txt4, os.path.expanduser('~/linuxcnc'), txt5,
         os.path.join(paths.IMAGEDIR,'lcnc_swoop.png'))
-
 
     def class_patch__(self):
         # override file manager load button
@@ -199,7 +206,7 @@ class HandlerClass:
                 self.w[i].hide()
         # angular increment controls
         if flag:
-           self.w.lbl_increments_linear.setText("INCREMENTS")
+           self.w.lbl_increments_linear.setText(_translate('HandlerClass',"INCREMENTS"))
         else:
             self.w.widget_jog_angular.hide()
             self.w.widget_increments_angular.hide()
@@ -288,7 +295,8 @@ class HandlerClass:
 
     def init_preferences(self):
         if not self.w.PREFS_:
-            self.add_status("CRITICAL - no preference file found, enable preferences in screenoptions widget")
+            txt = _translate("HandlerClass","No preference file found, enable preferences in screenoptions widget")
+            self.add_status(txt, CRITICAL)
             return
         self.last_loaded_program = self.w.PREFS_.getpref('last_loaded_file', None, str,'BOOK_KEEPING')
         self.reload_tool = self.w.PREFS_.getpref('Tool to load', 0, int,'CUSTOM_FORM_ENTRIES')
@@ -568,15 +576,17 @@ class HandlerClass:
             if not self.h.hal.pin_has_writer(i):
                 self.spindle_lift_pins_present = False
                 #self.add_status('{} pin not connected in a HAL FILE'.format(i))
-                LOG.warning("{} not connected".format(i))
+                LOG.warning("{} {}".format(_translate("HandlerClass","not connected"), i))
 
         # halui pins could cause resume without the spindle running
         # and would not honour spindle lift. Should use qtdragon pin provided
         for i in ('halui.program.resume','halui.program.pause'):
             if self.h.hal.pin_has_writer(i):
                 self.spindle_lift_pins_present = False
-                LOG.warning("HALUI pause/resume pin(s) connected - spindle lift not available")
-                self.add_status('Warning: {} pin connected in a HAL file, spindle lift disabled'.format(i), WARNING)
+                LOG.warning(_translate("HandlerClass","HALUI pause/resume pin(s) connected - spindle lift not available"))
+                txt1 = _translate("HandlerClass","Warning:")
+                txt2 = _translate("HandlerClass", "pin connected in a HAL file, spindle lift disabled")
+                self.add_status(f"{txt2} {i} {txt2}", WARNING)
                 break
 
     #########################
@@ -645,7 +655,7 @@ class HandlerClass:
                 self.add_status("File not copied", CRITICAL)
         elif lower_code and name == 'MESSAGE':
             self.h['eoffset-spindle-count'] = 0
-            self.add_status('Spindle lowered after machine stopped')
+            self.add_status(_translate("HandlerClass",'Spindle lowered after machine stopped'))
             self.w.spindle_eoffset_value.setText('0')
 
 
@@ -674,32 +684,33 @@ class HandlerClass:
                 self.last_loaded_program = ""
                 return
         if filename is not None:
-            self.add_status("Loaded file {}".format(filename))
+            txt = _translate("HandlerClass","Loaded file")
+            self.add_status(f"{txt} {filename}")
             self.w.progressBar.reset()
             self.last_loaded_program = filename
             self.w.lbl_runtime.setText("00:00:00")
         else:
-            self.add_status("Filename not valid", CRITICAL)
+            self.add_status(_translate("HandlerClass","Filename not valid"), CRITICAL)
 
     def percent_loaded_changed(self, fraction):
         if fraction < 0:
             self.w.progressBar.setValue(0)
-            self.w.progressBar.setFormat('PROGRESS')
+            self.w.progressBar.setFormat(_translate("HandlerClass",'PROGRESS'))
         else:
             self.w.progressBar.setValue(fraction)
-            self.w.progressBar.setFormat('LOADING: {}%'.format(fraction))
+            self.w.progressBar.setFormat('{}: {}%'.format(_translate("HandlerClass",'LOADING'),fraction))
 
     def percent_done_changed(self, fraction):
         self.w.progressBar.setValue(fraction)
         if fraction < 0:
             self.w.progressBar.setValue(0)
-            self.w.progressBar.setFormat('PROGRESS')
+            self.w.progressBar.setFormat(_translate("HandlerClass",'PROGRESS'))
         else:
-            self.w.progressBar.setFormat('COMPLETE: {}%'.format(fraction))
+            self.w.progressBar.setFormat('{}: {}%'.format(_translate("HandlerClass",'COMPLETE'), fraction))
 
     def all_homed(self, obj):
         self.home_all = True
-        self.w.btn_home_all.setText("ALL HOMED")
+        self.w.btn_home_all.setText(_translate("HandlerClass","ALL HOMED"))
         if self.first_turnon is True:
             self.first_turnon = False
             if self.w.chk_reload_tool.isChecked():
@@ -716,10 +727,10 @@ class HandlerClass:
 
     def not_all_homed(self, obj, list):
         self.home_all = False
-        self.w.btn_home_all.setText("HOME ALL")
+        self.w.btn_home_all.setText(_translate("HandlerClass","HOME ALL"))
 
     def hard_limit_tripped(self, obj, tripped, list_of_tripped):
-        self.add_status("Hard limits tripped", CRITICAL)
+        self.add_status(_translate("HandlerClass","Hard limits tripped"), CRITICAL)
         self.w.chk_override_limits.setEnabled(tripped)
         if not tripped:
             self.w.chk_override_limits.setChecked(False)
@@ -754,7 +765,7 @@ class HandlerClass:
         if self.w.cmb_gcode_history.currentIndex() == 0: return
         filename = self.w.cmb_gcode_history.currentText()
         if filename == self.last_loaded_program:
-            self.add_status("Selected program is already loaded", WARNING)
+            self.add_status(_translate("HandlerClass","Selected program is already loaded"), WARNING)
         else:
             ACTION.OPEN_PROGRAM(filename)
 
@@ -763,21 +774,21 @@ class HandlerClass:
         if self.w.stackedWidget_mainTab.currentIndex() != 0:
             return
         if not STATUS.is_auto_mode():
-            self.add_status("Must be in AUTO mode to run a program", CRITICAL)
+            self.add_status(_translate("HandlerClass","Must be in AUTO mode to run a program"), CRITICAL)
             return
         if STATUS.is_auto_running():
-            self.add_status("Program is already running", WARNING)
+            self.add_status(_translate("HandlerClass","Program is already running"), WARNING)
             return
         if self.start_line <= 1:
             ACTION.RUN(self.start_line)
         else:
             # instantiate run from line preset dialog
-            info = '<b>Running From Line: {} <\b>'.format(self.start_line)
+            info = '<b>{}: {} <\b>'.format(_translate("HandlerClass","Running From Line"),self.start_line)
             mess = {'NAME':'RUNFROMLINE', 'TITLE':'Preset Dialog', 'ID':'_RUNFROMLINE', 'MESSAGE':info, 'LINE':self.start_line}
             ACTION.CALL_DIALOG(mess)
 
         self.start_timer()
-        self.add_status("Started program from line {}".format(self.start_line))
+        self.add_status("{} {}".format(_translate("HandlerClass","Started program from line"), self.start_line))
 
     def btn_stop_clicked(self):
         if not self.w.btn_spindle_pause.isChecked(): return
@@ -785,7 +796,7 @@ class HandlerClass:
         if not self.h['eoffset-spindle-count'] == 0:
             # or wait for dialog to close before lowering spindle
             # instantiate warning box
-                info = "Spindle lift still active. press OK to lower spindle"
+                info = _translate("HandlerClass","Spindle lift still active. press OK to lower spindle")
                 mess = {'NAME':'MESSAGE', 'ICON':'WARNING', 'ID':'_wait_to_lower_',
                          'MESSAGE':'CAUTION', 'MORE':info, 'TYPE':'OK'}
                 ACTION.CALL_DIALOG(mess)
@@ -793,28 +804,28 @@ class HandlerClass:
     def btn_reload_file_clicked(self):
         if self.last_loaded_program:
             self.w.progressBar.reset()
-            self.add_status("Loaded program file {}".format(self.last_loaded_program))
+            self.add_status("{} {}".format(_translate("HandlerClass","Loaded program file"), self.last_loaded_program))
             ACTION.OPEN_PROGRAM(self.last_loaded_program)
 
     def btn_enable_comp_clicked(self, state):
         if state:
             fname = os.path.join(PATH.CONFIGPATH, "probe_points.txt")
             if not os.path.isfile(fname):
-                self.add_status(fname + " not found", CRITICAL)
+                self.add_status(fname + _translate("HandlerClass"," not found"), CRITICAL)
                 self.w.btn_enable_comp.setChecked(False)
                 return
             if not QHAL.hal.component_exists("z_level_compensation"):
-                self.add_status("Z level compensation HAL component not loaded", CRITICAL)
+                self.add_status(_translate("HandlerClass","Z level compensation HAL component not loaded"), CRITICAL)
                 self.w.btn_enable_comp.setChecked(False)
                 return
             self.h['comp-on'] = True
-            self.add_status("Z level compensation ON")
+            self.add_status(_translate("HandlerClass","Z level compensation ON"))
         else:
             if not QHAL.hal.component_exists("z_level_compensation"):
-                self.add_status("Z level compensation HAL component not loaded", CRITICAL)
+                self.add_status(_translate("HandlerClass","Z level compensation HAL component not loaded"), CRITICAL)
                 return
             self.h['comp-on'] = False
-            self.add_status("Z level compensation OFF", WARNING)
+            self.add_status(_translate("HandlerClass","Z level compensation OFF"), WARNING)
 
 
     # offsets frame
@@ -851,7 +862,7 @@ class HandlerClass:
             x = INFO.convert_machine_to_imperial(x)
             y = INFO.convert_machine_to_imperial(y)
 
-        self.add_status("Laser offsets set")
+        self.add_status(_translate("HandlerClass","Laser offsets set"))
         command = "G10 L20 P0 X{:3.4f} Y{:3.4f}".format(x, y)
         ACTION.CALL_MDI(command)
     
@@ -866,22 +877,24 @@ class HandlerClass:
             x = INFO.convert_machine_to_imperial(x)
             y = INFO.convert_machine_to_imperial(y)
 
-        self.add_status("Camera offsets set")
+        self.add_status(_translate("HandlerClass","Camera offsets set"))
         command = "G10 L20 P0 X{:3.4f} Y{:3.4f}".format(x, y)
         ACTION.CALL_MDI(command)
 
     def btn_touchoff_clicked(self):
         if STATUS.get_current_tool() == 0:
-            self.add_status("Cannot touchoff with no tool loaded", CRITICAL)
+            self.add_status(_translate("HandlerClass","Cannot touchoff with no tool loaded"), CRITICAL)
             return
         if not STATUS.is_all_homed():
-            self.add_status("Must be homed to perform tool touchoff", WARNING)
+            self.add_status(_translate("HandlerClass","Must be homed to perform tool touchoff"), WARNING)
             return
          
          # instantiate dialog box   
         unit = "mm" if INFO.MACHINE_IS_METRIC else "in"
         sensor = self.w.sender().property('sensor')
-        info = "Ensure tooltip is within {}{} of tool sensor and click OK".format(self.w.lineEdit_max_probe.text(), unit)
+        txt1 = _translate("HandlerClass","Ensure tooltip is within")
+        txt2 = _translate("HandlerClass","of tool sensor and click OK")
+        info = "{} {}{} {}".format(txt1, self.w.lineEdit_max_probe.text(), unit, tx2)
         mess = {'NAME':'MESSAGE', 'ID':sensor, 'MESSAGE':'TOOL TOUCHOFF', 'MORE':info, 'TYPE':'OKCANCEL'}
         ACTION.CALL_DIALOG(mess)
         
@@ -894,7 +907,7 @@ class HandlerClass:
             ACTION.SET_MACHINE_HOMING(-1)
         else:
         # instantiate dialog box
-            info = "Unhome All Axes?"
+            info = _translate("HandlerClass","Unhome All Axes?")
             mess = {'NAME':'MESSAGE', 'ID':'_unhome_', 'MESSAGE':'UNHOME ALL', 'MORE':info, 'TYPE':'OKCANCEL'}
             ACTION.CALL_DIALOG(mess)
 
@@ -912,12 +925,12 @@ class HandlerClass:
         current = self.w[slider].value()
         max = self.w[slider].maximum()
         if state:
-            self.w.sender().setText("SLOW")
+            self.w.sender().setText(_translate("HandlerClass","SLOW"))
             self.w[slider].setMaximum(max / self.slow_jog_factor)
             self.w[slider].setValue(current / self.slow_jog_factor)
             self.w[slider].setPageStep(10)
         else:
-            self.w.sender().setText("FAST")
+            self.w.sender().setText(_translate("HandlerClass","FAST"))
             self.w[slider].setMaximum(max * self.slow_jog_factor)
             self.w[slider].setValue(current * self.slow_jog_factor)
             self.w[slider].setPageStep(100)
@@ -966,7 +979,7 @@ class HandlerClass:
         else:
             return
         if source[1] is False:
-            self.add_status("Specified source is not a file", CRITICAL)
+            self.add_status(_translate("HandlerClass","Specified source is not a file"), CRITICAL)
             return
         self.source_file = source[0]
         if target[1] is True:
@@ -974,7 +987,7 @@ class HandlerClass:
         else:
             self.destination_file = os.path.join(target[0], os.path.basename(source[0]))
         if os.path.isfile(self.destination_file):
-            info = "{} already exists in destination directory".format(self.destination_file)
+            info = "{} {}".format(_translate("HandlerClass","already exists in destination directory"), self.destination_file)
             mess = {'NAME':'MESSAGE', 'ICON':'WARNING', 'ID':'_overwrite_', 'MESSAGE':'OVERWRITE FILE?', 'MORE':info, 'TYPE':'YESNO','NONBLOCKING':True}
             ACTION.CALL_DIALOG(mess)
         else:
@@ -984,12 +997,12 @@ class HandlerClass:
     def btn_m61_clicked(self):
         checked = self.w.tooloffsetview.get_checked_list()
         if len(checked) > 1:
-            self.add_status("Select only 1 tool to load", CRITICAL)
+            self.add_status(_translate("HandlerClass","Select only 1 tool to load"), CRITICAL)
         elif checked:
-            self.add_status("Loaded tool {}".format(checked[0]))
+            self.add_status("{} {}".format(_translate("HandlerClass","Loaded tool"), checked[0]))
             ACTION.CALL_MDI("M61 Q{} G43".format(checked[0]))
         else:
-            self.add_status("No tool selected", WARNING)
+            self.add_status(_translate("HandlerClass","No tool selected"), WARNING)
 
     # status tab
     def btn_clear_status_clicked(self):
@@ -999,7 +1012,7 @@ class HandlerClass:
         text = self.w.machinelog.toPlainText()
         filename = self.w.lbl_clock.text()
         filename = 'status_' + filename.replace(' ','_') + '.txt'
-        self.add_status("Saving Status file to {}".format(filename))
+        self.add_status("{} {}".format(_translate("HandlerClass","Saving Status file to"), filename))
         with open(filename, 'w') as f:
             f.write(text)
 
@@ -1033,7 +1046,7 @@ class HandlerClass:
     def chk_override_limits_checked(self, state):
         # only toggle override if it's not in synch with the button
         if state and not STATUS.is_limits_override_set():
-            self.add_status("Override limits set", WARNING)
+            self.add_status(_translate("HandlerClass","Override limits set"), WARNING)
             ACTION.TOGGLE_LIMITS_OVERRIDE()
         elif not state and STATUS.is_limits_override_set():
             error = ACTION.TOGGLE_LIMITS_OVERRIDE()
@@ -1043,11 +1056,11 @@ class HandlerClass:
                 self.w.chk_override_limits.setChecked(True)
                 self.w.chk_override_limits.blockSignals(False)
             else:
-                self.add_status("Override limits not set")
+                self.add_status(_translate("HandlerClass","Override limits not set"))
 
     def chk_run_from_line_changed(self, state):
         if not state:
-            self.w.btn_cycle_start.setText('CYCLE START')
+            self.w.btn_cycle_start.setText(_translate("HandlerClass",'CYCLE START'))
 
     def chk_alpha_mode_changed(self, state):
         self.w.gcodegraphics.set_alpha_mode(state)
@@ -1089,8 +1102,9 @@ class HandlerClass:
         AUX_PRGM.load_gcode_ripper()
 
     def btn_about_clicked(self):
-        self.add_status("QtDragon_hd Version {} on Linuxcnc {} ".format(
-            VERSION, STATUS.get_linuxcnc_version()), CRITICAL)
+        txt1 = _translate("HandlerClass","QtDragon_hd Version")
+        txt2 = _translate("HandlerClass","on Linuxcnc")
+        self.add_status(f"{txt1} {VERSION} {txt2} {STATUS.get_linuxcnc_version()}", CRITICAL)
         info = ACTION.GET_ABOUT_INFO()
         self.w.aboutDialog_.showdialog()
 
@@ -1138,7 +1152,7 @@ class HandlerClass:
         if data*1000 - self.h['eoffset-zlevel-count'] < .0001:
             # spindle better be un-inhibitted
             if self.h['spindle-inhibit'] == True:
-                self.add_status('Spindle not running - keeping paused',CRITICAL)
+                self.add_status(_translate("HandlerClass",'Spindle not running - keeping paused'),CRITICAL)
                 return
             self.h['spindle-lift-on'] = False
             ACTION.RESUME()
@@ -1165,7 +1179,7 @@ class HandlerClass:
             pass
         else:
             if not self.w.chk_eoffsets.isChecked() and self.w.btn_spindle_pause.isChecked():
-                self.add_status('Eoffsets Setting Unchecked - Can Not Raise Spindle',CRITICAL)
+                self.add_status(_translate("HandlerClass",'Eoffsets Setting Unchecked - Can Not Raise Spindle'),CRITICAL)
             self.w.btn_spindle_pause.setEnabled(False)
             self.w.btn_spindle_pause.setChecked(False)
             return
@@ -1186,16 +1200,17 @@ class HandlerClass:
 
         # stop the spindle
         self.h['spindle-inhibit'] = True
-        self.add_status("Spindle stopped and raising to {}".format(fval))
+        txt = _translate("HandlerClass","Spindle stopped and raising to")
+        self.add_status(f"{txt} {fval}")
 
     def lowerSpindle(self):
         # spindle better be un-inhibitted
         if self.h['spindle-inhibit'] == True:
-            self.add_status('Spindle not running - keeping raised and paused',CRITICAL)
+            self.add_status(_translate("HandlerClass","Spindle not running - keeping raised and paused"),CRITICAL)
             return
 
         self.h['eoffset-spindle-count'] = 0
-        self.add_status('Spindle lowered')
+        self.add_status(_translate("HandlerClass",'Spindle lowered'))
         self.w.spindle_eoffset_value.setText('0')
 
 
@@ -1218,7 +1233,7 @@ class HandlerClass:
         # lowering required before resuming
         elif STATUS.is_auto_paused():
             self.h['spindle-inhibit'] = False
-            self.add_status('Request Spindle Speed Wait')
+            self.add_status(_translate("HandlerClass",'Request Spindle Speed Wait'))
             # If spindle at speed is connected to a pin, use it lower spindle
             if self.h.hal.pin_has_writer('spindle.0.at-speed'):
                 self._spindle_wait = True
@@ -1226,7 +1241,7 @@ class HandlerClass:
             else:
             # or wait for dialog to close before lowering spindle
             # instantiate warning box
-                info = "Wait for spindle at speed signal before resuming"
+                info = _translate("HandlerClass","Wait for spindle at speed signal before resuming")
                 mess = {'NAME':'MESSAGE', 'ICON':'WARNING', 'ID':'_wait_resume_',
                          'MESSAGE':'CAUTION', 'MORE':info, 'TYPE':'OK'}
                 ACTION.CALL_DIALOG(mess)
@@ -1257,13 +1272,13 @@ class HandlerClass:
 
         if not file_extension in (".html", '.pdf'):
             if not (INFO.program_extension_valid(fname)):
-                self.add_status("Unknown or invalid filename extension {}".format(file_extension), WARNING)
+                self.add_status("{} {}".format(_translate("HandlerClass","Unknown or invalid filename extension"), file_extension), WARNING)
                 return
             self.w.cmb_gcode_history.addItem(fname)
             self.w.cmb_gcode_history.setCurrentIndex(self.w.cmb_gcode_history.count() - 1)
             self.w.cmb_gcode_history.setToolTip(fname)
             ACTION.OPEN_PROGRAM(fname)
-            self.add_status("Loaded program file : {}".format(fname))
+            self.add_status("{} : {}".format(_translate("HandlerClass","Loaded program file"), fname))
             self.w.stackedWidget_mainTab.setCurrentIndex(TAB_MAIN)
             self.w.filemanager.recordBookKeeping()
 
@@ -1272,16 +1287,16 @@ class HandlerClass:
             try:
                 if os.path.exists(fname):
                     self.w.web_view.load(QtCore.QUrl.fromLocalFile(fname))
-                    self.add_status("Loaded HTML file : {}".format(fname))
+                    self.add_status("{} : {}".format(_translate("HandlerClass","Loaded HTML file"), fname))
                 else:
                     self.w.web_view.setHtml(self.html)
             except Exception as e:
-                self.add_status("Can not Load HTML file {} :()".format(fname,e))
+                self.add_status("{} {} :()".format(_translate("HandlerClass","Can not Load HTML file"), fname,e))
             # look for PDF setup files
             fname = filename+'.pdf'
             if os.path.exists(fname):
                 self.PDFView.loadView(fname)
-                self.add_status("Loaded PDF file : {}".format(fname))
+                self.add_status("{} : {}".format(_translate("HandlerClass","Loaded PDF file"), fname))
             else:
                 self.PDFView.loadSample('setup_tab')
             return
@@ -1291,18 +1306,18 @@ class HandlerClass:
         if file_extension == ".html":
             try:
                 self.w.web_view.load(QtCore.QUrl.fromLocalFile(fname))
-                self.add_status("Loaded HTML file : {}".format(fname))
+                self.add_status("{} : {}".format(_translate("HandlerClass","Loaded HTML file"), fname))
                 self.w.stackedWidget_mainTab.setCurrentIndex(TAB_SETUP)
                 self.w.stackedWidget.setCurrentIndex(0)
                 self.w.tabWidget_setup.setCurrentIndex(0)
                 self.w.btn_setup.setChecked(True)
             except Exception as e:
-                self.add_status("Error loading HTML file {} : {}".format(fname,e))
+                self.add_status("{} {} : {}".format(_translate("HandlerClass","Error loading HTML file"), fname,e))
         else:
             # load PDF into setup page
             if os.path.exists(fname):
                 self.PDFView.loadView(fname)
-                self.add_status("Loaded PDF file : {}".format(fname))
+                self.add_status("{} : {}".format(_translate("HandlerClass","Loaded PDF file"), fname))
                 self.w.stackedWidget_mainTab.setCurrentIndex(TAB_SETUP)
                 self.w.stackedWidget.setCurrentIndex(0)
                 self.w.tabWidget_setup.setCurrentIndex(1)
@@ -1311,7 +1326,9 @@ class HandlerClass:
     # NGCGui library overridden function
     # adds an error message to status
     def check_linuxcnc_paths_fail_override(self, fname):
-        self.add_status("NGCGUI Path {} not in linuxcnc's SUBROUTINE_PATH INI entry".format(fname), CRITICAL)
+        txt1 = _translate("HandlerClass","NGCGUI Path")
+        txt2 = _translate("HandlerClass","not in linuxcnc's SUBROUTINE_PATH INI entry")
+        self.add_status("{} {} {}".format(txt1, fname, txt2), CRITICAL)
         return ''
 
     def update_gcode_properties(self, props ):
@@ -1355,9 +1372,11 @@ class HandlerClass:
         elif selector == 'sensor':
             z_offset = float(self.w.lineEdit_sensor_height.text()) - float(self.w.lineEdit_work_height.text())
         else:
-            self.add_alarm("Unknown touchoff routine specified")
+            self.add_alarm(_translate("HandlerClass","Unknown touchoff routine specified"))
             return
-        self.add_status("Touchoff to {} started".format(selector))
+        txt1 = _translate("HandlerClass","Touchoff to")
+        txt2 = _translate("HandlerClass","started")
+        self.add_status("{} {} {}".format(txt1, selector, txt2))
         max_probe = self.w.lineEdit_max_probe.text()
         search_vel = self.w.lineEdit_search_vel.text()
         probe_vel = self.w.lineEdit_probe_vel.text()
@@ -1369,8 +1388,8 @@ class HandlerClass:
             self.add_status(rtn, CRITICAL)
 
     def touchoff_return(self, data):
-        self.add_status("Touchplate touchoff routine returned successfully")
-        self.add_status("Touchplate returned:"+data, CRITICAL)
+        self.add_status(_translate("HandlerClass","Touchplate touchoff routine returned successfully"))
+        self.add_status(_translate("HandlerClass","Touchplate returned:")+data, CRITICAL)
 
     def touchoff_error(self, data):
         ACTION.SET_ERROR_MESSAGE(data)
@@ -1379,7 +1398,7 @@ class HandlerClass:
     def kb_jog(self, state, joint, direction, fast = False, linear = True):
         ACTION.SET_MANUAL_MODE()
         if not STATUS.is_man_mode() or not STATUS.machine_is_on():
-            self.add_status('Machine must be ON and in Manual mode to jog', WARNING)
+            self.add_status(_translate("HandlerClass",'Machine must be ON and in Manual mode to jog'), WARNING)
             return
         if linear:
             distance = STATUS.get_jog_increment()
@@ -1416,9 +1435,9 @@ class HandlerClass:
 
     def enable_onoff(self, state):
         if state:
-            self.add_status("Machine ON")
+            self.add_status(_translate("HandlerClass","Machine ON"))
         else:
-            self.add_status("Machine OFF")
+            self.add_status(_translate("HandlerClass","Machine OFF"))
             self.w.btn_spindle_pause.setChecked(False)
         self.h['eoffset-spindle-count'] = 0
         for widget in self.onoff_list:
@@ -1427,7 +1446,8 @@ class HandlerClass:
     def set_start_line(self, line):
         if self.w.chk_run_from_line.isChecked():
             self.start_line = line
-            self.w.btn_cycle_start.setText("CYCLE START\nLINE {}".format(self.start_line))
+            txt = _translate("HandlerClass","CYCLE START\nLINE")
+            self.w.btn_cycle_start.setText("{} {}".format(txt, self.start_line))
         else:
             self.start_line = 1
 
@@ -1435,15 +1455,18 @@ class HandlerClass:
         if self.w.chk_use_keyboard.isChecked():
             return True
         else:
-            self.add_status('Keyboard shortcuts are disabled')
+            self.add_status(_translate("HandlerClass",'Keyboard shortcuts are disabled'))
             return False
 
     def do_file_copy(self):
         try:
             copyfile(self.source_file, self.destination_file)
-            self.add_status("Copied file from {} to {}".format(self.source_file, self.destination_file))
+            txt1 = _translate("HandlerClass","Copied file from")
+            txt2 = _translate("HandlerClass","to")
+            self.add_status("{} {} {} {}".format(self.source_file, self.destination_file))
         except Exception as e:
-            self.add_status("Unable to copy file. %s" %e, WARNING)
+            txt = _translate("HandlerClass","Unable to copy file")
+            self.add_status(f"{txt}: {e}", WARNING)
 
     def periodic_update(self):
         # if waiting and up to speed, lower spindle
@@ -1475,7 +1498,8 @@ class HandlerClass:
     def stop_timer(self):
         if self.timer_on:
             self.timer_on = False
-            self.add_status("Run timer stopped at {}".format(self.w.lbl_runtime.text()))
+            txt = _translate("HandlerClass","Run timer stopped at")
+            self.add_status("{} {}".format(txt, self.w.lbl_runtime.text()))
 
     # web page zoom
     def zoomWeb(self):
@@ -1674,7 +1698,7 @@ class HandlerClass:
         # if indexes don't match then request is disallowed
         # give a warning and reset the button check
         if main_index != requestedIndex and not main_index in(TAB_CAMVIEW,TAB_GCODES,TAB_SETUP):
-            self.add_status("Cannot switch pages while in AUTO mode", WARNING)
+            self.add_status(_translate("HandlerClass","Cannot switch pages while in AUTO mode"), WARNING)
             self.w.stackedWidget_mainTab.setCurrentIndex(0)
             self.w.btn_main.setChecked(True)
     
@@ -1801,8 +1825,9 @@ class HandlerClass:
             self.kb_jog(state, 3, -1, shift, False)
 
     def on_keycall_F4(self,event,state,shift,cntrl):
+        txt = _translate("HandlerClass","Calculator")
         if state:
-            mess = {'NAME':'CALCULATOR', 'TITLE':'Calculator', 'ID':'_calculator_'}
+            mess = {'NAME':'CALCULATOR', 'TITLE':txt, 'ID':'_calculator_'}
             ACTION.CALL_DIALOG(mess)
 
     def on_keycall_F12(self,event,state,shift,cntrl):
