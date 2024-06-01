@@ -9071,7 +9071,7 @@ LOG</string>
                         <number>10</number>
                        </property>
                        <item row="3" column="3">
-                        <widget class="ActionButton" name="plus_jogbutton_4">
+                        <widget class="ActionButton" name="plus_jogbutton_3">
                          <property name="minimumSize">
                           <size>
                            <width>53</width>
@@ -9108,7 +9108,7 @@ LOG</string>
                         </widget>
                        </item>
                        <item row="9" column="2">
-                        <widget class="ActionButton" name="y_minus_jogbutton">
+                        <widget class="ActionButton" name="minus_jogbutton_1">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                            <horstretch>0</horstretch>
@@ -9201,7 +9201,7 @@ LOG</string>
                         </spacer>
                        </item>
                        <item row="3" column="1">
-                        <widget class="ActionButton" name="z_plus_jogbutton">
+                        <widget class="ActionButton" name="plus_jogbutton_2">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                            <horstretch>0</horstretch>
@@ -9245,7 +9245,7 @@ LOG</string>
                         </widget>
                        </item>
                        <item row="7" column="1">
-                        <widget class="ActionButton" name="x_minus_jogbutton">
+                        <widget class="ActionButton" name="minus_jogbutton_0">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                            <horstretch>0</horstretch>
@@ -9325,7 +9325,7 @@ LOG</string>
                         </widget>
                        </item>
                        <item row="7" column="3">
-                        <widget class="ActionButton" name="x_plus_jogbutton">
+                        <widget class="ActionButton" name="plus_jogbutton_0">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                            <horstretch>0</horstretch>
@@ -9418,7 +9418,7 @@ LOG</string>
                         </spacer>
                        </item>
                        <item row="4" column="3">
-                        <widget class="ActionButton" name="minus_jogbutton_4">
+                        <widget class="ActionButton" name="minus_jogbutton_3">
                          <property name="minimumSize">
                           <size>
                            <width>53</width>
@@ -9455,7 +9455,7 @@ LOG</string>
                         </widget>
                        </item>
                        <item row="4" column="1">
-                        <widget class="ActionButton" name="z_minus_jogbutton">
+                        <widget class="ActionButton" name="minus_jogbutton_2">
                          <property name="minimumSize">
                           <size>
                            <width>53</width>
@@ -9493,7 +9493,7 @@ LOG</string>
                         </widget>
                        </item>
                        <item row="6" column="2">
-                        <widget class="ActionButton" name="y_plus_jogbutton">
+                        <widget class="ActionButton" name="plus_jogbutton_1">
                          <property name="minimumSize">
                           <size>
                            <width>53</width>
@@ -9593,7 +9593,7 @@ LOG</string>
                         </spacer>
                        </item>
                        <item row="3" column="2">
-                        <widget class="ActionButton" name="plus_jogbutton_5">
+                        <widget class="ActionButton" name="plus_jogbutton_4">
                          <property name="minimumSize">
                           <size>
                            <width>53</width>
@@ -9627,7 +9627,7 @@ LOG</string>
                         </widget>
                        </item>
                        <item row="4" column="2">
-                        <widget class="ActionButton" name="minus_jogbutton_5">
+                        <widget class="ActionButton" name="minus_jogbutton_4">
                          <property name="minimumSize">
                           <size>
                            <width>53</width>
@@ -11856,7 +11856,7 @@ LIFT</string>
                        <number>4</number>
                       </property>
                       <item row="2" column="5">
-                       <widget class="QStackedWidget" name="dro_button_stack_y">
+                       <widget class="QStackedWidget" name="dro_button_stack_1">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                           <horstretch>0</horstretch>
@@ -11908,7 +11908,7 @@ LIFT</string>
                            <number>0</number>
                           </property>
                           <item>
-                           <widget class="IndicatedPushButton" name="btn_home_y">
+                           <widget class="IndicatedPushButton" name="btn_home_1">
                             <property name="sizePolicy">
                              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                               <horstretch>1</horstretch>
@@ -12031,7 +12031,7 @@ LIFT</string>
                            <number>0</number>
                           </property>
                           <item>
-                           <widget class="OffsetToolButton" name="offsettoolbutton_y">
+                           <widget class="OffsetToolButton" name="offsettoolbutton_1">
                             <property name="sizePolicy">
                              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                               <horstretch>0</horstretch>
@@ -12126,7 +12126,7 @@ ALL</string>
                        </widget>
                       </item>
                       <item row="3" column="5">
-                       <widget class="QStackedWidget" name="dro_button_stack_z">
+                       <widget class="QStackedWidget" name="dro_button_stack_2">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                           <horstretch>0</horstretch>
@@ -12178,7 +12178,7 @@ ALL</string>
                            <number>0</number>
                           </property>
                           <item>
-                           <widget class="IndicatedPushButton" name="btn_home_z">
+                           <widget class="IndicatedPushButton" name="btn_home_2">
                             <property name="sizePolicy">
                              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                               <horstretch>1</horstretch>
@@ -12289,7 +12289,7 @@ ALL</string>
                            <number>0</number>
                           </property>
                           <item>
-                           <widget class="OffsetToolButton" name="offsettoolbutton_z">
+                           <widget class="OffsetToolButton" name="offsettoolbutton_2">
                             <property name="sizePolicy">
                              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                               <horstretch>0</horstretch>
@@ -12330,7 +12330,7 @@ ALL</string>
                        </widget>
                       </item>
                       <item row="2" column="1" colspan="2">
-                       <widget class="DROLabel" name="dro_axis_y">
+                       <widget class="DROLabel" name="dro_axis_1">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Ignored" vsizetype="Expanding">
                           <horstretch>0</horstretch>
@@ -12367,7 +12367,7 @@ ALL</string>
                        </widget>
                       </item>
                       <item row="3" column="3">
-                       <widget class="ActionButton" name="action_zero_z">
+                       <widget class="ActionButton" name="action_zero_2">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                           <horstretch>1</horstretch>
@@ -12466,7 +12466,7 @@ ALL</string>
                        </widget>
                       </item>
                       <item row="2" column="0">
-                       <widget class="AxisToolButton" name="axis_select_y">
+                       <widget class="AxisToolButton" name="axis_select_1">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                           <horstretch>1</horstretch>
@@ -12558,7 +12558,7 @@ ALL</string>
                        </widget>
                       </item>
                       <item row="1" column="0">
-                       <widget class="AxisToolButton" name="axis_select_x">
+                       <widget class="AxisToolButton" name="axis_select_0">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                           <horstretch>1</horstretch>
@@ -12604,7 +12604,7 @@ ALL</string>
                        </widget>
                       </item>
                       <item row="1" column="1" colspan="2">
-                       <widget class="DROLabel" name="dro_axis_x">
+                       <widget class="DROLabel" name="dro_axis_0">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Ignored" vsizetype="Expanding">
                           <horstretch>0</horstretch>
@@ -12690,7 +12690,7 @@ ALL</string>
                        </widget>
                       </item>
                       <item row="3" column="1" colspan="2">
-                       <widget class="DROLabel" name="dro_axis_z">
+                       <widget class="DROLabel" name="dro_axis_2">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Ignored" vsizetype="Expanding">
                           <horstretch>0</horstretch>
@@ -12727,7 +12727,7 @@ ALL</string>
                        </widget>
                       </item>
                       <item row="1" column="5">
-                       <widget class="QStackedWidget" name="dro_button_stack_x">
+                       <widget class="QStackedWidget" name="dro_button_stack_0">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                           <horstretch>1</horstretch>
@@ -12779,7 +12779,7 @@ ALL</string>
                            <number>0</number>
                           </property>
                           <item>
-                           <widget class="IndicatedPushButton" name="btn_home_x">
+                           <widget class="IndicatedPushButton" name="btn_home_0">
                             <property name="sizePolicy">
                              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                               <horstretch>0</horstretch>
@@ -12899,7 +12899,7 @@ ALL</string>
                            <number>0</number>
                           </property>
                           <item>
-                           <widget class="OffsetToolButton" name="offsettoolbutton_x">
+                           <widget class="OffsetToolButton" name="offsettoolbutton_0">
                             <property name="sizePolicy">
                              <sizepolicy hsizetype="MinimumExpanding" vsizetype="Expanding">
                               <horstretch>0</horstretch>
@@ -12998,7 +12998,7 @@ ALL</string>
                        </widget>
                       </item>
                       <item row="2" column="3">
-                       <widget class="ActionButton" name="action_zero_y">
+                       <widget class="ActionButton" name="action_zero_1">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                           <horstretch>1</horstretch>
@@ -13097,7 +13097,7 @@ ALL</string>
                        </widget>
                       </item>
                       <item row="1" column="3">
-                       <widget class="ActionButton" name="action_zero_x">
+                       <widget class="ActionButton" name="action_zero_0">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                           <horstretch>1</horstretch>
@@ -13196,7 +13196,7 @@ ALL</string>
                        </widget>
                       </item>
                       <item row="3" column="0">
-                       <widget class="AxisToolButton" name="axis_select_z">
+                       <widget class="AxisToolButton" name="axis_select_2">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                           <horstretch>1</horstretch>
@@ -13273,7 +13273,7 @@ ALL</string>
                        </widget>
                       </item>
                       <item row="5" column="5">
-                       <widget class="QStackedWidget" name="dro_button_stack_5">
+                       <widget class="QStackedWidget" name="dro_button_stack_4">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                           <horstretch>0</horstretch>
@@ -13293,7 +13293,7 @@ ALL</string>
                          </size>
                         </property>
                         <property name="currentIndex">
-                         <number>0</number>
+                         <number>1</number>
                         </property>
                         <widget class="QWidget" name="page_13">
                          <property name="sizePolicy">
@@ -13325,7 +13325,7 @@ ALL</string>
                            <number>0</number>
                           </property>
                           <item>
-                           <widget class="IndicatedPushButton" name="action_home_5">
+                           <widget class="IndicatedPushButton" name="btn_home_4">
                             <property name="sizePolicy">
                              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                               <horstretch>1</horstretch>
@@ -13436,7 +13436,7 @@ ALL</string>
                            <number>0</number>
                           </property>
                           <item>
-                           <widget class="OffsetToolButton" name="offsettoolbutton_5">
+                           <widget class="OffsetToolButton" name="offsettoolbutton_4">
                             <property name="sizePolicy">
                              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                               <horstretch>0</horstretch>
@@ -13508,7 +13508,7 @@ ALL</string>
                        </widget>
                       </item>
                       <item row="4" column="1" colspan="2">
-                       <widget class="DROLabel" name="dro_axis_4">
+                       <widget class="DROLabel" name="dro_axis_3">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Ignored" vsizetype="Expanding">
                           <horstretch>0</horstretch>
@@ -13545,7 +13545,7 @@ ALL</string>
                        </widget>
                       </item>
                       <item row="5" column="3">
-                       <widget class="ActionButton" name="action_zero_5">
+                       <widget class="ActionButton" name="action_zero_4">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                           <horstretch>1</horstretch>
@@ -13644,7 +13644,7 @@ ALL</string>
                        </widget>
                       </item>
                       <item row="4" column="3">
-                       <widget class="ActionButton" name="action_zero_4">
+                       <widget class="ActionButton" name="action_zero_3">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                           <horstretch>1</horstretch>
@@ -13743,7 +13743,7 @@ ALL</string>
                        </widget>
                       </item>
                       <item row="4" column="0">
-                       <widget class="AxisToolButton" name="axis_select_4">
+                       <widget class="AxisToolButton" name="axis_select_3">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                           <horstretch>1</horstretch>
@@ -13789,7 +13789,7 @@ ALL</string>
                        </widget>
                       </item>
                       <item row="5" column="0">
-                       <widget class="AxisToolButton" name="axis_select_5">
+                       <widget class="AxisToolButton" name="axis_select_4">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                           <horstretch>1</horstretch>
@@ -13835,7 +13835,7 @@ ALL</string>
                        </widget>
                       </item>
                       <item row="5" column="1" colspan="2">
-                       <widget class="DROLabel" name="dro_axis_5">
+                       <widget class="DROLabel" name="dro_axis_4">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Ignored" vsizetype="Expanding">
                           <horstretch>0</horstretch>
@@ -13872,7 +13872,7 @@ ALL</string>
                        </widget>
                       </item>
                       <item row="4" column="5">
-                       <widget class="QStackedWidget" name="dro_button_stack_4">
+                       <widget class="QStackedWidget" name="dro_button_stack_3">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                           <horstretch>0</horstretch>
@@ -13924,7 +13924,7 @@ ALL</string>
                            <number>0</number>
                           </property>
                           <item>
-                           <widget class="IndicatedPushButton" name="action_home_4">
+                           <widget class="IndicatedPushButton" name="btn_home_3">
                             <property name="sizePolicy">
                              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                               <horstretch>1</horstretch>
@@ -14035,7 +14035,7 @@ ALL</string>
                            <number>0</number>
                           </property>
                           <item>
-                           <widget class="OffsetToolButton" name="offsettoolbutton_4">
+                           <widget class="OffsetToolButton" name="offsettoolbutton_3">
                             <property name="sizePolicy">
                              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                               <horstretch>0</horstretch>
@@ -17626,7 +17626,7 @@ ALL</string>
              <number>2</number>
             </property>
             <property name="text">
-             <string>06:16:36 PM</string>
+             <string>07:50:46 PM</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -17963,7 +17963,7 @@ ALL</string>
    </hints>
   </connection>
   <connection>
-   <sender>btn_home_z</sender>
+   <sender>btn_home_2</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>btn_home_clicked()</slot>
@@ -17979,7 +17979,7 @@ ALL</string>
    </hints>
   </connection>
   <connection>
-   <sender>btn_home_y</sender>
+   <sender>btn_home_1</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>btn_home_clicked()</slot>
@@ -17995,7 +17995,7 @@ ALL</string>
    </hints>
   </connection>
   <connection>
-   <sender>btn_home_x</sender>
+   <sender>btn_home_0</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>btn_home_clicked()</slot>
@@ -18555,7 +18555,7 @@ ALL</string>
    </hints>
   </connection>
   <connection>
-   <sender>action_home_5</sender>
+   <sender>btn_home_4</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>btn_home_clicked()</slot>
@@ -18571,7 +18571,7 @@ ALL</string>
    </hints>
   </connection>
   <connection>
-   <sender>action_home_4</sender>
+   <sender>btn_home_3</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>btn_home_clicked()</slot>
@@ -18700,8 +18700,8 @@ ALL</string>
   <slot>btn_stop_clicked()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="buttonGroup"/>
-  <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
+  <buttongroup name="mode_buttonGroup"/>
+  <buttongroup name="buttonGroup"/>
  </buttongroups>
 </ui>

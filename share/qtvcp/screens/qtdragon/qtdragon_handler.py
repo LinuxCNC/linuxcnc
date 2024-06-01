@@ -104,13 +104,10 @@ class HandlerClass:
                               "search_vel", "probe_vel", "max_probe", "eoffset_count"]
         self.onoff_list = ["frame_program", "frame_tool", "frame_dro", "frame_override", "frame_status"]
         self.auto_list = ["chk_eoffsets", "cmb_gcode_history","lineEdit_eoffset_count"]
-        self.axis_4_list = ["axis_select_4", "dro_axis_4", "action_zero_4",
-                            "dro_button_stack_4", "plus_jogbutton_4", "minus_jogbutton_4"]
-        self.axis_5_list = ["axis_select_5", "dro_axis_5", "action_zero_5",
-                            "dro_button_stack_5",
-                            "plus_jogbutton_5", "minus_jogbutton_5"]
-        self.button_response_list = ["btn_start", "btn_home_all", "btn_home_x", "btn_home_y",
-                            "btn_home_z", "action_home_4","action_home_5", "btn_reload_file", "macrobutton0", "macrobutton1",
+        self.axis_list = ["axis_select_", "dro_axis_", "action_zero_",
+                            "dro_button_stack_", "plus_jogbutton_", "minus_jogbutton_"]
+        self.button_response_list = ["btn_start", "btn_home_all", "btn_home_0", "btn_home_1",
+                            "btn_home_2", "btn_home_3","btn_home_4", "btn_reload_file", "macrobutton0", "macrobutton1",
                             "macrobutton2", "macrobutton3", "macrobutton4", "macrobutton5", "macrobutton6",
                             "macrobutton7", "macrobutton8", "macrobutton9"]
         self.statusbar_reset_time = 10000 # ten seconds
@@ -185,24 +182,19 @@ class HandlerClass:
 
     # hide or initiate 4th/5th AXIS dro/jog
         flag = False
-        flag4 = True
-        num = 4
-        for temp in ('A','B','C','U','V','W'):
-            if temp in INFO.AVAILABLE_AXES:
+        for num in range(0,5):
+            if num < len(INFO.AVAILABLE_AXES):
+                temp = INFO.AVAILABLE_AXES[num]
                 if temp in ('A','B','C'):
                     flag = True
                 self.initiate_axis_dro(num,temp)
-                num +=1
-                if num ==6:
-                    break
-        # no 5th axis
-        if num < 6:
-            for i in self.axis_5_list:
-                self.w[i].hide()
-        # no 4th axis
-        if num < 5 :
-            for i in self.axis_4_list:
-                self.w[i].hide()
+            else:
+                try:
+                    for i in self.axis_list:
+                        self.w[i+str(num)].hide()
+                except:
+                    pass
+
         # angular increment controls
         if flag:
            self.w.lbl_increments_linear.setText(_translate('HandlerClass',"INCREMENTS"))
@@ -1651,10 +1643,7 @@ class HandlerClass:
         else:
             num = 0
         for n,i in enumerate(INFO.AVAILABLE_AXES):
-            if n >2:
-                self.w['dro_button_stack_%s'%(n+1)].setCurrentIndex(num)
-            else:
-                self.w['dro_button_stack_%s'%i.lower()].setCurrentIndex(num)
+            self.w['dro_button_stack_%s'%(n)].setCurrentIndex(num)
 
         # user tabs button cycles between all user tabs
         main_current = self.w.stackedWidget_mainTab.currentIndex()
@@ -1726,16 +1715,16 @@ class HandlerClass:
         try:
             self.w['axis_select_{}'.format(num)].setProperty('axis_letter',axis)
             self.w['axis_select_{}'.format(num)].setText('{}'.format(axis))
-        except:
-            pass
+        except Exception as e:
+            print(e)
         try:
             cmd = 'G90 G0 {}0'.format(axis)
             self.w['action_cmd_{}'.format(num)].setProperty('command_text_string',cmd)
         except:
             pass
-        self.w['action_home_{}'.format(num)].setProperty('axis_letter',axis)
-        self.w['action_home_{}'.format(num)].setProperty('joint_number_status',jnum)
-        self.w['action_home_{}'.format(num)].setProperty('joint',index)
+        self.w['btn_home_{}'.format(num)].setProperty('axis_letter',axis)
+        self.w['btn_home_{}'.format(num)].setProperty('joint_number_status',jnum)
+        self.w['btn_home_{}'.format(num)].setProperty('joint',index)
         self.w['offsettoolbutton_{}'.format(num)].setProperty('axis_letter',axis)
         self.w['plus_jogbutton_{}'.format(num)].setProperty('axis_letter',axis)
         self.w['plus_jogbutton_{}'.format(num)].setProperty('joint_number',jnum)
@@ -1745,6 +1734,7 @@ class HandlerClass:
             if icn.isNull(): raise Exception
             self.w['plus_jogbutton_{}'.format(num)].setIcon(icn)
         except Exception as e:
+            print(e)
             self.w['plus_jogbutton_{}'.format(num)].setProperty('text','{}+'.format(axis))
         self.w['minus_jogbutton_{}'.format(num)].setProperty('axis_letter',axis)
         self.w['minus_jogbutton_{}'.format(num)].setProperty('joint_number',jnum)
