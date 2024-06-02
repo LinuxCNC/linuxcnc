@@ -7552,271 +7552,320 @@ OFF</string>
                <number>2</number>
               </property>
               <item>
+               <widget class="QWidget" name="widget_home_0" native="true">
+                <layout class="QHBoxLayout" name="horizontalLayout_75">
+                 <property name="spacing">
+                  <number>0</number>
+                 </property>
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <widget class="QLabel" name="label_home_0">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>24</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>16777215</width>
+                     <height>24</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>HOME X</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                   </property>
+                   <property name="margin">
+                    <number>0</number>
+                   </property>
+                   <property name="indent">
+                    <number>4</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="StateLED" name="hal_led_home_0">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>24</width>
+                     <height>24</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>24</width>
+                     <height>24</height>
+                    </size>
+                   </property>
+                   <property name="halpin_option" stdset="0">
+                    <bool>false</bool>
+                   </property>
+                   <property name="diameter">
+                    <number>15</number>
+                   </property>
+                   <property name="color">
+                    <color>
+                     <red>0</red>
+                     <green>255</green>
+                     <blue>0</blue>
+                    </color>
+                   </property>
+                   <property name="off_color" stdset="0">
+                    <color>
+                     <red>255</red>
+                     <green>0</green>
+                     <blue>0</blue>
+                    </color>
+                   </property>
+                   <property name="is_joint_homed_status" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
                <layout class="QHBoxLayout" name="horizontalLayout_43">
                 <property name="spacing">
                  <number>4</number>
                 </property>
-                <item>
-                 <widget class="QLabel" name="label_10">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>0</width>
-                    <height>24</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>16777215</width>
-                    <height>24</height>
-                   </size>
-                  </property>
-                  <property name="text">
-                   <string>HOME X</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                  </property>
-                  <property name="margin">
-                   <number>0</number>
-                  </property>
-                  <property name="indent">
-                   <number>4</number>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="StateLED" name="hal_led_home_x">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>24</width>
-                    <height>24</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>24</width>
-                    <height>24</height>
-                   </size>
-                  </property>
-                  <property name="halpin_option" stdset="0">
-                   <bool>false</bool>
-                  </property>
-                  <property name="diameter">
-                   <number>15</number>
-                  </property>
-                  <property name="color">
-                   <color>
-                    <red>0</red>
-                    <green>255</green>
-                    <blue>0</blue>
-                   </color>
-                  </property>
-                  <property name="off_color" stdset="0">
-                   <color>
-                    <red>255</red>
-                    <green>0</green>
-                    <blue>0</blue>
-                   </color>
-                  </property>
-                  <property name="is_joint_homed_status" stdset="0">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
                </layout>
               </item>
               <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_60">
-                <property name="spacing">
-                 <number>4</number>
-                </property>
-                <item>
-                 <widget class="QLabel" name="label_11">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>0</width>
-                    <height>24</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>16777215</width>
-                    <height>24</height>
-                   </size>
-                  </property>
-                  <property name="text">
-                   <string>HOME Y</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                  </property>
-                  <property name="margin">
-                   <number>0</number>
-                  </property>
-                  <property name="indent">
-                   <number>4</number>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="StateLED" name="hal_led_home_y">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>24</width>
-                    <height>24</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>24</width>
-                    <height>24</height>
-                   </size>
-                  </property>
-                  <property name="halpin_option" stdset="0">
-                   <bool>false</bool>
-                  </property>
-                  <property name="diameter">
-                   <number>15</number>
-                  </property>
-                  <property name="color">
-                   <color>
-                    <red>0</red>
-                    <green>255</green>
-                    <blue>0</blue>
-                   </color>
-                  </property>
-                  <property name="off_color" stdset="0">
-                   <color>
-                    <red>255</red>
-                    <green>0</green>
-                    <blue>0</blue>
-                   </color>
-                  </property>
-                  <property name="is_joint_homed_status" stdset="0">
-                   <bool>true</bool>
-                  </property>
-                  <property name="joint_number_status" stdset="0">
-                   <number>1</number>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
+               <widget class="QWidget" name="widget_home_1" native="true">
+                <layout class="QHBoxLayout" name="horizontalLayout_60">
+                 <property name="spacing">
+                  <number>0</number>
+                 </property>
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <widget class="QLabel" name="label_home_1">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>24</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>16777215</width>
+                     <height>24</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>HOME Y</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                   </property>
+                   <property name="margin">
+                    <number>0</number>
+                   </property>
+                   <property name="indent">
+                    <number>4</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="StateLED" name="hal_led_home_1">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>24</width>
+                     <height>24</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>24</width>
+                     <height>24</height>
+                    </size>
+                   </property>
+                   <property name="halpin_option" stdset="0">
+                    <bool>false</bool>
+                   </property>
+                   <property name="diameter">
+                    <number>15</number>
+                   </property>
+                   <property name="color">
+                    <color>
+                     <red>0</red>
+                     <green>255</green>
+                     <blue>0</blue>
+                    </color>
+                   </property>
+                   <property name="off_color" stdset="0">
+                    <color>
+                     <red>255</red>
+                     <green>0</green>
+                     <blue>0</blue>
+                    </color>
+                   </property>
+                   <property name="is_joint_homed_status" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="joint_number_status" stdset="0">
+                    <number>1</number>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
               </item>
               <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_61">
-                <property name="spacing">
-                 <number>4</number>
-                </property>
-                <item>
-                 <widget class="QLabel" name="label_12">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>0</width>
-                    <height>24</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>16777215</width>
-                    <height>24</height>
-                   </size>
-                  </property>
-                  <property name="text">
-                   <string>HOME Z</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                  </property>
-                  <property name="margin">
-                   <number>0</number>
-                  </property>
-                  <property name="indent">
-                   <number>4</number>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="StateLED" name="hal_led_home_z">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>24</width>
-                    <height>24</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>24</width>
-                    <height>24</height>
-                   </size>
-                  </property>
-                  <property name="halpin_option" stdset="0">
-                   <bool>false</bool>
-                  </property>
-                  <property name="diameter">
-                   <number>15</number>
-                  </property>
-                  <property name="color">
-                   <color>
-                    <red>0</red>
-                    <green>255</green>
-                    <blue>0</blue>
-                   </color>
-                  </property>
-                  <property name="off_color" stdset="0">
-                   <color>
-                    <red>255</red>
-                    <green>0</green>
-                    <blue>0</blue>
-                   </color>
-                  </property>
-                  <property name="is_joint_homed_status" stdset="0">
-                   <bool>true</bool>
-                  </property>
-                  <property name="joint_number_status" stdset="0">
-                   <number>2</number>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
+               <widget class="QWidget" name="widget_home_2" native="true">
+                <layout class="QHBoxLayout" name="horizontalLayout_61">
+                 <property name="spacing">
+                  <number>0</number>
+                 </property>
+                 <property name="leftMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
+                 <item>
+                  <widget class="QLabel" name="label_home_2">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>24</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>16777215</width>
+                     <height>24</height>
+                    </size>
+                   </property>
+                   <property name="text">
+                    <string>HOME Z</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                   </property>
+                   <property name="margin">
+                    <number>0</number>
+                   </property>
+                   <property name="indent">
+                    <number>4</number>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="StateLED" name="hal_led_home_2">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>24</width>
+                     <height>24</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>24</width>
+                     <height>24</height>
+                    </size>
+                   </property>
+                   <property name="halpin_option" stdset="0">
+                    <bool>false</bool>
+                   </property>
+                   <property name="diameter">
+                    <number>15</number>
+                   </property>
+                   <property name="color">
+                    <color>
+                     <red>0</red>
+                     <green>255</green>
+                     <blue>0</blue>
+                    </color>
+                   </property>
+                   <property name="off_color" stdset="0">
+                    <color>
+                     <red>255</red>
+                     <green>0</green>
+                     <blue>0</blue>
+                    </color>
+                   </property>
+                   <property name="is_joint_homed_status" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="joint_number_status" stdset="0">
+                    <number>2</number>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
               </item>
               <item>
-               <widget class="QWidget" name="widget_home_4" native="true">
+               <widget class="QWidget" name="widget_home_3" native="true">
                 <layout class="QHBoxLayout" name="horizontalLayout_31">
                  <property name="spacing">
                   <number>0</number>
@@ -7839,7 +7888,7 @@ OFF</string>
                     <number>4</number>
                    </property>
                    <item>
-                    <widget class="QLabel" name="label_home_4">
+                    <widget class="QLabel" name="label_home_3">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                        <horstretch>0</horstretch>
@@ -7873,7 +7922,7 @@ OFF</string>
                     </widget>
                    </item>
                    <item>
-                    <widget class="StateLED" name="hal_led_home_4">
+                    <widget class="StateLED" name="hal_led_home_3">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                        <horstretch>0</horstretch>
@@ -7926,7 +7975,7 @@ OFF</string>
                </widget>
               </item>
               <item>
-               <widget class="QWidget" name="widget_home_5" native="true">
+               <widget class="QWidget" name="widget_home_4" native="true">
                 <layout class="QHBoxLayout" name="horizontalLayout_48">
                  <property name="spacing">
                   <number>0</number>
@@ -7944,7 +7993,7 @@ OFF</string>
                   <number>0</number>
                  </property>
                  <item>
-                  <widget class="QLabel" name="label_home_5">
+                  <widget class="QLabel" name="label_home_4">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                      <horstretch>0</horstretch>
@@ -7978,7 +8027,7 @@ OFF</string>
                   </widget>
                  </item>
                  <item>
-                  <widget class="StateLED" name="hal_led_home_5">
+                  <widget class="StateLED" name="hal_led_home_4">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                      <horstretch>0</horstretch>
@@ -11350,7 +11399,7 @@ CAMERA</string>
                     <number>5</number>
                    </property>
                    <item row="1" column="3">
-                    <widget class="ActionButton" name="action_zero_x">
+                    <widget class="ActionButton" name="action_zero_0">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
@@ -11449,7 +11498,7 @@ CAMERA</string>
                     </widget>
                    </item>
                    <item row="1" column="4">
-                    <widget class="AxisToolButton" name="axistoolbutton_x">
+                    <widget class="AxisToolButton" name="axistoolbutton_0">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
@@ -11486,7 +11535,7 @@ CAMERA</string>
                     </widget>
                    </item>
                    <item row="4" column="3">
-                    <widget class="ActionButton" name="action_zero_z">
+                    <widget class="ActionButton" name="action_zero_2">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
@@ -11585,7 +11634,7 @@ CAMERA</string>
                     </widget>
                    </item>
                    <item row="3" column="4">
-                    <widget class="AxisToolButton" name="axistoolbutton_y">
+                    <widget class="AxisToolButton" name="axistoolbutton_1">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
@@ -11625,7 +11674,7 @@ CAMERA</string>
                     </widget>
                    </item>
                    <item row="4" column="1" colspan="2">
-                    <widget class="DROLabel" name="dro_axis_z">
+                    <widget class="DROLabel" name="dro_axis_2">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                        <horstretch>0</horstretch>
@@ -11662,7 +11711,7 @@ CAMERA</string>
                     </widget>
                    </item>
                    <item row="6" column="3">
-                    <widget class="ActionButton" name="action_zero_5">
+                    <widget class="ActionButton" name="action_zero_4">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
@@ -11761,7 +11810,7 @@ CAMERA</string>
                     </widget>
                    </item>
                    <item row="3" column="1" colspan="2">
-                    <widget class="DROLabel" name="dro_axis_y">
+                    <widget class="DROLabel" name="dro_axis_1">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                        <horstretch>0</horstretch>
@@ -11798,7 +11847,7 @@ CAMERA</string>
                     </widget>
                    </item>
                    <item row="4" column="4">
-                    <widget class="AxisToolButton" name="axistoolbutton_z">
+                    <widget class="AxisToolButton" name="axistoolbutton_2">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
@@ -11838,7 +11887,7 @@ CAMERA</string>
                     </widget>
                    </item>
                    <item row="6" column="5">
-                    <widget class="QStackedWidget" name="dro_button_stack_5">
+                    <widget class="QStackedWidget" name="dro_button_stack_4">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
@@ -11890,7 +11939,7 @@ CAMERA</string>
                         <number>0</number>
                        </property>
                        <item>
-                        <widget class="IndicatedPushButton" name="btn_home_5">
+                        <widget class="IndicatedPushButton" name="btn_home_4">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                            <horstretch>0</horstretch>
@@ -12063,7 +12112,7 @@ CAMERA</string>
                         <number>0</number>
                        </property>
                        <item>
-                        <widget class="ActionButton" name="action_home_7">
+                        <widget class="ActionButton" name="action_goto_4">
                          <property name="enabled">
                           <bool>true</bool>
                          </property>
@@ -12204,7 +12253,7 @@ ZERO</string>
                     </widget>
                    </item>
                    <item row="5" column="3">
-                    <widget class="ActionButton" name="action_zero_4">
+                    <widget class="ActionButton" name="action_zero_3">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
@@ -12405,7 +12454,7 @@ ZERO</string>
                     </widget>
                    </item>
                    <item row="5" column="5">
-                    <widget class="QStackedWidget" name="dro_button_stack_4">
+                    <widget class="QStackedWidget" name="dro_button_stack_3">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
@@ -12445,7 +12494,7 @@ ZERO</string>
                         <number>0</number>
                        </property>
                        <item>
-                        <widget class="IndicatedPushButton" name="btn_home_4">
+                        <widget class="IndicatedPushButton" name="btn_home_3">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                            <horstretch>0</horstretch>
@@ -12624,7 +12673,7 @@ ZERO</string>
                         <number>0</number>
                        </property>
                        <item>
-                        <widget class="ActionButton" name="action_home_6">
+                        <widget class="ActionButton" name="action_goto_3">
                          <property name="enabled">
                           <bool>true</bool>
                          </property>
@@ -12780,7 +12829,7 @@ ZERO</string>
                     </widget>
                    </item>
                    <item row="3" column="5">
-                    <widget class="QStackedWidget" name="dro_button_stack_y">
+                    <widget class="QStackedWidget" name="dro_button_stack_1">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
@@ -12820,7 +12869,7 @@ ZERO</string>
                         <number>0</number>
                        </property>
                        <item>
-                        <widget class="IndicatedPushButton" name="btn_home_y">
+                        <widget class="IndicatedPushButton" name="btn_home_1">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                            <horstretch>0</horstretch>
@@ -12894,7 +12943,7 @@ ZERO</string>
                         <number>0</number>
                        </property>
                        <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
-                        <widget class="OffsetToolButton" name="offsettoolbutton_y">
+                        <widget class="OffsetToolButton" name="offsettoolbutton_1">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                            <horstretch>0</horstretch>
@@ -12935,7 +12984,7 @@ ZERO</string>
                     </widget>
                    </item>
                    <item row="1" column="1" colspan="2">
-                    <widget class="DROLabel" name="dro_axis_x">
+                    <widget class="DROLabel" name="dro_axis_0">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                        <horstretch>0</horstretch>
@@ -12972,7 +13021,7 @@ ZERO</string>
                     </widget>
                    </item>
                    <item row="3" column="3">
-                    <widget class="ActionButton" name="action_zero_y">
+                    <widget class="ActionButton" name="action_zero_1">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
@@ -13071,7 +13120,7 @@ ZERO</string>
                     </widget>
                    </item>
                    <item row="1" column="5">
-                    <widget class="QStackedWidget" name="dro_button_stack_x">
+                    <widget class="QStackedWidget" name="dro_button_stack_0">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
@@ -13111,7 +13160,7 @@ ZERO</string>
                         <number>0</number>
                        </property>
                        <item>
-                        <widget class="IndicatedPushButton" name="btn_home_x">
+                        <widget class="IndicatedPushButton" name="btn_home_0">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                            <horstretch>0</horstretch>
@@ -13185,7 +13234,7 @@ ZERO</string>
                         <number>0</number>
                        </property>
                        <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
-                        <widget class="OffsetToolButton" name="offsettoolbutton_x">
+                        <widget class="OffsetToolButton" name="offsettoolbutton_0">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                            <horstretch>0</horstretch>
@@ -13278,7 +13327,7 @@ ZERO</string>
                     </widget>
                    </item>
                    <item row="6" column="1" colspan="2">
-                    <widget class="DROLabel" name="dro_axis_5">
+                    <widget class="DROLabel" name="dro_axis_4">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                        <horstretch>0</horstretch>
@@ -13315,7 +13364,7 @@ ZERO</string>
                     </widget>
                    </item>
                    <item row="5" column="1" colspan="2">
-                    <widget class="DROLabel" name="dro_axis_4">
+                    <widget class="DROLabel" name="dro_axis_3">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                        <horstretch>0</horstretch>
@@ -13355,7 +13404,7 @@ ZERO</string>
                     </widget>
                    </item>
                    <item row="4" column="5">
-                    <widget class="QStackedWidget" name="dro_button_stack_z">
+                    <widget class="QStackedWidget" name="dro_button_stack_2">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                        <horstretch>0</horstretch>
@@ -13395,7 +13444,7 @@ ZERO</string>
                         <number>0</number>
                        </property>
                        <item>
-                        <widget class="IndicatedPushButton" name="btn_home_z">
+                        <widget class="IndicatedPushButton" name="btn_home_2">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                            <horstretch>0</horstretch>
@@ -13469,7 +13518,7 @@ ZERO</string>
                         <number>0</number>
                        </property>
                        <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
-                        <widget class="OffsetToolButton" name="offsettoolbutton_z">
+                        <widget class="OffsetToolButton" name="offsettoolbutton_2">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
                            <horstretch>0</horstretch>
@@ -13510,7 +13559,7 @@ ZERO</string>
                     </widget>
                    </item>
                    <item row="1" column="0">
-                    <widget class="AxisToolButton" name="axis_select_x">
+                    <widget class="AxisToolButton" name="axis_select_0">
                      <property name="minimumSize">
                       <size>
                        <width>70</width>
@@ -13541,7 +13590,7 @@ ZERO</string>
                     </widget>
                    </item>
                    <item row="3" column="0">
-                    <widget class="AxisToolButton" name="axis_select_y">
+                    <widget class="AxisToolButton" name="axis_select_1">
                      <property name="minimumSize">
                       <size>
                        <width>70</width>
@@ -13572,7 +13621,7 @@ ZERO</string>
                     </widget>
                    </item>
                    <item row="4" column="0">
-                    <widget class="AxisToolButton" name="axis_select_z">
+                    <widget class="AxisToolButton" name="axis_select_2">
                      <property name="minimumSize">
                       <size>
                        <width>70</width>
@@ -13603,7 +13652,7 @@ ZERO</string>
                     </widget>
                    </item>
                    <item row="5" column="0">
-                    <widget class="AxisToolButton" name="axis_select_4">
+                    <widget class="AxisToolButton" name="axis_select_3">
                      <property name="minimumSize">
                       <size>
                        <width>70</width>
@@ -13634,7 +13683,7 @@ ZERO</string>
                     </widget>
                    </item>
                    <item row="6" column="0">
-                    <widget class="AxisToolButton" name="axis_select_5">
+                    <widget class="AxisToolButton" name="axis_select_4">
                      <property name="minimumSize">
                       <size>
                        <width>70</width>
@@ -13665,7 +13714,7 @@ ZERO</string>
                     </widget>
                    </item>
                    <item row="5" column="4">
-                    <widget class="ActionButton" name="action_cmd_4">
+                    <widget class="ActionButton" name="action_cmd_3">
                      <property name="enabled">
                       <bool>true</bool>
                      </property>
@@ -13768,7 +13817,7 @@ ZERO</string>
                     </widget>
                    </item>
                    <item row="6" column="4">
-                    <widget class="ActionButton" name="action_cmd_5">
+                    <widget class="ActionButton" name="action_cmd_4">
                      <property name="enabled">
                       <bool>true</bool>
                      </property>
@@ -15443,7 +15492,7 @@ ZERO</string>
                   <number>3</number>
                  </property>
                  <item row="5" column="1">
-                  <widget class="ActionButton" name="y_minus_jogbutton">
+                  <widget class="ActionButton" name="minus_jogbutton_1">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
                      <horstretch>0</horstretch>
@@ -15523,7 +15572,7 @@ ZERO</string>
                   </widget>
                  </item>
                  <item row="3" column="1">
-                  <widget class="ActionButton" name="y_plus_jogbutton">
+                  <widget class="ActionButton" name="plus_jogbutton_1">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
                      <horstretch>0</horstretch>
@@ -15603,7 +15652,7 @@ ZERO</string>
                   </widget>
                  </item>
                  <item row="4" column="0">
-                  <widget class="ActionButton" name="x_minus_jogbutton">
+                  <widget class="ActionButton" name="minus_jogbutton_0">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
                      <horstretch>0</horstretch>
@@ -15683,7 +15732,7 @@ ZERO</string>
                   </widget>
                  </item>
                  <item row="1" column="0">
-                  <widget class="ActionButton" name="z_plus_jogbutton">
+                  <widget class="ActionButton" name="plus_jogbutton_2">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
                      <horstretch>0</horstretch>
@@ -15727,7 +15776,7 @@ ZERO</string>
                   </widget>
                  </item>
                  <item row="4" column="2">
-                  <widget class="ActionButton" name="x_plus_jogbutton">
+                  <widget class="ActionButton" name="plus_jogbutton_0">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
                      <horstretch>0</horstretch>
@@ -15807,7 +15856,7 @@ ZERO</string>
                   </widget>
                  </item>
                  <item row="2" column="0">
-                  <widget class="ActionButton" name="z_minus_jogbutton">
+                  <widget class="ActionButton" name="minus_jogbutton_2">
                    <property name="sizePolicy">
                     <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
                      <horstretch>0</horstretch>
@@ -15851,7 +15900,7 @@ ZERO</string>
                   </widget>
                  </item>
                  <item row="1" column="1">
-                  <widget class="ActionButton" name="plus_jogbutton_5">
+                  <widget class="ActionButton" name="plus_jogbutton_4">
                    <property name="minimumSize">
                     <size>
                      <width>53</width>
@@ -15885,7 +15934,7 @@ ZERO</string>
                   </widget>
                  </item>
                  <item row="2" column="1">
-                  <widget class="ActionButton" name="minus_jogbutton_5">
+                  <widget class="ActionButton" name="minus_jogbutton_4">
                    <property name="minimumSize">
                     <size>
                      <width>53</width>
@@ -15925,7 +15974,7 @@ ZERO</string>
                   </widget>
                  </item>
                  <item row="1" column="2">
-                  <widget class="ActionButton" name="plus_jogbutton_4">
+                  <widget class="ActionButton" name="plus_jogbutton_3">
                    <property name="minimumSize">
                     <size>
                      <width>53</width>
@@ -15962,7 +16011,7 @@ ZERO</string>
                   </widget>
                  </item>
                  <item row="2" column="2">
-                  <widget class="ActionButton" name="minus_jogbutton_4">
+                  <widget class="ActionButton" name="minus_jogbutton_3">
                    <property name="minimumSize">
                     <size>
                      <width>53</width>
@@ -17291,7 +17340,7 @@ ANGULAR</string>
          <number>2</number>
         </property>
         <property name="text">
-         <string>02:47:56 AM</string>
+         <string>01:46:56 PM</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -18187,7 +18236,7 @@ ANGULAR</string>
    </hints>
   </connection>
   <connection>
-   <sender>btn_home_x</sender>
+   <sender>btn_home_0</sender>
    <signal>pressed()</signal>
    <receiver>MainWindow</receiver>
    <slot>btn_home_clicked()</slot>
@@ -18203,7 +18252,7 @@ ANGULAR</string>
    </hints>
   </connection>
   <connection>
-   <sender>btn_home_y</sender>
+   <sender>btn_home_1</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>btn_home_clicked()</slot>
@@ -18219,7 +18268,7 @@ ANGULAR</string>
    </hints>
   </connection>
   <connection>
-   <sender>btn_home_z</sender>
+   <sender>btn_home_2</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>btn_home_clicked()</slot>
@@ -18315,7 +18364,7 @@ ANGULAR</string>
    </hints>
   </connection>
   <connection>
-   <sender>btn_home_4</sender>
+   <sender>btn_home_3</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>btn_home_clicked()</slot>
@@ -18331,7 +18380,7 @@ ANGULAR</string>
    </hints>
   </connection>
   <connection>
-   <sender>btn_home_5</sender>
+   <sender>btn_home_4</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
    <slot>btn_home_clicked()</slot>

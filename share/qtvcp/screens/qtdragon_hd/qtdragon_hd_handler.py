@@ -110,12 +110,8 @@ class HandlerClass:
                               "sensor_x", "sensor_y", "camera_x", "camera_y",
                               "search_vel", "probe_vel", "max_probe", "eoffset_count"]
         self.onoff_list = ["frame_program", "frame_tool", "frame_offsets", "frame_dro", "frame_override"]
-        self.axis_4_list = ["axis_select_4", "dro_axis_4", "action_zero_4", "action_cmd_4",
-                            "dro_button_stack_4",  "plus_jogbutton_4", "minus_jogbutton_4",
-                            "widget_home_4"]
-        self.axis_5_list = ["axis_select_5", "dro_axis_5", "action_zero_5", "action_cmd_5",
-                            "dro_button_stack_5","plus_jogbutton_5", "minus_jogbutton_5",
-                            "widget_home_5"]
+        self.axis_list = ["axis_select_", "dro_axis_", "action_zero_", "action_cmd_", "widget_home_",
+                            "dro_button_stack_", "plus_jogbutton_", "minus_jogbutton_"]
         self.statusbar_reset_time = 10000 # ten seconds
 
         STATUS.connect('general', self.dialog_return)
@@ -184,36 +180,33 @@ class HandlerClass:
         self.w.page_buttonGroup.buttonClicked.connect(self.main_tab_changed)
         self.w.filemanager_usb.showMediaDir(quiet = True)
 
-    # hide or initiate 4th/5th AXIS dro/jog
+    # hide or initiate AXES dro/jog/home
         flag = False
-        flag4 = True
-        num = 4
-        for temp in ('A','B','C','U','V','W'):
-            if temp in INFO.AVAILABLE_AXES:
+        for num in range(0,5):
+            if num < len(INFO.AVAILABLE_AXES):
+                temp = INFO.AVAILABLE_AXES[num]
                 if temp in ('A','B','C'):
                     flag = True
                 self.initiate_axis_dro(num,temp)
-                num +=1
-                if num ==6:
-                    break
-        # no 5th axis
-        if num < 6:
-            for i in self.axis_5_list:
-                self.w[i].hide()
-        # no 4th axis
-        if num < 5 :
-            for i in self.axis_4_list:
-                self.w[i].hide()
-        # angular increment controls
+            else:
+                for i in self.axis_list:
+                    try:
+                        self.w[i+str(num)].hide()
+                    except Exception as e:
+                        pass
+
+   # angular increment controls
         if flag:
            self.w.lbl_increments_linear.setText(_translate('HandlerClass',"INCREMENTS"))
         else:
             self.w.widget_jog_angular.hide()
             self.w.widget_increments_angular.hide()
+
     # set validators for lineEdit widgets
         for val in self.lineedit_list:
             self.w['lineEdit_' + val].setValidator(self.valid)
         self.w.lineEdit_eoffset_count.setValidator(QtGui.QIntValidator(0,100))
+
     # set unit labels according to machine mode
         unit = "MM" if INFO.MACHINE_IS_METRIC else "IN"
         for i in self.unit_label_list:
@@ -221,6 +214,7 @@ class HandlerClass:
         unit = "MM/MIN" if INFO.MACHINE_IS_METRIC else "IN/MIN"
         for i in ["search_vel_units", "probe_vel_units", "jog_linear"]:
             self.w['lbl_' + i].setText(unit)
+
         self.w.setWindowFlags(QtCore.Qt.FramelessWindowHint)
 
         # Show assigned macrobuttons define in INI under [MDI_COMMAND_LIST]
@@ -1083,7 +1077,7 @@ class HandlerClass:
 
     def chk_use_virtual_changed(self, state):
         codestring = "CALCULATOR" if state else "ENTRY"
-        for i in ("x", "y", "z"):
+        for i in ("0", "1", "2"):
             self.w["axistoolbutton_" + i].set_dialog_code(codestring)
         if self.probe:
             self.probe.dialog_code = codestring
@@ -1671,10 +1665,7 @@ class HandlerClass:
         else:
             num = 0
         for n,i in enumerate(INFO.AVAILABLE_AXES):
-            if n >2:
-                self.w['dro_button_stack_%s'%(n+1)].setCurrentIndex(num)
-            else:
-                self.w['dro_button_stack_%s'%i.lower()].setCurrentIndex(num)
+            self.w['dro_button_stack_%s'%(n)].setCurrentIndex(num)
 
         # adjust the stacked widget
         if stacked_index > PAGE_UNCHANGED:
@@ -1709,23 +1700,18 @@ class HandlerClass:
         move_dist = sqrt((dest_x - pos_cur[0]) ** 2 + (dest_y - pos_cur[1]) ** 2)
         return ceil(move_dist / move_speed) + wait_buffer_secs
 
-    # set axis 4/5 dro widgets to the proper axis
-    # TODO do this with all the axes for more flexibility
     def initiate_axis_dro(self, num, axis):
-        self.w['label_home_{}'.format(num)].setText('HOME {}'.format(axis))
         jnum = INFO.GET_JOG_FROM_NAME.get(axis)
         # DRO uses axis index
         index = "XYZABCUVW".index(axis)
-        self.w['axis_select_{}'.format(num)].setText(axis)
-        self.w['axis_select_{}'.format(num)].setProperty('joint_number',jnum)
-        self.w['axis_select_{}'.format(num)].setProperty('axis_letter',axis)
+
         self.w['dro_axis_{}'.format(num)].setProperty('Qjoint_number',index)
         self.w['action_zero_{}'.format(num)].setProperty('axis_letter',axis)
         try:
-            self.w['axistoolbutton_{}'.format(num)].setProperty('axis_letter',axis)
-            self.w['axistoolbutton_{}'.format(num)].setText('REF {}'.format(axis))
-        except:
-            pass
+            self.w['axis_select_{}'.format(num)].setProperty('axis_letter',axis)
+            self.w['axis_select_{}'.format(num)].setText('{}'.format(axis))
+        except Exception as e:
+            print(e)
         try:
             cmd = 'G90 G0 {}0'.format(axis)
             self.w['action_cmd_{}'.format(num)].setProperty('command_text_string',cmd)
@@ -1734,16 +1720,22 @@ class HandlerClass:
         self.w['btn_home_{}'.format(num)].setProperty('axis_letter',axis)
         self.w['btn_home_{}'.format(num)].setProperty('joint_number_status',jnum)
         self.w['btn_home_{}'.format(num)].setProperty('joint',index)
-        self.w['offsettoolbutton_{}'.format(num)].setProperty('axis_letter',axis)
+        try:
+            self.w['offsettoolbutton_{}'.format(num)].setProperty('axis_letter',axis)
+        except:
+            pass
         self.w['plus_jogbutton_{}'.format(num)].setProperty('axis_letter',axis)
         self.w['plus_jogbutton_{}'.format(num)].setProperty('joint_number',jnum)
         self.w['hal_led_home_{}'.format(num)].setProperty('joint_number_status',jnum)
+        txt = _translate("HandlerClass","HOME")
+        self.w['label_home_{}'.format(num)].setText('{} {}'.format(txt, axis.upper()))
         a = axis.lower()
         try:
             icn = QtGui.QIcon(QtGui.QPixmap(':/buttons/images/{}_plus_jog_button.png'.format(a)))
             if icn.isNull(): raise Exception
             self.w['plus_jogbutton_{}'.format(num)].setIcon(icn)
         except Exception as e:
+            print(e)
             self.w['plus_jogbutton_{}'.format(num)].setProperty('text','{}+'.format(axis))
         self.w['minus_jogbutton_{}'.format(num)].setProperty('axis_letter',axis)
         self.w['minus_jogbutton_{}'.format(num)].setProperty('joint_number',jnum)
