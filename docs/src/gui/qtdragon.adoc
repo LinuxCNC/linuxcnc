@@ -1261,6 +1261,81 @@ New styles can be applied temporarily and then saved to a new qss file, or overw
 .QtDragon - Two Style Examples
 image::images/style-comparison.png["QtDragon styles",scale="25%"]
 
+== Internationalisation
+
+It is possible to create translation files for QtDragon to display in the language of the current locale.
+
+To create and or edit a translation file requires that LinuxCNC has been installed as run in place.
+
+The following assumes that the linuxcnc git directory is ~/linuxcnc-dev.
+
+[NOTE]
+If using QtDragon_hd substitute 'qtdragon_hd' for 'qtdragon'
+
+All language files are kept in ~/linuxcnc-dev/share/screens/qtdragon/languages.
+
+The qtdragon.py file is a Python version of the GUI file used for translation purposes.
+
+The .ts files are the translation source files for the translations.
+These are the files that require creating/editing for each language.
+
+The .qm files are the compiled translation files used by pyqt.
+
+The language is determined by an underscore plus the first two letters of the locale,
+for example if an Italian translation was being done then it would be `_it`.
+It will be referred to as `_xx` in this document, so `qtdragon_xx.ts` in this document would actually be `qtdragon_it.ts` for an Italian translation.
+
+The default locale for QtDragon is `_en` which means that any translation files created as `qtdragon_en.*` will not be used for translations.
+
+If any of the required utilities (pyuic5, pylupdate5, linguist) are not installed then the user will need to install the required development tools:
+----
+sudo apt install qttools5-dev-tools pyqt5-dev-tools
+----
+
+Change to the languages directory:
+----
+cd ~/linuxcnc-dev/share/qtvcp/screens/qtdragon/languages
+----
+
+If any text changes have been made to the GUI then run the following to update the GUI Python file:
+----
+pyuic5 ../qtdragon.ui > qtdragon.py
+----
+
+The user can either create a new translation source file for a non-existing language translation
+or modify an existing translation source file due to changes being made to some text in a QtDragon source file.
+If modifying an existing translation that has had no source file changes then this step is not required.
+
+Create or edit a .ts file:
+----
+./langfile xx
+----
+
+[NOTE]
+this command is a script which runs the following: $ pylupdate5 *.py ../*.py ../../../../../lib/python/qtvcp/lib/qtdragon/*.py -ts qtdragon_xx.ts
+
+The editing of the translation is done with the linguist application:
+----
+linguist
+----
+
+. Open the TS file and translate the strings
+
+It is not necessary to provide a translation for every text string, if no translation is specified for a string then the original string will be used in the application.
+The user needs to be careful with the length of strings that appear on widgets as space is limited. If possible try to make the translation no longer than the original.
+
+When editing is complete save the file: +
+`File -> Save`
+
+Then create the .qm file: +
+`File -> Release`
+
+QtDragon will be translated to the language of the current locale on the next start so long as a .qm file exists in that language.
+
+Users are welcome to submit translation files for inclusion into QtDragon.
+The preferred method is to submit a pull request from the users GitHub account as described in the https://www.linuxcnc.org/docs/html/code/contributing-to-linuxcnc.html[contributing to LinuxCNC] documentation.
+The only files required to be committed are qtdragon_xx.ts and qtdragon_xx.qm.
+
 == Customization
 
 A general overview of <<cha:qtvcp:modifying-screens,Customizing Stock Screens>>.
