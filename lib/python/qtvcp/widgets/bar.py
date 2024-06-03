@@ -220,6 +220,11 @@ class Bar(QtWidgets.QWidget):
     def setFormat(self, data):
         pass
 
+    def invertBool(self, value):
+        if value:
+            return False
+        return True
+
     def getInvertedAppearance(self):
         return self._opposite
     def setInvertedAppearance(self, data):
@@ -307,12 +312,16 @@ class  HalBar(Bar, _HalWidgetBase):
         super(). __init__( *args, **kwargs)
         self._pin_type = HALPinType.S32
         self._pin_name = ''
+        self._invert_negative = False
+        self._superOpposite = self._opposite
 
     def _hal_init(self):
         if self._pin_name == '':
             pname = self.HAL_NAME_
         else:
             pname = self._pin_name
+
+        self._superOpposite = self._opposite
 
         if self._pin_type == HALPinType.FLOAT:
             self.hal_pin = self.HAL_GCOMP_.newpin(pname, hal.HAL_FLOAT, hal.HAL_IN)
@@ -322,6 +331,11 @@ class  HalBar(Bar, _HalWidgetBase):
             self.hal_pin.value_changed.connect(lambda data: self.updateDisplay(data))
 
     def updateDisplay(self, data):
+        if data < 0 and self._invert_negative:
+            self._opposite = self.invertBool(self._superOpposite)
+            data = data * -1
+        else:
+            self._opposite = self._superOpposite
         self.setValue(data)
 
     def set_pin_type(self, value):
@@ -338,8 +352,16 @@ class  HalBar(Bar, _HalWidgetBase):
     def reset_pin_name(self):
         self._pin_name = ''
 
+    def set_invert_negative(self, value):
+        self._invert_negative = value
+    def get_invert_negative(self):
+        return self._invert_negative
+    def reset_invert_negative(self):
+        self._invert_negative = False
+
     pinType = pyqtProperty(HALPinType, get_pin_type, set_pin_type, reset_pin_type)
     pinName = pyqtProperty(str, get_pin_name, set_pin_name, reset_pin_name)
+    invertOnNegative = pyqtProperty(bool, get_invert_negative, set_invert_negative, reset_invert_negative)
 
 if __name__ == '__main__':
     app = QtWidgets.QApplication([])
