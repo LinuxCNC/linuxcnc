@@ -80,6 +80,10 @@ class ImageSwitcher(QLabel, _HalWidgetBase):
             if ':/' in self._imagePath[number]:
                 path = self._imagePath[number]
                 pixmap = QPixmap(path)
+                # no valid image
+                if pixmap.isNull():
+                    self.setPixmap(self.defaultPixmap)
+                    return
                 self.setPixmap(pixmap)
                 return
             else:
