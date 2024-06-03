@@ -115,8 +115,13 @@ class AxisToolButton(QToolButton, IndicatedMixIn):
         STATUS.connect('joint-selection-changed', lambda w,data: self.ChangeState(joint = data, axis= STATUS.get_selected_axis()))
         STATUS.connect('axis-selection-changed', lambda w,data: self.ChangeState(joint = STATUS.get_selected_joint(), axis = data))
         if self._halpin_option and self._joint != -1:
-            self.hal_pin_joint = self.HAL_GCOMP_.newpin(str(self.HAL_NAME_ + '-joint'), hal.HAL_BIT, hal.HAL_OUT)
-            self.hal_pin_axis = self.HAL_GCOMP_.newpin(str(self.HAL_NAME_ + '-axis'), hal.HAL_BIT, hal.HAL_OUT)
+            if self._pin_name_ == '':
+                pname = self.HAL_NAME_
+            else:
+                pname = self._pin_name_
+
+            self.hal_pin_joint = self.HAL_GCOMP_.newpin(str(pname + '-joint'), hal.HAL_BIT, hal.HAL_OUT)
+            self.hal_pin_axis = self.HAL_GCOMP_.newpin(str(pname + '-axis'), hal.HAL_BIT, hal.HAL_OUT)
         STATUS.connect('general',self.return_value)
 
     def _enableGroup(self, state):
