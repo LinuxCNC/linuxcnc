@@ -6,9 +6,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-04-07 20:07+0200\n"
-"PO-Revision-Date: 2024-04-02 14:31+0000\n"
+"PO-Revision-Date: 2024-05-30 11:30+0000\n"
 "Last-Translator: Issy Varsano <info@sivar.bg>\n"
 "Language-Team: none\n"
 "Language: bg\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.5-dev\n"
+"X-Generator: Weblate 5.6-dev\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:252
 msgid "user mode selected"
@@ -93,10 +93,10 @@ msgid "Press to return to main button list"
 msgstr "Натисни за връщане към листа с главните бутони "
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:804
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "could not resolve the image path '{0}' given for button '{1}'"
 msgstr ""
-"не можа да разреши пътя на изображението '{0}', зададен за бутона '{1}'"
+"не можа да се намери пътя към изображението '{0}', зададен за бутона '{1}'"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:959
 msgid ""
@@ -144,7 +144,6 @@ msgid "Press to set the selected coordinate system to be the active one"
 msgstr "Натиснете , за да зададете активна по подразбиране координатна система"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1080
-#, fuzzy
 msgid "No valid probe config in INI file. Tool measurement disabled."
 msgstr ""
 "Няма валидна конфигурация на сондата в INI файла. Измерването на инструмента "
@@ -157,7 +156,6 @@ msgstr ""
 "автоматично измерване на инструмента."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1108
-#, fuzzy
 msgid ""
 "To many increments given in INI file for this screen. Only the first 10 will "
 "be reachable through this screen."
@@ -185,7 +183,6 @@ msgid "Press to jog joint {0}"
 msgstr "Натиснете за движение на става {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1306
-#, fuzzy
 msgid "Found more than 16 macros, will use only the first 16."
 msgstr "намери повече от 16 макроса, ще използва само първите 16"
 
@@ -1212,10 +1209,9 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:116
 msgid "<b>gmoccapy messages</b>"
-msgstr ""
+msgstr "<b>gmoccapy съобщение</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:117
-#, fuzzy
 msgid "Theme"
 msgstr "Теми"
 
@@ -1236,7 +1232,6 @@ msgid "Enable sound"
 msgstr "Включване на звуците"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:122
-#, fuzzy
 msgid "G-code Theme"
 msgstr "Тема на иконата"
 
@@ -1345,7 +1340,6 @@ msgid "Probe Vel."
 msgstr "Скорост на сондата."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:149
-#, fuzzy
 msgid "<b>Probe velocities</b>"
 msgstr "<b>Скорост на сондата</b>"
 
@@ -1420,7 +1414,6 @@ msgid "Select user dir"
 msgstr "Избор на потребителска директория"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:172
-#, fuzzy
 msgid "<b>Jump to dir</b>"
 msgstr "<b> Изберете преминаване към dir</b>"
 
