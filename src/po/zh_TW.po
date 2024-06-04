@@ -1,21 +1,21 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
-#, fuzzy
+# hugoalh <hugoalh@users.noreply.hosted.weblate.org>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-04-08 19:52+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"PO-Revision-Date: 2024-06-02 02:04+0000\n"
+"Last-Translator: hugoalh <hugoalh@users.noreply.hosted.weblate.org>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"Language: zh_TW\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.6-dev\n"
 
 #: src/emc/task/emctaskmain.cc:868
 #, c-format
@@ -1891,7 +1891,7 @@ msgstr " 針(_P) "
 
 #: src/hal/utils/meter.c:617
 msgid " _Signals "
-msgstr " 信號​​(_S) "
+msgstr " 信號 (&S) "
 
 #: src/hal/utils/meter.c:618
 msgid " Para_meters "
@@ -1914,14 +1914,12 @@ msgstr "打開配置文件:"
 #: src/hal/utils/scope.c:478 src/hal/utils/scope.c:501
 #: src/hal/utils/scope_horiz.c:808 src/hal/utils/scope_vert.c:700
 #: src/hal/utils/scope_vert.c:918 src/hal/utils/scope_trig.c:315
-#, fuzzy
 msgid "_Cancel"
-msgstr "取消"
+msgstr "取消 (&C)"
 
 #: src/hal/utils/scope.c:479
-#, fuzzy
 msgid "_Open"
-msgstr "打開..."
+msgstr "開啟 (&O)"
 
 #: src/hal/utils/scope.c:499
 #, fuzzy
@@ -1929,9 +1927,8 @@ msgid "Save Configuration File:"
 msgstr "打開配置文件:"
 
 #: src/hal/utils/scope.c:502 src/hal/utils/scope_horiz.c:809
-#, fuzzy
 msgid "_Save"
-msgstr "保存"
+msgstr "儲存 (&S)"
 
 #: src/hal/utils/scope.c:533
 msgid "_Open Configuration..."
@@ -2064,7 +2061,7 @@ msgstr ""
 #: lib/python/propertywindow.py:35 share/axis/tcl/axis.tcl:1580
 #: share/axis/tcl/axis.tcl:1617
 msgid "OK"
-msgstr ""
+msgstr "好的"
 
 #: src/hal/utils/scope_horiz.c:486 src/hal/utils/scope_horiz.c:536
 #: src/hal/utils/scope_horiz.c:763
@@ -2108,7 +2105,7 @@ msgstr ""
 #: src/hal/utils/scope_horiz.c:535 src/hal/utils/scope_vert.c:699
 #: src/hal/utils/scope_vert.c:917
 msgid "_OK"
-msgstr ""
+msgstr "好的 (&O)"
 
 #: src/hal/utils/scope_horiz.c:555
 msgid "Thread:"
@@ -2232,15 +2229,15 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:470
 #: src/emc/usr_intf/pncconf/base.glade:385
 msgid "ns"
-msgstr ""
+msgstr "奈秒"
 
 #: src/hal/utils/scope_horiz.c:1189
 msgid "µs"
-msgstr ""
+msgstr "微秒"
 
 #: src/hal/utils/scope_horiz.c:1193
 msgid "ms"
-msgstr ""
+msgstr "毫秒"
 
 #: src/hal/utils/scope_horiz.c:1197 src/emc/usr_intf/stepconf/axisx.glade:345
 #: src/emc/usr_intf/stepconf/axisy.glade:343
@@ -2265,15 +2262,15 @@ msgstr "秒"
 #: src/emc/usr_intf/pncconf/mesa1.glade:443
 #: src/emc/usr_intf/pncconf/mesa1.glade:456
 msgid "Hz"
-msgstr ""
+msgstr "赫茲"
 
 #: src/hal/utils/scope_horiz.c:1217
 msgid "kHz"
-msgstr ""
+msgstr "千赫茲"
 
 #: src/hal/utils/scope_horiz.c:1221
 msgid "MHz"
-msgstr ""
+msgstr "兆赫茲"
 
 #: src/hal/utils/scope_vert.c:413 src/hal/utils/scope_vert.c:1117
 #, c-format
@@ -2301,11 +2298,12 @@ msgid "Scale"
 msgstr "尺度"
 
 #: src/hal/utils/scope_vert.c:635
-#, fuzzy
 msgid ""
 "Offset\n"
 "----"
-msgstr "偏移"
+msgstr ""
+"位移\n"
+"----"
 
 #: src/hal/utils/scope_vert.c:693
 #, c-format
@@ -2533,12 +2531,10 @@ msgid "%s move on line %d would exceed %c's %s limit"
 msgstr "%s 在線 %d 移動 將超過 joint %d 的 正 極限"
 
 #: src/emc/motion/command.c:217
-#, fuzzy
 msgid "negative"
 msgstr "負"
 
 #: src/emc/motion/command.c:222
-#, fuzzy
 msgid "positive"
 msgstr "正"
 
@@ -3015,7 +3011,7 @@ msgstr ""
 #: src/hal/classicladder/manager_gtk.c:466
 #: src/emc/usr_intf/axis/scripts/axis.py:1606
 msgid "Ok"
-msgstr ""
+msgstr "好的"
 
 #: src/hal/classicladder/classicladder_gtk.c:500
 msgid "Project loaded (stopped)."
@@ -3066,7 +3062,7 @@ msgstr ""
 
 #: src/hal/classicladder/classicladder_gtk.c:619
 msgid "Sure?"
-msgstr ""
+msgstr "當然？"
 
 #: src/hal/classicladder/classicladder_gtk.c:619
 msgid ""
@@ -3081,9 +3077,8 @@ msgstr ""
 #: src/hal/classicladder/classicladder_gtk.c:632
 #: src/hal/classicladder/classicladder_gtk.c:904
 #: src/hal/classicladder/classicladder_gtk.c:910
-#, fuzzy
 msgid "Warning!"
-msgstr "警告"
+msgstr "警告！"
 
 #: src/hal/classicladder/classicladder_gtk.c:632
 msgid ""
@@ -3153,9 +3148,8 @@ msgstr "是"
 #: src/emc/usr_intf/pncconf/y_axis.glade:50
 #: src/emc/usr_intf/pncconf/z_axis.glade:50
 #: src/emc/usr_intf/pncconf/a_axis.glade:50
-#, fuzzy
 msgid "No"
-msgstr "無"
+msgstr "不"
 
 #: src/hal/classicladder/classicladder_gtk.c:904
 msgid ""
@@ -3164,9 +3158,8 @@ msgid ""
 msgstr ""
 
 #: src/hal/classicladder/classicladder_gtk.c:908
-#, fuzzy
 msgid "Confirm!"
-msgstr "新 確認"
+msgstr "確認！"
 
 #: src/hal/classicladder/classicladder_gtk.c:908
 msgid "Do you really want to quit ?\n"
@@ -3196,13 +3189,12 @@ msgid "Display symbols"
 msgstr "顯示英寸(_I)"
 
 #: src/hal/classicladder/classicladder_gtk.c:1042
-#, fuzzy
 msgid "Statusbar"
-msgstr "狀況"
+msgstr "狀態欄"
 
 #: src/hal/classicladder/classicladder_gtk.c:1064
 msgid "Load"
-msgstr ""
+msgstr "載入"
 
 #: src/hal/classicladder/classicladder_gtk.c:1069 tcl/bin/emccalib.tcl:123
 #: tcl/bin/genedit.tcl:82 tcl/bin/halconfig.tcl:155
@@ -3211,9 +3203,8 @@ msgid "Save"
 msgstr "保存"
 
 #: src/hal/classicladder/classicladder_gtk.c:1074
-#, fuzzy
 msgid "Save As"
-msgstr "另存為..."
+msgstr "儲存為"
 
 #: src/hal/classicladder/classicladder_gtk.c:1079 tcl/tklinuxcnc.tcl:761
 msgid "Reset"
@@ -3221,7 +3212,7 @@ msgstr "重置"
 
 #: src/hal/classicladder/classicladder_gtk.c:1089
 msgid "Vars"
-msgstr ""
+msgstr "變數"
 
 #: src/hal/classicladder/classicladder_gtk.c:1099 tcl/bin/halconfig.tcl:194
 #: src/emc/usr_intf/pncconf/help.glade:511
@@ -3236,22 +3227,20 @@ msgstr "編輯器"
 
 #: src/hal/classicladder/classicladder_gtk.c:1110
 msgid "Symbols"
-msgstr ""
+msgstr "符號"
 
 #: src/hal/classicladder/classicladder_gtk.c:1115
 #: src/hal/classicladder/config_gtk.c:1070
-#, fuzzy
 msgid "Config"
-msgstr "HAL 設定"
+msgstr "配置"
 
 #: src/hal/classicladder/classicladder_gtk.c:1137 share/axis/tcl/axis.tcl:1301
 msgid "Preview"
 msgstr "預演"
 
 #: src/hal/classicladder/classicladder_gtk.c:1142
-#, fuzzy
 msgid "Print"
-msgstr "列印 設定"
+msgstr "列印"
 
 #: src/hal/classicladder/classicladder_gtk.c:1213
 #, c-format
@@ -3376,9 +3365,8 @@ msgstr ""
 
 #: src/hal/classicladder/config_gtk.c:367
 #: src/hal/classicladder/config_gtk.c:566
-#, fuzzy
 msgid "Inverted"
-msgstr "反轉 圖像"
+msgstr "已反向"
 
 #: src/hal/classicladder/config_gtk.c:662
 #, c-format
@@ -3448,7 +3436,7 @@ msgstr "偵錯層級"
 
 #: src/hal/classicladder/config_gtk.c:786
 msgid "QUIET"
-msgstr ""
+msgstr "安靜"
 
 #: src/hal/classicladder/config_gtk.c:786
 msgid "LEVEL"
@@ -3502,7 +3490,7 @@ msgstr ""
 
 #: src/hal/classicladder/edit.c:149 src/hal/classicladder/edit_sequential.c:72
 msgid "Variable"
-msgstr ""
+msgstr "變數"
 
 #: src/hal/classicladder/edit.c:152
 msgid "JumpToLabel"
@@ -3526,9 +3514,8 @@ msgstr ""
 #: src/hal/classicladder/edit.c:166 src/hal/classicladder/edit.c:175
 #: src/hal/classicladder/edit.c:183 src/hal/classicladder/edit.c:192
 #: src/emc/usr_intf/stepconf/pport1.glade:1319
-#, fuzzy
 msgid "Preset"
-msgstr "重置"
+msgstr "預設"
 
 #: src/hal/classicladder/edit.c:171
 msgid "MonostNbr"
@@ -3546,9 +3533,8 @@ msgid "TimerMode"
 msgstr "運行模式"
 
 #: src/hal/classicladder/edit.c:199
-#, fuzzy
 msgid "Expression"
-msgstr "未封閉表達式"
+msgstr "表達式"
 
 #: src/hal/classicladder/edit.c:229
 #, c-format
@@ -3667,7 +3653,7 @@ msgstr "添加"
 
 #: src/hal/classicladder/edit_gtk.c:481
 msgid "Insert"
-msgstr ""
+msgstr "插入"
 
 #: src/hal/classicladder/edit_gtk.c:491 tcl/bin/halconfig.tcl:134
 msgid "Modify"
@@ -3697,9 +3683,8 @@ msgid "Step Nbr"
 msgstr "步進"
 
 #: src/hal/classicladder/edit_sequential.c:75
-#, fuzzy
 msgid "Comment"
-msgstr "指令："
+msgstr "評論"
 
 #: src/hal/classicladder/edit_sequential.c:155
 #, c-format
@@ -3844,14 +3829,13 @@ msgstr ""
 
 #: src/hal/classicladder/edit_sequential.c:837
 #: src/hal/classicladder/edit_sequential.c:850
-#, fuzzy
 msgid "top"
-msgstr "停"
+msgstr "頂部"
 
 #: src/hal/classicladder/edit_sequential.c:837
 #: src/hal/classicladder/edit_sequential.c:850
 msgid "bottom"
-msgstr ""
+msgstr "底部"
 
 #: src/hal/classicladder/edit_sequential.c:842
 msgid "Now select the transition."
@@ -3901,14 +3885,13 @@ msgid "DO_MANY_TRANSITIONS:nbr clicks=2!!!, TypeBak=%d, TypeNow=%d\n"
 msgstr ""
 
 #: src/hal/classicladder/editproperties_gtk.c:237
-#, fuzzy
 msgid "Properties"
-msgstr "屬性(_P)......"
+msgstr "屬性"
 
 #: src/hal/classicladder/editproperties_gtk.c:289 tcl/bin/halshow.tcl:734
 #: lib/python/gladevcp/tooledit_gtk.glade:345
 msgid "Apply"
-msgstr ""
+msgstr "套用"
 
 #: src/hal/classicladder/emc_mods.c:60
 msgid "Error blank symbol name"
@@ -3943,9 +3926,8 @@ msgid "None"
 msgstr "無"
 
 #: src/hal/classicladder/emc_mods.c:133
-#, fuzzy
 msgid "error"
-msgstr "故障"
+msgstr "錯誤"
 
 #: src/hal/classicladder/emc_mods.c:154
 msgid "no signal connected"
@@ -4159,9 +4141,8 @@ msgid "Main/Sub-Routine"
 msgstr "樹狀 擴張"
 
 #: src/hal/classicladder/manager_gtk.c:423
-#, fuzzy
 msgid "Name"
-msgstr "名稱:"
+msgstr "名稱"
 
 #: src/hal/classicladder/manager_gtk.c:511
 msgid "Sections Manager"
@@ -4259,9 +4240,9 @@ msgid "Set RTS=%d\n"
 msgstr ""
 
 #: src/hal/classicladder/serial_linux.c:193
-#, fuzzy, c-format
+#, c-format
 msgid "Serial writing...\n"
-msgstr "篩選...."
+msgstr "序列寫入中…"
 
 #: src/hal/classicladder/serial_linux.c:196
 #, c-format
@@ -4269,9 +4250,9 @@ msgid "Writing done!\n"
 msgstr ""
 
 #: src/hal/classicladder/serial_linux.c:216
-#, fuzzy, c-format
+#, c-format
 msgid "Serial config...\n"
-msgstr "HAＬ　配置..."
+msgstr "序列配置…"
 
 #: src/hal/classicladder/serial_linux.c:237
 #, c-format
@@ -4279,9 +4260,9 @@ msgid "select() for serial reading...\n"
 msgstr ""
 
 #: src/hal/classicladder/serial_linux.c:242
-#, fuzzy, c-format
+#, c-format
 msgid "Serial reading...\n"
-msgstr "篩選...."
+msgstr "序列讀取中…"
 
 #: src/hal/classicladder/serial_linux.c:245
 #, c-format
@@ -4991,7 +4972,6 @@ msgid "Add parameter"
 msgstr "參數"
 
 #: tcl/bin/halshow.tcl:268
-#, fuzzy
 msgid "Parameter"
 msgstr "參數"
 
@@ -5331,7 +5311,7 @@ msgstr "指令 #："
 
 #: tcl/tklinuxcnc.tcl:275 tcl/tklinuxcnc.tcl:298 tcl/tklinuxcnc.tcl:321
 msgid "Status:"
-msgstr "狀況"
+msgstr "狀態："
 
 #: tcl/tklinuxcnc.tcl:287
 msgid "Io"
@@ -6197,9 +6177,8 @@ msgid "Expand sub"
 msgstr "展開 針"
 
 #: tcl/ngcgui.tcl:2585
-#, fuzzy
 msgid "Retain values"
-msgstr "設定軸 偏移量:"
+msgstr "保留值"
 
 #: tcl/ngcgui.tcl:2589
 msgid "Verbose"
@@ -6488,9 +6467,8 @@ msgid "Create a subroutine file from truetype-tracer (V4 reqd)"
 msgstr ""
 
 #: tcl/ngcgui_ttt.tcl:103 tcl/ngcgui_ttt.tcl:116
-#, fuzzy
 msgid "problem with"
-msgstr "替換："
+msgstr "有問題"
 
 #: tcl/ngcgui_ttt.tcl:107
 msgid "No entry for"
@@ -6636,9 +6614,8 @@ msgid "NEW"
 msgstr ""
 
 #: tcl/tooledit.tcl:234
-#, fuzzy
 msgid "Problem"
-msgstr "替換："
+msgstr "問題"
 
 #: tcl/tooledit.tcl:235
 #, fuzzy
@@ -6703,9 +6680,8 @@ msgid "poc"
 msgstr ""
 
 #: tcl/tooledit.tcl:456
-#, fuzzy
 msgid "diam"
-msgstr "  直徑"
+msgstr "直徑"
 
 #: tcl/tooledit.tcl:457
 msgid "front"
@@ -6844,9 +6820,8 @@ msgid "Tool <%s> specified multiple times"
 msgstr ""
 
 #: tcl/tooledit.tcl:953
-#, fuzzy
 msgid "File Modified"
-msgstr "修改..."
+msgstr "檔案已修改"
 
 #: tcl/tooledit.tcl:954
 msgid "Save Modifications to File?"
@@ -6922,9 +6897,8 @@ msgid "Usage"
 msgstr ""
 
 #: tcl/tooledit.tcl:1151 tcl/tooledit.tcl:1152
-#, fuzzy
 msgid "filename"
-msgstr "文件名:"
+msgstr "檔案名稱"
 
 #: tcl/tooledit.tcl:1153
 #, tcl-format
@@ -7386,11 +7360,11 @@ msgstr "英寸"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1766
 msgid " radius"
-msgstr "  半徑"
+msgstr " 半徑"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1768
 msgid " diameter"
-msgstr "  直徑"
+msgstr " 直徑"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1769
 msgid "°"
@@ -7984,7 +7958,7 @@ msgstr "偵錯層級"
 
 #: src/emc/usr_intf/axis/scripts/debuglevel.py:36
 msgid "Configuration *"
-msgstr "配 置  *"
+msgstr "配置 *"
 
 #: src/emc/usr_intf/axis/scripts/debuglevel.py:37
 msgid "Version Numbers *"
@@ -8029,7 +8003,7 @@ msgstr "   *這個 選項 只能在 ini 文件 啟用"
 
 #: share/axis/tcl/axis.tcl:58
 msgid "_Open..."
-msgstr "打開(_O)"
+msgstr "開啟… (&O)"
 
 #: share/axis/tcl/axis.tcl:62
 msgid "Recent _Files"
@@ -8442,7 +8416,7 @@ msgstr "對刀"
 
 #: share/axis/tcl/axis.tcl:1021
 msgid "Spindle:"
-msgstr "主軸"
+msgstr "主軸："
 
 #: share/axis/tcl/axis.tcl:1068 src/emc/usr_intf/touchy/touchy.glade:949
 #: src/emc/usr_intf/stepconf/main_page.glade:29
@@ -11176,9 +11150,8 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/options.glade:140
 #: src/emc/usr_intf/pncconf/screen.glade:3294
-#, fuzzy
 msgid "Estop Button:"
-msgstr "急停 開"
+msgstr "急停按鈕："
 
 #: src/emc/usr_intf/stepconf/options.glade:156
 #: src/emc/usr_intf/pncconf/screen.glade:3325
@@ -11229,9 +11202,8 @@ msgstr ""
 
 #: src/emc/usr_intf/stepconf/options.glade:493
 #: src/emc/usr_intf/pncconf/screen.glade:3649
-#, fuzzy
 msgid "Mode:"
-msgstr "運行模式"
+msgstr "模式："
 
 #: src/emc/usr_intf/stepconf/options.glade:502
 #: src/emc/usr_intf/pncconf/screen.glade:3853
@@ -11600,7 +11572,8 @@ msgstr "正"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid "_:"
+msgid ""
+"_:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -14539,11 +14512,12 @@ msgid "PNCconf - Mesa Card Configuration Wizard"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/main_page.glade:177
-#, fuzzy
 msgid ""
 "Save\n"
 "Data"
-msgstr "保存"
+msgstr ""
+"儲存\n"
+"資料"
 
 #: src/emc/usr_intf/pncconf/main_page.glade:286
 msgid ""
@@ -16023,7 +15997,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:58895
 #: src/emc/usr_intf/pncconf/mesa1.glade:58910
 msgid " "
-msgstr ""
+msgstr " "
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:8728
 #: src/emc/usr_intf/pncconf/mesa1.glade:8728
@@ -16588,9 +16562,8 @@ msgid "Baud Rate"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/external.glade:5476
-#, fuzzy
 msgid "Device  Name"
-msgstr "設備名稱:"
+msgstr "裝置名稱"
 
 #: src/emc/usr_intf/pncconf/external.glade:5577
 msgid "GS2"
@@ -17133,9 +17106,8 @@ msgstr "歸零開關的位置 (從機床零點的偏移):"
 #: src/emc/usr_intf/pncconf/z_motor.glade:184
 #: src/emc/usr_intf/pncconf/a_motor.glade:176
 #: src/emc/usr_intf/pncconf/s_motor.glade:213
-#, fuzzy
 msgid "Max Output"
-msgstr "DAC 最大 輸出:"
+msgstr "最大輸出"
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:259
 #: src/emc/usr_intf/pncconf/y_motor.glade:259
@@ -17313,7 +17285,7 @@ msgstr "方向設定"
 #: src/emc/usr_intf/pncconf/a_motor.glade:934
 #: src/emc/usr_intf/pncconf/s_motor.glade:945
 msgid "Driver Type:"
-msgstr "驅動類型"
+msgstr "驅動程式類型："
 
 #: src/emc/usr_intf/pncconf/x_motor.glade:1048
 #: src/emc/usr_intf/pncconf/y_motor.glade:1042
@@ -18251,7 +18223,7 @@ msgstr "帶輪齒（編碼器：絲槓）:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2664
 msgid "                    "
-msgstr ""
+msgstr "                    "
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2705
 msgid "encoder pulses per unit:"
@@ -18758,11 +18730,8 @@ msgstr "機床位置"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2652
 #: lib/python/gladevcp/calculator.glade:33
-#, fuzzy
 msgid "Calculator"
-msgstr ""
-"計算\n"
-"比例"
+msgstr "計算機"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2880
 #, python-format
@@ -19316,9 +19285,8 @@ msgstr "清除 通報"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2750
 #: src/emc/usr_intf/gscreen/gscreen.glade:2905
-#, fuzzy
 msgid "Debug"
-msgstr "排錯..."
+msgstr "偵錯"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2784
 #, fuzzy
@@ -19355,9 +19323,8 @@ msgid "Halscope"
 msgstr "HAL 顯示器"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2925
-#, fuzzy
 msgid "Tooleditor"
-msgstr "刀具表編輯..."
+msgstr "工具編輯器"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2945
 #, fuzzy
@@ -19418,7 +19385,7 @@ msgstr "MPG　慢步　操控"
 #: src/emc/usr_intf/gscreen/gscreen.glade:3275
 #: src/emc/usr_intf/gscreen/gscreen.glade:4284
 msgid "\n"
-msgstr ""
+msgstr "\n"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3322
 #, fuzzy
@@ -19674,9 +19641,8 @@ msgid "Close without returning a file path"
 msgstr ""
 
 #: lib/python/gladevcp/hal_mdihistory.py:90
-#, fuzzy
 msgid "Command"
-msgstr "指令："
+msgstr "指令"
 
 #: lib/python/gladevcp/hal_mdihistory.py:276
 msgid "ERROR loading halshow"
@@ -19750,9 +19716,8 @@ msgstr "切換 淹浸"
 
 #: lib/python/gladevcp/offsetpage.glade:40
 #: lib/python/gladevcp/offsetpage.glade:54
-#, fuzzy
 msgid "Tool"
-msgstr "刀具:"
+msgstr "工具"
 
 #: lib/python/gladevcp/offsetpage.glade:74
 msgid "Rot"
@@ -19764,9 +19729,8 @@ msgid "Rotation of Z"
 msgstr "旋轉 或 平移"
 
 #: lib/python/gladevcp/offsetpage.glade:290
-#, fuzzy
 msgid "Offset"
-msgstr "位移:"
+msgstr "位移"
 
 #: lib/python/gladevcp/offsetpage.glade:421
 #, fuzzy
@@ -19797,9 +19761,8 @@ msgstr "選擇(_S)"
 #: lib/python/gladevcp/tooledit_gtk.glade:98
 #: lib/python/gladevcp/tooledit_gtk.glade:408
 #: lib/python/gladevcp/tooledit_gtk.glade:631
-#, fuzzy
 msgid "Tool#"
-msgstr "刀具 #:"
+msgstr "工具#"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:114
 #: lib/python/gladevcp/tooledit_gtk.glade:419
@@ -19810,9 +19773,8 @@ msgstr ""
 #: lib/python/gladevcp/tooledit_gtk.glade:227
 #: lib/python/gladevcp/tooledit_gtk.glade:529
 #: lib/python/gladevcp/tooledit_gtk.glade:752
-#, fuzzy
 msgid "Diameter"
-msgstr "  直徑"
+msgstr "直徑"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:242
 #: lib/python/gladevcp/tooledit_gtk.glade:544
@@ -19830,9 +19792,8 @@ msgstr ""
 #: lib/python/gladevcp/tooledit_gtk.glade:275
 #: lib/python/gladevcp/tooledit_gtk.glade:577
 #: lib/python/gladevcp/tooledit_gtk.glade:800
-#, fuzzy
 msgid "Comments"
-msgstr "指令："
+msgstr "評論"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:330
 #, fuzzy

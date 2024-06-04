@@ -1,22 +1,21 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
+# hugoalh <hugoalh@users.noreply.hosted.weblate.org>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-04-08 19:52+0200\n"
-"PO-Revision-Date: 2012-03-11 12:55+0200\n"
-"Last-Translator: k.t. chan <eddie692962@netvigator.com>\n"
+"PO-Revision-Date: 2024-06-02 02:04+0000\n"
+"Last-Translator: hugoalh <hugoalh@users.noreply.hosted.weblate.org>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: zh_HK\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 0.5\n"
+"X-Generator: Weblate 5.6-dev\n"
 
 #: src/emc/task/emctaskmain.cc:868
 #, c-format
@@ -7769,12 +7768,15 @@ msgid "Insert tool %d and click continue when ready"
 msgstr "插入 刀具 %d 準備 好後 點擊 繼續"
 
 #: src/emc/usr_intf/axis/scripts/hal_manualtoolchange.py:76
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "\n"
 "\n"
 "Error: %s"
-msgstr "故障"
+msgstr ""
+"\n"
+"\n"
+"錯誤：%s"
 
 #: src/emc/usr_intf/axis/scripts/hal_manualtoolchange.py:93
 msgid "AXIS Manual Toolchanger"
@@ -7981,7 +7983,7 @@ msgstr "偵錯層級"
 
 #: src/emc/usr_intf/axis/scripts/debuglevel.py:36
 msgid "Configuration *"
-msgstr "配 置  *"
+msgstr "配置 *"
 
 #: src/emc/usr_intf/axis/scripts/debuglevel.py:37
 msgid "Version Numbers *"
@@ -11597,7 +11599,9 @@ msgstr "正"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid "_:"
+msgid ""
+"_:"
+""
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
