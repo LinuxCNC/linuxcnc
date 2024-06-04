@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-04-07 20:07+0200\n"
-"PO-Revision-Date: 2024-05-23 22:09+0000\n"
+"PO-Revision-Date: 2024-06-02 02:04+0000\n"
 "Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "linuxcnc/gmocappy/nb_NO/>\n"
@@ -278,6 +278,8 @@ msgstr "Lyd tilgjengelig!"
 msgid ""
 "No audio available! PYGST library not installed? Is python-gstX.XX installed?"
 msgstr ""
+"Ingen lyd tilgjengelig! Er PYGST-biblioteket ikke installert? Er python-"
+"gstX.XX installert?"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2067
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5359
@@ -303,6 +305,8 @@ msgid ""
 "Error with launching virtual keyboard. Is onboard installed?Try sudo apt-get "
 "install onboard"
 msgstr ""
+"Feil ved oppstart av virtuelt tastatur. Er onboard installert? Forsøk sudo "
+"apt-get install onboard"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2157
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3023
@@ -334,11 +338,11 @@ msgstr "Viktig advarsel"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2462
 msgid "External ESTOP is set, could not change state!"
-msgstr ""
+msgstr "Ekstern ESTOP er aktiv, kunne ikke endre tilstand!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2475
 msgid "Could not switch the machine on, is limit switch activated?"
-msgstr ""
+msgstr "Klarte ikke slå på maskinen. Er endestopp aktive?"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2558
 msgid "No file loaded"
