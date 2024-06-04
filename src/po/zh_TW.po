@@ -2,13 +2,14 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # hugoalh <hugoalh@users.noreply.hosted.weblate.org>, 2024.
+# Petter Reinholdtsen <pere-weblate@hungry.com>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-04-08 19:52+0200\n"
-"PO-Revision-Date: 2024-06-02 02:04+0000\n"
-"Last-Translator: hugoalh <hugoalh@users.noreply.hosted.weblate.org>\n"
+"PO-Revision-Date: 2024-06-04 14:39+0000\n"
+"Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: zh_TW\n"
 "MIME-Version: 1.0\n"
@@ -4240,7 +4241,7 @@ msgid "Set RTS=%d\n"
 msgstr ""
 
 #: src/hal/classicladder/serial_linux.c:193
-#, c-format
+#, c-format, fuzzy
 msgid "Serial writing...\n"
 msgstr "序列寫入中…"
 
@@ -4250,7 +4251,7 @@ msgid "Writing done!\n"
 msgstr ""
 
 #: src/hal/classicladder/serial_linux.c:216
-#, c-format
+#, c-format, fuzzy
 msgid "Serial config...\n"
 msgstr "序列配置…"
 
@@ -4260,7 +4261,7 @@ msgid "select() for serial reading...\n"
 msgstr ""
 
 #: src/hal/classicladder/serial_linux.c:242
-#, c-format
+#, c-format, fuzzy
 msgid "Serial reading...\n"
 msgstr "序列讀取中…"
 
@@ -11574,6 +11575,7 @@ msgstr "正"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
 msgid ""
 "_:"
+""
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
