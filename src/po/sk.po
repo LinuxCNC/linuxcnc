@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: sk\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-04-08 19:52+0200\n"
-"PO-Revision-Date: 2024-04-25 13:33+0000\n"
+"PO-Revision-Date: 2024-06-04 14:39+0000\n"
 "Last-Translator: Juraj Adamkovic <stroje.hcnc@gmail.com>\n"
 "Language-Team: Slovak <emc-developers@lists.sourceforge.net>\n"
 "Language: sk\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=((n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2);\n"
-"X-Generator: Weblate 5.5.1-dev\n"
+"X-Generator: Weblate 5.6-dev\n"
 "X-Poedit-Language: Slovak\n"
 "X-Poedit-Country: SLOVAKIA\n"
 
@@ -19177,7 +19177,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3160
 msgid "Keyboard"
-msgstr ""
+msgstr "Klávesnica"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3194
 msgid "Error with launching 'Onboard' on-screen keyboard program {}"
