@@ -888,7 +888,7 @@ class HandlerClass:
         sensor = self.w.sender().property('sensor')
         txt1 = _translate("HandlerClass","Ensure tooltip is within")
         txt2 = _translate("HandlerClass","of tool sensor and click OK")
-        info = "{} {}{} {}".format(txt1, self.w.lineEdit_max_probe.text(), unit, tx2)
+        info = "{} {}{} {}".format(txt1, self.w.lineEdit_max_probe.text(), unit, txt2)
         mess = {'NAME':'MESSAGE', 'ID':sensor, 'MESSAGE':'TOOL TOUCHOFF', 'MORE':info, 'TYPE':'OKCANCEL'}
         ACTION.CALL_DIALOG(mess)
         
@@ -1457,7 +1457,7 @@ class HandlerClass:
             copyfile(self.source_file, self.destination_file)
             txt1 = _translate("HandlerClass","Copied file from")
             txt2 = _translate("HandlerClass","to")
-            self.add_status("{} {} {} {}".format(self.source_file, self.destination_file))
+            self.add_status("{} {} {} {}".format(txt1,self.source_file, txt2, self.destination_file))
         except Exception as e:
             txt = _translate("HandlerClass","Unable to copy file")
             self.add_status(f"{txt}: {e}", WARNING)

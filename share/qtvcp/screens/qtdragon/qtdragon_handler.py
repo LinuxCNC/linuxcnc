@@ -1400,7 +1400,9 @@ class HandlerClass:
     def do_file_copy(self):
         try:
             copyfile(self.source_file, self.destination_file)
-            self.add_status("() {} to {}".format(_translate("HandlerClass","Copied file from"), self.source_file, self.destination_file))
+            txt1 = _translate("HandlerClass","Copied file from")
+            txt2 = _translate("HandlerClass","to")
+            self.add_status("{} {} {} {}".format(txt1,self.source_file, txt2, self.destination_file))
         except Exception as e:
             self.add_status("{}. {}".format(_translate("HandlerClass","Unable to copy file"), e))
 
