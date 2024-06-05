@@ -1,4 +1,4 @@
-VERSION = '008.045'
+VERSION = '008.046'
 LCNCVER = '2.10'
 DOCSVER = LCNCVER
 
@@ -577,7 +577,7 @@ class HandlerClass:
         elif not self.fileOpened:
             self.w.gcode_editor.editor.new_text()
             self.w.gcode_editor.editor.setModified(False)
-            self.view_t_pressed()
+            self.view_t_pressed(self.w.gcodegraphics)
         self.w.gcode_editor.editMode()
         self.vkb_hide()
         ACTION.SET_MANUAL_MODE()
@@ -1689,9 +1689,9 @@ class HandlerClass:
         # forces the view to remain "table view" if T is checked when a file is loaded
         if self.fileOpened:
             if self.w.view_t.isChecked():
-                self.view_t_pressed()
+                self.view_t_pressed(self.w.gcodegraphics)
         else:
-            self.view_t_pressed()
+            self.view_t_pressed(self.w.gcodegraphics)
         if 'single_cut.ngc' not in filename:
             self.preSingleCutMaterial = None
         # remove unused temporary materials from comboboxes
@@ -2157,12 +2157,12 @@ class HandlerClass:
         else:
             self.kb_jog(state, ['x', 'y', 'z', 'a', 'b', 'c'].index(joint), direction, shift)
 
-    def view_t_pressed(self):
+    def view_t_pressed(self, widget):
         t = time.time() + 0.01
         while time.time() < t:
             QApplication.processEvents()
-        self.w.gcodegraphics.set_view('Z')
-        mid = DRAW.extents_info(self.w.gcodegraphics)[0]
+        widget.set_view('Z')
+        mid = DRAW.extents_info(widget)[0]
         mult = 1 if self.units == 'in' else 25.4
         zoomScale = self.w.table_zoom_scale.value() * 2
         xTableCenter = (self.xMin + self.xLen / 2) / mult - mid[0]
@@ -2170,41 +2170,41 @@ class HandlerClass:
         xSize = self.xLen / mult / zoomScale
         ySize = self.yLen / mult / zoomScale
         glTranslatef(-xTableCenter, -yTableCenter, 0)
-        self.w.gcodegraphics.set_eyepoint_from_extents(xSize, ySize)
-        self.w.gcodegraphics.perspective = False
-        self.w.gcodegraphics.lat = self.w.gcodegraphics.lon = 0
-        self.w.gcodegraphics.updateGL()
+        widget.set_eyepoint_from_extents(xSize, ySize)
+        widget.perspective = False
+        widget.lat = widget.lon = 0
+        widget.updateGL()
 
     def view_p_pressed(self):
         self.w.gcodegraphics.set_view('P')
 
-    def view_z_pressed(self):
-        self.w.gcodegraphics.set_view('Z')
+    def view_z_pressed(self, widget):
+        widget.set_view('Z')
 
     def view_clear_pressed(self):
         self.w.gcodegraphics.logger.clear()
 
-    def pan_left_pressed(self):
-        self.w.gcodegraphics.recordMouse(0, 0)
-        self.w.gcodegraphics.translateOrRotate(-self.w.gcodegraphics._view_incr, 0)
+    def pan_left_pressed(self, widget):
+        widget.recordMouse(0, 0)
+        widget.translateOrRotate(-widget._view_incr, 0)
 
-    def pan_right_pressed(self):
-        self.w.gcodegraphics.recordMouse(0, 0)
-        self.w.gcodegraphics.translateOrRotate(self.w.gcodegraphics._view_incr, 0)
+    def pan_right_pressed(self, widget):
+        widget.recordMouse(0, 0)
+        widget.translateOrRotate(widget._view_incr, 0)
 
-    def pan_up_pressed(self):
-        self.w.gcodegraphics.recordMouse(0, 0)
-        self.w.gcodegraphics.translateOrRotate(0, -self.w.gcodegraphics._view_incr)
+    def pan_up_pressed(self, widget):
+        widget.recordMouse(0, 0)
+        widget.translateOrRotate(0, -widget._view_incr)
 
-    def pan_down_pressed(self):
-        self.w.gcodegraphics.recordMouse(0, 0)
-        self.w.gcodegraphics.translateOrRotate(0, self.w.gcodegraphics._view_incr)
+    def pan_down_pressed(self, widget):
+        widget.recordMouse(0, 0)
+        widget.translateOrRotate(0, widget._view_incr)
 
-    def zoom_in_pressed(self):
-        self.w.gcodegraphics.zoomin()
+    def zoom_in_pressed(self, widget):
+        widget.zoomin()
 
-    def zoom_out_pressed(self):
-        self.w.gcodegraphics.zoomout()
+    def zoom_out_pressed(self, widget):
+        widget.zoomout()
 
     def gcode_display_loaded(self):
         gcodeLines = len(str(self.w.gcode_display.lines()))
@@ -2255,7 +2255,7 @@ class HandlerClass:
             log = _translate('HandlerClass', 'Program cleared')
             STATUS.emit('update-machine-log', log, 'TIME')
         else:
-            self.view_t_pressed()
+            self.view_t_pressed(self.w.gcodegraphics)
 
     def file_open_clicked(self):
         if self.w.preview_stack.currentIndex() != self.OPEN:
@@ -3092,15 +3092,23 @@ class HandlerClass:
         self.w.cam_dia_plus.pressed.connect(self.cam_dia_plus_pressed)
         self.w.cam_dia_minus.pressed.connect(self.cam_dia_minus_pressed)
         self.w.view_p.pressed.connect(self.view_p_pressed)
-        self.w.view_z.pressed.connect(self.view_z_pressed)
-        self.w.view_t.pressed.connect(self.view_t_pressed)
+        self.w.view_z.pressed.connect(lambda: self.view_z_pressed(self.w.gcodegraphics))
+        self.w.view_t.pressed.connect(lambda: self.view_t_pressed(self.w.gcodegraphics))
         self.w.view_clear.pressed.connect(self.view_clear_pressed)
-        self.w.pan_left.pressed.connect(self.pan_left_pressed)
-        self.w.pan_right.pressed.connect(self.pan_right_pressed)
-        self.w.pan_up.pressed.connect(self.pan_up_pressed)
-        self.w.pan_down.pressed.connect(self.pan_down_pressed)
-        self.w.zoom_in.pressed.connect(self.zoom_in_pressed)
-        self.w.zoom_out.pressed.connect(self.zoom_out_pressed)
+        self.w.pan_left.pressed.connect(lambda: self.pan_left_pressed(self.w.gcodegraphics))
+        self.w.pan_right.pressed.connect(lambda: self.pan_right_pressed(self.w.gcodegraphics))
+        self.w.pan_up.pressed.connect(lambda: self.pan_up_pressed(self.w.gcodegraphics))
+        self.w.pan_down.pressed.connect(lambda: self.pan_down_pressed(self.w.gcodegraphics))
+        self.w.zoom_in.pressed.connect(lambda: self.zoom_in_pressed(self.w.gcodegraphics))
+        self.w.zoom_out.pressed.connect(lambda: self.zoom_out_pressed(self.w.gcodegraphics))
+        self.w.conv_view_z.pressed.connect(lambda: self.view_z_pressed(self.w.conv_preview))
+        self.w.conv_view_t.pressed.connect(lambda: self.view_t_pressed(self.w.conv_preview))
+        self.w.conv_pan_left.pressed.connect(lambda: self.pan_left_pressed(self.w.conv_preview))
+        self.w.conv_pan_right.pressed.connect(lambda: self.pan_right_pressed(self.w.conv_preview))
+        self.w.conv_pan_up.pressed.connect(lambda: self.pan_up_pressed(self.w.conv_preview))
+        self.w.conv_pan_down.pressed.connect(lambda: self.pan_down_pressed(self.w.conv_preview))
+        self.w.conv_zoom_in.pressed.connect(lambda: self.zoom_in_pressed(self.w.conv_preview))
+        self.w.conv_zoom_out.pressed.connect(lambda: self.zoom_out_pressed(self.w.conv_preview))
         self.w.camera.pressed.connect(self.camera_pressed)
         self.w.laser.pressed.connect(self.laser_pressed)
         self.w.laser.clicked.connect(self.laser_clicked)
@@ -3813,7 +3821,7 @@ class HandlerClass:
         self.w.pause.setEnabled(False)
         self.w.abort.setEnabled(False)
         self.w.gcode_display.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.view_t_pressed()
+        self.view_t_pressed(self.w.gcodegraphics)
         self.set_signal_connections()
         if self.firstRun is True:
             self.firstRun = False

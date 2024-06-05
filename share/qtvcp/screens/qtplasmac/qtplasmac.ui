@@ -9224,7 +9224,7 @@ HOME ALL</string>
                    <property name="frameShadow">
                     <enum>QFrame::Plain</enum>
                    </property>
-                   <layout class="QHBoxLayout" name="horizontalLayout_34" stretch="0,1">
+                   <layout class="QHBoxLayout" name="horizontalLayout_34" stretch="0,0">
                     <property name="spacing">
                      <number>4</number>
                     </property>
@@ -9468,24 +9468,308 @@ HOME ALL</string>
                       <property name="frameShadow">
                        <enum>QFrame::Plain</enum>
                       </property>
-                      <layout class="QVBoxLayout" name="verticalLayout_52">
-                       <property name="spacing">
-                        <number>0</number>
-                       </property>
-                       <property name="leftMargin">
-                        <number>0</number>
-                       </property>
-                       <property name="topMargin">
-                        <number>0</number>
-                       </property>
-                       <property name="rightMargin">
-                        <number>0</number>
-                       </property>
-                       <property name="bottomMargin">
-                        <number>0</number>
-                       </property>
+                      <layout class="QHBoxLayout" name="horizontalLayout_43">
                        <item>
                         <widget class="GCodeGraphics" name="conv_preview"/>
+                       </item>
+                       <item>
+                        <widget class="QFrame" name="conv_preview_buttons">
+                         <property name="enabled">
+                          <bool>true</bool>
+                         </property>
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>40</width>
+                           <height>16777215</height>
+                          </size>
+                         </property>
+                         <property name="autoFillBackground">
+                          <bool>true</bool>
+                         </property>
+                         <layout class="QVBoxLayout" name="verticalLayout_52">
+                          <property name="spacing">
+                           <number>8</number>
+                          </property>
+                          <property name="leftMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="topMargin">
+                           <number>2</number>
+                          </property>
+                          <property name="rightMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="bottomMargin">
+                           <number>2</number>
+                          </property>
+                          <item>
+                           <spacer name="verticalSpacer_16">
+                            <property name="orientation">
+                             <enum>Qt::Vertical</enum>
+                            </property>
+                            <property name="sizeHint" stdset="0">
+                             <size>
+                              <width>20</width>
+                              <height>40</height>
+                             </size>
+                            </property>
+                           </spacer>
+                          </item>
+                          <item>
+                           <widget class="QPushButton" name="conv_view_t">
+                            <property name="minimumSize">
+                             <size>
+                              <width>40</width>
+                              <height>28</height>
+                             </size>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>40</width>
+                              <height>28</height>
+                             </size>
+                            </property>
+                            <property name="focusPolicy">
+                             <enum>Qt::ClickFocus</enum>
+                            </property>
+                            <property name="text">
+                             <string notr="true">T</string>
+                            </property>
+                            <property name="checkable">
+                             <bool>true</bool>
+                            </property>
+                            <property name="autoExclusive">
+                             <bool>true</bool>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QPushButton" name="conv_view_z">
+                            <property name="minimumSize">
+                             <size>
+                              <width>40</width>
+                              <height>28</height>
+                             </size>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>40</width>
+                              <height>28</height>
+                             </size>
+                            </property>
+                            <property name="focusPolicy">
+                             <enum>Qt::ClickFocus</enum>
+                            </property>
+                            <property name="text">
+                             <string notr="true">Z</string>
+                            </property>
+                            <property name="checkable">
+                             <bool>true</bool>
+                            </property>
+                            <property name="checked">
+                             <bool>true</bool>
+                            </property>
+                            <property name="autoExclusive">
+                             <bool>true</bool>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QLabel" name="view_spacer_4">
+                            <property name="minimumSize">
+                             <size>
+                              <width>0</width>
+                              <height>10</height>
+                             </size>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>16777215</width>
+                              <height>10</height>
+                             </size>
+                            </property>
+                            <property name="text">
+                             <string/>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QPushButton" name="conv_pan_right">
+                            <property name="minimumSize">
+                             <size>
+                              <width>40</width>
+                              <height>28</height>
+                             </size>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>40</width>
+                              <height>28</height>
+                             </size>
+                            </property>
+                            <property name="focusPolicy">
+                             <enum>Qt::ClickFocus</enum>
+                            </property>
+                            <property name="text">
+                             <string notr="true">→</string>
+                            </property>
+                            <property name="autoRepeat">
+                             <bool>true</bool>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QPushButton" name="conv_pan_left">
+                            <property name="minimumSize">
+                             <size>
+                              <width>40</width>
+                              <height>28</height>
+                             </size>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>40</width>
+                              <height>28</height>
+                             </size>
+                            </property>
+                            <property name="focusPolicy">
+                             <enum>Qt::ClickFocus</enum>
+                            </property>
+                            <property name="text">
+                             <string notr="true">←</string>
+                            </property>
+                            <property name="autoRepeat">
+                             <bool>true</bool>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QPushButton" name="conv_pan_up">
+                            <property name="minimumSize">
+                             <size>
+                              <width>40</width>
+                              <height>28</height>
+                             </size>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>40</width>
+                              <height>28</height>
+                             </size>
+                            </property>
+                            <property name="focusPolicy">
+                             <enum>Qt::ClickFocus</enum>
+                            </property>
+                            <property name="text">
+                             <string notr="true">↑</string>
+                            </property>
+                            <property name="autoRepeat">
+                             <bool>true</bool>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QPushButton" name="conv_pan_down">
+                            <property name="minimumSize">
+                             <size>
+                              <width>40</width>
+                              <height>28</height>
+                             </size>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>40</width>
+                              <height>28</height>
+                             </size>
+                            </property>
+                            <property name="focusPolicy">
+                             <enum>Qt::ClickFocus</enum>
+                            </property>
+                            <property name="text">
+                             <string notr="true">↓</string>
+                            </property>
+                            <property name="autoRepeat">
+                             <bool>true</bool>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QLabel" name="view_spacer_5">
+                            <property name="minimumSize">
+                             <size>
+                              <width>0</width>
+                              <height>10</height>
+                             </size>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>16777215</width>
+                              <height>10</height>
+                             </size>
+                            </property>
+                            <property name="text">
+                             <string/>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QPushButton" name="conv_zoom_in">
+                            <property name="minimumSize">
+                             <size>
+                              <width>40</width>
+                              <height>28</height>
+                             </size>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>40</width>
+                              <height>28</height>
+                             </size>
+                            </property>
+                            <property name="focusPolicy">
+                             <enum>Qt::ClickFocus</enum>
+                            </property>
+                            <property name="text">
+                             <string notr="true">+</string>
+                            </property>
+                            <property name="autoRepeat">
+                             <bool>true</bool>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QPushButton" name="conv_zoom_out">
+                            <property name="minimumSize">
+                             <size>
+                              <width>40</width>
+                              <height>28</height>
+                             </size>
+                            </property>
+                            <property name="maximumSize">
+                             <size>
+                              <width>40</width>
+                              <height>28</height>
+                             </size>
+                            </property>
+                            <property name="focusPolicy">
+                             <enum>Qt::ClickFocus</enum>
+                            </property>
+                            <property name="text">
+                             <string notr="true">-</string>
+                            </property>
+                            <property name="autoRepeat">
+                             <bool>true</bool>
+                            </property>
+                           </widget>
+                          </item>
+                         </layout>
+                        </widget>
                        </item>
                       </layout>
                      </widget>
@@ -15344,8 +15628,8 @@ HOME ALL</string>
                      <rect>
                       <x>0</x>
                       <y>0</y>
-                      <width>101</width>
-                      <height>636</height>
+                      <width>720</width>
+                      <height>695</height>
                      </rect>
                     </property>
                     <property name="sizePolicy">
@@ -18136,7 +18420,7 @@ CONFIG</string>
   </customwidget>
   <customwidget>
    <class>PushButton</class>
-   <extends>IndicatedPushButton</extends>
+   <extends>QPushButton</extends>
    <header>qtvcp.widgets.simple_widgets</header>
   </customwidget>
   <customwidget>
