@@ -9154,7 +9154,7 @@ LOG</string>
                         </widget>
                        </item>
                        <item row="9" column="2">
-                        <widget class="ActionButton" name="minus_jogbutton_1">
+                        <widget class="ActionButton" name="minus_jogbutton_0">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                            <horstretch>0</horstretch>
@@ -9291,7 +9291,7 @@ LOG</string>
                         </widget>
                        </item>
                        <item row="7" column="1">
-                        <widget class="ActionButton" name="minus_jogbutton_0">
+                        <widget class="ActionButton" name="minus_jogbutton_1">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                            <horstretch>0</horstretch>
@@ -9371,7 +9371,7 @@ LOG</string>
                         </widget>
                        </item>
                        <item row="7" column="3">
-                        <widget class="ActionButton" name="plus_jogbutton_0">
+                        <widget class="ActionButton" name="plus_jogbutton_1">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                            <horstretch>0</horstretch>
@@ -9539,7 +9539,7 @@ LOG</string>
                         </widget>
                        </item>
                        <item row="6" column="2">
-                        <widget class="ActionButton" name="plus_jogbutton_1">
+                        <widget class="ActionButton" name="plus_jogbutton_0">
                          <property name="minimumSize">
                           <size>
                            <width>53</width>
@@ -17768,7 +17768,7 @@ SCROLL</string>
              <number>2</number>
             </property>
             <property name="text">
-             <string>01:34:25 PM</string>
+             <string>07:57:38 PM</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -18824,8 +18824,8 @@ SCROLL</string>
   <slot>btn_systemtool_toggled()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="page_buttonGroup"/>
-  <buttongroup name="selectButtonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
+  <buttongroup name="selectButtonGroup"/>
+  <buttongroup name="page_buttonGroup"/>
  </buttongroups>
 </ui>
