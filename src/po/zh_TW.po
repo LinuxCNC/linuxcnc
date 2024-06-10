@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-04-08 19:52+0200\n"
-"PO-Revision-Date: 2024-06-04 14:39+0000\n"
-"Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
+"PO-Revision-Date: 2024-06-10 05:09+0000\n"
+"Last-Translator: hugoalh <hugoalh@users.noreply.hosted.weblate.org>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: zh_TW\n"
 "MIME-Version: 1.0\n"
@@ -4241,9 +4241,9 @@ msgid "Set RTS=%d\n"
 msgstr ""
 
 #: src/hal/classicladder/serial_linux.c:193
-#, c-format, fuzzy
+#, c-format
 msgid "Serial writing...\n"
-msgstr "序列寫入中…"
+msgstr "序列寫入中…\n"
 
 #: src/hal/classicladder/serial_linux.c:196
 #, c-format
@@ -4251,9 +4251,9 @@ msgid "Writing done!\n"
 msgstr ""
 
 #: src/hal/classicladder/serial_linux.c:216
-#, c-format, fuzzy
+#, c-format
 msgid "Serial config...\n"
-msgstr "序列配置…"
+msgstr "序列配置…\n"
 
 #: src/hal/classicladder/serial_linux.c:237
 #, c-format
@@ -4261,9 +4261,9 @@ msgid "select() for serial reading...\n"
 msgstr ""
 
 #: src/hal/classicladder/serial_linux.c:242
-#, c-format, fuzzy
+#, c-format
 msgid "Serial reading...\n"
-msgstr "序列讀取中…"
+msgstr "序列讀取中…\n"
 
 #: src/hal/classicladder/serial_linux.c:245
 #, c-format
