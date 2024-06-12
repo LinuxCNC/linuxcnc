@@ -1,0 +1,3 @@
+# Should arguably be in the -dev package - ignored: usr/share/man/man1/halcompile.1
+usr/share/man/man1/*
+usr/share/man/man9/*
