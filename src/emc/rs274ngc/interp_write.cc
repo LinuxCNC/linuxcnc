@@ -225,6 +225,8 @@ int Interp::write_state_tag(block_pointer block,
     bool in_sub = (settings->call_level > 0 && settings->remap_level == 0);
     bool external_sub = strcmp(settings->filename,
 			       settings->sub_context[0].filename);
+    strncpy(state.filename, settings->filename, sizeof(state.filename));
+    state.filename[sizeof(state.filename)-1] = 0;
 
     state.flags[GM_FLAG_IN_REMAP] = in_remap;
     state.flags[GM_FLAG_IN_SUB] = in_sub;
