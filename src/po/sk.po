@@ -5,8 +5,8 @@ msgstr ""
 "Project-Id-Version: sk\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-04-08 19:52+0200\n"
-"PO-Revision-Date: 2024-06-04 14:39+0000\n"
-"Last-Translator: Juraj Adamkovic <stroje.hcnc@gmail.com>\n"
+"PO-Revision-Date: 2024-06-05 21:20+0000\n"
+"Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
 "Language-Team: Slovak <emc-developers@lists.sourceforge.net>\n"
 "Language: sk\n"
 "MIME-Version: 1.0\n"
@@ -19181,25 +19181,27 @@ msgstr "Klávesnica"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3194
 msgid "Error with launching 'Onboard' on-screen keyboard program {}"
-msgstr ""
+msgstr "Chyba pri spustení programu klávesnice 'Onboard' na obrazovke {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3343
 msgid "Overriding internal signal call to '{}'"
-msgstr ""
+msgstr "Prepisovanie interného signálneho volania na '{}'"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3364
 msgid "Could not connect '{}' to '{}'"
-msgstr ""
+msgstr "Nepodarilo sa pripojiť '{}' k '{}'"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3397
 msgid "No widget named '{}' to sensitize"
-msgstr ""
+msgstr "Žiadna miniaplikácia s názvom '{}' na zvýšenie citlivosti"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3777
 msgid ""
 "Zero\n"
 " "
 msgstr ""
+"Nula\n"
+" "
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3778
 msgid ""
