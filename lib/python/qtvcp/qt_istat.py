@@ -177,6 +177,11 @@ class _IStat(object):
             log.debug('Machine is IMPERIAL based. unit Conversion constant={}'.format(self.MACHINE_UNIT_CONVERSION))
 
         axes = self.INI.find("TRAJ", "COORDINATES")
+        try:
+            self.trajcoordinates = self.INI.find("TRAJ", "COORDINATES").lower().replace(" ","")
+        except:
+            self.trajcoordinates ='xyz'
+
         if axes is not None:  # i.e. LCNC is running, not just in Qt Designer
             axes = axes.replace(" ", "")
             self.TRAJCO = axes.lower()
@@ -354,6 +359,13 @@ class _IStat(object):
 
         # check for weird kinematics like robots
         self.IS_TRIVIAL_MACHINE = bool('trivkins' in self.get_error_safe_setting("KINS", "KINEMATICS",'trivial'))
+
+        kinsmodule = self.INI.find("KINS", "KINEMATICS") or 'trivkins'
+        if kinsmodule.split()[0] == "trivkins":
+            self.trivkinscoords = "XYZABCUVW"
+            for item in kinsmodule.split():
+                if "coordinates=" in item:
+                    self.trivkinscoords = item.split("=")[1].upper()
 
         safe = 25 if self.MACHINE_IS_METRIC else 1
         self.DEFAULT_LINEAR_JOG_VEL = float(self.get_error_safe_setting("DISPLAY", "DEFAULT_LINEAR_VELOCITY", safe)) * 60
@@ -555,6 +567,15 @@ class _IStat(object):
         self.MAX_DISPLAYED_ERRORS = int(self.INI.find("DISPLAY", "MAX_DISPLAYED_ERRORS") or 10)
         self.TITLE = (self.INI.find("DISPLAY", "TITLE")) or ""
         self.ICON = (self.INI.find("DISPLAY", "ICON")) or ""
+
+        # detect historical lathe config with dummy joint 1
+        if      (self.MACHINE_IS_LATHE
+            and (self.trajcoordinates.upper() == "XZ")
+            and (len(self.AVAILABLE_JOINTS) == 3)):
+            self.LATHE_HISTORICAL_CONFIG = True
+        else:
+            self.LATHE_HISTORICAL_CONFIG = False
+
     ###################
     # helper functions
     ###################
