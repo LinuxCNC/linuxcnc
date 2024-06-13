@@ -4485,7 +4485,7 @@ View</string>
                             <string notr="true"/>
                            </property>
                            <property name="_view" stdset="0">
-                            <string>p</string>
+                            <string>y2</string>
                            </property>
                            <property name="_dtg" stdset="0">
                             <bool>false</bool>
@@ -17768,7 +17768,7 @@ SCROLL</string>
              <number>2</number>
             </property>
             <property name="text">
-             <string>07:57:38 PM</string>
+             <string>08:55:48 PM</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>

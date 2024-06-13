@@ -81,6 +81,11 @@ class HandlerClass:
         KEYBIND.add_call('Key_Greater','on_keycall_angular_jograte',1)
         KEYBIND.add_call('Key_Less','on_keycall_angular_jograte',0)
 
+        KEYBIND.add_call('Key_Left', 'on_keycall_NEG', 'Z')
+        KEYBIND.add_call('Key_Right', 'on_keycall_POS', 'Z')
+        KEYBIND.add_call('Key_Up', 'on_keycall_POS', 'X')
+        KEYBIND.add_call('Key_Down', 'on_keycall_NEG', 'X')
+
         # some global variables
         self.factor = 1.0
         self._spindle_wait = False
@@ -584,10 +589,19 @@ class HandlerClass:
         except:
             pass
 
+    def recolorMPGFocusBorder(self):
+        try:
+            colorName = self.w.screen_options.property('user4Color').name()
+            name = self.MPGFocusWidgetBorder
+            self.w[name].setStyleSheet('#%s {border: 3px solid %s;}'%(name,colorName))
+        except:
+            pass
+
     def colorMPGFocusBorder(self, name, receiver, colorName):
-        self.MPGFocusWidgetBorder = name
-        self.MPGFocusWidget = receiver
-        self.w[name].setStyleSheet('#%s {border: 3px solid %s;}'%(name,colorName))
+        if self.w.btn_mpg_scroll.isChecked():
+            self.MPGFocusWidgetBorder = name
+            self.MPGFocusWidget = receiver
+            self.w[name].setStyleSheet('#%s {border: 3px solid %s;}'%(name,colorName))
 
     def colorCycleFocusBorder(self, name, receiver, colorName):
         self.CycleFocusWidgetBorder = name
@@ -1317,7 +1331,7 @@ class HandlerClass:
             STATUS.emit('dro-reference-change-request', 1)
 
     def MPG_select_changed(self, button):
-        print(button)
+        #print(button)
         # Auto exclusive doesn't allow unchecking all buttons
         # We force it here
         if button == self._lastSelectButton:
@@ -1325,7 +1339,16 @@ class HandlerClass:
                 button.setChecked(False)
                 button.group().setExclusive(True)
                 self._lastSelectButton = None
+
+                if button == self.w.btn_mpg_scroll:
+                    self.removeMPGFocusBorder()
                 return
+        if button == self.w.btn_mpg_scroll:
+            if self.w.btn_mpg_scroll.isChecked():
+                self.recolorMPGFocusBorder()
+        else:
+                self.removeMPGFocusBorder()
+
         #self.set_statusbar('MPG output Selected: {}'.format(cmd.toolTip()),DEFAULT,noLog=True)
         self._lastSelectButton = button
 
@@ -1986,37 +2009,23 @@ class HandlerClass:
             else:
                 ACTION.SET_JOG_RATE_ANGULAR_SLOWER()
 
-    def on_keycall_XPOS(self,event,state,shift,cntrl):
+    def on_keycall_POS(self,event,state,shift,cntrl,axis):
+        if STATUS.is_joint_mode():
+            num = INFO.GET_JOG_FROM_NAME.get(axis)
+        else:
+            num = "XYZABCUVW".index(axis)
+        if num is None: return
         if self.use_keyboard():
-            self.kb_jog(state, 0, 1, shift)
+            self.kb_jog(state, num, 1, shift)
 
-    def on_keycall_XNEG(self,event,state,shift,cntrl):
+    def on_keycall_NEG(self,event,state,shift,cntrl,axis):
+        if STATUS.is_joint_mode():
+            num = INFO.GET_JOG_FROM_NAME.get(axis)
+        else:
+            num = "XYZABCUVW".index(axis)
+        if num is None: return
         if self.use_keyboard():
-            self.kb_jog(state, 0, -1, shift)
-
-    def on_keycall_YPOS(self,event,state,shift,cntrl):
-        if self.use_keyboard():
-            self.kb_jog(state, 1, 1, shift)
-
-    def on_keycall_YNEG(self,event,state,shift,cntrl):
-        if self.use_keyboard():
-            self.kb_jog(state, 1, -1, shift)
-
-    def on_keycall_ZPOS(self,event,state,shift,cntrl):
-        if self.use_keyboard():
-            self.kb_jog(state, 2, 1, shift)
-
-    def on_keycall_ZNEG(self,event,state,shift,cntrl):
-        if self.use_keyboard():
-            self.kb_jog(state, 2, -1, shift)
-    
-    def on_keycall_APOS(self,event,state,shift,cntrl):
-        if self.use_keyboard():
-            self.kb_jog(state, 3, 1, shift, False)
-
-    def on_keycall_ANEG(self,event,state,shift,cntrl):
-        if self.use_keyboard():
-            self.kb_jog(state, 3, -1, shift, False)
+            self.kb_jog(state, num, -1, shift)
 
     def on_keycall_F12(self,event,state,shift,cntrl):
         if state:
