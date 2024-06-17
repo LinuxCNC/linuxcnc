@@ -135,6 +135,7 @@ class HandlerClass:
         STATUS.connect('requested-spindle-speed-changed',self.update_spindle_requested)
         STATUS.connect('override-limits-changed', lambda w, state, data: self._check_override_limits(state, data))
         STATUS.connect('graphics-gcode-properties', lambda w, d: self.update_gcode_properties(d))
+        STATUS.connect('status-message', lambda w, d, o: self.add_external_status(d,o))
 
         txt1 = _translate("HandlerClass","Setup Tab")
         txt2 = _translate("HandlerClass","If you select a file with .html as a file ending, it will be shown here.")
@@ -735,6 +736,18 @@ class HandlerClass:
             self.w.chk_override_limits.setChecked(False)
         else:
             self.w.chk_override_limits.setChecked(True)
+
+    def add_external_status(self, message, option):
+        level = option.get('LEVEL') or 0
+        log = option.get("LOG") or True
+        title = message.get('TITLE')
+        mess = message.get('SHORTTEXT')
+        logtext = message.get('DETAILS')
+
+        self.add_status(mess,level,False)
+        if noLog:
+            return
+        STATUS.emit('update-machine-log', "{}\n{}".format(title, logtext), 'TIME')
 
     #######################
     # CALLBACKS FROM FORM #

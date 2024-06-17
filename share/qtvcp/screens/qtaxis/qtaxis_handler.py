@@ -68,6 +68,7 @@ class HandlerClass:
         STATUS.connect('actual-spindle-speed-changed',self.update_spindle)
         STATUS.connect('joint-selection-changed', lambda w, d: self.update_jog_pins(d))
         STATUS.connect('axis-selection-changed', lambda w, d: self.update_jog_pins(d))
+        STATUS.connect('status-message', lambda w, d, o: self.add_external_status(d,o))
 
     ##########################################
     # Special Functions called from QTSCREEN
@@ -355,6 +356,17 @@ class HandlerClass:
                     self['jog_joint_{}_pin'.format(i)].set(True)
                 else:
                     self['jog_joint_{}_pin'.format(i)].set(False)
+
+    def add_external_status(self, message, option):
+        level = option.get('LEVEL') or 0
+        log = option.get("LOG") or True
+        title = message.get('TITLE')
+        mess = message.get('SHORTTEXT')
+        logtext = message.get('DETAILS')
+        self.w.statusbar.showMessage(mess)
+
+        if log:
+            STATUS.emit('update-machine-log', "{}\n{}".format(title, logtext), 'TIME')
 
     #######################
     # callbacks from form #
