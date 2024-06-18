@@ -1799,6 +1799,14 @@ class MachineLogDialog(QDialog, GeometryMixin):
         else:
             self.show()
 
+    def accept(self):
+        self.record_geometry()
+        super(MachineLogDialog, self).accept()
+
+    def reject(self):
+        self.record_geometry()
+        super(MachineLogDialog, self).reject()
+
     def getColor(self):
         return self._color
     def setColor(self, value):
