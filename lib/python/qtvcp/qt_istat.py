@@ -424,16 +424,17 @@ class _IStat(object):
         self.USRMESS_PINNAME = self.INI.findall("DISPLAY", "MESSAGE_PINNAME")
         self.USRMESS_DETAILS = self.INI.findall("DISPLAY", "MESSAGE_DETAILS")
         self.USRMESS_ICON = self.INI.findall("DISPLAY", "MESSAGE_ICON")
+
         if len(self.USRMESS_TEXT) != len(self.USRMESS_TYPE):
-            log.warning('Invalid message configuration (missing text or type) in INI File [DISPLAY] section ')
+            log.warning('Invalid message configuration (missing text or type) in INI File [DISPLAY] section')
         if len(self.USRMESS_TEXT) != len(self.USRMESS_PINNAME):
             log.warning('Invalid message configuration (missing pinname) in INI File [DISPLAY] section')
         if len(self.USRMESS_TEXT) != len(self.USRMESS_BOLDTEXT):
-            log.warning('Invalid message configuration (missing boldtext) in INI File [DISPLAY] sectioN')
+            log.warning('Invalid message configuration (missing boldtext) in INI File [DISPLAY] section')
         if len(self.USRMESS_TEXT) != len(self.USRMESS_DETAILS):
-            log.warning('Invalid message configuration (missing details) in INI File [DISPLAY] sectioN')
+            log.warning('Invalid message configuration (missing details) in INI File [DISPLAY] section')
         if len(self.USRMESS_TEXT) != len(self.USRMESS_ICON):
-            log.warning('Invalid message configuration (missing icon) in INI File [DISPLAY] sectioN')
+            log.warning('Invalid message configuration (missing icon) in INI File [DISPLAY] section')
             if self.USRMESS_ICON == []:
                 temp = 'INFO'
             else:
@@ -448,6 +449,65 @@ class _IStat(object):
                     self.USRMESS_PINNAME, self.USRMESS_ICON))
         except:
             self.ZIPPED_USRMESS = None
+
+        ##################################
+        # user multi message dialog system
+        ##################################
+        self.USRMULTIMESS_ID = self.INI.findall("DISPLAY", "MULTIMESSAGE_ID") or None
+        #print(self.USRMULTIMESS_ID)
+        if not self.USRMULTIMESS_ID is None:
+            for item in self.USRMULTIMESS_ID:
+                NUMBER = self.INI.findall("DISPLAY", "MULTIMESSAGE_{}_NUMBER".format(item))
+                #print(NUMBER)
+                TYPE = self.INI.findall("DISPLAY", "MULTIMESSAGE_{}_TYPE".format(item))
+                #print ('Type:',TYPE)
+                TITLE = self.INI.findall("DISPLAY", "MULTIMESSAGE_{}_TITLE".format(item))
+                #print(TITLE)
+                TEXT = self.INI.findall("DISPLAY", "MULTIMESSAGE_{}_TEXT".format(item))
+                #print(TEXT)
+                DETAILS = self.INI.findall("DISPLAY", "MULTIMESSAGE_{}_DETAILS".format(item))
+                #print(DETAILS)
+                ICON = self.INI.findall("DISPLAY", "MULTIMESSAGE_()_ICON".format(item))
+                #print(ICON)
+                OPTIONS = self.INI.findall("DISPLAY", "MULTIMESSAGE_()_OPTIONS".format(item))
+
+            if len(TEXT) != len(ICON):
+                log.warning('Invalid MULTI message configuration (missing icon) in INI File [DISPLAY] section')
+                if ICON == []:
+                    temp = 'INFO'
+                else:
+                    temp = ICON[0]
+                    ICON = []
+                for i in TEXT:
+                    ICON.append(temp)
+                ##print(ICON)
+
+            if len(TEXT) != len(OPTIONS):
+                log.warning('Invalid message configuration (missing MESSAGE_OPTIONS) in INI File [DISPLAY] section')
+                if OPTIONS == []:
+                    temp = 'LOG=True,LEVEL=DEFAULT'
+                else:
+                    temp = OPTIONS[0]
+                    OPTIONS = []
+                for i in self.USRMESS_TEXT:
+                    OPTIONS.append(temp)
+
+            for num,i in enumerate(OPTIONS):
+                OPTIONS[num] = self.parse_message_options(i)
+            try:
+                z = list(zip( TYPE,TITLE,TEXT,DETAILS,ICON,OPTIONS))
+            except Exception as e:
+                print('error:',e)
+                z = None
+
+            if not z is None:
+                d = dict()
+                for num, i in enumerate(NUMBER):
+                    d[int(i)] = z[num]
+                self['{}_MULTIMESS'.format(item)] = d
+            else:
+                pass
+            #print('{}_MULTIMESS'.format(item),d)
 
         ##############
         # Embed tabs #
@@ -785,6 +845,27 @@ class _IStat(object):
                 return self.MDI_COMMAND_LABEL_LIST[key]
             except:
                 return None
+
+    def parse_message_options(self, options):
+        temp = {}
+        if options is None:
+            return
+        l = options.split(',')
+        for i in l:
+            o = i.split('=')
+            if o[0].upper() == "LEVEL":
+                if o[1].upper() == 'WARNING':
+                    arg = 1
+                elif o[1].upper() == 'CRITICAL':
+                    arg = 2
+                else:
+                    arg = 0
+                temp['LEVEL']=arg
+            elif o[0].upper() == "LOG":
+                temp['LOG']= bool(o[1])
+            else:
+                 temp[o[0]]= o[1]
+        return temp
 
     def __getitem__(self, item):
         return getattr(self, item)
