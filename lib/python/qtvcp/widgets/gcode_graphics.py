@@ -334,6 +334,16 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
 
     def get_joints_mode(self):
         return STATUS.stat.motion_mode == linuxcnc.TRAJ_MODE_FREE
+
+    def output_notify_message(self, message):
+        print("Preview Notified:", message)
+        mess = {}
+        mess['TITLE']= "Preview Notified"
+        mess["SHORTTEXT"]= "See log"
+        mess['DETAILS']= message
+        options ={'LOG=True,LEVEL=DEFAULT'}
+        STATUS.emit('status-message', mess, options)
+
     #########################################################################
     # This is how designer can interact with our widget properties.
     # property getter/setters
