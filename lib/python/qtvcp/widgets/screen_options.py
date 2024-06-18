@@ -265,9 +265,16 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                 self.play_sounds = False
                 LOG.warning('Sound Option turned off due to error registering')
 
+        # If there is a widget named statusBar give a reference to desktop notify
+        try:
+            NOTICE.statusbar = self.QTVCP_INSTANCE_.statusbar
+        except:
+            LOG.debug('cannot add notifications to statusbar - no statusbar?:')
+            NOTICE.statusbar = None
+
         if self.user_messages:
-            self._msg = MSG.message_setup(self.HAL_GCOMP_, self.QTVCP_INSTANCE_)
-            MSG.message_option('NOTIFY', NOTICE)
+            self._msg = MSG.message_setup(self.HAL_GCOMP_,
+                                self.QTVCP_INSTANCE_, NOTICE)
             if self.play_sounds:
                 MSG.message_option('play_sounds', self.usrMsg_play_sound)
             else:
@@ -275,11 +282,6 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             MSG.message_option('alert_sound', self.usrMsg_sound_type)
             MSG.message_option('use_focus_overlay', self.usrMsg_use_FocusOverlay)
 
-        # If there is a widget named statusBar give a reference to desktop notify
-        try:
-            NOTICE.statusbar = self.QTVCP_INSTANCE_.statusbar
-        except:
-            LOG.debug('cannot add notifications to statusbar - no statusbar?:')
 
         # critical messages don't timeout, the greeting does
         if self.desktop_notify:
@@ -332,7 +334,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     # allow screen option to inject data to the main VCP object (basically the window)
     def _VCPObject_injection(self, vcpObject):
         if self.desktop_notify:
-            vcpObject._NOTICE = NOTICE # Guve reference
+            vcpObject._NOTICE = NOTICE # Give reference
 
     def on_periodic(self, w):
         try:
@@ -563,6 +565,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         w = self.QTVCP_INSTANCE_
         w.closeDialog_ = CloseDialog(w)
         w.closeDialog_.setObjectName('closeDialog_')
+        w._geoName = 'closeDialog_'
         w.closeDialog_.hal_init(HAL_NAME='')
         w.closeDialog_.overlay_color = self._messageDialogColor
 
