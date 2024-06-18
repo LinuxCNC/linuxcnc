@@ -21,7 +21,7 @@ import hal
 from PyQt5.QtWidgets import (QMessageBox, QFileDialog, QDesktopWidget,
         QDialog, QDialogButtonBox, QVBoxLayout, QPushButton, QHBoxLayout,
         QHBoxLayout, QLineEdit, QPushButton, QDialogButtonBox, QTabWidget,
-        QTextEdit)
+        QTextEdit,QLabel)
 from PyQt5.QtGui import QColor
 from PyQt5.QtCore import Qt, pyqtSlot, pyqtProperty, QEvent, QUrl
 from PyQt5 import uic
@@ -93,14 +93,15 @@ class LcncDialog(QMessageBox, GeometryMixin):
         self._return_callback = None
         self._pinname = None
         self._title = 'Message Dialog'
-        self._forcedFlag = False
+        self._forcedFlag = True
         self._use_exec = False
+        self._geoName = 'LncMessage-geometry'
         self.set_default_geometry()
         self.hide()
         self.buttonClicked.connect(self.msgbtn)
 
     def _hal_init(self):
-        self.read_preference_geometry('LncMessage-geometry')
+        self.read_preference_geometry(self._geoName)
         STATUS.connect('dialog-request', self._external_request)
 
     # this processes STATUS called dialog requests
@@ -119,7 +120,6 @@ class LcncDialog(QMessageBox, GeometryMixin):
                 return
 
             geo = message.get('GEONAME') or 'LncMessage-geometry'
-            self.read_preference_geometry(geo)
             t = message.get('TITLE')
             if not t:
                 t = 'Message Dialog'
@@ -135,10 +135,12 @@ class LcncDialog(QMessageBox, GeometryMixin):
             fcolor = message.get('FOCUSCOLOR')
             alert = message.get('PLAYALERT')
             nblock = message.get('NONBLOCKING')
+            forceOpen = message.get('NONBLOCKING')
             callback = message.get('CALLBACK') # this needs testing
             self.showdialog(messtext, more, details, mtype, 
                                     icon, pin, ftext, fcolor, alert,
-                                    nblock, title = t, return_callback = callback)
+                                    nblock, geoname=geo,title = t, return_callback = callback,
+                                    force_open = forceOpen)
 
     # This actually builds and displays the dialog.
     # there are three ways to get results:
@@ -149,7 +151,8 @@ class LcncDialog(QMessageBox, GeometryMixin):
                    icon=QMessageBox.Information, pinname=None, focus_text=None,
                    focus_color=None, play_alert=None, nblock=False,
                    return_callback = None, flags = None, setflags = None,
-                    title = None, use_exec = False):
+                    title = None, use_exec = False,geoname=None,
+                    force_open = None):
 
         self._pinname = pinname
         self._nblock = nblock
@@ -229,7 +232,12 @@ class LcncDialog(QMessageBox, GeometryMixin):
         if play_alert:
             STATUS.emit('play-sound', play_alert)
  
+        if geoname is None:
+            geoname = self._geoName
+        self.read_preference_geometry(geoname)
         self.show()
+        if not force_open is None:
+            self._forcedFlag = force_open
         self.forceDetailsOpen()
 
         if use_exec:
@@ -305,6 +313,20 @@ class LcncDialog(QMessageBox, GeometryMixin):
         else:
             LOG.error('No callback or STATUS message specified for: {}'.format(self.objectName()))
 
+    def setGeometry(self,*args):
+        #print(args,len(args))
+        if len(args) == 1:
+            super().setGeometry(args[0])
+            width = args[0].width()
+        else:
+            super().setGeometry(args[0],args[1],args[2],args[3])
+            width = args[2]
+        if isinstance(self,QMessageBox) and width < 200:
+            if isinstance(self,CloseDialog):
+                self.findChild(QLabel, "qt_msgbox_label").setFixedWidth(200)
+            else:
+                self.findChild(QLabel, "qt_msgbox_label").setFixedWidth(350)
+
     # **********************
     # Designer properties
     # **********************
@@ -364,6 +386,7 @@ class ToolDialog(LcncDialog, GeometryMixin):
         self._actionbutton = self.addButton('Pause For Jogging', QMessageBox.ApplyRole)
         self._actionbutton.setEnabled(False)
         self._flag = True
+        self._forcedFlag = False
 
     # We want the tool change HAL pins the same as what's used in AXIS so it is
     # easier for users to connect to.
