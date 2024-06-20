@@ -3991,6 +3991,8 @@ void MOTION_OUTPUT_VALUE_(int index, double start, double end, int now)
 {
     auto aout_msg = std::make_unique<EMC_MOTION_SET_AOUT>();
 
+    flush_segments();
+
     aout_msg->index = index;
     aout_msg->start = start;
     aout_msg->end = end;
