@@ -226,8 +226,8 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         self.updateGL()
 
     def set_spindle_speed(self, w, rate):
-        if rate < 1: rate = 1
-        self.spindle_speed = rate
+        self.spindle_speed = int(rate)
+        self.updateGL()
 
     def set_view(self, value):
         view = str(value).lower()

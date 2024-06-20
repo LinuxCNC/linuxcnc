@@ -298,7 +298,12 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self.dro_in = "% 9.4f"
         self.dro_mm = "% 9.3f"
         self.dro_deg = "% 9.2f"
-        self.dro_vel = "   Vel:% 9.2F"
+        self.dro_vel = "Vel:% 6.2f"
+        self.dro_vel_mm = "Vel:% 9.2f"
+        self.fpr_in = "FPR: %.3f"
+        self.fpr_mm = "FPR: % 1.2f"
+        self.sf_in = "SFM: %4d"
+        self.sf_mm = "SMM: %4d"
         self._font = 'monospace bold 16'
         self._fontLarge = 'monospace bold 22'
         self._largeFontState = False
@@ -705,13 +710,32 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                         droposstrs.insert(1, diaformat % ("Dia", positions[0]*2.0))
 
             if self.show_velocity:
-                posstrs.append(self.dro_vel % ( spd))
+                if self.metric_units:
+                    feed = self.dro_vel_mm % (spd)
+                else:
+                    feed = self.dro_vel % (spd)
+
+                if self.is_lathe():
+                    if self.metric_units:
+                        sf = self.sf_mm  % (3.14 * positions[0]*2.0 * self.spindle_speed/1000)
+                        if self.spindle_speed != 0:
+                            feed = self.fpr_mm  % (self.spindle_speed and spd/self.spindle_speed)
+                    else:
+                        sf = self.sf_in  % (3.14 * positions[0]*2.0 * self.spindle_speed/12)
+                        if self.spindle_speed != 0:
+                            feed = self.fpr_in  % (self.spindle_speed and spd/self.spindle_speed)
+
+                    posstrs.append("{} {} RPM: {}".format(feed,sf,self.spindle_speed))
+                else:
+                    posstrs.append("{}   RPM: {}".format(feed,self.spindle_speed))
                 pos=0
                 for i in range(9):
                     if s.axis_mask & (1<<i): pos +=1
-                if self.is_lathe:
+                if self.is_lathe():
                     pos +=1
-                droposstrs.insert(pos, " " + self.dro_vel % (spd))
+                    droposstrs.insert(pos, "  {} {} RPM: {}".format(feed,sf,self.spindle_speed))
+                else:
+                    droposstrs.insert(pos, "  {}   RPM: {}".format(feed,self.spindle_speed))
 
             if self.show_dtg:
                 posstrs.append(format % ("DTG", dtg))
