@@ -87,6 +87,7 @@ class mitsubishi_serial:
             c.newpin("scale-power", hal.HAL_FLOAT, hal.HAL_IN)
             c.newpin("scale-user", hal.HAL_FLOAT, hal.HAL_IN)
             c.newpin("estop", hal.HAL_BIT, hal.HAL_IN)
+            c.newpin("reset-on-estop", hal.HAL_BIT, hal.HAL_IN)
             c.newpin("stat-bit-0", hal.HAL_BIT, hal.HAL_OUT)
             c.newpin("stat-bit-1", hal.HAL_BIT, hal.HAL_OUT)
             c.newpin("stat-bit-2", hal.HAL_BIT, hal.HAL_OUT)
@@ -232,7 +233,11 @@ class mitsubishi_serial:
                         continue
                     else:
                         # reset VFD after estop
-                        cmd = "FD";data = None
+                        if self.h[index]["reset-on-estop"]:
+                            rst = "9696"
+                        else:
+                            rst = None
+                        cmd = "FD";data = rst
                         word = self.prepare_data(cmd,data)
                         self.ser.write(word)
                         time.sleep(.05)
@@ -338,6 +343,26 @@ class mitsubishi_serial:
             #print 'slave:',chr_list_out[2]+chr_list_out[4],answ
             return string,chr_list_out,hex_out
         return '','',''
+
+    # TODO not used - I want to check for computer time out setting
+    # so we only reset devices that can timeout. rather the using the HAL pin
+    # 7A is the address for 8 status bits ( b0 - b8 )
+    def read_test(self):
+        while self.ser.inWaiting() > 0:
+            raw = self.ser.read(1)
+        word = self.prepare_data("7A",None)
+        out = temp = ''
+        self.ser.write(word)
+        time.sleep(.05)
+        string,chr_list,chr_hex = self.poll_output()
+        print ('test read DEBUG: ',chr_list,chr_hex)
+        if chr_list != '':
+            #print string
+            try:
+                binary = "{0:#010b}".format(int(string[3:5],16))
+            except:
+                binary = '0b000000'
+
 
     def __getitem__(self, item):
         return getattr(self, item)
