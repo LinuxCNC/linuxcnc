@@ -17,7 +17,7 @@ O100 IF [#<_imperial>]
     (MSG, IMPERIAL sizes)
     #<diam> = [#1 * 25.4]
     #<zDepth> = [#2 * 25.4]
-    #<surfaceSpeed> = [#3 * 304.8] ; sf/m to mm/m
+    #<surfaceSpeed> = [#3 * .3048] ; sf/m to m/m
     #<fpr> = [#4 * 25.4]
     #<peck> = [#6 * 25.4]
     #<retract> = [#7 * 25.4]
