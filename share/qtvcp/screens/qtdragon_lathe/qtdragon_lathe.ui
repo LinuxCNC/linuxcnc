@@ -3507,7 +3507,7 @@ PLATE</string>
                         <enum>QFrame::Raised</enum>
                        </property>
                        <property name="currentIndex">
-                        <number>0</number>
+                        <number>10</number>
                        </property>
                        <widget class="QWidget" name="stackedWidget_mainTabPage1">
                         <layout class="QHBoxLayout" name="horizontalLayout_3">
@@ -7932,50 +7932,6 @@ LOG</string>
                            <property name="currentIndex">
                             <number>0</number>
                            </property>
-                           <widget class="QWidget" name="facing">
-                            <attribute name="title">
-                             <string>FACING</string>
-                            </attribute>
-                            <layout class="QVBoxLayout" name="layout_facing">
-                             <property name="spacing">
-                              <number>0</number>
-                             </property>
-                             <property name="leftMargin">
-                              <number>0</number>
-                             </property>
-                             <property name="topMargin">
-                              <number>0</number>
-                             </property>
-                             <property name="rightMargin">
-                              <number>0</number>
-                             </property>
-                             <property name="bottomMargin">
-                              <number>0</number>
-                             </property>
-                            </layout>
-                           </widget>
-                           <widget class="QWidget" name="hole_circle">
-                            <attribute name="title">
-                             <string>Bolt Hole Circle</string>
-                            </attribute>
-                            <layout class="QVBoxLayout" name="layout_hole_circle">
-                             <property name="spacing">
-                              <number>0</number>
-                             </property>
-                             <property name="leftMargin">
-                              <number>0</number>
-                             </property>
-                             <property name="topMargin">
-                              <number>0</number>
-                             </property>
-                             <property name="rightMargin">
-                              <number>0</number>
-                             </property>
-                             <property name="bottomMargin">
-                              <number>0</number>
-                             </property>
-                            </layout>
-                           </widget>
                            <widget class="QWidget" name="ngcgui">
                             <attribute name="title">
                              <string>NgcGui</string>
@@ -17768,7 +17724,7 @@ SCROLL</string>
              <number>2</number>
             </property>
             <property name="text">
-             <string>08:55:48 PM</string>
+             <string>10:14:33 PM</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -18824,8 +18780,8 @@ SCROLL</string>
   <slot>btn_systemtool_toggled()</slot>
  </slots>
  <buttongroups>
+  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="selectButtonGroup"/>
-  <buttongroup name="page_buttonGroup"/>
  </buttongroups>
 </ui>
