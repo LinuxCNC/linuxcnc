@@ -167,6 +167,9 @@ that is set in the [TRAJ] section of the INI file.
   If the command succeeds then it will place LinuxCNC in the MDI mode and then back to Manual mode. +
   If no [HALUI]MDI_COMMAND variables are set in the  ini  file, no halui.mdi-command-<nn> pins will be
   exported by halui.
+* 'halui.halui-mdi-is-running' (bit, out) - execution status of MDI commands sent by halui. The status is active
+  even during mode switching.
+  If no [HALUI]MDI_COMMAND variables are set in the  ini  file, this pins will not be exported by halui.
 
 === Joint
 
