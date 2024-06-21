@@ -80,7 +80,7 @@ static int axis_mask = 0;
 \
     FIELD(hal_bit_t,program_is_idle) /* pin for notifying user that program is idle */ \
     FIELD(hal_bit_t,program_is_running) /* pin for notifying user that program is running */ \
-    FIELD(hal_bit_t,mdi_is_running) /* pin for notifying user that MDI commands is running */ \
+    FIELD(hal_bit_t,halui_mdi_is_running) /* pin for notifying user that halui MDI commands is running */ \
     FIELD(hal_bit_t,program_is_paused) /* pin for notifying user that program is paused */ \
     FIELD(hal_bit_t,program_run) /* pin for running program */ \
     FIELD(hal_bit_t,program_pause) /* pin for pausing program */ \
@@ -601,7 +601,7 @@ int halui_hal_init(void)
     if (retval < 0) return retval;
     
     if (num_mdi_commands>0){
-    retval = halui_export_pin_OUT_bit(&(halui_data->mdi_is_running), "halui.mdi-is-running");
+    retval = halui_export_pin_OUT_bit(&(halui_data->halui_mdi_is_running), "halui.halui-mdi-is-running");
     if (retval < 0) return retval;
 	}
     
@@ -1018,7 +1018,7 @@ static int sendMdiCommand(int n)
     halui_sent_mdi = 1;
 
     if (num_mdi_commands>0){
-    *(halui_data->mdi_is_running) = halui_sent_mdi;
+    *(halui_data->halui_mdi_is_running) = halui_sent_mdi;
     updateStatus();
     }
     
@@ -2223,7 +2223,7 @@ static void modify_hal_pins()
 			esleep(0.02); //sleep for a while
 			}
 		}
-		*(halui_data->mdi_is_running) = halui_sent_mdi;
+		*(halui_data->halui_mdi_is_running) = halui_sent_mdi;
 	}
 
 
