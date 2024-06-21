@@ -356,8 +356,17 @@ static int release_HAL_mutex(void)
         rtapi_print_msg(RTAPI_MSG_ERR, "ERROR: rtapi init failed\n");
         return -EINVAL;
     }
+
+    unsigned long key = HAL_KEY;
+    /* get instance env variable */
+    const char *instance = getenv("LINUXCNC_INSTANCE");
+    if (instance) {
+        long offset = strtol(instance, NULL, 10) * 16;
+        key += offset;
+    }
+    
     /* get HAL shared memory block from RTAPI */
-    mem_id = rtapi_shmem_new(HAL_KEY, comp_id, HAL_SIZE);
+    mem_id = rtapi_shmem_new(key, comp_id, HAL_SIZE);
     if (mem_id < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
             "ERROR: could not open shared memory\n");
