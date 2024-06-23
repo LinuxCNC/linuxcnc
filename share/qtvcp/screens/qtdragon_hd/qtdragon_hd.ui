@@ -10284,7 +10284,7 @@ Z COMP</string>
               <item>
                <widget class="StatusLabel" name="lbl_tool_comment">
                 <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
@@ -10297,12 +10297,21 @@ Z COMP</string>
                 </property>
                 <property name="maximumSize">
                  <size>
-                  <width>16777215</width>
-                  <height>30</height>
+                  <width>200</width>
+                  <height>60</height>
                  </size>
                 </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="scaledContents">
+                 <bool>true</bool>
+                </property>
                 <property name="alignment">
-                 <set>Qt::AlignCenter</set>
+                 <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                </property>
+                <property name="wordWrap">
+                 <bool>true</bool>
                 </property>
                 <property name="tool_comment_status" stdset="0">
                  <bool>true</bool>
@@ -17340,7 +17349,7 @@ ANGULAR</string>
          <number>2</number>
         </property>
         <property name="text">
-         <string>01:46:56 PM</string>
+         <string>05:22:07 PM</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -18511,8 +18520,8 @@ ANGULAR</string>
   <slot>btn_pause_clicked()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
+  <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="buttonGroup"/>
  </buttongroups>
 </ui>
