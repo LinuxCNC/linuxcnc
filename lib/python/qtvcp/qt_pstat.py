@@ -70,7 +70,7 @@ class _PStat(object):
             self.CONFIGPATH = self.WORKINGDIR
             # specific library paths
             self.TOUCHOFF_SUBPROGRAM = os.path.abspath(os.path.join(
-                self.BASEDIR, 'lib/python/qtvcp/lib/touchoff_subprogram.py'))
+                self.LIBDIR, 'touchoff_subprogram.py'))
 
             # python RIP library directory
             self.PYDIR = os.path.join(self.BASEDIR, "lib", "python")
