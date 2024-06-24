@@ -165,6 +165,39 @@ static PyTypeObject LineCodeType = {
 };
 
 static PyObject *callback;
+/* an optimized python module written in C may define some of these callbacks and pass it to parse_file() via PyCapsule */
+static struct {
+#define _DOUBLE_XYZABCUVW_ARGS double x, double y, double z, double a, double b, double c, double u, double v, double w
+    void (*next_line)(PyObject *o, int lineno);
+    void (*arc_feed)(PyObject *o, double first_end, double second_end, double first_axis, double second_axis,
+         int rotation, double axis_end_point,
+         double a_position, double b_position, double c_position,
+         double u_position, double v_position, double w_position);
+    void (*straight_feed)(PyObject *o, _DOUBLE_XYZABCUVW_ARGS);
+    void (*straight_traverse)(PyObject *o, _DOUBLE_XYZABCUVW_ARGS);
+    void (*set_g5x_offset)(PyObject *o, int g5x_index, _DOUBLE_XYZABCUVW_ARGS);
+    void (*set_g92_offset)(PyObject *o, _DOUBLE_XYZABCUVW_ARGS);
+    void (*set_xy_rotation)(PyObject *o, double rotation);
+    void (*set_plane)(PyObject *o, int pl);
+    void (*set_traverse_rate)(PyObject *o, double rate);
+    void (*set_feed_mode)(PyObject *o, int mode, int spindle);
+    void (*change_tool)(PyObject *o, int selected_tool);
+    void (*set_feed_rate)(PyObject *o, double rate);
+    void (*dwell)(PyObject *o, double time);
+    void (*message)(PyObject *o, char *comment);
+    void (*comment)(PyObject *o, const char *comment);
+    void (*tool_offset)(PyObject *o, _DOUBLE_XYZABCUVW_ARGS);
+    int  (*get_block_delete)(PyObject *o);
+    void (*straight_probe)(PyObject *o, _DOUBLE_XYZABCUVW_ARGS);
+    void (*rigid_tap)(PyObject *o, double x, double y, double z);
+    void (*get_tool)(PyObject *o, int toolno, CANON_TOOL_TABLE *tdata);
+    void (*user_defined_function)(PyObject *o, int num, double arg1, double arg2);
+    long (*get_axis_mask)(PyObject *o); // 7 == XYZABC
+    double (*get_external_angular_units)(PyObject *o );
+    double (*get_external_length_units)(PyObject *o );
+    int (*check_abort)(PyObject *o); // return true to interrupt parser
+#undef _FLOAT_XYZABCUVW_ARGS
+} callbackp;
 
 const char *interp_error_at = ""; // save method where interp_error happened for better error reporting
 static int interp_error;
@@ -175,6 +208,7 @@ static double _pos_x, _pos_y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _p
 EmcPose tool_offset;
 
 #define INTERP_CHECK_RESULT(result, m) if(result == NULL) { interp_error ++; interp_error_at = m; }
+
 static InterpBase *pinterp;
 
 #define callmethod(o, m, f, ...) PyObject_CallMethod((o), (char*)(m), (char*)(f), ## __VA_ARGS__)
@@ -185,6 +219,10 @@ static void maybe_new_line(int sequence_number) {
     if(interp_error) return;
     if(sequence_number == last_sequence_number)
         return;
+    if (callbackp.next_line) {
+        callbackp.next_line(callback, sequence_number);
+        return;
+    }
     LineCode *new_line_code =
         (LineCode*)(PyObject_New(LineCode, &LineCodeType));
     pinterp->active_settings(new_line_code->settings);
@@ -320,6 +358,13 @@ void ARC_FEED(int line_number,
     }
     maybe_new_line(line_number);
     if(interp_error) return;
+    if (callbackp.arc_feed) {
+        callbackp.arc_feed(callback, first_end, second_end, first_axis, second_axis,
+                           rotation, axis_end_point,
+                           a_position, b_position, c_position,
+                           u_position, v_position, w_position);
+        return;
+    }
     PyObject *result =
         callmethod(callback, "arc_feed", "ffffifffffff",
                             first_end, second_end, first_axis, second_axis,
@@ -340,6 +385,10 @@ void STRAIGHT_FEED(int line_number,
     if(metric) { x /= 25.4; y /= 25.4; z /= 25.4; u /= 25.4; v /= 25.4; w /= 25.4; }
     maybe_new_line(line_number);
     if(interp_error) return;
+    if (callbackp.straight_feed) {
+        callbackp.straight_feed(callback, x, y, z, a, b, c, u, v, w);
+        return;
+    }
     PyObject *result =
         callmethod(callback, "straight_feed", "fffffffff",
                             x, y, z, a, b, c, u, v, w);
@@ -357,6 +406,10 @@ void STRAIGHT_TRAVERSE(int line_number,
     if(metric) { x /= 25.4; y /= 25.4; z /= 25.4; u /= 25.4; v /= 25.4; w /= 25.4; }
     maybe_new_line(line_number);
     if(interp_error) return;
+    if (callbackp.straight_traverse) {
+        callbackp.straight_traverse(callback, x, y, z, a, b, c, u, v, w);
+        return;
+    }
     PyObject *result =
         callmethod(callback, "straight_traverse", "fffffffff",
                             x, y, z, a, b, c, u, v, w);
@@ -384,6 +437,10 @@ void SET_G92_OFFSET(double x, double y, double z,
     if(metric) { x /= 25.4; y /= 25.4; z /= 25.4; u /= 25.4; v /= 25.4; w /= 25.4; }
     maybe_new_line();
     if(interp_error) return;
+    if (callbackp.set_g92_offset) {
+        callbackp.set_g92_offset(callback, x, y, z, a, b, c, u, v, w);
+        return;
+    }
     PyObject *result =
         callmethod(callback, "set_g92_offset", "fffffffff",
                             x, y, z, a, b, c, u, v, w);
@@ -394,6 +451,10 @@ void SET_G92_OFFSET(double x, double y, double z,
 void SET_XY_ROTATION(double t) {
     maybe_new_line();
     if(interp_error) return;
+    if (callbackp.set_xy_rotation) {
+        callbackp.set_xy_rotation(callback, t);
+        return;
+    }
     PyObject *result =
         callmethod(callback, "set_xy_rotation", "f", t);
     INTERP_CHECK_RESULT(result, "set_xy_rotation");
@@ -405,6 +466,10 @@ void USE_LENGTH_UNITS(CANON_UNITS u) { metric = u == CANON_UNITS_MM; }
 void SELECT_PLANE(CANON_PLANE pl) {
     maybe_new_line();   
     if(interp_error) return;
+    if (callbackp.set_plane) {
+        callbackp.set_plane(callback, int(pl));
+        return;
+    }
     PyObject *result =
         callmethod(callback, "set_plane", "i", pl);
     INTERP_CHECK_RESULT(result, "set_plane");
@@ -414,6 +479,10 @@ void SELECT_PLANE(CANON_PLANE pl) {
 void SET_TRAVERSE_RATE(double rate) {
     maybe_new_line();   
     if(interp_error) return;
+    if (callbackp.set_traverse_rate) {
+        callbackp.set_traverse_rate(callback, rate);
+        return;
+    }
     PyObject *result =
         callmethod(callback, "set_traverse_rate", "f", rate);
     INTERP_CHECK_RESULT(result, "set_traverse_rate");
@@ -424,6 +493,10 @@ void SET_FEED_MODE(int spindle, int mode) {
 #if 0
     maybe_new_line();   
     if(interp_error) return;
+    if (callbackp.set_feed_mode) {
+        callbackp.set_feed_mode(callback, mode);
+        return;
+    }
     PyObject *result =
         callmethod(callback, "set_feed_mode", "i", mode);
     INTERP_CHECK_RESULT(result, "set_feed_mode");
@@ -434,6 +507,10 @@ void SET_FEED_MODE(int spindle, int mode) {
 void CHANGE_TOOL() {
     maybe_new_line();
     if(interp_error) return;
+    if (callbackp.change_tool) {
+        callbackp.change_tool(callback, selected_tool);
+        return;
+    }
     PyObject *result = 
         callmethod(callback, "change_tool", "i", selected_tool);
     INTERP_CHECK_RESULT(result, "change_tool");
@@ -458,6 +535,9 @@ void SET_FEED_RATE(double rate) {
     maybe_new_line();   
     if(interp_error) return;
     if(metric) rate /= 25.4;
+    if (callbackp.set_feed_rate) {
+        callbackp.set_feed_rate(callback, rate);
+        return;
     }
     PyObject *result =
         callmethod(callback, "set_feed_rate", "f", rate);
@@ -468,6 +548,10 @@ void SET_FEED_RATE(double rate) {
 void DWELL(double time) {
     maybe_new_line();   
     if(interp_error) return;
+    if (callbackp.dwell) {
+        callbackp.dwell(callback, time);
+        return;
+    }
     PyObject *result =
         callmethod(callback, "dwell", "f", time);
     INTERP_CHECK_RESULT(result, "dwell");
@@ -477,6 +561,10 @@ void DWELL(double time) {
 void MESSAGE(char *comment) {
     maybe_new_line();   
     if(interp_error) return;
+    if (callbackp.message) {
+        callbackp.message(callback, comment);
+        return;
+    }
     PyObject *result =
         callmethod(callback, "message", "s", comment);
     INTERP_CHECK_RESULT(result, "message");
@@ -491,6 +579,10 @@ void LOGCLOSE() {}
 void COMMENT(const char *comment) {
     maybe_new_line();   
     if(interp_error) return;
+    if (callbackp.comment) {
+        callbackp.comment(callback, comment);
+        return;
+    }
     PyObject *result =
         callmethod(callback, "comment", "s", comment);
     INTERP_CHECK_RESULT(result, "comment");
@@ -508,6 +600,11 @@ void USE_TOOL_LENGTH_OFFSET(EmcPose offset) {
     if(metric) {
         offset.tran.x /= 25.4; offset.tran.y /= 25.4; offset.tran.z /= 25.4;
         offset.u /= 25.4; offset.v /= 25.4; offset.w /= 25.4; }
+    if (callbackp.tool_offset) {
+        callbackp.tool_offset(callback, offset.tran.x, offset.tran.y, offset.tran.z,
+                              offset.a, offset.b, offset.c, offset.u, offset.v, offset.w);
+        return;
+    }
     PyObject *result = callmethod(callback, "tool_offset", "ddddddddd", offset.tran.x, offset.tran.y, offset.tran.z,
         offset.a, offset.b, offset.c, offset.u, offset.v, offset.w);
     INTERP_CHECK_RESULT(result, "tool_offset");
@@ -543,6 +640,9 @@ int  GET_EXTERNAL_TC_REASON() {return 0;}
 extern bool GET_BLOCK_DELETE(void) { 
     int bd = 0;
     if(interp_error) return 0;
+    if (callbackp.get_block_delete) {
+        return callbackp.get_block_delete(callback);
+    }
     PyObject *result =
         callmethod(callback, "get_block_delete", "");
     if(result == NULL) {
@@ -597,6 +697,10 @@ void STRAIGHT_PROBE(int line_number,
     if(metric) { x /= 25.4; y /= 25.4; z /= 25.4; u /= 25.4; v /= 25.4; w /= 25.4; }
     maybe_new_line(line_number);
     if(interp_error) return;
+    if (callbackp.straight_probe) {
+        callbackp.straight_probe(callback, x, y, z, a, b, c, u, v, w);
+        return;
+    }
     PyObject *result =
         callmethod(callback, "straight_probe", "fffffffff",
                             x, y, z, a, b, c, u, v, w);
@@ -609,6 +713,10 @@ void RIGID_TAP(int line_number,
     if(metric) { x /= 25.4; y /= 25.4; z /= 25.4; }
     maybe_new_line(line_number);
     if(interp_error) return;
+    if (callbackp.rigid_tap) {
+        callbackp.rigid_tap(callback,x,y,z);
+        return;
+    }
     PyObject *result =
         callmethod(callback, "rigid_tap", "fff",
             x, y, z);
@@ -656,6 +764,10 @@ CANON_UNITS GET_EXTERNAL_LENGTH_UNIT_TYPE() { return CANON_UNITS_INCHES; }
 CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket) {
     CANON_TOOL_TABLE tdata = {-1,-1,{{0,0,0},0,0,0,0,0,0},0,0,0,0};
     if(interp_error) return tdata;
+    if (callbackp.get_tool) {
+        callbackp.get_tool(callback, pocket, &tdata);
+        return tdata;
+    }
     PyObject *result =
         callmethod(callback, "get_tool", "i", pocket);
     if(result == NULL ||
@@ -680,6 +792,10 @@ int WAIT(int index, int input_type, int wait_type, double timeout) { return 0;}
 static void user_defined_function(int num, double arg1, double arg2) {
     if(interp_error) return;
     maybe_new_line();
+    if (callbackp.user_defined_function) {
+        callbackp.user_defined_function(callback, num, arg1, arg2);
+        return;
+    }
     PyObject *result =
         callmethod(callback, "user_defined_function",
                             "idd", num, arg1, arg2);
@@ -723,6 +839,7 @@ EmcPose GET_EXTERNAL_OFFSETS() {
 
 int GET_EXTERNAL_AXIS_MASK() {
     if(interp_error) return 7;
+    if (callbackp.get_axis_mask) { return callbackp.get_axis_mask(callback); }
     PyObject *result =
         callmethod(callback, "get_axis_mask", "");
     if(!result) { interp_error ++; interp_error_at = "get_axis_mask"; return 7 /* XYZABC */; }
@@ -775,6 +892,8 @@ static bool PyFloat_CheckAndError(const char *func, PyObject *p)  {
 }
 
 double GET_EXTERNAL_ANGLE_UNITS() {
+    if (callbackp.get_external_angular_units) { return callbackp.get_external_angular_units(callback);  }
+
     PyObject *result =
         callmethod(callback, "get_external_angular_units", "");
     if(result == NULL) { interp_error++; interp_error_at = "get_external_angular_units"; }
@@ -790,6 +909,8 @@ double GET_EXTERNAL_ANGLE_UNITS() {
 }
 
 double GET_EXTERNAL_LENGTH_UNITS() {
+    if (callbackp.get_external_length_units) { return callbackp.get_external_length_units(callback);  }
+
     PyObject *result =
         callmethod(callback, "get_external_length_units", "");
     if(result == NULL) { interp_error++; interp_error_at = "get_external_length_units"; }
@@ -806,6 +927,7 @@ double GET_EXTERNAL_LENGTH_UNITS() {
 }
 
 static bool check_abort() {
+    if (callbackp.check_abort) { return callbackp.check_abort(callback); }
     PyObject *result =
         callmethod(callback, "check_abort", "");
     if(!result) return 1;
@@ -827,6 +949,13 @@ void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode) { motion_mode = mode; }
 CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE() { return motion_mode; }
 void SET_NAIVECAM_TOLERANCE(double tolerance) { }
 
+static void *callbackp_init(PyObject* callbackp_dict, const char *method, int &failed) {
+    PyObject *o = PyDict_GetItemString(callbackp_dict, method);
+    if (!o) return NULL;
+    if (!PyCapsule_IsValid(o, "")) { failed++; return NULL; }
+    return PyCapsule_GetPointer(o, NULL);
+}
+
 #define RESULT_OK (result == INTERP_OK || result == INTERP_EXECUTE_FINISH)
 static PyObject *parse_file(PyObject *self, PyObject *args) {
     char *f;
@@ -844,6 +973,48 @@ static PyObject *parse_file(PyObject *self, PyObject *args) {
         if(!PyArg_ParseTuple(args, "sO|sss:parse",
                 &f, &callback, &unitcode, &initcode, &interpname))
             return NULL;
+    }
+
+    callbackp = {};
+    // try initialize fast callbacks. callback object must have method get_callbackp returning dict of function pointers
+    if (PyObject_HasAttrString(callback, "get_callbackp")) {
+        PyObject* callbackp_dict = PyObject_CallMethod(callback, "get_callbackp", NULL);
+        if (!PyDict_Check(callbackp_dict)) {
+            PyErr_Format(PyExc_RuntimeError,"get_callbackp method must return dict of PyCapsule obj");
+            return NULL;
+        }
+        int failed = 0;
+#define _INIT_CALLBACKP(m) callbackp.m = (typeof callbackp.m ) callbackp_init(callbackp_dict, #m, failed)
+        _INIT_CALLBACKP(next_line);
+        _INIT_CALLBACKP(arc_feed);
+        _INIT_CALLBACKP(straight_feed);
+        _INIT_CALLBACKP(straight_traverse);
+        _INIT_CALLBACKP(set_g5x_offset);
+        _INIT_CALLBACKP(set_g92_offset);
+        _INIT_CALLBACKP(set_xy_rotation);
+        _INIT_CALLBACKP(set_plane);
+        _INIT_CALLBACKP(set_traverse_rate);
+        _INIT_CALLBACKP(set_feed_mode);
+        _INIT_CALLBACKP(change_tool);
+        _INIT_CALLBACKP(set_feed_rate);
+        _INIT_CALLBACKP(dwell);
+        _INIT_CALLBACKP(message);
+        _INIT_CALLBACKP(comment);
+        _INIT_CALLBACKP(tool_offset);
+        _INIT_CALLBACKP(get_block_delete);
+        _INIT_CALLBACKP(straight_probe);
+        _INIT_CALLBACKP(rigid_tap);
+        _INIT_CALLBACKP(get_tool);
+        _INIT_CALLBACKP(user_defined_function);
+        _INIT_CALLBACKP(get_axis_mask);
+        _INIT_CALLBACKP(get_external_angular_units);
+        _INIT_CALLBACKP(get_external_length_units);
+        _INIT_CALLBACKP(check_abort);
+#undef _INIT_CALLBACKP
+        if (failed) {
+            PyErr_Format(PyExc_RuntimeError,"all get_callbackp() items must be valid PyCapsule");
+            return NULL;
+        }
     }
 
     if(pinterp) {
