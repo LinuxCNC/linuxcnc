@@ -980,13 +980,9 @@ static PyObject *parse_file(PyObject *self, PyObject *args) {
     if (PyObject_HasAttrString(callback, "get_callbackp")) {
         PyObject* callbackp_dict = PyObject_CallMethod(callback, "get_callbackp", NULL);
         if (!callbackp_dict) PyErr_Clear();
-        if (callbackp_dict) {
-            if (!PyDict_Check(callbackp_dict)) {
-                PyErr_Format(PyExc_RuntimeError,"get_callbackp method must return dict of PyCapsule obj");
-                return NULL;
-            }
+        if (callbackp_dict && PyDict_Check(callbackp_dict)) {
             int failed = 0;
-    #define _INIT_CALLBACKP(m) callbackp.m = (typeof callbackp.m ) callbackp_init(callbackp_dict, #m, failed)
+#define _INIT_CALLBACKP(m) callbackp.m = (typeof callbackp.m ) callbackp_init(callbackp_dict, #m, failed)
             _INIT_CALLBACKP(next_line);
             _INIT_CALLBACKP(arc_feed);
             _INIT_CALLBACKP(straight_feed);
@@ -1012,7 +1008,7 @@ static PyObject *parse_file(PyObject *self, PyObject *args) {
             _INIT_CALLBACKP(get_external_angular_units);
             _INIT_CALLBACKP(get_external_length_units);
             _INIT_CALLBACKP(check_abort);
-    #undef _INIT_CALLBACKP
+#undef _INIT_CALLBACKP
             if (failed) {
                 PyErr_Format(PyExc_RuntimeError,"all get_callbackp() items must be valid PyCapsule");
                 return NULL;
