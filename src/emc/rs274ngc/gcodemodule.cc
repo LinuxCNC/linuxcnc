@@ -953,7 +953,7 @@ static void *callbackp_init(PyObject* callbackp_dict, const char *method, int &f
     PyObject *o = PyDict_GetItemString(callbackp_dict, method);
     if (!o) return NULL;
     if (!PyCapsule_IsValid(o, "")) { failed++; return NULL; }
-    return PyCapsule_GetPointer(o, NULL);
+    return PyCapsule_GetPointer(o, "");
 }
 
 #define RESULT_OK (result == INTERP_OK || result == INTERP_EXECUTE_FINISH)
