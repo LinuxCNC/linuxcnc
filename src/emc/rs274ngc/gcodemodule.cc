@@ -165,6 +165,8 @@ static PyTypeObject LineCodeType = {
 };
 
 static PyObject *callback;
+
+const char *interp_error_at = ""; // save method where interp_error happened for better error reporting
 static int interp_error;
 static int last_sequence_number;
 static int selected_tool = 0;
@@ -172,6 +174,7 @@ static bool metric;
 static double _pos_x, _pos_y, _pos_z, _pos_a, _pos_b, _pos_c, _pos_u, _pos_v, _pos_w;
 EmcPose tool_offset;
 
+#define INTERP_CHECK_RESULT(result, m) if(result == NULL) { interp_error ++; interp_error_at = m; }
 static InterpBase *pinterp;
 
 #define callmethod(o, m, f, ...) PyObject_CallMethod((o), (char*)(m), (char*)(f), ## __VA_ARGS__)
@@ -189,10 +192,10 @@ static void maybe_new_line(int sequence_number) {
     pinterp->active_m_codes(new_line_code->mcodes);
     new_line_code->gcodes[0] = sequence_number;
     last_sequence_number = sequence_number;
-    PyObject *result = 
+    PyObject *result =
         callmethod(callback, "next_line", "O", new_line_code);
     Py_DECREF(new_line_code);
-    if(result == NULL) interp_error ++;
+    INTERP_CHECK_RESULT(result, "next_line");
     Py_XDECREF(result);
 }
 
@@ -323,7 +326,7 @@ void ARC_FEED(int line_number,
                             rotation, axis_end_point, 
                             a_position, b_position, c_position,
                             u_position, v_position, w_position);
-    if(result == NULL) interp_error ++;
+    INTERP_CHECK_RESULT(result, "arc_feed");
     Py_XDECREF(result);
 }
 
@@ -340,7 +343,7 @@ void STRAIGHT_FEED(int line_number,
     PyObject *result =
         callmethod(callback, "straight_feed", "fffffffff",
                             x, y, z, a, b, c, u, v, w);
-    if(result == NULL) interp_error ++;
+    INTERP_CHECK_RESULT(result, "straight_feed");
     Py_XDECREF(result);
 }
 
@@ -357,7 +360,7 @@ void STRAIGHT_TRAVERSE(int line_number,
     PyObject *result =
         callmethod(callback, "straight_traverse", "fffffffff",
                             x, y, z, a, b, c, u, v, w);
-    if(result == NULL) interp_error ++;
+    INTERP_CHECK_RESULT(result, "straight_traverse");
     Py_XDECREF(result);
 }
 
@@ -371,7 +374,7 @@ void SET_G5X_OFFSET(int g5x_index,
     PyObject *result =
         callmethod(callback, "set_g5x_offset", "ifffffffff",
                             g5x_index, x, y, z, a, b, c, u, v, w);
-    if(result == NULL) interp_error ++;
+    INTERP_CHECK_RESULT(result, "set_g5x_offset");
     Py_XDECREF(result);
 }
 
@@ -384,7 +387,7 @@ void SET_G92_OFFSET(double x, double y, double z,
     PyObject *result =
         callmethod(callback, "set_g92_offset", "fffffffff",
                             x, y, z, a, b, c, u, v, w);
-    if(result == NULL) interp_error ++;
+    INTERP_CHECK_RESULT(result, "set_g92_offset");
     Py_XDECREF(result);
 }
 
@@ -393,7 +396,7 @@ void SET_XY_ROTATION(double t) {
     if(interp_error) return;
     PyObject *result =
         callmethod(callback, "set_xy_rotation", "f", t);
-    if(result == NULL) interp_error ++;
+    INTERP_CHECK_RESULT(result, "set_xy_rotation");
     Py_XDECREF(result);
 };
 
@@ -404,7 +407,7 @@ void SELECT_PLANE(CANON_PLANE pl) {
     if(interp_error) return;
     PyObject *result =
         callmethod(callback, "set_plane", "i", pl);
-    if(result == NULL) interp_error ++;
+    INTERP_CHECK_RESULT(result, "set_plane");
     Py_XDECREF(result);
 }
 
@@ -413,7 +416,7 @@ void SET_TRAVERSE_RATE(double rate) {
     if(interp_error) return;
     PyObject *result =
         callmethod(callback, "set_traverse_rate", "f", rate);
-    if(result == NULL) interp_error ++;
+    INTERP_CHECK_RESULT(result, "set_traverse_rate");
     Py_XDECREF(result);
 }
 
@@ -423,7 +426,7 @@ void SET_FEED_MODE(int spindle, int mode) {
     if(interp_error) return;
     PyObject *result =
         callmethod(callback, "set_feed_mode", "i", mode);
-    if(result == NULL) interp_error ++;
+    INTERP_CHECK_RESULT(result, "set_feed_mode");
     Py_XDECREF(result);
 #endif
 }
@@ -433,7 +436,7 @@ void CHANGE_TOOL() {
     if(interp_error) return;
     PyObject *result = 
         callmethod(callback, "change_tool", "i", selected_tool);
-    if(result == NULL) interp_error ++;
+    INTERP_CHECK_RESULT(result, "change_tool");
     Py_XDECREF(result);
 }
 
@@ -455,9 +458,10 @@ void SET_FEED_RATE(double rate) {
     maybe_new_line();   
     if(interp_error) return;
     if(metric) rate /= 25.4;
+    }
     PyObject *result =
         callmethod(callback, "set_feed_rate", "f", rate);
-    if(result == NULL) interp_error ++;
+    INTERP_CHECK_RESULT(result, "set_feed_rate");
     Py_XDECREF(result);
 }
 
@@ -466,7 +470,7 @@ void DWELL(double time) {
     if(interp_error) return;
     PyObject *result =
         callmethod(callback, "dwell", "f", time);
-    if(result == NULL) interp_error ++;
+    INTERP_CHECK_RESULT(result, "dwell");
     Py_XDECREF(result);
 }
 
@@ -475,7 +479,7 @@ void MESSAGE(char *comment) {
     if(interp_error) return;
     PyObject *result =
         callmethod(callback, "message", "s", comment);
-    if(result == NULL) interp_error ++;
+    INTERP_CHECK_RESULT(result, "message");
     Py_XDECREF(result);
 }
 
@@ -489,7 +493,7 @@ void COMMENT(const char *comment) {
     if(interp_error) return;
     PyObject *result =
         callmethod(callback, "comment", "s", comment);
-    if(result == NULL) interp_error ++;
+    INTERP_CHECK_RESULT(result, "comment");
     Py_XDECREF(result);
 }
 
@@ -506,7 +510,7 @@ void USE_TOOL_LENGTH_OFFSET(EmcPose offset) {
         offset.u /= 25.4; offset.v /= 25.4; offset.w /= 25.4; }
     PyObject *result = callmethod(callback, "tool_offset", "ddddddddd", offset.tran.x, offset.tran.y, offset.tran.z,
         offset.a, offset.b, offset.c, offset.u, offset.v, offset.w);
-    if(result == NULL) interp_error ++;
+    INTERP_CHECK_RESULT(result, "tool_offset");
     Py_XDECREF(result);
 }
 
@@ -543,6 +547,7 @@ extern bool GET_BLOCK_DELETE(void) {
         callmethod(callback, "get_block_delete", "");
     if(result == NULL) {
         interp_error++;
+        interp_error_at = "get_block_delete";
     } else {
         bd = PyObject_IsTrue(result);
     }
@@ -595,7 +600,7 @@ void STRAIGHT_PROBE(int line_number,
     PyObject *result =
         callmethod(callback, "straight_probe", "fffffffff",
                             x, y, z, a, b, c, u, v, w);
-    if(result == NULL) interp_error ++;
+    INTERP_CHECK_RESULT(result, "straight_probe");
     Py_XDECREF(result);
 
 }
@@ -607,7 +612,7 @@ void RIGID_TAP(int line_number,
     PyObject *result =
         callmethod(callback, "rigid_tap", "fff",
             x, y, z);
-    if(result == NULL) interp_error ++;
+    INTERP_CHECK_RESULT(result, "rigid_tap");
     Py_XDECREF(result);
 }
 double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE() { return 0.1; }
@@ -662,6 +667,7 @@ CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket) {
              &tdata.diameter,      &tdata.frontangle,    &tdata.backangle,
              &tdata.orientation)) {
        interp_error ++;
+       interp_error_at = "get_tool";
     }
     Py_XDECREF(result);
     return tdata;
@@ -677,7 +683,7 @@ static void user_defined_function(int num, double arg1, double arg2) {
     PyObject *result =
         callmethod(callback, "user_defined_function",
                             "idd", num, arg1, arg2);
-    if(result == NULL) interp_error++;
+    INTERP_CHECK_RESULT(result, "user_defined_function");
     Py_XDECREF(result);
 }
 
@@ -719,8 +725,8 @@ int GET_EXTERNAL_AXIS_MASK() {
     if(interp_error) return 7;
     PyObject *result =
         callmethod(callback, "get_axis_mask", "");
-    if(!result) { interp_error ++; return 7 /* XYZABC */; }
-    if(!PyLong_Check(result)) { interp_error ++; return 7 /* XYZABC */; }
+    if(!result) { interp_error ++; interp_error_at = "get_axis_mask"; return 7 /* XYZABC */; }
+    if(!PyLong_Check(result)) { interp_error ++; interp_error_at = "get_axis_mask"; return 7 /* XYZABC */; }
     int mask = PyLong_AsLong(result);
     Py_DECREF(result);
     return mask;
@@ -771,11 +777,11 @@ static bool PyFloat_CheckAndError(const char *func, PyObject *p)  {
 double GET_EXTERNAL_ANGLE_UNITS() {
     PyObject *result =
         callmethod(callback, "get_external_angular_units", "");
-    if(result == NULL) interp_error++;
+    if(result == NULL) { interp_error++; interp_error_at = "get_external_angular_units"; }
 
     double dresult = 1.0;
     if(!result || !PyFloat_CheckAndError("get_external_angle_units", result)) {
-        interp_error++;
+        interp_error++; interp_error_at = "get_external_angular_units";
     } else {
         dresult = PyFloat_AsDouble(result);
     }
@@ -786,11 +792,12 @@ double GET_EXTERNAL_ANGLE_UNITS() {
 double GET_EXTERNAL_LENGTH_UNITS() {
     PyObject *result =
         callmethod(callback, "get_external_length_units", "");
-    if(result == NULL) interp_error++;
+    if(result == NULL) { interp_error++; interp_error_at = "get_external_length_units"; }
 
     double dresult = 0.03937007874016;
     if(!result || !PyFloat_CheckAndError("get_external_length_units", result)) {
         interp_error++;
+        interp_error_at = "get_external_length_units";
     } else {
         dresult = PyFloat_AsDouble(result);
     }
@@ -855,6 +862,7 @@ static PyObject *parse_file(PyObject *self, PyObject *args) {
 
     metric=false;
     interp_error = 0;
+    interp_error_at = "";
     last_sequence_number = -1;
 
     _pos_x = _pos_y = _pos_z = _pos_a = _pos_b = _pos_c = 0;
@@ -911,13 +919,15 @@ out_error:
         if(!PyErr_Occurred()) {
             PyErr_Format(PyExc_RuntimeError,
                     "interp_error > 0 but no Python exception set");
+            fprintf(stderr,"interp_error_at=%s \n",
+                     interp_error_at ? interp_error_at : "-");
         } else {
             // seems a PyErr_Ocurred(), but no exception was set ?
             // so return error info that can be caught and handled
             PyErr_Format(PyExc_RuntimeError,"parse_file interp_error");
             fprintf(stderr,"!!!%s: parse_file() f=%s\n"
-                    "!!!interp_error=%d result=%d last_sequence_number=%d\n",
-                    __FILE__,f,interp_error,result,last_sequence_number);
+                    "!!!interp_error=%d result=%d last_sequence_number=%d interp_error_at=%s \n",
+                    __FILE__,f,interp_error,result,last_sequence_number, interp_error_at ? interp_error_at : "-");
         }
         return NULL;
     }
