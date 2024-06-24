@@ -4349,7 +4349,6 @@ int Interp::convert_motion(int motion,   //!< g_code for a line, arc, canned cyc
       write_canon_state_tag(block, settings);
       CHP(convert_spline(motion, block, settings));
   } else if ((motion == G_5_2) || (motion == G_6_2)) { // jjf
-    StateTag tag;
     write_canon_state_tag(block, settings);
     CHP(convert_nurbs(motion, block, settings));
   } else if (
