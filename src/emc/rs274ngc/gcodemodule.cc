@@ -979,41 +979,44 @@ static PyObject *parse_file(PyObject *self, PyObject *args) {
     // try initialize fast callbacks. callback object must have method get_callbackp returning dict of function pointers
     if (PyObject_HasAttrString(callback, "get_callbackp")) {
         PyObject* callbackp_dict = PyObject_CallMethod(callback, "get_callbackp", NULL);
-        if (!PyDict_Check(callbackp_dict)) {
-            PyErr_Format(PyExc_RuntimeError,"get_callbackp method must return dict of PyCapsule obj");
-            return NULL;
-        }
-        int failed = 0;
-#define _INIT_CALLBACKP(m) callbackp.m = (typeof callbackp.m ) callbackp_init(callbackp_dict, #m, failed)
-        _INIT_CALLBACKP(next_line);
-        _INIT_CALLBACKP(arc_feed);
-        _INIT_CALLBACKP(straight_feed);
-        _INIT_CALLBACKP(straight_traverse);
-        _INIT_CALLBACKP(set_g5x_offset);
-        _INIT_CALLBACKP(set_g92_offset);
-        _INIT_CALLBACKP(set_xy_rotation);
-        _INIT_CALLBACKP(set_plane);
-        _INIT_CALLBACKP(set_traverse_rate);
-        _INIT_CALLBACKP(set_feed_mode);
-        _INIT_CALLBACKP(change_tool);
-        _INIT_CALLBACKP(set_feed_rate);
-        _INIT_CALLBACKP(dwell);
-        _INIT_CALLBACKP(message);
-        _INIT_CALLBACKP(comment);
-        _INIT_CALLBACKP(tool_offset);
-        _INIT_CALLBACKP(get_block_delete);
-        _INIT_CALLBACKP(straight_probe);
-        _INIT_CALLBACKP(rigid_tap);
-        _INIT_CALLBACKP(get_tool);
-        _INIT_CALLBACKP(user_defined_function);
-        _INIT_CALLBACKP(get_axis_mask);
-        _INIT_CALLBACKP(get_external_angular_units);
-        _INIT_CALLBACKP(get_external_length_units);
-        _INIT_CALLBACKP(check_abort);
-#undef _INIT_CALLBACKP
-        if (failed) {
-            PyErr_Format(PyExc_RuntimeError,"all get_callbackp() items must be valid PyCapsule");
-            return NULL;
+        if (!callbackp_dict) PyErr_Clear();
+        if (callbackp_dict) {
+            if (!PyDict_Check(callbackp_dict)) {
+                PyErr_Format(PyExc_RuntimeError,"get_callbackp method must return dict of PyCapsule obj");
+                return NULL;
+            }
+            int failed = 0;
+    #define _INIT_CALLBACKP(m) callbackp.m = (typeof callbackp.m ) callbackp_init(callbackp_dict, #m, failed)
+            _INIT_CALLBACKP(next_line);
+            _INIT_CALLBACKP(arc_feed);
+            _INIT_CALLBACKP(straight_feed);
+            _INIT_CALLBACKP(straight_traverse);
+            _INIT_CALLBACKP(set_g5x_offset);
+            _INIT_CALLBACKP(set_g92_offset);
+            _INIT_CALLBACKP(set_xy_rotation);
+            _INIT_CALLBACKP(set_plane);
+            _INIT_CALLBACKP(set_traverse_rate);
+            _INIT_CALLBACKP(set_feed_mode);
+            _INIT_CALLBACKP(change_tool);
+            _INIT_CALLBACKP(set_feed_rate);
+            _INIT_CALLBACKP(dwell);
+            _INIT_CALLBACKP(message);
+            _INIT_CALLBACKP(comment);
+            _INIT_CALLBACKP(tool_offset);
+            _INIT_CALLBACKP(get_block_delete);
+            _INIT_CALLBACKP(straight_probe);
+            _INIT_CALLBACKP(rigid_tap);
+            _INIT_CALLBACKP(get_tool);
+            _INIT_CALLBACKP(user_defined_function);
+            _INIT_CALLBACKP(get_axis_mask);
+            _INIT_CALLBACKP(get_external_angular_units);
+            _INIT_CALLBACKP(get_external_length_units);
+            _INIT_CALLBACKP(check_abort);
+    #undef _INIT_CALLBACKP
+            if (failed) {
+                PyErr_Format(PyExc_RuntimeError,"all get_callbackp() items must be valid PyCapsule");
+                return NULL;
+            }
         }
     }
 
