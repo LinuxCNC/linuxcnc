@@ -1107,6 +1107,42 @@ PyObject *set_p(PyObject *self, PyObject *args) {
     return PyBool_FromLong(retval != 0);
 }
 
+PyObject *set_s(PyObject *self, PyObject *args) {
+    char *name,*value;
+    int retval;
+    hal_sig_t *sig;
+    hal_type_t type;
+    void *d_ptr;
+    
+    if(!PyArg_ParseTuple(args, "ss", &name,&value)) return NULL;
+    if(!hal_shmem_base) {
+        PyErr_Format(PyExc_RuntimeError,
+            "Cannot call before creating component");
+        return NULL;
+    }
+    // get mutex before accessing shared data 
+    rtapi_mutex_get(&(hal_data->mutex));
+    sig = halpr_find_sig_by_name(name);
+    if (sig == 0) {
+        rtapi_mutex_give(&(hal_data->mutex));
+        PyErr_Format(PyExc_RuntimeError,
+            "signal not found");
+        return NULL;
+    } else {
+        if ((sig->type != HAL_PORT) && (sig->writers > 0)) {
+            rtapi_mutex_give(&(hal_data->mutex));            
+            PyErr_Format(PyExc_RuntimeError,
+                "signal '%s' already has writer(s)\n", name);
+            return NULL;
+        }
+        /* no writer, so we can safely set it */
+        type = sig->type;
+        d_ptr = SHMPTR(sig->data_ptr);
+        retval = set_common(type, d_ptr, value);
+        rtapi_mutex_give(&(hal_data->mutex));
+        return PyBool_FromLong(retval != 0);
+    }
+}
 
 /*######################################*/
 /* Get a Pin, Param or signal value     */
@@ -1841,6 +1877,9 @@ PyMethodDef module_methods[] = {
 
     {"set_p", set_p, METH_VARARGS,
 	".set_p('name', 'value'): Set the pin or param value"},
+    {"set_s", set_s, METH_VARARGS,
+	".set_s('name', 'value'): Set the signal value"},
+
     {"get_value", get_value, METH_VARARGS,
 	".get_value('name'): Gets the pin, param or signal value"},
     {"get_info_pins", get_info_pins, METH_VARARGS,
