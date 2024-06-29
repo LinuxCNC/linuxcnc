@@ -109,7 +109,7 @@ class HandlerClass:
         menu.addAction(actionColor)
 
         # remember signal watched, line edit widget, button widget and last state
-        self.buttonDict[button] = [None,le,None,button,False]
+        self.buttonDict[button] = [{},le,None,button,False]
 
         # button to pop menu
         btn = QPushButton('Opt')
@@ -124,7 +124,7 @@ class HandlerClass:
         cb.setPinTypes([cb.HAL_BIT], direction = [cb.HAL_IN])
         cb.setSignalTypes([cb.HAL_BIT], driven = [False,True])
         cb.hal_init()
-        cb.selectionUpdated.connect(lambda w: self.signalSelected(w, button))
+        cb.objectSelected.connect(lambda w: self.selectedUpdated(w, button))
 
         # wrap combobox so as to add it to menu
         action = QWidgetAction(menu)
@@ -188,17 +188,25 @@ class HandlerClass:
     def updateLabel(self,v):
         self.w.hallabel.setDisplay(v)
 
-    def signalSelected(self, sig, button):
-        #print('Watching:',sig)
-        self.buttonDict[button][0] = sig
+    def selectedUpdated(self, meta, button):
+        #print('Watching:',meta,self.buttonDict[button])
+        self.buttonDict[button][0] = meta
 
     def _updatePin(self,button, data):
-        name = self.buttonDict[button][0]
+        name = self.buttonDict[button][0].get('NAME')
+        obj = self.buttonDict[button][0].get('OBJECT')
         if name is None: return
-        try:
-            self.h.setp(name,str(int(data)))
-        except Exception as e:
-            print('QtVCP Testbutton:',e)
+        if obj == 'pin':
+            try:
+                self.h.setp(name,str(int(data)))
+            except Exception as e:
+                print(e)
+        elif obj == 'signal':
+            try:
+                self.h.sets(name,str(int(data)))
+            except Exception as e:
+                print('QtVCP Testbutton:',e)
+
 
     def connectOurSignals(self, button):
 
