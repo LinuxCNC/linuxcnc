@@ -1471,6 +1471,11 @@ static void get_pos_cmds(long period)
     for (joint_num = 0; joint_num < ALL_JOINTS; joint_num++) {
 	/* point to joint data */
 	joint = &joints[joint_num];
+	
+	/* Zero values */
+	joint_limit[joint_num][0] = 0;
+	joint_limit[joint_num][1] = 0;
+	
 	/* skip inactive or unhomed axes */
 	if ((!GET_JOINT_ACTIVE_FLAG(joint)) || (!get_homed(joint_num))) {
 	    continue;
