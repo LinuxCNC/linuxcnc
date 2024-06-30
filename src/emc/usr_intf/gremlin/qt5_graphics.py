@@ -275,6 +275,9 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self.b_axis_wrapped = self.inifile.find("AXIS_B", "WRAPPED_ROTARY")
         self.c_axis_wrapped = self.inifile.find("AXIS_C", "WRAPPED_ROTARY")
 
+        self._tool_dia = 0
+        self.spindle_speed = 0
+
         live_axis_count = 0
         for i,j in enumerate("XYZABCUVW"):
             if self.stat.axis_mask & (1<<i) == 0: continue
@@ -727,7 +730,12 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
 
                     posstrs.append("{} {} RPM: {}".format(feed,sf,self.spindle_speed))
                 else:
-                    posstrs.append("{}   RPM: {}".format(feed,self.spindle_speed))
+                    if self.metric_units:
+                        sf = self.sf_mm  % (3.14 * self._tool_dia * self.spindle_speed/1000)
+                    else:
+                        sf = self.sf_in  % (3.14 * self._tool_dia * self.spindle_speed/12)
+                    posstrs.append("{} {} RPM: {}".format(feed,sf,self.spindle_speed))
+
                 pos=0
                 for i in range(9):
                     if s.axis_mask & (1<<i): pos +=1
@@ -735,7 +743,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                     pos +=1
                     droposstrs.insert(pos, "  {} {} RPM: {}".format(feed,sf,self.spindle_speed))
                 else:
-                    droposstrs.insert(pos, "  {}   RPM: {}".format(feed,self.spindle_speed))
+                    droposstrs.insert(pos, "{} {} RPM: {}".format(feed,sf,self.spindle_speed))
 
             if self.show_dtg:
                 posstrs.append(format % ("DTG", dtg))

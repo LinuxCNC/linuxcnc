@@ -96,6 +96,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         self._block_autoLoad = STATUS.connect('file-loaded', self.load_program)
         self._block_reLoad = STATUS.connect('reload-display', self.reloadfile)
         STATUS.connect('actual-spindle-speed-changed', self.set_spindle_speed)
+        STATUS.connect('tool-info-changed', lambda w, data: self._tool_info(data))
         STATUS.connect('metric-mode-changed', lambda w, f: self.set_metric_units(w, f))
         self._block_viewChanged = STATUS.connect('graphics-view-changed', lambda w, v, a: self.set_view_signal(v, a))
         self._block_lineSelect = STATUS.connect('gcode-line-selected', lambda w, l: self.highlight_graphics(l))
@@ -228,6 +229,20 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
     def set_spindle_speed(self, w, rate):
         self.spindle_speed = int(rate)
         self.updateGL()
+
+    def _tool_info(self, data):
+        if data.id != -1:
+            self._tool_dia = self.conversion(data.diameter)
+        else:
+            self._tool_dia = 0
+
+    # This does the conversion units
+    # data must always be in machine units
+    def conversion(self, data):
+        if self.metric_units :
+            return INFO.convert_machine_to_metric(data)
+        else:
+            return INFO.convert_machine_to_imperial(data)
 
     def set_view(self, value):
         view = str(value).lower()
