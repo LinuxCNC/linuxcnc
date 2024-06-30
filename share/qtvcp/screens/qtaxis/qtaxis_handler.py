@@ -339,7 +339,6 @@ class HandlerClass:
 
     def update_spindle(self,w,data):
         self.w.rpm_bar.setInvertedAppearance(bool(data<0))
-        self.w.rpm_label.setText('{0:d} RPM'.format(int(data)))
         self.w.rpm_bar.setValue(abs(int(data)))
 
     def update_jog_pins(self, data):
@@ -634,7 +633,6 @@ class HandlerClass:
         self.w.rpm_bar.setMinimumWidth (150)
         self.w.rpm_bar.setRange(0, INFO.MAX_SPINDLE_SPEED)
 
-        self.w.rpm_label = QtWidgets.QLabel()
 
         # containers
         w = QtWidgets.QWidget()
@@ -642,7 +640,6 @@ class HandlerClass:
 
         hbox = QtWidgets.QHBoxLayout()
         hbox.setContentsMargins(0,0,0,0)
-        hbox.addWidget(self.w.rpm_label)
         hbox.addWidget(self.w.rpm_bar)
         hbox.addWidget(self.w.led)
         w.setLayout(hbox)
