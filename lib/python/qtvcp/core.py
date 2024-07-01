@@ -204,13 +204,19 @@ class _QHal(object):
         try:
             return hal.get_value(name)
         except Exception as e:
-            log.error("Qhal: Error getting value of {}\n {}".format(name, e))
+            raise("Qhal: Error getting value of {}\n {}".format(name, e))
 
     def setp(self,name, value):
         try:
             return hal.set_p(name,value)
         except Exception as e:
-            log.error("Qhal: Error setting value of {} to {}\n {}".format(name,value, e))
+            raise("Qhal: Error setting pin {} to {}\n {}".format(name,value, e))
+
+    def sets(self,name, value):
+        try:
+            return hal.set_s(name,value)
+        except Exception as e:
+            raise("Qhal: Error setting signal {} to {}\n {}".format(name,value, e))
 
     def exit(self, *a, **kw): return self.comp.exit(*a, **kw)
 

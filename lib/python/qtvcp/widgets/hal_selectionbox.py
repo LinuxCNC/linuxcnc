@@ -31,6 +31,10 @@ LOG = logger.getLogger(__name__)
 
 class TreeComboBox(QComboBox):
     selectionUpdated = pyqtSignal('PyQt_PyObject')
+    objectSelected = pyqtSignal('PyQt_PyObject')
+    NAME = 1
+    SELECTABLE = 2
+    OBJECT = 3
 
     def __init__(self, parent=None):
         super(TreeComboBox, self).__init__(parent)
@@ -76,8 +80,11 @@ class TreeComboBox(QComboBox):
                 item.setFlags(item.flags() & -(1<<1))
             item.setData(value[0], role=Qt.ToolTipRole)
             # store the HAL name and selectability in Qt user roles
-            item.setData(value[0], role=Qt.UserRole + 1)
-            item.setData(value[1], role=Qt.UserRole + 2)
+            item.setData(value[0], role=Qt.UserRole + self.NAME)
+            # selectability in Qt user roles
+            item.setData(value[1], role=Qt.UserRole + self.SELECTABLE)
+            # all info of object
+            item.setData(value[2], role=Qt.UserRole + self.OBJECT)
             parent.appendRow(item)
 
             # next level
@@ -93,7 +100,9 @@ class TreeComboBox(QComboBox):
         if self.getSelectionData(index) is None:
             #print ('should reset selection or expand node')
             self.selectionUpdated.emit(None)
+            self.objectSelected.emit({})
         self.selectionUpdated.emit(self.getSelectionData(index))
+        self.objectSelected.emit(self.getSelectionData(index, self.OBJECT))
 
 ################################################################
 class HALSelectionBox(TreeComboBox, _HalWidgetBase):
@@ -135,39 +144,42 @@ class HALSelectionBox(TreeComboBox, _HalWidgetBase):
             # append((label -> 'Name', 
             # user data -> [HAL name -> None, selectable -> False],
             # next level -> next_node_list))
-            parent_node.append(('Pins', [None, False], node_pin))
-            node_pin.append(('IN', [None, False], node_pinin))
-            node_pin.append(('OUT', [None, False], node_pinout))
-            node_pin.append(('IO', [None, False], node_pininout))
+            parent_node.append(('Pins', [None, False, {}], node_pin))
+            node_pin.append(('IN', [None, False, {}], node_pinin))
+            node_pin.append(('OUT', [None, False, {}], node_pinout))
+            node_pin.append(('IO', [None, False, {}], node_pininout))
             for i in hal.get_info_pins():
+                i['OBJECT'] = 'pin'
                 if i['TYPE'] in self.PINTYPE:
                     if i['DIRECTION'] in self.PINDIRECTION:
                         if i['DIRECTION'] == self.HAL_IN:
-                            node_pinin.append((i['NAME'], [i['NAME'], True], []))
+                            node_pinin.append((i['NAME'], [i['NAME'], True,i], []))
                         elif i['DIRECTION'] == self.HAL_OUT:
-                            node_pinout.append((i['NAME'], [i['NAME'], True], []))
+                            node_pinout.append((i['NAME'], [i['NAME'], True,i], []))
                         else:
-                            node_pininout.append((i['NAME'], [i['NAME'], True], []))
+                            node_pininout.append((i['NAME'], [i['NAME'], True,i], []))
 
         if self.SIGS in self.SHOWTYPES:
             node_sigdriven = []
             node_sigundriven = []
-            parent_node.append(('Signals', [None, None], node_sig))
-            node_sig.append(('Driven', [None, False], node_sigdriven))
-            node_sig.append(('Undriven', [None, False], node_sigundriven))
+            parent_node.append(('Signals', [None, None, {}], node_sig))
+            node_sig.append(('Driven', [None, False, {}], node_sigdriven))
+            node_sig.append(('Undriven', [None, False, {}], node_sigundriven))
 
             for i in hal.get_info_signals():
+                i['OBJECT'] = 'signal'
                 if i['TYPE'] in self.SIGTYPE:
                         if not bool(i['DRIVER']is None) and bool(True) == self.SIGDRIVEN[0]:
-                            node_sigdriven.append((i['NAME'], [i['NAME'], True], []))
+                            node_sigdriven.append((i['NAME'], [i['NAME'], True,i], []))
                         elif bool(i['DRIVER']is None) and bool(True) == self.SIGDRIVEN[1]:
-                            node_sigundriven.append((i['NAME'], [i['NAME'], True], []))
+                            node_sigundriven.append((i['NAME'], [i['NAME'], True,i], []))
 
         if self.PARAMS in self.SHOWTYPES:
-            parent_node.append(('Parameters', [None, None], node_param))
+            parent_node.append(('Parameters', [None, None, {}], node_param))
             for i in hal.get_info_params():
+                i['OBJECT'] = 'parameter'
                 if i['TYPE'] in self.PARAMTYPE:
-                    node_sig.append((i['NAME'], [i['NAME'], True], []))
+                    node_sig.append((i['NAME'], [i['NAME'], True,i], []))
 
         self.addItems(model, parent_node)
         self.setModel(model)
