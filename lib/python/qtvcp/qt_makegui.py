@@ -189,7 +189,7 @@ class _VCPWindow(QtWidgets.QMainWindow):
                 sys.path.insert(0, os.path.split(qrcpy)[0])
                 import importlib
                 importlib.import_module('resources', os.path.split(qrcpy)[0])
-                log.info('Imported resources.py filed: yellow<{}>'.format(qrcpy))
+                log.info('Imported resources.py file: yellow<{}>'.format(qrcpy))
             except Exception as e:
                 log.warning('Could not load {} resource file: yellow<{}>'.format(qrcpy, e))
         else:
