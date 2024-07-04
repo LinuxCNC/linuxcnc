@@ -9,7 +9,10 @@ build-stamp
 *.pdf
 *.tex
 *.mod.c
+*.mod
 *.cmd
+*~
+*.kate-swp
 .tmp*
 # Ignore generated html files, 
 /docs/src/*/*.html
