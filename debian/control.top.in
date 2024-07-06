@@ -13,6 +13,7 @@ Build-Depends:
     docbook-xsl,
     asciidoc,
     ghostscript,
+    groff-base,
     imagemagick,
     asciidoc-dblatex,
     autoconf,

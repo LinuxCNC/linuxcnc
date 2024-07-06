@@ -889,7 +889,7 @@ def document(filename, outfilename):
         if personality: has_personality = True
         if isinstance(array, tuple): has_personality = True
 
-    print("""
+    print(""".\\" -*- mode: troff; coding: utf-8 -*-
 .\\"*******************************************************************
 .\\"
 .\\" This file was extracted from %s using halcompile.g.
