@@ -13,9 +13,21 @@
 ; #7 angle
 ; #8 tool number
 ; #9 max RPM
+
 ;Turning
 
 O<turning> sub
+
+O110 IF [#<_imperial>]
+    (MSG, IMPERIAL sizes)
+O110  ELSE
+    (MSG, METRIC sizes)
+O110  ENDIF
+
+(debug, Start Diameter %.3f#<_x>)
+(debug, Finish Diameter %.3f#1)
+(debug, Z Start %.3f#<_z>)
+(debug, Z Finish %.3f#5)
 
 O107 IF [#<_imperial>]
     (MSG, IMPERIAL ON)
@@ -47,16 +59,6 @@ G91.1 ; but not for arcs
 #23 = [#5 + #6 - #20]
 #24 = [[#13 - #23] * TAN[#7]]
 
-O110 IF [#<_imperial>]
-    (MSG, IMPERIAL sizes)
-O110  ELSE
-    (MSG, METRIC sizes)
-O110  ENDIF
-
-(debug, Start Diameter %.3f#<startDiam>)
-(debug, Start length %.3f#13)
-(debug, Finish Diameter %.3f#<finishDiam>)
-(debug, Finish length %.3f#5)
 
 (MSG, Unpause To Start Turning Macro)
 m0

@@ -18,7 +18,7 @@ O<threading> sub
 O107 IF [#<_imperial>]
     (MSG, IMPERIAL ON)
     #1 = [#1 * 25.4] ; start X
-    #2 = [#2 * .3048] ; sf/m to mm/m
+    #2 = [#2 * .3048] ; sf/m to m/m
     #4 = [#4 * 25.4] ; pitch
     #5 = [#5 * 25.4] ; z finish
 O107  ENDIF
