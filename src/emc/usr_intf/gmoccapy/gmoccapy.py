@@ -2435,11 +2435,8 @@ class gmoccapy(object):
                 self._on_play_sound(None, "alert")
 
     def on_gremlin_gcode_error(self, widget, errortext):
-        if self.gcodeerror == errortext:
-            return
-        else:
-            self.gcodeerror = errortext
-            self.dialogs.warning_dialog(self, _("Important Warning"), errortext)
+        self.gcodeerror = errortext
+        self.dialogs.warning_dialog(self, _("Important Warning"), errortext)
 
 
 # =========================================================
