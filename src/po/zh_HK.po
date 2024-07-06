@@ -2,20 +2,21 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # hugoalh <hugoalh@users.noreply.hosted.weblate.org>, 2024.
+# Ricky From Hong Kong <lamricky11@hotmail.com>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-04-08 19:52+0200\n"
-"PO-Revision-Date: 2024-06-02 02:04+0000\n"
-"Last-Translator: hugoalh <hugoalh@users.noreply.hosted.weblate.org>\n"
+"PO-Revision-Date: 2024-07-06 12:09+0000\n"
+"Last-Translator: Ricky From Hong Kong <lamricky11@hotmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: zh_HK\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.6-dev\n"
+"X-Generator: Weblate 5.7-dev\n"
 
 #: src/emc/task/emctaskmain.cc:868
 #, c-format
@@ -1867,7 +1868,7 @@ msgstr "故障: 沒有 針腳/信號/參數  名字\n"
 #, c-format
 msgid ""
 "ERROR: -s option requires a probe type and a pin/signal/parameter name\n"
-msgstr "故障: -s 選項需要一個探頭類型和 針/信號​​/參數 名稱\n"
+msgstr "故障：-s 選項需要一個探頭類型和針／信號／參數名稱\n"
 
 #: src/hal/utils/meter.c:243 tcl/tklinuxcnc.tcl:793
 msgid "Hal Meter"
@@ -1891,7 +1892,7 @@ msgstr " 針(_P) "
 
 #: src/hal/utils/meter.c:617
 msgid " _Signals "
-msgstr " 信號​​(_S) "
+msgstr " 信號（_S） "
 
 #: src/hal/utils/meter.c:618
 msgid " Para_meters "
@@ -4988,9 +4989,8 @@ msgid "Pin"
 msgstr "針"
 
 #: tcl/bin/halshow.tcl:265
-#, fuzzy
 msgid "Add signal"
-msgstr " 信號​​(_S) "
+msgstr "新增信號"
 
 #: tcl/bin/halshow.tcl:266
 #, fuzzy
@@ -5101,9 +5101,8 @@ msgid "Add as Pin(s)"
 msgstr " 信號​​(_S) "
 
 #: tcl/bin/halshow.tcl:977
-#, fuzzy
 msgid "Add as Signal(s)"
-msgstr " 信號​​(_S) "
+msgstr "新增為信號"
 
 #: tcl/bin/halshow.tcl:978
 msgid "Add as Param(s)"
