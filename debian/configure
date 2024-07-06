@@ -181,6 +181,7 @@ subst control.main-pkg.in >> control
 
 subst linuxcnc.install.in > ${MAIN_PACKAGE_NAME}.install
 subst linuxcnc.lintian-overrides.in > ${MAIN_PACKAGE_NAME}.lintian-overrides
+subst linuxcnc.manpages.in > ${MAIN_PACKAGE_NAME}.manpages
 
 subst rules.in > rules
 chmod +x rules
