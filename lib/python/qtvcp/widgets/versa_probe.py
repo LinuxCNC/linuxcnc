@@ -271,6 +271,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         code = bool(message.get('ID') == '%s__'% self.objectName())
         name = bool(message.get('NAME') == self.dialog_code)
         next = message.get('NEXT', False)
+        back = message.get('BACK', False)
         if code and name:
             obj = message.get('OBJECT')
             if num is not None:
@@ -286,6 +287,14 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
                 newobj = self['input_{}'.format(self.parm_list[self._nextIndex])]
                 # update the dialog
                 self.popEntry(newobj,True)
+            elif back:
+                self._nextIndex -= 1
+                if self._nextIndex == -1:
+                    self._nextIndex = len(self.parm_list)-1
+                newobj = self['input_{}'.format(self.parm_list[self._nextIndex])]
+                # update the dialog
+                self.popEntry(newobj,True)
+
 
     def popEntry(self, obj, next=False):
         obj.setStyleSheet(self.hilightStyle)
