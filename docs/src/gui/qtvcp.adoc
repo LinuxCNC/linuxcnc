@@ -232,9 +232,64 @@ State_LED #name_of_led{
   }
 ----
 
+==== Handler Patching - Subclassing Builtin Screens
+We can have QtVCP load a subclassed version of the standard handler file. in that file we can manipulate the original functions or add new ones. +
+Subclassing just means our handler file first loads the original handler file and adds our new code on top of it - so a patch of changes. +
+This is useful for changing/adding behaviour while still retaining standard handler updates from LinuxCNC repositories. +
+
+You may still need to use the handler copy dialog to copy the original handler file to decide how to patch it.
+See 'custom handler file'
+
+There should be a folder in the config folder; for screens: named '<CONFIG FOLDER>/qtvcp/screens/<SCREEN NAME>/' +
+add the handle patch file there, named like so <ORIGINAL SCREEN NAME>_handler.py +
+ie for Qtdragon the file would be called 'qtdragon_handler.py' +
+
+Here is a sample to add X axis jog pins to a screen like Qtdragon: +
+
+[source,python]
+----
+import sys
+import importlib
+from qtvcp.core import Path, Qhal, Action
+PATH = Path()
+QHAL = Qhal()
+ACTION = Action()
+
+# get reference to original handler file so we can subclass it
+sys.path.insert(0, PATH.SCREENDIR)
+module = "{}.{}_handler".format(PATH.BASEPATH,PATH.BASEPATH)
+mod = importlib.import_module(module, PATH.SCREENDIR)
+sys.path.remove(PATH.SCREENDIR)
+HandlerClass = mod.HandlerClass
+
+# return our subclassed handler object to QtVCP
+def get_handlers(halcomp, widgets, paths):
+    return [UserHandlerClass(halcomp, widgets, paths)]
+
+# sub class HandlerClass which was imported above
+class UserHandlerClass(HandlerClass):
+    # add a terminal message so we know this got loaded
+    print('\nCustom subclassed handler patch loaded.\n')
+
+    def init_pins(self):
+        # call original handler init_pins function
+        super().init_pins()
+
+        # add jog pins X axis
+        pin = QHAL.newpin("jog.axis.jog-x-plus", QHAL.HAL_BIT, QHAL.HAL_IN)
+        pin.value_changed.connect(lambda s: self.kb_jog(s, 0, 1, fast = False, linear = True))
+
+        pin = QHAL.newpin("jog.axis.jog-x-minus", QHAL.HAL_BIT, QHAL.HAL_IN)
+        pin.value_changed.connect(lambda s: self.kb_jog(s, 0, -1, fast = False, linear = True))
+----
+
 ==== Minor Python Code Changes
+
 Another Python file can be used to *add commands* to the screen, after the handler file is parsed.
 This can be useful for minor changes while still honouring standard handler updates from LinuxCNC repositories.
+
+[NOTE]
+Handler patching is a better way to add changes - instance patching is black magic voodoo - this is here for legacy reasons.
 
 In the _INI file_ under the `[DISPLAY]` heading add *`USER_COMMAND_FILE = _PATH_`* +
 _PATH_ can be any valid path.
@@ -277,12 +332,12 @@ Here we show how to add new functions and override existing ones.
 # reference: https://ruivieira.dev/python-monkey-patching-for-readability.html
 import types
 
-# import the handlerfile to get reference to it's libraries.
+# import the handlerfile to get reference to its libraries.
 # use <screenname>_handler
 import qtdragon_handler as hdlr
 
 # This is actually an unbounded function with 'obj' as a parameter.
-# You call this function without the usual preceding 'self.'
+# You call this function without the usual preceding 'self.'.
 # This is because will will not be patching it into the original handler class instance
 # It will only be called from code in this file.
 def test_function(obj):
@@ -309,7 +364,7 @@ def on_keycall_F11(self,event,state,shift,cntrl):
 # This function tells KEYBIND to call 'on_keycall_F10' when F10 is pressed.
 hdlr.KEYBIND.add_call('Key_F10','on_keycall_F10')
 
-# Here we are instance patching the original handler file to add a new function 
+# Here we are instance patching the original handler file to add a new function
 # that calls our new function (of the same name) defined in this file.
 self.on_keycall_F10 = types.MethodType(on_keycall_F10, self)
 
@@ -329,8 +384,8 @@ self.on_keycall_F11 = types.MethodType(on_keycall_F11, self)
 def new_pin_changed(data):
     print(data)
 
-# special function that gets called before the HAL component is set ready
-# here we used the function to add a bit input pin with a callback
+# Special function that gets called before the HAL component is set ready.
+# Here we used the function to add a bit input pin with a callback.
 def after_override__(self):
     try:
         pin = hdlr.QHAL.newpin("new_pin", hdlr.QHAL.HAL_BIT, hdlr.QHAL.HAL_IN)
@@ -338,9 +393,8 @@ def after_override__(self):
     except Exception as e:
         print(e)
 
-# Here we are instance patching the original handler file to add a new
-# function that calls our new function (of the same name)
-# defined in this file
+# Here we are instance patching the original handler file to add a new function
+# that calls our new function (of the same name) defined in this file.
 self.after_override__ = types.MethodType(after_override__, self)
 
 ----
@@ -547,7 +601,7 @@ Pick _'Main Window'_ and press the _'Create'_ button. +
 A _`MainWindow` widget_ is displayed.
 
 We are going to make this window a specific non resizeable size:
- 
+
 .Set `MainWindow` Minimum and Maximum Size
 * Grab the corner of the window and resize to an appropriate size, say 1000x600. +
 * Right click on the window and click set _minimum size_.
@@ -797,7 +851,7 @@ class HandlerClass:
     #####################
 
     # keyboard jogging from key binding calls
-    # double the rate if fast is true 
+    # double the rate if fast is true
     def kb_jog(self, state, joint, direction, fast = False, linear = True):
         if not STATUS.is_man_mode() or not STATUS.machine_is_on():
             return
@@ -939,9 +993,9 @@ If QtVCP finds these it will call them, if not it will silently ignore them.
 *`after_override__(self):`*::
   This function is called after the optional override file is loaded but +
   before the optional HAL file is loaded or HAL component is set ready.
-  
+
 *`processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):`*::
-  This function is called to facilitate _keyboard jogging_ etc. +
+  This function is called to facilitate _keyboard jogging_, etc. +
   By using the _`keybinding` library_ this can be used to easily add functions bound to keypresses.
 
 *`keypress_event__(self,receiver, event):`*::

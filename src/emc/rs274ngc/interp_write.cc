@@ -123,7 +123,19 @@ int Interp::write_g_codes(block_pointer block,   //!< pointer to a block of RS27
     (settings->spindle_mode[0] == CONSTANT_RPM) ? G_97 : G_96;
   gez[14] = (settings->ijk_distance_mode == MODE_ABSOLUTE) ? G_90_1 : G_91_1;
   gez[15] = (settings->lathe_diameter_mode) ? G_7 : G_8;
-  gez[16] = (settings->parameters[5210])? G_92_3: G_92_2;
+  // 'G52','G92' are handled in modal group 0 which is cleared on startup, m2/m30 and abort, hence there
+  // is no indication of active G92 offsets after such events so we need modal group 16 as a workaround
+  if (block == NULL){ // this handles config startup
+    if (settings->parameters[5210] == 1){
+      gez[16] = G_92_3;
+    } else {
+      gez[16] = -1;
+    }
+  } else if (settings->parameters[5210] == 1 && block->g_modes[0] == -1){ // this handles aborts, m2/m30
+    gez[16] = G_92_3;
+  } else {
+    gez[16] = block->g_modes[16];
+  }
   return INTERP_OK;
 }
 

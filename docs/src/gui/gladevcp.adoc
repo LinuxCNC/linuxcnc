@@ -2817,7 +2817,7 @@ See the getting-started/running-linuxcnc section for 'Adding Configuration Selec
 
 For testing, a runtime specification of auxiliary applications may be specified using the exported environmental variable: GLADEVCP_EXTRAS.
 This variable should be a path list of one or more configuration directories separated by a (:).
-Typically, this variable would be set in a shell starting `linuxcnc` or in a user's `~/.profile startup` script.
+Typically, this variable would be set in a shell starting `linuxcnc` or in a user's `~/.profile` startup script.
 Example:
 
 ----

@@ -2,13 +2,13 @@ component toggle "'push-on, push-off' from momentary pushbuttons";
 
 description
 """
-     ┐     ┏──┐        ┏──┐  
+     ┐     ┌──┐        ┌──┐
 .br
-in : └─────┛  └────────┛  └──
+in : └─────┘  └────────┘  └──
 .br
-     ┐     ┌───────────┐     
+     ┐     ┌───────────┐
 .br
-out: └─────┘           └─────
+out: └─────┘           └─────
 """;
 
 pin in bit in "button input";

@@ -14,10 +14,10 @@
 
 == Overview
 
-The LinuxCNC G-code language is based on the RS274/NGC language. The G
-Code language is based on lines of code. Each line (also called a
-'block') may include commands to do several different things. Lines of
-code may be collected in a file to make a program.
+The LinuxCNC G-code language is based on the RS274/NGC language.
+The G-code language is based on lines of code.
+Each line (also called a 'block') may include commands to do several different things.
+Lines of code may be collected in a file to make a program.
 
 A typical line of code consists of an optional line number at the
 beginning followed by one or more 'words'. A word consists of a letter
@@ -27,9 +27,9 @@ example, 'G1 X3' is a valid line of code with two words. 'G1' is a
 command meaning 'move in a straight line at the programmed feed
 rate to the programmed end point', and 'X3' provides an argument
 value (the value of X should be 3 at the end of the move).
-Most LinuxCNC G-code commands start with either G or M (for
-General and Miscellaneous). The words for these commands are called 'G
-codes' and 'M-codes'.
+Most LinuxCNC G-code commands start with either G or M (for General and Miscellaneous).
+The words for these commands are called 'G-codes' and 'M-codes'.
+Also common are subroutine codes that begin with 'o-' which are called 'o-codes'.
 
 The LinuxCNC language has no indicator for the start of a program. The
 Interpreter, however, deals with files. A single program may be in a
@@ -117,14 +117,14 @@ not have the corresponding axis.
 |C | C axis of machine
 |D | Tool radius compensation number
 |F | Feed rate
-|G | General function (See table  <<cap:modal-groups,Modal Groups>>)
+|G | General function (See table  <<cap:modal-groups,G-code Modal Groups>>)
 |H | Tool length offset index
 |I | X offset for arcs and G87 canned cycles
 |J | Y offset for arcs and G87 canned cycles
 .2+|K | Z offset for arcs and G87 canned cycles.
 <| Spindle-Motion Ratio for G33 synchronized movements.
 |L | generic parameter word for G10, M66 and others
-|M | Miscellaneous function (See table  <<cap:modal-groups,Modal Groups>>)
+|M | Miscellaneous function (See table  <<tbl:mcodes-modal-groups,M-code Modal Groups>>)
 |N | Line number
 .2+|P | Dwell time in canned cycles and with G4.
 <| Key used with G10.
@@ -139,6 +139,25 @@ not have the corresponding axis.
 |Y | Y axis of machine
 |Z | Z axis of machine
 |===
+
+==== Parameters(((Parameters)))
+
+Parameters are identified with a "#" symbol in front of them. See <<sec:overview-parameters,Parameters Section>> below. 
+
+==== Subroutine Codes(((Subroutine Codes)))
+
+Also called 'o-codes' these provide program flow control (such as if-else logic and callable subroutines) and are covered fully at the page on <<cha:o-codes,o-Codes>> and also below in <<sub:subroutine-parameters,Subroutine Codes and Parameters>>.
+
+NOTE: o-codes are sometimes also called o-words. 
+
+==== Comments(((Comments)))
+
+Comments can be embedded in a line using parentheses () or for the remainder of a line using a semi-colon. There are also 'active' comments like MSG, DEBUG, etc. See the <<gcode:comments,section on comments>>.
+
+=== End of Line Marker(((End of Line Marker)))
+
+This is any combination of carriage return or line feed. 
+
 
 [[gcode:numbers]]
 === Numbers(((Numbers)))
@@ -283,7 +302,7 @@ example '##2'  means the value of the parameter whose index is the
 * '5161-5169' - "G28" Home for X, Y, Z, A, B, C, U, V & W. Persistent.
 * '5181-5189' - "G30" Home for X, Y, Z, A, B, C, U, V & W. Persistent.
 * '5210' - 1 if "G52" or "G92" offset is currently applied, 0
-  otherwise.  Volatile by default; persistent if
+  otherwise.  Persistent by default; volatile if
   'DISABLE_G92_PERSISTENCE = 1' in the '[RS274NGC]' section of the
   INI file.
 * '5211-5219' - Shared "G52" and "G92" offset for X, Y, Z, A, B, C, U,
@@ -311,7 +330,7 @@ example '##2'  means the value of the parameter whose index is the
   Persistent.
 * '5399' - Result of M66 - Check or wait for input. Volatile.
 * '5400' - Tool Number. Volatile.
-* '5401-5409' - Tool Offsets for X, Y, Z, A, B, C, U, V & W. Volatile.
+* '5401-5409' - Tool Offsets for X, Y, Z, A, B, C, U, V & W. Set by G43. Volatile.
 * '5410' - Tool Diameter. Volatile.
 * '5411' - Tool Front Angle. Volatile.
 * '5412' - Tool Back Angle. Volatile.
@@ -913,8 +932,8 @@ being in effect. The modal groups are shown in the following Table.
 |===
 |Modal Group Meaning                    | Member Words
 |Non-modal codes (Group 0)              | G4, G10 G28, G30, G52, G53, G92, G92.1, G92.2, G92.3,
-.2+|Motion (Group 1)                    | G0, G1, G2, G3, G33, G38.n, G73, G76, G80, G81
-                                        | G82, G83, G84, G85, G86, G87, G88, G89
+|Motion (Group 1)                       | G0, G1, G2, G3, G33, G38.n, G73, G76, G80, G81
+                                          G82, G83, G84, G85, G86, G87, G88, G89
 |Plane selection (Group 2)              | G17, G18, G19, G17.1, G18.1, G19.1
 |Distance Mode (Group 3)                | G90, G91
 |Arc IJK Distance Mode (Group 4)        | G90.1, G91.1
@@ -935,8 +954,9 @@ being in effect. The modal groups are shown in the following Table.
 |===
 |Modal Group Meaning         | Member Words
 |Stopping (Group 4)          | M0, M1, M2, M30, M60
-|On/Off I/O ('Group 5')      | FIXME M6 T__n__
-|Toolchange ('Group 6')      | M6 T__n__
+|I/O Pins (Group 5)          | (M62-M65 digital output), (M66 digital or analog input),
+                               (M67, M68 analog output)
+|Toolchange (Group 6)        | M6 T__n__
 |Spindle (Group 7)           | M3, M4, M5
 |Coolant (Group 8)           | (M7 M8 can both be on), M9
 |Override Switches (Group 9) | M48, M49

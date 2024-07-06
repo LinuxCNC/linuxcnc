@@ -125,7 +125,7 @@
        <bool>true</bool>
       </property>
       <property name="focusBlur_option" stdset="0">
-       <bool>true</bool>
+       <bool>false</bool>
       </property>
       <property name="focusTint_option" stdset="0">
        <bool>false</bool>
@@ -3353,7 +3353,7 @@ PLATE</string>
                     </property>
                     <property name="minimumSize">
                      <size>
-                      <width>640</width>
+                      <width>540</width>
                       <height>0</height>
                      </size>
                     </property>
@@ -3378,7 +3378,7 @@ PLATE</string>
                     <property name="lineWidth">
                      <number>1</number>
                     </property>
-                    <layout class="QVBoxLayout" name="verticalLayout_59">
+                    <layout class="QHBoxLayout" name="horizontalLayout_12">
                      <property name="spacing">
                       <number>3</number>
                      </property>
@@ -3404,7 +3404,7 @@ PLATE</string>
                        </property>
                        <property name="minimumSize">
                         <size>
-                         <width>600</width>
+                         <width>500</width>
                          <height>0</height>
                         </size>
                        </property>
@@ -4167,959 +4167,6 @@ View</string>
                            <property name="overlay" stdset="0">
                             <bool>false</bool>
                            </property>
-                          </widget>
-                         </item>
-                         <item>
-                          <widget class="QWidget" name="frame_macro_buttons" native="true">
-                           <property name="enabled">
-                            <bool>true</bool>
-                           </property>
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="minimumSize">
-                            <size>
-                             <width>74</width>
-                             <height>0</height>
-                            </size>
-                           </property>
-                           <property name="maximumSize">
-                            <size>
-                             <width>74</width>
-                             <height>16777215</height>
-                            </size>
-                           </property>
-                           <layout class="QVBoxLayout" name="verticalLayout_52">
-                            <property name="spacing">
-                             <number>4</number>
-                            </property>
-                            <property name="leftMargin">
-                             <number>0</number>
-                            </property>
-                            <property name="topMargin">
-                             <number>4</number>
-                            </property>
-                            <property name="rightMargin">
-                             <number>4</number>
-                            </property>
-                            <property name="bottomMargin">
-                             <number>0</number>
-                            </property>
-                            <item alignment="Qt::AlignHCenter">
-                             <widget class="ActionButton" name="macrobutton0">
-                              <property name="enabled">
-                               <bool>true</bool>
-                              </property>
-                              <property name="sizePolicy">
-                               <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
-                                <horstretch>0</horstretch>
-                                <verstretch>0</verstretch>
-                               </sizepolicy>
-                              </property>
-                              <property name="minimumSize">
-                               <size>
-                                <width>70</width>
-                                <height>35</height>
-                               </size>
-                              </property>
-                              <property name="maximumSize">
-                               <size>
-                                <width>70</width>
-                                <height>54</height>
-                               </size>
-                              </property>
-                              <property name="baseSize">
-                               <size>
-                                <width>70</width>
-                                <height>45</height>
-                               </size>
-                              </property>
-                              <property name="toolTip">
-                               <string>Run Macro 0</string>
-                              </property>
-                              <property name="layoutDirection">
-                               <enum>Qt::LeftToRight</enum>
-                              </property>
-                              <property name="text">
-                               <string>Macro0</string>
-                              </property>
-                              <property name="checkable">
-                               <bool>false</bool>
-                              </property>
-                              <property name="autoExclusive">
-                               <bool>false</bool>
-                              </property>
-                              <property name="view_change_action" stdset="0">
-                               <bool>false</bool>
-                              </property>
-                              <property name="ini_mdi_command_action" stdset="0">
-                               <bool>true</bool>
-                              </property>
-                              <property name="template_label_option" stdset="0">
-                               <bool>false</bool>
-                              </property>
-                              <property name="joint_number" stdset="0">
-                               <number>0</number>
-                              </property>
-                              <property name="incr_imperial_number" stdset="0">
-                               <double>0.010000000000000</double>
-                              </property>
-                              <property name="incr_mm_number" stdset="0">
-                               <double>0.025000000000000</double>
-                              </property>
-                              <property name="incr_angular_number" stdset="0">
-                               <double>-1.000000000000000</double>
-                              </property>
-                              <property name="toggle_float_option" stdset="0">
-                               <bool>false</bool>
-                              </property>
-                              <property name="float_num" stdset="0">
-                               <double>100.000000000000000</double>
-                              </property>
-                              <property name="float_alt_num" stdset="0">
-                               <double>50.000000000000000</double>
-                              </property>
-                              <property name="view_type_string" stdset="0">
-                               <string>p</string>
-                              </property>
-                              <property name="command_text_string" stdset="0">
-                               <string/>
-                              </property>
-                              <property name="ini_mdi_number" stdset="0">
-                               <number>0</number>
-                              </property>
-                              <property name="textTemplate" stdset="0">
-                               <string>%1.3f in</string>
-                              </property>
-                              <property name="alt_textTemplate" stdset="0">
-                               <string>%1.2f mm</string>
-                              </property>
-                             </widget>
-                            </item>
-                            <item alignment="Qt::AlignHCenter">
-                             <widget class="ActionButton" name="macrobutton1">
-                              <property name="enabled">
-                               <bool>true</bool>
-                              </property>
-                              <property name="sizePolicy">
-                               <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
-                                <horstretch>0</horstretch>
-                                <verstretch>0</verstretch>
-                               </sizepolicy>
-                              </property>
-                              <property name="minimumSize">
-                               <size>
-                                <width>70</width>
-                                <height>35</height>
-                               </size>
-                              </property>
-                              <property name="maximumSize">
-                               <size>
-                                <width>70</width>
-                                <height>54</height>
-                               </size>
-                              </property>
-                              <property name="baseSize">
-                               <size>
-                                <width>70</width>
-                                <height>45</height>
-                               </size>
-                              </property>
-                              <property name="focusPolicy">
-                               <enum>Qt::StrongFocus</enum>
-                              </property>
-                              <property name="toolTip">
-                               <string>Run Macro 1</string>
-                              </property>
-                              <property name="text">
-                               <string>Macro1</string>
-                              </property>
-                              <property name="checkable">
-                               <bool>false</bool>
-                              </property>
-                              <property name="autoExclusive">
-                               <bool>false</bool>
-                              </property>
-                              <property name="view_change_action" stdset="0">
-                               <bool>false</bool>
-                              </property>
-                              <property name="ini_mdi_command_action" stdset="0">
-                               <bool>true</bool>
-                              </property>
-                              <property name="template_label_option" stdset="0">
-                               <bool>false</bool>
-                              </property>
-                              <property name="joint_number" stdset="0">
-                               <number>0</number>
-                              </property>
-                              <property name="incr_imperial_number" stdset="0">
-                               <double>0.010000000000000</double>
-                              </property>
-                              <property name="incr_mm_number" stdset="0">
-                               <double>0.025000000000000</double>
-                              </property>
-                              <property name="incr_angular_number" stdset="0">
-                               <double>-1.000000000000000</double>
-                              </property>
-                              <property name="toggle_float_option" stdset="0">
-                               <bool>false</bool>
-                              </property>
-                              <property name="float_num" stdset="0">
-                               <double>100.000000000000000</double>
-                              </property>
-                              <property name="float_alt_num" stdset="0">
-                               <double>50.000000000000000</double>
-                              </property>
-                              <property name="view_type_string" stdset="0">
-                               <string>p</string>
-                              </property>
-                              <property name="command_text_string" stdset="0">
-                               <string/>
-                              </property>
-                              <property name="ini_mdi_number" stdset="0">
-                               <number>1</number>
-                              </property>
-                              <property name="textTemplate" stdset="0">
-                               <string>%1.3f in</string>
-                              </property>
-                              <property name="alt_textTemplate" stdset="0">
-                               <string>%1.2f mm</string>
-                              </property>
-                             </widget>
-                            </item>
-                            <item alignment="Qt::AlignHCenter">
-                             <widget class="ActionButton" name="macrobutton2">
-                              <property name="enabled">
-                               <bool>true</bool>
-                              </property>
-                              <property name="sizePolicy">
-                               <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
-                                <horstretch>0</horstretch>
-                                <verstretch>0</verstretch>
-                               </sizepolicy>
-                              </property>
-                              <property name="minimumSize">
-                               <size>
-                                <width>70</width>
-                                <height>35</height>
-                               </size>
-                              </property>
-                              <property name="maximumSize">
-                               <size>
-                                <width>70</width>
-                                <height>54</height>
-                               </size>
-                              </property>
-                              <property name="baseSize">
-                               <size>
-                                <width>70</width>
-                                <height>45</height>
-                               </size>
-                              </property>
-                              <property name="toolTip">
-                               <string>Run Macro 2</string>
-                              </property>
-                              <property name="text">
-                               <string>Macro2</string>
-                              </property>
-                              <property name="checkable">
-                               <bool>false</bool>
-                              </property>
-                              <property name="autoExclusive">
-                               <bool>false</bool>
-                              </property>
-                              <property name="view_change_action" stdset="0">
-                               <bool>false</bool>
-                              </property>
-                              <property name="ini_mdi_command_action" stdset="0">
-                               <bool>true</bool>
-                              </property>
-                              <property name="template_label_option" stdset="0">
-                               <bool>false</bool>
-                              </property>
-                              <property name="joint_number" stdset="0">
-                               <number>0</number>
-                              </property>
-                              <property name="incr_imperial_number" stdset="0">
-                               <double>0.010000000000000</double>
-                              </property>
-                              <property name="incr_mm_number" stdset="0">
-                               <double>0.025000000000000</double>
-                              </property>
-                              <property name="incr_angular_number" stdset="0">
-                               <double>-1.000000000000000</double>
-                              </property>
-                              <property name="toggle_float_option" stdset="0">
-                               <bool>false</bool>
-                              </property>
-                              <property name="float_num" stdset="0">
-                               <double>100.000000000000000</double>
-                              </property>
-                              <property name="float_alt_num" stdset="0">
-                               <double>50.000000000000000</double>
-                              </property>
-                              <property name="view_type_string" stdset="0">
-                               <string>p</string>
-                              </property>
-                              <property name="command_text_string" stdset="0">
-                               <string/>
-                              </property>
-                              <property name="ini_mdi_number" stdset="0">
-                               <number>2</number>
-                              </property>
-                              <property name="textTemplate" stdset="0">
-                               <string>%1.3f in</string>
-                              </property>
-                              <property name="alt_textTemplate" stdset="0">
-                               <string>%1.2f mm</string>
-                              </property>
-                             </widget>
-                            </item>
-                            <item alignment="Qt::AlignHCenter">
-                             <widget class="ActionButton" name="macrobutton3">
-                              <property name="enabled">
-                               <bool>true</bool>
-                              </property>
-                              <property name="sizePolicy">
-                               <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
-                                <horstretch>0</horstretch>
-                                <verstretch>0</verstretch>
-                               </sizepolicy>
-                              </property>
-                              <property name="minimumSize">
-                               <size>
-                                <width>70</width>
-                                <height>35</height>
-                               </size>
-                              </property>
-                              <property name="maximumSize">
-                               <size>
-                                <width>70</width>
-                                <height>54</height>
-                               </size>
-                              </property>
-                              <property name="baseSize">
-                               <size>
-                                <width>70</width>
-                                <height>45</height>
-                               </size>
-                              </property>
-                              <property name="toolTip">
-                               <string>Run Macro 3</string>
-                              </property>
-                              <property name="text">
-                               <string>Macro3</string>
-                              </property>
-                              <property name="checkable">
-                               <bool>false</bool>
-                              </property>
-                              <property name="autoExclusive">
-                               <bool>false</bool>
-                              </property>
-                              <property name="view_change_action" stdset="0">
-                               <bool>false</bool>
-                              </property>
-                              <property name="ini_mdi_command_action" stdset="0">
-                               <bool>true</bool>
-                              </property>
-                              <property name="template_label_option" stdset="0">
-                               <bool>false</bool>
-                              </property>
-                              <property name="joint_number" stdset="0">
-                               <number>0</number>
-                              </property>
-                              <property name="incr_imperial_number" stdset="0">
-                               <double>0.010000000000000</double>
-                              </property>
-                              <property name="incr_mm_number" stdset="0">
-                               <double>0.025000000000000</double>
-                              </property>
-                              <property name="incr_angular_number" stdset="0">
-                               <double>-1.000000000000000</double>
-                              </property>
-                              <property name="toggle_float_option" stdset="0">
-                               <bool>false</bool>
-                              </property>
-                              <property name="float_num" stdset="0">
-                               <double>100.000000000000000</double>
-                              </property>
-                              <property name="float_alt_num" stdset="0">
-                               <double>50.000000000000000</double>
-                              </property>
-                              <property name="view_type_string" stdset="0">
-                               <string>p</string>
-                              </property>
-                              <property name="command_text_string" stdset="0">
-                               <string/>
-                              </property>
-                              <property name="ini_mdi_number" stdset="0">
-                               <number>3</number>
-                              </property>
-                              <property name="textTemplate" stdset="0">
-                               <string>%1.3f in</string>
-                              </property>
-                              <property name="alt_textTemplate" stdset="0">
-                               <string>%1.2f mm</string>
-                              </property>
-                             </widget>
-                            </item>
-                            <item alignment="Qt::AlignHCenter">
-                             <widget class="ActionButton" name="macrobutton4">
-                              <property name="enabled">
-                               <bool>true</bool>
-                              </property>
-                              <property name="sizePolicy">
-                               <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
-                                <horstretch>0</horstretch>
-                                <verstretch>0</verstretch>
-                               </sizepolicy>
-                              </property>
-                              <property name="minimumSize">
-                               <size>
-                                <width>70</width>
-                                <height>35</height>
-                               </size>
-                              </property>
-                              <property name="maximumSize">
-                               <size>
-                                <width>70</width>
-                                <height>54</height>
-                               </size>
-                              </property>
-                              <property name="baseSize">
-                               <size>
-                                <width>70</width>
-                                <height>45</height>
-                               </size>
-                              </property>
-                              <property name="toolTip">
-                               <string>Run Macro 4</string>
-                              </property>
-                              <property name="text">
-                               <string>Macro4</string>
-                              </property>
-                              <property name="checkable">
-                               <bool>false</bool>
-                              </property>
-                              <property name="autoExclusive">
-                               <bool>false</bool>
-                              </property>
-                              <property name="view_change_action" stdset="0">
-                               <bool>false</bool>
-                              </property>
-                              <property name="ini_mdi_command_action" stdset="0">
-                               <bool>true</bool>
-                              </property>
-                              <property name="template_label_option" stdset="0">
-                               <bool>false</bool>
-                              </property>
-                              <property name="joint_number" stdset="0">
-                               <number>0</number>
-                              </property>
-                              <property name="incr_imperial_number" stdset="0">
-                               <double>0.010000000000000</double>
-                              </property>
-                              <property name="incr_mm_number" stdset="0">
-                               <double>0.025000000000000</double>
-                              </property>
-                              <property name="incr_angular_number" stdset="0">
-                               <double>-1.000000000000000</double>
-                              </property>
-                              <property name="toggle_float_option" stdset="0">
-                               <bool>false</bool>
-                              </property>
-                              <property name="float_num" stdset="0">
-                               <double>100.000000000000000</double>
-                              </property>
-                              <property name="float_alt_num" stdset="0">
-                               <double>50.000000000000000</double>
-                              </property>
-                              <property name="view_type_string" stdset="0">
-                               <string>p</string>
-                              </property>
-                              <property name="command_text_string" stdset="0">
-                               <string/>
-                              </property>
-                              <property name="ini_mdi_number" stdset="0">
-                               <number>4</number>
-                              </property>
-                              <property name="textTemplate" stdset="0">
-                               <string>%1.3f in</string>
-                              </property>
-                              <property name="alt_textTemplate" stdset="0">
-                               <string>%1.2f mm</string>
-                              </property>
-                             </widget>
-                            </item>
-                            <item alignment="Qt::AlignHCenter">
-                             <widget class="ActionButton" name="macrobutton5">
-                              <property name="enabled">
-                               <bool>true</bool>
-                              </property>
-                              <property name="sizePolicy">
-                               <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
-                                <horstretch>0</horstretch>
-                                <verstretch>0</verstretch>
-                               </sizepolicy>
-                              </property>
-                              <property name="minimumSize">
-                               <size>
-                                <width>70</width>
-                                <height>35</height>
-                               </size>
-                              </property>
-                              <property name="maximumSize">
-                               <size>
-                                <width>70</width>
-                                <height>54</height>
-                               </size>
-                              </property>
-                              <property name="baseSize">
-                               <size>
-                                <width>70</width>
-                                <height>45</height>
-                               </size>
-                              </property>
-                              <property name="toolTip">
-                               <string>Run Macro 5</string>
-                              </property>
-                              <property name="text">
-                               <string>Macro5</string>
-                              </property>
-                              <property name="checkable">
-                               <bool>false</bool>
-                              </property>
-                              <property name="autoExclusive">
-                               <bool>false</bool>
-                              </property>
-                              <property name="view_change_action" stdset="0">
-                               <bool>false</bool>
-                              </property>
-                              <property name="ini_mdi_command_action" stdset="0">
-                               <bool>true</bool>
-                              </property>
-                              <property name="template_label_option" stdset="0">
-                               <bool>false</bool>
-                              </property>
-                              <property name="joint_number" stdset="0">
-                               <number>0</number>
-                              </property>
-                              <property name="incr_imperial_number" stdset="0">
-                               <double>0.010000000000000</double>
-                              </property>
-                              <property name="incr_mm_number" stdset="0">
-                               <double>0.025000000000000</double>
-                              </property>
-                              <property name="incr_angular_number" stdset="0">
-                               <double>-1.000000000000000</double>
-                              </property>
-                              <property name="toggle_float_option" stdset="0">
-                               <bool>false</bool>
-                              </property>
-                              <property name="float_num" stdset="0">
-                               <double>100.000000000000000</double>
-                              </property>
-                              <property name="float_alt_num" stdset="0">
-                               <double>50.000000000000000</double>
-                              </property>
-                              <property name="view_type_string" stdset="0">
-                               <string>p</string>
-                              </property>
-                              <property name="command_text_string" stdset="0">
-                               <string/>
-                              </property>
-                              <property name="ini_mdi_number" stdset="0">
-                               <number>5</number>
-                              </property>
-                              <property name="textTemplate" stdset="0">
-                               <string>%1.3f in</string>
-                              </property>
-                              <property name="alt_textTemplate" stdset="0">
-                               <string>%1.2f mm</string>
-                              </property>
-                             </widget>
-                            </item>
-                            <item alignment="Qt::AlignHCenter">
-                             <widget class="ActionButton" name="macrobutton6">
-                              <property name="enabled">
-                               <bool>true</bool>
-                              </property>
-                              <property name="sizePolicy">
-                               <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
-                                <horstretch>0</horstretch>
-                                <verstretch>0</verstretch>
-                               </sizepolicy>
-                              </property>
-                              <property name="minimumSize">
-                               <size>
-                                <width>70</width>
-                                <height>35</height>
-                               </size>
-                              </property>
-                              <property name="maximumSize">
-                               <size>
-                                <width>70</width>
-                                <height>54</height>
-                               </size>
-                              </property>
-                              <property name="baseSize">
-                               <size>
-                                <width>70</width>
-                                <height>45</height>
-                               </size>
-                              </property>
-                              <property name="toolTip">
-                               <string>Run Macro 6</string>
-                              </property>
-                              <property name="text">
-                               <string>Macro6</string>
-                              </property>
-                              <property name="checkable">
-                               <bool>false</bool>
-                              </property>
-                              <property name="autoRepeat">
-                               <bool>false</bool>
-                              </property>
-                              <property name="autoRepeatDelay">
-                               <number>300</number>
-                              </property>
-                              <property name="autoRepeatInterval">
-                               <number>100</number>
-                              </property>
-                              <property name="view_change_action" stdset="0">
-                               <bool>false</bool>
-                              </property>
-                              <property name="ini_mdi_command_action" stdset="0">
-                               <bool>true</bool>
-                              </property>
-                              <property name="template_label_option" stdset="0">
-                               <bool>false</bool>
-                              </property>
-                              <property name="joint_number" stdset="0">
-                               <number>0</number>
-                              </property>
-                              <property name="incr_imperial_number" stdset="0">
-                               <double>0.010000000000000</double>
-                              </property>
-                              <property name="incr_mm_number" stdset="0">
-                               <double>0.025000000000000</double>
-                              </property>
-                              <property name="incr_angular_number" stdset="0">
-                               <double>-1.000000000000000</double>
-                              </property>
-                              <property name="toggle_float_option" stdset="0">
-                               <bool>false</bool>
-                              </property>
-                              <property name="float_num" stdset="0">
-                               <double>100.000000000000000</double>
-                              </property>
-                              <property name="float_alt_num" stdset="0">
-                               <double>50.000000000000000</double>
-                              </property>
-                              <property name="view_type_string" stdset="0">
-                               <string>p</string>
-                              </property>
-                              <property name="command_text_string" stdset="0">
-                               <string/>
-                              </property>
-                              <property name="ini_mdi_number" stdset="0">
-                               <number>6</number>
-                              </property>
-                              <property name="textTemplate" stdset="0">
-                               <string>%1.3f in</string>
-                              </property>
-                              <property name="alt_textTemplate" stdset="0">
-                               <string>%1.2f mm</string>
-                              </property>
-                             </widget>
-                            </item>
-                            <item alignment="Qt::AlignHCenter">
-                             <widget class="ActionButton" name="macrobutton7">
-                              <property name="enabled">
-                               <bool>true</bool>
-                              </property>
-                              <property name="sizePolicy">
-                               <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
-                                <horstretch>0</horstretch>
-                                <verstretch>0</verstretch>
-                               </sizepolicy>
-                              </property>
-                              <property name="minimumSize">
-                               <size>
-                                <width>70</width>
-                                <height>35</height>
-                               </size>
-                              </property>
-                              <property name="maximumSize">
-                               <size>
-                                <width>70</width>
-                                <height>54</height>
-                               </size>
-                              </property>
-                              <property name="baseSize">
-                               <size>
-                                <width>70</width>
-                                <height>45</height>
-                               </size>
-                              </property>
-                              <property name="toolTip">
-                               <string>Run Macro 7</string>
-                              </property>
-                              <property name="text">
-                               <string>Macro7</string>
-                              </property>
-                              <property name="checkable">
-                               <bool>false</bool>
-                              </property>
-                              <property name="autoRepeat">
-                               <bool>false</bool>
-                              </property>
-                              <property name="autoRepeatDelay">
-                               <number>300</number>
-                              </property>
-                              <property name="autoRepeatInterval">
-                               <number>100</number>
-                              </property>
-                              <property name="view_change_action" stdset="0">
-                               <bool>false</bool>
-                              </property>
-                              <property name="ini_mdi_command_action" stdset="0">
-                               <bool>true</bool>
-                              </property>
-                              <property name="template_label_option" stdset="0">
-                               <bool>false</bool>
-                              </property>
-                              <property name="joint_number" stdset="0">
-                               <number>0</number>
-                              </property>
-                              <property name="incr_imperial_number" stdset="0">
-                               <double>0.010000000000000</double>
-                              </property>
-                              <property name="incr_mm_number" stdset="0">
-                               <double>0.025000000000000</double>
-                              </property>
-                              <property name="incr_angular_number" stdset="0">
-                               <double>-1.000000000000000</double>
-                              </property>
-                              <property name="toggle_float_option" stdset="0">
-                               <bool>false</bool>
-                              </property>
-                              <property name="float_num" stdset="0">
-                               <double>100.000000000000000</double>
-                              </property>
-                              <property name="float_alt_num" stdset="0">
-                               <double>50.000000000000000</double>
-                              </property>
-                              <property name="view_type_string" stdset="0">
-                               <string>p</string>
-                              </property>
-                              <property name="command_text_string" stdset="0">
-                               <string/>
-                              </property>
-                              <property name="ini_mdi_number" stdset="0">
-                               <number>7</number>
-                              </property>
-                              <property name="textTemplate" stdset="0">
-                               <string>%1.3f in</string>
-                              </property>
-                              <property name="alt_textTemplate" stdset="0">
-                               <string>%1.2f mm</string>
-                              </property>
-                             </widget>
-                            </item>
-                            <item alignment="Qt::AlignHCenter">
-                             <widget class="ActionButton" name="macrobutton8">
-                              <property name="enabled">
-                               <bool>true</bool>
-                              </property>
-                              <property name="sizePolicy">
-                               <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
-                                <horstretch>0</horstretch>
-                                <verstretch>0</verstretch>
-                               </sizepolicy>
-                              </property>
-                              <property name="minimumSize">
-                               <size>
-                                <width>70</width>
-                                <height>35</height>
-                               </size>
-                              </property>
-                              <property name="maximumSize">
-                               <size>
-                                <width>70</width>
-                                <height>54</height>
-                               </size>
-                              </property>
-                              <property name="baseSize">
-                               <size>
-                                <width>70</width>
-                                <height>45</height>
-                               </size>
-                              </property>
-                              <property name="toolTip">
-                               <string>Run Macro 8</string>
-                              </property>
-                              <property name="autoFillBackground">
-                               <bool>false</bool>
-                              </property>
-                              <property name="text">
-                               <string>Macro8</string>
-                              </property>
-                              <property name="checkable">
-                               <bool>false</bool>
-                              </property>
-                              <property name="view_change_action" stdset="0">
-                               <bool>false</bool>
-                              </property>
-                              <property name="ini_mdi_command_action" stdset="0">
-                               <bool>true</bool>
-                              </property>
-                              <property name="template_label_option" stdset="0">
-                               <bool>false</bool>
-                              </property>
-                              <property name="joint_number" stdset="0">
-                               <number>0</number>
-                              </property>
-                              <property name="incr_imperial_number" stdset="0">
-                               <double>0.010000000000000</double>
-                              </property>
-                              <property name="incr_mm_number" stdset="0">
-                               <double>0.025000000000000</double>
-                              </property>
-                              <property name="incr_angular_number" stdset="0">
-                               <double>-1.000000000000000</double>
-                              </property>
-                              <property name="toggle_float_option" stdset="0">
-                               <bool>false</bool>
-                              </property>
-                              <property name="float_num" stdset="0">
-                               <double>100.000000000000000</double>
-                              </property>
-                              <property name="float_alt_num" stdset="0">
-                               <double>50.000000000000000</double>
-                              </property>
-                              <property name="view_type_string" stdset="0">
-                               <string>p</string>
-                              </property>
-                              <property name="command_text_string" stdset="0">
-                               <string/>
-                              </property>
-                              <property name="ini_mdi_number" stdset="0">
-                               <number>8</number>
-                              </property>
-                              <property name="textTemplate" stdset="0">
-                               <string>%1.3f in</string>
-                              </property>
-                              <property name="alt_textTemplate" stdset="0">
-                               <string>%1.2f mm</string>
-                              </property>
-                             </widget>
-                            </item>
-                            <item alignment="Qt::AlignHCenter">
-                             <widget class="ActionButton" name="macrobutton9">
-                              <property name="enabled">
-                               <bool>true</bool>
-                              </property>
-                              <property name="sizePolicy">
-                               <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
-                                <horstretch>0</horstretch>
-                                <verstretch>0</verstretch>
-                               </sizepolicy>
-                              </property>
-                              <property name="minimumSize">
-                               <size>
-                                <width>70</width>
-                                <height>35</height>
-                               </size>
-                              </property>
-                              <property name="maximumSize">
-                               <size>
-                                <width>70</width>
-                                <height>54</height>
-                               </size>
-                              </property>
-                              <property name="baseSize">
-                               <size>
-                                <width>70</width>
-                                <height>45</height>
-                               </size>
-                              </property>
-                              <property name="toolTip">
-                               <string>Run Macro 9</string>
-                              </property>
-                              <property name="autoFillBackground">
-                               <bool>false</bool>
-                              </property>
-                              <property name="text">
-                               <string>Macro9</string>
-                              </property>
-                              <property name="checkable">
-                               <bool>false</bool>
-                              </property>
-                              <property name="view_change_action" stdset="0">
-                               <bool>false</bool>
-                              </property>
-                              <property name="ini_mdi_command_action" stdset="0">
-                               <bool>true</bool>
-                              </property>
-                              <property name="template_label_option" stdset="0">
-                               <bool>false</bool>
-                              </property>
-                              <property name="joint_number" stdset="0">
-                               <number>0</number>
-                              </property>
-                              <property name="incr_imperial_number" stdset="0">
-                               <double>0.010000000000000</double>
-                              </property>
-                              <property name="incr_mm_number" stdset="0">
-                               <double>0.025000000000000</double>
-                              </property>
-                              <property name="incr_angular_number" stdset="0">
-                               <double>-1.000000000000000</double>
-                              </property>
-                              <property name="toggle_float_option" stdset="0">
-                               <bool>false</bool>
-                              </property>
-                              <property name="float_num" stdset="0">
-                               <double>100.000000000000000</double>
-                              </property>
-                              <property name="float_alt_num" stdset="0">
-                               <double>50.000000000000000</double>
-                              </property>
-                              <property name="view_type_string" stdset="0">
-                               <string>p</string>
-                              </property>
-                              <property name="command_text_string" stdset="0">
-                               <string/>
-                              </property>
-                              <property name="ini_mdi_number" stdset="0">
-                               <number>9</number>
-                              </property>
-                              <property name="textTemplate" stdset="0">
-                               <string>%1.3f in</string>
-                              </property>
-                              <property name="alt_textTemplate" stdset="0">
-                               <string>%1.2f mm</string>
-                              </property>
-                             </widget>
-                            </item>
-                            <item>
-                             <spacer name="verticalSpacer_25">
-                              <property name="orientation">
-                               <enum>Qt::Vertical</enum>
-                              </property>
-                              <property name="sizeHint" stdset="0">
-                               <size>
-                                <width>20</width>
-                                <height>26</height>
-                               </size>
-                              </property>
-                             </spacer>
-                            </item>
-                           </layout>
                           </widget>
                          </item>
                         </layout>
@@ -8613,6 +7660,959 @@ LOG</string>
                          </item>
                         </layout>
                        </widget>
+                      </widget>
+                     </item>
+                     <item>
+                      <widget class="QWidget" name="frame_macro_buttons" native="true">
+                       <property name="enabled">
+                        <bool>true</bool>
+                       </property>
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="minimumSize">
+                        <size>
+                         <width>74</width>
+                         <height>0</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>74</width>
+                         <height>16777215</height>
+                        </size>
+                       </property>
+                       <layout class="QVBoxLayout" name="verticalLayout_52">
+                        <property name="spacing">
+                         <number>4</number>
+                        </property>
+                        <property name="leftMargin">
+                         <number>0</number>
+                        </property>
+                        <property name="topMargin">
+                         <number>4</number>
+                        </property>
+                        <property name="rightMargin">
+                         <number>4</number>
+                        </property>
+                        <property name="bottomMargin">
+                         <number>0</number>
+                        </property>
+                        <item alignment="Qt::AlignHCenter">
+                         <widget class="ActionButton" name="macrobutton0">
+                          <property name="enabled">
+                           <bool>true</bool>
+                          </property>
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="minimumSize">
+                           <size>
+                            <width>70</width>
+                            <height>35</height>
+                           </size>
+                          </property>
+                          <property name="maximumSize">
+                           <size>
+                            <width>70</width>
+                            <height>54</height>
+                           </size>
+                          </property>
+                          <property name="baseSize">
+                           <size>
+                            <width>70</width>
+                            <height>45</height>
+                           </size>
+                          </property>
+                          <property name="toolTip">
+                           <string>Run Macro 0</string>
+                          </property>
+                          <property name="layoutDirection">
+                           <enum>Qt::LeftToRight</enum>
+                          </property>
+                          <property name="text">
+                           <string>Macro0</string>
+                          </property>
+                          <property name="checkable">
+                           <bool>false</bool>
+                          </property>
+                          <property name="autoExclusive">
+                           <bool>false</bool>
+                          </property>
+                          <property name="view_change_action" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="ini_mdi_command_action" stdset="0">
+                           <bool>true</bool>
+                          </property>
+                          <property name="template_label_option" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="joint_number" stdset="0">
+                           <number>0</number>
+                          </property>
+                          <property name="incr_imperial_number" stdset="0">
+                           <double>0.010000000000000</double>
+                          </property>
+                          <property name="incr_mm_number" stdset="0">
+                           <double>0.025000000000000</double>
+                          </property>
+                          <property name="incr_angular_number" stdset="0">
+                           <double>-1.000000000000000</double>
+                          </property>
+                          <property name="toggle_float_option" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="float_num" stdset="0">
+                           <double>100.000000000000000</double>
+                          </property>
+                          <property name="float_alt_num" stdset="0">
+                           <double>50.000000000000000</double>
+                          </property>
+                          <property name="view_type_string" stdset="0">
+                           <string>p</string>
+                          </property>
+                          <property name="command_text_string" stdset="0">
+                           <string/>
+                          </property>
+                          <property name="ini_mdi_number" stdset="0">
+                           <number>0</number>
+                          </property>
+                          <property name="textTemplate" stdset="0">
+                           <string>%1.3f in</string>
+                          </property>
+                          <property name="alt_textTemplate" stdset="0">
+                           <string>%1.2f mm</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item alignment="Qt::AlignHCenter">
+                         <widget class="ActionButton" name="macrobutton1">
+                          <property name="enabled">
+                           <bool>true</bool>
+                          </property>
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="minimumSize">
+                           <size>
+                            <width>70</width>
+                            <height>35</height>
+                           </size>
+                          </property>
+                          <property name="maximumSize">
+                           <size>
+                            <width>70</width>
+                            <height>54</height>
+                           </size>
+                          </property>
+                          <property name="baseSize">
+                           <size>
+                            <width>70</width>
+                            <height>45</height>
+                           </size>
+                          </property>
+                          <property name="focusPolicy">
+                           <enum>Qt::StrongFocus</enum>
+                          </property>
+                          <property name="toolTip">
+                           <string>Run Macro 1</string>
+                          </property>
+                          <property name="text">
+                           <string>Macro1</string>
+                          </property>
+                          <property name="checkable">
+                           <bool>false</bool>
+                          </property>
+                          <property name="autoExclusive">
+                           <bool>false</bool>
+                          </property>
+                          <property name="view_change_action" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="ini_mdi_command_action" stdset="0">
+                           <bool>true</bool>
+                          </property>
+                          <property name="template_label_option" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="joint_number" stdset="0">
+                           <number>0</number>
+                          </property>
+                          <property name="incr_imperial_number" stdset="0">
+                           <double>0.010000000000000</double>
+                          </property>
+                          <property name="incr_mm_number" stdset="0">
+                           <double>0.025000000000000</double>
+                          </property>
+                          <property name="incr_angular_number" stdset="0">
+                           <double>-1.000000000000000</double>
+                          </property>
+                          <property name="toggle_float_option" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="float_num" stdset="0">
+                           <double>100.000000000000000</double>
+                          </property>
+                          <property name="float_alt_num" stdset="0">
+                           <double>50.000000000000000</double>
+                          </property>
+                          <property name="view_type_string" stdset="0">
+                           <string>p</string>
+                          </property>
+                          <property name="command_text_string" stdset="0">
+                           <string/>
+                          </property>
+                          <property name="ini_mdi_number" stdset="0">
+                           <number>1</number>
+                          </property>
+                          <property name="textTemplate" stdset="0">
+                           <string>%1.3f in</string>
+                          </property>
+                          <property name="alt_textTemplate" stdset="0">
+                           <string>%1.2f mm</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item alignment="Qt::AlignHCenter">
+                         <widget class="ActionButton" name="macrobutton2">
+                          <property name="enabled">
+                           <bool>true</bool>
+                          </property>
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="minimumSize">
+                           <size>
+                            <width>70</width>
+                            <height>35</height>
+                           </size>
+                          </property>
+                          <property name="maximumSize">
+                           <size>
+                            <width>70</width>
+                            <height>54</height>
+                           </size>
+                          </property>
+                          <property name="baseSize">
+                           <size>
+                            <width>70</width>
+                            <height>45</height>
+                           </size>
+                          </property>
+                          <property name="toolTip">
+                           <string>Run Macro 2</string>
+                          </property>
+                          <property name="text">
+                           <string>Macro2</string>
+                          </property>
+                          <property name="checkable">
+                           <bool>false</bool>
+                          </property>
+                          <property name="autoExclusive">
+                           <bool>false</bool>
+                          </property>
+                          <property name="view_change_action" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="ini_mdi_command_action" stdset="0">
+                           <bool>true</bool>
+                          </property>
+                          <property name="template_label_option" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="joint_number" stdset="0">
+                           <number>0</number>
+                          </property>
+                          <property name="incr_imperial_number" stdset="0">
+                           <double>0.010000000000000</double>
+                          </property>
+                          <property name="incr_mm_number" stdset="0">
+                           <double>0.025000000000000</double>
+                          </property>
+                          <property name="incr_angular_number" stdset="0">
+                           <double>-1.000000000000000</double>
+                          </property>
+                          <property name="toggle_float_option" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="float_num" stdset="0">
+                           <double>100.000000000000000</double>
+                          </property>
+                          <property name="float_alt_num" stdset="0">
+                           <double>50.000000000000000</double>
+                          </property>
+                          <property name="view_type_string" stdset="0">
+                           <string>p</string>
+                          </property>
+                          <property name="command_text_string" stdset="0">
+                           <string/>
+                          </property>
+                          <property name="ini_mdi_number" stdset="0">
+                           <number>2</number>
+                          </property>
+                          <property name="textTemplate" stdset="0">
+                           <string>%1.3f in</string>
+                          </property>
+                          <property name="alt_textTemplate" stdset="0">
+                           <string>%1.2f mm</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item alignment="Qt::AlignHCenter">
+                         <widget class="ActionButton" name="macrobutton3">
+                          <property name="enabled">
+                           <bool>true</bool>
+                          </property>
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="minimumSize">
+                           <size>
+                            <width>70</width>
+                            <height>35</height>
+                           </size>
+                          </property>
+                          <property name="maximumSize">
+                           <size>
+                            <width>70</width>
+                            <height>54</height>
+                           </size>
+                          </property>
+                          <property name="baseSize">
+                           <size>
+                            <width>70</width>
+                            <height>45</height>
+                           </size>
+                          </property>
+                          <property name="toolTip">
+                           <string>Run Macro 3</string>
+                          </property>
+                          <property name="text">
+                           <string>Macro3</string>
+                          </property>
+                          <property name="checkable">
+                           <bool>false</bool>
+                          </property>
+                          <property name="autoExclusive">
+                           <bool>false</bool>
+                          </property>
+                          <property name="view_change_action" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="ini_mdi_command_action" stdset="0">
+                           <bool>true</bool>
+                          </property>
+                          <property name="template_label_option" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="joint_number" stdset="0">
+                           <number>0</number>
+                          </property>
+                          <property name="incr_imperial_number" stdset="0">
+                           <double>0.010000000000000</double>
+                          </property>
+                          <property name="incr_mm_number" stdset="0">
+                           <double>0.025000000000000</double>
+                          </property>
+                          <property name="incr_angular_number" stdset="0">
+                           <double>-1.000000000000000</double>
+                          </property>
+                          <property name="toggle_float_option" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="float_num" stdset="0">
+                           <double>100.000000000000000</double>
+                          </property>
+                          <property name="float_alt_num" stdset="0">
+                           <double>50.000000000000000</double>
+                          </property>
+                          <property name="view_type_string" stdset="0">
+                           <string>p</string>
+                          </property>
+                          <property name="command_text_string" stdset="0">
+                           <string/>
+                          </property>
+                          <property name="ini_mdi_number" stdset="0">
+                           <number>3</number>
+                          </property>
+                          <property name="textTemplate" stdset="0">
+                           <string>%1.3f in</string>
+                          </property>
+                          <property name="alt_textTemplate" stdset="0">
+                           <string>%1.2f mm</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item alignment="Qt::AlignHCenter">
+                         <widget class="ActionButton" name="macrobutton4">
+                          <property name="enabled">
+                           <bool>true</bool>
+                          </property>
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="minimumSize">
+                           <size>
+                            <width>70</width>
+                            <height>35</height>
+                           </size>
+                          </property>
+                          <property name="maximumSize">
+                           <size>
+                            <width>70</width>
+                            <height>54</height>
+                           </size>
+                          </property>
+                          <property name="baseSize">
+                           <size>
+                            <width>70</width>
+                            <height>45</height>
+                           </size>
+                          </property>
+                          <property name="toolTip">
+                           <string>Run Macro 4</string>
+                          </property>
+                          <property name="text">
+                           <string>Macro4</string>
+                          </property>
+                          <property name="checkable">
+                           <bool>false</bool>
+                          </property>
+                          <property name="autoExclusive">
+                           <bool>false</bool>
+                          </property>
+                          <property name="view_change_action" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="ini_mdi_command_action" stdset="0">
+                           <bool>true</bool>
+                          </property>
+                          <property name="template_label_option" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="joint_number" stdset="0">
+                           <number>0</number>
+                          </property>
+                          <property name="incr_imperial_number" stdset="0">
+                           <double>0.010000000000000</double>
+                          </property>
+                          <property name="incr_mm_number" stdset="0">
+                           <double>0.025000000000000</double>
+                          </property>
+                          <property name="incr_angular_number" stdset="0">
+                           <double>-1.000000000000000</double>
+                          </property>
+                          <property name="toggle_float_option" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="float_num" stdset="0">
+                           <double>100.000000000000000</double>
+                          </property>
+                          <property name="float_alt_num" stdset="0">
+                           <double>50.000000000000000</double>
+                          </property>
+                          <property name="view_type_string" stdset="0">
+                           <string>p</string>
+                          </property>
+                          <property name="command_text_string" stdset="0">
+                           <string/>
+                          </property>
+                          <property name="ini_mdi_number" stdset="0">
+                           <number>4</number>
+                          </property>
+                          <property name="textTemplate" stdset="0">
+                           <string>%1.3f in</string>
+                          </property>
+                          <property name="alt_textTemplate" stdset="0">
+                           <string>%1.2f mm</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item alignment="Qt::AlignHCenter">
+                         <widget class="ActionButton" name="macrobutton5">
+                          <property name="enabled">
+                           <bool>true</bool>
+                          </property>
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="minimumSize">
+                           <size>
+                            <width>70</width>
+                            <height>35</height>
+                           </size>
+                          </property>
+                          <property name="maximumSize">
+                           <size>
+                            <width>70</width>
+                            <height>54</height>
+                           </size>
+                          </property>
+                          <property name="baseSize">
+                           <size>
+                            <width>70</width>
+                            <height>45</height>
+                           </size>
+                          </property>
+                          <property name="toolTip">
+                           <string>Run Macro 5</string>
+                          </property>
+                          <property name="text">
+                           <string>Macro5</string>
+                          </property>
+                          <property name="checkable">
+                           <bool>false</bool>
+                          </property>
+                          <property name="autoExclusive">
+                           <bool>false</bool>
+                          </property>
+                          <property name="view_change_action" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="ini_mdi_command_action" stdset="0">
+                           <bool>true</bool>
+                          </property>
+                          <property name="template_label_option" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="joint_number" stdset="0">
+                           <number>0</number>
+                          </property>
+                          <property name="incr_imperial_number" stdset="0">
+                           <double>0.010000000000000</double>
+                          </property>
+                          <property name="incr_mm_number" stdset="0">
+                           <double>0.025000000000000</double>
+                          </property>
+                          <property name="incr_angular_number" stdset="0">
+                           <double>-1.000000000000000</double>
+                          </property>
+                          <property name="toggle_float_option" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="float_num" stdset="0">
+                           <double>100.000000000000000</double>
+                          </property>
+                          <property name="float_alt_num" stdset="0">
+                           <double>50.000000000000000</double>
+                          </property>
+                          <property name="view_type_string" stdset="0">
+                           <string>p</string>
+                          </property>
+                          <property name="command_text_string" stdset="0">
+                           <string/>
+                          </property>
+                          <property name="ini_mdi_number" stdset="0">
+                           <number>5</number>
+                          </property>
+                          <property name="textTemplate" stdset="0">
+                           <string>%1.3f in</string>
+                          </property>
+                          <property name="alt_textTemplate" stdset="0">
+                           <string>%1.2f mm</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item alignment="Qt::AlignHCenter">
+                         <widget class="ActionButton" name="macrobutton6">
+                          <property name="enabled">
+                           <bool>true</bool>
+                          </property>
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="minimumSize">
+                           <size>
+                            <width>70</width>
+                            <height>35</height>
+                           </size>
+                          </property>
+                          <property name="maximumSize">
+                           <size>
+                            <width>70</width>
+                            <height>54</height>
+                           </size>
+                          </property>
+                          <property name="baseSize">
+                           <size>
+                            <width>70</width>
+                            <height>45</height>
+                           </size>
+                          </property>
+                          <property name="toolTip">
+                           <string>Run Macro 6</string>
+                          </property>
+                          <property name="text">
+                           <string>Macro6</string>
+                          </property>
+                          <property name="checkable">
+                           <bool>false</bool>
+                          </property>
+                          <property name="autoRepeat">
+                           <bool>false</bool>
+                          </property>
+                          <property name="autoRepeatDelay">
+                           <number>300</number>
+                          </property>
+                          <property name="autoRepeatInterval">
+                           <number>100</number>
+                          </property>
+                          <property name="view_change_action" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="ini_mdi_command_action" stdset="0">
+                           <bool>true</bool>
+                          </property>
+                          <property name="template_label_option" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="joint_number" stdset="0">
+                           <number>0</number>
+                          </property>
+                          <property name="incr_imperial_number" stdset="0">
+                           <double>0.010000000000000</double>
+                          </property>
+                          <property name="incr_mm_number" stdset="0">
+                           <double>0.025000000000000</double>
+                          </property>
+                          <property name="incr_angular_number" stdset="0">
+                           <double>-1.000000000000000</double>
+                          </property>
+                          <property name="toggle_float_option" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="float_num" stdset="0">
+                           <double>100.000000000000000</double>
+                          </property>
+                          <property name="float_alt_num" stdset="0">
+                           <double>50.000000000000000</double>
+                          </property>
+                          <property name="view_type_string" stdset="0">
+                           <string>p</string>
+                          </property>
+                          <property name="command_text_string" stdset="0">
+                           <string/>
+                          </property>
+                          <property name="ini_mdi_number" stdset="0">
+                           <number>6</number>
+                          </property>
+                          <property name="textTemplate" stdset="0">
+                           <string>%1.3f in</string>
+                          </property>
+                          <property name="alt_textTemplate" stdset="0">
+                           <string>%1.2f mm</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item alignment="Qt::AlignHCenter">
+                         <widget class="ActionButton" name="macrobutton7">
+                          <property name="enabled">
+                           <bool>true</bool>
+                          </property>
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="minimumSize">
+                           <size>
+                            <width>70</width>
+                            <height>35</height>
+                           </size>
+                          </property>
+                          <property name="maximumSize">
+                           <size>
+                            <width>70</width>
+                            <height>54</height>
+                           </size>
+                          </property>
+                          <property name="baseSize">
+                           <size>
+                            <width>70</width>
+                            <height>45</height>
+                           </size>
+                          </property>
+                          <property name="toolTip">
+                           <string>Run Macro 7</string>
+                          </property>
+                          <property name="text">
+                           <string>Macro7</string>
+                          </property>
+                          <property name="checkable">
+                           <bool>false</bool>
+                          </property>
+                          <property name="autoRepeat">
+                           <bool>false</bool>
+                          </property>
+                          <property name="autoRepeatDelay">
+                           <number>300</number>
+                          </property>
+                          <property name="autoRepeatInterval">
+                           <number>100</number>
+                          </property>
+                          <property name="view_change_action" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="ini_mdi_command_action" stdset="0">
+                           <bool>true</bool>
+                          </property>
+                          <property name="template_label_option" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="joint_number" stdset="0">
+                           <number>0</number>
+                          </property>
+                          <property name="incr_imperial_number" stdset="0">
+                           <double>0.010000000000000</double>
+                          </property>
+                          <property name="incr_mm_number" stdset="0">
+                           <double>0.025000000000000</double>
+                          </property>
+                          <property name="incr_angular_number" stdset="0">
+                           <double>-1.000000000000000</double>
+                          </property>
+                          <property name="toggle_float_option" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="float_num" stdset="0">
+                           <double>100.000000000000000</double>
+                          </property>
+                          <property name="float_alt_num" stdset="0">
+                           <double>50.000000000000000</double>
+                          </property>
+                          <property name="view_type_string" stdset="0">
+                           <string>p</string>
+                          </property>
+                          <property name="command_text_string" stdset="0">
+                           <string/>
+                          </property>
+                          <property name="ini_mdi_number" stdset="0">
+                           <number>7</number>
+                          </property>
+                          <property name="textTemplate" stdset="0">
+                           <string>%1.3f in</string>
+                          </property>
+                          <property name="alt_textTemplate" stdset="0">
+                           <string>%1.2f mm</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item alignment="Qt::AlignHCenter">
+                         <widget class="ActionButton" name="macrobutton8">
+                          <property name="enabled">
+                           <bool>true</bool>
+                          </property>
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="minimumSize">
+                           <size>
+                            <width>70</width>
+                            <height>35</height>
+                           </size>
+                          </property>
+                          <property name="maximumSize">
+                           <size>
+                            <width>70</width>
+                            <height>54</height>
+                           </size>
+                          </property>
+                          <property name="baseSize">
+                           <size>
+                            <width>70</width>
+                            <height>45</height>
+                           </size>
+                          </property>
+                          <property name="toolTip">
+                           <string>Run Macro 8</string>
+                          </property>
+                          <property name="autoFillBackground">
+                           <bool>false</bool>
+                          </property>
+                          <property name="text">
+                           <string>Macro8</string>
+                          </property>
+                          <property name="checkable">
+                           <bool>false</bool>
+                          </property>
+                          <property name="view_change_action" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="ini_mdi_command_action" stdset="0">
+                           <bool>true</bool>
+                          </property>
+                          <property name="template_label_option" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="joint_number" stdset="0">
+                           <number>0</number>
+                          </property>
+                          <property name="incr_imperial_number" stdset="0">
+                           <double>0.010000000000000</double>
+                          </property>
+                          <property name="incr_mm_number" stdset="0">
+                           <double>0.025000000000000</double>
+                          </property>
+                          <property name="incr_angular_number" stdset="0">
+                           <double>-1.000000000000000</double>
+                          </property>
+                          <property name="toggle_float_option" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="float_num" stdset="0">
+                           <double>100.000000000000000</double>
+                          </property>
+                          <property name="float_alt_num" stdset="0">
+                           <double>50.000000000000000</double>
+                          </property>
+                          <property name="view_type_string" stdset="0">
+                           <string>p</string>
+                          </property>
+                          <property name="command_text_string" stdset="0">
+                           <string/>
+                          </property>
+                          <property name="ini_mdi_number" stdset="0">
+                           <number>8</number>
+                          </property>
+                          <property name="textTemplate" stdset="0">
+                           <string>%1.3f in</string>
+                          </property>
+                          <property name="alt_textTemplate" stdset="0">
+                           <string>%1.2f mm</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item alignment="Qt::AlignHCenter">
+                         <widget class="ActionButton" name="macrobutton9">
+                          <property name="enabled">
+                           <bool>true</bool>
+                          </property>
+                          <property name="sizePolicy">
+                           <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                           </sizepolicy>
+                          </property>
+                          <property name="minimumSize">
+                           <size>
+                            <width>70</width>
+                            <height>35</height>
+                           </size>
+                          </property>
+                          <property name="maximumSize">
+                           <size>
+                            <width>70</width>
+                            <height>54</height>
+                           </size>
+                          </property>
+                          <property name="baseSize">
+                           <size>
+                            <width>70</width>
+                            <height>45</height>
+                           </size>
+                          </property>
+                          <property name="toolTip">
+                           <string>Run Macro 9</string>
+                          </property>
+                          <property name="autoFillBackground">
+                           <bool>false</bool>
+                          </property>
+                          <property name="text">
+                           <string>Macro9</string>
+                          </property>
+                          <property name="checkable">
+                           <bool>false</bool>
+                          </property>
+                          <property name="view_change_action" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="ini_mdi_command_action" stdset="0">
+                           <bool>true</bool>
+                          </property>
+                          <property name="template_label_option" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="joint_number" stdset="0">
+                           <number>0</number>
+                          </property>
+                          <property name="incr_imperial_number" stdset="0">
+                           <double>0.010000000000000</double>
+                          </property>
+                          <property name="incr_mm_number" stdset="0">
+                           <double>0.025000000000000</double>
+                          </property>
+                          <property name="incr_angular_number" stdset="0">
+                           <double>-1.000000000000000</double>
+                          </property>
+                          <property name="toggle_float_option" stdset="0">
+                           <bool>false</bool>
+                          </property>
+                          <property name="float_num" stdset="0">
+                           <double>100.000000000000000</double>
+                          </property>
+                          <property name="float_alt_num" stdset="0">
+                           <double>50.000000000000000</double>
+                          </property>
+                          <property name="view_type_string" stdset="0">
+                           <string>p</string>
+                          </property>
+                          <property name="command_text_string" stdset="0">
+                           <string/>
+                          </property>
+                          <property name="ini_mdi_number" stdset="0">
+                           <number>9</number>
+                          </property>
+                          <property name="textTemplate" stdset="0">
+                           <string>%1.3f in</string>
+                          </property>
+                          <property name="alt_textTemplate" stdset="0">
+                           <string>%1.2f mm</string>
+                          </property>
+                         </widget>
+                        </item>
+                        <item>
+                         <spacer name="verticalSpacer_25">
+                          <property name="orientation">
+                           <enum>Qt::Vertical</enum>
+                          </property>
+                          <property name="sizeHint" stdset="0">
+                           <size>
+                            <width>20</width>
+                            <height>26</height>
+                           </size>
+                          </property>
+                         </spacer>
+                        </item>
+                       </layout>
                       </widget>
                      </item>
                     </layout>
@@ -17422,7 +17422,7 @@ ZERO</string>
             <number>2</number>
            </property>
            <property name="text">
-            <string>06:31:29 PM</string>
+            <string>08:26:06 PM</string>
            </property>
            <property name="alignment">
             <set>Qt::AlignCenter</set>

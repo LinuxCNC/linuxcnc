@@ -8,7 +8,7 @@
 
 The minimum system to run LinuxCNC and Debian / Ubuntu may vary depending
 on the exact usage. Stepper systems in general require faster threads to
-generate step pulses than servo systems. You can use the Live-CD to test
+generate step pulses than servo systems. You can use the Live CD to test
 the software before committing to a permanent installation on a computer.
 Keep in mind that the Latency Test numbers are more important than the
 processor speed for software step generation. More information on the
@@ -25,32 +25,34 @@ the following minimum hardware specification. These numbers are not the
 absolute minimum but will give reasonable performance for most stepper
 systems.
 
-* 700 MHz x86 processor (1.2 GHz x86 processor recommended) or Raspberry
-  Pi 4 or better.
-* To run LinuxCNC 2.8 and Debian Buster from the LiveCD the system should
-  be 64-bit capable.
-* 512 MB or more of RAM
-* 8 GB hard disk
-* Graphics card capable of at least 1024x768 resolution, which is not
-  using the NVidia or ATI fglrx proprietary drivers. Modern onboard
-  graphic chipsets seem to generally be OK.
-* A network or Internet connection (not strictly needed, but very useful
-  for updates and for communicating with the LinuxCNC community)
+* 700 MHz x86 processor (1.2 GHz x86 processor recommended) or Raspberry Pi 4 or better.
+* LinuxCNC 2.8 or later from the Live CD expects a 64-bit capable system.
+* 512 MB of RAM, 4 GB with GUI to avoid surprises
+* No hard disk for Live CD, 8 GB or more for permanent installation
+* Graphics card capable of at least 1024x768 resolution, which is not using the NVidia or ATI fglrx proprietary drivers.
+  Modern onboard graphic chipsets seem to generally be OK.
+* Internet connection (not strictly needed, but very useful for updates and for communicating with the LinuxCNC community)
 
 Minimum hardware requirements change as Linux distributions evolve so
 check the https://www.debian.org/releases/stable/amd64/ch02.en.html[Debian]
-web site for details on the LiveCD you're using. Older hardware may
-benefit from selecting an older version of the LiveCD when available.
+web site for details on the Live CD you're using. Older hardware may
+benefit from selecting an older version of the Live CD when available.
+
+If you plan not to rely on the distribution of readily executable programs ("binaries")
+but aim at contributing to the source tree of LinuxCNC, then there is a good chance
+you want a second computer to perform the compilation. Even though LinuxCNC and
+your developments could likely be executed at the same time with respect to disk space,
+RAM and even CPU speed, a machine that is busy will have worse latencies, so you are
+unlikely to compile your source tree and produce chips at the same time.
 
 [[sec:kernel_and_version_requirements]]
 == Kernel and Version requirements
 
-LinuxCNC requires a kernel modified for realtime use to control real
-machine hardware. It can, however run on a standard kernel in simulation
-mode for purposes such as checking G-code, testing config files and
-learning the system.
-To work with these kernel versions there are two versions of LinuxCNC
-distributed. The package names are "linuxcnc" and "linuxcnc-uspace".
+LinuxCNC requires a kernel modified for realtime use to control real machine hardware.
+It can, however run on a standard kernel in simulation mode for purposes
+such as checking G-code, testing config files and learning the system.
+To work with these kernel versions there are two versions of LinuxCNC distributed.
+The package names are "linuxcnc" and "linuxcnc-uspace".
 
 The realtime kernel options are preempt-rt, RTAI and Xenomai.
 
@@ -95,16 +97,15 @@ and compile LinuxCNC from source to utilise it.
 
 === RTAI with 'linuxcnc-uspace' package
 
-It is also possible to run LinuxCNC with RTAI in user-space mode. As
-with Xenomai you will need to compile from source to do this.
+It is also possible to run LinuxCNC with RTAI in user-space mode.
+As with Xenomai you will need to compile from source to do this.
 
 == Problematic Hardware
 
 === Laptops
 
-Laptops are not generally suited to real time software step
-generation. Again a Latency Test run for an extended time will give you
-the info you need to determine suitability.
+Laptops are not generally suited to real time software step generation.
+Again a Latency Test run for an extended time will give you the info you need to determine suitability.
 
 === Video Cards
 

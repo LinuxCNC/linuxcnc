@@ -91,7 +91,7 @@ see the <<sub:realtime,Realtime>> section below), one extra build step is needed
 $ sudo make setuid
 -----
 
-After you've successfully built LinuxCNC it's time to run the tests:
+After you have successfully built LinuxCNC it is time to run the tests:
 
 -----
 $ source ../scripts/rip-environment
@@ -176,6 +176,7 @@ The most commonly used arguments are:
   Build for any realtime platform, or for non-realtime.
   The resulting LinuxCNC executables will run on both a Linux kernel with Preempt-RT patches (providing realtime machine control) and
   on a vanilla (un-patched) Linux kernel (providing G-code simulation but no realtime machine control).
+
   If development files are installed for Xenomai (typically from package libxenomai-dev) or RTAI (typically from a package with a name starting "rtai-modules"),
   support for these real-time kernels will also be enabled.
 
@@ -204,6 +205,7 @@ Parallel compilation::
   This enables parallel compilation with N simultaneous processes, which can significantly speed up your build.
 +
 A useful value for _N_ is the number of CPUs in your build system.
+
 You can discover the number of CPUs by running `nproc`.
 
 Building just a specific target::
@@ -217,10 +219,20 @@ $ make ../bin/froboz
 
 === Building Debian Packages
 
-When building Debian packages, the LinuxCNC programs are compiled from source and then stored in several Debian packages.
-of themselves that describes what the package is providing and what other packages are also required to be installed
-to make use of what the package provides, i.e. the run-time dependencies.
-The programs cannot be used until the Debian package is installed on a target machine.
+When building Debian packages, the LinuxCNC programs are compiled from source
+and then stored in a Debian package, complete with dependency information.
+This process by default also includes the building of the documentation,
+which takes its time because of all the I/O for many languages, but that
+can be skipped. LinuxCNC is then installed as part of those packages on the
+same machines or on whatever machine of the same architecture that  the .deb
+files are copied to. LinuxCNC cannot be run until the Debian packages
+are installed on a target machine and then the executables are available
+in /usr/bin and /usr/lib just like other regular software of the sytem.
+
+This build mode is primarily useful when packaging the software for
+delivery to end users, and when building the software for a machine
+that does not have the build environment installed, or that does not have
+internet access.
 
 To build packages is primarily useful when packaging the software for delivery to end users.
 Developers among themselves exchange only the source code, likely supported by the LinuxCNC GitHub repository referenced below.
@@ -242,17 +254,18 @@ Once those prerequisites are met, building the Debian packages consists of two s
 The first step is generating the Debian package scripts and meta-data from the git repo by running this:
 
 ----
-$ cd linuxcnc-source-dir/debian
-$ ./configure uspace
-$ cd ..
+$ cd linuxcnc-dev
+$ ./debian/configure
 ----
 
 [NOTE]
 ====
 The `debian/configure` script is different from the `src/configure` script!
 
-The `debian/configure` script needs different arguments depending on the platform you're building on/for,
+The `debian/configure` accepts arguments depending on the platform you are building on/for,
 see the <<debian-configure-arguments, `debian/configure` arguments>> section.
+It defaults to LinuxCNC running in user space ("uspace"), expecting the preempt_rt kernel
+to minimize latencies.
 ====
 
 Once the Debian package scripts and meta-data are configured, build the package by running `dpkg-buildpackage`:
@@ -310,16 +323,50 @@ If you want just the traditional RTAI "kernel module" realtime, use `-r` or `$KE
 [[Satisfying-Build-Dependencies]]
 ==== Satisfying Build Dependencies
 
-On Debian-based platforms we provide packaging meta-data that knows what
-external software packages need to be installed in order to build LinuxCNC.
-This is called the Build Dependencies of LinuxCNC.
-These differ between platforms that LinuxCNC is configured for.
-So first run the following code sniplet in the root of your LinuxCNC git checkout to generate its Debian package meta-data:
+On Debian-based platforms we provide packaging meta-data that knows
+what external software packages need to be installed in order to build LinuxCNC.
+These are referred to as the _build dependencies_ of LinuxCNC, i.e. those
+packages that need to be available such that
+* the build succeeds and
+* the build can be built reproducibly.
+
+You can use this meta-data to easily list the required packages missing from your build system.
+First, go to the source tree of LinuxCNC and initiate its default self-configuration,
+if not already performed:
 
 -----
-$ cd linuxcnc-source-dir/debian
-$ ./configure uspace
-$ cd ..
+$ cd linuxcnc-dev
+$ ./debian/configure
+-----
+
+This will prepare the file debian/control that contains lists of Debian packages
+to create with the runtime dependencies for those packages and for our cause also
+the build-dependencies for those to-be-created packages.
+
+The most straightforward way to get all build-dependencies installed is to just
+execute (from the same directory):
+
+----
+sudo apt-get build-dep .
+----
+
+which will install all the dependencies required but available.
+The '.' is part of the command line, i.e. an instruction to retrieve the dependencies
+for the source tree at hand, not for dependencies of another package.
+This completes the installation of build-dependencies.
+
+The remainder of this section describes a semi-manual approach.
+The list of dependencies in debian/control is long and it is tedious
+to compare the current state of packages already installed with it.
+Debian systems provide a program called `dpkg-checkbuilddeps` that
+parses the package meta-data and compares the packages listed as build
+dependencies against the list of installed packages, and tells you
+what's missing.
+
+First, install the `dpkg-checkbuilddeps` program by running:
+
+-----
+$ sudo apt-get install dpkg-dev
 -----
 
 This generates the file `debian/control` in a user-readable yaml-format

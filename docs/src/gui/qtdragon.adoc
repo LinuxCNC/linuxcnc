@@ -72,8 +72,7 @@ DISPLAY = qtvcp qtdragon
 
 To keep track of preferences, QtDragon looks for a preference text file.
 Add the following entry under the `[DISPLAY]` heading. +
-It can use `~` for home directory or `WORKINGFOLDER` or `CONFIGFOLDER`
- to represent QtVCP's idea of those directories: +
+It can use `~` for home directory or `WORKINGFOLDER` or `CONFIGFOLDER` to represent QtVCP's idea of those directories: +
 This example will save the file in the config folder of the launch screen.
 (Other options are possible see the QtVCP's screenoption widget docs.)
 
@@ -484,6 +483,16 @@ You would connect it to `spindle.0.inhibit`.
 qtdragon.spindle-inhibit
 ----
 
+QtDragon spindle speed display and spindle-at-speed LED require that
+ `spindle.0.speed-in` be connected to spindle speed feedback. +
+Encoder or VFD feedback could be used, as long as the feedback is in revolutions per second (RPS). +
+If no feedback is available you can have the display show the requested speed by connecting pins like so:
+
+[source,{hal}]
+----
+net spindle-speed-feedback spindle.0.speed-out-rps => spindle.0.speed-in 
+----
+
 This bit output pin can be connected to turn on a laser:
 
 [source,{hal}]
@@ -830,7 +839,7 @@ Sequence after pressing the probe button: +
 . probe wall twice (rough and fine),
 . move diagonally to the other wall as set by EDGE WIDTH and XY CLEARANCE,
 . probe wall twice,
-. raise probe up by Z CLEARANCE + EXTRA DEPTH 9returns to starting height),
+. raise probe up by Z CLEARANCE + EXTRA DEPTH (returns to starting height),
 . rapid back to starting corner (now calculated using the probed walls),
 . if auto zero button is enabled, set X and Y of the current user system to zero.
 
@@ -899,10 +908,10 @@ The sequence of events (using the default files):
 * Return Z to position defined in the INI's [TOOL_CHANGE] Z
 
 [NOTE]
-The [TOOL_CHANGE] Z position should be high enough so the tool will not hit the tool probe 
+The [TOOL_CHANGE] Z position should be high enough so the tool will not hit the tool probe
 when moving to the [VERSA_TOOLSETTER] X and Y position.
 MAXPROBE distance needs to be high enough for the tool to touch the probe.
- 
+
 === Work Piece Height Probing
 
 .QtDragon_hd - Work piece Height probing
@@ -988,7 +997,7 @@ USE_PROBE = basicprobe
 <<sub:remap:sec:error-handling, Remap Abort Details>>
 
 [NOTE]
-These default entries should work fine in most situations. Some systems may need to use 'linuxcnc/nc_files/examples/' 
+These default entries should work fine in most situations. Some systems may need to use 'linuxcnc/nc_files/examples/'
 instead of 'linuxcnc/nc_files/'. please check that paths are valid. Custom entries pointing to modified file are possible.
 
 [source,{ini}]
@@ -1059,11 +1068,12 @@ Z = -2
 ==== The Python Section
 
 The Python section sets up what files LinuxCNC's Python interpreter looks for, e.g., `toplevel.py` file in the `python` folder in the configuration directory:
-These default entries should work fine in most situations. Some systems may need to use 'linuxcnc/nc_files/examples/' 
-instead of 'linuxcnc/nc_files/'. Custom entries pointing to modified file are possible.
+These default entries should work fine in most situations. Some systems may need to use 'linuxcnc/nc_files/examples/' instead of 'linuxcnc/nc_files/'.
+Custom entries pointing to modified file are possible.
+
 [source,{ini}]
 ----
-# The path start point for all remap searches ie. python's sys.path.append() 
+# The path start point for all remap searches, i.e. Python's sys.path.append()
 PATH_APPEND = ~/linuxcnc/nc_files/remap_lib/python-stdglue/python
 # path to the tremap's 'toplevel file
 TOPLEVEL = ~/linuxcnc/nc_files/remap_lib/python-stdglue/python/toplevel.py
@@ -1158,9 +1168,20 @@ QtDragon_hd will also show a smaller graphics display window.
 
 === Camview Tab
 
-If the recognized webcam is connected, this tab will display the video image overlayed with a cross-hair, circle and degree readout.
+If the recognized webcam is connected, this tab will display the video image overlaid with a cross-hair, circle and degree readout.
 This can be adjusted to suit a part feature for such things as touchoff.
-The underlying library uses openCV Python module to connect to the webcam.
+The underlying library uses openCV Python module to connect to the webcam. +
+To adjust the X or Y size aspect ratio, or camera number, look in the preference file for: +
+
+----
+[CUSTOM_FORM_ENTRIES]
+Camview xscale = 100
+Camview yscale = 100
+Camview cam number = 0
+----
+
+These are in percent, usually the range will be 100 - 200 in one axis. +
+The preference file can only be edited when QtDragon is not running.
 
 === G-codes Tab
 
@@ -1176,14 +1197,14 @@ You can also write your own HTML docs with the included SetUp Writer button. +
 There are three sub tabs:
 
 * 'HTML' - any loaded HTML pages are displayed here. The navigation buttons work on this page.
-* 'PDF' - any loaded PDF setup pages are displayed here
-* 'PROPERTIES' - when a program is loaded its gcode properties are displayed here.
+* 'PDF' - any loaded PDF setup pages are displayed here.
+* 'PROPERTIES' - when a program is loaded its G-code properties are displayed here.
 
 There are navigation buttons for HTML page:
 
-* The up arrow returns you to the default HTML page
-* The left arrow moves backward one HTML page
-* The right arrow moves forward one HTML page
+* The up arrow returns you to the default HTML page.
+* The left arrow moves backward one HTML page.
+* The right arrow moves forward one HTML page.
 
 If you wish to include a custom default HTML page, name it 'default_setup.html' and place it in your configuration folder. +
 Custom QtVCP panels can be displayed in this tab by setting the EMBED_TAB_LOCATION option to 'tabWidget_setup'.
@@ -1199,7 +1220,7 @@ The settings tab is used to set running options, probing/touchplate/laser/camera
 
 This tabs will display another stab election of G-code utility programs:
 
-* 'Facing': allows quick face milling of a definable area at angles of 0,45 and 90 degrees
+* 'Facing': allows quick face milling of a definable area at angles of 0,45 and 90 degrees.
 * 'Hole Circle': allows quick setting of a program to drill a bolt circle of definable diameter and number of holes.
 * 'NGCGUI': is a QtVCP version of the popular G-code subroutine builder/selector, see <<sub:qtvcp:widgets:qt-ngcgui,Widgets-NGCGUI>>.
 

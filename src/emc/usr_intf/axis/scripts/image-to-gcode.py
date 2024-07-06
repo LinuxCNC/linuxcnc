@@ -519,7 +519,7 @@ def ui(im, nim, im_name):
     nw = int(w / max(r1, r2))
     nh = int(h / max(r1, r2))
 
-    ui_image = im.resize((nw,nh), Image.ANTIALIAS)
+    ui_image = im.resize((nw,nh), Image.LANCZOS)
     ui_image = ImageTk.PhotoImage(ui_image, master = app)
     i = tkinter.Label(app, image=ui_image, compound="top",
         text=_("Image size: %(w)d x %(h)d pixels\n"
@@ -769,7 +769,7 @@ def main():
     im = im.convert("L") #grayscale
     w, h = im.size
 
-    nim = numpy.fromstring(tobytes(im), dtype=numpy.uint8).reshape((h, w)).astype(numpy.float32)
+    nim = numpy.frombuffer(tobytes(im), dtype=numpy.uint8).reshape((h, w)).astype(numpy.float32)
     options = ui(im, nim, im_name)
 
     step = options['pixelstep']

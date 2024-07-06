@@ -364,12 +364,15 @@ if __name__ == "__main__":
          baud = p
       elif o in ['-h','--help']:
         print('Mitsubishi VFD COMPUTER-LINK interface')
-        print('This does NOT use the MODBUS protocol.')
-        print(' User space component for controlling a mitsubishi inverter over the serial port using the rs485 standard')
-        print(' specifically the A500 F500 E500 A500 D700 E700 F700 series - others may work or need small adjustments')
+        print()
+        print(' This does NOT use the MODBUS protocol.')
+        print(' This is a user space component for controlling a mitsubishi inverter over the serial port using the rs485 standard')
+        print(' Specifically for the A500 F500 E500 A500 D700 E700 F700 series - others may work or need small adjustments.')
         print(''' I referenced manual 'communication option reference manual' and A500 technical manual for 500 series.''')
-        print(''' 'Fr-A700 F700 E700 D700 technical manual' for the 700 series''')
-        print() 
+        print(''' Fr-A700 F700 E700 D700 technical manual' for the 700 series''')
+        print()
+        print('#################################################################################')
+        print()
         print(' The inverter must be set manually for communication ( you may have to set PR 77 to 1 to unlock PR modification )')
         print(' You must power cycle the inverter for some of these to register eg 79')
         print(' PR 79 - 1 or 0                          sets the inverter to respond to the PU/computer-link')
@@ -388,12 +391,25 @@ This driver assumes certain other VFD settings:
 -That the status bit 3 is up to speed
 -That the status bit 7 is alarm
 ''')
-        print()
+        print('''#################################################################################
+
+You must have permission to use the serial port - on some systems this may require
+commands similar to this:
+
+sudo su
+<type your password>
+cd /
+cd dev
+chown <username> ttyUSB0
+
+#################################################################################
+''')
         print('''some models (eg E500) cannot monitor status -set the monitor pin to false
 in this case pins such as up-to-speed, amps, alarm and status bits are not useful.
 ''')
         print('''HAL command used to load: ''')
-        print('''loadusr mitsub_vfd --baud 4800 --port /dev/ttyUSB0 NAME=SLAVE_NUMBER 
+        print('''loadusr mitsub_vfd --baud 4800 --port /dev/ttyUSB0 NAME=SLAVE_NUMBER
+
         -NAME is user selectable (usually a description of controlled device)
         -SLAVE_NUMBER is the slave number that was set on the VFD
         -NAME=SLAVE_NUMBER can be repeated for multiple VFD's connected together
@@ -401,7 +417,10 @@ in this case pins such as up-to-speed, amps, alarm and status bits are not usefu
         all networked vfds must be set to the same baudrate
         --port is optional as it defaults to ttyS0''')
         print()
+        print('#################################################################################')
+        print()
         print(''' Sample linuxcnc code
+
 loadusr -Wn coolant mitsub_vfd spindle=02 coolant=01
 # **************** Spindle VFD setup slave 2 *********************
 net spindle-vel-cmd               spindle.motor-cmd

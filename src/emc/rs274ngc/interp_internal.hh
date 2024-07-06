@@ -638,7 +638,7 @@ and is not represented here
 
 */
 #define STACK_LEN 50
-#define STACK_ENTRY_LEN 80
+#define STACK_ENTRY_LEN 256
 #define MAX_SUB_DIRS 10
 
 struct setup

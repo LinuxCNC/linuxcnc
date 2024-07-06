@@ -25,6 +25,8 @@ LOG = logger.getLogger(__name__)
 # Set the log level for this module
 #LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
+VERSION = '1.0'
+
 ###########################################
 # **** instantiate libraries section **** #
 ###########################################
@@ -173,6 +175,11 @@ class HandlerClass:
             self.w.dro_label_g53_y.setVisible(False)
 
         self.restoreSettings()
+
+        message = "--- QtAxis Version {} on Linuxcnc {} ---".format(
+            VERSION, STATUS.get_linuxcnc_version())
+        STATUS.emit('update-machine-log', message, None)
+
         #QtWidgets.QApplication.instance().event_filter.focusIn.connect(self.focusInChanged)
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):

@@ -605,6 +605,8 @@ After running a new configuration for the first time the following files will be
 |===
 |Filename                    |Function
 |<machine_name>_material.cfg |File for storing the material settings from the MATERIAL section of the <<plasma:parameters-tab,PARAMETERS Tab>>.
+|update_log.txt              |File for storing log of major updates. +
+                              Major updates are those that make any modification to a user's configuration.
 |qtvcp.prefs                 |File containing the QtVCP preferences.
 |qtplasmac.qss               |File storing the stylesheet for the currently loaded session of QtPlasmaC.
 |===
@@ -788,10 +790,9 @@ Some functions/features are only used for particular modes and are not displayed
 //[grid=none,frame=ends]
 |===
 |Name |Description
-|ESTOP |Adding the option ESTOP_TYPE = 0 in the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file, will change this button to an indicator of the hardware E-stop's status only. +
-Adding the option ESTOP_TYPE = 1 in the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file, will hide this button. +
-Adding the option ESTOP_TYPE = 2 in the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file, will enable this button to act as a GUI E-stop. +
-If the ESTOP_TYPE option is omitted from the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file, this button will default to being an indicator of the hardware E-stop's status only.
+|ESTOP |Setting Estop type = 0 in the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file, will change this button to an indicator of the hardware E-stop's status only. This is the default behavior. +
+Setting the option Estop type = 1 in the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file, will hide this button. +
+Setting the option Estop type = 2 in the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file, will enable this button to act as a GUI E-stop. +
 |POWER |This button turns the GUI on and allows QtPlasmaC/LinuxCNC to control the hardware. +
 Pressing and holding the *POWER* button for longer than two seconds will bring up a dialog to exit the QtPlasmaC application.
 |CYCLE START |This button starts the cycle for any loaded G-code file.
@@ -3187,8 +3188,8 @@ self.old_method_name = new_method_name
 ----
 
 [NOTE]
-The existing filter code may be observed in the file /bin/qtplasmac_gcode +
-The file sim/qtplasmac/custom_filter.py has example skeleton code for custom filtering
+The existing filter code may be observed in the file /bin/qtplasmac_gcode. +
+The file sim/qtplasmac/custom_filter.py has example skeleton code for custom filtering.
 
 == QtPlasmaC Advanced Topics
 
@@ -4038,9 +4039,9 @@ It will be referred to as `_xx` in this document, so `qtplasmac_xx.ts` in this d
 
 The default locale for QtPlasmaC is `_en` which means that any translation files created as `qtplasmac_en.*` will not be used for translations.
 
-If any of the required utilities (pyuic5, pylupdate5, linguist) are not installed then the user will need to install pyqt5-dev-tools:
+If any of the required utilities (pyuic5, pylupdate5, linguist) are not installed then the user will need to install the required development tools:
 ----
-sudo apt install pyqt5-dev-tools
+sudo apt install qttools5-dev-tools pyqt5-dev-tools
 ----
 
 Change to the languages directory:
@@ -4059,7 +4060,7 @@ If modifying an existing translation that has had no source file changes then th
 
 Create or edit a .ts file:
 ----
-langfile xx
+./langfile xx
 ----
 
 [NOTE]
@@ -4090,6 +4091,10 @@ $ ln -s qtplasmac_en.qm ../../qtplasmac_9x16/languages/
 ----
 
 QtPlasmaC will be translated to the language of the current locale on the next start so long as a .qm file exists in that language.
+
+Users are welcome to submit translation files for inclusion into QtPlasmac.
+The preferred method is to submit a pull request from the users GitHub account as described in the https://www.linuxcnc.org/docs/html/code/contributing-to-linuxcnc.html[contributing to LinuxCNC] documentation.
+The only files required to be committed are qtplasmac_xx.ts and qtplasmac_xx.qm.
 
 == Appendix
 

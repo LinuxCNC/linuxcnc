@@ -138,7 +138,7 @@ static void hm2_encoder_read_control_register(hostmot2_t *hm2) {
                 e->reset_quadrature_error = 1;
                 hm2_encoder_force_write(hm2);
             }
-            int state = (hm2->encoder.read_control_reg[i] & HM2_ENCODER_CONTROL_MASK) & HM2_ENCODER_QUADRATURE_ERROR;
+            int state = ((hm2->encoder.read_control_reg[i] & HM2_ENCODER_CONTROL_MASK) & HM2_ENCODER_QUADRATURE_ERROR) && e->prev_quadrature_error_enable;
             if ((*e->hal.pin.quadrature_error == 0) && state) {
                 HM2_ERR("Encoder %d: quadrature count error\n", i);
             }
@@ -151,6 +151,7 @@ static void hm2_encoder_read_control_register(hostmot2_t *hm2) {
         *e->hal.pin.input_a = hm2->encoder.read_control_reg[i] & HM2_ENCODER_INPUT_A;
         *e->hal.pin.input_b = hm2->encoder.read_control_reg[i] & HM2_ENCODER_INPUT_B;
         *e->hal.pin.input_idx = hm2->encoder.read_control_reg[i] & HM2_ENCODER_INPUT_INDEX;
+
     }
 }
 
@@ -926,7 +927,6 @@ static void hm2_encoder_instance_process_tram_read(hostmot2_t *hm2, int instance
         e->hal.param.scale = 1.0;
     }
 
-    hm2_encoder_read_control_register(hm2);
 
     switch (e->state) {
 
@@ -1098,7 +1098,9 @@ void hm2_encoder_process_tram_read(hostmot2_t *hm2, long l_period_ns) {
     int i;
 
     if (hm2->encoder.num_instances <= 0) return;
-
+	 
+	 hm2_encoder_read_control_register(hm2);
+    
     // process each encoder instance independently
     for (i = 0; i < hm2->encoder.num_instances; i ++) {
         hm2_encoder_instance_process_tram_read(hm2, i);

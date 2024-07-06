@@ -273,6 +273,13 @@ class App:
         self.widgets.createshortcut.set_active(short)
         self.widgets.advancedconfig.set_active(show_pages)
 
+        # setup stylesheet for widget coloring
+        # we use this later to highlight missing axis and encoder info
+        self.css_provider = Gtk.CssProvider()
+        context = Gtk.StyleContext()
+        screen = Gdk.Screen.get_default()
+        context.add_provider_for_screen(screen, self.css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+
         tempfile = os.path.join(self._p.DISTDIR, "configurable_options/ladder/TEMP.clp")
         if os.path.exists(tempfile):
            os.remove(tempfile)
@@ -2267,7 +2274,6 @@ Clicking 'existing custom program' will avoid this warning. "),False):
             d = self._p.MESA_FIRMWAREDATA[search]
             if not d[self._p._BOARDTITLE] == title:continue
             temp.append(d[self._p._FIRMWARE])
-        temp.sort()
         for i in temp:
             #print(i)
             model.append_text(i)
@@ -4899,16 +4905,22 @@ Clicking 'existing custom program' will avoid this warning. "),False):
         if self.findsignal(axis+"-encoder-a"): encoder = True
         if self.findsignal(axis+"-resolver"): resolver = True
         if self.findsignal(axis+"-pot-outpot"): pot = True
+        css = ""
         if encoder or resolver:
             if self.widgets[axis+"encoderscale"].get_value() < 1:
-                self.widgets[axis+"encoderscale"].override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA.from_color(Gdk.color_parse('red')))
+                css += f'#{axis}encoderscale'
                 dbg('encoder resolver scale bad %f'%self.widgets[axis+"encoderscale"].get_value())
                 bad = True
         if stepdrive:
             if self.widgets[axis+"stepscale"].get_value() < 1:
-                self.widgets[axis+"stepscale"].override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA.from_color(Gdk.color_parse('red')))
+                if css:
+                    css += ", "
+                css += f'#{axis}stepscale'
                 dbg('step scale bad')
                 bad = True
+        if css:
+            css += '{background-color: red}'
+            self.css_provider.load_from_data(css.encode())
         if not (encoder or resolver) and not stepdrive and not axis == "s":
             dbg('encoder %s resolver %s stepper %s axis %s'%(encoder,resolver,stepdrive,axis))
             bad = True
@@ -4925,8 +4937,8 @@ Clicking 'existing custom program' will avoid this warning. "),False):
             self.widgets[axis + "axistest"].set_sensitive(0)
         else:
             dbg('motor %s_encoder sanity check - good'%axis)
-            self.widgets[axis+"encoderscale"].override_background_color(Gtk.StateFlags.NORMAL, self.origbg)
-            self.widgets[axis+"stepscale"].override_background_color(Gtk.StateFlags.NORMAL, self.origbg)
+            css = f'#{axis}stepscale, #{axis}encoderscale {{background-color: @theme_bg_color;}}'
+            self.css_provider.load_from_data(css.encode())
             self.p.set_buttons_sensitive(1,1)
             self.widgets[axis + "axistune"].set_sensitive(1)
             self.widgets[axis + "axistest"].set_sensitive(1)
@@ -5250,9 +5262,9 @@ Clicking 'existing custom program' will avoid this warning. "),False):
             elif not "5i25" in board1 and not '7i90' in board1:
                 firmstring1 = "firmware=hm2/%s/%s.BIT " % (directory1, firm1)
 
-            # TODO fix this hardcoded hack: only one serialport
-            ssconfig0 = ssconfig1 = resolver0 = resolver1 = temp = ""
-            if self.d.mesa0_numof_sserialports:
+            ssport0 = ssport1 = resolver0 = resolver1 = ""
+            for p in range(0, self.d.mesa0_numof_sserialports):
+                temp = ""
                 for i in range(1,_PD._NUM_CHANNELS+1):
                     if i <= self.d.mesa0_numof_sserialchannels:
                         # m number in the name signifies the required sserial mode
@@ -5263,19 +5275,22 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                         else: temp = temp + "0" # default case
                     else:
                         temp = temp + "x"
-                ssconfig0 = " sserial_port_0=%s"% temp
-            if self.d.number_mesa == 2 and self.d.mesa1_numof_sserialports:
-                for i in range(1,_PD._NUM_CHANNELS+1):
-                    if i <= self.d.mesa1_numof_sserialchannels:
-                        # m number in the name signifies the required sserial mode
-                        for j in ("123456789"):
-                            if ("m"+j) in self.d["mesa1sserial0_%dsubboard"% (i-1)]:
-                                temp = temp + j
-                                break
-                        else: temp = temp + "0" # default case
-                    else:
-                        temp = temp + "x"
-                ssconfig1 = " sserial_port_0=%s"% temp
+                ssport0 += " sserial_port_{}={}".format(p, temp)
+
+            if self.d.number_mesa == 2:
+                for p in range(0, self.d.mesa01numof_sserialports):
+                    for i in range(1,_PD._NUM_CHANNELS+1):
+                        if i <= self.d.mesa1_numof_sserialchannels:
+                            # m number in the name signifies the required sserial mode
+                            for j in ("123456789"):
+                                if ("m"+j) in self.d["mesa1sserial0_%dsubboard"% (i-1)]:
+                                    temp = temp + j
+                                    break
+                            else: temp = temp + "0" # default case
+                        else:
+                            temp = temp + "x"
+                ssport1 += " sserial_port_{}={}".format(p, temp)
+
             if self.d.mesa0_numof_resolvers:
                 resolver0 = " num_resolvers=%d"% self.d.mesa0_numof_resolvers
             if self.d.mesa1_numof_resolvers:
@@ -5289,25 +5304,25 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                 load_cmnds.append( """loadrt%s%s%s config="%snum_encoders=%d num_pwmgens=%d%s num_stepgens=%d%s%s" """ % (
                     driver0, board0_ip, mesa0_ioaddr,
                     firmstring0, self.d.mesa0_numof_encodergens, self.d.mesa0_numof_pwmgens, mesa0_3pwm, self.d.mesa0_numof_stepgens,
-                    ssconfig0, resolver0))
+                    ssport0, resolver0))
             elif self.d.number_mesa == 2 and (driver0 == driver1):
                 loadstring  = """loadrt%s%s%s%s%s config="%snum_encoders=%d num_pwmgens=%d%s num_stepgens=%d%s%s,""" % (
                     driver0, board0_ip, board1_ip, mesa0_ioaddr, mesa1_ioaddr,
                     firmstring0, self.d.mesa0_numof_encodergens, self.d.mesa0_numof_pwmgens, mesa0_3pwm, self.d.mesa0_numof_stepgens,
-                    ssconfig0, resolver0)
+                    ssport0, resolver0)
                 loadstring += """ %snum_encoders=%d num_pwmgens=%d%s num_stepgens=%d%s%s" """ % (
                     firmstring1, self.d.mesa1_numof_encodergens, self.d.mesa1_numof_pwmgens, mesa1_3pwm, self.d.mesa1_numof_stepgens,
-                    ssconfig1, resolver1)
+                    ssport1, resolver1)
                 load_cmnds.append(loadstring)
             elif self.d.number_mesa == 2:
                 load_cmnds.append( """loadrt%s%s%s config="%snum_encoders=%d num_pwmgens=%d%s num_stepgens=%d%s%s" """ % (
                     driver0, board0_ip, mesa0_ioaddr,
                     firmstring0, self.d.mesa0_numof_encodergens, self.d.mesa0_numof_pwmgens, mesa0_3pwm, self.d.mesa0_numof_stepgens,
-                    ssconfig0, resolver0 ))
+                    ssport0, resolver0 ))
                 load_cmnds.append( """loadrt%s%s%s config="%snum_encoders=%d num_pwmgens=%d%s num_stepgens=%d%s%s" """ % (
                     driver1, board1_ip, mesa1_ioaddr,
                     firmstring1, self.d.mesa1_numof_encodergens, self.d.mesa1_numof_pwmgens, mesa1_3pwm, self.d.mesa1_numof_stepgens,
-                    ssconfig1, resolver1 ))
+                    ssport1, resolver1 ))
             for boardnum in range(0,int(self.d.number_mesa)):
                 if boardnum == 1 and (board0 == board1):
                     halnum = 1

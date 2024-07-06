@@ -297,17 +297,21 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             # we prefer INI settings for screens
             if INFO.PREFERENCE_PATH and INFO.IS_SCREEN:
                 self.pref_filename = INFO.PREFERENCE_PATH
-                LOG.debug('Switching to Preference File Path from INI: {}'.format(INFO.PREFERENCE_PATH))
+                LOG.verbose('Switching to Preference File Path from INI: {}'.format(INFO.PREFERENCE_PATH))
+
             # substitute for keywords
             self.pref_filename = self.pref_filename.replace('CONFIGFOLDER',PATH.CONFIGPATH)
             self.pref_filename = self.pref_filename.replace('WORKINGFOLDER',PATH.WORKINGDIR)
+
             # check that there is a directory present
             dir = os.path.split(str(self.pref_filename))
-            dir = os.path.expanduser(dir[0])
-            if os.path.exists(dir):
-                return Access(self.pref_filename), self.pref_filename
-            else:
-                raise Exception('Cannot find directory: {} for preference file.'.format(dir))
+            # expand the directoty path if there is one
+            if not dir[0] == '':
+                dir = os.path.expanduser(dir[0])
+                if not os.path.exists(dir):
+                    raise Exception('Cannot find directory: {} for preference file.'.format(dir))
+            LOG.debug('Preference File Path: {}'.format(self.pref_filename))
+            return Access(self.pref_filename), self.pref_filename
         return None,None
 
     # allow screen option to inject data to the main VCP object (basically the window)

@@ -80,7 +80,7 @@ AC_PATH_PROG(EGREP, egrep)
 #
 # check for pkg-config
 #
-AC_PATH_PROG([PKG_CONFIG], [pkg-config])
+PKG_PROG_PKG_CONFIG
 if test -z "$PKG_CONFIG"; then
   AC_MSG_ERROR([pkg-config is required to build LinuxCNC])
 fi
@@ -533,11 +533,12 @@ install with "sudo apt-get install libusb-1.0-0-dev" or disable with
 #
 # check for libgpiod
 #
-AC_MSG_CHECKING([for libgpiod])
-AC_CHECK_LIB(gpiod, main,
+PKG_CHECK_MODULES([LIBGPIOD], [libgpiod < 2.0.0],
             [AC_DEFINE_UNQUOTED([LIBGPIOD_VER], `pkg-config libgpiod --modversion | awk -F. '{print ($1 * 100)+($2) }'`,
             [libgpiod version, undefined if not present])
-            LDFLAGS="$LDFLAGS -lgpiod"
+            LDFLAGS="$LDFLAGS $LIBGPIOD_LIBS"
+            LIBGPIOD_VERSION=`pkg-config libgpiod --modversion`
+            AC_MSG_NOTICE([libgpiod version $LIBGPIOD_VERSION found])
             AC_SUBST([LIBGPIOD_VER], `pkg-config libgpiod --modversion | awk -F. '{print ($1 * 100)+($2) }'`)],
             [AC_MSG_WARN([Could not find libgpiod, not building hal_gpio])])
 

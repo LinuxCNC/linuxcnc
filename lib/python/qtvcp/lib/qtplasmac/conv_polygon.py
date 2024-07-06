@@ -155,7 +155,7 @@ def widgets(P, W, Conv):
         W.entries.addWidget(W.ctLabel, 1, 0)
         W.entries.addWidget(W.intExt, 1, 1)
         W.entries.addWidget(W.spLabel, 2, 0)
-        W.entries.addWidget(W.centLeftBox, 2, 1)
+        W.entries.addWidget(W.centLeft, 2, 1)
         W.entries.addWidget(W.xsLabel, 3, 0)
         W.entries.addWidget(W.xsEntry, 3, 1)
         W.entries.addWidget(W.ysLabel, 3, 2)

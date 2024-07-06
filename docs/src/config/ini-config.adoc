@@ -884,6 +884,11 @@ LinuxCNC will not know your joint travel limits when using `NO_FORCE_HOMING = 1`
 
 The _<letter>_ specifies one of: X Y Z A B C U V W
 
+* `TYPE = LINEAR` - The type of this axis, either `LINEAR` or `ANGULAR`.
+  Required if this axis is not a default axis type.
+  The default axis types are X,Y,Z,U,V,W = LINEAR and A,B,C = ANGULAR.
+  This setting is effective with the AXIS GUI but note that other
+  GUI's may handle things differently.
 * `MAX_VELOCITY = 1.2` - Maximum velocity for this axis in <<sub:ini:sec:traj,machine units>> per second.
 * `MAX_ACCELERATION = 20.0` - Maximum acceleration for this axis in machine units per second squared.
 * `MIN_LIMIT = -1000` - (((MIN LIMIT))) The minimum limit (soft limit) for axis motion, in machine units.
@@ -1295,19 +1300,18 @@ image::images/encoder-scale.png[align="center"]
 
 The _<num>_ specifies the spindle number 0 ... (num_spindles-1) +
 The value of _num_spindles_ is set by `[TRAJ]SPINDLES=` . +
-By default maximum velocity of the spindle in forward and reverse is approximately
-  2147483000 RPM. +
+By default maximum velocity of the spindle in forward and reverse is approximately 2147483000 RPM. +
 By default minimum velocity of the spindle in forward and reverse is 0 RPM. +
 By default the increment is 100 RPM. +
 You change these default by setting the following INI variables:
 
 [NOTE]
-These settings are for the motion controller component. Control screens can limit
- these settings further. 
+These settings are for the motion controller component.
+Control screens can limit these settings further. 
 
 * `MAX_FORWARD_VELOCITY = 20000`
   The maximum spindle speed (in rpm) for the specified spindle. Optional.
-  This will also set MIN_FORWARD_VELOCITY to the negative value unless overridden.
+  This will also set MAX_REVERSE_VELOCITY to the negative value unless overridden.
 * `MIN_FORWARD_VELOCITY = 3000`
   The minimum spindle speed (in rpm) for the specified spindle. Optional.
   Many spindles have a minimum speed below which they should not be run.

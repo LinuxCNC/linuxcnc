@@ -39,6 +39,7 @@ INI = Info()
 class QPin(hal.Pin, QObject):
 
     value_changed = pyqtSignal('PyQt_PyObject')
+    pinValueChanged = pyqtSignal('PyQt_PyObject','PyQt_PyObject')
     REGISTRY = []
     UPDATE = False
 
@@ -54,6 +55,7 @@ class QPin(hal.Pin, QObject):
         tmp = self.get()
         if tmp != self._prev:
             self.value_changed.emit(tmp)
+            self.pinValueChanged.emit(self, tmp)
         self._prev = tmp
 
     def text(self):

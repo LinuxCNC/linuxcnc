@@ -541,7 +541,7 @@ int Interp::control_back_to( block_pointer block, // pointer to block
 			     setup_pointer settings)   // pointer to machine settings
 {
     static char name[] = "control_back_to";
-    char newFileName[PATH_MAX+1];
+    char newFileName[PATH_MAX];
     FILE *newFP;
     offset_map_iterator it;
     offset_pointer op;
@@ -561,12 +561,12 @@ int Interp::control_back_to( block_pointer block, // pointer to block
 	    newFP = fopen(op->filename, "r");
 	    // set the line number
 	    settings->sequence_number = 0;
-            strncpy(settings->filename, op->filename, sizeof(settings->filename));
-            if (settings->filename[sizeof(settings->filename)-1] != '\0') {
+            if (strlen(op->filename) >= sizeof(settings->filename)) {
                 fclose(settings->file_pointer);
                 logOword("filename too long: %s", op->filename);
                 ERS(NCE_UNABLE_TO_OPEN_FILE, op->filename);
             }
+            strncpy(settings->filename, op->filename, sizeof(settings->filename));
 
 	    if (newFP) {
 		// close the old file...
@@ -597,11 +597,11 @@ int Interp::control_back_to( block_pointer block, // pointer to block
 	if (settings->file_pointer)
 	    fclose(settings->file_pointer);
 	settings->file_pointer = newFP;
-        strncpy(settings->filename, newFileName, sizeof(settings->filename));
-        if (settings->filename[sizeof(settings->filename)-1] != '\0') {
+        if (strlen(newFileName) >= sizeof(settings->filename)) {
             logOword("new filename '%s' is too long (max len %zu)\n", newFileName, sizeof(settings->filename)-1);
-            settings->filename[sizeof(settings->filename)-1] = '\0'; // oh well, truncate the filename
+            ERS(NCE_UNABLE_TO_OPEN_FILE, newFileName);
         }
+        strncpy(settings->filename, newFileName, sizeof(settings->filename));
     } else {
 	char *dirname = getcwd(NULL, 0);
 	logOword("fopen: |%s| failed CWD:|%s|", newFileName,
