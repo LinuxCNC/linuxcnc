@@ -451,14 +451,15 @@ static pthread_t main_thread{};
 
 static int master(int fd, vector<string> args) {
     main_thread = pthread_self();
-    if(pthread_create(&queue_thread, nullptr, &queue_function, nullptr) < 0) {
+    int result;
+    if((result = pthread_create(&queue_thread, nullptr, &queue_function, nullptr)) != 0) {
+        errno = result;
         perror("pthread_create (queue function)");
         return -1;
     }
     do_load_cmd("hal_lib", vector<string>());
     instance_count = 0;
     App(); // force rtapi_app to be created
-    int result=0;
     if(args.size()) {
         result = handle_command(args);
         if(result != 0) goto out;
@@ -1026,16 +1027,17 @@ int Posix::task_start(int task_id, unsigned long int period_nsec)
   int nprocs = sysconf( _SC_NPROCESSORS_ONLN );
 
   pthread_attr_t attr;
-  if(pthread_attr_init(&attr) < 0)
-      return -errno;
-  if(pthread_attr_setstacksize(&attr, task->stacksize) < 0)
-      return -errno;
-  if(pthread_attr_setschedpolicy(&attr, policy) < 0)
-      return -errno;
-  if(pthread_attr_setschedparam(&attr, &param) < 0)
-      return -errno;
-  if(pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED) < 0)
-      return -errno;
+  int ret;
+  if((ret = pthread_attr_init(&attr)) != 0)
+      return -ret;
+  if((ret = pthread_attr_setstacksize(&attr, task->stacksize)) != 0)
+      return -ret;
+  if((ret = pthread_attr_setschedpolicy(&attr, policy)) != 0)
+      return -ret;
+  if((ret = pthread_attr_setschedparam(&attr, &param)) != 0)
+      return -ret;
+  if((ret = pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED)) != 0)
+      return -ret;
   if(nprocs > 1) {
       const static int rt_cpu_number = find_rt_cpu_number();
       if(rt_cpu_number != -1) {
@@ -1046,12 +1048,12 @@ int Posix::task_start(int task_id, unsigned long int period_nsec)
 #endif
           CPU_ZERO(&cpuset);
           CPU_SET(rt_cpu_number, &cpuset);
-          if(pthread_attr_setaffinity_np(&attr, sizeof(cpuset), &cpuset) < 0)
-               return -errno;
+          if((ret = pthread_attr_setaffinity_np(&attr, sizeof(cpuset), &cpuset)) != 0)
+               return -ret;
       }
   }
-  if(pthread_create(&task->thr, &attr, &wrapper, reinterpret_cast<void*>(task)) < 0)
-      return -errno;
+  if((ret = pthread_create(&task->thr, &attr, &wrapper, reinterpret_cast<void*>(task))) != 0)
+      return -ret;
 
   return 0;
 }
@@ -1213,7 +1215,12 @@ int rtapi_task_delete(int id) {
 
 int rtapi_task_start(int task_id, unsigned long period_nsec)
 {
-    return App().task_start(task_id, period_nsec);
+    int ret = App().task_start(task_id, period_nsec);
+    if(ret != 0) {
+        errno = -ret;
+        perror("rtapi_task_start()");
+    }
+    return ret;
 }
 
 int rtapi_task_pause(int task_id)

@@ -93,7 +93,7 @@ are available for Bookworm and Buster but not currently for Bullseye.
 [cols="3,5",options="header"]
 |===
 | OS / Realtime Version      | Repository
-| Debian Buster - preempt   m| deb https://linuxcnc.org buster base 2.9-rtpreempt
+| Debian Buster - preempt   m| deb https://linuxcnc.org buster base 2.9-uspace
 | Debian Buster - RTAI      m| deb https://linuxcnc.org buster base 2.9-rt
 | Debian Bullseye - preempt m| deb https://linuxcnc.org bullseye base 2.9-uspace
 | Debian Bookworm - preempt m| deb https://linuxcnc.org bookworm base 2.9-uspace
