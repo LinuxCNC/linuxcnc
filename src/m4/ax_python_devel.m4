@@ -4,7 +4,7 @@
 #
 # SYNOPSIS
 #
-#   AX_PYTHON_DEVEL([version])
+#   AX_PYTHON_DEVEL([version[,optional]])
 #
 # DESCRIPTION
 #
@@ -22,6 +22,11 @@
 #   match, and pay special attention to the single quotes surrounding the
 #   version number. Don't use "PYTHON_VERSION" for this: that environment
 #   variable is declared as precious and thus reserved for the end-user.
+#
+#   By default this will fail if it does not detect a development version of
+#   python.  If you want it to continue, set optional to true, like
+#   AX_PYTHON_DEVEL([], [true]).  The ax_python_devel_found variable will be
+#   "no" if it fails.
 #
 #   This macro should work for all versions of Python >= 2.1.0. As an end
 #   user, you can disable the check for the python version by setting the
@@ -67,10 +72,18 @@
 #   modified version of the Autoconf Macro, you may extend this special
 #   exception to the GPL to apply to your modified version as well.
 
-#serial 23
+#serial 36
 
 AU_ALIAS([AC_PYTHON_DEVEL], [AX_PYTHON_DEVEL])
 AC_DEFUN([AX_PYTHON_DEVEL],[
+	# Get whether it's optional
+	if test -z "$2"; then
+	   ax_python_devel_optional=false
+	else
+	   ax_python_devel_optional=$2
+	fi
+	ax_python_devel_found=yes
+
 	#
 	# Allow the use of a (user set) custom python version
 	#
@@ -81,21 +94,26 @@ AC_DEFUN([AX_PYTHON_DEVEL],[
 
 	AC_PATH_PROG([PYTHON],[python[$PYTHON_VERSION]])
 	if test -z "$PYTHON"; then
-	   AC_MSG_ERROR([Cannot find python$PYTHON_VERSION in your system path])
+	   AC_MSG_WARN([Cannot find python$PYTHON_VERSION in your system path])
+	   if ! $ax_python_devel_optional; then
+	      AC_MSG_ERROR([Giving up, python development not available])
+	   fi
+	   ax_python_devel_found=no
 	   PYTHON_VERSION=""
 	fi
 
-	#
-	# Check for a version of Python >= 2.1.0
-	#
-	AC_MSG_CHECKING([for a version of Python >= '2.1.0'])
-	ac_supports_python_ver=`$PYTHON -c "import sys; \
+	if test $ax_python_devel_found = yes; then
+	   #
+	   # Check for a version of Python >= 2.1.0
+	   #
+	   AC_MSG_CHECKING([for a version of Python >= '2.1.0'])
+	   ac_supports_python_ver=`$PYTHON -c "import sys; \
 		ver = sys.version.split ()[[0]]; \
 		print (ver >= '2.1.0')"`
-	if test "$ac_supports_python_ver" != "True"; then
+	   if test "$ac_supports_python_ver" != "True"; then
 		if test -z "$PYTHON_NOVERSIONCHECK"; then
 			AC_MSG_RESULT([no])
-			AC_MSG_FAILURE([
+			AC_MSG_WARN([
 This version of the AC@&t@_PYTHON_DEVEL macro
 doesn't work properly with versions of Python before
 2.1.0. You may need to re-run configure, setting the
@@ -104,43 +122,80 @@ PYTHON_EXTRA_LIBS and PYTHON_EXTRA_LDFLAGS by hand.
 Moreover, to disable this check, set PYTHON_NOVERSIONCHECK
 to something else than an empty string.
 ])
+			if ! $ax_python_devel_optional; then
+			   AC_MSG_FAILURE([Giving up])
+			fi
+			ax_python_devel_found=no
+			PYTHON_VERSION=""
 		else
 			AC_MSG_RESULT([skip at user request])
 		fi
-	else
+	   else
 		AC_MSG_RESULT([yes])
+	   fi
 	fi
 
-	#
-	# if the macro parameter ``version'' is set, honour it
-	#
-	if test -n "$1"; then
+	if test $ax_python_devel_found = yes; then
+	   #
+	   # If the macro parameter ``version'' is set, honour it.
+	   # A Python shim class, VPy, is used to implement correct version comparisons via
+	   # string expressions, since e.g. a naive textual ">= 2.7.3" won't work for
+	   # Python 2.7.10 (the ".1" being evaluated as less than ".3").
+	   #
+	   if test -n "$1"; then
 		AC_MSG_CHECKING([for a version of Python $1])
-		ac_supports_python_ver=`$PYTHON -c "import sys; \
-			ver = sys.version.split ()[[0]]; \
+                cat << EOF > ax_python_devel_vpy.py
+class VPy:
+    def vtup(self, s):
+        return tuple(map(int, s.strip().replace("rc", ".").split(".")))
+    def __init__(self):
+        import sys
+        self.vpy = tuple(sys.version_info)[[:3]]
+    def __eq__(self, s):
+        return self.vpy == self.vtup(s)
+    def __ne__(self, s):
+        return self.vpy != self.vtup(s)
+    def __lt__(self, s):
+        return self.vpy < self.vtup(s)
+    def __gt__(self, s):
+        return self.vpy > self.vtup(s)
+    def __le__(self, s):
+        return self.vpy <= self.vtup(s)
+    def __ge__(self, s):
+        return self.vpy >= self.vtup(s)
+EOF
+		ac_supports_python_ver=`$PYTHON -c "import ax_python_devel_vpy; \
+                        ver = ax_python_devel_vpy.VPy(); \
 			print (ver $1)"`
+                rm -rf ax_python_devel_vpy*.py* __pycache__/ax_python_devel_vpy*.py*
 		if test "$ac_supports_python_ver" = "True"; then
-		   AC_MSG_RESULT([yes])
+			AC_MSG_RESULT([yes])
 		else
 			AC_MSG_RESULT([no])
-			AC_MSG_ERROR([this package requires Python $1.
+			AC_MSG_WARN([this package requires Python $1.
 If you have it installed, but it isn't the default Python
 interpreter in your system path, please pass the PYTHON_VERSION
 variable to configure. See ``configure --help'' for reference.
 ])
+			if ! $ax_python_devel_optional; then
+			   AC_MSG_ERROR([Giving up])
+			fi
+			ax_python_devel_found=no
 			PYTHON_VERSION=""
 		fi
+	   fi
 	fi
 
-	#
-	# Check if you have distutils, else fail
-	#
-	AC_MSG_CHECKING([for the sysconfig Python package])
-	ac_sysconfig_result=`$PYTHON -c "import sysconfig" 2>&1`
-	if test $? -eq 0; then
+	if test $ax_python_devel_found = yes; then
+	   #
+	   # Check if you have distutils, else fail
+	   #
+	   AC_MSG_CHECKING([for the sysconfig Python package])
+	   ac_sysconfig_result=`$PYTHON -c "import sysconfig" 2>&1`
+	   if test $? -eq 0; then
 		AC_MSG_RESULT([yes])
 		IMPORT_SYSCONFIG="import sysconfig"
-	else
+	   else
 		AC_MSG_RESULT([no])
 
 		AC_MSG_CHECKING([for the distutils Python package])
@@ -149,18 +204,24 @@ variable to configure. See ``configure --help'' for reference.
 			AC_MSG_RESULT([yes])
 			IMPORT_SYSCONFIG="from distutils import sysconfig"
 		else
-			AC_MSG_ERROR([cannot import Python module "distutils".
+			AC_MSG_WARN([cannot import Python module "distutils".
 Please check your Python installation. The error was:
 $ac_sysconfig_result])
+			if ! $ax_python_devel_optional; then
+			   AC_MSG_ERROR([Giving up])
+			fi
+			ax_python_devel_found=no
 			PYTHON_VERSION=""
 		fi
+	   fi
 	fi
 
-	#
-	# Check for Python include path
-	#
-	AC_MSG_CHECKING([for Python include path])
-	if test -z "$PYTHON_CPPFLAGS"; then
+	if test $ax_python_devel_found = yes; then
+	   #
+	   # Check for Python include path
+	   #
+	   AC_MSG_CHECKING([for Python include path])
+	   if test -z "$PYTHON_CPPFLAGS"; then
 		if test "$IMPORT_SYSCONFIG" = "import sysconfig"; then
 			# sysconfig module has different functions
 			python_path=`$PYTHON -c "$IMPORT_SYSCONFIG; \
@@ -182,15 +243,15 @@ $ac_sysconfig_result])
 			fi
 		fi
 		PYTHON_CPPFLAGS=$python_path
-	fi
-	AC_MSG_RESULT([$PYTHON_CPPFLAGS])
-	AC_SUBST([PYTHON_CPPFLAGS])
+	   fi
+	   AC_MSG_RESULT([$PYTHON_CPPFLAGS])
+	   AC_SUBST([PYTHON_CPPFLAGS])
 
-	#
-	# Check for Python library path
-	#
-	AC_MSG_CHECKING([for Python library path])
-	if test -z "$PYTHON_LIBS"; then
+	   #
+	   # Check for Python library path
+	   #
+	   AC_MSG_CHECKING([for Python library path])
+	   if test -z "$PYTHON_LIBS"; then
 		# (makes two attempts to ensure we've got a version number
 		# from the interpreter)
 		ac_python_version=`cat<<EOD | $PYTHON -
@@ -208,7 +269,7 @@ EOD`
 				ac_python_version=$PYTHON_VERSION
 			else
 				ac_python_version=`$PYTHON -c "import sys; \
-					print (sys.version[[:3]])"`
+					print ("%d.%d" % sys.version_info[[:2]])"`
 			fi
 		fi
 
@@ -256,99 +317,133 @@ EOD`
 		fi
 
 		if test -z "PYTHON_LIBS"; then
-			AC_MSG_ERROR([
+			AC_MSG_WARN([
   Cannot determine location of your Python DSO. Please check it was installed with
   dynamic libraries enabled, or try setting PYTHON_LIBS by hand.
 			])
+			if ! $ax_python_devel_optional; then
+			   AC_MSG_ERROR([Giving up])
+			fi
+			ax_python_devel_found=no
+			PYTHON_VERSION=""
 		fi
+	   fi
 	fi
-	AC_MSG_RESULT([$PYTHON_LIBS])
-	AC_SUBST([PYTHON_LIBS])
 
-	#
-	# Check for site packages
-	#
-	AC_MSG_CHECKING([for Python site-packages path])
-	if test -z "$PYTHON_SITE_PKG"; then
+	if test $ax_python_devel_found = yes; then
+	   AC_MSG_RESULT([$PYTHON_LIBS])
+	   AC_SUBST([PYTHON_LIBS])
+
+	   #
+	   # Check for site packages
+	   #
+	   AC_MSG_CHECKING([for Python site-packages path])
+	   if test -z "$PYTHON_SITE_PKG"; then
 		if test "$IMPORT_SYSCONFIG" = "import sysconfig"; then
-			PYTHON_SITE_PKG=`$PYTHON -c "$IMPORT_SYSCONFIG; \
-				print (sysconfig.get_path('purelib'));"`
+			PYTHON_SITE_PKG=`$PYTHON -c "
+$IMPORT_SYSCONFIG;
+if hasattr(sysconfig, 'get_default_scheme'):
+    scheme = sysconfig.get_default_scheme()
+else:
+    scheme = sysconfig._get_default_scheme()
+if scheme == 'posix_local':
+    # Debian's default scheme installs to /usr/local/ but we want to find headers in /usr/
+    scheme = 'posix_prefix'
+prefix = '$prefix'
+if prefix == 'NONE':
+    prefix = '$ac_default_prefix'
+sitedir = sysconfig.get_path('purelib', scheme, vars={'base': prefix})
+print(sitedir)"`
 		else
 			# distutils.sysconfig way
 			PYTHON_SITE_PKG=`$PYTHON -c "$IMPORT_SYSCONFIG; \
 				print (sysconfig.get_python_lib(0,0));"`
 		fi
-	fi
-	AC_MSG_RESULT([$PYTHON_SITE_PKG])
-	AC_SUBST([PYTHON_SITE_PKG])
+	   fi
+	   AC_MSG_RESULT([$PYTHON_SITE_PKG])
+	   AC_SUBST([PYTHON_SITE_PKG])
 
-	#
-	# Check for platform-specific site packages
-	#
-	AC_MSG_CHECKING([for Python platform specific site-packages path])
-	if test -z "$PYTHON_SITE_PKG"; then
+	   #
+	   # Check for platform-specific site packages
+	   #
+	   AC_MSG_CHECKING([for Python platform specific site-packages path])
+	   if test -z "$PYTHON_PLATFORM_SITE_PKG"; then
 		if test "$IMPORT_SYSCONFIG" = "import sysconfig"; then
-			PYTHON_PLATFORM_SITE_PKG=`$PYTHON -c "$IMPORT_SYSCONFIG; \
-				print (sysconfig.get_path('platlib'));"`
+			PYTHON_PLATFORM_SITE_PKG=`$PYTHON -c "
+$IMPORT_SYSCONFIG;
+if hasattr(sysconfig, 'get_default_scheme'):
+    scheme = sysconfig.get_default_scheme()
+else:
+    scheme = sysconfig._get_default_scheme()
+if scheme == 'posix_local':
+    # Debian's default scheme installs to /usr/local/ but we want to find headers in /usr/
+    scheme = 'posix_prefix'
+prefix = '$prefix'
+if prefix == 'NONE':
+    prefix = '$ac_default_prefix'
+sitedir = sysconfig.get_path('platlib', scheme, vars={'platbase': prefix})
+print(sitedir)"`
 		else
 			# distutils.sysconfig way
 			PYTHON_PLATFORM_SITE_PKG=`$PYTHON -c "$IMPORT_SYSCONFIG; \
 				print (sysconfig.get_python_lib(1,0));"`
 		fi
-	fi
-	AC_MSG_RESULT([$PYTHON_PLATFORM_SITE_PKG])
-	AC_SUBST([PYTHON_PLATFORM_SITE_PKG])
+	   fi
+	   AC_MSG_RESULT([$PYTHON_PLATFORM_SITE_PKG])
+	   AC_SUBST([PYTHON_PLATFORM_SITE_PKG])
 
-	#
-	# libraries which must be linked in when embedding
-	#
-	AC_MSG_CHECKING(python extra libraries)
-	if test -z "$PYTHON_EXTRA_LIBS"; then
-	   PYTHON_EXTRA_LIBS=`$PYTHON -c "$IMPORT_SYSCONFIG; \
+	   #
+	   # libraries which must be linked in when embedding
+	   #
+	   AC_MSG_CHECKING(python extra libraries)
+	   if test -z "$PYTHON_EXTRA_LIBS"; then
+	      PYTHON_EXTRA_LIBS=`$PYTHON -c "$IMPORT_SYSCONFIG; \
                 conf = sysconfig.get_config_var; \
                 print (conf('LIBS') + ' ' + conf('SYSLIBS'))"`
-	fi
-	AC_MSG_RESULT([$PYTHON_EXTRA_LIBS])
-	AC_SUBST(PYTHON_EXTRA_LIBS)
+	   fi
+	   AC_MSG_RESULT([$PYTHON_EXTRA_LIBS])
+	   AC_SUBST(PYTHON_EXTRA_LIBS)
 
-	#
-	# linking flags needed when embedding
-	#
-	AC_MSG_CHECKING(python extra linking flags)
-	if test -z "$PYTHON_EXTRA_LDFLAGS"; then
+	   #
+	   # linking flags needed when embedding
+	   #
+	   AC_MSG_CHECKING(python extra linking flags)
+	   if test -z "$PYTHON_EXTRA_LDFLAGS"; then
 		PYTHON_EXTRA_LDFLAGS=`$PYTHON -c "$IMPORT_SYSCONFIG; \
 			conf = sysconfig.get_config_var; \
 			print (conf('LINKFORSHARED'))"`
-	fi
-	AC_MSG_RESULT([$PYTHON_EXTRA_LDFLAGS])
-	AC_SUBST(PYTHON_EXTRA_LDFLAGS)
+		# Hack for macos, it sticks this in here.
+		PYTHON_EXTRA_LDFLAGS=`echo $PYTHON_EXTRA_LDFLAGS | sed 's/CoreFoundation.*$/CoreFoundation/'`
+	   fi
+	   AC_MSG_RESULT([$PYTHON_EXTRA_LDFLAGS])
+	   AC_SUBST(PYTHON_EXTRA_LDFLAGS)
 
-	#
-	# final check to see if everything compiles alright
-	#
-	AC_MSG_CHECKING([consistency of all components of python development environment])
-	# save current global flags
-	ac_save_LIBS="$LIBS"
-	ac_save_LDFLAGS="$LDFLAGS"
-	ac_save_CPPFLAGS="$CPPFLAGS"
-	LIBS="$ac_save_LIBS $PYTHON_LIBS $PYTHON_EXTRA_LIBS $PYTHON_EXTRA_LIBS"
-	LDFLAGS="$ac_save_LDFLAGS $PYTHON_EXTRA_LDFLAGS"
-	CPPFLAGS="$ac_save_CPPFLAGS $PYTHON_CPPFLAGS"
-	AC_LANG_PUSH([C])
-	AC_LINK_IFELSE([
+	   #
+	   # final check to see if everything compiles alright
+	   #
+	   AC_MSG_CHECKING([consistency of all components of python development environment])
+	   # save current global flags
+	   ac_save_LIBS="$LIBS"
+	   ac_save_LDFLAGS="$LDFLAGS"
+	   ac_save_CPPFLAGS="$CPPFLAGS"
+	   LIBS="$ac_save_LIBS $PYTHON_LIBS $PYTHON_EXTRA_LIBS"
+	   LDFLAGS="$ac_save_LDFLAGS $PYTHON_EXTRA_LDFLAGS"
+	   CPPFLAGS="$ac_save_CPPFLAGS $PYTHON_CPPFLAGS"
+	   AC_LANG_PUSH([C])
+	   AC_LINK_IFELSE([
 		AC_LANG_PROGRAM([[#include <Python.h>]],
 				[[Py_Initialize();]])
 		],[pythonexists=yes],[pythonexists=no])
-	AC_LANG_POP([C])
-	# turn back to default flags
-	CPPFLAGS="$ac_save_CPPFLAGS"
-	LIBS="$ac_save_LIBS"
-	LDFLAGS="$ac_save_LDFLAGS"
+	   AC_LANG_POP([C])
+	   # turn back to default flags
+	   CPPFLAGS="$ac_save_CPPFLAGS"
+	   LIBS="$ac_save_LIBS"
+	   LDFLAGS="$ac_save_LDFLAGS"
 
-	AC_MSG_RESULT([$pythonexists])
+	   AC_MSG_RESULT([$pythonexists])
 
-        if test ! "x$pythonexists" = "xyes"; then
-	   AC_MSG_FAILURE([
+	   if test ! "x$pythonexists" = "xyes"; then
+	      AC_MSG_WARN([
   Could not link test program to Python. Maybe the main Python library has been
   installed in some non-standard library path. If so, pass it to configure,
   via the LIBS environment variable.
@@ -358,8 +453,13 @@ EOD`
    You probably have to install the development version of the Python package
    for your distribution.  The exact name of this package varies among them.
   ============================================================================
-	   ])
-	  PYTHON_VERSION=""
+	      ])
+	      if ! $ax_python_devel_optional; then
+		 AC_MSG_ERROR([Giving up])
+	      fi
+	      ax_python_devel_found=no
+	      PYTHON_VERSION=""
+	   fi
 	fi
 
 	#
