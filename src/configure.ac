@@ -39,7 +39,7 @@ m4_include([m4/ax_python.m4])
 m4_include([m4/ax_python_devel.m4])
 m4_include([m4/ax_boost_base.m4])
 m4_include([m4/ax_boost_python.m4])
-AX_CXX_COMPILE_STDCXX(20, , mandatory)
+AX_CXX_COMPILE_STDCXX(17, , mandatory)
 
 AC_MSG_CHECKING(build toplevel)
 BUILD_TOPLEVEL="$(cd ..; pwd -P)"
