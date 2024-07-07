@@ -16,7 +16,7 @@ permissions:
 jobs:
 
   rip-and-test:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
     - name: Dump GitHub context
       env:
@@ -43,7 +43,7 @@ jobs:
         eatmydata ../scripts/rip-environment runtests -p
 
   rip-and-test-clang:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
     - name: Dump GitHub context
       env:
@@ -71,7 +71,7 @@ jobs:
         eatmydata ../scripts/rip-environment runtests -p
 
   htmldocs:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
     - name: Dump GitHub context
       env:
@@ -98,10 +98,10 @@ jobs:
         # Note that the package build covers html docs
 
   package-arch:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
-        image: ["debian:buster", "debian:bullseye", "debian:bookworm", "debian:sid"]
+        image: ["debian:bullseye", "debian:bookworm", "debian:sid"]
     container:
       image: ${{ matrix.image }}
       # IPC_OWNER is needed for shmget IPC_CREAT
@@ -181,10 +181,10 @@ jobs:
         su -c "eatmydata ./scripts/runtests -p ./tests" testrunner
 
   package-indep:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
-        image: ["debian:buster", "debian:bullseye", "debian:bookworm", "debian:sid"]
+        image: ["debian:bullseye", "debian:bookworm", "debian:sid"]
     container:
       image: ${{ matrix.image }}
       # IPC_OWNER is needed for shmget IPC_CREAT
