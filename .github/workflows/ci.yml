@@ -35,7 +35,7 @@ jobs:
         sudo eatmydata apt --quiet --yes upgrade
         cd src
         eatmydata ./autogen.sh
-        eatmydata ./configure --with-realtime=uspace --disable-check-runtime-deps
+        eatmydata ./configure --disable-check-runtime-deps
         eatmydata make -O -j$((1+$(nproc))) default pycheck V=1
         # Note that the package build covers html docs
         eatmydata ../scripts/rip-environment runtests -p
@@ -61,7 +61,7 @@ jobs:
         sudo eatmydata apt --quiet --yes upgrade
         cd src
         eatmydata ./autogen.sh
-        CC=clang CXX=clang++ eatmydata ./configure --with-realtime=uspace --disable-check-runtime-deps
+        CC=clang CXX=clang++ eatmydata ./configure --disable-check-runtime-deps
         eatmydata make -O -j$((1+$(nproc))) default pycheck V=1
         # Note that the package build covers html docs
         eatmydata ../scripts/rip-environment runtests -p
@@ -85,7 +85,7 @@ jobs:
         sudo eatmydata apt --quiet --yes upgrade
         cd src
         eatmydata ./autogen.sh
-        eatmydata ./configure --with-realtime=uspace --disable-check-runtime-deps --enable-build-documentation=html
+        eatmydata ./configure --disable-check-runtime-deps --enable-build-documentation=html
         eatmydata make -O -j$((1+$(nproc))) manpages
         eatmydata make -O -j$((1+$(nproc))) translateddocs
         eatmydata make -O -j$((1+$(nproc))) docs
