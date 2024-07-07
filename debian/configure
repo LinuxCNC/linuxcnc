@@ -99,7 +99,7 @@ DEBHELPER="debhelper (>= 12)"
 COMPAT="12"
 
 case $DISTRIB_NAME in
-    Ubuntu-21.*|Debian-11|Debian-11.*|Debian-12|Debian-12.*|Debian-testing|Debian-unstable)
+    Ubuntu-24.*|Ubuntu-21.*|Debian-11|Debian-11.*|Debian-12|Debian-12.*|Debian-testing|Debian-unstable)
         LIBREADLINE_DEV=libeditreadline-dev
         COMPAT=""
         DEBHELPER="debhelper-compat (= 13)"
