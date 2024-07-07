@@ -663,7 +663,7 @@ public:
 	p	Number of passes to go from d to e
     */
     void do_g70(motion_base *out, double x, double z, double d, double e,
-	double p
+	double p, int *cutter_comp_side
     ) {
 	front()->sp()=std::complex<double>(z,x);
 
@@ -690,7 +690,10 @@ public:
 	    g7x path(*this);
 	    path.add_distance(distance);
 
+	    auto comp=*cutter_comp_side;
+	    *cutter_comp_side=0;
 	    swapped_out->straight_rapid(path.front()->sp());
+	    *cutter_comp_side=comp;
 	    swapped_out->straight_rapid(path.front()->ep());
 	    for(auto p=++path.begin(); p!=--path.end(); p++)
 		    (*p)->draw(swapped_out.get());
@@ -1195,7 +1198,7 @@ int Interp::convert_g7x(int mode,
     motion_machine motion(this, settings, block);
     try {
 	switch(cycle) {
-	case 70: path.do_g70(&motion,x,z,d,e,p); break;
+	case 70: path.do_g70(&motion,x,z,d,e,p,&settings->cutter_comp_side); break;
 	case 71:
 	    if(x!=imag(start)) {
 		std::complex<double> end{real(start),x};
