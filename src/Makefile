@@ -253,8 +253,8 @@ INCLUDE += $(LIBTIRPC_CFLAGS)
 INTEGER_OVERFLOW_FLAGS := -fwrapv
 OPT := -Os $(INTEGER_OVERFLOW_FLAGS)
 DEBUG := $(DEBUG) -g -Wall -D_FORTIFY_SOURCE=2
-CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) $(EXTRA_DEBUG) -DULAPI -std=gnu11 -Werror=implicit-function-declaration $(CFLAGS) $(CPPFLAGS)
-CXXFLAGS := $(INCLUDE) $(EXTRA_DEBUG) -DULAPI $(DEBUG) $(OPT) -Werror=overloaded-virtual $(CXXFLAGS) $(CPPFLAGS)
+CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI -std=gnu11 -Werror=implicit-function-declaration $(CFLAGS) $(CPPFLAGS) $(EXTRA_DEBUG)
+CXXFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI -Werror=overloaded-virtual $(CXXFLAGS) $(CPPFLAGS) $(EXTRA_DEBUG)
 CXXFLAGS += -std=gnu++20
 # In Debian 11, any inclusion of <boost/python.hpp> leads to several
 # diagnostics from included headers about deprecated features. LinuxCNC does
@@ -888,7 +888,7 @@ EXTRA_CFLAGS := $(filter-out -ffast-math,$(RTFLAGS)) -D__MODULE__ -I$(BASEPWD)/.
 	-I$(BASEPWD)/emc/nml_intf -I$(BASEPWD)/emc/kinematics -I$(BASEPWD)/emc/tp -I$(BASEPWD)/emc/motion \
 	-DSEQUENTIAL_SUPPORT -DHAL_SUPPORT -DDYNAMIC_PLCSIZE -DRT_SUPPORT -DOLD_TIMERS_MONOS_SUPPORT -DMODBUS_IO_MASTER \
 	-fno-fast-math $(call cc-option,-mieee-fp) -fno-unsafe-math-optimizations \
-	-Werror=frame-larger-than=2560 -Wno-declaration-after-statement \
+	-Wno-declaration-after-statement \
 	$(INTEGER_OVERFLOW_FLAGS)
 ifneq ($(KERNELRELEASE),)
 ifeq ($(RTARCH):$(RTAI):$(filter $(RTFLAGS),-msse),x86_64:3:)

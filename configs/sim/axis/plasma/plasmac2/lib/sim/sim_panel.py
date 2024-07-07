@@ -175,9 +175,11 @@ try:
     mode = None
     units = I.find('TRAJ','LINEAR_UNITS') or 'mm'
     if units == 'inch':
-        probeHeight = hal.get_value('ini.z.min_limit') + 0.4
+#        probeHeight = hal.get_value('ini.z.min_limit') + 0.4
+        probeHeight = hal.get_value('ini.z.min_limit') + 0.8
     else:
-        probeHeight = hal.get_value('ini.z.min_limit') + 10
+#        probeHeight = hal.get_value('ini.z.min_limit') + 10
+        probeHeight = hal.get_value('ini.z.min_limit') + 20
     # set tkinter variables
     selectedSensor = IntVar()
     # set up arc voltage frame

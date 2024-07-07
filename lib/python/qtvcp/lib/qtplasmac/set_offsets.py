@@ -1,8 +1,8 @@
 '''
 set_offsets.py
 
-Copyright (C) 2020, 2021, 2022  Phillip A Carter
-Copyright (C) 2020, 2021, 2022  Gregory D Carl
+Copyright (C) 2020 - 2024 Phillip A Carter
+Copyright (C) 2020 - 2024 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -23,8 +23,8 @@ import os
 from shutil import copy as COPY
 from PyQt5 import QtCore
 from PyQt5.QtCore import QCoreApplication
-from PyQt5.QtWidgets import QDialog, QMessageBox, QPushButton, QGridLayout, QLabel, QComboBox#, QSplashScreen
-from PyQt5.QtGui import QIcon, QCursor, QPixmap
+from PyQt5.QtWidgets import QDialog, QMessageBox, QPushButton, QGridLayout, QLabel, QComboBox
+from PyQt5.QtGui import QIcon
 
 _translate = QCoreApplication.translate
 
@@ -54,10 +54,10 @@ def dialog_show(P, W, prefs, iniPath, STATUS, ACTION, TOOL):
     btn4.clicked.connect(lambda w: dlg_probe_clicked(P, W, prefs, iniPath, STATUS, ACTION, TOOL, dlg, lbl, btn1, btn2, btn3, btn4))
     dlg.setGeometry(dlg.parent().geometry().x(), dlg.parent().geometry().y(), dlg.width(), dlg.height())
     dlg.show()
-    dlg.setStyleSheet( '* {{ color: {0}; background: {1}; margin: 4px }} \
-                        QPushButton {{ background: {1}; height: 40px; font: 12pt; border: 1px solid {0}; border-radius: 4px }} \
-                        QPushButton:disabled {{color: {2}; border: 1px solid {2} }} \
-                        QPushButton:pressed {{ color: {1} ; background: {0} }}'.format(P.foreColor, P.backColor, P.disabledColor))
+    dlg.setStyleSheet(f'* {{ color: {P.foreColor}; background: {P.backColor}; margin: 4px }} \
+                        QPushButton {{ background: {P.backColor}; height: 40px; font: 12pt; border: 1px solid {P.foreColor}; border-radius: 4px }} \
+                        QPushButton:disabled {{color: {P.disabledColor}; border: 1px solid {P.disabledColor} }} \
+                        QPushButton:pressed {{ color: {P.backColor} ; background: {P.foreColor} }}')
 
 def dlg_cancel_clicked(P, W, prefs, dlg, lbl, btn1, btn2, btn3, btn4):
     P.laserOnPin.set(0)
@@ -88,7 +88,7 @@ def dlg_laser_clicked(P, W, prefs, iniPath, STATUS, ACTION, TOOL, dlg, lbl, btn1
         P.laserOnPin.set(0)
         head = _translate('HandlerClass', 'Laser Offsets')
         msg0 = _translate('HandlerClass', 'Laser offsets have been saved')
-        P.dialog_show_ok(QMessageBox.Information, '{}'.format(head), '\n{}\n'.format(msg0))
+        P.dialog_show_ok(QMessageBox.Information, f'{head}', f'\n{msg0}\n')
         dlg.close()
     else:
         dlg_set_text(True, dlg, lbl, btn1, btn2, btn3, btn4)
@@ -131,7 +131,7 @@ def dlg_camera_clicked(P, W, prefs, iniPath, STATUS, ACTION, TOOL, dlg, lbl, btn
         W.preview_stack.setCurrentIndex(0)
         head = _translate('HandlerClass', 'Camera Offsets')
         msg0 = _translate('HandlerClass', 'Camera offsets have been saved')
-        P.dialog_show_ok(QMessageBox.Information, '{}'.format(head), '\n{}\n'.format(msg0))
+        P.dialog_show_ok(QMessageBox.Information, f'{head}', f'\n{msg0}\n')
         dlg.close()
     else:
         dlg_set_text(True, dlg, lbl, btn1, btn2, btn3, btn4)
@@ -146,7 +146,7 @@ def dlg_scribe_clicked(P, W, prefs, iniPath, STATUS, ACTION, TOOL, dlg, lbl, btn
         return
     xOffset = yOffset = 0.000
     toolFile = os.path.join(os.path.dirname(iniPath), TOOL.toolfile)
-    inFile = open('{}'.format(toolFile), 'r')
+    inFile = open(f'{toolFile}', 'r')
     tool = []
     for line in inFile:
         if line.startswith('T1'):
@@ -167,7 +167,7 @@ def dlg_scribe_clicked(P, W, prefs, iniPath, STATUS, ACTION, TOOL, dlg, lbl, btn
         P.offsetSetScribePin.set(0)
         head = _translate('HandlerClass', 'Scribe Offsets')
         msg0 = _translate('HandlerClass', 'Scribe offsets have been saved')
-        P.dialog_show_ok(QMessageBox.Information, '{}'.format(head), '\n{}\n'.format(msg0))
+        P.dialog_show_ok(QMessageBox.Information, f'{head}', f'\n{msg0}\n')
         dlg.close()
     else:
         dlg_set_text(True, dlg, lbl, btn1, btn2, btn3, btn4)
@@ -191,7 +191,7 @@ def dlg_probe_clicked(P, W, prefs, iniPath, STATUS, ACTION, TOOL, dlg, lbl, btn1
         except:
             head = _translate('HandlerClass', 'Entry Error')
             msg0 = _translate('HandlerClass', 'is not a valid number')
-            P.dialog_show_ok(QMessageBox.Warning, '{}'.format(head), '\'{}\' {}\n'.format(value, msg0))
+            P.dialog_show_ok(QMessageBox.Warning, f'{head}', f'\'{value}\' {msg0}\n')
             return
     else:
         dlg_set_text(True, dlg, lbl, btn1, btn2, btn3, btn4)
@@ -206,9 +206,15 @@ def dlg_probe_clicked(P, W, prefs, iniPath, STATUS, ACTION, TOOL, dlg, lbl, btn1
         prefs.putpref('Delay', P.probeDelay, float, 'OFFSET_PROBING')
         P.set_probe_offset_pins()
         P.offsetSetProbePin.set(0)
+        if P.probeOffsetX or P.probeOffsetY:
+            W.offset_feed_rate.show()
+            W.offset_feed_rate_lbl.show()
+        else:
+            W.offset_feed_rate.hide()
+            W.offset_feed_rate_lbl.hide()
         head = _translate('HandlerClass', 'Probe Offsets')
         msg0 = _translate('HandlerClass', 'Probe offsets have been saved')
-        P.dialog_show_ok(QMessageBox.Information, '{}'.format(head), '\n{}\n'.format(msg0))
+        P.dialog_show_ok(QMessageBox.Information, f'{head}', f'\n{msg0}\n')
         dlg.close()
     else:
         dlg_set_text(True, dlg, lbl, btn1, btn2, btn3, btn4)
@@ -239,7 +245,7 @@ def dlg_set_text(main, dlg, lbl, btnA, btnB, btnC, btnD):
         btnD.hide()
     msg0 = _translate('Offsets', 'Usage is as follows')
     msg4 = _translate('Offsets', 'Note: It may be necessary to click the preview window to enable jogging')
-    lbl.setText('{}:\n\n1. {}.\n2. {}.\n3. {}.\n\n{}.\n'.format(msg0, msg1, msg2, msg3, msg4))
+    lbl.setText(f'{msg0}:\n\n1. {msg1}.\n2. {msg2}.\n3. {msg3}.\n\n{msg4}.\n')
 
 def get_reply(P, STATUS, xOffset, yOffset, probe=False, delay=0.0, new=0.0):
     head = _translate('HandlerClass', 'Offset Change')
@@ -247,24 +253,23 @@ def get_reply(P, STATUS, xOffset, yOffset, probe=False, delay=0.0, new=0.0):
     btn2 = _translate('HandlerClass', 'CANCEL')
     msg0  = _translate('HandlerClass', 'Change offsets from')
     if probe:
-        msg0 += ':\nX:{:0.4f}   Y:{:0.4f}   Delay:{:0.2f}\n\n'.format(xOffset, yOffset, delay)
+        msg0 += f':\nX:{xOffset:0.4f}   Y:{yOffset:0.4f}   Delay:{delay:0.2f}\n\n'
     else:
-        msg0 += ':\nX:{:0.4f}   Y:{:0.4f}\n\n'.format(xOffset, yOffset)
+        msg0 += f':\nX:{xOffset:0.4f}   Y:{yOffset:0.4f}\n\n'
     msg0 += _translate('HandlerClass', 'To')
     xP = round(STATUS.get_position()[1][0], 4) + 0
     yP = round(STATUS.get_position()[1][1], 4) + 0
     if probe:
-        msg0 += ':\nX:{:0.4f}   Y:{:0.4f}   Delay:{:0.2f}\n' .format(xP, yP, new)
+        msg0 += f':\nX:{xP:0.4f}   Y:{yP:0.4f}   Delay:{new:0.2f}\n'
     else:
-        msg0 += ':\nX:{:0.4f}   Y:{:0.4f}\n'.format(xP, yP)
-    if P.dialog_show_yesno(QMessageBox.Warning, '{}'.format(head), '\n{}'.format(msg0), '{}'.format(btn1), '{}'.format(btn2)):
+        msg0 += f':\nX:{xP:0.4f}   Y:{yP:0.4f}\n'
+    if P.dialog_show_yesno(QMessageBox.Warning, f'{head}', f'\n{msg0}', f'{btn1}', f'{btn2}'):
         return True
     else:
         return False
 
 def camera_search(P, W, dlg):
     head = _translate('Offsets', 'Camera Search')
-    devices = 0
     cameras = []
     try:
         import cv2
@@ -273,7 +278,7 @@ def camera_search(P, W, dlg):
         msg1 = _translate('Offsets', 'Try installing by entering the following in a terminal')
         msg2 = _translate('Offsets', 'sudo apt install python3-opencv')
         W.unsetCursor()
-        P.dialog_show_ok(QMessageBox.Critical, '{}'.format(head), '\n{}.\n\n{}:\n\n{}\n'.format(msg0, msg1, msg2))
+        P.dialog_show_ok(QMessageBox.Critical, f'{head}', f'\n{msg0}.\n\n{msg1}:\n\n{msg2}\n')
         return
     for file in os.listdir('/dev'):
         if file.startswith('video'):
@@ -285,7 +290,7 @@ def camera_search(P, W, dlg):
                 cap.release()
     if not cameras:
         msg0 = _translate('HandlerClass', 'No cameras have been found')
-        P.dialog_show_ok(QMessageBox.Warning, '{}'.format(head), '\n{}\n'.format(msg0))
+        P.dialog_show_ok(QMessageBox.Warning, f'{head}', f'\n{msg0}\n')
     return cameras
 
 def camera_select(P, W, STATUS, cameras):
@@ -297,7 +302,7 @@ def camera_select(P, W, STATUS, cameras):
     label = QLabel()
     combo = QComboBox()
     for camera in cameras:
-        combo.addItem('Camera_{}'.format(camera))
+        combo.addItem(f'Camera_{camera}')
     cam = P.camNum if P.camNum in cameras else cameras[0]
     combo.setCurrentIndex(cameras.index(cam))
     btn0 = QPushButton('CANCEL', dlg)
@@ -308,14 +313,14 @@ def camera_select(P, W, STATUS, cameras):
     grid.addWidget(btn1, 2, 1)
     dlg.setLayout(grid)
     msg0 = _translate('Offsets', 'Select the camera to use')
-    label.setText('{}.\n'.format(msg0))
+    label.setText(f'{msg0}.\n')
     combo.currentIndexChanged.connect(lambda w: camera_changed(P, W, STATUS, dlg, int(combo.currentText()[-1:])))
     btn0.clicked.connect(lambda w: camera_btn_clicked(P, W, dlg, -1))
     btn1.clicked.connect(lambda w: camera_btn_clicked(P, W, dlg, int(combo.currentText()[-1:])))
-    dlg.setStyleSheet( '* {{ color: {0}; background: {1}; margin: 4px }} \
-                        QPushButton {{ background: {1}; height: 40px; font: 12pt; border: 1px solid {0}; border-radius: 4px }} \
-                        QPushButton:disabled {{color: {2}; border: 1px solid {2} }} \
-                        QPushButton:pressed {{ color: {1} ; background: {0} }}'.format(P.foreColor, P.backColor, P.disabledColor))
+    dlg.setStyleSheet(f'* {{ color: {P.foreColor}; background: {P.backColor}; margin: 4px }} \
+                        QPushButton {{ background: {P.backColor}; height: 40px; font: 12pt; border: 1px solid {P.foreColor}; border-radius: 4px }} \
+                        QPushButton:disabled {{color: {P.disabledColor}; border: 1px solid {P.disabledColor} }} \
+                        QPushButton:pressed {{ color: {P.backColor} ; background: {P.foreColor} }}')
     dlg.setGeometry(dlg.parent().geometry().x(), dlg.parent().geometry().y(), dlg.width(), dlg.height())
     W.camview.set_camnum(int(combo.currentText()[-1:]))
     W.unsetCursor()
@@ -336,17 +341,17 @@ def camera_btn_clicked(P, W, dlg, camnum):
 
 def do_tool_file(P, W, toolFile, xOffset, yOffset):
     written = False
-    COPY(toolFile, '{}~'.format(toolFile))
-    inFile = open('{}~'.format(toolFile), 'r')
+    COPY(toolFile, f'{toolFile}~')
+    inFile = open(f'{toolFile}~', 'r')
     outFile = open(toolFile, 'w')
     for line in inFile:
         if line.startswith('T1'):
-            outFile.write('T1 P1 X{:0.4f} Y{:0.4f} ;scribe\n'.format(xOffset, yOffset))
+            outFile.write(f'T1 P1 X{xOffset:0.4f} Y{yOffset:0.4f} ;scribe\n')
             written = True
         else:
             outFile.write(line)
     if not written:
-        outFile.write('T1 P1 X{:0.4f} Y{:0.4f} ;scribe\n'.format(xOffset, yOffset))
+        outFile.write(f'T1 P1 X{xOffset:0.4f} Y{yOffset:0.4f} ;scribe\n')
     inFile.close()
     outFile.close()
-    os.remove('{}~'.format(toolFile))
+    os.remove(f'{toolFile}~')

@@ -1,8 +1,8 @@
 '''
 conv_ellipse.py
 
-Copyright (C) 2021, 2022  Phillip A Carter
-Copyright (C) 2021, 2022  Gregory D Carl
+Copyright (C) 2021 - 2024 Phillip A Carter
+Copyright (C) 2021 - 2024 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -26,22 +26,23 @@ from plasmac import ellipse as ELLIPSE
 
 _translate = QCoreApplication.translate
 
+
 def preview(P, W, Conv):
     if P.dialogError:
         return
     if not W.xsEntry.text():
-        W.xsEntry.setText('{:0.3f}'.format(P.xOrigin))
+        W.xsEntry.setText(f'{P.xOrigin:0.3f}')
     if not W.ysEntry.text():
-        W.ysEntry.setText('{:0.3f}'.format(P.yOrigin))
+        W.ysEntry.setText(f'{P.yOrigin:0.3f}')
     origin = W.centLeft.text() == 'CENTER'
-    error = ELLIPSE.preview(Conv, P.fTmp, P.fNgc, P.fNgcBkp, \
-            int(W.conv_material.currentText().split(':')[0]), \
-            W.conv_material.currentText().split(':')[1].strip(), \
-            P.preAmble, P.postAmble, \
-            W.liEntry.text(), W.loEntry.text(), \
-            origin, W.xsEntry.text(), W.ysEntry.text(), \
-            W.kerf_width.value(), P.intExt, \
-            W.wEntry.text(), W.hEntry.text(), W.aEntry.text(), P.unitsPerMm)
+    error = ELLIPSE.preview(Conv, P.fTmp, P.fNgc, P.fNgcBkp,
+                            int(W.conv_material.currentText().split(':')[0]),
+                            W.conv_material.currentText().split(':')[1].strip(),
+                            P.preAmble, P.postAmble,
+                            W.liEntry.text(), W.loEntry.text(),
+                            origin, W.xsEntry.text(), W.ysEntry.text(),
+                            W.kerf_width.value(), P.intExt,
+                            W.wEntry.text(), W.hEntry.text(), W.aEntry.text(), P.unitsPerMm)
     if error:
         P.dialogError = True
         P.dialog_show_ok(QMessageBox.Warning, _translate('Conversational', 'Ellipse Error'), error)
@@ -52,8 +53,10 @@ def preview(P, W, Conv):
         W.undo.setEnabled(True)
         Conv.conv_preview_button(P, W, True)
 
+
 def entry_changed(P, W, Conv, widget):
     Conv.conv_entry_changed(P, W, widget)
+
 
 def auto_preview(P, W, Conv, button=False):
     if button == 'intext':
@@ -67,6 +70,7 @@ def auto_preview(P, W, Conv, button=False):
     if W.main_tab_widget.currentIndex() == 1 and W.wEntry.text() and W.hEntry.text():
         preview(P, W, Conv)
 
+
 def widgets(P, W, Conv):
     if P.developmentPin.get():
         reload(ELLIPSE)
@@ -74,9 +78,9 @@ def widgets(P, W, Conv):
     W.hEntry.setObjectName('')
     W.lDesc.setText(_translate('Conversational', 'CREATING ELLIPSE'))
     W.iLabel.setPixmap(P.conv_ellipse_l)
-    #alignment and size
-    rightAlign = ['ctLabel', 'spLabel', 'xsLabel', 'xsEntry', 'ysLabel', \
-                  'ysEntry', 'liLabel', 'liEntry', 'loLabel', 'loEntry', \
+    # alignment and size
+    rightAlign = ['ctLabel', 'spLabel', 'xsLabel', 'xsEntry', 'ysLabel',
+                  'ysEntry', 'liLabel', 'liEntry', 'loLabel', 'loEntry',
                   'wLabel', 'wEntry', 'hLabel', 'hEntry', 'aLabel', 'aEntry']
     centerAlign = ['lDesc']
     rButton = ['intExt', 'centLeft']
@@ -95,18 +99,18 @@ def widgets(P, W, Conv):
     for widget in pButton:
         W[widget].setFixedWidth(80)
         W[widget].setFixedHeight(24)
-    #connections
-    W.conv_material.currentTextChanged.connect(lambda:auto_preview(P, W, Conv))
-    W.intExt.toggled.connect(lambda:auto_preview(P, W, Conv, 'intext'))
-    W.centLeft.toggled.connect(lambda:auto_preview(P, W, Conv, 'center'))
-    W.preview.pressed.connect(lambda:preview(P, W, Conv))
-    W.add.pressed.connect(lambda:Conv.conv_add_shape_to_file(P, W))
-    W.undo.pressed.connect(lambda:Conv.conv_undo_shape(P, W))
+    # connections
+    W.conv_material.currentTextChanged.connect(lambda: auto_preview(P, W, Conv))
+    W.intExt.toggled.connect(lambda: auto_preview(P, W, Conv, 'intext'))
+    W.centLeft.toggled.connect(lambda: auto_preview(P, W, Conv, 'center'))
+    W.preview.pressed.connect(lambda: preview(P, W, Conv))
+    W.add.pressed.connect(lambda: Conv.conv_add_shape_to_file(P, W))
+    W.undo.pressed.connect(lambda: Conv.conv_undo_shape(P, W))
     entries = ['xsEntry', 'ysEntry', 'liEntry', 'loEntry', 'wEntry', 'hEntry', 'aEntry']
     for entry in entries:
-        W[entry].textChanged.connect(lambda:entry_changed(P, W, Conv, W.sender()))
-        W[entry].returnPressed.connect(lambda:preview(P, W, Conv))
-    #add to layout
+        W[entry].textChanged.connect(lambda: entry_changed(P, W, Conv, W.sender()))
+        W[entry].returnPressed.connect(lambda: preview(P, W, Conv))
+    # add to layout
     if P.landscape:
         W.entries.addWidget(W.ctLabel, 0, 0)
         W.entries.addWidget(W.intExt, 0, 1)
@@ -126,15 +130,15 @@ def widgets(P, W, Conv):
         W.entries.addWidget(W.hEntry, 7, 1)
         W.entries.addWidget(W.aLabel, 8, 0)
         W.entries.addWidget(W.aEntry, 8, 1)
-        for r in [9,10,11]:
-            W['s{}'.format(r)] = QLabel('')
-            W['s{}'.format(r)].setFixedHeight(24)
-            W.entries.addWidget(W['s{}'.format(r)], r, 0)
+        for r in [9, 10, 11]:
+            W[f's{r}'] = QLabel('')
+            W[f's{r}'].setFixedHeight(24)
+            W.entries.addWidget(W[f's{r}'], r, 0)
         W.entries.addWidget(W.preview, 12, 0)
         W.entries.addWidget(W.add, 12, 2)
         W.entries.addWidget(W.undo, 12, 4)
-        W.entries.addWidget(W.lDesc, 13 , 1, 1, 3)
-        W.entries.addWidget(W.iLabel, 0 , 2, 7, 3)
+        W.entries.addWidget(W.lDesc, 13, 1, 1, 3)
+        W.entries.addWidget(W.iLabel, 0, 2, 7, 3)
     else:
         W.entries.addWidget(W.conv_material, 0, 0, 1, 5)
         W.entries.addWidget(W.ctLabel, 1, 0)
@@ -155,14 +159,14 @@ def widgets(P, W, Conv):
         W.entries.addWidget(W.hEntry, 5, 3)
         W.entries.addWidget(W.aLabel, 6, 0)
         W.entries.addWidget(W.aEntry, 6, 1)
-        for r in [7,8]:
-            W['s{}'.format(r)] = QLabel('')
-            W['s{}'.format(r)].setFixedHeight(24)
-            W.entries.addWidget(W['s{}'.format(r)], r, 0)
+        for r in [7, 8]:
+            W[f's{r}'] = QLabel('')
+            W[f's{r}'].setFixedHeight(24)
+            W.entries.addWidget(W[f's{r}'], r, 0)
         W.entries.addWidget(W.preview, 9, 0)
         W.entries.addWidget(W.add, 9, 2)
         W.entries.addWidget(W.undo, 9, 4)
-        W.entries.addWidget(W.lDesc, 10 , 1, 1, 3)
-        W.entries.addWidget(W.iLabel, 0 , 5, 7, 3)
+        W.entries.addWidget(W.lDesc, 10, 1, 1, 3)
+        W.entries.addWidget(W.iLabel, 0, 5, 7, 3)
     W.wEntry.setFocus()
     P.convSettingsChanged = False

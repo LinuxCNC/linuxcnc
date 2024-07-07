@@ -18,7 +18,7 @@ import sys
 import os
 import locale
 
-from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant, pyqtProperty
+from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant, pyqtProperty, pyqtSlot
 from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import QTableView, QAbstractItemView
 
@@ -196,7 +196,7 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         axis = self.tablemodel.headerdata[item.column()]
         system = self.tablemodel.Vheaderdata[item.row()]
         mess = {'NAME':self.dialog_code,'ID':'%s__' % self.objectName(),
-                'PRELOAD':float(text), 'TITLE':'{} Offset of {},{}'.format(system, axis,text),
+                'PRELOAD':locale.delocalize(text), 'TITLE':'{} Offset of {},{}'.format(system, axis,text),
                 'ITEM':item}
         STATUS.emit('dialog-request', mess)
         LOG.debug('message sent:{}'.format (mess))
@@ -267,18 +267,18 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         else:
             tmpl = self.imperial_text_template
 
-        degree_tmpl = "%{}.2f".format(len(locale.format(tmpl, 0)))
+        degree_tmpl = "%{}.2f".format(len(locale.format_string(tmpl, 0)))
 
         # fill each row of the liststore from the offsets arrays
         for row, i in enumerate([ap, rot, g92, tool, g54, g55, g56, g57, g58, g59, g59_1, g59_2, g59_3]):
             for column in range(0, 9):
                 if row == 1:
                     if column == 2:
-                        self.tabledata[row][column] = locale.format(degree_tmpl, rot)
+                        self.tabledata[row][column] = locale.format_string(degree_tmpl, rot)
                     else:
                         self.tabledata[row][column] = " "
                 else:
-                    self.tabledata[row][column] = locale.format(tmpl, i[column])
+                    self.tabledata[row][column] = locale.format_string(tmpl, i[column])
         self.tablemodel.layoutChanged.emit()
 
     # We read the var file directly
@@ -382,6 +382,22 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         if self.filename:
             self.reload_offsets()
         return True
+
+    # moves the selection up
+    @pyqtSlot()
+    def up(self):
+        self.setCurrentIndex(self.moveCursor(QAbstractItemView.CursorAction.MoveUp,Qt.NoModifier))
+
+    # moves the selection down
+    @pyqtSlot()
+    def down(self):
+        self.setCurrentIndex(self.moveCursor(QAbstractItemView.CursorAction.MoveDown,Qt.NoModifier))
+
+    def left(self):
+        self.setCurrentIndex(self.moveCursor(QAbstractItemView.CursorAction.MoveLeft,Qt.NoModifier))
+
+    def right(self):
+        self.setCurrentIndex(self.moveCursor(QAbstractItemView.CursorAction.MoveRight,Qt.NoModifier))
 
     #########################################################################
     # This is how designer can interact with our widget properties.

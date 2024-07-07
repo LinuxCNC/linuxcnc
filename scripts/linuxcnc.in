@@ -951,6 +951,17 @@ $HALCMD start
 # 4.3.10. run other applications
 run_applications
 
+# wait for traj to process for up to 10s before screen loading do to race condition
+RACE_TIMEOUT=$(( $SECONDS + 10 ))
+chk=`halcmd getp ini.traj_max_velocity`
+while (( $(awk 'BEGIN {print ('$chk' == 0)}') )); do
+    if [ $SECONDS -ge $RACE_TIMEOUT ]; then
+        echo "ini.traj_max_velocity still 0.0 after $SECONDS seconds" | tee -a $PRINT_FILE $DEBUG_FILE
+        break
+    fi
+    chk=`halcmd getp ini.traj_max_velocity`
+done
+
 # 4.3.11. Run display in foreground
 echo "Starting DISPLAY program: $EMCDISPLAY" >>$PRINT_FILE
 result=0

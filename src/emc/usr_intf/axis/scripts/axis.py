@@ -120,6 +120,7 @@ inifile = linuxcnc.ini(sys.argv[2])
 ap = AxisPreferences()
 
 os.system("xhost -SI:localuser:gdm -SI:localuser:root > /dev/null 2>&1")
+os.system("xset r off")
 root_window = Tkinter.Tk(className="Axis")
 dpi_value = root_window.winfo_fpixels('1i')
 root_window.tk.call('tk', 'scaling', '-displayof', '.', dpi_value / 72.0)
@@ -153,6 +154,7 @@ except TclError:
 def General_Halt():
     text = _("Do you really want to close LinuxCNC?")
     if not root_window.tk.call("nf_dialog", ".error", _("Confirm Close"), text, "warning", 1, _("Yes"), _("No")):
+        os.system("xset r on")
         root_window.destroy()
 
 root_window.protocol("WM_DELETE_WINDOW", General_Halt)
@@ -1179,8 +1181,6 @@ def open_file_guts(f, filtered=False, addrecent=True):
     if addrecent:
         add_recent_file(f)
     if not filtered:
-        global loaded_file
-        loaded_file = f
         program_filter = get_filter(f)
         if program_filter:
             tempfile = os.path.join(tempdir, "filtered-" + os.path.basename(f))
@@ -1879,10 +1879,10 @@ def run_warn():
         machine_limit_min, machine_limit_max = soft_limits()
         for i in range(3): # Does not enforce angle limits
             if not(s.axis_mask & (1<<i)): continue
-            if o.canon.min_extents_notool[i] + to_internal_linear_unit(o.last_tool_offset[i]) < machine_limit_min[i]:
+            if o.canon.min_extents_notool[i] < machine_limit_min[i]:
                 warnings.append(_("Program exceeds machine minimum on axis %s")
                     % "XYZABCUVW"[i])
-            if o.canon.max_extents_notool[i] + to_internal_linear_unit(o.last_tool_offset[i]) > machine_limit_max[i]:
+            if o.canon.max_extents_notool[i] > machine_limit_max[i]:
                 warnings.append(_("Program exceeds machine maximum on axis %s")
                     % "XYZABCUVW"[i])
     if warnings:
@@ -1891,7 +1891,7 @@ def run_warn():
             _("Program exceeds machine limits"),
             text,
             "warning",
-            1, _("Run Anyway"), _("Cancel")))
+            1, _("Re-Check"), _("Run Anyway"), _("Cancel"))) + 1
     return 0
 
 def reload_file(refilter=True):
@@ -2005,6 +2005,9 @@ class TclCommands(nf.TclCommands):
 
     def redraw_soon(event=None):
         o.redraw_soon()
+
+    def redraw_dro(event=None):
+        o.redraw_dro()
 
     def to_internal_linear_unit(a, b=None):
         if b is not None: b = float(b)
@@ -2267,6 +2270,8 @@ class TclCommands(nf.TclCommands):
         return ""
 
     def open_file_name(f):
+        global loaded_file
+        loaded_file = f
         open_file_guts(f)
         if str(widgets.view_x['relief']) == "sunken":
             commands.set_view_x()
@@ -2347,7 +2352,12 @@ class TclCommands(nf.TclCommands):
             root_window.tk.call("exec", *e)
 
     def task_run(*event):
-        if run_warn(): return
+        res = 1
+        while res == 1:
+            res = run_warn()
+            if res in [0, 2]: break
+            if res == 3: return
+            reload_file()
 
         global program_start_line, program_start_line_last
         program_start_line_last = program_start_line;

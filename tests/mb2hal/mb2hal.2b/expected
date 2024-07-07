@@ -1,69 +1,69 @@
 Component Pins:
-Owner   Type  Dir         Value  Name
-     (ignored comp id)  bit   OUT         FALSE  mb2hal.Modbus_fnct_02.00.bit
-     (ignored comp id)  bit   OUT          TRUE  mb2hal.Modbus_fnct_02.00.bit-inv
-     (ignored comp id)  bit   OUT         FALSE  mb2hal.Modbus_fnct_02.01.bit
-     (ignored comp id)  bit   OUT          TRUE  mb2hal.Modbus_fnct_02.01.bit-inv
-     (ignored comp id)  bit   OUT         FALSE  mb2hal.Modbus_fnct_02.02.bit
-     (ignored comp id)  bit   OUT          TRUE  mb2hal.Modbus_fnct_02.02.bit-inv
-     (ignored comp id)  bit   OUT         FALSE  mb2hal.Modbus_fnct_02.03.bit
-     (ignored comp id)  bit   OUT          TRUE  mb2hal.Modbus_fnct_02.03.bit-inv
+Owner   Type  Dir                 Value  Name
+     (ignored comp id)  bit   OUT                 FALSE  mb2hal.Modbus_fnct_02.00.bit
+     (ignored comp id)  bit   OUT                  TRUE  mb2hal.Modbus_fnct_02.00.bit-inv
+     (ignored comp id)  bit   OUT                 FALSE  mb2hal.Modbus_fnct_02.01.bit
+     (ignored comp id)  bit   OUT                  TRUE  mb2hal.Modbus_fnct_02.01.bit-inv
+     (ignored comp id)  bit   OUT                 FALSE  mb2hal.Modbus_fnct_02.02.bit
+     (ignored comp id)  bit   OUT                  TRUE  mb2hal.Modbus_fnct_02.02.bit-inv
+     (ignored comp id)  bit   OUT                 FALSE  mb2hal.Modbus_fnct_02.03.bit
+     (ignored comp id)  bit   OUT                  TRUE  mb2hal.Modbus_fnct_02.03.bit-inv
 
 Component Pins:
-Owner   Type  Dir         Value  Name
-     (ignored comp id)  float OUT             0  mb2hal.Modbus_fnct_03.00.float
-     (ignored comp id)  s32   OUT             0  mb2hal.Modbus_fnct_03.00.int
-     (ignored comp id)  float OUT             0  mb2hal.Modbus_fnct_03.01.float
-     (ignored comp id)  s32   OUT             0  mb2hal.Modbus_fnct_03.01.int
-     (ignored comp id)  float OUT             0  mb2hal.Modbus_fnct_03.02.float
-     (ignored comp id)  s32   OUT             0  mb2hal.Modbus_fnct_03.02.int
-     (ignored comp id)  float OUT             0  mb2hal.Modbus_fnct_03.03.float
-     (ignored comp id)  s32   OUT             0  mb2hal.Modbus_fnct_03.03.int
+Owner   Type  Dir                 Value  Name
+     (ignored comp id)  float OUT                     0  mb2hal.Modbus_fnct_03.00.float
+     (ignored comp id)  s32   OUT                     0  mb2hal.Modbus_fnct_03.00.int
+     (ignored comp id)  float OUT                     0  mb2hal.Modbus_fnct_03.01.float
+     (ignored comp id)  s32   OUT                     0  mb2hal.Modbus_fnct_03.01.int
+     (ignored comp id)  float OUT                     0  mb2hal.Modbus_fnct_03.02.float
+     (ignored comp id)  s32   OUT                     0  mb2hal.Modbus_fnct_03.02.int
+     (ignored comp id)  float OUT                     0  mb2hal.Modbus_fnct_03.03.float
+     (ignored comp id)  s32   OUT                     0  mb2hal.Modbus_fnct_03.03.int
 
 Component Pins:
-Owner   Type  Dir         Value  Name
-     (ignored comp id)  float IN              0  mb2hal.Modbus_fnct_06.00.float
-     (ignored comp id)  s32   IN              0  mb2hal.Modbus_fnct_06.00.int
-     (ignored comp id)  float IN              0  mb2hal.Modbus_fnct_06.01.float
-     (ignored comp id)  s32   IN              0  mb2hal.Modbus_fnct_06.01.int
-     (ignored comp id)  float IN              0  mb2hal.Modbus_fnct_06.02.float
-     (ignored comp id)  s32   IN              0  mb2hal.Modbus_fnct_06.02.int
-     (ignored comp id)  float IN              0  mb2hal.Modbus_fnct_06.03.float
-     (ignored comp id)  s32   IN              0  mb2hal.Modbus_fnct_06.03.int
+Owner   Type  Dir                 Value  Name
+     (ignored comp id)  float IN                      0  mb2hal.Modbus_fnct_06.00.float
+     (ignored comp id)  s32   IN                      0  mb2hal.Modbus_fnct_06.00.int
+     (ignored comp id)  float IN                      0  mb2hal.Modbus_fnct_06.01.float
+     (ignored comp id)  s32   IN                      0  mb2hal.Modbus_fnct_06.01.int
+     (ignored comp id)  float IN                      0  mb2hal.Modbus_fnct_06.02.float
+     (ignored comp id)  s32   IN                      0  mb2hal.Modbus_fnct_06.02.int
+     (ignored comp id)  float IN                      0  mb2hal.Modbus_fnct_06.03.float
+     (ignored comp id)  s32   IN                      0  mb2hal.Modbus_fnct_06.03.int
 
 Component Pins:
-Owner   Type  Dir         Value  Name
-     (ignored comp id)  bit   IN          FALSE  mb2hal.Modbus_fnct_15.00.bit
-     (ignored comp id)  bit   IN          FALSE  mb2hal.Modbus_fnct_15.01.bit
-     (ignored comp id)  bit   IN          FALSE  mb2hal.Modbus_fnct_15.02.bit
-     (ignored comp id)  bit   IN          FALSE  mb2hal.Modbus_fnct_15.03.bit
+Owner   Type  Dir                 Value  Name
+     (ignored comp id)  bit   IN                  FALSE  mb2hal.Modbus_fnct_15.00.bit
+     (ignored comp id)  bit   IN                  FALSE  mb2hal.Modbus_fnct_15.01.bit
+     (ignored comp id)  bit   IN                  FALSE  mb2hal.Modbus_fnct_15.02.bit
+     (ignored comp id)  bit   IN                  FALSE  mb2hal.Modbus_fnct_15.03.bit
 
 Component Pins:
-Owner   Type  Dir         Value  Name
-     (ignored comp id)  float IN              0  mb2hal.Modbus_fnct_16.00.float
-     (ignored comp id)  s32   IN              0  mb2hal.Modbus_fnct_16.00.int
-     (ignored comp id)  float IN              0  mb2hal.Modbus_fnct_16.01.float
-     (ignored comp id)  s32   IN              0  mb2hal.Modbus_fnct_16.01.int
-     (ignored comp id)  float IN              0  mb2hal.Modbus_fnct_16.02.float
-     (ignored comp id)  s32   IN              0  mb2hal.Modbus_fnct_16.02.int
-     (ignored comp id)  float IN              0  mb2hal.Modbus_fnct_16.03.float
-     (ignored comp id)  s32   IN              0  mb2hal.Modbus_fnct_16.03.int
+Owner   Type  Dir                 Value  Name
+     (ignored comp id)  float IN                      0  mb2hal.Modbus_fnct_16.00.float
+     (ignored comp id)  s32   IN                      0  mb2hal.Modbus_fnct_16.00.int
+     (ignored comp id)  float IN                      0  mb2hal.Modbus_fnct_16.01.float
+     (ignored comp id)  s32   IN                      0  mb2hal.Modbus_fnct_16.01.int
+     (ignored comp id)  float IN                      0  mb2hal.Modbus_fnct_16.02.float
+     (ignored comp id)  s32   IN                      0  mb2hal.Modbus_fnct_16.02.int
+     (ignored comp id)  float IN                      0  mb2hal.Modbus_fnct_16.03.float
+     (ignored comp id)  s32   IN                      0  mb2hal.Modbus_fnct_16.03.int
 
 Component Pins:
-Owner   Type  Dir         Value  Name
-     (ignored comp id)  bit   OUT         FALSE  mb2hal.Modbus_fnct_01.00.bit
-     (ignored comp id)  bit   OUT          TRUE  mb2hal.Modbus_fnct_01.00.bit-inv
-     (ignored comp id)  bit   OUT         FALSE  mb2hal.Modbus_fnct_01.01.bit
-     (ignored comp id)  bit   OUT          TRUE  mb2hal.Modbus_fnct_01.01.bit-inv
-     (ignored comp id)  bit   OUT         FALSE  mb2hal.Modbus_fnct_01.02.bit
-     (ignored comp id)  bit   OUT          TRUE  mb2hal.Modbus_fnct_01.02.bit-inv
-     (ignored comp id)  bit   OUT         FALSE  mb2hal.Modbus_fnct_01.03.bit
-     (ignored comp id)  bit   OUT          TRUE  mb2hal.Modbus_fnct_01.03.bit-inv
+Owner   Type  Dir                 Value  Name
+     (ignored comp id)  bit   OUT                 FALSE  mb2hal.Modbus_fnct_01.00.bit
+     (ignored comp id)  bit   OUT                  TRUE  mb2hal.Modbus_fnct_01.00.bit-inv
+     (ignored comp id)  bit   OUT                 FALSE  mb2hal.Modbus_fnct_01.01.bit
+     (ignored comp id)  bit   OUT                  TRUE  mb2hal.Modbus_fnct_01.01.bit-inv
+     (ignored comp id)  bit   OUT                 FALSE  mb2hal.Modbus_fnct_01.02.bit
+     (ignored comp id)  bit   OUT                  TRUE  mb2hal.Modbus_fnct_01.02.bit-inv
+     (ignored comp id)  bit   OUT                 FALSE  mb2hal.Modbus_fnct_01.03.bit
+     (ignored comp id)  bit   OUT                  TRUE  mb2hal.Modbus_fnct_01.03.bit-inv
 
 Component Pins:
-Owner   Type  Dir         Value  Name
-     (ignored comp id)  bit   IN          FALSE  mb2hal.Modbus_fnct_05.00.bit
-     (ignored comp id)  bit   IN          FALSE  mb2hal.Modbus_fnct_05.01.bit
-     (ignored comp id)  bit   IN          FALSE  mb2hal.Modbus_fnct_05.02.bit
-     (ignored comp id)  bit   IN          FALSE  mb2hal.Modbus_fnct_05.03.bit
+Owner   Type  Dir                 Value  Name
+     (ignored comp id)  bit   IN                  FALSE  mb2hal.Modbus_fnct_05.00.bit
+     (ignored comp id)  bit   IN                  FALSE  mb2hal.Modbus_fnct_05.01.bit
+     (ignored comp id)  bit   IN                  FALSE  mb2hal.Modbus_fnct_05.02.bit
+     (ignored comp id)  bit   IN                  FALSE  mb2hal.Modbus_fnct_05.03.bit
 

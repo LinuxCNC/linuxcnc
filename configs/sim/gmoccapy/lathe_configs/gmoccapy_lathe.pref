@@ -68,7 +68,7 @@ show_preview_on_offset = False
 use_keyboard_shortcuts = True
 dro_digits = 3
 toggle_readout = True
-tool_in_spindle = 3
+tool_in_spindle = 1
 diameter offset_axis_x = 0
 offset_axis_x = 0.0
 offset_axis_z = 0.0
@@ -78,4 +78,8 @@ use_toolmeasurement = False
 kbd_height = 250
 icon_theme = classic
 hide_tooltips = False
+hide_titlebar = False
+audio_enabled = True
+system_name_werkzeug = Werkzeug
+system_name_rot. = Drehung um Z
 

@@ -74,7 +74,9 @@ DROLabel,
 QLabel#label_axis_x,
 QLabel#label_axis_y,
 QLabel#label_axis_z,
-QLabel#label_axis_a {
+QLabel#label_axis_a,
+QLabel#label_axis_4,
+QLabel#label_axis_5 {
     background: qlineargradient(spread:reflect, x1:0.5, y1:0, x2:0.5, y2:1, stop:0 rgba(120, 140, 180, 255),  stop:0.3 rgba(11, 22, 33, 255));
     border: 1px solid black;
     border-radius: 4px;
@@ -448,3 +450,4 @@ QTabBar::tab:selected {
 QTabBar::tab:!selected {
     margin-top: 2px; /* make non-selected tabs look smaller */
 }
+

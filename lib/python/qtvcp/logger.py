@@ -39,7 +39,7 @@ def verbose(self, message, *args, **kws):
 
 # add the custom log level to the library (class patch)
 logging.Logger.verbose = verbose
-
+logging.Logger.VERBOSE = VERBOSE
 # Our custom colorizing formatter for the terminal handler
 from .lib.colored_formatter import ColoredFormatter
 

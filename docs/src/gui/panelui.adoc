@@ -11,6 +11,7 @@
 == Introduction
 
 Panelui is a non-realtime component to interface buttons to LinuxCNC or HAL:
+
 * It decodes MESA 7I73 style key-scan codes and calls the appropriate routine.
 * It gets input from a realtime component - sampler.  Sampler gets its input from either the MESA 7I73 or sim_matrix_kb component.
 * Panelui is configurable using an INI style text file to define button types, HAL pin types, and/or commands.
@@ -343,7 +344,7 @@ There are a number of internal commands you may use.
 
 == ZMQ Messages
 
-panelui can send ZMQ based messages on button presses. +
+Panelui can send ZMQ based messages on button presses. +
 In this way panelui can interact will other programs such as QtVCP screens. +
 
 [source,{ini}]

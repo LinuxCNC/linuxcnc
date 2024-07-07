@@ -206,6 +206,7 @@ class _GStat(GObject.GObject):
                                         (GObject.TYPE_STRING, GObject.TYPE_BOOLEAN)),
         'show-preference': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, ()),
         'shutdown': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, ()),
+        'status-message': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT, GObject.TYPE_PYOBJECT)),
         'error': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_INT, GObject.TYPE_STRING)),
         'general': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
         'forced-update': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, ()),
@@ -728,7 +729,7 @@ class _GStat(GObject.GObject):
         s_code_old = old.get('s-code', None)
         s_code_new = self.old['s-code']
         if s_code_new != s_code_old:
-            self.emit('s-code-changed',f_code_new)
+            self.emit('s-code-changed',s_code_new)
 
         # g53 blend code
         blend_code_old = old.get('blend-tolerance-code', None)
@@ -856,7 +857,7 @@ class _GStat(GObject.GObject):
 
         # s code
         s_code_new = self.old['s-code']
-        self.emit('s-code-changed',f_code_new)
+        self.emit('s-code-changed',s_code_new)
 
         # g53 blend code
         blend_code_new = self.old['blend-tolerance-code']
@@ -1067,7 +1068,8 @@ class _GStat(GObject.GObject):
         return self.stat.task_mode == linuxcnc.MODE_AUTO and self.stat.interp_state != linuxcnc.INTERP_IDLE
 
     def is_auto_paused(self):
-        return self.old['paused']
+        self.stat.poll()
+        return self.stat.paused
 
     def is_interp_running(self):
         self.stat.poll()
@@ -1237,6 +1239,9 @@ class _GStat(GObject.GObject):
 
     def shutdown(self):
         self.emit('shutdown')
+
+    def get_linuxcnc_version(self):
+        return linuxcnc.version
 
     def __getitem__(self, item):
         return getattr(self, item)

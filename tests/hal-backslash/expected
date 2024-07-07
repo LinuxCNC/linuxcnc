@@ -1,4 +1,4 @@
 Signals:
-Type          Value  Name     (linked to)
-bit            TRUE  hello
+Type                  Value  Name     (linked to)
+bit                    TRUE  hello
 

@@ -1,0 +1,57 @@
+= emccalib (1)
+
+== NAME
+
+emccalib - Adjust ini tuning variables on the fly with save option
+
+== SYNOPSIS
+
+*emccalib.tcl* [_options_]
+
+
+== DESCRIPTION
+
+The Calibration assistant.  This tool Reads the HAL file and for every
+'setp' that uses a variable from the INI file that is in an [AXIS_L],
+[JOINT_N], [SPINDLE_S], or [TUNE] section it creates an entry that can
+be edited and tested.
+
+== USAGE
+
+The calibration/tuning tool supports the following stanzas:
+
+  [JOINT_N], [AXIS_L], [SPINDLE_S], [TUNE]
+
+where _N_ is a joint number (0 .. ([KINS]JOINTS-1) ),
+_L_ is an axis coordinate letter (X,Y,Z,A,B,C,U,V,W),
+and _S_ is a spindle number (0 .. 9).
+
+[NOTE]
+
+The number of allowed spindles is 8 but legacy configurations
+may include a stanza [SPINDLE_9] unrelated to an actual spindle number.
+
+[NOTE]
+
+The [TUNE] stanza may be used for specifying tunable items
+not relevant to the other supported stanzas.
+
+== EXIT STATUS
+
+Return exit code 1 if the ini file is incompatible with the current
+version of emccalib.
+
+== SEE ALSO
+
+*linuxcnc*(1)
+
+== AUTHOR
+
+Original version by Petter Reinholdtsen as part of the LinuxCNC project.
+Improvements by several other members of the LinuxCNC development team.
+
+== COPYRIGHT
+
+This is free software; see the source for copying conditions.  There
+is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.

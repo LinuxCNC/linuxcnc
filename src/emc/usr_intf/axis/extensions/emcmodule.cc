@@ -117,30 +117,25 @@ static int Ini_init(pyIniFile *self, PyObject *a, PyObject *k) {
 }
 
 static PyObject *Ini_find(pyIniFile *self, PyObject *args) {
-    const char *s1, *s2, *out;
+    const char *s1, *s2;
     int num = 1;
     if(!PyArg_ParseTuple(args, "ss|i:find", &s1, &s2, &num)) return NULL;
 
-    out = self->i->Find(s2, s1, num);
-    if(out == NULL) {
-        Py_INCREF(Py_None);
-        return Py_None;
-    }
-    return PyUnicode_FromString(const_cast<char*>(out));
+    if (auto out = self->i->Find(s2, s1, num))
+        return PyUnicode_FromString(out.value());
+
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *Ini_findall(pyIniFile *self, PyObject *args) {
-    const char *s1, *s2, *out;
+    const char *s1, *s2;
     int num = 1;
     if(!PyArg_ParseTuple(args, "ss:findall", &s1, &s2)) return NULL;
 
     PyObject *result = PyList_New(0);
-    while(1) {
-        out = self->i->Find(s2, s1, num);
-        if(out == NULL) {
-            break;
-        }
-        PyList_Append(result, PyUnicode_FromString(const_cast<char*>(out)));
+    while(auto out = self->i->Find(s2, s1, num)) {
+        PyList_Append(result, PyUnicode_FromString(out.value()));
         num++;
     }
     return result;
@@ -1271,6 +1266,56 @@ static PyObject *program_open(pyCommandChannel *s, PyObject *o) {
         return NULL;
     }
     strcpy(m.file, file);
+    /* clear optional fields */
+    m.remote_buffersize = 0;
+    m.remote_filesize = 0;
+
+    /* send file in chunks to linuxcnc via remote_buffer for remote processes */
+    if(s->s->cms->ProcessType == CMS_REMOTE_TYPE && strcmp(s->s->cms->ProcessName, "emc") != 0) {
+        /* open file */
+        FILE *fd;
+        if(!(fd = fopen(file, "r"))) {
+            PyErr_Format(PyExc_OSError, "fopen(%s) error: %s", file, strerror(errno));
+            return PyErr_SetFromErrno(PyExc_OSError);
+        }
+        /* get filesize */
+        if(fseek(fd, 0L, SEEK_END) != 0) {
+            fclose(fd);
+            PyErr_Format(PyExc_OSError, "fseek(%s) error: %s", file, strerror(errno));
+            return PyErr_SetFromErrno(PyExc_OSError);
+        }
+        if((m.remote_filesize = ftell(fd)) < 0) {
+            fclose(fd);
+            PyErr_Format(PyExc_OSError, "ftell(%s) error: %s", file, strerror(errno));
+            return PyErr_SetFromErrno(PyExc_OSError);
+        }
+        if(fseek(fd, 0L, SEEK_SET) != 0) {
+            fclose(fd);
+            PyErr_Format(PyExc_OSError, "fseek(%s) error: %s", file, strerror(errno));
+            return PyErr_SetFromErrno(PyExc_OSError);
+        }
+
+        /* send complete file content in chunks of sizeof(msg.remote_buffer) */
+        while(!(feof(fd))) {
+            size_t bytes_read = fread(&m.remote_buffer, 1, sizeof(m.remote_buffer), fd);
+            /* read error? */
+            if(bytes_read <= 0 && ferror(fd)) {
+                PyErr_Format(PyExc_OSError, "fread(%s) error: %s", file, strerror(errno));
+                return PyErr_SetFromErrno(PyExc_OSError);
+            }
+            /* save amount of bytes written to buffer */
+            m.remote_buffersize = bytes_read;
+            /* send chunk */
+            if(emcSendCommand(s, m) < 0) {
+                 PyErr_Format(PyExc_OSError, "emcSendCommand() error: %s");
+                 return PyErr_SetFromErrno(PyExc_OSError);
+            }
+        }
+        fclose(fd);
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+
     emcSendCommand(s, m);
     Py_INCREF(Py_None);
     return Py_None;
@@ -2183,9 +2228,8 @@ static PyObject *Logger_start(pyPositionLogger *s, PyObject *o) {
         }
         if(s->st->c->valid() && s->st->c->peek() == EMC_STAT_TYPE) {
             EMC_STAT *status = static_cast<EMC_STAT*>(s->st->c->get_address());
-            int colornum = 2;
-            colornum = status->motion.traj.motion_type;
-            if(colornum < 0 || colornum > NUMCOLORS) colornum = 0;
+            int colornum = status->motion.traj.motion_type;
+            if(colornum < 0 || colornum >= NUMCOLORS) colornum = 0;
             struct color c = s->colors[colornum];
             struct logger_point *op = &s->p[s->npts-1];
             struct logger_point *oop = &s->p[s->npts-2];

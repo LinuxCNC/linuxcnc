@@ -80,7 +80,7 @@ AC_PATH_PROG(EGREP, egrep)
 #
 # check for pkg-config
 #
-AC_PATH_PROG([PKG_CONFIG], [pkg-config])
+PKG_PROG_PKG_CONFIG
 if test -z "$PKG_CONFIG"; then
   AC_MSG_ERROR([pkg-config is required to build LinuxCNC])
 fi
@@ -534,11 +534,12 @@ install with "sudo apt-get install libusb-1.0-0-dev" or disable with
 #
 # check for libgpiod
 #
-AC_MSG_CHECKING([for libgpiod])
-AC_CHECK_LIB(gpiod, main,
+PKG_CHECK_MODULES([LIBGPIOD], [libgpiod < 2.0.0],
             [AC_DEFINE_UNQUOTED([LIBGPIOD_VER], `pkg-config libgpiod --modversion | awk -F. '{print ($1 * 100)+($2) }'`,
             [libgpiod version, undefined if not present])
-            LDFLAGS="$LDFLAGS -lgpiod"
+            LDFLAGS="$LDFLAGS $LIBGPIOD_LIBS"
+            LIBGPIOD_VERSION=`pkg-config libgpiod --modversion`
+            AC_MSG_NOTICE([libgpiod version $LIBGPIOD_VERSION found])
             AC_SUBST([LIBGPIOD_VER], `pkg-config libgpiod --modversion | awk -F. '{print ($1 * 100)+($2) }'`)],
             [AC_MSG_WARN([Could not find libgpiod, not building hal_gpio])])
 
@@ -748,6 +749,7 @@ AC_DEFINE_UNQUOTED([EMC2_PO_DIR], "$EMC2_PO_DIR", [Directory for po/mo translati
 AC_DEFINE_UNQUOTED([EMC2_NCFILES_DIR], "$EMC2_NCFILES_DIR", [Directory for nc files])
 AC_DEFINE_UNQUOTED([EMC2_IMAGE_DIR], "$EMC2_IMAGE_DIR", [Directory for images])
 
+AC_SUBST([EMC2_TMP_DIR])
 AC_SUBST([EMC2_BIN_DIR])
 AC_SUBST([EMC2_TCL_DIR])
 AC_SUBST([EMC2_TCL_LIB_DIR])
@@ -770,6 +772,14 @@ LINUXCNC_AUX_GLADEVCP=/usr/share/linuxcnc/aux_gladevcp
 LINUXCNC_AUX_EXAMPLES=/usr/share/linuxcnc/aux_examples
 AC_SUBST([LINUXCNC_AUX_GLADEVCP])
 AC_SUBST([LINUXCNC_AUX_EXAMPLES])
+
+# define temporary directory
+AC_ARG_WITH(tmpdir,
+   [  --with-tmpdir=PATH      Specify path for temporary files],
+   tmpdir="$withval",
+   tmpdir="/tmp")
+AC_DEFINE_UNQUOTED(EMC2_TMP_DIR, "$tmpdir/linuxcnc", [Temporary files directory])
+AC_SUBST(EMC2_TMP_DIR, [$tmpdir])
 
 ##############################################################################
 # Subsection 3.5 - check for GTK                                             #

@@ -177,13 +177,6 @@ struct libusb_transfer *transfer_in  = NULL;
 unsigned char in_buf[32];
 void setup_asynch_transfer(libusb_device_handle *dev_handle);
 
-extern "C" const char *
-iniFind(FILE *fp, const char *tag, const char *section)
-{
-    IniFile                     f(false, fp);
-
-    return(f.Find(tag, section));
-}
 
 void init_xhc(xhc_t *xhc)
 {
@@ -673,19 +666,18 @@ static void hal_setup()
 
 int read_ini_file(char *filename)
 {
-	FILE *fd = fopen(filename, "r");
-	const char *bt;
+	IniFile iniFile;
+	std::optional<const char*> bt;
 	int nb_buttons = 0;
-	if (!fd) {
-		perror(filename);
+	if (!iniFile.Open(filename)) {
+		fprintf(stderr, "%s: Could not open configuration file: %s\n",
+			modname, filename);
 		return -1;
 	}
 
-	IniFile f(false, fd);
-
-	while ( (bt = f.Find("BUTTON", section, nb_buttons+1)) && nb_buttons < NB_MAX_BUTTONS) {
-		if (sscanf(bt, "%x:%s", &xhc.buttons[nb_buttons].code, xhc.buttons[nb_buttons].pin_name) !=2 ) {
-			fprintf(stderr, "%s: syntax error\n", bt);
+	while ((bt = iniFile.Find("BUTTON", section, nb_buttons+1)) && nb_buttons < NB_MAX_BUTTONS) {
+		if (sscanf(*bt, "%x:%s", &xhc.buttons[nb_buttons].code, xhc.buttons[nb_buttons].pin_name) !=2 ) {
+			fprintf(stderr, "%s: syntax error\n", *bt);
 			return -1;
 		}
 		nb_buttons++;

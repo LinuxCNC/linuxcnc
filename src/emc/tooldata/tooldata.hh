@@ -27,7 +27,7 @@
 #include "canon.hh"
 #include "emc_nml.hh"
 
-#ifdef CPLUSPLUS
+#ifdef __cplusplus
 extern"C" {
 #endif
 
@@ -101,7 +101,7 @@ int   tooldata_db_notify(tool_notify_t ntype,
                          int pocketno,
                          CANON_TOOL_TABLE tdata);
 int   tooldata_db_getall(void);
-#ifdef CPLUSPLUS
+#ifdef __cplusplus
 }
 
 #endif

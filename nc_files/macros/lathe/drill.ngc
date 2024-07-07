@@ -15,35 +15,39 @@ O<drill> sub
 
 O100 IF [#<_imperial>]
     (MSG, IMPERIAL sizes)
+    (MSG, )
     #<diam> = [#1 * 25.4]
     #<zDepth> = [#2 * 25.4]
-    #<surfaceSpeed> = [#3 * 304.8] ; sf/m to mm/m
+    #<surfaceSpeed> = [#3 * .3048] ; sf/m to m/m
     #<fpr> = [#4 * 25.4]
     #<peck> = [#6 * 25.4]
     #<retract> = [#7 * 25.4]
     #10 = [[#3 *12] / [3.1415 * #1]]	; RPM from sfm request
 
-    (debug, Expected Drilling Diameter %d#1)
-    (debug, Peck Increment %.2f#6)
-    (debug, Start Z %f#<_z>)
-    (debug, Finish Z %.2f#2)
-    (debug, Feed %.3f#4 IPM)
-    (debug, Tool %d#5)
-    (debug, %d#3 SFM @ RPM %d#10)
+    (debug, Drill Diameter:    %d#1 in)
+    (debug, Peck Increment:    %.3f#6 in)
+    (debug, Start Z:    %.3f#<_z> in)
+    (debug, Finish Z:    %.3f#2 in)
+    (debug, Feed:    %.3f#4 in/rev)
+    (debug, Tool:    %d#5)
+    (debug, Speed:    %d#3 sfm @ %d#10 rpm)
 O100  ELSE
     (MSG, METRIC sizes)
     #<diam> = #1
     #<zDepth> = #2
-    #<surfaceSpeed> = #3 ;mm/m
+    #<surfaceSpeed> = #3 ;m/m
     #<fpr> = #4
     #<peck> = #6
     #<retract> = #7
-    #10 = [#<surfaceSpeed> / [3.1415 * #<diam>]]	; RPM from mm/m request
+    #10 = [#<surfaceSpeed> / [3.1415 * #<diam>]]	; rpm from m/m request
 
-    (debug, Drilling dia #<diam> mm, peck dist #<peck> mm)
-    (debug, startz #<_z> mm, depth #<zDepth> mm)
-    (debug, feed #<fpr> mm/rpm, tool #5)
-    (debug, Surface Speed #<surfaceSpeed> mm/m, rpm #10)
+    (debug, Drilling Diameter:    %d#<diam> mm)
+    (debug, Peck Distance:    %.2f#<peck> mm)
+    (debug, Start Z:    %.2f#<_z> mm)
+    (debug, Finish depth:    %.2f#<zDepth> mm)
+    (debug, Feed:    %.2f#<fpr> mm/rev)
+    (debug, Tool:    %d#5)
+    (debug, Speed    %d#<surfaceSpeed> m/min @ #10 rpm)
 O100  ENDIF
 
 M73 ; save state, restore on exit
@@ -55,7 +59,7 @@ G90 ; Absolute Distance
 
 #<zStart> = #<_z> (starting Z)
 
-(MSG, 100% %.4h Unpause To start Drilling Macro)
+(MSG, Unpause To start Drilling Macro)
 m0
 
 M6 T#5 G43

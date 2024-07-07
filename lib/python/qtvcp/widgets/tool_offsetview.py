@@ -263,32 +263,42 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
     @pyqtSlot(int)
     def scroll(self, data):
         if data > self._last:
-            self.up()
+            self.right()
         elif data < self._last:
-            self.down()
+            self.right()
         self._last = data
 
     # moves the selection up
     @pyqtSlot()
     def up(self):
         cr = self.currentIndex().row()
-        cc = 0#self.currentIndex().column()
-        row = cr-1
-        if row < 0:
-            row = 0
-        z = self.model().createIndex(row,cc)
-        self.setCurrentIndex(z)
+        # state of checkbox ie. is this row selected?
+        # if selected, move horizontally
+        state = self.model().arraydata[cr][0].isChecked()
+        if state:
+            self.right()
+            return
+        else:
+            self.setCurrentIndex(self.moveCursor(QAbstractItemView.CursorAction.MoveUp,Qt.NoModifier))
 
     # moves the selection down
     @pyqtSlot()
     def down(self):
         cr = self.currentIndex().row()
-        cc = 0#self.currentIndex().column()
-        row = cr+1
-        if row > self.model().rowCount(None)-1:
-            row = cr
-        z = self.model().createIndex(row, cc)
-        self.setCurrentIndex(z)
+        # state of checkbox ie. is this row selected?
+        # if selected, move horizontally
+        state = self.model().arraydata[cr][0].isChecked()
+        if state:
+            self.left()
+            return
+        else:
+            self.setCurrentIndex(self.moveCursor(QAbstractItemView.CursorAction.MoveDown,Qt.NoModifier))
+
+    def left(self):
+        self.setCurrentIndex(self.moveCursor(QAbstractItemView.CursorAction.MoveLeft,Qt.NoModifier))
+
+    def right(self):
+        self.setCurrentIndex(self.moveCursor(QAbstractItemView.CursorAction.MoveRight,Qt.NoModifier))
 
     def toggleCurrent(self):
         self.model().toggle(self.currentIndex().row())

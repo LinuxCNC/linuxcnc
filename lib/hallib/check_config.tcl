@@ -165,7 +165,7 @@ proc warn_for_multiple_ini_values {} {
   foreach section $sections {
     set enforce 0
     foreach csection $sections_to_check {
-      if {[string first $csection $section"] >= 0} {
+      if {[string first $csection $section] >= 0} {
         set enforce 1
         break
       }

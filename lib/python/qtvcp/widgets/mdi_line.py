@@ -58,6 +58,7 @@ class MDI(QLineEdit):
         STATUS.connect('error', self.error_update)
         self.returnPressed.connect(self.submit)
         self.spindleInhibit = False
+        self.g92Inhibit = False
         try:
             fp = os.path.expanduser(INFO.MDI_HISTORY_PATH)
             fp = open(fp, 'r')
@@ -117,6 +118,8 @@ class MDI(QLineEdit):
         elif text.lower().startswith('net'):
             self.net(text)
         elif self.spindleInhibit and self.inhibit_spindle_commands(text):
+            return
+        elif self.g92Inhibit and self.inhibit_g92(text):
             return
         else:
             ACTION.CALL_MDI(text+'\n')
@@ -239,6 +242,9 @@ class MDI(QLineEdit):
     def spindle_inhibit(self, state):
         self.spindleInhibit = state
 
+    def g92_inhibit(self, state):
+        self.g92Inhibit = state
+
     # inhibit m3, m4, and m5 commands for plasma configs using the plasmac component
     def inhibit_spindle_commands(self, text):
         if 'm3' in text.lower().replace(' ',''):
@@ -249,6 +255,13 @@ class MDI(QLineEdit):
             return(1)
         elif 'm5' in text.lower().replace(' ',''):
             ACTION.SET_ERROR_MESSAGE('MDI ERROR:\nM5 commands are not allowed in MDI mode\n')
+            return(1)
+        return(0)
+
+    # inhibit g92 offsets for plasma configs using the plasmac component
+    def inhibit_g92(self, text):
+        if 'g92' in text.lower().replace(' ','') and not 'g92.1' in text.lower().replace(' ',''):
+            ACTION.SET_ERROR_MESSAGE('MDI ERROR:\nG92 offsets are not allowed\n')
             return(1)
         return(0)
 

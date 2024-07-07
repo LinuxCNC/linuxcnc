@@ -429,7 +429,7 @@ One pin is created for each SSI instance regardless of data format: (bit, in) hm
 This pin will be set "True" if the module was still transferring data when the value was read.
 When this problem exists there will also be a limited number of error messages printed to the UI.
 This pin should be used to monitor whether the problem has been addressed by config changes.
-Solutions to the problem dpend on whether the encoder read is being triggered by the hm2dpll phase-locked-loop timer (described above) or by the trigger\-encoders function (described below).
+Solutions to the problem depend on whether the encoder read is being triggered by the hm2dpll phase-locked-loop timer (described above) or by the trigger\-encoders function (described below).
 
 The names of the pins created by the SSI module will depend entirely on the format string for each channel specified in the loadrt command line.
 A typical format string might be  \fBssi_chan_0=error%1bposition%24g\fR.
@@ -532,7 +532,7 @@ One pin is created for each BiSS instance regardless of data format:
 This pin will be set "True" if the module was still transferring data when the value was read.
 When this problem exists there will also be a limited number of error messages printed to the UI.
 This pin should be used to monitor whether the problem has been addressed by config changes.
-Solutions to the problem dpend on whether the encoder read is being triggered by the hm2dpll phase-locked-loop timer (described above) or by the trigger\-encoders function (described below).
+Solutions to the problem depend on whether the encoder read is being triggered by the hm2dpll phase-locked-loop timer (described above) or by the trigger\-encoders function (described below).
 
 The names of the pins created by the BiSS module will depend entirely on the format string for each channel specified in the loadrt command line and follow closely the format defined above for SSI.
 Currently data packets of up to 96 bits are supported by the LinuxCNC driver, although the Mesa Hostmot2 module can handle 512 bit packets.
@@ -597,7 +597,7 @@ The Mesa resolver driver has the capability of emulating an absolute encoder usi
 and the single-turn absolute operation of resolvers.
 At startup, and only if the \fBuse-position-file\fR parameter is set to "True",
 the resolver driver will wait for a value to be written by the system to the axis.N.joint-pos-fb pin (which must be netted to this resolver pin)
-and will calculate the number of full turns that best matches the current reolver position.
+and will calculate the number of full turns that best matches the current resolver position.
 It will then pre-load the driver output with this offset.
 This should only be used on systems where axis movement in the unpowered state is unlikely.
 This feature will only work properly if the machine is initially homed to "index" and if the axis home positions are exactly zero.
@@ -694,6 +694,12 @@ a -1 value results in a 0% duty cycle and +1 results in a 100% duty cycle (with 
 This mode is used by some PWM motor drives and PWM to analog converters.
 Typically the direction signal is not used in this mode.
 
+.TP
+(bit input) dither
+When True, dither causes the PWM output to dither between two adjacent PWM register values at the PWM frequency. 
+This increases the PWM resolution when used for analog output purposes, increasing the maximum resolution
+from 12 to 16 bits. Dither is only supported with PWMGen firmware version 1 or greater and only affects PWM outputs,
+not PDM outputs. 
 
 In addition to the per-instance HAL Parameters listed above, there are a couple of HAL Parameters that affect all the pwmgen instances:
 

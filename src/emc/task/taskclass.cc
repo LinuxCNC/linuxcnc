@@ -28,7 +28,6 @@
 #include "taskclass.hh"
 #include <rtapi_string.h>
 
-#include "tooldata.hh"
 #include "hal.hh"
 
 /********************************************************************
@@ -41,21 +40,21 @@
 ********************************************************************/
 int Task::iocontrol_hal_init(void)
 {
-    hal_comp iocontrol("iocontrol.0");
-    iocontrol.add_pin(iocontrol_data.user_enable_out, "user-enable-out");
-    iocontrol.add_pin(iocontrol_data.emc_enable_in, "emc-enable-in");
-    iocontrol.add_pin(iocontrol_data.user_request_enable, "user-request-enable");
-    iocontrol.add_pin(iocontrol_data.coolant_mist, "coolant-mist");
-    iocontrol.add_pin(iocontrol_data.coolant_flood, "coolant-flood");
-    iocontrol.add_pin(iocontrol_data.tool_prep_pocket, "tool-prep-pocket");
-    iocontrol.add_pin(iocontrol_data.tool_from_pocket, "tool-from-pocket");
-    iocontrol.add_pin(iocontrol_data.tool_prep_index, "tool-prep-index");
-    iocontrol.add_pin(iocontrol_data.tool_prep_number, "tool-prep-number");
-    iocontrol.add_pin(iocontrol_data.tool_number, "tool-number");
-    iocontrol.add_pin(iocontrol_data.tool_prepare, "tool-prepare");
-    iocontrol.add_pin(iocontrol_data.tool_prepared, "tool-prepared");
-    iocontrol.add_pin(iocontrol_data.tool_change, "tool-change");
-    iocontrol.add_pin(iocontrol_data.tool_changed, "tool-changed");
+    iocontrol.add_pin("user-enable-out", hal_dir::OUT, iocontrol_data.user_enable_out);
+    iocontrol.add_pin("emc-enable-in", hal_dir::IN, iocontrol_data.emc_enable_in);
+    iocontrol.add_pin("user-request-enable", hal_dir::OUT, iocontrol_data.user_request_enable);
+    iocontrol.add_pin("coolant-mist", hal_dir::OUT, iocontrol_data.coolant_mist);
+    iocontrol.add_pin("coolant-flood", hal_dir::OUT, iocontrol_data.coolant_flood);
+    iocontrol.add_pin("tool-prep-pocket", hal_dir::OUT, iocontrol_data.tool_prep_pocket);
+    iocontrol.add_pin("tool-from-pocket", hal_dir::OUT, iocontrol_data.tool_from_pocket);
+    iocontrol.add_pin("tool-prep-index", hal_dir::OUT, iocontrol_data.tool_prep_index);
+    iocontrol.add_pin("tool-prep-number", hal_dir::OUT, iocontrol_data.tool_prep_number);
+    iocontrol.add_pin("tool-number", hal_dir::OUT, iocontrol_data.tool_number);
+    iocontrol.add_pin("tool-prepare", hal_dir::OUT, iocontrol_data.tool_prepare);
+    iocontrol.add_pin("tool-prepared", hal_dir::IN, iocontrol_data.tool_prepared);
+    iocontrol.add_pin("tool-change", hal_dir::OUT, iocontrol_data.tool_change);
+    iocontrol.add_pin("tool-changed", hal_dir::IN, iocontrol_data.tool_changed);
+    iocontrol.ready();
     if (iocontrol.error < 0)
         return -1;
     return 0;
@@ -81,6 +80,7 @@ void Task::hal_init_pins(void)
     iocontrol_data.tool_from_pocket=0;   /* output, always 0 at startup */
     iocontrol_data.tool_prep_index=0;      /* output, pin that holds the internal index (idx) of the tool to be prepared, for debug */
     iocontrol_data.tool_change=0;        /* output, notifies a tool-change should happen (emc should be in the tool-change position) */
+    iocontrol_data.tool_number = emcioStatus.tool.toolInSpindle;
 }
 
 Task *task_methods;
@@ -129,30 +129,51 @@ struct _inittab builtin_modules[] = {
 
 Task::Task(EMC_IO_STAT & emcioStatus_in) :
     emcioStatus(emcioStatus_in),
-    random_toolchanger(0),
+    iocontrol("iocontrol.0"),
     ini_filename(emc_inifile)
     {
 
     IniFile inifile;
 
-    ini_filename = emc_inifile;
-
     if (inifile.Open(ini_filename)) {
-	inifile.Find(&random_toolchanger, "RANDOM_TOOLCHANGER", "EMCIO");
-	const char *t;
-	if ((t = inifile.Find("TOOL_TABLE", "EMCIO")) != NULL)
-	    tooltable_filename = strdup(t);
+        inifile.Find(&random_toolchanger, "RANDOM_TOOLCHANGER", "EMCIO");
+        std::optional<const char*> t;
+        if ((t = inifile.Find("TOOL_TABLE", "EMCIO")))
+            tooltable_filename = strdup(*t);
+
+        if ((t = inifile.Find("DB_PROGRAM", "EMCIO"))) {
+            db_mode = tooldb_t::DB_ACTIVE;
+            tooldata_set_db(db_mode);
+            strncpy(db_program, *t, LINELEN - 1);
+        }
+
+        if (tooltable_filename != NULL && db_program[0] != '\0') {
+            fprintf(stderr,"DB_PROGRAM active: IGNORING tool table file %s\n",
+                    tooltable_filename);
+        }
+        inifile.Close();
     }
-	tool_mmap_creator((EMC_TOOL_STAT*)&(emcioStatus.tool), random_toolchanger);
+
 #ifdef TOOL_NML //{
     tool_nml_register( (CANON_TOOL_TABLE*)&emcStatus->io.tool.toolTable);
 #else //}{
+    tool_mmap_creator((EMC_TOOL_STAT*)&(emcioStatus.tool), random_toolchanger);
     tool_mmap_user();
     // initialize database tool finder:
 #endif //}
-    emcioStatus.status = RCS_STATUS::DONE;//TODO??
+
     tooldata_init(random_toolchanger);
+    if (db_mode == tooldb_t::DB_ACTIVE) {
+        if (0 != tooldata_db_init(db_program, random_toolchanger)) {
+            rcs_print_error("can't initialize DB_PROGRAM.\n");
+            db_mode = tooldb_t::DB_NOTUSED;
+            tooldata_set_db(db_mode);
+        }
+    }
+
+    emcioStatus.status = RCS_STATUS::DONE;//TODO??
     emcioStatus.tool.pocketPrepped = -1;
+
     if(!random_toolchanger) {
         CANON_TOOL_TABLE tdata = tooldata_entry_init();
         tdata.pocketno =  0; //nonrandom init
@@ -161,6 +182,7 @@ Task::Task(EMC_IO_STAT & emcioStatus_in) :
             UNEXPECTED_MSG;
         }
     }
+
     if (0 != tooldata_load(tooltable_filename)) {
         rcs_print_error("can't load tool table.\n");
     }
@@ -183,12 +205,11 @@ Task::~Task() {};
 static int readToolChange(IniFile *toolInifile)
 {
     int retval = 0;
-    const char *inistring;
+    std::optional<const char*> inistring;
 
-    if (NULL !=
-	(inistring = toolInifile->Find("TOOL_CHANGE_POSITION", "EMCIO"))) {
+    if ((inistring = toolInifile->Find("TOOL_CHANGE_POSITION", "EMCIO"))) {
 	/* found an entry */
-        if (9 == sscanf(inistring, "%lf %lf %lf %lf %lf %lf %lf %lf %lf",
+        if (9 == sscanf(*inistring, "%lf %lf %lf %lf %lf %lf %lf %lf %lf",
                         &tool_change_position.tran.x,
                         &tool_change_position.tran.y,
                         &tool_change_position.tran.z,
@@ -200,7 +221,7 @@ static int readToolChange(IniFile *toolInifile)
                         &tool_change_position.w)) {
             have_tool_change_position=9;
             retval=0;
-        } else if (6 == sscanf(inistring, "%lf %lf %lf %lf %lf %lf",
+        } else if (6 == sscanf(*inistring, "%lf %lf %lf %lf %lf %lf",
                         &tool_change_position.tran.x,
                         &tool_change_position.tran.y,
                         &tool_change_position.tran.z,
@@ -212,7 +233,7 @@ static int readToolChange(IniFile *toolInifile)
 	    tool_change_position.w = 0.0;
             have_tool_change_position = 6;
             retval = 0;
-        } else if (3 == sscanf(inistring, "%lf %lf %lf",
+        } else if (3 == sscanf(*inistring, "%lf %lf %lf",
                                &tool_change_position.tran.x,
                                &tool_change_position.tran.y,
                                &tool_change_position.tran.z)) {
@@ -492,7 +513,7 @@ int Task::emcToolUnload()//EMC_TOOL_UNLOAD_TYPE
 
 int Task::emcToolLoadToolTable(const char *file)//EMC_TOOL_LOAD_TOOL_TABLE_TYPE
 {
-    //error handler?
+    if(!strlen(file)) file = tooltable_filename;//use filename from ini if none is provided
     tooldata_load(file);
     reload_tool_number(emcioStatus.tool.toolInSpindle);
     return 0;

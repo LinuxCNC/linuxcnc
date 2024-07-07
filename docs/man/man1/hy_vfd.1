@@ -282,7 +282,10 @@ value.
 (float, in)
 .B
 .IP <name>.spindle\-speed\-fb
-(float, out) Current spindle speed as reported by Huanyang VFD.
+(float, out) Current spindle speed as reported by Huanyang VFD (rpm).
+.B
+.IP <name>.spindle\-speed\-fb\-rps
+(float, out) Current spindle speed as reported by Huanyang VFD (rps).
 .B
 .IP <name>.spindle\-at\-speed\-tolerance
 (float, in) Spindle speed error tolerance.  If the actual spindle
@@ -322,14 +325,12 @@ within .spindle\-at\-speed\-tolerance of the commanded speed.
 .B
 .IP <name>.hycomm\-ok
 (bit, out)
-
-.SH PARAMETERS
 .B
 .IP <name>.error\-count
-(s32, RW)
+(s32, RO)
 .B
 .IP <name>.retval
-(float, RW)
+(u32, R0)
 
 .SH AUTHOR
 Sebastian Kuzminsky

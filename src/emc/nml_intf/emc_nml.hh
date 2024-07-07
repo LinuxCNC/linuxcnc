@@ -1012,7 +1012,14 @@ class EMC_TASK_PLAN_OPEN:public EMC_TASK_CMD_MSG {
     // For internal NML/CMS use only.
     void update(CMS * cms);
 
+    // (local) path to file
     char file[LINELEN];
+    // total size of file in bytes (if issued from remote process, 0 otherwise)
+    size_t remote_filesize;
+    // amount of bytes currently in buffer (if issued from remote process, 0 otherwise)
+    size_t remote_buffersize;
+    // buffer used to transfer send a chunk of file contents (if loaded from remote process)
+    char remote_buffer[4096];
 };
 
 class EMC_TASK_PLAN_RUN:public EMC_TASK_CMD_MSG {
@@ -1630,16 +1637,6 @@ class EMC_COOLANT_STAT:public EMC_COOLANT_STAT_MSG {
 
 // EMC_IO is aggregate of all EMC IO-related status classes
 
-// EMC_IO command base class
-class EMC_IO_CMD_MSG:public RCS_CMD_MSG {
-  public:
-    EMC_IO_CMD_MSG(NMLTYPE t, size_t s):RCS_CMD_MSG(t, s) {
-    };
-
-    // For internal NML/CMS use only.
-    void update(CMS * cms);
-};
-
 // EMC_IO status base class
 class EMC_IO_STAT_MSG:public RCS_STAT_MSG {
   public:
@@ -1656,7 +1653,6 @@ class EMC_IO_STAT:public EMC_IO_STAT_MSG {
     void update(CMS * cms);
 
     // top-level stuff
-    double cycleTime;
     int debug;			// copy of EMC_DEBUG global
     int reason;			// to communicate abort/fault cause
     int fault;                  //  0 on success, 1 on fault during M6

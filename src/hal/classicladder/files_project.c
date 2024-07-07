@@ -35,6 +35,7 @@
 #include <sys/types.h>
 #endif
 #include "classicladder.h"
+#include "config.h"
 #include "global.h"
 #include "edit.h"
 #include "calc.h"
@@ -107,7 +108,7 @@ void InitTempDir( void )
 {
 	char * TmpEnv = getenv("TMP");
 	if ( TmpEnv==NULL )
-		TmpEnv = "/tmp";
+		TmpEnv = EMC2_TMP_DIR;
 
 	// get a single name directory
 	snprintf(TmpDirectory, sizeof(TmpDirectory), "%s/classicladder_tmp_XXXXXX", TmpEnv );

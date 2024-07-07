@@ -14,7 +14,7 @@ linuxcnc [options] [<INI-file>]
 
 .`linuxcnc` script options
 ----
-linuxcnc: Run LINUXCNC
+linuxcnc: Run LinuxCNC
 
 Usage:
   $ linuxcnc -h
@@ -27,11 +27,15 @@ Usage:
     Name the configuration INI file using its path
 
   $ linuxcnc [Options] -l
-    Use the previously used configuration inifile
+    Use the previously used configuration INI file
 
 Options:
     -d: Turn on "debug" mode
     -v: Turn on "verbose" mode
+    -r: Disable redirection of stdout and stderr to ~/linuxcnc_print.txt and
+        ~/linuxcnc_debug.txt when stdin is not a tty.
+        Used when running linuxcnc tests non-interactively.
+    -l: Use the last-used INI file
     -k: Continue in the presence of errors in HAL files
     -t "tpmodulename [parameters]"
             specify custom trajectory_planning_module
@@ -63,6 +67,6 @@ configuration has been saved it can be modified to suit your application.
 The configuration files are saved in linuxcnc/configs directory.
 
 //.Configuration Selector
-image::images/configuration-selector.png["LinuxCNC Configuration Selector",align="center"]
+image::../getting-started/images/configuration-selector.png["LinuxCNC Configuration Selector",align="center"]
 
 // vim: set syntax=asciidoc:

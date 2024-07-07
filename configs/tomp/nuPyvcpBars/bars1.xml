@@ -1,0 +1,53 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- bars2.xml for descring bars widget -->
+<!-- an xml can be viewed with   -->
+<!-- halrun -->
+<!-- halcmd    loadusr -Wn windowname pyvcp -c pinnameprefix xmlfiletoview.xml -->
+<pyvcp>
+    <vbox>
+        <hbox>
+            <vbox>
+                <bar>
+                    <orient>'Horz'</orient>
+
+                    <halpin>"proc01"</halpin>
+                    <min_>100</min_>
+                    <max_>110</max_>
+                    <!--bgcolor>'grey'</bgcolor-->
+                    <!--fillcolor>'red'</fillcolor-->
+                    
+                    <origin>100</origin>
+                    
+                    <canvas_height>60</canvas_height>
+                    <canvas_width>609</canvas_width>
+                    <bar_height>50</bar_height>
+                    <bar_width>500</bar_width>
+                    
+                    <!-- nformat>'3.3f'</nformat -->
+                    
+                    
+                    <range1>(100,103.3,"blue")</range1>
+                    <range2>(103.301,106.6,"yellow")</range2>
+                    <range3>(106.601,110,"orange")</range3>
+                    
+                    <!--font>("Courier", -18, "bold")</font-->
+                    
+                    <!--font>("Bitstream Charter", -24, "bold")</font-->
+                    
+                    <!--font>("Century Schoolbook L", -24, "bold")</font-->
+                    
+                    <!--font>("eufm10", -14, "bold")</font-->
+                    <!--imgf>"pix/wifi.png"</imgf-->
+                    
+                    <!--dwgf>"vbardiamond01"</dwgf-->
+                    
+                    <dwgf>"/home/tomp/linuxcnc-barwidgets/dwgs/hbardiamond01"</dwgf>
+                    
+                    <!--imgf>"pix/wifi.png"</imgf-->
+                    
+                    <layout>"0"</layout>
+                </bar>
+            </vbox>
+        </hbox>
+    </vbox>
+</pyvcp>

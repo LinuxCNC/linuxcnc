@@ -585,18 +585,25 @@ These set _attributes_ of the selected action (availability depends on the widge
 *`command string`*::
   MDI command string that will be invoked if the MDI command action is selected.
 *`ini_mdi_number`*::
+  (Legacy way) +
   A reference to the _INI file_ `[MDI_COMMAND_LIST]` section. +
   Set an integer of select one line under the INI`s `[MDI_COMMAND]` line starting at 0. +
   Then in the INI file, under the heading `[MDI_COMMAND_LIST]` add appropriate lines. +
-  The commands are separated by the `;`. +
-  The `label` is set after the comma, and `\n` symbol adds a line break.
-//FIXME Space after comma or not ?
+  Commands separated by the `;` will be run one after another +
+  The button label text can be set with any text after a comma, the `\n` symbol adds a line break.
 
+*`ini_mdi_key`*::
+  (preferred way) +
+  A reference to the _INI file_ `[MDI_COMMAND_LIST]` section. +
+  This string will be added to 'MDI_COMMAND_' to form an entry to look for +
+  in the INI file, under the heading `[MDI_COMMAND_LIST]`. +
+  Commands separated by the `;` will be run one after another +
+  The button label text can be set with any text after a comma, the `\n` symbol adds a line break.
 [source,{ini}]
 ----
 [MDI_COMMAND_LIST]
-MDI_COMMAND = G0 Z25;X0 Y0;Z0, Goto\nUser\nZero
-MDI_COMMAND = G53 G0 Z0;G53 G0 X0 Y0, Goto\nMachn\nZero
+MDI_COMMAND_MACRO0 = G0 Z25;X0 Y0;Z0, Goto\nUser\nZero
+MDI_COMMAND_MACRO1 = G53 G0 Z0;G53 G0 X0 Y0, Goto\nMachn\nZero
 ----
 
 //FIXME add link to Indicated_PushButton section
@@ -778,6 +785,7 @@ The `GcodeDisplay` properties can be set in a stylesheet with the following code
 ----
 EditorBase{
     qproperty-styleColorBackground: lightblue;
+    qproperty-styleColorCursor:white;
     qproperty-styleColor0: black;
     qproperty-styleColor1: #000000; /* black */
     qproperty-styleColor2: blue;
@@ -942,6 +950,17 @@ GCodeGraphics{
 ----
 #gcodegraphics{
     qproperty-overlay_color: blue;
+}
+----
+
+*`overlay_alpha`* _(float)_::
+  Sets the _default overlay alpha value_. This affects the opacity of the overlay when set between 0.0 and 1.0. +
+  The following shows an example of how to set this property:
++
+[source,{css}]
+----
+#gcodegraphics{
+    qproperty-overlay_alpha: 0.15;
 }
 ----
 
@@ -1439,6 +1458,26 @@ These include:
   Sets up a dialog to display starting options when starting machine execution from a arbitrary line.
 *`runFromLine_overlay_color`*::
   Color of transparent layer shown when the `runFromLine` dialog is shown.
+*`user1Color`*::
+  Optional color the screen designer can use in their design.
+*`user2Color`*::
+  Optional color the screen designer can use in their design.
+*`user3Color`*::
+  Optional color the screen designer can use in their design.
+*`user4Color`*::
+  Optional color the screen designer can use in their design.
+*`user5Color`*::
+  Optional color the screen designer can use in their design.
+*`user6Color`*::
+  Optional color the screen designer can use in their design.
+*`user7Color`*::
+  Optional color the screen designer can use in their design.
+*`user8Color`*::
+  Optional color the screen designer can use in their design.
+*`user9Color`*::
+  Optional color the screen designer can use in their design.
+*`user10Color`*::
+  Optional color the screen designer can use in their design.
 
 .Setting Properties Programmatically
 The screen designer chooses the *default settings of the `screenOptions` widget*.
@@ -1466,16 +1505,6 @@ self.w.screen_options.setProperty('play_sounds_option',False)
 /* the # sign is used to refer to Qt Designer defined widget name */
 /* matches/applied to only this named widget */
 #screen_options {
-  qproperty-close_overlay_color: rgba(0, 255, 0, 0.75)
-}
-----
-+
-[source,{css}]
-----
-/* red, green, blue 0-255, alpha 0-100% or 0.0 to 1.0 */
-/* use widget class name */
-/* matches/applied to all widgets of this class */
-ScreenOptions {
   qproperty-close_overlay_color: rgba(0, 255, 0, 0.75)
 }
 ----
@@ -1876,8 +1905,7 @@ Enter any of these _case sensitive_ commands to load the respective program or a
   link:../man/man1/linuxcnctop.1.html[`status`] utility.
 *`CALIBRATION`*::
   Starts LinuxCNC
-  link:../getting-started/updating-linuxcnc.html#_calibration_emccalib_tcl[calibration]
-  utility.
+  link:../man/man1/emccalib.1.html[Calibration]
 *`CLASSICLADDER`*::
   Starts the link:../ladder/classic-ladder.html[ClassicLadder GUI] if the _ClassicLadder realtime HAL component_ was loaded by the machine's config files.
 *`PREFERENCE`*::
@@ -2723,10 +2751,10 @@ self.w.joypadename.setProperty('false_color','red')
 ----
 
 === 'WebWidget'
-This widget will create a html/pdf viewing page using the QtWebKit or 
-QtWebEngine libraries. The newer QtWebEngine is preferred if both are on the system. +
-If the QtWebEngine library is used with the QtDesigner editor, a placeholder QWidget will show in Qesigner.
-This will be replaced with thw QtWebEngine widget at run time.
+This widget will create a html/pdf viewing page using the QtWebKit or QtWebEngine libraries.
+The newer QtWebEngine is preferred if both are on the system. +
+If the QtWebEngine library is used with the Qt Designer editor, a placeholder QWidget will show in Qesigner.
+This will be replaced with the QtWebEngine widget at run time.
 
 [[sec:qtvcp:widgets:baseclass-mixin]]
 == BaseClass/Mixin Widgets
@@ -2764,6 +2792,8 @@ These properties are available to customize the indicator (not all are applicabl
 
 *`on_color`*::
 *`off_color`*::
+*`flashIndicator`*::
+*`flashRate`*::
 *`indicator_size`*::
 *`circle_diameter`*::
 *`shape_option`*::
@@ -2864,6 +2894,7 @@ There are several properties that can be selected to aid with this:
 *`isOnSensitive`*::
 *`isIdleSensitive`*::
 *`isRunSensitive`*::
+*`isRunPausedSensitive`*::
 *`isManSensitive`*::
 *`isMDISensitive`*::
 *`isAutoSensitive`*::
@@ -3026,5 +3057,42 @@ Allows adding loadable PDFs to a screen.
 === Qt Vismach
 
 Use this to build/add OpenGl simulated machines.
+
+=== Hal Selection Box
+This widget is combobox that will allows selection of a pin or signal on the system. +
+
+[source,python]
+----
+from qtvcp.widgets.hal_selectionbox import HALSelectionBox
+
+    def buildComboBox(self):
+        # combo box for HAL pin selection
+        combobox = HALSelectionBox()
+        combobox.setShowTypes([combobox.PINS,combobox.SIGNALS])
+        combobox.setPinTypes([combobox.HAL_BIT], direction = [combobox.HAL_IN])
+        combobox.setSignalTypes([combobox.HAL_BIT], driven = [False,True])
+        combobox.hal_init()
+        combobox.selectionUpdated.connect(lambda w: self.signalSelected(w))
+
+    def signalSelected(self, sig):
+        print('Watching:',sig)
+
+----
+
+There are function calls
+
+[source,python]
+----
+# set the list of types to show from: PINS SIGNALS
+combobox.setShowTypes([combobox.PINS])
+
+# set the pin types to show: HAL_BIT,HAL_FLOAT,HAL_S32,HAL_U32
+# and a list of directions: HAL_IN HAL_OUT
+combobox.setPinTypes(types=[combobox.HAL_BIT], direction = [HAL_IN])
+
+# set the signal types to show: HAL_BIT,HAL_FLOAT,HAL_S32,HAL_U32
+# and a list of driven/undriven (by a connected pin) to show
+combobox.setSignalTypes( types=[combobox.HAL_BIT], driven = [True,True])
+----
 
 // vim: set syntax=asciidoc:

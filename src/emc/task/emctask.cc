@@ -19,6 +19,7 @@
 #include <unistd.h>		// stat()
 #include <limits.h>		// PATH_MAX
 #include <dlfcn.h>
+#include <memory>
 
 #include "rcs.hh"		// INIFILE
 #include "emc.hh"		// EMC NML
@@ -98,68 +99,66 @@ static void user_defined_add_m_code(int num, double arg1, double arg2)
 {
     // num      is the m_code number, typically 00-99 corresponding to M100-M199
     char fmt[EMC_SYSTEM_CMD_LEN];
-    EMC_SYSTEM_CMD system_cmd;
+    auto system_cmd = std::make_unique<EMC_SYSTEM_CMD>();
 
     //we call FINISH() to flush any linked motions before the M1xx call, 
     //otherwise they would mix badly
     FINISH();
     rtapi_strxcpy(fmt, user_defined_fmt[user_defined_function_dirindex[num]]);
     rtapi_strxcat(fmt, " %f %f");
-    snprintf(system_cmd.string, sizeof(system_cmd.string), fmt, num, arg1, arg2);
-    interp_list.append(system_cmd);
+    snprintf(system_cmd->string, sizeof(system_cmd->string), fmt, num, arg1, arg2);
+    interp_list.append(std::move(system_cmd));
 }
 
 int emcTaskInit()
 {
-    char mdir[MAX_M_DIRS][PATH_MAX+1];
+    char mdir[MAX_M_DIRS][PATH_MAX];
     int num,dct,dmax;
     char path[EMC_SYSTEM_CMD_LEN];
     struct stat buf;
     IniFile inifile;
-    const char *inistring;
+    std::optional<const char*> inistring;
+    ZERO_EMC_POSE(emcStatus->task.toolOffset);
 
     inifile.Open(emc_inifile);
 
     // Identify user_defined_function directories
-    if (NULL != (inistring = inifile.Find("PROGRAM_PREFIX", "DISPLAY"))) {
-        strncpy(mdir[0],inistring, sizeof(mdir[0]));
-        if (mdir[0][sizeof(mdir[0])-1] != '\0') {
+    if ((inistring = inifile.Find("PROGRAM_PREFIX", "DISPLAY"))) {
+        if (strlen(*inistring) >= sizeof(mdir[0])) {
             rcs_print("[DISPLAY]PROGRAM_PREFIX too long (max len %zu)\n", sizeof(mdir[0]));
             return -1;
         }
+        strncpy(mdir[0], *inistring, sizeof(mdir[0]));
     } else {
         // default dir if no PROGRAM_PREFIX
-        strncpy(mdir[0],"nc_files", sizeof(mdir[0]));
-        if (mdir[0][sizeof(mdir[0])-1] != '\0') {
-            rcs_print("default nc_files too long (max len %zu)\n", sizeof(mdir[0]));
-            return -1;
-        }
+        strncpy(mdir[0], "nc_files", sizeof(mdir[0]));
     }
     dmax = 1; //one directory mdir[0],  USER_M_PATH specifies additional dirs
 
     // user can specify a list of directories for user defined functions
     // with a colon (:) separated list
-    if (NULL != (inistring = inifile.Find("USER_M_PATH", "RS274NGC"))) {
+    if ((inistring = inifile.Find("USER_M_PATH", "RS274NGC"))) {
         char* nextdir;
         char tmpdirs[PATH_MAX];
 
         for (dct=1; dct < MAX_M_DIRS; dct++) mdir[dct][0] = 0;
 
-        strncpy(tmpdirs,inistring, sizeof(tmpdirs));
-        if (tmpdirs[sizeof(tmpdirs)-1] != '\0') {
+        if (strlen(*inistring) >= sizeof(tmpdirs)) {
             rcs_print("[RS274NGC]USER_M_PATH too long (max len %zu)\n", sizeof(tmpdirs));
             return -1;
         }
+        strncpy(tmpdirs, *inistring, sizeof(tmpdirs));
 
         nextdir = strtok(tmpdirs,":");  // first token
         dct = 1;
         while (dct < MAX_M_DIRS) {
             if (nextdir == NULL) break; // no more tokens
-            strncpy(mdir[dct],nextdir, sizeof(mdir[dct]));
-            if (mdir[dct][sizeof(mdir[dct])-1] != '\0') {
-                rcs_print("[RS274NGC]USER_M_PATH component (%s) too long (max len %zu)\n", nextdir, sizeof(mdir[dct]));
+            if (strlen(nextdir) >= sizeof(mdir[dct])) {
+                rcs_print("[RS274NGC]USER_M_PATH component (%s) too long (max len %zu)\n",
+                          nextdir, sizeof(mdir[dct]));
                 return -1;
             }
+            strncpy(mdir[dct], nextdir, sizeof(mdir[dct]));
             nextdir = strtok(NULL,":");
             dct++;
         }
@@ -225,6 +224,12 @@ int emcTaskStateRestore()
     return res;
 }
 
+void emcTaskQueueTaskPlanSynchCmd()
+{
+    auto taskPlanSynchCmd = std::make_unique<EMC_TASK_PLAN_SYNCH>();
+    emcTaskQueueCommand(std::move(taskPlanSynchCmd));
+}
+
 int emcTaskAbort()
 {
     emcMotionAbort();
@@ -246,8 +251,7 @@ int emcTaskAbort()
     steppingWait = 0;
 
     // now queue up command to resynch interpreter
-    EMC_TASK_PLAN_SYNCH taskPlanSynchCmd;
-    emcTaskQueueCommand(&taskPlanSynchCmd);
+    emcTaskQueueTaskPlanSynchCmd();
 
     // without emcTaskPlanClose(), a new run command resumes at
     // aborted line-- feature that may be considered later
@@ -428,13 +432,13 @@ int emcTaskPlanInit()
 {
     if(!pinterp) {
 	IniFile inifile;
-	const char *inistring;
+	std::optional<const char*> inistring;
 	inifile.Open(emc_inifile);
 	if((inistring = inifile.Find("INTERPRETER", "TASK"))) {
-	    pinterp = interp_from_shlib(inistring);
+	    pinterp = interp_from_shlib(*inistring);
 	    fprintf(stderr, "interp_from_shlib() -> %p\n", pinterp);
             if (!pinterp) {
-                fprintf(stderr, "failed to load [TASK]INTERPRETER (%s)\n", inistring);
+                fprintf(stderr, "failed to load [TASK]INTERPRETER (%s)\n", *inistring);
                 return -1;
             }
 	}

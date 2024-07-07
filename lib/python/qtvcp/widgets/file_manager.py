@@ -200,7 +200,7 @@ class FileManager(QWidget, _HalWidgetBase):
     def _hal_init(self):
         if self.PREFS_:
             last_path = self.PREFS_.getpref('last_loaded_directory', self.user_path, str, 'BOOK_KEEPING')
-            LOG.debug("lAST FILE PATH: {}".format(last_path))
+            LOG.debug("LAST FILE PATH: {}".format(last_path))
             if not last_path == '' and os.path.exists(last_path):
                 self.updateDirectoryView(last_path)
             else:
@@ -211,7 +211,7 @@ class FileManager(QWidget, _HalWidgetBase):
             self._jumpList.update(temp)
 
         else:
-            LOG.debug("lAST FILE PATH: {}".format(self.user_path))
+            LOG.debug("LAST FILE PATH: {}".format(self.user_path))
             self.updateDirectoryView(self.user_path)
 
         # install jump paths into toolbutton menu

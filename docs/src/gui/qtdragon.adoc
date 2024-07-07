@@ -72,8 +72,7 @@ DISPLAY = qtvcp qtdragon
 
 To keep track of preferences, QtDragon looks for a preference text file.
 Add the following entry under the `[DISPLAY]` heading. +
-It can use `~` for home directory or `WORKINGFOLDER` or `CONFIGFOLDER`
- to represent QtVCP's idea of those directories: +
+It can use `~` for home directory or `WORKINGFOLDER` or `CONFIGFOLDER` to represent QtVCP's idea of those directories: +
 This example will save the file in the config folder of the launch screen.
 (Other options are possible see the QtVCP's screenoption widget docs.)
 
@@ -351,20 +350,20 @@ RS274NGC_STARTUP_CODE = G17 G20 G40 G43H0 G54 G64P0.0005 G80 G90 G94 G97 M5 M9
 === Macro Buttons
 
 QtDragon has up to ten convenience buttons for calling 'macro actions'. +
+These are under the heading '[MDI_COMMAND_LIST]' as 'MDI_COMMAND_MACRO0 =' to 'MDI_COMMAND_MACRO9 =' +
 These could also call OWord routines if desired. +
 In the sample configurations they are labelled for moving between
 current user system origin (zero point) and Machine system origin. +
 User origin is the first MDI command in the INI list, machine origin is the second. +
-This example shows how to move Z axis up first. The commands are separated by the ';'.
-
-The label is set after the comma. The symbols '\n' adds a line break.
+This example shows how to move Z axis up first. Commands separated by the ';' are run one after another. +
+The button label text can be set with any text after a comma, the `\n` symbol adds a line break.
 
 [source,{ini}]
 ----
 [MDI_COMMAND_LIST]
 # for macro buttons
-MDI_COMMAND = G0 Z25;X0 Y0;Z0, Goto\nUser\nZero
-MDI_COMMAND = G53 G0 Z0;G53 G0 X0 Y0,Goto\nMachn\nZero
+MDI_COMMAND_MACRO0 = G0 Z25;X0 Y0;Z0, Goto\nUser\nZero
+MDI_COMMAND_MACRO1 = G53 G0 Z0;G53 G0 X0 Y0,Goto\nMachn\nZero
 ----
 
 === Post GUI HAL File
@@ -484,6 +483,16 @@ You would connect it to `spindle.0.inhibit`.
 qtdragon.spindle-inhibit
 ----
 
+QtDragon spindle speed display and spindle-at-speed LED require that
+ `spindle.0.speed-in` be connected to spindle speed feedback. +
+Encoder or VFD feedback could be used, as long as the feedback is in revolutions per second (RPS). +
+If no feedback is available you can have the display show the requested speed by connecting pins like so:
+
+[source,{hal}]
+----
+net spindle-speed-feedback spindle.0.speed-out-rps => spindle.0.speed-in 
+----
+
 This bit output pin can be connected to turn on a laser:
 
 [source,{hal}]
@@ -507,6 +516,7 @@ qtdragon.eoffset-enable
 qtdragon.eoffset-value
 qtdragon.eoffset-spindle-count
 qtdragon.eoffset-zlevel-count
+qtdragon.eoffset-is-active
 ----
 
 These float output pins reflect the current slider jograte (in machine units):
@@ -540,6 +550,13 @@ qtversaprobe.searchvel
 qtversaprobe.backoffdist
 ----
 
+This input pin is available to toggle pause/resume of a running program.
+
+[source,{hal}]
+----
+qtdragon.external-pause
+----
+
 == HAL files
 
 The HAL files supplied are for simulation only.
@@ -567,9 +584,10 @@ It is up to the end user to supply the appropriate driver and HAL file connectio
 
 == Auto Raise Z Axis on Spindle Pause
 
-QtDragon can be set up to automatically raise and lower the Z axis when the spindle is paused. +
-When a program is paused, then you press the 'Spindle Pause' button to stop the spindle and raise it in Z. +
-Press the button again to start spindle and lower it, then unpause the program. +
+QtDragon can be set up to automatically raise and lower the Z axis and stop the spindle, when the program is paused. +
+You select the 'SPINDLE LIFT' or 'NO SPINDLE LIFT' button to select the option to raise the spindle in Z when paused. +
+Then when you press the 'PAUSE' button the spindle will lift the amount set on the 'Settings' tab and the spindle will stop. +
+Pressing 'RESUME' will start the spindle and lower the spindle. +
 If you have the HAL pin `spindle.0.at-speed` connected to a driving pin, the spindle will not lower until the pin is true +
 You typically connect this to a timer or logic that detects the speed of the spindle. +
 If that pin is not connected to a driving pin, a dialog will pop up to warn you to wait for the spindle response. +
@@ -578,7 +596,13 @@ The amount to raise is set in the 'Settings' tab under the heading 'SPINDLE RAIS
 This line edit box can only be directly set when not in Auto mode. +
 The up/down buttons can be used to adjust the raise amount at any time, including when the spindle is already raised. +
 The button increments are 1 inch or 5 mm (depending on the units the machine is based on) +
-This optional behaviour requires additions to the INI and the qtdragon_post_gui HAL file.
+
+{NOTE}
+If using the Spindle lift option, HALUI can not be used to pause/resume the program.
+There is a pin, 'QtDragon.external-pause' available to pause/resume from an external source.
+You must also enable external offets. In the setting tab check 'use external offsets'
+
+This optional behaviour requires additions to the INI and the QtDragon_postgui HAL file.
 
 In the INI, under the AXIS_Z heading.
 
@@ -587,15 +611,18 @@ In the INI, under the AXIS_Z heading.
 [AXIS_Z]
 OFFSET_AV_RATIO  = 0.2
 ----
+This reserves 20% of max velocity and max acceleration for the external offsets. +
+This will limit max velocity of the machine by 20% +
 
 In the qtdragon_postgui.hal file add:
 
 [source,{hal}]
 ----
 # Set up Z axis external offsets
-net eoffset_clear    qtdragon.eoffset-clear => axis.z.eoffset-clear
-net eoffset_count    qtdragon.eoffset-spindle-count => axis.z.eoffset-counts
-net eoffset          qtdragon.eoffset-value <= axis.z.eoffset
+net eoffset_clear    qtdragon.eoffset-clear          =>  axis.z.eoffset-clear
+net eoffset_count    qtdragon.eoffset-spindle-count  =>  axis.z.eoffset-counts
+net eoffset          qtdragon.eoffset-value          <=  axis.z.eoffset
+net eoffset-state    qtdragon.eoffset-is-active      <=  motion.eoffset-active
 
 # uncomment for dragon_hd
 #net limited          qtdragon.led-limits-tripped <= motion.eoffset-limited
@@ -682,7 +709,8 @@ setp axis.z.eoffset-enable True
 ########################################################################
 net eoffset-clear              qtdragon.eoffset-clear
 net eoffset-spindle-count   <= qtdragon.eoffset-spindle-count
-net spindle-pause              qtdragon.spindle-inhibit     spindle.0.inhibit
+net spindle-pause              qtdragon.spindle-inhibit        =>  spindle.0.inhibit
+net eoffset-state              qtdragon.eoffset-is-active      <=  motion.eoffset-active
 
 ## Z level compensation
 ####################################################
@@ -830,7 +858,7 @@ Sequence after pressing the probe button: +
 . probe wall twice (rough and fine),
 . move diagonally to the other wall as set by EDGE WIDTH and XY CLEARANCE,
 . probe wall twice,
-. raise probe up by Z CLEARANCE + EXTRA DEPTH 9returns to starting height),
+. raise probe up by Z CLEARANCE + EXTRA DEPTH (returns to starting height),
 . rapid back to starting corner (now calculated using the probed walls),
 . if auto zero button is enabled, set X and Y of the current user system to zero.
 
@@ -899,10 +927,10 @@ The sequence of events (using the default files):
 * Return Z to position defined in the INI's [TOOL_CHANGE] Z
 
 [NOTE]
-The [TOOL_CHANGE] Z position should be high enough so the tool will not hit the tool probe 
+The [TOOL_CHANGE] Z position should be high enough so the tool will not hit the tool probe
 when moving to the [VERSA_TOOLSETTER] X and Y position.
 MAXPROBE distance needs to be high enough for the tool to touch the probe.
- 
+
 === Work Piece Height Probing
 
 .QtDragon_hd - Work piece Height probing
@@ -988,7 +1016,7 @@ USE_PROBE = basicprobe
 <<sub:remap:sec:error-handling, Remap Abort Details>>
 
 [NOTE]
-These default entries should work fine in most situations. Some systems may need to use 'linuxcnc/nc_files/examples/' 
+These default entries should work fine in most situations. Some systems may need to use 'linuxcnc/nc_files/examples/'
 instead of 'linuxcnc/nc_files/'. please check that paths are valid. Custom entries pointing to modified file are possible.
 
 [source,{ini}]
@@ -1059,11 +1087,12 @@ Z = -2
 ==== The Python Section
 
 The Python section sets up what files LinuxCNC's Python interpreter looks for, e.g., `toplevel.py` file in the `python` folder in the configuration directory:
-These default entries should work fine in most situations. Some systems may need to use 'linuxcnc/nc_files/examples/' 
-instead of 'linuxcnc/nc_files/'. Custom entries pointing to modified file are possible.
+These default entries should work fine in most situations. Some systems may need to use 'linuxcnc/nc_files/examples/' instead of 'linuxcnc/nc_files/'.
+Custom entries pointing to modified file are possible.
+
 [source,{ini}]
 ----
-# The path start point for all remap searches ie. python's sys.path.append() 
+# The path start point for all remap searches, i.e. Python's sys.path.append()
 PATH_APPEND = ~/linuxcnc/nc_files/remap_lib/python-stdglue/python
 # path to the tremap's 'toplevel file
 TOPLEVEL = ~/linuxcnc/nc_files/remap_lib/python-stdglue/python/toplevel.py
@@ -1158,9 +1187,21 @@ QtDragon_hd will also show a smaller graphics display window.
 
 === Camview Tab
 
-If the recognized webcam is connected, this tab will display the video image overlayed with a cross-hair, circle and degree readout.
+If the recognized webcam is connected, this tab will display the video image overlaid with a cross-hair, circle and degree readout.
 This can be adjusted to suit a part feature for such things as touchoff.
-The underlying library uses openCV Python module to connect to the webcam.
+The underlying library uses openCV Python module to connect to the webcam. +
+To adjust the X or Y size aspect ratio, or camera number, look in the preference file for: +
+
+----
+[CUSTOM_FORM_ENTRIES]
+Camview xscale = 100
+Camview yscale = 100
+Camview cam number = 0
+----
+
+These are in percent, usually the range will be 100 - 200 in one axis. +
+Negating these scales can be used to flip the image in X, Y or both axes. +
+The preference file can only be edited when QtDragon is not running.
 
 === G-codes Tab
 
@@ -1176,14 +1217,14 @@ You can also write your own HTML docs with the included SetUp Writer button. +
 There are three sub tabs:
 
 * 'HTML' - any loaded HTML pages are displayed here. The navigation buttons work on this page.
-* 'PDF' - any loaded PDF setup pages are displayed here
-* 'PROPERTIES' - when a program is loaded its gcode properties are displayed here.
+* 'PDF' - any loaded PDF setup pages are displayed here.
+* 'PROPERTIES' - when a program is loaded its G-code properties are displayed here.
 
 There are navigation buttons for HTML page:
 
-* The up arrow returns you to the default HTML page
-* The left arrow moves backward one HTML page
-* The right arrow moves forward one HTML page
+* The up arrow returns you to the default HTML page.
+* The left arrow moves backward one HTML page.
+* The right arrow moves forward one HTML page.
 
 If you wish to include a custom default HTML page, name it 'default_setup.html' and place it in your configuration folder. +
 Custom QtVCP panels can be displayed in this tab by setting the EMBED_TAB_LOCATION option to 'tabWidget_setup'.
@@ -1199,7 +1240,7 @@ The settings tab is used to set running options, probing/touchplate/laser/camera
 
 This tabs will display another stab election of G-code utility programs:
 
-* 'Facing': allows quick face milling of a definable area at angles of 0,45 and 90 degrees
+* 'Facing': allows quick face milling of a definable area at angles of 0,45 and 90 degrees.
 * 'Hole Circle': allows quick setting of a program to drill a bolt circle of definable diameter and number of holes.
 * 'NGCGUI': is a QtVCP version of the popular G-code subroutine builder/selector, see <<sub:qtvcp:widgets:qt-ngcgui,Widgets-NGCGUI>>.
 
@@ -1219,6 +1260,81 @@ New styles can be applied temporarily and then saved to a new qss file, or overw
 
 .QtDragon - Two Style Examples
 image::images/style-comparison.png["QtDragon styles",scale="25%"]
+
+== Internationalisation
+
+It is possible to create translation files for QtDragon to display in the language of the current locale.
+
+To create and or edit a translation file requires that LinuxCNC has been installed as run in place.
+
+The following assumes that the linuxcnc git directory is ~/linuxcnc-dev.
+
+[NOTE]
+If using QtDragon_hd substitute 'qtdragon_hd' for 'qtdragon'
+
+All language files are kept in ~/linuxcnc-dev/share/screens/qtdragon/languages.
+
+The qtdragon.py file is a Python version of the GUI file used for translation purposes.
+
+The .ts files are the translation source files for the translations.
+These are the files that require creating/editing for each language.
+
+The .qm files are the compiled translation files used by pyqt.
+
+The language is determined by an underscore plus the first two letters of the locale,
+for example if an Italian translation was being done then it would be `_it`.
+It will be referred to as `_xx` in this document, so `qtdragon_xx.ts` in this document would actually be `qtdragon_it.ts` for an Italian translation.
+
+The default locale for QtDragon is `_en` which means that any translation files created as `qtdragon_en.*` will not be used for translations.
+
+If any of the required utilities (pyuic5, pylupdate5, linguist) are not installed then the user will need to install the required development tools:
+----
+sudo apt install qttools5-dev-tools pyqt5-dev-tools
+----
+
+Change to the languages directory:
+----
+cd ~/linuxcnc-dev/share/qtvcp/screens/qtdragon/languages
+----
+
+If any text changes have been made to the GUI then run the following to update the GUI Python file:
+----
+pyuic5 ../qtdragon.ui > qtdragon.py
+----
+
+The user can either create a new translation source file for a non-existing language translation
+or modify an existing translation source file due to changes being made to some text in a QtDragon source file.
+If modifying an existing translation that has had no source file changes then this step is not required.
+
+Create or edit a .ts file:
+----
+./langfile xx
+----
+
+[NOTE]
+this command is a script which runs the following: $ pylupdate5 *.py ../*.py ../../../../../lib/python/qtvcp/lib/qtdragon/*.py -ts qtdragon_xx.ts
+
+The editing of the translation is done with the linguist application:
+----
+linguist
+----
+
+. Open the TS file and translate the strings
+
+It is not necessary to provide a translation for every text string, if no translation is specified for a string then the original string will be used in the application.
+The user needs to be careful with the length of strings that appear on widgets as space is limited. If possible try to make the translation no longer than the original.
+
+When editing is complete save the file: +
+`File -> Save`
+
+Then create the .qm file: +
+`File -> Release`
+
+QtDragon will be translated to the language of the current locale on the next start so long as a .qm file exists in that language.
+
+Users are welcome to submit translation files for inclusion into QtDragon.
+The preferred method is to submit a pull request from the users GitHub account as described in the https://www.linuxcnc.org/docs/html/code/contributing-to-linuxcnc.html[contributing to LinuxCNC] documentation.
+The only files required to be committed are qtdragon_xx.ts and qtdragon_xx.qm.
 
 == Customization
 
@@ -1291,13 +1407,26 @@ To stop the blur effect with dialogs:
 }
 ----
 
+To change status highlight/selection colors:
+[source,{ini}]
+----
+#screen_options {
+    qproperty-user1Color: white;     /*  default status     */
+    qproperty-user2Color: #ff9000;   /*  warning status     */
+    qproperty-user3Color: #ff8a96;   /*  critical status    */
+    qproperty-user4Color: #ffaa00;   /*  MPG select         */
+    qproperty-user5Color: #ff0000;   /*  Cycle Start select */
+}
+----
+
 Change the G-code text display colors/fonts:
 
 [source,{ini}]
 ----
 }
 EditorBase{
- background:black;
+background:black;
+qproperty-styleColorCursor:white;
 qproperty-styleColorBackground:grey;
 qproperty-styleColor0: black;
 qproperty-styleColor1: darkblue;
@@ -1331,6 +1460,7 @@ To have the manual spindle buttons also incrementally increase/decrease speed:
     qproperty-spindle_down_action: true;
 }
 ----
+
 
 === Qt Designer and Python code
 

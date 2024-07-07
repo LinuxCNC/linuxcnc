@@ -262,7 +262,7 @@ linkps parport.0.pin-02-out X-Step
 ==== newsig
 
 the command `newsig` creates a new HAL signal by the name _<signame>_ and the data type of _<type>_.
-Type must be 'bit', 's32', 'u32' or 'float'. Error if _<signame>_ already exists.
+Type must be 'bit', 's32', 'u32', 's64', 'u64' or 'float'. Error if _<signame>_ already exists.
 
 .Syntax and Examples of `newsig`
 [source,{hal}]
@@ -308,6 +308,21 @@ An 's32' number is a whole number that can have a negative or positive value.
 A 'u32' number is a whole number that is positive only.
 
 - u32 values = integer numbers from 0 to 4294967295
+
+[[sub:hal-s64]]
+=== s64(((HAL s64,s64)))
+
+An 's64' number is a whole number that can have a negative or positive value.
+
+- s64 values = integer numbers from -9,223,372,036,854,775,808 to
+  +9,223,372,036,854,775,807
+
+[[sub:hal-u64]]
+=== u64(((HAL u64,u64)))
+
+A 'u64' number is a whole number that is positive only.
+
+- u64 values = integer numbers from 0 to 18,446,744,073,709,551,615
 
 [[sec:hal-files]]
 == HAL Files(((HAL Files)))

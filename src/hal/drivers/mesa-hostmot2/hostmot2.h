@@ -515,6 +515,7 @@ typedef struct {
             hal_float_t scale;
             hal_bit_t offset_mode;
             hal_s32_t output_type; 
+            hal_bit_t dither;            
         } param;
 
     } hal;
@@ -530,6 +531,11 @@ typedef struct {
     // this keeps track of the enable bit for this instance that we've told
     // the FPGA, so we know if we need to update it
     rtapi_s32 written_enable;
+    
+    // this keeps track of the dither bit for this instance that we've told
+    // the FPGA, so we know if we need to update it
+    rtapi_s32 written_dither;
+    
 } hm2_pwmgen_instance_t;
 
 
@@ -560,7 +566,7 @@ typedef struct {
 
     // number of bits of resolution of the PWM signal (PDM is fixed at 12 bits)
     int pwm_bits;
-
+    int firmware_supports_dither;
 
     rtapi_u32 pwm_value_addr;
     rtapi_u32 *pwm_value_reg;
@@ -577,6 +583,7 @@ typedef struct {
     rtapi_u32 enable_addr;
     rtapi_u32 enable_reg;  // one register for the whole Function
 } hm2_pwmgen_t;
+
 
 //
 // oneshot

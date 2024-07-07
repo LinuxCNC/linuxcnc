@@ -5,8 +5,8 @@ qtplasmac-plasmac2qt.py
 This file is used to convert settings in the .cfg files from a PlasmaC
 configuration to the .prefs file for a QtPlasmaC configuration.
 
-Copyright (C) 2020, 2021 Phillip A Carter
-Copyright (C) 2020, 2021  Gregory D Carl
+Copyright (C) 2020 - 2024 Phillip A Carter
+Copyright (C) 2020 - 2024 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -31,9 +31,10 @@ from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
+
 class Converter(QMainWindow, object):
 
-# INITIALISATION
+    # INITIALISATION
     def __init__(self, parent=None):
         super(Converter, self).__init__(parent)
         self.appPath = os.path.realpath(os.path.dirname(sys.argv[0]))
@@ -42,7 +43,7 @@ class Converter(QMainWindow, object):
                 self.mode = 'auto'
                 self.iniIn = sys.argv[1]
             else:
-                print('{} is not a valid file.'.format(sys.argv[1]))
+                print(f'{sys.argv[1]} is not a valid file.')
                 sys.exit(0)
         else:
             self.mode = ''
@@ -68,7 +69,7 @@ class Converter(QMainWindow, object):
         self.setWindowTitle('PlasmaC2Qt')
         vBox = QVBoxLayout()
         if self.mode == 'auto':
-            heading  = 'Plasmac is not available in LinuxCNC V2.9 and later\n\n'
+            heading = 'Plasmac is not available in LinuxCNC V2.9 and later\n\n'
         else:
             heading = ''
         heading += 'Convert Existing PlasmaC Configuration To A New QtPlasmaC Configuration\n'
@@ -143,7 +144,7 @@ class Converter(QMainWindow, object):
         buttonHBox.addWidget(cancel)
         vBox.addLayout(buttonHBox)
         layout.addLayout(vBox)
-        self.setStyleSheet( \
+        self.setStyleSheet(
             'QWidget {color: #ffee06; background: #16160e} \
              QLabel {height: 20} \
              QPushButton {border: 1 solid #ffee06; border-radius: 4; height: 24; width: 80; max-width: 90} \
@@ -167,27 +168,27 @@ class Converter(QMainWindow, object):
              QScrollBar::add-line:vertical {height: 0} \
              QScrollBar::sub-line:vertical {height: 0} \
              QRadioButton::indicator {border: 1px solid #ffee06; border-radius: 4; height: 20; width: 20} \
-             QRadioButton::indicator:checked {background: #ffee06} \
-            ')
+             QRadioButton::indicator:checked {background: #ffee06}'
+             )
         convert.pressed.connect(self.convert_pressed)
         cancel.pressed.connect(self.close_app)
         if not self.mode:
             fromFileButton.pressed.connect(self.from_pressed)
-        if os.path.exists('{}/linuxcnc/configs'.format(os.path.expanduser('~'))):
-            self.DIR = '{}/linuxcnc/configs'.format(os.path.expanduser('~'))
-        elif os.path.exists('{}/linuxcnc'.format(os.path.expanduser('~'))):
-            self.DIR = '{}/linuxcnc'.format(os.path.expanduser('~'))
+        if os.path.exists(f'{os.path.expanduser("~")}/linuxcnc/configs'):
+            self.DIR = f'{os.path.expanduser("~")}/linuxcnc/configs'
+        elif os.path.exists(f'{os.path.expanduser("~")}/linuxcnc'):
+            self.DIR = f'{os.path.expanduser("~")}/linuxcnc'
         else:
-            self.DIR = '{}'.format(os.path.expanduser('~'))
+            self.DIR = f'{os.path.expanduser("~")}'
         self.display = 'DISPLAY                 = qtvcp qtplasmac\n'
         self.estop = 'Estop type = 0'
 
-# POPUP INFO DIALOG
+    # POPUP INFO DIALOG
     def dialog_ok(self, title, text):
         msgBox = QMessageBox()
         msgBox.setIcon(QMessageBox.Information)
-        msgBox.setWindowTitle('{}'.format(title))
-        msgBox.setText('{}'.format(text))
+        msgBox.setWindowTitle(f'{title}')
+        msgBox.setText(f'{text}')
         msgBox.setStandardButtons(QMessageBox.Ok)
         buttonK = msgBox.button(QMessageBox.Ok)
         buttonK.setIcon(QIcon())
@@ -199,7 +200,7 @@ class Converter(QMainWindow, object):
         ret = msgBox.exec_()
         return ret
 
-# SELECT PLASMAC INI FILE
+    # SELECT PLASMAC INI FILE
     def from_pressed(self):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
@@ -216,7 +217,7 @@ class Converter(QMainWindow, object):
             self.fromFile.setText('')
         self.iniIn = self.fromFile.text()
 
-# ASPECT CHANGED
+    # ASPECT CHANGED
     def aspect_group_clicked(self, button):
         if self.aspectGroup.id(button) == 0:
             self.display = 'DISPLAY                 = qtvcp qtplasmac\n'
@@ -225,7 +226,7 @@ class Converter(QMainWindow, object):
         elif self.aspectGroup.id(button) == 2:
             self.display = 'DISPLAY                 = qtvcp qtplasmac_4x3\n'
 
-# ESTOP CHANGED
+    # ESTOP CHANGED
     def estop_group_clicked(self, button):
         if self.estopGroup.id(button) == 0:
             self.estopLabel.setText('ESTOP IS AN INDICATOR ONLY')
@@ -237,55 +238,55 @@ class Converter(QMainWindow, object):
             self.estopLabel.setText('ESTOP IS A BUTTON')
             self.estop = 'Estop type = 2'
 
-# CLOSE PROGRAM
+    # CLOSE PROGRAM
     def close_app(self):
         sys.exit(2)
 
-# CONVERT
+    # CONVERT
     def convert_pressed(self):
-    # CHECK IF INI FILE NAME EXISTS
+        # CHECK IF INI FILE NAME EXISTS
         if not self.iniIn:
             return
-    # CHECK IF FULL PATH EXISTS
+        # CHECK IF FULL PATH EXISTS
         if not os.path.dirname(self.iniIn):
-            msg  = 'Missing path to a PlasmaC configuration\n'
+            msg = 'Missing path to a PlasmaC configuration\n'
             self.dialog_ok('Path Error', msg)
             self.fromFile.setFocus()
             return
-    # CHECK IF VALID PLASMAC CONFIG
-        if not os.path.exists('{}/plasmac'.format(os.path.dirname(self.iniIn))):
-            msg  = '{}\n'.format(self.iniIn)
+        # CHECK IF VALID PLASMAC CONFIG
+        if not os.path.exists(f'{os.path.dirname(self.iniIn)}/plasmac'):
+            msg = f'{self.iniIn}\n'
             msg += '\n is not a PlasmaC configuration\n'
             self.dialog_ok('Config Error', msg)
             self.fromFile.setFocus()
             return
-    # CHECK IF SIM CONFIG
+        # CHECK IF SIM CONFIG
         simConfig = False
         with open(self.iniIn, 'r') as inFile:
             for line in inFile:
                 if 'plasmac_test.py' in line and not line.startswith('#'):
                     simConfig = True
                     break
-    # SET FILENAMES AND PATHS
+        # SET FILENAMES AND PATHS
         fName = os.path.basename(self.iniIn)
         newDir = os.path.dirname(self.iniIn)
         i = 1
         while True:
-            oldDir = '{}.bkp{}'.format(os.path.dirname(self.iniIn), i)
+            oldDir = f'{os.path.dirname(self.iniIn)}.bkp{i}'
             if not os.path.exists(oldDir):
                 break
             i += 1
         newIniFile = os.path.join(newDir, fName)
         oldIniFile = os.path.join(oldDir, fName)
-    # CREATE NEW DIRECTORY AND BACKUPS DIRECTORY
+        # CREATE NEW DIRECTORY AND BACKUPS DIRECTORY
         try:
             os.rename(newDir, oldDir)
-            os.makedirs('{}/backups'.format(newDir))
+            os.makedirs(f'{newDir}/backups')
         except:
-            msg  = 'Could not create directory\n'.format(newDir)
+            msg = f'Could not create directory: {newDir}/backups\n'
             self.dialog_ok('Directory Error', msg)
             return
-    # GET THE MACHINE NAME
+        # GET THE MACHINE NAME
         with open(oldIniFile) as inFile:
             while(1):
                 line = inFile.readline()
@@ -302,14 +303,14 @@ class Converter(QMainWindow, object):
                 if line.startswith('MACHINE'):
                     machineName = line.split('=')[1].strip().lower()
                     break
-    # COPY ORIGINAL BASE MACHINE FILES IF EXISTING
+        # COPY ORIGINAL BASE MACHINE FILES IF EXISTING
         try:
-            for filename in os.listdir('{}/backups'.format(oldDir)):
+            for filename in os.listdir(f'{oldDir}/backups'):
                 if filename.startswith('_original'):
-                    COPY('{}/backups/{}'.format(oldDir, filename), '{}/backups/{}'.format(newDir, filename))
+                    COPY(f'{oldDir}/backups/{filename}', f'{newDir}/backups/{filename}')
         except:
             pass
-    # COPY HAL FILES
+        # COPY HAL FILES
         halFiles = []
         oldPostguiFile = None
         newPostguiFile = None
@@ -320,7 +321,7 @@ class Converter(QMainWindow, object):
                 if line.startswith('[HAL]'):
                     break
                 if not line:
-                    msg  = 'Could not get [HAL] section of INI file\n'
+                    msg = 'Could not get [HAL] section of INI file\n'
                     msg += '\nConversion cannot continue'
                     self.dialog_ok('INI File Error', msg)
                     self.fromFile.setFocus()
@@ -331,20 +332,20 @@ class Converter(QMainWindow, object):
                     oldPostguiFile = line.split('=')[1].strip()
                     newPostguiFile = 'custom_postgui.hal'
                     halFiles.append(oldPostguiFile)
-                    COPY('{}/{}'.format(oldDir, oldPostguiFile), '{}/{}'.format(newDir, newPostguiFile))
+                    COPY(f'{oldDir}/{oldPostguiFile}', f'{newDir}/{newPostguiFile}')
                 elif 'connections.hal' in line:
                     oldConnectionsFile = line.split('=')[1].strip()
                     newConnectionsFile = 'custom.hal'
                     halFiles.append(newConnectionsFile)
-                    COPY('{}/{}'.format(oldDir, oldConnectionsFile), '{}/{}'.format(newDir, newConnectionsFile))
-                    with open('{}/{}'.format(newDir, newConnectionsFile), 'w') as outConFile:
-                        with open('{}/{}'.format(oldDir, oldConnectionsFile), 'r') as inConFile:
+                    COPY(f'{oldDir}/{oldConnectionsFile}', f'{newDir}/{newConnectionsFile}')
+                    with open(f'{newDir}/{newConnectionsFile}', 'w') as outConFile:
+                        with open(f'{oldDir}/{oldConnectionsFile}', 'r') as inConFile:
                             for line in inConFile:
                                 if 'plasmac:torch-on' in line:
                                     outConFile.write(line)
                                     outConFile.write('\n#***** LASER ALIGNMENT CONNECTION *****\n')
                                     if self.laserOnPin.text():
-                                        outConFile.write('net plasmac:laser-on => {}\n'.format(self.laserOnPin.text()))
+                                        outConFile.write(f'net plasmac:laser-on => {self.laserOnPin.text()}\n')
                                     else:
                                         outConFile.write('# net plasmac:laser-on => {YOUR_LASER_ON_OUTPUT}\n\n')
                                 else:
@@ -354,19 +355,19 @@ class Converter(QMainWindow, object):
                         halFiles.append('plasmac.tcl')
                     else:
                         hFile = line.split('=')[1].strip()
-                        with open('{}/{}'.format(oldDir, hFile), 'r') as inHal:
+                        with open(f'{oldDir}/{hFile}', 'r') as inHal:
                             if simConfig and 'motor-pos-cmd' in inHal.read():
                                 halFiles.append('machine.tcl')
-                                COPY('{}/machine.tcl'.format(self.simPath), '{}/machine.tcl'.format(newDir))
+                                COPY(f'{self.simPath}/machine.tcl', f'{newDir}/machine.tcl')
                             else:
                                 halFiles.append(hFile)
-                                COPY('{}/{}'.format(oldDir, hFile), '{}/{}'.format(newDir, hFile))
+                                COPY(f'{oldDir}/{hFile}', f'{newDir}/{hFile}')
                 if not line or line.startswith('['):
                     break
-    # COPY TOOL TABLE
-        if os.path.exists('{}/tool.tbl'.format(oldDir)):
-            COPY('{}/tool.tbl'.format(oldDir), '{}/tool.tbl'.format(newDir))
-    # MAKE NEW PREFERENCES FILE
+        # COPY TOOL TABLE
+        if os.path.exists(f'{oldDir}/tool.tbl'):
+            COPY(f'{oldDir}/tool.tbl', f'{newDir}/tool.tbl')
+        # MAKE NEW PREFERENCES FILE
         self.prefParms = []
         self.read_ini_file(oldIniFile)
         if os.path.isfile(os.path.join(oldDir, machineName + '_config.cfg')):
@@ -390,12 +391,12 @@ class Converter(QMainWindow, object):
         else:
             print('file not found, materials can not be converted.')
         self.write_prefs_files(newDir, machineName)
-    # MAKE NEW INI FILE
+        # MAKE NEW INI FILE
         section = ''
         with open(newIniFile, 'w') as outFile:
             with open(oldIniFile, 'r') as inFile:
                 for line in inFile:
-                # SET SECTION NAMES
+                    # SET SECTION NAMES
                     if line.startswith('['):
                         section = ''
                     if line.startswith('[APPLICATIONS]'):
@@ -412,14 +413,14 @@ class Converter(QMainWindow, object):
                         section = 'DISPLAY'
                     if line.startswith('[EMC]'):
                         section = 'EMC'
-                # CONVERT SECTION PARAMETERS
+                    # CONVERT SECTION PARAMETERS
                     if section == 'APPLICATIONS':
                         continue
                     if section == 'PLASMAC':
                         continue
                     elif section == 'FILTER':
                         if line.startswith('[FILTER]'):
-                            outFile.write('\n{}'.format(line))
+                            outFile.write(f'\n{line}')
                             outFile.write('PROGRAM_EXTENSION       = .ngc,.nc,.tap GCode File (*.ngc, *.nc, *.tap)\n')
                             outFile.write('ngc                     = qtplasmac_gcode\n')
                             outFile.write('nc                      = qtplasmac_gcode\n')
@@ -432,10 +433,10 @@ class Converter(QMainWindow, object):
                             if line.strip().endswith('./') or './:' in line:
                                 pass
                             else:
-                                line = './:{}'.format(line)
+                                line = f'./:{line}'
                         if line.startswith('RS274NGC_STARTUP_CODE') and ('metric' in line or 'imperial' in line):
                             units = 21 if 'metric' in line else 20
-                            line = 'RS274NGC_STARTUP_CODE   = G{} G40 G49 G80 G90 G92.1 G94 G97 M52P1\n'.format(units)
+                            line = f'RS274NGC_STARTUP_CODE   = G{units} G40 G49 G80 G90 G92.1 G94 G97 M52P1\n'
                         if line.startswith('#') or line.replace(' ', '').strip() == 'FEATURES=12':
                             continue
                         if line.startswith('['):
@@ -445,7 +446,7 @@ class Converter(QMainWindow, object):
                         continue
                     elif section == 'HAL':
                         if line.startswith('[HAL]'):
-                            outFile.write('\n{}'.format(line))
+                            outFile.write(f'\n{line}')
                             outFile.write('TWOPASS                 = ON\n')
                             outFile.write('HALUI                   = halui\n')
                             for file in halFiles:
@@ -454,14 +455,14 @@ class Converter(QMainWindow, object):
                                 elif 'postgui' in file:
                                     outFile.write('POSTGUI_HALFILE         = custom_postgui.hal\n')
                                 else:
-                                    outFile.write('HALFILE                 = {}\n'.format(file))
+                                    outFile.write(f'HALFILE                 = {file}\n')
                             if simConfig:
                                 outFile.write('POSTGUI_HALFILE         = sim_postgui.tcl\n')
                         continue
                     elif section == 'DISPLAY':
                         if line.startswith('DISPLAY'):
                             line = self.display
-                        omissions = ['OPEN_F','EDITOR','TOOL_E','USER_C','EMBED_','GLADEV','CONE_B']
+                        omissions = ['OPEN_F', 'EDITOR', 'TOOL_E', 'USER_C', 'EMBED_', 'GLADEV', 'CONE_B']
                         if line.startswith('#'):
                             continue
                         if line[:6] in omissions:
@@ -479,7 +480,7 @@ class Converter(QMainWindow, object):
                         if line.strip():
                             outFile.write(line)
                         continue
-                # NO CONVERSION REQUIRED
+                    # NO CONVERSION REQUIRED
                     else:
                         if line.strip():
                             if line.startswith('['):
@@ -487,22 +488,22 @@ class Converter(QMainWindow, object):
                             if 'marry this config' in line or 'sim testing panel' in line:
                                 continue
                             outFile.write(line)
-    # ADD A SIM POSTGUI IF A SIM CONFIG
+        # ADD A SIM POSTGUI IF A SIM CONFIG
         if simConfig:
-            with open('{}/{}'.format(newDir, 'sim_postgui.tcl'), 'a') as outFile:
+            with open(f'{newDir}/{"sim_postgui.tcl"}', 'a') as outFile:
                 outFile.write(self.sim_postgui())
-    # WE GOT THIS FAR SO IT MAY HAVE WORKED
-        msg  = 'Conversion appears successful.\n'
+        # WE GOT THIS FAR SO IT MAY HAVE WORKED
+        msg = 'Conversion appears successful.\n'
         if self.mode == 'automatic':
             msg += '\nRestart LinuxCNC using the following INI file:\n'
         else:
             msg += '\nStart LinuxCNC using the following INI file:\n'
-        msg += '\n{}/{}.ini\n'.format(newDir, machineName)
+        msg += f'\n{newDir}/{machineName}.ini\n'
         self.dialog_ok('Success', msg)
         print(msg)
         sys.exit(0)
 
-# READ THE ORIGINAL INI FILE TO GET PLASMAC OPTIONS
+    # READ THE ORIGINAL INI FILE TO GET PLASMAC OPTIONS
     def read_ini_file(self, oldIniFile):
         self.buttons = {}
         for n in range(1, 21):
@@ -522,8 +523,8 @@ class Converter(QMainWindow, object):
                     if line.startswith('MODE'):
                         self.prefParms.append('[GUI_OPTIONS]')
                         value = line.split('=')[1].strip()
-                        self.prefParms.append('Mode = {}'.format(value))
-                        self.prefParms.append('{}\n'.format(self.estop))
+                        self.prefParms.append(f'Mode = {value}')
+                        self.prefParms.append(f'{self.estop}\n')
                     if line.startswith('BUTTON_'):
                         if '_NAME' in line:
                             n = line.split('_')[1].split('_')[0]
@@ -542,231 +543,231 @@ class Converter(QMainWindow, object):
         if self.buttons:
             self.prefParms.append('[BUTTONS]')
             for n in range(1, 21):
-                self.prefParms.append('{} Name = {}'.format(n, self.buttons[n][0]))
-                self.prefParms.append('{} Code = {}'.format(n, self.buttons[n][1]))
+                self.prefParms.append(f'{n} Name = {self.buttons[n][0]}')
+                self.prefParms.append(f'{n} Code = {self.buttons[n][1]}')
         self.prefParms.append('')
 
-# READ THE ORIGINAL <MACHINE_NAME>_CONFIG.CFG FILE
+    # READ THE ORIGINAL <MACHINE_NAME>_CONFIG.CFG FILE
     def read_con_file(self, conFile):
         self.prefParms.append('[PLASMA_PARAMETERS]')
         with open(conFile) as inFile:
             for line in inFile:
                 if line.startswith('setup-feed-rate'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Setup Feed Rate = {}'.format(value))
+                    self.prefParms.append(f'Setup Feed Rate = {value}')
                 elif line.startswith('arc-fail-delay'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Arc Fail Timeout = {}'.format(value))
+                    self.prefParms.append(f'Arc Fail Timeout = {value}')
                 elif line.startswith('arc-ok-high'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Arc OK High = {}'.format(value))
+                    self.prefParms.append(f'Arc OK High = {value}')
                 elif line.startswith('arc-ok-low'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Arc OK Low = {}'.format(value))
+                    self.prefParms.append(f'Arc OK Low = {value}')
                 elif line.startswith('arc-max-starts'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Arc Maximum Starts = {}'.format(value))
+                    self.prefParms.append(f'Arc Maximum Starts = {value}')
                 elif line.startswith('arc-voltage-offset'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Arc Voltage Offset = {}'.format(value))
+                    self.prefParms.append(f'Arc Voltage Offset = {value}')
                 elif line.startswith('arc-voltage-scale'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Arc Voltage Scale = {}'.format(value))
+                    self.prefParms.append(f'Arc Voltage Scale = {value}')
                 elif line.startswith('cornerlock-threshold'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Velocity Anti Dive Threshold = {}'.format(value))
+                    self.prefParms.append(f'Velocity Anti Dive Threshold = {value}')
                 elif line.startswith('float-switch-travel'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Float Switch Travel = {}'.format(value))
+                    self.prefParms.append(f'Float Switch Travel = {value}')
                 elif line.startswith('height-per-volt'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Height Per Volt = {}'.format(value))
+                    self.prefParms.append(f'Height Per Volt = {value}')
                 elif line.startswith('kerfcross-override'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Void Sense Override = {}'.format(value))
+                    self.prefParms.append(f'Void Sense Override = {value}')
                 elif line.startswith('ohmic-max-attempts'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Ohmic Maximum Attempts = {}'.format(value))
+                    self.prefParms.append(f'Ohmic Maximum Attempts = {value}')
                 elif line.startswith('ohmic-probe-offset'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Ohmic Probe Offset = {}'.format(value))
+                    self.prefParms.append(f'Ohmic Probe Offset = {value}')
                 elif line.startswith('pid-p-gain'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Pid P Gain = {}'.format(value))
+                    self.prefParms.append(f'Pid P Gain = {value}')
                 elif line.startswith('pid-d-gain'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Pid D Gain = {}'.format(value))
+                    self.prefParms.append(f'Pid D Gain = {value}')
                 elif line.startswith('pid-i-gain'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Pid I Gain = {}'.format(value))
+                    self.prefParms.append(f'Pid I Gain = {value}')
                 elif line.startswith('probe-feed-rate'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Probe Feed Rate = {}'.format(value))
+                    self.prefParms.append(f'Probe Feed Rate = {value}')
                 elif line.startswith('probe-start-height'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Probe Start Height = {}'.format(value))
+                    self.prefParms.append(f'Probe Start Height = {value}')
                 elif line.startswith('arc-restart-delay'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Arc Restart Delay = {}'.format(value))
+                    self.prefParms.append(f'Arc Restart Delay = {value}')
                 elif line.startswith('safe-height'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Safe Height = {}'.format(value))
+                    self.prefParms.append(f'Safe Height = {value}')
                 elif line.startswith('scribe-arm-delay'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Scribe Arming Delay = {}'.format(value))
+                    self.prefParms.append(f'Scribe Arming Delay = {value}')
                 elif line.startswith('scribe-on-delay'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Scribe On Delay = {}'.format(value))
+                    self.prefParms.append(f'Scribe On Delay = {value}')
                 elif line.startswith('skip-ihs-distance'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Skip IHS Distance = {}'.format(value))
+                    self.prefParms.append(f'Skip IHS Distance = {value}')
                 elif line.startswith('spotting-threshold'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Spotting Threshold = {}'.format(value))
+                    self.prefParms.append(f'Spotting Threshold = {value}')
                 elif line.startswith('spotting-time'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Spotting Time = {}'.format(value))
+                    self.prefParms.append(f'Spotting Time = {value}')
                 elif line.startswith('thc-delay'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('THC Delay = {}'.format(value))
+                    self.prefParms.append(f'THC Delay = {value}')
                 elif line.startswith('thc-threshold'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('THC Threshold = {}'.format(value))
+                    self.prefParms.append(f'THC Threshold = {value}')
             self.prefParms.append('')
 
-# READ THE ORIGINAL <MACHINE_NAME>_RUN.CFG FILE
+    # READ THE ORIGINAL <MACHINE_NAME>_RUN.CFG FILE
     def read_run_file(self, runFile):
         self.prefParms.append('[ENABLE_OPTIONS]')
         with open(runFile) as inFile:
             for line in inFile:
                 if line.startswith('thc-enable'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('THC enable = {}'.format(value))
+                    self.prefParms.append(f'THC enable = {value}')
                 elif line.startswith('cornerlock-enable'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Corner lock enable = {}'.format(value))
+                    self.prefParms.append(f'Corner lock enable = {value}')
                 elif line.startswith('kerfcross-enable'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Kerf cross enable = {}'.format(value))
+                    self.prefParms.append(f'Kerf cross enable = {value}')
                 elif line.startswith('use-auto-volts'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Use auto volts = {}'.format(value))
+                    self.prefParms.append(f'Use auto volts = {value}')
                 elif line.startswith('ohmic-probe-enable'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Ohmic probe enable = {}'.format(value))
+                    self.prefParms.append(f'Ohmic probe enable = {value}')
             self.prefParms.append('')
         self.prefParms.append('[DEFAULT MATERIAL]')
         with open(runFile) as inFile:
             for line in inFile:
                 if line.startswith('kerf-width'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Kerf width = {}'.format(value))
+                    self.prefParms.append(f'Kerf width = {value}')
                 elif line.startswith('pierce-height'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Pierce height = {}'.format(value))
+                    self.prefParms.append(f'Pierce height = {value}')
                 elif line.startswith('pierce-delay'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Pierce delay = {}'.format(value))
+                    self.prefParms.append(f'Pierce delay = {value}')
                 elif line.startswith('puddle-jump-height'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Puddle jump height = {}'.format(value))
+                    self.prefParms.append(f'Puddle jump height = {value}')
                 elif line.startswith('puddle-jump-delay'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Puddle jump delay = {}'.format(value))
+                    self.prefParms.append(f'Puddle jump delay = {value}')
                 elif line.startswith('cut-height'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Cut height = {}'.format(value))
+                    self.prefParms.append(f'Cut height = {value}')
                 elif line.startswith('cut-feed-rate'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Cut feed rate = {}'.format(value))
+                    self.prefParms.append(f'Cut feed rate = {value}')
                 elif line.startswith('cut-amps'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Cut amps = {}'.format(value))
+                    self.prefParms.append(f'Cut amps = {value}')
                 elif line.startswith('cut-volts'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Cut volts = {}'.format(value))
+                    self.prefParms.append(f'Cut volts = {value}')
                 elif line.startswith('pause-at-end'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Pause at end = {}'.format(value))
+                    self.prefParms.append(f'Pause at end = {value}')
                 elif line.startswith('gas-pressure'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Gas pressure = {}'.format(value))
+                    self.prefParms.append(f'Gas pressure = {value}')
                 elif line.startswith('cut-mode'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Cut mode = {}'.format(value))
+                    self.prefParms.append(f'Cut mode = {value}')
             self.prefParms.append('')
         self.prefParms.append('[SINGLE CUT]')
         with open(runFile) as inFile:
             for line in inFile:
                 if line.startswith('x-single-cut'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('X length = {}'.format(value))
+                    self.prefParms.append(f'X length = {value}')
                 elif line.startswith('y-single-cut'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Y length = {}'.format(value))
+                    self.prefParms.append(f'Y length = {value}')
             self.prefParms.append('')
 
-# READ THE ORIGINAL <MACHINE_NAME>_WIZARDS.CFG FILE
+    # READ THE ORIGINAL <MACHINE_NAME>_WIZARDS.CFG FILE
     def read_wiz_file(self, wizFile):
         self.prefParms.append('[CONVERSATIONAL]')
         with open(wizFile) as inFile:
             for line in inFile:
                 if line.startswith('preamble'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Preamble = {}'.format(value))
+                    self.prefParms.append(f'Preamble = {value}')
                 elif line.startswith('origin'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Origin = {}'.format(value))
+                    self.prefParms.append(f'Origin = {value}')
                 elif line.startswith('lead-in'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Leadin = {}'.format(value))
+                    self.prefParms.append(f'Leadin = {value}')
                 elif line.startswith('lead-out'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Leadout = {}'.format(value))
+                    self.prefParms.append(f'Leadout = {value}')
                 elif line.startswith('hole-diameter'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Hole diameter = {}'.format(value))
+                    self.prefParms.append(f'Hole diameter = {value}')
                 elif line.startswith('hole-speed'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Hole speed = {}'.format(value))
+                    self.prefParms.append(f'Hole speed = {value}')
                 elif line.startswith('grid-size'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Grid Size = {}'.format(value))
+                    self.prefParms.append(f'Grid Size = {value}')
             self.prefParms.append('')
 
-# READ THE ORIGINAL PLASMAC_STATS.VAR FILE
+    # READ THE ORIGINAL PLASMAC_STATS.VAR FILE
     def read_sta_file(self, staFile):
         self.prefParms.append('[STATISTICS]')
         with open(staFile) as inFile:
             for line in inFile:
                 if line.strip().startswith('PIERCE_COUNT'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Pierce count = {}'.format(value))
+                    self.prefParms.append(f'Pierce count = {value}')
                 elif line.strip().startswith('CUT_LENGTH'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Cut length = {}'.format(value))
+                    self.prefParms.append(f'Cut length = {value}')
                 elif line.strip().startswith('CUT_TIME'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Cut time = {}'.format(value))
+                    self.prefParms.append(f'Cut time = {value}')
                 elif line.strip().startswith('TORCH_TIME'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Torch on time = {}'.format(value))
+                    self.prefParms.append(f'Torch on time = {value}')
                 elif line.strip().startswith('RUN_TIME'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Program run time = {}'.format(value))
+                    self.prefParms.append(f'Program run time = {value}')
                 elif line.strip().startswith('RAPID_TIME'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Rapid time = {}'.format(value))
+                    self.prefParms.append(f'Rapid time = {value}')
                 elif line.strip().startswith('PROBE_TIME'):
                     value = line.split('=')[1].strip()
-                    self.prefParms.append('Probe time = {}'.format(value))
+                    self.prefParms.append(f'Probe time = {value}')
             self.prefParms.append('')
 
-# READ THE ORIGINAL <MACHINE_NAME>_MATERIAL.CFG FILE
+    # READ THE ORIGINAL <MACHINE_NAME>_MATERIAL.CFG FILE
     def read_mat_file(self, matFile, newDir, machineName):
-        newFile = '{}/{}_material.cfg'.format(newDir, machineName)
+        newFile = f'{newDir}/{machineName}_material.cfg'
         if os.path.isfile(newFile):
-            matCopy = '{}_{}'.format(newFile, self.date, str(time.time()).split('.')[0])
+            matCopy = f'{newFile}_{self.date}_{str(time.time()).split(".")[0]}'
             COPY(newFile, matCopy)
         with open(newFile, 'w') as outFile:
             with open(matFile) as inFile:
@@ -775,24 +776,23 @@ class Converter(QMainWindow, object):
                         continue
                     outFile.write(line)
 
-# WRITE THE NEW QTVCP.PREFS & QTPLASMAC.PREFS FILES
+    # WRITE THE NEW QTVCP.PREFS & QTPLASMAC.PREFS FILES
     def write_prefs_files(self, newDir, machineName):
-        prefsFile = '{}/qtvcp.prefs'.format(newDir)
+        prefsFile = f'{newDir}/qtvcp.prefs'
         with open(prefsFile, 'w') as outFile:
-            outFile.write(\
-                '[NOTIFY_OPTIONS]\n' \
-                'notify_start_greeting = False\n' \
-                'notify_start_title = Welcome To QtPlasmaC\n' \
-                'notify_start_detail = This option can be changed in qtvcp.prefs\n' \
-                'notify_start_timeout = 5\n\n')
-        prefsFile = '{}/{}.prefs'.format(newDir, machineName)
+            outFile.write('[NOTIFY_OPTIONS]\n'
+                          'notify_start_greeting = False\n'
+                          'notify_start_title = Welcome To QtPlasmaC\n'
+                          'notify_start_detail = This option can be changed in qtvcp.prefs\n'
+                          'notify_start_timeout = 5\n\n')
+        prefsFile = f'{newDir}/{machineName}.prefs'
         with open(prefsFile, 'w') as outFile:
             for item in self.prefParms:
-                outFile.write('{}\n'.format(item))
+                outFile.write(f'{item}\n')
 
-# SIM CONFIG POSTGUI EXTRAS
+    # SIM CONFIG POSTGUI EXTRAS
     def sim_postgui(self):
-        sim  = '# QTPLASMAC SIMULATOR PANEL\n\n'
+        sim = '# QTPLASMAC SIMULATOR PANEL\n\n'
         sim += '# load the simulated torch\n'
         sim += 'loadusr -Wn sim-torch sim-torch\n\n'
         sim += '# load the sim GUI\n'
@@ -810,6 +810,7 @@ class Converter(QMainWindow, object):
         sim += 'net sim:move-up             qtplasmac_sim.move_up               =>  plasmac.move-up\n'
         sim += 'net sim:ohmic               qtplasmac_sim.sensor_ohmic          =>  db_ohmic.in\n'
         return sim
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

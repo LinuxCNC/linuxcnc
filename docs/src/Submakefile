@@ -96,6 +96,7 @@ DOC_SRCS_EN := \
 	common/linux-faq.adoc \
 	getting-started/running-linuxcnc.adoc \
 	getting-started/system-requirements.adoc \
+	getting-started/hardware-interface.adoc \
 	getting-started/updating-linuxcnc.adoc \
 	gui/axis.adoc \
 	gui/filter-programs.adoc \

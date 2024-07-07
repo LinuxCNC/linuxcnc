@@ -179,7 +179,7 @@ class INI:
             print("png = image-to-gcode", file=file)
             print("gif = image-to-gcode", file=file)
             print("jpg = image-to-gcode", file=file)
-            print("py = python", file=file)        
+            print("py = python", file=file)
 
         print(file=file)
         print("[TASK]", file=file)
@@ -192,9 +192,13 @@ class INI:
         # qtplasmac has extra rs274ngc variables
         if self.d.select_qtplasmac:
             code = 21 if self.d.units else 20
+            if '/usr' in self.d.qtplasmacbase:
+                mPath = '/usr/share/doc/linuxcnc/examples/nc_files/plasmac/m_files'
+            else:
+                mPath = os.path.realpath(os.path.join(self.d.qtplasmacbase, 'nc_files/plasmac/m_files'))
             print("RS274NGC_STARTUP_CODE = G{} G40 G49 G80 G90 G92.1 G94 G97 M52P1".format(code), file=file)
             print("SUBROUTINE_PATH = ./:../../nc_files", file=file)
-            print("USER_M_PATH = ./:../../nc_files", file=file)
+            print(f"USER_M_PATH = ./:{mPath}", file=file)
             print("", file=file)
 
         base_period = self.d.ideal_period()
@@ -209,7 +213,7 @@ class INI:
         print(file=file)
         print("[HAL]", file=file)
         if self.d.halui or self.d.select_qtplasmac:
-            print("HALUI = halui", file=file)          
+            print("HALUI = halui", file=file)
         print("HALFILE = %s.hal" % self.d.machinename, file=file)
         # qtplasmac requires custom, custom_postgui and shutdown hal files
         if self.d.select_qtplasmac:

@@ -18,7 +18,7 @@
 import os
 
 from PyQt5 import QtWidgets, QtCore, QtGui
-
+from PyQt5.QtWidgets import qApp
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.widgets.entry_widget import TouchInterface
 from qtvcp.core import Status, Action, Info
@@ -38,7 +38,7 @@ LOG = logger.getLogger(__name__)
 # Set the log level for this module
 if not INFO.LINUXCNC_IS_RUNNING:
     LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
-
+LOG.setLevel(logger.DEBUG)
 try:
     from PyQt5 import QtSvg
 except:
@@ -118,9 +118,16 @@ class CustomSVG(QtSvg.QSvgWidget):
 # using these key names it puts together a tab widget with svg file pics
 # the svg file should be in the same folder
 ###############################################################################
+
+DEFAULT = 0
+WARNING = 1
+CRITICAL = 2
+
 class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
         super(MacroTab, self).__init__(parent)
+
+        self.hilightStyle = "QLineEdit{border: 2px solid red;}"
 
         # id names for what dialog we want launched
         self.load_dialog_code = 'LOAD'
@@ -167,6 +174,9 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
         # add The macros to the stacked wodget
         self.buildStack(INFO.SUB_PATH_LIST)
 
+        # get current style of the line input
+        self._oldstyle = self.runButton.styleSheet()
+
         self.runButton.setEnabled(False)
         STATUS.connect('state-off', lambda w: self.runButton.setEnabled(False))
         STATUS.connect('state-estop', lambda w: self.runButton.setEnabled(False))
@@ -191,7 +201,6 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
 
         macroFlag = False
         for path in pathlist:
-            print(path)
             if 'macro' in path:
                 path = os.path.expanduser(path)
                 tabName = self._findMacros(path)
@@ -222,9 +231,12 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                     # vertical layout for labels and entries
                     vbox = QtWidgets.QVBoxLayout()
 
+                    widgetList = []
+
                     # add labels and edits
                     # self[tName][0] is the list of name text and defaults pairs
                     for n, name in enumerate(self[tName][0]):
+                        #print('int------>',self[tName])
                         # if no list of names then continue looking
                         if name[0]=='':continue
 
@@ -241,20 +253,28 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                                 self['%s%d' % (tName, n)].setChecked(True)
                         # line edits that will pop an entry dialog:
                         else:
-                            print(name[1], checkIfFloat(name[1]))
                             if checkIfFloat(name[1]):
                                 #self['%s%d' % (tName, n)] = QtWidgets.QLineEdit()
                                 #self['%s%d' % (tName, n)].setText(name[1])
                                 self['%s%d' % (tName, n)] = TouchDoubleSpinBox()
                                 self['%s%d' % (tName, n)].callDialog = self.getNumbers
                                 self['%s%d' % (tName, n)].setValue(float(name[1]))
+                                wName = "{}".format(name[0])
+                                self['%s%d' % (tName, n)].setObjectName(wName)
+                                widgetList.append([wName,'%s%d' % (tName, n)])
+                                #print('float-->',wName)
                             else:
                                 self['%s%d' % (tName, n)] =  TouchSpinBox()
                                 self['%s%d' % (tName, n)].callDialog = self.getNumbers
                                 self['%s%d' % (tName, n)].setValue(int(name[1]))
+                                wName = "{}".format(name[0])
+                                self['%s%d' % (tName, n)].setObjectName(wName)
+                                widgetList.append([wName,'%s%d' % (tName, n)])
+                                #print('int-->',wName)
+
                             self['%s%d' % (tName, n)]._label = name[0]
                             self['%s%d' % (tName, n)]._tabName = tName
-                            self.set_style(self['%s%d' % (tName, n)])
+                            #self.set_style(self['%s%d' % (tName, n)])
                             self['%s%d' % (tName, n)].keyboard_type = 'numeric'
 
                         hbox2.addWidget(l)
@@ -294,11 +314,16 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                     hbox.addLayout(vbox)
                     # add this tab to the stack
                     self.stack.addWidget(w)
+
+                    # add the widget list used by the dialog
+                    # to cucle through entries
+                    self[tName][3] = widgetList
+
         # No macros found in any path
         # show a message
         if macroFlag == False:
             self._buildErrorTab()
-        print(self.stack.count())
+
     # Menu page has icon buttons to select the macro
     # it finds the icon info from the macro file
     # using the magic comments parsed before this
@@ -418,7 +443,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                             self[name] = [temp]
                             self[name].append(s)
                             self[name].append(option_dict)
-
+                            self[name].append([])
                             #print'group:',name, self[name]
                             # make a list of pages, which is also the macro program name
                             tName.append(name)
@@ -492,6 +517,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
             try:
                 name = self.stack.currentWidget().objectName()
                 self.setTitle(name)
+                self.set_statusbar('Macro Tab:{}'.format(name.upper()))
                 # show these buttons if the macro specifies it
                 for name in (self[name][2]):
                     if name == 'LOAD':
@@ -560,10 +586,25 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
         self.setWindowTitle(string)
 
     # get numeric data
-    def getNumbers(self,widget,ktype=None):
-        mess = {'NAME':self._request_name,'ID':'%s__macro',
+    def getNumbers(self, widget, ktype=None, next=False):
+        # remove overlay so style can be changed
+        STATUS.emit('focus-overlay-changed', False, None, None)
+        # record the original style
+        self._oldstyle = widget.styleSheet()
+        # change to highlight style
+        widget.setStyleSheet(self.hilightStyle) 
+        qApp.processEvents()
+
+        # dialog call
+        mess = {'NAME':self._request_name,
+                'ID':'%s__macro' % self.objectName(),
                 'PRELOAD':float(widget.text()),
-            'TITLE':'{} Macro Entry For {}'.format(widget._tabName,widget._label),'WIDGET':widget}
+                'TITLE':'{} Macro Entry For {}'.format(widget._tabName,widget._label),
+                'WIDGET':widget,
+                'NEXT':next,
+                'WIDGETCYCLE': True
+               }
+        LOG.debug("get numbers {}".format(mess))
         STATUS.emit('dialog-request', mess)
 
     # request the system to pop a load path picker dialog
@@ -600,11 +641,50 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                 self.saveReturn(path)
         elif message.get('NAME') == self._request_name:
             num = message.get('RETURN')
-            code = bool(message.get('ID') == '%s__macro')
+            code = bool(message.get('ID') == '%s__macro'% self.objectName())
             widget = message.get('WIDGET')
+            next = message.get('NEXT', False)
+            back = message.get('BACK', False)
             if code and widget is not None:
+                widget.setStyleSheet(self._oldstyle)
                 if num is not None:
                     widget.setValue(num)
+                    # clear high lighting
+
+                # request for next input widget from parm_list
+                if next or back:
+                    name = self.stack.currentWidget().objectName()
+                    # find current widget in list
+                    for num,data in enumerate(self[name][3]):
+                        txt,widname = data
+                        if txt == widget.objectName():
+                            if next:
+                                num +=1
+                                if num == len(self[name][3]):
+                                    num = 0
+                            else:
+                                num -=1
+                                if num == -1:
+                                    num = len(self[name][3])-1
+                            # build reference to the next widget
+                            newobj = self[self[name][3][num][1]]
+                            break
+
+                    # update the dialog
+                    self.getNumbers(newobj,None, next=True)
+
+#####################################################
+# Helper functions
+#####################################################
+
+    # return false if failed so other ways of reporting can be used.
+    # there might not be a statusbar in main screen.
+    def set_statusbar(self, msg, priority = DEFAULT, noLog = False):
+        try:
+            self.QTVCP_INSTANCE_.add_status(msg, priority, noLog)
+        except:
+            return False
+        return True
 
     def set_style(self, widget):
         widget.setStyleSheet(

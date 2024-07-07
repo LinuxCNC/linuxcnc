@@ -2563,7 +2563,7 @@ int Interp::convert_cutter_compensation_on(CUTTER_COMP side,     //!< side of pa
       }
       radius = USER_TO_PROGRAM_LEN(settings->tool_table[idx].diameter) / 2.0;
       orientation = settings->tool_table[idx].orientation;
-      CHKS((settings->plane != CANON_PLANE::XZ && orientation != 0 && orientation != 9), _("G%d with lathe tool, but plane is not G18"), block->g_modes[7]/10);
+      CHKS((settings->plane != CANON_PLANE::XZ && orientation != 0 && orientation != 9), _("G%d with lathe tool, but plane is not G18"), block->g_modes[GM_CUTTER_COMP]/10);
   }
   if (radius < 0.0) { /* switch side & make radius positive if radius negative */
     radius = -radius;
@@ -3367,7 +3367,9 @@ int Interp::gen_settings(
 
     // F, S
     for (i = 0; i < ACTIVE_SETTINGS; i++) {
-	if (float_saved[i] != float_current[i]) {
+	// "if" masked to address https://github.com/LinuxCNC/linuxcnc/issues/1987
+	// The setting value is correct, but seems to be mislaid downstream
+	//if (float_saved[i] != float_current[i]) {
 	    switch (i) {
 	    case GM_FIELD_FLOAT_LINE_NUMBER:
 		// sequence_number - no point in restoring
@@ -3385,8 +3387,8 @@ int Interp::gen_settings(
 		// G64 special case; see below
 		g64_changed = 1;
 		break;
-	    }
-	}
+	   }
+	//}
     }
 
     // G-codes
@@ -3475,7 +3477,6 @@ int Interp::gen_settings(
 		float_saved[GM_FIELD_FLOAT_NAIVE_CAM_TOLERANCE]);
 	cmd += buf;
     }
-
     return INTERP_OK;
 }
 
@@ -3793,7 +3794,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
      M67 reads a digital input
      M68 reads an analog input*/
 
-  if (IS_USER_MCODE(block,settings,5) &&
+  if (is_user_defined_m_code(block, settings, 5) &&
       STEP_REMAPPED_IN_BLOCK(block, STEP_M_5) &&
       ONCE_M(5))  {
       return convert_remapped_code(block, settings, STEP_M_5, 'm',
@@ -3907,7 +3908,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 
       switch (block->m_modes[6]) {
       case 6:
-      	  if (IS_USER_MCODE(block,settings,6) && remapped_in_block) {
+      	  if (is_user_defined_m_code(block, settings, 6) && remapped_in_block) {
       		  return convert_remapped_code(block,settings,
       					       STEP_M_6,
       					       'm',
@@ -3921,7 +3922,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
       	  break;
 
       case 61:
-	  if (IS_USER_MCODE(block,settings,6) && remapped_in_block) {
+	  if (is_user_defined_m_code(block, settings, 6) && remapped_in_block) {
 	      return convert_remapped_code(block, settings, STEP_M_6,'m',
 					   block->m_modes[6]);
 	  } else {
@@ -3942,7 +3943,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
 	  break;
 
       default:
-	  if (IS_USER_MCODE(block,settings,6)) {
+	  if (is_user_defined_m_code(block, settings, 6)) {
 	      return convert_remapped_code(block, settings, STEP_M_6,'m',
 					   block->m_modes[6]);
 	  }
@@ -3955,18 +3956,18 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
         if(settings->selected_pocket > 0) {
             struct block_struct g43;
             init_block(&g43);
-            block->g_modes[_gees[G_43]] = G_43;
+            block->g_modes[gees[G_43]] = G_43;
             CHP(convert_tool_length_offset(G_43, &g43, settings));
         } else {
             struct block_struct g49;
             init_block(&g49);
-            block->g_modes[_gees[G_49]] = G_49;
+            block->g_modes[gees[G_49]] = G_49;
             CHP(convert_tool_length_offset(G_49, &g49, settings));
         }
     }
   }
 
- if (IS_USER_MCODE(block,settings,7) && ONCE_M(7)) {
+ if (is_user_defined_m_code(block, settings, 7) && ONCE_M(7)) {
     return convert_remapped_code(block, settings, STEP_M_7, 'm',
 				   block->m_modes[7]);
  } else if ((block->m_modes[7] == 3)  && ONCE_M(7)) {
@@ -4067,7 +4068,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
       CHP(restore_settings(&_setup, _setup.call_level));
   }
 
-  if (IS_USER_MCODE(block,settings,8) && ONCE_M(8)) {
+  if (is_user_defined_m_code(block, settings, 8) && ONCE_M(8)) {
      return convert_remapped_code(block, settings, STEP_M_8, 'm',
 				   block->m_modes[8]);
   } else if ((block->m_modes[8] == 7) && ONCE_M(8)){
@@ -4099,7 +4100,7 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
       settings->a_axis_clamping = false;
     }
 */
-if (IS_USER_MCODE(block,settings,9) && ONCE_M(9)) {
+if (is_user_defined_m_code(block, settings, 9) && ONCE_M(9)) {
      return convert_remapped_code(block, settings, STEP_M_9, 'm',
 				   block->m_modes[9]);
  } else if ((block->m_modes[9] == 48)  && ONCE_M(9)){
@@ -4192,7 +4193,7 @@ if ((block->m_modes[9] == 53)  && ONCE_M(9)){
     }
   }
 
-if (IS_USER_MCODE(block,settings,10) && ONCE_M(10)) {
+if (is_user_defined_m_code(block, settings, 10) && ONCE_M(10)) {
     return convert_remapped_code(block,settings,STEP_M_10,'m',
 				   block->m_modes[10]);
 
@@ -4339,7 +4340,7 @@ int Interp::convert_motion(int motion,   //!< g_code for a line, arc, canned cyc
     enqueue_COMMENT("interpreter: motion mode set to none");
 #endif
     settings->motion_mode = G_80;
-  } else if (IS_USER_GCODE(motion)) {
+  } else if (is_user_defined_g_code(motion)) {
       CHP(convert_remapped_code(block, settings, STEP_MOTION, 'g', motion));
   } else if (is_a_cycle(motion)) {
 
@@ -4348,7 +4349,6 @@ int Interp::convert_motion(int motion,   //!< g_code for a line, arc, canned cyc
       write_canon_state_tag(block, settings);
       CHP(convert_spline(motion, block, settings));
   } else if ((motion == G_5_2) || (motion == G_6_2)) { // jjf
-    StateTag tag;
     write_canon_state_tag(block, settings);
     CHP(convert_nurbs(motion, block, settings));
   } else if (
@@ -5002,7 +5002,7 @@ int Interp::convert_spindle_mode(int dollar_number, block_pointer block, setup_p
 {
 	for (int s = 0; s < settings->num_spindles; s++){
 		if (dollar_number == -1 || s == dollar_number){
-			  if(block->g_modes[14] == G_97) {
+			  if(block->g_modes[GM_SPINDLE_MODE] == G_97) {
 				settings->spindle_mode[s] = SPINDLE_MODE::CONSTANT_RPM;
 			enqueue_SET_SPINDLE_MODE(s, 0);
 			} else { /* G_96 */
@@ -6253,7 +6253,6 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
     CHKS((!block->h_flag && !block->x_flag && !block->y_flag && !block->z_flag
          && !block->a_flag &&!block->b_flag && !block->c_flag && !block->u_flag
          && !block->v_flag && !block->w_flag), (_("G43.2: No axes specified and H word missing")));
-    CHP((find_tool_index(settings, block->h_number, &idx)));
     tool_offset = settings->tool_offset;
     if (block->h_flag){
         CHP((find_tool_index(settings, block->h_number, &idx)));

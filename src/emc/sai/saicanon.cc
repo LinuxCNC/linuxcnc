@@ -557,7 +557,7 @@ void CHANGE_TOOL()
   PRINT("CHANGE_TOOL()\n");
   _sai._active_slot = _sai._selected_tool;
 #ifdef TOOL_NML //{
-  _sai._tools[0] = _sai._tools[slot];
+  _sai._tools[0] = _sai._tools[_sai._active_slot];
 #else //}{
     CANON_TOOL_TABLE tdata;
     if (tooldata_get(&tdata,_sai._selected_tool) != IDX_OK) {
@@ -734,7 +734,7 @@ int GET_EXTERNAL_FEED_OVERRIDE_ENABLE() {return fo_enable;}
 double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE() { return _sai.motion_tolerance;}
 double GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE()
                                         { return _sai.naivecam_tolerance; }
-double GET_EXTERNAL_LENGTH_UNITS() {return 0.03937007874016;}
+double GET_EXTERNAL_LENGTH_UNITS() {return _sai._external_length_units;}
 int GET_EXTERNAL_FEED_HOLD_ENABLE() {return 1;}
 int GET_EXTERNAL_AXIS_MASK() {return 0x3f;} // XYZABC machine
 double GET_EXTERNAL_ANGLE_UNITS() {return 1.0;}
@@ -782,7 +782,7 @@ extern CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE()
 
 extern void SET_PARAMETER_FILE_NAME(const char *name)
 {
-  strncpy(_parameter_file_name, name, PARAMETER_FILE_NAME_LENGTH);
+  strncpy(_parameter_file_name, name, PARAMETER_FILE_NAME_LENGTH - 1);
 }
 
 void GET_EXTERNAL_PARAMETER_FILE_NAME(

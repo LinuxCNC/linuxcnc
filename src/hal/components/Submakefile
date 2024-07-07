@@ -57,7 +57,8 @@ obj-m += $(patsubst hal/drivers/%.comp, %.o, $(patsubst hal/components/%.comp, %
 $(COMP_MANPAGES): ../docs/man/man9/%.9: hal/components/%.comp ../bin/halcompile
 	$(ECHO) Making halcompile manpage $(notdir $@)
 	@mkdir -p $(dir $@)
-	$(Q)../bin/halcompile -U --document -o $@ $<
+	$(Q)../bin/halcompile -U --document -o $@.new $< && preconv -r < $@.new > $@
+	$(RM) $@.new
 
 $(COMP_DRIVER_MANPAGES): ../docs/man/man9/%.9: hal/drivers/%.comp ../bin/halcompile
 	$(ECHO) Making halcompile manpage $(notdir $@)

@@ -21,6 +21,7 @@ from PyQt5.QtCore import pyqtProperty
 from PyQt5.QtGui import QIcon
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
+from qtvcp.widgets.indicatorMixIn import IndicatedMixIn
 from qtvcp.core import Status, Action, Info
 from qtvcp import logger
 
@@ -37,7 +38,7 @@ LOG = logger.getLogger(__name__)
 # Force the log level for this module
 #LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
-class AxisToolButton(QToolButton, _HalWidgetBase):
+class AxisToolButton(QToolButton, IndicatedMixIn):
     def __init__(self, parent=None):
         super(AxisToolButton, self).__init__(parent)
         self._joint = 0
@@ -79,9 +80,25 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
 
         self.setMenu(SettingMenu)
         self.clicked.connect(self.selectJoint)
+        self.toggled.connect(self.selectJoint)
 
+    # Override setText function so we can toggle displayed text
+    def setText(self, text):
+        if not self._state_text:
+            super(AxisToolButton,self).setText(text)
+            return
+        if self.isCheckable():
+            if self.isChecked():
+                super(AxisToolButton,self).setText(self._true_string)
+            else:
+                super(AxisToolButton,self).setText(self._false_string)
+        elif self._indicator_state:
+            super(AxisToolButton,self).setText(self._true_string)
+        else:
+            super(AxisToolButton,self).setText(self._false_string)
 
     def _hal_init(self):
+        super(AxisToolButton, self)._hal_init()
         def homed_on_test():
             return (STATUS.machine_is_on()
                     and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
@@ -98,15 +115,21 @@ class AxisToolButton(QToolButton, _HalWidgetBase):
         STATUS.connect('joint-selection-changed', lambda w,data: self.ChangeState(joint = data, axis= STATUS.get_selected_axis()))
         STATUS.connect('axis-selection-changed', lambda w,data: self.ChangeState(joint = STATUS.get_selected_joint(), axis = data))
         if self._halpin_option and self._joint != -1:
-            self.hal_pin_joint = self.HAL_GCOMP_.newpin(str(self.HAL_NAME_ + '-joint'), hal.HAL_BIT, hal.HAL_OUT)
-            self.hal_pin_axis = self.HAL_GCOMP_.newpin(str(self.HAL_NAME_ + '-axis'), hal.HAL_BIT, hal.HAL_OUT)
+            if self._pin_name_ == '':
+                pname = self.HAL_NAME_
+            else:
+                pname = self._pin_name_
+
+            self.hal_pin_joint = self.HAL_GCOMP_.newpin(str(pname + '-joint'), hal.HAL_BIT, hal.HAL_OUT)
+            self.hal_pin_axis = self.HAL_GCOMP_.newpin(str(pname + '-axis'), hal.HAL_BIT, hal.HAL_OUT)
         STATUS.connect('general',self.return_value)
 
     def _enableGroup(self, state):
         for i in(self.zeroButton, self.setButton,self.divideButton,
                 self.lastButton, ):
             i.setEnabled(state)
-        self.setEnabled(state)
+        if not self._halpin_option:
+            self.setEnabled(state)
 
     def Zero(self):
         axis, now = self._a_from_j(self._axis)

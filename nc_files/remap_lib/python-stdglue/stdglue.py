@@ -358,7 +358,7 @@ def cycle_prolog(self,**words):
         if not "r" in self.sticky_params[r.name]:
             return "%s: cycle requires R word" % (r.name)
         else:
-            if self.sticky_params[r.name] <= 0.0:
+            if self.sticky_params[r.name]['r'] <= 0.0:
                 return "%s: R word must be > 0 if used (%.4f)" % (r.name, words["r"])
 
         if "l" in words:

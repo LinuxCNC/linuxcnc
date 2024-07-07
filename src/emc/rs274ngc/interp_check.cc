@@ -235,11 +235,11 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
   motion = block->motion_to_be;
 
   // bypass ALL checks, argspec takes care of that
-  if (IS_USER_GCODE(motion)) {
+  if (is_user_defined_g_code(motion)) {
       return INTERP_OK;
   }
   // bypass ALL checks, argspec takes care of that
-  if (has_user_mcode(&(_setup),block)) {
+  if (is_any_m_code_remapped(block, &(_setup))) {
       return INTERP_OK;
     }
   if (block->a_flag) {
@@ -252,12 +252,12 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
     CHKS(is_a_cycle(motion), NCE_CANNOT_PUT_A_C_IN_CANNED_CYCLE);
   }
   if (block->d_flag) {
-    CHKS(((block->g_modes[7] != G_41) && (block->g_modes[7] != G_42) &&
-        (block->g_modes[7] != G_41_1) && (block->g_modes[7] != G_42_1) &&
+    CHKS(((block->g_modes[GM_CUTTER_COMP] != G_41) && (block->g_modes[GM_CUTTER_COMP] != G_42) &&
+        (block->g_modes[GM_CUTTER_COMP] != G_41_1) && (block->g_modes[GM_CUTTER_COMP] != G_42_1) &&
         (motion != G_70) &&
         (motion != G_71) && (motion != G_71_1) && (motion != G_71_2) &&
         (motion != G_72) && (motion != G_72_1) && (motion != G_72_2) &&
-        (block->g_modes[14] != G_96)),
+        (block->g_modes[GM_SPINDLE_MODE] != G_96)),
         _("D word with no G41, G41.1, G42, G42.1, G71, G71.1, G71.2 or G96 to use it"));
   }
 

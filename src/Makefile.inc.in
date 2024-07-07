@@ -17,6 +17,7 @@ LIB_DIR=@EMC2_HOME@/lib
 #used for install stuff
 #but have them here as reference
 #build system only uses EMC2_RTLIB_DIR when creating rtapi.conf
+EMC2_TMP_DIR=@EMC2_TMP_DIR@
 EMC2_BIN_DIR=@EMC2_BIN_DIR@
 EMC2_TCL_DIR=@EMC2_TCL_DIR@
 EMC2_HELP_DIR=@EMC2_HELP_DIR@
