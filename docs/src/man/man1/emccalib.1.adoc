@@ -1,4 +1,4 @@
-= emccalib (1)
+= emccalib(1)
 
 == NAME
 

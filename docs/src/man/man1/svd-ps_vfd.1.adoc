@@ -1,6 +1,5 @@
 = svd-ps_vfd(1)
 
-
 == NAME
 
 svd-ps_vfd - HAL non-realtime component for SVD-P(S) VFDs

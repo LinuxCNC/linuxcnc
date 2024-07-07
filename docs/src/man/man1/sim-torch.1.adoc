@@ -1,0 +1,49 @@
+= sim-torch(1)
+
+== NAME
+
+sim-torch - A simulated plasma torch
+
+== SYNOPSIS
+
+*loadusr Wn sim-torch sim-torch*
+
+== DESCRIPTION
+
+A simulated plasma torch for arc-ok testing.
+
+_VERSION:_ +
+0.1
+
+== PINS
+
+*sim-torch-rt.cut-noise-in float in (default: _0.75_)*::
+  the maximum amount of noise during cutting (volts)
+*sim-torch-rt.cycles-in s32 in (default: _200_)*::
+  the number of cycles that the arc voltage overshoots the cut voltage
+  (cycles)
+*sim-torch-rt.on-delay-in s32 in (default: _10_)*::
+  the time from turn on until overshoot begins (cycles)
+*sim-torch-rt.offset-in float in *::
+  the cut voltage offset(volts)
+*sim-torch-rt.overshoot-in s32 in (default: _50_)*::
+  the percentage of the cut voltage that the arc voltage overshoots
+  (percent)
+*sim-torch-rt.ramp-noise-in float in (default: _5_)*::
+  the maximum amount of noise during overshoot (volts)
+*sim-torch-rt.ramp-up-in s32 in (default: _80_)*::
+  percent of 'cycles_in' that the arc voltage ramps up (percent)
+*sim-torch-rt.start bit in *::
+  start the arc
+*sim-torch-rt.voltage-in float in (default: _100_)*::
+  the cut voltage (volts)
+*sim-torch-rt.voltage-out float out *::
+  output voltage (volts)
+
+== AUTHOR
+
+Phillip A Carter
+
+== LICENSE
+
+GPLv2 or greater

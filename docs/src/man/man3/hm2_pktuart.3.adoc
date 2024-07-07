@@ -1,6 +1,5 @@
 = hm2_pktuart(3)
 
-
 == NAME
 
 hm2_pktuart - functions to access the Mesa FPGA card packeted UARTs

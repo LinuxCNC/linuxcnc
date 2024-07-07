@@ -1,0 +1,44 @@
+= hal-histogram(1)
+
+== NAME
+
+hal-histogram - plots the value of a HAL pin as a histogram
+
+== SYNOPSIS
+
+*hal-histogram*
+
+== DESCRIPTION
+
+*hal-histogram* represents the values of a HAL pin graphically.
+
+Details:
+
+....
+....
+
+== SEE ALSO
+
+*LinuxCNC(1)*
+
+Much more information about LinuxCNC and HAL is available in the
+LinuxCNC and HAL User Manuals, found at /usr/share/doc/LinuxCNC/.
+
+== BUGS
+
+None known at this time.
+
+== AUTHOR
+
+This man page written by andypugh, as part of the LinuxCNC project.
+
+== REPORTING BUGS
+
+Report bugs at https://github.com/LinuxCNC/linuxcnc/issues
+
+== COPYRIGHT
+
+Copyright © 2020 andypugh. +
+This is free software; see the source for copying conditions. There is
+NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.

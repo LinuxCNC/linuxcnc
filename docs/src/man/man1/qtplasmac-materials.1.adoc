@@ -1,0 +1,31 @@
+= qtplasmac-materials(1)
+
+== NAME
+
+qtplasmac-materials - Create a plasma materials file.
+
+== SYNOPSIS
+
+*qtplasmac-materials*
+
+== DESCRIPTION
+
+qtplasmac-materials is a Python script for creating a materials file.
+
+The file can be created by text entry or by importing text from a CAM
+tool file.
+
+== SEE ALSO
+
+See the QtPlasmaC section of the LinuxCNC Documentation for more
+information.
+
+http://linuxcnc.org/docs/devel/html/plasma/qtplasmac.html#_material_converter
+
+== AUTHOR
+
+Phillip Carter
+
+== LICENSE
+
+GPL

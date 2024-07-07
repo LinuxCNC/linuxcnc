@@ -1,0 +1,95 @@
+= milltask(1)
+
+== NAME
+
+milltask - Non-realtime task controller for LinuxCNC
+
+== DESCRIPTION
+
+*milltask* is an internal process of LinuxCNC. It is generally not
+invoked directly but by an INI file setting: *[TASK]TASK=milltask*. The
+*milltask* process creates the *ini.** HAL pins listed below and owned
+by the *inihal* component. These pins may be modified while LinuxCNC is
+running to alter values that are typically statically specified in an
+INI file.
+
+The *inihal* pins are sampled in every task cycle, however, commands
+affected by their values typically use the value present at the time
+when the command is processed. Such commands include all codes handled
+by the interpreter (*G-code* programs and *MDI* commands) and NML
+*jogging* commands issued by a GUI (including *halui*). *Wheel jogging*
+is implemented in the realtime motion module so *inihal* pin changes
+(e.g., ini.*.max_velocity, ini.*.max_acceleration) may be honored as
+soon as altered values are propagated to the motion module.
+
+== PINS
+
+=== Per-joint pins (N == joint number)
+
+*ini.*_N_*.backlash*::
+  Allows adjustment of *[JOINT_*_N_*]BACKLASH*
+*ini.*_N_*.ferror*::
+  Allows adjustment of *[JOINT_*_N_*]FERROR*
+*ini.*_N_*.min_ferror*::
+  Allows adjustment of *[JOINT_*_N_*]MIN_FERROR*
+*ini.*_N_*.min_limit*::
+  Allows adjustment of *[JOINT_*_N_*]MIN_LIMIT*
+*ini.*_N_*.max_limit*::
+  Allows adjustment of *[JOINT_*_N_*]MAX_LIMIT*
+*ini.*_N_*.max_velocity*::
+  Allows adjustment of *[JOINT_*_N_*]MAX_VELOCITY*
+*ini.*_N_*.max_acceleration*::
+  Allows adjustment of *[JOINT_*_N_*]MAX_ACCELERATION*
+*ini.*_N_*.home*::
+  Allows adjustment of *[JOINT_*_N_*]HOME*
+*ini.*_N_*.home_offset*::
+  Allows adjustment of *[JOINT_*_N_*]HOME_OFFSET*
+*ini.*_N_*.home_offset*::
+  Allows adjustment of *[JOINT_*_N_*]HOME_SEQUENCE*
+
+=== Per-axis pins (L == axis letter)
+
+*ini.*_L_*.min_limit*::
+  Allows adjustment of *[AXIS_*_L_*]MIN_LIMIT*
+*ini.*_L_*.max_limit*::
+  Allows adjustment of *[AXIS_*_L_*]MAX_LIMIT*
+*ini.*_L_*.max_velocity*::
+  Allows adjustment of *[AXIS_*_L_*]MAX_VELOCITY*
+*ini.*_L_*.max_acceleration*::
+  Allows adjustment of *[AXIS_*_L_*]MAX_ACCELERATION*
+
+=== Global pins
+
+*ini.traj_default_acceleration*::
+  Allows adjustment of *[TRAJ]DEFAULT_ACCELERATION*
+*ini.traj_default_velocity*::
+  Allows adjustment of *[TRAJ]DEFAULT_VELOCITY*
+*ini.traj_max_acceleration*::
+  Allows adjustment of *[TRAJ]MAX_ACCELERATION*
+*ini.traj_max_velocity*::
+  Allows adjustment of *[TRAJ]MAX_VELOCITY*
+
+=== Global pins (arc_blend trajectory planner)
+
+*ini.traj_arc_blend_enable*::
+  Allows adjustment of *[TRAJ]ARC_BLEND_ENABLE*
+*ini.traj_arc_blend_fallback_enable*::
+  Allows adjustment of *[TRAJ]ARC_BLEND_FALLBACK_ENABLE*
+*ini.traj_arc_blend_gap_cycles*::
+  Allows adjustment of *[TRAJ]ARC_OPTIMIZATION_DEPTH*
+*ini.traj_arc_blend_optimization_depth*::
+  Allows adjustment of *[TRAJ]ARC_BLEND_GAP_CYCLES*
+*ini.traj_arc_blend_ramp_freq*::
+  Allows adjustment of *[TRAJ]ARC_BLEND_RAMP_FREQ*
+
+== NOTES
+
+The *inihal* pins cannot be linked or set in a HAL file that is
+specified by an INI file *[HAL]HALFILE* item because they are not
+created until *milltask* is started. The *inihal* pin values can be
+altered by independent halcmd programs specified by *[APPLICATION]APP*
+items or by GUIs that support a *[HAL]POSTGUI_HALFILE*.
+
+The INI file is not automatically updated with values altered by
+*inihal* pin settings but can be updated using the calibration program
+(emccalib.tcl) when using a *[HAL]POSTGUI_HALFILE*.
