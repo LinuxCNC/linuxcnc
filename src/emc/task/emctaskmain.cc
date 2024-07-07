@@ -59,7 +59,7 @@
 #include <libintl.h>
 #include <locale.h>
 #include "usrmotintf.h"
-#include <rtapi_string.h>
+#include <rtapi_string.h>	// rtapi_strlcpy()
 #include "tooldata.hh"
 
 #if 0
@@ -3171,16 +3171,16 @@ static int iniLoad(const char *filename)
     if (emc_debug & EMC_DEBUG_VERSIONS) {
 	if (NULL != (inistring = inifile.Find("VERSION", "EMC"))) {
 	    if(sscanf(inistring, "$Revision: %s", version) != 1) {
-		strncpy(version, "unknown", LINELEN-1);
+		rtapi_strlcpy(version, "unknown", LINELEN-1);
 	    }
 	} else {
-	    strncpy(version, "unknown", LINELEN-1);
+	    rtapi_strlcpy(version, "unknown", LINELEN-1);
 	}
 
 	if (NULL != (inistring = inifile.Find("MACHINE", "EMC"))) {
-	    strncpy(machine, inistring, LINELEN-1);
+	    rtapi_strlcpy(machine, inistring, LINELEN-1);
 	} else {
-	    strncpy(machine, "unknown", LINELEN-1);
+	    rtapi_strlcpy(machine, "unknown", LINELEN-1);
 	}
 	rcs_print("task: machine: '%s'  version '%s'\n", machine, version);
     }
