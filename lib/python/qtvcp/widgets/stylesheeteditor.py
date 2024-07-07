@@ -94,13 +94,18 @@ class StyleSheetEditor(QDialog):
     # in the users's config directory
     def setPath(self):
         model = self.styleSheetCombo.model()
+
+        # ad an 'As Loaded' entry to follow the preference file's entry
         self.loadedItem = QtGui.QStandardItem('As Loaded')
         self.loadedItem.setData( 'As Loaded', role = QtCore.Qt.UserRole + 1)
         model.appendRow(self.loadedItem)
+
+        # add 'None' to cancel all sylesheet changes
         item = QtGui.QStandardItem('None')
         item.setData( 'None', role = QtCore.Qt.UserRole + 1)
         model.appendRow(item)
-        # check for default qss from qtvcp's default folders
+
+        # check for default/builtin styles from qtvcp's default folders
         if PATH.IS_SCREEN:
             DIR = PATH.SCREENDIR
             BNAME = PATH.BASENAME
@@ -117,16 +122,21 @@ class StyleSheetEditor(QDialog):
         except Exception as e:
             print(e)
 
-        # check for qss in the users's config folder
-        localqss = PATH.CONFIGPATH
-        try:
-            fileNames= [f for f in os.listdir(localqss) if f.endswith('.qss')]
-            for i in(fileNames):
-                item = QtGui.QStandardItem(i)
-                item.setData(os.path.join(localqss, i), role = QtCore.Qt.UserRole + 1)
-                model.appendRow(item)
-        except Exception as e:
-            print(e)
+        # check for qss in the users's bare config folder
+        localpath = [PATH.CONFIGPATH]
+
+        # add optional location in the users's config folder CONFIGFOLDER/qtvcp/screens/SCREENNAME
+        localpath.append(os.path.join(PATH.CONFIGPATH, 'qtvcp/screens',PATH.BASEPATH))
+
+        for localqss in localpath:
+            try:
+                fileNames= [f for f in os.listdir(localqss) if f.endswith('.qss')]
+                for i in(fileNames):
+                    item = QtGui.QStandardItem(i)
+                    item.setData(os.path.join(localqss, i), role = QtCore.Qt.UserRole + 1)
+                    model.appendRow(item)
+            except Exception as e:
+                print(e)
 
     def selectionChanged(self,i):
         path = self.styleSheetCombo.itemData(i,role = QtCore.Qt.UserRole + 1)

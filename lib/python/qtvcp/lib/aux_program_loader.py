@@ -31,7 +31,7 @@ class Aux_program_loader:
         if args:
             pass
         else:
-            p = os.popen('python {}'.format(os.path.join(PATH.LIBDIR, 'ripper/gcode_ripper.py')))
+            p = os.popen('python3 {}'.format(os.path.join(PATH.LIBDIR, 'ripper/gcode_ripper.py')))
 
     # opens halshow
     def load_halshow(self, *args):

@@ -5,16 +5,15 @@
 
 = Getting LinuxCNC
 
-This section describes the recommended way to download
-and make a fresh install of LinuxCNC.  There are also
-<<_alternate_install_methods,Alternate Install Methods>> for the
-adventurous.  If you have an existing install that you want to upgrade,
+This section describes the recommended way to download and make a fresh install of LinuxCNC.
+There are also <<_alternate_install_methods,Alternate Install Methods>> for the adventurous.
+If you have an existing install that you want to upgrade,
 go to the <<cha:updating-linuxcnc,Updating LinuxCNC>> section instead.
 
-NOTE: LinuxCNC requires a special kernel with real-time extensions. There are
-three possibilities here: preempt-rt, RTAI or Xenomai. In addition there
-are two versions of LinuxCNC which work with these kernels. See the table
-below for details.
+NOTE: To operate machinery LinuxCNC requires a special kernel with real-time extensions. There
+are three possibilities here: preempt-rt, RTAI or Xenomai. In addition there are two versions
+of LinuxCNC which work with these kernels. See the table below for details. However for code
+testing and simulation it is possible to run the linuxcnc-uspace application on a stock kernel. 
 
 Fresh installs of LinuxCNC are most easily created using the Live/Install
 Image. This is a hybrid ISO filesystem image that can be written to a
@@ -31,22 +30,23 @@ The outline of the process looks like this:
 . Boot the Live system to test out LinuxCNC.
 . Boot the Installer to install LinuxCNC.
 
-
 == Download the image
 
-This section describes some methods for downloading the Live/Install
-Image.
-
+This section describes some methods for downloading the Live/Install image.
 
 === Normal Download
 
-For x86 PCs Download the Live/Install CD by clicking here:
+Software for LinuxCNC to download is presented on the project's
+https://linuxcnc.org/downloads/[Downloads page].
+Most users will aim for the disk image for Intel/AMD PCs, the URL
+will resemble https://www.linuxcnc.org/iso/linuxcnc_2.9.2-amd64.hybrid.iso.
 
-https://www.linuxcnc.org/iso/linuxcnc_2.9.1-amd64.hybrid.iso
+For the Raspberry Pi, multiple images are provided to address
+differences between the RPi4 and RPi5.
 
-For the Raspberry Pi a complete SD card image is available here:
-
-https://www.linuxcnc.org/iso/linuxcnc-2.9.1-bookworm-rpi4.img.xz
+NOTE: Do not use the regular Raspbian distribution for LinuxCNC that may have shipped with
+your RPi starter kit - that will not have the real-time kernel and you cannot
+migrate from Raspbian to Debian's kernel image.
 
 === Download using zsync
 
@@ -66,15 +66,14 @@ sudo apt-get install zsync
 . Then run this command to download the iso to your computer
 +
 ----
-zsync https://www.linuxcnc.org/iso/linuxcnc_2.9.1-amd64.hybrid.iso
+zsync https://www.linuxcnc.org/iso/linuxcnc_2.9.2-amd64.hybrid.iso
 ----
 
 .zsync in Windows
 
-There is a Windows port of zsync. It works as a console application. It can be
-downloaded from:
-
-https://www.assembla.com/spaces/zsync-windows/documents
+There is a Windows port of zsync.
+It works as a console application and can be downloaded from
+https://www.assembla.com/spaces/zsync-windows/documents .
 
 === Verify the image
 
@@ -83,13 +82,13 @@ https://www.assembla.com/spaces/zsync-windows/documents
 . After downloading, verify the checksum of the image to ensure integrity.
 
 ----
-md5sum linuxcnc-2.9.1-amd64.iso
+md5sum linuxcnc-2.9.2-amd64.iso
 ----
 
 or
 
 ----
-sha256sum linuxcnc-2.9.1-amd64.iso
+sha256sum linuxcnc-2.9.2-amd64.iso
 ----
 . Then compare to these checksums
 
@@ -117,12 +116,15 @@ used to boot a computer.  The image is too large to fit on a CD.
 === Raspberry Pi Image
 
 The Raspbery Pi image is a completes SD card image and should be
-written to an SD card with the [Raspberry Pi Imager App](https://www.raspberrypi.com/software/)
+written to an SD card with the [Raspberry Pi Imager App](https://www.raspberrypi.com/software/).
 
 === AMD-64 (x86-64, PC) Image using GUI tools
 
 Download and install [Balena Etcher](https://etcher.balena.io/#download-etcher)
 (Linux, Windows, Mac) and write the downloaded image to a USB drive.
+
+If your image fails to boot then please also try https://rufus.ie/[Rufus].
+It looks more complicated but seems to be more compatible with various BIOSes.
 
 === Command line - Linux
 
@@ -136,7 +138,7 @@ Download and install [Balena Etcher](https://etcher.balena.io/#download-etcher)
   then use this command:
 +
 -----
-dd if=linuxcnc_2.9.1-amd64.hybrid.iso of=/dev/sde
+dd if=linuxcnc_2.9.2-amd64.hybrid.iso of=/dev/sde
 -----
 
 === Command line - MacOS
@@ -158,7 +160,7 @@ diskutil unmountDisk /dev/diskN
   has an added "r" at the begining
 +
 -----
-sudo dd if=/linuxcnc_2.9.1-amd64.hybrid.iso of=/dev/rdiskN bs=1m
+sudo dd if=/linuxcnc_2.9.2-amd64.hybrid.iso of=/dev/rdiskN bs=1m
 -----
 . Note that this may take a long time to complete and there will be no
   feedback during the process.
@@ -196,8 +198,8 @@ With the USB storage device plugged in or the DVD in the DVD drive,
 shut down the computer then turn the computer back on. This will boot
 the computer from the Live/Install Image and choose the Live boot option.
 
-NOTE: If the system does not boot from the DVD or USB stick it might be
-necesary to change the boot order in the PC BIOS.
+NOTE: If the system does not boot from the DVD or USB stick,
+it may be necessary to change the boot order in the PC BIOS.
 
 Once the computer has booted up you can try out LinuxCNC without installing
 it. You can not create custom configurations or modify most system
@@ -212,14 +214,14 @@ configuration. Some of the sample configurations include onscreen
 To see if your computer is suitable for software step pulse generation
 run the Latency Test as shown <<sec:latency-test,here>>.
 
-At the time of writing the Live-Image is only available with the
+At the time of writing the Live Image is only available with the
 preempt-rt kernel and a matching LinuxCNC. On some hardware this might
 not offer good enough latency. There is an experimental version available
 using the RTAI realtime kernel which will often give better latency.
 
 == Installing LinuxCNC
 
-To install LinuxCNC from the LiveCD select 'Install (Graphical)' at bootup.
+To install LinuxCNC from the Live CD select 'Install (Graphical)' at bootup.
 
 == Updates to LinuxCNC (((Updates to LinuxCNC)))
 
@@ -239,18 +241,14 @@ during the boot up.
 
 == Alternate Install Methods
 
-The easiest, preferred way to install LinuxCNC is to use the Live/Install
-Image as described above.  That method is as simple and reliable as we
-can make it, and is suitable for novice users and experienced users alike.
-However, this will typically replace any existing operating system. If
-you have files on the target PC that you want to keep, then use one of
-the methods in this section.
+The easiest, preferred way to install LinuxCNC is to use the Live/Install Image as described above.
+That method is as simple and reliable as we can make it, and is suitable for novice users and experienced users alike.
+However, this will typically replace any existing operating system.
+If you have files on the target PC that you want to keep, then use one of the methods described in this section.
 
-In addition, for experienced users who are familiar with Debian system
-administration (finding install images, manipulating apt sources, changing
-kernel flavors, etc), new installs are supported on following platforms:
-("amd64" means "64-bit", and is not specific to AMD processors, it will
-run on any 64-bit x86 system)
+In addition, for experienced users who are familiar with Debian system administration
+(finding install images, manipulating apt sources, changing kernel flavors, etc), new installs are supported on following platforms:
+("amd64" means "64-bit", and is not specific to AMD processors, it will run on any 64-bit x86 system)
 
 [options="header"]
 |===
@@ -260,21 +258,22 @@ run on any 64-bit x86 system)
 | Debian Bullseye | amd64         | preempt-rt | linuxcnc-uspace | machine control & simulation
 | Debian Buster   | amd64 & arm64 | preempt-rt | linuxcnc-uspace | machine control & simulation
 | Debian Buster   | amd64         | RTAI       | linuxcnc        | machine control
+| Any             | Any           | Stock      | linuxcnc-uspace | simulation ONLY
 |===
 
 NOTE: LinuxCNC v2.9 is not supported on Debian 9 or older.
 
 .Preempt-RT kernels
 
-The Preempt-rt kernels are available for Debian from the regular
-debian.org archive. The package is called `linux-image-rt-*`
+The Preempt-rt kernels are available for Debian from the regular debian.org archive.
+The package is called `linux-image-rt-*`.
 Simply install the package in the same way as any other package from the
 Synaptic Package manager or with apt-get at the command-line.
 
 .RTAI Kernels
 
-The RTAI kernels are available for download from the linuxcnc.org
-debian archive.  The apt source is:
+The RTAI kernels are available for download from the linuxcnc.org debian archive.
+The apt source is:
 
 * Debian Bookworm: `deb http://linuxcnc.org bookworm base`
 * Debian Bullseye: `deb http://linuxcnc.org bullseye base`
@@ -315,18 +314,17 @@ sudo apt-get install linux-image-rt-amd64
 
 ----
 
-. Re-boot, and select the Linux 6.1.0-10-rt-amd64 kernel (the exact
+. Re-boot, and select the Linux 6.1.0-10-rt-amd64 kernel. The exact
 kernel version might be different, look for the "-rt" suffix. This might be
 hidden in the "Advanced options for Debian Bookworm" sub-menu in Grub.
-When you
-  log in, verify that `PREEMPT RT`is reported by the following command.
+When you log in, verify that `PREEMPT RT`is reported by the following command.
 +
 ----
 uname -v
 ----
 
 . Open Applications Menu > System > Synaptic Package Manager search for
-  'linux-image' and right click on the original non-rt  and select
+  'linux-image' and right click on the original non-rt and select
   'Mark for Complete Removal'. Reboot.
   This is to force the system to boot from the RT kernel. If you prefer
   to retain both kernels then the other kernels need not be deleted, but
@@ -347,9 +345,9 @@ sudo ./linuxcnc-install.sh
 [[cha:Installing-RTAI]]
 === Installing on Debian Bookworm (with experimental RTAI kernel)
 
-. This kernel and LinuxCNC version can be installed on top of the LiveDVD
+. This kernel and LinuxCNC version can be installed on top of the Live DVD
   install, or alternatively on a fresh Install of Debian Bookworm 64-bit
-  as described above
+  as described above.
 . You can add the LinuxCNC Archive signing key and repository information
   by downloading and running the installer script as decribed above. If
   an RTAI kernel is detected it will stop before installing any packages. 
@@ -359,7 +357,7 @@ sudo ./linuxcnc-install.sh
 ----
 sudo apt-get update
 ----
-. Install the new realtime kernel, RTAI and the rtai version of linuxcnc
+. Install the new realtime kernel, RTAI and the rtai version of linuxcnc.
 +
 ----
 sudo apt-get install linuxcnc
@@ -369,9 +367,8 @@ kernel.
 
 === Installing on Raspbian 12
 
-. Download a stock Raspbian image to an SD card and install using the
-  [Raspberry Pi Imager App](https://www.raspberrypi.com/software/)
-. Boot the Pi and open a terminal. Download and run the linuxcnc installer
-  script as described above.
+Don't do that. The latencies are too bad with the default kernel and the PREEMPT_RT (the RT is important) kernel of Debian does not boot on the Pi (as of 1/2024).
+Please refer to the images provided online.
+You can create them yourself following the scripts provided https://github.com/rodw-au/rpi-img-builder-lcnc[online].
 
 // vim: set syntax=asciidoc:

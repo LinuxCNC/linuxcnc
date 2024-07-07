@@ -187,7 +187,7 @@ Smart-serial remote parameters can now be set in the HAL file in the normal way.
 | link:../man/man9/timedelay.9.html[timedelay]     |Equivalent of a time-delay relay. ||
 | link:../man/man9/tp.9.html[tp]                   |IEC TP timer - generate a high pulse of defined duration on rising edge ||
 | link:../man/man9/tristate_bit.9.html[tristate_bit] |Places signal on an I/O pin only when enabled, similar to a tristate buffer in electronics ||
-| link:../man/man9/tristate_float.9.html[tristate_float] |Places signal on an I/O pin only when enabled, similar to a tristatebuffer in electronics ||
+| link:../man/man9/tristate_float.9.html[tristate_float] |Places signal on an I/O pin only when enabled, similar to a tristate buffer in electronics ||
 | link:../man/man9/xor2.9.html[xor2]               |Two-input XOR (exclusive OR) gate ||
 |===
 
@@ -203,6 +203,7 @@ Smart-serial remote parameters can now be set in the HAL file in the normal way.
 | link:../man/man9/counter.9.html[counter]   |Counts input pulses (deprecated). Use the <<sec:encoder,encoder>> component. | |
 | link:../man/man9/ddt.9.html[ddt]           |Computes the derivative of the input function. ||
 | link:../man/man9/deadzone.9.html[deadzone] |Returns the center if within the threshold. ||
+| link:../man/man9/div2.9.html[div2]         |Quotient of two floating point inputs. ||
 | link:../man/man9/hypot.9.html[hypot]       |Three-input hypotenuse (Euclidean distance) calculator. ||
 | link:../man/man9/ilowpass.9.html[ilowpass] |Low-pass filter with integer inputs and outputs ||
 | link:../man/man9/integ.9.html[integ]       |Integrator ||
@@ -320,7 +321,7 @@ For example, if you have a base period of 100,000&#8239;ns that is 0.0001 second
 | link:../man/man9/siggen.9.html[siggen] | Signal generator, see <<sec:siggen,Description>>. ||
 | link:../man/man9/sim_encoder.9.html[sim_encoder] | Simulated quadrature encoder, see <<sec:simulated-encoder,Description>>. ||
 | link:../man/man9/sphereprobe.9.html[sphereprobe] | Probe a pretend hemisphere. ||
-| link:../man/man9/steptest.9.html[steptest] | Used by Stepconf to allow testing of acceleration and velocity values for an axis. ||
+| link:../man/man9/steptest.9.html[steptest] | Used by StepConf to allow testing of acceleration and velocity values for an axis. ||
 | link:../man/man9/streamer.9.html[streamer] | Stream file data into HAL in real time. ||
 | link:../man/man9/supply.9.html[supply] | Set output pins with values from parameters (deprecated). ||
 | link:../man/man9/threadtest.9.html[threadtest] | Component for testing thread behavior. ||

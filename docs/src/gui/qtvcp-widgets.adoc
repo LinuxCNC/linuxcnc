@@ -2722,10 +2722,10 @@ self.w.joypadename.setProperty('false_color','red')
 ----
 
 === 'WebWidget'
-This widget will create a html/pdf viewing page using the QtWebKit or 
-QtWebEngine libraries. The newer QtWebEngine is preferred if both are on the system. +
-If the QtWebEngine library is used with the QtDesigner editor, a placeholder QWidget will show in Qesigner.
-This will be replaced with thw QtWebEngine widget at run time.
+This widget will create a html/pdf viewing page using the QtWebKit or QtWebEngine libraries.
+The newer QtWebEngine is preferred if both are on the system. +
+If the QtWebEngine library is used with the Qt Designer editor, a placeholder QWidget will show in Qesigner.
+This will be replaced with the QtWebEngine widget at run time.
 
 [[sec:qtvcp:widgets:baseclass-mixin]]
 == BaseClass/Mixin Widgets

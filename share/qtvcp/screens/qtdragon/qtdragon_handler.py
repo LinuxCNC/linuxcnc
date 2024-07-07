@@ -56,7 +56,7 @@ DEFAULT = 0
 WARNING = 1
 CRITICAL = 2
 
-VERSION ='1.1'
+VERSION ='1.4'
 
 class HandlerClass:
     def __init__(self, halcomp, widgets, paths):
@@ -370,6 +370,9 @@ class HandlerClass:
         self.w.chk_use_camera.setChecked(self.w.PREFS_.getpref('Use camera', False, bool, 'CUSTOM_FORM_ENTRIES'))
         self.w.chk_alpha_mode.setChecked(self.w.PREFS_.getpref('Use alpha display mode', False, bool, 'CUSTOM_FORM_ENTRIES'))
         self.w.chk_inhibit_selection.setChecked(self.w.PREFS_.getpref('Inhibit display mouse selection', True, bool, 'CUSTOM_FORM_ENTRIES'))
+        self.cam_xscale_changed(self.w.PREFS_.getpref('Camview xscale', 100, int, 'CUSTOM_FORM_ENTRIES'))
+        self.cam_yscale_changed(self.w.PREFS_.getpref('Camview yscale', 100, int, 'CUSTOM_FORM_ENTRIES'))
+        self.w.camview._camNum = self.w.PREFS_.getpref('Camview cam number', 0, int, 'CUSTOM_FORM_ENTRIES')
 
     def closing_cleanup__(self):
         if not self.w.PREFS_: return
@@ -402,6 +405,9 @@ class HandlerClass:
         self.w.PREFS_.putpref('Use camera', self.w.chk_use_camera.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Use alpha display mode', self.w.chk_alpha_mode.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Inhibit display mouse selection', self.w.chk_inhibit_selection.isChecked(), bool, 'CUSTOM_FORM_ENTRIES')
+        self.w.PREFS_.putpref('Camview xscale', self.cam_xscale_percent(), int, 'CUSTOM_FORM_ENTRIES')
+        self.w.PREFS_.putpref('Camview yscale', self.cam_yscale_percent(), int, 'CUSTOM_FORM_ENTRIES')
+        self.w.PREFS_.putpref('Camview cam number', self.w.camview._camNum, int, 'CUSTOM_FORM_ENTRIES')
 
     def init_widgets(self):
         self.adjust_stacked_widgets(TAB_MAIN)
@@ -856,9 +862,14 @@ class HandlerClass:
     def btn_goto_sensor_clicked(self):
         x = float(self.w.lineEdit_sensor_x.text())
         y = float(self.w.lineEdit_sensor_y.text())
-        if not STATUS.is_metric_mode():
-            x = x / 25.4
-            y = y / 25.4
+
+        if STATUS.is_metric_mode():
+            x = INFO.convert_machine_to_metric(x)
+            y = INFO.convert_machine_to_metric(y)
+        else:
+            x = INFO.convert_machine_to_imperial(x)
+            y = INFO.convert_machine_to_imperial(y)
+
         ACTION.CALL_MDI("G90")
         ACTION.CALL_MDI_WAIT("G53 G0 Z0")
         command = "G53 G0 X{:3.4f} Y{:3.4f}".format(x, y)
@@ -867,9 +878,14 @@ class HandlerClass:
     def btn_ref_laser_clicked(self):
         x = float(self.w.lineEdit_laser_x.text())
         y = float(self.w.lineEdit_laser_y.text())
-        if not STATUS.is_metric_mode():
-            x = x / 25.4
-            y = y / 25.4
+
+        if STATUS.is_metric_mode():
+            x = INFO.convert_machine_to_metric(x)
+            y = INFO.convert_machine_to_metric(y)
+        else:
+            x = INFO.convert_machine_to_imperial(x)
+            y = INFO.convert_machine_to_imperial(y)
+
         self.add_status("Laser offsets set")
         command = "G10 L20 P0 X{:3.4f} Y{:3.4f}".format(x, y)
         ACTION.CALL_MDI(command)
@@ -877,9 +893,14 @@ class HandlerClass:
     def btn_ref_camera_clicked(self):
         x = float(self.w.lineEdit_camera_x.text())
         y = float(self.w.lineEdit_camera_y.text())
-        if not STATUS.is_metric_mode():
-            x = x / 25.4
-            y = y / 25.4
+
+        if STATUS.is_metric_mode():
+            x = INFO.convert_machine_to_metric(x)
+            y = INFO.convert_machine_to_metric(y)
+        else:
+            x = INFO.convert_machine_to_imperial(x)
+            y = INFO.convert_machine_to_imperial(y)
+
         self.add_status("Camera offsets set")
         command = "G10 L20 P0 X{:3.4f} Y{:3.4f}".format(x, y)
         ACTION.CALL_MDI(command)
@@ -934,6 +955,17 @@ class HandlerClass:
 
     def cam_rot_changed(self, value):
         self.w.camview.rotation = float(value) / 10
+
+    # scaling of the camera image for size aspect corrections
+    # set from preference file
+    def cam_xscale_changed(self, value):
+        self.w.camview.scaleX  = float(value/100)
+    def cam_xscale_percent(self):
+        return self.w.camview.scaleX * 100
+    def cam_yscale_changed(self, value):
+        self.w.camview.scaleY  = float(value/100)
+    def cam_yscale_percent(self):
+        return self.w.camview.scaleY * 100
 
     # settings tab
     def chk_override_limits_checked(self, state):
@@ -1387,16 +1419,16 @@ class HandlerClass:
                     TAB_USER: (requestedIndex,PAGE_UNCHANGED,IGNORE,IGNORE,False) }
         else:
             seq = {TAB_MAIN: (requestedIndex,PAGE_GCODE,True,SHOW_DRO,True),
-                    TAB_FILE: (requestedIndex,PAGE_FILE,True,IGNORE,True),
-                    TAB_OFFSETS: (requestedIndex,PAGE_OFFSET,True,IGNORE,True),
-                    TAB_TOOL: (requestedIndex,PAGE_TOOL,True,IGNORE,True),
-                    TAB_STATUS: (requestedIndex,PAGE_UNCHANGED,True,SHOW_DRO,True),
-                    TAB_PROBE: (requestedIndex,PAGE_GCODE,True,SHOW_DRO,True),
+                    TAB_FILE: (requestedIndex,PAGE_FILE,True,IGNORE,False),
+                    TAB_OFFSETS: (requestedIndex,PAGE_OFFSET,True,IGNORE,False),
+                    TAB_TOOL: (requestedIndex,PAGE_TOOL,True,IGNORE,False),
+                    TAB_STATUS: (requestedIndex,PAGE_UNCHANGED,True,SHOW_DRO,False),
+                    TAB_PROBE: (requestedIndex,PAGE_GCODE,True,SHOW_DRO,False),
                     TAB_CAMERA: (requestedIndex,PAGE_UNCHANGED,True,IGNORE,True),
-                    TAB_GCODES: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO,True),
-                    TAB_SETUP: (requestedIndex,PAGE_UNCHANGED,False,IGNORE,True),
-                    TAB_SETTINGS: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO,True),
-                    TAB_UTILITIES: (requestedIndex,PAGE_UNCHANGED,True,SHOW_DRO,True),
+                    TAB_GCODES: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO,False),
+                    TAB_SETUP: (requestedIndex,PAGE_UNCHANGED,False,IGNORE,False),
+                    TAB_SETTINGS: (requestedIndex,PAGE_UNCHANGED,False,SHOW_DRO,False),
+                    TAB_UTILITIES: (requestedIndex,PAGE_UNCHANGED,True,SHOW_DRO,False),
                     TAB_USER: (requestedIndex,PAGE_UNCHANGED,IGNORE,IGNORE,True) }
 
         rtn =  seq.get(requestedIndex)

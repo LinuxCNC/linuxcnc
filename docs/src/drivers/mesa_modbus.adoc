@@ -59,8 +59,8 @@ advantage at all.
 
 == Quick Start ==
 
-Install the linuxcnc-dev package. (FIXME: modcompile and mesa_uart.c are
-not yet included in linuxcnc-dev)
+Install the linuxcnc-uspace-dev or linuxcnc-dev package (depending on the
+LinuxCNC version installed).
 
 Create a new definition file similar to analogue.mod and relayboard.mod
 (the annotated mesa_uart.mod.sample file should help here)

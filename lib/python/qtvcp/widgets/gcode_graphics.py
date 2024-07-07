@@ -140,7 +140,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
     def set_view_signal(self, view, args):
         v = view.lower()
         if v == 'clear':
-            self.logger.clear()
+            self.clear_live_plotter()
         elif v == 'zoom-in':
             self.zoomin()
         elif v == 'zoom-out':
@@ -240,6 +240,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         LOG.debug('reload the display: {}'.format(self._reload_filename))
         try:
             self.load(self._reload_filename)
+            self.clear_live_plotter()
             STATUS.emit('graphics-gcode-properties',self.gcode_properties)
         except:
             print('error', self._reload_filename)

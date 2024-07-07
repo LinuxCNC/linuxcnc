@@ -648,17 +648,14 @@ class _Lcnc_Action(object):
 
     def SHUT_SYSTEM_DOWN_PROMPT(self):
         import subprocess
+        import shutil
         try:
-            try:
+            if shutil.which('gnome-session-quit'):
                 subprocess.call('gnome-session-quit --power-off', shell=True)
-            except:
-                try:
-                    subprocess.call('xfce4-session-logout', shell=True)
-                except:
-                    try:
-                        subprocess.call('systemctl poweroff', shell=True)
-                    except:
-                        raise
+            elif shutil.which('xfce4-session-logout'):
+                subprocess.call('xfce4-session-logout', shell=True)
+            else:
+                subprocess.call('systemctl poweroff', shell=True)
         except Exception as e:
             LOG.warning("Couldn't shut system down: {}".format(e))
 

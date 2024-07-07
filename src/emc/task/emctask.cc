@@ -14,7 +14,7 @@
 ********************************************************************/
 
 #include <stdlib.h>
-#include <string.h>		// strncpy()
+#include <rtapi_string.h>	// rtapi_strlcpy()
 #include <sys/stat.h>		// struct stat
 #include <unistd.h>		// stat()
 #include <limits.h>		// PATH_MAX
@@ -34,7 +34,6 @@
 #include "python_plugin.hh"
 #include "taskclass.hh"
 #include "motion.h"
-#include <rtapi_string.h>
 
 #define USER_DEFINED_FUNCTION_MAX_DIRS 5
 #define MAX_M_DIRS (USER_DEFINED_FUNCTION_MAX_DIRS+1)
@@ -130,7 +129,7 @@ int emcTaskInit()
         strncpy(mdir[0], inistring, sizeof(mdir[0]));
     } else {
         // default dir if no PROGRAM_PREFIX
-        strncpy(mdir[0], "nc_files", sizeof(mdir[0]));
+        rtapi_strlcpy(mdir[0], "nc_files", sizeof(mdir[0]));
     }
     dmax = 1; //one directory mdir[0],  USER_M_PATH specifies additional dirs
 

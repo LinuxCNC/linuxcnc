@@ -27,17 +27,14 @@ As a good example for that see https://wiki.linuxcnc.org/cgi-bin/wiki.pl?Gmoccap
 GMOCCAPY 3 does support up to 9 axes and 9 joints.
 As GMOCCAPY 3 has been changed in code to support the joint / axis changes in LinuxCNC it does not work on 2.7 or 2.6 branch!
 
-It has support for integrated virtual keyboard (onboard or matchbox-keyboard),
-so there is no need for a hardware keyboard or mouse, but it can also be used with that hardware.
+It has support for integrated virtual keyboard (onboard or matchbox-keyboard), so there is no need for a hardware keyboard or mouse, but it can also be used with that hardware.
 GMOCCAPY offers a separate settings page to configure most settings of the GUI without editing files.
 
-GMOCCAPY can be localized very easy, because the corresponding files are separated from the linuxcnc.po files,
-so there is no need to translate unneeded stuff.
+GMOCCAPY can be localized very easy, because the corresponding files are separated from the linuxcnc.po files, so there is no need to translate unneeded stuff.
 The files are placed in */src/po/gmoccapy*.
 You could just copy the gmoccapy.pot file to something like it.po and translate that file with gtranslator or poedit.
 After rebuilding, you'd get the GUI in your preference language.
-To facilitate the sharing of the translation,
-GMOCCAPY is available on the https://hosted.weblate.org/projects/linuxcnc/gmocappy/[Weblate web interface].
+To facilitate the sharing of the translation, GMOCCAPY is available on the https://hosted.weblate.org/projects/linuxcnc/gmocappy/[Weblate web interface].
 GMOCCAPY is currently available in English, German, Spanish, Polish, Serbian and Hungarian.
 Feel free to help me to introduce more languages, be it locally or via the web.
 If you need help, don't hesitate to contact me on *nieson@web.de*.
@@ -54,8 +51,9 @@ https://linuxcnc.org/index.php/english/forum/41-guis/26314-gmoccapy-a-new-screen
 http://www.cncecke.de/forum/showthread.php?t=78549[German CNC Ecke Forum] or
 https://lists.sourceforge.net/lists/listinfo/emc-users[LinuxCNC users mailing list].
 
-The minimum screen resolution for GMOCCAPY, using it without side panels is *979 x 750 Pixel*, so it should fit to every standard screen.
-It is recommended to use screens with minimum resolution of 1024x748.
+The minimum screen resolution for GMOCCAPY for the normal layout (without side panels) is *980 x 750 Pixel*, so it should fit to every standard screen.
+It is recommended to use screens with minimum resolution of 1024x768.
+There is also a configuration which fits for 800x600 screens (introduced in GMOCCAPY 3.4.8).
 
 == How to Get GMOCCAPY
 
@@ -130,12 +128,9 @@ PROGRAM_PREFIX = ../../nc_files/
   like themes, DRO units, colors, and keyboard settings, etc., see <<gmoccapy:settings-page,settings page>> for more details.
 +
 [NOTE]
-If no path or file is given, GMOCCAPY will use as default
-<your_machinename>.pref, if no machine name is given in your INI File it will
-use gmoccapy.pref. The file will be stored in your config directory, so the
-settings will not be mixed if you use several configs. If you only want to use
-one file for several machines, you need to include `PREFERENCE_FILE_PATH` in your
-INI.
+If no path or file is given, GMOCCAPY will use as default <your_machinename>.pref, if no machine name is given in your INI File it will use gmoccapy.pref.
+The file will be stored in your config directory, so the settings will not be mixed if you use several configs.
+If you only want to use one file for several machines, you need to include `PREFERENCE_FILE_PATH` in your INI.
 
 - _MAX_FEED_OVERRIDE = 1.5_ - Sets the maximum feed override, in the example given, you will be allowed to override the feed by 150%.
 +
@@ -282,8 +277,7 @@ image:images/gmoccapy_getting_macro_info_mid.png[align="left",link="images/gmocc
 You can add embedded programs to GMOCCAPY like you can do in AXIS, Touchy and Gscreen.
 All is done by GMOCCAPY automatically if you include a few lines in your INI file in the DISPLAY section.
 
-If you have never used a Glade panel, I recommend to read the excellent documentation
-on https://linuxcnc.org/docs/2.9/html/gui/gladevcp.html[Glade VCP].
+If you have never used a Glade panel, I recommend to read the excellent documentation on https://linuxcnc.org/docs/2.9/html/gui/gladevcp.html[Glade VCP].
 
 .Embedded Tab Example
 
@@ -385,8 +379,7 @@ MESSAGE_TYPE    = "status" , "okdialog" , "yesnodialog"
 MESSAGE_PINNAME = is the name of the HAL pin group to be created
 ----
 
-The messages support pango markup language. Detailed information about the
-markup language can be found at
+The messages support pango markup language. Detailed information about the markup language can be found at
 https://developer.gnome.org/pango/stable/PangoMarkupFormat.html[Pango Markup].
 
 The following three dialog types are available:
@@ -636,7 +629,7 @@ m|gmoccapy.h-button.button-9 | back                                     | back  
 
 So we have 67 reactions with only 10 HAL pins!
 
-These pins are made available to be able to use the screen without an touch panel,
+These pins are made available to be able to use the screen without a touch panel,
 or protect it from excessive use by placing hardware buttons around the panel.
 They are available in a sample configuration like shown in the <<gmoccapy-sim-hardware-button,image below>>.
 
@@ -951,7 +944,7 @@ To use this feature, you will need to do some additional settings and you may wa
 Before starting the first test, do not forget to enter the probe height and probe velocities on the settings page!
 See <<gmoccapy:tool-measurement,Settings Page Tool Measurement>>.
 
-It might be also a good idea to take a look at the tool measurement video:
+It might be also a good idea to take a look at the tool measurement video,
 see <<gmoccapy:tool-measurement-videos,tool measurement related videos>>.
 
 Tool Measurement in GMOCCAPY is done a little bit different to many other GUIs.
@@ -1343,7 +1336,7 @@ There are three options to unlock the settings page:
 
 * _Use unlock code_ -  The user must give a code to get in.
 * _Do not use unlock code_ - There will be no security check.
-* _Use HAL pin to unlock_ - Hardware pin must be high to unlock the settings, see <<gmoccapy:hardware-unlock, hardware unlock pin>>.
+* _Use HAL pin to unlock_ - Hardware pin must be high to unlock the settings, see <<gmoccapy:hardware-unlock,hardware unlock pin>>.
 
 Default is _use unlock code_ (default = *123*).
 
@@ -1364,7 +1357,7 @@ MAX = 6000
 +
 [NOTE]
 It is no error giving wrong values.
-If you give a maximum of 2000 and your spindle makes 4000 rpm, only the bar level will be wrong on higher speeds than 2000 rpm.
+If you give a maximum of 2000 and your spindle makes 4000 RPM, only the bar level will be wrong on higher speeds than 2000 RPM.
 
 
 [[gmoccapy:turtle-jog]]

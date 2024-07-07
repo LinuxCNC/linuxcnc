@@ -1043,6 +1043,8 @@ int Interp::convert_g7x(int mode,
 
     double x=settings->current_x;
     double z=settings->current_z;
+    double start_x=x;
+    double start_z=z;
     if(old.distance_mode()==MODE_INCREMENTAL) {
 	if(block->x_flag)
 	    x+=block->x_number;
@@ -1183,6 +1185,9 @@ int Interp::convert_g7x(int mode,
     if(original_block.w_flag) w=original_block.w_number;
     if(original_block.x_flag) x=original_block.x_number;
     if(original_block.z_flag) z=original_block.z_number;
+
+    settings->current_x=start_x;
+    settings->current_z=start_z;
 
     if(i<=0)
 	ERS("G7X error: I must be greater than zero.");

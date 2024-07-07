@@ -308,7 +308,7 @@ int rcs_vprint(const char *_fmt, va_list _args, int save_string)
 	}
 	last_error_buf_filled++;
 	last_error_buf_filled %= 4;
-	strncpy(last_error_bufs[last_error_buf_filled], temp_string, 99);
+	rtapi_strlcpy(last_error_bufs[last_error_buf_filled], temp_string, 99);
     }
     return (rcs_fputs(temp_string));
 }
@@ -369,9 +369,6 @@ int rcs_fputs(const char *_str)
 	    break;
 	case RCS_PRINT_TO_FILE:
 	    if (NULL == rcs_print_file_stream) {
-		if (NULL == rcs_print_file_name) {
-		    return EOF;
-		}
 		rcs_print_file_stream = fopen(rcs_print_file_name, "a+");
 	    }
 	    if (NULL == rcs_print_file_stream) {

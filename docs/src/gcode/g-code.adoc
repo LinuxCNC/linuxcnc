@@ -1410,6 +1410,9 @@ G43 <H->
 
 'G43 Hn' uses the offset for tool n.
 
+The active tool length compensation values are stored in the numbered
+parameters '5401-5409'.
+
 [NOTE]
 'G43 H0' is a little special.  Its behavior is different on random
 tool changer machines and nonrandom tool changer machines (see the
@@ -1709,8 +1712,8 @@ It is an error if:
 == G71 G72 Lathe roughing cycles(((G71 G72 Lathe roughing cycles)))
 
 [NOTE]
-The G71 and G72 cycles are currently somewhat fragile. See issues #707
-and #1146
+The G71 and G72 cycles are currently somewhat fragile.
+See issues https://github.com/LinuxCNC/linuxcnc/issues/707[#707] and https://github.com/LinuxCNC/linuxcnc/issues/1146[#1146].
 
 [source,{ngc}]
 ----

@@ -3,3 +3,12 @@ Qtdragon
 version 1.0 released in linuxcnc 2.9.1
 
 version 1.1 fix probe routines: spindle starts on error or abort
+
+version 1.2 allow setting of the percentage X or Y size of camview image from the preference file
+    commit a5394d4e2cec98b6f0ee9770542d2e8dfeb71af2
+
+version 1.3 fix units bug with 'goto sensor/home' button with imperial machines
+    commit 73d228b0a6382b5a900f28e44d6357d650dbb497
+
+version 1.4 add ability to set camview camera number
+    commit 0360ccd94ee82010277d9b7e9f6e2a4fd3fb41c5

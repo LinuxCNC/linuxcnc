@@ -52,6 +52,7 @@ except:
 import numpy as np
 
 
+
 class CamView(QtWidgets.QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
         super(CamView, self).__init__(parent)
@@ -64,6 +65,8 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         self.rotation = 0
         self.rotationIncrement = .5
         self.scale = 1
+        self.scaleX = 1.0
+        self.scaleY = 1.0
         self.gap = 5
         self._noRotate = False
         self.setWindowTitle('Cam View')
@@ -81,15 +84,21 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         self.pix = None
         self.stopped = False
         self.degree = str("\N{DEGREE SIGN}")
-        if INFO.PROGRAM_PREFIX is not None:
-            self.user_path = os.path.expanduser(INFO.PROGRAM_PREFIX)
-        else:
+
+        # trap so can run script directly to test
+        try:
+            if INFO.PROGRAM_PREFIX is not None:
+                self.user_path = os.path.expanduser(INFO.PROGRAM_PREFIX)
+        except:
             self.user_path = (os.path.join(os.path.expanduser('~'), 'linuxcnc/nc_files'))
 
         #self.blobInit()
 
     def _hal_init(self):
-        self.pin_ = self.HAL_GCOMP_.newpin('cam-rotation',hal.HAL_FLOAT, hal.HAL_OUT)
+        try:
+            self.pin_ = self.HAL_GCOMP_.newpin('cam-rotation',hal.HAL_FLOAT, hal.HAL_OUT)
+        except:
+            pass
         if LIB_GOOD:
             STATUS.connect('periodic', self.nextFrameSlot)
 
@@ -138,6 +147,16 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
             self.rotation = 0
         elif event.button() & QtCore.Qt.MiddleButton:
             self.diameter = 20
+
+    def zoom_in(self):
+        if self.scale >= 5:
+            return
+        self.scale += 0.1
+
+    def zoom_out(self, event):
+        if self.scale <= 1:
+            return
+        self.scale -= 0.1
 
     def limitChecks(self):
         w = self.size().width()
@@ -194,11 +213,10 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
     def makeCVImage(self, frame):
         CV.imshow('CV Image',frame)
 
-    def rescaleFrame(self, frame, scale =1.5):
-        width = int(frame.shape[1] * scale)
-        height = int(frame.shape[0] * scale)
-        dims = (width,height)
-        return CV.resize(frame, dims, interpolation=CV.INTER_CUBIC)
+    def rescaleFrame(self, frame, scale = 1, scale_x =1.0, scale_y=1.0):
+        x = scale_x * scale
+        y = scale_y * scale
+        return CV.resize(frame, None, fx = x, fy = y, interpolation=CV.INTER_CUBIC)
 
     def zoom(self, frame, scale):
         # get original size of image
@@ -206,7 +224,7 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         #############################
         # scale image
         #############################
-        frame = self.rescaleFrame(frame, scale)
+        frame = self.rescaleFrame(frame, scale,self.scaleX,self.scaleY)
         ##########################
         # crop to the original size of the frame
         # measure from center, so we zoom on center
@@ -305,6 +323,13 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
                 self.video.stop()
             except:
                 pass
+
+    def resizeEvent(self, event):
+        # Create a square base size of 10x10 and scale it to the new size
+        # maintaining aspect ratio.
+        new_size = QtCore.QSize(10, 10)
+        new_size.scale(event.size(), QtCore.Qt.KeepAspectRatio)
+        self.resize(new_size)
 
     def paintEvent(self, event):
         qp = QPainter()
@@ -499,11 +524,54 @@ class WebcamVideoStream:
             dev_port +=1
         return available_ports,working_ports,non_working_ports
 
+class CamAngle(CamView):
+    def __init__(self, parent=None):
+        super(CamAngle, self).__init__(parent)
+
+    def mouseDoubleClickEvent(self, event):
+        if event.button() & QtCore.Qt.LeftButton:
+            # zoom
+            self.scale = 1
+        elif event.button() & QtCore.Qt.MiddleButton:
+            self.diameter = 40
+
+    def wheelEvent(self, event):
+        mouse_state = QtWidgets.qApp.mouseButtons()
+        size = self.size()
+        w = size.width()
+        if event.angleDelta().y() < 0:
+            if mouse_state == QtCore.Qt.NoButton:
+                self.diameter -= 2
+            if mouse_state == QtCore.Qt.LeftButton:
+                self.scale -= .1
+        else:
+            if mouse_state == QtCore.Qt.NoButton:
+                self.diameter += 2
+            if mouse_state == QtCore.Qt.LeftButton:
+                self.scale += .1
+        if self.diameter < 2: self.diameter = 2
+        if self.diameter > w: self.diameter = w
+        if self.scale < 1: self.scale = 1
+        if self.scale > 5: self.scale = 5
+
+    def drawText(self, event, qp):
+        size = self.size()
+        w = size.width()
+        h = size.height()
+        qp.setPen(self.text_color)
+        qp.setFont(self.font)
+        if self.pix:
+            angle = 0.0 if self.rotation == 0 else 360 - self.rotation
+            qp.drawText(self.rect(), QtCore.Qt.AlignTop, '{:0.3f}{}'.format(angle, self.degree))
+        else:
+            qp.drawText(self.rect(), QtCore.Qt.AlignCenter, self.text)
+
+
 if __name__ == '__main__':
 
     import sys
     app = QtWidgets.QApplication(sys.argv)
-    capture = CamView()
+    capture = CamAngle()
     capture.show()
 
     def jump():

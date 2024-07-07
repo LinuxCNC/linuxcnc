@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC V2.8 or later
 
 .I VERSION:
 .br
-1.236
+1.238
 
 .I SUMMARY:
 .br
@@ -721,7 +721,7 @@ FUNCTION(_) {
         if(tool == EMPTY){
             manual_cut = FALSE;
             torch_on = FALSE;
-            stop_type = STOP;
+            stop_type = NONE;
             program_stop = TRUE;
             cut_started = FALSE;
             probe_required = TRUE;
@@ -1358,15 +1358,9 @@ FUNCTION(_) {
                 probe_time += fperiod;
                 break;
             case ZERO_HEIGHT:
-                /* this case is not used at present it is just a waypoint*/
-                if(z_offset_counts == zero_target){
-                    if((int)(z_offset_current * offset_res) == (int)(zero_target * offset_scale * offset_res)){
-                        state = PIERCE_HEIGHT;
-                    }
-                /* move to zero height at setup velocity*/
-                }else{
-                    z_offset_counts = offset_move(z_offset_counts, setup_velocity, zero_target);
-                }
+                /* this case is not used at present it is just a waypoint */
+                /* ### do not go to zero height during offset probing ### */
+                state = PIERCE_HEIGHT;
                 break;
             case PIERCE_HEIGHT:
                 z_offset_enable = TRUE;
@@ -2245,11 +2239,15 @@ FUNCTION(_) {
                             cut_recovering = FALSE;
                             feed_hold = FALSE;
                             thc_delay_timer = thc_delay;
-                            if(mode < 2){
-                                voidlock_on_count = 0;
-                                state = CUT_MODE_01;
+                            if(cut_recovery){
+                                if(mode < 2){
+                                    voidlock_on_count = 0;
+                                    state = CUT_MODE_01;
+                                }else{
+                                    state = CUT_MODE_2;
+                                }
                             }else{
-                                state = CUT_MODE_2;
+                                state = IDLE;
                             }
                         }else{
                             state = IDLE;
