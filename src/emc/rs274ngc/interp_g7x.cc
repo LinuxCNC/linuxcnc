@@ -1200,7 +1200,7 @@ int Interp::convert_g7x(int mode,
 	switch(cycle) {
 	case 70: path.do_g70(&motion,x,z,d,e,p,&settings->cutter_comp_side); break;
 	case 71:
-	    if(x!=imag(start)) {
+	    if(imag(path.front()->sp()-path.front()->ep())*(x-imag(start))>0) {
 		std::complex<double> end{real(start),x};
 		path.emplace_back(std::make_unique<straight_segment>(
 		    start, end
@@ -1209,7 +1209,7 @@ int Interp::convert_g7x(int mode,
 	    path.do_g71(&motion,subcycle,x,z,u,w,d,i,r);
 	    break;
 	case 72:
-	    if(z!=real(start)) {
+	    if(real(path.front()->sp()-path.front()->ep())*(z-real(start))>0) {
 		std::complex<double> end{z,imag(start)};
 		path.emplace_back(std::make_unique<straight_segment>(
 		    start, end
