@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-04-08 19:52+0200\n"
-"PO-Revision-Date: 2024-07-06 12:09+0000\n"
+"PO-Revision-Date: 2024-07-08 20:14+0000\n"
 "Last-Translator: Ricky From Hong Kong <lamricky11@hotmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: zh_HK\n"
@@ -5098,7 +5098,7 @@ msgstr ""
 #: tcl/bin/halshow.tcl:976
 #, fuzzy
 msgid "Add as Pin(s)"
-msgstr " 信號​​(_S) "
+msgstr " 信號(_S) "
 
 #: tcl/bin/halshow.tcl:977
 msgid "Add as Signal(s)"
