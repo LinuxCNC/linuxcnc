@@ -256,7 +256,7 @@ int rtapi_app_main(void){
 	    
     }
     
-    for (i = 0; outputs[i] && strlen(inputs[i]); i++) {
+    for (i = 0; outputs[i] && strlen(outputs[i]); i++) {
 	retval = build_chips_collection(outputs[i], &gpio->out_chips, &gpio->num_out_chips);
 	if (retval < 0) goto fail0;
     }
