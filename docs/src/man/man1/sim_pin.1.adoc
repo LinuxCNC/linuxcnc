@@ -33,7 +33,7 @@ mode=**hold** Set input to 1 while pushbutton pressed
 If the bit item mode begins with an uppercase letter, the radio buttons
 for selecting other modes are not shown
 
-== NOTE
+== NOTES
 
 LinuxCNC or a standalone HAL application must be running
 

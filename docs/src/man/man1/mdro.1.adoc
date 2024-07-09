@@ -77,7 +77,7 @@ _POINT_SIZE_ = _n_::
 _MM_ = _1_::
   Set this if the DRO scales provide data scaled in millimeters.
 
-== EXAMPLES
+== EXAMPLE
 
 Using an example of "XYZA" for an _axes_ argument, these pins will be
 created when *mdro* starts:

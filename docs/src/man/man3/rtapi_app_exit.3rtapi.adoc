@@ -25,7 +25,7 @@ This code is called when unloading a component which successfully
 initialized (i.e., returned zero from its *rtapi_app_main*). It is not
 called when the component did not successfully initialize.
 
-== RETURN CODE
+== RETURN VALUE
 
 None.
 

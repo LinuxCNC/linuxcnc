@@ -90,7 +90,7 @@ The loop reading HAL values and publishing MQTT messages.
     When the last MQTT publication was published in number of seconds
     since EPOC.  If no publication has taken place, the value is zero.
 
-== EXAMPLES
+== EXAMPLE
 
 Any set of HAL pins and signals can be published.  This setup might be
 a useful starting point:

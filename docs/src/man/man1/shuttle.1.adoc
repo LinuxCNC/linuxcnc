@@ -16,7 +16,7 @@ ShuttleXpress, ShuttlePRO, and ShuttlePRO2 devices with LinuxCNC's HAL.
 
 If the driver is started without command-line arguments, it will probe
 all /dev/hidraw* device files for Shuttle devices, and use all devices
-found. If it is started with command-line arguments, it will only probe
+found.  If it is started with command-line arguments, it will only probe
 the devices specified.
 
 The ShuttleXpress has five momentary buttons, a 10 counts/revolution jog

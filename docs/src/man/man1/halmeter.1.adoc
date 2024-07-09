@@ -47,7 +47,7 @@ displays the selected item and closes the dialog. "Apply" displays the
 selected item but keeps the selection dialog open. "Cancel" closes the
 dialog without changing the displayed item.
 
-== EXAMPLES
+== EXAMPLE
 
 *halmeter*::
   Opens a meter window, with nothing initially displayed. Use the

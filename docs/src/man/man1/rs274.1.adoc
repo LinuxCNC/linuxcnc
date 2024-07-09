@@ -22,7 +22,7 @@ the 'print stack' flag (default: OFF) -g: Toggle the 'go (batch mode)'
 flag (default: OFF) -i: specify the .ini file (default: no ini file) -T:
 call task_init() -l: specify the log_level (default: -1)
 
-== Example
+== EXAMPLE
 
 To see the output of a loop for example we can run rs274 on the
 following file and see that the loop never ends. To break out of the
