@@ -1,6 +1,5 @@
 = halstreamer(1)
 
-
 == NAME
 
 halstreamer - stream file data into HAL in real-time

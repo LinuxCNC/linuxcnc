@@ -375,7 +375,7 @@ hal_start_threads.3hal
 hal_type_t.3hal
 hal_u32_t.3hal
 hal_unlink.3hal
-intro.3hal
+hal.3
 undocumented.3hal
 ....
 
@@ -391,7 +391,7 @@ RTAPI_MP_ARRAY_STRING.3rtapi
 RTAPI_MP_INT.3rtapi
 RTAPI_MP_LONG.3rtapi
 RTAPI_MP_STRING.3rtapi
-intro.3rtapi
+rtapi.3
 rtapi_app_exit.3rtapi
 rtapi_app_main.3rtapi
 rtapi_clock_set_period.3rtapi

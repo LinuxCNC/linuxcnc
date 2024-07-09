@@ -1,6 +1,5 @@
 = sendkeys(1)
 
-
 == NAME
 
 sendkeys - send input events based on pins or scancodes from HAL
@@ -102,33 +101,34 @@ To generate keystrokes from other sources note that a keydown is simply
     assign the uinput codes associated with each HAL bit pin.
 
 == EXAMPLE
-....
-loadusr -W sendkeys config=16t2
-net scancodes hm2_7i73.0.0.keycode => sendkeys.0.keycode
 
-setp sendkeys.0.scan-event-00 34 # Key G
-setp sendkeys.0.scan-event-01  2 # Key 1
-setp sendkeys.0.scan-event-02  3 # Key 2
-setp sendkeys.0.scan-event-03  4 # Key 3
-setp sendkeys.0.scan-event-04 50 # Key M
-setp sendkeys.0.scan-event-05 05 # Key 4
-setp sendkeys.0.scan-event-06 06 # Key 5
-setp sendkeys.0.scan-event-07 07 # Key 6
-setp sendkeys.0.scan-event-08 31 # Key S
-setp sendkeys.0.scan-event-09  8 # Key 7
-setp sendkeys.0.scan-event-10  9 # Key 8
-setp sendkeys.0.scan-event-11 10 # Key 9
-setp sendkeys.0.scan-event-12 20 # Key T
-setp sendkeys.0.scan-event-13 11 # Key 0
-setp sendkeys.0.scan-event-14 52 # Key Dot
-setp sendkeys.0.scan-event-15 14 # Backspace
-setp sendkeys.0.pin-event-00 29 # Left Ctrl
-setp sendkeys.0.pin-event-01 57 # Space
-setp sendkeys.0.init 1
+ ....
+ loadusr -W sendkeys config=16t2
+ net scancodes hm2_7i73.0.0.keycode => sendkeys.0.keycode
 
-#Send Ctl + Space from one trigger
-net clear-errors parport.0.pin.00.in sendkeys.0.trigger-00 sendkeys.0.trigger-01
-....
+ setp sendkeys.0.scan-event-00 34 # Key G
+ setp sendkeys.0.scan-event-01  2 # Key 1
+ setp sendkeys.0.scan-event-02  3 # Key 2
+ setp sendkeys.0.scan-event-03  4 # Key 3
+ setp sendkeys.0.scan-event-04 50 # Key M
+ setp sendkeys.0.scan-event-05 05 # Key 4
+ setp sendkeys.0.scan-event-06 06 # Key 5
+ setp sendkeys.0.scan-event-07 07 # Key 6
+ setp sendkeys.0.scan-event-08 31 # Key S
+ setp sendkeys.0.scan-event-09  8 # Key 7
+ setp sendkeys.0.scan-event-10  9 # Key 8
+ setp sendkeys.0.scan-event-11 10 # Key 9
+ setp sendkeys.0.scan-event-12 20 # Key T
+ setp sendkeys.0.scan-event-13 11 # Key 0
+ setp sendkeys.0.scan-event-14 52 # Key Dot
+ setp sendkeys.0.scan-event-15 14 # Backspace
+ setp sendkeys.0.pin-event-00 29 # Left Ctrl
+ setp sendkeys.0.pin-event-01 57 # Space
+ setp sendkeys.0.init 1
+
+ #Send Ctl + Space from one trigger
+ net clear-errors parport.0.pin.00.in sendkeys.0.trigger-00 sendkeys.0.trigger-01
+ ....
 
 == AUTHOR
 

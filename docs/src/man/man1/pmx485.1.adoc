@@ -1,0 +1,27 @@
+= pmx485(1)
+
+== NAME
+
+pmx485 - Modbus communications with a Powermax Plasma Cutter.
+
+== SYNOPSIS
+
+*loadusr -Wn pmx485 pmx485 /dev/ttyUSB0* +
+
+== DESCRIPTION
+
+pmx485 is a non-realtime HAL component to communicate with a Hypertherm
+Powermax plasma cutter using the Modbus ASCII protocol over RS485.
+
+== SEE ALSO
+
+See the Drivers section of the LinuxCNC Documentation for more
+information on pmx485.
+
+== AUTHOR
+
+Phillip Carter
+
+== LICENSE
+
+GPL

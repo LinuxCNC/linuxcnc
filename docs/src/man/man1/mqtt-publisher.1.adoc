@@ -1,6 +1,7 @@
 = mqtt-publisher(1)
 
 == NAME
+
 mqtt-publisher - send HAL pin data to MQTT broker periodically
 
 == SYNOPSIS

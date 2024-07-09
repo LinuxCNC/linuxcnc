@@ -1,0 +1,24 @@
+= pyvcp(1)
+
+== NAME
+
+pyvcp - Virtual Control Panel for LinuxCNC
+
+== SYNOPSIS
+
+*pyvcp* [-g _WxH+X+Y_] [-c _component-name_] _myfile.xml_
+
+== OPTIONS
+
+*-g* _WxH+X+Y_::
+  This sets the initial geometry of the root window. Use 'WxH' for just
+  size, '+X+Y' for just position, or 'WxH+X+Y' for both. Size / position
+  use pixel units. Position is referenced from top left.
+*-c* _component-name_::
+  Use _component-name_ as the HAL component name. If the component name
+  is not specified, the basename of the XML file is used.
+
+== SEE ALSO
+
+_Python Virtual Control Panel_ in the LinuxCNC documentation for a
+description of the xml syntax, along with examples.

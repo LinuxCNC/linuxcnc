@@ -1,0 +1,29 @@
+= qtplasmac-plasmac2qt(1)
+
+== NAME
+
+qtplasmac-plasmac2qt - Migrate a PlasmaC configuration.
+
+== SYNOPSIS
+
+*qtplasmac-plasmac2qt*
+
+== DESCRIPTION
+
+qtplasmac-plasmac2qt is a Python script for migrating from PlasmaC to
+QtPlasmac.
+
+== SEE ALSO
+
+See the QtPlasmaC section of the LinuxCNC Documentation for more
+information.
+
+http://linuxcnc.org/docs/devel/html/plasma/qtplasmac.html#qt_modify-config
+
+== AUTHOR
+
+Phillip Carter
+
+== LICENSE
+
+GPL

@@ -1,0 +1,29 @@
+= qtplasmac-setup(1)
+
+== NAME
+
+qtplasmac-setup - Switch a QtPlasmaC installation type.
+
+== SYNOPSIS
+
+*qtplasmac-setup*
+
+== DESCRIPTION
+
+qtplasmac-setup is a Python script for switching a QtPlasmac
+configuration from package to run in place and vice-versa.
+
+== SEE ALSO
+
+See the QtPlasmaC section of the LinuxCNC Documentation for more
+information.
+
+http://linuxcnc.org/docs/devel/html/plasma/qtplasmac.html#_change_type_of_linuxcnc_installation
+
+== AUTHOR
+
+Phillip Carter
+
+== LICENSE
+
+GPL
