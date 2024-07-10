@@ -186,4 +186,4 @@ or axis.
 
 == SEE ALSO
 
-*udev(8)*, *udev(7)*
+udev(8), udev(7)

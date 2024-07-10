@@ -80,4 +80,4 @@ values for errors, and non-negative values for success.
 
 == SEE ALSO
 
-*intro(3rtapi)*
+rtapi(3)

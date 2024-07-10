@@ -8,7 +8,8 @@ hm2_pktuart_setup - setup a Hostmot2 PktUART instance
 
 ....
 #include <hostmot2-serial.h>
-int hm2_pktuart_setup(char *name, int bitrate, rtapi_s32 tx_mode, rtapi_s32 rx_mode, int txclear, int rxclear)
+int hm2_pktuart_setup(char *name, int bitrate, rtapi_s32 tx_mode,
+                      rtapi_s32 rx_mode, int txclear, int rxclear)
 ....
 
 == DESCRIPTION

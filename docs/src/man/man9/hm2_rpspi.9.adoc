@@ -146,7 +146,7 @@ warm and crash.
 
 == SEE ALSO
 
-*hostmot2*(9)
+hostmot2(9)
 
 == LICENSE
 

@@ -8,7 +8,7 @@ hm2_tram_add_bspi_frame - add a register-write to the Hostmot2 TRAM
 
 ....
 #include <hostmot2-serial.h>
-hm2_tram_add_bspi_frame(char *name, int chan, u32 **wbuff, u32 **rbuff)
+hm2_tram_add_bspi_frame(char *name, int chan, u32 **wbuff, u32 **rbuff);
 ....
 
 == DESCRIPTION
@@ -39,7 +39,8 @@ Returns 0 on success and -1 on failure.
 
 == SEE ALSO
 
-*hm2_allocate_bspi_tram(3hm2)*, *hm2_bspi_set_read_function(3hm2)*,
-*hm2_bspi_setup_chan(3hm2)*, *hm2_bspi_set_write_function(3hm2)*,
-*hm2_bspi_write_chan(3hm2)*, See src/hal/drivers mesa_7i65.comp for an
-example usage.
+hm2_allocate_bspi_tram(3hm2), hm2_bspi_set_read_function(3hm2),
+hm2_bspi_setup_chan(3hm2), hm2_bspi_set_write_function(3hm2),
+hm2_bspi_write_chan(3hm2)
+
+See src/hal/drivers mesa_7i65.comp for an example usage.

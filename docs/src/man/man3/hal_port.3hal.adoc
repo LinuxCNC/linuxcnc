@@ -7,31 +7,26 @@ stream
 
 == SYNOPSIS
 
-$*
+....
+#include <hal.h>
+bool hal_port_read(hal_port_t port, char* dest, unsigned count);
+bool hal_port_peek(hal_port_t port, char* dest, unsigned count);
+bool hal_port_peek_commit(hal_port_t port, unsigned count);
+unsigned hal_port_readable(hal_port_t port);
+void hal_port_clear(hal_port_t port);
 
-$* +
+bool hal_port_write(hal_port_t port, const char* src, unsigned count);
+unsigned hal_port_writable(hal_port_t port);
 
-$* +
+unsigned hal_port_buffer_size(hal_port_t port);
 
-$* +
-
-$* +
-
-$*
-
-$* +
-
-$*
-
-$*
-
-$* +
-
-$* +
-
-$* +
-
-$*
+#ifdef ULAPI
+void hal_port_wait_readable(hal_port_t** port, unsigned count,
+                            sig_atomic_t* stop);
+void hal_port_wait_writable(hal_port_t** port, unsigned count,
+                            sig_atomic_t* stop);
+#endif
+....
 
 == DESCRIPTION
 
@@ -142,4 +137,4 @@ ULAPI code.
 
 == SEE ALSO
 
-*raster*(9),
+raster(9)

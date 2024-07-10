@@ -34,7 +34,7 @@ Use *axis-remote --help* for further information.::
 
 == SEE ALSO
 
-*axis(1)*
+axis(1)
 
 Much more information about LinuxCNC and HAL is available in the
 LinuxCNC and HAL User Manuals, found at /usr/share/doc/linuxcnc/.
@@ -49,11 +49,12 @@ This man page written by Alex Joni, as part of the LinuxCNC project.
 
 == REPORTING BUGS
 
-Report bugs at https://github.com/LinuxCNC/linuxcnc/issues
+Report bugs at https://github.com/LinuxCNC/linuxcnc/issues.
 
 == COPYRIGHT
 
-Copyright © 2007 Alex Joni. +
+Copyright © 2007 Alex Joni.
+
 This is free software; see the source for copying conditions. There is
 NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE.

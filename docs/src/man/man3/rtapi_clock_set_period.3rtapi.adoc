@@ -6,7 +6,9 @@ rtapi_clock_set_period - set the basic time interval for realtime tasks
 
 == SYNTAX
 
-rtapi_clock_set_period(long int _nsec_)
+....
+rtapi_clock_set_period(long int _nsec_);
+....
 
 == ARGUMENTS
 

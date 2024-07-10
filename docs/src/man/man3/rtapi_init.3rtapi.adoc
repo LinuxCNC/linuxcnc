@@ -6,7 +6,9 @@ rtapi_init - Sets up RTAPI
 
 == SYNTAX
 
-int rtapi_init(const char *_modname_)
+....
+int rtapi_init(const char *_modname_);
+....
 
 == ARGUMENTS
 

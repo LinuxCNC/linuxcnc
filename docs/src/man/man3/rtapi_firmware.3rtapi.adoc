@@ -6,14 +6,13 @@ rtapi_firmware - RTAPI wrappers for linux kernel functionality
 
 == SYNTAX
 
+....
 #include <rtapi_firmware.h>
-
 struct rtapi_firmware;
-
 int rtapi_request_firmware(const struct rtapi_firmware **fw, const char
-*name, struct rtapi_device *device);
-
+                           *name, struct rtapi_device *device);
 void rtapi_release_firmware(const struct rtapi_firmware *fw);
+....
 
 == DESCRIPTION
 

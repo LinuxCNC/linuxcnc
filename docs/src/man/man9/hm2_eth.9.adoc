@@ -181,7 +181,7 @@ Mesa.
 
 == SEE ALSO
 
-*hostmot2*(9), *elbpcom*(1)
+hostmot2(9), elbpcom(1)
 
 == LICENSE
 

@@ -6,7 +6,9 @@ rtapi_exit - Shut down RTAPI
 
 == SYNTAX
 
-int rtapi_exit(int _module_id_)
+....
+int rtapi_exit(int _module_id_);
+....
 
 == ARGUMENTS
 

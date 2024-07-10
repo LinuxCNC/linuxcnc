@@ -336,18 +336,18 @@ includes major contributions by several members of the project.
 
 == REPORTING BUGS
 
-Report bugs to the LinuxCNC bug tracker ⟨URL:
-https://github.com/LinuxCNC/linuxcnc/issues ⟩.
+Report bugs at https://github.com/LinuxCNC/linuxcnc/issues.
 
 == COPYRIGHT
 
-Copyright © 2003 John Kasunich. +
+Copyright © 2003 John Kasunich.
+
 This is free software; see the source for copying conditions. There is
 NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE.
 
 == SEE ALSO
 
-*halrun(1)* -- a convenience script to start a realtime environment,
+halrun(1) -- a convenience script to start a realtime environment,
 process a HAL or a .tcl file, and optionally start an interactive
-command session using *halcmd* (described here) or *haltcl*(1).
+command session using *halcmd* (described here) or haltcl(1).

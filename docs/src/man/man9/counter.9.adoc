@@ -69,4 +69,4 @@ HAL manual.
 
 == SEE ALSO
 
-*encoder(9)*. in the LinuxCNC documentation.
+encoder(9)

@@ -82,4 +82,4 @@ Returns 0 on success, or a negative errno value on failure.
 
 == SEE ALSO
 
-*hal_type_t(3hal)*, *hal_link(3hal)*
+hal_type_t(3hal), hal_link(3hal)

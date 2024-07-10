@@ -6,7 +6,7 @@ pmx485-test - Modbus communications testing with a Powermax Plasma Cutter
 
 == SYNOPSIS
 
-*pmx485-test* +
+*pmx485-test*
 
 == DESCRIPTION
 

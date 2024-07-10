@@ -6,7 +6,7 @@ gs2_vfd - HAL non-realtime component for Automation Direct GS2 VFDs
 
 == SYNOPSIS
 
-*gs2_vfd* [OPTIONS] +
+*gs2_vfd* [OPTIONS]
 
 == DESCRIPTION
 

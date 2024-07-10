@@ -7,4 +7,4 @@ module.
 
 == SEE ALSO
 
-*trivkins*(9)
+trivkins(9)

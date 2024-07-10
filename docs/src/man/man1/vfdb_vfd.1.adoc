@@ -6,7 +6,7 @@ vfdb_vfd - HAL non-realtime component for Delta VFD-B Variable Frequency Drives
 
 == SYNOPSIS
 
-*vfdb_vfd* [OPTIONS] +
+*vfdb_vfd* [OPTIONS]
 
 == DESCRIPTION
 

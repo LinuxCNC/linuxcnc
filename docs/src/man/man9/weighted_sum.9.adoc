@@ -48,4 +48,4 @@ bits.
 
 == SEE ALSO
 
-*scaled_s32_sums*(9), *sum2*(9).
+scaled_s32_sums(9), sum2(9)

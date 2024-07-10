@@ -8,10 +8,11 @@ rtapi_task_new, rtapi_task_delete - create a realtime task
 
 == SYNTAX
 
+....
 int rtapi_task_new(void (*_taskcode_)(void*), void *_arg_, int _prio_,
-unsigned long _stacksize_, int _uses_fp_)
-
-int rtapi_task_delete(int _task_id_)
+                   unsigned long _stacksize_, int _uses_fp_);
+int rtapi_task_delete(int _task_id_);
+....
 
 == ARGUMENTS
 
@@ -46,5 +47,5 @@ RTAPI status code.
 
 == SEE ALSO
 
-*rtapi_prio(3rtapi)*, *rtapi_task_start(3rtapi)*,
-*rtapi_task_wait(3rtapi)*, *rtapi_task_resume(3rtapi)*
+rtapi_prio(3rtapi), rtapi_task_start(3rtapi), rtapi_task_wait(3rtapi),
+rtapi_task_resume(3rtapi)

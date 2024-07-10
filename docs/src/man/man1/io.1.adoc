@@ -64,7 +64,7 @@ unless an absolute path is specified.
 
 == REPORTING BUGS
 
-Report bugs at https://github.com/LinuxCNC/linuxcnc/issues[]
+Report bugs at https://github.com/LinuxCNC/linuxcnc/issues.
 
 == AUTHOR
 
@@ -72,7 +72,8 @@ Derived from a work by Fred Proctor & Will Shackleford.
 
 == COPYRIGHT
 
-Copyright © 2004 the LinuxCNC project. +
+Copyright © 2004 the LinuxCNC project.
+
 This is free software; see the source for copying conditions. There is
 NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE.

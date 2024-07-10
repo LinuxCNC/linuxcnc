@@ -8,9 +8,10 @@ rtapi_get_time, rtapi_get_clocks - get the current time
 
 == SYNTAX
 
-long long rtapi_get_time()
-
-long long rtapi_get_clocks()
+....
+long long rtapi_get_time();
+long long rtapi_get_clocks();
+....
 
 == DESCRIPTION
 

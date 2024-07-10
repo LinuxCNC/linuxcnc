@@ -43,7 +43,7 @@ version of emccalib.
 
 == SEE ALSO
 
-*linuxcnc*(1)
+linuxcnc(1)
 
 == AUTHOR
 

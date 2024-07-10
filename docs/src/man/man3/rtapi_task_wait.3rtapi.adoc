@@ -6,7 +6,9 @@ rtapi_task_wait - suspend execution of this periodic task
 
 == SYNTAX
 
-void rtapi_task_wait()
+....
+void rtapi_task_wait();
+....
 
 == DESCRIPTION
 
@@ -23,4 +25,4 @@ None
 
 == SEE ALSO
 
-*rtapi_task_start(3rtapi)*, *rtapi_task_pause(3rtapi)*
+rtapi_task_start(3rtapi), rtapi_task_pause(3rtapi)

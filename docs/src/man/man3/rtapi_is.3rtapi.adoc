@@ -6,9 +6,10 @@ rtapi_is - details of rtapi configuration
 
 == SYNTAX
 
-int rtapi_is_kernelspace()
-
-int rtapi_is_realtime()
+....
+int rtapi_is_kernelspace();
+int rtapi_is_realtime();
+....
 
 == DESCRIPTION
 

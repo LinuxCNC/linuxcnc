@@ -6,8 +6,7 @@ encoder_ratio - an electronic gear to synchronize two axes
 
 == SYNOPSIS
 
-*loadrt encoder_ratio [num_chan=*_num_* |
-names=*_name1_*[,*_name2..._*]]*
+*loadrt encoder_ratio [num_chan=*_num_* | names=*_name1_*[,*_name2..._*]]*
 
 == DESCRIPTION
 
@@ -82,4 +81,4 @@ The *encoder-ratio.N.* format is shown in the following descriptions.
 
 == SEE ALSO
 
-*encoder(9)*
+encoder(9)

@@ -46,4 +46,4 @@ Returns a HAL status code.
 
 == SEE ALSO
 
-*hal_export_funct(3hal)*
+hal_export_funct(3hal)

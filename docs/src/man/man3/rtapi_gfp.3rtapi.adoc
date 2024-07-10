@@ -6,13 +6,12 @@ rtapi_gfp - RTAPI wrappers for linux kernel functionality
 
 == SYNTAX
 
+....
 #include <rtapi_gfp.h>
-
 enum rtapi_gfp_e;
-
 RTAPI_GFP_xxx
-
 typedef ... rtapi_gfp_t;
+....
 
 == DESCRIPTION
 

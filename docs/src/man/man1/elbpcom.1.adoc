@@ -92,6 +92,6 @@ but notice its different treatment of byte order.
 
 == SEE ALSO
 
-*mesaflash*(1), *hostmot2*(9), *hm2_eth*(9),
+mesaflash(1), hostmot2(9), hm2_eth(9),
 http://www.mesanet.com[Mesa's documentation for the Anything I/O
 boards].

@@ -8,7 +8,8 @@ hm2_pktuart_send - write data to a Hostmot2 PktUART
 
 ....
 #include <hostmot2-serial.h>
-int hm2_uart_send(char *name,  unsigned char data[], rtapi_u8 *num_frames, rtapi_u16 frame_sizes[])
+int hm2_uart_send(char *name,  unsigned char data[], rtapi_u8 *num_frames,
+                  rtapi_u16 frame_sizes[]);
 ....
 
 == DESCRIPTION

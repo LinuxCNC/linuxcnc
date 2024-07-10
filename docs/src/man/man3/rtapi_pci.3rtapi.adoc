@@ -6,46 +6,29 @@ rtapi_pci - RTAPI wrappers for linux kernel functionality
 
 == SYNTAX
 
+....
 #include <rtapi_pci.h>
 
 struct rtapi_pci_device_id \{ ... };
-
 struct rtapi_pci_resource \{ ... };
-
 struct rtapi_pci_dev \{ ... };
-
 struct rtapi_pci_driver \{ ... };
-
 const char *rtapi_pci_name(const struct rtapi_pci_dev *pdev);
-
 int rtapi_pci_enable_device(struct rtapi_pci_dev *dev);
-
-void rtapi__iomem *rtapi_pci_ioremap_bar(struct rtapi_pci_dev *pdev, int
-bar);
-
+void rtapi__iomem *rtapi_pci_ioremap_bar(struct rtapi_pci_dev *pdev, int bar);
 int rtapi_pci_register_driver(struct rtapi_pci_driver *driver);
-
 void rtapi_pci_unregister_driver(struct rtapi_pci_driver *driver);
-
 int rtapi_pci_enable_device(struct rtapi_pci_dev *dev);
-
 int rtapi_pci_disable_device(struct rtapi_pci_dev *dev);
-
 #define rtapi_pci_resource_start(dev, bar) ...
-
 #define rtapi_pci_resource_end(dev, bar) ...
-
 #define rtapi_pci_resource_flags(dev, bar) ...
-
 #define rtapi_pci_resource_len(dev,bar) ....
-
 void rtapi_pci_set_drvdata(struct rtapi_pci_dev *pdev, void *data)
-
 void rtapi_pci_set_drvdata(struct rtapi_pci_dev *pdev, void *data)
-
 void rtapi_iounmap(volatile void *addr);
-
 struct rtapi_pci;
+....
 
 == DESCRIPTION
 

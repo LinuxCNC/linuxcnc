@@ -6,7 +6,9 @@ rtapi_task_self - Retrieve ID of current task
 
 == SYNTAX
 
-void rtapi_task_self()
+....
+void rtapi_task_self();
+....
 
 == DESCRIPTION
 
@@ -23,4 +25,4 @@ The task number previously returned by *rtapi_task_new* or -EINVAL.
 
 == SEE ALSO
 
-*rtapi_task_new(3rtapi)*
+rtapi_task_new(3rtapi)

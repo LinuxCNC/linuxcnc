@@ -6,11 +6,13 @@ rtapi_mutex - Mutex-related functions
 
 == SYNTAX
 
-*#include <rtapi_mutex.h>*
+....
+#include <rtapi_mutex.h>
 
-*int rtapi_mutex_try(unsigned long **_mutex_*);* +
-*int rtapi_mutex_get(unsigned long **_mutex_*);* +
-*int rtapi_mutex_give(unsigned long **_mutex_*);*
+int rtapi_mutex_try(unsigned long **_mutex_*);
+int rtapi_mutex_get(unsigned long **_mutex_*);
+int rtapi_mutex_give(unsigned long **_mutex_*);
+....
 
 == ARGUMENTS
 

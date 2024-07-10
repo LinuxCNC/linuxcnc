@@ -6,23 +6,18 @@ rtapi_list - RTAPI wrappers for linux kernel functionality
 
 == SYNTAX
 
+....
 #include <rtapi_list.h>
-
 struct rtapi_list_head;
-
-void rtapi_list_add(struct rtapi_list_head *new_, struct rtapi_list_head
-*head);
-
-void rtapi_list_add_tail(struct rtapi_list_head *new_, struct
-rtapi_list_head *head);
-
+void rtapi_list_add(struct rtapi_list_head *new_,
+                    struct rtapi_list_head *head);
+void rtapi_list_add_tail(struct rtapi_list_head *new_,
+                         struct rtapi_list_head *head);
 void rtapi_list_del(struct rtapi_list_head *entry);
-
 void RTAPI_INIT_LIST_HEAD(struct rtapi_list_head *entry);
-
 rtapi_list_for_each(pos, head) \{ ... }
-
 rtapi_list_entry(ptr, type, member)
+....
 
 == DESCRIPTION
 
