@@ -214,7 +214,7 @@ These paths will need to be adjusted to point to the actual files on your system
 [source,{ini}]
 ----
 [RS274NGC]
-SUBROUTINE_PATH = :~/linuxcnc/nc_files/examples/ngcgui_lib:~/linuxcnc/nc_files/examples/ngcgui_lib/utilitysubs; \
+SUBROUTINE_PATH = :~/linuxcnc/nc_files/examples/ngcgui_lib:~/linuxcnc/nc_files/examples/ngcgui_lib/utilitysubs: \
 ~/linuxcnc/nc_files/examples/probe/basic_probe/macros:~/linuxcnc/nc_files/examples/remap-subroutines: \
 ~/linuxcnc/nc_files/examples/ngcgui_lib/remap_lib
 ----
