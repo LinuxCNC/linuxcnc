@@ -331,6 +331,10 @@ class ToolEdit(Gtk.Box):
                 self.warning_dialog(line_number)
                 return
 
+        if(locale.getlocale(locale.LC_NUMERIC)[0] is None):
+            raise ExceptionMessage("\n\n"+_("Something wrong with the locale settings. Will not save the tool table."))
+            return
+
         shutil.copy(self.toolfile, self.toolfile + ".bak")
         file = open(self.toolfile, "w")
         #print self.toolfile
