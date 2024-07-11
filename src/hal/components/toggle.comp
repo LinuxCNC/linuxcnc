@@ -2,6 +2,7 @@ component toggle "'push-on, push-off' from momentary pushbuttons";
 
 description
 """
+.ie '\*[.T]'html' \{ .HTML <tt> \}
      ┐     ┌──┐        ┌──┐
 .br
 in : └─────┘  └────────┘  └──
@@ -9,6 +10,7 @@ in : └─────┘  └────────┘  └──
      ┐     ┌───────────┐
 .br
 out: └─────┘           └─────
+.ie '\*[.T]'html' \{ .HTML </tt> \}
 """;
 
 pin in bit in "button input";
