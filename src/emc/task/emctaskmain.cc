@@ -534,7 +534,7 @@ interpret_again:
 				emcStatus->task.interpState =
 				    EMC_TASK_INTERP::WAITING;
 				interp_list.clear();
-				emcAbortCleanup(EMC_ABORT_INTERPRETER_ERROR,
+				emcAbortCleanup(EMC_ABORT::INTERPRETER_ERROR,
 						"interpreter error"); 
 			    } else if (execRetval == -1
 				    || execRetval == INTERP_EXIT ) {
@@ -2076,10 +2076,10 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	emcMotionAbort();
 	// Then call state restore to update the interpreter
 	emcTaskStateRestore();
-        emcIoAbort(EMC_ABORT_TASK_ABORT);
+        emcIoAbort(EMC_ABORT::TASK_ABORT);
     for (int s = 0; s < emcStatus->motion.traj.spindles; s++) emcSpindleAbort(s);
 	mdi_execute_abort();
-	emcAbortCleanup(EMC_ABORT_TASK_ABORT);
+	emcAbortCleanup(EMC_ABORT::TASK_ABORT);
 	retval = 0;
 	break;
 
@@ -2285,10 +2285,10 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 		interp_list.clear();
 		// abort everything
 		emcTaskAbort();
-		emcIoAbort(EMC_ABORT_INTERPRETER_ERROR_MDI);
+		emcIoAbort(EMC_ABORT::INTERPRETER_ERROR_MDI);
 	    for (int s = 0; s < emcStatus->motion.traj.spindles; s++) emcSpindleAbort(s);
 		mdi_execute_abort(); // sets emcStatus->task.interpState to  EMC_TASK_INTERP::IDLE
-		emcAbortCleanup(EMC_ABORT_INTERPRETER_ERROR_MDI, "interpreter error during MDI");
+		emcAbortCleanup(EMC_ABORT::INTERPRETER_ERROR_MDI, "interpreter error during MDI");
 		retval = -1;
 		break;
 
@@ -2565,7 +2565,7 @@ static int emcTaskExecute(void)
 
 	// abort everything
 	emcTaskAbort();
-        emcIoAbort(EMC_ABORT_TASK_EXEC_ERROR);
+        emcIoAbort(EMC_ABORT::TASK_EXEC_ERROR);
     for (int s = 0; s < emcStatus->motion.traj.spindles; s++) emcSpindleAbort(s);
 	mdi_execute_abort();
 
@@ -2584,7 +2584,7 @@ static int emcTaskExecute(void)
 	// clear out pending command
 	emcTaskCommand = 0;
 	interp_list.clear();
-	emcAbortCleanup(EMC_ABORT_TASK_EXEC_ERROR);
+	emcAbortCleanup(EMC_ABORT::TASK_EXEC_ERROR);
         emcStatus->task.currentLine = 0;
 
 	// clear out the interpreter state
@@ -3353,7 +3353,7 @@ int main(int argc, char *argv[])
     for (int s = 0; s < emcStatus->motion.traj.spindles; s++) emcSpindleAbort(s);
     emcAuxEstopOn();
     emcTrajDisable();
-    emcIoAbort(EMC_ABORT_TASK_STATE_ESTOP);
+    emcIoAbort(EMC_ABORT::TASK_STATE_ESTOP);
     emcJointUnhome(-2);
 
     emcTrajSetMode(EMC_TRAJ_MODE::FREE);
@@ -3395,11 +3395,11 @@ int main(int argc, char *argv[])
 	    if (emcStatus->motion.traj.enabled) {
 		emcTrajDisable();
 		emcTaskAbort();
-		emcIoAbort(EMC_ABORT_AUX_ESTOP);
+		emcIoAbort(EMC_ABORT::AUX_ESTOP);
 		for (int s = 0; s < emcStatus->motion.traj.spindles; s++) emcSpindleAbort(s);
 		emcJointUnhome(-2); // only those joints which are volatile_home
 		mdi_execute_abort();
-		emcAbortCleanup(EMC_ABORT_AUX_ESTOP);
+		emcAbortCleanup(EMC_ABORT::AUX_ESTOP);
 		emcTaskPlanSynch();
 	    }
 	    if (emcStatus->io.coolant.mist) {
@@ -3475,7 +3475,7 @@ int main(int argc, char *argv[])
 
             // abort everything
             emcTaskAbort();
-            emcIoAbort(EMC_ABORT_MOTION_OR_IO_RCS_ERROR);
+            emcIoAbort(EMC_ABORT::MOTION_OR_IO_RCS_ERROR);
             for (int s = 0; s < emcStatus->motion.traj.spindles; s++) emcSpindleAbort(s);;
 	    mdi_execute_abort();
 	    // without emcTaskPlanClose(), a new run command resumes at
@@ -3495,7 +3495,7 @@ int main(int argc, char *argv[])
 	    interp_list.clear();
 	    emcStatus->task.currentLine = 0;
 
-	    emcAbortCleanup(EMC_ABORT_MOTION_OR_IO_RCS_ERROR);
+	    emcAbortCleanup(EMC_ABORT::MOTION_OR_IO_RCS_ERROR);
 
 	    // clear out the interpreter state
 	    emcStatus->task.interpState = EMC_TASK_INTERP::IDLE;

@@ -323,11 +323,11 @@ int emcTaskSetState(EMC_TASK_STATE state)
 	// turn the machine servos off-- go into READY state
     for (t = 0; t < emcStatus->motion.traj.spindles; t++)  emcSpindleAbort(t);
 	emcTrajDisable();
-	emcIoAbort(EMC_ABORT_TASK_STATE_OFF);
+	emcIoAbort(EMC_ABORT::TASK_STATE_OFF);
     emcCoolantFloodOff();//TODO: race here
 	emcTaskAbort();
     emcJointUnhome(-2); // only those joints which are volatile_home
-	emcAbortCleanup(EMC_ABORT_TASK_STATE_OFF);
+	emcAbortCleanup(EMC_ABORT::TASK_STATE_OFF);
 	emcTaskPlanSynch();
 	break;
 
@@ -342,9 +342,9 @@ int emcTaskSetState(EMC_TASK_STATE state)
 	emcAuxEstopOff();
 	emcCoolantFloodOff();//TODO: race here
 	emcTaskAbort();
-        emcIoAbort(EMC_ABORT_TASK_STATE_ESTOP_RESET);
+        emcIoAbort(EMC_ABORT::TASK_STATE_ESTOP_RESET);
     for (t = 0; t < emcStatus->motion.traj.spindles; t++) emcSpindleAbort(t);
-	emcAbortCleanup(EMC_ABORT_TASK_STATE_ESTOP_RESET);
+	emcAbortCleanup(EMC_ABORT::TASK_STATE_ESTOP_RESET);
 	emcTaskPlanSynch();
 	break;
 
@@ -356,10 +356,10 @@ int emcTaskSetState(EMC_TASK_STATE state)
 	emcTrajDisable();
     emcCoolantFloodOff();//TODO: race here
 	emcTaskAbort();
-        emcIoAbort(EMC_ABORT_TASK_STATE_ESTOP);
+        emcIoAbort(EMC_ABORT::TASK_STATE_ESTOP);
 	for (t = 0; t < emcStatus->motion.traj.spindles; t++) emcSpindleAbort(t);
         emcJointUnhome(-2); // only those joints which are volatile_home
-	emcAbortCleanup(EMC_ABORT_TASK_STATE_ESTOP);
+	emcAbortCleanup(EMC_ABORT::TASK_STATE_ESTOP);
 	emcTaskPlanSynch();
 	break;
 
@@ -693,8 +693,8 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
     if(oldstate == EMC_TASK_STATE::ON && oldstate != stat->state) {
 	emcTaskAbort();
     for (int s = 0; s < emcStatus->motion.traj.spindles; s++) emcSpindleAbort(s);
-        emcIoAbort(EMC_ABORT_TASK_STATE_NOT_ON);
-	emcAbortCleanup(EMC_ABORT_TASK_STATE_NOT_ON);
+        emcIoAbort(EMC_ABORT::TASK_STATE_NOT_ON);
+        emcAbortCleanup(EMC_ABORT::TASK_STATE_NOT_ON);
     }
 
     // execState set in main
@@ -736,9 +736,9 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
     return 0;
 }
 
-int emcAbortCleanup(int reason, const char *message)
+int emcAbortCleanup(EMC_ABORT reason, const char *message)
 {
-    int status = interp.on_abort(reason,message);
+    int status = interp.on_abort((int)reason,message);
     if (status > INTERP_MIN_ERROR)
 	print_interp_error(status);
     return status;

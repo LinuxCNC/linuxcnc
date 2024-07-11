@@ -32,9 +32,9 @@ int emcOperatorText(char const*, ...) {return 0;}
 // int emcOperatorError(char const*, ...) {return 0;}
 
 
-int emcAbortCleanup(int reason, const char *message)
+int emcAbortCleanup(EMC_ABORT reason, const char *message)
 {
-    printf("on_abort: [%d] %s\n", reason,message);
+    printf("on_abort: [%d] %s\n", (int)reason,message);
     return 0;
 }
 

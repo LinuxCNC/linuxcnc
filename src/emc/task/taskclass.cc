@@ -91,7 +91,7 @@ EMC_IO_STAT *emcIoStatus = 0;
 // glue
 
 int emcIoInit() { return task_methods->emcIoInit(); }
-int emcIoAbort(int reason) { return task_methods->emcIoAbort(reason); }
+int emcIoAbort(EMC_ABORT reason) { return task_methods->emcIoAbort(reason); }
 int emcAuxEstopOn()  { return task_methods->emcAuxEstopOn(); }
 int emcAuxEstopOff() { return task_methods->emcAuxEstopOff(); }
 int emcCoolantMistOn() { return task_methods->emcCoolantMistOn(); }
@@ -356,7 +356,7 @@ int Task::emcIoInit()//EMC_TOOL_INIT
     return 0;
 }
 
-int Task::emcIoAbort(int reason)//EMC_TOOL_ABORT_TYPE
+int Task::emcIoAbort(EMC_ABORT reason)//EMC_TOOL_ABORT_TYPE
 {
     // only used in v2
     // this gets sent on any Task Abort, so it might be safer to stop
