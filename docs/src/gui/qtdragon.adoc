@@ -550,6 +550,23 @@ qtversaprobe.searchvel
 qtversaprobe.backoffdist
 ----
 
+This pin will be true when the loaded tool equals the number set in the Versa Probe tool number in the preference file. +
+It can be used (for example) to inhibit the spindle when the probe is loaded.
+
+[source,{hal}]
+----
+qtversaprobe.probe-loaded
+----
+
+This output pin is available when setting the Basic Probe INI option. +
+This pin will be true when the loaded tool equals the number set in the Basic Probe tool number edit box. +
+It can be used (for example) to inhibit the spindle when the probe is loaded.
+
+[source,{hal}]
+----
+qtbasicprobe.probe-loaded
+----
+
 This input pin is available to toggle pause/resume of a running program.
 
 [source,{hal}]
