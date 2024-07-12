@@ -56,6 +56,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.proc = None
         self.tool_diameter = None
         self.tool_number = None
+        self.probe_number = -1
         self._nextIndex = 0
         self._cmd = None
         self._runImmediately = True
@@ -130,15 +131,21 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
                         return True
         return super(VersaProbe, self).eventFilter(obj, event)
 
-
+    # keep track of tool number and diameter
+    # update the probe loaded HAL pin
+    # can be used to inhibit the spindle
     def _tool_info(self, data):
         if data.id != -1:
             self.tool_diameter = data.diameter
             self.tool_number = data.id
-            print(data)
+            if self.probe_number == self.tool_number:
+                self.probe_loaded.set(True)
+            else:
+                self.probe_loaded.set(False)
             return
         self.tool_diameter = None
         self.tool_number = None
+        self.probe_loaded.set(False)
 
     def _hal_init(self):
         def homed_on_test():
@@ -194,6 +201,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.set_checkableButtons(not self._runImmediately)
 
         if self.PREFS_:
+            self.probe_number = self.PREFS_.getpref('ps_probe_tool', -1, int, 'VERSA_PROBE OPTIONS')
             self.input_search_vel.setText(str(self.PREFS_.getpref( "ps_searchvel", 300.0, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_probe_vel.setText(str(self.PREFS_.getpref( "ps_probevel", 10.0, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_z_clearance.setText(str(self.PREFS_.getpref( "ps_z_clearance", 3.0, float, 'VERSA_PROBE_OPTIONS')) )
@@ -232,7 +240,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.pin_bheight.set(float(self.input_tool_block_height.text()))
         self.pin_latch_rtn = self.HAL_GCOMP_.newpin("backoffdist", hal.HAL_FLOAT, hal.HAL_OUT)
         self.pin_latch_rtn.set(float(self.input_latch_return_dist.text()))
-
+        self.probe_loaded = self.HAL_GCOMP_.newpin("probe-loaded", hal.HAL_FLOAT, hal.HAL_OUT)
         self.HAL_GCOMP_.comp.setprefix(oldname)
 
         # install callbacks to update HAL pins
@@ -246,6 +254,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
     def _hal_cleanup(self):
         if self.PREFS_:
             LOG.debug('Saving Versa probe data to preference file.')
+            self.PREFS_.putpref('ps_probe_tool', self.probe_number, int, 'VERSA_PROBE OPTIONS')
             self.PREFS_.putpref( "ps_searchvel", float(self.input_search_vel.text()), float, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_probevel", float(self.input_probe_vel.text()), float, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_z_clearance", float(self.input_z_clearance.text()), float, 'VERSA_PROBE_OPTIONS')

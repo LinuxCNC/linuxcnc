@@ -17,6 +17,7 @@
 
 import sys
 import os
+import hal
 import json
 from PyQt5.QtCore import QProcess, QRegExp, QFile, QEvent, Qt, pyqtProperty
 from PyQt5 import QtGui, QtWidgets, uic, QtCore
@@ -122,6 +123,8 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         for i in self.parm_list:
             self['lineEdit_' + i].setValidator(self.valid)
 
+        STATUS.connect('tool-info-changed', lambda w, data: self._tool_info(data))
+
     # catch focusIn event to pop calculator dialog
     def eventFilter(self, obj, event):
         if event.type() == QEvent.FocusIn:
@@ -135,6 +138,17 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
                         event.accept()
                         return True
         return super(BasicProbe, self).eventFilter(obj, event)
+
+    # update the probe loaded HAL pin
+    # can be used to inhibit the spindle
+    def _tool_info(self, data):
+        if data.id != -1:
+            if data.id == int(self.lineEdit_probe_tool.text()):
+                self.probe_loaded.set(True)
+            else:
+                self.probe_loaded.set(False)
+            return
+        self.probe_loaded.set(False)
 
     def _hal_init(self):
         def homed_on_status():
@@ -160,7 +174,7 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.set_checkableButtons(not self._runImmediately)
 
         if self.PREFS_:
-            self.lineEdit_probe_tool.setText(self.PREFS_.getpref('Probe tool', '0', str, 'PROBE OPTIONS'))
+            self.lineEdit_probe_tool.setText(self.PREFS_.getpref('Probe tool', '-1', str, 'PROBE OPTIONS'))
             self.lineEdit_probe_diam.setText(self.PREFS_.getpref('Probe diameter', '4', str, 'PROBE OPTIONS'))
             self.lineEdit_rapid_vel.setText(self.PREFS_.getpref('Probe rapid', '10', str, 'PROBE OPTIONS'))
             self.lineEdit_probe_vel.setText(self.PREFS_.getpref('Probe feed', '10', str, 'PROBE OPTIONS'))
@@ -176,6 +190,12 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.lineEdit_cal_x_width.setText(self.PREFS_.getpref('Cal x width', '0', str, 'PROBE OPTIONS'))
             self.lineEdit_cal_y_width.setText(self.PREFS_.getpref('Cal y width', '0', str, 'PROBE OPTIONS'))
             self.lineEdit_cal_diameter.setText(self.PREFS_.getpref('Cal diameter', '0', str, 'PROBE OPTIONS'))
+
+        # make pins available for tool measure remaps
+        oldname = self.HAL_GCOMP_.comp.getprefix()
+        self.HAL_GCOMP_.comp.setprefix('qtbasicprobe')
+        self.probe_loaded = self.HAL_GCOMP_.newpin("probe-loaded", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.HAL_GCOMP_.comp.setprefix(oldname)
 
         # get current style of the line input
         self._oldstyle = self.lineEdit_probe_diam.styleSheet()
