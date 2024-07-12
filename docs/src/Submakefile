@@ -368,6 +368,8 @@ docs: manpages
 clean: clean-manpages clean-mandb clean-translated
 clean-manpages:
 	-rm -f $(GENERATED_MANPAGES)
+	# Remove generated alias man pages too.
+	$(RM) $$(grep -lr '^.so ' $(DOC_DIR)/man/man*)
 clean-mandb:
 	find $(DOC_SRCDIR) -name index*db -delete
 clean-translated:
