@@ -13,4 +13,4 @@ loadrt trivkins coordinates=xyyz *kinstypes=BOTH*
 
 == SEE ALSO
 
-*trivkins*(9)
+trivkins(9)

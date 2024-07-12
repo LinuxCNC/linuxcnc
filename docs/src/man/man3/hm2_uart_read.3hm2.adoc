@@ -8,7 +8,7 @@ hm2_uart_read - read data from a Hostmot2 UART buffer
 
 ....
 #include <hostmot2-serial.h>
-int hm2_uart_read(char *name, unsigned char *data)
+int hm2_uart_read(char *name, unsigned char *data);
 ....
 
 == DESCRIPTION
@@ -34,6 +34,6 @@ Returns the number of bytes read on success and -1 on failure.
 
 == SEE ALSO
 
-*hm2_uart_setup*(3hm2), *hm2_uart_send*(3hm2)
+hm2_uart_setup(3hm2), hm2_uart_send(3hm2)
 
 See src/hal/drivers mesa_uart.comp for an example usage.

@@ -8,7 +8,7 @@ rtapi_open_as_root - Open a file with "root" privilege
 
 ....
 #include <rtapi.h>
-int rtapi_open_as_root(const char *filename, int flags)
+int rtapi_open_as_root(const char *filename, int flags);
 ....
 
 == ARGUMENTS
@@ -45,4 +45,4 @@ Call only from realtime initcode in "uspace" realtime.
 
 == SEE ALSO
 
-*open(2)*, *rtapi_pci(3)*
+open(2), rtapi_pci(3)

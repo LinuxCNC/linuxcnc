@@ -6,7 +6,9 @@ rtapi_bool - RTAPI wrappers for linux kernel functionality
 
 == SYNTAX
 
+....
 #include <rtapi_bool.h>
+....
 
 == DESCRIPTION
 

@@ -8,9 +8,10 @@ rtapi_outb, rtapi_inb - Perform hardware I/O
 
 == SYNTAX
 
-void rtapi_outb(unsigned char _byte_, unsigned int _port_)
-
-unsigned char rtapi_inb(unsigned int _port_)
+....
+void rtapi_outb(unsigned char _byte_, unsigned int _port_);
+unsigned char rtapi_inb(unsigned int _port_);
+....
 
 == ARGUMENTS
 
@@ -41,4 +42,4 @@ kernel might attempt to access the I/O region at the same time.
 
 == SEE ALSO
 
-*rtapi_region(3rtapi)*
+rtapi_region(3rtapi)

@@ -55,16 +55,14 @@ hal list hal gets
 
 == REPORTING BUGS
 
-Report bugs to the LinuxCNC bug tracker ⟨URL:
-https://github.com/LinuxCNC/linuxcnc/issues ⟩.
+Report bugs at https://github.com/LinuxCNC/linuxcnc/issues.
 
 == COPYRIGHT
 
- +
 This is free software; see the source for copying conditions. There is
 NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE.
 
 == SEE ALSO
 
-*halcmd*(1), *halrun*(1)
+halcmd(1), halrun(1)

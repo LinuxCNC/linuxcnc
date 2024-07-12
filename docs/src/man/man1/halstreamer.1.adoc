@@ -75,7 +75,7 @@ If it is terminated before the input ends, it returns failure.
 
 == SEE ALSO
 
-*streamer*(9) *sampler*(9) *halsampler*(1)
+streamer(9), sampler(9), halsampler(1)
 
 
 == AUTHOR
@@ -86,11 +86,13 @@ Improvements by several other members of the LinuxCNC development team.
 
 == REPORTING BUGS
 
-Report bugs to jmkasunich AT users DOT sourceforge DOT net
-
+Report bugs at https://github.com/LinuxCNC/linuxcnc/issues.
 
 == COPYRIGHT
-Copyright © 2006 John Kasunich.  This is free software; see the
-source for copying conditions.  There is NO warranty; not even for
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+Copyright © 2006 John Kasunich.
+
+This is free software; see the source for copying conditions.  There
+is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.
 

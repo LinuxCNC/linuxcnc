@@ -8,11 +8,12 @@ rtapi_snprintf, rtapi_vsnprintf - Perform snprintf-like string formatting
 
 == SYNTAX
 
-int rtapi_snprintf(char *_buf_, unsigned long int _size_, const char
-*_fmt_, _..._)
-
-int rtapi_vsnprintf(char *_buf_, unsigned long int _size_, const char
-*_fmt_, va_list _apfB)_
+....
+int rtapi_snprintf(char *_buf_, unsigned long int _size_,
+                   const char *_fmt_, _..._);
+int rtapi_vsnprintf(char *_buf_, unsigned long int _size_,
+                    const char *_fmt_, va_list _apf);
+....
 
 == ARGUMENTS
 
@@ -37,4 +38,4 @@ The number of characters written to _buf_.
 
 == SEE ALSO
 
-*printf(3)*
+printf(3)

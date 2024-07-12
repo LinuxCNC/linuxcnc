@@ -6,15 +6,13 @@ rtapi_device - RTAPI wrappers for linux kernel functionality
 
 == SYNTAX
 
+....
 #include <rtapi_device.h>
-
 struct rtapi_device;
-
 int rtapi_dev_set_name(struct rtapi_device *dev, const char *name, ...);
-
 int rtapi_device_register(struct rtapi_device *dev);
-
 int rtapi_device_unregister(struct rtapi_device *dev);
+....
 
 == DESCRIPTION
 

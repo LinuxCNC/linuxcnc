@@ -11,25 +11,18 @@ MODULE_DESCRIPTION - Specifying module parameters
 
 == SYNTAX
 
-RTAPI_MP_INT(_var_, _description_)
-
-RTAPI_MP_LONG(_var_, _description_)
-
-RTAPI_MP_STRING(_var_, _description_)
-
-RTAPI_MP_ARRAY_INT(_var_, _num_, _description_)
-
-RTAPI_MP_ARRAY_LONG(_var_, _num_, _description_)
-
-RTAPI_MP_ARRAY_STRING(_var_, _num_, _description_)
-
-MODULE_LICENSE(_license_)
-
-MODULE_AUTHOR(_author_)
-
-MODULE_DESCRIPTION(_description_)
-
-EXPORT_FUNCTION(_function_)
+....
+RTAPI_MP_INT(_var_, _description_);
+RTAPI_MP_LONG(_var_, _description_);
+RTAPI_MP_STRING(_var_, _description_);
+RTAPI_MP_ARRAY_INT(_var_, _num_, _description_);
+RTAPI_MP_ARRAY_LONG(_var_, _num_, _description_);
+RTAPI_MP_ARRAY_STRING(_var_, _num_, _description_);
+MODULE_LICENSE(_license_);
+MODULE_AUTHOR(_author_);
+MODULE_DESCRIPTION(_description_);
+EXPORT_FUNCTION(_function_);
+....
 
 == ARGUMENTS
 

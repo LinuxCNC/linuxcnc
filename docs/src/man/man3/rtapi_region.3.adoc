@@ -8,11 +8,11 @@ rtapi_region, rtapi_request_region, rtapi_release_region - functions to manage I
 
 == SYNTAX
 
-void *rtapi_request_region(unsigned long _base_, unsigned long int
-_size_, const char *_name_)
-
-void rtapi_release_region(unsigned long _base_, unsigned long int
-_size_)
+....
+void *rtapi_request_region(unsigned long _base_, unsigned long int _size_,
+                           const char *_name_)
+void rtapi_release_region(unsigned long _base_, unsigned long int _size_)
+....
 
 == ARGUMENTS
 

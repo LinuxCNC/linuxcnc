@@ -28,18 +28,18 @@ http://linuxcnc.org/docs/html/hal/halshow.html[]
 
 == SEE ALSO
 
-*LinuxCNC(1)*
+linuxcnc(1)
 
 Much more information about LinuxCNC and HAL is available in the
 LinuxCNC and HAL User Manuals, found at /usr/share/doc/LinuxCNC/.
 
 == HISTORY
 
-LinuxCNC 2.9:::
-  - Added buttons for pin/parameter/signal manipulation +
-  - Added menu entries for setting update interval, adding manually +
-  - Added right-click menu for copy, set, unlink pin and remove from
-  view
+LinuxCNC 2.9::
+ - Added buttons for pin/parameter/signal manipulation
+ - Added menu entries for setting update interval, adding manually
+ - Added right-click menu for copy, set, unlink pin and remove from
+   view
 
 == BUGS
 
@@ -51,11 +51,12 @@ Raymond E. Henry
 
 == REPORTING BUGS
 
-Report bugs at https://github.com/LinuxCNC/linuxcnc/issues
+Report bugs at https://github.com/LinuxCNC/linuxcnc/issues.
 
 == COPYRIGHT
 
-Copyright © 2020 andypugh. +
+Copyright © 2020 Andy Pugh.
+
 This is free software; see the source for copying conditions. There is
 NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE.

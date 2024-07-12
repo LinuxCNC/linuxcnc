@@ -8,9 +8,10 @@ rtapi_delay, rtapi_delay_max - Busy-loop for short delays
 
 == SYNTAX
 
-void rtapi_delay(long int _nsec_)
-
-void rtapi_delay_max()
+....
+void rtapi_delay(long int _nsec_);
+void rtapi_delay_max();
+....
 
 == ARGUMENTS
 
@@ -41,4 +42,4 @@ May be called from init/cleanup code, and from within realtime tasks.
 
 == SEE ALSO
 
-*rtapi_clock_set_period(3rtapi)*
+rtapi_clock_set_period(3rtapi)

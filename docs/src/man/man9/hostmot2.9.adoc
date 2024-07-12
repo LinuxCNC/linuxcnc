@@ -1565,8 +1565,7 @@ the response to the read request to arrive from board 0.
 
 == SEE ALSO
 
-*hm2_pci*(9), *hm2_eth*(9), *hm2_spi*(9), *hm2_rpspi*(9), *hm2_7i43*(9),
-*hm2_7i90*(9)
+hm2_pci(9), hm2_eth(9), hm2_spi(9), hm2_rpspi(9), hm2_7i43(9), hm2_7i90(9)
 
 Mesa's documentation for the Anything I/O boards, at
 link:[http://www.mesanet.com] +

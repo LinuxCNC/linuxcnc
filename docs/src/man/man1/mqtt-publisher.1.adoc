@@ -114,7 +114,7 @@ are only broken here to avoid too long lines in the documentation.
 
 == SEE ALSO
 
-*hal*(3hal)
+hal(3hal)
 
 == AUTHOR
 
@@ -123,7 +123,9 @@ the LinuxCNC project.
 
 == COPYRIGHT
 
-Copyright © 2023 Petter Reinholdtsen.  This is free software; see the
-source for copying conditions.  There is NO warranty; not even for
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+Copyright © 2023 Petter Reinholdtsen.
+
+This is free software; see the source for copying conditions.  There
+is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.
 

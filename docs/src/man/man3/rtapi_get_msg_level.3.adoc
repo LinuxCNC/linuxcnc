@@ -8,9 +8,10 @@ rtapi_get_msg_level, rtapi_set_msg_level - Get or set the logging level
 
 == SYNTAX
 
-int rtapi_set_msg_level(int _level_)
-
-int rtapi_get_msg_level()
+....
+int rtapi_set_msg_level(int _level_);
+int rtapi_get_msg_level();
+....
 
 == ARGUMENTS
 
@@ -31,9 +32,9 @@ May be called from non-realtime, init/cleanup, and realtime code.
 
 *rtapi_set_msg_level* returns a status code, and *rtapi_get_msg_level*
 returns the current level. RTAPI_MSG_NONE = 0, RTAPI_MSG_ERR = 1,
-RTAPI_MSG_WARN = 2, RTAPI_MSG_INFO = 3, RTAPI_MSG_DBG = 4 RTAPI_MSG_ALL
-= 5
+RTAPI_MSG_WARN = 2, RTAPI_MSG_INFO = 3, RTAPI_MSG_DBG = 4
+RTAPI_MSG_ALL = 5
 
 == SEE ALSO
 
-*rtapi_print_msg(3rtapi)*
+rtapi_print_msg(3rtapi)

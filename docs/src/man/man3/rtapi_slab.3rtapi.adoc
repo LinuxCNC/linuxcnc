@@ -6,15 +6,14 @@ rtapi_slab - RTAPI wrappers for linux kernel functionality
 
 == SYNTAX
 
+....
 #include <rtapi_slab.h>
 
 void *rtapi_kmalloc(size_t size, gfp_t g);
-
 void *rtapi_kzalloc(size_t size, gfp_t g);
-
 void *rtapi_krealloc(size_t size, gfp_t g);
-
 void rtapi_kfree(void *);
+....
 
 == DESCRIPTION
 

@@ -6,7 +6,9 @@ rtapi_byteorder - RTAPI wrappers for linux kernel functionality
 
 == SYNTAX
 
+....
 #include <rtapi_byteorder.h>
+....
 
 RTAPI_BIG_ENDIAN::
   Defined to 1 if the platform is big-endian, 0 otherwise

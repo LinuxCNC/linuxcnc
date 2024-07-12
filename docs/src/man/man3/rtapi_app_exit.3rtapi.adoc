@@ -8,7 +8,7 @@ rtapi_app_exit - User-provided function to shut down a component
 
 ....
 #include <rtapi_app.h>
-void rtapi_app_exit(void) {...}
+void rtapi_app_exit(void);
 ....
 
 == ARGUMENTS
@@ -36,4 +36,4 @@ Called automatically by the rtapi infrastructure in an initialization
 
 == SEE ALSO
 
-*rtapi_app_main(3rtapi)*, *rtapi_exit(3rtapi)*, *hal_exit(3hal)*
+rtapi_app_main(3rtapi), rtapi_exit(3rtapi), hal_exit(3hal)

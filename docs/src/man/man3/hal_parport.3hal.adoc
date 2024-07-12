@@ -6,12 +6,13 @@ hal_parport - portable access to PC-style parallel ports
 
 == SYNTAX
 
+....
 #include "hal_parport.h"
-
-int *hal_parport_get*(int _comp_id_, hal_parport_t *_port_, unsigned
-short _base_, unsigned short _base_hi_, unsigned int _modes_)
-
-void *hal_parport_release*(hal_parport_t *_port_)
+int hal_parport_get(int _comp_id_, hal_parport_t *_port_,
+                      unsigned short _base_, unsigned short _base_hi_,
+		      unsigned int _modes_)
+void hal_parport_release(hal_parport_t *_port_)
+....
 
 == ARGUMENTS
 

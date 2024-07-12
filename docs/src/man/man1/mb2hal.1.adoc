@@ -69,7 +69,6 @@ information.
 
 *mb2hal.m.num_errors u32 in* Error counter
 
- +
 m = HAL_TX_NAME or transaction number if not set, n = element number
 (NELEMENTS) +
 Example: +

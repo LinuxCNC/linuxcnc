@@ -77,7 +77,7 @@ program.
 
 == SEE ALSO
 
-*halsampler*(1), *streamer*(9), *halstreamer*(1)
+halsampler(1), streamer(9), halstreamer(1)
 
 == AUTHOR
 
@@ -86,11 +86,12 @@ Improvements by several other members of the LinuxCNC development team.
 
 == REPORTING BUGS
 
-Report bugs at https://github.com/LinuxCNC/linuxcnc/issues
+Report bugs at https://github.com/LinuxCNC/linuxcnc/issues.
 
 == COPYRIGHT
 
-Copyright © 2006 John Kasunich. +
+Copyright © 2006 John Kasunich.
+
 This is free software; see the source for copying conditions. There is
 NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE.

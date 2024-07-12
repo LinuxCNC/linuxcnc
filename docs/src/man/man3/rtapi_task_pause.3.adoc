@@ -8,9 +8,10 @@ rtapi_task_pause, rtapi_task_resume - pause and resume real-time tasks
 
 == SYNTAX
 
-void rtapi_task_pause(int _task_id_)
-
-void rtapi_task_resume(int _task_id_)
+....
+void rtapi_task_pause(int _task_id_);
+void rtapi_task_resume(int _task_id_);
+....
 
 == ARGUMENTS
 
@@ -51,4 +52,4 @@ An RTAPI status code.
 
 == SEE ALSO
 
-*rtapi_task_new(3rtapi)*, *rtapi_task_start(3rtapi)*
+rtapi_task_new(3rtapi), rtapi_task_start(3rtapi)

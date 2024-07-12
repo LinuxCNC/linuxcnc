@@ -71,4 +71,4 @@ when using uspace realtime.
 
 == SEE ALSO
 
-*hal_pin_new(3hal)*, *hal_param_new(3hal)*
+hal_pin_new(3hal), hal_param_new(3hal)

@@ -22,14 +22,11 @@ Identificaion of functions used according to pin name. Default handling
 works for components that: 1) use names=|count= (.comp components
 created with halcompile) 2) have a *single* function
 
-Full docs:
-
-....
-....
+Full docs: http://linuxcnc.org/docs/html/hal/tools.html#_halreport
 
 == SEE ALSO
 
-*LinuxCNC(1)*
+linuxcnc(1)
 
 Much more information about LinuxCNC and HAL is available in the
 LinuxCNC and HAL User Manuals, found at /usr/share/doc/LinuxCNC/.
@@ -40,15 +37,16 @@ None known at this time.
 
 == AUTHOR
 
-This man page written by andypugh, as part of the LinuxCNC project.
+This man page written by Andy Pugh, as part of the LinuxCNC project.
 
 == REPORTING BUGS
 
-Report bugs at https://github.com/LinuxCNC/linuxcnc/issues
+Report bugs at https://github.com/LinuxCNC/linuxcnc/issues.
 
 == COPYRIGHT
 
-Copyright © 2020 andypugh. +
+Copyright © 2020 Andy Pugh.
+
 This is free software; see the source for copying conditions. There is
 NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR
 PURPOSE.

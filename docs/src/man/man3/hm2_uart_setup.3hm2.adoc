@@ -7,8 +7,8 @@ hm2_uart_setup - setup a Hostmot2 UART
 == SYNTAX
 
 ....
-#include +<+hostmot2-serial.h+>+
-int hm2_uart_setup(char *name, int bitrate, s32 tx_mode, s32 rx_mode){
+#include <hostmot2-serial.h>
+int hm2_uart_setup(char *name, int bitrate, s32 tx_mode, s32 rx_mode);
 ....
 
 == DESCRIPTION
@@ -55,6 +55,6 @@ Returns 0 on success and -1 on failure.
 
 == SEE ALSO
 
-*hm2_uart_send*(3hm2), *hm2_uart_read*(3hm2)
+hm2_uart_send(3hm2), hm2_uart_read(3hm2)
 
 See src/hal/drivers mesa_uart.comp for an example usage.

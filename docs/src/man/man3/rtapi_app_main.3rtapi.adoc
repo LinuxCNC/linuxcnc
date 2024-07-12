@@ -8,7 +8,7 @@ rtapi_app_main - User-provided function to initialize a component
 
 ....
 #include <rtapi_app.h>
-int rtapi_app_main(void) {...}
+int rtapi_app_main(void);
 ....
 
 == ARGUMENTS
@@ -34,4 +34,4 @@ Called automatically by the rtapi infrastructure in an initialization
 
 == SEE ALSO
 
-*rtapi_app_exit(3rtapi)*, *rtapi_init(3rtapi)*, *hal_init(3hal)*
+rtapi_app_exit(3rtapi), rtapi_init(3rtapi), hal_init(3hal)

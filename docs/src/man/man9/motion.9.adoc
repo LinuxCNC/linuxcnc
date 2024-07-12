@@ -8,7 +8,7 @@ motion, axis - accepts NML motion commands, interacts with HAL in realtime
 
 *loadrt motmod [base_period_nsec=*_period_*] [base_thread_fp=*_0 or 1_*] [servo_period_nsec=*_period_*] [traj_period_nsec=*_period_*] [num_joints=*_[1-16]_*] [num_dio=*_[1-64]_* | names_dout=*_name[,...]_* names_din=*_name[,...]_*] [num_aio=*_[1-64]_* | names_aout=*_name[,...]_* names_ain=*_name[,...]_*] [num_misc_error=*_[0-64]_*] [num_spindles=*_[1-8]_*]* *[unlock_joints_mask=*_jointmask_*]* *[num_extrajoints=*_[0-16]_*]*
 
-The limits for the following items are compile-time settings: +
+The limits for the following items are compile-time settings:
 
 *num_joints*: Maximum number of joints is set by *EMCMOT_MAX_JOINTS*.::
    +
@@ -16,7 +16,7 @@ The limits for the following items are compile-time settings: +
 *num_dio*: Maximum number of digital IO pins is set by
 *EMCMOT_MAX_DIO*.::
   Minimum is 1, if *num_dio* is not specified, it defaults to
-  *DEFAULT_DIO*. +
+  *DEFAULT_DIO*.
 
 *names_dout*: A comma-separated list of names for digital output pins.::
   This parameter is mutually exclusive with *num_dio*, but can be
@@ -24,19 +24,19 @@ The limits for the following items are compile-time settings: +
   specified. The default digital output pin has names like
   *motion.digital-out-00* whereas *names_dout=*_is-homing-x,is-homing-y_
   will create the HAL pins *motion.dout-is-homing-x* and
-  *motion.dout-is-homing-y*. +
+  *motion.dout-is-homing-y*.
 
 *names_din*: A comma-separated list of names for digital input pins.::
   This parameter is mutually exclusive with *num_dio*, but can be
   combined with *names_dout*. A maximum of *EMCMOT_MAX_DIO* names can be
   specified. The default digital input pin has names like
   *motion.digital-in-00* whereas *names_din=*_homed-x,homed-y_ will
-  create the HAL pins *motion.din-homed-x* and *motion.din-homed-y*. +
+  create the HAL pins *motion.din-homed-x* and *motion.din-homed-y*.
 
 *num_aio*: Maximum number of analog IO pins is set by
 *EMCMOT_MAX_AIO*.::
   Minimum is 1, if *num_aio* is not specified, it defaults to
-  *DEFAULT_AIO*. +
+  *DEFAULT_AIO*.
 
 *names_aout*: A comma-separated list of names for analog output pins.::
   This parameter is mutually exclusive with *num_aio*, but can be
@@ -44,14 +44,14 @@ The limits for the following items are compile-time settings: +
   specified. The default analog output pin has names like
   *motion.analog-out-00* whereas *names_aout=*_feedrate1,feedrate2_ will
   create the HAL pins *motion.aout-feedrate1* and
-  *motion.aout-feedrate2*. +
+  *motion.aout-feedrate2*.
 
 *names_ain*: A comma-separated list of names for analog input pins.::
   This parameter is mutually exclusive with *num_aio*, but can be
   combined with *names_aout*. A maximum of *EMCMOT_MAX_AIO* names can be
   specified. The default analog input pin has names like
   *motion.analog-in-00* whereas *names_ain=*_proxy1,proxy2_ will create
-  the HAL pins *motion.ain-proxy1* and *motion.ain-proxy2*. +
+  the HAL pins *motion.ain-proxy1* and *motion.ain-proxy2*.
 
 *num_misc_error*: Maximum number of extra error inputs is set by
 *EMCMOT_MAX_MISC_ERRORS*.::
@@ -63,7 +63,7 @@ inputs.::
   num_misc_error the additional error input pins will have names like
   *motion.misc-error-00* whereas *names_misc_errors=overtemp,undertemp*
   will create hal pins *motion.err-overtemp* and
-  *motion.err-undertemp* +
+  *motion.err-undertemp*
 
 *num_spindles*: Maximum number of spindles is set by
 EMCMOT_MAX_SPINDLES::
@@ -153,14 +153,8 @@ digital pins and two analog pins.
   If this bit is driven FALSE, motion stops, the machine is placed in
   the "machine off" state, and a message is displayed for the operator.
   For normal motion, drive this bit TRUE.
-
- +
-
 *motion.eoffset-active* OUT BIT::
   Indicates external offsets are active (non-zero)
-
- +
-
 *motion.eoffset-limited* OUT BIT::
   Indicates motion with external offsets was limited by a soft limit
   constraint ([AXIS_L]MIN_LIMIT,MAX_LIMIT).
@@ -248,7 +242,7 @@ Note: feed-inhibit applies to G-code commands -- not jogs.
   These values are from src/emc/nml_intf/motion_types.h.
   +
   ____
-  0: Idle (no motion);;
+  0: Idle (no motion)
 
   1: Traverse
 
@@ -289,8 +283,6 @@ Note: feed-inhibit applies to G-code commands -- not jogs.
   the pin value.
 *motion.teleop-mode* OUT BIT::
   Motion mode is teleop (axis coordinate jogging available).
-
- +
 
 *motion.tooloffset.L* OUT FLOAT::
   Current tool offset for each axis where (*L* is the axis letter, one
@@ -478,8 +470,6 @@ required for locking indexers (typically a rotary joint)
 
 The jointmask bits are: (lsb)0:joint0, 1:joint1, 2:joint2, ...
 
- +
-
 Example: loadrt motmod ... **unlock_joints_mask=**0x38 creates unlock
 pins for joints 3,4,5::
 
@@ -554,13 +544,9 @@ command fails with an error message.
 Many of the parameters serve as debugging aids, and are subject to
 change or removal at any time.
 
- +
-
 *motion-command-handler.tmax* RW S32::
   Show information about the execution time of these HAL functions in
   CPU clocks.
-
- +
 
 *motion-command-handler.tmax-increased* RO S32::
    +
@@ -568,8 +554,6 @@ change or removal at any time.
 *motion-controller.tmax* RW S32::
   Show information about the execution time of these HAL functions in
   CPU clocks.
-
- +
 
 *motion-controller.tmax-increased* RO BIT::
 *motion.debug-*_*_::
@@ -592,9 +576,9 @@ order shown.
 
 == BUGS
 
-This manual page is incomplete. +
+This manual page is incomplete.
 
-Identification of pins categorized with *(DEBUG)* is dubious.::
+Identification of pins categorized with *(DEBUG)* is dubious.
 
 == SEE ALSO
 

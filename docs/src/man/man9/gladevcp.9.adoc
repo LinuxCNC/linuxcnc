@@ -6,9 +6,7 @@ gladevcp - displays Virtual control Panels built with GTK / GLADE
 
 == SYNOPSIS
 
-*loadusr gladevcp [-c componentname0x*_N_*] [-g
-WxH+Xoffset+Yoffset0x*_N_*] [-H halcmdfile] [-x windowid]
-gladefile.glade*
+*loadusr gladevcp [-c componentname0x*_N_*] [-g WxH+Xoffset+Yoffset0x*_N_*] [-H halcmdfile] [-x windowid] gladefile.glade*
 
 == DESCRIPTION
 

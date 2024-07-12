@@ -6,43 +6,34 @@ hal_stream - non-blocking realtime streams
 
 == SYNOPSIS
 
-$*
+....
+#include <hal.h>
+int hal_stream_create(hal_stream_t* stream, int comp_id, int key,
+                      int depth, const char* typestring);
+void hal_stream_destroy(hal_stream_t* stream);
+int hal_stream_attach(hal_stream_t* stream, int comp_id, int key,
+                      const char* typestring);
+int hal_stream_detach(hal_stream_t* stream);
 
-$* +
+int hal_stream_element_count(hal_stream_t* stream);
+hal_type_t hal_stream_element_type(hal_stream_t* stream, int idx);
+int hal_stream_depth(hal_stream_t* stream);
+int hal_stream_maxdepth(hal_stream_t* stream);
+int hal_stream_num_underruns(hal_stream_t* stream);
+int hal_stream_num_overruns(hal_stream_t* stream);
 
-$* +
+int hal_stream_read(hal_stream_t* stream, union hal_stream_data* buf,
+                    unsigned* sampleno);
+bool hal_stream_readable(hal_stream_t* stream);
 
-$* +
+int hal_stream_write(hal_stream_t* stream, union hal_stream_data* buf);
+bool hal_stream_writable(hal_stream_t* stream);
 
-$*
-
-$* +
-
-$* +
-
-$* +
-
-$* +
-
-$* +
-
-$*
-
-$* +
-
-$*
-
-$* +
-
-$*
-
-$* +
-
-$* +
-
-$* +
-
-$*
+#ifdef ULAPI
+void hal_stream_wait_writable(hal_stream_t* stream, sig_atomic_t* stop);
+void hal_stream_wait_readable(hal_stream_t* stream, sig_atomic_t* stop);
+#endif
+....
 
 == DESCRIPTION
 
@@ -224,4 +215,4 @@ parameters and signals)
 
 == SEE ALSO
 
-*sampler*(9), *streamer*(9), *halsampler*(1), *halstreamer*(1)
+sampler(9), streamer(9), halsampler(1), halstreamer(1)

@@ -6,7 +6,7 @@ vfs11_vfd - HAL non-realtime component for Toshiba-Schneider VF-S11 Variable Fre
 
 == SYNOPSIS
 
-*vfs11_vfd* [OPTIONS] +
+*vfs11_vfd* [OPTIONS]
 
 == DESCRIPTION
 

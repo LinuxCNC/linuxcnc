@@ -76,7 +76,7 @@ thread.
 
 == SEE ALSO
 
-*mux2*(9), *mux4*(9), *mux8*(9), *mux16*(9).
+mux2(9), mux4(9), mux8(9), mux16(9)
 
 == AUTHOR
 

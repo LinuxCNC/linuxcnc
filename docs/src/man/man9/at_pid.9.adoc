@@ -11,4 +11,4 @@ component.
 
 == SEE ALSO
 
-*pid*(9)
+pid(9)

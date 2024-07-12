@@ -6,9 +6,11 @@ PM_ROTATION_VECTOR - Three-axis cartesian position
 
 == SYNTAX
 
-*#include posemath.h*
+....
+#include <posemath.h>
 
-*struct PM_CARTESIAN;*
+struct PM_CARTESIAN;
+....
 
 == CONSTRUCTORS
 
@@ -54,5 +56,4 @@ PM_ROTATION_VECTOR - Three-axis cartesian position
    +
 
 *PM_CARTESIAN norm(PM_CARTESIAN _v_*)**::
-
-== SEE ALSO
+   +

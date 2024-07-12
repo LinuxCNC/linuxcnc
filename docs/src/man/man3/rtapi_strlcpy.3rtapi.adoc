@@ -6,11 +6,14 @@ rtapi_strlcpy - RTAPI string manipulation functions
 
 == SYNTAX
 
+....
 #include <rtapi_string.h>
 
-size_t rtapi_strlcpy(char *dst, const char *src, size_t sz); #define
-rtapi_strxcpy(dst, src) ... size_t rtapi_strlcat(char *dst, const char
-*src, size_t sz); #define rtapi_strxcat(dst, src) ...
+size_t rtapi_strlcpy(char *dst, const char *src, size_t sz);
+#define rtapi_strxcpy(dst, src) ...
+size_t rtapi_strlcat(char *dst, const char *src, size_t sz);
+#define rtapi_strxcat(dst, src) ...
+....
 
 == DESCRIPTION
 

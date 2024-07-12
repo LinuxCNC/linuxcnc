@@ -6,17 +6,14 @@ rtapi_atomic - subset of C11 stdatomic.h
 
 == SYNTAX
 
+....
 #include <rtapi_atomic.h>
-
 enum memory_order \{ ... };
-
 #define atomic_store(obj, desired)...
-
 #define atomic_store_explicit(obj, desired, order)...
-
 #define atomic_load(obj)...
-
 #define atomic_load_explicit(obj, order)...
+....
 
 == ARGUMENTS
 
@@ -73,5 +70,5 @@ the _obj_ argument.
 
 == SEE ALSO
 
-*<stdatomic.h>* (C11), *<rtapi_bitops.h>* (for other atomic memory
+<stdatomic.h> (C11), <rtapi_bitops.h> (for other atomic memory
 operations supported by rtapi)

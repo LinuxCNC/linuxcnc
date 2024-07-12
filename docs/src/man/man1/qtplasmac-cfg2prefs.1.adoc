@@ -6,7 +6,7 @@ qtplasmac-cfg2prefs - Convert plasma parameters.
 
 == SYNOPSIS
 
-*qtplasmac-cfg2prefs* +
+*qtplasmac-cfg2prefs*
 
 == DESCRIPTION
 

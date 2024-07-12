@@ -33,4 +33,4 @@ Returns a HAL status code.
 
 == SEE ALSO
 
-*halcmd(1)*
+halcmd(1)

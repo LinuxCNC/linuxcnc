@@ -67,4 +67,4 @@ Returns a HAL status code.
 
 == SEE ALSO
 
-*hal_type_t(3hal)*
+hal_type_t(3hal)

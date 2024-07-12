@@ -48,4 +48,4 @@ non-realtime code.
 
 == SEE ALSO
 
-*hal_thread_new(3hal)*, *hal_export_funct(3hal)*
+hal_thread_new(3hal), hal_export_funct(3hal)

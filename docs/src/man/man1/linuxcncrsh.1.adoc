@@ -7,7 +7,7 @@ network
 
 == SYNOPSIS
 
-*linuxcncrsh [OPTIONS] [-- LINUXCNC_OPTIONS]* +
+*linuxcncrsh [OPTIONS] [-- LINUXCNC_OPTIONS]*
 
 == DESCRIPTION
 
