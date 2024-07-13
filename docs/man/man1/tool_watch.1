@@ -1,4 +1,4 @@
-.\" Copyright (c) 2021 Phillip A Carter
+.\" Copyright (c) 2023 andypugh
 .\"
 .\" This is free documentation; you can redistribute it and/or
 .\" modify it under the terms of the GNU General Public License as
@@ -22,22 +22,32 @@
 .\"
 .\"
 .\"
-.TH qtplasmac-materials "1" "Oct 28 2021" "QtPlasmaC Materials Assistant" "LinuxCNC Documentation"
+.TH tool_watch "1"  "2023-07-13" "LinuxCNC Documentation" "The Enhanced Machine Controller"
 .SH NAME
-\fBqtplasmac-materials\fR \- Create a plasma materials file.
-.SH SYNOPSIS
-.B qtplasmac-materials
-.br
+tool_watch \- A component of the tool database system (an alternative
+to the classic tooltable)
+
 .SH DESCRIPTION
-qtplasmac-materials is a Python script for creating a materials file.
+\fBtool_watch\fR is not intended to be invoked by the user.
 
-The file can be created by text entry or by importing text from a CAM tool file.
-.PP
+See the Tool Database Interface section of the LinuxCNC Documentation for more information.
+http://linuxcnc.org/docs/stable/html/tooldatabase/tooldatabase.html
+.
 .SH "SEE ALSO"
-See the QtPlasmaC section of the LinuxCNC Documentation for more information.
+\fBLinuxCNC(1)\fR
 
-http://linuxcnc.org/docs/stable/html/plasma/qtplasmac.html#_material_converter
+Much more information about LinuxCNC and HAL is available in the LinuxCNC
+and HAL User Manuals, found at /usr/share/doc/LinuxCNC/.
+
+.SH BUGS
+None known at this time.
+.PP
 .SH AUTHOR
-Phillip Carter
-.SH LICENSE
-GPL
+This man page written by andypugh, as part of the LinuxCNC project.
+.SH REPORTING BUGS
+Report bugs at https://github.com/LinuxCNC/linuxcnc/issues
+.SH COPYRIGHT
+Copyright \(co 2023 andypugh.
+.br
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
