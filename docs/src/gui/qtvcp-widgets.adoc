@@ -65,11 +65,17 @@ A *LED like indicator* that optionally follows a HAL pin's logic.
 *`halpin_option`*::
   Selects if the LED follows an input HAL pin or program state.
 *`diameter`*::
-  Diameter of the LED
+  Diameter of the LED. defaults to 15)
 *`color`*::
-  Color of the LED when on.
+  Color of the LED when on. (defaults to green)
 *`off_color`*::
-  Color of the LED when off.
+  Color of the LED when off. (defaults to black)
+*`gradient`*::
+  turns the gradient high light on or off. (defaults to on)
+*`on_gradient_color`*::
+  Color highlight of the LED when on. (defaults to white)
+*`off_gradient_color`*::
+  Color highlight of the LED when off. (defaults to white)
 *`alignment`*::
   Qt alignment hint.
 *`state`*::
