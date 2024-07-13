@@ -861,7 +861,7 @@ The machine will probe down twice and the current user offset (G5X) will be zero
 
 === Overview
 
-QtDragon can be setup to do integrated auto tool measurement using the Versa Probe widget and remap code.
+QtDragon can be setup to do integrated auto tool measurement using the Versa Probe widget and remap code. 
 
 This feature assumes the use of two probes in concert:
 
@@ -872,7 +872,7 @@ These techniques are useful for machines that do not have repeatable tool holder
 
 To use this feature, you will need to do some additional settings and you may want to use the offered HAL pins to get values in your own ngc remap procedure. Those settings are covered later in the section. 
 
-How to use these technique are covered first, then how to set them up are covered. 
+First, this document covers how to use this technique. Second, this document covers how to set up for this technique at the beginning of a production run.  
 
 === Workflow Overview
 
@@ -913,18 +913,14 @@ The sequence of events (using the default files in the default setting):
 . Rapid move down in Z to position defined in the INI's [VERSA_TOOLSETTER] Z
 . Probe down in Z to maximum defined in the INI's [VERSA_TOOLSETTER] MAXPROBE
 . Changes the offset of the current work coordinate system to match the difference between the previous tool and the currently measured tool
-. Return Z to position defined in the INI's [TOOL_CHANGE] Z
-
-The INI setting [RETURN_OPTION] can elicit additional behavior after the return to the [TOOL_CHANGE] Z position:
-
-* If INI's [RETURN_OPTION] = 1: (or if it is undefined), no further action. This is the default behavior of the GMOCCAPY M6 remap procedure
-* If INI's [RETURN_OPTION] = 2: Continue with a Rapid Move to the X and Y position defined in INI's [TOOL_CHANGE] X and Y settings. This is the default behavior of the AXIS gui's M6 remap procedure.
-* If INI's [RETURN_OPTION] = 3: Rapid Move to the original X and Y position at the moment the tool-change started, then Rapid Move down to the now offset Z position at the moment the tool-change started. This effectively moves the tool head back to the position just prior to the tool change. This is new behavior exclusive to QtDragon as of 4th quarter 2023. 
+. Rapid move up in Z to position defined in the INI's [VERSA_TOOLSETTER] Z_MAX_CLEAR
+. Rapid move to the X Y position when the tool change was called
+. Rapid move down to the Z position when the tool change was called
 
 [NOTE]
 The [TOOL_CHANGE] Z position should be high enough so the tool will not hit the tool probe when moving to the [VERSA_TOOLSETTER] X and Y position. + 
-MAXPROBE distance needs to be high enough for the tool to touch the probe. + 
-The RETURN_OPTION = 3 behavior returns to the Work Coordinate system's coordinates, so if using this option, it is vital to have set a work coordinate system before beginning.
+  +
+MAXPROBE distance needs to be high enough for the tool to touch the probe. 
 
 === Detailed Workflow Example
 
@@ -938,7 +934,7 @@ The following setups need only be done once as long as they remain in effect:
 . In the Tool Table: setup a tool for the spindle probe and insure that its Z offset is set to zero. 
 
 [NOTE]
-It is possible to use a non-zer tool length for the tool probe, but this requires extra steps and is easy to make mistakes. The following procedure assumes a zero tool probe length. 
+It is possible to use a non-zero tool length for the tool probe, but this requires extra steps and is easy to make mistakes. The following procedure assumes a zero tool probe length. 
 
 ==== Procedure before starting a program
 
@@ -959,7 +955,7 @@ Take care not to leave the spindle probe in the spindle if a program may start t
 Once those steps are complete, a program with multiple TnM6 toolchanges can be started and will operate with automatic pauses for manual tool change followed by automated tool measurement. 
 
 [NOTE]
-RETURN_OPTION 3 uses whatever Work Coordinate system was effect when tool change was called to return the tool-tip to the same Work Coordinate where it was before. Because remapping has adjusted the Work Coordinate system by the offset between the previous and the current tool, the tool tip will end up at the same point in space as the tip of the previous tool was when the tool change was called.
+After probing the new tool length using the tool-setter, this remap code uses a G43 which applies the offset to the Work Coordinate system which was in effect when the M6 command was issued. Because remapping has adjusted the Work Coordinate system by the offset between the previous and the current tool, the tool tip will end up at the same point in space as the tip of the previous tool was when the tool change was called.
 
 === Work Piece Height Probing in QtDragon_hd
 
@@ -1068,35 +1064,27 @@ REMAP=M6  modalgroup=6 prolog=change_prolog ngc=qt_auto_probe_tool epilog=change
 ==== The Tool Sensor Section
 
 The position of the tool sensor and the start position of the probing movement. +
-All values are absolute (G53) coordinates, except MAXPROBE, which is expressed in relative movement. +
+All values are absolute (G53) coordinates, except MAXPROBE, which is expressed as an absolute length of movement. +
 All values are in machine native units. +
-X,Y,Z set the tool setter probe location. +
+X, Y, & Z set the tool setter probe location. +
 
-Auto probe action sequence (this could be changed with a modified ngc remap file): +
+Auto probe action sequence in the default qt_auto_probe_tool example remap defined above (this behavior can be changed by modifying either the remap statement in the RS274NGC section, or by modifying the qt_auto_probe_tool.ngc code.): +
 
-. rapid move  to CHANGE_POSITION Z position
-. rapid move to CHANGE_POSITION XY position.
+. rapid move to the INI's [CHANGE_POSITION] Z position (this is a relative move, it adds this Z value to the current Z coordinate)
+. rapid move to the INI's [CHANGE_POSITION] X & Y position.
 . wait for manual tool change acknowledgement
-. rapid move to VERSA_TOOLSETTER XY position
-. rapid move to VERSA_TOOLSETTER Z position
+. rapid move to the INI's [VERSA_TOOLSETTER] X & Y position
+. rapid move to the INI's [VERSA_TOOLSETTER] Z_MAX_CLEAR Z position
 . fast probe
 . slow probe
-. rapid move to TOOLCHANGE Z position
-
-Additionally, if [RETURN_OPTION] is set, there may be additional moves. 
-
-[RETURN_OPTION] = 1: (or if it is undefined), no further action. (This is the GMOCCAPY gui M6 default remap code method)
-
-[RETURN_OPTION] = 2: Continue with a Rapid Move to TOOL_CHANGE X and Y (This is the AXIS gui M6 default remap code) 
-
-[RETURN_OPTION] = 3: Rapid Move to the original X and Y position at the moment the tool-change started, then Rapid Move down to the newly offset Z position. (This effectively moves the tool head back to the position just prior to the tool change, and is a feature of the QtDragon gui M6 default remap code)
+. rapid move to the INI's [VERSA_TOOLSETTER] Z_MAX_CLEAR Z position
 
 Z_MAX_CLEAR is the Z position to go to before moving to the tool setter when using the 'Travel to Toolsetter button'. +
 'Travel to Toolsetter' Action sequence: +
 
-. rapid move to VERSA_TOOLSETTER Z_MAX_CLEAR Z position
-. rapid move to VERSA_TOOLSETTER XY position
-. rapid move to VERSA_TOOLSETTER Z position.
+. rapid move to [VERSA_TOOLSETTER] Z_MAX_CLEAR Z position
+. rapid move to [VERSA_TOOLSETTER] XY position
+. rapid move to [VERSA_TOOLSETTER] Z position.
 
 Example settings:
 [source,{ini}]
@@ -1107,13 +1095,12 @@ Y = 10
 Z = -20
 Z_MAX_CLEAR = -2
 MAXPROBE =  -20
-RETURN_OPTION = 3
 ----
 
 ==== The Change Position Section
 
 This is not named TOOL_CHANGE_POSITION  on purpose - *canon uses that name and will interfere otherwise*.
-The position to move the machine before giving the change tool command.
+The position to which to move the machine before giving the change tool command.
 All values are in absolute coordinates.
 All values are in machine native units.
 

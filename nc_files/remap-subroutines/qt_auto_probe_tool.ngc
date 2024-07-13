@@ -4,34 +4,25 @@ o<qt_auto_probe_tool> sub
 ;    automatic tool changers, and without repeatable tool holders, but which
 ;    do have a tool setter (and ideally, an xyz probe). 
 ;    With this remap, a program or user can issue TxM6 commands at any 
-;      point and the machine automatically do the following:
+;      point and the machine will automatically do the following:
 ;      1. Move to a tool change position defined in .ini parameters, Z first, then XY
 ;      2. Perform the normal M6 tool change (IE stop spindle, prompt for tool)
 ;      3. Move to the location of the toolsetter, Z first, then XY, probe the new tool's offset
 ;      4. Change the offset of the current coordinate system to match the new tool
-;      5. Choose from one of three return options:
-;          Option 1: Return to the ABS Tool Change Z-height - this is the Default
-;                      return behavior if no option is configured in .ini
-;                      (this is also the default return behavior of the 
-;                      default/example Gmoccapy GUI M6 remap code)
-;          Option 2: Return to the ABS Tool Change XYZ: Z first, then XY
-;                      this is also the default return behavior of the 
-;                      default/example Axis GUI M6 remap code)
-;          Option 3: Return the tip of the new tool to the same spot as 
-;                      the tip of the old tool based on newly measured z-offset
-;                      (this is a return behavior specific to QtDragon, new in 2023)
-;       6. Return control back to whatever state it was in prior, continuing the program
+;      5. Return the tip of the new tool to the same spot as the tip of the old tool 
+;            based on newly measured z-offset
+;      6. Return control back to whatever state it was in prior, continuing the program
 ;           if one had been running.
 ; The following settings should be enabled in the QtDragon interface:
 ;    A -  Under Probe Tool screens: insure that "Tool Measure" is enabled
 ;    B -  Under Settings: insure that "Use Tool Sensor" is enabled
 ;  The following workflow assumes using both a XYZ probe and a Z Toolsetter:
 ;    1 - Initial Setup: Before beginning the program, setup the Probe Tool as 
-;        having a zero z-offset in the tool table (non-zero tool lengths
+;        having a zero z-offset in the tool table. (Non-zero tool lengths
 ;        for the probe tool can be made to work, but have multiple extra
 ;        steps required, and it is easy to have the tool offset interfere with 
 ;        the remap coding and cause incorrect adjustments to your offsets.
-;        this procedure assumes a zero length)
+;        This procedure assumes a zero length.)
 ;    2 - Initial Tool: Load the probe tool with M61 Qx, where x is the Probe tool's number
 ;        in the tool table. (Do not use TxM6)
 ;    3 - Toolsetter measure: Use button under the Probe Screens for "Probe Tool Setter 
@@ -179,6 +170,11 @@ F #<_hal[qtversaprobe.searchvel]>
 G38.2 Z- #<_ini[VERSA_TOOLSETTER]MAXPROBE>
 G0 Z #<_hal[qtversaprobe.backoffdist]>
 
+o510 if [#5070 EQ 0]
+G90
+o510 return [-3] ; indicate probe contact failure to epilog
+o510 endif
+
 ;reprobe at probe speed: G38.2 means probe toward workpiece, stop on contact
 ;  when G38.n axis completes, it puts the Z value detected (in the coordinates system 
 ;  in which this program started) into parameter #5063 (because we're probing Z) 
@@ -186,10 +182,10 @@ G0 Z #<_hal[qtversaprobe.backoffdist]>
 F #<_hal[qtversaprobe.probevel]>
 G38.2 Z- [#<_hal[qtversaprobe.backoffdist]> *1.2]
 
-o500 if [#5070 EQ 0]
+o510 if [#5070 EQ 0]
 G90
-o500 return [-3] ; indicate probe contact failure to epilog
-o500 endif
+o510 return [-3] ; indicate probe contact failure to epilog
+o510 endif
 
 ;switch back to absolute distance mode once probing is done
 G90
@@ -201,7 +197,9 @@ G90
 ; G10 L1 is the Set Tool Table Offset: it changes the tool table offset, 
 ;   it DOES NOT change the offsets in the current coordinate system. (that would be G10 L2)
 
-G10 L1 P#<tool> Z[#<touch_result> - #<_hal[qtversaprobe.probeheight]> + #<_hal[qtversaprobe.blockheight]>]
+#<calculated_offset> = [#<touch_result> - #<_hal[qtversaprobe.probeheight]> + #<_hal[qtversaprobe.blockheight]>]
+
+G10 L1 P#<tool> Z[#<calculated_offset>]
 
 ;G43 enables tool length offset: this affects all subsequent moves by applying 
 ;  the offset just calculated to the coordinate system currently in
@@ -209,7 +207,7 @@ G10 L1 P#<tool> Z[#<touch_result> - #<_hal[qtversaprobe.probeheight]> + #<_hal[q
  
 G43
 
-#<calculated_offset> = [#<touch_result> - #<_hal[qtversaprobe.probeheight]> + #<_hal[qtversaprobe.blockheight]>]
+
 (DEBUG, %fProbe Height: #<_hal[qtversaprobe.probeheight]>)
 (DEBUG, %fBlock Height: #<_hal[qtversaprobe.blockheight]>)
 (DEBUG, %fProbe Result: #<touch_result>)
@@ -223,35 +221,13 @@ G43
 ; ------ Begin Return Movement ----
 ; -------------------------------------
 
-o600 if [EXISTS[#<_ini[VERSA_TOOLSETTER]RETURN_OPTION>]]
-	;(DEBUG, Return_Option is: #<_ini[VERSA_TOOLSETTER]RETURN_OPTION>)
-	o610 if [#<_ini[VERSA_TOOLSETTER]RETURN_OPTION> EQ 1]
-		;(DEBUG, Return_Option 1 = Lift to Change Position Z = #<_ini[CHANGE_POSITION]Z>)
-		G53 G0 Z[#<_ini[CHANGE_POSITION]Z>]
-	o610 else
-		o620 if [#<_ini[VERSA_TOOLSETTER]RETURN_OPTION> EQ 2]
-			; (DEBUG, Return_Option 2 = Go Up then Over to Change Position: #<_ini[CHANGE_POSITION]X> , #<_ini[CHANGE_POSITION]Y> , #<_ini[CHANGE_POSITION]Z>)
-			G53 G0 Z[#<_ini[VERSA_TOOLSETTER]Z_MAX_CLEAR>]
-			G53 G0 X[#<_ini[CHANGE_POSITION]X>] Y[#<_ini[CHANGE_POSITION]Y>]
-			G53 G0 Z[#<_ini[CHANGE_POSITION]Z>]
-		o620 else
-			o630 if [#<_ini[VERSA_TOOLSETTER]RETURN_OPTION> EQ 3]
-				; return to original tool-tip position, but using new z-offset
-				;(DEBUG, Return_Option 3 = Go Up then Over then Down to Original Position: #<local_start_x> , #<local_start_y> , #<local_start_z>)
-				G53 G0 Z[#<_ini[VERSA_TOOLSETTER]Z_MAX_CLEAR>]
-				; now use original (modal)coord system to go over to xy
-				G0 X[#<local_start_x>] Y[#<local_start_y>]
-				; and finally down to the (already offset) z coord
-				G0 Z[#<local_start_z>]
-			o630 else
-				;this never executes: previously captured error if Return_Option invalid
-			o630 endif
-		o620 endif
-	o610 endif
-o600 else
-	; treat no option selected like option 1: only return to Tool Change Z coord
-	G53 G0 Z[#<_ini[CHANGE_POSITION]Z>]
-o600 endif
+; return to original tool-tip position, but using new z-offset
+;(DEBUG, Return to original tool-tip position using new z-offset: #<local_start_x> , #<local_start_y> , #<local_start_z>)
+G53 G0 Z[#<_ini[VERSA_TOOLSETTER]Z_MAX_CLEAR>]
+; now use original (modal)coord system to go over to xy
+G0 X[#<local_start_x>] Y[#<local_start_y>]
+; and finally down to the (already offset) z coord
+G0 Z[#<local_start_z>]
 			
 ; -------------------------------------
 ; ------ End Return Movement ----
