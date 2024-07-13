@@ -34,7 +34,8 @@ When AXIS starts, a window like the one in the figure
 === INI settings
 
 For more information on INI file settings that can change how AXIS
-works see the <<sub:ini:sec:display,Display Section>> of the INI
+works see the <<sub:ini:sec:display,Display Section>> and the
+<<sub:ini:sec:axis-letter,Axis Section>> of the INI
 Configuration Chapter.
 
 * 'CYCLE_TIME' - Adjust the response rate of the GUI in

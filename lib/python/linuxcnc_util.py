@@ -54,7 +54,7 @@ class LinuxCNC:
                 or (self.status.max_velocity == 0.0) \
                 or (self.status.program_units == 0.0) \
                 or (self.status.rapidrate == 0.0) \
-                or (self.status.state != linuxcnc.STATE_ESTOP) \
+                or (self.status.state != linuxcnc.RCS_DONE) \
                 or (self.status.task_state != linuxcnc.STATE_ESTOP):
                 time.sleep(0.1)
             else:

@@ -38,12 +38,12 @@
  */
 
 #include "config.h"
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "hal.h"		/* HAL public API decls */
-#include "../hal_priv.h"	/* private HAL decls */
+#include "rtapi.h"		// RTAPI realtime OS API
+#include "hal.h"		// HAL public API decls
+#include "../hal_priv.h"	// private HAL decls
 #include "halcmd_commands.h"
 #include <rtapi_mutex.h>
-#include <rtapi_string.h>
+#include <rtapi_string.h>	// rtapi_strlcpy
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -559,7 +559,7 @@ int do_newinst_cmd(char *comp_name, char *inst_name) {
         nanosleep(&ts, NULL);
         rtapi_mutex_get(&(hal_data->mutex));
     }
-    strncpy(hal_data->constructor_prefix, inst_name, HAL_NAME_LEN);
+    rtapi_strlcpy(hal_data->constructor_prefix, inst_name, HAL_NAME_LEN);
     hal_data->constructor_prefix[HAL_NAME_LEN]=0;
     hal_data->pending_constructor = comp->make;
     rtapi_mutex_give(&(hal_data->mutex));
@@ -1178,7 +1178,7 @@ int do_loadrt_cmd(char *mod_name, char *args[])
 	return -1;
     }
     /* copy string to shmem */
-    strcpy (cp1, arg_string);
+    strcpy(cp1, arg_string);
     /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
     /* search component list for the newly loaded component */
@@ -1221,8 +1221,7 @@ int do_delsig_cmd(char *mod_name)
 	    sig = SHMPTR(next);
 	    /* we want to unload this signal, remember its name */
 	    if ( n < ( MAX_EXPECTED_SIGS - 1 ) ) {
-	        strncpy(sigs[n], sig->name, HAL_NAME_LEN );
-		sigs[n][HAL_NAME_LEN] = '\0';
+		snprintf(sigs[n], sizeof(sigs[n]), "%s", sig->name);
 		n++;
 	    }
 	    next = sig->next_ptr;
@@ -1315,8 +1314,7 @@ int do_unloadrt_cmd(char *mod_name)
 	    if ( all || ( strcmp(mod_name, comp->name) == 0 )) {
 		/* we want to unload this component, remember its name */
 		if ( n < 63 ) {
-		    strncpy(comps[n], comp->name, HAL_NAME_LEN );
-		    comps[n][HAL_NAME_LEN] = '\0';
+		    snprintf(comps[n], sizeof(comps[n]), "%s", comp->name);
 		    n++;
 		}
 	    }

@@ -2001,6 +2001,9 @@ class TclCommands(nf.TclCommands):
     def redraw_soon(event=None):
         o.redraw_soon()
 
+    def redraw_dro(event=None):
+        o.redraw_dro()
+
     def to_internal_linear_unit(a, b=None):
         if b is not None: b = float(b)
         return to_internal_linear_unit(float(a), b)
@@ -2340,9 +2343,8 @@ class TclCommands(nf.TclCommands):
         res = 1
         while res == 1:
             res = run_warn()
-            if res == 2: break
+            if res in [0, 2]: break
             if res == 3: return
-            print("reload file")
             reload_file()
 
         global program_start_line, program_start_line_last

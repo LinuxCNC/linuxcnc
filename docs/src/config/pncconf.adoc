@@ -7,7 +7,7 @@
 PnCconf is made to help build configurations that utilize specific Mesa 'Anything I/O' products.
 
 It can configure closed loop servo systems or hardware stepper systems.
-It uses a similar 'wizard' approach as Stepconf (used for software stepping, parallel port driven systems).
+It uses a similar 'wizard' approach as StepConf (used for software stepping, parallel port driven systems).
 
 PnCconf is still in a development stage (Beta) so there are some bugs and lacking features.
 Please report bugs and suggestions to the LinuxCNC forum page or mailing list.

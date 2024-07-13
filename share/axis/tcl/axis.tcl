@@ -1299,7 +1299,7 @@ NoteBook ${pane_top}.right \
 after 1 after idle show_all_tabs ${pane_top}.right
 
 set _tabs_preview [${pane_top}.right insert end preview -text [_ "Preview"]]
-set _tabs_numbers [${pane_top}.right insert end numbers -text [_ "DRO"]]
+set _tabs_numbers [${pane_top}.right insert end numbers -text [_ "DRO"] -raisecmd redraw_dro]
 $_tabs_preview configure -borderwidth 1
 $_tabs_numbers configure -borderwidth 1
 

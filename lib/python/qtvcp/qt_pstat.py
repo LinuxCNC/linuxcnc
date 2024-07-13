@@ -60,7 +60,12 @@ class _PStat(object):
             self.WIDGETUI = os.path.join(self.SHAREDIR, "widgets_ui")
 
             # Linuxcnc project base directory moves when using RIP vrs installed
-            self.BASEDIR = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
+            try:
+                self.BASEDIR = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
+            except:
+                # TODO not sure if working directory is right - this is to fix an error with designer
+                # loading widget libraries
+                self.BASEDIR = self.WORKINGDIR
             self.RIPCONFIGDIR = os.path.join(self.BASEDIR, "configs", "sim", "qtvcp_screens")
 
             # python RIP library directory
@@ -68,7 +73,7 @@ class _PStat(object):
             sys.path.insert(0, self.PYDIR)
 
         except Exception as e:
-            print (e)
+            print ('qt_Pstat:',e)
             pass
 
     def set_paths(self, filename='dummy', isscreen=False):
@@ -126,7 +131,7 @@ class _PStat(object):
             LOG.debug("Checking for default handler file in: yellow<{}>".format(default_handler_path))
             if os.path.exists(default_handler_path):
                 self.HANDLER = default_handler_path
-                LOG.debug("Using DEFAULT handler file path: yellow<{}>".format(self.HANDLER))
+                LOG.info("Using DEFAULT handler file path: yellow<{}>".format(self.HANDLER))
             else:
                 self.HANDLER = None
                 LOG.info("No handler file found.")
@@ -158,7 +163,7 @@ class _PStat(object):
         else:
             LOG.debug("Checking for .ui in: yellow<{}>".format(defaultui))
             if os.path.exists(defaultui):
-                LOG.debug("Using DEFAULT ui file from: yellow<{}>".format(defaultui))
+                LOG.info("Using DEFAULT ui file from: yellow<{}>".format(defaultui))
                 self.XML = defaultui
             else:
                 # error
@@ -363,7 +368,7 @@ class _PStat(object):
         else:
             LOG.debug("(embed) Checking for .ui in: yellow<{}>".format(defaultui))
             if os.path.exists(defaultui):
-                LOG.debug("(embed) Using DEFAULT ui file from: yellow<{}>".format(defaultui))
+                LOG.info("(embed) Using DEFAULT ui file from: yellow<{}>".format(defaultui))
                 XML = defaultui
                 return XML
             else:
@@ -393,7 +398,7 @@ class _PStat(object):
             LOG.debug("(embed) Checking for default handler file in: yellow<{}>".format(default_handler_path))
             if os.path.exists(default_handler_path):
                 HANDLER = default_handler_path
-                LOG.debug("(embed) Using DEFAULT handler file path: yellow<{}>".format(HANDLER))
+                LOG.info("(embed) Using DEFAULT handler file path: yellow<{}>".format(HANDLER))
                 return HANDLER
             else:
                 HANDLER = None
@@ -414,4 +419,25 @@ class _PStat(object):
             if file.endswith(".py"):
                 if not file in ('__init__.py', 'qt_vismach.py', 'primitives.py'):
                     tmp.append(file)
+            elif os.path.isdir(os.path.join(self.VISMACHDIR, file)):
+                if 'obj' in file:
+                    tmp.append(file)
+
         return tmp
+
+    def modnamefromFilename(self, fname):
+        panel = os.path.splitext(os.path.basename(os.path.basename(fname)))[0]
+        base = panel.replace('_handler','')
+        module = "{}.{}".format(base,panel)
+        return module
+
+    # tempararily adds the screen directory to path
+    # so the handler can be imported to be used for subclassing
+    def importDefaultHandler(self, module=None):
+        import importlib
+        sys.path.insert(0, self.SCREENDIR)
+        if module is None:
+            module = "{}.{}_handler".format(self.BASEPATH,self.BASEPATH)
+        mod = importlib.import_module(module, self.SCREENDIR)
+        sys.path.remove(self.SCREENDIR)
+        return mod.HandlerClass

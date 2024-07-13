@@ -5712,7 +5712,6 @@ int Interp::convert_tool_length_offset(int g_code,       //!< g_code being execu
     CHKS((!block->h_flag && !block->x_flag && !block->y_flag && !block->z_flag
          && !block->a_flag &&!block->b_flag && !block->c_flag && !block->u_flag
          && !block->v_flag && !block->w_flag), (_("G43.2: No axes specified and H word missing")));
-    CHP((find_tool_index(settings, block->h_number, &idx)));
     tool_offset = settings->tool_offset;
     if (block->h_flag){
         CHP((find_tool_index(settings, block->h_number, &idx)));

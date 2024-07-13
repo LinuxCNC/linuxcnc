@@ -1,10 +1,12 @@
-VERSION = '1.236.294'
+VERSION = '238.314'
+LCNCVER = '2.9'
+DOCSVER = LCNCVER
 
 '''
 qtplasmac_handler.py
 
-Copyright (C) 2020, 2021, 2022, 2023  Phillip A Carter
-Copyright (C) 2020, 2021, 2022, 2023  Gregory D Carl
+Copyright (C) 2020-2024  Phillip A Carter
+Copyright (C) 2020-2024  Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -24,7 +26,6 @@ with this program; if not, write to the Free Software Foundation, Inc
 import os
 import sys
 from shutil import copy as COPY
-from shutil import move as MOVE
 from subprocess import Popen, PIPE
 from subprocess import run as RUN
 from subprocess import call as CALL
@@ -33,7 +34,6 @@ import time
 import tarfile
 import math
 import glob
-import webbrowser
 import linuxcnc
 import hal
 from OpenGL.GL import glTranslatef
@@ -64,7 +64,7 @@ from qtvcp.widgets.status_label import StatusLabel as STATLABEL
 from qtvcp.widgets.stylesheeteditor import  StyleSheetEditor as SSE
 from qtvcp.lib.aux_program_loader import Aux_program_loader
 from plasmac import run_from_line as RFL
-from rs274.glcanon import GlCanonDraw
+from rs274.glcanon import GlCanonDraw as DRAW
 from qt5_graphics import Lcnc_3dGraphics as DRO
 
 LOG = logger.getLogger(__name__)
@@ -106,6 +106,7 @@ def click_signal(widget):
   # the main handler
 class HandlerClass:
     from qtvcp.lib.qtplasmac import conversational as CONV
+
     # when self.w.button_frame changes size
     def eventFilter(self, object, event):
         if (event.type() == QtCore.QEvent.Resize):
@@ -130,6 +131,7 @@ class HandlerClass:
             if os.path.realpath(m190Path) != os.path.realpath(self.PATHS.CONFIGPATH):
                 COPY(os.path.join(m190Path, 'M190'), os.path.join(self.PATHS.CONFIGPATH, 'M190'))
         self.machineName = self.iniFile.find('EMC', 'MACHINE')
+        self.machineTitle = '{} - QtPlasmaC v{}-{}, powered by QtVCP and LinuxCNC'.format(self.machineName, LCNCVER, VERSION)
         self.prefsFile = os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs')
         self.materialFile = os.path.join(self.PATHS.CONFIGPATH, self.machineName + '_material.cfg')
         self.unitsPerMm = 1
@@ -155,14 +157,7 @@ class HandlerClass:
         if os.path.basename(self.PATHS.XML) == 'qtplasmac_9x16.ui':
             self.landscape = False
         self.upFile = os.path.join(self.PATHS.CONFIGPATH, 'user_periodic.py')
-        major = linuxcnc.version.split('.')[0]
-        minor = linuxcnc.version.split('.')[1]
-        # this will need changing whenever the development branch changes versions
-        if major == '2' and minor == '10':
-            umVer = 'devel'
-        else:
-            umVer = '{}.{}'.format(major, minor)
-        self.umUrl = QUrl('http://linuxcnc.org/docs/{}/html/plasma/qtplasmac.html'.format(umVer))
+        self.umUrl = QUrl('http://linuxcnc.org/docs/{}/html/plasma/qtplasmac.html'.format(DOCSVER))
         KEYBIND.add_call('Key_F12','on_keycall_F12')
         KEYBIND.add_call('Key_F9','on_keycall_F9')
         KEYBIND.add_call('Key_Plus', 'on_keycall_PLUS')
@@ -327,13 +322,26 @@ class HandlerClass:
         # jog stack indexes
         self.JOG = 0
         self.CUT_RECOVERY = 1
+        # tool indexes
+        self.TORCH = 0
+        self.SCRIBE = 1
+        self.UNKNOWN = 2
+        self.tool = self.TORCH
 
 # called by qtvcp.py
     def initialized__(self):
+        if '.'.join(linuxcnc.version.split('.')[:2]) != LCNCVER:
+            msg0 = _translate('HandlerClass', 'LinuxCNC version should be')
+            msg1 = _translate('HandlerClass', 'The detected version is')
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{} {}\n{} {}'.format(msg0, LCNCVER, msg1, linuxcnc.version.split('.')[:2]))
+            quit()
+        ucFile = os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac_custom.py')
+        if os.path.isfile(ucFile):
+            exec(compile(open(ucFile, 'rb').read(), ucFile, 'exec'))
         # ensure we get all startup errors
         STATUS.connect('error', self.error_update)
         STATUS.connect('graphics-gcode-error', lambda o, e:self.error_update(o, linuxcnc.OPERATOR_ERROR, e))
-        STATUS.emit('update-machine-log', '--- {} - QtPlasmaC v{}, powered by QtVCP on LinuxCNC v{} ---'.format(self.machineName, VERSION, linuxcnc.version.split(':')[0]), None)
+        STATUS.emit('update-machine-log', '--- {} ---'.format(self.machineTitle), None)
         self.make_hal_pins()
         self.init_preferences()
         self.hide_widgets()
@@ -437,12 +445,12 @@ class HandlerClass:
 
         if not os.path.isfile(updateLog):
             with open(updateLog, 'w') as f:
-                f.write('{} Initial    V{}\n'.format(time.strftime('%y-%m-%d'), VERSION))
+                f.write('{} Initial    V{}-{}\n'.format(time.strftime('%y-%m-%d'), LCNCVER, VERSION))
         self.startupTimer.start(250)
 
 # called by qtvcp.py, can override qtvcp settings or qtvcp allowed user options (via INI)
     def before_loop__(self):
-        self.w.setWindowTitle('{} - QtPlasmaC v{}, powered by QtVCP on LinuxCNC v{}'.format(self.machineName, VERSION, linuxcnc.version.split(':')[0]))
+        self.w.setWindowTitle(self.machineTitle)
         self.iconPath = 'share/icons/hicolor/scalable/apps/linuxcnc_alt/linuxcncicon_plasma.svg'
         appPath = os.path.realpath(os.path.dirname(sys.argv[0]))
         self.iconBase = '/usr' if appPath == '/usr/bin' else appPath.replace('/bin', '/debian/extras/usr')
@@ -460,6 +468,7 @@ class HandlerClass:
         self.offset_table_patch()
         self.qt5_graphics_patch()
         self.screen_options_patch()
+        self.glcanon_patch()
 
 # patched file manager functions
     def file_manager_patch(self):
@@ -720,6 +729,19 @@ class HandlerClass:
                             linuxcnc.OPERATOR_DISPLAY, STATUS.TEMPARARY_MESSAGE):
                     STATUS.emit('play-sound', 'SPEAK %s ' % text)
         STATUS.emit('update-machine-log', text, 'TIME')
+
+# patched glcanon functions
+    def glcanon_patch(self):
+        self.old_draw_grid = DRAW.draw_grid
+        DRAW.draw_grid = self.new_draw_grid
+
+    # allows grid to be drawn in P view
+    def new_draw_grid(self):
+        rotation = math.radians(STATUS.stat.rotation_xy % 90)
+        permutation = lambda x_y_z2: (x_y_z2[0], x_y_z2[1], x_y_z2[2])  # XY Z
+        inverse_permutation = lambda x_y_z3: (x_y_z3[0], x_y_z3[1], x_y_z3[2])  # XY Z
+        self.w.gcodegraphics.draw_grid_permuted(rotation, permutation,
+                inverse_permutation)
 
 
 #########################################################################################################################
@@ -1017,7 +1039,7 @@ class HandlerClass:
         self.w.filemanager.loadButton.hide()
         # for copy/paste control if required
         self.w.filemanager.copy_control.hide()
-        # add vertical and horizontal scroll bars to the materials QComboBoxs 
+        # add vertical and horizontal scroll bars to the materials QComboBoxs
         self.w.material_selector.view().setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.w.material_selector.view().setHorizontalScrollBarPolicy(Qt.ScrollBarAsNeeded)
         self.w.conv_material.view().setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
@@ -1097,14 +1119,15 @@ class HandlerClass:
         else:
             fr = 0
             ou = 2
-        if '.' in self.w.cut_feed_rate.text() and len(self.w.cut_feed_rate.text().split('.')[0]) > 3:
-            text.append('FR: {:.{}f}'.format(float(self.w.cut_feed_rate.text().split('.')[0]) * scale, fr))
+        dp = '.' if '.' in self.w.pierce_height.text() else ','
+        if '.' in self.w.cut_feed_rate.text().replace(",", ".") and len(self.w.cut_feed_rate.text().replace(",", ".").split('.')[0]) > 3:
+            text.append(f'FR: {float(self.w.cut_feed_rate.text().replace(",", ".").split(".")[0]) * scale:.{fr}f}'.replace(".",dp))
         else:
-            text.append('FR: {:.{}f}'.format(float(self.w.cut_feed_rate.text()) * scale, fr))
-        text.append('PH: {:.{}f}'.format(float(self.w.pierce_height.text()) * scale, ou))
-        text.append('PD: {}'.format(self.w.pierce_delay.text()))
-        text.append('CH: {:.{}f}'.format(float(self.w.cut_height.text()) * scale, ou))
-        text.append('KW: {:.{}f}'.format(float(self.w.kerf_width.text()) * scale, ou))
+            text.append(f'FR: {float(self.w.cut_feed_rate.text().replace(",", ".")) * scale:.{fr}f}'.replace(".",dp))
+        text.append(f'PH: {float(self.w.pierce_height.text().replace(",", ".")) * scale:.{ou}f}'.replace(".",dp))
+        text.append(f'PD: {self.w.pierce_delay.text()}')
+        text.append(f'CH: {float(self.w.cut_height.text().replace(",", ".")) * scale:.{ou}f}'.replace(".",dp))
+        text.append(f'KW: {float(self.w.kerf_width.text().replace(",", ".")) * scale:.{ou}f}'.replace(".",dp))
         if self.pmx485Exists:
             text.append('CA: {}'.format(self.w.cut_amps.text()))
         return text
@@ -1326,20 +1349,12 @@ class HandlerClass:
     def estop_state(self, state):
         if state:
             self.w.power.setChecked(False)
-            self.w.power.setStyleSheet(' \
-                    QPushButton {{ color: {2}; background: {1}; border-color: {2} }} \
-                    QPushButton:pressed {{ color: {2}; background: {1}; border-color: {0} }}' \
-                    .format(self.foreColor, self.backColor, self.disabledColor))
+            self.w.power.setEnabled(False)
             if not self.firstRun:
                 log = _translate('HandlerClass', 'Emergency stop pressed')
                 STATUS.emit('update-machine-log', log, 'TIME')
         else:
-            self.w.power.setStyleSheet(' \
-                    QPushButton {{ color: {0}; background: {1}; border-color: {0} }} \
-                    QPushButton:pressed {{ color: {1}; background: {3}; border-color: {0} }} \
-                    QPushButton:checked {{ color: {1}; background: {3}; border-color: {0} }} \
-                    QPushButton:checked:pressed {{ color: {0}; background: {1}; border-color: {0} }}' \
-                    .format(self.foreColor, self.backColor, self.disabledColor, self.fore1Color))
+            self.w.power.setEnabled(True)
             if not self.firstRun:
                 log = _translate('HandlerClass', 'Emergency stop cleared')
                 STATUS.emit('update-machine-log', log, 'TIME')
@@ -1421,7 +1436,7 @@ class HandlerClass:
     def set_run_button_state(self):
         if STATUS.machine_is_on() and STATUS.is_all_homed() and \
            STATUS.is_interp_idle() and not self.offsetsActivePin.get() and \
-           self.plasmacStatePin.get() == 0 and not self.boundsError['loaded'] and not self.fileClear:
+           self.plasmacStatePin.get() == 0:
             if self.w.gcode_display.lines() > 1:
                 self.w.run.setEnabled(True)
                 if self.frButton:
@@ -1434,6 +1449,10 @@ class HandlerClass:
                 self.probeTest = False
             self.set_buttons_state([self.idleList, self.idleOnList, self.idleHomedList], True)
             self.w.abort.setEnabled(False)
+            if self.boundsError['loaded'] or self.fileClear:
+                self.w.run.setEnabled(False)
+                if self.frButton:
+                    self.w[self.frButton].setEnabled(False)
         else:
             self.w.run.setEnabled(False)
             if self.frButton:
@@ -1564,7 +1583,7 @@ class HandlerClass:
             self.rflActive = False
             self.startLine = 0
             self.preRflFile = ''
-        msgList, units, xMin, yMin, xMax, yMax = self.bounds_check('loaded', 0, 0)
+        msgList, units = self.bounds_check('loaded', 0, 0)
         if self.boundsError['loaded']:
             head = _translate('HandlerClass', 'Axis Limit Error')
             msgs = ''
@@ -1699,11 +1718,17 @@ class HandlerClass:
 
     def tool_changed(self, obj, tool):
         if tool == 0:
-            self.w.lbl_tool.setText('TORCH')
+            self.tool = self.TORCH
+            text = _translate('HandlerClass', 'TORCH')
+            self.w.lbl_tool.setText(text)
         elif tool == 1:
-            self.w.lbl_tool.setText('SCRIBE')
+            self.tool = self.SCRIBE
+            text = _translate('HandlerClass', 'SCRIBE')
+            self.w.lbl_tool.setText(text)
         else:
-            self.w.lbl_tool.setText('UNKNOWN')
+            self.tool = self.UNKNOWN
+            text = _translate('HandlerClass', 'UNKNOWN')
+            self.w.lbl_tool.setText(text)
 
     def gcodes_changed(self, obj, cod):
         if self.units == 'in' and STATUS.is_metric_mode():
@@ -1986,11 +2011,12 @@ class HandlerClass:
     def backup_clicked(self):
         self.save_logfile(6)
         bkpPath = '{}'.format(os.path.expanduser('~'))
-        bkpName = '{}_V{}_{}.tar.gz'.format(self.machineName, VERSION, time.strftime('%y-%m-%d_%H-%M-%S'))
+        bkpName = '{}_V{}-{}_{}.tar.gz'.format(self.machineName, LCNCVER, VERSION, time.strftime('%y-%m-%d_%H-%M-%S'))
         tmpFile = os.path.join(self.PATHS.CONFIGPATH, 'config_info.txt')
         lcncInfo = (Popen('linuxcnc_info -s', stdout=PIPE, stderr=PIPE, shell=True).communicate()[0]).decode('utf-8')
         network = (Popen('lspci | grep -i net', stdout=PIPE, stderr=PIPE, shell=True).communicate()[0]).decode('utf-8')
         with open(tmpFile, 'a') as outFile:
+            outFile.write(f'locale:\n{os.getenv("LANG")}\n\n')
             if network:
                 outFile.write('lspci | grep -i net:\n{}\n'.format(network))
             else:
@@ -2049,27 +2075,15 @@ class HandlerClass:
         while time.time() < t:
             QApplication.processEvents()
         self.w.gcodegraphics.set_view('Z')
-        mid, size = GlCanonDraw.extents_info(self.w.gcodegraphics)
-        if self.gcodeProps:
-            mult = 1
-            if self.units == 'in' and self.gcodeProps['gcode_units'] == 'mm':
-                mult = 0.03937
-            elif self.units == 'mm' and self.gcodeProps['gcode_units'] == 'in':
-                mult = 25.4
-            x = (round(float(self.gcodeProps['x'].split()[0]) * mult, 4))
-            y = (round(float(self.gcodeProps['y'].split()[0]) * mult, 4))
-            xl = (round(float(self.gcodeProps['x'].split('=')[1].split()[0]) * mult, 4))
-            yl = (round(float(self.gcodeProps['y'].split('=')[1].split()[0]) * mult, 4))
-        else:
-            x = y = xl = yl = 0
-        if (mid[0] == 0 and mid[1] == 0) or mid[0] > self.xLen or mid[1] > self.yLen or \
-           self.w.view_t.isChecked() or self.w.view_t.isDown() or self.fileClear:
-            mult = 1 if self.units == 'in' else 25.4
-            zoomScale = (self.w.table_zoom_scale.value() * 2)
-            mid = [(self.xLen - (x * 2) - xl) / mult / 2, (self.yLen - (y * 2) - yl) / mult / 2, 0]
-            size = [self.xLen / mult / zoomScale, self.yLen / mult / zoomScale, 0]
-        glTranslatef(-mid[0], -mid[1], -mid[2])
-        self.w.gcodegraphics.set_eyepoint_from_extents(size[0], size[1])
+        mid = DRAW.extents_info(self.w.gcodegraphics)[0]
+        mult = 1 if self.units == 'in' else 25.4
+        zoomScale = (self.w.table_zoom_scale.value() * 2)
+        xTableCenter = (self.xMin + self.xLen / 2) / mult - mid[0]
+        yTableCenter = (self.yMin + self.yLen / 2) / mult - mid[1]
+        xSize = self.xLen / mult / zoomScale
+        ySize = self.yLen / mult / zoomScale
+        glTranslatef(-xTableCenter, -yTableCenter, 0)
+        self.w.gcodegraphics.set_eyepoint_from_extents(xSize, ySize)
         self.w.gcodegraphics.perspective = False
         self.w.gcodegraphics.lat = self.w.gcodegraphics.lon = 0
         self.w.gcodegraphics.updateGL()
@@ -2135,7 +2149,7 @@ class HandlerClass:
                 self.remove_temp_materials()
                 ACTION.OPEN_PROGRAM(clearFile)
                 ACTION.prefilter_path = self.preClearFile
-                if self.w.lbl_tool.text() != 'TORCH' and STATUS.is_on_and_idle() and STATUS.is_all_homed():
+                if self.tool != self.TORCH and STATUS.is_on_and_idle() and STATUS.is_all_homed():
                     ACTION.CALL_MDI_WAIT('T0 M6')
                     ACTION.CALL_MDI_WAIT('G43 H0')
                     ACTION.SET_MANUAL_MODE()
@@ -2264,7 +2278,7 @@ class HandlerClass:
                 STATUS.emit('update-machine-log', log, 'TIME')
 
     def plasmac_state_changed(self, state):
-        if ((state > self.PROBE_UP and not STATUS.is_interp_idle()) or state == self.PROBE_TEST) and hal.get_value('axis.z.eoffset-counts'):
+        if (state > self.PROBE_UP or state == self.PROBE_TEST) and hal.get_value('axis.z.eoffset-counts'):
             # set z dro to offset mode
             self.w.dro_z.setProperty('Qreference_type', 10)
         if state == self.IDLE:
@@ -2630,7 +2644,7 @@ class HandlerClass:
             yMin = round(float(self.gcodeProps['y_zero_rxy'].split()[0]) * boundsMultiplier + yOffset, 5)
             yMax = round(float(self.gcodeProps['y_zero_rxy'].split()[2]) * boundsMultiplier + yOffset, 5)
             coordinates = [[xStart, yStart], [xMin, yMin], [xMin, yMax], [xMax, yMax], [xMax, yMin]]
-            frame_points, xMin, yMin, xMax, yMax = self.rotate_frame(coordinates)
+            framePoints, xMin, yMin, xMax, yMax = self.rotate_frame(coordinates)
         else:
             xMin = round(float(self.gcodeProps['x'].split()[0]) * boundsMultiplier + xOffset, 5)
             xMax = round(float(self.gcodeProps['x'].split()[2]) * boundsMultiplier + xOffset, 5)
@@ -2661,28 +2675,28 @@ class HandlerClass:
             msgList.append('{:0.2f}'.format(amount))
             self.boundsError[boundsType] = True
         if framing:
-            return msgList, self.units, xMin, yMin, xMax, yMax, frame_points
+            return msgList, self.units, framePoints
         else:
-            return msgList, self.units, xMin, yMin, xMax, yMax
+            return msgList, self.units
 
     def rotate_frame(self, coordinates):
         angle = math.radians(STATUS.stat.rotation_xy)
         cos = math.cos(angle)
         sin = math.sin(angle)
-        frame_points = [coordinates[0]]
-        ox = frame_points[0][0]
-        oy = frame_points[0][1]
+        framePoints = [coordinates[0]]
+        ox = framePoints[0][0]
+        oy = framePoints[0][1]
         for x, y in coordinates[1:]:
             tox = x - ox
             toy = y - oy
             rx = (tox * cos) - (toy * sin) + ox
             ry = (tox * sin) + (toy * cos) + oy
-            frame_points.append([rx, ry])
-        xMin = min(frame_points[1:])[0]
-        xMax = max(frame_points[1:])[0]
-        yMin = min(frame_points[1:])[1]
-        yMax = max(frame_points[1:])[1]
-        return frame_points, xMin, yMin, xMax, yMax
+            framePoints.append([rx, ry])
+        xMin = min(framePoints[1:])[0]
+        xMax = max(framePoints[1:])[0]
+        yMin = min(framePoints[1:])[1]
+        yMax = max(framePoints[1:])[1]
+        return framePoints, xMin, yMin, xMax, yMax
 
     def save_plasma_parameters(self):
         self.PREFS.putpref('Arc OK High', self.w.arc_ok_high.value(), float, 'PLASMA_PARAMETERS')
@@ -3098,13 +3112,13 @@ class HandlerClass:
             self.w.kerf_width.setRange(0.0, 1.0)
             self.w.kerf_width.setDecimals(3)
             self.w.kerf_width.setSingleStep(0.001)
-#            self.w.cut_feed_rate.setRange(0.0, 999.0)
+            self.w.cut_feed_rate.setRange(0.0, 999.0)
             self.w.cut_feed_rate.setDecimals(1)
             self.w.cut_feed_rate.setSingleStep(0.1)
-#            self.w.cut_height.setRange(0.0, 1.0)
+            self.w.cut_height.setRange(0.0, 1.0)
             self.w.cut_height.setDecimals(3)
             self.w.cut_height.setSingleStep(0.001)
-#            self.w.pierce_height.setRange(0.0, 1.0)
+            self.w.pierce_height.setRange(0.0, 1.0)
             self.w.pierce_height.setDecimals(3)
             self.w.pierce_height.setSingleStep(0.001)
         else:
@@ -4036,16 +4050,7 @@ class HandlerClass:
         elif 'pulse-halpin' in commands.lower():
             head = _translate('HandlerClass', 'HAL Pin Error')
             msg1 = _translate('HandlerClass', 'Failed to pulse HAL pin')
-            try:
-                code, halpin, delay = commands.lower().strip().split()
-            except:
-                try:
-                    code, halpin = commands.lower().strip().split()
-                    delay = '1.0'
-                except:
-                    msg0 = _translate('HandlerClass', 'Unknown error for user button')
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} #{}\n{} "{}"\n'.format(head, msg0, bNum, msg1, halpin))
-                    return
+            halpin = commands.lower().strip().split()[1]
             # halPulsePins format is: button name, pulse time, button text, remaining time, button number
             try:
                 if self.halPulsePins[halpin][3] > 0.05:
@@ -4262,7 +4267,7 @@ class HandlerClass:
             msg0 = _translate('HandlerClass', 'Invalid feed rate for consumable change')
             msg1 = _translate('HandlerClass', 'Defaulting to materials cut feed rate')
             STATUS.emit('update-machine-log', '{}, {}'.format(msg0, msg1), 'TIME')
-            self.ccFeed = float(self.w.cut_feed_rate.text())
+            self.ccFeed = float(self.w.cut_feed_rate.text().replace(',', '.'))
 
     def ext_change_consumables(self, state):
         if self.ccButton and self.w[self.ccButton].isEnabled():
@@ -4406,7 +4411,7 @@ class HandlerClass:
             self.w.run.setEnabled(False)
             response = False
             if self.w.laser.isVisible():
-                msgList, units, xMin, yMin, xMax, yMax, frame_points = self.bounds_check('framing', self.laserOffsetX, self.laserOffsetY)
+                msgList, units, framePoints = self.bounds_check('framing', self.laserOffsetX, self.laserOffsetY)
                 if self.boundsError['framing']:
                     head = _translate('HandlerClass', 'Axis Limit Error')
                     btn1 = _translate('HandlerClass', 'YES')
@@ -4425,7 +4430,7 @@ class HandlerClass:
                     if not response:
                         self.w.run.setEnabled(True)
                         return
-                    msgList, units, xMin, yMin, xMax, yMax, frame_points = self.bounds_check('framing', 0, 0)
+                    msgList, units, framePoints = self.bounds_check('framing', 0, 0)
                     if self.boundsError['framing']:
                         self.w.run.setEnabled(True)
                         head = _translate('HandlerClass', 'Axis Limit Error')
@@ -4442,7 +4447,7 @@ class HandlerClass:
                 if not response:
                     self.laserOnPin.set(1)
             else:
-                msgList, units, xMin, yMin, xMax, yMax, frame_points = self.bounds_check('framing', 0, 0)
+                msgList, units, framePoints = self.bounds_check('framing', 0, 0)
                 if self.boundsError['framing']:
                     self.w.run.setEnabled(True)
                     head = _translate('HandlerClass', 'Axis Limit Error')
@@ -4457,7 +4462,7 @@ class HandlerClass:
                     self.dialog_show_ok(QMessageBox.Warning, '{}'.format(head), '\n{}'.format(msgs))
                     return
             if not self.frFeed:
-                feed = float(self.w.cut_feed_rate.text())
+                feed = float(self.w.cut_feed_rate.text().replace(',', '.'))
             else:
                 feed = self.frFeed
             zHeight = self.zMax - (hal.get_value('plasmac.max-offset') * self.unitsPerMm)
@@ -4473,11 +4478,11 @@ class HandlerClass:
                 ACTION.CALL_MDI_WAIT('G64 P{:0.3f}'.format(0.25 * self.unitsPerMm))
                 if self.defaultZ:
                     ACTION.CALL_MDI('G53 G0 Z{:0.4f}'.format(zHeight))
-                ACTION.CALL_MDI('G53 G0 X{:0.2f} Y{:0.2f}'.format(frame_points[1][0], frame_points[1][1]))
-                ACTION.CALL_MDI('G53 G1 X{:0.2f} Y{:0.2f} F{:0.0f}'.format(frame_points[2][0], frame_points[2][1], feed))
-                ACTION.CALL_MDI('G53 G1 X{:0.2f} Y{:0.2f}'.format(frame_points[3][0], frame_points[3][1]))
-                ACTION.CALL_MDI('G53 G1 X{:0.2f} Y{:0.2f}'.format(frame_points[4][0], frame_points[4][1]))
-                ACTION.CALL_MDI('G53 G1 X{:0.2f} Y{:0.2f}'.format(frame_points[1][0], frame_points[1][1]))
+                ACTION.CALL_MDI('G53 G0 X{:0.2f} Y{:0.2f}'.format(framePoints[1][0], framePoints[1][1]))
+                ACTION.CALL_MDI('G53 G1 X{:0.2f} Y{:0.2f} F{:0.0f}'.format(framePoints[2][0], framePoints[2][1], feed))
+                ACTION.CALL_MDI('G53 G1 X{:0.2f} Y{:0.2f}'.format(framePoints[3][0], framePoints[3][1]))
+                ACTION.CALL_MDI('G53 G1 X{:0.2f} Y{:0.2f}'.format(framePoints[4][0], framePoints[4][1]))
+                ACTION.CALL_MDI('G53 G1 X{:0.2f} Y{:0.2f}'.format(framePoints[1][0], framePoints[1][1]))
                 ACTION.CALL_MDI('G0 X0 Y0')
                 ACTION.CALL_MDI(previousMode)
 
@@ -4582,10 +4587,10 @@ class HandlerClass:
                          .format(self.foreColor, self.backColor, self.disabledColor))
         else:
             self.w[button].setStyleSheet( \
-                        'QPushButton {{ color: {0}; background: {1} }} \
-                         QPushButton:pressed {{ color: {0}; background: {1} }} \
-                         QPushButton:disabled {{ color: {2} }}' \
-                         .format(self.foreColor, self.backColor, self.disabledColor))
+                        'QPushButton {{ color: {0}; background: {2} }} \
+                         QPushButton:pressed {{ color: {2}; background: {1} }} \
+                         QPushButton:disabled {{ color: {3} }}' \
+                         .format(self.foreColor, self.fore1Color, self.backColor, self.disabledColor))
 
 
 #########################################################################################################################
@@ -4683,30 +4688,31 @@ class HandlerClass:
             except:
                 if not matNum:
                     msg0 = _translate('HandlerClass', 'A material number is required')
-                    msgs = '{}.\n\n{}:'.format(msg0, msg1)
+                    msgs = '{}.\n\n{}'.format(msg0, msg1)
                 else:
                     msg0 = _translate('HandlerClass', 'is not a valid number')
-                    msgs = '{} {}.\n\n{}:'.format(matNum, msg0, msg1)
+                    msgs = '{} {}.\n\n{}'.format(matNum, msg0, msg1)
                 continue
             if matNum in self.materialNumList:
                 msg0 = _translate('HandlerClass', 'Material')
                 msg2 = _translate('HandlerClass', 'is in use')
-                msgs = '{} #{} {}.\n\n{}:'.format(msg0, matNum, msg2, msg1)
+                msgs = '{} #{} {}.\n\n{}'.format(msg0, matNum, msg2, msg1)
                 continue
             elif matNum >= 1000000:
                 msg0 = _translate('HandlerClass', 'Material numbers need to be less than 1000000')
-                msgs = '{}.\n\n{}:'.format(msg0, msg1)
+                msgs = '{}.\n\n{}'.format(msg0, msg1)
                 continue
             break
-        msg1 = 'Enter New Material Name'
+        msg1 = _translate('HandlerClass', 'Enter New Material Name')
+        msgs = msg1
         virtkb = 3
         while(1):
-            valid, matNam = self.dialog_input(virtkb, head, msg1, btn1, btn2)
+            valid, matNam = self.dialog_input(virtkb, head, '{}:'.format(msgs), btn1, btn2)
             if not valid:
                 return
             if not matNam:
                 msg0 = _translate('HandlerClass', 'Material name is required')
-                msgs = '{}.\n\n{}:'.format(msg0, msg1)
+                msgs = '{}.\n\n{}'.format(msg0, msg1)
                 continue
             break
         mat = [matNum, matNam]
@@ -4733,24 +4739,24 @@ class HandlerClass:
             except:
                 if not matNum:
                     msg0 = _translate('HandlerClass', 'A material number is required')
-                    msgs = '{}.\n\n\{}:'.format(msg0, msg1)
+                    msgs = '{}.\n\n{}'.format(msg0, msg1)
                 else:
                     msg0 = _translate('HandlerClass', 'is not a valid number')
-                    msgs = '{} {}.\n\n{}:'.format(matNum, msg0, msg1)
+                    msgs = '{} {}.\n\n{}'.format(matNum, msg0, msg1)
                 continue
             if matNum == self.defaultMaterial:
                 msg0 = _translate('HandlerClass', 'Default material cannot be deleted')
-                msgs = '{}.\n\n{}:'
+                msgs = '{}.\n\n{}'.format(msg0, msg1)
                 continue
             elif matNum >= 1000000 and matNum in self.materialList:
                 msg0 = _translate('HandlerClass', 'Temporary material')
                 msg3 = _translate('HandlerClass', 'cannot be deleted')
-                msgs = '{} #{} {}.\n\n{}:'.format(msg0, matNum, msg3, msg1)
+                msgs = '{} #{} {}.\n\n{}'.format(msg0, matNum, msg3, msg1)
                 continue
             elif matNum not in self.materialNumList:
                 msg0 = _translate('HandlerClass', 'Material')
                 msg3 = _translate('HandlerClass', 'does not exist')
-                msgs = '{} #{} {}.\n\n{}:'.format(msg0, matNum, msg3, msg1)
+                msgs = '{} #{} {}.\n\n{}'.format(msg0, matNum, msg3, msg1)
                 continue
             break
         head = _translate('HandlerClass', 'Delete Material')
@@ -4883,7 +4889,8 @@ class HandlerClass:
                     elif line.startswith('CUT_MODE'):
                         mat[13] = float(line.split('=')[1].strip())
             self.write_materials_to_dict(mat)
-            self.materialList.append(halpin)
+            if halpin not in self.materialList:
+                self.materialList.append(halpin)
             exists = False
             for n in range(self.w.materials_box.count()):
                 if self.w.materials_box.itemText(n) .startswith(str(halpin)):
@@ -5003,6 +5010,9 @@ class HandlerClass:
             self.write_materials_to_dict(mat)
         self.display_materials()
         self.defaultMaterial = self.PREFS.getpref('Default material', self.materialNumList[0], int, 'GUI_OPTIONS')
+        if not self.material_exists(self.defaultMaterial):
+            self.defaultMaterial = self.materialList[0]
+            self.PREFS.putpref('Default material', self.defaultMaterial, int, 'GUI_OPTIONS')
         self.change_material(self.defaultMaterial)
         self.w.materials_box.setCurrentIndex(self.materialList.index(self.defaultMaterial))
         self.w.material_selector.setCurrentIndex(self.w.materials_box.currentIndex())
@@ -5326,7 +5336,7 @@ class HandlerClass:
                     return False
             else:
                 if not periodic:
-                    msg0 = _translate('cannot be found')
+                    msg0 = _translate('HandlerClass', 'cannot be found')
                     STATUS.emit('error', linuxcnc.OPERATOR_ERROR, '{}:\n{} {}\n{}'.format(head, port, msg0, msg1))
                 return False
         except:
@@ -5931,8 +5941,9 @@ class HandlerClass:
             self.STYLEEDITOR.load_dialog()
 
     def on_keycall_F9(self, event, state, shift, cntrl):
-        if self.key_is_valid(event, state) and self.w.main_tab_widget.currentIndex() == self.MAIN \
-           and not self.probeTest and not self.torchPulse and not self.framing and STATUS.is_interp_idle():
+        if self.key_is_valid(event, state) and self.w.main_tab_widget.currentIndex() == self.MAIN and \
+           not self.probeTest and not self.torchPulse and not self.framing and \
+           (STATUS.is_interp_idle() or (self.manualCut and STATUS.is_interp_paused())):
             self.manual_cut()
 
     def on_keycall_XPOS(self, event, state, shift, cntrl):

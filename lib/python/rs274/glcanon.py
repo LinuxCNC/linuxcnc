@@ -18,16 +18,13 @@
 from rs274 import Translated, ArcsToSegmentsMixin, OpenGLTk
 from OpenGL.GL import *
 from OpenGL.GLU import *
-import itertools
 import math
-import glnav
 import hershey
 import linuxcnc
 import array
 import gcode
 import os
 import re
-import sys
 from functools import reduce
 
 def minmax(*args):
@@ -272,7 +269,7 @@ class GLCanon(Translated, ArcsToSegmentsMixin):
         self.xo = xo
         self.yo = yo
         self.zo = zo
-        self.so = ao
+        self.ao = ao
         self.bo = bo
         self.co = co
         self.uo = uo
@@ -580,22 +577,20 @@ class GlCanonDraw:
         glMultMatrixd(pmatrix)
         glMatrixMode(GL_MODELVIEW)
 
-        while 1:
-            glSelectBuffer(self.select_buffer_size)
-            glRenderMode(GL_SELECT)
-            glInitNames()
-            glPushName(0)
 
-            if self.get_show_rapids():
-                glCallList(self.dlist('select_rapids', gen=self.make_selection_list))
-            glCallList(self.dlist('select_norapids', gen=self.make_selection_list))
+        glSelectBuffer(self.select_buffer_size)
+        glRenderMode(GL_SELECT)
+        glInitNames()
+        glPushName(0)
 
-            try:
-                buffer = glRenderMode(GL_RENDER)
-            except OverflowError:
-                self.select_buffer_size *= 2
-                continue
-            break
+        if self.get_show_rapids():
+            glCallList(self.dlist('select_rapids', gen=self.make_selection_list))
+        glCallList(self.dlist('select_norapids', gen=self.make_selection_list))
+
+        try:
+            buffer = glRenderMode(GL_RENDER)
+        except:
+            buffer = []
 
         if buffer:
             min_depth, max_depth, names = (buffer[0].near, buffer[0].far, buffer[0].names)

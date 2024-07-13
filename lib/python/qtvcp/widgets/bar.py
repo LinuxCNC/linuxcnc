@@ -309,10 +309,10 @@ class  HalBar(Bar, _HalWidgetBase):
         self._pin_name = ''
 
     def _hal_init(self):
-        if self._pin_name_ == '':
+        if self._pin_name == '':
             pname = self.HAL_NAME_
         else:
-            pname = self._pin_name_
+            pname = self._pin_name
 
         if self._pin_type == HALPinType.FLOAT:
             self.hal_pin = self.HAL_GCOMP_.newpin(pname, hal.HAL_FLOAT, hal.HAL_IN)

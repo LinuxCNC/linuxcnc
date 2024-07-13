@@ -63,12 +63,12 @@ def auto_preview(P, W, Conv, button=False):
             return
         Conv.conv_auto_preview_button(P, W, button)
     if W.main_tab_widget.currentIndex() == 1 and \
-       (W.AaEntry.text() and W.BaEntry.text() and W.CaEntry.text() and \
+       ((W.AaEntry.text() and W.BaEntry.text() and W.CaEntry.text() and \
        (W.AlEntry.text() or W.BlEntry.text() or W.ClEntry.text())) or \
        (W.AaEntry.text() and W.BlEntry.text() and W.ClEntry.text()) or \
        (W.AlEntry.text() and W.BaEntry.text() and W.ClEntry.text()) or \
        (W.AlEntry.text() and W.BlEntry.text() and W.CaEntry.text()) or \
-       (W.AlEntry.text() and W.BlEntry.text() and W.ClEntry.text()):
+       (W.AlEntry.text() and W.BlEntry.text() and W.ClEntry.text())):
         preview(P, W, Conv)
 
 def entry_changed(P, W, Conv, widget):

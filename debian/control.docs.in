@@ -53,12 +53,12 @@ Breaks: linuxcnc-uspace (<= 2.9.0~pre0+git20220402.2500863908-4)
 Replaces: linuxcnc-uspace (<= 2.9.0~pre0+git20220402.2500863908-4)
 Recommends: xdg-utils
 Suggests: pdf-viewer
-Description: controlador de movimiento para máquinas CNC y robots (Español).
- LinuxCNC es EMC (controlador de máquina mejorado) que proporciona
- control de movimiento para máquinas herramientas CNC (fresado,
- torneado, ruteado, etc.) y aplicaciones de robótica.
+Description: motion controller for CNC machines and robots (Spanish documentation)
+ LinuxCNC is the next-generation Enhanced Machine Controller which
+ provides motion control for CNC machine tools and robotic
+ applications (milling, cutting, routing, etc.).
  .
- Este paquete contiene la documentación en español.
+ This package contains the documentation in Spanish.
 
 Package: linuxcnc-doc-zh-cn
 Provides: linuxcnc-doc

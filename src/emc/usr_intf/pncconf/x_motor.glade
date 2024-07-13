@@ -2248,6 +2248,7 @@
             </child>
             <child>
               <object class="GtkSpinButton" id="xencoderscale">
+                <property name="name">xencoderscale</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="invisible_char">●</property>
@@ -2278,6 +2279,7 @@
             </child>
             <child>
               <object class="GtkSpinButton" id="xstepscale">
+                <property name="name">xstepscale</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="invisible_char">●</property>

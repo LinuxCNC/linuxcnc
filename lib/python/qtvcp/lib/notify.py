@@ -269,8 +269,11 @@ class Notify:
         if self.statusbar is not None:
             try:
                 messageid = self.statusbar.showMessage(message, timeout * 1000)
-            except Exception as e:
-                log.warning('Error adding msg to  statusbar:', exc_info=e)
+            except:
+                try:
+                    messageid = self.statusbar.setText(message)
+                except Exception as e:
+                    log.verbose('Error adding msg to  statusbar: {}'.format(e))
 
     # show the previous critical messages that popped up
     # Currently alarm page doesn't keep track of what

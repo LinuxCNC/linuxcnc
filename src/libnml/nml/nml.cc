@@ -21,24 +21,24 @@
 extern "C" {
 #endif
 
-#include <string.h>		/* memcpy() */
-#include <stdlib.h>		/* atexit() */
+#include <string.h>		// memcpy()
+#include <stdlib.h>		// atexit()
 #include <sys/param.h>		// MAXHOSTNAMELEN
 #include <netdb.h>
-#include <arpa/inet.h>		/* inet_ntoa */
+#include <arpa/inet.h>		// inet_ntoa
 
 #ifdef __cplusplus
 }
 #endif
-#include <rtapi_string.h>
-#include "nml.hh"		/* class NML */
-#include "nmlmsg.hh"		/* class NMLmsg */
-#include "cms.hh"		/* class CMS */
+#include <rtapi_string.h>	// rtapi_strlcpy()
+#include "nml.hh"		// class NML
+#include "nmlmsg.hh"		// class NMLmsg
+#include "cms.hh"		// class CMS
 #include "timer.hh"		// esleep()
-#include "nml_srv.hh"		/* NML_Default_Super_Server */
-#include "cms_cfg.hh"		/* cms_config(), cms_copy() */
-#include "linklist.hh"		/* class LinkedList */
-#include "rcs_print.hh"		/* rcs_print_error() */
+#include "nml_srv.hh"		// NML_Default_Super_Server
+#include "cms_cfg.hh"		// cms_config(), cms_copy()
+#include "linklist.hh"		// class LinkedList
+#include "rcs_print.hh"		// rcs_print_error()
 #include "physmem.hh"
 #ifndef MAXHOSTNAMELEN
 #define MAXHOSTNAMELEN 64
@@ -67,14 +67,15 @@ char NML_ERROR_TYPE_STRINGS[8][80] = {
 static char *default_nml_config_file = NULL;
 int nml_reset_errors_printed = 1;
 
-void set_default_nml_config_file(const char *cfg_file)
+void set_default_nml_config_file(const char * const cfg_file)
 {
     if (cfg_file == NULL) {
 	default_nml_config_file = NULL;
         return;
     }
-    default_nml_config_file = (char *) malloc(strlen(cfg_file) + 1);
-    strcpy(default_nml_config_file, cfg_file);
+
+    if (default_nml_config_file) free(default_nml_config_file);
+    default_nml_config_file = strndup( cfg_file, 10000 );
 }
 
 const char *get_default_nml_config_file()
@@ -170,7 +171,7 @@ void NML::operator delete(void *nml_space)
 *  the pointers are intended to point at.
 ******************************************************************/
 NML::NML(NML_FORMAT_PTR f_ptr, const char *buf, const char *proc, const char *file,
-    int set_to_server, int set_to_master)
+    const int set_to_server, const int set_to_master)
 {
     registered_with_server = 0;
     cms_for_msg_string_conversions = 0;
@@ -178,12 +179,15 @@ NML::NML(NML_FORMAT_PTR f_ptr, const char *buf, const char *proc, const char *fi
     blocking_read_poll_interval = -1.0;
     forced_type = 0;
 
-    strncpy(bufname, buf, 40);
-    strncpy(procname, proc, 40);
+    snprintf(bufname, 40, "%s", buf);
+    snprintf(procname, 40, "%s", proc);
     if (NULL == file) {
-	file = default_nml_config_file;
+	rtapi_strlcpy(cfgfilename, default_nml_config_file, 160);
     }
-    strncpy(cfgfilename, file, 160);
+    else {
+	rtapi_strlcpy(cfgfilename, file, 160);
+    }
+    snprintf(cfgfilename, 160, "%s", file);
 
     if (rcs_errors_printed >= max_rcs_errors_to_print
 	&& max_rcs_errors_to_print > 0 && nml_reset_errors_printed) {
@@ -195,7 +199,7 @@ NML::NML(NML_FORMAT_PTR f_ptr, const char *buf, const char *proc, const char *fi
     already_deleted = 0;
     channel_type = NML_GENERIC_CHANNEL_TYPE;
 
-    reconstruct(f_ptr, buf, proc, file, set_to_server, set_to_master);
+    reconstruct(f_ptr, buf, proc, cfgfilename, set_to_server, set_to_master);
 
     if (NULL != cms) {
 	char *forced_type_eq = strstr(cms->buflineupper, "FORCE_TYPE=");
@@ -219,7 +223,7 @@ int NML::login(const char *name, const char *passwd)
 }
 
 void NML::reconstruct(NML_FORMAT_PTR f_ptr, const char *buf, const char *proc,
-    const char *file, int set_to_server, int set_to_master)
+    const char *file, const int set_to_server, const int set_to_master)
 {
 
     cms = (CMS *) NULL;
@@ -251,8 +255,7 @@ void NML::reconstruct(NML_FORMAT_PTR f_ptr, const char *buf, const char *proc,
 	    print_info(buf, proc, file);
 	}
 	if (NULL != cms) {
-	    rcs_print_debug(PRINT_NML_DESTRUCTORS, " delete (CMS *) %p;\n",
-		cms);
+	    rcs_print_debug(PRINT_NML_DESTRUCTORS, " delete (CMS *) %p;\n", cms);
 	    delete cms;
 	    cms = (CMS *) NULL;
 	}
@@ -336,17 +339,17 @@ void NML::reconstruct(NML_FORMAT_PTR f_ptr, const char *buf, const char *proc,
 * the format_chain is constructed. (This may be done by
 * derived classes. )
 ******************************************************************/
-NML::NML(const char *buf, const char *proc, const char *file, int set_to_server,
-    int set_to_master)
+NML::NML(const char *buf, const char *proc, const char *file, const int set_to_server,
+    const int set_to_master)
 {
     if (NULL == file) {
 	file = default_nml_config_file;
     }
     registered_with_server = 0;
     cms_for_msg_string_conversions = 0;
-    strncpy(bufname, buf, 40);
-    strncpy(procname, proc, 40);
-    strncpy(cfgfilename, file, 160);
+    snprintf(bufname, 40 , "%s", buf);
+    snprintf(procname, 40, "%s", proc);
+    snprintf(cfgfilename, 160, "%s", file);
     blocking_read_poll_interval = -1.0;
     info_printed = 0;
     forced_type = 0;
@@ -455,7 +458,7 @@ NML::NML(const char *buf, const char *proc, const char *file, int set_to_server,
 * the format_chain is constructed. (This may be done by
 * derived classes. )
 ******************************************************************/
-NML::NML(const char *buffer_line, const char *proc_line)
+NML::NML(const char * buffer_line, const char * proc_line)
 {
     registered_with_server = 0;
     cms_for_msg_string_conversions = 0;
@@ -601,7 +604,7 @@ void NML::register_with_server()
 *  later if the constructor returned before creating the objects
 *  the pointers are intended to point at.
 *************************************************************/
-NML::NML(NML * nml_ptr, int set_to_server, int set_to_master)
+NML::NML(NML * nml_ptr, const int set_to_server, const int set_to_master)
 {
     registered_with_server = 0;
     cms_for_msg_string_conversions = 0;
@@ -2103,7 +2106,7 @@ char last_cfg_file[40];
 * NML member function: print_info()
 * Prints the buffer, process names and configuration file information.
 ***************************************************************************/
-void NML::print_info(const char *bufname, const char *procname, const char *cfg_file)
+void NML::print_info(const char * const bufname, const char * const procname, const char * const cfg_file)
 {
     info_printed = 1;
     if (!verbose_nml_error_messages) {
@@ -2132,9 +2135,9 @@ void NML::print_info(const char *bufname, const char *procname, const char *cfg_
 	    && !strncmp(cfg_file, last_cfg_file, 40)) {
 	    return;
 	}
-	strncpy(last_bufname, bufname, 10);
-	strncpy(last_procname, procname, 10);
-	strncpy(last_cfg_file, cfg_file, 40);
+	snprintf(last_bufname, 10, "%s", bufname);
+	snprintf(last_procname, 10, "%s", procname);
+	snprintf(last_cfg_file, 40, "%s", cfg_file);
     }
     if (!info_message_printed) {
 	rcs_print
@@ -2443,14 +2446,14 @@ NML_DIAGNOSTICS_INFO *NML::get_diagnostics_info()
     return (NML_DIAGNOSTICS_INFO *) cms->get_diagnostics_info();
 }
 
-void nmlSetHostAlias(const char *hostName, const char *hostAlias)
+void nmlSetHostAlias(const char * const hostName, const char * const hostAlias)
 {
     if (NULL == cmsHostAliases) {
 	cmsHostAliases = new LinkedList;
     }
     CMS_HOST_ALIAS_ENTRY entry;
-    strncpy(entry.host, hostName, 64);
-    strncpy(entry.alias, hostAlias, 64);
+    snprintf(entry.host, 64, "%s", hostName);
+    snprintf(entry.alias, 64,  "%s", hostAlias);
     cmsHostAliases->store_at_tail(&entry, sizeof(entry), 1);
 }
 

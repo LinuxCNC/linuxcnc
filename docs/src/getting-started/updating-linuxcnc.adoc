@@ -19,9 +19,8 @@ updates. If you don't have an internet connection to your PC see
 
 == Upgrade to the new version
 
-This section describes how to upgrade LinuxCNC from version 2.8 to the
-new 2.9.1 version.  It assumes that you have an existing 2.8 install that you
-want to update.
+This section describes how to upgrade LinuxCNC from version 2.8.x to a 2.9.y version.
+It assumes that you have an existing 2.8 install that you want to update.
 
 To upgrade LinuxCNC from a version older than 2.8, you have to first
 https://linuxcnc.org/docs/2.8/html/getting-started/updating-linuxcnc.html[upgrade your old install to 2.8],
@@ -40,12 +39,11 @@ If you are running on Ubuntu Lucid then you will have to do this, as
 Lucid is no longer supported by LinuxCNC (it was EOL in 2013).
 
 To upgrade major versions like 2.8 to 2.9 when you have a network connection at
-the machine you need to disable the old linuxcnc.org apt sources in the file /etc/apt/sources.list and add a new
-linuxcnc.org apt source for 2.9, then upgrade LinuxCNC.
+the machine you need to disable the old linuxcnc.org apt sources in the file /etc/apt/sources.list
+and add a new linuxcnc.org apt source for 2.9, then upgrade LinuxCNC.
 
-The details will depend on which platform you're running on.  Open a
-<<faq:terminal,terminal>> then type `lsb_release -ic` to find this information
-out:
+The details will depend on which platform you're running on.
+Open a <<faq:terminal,terminal>> then type `lsb_release -ic` to find this information out:
 
 ----
 lsb_release -ic
@@ -53,9 +51,8 @@ Distributor ID: Debian
 Codename:       Buster
 ----
 
-You should be running on Debian Buster, Bullseye or Bookworm or Ubuntu
-20.04 "Focal Fossa" or newer. LinuxCNC will not run on older distributions
-than these. 
+You should be running on Debian Buster, Bullseye or Bookworm or Ubuntu 20.04 "Focal Fossa" or newer.
+LinuxCNC 2.9.y will not run on older distributions than these. 
 
 You will also need to check which realtime kernel is being used:
 
@@ -69,46 +66,42 @@ preempt-rt kernel and should install the "uspace" version of LinuxCNC.
 You should also install uspace for "sim" configs on non-realtime kernels
 
 If you see `-rtai-` in the kernel name then you are running RTAI
-realtime. See below for the LinuxCNC version to install.
-At this moment there are (tmporariliy) no RTAI packages for LinuxCNC
-2.9.0 but it is possible to build from source. 
+realtime. See below for the LinuxCNC version to install. RTAI packages
+are available for Bookworm and Buster but not currently for Bullseye.
 
 [[_setting_apt_sources]]
 === Apt Sources Configuration
 
-* Open the `Software Sources` window. The process for doing this
-  differs slightly on the three supported platforms:
+* Open the `Software Sources` window.
+  The process for doing this differs slightly on the three supported platforms:
 ** Debian:
-*** Click on `Applications Menu`, then `System`, then
-   `Synaptic Package Manager`.
-*** In Synaptic, click on the `Settings` menu, then click `Repositories`
-    to open the `Software Sources` window.
+*** Click on `Applications Menu`, then `System`, then `Synaptic Package Manager`.
+*** In Synaptic, click on the `Settings` menu, then click `Repositories` to open the `Software Sources` window.
 ** Ubuntu Precise:
 *** Click on the `Dash Home` icon in the top left.
-*** In the `Search` field, type "software", then click on the `Ubuntu
-    Software Center` icon.
+*** In the `Search` field, type "software", then click on the `Ubuntu Software Center` icon.
 *** In the Ubuntu Software Center window, click on the `Edit` menu,
-    then click on `Software Sources...` to open the `Software Sources`
-    window.
+    then click on `Software Sources...` to open the `Software Sources` window.
 ** Ubuntu Lucid:
-*** Click the `System` menu, then `Administration`, then
-    `Synaptic Package Manager`.
-*** In Synaptic, click on the `Settings` menu, then click on `Repositories`
-    to open the `Software Sources` window.
+*** Click the `System` menu, then `Administration`, then `Synaptic Package Manager`.
+*** In Synaptic, click on the `Settings` menu, then click on `Repositories` to open the `Software Sources` window.
 * In the `Software Sources` window, select the `Other Software` tab.
-* Delete or un-check all the old linuxcnc.org entries (leave all
-  non-linuxcnc.org lines as they are).
-* Click the `Add` button and add a new apt line. The line will be
-  slightly different on the different platforms:
+* Delete or un-check all the old linuxcnc.org entries (leave all non-linuxcnc.org lines as they are).
+* Click the `Add` button and add a new apt line. The line will be slightly different on the different platforms:
 
-[options="header"]
+.Tabular overview on variants of the Operating System and the corresponding configuration of the repository. The configuration can be performed in the GUI of the package manager or in the file /etc/apt/sources.list.
+[cols="3,5",options="header"]
 |===
-| Debian Buster - preempt   | `deb https://linuxcnc.org buster base 2.9-rtpreempt`
-| Debian Bullseye - preempt | `deb https://linuxcnc.org bullseye base 2.9-uspace`
-| Debian Bookworm - preempt | `deb https://linuxcnc.org bookworm base 2.9-uspace`
+| OS / Realtime Version      | Repository
+| Debian Buster - preempt   m| deb https://linuxcnc.org buster base 2.9-uspace
+| Debian Buster - RTAI      m| deb https://linuxcnc.org buster base 2.9-rt
+| Debian Bullseye - preempt m| deb https://linuxcnc.org bullseye base 2.9-uspace
+| Debian Bookworm - preempt m| deb https://linuxcnc.org bookworm base 2.9-uspace
+| Debian Bookworm - RTAI    m| deb https://linuxcnc.org bookworm base 2.9-rt
 |===
 
-image::images/upgrading-to-2.8.png["Setting apt sources",align="center"]
+.Figure with a screenshot of the repository configuration of the synaptic package manager.
+image::images/upgrading-to-2.9.png["Setting apt sources",align="center",width=600]
 
 * Click `Add Source`, then `Close` in the Software Sources window.
   If it pops up a window informing you that the information about
@@ -128,24 +121,19 @@ Debian uses the Synaptic Package Manager.
 * Open Synaptic using the instructions in <<_setting_apt_sources,Setting apt sources>> above.
 * Click the `Reload` button.
 * Use the Search function to search for `linuxcnc`.
-* The package is called "linuxcnc" for RTAI kernels and "linuxcnc-uspace"
-  for preempt-rt.
-* Click the check box to mark the new linuxcnc and linuxcnc-doc-*
-  packages for upgrade. The package manager may select a number of
-  additional packages to be installed, to satisfy dependencies that the
-  new linuxcnc package has.
-* Click the `Apply` button, and let your computer install the new
-  package. The old linuxcnc package will be automatically upgraded to
-  the new one.
+* The package is called "linuxcnc" for RTAI kernels and "linuxcnc-uspace" for preempt-rt.
+* Click the check box to mark the new linuxcnc and linuxcnc-doc-* packages for upgrade.
+  The package manager may select a number of additional packages to be installed,
+  to satisfy dependencies that the new linuxcnc package has.
+* Click the `Apply` button, and let your computer install the new package.
+  The old linuxcnc package will be automatically upgraded to the new one.
 
 === Ubuntu
 
 * Click on the `Dash Home` icon in the top left.
-* In the `Search` field, type "update", then click on the `Update Manager`
-  icon.
+* In the `Search` field, type "update", then click on the `Update Manager` icon.
 * Click the `Check` button to fetch the list of packages available.
-* Click the `Install Updates` button to install the new versions of
-  all packages.
+* Click the `Install Updates` button to install the new versions of all packages.
 
 [[getting-started:update-no-network]]
 == Updating without Network
@@ -160,7 +148,7 @@ to find the release name of your OS.
 ----
 > lsb_release -ic
 Distributor ID: Debian
-Codename:       buster
+Codename:       bullseye
 ----
 
 Pick the OS from the list then pick the major version you want like
@@ -173,11 +161,11 @@ Next pick the version you want from the bottom of the list like
 'linuxcnc-uspace_2.8.0_amd64.deb' (choose the latest by date).
 Download the deb and copy it to your home directory. You can rename the
 file to something a bit shorter with the file manager like
-'linuxcnc_2.8.0.deb' then open a terminal and install it with the
+'linuxcnc_2.9.2.deb' then open a terminal and install it with the
 package manager with this command:
 
 ----
-sudo dpkg -i linuxcnc_2.9.0.deb
+sudo dpkg -i linuxcnc_2.9.2.deb
 ----
 
 
@@ -195,7 +183,7 @@ Versions of LinuxCNC before 2.9.0 used to handle an incorrect
 `[TASK]INTERPRETER` setting by automatically falling back to using the
 default G-code interpreter.
 
-As of 2.9.0, an incorrect `[TASK]INTERPRETER` value will cause
+Since 2.9.0, an incorrect `[TASK]INTERPRETER` value will cause
 LinuxCNC to refuse to start up.  Fix this condition by deleting the
 `[TASK]INTERPRETER` setting from your INI file, so that LinuxCNC will
 use the default G-code interpreter.
@@ -213,10 +201,9 @@ correspondingly needs to change from `libcanterp.so` to `canterp.so`.
 
 
 
-== Updating Configuration Files (for 2.9.x)
+== Updating Configuration Files (for 2.9.y)
 
-No changes should be necessary to configuration files when moving from 2.8
-to 2.9
+No changes should be necessary to configuration files when moving from 2.8.x to 2.9.y.
 
 === Spindle limits in the INI
 

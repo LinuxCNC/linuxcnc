@@ -3984,7 +3984,7 @@ int hal_stream_create(hal_stream_t *stream, int comp, int key, int depth, const 
     int result = 0;
     hal_type_t type[HAL_STREAM_MAX_PINS];
     result = halpr_parse_types(type, typestring);
-    if(result < 0) return result;
+    if(!result) return -EINVAL;
     int pin_count = result;
 
     size_t size = sizeof(struct hal_stream_shm) + sizeof(union hal_stream_data) * depth * (1+pin_count);

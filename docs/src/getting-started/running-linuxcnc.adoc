@@ -49,7 +49,7 @@ new users and are organized around supported GUIs:
 * 'qtdragon_hd' - Touch Screen GUI, high definition
 * 'qtplasmac' - Touch Screen GUI, for plasma tables
 * 'qttouchy' - Touch Screen GUI
-* 'tklinuxcnc' - Keyboard and Mouse Gui (no longer maintained)
+* 'tklinuxcnc' - Keyboard and Mouse GUI (no longer maintained)
 * 'touchy' - Touch Screen GUI
 * 'woodpecker' - Touch Screen GUI
 A GUI configuration directory may contain subdirectories with

@@ -1,3 +1,27 @@
+ver 3.4.8
+ - re-ordered settings pages to have all appearance-related on one page
+ - add configuration for 800x600 screens
+ - fix gremlin view p wasn't applied at startup
+
+ver 3.4.7.1
+ - Remember window size and position when switching back from fullscreen/maximized
+ - Fix "window does not fit 1024x768 in fullscreen"
+
+ver 3.4.7
+ - Added setting to allow smaller width of virtual keyboard (for widescreens)
+ - Fixed box_dro_side is displayed in the G-code editor (#2627)
+ - Fixed error on error message when sound is not available (reported on Raspberry Pi)
+ - Fixed increasing of window size when clicking edit button
+ - Added setting for G-code theme (GtkSourceView)
+ - Fixed error when trying to hide the turtle-jog button in gmoccapy
+
+ver 3.4.6 -- LinuxCNC 2.9.2
+ - added first steps to solve delay on sound use
+
+ver 3.4.4
+ - 8 and 9 axis made to much ref button due to a show all ccommand. This fixes #2387.
+ - deleted unused code
+
 ver 3.4.3
 
 - fix setting of themes

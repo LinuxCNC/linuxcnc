@@ -72,7 +72,7 @@ static char *names_ain[MAX_IO] = {0,};
 RTAPI_MP_ARRAY_STRING(names_ain, MAX_IO, "names of analog inputs");
 static char *names_aout[MAX_IO] = {0,};
 RTAPI_MP_ARRAY_STRING(names_aout, MAX_IO, "names of analog outputs");
-static int num_misc_error = DEFAULT_MISC_ERROR;	/* default number of misc errors */
+static int num_misc_error = -1;   /* To check use of num_misc_error modparam */
 RTAPI_MP_INT(num_misc_error, "number of misc error inputs");
 
 static char *names_misc_errors[MAX_IO] = {0,};
@@ -341,15 +341,14 @@ int rtapi_app_main(void)
 	return -1;
     }
 
-  if(num_misc_error && (names_misc_errors[0])){
+  if(num_misc_error != -1 && (names_misc_errors[0])){
     rtapi_print_msg(RTAPI_MSG_ERR, _("MOTION: Can't specify both names and number for misc error\n"));
     return -1;
   }
   else if(names_misc_errors[0]){
-    num_misc_error = count_names(names_dout);
-    num_misc_error = (num_misc_error > count_names(names_din)) ? num_misc_error : count_names(names_din);
+    num_misc_error = count_names(names_misc_errors);
   }
-  else if(!num_misc_error){
+  else if (num_misc_error < 0) {
     num_misc_error = DEFAULT_MISC_ERROR;
   }
 

@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>688</width>
+    <width>515</width>
     <height>534</height>
    </rect>
   </property>
@@ -14,162 +14,267 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout">
+   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1,0">
+    <property name="spacing">
+     <number>3</number>
+    </property>
+    <property name="leftMargin">
+     <number>3</number>
+    </property>
+    <property name="topMargin">
+     <number>3</number>
+    </property>
+    <property name="rightMargin">
+     <number>3</number>
+    </property>
+    <property name="bottomMargin">
+     <number>3</number>
+    </property>
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout">
-      <item>
-       <widget class="ActionButton" name="actionbutton_2">
-        <property name="text">
-         <string>SET Origin</string>
-        </property>
-        <property name="mdi_command_action" stdset="0">
-         <bool>false</bool>
-        </property>
-        <property name="ini_mdi_command_action" stdset="0">
-         <bool>true</bool>
-        </property>
-        <property name="joint_number" stdset="0">
-         <number>0</number>
-        </property>
-        <property name="incr_imperial_number" stdset="0">
-         <double>0.010000000000000</double>
-        </property>
-        <property name="incr_mm_number" stdset="0">
-         <double>0.025000000000000</double>
-        </property>
-        <property name="incr_angular_number" stdset="0">
-         <double>-1.000000000000000</double>
-        </property>
-        <property name="toggle_float_option" stdset="0">
-         <bool>false</bool>
-        </property>
-        <property name="float_num" stdset="0">
-         <double>100.000000000000000</double>
-        </property>
-        <property name="float_alt_num" stdset="0">
-         <double>50.000000000000000</double>
-        </property>
-        <property name="view_type_string" stdset="0">
-         <string>P</string>
-        </property>
-        <property name="command_text_string" stdset="0">
-         <string>(MSG:,MDI command missing)</string>
-        </property>
-        <property name="ini_mdi_number" stdset="0">
-         <number>0</number>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="ActionButton" name="actionbutton">
-        <property name="text">
-         <string> GOTO Origin</string>
-        </property>
-        <property name="mdi_command_action" stdset="0">
-         <bool>false</bool>
-        </property>
-        <property name="ini_mdi_command_action" stdset="0">
-         <bool>true</bool>
-        </property>
-        <property name="joint_number" stdset="0">
-         <number>0</number>
-        </property>
-        <property name="incr_imperial_number" stdset="0">
-         <double>0.010000000000000</double>
-        </property>
-        <property name="incr_mm_number" stdset="0">
-         <double>0.025000000000000</double>
-        </property>
-        <property name="incr_angular_number" stdset="0">
-         <double>-1.000000000000000</double>
-        </property>
-        <property name="toggle_float_option" stdset="0">
-         <bool>false</bool>
-        </property>
-        <property name="float_num" stdset="0">
-         <double>100.000000000000000</double>
-        </property>
-        <property name="float_alt_num" stdset="0">
-         <double>50.000000000000000</double>
-        </property>
-        <property name="view_type_string" stdset="0">
-         <string>P</string>
-        </property>
-        <property name="command_text_string" stdset="0">
-         <string>(MSG,MDI command missing)</string>
-        </property>
-        <property name="ini_mdi_number" stdset="0">
-         <number>1</number>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="DROLabel" name="dro_label_x">
-        <property name="Qreference_type" stdset="0">
-         <number>1</number>
-        </property>
-        <property name="metric_template" stdset="0">
-         <string>X %10.3f</string>
-        </property>
-        <property name="imperial_template" stdset="0">
-         <string>X %9.4f</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="DROLabel" name="dro_label_y">
-        <property name="Qjoint_number" stdset="0">
-         <number>1</number>
-        </property>
-        <property name="Qreference_type" stdset="0">
-         <number>1</number>
-        </property>
-        <property name="metric_template" stdset="0">
-         <string>Y %10.3f</string>
-        </property>
-        <property name="imperial_template" stdset="0">
-         <string>Y %9.4f</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="DROLabel" name="dro_label_z">
-        <property name="Qjoint_number" stdset="0">
-         <number>2</number>
-        </property>
-        <property name="Qreference_type" stdset="0">
-         <number>1</number>
-        </property>
-        <property name="metric_template" stdset="0">
-         <string>Z %10.3f</string>
-        </property>
-        <property name="imperial_template" stdset="0">
-         <string>Z %9.4f</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <spacer name="horizontalSpacer">
-        <property name="orientation">
-         <enum>Qt::Horizontal</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>40</width>
-          <height>20</height>
-         </size>
-        </property>
-       </spacer>
-      </item>
-     </layout>
+     <widget class="QWidget" name="widget" native="true">
+      <property name="maximumSize">
+       <size>
+        <width>16777215</width>
+        <height>50</height>
+       </size>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <property name="spacing">
+        <number>3</number>
+       </property>
+       <property name="leftMargin">
+        <number>3</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>3</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="ActionButton" name="actionbutton_2">
+         <property name="text">
+          <string>SET Origin</string>
+         </property>
+         <property name="mdi_command_action" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="ini_mdi_command_action" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="joint_number" stdset="0">
+          <number>0</number>
+         </property>
+         <property name="incr_imperial_number" stdset="0">
+          <double>0.010000000000000</double>
+         </property>
+         <property name="incr_mm_number" stdset="0">
+          <double>0.025000000000000</double>
+         </property>
+         <property name="incr_angular_number" stdset="0">
+          <double>-1.000000000000000</double>
+         </property>
+         <property name="toggle_float_option" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="float_num" stdset="0">
+          <double>100.000000000000000</double>
+         </property>
+         <property name="float_alt_num" stdset="0">
+          <double>50.000000000000000</double>
+         </property>
+         <property name="view_type_string" stdset="0">
+          <string>P</string>
+         </property>
+         <property name="command_text_string" stdset="0">
+          <string>(MSG:,MDI command missing)</string>
+         </property>
+         <property name="ini_mdi_number" stdset="0">
+          <number>0</number>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="ActionButton" name="actionbutton">
+         <property name="text">
+          <string> GOTO Origin</string>
+         </property>
+         <property name="mdi_command_action" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="ini_mdi_command_action" stdset="0">
+          <bool>true</bool>
+         </property>
+         <property name="joint_number" stdset="0">
+          <number>0</number>
+         </property>
+         <property name="incr_imperial_number" stdset="0">
+          <double>0.010000000000000</double>
+         </property>
+         <property name="incr_mm_number" stdset="0">
+          <double>0.025000000000000</double>
+         </property>
+         <property name="incr_angular_number" stdset="0">
+          <double>-1.000000000000000</double>
+         </property>
+         <property name="toggle_float_option" stdset="0">
+          <bool>false</bool>
+         </property>
+         <property name="float_num" stdset="0">
+          <double>100.000000000000000</double>
+         </property>
+         <property name="float_alt_num" stdset="0">
+          <double>50.000000000000000</double>
+         </property>
+         <property name="view_type_string" stdset="0">
+          <string>P</string>
+         </property>
+         <property name="command_text_string" stdset="0">
+          <string>(MSG,MDI command missing)</string>
+         </property>
+         <property name="ini_mdi_number" stdset="0">
+          <number>1</number>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="DROLabel" name="dro_label_x">
+         <property name="Qreference_type" stdset="0">
+          <number>1</number>
+         </property>
+         <property name="metric_template" stdset="0">
+          <string>X %10.3f</string>
+         </property>
+         <property name="imperial_template" stdset="0">
+          <string>X %9.4f</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="DROLabel" name="dro_label_y">
+         <property name="Qjoint_number" stdset="0">
+          <number>1</number>
+         </property>
+         <property name="Qreference_type" stdset="0">
+          <number>1</number>
+         </property>
+         <property name="metric_template" stdset="0">
+          <string>Y %10.3f</string>
+         </property>
+         <property name="imperial_template" stdset="0">
+          <string>Y %9.4f</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="DROLabel" name="dro_label_z">
+         <property name="Qjoint_number" stdset="0">
+          <number>2</number>
+         </property>
+         <property name="Qreference_type" stdset="0">
+          <number>1</number>
+         </property>
+         <property name="metric_template" stdset="0">
+          <string>Z %10.3f</string>
+         </property>
+         <property name="imperial_template" stdset="0">
+          <string>Z %9.4f</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
     </item>
     <item>
-     <widget class="CamView" name="camview">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
+     <widget class="QFrame" name="horizontalFrame">
+      <property name="frameShape">
+       <enum>QFrame::Box</enum>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0">
+       <property name="spacing">
+        <number>3</number>
+       </property>
+       <property name="sizeConstraint">
+        <enum>QLayout::SetMaximumSize</enum>
+       </property>
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="CamView" name="camview">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="ScreenOptions" name="screen_options">
+      <property name="notify_option" stdset="0">
+       <bool>false</bool>
+      </property>
+      <property name="notify_max_messages" stdset="0">
+       <number>10</number>
+      </property>
+      <property name="catch_close_option" stdset="0">
+       <bool>true</bool>
+      </property>
+      <property name="catch_errors_option" stdset="0">
+       <bool>false</bool>
+      </property>
+      <property name="play_sounds_option" stdset="0">
+       <bool>false</bool>
+      </property>
+      <property name="use_pref_file_option" stdset="0">
+       <bool>true</bool>
+      </property>
+      <property name="pref_filename_string" stdset="0">
+       <string>~/.qtvcp_panel_preferences</string>
+      </property>
+      <property name="embedded_program_option" stdset="0">
+       <bool>false</bool>
+      </property>
+      <property name="messageDialog_option" stdset="0">
+       <bool>false</bool>
+      </property>
+      <property name="closeDialog_option" stdset="0">
+       <bool>false</bool>
+      </property>
+      <property name="entryDialogSoftkey_option" stdset="0">
+       <bool>false</bool>
+      </property>
+      <property name="halCompBaseName" stdset="0">
+       <string/>
       </property>
      </widget>
     </item>
@@ -180,12 +285,11 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>688</width>
-     <height>24</height>
+     <width>515</width>
+     <height>22</height>
     </rect>
    </property>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <customwidgets>
   <customwidget>
@@ -203,6 +307,12 @@
    <class>ActionButton</class>
    <extends>IndicatedPushButton</extends>
    <header>qtvcp.widgets.action_button</header>
+  </customwidget>
+  <customwidget>
+   <class>ScreenOptions</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.screen_options</header>
+   <container>1</container>
   </customwidget>
   <customwidget>
    <class>CamView</class>

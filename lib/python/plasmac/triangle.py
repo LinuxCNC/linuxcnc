@@ -1,8 +1,8 @@
 '''
 triangle.py
 
-Copyright (C) 2020, 2021, 2022  Phillip A Carter
-Copyright (C) 2020, 2021, 2022  Gregory D Carl
+Copyright (C) 2020, 2021, 2022, 2023, 2024 Phillip A Carter
+Copyright (C) 2020, 2021, 2022, 2023, 2024 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -91,26 +91,50 @@ def preview(Conv, fTmp, fNgc, fNgcBkp, \
     if not valid:
         msg = _('Invalid Kerf Width entry in material')
         error += '{}\n\n'.format(msg)
-    if error:
-        return error
-    if A == 0 and isinstance(A, float):
-        msg = _('A ANGLE cannot be zero')
+    if a and b and c:
+        if a + b <= c:
+            msg = _('c must be less than a+b')
+            error += '{}\n\n'.format(msg)
+        if a + c <= b:
+            msg = _('b must be less than a+c')
+            error += '{}\n\n'.format(msg)
+        if b + c <= a:
+            msg = _('a must be less than b+c')
+            error += '{}\n\n'.format(msg)
+    if A <= 0 and isinstance(A, float):
+        msg = _('A ANGLE cannot be zero or less')
         error += '{}\n\n'.format(msg)
     if B <= 0 and isinstance(B, float):
-        msg = _('B ANGLE cannot be zero')
+        msg = _('B ANGLE cannot be zero or less')
         error += '{}\n\n'.format(msg)
     if C <= 0 and isinstance(C, float):
-        msg = _('C ANGLE cannot be zero')
+        msg = _('C ANGLE cannot be zero or less')
+        error += '{}\n\n'.format(msg)
+    if A >= 180 and isinstance(A, float):
+        msg = _('A ANGLE cannot be 180 or more')
+        error += '{}\n\n'.format(msg)
+    if B >= 180 and isinstance(B, float):
+        msg = _('B ANGLE cannot be 180 or more')
+        error += '{}\n\n'.format(msg)
+    if C >= 180 and isinstance(C, float):
+        msg = _('C ANGLE cannot be 180 or more')
         error += '{}\n\n'.format(msg)
     if a <= 0 and isinstance(a, float):
-        msg = _('a LENGTH cannot be zero')
+        msg = _('a LENGTH cannot be zero or less')
         error += '{}\n\n'.format(msg)
     if b <= 0 and isinstance(b, float):
-        msg = _('b LENGTH cannot be zero')
+        msg = _('b LENGTH cannot be zero or less')
         error += '{}\n\n'.format(msg)
     if c <= 0 and isinstance(c, float):
-        msg = _('c LENGTH cannot be zero')
+        msg = _('c LENGTH cannot be zero or less')
         error += '{}\n\n'.format(msg)
+    if A and B and C:
+        if not a and not b and not c:
+            msg = _('"a" or "b" or "c" are required')
+            error += '{}\n\n'.format(msg)
+        if A + B + C != 180:
+            msg = _('"A" + "B" + "C" must equal 180')
+            error += '{}\n\n'.format(msg)
     if error:
         return error
     angle = math.radians(angle)
@@ -119,40 +143,33 @@ def preview(Conv, fTmp, fNgc, fNgcBkp, \
     C = math.radians(C)
     leadInOffset = math.sin(math.radians(45)) * leadinLength
     leadOutOffset = math.sin(math.radians(45)) * leadoutLength
-    valid = False
     if A and B and C:
         if a:
+            b = a / math.sin(A) * math.sin(B)
             c = a / math.sin(A) * math.sin(C)
-            valid = True
         elif b:
             a = b / math.sin(B) * math.sin(A)
             c = b / math.sin(B) * math.sin(C)
-            valid = True
         elif c:
             a = c / math.sin(C) * math.sin(A)
-            valid = True
-        else:
-            msg0 = _('"a" or "b" or "c" are required')
-            error += '{}\n\n'.format(msg0)
-        if A + B + C != math.radians(180):
-            msg0 = _('"A" + "B" + "C" must equal 180')
-            error += '{}\n\n'.format(msg0)
-    if error:
-        return error
-    if not valid and a and b and c:
+            b = c / math.sin(C) * math.sin(B)
+    elif a and b and c:
+        A = math.acos((b ** 2 + c ** 2 - a ** 2) / (2 * b * c))
         B = math.acos((a ** 2 + c ** 2 - b ** 2) / (2 * a * c))
-        valid = True
-    elif not valid and a and b and C:
+        C = math.acos((a ** 2 + b ** 2 - c ** 2) / (2 * a * b))
+    elif a and b and C:
         c = math.sqrt((a ** 2 + b ** 2) - 2 * a * b * math.cos(C))
+        A = math.acos((b ** 2 + c ** 2 - a ** 2) / (2 * b * c))
         B = math.acos((a ** 2 + c ** 2 - b ** 2) / (2 * a * c))
-        valid = True
-    elif not valid and a and B and c:
-        valid = True
-    elif not valid and A and b and c:
+    elif a and B and c:
+        b = math.sqrt((a ** 2 + c ** 2) - 2 * a * c * math.cos(B))
+        A = math.acos((b ** 2 + c ** 2 - a ** 2) / (2 * b * c))
+        C = math.acos((a ** 2 + b ** 2 - c ** 2) / (2 * a * b))
+    elif A and b and c:
         a = math.sqrt((b ** 2 + c ** 2) - 2 * b * c * math.cos(A))
         B = math.acos((a ** 2 + c ** 2 - b ** 2) / (2 * a * c))
-        valid = True
-    if not valid:
+        C = math.acos((a ** 2 + b ** 2 - c ** 2) / (2 * a * b))
+    else:
         msg0 = 'MINIMUM REQUIREMENTS:\n'\
                'In processing order are:\n\n'\
                '1: "A" + "B" + "C" + ("a" or "b" or "c")  \n\n'\
@@ -161,7 +178,6 @@ def preview(Conv, fTmp, fNgc, fNgcBkp, \
                '4: "a" + "B" + "c"\n\n'\
                '5: "A" + "b" + "c"\n'
         error += '{}\n\n'.format(msg0)
-    if error:
         return error
     right = math.radians(0)
     up = math.radians(90)
@@ -186,10 +202,12 @@ def preview(Conv, fTmp, fNgc, fNgcBkp, \
     Cx, Cy = get_offset_coordinates([AX,AY], [CX,CY], C, kerfWidth, isExternal)
     # get leadin/leadout point
     hypotLength = math.sqrt((Ax - Cx) ** 2 + (Ay - Cy) ** 2)
-    if Ax <= Cx:
+    if Ax < Cx:
         hypotAngle = left - math.atan((Ay - Cy) / (Cx - Ax))
-    else:
+    elif Ax > Cx:
         hypotAngle = right - math.atan((Ay - Cy) / (Cx - Ax))
+    else:
+        hypotAngle = up
     xS = Cx + (hypotLength / 2) * math.cos(hypotAngle)
     yS = Cy + (hypotLength / 2) * math.sin(hypotAngle)
     # set leadin direction

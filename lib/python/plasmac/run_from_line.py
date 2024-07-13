@@ -1,8 +1,8 @@
 '''
 run_from_line.py
 
-Copyright (C) 2019, 2020, 2021, 2022  Phillip A Carter
-Copyright (C)       2020, 2021, 2022  Gregory D Carl
+Copyright (C) 2019-2024  Phillip A Carter
+Copyright (C) 2020-2024  Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -42,10 +42,9 @@ def run_from_line_get(file, startLine):
                         newData.append('G21')
                     elif 'G20' in line:
                         newData.append('G20')
-                    if line.strip().startswith('M66P3'):
-                        material.append(line.strip())
                 # find the type of first move
-                if not codes['move']['isSet'] and not 'G53G0' in line and not 'G20' in line and not 'g21' in line:
+                    ''' IT IS POSSIBLE THERE MAY BE SPACES IN THE INCOMING LINE '''
+                if not codes['move']['isSet'] and not 'G53G0' in line.replace(' ','') and not 'G20' in line and not 'G21' in line:
                     if 'G00' in line:
                         codes['move']['isSet'] = True
                         codes['move']['isG00'] = True
@@ -89,19 +88,7 @@ def run_from_line_get(file, startLine):
                     else:
                         cutComp = False
                 elif t1[1] == '6':
-                    codes['g6_'] = t1
-                    if t1 == 'G64':
-                        tmp = line.split('64')[1]
-                        if tmp[0] == 'P':
-                            p = ''
-                            tmp = tmp[1:]
-                            while 1:
-                                if tmp[0] in '.0123456789Q':
-                                    p += tmp[0]
-                                    tmp = tmp[1:]
-                                else:
-                                    break
-                            codes['g6_'] = 'G64P{}'.format(p)
+                    codes['g6_'] = t1 + line.split(t1)[1]
                 elif t1 == 'G90' and not 'G90.1' in line:
                     codes['g9_'] = 'G90'
                 elif t1 == 'G91' and not 'G91.1' in line:
@@ -131,23 +118,23 @@ def run_from_line_get(file, startLine):
         if 'M03$' in line.replace(' ','') and not codes['spindle']['line']:
             codes['spindle']['line'] = line.strip()
         if 'M62P3' in line.replace(' ',''):
-            codes['d3'] = 'M62P3 (Disable Torch)'
+            codes['d3'] = 'M62 P3 (Disable Torch)'
         elif 'M63P3' in line.replace(' ',''):
-            codes['d3'] = 'M63P3 (Enable Torch)'
+            codes['d3'] = 'M63 P3 (Enable Torch)'
         elif 'M64P3' in line.replace(' ',''):
-            codes['d3'] = 'M64P3 (Disable Torch)'
+            codes['d3'] = 'M64 P3 (Disable Torch)'
         elif 'M65P3' in line.replace(' ',''):
-            codes['d3'] = 'M65P3 (Enable Torch)'
+            codes['d3'] = 'M65 P3 (Enable Torch)'
         if 'M62P2' in line.replace(' ',''):
-            codes['d2'] = 'M62P2 (Disable THC)'
+            codes['d2'] = 'M62 P2 (Disable THC)'
         elif 'M63P2' in line.replace(' ',''):
-            codes['d2'] = 'M63P2 (Enable THC)'
+            codes['d2'] = 'M63 P2 (Enable THC)'
         elif 'M64P2' in line.replace(' ',''):
-            codes['d2'] = 'M64P2 (Disable THC)'
+            codes['d2'] = 'M64 P2 (Disable THC)'
         elif 'M65P2' in line.replace(' ',''):
-            codes['d2'] = 'M65P2 (Enable THC)'
+            codes['d2'] = 'M65 P2 (Enable THC)'
         if 'M67E3Q' in line.replace(' ',''):
-            codes['a3'] = 'M67E3Q'
+            codes['a3'] = 'M67 E3 Q'
             tmp = line.replace(' ','').split('M67E3Q')[1]
             while 1:
                 if tmp[0] in '-.0123456789':
@@ -155,20 +142,19 @@ def run_from_line_get(file, startLine):
                     tmp = tmp[1:]
                 else:
                     break
-            pc = float(codes['a3'].split('M67E3Q')[1])
+            pc = float(codes['a3'].split('M67 E3 Q')[1])
             pc = pc if pc > 0 else 100
             codes['a3'] += ' (Velocity {}%)'.format(pc)
         if 'M68E3Q' in line.replace(' ',''):
-            codes['a3'] = 'M68E3Q'
+            codes['a3'] = 'M68 E3 Q'
             tmp = line.replace(' ','').split('M68E3Q')[1]
-            bb=1
             while 1:
                 if tmp[0] in '-.0123456789':
                     codes['a3'] += tmp[0]
                     tmp = tmp[1:]
                 else:
                     break
-            pc = float(codes['a3'].split('M68E3Q')[1])
+            pc = float(codes['a3'].split('M68 E3 Q')[1])
             pc = pc if pc > 0 else 100
             codes['a3'] += ' (Velocity {}%)'.format(pc)
         # test if inside a subroutine

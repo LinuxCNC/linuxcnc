@@ -886,7 +886,7 @@ def document(filename, outfilename):
         if personality: has_personality = True
         if isinstance(array, tuple): has_personality = True
 
-    print("""
+    print(""".\\" -*- mode: troff; coding: utf-8 -*-
 .\\"*******************************************************************
 .\\"
 .\\" This file was extracted from %s using halcompile.g.
@@ -932,7 +932,7 @@ def document(filename, outfilename):
                     print(".B loadrt %s" % comp_name, end='', file=f)
             else:
                 if has_personality:
-                    print(".B loadrt %s [count=\\fIN\\fB|names=\\fIname1\\fB[,\\fIname2...\\fB]] [personality=\\fIP,P,...\\fB]" % comp_name, end='', file=f)
+                    print(".B loadrt %s [count=\\fIN\\fB|names=\\fIname1\\fB[,\\fIname2...\\fB]] [personality=\\fIP1,P2,...\\fB]" % comp_name, end='', file=f)
                 else:
                     print(".B loadrt %s [count=\\fIN\\fB|names=\\fIname1\\fB[,\\fIname2...\\fB]]" % comp_name, end='', file=f)
             for type, name, default, doc in modparams:

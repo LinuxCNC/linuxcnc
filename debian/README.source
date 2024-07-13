@@ -1,26 +1,39 @@
-Debian packaging of LinuxCNC
-============================
+# Debian packaging of LinuxCNC
 
+## Introduction
 
-Introduction
-------------
+LinuxCNC is packaged in two different ways:
 
-LinuxCNC is packaged in two different ways: a simple way for the builds
-on the LinxuCNC buildbot CI system (<http://buildbot.linuxcnc.org>),
-and a different (more complicated) way for official debian.org packages.
+ 1. a simple way for the builds on the LinxuCNC buildbot
+    CI system (<http://buildbot.linuxcnc.org>), and
+ 2. a different (more complicated) way for official debian.org packages.
 
 Packaging by the LinuxCNC CI system is not covered in this document, see
 <http://linuxcnc.org/docs/devel/html/code/building-linuxcnc.html#_building_debian_packages>
 for a brief description on that.
 
 This document describes the official packaging for debian.org.
-Packaging of LinuxCNC for debian.org is split between linuxcnc.git
-(in <https://github.com/LinuxCNC/linuxcnc.git>) and linuxcnc-gbp.git
-(in <https://github.com/LinuxCNC/linuxcnc-gbp.git>).
+Packaging of LinuxCNC for debian.org is split between:
 
+linuxcnc.git (in <https://github.com/LinuxCNC/linuxcnc.git>)::
+  This is the regular LinuxCNC repository. This already provides instructions
+  to build a Debian package in the subdirectory "debian/".
+  Branches for this repository reflect the ongoing developments for LinuxCNC.
+linuxcnc-gbp.git (in <https://github.com/LinuxCNC/linuxcnc-gbp.git>)::
+  This repository has the same content as the release version, just that
+  branches now describe the release of Debian that the package shall be
+  used for. In particular, the script debian/configure was already executed.
+  Default uploads go to Debian unstable, aka "sid", which needs
+  to be stated in the file debian/changelog. Also the version number of the
+  uploads to Debian are sligtly different, so that multiple revisions of the
+  Debian package is possible for the same release of LinuxCNC.
+```
+$ git branch
+* debian/unstable
+  upstream
+```
 
-debian/copyright
-----------------
+## debian/copyright
 
 Automated tools to check licenses within the source tree will likely find
 CC-2.5 referenced. But this refers only to some image files that were
@@ -28,12 +41,10 @@ not adopted by the source tree, only the README describing them was
 intentionally left unchanged.
 
 
-Build a new DSC for upload to debian.org
-----------------------------------------
+## Build a new DSC for upload to debian.org
 
 
-Make the new orig tarball
-~~~~~~~~~~~~~~~~~~~~~~~~~
+### Make the new orig tarball
 
 Do this step in `linuxcnc.git`.
 
@@ -42,18 +53,27 @@ git checkout ${COMMIT}  # check out the commit you want
 git reset --hard
 git clean -fdx .
 VERSION=$(head -n1 debian/changelog |cut -f2 -d' ' | tr -d "()" | sed -e 's/^[0-9]://' )
-VERSION=$(git log --date=format:%Y%m%d --pretty=${VERSION}+git%cd.%h| head -n1)
-echo ${VERSION} | tee VERSION
+```
+If you are not uploading the exact same version of what is in the release tarball,
+then also specify the git tag as part of the version:
 
-# We use `--exclude=.git` instead of `--exclude-vcs` because the linuxcnc
-# git repo uses .gitignore to keep otherwise-empty directories around,
-# and the build system is too lazy to mkdir them as needed.
+```
+VERSION=$(git log --date=format:%Y%m%d --pretty=${VERSION}+git%cd.%h| head -n1)
+```
+Inspect the version and create the file VERSION.
+```
+echo ${VERSION} | tee VERSION
+```
+
+We use `--exclude=.git` instead of `--exclude-vcs` because the linuxcnc
+git repo uses .gitignore to keep otherwise-empty directories around,
+and the build system is too lazy to mkdir them as needed.
+
+```
 tar --create --xz --exclude=.git --exclude=.github --transform "flags=r;s|^./|linuxcnc-${VERSION}/|" --file ../debian-packaging/linuxcnc_${VERSION}.orig.tar.xz .
 ```
 
-
-Start the new gbp version
-~~~~~~~~~~~~~~~~~~~~~~~~~
+### Start the new gbp version
 
 Do this step in `linuxcnc-gbp.git`.
 
@@ -76,13 +96,11 @@ git commit
 ```
 
 
-Update the debian/ files
-~~~~~~~~~~~~~~~~~~~~~~~~
+### Update the debian/ files
 
 Do this step in `linuxcnc-gbp.git`.
 
-Run `debian/configure` in a clean, minimal instance of the distro we're
-building for:
+Run `debian/configure` in a clean, minimal instance of the distro we're building for:
 
 ```
 export IMAGE="debian:bookworm"
@@ -111,12 +129,9 @@ Commit all changes to the debian/ directory:
 git commit
 ```
 
+### Test the new debian package
 
-Test the new debian package
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-`gbp buildpackage` should work in a minimal installation of the target
-distro:
+`gbp buildpackage` should work in a minimal installation of the target distro:
 
 ```
 docker run --rm --interactive --tty --volume ${PWD}:${PWD} --workdir ${PWD} ${IMAGE}
@@ -133,7 +148,7 @@ architecture-independent packages) should also build from scratch in a
 clean minimal environment.
 
 (The docker build environment described above is just one option, other
-possibilities are cowbuilder, pbuilder, etc etc.)
+possibilities are cowbuilder, pbuilder, etc., etc.)
 
 Run lintian to verify the build products:
 
@@ -143,8 +158,7 @@ lintian -i ../linuxcnc_*.changes
 ```
 
 
-Release
-~~~~~~~
+### Release
 
 ```
 gbp dch --release
@@ -158,8 +172,7 @@ Build & sign the dsc:
 `dpkg-buildpackage --build=source -k${KEY_ID}`
 
 
-How to contribute
------------------
+## How to contribute
 
 LinuxCNC does not have a representation on salsa.debian.org.
 Please join us on https://github.com/LinuxCNC/linuxcnc/ .

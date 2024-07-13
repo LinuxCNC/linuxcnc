@@ -18,7 +18,7 @@
 #include <unistd.h>		/* getpid() */
 #include "timer.hh"		// etime()
 #include <stdlib.h>		// memset()
-#include <string.h>		// strncpy()
+#include <rtapi_string.h> 	// strncpy() -> rtapi_strlcpy()
 #include <time.h>		// time_t, time()
 #include <math.h>		// floor()
 #include "linklist.hh"          // LinkedList
@@ -60,7 +60,7 @@ void CMS::setup_diag_proc_info()
     if (NULL == dpi) {
 	dpi = new CMS_DIAG_PROC_INFO();
     }
-    strncpy(dpi->name, ProcessName, 16);	// process name
+    rtapi_strlcpy(dpi->name, ProcessName, 16);	// process name
     int sysinfo_len = 0;
     memset(dpi->host_sysinfo, 0, 32);
     gethostname(dpi->host_sysinfo, 31);
