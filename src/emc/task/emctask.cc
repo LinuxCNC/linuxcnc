@@ -717,6 +717,10 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
 					&stat->activeMCodes[0],
 					&stat->activeSettings[0],
 					emcStatus->motion.traj.tag);
+	if (res_state != INTERP_ERROR) {
+            rtapi_strxcpy(stat->file, emcStatus->motion.traj.tag.filename);
+            stat->currentLine = emcStatus->motion.traj.tag.fields[0];
+	}
     } 
     // If we get an error from trying to unpack from the motion state, always
     // use interp's internal state, so the active state is never out of date
