@@ -148,6 +148,8 @@ If this option is not set, then `value` and `setpoint` must be connected program
   It can be set to any RGB color.
 *`bezel_color`*::
   This is the color of the _outer ring of the gauge_.
+*`bezel_width`*::
+  This is the width of the _outer ring of the gauge_.
 *`threshold`*::
   The threshold is the _transition point between the zones_. +
   It should be set to a value between 0 and the maximum value. +
@@ -155,6 +157,14 @@ If this option is not set, then `value` and `setpoint` must be connected program
 *`gauge_label`*::
   This is the _text below the value readout_, near the bottom of the gauge. +
   The function of the gauge is then easily visible.
+*`base_color`*::
+  The color of the gauge.
+*`base_gradient_color`*::
+  The highlight color of the gauge.
+*`center_color`*::
+  The color of the center of the gauge.
+*`center_gradient_color`*::
+  The highlight color of the center of the gauge.
 
 .Non Customizable Parameters
 There are 2 inputs that are not customizable.
