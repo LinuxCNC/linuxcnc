@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-04-07 20:07+0200\n"
-"PO-Revision-Date: 2024-06-02 02:04+0000\n"
+"PO-Revision-Date: 2024-07-13 03:57+0000\n"
 "Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "linuxcnc/gmocappy/nb_NO/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.6-dev\n"
+"X-Generator: Weblate 5.7-dev\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:252
 msgid "user mode selected"
@@ -179,9 +179,8 @@ msgid "Press to jog joint {0}"
 msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1306
-#, fuzzy
 msgid "Found more than 16 macros, will use only the first 16."
-msgstr "fant mer enn 16 makroer, vil kun bruke de 16 første"
+msgstr "Fant mer enn 16 makroer, vil kun bruke de 16 første."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1317
 msgid "Press to display previous macro button"
@@ -249,6 +248,8 @@ msgstr "tommer/min"
 msgid ""
 "No embedded tabs configured or invalid configuration. No tabs will be added!"
 msgstr ""
+"Ingen innebyggede faner satt opp eller ugyldig oppsett. Ingen faner legges "
+"til!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1806
 msgid "ERROR, trying to initialize the user tabs or panels, check for typos"
@@ -350,15 +351,15 @@ msgstr "Ingen fil lastet"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2772
 msgid "It is not possible to change to MDI Mode at the moment"
-msgstr ""
+msgstr "Det er ikke mulig å bytte til MDI-modus for øyeblikket"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2804
 msgid "It is not possible to change to Auto Mode at the moment"
-msgstr ""
+msgstr "Det er ikke mulig å bytte til auto-modus for øyeblikket"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2989
 msgid "Enter value:"
-msgstr ""
+msgstr "Skriv verdi:"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2990
 #, python-brace-format
@@ -382,7 +383,7 @@ msgstr "Modusendring er kun tillat når kommandotolken ikke er aktiv!"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3355
 #, python-brace-format
 msgid "{0}"
-msgstr ""
+msgstr "{0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3536
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:51
@@ -434,7 +435,7 @@ msgstr "Følg med!!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4229
 msgid "Exit and discard changes?"
-msgstr ""
+msgstr "Avslutt og kast endringer?"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4230
 #, fuzzy
@@ -538,6 +539,11 @@ msgid ""
 "\n"
 " not in the tool table!"
 msgstr ""
+"Verktøy\n"
+"\n"
+"# {0:d}\n"
+"\n"
+" mangler i verktøytabellen!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4919
 msgid "Manual Tool change"

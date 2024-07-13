@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-04-08 19:52+0200\n"
-"PO-Revision-Date: 2024-05-23 22:09+0000\n"
+"PO-Revision-Date: 2024-07-13 03:57+0000\n"
 "Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
 "Language-Team: Norwegian Bokmål <https://hosted.weblate.org/projects/"
 "linuxcnc/linuxcnc/nb_NO/>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.6-dev\n"
+"X-Generator: Weblate 5.7-dev\n"
 
 #: src/emc/task/emctaskmain.cc:868
 #, c-format
@@ -16515,7 +16515,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/screen.glade:812
 msgid "Default Angular velocity "
-msgstr ""
+msgstr "Forvalgt dreiehastighet "
 
 #: src/emc/usr_intf/pncconf/screen.glade:852
 msgid "gedit"
@@ -16523,7 +16523,7 @@ msgstr "gedit"
 
 #: src/emc/usr_intf/pncconf/screen.glade:867
 msgid "Min Angular velocity"
-msgstr ""
+msgstr "Min. dreiehastighet"
 
 #: src/emc/usr_intf/pncconf/screen.glade:898
 #: src/emc/usr_intf/pncconf/screen.glade:3744
@@ -16536,7 +16536,7 @@ msgstr "5mm 1mm .5mm .1mm .05mm .01mm .005mm"
 
 #: src/emc/usr_intf/pncconf/screen.glade:926
 msgid "Max Angular velocity"
-msgstr ""
+msgstr "Maks dreiehastighet"
 
 #: src/emc/usr_intf/pncconf/screen.glade:957
 #: src/emc/usr_intf/pncconf/screen.glade:970
@@ -16615,27 +16615,27 @@ msgstr "Absolutt tekstfarge"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1960
 msgid "Relative Textcolor"
-msgstr ""
+msgstr "Relativ tekstfarge"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1973
 msgid "DTG Textcolor"
-msgstr ""
+msgstr "DTG-tekstfarge"
 
 #: src/emc/usr_intf/pncconf/screen.glade:1986
 msgid "Error Textcolor"
-msgstr ""
+msgstr "Feil-tekstfarge"
 
 #: src/emc/usr_intf/pncconf/screen.glade:2149
 msgid "Touchy Defaults"
-msgstr ""
+msgstr "Forvalg for Touchy"
 
 #: src/emc/usr_intf/pncconf/screen.glade:2767
 msgid "Force Gmoccapy to Maximize after positioning"
-msgstr ""
+msgstr "Tving Gmoccapy til maksimum etter posisjonering"
 
 #: src/emc/usr_intf/pncconf/screen.glade:3233
 msgid "Gmoccapy Defaults"
-msgstr ""
+msgstr "Gmoccapy-forvalg"
 
 #: src/emc/usr_intf/pncconf/screen.glade:3757
 msgid "10 1 .1 .01 .001"
@@ -16643,7 +16643,7 @@ msgstr "10 1 .1 .01 .001"
 
 #: src/emc/usr_intf/pncconf/screen.glade:3919
 msgid "QtPlasmaC Options"
-msgstr ""
+msgstr "QtPlasmaC-valg"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:26
 msgid "<b>Virtual Control Panel</b>"
@@ -16651,11 +16651,11 @@ msgstr "<b>Virtuelt kontrollpanel</b>"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:113
 msgid "XYZ buttons (uses Halui)"
-msgstr ""
+msgstr "XYZ-taster (bruker Halui)"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:307
 msgid "Geometry Options"
-msgstr ""
+msgstr "Geometrivalg"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:402
 msgid "Pyvcp Details"
@@ -16683,7 +16683,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/vcp.glade:774
 msgid "Display Options"
-msgstr ""
+msgstr "Fremvisningsvalg"
 
 #: src/emc/usr_intf/pncconf/vcp.glade:831
 msgid "Max RPM"
