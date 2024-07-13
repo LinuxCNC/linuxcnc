@@ -476,3 +476,12 @@ EditorBase {
     qproperty-styleColor6: #8282aa;	/* Axes Values */
     qproperty-styleColor7: #cd6197;	/* Other Values */
 }
+
+Gauge {
+qproperty-base_color: black;
+qproperty-base_gradient_color: blue;
+qproperty-center_color: gray;
+qproperty-center_gradient_color: #404040;
+qproperty-bezel_color: orange;
+qproperty-bezel_width: 2;
+}
