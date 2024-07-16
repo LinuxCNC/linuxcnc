@@ -93,6 +93,8 @@ void pmPerror(const char *s)
 
 /* Pose Math Basis Functions */
 
+int pmClose(double a, double b, double eps) { return ((fabs((a) - (b)) < (eps)) ? 1 : 0); }
+
 /* Scalar functions */
 
 double pmSqrt(double x)

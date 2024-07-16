@@ -71,8 +71,6 @@
 #ifndef POSEMATH_H
 #define POSEMATH_H
 
-#include <math.h>
-
 #ifdef __cplusplus
 
 #define USE_CONST
@@ -687,7 +685,7 @@ extern "C" {
 //#define pmClose(a, b, eps) ((fabs((a) - (b)) < (eps)) ? 1 : 0)
 //#define pmSq(x) ((x)*(x))
 
-inline int pmClose(double a, double b, double eps) { return ((fabs((a) - (b)) < (eps)) ? 1 : 0); }
+int pmClose(double a, double b, double eps); 
 inline double pmSq(double x) { return x*x; }
 
 #ifdef TO_DEG
