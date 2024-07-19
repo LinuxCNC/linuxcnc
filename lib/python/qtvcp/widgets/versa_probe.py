@@ -201,7 +201,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.set_checkableButtons(not self._runImmediately)
 
         if self.PREFS_:
-            self.probe_number = self.PREFS_.getpref('ps_probe_tool', -1, int, 'VERSA_PROBE OPTIONS')
+            self.probe_number = self.PREFS_.getpref('ps_probe_tool', -1, int, 'VERSA_PROBE_OPTIONS')
             self.input_search_vel.setText(str(self.PREFS_.getpref( "ps_searchvel", 300.0, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_probe_vel.setText(str(self.PREFS_.getpref( "ps_probevel", 10.0, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_z_clearance.setText(str(self.PREFS_.getpref( "ps_z_clearance", 3.0, float, 'VERSA_PROBE_OPTIONS')) )
