@@ -3,6 +3,236 @@ linuxcnc (1:2.10.0~pre0) UNRELEASED; urgency=medium
   * Master branch open for new features.
 
  -- Andy Pugh <andy@bodgesoc.org>  Mon, 09 Oct 2023 10:39:03 +0100
+ 
+linuxcnc (1:2.9.3) unstable; urgency=medium
+
+  * Make warning about file endings more explicit for new users. (#3013)
+  * strncpy -> rtapi_strlcpy for string termination (#2683)
+  * 2.9 (#2990)
+  * Merge pull request #3012 from mark-v-d/fix_g70
+  * Merge pull request #3010 from petterreinholdtsen/deb-closer-to-debian
+  * Merge pull request #2946 from hansu/gmoccapy-de-translation-2.9
+  * Merge pull request #2947 from Sigma1912/gmoccapy_dont-hide-recurrent-errors
+  * Merge pull request #2688 from smoe/debian_nocheck_docs
+  * Merge pull request #2566 from LinuxCNC/2.9-gcode-g43
+  * Merge pull request #2562 from petterreinholdtsen/2.9-g38-3-auto-probe
+  * Fix unintended move when using G42 for G70.
+  * Adjust how files are distributed into binary packages.
+  * Merge pull request #3007 from petterreinholdtsen/man-component-asciiart-nbsp
+  * Merge pull request #3006 from petterreinholdtsen/man-component-utf-8
+  * Use non-breaking space in component documentation ASCII art.
+  * Pass generated component man pages through preconv for UTF-8 support.
+  * Merge pull request #3009 from petterreinholdtsen/po4a-download-follow-location
+  * Handle github CI http redirects when downloading po4a.
+  * Merge pull request #2808 from havardAasen/pthread-retval
+  * Fix incorrecrt buster apt-source in updating docs
+  * z_level_compensation component -remove DOS endings
+  * docs: linuxcnc-uspace-dev rather than linuxcnc-dev in mesa_modbus.adoc
+  * Merge pull request #2991 from Sigma1912/patch-1
+  * docs: hal_gpio explain the purpose and detination location of the rules file.
+  * qtvcp -HAL bar: fix ability to set HAL pin name
+  * Update interp_convert.cc
+  * qtvcp -qt_action: fix system shutdown function
+  * qtaxis -fix progressbar
+  * qtvcp -gcode_editor -round up the lines done calculation
+  * qtvcp -geditor: fix the lexer button calls
+  * qtvcp -qcode editor: fix error with reloading with no program loaded
+  * qtvcp -pstat: fix an error with designer loading on some systems
+  * mitsub_vfd -add some details to usage text -serial port permissions
+  * qtvcp -screenoption: fix syntax warning
+  * qtvcp -qt_graphics: need to call update() when double clicking to clear plot
+  * qtvcp -gcode_editor: reload program when reload STATUS message is sent
+  * qyvcp -gcode_graphics: clear plot lines when reloading
+  * qtvcp -screenoption: fix preference file path of just file name
+  * posemath: fix for arc to circle transition
+  * qtdragon_hd -fix Z level compensation: never compensates
+  * HAL component -z_level_compensation: fix nan calculation error
+  * qtplasmac: conv_polygon fix variable name
+  * qtplasmac: fix button_normal "pressed" color
+  * qtplasmac: fix button interlock, remove unused variables
+  * qtvcp: remove links to nonexistent image files
+  * gmoccapy: don't translate numeric labels
+  * qtdragon/hd update version
+  * qtdragon/hd -add ability to set camera number
+  * gmoccapy: update german translation for 2.9
+  * Merge pull request #2955 from phillc54/phillc54/pncconf
+  * pncconf: don't sort firmware names
+  * Merge pull request #2838 from hansu/issue-2820
+  * pncconf: overwrite gmoccapy_postgui.hal and add warning
+  * pncconf: generate connections to display tooloffset in gmoccapy
+  * qtplasmac: check for valid default material
+  * hal_stream_create: fix bogus error check
+  * Update getting-linuxcnc.adoc
+  * don't hide recurrent gcode errors
+  * gmoccapy: some spelling fixes
+  * docs: fix typo in gmoccapy.adoc
+  * Merge pull request #2837 from hansu/gmoccapy-800x600
+  * Merge pull request #2911 from hansu/gmoccapy-reorder-settings-page
+  * gmoccapy: updated docs and release notes
+  * gmoccapy: fix gremlin view p wasn't applied at startup
+  * gmoccapy: add configuration for 800x600
+  * gmoccapy_3_4_8: updated docs and release notes
+  * gmoccapy: re-order settings
+  * Merge pull request #2943 from havardAasen/modal-table
+  * docs: Reference correct tables
+  * docs: Don't hardcode multiple lines in table
+  * docs: Update M-code modal group 5
+  * qtplasmac: gcode error message
+  * Merge pull request #2935 from Sigma1912/2.9-g92-fix-active-gcode
+  * hal_gpio: Remove misleading comments
+  * qtdragon/hd -turn the blur effect off by default
+  * qtplasmac: stop torch crash during offset probing
+  * fix double indication of 'G52'/'G92' and 'G92.2' in active gcodes list
+  * qtdragon/hd -update version number
+  * qtdragon/hd -fix move to sensor units error with inch configs
+  * docs: wrong link for div2 in components.adoc
+  * Merge pull request #2919 from Sigma1912/2.9-Fix-typo-in-docs-about-g92-persistence
+  * docs: little fix in components.adoc
+  * add some references in man pages
+  * qtplasmac: fix table view position for all machine coordinates
+  * Update overview.adoc: Fix typos about 'DISABLE_G92_PERSISTENCE''
+  * qtplasmac: fix matl overlay for locales that use a comma as a decimal
+  * qtdragon_hd -keybinding: add instance reference to keybinding
+  * Merge pull request #2897 from satiowadahc/cw-graphicbugfixs
+  * Merge pull request #2883 from havardAasen/gpiod
+  * qtvcp -stylesheet editor: add the config's preferred search path
+  * qtplasmac: add translation for tool type
+  * qtplasmac: fix gcode filter spotting coordinates when overburn is active
+  * qtplasmac:  allow Z DRO to display torch height in manual cut
+  * qtplasmac: run from line fixes
+  * qtplasmac: fix state when cut recovery offsets are reset
+  * plasmac: fix manual cut abort state
+  * docs: fix qtplasmac estop type info
+  * docs - qtplasmac:  fix locale creation
+  * Merge pull request #2901 from jethornton/2.9
+  * Update python-interface.adoc
+  * Note that the axes stat has been removed and show a way to get the same information from axis_mask
+  * Removing While Loop, Correcting Typo
+  * Execute 'aclocal' when generating configuration files
+  * qtplasmac: fix missing g64 value in run from line
+  * Use pkg-config macro to check for libgpiod
+  * When checking for pkg-config, use it's own macro
+  * qtdragon -auto probe sim: add a probe to tool table
+  * qtvcp -versa/basic probe: fix path for inside probing
+  * Fix structural error in encoder read (broke quad error handling)
+  * Merge pull request #2868 from petterreinholdtsen/2.9-doc-poduce-typo
+  * docs: add axis type to [AXIS_<letter>] Section
+  * Fix typo in system requirement (poduce->produce).
+  * qtdragon -docs: update about camview scaling and spindle feedback pins
+  * qtdragon/hd -update version file
+  * qtdragon/hd -allow camview size aspect adjustments from the preference file
+  * Fix transient encoder error when error checking enabled
+  * qtvcp -docs: add handler subclassing info for panels
+  * qtvcp -docs: little spelling fix and better informing title
+  * qtvcp -pstat: add convenience function to convert file name to module pathname
+  * qtvcp -cam_align panel: use preference file to record states
+  * qtvcp -cam_view: make sure the image is square
+  * qtvcp -panels: fix initialization order error
+  * qtvcp -panels: fix calling of embedded panels cleanup functions
+  * Merge pull request #2857 from havardAasen/docs-gpio
+  * Use a 'description list' for the modifiers
+  * Change numbered list to an AsciiDoc, numbered list
+  * Highlight some more words in hal_gpio.adoc
+  * Fix some typos
+  * Merge pull request #2854 from smoe/docs_typos
+  * Change to AsciiDoc code block syntax
+  * docs: punctuation and short backport on o-codes from master
+  * docs: Fix code block tags in hal_gpio.adoc
+  * Merge pull request #2848 from smoe/Fix_Bugs_URL
+  * docs: sf.net-> github issues
+  * Add LinuxCNC version info to gmoccapy release notes
+  * qtplasmac: fix conversational triangle
+  * Shrink synaptic screenshot (Issue #2847)
+  * Resize image in updating-linuxcnc.adoc (fixes #2847)
+  * Update mesa_modbus.adoc
+  * Merge pull request #2843 from havardAasen/numpy-deprecation
+  * image-to-gcode: Fixes NumPy deprecation warning
+  * axis: update dro when switching to dro tab
+  * Merge pull request #2840 from smoe/docs29_misc_pc_5
+  * Update docs/src/getting-started/getting-linuxcnc.adoc
+  * Update debian/rules.in
+  * Update docs/src/getting-started/getting-linuxcnc.adoc
+  * docs: Updated comments on the RPi
+  * debian: Better readable comments in d/rules
+  * docs: Fix broken merge
+  * docs: Stepconf -> StepConf
+  * docs: Extra para on hardware specs, better table, captions.
+  * docs: Modest increase of hardware requirements.
+  * docs: Consistent spelling of Live CD/DVD/image
+  * docs: mostly white space, admittedly
+  * Merge pull request #2828 from havardAasen/deprecated-pil-command
+  * Merge pull request #2711 from smoe/debian_package_upload_instructions
+  * Merge pull request #2792 from Sigma1912/patch-5
+  * Merge pull request #2834 from smoe/docs_typos
+  * Merge pull request #2831 from hansu/fix-gmoccapy-fullscreen-window-size
+  * Merge pull request #2835 from zz912/patch-24
+  * Gmoccapy.py - LOG.debug text bug
+  * docs: Eliminated some terminal blanks in docs.
+  * Typo found in documentation.
+  * qtvcp -docs: add writeup on preferred way to add custom code to screens.
+  * gmoccapy: remember window size and position when switching back from fullscreen/maximized
+  * gmoccapy: fix "window does not fit 1024x768 in fullscreen"
+  * Update deprecated Pillow constant
+  * docs: 2.9.2 to 2.9.y
+  * docs: Typo, 2.9.1 -> 2.9.2
+  * Check for correct return value after call to 'pthread'
+  * gmoccapy: fix setting of keyboard size only in window mode
+  * qtvcp -cam_align panel: add ability to set X and Y camera scaling
+  * qtvcp -camview: - add ability to fix aspect ratio distrortion
+  * qtdragon_hd -fix macro button layout so they show properly
+  * qtdragon -fix macro button layout so button show properly
+  * qtvcp -add a very useful pyqt HAL signal
+  * qtvcp -aux_program _loader -use python3 to load gcode ripper
+  * Merge pull request #2819 from zz912/patch-23
+  * Update gmoccapy_postgui.hal
+  * Merge branch '2.8'
+  * gmoccapy: button "run from line" was always displayed as inactive
+  * Merge pull request #2813 from hansu/gmoccapy-3_4_7
+  * docs: fix missing linebreak in panelui.adoc
+  * gmoccapy: button "run from line" was always displayed as inactive
+  * gmoccapy: add setting for smaller keyboard width
+  * gmoccapy: fix box_dro_side is displayed in G-code editor (#2627)
+  * gmoccapy: update changelog
+  * gmoccapy: fix error when audio is not available
+  * gmoccapy: fix window size increase on edit button
+  * Merge pull request #2811 from hansu/gmoccapy-add-sourceview-theme-setting
+  * gtksourceview: apply selection color from theme
+  * gmoccapy: add setting for G-code theme (GtkSourceView)
+  * gmoccapy: change debug level to '0' in sample config
+  * Merge pull request #2807 from havardAasen/impossible-nulls
+  * qtdragon_hd -update version
+  * Merge pull request #2809 from smoe/docs_pointer_to_apt_builddep
+  * docs: Extra verbosity, simplifications in example command lines
+  * docs: Pointer to apt-get build-dep
+  * Fixes another address that can't be NULL
+  * Fixes warning about address will never be NULL
+  * Fixes compiler warning: comparison will always evaluate as ‘true’
+  * Merge pull request #2799 from smoe/docs_translations_rpi_02
+  * Merge pull request #2798 from phillc54/phillc54/pncconf
+  * Merge pull request #2742 from mozmck/2.9-g64fix
+  * qtdragon_hd -fix setting of axis tool buttons on 4th/5th axes
+  * qtdragon -maxprobe should be a positive number
+  * qtvcp -pstat: add ability to import the default handler class for subclassing
+  * Merge pull request #2797 from smoe/docs_translations_mix_01
+  * Fix PyNGCGUI for several configurations
+  * docs: mostly white space, some punctuation.
+  * docs: improved (?) clarity on RPi HAL GPIO ports
+  * pncconf: use CSS for coloring stepscale and encoderscale widgets
+  * docs: Reacting to 'self' in PR #2797
+  * docs: Series of smallish fixes.
+  * Update glcanon.py
+  * debian: whitespace adjusted in README.source
+  * documentation: debian: explain linuxcnc-gbp repository
+  * debian: review of build instructions
+  * Fix G64 tolerance getting reset on E-stop
+  * docs/building: direct towards the -B flag of dpkg-buildpackage
+  * docs: building - feedback by @petterreinholdtsen
+  * docs: Update of build instructions
+  * Use G38.3 in qt_auto_probe_tool.ngc to be able to check probe status.
+  * Make it easier to figure out where the current G43 values are stored.
+
+ -- Andy Pugh <andy@bodgesoc.org>  Sun, 07 Jul 2024 10:12:14 +0100
+
 
 linuxcnc (1:2.9.2) UNRELEASED; urgency=medium
 

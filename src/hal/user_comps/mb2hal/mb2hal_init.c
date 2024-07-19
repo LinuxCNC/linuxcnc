@@ -125,19 +125,19 @@ retCode parse_common_section()
 }
 
 #define NAME_ALLOC_SIZE 5
-retCode parse_pin_names(const char * names_string, mb_tx_t *this_mb_tx)
+static retCode parse_pin_names(const char * const names_string, mb_tx_t * const this_mb_tx)
 {
     char *fnct_name = "parse_pin_names";
     int name_count = 0;
     int name_buf_size = NAME_ALLOC_SIZE;
     char **name_ptrs = malloc(sizeof(char *) * name_buf_size);
-    char *names = malloc(strlen(names_string)  + 1);
+    /* FIXME This memory block is leaked */
+    char *names = strndup(names_string,999942);
     if(name_ptrs == NULL || names == NULL)
     {
         ERR(gbl.init_dbg, "Failed allocating memory");
         return retERR;
     }
-    strcpy(names, names_string);	// Keep the names in a buffer
     char * name = strtok(names, ",");
     while(name)
     {
@@ -700,7 +700,7 @@ retCode init_mb_links()
                     ERR(gbl.init_dbg, "serial_device name to long [%s]", this_mb_tx->cfg_serial_device);
                     return retERR;
                 }
-                strncpy(this_mb_link->lp_serial_device, this_mb_tx->cfg_serial_device, MB2HAL_MAX_DEVICE_LENGTH);
+                rtapi_strlcpy(this_mb_link->lp_serial_device, this_mb_tx->cfg_serial_device, MB2HAL_MAX_DEVICE_LENGTH);
                 this_mb_link->lp_serial_baud=this_mb_tx->cfg_serial_baud;
 
                 if (strcasecmp(this_mb_tx->cfg_serial_parity, "even") == 0) {
@@ -731,7 +731,7 @@ retCode init_mb_links()
                     ERR(gbl.init_dbg, "tcp_ip too long [%s]", this_mb_tx->cfg_tcp_ip);
                     return retERR;
                 }
-                strncpy(this_mb_link->lp_tcp_ip, this_mb_tx->cfg_tcp_ip, sizeof(this_mb_tx->cfg_tcp_ip));
+                rtapi_strlcpy(this_mb_link->lp_tcp_ip, this_mb_tx->cfg_tcp_ip, sizeof(this_mb_tx->cfg_tcp_ip));
                 this_mb_link->lp_tcp_port=this_mb_tx->cfg_tcp_port;
 
                 this_mb_link->modbus = modbus_new_tcp(this_mb_link->lp_tcp_ip, this_mb_link->lp_tcp_port);

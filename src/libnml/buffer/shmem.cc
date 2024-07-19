@@ -32,6 +32,7 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
+#include <rtapi_string.h>	/* rtapi_strlcpy */
 #include "rcs_print.hh"		/* rcs_print_error() */
 #include "cms.hh"		/* class CMS */
 #include "shmem.hh"		/* class SHMEM */
@@ -319,7 +320,7 @@ int SHMEM::open()
 		rcs_print_error
 		    ("Shared memory buffers %s and %s may conflict. (key=%d(0x%X))\n",
 		    BufferName, cptr, key, key);
-		strncpy(cptr, BufferName, 32);
+		rtapi_strlcpy(cptr, BufferName, 32);
 	    }
 	}
 	if (master) {
@@ -331,7 +332,7 @@ int SHMEM::open()
 		memset(autokey_table_end, 0, size - 32 - autokey_table_size);
 	    }
 #endif
-	    strncpy((char *) shm->addr, BufferName, 32);
+	    rtapi_strlcpy((char *) shm->addr, BufferName, 32);
 	}
 /*! \todo Another #if 0 */
 #if 0				// PC Do we need to use autokey ?

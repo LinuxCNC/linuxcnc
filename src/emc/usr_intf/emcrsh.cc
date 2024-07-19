@@ -46,85 +46,85 @@
             to max sessions. Default is no limit (-1).
   With -- --path Sets the base path to program (G-Code) files, default is "../../nc_files/".
             Make sure to include the final slash (/).
-  With -- -ini <INI file>, uses specified INI file instead of default emc.ini. 
+  With -- -ini <INI file>, uses specified INI file instead of default emc.ini.
 
   There are six commands supported, Where the commands set and get contain LinuxCNC
-  specific sub-commands based on the commands supported by linuxcncrsh, but where the 
+  specific sub-commands based on the commands supported by linuxcncrsh, but where the
   usual prefix ( "emc_") is omitted. Commands and most parameters are not case sensitive.
   The exceptions are passwords, file paths and text strings.
-  
+
   The supported commands are as follows:
-  
+
   ==> HELLO <==
-  
+
   Hello <password> <client> <version>
   If a valid password was entered the server will respond with
-  
+
   HELLO ACK <Server Name> <Server Version>
-  
+
   Where server name and server version are looked up from the implementation.
-  if an invalid password or any other syntax error occurs then the server 
+  if an invalid password or any other syntax error occurs then the server
   responds with:
-  
+
   HELLO NAK
-  
+
   ==> Get <==
-  
+
   The get command includes one of the LinuxCNC sub-commands, described below and
-  zero or more additional parameters. 
-  
+  zero or more additional parameters.
+
   ==> Set <==
-  
+
   The set command inclides one of the LinuxCNC sub-commands, described below and
   one or more additional parameters.
-  
+
   ==> Quit <==
-  
+
   The quit command disconnects the associated socket connection.
-  
+
   ==> Shutdown <==
-  
+
   The shutdown command tells LinuxCNC to shutdown before quitting the connection. This
   command may only be issued if the Hello has been successfully negotiated and the
   connection has control of the CNC (see enable sub-command below). This command
   has no parameters.
-  
+
   ==> Help <==
-  
+
   The help command will return help information in text format over the telnet
   connection. If no parameters are specified, it will itemize the available commands.
   If a command is specified, it will provide usage information for the specified
   command. Help will respond regardless of whether a "Hello" has been
   successfully negotiated.
-  
-  
+
+
   LinuxCNC sub-commands:
-  
+
   echo on | off
   With get will return the current echo state, with set, sets the echo
   state. When echo is on, all commands will be echoed upon receipt. This
   state is local to each connection.
-  
+
   verbose on | off
   With get will return the current verbose state, with set, sets the
   verbose state. When in verbose mode is on, all set commands return
   positive acknowledgement in the form SET <COMMAND> ACK. In addition,
   text error messages will be issued when in verbose mode. This state
   is local to each connection.
-  
+
   enable <pwd> | off
   With get will return On or Off to indicate whether the current connection
   is enabled to perform control functions. With set and a valid password,
   the current connection is enabled for control functions. "OFF" may not
   be used as a password and disables control functions for this connection.
-  
+
   config [TBD]
-  
+
   comm_mode ascii | binary
   With get, will return the current communications mode. With set, will
-  set the communications mode to the specified mode. The binary protocol 
+  set the communications mode to the specified mode. The binary protocol
   is TBD.
-  
+
   comm_prot <version no>
   With get, returns the current protocol version used by the server,
   with set, sets the server to use the specified protocol version,
@@ -220,7 +220,7 @@
   load_tool_table <file>
   Loads the tool table specified by <file>
 
-  home 0 | 1 | 2 | ... 
+  home 0 | 1 | 2 | ...
   Homes the indicated joint.
 
   jog_stop joint_number|axis_letter
@@ -319,10 +319,10 @@
   1.000 is "mm", 0.1 is "cm", otherwise it's "custom".
   For angular joints, something close to 1.000 is deemed "deg",
   PI/180 is "rad", 100/90 is "grad", otherwise it's "custom".
- 
+
   program_units
   program_linear_units
-  Returns "inch", "mm", "cm", or "none", for the corresponding linear 
+  Returns "inch", "mm", "cm", or "none", for the corresponding linear
   units that are active in the program interpreter.
 
   program_angular_units
@@ -345,7 +345,7 @@
   display_linear_units
   display_angular_units
   Returns "inch", "mm", "cm", or "deg", "rad", "grad", or "custom",
-  for the linear or angular units that are active in the display. 
+  for the linear or angular units that are active in the display.
   This is effectively the value of linearUnitConversion or
   angularUnitConversion, resp.
 
@@ -353,7 +353,7 @@
   With no args, returns the unit conversion active. With arg, sets the
   units to be displayed. If it's "auto", the units to be displayed match
   the program units.
- 
+
   angular_unit_conversion {deg | rad | grad | auto}
   With no args, returns the unit conversion active. With arg, sets the
   units to be displayed. If it's "auto", the units to be displayed match
@@ -379,7 +379,7 @@
   kinematics_type
   returns the type of kinematics functions used identity=1, serial=2,
   parallel=3, custom=4
-  
+
   override_limits on | off
   If parameter is on, disables end of travel hardware limits to allow
   jogging off of a limit. If parameters is off, then hardware limits
@@ -387,11 +387,11 @@
 
   optional_stop  none | 0 | 1
   returns state of optional setop, sets it or deactivates it (used to stop/continue on M1)
-  
+
   <------------------------------------------------>
-  
+
   To Do:
-  
+
   1> Load / save connect and enable passwords to file.
   2> Implement commands to set / get passwords
   3> Get enable to tell peer connections which connection has control.
@@ -402,7 +402,7 @@
 
 typedef enum {
   cmdHello, cmdSet, cmdGet, cmdQuit, cmdShutdown, cmdHelp, cmdUnknown} cmdType;
-  
+
 typedef enum {
   scEcho, scVerbose, scEnable, scConfig, scCommMode, scCommProt, scIniFile,
   scPlat, scIni, scDebug, scWaitMode, scWait, scSetTimeout, scUpdate, scError,
@@ -414,16 +414,16 @@ typedef enum {
   scPause, scResume, scStep, scAbort, scProgram, scProgramLine, scProgramStatus,
   scProgramCodes, scJointType, scJointUnits, scProgramUnits, scProgramLinearUnits,
   scProgramAngularUnits, scUserLinearUnits, scUserAngularUnits, scDisplayLinearUnits,
-  scDisplayAngularUnits, scLinearUnitConversion,  scAngularUnitConversion, scProbeClear, 
-  scProbeTripped, scProbeValue, scProbe, scTeleopEnable, scKinematicsType, scOverrideLimits, 
+  scDisplayAngularUnits, scLinearUnitConversion,  scAngularUnitConversion, scProbeClear,
+  scProbeTripped, scProbeValue, scProbe, scTeleopEnable, scKinematicsType, scOverrideLimits,
   scSpindleOverride, scOptionalStop, scSetWait, scUnknown
   } cmdTokenType;
-  
+
 typedef enum {
   rtNoError, rtHandledNoError, rtStandardError, rtCustomError, rtCustomHandledError
   } cmdResponseType;
-  
-typedef struct {  
+
+typedef struct {
   int cliSock;
   char hostName[80];
   char version[8];
@@ -461,10 +461,10 @@ const char *cmdTokens[] = {
   "REL_CMD_POS", "REL_ACT_POS", "JOINT_POS", "POS_OFFSET", "JOINT_LIMIT",
   "JOINT_FAULT", "JOINT_HOMED", "MDI", "TASK_PLAN_INIT", "OPEN", "RUN", "PAUSE",
   "RESUME", "STEP", "ABORT", "PROGRAM", "PROGRAM_LINE", "PROGRAM_STATUS", "PROGRAM_CODES",
-  "JOINT_TYPE", "JOINT_UNITS", "PROGRAM_UNITS", "PROGRAM_LINEAR_UNITS", "PROGRAM_ANGULAR_UNITS", 
-  "USER_LINEAR_UNITS", "USER_ANGULAR_UNITS", "DISPLAY_LINEAR_UNITS", "DISPLAY_ANGULAR_UNITS", 
-  "LINEAR_UNIT_CONVERSION", "ANGULAR_UNIT_CONVERSION", "PROBE_CLEAR", "PROBE_TRIPPED", 
-  "PROBE_VALUE", "PROBE", "TELEOP_ENABLE", "KINEMATICS_TYPE", "OVERRIDE_LIMITS", 
+  "JOINT_TYPE", "JOINT_UNITS", "PROGRAM_UNITS", "PROGRAM_LINEAR_UNITS", "PROGRAM_ANGULAR_UNITS",
+  "USER_LINEAR_UNITS", "USER_ANGULAR_UNITS", "DISPLAY_LINEAR_UNITS", "DISPLAY_ANGULAR_UNITS",
+  "LINEAR_UNIT_CONVERSION", "ANGULAR_UNIT_CONVERSION", "PROBE_CLEAR", "PROBE_TRIPPED",
+  "PROBE_VALUE", "PROBE", "TELEOP_ENABLE", "KINEMATICS_TYPE", "OVERRIDE_LIMITS",
   "SPINDLE_OVERRIDE", "OPTIONAL_STOP", "SET_WAIT", ""};
 
 const char *commands[] = {"HELLO", "SET", "GET", "QUIT", "SHUTDOWN", "HELP", ""};
@@ -517,7 +517,7 @@ static int initSocket()
 {
   int optval = 1;
   int err;
-  
+
   server_sockfd = socket(AF_INET, SOCK_STREAM, 0);
   setsockopt(server_sockfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
   server_address.sin_family = AF_INET;
@@ -535,7 +535,7 @@ static int initSocket()
       rcs_print_error("error listening on socket: %s\n", strerror(errno));
       return err;
   }
-  
+
   // ignore SIGCHLD
   {
     struct sigaction act;
@@ -676,7 +676,7 @@ static int checkAngularConversionStr(char *s)
 
 static cmdResponseType setEcho(connectionRecType *context)
 {
-   
+ 
    char *s = strtok(NULL, delims);
    switch (checkOnOff(s)) {
      case -1: return rtStandardError;
@@ -688,7 +688,7 @@ static cmdResponseType setEcho(connectionRecType *context)
 
 static cmdResponseType setVerbose(connectionRecType *context)
 {
-   
+ 
    char *s = strtok(NULL, delims);
    switch (checkOnOff(s)) {
      case -1: return rtStandardError;
@@ -700,14 +700,14 @@ static cmdResponseType setVerbose(connectionRecType *context)
 
 static cmdResponseType setEnable(connectionRecType *context)
 {
-  
+
    char *s = strtok(NULL, delims);
    if (s && (strcmp(s, enablePWD) == 0) ) {
      enabledConn = context->cliSock;
      context->enabled = true;
      return rtNoError;
      }
-   else 
+   else
      if (checkOnOff(s) == 1) {
        context->enabled = false;
        enabledConn = -1;
@@ -725,7 +725,7 @@ static cmdResponseType setConfig(connectionRecType *context)
 static cmdResponseType setCommMode(connectionRecType *context)
 {
   int ret;
-  
+
   char *s = strtok(NULL, delims);
   ret = checkBinaryASCII(s);
   if (ret == -1) return rtStandardError;
@@ -745,7 +745,7 @@ static cmdResponseType setDebug(connectionRecType *context)
 {
   char *pLevel;
   int level;
-  
+
   pLevel = strtok(NULL, delims);
   if (!pLevel) return rtStandardError;
   if (sscanf(pLevel, "%i", &level) < 1) return rtStandardError;
@@ -822,10 +822,10 @@ static cmdResponseType setWait(connectionRecType *context)
   char *s = strtok(NULL, delims);
   switch (checkReceivedDoneNone(s)) {
     case -1: return rtStandardError;
-    case 0: 
+    case 0:
       if (emcCommandWaitReceived() != 0) return rtStandardError;
       break;
-    case 1: 
+    case 1:
       if (emcCommandWaitDone() != 0) return rtStandardError;
       break;
     case 2: ;
@@ -837,7 +837,7 @@ static cmdResponseType setWait(connectionRecType *context)
 static cmdResponseType setTimeout(connectionRecType *context)
 {
   float Timeout;
-  
+
   char *s = strtok(NULL, delims);
   if (!s) return rtStandardError;
   if (sscanf(s, "%f", &Timeout) < 1) return rtStandardError;
@@ -1042,7 +1042,7 @@ static cmdResponseType setToolOffset(connectionRecType *context)
 {
   int tool;
   float length, diameter;
-  
+
   char *s = strtok(NULL, delims);
   if (!s) return rtStandardError;
   if (sscanf(s, "%d", &tool) < 1) return rtStandardError;
@@ -1052,14 +1052,14 @@ static cmdResponseType setToolOffset(connectionRecType *context)
   s = strtok(NULL, delims);
   if (!s) return rtStandardError;
   if (sscanf(s, "%f", &diameter) < 1) return rtStandardError;
-  
+
   if (sendToolSetOffset(tool, length, diameter) != 0) return rtStandardError;
   return rtNoError;
 }
 
 static cmdResponseType setOverrideLimits(connectionRecType *context)
 {
-   char *s = strtok(NULL, delims); 
+   char *s = strtok(NULL, delims);
    switch (checkOnOff(s)) {
      case -1: return rtStandardError;
      case 0: if (sendOverrideLimits(0) != 0) return rtStandardError; break;
@@ -1078,7 +1078,7 @@ static cmdResponseType setMDI(connectionRecType *context)
 static cmdResponseType setHome(connectionRecType *context)
 {
   int joint;
-  
+
   char *jointStr = strtok(NULL, delims);
   if (!jointStr) return rtStandardError;
   if (sscanf(jointStr, "%d", &joint) < 1) return rtStandardError;
@@ -1115,7 +1115,7 @@ static cmdResponseType setJogStop(connectionRecType *context)
   int ja,jnum,jjogmode;
   char aletter;
   //parms:  jnum|aletter
-  
+
   char *s = strtok(NULL, delims);
   if (!s) return rtStandardError;
 
@@ -1159,7 +1159,7 @@ static cmdResponseType setJog(connectionRecType *context)
 
   s = strtok(NULL, delims);
   if (!s) return rtStandardError;
-  if (sscanf(s, "%f", &speed) < 1) return rtStandardError; 
+  if (sscanf(s, "%f", &speed) < 1) return rtStandardError;
 
   if (sendJogCont(ja, jjogmode, speed) != 0) return rtStandardError;
   return rtNoError;
@@ -1187,7 +1187,7 @@ static cmdResponseType setJogIncr(connectionRecType *context)
   char aletter;
   float speed, incr;
   //parms:  jnum|aletter speed distance
-  
+
   char *s = strtok(NULL, delims);
   if (!s) return rtStandardError;
 
@@ -1208,11 +1208,11 @@ static cmdResponseType setJogIncr(connectionRecType *context)
   s = strtok(NULL, delims);
   if (!s) return rtStandardError;
 
-  if (sscanf(s, "%f", &speed) < 1) return rtStandardError; 
+  if (sscanf(s, "%f", &speed) < 1) return rtStandardError;
   s = strtok(NULL, delims);
 
   if (!s) return rtStandardError;
-  if (sscanf(s, "%f", &incr) < 1) return rtStandardError; 
+  if (sscanf(s, "%f", &incr) < 1) return rtStandardError;
 
   if (sendJogIncr(ja, jjogmode, speed, incr) != 0) return rtStandardError;
   return rtNoError;
@@ -1239,7 +1239,7 @@ static cmdResponseType setOpen(connectionRecType *context)
   }
 
   if (sendProgramOpen(context->progName) != 0) return rtStandardError;
-    
+  
   return rtNoError;
 }
 
@@ -1289,7 +1289,7 @@ static cmdResponseType setAbort(connectionRecType *context)
 
 static cmdResponseType setLinearUnitConversion(connectionRecType *context)
 {
-   char *s = strtok(NULL, delims); 
+   char *s = strtok(NULL, delims);
    switch (checkConversionStr(s)) {
      case -1: return rtStandardError;
      case 0: linearUnitConversion = LINEAR_UNITS_INCH; break;
@@ -1333,7 +1333,7 @@ static cmdResponseType setTeleopEnable(connectionRecType *context)
 static cmdResponseType setProbe(connectionRecType *context)
 {
   float x, y, z;
-  
+
   char *s = strtok(NULL, delims);
   if (!s) return rtStandardError;
   fprintf(stderr,"0_probe %s\n",s);
@@ -1348,7 +1348,7 @@ static cmdResponseType setProbe(connectionRecType *context)
   if (!s) return rtStandardError;
   fprintf(stderr,"2_probe %s\n",s);
   if (sscanf(s, "%f", &z) < 1) return rtStandardError;
-  
+
   if(sendProbe(x, y, z) != 0) return rtStandardError;
   return rtNoError;
 }
@@ -1511,7 +1511,7 @@ int commandSet(connectionRecType *context)
     case scProgramCodes: ret = rtStandardError; break;
     case scJointType: ret = rtStandardError; break;
     case scJointUnits: ret = rtStandardError; break;
-    case scProgramUnits: 
+    case scProgramUnits:
     case scProgramLinearUnits: ret = rtStandardError; break;
     case scProgramAngularUnits: ret = rtStandardError; break;
     case scUserLinearUnits: ret = rtStandardError; break;
@@ -1533,7 +1533,7 @@ int commandSet(connectionRecType *context)
 
   switch (ret) {
 
-    case rtNoError:  
+    case rtNoError:
       if (context->verbose) {
         dprintf(context->cliSock, "SET %s ACK\r\n", tokenStr);
       }
@@ -1576,7 +1576,7 @@ static cmdResponseType getVerbose(connectionRecType *context)
 
 static cmdResponseType getEnable(connectionRecType *context)
 {
-  if (context->cliSock == enabledConn) 
+  if (context->cliSock == enabledConn)
     OUT("ENABLE ON");
   else OUT("ENABLE OFF");
   return rtNoError;
@@ -1629,7 +1629,7 @@ static cmdResponseType getSetWait(connectionRecType *context)
 static cmdResponseType getPlat(connectionRecType *context)
 {
   OUT("PLAT Linux");
-  return rtNoError;  
+  return rtNoError;
 }
 
 static cmdResponseType getEStop(connectionRecType *context)
@@ -1641,13 +1641,13 @@ static cmdResponseType getEStop(connectionRecType *context)
 }
 
 static cmdResponseType getTimeout(connectionRecType *context)
-{  
+{
   OUT("TIMEOUT %f", emcTimeout);
   return rtNoError;
 }
 
 static cmdResponseType getTime(connectionRecType *context)
-{  
+{
   OUT("TIME %f", etime());
   return rtNoError;
 }
@@ -1693,14 +1693,14 @@ static cmdResponseType getOperatorDisplay(connectionRecType *context)
     OUT("emc_operator_display: bad status from LinuxCNC");
     return rtCustomError;
   }
-  
+
   if (operator_display_string[0] == 0)
     OUT("OPERATOR_DISPLAY OK");
   else {
     OUT("OPERATOR_DISPLAY %s", operator_display_string);
     operator_display_string[0] = 0;
   }
-  return rtNoError; 
+  return rtNoError;
 }
 
 static cmdResponseType getOperatorText(connectionRecType *context)
@@ -1716,7 +1716,7 @@ static cmdResponseType getOperatorText(connectionRecType *context)
     OUT("OPERATOR_TEXT %s", operator_text_string);
     operator_text_string[0] = 0;
   }
-  return rtNoError; 
+  return rtNoError;
 }
 
 static cmdResponseType getMachine(connectionRecType *context)
@@ -1725,7 +1725,7 @@ static cmdResponseType getMachine(connectionRecType *context)
     OUT("MACHINE ON");
   else
     OUT("MACHINE OFF");
-  return rtNoError; 
+  return rtNoError;
 }
 
 static cmdResponseType getMode(connectionRecType *context)
@@ -1736,7 +1736,7 @@ static cmdResponseType getMode(connectionRecType *context)
     case EMC_TASK_MODE::MDI: OUT("MODE MDI"); break;
     default: OUT("MODE ?");
   }
-  return rtNoError; 
+  return rtNoError;
 }
 
 static cmdResponseType getMist(connectionRecType *context)
@@ -1744,7 +1744,7 @@ static cmdResponseType getMist(connectionRecType *context)
   if (emcStatus->io.coolant.mist == 1)
     OUT("MIST ON");
   else OUT("MIST OFF");
-  return rtNoError; 
+  return rtNoError;
 }
 
 static cmdResponseType getFlood(connectionRecType *context)
@@ -1752,7 +1752,7 @@ static cmdResponseType getFlood(connectionRecType *context)
   if (emcStatus->io.coolant.flood == 1)
     OUT("FLOOD ON");
   else OUT("FLOOD OFF");
-  return rtNoError; 
+  return rtNoError;
 }
 
 static cmdResponseType getSpindle(connectionRecType *context)
@@ -1849,15 +1849,15 @@ static cmdResponseType getBrake(connectionRecType *context)
 }
 
 static cmdResponseType getTool(connectionRecType *context)
-{  
+{
   OUT("TOOL %d", emcStatus->io.tool.toolInSpindle);
-  return rtNoError; 
+  return rtNoError;
 }
 
 static cmdResponseType getToolOffset(connectionRecType *context)
 {
   OUT("TOOL_OFFSET %f", emcStatus->task.toolOffset.tran.z);
-  return rtNoError; 
+  return rtNoError;
 }
 
 static cmdResponseType getAbsCmdPos(connectionRecType *context)
@@ -2068,7 +2068,7 @@ static cmdResponseType getJointPos(connectionRecType *context)
     );
     return rtNoError;
   }
-  
+
   OUT("JOINT_POS %d %f", joint, emcStatus->motion.joint[joint].input);
   return rtNoError;
 }
@@ -2093,27 +2093,27 @@ static cmdResponseType getPosOffset(connectionRecType *context)
       break;
 
     case 0:
-      OUT("POS_OFFSET X %f", convertLinearUnits(emcStatus->task.g5x_offset.tran.x + emcStatus->task.g92_offset.tran.x)); 
+      OUT("POS_OFFSET X %f", convertLinearUnits(emcStatus->task.g5x_offset.tran.x + emcStatus->task.g92_offset.tran.x));
       break;
 
     case 1:
-      OUT("POS_OFFSET Y %f", convertLinearUnits(emcStatus->task.g5x_offset.tran.y + emcStatus->task.g92_offset.tran.y)); 
+      OUT("POS_OFFSET Y %f", convertLinearUnits(emcStatus->task.g5x_offset.tran.y + emcStatus->task.g92_offset.tran.y));
       break;
 
     case 2:
-      OUT("POS_OFFSET Z %f", convertLinearUnits(emcStatus->task.g5x_offset.tran.z + emcStatus->task.g92_offset.tran.z)); 
+      OUT("POS_OFFSET Z %f", convertLinearUnits(emcStatus->task.g5x_offset.tran.z + emcStatus->task.g92_offset.tran.z));
       break;
 
     case 3:
-      OUT("POS_OFFSET A %f", convertLinearUnits(emcStatus->task.g5x_offset.a + emcStatus->task.g92_offset.a)); 
+      OUT("POS_OFFSET A %f", convertLinearUnits(emcStatus->task.g5x_offset.a + emcStatus->task.g92_offset.a));
       break;
 
     case 4:
-      OUT("POS_OFFSET B %f", convertLinearUnits(emcStatus->task.g5x_offset.b + emcStatus->task.g92_offset.b)); 
+      OUT("POS_OFFSET B %f", convertLinearUnits(emcStatus->task.g5x_offset.b + emcStatus->task.g92_offset.b));
       break;
 
     case 5:
-      OUT("POS_OFFSET C %f", convertLinearUnits(emcStatus->task.g5x_offset.c + emcStatus->task.g92_offset.c)); 
+      OUT("POS_OFFSET C %f", convertLinearUnits(emcStatus->task.g5x_offset.c + emcStatus->task.g92_offset.c));
       break;
   }
   return rtNoError;
@@ -2124,7 +2124,7 @@ static cmdResponseType getJointLimit(connectionRecType *context)
   const char *pJointLimit = "JOINT_LIMIT";
   char buf[16];
   int joint, i;
-  
+
   char *s = strtok(NULL, delims);
   if (!s) {
     rtapi_strxcpy(context->outBuf, pJointLimit);
@@ -2169,7 +2169,7 @@ static cmdResponseType getJointFault(connectionRecType *context)
   const char *pJointFault = "JOINT_FAULT";
   char buf[16];
   int joint, i;
-  
+
   char *s = strtok(NULL, delims);
   if (!s) {
     rtapi_strxcpy(context->outBuf, pJointFault);
@@ -2192,7 +2192,7 @@ static cmdResponseType getJointFault(connectionRecType *context)
 static cmdResponseType getOverrideLimits(connectionRecType *context)
 {
   const char *pOverrideLimits = "OVERRIDE_LIMITS %d";
-  
+
   OUT(pOverrideLimits, emcStatus->motion.joint[0].overrideLimits);
   return rtNoError;
 }
@@ -2233,12 +2233,12 @@ static cmdResponseType getProgram(connectionRecType *context)
 static cmdResponseType getProgramLine(connectionRecType *context)
 {
   int lineNo;
-  
+
   if ((programStartLine< 0) || (emcStatus->task.readLine < programStartLine))
     lineNo = emcStatus->task.readLine;
   else
     if (emcStatus->task.currentLine > 0)
-      if ((emcStatus->task.motionLine > 0) && 
+      if ((emcStatus->task.motionLine > 0) &&
         (emcStatus->task.motionLine < emcStatus->task.currentLine))
 	  lineNo = emcStatus->task.motionLine;
       else lineNo = emcStatus->task.currentLine;
@@ -2263,7 +2263,7 @@ static cmdResponseType getProgramCodes(connectionRecType *context)
   const char *pProgramCodes = "PROGRAM_CODES ";
   char buf[256];
   int code, i;
-  
+
   buf[0] = 0;
   rtapi_strxcpy(context->outBuf, pProgramCodes);
   for (i=1; i<ACTIVE_G_CODES; i++) {
@@ -2285,7 +2285,7 @@ static cmdResponseType getJointType(connectionRecType *context)
   const char *pJointType = "JOINT_TYPE";
   char buf[16];
   int joint, i;
-  
+
   char *s = strtok(NULL, delims);
   if (!s) {
     rtapi_strxcpy(context->outBuf, pJointType);
@@ -2314,16 +2314,16 @@ static cmdResponseType getJointUnits(connectionRecType *context)
   const char *pJointUnits = "JOINT_UNITS";
   char buf[16];
   int joint, i;
-  
+
   char *s = strtok(NULL, delims);
   if (!s) {
     rtapi_strxcpy(context->outBuf, pJointUnits);
     for (i=0; i<6; i++) {
       switch (emcStatus->motion.joint[i].jointType) {
-        case EMC_LINEAR: 
+        case EMC_LINEAR:
 	  if (CLOSE(emcStatus->motion.joint[i].units, 1.0, LINEAR_CLOSENESS))
 	    rtapi_strxcat(context->outBuf, " MM");
-	  else 
+	  else
 	    if (CLOSE(emcStatus->motion.joint[i].units, INCH_PER_MM,
 	      LINEAR_CLOSENESS)) rtapi_strxcat(context->outBuf, " INCH");
 	    else
@@ -2349,10 +2349,10 @@ static cmdResponseType getJointUnits(connectionRecType *context)
   else {
       joint = atoi(s);
       switch (emcStatus->motion.joint[joint].jointType) {
-        case EMC_LINEAR: 
+        case EMC_LINEAR:
 	  if (CLOSE(emcStatus->motion.joint[joint].units, 1.0, LINEAR_CLOSENESS))
 	    rtapi_strxcpy(buf, "MM");
-	  else 
+	  else
 	    if (CLOSE(emcStatus->motion.joint[joint].units, INCH_PER_MM,
 	      LINEAR_CLOSENESS)) rtapi_strxcpy(buf, "INCH");
 	    else
@@ -2431,7 +2431,7 @@ static cmdResponseType getDisplayLinearUnits(connectionRecType *context)
       case LINEAR_UNITS_INCH: OUT("DISPLAY_LINEAR_UNITS INCH"); break;
       case LINEAR_UNITS_MM: OUT("DISPLAY_LINEAR_UNITS MM"); break;
       case LINEAR_UNITS_CM: OUT("DISPLAY_LINEAR_UNITS CM"); break;
-      case LINEAR_UNITS_AUTO: 
+      case LINEAR_UNITS_AUTO:
         switch (emcStatus->task.programUnits) {
 	        case CANON_UNITS_MM: OUT("DISPLAY_LINEAR_UNITS MM"); break;
 	        case CANON_UNITS_INCHES: OUT("DISPLAY_LINEAR_UNITS INCH"); break;
@@ -2450,7 +2450,7 @@ static cmdResponseType getDisplayAngularUnits(connectionRecType *context)
       case ANGULAR_UNITS_DEG: OUT("DISPLAY_ANGULAR_UNITS DEG"); break;
       case ANGULAR_UNITS_RAD: OUT("DISPLAY_ANGULAR_UNITS RAD"); break;
       case ANGULAR_UNITS_GRAD: OUT("DISPLAY_ANGULAR_UNITS GRAD"); break;
-      case ANGULAR_UNITS_AUTO: OUT("DISPLAY_ANGULAR_UNITS DEG"); break; 
+      case ANGULAR_UNITS_AUTO: OUT("DISPLAY_ANGULAR_UNITS DEG"); break;
       default: OUT("DISPLAY_ANGULAR_UNITS CUSTOM");
     }
   return rtNoError;
@@ -2463,7 +2463,7 @@ static cmdResponseType getLinearUnitConversion(connectionRecType *context)
       case LINEAR_UNITS_MM: OUT("LINEAR_UNIT_CONVERSION MM"); break;
       case LINEAR_UNITS_CM: OUT("LINEAR_UNIT_CONVERSION CM"); break;
       case LINEAR_UNITS_AUTO: OUT("LINEAR_UNIT_CONVERSION AUTO"); break;
-      default: OUT("LINEAR_UNIT_CONVERSION CUSTOM"); 
+      default: OUT("LINEAR_UNIT_CONVERSION CUSTOM");
     }
   return rtNoError;
 }
@@ -2572,7 +2572,7 @@ int commandGet(connectionRecType *context)
   cmdTokenType cmd;
   char *pch;
   cmdResponseType ret = rtNoError;
-  
+
   pch = strtok(NULL, delims);
   if (!pch) {
     dprintf(context->cliSock, "GET NAK\r\n");
@@ -2641,7 +2641,7 @@ int commandGet(connectionRecType *context)
     case scProgramCodes: ret = getProgramCodes(context); break;
     case scJointType: ret = getJointType(context); break;
     case scJointUnits: ret = getJointUnits(context); break;
-    case scProgramUnits: 
+    case scProgramUnits:
     case scProgramLinearUnits: ret = getProgramLinearUnits(context); break;
     case scProgramAngularUnits: ret = getProgramAngularUnits(context); break;
     case scUserLinearUnits: ret = getUserLinearUnits(context); break;
@@ -2666,13 +2666,13 @@ int commandGet(connectionRecType *context)
       dprintf(context->cliSock, "%s\r\n", context->outBuf);
       break;
     case rtHandledNoError: // Custom ok response already handled, take no action
-      break; 
+      break;
     case rtStandardError: // Standard error response
       dprintf(context->cliSock, setCmdNakStr, pch);
       break;
     case rtCustomError: // Custom error response entered in buffer
       dprintf(context->cliSock, "error: %s\r\n", context->outBuf);
-      break;    
+      break;  
     case rtCustomHandledError: ;// Custom error response handled, take no action
     }
   return 0;
@@ -2744,7 +2744,7 @@ static int helpGet(connectionRecType *context)
     "    Comm_mode\r\n"
     "    Comm_prot\r\n"
     "    Debug\r\n"
-    "    Display_angular_units\r\n" 
+    "    Display_angular_units\r\n"
     "    Display_linear_units\r\n"
     "    Echo\r\n"
     "    Enable\r\n"
@@ -2773,7 +2773,7 @@ static int helpGet(connectionRecType *context)
     "    Probe_tripped\r\n"
     "    Probe_value\r\n"
     "    Program\r\n"
-    "    Program_angular_units\r\n" 
+    "    Program_angular_units\r\n"
     "    Program_codes\r\n"
     "    Program_line\r\n"
     "    Program_linear_units\r\n"
@@ -2903,7 +2903,7 @@ cmdType lookupCommand(char *s)
 {
   cmdType i = cmdHello;
   int temp;
-  
+
   while (i < cmdUnknown) {
     if (strcmp(commands[i], s) == 0) return i;
 //    (int)i += 1;
@@ -2913,7 +2913,7 @@ cmdType lookupCommand(char *s)
     }
   return i;
 }
-  
+
 // handle the linuxcncrsh command in context->inBuf
 int parseCommand(connectionRecType *context)
 {
@@ -2926,14 +2926,14 @@ int parseCommand(connectionRecType *context)
   strupr(cmdStr);
   switch (lookupCommand(cmdStr)) {
 
-    case cmdHello: 
+    case cmdHello:
       if ((ret = commandHello(context)) < 0)
         dprintf(context->cliSock, "HELLO NAK\r\n");
       else
         dprintf(context->cliSock, "HELLO ACK %s 1.1\r\n", serverName);
       break;
 
-    case cmdGet: 
+    case cmdGet:
       ret = commandGet(context);
       break;
 
@@ -2946,7 +2946,7 @@ int parseCommand(connectionRecType *context)
       ret = commandSet(context);
       break;
 
-    case cmdQuit: 
+    case cmdQuit:
       ret = commandQuit(context);
       break;
 

@@ -29,7 +29,7 @@
 #include "rs274ngc_interp.hh"
 #include "rtapi_math.h"
 #include <cmath>
-#include <rtapi_string.h>
+#include <rtapi_string.h>	// rtapi_strlcpy()
 
 using namespace interp_param_global;
 
@@ -1597,7 +1597,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
 	  // context
           if (strlen(_setup.sub_context[_setup.call_level].subName) >= sizeof(oNameBuf))
               ERS(NCE_UNABLE_TO_OPEN_FILE, _setup.sub_context[_setup.call_level].subName);
-	  strncpy(oNameBuf, _setup.sub_context[_setup.call_level].subName,
+	  rtapi_strlcpy(oNameBuf, _setup.sub_context[_setup.call_level].subName,
                   sizeof(oNameBuf));
       } else
 	  // any other m-code should have been handled by read_m()
@@ -3154,7 +3154,7 @@ int Interp::read_text(
          index--) { // remove space at end of raw_line, especially CR & LF
       raw_line[index] = 0;
     }
-    strncpy(line, raw_line, LINELEN);
+    rtapi_strlcpy(line, raw_line, LINELEN);
     CHP(close_and_downcase(line));
     if ((line[0] == '%') && (line[1] == 0) && (_setup.percent_flag)) {
         FINISH();
@@ -3162,8 +3162,8 @@ int Interp::read_text(
     }
   } else {
     CHKS((strlen(command) >= LINELEN), NCE_COMMAND_TOO_LONG);
-    strncpy(raw_line, command, LINELEN);
-    strncpy(line, command, LINELEN);
+    rtapi_strlcpy(raw_line, command, LINELEN);
+    rtapi_strlcpy(line, command, LINELEN);
     CHP(close_and_downcase(line));
   }
 
