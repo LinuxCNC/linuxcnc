@@ -240,7 +240,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.pin_bheight.set(float(self.input_tool_block_height.text()))
         self.pin_latch_rtn = self.HAL_GCOMP_.newpin("backoffdist", hal.HAL_FLOAT, hal.HAL_OUT)
         self.pin_latch_rtn.set(float(self.input_latch_return_dist.text()))
-        self.probe_loaded = self.HAL_GCOMP_.newpin("probe-loaded", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.probe_loaded = self.HAL_GCOMP_.newpin("probe-loaded", hal.HAL_BIT, hal.HAL_OUT)
         self.HAL_GCOMP_.comp.setprefix(oldname)
 
         # install callbacks to update HAL pins

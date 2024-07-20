@@ -194,7 +194,7 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         # make pins available for tool measure remaps
         oldname = self.HAL_GCOMP_.comp.getprefix()
         self.HAL_GCOMP_.comp.setprefix('qtbasicprobe')
-        self.probe_loaded = self.HAL_GCOMP_.newpin("probe-loaded", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.probe_loaded = self.HAL_GCOMP_.newpin("probe-loaded", hal.HAL_BIT, hal.HAL_OUT)
         self.HAL_GCOMP_.comp.setprefix(oldname)
 
         # get current style of the line input
