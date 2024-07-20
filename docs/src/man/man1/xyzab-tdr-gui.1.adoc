@@ -1,4 +1,4 @@
- xyzab-tdr-gui(1)
+= xyzab-tdr-gui(1)
 
 == NAME
 
