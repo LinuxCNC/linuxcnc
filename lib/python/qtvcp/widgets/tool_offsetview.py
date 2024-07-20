@@ -21,7 +21,7 @@ import operator
 from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant, pyqtProperty, QSize, pyqtSlot
 from PyQt5.QtGui import QColor, QIcon
 from PyQt5.QtWidgets import (QTableView, QAbstractItemView, QCheckBox,
-QItemEditorFactory,QDoubleSpinBox,QSpinBox,QStyledItemDelegate)
+QItemEditorFactory,QDoubleSpinBox,QSpinBox,QStyledItemDelegate, qApp)
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action, Info, Tool
 from qtvcp import logger
@@ -181,12 +181,16 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         STATUS.emit('dialog-request', mess)
 
     # numerical only
-    def callDialog(self, text,item):
+    def callDialog(self, text, item, next=False):
         axis = self.tablemodel.headerdata[item.column()]
         tool = self.tablemodel.arraydata[item.row()][1]
+
         mess = {'NAME':self.dialog_code,'ID':'%s__' % self.objectName(),
-                'PRELOAD':float(text), 'TITLE':'Tool {} Offset of {},{}'.format(tool, axis,text),
-                'ITEM':item}
+                'PRELOAD':float(text),
+                'TITLE':'Tool {} Offset of {},{}'.format(tool, axis,text),
+                'ITEM':item,
+                'NEXT':next,
+                'WIDGETCYCLE': True}
         LOG.debug('message sent:{}'.format (mess))
         STATUS.emit('dialog-request', mess)
 
@@ -199,10 +203,52 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         name = bool(message.get('NAME') == self.dialog_code)
         name2 = bool(message.get('NAME') == self.text_dialog_code)
         item = message.get('ITEM')
+        next = message.get('NEXT', False)
+        back = message.get('BACK', False)
+
         if code and name and num is not None:
             self.tablemodel.setData(item, num, None)
         elif code and name2 and num is not None:
             self.tablemodel.setData(item, num, None)
+
+        # request for next input widget to right or left
+        if code and name:
+
+            if next:
+                self.right()
+
+                newobj = self.currentIndex()
+                # if we selected the text column, move back
+                if newobj.column() == 19:
+                    self.left()
+                    newobj = self.currentIndex()
+                cellContent = newobj.data()
+                text = cellContent
+
+                # update the screen
+                qApp.processEvents()
+
+                # update the dialog
+                self.callDialog(text,newobj,True)
+
+            elif back:
+                self.left()
+
+                newobj = self.currentIndex()
+                # if we selected the checkbox column, move forward
+                if newobj.column() == 0:
+                    self.right()
+                    newobj = self.currentIndex()
+
+                newobj = self.currentIndex()
+                cellContent = newobj.data()
+                text = cellContent
+
+                # update the screen
+                qApp.processEvents()
+
+                # update the dialog
+                self.callDialog(text,newobj,True)
 
     #############################################################
 

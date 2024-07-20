@@ -20,7 +20,7 @@ import locale
 
 from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant, pyqtProperty, pyqtSlot
 from PyQt5.QtGui import QColor
-from PyQt5.QtWidgets import QTableView, QAbstractItemView
+from PyQt5.QtWidgets import QTableView, QAbstractItemView, qApp
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action, Info
@@ -192,12 +192,14 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         LOG.debug('message sent:{}'.format (mess))
         STATUS.emit('dialog-request', mess)
 
-    def callDialog(self, text,item):
+    def callDialog(self, text,item,next=False):
         axis = self.tablemodel.headerdata[item.column()]
         system = self.tablemodel.Vheaderdata[item.row()]
         mess = {'NAME':self.dialog_code,'ID':'%s__' % self.objectName(),
                 'PRELOAD':locale.delocalize(text), 'TITLE':'{} Offset of {},{}'.format(system, axis,text),
-                'ITEM':item}
+                'ITEM':item,
+                'NEXT':next,
+                'WIDGETCYCLE': True}
         STATUS.emit('dialog-request', mess)
         LOG.debug('message sent:{}'.format (mess))
 
@@ -209,9 +211,42 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         name = bool(message.get('NAME') == self.dialog_code)
         name2 = bool(message.get('NAME') == self.text_dialog_code)
         item = message.get('ITEM')
+        next = message.get('NEXT', False)
+        back = message.get('BACK', False)
+
         if code and (name or name2) and num is not None:
             self.tablemodel.setData(item, num, None)
             self.tablemodel.layoutChanged.emit()
+        if code and name:
+            # request for next input widget from nextlist
+            if next:
+                self.right()
+
+                newobj = self.currentIndex()
+                # if we selected the text column, move back
+                if newobj.column() == 9:
+                    self.left()
+                    newobj = self.currentIndex()
+                cellContent = newobj.data()
+                text = cellContent
+
+                # update the screen
+                qApp.processEvents()
+
+                # update the dialog
+                self.callDialog(text,newobj,True)
+            elif back:
+                self.left()
+
+                newobj = self.currentIndex()
+                cellContent = newobj.data()
+                text = cellContent
+
+                # update the screen
+                qApp.processEvents()
+
+                # update the dialog
+                self.callDialog(text,newobj,True)
 
     # This function uses the color name (string); setProperty
     # expects a QColor object
