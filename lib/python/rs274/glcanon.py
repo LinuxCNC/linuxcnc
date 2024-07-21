@@ -25,7 +25,15 @@ import array
 import gcode
 import os
 import re
+import sys
 from functools import reduce
+
+# localization
+import locale
+BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
+LOCALEDIR = os.path.join(BASE, "share", "locale")
+locale.setlocale(locale.LC_ALL, '')
+
 
 def minmax(*args):
     return min(*args), max(*args)
@@ -1941,6 +1949,10 @@ class GlCanonDraw:
             self.stale_dlist('program_norapids')
             self.stale_dlist('select_rapids')
             self.stale_dlist('select_norapids')
+
+        # library gcode is written in 'C' language which causes delocalization.
+        # Therefore, we have to activate the default localization again
+        locale.setlocale(locale.LC_ALL, '')
 
         return result, seq
 
