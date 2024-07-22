@@ -11,7 +11,6 @@ and an is-on output.
 \[bu] On a rising edge on pin \\fIin\\fR when \\fIis-on\\fR is high: It sets \\fIoff\\fR until \\fIis-on\\fR becomes low.
 
 
-.ie '\*[.T]'html' \{ .HTML <tt> \}
        ┐     ┌─────xxxxxxxxxxxx┐           ┌─────xxxxxxxxxxxx┐
 .br
 in   : └─────┘     xxxxxxxxxxxx└───────────┘     xxxxxxxxxxxx└─────
@@ -28,7 +27,6 @@ off  : └──────────────────────�
 .br
 is-on: └─────────────────┘                             └───────────
 
-.ie '\*[.T]'html' \{ .HTML </tt> \}
 """;
 
 pin in  bit in;
