@@ -551,7 +551,7 @@ qtversaprobe.backoffdist
 ----
 
 This pin will be true when the loaded tool equals the number set in the Versa Probe tool number in the preference file. +
-It can be used (for example) to inhibit the spindle when the probe is loaded.
+It can be used (for example) to inhibit the spindle when the probe is loaded by connecting it to spindle.0.inhibit.
 
 [source,{hal}]
 ----
@@ -560,7 +560,7 @@ qtversaprobe.probe-loaded
 
 This output pin is available when setting the Basic Probe INI option. +
 This pin will be true when the loaded tool equals the number set in the Basic Probe tool number edit box. +
-It can be used (for example) to inhibit the spindle when the probe is loaded.
+It can be used (for example) to inhibit the spindle when the probe is loaded by connecting it to spindle.0.inhibit.
 
 [source,{hal}]
 ----
@@ -599,15 +599,15 @@ The screen is intended to interface to a VFD, but will still work without it. +
 There are a number of VFD drivers included in the LinuxCNC distribution. +
 It is up to the end user to supply the appropriate driver and HAL file connections according to his own machine setup.
 
-== Auto Raise Z Axis on Spindle Pause
+== Auto Raise Z Axis on Program Pause
 
 QtDragon can be set up to automatically raise and lower the Z axis and stop the spindle, when the program is paused. +
-You select the 'SPINDLE LIFT' or 'NO SPINDLE LIFT' button to select the option to raise the spindle in Z when paused. +
+You toggle the 'SPINDLE LIFT' or 'NO LIFT' button to select the option to raise the spindle in Z when paused. +
 Then when you press the 'PAUSE' button the spindle will lift the amount set on the 'Settings' tab and the spindle will stop. +
 Pressing 'RESUME' will start the spindle and lower the spindle. +
 If you have the HAL pin `spindle.0.at-speed` connected to a driving pin, the spindle will not lower until the pin is true +
 You typically connect this to a timer or logic that detects the speed of the spindle. +
-If that pin is not connected to a driving pin, a dialog will pop up to warn you to wait for the spindle response. +
+If that pin is not connected to a driving pin, a dialog will pop up to warn you to wait for the spindle speed. +
 The spindle will lower when you close that dialog. +
 The amount to raise is set in the 'Settings' tab under the heading 'SPINDLE RAISE'. +
 This line edit box can only be directly set when not in Auto mode. +
@@ -618,6 +618,8 @@ The button increments are 1 inch or 5 mm (depending on the units the machine is 
 If using the Spindle lift option, HALUI can not be used to pause/resume the program.
 There is a pin, 'QtDragon.external-pause' available to pause/resume from an external source.
 You must also enable external offets. In the setting tab check 'use external offsets'
+If you wish to inhibit the spindle when a probe tool is loaded, you will need to use an logical `or` component
+to combine the two spindle inhibit signals to connect to spindle.0.inhibit. 
 
 This optional behaviour requires additions to the INI and the QtDragon_postgui HAL file.
 
@@ -641,8 +643,11 @@ net eoffset_count    qtdragon.eoffset-spindle-count  =>  axis.z.eoffset-counts
 net eoffset          qtdragon.eoffset-value          <=  axis.z.eoffset
 net eoffset-state    qtdragon.eoffset-is-active      <=  motion.eoffset-active
 
+# Inhibit spindle when paused
+net spindle-pause    qtdragon.spindle-inhibit        =>  spindle.0.inhibit
+
 # uncomment for dragon_hd
-#net limited          qtdragon.led-limits-tripped <= motion.eoffset-limited
+#net limited          qtdragon.led-limits-tripped     <= motion.eoffset-limited
 
 setp axis.z.eoffset-enable 1
 setp axis.z.eoffset-scale 1.0
@@ -801,6 +806,25 @@ There are three toggle buttons:
 * 'Auto Skew' This selects if after probing, the system will be rotated or just display the calculated rotation.
 * 'Tool Measure' This (if integrated) turns auto tool probing on and off.
 
+==== HAL Pins
+
+Versaprobe offers 5 output pins for tool measurement purpose and one that can be used to inhibit the spindle when the probe is loaded. +
+The 5 pins are used to be read from a remap G-code subroutine, so the code can react to different values. +
+Currently the probe tool number is only editable in the preference file: +
+
+----
+[VERSA_PROBE_OPTIONS]
+ps_probe_tool = 1
+----
+
+* `qtversaprobe.enable` (HAL_BIT) measurement enabled or not tool. Reflects screen button state.
+* `qtversaprobe.blockheight` (HAL_FLOAT) the measured height of the top face of the workpiece. Reflects screen entry.
+* `qtversaprobe.probeheight` (HAL_FLOAT) the toolsetter probe switch height. Reflects screen entry.
+* `qtversaprobe.searchvel` (HAL_FLOAT) the velocity to search for the tool probe switch
+* `qtversaprobe.probevel` (HAL_FLOAT) the velocity to probe tool length. Reflects screen entry.
+* `qtversaprobe.backoffdist` (HAL_FLOAT) the distance the probe backs off after triggering. Reflects screen entry.
+* `qtversaprobe.probe-loaded` (HAL_BIT) reflect if the current tool is equal to the preference file probe number.
+
 === Basic probe
 
 .QtDragon - Basic Probe Option
@@ -846,6 +870,15 @@ After setting the parameters and hints:
 The probing routine will start immediately.
 [NOTE]
 Pressing the stop button or the keyboard escape key, will abort the probing.
+
+==== HAL Pins
+This can be used to inhibit the spindle when the probe is loaded. +
+You would connect it to spindle.0.inhibit
+
+[source,{hal}]
+----
+qtbasicprobe.probe-loaded
+----
 
 ==== Corner Probe Example
 
