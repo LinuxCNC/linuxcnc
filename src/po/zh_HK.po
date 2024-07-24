@@ -8,7 +8,7 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-04-08 19:52+0200\n"
-"PO-Revision-Date: 2024-07-19 07:09+0000\n"
+"PO-Revision-Date: 2024-07-23 05:50+0000\n"
 "Last-Translator: Ricky From Hong Kong <lamricky11@hotmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: zh_HK\n"
@@ -3093,9 +3093,8 @@ msgstr ""
 #: src/hal/classicladder/classicladder_gtk.c:632
 #: src/hal/classicladder/classicladder_gtk.c:904
 #: src/hal/classicladder/classicladder_gtk.c:910
-#, fuzzy
 msgid "Warning!"
-msgstr "警告"
+msgstr "警告！"
 
 #: src/hal/classicladder/classicladder_gtk.c:632
 msgid ""
@@ -3176,9 +3175,8 @@ msgid ""
 msgstr ""
 
 #: src/hal/classicladder/classicladder_gtk.c:908
-#, fuzzy
 msgid "Confirm!"
-msgstr "新 確認"
+msgstr "確認！"
 
 #: src/hal/classicladder/classicladder_gtk.c:908
 msgid "Do you really want to quit ?\n"
@@ -3835,7 +3833,7 @@ msgstr ""
 #: src/hal/classicladder/edit_sequential.c:821
 #, fuzzy
 msgid "There is already an element!"
-msgstr "一個文件已經打開"
+msgstr "已有元素了！"
 
 #: src/hal/classicladder/edit_sequential.c:788
 msgid "A step can't be placed on even lines"
@@ -5096,7 +5094,7 @@ msgstr ""
 #: tcl/bin/halshow.tcl:976
 #, fuzzy
 msgid "Add as Pin(s)"
-msgstr " 信號(_S) "
+msgstr "信號"
 
 #: tcl/bin/halshow.tcl:977
 msgid "Add as Signal(s)"
@@ -18397,9 +18395,8 @@ msgid "There was a problem initializing the notification module"
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:133
-#, fuzzy
 msgid "Audio alerts are available!"
-msgstr "PCI 搜索頁面 無法使用\n"
+msgstr "可以選擇音效提示！"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:136
 msgid ""
@@ -18751,7 +18748,7 @@ msgstr "開机"
 #: src/emc/usr_intf/gscreen/gscreen.py:2646
 #, fuzzy
 msgid "Machine Estopped!"
-msgstr "機床位置"
+msgstr "機器禁止！"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:2652
 #: lib/python/gladevcp/calculator.glade:33
