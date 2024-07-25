@@ -198,8 +198,11 @@ usr/share/man/man1/max5gui.1
 usr/share/man/man1/mb2hal.1
 usr/share/man/man1/mdi.1
 usr/share/man/man1/mdro.1
+usr/share/man/man1/melfagui.1
 usr/share/man/man1/milltask.1
+usr/share/man/man1/millturn.1
 usr/share/man/man1/mitsub_vfd.1
+usr/share/man/man1/modcompile.1
 usr/share/man/man1/monitor-xhc-hb04.1
 usr/share/man/man1/motion-logger.1
 usr/share/man/man1/moveoff_gui.1
@@ -220,6 +223,7 @@ usr/share/man/man1/qtplasmac-cfg2prefs.1
 usr/share/man/man1/qtplasmac-materials.1
 usr/share/man/man1/qtplasmac-plasmac2qt.1
 usr/share/man/man1/qtplasmac-setup.1
+usr/share/man/man1/qtplasmac_gcode.1
 usr/share/man/man1/qtvcp.1
 usr/share/man/man1/rotarydelta.1
 usr/share/man/man1/rs274.1
@@ -228,6 +232,7 @@ usr/share/man/man1/scaragui.1
 usr/share/man/man1/schedrmt.1
 usr/share/man/man1/scorbot-er-3.1
 usr/share/man/man1/sendkeys.1
+usr/share/man/man1/setup_designer.1
 usr/share/man/man1/shuttle.1
 usr/share/man/man1/sim_pin.1
 usr/share/man/man1/sim-torch.1
@@ -236,6 +241,8 @@ usr/share/man/man1/stepconf.1
 usr/share/man/man1/svd-ps_vfd.1
 usr/share/man/man1/teach-in.1
 usr/share/man/man1/thermistor.1
+usr/share/man/man1/tool_mmap_read.1
+usr/share/man/man1/tool_watch.1
 usr/share/man/man1/tooledit.1
 usr/share/man/man1/touchy.1
 usr/share/man/man1/update_ini.1
@@ -245,6 +252,7 @@ usr/share/man/man1/wj200_vfd.1
 usr/share/man/man1/xhc-hb04.1
 usr/share/man/man1/xhc-hb04-accels.1
 usr/share/man/man1/xhc-whb04b-6.1
+usr/share/man/man1/xyzab-tdr-gui.1
 usr/share/man/man1/xyzac-trt-gui.1
 usr/share/man/man1/xyzbc-trt-gui.1
 
