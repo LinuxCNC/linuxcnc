@@ -992,9 +992,9 @@ macros totally crash-proof. If the function call stack is deeper than
 
 struct scoped_locale {
     scoped_locale(int category_, const char *locale_) : category(category_), oldlocale(setlocale(category, NULL)) { setlocale(category, locale_); }
-    ~scoped_locale() { setlocale(category, oldlocale); }
+    ~scoped_locale() { setlocale(category, oldlocale.c_str()); }
     int category;
-    const char *oldlocale;
+    std::string oldlocale;
 };
 
 #define FORCE_LC_NUMERIC_C scoped_locale force_lc_numeric_c(LC_NUMERIC, "C")
