@@ -467,7 +467,7 @@ def buttonChanged(self, pinObject, value):
 def buttonDriven(self, pinObject, state):
     message = 'not driven by an output pin'
     if state:
-        message = 'is driven by an ouput pin'
+        message = 'is driven by an output pin'
     print('Pin name:{} is {}'.format(pinObject.text(), message))
 ----
 

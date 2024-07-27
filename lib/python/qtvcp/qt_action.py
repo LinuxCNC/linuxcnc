@@ -38,7 +38,7 @@ class _Lcnc_Action(object):
         self.home_all_warning_flag = False
         self.proc = None
 
-        # imported here to advoid cicular imports
+        # imported here to advoid circular imports
         from qtvcp.lib.mdi_subprogram.mdi_command_process import MDICommand
         self.MDIPROCESS = MDICommand()
 

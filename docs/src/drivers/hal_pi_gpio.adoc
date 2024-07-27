@@ -7,7 +7,7 @@ It is only really intended to work on the Raspberry Pi. It may, or may not, work
 
 == Purpose
 
-This driver allows the use of the Rapberry Pi GPIO pins in a way analagous to the parallel port driver on x86 PCs.
+This driver allows the use of the Rapberry Pi GPIO pins in a way analogous to the parallel port driver on x86 PCs.
 It can use the same step generators, encoder counters and similar components.
 
 == Usage

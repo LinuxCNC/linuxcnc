@@ -2072,7 +2072,7 @@ class pyvcp_bar(Canvas):
             # ##################################################################
             #
             #11nov there is no xor in python
-            # BUT if both itens evaluate to booleans  ( a !- b) is ~ xot
+            # BUT if both items evaluate to booleans  ( a !- b) is ~ xot
             #  one item must be true and the other false
             #  soL  use (caseA) != (vaseB) to get 'xor' equiv
             #

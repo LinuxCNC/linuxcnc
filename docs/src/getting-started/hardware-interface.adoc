@@ -24,7 +24,7 @@ Interfaces include:
 
 A mix of different interfaces can be used. For example, a combination of ethercat for servo drives, and parallel port for additional General Purpose Inputs / Outputs (GPIO)
 
-Some of these solutions are usable for all aspects of hardware interfacing, and some have specific roles (e.g. non-realtime GPIO, for an operator inferface).
+Some of these solutions are usable for all aspects of hardware interfacing, and some have specific roles (e.g. non-realtime GPIO, for an operator interface).
 
 Hardware interface options change over time. This list is not a 100% complete list of all hardware interfaces that can be used with LinuxCNC.
 
@@ -65,7 +65,7 @@ Multiple ethernet interface FPGA cards are available, with many expansion cards
 Website: http://mesanet.com/    Store: http://store.mesanet.com/
 
 === Remora Ethernet
-Realtime requirements are offloaded onto a controller board. Multiple differnet controller boards are supported - see Remora docs.
+Realtime requirements are offloaded onto a controller board. Multiple different controller boards are supported - see Remora docs.
 
 Note that some of these controller boards (e.g. NVEM, EC300, EC500) are designed / sold for use with Mach3. Use with LinuxCNC requires flashing new firmware, which has been developed by the LinuxCNC community. The manufacturer does not support LinuxCNC.
 

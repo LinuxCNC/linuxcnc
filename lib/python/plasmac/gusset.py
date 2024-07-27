@@ -112,7 +112,7 @@ def preview(Conv, fTmp, fNgc, fNgcBkp,
     y1 = y0 + width * math.sin(right)
     # get offset start point
     x0n, y0n, = get_offset_coordinates([x1, y1], [x0, y0], angle, kerfWidth, isExternal)
-    # get new start poin
+    # get new start point
     x0 = x0n + (x0 - x0n) * 2
     y0 = y0n + (y0 - y0n) * 2
     # get new points

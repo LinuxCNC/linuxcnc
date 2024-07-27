@@ -33,7 +33,7 @@ def rasterData(self, **words):
 
 def rasterStart(self, **words):
     global rasterProgrammer
-    #matchine must be in position before run issued
+    #machine must be in position before run issued
     #make motion complete queue prior to run program command
     yield INTERP_EXECUTE_FINISH
     if rasterProgrammer:

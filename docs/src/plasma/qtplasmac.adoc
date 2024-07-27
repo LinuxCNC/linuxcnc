@@ -2464,7 +2464,7 @@ Click this button to start the program from the beginning of the selected line.
 
 ==== THIS CUTPATH
 
-*THIS CUTPATH* will run only the cutpath that the seleceted segment is a part of.
+*THIS CUTPATH* will run only the cutpath that the selected segment is a part of.
 
 The blinking "SELECTED _nn_" button will change to *RUN FROM LINE CYCLE START* button.
 Click this button to run the selected cutpath.

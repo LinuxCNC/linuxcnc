@@ -102,7 +102,7 @@ class StyleSheetEditor(QDialog):
         self.loadedItem.setData("Use the preference loaded Stylesheet", role = QtCore.Qt.ToolTipRole)
         model.appendRow(self.loadedItem)
 
-        # add 'None' to cancel all sylesheet changes
+        # add 'None' to cancel all stylesheet changes
         item = QtGui.QStandardItem('None')
         item.setData( 'None', role = QtCore.Qt.UserRole + 1)
         item.setData("Use system default Stylesheet", role = QtCore.Qt.ToolTipRole)

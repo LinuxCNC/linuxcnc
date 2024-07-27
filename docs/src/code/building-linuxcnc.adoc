@@ -227,7 +227,7 @@ can be skipped. LinuxCNC is then installed as part of those packages on the
 same machines or on whatever machine of the same architecture that  the .deb
 files are copied to. LinuxCNC cannot be run until the Debian packages
 are installed on a target machine and then the executables are available
-in /usr/bin and /usr/lib just like other regular software of the sytem.
+in /usr/bin and /usr/lib just like other regular software of the system.
 
 This build mode is primarily useful when packaging the software for
 delivery to end users, and when building the software for a machine
@@ -426,7 +426,7 @@ would combine all the options introduced in this section.
 
 A Debian package can be recognised by its .deb extension.
 The tool installing it, `dpkg` is part of every Debian installation.
-The .deb files created by `dpkg-buildpackage` are found in the directoy above the linuxcnc-source-dir, i.e. in `..`.
+The .deb files created by `dpkg-buildpackage` are found in the directory above the linuxcnc-source-dir, i.e. in `..`.
 To see what files are provided in a package, run
 
 ----

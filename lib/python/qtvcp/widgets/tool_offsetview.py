@@ -164,7 +164,7 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         # display in title bar for convenience
         self.setWindowTitle(sf)
         # row 0 is not editable (checkbox position)
-        # column 19 is the descritive text column
+        # column 19 is the descriptive text column
         if item.column() == 19:
             self.callTextDialog(text,item)
         elif item.column() <19 and item.column() > 0:

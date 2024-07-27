@@ -477,7 +477,7 @@ class _PStat(object):
         module = "{}.{}".format(base,panel)
         return module
 
-    # tempararily adds the screen directory to path
+    # temporarily adds the screen directory to path
     # so the handler can be imported to be used for subclassing
     def importDefaultHandler(self, module=None):
         import importlib

@@ -31,7 +31,7 @@ class RasterProgrammer(object):
         The raster component operates one line at a time. 
 
         Example:
-            Assuming rastering is done accross the X axis.
+            Assuming rastering is done across the X axis.
             A simple raster program would be from X=0.0 Power=0.0 to X=1.0 Power=100.0
             As the x axis passes from x0.0 to x1.0 the power will rise from 0 to 100 linearly.
 
@@ -82,7 +82,7 @@ class RasterProgrammer(object):
         
     def begin(self, offset, bpp, ppu, count):
         """
-            Sends the program begin command along with relavent parameters.
+            Sends the program begin command along with relevant parameters.
             
             offset - The relative starting position that the incoming data starts. Data is always programmed from most negative on the axis to most positive.
             bpp - Bits per pixel in increments of 4 bits, up to 32 bits
