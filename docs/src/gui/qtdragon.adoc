@@ -617,7 +617,7 @@ The button increments are 1 inch or 5 mm (depending on the units the machine is 
 {NOTE}
 If using the Spindle lift option, HALUI can not be used to pause/resume the program.
 There is a pin, 'QtDragon.external-pause' available to pause/resume from an external source.
-You must also enable external offets. In the setting tab check 'use external offsets'
+You must also enable external offsets. In the setting tab check 'use external offsets'
 If you wish to inhibit the spindle when a probe tool is loaded, you will need to use an logical `or` component
 to combine the two spindle inhibit signals to connect to spindle.0.inhibit. 
 

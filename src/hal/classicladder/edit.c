@@ -1204,7 +1204,7 @@ void VerticalCleanupWhenErasingElement( int PosiX, int PosiY )
 			CleanUp = FALSE;
 	}
 	// do not delete if there is an element at x & y
-	// (usefull when trying to erase second right vertical)
+	// (useful when trying to erase second right vertical)
 	if ( PosiX<RUNG_WIDTH-1 )
 	{
 		if ( EditDatas.Rung.Element[PosiX][PosiY].Type!=ELE_FREE )
@@ -1305,7 +1305,7 @@ void EditElementInRung(double x,double y)
 				}
 				else
 				{
-					// if free, perhaps user just whants to delete a vertical cnx...
+					// if free, perhaps user just wants to delete a vertical cnx...
 					EditDatas.Rung.Element[RungX][RungY].ConnectedWithTop = 0;
 				}
 			}

@@ -6030,7 +6030,7 @@ class G_Code_Rip:
         line = line.replace(" ","")
         
         #################################################
-        ###           G-CODE OPPERATORS               ###
+        ###           G-CODE OPERATORS                ###
         ###          In Precedence Order              ###
         #################################################
         ##    **                                        #

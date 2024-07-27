@@ -1143,7 +1143,7 @@ class HandlerClass:
         if not state:
             self.w.stackedWidget_dro.setCurrentIndex(0)
 
-    # show ngcgui info tab (in the stackedWidget) if ngcgui utilites
+    # show ngcgui info tab (in the stackedWidget) if ngcgui utilities
     # tab is selected
     def tab_utilities_changed(self, num):
         if num == 2:

@@ -40,7 +40,7 @@ class Message:
         self.HAL_GCOMP_ = hal_comp
         self.NOTIFY = notify
 
-        # if no notify suplied, make our owm
+        # if no notify supplied, make our owm
         if not notify is None:
             self.notify_normal = self.NOTIFY.new_normal()
 

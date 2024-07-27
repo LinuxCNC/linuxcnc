@@ -75,7 +75,7 @@ class QPin(hal.Pin, QObject):
         return self.get_name()
 
     # always returns False because
-    # there was no errpr when making pin
+    # there was no error when making pin
     # see class DUMMY
     def error(self):
         return False
@@ -123,7 +123,7 @@ class DummyPin(QObject):
         self._kw = kw
 
     # always returns True because
-    # there was an errpr when making HAL pin
+    # there was an error when making HAL pin
     # see class QPin
     def error(self):
         return True

@@ -1,4 +1,4 @@
-#22nov allowed range color chganges to border when dwgf or imgf are used
+#22nov allowed range color changes to border when dwgf or imgf are used
 #
 # this file ius found in /home/tomp/linuxnc-barwidgets/configs/tomp/nuPyvcpBars
 # fname is   pyvcp_widgets18nov2023.py
@@ -1315,7 +1315,7 @@ class pyvcp_bar(Canvas):
         self.min_ = min_
         self.max_ = max_
         #
-        # allow ommision of origin tag, defaulting to min_
+        # allow omission of origin tag, defaulting to min_
         if origin == None:
             self.origin =  self.min_
         else:
@@ -1532,7 +1532,7 @@ class pyvcp_bar(Canvas):
                     )
             #
             # ###########################################        
-            #   only layout 0 allows dwgf OR imgf thumbs ( not mandetory)
+            #   only layout 0 allows dwgf OR imgf thumbs (not mandatory)
             # ###########################################        
             #
             # if no text wanted (layout==0) and (no imf and no dwgf), t0hen show rect thumb
@@ -1608,10 +1608,10 @@ class pyvcp_bar(Canvas):
             #  else layouit != ''0'  and
             #        and (neither imgf nor dwgf are wanted)
             # #############################################
-            # the tag 'orient' can be 'Vert' or 'Horz' or None ( deaults to Horz)
+            # the tag 'orient' can be 'Vert' or 'Horz' or None (defaults to Horz)
             # re bars: lielty arcs can be done, but I stop dev for now 25oct2023
             #
-            #15 make all pins allways ( any orient any layout)
+            #15 make all pins always (any orient any layout)
             if(self.layout == "0" )and((imgf==None)and(dwgf==None)): 
                 pycomp.newpin(halpin+".minpin", HAL_FLOAT, HAL_OUT)
                 pycomp.newpin(halpin+".maxpin", HAL_FLOAT, HAL_OUT)
@@ -1796,7 +1796,7 @@ class pyvcp_bar(Canvas):
             #
             # ############################################
             # 12nov
-            # ??? what @ layou == 0? for Vert ANND for Hoerz???
+            # ??? what @ layou == 0? for Vert AND for Hoerz???
             # ############################################
             #
             # ############################################
@@ -1824,7 +1824,7 @@ class pyvcp_bar(Canvas):
             #
             # end of   if orient == 'Vert':
             #
-    # NB for vert X0 Y0 X1 alreay set
+    # NB for vert X0 Y0 X1 already set
     #        horz X0 Y0 Y1 already set
     #   this leaves ony 1 ord to calculate
     #   the remaining ordinate is done ion func 'update'
@@ -1867,7 +1867,7 @@ class pyvcp_bar(Canvas):
                 valtext = str(self.nformat % self.value)
                 self.itemconfig(self.val_text,text=valtext)
             # update the bar color if rangeColors wanted
-            # ranges rulkes  not allowe if ldwgf != NNone AND imgf != None
+            # ranges rulkes not allowed if ldwgf != NNone AND imgf != None
             if self.ranges:
                 self.set_fill(self.range1, self.range2, self.range3)
             #
@@ -1940,7 +1940,7 @@ class pyvcp_bar(Canvas):
                 #
                 if(self.origin == self.min_):
                     #09nov constrain thumbX1 to limits min_ max_
-                    #  while accomodating for 
+                    #  while accommodating for 
                     #    padding between left of canvas to left of bar
                     if((self.value + littlebit)>=self.max_):
                         self.thumbX1 = 0
@@ -1984,7 +1984,7 @@ class pyvcp_bar(Canvas):
             # ##################################################################
             #
             #11nov there is no xor in python
-            # BUT if both itens evaluate to booleans  ( a !- b) is ~ xot
+            # BUT if both items evaluate to booleans  ( a !- b) is ~ xot
             #  one item must be true and the other false
             #  soL  use (caseA) != (vaseB) to get 'xor' equiv
             #

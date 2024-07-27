@@ -173,7 +173,7 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         self.setWindowTitle(sf)
         # row 0 is not editable (absolute position)
         # row has limited entries (rotational)
-        # column 9 is the descritive text column
+        # column 9 is the descriptive text column
         if item.column() == 9:
             self.callTextDialog(text,item)
         elif item.row() == 1:

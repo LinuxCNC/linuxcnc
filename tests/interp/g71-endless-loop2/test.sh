@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Demonstrate endless loop when an additinal segment is added in the G71 call.
+# Demonstrate endless loop when an additional segment is added in the G71 call.
 # This is a subset of a file that was supplied in
 # https://github.com/LinuxCNC/linuxcnc/issues/2844 and which worked up to and
 # including 2.9.1~pre1. It entered an endless loop after

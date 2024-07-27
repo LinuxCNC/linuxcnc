@@ -210,7 +210,7 @@ class QTPanel():
                 temp = self._geo_string.split(' ')
                 go(int(temp[0]), int(temp[1]), int(temp[2]), int(temp[3]))
         except Exception as e:
-            LOG.exception('main window gometry python error: {}'.format(e))
+            LOG.exception('main window geometry python error: {}'.format(e))
             LOG.error('Calculating geometry of main window using natural placement.')
             x = self.window.geometry().x()
             y = self.window.geometry().y()

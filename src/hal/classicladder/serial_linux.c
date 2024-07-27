@@ -53,7 +53,7 @@ char SerialOpen( )
 	if ( PortIsOpened )
 		SerialClose( );
 
-	/* open the device to be non-blocking (read will return immediatly) */
+	/* open the device to be non-blocking (read will return immediately) */
 	fd = open( ModbusConfig.ModbusSerialPortNameUsed, O_RDWR | O_NOCTTY | O_NDELAY/*don't wait DTR*/ );
 	if (fd >=0)
 	{
