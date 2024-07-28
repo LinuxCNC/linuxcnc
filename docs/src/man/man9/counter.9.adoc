@@ -30,7 +30,7 @@ HAL manual.
 
 == FUNCTIONS
 
-**counter.capture-position* (uses floating-point)*::
+*counter.capture-position* (uses floating-point)::
   Updates the counts, position and velocity outputs based on internal
   counters.
 **counter.update-counters**::
@@ -38,32 +38,32 @@ HAL manual.
 
 == PINS
 
-**counter.*_N_*.phase-A* bit in*::
+**counter.**_N_**.phase-A** bit in::
   The primary input signal. The internal counter is incremented on each
   rising edge.
-**counter.*_N_*.phase-Z* bit in*::
+**counter.**_N_**.phase-Z** bit in::
   The index input signal. When the *index-enable* pin is TRUE and a
   rising edge on *phase-Z* is seen, *index-enable* is set to FALSE and
   the internal counter is reset to zero.
-**counter.*_N_*.index-enable* bit io*::
+**counter.**_N_**.index-enable** bit io::
    +
 
-**counter.*_N_*.reset* bit io*::
+**counter.**_N_**.reset** bit io::
    +
 
-**counter.*_N_*.counts* signed out*::
+**counter.**_N_**.counts** signed out::
    +
 
-**counter.*_N_*.position* float out*::
+**counter.**_N_**.position** float out::
    +
 
-**counter.*_N_*.velocity* float out*::
+**counter.**_N_**.velocity** float out::
   These pins function according to the canonical digital encoder
   interface.
-**counter.*_N_*.position-scale* float rw*::
+**counter.**_N_**.position-scale** float rw::
   This parameter functions according to the canonical digital encoder
   interface.
-**counter.*_N_*.rawcounts* signed ro*::
+**counter.**_N_**.rawcounts** signed ro::
   The internal counts value, updated from *update-counters* and
   reflected in the output pins at the next call to *capture-position*.
 

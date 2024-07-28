@@ -7,8 +7,8 @@ parallel ports.
 
 == SYNOPSIS
 
-*loadrt hal_parport cfg="_port_addr_ [_type_] [[_port_addr_ [_type_]
-...]*"**
+**loadrt hal_parport cfg="__port_addr__ [_type_] [[__port_addr__ [_type_]
+...]"**
 
 == DESCRIPTION
 
@@ -36,17 +36,17 @@ The **type **parameter of the configuration string determines how the
 I/O bits of the port are used. There are four possible options and if
 none is specified will default to out.
 
-_in _- Sets the 8 bits of the data port to input. In this mode the
+_in_ - Sets the 8 bits of the data port to input. In this mode the
 parallel port has a total of 13 input pins and 4 output pins.
 
-_out _- Sets the 8 bits of the data port to output. In this mode the
+_out_ - Sets the 8 bits of the data port to output. In this mode the
 parallel port has a total of 5 input pins and 12 output pins.
 
-_epp _- This option is the same as setting to out, but can cause the
+_epp_ - This option is the same as setting to out, but can cause the
 computer to change the electrical characteristics of the port, see USAGE
 below.
 
-_x _- The option allows ports with open collectorts on the control group
+_x_ -  The option allows ports with open collectorts on the control group
 pins to be configured as inputs resulting in 8 output pins and 9 input
 pins, see USAGE below.
 
@@ -174,9 +174,8 @@ hal_parport.c). The ports are numbered starting at zero.
   into the real time thread with loadrt. The configuration string
   describes the parallel ports to be used, and (optionally) their types.
   If the configuration string does not describe at least one port, it is
-  an error.
-
-*loadrt hal_parport cfg="port [type] [port [type] ...]"*
+  an error. +
+  *loadrt hal_parport cfg="port [type] [port [type] ...]"*
 
 *Specifying the Port*::
   Numbers below 16 refer to parallel ports detected by the system. This
@@ -185,15 +184,13 @@ hal_parport.c). The ports are numbered starting at zero.
   0 is the first parallel port detected on the system, 1 is the next,
   and so on.
 *Basic configuration*::
-  This will use the first parallel port Linux detects:
-
-*loadrt hal_parport cfg="0"*
+  This will use the first parallel port Linux detects: +
+  *loadrt hal_parport cfg="0"*
 
 *Using the Port Address*::
   Instead, the port address may be specified using the hex notation 0x
-  then the address.
-
-*loadrt hal_parport cfg="0x378"*
+  then the address. +
+  *loadrt hal_parport cfg="0x378"*
 
 *Specifying a port Type*::
   For each parallel port handled by the hal_parport driver, a type can
@@ -212,20 +209,21 @@ See the Note above about mode x.
 
 *Example with two parallel ports*::
   This will enable two system-detected parallel ports, the first in
-  output mode and the second in input mode:
-
-*loadrt hal_parport cfg="0 out 1 in"*
+  output mode and the second in input mode: +
+  *loadrt hal_parport cfg="0 out 1 in"*
 
 *Functions single port*::
-  You must also direct LinuxCNC to run the read and write functions.
-
-*addf parport.read-all base-thread* *addf parport.write-all base-thread*
+  You must also direct LinuxCNC to run the read and write functions. +
+  *addf parport.read-all base-thread*
+  +
+  *addf parport.write-all base-thread*
 
 *Functions multiple ports*::
   You can direct LinuxCNC to run the read and write functions for all
-  the attached ports.
-
-*addf parport.0.read base-thread* *addf parport.0.write base-thread*
+  the attached ports. +
+  *addf parport.0.read base-thread* 
+  +
+  *addf parport.0.write base-thread*
 
 The individual functions are provided for situations where one port
 needs to be updated in a very fast thread, but other ports can be
@@ -236,7 +234,7 @@ time.
 == SEE ALSO
 
 Parallel Port Driver (Hardware Drivers Section of LinuxCNC Docs),
-**PCI**Parallel**Port**Example**(Hardware**Examples**Section**of**LinuxCNC**Docs)
+PCI Parallel Port Example(Hardware Examples Section of LinuxCNC Docs)
 
 == AUTHOR
 

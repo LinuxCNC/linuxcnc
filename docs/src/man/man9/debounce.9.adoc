@@ -39,10 +39,10 @@ signal to be present for N samples before the output changes state.
 
 == PINS
 
-*debounce._G_*.*_F_*.in* bit in*::
+**debounce.**_G_._F_**.in** bit in::
   The F'th input pin in group G.
-*debounce._G_*.*_F_*.out* bit out*::
+**debounce.**_G_._F_**.out** bit out::
   The F'th output pin in group G. Reflects the last "stable" input seen
   on the corresponding input pin.
-*debounce._G_*.delay* signed rw*::
+**debounce.**_G_**.delay** signed rw::
   Sets the amount of filtering for all pins in group G.
