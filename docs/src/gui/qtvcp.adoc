@@ -236,10 +236,10 @@ You may still need to use the handler copy dialog to copy the original handler f
 See 'custom handler file'
 
 There should be a folder in the config folder; for screens: named '<CONFIG FOLDER>/qtvcp/screens/<SCREEN NAME>/' +
-add the handle patch file there, named like so <ORIGINAL SCREEN NAME>_handler.py. +
-i.e. for QtDragon the file would be called 'qtdragon_handler.py'.
+add the handle patch file there, named like so <ORIGINAL SCREEN NAME>_handler.py, +
+e.g., for QtDragon the file would be called 'qtdragon_handler.py'.
 
-Here is a sample to add X axis jog pins to a screen like QtDragon: +
+Here is a sample to add X axis jog pins to a screen like QtDragon:
 
 [source,python]
 ----

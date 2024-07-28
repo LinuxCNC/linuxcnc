@@ -10,8 +10,7 @@ gremlin_view - G-code graphical preview
 
 == DESCRIPTION
 
-*gremlin_view* is a Python wrapper for the gremlin G-code graphical
-preview
+*gremlin_view* is a Python wrapper for the gremlin G-code graphical preview.
 
 PGremlinView for gremlin with buttons for simpler embedding Standalone
 functionality if linuxcnc running A default ui file (gremlin_view.ui) is

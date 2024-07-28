@@ -66,9 +66,8 @@ used to read commands from a file, *halcmd* reads each line of the file
 as a new command. Anything following '*#*' on a line is a comment.
 
 *loadrt* _modname_::
-  (_load_ __r__eal__t__ime module) Loads a realtime HAL module called
-  _modname_. *halcmd* looks for the module in a directory specified at
-  compile time.
+  (_load_ __r__eal__t__ime module) Loads a realtime HAL module called _modname_.
+  *halcmd* looks for the module in a directory specified at compile time.
 
 In systems with kernel-based realtime support (e.g. RTAI), *halcmd*
 calls the *linuxcnc_module_helper* to load realtime modules.
@@ -96,10 +95,9 @@ requested component with a call to *dlopen(3)*.
   _unix-command_, usually to load a non-realtime component. _[flags]_
   may be one or more of:
   +
-  * *-W* to wait for the component to become ready. The component is
-  assumed to have the same name as the first argument of the command.
-  * *-Wn name* to wait for the component, which will have the given
-  name.
+  * *-W* to wait for the component to become ready.
+    The component is assumed to have the same name as the first argument of the command.
+  * *-Wn name* to wait for the component, which will have the given name.
   * *-w* to wait for the program to exit
   * *-i* to ignore the program return value (with -w)
 *waitusr* _name_::

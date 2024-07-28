@@ -13,7 +13,8 @@ go to the <<cha:updating-linuxcnc,Updating LinuxCNC>> section instead.
 NOTE: To operate machinery LinuxCNC requires a special kernel with real-time extensions. There
 are three possibilities here: preempt-rt, RTAI or Xenomai. In addition there are two versions
 of LinuxCNC which work with these kernels. See the table below for details. However for code
-testing and simulation it is possible to run the linuxcnc-uspace application on a stock kernel. 
+testing and simulation it is possible to run the `linuxcnc-uspace` application on a stock kernel
+of the distribution.
 
 Fresh installs of LinuxCNC are most easily created using the Live/Install
 Image. This is a hybrid ISO filesystem image that can be written to a
@@ -98,7 +99,7 @@ md5sum: 1815aceaac0e7861747aa34d61846e79
 sha256sum: 08b3f59233e47c91cf1c9a85c41df48542c97b134efefa7446d3060c9a3e644b
 arm64 (Pi)
 md5sum: 4547e8a72433efb033f0a5cf166a5cd2
-sha256sum: ff3ba9b8dfb93baf1e2232746655f8521a606bc0fab91bffc04ba74cc3be6bf0 
+sha256sum: ff3ba9b8dfb93baf1e2232746655f8521a606bc0fab91bffc04ba74cc3be6bf0
 -----
 
 .Verify md5sum on Windows or Mac
@@ -115,12 +116,12 @@ used to boot a computer.  The image is too large to fit on a CD.
 
 === Raspberry Pi Image
 
-The Raspberry Pi image is a complete SD card image and should be
-written to an SD card with the [Raspberry Pi Imager App](https://www.raspberrypi.com/software/).
+The Raspberry Pi image is a complete SD card image and should be written
+to an SD card with the https://www.raspberrypi.com/software/[Raspberry Pi Imager App].
 
 === AMD-64 (x86-64, PC) Image using GUI tools
 
-Download and install [Balena Etcher](https://etcher.balena.io/#download-etcher)
+Download and install Balena Etcher from https://etcher.balena.io/#download-etcher
 (Linux, Windows, Mac) and write the downloaded image to a USB drive.
 
 If your image fails to boot then please also try https://rufus.ie/[Rufus].
@@ -148,16 +149,14 @@ dd if=linuxcnc_2.9.2-amd64.hybrid.iso of=/dev/sde
 -----
 diskutil list
 -----
-. Insert the USB and note the name of the new disk that appears, eg
-  /dev/disk5
-. unmount the USB. The number found above should be substituted in place
-  of the N
+. Insert the USB and note the name of the new disk that appears, e.g. /dev/disk5.
+. Unmount the USB. The number found above should be substituted in place of the N.
 +
 -----
 diskutil unmountDisk /dev/diskN
 -----
-. Transfer the data with dd, as for Linux above. Note that the disk name
-  has an added "r" at the beginning
+. Transfer the data with dd, as for Linux above.
+  Note that the disk name has an added "r" at the beginning.
 +
 -----
 sudo dd if=/linuxcnc_2.9.2-amd64.hybrid.iso of=/dev/rdiskN bs=1m
@@ -179,18 +178,17 @@ sudo dd if=/linuxcnc_2.9.2-amd64.hybrid.iso of=/dev/rdiskN bs=1m
 .Writing the image to a DVD in Windows
 
 . Download and install Infra Recorder, a free and open source image
-  burning program: http://infrarecorder.org/
+  burning program: http://infrarecorder.org/ .
 . Insert a blank CD in the drive and select Do nothing or Cancel if an
   auto-run dialog pops up.
-. Open Infra Recorder, and select the 
- 'Actions' menu, then 'Burn image'.
+. Open Infra Recorder, and select the 'Actions' menu, then 'Burn image'.
 
 .Writing the image to a DVD in Mac OSX
 
 . Download the .iso file
-. Right-click on the file in the Finder window and select "Burn to disc"
-  (The option to burn to disc  will only appear if the machine has an
-  optical drive fitted or connected)
+. Right-click on the file in the Finder window and select "Burn to disc".
+  (The option to burn to disc will only appear if the machine has an
+  optical drive fitted or connected.)
 
 == Testing LinuxCNC
 
@@ -236,7 +234,7 @@ should accept OS _updates_ however, especially security updates.
 == Install Problems
 
 In rare cases you might have to reset the BIOS to default settings if
-during the Live CD install it cannot recognize the hard drive 
+during the Live CD install it cannot recognize the hard drive
 during the boot up.
 
 == Alternate Install Methods
@@ -352,16 +350,15 @@ sudo ./linuxcnc-install.sh
 . This kernel and LinuxCNC version can be installed on top of the Live DVD
   install, or alternatively on a fresh Install of Debian Bookworm 64-bit
   as described above.
-. You can add the LinuxCNC Archive signing key and repository information
+. You can add the LinuxCNC archive signing key and repository information
   by downloading and running the installer script as described above. If
-  an RTAI kernel is detected it will stop before installing any packages. 
-
+  an RTAI kernel is detected it will stop before installing any packages.
 . Update the package list from linuxcnc.org
 +
 ----
 sudo apt-get update
 ----
-. Install the new realtime kernel, RTAI and the rtai version of linuxcnc.
+. Install the new realtime kernel, RTAI and the RTAI-version of LinuxCNC.
 +
 ----
 sudo apt-get install linuxcnc
@@ -371,8 +368,9 @@ kernel.
 
 === Installing on Raspbian 12
 
-Don't do that. The latencies are too bad with the default kernel and the PREEMPT_RT (the RT is important) kernel of Debian does not boot on the Pi (as of 1/2024).
-Please refer to the images provided online.
+Don't do that.
+The latencies are too bad with the default kernel and the PREEMPT_RT (the RT is important) kernel of Debian does not boot on the Pi (as of 1/2024).
+Please refer to the .iso images provided online on the regular https://linuxcnc.org/downloads/[LinuCNC download page].
 You can create them yourself following the scripts provided https://github.com/rodw-au/rpi-img-builder-lcnc[online].
 
 // vim: set syntax=asciidoc:

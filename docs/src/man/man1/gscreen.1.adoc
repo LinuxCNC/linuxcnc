@@ -10,8 +10,8 @@ gscreen - TOUCHY LinuxCNC Graphical User Interface
 
 == DESCRIPTION
 
-*gscreen* is one of the Graphical User Interfaces (GUI) for LinuxCNC It
-gets run by the runscript usually.
+*gscreen* is one of the Graphical User Interfaces (GUI) for LinuxCNC.
+It gets run by the runscript usually.
 
 == OPTIONS
 

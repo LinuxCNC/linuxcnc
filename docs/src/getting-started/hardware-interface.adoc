@@ -17,14 +17,14 @@ An interface is necessary to transmit (and convert) signals and information betw
 Interfaces include:
 - Parallel Port
 - Ethernet
-- Ethercat
+- EtherCAT
 - PCI / PCIe
 - SPI (where the computer has a native SPI interface, such as Raspberry Pi)
 - USB (_not_ realtime interface)
 
 A mix of different interfaces can be used. For example, a combination of ethercat for servo drives, and parallel port for additional General Purpose Inputs / Outputs (GPIO)
 
-Some of these solutions are usable for all aspects of hardware interfacing, and some have specific roles (e.g. non-realtime GPIO, for an operator interface).
+Some of these solutions are usable for all aspects of hardware interfacing, and some have specific roles (e.g. non-realtime GPIO for an operator interface with switches).
 
 Hardware interface options change over time. This list is not a 100% complete list of all hardware interfaces that can be used with LinuxCNC.
 
@@ -110,7 +110,7 @@ Ethernet interface can be used with a Ethernet to SPI interface.
 https://github.com/multigcs/LinuxCNC-RIO
 
 
-== Ethercat
+== EtherCAT
 Beckhoff EtherCAT(TM) and compatible systems can be made to work with LinuxCNC using the open source etherlab software.
 
 EtherCAT is the open real-time Ethernet network originally developed by Beckhoff.
