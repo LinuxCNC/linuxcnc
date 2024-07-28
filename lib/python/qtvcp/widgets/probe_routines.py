@@ -90,9 +90,9 @@ class ProbeRoutines():
             tpl = '%.3f' if STATUS.is_metric_mode() else '%.4f'
             c = args[0]
             list = ['Xm', 'Xc', 'Xp', 'Lx', 'Ym', 'Yc', 'Yp', 'Ly', 'Z', 'D', 'A']
-            for i in range(1,len(list)):
+            for i in range(0,len(list)):
                 if list[i] in args[1]:
-                    c += ' ' + list[i] + "[" + tpl%(args[i+1]) + ']'
+                    c += ' ' + list[i] + "[" + tpl%(args[i+2]) + ']'
             self.history_log = c
         else:
             # should be a single string
