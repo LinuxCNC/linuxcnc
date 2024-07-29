@@ -2,7 +2,7 @@
 
 == NAME
 
-counter - counts input pulses *(DEPRECATED)*
+counter - counts input pulses (DEPRECATED)
 
 == SYNOPSIS
 

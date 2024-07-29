@@ -45,7 +45,7 @@ the outputs.
 **classicladder.0.floatout-**_NN_ OUT float::
   Float output from ClassicLadder.
   These float signal pins map to **%QF**_NN_ variables in ClassicLadder.
-**classicladder.0.hide_gui** IN bit*::
+**classicladder.0.hide_gui** IN bit::
   This bit pin hides the ClassicLadder window, while still having the non-realtime code run.
   This is usually desirable when modbus is used, as modbus requires the non-realtime code to run.
 
