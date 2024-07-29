@@ -52,31 +52,31 @@ E and D-type enumerations may be freely mixed in separate instances.
 
 == FUNCTIONS
 
-*enum-decode._NN_* - if instance type = "D"
+**enum-decode.**_NN_ - if instance type = "D"
 
-*enum-encode._NN_* - if instance type = "E"
+**enum-encode.**_NN_ - if instance type = "E"
 
 == PINS
 
-*enum-decode._NN_.input* - The integer value to be decoded
+**enum-decode**._NN_.**input** - The integer value to be decoded
 
-*enum-decode._NN_.label-out* -  output bits of a decode instance
+**enum-decode**._NN_.**label-out** -  output bits of a decode instance
 
-*enum-decode._NN_.label-val* -  The enumeration value corresponding to
+**enum-decode**._NN_.**label-val** -  The enumeration value corresponding to
                                 each specific bit output. These are
                                 populated in sequence during loading
                                 but may be over-ridden in HAL if
                                 convenient.
 
-*enum-encode._NN_.label-in*  -  input bits of a decode instance
+**enum-encode**._NN_.**label-in**  -  input bits of a decode instance
 
-*enum-encode._NN_.label-val* -  The enumeration value corresponding to
+**enum-encode**._NN_.**label-val** -  The enumeration value corresponding to
                                 each specified bit input. These are
                                 populated in sequence during loading
                                 but may be over-ridden in HAL if
                                 convenient.
                                 
-*enum-decode._NN_.output* - The integer value corresponding to the
+**enum-decode**._NN_.**output** - The integer value corresponding to the
                                 set bit input.
 
 == BUGS
