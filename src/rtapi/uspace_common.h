@@ -65,8 +65,15 @@ int rtapi_shmem_new(int key, int module_id, unsigned long int size)
   rtapi_shmem_handle *shmem;
   int i;
 
-  for (i=0,shmem=0 ; i < MAX_SHM; i++) {
-    if(shmem_array[i].magic == SHMEM_MAGIC) {
+  /* get instance env variable */
+    const char* instance = getenv("LINUXCNC_INSTANCE");
+    if (instance) {
+        long offset = strtol(instance, NULL, 10) * 16;
+        key += offset;
+    }
+
+  for (i = 0, shmem = 0; i < MAX_SHM; i++) {
+    if (shmem_array[i].magic == SHMEM_MAGIC) {
       if (shmem_array[i].key == key) {
         shmem_array[i].count ++;
         return i;
