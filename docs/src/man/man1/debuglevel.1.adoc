@@ -10,7 +10,7 @@ debuglevel - sets the debug level for the non-realtime part of LinuxCNC
 
 == DESCRIPTION
 
-*debuglevel* displays a checkbox gui to select the current debug level
+*debuglevel* displays a checkbox to select the current debug level
 of some parts of LinuxCNC.
 
 == SEE ALSO

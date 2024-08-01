@@ -202,7 +202,7 @@ The `make` command takes two useful optional arguments.
 
 Parallel compilation::
   `make` takes an optional argument `-j` _N_ (where _N_ is a number).
-  This enables parallel compilation with N simultaneous processes, which can significantly speed up your build.
+  This enables parallel compilation with _N_ simultaneous processes, which can significantly speed up your build.
 +
 A useful value for _N_ is the number of CPUs in your build system.
 
@@ -276,7 +276,7 @@ $ dpkg-buildpackage -b -uc
 
 [NOTE]
 ====
-`dpkg-buildpackage` needs to run from the `linuxcnc-source-dir` directory, *not* from `linuxcnc-source-dir/debian`. +
+`dpkg-buildpackage` needs to run from the root of the source tree, which you mave have named `linuxcnc-source-dir`, *not* from within `linuxcnc-source-dir/debian`. +
 `dpkg-buildpackage` takes an optional argument ``-j``_N_ (where _N_ is a number). This enables to run multiple jobs simultaneously.
 ====
 
@@ -350,7 +350,7 @@ execute (from the same directory):
 sudo apt-get build-dep .
 ----
 
-which will install all the dependencies required but available.
+which will install all the dependencies required, not yet installed, but available.
 The '.' is part of the command line, i.e. an instruction to retrieve the dependencies
 for the source tree at hand, not for dependencies of another package.
 This completes the installation of build-dependencies.
@@ -378,7 +378,7 @@ Alternatively, Debian systems provide a program called `dpkg-checkbuilddeps` tha
 parses the package meta-data and compares the packages listed as build
 dependencies against the list of installed packages, and tells you what's missing.
 Also, `dpkg-buildpackage` would inform you about what is missing, and it should be fine.
-However, it reports missing build-deps only after patches in debian/patches are applied (if any).
+However, it reports missing build-deps only after patches in the directory `debian/patches` have been automatically applied (if any).
 If you are new to Linux and git version management, a clean start may be preferable to avoid complications.
 
 The `dpkg-checkbuilddeps` (also from the dpkg-dev package that is installed as part of the build-essential dependencies) program
