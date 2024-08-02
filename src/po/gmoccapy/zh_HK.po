@@ -3,19 +3,20 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-04-07 20:07+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"PO-Revision-Date: 2024-08-02 20:54+0000\n"
+"Last-Translator: Luan Moura <luanmoura.s91@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"Language: zh_HK\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=1; plural=0;\n"
+"X-Generator: Weblate 5.7-dev\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:252
 msgid "user mode selected"
@@ -220,7 +221,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1602
 msgid "We will use by axisletter ordered jog button"
-msgstr ""
+msgstr "Usaremos o botão de movimentação ordenado por letra de eixo"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1760
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2887
