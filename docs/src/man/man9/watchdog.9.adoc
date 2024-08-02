@@ -6,10 +6,10 @@ watchdog - monitor multiple inputs for a "heartbeat"
 
 == SYNOPSIS
 
-*loadrt watchdog num_inputs=__N__*
+*loadrt watchdog num_inputs=*__N__
 
-You must specify the number of inputs, from 1 to 32. Each input has a
-separate timeout value.
+You must specify the number of inputs, from 1 to 32.
+Each input has a separate timeout value.
 
 == FUNCTIONS
 
@@ -26,13 +26,13 @@ separate timeout value.
 
 == PINS
 
-*watchdog.input-n bit in*::
-  Input number n. The inputs are numbered from 0 to *num_inputs*-1.
-*watchdog.enable-in bit in (default: _FALSE_)*::
+*watchdog.input-n* bit in::
+  Input number _n_. The inputs are numbered from 0 to *num_inputs*-1.
+*watchdog.enable-in* bit in (default: _FALSE_)::
   If TRUE, forces out-ok to be false. Additionally, if a timeout occurs
   on any input, this pin must be set FALSE and TRUE again to re-start
   the monitoring of input pins.
-*watchdog.ok-out bit out (default: _FALSE_)*::
+*watchdog.ok-out* bit out (default: _FALSE_)::
   OK output. This pin is true only if enable-in is TRUE and no timeout
   has been detected. This output can be connected to the enable input of
   a *charge_pump* or *stepgen* (in v mode), to provide a heartbeat

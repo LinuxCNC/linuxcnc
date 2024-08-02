@@ -6,9 +6,9 @@ classicladder - realtime software plc based on ladder logic
 
 == SYNOPSIS
 
-*loadrt classicladder_rt [numRungs=*_N_*] [numBits=*_N_*] [numWords=*_N_*] [numTimers=*_N_*] [numMonostables=*_N_*] [numCounters=*_N_*] [numPhysInputs=*_N_*] [numPhysOutputs=*_N_*] [numArithmExpr=*_N_*] [numSections=*_N_*] [numSymbols=*_N_*] [numS32in=*_N_*] [numS32out=*_N_*] [numFloatIn=*_N_*] [numFloatOut=*_N_*]*
+*loadrt classicladder_rt* [**numRungs=**_N_] [**numBits=**_N_] [**numWords=**_N_] [**numTimers=**_N_] [**numMonostables=**_N_] [**numCounters=**_N_] [**numPhysInputs=**_N_] [**numPhysOutputs=**_N_] [**numArithmExpr=**_N_] [**numSections=**_N_] [**numSymbols=**_N_] [**numS32in=**_N_] [**numS32out=**_N_] [**numFloatIn=**_N_] [**numFloatOut=**_N_]
 
-*loadusr classicladder <file name> [--nogui]*
+*loadusr classicladder* _<file name>_ [**--nogui**]
 
 == DESCRIPTION
 
@@ -33,22 +33,21 @@ the outputs.
   These bit signal pins map to **%Q**_NN_ variables in ClassicLadder.
   Output from ClassicLadder.
 **classicladder.0.s32in-**_NN_ IN s32::
-  Integer input from ClassicLadder. These s32 signal pins map to
-  **%IW**_NN_ variables in ClassicLadder.
+  Integer input from ClassicLadder.
+  These s32 signal pins map to **%IW**_NN_ variables in ClassicLadder.
 **classicladder.0.s32out-**_NN_ OUT s32::
-  Integer output from ClassicLadder. These s32 signal pins map to
-  **%QW**_NN_ variables in ClassicLadder.
+  Integer output from ClassicLadder.
+  These s32 signal pins map to **%QW**_NN_ variables in ClassicLadder.
 **classicladder.0.floatin-**_NN_ IN float::
-  Integer input from ClassicLadder. These float signal pins map to
-  **%IF**_NN_ variables in ClassicLadder. These are truncated to S32
-  values internally. eg 7.5 will be 7.
+  Integer input from ClassicLadder.
+  These float signal pins map to **%IF**_NN_ variables in ClassicLadder.
+  These are truncated to S32 values internally, e.g. 7.5 will be 7.
 **classicladder.0.floatout-**_NN_ OUT float::
-  Float output from ClassicLadder. These float signal pins map to
-  **%QF**_NN_ variables in ClassicLadder.
-**classicladder.0.hide_gui** IN bi**::
-  This bit pin hides the ClassicLadder window, while still having the
-  non-realtime code run. This is usually desirable when modbus is used,
-  as modbus requires the non-realtime code to run.
+  Float output from ClassicLadder.
+  These float signal pins map to **%QF**_NN_ variables in ClassicLadder.
+**classicladder.0.hide_gui** IN bit*::
+  This bit pin hides the ClassicLadder window, while still having the non-realtime code run.
+  This is usually desirable when modbus is used, as modbus requires the non-realtime code to run.
 
 == PARAMETERS
 
@@ -62,14 +61,13 @@ the outputs.
 == FUNCTIONS
 
 *classicladder.0.refresh* FP::
-  The rung update rate. Add this to the servo thread. You can added it
-  to a faster thread but it. Will update no faster than once every 1
-  millisecond (1000000 ns).
+  The rung update rate.  Add this to the servo thread.
+  You can added it to a faster thread but it.
+  Will update no faster than once every 1 millisecond (1000000 ns).
 
 == BUGS
 
-See http://wiki.linuxcnc.org/cgi-bin/wiki.pl?ClassicLadder_Ver_7.124 for
-the latest.
+See http://wiki.linuxcnc.org/cgi-bin/wiki.pl?ClassicLadder_Ver_7.124 for the latest.
 
 == SEE ALSO
 

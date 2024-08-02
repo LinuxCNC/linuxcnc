@@ -6,7 +6,7 @@ sim_encoder - simulated quadrature encoder
 
 == SYNOPSIS
 
-*loadrt sim_encoder [num_chan=*_num_* | names=*_name1_*[,*_name2..._*]]*
+**loadrt sim_encoder [num_chan=**_num_ | **names=**_name1_[,_name2_...]]
 
 == DESCRIPTION
 

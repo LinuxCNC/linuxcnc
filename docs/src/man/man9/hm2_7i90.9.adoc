@@ -7,13 +7,10 @@ Anything IO board with HostMot2 firmware.
 
 == SYNOPSIS
 
-*loadrt hm2_7i90 [ioaddr=__N__*[,*_N_*...]]*
-[ioaddr_hi=__N__*[,*_N_*...]]* [epp_wide=__N__*[,*_N_*...]]*
-[debug_epp=__N__*[,*_N_*...]]**
+**loadrt hm2_7i90** [**ioaddr=**__N__[,_N_...]] [**ioaddr_hi=**__N__[,_N_...]] [**epp_wide=**__N__[,_N_...]] [**debug_epp=**__N__[,_N_...]]
 
 ____
-*ioaddr* [default: 0 (parport0)]::
-  The base address of the parallel port.
+*ioaddr* [default: 0 (parport0)]:: The base address of the parallel port.
 
 The number of ioaddr indexes/addresses given is used by the driver to
 determine how many boards to search for. Previously the number of config
@@ -21,13 +18,12 @@ strings was used, but a blank config string is perfectly acceptable for
 7i90.
 
 *ioaddr_hi* [default: 0]::
-  The secondary address of the parallel port, used to set EPP mode. 0
-  means to use ioaddr + 0x400.
+  The secondary address of the parallel port, used to set EPP mode.
+  0 means to use ioaddr + 0x400.
 *epp_wide* [default: 1]::
   Set to zero to disable the "wide EPP mode". "Wide" mode allows a 16-
   and 32-bit EPP transfers, which can reduce the time spent in the read
-  and write functions. However, this may not work on all EPP parallel
-  ports.
+  and write functions. However, this may not work on all EPP parallel ports.
 *config* [default: ""]::
   HostMot2 config strings, described in the hostmot2(9) manpage.
 *debug_epp* [default: 0]::

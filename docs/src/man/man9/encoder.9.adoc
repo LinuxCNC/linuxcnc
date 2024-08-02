@@ -6,7 +6,7 @@ encoder - software counting of quadrature encoder signals
 
 == SYNOPSIS
 
-*loadrt encoder [num_chan=__num__ | names=__name1__*[,*_name2..._*]]**
+*loadrt encoder* [ **num_chan=**__num__ | **names=**__name1__[,_name2_...] ]
 
 == DESCRIPTION
 
@@ -19,9 +19,8 @@ encoder counter is a better choice. Some hardware-based systems can
 count at MHz rates.
 
 *encoder* supports a maximum of eight channels. The number of channels
-actually loaded is set by the *num_chan* argument when the module is
-loaded. Alternatively, specify names= and unique names separated by
-commas.
+actually loaded is set by the *num_chan* argument when the module is loaded.
+Alternatively, specify names= and unique names separated by commas.
 
 The *num_chan=* and *names=* specifiers are mutually exclusive. If
 neither *num_chan=* nor *names=* are specified, or if *num_chan=0* is

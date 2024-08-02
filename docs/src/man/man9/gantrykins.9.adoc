@@ -9,7 +9,7 @@ gantrykins - *Superseded* by the general purpose *trivkins* kinematics module.
 To specify a gantry with non-identity kinematics: use trivkins with the
 kinstype parameter set for KINEMATICS_BOTH. Example:
 
-loadrt trivkins coordinates=xyyz *kinstypes=BOTH*
+**loadrt trivkins coordinates=**xyyz **kinstypes=**BOTH
 
 == SEE ALSO
 

@@ -23,7 +23,7 @@ Any such change will see no buildbot to help, or that help is delayed,
 pending someone else's review that you do not want to wait for or you are
 the only other individual with a particular hardware to test the code.
 
-Besides the programs that control your machine that are built from the source tree, 
+Besides the programs that control your machine that are built from the source tree,
 you can also build the same PDFs and/or HTML files that you are likely to have encountered
 online on https://linuxcnc.org/documents/.
 
@@ -404,17 +404,21 @@ For a typical Debian package to build, you would run dpkg-buildpackage without a
 As introduced above, the command has two extra options passed to it.
 Like for all good Linux tools, the man page has all the details with `man dpkg-buildpackage`.
 
-`-uc`:: Do not sign the resulting binaries. You would want to sign your packages with a GPG key of yours only if you would wanted to distribute them to others. Having that option not set and then failing to sign the package would not affect the .deb file.
+`-uc`:: Do not digitally sign the resulting binaries. You would want to sign your packages with a GPG key of yours only if you would wanted to distribute them to others. Having that option not set and then failing to sign the package would not affect the .deb file.
 
-`-b`:: Only compiles the architecture-dependent packages (like the `linuxcnc` binaries and GUIs). This is very helpful to avoid compiling what is hardware-independent, which for LinuxCNC is the documentation. That documentation is available online anyway.
+`-b`:: Only compiles the architecture-dependent packages (like the `linuxcnc` binaries and GUIs).
+ This is very helpful to avoid compiling what is hardware-independent. For LinuxCNC this is the documentation, which is available online anyway.
 
 If you happen to run into difficulties while compiling, check the LinuxCNC forum online.
+
 Currently emerging is the support for the DEB_BUILD_OPTIONS environment variable.
 Set it to
 
 `nodocs`:: to skip building the documentation, preferably instead use the `-B` flag to dpkg-buildpackage.
 
-`nocheck`:: to skip self-tests of the LinuxCNC build process. This saves some time and reduces the demand for a few software packages that may not be available for your system, i.e. the xvfb in particular. You should not set this option for some extra confidence in your build to perform as expected unless running into difficulties with the dependencies.
+`nocheck`:: to skip self-tests of the LinuxCNC build process.
+  This saves some time and reduces the demand for a few software packages that may not be available for your system, i.e. the xvfb in particular.
+  You should not set this option to gain some extra confidence in your build to perform as expected unless you are running into mere technical difficulties with the test-specific software dependencies.
 
 An environment variable can be set together with the execution of the command, e.g.
 ----
@@ -535,19 +539,18 @@ document clone our git repo at
 https://github.com/LinuxCNC/linuxcnc.git.  This is the quickest, easiest
 way to get started.  However, there are other options to consider.
 
-=== Fork us on Github
+=== Fork us on GitHub
 
 The LinuxCNC project git repo is at https://github.com/LinuxCNC/linuxcnc.
-github is a popular git hosting service and code sharing website.
-You can easily (and for no cost) create a fork of our git repo at github,
-and use that to track and publish your changes.
+GitHub is a popular git hosting service and code sharing website.
+You can easily (and at no costs) create a fork (a second instance holding a copy that you control) of the LinuxCNC git repository at GitHub.
+You can then use that fork of yours to track and publish your changes, receive comments to your changes and accept patches from the community.
+.
 
-After creating your own github fork of LinuxCNC, clone it to your
+After creating your own GitHub fork of LinuxCNC, clone it to your
 development machine and proceed with your hacking as usual.
 
-We of the LinuxCNC project hope that you will share your changes with
-us, so that the community can benefit from your work.  Github makes this
-sharing very easy: after you polish your changes and push them to your
-github fork, send us a Pull Request.
+We of the LinuxCNC project hope that you will share your changes with us, so that the community can benefit from your work.
+GitHub makes this sharing very easy: after you polish your changes and push them to your GitHub fork, send us a Pull Request.
 
 // vim: set syntax=asciidoc:

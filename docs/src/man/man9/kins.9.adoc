@@ -6,7 +6,7 @@ kins, genhexkins, genserkins, maxkins, pentakins, pumakins, rotatekins, scarakin
 
 == SYNOPSIS
 
-*loadrt trivkins (use for most cartesian machines)*
+*loadrt trivkins* (use for most cartesian machines)
 
 *loadrt corexykins*
 
@@ -14,7 +14,7 @@ kins, genhexkins, genserkins, maxkins, pentakins, pumakins, rotatekins, scarakin
 
 *loadrt genserkins*
 
-*loadrt lineardeltakins (see separate manpage)*
+*loadrt lineardeltakins* (see separate manpage)
 
 *loadrt matrixkins*
 
@@ -169,168 +169,139 @@ location of base and platform joints is defined by HAL parameters. The
 forward kinematics iteration is controlled by HAL pins. (See switchkins
 documentation for more info)
 
-*genhexkins.base._N_*.x**::
-   +
+**genhexkins.base.**_N_**.x**::
 
-*genhexkins.base._N_*.y**::
-   +
+**genhexkins.base.**_N_**.y**::
 
-*genhexkins.base._N_*.z**::
-   +
+**genhexkins.base.**_N_**.z**::
 
-*genhexkins.platform._N_*.x**::
-   +
+**genhexkins.platform.**_N_**.x**::
 
-*genhexkins.platform._N_*.y**::
-   +
+**genhexkins.platform.**_N_**.y**::
 
-*genhexkins.platform._N_*.z**::
-  Parameters describing the __N__th joint's coordinates. +
+**genhexkins.platform.**_N_**.z**::
+  Parameters describing the __N__th joint's coordinates.
 
-*genhexkins.spindle-offset*::
+**genhexkins.spindle-offset**::
   Added to all joints Z coordinates to change the machine origin.
-  Facilitates adjusting spindle position. +
+  Facilitates adjusting spindle position.
 
-*genhexkins.base-n._N_*.x**::
-   +
+**genhexkins.base-n.**_N_**.x**::
 
-*genhexkins.base-n._N_*.y**::
-   +
+**genhexkins.base-n.**_N_**.y**::
 
-*genhexkins.base-n._N_*.z**::
-   +
+**genhexkins.base-n.**_N_**.z**::
 
-*genhexkins.platform-n._N_*.x**::
-   +
+**genhexkins.platform-n.**_N_**.x**::
 
-*genhexkins.platform-n._N_*.y**::
-   +
+**genhexkins.platform-n.**_N_**.y**::
 
-*genhexkins.platform-n._N_*.z**::
+**genhexkins.platform-n.**_N_**.z**::
   Parameters describing unit vectors of __N__th joint's axis. Used to
   calculate strut length correction for cardanic joints and non-captive
-  actuators. +
+  actuators.
 
-*genhexkins.screw-lead*::
+**genhexkins.screw-lead**::
   Lead of strut actuator screw, positive for the right-handed thread.
-  Default is 0 (strut length correction disabled). +
+  Default is 0 (strut length correction disabled).
 
-*genhexkins.correction._N_*::
+**genhexkins.correction.**_N_::
   Current values of strut length correction for non-captive actuators
   with cardanic joints. *genhexkins.convergence-criterion* Minimum error
-  value that ends iterations with converged solution. +
+  value that ends iterations with converged solution.
 
 *genhexkins.limit-iterations*::
-  Limit of iterations, if exceeded iterations stop with no
-  convergence. +
+  Limit of iterations, if exceeded iterations stop with no convergence.
 
 *genhexkins.max-error*::
-  Maximum error value, if exceeded iterations stop with no
-  convergence. +
+  Maximum error value, if exceeded iterations stop with no convergence.
 
 *genhexkins.last-iterations*::
-  Number of iterations spent for the last forward kinematics solution. +
+  Number of iterations spent for the last forward kinematics solution.
 
 *genhexkins.max-iterations*::
-  Maximum number of iterations spent for a converged solution during
-  current session. +
+  Maximum number of iterations spent for a converged solution during current session.
 
 *genhexkins.tool-offset*::
-  TCP offset from platform origin along Z to implement RTCP function. To
-  avoid joints jump change tool offset only when the platform is not
-  tilted.
+  TCP offset from platform origin along Z to implement RTCP function.
+  To avoid joints jump change tool offset only when the platform is not tilted.
 
 === genserkins - generalized serial kinematics
 
-Kinematics that can model a general serial-link manipulator with up to 6
-angular joints. (See switchkins documentation for more info)
+Kinematics that can model a general serial-link manipulator with up to 6 angular joints.
+See switchkins documentation for more info.
 
-The kinematics use Denavit-Hartenberg definition for the joint and
-links. The DH definitions are the ones used by John J Craig in
+The kinematics use Denavit-Hartenberg definition for the joint and links.
+The DH definitions are the ones used by John J Craig in
 "Introduction to Robotics: Mechanics and Control" The parameters for the
 manipulator are defined by HAL pins. Note that this uses a convention
 sometimes known as "Modified DH Parameters" and this must be borne in
 mind when setting up the system. https://w.wiki/NcY
 
-*genserkins.A-_N_*::
-   +
+**genserkins.A-**_N_::
 
-*genserkins.ALPHA-_N_*::
-   +
+**genserkins.ALPHA-**_N_::
 
-*genserkins.D-_N_*::
-  Parameters describing the __N__th joint's geometry.
+**genserkins.D-**_N_::
+  Parameters describing the __N__^th^ joint's geometry.
 
 === matrixkins - Calibrated kinematics for 3-axis cartesian machines
 
-Similar to trivkins, but allows calibrating out small imperfections in
-axis alignment. See matrixkins(9) man page for detailed instructions.
+Similar to trivkins, but allows calibrating out small imperfections in axis alignment.
+See matrixkins(9) man page for detailed instructions.
 
 === maxkins - 5-axis kinematics example
 
 Kinematics for Chris Radek's tabletop 5 axis mill named 'max' with
-tilting head (B axis) and horizintal rotary mounted to the table (C
-axis). Provides UVW motion in the rotated coordinate system. The source
-file, maxkins.c, may be a useful starting point for other 5-axis
-systems.
+tilting head (B axis) and horizintal rotary mounted to the table (C axis).
+Provides UVW motion in the rotated coordinate system.
+The source file, maxkins.c, may be a useful starting point for other 5-axis systems.
 
 === pentakins - Pentapod Kinematics
 
-Gives five degrees of freedom in position and orientation (XYZAB). The
-location of base and effector joints is defined by HAL parameters. The
-forward kinematics iteration is controlled by HAL pins.
+Gives five degrees of freedom in position and orientation (XYZAB).
+The location of base and effector joints is defined by HAL parameters.
+The forward kinematics iteration is controlled by HAL pins.
 
-*pentakins.base._N_*.x**::
-   +
+**pentakins.base.**_N_**.x**::
 
-*pentakins.base._N_*.y**::
-   +
+**pentakins.base.**_N_**.y**::
 
-*pentakins.base._N_*.z**::
-   +
+**pentakins.base.**_N_**.z**::
 
-*pentakins.effector._N_*.r**::
-   +
+**pentakins.effector.**_N_**.r**::
 
-*pentakins.effector._N_*.z**::
-  Parameters describing the __N__th effector joint's radius and axial
-  position. +
+**pentakins.effector.**_N_**.z**::
+  Parameters describing the __N__^th^ effector joint's radius and axial position. 
 
 *pentakins.convergence-criterion*::
-  Minimum error value that ends iterations with converged solution. +
+  Minimum error value that ends iterations with converged solution.
 
 *pentakins.limit-iterations*::
-  Limit of iterations, if exceeded iterations stop with no
-  convergence. +
+  Limit of iterations, if exceeded iterations stop with no convergence.
 
 *pentakins.max-error*::
-  Maximum error value, if exceeded iterations stop with no
-  convergence. +
+  Maximum error value, if exceeded iterations stop with no convergence.
 
 *pentakins.last-iterations*::
-  Number of iterations spent for the last forward kinematics solution. +
+  Number of iterations spent for the last forward kinematics solution. 
 
 *pentakins.max-iterations*::
-  Maximum number of iterations spent for a converged solution during
-  current session. +
+  Maximum number of iterations spent for a converged solution during current session.
 
 *pentakins.tool-offset*::
-  TCP offset from effector origin along Z to implement RTCP function. To
-  avoid joints jump change tool offset only when the platform is not
-  tilted.
+  TCP offset from effector origin along Z to implement RTCP function.
+  To avoid joints jump change tool offset only when the platform is not tilted.
 
 === pumakins - kinematics for puma typed robots
 
-Kinematics for a puma-style robot with 6 joints
+Kinematics for a puma-style robot with 6 joints:
 
 *pumakins.A2*::
-   +
 
 *pumakins.A3*::
-   +
 
 *pumakins.D3*::
-   +
 
 *pumakins.D4*::
   Describe the geometry of the robot
@@ -352,21 +323,18 @@ The X and Y axes are rotated 45 degrees compared to the joints 0 and 1.
 (See switchkins documentation for more info)
 
 *scarakins.D1*::
-  Vertical distance from the ground plane to the center of the inner
-  arm.
+  Vertical distance from the ground plane to the center of the inner arm.
 *scarakins.D2*::
-  Horizontal distance between joint[0] axis and joint[1] axis, ie. the
-  length of the inner arm.
+  Horizontal distance between joint[0] axis and joint[1] axis,
+  i.e., the length of the inner arm.
 *scarakins.D3*::
-  Vertical distance from the center of the inner arm to the center of
-  the outer arm. May be positive or negative depending on the structure
-  of the robot.
+  Vertical distance from the center of the inner arm to the center of the outer arm.
+  May be positive or negative depending on the structure of the robot.
 *scarakins.D4*::
-  Horizontal distance between joint[1] axis and joint[2] axis, ie. the
-  length of the outer arm.
+  Horizontal distance between joint[1] axis and joint[2] axis, i.e., the length of the outer arm.
 *scarakins.D5*::
-  Vertical distance from the end effector to the tooltip. Positive means
-  the tooltip is lower than the end effector, and is the normal case.
+  Vertical distance from the end effector to the tooltip.
+  Positive means the tooltip is lower than the end effector, and is the normal case.
 *scarakins.D6*::
   Horizontal distance from the centerline of the end effector (and the
   joints 2 and 3 axis) and the tooltip. Zero means the tooltip is on the
@@ -380,10 +348,8 @@ predefined locations (the motors), giving three degrees of freedom in
 position (XYZ)
 
 *tripodkins.Bx*::
-   +
 
 *tripodkins.Cx*::
-   +
 
 *tripodkins.Cy*::
   The location of the three motors is (0,0), (Bx,0), and (Cx,Cy)
@@ -436,5 +402,5 @@ _Kinematics_ section in the LinuxCNC documentation
 
 The HAL component *userkins.comp* is a template for making kinematic
 modules using the halcompile tool. The unmodified template supports an
-identity xyz configuration that uses 3 joints. See *userkins*(9) for
-more info.
+identity xyz configuration that uses 3 joints.
+See *userkins*(9) for more info.
