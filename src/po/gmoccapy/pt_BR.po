@@ -8,8 +8,8 @@ msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-04-07 20:07+0200\n"
-"PO-Revision-Date: 2024-08-02 20:54+0000\n"
-"Last-Translator: Luan Moura <luanmoura.s91@gmail.com>\n"
+"PO-Revision-Date: 2024-08-02 21:17+0000\n"
+"Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
@@ -208,10 +208,12 @@ msgid "* GMOCCAPY ERROR *"
 msgstr "GMOCCAPY ERRO"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1467
+#, fuzzy
 msgid "this is not a lathe, as a lathe must have at least\n"
 msgstr "Isso não é um torno, pois um torno deve ter pelo menos"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1468
+#, fuzzy
 msgid "an X and an Z axis\n"
 msgstr "um eixo X e um eixo Z"
 
@@ -226,10 +228,12 @@ msgid "Very critical situation"
 msgstr "Situação muito crítica"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1600
+#, fuzzy
 msgid "this is not a usual config\n"
 msgstr "Essa não é uma configuração comum"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1601
+#, fuzzy
 msgid "we miss one of X , Y or Z axis\n"
 msgstr "Está faltando um dos eixos X, Y ou Z"
 
@@ -555,6 +559,7 @@ msgid "Manual Tool change"
 msgstr "Troca manual de ferramentas"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4929
+#, fuzzy
 msgid "Tool Change has been aborted!\n"
 msgstr "Troca de ferramentas cancelada!"
 
@@ -563,6 +568,7 @@ msgid "The old tool will remain set!"
 msgstr "A ferramenta antiga permanecerá configurada!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4938
+#, fuzzy
 msgid "You are trying to delete the tool mounted in the spindle\n"
 msgstr "Você está tentando excluir a ferramenta montada no spindle"
 
@@ -598,6 +604,7 @@ msgid "Your selection has been reset to the tool in spindle."
 msgstr "Sua seleção foi redefinida para a ferramenta no spindle."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4973
+#, fuzzy
 msgid ""
 "Tool touch off is not possible with cutter radius compensation switched on!\n"
 msgstr ""
@@ -744,6 +751,7 @@ msgstr ""
 "arquivo INI. "
 
 #: src/emc/usr_intf/gmoccapy/getiniinfo.py:105
+#, fuzzy
 msgid "gmoccapy will not start ****\n"
 msgstr "O gmoccapy não iniciará ****"
 
