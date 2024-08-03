@@ -81,9 +81,9 @@ The comma character (,) separates members of the config array from each other.
 For example, if your control computer has one 5I20 and one 5I23 you might
 load the hm2_pci driver with a HAL command (in halcmd) something like this:
 
-....
-loadrt hm2_pci config="firmware=hm2/5i20/SVST8_4.BIT num_encoders=3 num_pwmgens=3 num_stepgens=3,firmware=hm2/5i23/SVSS8_8.BIT sserial_port_0=0000 num_encoders=4"
-....
+
+*loadrt hm2_pci config="firmware=hm2/5i20/SVST8_4.BIT num_encoders=3 num_pwmgens=3 num_stepgens=3,firmware=hm2/5i23/SVSS8_8.BIT sserial_port_0=0000 num_encoders=4"*
+
 
 Note: this assumes that the hm2_pci driver detects the 5I20 first and the 5I23 second.
 If the detection order does not match the order of the config strings,
@@ -96,29 +96,52 @@ what the detection order is.
 
 The valid entries in the format string are:
 
-  [**firmware=**_F_]
-  [**num_dplls=**_N_]
-  [**num_encoders=**_N_]
-  [**ssi_chan_**_N_**=**_abc%nq_]
-  [**biss_chan_**_N_**=**_abc%nq_]
-  [**fanuc_chan_**_N_**=**_abc%nq_]
-  [**num_inmux=**__N_]
-  [**num_inms=**__N_]
-  [**num_resolvers=**_N_]
-  [**num_pwmgens=**_N_]
-  [**num_3pwmgens=**_N_]
-  [**num_oneshots=**_N_]
-  [**num_periodms=**_N_]
-  [**num_rcpwmgens=**_N_]
-  [**num_stepgens=**_N_]
-  [**stepgen_width=**_N_]
-  [**sserial_port_0=**00000000]
-  [**num_bspis=**_N_]
-  [**num_leds=**_N_]
-  [**num_ssrs=**_N_]
-  [**num_outms=**_N_]
-  [**num_xy2mods=**_N_]
-  [**enable_raw**]
+**[firmware=**__F__**]**
+
+**[num_dplls=**__N__**]**
+
+**[num_encoders=**__N__**]**
+
+**[ssi_chan_**__N__**=**__abc%nq__**]**
+
+**[biss_chan_**__N__**=**__abc%nq__**]**
+
+**[fanuc_chan_**__N__**=**__abc%nq__**]**
+
+**[num_inmux=**__N__**]**
+
+**[num_inms=**__N__**]**
+
+**[num_resolvers=**__N__**]**
+
+**[num_pwmgens=**__N__**]**
+
+**[num_3pwmgens=**__N__**]**
+
+**[num_oneshots=**__N__**]**
+
+**[num_periodms=**__N__**]**
+
+**[num_rcpwmgens=**__N__**]**
+
+**[num_stepgens=**__N__**]**
+
+**[stepgen_width=**__N__**]**
+
+**[sserial_port_0=**00000000**]**
+
+**[num_bspis=**__N__**]**
+
+**[num_leds=**__N__**]**
+
+**[num_ssrs=**__N__**]**
+
+**[num_outms=**__N__**]**
+
+**[num_xy2mods=**__N__**]**
+
+**[enable_raw]**
+
 
 *firmware* [optional]::
   Load the firmware specified by F into the FPGA on this board.
@@ -249,7 +272,7 @@ stepgens, quadrature encoders, and the xy2mod, the timers can be used to
 reduce position sampling jitter. This is especially valuable with the
 ethernet-interfaced cards.
 
-Pins:
+*Pins:*
 
 hm2___<BoardType>__.__<BoardNum>__.dpll._NN_.timer-us (float, in)::
   This pin sets the triggering offset of the associated timer. There are
@@ -258,21 +281,21 @@ hm2___<BoardType>__.__<BoardNum>__.dpll._NN_.timer-us (float, in)::
   will be negative, and positive for writes, so that input data is
   sampled prior to the main hostmot read and output data is written some
   time after the main hostmot2 read.
-
-For stepgen and quadrature encoders, the value needs to be more than the
-maximum variation between read times. -100 will suffice for most
-systems, and -50 will work on systems with good performance and latency.
-
-For serial encoders, the value also needs to include the time it takes
-to transfer the absolute encoder position. For instance, if 50 bits must
-be read at 500 kHz then subtract an additional 50/500 kHz = 100 µs to
-get a starting value of -200.
-
-The xy2mod uses 2 DPLL timers, one for read and one for write.
-The read timer value can be the same as used by the stepgen and quadrature
-encoders so the same timer channel can be shared.
-The write timer is typically set to a time after the main hostmot2 write
-this may take some experimentation.
+  +
+  For stepgen and quadrature encoders, the value needs to be more than the
+  maximum variation between read times. -100 will suffice for most
+  systems, and -50 will work on systems with good performance and latency.
+  +
+  For serial encoders, the value also needs to include the time it takes
+  to transfer the absolute encoder position. For instance, if 50 bits must
+  be read at 500 kHz then subtract an additional 50/500 kHz = 100 µs to
+  get a starting value of -200.
+  +
+  The xy2mod uses 2 DPLL timers, one for read and one for write.
+  The read timer value can be the same as used by the stepgen and quadrature
+  encoders so the same timer channel can be shared.
+  The write timer is typically set to a time after the main hostmot2 write
+  this may take some experimentation.
 
 hm2__<BoardType>__.__<BoardNum>__.dpll.base-freq-khz (float, in)::
   This pin sets the base frequency of the phase-locked loop. By default
@@ -318,7 +341,7 @@ Canonical Device Interface (in the HAL General Reference document), and
 to the software encoder component. Each encoder instance has the
 following pins and parameters:
 
-Pins:
+*Pins:*
 
 count (s32 out)::
   Number of encoder counts since the previous reset.
@@ -385,7 +408,7 @@ hm2_XXXX.N.encoder.hires-timestamp (bit in)::
   resolution. It should be set False when servo thread periods longer
   than 1 ms are used.
 
-Parameters:
+*Parameters:*
 
 scale (float r/w)::
   Converts from "count" units to "position" units.
@@ -469,8 +492,8 @@ There is a limit of 64 bits in total.
 
 The valid format characters and the pins they create are:
 
-p: (Pad). Does not create any pins, used to ignore sections of the bit
-stream that are not required.::
+p: (Pad)::
+  Does not create any pins, used to ignore sections of the bit stream that are not required.
 b: (Boolean).::
   (bit, out) hm2_XXXX.N.ssi.MM.<name>. If any bits in the designated
   field width are non-zero then the HAL pin will be "True". (bit, out)
@@ -520,7 +543,7 @@ l: (Split encoder, low-order bits)::
 g: (Gray-code):: This is a modifier that indicates that the following format string is gray-code encoded.
   This is only valid for encoders (e, h l) and unsigned (u) data types.
 m: (Multi-turn)::
- . This is a modifier that indicates that the following
+  This is a modifier that indicates that the following
   format string is a multi-turn encoder. This is only valid for encoders
   (e, h l). A jump in encoder position of more than half the full scale
   is interpreted as a full turn and the counts are wrapped. With a
@@ -544,16 +567,19 @@ hm2_XXXX.N.ssi.timer-number-num (s32 r/w)::
 
 Other parameters depend on the data types specified in the config string.
 
-p: (Pad) No Parameters.::
-b: (Boolean) No Parameters.::
+p: (Pad)::
+  No Parameters.
+b: (Boolean)::
+  No Parameters.
 u: (Unsigned)::
   (float, r/w) hm2_XXXX.N.ssi.MM.<name>-scalemax.
   The scaling factor for the channel.
 s: (Signed)::
   (float, r/w) hm2_XXXX.N.ssi.MM.<name>-scalemax.
   The scaling factor for the channel.
-f: (bitField): No parameters.::
-e: (Encoder):::
+f: (bitField)::
+  No parameters.
+e: (Encoder)::
   (float, r/w) hm2_XXXX.N.ssi.MM._<name>_.scale: (float, r.w) The encoder
   scale in counts per machine unit. (u32, r/w)
   hm2_XXXX.N.ssi.MM._<name>_.counts-per-rev (u32, r/w) Used to emulate the
@@ -616,7 +642,7 @@ SPI interface to the FPGA card, and will only work with the correct
 firmware. The pins allocated will be listed in the dmesg output, but are
 unlikely to be usefully probed with HAL tools.
 
-Pins:
+*Pins:*
 
 angle (float, out)::
   This pin indicates the angular position of the resolver. It is a
@@ -659,7 +685,7 @@ joint-pos-fb (bit, in)::
   Indicates an error in the particular channel. If this value is "True"
   then the reported position and velocity are invalid.
 
-Parameters:
+*Parameters:*
 
 scale (float, read/write)::
   The position scale, in machine units per resolver electrical
@@ -719,7 +745,7 @@ Each pwmgen instance has the following pins and parameters:
  value (float input)::
   The current pwmgen command value, in arbitrary units.
 
-Parameters:
+*Parameters:*
 
  scale (float rw)::
   Scaling factor to convert "value" from arbitrary units to duty cycle:
@@ -797,11 +823,12 @@ disabled. The three phase duty-cycles are individually controllable from
 -Scale to +Scale. Note that 0 corresponds to a 50% duty cycle and this
 is the initialization value.
 
-Pins:
+*Pins:*
 
-(float input) A-value, B-value, C-value: The PWM command value for each
-phase, limited to +/- "scale". Defaults to zero which is 50% duty cycle
-on high-side and low-sidepins (but see the "deadtime" parameter).
+A-value, B-value, C-value (float input)::
+  The PWM command value for each
+  phase, limited to +/- "scale". Defaults to zero which is 50% duty cycle
+  on high-side and low-sidepins (but see the "deadtime" parameter).
 
 enable (bit input)::
   When high the PWM is enabled as long as the fault bit is not set by
@@ -813,7 +840,7 @@ enable (bit input)::
   Indicates the status of the fault bit. This output latches high once
   set by the physical fault pin until the "enable" pin is set to high.
 
-Parameters:
+*Parameters:*
 
 deadtime (u32 rw)::
   Sets the dead-time between the high-side driver turning off and the
@@ -828,7 +855,7 @@ deadtime (u32 rw)::
   too low a value could be both expensive and dangerous as if both gates
   are open at the same time there is effectively a short circuit across
   the supply.
- scale (float rw)::
+scale (float rw)::
   Sets the half-scale of the specified 3-phase PWM generator. PWM values
   from -scale to +scale are valid. Default is +/- 1.0
 fault-invert (bit rw)::
@@ -836,7 +863,7 @@ fault-invert (bit rw)::
   fault is triggered with the pin high, and 0 means that a fault it
   triggered when the pin is pulled low. Default 0, fault = low so that
   the PWM works with the fault pin unconnected.
- sample-time (u32 rw)::
+sample-time (u32 rw)::
   Sets the time during the cycle when an ADC pulse is generated. 0 =
   start of PWM cycle and 1 = end. Not currently useful to LinuxCNC.
   Default is 0.5.
@@ -1484,7 +1511,7 @@ See setsserial(9) for the current way to set smart-serial eeprom parameters.
 
 == FUNCTIONS
 
-*hm2_*_<BoardType>_*.*_<BoardNum>_*.read-request*::
+**hm2_**_<BoardType>_**.**_<BoardNum>_**.read-request**::
   On boards with long turn around time for reads (at the time of
   writing, this applies only to ethernet boards), this function sends a
   read request. When multiple boards are used, this can reduce the servo
