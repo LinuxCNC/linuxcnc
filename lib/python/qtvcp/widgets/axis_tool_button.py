@@ -50,6 +50,12 @@ class AxisToolButton(QToolButton, IndicatedMixIn):
         self.display_units_mm = 0
         homeOption = False
 
+        self._showGoto = False
+        self._showZero = True
+        self._showSet = True
+        self._showLast = True
+        self._showDivide = True
+
         SettingMenu = QMenu(self)
         self.settingMenu = SettingMenu
         self.zeroButton = QAction(QIcon('exit24.png'), 'Zero', self)
@@ -64,6 +70,12 @@ class AxisToolButton(QToolButton, IndicatedMixIn):
         self.lastButton = QAction(QIcon('exit24.png'), 'Set To Last', self)
         self.lastButton.triggered.connect(self.Last)
         SettingMenu.addAction(self.lastButton)
+        self.goToG53Button = QAction(self)
+        self.goToG53Button.triggered.connect(self.goToG53)
+        SettingMenu.addAction(self.goToG53Button)
+        self.goToG5xButton = QAction(self)
+        self.goToG5xButton.triggered.connect(self.goToG5x)
+        SettingMenu.addAction(self.goToG5xButton)
 
         # option for later - should put a sub menu in for joints homing though
         if homeOption:
@@ -126,7 +138,7 @@ class AxisToolButton(QToolButton, IndicatedMixIn):
 
     def _enableGroup(self, state):
         for i in(self.zeroButton, self.setButton,self.divideButton,
-                self.lastButton, ):
+                self.lastButton,self.goToG53Button, self.goToG5xButton ):
             i.setEnabled(state)
         if not self._halpin_option:
             self.setEnabled(state)
@@ -193,6 +205,14 @@ class AxisToolButton(QToolButton, IndicatedMixIn):
             ACTION.SET_MACHINE_UNHOMED(self._joint)
             STATUS.emit('update-machine-log', 'Unhomed Axis %s' % self._joint, 'TIME')
 
+    def goToG53(self):
+        j = "XYZABCUVW"
+        jnum = j.find(self._axis)
+        ACTION.CALL_MDI('G53 G0 {}0'.format(INFO.GET_NAME_FROM_JOINT.get(jnum)))
+    def goToG5x(self):
+        j = "XYZABCUVW"
+        jnum = j.find(self._axis)
+        ACTION.CALL_MDI('G0 {}0'.format(INFO.GET_NAME_FROM_JOINT.get(jnum)))
 
     def _a_from_j(self, axis):
         if STATUS.is_joint_mode():
@@ -283,6 +303,10 @@ class AxisToolButton(QToolButton, IndicatedMixIn):
     def set_axis(self, data):
         if data.upper() in('X','Y','Z','A','B','C','U','V','W'):
             self._axis = str(data.upper())
+            text = 'Go To G53 Origin in {}'.format(self._axis)
+            self.goToG53Button.setText(text)
+            text = 'Go To G5x Origin in {}'.format(self._axis)
+            self.goToG5xButton.setText(text)
     def get_axis(self):
         return self._axis
     def reset_axis(self):
@@ -304,6 +328,56 @@ class AxisToolButton(QToolButton, IndicatedMixIn):
     def reset_dialog_code(self):
         self.dialog_code = 'ENTRY'
     dialog_code_string = pyqtProperty(str, get_dialog_code, set_dialog_code, reset_dialog_code)
+
+    ####################
+    ## menu properties
+    ####################
+
+    def set_showSet(self, data):
+        self._showSet = data
+        self.setButton.setVisible(data)
+    def get_showSet(self):
+        return self._showSet
+    def reset_showSet(self):
+        self._showSet = True
+    showSetOrigin = pyqtProperty(bool, get_showSet, set_showSet, reset_showSet)
+
+    def set_showZero(self, data):
+        self._showZero = data
+        self.zeroButton.setVisible(data)
+    def get_showZero(self):
+        return self._showZero
+    def reset_showZero(self):
+        self._showZero = True
+    showZeroOrigin = pyqtProperty(bool, get_showZero, set_showZero, reset_showZero)
+
+    def set_showGoto(self, data):
+        self._showGoto = data
+        self.goToG53Button.setVisible(data)
+        self.goToG5xButton.setVisible(data)
+    def get_showGoto(self):
+        return self._showGoto
+    def reset_showGoto(self):
+        self._showGoto = False
+    showGotoOrigin = pyqtProperty(bool, get_showGoto, set_showGoto, reset_showGoto)
+
+    def set_showLast(self, data):
+        self._showLast = data
+        self.lastButton.setVisible(data)
+    def get_showLast(self):
+        return self._showLast
+    def reset_showLast(self):
+        self._showLast = True
+    showLast = pyqtProperty(bool, get_showLast, set_showLast, reset_showLast)
+
+    def set_showDivide(self, data):
+        self._showDivide = data
+        self.divideButton.setVisible(data)
+    def get_showDivide(self):
+        return self._showDivide
+    def reset_showDivide(self):
+        self._showDivide = True
+    showDivide = pyqtProperty(bool, get_showDivide, set_showDivide, reset_showDivide)
 
     def __getitem__(self, item):
         return getattr(self, item)
