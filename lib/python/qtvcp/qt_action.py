@@ -37,8 +37,9 @@ class _Lcnc_Action(object):
         self.prefilter_path = None
         self.home_all_warning_flag = False
         self.proc = None
+        self.lastOriginSet = [0,0,0,0,0,0,0,0,0]
 
-        # imported here to advoid circular imports
+        # imported here to avoid circular imports
         from qtvcp.lib.mdi_subprogram.mdi_command_process import MDICommand
         self.MDIPROCESS = MDICommand()
 
@@ -364,12 +365,28 @@ class _Lcnc_Action(object):
     def SET_AXIS_ORIGIN(self, axis, value):
         if axis == '' or axis.upper() not in ("XYZABCUVW"):
             LOG.warning("Couldn't set origin -axis >{}< not recognized:".format(axis))
+            return
+
+        # record current setting
+        j = "XYZABCUVW"
+        jnum = j.find(axis)
+        p,r,d = STATUS.get_position()
+        if STATUS.is_metric_mode() != INFO.MACHINE_IS_METRIC:
+            r = INFO.convert_units_9(r)
+        self.lastOriginSet[jnum] = r[jnum]
+
+        # set new position
         m = "G10 L20 P0 %s%f" % (axis, value)
         fail, premode = self.ensure_mode(linuxcnc.MODE_MDI)
         self.cmd.mdi(m)
         self.cmd.wait_complete()
         self.ensure_mode(premode)
         self.RELOAD_DISPLAY()
+
+    def GET_LAST_RECORDED_ORIGIN(self, axis):
+        j = "XYZABCUVW"
+        jnum = j.find(axis)
+        return  self.lastOriginSet[jnum]
 
     # Adjust tool offsets so current position ends up the given value
     def SET_TOOL_OFFSET(self, axis, value, fixture=False):
