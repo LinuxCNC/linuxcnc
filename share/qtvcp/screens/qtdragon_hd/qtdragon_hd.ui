@@ -11714,6 +11714,12 @@ CAMERA</string>
                      <property name="Qjoint_number" stdset="0">
                       <number>2</number>
                      </property>
+                     <property name="showSetOrigin" stdset="0">
+                      <bool>true</bool>
+                     </property>
+                     <property name="showLast" stdset="0">
+                      <bool>true</bool>
+                     </property>
                      <property name="homed" stdset="0">
                       <bool>false</bool>
                      </property>
@@ -11849,6 +11855,12 @@ CAMERA</string>
                      </property>
                      <property name="Qjoint_number" stdset="0">
                       <number>1</number>
+                     </property>
+                     <property name="showSetOrigin" stdset="0">
+                      <bool>true</bool>
+                     </property>
+                     <property name="showLast" stdset="0">
+                      <bool>true</bool>
                      </property>
                      <property name="homed" stdset="0">
                       <bool>false</bool>
@@ -13024,6 +13036,12 @@ ZERO</string>
                      <property name="Qjoint_number" stdset="0">
                       <number>0</number>
                      </property>
+                     <property name="showSetOrigin" stdset="0">
+                      <bool>true</bool>
+                     </property>
+                     <property name="showLast" stdset="0">
+                      <bool>true</bool>
+                     </property>
                      <property name="homed" stdset="0">
                       <bool>false</bool>
                      </property>
@@ -13367,6 +13385,12 @@ ZERO</string>
                      <property name="Qjoint_number" stdset="0">
                       <number>4</number>
                      </property>
+                     <property name="showSetOrigin" stdset="0">
+                      <bool>true</bool>
+                     </property>
+                     <property name="showLast" stdset="0">
+                      <bool>true</bool>
+                     </property>
                      <property name="homed" stdset="0">
                       <bool>false</bool>
                      </property>
@@ -13406,6 +13430,12 @@ ZERO</string>
                      </property>
                      <property name="Qreference_type" stdset="0">
                       <number>0</number>
+                     </property>
+                     <property name="showSetOrigin" stdset="0">
+                      <bool>true</bool>
+                     </property>
+                     <property name="showLast" stdset="0">
+                      <bool>true</bool>
                      </property>
                      <property name="homed" stdset="0">
                       <bool>false</bool>
@@ -13593,6 +13623,18 @@ ZERO</string>
                      <property name="dialog_code_string" stdset="0">
                       <string>CALCULATOR</string>
                      </property>
+                     <property name="showSetOrigin" stdset="0">
+                      <bool>false</bool>
+                     </property>
+                     <property name="showZeroOrigin" stdset="0">
+                      <bool>false</bool>
+                     </property>
+                     <property name="showGotoOrigin" stdset="0">
+                      <bool>true</bool>
+                     </property>
+                     <property name="showLast" stdset="0">
+                      <bool>false</bool>
+                     </property>
                      <attribute name="buttonGroup">
                       <string notr="true">buttonGroup</string>
                      </attribute>
@@ -13623,6 +13665,18 @@ ZERO</string>
                      </property>
                      <property name="dialog_code_string" stdset="0">
                       <string>CALCULATOR</string>
+                     </property>
+                     <property name="showSetOrigin" stdset="0">
+                      <bool>false</bool>
+                     </property>
+                     <property name="showZeroOrigin" stdset="0">
+                      <bool>false</bool>
+                     </property>
+                     <property name="showGotoOrigin" stdset="0">
+                      <bool>true</bool>
+                     </property>
+                     <property name="showLast" stdset="0">
+                      <bool>false</bool>
                      </property>
                      <attribute name="buttonGroup">
                       <string notr="true">buttonGroup</string>
@@ -13655,6 +13709,18 @@ ZERO</string>
                      <property name="dialog_code_string" stdset="0">
                       <string>CALCULATOR</string>
                      </property>
+                     <property name="showSetOrigin" stdset="0">
+                      <bool>false</bool>
+                     </property>
+                     <property name="showZeroOrigin" stdset="0">
+                      <bool>false</bool>
+                     </property>
+                     <property name="showGotoOrigin" stdset="0">
+                      <bool>true</bool>
+                     </property>
+                     <property name="showLast" stdset="0">
+                      <bool>false</bool>
+                     </property>
                      <attribute name="buttonGroup">
                       <string notr="true">buttonGroup</string>
                      </attribute>
@@ -13686,6 +13752,18 @@ ZERO</string>
                      <property name="dialog_code_string" stdset="0">
                       <string>CALCULATOR</string>
                      </property>
+                     <property name="showSetOrigin" stdset="0">
+                      <bool>false</bool>
+                     </property>
+                     <property name="showZeroOrigin" stdset="0">
+                      <bool>false</bool>
+                     </property>
+                     <property name="showGotoOrigin" stdset="0">
+                      <bool>true</bool>
+                     </property>
+                     <property name="showLast" stdset="0">
+                      <bool>false</bool>
+                     </property>
                      <attribute name="buttonGroup">
                       <string notr="true">buttonGroup</string>
                      </attribute>
@@ -13716,6 +13794,18 @@ ZERO</string>
                      </property>
                      <property name="dialog_code_string" stdset="0">
                       <string>CALCULATOR</string>
+                     </property>
+                     <property name="showSetOrigin" stdset="0">
+                      <bool>false</bool>
+                     </property>
+                     <property name="showZeroOrigin" stdset="0">
+                      <bool>false</bool>
+                     </property>
+                     <property name="showGotoOrigin" stdset="0">
+                      <bool>true</bool>
+                     </property>
+                     <property name="showLast" stdset="0">
+                      <bool>false</bool>
                      </property>
                      <attribute name="buttonGroup">
                       <string notr="true">buttonGroup</string>
@@ -17349,7 +17439,7 @@ ANGULAR</string>
          <number>2</number>
         </property>
         <property name="text">
-         <string>05:22:07 PM</string>
+         <string>04:27:16 PM</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -18520,8 +18610,8 @@ ANGULAR</string>
   <slot>btn_pause_clicked()</slot>
  </slots>
  <buttongroups>
+  <buttongroup name="buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
-  <buttongroup name="buttonGroup"/>
  </buttongroups>
 </ui>
