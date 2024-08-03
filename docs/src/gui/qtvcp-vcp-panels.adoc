@@ -488,8 +488,8 @@ If the panel is not embedded, both refer to the panel window.
 
 === Handler Patching - Subclassing Builtin Panels
 
-We can have QtVCP load a subclassed version of the standard handler file. in that file we can manipulate the original functions or add new ones. +
-Subclassing just means our handler file first loads the original handler file and adds our new code on top of it - so a patch of changes. +
+We can have QtVCP load a subclassed version of the standard handler file. In that file we can manipulate the original functions or add new ones. +
+Subclassing just means our handler file first loads the original handler file and adds our new code on top of it - effectively a patch of changes. +
 This is useful for changing/adding behaviour while still retaining standard handler updates from LinuxCNC repositories.
 
 You may still need to use the handler copy dialog to copy the original handler file to decide how to patch it.

@@ -10,8 +10,7 @@ axis-remote - AXIS Remote Interface
 
 == DESCRIPTION
 
-*axis-remote* is a small script that triggers commands in a running AXIS
-GUI.
+*axis-remote* is a small script that triggers commands in a running AXIS GUI.
 
 Use *axis-remote --help* for further information.::
 
@@ -27,10 +26,10 @@ Use *axis-remote --help* for further information.::
   Make AXIS quit.
 *--help*, *-h*, *-?*::
   Display a list of valid parameters for *axis-remote*.
-*--mdi COMMAND*, *-m COMMAND*::
-  Run the MDI command *COMMAND*.
-*FILENAME*::
-  Load the G-code file *FILENAME*.
+*--mdi* _COMMAND_, *-m* COMMAND::
+  Run the MDI command _COMMAND_.
+_FILENAME_::
+  Load the G-code file _FILENAME_.
 
 == SEE ALSO
 

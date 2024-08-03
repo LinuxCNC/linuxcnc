@@ -15,7 +15,7 @@ gets run by the runscript usually.
 
 == OPTIONS
 
-*INIFILE*::
+_INIFILE_::
   The INI file is the main piece of an LinuxCNC configuration. It is not
   the entire configuration; there are various other files that go with
   it (NML files, HAL files, TBL files, VAR files). It is, however, the

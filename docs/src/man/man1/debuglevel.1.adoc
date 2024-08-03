@@ -6,7 +6,7 @@ debuglevel - sets the debug level for the non-realtime part of LinuxCNC
 
 == SYNOPSIS
 
-*debuglevel* _-ini_ _INIFILE_
+*debuglevel* *-ini* _INIFILE_
 
 == DESCRIPTION
 

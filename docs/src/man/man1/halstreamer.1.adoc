@@ -20,14 +20,12 @@ halstreamer - stream file data into HAL in real-time
 == OPTIONS
 
 *-c* _CHAN_::
-
-    Instructs *halstreamer* to write to FIFO _CHAN_.
-    FIFOs are numbered from zero, and the default value is zero,
-    so this option is not needed unless multiple FIFOs have been created.
+  Instructs *halstreamer* to write to FIFO _CHAN_.
+  FIFOs are numbered from zero, and the default value is zero,
+  so this option is not needed unless multiple FIFOs have been created.
 
 _FILENAME_::
-
-    Instructs *halsampler* to read from _FILENAME_ instead of from stdin.
+  Instructs *halsampler* to read from _FILENAME_ instead of from stdin.
 
 
 == USAGE

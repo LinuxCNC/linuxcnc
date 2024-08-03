@@ -9,34 +9,31 @@ elbpcom - Communicate with Mesa ethernet cards
 Common options:
 
 ____
-*elbpcom* *[--ip=*_IP_*]* *[--port=*_PORT_*]* *[--timeout=*_TIMEOUT_*]*
-*[--space=*_MEMSPACE_*]* *[--size=*_TRANSFER_SIZE_*]*
+*elbpcom* [**--ip=**_IP_] [**--port=**_PORT_] [**--timeout=**_TIMEOUT_] [**--space=**_MEMSPACE_] [**--size=**_TRANSFER_SIZE_]
 ____
 
 Reading data:
 
 ____
-*elbpcom* *[*_common options_*]* *[--info]* *--address=*_ADDRESS_
-*--read=*_LENGTH_
+*elbpcom* [_common options_]* [*--info*] **--address=**_ADDRESS_ **--read=**_LENGTH_
 ____
 
 Writing data:
 
 ____
-*elbpcom* *[*_common options_*]* *--address=*_ADDRESS_
-*--write=*_HEXDATA_
+*elbpcom* [_common options_] **--address=**_ADDRESS_ **--write=**_HEXDATA_
 ____
 
 Read and decode memory space info area:
 
 ____
-*elbpcom* *[--space=*_MEMSPACE_*]* *--read-info*
+*elbpcom* [**--space=**_MEMSPACE_] *--read-info*
 ____
 
 Sending arbitrary packets:
 
 ____
-*elbpcom* *[*_common options_*]* _HEXDATA_
+*elbpcom* [_common options_] _HEXDATA_
 ____
 
 == DESCRIPTION
@@ -55,8 +52,7 @@ tool.
 If not specified, the default values are
 
 ____
-*--ip=*_192.168.1.121_ *--port=*_27181_ *--timeout=*_.2_ *--space=*_0_
-*--size=*_0_
+*--ip=*_192.168.1.121_ *--port=*_27181_ *--timeout=*_.2_ *--space=*_0_ *--size=*_0_
 ____
 
 If the *--size* argument _TRANSFER_SIZE_ is 0, elbpcom will look up the
@@ -93,5 +89,4 @@ but notice its different treatment of byte order.
 == SEE ALSO
 
 mesaflash(1), hostmot2(9), hm2_eth(9),
-http://www.mesanet.com[Mesa's documentation for the Anything I/O
-boards].
+http://www.mesanet.com[Mesa's documentation for the Anything I/O boards].

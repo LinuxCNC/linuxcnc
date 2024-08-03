@@ -65,7 +65,7 @@ Multiple ethernet interface FPGA cards are available, with many expansion cards
 Website: http://mesanet.com/    Store: http://store.mesanet.com/
 
 === Remora Ethernet
-Realtime requirements are offloaded onto a controller board. Multiple different controller boards are supported - see Remora docs.
+Realtime requirements are offloaded onto a controller board. Multiple different controller boards are supported - see https://remora-docs.readthedocs.io[Remora docs].
 
 Note that some of these controller boards (e.g. NVEM, EC300, EC500) are designed / sold for use with Mach3. Use with LinuxCNC requires flashing new firmware, which has been developed by the LinuxCNC community. The manufacturer does not support LinuxCNC.
 
@@ -114,8 +114,8 @@ https://github.com/multigcs/LinuxCNC-RIO
 Beckhoff EtherCAT(TM) and compatible systems can be made to work with LinuxCNC using the open source etherlab software.
 
 EtherCAT is the open real-time Ethernet network originally developed by Beckhoff.
-The EtherCat master (LinuxCNC computer) uses a standard ethernet (network) interface - no special hardware is needed on the master. The slaves use special hardware.
-There are many EtherCat slave devices available including servo drives, stepper drives, input, output interfaces, VFDs, and others.
+The EtherCAT master (LinuxCNC computer) uses a standard ethernet (network) interface - no special hardware is needed on the master. The slaves use special hardware.
+There are many EtherCAT slave devices available including servo drives, stepper drives, input, output interfaces, VFDs, and others.
 
 https://github.com/linuxcnc-ethercat/linuxcnc-ethercat
 
@@ -153,8 +153,8 @@ USB devices cannot be used to control motors or perform other __"real time"__ ta
 USB to Parallel port converters are ___NOT___ usable / suitable for CNC use. 
 
 === LinuxCNC_ArduinoConnector
-This Project enables you to connect an Arduino to LinuxCNC and provides as many IO's as you could ever wish for. This Software is used as IO Expansion for LinuxCNC.
-It is NOT intended for timing and security relevant IO's. Don't use it for Emergency Stops or Endstop switches!
+This Project enables you to connect an Arduino to LinuxCNC and provides as many I/Os as you could ever wish for. This Software is used as I/O Expansion for LinuxCNC.
+It is NOT intended for timing and security relevant I/Os. Do not use it for Emergency Stops or Endstop switches!
 
 Site: https://github.com/AlexmagToast/LinuxCNC_ArduinoConnector
 

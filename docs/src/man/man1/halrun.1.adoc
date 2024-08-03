@@ -6,13 +6,13 @@ halrun - manipulate the LinuxCNC HAL from the command line
 
 == SYNOPSIS
 
-*halrun _-h_*
+*halrun -h*
 
-*halrun [_-I_] [_halcmd_opts_] [_filename[.hal|.tcl]_]*
+*halrun [*-I*] [_halcmd_opts_] [_filename[.hal|.tcl]_]
 
-*halrun _-T_ [_halcmd_opts_] [_filename[.hal|.tcl]_]*
+*halrun -T* [_halcmd_opts_] [_filename[.hal|.tcl]_]
 
-*halrun _-U_*
+*halrun -U*
 
 == DESCRIPTION
 
@@ -40,10 +40,9 @@ interactive session is started for *halcmd* or *haltcl* according to the
 == OPTIONS
 
 *halcmd_opts*::
-  When a .hal file is specified, the *halcmd_opts* are passed to
-  *halcmd*. See the man page for *halcmd*(1). When a .tcl file is
-  specified, the only valid options are: -i <INI file> -f
-  <filename[.tcl|.hal]> (alternate means of specifying a file)
+  When a .hal file is specified, the *halcmd_opts* are passed to *halcmd*.
+  See the man page for **halcmd**(1).
+  When a .tcl file is specified, the only valid options are: -i <INI file> -f <filename[.tcl|.hal]> (alternate means of specifying a file).
 *-I*::
   Run an interactive *halcmd* session
 *-T*::
