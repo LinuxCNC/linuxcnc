@@ -7,8 +7,7 @@ parallel ports.
 
 == SYNOPSIS
 
-**loadrt hal_parport cfg="__port_addr__ [_type_] [[__port_addr__ [_type_]
-...]"**
+**loadrt hal_parport cfg="**__port_addr__ [_type_] [ [__port_addr__ [__type__] .. .]**"**
 
 == DESCRIPTION
 
@@ -17,7 +16,7 @@ connections from HAL via halpins to the physical pins of one or more
 parallel ports. It provides a read and write function to send and
 receive data to the attached parallel port(s).
 
-The hal_parport component supports up to **8 **physical parallel ports.
+The hal_parport component supports up to **8** physical parallel ports.
 
 == OPTIONS
 
@@ -29,49 +28,44 @@ The hal_parport component supports up to **8 **physical parallel ports.
 The **port_addr **parameter of the configuration string may be either
 the physical base address of a parallel port or specified as the
 detected parallel port via Linux parport_pc driver. In which case, a
-**port_addr **of __0 __is the first parallel port detected on the
-system, __1 __is the next, and so on.
+**port_addr** of __0 __is the first parallel port detected on the
+system, __1__ is the next, and so on.
 
 The **type **parameter of the configuration string determines how the
 I/O bits of the port are used. There are four possible options and if
 none is specified will default to out.
 
-_in_ - Sets the 8 bits of the data port to input. In this mode the
-parallel port has a total of 13 input pins and 4 output pins.
+_in_:: Sets the 8 bits of the data port to input. In this mode the parallel port has a total of 13 input pins and 4 output pins.
 
-_out_ - Sets the 8 bits of the data port to output. In this mode the
-parallel port has a total of 5 input pins and 12 output pins.
+_out_:: Sets the 8 bits of the data port to output. In this mode the parallel port has a total of 5 input pins and 12 output pins.
 
-_epp_ - This option is the same as setting to out, but can cause the
-computer to change the electrical characteristics of the port, see USAGE
+_epp_:: This option is the same as setting to out, but can cause the computer to change the electrical characteristics of the port, see USAGE
 below.
 
-_x_ -  The option allows ports with open collectorts on the control group
-pins to be configured as inputs resulting in 8 output pins and 9 input
-pins, see USAGE below.
+_x_:: The option allows ports with open collectorts on the control group pins to be configured as inputs resulting in 8 output pins and 9 input pins, see USAGE below.
 
 == PINS
 
 The pins created by the hal_parport component depends on how it is
-configured in the **cfg="" **string passed to it, see OPTIONS.::
-  **parport.<p>.pin-<n>-out (bit) **Drives a physical output pin.
+configured in the **cfg="" **string passed to it, see OPTIONS.
 
-**parport.<p>.pin-<n>-in (bit) **Tracks a physical input pin.
+**parport.**_p_**.pin-**_n_**-out** (bit):: Drives a physical output pin.
 
-**parport.<p>.pin-<n>-in-not (bit) **Tracks a physical input pin, but
-inverted.
+**parport.**_p_**.pin-**_n_**-in** (bit):: Tracks a physical input pin.
 
-For each pin created, **<p> **is the port number, and **<n> **is the
+**parport.**_p_**.pin-**_n_**-in-not** (bit):: Tracks a physical input pin, but inverted.
+
+For each pin created, **_p_** is the port number, and **_n_** is the
 physical pin number in the 25 pin D-shell connector.
 
 For each physical output pin, the driver creates a single HAL pin, for
 example: *parport.0.pin-14-out*.
 
 For each physical input pin, the driver creates two HAL pins, for
-example: **parport.0.pin-12-in **and *parport.0.pin-12-in-not*.
+example: **parport.0.pin-12-in** and *parport.0.pin-12-in-not*.
 
 The **-in **HAL pin is TRUE if the physical pin is high, and FALSE if
-the physical pin is low. The **-in-not **HAL pin is inverted and is
+the physical pin is low. The **-in-not** HAL pin is inverted and is
 FALSE if the physical pin is high.
 
 The following lists the input and output pins by the type setting used
@@ -88,33 +82,30 @@ in the cfg="" string.
 
 == PARAMETERS
 
-*parport.<p>.pin-<n>-out-invert (bit)*::
+**parport.**_p_**.pin-<n>-out-invert** (bit)::
   Inverts an output pin.
-*parport.<p>.pin-<n>-out-reset (bit)*::
+**parport.**_p_**.pin-<n>-out-reset** (bit)::
   (only for out pins) TRUE if this pin should be reset when the .reset
   function is executed.
-*parport.<p>.reset-time' (U32)*::
+**parport.**_p_**.reset-time** (U32)*::
   The time (in nanoseconds) between a pin is set by write and reset by
   the reset function if it is enabled.
 
 == FUNCTIONS
 
-*parport.<p>.read(funct)*::
-  Reads physical input pins of port <portnum> and updates HAL -in and
-  -in-not pins.
-*parport.read-all (funct)*::
-  Reads physical input pins of all ports and updates HAL -in and -in-not
-  pins.
-*parport.<p>.write (funct)*::
-  Reads HAL -out pins of port <p> and updates that port's physical
-  output pins.
-*parport.write-all (funct)*::
+*parport.**_p**.read(funct)::
+  Reads physical input pins of port <portnum> and updates HAL -in and -in-not pins.
+**parport.read-all** (funct)::
+  Reads physical input pins of all ports and updates HAL -in and -in-not pins.
+**parport.**_p**.write** (funct)::
+  Reads HAL -out pins of port _p_ and updates that port's physical output pins.
+**parport.write-all** (funct)::
   Reads HAL -out pins of all ports and updates all physical output pins.
-*parport.<p>.reset (funct)*::
+**parport.**_p**.reset** (funct)::
   Waits until __reset-time __has elapsed since the associated write,
-  then resets pins to values indicated by __-out-reset __and
-  __-out-invert __settings. Reset must be later in the same thread as
-  write. 'If '__-out-reset __is TRUE, then the reset function will set
+  then resets pins to values indicated by __-out-reset__ and __-out-invert__ settings.
+  Reset must be later in the same thread as write.
+  If __-out-reset__ is TRUE, then the reset function will set
   the pin to the value of _-out-invert_. This can be used in conjunction
   with stepgen's doublefreq to produce one step per period. The stepgen
   stepspace for that pin must be set to 0 to enable doublefreq.
@@ -175,21 +166,20 @@ hal_parport.c). The ports are numbered starting at zero.
   describes the parallel ports to be used, and (optionally) their types.
   If the configuration string does not describe at least one port, it is
   an error. +
-  *loadrt hal_parport cfg="port [type] [port [type] ...]"*
+  **loadrt hal_parport cfg="**__port__ [__type__] [__port__ [__type__] ...]**"**
 
 *Specifying the Port*::
-  Numbers below 16 refer to parallel ports detected by the system. This
-  is the simplest way to configure the hal_parport driver, and
-  cooperates with the Linux parport_pc driver if it is loaded. A port of
-  0 is the first parallel port detected on the system, 1 is the next,
-  and so on.
+  Numbers below 16 refer to parallel ports detected by the system.
+  This is the simplest way to configure the hal_parport driver, and
+  cooperates with the Linux parport_pc driver if it is loaded.
+  A port of 0 is the first parallel port detected on the system,
+  1 is the next, and so on.
 *Basic configuration*::
   This will use the first parallel port Linux detects: +
   *loadrt hal_parport cfg="0"*
 
 *Using the Port Address*::
-  Instead, the port address may be specified using the hex notation 0x
-  then the address. +
+  Instead, the port address may be specified using the hex notation 0x then the address.+
   *loadrt hal_parport cfg="0x378"*
 
 *Specifying a port Type*::
@@ -234,12 +224,12 @@ time.
 == SEE ALSO
 
 Parallel Port Driver (Hardware Drivers Section of LinuxCNC Docs),
-PCI Parallel Port Example(Hardware Examples Section of LinuxCNC Docs)
+PCI Parallel Port Example (Hardware Examples Section of LinuxCNC Docs)
 
 == AUTHOR
 
 This man page written by Joe Hildreth as part of the LinuxCNC project.
 Most of this information was taken from the parallel-port docs located
-in the Hardware Drivers section of the documentation. To the best of my
+in the Hardware Drivers section of the documentation. To the best of our
 knowledge that documentation was written by Sebastian Kuzminsky and
 Chris Radek.

@@ -7,15 +7,14 @@ IO boards, with HostMot2 firmware.
 
 == SYNOPSIS
 
-*loadrt hm2_eth [config=__"str[,str...]"__*]*
-[board_ip=__ip[,ip...]__*]* [board_mac=__mac[,mac...]__*]**
+*loadrt hm2_eth* [**config="**_str_[,_str_...]**"** ] [**board_ip=**__ip__[,__ip__...] ] [**board_mac=**__mac__[,__mac__...] ]
 
 ____
 *config* [default: ""]::
   HostMot2 config strings, described in the hostmot2(9) manpage.
 *board_ip* [default: ""]::
-  The IP address of the board(s), separated by commas. As shipped, the
-  board address is 192.168.1.121.
+  The IP address of the board(s), separated by commas.
+  As shipped, the board address is 192.168.1.121.
 ____
 
 == DESCRIPTION
@@ -27,8 +26,7 @@ The supported boards are: 7I76E, 7I80DB, 7I80HD, 7I92, 7I93, 7I94, 7I95,
 firmware (https://github.com/sensille/litehm2). The board must have its
 firmware loaded on the board by the mesaflash(1) program.
 
-hm2_eth is only available when LinuxCNC is configured with "uspace"
-realtime.
+hm2_eth is only available when LinuxCNC is configured with "uspace" realtime.
 
 == INTERFACE CONFIGURATION
 
@@ -116,17 +114,17 @@ creates additional pins:
 In addition to the parameters documented in *hostmot2(9)*, *hm2_eth(9)*
 creates additional parameters:
 
-(s32, rw) hm2__<BoardType>_._<BoardNum>_.packet-error-decrement::
+hm2__<BoardType>_._<BoardNum>_.packet-error-decrement (s32, rw)::
   The amount deducted from _packet-error-level_ in a cycle without
   detected read or write errors, without going below zero.
-(s32, rw) hm2__<BoardType>_._<BoardNum>_.packet-error-increment::
+hm2__<BoardType>_._<BoardNum>_.packet-error-increment (s32, rw)::
   The amount added to _packet-error-level_ in a cycle without detected
   read or write errors, without going above packet-error-limit.
-(s32, rw) hm2__<BoardType>_._<BoardNum>_.packet-error-limit::
+hm2__<BoardType>_._<BoardNum>_.packet-error-limit (s32, rw)::
   The level at which a detected read or write error is treated as a
   permanent error. When this error level is reached, the board's
   _io-error_ pin becomes TRUE and the condition must be manually reset.
-(s32, rw) hm2__<BoardType>_._<BoardNum>_.packet-read-timeout::
+hm2__<BoardType>_._<BoardNum>_.packet-read-timeout (s32, rw)::
   The length of time that must pass before a read request times out. If
   the value is less than or equal to 0, it is interpreted as 80% of the
   thread period. If the value is less than 100, it is interpreted as a
@@ -155,10 +153,10 @@ manually clear the rules with *sudo iptables -F hm2-eth-rules-output*;
 the rules are also removed by a reboot.
 
 "hardware-irq-coalesce-rx-usecs" decreases time waiting to receive a
-packet on most systems, but on at least some Marvel-chipset NICs it is
-harmful. If the line does not improve system performance, then remove
-it. A reboot is required for the value to be set back to its power-on
-default. This requires the ethtool package to be installed.
+packet on most systems, but on at least some Marvel-chipset NICs it is harmful.
+If the line does not improve system performance, then remove it.
+A reboot is required for the value to be set back to its power-on default.
+This requires the ethtool package to be installed.
 
 == BUGS
 
@@ -176,8 +174,7 @@ elbpcom 01D914000000
 
 Depending on firmware version, this driver may cause the hardware error
 LED to light even though the driver and hardware are functioning
-normally. This will reportedly be fixed in future bitfile updates from
-Mesa.
+normally. This will reportedly be fixed in future bitfile updates from Mesa.
 
 == SEE ALSO
 

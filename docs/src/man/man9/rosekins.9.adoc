@@ -10,18 +10,19 @@ rosekins - Kinematics for a rose engine
 
 == KINEMATICS
 
-joint_0 linear, transverse (perpendicular to spindle) joint_1 linear,
-longitudinal (parallel to spindle identity to z) joint_2 rotary, spindle
-(workholding, not tool holding, e.g. not a highspeed spindle)
+joint_0 linear,
+transverse (perpendicular to spindle) joint_1 linear,
+longitudinal (parallel to spindle identity to z) joint_2 rotary,
+spindle (workholding, not tool holding, e.g. not a highspeed spindle)
 
 == PINS
 
-*rosekins.revolutions float out*::
-  Count of crossings of the negative X axis. Clockwise crossings
-  increment revolutions by 1, counterclockwise crossings decrement by 1.
-*rosekins.theta_degrees float out*::
+*rosekins.revolutions* float out::
+  Count of crossings of the negative X axis.
+  Clockwise crossings increment revolutions by 1, counterclockwise crossings decrement by 1.
+*rosekins.theta_degrees* float out::
   Principal value for arctan(Y/X)
-*rosekins.bigtheta_degrees float out*::
+*rosekins.bigtheta_degrees* float out::
   Accumulated angle (theta + revolutions * 360)
 
 == NOTES

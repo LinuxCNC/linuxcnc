@@ -6,7 +6,7 @@ threads - creates hard realtime HAL threads
 
 == SYNOPSIS
 
-*loadrt threads name1=*_name_* period1=*_period_ [**fp1=**<**0**|**1**>] [<thread-2-info>] [<thread-3-info>]
+**loadrt threads name1=_name_** **period1=**_period_ [**fp1**=<**0**|**1**>] [<_thread-2-info_>] [<_thread-3-info_>]
 
 == DESCRIPTION
 
