@@ -6,8 +6,7 @@ halmeter - observe HAL pins, signals, and parameters
 
 == SYNOPSIS
 
-*halmeter* [*-s*] [**pin**|**sig**|**param** _name_] [*-g* _X-position
-Y-position [Width]_]
+*halmeter* [*-s*] [**pin**|**sig**|**param** _name_] [*-g* _X-position Y-position_ [_Width_]]
 
 == DESCRIPTION
 
@@ -23,8 +22,10 @@ when working on physical systems.
   Display the HAL signal _name_.
 *param* _name_::
   Display the HAL parameter _name_.
-If neither *pin*, *sig*, or *param* are specified, the window starts out
-blank and the user must select an item to observe.::
+
+If neither *pin*, *sig*, or *param* are specified,
+the window starts out blank and the user must select an item to observe:
+
 *-s*::
   Small window. Non-interactive, must be used with *pin*, *sig*, or
   *param* to select the item to display. The item name is displayed in

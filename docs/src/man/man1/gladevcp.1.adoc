@@ -7,8 +7,7 @@ HAL widgets
 
 == SYNOPSIS
 
-*gladevcp* [-g _WxH+X+Y_] [-c _component-name_] [-u _handler_] [-U
-_useroption_] [-H _HAL-file_] [-d] _myfile.ui_
+*gladevcp* [*-g* _WxH+X+Y_] [*-c* _component-name_] [*-u* _handler_] [*-U* _useroption_] [*-H* _HAL-file_] [*-d*] _myfile.ui_
 
 == OPTIONS
 
@@ -36,8 +35,8 @@ _useroption_] [-H _HAL-file_] [-d] _myfile.ui_
 *-R* _gtkrcfile_::
   explicitly load a gtkrc file.
 *-t* _THEME_::
-  set gtk theme. Default is the _system_ theme. Different panels can
-  have different themes.
+  set gtk theme. Default is the _system_ theme.
+  Different panels can have different themes.
 *-m* _MAXIMUM_::
   force panel window to maximize. Together with the _-g geometry_ option
   one can move the panel to a second monitor and force it to use all of

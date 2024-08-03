@@ -17,49 +17,45 @@ and writes to the GS2 via a modbus connection.
 
 == OPTIONS
 
--b, --bits <n>::
-  (default 8) Set number of data bits to <n>, where n must be from 5 to
-  8 inclusive
+-b, --bits _<n>_::
+  Set number of data bits to _<n>_, where n must be from 5 to 8 inclusive (default 8)
 
--d, --device <path>::
-  (default /dev/ttyS0) Set the path to the file representing the serial
-  device to use.
+-d, --device _<path>_::
+  Set the path to the file representing the serial device to use. (default /dev/ttyS0)
 
 -v, --verbose::
   Turn on verbose mode.
 
 -g, --debug::
-  Turn on debug messages. Note that if there are serial errors, this may
-  become annoying. Debug mode will cause all modbus messages to be
-  printed in hex on the terminal.
+  Turn on debug messages. Note that if there are serial errors, this may become annoying.
+  Debug mode will cause all modbus messages to be printed in hex on the terminal.
 
 -n, --name <string>::
-  (default gs2_vfd) Set the name of the HAL module. The HAL comp name
-  will be set to <string>, and all pin and parameter names will begin
-  with <string>.
+  Set the name of the HAL module. The HAL comp name will be set to <string>,
+  and all pin and parameter names will begin with <string>. (default gs2_vfd)
 
 -p, --parity [even,odd,none]::
-  (default odd) Set serial parity to even, odd, or none.
+  Set serial parity to even, odd, or none. (default odd)
 
 -r, --rate <n>::
-  (default 38400) Set baud rate to <n>. It is an error if the rate is
+  Set baud rate to _<n>_. It is an error if the rate is
   not one of the following: 110, 300, 600, 1200, 2400, 4800, 9600,
-  19200, 38400, 57600, 115200
+  19200, 38400, 57600, 115200 (default 38400)
 
 -s, --stopbits [1,2]::
-  (default 1) Set serial stop bits to 1 or 2
+  Set serial stop bits to 1 or 2 (default 1)
 
 -t, --target <n>::
-  (default 1) Set MODBUS target (slave) number. This must match the
-  device number you set on the GS2.
+  Set MODBUS target (slave) number.
+  This must match the device number you set on the GS2. (default 1)
 
 -A, --accel-seconds <n>::
-  (default 10.0) Seconds to accelerate the spindle from 0 to Max RPM.
+  Seconds to accelerate the spindle from 0 to Max RPM. (default 10.0)
 
 -D, --decel-seconds <n>::
-  (default 0.0) Seconds to decelerate the spindle from Max RPM to 0. If
-  set to 0.0 the spindle will be allowed to coast to a stop without
-  controlled deceleration.
+  Seconds to decelerate the spindle from Max RPM to 0.
+  If set to 0.0 the spindle will be allowed to coast to a stop without
+  controlled deceleration. (default 0.0)
 
 -R, --braking-resistor::
   This argument should be used when a braking resistor is installed on

@@ -7,14 +7,14 @@ HID devices
 
 == SYNOPSIS
 
-_loadusr_ *hal_input* _[-KRAL] inputspec ..._
+*loadusr*_ *hal_input* [*-KRAL*] _inputspec_ ...
 
 == DESCRIPTION
 
-hal_input is an interface between HAL and any Linux input device,
+*hal_input* is an interface between HAL and any Linux input device,
 including USB HID devices. For each device named, *hal_input* creates
 pins corresponding to its keys, absolute axes, and LEDs. At a fixed rate
-of approximately 10ms, it synchronizes the device and the HAL pins.
+of approximately 10 ms, it synchronizes the device and the HAL pins.
 
 == INPUT SPECIFICATION
 
@@ -75,44 +75,36 @@ ____
 
 === For buttons
 
-*input._N_*.btn-*_name_ bit out*::
+**input.**_N_**.btn-**_name_ bit out::
    +
 
-*input._N_*.btn-*_name_*-not* bit out*::
+**input.**_N_**.btn-**_name_**-not** bit out::
   Created for each button on the device.
 
 === For keys
 
-*input._N_*.key-*_name_*::
-   +
+**input.**_N_**.key-**_name_::
 
-*input._N_*.key-*_name_*-not**::
+**input**_N_**.key-**_name_**-not**::
   Created for each key on the device.
 
 === For absolute axes
 
-*input._N_*.abs-*_name_*-counts* s32 out*::
-   +
+**input.**_N_**.abs-**_name_**-counts** s32 out::
 
-*input._N_*.abs-*_name_*-position* float out*::
-   +
+**input.**_N_**.abs-**_name_**-position** float out::
 
-*input._N_*.abs-*_name_*-scale* parameter float rw*::
-   +
+**input.**_N_**.abs-**_name_**-scale** parameter float rw::
 
-*input._N_*.abs-*_name_*-offset* parameter float rw*::
-   +
+**input.**_N_**.abs-**_name_**-offset** parameter float rw::
 
-*input._N_*.abs-*_name_*-fuzz* parameter s32 rw*::
-   +
+**input.**_N_**.abs-**_name_**-fuzz** parameter s32 rw::
 
-*input._N_*.abs-*_name_*-flat* parameter s32 rw*::
-   +
+**input.**_N_**.abs-**_name_**-flat** parameter s32 rw::
 
-*input._N_*.abs-*_name_*-min* parameter s32 r*::
-   +
+**input.**_N_**.abs-**_name_**-min** parameter s32 r::
 
-*input._N_*.abs-*_name_*-max* parameter s32 r*::
+**input.**_N_**.abs-**_name_**-max** parameter s32 r::
   Created for each absolute axis on the device. Device positions closer
   than *flat* to *offset* are reported as *offset* in *counts*, and
   *counts* does not change until the device position changes by at least
@@ -125,25 +117,19 @@ ____
 
 === For relative axes
 
-*input._N_*.rel-*_name_*-counts* s32 out*::
-   +
+**input.**_N_**.rel-**_name_**-counts** s32 out::
 
-*input._N_*.rel-*_name_*-position* float out*::
-   +
+**input.**_N_**.rel-**_name_**-position** float out::
 
-*input._N_*.rel-*_name_*-reset* bit in*::
-   +
+**input.**_N_**.rel-**_name_**-reset** bit in::
 
-*input._N_*.rel-*_name_*-scale* parameter float rw*::
-   +
+**input.**_N_**.rel-**_name_**-scale** parameter float rw::
 
-*input._N_*.rel-*_name_*-absolute* parameter s32 rw*::
-   +
+**input.**_N_**.rel-**_name_**-absolute** parameter s32 rw::
 
-*input._N_*.rel-*_name_*-precision* parameter s32 rw*::
-   +
+**input.**_N_**.rel-**_name_**-precision** parameter s32 rw::
 
-*input._N_*.rel-*_name_*-last* parameter s32 rw*::
+**input.**_N_**.rel-**_name_**-last** parameter s32 rw::
   Created for each relative axis on the device. As long as *reset* is
   true, *counts* is reset to zero regardless of any past or current axis
   movement. Otherwise, *counts* increases or decreases according to the
@@ -160,23 +146,19 @@ ____
 
 === For LEDs
 
-*input._N_*.led-*_name_ bit out*::
-   +
+**input.**_N_**.led-**_name_ bit out::
 
-*input._N_*.led-*_name_*-invert* parameter bit rw*::
+**input.**_N_**.led-**_name_**-invert** parameter bit rw::
   Created for each LED on the device.
 
 == PERMISSIONS AND UDEV
 
-By default, the input devices may not be accessible to regular
-users--*hal_input* requires read-write access, even if the device has no
-outputs.
+By default, the input devices may not be accessible to regular users -- *hal_input* requires read-write access, even if the device has no outputs.
 
-Different versions of udev have slightly different, incompatible
-syntaxes. For this reason, it is not possible for this manual page to
-give an accurate example. The *udev(7)* manual page documents the syntax
-used on your Linux distribution. To view it in a terminal, the command
-is *man 7 udev*.
+Different versions of udev have slightly different, incompatible syntaxes.
+For this reason, it is not possible for this manual page to give an accurate example.
+The *udev(7)* manual page documents the syntax used on your Linux distribution.
+To view it in a terminal, the command is *man 7 udev*.
 
 == BUGS
 

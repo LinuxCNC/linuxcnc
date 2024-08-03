@@ -6,21 +6,24 @@ halreport - creates a report on the status of the HAL
 
 == SYNOPSIS
 
-*halreport [outfilename]*
+*halreport* [_outfilename_]
 
 == DESCRIPTION
 
 *halreport*
 
-{empty}1) supports components made by halcompile and numerous legacy
-components 2) Known unhandled components: at_pid -- naming conflicts
-with pid, seldom used boss_plc -- no manpage or docs (any users?)
-watchdog -- seldom used (no users in-tree) 3) deprecated/obsolete
-components counter supply
+. supports components made by halcompile and numerous legacy components
+. Known unhandled components:
++
+  at_pid:: naming conflicts with pid, seldom used
+  boss_plc:: no manpage or docs (any users?)
+  watchdog:: seldom used (no users in-tree)
+. deprecated/obsolete components counter supply
 
 Identificaion of functions used according to pin name. Default handling
-works for components that: 1) use names=|count= (.comp components
-created with halcompile) 2) have a *single* function
+works for components that:
+. use names=|count= (.comp components created with halcompile)
+. have a *single* function
 
 Full docs: http://linuxcnc.org/docs/html/hal/tools.html#_halreport
 

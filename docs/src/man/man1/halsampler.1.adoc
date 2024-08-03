@@ -10,35 +10,33 @@ halsampler - sample data from HAL in realtime
 
 == DESCRIPTION
 
-*sampler*(9) and *halsampler* are used together to sample HAL data in
+**sampler**(9) and *halsampler* are used together to sample HAL data in
 real time and store it in a file. *sampler* is a realtime HAL component
 that exports HAL pins and creates a FIFO in shared memory. It then
 begins sampling data from the HAL and storing it to the FIFO.
 *halsampler* is a non-realtime program that copies data from the FIFO to
-stdout, where it can be redirected to a file or piped to some other
-program.
+stdout, where it can be redirected to a file or piped to some other program.
 
 == OPTIONS
 
-*-c *_CHAN_::
+*-c* _CHAN_::
   instructs *halsampler* to read from FIFO _CHAN_. FIFOs are numbered
   from zero, and the default value is zero, so this option is not needed
   unless multiple FIFOs have been created.
-*-n *_COUNT_::
+*-n* _COUNT_::
   instructs *halsampler* to read _COUNT_ samples from the FIFO, then
   exit. If *-n* is not specified, *halsampler* will read continuously
   until it is killed.
 *-t*::
   instructs *halsampler* to tag each line by printing the sample number
   in the first column.
-*FILENAME*::
-  instructs *halsampler* to write to *FILENAME* instead of to stdout.
+_FILENAME_::
+  instructs *halsampler* to write to _FILENAME_ instead of to stdout.
 
 == USAGE
 
-A FIFO must first be created by loading *sampler*(9) with *halcmd
-loadrt* or a *loadrt* command in a HAL file. Then *halsampler* can be
-invoked to begin printing data from the FIFO to stdout.
+A FIFO must first be created by loading **sampler**(9) with *halcmd loadrt* or a *loadrt* command in a HAL file.
+Then *halsampler* can be invoked to begin printing data from the FIFO to stdout.
 
 Data is printed one line per sample. If *-t* was specified, the sample
 number is printed first. The data follows, in the order that the pins
@@ -63,10 +61,9 @@ gap in the sampled data. If *-t* was specified, gaps in the sequential
 sample numbers in the first column can be used to determine exactly how
 many samples were lost.
 
-The data format for *halsampler* output is the same as for
-*halstreamer*(1) input, so 'waveforms' captured with *halsampler* can be
-replayed using *halstreamer*. The *-t* option should not be used in this
-case.
+The data format for *halsampler* output is the same as for **halstreamer**(1)
+input, so 'waveforms' captured with *halsampler* can be replayed using *halstreamer*.
+The *-t* option should not be used in this case.
 
 == EXIT STATUS
 

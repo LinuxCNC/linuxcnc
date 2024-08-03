@@ -12,8 +12,7 @@ halscope - short description
 
 *halscope* Software oscilloscope for LinuxCNC/HAL
 
-Digital oscilloscope for viewing real time waveforms of HAL pins and
-signals
+Digital oscilloscope for viewing real time waveforms of HAL pins and signals
 
 == SEE ALSO
 
