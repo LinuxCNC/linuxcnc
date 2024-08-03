@@ -1,5 +1,6 @@
 :lang: en
 :toc:
+:toclevels: 3
 
 [[cha:qtdragon-gui]]
 = QtDragon GUI(((QtDragon)))
@@ -912,6 +913,7 @@ Sequence after pressing the probe button: +
 . rapid back to starting corner (now calculated using the probed walls),
 . if auto zero button is enabled, set X and Y of the current user system to zero.
 
+[[sub:touch-plate]]
 == Touch plate
 
 .QtDragon - Touch Plate
@@ -935,23 +937,41 @@ The machine will probe down twice and the current user offset (G5X) will be zero
 
 == Auto Tool Measurement
 
-QtDragon can be setup to do integrated auto tool measurement using the Versa Probe widget and remap code.
-To use this feature, you will need to do some additional settings and you may want to use the offered HAL pin to get values in your own ngc remap procedure.
+=== Overview
+
+QtDragon can be setup to do integrated auto tool measurement using the Versa Probe widget and remap code. 
+
+This feature assumes the use of two probes in concert:
+
+ . A tool switch sensor, fixed somewhere on the machine (sometimes called a tool-setter), and 
+ . A spindle probe that is installed temporarily at the beginning of the job (sometimes called an xyz probe or a Renishaw probe). 
+
+These techniques are useful for machines that do not have repeatable tool holders and do not have automatic tool changing devices. (For machines with repeatable tool holders, see the section on <<sub:touch-plate,measuring tool length>>. For machines with automatic tool changing devices, consult work done under the linuxcnc repository at configs/sim/axis/remap/rack-toolchange)
+
+To use this feature, you will need to do some additional settings and you may want to use the offered HAL pins to get values in your own ngc remap procedure. Those settings are covered later in the section. 
+
+First, this document covers how to use this technique. Second, this document covers how to set up for this technique at the beginning of a production run.  
+
+=== Workflow Overview
+
+A detailed workflow walkthrough follows this overview. 
 
 [IMPORTANT]
-Before starting the first test, do not forget to enter the probe height and probe velocities on the versa probe settings page.
+Setup steps include: + 
+ + 
+Entering the probe velocities on the versa probe settings page. + 
+Enabling "Use Tool Measurement" on the Versa Probe tab. + 
+Enabling "Use Tool Sensor" under Settings. + 
+ + 
+When fist setting up auto tool measurement, please use caution until you confirm tool change and probe locations - it is easy to break a tool/probe. Abort will be honoured while the probe is in motion. 
 
-Tool Measurement in QtDragon is done with the following steps:
+Tool Measurement in QtDragon is organized into the following steps which will be explained in more detail in the following section:
 
-* Touch off your workpiece in X and Y.
-* Measure the height of your block from the base, where your tool switch is located, to the upper face of the block (including chuck etc.).
-* In the Versa probe tab, enter the measured value for block height.
-* Make sure the use tool measurement button in the Vesa probe tab is enabled.
-* Go to auto mode and start your program.
-
-[NOTE]
-When fist setting up auto tool measurement, please use caution until you confirm tool change and probe locations - it is easy to break a tool/probe.
-Abort will be honoured while the probe is in motion.
+. Zero the probe tool by measuring the tool setter with the spindle probe installed
+. Touch off your workpiece in X and Y.
+. Measure the height of your block from the base, where your tool switch is located, to the upper face of the block (including chuck etc.).
+. In the Versa probe tab, enter the measured value for block height.
+. Go to auto mode and start your program.
 
 .Auto tool measurement
 image::images/sketch_auto_tool_measurement.png[align="left"]
@@ -959,24 +979,63 @@ image::images/sketch_auto_tool_measurement.png[align="left"]
 With the first given tool change the tool will be measured and the offset will be set automatically to fit the block height.
 The advantage of this way is, that you do not need a reference tool.
 
+[NOTE]
+Your program must contain a tool change at the beginning. The tool will be measured, even it has been used before, so there is no danger if the block height has changed. There are several videos on you tube that demonstrate the technique using GMOCCAPY. The GMOCCAPY screen pioneered the technique. 
+
+The sequence of events (using the default files in the default setting):
+
+. Rapid move in Z to position defined in the INI's [TOOL_CHANGE] Z
+. Rapid move in X and Y to number defined in INI's [TOOL_CHANGE] X and Y
+. Perform normal M6 tool change: ie, stop spindle, send message to user to change the tool
+. Rapid move in X and Y to position defined in the INI's [VERSA_TOOLSETTER] X and Y
+. Rapid move down in Z to position defined in the INI's [VERSA_TOOLSETTER] Z
+. Probe down in Z to maximum defined in the INI's [VERSA_TOOLSETTER] MAXPROBE
+. Changes the offset of the current work coordinate system to match the difference between the previous tool and the currently measured tool
+. Rapid move up in Z to position defined in the INI's [VERSA_TOOLSETTER] Z_MAX_CLEAR
+. Rapid move to the X Y position when the tool change was called
+. Rapid move down to the Z position when the tool change was called
 
 [NOTE]
-Your program must contain a tool change at the beginning.
-The tool will be measured, even it has been used before, so there is no danger if the block height has changed.
-There are several videos on you tube that demonstrate the technique using GMOCCAPY.
-The GMOCCAPY screen pioneered the technique.
+The [TOOL_CHANGE] Z position should be high enough so the tool will not hit the tool probe when moving to the [VERSA_TOOLSETTER] X and Y position. + 
+  +
+MAXPROBE distance needs to be high enough for the tool to touch the probe. 
 
-The sequence of events (using the default files):
+=== Detailed Workflow Example
 
-* Rapid move in Z to position defined in the INI's [TOOL_CHANGE] Z
-* Rapid move in X and Y to number defined in INI's [TOOL_CHANGE] X and Y
-* Request tool change
-* Rapid move in X and Y to position defined in the INI's [VERSA_TOOLSETTER] X and Y
-* Rapid move down in Z to position defined in the INI's [VERSA_TOOLSETTER] Z
-* Probe down in Z to maximum defined in the INI's [VERSA_TOOLSETTER] MAXPROBE
-* Return Z to position defined in the INI's [TOOL_CHANGE] Z
+==== One Time Setup
+
+The following setups need only be done once as long as they remain in effect: 
+
+. Under Probe Tool Screens: Insure reasonable values for "Rapid" and "Search," these are the speeds at which the probing will be performed and are in machine units per minute. + 
+. Under Probe Tool Screens: insure that "Tool Measure" is enabled (this is a button that must be highlighted)
+. Under Settings: insure that "Use Tool Sensor" is enabled (this is a tick-box that must be checked) 
+. In the Tool Table: setup a tool for the spindle probe and insure that its Z offset is set to zero. 
 
 [NOTE]
+It is possible to use a non-zero tool length for the tool probe, but this requires extra steps and is easy to make mistakes. The following procedure assumes a zero tool probe length. 
+
+==== Procedure before starting a program
+
+The following setup is done before beginning a program that has M6 tool change commands inside it. 
+
+. Physically load the spindle probe into the spindle. 
+. Logically load the spindle probe into the spindle with the M61 Qx command where x is the number in the tool table for the spindle probe (there is a button inside the tool table tab that can also be used)
+. Position to the Toolsetter: Use the button under the Probe Screens for "Go To Toolsetter" to position the spindle above the Toolsetter. 
+. Toolsetter Measure: Use the button under the Probe Screens for "Probe Tool Setter Z Height." Note that this will set and display on the Probe Settings screen the "Probe HT" value in ABS coordinates
+. Jog to your workpiece. 
+. Workpiece Measure: Use the button under the Probe Screens for "Probe Z Height of Material:" this will set and display on the Probe Settings screen the "Block Ht" value in ABS coordinates. (Typically, this will now also be the zero Z for your Work Coordinate System)
+. Set Work Coordinate System (ie, G54, or other): Use the Probe Tool and whatever probe screen or other method is appropriate to set the X, Y, and Z coordinate system needed for your job. 
+. If your program begins with a TnM6 command before spinning the spindle, you may leave the spindle probe installed. You may also issue a TnM6 command to change out the spindle probe, and if the program issues the same one, it will skip the tool change. 
+
+[CAUTION] 
+Take care not to leave the spindle probe in the spindle if a program may start the spindle.
+
+Once those steps are complete, a program with multiple TnM6 toolchanges can be started and will operate with automatic pauses for manual tool change followed by automated tool measurement. 
+
+[NOTE]
+After probing the new tool length using the tool-setter, this remap code uses a G43 which applies the offset to the Work Coordinate system which was in effect when the M6 command was issued. Because remapping has adjusted the Work Coordinate system by the offset between the previous and the current tool, the tool tip will end up at the same point in space as the tip of the previous tool was when the tool change was called.
+
+=== Work Piece Height Probing in QtDragon_hd
 The [TOOL_CHANGE] Z position should be high enough so the tool will not hit the tool probe
 when moving to the [VERSA_TOOLSETTER] X and Y position.
 MAXPROBE distance needs to be high enough for the tool to touch the probe.
@@ -1088,27 +1147,29 @@ REMAP=M6  modalgroup=6 prolog=change_prolog ngc=qt_auto_probe_tool epilog=change
 ==== The Tool Sensor Section
 
 The position of the tool sensor and the start position of the probing movement. +
-All values are absolute (G53) coordinates, except MAXPROBE, which is expressed in relative movement. +
+All values are absolute (G53) coordinates, except MAXPROBE, which is expressed as an absolute length of movement. +
 All values are in machine native units. +
-X,Y,Z set the tool setter probe location. +
-auto probe action sequence (this could be changed with a modified ngc remap file): +
+X, Y, & Z set the tool setter probe location. +
 
-* go to TOOLCHANGE Z position
-* go to TOOLCHANGE XY position.
-* wait for manual tool change acknowledgement
-* go to VERSA_TOOLSETTER XY position
-* go to VERSA_TOOLSETTER Z position
-* fast probe
-* slow probe
-* go to TOOLCHANGE Z position
+Auto probe action sequence in the default qt_auto_probe_tool example remap defined above (this behavior can be changed by modifying either the remap statement in the RS274NGC section, or by modifying the qt_auto_probe_tool.ngc code.): +
+
+. rapid move to the INI's [CHANGE_POSITION] Z position (this is a relative move, it adds this Z value to the current Z coordinate)
+. rapid move to the INI's [CHANGE_POSITION] X & Y position.
+. wait for manual tool change acknowledgement
+. rapid move to the INI's [VERSA_TOOLSETTER] X & Y position
+. rapid move to the INI's [VERSA_TOOLSETTER] Z_MAX_CLEAR Z position
+. fast probe
+. slow probe
+. rapid move to the INI's [VERSA_TOOLSETTER] Z_MAX_CLEAR Z position
 
 Z_MAX_CLEAR is the Z position to go to before moving to the tool setter when using the 'Travel to Toolsetter button'. +
 'Travel to Toolsetter' Action sequence: +
 
-* go to VERSA_TOOLSETTER Z_MAX_CLEAR Z position
-* go to VERSA_TOOLSETTER XY position
-* go to VERSA_TOOLSETTER Z position.
+. rapid move to [VERSA_TOOLSETTER] Z_MAX_CLEAR Z position
+. rapid move to [VERSA_TOOLSETTER] XY position
+. rapid move to [VERSA_TOOLSETTER] Z position.
 
+Example settings:
 [source,{ini}]
 ----
 [VERSA_TOOLSETTER]
@@ -1122,7 +1183,7 @@ MAXPROBE =  -20
 ==== The Change Position Section
 
 This is not named TOOL_CHANGE_POSITION  on purpose - *canon uses that name and will interfere otherwise*.
-The position to move the machine before giving the change tool command.
+The position to which to move the machine before giving the change tool command.
 All values are in absolute coordinates.
 All values are in machine native units.
 
