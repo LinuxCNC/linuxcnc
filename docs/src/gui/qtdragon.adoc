@@ -1478,6 +1478,29 @@ DROLabel {
     qproperty-imperial_template: '%9.5f';
     qproperty-metric_template: '%10.4f';
     qproperty-angular_template: '%11.2f';
+
+    /*Adjust the menu options */
+    qproperty-showLast: true;
+    qproperty-showDivide : false;
+    qproperty-showGotoOrigin: false;
+    qproperty-showZeroOrigin: false;
+    qproperty-showSetOrigin: true;
+    qproperty-dialogName: CALCULATOR;
+}
+----
+
+Change the axis select button's click menu items:
+
+[source,{ini}]
+----
+AxisToolButton {
+    /* Adjust all the menu options */
+    qproperty-showLast: false;
+    qproperty-showDivide : true;
+    qproperty-showGotoOrigin: true;
+    qproperty-showZeroOrigin: true;
+    qproperty-showSetOrigin: false;
+    qproperty-dialog_code_string: CALCULATOR;
 }
 ----
 

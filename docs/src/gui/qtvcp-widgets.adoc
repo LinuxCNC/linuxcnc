@@ -678,6 +678,7 @@ They have _two path properties_ for displaying *images on true and false*.
 [[sub:qtvcp:widgets:axistoolbutton]]
 === `AxisToolButton` - Select and Set Axis Widget
 
+
 //TODO AxisToolButton widget capture/example
 
 This allows one to *select and set an axis*.
@@ -691,15 +692,46 @@ If you press and hold the button a pop up menu will show allowing one to:
 * Set the axis arbitrarily
 * Reset the axis to the last number recorded
 
-You must have selected an entry dialog that corresponds to the dialog_code_string,
+You must have selected an entry dialog widget that corresponds to the dialog_code_string,
 usually this is selected from the screenOptions widget.
 
-You can select the property 'halpin_option', it will then set a HAL pin true when the axis is selected.
-The property 'joint_number' should be set to the appropriate joint number.
-The property 'axis_letter' should be set to the appropriate axis letter.
+*`halpin_option`*::
+  Will set a HAL pin true when the axis is selected.
+*`joint_number`*::
+  Should be set to the appropriate joint number
+*`axis_letter`*::
+  Should be set to the appropriate axis letter
 
-The property 'dialog_code_string' can be changed to 'ENTRY' or 'CALCULATOR'
+These are the click-and-hold menu properties: +
+
+*`showLast`*::
+ show the 'Set to last' action
+*`showDivide`*::
+ show the 'Divide by 2' action
+*`showGotoOrigin`*::
+ show the 'Go to G53/G5x origin' action
+*`showZeroOrigin`*::
+ show the 'Zero Origin' action
+*`showSetOrigin`*::
+ show the 'Set Origin' action
+*`dialog_code_string`*::
+  Sets which dialog will pop up with numerical entry. ie. 'ENTRY' or 'CALCULATOR'
 to call a typing only entry dialog or a touch/typing calculator type entry dialog.
+
+Here is a sample stylesheet entry:
+
+[source,{css}]
+----
+AxisToolButton {
+    /* Modify all the menu options */
+    qproperty-showLast: false;
+    qproperty-showDivide : true;
+    qproperty-showGotoOrigin: true;
+    qproperty-showZeroOrigin: true;
+    qproperty-showSetOrigin: false;
+    qproperty-dialog_code_string: CALCULATOR;
+}
+----
 
 It is based on PyQt's _QToolButton_.
 
@@ -723,10 +755,11 @@ It uses _OpenCV_ vision library.
 
 //TODO DROLabel widget capture/example
 
-This will *display the current position of an axis*.
+This will *display the current position of an axis*. +
+You can also click on the label and see a list of actions. +
 
 *`Qjoint_number`*::
-  Joint number of offset to display (10 will specify rotational offset).
+  Joint index number (X=0 Y=1) of offset to display (10 will specify rotational offset).
 *`Qreference_type`*::
   Actual, relative or distance to go (0,1,2).
 *`metric_template`*::
@@ -735,6 +768,30 @@ This will *display the current position of an axis*.
   format of display, e.g. `%9.4f`.
 *`angular_template`*::
   Format of display, e.g. `%Rotational: 10.1f`.
+*`always_display_diameter`*::
+  Toggles display option
+*`always_display_radius`*::
+  Toggles display option
+*`display_as_per_m7m8`*::
+  Toggles display option. Will follow the current M7/8 mode
+*`follow_reference_changes`*::
+  Toggles display option. Will follow the STATUS message reference mode. ie.
+ you can use Action buttons to set how it's currently displayed.
+
+These are the click-on-menu options:
+
+*`showLast`*::
+ show the 'Set to last' action
+*`showDivide`*::
+ show the 'Divide by 2' action
+*`showGotoOrigin`*::
+ show the 'Go to G53/G5x origin' action
+*`showZeroOrigin`*::
+ show the 'Zero Origin' action
+*`showSetOrigin`*::
+ show the 'Set Origin' action
+*`dialogName`*::
+  Sets which dialog will pop up with numerical entry. ie ENTRY or CALCULATOR
 
 The `DROLabel` widget holds a property *`isHomed`* that can be used with a stylesheet to change the _color of the `DRO_Label`
 based on homing state of the joint_ number in LinuxCNC.
@@ -744,6 +801,7 @@ Here is a sample stylesheet entry that:
 * Sets the font of all `DRO_Label` widgets,
 * Sets the text template (to set resolution) of the DRO,
 * Then sets the text color based on the Qt `isHomed` property.
+* show all the menu options.
 
 [source,{css}]
 ----
@@ -752,6 +810,14 @@ DROLabel {
     qproperty-imperial_template: '%9.4f';
     qproperty-metric_template: '%10.3f';
     qproperty-angular_template: '%11.2f';
+
+    /* Modify all the menu options */
+    qproperty-showLast: true;
+    qproperty-showDivide : true;
+    qproperty-showGotoOrigin: true;
+    qproperty-showZeroOrigin: true;
+    qproperty-showSetOrigin: true;
+    qproperty-dialogName: CALCULATOR;
 }
 
 DROLabel[isHomed=false] {
@@ -2255,7 +2321,7 @@ Properties, functions and styles of the PyQt base objects are always available.
 
 *`dialog_code_string`*::
   Sets which dialog will pop up with numerical entry.
-*`test_dialog_code_string`*::
+*`text_dialog_code_string`*::
   Sets which dialog will pop up with text entry.
 *`metric_template`*::
   Metric numerical data format.
