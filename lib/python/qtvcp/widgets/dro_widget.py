@@ -436,7 +436,7 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
         return self.dialog_code
     def reset_dialog_code(self):
         self.dialog_code = 'CALCULATOR'
-    dialog_code_string = QtCore.pyqtProperty(str, get_dialog_code, set_dialog_code, reset_dialog_code)
+    dialogName = QtCore.pyqtProperty(str, get_dialog_code, set_dialog_code, reset_dialog_code)
 
     def set_showSet(self, data):
         self._showSet = data
