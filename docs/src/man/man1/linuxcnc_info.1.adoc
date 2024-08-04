@@ -2,8 +2,7 @@
 
 == NAME
 
-linuxcnc_info - collects information about the LinuxCNC version and the
-host
+linuxcnc_info - collects information about the LinuxCNC version and the host
 
 == SYNOPSIS
 
@@ -11,9 +10,8 @@ host
 
 == DESCRIPTION
 
-*linuxcnc_info* supplies information about the LinuxCNC version and
-system info. It creates a text file and opens it in the default text
-editor.
+*linuxcnc_info* supplies information about the LinuxCNC version and system info.
+It creates a text file and opens it in the default text editor.
 
 == SEE ALSO
 

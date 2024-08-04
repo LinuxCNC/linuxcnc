@@ -10,8 +10,7 @@ linuxcncmkdesktop - create a desktop icon for LinuxCNC
 
 == DESCRIPTION
 
-*linuxcncmkdesktop* Script used by pickconfig to create a desktop icon
-for LinuxCNC.
+*linuxcncmkdesktop* Script used by pickconfig to create a desktop icon for LinuxCNC.
 
 == SEE ALSO
 
