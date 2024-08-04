@@ -6,7 +6,7 @@ linuxcnc_var - retrieves LinuxCNC variables
 
 == SYNOPSIS
 
-*linuxcnc_var* [ varname | all ]
+*linuxcnc_var* [ _varname_ | all ]
 
 == DESCRIPTION
 

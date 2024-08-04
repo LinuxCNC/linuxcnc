@@ -6,14 +6,13 @@ latency-plot - another way to view latency numbers
 
 == SYNOPSIS
 
-*latency-plot* [*-?|--help*] [*-H|--hal*] [*-b|--base* *_nS_*] [*-s|--servo* *_nS_*] [*-t|--time* *_mS_*] [*--relative*] [*--actual*]
+*latency-plot* [ *-?* | *--help* ] [ *-H* | *--hal* ] [ *-b* | *--base* *_ns_* ] [ *-s* | *--servo* *_ns_* ] [ *-t* | *--time* *_ms_* ] [ *--relative* ] [ *--actual* ]
 
 == DESCRIPTION
 
-*latency-plot* makes a strip chart recording for a base and a servo
-thread. It may be useful to see spikes in latency when other
-applications are started or used. Mainly superseded by
-latency-histogram.
+*latency-plot* makes a strip chart recording for a base and a servo thread.
+It may be useful to see spikes in latency when other applications are started or used.
+Mainly superseded by latency-histogram.
 
 LinuxCNC and HAL should not be running, stop with _halrun -U_.
 
@@ -24,12 +23,12 @@ More details: https://linuxcnc.org/docs/html/install/latency-test.html
 *-?*, *--help*::
   Show options and exit.
 *-H*, *--hal*::
-*-b*, *--base* *_nS_*::
-  base thread interval, default: 25000
-*-s*, *--servo* *_nS_*::
-  servo thread interval, default: 1000000
-*-t*, *--time* *_mS_*::
-  report interval, default: 1000, min: 100, max: 10000
+*-b*, *--base* _ns_::
+  base thread interval in nanoseconds, default: 25000
+*-s*, *--servo* _ns_::
+  servo thread interval in nanoseconds, default: 1000000
+*-t*, *--time* _ms_::
+  report interval in milliseconds, default: 1000, min: 100, max: 10000
 *--relative*::
   relative clock time (default)
 *--actual*::

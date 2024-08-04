@@ -6,7 +6,7 @@ linuxcnctop - live LinuxCNC status description
 
 == SYNOPSIS
 
-*linuxcnctop* _-ini_ _INIFILE_
+*linuxcnctop* *-ini* _INIFILE_
 
 == DESCRIPTION
 
@@ -15,11 +15,12 @@ similar to the Linux "top" command.
 
 It is more fully documented in the AXIS GUI documentation but can be run
 standalone or with other GUIs.
-http://linuxcnc.org/docs/html/gui/axis.html
 
 == SEE ALSO
 
 linuxcnc(1)
+
+http://linuxcnc.org/docs/html/gui/axis.html
 
 Much more information about LinuxCNC and HAL is available in the
 LinuxCNC and HAL User Manuals, found at /usr/share/doc/LinuxCNC/.

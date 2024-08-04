@@ -9,15 +9,13 @@ lineardelta - Vismach Virtual Machine GUI
 *lineardelta* is one of the sample *Vismach* GUIs for LinuxCNC,
 simulating a delta robot with linear actuators
 
-See the main LinuxCNC documentation for more details.
-http://linuxcnc.org/docs/html/gui/vismach.html
 
 == SEE ALSO
 
 linuxcnc(1)
 
-Much more information about LinuxCNC and HAL is available in the
-LinuxCNC and HAL User Manuals, found at /usr/share/doc/LinuxCNC/.
+See the main LinuxCNC documentation for more details.
+http://linuxcnc.org/docs/html/gui/vismach.html
 
 == BUGS
 

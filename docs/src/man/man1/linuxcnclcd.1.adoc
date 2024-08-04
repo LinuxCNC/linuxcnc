@@ -2,26 +2,25 @@
 
 == NAME
 
-linuxcnclcd - LinuxCNC Graphical User Interface for LCD character
-display
+linuxcnclcd - LinuxCNC Graphical User Interface for LCD character display
 
 == SYNOPSIS
 
-*linuxcnclcd* _-ini_ _<INI file>_
+*linuxcnclcd* *-ini* _<INI file>_
 
 == DESCRIPTION
 
-*linuxcnclcd* is one of the Graphical User Interfaces (GUI) for LinuxCNC
-It gets run by the runscript usually. Linuxcnclcd is designed to run on
+*linuxcnclcd* is one of the Graphical User Interfaces (GUI) for LinuxCNC.
+It gets typically run by the runscript. Linuxcnclcd is designed to run on
 a 4 x 20 LCD character display. It is not clear if it has ever worked.
 
 == OPTIONS
 
-*INIFILE*::
-  The ini file is the main piece of an LinuxCNC configuration. It is not
-  the entire configuration; there are various other files that go with
-  it (NML files, HAL files, TBL files, VAR files). It is, however, the
-  most important one, because it is the file that holds the
+_INI file_::
+  The INI file is the main piece of an LinuxCNC configuration.
+  It is not the entire configuration; there are various other
+  files that go with it (NML files, HAL files, TBL files, VAR files).
+  It is, however, the most important one, because it is the file that holds the
   configuration together. It can adjust a lot of parameters itself, but
   it also tells *LinuxCNC* which other files to load and use.
 

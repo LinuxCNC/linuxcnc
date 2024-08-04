@@ -6,18 +6,19 @@ latency-test - test the realtime system latency
 
 == SYNOPSIS
 
-*latency-test [--help] [base-period [servo-period]]*
+*latency-test* [*--help*] [_base-period_ [_servo-period_]]
 
 == DESCRIPTION
 
-*latency-test* runs a simple latency test
-http://linuxcnc.org/docs/html/install/latency-test.html
+*latency-test* runs a simple latency test.
 
 Use *latency-test --help* for a description of available options.
 
 == SEE ALSO
 
 linuxcnc(1)
+
+http://linuxcnc.org/docs/html/install/latency-test.html
 
 Much more information about LinuxCNC and HAL is available in the
 LinuxCNC and HAL User Manuals, found at /usr/share/doc/LinuxCNC/.
