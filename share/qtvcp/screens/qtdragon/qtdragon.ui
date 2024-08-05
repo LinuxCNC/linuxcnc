@@ -12501,7 +12501,7 @@ ALL</string>
                          <bool>false</bool>
                         </property>
                         <property name="popupMode">
-                         <enum>QToolButton::InstantPopup</enum>
+                         <enum>QToolButton::DelayedPopup</enum>
                         </property>
                         <property name="joint_number" stdset="0">
                          <number>1</number>
@@ -12608,7 +12608,7 @@ ALL</string>
                          <bool>false</bool>
                         </property>
                         <property name="popupMode">
-                         <enum>QToolButton::InstantPopup</enum>
+                         <enum>QToolButton::DelayedPopup</enum>
                         </property>
                         <property name="axis_letter" stdset="0">
                          <string>X</string>
@@ -13279,7 +13279,7 @@ ALL</string>
                          <bool>false</bool>
                         </property>
                         <property name="popupMode">
-                         <enum>QToolButton::InstantPopup</enum>
+                         <enum>QToolButton::DelayedPopup</enum>
                         </property>
                         <property name="joint_number" stdset="0">
                          <number>2</number>
@@ -13844,7 +13844,7 @@ ALL</string>
                          <bool>false</bool>
                         </property>
                         <property name="popupMode">
-                         <enum>QToolButton::InstantPopup</enum>
+                         <enum>QToolButton::DelayedPopup</enum>
                         </property>
                         <property name="joint_number" stdset="0">
                          <number>3</number>
@@ -13902,7 +13902,7 @@ ALL</string>
                          <bool>false</bool>
                         </property>
                         <property name="popupMode">
-                         <enum>QToolButton::InstantPopup</enum>
+                         <enum>QToolButton::DelayedPopup</enum>
                         </property>
                         <property name="joint_number" stdset="0">
                          <number>4</number>
@@ -17728,7 +17728,7 @@ ALL</string>
              <number>2</number>
             </property>
             <property name="text">
-             <string>04:22:03 PM</string>
+             <string>05:51:56 PM</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -18802,8 +18802,8 @@ ALL</string>
   <slot>btn_stop_clicked()</slot>
  </slots>
  <buttongroups>
+  <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
-  <buttongroup name="mode_buttonGroup"/>
  </buttongroups>
 </ui>
