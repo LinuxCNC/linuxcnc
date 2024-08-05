@@ -61,13 +61,13 @@ class SystemToolButton(QToolButton, _HalWidgetBase):
             return (STATUS.machine_is_on()
                     and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
 
-        STATUS.connect('state-off', lambda w: self.setEnabled(False))
-        STATUS.connect('state-estop', lambda w: self.setEnabled(False))
-        STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_test()))
-        STATUS.connect('interp-run', lambda w: self.setEnabled(False))
-        STATUS.connect('all-homed', lambda w: self.setEnabled(True))
-        STATUS.connect('not-all-homed', lambda w, data: self.setEnabled(False))
-        STATUS.connect('interp-paused', lambda w: self.setEnabled(False))
+        STATUS.connect('state-off', lambda w: self.menu().setEnabled(False))
+        STATUS.connect('state-estop', lambda w: self.menu().setEnabled(False))
+        STATUS.connect('interp-idle', lambda w: self.menu().setEnabled(homed_on_test()))
+        STATUS.connect('interp-run', lambda w: self.menu().setEnabled(False))
+        STATUS.connect('all-homed', lambda w: self.menu().setEnabled(True))
+        STATUS.connect('not-all-homed', lambda w, data: self.menu().setEnabled(False))
+        STATUS.connect('interp-paused', lambda w: self.menu().setEnabled(False))
         STATUS.connect('user-system-changed', self._set_user_system_text)
 
     def G54(self):
