@@ -1042,7 +1042,10 @@ int Interp::convert_g7x(int mode,
     original_block.x_number=x;
     original_block.z_number=z;
 
+    auto cutter_comp=settings->cutter_comp_side;
+    settings->cutter_comp_side=CUTTER_COMP::OFF;
     int error=convert_straight(G_0, block, settings);
+    settings->cutter_comp_side=cutter_comp;
     if(error!=INTERP_OK)
 	return error;
 

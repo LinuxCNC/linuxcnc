@@ -60,3 +60,5 @@ docs/help/nb/*
 docs/help/vi/*
 docs/help/zh_CN/*
 docs/src/*/gui/gmoccapy_release_notes.txt
+configs/**/*.tbl.bak
+configs/**/halshow.preferences

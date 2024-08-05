@@ -95,10 +95,7 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        # drop building on (trixy and) sid until <URL: https://bugs.debian.org/1076675 >
-        # is fixed.
-        #image: ["debian:bullseye", "debian:bookworm", "debian:sid"]
-        image: ["debian:bullseye", "debian:bookworm"]
+        image: ["debian:bullseye", "debian:bookworm", "debian:sid"]
     container:
       image: ${{ matrix.image }}
       # IPC_OWNER is needed for shmget IPC_CREAT
@@ -179,10 +176,7 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        # drop building on (trixy and) sid until <URL: https://bugs.debian.org/1076675 >
-        # is fixed.
-        #image: ["debian:bullseye", "debian:bookworm", "debian:sid"]
-        image: ["debian:bullseye", "debian:bookworm"]
+        image: ["debian:bullseye", "debian:bookworm", "debian:sid"]
     container:
       image: ${{ matrix.image }}
       # IPC_OWNER is needed for shmget IPC_CREAT
