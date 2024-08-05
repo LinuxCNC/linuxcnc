@@ -116,13 +116,13 @@ class AxisToolButton(QToolButton, IndicatedMixIn):
                     and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
 
         STATUS.connect('metric-mode-changed', self._switch_units)
-        STATUS.connect('state-off', lambda w: self.settingMenu.setEnabled(False))
-        STATUS.connect('state-on', lambda w: self.settingMenu.setEnabled(True))
-        STATUS.connect('interp-idle', lambda w: self._enableGroup(homed_on_test()))
-        STATUS.connect('interp-run', lambda w: self._enableGroup(False))
-        STATUS.connect('all-homed', lambda w: self._enableGroup(homed_on_test()))
-        STATUS.connect('not-all-homed', lambda w, data: self._enableGroup(False))
-        STATUS.connect('interp-paused', lambda w: self._enableGroup(False))
+        STATUS.connect('state-off', lambda w: self._enableGroup(True,False))
+        STATUS.connect('state-on', lambda w: self._enableGroup(True, True))
+        STATUS.connect('interp-idle', lambda w: self._enableGroup(homed_on_test(),STATUS.machine_is_on()))
+        STATUS.connect('interp-run', lambda w: self._enableGroup(False, False))
+        STATUS.connect('all-homed', lambda w: self._enableGroup(homed_on_test(), STATUS.machine_is_on()))
+        STATUS.connect('not-all-homed', lambda w, data: self._enableGroup(False,STATUS.machine_is_on()))
+        STATUS.connect('interp-paused', lambda w: self._enableGroup(False,False))
         STATUS.connect('motion-mode-changed', lambda w,data: self.modeChanged(data))
         STATUS.connect('joint-selection-changed', lambda w,data: self.ChangeState(joint = data, axis= STATUS.get_selected_axis()))
         STATUS.connect('axis-selection-changed', lambda w,data: self.ChangeState(joint = STATUS.get_selected_joint(), axis = data))
@@ -136,12 +136,12 @@ class AxisToolButton(QToolButton, IndicatedMixIn):
             self.hal_pin_axis = self.HAL_GCOMP_.newpin(str(pname + '-axis'), hal.HAL_BIT, hal.HAL_OUT)
         STATUS.connect('general',self.return_value)
 
-    def _enableGroup(self, state):
+    def _enableGroup(self, state,bstate):
         for i in(self.zeroButton, self.setButton,self.divideButton,
                 self.lastButton,self.goToG53Button, self.goToG5xButton ):
             i.setEnabled(state)
-        if not self._halpin_option:
-            self.setEnabled(state)
+
+        self.setEnabled(bstate)
 
     def Zero(self):
         axis, now = self._a_from_j(self._axis)
