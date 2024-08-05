@@ -120,7 +120,7 @@ class HandlerClass:
         self.button_response_list = ["btn_start", "btn_home_all", "btn_home_0", "btn_home_1",
                             "btn_home_2", "btn_home_3","btn_home_4", "btn_reload_file", "macrobutton0", "macrobutton1",
                             "macrobutton2", "macrobutton3", "macrobutton4", "macrobutton5", "macrobutton6",
-                            "macrobutton7", "macrobutton8", "macrobutton9"]
+                            "macrobutton7", "macrobutton8", "macrobutton9", 'systemtoolbutton']
         self.statusbar_reset_time = 10000 # ten seconds
 
         STATUS.connect('general', self.dialog_return)
