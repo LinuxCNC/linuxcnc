@@ -75,31 +75,39 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
 
     def mousePressEvent(self, event):
         menu = QMenu(self)
+        state = (STATUS.machine_is_on()
+                    and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
 
         if self._showZero:
             self.zeroButton = QAction(QIcon('exit24.png'), 'Zero', self)
             self.zeroButton.triggered.connect(self.Zero)
+            self.zeroButton.setEnabled(state)
             menu.addAction(self.zeroButton)
         if self._showSet:
             self.setButton = QAction(QIcon('exit24.png'), 'Set', self)
             self.setButton.triggered.connect(self.SetOrigin)
+            self.setButton.setEnabled(state)
             menu.addAction(self.setButton)
         if self._showDivide:
             self.divideButton = QAction(QIcon('exit24.png'), 'Divide By 2', self)
             self.divideButton.triggered.connect(self.Divide)
+            self.divideButton.setEnabled(state)
             menu.addAction(self.divideButton)
         if self._showLast:
             self.lastButton = QAction(QIcon('exit24.png'), 'Set To Last', self)
             self.lastButton.triggered.connect(self.Last)
+            self.lastButton.setEnabled(state)
             menu.addAction(self.lastButton)
         if  self._showGoto:
             text = 'Go To G53 Origin in {}'.format(INFO.GET_NAME_FROM_JOINT.get(self.joint_number))
             self.goToG53Button = QAction(QIcon('exit24.png'), text, self)
             self.goToG53Button.triggered.connect(self.goToG53)
+            self.goToG53Button.setEnabled(state)
             menu.addAction(self.goToG53Button)
             text = 'Go To G5x Origin in {}'.format(INFO.GET_NAME_FROM_JOINT.get(self.joint_number))
             self.goToG5xButton = QAction(QIcon('exit24.png'), text, self)
             self.goToG5xButton.triggered.connect(self.goToG5x)
+            self.goToG5xButton.setEnabled(state)
             menu.addAction(self.goToG5xButton)
 
         menu.popup(event.globalPos())
