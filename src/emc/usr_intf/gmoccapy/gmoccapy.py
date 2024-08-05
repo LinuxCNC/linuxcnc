@@ -190,6 +190,7 @@ class gmoccapy(object):
         self.distance = 0         # This global will hold the jog distance
         self.tool_change = False  # this is needed to get back to manual mode after a tool change
         self.load_tool = False    # We use this avoid mode switching on reloading the tool on start up of the GUI
+        self.automat_g43 = False  # We use this to run automatic g43 after MDI_commands
         self.macrobuttons = []    # The list of all macros defined in the INI file
         self.fo_counts = 0        # need to calculate difference in counts to change the feed override slider
         self.so_counts = 0        # need to calculate difference in counts to change the spindle override slider
@@ -2409,6 +2410,24 @@ class gmoccapy(object):
 
         self.widgets.lbl_time.set_label(strftime("%H:%M:%S") + "\n" + strftime("%d.%m.%Y"))
 
+        # Automatic command G43 is activated by update_toolinfo
+        # this part code cant be in function on_hal_status_interp_idle
+        # it did not work well
+        if self.automat_g43:
+            if  self.stat.interp_state == linuxcnc.INTERP_IDLE:
+                self.automat_g43 = False
+                self.command.mode(linuxcnc.MODE_MDI)
+                self.command.wait_complete()
+                self.command.mdi("G43")
+                self.command.wait_complete()
+                LOG.debug("Command G43 was executed")
+                # Returning to manual mode after M6, M61, number M6 buttons
+                if self.tool_change:
+                    self.tool_change = False
+                    self.command.mode(linuxcnc.MODE_MANUAL)
+                    LOG.debug("MANUAL mode is returned")
+                    self.command.wait_complete()
+
         # keep the timer running
         return True
 
@@ -2607,7 +2626,7 @@ class gmoccapy(object):
         self.widgets.btn_run.set_sensitive(True)
         self.widgets.btn_stop.set_sensitive(False)
 
-        if self.tool_change:
+        if self.tool_change and ("G49" in self.active_gcodes):
             self.command.mode(linuxcnc.MODE_MANUAL)
             self.command.wait_complete()
             self.tool_change = False
@@ -2742,7 +2761,7 @@ class gmoccapy(object):
         self.last_key_event = None, 0
 
     def on_hal_status_mode_mdi(self, widget):
-        LOG.debug("MDI Mode {0}".format(self.tool_change))
+        LOG.debug("MDI Mode, tool_change = {0}".format(self.tool_change))
 
         # if the edit offsets button is active, we do not want to change
         # pages, as the user may want to edit several axis values
@@ -3536,10 +3555,7 @@ class gmoccapy(object):
             return
 
         if "G43" in self.active_gcodes and self.stat.task_mode != linuxcnc.MODE_AUTO:
-            self.command.mode(linuxcnc.MODE_MDI)
-            self.command.wait_complete()
-            self.command.mdi("G43")
-            self.command.wait_complete()
+            self.automat_g43 = True
 
     def _set_enable_tooltips(self, value):
         LOG.debug("_set_enable_tooltips = {0}".format(value))
@@ -4870,6 +4886,7 @@ class gmoccapy(object):
     # This is called from the all_homed_signal
     def reload_tool(self):
         tool_to_load = self.prefs.getpref("tool_in_spindle", 0, int)
+        LOG.debug("Reload tool {0}".format(tool_to_load))
         if tool_to_load == 0:
             return
         self.load_tool = True
@@ -4881,6 +4898,8 @@ class gmoccapy(object):
         command = "M61 Q {0} G43".format(tool_to_load)
         self.command.mdi(command)
         self.command.wait_complete()
+        
+        self.load_tool = False
 
     def on_btn_tool_clicked(self, widget, data=None):
         if self.widgets.tbtn_fullsize_preview0.get_active():
