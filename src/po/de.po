@@ -5,13 +5,15 @@
 # Hans Unzner <hansunzner@gmail.com>, 2022, 2024.
 # Ettore Atalan <atalanttore@googlemail.com>, 2023.
 # Petter Reinholdtsen <pere-weblate@hungry.com>, 2024.
+# thereisno anderson <thereisnoanderson@users.noreply.hosted.weblate.org>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-04-08 19:52+0200\n"
-"PO-Revision-Date: 2024-04-21 20:07+0000\n"
-"Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
+"PO-Revision-Date: 2024-08-05 06:49+0000\n"
+"Last-Translator: thereisno anderson <thereisnoanderson@users.noreply.hosted."
+"weblate.org>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
 "Language: de\n"
@@ -19,7 +21,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.5-dev\n"
+"X-Generator: Weblate 5.7-dev\n"
 
 #: src/emc/task/emctaskmain.cc:868
 #, c-format
@@ -246,15 +248,12 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:211
 #: src/emc/rs274ngc/interp_convert.cc:394
-#, fuzzy
 msgid "You must specify both X and Z coordinates for Control Points"
-msgstr "Stützpunkte müssen mit X und Y Koordinate angegeben werden"
+msgstr "Als Kontrollpunkte müssen X und Z Koordinaten angegeben werden"
 
 #: src/emc/rs274ngc/interp_convert.cc:216
-#, fuzzy
 msgid "Can specify P without X and Z only for the first control point"
-msgstr ""
-"P kann nur für den ersten Stützpunkt ohne X und Y Koordinate angegeben werden"
+msgstr "Nur der erste Kontrollpunkt kann P ohne X und Z festlegen"
 
 #: src/emc/rs274ngc/interp_convert.cc:222
 msgid "Must specify positive weight P for every Control Point"
@@ -277,53 +276,55 @@ msgstr ""
 "Die Anzahl der Stützpunkte muss mindestens der Ordnung L = %d entsprechen"
 
 #: src/emc/rs274ngc/interp_convert.cc:373
+#, fuzzy
 msgid "one plane must be selected for nurbs: XY, YZ, ZX"
-msgstr ""
+msgstr "Es muss eine Ebene für nurbs-Formen ausgewählt sein: XY, YZ, ZX"
 
 #: src/emc/rs274ngc/interp_convert.cc:400
 msgid "Program the nurbs order P in the first block of instruction"
-msgstr ""
+msgstr "Setzte die Nurbs-Formen Reihenfolge P im ersten Stapel der Instruktion"
 
 #: src/emc/rs274ngc/interp_convert.cc:404
 #, fuzzy
 msgid "nurbs order P number is not an integer"
-msgstr "Q Angabe in G10 ist keine Ganzzahl"
+msgstr "Nurbs-Formen Reihenfolge P Nummer ist keine Ganzzahl"
 
 #: src/emc/rs274ngc/interp_convert.cc:410
+#, fuzzy
 msgid ""
 "Program the nurbs Q value (1,2,3) in the first block of nurbs instruction"
 msgstr ""
+"Setze den Nurbs-Formen Q Wert (1,2,3) in den ersten Block der Nurbs-Formen "
+"Instruktion"
 
 # Anmerkung:FJ: g593 ???? WM: wahrscheinlich g59.3
 #: src/emc/rs274ngc/interp_convert.cc:415
-#, fuzzy
 msgid "nurbs Q value not in range 1 to 3"
-msgstr "Wort ist nicht im Bereich G54 bis G59.3"
+msgstr "Nurbs-Formen Wert Q ist nicht im Bereich von 1 bis 3"
 
 #: src/emc/rs274ngc/interp_convert.cc:417
-#, fuzzy
 msgid "nurbs Q number is not an integer"
-msgstr "Q Angabe in G10 ist keine Ganzzahl"
+msgstr "Nurbs-Formen Q Nummer ist kein Integer"
 
 #: src/emc/rs274ngc/interp_convert.cc:423
 #, fuzzy
 msgid "Must specify positive nurbs weight R for every Control Point"
-msgstr "NURBS: jeder Stützpunkt muss positiv gewichtet sein"
+msgstr ""
+"Jeder Kontrollpunkt muss einen positiven Nurbs-Formen Gewicht R zugewiesen "
+"werden"
 
 #: src/emc/rs274ngc/interp_convert.cc:428
-#, fuzzy
 msgid "Must specify nurbs K number for every Control Point"
-msgstr "NURBS: jeder Stützpunkt muss positiv gewichtet sein"
+msgstr "Jeder Kontrollpunkt muss eine Nurbs-Formen K Nummer zugewiesen werden"
 
 #: src/emc/rs274ngc/interp_convert.cc:432
 #, fuzzy
 msgid "nurbs K number is not an integer"
-msgstr "Q Angabe in G10 ist keine Ganzzahl"
+msgstr "Nurbs-Formen K nummer ist keine Ganzzahl"
 
 #: src/emc/rs274ngc/interp_convert.cc:437
-#, fuzzy
 msgid "Cannot make a nurbs with 0 feedrate"
-msgstr "NURBS: Eine Bahn mit Vorschubgeschwindigkeit 0 ist nicht möglich"
+msgstr "Nurbs-Formen mit 0 Vorschubgeschwindigkeit können nicht erstellt werden"
 
 #: src/emc/rs274ngc/interp_convert.cc:503
 #, fuzzy, c-format
@@ -331,21 +332,21 @@ msgid ""
 "You must specify a number of control points at least equal to the order P = "
 "%d"
 msgstr ""
-"Die Anzahl der Stützpunkte muss mindestens der Ordnung L = %d entsprechen"
+"Es muss eine Anzahl an Kontrollpunkte angegeben werden die zumindest gleich "
+"der Reihenfolge P = %d entspricht"
 
 #: src/emc/rs274ngc/interp_convert.cc:567
 msgid "Cannot convert spline with cutter radius compensation"
 msgstr "Kann Spline nicht bei aktiver Werkzeugradiuskorrektur konvertieren"
 
 #: src/emc/rs274ngc/interp_convert.cc:579
-#, fuzzy
 msgid "Splines may not have motion in A, B, or C"
-msgstr "NURBS: Bahn kann keine Bewegung in Z,A,B oder C ausführen"
+msgstr "Splines könnten bei A,B oder C bewegungslos sein"
 
 #: src/emc/rs274ngc/interp_convert.cc:586
 #, fuzzy
 msgid "Must specify both I and J with G5.1 or G6.1"
-msgstr "NURBS: G5.1 benötigt die Angabe von I und J"
+msgstr "Es müssen I und J mit G5.1 oder G6.1 zugewiesen werden"
 
 #: src/emc/rs274ngc/interp_convert.cc:691
 msgid "Must specify both I and J, or neither"
@@ -3330,8 +3331,9 @@ msgstr ""
 "Wollen Sie wirklich zurücksetzen?"
 
 #: src/hal/classicladder/classicladder_gtk.c:651
+#, fuzzy
 msgid "Reset logic data - Now running."
-msgstr ""
+msgstr "Logikdaten zurückgesetzt - Läuft bereits."
 
 #: src/hal/classicladder/classicladder_gtk.c:651
 msgid "Reset logic data done."
@@ -3516,19 +3518,19 @@ msgid "Number of rungs (%d%c used)"
 msgstr "Anzahl an Arbeitszyklen (%d%c genutzt)"
 
 #: src/hal/classicladder/config_gtk.c:131
-#, fuzzy, c-format
+#, c-format
 msgid "Number of Bits"
-msgstr "Anzahl der Arbeitszyklen"
+msgstr "Anzahl der Bits"
 
 #: src/hal/classicladder/config_gtk.c:135
 #, fuzzy, c-format
 msgid "Number of Words"
-msgstr "Anzahl der Arbeitszyklen"
+msgstr "Anzahl der Wörter"
 
 #: src/hal/classicladder/config_gtk.c:139
 #, fuzzy, c-format
 msgid "Number of Counters"
-msgstr "Anzahl der Arbeitszyklen"
+msgstr "Anzahl der Zähler"
 
 #: src/hal/classicladder/config_gtk.c:143
 #, c-format
@@ -3601,14 +3603,12 @@ msgid "Current path/filename:"
 msgstr "Aktueller Pfad/Dateiname:"
 
 #: src/hal/classicladder/config_gtk.c:327
-#, fuzzy
 msgid "1st %I mapped"
-msgstr "Erste zugeordnete Variable"
+msgstr "Erste %I zugewiesen"
 
 #: src/hal/classicladder/config_gtk.c:327
-#, fuzzy
 msgid "1st %Q mapped"
-msgstr "Erste zugeordnete Variable"
+msgstr "Erste %Q zugewiesen"
 
 #: src/hal/classicladder/config_gtk.c:367
 #: src/hal/classicladder/config_gtk.c:566
@@ -3645,14 +3645,14 @@ msgid "Serial data bits"
 msgstr "Serielle Baudrate"
 
 #: src/hal/classicladder/config_gtk.c:757
-#, fuzzy, c-format
+#, c-format
 msgid "Serial parity"
-msgstr "Serielle Baudrate"
+msgstr "Serielle Parität"
 
 #: src/hal/classicladder/config_gtk.c:761
-#, c-format
+#, c-format, fuzzy
 msgid "Serial stop bits"
-msgstr ""
+msgstr "Serielle Stop-Bits"
 
 #: src/hal/classicladder/config_gtk.c:765
 #, c-format
@@ -3689,18 +3689,17 @@ msgid "QUIET"
 msgstr "STILL"
 
 #: src/hal/classicladder/config_gtk.c:786
-#, fuzzy
 msgid "LEVEL"
-msgstr "LEVEL 1"
+msgstr "LEVEL"
 
 #: src/hal/classicladder/config_gtk.c:786
 msgid "VERBOSE"
-msgstr ""
+msgstr "VERBOSE"
 
 #: src/hal/classicladder/config_gtk.c:789
 #, fuzzy, c-format
 msgid "Read inputs map to"
-msgstr "'Read Coils'/'Read Inputs' zuordnen zu"
+msgstr "Erkannte eingaben zuweisen an"
 
 #: src/hal/classicladder/config_gtk.c:793
 #, c-format
