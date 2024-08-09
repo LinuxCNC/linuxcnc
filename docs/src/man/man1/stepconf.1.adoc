@@ -10,8 +10,7 @@ stepconf - A configuration wizard for parallel-port based machines.
 
 == DESCRIPTION
 
-*stepconf* aids in the configuration of machines using the parallel port
-interface.
+*stepconf* aids in the configuration of machines using the parallel port interface.
 
 Detailed docs: http://linuxcnc.org/docs/html/config/stepconf.html
 

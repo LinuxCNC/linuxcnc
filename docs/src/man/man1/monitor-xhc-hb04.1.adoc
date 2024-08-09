@@ -2,8 +2,7 @@
 
 == NAME
 
-monitor-xhc-hb04 - monitors the XHC-HB04 pendant and warns of
-disconnection
+monitor-xhc-hb04 - monitors the XHC-HB04 pendant and warns of disconnection
 
 == SYNOPSIS
 
@@ -11,12 +10,14 @@ disconnection
 
 == DESCRIPTION
 
-*monitor-xhc-hb04* is included to monitor disconnects and reconnects of
-the pendant. This script runs in the background and will pop up a
-message when the pendant is disconnected or reconnected.
+*monitor-xhc-hb04* is included to monitor disconnects and reconnects of the pendant.
+This script runs in the background and will pop up a message when the pendant is disconnected or reconnected.
 
 Usage is optional; if used it is specified with INI file entry:
-[APPLICATIONS]APP = monitor-xhc-hb04
+```
+[APPLICATIONS]
+APP = monitor-xhc-hb04
+```
 
 == SEE ALSO
 
