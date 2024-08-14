@@ -8,11 +8,11 @@ rtapi_region, rtapi_request_region, rtapi_release_region - functions to manage I
 
 == SYNTAX
 
-....
-void *rtapi_request_region(unsigned long _base_, unsigned long int _size_,
-                           const char *_name_)
+[source,c]
+----
+void *rtapi_request_region(unsigned long _base_, unsigned long int _size_, const char* _name_)
 void rtapi_release_region(unsigned long _base_, unsigned long int _size_)
-....
+----
 
 == ARGUMENTS
 
@@ -25,8 +25,7 @@ name::
 
 == DESCRIPTION
 
-*rtapi_request_region* reserves I/O memory starting at _base_ and going
-for _size_ bytes.
+*rtapi_request_region* reserves I/O memory starting at _base_ and going for _size_ bytes.
 
 == REALTIME CONSIDERATIONS
 
@@ -34,7 +33,6 @@ May be called from realtime init/cleanup code only.
 
 == RETURN VALUE
 
-*rtapi_request_region* returns NULL if the allocation fails, and a
-non-NULL value otherwise.
+*rtapi_request_region* returns NULL if the allocation fails, and a non-NULL value otherwise.
 
 *rtapi_release_region* has no return value.

@@ -9,20 +9,20 @@ signals
 
 == SYNTAX
 
-int hal_signal_new(const char *_signal_name_, hal_type_t _type_)
+int hal_signal_new(const char* _signal_name_, hal_type_t _type_)
 
-int hal_signal_delete(const char *_signal_name_)
+int hal_signal_delete(const char* _signal_name_)
 
-int hal_link(const char *_pin_name_, const char *_signal_name_)
+int hal_link(const char* _pin_name_, const char* _signal_name_)
 
-int hal_unlink(const char *_pin_name_)
+int hal_unlink(const char* _pin_name_)
 
 == ARGUMENTS
 
 signal_name::
-  The name of the signal
+  The name of the signal.
 pin_name::
-  The name of the pin
+  The name of the pin.
 type::
   The type of the signal, as specified in *hal_type_t(3hal)*.
 

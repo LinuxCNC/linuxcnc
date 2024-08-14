@@ -10,7 +10,7 @@ modcompile - Utility for compiling Modbus drivers
 
 See the main LinuxCNC documentation for more details.
 
-http://linuxcnc.org/docs/stable/html/drivers/mesa_modbus.html
+https://linuxcnc.org/docs/stable/html/drivers/mesa_modbus.html
 
 == SEE ALSO
 

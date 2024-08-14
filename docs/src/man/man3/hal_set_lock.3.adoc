@@ -16,11 +16,10 @@ int hal_get_lock()
 
 lock_type::
   The desired lock type, which may be a bitwise combination of:
-  *HAL_LOCK_LOAD*, *HAL_LOCK_CONFIG*, *HAL_LOCK_PARAMS*, or
-  *HAL_LOCK_PARAMS*. *HAL_LOCK_NONE* or 0 locks nothing, and
-  *HAL_LOCK_ALL locks everything.*
+  *HAL_LOCK_LOAD*, *HAL_LOCK_CONFIG*, *HAL_LOCK_PARAMS*, or *HAL_LOCK_PARAMS*.
+  *HAL_LOCK_NONE* or 0 locks nothing, and *HAL_LOCK_ALL locks everything.*
 
 == RETURN VALUE
 
-*hal_set_lock* Returns a HAL status code. *hal_get_lock* returns the
-current HAL lock level or a HAL status code.
+*hal_set_lock* returns a HAL status code.
+*hal_get_lock* returns the current HAL lock level or a HAL status code.

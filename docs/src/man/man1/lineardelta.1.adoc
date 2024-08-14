@@ -15,7 +15,7 @@ simulating a delta robot with linear actuators
 linuxcnc(1)
 
 See the main LinuxCNC documentation for more details.
-http://linuxcnc.org/docs/html/gui/vismach.html
+https://linuxcnc.org/docs/html/gui/vismach.html
 
 == BUGS
 

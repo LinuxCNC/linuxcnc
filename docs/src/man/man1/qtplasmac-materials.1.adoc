@@ -20,7 +20,7 @@ tool file.
 See the QtPlasmaC section of the LinuxCNC Documentation for more
 information.
 
-http://linuxcnc.org/docs/devel/html/plasma/qtplasmac.html#_material_converter
+https://linuxcnc.org/docs/devel/html/plasma/qtplasmac.html#_material_converter
 
 == AUTHOR
 

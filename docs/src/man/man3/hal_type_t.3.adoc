@@ -52,18 +52,11 @@ It is often useful to refer to a type that can represent all the values
 as a HAL type, but without the volatile qualifier. The following types
 correspond with the HAL types:
 
-____
-hal_bit_t::
-  int
-hal_s32_t::
-  __s32
-hal_u32_t::
-  __u32
-hal_float_t::
-  hal_real_t
-hal_port_t::
-  int
-____
+hal_bit_t:: int
+hal_s32_t:: __s32
+hal_u32_t:: __u32
+hal_float_t:: hal_real_t
+hal_port_t:: int
 
 Take care not to use the types *s32* and *u32*. These will compile in
 kernel modules but not in userspace, and not for realtime components

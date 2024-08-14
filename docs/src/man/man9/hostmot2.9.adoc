@@ -1172,7 +1172,7 @@ HAL pins. Instead the driver exports a set of functions that can be used
 by a sub-driver for the attached hardware. Typically, these would be
 written in the "comp".
 
-pre-processing language: see http://linuxcnc.org/docs/html/hal/comp.html
+pre-processing language: see https://linuxcnc.org/docs/html/hal/comp.html
 or man halcompile for further details. See mesa_7i65(9) and the source
 of mesa_7i65.comp for details of a typical sub-driver. See
 hm2_bspi_setup_chan(3hm2), hm2_bspi_write_chan(3hm2),
@@ -1190,7 +1190,7 @@ e.g., `hm2_5i23.0.bspi.0`.
 The UART driver also does not create any HAL pins, instead it declares two simple
 read/write functions and a setup function to be utilised by user-written code.
 Typically this would be written in the "comp" pre-processing language:
-see http://linuxcnc.org/docs/html/hal/comp.html or man halcompile for further details.
+see https://linuxcnc.org/docs/html/hal/comp.html or man halcompile for further details.
 See mesa_uart(9) and the source of mesa_uart.comp for details of a typical sub-driver.
 See hm2_uart_setup_chan(3hm2), hm2_uart_send(3hm2), hm2_uart_read(3hm2) and hm2_uart_setup(3hm2).
 
@@ -1562,7 +1562,7 @@ the response to the read request to arrive from board 0.
 
 hm2_pci(9), hm2_eth(9), hm2_spi(9), hm2_rpspi(9), hm2_7i43(9), hm2_7i90(9)
 
-Mesa's documentation for the Anything I/O boards, at link:[http://www.mesanet.com].
+Mesa's documentation for the Anything I/O boards, at link:[https://www.mesanet.com].
 
 == LICENSE
 

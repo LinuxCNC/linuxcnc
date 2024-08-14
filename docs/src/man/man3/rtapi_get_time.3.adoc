@@ -8,10 +8,11 @@ rtapi_get_time, rtapi_get_clocks - get the current time
 
 == SYNTAX
 
-....
+[source,c]
+----
 long long rtapi_get_time();
 long long rtapi_get_clocks();
-....
+----
 
 == DESCRIPTION
 
@@ -40,9 +41,10 @@ especially in kernel space. Also note that rtapi_print() will NOT print
 __long long__s. Most time measurements are relative, and should be done
 like this:
 
-____
+[source,c]
+----
 deltat = (long int)(end_time - start_time);
-____
+----
 
 where end_time and start_time are longlong values returned from
 rtapi_get_time, and deltat is an ordinary long int (32 bits). This will
@@ -56,18 +58,19 @@ Returns the current time in nanoseconds or CPU clocks.
 
 == NOTES
 
-Certain versions of the Linux kernel provide a global variable
-*cpu_khz*. Computing
+Certain versions of the Linux kernel provide a global variable *cpu_khz*. Computing
 
-____
+[source,c]
+----
 deltat = (end_clocks - start_clocks) / cpu_khz:
-____
+----
 
 gives the duration measured in milliseconds. Computing
 
-____
+[source,c]
+----
 deltat = (end_clocks - start_clocks) * 1000000 / cpu_khz:
-____
+----
 
 gives the duration measured in nanoseconds for deltas less than about 9
 trillion clocks (e.g., 3000 seconds at 3 GHz).

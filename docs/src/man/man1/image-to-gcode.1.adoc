@@ -13,12 +13,11 @@ image-to-gcode - converts bitmap images to G-code
 *image-to-gcode* converts a bitmap image to G-code inteerpreting the
 brightness of each pixel as a Z-height.
 
-Detailed docs:
-http://linuxcnc.org/docs/devel/html/gui/image-to-gcode.html
-
 == SEE ALSO
 
 linuxcnc(1)
+
+Detailed docs: https://linuxcnc.org/docs/devel/html/gui/image-to-gcode.html
 
 Much more information about LinuxCNC and HAL is available in the
 LinuxCNC and HAL User Manuals, found at /usr/share/doc/LinuxCNC/.

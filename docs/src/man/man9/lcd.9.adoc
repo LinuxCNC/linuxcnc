@@ -47,7 +47,7 @@ could be used to stream data to a serial device. Perhaps even a genuine
 ADM3. The strings contain a mixture of text values (which are displayed
 directly), "escaped" formatting codes and numerical format descriptors.
 For a detailed description of formatting codes see:
-http://en.wikipedia.org/wiki/Printf .
+https://en.wikipedia.org/wiki/Printf .
 
 The component can be configured to display an unlimited number of
 differently-formatted pages, which may be selected with a HAL pin.

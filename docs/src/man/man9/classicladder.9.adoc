@@ -67,11 +67,11 @@ the outputs.
 
 == BUGS
 
-See http://wiki.linuxcnc.org/cgi-bin/wiki.pl?ClassicLadder_Ver_7.124 for the latest.
+See https://wiki.linuxcnc.org/cgi-bin/wiki.pl?ClassicLadder_Ver_7.124 for the latest.
 
 == SEE ALSO
 
 _ClassicLadder_ chapters in the LinuxCNC documentation for a full
 description of the *ClassicLadder* syntax and examples.
 
-http://wiki.linuxcnc.org/cgi-bin/wiki.pl?ClassicLadder_Ver_7.124
+https://wiki.linuxcnc.org/cgi-bin/wiki.pl?ClassicLadder_Ver_7.124

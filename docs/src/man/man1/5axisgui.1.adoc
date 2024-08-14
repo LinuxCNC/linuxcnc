@@ -8,13 +8,12 @@
 
 *5axisgui* is one of the sample *Vismach* GUIs for LinuxCNC
 
-See the main LinuxCNC documentation for more details.
-
-http://linuxcnc.org/docs/html/gui/vismach.html
-
 == SEE ALSO
 
 linuxcnc(1)
+
+See the main LinuxCNC documentation for more details.
+https://linuxcnc.org/docs/html/gui/vismach.html
 
 Much more information about LinuxCNC and HAL is available in the
 LinuxCNC and HAL User Manuals, found at /usr/share/doc/LinuxCNC/.

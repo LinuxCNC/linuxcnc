@@ -11,7 +11,7 @@ max5gui - Vismach Virtual Machine GUI
 
 See the main LinuxCNC documentation for more details.
 
-http://linuxcnc.org/docs/html/gui/vismach.html
+https://linuxcnc.org/docs/html/gui/vismach.html
 
 == SEE ALSO
 

@@ -6,12 +6,13 @@ rtapi_gfp - RTAPI wrappers for linux kernel functionality
 
 == SYNTAX
 
-....
+[source,c]
+----
 #include <rtapi_gfp.h>
 enum rtapi_gfp_e;
 RTAPI_GFP_xxx
 typedef ... rtapi_gfp_t;
-....
+----
 
 == DESCRIPTION
 
@@ -25,8 +26,7 @@ implementation for rtapi_device_register always succeeds)
 
 == REALTIME CONSIDERATIONS
 
-Typically, these functions may be called from realtime init/cleanup
-code.
+Typically, these functions may be called from realtime init/cleanup code.
 
 == RETURN VALUE
 

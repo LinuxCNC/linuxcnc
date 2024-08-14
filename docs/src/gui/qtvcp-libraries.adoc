@@ -1179,7 +1179,7 @@ It uses https://launchpad.net/onboard[`Onboard`] or https://git.yoctoproject.org
 
 //TODO Virtual Keyboard: What about other VKB alternatives like:
 //  * kvkbd https://github.com/KDE/kvkbd
-//  * Florence http://florence.sourceforge.net/
+//  * Florence https://florence.sourceforge.net/
 //  * Maliit https://maliit.github.io/, https://github.com/maliit/keyboard
 //    which seems to have interesting contextual features.
 
