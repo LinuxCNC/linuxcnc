@@ -217,10 +217,11 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
     def load_program(self, g, fname):
         LOG.debug('load the display: {}'.format(fname))
         self._reload_filename = fname
-        self.load(fname)
+        result = self.load(fname)
         STATUS.emit('graphics-gcode-properties',self.gcode_properties)
         # reset the current view to standard calculated zoom and position
         self.set_current_view()
+        return result
 
     def set_metric_units(self, w, state):
         self.metric_units = state

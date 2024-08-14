@@ -356,8 +356,10 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         if not filename and s.file:
             filename = s.file
         elif not filename and not s.file:
-            return
+            return False
 
+        if not os.path.exists(filename):
+            return False
 
         lines = open(filename).readlines()
         progress = Progress(2, len(lines))
@@ -379,6 +381,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
 
         td = tempfile.mkdtemp()
         self._current_file = filename
+        load_result = True
         try:
             random = int(self.inifile.find("EMCIO", "RANDOM_TOOLCHANGER") or 0)
             arcdivision = int(self.inifile.find("DISPLAY", "ARCDIVISION") or 64)
@@ -407,6 +410,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         except Exception as e:
             print (e)
             self.gcode_properties = None
+            load_result = False
         finally:
             shutil.rmtree(td)
             if canon:
@@ -416,6 +420,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             except UnboundLocalError:
                 pass
         self._redraw()
+        return load_result
 
     # monkey patched function from StatCanon class
     def output_notify_message(self, message):
