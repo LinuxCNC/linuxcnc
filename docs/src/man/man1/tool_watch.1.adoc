@@ -11,7 +11,7 @@ the classic tooltable)
 
 See the Tool Database Interface section of the LinuxCNC Documentation
 for more information.
-http://linuxcnc.org/docs/stable/html/tooldatabase/tooldatabase.html
+https://linuxcnc.org/docs/stable/html/tooldatabase/tooldatabase.html
 
 == SEE ALSO
 

@@ -8,12 +8,12 @@ tool_mmap_read - A component of the tool database system (an alternative to the 
 
 *tool_mmap_read* is not intended to be invoked by the user.
 
-See the Tool Database Interface section of the LinuxCNC Documentation for more information.
-http://linuxcnc.org/docs/stable/html/tooldatabase/tooldatabase.html
-
 == SEE ALSO
 
 linuxcnc(1)*
+
+See the Tool Database Interface section of the LinuxCNC Documentation for more information at
+https://linuxcnc.org/docs/stable/html/tooldatabase/tooldatabase.html.
 
 Much more information about LinuxCNC and HAL is available in the
 LinuxCNC and HAL User Manuals, found at /usr/share/doc/LinuxCNC/.
@@ -28,7 +28,7 @@ This man page written by Andy Pugh, as part of the LinuxCNC project.
 
 == REPORTING BUGS
 
-Report bugs at https://github.com/LinuxCNC/linuxcnc/issues
+Report bugs at https://github.com/LinuxCNC/linuxcnc/issues.
 
 == COPYRIGHT
 

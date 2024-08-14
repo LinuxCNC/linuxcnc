@@ -6,14 +6,15 @@ rtapi_bool - RTAPI wrappers for linux kernel functionality
 
 == SYNTAX
 
-....
+[source,c]
+----
 #include <rtapi_bool.h>
-....
+----
 
 == DESCRIPTION
 
-Includes either <stdbool.h> or <linux/types.h> as appropriate, to obtain
-suitable declarations of "bool", "true" and "false".
+Includes either <stdbool.h> or <linux/types.h> as appropriate,
+to obtain suitable declarations of "bool", "true" and "false".
 
 == REALTIME CONSIDERATIONS
 

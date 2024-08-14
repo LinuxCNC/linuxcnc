@@ -34,6 +34,7 @@ Build-Depends:
     libusb-1.0-0-dev,
     libxmu-dev,
     netcat-traditional | netcat-openbsd | netcat,
+    netpbm,
     po4a,
     procps,
     psmisc,

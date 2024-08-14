@@ -67,7 +67,7 @@ sudo apt-get install zsync
 . Then run this command to download the iso to your computer
 +
 ----
-zsync http://www.linuxcnc.org/iso/linuxcnc_2.9.2-amd64.hybrid.iso
+zsync https://www.linuxcnc.org/iso/linuxcnc_2.9.2-amd64.hybrid.iso
 ----
 
 .zsync in Windows
@@ -178,7 +178,7 @@ sudo dd if=/linuxcnc_2.9.2-amd64.hybrid.iso of=/dev/rdiskN bs=1m
 .Writing the image to a DVD in Windows
 
 . Download and install Infra Recorder, a free and open source image
-  burning program: http://infrarecorder.org/ .
+  burning program: https://infrarecorder.org/ .
 . Insert a blank CD in the drive and select Do nothing or Cancel if an
   auto-run dialog pops up.
 . Open Infra Recorder, and select the 'Actions' menu, then 'Burn image'.
@@ -273,9 +273,9 @@ Synaptic Package manager or with apt-get at the command-line.
 The RTAI kernels are available for download from the linuxcnc.org debian archive.
 The apt source is:
 
-* Debian Bookworm: `deb http://linuxcnc.org bookworm base`
-* Debian Bullseye: `deb http://linuxcnc.org bullseye base`
-* Debian Buster: `deb http://linuxcnc.org buster base`
+* Debian Bookworm: `deb https://linuxcnc.org bookworm base`
+* Debian Bullseye: `deb https://linuxcnc.org bullseye base`
+* Debian Buster: `deb https://linuxcnc.org buster base`
 
 LinuxCNC and the RTAI kernel are now only available for 64-bit OSes but
 there are very few surviving systems that can not run a 64-bit OS.

@@ -6,7 +6,8 @@ rtapi_stdint - RTAPI wrappers for linux kernel functionality
 
 == SYNTAX
 
-....
+[source,c]
+----
 #include <rtapi_stdint.h>
 
 typedef ... rtapi_s8;
@@ -22,17 +23,16 @@ typedef ... rtapi_uintptr_t;
 #define RTAPI_INT__xx___MIN ...
 #define RTAPI_INT__xx___MAX ...
 #define RTAPI_UINT__xx___MAX ...
-....
+----
 
 == DESCRIPTION
 
-In kernel space, each rtapi_xxx or RTAPI_XXX identifier is mapped to the
+In kernel space, each rtapi___xxx__ or RTAPI___XXX__ identifier is mapped to the
 underlying kernel functionality, if available.
 
-In userspace, or in kernels where the underlying functionality is not
-provided by a kernel, generally another implementation--possibly with
-reduced functionality--is provided. (For example, the userspace
-implementation for rtapi_device_register always succeeds)
+In userspace, or in kernels where the underlying functionality is not provided by a kernel,
+generally another implementation--possibly with reduced functionality--is provided.
+(For example, the userspace implementation for rtapi_device_register always succeeds)
 
 == REALTIME CONSIDERATIONS
 

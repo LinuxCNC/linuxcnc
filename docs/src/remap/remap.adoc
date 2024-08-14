@@ -1698,8 +1698,8 @@ For a current list of debug flags see 'src/emc/nml_intf/debugflags.h'.
 === Debugging Embedded Python code
 
 Debugging of embedded Python code is harder than debugging normal Python scripts, and only a limited supply of debuggers exists.
-A working open-source based solution is to use the http://www.eclipse.org[Eclipse IDE],
-and the http://www.pydev.org[PydDev] Eclipse plug in and its https://pydev.org/manual_adv_remote_debugger.html[remote debugging feature].
+A working open-source based solution is to use the https://www.eclipse.org[Eclipse IDE],
+and the https://www.pydev.org[PydDev] Eclipse plug in and its https://pydev.org/manual_adv_remote_debugger.html[remote debugging feature].
 
 To use this approach:
 

@@ -6,14 +6,15 @@ rtapi_task_wait - suspend execution of this periodic task
 
 == SYNTAX
 
-....
+[source,c]
+----
 void rtapi_task_wait();
-....
+----
 
 == DESCRIPTION
 
-*rtapi_task_wait* suspends execution of the current task until the next
-period. The task must be periodic. If not, the result is undefined.
+*rtapi_task_wait* suspends execution of the current task until the next period.
+The task must be periodic. If not, the result is undefined.
 
 == REALTIME CONSIDERATIONS
 

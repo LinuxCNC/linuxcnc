@@ -12,7 +12,7 @@ qtvcp - Qt-based virtual control panels
 
 *QtVCP* is a system for creating user interfaces for LinuxCNC.
 
-Full documentation at http://linuxcnc.org/docs/html/gui/qtvcp.html
+Full documentation at https://linuxcnc.org/docs/html/gui/qtvcp.html
 
 == OPTIONS
 

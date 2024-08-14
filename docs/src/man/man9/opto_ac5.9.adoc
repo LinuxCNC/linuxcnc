@@ -66,4 +66,4 @@ All boards are loaded with the same port configurations as the first board.
 
 == SEE ALSO
 
-http://wiki.linuxcnc.org/cgi-bin/wiki.pl?OptoPciAc5
+https://wiki.linuxcnc.org/cgi-bin/wiki.pl?OptoPciAc5

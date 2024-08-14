@@ -86,7 +86,7 @@ Whether *io* or *iov2* is used can be chosen in the [EMCIO] section of the INI f
   Debugging pin reflecting internal state.
 
 See
-http://wiki.linuxcnc.org/cgi-bin/wiki.pl?ToolchangerProtocolProposal[]
+https://wiki.linuxcnc.org/cgi-bin/wiki.pl?ToolchangerProtocolProposal[]
 for additional information.
 
 == REPORTING BUGS

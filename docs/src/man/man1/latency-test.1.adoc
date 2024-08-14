@@ -18,7 +18,7 @@ Use *latency-test --help* for a description of available options.
 
 linuxcnc(1)
 
-http://linuxcnc.org/docs/html/install/latency-test.html
+https://linuxcnc.org/docs/html/install/latency-test.html
 
 Much more information about LinuxCNC and HAL is available in the
 LinuxCNC and HAL User Manuals, found at /usr/share/doc/LinuxCNC/.
