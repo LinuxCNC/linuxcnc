@@ -999,10 +999,9 @@ TARGETS += manpages
 GENERATED_MANPAGES += $(patsubst $(DOC_DIR)/src/man/%.adoc, $(DOC_DIR)/man/%, $(wildcard $(DOC_DIR)/src/man/man?/*.adoc))
 $(DOC_DIR)/man/%: $(DOC_DIR)/src/man/%.adoc
 	@mkdir -p `dirname $@`
-	a2x -v --doctype manpage \
-		--format manpage \
-		--destination-dir `dirname $@` \
-		--xsltproc-opts="--nonet" \
-		-a mansource=LinuxCNC \
-		-a manmanual='LinuxCNC Documentation' \
+	asciidoctor -b manpage \
+		-a doctype=manpage \
+		-a doctitle="$(basename $(@F)) ($(patsubst .%,%,$(suffix $(@F))))" \
+		-a manname=$(basename $(@F)) \
+		--destination-dir $(@D) \
 		$<
