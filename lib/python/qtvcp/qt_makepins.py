@@ -138,6 +138,8 @@ class QTPanel():
                     if hndlr is not True and os.path.exists(hndlr):
                         window[pName].handler_instance.initialized__()
 
+
+    def halify(self, window):
         # parse for HAL objects:
         # initiate the hal function on each
         # keep a register list of these widgets for later
