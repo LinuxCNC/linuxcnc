@@ -529,6 +529,41 @@ class ProbeRoutines():
       except Exception as e:
         return '{}'.format(e)
 
+    ########################
+    # material
+    ########################
+    def probe_material_z(self):
+
+        try:
+            # basic sanity checks
+            if self.data_ts_max is None:
+                return'Missing toolsetter setting: data_ts_max'
+
+            cmdList = []
+            cmdList.append('G49')
+            cmdList.append('G92.1')
+            cmdList.append('G10 L20 P0  Z[#<_abs_z>]')
+            cmdList.append('G91')
+            cmdList.append('F {}'.format(self.data_search_vel))
+            cmdList.append('G38.2 Z-{}'.format(self.data_ts_max))
+            cmdList.append('G1 Z{} F{}'.format(self.data_latch_return_dist, self.data_rapid_vel))
+            cmdList.append('F{}'.format(self.data_probe_vel))
+            cmdList.append('G38.2 Z-{}'.format(self.data_latch_return_dist*1.2))
+            cmdList.append('G1 Z{} F{}'.format(self.data_z_clearance, self.data_rapid_vel))
+            cmdList.append('G90')
+
+            # call each command - if fail report the error and gcode command
+            rtn = self.CALL_MDI_LIST(cmdList)
+            if rtn != 1:
+                return rtn
+            h=STATUS.get_probed_position()[2]
+            self.status_bh  = h
+            self.add_history('Probe Material Top',"Z",0,0,0,0,0,0,0,0,h,0,0)
+            # report success
+            return 1
+        except Exception as e:
+            return '{}'.format(e)
+
     ####################
     # Z rotation probing
     ####################
