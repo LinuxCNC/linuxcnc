@@ -1783,7 +1783,7 @@ proc update_state {args} {
         {.menu.file "_Save G-code as..."}
     state  {$interp_state == $INTERP_IDLE && $taskfile != "" && $::has_editor} \
         {.menu.file "_Edit..."}
-    state  {$taskfile != ""} {.menu.file "G-code _properties..."}
+    state  {$taskfile != ""} {.menu.file "_G-code _properties..."}
     state  {$interp_state == $INTERP_IDLE} .toolbar.file_open \
         {.menu.file "_Open..." "_Quit" "Recent _Files"} \
         {.menu.machine "Skip lines with '_/'"} .toolbar.program_blockdelete
