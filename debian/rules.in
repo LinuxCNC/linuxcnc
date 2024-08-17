@@ -125,7 +125,7 @@ override_dh_compress:
 override_dh_fixperms:
 	dh_fixperms -X/linuxcnc_module_helper -X/rtapi_app
 	# In case that only the indep packages are built
-	if [ -r  "$(DESTDIR)/usr/lib/tcltk/linuxcnc/linuxcnc.tcl" ]; then \
+	if [ -x  "$(DESTDIR)/usr/lib/tcltk/linuxcnc/linuxcnc.tcl" ]; then \
 		chmod -x $(DESTDIR)/usr/lib/tcltk/linuxcnc/linuxcnc.tcl; \
 	fi
 	# override_dh_python3: # not executed, so we attach it to fixperms
