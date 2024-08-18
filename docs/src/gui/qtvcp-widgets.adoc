@@ -35,86 +35,6 @@ The definitive descriptions are found by looking in the https://github.com/Linux
 
 These widgets usually have _HAL pins_ and *don't react to the machine controller*.
 
-[[sub:qtvcp:widgets:xembed]]
-=== `XEmbed` - Program Embedding Widget
-
-Allows one to *embed a program into the widget*.
-
-Only programs that utilize the `xembed` protocol will work such as:
-
-* GladeVCP virtual control panels
-* Onboard virtual keyboard
-* QtVCP virtual control panels
-* mplayer video player
-
-[[sub:qtvcp:widgets:slider]]
-=== `Slider` - HAL Pin Value Adjusting Widget
-
-//TODO QtVCP slider widget capture
-
-Allows one to *adjust a HAL pin value using a sliding pointer*.
-
-[[sub:qtvcp:widgets:tabwidget]]
-=== `TabWidget` - Tab Widget
-This widget allows the tab height to be adjusted with stylesheets
-
-The `TabWidget` properties can be defined in a _stylesheet_ with the following code added to the `.qss` file. +
-`name_of_tab` being the widget name defined in Qt Designer's editor. +
-If you omit the '#name_of_tab' text, all TabWidgets tab height will be set. +
-This shows how to set a particular widget's tab height:
-
-[source,{css}]
-----
-TabWidget #name_of_tab{
-  qproperty-tabsize: 1.5;
-}
-----
-
-It is based on PyQt's QTabWidget
-
-[[sub:qtvcp:widgets:led]]
-=== `LED` - Indicator Widget
-
-.QtVCP `LED`: LED Indicator Widget
-image::images/qtvcp_ledWidget.png["QtVCP LED: LED Indicator Widget",scale="25%",align="center"]
-
-A *LED like indicator* that optionally follows a HAL pin's logic.
-
-*`halpin_option`*::
-  Selects if the LED follows an input HAL pin or program state.
-*`diameter`*::
-  Diameter of the LED. defaults to 15)
-*`color`*::
-  Color of the LED when on. (defaults to green)
-*`off_color`*::
-  Color of the LED when off. (defaults to black)
-*`gradient`*::
-  turns the gradient high light on or off. (defaults to on)
-*`on_gradient_color`*::
-  Color highlight of the LED when on. (defaults to white)
-*`off_gradient_color`*::
-  Color highlight of the LED when off. (defaults to white)
-*`alignment`*::
-  Qt alignment hint.
-*`state`*::
-  Current state of LED
-*`flashing`*::
-  Turns flashing option on and off.
-*`flashRate`*::
-  Sets the flash rate.
-
-The `LED` properties can be defined in a _stylesheet_ with the following code added to the `.qss` file,
-`name_of_led` being the widget name defined in Qt Designer's editor:
-
-[source,{css}]
-----
-LED #name_0f_led{
-  qproperty-color: red;
-  qproperty-diameter: 20;
-  qproperty-flashRate: 150;
-}
-----
-
 [[sub:qtvcp:widgets:checkbox]]
 === `CheckBox` Widget
 
@@ -124,15 +44,45 @@ This widget allows the user to *check a box to set a HAL pin true or false*.
 
 It is based on PyQt's _QCheckButton_.
 
-[[sub:qtvcp:widgets:radio]]
-=== `RadioButton` Widget
+[[sub:qtvcp:widgets:detachtabwidget]]
+=== 'DetachTabWidget' - Container Widget With User Detachable Panels
+This container widget works just like a QTabWidget -it displays multiple panels one at a time with tabs to select. +
+If you double click the tab or drag the tab, the tab will detach from the main window. +
+When a tab is detached, the contents are placed into a QDialog.  +
+The tab can be re-attached by closing the dialog or by double clicking on its window frame.
 
-//TODO QtVCP radio button widget capture
-//FIXME Is that one HAL pin per button ?
-This widget allows a user to *set HAL pins true or false*.
-Only one `RadioButton` widget of a group can be true at a time.
+It is based on PyQt's QTabWidget
 
-It is based on PyQt's _QRadioButton_.
+[[sub:qtvcp:widgets:doublescale]]
+=== `DoubleScale` - Spin Button Entry Widget
+
+//TODO DoubleScale widget capture
+
+This widget is a *spin button entry* widget used for _setting a s32 and float HAL pin_.
+
+It has an internal _scale factor_, set to a default of 1, that can be set programmatically or using a QtSignal.
+
+The `setInput` slot can be connected to an integer, or a float signal.
+
+*`[HALLabelName].setInput(some_value)`*::
+  This is a function call to change the internal scaling factor.
+
+The HAL pins will be set to the value of the _internal scale times the widget displayed value_.
+
+[[sub:qtvcp:widgets:focus-ovelay]]
+=== `FocusOverlay` - Focus Overlay Widget
+
+This widget places a *colored overlay over the screen*, usually while a dialog is showing.
+
+.Focus overlay example for confirm close prompt
+image::images/qtvcp_focusOverlay.png["QtVCP focus overlay",scale="25%"]
+
+Used to create a 'focused' feel and to draw attention to critical information.
+
+It can also show a translucent image. +
+It can also display message text and buttons.
+
+This widget _can be controlled with `STATUS` messages_.
 
 [[sub:qtvcp:widgets:gauge]]
 === `Gauge` - Round Dial Gauge Widget
@@ -200,6 +150,30 @@ They can be set via HAL pins, programmatically or via signals from other widgets
 *`setpoint`*::
   This is a value that determines the location of a small _marker on the gauge face_.
   It must be set to a value between 0 and the maximum value.
+
+[[sub:qtvcp:widgets:generalhalinput]]
+=== `GeneralHALInput` - General Signals/Slots Input Connection Widget
+
+This widget is used to *connect an arbitrary Qt widget to HAL using signals/slots*.
+
+It is used _for widgets that should *respond* to HAL pin changes_.
+
+[[sub:qtvcp:widgets:generalhaloutput]]
+=== `GeneralHALOutput` - General Signals/Slots Output Connection Widget
+
+This widget is used to *connect an arbitrary Qt widget to HAL using signals/slots*.
+
+It is used _for widgets that should *control* HAL pins_.
+
+[[sub:qtvcp:widgets:grid-layout]]
+=== `GridLayout` - Grid Layout Widget
+
+This widget *controls if the widgets inside it are enabled or disabled*.
+
+Disabled widgets typically have a different color and do not respond to actions.
+
+It is based on PyQt's `QGridLayout`.
+
 
 === 'HalBar' - HAL Bar Level Indicator
 
@@ -326,45 +300,8 @@ HALPad{
 }
 ----
 
-[[sub:qtvcp:widgets:pushbutton]]
-=== `PushButton` - HAL Pin Toggle Widget
-
-This widget allows a user to *set a HAL pin true or false* with the push of a button.
-
-As an option it can be a _toggle button_.
-
-For  a _LED Indicator Option_, see <<sub:qtvcp:widgets:indicatedpushbutton>>[IndicatedPushButton] below for more info.
-
-It also has other options.
-
-It is based on PyQt's _QPushButton_.
-
-[[sub:qtvcp:widgets:focus-ovelay]]
-=== `focusOverlay` - Focus Overlay Widget
-
-This widget places a *colored overlay over the screen*, usually while a dialog is showing.
-
-.Focus overlay example for confirm close prompt
-image::images/qtvcp_focusOverlay.png["QtVCP focus overlay",scale="25%"]
-
-Used to create a 'focused' feel and to draw attention to critical information.
-
-It can also show a translucent image. +
-It can also display message text and buttons.
-
-This widget _can be controlled with `STATUS` messages_.
-
-[[sub:qtvcp:widgets:grid-layout]]
-=== `gridLayout` - Grid Layout Widget
-
-This widget *controls if the widgets inside it are enabled or disabled*.
-
-Disabled widgets typically have a different color and do not respond to actions.
-
-It is based on PyQt's `QGridLayout`.
-
 [[sub:qtvcp:widgets:hal-label]]
-=== `hal_label` - HAL Label Widget
+=== `HALLabel` - HAL Label Widget
 
 This widget *displays values sent to it*.
 
@@ -440,44 +377,96 @@ You must set the *`digitCount`* property to an appropriate setting to display th
 
 It is based on PyQt's _QLCDNumber_.
 
-[[sub:qtvcp:widgets:detachtabwidget]]
-=== 'DetachTabWidget' - Container Widget With User Detachable Panels
-This container widget works just like a QTabWidget -it displays multiple panels one at a time with tabs to select. +
-If you double click the tab or drag the tab, the tab will detach from the main window. +
-When a tab is detached, the contents are placed into a QDialog.  +
-The tab can be re-attached by closing the dialog or by double clicking on its window frame.
+[[sub:qtvcp:widgets:led]]
+=== `LED` - Indicator Widget
+
+.QtVCP `LED`: LED Indicator Widget
+image::images/qtvcp_ledWidget.png["QtVCP LED: LED Indicator Widget",scale="25%",align="center"]
+
+A *LED like indicator* that optionally follows a HAL pin's logic.
+
+*`halpin_option`*::
+  Selects if the LED follows an input HAL pin or program state.
+*`diameter`*::
+  Diameter of the LED. defaults to 15)
+*`color`*::
+  Color of the LED when on. (defaults to green)
+*`off_color`*::
+  Color of the LED when off. (defaults to black)
+*`gradient`*::
+  turns the gradient high light on or off. (defaults to on)
+*`on_gradient_color`*::
+  Color highlight of the LED when on. (defaults to white)
+*`off_gradient_color`*::
+  Color highlight of the LED when off. (defaults to white)
+*`alignment`*::
+  Qt alignment hint.
+*`state`*::
+  Current state of LED
+*`flashing`*::
+  Turns flashing option on and off.
+*`flashRate`*::
+  Sets the flash rate.
+
+The `LED` properties can be defined in a _stylesheet_ with the following code added to the `.qss` file,
+`name_of_led` being the widget name defined in Qt Designer's editor:
+
+[source,{css}]
+----
+LED #name_0f_led{
+  qproperty-color: red;
+  qproperty-diameter: 20;
+  qproperty-flashRate: 150;
+}
+----
+
+[[sub:qtvcp:widgets:pushbutton]]
+=== `PushButton` - HAL Pin Toggle Widget
+
+This widget allows a user to *set a HAL pin true or false* with the push of a button.
+
+As an option it can be a _toggle button_.
+
+For  a _LED Indicator Option_, see <<sub:qtvcp:widgets:indicatedpushbutton>>[IndicatedPushButton] below for more info.
+
+It also has other options.
+
+It is based on PyQt's _QPushButton_.
+
+[[sub:qtvcp:widgets:radio]]
+=== `RadioButton` Widget
+
+//TODO QtVCP radio button widget capture
+//FIXME Is that one HAL pin per button ?
+This widget allows a user to *set HAL pins true or false*.
+Only one `RadioButton` widget of a group can be true at a time.
+
+It is based on PyQt's _QRadioButton_.
+
+[[sub:qtvcp:widgets:slider]]
+=== `Slider` - HAL Pin Value Adjusting Widget
+
+//TODO QtVCP slider widget capture
+
+Allows one to *adjust a HAL pin value using a sliding pointer*.
+
+[[sub:qtvcp:widgets:tabwidget]]
+=== `TabWidget` - Tab Widget
+This widget allows the tab height to be adjusted with stylesheets
+
+The `TabWidget` properties can be defined in a _stylesheet_ with the following code added to the `.qss` file. +
+`name_of_tab` being the widget name defined in Qt Designer's editor. +
+If you omit the '#name_of_tab' text, all TabWidgets tab height will be set. +
+This shows how to set a particular widget's tab height:
+
+[source,{css}]
+----
+TabWidget #name_of_tab{
+  qproperty-tabsize: 1.5;
+}
+----
 
 It is based on PyQt's QTabWidget
-
-[[sub:qtvcp:widgets:doublescale]]
-=== `DoubleScale` - Spin Button Entry Widget
-
-//TODO DoubleScale widget capture
-
-This widget is a *spin button entry* widget used for _setting a s32 and float HAL pin_.
-
-It has an internal _scale factor_, set to a default of 1, that can be set programmatically or using a QtSignal.
-
-The `setInput` slot can be connected to an integer, or a float signal.
-
-*`[HALLabelName].setInput(some_value)`*::
-  This is a function call to change the internal scaling factor.
-
-The HAL pins will be set to the value of the _internal scale times the widget displayed value_.
-
-[[sub:qtvcp:widgets:generalhalinput]]
-=== `GeneralHALInput` - General Signals/Slots Input Connection Widget
-
-This widget is used to *connect an arbitrary Qt widget to HAL using signals/slots*.
-
-It is used _for widgets that should *respond* to HAL pin changes_.
-
-[[sub:qtvcp:widgets:generalhaloutput]]
-=== `GeneralHALOutput` - General Signals/Slots Output Connection Widget
-
-This widget is used to *connect an arbitrary Qt widget to HAL using signals/slots*.
-
-It is used _for widgets that should *control* HAL pins_.
 
 [[sub:qtvcp:widgets:widgetswitche]]
 === `WidgetSwitcher` - Multi-widget Layout View Switcher Widget
@@ -516,6 +505,17 @@ By calling one of these functions, you control what widget is currently displaye
 
 It is based on the _QStack_ widget.
 
+[[sub:qtvcp:widgets:xembed]]
+=== `XEmbed` - Program Embedding Widget
+
+Allows one to *embed a program into the widget*.
+
+Only programs that utilize the `xembed` protocol will work such as:
+
+* GladeVCP virtual control panels
+* Onboard virtual keyboard
+* QtVCP virtual control panels
+* mplayer video player
 
 [[sec:qtvcp:widgets:machine-controller]]
 == Machine Controller Widgets
