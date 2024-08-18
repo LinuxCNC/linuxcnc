@@ -296,10 +296,6 @@ Pressing cancel will close linuxcnc.""" % target)
             if "initialized__" in dir(window.handler_instance):
                 LOG.debug('''Calling the handler file's initialized__ function''')
                 window.handler_instance.initialized__()
-
-            # initialize HAL functions in main panel objects
-            self.panel.halify(window)
-
             # add any external handler override user commands
             if self.INFO.USER_COMMAND_FILE is None:
                 self.INFO.USER_COMMAND_FILE = os.path.join(self.PATH.CONFIGPATH,'.{}rc'.format(self.PATH.BASEPATH))
@@ -312,9 +308,6 @@ Pressing cancel will close linuxcnc.""" % target)
             if "after_override__" in dir(window.handler_instance):
                 LOG.debug('''Calling the handler file's after_override__ function''')
                 window.handler_instance.after_override__()
-        else:
-            # initialize HAL functions in main panel objects
-            self.panel.halify(window)
 
         # All Widgets should be added now - sync them to linuxcnc
         self.STATUS.forced_update()
