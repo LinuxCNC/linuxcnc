@@ -1,4 +1,4 @@
-VERSION = '008.047'
+VERSION = '008.048'
 LCNCVER = '2.10'
 DOCSVER = LCNCVER
 
@@ -387,7 +387,6 @@ class HandlerClass:
         self.set_mode()
         self.user_button_setup()
         self.set_buttons_state([self.alwaysOnList], True)
-        self.get_main_tab_widgets()
         self.load_material_file()
         self.offset_peripherals()
         self.set_probe_offset_pins()
@@ -2681,32 +2680,6 @@ class HandlerClass:
         self.halPulsePins = {}
         self.dualCodeButtons = {}
 
-    def get_main_tab_widgets(self):
-        # 1 of 2 this is a work around for pyqt5.11 not having setTabVisible(index, bool) that is present in pyqt5.15
-        self.widgetMain = self.w.main_tab_widget.findChild(QWidget, 'main_tab')
-        self.widgetConversational = self.w.main_tab_widget.findChild(QWidget, 'conv_tab')
-        self.widgetParameters = self.w.main_tab_widget.findChild(QWidget, 'param_tab')
-        self.widgetSettings = self.w.main_tab_widget.findChild(QWidget, 'settings_tab')
-        self.widgetStatistics = self.w.main_tab_widget.findChild(QWidget, 'stats_tab')
-
-    def disable_tabs(self):
-        # remove all tabs, then add them back based on their pin state (this keeps them in order)
-        # 2 of 2 this is a work around for pyqt5.11 not having setTabVisible(index, bool) that is present in pyqt5.15
-        while self.w.main_tab_widget.count() > 1:
-            self.w.main_tab_widget.removeTab(1)
-        if not self.convTabDisable.get():
-            self.w.main_tab_widget.insertTab(1, self.widgetConversational, 'CONVERSATIONAL')
-        if not self.paramTabDisable.get():
-            self.w.main_tab_widget.insertTab(2, self.widgetParameters, 'PARAMETERS')
-        if not self.settingsTabDisable.get():
-            self.w.main_tab_widget.insertTab(3, self.widgetSettings, 'SETTINGS')
-        self.w.main_tab_widget.insertTab(4, self.widgetStatistics, 'STATISTICS')
-        # reorder the indexes to account for any missing tabs, any missing will be -1 (which doesn't matter)
-        self.CONVERSATIONAL = self.w.main_tab_widget.indexOf(self.widgetConversational)
-        self.PARAMETERS = self.w.main_tab_widget.indexOf(self.widgetParameters)
-        self.SETTINGS = self.w.main_tab_widget.indexOf(self.widgetSettings)
-        self.STATISTICS = self.w.main_tab_widget.indexOf(self.widgetStatistics)
-
     def preview_index_return(self, index):
         if self.w.gcode_editor.editor.isModified():
             self.new_exitCall(index)
@@ -3117,9 +3090,9 @@ class HandlerClass:
         self.w.feed_label.pressed.connect(self.feed_label_pressed)
         self.w.rapid_label.pressed.connect(self.rapid_label_pressed)
         self.w.jogs_label.pressed.connect(self.jogs_label_pressed)
-        self.paramTabDisable.value_changed.connect(self.disable_tabs)
-        self.settingsTabDisable.value_changed.connect(self.disable_tabs)
-        self.convTabDisable.value_changed.connect(self.disable_tabs)
+        self.paramTabDisable.value_changed.connect(lambda v: self.w.main_tab_widget.setTabVisible(self.PARAMETERS, not v))
+        self.settingsTabDisable.value_changed.connect(lambda v: self.w.main_tab_widget.setTabVisible(self.SETTINGS, not v))
+        self.convTabDisable.value_changed.connect(lambda v: self.w.main_tab_widget.setTabVisible(self.CONVERSATIONAL, not v))
         self.w.cut_time_reset.pressed.connect(lambda: self.statistic_reset('cut_time', 'Cut time'))
         self.w.probe_time_reset.pressed.connect(lambda: self.statistic_reset('probe_time', 'Probe time'))
         self.w.paused_time_reset.pressed.connect(lambda: self.statistic_reset('paused_time', 'Paused time'))
