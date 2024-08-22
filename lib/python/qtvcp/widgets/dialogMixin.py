@@ -141,7 +141,10 @@ class GeometryMixin(_HalWidgetBase):
         # message box are difficult
         if isinstance(self,QMessageBox):
             if self._geometry_string.replace(' ','').isdigit():
-                geometry_string = self.PREFS_.getpref(self._geoName, '', str, 'DIALOG_GEOMETRY')
+                if self.PREFS_ :
+                    geometry_string = self.PREFS_.getpref(self._geoName, '', str, 'DIALOG_GEOMETRY')
+                else:
+                    geometry_string = ''
                 temp = self._geometry_string.split(' ')
                 #print('record:',temp,self.geometry())
                 x = self.geometry().x()
@@ -149,7 +152,8 @@ class GeometryMixin(_HalWidgetBase):
                 w = int(temp[2])
                 h = self.geometry().height()
                 geo = '%s %s %s %s'% (x,y,w,h)
-                self.PREFS_.putpref(self._geoName, geo, str, 'DIALOG_GEOMETRY')
+                if self.PREFS_ :
+                    self.PREFS_.putpref(self._geoName, geo, str, 'DIALOG_GEOMETRY')
                 return
         try:
             if self.PREFS_ :
