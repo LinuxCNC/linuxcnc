@@ -485,3 +485,15 @@ qproperty-center_gradient_color: #404040;
 qproperty-bezel_color: orange;
 qproperty-bezel_width: 2;
 }
+
+GcodeEditor QToolButton {
+    min-width: 40;
+    height: 40;
+    font: 12pt "Lato Heavy";
+}
+
+GcodeEditor QLineEdit {
+    width: 120;
+    height: 35;
+    font: 12pt "Lato Heavy";
+}
