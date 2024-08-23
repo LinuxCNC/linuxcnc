@@ -1454,8 +1454,14 @@ A general overview of <<cha:qtvcp:modifying-screens,Customizing Stock Screens>>.
 === Stylesheets
 
 Stylesheets can be leveraged to do a fair amount of customization, but you usually need to know a bit about the widget names.
-Pressing F12 will display a stylesheet editor dialog to load/test/save modification.
-Sometimes these lines will be present and you can change them, otherwise you will need to add them.
+Pressing F12 will display a stylesheet editor dialog to load/test/save modification. +
+The 'View Sheet' tab will allow you to select and apply what stylesheet QtDragon will use when it's first loaded. +
+Press the button 'Copy to Edit Tab' to copy the current stylesheet to the edit tab. +
+The 'Edit Sheet' tab allows editing, applying and saving of changes od the displayed stylesheet.
+
+image::images/qtdragon_stylesheet_editor.png["QtDragon stylesheet editor",scale=25]
+
+Sometimes these lines will be present and you can change them, otherwise you will need to add them. +
 
 For instance, to change the DRO font (look for this entry and change the font name):
 
