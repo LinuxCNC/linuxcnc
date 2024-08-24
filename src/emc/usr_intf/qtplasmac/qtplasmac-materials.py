@@ -187,7 +187,7 @@ class MaterialConverter(QMainWindow, object):
                 self.inButton.setEnabled(True)
                 self.inFile.setEnabled(True)
                 self.convert.setText('CONVERT')
-            elif button.text() == 'Fusion360':
+            elif button.text() == 'Fusion 360':
                 self.outUnits.hide()
                 self.outMetric.hide()
                 self.outImperial.hide()
