@@ -30,7 +30,8 @@ Depends:
     tclx,
     @QTVCP_DEPENDS@,
     procps, psmisc,
-    udev
+    udev,
+    asciidoctor
 Recommends:
     linuxcnc-doc-en | linuxcnc-doc,
     librsvg2-dev,
