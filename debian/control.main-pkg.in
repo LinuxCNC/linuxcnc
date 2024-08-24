@@ -22,7 +22,7 @@ Depends:
     python3-opengl,
     python3-configobj,
     python3-xlib,
-    libgtksourceview-3.0-dev,
+    libgtksourceview-4-dev,
     tcl@TCLTK_VERSION@,
     tk@TCLTK_VERSION@,
     bwidget (>= 1.7),
