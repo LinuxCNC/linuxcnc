@@ -20,7 +20,7 @@ information on pmx485.
 
 == AUTHOR
 
-Phillip Carter
+Phillip Carter & Gregory D Carl
 
 == LICENSE
 

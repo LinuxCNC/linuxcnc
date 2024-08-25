@@ -42,7 +42,7 @@ _VERSION:_ +
 
 == AUTHOR
 
-Phillip A Carter
+Phillip A Carter & Gregory D Carl
 
 == LICENSE
 

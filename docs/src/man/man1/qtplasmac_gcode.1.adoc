@@ -11,7 +11,7 @@ cutting system.
 standalone.
 
 See the QtPlasmaC section of the LinuxCNC Documentation for more
-information. http://linuxcnc.org/docs/2.9/html/plasma/qtplasmac.html
+information. http://linuxcnc.org/docs/devel/html/plasma/qtplasmac.html
 
 == SEE ALSO
 

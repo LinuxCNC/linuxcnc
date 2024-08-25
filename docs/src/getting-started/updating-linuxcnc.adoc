@@ -236,10 +236,7 @@ mdro
 mqtt-publisher
 pi500_vfd
 pmx485-test
-qtplasmac-cfg2prefs
 qtplasmac-materials
-qtplasmac-plasmac2qt
-qtplasmac-setup
 sim-torch
 svd-ps_vfd
 

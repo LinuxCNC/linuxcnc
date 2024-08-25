@@ -24,7 +24,7 @@ http://linuxcnc.org/docs/devel/html/plasma/qtplasmac.html#_material_converter
 
 == AUTHOR
 
-Phillip Carter
+Phillip Carter & Gregory D Carl
 
 == LICENSE
 

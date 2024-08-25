@@ -27,7 +27,7 @@ Check PANEL to end communication.
 
 == AUTHOR
 
-Phillip Carter
+Phillip Carter & Gregory D Carl
 
 == LICENSE
 
