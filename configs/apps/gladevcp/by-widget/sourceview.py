@@ -1,6 +1,7 @@
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
+from gi.repository import Gdk
 from gi.repository import GtkSource
 
 class HandlerClass:
@@ -16,26 +17,23 @@ class HandlerClass:
             self.mark = self.textbuffer.create_source_mark('highlight', 'highlight', line)
             self.mark.set_visible(True)
         else:
-            print('3')
             self.textbuffer.move_mark(self.mark, line)
-        print('4')
         self.sourceview.scroll_to_mark(self.mark, 0, True, 0, 0.5)
-        print('5')
         
     def file_set(self,widget,data=None):
         filename = widget.get_filename()
         print("file_set",filename)
         self.textbuffer.set_text(open(filename).read())
         self.line = 1
-        #self._set_line(self.line)
+        self._set_line(self.line)
 
     def on_down(self,widget,data=None):
         self.line += 1
-        #self._set_line(self.line)
+        self._set_line(self.line)
 
     def on_up(self,widget,data=None):
         self.line -= 1
-        #self._set_line(self.line)
+        self._set_line(self.line)
 
     def __init__(self, halcomp,builder,useropts):
         self.halcomp = halcomp
@@ -49,8 +47,12 @@ class HandlerClass:
         self.sourceview.set_show_line_numbers(True)
         self.sourceview.set_show_line_marks(True)
         self.sourceview.set_highlight_current_line(True)
-        #self.sourceview.set_mark_category_icon_from_stock('highlight', 'gtk-forward')
-        #self.sourceview.set_mark_category_background('highlight', gtk.gdk.Color('yellow'))
+        
+        att = GtkSource.MarkAttributes()
+        color = Gdk.RGBA()
+        color.parse('yellow')
+        att.set_background(color)
+        self.sourceview.set_mark_attributes('highlight', att, 1)
         self.mark = None
 
 def get_handlers(halcomp,builder,useropts):
