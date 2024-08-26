@@ -1,5 +1,10 @@
-
-import gtk, sys, cairo
+#!/usr/bin/env python3
+import gi
+gi.require_version("Gtk","3.0")
+gi.require_version("Gdk","3.0")
+gi.require_version("GtkSource","3.0")
+from gi.repository import Gtk
+import sys, cairo
 from math import pi
 
 
@@ -49,8 +54,8 @@ class HandlerClass:
         # This sets the windows colormap, so it supports transparency.
         # This will only work if the wm support alpha channel
         screen = win.get_screen()
-        rgba = screen.get_rgba_colormap()
-        win.set_colormap(rgba)
+        rgba = screen.get_rgba_visual()
+        win.set_visual(rgba)
 
         # scaling the bitmap is possible by turning this on
         # however the fixed widget does NOT do proportional scaling
