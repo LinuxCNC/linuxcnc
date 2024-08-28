@@ -7,20 +7,21 @@
 #
 #
 # Nilas GRahn <nilasgrahn@protonmail.com>, 2023.
+# Kristoffer Grundström <swedishsailfishosuser@tutanota.com>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-04-08 19:52+0200\n"
-"PO-Revision-Date: 2023-02-20 22:20+0000\n"
-"Last-Translator: Nilas GRahn <nilasgrahn@protonmail.com>\n"
+"PO-Revision-Date: 2024-08-28 17:09+0000\n"
+"Last-Translator: Kristoffer Grundström <swedishsailfishosuser@tutanota.com>\n"
 "Language-Team: Swedish <sv@li.org>\n"
 "Language: sv\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 4.16-dev\n"
+"X-Generator: Weblate 5.7.1-dev\n"
 
 #: src/emc/task/emctaskmain.cc:868
 #, c-format
@@ -1847,11 +1848,11 @@ msgstr ""
 
 #: src/hal/utils/meter.c:292
 msgid "_Select"
-msgstr ""
+msgstr "_Välj"
 
 #: src/hal/utils/meter.c:293
 msgid "E_xit"
-msgstr ""
+msgstr "A_vsluta"
 
 #: src/hal/utils/meter.c:336 src/hal/utils/meter.c:364
 msgid "Select Item to Probe"
@@ -1863,15 +1864,15 @@ msgstr ""
 
 #: src/hal/utils/meter.c:617
 msgid " _Signals "
-msgstr ""
+msgstr " _Signaler "
 
 #: src/hal/utils/meter.c:618
 msgid " Para_meters "
-msgstr ""
+msgstr " Para_metrar "
 
 #: src/hal/utils/meter.c:649
 msgid "_Close"
-msgstr ""
+msgstr "_Stäng"
 
 #: src/hal/utils/scope.c:132
 msgid ""
@@ -1942,7 +1943,7 @@ msgstr ""
 
 #: src/hal/utils/scope.c:663
 msgid "Horizontal"
-msgstr ""
+msgstr "Horisontell"
 
 #: src/hal/utils/scope.c:673
 msgid "Selected Channel"
@@ -1954,7 +1955,7 @@ msgstr ""
 
 #: src/hal/utils/scope.c:682
 msgid "Trigger"
-msgstr ""
+msgstr "Utlösare"
 
 #: src/hal/utils/scope.c:688
 msgid "Vertical"
@@ -1975,11 +1976,11 @@ msgstr ""
 
 #: src/hal/utils/scope.c:700
 msgid "Single"
-msgstr ""
+msgstr "Singel"
 
 #: src/hal/utils/scope.c:702
 msgid "Roll"
-msgstr ""
+msgstr "Rulle"
 
 #: src/hal/utils/scope_horiz.c:139 src/emc/usr_intf/gscreen/gscreen.glade:3587
 #, fuzzy
@@ -1988,7 +1989,7 @@ msgstr "Zooma in [+]"
 
 #: src/hal/utils/scope_horiz.c:140
 msgid " Pos "
-msgstr ""
+msgstr " Pos "
 
 #: src/hal/utils/scope_horiz.c:175
 msgid ""
@@ -2033,7 +2034,7 @@ msgstr ""
 #: lib/python/propertywindow.py:35 share/axis/tcl/axis.tcl:1580
 #: share/axis/tcl/axis.tcl:1617
 msgid "OK"
-msgstr ""
+msgstr "OK"
 
 #: src/hal/utils/scope_horiz.c:486 src/hal/utils/scope_horiz.c:536
 #: src/hal/utils/scope_horiz.c:763
@@ -2075,11 +2076,11 @@ msgstr ""
 #: src/hal/utils/scope_horiz.c:535 src/hal/utils/scope_vert.c:699
 #: src/hal/utils/scope_vert.c:917
 msgid "_OK"
-msgstr ""
+msgstr "_OK"
 
 #: src/hal/utils/scope_horiz.c:555
 msgid "Thread:"
-msgstr ""
+msgstr "Tråd:"
 
 #: src/hal/utils/scope_horiz.c:564
 msgid "Sample Period:"
@@ -2092,7 +2093,7 @@ msgstr "Samplingshastighet:"
 #: src/hal/utils/scope_horiz.c:589 src/emc/usr_intf/touchy/mdi.py:83
 #: src/emc/usr_intf/gscreen/mdi.py:78
 msgid "Thread"
-msgstr ""
+msgstr "Tråd"
 
 #: src/hal/utils/scope_horiz.c:590
 msgid "Period"
@@ -11639,8 +11640,9 @@ msgstr "Position:"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid "_:"
-msgstr ""
+msgid ""
+"_:"
+msgstr " "
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
 #: src/emc/usr_intf/stepconf/axisy.glade:248
@@ -16063,7 +16065,7 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/mesa1.glade:58895
 #: src/emc/usr_intf/pncconf/mesa1.glade:58910
 msgid " "
-msgstr ""
+msgstr " "
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:8728
 #: src/emc/usr_intf/pncconf/mesa1.glade:8728
@@ -18271,7 +18273,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2664
 msgid "                    "
-msgstr ""
+msgstr "                    "
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:2705
 msgid "encoder pulses per unit:"
@@ -19416,7 +19418,7 @@ msgstr "Hal _configuration"
 #: src/emc/usr_intf/gscreen/gscreen.glade:3275
 #: src/emc/usr_intf/gscreen/gscreen.glade:4284
 msgid "\n"
-msgstr ""
+msgstr "\n"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3322
 #, fuzzy

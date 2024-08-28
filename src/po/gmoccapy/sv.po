@@ -3,19 +3,20 @@
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 #
-#, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-04-07 20:07+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"PO-Revision-Date: 2024-08-28 17:09+0000\n"
+"Last-Translator: Kristoffer Grundström <swedishsailfishosuser@tutanota.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
+"Language: sv\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n != 1;\n"
+"X-Generator: Weblate 5.7.1-dev\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:252
 msgid "user mode selected"
@@ -37,7 +38,7 @@ msgstr ""
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:491
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:512
 msgid "Error in "
-msgstr ""
+msgstr "Fel i "
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:492
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:513
@@ -46,19 +47,19 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:655
 msgid "axis"
-msgstr ""
+msgstr "axel"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:656
 msgid "axes"
-msgstr ""
+msgstr "axlar"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:661
 msgid "joint"
-msgstr ""
+msgstr "led"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:662
 msgid "joints"
-msgstr ""
+msgstr "leder"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:678
 #, python-brace-format
@@ -150,7 +151,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1118
 msgid "Continuous"
-msgstr ""
+msgstr "Fortlöpande"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1236
 #, python-brace-format
@@ -225,12 +226,12 @@ msgstr ""
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1760
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2887
 msgid "mm/min"
-msgstr ""
+msgstr "mm/min"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1763
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2890
 msgid "inch/min"
-msgstr ""
+msgstr "tum/min"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1789
 msgid ""
@@ -247,7 +248,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2020
 msgid "Audio available!"
-msgstr ""
+msgstr "Ljud tillgängligt!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2023
 msgid "Audio enabled!"
@@ -310,7 +311,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2442
 msgid "Important Warning"
-msgstr ""
+msgstr "Viktig varning"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2462
 msgid "External ESTOP is set, could not change state!"
@@ -334,7 +335,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2989
 msgid "Enter value:"
-msgstr ""
+msgstr "Ange värde:"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2990
 #, python-brace-format
@@ -358,7 +359,7 @@ msgstr ""
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3355
 #, python-brace-format
 msgid "{0}"
-msgstr ""
+msgstr "{0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3536
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:51
@@ -385,7 +386,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3943
 msgid "INFO:"
-msgstr ""
+msgstr "INFO:"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3944
 msgid "Classicladder real-time component not detected"
@@ -405,7 +406,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4175
 msgid "Attention!!"
-msgstr ""
+msgstr "Lystring!!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4229
 msgid "Exit and discard changes?"
@@ -413,7 +414,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4230
 msgid "Attention!"
-msgstr ""
+msgstr "Lystring!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4311
 msgid "Enter value for diameter"
@@ -460,7 +461,7 @@ msgstr ""
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5041
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5056
 msgid "Important Warning!"
-msgstr ""
+msgstr "Viktig varning!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4391
 msgid "Enter the block height"
@@ -630,7 +631,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:73
 msgid "Enter value"
-msgstr ""
+msgstr "Ange värde"
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:73
 msgid "Enter the value to set"
@@ -644,15 +645,15 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:154
 msgid "_Yes"
-msgstr ""
+msgstr "_Ja"
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:155
 msgid "_No"
-msgstr ""
+msgstr "_Nej"
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:181
 msgid "_Ok"
-msgstr ""
+msgstr "_Ok"
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:218
 #: src/emc/usr_intf/gmoccapy/dialogs.py:220
@@ -661,11 +662,11 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:232
 msgid "_Up     "
-msgstr ""
+msgstr "_Uppåt     "
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:234
 msgid "_Down"
-msgstr ""
+msgstr "_Ner"
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:236
 msgid "_Jump to"
@@ -721,7 +722,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:8
 msgid "default"
-msgstr ""
+msgstr "standard"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:9
 msgid "No Program loaded"
@@ -775,7 +776,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:21
 msgid "Preview"
-msgstr ""
+msgstr "Förhandsgranska"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:22
 msgid "Offset Page"
@@ -799,7 +800,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:27
 msgid "Logo"
-msgstr ""
+msgstr "Logo"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:28
 msgid "Ignore limits"
@@ -807,7 +808,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:29
 msgid "<b>Jogging</b>"
-msgstr ""
+msgstr "<b>Joggar</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:30
 msgid "Shows the code to execute"
@@ -815,7 +816,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:31
 msgid "Undo"
-msgstr ""
+msgstr "Ångra"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:32
 msgid ""
@@ -855,11 +856,11 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:44
 msgid "Replace"
-msgstr ""
+msgstr "Ersätt"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:45
 msgid "Redo"
-msgstr ""
+msgstr "Gör om"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:46
 msgid "Information over the tool in spindle"
@@ -871,7 +872,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:48
 msgid "Diameter"
-msgstr ""
+msgstr "Diameter"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:49
 msgid "offset z"
@@ -899,7 +900,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:56
 msgid "<b>G-Code</b>"
-msgstr ""
+msgstr "<b>G-kod</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:57
 msgid "<b>Cooling</b>"
@@ -959,11 +960,11 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:72
 msgid "Width"
-msgstr ""
+msgstr "Bredd"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:73
 msgid "Height"
-msgstr ""
+msgstr "Längd"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:74
 msgid "hide title bar"
@@ -1039,11 +1040,11 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:92
 msgid "Size"
-msgstr ""
+msgstr "Storlek"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:93
 msgid "Digits"
-msgstr ""
+msgstr "Siffror"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:94
 msgid ""
@@ -1053,7 +1054,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:96
 msgid "<b>DRO</b>"
-msgstr ""
+msgstr "<b>DRO</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:97
 msgid "Grid size"
@@ -1077,7 +1078,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:102
 msgid "<b>Preview</b>"
-msgstr ""
+msgstr "<b>Förhandsgranska</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:103
 msgid "X-position in pixel from top left corner of the screen"
@@ -1089,7 +1090,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:105
 msgid "Font"
-msgstr ""
+msgstr "Typsnitt"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:106
 msgid "Y-position in pixel from top left corner of the screen"
@@ -1133,7 +1134,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:117
 msgid "Theme"
-msgstr ""
+msgstr "Tema"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:118
 msgid "Icon Theme"
@@ -1161,7 +1162,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:124
 msgid "Appearance"
-msgstr ""
+msgstr "Utseende"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:125
 msgid "Scale jog velocity"
@@ -1229,7 +1230,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:141
 msgid "Hardware"
-msgstr ""
+msgstr "Hårdvara"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:142
 msgid "Use auto tool measurement"
@@ -1350,7 +1351,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:180
 msgid "Settings"
-msgstr ""
+msgstr "Inställningar"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:181
 msgid "User tab 1"
@@ -1493,7 +1494,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:218
 msgid "Status"
-msgstr ""
+msgstr "Status"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:219
 msgid "launch linuxcnc status"
@@ -1509,7 +1510,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:222
 msgid "Calibration"
-msgstr ""
+msgstr "Kalibrering"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:223
 msgid "launch calibration"
@@ -1545,7 +1546,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:231
 msgid "Delete"
-msgstr ""
+msgstr "Radera"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:232
 msgid "delete selected tool or tools"
@@ -1553,7 +1554,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:233
 msgid "Add"
-msgstr ""
+msgstr "Lägg till"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:234
 msgid "add a new tool to tool table"
@@ -1561,7 +1562,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:235
 msgid "Reload"
-msgstr ""
+msgstr "Ladda om"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:236
 msgid "reload tool table from file"
@@ -1569,7 +1570,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:237
 msgid "Apply"
-msgstr ""
+msgstr "Verkställ"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:238
 msgid ""
