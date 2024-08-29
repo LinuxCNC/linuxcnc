@@ -119,7 +119,7 @@ usr/share/axis
 usr/share/glade
 usr/share/gmoccapy
 usr/share/gscreen
-usr/share/gtksourceview-2.0
+usr/share/gtksourceview-4
 
 usr/share/applications/linuxcnc.desktop
 usr/share/applications/linuxcnc-latency.desktop
