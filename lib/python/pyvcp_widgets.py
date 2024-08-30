@@ -1,5 +1,6 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #22nov allowed range color changes to border when dwgf or imgf are used
 #
 =======
@@ -8,6 +9,9 @@
 =======
 #  this file ius found in /home/tomp/linuxnc-barwidgets/configs/tomp/nuPyvcpBars
 >>>>>>> parent of 5fea690377 (1st push)
+=======
+# this file ius found in /home/tomp/linuxnc-barwidgets/configs/tomp/nuPyvcpBars
+>>>>>>> parent of 5c3aa31e1c (after 1st commit i checked github abd did not see the new pyvcpwidgets.py, so i added a space to make it dirty, then git add'ed it, then made this commit, then will check github again)
 # fname is   pyvcp_widgets18nov2023.py
 # ot is the only src
 # it needs to be stored in 2 plavces
