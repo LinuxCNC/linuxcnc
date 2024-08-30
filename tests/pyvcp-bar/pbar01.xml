@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pyvcp>
+    <vbox>
+        <hbox>
+            <vbox>
+                <bar>
+                    <halpin>"proc01"</halpin>
+                    <min_>100</min_>
+                    <max_>110</max_>
+                    <bgcolor>'grey'</bgcolor>
+                    <fillcolor>'red'</fillcolor>
+                </bar>
+            </vbox>
+        </hbox>
+    </vbox>
+</pyvcp>
