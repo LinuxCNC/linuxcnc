@@ -1,8 +1,0 @@
-#test pyvcp bar 01
-# requires pbar01.xml pbar01.hal pbar01.py ( this file )
-# replicate original examole
-#import matplotlib
-#matplotlib.use('Agg')
-# euther cnvrt this to bash ir uremove 2 above abnd use as .py
-# in any case this file is not w3nated by scripts/runtests  so rename xpbar01.py
-halrun -I -f pbar01.hal

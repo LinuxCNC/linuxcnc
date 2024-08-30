@@ -1,6 +1,7 @@
 <<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
+<<<<<<< HEAD
 #22nov allowed range color changes to border when dwgf or imgf are used
 #
 =======
@@ -33,6 +34,8 @@
 #
 #---------- trim above here before distribution ---------------------------
 #
+=======
+>>>>>>> parent of dd88dc51dc (initial commit. runs in installed lcnc and rip lcnc. LINUXCNC - 2.10.0~pre0)
 #    This is a component of AXIS, a front-end for emc
 #    Copyright 2007 Anders Wallin <anders.wallin@helsinki.fi>
 #
@@ -89,10 +92,6 @@ import math
 import bwidget
 import time
 
-#22oct2023 TJP add impoirtlib  to aid loading custom 'thumbs' for class 'bar'
-import importlib
-#15nov add os to check if file exists 
-import os
 # -------------------------------------------
 
 
@@ -1221,21 +1220,17 @@ class pyvcp_timer(Label):
 
 
 # -------------------------------------------
+
 class pyvcp_bar(Canvas):
 
-    ## reworked by ArcEye 10022014
-    ## allow value ranges in different colours
-    ## overworked by TomP 25oct2023
-    ## added vertical bars nad simple line rail bars nad laouts
-    ## layout refer to possible texts for min actual reference and min positions
-    ## these texts can be above centered oir below or left or rioght of bars
-    ## or not shown at all, yet pins with such data are created for user
+## reworked by ArcEye 10022014
+## allow value ranges in different colours
+
     """ (indicator) a bar-indicator for a float
     <bar>
         <halpin>"my-bar"</halpin>
         <min_>0</min_>
         <max_>150</max_>
-        <bgcolor>"grey"</bgcolor>
         <bgcolor>"grey"</bgcolor>
         <range1>(0,100,"green")</range1>
         <range2>(101,129,"orange")</range2>
@@ -1245,15 +1240,11 @@ class pyvcp_bar(Canvas):
         <canvas_height>50</canvas_height>
         <bar_height>30</bar_height>
         <bar_width>150</bar_width>
-        <font>'Arial'</font>
-        <fontsize>18</fontsize>
-        <nfmt>"3.3f"</nfmt>
-        <layout>"c"</layout>
-        <imgh>"pix/faucet/png"</imgf>
-        <!--dwgf>"/home/user/mydwgfs/degrresC</dwgf-->
+        <format>"3.1f"</format>
     </bar>
     """
     n=0
+<<<<<<< HEAD
     def __init__(self,master,pycomp,fillcolor="green", bgcolor="grey", min_=0, max_=100.0, origin=None, halpin=None, valpin=None, minpin=None, maxpin=None, range1=None, range2=None, range3=None, nformat='2.2f', canvas_width=None, canvas_height=None, bar_height=None, bar_width=None, orient=None, font=("Sans",-18, "bold"), layout=None, dwgf=None, imgf=None, *kw):
         #
         self.ranges = False 
@@ -1460,15 +1451,40 @@ class pyvcp_bar(Canvas):
         # ###########################################
         #                 PIN CREATION
         # ###########################################
+=======
+
+    def __init__(self,master,pycomp,fillcolor="green",bgcolor="grey",
+               halpin=None,min_=0.0,max_=100.0,range1=None,range2=None,
+               range3=None,format='3.1f', canvas_width=200,
+               canvas_height=50, bar_height=30, bar_width=150,**kw):
+
+        self.cw=canvas_width
+        self.ch=canvas_height
+        self.bh=bar_height
+        self.bw=bar_width
+        #self.cw=200    # canvas width
+        #self.ch=50     # canvas height
+        #self.bh=30     # bar height
+        #self.bw=150    # bar width
+        self.pad=((self.cw-self.bw)/2)
+
+        Canvas.__init__(self,master,width=self.cw,height=self.ch)
+
+>>>>>>> parent of dd88dc51dc (initial commit. runs in installed lcnc and rip lcnc. LINUXCNC - 2.10.0~pre0)
         if halpin == None:
-            halpin = "halpin."+str(pyvcp_bar.n)
-        pyvcp_bar.n += 1 #hal enum
+            halpin = "bar."+str(pyvcp_bar.n)
+            pyvcp_bar.n += 1
         self.halpin=halpin
+        self.endval=max_
+        self.startval=min_
+        self.format = "%" + format
+
         pycomp.newpin(halpin, HAL_FLOAT, HAL_IN)
-        #
-        # origin is      min_ >= origin  <= max_    units are NOT pioxels
-        self.value = self.origin
+        
+        self.value=0.0 # some dummy value to start with  
+             
         pycomp[self.halpin] = self.value
+<<<<<<< HEAD
         #
         # dummy value
         self.val_text = "-000.000"
@@ -2144,96 +2160,94 @@ class pyvcp_bar(Canvas):
         if(self.dwgf==None)and(self.imgf==None):
             if (self.value >= start1) and (self.value <= end1):
                 self.itemconfig(self.bar,fill=color1)
+=======
+        
+        # the border
+        border=self.create_rectangle(self.pad,1,self.pad+self.bw,self.bh)
+        self.itemconfig(border,fill=bgcolor)
+        
+        # the bar
+        tmp=self.bar_coords()
+        start=tmp[0]
+        end=tmp[1]
+        self.bar=self.create_rectangle(start,2,end,self.bh-1)
+        # default fill unless overridden
+        self.itemconfig(self.bar,fill=fillcolor)
+
+        # start text
+        start_text=self.create_text(self.pad,self.bh+10,text=str(self.startval) )
+        #end text
+        end_text=self.create_text(self.pad+self.bw,self.bh+10,text=str(self.endval) )
+        # value text
+        self.val_text=self.create_text(self.pad+self.bw/2,
+                                   self.bh/2,text=str(self.value) )
+
+        if range1!=None and range2!=None and range3!=None:
+            self.range1 = range1
+            self.range2 = range2
+            self.range3 = range3
+            self.ranges = True
+        else:
+            self.ranges = False
+        
+    def set_fill(self, xxx_todo_changeme1, xxx_todo_changeme2, xxx_todo_changeme3):
+        (start1, end1, color1) = xxx_todo_changeme1
+        (start2, end2, color2) = xxx_todo_changeme2
+        (start3, end3, color3) = xxx_todo_changeme3
+        if self.value:
+            if (self.value > start1) and (self.value <= end1):
+                self.itemconfig(self.bar,fill=color1)        
+>>>>>>> parent of dd88dc51dc (initial commit. runs in installed lcnc and rip lcnc. LINUXCNC - 2.10.0~pre0)
             else:
                 if (self.value > start2) and (self.value <= end2):
-                    self.itemconfig(self.bar,fill=color2)
+                    self.itemconfig(self.bar,fill=color2)        
                 else:
                     if (self.value > start3) and (self.value <= end3):
-                        self.itemconfig(self.bar,fill=color3)
-        else: # if custom thumb AND ranges, then chg thumb fioll color
-            # horz increases min_(left) to max_(right) so complemenmt the value!
-            # vert incresaes min_ (bot) to max_(top)
-            if (self.orient == 'Horz'): 
-                tmp = self.max_ - self.value 
-            else:
-                tmp = self.value 
-            #
-            if (tmp >= start1) and (tmp <= end1):
-                self.itemconfig(self.marker,fill=color1)
-            else:
-                if (tmp > start2) and (tmp < end2):
-                    self.itemconfig(self.marker,fill=color2)
-                else:
-                    if (tmp > start3) and (tmp <= end3):
-                        self.itemconfig(self.marker,fill=color3)
-    # #####################################
-    #      tlen, the pixel width of a string, aids in alignment
-    # #####################################
-    def tlen(self, num2msr) :
-        txt = self.nformat
-        ft=txt.format(num2msr)
-        self.txt=self.create_text(self.cw / 2, self.ch / 2, text=ft,anchor="center",font=self.font,fill="red")
-        p=[]
-        p=self.bbox(self.txt)
-        self.delete(self.txt)
-        return(p)
-    # #####################################
-    #      border, the ouytline of the bar/elevator shaft
-    # #####################################
-    def border_coords(self):
-        if( self.orient == 'Vert'):
-            #--------beg VERT BORDER
-            self.borderY0 = self.pxPadVert # top of vert border is a below canvas top
-            self.borderY1 = self.borderY0 + self.bh
-            #
-            if( self.layout == "e" ): # e = EAST text is RIGHT of bar (elevator shaft)
-                self.borderX0 = 3
-                self.borderX1 = self.borderX0 + self.bw
-            else:
-                if( self.layout == "c" ): # c = CENTER
-                    # 3 is ~arbitrary, ~= jusytBigEnufToSee
-                    self.borderX0 = self.pxPadHorz
-                    self.borderX1 = self.borderX0 + self.bw
-                else:
-                    if( self.layout == "w" ): # w(est) means texts are LEFT of bar
-                        self.borderX0 = self.cw - 3 - self.bw
-                        self.borderX1 = self.borderX0 + self.bw
-                    else: # layout == 0  means dont creates texts do create extra pins
-                        # 3 is ~arbitrary, ~= jusytBigEnufToSee
-                        if(self.layout == "0" ):
-                            self.borderX0 = self.pxPadHorz
-                            self.borderX1 = self.borderX0 + self.bw
-                # #####################################
-                #  end Vert border
-                # #####################################
-        else: # else self.orient was == 'Horz'
-            # #####################################
-            #      begin Horz border
-            # #####################################
-            self.borderX0 = self.pxPadHorz
-            self.borderX1 = self.borderX0 + self.bw
-            if( self.layout == "c" ): # c = CENTER
-                self.borderY0 = self.pxPadVert
-                self.borderY1 = self.borderY0 + self.bh
-            else:
-                if( self.layout == "n" ): # n = NORTH means texts ABOVE bar
-                    # 3 is ~arbitrary, ~= justBigEnufToSee
-                    self.borderY0 = self.ch - 3
-                    self.borderY1 = self.borderY0 - self.bh
-                else:
-                    if(self.layout == "s"): # s = SOUTH means text BELOW bar
-                        self.borderY0 = 3
-                        self.borderY1 = self.borderY0 + self.bh
-                    else: # layout == 0  means dont creates texts do create extra pins
-                        if(self.layout == "0" ):
-                            self.borderY0 = self.pxPadVert
-                            self.borderY1 = self.borderY0 + self.bh
-            # #####################################
-            #      end Horz border
-            # #####################################
-# ################################################################3
-#                      end of class bar
-# ################################################################3
+                        self.itemconfig(self.bar,fill=color3)        
+        
+        
+    def bar_coords(self):
+        """ calculates the coordinates in pixels for the bar """
+        # the bar should start at value = zero 
+        # and extend to value = self.value
+        # it should not extend beyond the initial box reserved for the bar
+        min_pixels=self.pad
+        max_pixels=self.pad+self.bw
+        bar_end = min_pixels + ((float)(max_pixels-min_pixels)/(float)(self.endval-self.startval)) * (self.value-self.startval)
+        if bar_end>max_pixels:
+            bar_end = max_pixels
+        elif bar_end < min_pixels:
+            bar_end = min_pixels
+        bar_start = min_pixels + ((float)(max_pixels-min_pixels)/(float)(self.endval-self.startval)) * (0-self.startval)
+        if bar_start < min_pixels:  # don't know if this is really needed
+            bar_start = min_pixels
+
+        return [bar_start, bar_end]
+    
+                        
+    def update(self,pycomp):
+        # update value
+        newvalue=pycomp[self.halpin]
+        if newvalue != self.value:
+            self.value = newvalue
+            valtext = str(self.format % self.value)
+            self.itemconfig(self.val_text,text=valtext)
+            # set bar colour
+            if self.ranges:
+                self.set_fill(self.range1, self.range2, self.range3)
+            # set bar size
+            tmp=self.bar_coords()
+            start=tmp[0]
+            end=tmp[1]
+            self.coords(self.bar, start, 2, 
+                        end, self.bh-1)
+
+
+
+# -------------------------------------------
+
+
+
 
 class pyvcp_led(Canvas):
     """ (indicator) a LED 
