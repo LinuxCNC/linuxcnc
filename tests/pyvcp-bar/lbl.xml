@@ -1,8 +1,0 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<pyvcp>
-	<vbox>
-		 <label>
-                	<text>"I am Groot"</text>
-		</label>
-	</vbox>
-</pyvcp>

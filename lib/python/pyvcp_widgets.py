@@ -1,9 +1,13 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 #22nov allowed range color changes to border when dwgf or imgf are used
 #
 =======
 >>>>>>> parent of 6e84469f59 (removed dir tests/pyvcp-bar because runtests script doesnt work with graphics)
 # this file ius found in /home/tomp/linuxnc-barwidgets/configs/tomp/nuPyvcpBars
+=======
+#  this file ius found in /home/tomp/linuxnc-barwidgets/configs/tomp/nuPyvcpBars
+>>>>>>> parent of 5fea690377 (1st push)
 # fname is   pyvcp_widgets18nov2023.py
 # ot is the only src
 # it needs to be stored in 2 plavces
