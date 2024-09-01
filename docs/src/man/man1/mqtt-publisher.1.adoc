@@ -6,28 +6,30 @@ mqtt-publisher - send HAL pin data to MQTT broker periodically
 
 == SYNOPSIS
 
-*loadusr -W mqtt-publisher [options] keys*=pin1[,pin2...]
+*loadusr -W mqtt-publisher* [_options_] **keys=**_pin1_[,_pin2_...]
 
 == DESCRIPTION
 
-*mqtt-publisher* is a non-realtime program that reads HAL values
-periodically and passes the values to a MQTT broker.
+*mqtt-publisher* is a non-realtime program that reads HAL values periodically and passes the values to a MQTT broker.
 
-When specifying the MQTT settings in the INI file, this is the
-recommended setup:
+When specifying the MQTT settings in the INI file, this is the recommended setup:
 
 HAL file:
 
-  loadusr -W mqtt-publisher [MQTT]DRYRUN --mqtt-broker=[MQTT]BROKER \
-    --mqtt-user=[MQTT]USERNAME --mqtt-password=[MQTT]PASSWORD keys=halui.estop.is-activated
+----
+loadusr -W mqtt-publisher [MQTT]DRYRUN --mqtt-broker=[MQTT]BROKER \
+  --mqtt-user=[MQTT]USERNAME --mqtt-password=[MQTT]PASSWORD keys=halui.estop.is-activated
+----
 
 INI file:
 
-  [MQTT]
-  DRYRUN = --dryrun
-  BROKER = broker.local
-  USERNAME = username
-  PASSWORD = password
+----
+[MQTT]
+DRYRUN = --dryrun
+BROKER = broker.local
+USERNAME = username
+PASSWORD = password
+----
 
 This component need the Paho python library installed to function.  On
 debian this is available from the `python3-paho-mqtt` package.
@@ -38,35 +40,32 @@ debian this is available from the `python3-paho-mqtt` package.
 
     The name of HAL pins, signals and other values to publish using
     MQTT.  The names are also used as the JSON keys in the MQTT
-    message published with the broker.  If multiple keys options
-    are specified, the lists are merged.
+    message published with the broker.
+    
+    NOTE: HAL lines are truncated to 255 characters. To work around this
+    limit with long lists of keys, use multiple keys= tokens. The lists
+    will be merged. 
 
 *--dryrun*::
-
-    Do not set up MQTT connection, only print message to stdout.
-    Useful for debugging and testing.
+  Do not set up MQTT connection, only print message to stdout.
+  Useful for debugging and testing.
 
 *--mqtt-broker*=_FQDN_::
-
-    The fully qualified DNS name of the MQTT broker.  The default
-    broker name is "localhost".
+  The fully qualified DNS name of the MQTT broker.
+  The default broker name is "localhost".
 
 *--mqtt-port*=_PORTNUMBER_::
-
-    The port to use of the MQTT broker.  The default port is 1883.
+  The port to use of the MQTT broker.  The default port is 1883.
 
 *--mqtt-user*=_USERNAME_::
-
-    The user name to use when connecting to the MQTT broker.
+  The user name to use when connecting to the MQTT broker.
 
 *--mqtt-password*=_PASSWORD_::
-
-    The password to use when connecting to the MQTT broker.
+  The password to use when connecting to the MQTT broker.
 
 *--mqtt-prefix*=_PREFIX_::
-
-    The MQTT prefix/topic to use when publishing to the MQTT broker.
-    The default prefix is "devices/linuxcnc/machine".
+  The MQTT prefix/topic to use when publishing to the MQTT broker.
+  The default prefix is "devices/linuxcnc/machine".
 
 == FUNCTIONS
 
@@ -77,19 +76,17 @@ The loop reading HAL values and publishing MQTT messages.
 == PINS
 
 *mqtt-publisher*.*enable* bit input::
-
-    When TRUE, publish messages to MQTT broker.  When FALSE, do not
-    publish messages.  Default is TRUE.
+  When TRUE, publish messages to MQTT broker.
+  When FALSE, do not publish messages.
+  Default is TRUE.
 
 *mqtt-publisher*.*period* u32 input::
-
-    The number of seconds to sleep between publishing MQTT messages to
-    the broker.  Default is 10 seconds.
+  The number of seconds to sleep between publishing MQTT messages to the broker.
+  Default is 10 seconds.
 
 *mqtt-publisher*.*lastpublish* u32 output::
-
-    When the last MQTT publication was published in number of seconds
-    since EPOC.  If no publication has taken place, the value is zero.
+  When the last MQTT publication was published in number of seconds since EPOC.
+  If no publication has taken place, the value is zero.
 
 == EXAMPLE
 
@@ -113,8 +110,8 @@ a useful starting point:
 Note, the list of keys cannot include space after comma.  The lines
 are only broken here to avoid too long lines in the documentation.
 
-When called using loadusr, all options must be shorter than 255 characters.
-Multiple keys options can be used if necessary.
+HAL limits option length to 255 characters. To work around this multiple keys=
+options can be used if necessary.
 
 == SEE ALSO
 

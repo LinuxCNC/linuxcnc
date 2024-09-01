@@ -6,8 +6,7 @@ modcompile - Utility for compiling Modbus drivers
 
 == DESCRIPTION
 
-*modcompile* is used to compile modbus drivers that use the Mesa card
-UARTs.
+*modcompile* is used to compile modbus drivers that use the Mesa card UARTs.
 
 See the main LinuxCNC documentation for more details.
 

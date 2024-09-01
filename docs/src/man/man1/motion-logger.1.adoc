@@ -11,7 +11,7 @@ motion-logger - log motion commands sent from LinuxCNC's Task module
 == DESCRIPTION
 
 *motion-logger* is a test program to log motion commands sent from
-LinuxCNC's Task module to the Motion module
+LinuxCNC's Task module to the Motion module.
 
 It is largely used by the regression tests and is poorly documented.
 

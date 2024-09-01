@@ -6,15 +6,16 @@ teach-in - jog the machine to a position, and record the state
 
 == SYNOPSIS
 
-*teach-in [> outfile]*
+*teach-in* [> _outfile_]
 
 == DESCRIPTION
 
 *teach-in* is a script to learn set positions for later use by a script.
 
-A dialog box is shown with options to choose the coordinate system. each
-press of the "Learn" button outputs a line of text to stdout or the file
-chosen at load time. line format: line-no X Y Z flood mist spindle
+A dialog box is shown with options to choose the coordinate system.
+Each press of the "Learn" button outputs a line of text to stdout or the file chosen at load time.
+
+Line format: line-no X Y Z flood mist spindle
 
 == SEE ALSO
 
