@@ -2,7 +2,7 @@
 
 == NAME
 
-millturn, millturngui - Vismach Virtual Machine GUI
+millturn - Vismach Virtual Machine GUI
 
 == DESCRIPTION
 
