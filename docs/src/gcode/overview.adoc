@@ -175,16 +175,13 @@ digit is a single character between 0 and 9.
 ** an optional plus or minus sign, followed by
 ** zero to many digits, followed, possibly, by
 ** one decimal point, followed by
-** zero to many digits - provided that there is at least
-   one digit somewhere in the number.
+** zero to many digits - provided that there is at least one digit somewhere in the number.
 * There are two kinds of numbers:
 ** Integers, that does not have a decimal point,
 ** Decimals, that do have a decimal point.
-* Numbers may have any number of digits, subject to the limitation on
-  line length. Only about seventeen significant figures will be retained,
-  however (enough for all known applications).
-* A non-zero number with no sign but the first character is assumed to be
-  positive.
+* Numbers may have any number of digits, subject to the limitation on line length.
+  Only about seventeen significant figures will be retained, however (enough for all known applications).
+* A non-zero number with no sign but the first character is assumed to be positive.
 
 Notice that initial (before the decimal point and the first non-zero
 digit) and trailing (after the decimal point and the last non-zero
@@ -222,9 +219,9 @@ Syntax:: There are three kinds of syntactic appearance:
 * 'named local' - #<localvalue>
 * 'named global' - #<_globalvalue>
 
-Scope:: The scope of a parameter is either global, or local within a
-subroutine. Subroutine parameters and local named variables have local
-scope. Global named parameters and numbered parameters starting from
+Scope:: The scope of a parameter is either global, or local within a subroutine.
+Subroutine parameters and local named variables have local scope.
+Global named parameters and numbered parameters starting from
 number 31 are global in scope. RS274/NGC uses 'lexical scoping' -
 in a subroutine only the local variables defined therein, and any
 global variables are visible. The local variables of a
@@ -257,12 +254,9 @@ Intended Use::
   available for general-purpose storage of floating-point values, like
   intermediate results, flags etc, throughout program execution. They
   are read/write (can be assigned a value).
-* <<sub:subroutine-parameters,subroutine parameters>> - these are used to
-  hold the actual parameters passed to a subroutine.
-* <<sub:numbered-parameters,numbered parameters>> - most of these are used
-  to access offsets of coordinate systems.
-* <<sub:system-parameters,system parameters>> - used to determine the current
-  running version. They are read-only.
+* <<sub:subroutine-parameters,subroutine parameters>> - these are used to hold the actual parameters passed to a subroutine.
+* <<sub:numbered-parameters,numbered parameters>> - most of these are used to access offsets of coordinate systems.
+* <<sub:system-parameters,system parameters>> - used to determine the current running version. They are read-only.
 
 [[sub:numbered-parameters]]
 === Numbered Parameters(((Numbered Parameters)))
@@ -287,8 +281,7 @@ A parameter setting does not take
 effect until after all parameter values on the same line have been
 found. For example, if parameter 3 has been previously set to 15 and
 the line '#3=6 G1 X#3' is interpreted, a straight move to a point
-where X equals 15 will
-occur and the value of parameter 3 will be 6.
+where X equals 15 will occur and the value of parameter 3 will be 6.
 
 The '\#'  character takes precedence over other operations, so that, for
 example, '\#1+2' means the number found by adding 2 to the value of

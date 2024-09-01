@@ -12,8 +12,7 @@ rtapi_app - creates a simulated real time environment
 
 *rtapi_app* Creates a simulated real time environment.
 
-Used for loading real time modules on systems without real time (for
-simulation).
+Used for loading real time modules on systems without real time (for simulation).
 
 == SEE ALSO
 

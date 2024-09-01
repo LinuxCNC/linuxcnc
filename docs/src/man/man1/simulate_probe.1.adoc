@@ -10,8 +10,8 @@ simulate_probe - simulate a probe input
 
 == DESCRIPTION
 
-*simulate_probe* Creates an on-screen GUI button to simulate touch probe
-input. Typically used in sim configs or debugging.
+*simulate_probe* Creates an on-screen GUI button to simulate touch probe input.
+Typically used in sim configs or debugging.
 
 == SEE ALSO
 

@@ -95,7 +95,7 @@ Report bugs at https://github.com/LinuxCNC/linuxcnc/issues.
 
 == AUTHOR
 
-Derived from a work by Fred Proctor & Will Shackleford. 
+Derived from a work by Fred Proctor & Will Shackleford.
 Rework & adding v2 protocol support by Michael Haberler.
 
 == COPYRIGHT

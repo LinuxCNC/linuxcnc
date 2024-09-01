@@ -181,7 +181,7 @@ It is based on PyQt's `QGridLayout`.
 image::images/qthalbar.png["QtVCP HalBar: Panel demonstrating the HAL Bar Level Indicator ",scale="25%"]
 
 This widget is used to indicate level or value, usually of a HAL s32/float pin. +
-you can also disable the HAL pin and use Qt signals or python commands to change the level. +
+You can also disable the HAL pin and use Qt signals or Python commands to change the level. +
 
 ==== Bar Properties:
 HalBar is a subclass of the Bar widget, so it inherits these properties  + 
@@ -1693,7 +1693,7 @@ It is based on PyQt's _QLabel_.
 //TODO StatusLabel widget capture/example
 
 This will display a label based on selectable status of the machine controller. +
-You can change how the status will be displayed by substituting python formatting code in the text template. You can also use rich text for different fonts/colors etc.
+You can change how the status will be displayed by substituting Python formatting code in the text template. You can also use rich text for different fonts/colors etc.
 
 .Selectable States
 These states are selectable:

@@ -11,19 +11,28 @@ instance
 
 == DESCRIPTION
 
-*mdi* sends G-code commands to LinuxCNC. The command starts an
-envirmonemt in which G-code commands are sent to the interpreter and
-machine feedback is displayed.
+*mdi* sends G-code commands to LinuxCNC.
+The command starts an envirmonemt in which G-code commands are sent to the interpreter and machine feedback is displayed.
 
 == USAGE
 
-send a single command and exit mdi m2 s1400
+send a single command and exit:
+....
+mdi m2 s1400
+....
 
-interactive session $mdi MDI> m3 s1000 MDI> G0 X100 MDI> ^Z $stopped
+interactive session
+....
+$mdi
+MDI> m3 s1000
+MDI> G0 X100
+MDI>` ^Z
+$stopped
+....
 
 == SEE ALSO
 
-linuxcnc(1)*
+*linuxcnc(1)*
 
 Much more information about LinuxCNC and HAL is available in the
 LinuxCNC and HAL User Manuals, found at /usr/share/doc/LinuxCNC/.

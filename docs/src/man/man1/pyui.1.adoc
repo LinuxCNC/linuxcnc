@@ -10,10 +10,10 @@ pyui - utility for panelui
 
 == DESCRIPTION
 
-*pyui* Validates panelui.ini files
+*pyui* validates panelui.ini files.
 
-This will read, try to correct, then save the panelui.ini file. It will
-print errors to the terminal if found.
+This will read, try to correct, then save the panelui.ini file.
+It will print errors to the terminal if found.
 
 == SEE ALSO
 

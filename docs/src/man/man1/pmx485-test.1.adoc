@@ -20,8 +20,7 @@ Select the correct port from the list of available ports.
 Check RS485 to establish communications.
 
 Changing MODE, CURRENT, or PRESSURE will change the corresponding value
-on the Powermax and the new value will be reported back to the test
-panel.
+on the Powermax and the new value will be reported back to the test panel.
 
 Check PANEL to end communication.
 

@@ -6,16 +6,15 @@ update_ini - converts 2.7 format INI files to 2.8 format
 
 == SYNOPSIS
 
-*update_ini [-f] [-d] _<INI_ file>*
+*update_ini* [*-f*] [*-d*] _<INI_ file>_
 
 == DESCRIPTION
 
-*update_ini* is run automatically by the "linuxcnc" script when an INI
-file in the pre-joints-axes format is opened.
+*update_ini* is run automatically by the "linuxcnc" script when an INI file in the pre-joints-axes format is opened.
 
--d causes a dialog box to be shown asking if the script should be run
+-d causes a dialog box to be shown asking if the script should be run.
 
--f is designed for auto-conversion and will not create the backup files
+-f is designed for auto-conversion and will not create the backup files.
 
 == SEE ALSO
 
