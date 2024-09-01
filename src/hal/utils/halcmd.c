@@ -362,8 +362,12 @@ static int parse_cmd1(char **argv) {
 	    int i;
 	    for(i=0; i<argc; i++)
 	    {
-		char *buf = malloc(LINELEN);
-		TildeExpansion(argv[i], buf, LINELEN);
+		size_t len = LINELEN;
+		// Tilde expansion can make the string longer, so ensure
+		// there is space for that
+		while (len < strlen(argv[i]) * 2) len += LINELEN;
+		char *buf = malloc(len);
+		TildeExpansion(argv[i], buf, len);
 		argv[i] = buf;
 	    }
 	}
