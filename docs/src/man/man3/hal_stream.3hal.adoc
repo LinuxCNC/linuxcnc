@@ -6,7 +6,8 @@ hal_stream - non-blocking realtime streams
 
 == SYNOPSIS
 
-....
+[source,c]
+----
 #include <hal.h>
 int hal_stream_create(hal_stream_t* stream, int comp_id, int key, int depth, const char* typestring);
 void hal_stream_destroy(hal_stream_t* stream);
@@ -30,7 +31,7 @@ bool hal_stream_writable(hal_stream_t* stream);
 void hal_stream_wait_writable(hal_stream_t* stream, sig_atomic_t* stop);
 void hal_stream_wait_readable(hal_stream_t* stream, sig_atomic_t* stop);
 #endif
-....
+----
 
 == DESCRIPTION
 
@@ -46,30 +47,26 @@ The non-realtime part can be *halstreamer* or *halsampler*.
 In the case of *halstreamer* the key is 0x48535430 plus the channel number.
 In the case of *halsampler* the key is 0x48534130 plus the channel number.
 
-=== *hal_stream_create*
+*hal_stream_create*::
+  Create the given stream, initializing the _stream_ which is passed by reference.
+  It is an undiagnosed error if a stream has already been created with the same _key_.
 
-Create the given stream, initializing the _stream_ which is passed by reference.
-It is an undiagnosed error if a stream has already been created with the same _key_.
+*hal_stream_destroy*::
+  Destroy the given stream. It is an undiagnosed error if the stream is
+  still attached by another component. It is an undiagnosed error if the
+  stream was attached with *hal_stream_attach* rather than created with
+  *hal_stream_create*. It is an undiagnosed error if the call to
+  *hal_stream_destroy* is omitted.
 
-=== *hal_stream_destroy*
+*hal_stream_attach*::
+  Attach the given stream, which was already created by *hal_stream_create*.
+  If the typestring is specified, this call fails if it does not match the typestring the stream was created with.
+  If the typestring argument is NULL, then any typestring is accepted.
 
-Destroy the given stream. It is an undiagnosed error if the stream is
-still attached by another component. It is an undiagnosed error if the
-stream was attached with *hal_stream_attach* rather than created with
-*hal_stream_create*. It is an undiagnosed error if the call to
-*hal_stream_destroy* is omitted.
-
-=== *hal_stream_attach*
-
-Attach the given stream, which was already created by *hal_stream_create*.
-If the typestring is specified, this call fails if it does not match the typestring the stream was created with.
-If the typestring argument is NULL, then any typestring is accepted.
-
-=== *hal_stream_detach*
-
-Detach the given stream. It is an undiagnosed error if the stream was
-created with *hal_stream_create* rather than attached with *hal_stream_attach*.
-It is an undiagnosed error if the call to *hal_stream_detach* is omitted.
+*hal_stream_detach*::
+  Detach the given stream. It is an undiagnosed error if the stream was
+  created with *hal_stream_create* rather than attached with *hal_stream_attach*.
+  It is an undiagnosed error if the call to *hal_stream_detach* is omitted.
 
 *hal_stream_element_count*:: Returns the number of pins.
 
