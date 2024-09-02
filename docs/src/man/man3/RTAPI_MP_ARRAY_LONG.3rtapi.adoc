@@ -1,0 +1,9 @@
+:manvolnum: 3
+
+= RTAPI_MP_ARRAY_LONG(3rtapi)
+
+== NAME
+
+RTAPI_MP_ARRAY_LONG - Specifying module parameters
+
+include::rtapi_module_param.3.body[]

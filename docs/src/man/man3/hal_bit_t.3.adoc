@@ -1,0 +1,9 @@
+:manvolnum: 3
+
+= hal_bit_t(3hal)
+
+== NAME
+
+hal_bit_t - typedefs for HAL datatypes
+
+include::hal_type_t.3.body[]

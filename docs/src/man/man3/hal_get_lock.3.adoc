@@ -1,14 +1,14 @@
 :manvolnum: 3
 
-= hal_set_lock(3hal)
+= hal_get_lock(3hal)
 
 == NAME
 
-hal_set_lock - Set the HAL lock level
+hal_get_lock - Get the HAL lock level
 
 == SYNTAX
 
-int hal_set_lock(unsigned char _lock_type_)
+int hal_get_lock()
 
 == ARGUMENTS
 
@@ -20,4 +20,4 @@ lock_type::
 
 == RETURN VALUE
 
-*hal_set_lock* Returns a HAL status code.
+*hal_get_lock* returns the current HAL lock level or a HAL status code.

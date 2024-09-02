@@ -1,0 +1,7 @@
+= MODULE_AUTOR(3rtapi)
+
+== NAME
+
+MODULE_AUTHOR - Specifying module parameters
+
+include::rtapi_module_param.3.body[]

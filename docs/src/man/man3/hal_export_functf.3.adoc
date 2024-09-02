@@ -1,0 +1,27 @@
+:manvolnum: 3
+
+= hal_export_functf(3hal)
+
+== NAME
+
+hal_export_functf - create a realtime function callable from a thread
+
+== SYNTAX
+
+int hal_export_funct(const char *name, void (*funct) (void *, long),
+    void *arg, int uses_fp, int reentrant, int comp_id);
+
+== DESCRIPTION
+
+*hal_export_functf* is similar to hal_export_funct except that it also does
+printf-style formatting to compute the function name.
+If successful, it returns 0.
+On failure it returns a negative error code.
+
+== RETURN VALUE
+
+Returns a HAL status code.
+
+== SEE ALSO
+
+hal_export_funct(3hal)

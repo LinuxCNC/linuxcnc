@@ -1,0 +1,7 @@
+= MODULE_DESCRIPTION(3rtapi)
+
+== NAME
+
+MODULE_DESCRIPTION - Specifying module parameters
+
+include::rtapi_module_param.3.adoc[]

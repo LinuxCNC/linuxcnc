@@ -1,0 +1,9 @@
+:manvolnum: 3
+
+= EXPORT_FUNCTION(3rtapi)
+
+== NAME
+
+EXPORT_FUNCTION - Specifying module parameters
+
+include::rtapi_module_param.3.body[]

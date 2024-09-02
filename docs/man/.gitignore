@@ -120,7 +120,7 @@ man1/xyzab-tdr-gui.1
 man1/xyzac-trt-gui.1
 man1/xyzbc-trt-gui.1
 
-man3/EXPORT_FUNCTION.3
+man3/EXPORT_FUNCTION.3rtapi
 man3/hal_add_funct_to_thread.3
 man3/hal_bit_t.3
 man3/hal_bool.3
@@ -134,6 +134,9 @@ man3/hal_get_lock.3
 man3/hal_init.3hal
 man3/hal_link.3
 man3/hal_malloc.3hal
+man3/MODULE_AUTHOR.3rtapi
+man3/MODULE_DESCRIPTION.3rtapi
+man3/MODULE_LICENSE.3rtapi
 man3/hal_param_alias.3hal
 man3/hal_param_bit_new.3
 man3/hal_param_bit_newf.3
@@ -211,12 +214,12 @@ man3/rtapi_io.3rtapi
 man3/rtapi_is.3rtapi
 man3/rtapi_list.3rtapi
 man3/rtapi_module_param.3
-man3/RTAPI_MP_ARRAY_INT.3
-man3/RTAPI_MP_ARRAY_LONG.3
-man3/RTAPI_MP_ARRAY_STRING.3
-man3/RTAPI_MP_INT.3
-man3/RTAPI_MP_LONG.3
-man3/RTAPI_MP_STRING.3
+man3/RTAPI_MP_ARRAY_INT.3rtapi
+man3/RTAPI_MP_ARRAY_LONG.3rtapi
+man3/RTAPI_MP_ARRAY_STRING.3rtapi
+man3/RTAPI_MP_INT.3rtapi
+man3/RTAPI_MP_LONG.3rtapi
+man3/RTAPI_MP_STRING.3rtapi
 man3/rtapi_mutex.3rtapi
 man3/rtapi_open_as_root.3rtapi
 man3/rtapi_outb.3

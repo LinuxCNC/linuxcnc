@@ -1,0 +1,9 @@
+:manvolnum: 3
+
+= RTAPI_MP_STRING(3rtapi)
+
+== NAME
+
+RTAPI_MP_STRING - Specifying module parameters
+
+include::rtapi_module_param.3.body[]

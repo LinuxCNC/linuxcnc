@@ -4,7 +4,7 @@
 
 == NAME
 
-hal_export_funct, hal_export_functf - create a realtime function callable from a thread
+hal_export_funct - create a realtime function callable from a thread
 
 == SYNTAX
 
