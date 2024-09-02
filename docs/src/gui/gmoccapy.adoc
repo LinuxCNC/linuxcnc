@@ -1293,7 +1293,7 @@ By default all scales are set using the calculation:
 
 Some users want to jog there machine using the keyboard buttons and there are others that will never allow this.
 So everybody can select whether to use them or not. +
-Keyboard shortcuts are disabled by default.
+Keyboard shortcuts are disabled by default. They can be activated in the <<gmoccapy:advanced-settings,Advanced Settings>>.
 
 [WARNING]
 It is not recommended to use keyboard jogging, as it represents a serious risk for operator and machine.
@@ -1374,12 +1374,12 @@ This settings will have influence on the jog velocities.
 [NOTE]
 This button can be controlled using the <<gmoccapy:jog-velocity,Turtle-Jog HAL Pin>>.
 
-[[gmoccapy:tool-measurement]]
+[[gmoccapy:advanced-settings]]
 === Advanced Settings
 
 image::images/gmoccapy_settings_advanced.png["Advanced settings",align="left"]
 
-
+[[gmoccapy:tool-measurement]]
 .Tool Measurement
 
 Please check <<gmoccapy:auto-tool-measurement,Auto Tool Measurement>>
