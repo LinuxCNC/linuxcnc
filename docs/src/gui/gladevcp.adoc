@@ -1919,7 +1919,7 @@ image::images/offsetpage.png[align="center"]
 === HAL_sourceview widget
 
 This is for displaying and simple editing of G-code.
-It looks for `.ngc` highlighting specs in `~/share/gtksourceview-2.0/language-specs/`.
+It looks for `.ngc` highlighting specs in `~/share/gtksourceview-4/language-specs/`.
 The current running line will be highlighted.
 
 With external Python glue code it can:

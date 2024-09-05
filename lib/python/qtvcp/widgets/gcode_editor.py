@@ -35,7 +35,7 @@ from PyQt5.QtCore import pyqtProperty, pyqtSignal, QSize
 from PyQt5.QtGui import QFont, QFontMetrics, QColor, QIcon
 from PyQt5.QtWidgets import QWidget, QAction,\
         QVBoxLayout, QToolBar, QLineEdit, QHBoxLayout, QMessageBox, \
-        QFrame, QLabel
+        QFrame, QLabel, QStyle
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Info, Action
@@ -828,19 +828,22 @@ class GcodeEditor(QWidget, _HalWidgetBase):
         ################################
 
         # Create new action
-        self.newAction = QAction(QIcon.fromTheme('document-new'), 'New', self)
+        icon = self.style().standardIcon( QStyle.SP_FileIcon)
+        self.newAction = QAction(icon, 'New', self)
         self.newAction.setShortcut('Ctrl+N')
         self.newAction.setStatusTip('New document')
         self.newAction.triggered.connect(self.newCall)
 
         # Create open action
-        self.openAction = QAction(QIcon.fromTheme('document-open'), '&Open', self)
+        icon = self.style().standardIcon( QStyle.SP_DirOpenIcon)
+        self.openAction = QAction(icon, '&Open', self)
         self.openAction.setShortcut('Ctrl+O')
         self.openAction.setStatusTip('Open document')
         self.openAction.triggered.connect(self.openCall)
 
         # Create save action
-        self.saveAction = QAction(QIcon.fromTheme('document-save'), '&Save', self)
+        icon = self.style().standardIcon( QStyle.SP_DialogSaveButton)
+        self.saveAction = QAction(icon, '&Save', self)
         self.saveAction.setShortcut('Ctrl+S')
         self.saveAction.setStatusTip('Save document')
         self.saveAction.triggered.connect(self.saveCall)

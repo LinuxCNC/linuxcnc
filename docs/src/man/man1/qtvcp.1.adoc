@@ -29,16 +29,13 @@ Full documentation at http://linuxcnc.org/docs/html/gui/qtvcp.html
 *-q*::
   Enable only error debug output.
 *-g* [_<GEOMETRY>_]::
-  Set geometry WIDTHxHEIGHT+XOFFSET+YOFFSET. Values are in pixel units,
-  XOFFSET/YOFFSET is referenced from top left of screen. Use -g
-  WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just
-  position.
-
-Example: -g 200x400+0+100.
-
+  Set geometry WIDTHxHEIGHT+XOFFSET+YOFFSET.
+  Values are in pixel units, XOFFSET/YOFFSET is referenced from top left of screen.
+  Use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just position.
+  +
+  Example: `-g 200x400+0+100`
 *-H* [_<FILE>_]::
-  Execute HAL statements from FILE with halcmd after the component is
-  set up and ready.
+  Execute HAL statements from _FILE_ with halcmd after the component is set up and ready.
 *-i*::
   Enable info output.
 *-m*::
@@ -48,16 +45,13 @@ Example: -g 200x400+0+100.
 *-t* [_<THEME>_]::
   Set Qt style. Default is system theme.
 *-x* [_<XID>_]::
-  Reparent QtVCP into an existing window XID instead of creating a new
-  top level window.
+  Reparent QtVCP into an existing window XID instead of creating a new top level window.
 *--push_xid*::
-  Reparent window into a plug add push the plug xid number to
-  standardout.
+  Reparent window into a plug add push the plug xid number to standardout.
 *-u* [_<USERMOD>_]::
   File path of user defined handler file.
 *-o* [_<USEROPTS>_]::
-  Pass USEROPTS strings to handler under self.w.USEROPTIONS_ list
-  variable.
+  Pass _USEROPTS_ strings to handler under self.w.USEROPTIONS_ list variable.
 
 == SEE ALSO
 

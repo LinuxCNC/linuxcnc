@@ -77,7 +77,7 @@ setup_menu_accel .menu.file end [_ "_Save G-code as..."]
 
 .menu.file add command \
         -command gcode_properties
-setup_menu_accel .menu.file end [_ "_G-code _properties..."]
+setup_menu_accel .menu.file end [_ "G-code _properties..."]
 
 .menu.file add separator
 

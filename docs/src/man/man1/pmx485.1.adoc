@@ -6,7 +6,7 @@ pmx485 - Modbus communications with a Powermax Plasma Cutter.
 
 == SYNOPSIS
 
-*loadusr -Wn pmx485 pmx485 /dev/ttyUSB0* +
+*loadusr* -Wn pmx485 pmx485 /dev/ttyUSB0
 
 == DESCRIPTION
 
@@ -20,7 +20,7 @@ information on pmx485.
 
 == AUTHOR
 
-Phillip Carter
+Phillip Carter & Gregory D Carl
 
 == LICENSE
 

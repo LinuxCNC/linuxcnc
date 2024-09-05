@@ -1,4 +1,4 @@
-VERSION = '008.046'
+VERSION = '008.049'
 LCNCVER = '2.10'
 DOCSVER = LCNCVER
 
@@ -387,7 +387,6 @@ class HandlerClass:
         self.set_mode()
         self.user_button_setup()
         self.set_buttons_state([self.alwaysOnList], True)
-        self.get_main_tab_widgets()
         self.load_material_file()
         self.offset_peripherals()
         self.set_probe_offset_pins()
@@ -800,9 +799,6 @@ class HandlerClass:
 #########################################################################################################################
 
     def make_hal_pins(self):
-        self.colorFgPin = self.h.newpin('color_fg', hal.HAL_S32, hal.HAL_OUT)
-        self.colorBgPin = self.h.newpin('color_bg', hal.HAL_S32, hal.HAL_OUT)
-        self.colorBgAltPin = self.h.newpin('color_bgalt', hal.HAL_S32, hal.HAL_OUT)
         self.consChangePin = self.h.newpin('consumable_changing', hal.HAL_BIT, hal.HAL_IN)
         self.convBlockLoaded = self.h.newpin('conv_block_loaded', hal.HAL_BIT, hal.HAL_IN)
         self.convTabDisable = self.h.newpin('conv_disable', hal.HAL_BIT, hal.HAL_IN)
@@ -1638,7 +1634,8 @@ class HandlerClass:
             if not self.cameraOn:
                 self.preview_index_return(self.w.preview_stack.currentIndex())
             self.w.file_open.setText(os.path.basename(filename))
-            self.fileOpened = True
+            if not self.single_cut_request:
+                self.fileOpened = True
             text = _translate('HandlerClass', 'EDIT')
             self.w.edit_label.setText(f'{text}: {filename}')
             if self.w.gcode_stack.currentIndex() != self.GCODE:
@@ -1686,11 +1683,8 @@ class HandlerClass:
             self.w.gcode_display.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         if self.w.main_tab_widget.currentIndex() != self.MAIN:
             self.w.main_tab_widget.setCurrentIndex(self.MAIN)
-        # forces the view to remain "table view" if T is checked when a file is loaded
-        if self.fileOpened:
-            if self.w.view_t.isChecked():
-                self.view_t_pressed(self.w.gcodegraphics)
-        else:
+        # forces the view to remain "table view" if T is checked when a file is loaded, or change to table view upon clicking CLEAR
+        if self.w.view_t.isChecked() or 'qtplasmac_program_clear.ngc' in filename:
             self.view_t_pressed(self.w.gcodegraphics)
         if 'single_cut.ngc' not in filename:
             self.preSingleCutMaterial = None
@@ -2683,32 +2677,6 @@ class HandlerClass:
         self.halPulsePins = {}
         self.dualCodeButtons = {}
 
-    def get_main_tab_widgets(self):
-        # 1 of 2 this is a work around for pyqt5.11 not having setTabVisible(index, bool) that is present in pyqt5.15
-        self.widgetMain = self.w.main_tab_widget.findChild(QWidget, 'main_tab')
-        self.widgetConversational = self.w.main_tab_widget.findChild(QWidget, 'conv_tab')
-        self.widgetParameters = self.w.main_tab_widget.findChild(QWidget, 'param_tab')
-        self.widgetSettings = self.w.main_tab_widget.findChild(QWidget, 'settings_tab')
-        self.widgetStatistics = self.w.main_tab_widget.findChild(QWidget, 'stats_tab')
-
-    def disable_tabs(self):
-        # remove all tabs, then add them back based on their pin state (this keeps them in order)
-        # 2 of 2 this is a work around for pyqt5.11 not having setTabVisible(index, bool) that is present in pyqt5.15
-        while self.w.main_tab_widget.count() > 1:
-            self.w.main_tab_widget.removeTab(1)
-        if not self.convTabDisable.get():
-            self.w.main_tab_widget.insertTab(1, self.widgetConversational, 'CONVERSATIONAL')
-        if not self.paramTabDisable.get():
-            self.w.main_tab_widget.insertTab(2, self.widgetParameters, 'PARAMETERS')
-        if not self.settingsTabDisable.get():
-            self.w.main_tab_widget.insertTab(3, self.widgetSettings, 'SETTINGS')
-        self.w.main_tab_widget.insertTab(4, self.widgetStatistics, 'STATISTICS')
-        # reorder the indexes to account for any missing tabs, any missing will be -1 (which doesn't matter)
-        self.CONVERSATIONAL = self.w.main_tab_widget.indexOf(self.widgetConversational)
-        self.PARAMETERS = self.w.main_tab_widget.indexOf(self.widgetParameters)
-        self.SETTINGS = self.w.main_tab_widget.indexOf(self.widgetSettings)
-        self.STATISTICS = self.w.main_tab_widget.indexOf(self.widgetStatistics)
-
     def preview_index_return(self, index):
         if self.w.gcode_editor.editor.isModified():
             self.new_exitCall(index)
@@ -3119,9 +3087,9 @@ class HandlerClass:
         self.w.feed_label.pressed.connect(self.feed_label_pressed)
         self.w.rapid_label.pressed.connect(self.rapid_label_pressed)
         self.w.jogs_label.pressed.connect(self.jogs_label_pressed)
-        self.paramTabDisable.value_changed.connect(self.disable_tabs)
-        self.settingsTabDisable.value_changed.connect(self.disable_tabs)
-        self.convTabDisable.value_changed.connect(self.disable_tabs)
+        self.paramTabDisable.value_changed.connect(lambda v: self.w.main_tab_widget.setTabVisible(self.PARAMETERS, not v))
+        self.settingsTabDisable.value_changed.connect(lambda v: self.w.main_tab_widget.setTabVisible(self.SETTINGS, not v))
+        self.convTabDisable.value_changed.connect(lambda v: self.w.main_tab_widget.setTabVisible(self.CONVERSATIONAL, not v))
         self.w.cut_time_reset.pressed.connect(lambda: self.statistic_reset('cut_time', 'Cut time'))
         self.w.probe_time_reset.pressed.connect(lambda: self.statistic_reset('probe_time', 'Probe time'))
         self.w.paused_time_reset.pressed.connect(lambda: self.statistic_reset('paused_time', 'Paused time'))
@@ -6076,40 +6044,32 @@ class HandlerClass:
         self.w.gcode_editor.editor.setCaretLineBackgroundColor(QColor(self.backColor))
 
     def standard_stylesheet(self):
-        # create stylesheet .qss file from template
-        styleTemplateFile = os.path.join(self.PATHS.SCREENDIR, self.PATHS.BASEPATH, 'qtplasmac.style')
-        with open(styleTemplateFile, 'r') as inFile:
-            with open(self.styleSheetFile, 'w') as outFile:
-                for line in inFile:
-                    if 'foregnd' in line:
-                        outFile.write(line.replace('foregnd', self.w.color_foregrnd.styleSheet().split(':')[1].strip()))
-                        self.colorFgPin.set(int(self.w.color_foregrnd.styleSheet().split(':')[1].strip().lstrip('#'), 16))
-                    elif 'highlight' in line:
-                        outFile.write(line.replace('highlight', self.w.color_foregalt.styleSheet().split(':')[1].strip()))
-                    elif 'l-e-d' in line:
-                        outFile.write(line.replace('l-e-d', self.w.color_led.styleSheet().split(':')[1].strip()))
-                    elif 'backgnd' in line:
-                        outFile.write(line.replace('backgnd', self.w.color_backgrnd.styleSheet().split(':')[1].strip()))
-                        self.colorBgPin.set(int(self.w.color_backgrnd.styleSheet().split(':')[1].strip().lstrip('#'), 16))
-                    elif 'backalt' in line:
-                        outFile.write(line.replace('backalt', self.w.color_backgalt.styleSheet().split(':')[1].strip()))
-                        self.colorBgAltPin.set(int(self.w.color_backgalt.styleSheet().split(':')[1].strip().lstrip('#'), 16))
-                    elif 'frames' in line:
-                        outFile.write(line.replace('frames', self.w.color_frams.styleSheet().split(':')[1].strip()))
-                    elif 'e-stop' in line:
-                        outFile.write(line.replace('e-stop', self.w.color_estop.styleSheet().split(':')[1].strip()))
-                    elif 'inactive' in line:
-                        outFile.write(line.replace('inactive', self.w.color_disabled.styleSheet().split(':')[1].strip()))
-                    elif 'prevu' in line:
-                        outFile.write(line.replace('prevu', self.w.color_preview.styleSheet().split(':')[1].strip()))
-                    else:
-                        outFile.write(line)
-
-        # append custom style if found
-        if os.path.isfile(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac_custom.qss')):
-            with open(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac_custom.qss'), 'r') as inFile:
-                with open(self.styleSheetFile, 'a') as outFile:
-                    outFile.write(inFile.read())
+        baseStyleFile = os.path.join(self.PATHS.SCREENDIR, self.PATHS.BASEPATH, 'qtplasmac.style')
+        customStyleFile = os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac_custom.qss')
+        # Read in the base stylesheet file
+        with open(baseStyleFile, 'r') as inFile:
+            lines = inFile.readlines()
+        # Append the base file with changes if custom stylesheet is found
+        if os.path.isfile(customStyleFile):
+            with open(customStyleFile, 'r') as inFile:
+                lines += inFile.readlines()
+        elementColorMap = {
+            'backalt': self.w.color_backgalt.styleSheet().split(':')[1].strip(),
+            'backgnd': self.w.color_backgrnd.styleSheet().split(':')[1].strip(),
+            'e-stop': self.w.color_estop.styleSheet().split(':')[1].strip(),
+            'foregnd': self.w.color_foregrnd.styleSheet().split(':')[1].strip(),
+            'frames': self.w.color_frams.styleSheet().split(':')[1].strip(),
+            'highlight': self.w.color_foregalt.styleSheet().split(':')[1].strip(),
+            'inactive': self.w.color_disabled.styleSheet().split(':')[1].strip(),
+            'l-e-d': self.w.color_led.styleSheet().split(':')[1].strip(),
+            'prevu': self.w.color_preview.styleSheet().split(':')[1].strip()
+            }
+        with open(self.styleSheetFile, 'w') as outFile:
+            for line in lines:
+                for element, color in elementColorMap.items():
+                    if element in line:
+                        line = line.replace(element, color)
+                outFile.write(line)
 
     def custom_stylesheet(self):
         head = _translate('HandlerClass', 'Stylesheet Error')
@@ -6121,18 +6081,15 @@ class HandlerClass:
                     if line.startswith('color1'):
                         colors[0] += 1
                         self.foreColor = QColor(line.split('=')[1].strip()).name()
-                        self.colorFgPin.set(int(QColor(line.split('=')[1].strip()).name().lstrip('#'), 16))
                     elif line.startswith('color2'):
                         colors[1] += 1
                         self.backColor = QColor(line.split('=')[1].strip()).name()
-                        self.colorBgPin.set(int(QColor(line.split('=')[1].strip()).name().lstrip('#'), 16))
                     elif line.startswith('color3'):
                         colors[2] += 1
                         self.fore1Color = QColor(line.split('=')[1].strip()).name()
                     elif line.startswith('color4'):
                         colors[3] += 1
                         self.back1Color = QColor(line.split('=')[1].strip()).name()
-                        self.colorBgAltPin.set(int(QColor(line.split('=')[1].strip()).name().lstrip('#'), 16))
                     elif line.startswith('color5'):
                         colors[4] += 1
                         self.disabledColor = QColor(line.split('=')[1].strip()).name()

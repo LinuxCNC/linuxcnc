@@ -72,9 +72,7 @@ usr/bin/pyngcgui
 usr/bin/pyui
 usr/bin/pyvcp
 usr/bin/pyvcp_demo
-usr/bin/qtplasmac-cfg2prefs
 usr/bin/qtplasmac-materials
-usr/bin/qtplasmac-plasmac2qt
 usr/bin/qtplasmac_gcode
 usr/bin/qtvcp
 usr/bin/rotarydelta
@@ -117,7 +115,7 @@ usr/share/axis
 usr/share/glade
 usr/share/gmoccapy
 usr/share/gscreen
-usr/share/gtksourceview-2.0
+usr/share/gtksourceview-4
 
 usr/share/applications/linuxcnc.desktop
 usr/share/applications/linuxcnc-latency.desktop

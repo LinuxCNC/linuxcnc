@@ -74,11 +74,8 @@ usr/share/man/man1/pyngcgui.1
 usr/share/man/man1/pyui.1
 usr/share/man/man1/pyvcp.1
 usr/share/man/man1/pyvcp_demo.1
-usr/share/man/man1/qtplasmac-cfg2prefs.1
 usr/share/man/man1/qtplasmac_gcode.1
 usr/share/man/man1/qtplasmac-materials.1
-usr/share/man/man1/qtplasmac-plasmac2qt.1
-usr/share/man/man1/qtplasmac-setup.1
 usr/share/man/man1/qtvcp.1
 usr/share/man/man1/rotarydelta.1
 usr/share/man/man1/rs274.1

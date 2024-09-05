@@ -2,16 +2,14 @@
 
 == NAME
 
-qtplasmac_gcode - A python script that is part of Plasmac, a Plasma
-cutting system.
+qtplasmac_gcode - Python script shipping with Plasmac, a Plasma cutting system.
 
 == DESCRIPTION
 
-*qtplasmac_gcode* is used by qtplasmac and is not intended to be used
-standalone.
+*qtplasmac_gcode* is used by qtplasmac and is not intended to be used standalone.
 
 See the QtPlasmaC section of the LinuxCNC Documentation for more
-information. http://linuxcnc.org/docs/2.9/html/plasma/qtplasmac.html
+information. http://linuxcnc.org/docs/devel/html/plasma/qtplasmac.html
 
 == SEE ALSO
 

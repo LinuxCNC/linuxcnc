@@ -426,7 +426,7 @@ class gmoccapy(object):
         # check the highlighting type
         # the following would load the python language
         # self.widgets.gcode_view.set_language("python")
-        LANGDIR = os.path.join(BASE, "share", "Gtksourceview-2.0", "language-specs")
+        LANGDIR = os.path.join(BASE, "share", "Gtksourceview-4", "language-specs")
         file_path = os.path.join(LANGDIR, "gcode.lang")
         if os.path.isfile(file_path):
             LOG.info("Gcode.lang found")
@@ -2742,7 +2742,7 @@ class gmoccapy(object):
         self.last_key_event = None, 0
 
     def on_hal_status_mode_mdi(self, widget):
-        LOG.debug("MDI Mode {0}".format(self.tool_change))
+        LOG.debug("MDI Mode, tool_change = {0}".format(self.tool_change))
 
         # if the edit offsets button is active, we do not want to change
         # pages, as the user may want to edit several axis values

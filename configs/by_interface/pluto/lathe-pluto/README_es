@@ -1,2 +1,0 @@
-Esta configuración es para un torno de tamaño hobby (Sherline) operado por servo, basado en el servodriver Pluto. El hardware es una placa FPGA Pluto ($ 60) que cuenta los codificadores y genera PWM ascendente/descendente a alta frecuencia para impulsar puentes H para los servos del torno. En esta máquina prototipo, ambos servos se accionan con un puente H doble L298 (que generalmente se usa para paso a paso). Este es un ejemplo de uso de servo (muy) económico en una máquina de hobby y ofrece un rendimiento muy bueno.
- 
