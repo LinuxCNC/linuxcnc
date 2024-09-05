@@ -1,4 +1,4 @@
-VERSION = '008.048'
+VERSION = '008.049'
 LCNCVER = '2.10'
 DOCSVER = LCNCVER
 
@@ -799,9 +799,6 @@ class HandlerClass:
 #########################################################################################################################
 
     def make_hal_pins(self):
-        self.colorFgPin = self.h.newpin('color_fg', hal.HAL_S32, hal.HAL_OUT)
-        self.colorBgPin = self.h.newpin('color_bg', hal.HAL_S32, hal.HAL_OUT)
-        self.colorBgAltPin = self.h.newpin('color_bgalt', hal.HAL_S32, hal.HAL_OUT)
         self.consChangePin = self.h.newpin('consumable_changing', hal.HAL_BIT, hal.HAL_IN)
         self.convBlockLoaded = self.h.newpin('conv_block_loaded', hal.HAL_BIT, hal.HAL_IN)
         self.convTabDisable = self.h.newpin('conv_disable', hal.HAL_BIT, hal.HAL_IN)
@@ -6047,40 +6044,32 @@ class HandlerClass:
         self.w.gcode_editor.editor.setCaretLineBackgroundColor(QColor(self.backColor))
 
     def standard_stylesheet(self):
-        # create stylesheet .qss file from template
-        styleTemplateFile = os.path.join(self.PATHS.SCREENDIR, self.PATHS.BASEPATH, 'qtplasmac.style')
-        with open(styleTemplateFile, 'r') as inFile:
-            with open(self.styleSheetFile, 'w') as outFile:
-                for line in inFile:
-                    if 'foregnd' in line:
-                        outFile.write(line.replace('foregnd', self.w.color_foregrnd.styleSheet().split(':')[1].strip()))
-                        self.colorFgPin.set(int(self.w.color_foregrnd.styleSheet().split(':')[1].strip().lstrip('#'), 16))
-                    elif 'highlight' in line:
-                        outFile.write(line.replace('highlight', self.w.color_foregalt.styleSheet().split(':')[1].strip()))
-                    elif 'l-e-d' in line:
-                        outFile.write(line.replace('l-e-d', self.w.color_led.styleSheet().split(':')[1].strip()))
-                    elif 'backgnd' in line:
-                        outFile.write(line.replace('backgnd', self.w.color_backgrnd.styleSheet().split(':')[1].strip()))
-                        self.colorBgPin.set(int(self.w.color_backgrnd.styleSheet().split(':')[1].strip().lstrip('#'), 16))
-                    elif 'backalt' in line:
-                        outFile.write(line.replace('backalt', self.w.color_backgalt.styleSheet().split(':')[1].strip()))
-                        self.colorBgAltPin.set(int(self.w.color_backgalt.styleSheet().split(':')[1].strip().lstrip('#'), 16))
-                    elif 'frames' in line:
-                        outFile.write(line.replace('frames', self.w.color_frams.styleSheet().split(':')[1].strip()))
-                    elif 'e-stop' in line:
-                        outFile.write(line.replace('e-stop', self.w.color_estop.styleSheet().split(':')[1].strip()))
-                    elif 'inactive' in line:
-                        outFile.write(line.replace('inactive', self.w.color_disabled.styleSheet().split(':')[1].strip()))
-                    elif 'prevu' in line:
-                        outFile.write(line.replace('prevu', self.w.color_preview.styleSheet().split(':')[1].strip()))
-                    else:
-                        outFile.write(line)
-
-        # append custom style if found
-        if os.path.isfile(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac_custom.qss')):
-            with open(os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac_custom.qss'), 'r') as inFile:
-                with open(self.styleSheetFile, 'a') as outFile:
-                    outFile.write(inFile.read())
+        baseStyleFile = os.path.join(self.PATHS.SCREENDIR, self.PATHS.BASEPATH, 'qtplasmac.style')
+        customStyleFile = os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac_custom.qss')
+        # Read in the base stylesheet file
+        with open(baseStyleFile, 'r') as inFile:
+            lines = inFile.readlines()
+        # Append the base file with changes if custom stylesheet is found
+        if os.path.isfile(customStyleFile):
+            with open(customStyleFile, 'r') as inFile:
+                lines += inFile.readlines()
+        elementColorMap = {
+            'backalt': self.w.color_backgalt.styleSheet().split(':')[1].strip(),
+            'backgnd': self.w.color_backgrnd.styleSheet().split(':')[1].strip(),
+            'e-stop': self.w.color_estop.styleSheet().split(':')[1].strip(),
+            'foregnd': self.w.color_foregrnd.styleSheet().split(':')[1].strip(),
+            'frames': self.w.color_frams.styleSheet().split(':')[1].strip(),
+            'highlight': self.w.color_foregalt.styleSheet().split(':')[1].strip(),
+            'inactive': self.w.color_disabled.styleSheet().split(':')[1].strip(),
+            'l-e-d': self.w.color_led.styleSheet().split(':')[1].strip(),
+            'prevu': self.w.color_preview.styleSheet().split(':')[1].strip()
+            }
+        with open(self.styleSheetFile, 'w') as outFile:
+            for line in lines:
+                for element, color in elementColorMap.items():
+                    if element in line:
+                        line = line.replace(element, color)
+                outFile.write(line)
 
     def custom_stylesheet(self):
         head = _translate('HandlerClass', 'Stylesheet Error')
@@ -6092,18 +6081,15 @@ class HandlerClass:
                     if line.startswith('color1'):
                         colors[0] += 1
                         self.foreColor = QColor(line.split('=')[1].strip()).name()
-                        self.colorFgPin.set(int(QColor(line.split('=')[1].strip()).name().lstrip('#'), 16))
                     elif line.startswith('color2'):
                         colors[1] += 1
                         self.backColor = QColor(line.split('=')[1].strip()).name()
-                        self.colorBgPin.set(int(QColor(line.split('=')[1].strip()).name().lstrip('#'), 16))
                     elif line.startswith('color3'):
                         colors[2] += 1
                         self.fore1Color = QColor(line.split('=')[1].strip()).name()
                     elif line.startswith('color4'):
                         colors[3] += 1
                         self.back1Color = QColor(line.split('=')[1].strip()).name()
-                        self.colorBgAltPin.set(int(QColor(line.split('=')[1].strip()).name().lstrip('#'), 16))
                     elif line.startswith('color5'):
                         colors[4] += 1
                         self.disabledColor = QColor(line.split('=')[1].strip()).name()

@@ -2,15 +2,13 @@
 
 == NAME
 
-tool_mmap_read - A component of the tool database system (an alternative
-to the classic tooltable)
+tool_mmap_read - A component of the tool database system (an alternative to the classic tooltable)
 
 == DESCRIPTION
 
 *tool_mmap_read* is not intended to be invoked by the user.
 
-See the Tool Database Interface section of the LinuxCNC Documentation
-for more information.
+See the Tool Database Interface section of the LinuxCNC Documentation for more information.
 http://linuxcnc.org/docs/stable/html/tooldatabase/tooldatabase.html
 
 == SEE ALSO

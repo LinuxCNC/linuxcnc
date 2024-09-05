@@ -6,8 +6,7 @@ scaragui - Vismach Virtual Machine GUI
 
 == DESCRIPTION
 
-*scaragui* is one of the sample *Vismach* GUIs for LinuxCNC, simulating
-a SCARA style robot arm.
+*scaragui* is one of the sample *Vismach* GUIs for LinuxCNC, simulating a SCARA style robot arm.
 
 See the main LinuxCNC documentation for more details.
 

@@ -355,7 +355,7 @@ _jog joint_number_ | _axis_letter_ _<speed>_::
   With set, runs the opened program. If no StartLine is specified, runs
   from the beginning. If a StartLine is specified, start line, runs from
   that line. A start line of -1 runs in verify mode.
-  
+
 *pause*::
   With set, pause program execution.
 
