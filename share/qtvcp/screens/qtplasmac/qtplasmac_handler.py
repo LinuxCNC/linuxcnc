@@ -1,4 +1,4 @@
-VERSION = '008.049'
+VERSION = '008.050'
 LCNCVER = '2.10'
 DOCSVER = LCNCVER
 
@@ -352,7 +352,7 @@ class HandlerClass:
             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{msg0} {LCNCVER}\n\n{msg1} {linuxcnc.version.split(".")[:2]}\n\n{msg2}')
             quit()
         # if USER_M_PATH is not valid try to find a valid USER_M_PATH in the possible default locations
-        if self.mPath != 'valid':
+        if self.mPath != 'valid' and not self.updateIni:
             msg0 = _translate('HandlerClass', 'cannot be found in the path')
             msg1 = _translate('HandlerClass', 'Please edit [RS274NGC]USER_M_PATH in the .ini file')
             msg2 = _translate('HandlerClass', 'QtPlasmac is closing')
@@ -363,7 +363,8 @@ class HandlerClass:
                     break
             if not mPath:
                 msg3 = _translate('HandlerClass', 'does not exist in the default locations')
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'M190 {msg0}:\n{":".join(self.mPath)}\n\n{msg1}\n\nM190 {msg3}:\n{mPath}\n\n{msg2}')
+            msg = f'M190 {msg0}:\n{":".join(self.mPath)}\n\n{msg1}\n\nM190 {msg3}:\n{mPath[:-5]}\n\n{msg2}'
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, msg)
             quit()
         ucFile = os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac_custom.py')
         if os.path.isfile(ucFile):
@@ -474,7 +475,7 @@ class HandlerClass:
             STATUS.emit('error', msgType, msgText)
             if restart:
                 STATUS.emit('error', linuxcnc.OPERATOR_TEXT, 'Due to configuration changes a restart is required')
-
+                quit()
         if not os.path.isfile(updateLog):
             with open(updateLog, 'w') as f:
                 f.write(f'{time.strftime("%y-%m-%d")} Initial    V{LCNCVER}-{VERSION}\n')
@@ -2587,7 +2588,7 @@ class HandlerClass:
                         return
         # set user_m_path to include the nc_files directory (pre V2.10-001.017 2024/01/23)
         mPathIni = self.iniFile.find('RS274NGC', 'USER_M_PATH')
-        if 'nc_files' not in mPathIni:
+        if 'nc_files/plasmac/m_files' not in mPathIni:
             if '/usr' in self.PATHS.BASEDIR:
                 mPath = '/usr/share/doc/linuxcnc/examples/nc_files/plasmac/m_files'
                 # simPath = os.path.join(self.PATHS.BASEDIR, 'share/doc/linuxcnc/examples/sample-configs/sim/qtplasmac')
