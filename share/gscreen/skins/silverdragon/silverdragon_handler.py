@@ -90,7 +90,7 @@ class HandlerClass:
             self.height = 0
             self.file_to_load = ""
             gobject.timeout_add(1000, self.clock)
-            #self.default_theme = gtk.settings_get_default().get_property("gtk-theme-name")
+            self.default_theme = gtk.Settings.get_default().get_property("gtk-theme-name")
             self.label_home_x = self.widgets.btn_home_x.get_children()[0]
             self.label_home_y = self.widgets.btn_home_y.get_children()[0]
             self.label_home_z = self.widgets.btn_home_z.get_children()[0]
