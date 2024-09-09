@@ -1,0 +1,73 @@
+= hal_bb_gpio(9)
+
+== NAME
+
+hal_bb_gpio - Driver for beaglebone GPIO pins
+
+== SYNOPSIS
+
+*loadrt hal_bb_gpio _user_leds=#,..._ _input_pins=#,...__output_pins=#,..._*
+
+== USER LEDS
+
+The _user_leds_ loadrt parameter controls which LEDs are available to HAL.
+Valid range: 0..3. These LEDs are next to the ethernet jack and the
+LinuxCNC numbers match the silkscreen on beaglbone black.
+Empirically, these seem to be OR'd with whatever function is assigned to the LED in Linux.
+
+=== PINS
+
+**bb_gpio.userled**_N_ bit in +
+**bb_gpio.userled**_N_**-invert** bit in::
+  The associated LED is lit if *userled*_N_ xor *userled*_N_-invert is TRUE.
+
+== INPUT PINS
+
+The _input_pins_ loadrt parameter controls which physical I/O pins are
+available to HAL as input pins. The numbering is "800+N" for pin N on
+connector P8, and "900+N" for pin N on connector P9. For example, "803"
+means connector P8 pin 3, which is also described in BeagleBone
+documentation as "gpmc_ad6".
+
+Specifying pins that are otherwise in use by the system may have
+undesirable side effects, such as crashing rtapi_app or the whole
+system.
+
+=== PINS
+
+**bb_gpio.p**_N_**.in-**_NN_ bit out +
+**bb_gpio.p**_N_**.in-**_NN_**-invert** bit in::
+  **in-**_NN_ is a snapshot of the value of the corresponding physical pin
+  XOR the value of the corresponding **in-**_NN_**-invert** pin.
+
+== OUTPUT PINS
+
+The _input_pins_ loadrt parameter controls which physical I/O pins are
+available to HAL as input pins. The numbering is "800+N" for pin N on
+connector P8, and "900+N" for pin N on connector P9.
+
+Specifying pins that are otherwise in use by the system may have
+undesirable side effects, such as crashing rtapi_app or the whole
+system.
+
+=== PINS
+
+**bb_gpio.p**_N_**.out-**_NN_ bit out +
+**bb_gpio.p**_N_**.out-**_NN_**-invert** bit in::
+  The corresponding physical pin is driven with the result of **in-**_NN_
+  xor **in-**_NN_**-invert**.
+
+== PARAMETERS
+
+None
+
+== FUNCTIONS
+
+**bb_gpio.read**::
+  Update HAL pins from physical pins.
+**bb_gpio.write**::
+  Update physical pins from HAL pins.
+
+== LICENSE
+
+GPL

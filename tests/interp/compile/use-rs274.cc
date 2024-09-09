@@ -31,6 +31,7 @@ int main() {
     read_execute(b, "(this is a comment)");
     read_execute(b, "G0X0Y0");
     read_execute(b, "F100");
+    read_execute(b, "G17"); // (Plane XY)
     read_execute(b, "G5.2 X3.53   Y-1.50   P2");
     read_execute(b, "     X5.33   Y-11.01  P1");
     read_execute(b, "     X3.52   Y-24.00  P1");
@@ -47,7 +48,6 @@ int main() {
 int _task = 0;
 char _parameter_file_name[LINELEN];
 
-extern "C" PyObject* PyInit_emctask(void);
 extern "C" PyObject* PyInit_interpreter(void);
 extern "C" PyObject* PyInit_emccanon(void);
 extern "C" struct _inittab builtin_modules[];
@@ -88,6 +88,7 @@ void START_CUTTER_RADIUS_COMPENSATION(int direction) {}
 void STOP_CUTTER_RADIUS_COMPENSATION() {}
 void START_SPEED_FEED_SYNCH(int spindle, double feed_per_revolution, bool velocity_mode) {}
 void STOP_SPEED_FEED_SYNCH() {}
+
 void ARC_FEED(int lineno,
                      double first_end, double second_end,
 		     double first_axis, double second_axis, int rotation,
@@ -100,23 +101,28 @@ void STRAIGHT_FEED(int lineno,
                           double u, double v, double w) {
     printf("-> %.1f %.1f\n", x, y);
 }
-void NURBS_FEED(int lineno, std::vector<CONTROL_POINT> nurbs_control_points, unsigned int k) {
+
+void NURBS_G5_FEED(int lineno, std::vector<NURBS_CONTROL_POINT> nurbs_control_points, unsigned int k, CANON_PLANE plane) {
     double u = 0.0;
     unsigned int n = nurbs_control_points.size() - 1;
     double umax = n - k + 2;
     unsigned int div = nurbs_control_points.size()*3;
-    std::vector<unsigned int> knot_vector = knot_vector_creator(n, k);
-    PLANE_POINT P1;
+    std::vector<unsigned int> knot_vector = nurbs_G5_knot_vector_creator(n, k);
+    NURBS_PLANE_POINT P1;
     while (u+umax/div < umax) {
-        PLANE_POINT P1 = nurbs_point(u+umax/div,k,nurbs_control_points,knot_vector);
-        STRAIGHT_FEED(lineno, P1.X,P1.Y, 0., 0.,0.,0.,  0.,0.,0.);
+        NURBS_PLANE_POINT P1 = nurbs_G5_point(u+umax/div,k,nurbs_control_points,knot_vector);
+        STRAIGHT_FEED(lineno, P1.NURBS_X,P1.NURBS_Y, 0., 0.,0.,0.,  0.,0.,0.);
         u = u + umax/div;
     }
-    P1.X = nurbs_control_points[n].X;
-    P1.Y = nurbs_control_points[n].Y;
-    STRAIGHT_FEED(lineno, P1.X,P1.Y, 0., 0.,0.,0.,  0.,0.,0.);
+    P1.NURBS_X = nurbs_control_points[n].NURBS_X;
+    P1.NURBS_Y = nurbs_control_points[n].NURBS_Y;
+    STRAIGHT_FEED(lineno, P1.NURBS_X,P1.NURBS_Y, 0., 0.,0.,0.,  0.,0.,0.);
     knot_vector.clear();
 }
+
+void NURBS_G6_FEED(int lineno, std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points, unsigned int k, double feedrate, int L_option, CANON_PLANE plane) { // (L_option: NICU, NICL, NICC see publication from Lo Valvo and Drago) 
+	}
+
 void RIGID_TAP(int lineno,
                       double x, double y, double z, double scale) {}
 void STRAIGHT_PROBE(int lineno,
@@ -140,11 +146,10 @@ void USE_NO_SPINDLE_FORCE() {}
 void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, EmcPose offset, double diameter,
                                  double frontangle, double backangle, int orientation) {}
 void USE_TOOL_LENGTH_OFFSET(EmcPose offset) {}
-void CHANGE_TOOL(int slot) {}	
+void CHANGE_TOOL() {}	
 void SELECT_TOOL(int tool) {}	
 void CHANGE_TOOL_NUMBER(int number) {}
 void RELOAD_TOOLDATA() {}
-void START_CHANGE(void) {}
 void CLAMP_AXIS(CANON_AXIS axis) {}
 void COMMENT(const char *s) { puts(s); }
 void DISABLE_ADAPTIVE_FEED() {}
@@ -205,7 +210,7 @@ double GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE() { return 0.0; }
 void GET_EXTERNAL_PARAMETER_FILE_NAME(char *filename, int max_size) {
     snprintf(filename, max_size, "%s", "rs274ngc.var");
 }
-CANON_PLANE GET_EXTERNAL_PLANE() { return CANON_PLANE_XY; }
+CANON_PLANE GET_EXTERNAL_PLANE() { return CANON_PLANE::XY; }
 double GET_EXTERNAL_POSITION_A() { return 0.0; }
 double GET_EXTERNAL_POSITION_B() { return 0.0; }
 double GET_EXTERNAL_POSITION_C() { return 0.0; }
@@ -254,8 +259,6 @@ int GET_EXTERNAL_AXIS_MASK() { return 7; }
 void FINISH(void) {}
 void ON_RESET(void) {}
 void CANON_ERROR(const char *fmt, ...) {}
-void PLUGIN_CALL(int len, const char *call) {}
-void IO_PLUGIN_CALL(int len, const char *call) {}
 void UPDATE_TAG(StateTag tag) {}
 USER_DEFINED_FUNCTION_TYPE
     USER_DEFINED_FUNCTION[USER_DEFINED_FUNCTION_NUM];

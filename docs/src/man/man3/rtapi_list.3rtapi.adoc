@@ -1,0 +1,40 @@
+= rtapi_list(3rtapi)
+
+== NAME
+
+rtapi_list - RTAPI wrappers for linux kernel functionality
+
+== SYNTAX
+
+....
+#include <rtapi_list.h>
+struct rtapi_list_head;
+void rtapi_list_add(struct rtapi_list_head *new_,
+                    struct rtapi_list_head *head);
+void rtapi_list_add_tail(struct rtapi_list_head *new_,
+                         struct rtapi_list_head *head);
+void rtapi_list_del(struct rtapi_list_head *entry);
+void RTAPI_INIT_LIST_HEAD(struct rtapi_list_head *entry);
+rtapi_list_for_each(pos, head) \{ ... }
+rtapi_list_entry(ptr, type, member)
+....
+
+== DESCRIPTION
+
+In kernel space, each rtapi_xxx or RTAPI_XXX identifier is mapped to the
+underlying kernel functionality, if available.
+
+In userspace, or in kernels where the underlying functionality is not
+provided by a kernel, generally another implementation--possibly with
+reduced functionality--is provided. (For example, the userspace
+implementation for rtapi_device_register always succeeds)
+
+== REALTIME CONSIDERATIONS
+
+Call from init/cleanup code and from realtime tasks. These functions
+will cause illegal instruction exceptions in non-realtime components, as
+well as in uspace rtapi_app when it is not setuid root.
+
+== RETURN VALUE
+
+As in Linux.

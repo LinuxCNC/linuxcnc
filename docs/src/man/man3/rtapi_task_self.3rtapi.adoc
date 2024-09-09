@@ -1,0 +1,28 @@
+= rtapi_task_self(3rtapi)
+
+== NAME
+
+rtapi_task_self - Retrieve ID of current task
+
+== SYNTAX
+
+....
+void rtapi_task_self();
+....
+
+== DESCRIPTION
+
+*rtapi_task_self* retrieves the current task, or -EINVAL if not in a
+realtime task (e.g., in startup or shutdown code).
+
+== REALTIME CONSIDERATIONS
+
+May be called from init/cleanup code, and from within realtime tasks.
+
+== RETURN VALUE
+
+The task number previously returned by *rtapi_task_new* or -EINVAL.
+
+== SEE ALSO
+
+rtapi_task_new(3rtapi)

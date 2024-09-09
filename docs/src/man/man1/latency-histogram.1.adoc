@@ -1,0 +1,80 @@
+= latency-histogram(1)
+
+== NAME
+
+latency-histogram - plot a histogram of machine latency
+
+== SYNOPSIS
+
+*latency-histogram* [*-?*|*--help*] [*--base* _ns_] [*--servo* _ns_] [*--bbinsize* _ns_] [*--sbinsize* _ns_] [*--bbins* _ns_] [*--sbins* _ns_] [*--logscale* 0|1] [*--text* _note_] [*--show*] [*--nobase*] [*--verbose*] [*--nox*]
+
+== DESCRIPTION
+
+The latency test is important when configuring a LinuxCNC system.
+An adjunct to the standard latency-test latency-histogram plots the
+distribution of latency. This can be useful to get a feel for how
+frequent the high latency excursions are.
+
+LinuxCNC and HAL should not be running, stop with `halrun -U`.
+Large number of bins and/or small binsizes will slow updates.
+For single thread, specify *--nobase* (and options for servo thread).
+Measured latencies outside of the +/- bin range are reported with special end bars.
+Use *--show* to show count for the off-chart [pos|neg] pin.
+
+More details: https://linuxcnc.org/docs/html/install/latency-test.html
+
+== OPTIONS
+
+*-?*, *--help*::
+  Show options and exit.
+*--base*_ ns_::
+  base thread interval, default: 25000, min: 5000
+*--servo*_ ns_::
+  servo thread interval, default: 1000000, min: 25000
+*--bbinsize*_ ns_::
+  base bin size, default: 100
+*--sbinsize*_ ns_::
+  servo bin size, default: 100
+*--bbins*_ ns_::
+  base bins, default: 200
+*--sbins*_ ns_::
+  servo bins, default: 200
+*--logscale*_ 0|1_::
+  y axis log scale, default: 1
+*--text*_ note_::
+  additional note, default: ""
+*--show*::
+  show count of undisplayed bins
+*--nobase*::
+  servo thread only
+*--verbose*::
+  progress and debug
+*--nox*::
+  no GUI, display elapsed, min, max, sdev for each thread
+
+== SEE ALSO
+
+latency-plot(1), latency-test(1), linuxcnc(1)
+
+Much more information about LinuxCNC and HAL is available in the
+LinuxCNC and HAL User Manuals, found at _/usr/share/doc/linuxcnc/_.
+
+== BUGS
+
+None known at this time.
+
+== AUTHOR
+
+This man page written by Andy Pugh, as part of the LinuxCNC project.
+
+== REPORTING BUGS
+
+Report bugs at https://github.com/LinuxCNC/linuxcnc/issues.
+
+== COPYRIGHT
+
+Copyright © 2020 Andy pugh.
+
+This is free software; see the source for copying conditions. There is
+NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.

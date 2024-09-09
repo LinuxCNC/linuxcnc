@@ -338,7 +338,7 @@ int read_tool_file(  /* ARGUMENTS         */
     }
 
   // no toolTable[] param used
-  return tooldata_load(tool_file_name, 0);
+  return tooldata_load(tool_file_name);
 }
 
 /************************************************************************/
@@ -676,7 +676,7 @@ usage:
     }
   _sai._external_length_units =  0.03937007874016;
   if (inifile!= 0) {
-      const char *inistring;
+      std::optional<const char*> inistring;
       IniFile ini;
       // open it
       if (ini.Open(inifile) == false) {
@@ -684,8 +684,8 @@ usage:
         exit(1);
       }
 
-      if (NULL != (inistring = ini.Find("LINEAR_UNITS", "TRAJ"))) {
-          if (!strcmp(inistring, "mm")) {
+      if ((inistring = ini.Find("LINEAR_UNITS", "TRAJ"))) {
+          if (!strcmp(*inistring, "mm")) {
              _sai._external_length_units = 1.0;
           }
       }
@@ -729,13 +729,9 @@ usage:
 
 /***********************************************************************/
 
-int  emcOperatorError(int id, const char *fmt, ...)
+int  emcOperatorError(const char *fmt, ...)
 {
     va_list ap;
-
-    if (id)
-	fprintf(stderr,"[%d] ", id);
-
     va_start(ap, fmt);
     vfprintf(stderr, fmt, ap);
     va_end(ap);

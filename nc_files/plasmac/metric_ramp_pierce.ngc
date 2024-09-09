@@ -1,0 +1,52 @@
+;     file name: ramp.ngc
+; date and time: Wed Nov 08 2023    21:15:23
+; postprocessor: LinuxCNC PlasmaC.scpost rev: 0.5
+;
+;begin pre-amble
+ G21 (units: metric)
+ G40 (cutter compensation: off)
+ G90 (distance mode: absolute)
+ M52 P1 (adaptive feed: on)
+ M65 P2 (enable THC)
+ M65 P3 (enable torch)
+ M68 E3 Q0 (velocity 100%)
+ G64 P0.254 Q0.025 (tracking tolerances: 0.254mm)
+;end pre-amble
+ m159 p601 q2   (pierce type - ramp)
+ m159 p602 q50  (pierce motino delay as a percentage of total pierce time - 50%)
+ m159 p603 q2.5 (pierce end height)
+ m159 p604 q1   (cut height delay in seconds)
+ m159 p605 q980 (gouge speed in units per min)
+ m159 p606 q5   (Gouge distance in machine units)
+ m159 p607 q245 (Creep speed in unit per min)
+ m159 p608 q3   (Creep distance in machine units)
+ M67 E3 Q100
+;
+;begin material setup
+ T0 M6 (select plasma tool)
+ G43 H0 (apply tool offsets)
+ (o=0,kw=2, ph=4, pd=1, ch=1.5, fr=490, th=1, cv=99, pe=0.3, jh=0, jd=0)
+ F#<_hal[plasmac.cut-feed-rate]>
+;end material setup
+ G0 X0 Y0
+ M3 $0 S1 (plasma start)
+ M67 E3 Q100
+ G1 X0 Y60
+ m159 p609  (reset to default pierce behaviour)
+ M5 $0 (plasma end)
+ ;
+ ;begin post-amble
+ G40 (cutter compensation: off)
+ G90 (distance mode: absolute)
+ M65 P2 (enable THC)
+ M65 P3 (enable torch)
+ M68 E3 Q0 (velocity 100%)
+ M5 $-1 (backup stop)
+ ;end post-amble
+ ;
+ ;begin statistics
+ ;Pierces = 1
+ ;   Cuts = 1,    Length = 60.00mm
+ ;end statistics
+ ;
+ M30 (end program)

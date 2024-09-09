@@ -122,10 +122,6 @@ net  pdnt.mist.is-on                      whb.halui.mist.is-on                  
 net  pdnt.mist.off                        whb.halui.mist.off                    halui.mist.off                   #reserved whb.button.macro-16
 net  pdnt.mist.on                         whb.halui.mist.on                     halui.mist.on                    #reserved whb.button.macro-16
 
-#net  pdnt.lube.is-on                      whb.halui.lube.is-on                  halui.lube.is-on                 #return signal is on or off
-#net  pdnt.lube.off                        whb.halui.lube.off                    halui.lube.off                   #reserved whb.button.macro-2
-#net  pdnt.lube.on                         whb.halui.lube.on                     halui.lube.on                    #reserved whb.button.macro-2
-
 
 # default function button signals
 net pdnt.button.m-home                    whb.button.m-home                     halui.home-all                   # Homing use built-in halui home all

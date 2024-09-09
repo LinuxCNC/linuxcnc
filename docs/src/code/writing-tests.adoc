@@ -3,23 +3,17 @@
 
 == The test framework
 
-The code base has unit and integration tests that can be executed
-automatically to ensure the program works as intended.  Such tests are
-often written to trigger a bug and to ensure the bug is detected if it
-resurfaces in the future, but also to validate behavior of components
-and interfaces.
+The code base has unit and integration tests that can be executed automatically to ensure the program works as intended.
+Such tests are often written to trigger a bug and to ensure the bug is detected if it resurfaces in the future, but also to validate behavior of components and interfaces.
 
-The tests are collected in the `tests/` directory.  The individual tests
-are in subdirectories of this directory. The tests are grouped in
-directories.
+The tests are collected in the `tests/` directory.
+The individual tests are in subdirectories of this directory.
+The tests are grouped in directories.
 
 == Running tests
 
-The tests are executed by the `scripts/runtests` script generated from
-`scripts/runtests.in` during build. The runtests script will by default
-locate tests to run under `tests/`, but can be limited to only run a
-limited set of tests by specifying the directory of the test or tests
-as argument(s).
+The tests are executed by the `scripts/runtests` script generated from `scripts/runtests.in` during build.
+The runtests script will by default locate tests to run under `tests/`, but can be limited to only run a limited set of tests by specifying the directory of the test or tests as argument(s).
 
 .An example running only the tests in `tests/lathe/`.
 ----
@@ -28,12 +22,10 @@ Running test: tests/lathe
 Runtest: 1 tests run, 1 successful, 0 failed + 0 expected, 0 skipped
 ----
 
-The runtests script looks for all files named _test_, _test.sh_ and
-_test.hal_ below the directories specified on the command line, or under
-`tests/` if no command line argument is specified. These files
-represent three different ways to run the tests.
+The runtests script looks for all files named `test`, `test.sh` or `test.hal` below the directories specified on the command line, or under `tests/` if no command line argument is specified.
+These files represent three different ways to run the tests.
 
-.Arguments accepted by the _runtests_ script, see the output from `scripts/runtests -h` for the authoritative list.
+The _runtests_ script accepts the following arguments, see the output from `scripts/runtests -h` for the authoritative list:
 ----
 -n  do not remove temporary files for successful tests.
 -s  stop after any failed test.
@@ -45,79 +37,63 @@ represent three different ways to run the tests.
 
 == Writing tests
 
-Make sure the test can run successfully without a working X11 display,
-i.e., with the DISPLAY environment variable unset.
+Make sure the test can run successfully without a working X11 display, i.e. with the DISPLAY environment variable unset.
 
 1. Create a folder in `tests/`.
 2. Provide one test script.
 3. Evaluate the output with one of the options below.
 
-These are the files considered in the directory with the individual
-tests:
+These are the files considered in the directory with the individual tests:
 
 .Test script (only one of these three)
 
 test::
-   A program that is executed and its exit code and output checked using
-   either checkresult or expected.
+   A program that is executed and its exit code and output checked using either checkresult or expected.
 
 test.sh::
-   A bash script that is executed and its exit code and output checked using
-   either checkresult or expected.
+   A bash script that is executed and its exit code and output checked using either checkresult or expected.
 
 test.hal::
-   A HAL script that is executed using `halrun -f test.hal` and its exit code
-   and output checked using either checkresult or expected.
+   A HAL script that is executed using `halrun -f test.hal` and its exit code and output checked using either checkresult or expected.
 
 .Test evaluation
 
  expected::
-   A file whose content is compared to the output from running the test
-   scripts.  If the test output is identical to the content of the
-   expected file, the test succeeds.
+   A file whose content is compared to the output from running the test scripts.
+   If the test output is identical to the content of the expected file, the test succeeds.
 
 checkresult::
-   An executable file to perform more complex validation than just comparing
-   the output of a test script. It gets the filename of the test program as
-   its command line argument. The exit code of this program controls the result
-   of the test. If both `expected` and `checkresult` exist, only `checkresult`
-   is consulted to validate the test output.
+   An executable file to perform more complex validation than just comparing the output of a test script.
+   It gets the filename of the test program as its command line argument.
+   The exit code of this program controls the result of the test.
+   If both `expected` and `checkresult` exist, only `checkresult` is consulted to validate the test output.
 
  xfail::
-   If this file exist, a test failure is expected and does not cause
-   runtests to return an exit code signaling an error.
+   If this file exist, a test failure is expected and does not cause runtests to return an exit code signaling an error.
 
  skip::
    If this file exist, the test is skipped and not executed at all.
 
  control::
-   This file can be used to flag specific needs in the test.  At the
-   moment, the use of _sudo_ can be flagged, and tests requiring sudo
-   can be skipped when using `runtests -u`. To flag such requirements,
-   add a line with `Restrictions: sudo` to this file.
+   This file can be used to flag specific needs in the test.
+   At the moment, the use of _sudo_ can be flagged, and tests requiring sudo can be skipped when using `runtests -u`.
+   To flag such requirements, add a line with `Restrictions: sudo` to this file.
 
 == Some testing approaches
 
-There are various ways to structure a test, depending on what one wants
-to test. Here are a few ideas on how to do it.
+There are various ways to structure a test, depending on what one wants to test.
+Here are a few ideas on how to do it.
 
 === Non-interactive "GUI"
 
-If you want to test some operations in the user interface, a useful
-approach is is to write a custom "GUI" simulating the operations.
-This can be done by creating a normal LinuxCNC setup and pointing the
-[DISPLAY] DISPLAY value to a script that does the operations needed to
-test the behaviour.
+If you want to test some operations in the user interface, a useful approach is is to write a custom "GUI" simulating the operations.
+This can be done by creating a normal LinuxCNC setup and pointing the [DISPLAY] DISPLAY value to a script that does the operations needed to test the behaviour.
 
-Examples of this approach can be found in `tests/halui/jogging/` and
-`tests/interp/subroutine-return/`.
+Examples of this approach can be found in `tests/halui/jogging/` and `tests/interp/subroutine-return/`.
 
 === Recording HAL pin transitions
 
-Using the _sampler_ and _halsampler_ HAL components, one can set up a
-HAL configuration and collect pin value settings and changes and dump
-the result to stdout (or a file).  The end result can then be compared
-with the expected output to verify if HAL behaves as expected.
+Using the _sampler_ and _halsampler_ HAL components, one can set up a HAL configuration and collect pin value settings and changes and dump the result to stdout (or a file).
+The end result can then be compared with the expected output to verify if HAL behaves as expected.
 
-Examples of this approach can be found in `tests/multiclick/` and
-`tests/stepgen.2/`.
+Examples of this approach can be found in `tests/multiclick/` and `tests/stepgen.2/`.

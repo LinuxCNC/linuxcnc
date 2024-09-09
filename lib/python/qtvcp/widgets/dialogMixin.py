@@ -1,10 +1,10 @@
-from PyQt5.QtWidgets import (QDesktopWidget)
+from PyQt5.QtWidgets import (QDesktopWidget, QLabel,QMessageBox)
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp import logger
 
 LOG = logger.getLogger(__name__)
 # Force the log level for this module
-#LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
     #########################################
     # geometry helper functions
@@ -54,6 +54,7 @@ class GeometryMixin(_HalWidgetBase):
                                         str, 'DIALOG_GEOMETRY')
 
     def set_geometry(self):
+        #print(self.objectName(),'set geo',self._geometry_string)
         try:
             if self._geometry_string.replace(' ','').isdigit() and self.PREFS_:
                 # If there is a preference file object use it to load the geometry
@@ -63,7 +64,9 @@ class GeometryMixin(_HalWidgetBase):
             if self._geometry_string in('default',''):
                 x,y,w,h = self._default_geometry
                 self.setGeometry(x,y,w,h)
-
+                if not 'always' in self._geometry_string.lower():
+                    self._geometry_string = self.get_current_geometry()    
+             
             # center of desktop
             # add 'always' or the user can reset the dialog
             elif 'center' in self._geometry_string.lower():
@@ -107,12 +110,13 @@ class GeometryMixin(_HalWidgetBase):
             # half the main window height/width
             # add 'always' or the user can reset the dialog
             elif 'half' in self._geometry_string.lower():
-                h = self.QTVCP_INSTANCE_.geometry().height() /2
-                w = self.QTVCP_INSTANCE_.geometry().width() /2
+                h = int(self.QTVCP_INSTANCE_.geometry().height() /2)
+                w = int(self.QTVCP_INSTANCE_.geometry().width() /2)
 
-                x = self.geometry().x()
-                y = self.geometry().y()
-                self.setGeometry( w/2,h/2,w,h)
+                x = int(self.geometry().x())
+                y = int(self.geometry().y())
+                self.setGeometry( x,y,w,h)
+
                 if not 'always' in self._geometry_string.lower():
                     self._geometry_string = self.get_current_geometry()
 
@@ -120,11 +124,13 @@ class GeometryMixin(_HalWidgetBase):
                 # assuming geometry is actual size/position
                 temp = self._geometry_string.split(' ')
                 self.setGeometry(int(temp[0]), int(temp[1]), int(temp[2]), int(temp[3]))
+                LOG.debug('Setting {} dialog geometry from {} from prefs.'.format( self._geoName,temp))
         except Exception as e:
+            print(e)
             try:
                 LOG.error('Calculating geometry of {} widget using: {}. Will use default placement.'.format(self.HAL_NAME_, self._geometry_string))
-            except AttributeError:
-                pass
+            except AttributeError as f:
+                print(f)
             LOG.debug('Dialog geometry python error: {}'.format(e))
             x = self.geometry().x()
             y = self.geometry().y()
@@ -132,6 +138,23 @@ class GeometryMixin(_HalWidgetBase):
             self._geometry_string = 'default'
 
     def record_geometry(self):
+        # message box are difficult
+        if isinstance(self,QMessageBox):
+            if self._geometry_string.replace(' ','').isdigit():
+                if self.PREFS_ :
+                    geometry_string = self.PREFS_.getpref(self._geoName, '', str, 'DIALOG_GEOMETRY')
+                else:
+                    geometry_string = ''
+                temp = self._geometry_string.split(' ')
+                #print('record:',temp,self.geometry())
+                x = self.geometry().x()
+                y = self.geometry().y()
+                w = int(temp[2])
+                h = self.geometry().height()
+                geo = '%s %s %s %s'% (x,y,w,h)
+                if self.PREFS_ :
+                    self.PREFS_.putpref(self._geoName, geo, str, 'DIALOG_GEOMETRY')
+                return
         try:
             if self.PREFS_ :
                 temp = self._geometry_string.replace(' ','')
@@ -146,7 +169,8 @@ class GeometryMixin(_HalWidgetBase):
                     self.PREFS_.putpref(self._geoName, geo, str, 'DIALOG_GEOMETRY')
             elif not 'always' in self._geometry_string.lower():
                 self._geometry_string = self.get_current_geometry()
-        except:
+        except Exception as e:
+            print(e)
             pass
 
 

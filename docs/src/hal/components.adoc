@@ -187,7 +187,7 @@ Smart-serial remote parameters can now be set in the HAL file in the normal way.
 | link:../man/man9/timedelay.9.html[timedelay]     |Equivalent of a time-delay relay. ||
 | link:../man/man9/tp.9.html[tp]                   |IEC TP timer - generate a high pulse of defined duration on rising edge ||
 | link:../man/man9/tristate_bit.9.html[tristate_bit] |Places signal on an I/O pin only when enabled, similar to a tristate buffer in electronics ||
-| link:../man/man9/tristate_float.9.html[tristate_float] |Places signal on an I/O pin only when enabled, similar to a tristatebuffer in electronics ||
+| link:../man/man9/tristate_float.9.html[tristate_float] |Places signal on an I/O pin only when enabled, similar to a tristate buffer in electronics ||
 | link:../man/man9/xor2.9.html[xor2]               |Two-input XOR (exclusive OR) gate ||
 |===
 
@@ -203,6 +203,7 @@ Smart-serial remote parameters can now be set in the HAL file in the normal way.
 | link:../man/man9/counter.9.html[counter]   |Counts input pulses (deprecated). Use the <<sec:encoder,encoder>> component. | |
 | link:../man/man9/ddt.9.html[ddt]           |Computes the derivative of the input function. ||
 | link:../man/man9/deadzone.9.html[deadzone] |Returns the center if within the threshold. ||
+| link:../man/man9/div2.9.html[div2]         |Quotient of two floating point inputs. ||
 | link:../man/man9/hypot.9.html[hypot]       |Three-input hypotenuse (Euclidean distance) calculator. ||
 | link:../man/man9/ilowpass.9.html[ilowpass] |Low-pass filter with integer inputs and outputs ||
 | link:../man/man9/integ.9.html[integ]       |Integrator ||
@@ -339,6 +340,7 @@ hal_create_thread.3hal
 hal_del_funct_from_thread.3hal
 hal_exit.3hal
 hal_export_funct.3hal
+hal_export_functf.3hal
 hal_float_t.3hal
 hal_get_lock.3hal
 hal_init.3hal
@@ -373,7 +375,7 @@ hal_start_threads.3hal
 hal_type_t.3hal
 hal_u32_t.3hal
 hal_unlink.3hal
-intro.3hal
+hal.3
 undocumented.3hal
 ....
 
@@ -389,7 +391,7 @@ RTAPI_MP_ARRAY_STRING.3rtapi
 RTAPI_MP_INT.3rtapi
 RTAPI_MP_LONG.3rtapi
 RTAPI_MP_STRING.3rtapi
-intro.3rtapi
+rtapi.3
 rtapi_app_exit.3rtapi
 rtapi_app_main.3rtapi
 rtapi_clock_set_period.3rtapi

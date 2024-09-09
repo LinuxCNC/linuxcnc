@@ -22,7 +22,7 @@
 #gui_frame, #materials_frame, #camview_frame,
 #conv_frame, #stats_frame, #pmx_stats_frame,
 #machinelog_frame, #ub_frame, #sd_frame,
-#webview_frame {
+#webview_frame, #pierce_config{
     border: 1px solid frames;
     background: backgnd;
     border-radius: 4px }
@@ -38,7 +38,8 @@
 #safety_conf_lbl, #scribe_conf_lbl,
 #spotting_conf_lbl, #utility_label, #gui_label,
 #camview_label, #conv_label, #stats_label,
-#pmx_stats_label, #machinelog_label {
+#pmx_stats_label, #machinelog_label,
+#pierce_conf_lbl {
     color: backgnd;
     background: frames;
     border-top-left-radius: 2px;
@@ -206,7 +207,7 @@ QPushButton:checked:pressed, QToolButton:checked:pressed {
 }
 
 /****** TOUCHOFF BUTTON<<<<<<<<<<<<*/
-#touch_x, #touch_y, #touch_z, #touch_a, #touch_b {
+#touch_x, #touch_y, #touch_z, #touch_a, #touch_b, #touch_c {
     font: 20pt 'DejaVuSans' }
 
 /******    JOG BUTTON ************/
@@ -214,7 +215,8 @@ QPushButton:checked:pressed, QToolButton:checked:pressed {
 #jog_y_minus, #jog_y_plus,
 #jog_z_minus, #jog_z_plus,
 #jog_a_minus, #jog_a_plus,
-#jog_b_minus, #jog_b_plus {
+#jog_b_minus, #jog_b_plus,
+#jog_c_minus, #jog_c_plus {
     background: backgnd;
     border: none }
 
@@ -222,7 +224,8 @@ QPushButton:checked:pressed, QToolButton:checked:pressed {
 #jog_y_minus:pressed, #jog_y_plus:pressed,
 #jog_z_minus:pressed, #jog_z_plus:pressed,
 #jog_a_minus:pressed, #jog_a_plus:pressed,
-#jog_b_minus:pressed, #jog_b_plus:pressed {
+#jog_b_minus:pressed, #jog_b_plus:pressed,
+#jog_c_minus:pressed, #jog_c_plus:pressed {
     background: backalt }
 
 /******    CUT_RECOVERY BUTTON ************/
@@ -319,12 +322,13 @@ DROLabel[homed=false] {
     color: inactive;
     border-color: inactive }
 
-/****** DRO LABEL ************/
+/****** DRO AXIS LABEL ************/
 #dro_label_x,
 #dro_label_y,
 #dro_label_z,
 #dro_label_a,
-#dro_label_b {
+#dro_label_b,
+#dro_label_c {
     color: backgnd;
     background: foregnd;
     border: 1px solid foregnd;
@@ -335,7 +339,8 @@ DROLabel[homed=false] {
 #dro_label_y[homed=false],
 #dro_label_z[homed=false],
 #dro_label_a[homed=false],
-#dro_label_b[homed=false] {
+#dro_label_b[homed=false],
+#dro_label_c[homed=false] {
     background: inactive;
     border-color: inactive }
 
@@ -348,20 +353,17 @@ DROLabel[homed=false] {
 
 /****** RADIO BUTTON ************/
 QRadioButton {
-    border: 1px solid foregnd;
-    border-radius: 4 }
+    font: 12pt }
 
 QRadioButton::indicator {
-    width: 0;
-    background: backgnd }
+    border: 1px solid foregnd;
+    border-radius: 4;
+    width: 26;
+    height: 26 }
 
-QRadioButton:checked {
+QRadioButton::indicator:checked {
     color: backgnd;
-    background: highlight }
-
-QRadioButton:pressed {
-    color: backgnd;
-    background: highlight }
+    background: foregnd }
 
 /****** SETTINGS PUSHBUTTONS ************/
 #color_foregrnd, #color_foregalt,

@@ -45,7 +45,7 @@ Homing relies on some fundamental machine assumptions.
 * If using a separate homing switch, it is possible to start homing on the wrong side of the home switch,
   which combined with HOME_IGNORE_LIMITS option will lead to a hard crash.
   You can avoid this by making the home switch toggle its state when the trip dog is on a particular side until it returns passed the trip point again.
-  Said another way, the home switch state must represent the position of the dog relative to the switch (ie _before_ or _after_ the switch),
+  Said another way, the home switch state must represent the position of the dog relative to the switch (i.e. _before_ or _after_ the switch),
   and must stay that way even if the dog coasts past the switch in the same direction.
 
 [NOTE]

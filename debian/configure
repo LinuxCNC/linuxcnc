@@ -99,7 +99,7 @@ DEBHELPER="debhelper (>= 12)"
 COMPAT="12"
 
 case $DISTRIB_NAME in
-    Ubuntu-21.*|Debian-11|Debian-11.*|Debian-12|Debian-12.*|Debian-testing|Debian-unstable)
+    Ubuntu-24.*|Ubuntu-21.*|Debian-11|Debian-11.*|Debian-12|Debian-12.*|Debian-testing|Debian-unstable)
         LIBREADLINE_DEV=libeditreadline-dev
         COMPAT=""
         DEBHELPER="debhelper-compat (= 13)"
@@ -116,8 +116,6 @@ case $DISTRIB_NAME in
 esac
 
 TARGET=uspace
-MAIN_PACKAGE_NAME=linuxcnc
-OTHER_MAIN_PACKAGE_NAME=linuxcnc-uspace
 EXTRA_RECOMMENDS=hostmot2-firmware-all
 MODULE_PATH=usr/lib/linuxcnc/modules
 MODULE_EXT=.so
@@ -126,9 +124,14 @@ KERNEL_DEPENDS_BUILD=libudev-dev
 KERNEL_HEADERS=
 KERNEL_VERSION=uspace
 MODUTILS_DEPENDS=
+if false; then
+MAIN_PACKAGE_NAME=linuxcnc
+OTHER_MAIN_PACKAGE_NAME=linuxcnc-uspace
+else
 DISTRIB_NAME=uspace-$DISTRIB_NAME
 MAIN_PACKAGE_NAME=linuxcnc-uspace
 OTHER_MAIN_PACKAGE_NAME=linuxcnc
+fi
 
 EXTRA_RECOMMENDS="$EXTRA_RECOMMENDS, linux-image-rt-amd64 [linux-amd64], linux-image-rt-686-pae [linux-i386]"
 CONFIGURE_REALTIME_ARG=--with-realtime=uspace
@@ -181,6 +184,7 @@ subst control.main-pkg.in >> control
 
 subst linuxcnc.install.in > ${MAIN_PACKAGE_NAME}.install
 subst linuxcnc.lintian-overrides.in > ${MAIN_PACKAGE_NAME}.lintian-overrides
+subst linuxcnc.manpages.in > ${MAIN_PACKAGE_NAME}.manpages
 
 subst rules.in > rules
 chmod +x rules

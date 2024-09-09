@@ -69,7 +69,7 @@ setup::setup() :
     current_z (0.0),
     cutter_comp_radius (0.0),
     cutter_comp_orientation(0),
-    cutter_comp_side(0),
+    cutter_comp_side(CUTTER_COMP::OFF),
     cycle_cc (0.0),
     cycle_i (0.0),
     cycle_j (0.0),
@@ -80,10 +80,10 @@ setup::setup() :
     cycle_r (0.0),
     cycle_il (0.0),
     cycle_il_flag(0),
-    distance_mode(MODE_ABSOLUTE),
+    distance_mode(DISTANCE_MODE::ABSOLUTE),
 
-    ijk_distance_mode(MODE_ABSOLUTE),
-    feed_mode(0),
+    ijk_distance_mode(DISTANCE_MODE::ABSOLUTE),
+    feed_mode(FEED_MODE::UNITS_PER_MINUTE),
     feed_override(0),
     feed_rate (0.0),
     filename{},
@@ -108,7 +108,7 @@ setup::setup() :
     named_parameters{nullptr},
     named_parameter_values{0},
     percent_flag(0),
-    plane(CANON_PLANE_XY),
+    plane(CANON_PLANE::XY),
     probe_flag(0),
     input_flag(0),
     toolchange_flag(0),
@@ -118,13 +118,13 @@ setup::setup() :
     program_x (0.0),
     program_y (0.0),
     program_z (0.0),
-    retract_mode(R_PLANE),
+    retract_mode(RETRACT_MODE::R_PLANE),
     random_toolchanger(0),
     selected_pocket(0),
     selected_tool(0),
     sequence_number(0),
     speed {0.0},
-    spindle_mode{CONSTANT_RPM},
+    spindle_mode{SPINDLE_MODE::CONSTANT_RPM},
     speed_feed_mode{CANON_INDEPENDENT},
     speed_override{false},
     spindle_turning{CANON_STOPPED},
@@ -188,24 +188,3 @@ setup::~setup() {
     assert(!pythis || Py_IsInitialized());
     if(pythis) delete pythis;
 }
-
-block_struct::block_struct ()
-    : a_flag(0), a_number(0), b_flag(0), b_number(0),
-      c_flag(0), c_number(0), comment{}, d_number_float(0), d_flag(0),
-      e_flag(0), e_number(0), f_flag(0), f_number(0),
-    g_modes{}, h_flag(0), h_number(0), i_flag(0), i_number(0),
-    j_flag(0), j_number(0), k_flag(0), k_number(0),
-    l_number(0), l_flag(0), line_number(0), saved_line_number(0),
-    n_number(0), motion_to_be(0), m_count(0), m_modes{},
-    p_number(0), p_flag(0), q_number(0), q_flag(0),
-    r_flag(0), r_number(0), s_flag(0), s_number(0),
-    t_flag(0), t_number(0), u_flag(0), u_number(0),
-    v_flag(0), v_number(0), w_flag(0), w_number(0),
-    x_flag(0), x_number(0), y_flag(0), y_number(0),
-    z_flag(0), z_number(0),
-
-    radius_flag(0), radius(0), theta_flag(0), theta(0),
-    offset(0), o_type(0), call_type(0), o_name(NULL),
-    params{}, param_cnt(0), breadcrumbs(),
-    executing_remap(NULL), remappings(), phase(0), builtin_used(0) {
-    }

@@ -1,0 +1,20 @@
+= hm2_pktuart_setup(3hm2)
+
+== NAME
+
+hm2_pktuart_setup - setup a Hostmot2 PktUART instance
+
+== SYNTAX
+
+....
+#include <hostmot2-serial.h>
+int hm2_pktuart_setup(char *name, int bitrate, rtapi_s32 tx_mode,
+                      rtapi_s32 rx_mode, int txclear, int rxclear)
+....
+
+== DESCRIPTION
+
+*hm2_pktuart_setup*
+
+Please see the combined document hm2_pktuart.3hm2 for how to use this
+function.

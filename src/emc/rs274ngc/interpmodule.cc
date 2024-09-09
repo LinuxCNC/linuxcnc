@@ -115,7 +115,7 @@ static bp::object errorStack(Interp &interp)
 
     for (int i = 0; i < settings->stack_index; i++)
 	msgs.append(bp::object( (const char *) settings->stack[i]));
-    return msgs;
+    return std::move(msgs);
 }
 
 static bp::object wrap_find_tool_pocket(Interp &interp, int toolno)
@@ -643,10 +643,10 @@ static inline void set_cutter_comp_orientation(Interp &interp, int value)  {
     interp._setup.cutter_comp_orientation = value;
 }
 static inline int get_cutter_comp_side (Interp &interp)  {
-    return interp._setup.cutter_comp_side;
+    return (int)interp._setup.cutter_comp_side;
 }
 static inline void set_cutter_comp_side(Interp &interp, int value)  {
-    interp._setup.cutter_comp_side = value;
+    interp._setup.cutter_comp_side = (CUTTER_COMP)value;
 }
 static inline int get_cycle_il_flag (Interp &interp)  {
     return interp._setup.cycle_il_flag;
@@ -667,19 +667,19 @@ static inline void set_debugmask(Interp &interp, int value)  {
     interp._setup.debugmask = value;
 }
 static inline int get_distance_mode (Interp &interp)  {
-    return interp._setup.distance_mode;
+    return (int)interp._setup.distance_mode;
 }
 static inline void set_distance_mode(Interp &interp, DISTANCE_MODE value)  {
     interp._setup.distance_mode = value;
 }
 static inline int get_feed_mode (Interp &interp)  {
-    return interp._setup.feed_mode;
+    return (int)interp._setup.feed_mode;
 }
 static inline void set_feed_mode(Interp &interp, int value)  {
-    interp._setup.feed_mode = value;
+    interp._setup.feed_mode = (FEED_MODE)value;
 }
 static inline int get_ijk_distance_mode (Interp &interp)  {
-    return interp._setup.ijk_distance_mode;
+    return (int)interp._setup.ijk_distance_mode;
 }
 static inline void set_ijk_distance_mode(Interp &interp, DISTANCE_MODE value)  {
     interp._setup.ijk_distance_mode = value;
@@ -715,7 +715,7 @@ static inline void set_origin_index(Interp &interp, int value)  {
     interp._setup.origin_index = value;
 }
 static inline int get_plane (Interp &interp)  {
-    return interp._setup.plane;
+    return (int)interp._setup.plane;
 }
 static inline void set_plane(Interp &interp, int value)  {
     interp._setup.plane = static_cast<CANON_PLANE>(value);
@@ -733,7 +733,7 @@ static inline void set_remap_level(Interp &interp, int value)  {
     interp._setup.remap_level = value;
 }
 static inline int get_retract_mode (Interp &interp)  {
-    return interp._setup.retract_mode;
+    return (int)interp._setup.retract_mode;
 }
 static inline void set_retract_mode(Interp &interp, RETRACT_MODE value)  {
     interp._setup.retract_mode = value;
@@ -763,7 +763,7 @@ static inline void set_speed_feed_mode(Interp &interp, int value)  {
     interp._setup.speed_feed_mode = static_cast<CANON_SPEED_FEED_MODE>(value);
 }
 static inline int get_spindle_mode (Interp &interp, int spindle)  {
-    return interp._setup.spindle_mode[spindle];
+    return (int)interp._setup.spindle_mode[spindle];
 }
 static inline void set_spindle_mode(Interp &interp, int spindle, SPINDLE_MODE value)  {
     interp._setup.spindle_mode[spindle] = value;
@@ -810,11 +810,23 @@ static inline int get_tool_change_quill_up (Interp &interp)  {
 static inline void set_tool_change_quill_up(Interp &interp, int value)  {
     interp._setup.tool_change_quill_up = value;
 }
-static inline int get_tool_change_with_spindle_on (Interp &interp)  {
+static inline int get_tool_change_with_spindle_on(Interp &interp)  {
     return interp._setup.tool_change_with_spindle_on;
 }
 static inline void set_tool_change_with_spindle_on(Interp &interp, int value)  {
     interp._setup.tool_change_with_spindle_on = value;
+}
+static inline double get_parameter_g73_peck_clearance (Interp &interp)  {
+    return interp._setup.parameter_g73_peck_clearance;
+}
+static inline void set_parameter_g73_peck_clearance(Interp &interp, double value)  {
+    interp._setup.parameter_g73_peck_clearance = value;
+}
+static inline double get_parameter_g83_peck_clearance (Interp &interp)  {
+    return interp._setup.parameter_g83_peck_clearance;
+}
+static inline void set_parameter_g83_peck_clearance(Interp &interp, double value)  {
+    interp._setup.parameter_g83_peck_clearance = value;
 }
 
 BOOST_PYTHON_MODULE(interpreter) {
@@ -838,29 +850,30 @@ BOOST_PYTHON_MODULE(interpreter) {
     scope().attr("TOLERANCE_EQUAL") = TOLERANCE_EQUAL;
 
     BOOST_PYENUM_(DISTANCE_MODE)
-            .BOOST_PYENUM_VAL(MODE_ABSOLUTE)
-            .BOOST_PYENUM_VAL(MODE_INCREMENTAL)
+            .value("MODE_ABSOLUTE", DISTANCE_MODE::ABSOLUTE)
+            .value("MODE_INCREMENTAL", DISTANCE_MODE::INCREMENTAL)
             .export_values();
 
     BOOST_PYENUM_(RETRACT_MODE)
-            .BOOST_PYENUM_VAL(R_PLANE)
-            .BOOST_PYENUM_VAL(OLD_Z)
+            .value("R_PLANE", RETRACT_MODE::R_PLANE)
+            .value("OLD_Z", RETRACT_MODE::OLD_Z)
             .export_values();
 
     BOOST_PYENUM_(FEED_MODE)
-            .BOOST_PYENUM_VAL(UNITS_PER_MINUTE)
-            .BOOST_PYENUM_VAL(INVERSE_TIME)
-            .BOOST_PYENUM_VAL(UNITS_PER_REVOLUTION)
+            .value("UNITS_PER_MINUTE", FEED_MODE::UNITS_PER_MINUTE)
+            .value("INVERSE_TIME", FEED_MODE::INVERSE_TIME)
+            .value("UNITS_PER_REVOLUTION", FEED_MODE::UNITS_PER_REVOLUTION)
             .export_values();
 
-    BOOST_PYENUM_(CUTTER_COMP_DIRECTION)
-            .BOOST_PYENUM_VAL(RIGHT)
-            .BOOST_PYENUM_VAL(LEFT)
+    enum_<CUTTER_COMP>("CUTTER_COMP_DIRECTION")
+            .value("OFF", CUTTER_COMP::OFF)
+            .value("RIGHT", CUTTER_COMP::RIGHT)
+            .value("LEFT", CUTTER_COMP::LEFT)
             .export_values();
 
     BOOST_PYENUM_(SPINDLE_MODE)
-            .BOOST_PYENUM_VAL(CONSTANT_RPM)
-            .BOOST_PYENUM_VAL(CONSTANT_SURFACE)
+            .value("CONSTANT_RPM", SPINDLE_MODE::CONSTANT_RPM)
+            .value("CONSTANT_SURFACE", SPINDLE_MODE::CONSTANT_SURFACE)
             .export_values();
 
 
@@ -1007,6 +1020,8 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.add_property("tool_change_quill_up", &get_tool_change_quill_up, &set_tool_change_quill_up)
 	.add_property("tool_change_with_spindle_on", &get_tool_change_with_spindle_on,
              &set_tool_change_with_spindle_on)
+	.add_property("parameter_g73_peck_clearance", &get_parameter_g73_peck_clearance, &set_parameter_g73_peck_clearance)
+    .add_property("parameter_g83_peck_clearance", &get_parameter_g83_peck_clearance, &set_parameter_g83_peck_clearance)
 
 	.add_property( "params",
 		       bp::make_function( &param_wrapper,

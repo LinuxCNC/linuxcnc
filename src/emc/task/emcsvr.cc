@@ -31,41 +31,98 @@
 #include "nml_srv.hh"           // run_nml_servers()
 #include <rtapi_string.h>
 
-static int tool_channels = 1;
-
 static int iniLoad(const char *filename)
 {
     IniFile inifile;
-    const char *inistring;
+    std::optional<const char*> inistring;
+    char version[LINELEN], machine[LINELEN];
 
     // open it
     if (inifile.Open(filename) == false) {
 	return -1;
     }
 
-    if (NULL != (inistring = inifile.Find("DEBUG", "EMC"))) {
-	// copy to global
-	if (1 != sscanf(inistring, "%x", &emc_debug)) {
-	    emc_debug = 0;
-	}
-    } else {
-	// not found, use default
-	emc_debug = 0;
-    }
-    if (emc_debug & EMC_DEBUG_RCS) {
-	set_rcs_print_flag(PRINT_EVERYTHING);
-	max_rcs_errors_to_print = -1;
+    // EMC debugging flags
+    emc_debug = 0;  // disabled by default
+    if ((inistring = inifile.Find("DEBUG", "EMC"))) {
+        // parse to global
+        if (sscanf(*inistring, "%x", &emc_debug) < 1) {
+            perror("failed to parse [EMC] DEBUG");
+        }
     }
 
-    if (NULL != (inistring = inifile.Find("NML_FILE", "EMC"))) {
+    // set output for RCS messages
+    set_rcs_print_destination(RCS_PRINT_TO_STDOUT);   // use stdout by default
+    if ((inistring = inifile.Find("RCS_DEBUG_DEST", "EMC"))) {
+        static RCS_PRINT_DESTINATION_TYPE type;
+        if (!strcmp(*inistring, "STDOUT")) {
+            type = RCS_PRINT_TO_STDOUT;
+        } else if (!strcmp(*inistring, "STDERR")) {
+            type = RCS_PRINT_TO_STDERR;
+        } else if (!strcmp(*inistring, "FILE")) {
+            type = RCS_PRINT_TO_FILE;
+        } else if (!strcmp(*inistring, "LOGGER")) {
+            type = RCS_PRINT_TO_LOGGER;
+        } else if (!strcmp(*inistring, "MSGBOX")) {
+            type = RCS_PRINT_TO_MESSAGE_BOX;
+        } else if (!strcmp(*inistring, "NULL")) {
+            type = RCS_PRINT_TO_NULL;
+        } else {
+             type = RCS_PRINT_TO_STDOUT;
+        }
+        set_rcs_print_destination(type);
+    }
+
+    // NML/RCS debugging flags
+    set_rcs_print_flag(PRINT_RCS_ERRORS);  // only print errors by default
+    // enable all debug messages by default if RCS or NML debugging is enabled
+    if ((emc_debug & EMC_DEBUG_RCS) || (emc_debug & EMC_DEBUG_NML)) {
+        // output all RCS debug messages
+        set_rcs_print_flag(PRINT_EVERYTHING);
+    }
+
+    // set flags if RCS_DEBUG in ini file
+    if ((inistring = inifile.Find("RCS_DEBUG", "EMC"))) {
+        static long int flags;
+        if (sscanf(*inistring, "%lx", &flags) < 1) {
+            perror("failed to parse [EMC] RCS_DEBUG");
+        }
+        // clear all flags
+        clear_rcs_print_flag(PRINT_EVERYTHING);
+        // set parsed flags
+        set_rcs_print_flag(flags);
+    }
+    // output infinite RCS errors by default
+    max_rcs_errors_to_print = -1;
+    if ((inistring = inifile.Find("RCS_MAX_ERR", "EMC"))) {
+        if (sscanf(*inistring, "%d", &max_rcs_errors_to_print) < 1) {
+            perror("failed to parse [EMC] RCS_MAX_ERR");
+        }
+    }
+
+    inistring = inifile.Find("VERSION", "EMC");
+    strncpy(version, inistring.value_or("unknown"), LINELEN-1);
+
+    inistring = inifile.Find("MACHINE", "EMC");
+    strncpy(machine, inistring.value_or("unknown"), LINELEN-1);
+
+    extern char *program_invocation_short_name;
+    rcs_print(
+        "%s (%d) emcsvr: machine '%s'  version '%s'\n",
+        program_invocation_short_name, getpid(), machine, version
+    );
+
+    if ((inistring = inifile.Find("NML_FILE", "EMC"))) {
 	// copy to global
-	rtapi_strxcpy(emc_nmlfile, inistring);
+	rtapi_strxcpy(emc_nmlfile, *inistring);
     } else {
 	// not found, use default
     }
-    inifile.Find(&tool_channels,"TOOL_CHANNELS","EMC");
     // close it
     inifile.Close();
+
+    if(emc_debug & EMC_DEBUG_CONFIG)
+        rcs_print("config file \"%s\" loaded successfully.\n", filename);
 
     return 0;
 }
@@ -99,8 +156,6 @@ static void daemonize()
 static RCS_CMD_CHANNEL *emcCommandChannel = NULL;
 static RCS_STAT_CHANNEL *emcStatusChannel = NULL;
 static NML *emcErrorChannel = NULL;
-static RCS_CMD_CHANNEL *toolCommandChannel = NULL;
-static RCS_STAT_CHANNEL *toolStatusChannel = NULL;
 
 int main(int argc, char *argv[])
 {
@@ -114,26 +169,20 @@ int main(int argc, char *argv[])
     // get configuration information
     iniLoad(emc_inifile);
 
-    set_rcs_print_destination(RCS_PRINT_TO_NULL);
-
-    rcs_print("after iniLoad()\n");
-
-
     start_time = etime();
 
     while (fabs(etime() - start_time) < 10.0 &&
 	   (emcCommandChannel == NULL || emcStatusChannel == NULL
-	    || (tool_channels && (toolCommandChannel == NULL || toolStatusChannel == NULL))
 	    || emcErrorChannel == NULL)
 	) {
 	if (NULL == emcCommandChannel) {
-	    rcs_print("emcCommandChannel==NULL, attempt to create\n");
+	    rcs_print_debug(PRINT_NML_CONSTRUCTORS, "emcCommandChannel==NULL, attempt to create\n");
 	    emcCommandChannel =
 		new RCS_CMD_CHANNEL(emcFormat, "emcCommand", "emcsvr",
 				    emc_nmlfile);
 	}
 	if (NULL == emcStatusChannel) {
-	    rcs_print("emcStatusChannel==NULL, attempt to create\n");
+	    rcs_print_debug(PRINT_NML_CONSTRUCTORS, "emcStatusChannel==NULL, attempt to create\n");
 	    emcStatusChannel =
 		new RCS_STAT_CHANNEL(emcFormat, "emcStatus", "emcsvr",
 				     emc_nmlfile);
@@ -141,18 +190,6 @@ int main(int argc, char *argv[])
 	if (NULL == emcErrorChannel) {
 	    emcErrorChannel =
 		new NML(nmlErrorFormat, "emcError", "emcsvr", emc_nmlfile);
-	}
-	if (tool_channels) {
-	    if (NULL == toolCommandChannel) {
-		toolCommandChannel =
-		    new RCS_CMD_CHANNEL(emcFormat, "toolCmd", "emcsvr",
-					emc_nmlfile);
-	    }
-	    if (NULL == toolStatusChannel) {
-		toolStatusChannel =
-		    new RCS_STAT_CHANNEL(emcFormat, "toolSts", "emcsvr",
-					 emc_nmlfile);
-	    }
 	}
 
 	if (!emcCommandChannel->valid()) {
@@ -167,20 +204,9 @@ int main(int argc, char *argv[])
 	    delete emcErrorChannel;
 	    emcErrorChannel = NULL;
 	}
-	if (tool_channels) {
-	    if (!toolCommandChannel->valid()) {
-		delete toolCommandChannel;
-		toolCommandChannel = NULL;
-	    }
-	    if (!toolStatusChannel->valid()) {
-		delete toolStatusChannel;
-		toolStatusChannel = NULL;
-	    }
-	}
 	esleep(0.200);
     }
 
-    set_rcs_print_destination(RCS_PRINT_TO_STDERR);
 
     if (NULL == emcCommandChannel) {
 	emcCommandChannel =
@@ -195,18 +221,6 @@ int main(int argc, char *argv[])
     if (NULL == emcErrorChannel) {
 	emcErrorChannel =
 	    new NML(nmlErrorFormat, "emcError", "emcsvr", emc_nmlfile);
-    }
-    if (tool_channels) {
-	if (NULL == toolCommandChannel) {
-	    toolCommandChannel =
-		new RCS_CMD_CHANNEL(emcFormat, "toolCmd", "emcsvr",
-				    emc_nmlfile);
-	}
-	if (NULL == toolStatusChannel) {
-	    toolStatusChannel =
-		new RCS_STAT_CHANNEL(emcFormat, "toolSts", "emcsvr",
-				     emc_nmlfile);
-	}
     }
     daemonize();
     run_nml_servers();

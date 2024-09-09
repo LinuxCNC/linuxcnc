@@ -40,7 +40,7 @@ static void call_gdb(int sig, int start_gdb_in_window)
     FILE *f;
     char tmp_gdbrc[PATH_MAX];
 
-    snprintf(tmp_gdbrc, sizeof(tmp_gdbrc), "/tmp/gdbrc.%d",getpid());
+    snprintf(tmp_gdbrc, sizeof(tmp_gdbrc), EMC2_TMP_DIR "/gdbrc.%d",getpid());
 
     if ((f = fopen(tmp_gdbrc,"w")) == NULL) {
 	perror(tmp_gdbrc);

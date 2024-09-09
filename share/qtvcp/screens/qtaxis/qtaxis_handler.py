@@ -9,7 +9,10 @@ from PyQt5 import QtCore, QtWidgets
 from PyQt5.QtGui import QColor
 
 from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
+from qtvcp.widgets.mdi_history import MDIHistory as MDI_HISTORY
 from qtvcp.widgets.geditor import GEditor as GCODE
+from qtvcp.widgets.gcode_graphics import GCodeGraphics as GRAPHICS
+from qtvcp.widgets.status_slider import StatusSlider as SLIDER
 from qtvcp.widgets.status_label import StatusLabel as TOOLSTAT
 from qtvcp.widgets.state_led import StateLED as LED
 from qtvcp.lib.keybindings import Keylookup
@@ -54,13 +57,18 @@ class HandlerClass:
         self.w = widgets
         self.PATHS = paths
         self._last_count = 0
+        self.MPGFocusWidget = None
+        self.CycleFocusWidget = None
+
         self.init_pins()
+
         STATUS.connect('general',self.return_value)
         STATUS.connect('motion-mode-changed',self.motion_mode)
         STATUS.connect('user-system-changed', self._set_user_system_text)
         STATUS.connect('actual-spindle-speed-changed',self.update_spindle)
         STATUS.connect('joint-selection-changed', lambda w, d: self.update_jog_pins(d))
         STATUS.connect('axis-selection-changed', lambda w, d: self.update_jog_pins(d))
+        STATUS.connect('status-message', lambda w, d, o: self.add_external_status(d,o))
 
     ##########################################
     # Special Functions called from QTSCREEN
@@ -180,7 +188,73 @@ class HandlerClass:
             VERSION, STATUS.get_linuxcnc_version())
         STATUS.emit('update-machine-log', message, None)
 
-        #QtWidgets.QApplication.instance().event_filter.focusIn.connect(self.focusInChanged)
+    def processed_focus_event__(self, receiver, event):
+        #print('Parent:',receiver.parent(),'receiver:', receiver)
+
+        # Gcode editor
+        if isinstance(receiver.parent(), GCODE):
+            self.removeMPGFocusBorder()
+            name = receiver.parent().parent().objectName()
+            color = self.w.screen_options.property('user4Color').name()
+            self.colorMPGFocusBorder(name, receiver.parent(), color)
+
+        # gcode graphics
+        elif isinstance(receiver, GRAPHICS):
+            self.removeMPGFocusBorder()
+            name = receiver.parent().objectName()
+            color = self.w.screen_options.property('user4Color').name()
+            self.colorMPGFocusBorder(name, receiver, color)
+
+        # override sliders
+        elif isinstance(receiver, SLIDER):
+            if not receiver in(self.w.statusSliderJog, self.w.statusSliderMaxVelocity):
+                self.removeMPGFocusBorder()
+                name = receiver.objectName()
+                color = self.w.screen_options.property('user4Color').name()
+                self.colorMPGFocusBorder(name, receiver, color)
+
+        # MDI Line
+        elif isinstance(receiver, MDI_WIDGET):
+            self.removeMPGFocusBorder()
+            self.removeCycleFocusBorder()
+            name = receiver.parent().parent().objectName()
+            color = self.w.screen_options.property('user4Color').name()
+            self.colorMPGFocusBorder(name, receiver, color)
+
+        # MDI history
+        elif isinstance(receiver.parent(), MDI_HISTORY):
+            self.removeMPGFocusBorder()
+            self.removeCycleFocusBorder()
+            name = receiver.parent().parent().objectName()
+            color = self.w.screen_options.property('user4Color').name()
+            self.colorMPGFocusBorder(name, receiver.parent(), color)
+
+    def removeMPGFocusBorder(self):
+        try:
+            self.MPGFocusWidget.setStyleSheet( '')
+            name = self.MPGFocusWidgetBorder
+            self.w[name].setStyleSheet('')
+        except:
+            pass
+
+    def removeCycleFocusBorder(self):
+        try:
+            self.CycleFocusWidget.setStyleSheet( '')
+            name = self.CycleFocusWidgetBorder
+            self.w[name].setStyleSheet('')
+        except:
+            pass
+
+    def colorMPGFocusBorder(self, name, receiver, colorName):
+        if self.hal.hal.pin_has_writer('qtaxis.mpg-in'):
+            self.MPGFocusWidgetBorder = name
+            self.MPGFocusWidget = receiver
+            self.w[name].setStyleSheet('#%s {border: 3px solid %s;}'%(name,colorName))
+
+    def colorCycleFocusBorder(self, name, receiver, colorName):
+        self.CycleFocusWidgetBorder = name
+        self.CycleFocusWidget = receiver
+        self.w[name].setStyleSheet('#%s {border: 3px solid %s;}'%(name,colorName))
 
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions
@@ -265,7 +339,6 @@ class HandlerClass:
 
     def update_spindle(self,w,data):
         self.w.rpm_bar.setInvertedAppearance(bool(data<0))
-        self.w.rpm_label.setText('{0:d} RPM'.format(int(data)))
         self.w.rpm_bar.setValue(abs(int(data)))
 
     def update_jog_pins(self, data):
@@ -282,6 +355,17 @@ class HandlerClass:
                     self['jog_joint_{}_pin'.format(i)].set(True)
                 else:
                     self['jog_joint_{}_pin'.format(i)].set(False)
+
+    def add_external_status(self, message, option):
+        level = option.get('LEVEL') or 0
+        log = option.get("LOG") or True
+        title = message.get('TITLE')
+        mess = message.get('SHORTTEXT')
+        logtext = message.get('DETAILS')
+        self.w.statusbar.showMessage(mess)
+
+        if log:
+            STATUS.emit('update-machine-log', "{}\n{}".format(title, logtext), 'TIME')
 
     #######################
     # callbacks from form #
@@ -310,22 +394,6 @@ class HandlerClass:
     #####################
     # general functions #
     #####################
-
-    def focusInChanged(self, widget):
-        print ('parent:',widget.parent())
-        print (widget, widget.__class__ )
-        print (self.w.gcode_editor, self.w.gcode_editor.__class__,'\n')
-        if isinstance(widget,type(self.w.gcode_editor.editor)):
-            print('Scroll Editor')
-        if isinstance(widget,type(self.w.gcodegraphics)):
-            print('Scroll Gcode Display')
-        if isinstance(widget.parent(),type(self.w.mdihistory) ):
-            print('Scroll MDI')
-        fwidget = QtWidgets.QApplication.focusWidget()
-        if fwidget is not None:
-            print("focus widget name ", fwidget, fwidget.objectName())
-
-
 
     def init_pins(self):
         # external jogging control pins
@@ -357,7 +425,7 @@ class HandlerClass:
             try:
                 win.restoreState(QtCore.QByteArray(state))
             except Exception as e:
-                print(e)
+                LOG.error("restoreSettings Exception: {}".format (e))
             else:
                 return True
         return False
@@ -414,21 +482,16 @@ class HandlerClass:
     def edit(self, widget, state):
         if state:
             self.w.gcode_editor.editMode()
-            self.w.gcode_editor.setMaximumHeight(1000)
-            self.w.frame.hide()
-            self.w.rightTab.hide()
+            self.w.horizontalSplitter.hide()
         else:
             self.w.gcode_editor.readOnlyMode()
-            self.w.gcode_editor.setMaximumHeight(500)
-            self.w.frame.show()
-            self.w.rightTab.show()
+            self.w.horizontalSplitter.show()
 
     def adjust_controls(self):
         if INFO.HAS_ANGULAR_JOINT:
             self.w.widget_angular_jog.show()
         else:
             self.w.widget_angular_jog.hide()
-        print('trivial',INFO.IS_TRIVIAL_MACHINE)
         if INFO.IS_TRIVIAL_MACHINE:
             self.w.menuControlMode.menuAction().setVisible(False)
 
@@ -570,7 +633,6 @@ class HandlerClass:
         self.w.rpm_bar.setMinimumWidth (150)
         self.w.rpm_bar.setRange(0, INFO.MAX_SPINDLE_SPEED)
 
-        self.w.rpm_label = QtWidgets.QLabel()
 
         # containers
         w = QtWidgets.QWidget()
@@ -578,7 +640,6 @@ class HandlerClass:
 
         hbox = QtWidgets.QHBoxLayout()
         hbox.setContentsMargins(0,0,0,0)
-        hbox.addWidget(self.w.rpm_label)
         hbox.addWidget(self.w.rpm_bar)
         hbox.addWidget(self.w.led)
         w.setLayout(hbox)
@@ -611,25 +672,39 @@ class HandlerClass:
 
     # MPG scrolling of program or MDI history
     def external_mpg(self, count):
-        widget = QtWidgets.QApplication.focusWidget()
-        if self.pin_mpg_enabled.get() and not widget is None:
-            diff = count - self._last_count
+        diff = count - self._last_count
+        if self.pin_mpg_enabled.get():
+            if isinstance(self.MPGFocusWidget, SLIDER):
+                if self.MPGFocusWidget is self.w.statusSliderFeed:
+                    scaled = (STATUS.stat.feedrate * 100 + diff)
+                    if scaled <0 :scaled = 0
+                    elif scaled > INFO.MAX_FEED_OVERRIDE:scaled = INFO.MAX_FEED_OVERRIDE
+                    ACTION.SET_FEED_RATE(scaled)
+                elif  self.MPGFocusWidget is self.w.statusSliderRapid:
+                    scaled = (STATUS.stat.rapidrate * 100 + diff)
+                    if scaled <0 :scaled = 0
+                    elif scaled > 100:scaled = 100
+                    ACTION.SET_RAPID_RATE(scaled)
+                elif  self.MPGFocusWidget is self.w.statusSliderSpindle:
+                    scaled = (STATUS.stat.spindle[0]['override'] * 100 + diff)
+                    if scaled < INFO.MIN_SPINDLE_OVERRIDE:scaled = INFO.MIN_SPINDLE_OVERRIDE
+                    elif scaled > INFO.MAX_SPINDLE_OVERRIDE:scaled = INFO.MAX_SPINDLE_OVERRIDE
+                    ACTION.SET_SPINDLE_RATE(scaled)
 
-            if isinstance(widget,type(self.w.gcodegraphics)):
+            elif isinstance(self.MPGFocusWidget, GRAPHICS):
                 if diff <0:
                     ACTION.SET_GRAPHICS_VIEW('zoom-in')
                 else:
                     ACTION.SET_GRAPHICS_VIEW('zoom-OUT')
 
-            elif isinstance(widget.parent(),type(self.w.mdihistory) ):
-                if diff <0:
-                    self.w.mdihistory.line_up()
-                else:
-                    self.w.mdihistory.line_down()
-
-            else:
-            #if isinstance(widget.parent(),type(self.w.gcode_editor)):
+            elif isinstance(self.MPGFocusWidget, GCODE):
                 self.w.gcode_editor.jump_line(diff)
+
+            elif isinstance(self.MPGFocusWidget, MDI_WIDGET) or isinstance(self.MPGFocusWidget, MDI_HISTORY):
+                if diff <0:
+                   self.w.mdihistory.line_up()
+                else:
+                   self.w.mdihistory.line_down()
         self._last_count = count
 
     #####################
@@ -729,9 +804,7 @@ class HandlerClass:
 
     def on_keycall_dollar(self,event,state,shift,cntrl):
         if state:
-            print('Toggle joint mode before:',STATUS.get_jjogmode())
             ACTION.SET_MOTION_TELEOP(not STATUS.get_jjogmode())
-            print('Toggle joint mode after:',STATUS.get_jjogmode())
 
     ###########################
     # **** closing event **** #

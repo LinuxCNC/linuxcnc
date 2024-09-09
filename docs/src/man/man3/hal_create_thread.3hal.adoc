@@ -1,0 +1,49 @@
+= hal_create_thread(3hal)
+
+== NAME
+
+hal_create_thread - Create a HAL thread
+
+== SYNTAX
+
+int hal_create_thread(const char *_name_, unsigned long _period_, int
+_uses_fp_)
+
+int hal_thread_delete(const char *_name_)
+
+== ARGUMENTS
+
+name::
+  The name of the thread
+period::
+  The interval, in nanoseconds, between iterations of the thread
+uses_fp::
+  Must be nonzero if a function which uses floating-point will be
+  attached to this thread.
+
+== DESCRIPTION
+
+*hal_create_thread* establishes a realtime thread that will execute one
+or more HAL functions periodically.
+
+All thread periods are rounded to integer multiples of the hardware
+timer period, and the timer period is based on the first thread created.
+Threads must be created in order, from the fastest to the slowest. HAL
+assigns decreasing priorities to threads that are created later, so
+creating them from fastest to slowest results in rate monotonic priority
+scheduling.
+
+*hal_delete_thread* deletes a previously created thread.
+
+== REALTIME CONSIDERATIONS
+
+Call only from realtime init code, not from other realtime or
+non-realtime code.
+
+== RETURN VALUE
+
+Returns a HAL status code.
+
+== SEE ALSO
+
+hal_export_funct(3hal)

@@ -1,0 +1,34 @@
+= rtapi_device(3rtapi)
+
+== NAME
+
+rtapi_device - RTAPI wrappers for linux kernel functionality
+
+== SYNTAX
+
+....
+#include <rtapi_device.h>
+struct rtapi_device;
+int rtapi_dev_set_name(struct rtapi_device *dev, const char *name, ...);
+int rtapi_device_register(struct rtapi_device *dev);
+int rtapi_device_unregister(struct rtapi_device *dev);
+....
+
+== DESCRIPTION
+
+In kernel space, each rtapi_xxx or RTAPI_XXX identifier is mapped to the
+underlying kernel functionality, if available.
+
+In userspace, or in kernels where the underlying functionality is not
+provided by a kernel, generally another implementation--possibly with
+reduced functionality--is provided. (For example, the userspace
+implementation for rtapi_device_register always succeeds)
+
+== REALTIME CONSIDERATIONS
+
+Typically, these functions may be called from realtime init/cleanup
+code.
+
+== RETURN VALUE
+
+As in Linux.

@@ -194,8 +194,8 @@ In this case, r-strings are particularly useful, because the backslashes in an r
 r"\fIexample\fB"
 ----
 
-* 'TYPE' - One of the HAL types: 'bit', 'signed', 'unsigned', or 'float'.
-  The old names 's32' and 'u32' may also be used, but 'signed' and 'unsigned' are preferred.
+* 'TYPE' - One of the HAL types: 'bit', 's32', 'u32', 's64', 'u64' or 'float'.
+  The names 'signed' and 'unsigned' may also be used for 's32' and 'u32' but 's32' and 'u32' are preferred.
 * 'PINDIRECTION' - One of the following: 'in', 'out', or 'io'.
   A component sets a value for an 'out' pin, it reads a value from an 'in' pin, and it may read or set the value of an 'io' pin.
 * 'PARAMDIRECTION' - One of the following: 'r' or 'rw'. A component sets a value for a 'r' parameter, and it may read or set the value of a 'rw' parameter.
@@ -395,11 +395,11 @@ to allow for a variable number of input pins to each logic gate and to allow for
 The default number of allowed 'personality' items is a compile-time setting (64).
 The default applies to numerous components included in the distribution that are built using halcompile.
 
-To alter the allowed number of personality items for user-built components, use the '--personality' option with halcompile.
+To alter the allowed number of personality items for user-built components, use the '--personalities' option with halcompile.
 For example, to allow up to 128 personality times:
 
 ----
-  [sudo] halcompile --personality=128 --install ...
+  [sudo] halcompile --personalities=128 --install ...
 ----
 
 When using components with personality, normal usage is to specify a personality item for *each* specified component instance.

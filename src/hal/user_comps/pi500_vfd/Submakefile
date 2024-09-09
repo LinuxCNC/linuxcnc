@@ -8,7 +8,7 @@ $(call TOOBJSDEPS, $(PI500_SRCS)) : EXTRAFLAGS += $(PI500_CFLAGS)
 
 USERSRCS += $(PI500_SRCS)
 
-../bin/pi500_vfd: $(call TOOBJS, $(PI500_SRCS)) ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcncini.so.0
+../bin/pi500_vfd: $(call TOOBJS, $(PI500_SRCS)) ../lib/liblinuxcnchal.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^ $(PI500_LIBS) 
 

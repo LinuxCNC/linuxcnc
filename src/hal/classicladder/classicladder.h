@@ -1,5 +1,5 @@
 /* Classic Ladder Project */
-/* Copyright (C) 2001-2008 Marc Le Douarain */
+/* Copyright (C) 2001-2010 Marc Le Douarain */
 /* http://membres.lycos.fr/mavati/classicladder/ */
 /* http://www.sourceforge.net/projects/classicladder */
 /* February 2001 */
@@ -27,8 +27,9 @@
 #endif
 
 #define CL_PRODUCT_NAME "ClassicLadder"
-#define CL_RELEASE_VER_STRING "0.7.124-EMC"
-#define CL_RELEASE_DATE_STRING "2 MAR 2008"
+#define CL_RELEASE_VER_STRING "0.8.10-LinuxCNC"
+#define CL_RELEASE_DATE_STRING "31 December 2010"
+#define CL_RELEASE_COPYRIGHT_YEARS "2001-2010"
 
 // defaults values
 #define NBR_RUNGS_DEF 100
@@ -48,8 +49,13 @@
 #define NBR_PHYS_FLOAT_INPUTS_DEF 10
 #define NBR_PHYS_FLOAT_OUTPUTS_DEF 10
 #define NBR_ERROR_BITS_DEF 10
-#define NBR_INPUTS_CONF 5
-#define NBR_OUTPUTS_CONF 5
+
+
+#define NBR_VARS_SYSTEM 20
+#define NBR_INPUTS_CONF 32
+#define NBR_OUTPUTS_CONF 32
+
+#define NBR_VARS_WORDS_SYSTEM 20
 
 typedef struct plc_sizeinfo_s {
 	int	nbr_rungs;
@@ -65,8 +71,8 @@ typedef struct plc_sizeinfo_s {
 	int	nbr_phys_outputs;
 	int	nbr_arithm_expr;
 	int	nbr_sections;
-	int     nbr_symbols;
-        int	nbr_phys_words_inputs;
+	int nbr_symbols;
+	int	nbr_phys_words_inputs;
 	int	nbr_phys_words_outputs;
         int     nbr_phys_float_inputs;
         int     nbr_phys_float_outputs;
@@ -126,6 +132,10 @@ typedef struct plc_sizeinfo_s {
 /* size of lines activated (comment to not use) */
 #define THICK_LINE_ELE_ACTIVATED 3
 
+/* convenient calcs used many time... */
+#define TOTAL_PX_RUNG_HEIGHT ( InfosGene->HeaderLabelCommentHeight + InfosGene->BlockHeight*RUNG_HEIGHT )
+#define TOTAL_PX_RUNG_WIDTH ( InfosGene->BlockWidth*RUNG_WIDTH )
+
 /* elements in the rungs */
 #define ELE_FREE 0
 #define ELE_INPUT 1
@@ -155,6 +165,8 @@ typedef struct plc_sizeinfo_s {
 #define EDIT_POINTER 101
 #define EDIT_LONG_CONNECTION 102
 #define EDIT_ERASER 103
+#define EDIT_SELECTION 104
+#define EDIT_COPY 105
 
 
 /* Type of vars */
@@ -170,7 +182,8 @@ typedef struct plc_sizeinfo_s {
 #define VAR_STEP_ACTIVITY 30
 #define VAR_PHYS_INPUT 50
 #define VAR_PHYS_OUTPUT 60
-#define VAR_ERROR_BIT 70
+#define VAR_SYSTEM 70
+#define VAR_ERROR_BIT 75
 #define VAR_ARE_WORD 199    /* after it, all vars are no more booleans */
 /* integers */
 #define VAR_MEM_WORD 200
@@ -185,6 +198,7 @@ typedef struct plc_sizeinfo_s {
 #define VAR_TIMER_IEC_VALUE 261
 #define VAR_PHYS_WORD_INPUT 270
 #define VAR_PHYS_WORD_OUTPUT 280
+#define VAR_WORD_SYSTEM 290
 #define VAR_PHYS_FLOAT_INPUT 300
 #define VAR_PHYS_FLOAT_OUTPUT 310
 
@@ -193,6 +207,10 @@ typedef struct plc_sizeinfo_s {
 #define BASE_MINS 0
 #define BASE_SECS 1
 #define BASE_100MS 2
+
+//default variables depending of the element placed
+#define DEFAULT_VAR_FOR_CONTACT VAR_PHYS_INPUT
+#define DEFAULT_VAR_FOR_COIL VAR_PHYS_OUTPUT
 
 #define TIME_UPDATE_GTK_DISPLAY_MS 100
 
@@ -206,6 +224,8 @@ typedef struct StrElement
 	char ConnectedWithTop;
 	int VarType;
 	int VarNum;     /* or NumRung (for jump), NumTimer, NumMonostable,... */
+	int IndexedVarType;
+	int IndexedVarNum;
 	
 	char DynamicInput;
 	char DynamicState;
@@ -284,7 +304,8 @@ typedef struct StrArithmExpr
 	char Expr[ARITHM_EXPR_SIZE];
 }StrArithmExpr;
 
-#define DEVICE_TYPE_DIRECT_ACCESS 0	/* used inb( ) and outb( ) calls */
+#define DEVICE_TYPE_NONE -1 //added in 0.9.4 because now we can have DEVICE_TYPE_DIRECT_CONFIG and FirstClassicLadderIO at -1 !!!
+#define DEVICE_TYPE_DIRECT_ACCESS 0	/* use inb( ) and outb( ) calls to read/write local inputs/outputs */
 #define DEVICE_TYPE_COMEDI 100	/* /dev/comedi0 and following */
 
 typedef struct StrIOConf
@@ -323,6 +344,7 @@ typedef struct StrInfosGene
 	int OffsetCurrentRungDisplayed;
 	int HScrollValue;
 	int VScrollValue;
+	int HeaderLabelCommentHeight;
 	
 	/* how time for the last scan of the rungs in ns (if calc on RTLinux side) */
 	int DurationOfLastScan;
@@ -334,10 +356,15 @@ typedef struct StrInfosGene
 	StrIOConf OutputsConf[ NBR_OUTPUTS_CONF ];
 
 	char AskConfirmationToQuit;
+	char HasBeenModifiedForExitCode;
 	char HardwareErrMsgToDisplay[ 100 ];
 	char DisplaySymbols;
         char CurrentProjectFileName[ 400 ];
 	char AskToConfHard;
+
+	//XXX log functionality not implemented.
+	//char LogContentModified;
+	//char DefaultLogListModified;
 }StrInfosGene;
 
 /* Different states of Ladder */
@@ -357,6 +384,11 @@ typedef struct StrEditRung
 	int CurrentElementPosiY;
 	int CurrentElementSizeX;
 	int CurrentElementSizeY;
+	/* used to see size of element type selected, or selected zone for copy function */
+	int GhostZonePosiX;
+	int GhostZonePosiY;
+	int GhostZoneSizeX;
+	int GhostZoneSizeY;
 }StrEditRung;
 
 #define NBR_PARAMS_PER_OBJ 4
@@ -400,6 +432,46 @@ typedef struct StrSymbol
 	char Comment[ LGT_SYMBOL_COMMENT ];
 }StrSymbol;
 
+#define CREATE_FILE_SELECTION_TO_LOAD_PROJECT 0
+#define CREATE_FILE_SELECTION_TO_SAVE_PROJECT 1
+#define TypeTime unsigned long
+
+//XXX log functionality not implemented.
+/*
+#define NBR_EVENTS_IN_LOG 100
+#define NBR_CONFIG_EVENTS_LOG 20
+//for current defaults list
+#define NBR_CURRENT_DEFS_MAX 30
+typedef struct StrEventLog
+{
+	int iIdEvent;
+	TypeTime StartTime;
+	TypeTime EndTime;
+//TODO: add ms time for start/end...?
+	int ConfigArrayNum;
+	int Parameter;
+	char OldEventThatCouldNotBeDestroyed; //very old, but still not finished...
+}StrEventLog;
+typedef struct StrLog
+{
+	StrEventLog Event[ NBR_EVENTS_IN_LOG ];
+	int LastEvent;
+	int NbrEvents;
+}StrLog;
+#define EVENT_SYMBOL_LGT 10
+#define EVENT_TEXT_LGT 40
+typedef struct StrConfigEventLog
+{
+//	int VarType; //only %Bxxx type, else difficult in WriteVar() to know which vars have to be logged
+	int FirstVarNum;
+	int NbrVars;
+	int EventType; //(0=simple event, 1=default, 2=big default, perhaps we could work here per bit....?)
+	char Symbol[ EVENT_SYMBOL_LGT ];
+	char Text[ EVENT_TEXT_LGT ];
+}StrConfigEventLog;
+*/
+
+
 #ifdef SEQUENTIAL_SUPPORT
 #include "sequential.h"
 #define SIZE_VAR_ARRAY (NBR_BITS+NBR_PHYS_INPUTS+NBR_PHYS_OUTPUTS+NBR_STEPS+NBR_ERROR_BITS)
@@ -413,6 +485,7 @@ typedef struct StrSymbol
 
 void ClassicLadderEndOfAppli( void );
 void DoPauseMilliSecs( int Time );
+void DoFlipFlopRunStop( void );
 void StopRunIfRunning( void );
 void RunBackIfStopped( void );
 
@@ -442,3 +515,9 @@ extern int compId;
 extern int nogui;
 extern int modmaster;
 extern int modslave;
+
+// for EMC to be able to have specific headers in the many (rt or not) debug printf
+//#define DBG_HEADER_INFO "ClassicLadder Info --- "
+//#define DBG_HEADER_ERR "ClassicLadder Error --- "
+#define DBG_HEADER_INFO ""
+#define DBG_HEADER_ERR ""

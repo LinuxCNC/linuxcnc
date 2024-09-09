@@ -28,6 +28,7 @@
 #include <boost/python/exec.hpp>
 #include <boost/python/extract.hpp>
 #include <boost/python/import.hpp>
+#include <pyconfig.h>
 
 namespace bp = boost::python;
 
@@ -293,9 +294,11 @@ PythonPlugin::PythonPlugin(struct _inittab *inittab) :
     abs_path(0),
     log_level(0)
 {
+  PyConfig config;
+  PyConfig_InitPythonConfig(&config);
   if (abs_path) {
     wchar_t *program = Py_DecodeLocale(abs_path, NULL);
-    Py_SetProgramName(program);
+    PyConfig_SetString(&config, &config.program_name, program);
   }
     if (inittab != NULL) {
       if (!Py_IsInitialized()) {
@@ -333,7 +336,7 @@ int PythonPlugin::configure(const char *iniFilename,
 			   const char *section) 
 {
     IniFile inifile;
-    const char *inistring;
+    std::optional<const char*> inistring;
 
     if (section == NULL) {
 	logPP(1, "no section");
@@ -354,16 +357,16 @@ int PythonPlugin::configure(const char *iniFilename,
 
     char real_path[PATH_MAX];
     char expandinistring[PATH_MAX];
-    if ((inistring = inifile.Find("TOPLEVEL", section)) != NULL) {
-        if (inifile.TildeExpansion(inistring,expandinistring,sizeof(expandinistring))) {
+    if ((inistring = inifile.Find("TOPLEVEL", section))) {
+        if (inifile.TildeExpansion(*inistring,expandinistring,sizeof(expandinistring))) {
 	        logPP(-1, "TildeExpansion failed  '%s'", toplevel);
 	        status = PLUGIN_BAD_PATH;
 	        return status;
         }
 	toplevel = strstore(expandinistring);
 
-	if ((inistring = inifile.Find("RELOAD_ON_CHANGE", section)) != NULL)
-	    reload_on_change = (atoi(inistring) > 0);
+	if ((inistring = inifile.Find("RELOAD_ON_CHANGE", section)))
+	    reload_on_change = (atoi(*inistring) > 0);
 
 	if (realpath(toplevel, real_path) == NULL) {
 	    logPP(-1, "can\'t resolve path to '%s'", toplevel);
@@ -388,16 +391,16 @@ int PythonPlugin::configure(const char *iniFilename,
 	abs_path = strstore(real_path);
     }
 
-    if ((inistring = inifile.Find("LOG_LEVEL", section)) != NULL)
-	log_level = atoi(inistring);
+    if ((inistring = inifile.Find("LOG_LEVEL", section)))
+	log_level = atoi(*inistring);
     else log_level = 0;
 
     char pycmd[PATH_MAX];
     int n = 1;
     int lineno;
-    while (NULL != (inistring = inifile.Find("PATH_PREPEND", "PYTHON",
+    while ((inistring = inifile.Find("PATH_PREPEND", "PYTHON",
 					     n, &lineno))) {
-        if (inifile.TildeExpansion(inistring,expandinistring,sizeof(expandinistring))) {
+        if (inifile.TildeExpansion(*inistring,expandinistring,sizeof(expandinistring))) {
 	        logPP(-1, "TildeExpansion failed  '%s'", toplevel);
 	        status = PLUGIN_EXCEPTION_DURING_PATH_PREPEND;
 	        return status;
@@ -414,9 +417,9 @@ int PythonPlugin::configure(const char *iniFilename,
 	n++;
     }
     n = 1;
-    while (NULL != (inistring = inifile.Find("PATH_APPEND", "PYTHON",
+    while ((inistring = inifile.Find("PATH_APPEND", "PYTHON",
 					     n, &lineno))) {
-        if (inifile.TildeExpansion(inistring,expandinistring,sizeof(expandinistring))) {
+        if (inifile.TildeExpansion(*inistring,expandinistring,sizeof(expandinistring))) {
 	        logPP(-1, "TildeExpansion failed  '%s'", toplevel);
 	        status = PLUGIN_EXCEPTION_DURING_PATH_APPEND;
 	        return status;

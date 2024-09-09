@@ -34,56 +34,44 @@ Consult the Operation section of the Huanyang GT-series Inverter Manual for deta
 Set the following parameters:
 
 P0.01 = 2::
-
     Set Run Command Source to Modbus serial port.
 
 P0.03::
-
     Set Maximum Frequency to the maximum frequency you want the VFD to output, in Hz.
 
 P0.04::
-
     Set Upper Frequency Limit to the maximum frequency you want the VFD to output, in Hz.
     This should be the same as the value in P0.03.
 
 P0.05::
-
     Set Lower Frequency Limit to the minimum frequency you want the VFD to output, in Hz.
 
 P0.07 = 7::
-
     Set Frequency A Command Source to Modbus serial port.
 
 P2.01 = ???::
-
     Set Motor Rated Power to the motor's power rating in kW.
 
 P2.02 = ???::
-
     Set Motor Rated Frequency to the motor's max frequency in Hz.
 
 P2.03 = ???::
-
     Set Motor Rated Speed to the motor's speed in RPM at its rated maximum frequency.
 
 P2.04 = ???::
-
     Set Motor Rated Voltage to the motor's maximum voltage, in Volts.
 
 P2.05 = ???::
-
     Set Motor Rated Current to the motor's maximum current, in Amps.
 
 PC.00 = 1::
-
     Set Local Address to 1.
     This matches the default in the hy_gt_vfd driver, change this if your setup has special needs.
 
 PC.01 = 5::
-
     Set baud rate selection to 5 (38400 bps).
     This matches the default in the hy_gt_vfd driver, change this if your setup has special needs.
-
+    +
         0 = 1200
         1 = 2400
         2 = 4800
@@ -92,12 +80,10 @@ PC.01 = 5::
         5 = 38400
 
 PC.02 = 0::
-
     Set Data Format (8n1 RTU).
     This matches the default in the hy_gt_vfd driver, change this if your setup has special needs.
 
 PC.03 = 1::
-
     Set Communication Delay Time to 1 ms.
     This is expected by the hy_gt_vfd driver.
 
@@ -105,145 +91,116 @@ PC.03 = 1::
 == OPTIONS
 
 *-b*, *--bits* _N_::
-
     (default 8) For Modbus communication.
     Set number of data bits to _N_.
     _N_ must be between 5 and 8 inclusive.
 
 *-p*, *--parity* [Even,Odd,None]
-
     (default None) For Modbus communication.
     Set serial parity to Even, Odd, or None.
 
 *-r*, *--rate* _N_::
-
     (default 38400) For Modbus communication.
     Set baud rate to _N_.
     It is an error if the rate is not one of the following: 1200, 2400, 4800, 9600, 19200, 38400
 
 *-s*, *--stopbits* [1,2]::
-
     (default 1) For Modbus communication.
     Set serial stop bits to 1 or 2.
 
 *-t*, *--target* _N_::
-
     (default 1) For Modbus communication.
     Set Modbus target (slave) number.
     This must match the device number you set on the Huanyang GT VFD.
 
 *-d*, *--device* _PATH_::
-
     (default /dev/ttyS0) For Modbus communication.
     Set the name of the serial device node to use.
 
 *-v*, *--verbose*::
-
     Turn on verbose mode.
 
 *-S*, *--motor-max-speed* _RPM_::
-
     The motor's max speed in RPM.
     This must match the motor speed value configured in VFD register P2.03.
 
 *-F*, *--max-frequency* _HZ_::
-
     This is the maximum output frequency of the VFD in Hz.
     It should correspond to the motor's rated max frequency, and to the maximum and upper limit output frequency configured in VFD register P0.03 and P0.04.
 
 *-f*, *--min-frequency* _HZ_::
-
     This is the minimum output frequency of the VFD in Hz.
     It should correspond to the minimum output frequency configured in VFD register P0.05.
 
-
 == PINS
 
-
 *hy_gt_vfd.period* (float, in)::
-
     The period for the driver's update cycle, in seconds. This is
     how frequently the driver will wake up, check its HAL pins, and
     communicate with the VFD.  Must be between 0.001 and 2.000 seconds.
     Default: 0.1 seconds.
 
 *hy_gt_vfd.speed-cmd* (float, in)::
-
     The requested motor speed, in RPM.
 
 *hy_gt_vfd.speed-fb* (float, out)::
-
     The motor's current speed, in RPM, reported by the VFD.
 
 *hy_gt_vfd.at-speed* (bit, out)::
-
     True when the drive is on and at the commanded speed (within 2%),
     False otherwise.
 
 *hy_gt_vfd.freq-cmd* (float, out)::
-
     The requested output frequency, in Hz.
     This is set from the .speed-cmd value, and is just shown for debugging purposes.
 
 *hy_gt_vfd.freq-fb* (float, out)::
-
     The current output frequency of the VFD, in Hz.
     This is reported from the VFD to the driver.
 
 *hy_gt_vfd.spindle-on* (bit, in)::
-
     Set this pin True to command the spindle on, at the speed requested on the .speed-cmd pin.
     Set this pin False to command the spindle off.
 
 *hy_gt_vfd.output-voltage* (float, out)::
-
     The voltage that the VFD is current providing to the motor, in Volts.
 
 *hy_gt_vfd.output-current* (float, out)::
-
     The current that the motor is currently drawing from the VFD, in Ampères.
 
 *hy_gt_vfd.output-power* (float, out)::
-
     The power that the motor is currently drawing from the VFD, in Watts.
 
 *hy_gt_vfd.dc-bus-volts* (float, out)::
-
     The current voltage of the VFD's internal DC power supply, in Volts.
 
 *hy_gt_vfd.modbus-errors* (u32, out)::
-
     A count of the number of modbus communication errors between the driver and the VFD.
     The driver is resilient against communication errors, but a large or growing number here indicates a problem that should be investigated.
 
 *hy_gt_vfd.input-terminal* (float, out)::
-
     The VFD's input terminal register.
 
 *hy_gt_vfd.output-terminal* (float, out)::
-
     The VFD's output terminal register.
 
 *hy_gt_vfd.AI1* (float, out)::
-
     The VFD's AI1 register.
 
 *hy_gt_vfd.AI2* (float, out)::
-
     The VFD's AI2 register.
 
 *hy_gt_vfd.HDI-frequency* (float, out)::
-
     The VFD's HDI-frequency register.
 
 *hy_gt_vfd.external-counter* (float, out)::
-
     The VFD's external counter register.
 
 *hy_gt_vfd.fault-info* (float, out)::
+    The VFD's fault info register in floating point representation.  This is kept for backwards compatibility with existing setups and will be removed in the future.
 
-    The VFD's fault info register.
-
+*hy_gt_vfd.fault-info-code* (u32, out)::
+    The VFD's fault code register value.  Introduced in LinuxCNC version 2.10.  0x00 if no fault is detected, see GT Series Inverter Manual page 87 for list of fault codes.
 
 == ISSUES
 

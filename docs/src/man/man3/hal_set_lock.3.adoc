@@ -1,0 +1,26 @@
+:manvolnum: 3
+
+= hal_set_lock(3hal)
+
+== NAME
+
+hal_set_lock, hal_get_lock - Set or get the HAL lock level
+
+== SYNTAX
+
+int hal_set_lock(unsigned char _lock_type_)
+
+int hal_get_lock()
+
+== ARGUMENTS
+
+lock_type::
+  The desired lock type, which may be a bitwise combination of:
+  *HAL_LOCK_LOAD*, *HAL_LOCK_CONFIG*, *HAL_LOCK_PARAMS*, or
+  *HAL_LOCK_PARAMS*. *HAL_LOCK_NONE* or 0 locks nothing, and
+  *HAL_LOCK_ALL locks everything.*
+
+== RETURN VALUE
+
+*hal_set_lock* Returns a HAL status code. *hal_get_lock* returns the
+current HAL lock level or a HAL status code.

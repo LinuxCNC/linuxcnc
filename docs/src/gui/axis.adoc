@@ -741,7 +741,6 @@ source code. These modules include:
 - 'rs274' provides additional tools for working with rs274ngc files
 - 'hal' allows the creation of non-realtime HAL components written in Python
 - '_togl' provides an OpenGL widget that can be used in Tkinter applications
-- 'minigl' provides access to the subset of OpenGL used by AXIS
 
 To use these modules in your own scripts, you must ensure that the
 directory where they reside is on Python's module path. When running an

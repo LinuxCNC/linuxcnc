@@ -1,0 +1,58 @@
+:manvolnum: 3
+
+= rtapi_shmem(3rtapi)
+
+== NAME
+
+rtapi_shmem, rtapi_shmem_new, rtapi_shmem_delete, rtapi_shmem_getptr - Functions for managing shared memory blocks
+
+== SYNTAX
+
+....
+int rtapi_shmem_new(int _key_, int _module_id_, unsigned long int _size_);
+int rtapi_shmem_delete(int _shmem_id_, int _module_id_);
+int rtapi_shmem_getptr(int _shmem_id_, void ** _ptr_);
+....
+
+== ARGUMENTS
+
+key::
+  Identifies the memory block. Key must be nonzero. All modules wishing
+  to use the same memory must use the same key.
+module_id::
+  Module identifier returned by a prior call to *rtapi_init*.
+size::
+  The desired size of the shared memory block, in bytes
+ptr::
+  The pointer to the shared memory block. Note that the block may be
+  mapped at a different address for different modules.
+
+== DESCRIPTION
+
+*rtapi_shmem_new* allocates a block of shared memory. _key_ identifies
+the memory block, and must be non-zero. All modules wishing to access
+the same memory must use the same key. _module_id_ is the ID of the
+module that is making the call (see rtapi_init). The block will be at
+least _size_ bytes, and may be rounded up. Allocating many small blocks
+may be very wasteful. When a particular block is allocated for the first
+time, the contents are zeroed. Subsequent allocations of the same block
+by other modules or processes will not touch the contents of the block.
+Applications can use those bytes to see if they need to initialize the
+block, or if another module already did so. On success, it returns a
+positive integer ID, which is used for all subsequent calls dealing with
+the block. On failure it returns a negative error code.
+
+*rtapi_shmem_delete* frees the shared memory block associated with
+_shmem_id_. _module_id_ is the ID of the calling module. Returns a
+status code.
+
+*rtapi_shmem_getptr* sets _*ptr_ to point to shared memory block
+associated with _shmem_id_.
+
+== REALTIME CONSIDERATIONS
+
+*rtapi_shmem_getptr* may be called from non-realtime code, init/cleanup
+code, or realtime tasks.
+
+*rtapi_shmem_new* and *rtapi_shmem_dete* may not be called from realtime
+tasks.

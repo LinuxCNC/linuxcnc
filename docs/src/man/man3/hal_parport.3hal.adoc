@@ -1,0 +1,71 @@
+= hal_parport(3hal)
+
+== NAME
+
+hal_parport - portable access to PC-style parallel ports
+
+== SYNTAX
+
+....
+#include "hal_parport.h"
+int hal_parport_get(int _comp_id_, hal_parport_t *_port_,
+                      unsigned short _base_, unsigned short _base_hi_,
+		      unsigned int _modes_)
+void hal_parport_release(hal_parport_t *_port_)
+....
+
+== ARGUMENTS
+
+comp_id::
+  A HAL component identifier returned by an earlier call to *hal_init*.
+port::
+  A pointer to a hal_parport_t structure
+base::
+  The base address of the port (if port >= 16) or the linux port number
+  of the port (if port < 16)
+base_hi::
+  The "high" address of the port (location of the ECP registers), 0 to
+  use a probed high address, or -1 to disable the high address
+modes::
+  Advise the driver of the desired port modes, from <linux/parport.h>.
+  If a linux-detected port does not provide the requested modes, a
+  warning is printed with rtapi_print_msg. This does not make the port
+  request fail, because unfortunately, many systems that have working
+  EPP parports are not detected as such by Linux.
+
+== DESCRIPTION
+
+*hal_parport_get* allocates a parallel port for exclusive use of the
+named HAL component. The port must be released with
+*hal_parport_release* before the component exits with *hal_exit*.
+
+== HIGH ADDRESS PROBING
+
+If the port is a parallel port known to Linux, and Linux detected a high
+I/O address, this value is used. Otherwise, if base+0x400 is not
+registered to any device, it is used. Otherwise, no address is used. If
+no high address is detected, port->base_hi is 0.
+
+== PARPORT STRUCTURE
+
+....
+typedef struct
+{
+    unsigned short base;
+    unsigned short base_hi;
+    .... // and further unspecified fields
+} hal_parport_t;
+....
+
+== RETURN VALUE
+
+*hal_parport_get* returns a HAL status code. On success, _port_ is
+filled out with information about the allocated port. On failure, the
+contents of _port_ are undefined except that it is safe (but not
+required) to pass this port to *hal_parport_release*.
+
+*hal_parport_release* does not return a value. It always succeeds.
+
+== NOTES
+
+In new code, prefer use of rtapi_parport to hal_parport.

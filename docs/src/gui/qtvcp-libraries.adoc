@@ -302,7 +302,9 @@ ACTION.SET_TOOL_OFFSET(axis,value,fixture = False)
 
 ACTION.RUN()
 ACTION.ABORT()
-ACTION.PAUSE()
+ACTION.PAUSE()          # Toggles pause/resume
+ACTION.PAUSE_MACHINE()
+ACTION.RESUME()
 
 ACTION.SET_MAX_VELOCITY_RATE(rate)
 ACTION.SET_RAPID_RATE(rate)
@@ -376,6 +378,97 @@ ACTION.BEEP_START():
 
 ACTION.SET_DISPLAY_MESSAGE(string)
 ACTION.SET_ERROR_MESSAGE(string)
+
+ACTION.TOUCHPLATE_TOUCHOFF(search_vel, probe_vel, max_probe,
+       z_offset, retract_distance, z_safe_travel, rtn_method=None, error_rtn = None)
+----
+
+== Qhal
+
+A library for HAL component interactions.
+
+=== Attributes
+
+These are the functions that can be called on the Qhal object:
+
+*`newpin(name, pin type constant, pin direction constant)`*:: returns a new QPin object
+*`getpin(name)`*:: returns an existing named QPin object
+*`getvalue(name)`*:: returns the named pin's value, use the full component/pin name.
+*`setp(name,value)`*:: sets the named pin's value, use the full component/pin name.
+*`makeUniqueName(name)`*:: returns an unique HAL pin name string by adding '-x' (a number) to the base name
+*`exit()`*:: kills the component
+
+=== Constants
+Here are the available constants:
+
+* *HAL_BIT*
+* *HAL_FLOAT*
+* *HAL_S32*
+* *HAL_U32*
+
+* *HAL_IN*
+* *HAL_OUT*
+* *HAL_IO*
+* *HAL_RO*
+* *HAL_RW*
+
+=== References
+Available object references:
+
+* *comp* the component object
+* *hal* the hal library object
+
+== QPin
+A wrapper class around HAL pins
+
+=== Signals
+There are 3 Qt signals that the QPin pin can be connect to:
+
+* *value_changed* will call a named function with an argument of the current value
+* *pinValueChanged* will call a named function with arguments of the pin object and the current value
+* *isDrivenChanged* will call a named function with arguments of the pin object and current state when
+ the pin is (un)connected to a driving pin
+
+=== Attributes
+These are the functions that can be called on a QPin object:
+
+* *<Pin object>.get()* returns the current value of the pin object
+* *<Pin object>.set(X)* sets the value of the pin object to the value X
+* *<Pin object>.text()* returns the pin name string
+
+=== References
+Available object references:
+
+* *hal* the hal library object
+
+=== Example
+.Add a function that gets called when the pin state changes
+
+[source,python]
+----
+from qtvcp.core import Qhal
+QHAL = Qhal()
+
+##########################################
+# Special Functions called from QtVCP
+##########################################
+
+# at this point:
+# the widgets are instantiated.
+# the HAL pins are built but HAL is not set ready
+def initialized__(self):
+    self.pin_button_in = QHAL.newpin('cycle-start-in',QHAL.HAL_BIT, QHAL.HAL_IN)
+    self.pin_button_in.pinValuechanged.connect(self.buttonChanged)
+    self.pin_button_in.isDrivenChanged.connect(lambda p,s: self.buttonDriven(p,s))
+
+def buttonChanged(self, pinObject, value):
+    print('Pin name:{} changed value to {}'.format(pinObject.text(), value))
+
+def buttonDriven(self, pinObject, state):
+    message = 'not driven by an output pin'
+    if state:
+        message = 'is driven by an output pin'
+    print('Pin name:{} is {}'.format(pinObject.text(), message))
 ----
 
 == `Tool`

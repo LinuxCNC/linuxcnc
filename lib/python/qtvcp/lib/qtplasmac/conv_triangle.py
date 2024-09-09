@@ -1,8 +1,8 @@
 '''
 conv_triangle.py
 
-Copyright (C) 2020, 2021, 2022  Phillip A Carter
-Copyright (C) 2020, 2021, 2022  Gregory D Carl
+Copyright (C) 2020 - 2024 Phillip A Carter
+Copyright (C) 2020 - 2024 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -26,23 +26,24 @@ from plasmac import triangle as TRIANGLE
 
 _translate = QCoreApplication.translate
 
+
 def preview(P, W, Conv):
     if P.dialogError:
         return
     if not W.xsEntry.text():
-        W.xsEntry.setText('{:0.3f}'.format(P.xOrigin))
+        W.xsEntry.setText(f'{P.xOrigin:0.3f}')
     if not W.ysEntry.text():
-        W.ysEntry.setText('{:0.3f}'.format(P.yOrigin))
-    error = TRIANGLE.preview(Conv, P.fTmp, P.fNgc, P.fNgcBkp, \
-            int(W.conv_material.currentText().split(':')[0]), \
-            W.conv_material.currentText().split(':')[1].strip(), \
-            P.preAmble, P.postAmble, \
-            W.liEntry.text(), W.loEntry.text(), \
-            W.xsEntry.text(), W.ysEntry.text(), \
-            W.kerf_width.value(), P.intExt, \
-            W.AaEntry.text(), W.BaEntry.text(), W.CaEntry.text(), \
-            W.AlEntry.text(), W.BlEntry.text(), W.ClEntry.text(), \
-            W.aEntry.text())
+        W.ysEntry.setText(f'{P.yOrigin:0.3f}')
+    error = TRIANGLE.preview(Conv, P.fTmp, P.fNgc, P.fNgcBkp,
+                             int(W.conv_material.currentText().split(':')[0]),
+                             W.conv_material.currentText().split(':')[1].strip(),
+                             P.preAmble, P.postAmble,
+                             W.liEntry.text(), W.loEntry.text(),
+                             W.xsEntry.text(), W.ysEntry.text(),
+                             W.kerf_width.value(), P.intExt,
+                             W.AaEntry.text(), W.BaEntry.text(), W.CaEntry.text(),
+                             W.AlEntry.text(), W.BlEntry.text(), W.ClEntry.text(),
+                             W.aEntry.text())
     if error:
         P.dialogError = True
         P.dialog_show_ok(QMessageBox.Warning, _translate('Conversational', 'Triangle Error'), error)
@@ -52,6 +53,7 @@ def preview(P, W, Conv):
         W.add.setEnabled(True)
         W.undo.setEnabled(True)
         Conv.conv_preview_button(P, W, True)
+
 
 def auto_preview(P, W, Conv, button=False):
     if button == 'intext':
@@ -63,27 +65,29 @@ def auto_preview(P, W, Conv, button=False):
             return
         Conv.conv_auto_preview_button(P, W, button)
     if W.main_tab_widget.currentIndex() == 1 and \
-       ((W.AaEntry.text() and W.BaEntry.text() and W.CaEntry.text() and \
-       (W.AlEntry.text() or W.BlEntry.text() or W.ClEntry.text())) or \
-       (W.AaEntry.text() and W.BlEntry.text() and W.ClEntry.text()) or \
-       (W.AlEntry.text() and W.BaEntry.text() and W.ClEntry.text()) or \
-       (W.AlEntry.text() and W.BlEntry.text() and W.CaEntry.text()) or \
-       (W.AlEntry.text() and W.BlEntry.text() and W.ClEntry.text())):
+        ((W.AaEntry.text() and W.BaEntry.text() and W.CaEntry.text() and
+          (W.AlEntry.text() or W.BlEntry.text() or W.ClEntry.text())) or
+         (W.AaEntry.text() and W.BlEntry.text() and W.ClEntry.text()) or
+         (W.AlEntry.text() and W.BaEntry.text() and W.ClEntry.text()) or
+         (W.AlEntry.text() and W.BlEntry.text() and W.CaEntry.text()) or
+         (W.AlEntry.text() and W.BlEntry.text() and W.ClEntry.text())):
         preview(P, W, Conv)
+
 
 def entry_changed(P, W, Conv, widget):
     Conv.conv_entry_changed(P, W, widget)
+
 
 def widgets(P, W, Conv):
     if P.developmentPin.get():
         reload(TRIANGLE)
     W.lDesc.setText(_translate('Conversational', 'CREATING TRIANGLE'))
     W.iLabel.setPixmap(P.conv_triangle_l)
-    #alignment and size
-    rightAlign = ['ctLabel', 'xsLabel', 'xsEntry', 'ysLabel', 'ysEntry', \
-                  'liLabel', 'liEntry', 'loLabel', 'loEntry', 'AaLabel', \
-                  'AaEntry', 'BaLabel', 'BaEntry', 'CaLabel', 'CaEntry', \
-                  'AlLabel', 'AlEntry', 'BlLabel', 'BlEntry', 'ClLabel', \
+    # alignment and size
+    rightAlign = ['ctLabel', 'xsLabel', 'xsEntry', 'ysLabel', 'ysEntry',
+                  'liLabel', 'liEntry', 'loLabel', 'loEntry', 'AaLabel',
+                  'AaEntry', 'BaLabel', 'BaEntry', 'CaLabel', 'CaEntry',
+                  'AlLabel', 'AlEntry', 'BlLabel', 'BlEntry', 'ClLabel',
                   'ClEntry', 'aLabel', 'aEntry']
     centerAlign = ['lDesc']
     rButton = ['intExt']
@@ -102,18 +106,18 @@ def widgets(P, W, Conv):
     for widget in pButton:
         W[widget].setFixedWidth(80)
         W[widget].setFixedHeight(24)
-    #connections
-    W.conv_material.currentTextChanged.connect(lambda:auto_preview(P, W, Conv))
-    W.intExt.toggled.connect(lambda:auto_preview(P, W, Conv, 'intext'))
-    W.preview.pressed.connect(lambda:preview(P, W, Conv))
-    W.add.pressed.connect(lambda:Conv.conv_add_shape_to_file(P, W))
-    W.undo.pressed.connect(lambda:Conv.conv_undo_shape(P, W))
-    entries = ['xsEntry', 'ysEntry', 'liEntry', 'loEntry', 'AaEntry', 'BaEntry', \
+    # connections
+    W.conv_material.currentTextChanged.connect(lambda: auto_preview(P, W, Conv))
+    W.intExt.toggled.connect(lambda: auto_preview(P, W, Conv, 'intext'))
+    W.preview.pressed.connect(lambda: preview(P, W, Conv))
+    W.add.pressed.connect(lambda: Conv.conv_add_shape_to_file(P, W))
+    W.undo.pressed.connect(lambda: Conv.conv_undo_shape(P, W))
+    entries = ['xsEntry', 'ysEntry', 'liEntry', 'loEntry', 'AaEntry', 'BaEntry',
                'CaEntry', 'AlEntry', 'BlEntry', 'ClEntry', 'aEntry']
     for entry in entries:
-        W[entry].textChanged.connect(lambda:entry_changed(P, W, Conv, W.sender()))
-        W[entry].returnPressed.connect(lambda:preview(P, W, Conv))
-    #add to layout
+        W[entry].textChanged.connect(lambda: entry_changed(P, W, Conv, W.sender()))
+        W[entry].returnPressed.connect(lambda: preview(P, W, Conv))
+    # add to layout
     if P.landscape:
         W.entries.addWidget(W.ctLabel, 0, 0)
         W.entries.addWidget(W.intExt, 0, 1)
@@ -142,8 +146,8 @@ def widgets(P, W, Conv):
         W.entries.addWidget(W.preview, 12, 0)
         W.entries.addWidget(W.add, 12, 2)
         W.entries.addWidget(W.undo, 12, 4)
-        W.entries.addWidget(W.lDesc, 13 , 1, 1, 3)
-        W.entries.addWidget(W.iLabel, 0 , 2, 7, 3)
+        W.entries.addWidget(W.lDesc, 13, 1, 1, 3)
+        W.entries.addWidget(W.iLabel, 0, 2, 7, 3)
     else:
         W.entries.addWidget(W.conv_material, 0, 0, 1, 5)
         W.entries.addWidget(W.ctLabel, 1, 0)
@@ -173,7 +177,7 @@ def widgets(P, W, Conv):
         W.entries.addWidget(W.preview, 9, 0)
         W.entries.addWidget(W.add, 9, 2)
         W.entries.addWidget(W.undo, 9, 4)
-        W.entries.addWidget(W.lDesc, 10 , 1, 1, 3)
-        W.entries.addWidget(W.iLabel, 0 , 5, 7, 3)
+        W.entries.addWidget(W.lDesc, 10, 1, 1, 3)
+        W.entries.addWidget(W.iLabel, 0, 5, 7, 3)
     W.AaEntry.setFocus()
     P.convSettingsChanged = False

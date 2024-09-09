@@ -1,0 +1,28 @@
+= hal_start_threads(3hal)
+
+== NAME
+
+hal_start_threads - Allow HAL threads to begin executing
+
+== SYNTAX
+
+int hal_start_threads()
+
+int hal_stop_threads()
+
+== DESCRIPTION
+
+*hal_start_threads* starts all threads that have been created. This is
+the point at which realtime functions start being called.
+
+*hal_stop_threads* stops all threads that were previously started by
+*hal_start_threads*. It should be called before any component that is
+part of a system exits.
+
+== RETURN VALUE
+
+Returns a HAL status code.
+
+== SEE ALSO
+
+hal_export_funct(3hal), hal_create_thread(3hal), hal_add_funct_to_thread(3hal)

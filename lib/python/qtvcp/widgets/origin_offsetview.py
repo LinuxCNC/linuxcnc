@@ -18,9 +18,9 @@ import sys
 import os
 import locale
 
-from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant, pyqtProperty
+from PyQt5.QtCore import Qt, QAbstractTableModel, QVariant, pyqtProperty, pyqtSlot
 from PyQt5.QtGui import QColor
-from PyQt5.QtWidgets import QTableView, QAbstractItemView
+from PyQt5.QtWidgets import QTableView, QAbstractItemView, qApp
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action, Info
@@ -173,7 +173,7 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         self.setWindowTitle(sf)
         # row 0 is not editable (absolute position)
         # row has limited entries (rotational)
-        # column 9 is the descritive text column
+        # column 9 is the descriptive text column
         if item.column() == 9:
             self.callTextDialog(text,item)
         elif item.row() == 1:
@@ -192,12 +192,14 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         LOG.debug('message sent:{}'.format (mess))
         STATUS.emit('dialog-request', mess)
 
-    def callDialog(self, text,item):
+    def callDialog(self, text,item,next=False):
         axis = self.tablemodel.headerdata[item.column()]
         system = self.tablemodel.Vheaderdata[item.row()]
         mess = {'NAME':self.dialog_code,'ID':'%s__' % self.objectName(),
-                'PRELOAD':float(text), 'TITLE':'{} Offset of {},{}'.format(system, axis,text),
-                'ITEM':item}
+                'PRELOAD':locale.delocalize(text), 'TITLE':'{} Offset of {},{}'.format(system, axis,text),
+                'ITEM':item,
+                'NEXT':next,
+                'WIDGETCYCLE': True}
         STATUS.emit('dialog-request', mess)
         LOG.debug('message sent:{}'.format (mess))
 
@@ -209,9 +211,42 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         name = bool(message.get('NAME') == self.dialog_code)
         name2 = bool(message.get('NAME') == self.text_dialog_code)
         item = message.get('ITEM')
+        next = message.get('NEXT', False)
+        back = message.get('BACK', False)
+
         if code and (name or name2) and num is not None:
             self.tablemodel.setData(item, num, None)
             self.tablemodel.layoutChanged.emit()
+        if code and name:
+            # request for next input widget from nextlist
+            if next:
+                self.right()
+
+                newobj = self.currentIndex()
+                # if we selected the text column, move back
+                if newobj.column() == 9:
+                    self.left()
+                    newobj = self.currentIndex()
+                cellContent = newobj.data()
+                text = cellContent
+
+                # update the screen
+                qApp.processEvents()
+
+                # update the dialog
+                self.callDialog(text,newobj,True)
+            elif back:
+                self.left()
+
+                newobj = self.currentIndex()
+                cellContent = newobj.data()
+                text = cellContent
+
+                # update the screen
+                qApp.processEvents()
+
+                # update the dialog
+                self.callDialog(text,newobj,True)
 
     # This function uses the color name (string); setProperty
     # expects a QColor object
@@ -267,18 +302,18 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         else:
             tmpl = self.imperial_text_template
 
-        degree_tmpl = "%{}.2f".format(len(locale.format(tmpl, 0)))
+        degree_tmpl = "%{}.2f".format(len(locale.format_string(tmpl, 0)))
 
         # fill each row of the liststore from the offsets arrays
         for row, i in enumerate([ap, rot, g92, tool, g54, g55, g56, g57, g58, g59, g59_1, g59_2, g59_3]):
             for column in range(0, 9):
                 if row == 1:
                     if column == 2:
-                        self.tabledata[row][column] = locale.format(degree_tmpl, rot)
+                        self.tabledata[row][column] = locale.format_string(degree_tmpl, rot)
                     else:
                         self.tabledata[row][column] = " "
                 else:
-                    self.tabledata[row][column] = locale.format(tmpl, i[column])
+                    self.tabledata[row][column] = locale.format_string(tmpl, i[column])
         self.tablemodel.layoutChanged.emit()
 
     # We read the var file directly
@@ -382,6 +417,22 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         if self.filename:
             self.reload_offsets()
         return True
+
+    # moves the selection up
+    @pyqtSlot()
+    def up(self):
+        self.setCurrentIndex(self.moveCursor(QAbstractItemView.CursorAction.MoveUp,Qt.NoModifier))
+
+    # moves the selection down
+    @pyqtSlot()
+    def down(self):
+        self.setCurrentIndex(self.moveCursor(QAbstractItemView.CursorAction.MoveDown,Qt.NoModifier))
+
+    def left(self):
+        self.setCurrentIndex(self.moveCursor(QAbstractItemView.CursorAction.MoveLeft,Qt.NoModifier))
+
+    def right(self):
+        self.setCurrentIndex(self.moveCursor(QAbstractItemView.CursorAction.MoveRight,Qt.NoModifier))
 
     #########################################################################
     # This is how designer can interact with our widget properties.

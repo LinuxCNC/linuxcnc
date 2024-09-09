@@ -1,0 +1,74 @@
+:manvolnum: 3
+
+= hal_type_t(3hal)
+
+== NAME
+
+hal_type_t, hal_bool, hal_bit_t, hal_s32_t, hal_u32_t, hal_port_t, hal_float_t, real_t, ireal_t - typedefs for HAL datatypes
+
+== DESCRIPTION
+
+typedef ... *hal_bool;*::
+  A type which may have a value of 0 or nonzero.
+typedef ... *hal_bit_t;*::
+  A volatile type which may have a value of 0 or nonzero.
+typedef ... *hal_s32_t*;::
+  A volatile type which may have a value from -2147483648 to 2147483647.
+typedef ... *hal_u32_t*;::
+  A volatile type which may have a value from 0 to 4294967295.
+typedef ... *hal_port_t*;::
+  A volatile handle to a port object. Used with hal_port* functions.
+typedef ... *hal_float_t*;::
+  A volatile floating-point type, which typically has the same precision
+  and range as the C type *double*.
+typedef ... *real_t*;::
+  A nonvolatile floating-point type with at least as much precision as
+  *hal_float_t*.
+typedef ... *ireal_t*;::
+  A nonvolatile unsigned integral type the same size as *hal_float_t*.
+typedef enum *hal_type_t*;::
+  +
+  *HAL_BIT*;;
+    Corresponds to the type *hal_bit_t*.
+  *HAL_FLOAT*;;
+    Corresponds to the type *hal_float_t*.
+  *HAL_S32*;;
+    Corresponds to the type *hal_s32_t*.
+  *HAL_U32*;;
+    Corresponds to the type *hal_u32_t*.
+
+== NOTES
+
+*hal_bit_t* is typically a typedef to an integer type whose range is
+larger than just 0 and 1. When testing the value of a *hal_bit_t*, never
+compare it to 1. Prefer one of the following:
+
+____
+* if(b)
+* if(b != 0)
+____
+
+It is often useful to refer to a type that can represent all the values
+as a HAL type, but without the volatile qualifier. The following types
+correspond with the HAL types:
+
+____
+hal_bit_t::
+  int
+hal_s32_t::
+  __s32
+hal_u32_t::
+  __u32
+hal_float_t::
+  hal_real_t
+hal_port_t::
+  int
+____
+
+Take care not to use the types *s32* and *u32*. These will compile in
+kernel modules but not in userspace, and not for realtime components
+when using uspace realtime.
+
+== SEE ALSO
+
+hal_pin_new(3hal), hal_param_new(3hal)

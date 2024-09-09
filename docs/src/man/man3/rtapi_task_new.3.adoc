@@ -1,0 +1,51 @@
+:manvolnum: 3
+
+= rtapi_task_new(3rtapi)
+
+== NAME
+
+rtapi_task_new, rtapi_task_delete - create a realtime task
+
+== SYNTAX
+
+....
+int rtapi_task_new(void (*_taskcode_)(void*), void *_arg_, int _prio_,
+                   unsigned long _stacksize_, int _uses_fp_);
+int rtapi_task_delete(int _task_id_);
+....
+
+== ARGUMENTS
+
+taskcode::
+  A pointer to the function to be called when the task is started
+arg::
+  An argument to be passed to the _taskcode_ function when the task is
+  started
+prio::
+  A task priority value returned by *rtapi_prio_xxxx*
+uses_fp::
+  A flag that tells the OS whether the task uses floating point or not.
+task_id::
+  A task ID returned by a previous call to *rtapi_task_new*
+
+== DESCRIPTION
+
+*rtapi_task_new* creates but does not start a realtime task. The task is
+created in the "paused" state. To start it, call either
+*rtapi_task_start* for periodic tasks, or *rtapi_task_resume* for
+free-running tasks.
+
+== REALTIME CONSIDERATIONS
+
+Call only from within init/cleanup code, not from realtime tasks.
+
+== RETURN VALUE
+
+On success, returns a positive integer task ID. This ID is used for all
+subsequent calls that need to act on the task. On failure, returns an
+RTAPI status code.
+
+== SEE ALSO
+
+rtapi_prio(3rtapi), rtapi_task_start(3rtapi), rtapi_task_wait(3rtapi),
+rtapi_task_resume(3rtapi)

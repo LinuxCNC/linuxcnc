@@ -1,0 +1,85 @@
+:manvolnum: 3
+
+= hal_pin_new(3hal)
+
+== NAME
+
+hal_pin_new, hal_pin_bit_new, hal_pin_float_new, hal_pin_u32_new,
+hal_pin_s32_new, hal_pin_port_new, hal_pin_bit_newf,
+hal_pin_float_newf, hal_pin_u32_newf, hal_pin_s32_newf,
+hal_pin_port_newf - creates a HAL pin
+
+== SYNTAX
+
+int hal_pin_bit_new(const char *_name_, hal_pin_dir_t _dir_, hal_bit_t
+** _data_ptr_addr_, int _comp_id_)
+
+int hal_pin_float_new(const char *_name_, hal_pin_dir_t _dir_,
+hal_float_t ** _data_ptr_addr_, int _comp_id_)
+
+int hal_pin_u32_new(const char *_name_, hal_pin_dir_t _dir_, hal_u32_t
+** _data_ptr_addr_, int _comp_id_)
+
+int hal_pin_s32_new(const char *_name_, hal_pin_dir_t _dir_, hal_s32_t
+** _data_ptr_addr_, int _comp_id_)
+
+int hal_pin_port_new(const char *_name_, hal_pin_dir_t _dir_, hal_port_t
+** _data_ptr_addr_, int _comp_id_)
+
+int hal_pin_bit_newf(hal_pin_dir_t _dir_, hal_bit_t ** _data_ptr_addr_,
+int _comp_id_, const char *_fmt_, _..._)
+
+int hal_pin_float_newf(hal_pin_dir_t _dir_, hal_float_t **
+_data_ptr_addr_, int _comp_id_, const char *_fmt_, _..._)
+
+int hal_pin_u32_newf(hal_pin_dir_t _dir_, hal_u32_t ** _data_ptr_addr_,
+int _comp_id_, const char *_fmt_, _..._)
+
+int hal_pin_s32_newf(hal_pin_dir_t _dir_, hal_s32_t ** _data_ptr_addr_,
+int _comp_id_, const char *_fmt_, _..._)
+
+int hal_pin_port_newf(hal_pin_dir_t _dir_, hal_port_t **
+_data_ptr_addr_, int _comp_id_, const char *_fmt_, _..._)
+
+int hal_pin_new(const char *_name_, hal_type_t _type_, hal_pin_dir_t
+_dir_, void **_data_ptr_addr_, int _comp_id_)
+
+== ARGUMENTS
+
+name::
+  name of the pin
+dir::
+  The direction of the pin, from the viewpoint of the component. It may
+  be one of *HAL_IN*, *HAL_OUT*, or *HAL_IO*. Any number of *HAL_IN* or
+  *HAL_IO* pins may be connected to the same signal, but at most one
+  *HAL_OUT* pin is permitted. A component may assign a value to a pin
+  that is *HAL_OUT* or *HAL_IO*, but may not assign a value to a pin
+  that is *HAL_IN*.
+data_ptr_addr::
+  The address of the pointer-to-data, which must lie within memory
+  allocated by *hal_malloc*.
+comp_id::
+  HAL component identifier returned by an earlier call to *hal_init*.
+fmt,::
+  printf-style format string and arguments
+type::
+  The type of the param, as specified in *hal_type_t(3hal)*.
+
+== DESCRIPTION
+
+The *hal_pin_new* family of functions create a new _pin_ object. Once a
+pin has been created, it can be linked to a signal object using
+*hal_link*. A pin contains a pointer, and the component that owns the
+pin can dereference the pointer to access whatever signal is linked to
+the pin. (If no signal is linked, it points to a dummy signal.)
+
+There are functions for each of the data types that the HAL supports.
+Pins may only be linked to signals of the same type.
+
+== RETURN VALUE
+
+Returns 0 on success, or a negative errno value on failure.
+
+== SEE ALSO
+
+hal_type_t(3hal), hal_link(3hal)

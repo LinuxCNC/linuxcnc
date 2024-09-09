@@ -1,0 +1,48 @@
+= rtapi_io(3rtapi)
+
+== NAME
+
+rtapi_io - RTAPI wrappers for linux kernel functionality
+
+== SYNTAX
+
+....
+#include <rtapi_io.h>
+unsigned char rtapi_inb(unsigned short int port);
+unsigned short rtapi_inw(unsigned short int port);
+unsigned int rtapi_inl(unsigned short int port);
+unsigned void rtapi_outb(unsigned char value, unsigned short int port);
+unsigned void rtapi_outw(unsigned short value, unsigned short int port);
+unsigned void rtapi_inl(unsigned int value, unsigned short int port);
+int rtapi_ioperm(unsigned long from, unsigned long num, int turn_on);
+unsigned void rtapi_outl(unsigned int value, unsigned short int port);
+....
+
+== DESCRIPTION
+
+In kernel space, each rtapi_xxx or RTAPI_XXX identifier is mapped to the
+underlying kernel functionality, if available.
+
+In userspace, or in kernels where the underlying functionality is not
+provided by a kernel, generally another implementation--possibly with
+reduced functionality--is provided. (For example, the userspace
+implementation for rtapi_device_register and the kernel space
+implementation of rtapi_ioperm always succeeds)
+
+== REALTIME CONSIDERATIONS
+
+Call from init/cleanup code and from realtime tasks. These functions
+will cause illegal instruction exceptions in non-realtime components, as
+well as in uspace rtapi_app when it is not setuid root.
+
+== RETURN VALUE
+
+As in Linux.
+
+== SEE ALSO
+
+inb(3), inw(3), inl(3), outb(3), outw(3), outl(3), ioperm(3)
+
+== AUTHOR
+
+Jeff Epler

@@ -1,0 +1,171 @@
+= lcd(9)
+
+== NAME
+
+lcd - Stream HAL data to an LCD screen
+
+== SYNOPSIS
+
+*loadrt lcd fmt_strings=""Plain Text %4.4f\nAnd So on|Second Page, Next Inst""*
+
+== FUNCTIONS
+
+*lcd* (requires a floating-point thread).::
+  All LCD instances are updated by the same function.
+
+== PINS
+
+**lcd.**_NN_**.out** (u32) out*::
+  The output byte stream is sent via this pin. One character is sent
+  every thread invocation. There in no handshaking provided.
+**lcd.**_NN_**.page.**_PP._**arg.**_NN_ (float/s32/u32/bit) in*::
+  The input pins have types matched to the format string specifiers.
+**lcd.**_NN_**.page_num** (u32) in*::
+  Selects the page number. Multiple layouts may be defined, and this pin
+  switches between them.
+**lcd.**_NN_**.contrast** (float) in*::
+  Attempts to set the contrast of the LCD screen using the byte sequence
+  ESC C and then a value from 0x20 to 0xBF (matching the Mesa 7I73).
+  The value should be between 0 and 1.
+
+== PARAMETERS
+
+*lcd._NN_*.decimal-separator* (u32) rw*::
+  Sets the decimal separator used for floating point numbers. The
+  default value is 46 (0x2E) which corresponds to ".". If a comma is
+  required then set this parameter to 44 (0x2C).
+
+== DESCRIPTION
+
+*lcd* takes format strings much like those used in C and many other
+languages in the printf and scanf functions and their variants.
+
+The component was written specifically to support the Mesa 7I73 pendant
+controller, however, it may be of use streaming data to other character
+devices and, as the output format mimics the ADM3 terminal format, it
+could be used to stream data to a serial device. Perhaps even a genuine
+ADM3. The strings contain a mixture of text values (which are displayed
+directly), "escaped" formatting codes and numerical format descriptors.
+For a detailed description of formatting codes see:
+http://en.wikipedia.org/wiki/Printf .
+
+The component can be configured to display an unlimited number of
+differently-formatted pages, which may be selected with a HAL pin.
+
+*Escaped codes*::
+  `\n` Inserts a clear-to-end, carriage return and line feed character.
+  This will still linefeed and clear even if an automatic wrap has
+  occurred (lcd has no knowledge of the width of the lcd display).
+  To print in the rightmost column it is necessary to allow the format to
+  wrap and omit the `\n` code.
++
+`\t` Inserts a tab (actually 4 spaces in the current version rather than a
+true tab.)
++
+`\`__NN__ inserts the character defined by the hexadecimal code __NN__.
+As the ',' character is used in the format string to separate LCD instances it must
+be represented by `\2C` in the format string (the decimal separator is handled differently).
++
+`\\` Inserts a literal `\`.
+
+*Numerical formats*::
+  *lcd* differs slightly from the standard printf conventions. One
+  significant difference is that width limits are strictly enforced to
+  prevent the LCD display wrapping and spoiling the layout. The field
+  width includes the sign character so that negative numbers will often
+  have a smaller valid range than positive. Numbers that do not fit in
+  the specified width are displayed as a line of asterisks (**********).
++
+Each format begins with a "`%`" symbol. (For a literal `%` use "`%%`").
+Immediately after the % the following modifiers may be used:
++ 
+" " (space) Pad the number to the specified width with spaces. This is
+the default and is not strictly necessary.
++ 
+"0" Pad the number to the specified width with the numeral 0.
++ 
+"+" Force display of a + symbol before positive numbers. This (like the
+- sign) will appear immediately to the left of the digits for a
+space-padded number and in the extreme left position for a 0-padded
+number.
++ 
+"1234567890" A numerical entry (other than the leading 0 above) defines
+the total number of characters to display including the decimal
+separator and the sign. Whilst this number can be as many digits as
+required, the maximum field width is 20 characters. The inherent
+precision of the "double" data type means that more than 14 digits will
+tend to show errors in the least significant digits. The integer data
+types will never fill more than 10 decimal digits.
++ 
+Following the width specifier should be the decimal specifier. This can
+only be a full-stop character (.) as the comma (,) is used as the
+instance separator. Currently lcd does not access the locale information
+to determine the correct separator but the *decimal-separator* HAL
+parameter can be used to choose any desired separator.
++ 
+Following the decimal separator should be a number that determines how
+many places of decimals to display. This entry is ignored in the case of
+integer formats.
+ 
+All the above modifiers are optional, but to specify a decimal precision
+the decimal point must precede the precision, e.g., as in "%.3f". The
+default decimal precision is 4.
+
+The numerical formats supported are:
+
+*%f %F* (for example, %+09.3f): These create a floating-point type HAL
+pin. The example would be displayed in a 9-character field, with 3
+places of decimals, as a decimal separator, padded to the left with 0s
+and with a sign displayed for both positive and negative. Conversely a
+plain %f would be 6 digits of decimal, variable format width, with a
+sign only shown for negative numbers. Both %f and %F create exactly the
+same format.
+
+*%i %d* (For example %+ 4d): Creates a signed (s32) HAL pin. The example
+would display the value at a fixed 4 characters, space padded, width
+including the "+" giving a range of +999 to -999. %i and %d create
+identical output.
+
+*%u* (for example %08u): Creates an unsigned (u32) HAL pin. The example
+would be a fixed 8 characters wide, padded with zeros.
+
+*%x, %X*: Creates an unsigned (u32) HAL pin and displays the value in
+Hexadecimal. Both %x and %X display capital letters for digits ABCDEF. A
+width may be specified, though the u32 HAL type is only 8 hex digits
+wide.
+
+*%o*: Creates an unsigned (u32) pin and displays the value in octal
+representation.
+
+*%c*: Creates a u32 HAL pin and displays the character corresponding to
+the value of the pin. Values less than 32 (space) are suppressed. A
+width specifier may be used, for example %20c might be used to create a
+complete line of one character.
+
+*%b*: This specifier has no equivalent in printf. It creates a bit
+(boolean) type HAL pin. The b should be followed by two characters and
+the display will show the first of these when the pin is true, and the
+second when false. Note that the characters follow, not precede the "b",
+unlike the case with other formats. The characters may be "escaped" Hex
+values. For example "%b\FF " will display a solid black block if true,
+and a space if false and "%b\7F\7E" would display right-arrow for false
+and left-arrow for true. An unexpected value of 'E' indicates a
+formatting error.
+
+*Pages*: The page separator is the "|" (pipe) character (if the actual
+character is needed then \7C may be used). A "Page" in this context
+refers to a separate format which may be displayed on the same display.
+
+*Instances*: The instance separator is the comma. This creates a
+completely separate lcd instance, for example to drive a second lcd
+display on the second 7I73. The use of comma to separate instances is
+built in to the modparam reading code so not even escaped commas "\,"
+can be used. A comma may be displayed by using the \2C sequence.
+
+== AUTHOR
+
+Andy Pugh
+
+== LICENSE
+
+GPL

@@ -1,0 +1,31 @@
+net spindle-speed-limited  =>  spindle.0.speed-out-rps => spindle.0.speed-in
+
+# the unlink pin commands are only used, because they are connected 
+# in core_sim.hal and we use this file to simulate
+unlinkp iocontrol.0.tool-change
+unlinkp iocontrol.0.tool-changed
+unlinkp iocontrol.0.tool-prep-number
+
+net tool-change      hal_manualtoolchange.change   <=  iocontrol.0.tool-change 
+net tool-changed     hal_manualtoolchange.changed  <=  iocontrol.0.tool-changed
+net tool-prep-number hal_manualtoolchange.number   <=  iocontrol.0.tool-prep-number
+
+# external offset stuff
+net eoffset_clear    qtdragon.eoffset-clear => axis.z.eoffset-clear
+net eoffset_count    qtdragon.eoffset-spindle-count => axis.z.eoffset-counts
+net eoffset          qtdragon.eoffset-value <= axis.z.eoffset
+#net limited          qtdragon.led-limits-tripped <= motion.eoffset-limited
+setp axis.z.eoffset-enable 1
+setp axis.z.eoffset-scale 1.0
+
+loadusr -Wn sim_panel qtvcp -a -o hide=groupBoxSelection -o hide=groupBoxControl -o rates=.001,.01,.1 sim_panel
+net MPG sim_panel.MPG-s qtdragon.mpg-in
+net MPG axis.x.jog-counts
+net MPG axis.y.jog-counts
+net MPG axis.z.jog-counts
+
+net mpg-rate     axis.x.jog-scale   axis.y.jog-scale   axis.z.jog-scale    sim_panel.increments
+
+net mpg-x  qtdragon.axis_select_x-axis    axis.x.jog-enable
+net mpg-y  qtdragon.axis_select_y-axis    axis.y.jog-enable
+net mpg-z  qtdragon.axis_select_z-axis    axis.z.jog-enable

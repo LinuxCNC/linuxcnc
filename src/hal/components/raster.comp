@@ -1,0 +1,261 @@
+component raster "Outputs laser power based upon pre programmed rastering data";
+pin in float position "input coordinate for raster";
+pin in bit   reset    "resets the component";
+pin in port  program     "pixel data used by the raster";
+pin in bit   run      "starts the raster";
+
+pin out bit enabled = 0      "When a valid raster program is running.";
+pin out float output = -1    "current output level command";
+pin out bit fault = 0        "If error has occurred";
+pin out signed fault_code = 0 "Code of fault";
+pin out signed state = 0    "current state";
+pin out float program_position = 0.0 "base position of program at run start";
+pin out float program_offset = 0.0  "offset to start of pixel data";
+pin out signed bpp = 0         "bits per pixel.";
+pin out float ppu = 0.0            "pixels per unit";
+pin out signed count = 0       "pixel count";
+pin out float bitmap_position = 0.0 "calculated position in bitmap";
+pin out float current_pixel_value = -1.0 "current loaded pixel value";
+pin out float previous_pixel_value = -1.0 "previously loaded pixel value";
+pin out signed current_pixel_index = -1 "currently loaded pixel index";
+pin out float fraction = 0.0;
+
+description """The raster component converts a single raster program line to laser output.
+               The position pin is slaved to the axis that the raster line maps too. 
+               The raster program must be programmed for each raster line that is to be executed.
+               The port must be programmed prior to a raster line being executed.
+
+               A python component RasterProgrammer (lib/python/RasterProgrammer.py) is provided to ease programming of the raster component.
+               configs/sim/axis/laser shows an example of how these pieces could be integrated for a functional laser engraver config.
+
+               A program line format is as follows:
+               {program_offset};{bits_per_pixel};{pixels_per_unit};{number_of_ pixels};{pixel_data ....}
+
+               program_offset: a float. It indicates the start position of the raster line relative to the current axis position. 
+                  A negative program_offset indicates that the raster sweeps from positive to negative
+                  A zero or positive program_offset indicates that the raster sweeps from negative to positive direction
+
+               bits_per_pixel: an integer. It indicates the precision of a pixel value and consequently the number of bytes consumed per pixel value.
+                  A bits per pixel of 4 takes 1 character (0-F) and scales out from from 0.0 to 1.0 (0 being 0 and E being 1.0). F corresponds to off or -1.0
+                  A bits per pixel of 8 takes 2 characters per pixel, 12 takes 3 characters per pixel etc...
+
+               pixels_per_unit: a float that represents the size of a pixel in machine units. 
+                   1 would correspond to 1 pixel per machine unit, 100 would correspond to 100 pixels per machine unit.
+
+               number_of_pixels: an integer that indicates the length of the raster line in pixels.
+                          The length of the rasterline in machine units would be number_of_pixels / pixels_per_unit
+               
+               pixel_data: a series of hexadeicmal digits ([0-9][a-f][A-F]) the represents the pixel data.
+                       bits_per_pixel determines the resolution of a pixel and how many hexadecimal digits per pixel.
+                       pixel data characters have no delimiter between each pixel.
+                       4 bpp is one character per pixel
+                       8 bpp is 2 characters per pixel
+                       12 bpp is 3
+                       etc...
+""";
+               
+            
+
+function _;
+license "GPL";
+
+include <rtapi_math.h>;
+include "hal/components/raster.h";
+
+;;
+
+#define epsilon 0.0001
+
+enum {
+    ERROR_NONE           = 0, //no error at the moment
+    ERROR_INVALID_OFFSET = 1, //offset must be a float
+    ERROR_INVALID_BPP    = 2, //bpp must be between 4-32 and divisible by 4
+    ERROR_INVALID_PPU    = 3, //ppu must be greater than 0
+    ERROR_INVALID_COUNT  = 4, //count must be a float > 0
+    ERROR_BADPIXELDATA   = 5, //pixel data does not match begin statement
+    ERROR_PROGWRONGSIZE  = 6, //requested raster program doesn't match count
+} raster_error;
+
+typedef enum {
+    IDLE =  0, 
+    RUN =  1,  
+    FAULT  = 2
+} raster_state;
+
+bool float_eq(hal_float_t a, hal_float_t b) {
+    return fabs(a-b) < epsilon;
+}
+
+bool read_float(hal_port_t port, hal_float_t* value) {
+    char data[32];
+    int available = hal_port_readable(port);
+    char* pos;
+
+    hal_port_peek(port, data, available < 32 ? available : 32);
+
+    pos = strchr(data, ';');
+
+    if(!pos) {
+        return false;
+    }
+
+    *value = strtod(data, &pos);
+
+    if(pos == data) {
+        return false;
+    }
+
+    hal_port_peek_commit(port, pos - data + 1);
+
+    return true;
+}
+
+bool read_int(hal_port_t port, hal_s32_t* value) {
+    char data[10];
+    long val;
+    int available = hal_port_readable(port);
+    char* pos;
+
+    hal_port_peek(port, data, available < 10 ? available : 10);
+
+    pos = strchr(data, ';');
+
+    if(!pos) {
+        return false;
+    }
+
+    val = strtoul(data, &pos, 10);
+    
+    if(pos == data) {
+        return false;
+    }
+
+    if(val < 0) {
+        return false;
+    }
+
+    *value = val;
+
+    hal_port_peek_commit(port, pos - data + 1);
+
+    return true;
+}
+
+
+/*
+    reads and consumes a pixel value for the program port. 
+    pixel data is encoded as ascii hex values [0-9][A-F] with each character representing 4 bits of data
+    pixels bpp must be defined in increments of 4.
+    a pixel value with all 1 bits is a special value considered "off" for the raster and no power will be output
+*/
+bool read_pixel_data(hal_port_t port, int bits_per_pixel, hal_float_t* power) {
+    char data[8];
+    long value = 0;
+    unsigned int off = 0xFFFFFFFF >> (32 - bits_per_pixel);
+    unsigned int max = off - 1;
+    int bytes_per_pixel = bits_per_pixel / 4;
+    char* pos;
+
+    if(!hal_port_read(port, data, bytes_per_pixel)) {
+        return false;
+    }
+
+    data[bytes_per_pixel] = 0;
+
+    value = strtol(data, &pos, 16);
+
+    if(data == pos) {
+        return false;
+    }
+
+    if(value < 0) {
+        return false;
+    }
+    
+    if(value == off) {
+        *power = -1.0;
+    } else {
+        *power = 100.0 * ((hal_float_t)value)/((hal_float_t)(max));
+    }
+
+    return true;
+}
+
+FUNCTION(_) { 
+
+    output = -1.0;
+    enabled = 0;
+
+    if (reset) {
+        state = IDLE;
+        fault = 0;
+        fault_code = ERROR_NONE;
+        hal_port_clear(program);
+    } else if (state == FAULT) {
+        fault = 1;
+    } else if (state == IDLE) {
+        bitmap_position = 0.0;
+        current_pixel_value = -1.0;
+        previous_pixel_value = -1.0;
+        current_pixel_index = -1;        
+
+        //when run is asserted, the port must be full of 1 line of raster data
+        if(run) {
+
+            if(!read_float(program, &program_offset)) {
+                state = FAULT;
+                fault_code = ERROR_INVALID_OFFSET;
+            } else if(!read_int(program, &bpp) || (bpp == 0) || (bpp > 32) || ((bpp % 4) != 0)) {
+                state = FAULT;
+                fault_code = ERROR_INVALID_BPP;
+            } else if(!read_float(program, &ppu) || (ppu <= 0.0)) {
+                state = FAULT;
+                fault_code = ERROR_INVALID_PPU;
+            } else if(!read_int(program, &count) || (count < 2)) {
+                state = FAULT;
+                fault_code = ERROR_INVALID_COUNT;
+            } else if(hal_port_readable(program) != ((bpp / 4) * count)) {
+                state = FAULT;
+                fault_code = ERROR_PROGWRONGSIZE;
+            } else {
+                state = RUN;
+                program_position = position;
+            }
+        }       
+    } else if (state == RUN) {
+        bitmap_position = (position - (program_position + program_offset)) * ppu * (program_offset < 0.0 ? -1.0 : 1.0);
+
+        if(!run) {
+            state = IDLE;
+            hal_port_clear(program);
+        } else {
+            enabled = 1;
+
+            //consume pixel data as needed from programng port
+            while((current_pixel_index < (((int)count)-1)) && ((hal_float_t)current_pixel_index < bitmap_position)) {
+                current_pixel_index = current_pixel_index+1;
+                previous_pixel_value = current_pixel_value;
+
+                if(!read_pixel_data(program, bpp, &current_pixel_value)) {
+                    state = FAULT;
+                    fault_code = ERROR_BADPIXELDATA;
+                    return;
+                }
+            }
+    
+            //compute current output value
+            if(float_eq(bitmap_position, (hal_float_t)current_pixel_index)) {
+                output = current_pixel_value;
+            } else if(float_eq(bitmap_position, (hal_float_t)(current_pixel_index-1))) {
+                output = previous_pixel_value;
+            } else if((bitmap_position < (hal_float_t)current_pixel_index) 
+                   && (bitmap_position > (hal_float_t)(current_pixel_index-1))
+                   && (current_pixel_value >= 0.0) 
+                   && (previous_pixel_value >= 0.0)) {
+                fraction = bitmap_position - (hal_float_t)(current_pixel_index - 1); 
+                output = fraction*(current_pixel_value-previous_pixel_value) + previous_pixel_value;
+            }
+        }
+    }
+}
+

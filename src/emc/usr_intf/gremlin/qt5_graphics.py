@@ -275,6 +275,9 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self.b_axis_wrapped = self.inifile.find("AXIS_B", "WRAPPED_ROTARY")
         self.c_axis_wrapped = self.inifile.find("AXIS_C", "WRAPPED_ROTARY")
 
+        self._tool_dia = 0
+        self.spindle_speed = 0
+
         live_axis_count = 0
         for i,j in enumerate("XYZABCUVW"):
             if self.stat.axis_mask & (1<<i) == 0: continue
@@ -298,11 +301,17 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         self.dro_in = "% 9.4f"
         self.dro_mm = "% 9.3f"
         self.dro_deg = "% 9.2f"
-        self.dro_vel = "   Vel:% 9.2F"
+        self.dro_vel = "Vel:% 6.2f"
+        self.dro_vel_mm = "Vel:% 9.2f"
+        self.fpr_in = "FPR: %.3f"
+        self.fpr_mm = "FPR: % 1.2f"
+        self.sf_in = "SFM: %4d"
+        self.sf_mm = "SMM: %4d"
         self._font = 'monospace bold 16'
         self._fontLarge = 'monospace bold 22'
         self._largeFontState = False
         self.addTimer()
+        self._scroll_mode = 0 # use button list
         self._buttonList = [Qt.LeftButton,
                             Qt.MiddleButton,
                             Qt.RightButton]
@@ -347,8 +356,10 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         if not filename and s.file:
             filename = s.file
         elif not filename and not s.file:
-            return
+            return False
 
+        if not os.path.exists(filename):
+            return False
 
         lines = open(filename).readlines()
         progress = Progress(2, len(lines))
@@ -370,6 +381,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
 
         td = tempfile.mkdtemp()
         self._current_file = filename
+        load_result = True
         try:
             random = int(self.inifile.find("EMCIO", "RANDOM_TOOLCHANGER") or 0)
             arcdivision = int(self.inifile.find("DISPLAY", "ARCDIVISION") or 64)
@@ -398,6 +410,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         except Exception as e:
             print (e)
             self.gcode_properties = None
+            load_result = False
         finally:
             shutil.rmtree(td)
             if canon:
@@ -407,6 +420,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
             except UnboundLocalError:
                 pass
         self._redraw()
+        return load_result
 
     # monkey patched function from StatCanon class
     def output_notify_message(self, message):
@@ -704,13 +718,37 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
                         droposstrs.insert(1, diaformat % ("Dia", positions[0]*2.0))
 
             if self.show_velocity:
-                posstrs.append(self.dro_vel % ( spd))
+                if self.metric_units:
+                    feed = self.dro_vel_mm % (spd)
+                else:
+                    feed = self.dro_vel % (spd)
+
+                if self.is_lathe():
+                    if self.metric_units:
+                        sf = self.sf_mm  % (3.14 * positions[0]*2.0 * self.spindle_speed/1000)
+                        if self.spindle_speed != 0:
+                            feed = self.fpr_mm  % (self.spindle_speed and spd/self.spindle_speed)
+                    else:
+                        sf = self.sf_in  % (3.14 * positions[0]*2.0 * self.spindle_speed/12)
+                        if self.spindle_speed != 0:
+                            feed = self.fpr_in  % (self.spindle_speed and spd/self.spindle_speed)
+
+                    posstrs.append("{} {} RPM: {}".format(feed,sf,self.spindle_speed))
+                else:
+                    if self.metric_units:
+                        sf = self.sf_mm  % (3.14 * self._tool_dia * self.spindle_speed/1000)
+                    else:
+                        sf = self.sf_in  % (3.14 * self._tool_dia * self.spindle_speed/12)
+                    posstrs.append("{} {} RPM: {}".format(feed,sf,self.spindle_speed))
+
                 pos=0
                 for i in range(9):
                     if s.axis_mask & (1<<i): pos +=1
-                if self.is_lathe:
+                if self.is_lathe():
                     pos +=1
-                droposstrs.insert(pos, " " + self.dro_vel % (spd))
+                    droposstrs.insert(pos, "  {} {} RPM: {}".format(feed,sf,self.spindle_speed))
+                else:
+                    droposstrs.insert(pos, "{} {} RPM: {}".format(feed,sf,self.spindle_speed))
 
             if self.show_dtg:
                 posstrs.append(format % ("DTG", dtg))
@@ -1048,24 +1086,33 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
 
     def mouseDoubleClickEvent(self, event):
         if event.button() & self._buttonList[2]:
-            self.logger.clear()
+            self.clear_live_plotter()
 
     def mouseMoveEvent(self, event):
         self._mousemoved = True
-        # move
-        if event.buttons() & self._buttonList[0]:
-            self.translateOrRotate(event.pos().x(), event.pos().y())
-        # rotate
-        elif event.buttons() & self._buttonList[2]:
-            if not self.cancel_rotate:
-                self.set_prime(event.pos().x(), event.pos().y())
-                self.rotateOrTranslate(event.pos().x(), event.pos().y())
-        # zoom
-        elif event.buttons() & self._buttonList[1]:
-            self.continueZoom(event.pos().y())
+        if event.buttons():
+            b = event.buttons()
+            m = self._scroll_mode
+            # pan
+            if ((b & self._buttonList[0]) and m == 0) or m == 1:
+                self.translateOrRotate(event.pos().x(), event.pos().y())
+            # rotate
+            elif ((b & self._buttonList[2]) and m == 0) or m == 2:
+                if not self.cancel_rotate:
+                    self.set_prime(event.pos().x(), event.pos().y())
+                    self.rotateOrTranslate(event.pos().x(), event.pos().y())
+            # zoom
+            elif ((b & self._buttonList[1]) and m == 0) or m == 3:
+                self.continueZoom(event.pos().y())
 
     def user_plot(self):
         pass
+
+    # follow mouse buttons, pan, rotate or zoom on mouse movement
+    def setScrollMode(self, mode):
+        if not mode in(0,1,2,3):
+            mode = 0 # mouse button mode
+        self._scroll_mode = mode
 
     def panView(self,vertical=0,horizontal=0):
         self.translateOrRotate(self.xmouse + vertical, self.ymouse + horizontal)

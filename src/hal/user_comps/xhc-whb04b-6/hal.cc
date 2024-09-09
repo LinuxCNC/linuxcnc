@@ -86,7 +86,6 @@ Hal::~Hal()
 
     freeSimulatedPin((void**)(&memory->in.floodIsOn));
     freeSimulatedPin((void**)(&memory->in.mistIsOn));
-    freeSimulatedPin((void**)(&memory->in.lubeIsOn));
 
     freeSimulatedPin((void**)(&memory->in.axisXPosition));
     freeSimulatedPin((void**)(&memory->in.axisYPosition));
@@ -140,8 +139,6 @@ Hal::~Hal()
     freeSimulatedPin((void**)(&memory->out.floodStart));
     freeSimulatedPin((void**)(&memory->out.mistStop));
     freeSimulatedPin((void**)(&memory->out.mistStart));
-    freeSimulatedPin((void**)(&memory->out.lubeStop));
-    freeSimulatedPin((void**)(&memory->out.lubeStart));
 
     freeSimulatedPin((void**)(&memory->out.axisXJogCounts));
     freeSimulatedPin((void**)(&memory->out.axisYJogCounts));
@@ -453,10 +450,6 @@ void Hal::init(const MetaButtonCodes* metaButtons, const KeyCodes& keyCodes)
     newHalBit(HAL_IN, &(memory->in.mistIsOn), mHalCompId, "%s.halui.mist.is-on", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.mistStop), mHalCompId, "%s.halui.mist.off", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.mistStart), mHalCompId, "%s.halui.mist.on", mComponentPrefix);
-
-    newHalBit(HAL_IN, &(memory->in.lubeIsOn), mHalCompId, "%s.halui.lube.is-on", mComponentPrefix);
-    newHalBit(HAL_OUT, &(memory->out.lubeStop), mHalCompId, "%s.halui.lube.off", mComponentPrefix);
-    newHalBit(HAL_OUT, &(memory->out.lubeStart), mHalCompId, "%s.halui.lube.on", mComponentPrefix);
 
     newHalSigned32(HAL_OUT, &(memory->out.axisXJogCounts), mHalCompId, "%s.axis.x.jog-counts", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.axisXJogEnable), mHalCompId, "%s.axis.x.jog-enable", mComponentPrefix);
@@ -1125,29 +1118,6 @@ void Hal::toggleMistOnOff(bool enabled)
         // on button released
         *memory->out.mistStop         = false;
         *memory->out.mistStart        = false;
-    }
-}
-// ----------------------------------------------------------------------
-void Hal::toggleLubeOnOff(bool enabled)
-{
-    if (enabled)
-    {
-        if (*memory->in.lubeIsOn)
-        {
-            // on lube stop
-            *memory->out.lubeStop = true;
-        }
-        else
-        {
-            // on lube start
-            *memory->out.lubeStart = true;
-        }
-    }
-    else
-    {
-        // on button released
-        *memory->out.lubeStop         = false;
-        *memory->out.lubeStart        = false;
     }
 }
 // ----------------------------------------------------------------------

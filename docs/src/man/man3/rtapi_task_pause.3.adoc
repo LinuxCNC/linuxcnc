@@ -1,0 +1,55 @@
+:manvolnum: 3
+
+= rtapi_task_pause(3rtapi)
+
+== NAME
+
+rtapi_task_pause, rtapi_task_resume - pause and resume real-time tasks
+
+== SYNTAX
+
+....
+void rtapi_task_pause(int _task_id_);
+void rtapi_task_resume(int _task_id_);
+....
+
+== ARGUMENTS
+
+task_id::
+  An RTAPI task identifier returned by an earlier call to
+  *rtapi_task_new*.
+
+== DESCRIPTION
+
+*rtapi_task_resume* starts a task in free-running mode. The task must be
+in the "paused" state.
+
+A free running task runs continuously until either:
+
+[arabic]
+. It is prempted by a higher priority task. It will resume as soon as
+the higher priority task releases the CPU.
+. It calls a blocking function, like *rtapi_sem_take*. It will resume
+when the function unblocks.
+. It is returned to the "paused" state by *rtapi_task_pause*. May be
+called from init/cleanup code, and from within realtime tasks.
+
+*rtapi_task_pause* causes a task to stop execution and change to the
+"paused" state. The task can be free-running or periodic. Note that
+*rtapi_task_pause* may called from any task, or from init or cleanup
+code, not just from the task that is to be paused. The task will resume
+execution when either *rtapi_task_resume* or *rtapi_task_start*
+(depending on whether this is a free-running or periodic task) is
+called.
+
+== REALTIME CONSIDERATIONS
+
+May be called from init/cleanup code, and from within realtime tasks.
+
+== RETURN VALUE
+
+An RTAPI status code.
+
+== SEE ALSO
+
+rtapi_task_new(3rtapi), rtapi_task_start(3rtapi)

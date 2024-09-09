@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<glade-catalog name="gtksourceview" library="gtksourceview-2.0" depends="gtk+">
+<glade-catalog name="gtksourceview" library="gtksourceview-4" depends="gtk+">
   <glade-widget-classes>
     <glade-widget-class name="GtkSourceView" title="GtkSourceView" generic-name="gtksourceview">
       <properties>

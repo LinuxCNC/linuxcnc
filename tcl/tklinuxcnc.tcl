@@ -874,17 +874,6 @@ $floodmenu add command -label [msgcat::mc "Flood off"] -command {emc_flood off}
 
 pack $floodbutton -side top -fill both -expand true
 
-set lubebutton [menubutton $commandbuttonsl2.lube -textvariable lubelabel -direction below -relief raised -width 15]
-set lubemenu [menu $lubebutton.menu -tearoff 0]
-$lubebutton configure -menu $lubemenu
-$lubemenu add command -label [msgcat::mc "Lube on"] -command {emc_lube on}
-$lubemenu add command -label [msgcat::mc "Lube off"] -command {emc_lube off}
-
-# FIXME-- there's probably a better place to put the lube button
-# if {[emc_ini LUBE_WRITE_INDEX EMCIO] != ""} {
-#     pack $lubebutton -side top -fill both -expand true
-# }
-
 set decrbutton [button $commandbuttonsl3t1.decr -text "<" -takefocus 0]
 
 pack $decrbutton -side left -fill both -expand true
@@ -2040,7 +2029,7 @@ proc updateStatus {} {
     global displayCycleTime syncDelayTime
     global mistbutton floodbutton spindlebutton brakebutton
     global modeInDisplay
-    global estoplabel modelabel mistlabel floodlabel lubelabel spindlelabel brakelabel
+    global estoplabel modelabel mistlabel floodlabel spindlelabel brakelabel
     global tooloffsetsetting offsetsetting 
     global unitlabel unitsetting oldunitsetting
     global actcmd coords
@@ -2138,14 +2127,6 @@ proc updateStatus {} {
         set floodlabel [msgcat::mc "FLOOD OFF"]
     } else {
         set floodlabel [msgcat::mc "FLOOD ?"]
-    }
-
-    if {[emc_lube] == "on"} {
-        set lubelabel [msgcat::mc "LUBE ON"]
-    } elseif {[emc_lube] == "off"} {
-        set lubelabel [msgcat::mc "LUBE OFF"]
-    } else {
-        set lubelabel [msgcat::mc "LUBE ?"]
     }
 
     if {[emc_spindle] == "forward"} {

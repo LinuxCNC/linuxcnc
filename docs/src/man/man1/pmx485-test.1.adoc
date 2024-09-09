@@ -1,0 +1,33 @@
+= pmx485-test(1)
+
+== NAME
+
+pmx485-test - Modbus communications testing with a Powermax Plasma Cutter
+
+== SYNOPSIS
+
+*pmx485-test*
+
+== DESCRIPTION
+
+pmx485 is a python script for testing communications with a Hypertherm
+Powermax plasma cutter using the Modbus ASCII protocol over RS485.
+
+== USAGE
+
+Select the correct port from the list of available ports.
+
+Check RS485 to establish communications.
+
+Changing MODE, CURRENT, or PRESSURE will change the corresponding value
+on the Powermax and the new value will be reported back to the test panel.
+
+Check PANEL to end communication.
+
+== AUTHOR
+
+Phillip Carter & Gregory D Carl
+
+== LICENSE
+
+GPL

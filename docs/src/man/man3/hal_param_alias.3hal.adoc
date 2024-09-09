@@ -1,0 +1,35 @@
+= hal_param_alias(3hal)
+
+== NAME
+
+hal_param_alias - create an alternate name for a param
+
+== SYNTAX
+
+int *hal_param_alias*(const char **original_name*, const char **alias*);
+
+== ARGUMENTS
+
+original_name::
+  The original name of the param
+alias::
+  The alternate name that may be used to refer to the param, or NULL to
+  remove any alternate name.
+
+== DESCRIPTION
+
+A param may have two names: the original name (the one that was passed
+to a *hal_param_new* function) and an alias.
+
+Usually, aliases are for the convenience of users and should be created
+and destroyed via halcmd. However, in some cases it is sensible to
+create aliases directly in a component. These cases include the case
+where a param is renamed, to preserve compatibility with old versions.
+
+== RETURN VALUE
+
+Returns a HAL status code.
+
+== SEE ALSO
+
+hal_pin_alias(3)

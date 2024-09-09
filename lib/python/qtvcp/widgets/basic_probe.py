@@ -17,10 +17,11 @@
 
 import sys
 import os
+import hal
 import json
-from PyQt5.QtCore import QProcess, QRegExp, QFile, Qt
+from PyQt5.QtCore import QProcess, QRegExp, QFile, QEvent, Qt, pyqtProperty
 from PyQt5 import QtGui, QtWidgets, uic, QtCore
-from PyQt5.QtWidgets import QDialogButtonBox, QAbstractSlider
+from PyQt5.QtWidgets import QDialogButtonBox, QAbstractSlider, QLineEdit, qApp
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Action, Status, Info, Path
 from qtvcp.widgets.dialogMixin import GeometryMixin
@@ -41,10 +42,19 @@ CONFIG_DIR = os.getcwd()
 # can use/favours local image and help files
 HELP = PATH.find_widget_path()
 
+DEFAULT = 0
+WARNING = 1
+CRITICAL = 2
+
 class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
         super(BasicProbe, self).__init__(parent)
         self.proc = None
+        self._cmd = None
+        self._runImmediately = True
+        self.dialog_code = 'CALCULATOR'
+        self.hilightStyle = "border: 2px solid red;"
+
         if INFO.MACHINE_IS_METRIC:
             self.valid = QtGui.QRegExpValidator(QRegExp('^[+-]?((\d+(\.\d{,4})?)|(\.\d{,4}))$'))
         else:
@@ -71,25 +81,28 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.send_dict = {}
         # these parameters are sent to the subprogram
         self.parm_list = ['probe_diam',
+                          'rapid_vel',
+                          'search_vel',
+                          'probe_vel',
+                          'extra_depth',
+                          'latch_return_dist',
                           'max_travel',
                           'max_z_travel',
                           'xy_clearance',
                           'z_clearance',
-                          'extra_depth',
-                          'latch_return_dist',
-                          'search_vel',
-                          'probe_vel',
-                          'rapid_vel',
                           'side_edge_length',
+                          'diameter_hint',
                           'x_hint_bp',
                           'y_hint_bp',
                           'x_hint_rv',
                           'y_hint_rv',
-                          'diameter_hint',
+                          'calibration_offset',
                           'cal_diameter',
                           'cal_x_width',
                           'cal_y_width',
-                          'calibration_offset']
+]
+        self.nextlist = ['probe_tool']
+        self.nextlist =  self.nextlist + self.parm_list
 
         # button connections
         self.cmb_probe_select.activated.connect(self.cmb_probe_select_changed)
@@ -110,6 +123,33 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         for i in self.parm_list:
             self['lineEdit_' + i].setValidator(self.valid)
 
+        STATUS.connect('tool-info-changed', lambda w, data: self._tool_info(data))
+
+    # catch focusIn event to pop calculator dialog
+    def eventFilter(self, obj, event):
+        if event.type() == QEvent.FocusIn:
+            if isinstance(obj, QLineEdit):
+                # only if mouse selected
+                if event.reason () == 0:
+                    self._nextIndex = self.nextlist.index(obj.objectName().replace('lineEdit_',''))
+                    self.popEntry(obj)
+                    if self.dialog_code == 'CALCULATOR':
+                        obj.clearFocus()
+                        event.accept()
+                        return True
+        return super(BasicProbe, self).eventFilter(obj, event)
+
+    # update the probe loaded HAL pin
+    # can be used to inhibit the spindle
+    def _tool_info(self, data):
+        if data.id != -1:
+            if data.id == int(self.lineEdit_probe_tool.text()):
+                self.probe_loaded.set(True)
+            else:
+                self.probe_loaded.set(False)
+            return
+        self.probe_loaded.set(False)
+
     def _hal_init(self):
         def homed_on_status():
             return (STATUS.machine_is_on() and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
@@ -117,6 +157,7 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         STATUS.connect('state_estop', lambda w: self.setEnabled(False))
         STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_status()))
         STATUS.connect('all-homed', lambda w: self.setEnabled(True))
+        STATUS.connect('general',self.return_value)
 
         # must directly initialize
         self.statuslabel_motiontype.hal_init()
@@ -125,8 +166,15 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.help = HelpDialog(self.QTVCP_INSTANCE_)
         self.help.hal_init(HAL_NAME='_basic_help')
 
+        # install event filters on all the lineedits
+        # so we can call up a dialog when lineedit get focus
+        for i in self.nextlist:
+            self['lineEdit_' + i].installEventFilter(self)
+
+        self.set_checkableButtons(not self._runImmediately)
+
         if self.PREFS_:
-            self.lineEdit_probe_tool.setText(self.PREFS_.getpref('Probe tool', '0', str, 'PROBE OPTIONS'))
+            self.lineEdit_probe_tool.setText(self.PREFS_.getpref('Probe tool', '-1', str, 'PROBE OPTIONS'))
             self.lineEdit_probe_diam.setText(self.PREFS_.getpref('Probe diameter', '4', str, 'PROBE OPTIONS'))
             self.lineEdit_rapid_vel.setText(self.PREFS_.getpref('Probe rapid', '10', str, 'PROBE OPTIONS'))
             self.lineEdit_probe_vel.setText(self.PREFS_.getpref('Probe feed', '10', str, 'PROBE OPTIONS'))
@@ -142,6 +190,15 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.lineEdit_cal_x_width.setText(self.PREFS_.getpref('Cal x width', '0', str, 'PROBE OPTIONS'))
             self.lineEdit_cal_y_width.setText(self.PREFS_.getpref('Cal y width', '0', str, 'PROBE OPTIONS'))
             self.lineEdit_cal_diameter.setText(self.PREFS_.getpref('Cal diameter', '0', str, 'PROBE OPTIONS'))
+
+        # make pins available for tool measure remaps
+        oldname = self.HAL_GCOMP_.comp.getprefix()
+        self.HAL_GCOMP_.comp.setprefix('qtbasicprobe')
+        self.probe_loaded = self.HAL_GCOMP_.newpin("probe-loaded", hal.HAL_BIT, hal.HAL_OUT)
+        self.HAL_GCOMP_.comp.setprefix(oldname)
+
+        # get current style of the line input
+        self._oldstyle = self.lineEdit_probe_diam.styleSheet()
 
     def _hal_cleanup(self):
         if self.PREFS_:
@@ -164,6 +221,72 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.PREFS_.putpref('Cal diameter', self.lineEdit_cal_diameter.text(), str, 'PROBE OPTIONS')
         if self.proc is not None: self.proc.terminate()
 
+    # process the STATUS return message
+    # set the line edit to the value if not cancelled
+    def return_value(self, w, message):
+        num = message['RETURN']
+        code = bool(message.get('ID') == '%s__'% self.objectName())
+        name = bool(message.get('NAME') == self.dialog_code)
+        next = message.get('NEXT', False)
+        back = message.get('BACK', False)
+        if code and name:
+            obj = message.get('OBJECT')
+            if num is not None:
+                LOG.debug('message return:{}'.format (message))
+                if obj is self.lineEdit_probe_tool:
+                    obj.setText(str(int(num)))
+                else:
+                    obj.setText(str(num))
+            # clear high lighting
+            obj.setStyleSheet(self._oldstyle)
+            # request for next input widget from nextlist
+            if next:
+                newobj = self.findNext(self._nextIndex)
+                # update the dialog
+                self.popEntry(newobj,True)
+            elif back:
+                newobj = self.findBack(self._nextIndex)
+                # update the dialog
+                self.popEntry(newobj,True)
+
+    def findNext(self, num):
+        while 1:
+            self._nextIndex += 1
+            if self._nextIndex == len(self.nextlist):
+                self._nextIndex = 0
+            newobj = self['lineEdit_{}'.format(self.nextlist[self._nextIndex])]
+            if newobj.isVisible():
+                break
+        return newobj
+
+    def findBack(self, num):
+        while 1:
+            self._nextIndex -= 1
+            if self._nextIndex == -1:
+                self._nextIndex = len(self.nextlist)-1
+            newobj = self['lineEdit_{}'.format(self.nextlist[self._nextIndex])]
+            if newobj.isVisible():
+                break
+        return newobj
+
+    def popEntry(self, obj, next=False):
+        STATUS.emit('focus-overlay-changed', False, None, None)
+        obj.setStyleSheet(self.hilightStyle)
+        qApp.processEvents()
+
+        mess = {'NAME':self.dialog_code,
+                'ID':'%s__' % self.objectName(),
+                'OVERLAY':False,
+                'OBJECT':obj,
+                'TITLE':'Set Entry for {}'.format(obj.toolTip().upper()),
+                'GEONAME':'_{}'.format(self.dialog_code),
+                'OVERLAY':True,
+                'NEXT':next,
+                'WIDGETCYCLE': True
+        }
+        STATUS.emit('dialog-request', mess)
+        LOG.debug('message sent:{}'.format (mess))
+
 #################
 # process control
 #################
@@ -180,9 +303,10 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         if self.proc is not None:
             LOG.info("Probe Routine processor is busy")
             return
-        if int(self.lineEdit_probe_tool.text()) != STATUS.get_current_tool():
-            msg = "Probe tool not mounted in spindle"
-            if not self.set_statusbar(msg):
+        t = int(self.lineEdit_probe_tool.text())
+        if t != STATUS.get_current_tool():
+            msg = "Probe tool # {}. not mounted in spindle".format(t)
+            if not self.set_statusbar(msg,CRITICAL):
                 STATUS.emit('update-machine-log', msg, 'TIME')
                 ACTION.SET_ERROR_MESSAGE(msg)
             return
@@ -231,7 +355,7 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
             data = json.loads(return_data[1])
             self.show_results(data)
         elif "HISTORY" in line:
-            if not self.set_statusbar(line,1):
+            if not self.set_statusbar(line, WARNING):
                 STATUS.emit('update-machine-log', line, 'TIME')
         elif "DEBUG" in line:
             pass
@@ -240,46 +364,89 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
 
     # return false if failed so other ways of reporting can be used.
     # there might not be a statusbar in main screen.
-    def set_statusbar(self, msg, priority = 2):
+    def set_statusbar(self, msg, priority = DEFAULT, noLog = False):
         try:
-            self.QTVCP_INSTANCE_.add_status(msg, priority)
-            return True
+            self.QTVCP_INSTANCE_.add_status(msg, priority, noLog)
         except:
             return False
+        return True
 
 # Main button handler routines
+
+    # called externally to run selected routine
+    # if not in _runImmediately mode
+    def cycle_start(self):
+        if self._runImmediately:
+            self.set_statusbar('Basic probe set to run buttons immediately',WARNING)
+            return
+        if self._cmd is None:
+            self.set_statusbar('No Basic probe probe selected',WARNING)
+            return
+        self.set_statusbar('Basic probe: Start Cycle: {}'.format(self._cmd.toolTip(),DEFAULT))
+        self.get_parms()
+        self.start_probe(self._cmd.property('probe'))
+
     def probe_help_clicked(self):
         self.help.showDialog()
 
     def cmb_probe_select_changed(self, index):
         self.stackedWidget_probe_buttons.setCurrentIndex(index)
 
+        if self._runImmediately:
+            return
+        # Auto exclusive doesn't allow unchecking all buttons
+        # We force it here
+        if not self._cmd is None:
+            button = self._cmd
+            button.group().setExclusive(False)
+            button.blockSignals(True)
+            button.setChecked(False)
+            button.blockSignals(False)
+            button.group().setExclusive(True)
+            self._cmd = None
+
     def probe_btn_clicked(self, button):
-        cmd = button.property('probe')
-        #print("Button clicked ", cmd)
-        self.get_parms()
-        self.start_probe(cmd)
+        self.generalButtonCall(button)
 
     def boss_pocket_clicked(self, button):
         for i in ['x_hint_bp', 'y_hint_bp', 'diameter_hint']:
             if self['lineEdit_' + i].text() is None: return
-        cmd = button.property('probe')
-        self.get_parms()
-        self.start_probe(cmd)
+        self.generalButtonCall(button)
 
     def ridge_valley_clicked(self, button):
         for i in ['x_hint_rv', 'y_hint_rv']:
             if self['lineEdit_' + i].text() is None: return
-        cmd = button.property('probe')
-        self.get_parms()
-        self.start_probe(cmd)
+        self.generalButtonCall(button)
 
     def cal_btn_clicked(self, button):
         for i in ['calibration_offset', 'cal_diameter', 'cal_x_width', 'cal_y_width']:
             if self['lineEdit_' + i].text() is None: return
-        cmd = button.property('probe')
-        self.get_parms()
-        self.start_probe(cmd)
+        self.generalButtonCall(button)
+
+    def generalButtonCall(self, button):
+        cmd = button
+        print("Button clicked ", cmd.property('probe'),self._cmd)
+
+        # run probe when buttons are pressed
+        if self._runImmediately:
+            self.set_statusbar('Basic probe: Start Cycle: {}'.format(cmd.toolTip(),DEFAULT))
+            self.get_parms()
+            self.start_probe(cmd.property('probe'))
+
+        # select probe when buttons pressed, run when start_cycle function called 
+        else:
+            # Auto exclusive doesn't allow unchecking all buttons
+            # We force it here
+            if cmd == self._cmd:
+                button.group().setExclusive(False)
+                button.blockSignals(True)
+                button.setChecked(False)
+                button.blockSignals(False)
+                button.group().setExclusive(True)
+                self._cmd = None
+                return
+            self.set_statusbar('Basic probe: Selected: {}'.format(cmd.toolTip()),DEFAULT,noLog=True)
+            self._cmd = cmd
 
     def clear_results_clicked(self, button):
         cmd = button.property('clear')
@@ -319,6 +486,54 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
                 self['status_' + key].setText(line[key])
             else:
                 self['status_' + key].setText('')
+
+    # run-immediately buttons are momentary
+    # pre-select buttons are checkable
+    # focus policy changes for 'cycle start button steering'
+    # with pre-select option
+    def set_checkableButtons(self, state):
+        if state:
+            policy = Qt.ClickFocus
+        else:
+            policy = Qt.NoFocus
+        self.setFocusPolicy(policy)
+        for i in self.outside_buttonGroup.buttons():
+            i.setCheckable(state)
+        for i in self.inside_buttonGroup.buttons():
+            i.setCheckable(state)
+        for i in self.skew_buttonGroup.buttons():
+            i.setCheckable(state)
+        for i in self.ridge_valley_buttonGroup.buttons():
+            i.setCheckable(state)
+        for i in self.boss_pocket_buttonGroup.buttons():
+            i.setCheckable(state)
+        for i in self.cal_buttonGroup.buttons():
+            i.setCheckable(state)
+
+    #########################################################################
+    # This is how designer can interact with our widget properties.
+    # designer will show the pyqtProperty properties in the editor
+    # it will use the get set and reset calls to do those actions
+    #########################################################################
+
+    def set_dialog_code(self, data):
+        self.dialog_code = data
+    def get_dialog_code(self):
+        return self.dialog_code
+    def reset_dialog_code(self):
+        self.dialog_code = 'CALCULATOR'
+    dialogCodeString = pyqtProperty(str, get_dialog_code, set_dialog_code, reset_dialog_code)
+
+    def set_runImmediately(self, data):
+        self._runImmediately = data
+        self.set_checkableButtons(not data)
+    def get_runImmediately(self):
+        return self._runImmediately
+    def reset_runImmediately(self):
+        self._runImmediately = True
+
+    # toggle run on button push or run on function call
+    runImmediately = pyqtProperty(bool, get_runImmediately, set_runImmediately, reset_runImmediately)
 
     ##############################
     # required class boiler code #

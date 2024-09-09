@@ -16,18 +16,15 @@
 
 #include "nml.hh"
 #include "nmlmsg.hh"
+#include "rcs.hh"
 
 class RCS_STAT_MSG:public NMLmsg {
   public:
     RCS_STAT_MSG(NMLTYPE t, size_t sz);
     NMLTYPE command_type;
     int echo_serial_number;
-    int status;
+    RCS_STATUS status;
     int state;
-    int line;
-    int source_line;
-    char source_file[64];
-
 };
 
 extern int RCS_STAT_MSG_format(NMLTYPE, void *, CMS *);

@@ -1,0 +1,33 @@
+= rtapi_gfp(3rtapi)
+
+== NAME
+
+rtapi_gfp - RTAPI wrappers for linux kernel functionality
+
+== SYNTAX
+
+....
+#include <rtapi_gfp.h>
+enum rtapi_gfp_e;
+RTAPI_GFP_xxx
+typedef ... rtapi_gfp_t;
+....
+
+== DESCRIPTION
+
+In kernel space, each rtapi_xxx or RTAPI_XXX identifier is mapped to the
+underlying kernel functionality, if available.
+
+In userspace, or in kernels where the underlying functionality is not
+provided by a kernel, generally another implementation--possibly with
+reduced functionality--is provided. (For example, the userspace
+implementation for rtapi_device_register always succeeds)
+
+== REALTIME CONSIDERATIONS
+
+Typically, these functions may be called from realtime init/cleanup
+code.
+
+== RETURN VALUE
+
+As in Linux.

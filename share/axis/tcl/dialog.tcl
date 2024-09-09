@@ -129,7 +129,7 @@ proc nf_dialog {w title text image default args} {
     # database for -wraplength and -font so that they can be
     # overridden by the caller).
 
-    option add *Dialog.msg.wrapLength 3i widgetDefault
+    option add *Dialog.msg.wrapLength 7i widgetDefault
     if {![string compare $tcl_platform(platform) "macintosh"]} {
 	option add *Dialog.msg.font system widgetDefault
     } else {

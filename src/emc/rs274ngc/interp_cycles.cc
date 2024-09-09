@@ -154,9 +154,7 @@ int Interp::convert_cycle_g83(block_pointer block,
      Thanks to Billy Singleton for pointing it out... */
   CHKS((delta <= 0.0), NCE_NEGATIVE_OR_ZERO_Q_VALUE_USED);
 
-  rapid_delta = G83_RAPID_DELTA;
-  if (_setup.length_units == CANON_UNITS_MM)
-    rapid_delta = (rapid_delta * 25.4);
+  rapid_delta = block->p_flag?block->p_number:_setup.parameter_g83_peck_clearance;
 
   for (current_depth = (r - delta);
        current_depth > bottom_z; current_depth = (current_depth - delta)) {
@@ -212,18 +210,15 @@ int Interp::convert_cycle_g73(block_pointer block,
 {
   double current_depth;
   double rapid_delta;
-
   /* Moved the check for negative Q values here as a sign
      may be used with user defined M functions
      Thanks to Billy Singleton for pointing it out... */
   CHKS((delta <= 0.0), NCE_NEGATIVE_OR_ZERO_Q_VALUE_USED);
 
-  rapid_delta = G83_RAPID_DELTA;
-  if (_setup.length_units == CANON_UNITS_MM)
-    rapid_delta = (rapid_delta * 25.4);
+  rapid_delta = block->p_flag?block->p_number:_setup.parameter_g73_peck_clearance;
 
   for (current_depth = (r - delta);
-       current_depth > bottom_z; current_depth = (current_depth - delta)) {
+    current_depth > bottom_z; current_depth = (current_depth - delta)) {
     cycle_feed(block, plane, x, y, current_depth);
     cycle_traverse(block, plane, x, y, current_depth + rapid_delta);
   }
@@ -304,7 +299,7 @@ int Interp::convert_cycle_g74_g84(block_pointer block,
 
    switch (plane) {
 
-    case CANON_PLANE_XY:
+    case CANON_PLANE::XY:
        DISABLE_FEED_OVERRIDE();
        DISABLE_SPEED_OVERRIDE(spindle);
        cycle_feed(block, plane, x, y, bottom_z);
@@ -323,7 +318,7 @@ int Interp::convert_cycle_g74_g84(block_pointer block,
            START_SPINDLE_COUNTERCLOCKWISE(spindle);
        break;
 
-    case CANON_PLANE_YZ:
+    case CANON_PLANE::YZ:
        DISABLE_FEED_OVERRIDE();
        DISABLE_SPEED_OVERRIDE(spindle);
        cycle_feed(block, plane, bottom_z, x, y);
@@ -341,7 +336,7 @@ int Interp::convert_cycle_g74_g84(block_pointer block,
            START_SPINDLE_COUNTERCLOCKWISE(spindle);
        break;
 
-    case CANON_PLANE_XZ:
+    case CANON_PLANE::XZ:
        DISABLE_FEED_OVERRIDE();
        DISABLE_SPEED_OVERRIDE(spindle);
        cycle_feed(block, plane, y, bottom_z, x);
@@ -675,12 +670,12 @@ int Interp::convert_cycle_g89(block_pointer block,
 
 static const char* plane_name(CANON_PLANE p) {
   switch(p) {
-    case CANON_PLANE_XY: return "XY";
-    case CANON_PLANE_YZ: return "YZ";
-    case CANON_PLANE_XZ: return "XZ";
-    case CANON_PLANE_UV: return "UV";
-    case CANON_PLANE_VW: return "VW";
-    case CANON_PLANE_UW: return "UW";
+    case CANON_PLANE::XY: return "XY";
+    case CANON_PLANE::YZ: return "YZ";
+    case CANON_PLANE::XZ: return "XZ";
+    case CANON_PLANE::UV: return "UV";
+    case CANON_PLANE::VW: return "VW";
+    case CANON_PLANE::UW: return "UW";
     default:             return "invalid";
   }
 }
@@ -722,8 +717,8 @@ int Interp::convert_cycle(int motion,    //!< a G-code between G_81 and G_89, a 
   CANON_PLANE plane;
 
   CHKS((settings->feed_rate == 0.0), _("Cannot feed with zero feed rate"));
-  CHKS((settings->feed_mode == INVERSE_TIME), _("Cannot use inverse time feed with canned cycles"));
-  CHKS((settings->cutter_comp_side), _("Cannot use canned cycles with cutter compensation on"));
+  CHKS((settings->feed_mode == FEED_MODE::INVERSE_TIME), _("Cannot use inverse time feed with canned cycles"));
+  CHKS((settings->cutter_comp_side != CUTTER_COMP::OFF), _("Cannot use canned cycles with cutter compensation on"));
 
   plane = settings->plane;
   if (!block->r_flag) {
@@ -738,9 +733,9 @@ int Interp::convert_cycle(int motion,    //!< a G-code between G_81 and G_89, a 
     block->l_number = 1;
 
   switch(plane) {
-  case CANON_PLANE_XY:
-  case CANON_PLANE_XZ:
-  case CANON_PLANE_YZ:
+  case CANON_PLANE::XY:
+  case CANON_PLANE::XZ:
+  case CANON_PLANE::YZ:
     CHKS(block->u_flag, "Cannot put a U in a canned cycle in the %s plane",
 	plane_name(settings->plane));
     CHKS(block->v_flag, "Cannot put a V in a canned cycle in the %s plane",
@@ -749,9 +744,9 @@ int Interp::convert_cycle(int motion,    //!< a G-code between G_81 and G_89, a 
 	plane_name(settings->plane));
     break;
 
-  case CANON_PLANE_UV:
-  case CANON_PLANE_VW:
-  case CANON_PLANE_UW:
+  case CANON_PLANE::UV:
+  case CANON_PLANE::VW:
+  case CANON_PLANE::UW:
     CHKS(block->x_flag, "Cannot put an X in a canned cycle in the %s plane",
 	plane_name(settings->plane));
     CHKS(block->y_flag, "Cannot put a Y in a canned cycle in the %s plane",
@@ -768,17 +763,17 @@ int Interp::convert_cycle(int motion,    //!< a G-code between G_81 and G_89, a 
   settings->motion_mode = save_mode;
   // end KLUDGE
 
-  if (plane == CANON_PLANE_XY) {
+  if (plane == CANON_PLANE::XY) {
     CHP(convert_cycle_xy(motion, block, settings));
-  } else if (plane == CANON_PLANE_YZ) {
+  } else if (plane == CANON_PLANE::YZ) {
     CHP(convert_cycle_yz(motion, block, settings));
-  } else if (plane == CANON_PLANE_XZ) {
+  } else if (plane == CANON_PLANE::XZ) {
     CHP(convert_cycle_zx(motion, block, settings));
-  } else if (plane == CANON_PLANE_UV) {
+  } else if (plane == CANON_PLANE::UV) {
     CHP(convert_cycle_uv(motion, block, settings));
-  } else if (plane == CANON_PLANE_VW) {
+  } else if (plane == CANON_PLANE::VW) {
     CHP(convert_cycle_vw(motion, block, settings));
-  } else if (plane == CANON_PLANE_UW) {
+  } else if (plane == CANON_PLANE::UW) {
     CHP(convert_cycle_wu(motion, block, settings));
   } else
     ERS(NCE_BUG_PLANE_NOT_XY_YZ_OR_XZ);
@@ -916,7 +911,7 @@ int Interp::convert_cycle_xy(int motion, //!< a G-code between G_81 and G_89, a 
   double save_tolerance, save_cam_tolerance;
   double current_cc = settings->current_z;
 
-  plane = CANON_PLANE_XY;
+  plane = CANON_PLANE::XY;
   if (settings->motion_mode != motion) {
     CHKS((!block->z_flag),
         _readers[(int)'z']? NCE_Z_VALUE_UNSPECIFIED_IN_XY_PLANE_CANNED_CYCLE: _("G17 canned cycle is not possible on a machine without Z axis"));
@@ -930,7 +925,7 @@ int Interp::convert_cycle_xy(int motion, //!< a G-code between G_81 and G_89, a 
       settings->cycle_il_flag = true;
   }
 
-  if (settings->distance_mode == MODE_ABSOLUTE) {
+  if (settings->distance_mode == DISTANCE_MODE::ABSOLUTE) {
     double radius, theta;
     aa_increment = 0.0;
     bb_increment = 0.0;
@@ -951,7 +946,7 @@ int Interp::convert_cycle_xy(int motion, //!< a G-code between G_81 and G_89, a 
         aa = block->x_flag ? block->x_number : settings->current_x;
         bb = block->y_flag ? block->y_number : settings->current_y;
     }
-  } else if (settings->distance_mode == MODE_INCREMENTAL) {
+  } else if (settings->distance_mode == DISTANCE_MODE::INCREMENTAL) {
     if (block->x_flag) aa_increment = block->x_number;
     if (block->y_flag) bb_increment = block->y_number;
     if (block->radius_flag) radius_increment = block->radius;
@@ -973,7 +968,7 @@ int Interp::convert_cycle_xy(int motion, //!< a G-code between G_81 and G_89, a 
     old_cc = r;
     current_cc = old_cc;
   }
-  clear_cc = (settings->retract_mode == R_PLANE) ? r : old_cc;
+  clear_cc = (settings->retract_mode == RETRACT_MODE::R_PLANE) ? r : old_cc;
 
   save_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
   save_tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
@@ -983,14 +978,14 @@ int Interp::convert_cycle_xy(int motion, //!< a G-code between G_81 and G_89, a 
 
   switch (motion) {
   case G_81:
-      CYCLE_MACRO(convert_cycle_g81(block, CANON_PLANE_XY, aa, bb, clear_cc, cc))
+      CYCLE_MACRO(convert_cycle_g81(block, CANON_PLANE::XY, aa, bb, clear_cc, cc))
       break;
   case G_82:
     CHKS(((settings->motion_mode != G_82) && (block->p_number == -1.0)),
         NCE_DWELL_TIME_P_WORD_MISSING_WITH_G82);
     block->p_number =
       block->p_number == -1.0 ? settings->cycle_p : block->p_number;
-    CYCLE_MACRO(convert_cycle_g82(block, CANON_PLANE_XY, aa, bb, clear_cc, cc,
+    CYCLE_MACRO(convert_cycle_g82(block, CANON_PLANE::XY, aa, bb, clear_cc, cc,
                                   block->p_number))
       settings->cycle_p = block->p_number;
     break;
@@ -999,7 +994,7 @@ int Interp::convert_cycle_xy(int motion, //!< a G-code between G_81 and G_89, a 
         NCE_Q_WORD_MISSING_WITH_G73);
     block->q_number =
       block->q_number == -1.0 ? settings->cycle_q : block->q_number;
-    CYCLE_MACRO(convert_cycle_g73(block, CANON_PLANE_XY, aa, bb, r, clear_cc, cc,
+    CYCLE_MACRO(convert_cycle_g73(block, CANON_PLANE::XY, aa, bb, r, clear_cc, cc,
                                   block->q_number))
       settings->cycle_q = block->q_number;
     break;
@@ -1008,7 +1003,7 @@ int Interp::convert_cycle_xy(int motion, //!< a G-code between G_81 and G_89, a 
         NCE_Q_WORD_MISSING_WITH_G83);
     block->q_number =
       block->q_number == -1.0 ? settings->cycle_q : block->q_number;
-    CYCLE_MACRO(convert_cycle_g83(block, CANON_PLANE_XY, aa, bb, r, clear_cc, cc,
+    CYCLE_MACRO(convert_cycle_g83(block, CANON_PLANE::XY, aa, bb, r, clear_cc, cc,
                                   block->q_number))
       settings->cycle_q = block->q_number;
     break;
@@ -1021,7 +1016,7 @@ int Interp::convert_cycle_xy(int motion, //!< a G-code between G_81 and G_89, a 
             (_("Invalid spindle ($) number in G74/G84 cycle")));
         settings->active_spindle = (int)block->dollar_number;
       }
-      CYCLE_MACRO(convert_cycle_g74_g84(block, CANON_PLANE_XY, aa, bb, clear_cc, cc,
+      CYCLE_MACRO(convert_cycle_g74_g84(block, CANON_PLANE::XY, aa, bb, clear_cc, cc,
                                        settings->spindle_turning[settings->active_spindle],
                                        settings->speed_feed_mode,
                                        motion, block->p_number, settings->active_spindle))
@@ -1029,14 +1024,14 @@ int Interp::convert_cycle_xy(int motion, //!< a G-code between G_81 and G_89, a 
 
       break;
   case G_85:
-      CYCLE_MACRO(convert_cycle_g85(block, CANON_PLANE_XY, aa, bb, r, clear_cc, cc))
+      CYCLE_MACRO(convert_cycle_g85(block, CANON_PLANE::XY, aa, bb, r, clear_cc, cc))
       break;
   case G_86:
     CHKS(((settings->motion_mode != G_86) && (block->p_number == -1.0)),
         NCE_DWELL_TIME_P_WORD_MISSING_WITH_G86);
     block->p_number =
       block->p_number == -1.0 ? settings->cycle_p : block->p_number;
-    CYCLE_MACRO(convert_cycle_g86(block, CANON_PLANE_XY, aa, bb, clear_cc, cc,
+    CYCLE_MACRO(convert_cycle_g86(block, CANON_PLANE::XY, aa, bb, clear_cc, cc,
                                   block->p_number,
                                   settings->spindle_turning[settings->active_spindle],
                                   settings->active_spindle))
@@ -1054,10 +1049,10 @@ int Interp::convert_cycle_xy(int motion, //!< a G-code between G_81 and G_89, a 
     settings->cycle_i = i;
     settings->cycle_j = j;
     settings->cycle_k = k;
-    if (settings->distance_mode == MODE_INCREMENTAL) {
+    if (settings->distance_mode == DISTANCE_MODE::INCREMENTAL) {
       k = (cc + k);             /* k always absolute in function call below */
     }
-    CYCLE_MACRO(convert_cycle_g87(block, CANON_PLANE_XY, aa, (aa + i), bb,
+    CYCLE_MACRO(convert_cycle_g87(block, CANON_PLANE::XY, aa, (aa + i), bb,
                                   (bb + j), r, clear_cc, k, cc,
                                   settings->spindle_turning[settings->active_spindle],
                                   settings->active_spindle));
@@ -1067,7 +1062,7 @@ int Interp::convert_cycle_xy(int motion, //!< a G-code between G_81 and G_89, a 
         NCE_DWELL_TIME_P_WORD_MISSING_WITH_G88);
     block->p_number =
       block->p_number == -1.0 ? settings->cycle_p : block->p_number;
-    CYCLE_MACRO(convert_cycle_g88(block, CANON_PLANE_XY, aa, bb, cc,
+    CYCLE_MACRO(convert_cycle_g88(block, CANON_PLANE::XY, aa, bb, cc,
                                   block->p_number,
                                   settings->spindle_turning[settings->active_spindle],
                                   settings->active_spindle))
@@ -1079,7 +1074,7 @@ int Interp::convert_cycle_xy(int motion, //!< a G-code between G_81 and G_89, a 
         NCE_DWELL_TIME_P_WORD_MISSING_WITH_G89);
     block->p_number =
       block->p_number == -1.0 ? settings->cycle_p : block->p_number;
-    CYCLE_MACRO(convert_cycle_g89(block, CANON_PLANE_XY, aa, bb, clear_cc, cc,
+    CYCLE_MACRO(convert_cycle_g89(block, CANON_PLANE::XY, aa, bb, clear_cc, cc,
                                   block->p_number))
       settings->cycle_p = block->p_number;
     break;
@@ -1125,7 +1120,7 @@ int Interp::convert_cycle_uv(int motion, //!< a G-code between G_81 and G_89, a 
   double save_tolerance, save_cam_tolerance;
   double current_cc = settings->w_current;
 
-  plane = CANON_PLANE_UV;
+  plane = CANON_PLANE::UV;
   if (settings->motion_mode != motion) {
     CHKS((!block->w_flag),
         _readers[(int)'w']? NCE_W_VALUE_UNSPECIFIED_IN_UV_PLANE_CANNED_CYCLE: _("G17.1 canned cycle is not possible on a machine without W axis"));
@@ -1139,14 +1134,14 @@ int Interp::convert_cycle_uv(int motion, //!< a G-code between G_81 and G_89, a 
       settings->cycle_il_flag = true;
   }
 
-  if (settings->distance_mode == MODE_ABSOLUTE) {
+  if (settings->distance_mode == DISTANCE_MODE::ABSOLUTE) {
     aa_increment = 0.0;
     bb_increment = 0.0;
     r = block->r_number;
     cc = block->w_number;
     aa = block->u_flag ? block->u_number : settings->u_current;
     bb = block->v_flag ? block->v_number : settings->v_current;
-  } else if (settings->distance_mode == MODE_INCREMENTAL) {
+  } else if (settings->distance_mode == DISTANCE_MODE::INCREMENTAL) {
     if (block->u_flag) aa_increment = block->u_number;
     if (block->v_flag) bb_increment = block->v_number;
     r = (block->r_number + old_cc);
@@ -1164,7 +1159,7 @@ int Interp::convert_cycle_uv(int motion, //!< a G-code between G_81 and G_89, a 
     old_cc = r;
     current_cc = old_cc;
   }
-  clear_cc = (settings->retract_mode == R_PLANE) ? r : old_cc;
+  clear_cc = (settings->retract_mode == RETRACT_MODE::R_PLANE) ? r : old_cc;
 
   save_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
   save_tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
@@ -1174,14 +1169,14 @@ int Interp::convert_cycle_uv(int motion, //!< a G-code between G_81 and G_89, a 
 
   switch (motion) {
   case G_81:
-      CYCLE_MACRO(convert_cycle_g81(block, CANON_PLANE_UV, aa, bb, clear_cc, cc))
+      CYCLE_MACRO(convert_cycle_g81(block, CANON_PLANE::UV, aa, bb, clear_cc, cc))
       break;
   case G_82:
     CHKS(((settings->motion_mode != G_82) && (block->p_number == -1.0)),
         NCE_DWELL_TIME_P_WORD_MISSING_WITH_G82);
     block->p_number =
       block->p_number == -1.0 ? settings->cycle_p : block->p_number;
-    CYCLE_MACRO(convert_cycle_g82(block, CANON_PLANE_UV, aa, bb, clear_cc, cc,
+    CYCLE_MACRO(convert_cycle_g82(block, CANON_PLANE::UV, aa, bb, clear_cc, cc,
                                   block->p_number))
       settings->cycle_p = block->p_number;
     break;
@@ -1190,7 +1185,7 @@ int Interp::convert_cycle_uv(int motion, //!< a G-code between G_81 and G_89, a 
         NCE_Q_WORD_MISSING_WITH_G83);
     block->q_number =
       block->q_number == -1.0 ? settings->cycle_q : block->q_number;
-    CYCLE_MACRO(convert_cycle_g83(block, CANON_PLANE_UV, aa, bb, r, clear_cc, cc,
+    CYCLE_MACRO(convert_cycle_g83(block, CANON_PLANE::UV, aa, bb, r, clear_cc, cc,
                                   block->q_number))
       settings->cycle_q = block->q_number;
     break;
@@ -1199,7 +1194,7 @@ int Interp::convert_cycle_uv(int motion, //!< a G-code between G_81 and G_89, a 
         NCE_Q_WORD_MISSING_WITH_G73);
     block->q_number =
       block->q_number == -1.0 ? settings->cycle_q : block->q_number;
-    CYCLE_MACRO(convert_cycle_g73(block, CANON_PLANE_UV, aa, bb, r, clear_cc, cc,
+    CYCLE_MACRO(convert_cycle_g73(block, CANON_PLANE::UV, aa, bb, r, clear_cc, cc,
                                   block->q_number))
       settings->cycle_q = block->q_number;
     break;
@@ -1212,21 +1207,21 @@ int Interp::convert_cycle_uv(int motion, //!< a G-code between G_81 and G_89, a 
             (_("Invalid spindle ($) number in G74/G84 cycle")));
         settings->active_spindle = (int)block->dollar_number;
     }
-    CYCLE_MACRO(convert_cycle_g74_g84(block, CANON_PLANE_UV, aa, bb, clear_cc, cc,
+    CYCLE_MACRO(convert_cycle_g74_g84(block, CANON_PLANE::UV, aa, bb, clear_cc, cc,
                                        settings->spindle_turning[spindle],
                                        settings->speed_feed_mode,
                                        motion, block->p_number, settings->active_spindle))
          settings->cycle_p = block->p_number;
     break;
   case G_85:
-    CYCLE_MACRO(convert_cycle_g85(block, CANON_PLANE_UV, aa, bb, r, clear_cc, cc))
+    CYCLE_MACRO(convert_cycle_g85(block, CANON_PLANE::UV, aa, bb, r, clear_cc, cc))
       break;
   case G_86:
     CHKS(((settings->motion_mode != G_86) && (block->p_number == -1.0)),
         NCE_DWELL_TIME_P_WORD_MISSING_WITH_G86);
     block->p_number =
       block->p_number == -1.0 ? settings->cycle_p : block->p_number;
-    CYCLE_MACRO(convert_cycle_g86(block, CANON_PLANE_UV, aa, bb, clear_cc, cc,
+    CYCLE_MACRO(convert_cycle_g86(block, CANON_PLANE::UV, aa, bb, clear_cc, cc,
                                   block->p_number,
                                   settings->spindle_turning[settings->active_spindle],
                                   settings->active_spindle))
@@ -1244,10 +1239,10 @@ int Interp::convert_cycle_uv(int motion, //!< a G-code between G_81 and G_89, a 
     settings->cycle_i = i;
     settings->cycle_j = j;
     settings->cycle_k = k;
-    if (settings->distance_mode == MODE_INCREMENTAL) {
+    if (settings->distance_mode == DISTANCE_MODE::INCREMENTAL) {
       k = (cc + k);             /* k always absolute in function call below */
     }
-    CYCLE_MACRO(convert_cycle_g87(block, CANON_PLANE_UV, aa, (aa + i), bb,
+    CYCLE_MACRO(convert_cycle_g87(block, CANON_PLANE::UV, aa, (aa + i), bb,
                                   (bb + j), r, clear_cc, k, cc,
                                   settings->spindle_turning[settings->active_spindle],
                                   settings->active_spindle))
@@ -1257,7 +1252,7 @@ int Interp::convert_cycle_uv(int motion, //!< a G-code between G_81 and G_89, a 
         NCE_DWELL_TIME_P_WORD_MISSING_WITH_G88);
     block->p_number =
       block->p_number == -1.0 ? settings->cycle_p : block->p_number;
-    CYCLE_MACRO(convert_cycle_g88(block, CANON_PLANE_UV, aa, bb, cc,
+    CYCLE_MACRO(convert_cycle_g88(block, CANON_PLANE::UV, aa, bb, cc,
                                   block->p_number,
                                   settings->spindle_turning[settings->active_spindle],
                                   settings->active_spindle))
@@ -1268,7 +1263,7 @@ int Interp::convert_cycle_uv(int motion, //!< a G-code between G_81 and G_89, a 
         NCE_DWELL_TIME_P_WORD_MISSING_WITH_G89);
     block->p_number =
       block->p_number == -1.0 ? settings->cycle_p : block->p_number;
-    CYCLE_MACRO(convert_cycle_g89(block, CANON_PLANE_UV, aa, bb, clear_cc, cc,
+    CYCLE_MACRO(convert_cycle_g89(block, CANON_PLANE::UV, aa, bb, clear_cc, cc,
                                   block->p_number))
     settings->cycle_p = block->p_number;
     break;
@@ -1362,7 +1357,7 @@ int Interp::convert_cycle_yz(int motion, //!< a G-code between G_81 and G_89, a 
   double save_tolerance, save_cam_tolerance;
   double current_cc = settings->current_x;
 
-  plane = CANON_PLANE_YZ;
+  plane = CANON_PLANE::YZ;
   if (settings->motion_mode != motion) {
     CHKS((!block->x_flag),
         _readers[(int)'x']? NCE_X_VALUE_UNSPECIFIED_IN_YZ_PLANE_CANNED_CYCLE: _("G19 canned cycle is not possible on a machine without X axis"));
@@ -1376,14 +1371,14 @@ int Interp::convert_cycle_yz(int motion, //!< a G-code between G_81 and G_89, a 
       settings->cycle_il_flag = true;
   }
 
-  if (settings->distance_mode == MODE_ABSOLUTE) {
+  if (settings->distance_mode == DISTANCE_MODE::ABSOLUTE) {
     aa_increment = 0.0;
     bb_increment = 0.0;
     r = block->r_number;
     cc = block->x_number;
     aa = block->y_flag ? block->y_number : settings->current_y;
     bb = block->z_flag ? block->z_number : settings->current_z;
-  } else if (settings->distance_mode == MODE_INCREMENTAL) {
+  } else if (settings->distance_mode == DISTANCE_MODE::INCREMENTAL) {
     if (block->y_flag) aa_increment = block->y_number;
     if (block->z_flag) bb_increment = block->z_number;
     r = (block->r_number + old_cc);
@@ -1401,7 +1396,7 @@ int Interp::convert_cycle_yz(int motion, //!< a G-code between G_81 and G_89, a 
     old_cc = r;
     current_cc = old_cc;
   }
-  clear_cc = (settings->retract_mode == R_PLANE) ? r : old_cc;
+  clear_cc = (settings->retract_mode == RETRACT_MODE::R_PLANE) ? r : old_cc;
 
   save_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
   save_tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
@@ -1411,14 +1406,14 @@ int Interp::convert_cycle_yz(int motion, //!< a G-code between G_81 and G_89, a 
 
   switch (motion) {
   case G_81:
-    CYCLE_MACRO(convert_cycle_g81(block, CANON_PLANE_YZ, aa, bb, clear_cc, cc))
+    CYCLE_MACRO(convert_cycle_g81(block, CANON_PLANE::YZ, aa, bb, clear_cc, cc))
       break;
   case G_82:
     CHKS(((settings->motion_mode != G_82) && (block->p_number == -1.0)),
         NCE_DWELL_TIME_P_WORD_MISSING_WITH_G82);
     block->p_number =
       block->p_number == -1.0 ? settings->cycle_p : block->p_number;
-    CYCLE_MACRO(convert_cycle_g82(block, CANON_PLANE_YZ, aa, bb, clear_cc, cc,
+    CYCLE_MACRO(convert_cycle_g82(block, CANON_PLANE::YZ, aa, bb, clear_cc, cc,
                                   block->p_number))
       settings->cycle_p = block->p_number;
     break;
@@ -1427,7 +1422,7 @@ int Interp::convert_cycle_yz(int motion, //!< a G-code between G_81 and G_89, a 
         NCE_Q_WORD_MISSING_WITH_G73);
     block->q_number =
       block->q_number == -1.0 ? settings->cycle_q : block->q_number;
-    CYCLE_MACRO(convert_cycle_g73(block, CANON_PLANE_YZ, aa, bb, r, clear_cc, cc,
+    CYCLE_MACRO(convert_cycle_g73(block, CANON_PLANE::YZ, aa, bb, r, clear_cc, cc,
                                   block->q_number))
       settings->cycle_q = block->q_number;
     break;
@@ -1436,7 +1431,7 @@ int Interp::convert_cycle_yz(int motion, //!< a G-code between G_81 and G_89, a 
         NCE_Q_WORD_MISSING_WITH_G83);
     block->q_number =
       block->q_number == -1.0 ? settings->cycle_q : block->q_number;
-    CYCLE_MACRO(convert_cycle_g83(block, CANON_PLANE_YZ, aa, bb, r, clear_cc, cc,
+    CYCLE_MACRO(convert_cycle_g83(block, CANON_PLANE::YZ, aa, bb, r, clear_cc, cc,
                                   block->q_number))
       settings->cycle_q = block->q_number;
     break;
@@ -1449,21 +1444,21 @@ int Interp::convert_cycle_yz(int motion, //!< a G-code between G_81 and G_89, a 
             (_("Invalid spindle ($) number in G74/G84 cycle")));
         settings->active_spindle = (int)block->dollar_number;
      }
-     CYCLE_MACRO(convert_cycle_g74_g84(block, CANON_PLANE_YZ, aa, bb, clear_cc, cc,
+     CYCLE_MACRO(convert_cycle_g74_g84(block, CANON_PLANE::YZ, aa, bb, clear_cc, cc,
                                     settings->spindle_turning[spindle],
                                     settings->speed_feed_mode,
                                     motion, block->p_number, settings->active_spindle))
      settings->cycle_p = block->p_number;
      break;
   case G_85:
-    CYCLE_MACRO(convert_cycle_g85(block, CANON_PLANE_YZ, aa, bb, r, clear_cc, cc))
+    CYCLE_MACRO(convert_cycle_g85(block, CANON_PLANE::YZ, aa, bb, r, clear_cc, cc))
       break;
   case G_86:
     CHKS(((settings->motion_mode != G_86) && (block->p_number == -1.0)),
         NCE_DWELL_TIME_P_WORD_MISSING_WITH_G86);
     block->p_number =
       block->p_number == -1.0 ? settings->cycle_p : block->p_number;
-    CYCLE_MACRO(convert_cycle_g86(block, CANON_PLANE_YZ, aa, bb, clear_cc, cc,
+    CYCLE_MACRO(convert_cycle_g86(block, CANON_PLANE::YZ, aa, bb, clear_cc, cc,
                                   block->p_number,
                                   settings->spindle_turning[settings->active_spindle],
                                   settings->active_spindle));
@@ -1481,10 +1476,10 @@ int Interp::convert_cycle_yz(int motion, //!< a G-code between G_81 and G_89, a 
     settings->cycle_i = i;
     settings->cycle_j = j;
     settings->cycle_k = k;
-    if (settings->distance_mode == MODE_INCREMENTAL) {
+    if (settings->distance_mode == DISTANCE_MODE::INCREMENTAL) {
       i = (cc + i);             /* i always absolute in function call below */
     }
-    CYCLE_MACRO(convert_cycle_g87(block, CANON_PLANE_YZ, aa, (aa + j), bb,
+    CYCLE_MACRO(convert_cycle_g87(block, CANON_PLANE::YZ, aa, (aa + j), bb,
                                   (bb + k), r, clear_cc, i, cc,
                                   settings->spindle_turning[settings->active_spindle],
                                   settings->active_spindle));
@@ -1494,7 +1489,7 @@ int Interp::convert_cycle_yz(int motion, //!< a G-code between G_81 and G_89, a 
         NCE_DWELL_TIME_P_WORD_MISSING_WITH_G88);
     block->p_number =
       block->p_number == -1.0 ? settings->cycle_p : block->p_number;
-    CYCLE_MACRO(convert_cycle_g88(block, CANON_PLANE_YZ, aa, bb, cc,
+    CYCLE_MACRO(convert_cycle_g88(block, CANON_PLANE::YZ, aa, bb, cc,
                                   block->p_number,
                                   settings->spindle_turning[settings->active_spindle],
                                   settings->active_spindle));
@@ -1505,7 +1500,7 @@ int Interp::convert_cycle_yz(int motion, //!< a G-code between G_81 and G_89, a 
         NCE_DWELL_TIME_P_WORD_MISSING_WITH_G89);
     block->p_number =
       block->p_number == -1.0 ? settings->cycle_p : block->p_number;
-    CYCLE_MACRO(convert_cycle_g89(block, CANON_PLANE_YZ, aa, bb, clear_cc, cc,
+    CYCLE_MACRO(convert_cycle_g89(block, CANON_PLANE::YZ, aa, bb, clear_cc, cc,
                                   block->p_number))
       settings->cycle_p = block->p_number;
     break;
@@ -1550,7 +1545,7 @@ int Interp::convert_cycle_vw(int motion, //!< a G-code between G_81 and G_89, a 
   double save_tolerance, save_cam_tolerance;
   double current_cc = settings->u_current;
 
-  plane = CANON_PLANE_VW;
+  plane = CANON_PLANE::VW;
   if (settings->motion_mode != motion) {
     CHKS((!block->u_flag),
         _readers[(int)'u']? NCE_U_VALUE_UNSPECIFIED_IN_VW_PLANE_CANNED_CYCLE: _("G19.1 canned cycle is not possible on a machine without U axis"));
@@ -1564,14 +1559,14 @@ int Interp::convert_cycle_vw(int motion, //!< a G-code between G_81 and G_89, a 
       settings->cycle_il_flag = true;
   }
 
-  if (settings->distance_mode == MODE_ABSOLUTE) {
+  if (settings->distance_mode == DISTANCE_MODE::ABSOLUTE) {
     aa_increment = 0.0;
     bb_increment = 0.0;
     r = block->r_number;
     cc = block->u_number;
     aa = block->v_flag ? block->v_number : settings->v_current;
     bb = block->w_flag ? block->w_number : settings->w_current;
-  } else if (settings->distance_mode == MODE_INCREMENTAL) {
+  } else if (settings->distance_mode == DISTANCE_MODE::INCREMENTAL) {
     if (block->v_flag) aa_increment = block->v_number;
     if (block->w_flag) bb_increment = block->w_number;
     r = (block->r_number + old_cc);
@@ -1589,7 +1584,7 @@ int Interp::convert_cycle_vw(int motion, //!< a G-code between G_81 and G_89, a 
     old_cc = r;
     current_cc = old_cc;
   }
-  clear_cc = (settings->retract_mode == R_PLANE) ? r : old_cc;
+  clear_cc = (settings->retract_mode == RETRACT_MODE::R_PLANE) ? r : old_cc;
 
   save_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
   save_tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
@@ -1599,14 +1594,14 @@ int Interp::convert_cycle_vw(int motion, //!< a G-code between G_81 and G_89, a 
 
   switch (motion) {
   case G_81:
-    CYCLE_MACRO(convert_cycle_g81(block, CANON_PLANE_VW, aa, bb, clear_cc, cc))
+    CYCLE_MACRO(convert_cycle_g81(block, CANON_PLANE::VW, aa, bb, clear_cc, cc))
       break;
   case G_82:
     CHKS(((settings->motion_mode != G_82) && (block->p_number == -1.0)),
         NCE_DWELL_TIME_P_WORD_MISSING_WITH_G82);
     block->p_number =
       block->p_number == -1.0 ? settings->cycle_p : block->p_number;
-    CYCLE_MACRO(convert_cycle_g82(block, CANON_PLANE_VW, aa, bb, clear_cc, cc,
+    CYCLE_MACRO(convert_cycle_g82(block, CANON_PLANE::VW, aa, bb, clear_cc, cc,
                                   block->p_number))
       settings->cycle_p = block->p_number;
     break;
@@ -1615,7 +1610,7 @@ int Interp::convert_cycle_vw(int motion, //!< a G-code between G_81 and G_89, a 
         NCE_Q_WORD_MISSING_WITH_G83);
     block->q_number =
       block->q_number == -1.0 ? settings->cycle_q : block->q_number;
-    CYCLE_MACRO(convert_cycle_g83(block, CANON_PLANE_VW, aa, bb, r, clear_cc, cc,
+    CYCLE_MACRO(convert_cycle_g83(block, CANON_PLANE::VW, aa, bb, r, clear_cc, cc,
                                   block->q_number))
       settings->cycle_q = block->q_number;
     break;
@@ -1624,7 +1619,7 @@ int Interp::convert_cycle_vw(int motion, //!< a G-code between G_81 and G_89, a 
         NCE_Q_WORD_MISSING_WITH_G73);
     block->q_number =
       block->q_number == -1.0 ? settings->cycle_q : block->q_number;
-    CYCLE_MACRO(convert_cycle_g73(block, CANON_PLANE_VW, aa, bb, r, clear_cc, cc,
+    CYCLE_MACRO(convert_cycle_g73(block, CANON_PLANE::VW, aa, bb, r, clear_cc, cc,
                                   block->q_number))
       settings->cycle_q = block->q_number;
     break;
@@ -1637,21 +1632,21 @@ int Interp::convert_cycle_vw(int motion, //!< a G-code between G_81 and G_89, a 
             (_("Invalid spindle ($) number in G74/G84 cycle")));
         settings->active_spindle = (int)block->dollar_number;
     }
-    CYCLE_MACRO(convert_cycle_g74_g84(block, CANON_PLANE_VW, aa, bb, clear_cc, cc,
+    CYCLE_MACRO(convert_cycle_g74_g84(block, CANON_PLANE::VW, aa, bb, clear_cc, cc,
                                      settings->spindle_turning[settings->active_spindle],
                                      settings->speed_feed_mode,
                                      motion, block->p_number, settings->active_spindle))
     settings->cycle_p = block->p_number;
     break;
   case G_85:
-    CYCLE_MACRO(convert_cycle_g85(block, CANON_PLANE_VW, aa, bb, r, clear_cc, cc))
+    CYCLE_MACRO(convert_cycle_g85(block, CANON_PLANE::VW, aa, bb, r, clear_cc, cc))
       break;
   case G_86:
     CHKS(((settings->motion_mode != G_86) && (block->p_number == -1.0)),
         NCE_DWELL_TIME_P_WORD_MISSING_WITH_G86);
     block->p_number =
       block->p_number == -1.0 ? settings->cycle_p : block->p_number;
-    CYCLE_MACRO(convert_cycle_g86(block, CANON_PLANE_VW, aa, bb, clear_cc, cc,
+    CYCLE_MACRO(convert_cycle_g86(block, CANON_PLANE::VW, aa, bb, clear_cc, cc,
                                   block->p_number,
                                   settings->spindle_turning[settings->active_spindle],
                                   settings->active_spindle));
@@ -1669,10 +1664,10 @@ int Interp::convert_cycle_vw(int motion, //!< a G-code between G_81 and G_89, a 
     settings->cycle_i = i;
     settings->cycle_j = j;
     settings->cycle_k = k;
-    if (settings->distance_mode == MODE_INCREMENTAL) {
+    if (settings->distance_mode == DISTANCE_MODE::INCREMENTAL) {
       i = (cc + i);             /* i always absolute in function call below */
     }
-    CYCLE_MACRO(convert_cycle_g87(block, CANON_PLANE_VW, aa, (aa + j), bb,
+    CYCLE_MACRO(convert_cycle_g87(block, CANON_PLANE::VW, aa, (aa + j), bb,
                                   (bb + k), r, clear_cc, i, cc,
                                   settings->spindle_turning[settings->active_spindle],
                                   settings->active_spindle));
@@ -1682,7 +1677,7 @@ int Interp::convert_cycle_vw(int motion, //!< a G-code between G_81 and G_89, a 
         NCE_DWELL_TIME_P_WORD_MISSING_WITH_G88);
     block->p_number =
       block->p_number == -1.0 ? settings->cycle_p : block->p_number;
-    CYCLE_MACRO(convert_cycle_g88(block, CANON_PLANE_VW, aa, bb, cc,
+    CYCLE_MACRO(convert_cycle_g88(block, CANON_PLANE::VW, aa, bb, cc,
                                   block->p_number,
                                   settings->spindle_turning[settings->active_spindle],
                                   settings->active_spindle));
@@ -1693,7 +1688,7 @@ int Interp::convert_cycle_vw(int motion, //!< a G-code between G_81 and G_89, a 
         NCE_DWELL_TIME_P_WORD_MISSING_WITH_G89);
     block->p_number =
       block->p_number == -1.0 ? settings->cycle_p : block->p_number;
-    CYCLE_MACRO(convert_cycle_g89(block, CANON_PLANE_VW, aa, bb, clear_cc, cc,
+    CYCLE_MACRO(convert_cycle_g89(block, CANON_PLANE::VW, aa, bb, clear_cc, cc,
                                   block->p_number))
       settings->cycle_p = block->p_number;
     break;
@@ -1767,7 +1762,7 @@ order for a right-handed coordinate system. Also with that usage,
 permutation of the symbols x, y, and z would allow for automatically
 converting the convert_cycle_xy function (or convert_cycle_yz) into
 the convert_cycle_xz function. However, the canonical interface uses
-CANON_PLANE_XZ.
+CANON_PLANE::XZ.
 
 */
 
@@ -1795,7 +1790,7 @@ int Interp::convert_cycle_zx(int motion, //!< a G-code between G_81 and G_89, a 
   double save_tolerance, save_cam_tolerance;
   double current_cc = settings->current_y;
 
-  plane = CANON_PLANE_XZ;
+  plane = CANON_PLANE::XZ;
   if (settings->motion_mode != motion) {
     CHKS((!block->y_flag),
         _readers[(int)'y']? NCE_Y_VALUE_UNSPECIFIED_IN_XZ_PLANE_CANNED_CYCLE: _("G18 canned cycle is not possible on a machine without Y axis"));
@@ -1809,14 +1804,14 @@ int Interp::convert_cycle_zx(int motion, //!< a G-code between G_81 and G_89, a 
       settings->cycle_il_flag = true;
   }
 
-  if (settings->distance_mode == MODE_ABSOLUTE) {
+  if (settings->distance_mode == DISTANCE_MODE::ABSOLUTE) {
     aa_increment = 0.0;
     bb_increment = 0.0;
     r = block->r_number;
     cc = block->y_number;
     aa = block->z_flag ? block->z_number : settings->current_z;
     bb = block->x_flag ? block->x_number : settings->current_x;
-  } else if (settings->distance_mode == MODE_INCREMENTAL) {
+  } else if (settings->distance_mode == DISTANCE_MODE::INCREMENTAL) {
     if (block->z_flag) aa_increment = block->z_number;
     if (block->x_flag) bb_increment = block->x_number;
     r = (block->r_number + old_cc);
@@ -1834,7 +1829,7 @@ int Interp::convert_cycle_zx(int motion, //!< a G-code between G_81 and G_89, a 
     old_cc = r;
     current_cc = old_cc;
   }
-  clear_cc = (settings->retract_mode == R_PLANE) ? r : old_cc;
+  clear_cc = (settings->retract_mode == RETRACT_MODE::R_PLANE) ? r : old_cc;
 
   save_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
   save_tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
@@ -1844,14 +1839,14 @@ int Interp::convert_cycle_zx(int motion, //!< a G-code between G_81 and G_89, a 
 
   switch (motion) {
   case G_81:
-    CYCLE_MACRO(convert_cycle_g81(block, CANON_PLANE_XZ, aa, bb, clear_cc, cc))
+    CYCLE_MACRO(convert_cycle_g81(block, CANON_PLANE::XZ, aa, bb, clear_cc, cc))
       break;
   case G_82:
     CHKS(((settings->motion_mode != G_82) && (block->p_number == -1.0)),
         NCE_DWELL_TIME_P_WORD_MISSING_WITH_G82);
     block->p_number =
       block->p_number == -1.0 ? settings->cycle_p : block->p_number;
-    CYCLE_MACRO(convert_cycle_g82(block, CANON_PLANE_XZ, aa, bb, clear_cc, cc,
+    CYCLE_MACRO(convert_cycle_g82(block, CANON_PLANE::XZ, aa, bb, clear_cc, cc,
                                   block->p_number))
       settings->cycle_p = block->p_number;
     break;
@@ -1860,7 +1855,7 @@ int Interp::convert_cycle_zx(int motion, //!< a G-code between G_81 and G_89, a 
         NCE_Q_WORD_MISSING_WITH_G73);
     block->q_number =
       block->q_number == -1.0 ? settings->cycle_q : block->q_number;
-    CYCLE_MACRO(convert_cycle_g73(block, CANON_PLANE_XZ, aa, bb, r, clear_cc, cc,
+    CYCLE_MACRO(convert_cycle_g73(block, CANON_PLANE::XZ, aa, bb, r, clear_cc, cc,
                                   block->q_number))
       settings->cycle_q = block->q_number;
     break;
@@ -1869,7 +1864,7 @@ int Interp::convert_cycle_zx(int motion, //!< a G-code between G_81 and G_89, a 
         NCE_Q_WORD_MISSING_WITH_G83);
     block->q_number =
       block->q_number == -1.0 ? settings->cycle_q : block->q_number;
-    CYCLE_MACRO(convert_cycle_g83(block, CANON_PLANE_XZ, aa, bb, r, clear_cc, cc,
+    CYCLE_MACRO(convert_cycle_g83(block, CANON_PLANE::XZ, aa, bb, r, clear_cc, cc,
                                   block->q_number))
       settings->cycle_q = block->q_number;
     break;
@@ -1882,21 +1877,21 @@ int Interp::convert_cycle_zx(int motion, //!< a G-code between G_81 and G_89, a 
             (_("Invalid E-number in G74/G84 cycle")));
         settings->active_spindle = (int)block->dollar_number;
      }
-    CYCLE_MACRO(convert_cycle_g74_g84(block, CANON_PLANE_XZ, aa, bb, clear_cc, cc,
+    CYCLE_MACRO(convert_cycle_g74_g84(block, CANON_PLANE::XZ, aa, bb, clear_cc, cc,
                                      settings->spindle_turning[settings->active_spindle],
                                      settings->speed_feed_mode,
                                      motion, block->p_number, settings->active_spindle))
        settings->cycle_p = block->p_number;
     break;
   case G_85:
-    CYCLE_MACRO(convert_cycle_g85(block, CANON_PLANE_XZ, aa, bb, r, clear_cc, cc));
+    CYCLE_MACRO(convert_cycle_g85(block, CANON_PLANE::XZ, aa, bb, r, clear_cc, cc));
     break;
   case G_86:
     CHKS(((settings->motion_mode != G_86) && (block->p_number == -1.0)),
         NCE_DWELL_TIME_P_WORD_MISSING_WITH_G86);
     block->p_number =
       block->p_number == -1.0 ? settings->cycle_p : block->p_number;
-    CYCLE_MACRO(convert_cycle_g86(block, CANON_PLANE_XZ, aa, bb, clear_cc, cc,
+    CYCLE_MACRO(convert_cycle_g86(block, CANON_PLANE::XZ, aa, bb, clear_cc, cc,
                                   block->p_number,
                                   settings->spindle_turning[settings->active_spindle],
                                   settings->active_spindle));
@@ -1914,10 +1909,10 @@ int Interp::convert_cycle_zx(int motion, //!< a G-code between G_81 and G_89, a 
     settings->cycle_i = i;
     settings->cycle_j = j;
     settings->cycle_k = k;
-    if (settings->distance_mode == MODE_INCREMENTAL) {
+    if (settings->distance_mode == DISTANCE_MODE::INCREMENTAL) {
       j = (cc + j);             /* j always absolute in function call below */
     }
-    CYCLE_MACRO(convert_cycle_g87(block, CANON_PLANE_XZ, aa, (aa + k), bb,
+    CYCLE_MACRO(convert_cycle_g87(block, CANON_PLANE::XZ, aa, (aa + k), bb,
                                   (bb + i), r, clear_cc, j, cc,
                                   settings->spindle_turning[settings->active_spindle],
                                   settings->active_spindle));
@@ -1927,7 +1922,7 @@ int Interp::convert_cycle_zx(int motion, //!< a G-code between G_81 and G_89, a 
         NCE_DWELL_TIME_P_WORD_MISSING_WITH_G88);
     block->p_number =
       block->p_number == -1.0 ? settings->cycle_p : block->p_number;
-    CYCLE_MACRO(convert_cycle_g88(block, CANON_PLANE_XZ, aa, bb, cc,
+    CYCLE_MACRO(convert_cycle_g88(block, CANON_PLANE::XZ, aa, bb, cc,
                                   block->p_number,
                                   settings->spindle_turning[settings->active_spindle],
                                   settings->active_spindle));
@@ -1938,7 +1933,7 @@ int Interp::convert_cycle_zx(int motion, //!< a G-code between G_81 and G_89, a 
         NCE_DWELL_TIME_P_WORD_MISSING_WITH_G89);
     block->p_number =
       block->p_number == -1.0 ? settings->cycle_p : block->p_number;
-    CYCLE_MACRO(convert_cycle_g89(block, CANON_PLANE_XZ, aa, bb, clear_cc, cc,
+    CYCLE_MACRO(convert_cycle_g89(block, CANON_PLANE::XZ, aa, bb, clear_cc, cc,
                                   block->p_number))
       settings->cycle_p = block->p_number;
     break;
@@ -1982,7 +1977,7 @@ int Interp::convert_cycle_wu(int motion, //!< a G-code between G_81 and G_89, a 
   double save_tolerance, save_cam_tolerance;
   double current_cc = settings->v_current;
 
-  plane = CANON_PLANE_UW;
+  plane = CANON_PLANE::UW;
   if (settings->motion_mode != motion) {
     CHKS((!block->v_flag),
         _readers[(int)'v']? NCE_V_VALUE_UNSPECIFIED_IN_UW_PLANE_CANNED_CYCLE: _("G18.1 canned cycle is not possible on a machine without V axis"));
@@ -1996,14 +1991,14 @@ int Interp::convert_cycle_wu(int motion, //!< a G-code between G_81 and G_89, a 
       settings->cycle_il_flag = true;
   }
 
-  if (settings->distance_mode == MODE_ABSOLUTE) {
+  if (settings->distance_mode == DISTANCE_MODE::ABSOLUTE) {
     aa_increment = 0.0;
     bb_increment = 0.0;
     r = block->r_number;
     cc = block->v_number;
     aa = block->w_flag ? block->w_number : settings->w_current;
     bb = block->u_flag ? block->u_number : settings->u_current;
-  } else if (settings->distance_mode == MODE_INCREMENTAL) {
+  } else if (settings->distance_mode == DISTANCE_MODE::INCREMENTAL) {
     if (block->w_flag) aa_increment = block->w_number;
     if (block->u_flag) bb_increment = block->u_number;
     r = (block->r_number + old_cc);
@@ -2021,7 +2016,7 @@ int Interp::convert_cycle_wu(int motion, //!< a G-code between G_81 and G_89, a 
     old_cc = r;
     current_cc = old_cc;
   }
-  clear_cc = (settings->retract_mode == R_PLANE) ? r : old_cc;
+  clear_cc = (settings->retract_mode == RETRACT_MODE::R_PLANE) ? r : old_cc;
 
   save_mode = GET_EXTERNAL_MOTION_CONTROL_MODE();
   save_tolerance = GET_EXTERNAL_MOTION_CONTROL_TOLERANCE();
@@ -2031,14 +2026,14 @@ int Interp::convert_cycle_wu(int motion, //!< a G-code between G_81 and G_89, a 
 
   switch (motion) {
   case G_81:
-    CYCLE_MACRO(convert_cycle_g81(block, CANON_PLANE_UW, aa, bb, clear_cc, cc))
+    CYCLE_MACRO(convert_cycle_g81(block, CANON_PLANE::UW, aa, bb, clear_cc, cc))
       break;
   case G_82:
     CHKS(((settings->motion_mode != G_82) && (block->p_number == -1.0)),
         NCE_DWELL_TIME_P_WORD_MISSING_WITH_G82);
     block->p_number =
       block->p_number == -1.0 ? settings->cycle_p : block->p_number;
-    CYCLE_MACRO(convert_cycle_g82(block, CANON_PLANE_UW, aa, bb, clear_cc, cc,
+    CYCLE_MACRO(convert_cycle_g82(block, CANON_PLANE::UW, aa, bb, clear_cc, cc,
                                   block->p_number))
       settings->cycle_p = block->p_number;
     break;
@@ -2047,7 +2042,7 @@ int Interp::convert_cycle_wu(int motion, //!< a G-code between G_81 and G_89, a 
         NCE_Q_WORD_MISSING_WITH_G73);
     block->q_number =
       block->q_number == -1.0 ? settings->cycle_q : block->q_number;
-    CYCLE_MACRO(convert_cycle_g73(block, CANON_PLANE_UW, aa, bb, r, clear_cc, cc,
+    CYCLE_MACRO(convert_cycle_g73(block, CANON_PLANE::UW, aa, bb, r, clear_cc, cc,
                                   block->q_number))
       settings->cycle_q = block->q_number;
     break;
@@ -2056,7 +2051,7 @@ int Interp::convert_cycle_wu(int motion, //!< a G-code between G_81 and G_89, a 
         NCE_Q_WORD_MISSING_WITH_G83);
     block->q_number =
       block->q_number == -1.0 ? settings->cycle_q : block->q_number;
-    CYCLE_MACRO(convert_cycle_g83(block, CANON_PLANE_UW, aa, bb, r, clear_cc, cc,
+    CYCLE_MACRO(convert_cycle_g83(block, CANON_PLANE::UW, aa, bb, r, clear_cc, cc,
                                   block->q_number))
       settings->cycle_q = block->q_number;
     break;
@@ -2069,14 +2064,14 @@ int Interp::convert_cycle_wu(int motion, //!< a G-code between G_81 and G_89, a 
             (_("Invalid spindle ($) number in G74/G84 cycle")));
         settings->active_spindle = (int)block->dollar_number;
      }
-     CYCLE_MACRO(convert_cycle_g74_g84(block, CANON_PLANE_UW, aa, bb, clear_cc, cc,
+     CYCLE_MACRO(convert_cycle_g74_g84(block, CANON_PLANE::UW, aa, bb, clear_cc, cc,
                                      settings->spindle_turning[settings->active_spindle],
                                      settings->speed_feed_mode,
                                      motion, block->p_number, settings->active_spindle))
       settings->cycle_p = block->p_number;
       break;
   case G_85:
-    CYCLE_MACRO(convert_cycle_g85(block, CANON_PLANE_UW, aa, bb, r, clear_cc, cc))
+    CYCLE_MACRO(convert_cycle_g85(block, CANON_PLANE::UW, aa, bb, r, clear_cc, cc))
       break;
   case G_86:
     CHKS(((settings->motion_mode != G_86) && (block->p_number == -1.0)),
@@ -2088,7 +2083,7 @@ int Interp::convert_cycle_wu(int motion, //!< a G-code between G_81 and G_89, a 
             (_("Invalid spindle ($) number in G74/G84 cycle")));
         settings->active_spindle = (int)block->dollar_number;
      }
-    CYCLE_MACRO(convert_cycle_g86(block, CANON_PLANE_UW, aa, bb, clear_cc, cc,
+    CYCLE_MACRO(convert_cycle_g86(block, CANON_PLANE::UW, aa, bb, clear_cc, cc,
                                   block->p_number,
                                   settings->spindle_turning[settings->active_spindle],
                                   settings->active_spindle));
@@ -2111,10 +2106,10 @@ int Interp::convert_cycle_wu(int motion, //!< a G-code between G_81 and G_89, a 
     settings->cycle_i = i;
     settings->cycle_j = j;
     settings->cycle_k = k;
-    if (settings->distance_mode == MODE_INCREMENTAL) {
+    if (settings->distance_mode == DISTANCE_MODE::INCREMENTAL) {
       j = (cc + j);             /* j always absolute in function call below */
     }
-    CYCLE_MACRO(convert_cycle_g87(block, CANON_PLANE_UW, aa, (aa + k), bb,
+    CYCLE_MACRO(convert_cycle_g87(block, CANON_PLANE::UW, aa, (aa + k), bb,
                                   (bb + i), r, clear_cc, j, cc,
                                   settings->spindle_turning[settings->active_spindle],
                                   settings->active_spindle));
@@ -2129,7 +2124,7 @@ int Interp::convert_cycle_wu(int motion, //!< a G-code between G_81 and G_89, a 
             (_("Invalid spindle ($) number in G74/G84 cycle")));
         settings->active_spindle = (int)block->dollar_number;
      }
-    CYCLE_MACRO(convert_cycle_g88(block, CANON_PLANE_UW, aa, bb, cc,
+    CYCLE_MACRO(convert_cycle_g88(block, CANON_PLANE::UW, aa, bb, cc,
                                   block->p_number,
                                   settings->spindle_turning[settings->active_spindle],
                                   settings->active_spindle));
@@ -2140,7 +2135,7 @@ int Interp::convert_cycle_wu(int motion, //!< a G-code between G_81 and G_89, a 
         NCE_DWELL_TIME_P_WORD_MISSING_WITH_G89);
     block->p_number =
       block->p_number == -1.0 ? settings->cycle_p : block->p_number;
-    CYCLE_MACRO(convert_cycle_g89(block, CANON_PLANE_UW, aa, bb, clear_cc, cc,
+    CYCLE_MACRO(convert_cycle_g89(block, CANON_PLANE::UW, aa, bb, clear_cc, cc,
                                   block->p_number))
       settings->cycle_p = block->p_number;
     break;
@@ -2190,27 +2185,27 @@ int Interp::cycle_feed(block_pointer block,
                        double end2,      //!< second coordinate value
                        double end3)      //!< third coordinate value
 {
-    if (plane == CANON_PLANE_XY)
+    if (plane == CANON_PLANE::XY)
         STRAIGHT_FEED(block->line_number, end1, end2, end3,
                       _setup.AA_current, _setup.BB_current, _setup.CC_current,
                       _setup.u_current, _setup.v_current, _setup.w_current);
-    else if (plane == CANON_PLANE_YZ)
+    else if (plane == CANON_PLANE::YZ)
         STRAIGHT_FEED(block->line_number, end3, end1, end2,
                       _setup.AA_current, _setup.BB_current, _setup.CC_current,
                       _setup.u_current, _setup.v_current, _setup.w_current);
-    else if (plane == CANON_PLANE_XZ)
+    else if (plane == CANON_PLANE::XZ)
         STRAIGHT_FEED(block->line_number, end2, end3, end1,
                       _setup.AA_current, _setup.BB_current, _setup.CC_current,
                       _setup.u_current, _setup.v_current, _setup.w_current);
-    else if (plane == CANON_PLANE_UV)
+    else if (plane == CANON_PLANE::UV)
         STRAIGHT_FEED(block->line_number, _setup.current_x, _setup.current_y, _setup.current_z,
                       _setup.AA_current, _setup.BB_current, _setup.CC_current,
                       end1, end2, end3);
-    else if (plane == CANON_PLANE_VW)
+    else if (plane == CANON_PLANE::VW)
         STRAIGHT_FEED(block->line_number, _setup.current_x, _setup.current_y, _setup.current_z,
                       _setup.AA_current, _setup.BB_current, _setup.CC_current,
                       end3, end1, end2);
-    else // (plane == CANON_PLANE_UW)
+    else // (plane == CANON_PLANE::UW)
         STRAIGHT_FEED(block->line_number, _setup.current_x, _setup.current_y, _setup.current_z,
                       _setup.AA_current, _setup.BB_current, _setup.CC_current,
                       end2, end3, end1);
@@ -2249,27 +2244,27 @@ int Interp::cycle_traverse(block_pointer block,
                            double end3)  //!< third coordinate value
 {
 
-    if (plane == CANON_PLANE_XY)
+    if (plane == CANON_PLANE::XY)
         STRAIGHT_TRAVERSE(block->line_number, end1, end2, end3,
                           _setup.AA_current, _setup.BB_current, _setup.CC_current,
                           _setup.u_current, _setup.v_current, _setup.w_current);
-    else if (plane == CANON_PLANE_YZ)
+    else if (plane == CANON_PLANE::YZ)
         STRAIGHT_TRAVERSE(block->line_number, end3, end1, end2,
                           _setup.AA_current, _setup.BB_current, _setup.CC_current,
                           _setup.u_current, _setup.v_current, _setup.w_current);
-    else if (plane == CANON_PLANE_XZ)
+    else if (plane == CANON_PLANE::XZ)
         STRAIGHT_TRAVERSE(block->line_number, end2, end3, end1,
                           _setup.AA_current, _setup.BB_current, _setup.CC_current,
                           _setup.u_current, _setup.v_current, _setup.w_current);
-    else if (plane == CANON_PLANE_UV)
+    else if (plane == CANON_PLANE::UV)
         STRAIGHT_TRAVERSE(block->line_number, _setup.current_x, _setup.current_y, _setup.current_z,
                           _setup.AA_current, _setup.BB_current, _setup.CC_current,
                           end1, end2, end3);
-    else if (plane == CANON_PLANE_VW)
+    else if (plane == CANON_PLANE::VW)
         STRAIGHT_TRAVERSE(block->line_number, _setup.current_x, _setup.current_y, _setup.current_z,
                           _setup.AA_current, _setup.BB_current, _setup.CC_current,
                           end3, end1, end2);
-    else // (plane == CANON_PLANE_UW)
+    else // (plane == CANON_PLANE::UW)
         STRAIGHT_TRAVERSE(block->line_number, _setup.current_x, _setup.current_y, _setup.current_z,
                           _setup.AA_current, _setup.BB_current, _setup.CC_current,
                           end2, end3, end1);

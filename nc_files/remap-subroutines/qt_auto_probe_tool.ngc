@@ -1,89 +1,237 @@
 o<qt_auto_probe_tool> sub
+
+; IMPORTANT: this remap enables using a gcode/ngc program on machines without
+;    automatic tool changers, and without repeatable tool holders, but which
+;    do have a tool setter (and ideally, an xyz probe). 
+;    With this remap, a program or user can issue TxM6 commands at any 
+;      point and the machine will automatically do the following:
+;      1. Move to a tool change position defined in .ini parameters, Z first, then XY
+;      2. Perform the normal M6 tool change (IE stop spindle, prompt for tool)
+;      3. Move to the location of the toolsetter, Z first, then XY, probe the new tool's offset
+;      4. Change the offset of the current coordinate system to match the new tool
+;      5. Return the tip of the new tool to the same spot as the tip of the old tool 
+;            based on newly measured z-offset
+;      6. Return control back to whatever state it was in prior, continuing the program
+;           if one had been running.
+; The following settings should be enabled in the QtDragon interface:
+;    A -  Under Probe Tool screens: insure that "Tool Measure" is enabled
+;    B -  Under Settings: insure that "Use Tool Sensor" is enabled
+;  The following workflow assumes using both a XYZ probe and a Z Toolsetter:
+;    1 - Initial Setup: Before beginning the program, setup the Probe Tool as 
+;        having a zero z-offset in the tool table. (Non-zero tool lengths
+;        for the probe tool can be made to work, but have multiple extra
+;        steps required, and it is easy to have the tool offset interfere with 
+;        the remap coding and cause incorrect adjustments to your offsets.
+;        This procedure assumes a zero length.)
+;    2 - Initial Tool: Load the probe tool with M61 Qx, where x is the Probe tool's number
+;        in the tool table. (Do not use TxM6)
+;    3 - Toolsetter measure: Use button under the Probe Screens for "Probe Tool Setter 
+;        Z Height:" this will set and display on the Probe Settings screen the 
+;        "Probe HT" = #<_hal[qtversaprobe.probeheight> value in ABS coordinates.
+;    4 - Workpiece Measure: Use the button under the Probe Screens for "Probe Z height 
+;        of material:" this will set and display on the Probe Settings screen the 
+;        "Block Ht" = #<_hal[qtversaprobe.blockheight]> value in ABS coordinates.
+;    5 - Set Coord System (G54): Use the Probe Tool and whichever probe screen is 
+;        appropriate to set the coordiate system XYZ offsets needed for your job. 
+;        NOTE: Return_Option 3 uses the current local coordinate system, not just ABS coord.
+;    6 - Prepare to Run: You may then issue a manual TnM6 command to change the tool 
+;        before starting the job, or if the job begins with a TnM6 command before 
+;        spinning the spindle, you may leave the Probe Tool installed. 
+; !! Take care not to leave the XYZ tool probe in the spindle when a program may start
+;    the spindle. !!
 ;(debug, in change tool_in_spindle=#<tool_in_spindle> current_pocket=#<current_pocket>)
 ;(debug, selected_tool=#<selected_tool> selected_pocket=#<selected_pocket>)
 
+; -------------------------------------
+; --- Begin Initial data gathering ----
+; -------------------------------------
+
 #<tool> = #<selected_tool>
 #<pocket> = #<selected_pocket>
+#<local_start_x> = #<_x>
+#<local_start_y> = #<_y>
+#<local_start_z> = #<_z>
+
+; -------------------------------------
+; --- End Initial Data Gathering ----
+; -------------------------------------
+		
+; -------------------------------------
+; --- Begin Initial Safety Checks ----
+; -------------------------------------
+
 ; we must execute this only in the milltask interpreter
 ; or preview will break, so test for '#<_task>' which is 1 for 
 ; the milltask interpreter and 0 in the UI's
-O100 if [#<_task> EQ 0]
+o100 if [#<_task> EQ 0]
         (debug, Task is Null)
-O100     return [999]
-O100 endif
+o100     return [999]
+o100 endif
 
 ; check we are in right mode
-O110 if [#<_metric_machine>]
-    O115 if [#<_imperial>]
+o110 if [#<_metric_machine>]
+    o115 if [#<_imperial>]
        (MSG, Auto Tool probe error: not in G21 mode )
-    O115 return [-3] ; indicate probe contact failure to epilog
-    O115 endif
-O110 else
-    O115 if [#<_imperial> EQ 0]
+    o115 return [-3] ; indicate probe contact failure to epilog
+    o115 endif
+o110 else
+    o115 if [#<_imperial> EQ 0]
        (MSG, Auto Tool probe error: not in G20 mode )
-    O115 return [-3] ; indicate probe contact failure to epilog
-    O115 endif
-O110 endif
+    o115 return [-3] ; indicate probe contact failure to epilog
+    o115 endif
+o110 endif
+
+;check we have a usable search velocity configured, otherwise error
+o150 if [#<_hal[qtversaprobe.searchvel]> LE 0]
+	(MSG, No usable search velocity in hal.qtversaprobe.searchvel)
+	o150 return [-1] ; indicate searchvel <= 0 
+o150 endif
+
+;check we do not have an invalid Return Option
+o175 if [EXISTS[#<_ini[VERSA_TOOLSETTER]RETURN_OPTION>]] 
+	#<return_opt> = #<_ini[VERSA_TOOLSETTER]RETURN_OPTION>
+	o176 if [[#<return_opt> EQ 1] OR [#<return_opt> EQ 2] OR [#<return_opt> EQ 3]]
+		;Continue: Return_Option is both defined and valid
+	o176 else
+		(MSG, Invalid RETURN_OPTION in .ini file under VERSA_TOOLSETTER)
+		o176 return [-1] ; signal error to post processing
+	o176 endif
+o175 else
+	;Continue: it is valid to not define Return_Option, defaults to 1
+o175 endif
+
+; -------------------------------------
+; --- End Initial Safety Checks ----
+; -------------------------------------
+
+; -------------------------------------
+; --- Begin Physical Tool Change ----
+; -------------------------------------
 
 ;first go up
 F #<_hal[qtversaprobe.searchvel]>
 G53 G0 Z[#<_ini[CHANGE_POSITION]Z>]
 
-O125 if [#<_current_tool>  NE #<tool>]
+o200 if [#<_current_tool>  NE #<tool>]
     ; then move to change position
     G53 G0 X[#<_ini[CHANGE_POSITION]X>] Y[#<_ini[CHANGE_POSITION]Y>]
-O125 endif
+o200 endif
 
-; cancel tool offset
+;cancel tool offset mode
 G49
 
 ; using the code being remapped here means 'use builtin behaviour'
+;  ie, this is not a recursive call to this program, but calls the 
+;    un-remapped M6 processing 
+;  That processing includes actually sending the window to the user
+;    to press OK when they have completed the tool change.
 M6
 
-O200 if [#<_hal[qtversaprobe.enable]> EQ 0]
-   (MSG, Auto Tool probe disabled )
-    G43
-O200 return [3] ; indicate no tool measurement 
-O200 endif
+; -------------------------------------
+; ------ End Physical Tool Change ----
+; -------------------------------------
 
+; -------------------------------------
+; ------ Begin Safety Checks for Tool Offset Measurement ----
+; -------------------------------------
+
+o300 if [#<_hal[qtversaprobe.enable]> EQ 0]
+   (MSG, Auto Tool probe disabled )
+    G43 ;turn back on tool offset mode before returning
+o300 return [3] ; indicate no tool measurement 
+o300 endif
+
+;check we have a usable probe velocity configured, otherwise error
+o400 if [#<_hal[qtversaprobe.probevel]> LE 0]
+o400 return [-2] ; indicate probevel <= 0 
+o400 endif
+
+; -------------------------------------
+; ------ End Safety Checks for Tool Offset Measurement ----
+; -------------------------------------
+
+; -------------------------------------
+; ------ Begin Tool Offset Measurement ----
+; -------------------------------------
+
+;rapid-move to safe height
+G53 G0 Z[#<_ini[VERSA_TOOLSETTER]Z_MAX_CLEAR>]
+;Then rapid-move to probe XY location
 G53 G0 X[#<_ini[VERSA_TOOLSETTER]X>] Y[#<_ini[VERSA_TOOLSETTER]Y>]
+;then feed down to the probe start location
 F #<_hal[qtversaprobe.searchvel]>
 G53 G1 Z[#<_ini[VERSA_TOOLSETTER]Z>]
 
-
-O300 if [#<_hal[qtversaprobe.searchvel]> LE 0]
-O300 return [-1] ; indicate searchvel <= 0 
-O300 endif
-
-O400 if [#<_hal[qtversaprobe.probevel]> LE 0]
-O400 return [-2] ; indicate probevel <= 0 
-O400 endif
-
-F #<_hal[qtversaprobe.searchvel]>
+;switch to relative distance mode for probe moves
 G91
+
+;begin initial probe move
+F #<_hal[qtversaprobe.searchvel]>
 G38.2 Z- #<_ini[VERSA_TOOLSETTER]MAXPROBE>
 G0 Z #<_hal[qtversaprobe.backoffdist]>
 
-;reprobe at probe speed
+o510 if [#5070 EQ 0]
+G90
+o510 return [-3] ; indicate probe contact failure to epilog
+o510 endif
+
+;reprobe at probe speed: G38.2 means probe toward workpiece, stop on contact
+;  when G38.n axis completes, it puts the Z value detected (in the coordinates system 
+;  in which this program started) into parameter #5063 (because we're probing Z) 
+;  
 F #<_hal[qtversaprobe.probevel]>
 G38.2 Z- [#<_hal[qtversaprobe.backoffdist]> *1.2]
 
-O500 if [#5070 EQ 0]
+o510 if [#5070 EQ 0]
 G90
-O500 return [-3] ; indicate probe contact failure to epilog
-O500 endif
+o510 return [-3] ; indicate probe contact failure to epilog
+o510 endif
 
+;switch back to absolute distance mode once probing is done
 G90
-G53 G0 Z[#<_ini[CHANGE_POSITION]Z>]
 
+;set the current offset
 #<touch_result> = #5063
+
+;
+; G10 L1 is the Set Tool Table Offset: it changes the tool table offset, 
+;   it DOES NOT change the offsets in the current coordinate system. (that would be G10 L2)
+
+#<calculated_offset> = [#<touch_result> - #<_hal[qtversaprobe.probeheight]> + #<_hal[qtversaprobe.blockheight]>]
+
+G10 L1 P#<tool> Z[#<calculated_offset>]
+
+;G43 enables tool length offset: this affects all subsequent moves by applying 
+;  the offset just calculated to the coordinate system currently in
+;  effect. ie. it has subtracted Calculated Offset from the Z offset
+ 
+G43
+
 
 (DEBUG, %fProbe Height: #<_hal[qtversaprobe.probeheight]>)
 (DEBUG, %fBlock Height: #<_hal[qtversaprobe.blockheight]>)
 (DEBUG, %fProbe Result: #<touch_result>)
+(DEBUG, %fCalculated Offset: #<calculated_offset>)
 
-G10 L1 P#<tool> Z[#<touch_result> - #<_hal[qtversaprobe.probeheight]> + #<_hal[qtversaprobe.blockheight]>]
-G43
+; -------------------------------------
+; ------ End Tool Offset Measurement ----
+; -------------------------------------
+
+; -------------------------------------
+; ------ Begin Return Movement ----
+; -------------------------------------
+
+; return to original tool-tip position, but using new z-offset
+;(DEBUG, Return to original tool-tip position using new z-offset: #<local_start_x> , #<local_start_y> , #<local_start_z>)
+G53 G0 Z[#<_ini[VERSA_TOOLSETTER]Z_MAX_CLEAR>]
+; now use original (modal)coord system to go over to xy
+G0 X[#<local_start_x>] Y[#<local_start_y>]
+; and finally down to the (already offset) z coord
+G0 Z[#<local_start_z>]
+			
+; -------------------------------------
+; ------ End Return Movement ----
+; -------------------------------------
 
 ; signal success be returning a value > 0:
 o<qt_auto_probe_tool> endsub [1]

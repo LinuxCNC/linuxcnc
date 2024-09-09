@@ -1,16 +1,8 @@
-QTPLASMAC_PY := qtplasmac-materials.py qtplasmac-plasmac2qt.py qtplasmac-cfg2prefs.py \
-	qtplasmac_gcode.py pmx485-test.py
+QTPLASMAC_PY := qtplasmac-materials.py qtplasmac_gcode.py pmx485-test.py
 QTPLASMAC_PYBIN := $(patsubst %.py,../bin/%,$(QTPLASMAC_PY))
 
 PYTARGETS += $(QTPLASMAC_PYBIN)
 $(QTPLASMAC_PYBIN): ../bin/%: emc/usr_intf/qtplasmac/%.py
-	@$(ECHO) Syntax checking python script $(notdir $@)
-	$(Q)$(PYTHON) -m py_compile $<
-	$(ECHO) Copying python script $(notdir $@)
-	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
-
-PYTARGETS += ../configs/sim/qtplasmac/M190
-../configs/sim/qtplasmac/M190: emc/usr_intf/qtplasmac/M190
 	@$(ECHO) Syntax checking python script $(notdir $@)
 	$(Q)$(PYTHON) -m py_compile $<
 	$(ECHO) Copying python script $(notdir $@)

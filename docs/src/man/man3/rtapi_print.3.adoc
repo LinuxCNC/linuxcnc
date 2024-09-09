@@ -1,0 +1,63 @@
+:manvolnum: 3
+
+= rtapi_print(3rtapi)
+
+== NAME
+
+rtapi_print, rtapi_print_msg - print diagnostic messages
+
+== SYNTAX
+
+....
+void rtapi_print(const char *_fmt_, _..._)
+void rtapi_print_msg(int level, const char *_fmt_, _..._)
+typedef void(**rtapi_msg_handler_t*)(msg_level_t _level_, const char *_msg_);
+void *rtapi_set_msg_handler*(rtapi_msg_handler_t _handler_);
+rtapi_msg_handler_t *rtapi_get_msg_handler*(void);
+....
+
+== ARGUMENTS
+
+level::
+  A message level: One of *RTAPI_MSG_ERR*, *RTAPI_MSG_WARN*,
+  *RTAPI_MSG_INFO*, or *RTAPI_MSG_DBG*.
+handler::
+  A function to call from *rtapi_print* or *rtapi_print_msg* to actually
+  output the message.
+fmt, ...::
+  Other arguments are as for _rtapi_vsnprintf(3rtapi)_.
+
+== DESCRIPTION
+
+*rtapi_print* and *rtapi_print_msg* work like the standard C printf
+functions, except that a reduced set of formatting operations are
+supported. Notably, formatting long-long values is not supported, and
+formatting floating-point values has different behavior than standard
+printf.
+
+Depending on the RTOS, the default may be to print the message to
+stdout, stderr, a kernel log, etc. In RTAPI code, the action may be
+changed by a call to *rtapi_set_msg_handler*. A *NULL* argument to
+*rtapi_set_msg_handler* restores the default handler.
+*rtapi_msg_get_handler* returns the current handler. When the message
+came from *rtapi_print*, _level_ is RTAPI_MSG_ALL.
+
+*rtapi_print_msg* works like rtapi_print but only prints if _level_ is
+less than or equal to the current message level.
+
+== REALTIME CONSIDERATIONS
+
+*rtapi_print* and *rtapi_print_msg* May be called from non-realtime,
+init/cleanup, and realtime code. *rtapi_get_msg_handler* and
+*rtapi_set_msg_handler* may be called from realtime init/cleanup code. A
+message handler passed to *rtapi_set_msg_handler* may only call
+functions that can be called from realtime code.
+
+== RETURN VALUE
+
+None.
+
+== SEE ALSO
+
+rtapi_set_msg_level(3rtapi), rtapi_get_msg_level(3rtapi),
+rtapi_vsnprintf(3rtapi)

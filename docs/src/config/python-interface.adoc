@@ -257,12 +257,6 @@ machine angular units per deg, reflects [TRAJ]ANGULAR_UNITS INI value.
 *linear_units*:: '(returns float)' -
   machine linear units per mm, reflects [TRAJ]LINEAR_UNITS INI value.
 
-*lube*:: '(returns integer)' -
-  'lube on' flag.
-
-*lube_level*:: '(returns integer)' -
-  reflects 'iocontrol.0.lube_level'.
-
 *max_acceleration*:: '(returns float)' -
   maximum  acceleration. Reflects [TRAJ]MAX_ACCELERATION.
 
@@ -395,6 +389,30 @@ if s.tool_table[0].id != 0: # a tool is loaded
 else:
     print("No tool loaded.")
 ----
+
+*toolinfo(toolno)*:: '(returns dict of tooldata for toolno)' -
+  An initial stat.poll() is required to initialize.
+  toolno must be greater than zero and less than or equal to the highest tool number in use.
+  Dictionary items include all tooldata items:
+     'toolno', 'pocketno',
+     'diameter','frontangle','backangle','orientation',
+     'xoffset','yoffset', ...  'woffset',
+     'comment'
+
+[source,python]
+----
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+import linuxcnc
+s = linuxcnc.stat()
+s.poll()
+toolno = 1
+print(s.toolinfo(toolno))
+----
+
+
+': 0, 'xoffset': 0.0, 'yoffset': 0.0, 'zoffset': 0.18, 'aoffset': 0.0, 'boffset': 0.0, 'coffset': 0.0, 'uoffset': 0.0, 'voffset': 0.0, 'woffset': 0.0, 'comment': 'Tool_18 28Jan23:18.53.25'}
+
 
 *velocity*:: '(returns float)' -
   This property is defined, but it does not have a useful interpretation.

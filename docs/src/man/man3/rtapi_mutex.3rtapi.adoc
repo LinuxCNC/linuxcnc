@@ -1,0 +1,45 @@
+= rtapi_mutex(3rtapi)
+
+== NAME
+
+rtapi_mutex - Mutex-related functions
+
+== SYNTAX
+
+....
+#include <rtapi_mutex.h>
+
+int rtapi_mutex_try(unsigned long **_mutex_*);
+int rtapi_mutex_get(unsigned long **_mutex_*);
+int rtapi_mutex_give(unsigned long **_mutex_*);
+....
+
+== ARGUMENTS
+
+mutex::
+  A pointer to the mutex.
+
+== DESCRIPTION
+
+*rtapi_mutex_try* makes a non-blocking attempt to get the mutex. If the
+mutex is available, it returns 0, and the mutex is no longer available.
+Otherwise, it returns a nonzero value.
+
+*rtapi_mutex_get* blocks until the mutex is available.
+
+*rtapi_mutex_give* releases a mutex acquired by *rtapi_mutex_try* or
+*rtapi_mutex_get*.
+
+== REALTIME CONSIDERATIONS
+
+*rtapi_mutex_give* and *rtapi_mutex_try* may be used from non-realtime,
+init/cleanup, and realtime code.
+
+*rtapi_mutex_get* may not be used from realtime code.
+
+== RETURN VALUE
+
+*rtapi_mutex_try* returns 0 for if the mutex was claimed, and nonzero
+otherwise.
+
+*rtapi_mutex_get* and *rtapi_mutex_gif* have no return value.

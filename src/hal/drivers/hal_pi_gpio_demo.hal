@@ -43,7 +43,7 @@ addf hal_pi_gpio.write base-thread
 # --- end addf s
 
 
-# i use GPIO 2,3,4 for xtep ystep zstep, that's rpin 3,5,7 resp
+# i use GPIO 2,3,4 for xstep ystep zstep, that's rpin 3,5,7 resp
 net xstep stepgen.0.step => hal_pi_gpio.pin-03-out
 net ystep stepgen.1.step => hal_pi_gpio.pin-05-out
 net zstep stepgen.2.step => hal_pi_gpio.pin-07-out

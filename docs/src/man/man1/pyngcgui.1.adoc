@@ -1,0 +1,41 @@
+= pyngcgui(1)
+
+== NAME
+
+pyngcgui - Python implementation of NGCGUI
+
+== SYNOPSIS
+
+*pyngcgui*
+
+== DESCRIPTION
+
+*pyngcgui* is an alternative implenentation of NGCGUI:
+http://linuxcnc.org/docs/html/gui/ngcgui.html
+
+== SEE ALSO
+
+ngcgui(1), linuxcnc(1)
+
+Much more information about LinuxCNC and HAL is available in the
+LinuxCNC and HAL User Manuals, found at /usr/share/doc/LinuxCNC/.
+
+== BUGS
+
+None known at this time.
+
+== AUTHOR
+
+This man page written by Andy Pugh, as part of the LinuxCNC project.
+
+== REPORTING BUGS
+
+Report bugs at https://github.com/LinuxCNC/linuxcnc/issues.
+
+== COPYRIGHT
+
+Copyright © 2020 Andy Pugh.
+
+This is free software; see the source for copying conditions. There is
+NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.

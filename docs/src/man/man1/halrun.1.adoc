@@ -1,0 +1,81 @@
+= halrun(1)
+
+== NAME
+
+halrun - manipulate the LinuxCNC HAL from the command line
+
+== SYNOPSIS
+
+*halrun -h*
+
+*halrun [*-I*] [_halcmd_opts_] [_filename[.hal|.tcl]_]
+
+*halrun -T* [_halcmd_opts_] [_filename[.hal|.tcl]_]
+
+*halrun -U*
+
+== DESCRIPTION
+
+*halrun* is a convenience script used to manipulate the HAL (Hardware
+Abstraction Layer) from the command line. When invoked, *halrun*:
+
+Sets up the realtime environment. Executes a command interpreter
+(*halcmd* or *haltcl*). (Optionally) runs an interactive session. Tears
+down the realtime environment.
+
+If no filename is specified, an interactive session is started. The
+session will use *halcmd*(1) unless -T is specified in which case
+*haltcl*(1) will be used.
+
+If a filename is specified and neither the -I nor the -T option is
+included, the filename will be processed by the command interpreter
+corresponding to the filename extension (*halcmd* or *haltcl*). After
+processing, the realtime environment will be torn down.
+
+If a filename is specified and the -I or -T option is included, the file
+is processed by the appropriate command interpreter and then an
+interactive session is started for *halcmd* or *haltcl* according to the
+-I or -T option.
+
+== OPTIONS
+
+*halcmd_opts*::
+  When a .hal file is specified, the *halcmd_opts* are passed to *halcmd*.
+  See the man page for **halcmd**(1).
+  When a .tcl file is specified, the only valid options are: -i <INI file> -f <filename[.tcl|.hal]> (alternate means of specifying a file).
+*-I*::
+  Run an interactive *halcmd* session
+*-T*::
+  Run an interactive *haltcl* session.
+*-U*::
+  Forcibly cause the realtime environment to exit. It releases the HAL
+  mutex, requests that all HAL components unload, and stops the realtime
+  system. *-U* must be the only commandline argument.
+*-h*::
+  display a brief help screen and exit
+
+== BUGS
+
+None known at this time.
+
+== AUTHOR
+
+Original version by John Kasunich, as part of the LinuxCNC Enhanced
+Machine Controller project. Now includes major contributions by several
+members of the project.
+
+== REPORTING BUGS
+
+Report bugs at https://github.com/LinuxCNC/linuxcnc/issues.
+
+== COPYRIGHT
+
+Copyright © 2003 John Kasunich.
+
+This is free software; see the source for copying conditions. There is
+NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.
+
+== SEE ALSO
+
+halcmd(1), haltcl(1)

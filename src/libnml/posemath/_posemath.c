@@ -93,6 +93,8 @@ void pmPerror(const char *s)
 
 /* Pose Math Basis Functions */
 
+int pmClose(double a, double b, double eps) { return ((fabs((a) - (b)) < (eps)) ? 1 : 0); }
+
 /* Scalar functions */
 
 double pmSqrt(double x)
@@ -1848,7 +1850,7 @@ int pmCircleInit(PmCircle * const circle,
        2PI. */
     pmCartCartCross(&circle->rTan, &rEnd, &v);
     pmCartCartDot(&v, &circle->normal, &d);
-    if (d < DOUBLE_FUZZ) {
+    if (d < CART_FUZZ) {
         circle->angle = PM_2_PI - circle->angle;
     }
     /* Issue #1528 24-Jan-2022. Additional test for nearly-straight   *

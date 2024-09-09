@@ -43,6 +43,7 @@
 
 #include <epoxy/gl.h>
 #include <epoxy/glx.h>
+#include <algorithm>
 
 #define LOCAL_SPINDLE_FORWARD (1)
 #define LOCAL_SPINDLE_REVERSE (-1)
@@ -116,30 +117,25 @@ static int Ini_init(pyIniFile *self, PyObject *a, PyObject *k) {
 }
 
 static PyObject *Ini_find(pyIniFile *self, PyObject *args) {
-    const char *s1, *s2, *out;
+    const char *s1, *s2;
     int num = 1;
     if(!PyArg_ParseTuple(args, "ss|i:find", &s1, &s2, &num)) return NULL;
 
-    out = self->i->Find(s2, s1, num);
-    if(out == NULL) {
-        Py_INCREF(Py_None);
-        return Py_None;
-    }
-    return PyUnicode_FromString(const_cast<char*>(out));
+    if (auto out = self->i->Find(s2, s1, num))
+        return PyUnicode_FromString(out.value());
+
+    Py_INCREF(Py_None);
+    return Py_None;
 }
 
 static PyObject *Ini_findall(pyIniFile *self, PyObject *args) {
-    const char *s1, *s2, *out;
+    const char *s1, *s2;
     int num = 1;
     if(!PyArg_ParseTuple(args, "ss:findall", &s1, &s2)) return NULL;
 
     PyObject *result = PyList_New(0);
-    while(1) {
-        out = self->i->Find(s2, s1, num);
-        if(out == NULL) {
-            break;
-        }
-        PyList_Append(result, PyUnicode_FromString(const_cast<char*>(out)));
+    while(auto out = self->i->Find(s2, s1, num)) {
+        PyList_Append(result, PyUnicode_FromString(out.value()));
         num++;
     }
     return result;
@@ -209,7 +205,7 @@ static PyTypeObject Ini_Type = {
 #define EMC_COMMAND_TIMEOUT 5.0  // how long to wait until timeout
 #define EMC_COMMAND_DELAY   0.01 // how long to sleep between checks
 
-static int emcWaitCommandComplete(pyCommandChannel *s, double timeout) {
+static RCS_STATUS emcWaitCommandComplete(pyCommandChannel *s, double timeout) {
     double start = etime();
 
     do {
@@ -218,16 +214,16 @@ static int emcWaitCommandComplete(pyCommandChannel *s, double timeout) {
            EMC_STAT *stat = (EMC_STAT*)s->s->get_address();
            int serial_diff = stat->echo_serial_number - s->serial;
            if (serial_diff > 0) {
-                return RCS_DONE;
+                return RCS_STATUS::DONE;
            }
            if (serial_diff == 0 &&
-               ( stat->status == RCS_DONE || stat->status == RCS_ERROR )) {
+               ( stat->status == RCS_STATUS::DONE || stat->status == RCS_STATUS::ERROR )) {
                 return stat->status;
            }
         }
         esleep(fmin(timeout - (now - start), EMC_COMMAND_DELAY));
     } while (etime() - start < timeout);
-    return -1;
+    return RCS_STATUS::UNINITIALIZED;
 }
 
 static int emcSendCommand(pyCommandChannel *s, RCS_CMD_MSG & cmd) {
@@ -312,8 +308,93 @@ static PyObject *poll(pyStatChannel *s, PyObject *o) {
     return Py_None;
 }
 
+static void dict_add(PyObject *d, const char *name, unsigned char v) {
+    PyObject *o;
+    PyDict_SetItemString(d, name, o = PyLong_FromLong(v));
+    Py_XDECREF(o);
+}
+static void dict_add(PyObject *d, const char *name, double v) {
+    PyObject *o;
+    PyDict_SetItemString(d, name, o = PyFloat_FromDouble(v));
+    Py_XDECREF(o);
+}
+static void dict_add(PyObject *d, const char *name, bool v) {
+    PyObject *o;
+    PyDict_SetItemString(d, name, o = PyBool_FromLong((long)v));
+    Py_XDECREF(o);
+}
+static void dict_add(PyObject *d, const char *name, int v) {
+    PyObject *o;
+    PyDict_SetItemString(d, name, o = PyLong_FromLong((long)v));
+    Py_XDECREF(o);
+}
+
+static PyObject *toolinfo(pyStatChannel *s, PyObject *o) {
+    /*Note: this method uses the tooldata interface and is included
+    **      as a Stat method for convenience.
+    **      pyStatChannel is not used but an initial stat poll()
+    **      is required for initialization of mmap
+    */
+    PyObject *res = PyDict_New();
+    CANON_TOOL_TABLE tdata = tooldata_entry_init();
+    int toolno;
+    if (!initialized) {
+        PyErr_Format(PyExc_ValueError,"toolinfo: NOT READY (initial poll reqd)\n");
+        return NULL;
+    }
+    if(!PyArg_ParseTuple(o, "i", &toolno)) return NULL;
+
+#define TOOL_0_EXCEPTION
+#ifdef  TOOL_0_EXCEPTION
+    /* toolno == 0 is not supported here because it would likely be too confusing
+    ** (ref docs/code/code-notes.adoc):
+    **   nonrandom toolchanger: tool 0 means "no tool"
+    **      random toolchanger: tool 0 is like any other *but* conventionally means "no tool"
+    **
+    ** tool_in_spindle data is available using idx=0 with
+    **     linuxcnc.stat.tool_table[idx]
+    */
+    if (toolno == 0) {
+        PyErr_Format(PyExc_ValueError,"toolinfo: for tool in spindle: use linuxnc.stat.tool_table[0]");
+        return NULL;
+    }
+#endif
+
+    int idx  = tooldata_find_index_for_tool(toolno);
+
+    if (tooldata_get(&tdata,idx) != IDX_OK) {
+        PyErr_Format(PyExc_ValueError,"toolinfo: NO tooldata for toolno=%d",toolno);
+        return NULL;
+    }
+    dict_add(res,     "toolno", tdata.toolno);
+    dict_add(res,   "pocketno", tdata.pocketno);
+    dict_add(res,   "diameter", tdata.diameter);
+    dict_add(res, "frontangle", tdata.frontangle);
+    dict_add(res,  "backangle", tdata.backangle);
+    dict_add(res,"orientation", tdata.orientation);
+    dict_add(res,    "xoffset", tdata.offset.tran.x);
+    dict_add(res,    "yoffset", tdata.offset.tran.y);
+    dict_add(res,    "zoffset", tdata.offset.tran.z);
+    dict_add(res,    "aoffset", tdata.offset.a);
+    dict_add(res,    "boffset", tdata.offset.b);
+    dict_add(res,    "coffset", tdata.offset.c);
+    dict_add(res,    "uoffset", tdata.offset.u);
+    dict_add(res,    "voffset", tdata.offset.v);
+    dict_add(res,    "woffset", tdata.offset.w);
+
+    PyDict_SetItemString(res, "comment", o= PyUnicode_FromString(tdata.comment));
+    Py_DECREF(o);
+
+    return res;
+}
+
 static PyMethodDef Stat_methods[] = {
     {"poll", (PyCFunction)poll, METH_NOARGS, "Update current machine state"},
+    {"toolinfo", (PyCFunction)toolinfo, METH_VARARGS,
+         "toolinfo(toolnumber):\n"
+         "   returns dict for toolnumber parameters (pocket,offsets,etc)\n"
+         "   ValueError Exception if toolnumber not available"
+    },
     {NULL}
 };
 
@@ -352,7 +433,6 @@ static PyMemberDef Stat_members[] = {
     {(char*)"delay_left", T_DOUBLE, O(task.delayLeft), READONLY},
     {(char*)"queued_mdi_commands", T_INT, O(task.queuedMDIcommands), READONLY, (char*)"Number of MDI commands queued waiting to run." },
 
-// motion
 //   EMC_TRAJ_STAT traj
     {(char*)"linear_units", T_DOUBLE, O(motion.traj.linearUnits), READONLY},
     {(char*)"angular_units", T_DOUBLE, O(motion.traj.angularUnits), READONLY},
@@ -416,10 +496,6 @@ static PyMemberDef Stat_members[] = {
 
 // EMC_AUX_STAT     io.aux
     {(char*)"estop", T_INT, O(io.aux.estop), READONLY},
-
-// EMC_LUBE_STAT    io.lube
-    {(char*)"lube", T_INT, O(io.lube.on), READONLY},
-    {(char*)"lube_level", T_INT, O(io.lube.level), READONLY},
 
     {(char*)"debug", T_INT, O(debug), READONLY},
     {NULL}
@@ -558,26 +634,6 @@ static PyObject *Stat_misc_error(pyStatChannel *s){
   return int_array(s->status.motion.misc_error, EMCMOT_MAX_MISC_ERROR);
 }
 
-static void dict_add(PyObject *d, const char *name, unsigned char v) {
-    PyObject *o;
-    PyDict_SetItemString(d, name, o = PyLong_FromLong(v));
-    Py_XDECREF(o);
-}
-static void dict_add(PyObject *d, const char *name, double v) {
-    PyObject *o;
-    PyDict_SetItemString(d, name, o = PyFloat_FromDouble(v));
-    Py_XDECREF(o);
-}
-static void dict_add(PyObject *d, const char *name, bool v) {
-    PyObject *o;
-    PyDict_SetItemString(d, name, o = PyBool_FromLong((long)v));
-    Py_XDECREF(o);
-}
-static void dict_add(PyObject *d, const char *name, int v) {
-    PyObject *o;
-    PyDict_SetItemString(d, name, o = PyLong_FromLong((long)v));
-    Py_XDECREF(o);
-}
 #define F(x) F2(#x, x)
 #define F2(y,x) dict_add(res, y, s->status.motion.joint[jointno].x)
 static PyObject *Stat_joint_one(pyStatChannel *s, int jointno) {
@@ -731,9 +787,6 @@ static PyObject *Stat_tool_table(pyStatChannel *s) {
     return res;
 }
 
-// XXX io.tool.toolTable
-// XXX EMC_JOINT_STAT motion.joint[]
-
 static PyGetSetDef Stat_getsetlist[] = {
     {(char*)"actual_position", (getter)Stat_actual},
     {(char*)"ain", (getter)Stat_ain},
@@ -872,9 +925,9 @@ static PyObject *mode(pyCommandChannel *s, PyObject *o) {
     EMC_TASK_SET_MODE m;
     if(!PyArg_ParseTuple(o, "i", &m.mode)) return NULL;
     switch(m.mode) {
-        case EMC_TASK_MODE_MDI:
-        case EMC_TASK_MODE_MANUAL:
-        case EMC_TASK_MODE_AUTO:
+        case EMC_TASK_MODE::MDI:
+        case EMC_TASK_MODE::MANUAL:
+        case EMC_TASK_MODE::AUTO:
             break;
         default:
             PyErr_Format(PyExc_ValueError,"Mode should be MODE_MDI, MODE_MANUAL, or MODE_AUTO");
@@ -996,10 +1049,10 @@ static PyObject *state(pyCommandChannel *s, PyObject *o) {
     EMC_TASK_SET_STATE m;
     if(!PyArg_ParseTuple(o, "i", &m.state)) return NULL;
     switch(m.state){
-        case EMC_TASK_STATE_ESTOP:
-        case EMC_TASK_STATE_ESTOP_RESET:
-        case EMC_TASK_STATE_ON:
-        case EMC_TASK_STATE_OFF:
+        case EMC_TASK_STATE::ESTOP:
+        case EMC_TASK_STATE::ESTOP_RESET:
+        case EMC_TASK_STATE::ON:
+        case EMC_TASK_STATE::OFF:
             break;
         default:
             PyErr_Format(PyExc_ValueError,"Machine state should be STATE_ESTOP, STATE_ESTOP_RESET, STATE_ON, or STATE_OFF");
@@ -1213,6 +1266,56 @@ static PyObject *program_open(pyCommandChannel *s, PyObject *o) {
         return NULL;
     }
     strcpy(m.file, file);
+    /* clear optional fields */
+    m.remote_buffersize = 0;
+    m.remote_filesize = 0;
+
+    /* send file in chunks to linuxcnc via remote_buffer for remote processes */
+    if(s->s->cms->ProcessType == CMS_REMOTE_TYPE && strcmp(s->s->cms->ProcessName, "emc") != 0) {
+        /* open file */
+        FILE *fd;
+        if(!(fd = fopen(file, "r"))) {
+            PyErr_Format(PyExc_OSError, "fopen(%s) error: %s", file, strerror(errno));
+            return PyErr_SetFromErrno(PyExc_OSError);
+        }
+        /* get filesize */
+        if(fseek(fd, 0L, SEEK_END) != 0) {
+            fclose(fd);
+            PyErr_Format(PyExc_OSError, "fseek(%s) error: %s", file, strerror(errno));
+            return PyErr_SetFromErrno(PyExc_OSError);
+        }
+        if((m.remote_filesize = ftell(fd)) < 0) {
+            fclose(fd);
+            PyErr_Format(PyExc_OSError, "ftell(%s) error: %s", file, strerror(errno));
+            return PyErr_SetFromErrno(PyExc_OSError);
+        }
+        if(fseek(fd, 0L, SEEK_SET) != 0) {
+            fclose(fd);
+            PyErr_Format(PyExc_OSError, "fseek(%s) error: %s", file, strerror(errno));
+            return PyErr_SetFromErrno(PyExc_OSError);
+        }
+
+        /* send complete file content in chunks of sizeof(msg.remote_buffer) */
+        while(!(feof(fd))) {
+            size_t bytes_read = fread(&m.remote_buffer, 1, sizeof(m.remote_buffer), fd);
+            /* read error? */
+            if(bytes_read <= 0 && ferror(fd)) {
+                PyErr_Format(PyExc_OSError, "fread(%s) error: %s", file, strerror(errno));
+                return PyErr_SetFromErrno(PyExc_OSError);
+            }
+            /* save amount of bytes written to buffer */
+            m.remote_buffersize = bytes_read;
+            /* send chunk */
+            if(emcSendCommand(s, m) < 0) {
+                 PyErr_Format(PyExc_OSError, "emcSendCommand() error: %s");
+                 return PyErr_SetFromErrno(PyExc_OSError);
+            }
+        }
+        fclose(fd);
+        Py_INCREF(Py_None);
+        return Py_None;
+    }
+
     emcSendCommand(s, m);
     Py_INCREF(Py_None);
     return Py_None;
@@ -1384,7 +1487,7 @@ static PyObject *wait_complete(pyCommandChannel *s, PyObject *o) {
     double timeout = EMC_COMMAND_TIMEOUT;
     if (!PyArg_ParseTuple(o, "|d:emc.command.wait_complete", &timeout))
         return NULL;
-    return PyLong_FromLong(emcWaitCommandComplete(s, timeout));
+    return PyLong_FromLong((int)emcWaitCommandComplete(s, timeout));
 }
 
 static PyObject *error_msg(pyCommandChannel *s,  PyObject *args ) {
@@ -1393,7 +1496,6 @@ static PyObject *error_msg(pyCommandChannel *s,  PyObject *args ) {
 
     if(!PyArg_ParseTuple(args, "s", &m)) return NULL;
 
-    operator_error_msg.id = 0;
     strncpy(operator_error_msg.error, m, LINELEN);
     operator_error_msg.error[LINELEN - 1] = 0;
     emcSendCommand(s, operator_error_msg);
@@ -1408,7 +1510,6 @@ static PyObject *text_msg(pyCommandChannel *s,  PyObject *args ) {
 
     if(!PyArg_ParseTuple(args, "s", &m)) return NULL;
 
-    operator_text_msg.id = 0;
     strncpy(operator_text_msg.text, m, LINELEN);
     operator_text_msg.text[LINELEN - 1] = 0;
     emcSendCommand(s, operator_text_msg);
@@ -1423,7 +1524,6 @@ static PyObject *display_msg(pyCommandChannel *s,  PyObject *args ) {
 
     if(!PyArg_ParseTuple(args, "s", &m)) return NULL;
 
-    operator_display_msg.id = 0;
     strncpy(operator_display_msg.display, m, LINELEN);
     operator_display_msg.display[LINELEN - 1] = 0;
     emcSendCommand(s, operator_display_msg);
@@ -1754,16 +1854,13 @@ static void glvertex9(const double pt[9], const char *geometry) {
     glVertex3dv(p);
 }
 
-#define max(a,b) ((a) < (b) ? (b) : (a))
-#define max3(a,b,c) (max((a),max((b),(c))))
-
 static void line9(const double p1[9], const double p2[9], const char *geometry) {
     if(p1[3] != p2[3] || p1[4] != p2[4] || p1[5] != p2[5]) {
-        double dc = max3(
+        double dc = std::max({
             fabs(p2[3] - p1[3]),
             fabs(p2[4] - p1[4]),
-            fabs(p2[5] - p1[5]));
-        int st = (int)ceil(max(10, dc/10));
+            fabs(p2[5] - p1[5])});
+        int st = (int)ceil(std::max(10.0, dc/10));
         int i;
 
         for(i=1; i<=st; i++) {
@@ -1781,11 +1878,11 @@ static void line9(const double p1[9], const double p2[9], const char *geometry) 
 static void line9b(const double p1[9], const double p2[9], const char *geometry) {
     glvertex9(p1, geometry);
     if(p1[3] != p2[3] || p1[4] != p2[4] || p1[5] != p2[5]) {
-        double dc = max3(
+        double dc = std::max({
             fabs(p2[3] - p1[3]),
             fabs(p2[4] - p1[4]),
-            fabs(p2[5] - p1[5]));
-        int st = (int)ceil(max(10, dc/10));
+            fabs(p2[5] - p1[5])});
+        int st = (int)ceil(std::max(10.0, dc/10));
         int i;
 
         for(i=1; i<=st; i++) {
@@ -1997,7 +2094,7 @@ struct logger_point {
 };
 
 #define NUMCOLORS (6)
-#define MAX_POINTS (10000)
+#define MAX_POINTS (100000)
 typedef struct {
     PyObject_HEAD
     int npts, mpts, lpts;
@@ -2131,9 +2228,8 @@ static PyObject *Logger_start(pyPositionLogger *s, PyObject *o) {
         }
         if(s->st->c->valid() && s->st->c->peek() == EMC_STAT_TYPE) {
             EMC_STAT *status = static_cast<EMC_STAT*>(s->st->c->get_address());
-            int colornum = 2;
-            colornum = status->motion.traj.motion_type;
-            if(colornum < 0 || colornum > NUMCOLORS) colornum = 0;
+            int colornum = status->motion.traj.motion_type;
+            if(colornum < 0 || colornum >= NUMCOLORS) colornum = 0;
             struct color c = s->colors[colornum];
             struct logger_point *op = &s->p[s->npts-1];
             struct logger_point *oop = &s->p[s->npts-2];
@@ -2444,19 +2540,19 @@ PyMODINIT_FUNC PyInit_linuxcnc(void)
     ENUMX(4, EMC_LINEAR);
     ENUMX(4, EMC_ANGULAR);
 
-    ENUMX(9, EMC_TASK_INTERP_IDLE);
-    ENUMX(9, EMC_TASK_INTERP_READING);
-    ENUMX(9, EMC_TASK_INTERP_PAUSED);
-    ENUMX(9, EMC_TASK_INTERP_WAITING);
+    PyModule_AddIntConstant(m, "INTERP_IDLE", (int)EMC_TASK_INTERP::IDLE);
+    PyModule_AddIntConstant(m, "INTERP_READING", (int)EMC_TASK_INTERP::READING);
+    PyModule_AddIntConstant(m, "INTERP_PAUSED", (int)EMC_TASK_INTERP::PAUSED);
+    PyModule_AddIntConstant(m, "INTERP_WAITING", (int)EMC_TASK_INTERP::WAITING);
 
-    ENUMX(9, EMC_TASK_MODE_MDI);
-    ENUMX(9, EMC_TASK_MODE_MANUAL);
-    ENUMX(9, EMC_TASK_MODE_AUTO);
+    PyModule_AddIntConstant(m, "MODE_MDI", (int)EMC_TASK_MODE::MDI);
+    PyModule_AddIntConstant(m, "MODE_MANUAL", (int)EMC_TASK_MODE::MANUAL);
+    PyModule_AddIntConstant(m, "MODE_AUTO", (int)EMC_TASK_MODE::AUTO);
 
-    ENUMX(9, EMC_TASK_STATE_OFF);
-    ENUMX(9, EMC_TASK_STATE_ON);
-    ENUMX(9, EMC_TASK_STATE_ESTOP);
-    ENUMX(9, EMC_TASK_STATE_ESTOP_RESET);
+    PyModule_AddIntConstant(m, "STATE_OFF", (int)EMC_TASK_STATE::OFF);
+    PyModule_AddIntConstant(m, "STATE_ON", (int)EMC_TASK_STATE::ON);
+    PyModule_AddIntConstant(m, "STATE_ESTOP", (int)EMC_TASK_STATE::ESTOP);
+    PyModule_AddIntConstant(m, "STATE_ESTOP_RESET", (int)EMC_TASK_STATE::ESTOP_RESET);
 
     ENUMX(6, LOCAL_SPINDLE_FORWARD);
     ENUMX(6, LOCAL_SPINDLE_REVERSE);
@@ -2485,9 +2581,9 @@ PyMODINIT_FUNC PyInit_linuxcnc(void)
     ENUMX(6, LOCAL_AUTO_REVERSE);
     ENUMX(6, LOCAL_AUTO_FORWARD);
 
-    ENUMX(4, EMC_TRAJ_MODE_FREE);
-    ENUMX(4, EMC_TRAJ_MODE_COORD);
-    ENUMX(4, EMC_TRAJ_MODE_TELEOP);
+    PyModule_AddIntConstant(m, "TRAJ_MODE_FREE", (int)EMC_TRAJ_MODE::FREE);
+    PyModule_AddIntConstant(m, "TRAJ_MODE_COORD", (int)EMC_TRAJ_MODE::COORD);
+    PyModule_AddIntConstant(m, "TRAJ_MODE_TELEOP", (int)EMC_TRAJ_MODE::TELEOP);
 
     ENUMX(4, EMC_MOTION_TYPE_TRAVERSE);
     ENUMX(4, EMC_MOTION_TYPE_FEED);
@@ -2514,23 +2610,23 @@ PyMODINIT_FUNC PyInit_linuxcnc(void)
     ENUMX(4, EMC_DEBUG_PYTHON);
     ENUMX(4, EMC_DEBUG_STATE_TAGS);
 
-    ENUMX(9, EMC_TASK_EXEC_ERROR);
-    ENUMX(9, EMC_TASK_EXEC_DONE);
-    ENUMX(9, EMC_TASK_EXEC_WAITING_FOR_MOTION);
-    ENUMX(9, EMC_TASK_EXEC_WAITING_FOR_MOTION_QUEUE);
-    ENUMX(9, EMC_TASK_EXEC_WAITING_FOR_IO);
-    ENUMX(9, EMC_TASK_EXEC_WAITING_FOR_MOTION_AND_IO);
-    ENUMX(9, EMC_TASK_EXEC_WAITING_FOR_DELAY);
-    ENUMX(9, EMC_TASK_EXEC_WAITING_FOR_SYSTEM_CMD);
-    ENUMX(9, EMC_TASK_EXEC_WAITING_FOR_SPINDLE_ORIENTED);
+    PyModule_AddIntConstant(m, "EXEC_ERROR", (int)EMC_TASK_EXEC::ERROR);
+    PyModule_AddIntConstant(m, "EXEC_DONE", (int)EMC_TASK_EXEC::DONE);
+    PyModule_AddIntConstant(m, "EXEC_WAITING_FOR_MOTION", (int)EMC_TASK_EXEC::WAITING_FOR_MOTION);
+    PyModule_AddIntConstant(m, "EXEC_WAITING_FOR_MOTION_QUEUE", (int)EMC_TASK_EXEC::WAITING_FOR_MOTION_QUEUE);
+    PyModule_AddIntConstant(m, "EXEC_WAITING_FOR_IO", (int)EMC_TASK_EXEC::WAITING_FOR_IO);
+    PyModule_AddIntConstant(m, "EXEC_WAITING_FOR_MOTION_AND_IO", (int)EMC_TASK_EXEC::WAITING_FOR_MOTION_AND_IO);
+    PyModule_AddIntConstant(m, "EXEC_WAITING_FOR_DELAY", (int)EMC_TASK_EXEC::WAITING_FOR_DELAY);
+    PyModule_AddIntConstant(m, "EXEC_WAITING_FOR_SYSTEM_CMD", (int)EMC_TASK_EXEC::WAITING_FOR_SYSTEM_CMD);
+    PyModule_AddIntConstant(m, "EXEC_WAITING_FOR_SPINDLE_ORIENTED", (int)EMC_TASK_EXEC::WAITING_FOR_SPINDLE_ORIENTED);
 
     ENUMX(7, EMCMOT_MAX_JOINTS);
     ENUMX(7, EMCMOT_MAX_AXIS);
 
 
-    ENUM(RCS_DONE);
-    ENUM(RCS_EXEC);
-    ENUM(RCS_ERROR);
+    PyModule_AddIntConstant(m, "RCS_DONE", (int)RCS_STATUS::DONE);
+    PyModule_AddIntConstant(m, "RCS_EXEC", (int)RCS_STATUS::EXEC);
+    PyModule_AddIntConstant(m, "RCS_ERROR", (int)RCS_STATUS::ERROR);
     return m;
 }
 

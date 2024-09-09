@@ -284,6 +284,10 @@ Pressing cancel will close linuxcnc.""" % target)
             title = 'QTvcp-Panel-%s'% opts.component
         window.setWindowTitle(title)
 
+        if opts.usermod and "pre_hal_init__" in dir(window.handler_instance):
+            LOG.debug('''Calling the handler file's pre_hal_init__ function''')
+            window.handler_instance.pre_hal_init__()
+
         # make QT widget HAL pins
         self.panel = qt_makepins.QTPanel(self.hal, self.PATH, window, opts.debug)
 

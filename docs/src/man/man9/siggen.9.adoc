@@ -1,0 +1,77 @@
+= siggen(9)
+
+== NAME
+
+siggen - signal generator
+
+== SYNOPSIS
+
+**loadrt siggen **[**num_chan=**_num_* | **names=**_name1_[,_name2_...]]
+
+== DESCRIPTION
+
+*siggen* is a signal generator that can be used for testing and other
+applications that need simple waveforms. It produces sine, cosine,
+triangle, sawtooth, and square waves of variable frequency, amplitude,
+and offset, which can be used as inputs to other HAL components.
+
+*siggen* supports a maximum of sixteen channels. The number of channels
+actually loaded is set by the *num_chan* argument when the module is
+loaded. Alternatively, specify *names=* and unique names separated by
+commas.
+
+The *num_chan=* and *names=* specifiers are mutually exclusive. If
+neither *num_chan=* nor *names=* are specified, the default value is
+one.
+
+== NAMING
+
+The names for pins, parameters, and functions are prefixed as:
+**siggen.**_N_**.** for _N_=0,1,...,_num_-1 when using *num_chan=*_num_ *name*_N_*.* for
+nameN=name1,name2,... when using *names=name1,name2,...*
+
+The **siggen.**_N_**.** format is shown in the following descriptions.
+
+== FUNCTIONS
+
+**siggen.**_N_**.update** (uses floating-point)::
+  Updates output pins for signal generator _N_. Each time it is called
+  it calculates a new sample. It should be called many times faster than
+  the desired signal frequency, to avoid distortion and aliasing.
+
+== PINS
+
+**siggen.**_N_**.frequency** float in::
+  The output frequency for signal generator _N_, in Hertz.
+  The default value is 1.0 Hertz.
+**siggen.**_N_**.amplitude** float in::
+  The output amplitude for signal generator _N_.
+  If *offset* is zero, the outputs will swing from -*amplitude* to +**amplitude**.
+  The default value is 1.00.
+**siggen.**_N_**.offset** float in::
+  The output offset for signal generator _N_.
+  This value is added directly to the output signal. The default value is zero.
+**siggen.**_N_**.reset** bit in::
+  Resets output pins to pretermined states: sine 0 sawtooth 0 square -1 * amplitude cosine -1 * amplitude triangle -1 * amplitude
+**siggen.**_N_**.clock** bit out::
+  The clock output. Bit type clock signal output at the commanded frequency.
+**siggen.**_N_**.square** float out::
+  The square wave output. Positive while *triangle* and *cosine* are
+  ramping upwards, and while *sine* is negative.
+**siggen.**_N_**.sine** float out::
+  The sine output. Lags *cosine* by 90 degrees.
+**siggen.**_N_**.cosine** float out::
+  The cosine output. Leads *sine* by 90 degrees.
+**siggen.**_N_**.triangle** float out::
+  The triangle wave output.
+  Ramps up while *square* is positive, and down while *square* is negative.
+  Reaches its positive and negative peaks at the same time as *cosine*.
+**siggen.**_N_**.sawtooth** float out::
+  The sawtooth output. Ramps upwards to its positive peak, then
+  instantly drops to its negative peak and starts ramping again.
+  The drop occurs when *triangle* and *cosine* are at their positive peaks,
+  and coincides with the falling edge of *square*.
+
+== PARAMETERS
+
+None

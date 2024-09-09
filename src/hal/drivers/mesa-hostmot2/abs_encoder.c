@@ -127,11 +127,8 @@ int hm2_absenc_register_tram(hostmot2_t *hm2){
     // If there is no dpll to link to, then we export the trigger function.
     
     if (hm2->config.num_dplls == 0){
-        char name[HM2_SSERIAL_MAX_STRING_LENGTH+1] = "";
-        rtapi_snprintf(name, sizeof(name),
-                "%s.trigger-encoders", hm2->llio->name);
-        hal_export_funct(name, hm2_absenc_trigger,
-                hm2, 0, 0,hm2->llio->comp_id);
+        hal_export_functf(hm2_absenc_trigger,
+                hm2, 0, 0,hm2->llio->comp_id, "%s.trigger-encoders", hm2->llio->name);
         funct_flag = true;
     }
 
@@ -336,7 +333,7 @@ int hm2_absenc_parse_format(hm2_sserial_remote_t *chan,  hm2_absenc_format_t *de
             }
             else
             {
-                HM2_ERR_NO_LL("Unknown format specifer %s\n", format);
+                HM2_ERR_NO_LL("Unknown format specifier %s\n", format);
                 return -EINVAL;
             }
             //Start a new name

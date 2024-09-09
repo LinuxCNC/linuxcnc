@@ -35,13 +35,11 @@ AC_PROG_INSTALL
 
 m4_include([m4/ax_require_defined.m4])
 m4_include([m4/ax_cxx_compile_stdcxx.m4])
-m4_include([m4/ax_cxx_compile_stdcxx_17.m4])
 m4_include([m4/ax_python.m4])
 m4_include([m4/ax_python_devel.m4])
 m4_include([m4/ax_boost_base.m4])
 m4_include([m4/ax_boost_python.m4])
-# make this optional - it will likely only result in warnings
-AX_CXX_COMPILE_STDCXX_17(ext,mandatory)
+AX_CXX_COMPILE_STDCXX(17, , mandatory)
 
 AC_MSG_CHECKING(build toplevel)
 BUILD_TOPLEVEL="$(cd ..; pwd -P)"
@@ -112,6 +110,7 @@ AC_CHECK_HEADER([rpc/rpc.h],[], [
   ])
 ])
 
+DEPFOUND=true
 
 ##############################################################################
 # Section 2                                                                  #
@@ -748,6 +747,7 @@ AC_DEFINE_UNQUOTED([EMC2_PO_DIR], "$EMC2_PO_DIR", [Directory for po/mo translati
 AC_DEFINE_UNQUOTED([EMC2_NCFILES_DIR], "$EMC2_NCFILES_DIR", [Directory for nc files])
 AC_DEFINE_UNQUOTED([EMC2_IMAGE_DIR], "$EMC2_IMAGE_DIR", [Directory for images])
 
+AC_SUBST([EMC2_TMP_DIR])
 AC_SUBST([EMC2_BIN_DIR])
 AC_SUBST([EMC2_TCL_DIR])
 AC_SUBST([EMC2_TCL_LIB_DIR])
@@ -770,6 +770,14 @@ LINUXCNC_AUX_GLADEVCP=/usr/share/linuxcnc/aux_gladevcp
 LINUXCNC_AUX_EXAMPLES=/usr/share/linuxcnc/aux_examples
 AC_SUBST([LINUXCNC_AUX_GLADEVCP])
 AC_SUBST([LINUXCNC_AUX_EXAMPLES])
+
+# define temporary directory
+AC_ARG_WITH(tmpdir,
+   [  --with-tmpdir=PATH      Specify path for temporary files],
+   tmpdir="$withval",
+   tmpdir="/tmp")
+AC_DEFINE_UNQUOTED(EMC2_TMP_DIR, "$tmpdir/linuxcnc", [Temporary files directory])
+AC_SUBST(EMC2_TMP_DIR, [$tmpdir])
 
 ##############################################################################
 # Subsection 3.5 - check for GTK                                             #
@@ -815,54 +823,11 @@ if test "$BUILD_GTK" = "yes"; then
   fi
 fi
 
-AC_SUBST(HAVE_GNOMEPRINT)
 AC_SUBST(GTK_VER)
 AC_SUBST(GTK_LIBS)
 AC_SUBST(GTK_CFLAGS)
 AC_SUBST(GLIB_LIBS)
 AC_SUBST(GLIB_CFLAGS)
-
-AC_ARG_ENABLE(gtk2,
-    AS_HELP_STRING(
-        [--disable-gtk2],
-        [Disable the parts of LinuxCNC that depend on GTK2. Ónly needed for classicladder)]
-    ),
-    [
-	case "$enableval" in
-	Y*|y*)
-	    BUILD_GTK2=yes ;;
-	*)
-	    BUILD_GTK2=no ;;
-	esac
-    ],
-    [BUILD_GTK2=yes])
-
-if test "$BUILD_GTK2" = "yes"; then
-  AC_MSG_CHECKING([for GTK 2.4.0 or above])
-  if pkg-config gtk+-2.0 --atleast-version 2.4.0 >/dev/null 2>&1; then
-    GTK2_VER=`pkg-config gtk+-2.0 --modversion`
-    AC_MSG_RESULT(yes - $GTK2_VER)
-    GTK2_CFLAGS=`pkg-config gtk+-2.0 --cflags`
-    GTK2_LIBS=`pkg-config gtk+-2.0 --libs`
-    AC_MSG_CHECKING(for libgnomeprintui-2.2)
-    if pkg-config --exists libgnomeprintui-2.2; then
-      AC_MSG_RESULT(yes)
-      GTK2_CFLAGS="$GTK2_CFLAGS `pkg-config --cflags libgnomeprintui-2.2`"
-      GTK2_LIBS="$GTK2_LIBS `pkg-config --libs libgnomeprintui-2.2`"
-      HAVE_GNOMEPRINT=yes
-    else
-      AC_MSG_RESULT(no -- printing from classicladder will not be possible)
-      HAVE_GNOMEPRINT=
-    fi
-  else
-    AC_MSG_RESULT(no)
-    AC_MSG_ERROR([GTK2 missing.  Install with "sudo apt install libgtk2.0-dev" or specify --disable-gtk2 to skip building classicladder])
-  fi
-fi
-
-AC_SUBST(GTK2_VER)
-AC_SUBST(GTK2_LIBS)
-AC_SUBST(GTK2_CFLAGS)
 
 ##############################################################################
 # Subsection 3.6 - check for utility programs needed to build and run EMC    #
@@ -1022,7 +987,11 @@ AX_BOOST_BASE(,,AC_MSG_ERROR([libboost not found]))
 AX_PYTHON
 AC_PATH_PROG(PYTHON,[$PYTHON_BIN])
 AX_PYTHON_DEVEL(,,AC_MSG_ERROR([python-dev not found]))
-AX_BOOST_PYTHON(,,AC_MSG_ERROR([libboost-python not found]))
+AX_BOOST_PYTHON()
+if test "x" = "x$BOOST_PYTHON_LIB"; then
+    AC_MSG_NOTICE([error: libboost-python not found])
+    DEPFOUND=false
+fi
 
 AC_MSG_CHECKING([whether to build documentation])
 AC_ARG_ENABLE(build-documentation,
@@ -1766,8 +1735,12 @@ echo "#   tools such as milling machines. LinuxCNC is released under the   #"
 echo "#   GPL.  Check out http://www.linuxcnc.org/ for more details.       #"
 echo "#                                                                    #"
 echo "#                                                                    #"
-echo "#   It seems that ./configure completed successfully.                #"
-echo "#   This means that RT is properly installed                         #"
+if $DEPFOUND ; then
+  echo "#   It seems that ./configure completed successfully.                #"
+  echo "#   This means that RT is properly installed                         #"
+else
+  echo "#   It seems that ./configure detected a problem.                    #"
+fi
 echo "#   If things don't work check config.log for errors & warnings      #"
 echo "#                                                                    #"
 
@@ -1802,3 +1775,5 @@ echo "#                                                                    #"
 echo "######################################################################"
 echo ""
 echo ""
+
+$DEPFOUND

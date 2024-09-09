@@ -1,0 +1,36 @@
+= rtapi_task_start(3rtapi)
+
+== NAME
+
+rtapi_task_start - start a realtime task in periodic mode
+
+== SYNTAX
+
+....
+int rtapi_task_start(int _task_id_, unsigned long _period_nsec_);
+....
+
+== ARGUMENTS
+
+task_id::
+  A task ID returned by a previous call to *rtapi_task_new*
+period_nsec::
+  The clock period in nanoseconds between iterations of a periodic task
+
+== DESCRIPTION
+
+*rtapi_task_start* starts a task in periodic mode. The task must be in
+the _paused_ state.
+
+== REALTIME CONSIDERATIONS
+
+Call only from within init/cleanup code, not from realtime tasks.
+
+== RETURN VALUE
+
+Returns an RTAPI status code.
+
+== SEE ALSO
+
+rtapi_task_new(3rtapi), rtapi_task_pause(3rtapi),
+rtapi_task_resume(3rtapi)

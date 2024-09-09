@@ -1,0 +1,43 @@
+= rtapi_clock_set_period(3rtapi)
+
+== NAME
+
+rtapi_clock_set_period - set the basic time interval for realtime tasks
+
+== SYNTAX
+
+....
+rtapi_clock_set_period(long int _nsec_);
+....
+
+== ARGUMENTS
+
+nsec::
+  The desired basic time interval for realtime tasks.
+
+== DESCRIPTION
+
+*rtapi_clock_set_period* sets the basic time interval for realtime
+tasks. All periodic tasks will run at an integer multiple of this
+period. The first call to *rtapi_clock_set_period* with _nsec_ greater
+than zero will start the clock, using _nsec_ as the clock period in
+nano-seconds. Due to hardware and RTOS limitations, the actual period
+may not be exactly what was requested. On success, the function will
+return the actual clock period if it is available, otherwise it returns
+the requested period. If the requested period is outside the limits
+imposed by the hardware or RTOS, it returns *-EINVAL* and does not start
+the clock. Once the clock is started, subsequent calls with non-zero
+_nsec_ return *-EINVAL* and have no effect. Calling
+*rtapi_clock_set_period* with _nsec_ set to zero queries the clock,
+returning the current clock period, or zero if the clock has not yet
+been started.
+
+== REALTIME CONSIDERATIONS
+
+Call only from within init/cleanup code, not from realtime tasks. This
+function is not available from non-realtime code.
+
+== RETURN VALUE
+
+The actual period provided by the RTOS, which may be different than the
+requested period, or a RTAPI status code.

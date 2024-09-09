@@ -1,0 +1,37 @@
+= rtapi_app_main(3rtapi)
+
+== NAME
+
+rtapi_app_main - User-provided function to initialize a component
+
+== SYNTAX
+
+....
+#include <rtapi_app.h>
+int rtapi_app_main(void);
+....
+
+== ARGUMENTS
+
+None
+
+== DESCRIPTION
+
+The body of *rtapi_app_main*, which is provided by the component author,
+generally consists of a call to rtapi_init or hal_init, followed by
+other component-specific initialization code.
+
+== RETURN VALUE
+
+Return 0 for success. Return a negative errno value (e.g., -EINVAL) on
+error. Existing code also returns RTAPI or HAL error values, but using
+negative errno values gives better diagnostics from insmod.
+
+== REALTIME CONSIDERATIONS
+
+Called automatically by the rtapi infrastructure in an initialization
+(not realtime) context.
+
+== SEE ALSO
+
+rtapi_app_exit(3rtapi), rtapi_init(3rtapi), hal_init(3hal)

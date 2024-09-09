@@ -91,7 +91,7 @@ loadusr qtvcp spindle_belts
 Customizing the panel: +
 
 * Copy the files located in /user/share/qtvcp/qtdragon/panels/belts to:
-~/linuxcnc/configs/<my_configuration_folder>/qtvcp/panels/belts (you can use the copy dialog panel to do this)
+  ~/linuxcnc/configs/<my_configuration_folder>/qtvcp/panels/belts (you can use the copy dialog panel to do this)
 
 * Edit belts.ui with designer.
 * Edit belts_handler.py with a text editor
@@ -121,7 +121,9 @@ image::images/qtvcp_test_dial.png["QtVCP test_dial Panel - Test Dial VCP",align=
 
 - This panel has a *button that will set a HAL pin*.
 - The button can be selected as a _momentary_ or a _toggle_ button.
+- A HAL pin will be created that follows the button state
 - The button's _indicator color_ can be adjusted from a drop down menu.
+- A HAL pin or signal can be selected to follow the button state 
 - You can add more buttons from the drop down menu.
 - You can load a Halmeter from the drop down menu.
 - You can load a test LED from the drop down menu.
@@ -198,7 +200,26 @@ EMBED_TAB_COMMAND = halcmd loadusr -Wn qtvcp_embed qtvcp -d -c qtvcp_embed -x {X
 EMBED_TAB_LOCATION = ntb_preview
 ----
 
-You can add window width and height size, rotation increment, and camera number from the INI with -o options.
+[NOTE]
+All `<options>` must appear before the `cam_align` panel name.
+
+.Qtvcp Options
+
+* `-c NAME` HAL component name. Default is to use the UI file name.
+* `-d` Debugging on. or remove for no minimum output
+* `-x {XID}` used for embedding into AXIS  or Gmoccapy
+* `-o <option>` Options passed to cam_align
+
+.Cam_align Options
+
+* `size=400,400` Size of the embedded window (width,height)
+* `imagesize=300,300` Size of the image inside the window (width,height)
+* `rotincr=5` Sets the increment of the crosshair rotation. (degrees)
+* `xscale=100` Scales the image in X. A negative value will flip the image in X (percent)
+* `yscale=100` Scales the image in Y. A negative value will flip the image in Y (percent)
+* `camnumber=1` Sets what system camera to use
+
+For instance you can add window width and height size, rotation increment, and camera number from the INI with -o options.
 ----
 EMBED_TAB_COMMAND = halcmd loadusr -Wn qtvcp_embed qtvcp -d -c qtvcp_embed -x {XID} -o size=400,400 -o rotincr=.2 -o camnumber=0 cam_align
 ----
@@ -219,8 +240,8 @@ To use the top buttons you have to assign a command (or a sub-routine). This cou
 [source,{ini}]
 ----
 [MDI_COMMAND_LIST]
-MDI_COMMAND=G10 L20 P1 X0 Y0,Set XY\nOrigin
-MDI_COMMAND=G0 X0 Y0,Go To\nOrigin
+MDI_COMMAND_CAM_ALIGN1=G10 L20 P1 X0 Y0,Set XY\nOrigin
+MDI_COMMAND_CAM_ALIGN2=G0 X0 Y0,Go To\nOrigin
 ----
 Where the first command is referring to the button "SET origin" and the second to the button "GOTO Origin". +
 Note the comma and text after is optional - it will override the default button text. +
@@ -429,7 +450,7 @@ QtVCP will do the same process for the optional handler file: 'qtvcp/panels/PANE
 === Handler Programming Tips
 In a screen handler file, the reference used for the window is 'self.w'. +
 In QtVCP panels, that reference will refers to the panel's window. +
-To reference the main window use 'self.w.MAIN'
+To reference the main window use 'self.w.MAIN'.
 If your panel is to be able to run independently and embedded, you must trap errors from referencing objects not available.
 (Note, main screen objects are not available in an independent panel.)
 
@@ -467,15 +488,15 @@ If the panel is not embedded, both refer to the panel window.
 
 === Handler Patching - Subclassing Builtin Panels
 
-We can have QtVCP load a subclassed version of the standard handler file. in that file we can manipulate the original functions or add new ones. +
-Subclassing just means our handler file first loads the original handler file and adds our new code on top of it - so a patch of changes. +
-This is useful for changing/adding behaviour while still retaining standard handler updates from LinuxCNC repositories. +
+We can have QtVCP load a subclassed version of the standard handler file. In that file we can manipulate the original functions or add new ones. +
+Subclassing just means our handler file first loads the original handler file and adds our new code on top of it - effectively a patch of changes. +
+This is useful for changing/adding behaviour while still retaining standard handler updates from LinuxCNC repositories.
 
 You may still need to use the handler copy dialog to copy the original handler file to decide how to patch it.
 
 There should be a folder in the config folder; for panel: named '<CONFIG FOLDER>/qtvcp/panels/<PANEL NAME>/' +
-add the handle patch file there, named like so <ORIGINAL PANEL NAME>_handler.py +
-ie for cam_align the file would be called 'cam_align_handler.py' +
+add the handle patch file there, named like so <ORIGINAL PANEL NAME>_handler.py, +
+i.e. for cam_align the file would be called 'cam_align_handler.py'.
 
 Here is a sample to change the circle color in cam_align: +
 

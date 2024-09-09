@@ -1,5 +1,5 @@
 /* Classic Ladder Project */
-/* Copyright (C) 2001-2007 Marc Le Douarain */
+/* Copyright (C) 2001-2008 Marc Le Douarain */
 /* http://membres.lycos.fr/mavati/classicladder/ */
 /* http://www.sourceforge.net/projects/classicladder */
 /* October 2001 */
@@ -101,6 +101,19 @@ arithmtype Constant(void)
 				Carac = Carac-'0';
 			Res = 16*Res + Carac;
 			Expr++;
+		}
+	}
+	else if (*Expr=='\'')
+	{
+		Expr++;
+		/* character constant */
+		while( *Expr!='\'' && *Expr!='\0' )
+			Res = 256*Res + (*Expr++);
+		if ( *Expr!='\'' )
+		{
+			ErrorDesc = "Missing end ' in character constant";
+			SyntaxError();
+			return 0;
 		}
 	}
 	else
@@ -273,6 +286,12 @@ arithmtype Function(void)
 		Res = Variable( );
 		if ( Res<0 )
 			Res = Res * -1;
+		if ( *Expr!=')' )
+		{
+			ErrorDesc = "Missing end ) after the only variable in ABS() function";
+			SyntaxError();
+			return 0;
+		}
 		Expr++; /* ) */
 		return Res;
 	}
@@ -356,7 +375,7 @@ arithmtype Term(void)
 		Expr++;
 		return Res;
 	}
-	else if ( (*Expr>='0' && *Expr<='9') || (*Expr=='$') || (*Expr=='-') )
+	else if ( (*Expr>='0' && *Expr<='9') || (*Expr=='$') || (*Expr=='-') || (*Expr=='\'') )
 		return Constant();
 	else if (*Expr>='A' && *Expr<='Z')
 		return Function();
@@ -377,7 +396,7 @@ rtapi_print("TermERROR!_ExprHere=%s\n",Expr);
 		SyntaxError();
 		return 0;
 	}
-	return 0;
+//	return 0;
 }
 
 arithmtype Pow(void)
@@ -414,22 +433,16 @@ arithmtype MulDivMod(void)
 		{
 			Expr++;
 			Val = Pow();
-			if (Val != 0) {
-				if (ErrorDesc == NULL) {
-					Res = Res / Val;
-				}
-			}
+			if ( ErrorDesc==NULL )
+				Res = Res / Val;
 		}
 		else
 		if (*Expr=='%')
 		{
 			Expr++;
 			Val = Pow();
-			if (Val != 0) {
-				if ( ErrorDesc==NULL ) {
-					Res = Res % Val;
-				}
-			}
+			if ( ErrorDesc==NULL )
+				Res = Res % Val;
 		}
 		else
 		{

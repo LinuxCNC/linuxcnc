@@ -1,0 +1,325 @@
+Option Explicit
+ 
+ ''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''''' ''''''''''  
+ ' Description
+ '   Divides a curve based on the linear distance between points.
+ '
+ Sub CREA_CODE
+     'La curva chiusa è spezzata; dopodichè è suddivisa in segmenti, per ogni segmento sono generate le istruzioni NC in formato NURBS
+
+     'Dim strPoint, strText, dblWeight, Gcode, dblDegree, dblknot_vector
+      Dim cc
+      'Rhino.MessageBox  ("Dalla barra di comando inserire 1 per realizzare l'interpolazione NURBS tramite movimento circolare (con incrementi du=cost), 2 per realizzare l'interpolazione NURBS tramite movimento circolare (con incrementi ds=cost), 3 per realizzare l'interpolazione NURBS tramite movimento lineare (con incrementi ds=cost) oppure non inserire nulla (premere invio) per lasciare la scelta al CN in funzione del valore assunto dall'incremento ds") 
+      cc=Rhino.GetInteger("Selezionare la modalità di interpolazione NURBS inserendo 1,2,3 oppure premere direttamente invio")
+      
+      Dim F, S
+      Dim PP
+      'Rhino.MessageBox  ("Dalla barra di comando inserire il valore dell'avanzamento [mm/min] con il quale eseguire l'interpolazione NURBS") 
+      F=Rhino.GetString("Inserire l'avanzamento [mm/min] con il quale eseguire l'interpolazione NURBS")
+      S=Rhino.GetString("Inserire la velocità di taglio in [m/min] ")
+      PP=Rhino.GetString("Inserire la profondità di passata [mm]")
+    
+      
+      Dim G
+      Dim III
+      
+     'Chiede all'utente di specificare un nome di file    
+      Dim strFilter, strFileName
+      strFilter = " File NGC (*.ngc)|*.ngc|All Files (*.*)|*.*||"
+      strFileName = Rhino.SaveFileName("Save Code NC ", strFilter)
+      If IsNull(strFileName) Then Exit Sub
+
+      ' Ottieni i file system dall'oggetto
+      Dim objFSO, objStream
+      Set objFSO = CreateObject("Scripting.FileSystemObject")
+
+      'Aprire un file di testo da scrivere
+      On Error Resume Next
+      Set objStream = objFSO.CreateTextFile(strFileName, True)
+      If Err Then
+      MsgBox Err.Description
+      Exit Sub
+      End If
+                      
+                      
+       objStream.WriteLine("G21 G40 G54 G90 G94")
+       objStream.WriteLine("G0 Z50")
+       objStream.WriteLine("X0Y0")
+       objStream.WriteLine("M6 T0")
+       objStream.WriteLine("G96 M3 S"+ CStr (S))
+       objStream.WriteLine("G0 Z50 (movimento per avvicinarsi alla posizione di taglio)")
+                     
+      Dim var
+      var=1              
+      For III =1 To 100 Step 1  'Il numero massimo di curve selezionabili è fissato pari a 100
+
+          If(var=1)Then
+            G=1
+            var=2
+          Else     
+          G=Rhino.GetInteger("Inserire 1 per acquisire  una nuova curva, altrimenti 0 per chiudere il ciclo")
+          End If
+          
+          If (G=1) Then 
+            objStream.WriteLine("(Curva acquisita N°="+CStr (III)+")")
+            If(III>1) Then 
+            
+            
+            End If
+            
+            
+            Const rhCurveObject = 4
+            Dim sCurve, strObject, CRV
+            CRV= Rhino.GetObject("Selezionare la curva NURBS", rhCurveObject)
+            Rhino.Print ("Curva NURBS acquisita")
+            If IsNull(CRV) Then Exit Sub
+ 
+        Dim  arrDomain
+     
+        If Rhino.IsCurve(CRV) Then
+           arrDomain = Rhino.CurveDomain(CRV)
+        End If
+ 
+ 
+       'Dim ij,pt
+       'For ij=(arrDomain(1)-0.0001) To arrDomain(1) Step 0.0001
+       '     pt = Rhino.EvaluateCurve(CRV, ij) 'PUNTO APPARTENENTE ALLA CRVA
+       '     Rhino.AddPoint pt
+       'Next
+        
+   
+        Dim  tt0, tt1
+   
+        tt0 = (arrDomain(1)-0.0001)
+        tt1 =  arrDomain(1)
+        sCurve= Rhino.TrimCurve(CRV, Array(tt1, tt0),vbFalse  )
+        strObject=sCurve
+        'Rhino.DeleteObject (sCurva)
+        'Rhino.DeleteObject (strObject)
+      
+        Rhino.EnableRedraw True
+      
+         ',vbFalse     
+              
+            'Ottieni i punti di controllo della curva
+            Dim arrPoints, intCount
+            arrPoints = Rhino.CurvePoints(strObject)
+            intCount = Rhino.CurvePointCount(strObject)
+            If Not IsArray(arrPoints) Then Exit Sub 
+              
+              
+
+            'Ottieni i valori dei peso dei punti di controllo della curva
+            Dim arrWeights
+            arrWeights = Rhino.CurveWeights(strObject) 'IL VALORE 2.555 LO RESTITUISCE CON LA VIRGOLA 2,555 lo modifico manualmente
+            If Not IsArray(arrWeights) Then Exit Sub
+       
+            'Ottieni il grado della curva
+            Dim intDegree, k, n, c, U
+            intDegree = Rhino.CurveDegree(strObject)
+            'If Not IsInt(intDegree) Then Exit Sub 
+            k=intDegree+1 'ordine NURBS
+            n=intCount-1 ' i punti di controllo vanno da {P0.....Pn} se fossero 7 n=6
+            Dim  knot_vector()'si crea un vettore grande (l'ideale n+k)
+            Dim ii, intRankK
+            c= (n+k)
+      
+            For ii=0 To c Step 1  ' esegue finchè¨ i<=n+k la dimensione del vettore dei nodi(m+1)= n+k+1; k grado n numero complessivo dei punti di controllo;i parte da 0
+	              If (ii < k) Then ' se i<k definisce come calore x il knot=0 NB {00._0kvolte   In ; esegue questo ciclo k volte visto che parte da 0
+                    ReDim Preserve knot_vector(ii)
+                    knot_vector(ii) = 0' Aggiunge un elelemnto 0
+                ElseIf (ii >= k And ii <= n)Then  ' Se In Knot considerato va da <k< a <n< allora porrÃ  il knot =i-k+1
+                       ReDim Preserve knot_vector(ii)
+                       knot_vector(ii)=(ii - k + 1)' n=7 k=4   i=k, knot=1 ecc... i=k+1  knot=2   etc..(uniformi)
+                Else
+                     ReDim Preserve knot_vector(ii)
+                     knot_vector(ii)=(n - k + 2)' nel momento In cui i>n knot=n-k+2 
+                End If
+            Next
+      
+            intRankK = c+1 ' +1 perchè c'è sempre il discorso il il numero dei punti di controllo intCount=n+1
+            'Rhino.MessageBox ("il grado della curva NURBS è ="&" "&intDegree)
+            'Rhino.MessageBox ("il numero dei punti di controllo è ="&" "&intCount)
+            'Rhino.MessageBox ("la dimensione del vettorei dei nodi ="&" "&intRankK)
+ 
+            Dim intBB
+            intBB=(intCount)/k'se l'ordine della NURBS è uguale a k il numero minimo dei punti è pari a 4.
+                        'k=4 n=4 knot=(0000, 1111)
+            Dim sud
+            sud=0
+            'Suddivisione delle curva
+            'Rhino.MessageBox ("La curva è suddivisa in "&" "&intBB)
+            If(intBB >=2000000000)Then 'la suddivisione è condotta solo se bb>=2 ovvero solo se la curva può essere suddivisa in due o più tratti
+              
+              sud=1
+            objStream.WriteLine(" X... Y...")
+            objStream.WriteLine(" Z1")
+            objStream.WriteLine(" G1 Z"+ CStr (PP)+ " F"+ CStr (F))
+              Dim nSegments, aPoints
+              nSegments = intBB
+              aPoints = Rhino.DivideCurve(strObject, nSegments) 'questo comando divide la curva in segmenti e ne memorizza gli estremi
+              If Not IsArray(aPoints) Then Exit Sub
+              Rhino.EnableRedraw False
+   
+              Dim i, t0, t1, CCurva
+              For i = 0 To UBound(aPoints) - 1
+                  t0 = Rhino.CurveClosestPoint(strObject, aPoints(i))
+                  t1 = Rhino.CurveClosestPoint(strObject, aPoints(i+1))
+                  CCurva= Rhino.TrimCurve(strObject, Array(t0, t1), vbFalse)
+                  'strObject=CCurva
+      ''''''''''''''''''''''''''''''''
+                  'Ottieni i punti di controllo della curva
+                  arrPoints = Rhino.CurvePoints(CCurva)
+                  intCount = Rhino.CurvePointCount(CCurva)
+                  
+                  If Not IsArray(arrPoints) Then Exit Sub
+
+                  'Ottieni i valori dei peso dei punti di controllo della curva
+                  arrWeights = Rhino.CurveWeights(CCurva) 'IL VALORE 2.555 LO RESTITUISCE CON LA VIRGOLA 2,555 lo modifico manualmente
+                  If Not IsArray(arrWeights) Then Exit Sub
+       
+                  'Ottieni il grado della curva
+                   intDegree = Rhino.CurveDegree(CCurva)
+                   'If Not IsInt(intDegree) Then Exit Sub 
+                   k=intDegree+1 'ordine NURBS
+                   n=intCount-1 ' i punti di controllo vanno da {P0.....Pn} se fossero 7 n=6
+                   c= (n+k)
+      
+                   For ii=0 To c Step 1  ' esegue finchÃ¨ i<=n+k la dimensione del vettore dei nodi(m+1)= n+k+1; k grado n numero complessivo dei punti di controllo;i parte da 0
+	                     If (ii < k) Then ' se i<k definisce come calore x il knot=0 NB {00._0kvolte   In ; esegue questo ciclo k volte visto che parte da 0
+                          ReDim Preserve knot_vector(ii)
+                          knot_vector(ii) = 0' Aggiunge un elelemnto 0
+                       ElseIf (ii >= k And ii <= n)Then  ' Se In Knot considerato va da <k< a <n< allora porrÃ  il knot =i-k+1
+                           ReDim Preserve knot_vector(ii)
+                           knot_vector(ii)=(ii - k + 1)' n=7 k=4   i=k, knot=1 ecc... i=k+1  knot=2   etc..(uniformi)
+                       Else
+                           ReDim Preserve knot_vector(ii)
+                           knot_vector(ii)=(n - k + 2)' nel momento In cui i>n knot=n-k+2 
+                       End If
+                   Next
+      
+                   intRankK = c+1 ' +1 perchè c'è sempre il discorso il il numero dei punti di controllo intCount=n+1
+       
+       
+                   'Rhino.MessageBox ("il grado della curva NURBS è ="&" "&intDegree)
+                   'Rhino.MessageBox ("il numero dei punti di controllo è ="&" "&intCount)
+                   'Rhino.MessageBox ("la dimensione del vettorei dei nodi ="&" "&intRankK)
+      
+                   ' Write each point as text to the file (Scrivere nel file ogni punto come testo )
+                   ' Write each point as text to the file
+                    
+                   Dim strPoint, strText, dblWeight, Gcode, dblDegree, dblknot_vector, j, jj
+                   Gcode=Split(Rhino.Pt2Str(arrPoints(0)),",")
+                   'objStream.WriteLine(" X"+Gcode(0)+" Y"+Gcode(1))
+                   'objStream.WriteLine(" Z1")
+                   'objStream.WriteLine(" G1 Z"+ CStr (PP)+ " F"+ CStr (F))
+                   
+ ' this changes are untestet, because I do not have Rhino jjf
+ '                 objStream.WriteLine("#1="+ CStr (cc)) jjf
+ '                 objStream.WriteLine("G6.2 X"+Gcode(0)+" Y"+Gcode(1)+ " R" +Replace(arrWeights(0),",",".")+" K"+CStr(knot_vector(0))+" P"+ CStr(k)+ " F"+ CStr (F)) jjf
+                   objStream.WriteLine(" F"+ CStr (F))
+                   objStream.WriteLine("G6.2 X"+Gcode(0)+" Y"+Gcode(1)+ " R" +Replace(arrWeights(0),",",".")+" K"+CStr(knot_vector(0))+" P"+ CStr(k)+ " Q"+ CStr (cc))
+                   For j =1 To intCount-1
+                       Gcode=Split(Rhino.Pt2Str(arrPoints(j)),",")
+                       objStream.WriteLine("    X"+Gcode(0)+" Y"+Gcode(1)+ " R" + Replace(arrWeights(j),",",".")+" K"+CStr(knot_vector(j)))
+                   Next
+       
+                   For jj =intCount To (n+k) Step 1
+                       objStream.WriteLine(  "G6.2 K" & knot_vector(jj))'NB se la curva non avesse gli ultimi tre nodi con molteplicità piena si avrebbe un errore, i nodi programmati non coincidono con quelli  della curva.
+                   Next 
+                   'objStream.WriteLine("G1 X"+Gcode(0)+" Y"+Gcode(1)+ " Z1")
+                   'objStream.WriteLine("G0 X"+Gcode(0)+" Y"+Gcode(1)+ " Z50")
+                   
+                   
+              Rhino.DeleteObject (CCurva)'Questo comando cancella il segmento di curva generato 
+              'Rhino.DeleteObject (sCurva)
+              'Rhino.DeleteObject (strObject)
+              Next
+              'objStream.WriteLine("G1 X...Y...Z...(inserire posizione per all'ontanarsi dal profilo)")
+              'objStream.WriteLine("G0 Z50")
+              'objStream.WriteLine("M5") 
+              'objStream.WriteLine("M2") 
+              
+              
+              
+              
+            Else 'se il numero dei punti di controllo fosse <2*ordine
+            
+                  'Ottieni i valori dei peso dei punti di controllo della curva
+                  arrWeights = Rhino.CurveWeights(strObject) 'IL VALORE 2.555 LO RESTITUISCE CON LA VIRGOLA 2,555 lo modifico manualmente
+                  If Not IsArray(arrWeights) Then Exit Sub
+       
+                  'Ottieni il grado della curva
+                   intDegree = Rhino.CurveDegree(strObject)
+                   'If Not IsInt(intDegree) Then Exit Sub 
+                   k=intDegree+1 'ordine NURBS
+                   n=intCount-1 ' i punti di controllo vanno da {P0.....Pn} se fossero 7 n=6
+                   c= (n+k)
+      
+                   For ii=0 To c Step 1  ' esegue finchÃ¨ i<=n+k la dimensione del vettore dei nodi(m+1)= n+k+1; k grado n numero complessivo dei punti di controllo;i parte da 0
+	                     If (ii < k) Then ' se i<k definisce come calore x il knot=0 NB {00._0kvolte   In ; esegue questo ciclo k volte visto che parte da 0
+                          ReDim Preserve knot_vector(ii)
+                          knot_vector(ii) = 0' Aggiunge un elelemnto 0
+                       ElseIf (ii >= k And ii <= n)Then  ' Se In Knot considerato va da <k< a <n< allora porrÃ  il knot =i-k+1
+                           ReDim Preserve knot_vector(ii)
+                           knot_vector(ii)=(ii - k + 1)' n=7 k=4   i=k, knot=1 ecc... i=k+1  knot=2   etc..(uniformi)
+                       Else
+                           ReDim Preserve knot_vector(ii)
+                           knot_vector(ii)=(n - k + 2)' nel momento In cui i>n knot=n-k+2 
+                       End If
+                   Next
+      
+                   intRankK = c+1 ' +1 perchè c'è sempre il discorso il il numero dei punti di controllo intCount=n+1
+       
+       
+                   'Rhino.MessageBox ("il grado della curva NURBS è ="&" "&intDegree)
+                   'Rhino.MessageBox ("il numero dei punti di controllo è ="&" "&intCount)
+                   'Rhino.MessageBox ("la dimensione del vettorei dei nodi ="&" "&intRankK)
+      
+                   ' Write each point as text to the file (Scrivere nel file ogni punto come testo )
+                   ' Write each point as text to the file
+                    
+                   'Dim strPoint, strText, dblWeight, Gcode, dblDegree, dblknot_vector, j, jj
+                   Gcode=Split(Rhino.Pt2Str(arrPoints(0)),",")
+                   
+
+                   objStream.WriteLine(" X"+Gcode(0)+" Y"+Gcode(1))
+                   objStream.WriteLine(" Z1")
+                   objStream.WriteLine(" G1 Z"+ CStr (PP)+ " F"+ CStr (F))
+                   objStream.WriteLine("#1="+ CStr (cc))
+                   objStream.WriteLine("G6.2 X"+Gcode(0)+" Y"+Gcode(1)+ " R" +Replace(arrWeights(0),",",".")+" K"+CStr(knot_vector(0))+" P"+ CStr(k)+ " F"+ CStr (F))
+                   For j =1 To intCount-1
+                       Gcode=Split(Rhino.Pt2Str(arrPoints(j)),",")
+                       objStream.WriteLine("    X"+Gcode(0)+" Y"+Gcode(1)+ " R" + Replace(arrWeights(j),",",".")+" K"+CStr(knot_vector(j)))
+                   Next
+       
+                   For jj =intCount To (n+k) Step 1
+                       objStream.WriteLine(  "K" & knot_vector(jj))'NB se la curva non avesse gli ultimi tre nodi con molteplicità piena si avrebbe un errore, i nodi programmati non coincidono con quelli  della curva.
+                   Next 
+                   objStream.WriteLine("G1 X"+Gcode(0)+" Y"+Gcode(1)+ " Z1")
+                   objStream.WriteLine("G0 X"+Gcode(0)+" Y"+Gcode(1)+ " Z50")
+            End If
+            Rhino.DeleteObject (sCurva)
+            Rhino.DeleteObject (strObject)
+        
+        
+          Else
+             Rhino.DeleteObject (sCurva)
+             Rhino.DeleteObject (strObject)
+             If(sud >=1) Then
+                   objStream.WriteLine("G1 X"+Gcode(0)+" Y"+Gcode(1)+ " Z1")
+                   objStream.WriteLine("G0 X"+Gcode(0)+" Y"+Gcode(1)+ " Z50") 
+             End If
+             objStream.WriteLine("M5") 
+             objStream.WriteLine("M2") 
+
+             Exit Sub
+          End If
+        Rhino.EnableRedraw True
+        Next
+
+ End Sub
+
+
+
+ 

@@ -76,7 +76,7 @@ sys.excepthook = excepthook
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 3.4.7.1"
+_RELEASE = " 3.4.8"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -347,6 +347,11 @@ class gmoccapy(object):
         self._show_tooledit_tab(False)
         self._show_iconview_tab(False)
 
+        # those two containers are disabled by default to allow fullscreen 
+        # with smaller display resolutions
+        self.widgets["hbx_upper"].show()
+        self.widgets["ntb_button"].show()
+
         # the velocity settings
         self.widgets.adj_spindle_bar_min.set_value(self.min_spindle_rev)
         self.widgets.adj_spindle_bar_max.set_value(self.max_spindle_rev)
@@ -386,8 +391,9 @@ class gmoccapy(object):
 
         self.widgets.tbtn_view_tool_path.set_active(self.prefs.getpref("view_tool_path", True, bool))
         self.widgets.tbtn_view_dimension.set_active(self.prefs.getpref("view_dimension", True, bool))
-        view = view = self.prefs.getpref("view", "p", str)
+        view = self.prefs.getpref("view", "p", str)
         self.widgets["rbt_view_{0}".format(view)].set_active(True)
+        self.widgets.gremlin.set_property("view", view)
 
         # get if run from line should be used
         rfl = self.prefs.getpref("run_from_line", "no_run", str)
@@ -420,7 +426,7 @@ class gmoccapy(object):
         # check the highlighting type
         # the following would load the python language
         # self.widgets.gcode_view.set_language("python")
-        LANGDIR = os.path.join(BASE, "share", "Gtksourceview-2.0", "language-specs")
+        LANGDIR = os.path.join(BASE, "share", "Gtksourceview-4", "language-specs")
         file_path = os.path.join(LANGDIR, "gcode.lang")
         if os.path.isfile(file_path):
             LOG.info("Gcode.lang found")
@@ -795,7 +801,7 @@ class gmoccapy(object):
             btn.add(image)
         except Exception as e:
             LOG.error(e)
-            message = _("could not resolv the image path '{0}' given for button '{1}'".format(filepath, name))
+            message = _("could not resolve the image path '{0}' given for button '{1}'".format(filepath, name))
             LOG.error(message)
             image.set_from_icon_name("image-missing", Gtk.IconSize.DIALOG)
             btn.add(image)
@@ -1071,7 +1077,7 @@ class gmoccapy(object):
         xpos, ypos, zpos, maxprobe = self.get_ini_info.get_tool_sensor_data()
         if not xpos or not ypos or not zpos or not maxprobe:
             self.widgets.lbl_tool_measurement.show()
-            LOG.info(_("No valid probe config in INI File. Tool measurement disabled."))
+            LOG.info(_("No valid probe config in INI file. Tool measurement disabled."))
             self.widgets.chk_use_tool_measurement.set_active(False)
             self.widgets.chk_use_tool_measurement.set_sensitive(False)
             return False
@@ -1099,7 +1105,7 @@ class gmoccapy(object):
 
         # We get the increments from INI File
         if len(self.jog_increments) > 10:
-            LOG.warning(_("To many increments given in INI File for this screen. "
+            LOG.warning(_("To many increments given in INI file for this screen. "
             "Only the first 10 will be reachable through this screen."))
             # we shorten the increment list to 10 (first is default = 0)
             self.jog_increments = self.jog_increments[0:11]
@@ -1297,8 +1303,7 @@ class gmoccapy(object):
         LOG.debug("found {0} Macros".format(num_macros))
 
         if num_macros > 16:
-            message = _("GMOCCAPY INFO\n")
-            message += _("found more than 16 macros, will use only the first 16")
+            message = _("Found more than 16 macros, will use only the first 16.")
             LOG.info(message)
 
             num_macros = 16
@@ -2430,11 +2435,8 @@ class gmoccapy(object):
                 self._on_play_sound(None, "alert")
 
     def on_gremlin_gcode_error(self, widget, errortext):
-        if self.gcodeerror == errortext:
-            return
-        else:
-            self.gcodeerror = errortext
-            self.dialogs.warning_dialog(self, _("Important Warning"), errortext)
+        self.gcodeerror = errortext
+        self.dialogs.warning_dialog(self, _("Important Warning"), errortext)
 
 
 # =========================================================
@@ -2740,7 +2742,7 @@ class gmoccapy(object):
         self.last_key_event = None, 0
 
     def on_hal_status_mode_mdi(self, widget):
-        LOG.debug("MDI Mode {0}".format(self.tool_change))
+        LOG.debug("MDI Mode, tool_change = {0}".format(self.tool_change))
 
         # if the edit offsets button is active, we do not want to change
         # pages, as the user may want to edit several axis values
@@ -3191,6 +3193,13 @@ class gmoccapy(object):
         # tooledit page is active, so keys must go through
         if self.widgets.ntb_preview.get_current_page() == 2:
             return
+            
+        if (self.widgets.ntb_preview.get_current_page() == 4 and
+            keyname in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+            'comma', 'period', 'BackSpace', 'Return']):
+            #user Tab, pass numbers through
+            return False
+            
 
         # take care of different key handling for lathe operation
         if self.lathe_mode:
@@ -4557,7 +4566,7 @@ class gmoccapy(object):
             for widget_name, icon_name, size in icon_configs:
                 try:
                     image = self.widgets[widget_name]
-                    # TODO: Thats kind a problem, as not every image has (yet) a parent (e.g. for toggle button only one
+                    # TODO: That's kind a problem, as not every image has (yet) a parent (e.g. for toggle button only one
                     #  image is assigned at a time) and the default_style is maybe to inaccurate in terms of overridden
                     #  style attributes used by the icon loading mechanism (fg, succcss, warning and error colors)
                     # style = image.get_parent().get_style_context() if image.get_parent() else default_style
@@ -5545,7 +5554,7 @@ class gmoccapy(object):
         else:
             self._on_btn_jog_released(None, button_name)
 
-    def _reset_overide(self, pin, type):
+    def _reset_override(self, pin, type):
         if pin.get():
             if type == "rapid":
                 self.command.rapidrate(1.0)
@@ -5618,7 +5627,7 @@ class gmoccapy(object):
         elif location == "right":
             container = self.widgets.vbtb_main
         else:
-            LOG.debug("got wrong location to locate the childs")
+            LOG.debug("got wrong location to locate the children")
 
         children = container.get_children()
         hidden = 0
@@ -5754,15 +5763,15 @@ class gmoccapy(object):
 
         # make a pin to reset feed override to 100 %
         pin = self.halcomp.newpin("feed.reset-feed-override", hal.HAL_BIT, hal.HAL_IN)
-        hal_glib.GPin(pin).connect("value_changed", self._reset_overide, "feed")
+        hal_glib.GPin(pin).connect("value_changed", self._reset_override, "feed")
 
         # make a pin to reset rapid override to 100 %
         pin = self.halcomp.newpin("rapid.reset-rapid-override", hal.HAL_BIT, hal.HAL_IN)
-        hal_glib.GPin(pin).connect("value_changed", self._reset_overide, "rapid")
+        hal_glib.GPin(pin).connect("value_changed", self._reset_override, "rapid")
 
         # make a pin to reset spindle override to 100 %
         pin = self.halcomp.newpin("spindle.reset-spindle-override", hal.HAL_BIT, hal.HAL_IN)
-        hal_glib.GPin(pin).connect("value_changed", self._reset_overide, "spindle")
+        hal_glib.GPin(pin).connect("value_changed", self._reset_override, "spindle")
 
         # make an error pin to indicate a error to hardware
         self.halcomp.newpin("error", hal.HAL_BIT, hal.HAL_OUT)
@@ -5776,7 +5785,7 @@ class gmoccapy(object):
         pin = self.halcomp.newpin("ignore-limits", hal.HAL_BIT, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._ignore_limits)
 
-        # make pins to set optinal stops and block delete
+        # make pins to set optional stops and block delete
         pin = self.halcomp.newpin("optional-stop", hal.HAL_BIT, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._optional_blocks)
         pin = self.halcomp.newpin("blockdelete", hal.HAL_BIT, hal.HAL_IN)

@@ -17,10 +17,12 @@
 import linuxcnc
 
 from PyQt5 import QtCore
+from PyQt5.QtWidgets import QMenu, QAction
+from PyQt5.QtGui import QIcon
 
 from qtvcp.widgets.simple_widgets import ScaledLabel
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-from qtvcp.core import Status, Info
+from qtvcp.core import Status, Info, Action
 from qtvcp import logger
 
 # Instantiate the libraries with global reference
@@ -29,6 +31,7 @@ from qtvcp import logger
 # LOG is for running code logging
 STATUS = Status()
 INFO = Info()
+ACTION = Action()
 LOG = logger.getLogger(__name__)
 
 # Force the log level for this module
@@ -59,8 +62,55 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
         self._user = 0
         self._text =' -000.0000'
 
+        # menu stuff
+        self.dialog_code = 'CALCULATOR'
+        self._showGoto = False
+        self._showZero = False
+        self._showSet = False
+        self._showLast = False
+        self._showDivide = False
+
         # for stylesheet reading
         self._isHomed = False
+
+    def mousePressEvent(self, event):
+        menu = QMenu(self)
+        state = (STATUS.machine_is_on()
+                    and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
+
+        if self._showZero:
+            self.zeroButton = QAction(QIcon('exit24.png'), 'Zero', self)
+            self.zeroButton.triggered.connect(self.Zero)
+            self.zeroButton.setEnabled(state)
+            menu.addAction(self.zeroButton)
+        if self._showSet:
+            self.setButton = QAction(QIcon('exit24.png'), 'Set', self)
+            self.setButton.triggered.connect(self.SetOrigin)
+            self.setButton.setEnabled(state)
+            menu.addAction(self.setButton)
+        if self._showDivide:
+            self.divideButton = QAction(QIcon('exit24.png'), 'Divide By 2', self)
+            self.divideButton.triggered.connect(self.Divide)
+            self.divideButton.setEnabled(state)
+            menu.addAction(self.divideButton)
+        if self._showLast:
+            self.lastButton = QAction(QIcon('exit24.png'), 'Set To Last', self)
+            self.lastButton.triggered.connect(self.Last)
+            self.lastButton.setEnabled(state)
+            menu.addAction(self.lastButton)
+        if  self._showGoto:
+            text = 'Go To G53 Origin in {}'.format(INFO.GET_NAME_FROM_JOINT.get(self.joint_number))
+            self.goToG53Button = QAction(QIcon('exit24.png'), text, self)
+            self.goToG53Button.triggered.connect(self.goToG53)
+            self.goToG53Button.setEnabled(state)
+            menu.addAction(self.goToG53Button)
+            text = 'Go To G5x Origin in {}'.format(INFO.GET_NAME_FROM_JOINT.get(self.joint_number))
+            self.goToG5xButton = QAction(QIcon('exit24.png'), text, self)
+            self.goToG5xButton.triggered.connect(self.goToG5x)
+            self.goToG5xButton.setEnabled(state)
+            menu.addAction(self.goToG5xButton)
+
+        menu.popup(event.globalPos())
 
     def _hal_init(self):
         super(DROLabel, self)._hal_init()
@@ -90,6 +140,8 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
             self._current_text_template = self.metric_text_template
         else:
             self._current_text_template = self.imperial_text_template
+
+        STATUS.connect('general',self.return_value)
 
     # update ishomed property
     # polish widget so stylesheet sees the property change
@@ -198,6 +250,75 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
         else:
             self._joint_type  = INFO.JOINT_TYPE_INT[self._jointNum]
         self. update_units()
+
+    #######################
+    # menu option code 
+    #######################
+
+    def Zero(self):
+        pos = self.get_current_position()
+        if not pos is None:
+            axis = INFO.GET_NAME_FROM_JOINT.get(self.joint_number)
+            ACTION.SET_AXIS_ORIGIN(axis, 0)
+            STATUS.emit('update-machine-log', 'Zeroed Axis %s' % axis, 'TIME')
+
+    def SetOrigin(self):
+        pos = self.get_current_position()
+        if not pos is None:
+            axis = INFO.GET_NAME_FROM_JOINT.get(self.joint_number)
+            mess = {'NAME':self.dialog_code,'ID':'%s__' % self.objectName(),
+            'AXIS':axis,
+            'CURRENT':pos,
+            'TITLE':'Set %s Origin'% axis,
+            'GEONAME':'DROWidgetDialog_{}'.format(self.dialog_code),
+            'AXIS':axis}
+            STATUS.emit('dialog-request', mess)
+            LOG.debug('message sent:{}'.format (mess))
+
+    # process the STATUS return message
+    def return_value(self, w, message):
+        num = message['RETURN']
+        code = bool(message.get('ID') == '%s__'% self.objectName())
+        name = bool(message.get('NAME') == self.dialog_code)
+        if code and name and num is not None:
+            LOG.debug('message return:{}'.format (message))
+            axis = message.get('AXIS')
+            ACTION.SET_AXIS_ORIGIN(axis, num)
+            STATUS.emit('update-machine-log', 'Set Origin of Axis %s to %f' %(axis, num), 'TIME')
+
+    def Divide(self):
+        pos = self.get_current_position()
+        if not pos is None:
+            axis = INFO.GET_NAME_FROM_JOINT.get(self.joint_number)
+            try:
+                x = pos/2.0
+                ACTION.SET_AXIS_ORIGIN(axis, x)
+                text = 'Divided Axis %s in Half - %f'% (axis, x)
+                STATUS.emit('update-machine-log', text, 'TIME')
+            except ZeroDivisionError:
+                pass
+
+    def Last(self):
+        pos = self.get_current_position()
+        if not pos is None:
+            axis = INFO.GET_NAME_FROM_JOINT.get(self.joint_number)
+            last = ACTION.GET_LAST_RECORDED_ORIGIN(axis)
+            ACTION.SET_AXIS_ORIGIN(axis, last)
+            text = 'Reset Axis %s from %f to Last Value: %f' %(axis, pos, last)
+            STATUS.emit('update-machine-log', text, 'TIME')
+
+    def get_current_position(self):
+        if STATUS.is_joint_mode():
+            return None
+        p,r,d = STATUS.get_position()
+        if self.display_units_mm != INFO.MACHINE_IS_METRIC:
+            r = INFO.convert_units_9(r)
+        return r[self.joint_number]
+
+    def goToG53(self):
+        ACTION.CALL_MDI('G53 G0 {}0'.format(INFO.GET_NAME_FROM_JOINT.get(self.joint_number)))
+    def goToG5x(self):
+        ACTION.CALL_MDI('G0 {}0'.format(INFO.GET_NAME_FROM_JOINT.get(self.joint_number)))
 
     #########################################################################
     # This is how designer can interact with our widget properties.
@@ -312,6 +433,59 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
         return self._isHomed
 
     isHomed = QtCore.pyqtProperty(bool, getisHomed, setisHomed)
+
+    ####################
+    ## menu properties
+    ####################
+
+    def set_dialog_code(self, data):
+        self.dialog_code = data
+    def get_dialog_code(self):
+        return self.dialog_code
+    def reset_dialog_code(self):
+        self.dialog_code = 'CALCULATOR'
+    dialogName = QtCore.pyqtProperty(str, get_dialog_code, set_dialog_code, reset_dialog_code)
+
+    def set_showSet(self, data):
+        self._showSet = data
+    def get_showSet(self):
+        return self._showSet
+    def reset_showSet(self):
+        self._showSet = False
+    showSetOrigin = QtCore.pyqtProperty(bool, get_showSet, set_showSet, reset_showSet)
+
+    def set_showZero(self, data):
+        self._showZero = data
+    def get_showZero(self):
+        return self._showZero
+    def reset_showZero(self):
+        self._showZero = False
+    showZeroOrigin = QtCore.pyqtProperty(bool, get_showZero, set_showZero, reset_showZero)
+
+    def set_showGoto(self, data):
+        self._showGoto = data
+    def get_showGoto(self):
+        return self._showGoto
+    def reset_showGoto(self):
+        self._showGoto = False
+    showGotoOrigin = QtCore.pyqtProperty(bool, get_showGoto, set_showGoto, reset_showGoto)
+
+    def set_showLast(self, data):
+        self._showLast = data
+    def get_showLast(self):
+        return self._showLast
+    def reset_showLast(self):
+        self._showLast = False
+    showLast = QtCore.pyqtProperty(bool, get_showLast, set_showLast, reset_showLast)
+
+    def set_showDivide(self, data):
+        self._showDivide = data
+    def get_showDivide(self):
+        return self._showDivide
+    def reset_showDivide(self):
+        self._showDivide = False
+    showDivide = QtCore.pyqtProperty(bool, get_showDivide, set_showDivide, reset_showDivide)
+
     ##############################
     # required class boiler code #
     ##############################
