@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: sk\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-04-08 19:52+0200\n"
-"PO-Revision-Date: 2024-06-05 21:20+0000\n"
+"PO-Revision-Date: 2024-09-08 06:52+0000\n"
 "Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
 "Language-Team: Slovak <emc-developers@lists.sourceforge.net>\n"
 "Language: sk\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=((n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2);\n"
-"X-Generator: Weblate 5.6-dev\n"
+"X-Generator: Weblate 5.8-dev\n"
 "X-Poedit-Language: Slovak\n"
 "X-Poedit-Country: SLOVAKIA\n"
 
@@ -1141,42 +1141,36 @@ msgid "Bug code not g17 g18 or g19"
 msgstr "Kód chyby nie je g17 g18 alebo g19"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:33
-#, fuzzy
 msgid "Bug code not g20 or g21"
-msgstr "Bug Kód nie je g20 alebo g21"
+msgstr "Kód nie je g20 alebo g21"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:34
 msgid "Bug code not g28 or g30"
 msgstr "Bug kód nie g28 alebo g30"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:35
-#, fuzzy
 msgid "Bug code not g2 or g3"
-msgstr "Bug Kód nie je g2 alebo g3"
+msgstr "Kód nie je g2 alebo g3"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:37
 msgid "Bug code not g4 g10 g28 g30 g52 g53 or g92 series"
 msgstr "Kód chyby nie g4 g10 g28 g30 g52 g53 alebo g92 série"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:38
-#, fuzzy
 msgid "Bug code not g61 g61.1 or g64"
-msgstr "Bug Kód nie je g61 g61.1 alebo g64"
+msgstr "Kód nie je g61 g61.1 alebo g64"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:39
-#, fuzzy
 msgid "Bug code not g90 or g91"
-msgstr "Bug Kód nie je g90 alebo g91"
+msgstr "Kód nie je g90 alebo g91"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:40
-#, fuzzy
 msgid "Bug code not g98 or g99"
-msgstr "Bug Kód nie je g98 alebo g99"
+msgstr " Kód nie je g98 alebo g99"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:41
-#, fuzzy
 msgid "Bug code not in g52 or g92 series"
-msgstr "Bug Kód nie je v sérii g52 alebo g92"
+msgstr "Kód nie je v sérii g52 alebo g92"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:42
 msgid "Bug code not in range g54 to g593"
@@ -1187,9 +1181,8 @@ msgid "Bug code not m0 m1 m2 m30 m60 m99"
 msgstr "Kód chyby nie m0 m1 m2 m30 m60 m99"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:44
-#, fuzzy
 msgid "Bug distance mode not g90 or g91"
-msgstr "Bug Režim vzdialenosti nie je g90 alebo g91"
+msgstr "Režim vzdialenosti nie je g90 alebo g91"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:45
 msgid "Bug function should not have been called"
@@ -1212,9 +1205,8 @@ msgid "Bug unknown motion code"
 msgstr "Bug neznámy pohybový kód"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:50
-#, fuzzy
 msgid "Bug unknown operation"
-msgstr "Bug neznáma operácia"
+msgstr "neznáma operácia"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:51
 msgid "Cannot change axis offsets with cutter radius comp"
@@ -2428,14 +2420,14 @@ msgid "Parameters"
 msgstr "Parametre"
 
 #: src/hal/utils/scope_trig.c:115
-#, fuzzy, c-format
+#, c-format
 msgid "Falling"
-msgstr "-Falling"
+msgstr "Klesajúci"
 
 #: src/hal/utils/scope_trig.c:117 src/hal/utils/scope_trig.c:281
-#, fuzzy, c-format
+#, c-format
 msgid "Rising"
-msgstr "-Rising"
+msgstr "Stúpajúci"
 
 #: src/hal/utils/scope_trig.c:124 src/hal/utils/scope_trig.c:289
 msgid ""
@@ -2446,7 +2438,7 @@ msgstr ""
 "žiadne"
 
 #: src/hal/utils/scope_trig.c:129
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "Source\n"
 "Chan %2d"
@@ -2476,7 +2468,6 @@ msgid "Trigger Source"
 msgstr "Zdroj spúšťača"
 
 #: src/hal/utils/scope_trig.c:336
-#, fuzzy
 msgid "Chan"
 msgstr "-Chan"
 
@@ -2716,9 +2707,8 @@ msgid "Probe is already clear when starting G38.4 or G38.5 move"
 msgstr "Sonda je pripravená už pri spustení pohybu G38.4 alebo G38.5"
 
 #: src/emc/motion/command.c:1426
-#, fuzzy
 msgid "Probe is already tripped when starting G38.2 or G38.3 move"
-msgstr "Sonda je už tripped pri spustení pohybu G38.2 alebo G38.3"
+msgstr "Sonda je v poruche už pri spustení pohybu G38.2 alebo G38.3"
 
 #: src/emc/motion/command.c:1447
 msgid "can't add probe move"
@@ -2937,9 +2927,9 @@ msgid "j%d hit limit in home state %d"
 msgstr "j%d limit zásahov v kalibračnom stave %d"
 
 #: src/emc/motion/homing.c:197
-#, fuzzy, c-format
+#, c-format
 msgid "j%d end of move in home state %d"
-msgstr "j%d koniec presunu v domovskom stave %d"
+msgstr "j%d koniec presunu v kalibr. stave %d"
 
 #: src/emc/motion/homing.c:236
 msgid "HOMING: all_joints_home_data_t malloc failed\n"
@@ -3051,7 +3041,6 @@ msgid "Stopped program - press run button to continue."
 msgstr "Zastavený program – pokračujte stlačením tlačidla Spustiť."
 
 #: src/hal/classicladder/classicladder.c:231
-#, fuzzy
 msgid "Started program - press stop to pause."
 msgstr "Spustený program – pre pozastavenie stlačte stop."
 
@@ -7856,12 +7845,15 @@ msgid "Insert tool %d and click continue when ready"
 msgstr "Vložte nástroj %d a keď budete pripravený, kliknite na \"Pokračovať\""
 
 #: src/emc/usr_intf/axis/scripts/hal_manualtoolchange.py:76
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "\n"
 "\n"
 "Error: %s"
-msgstr "Chyba: "
+msgstr ""
+"\n"
+"\n"
+"Chyba: %s"
 
 #: src/emc/usr_intf/axis/scripts/hal_manualtoolchange.py:93
 msgid "AXIS Manual Toolchanger"
@@ -11030,19 +11022,16 @@ msgid "Import a Mach file"
 msgstr "Importujte súbor Mach"
 
 #: src/emc/usr_intf/stepconf/start.glade:73
-#, fuzzy
 msgid "Create a desktop _shortcut (symlink) to configuration files"
-msgstr "Vytvorte na ploche _skratku (symlink) na konfiguračné súbory."
+msgstr "Vytvorte na ploche _skratku (symlink) na konfiguračné súbory"
 
 #: src/emc/usr_intf/stepconf/start.glade:89
-#, fuzzy
 msgid "Create a desktop _launcher to start LinuxCNC with this configuration"
-msgstr "Vytvoriť desktop _spúšťač na spustenie LinuxCNC s touto konfiguráciou."
+msgstr "Vytvoriť desktop _spúšťač na spustenie LinuxCNC s touto konfiguráciou"
 
 #: src/emc/usr_intf/stepconf/start.glade:105
-#, fuzzy
 msgid "Create simulated hardware configuration"
-msgstr "Vytvoriť simulovanú hardvérovú konfiguráciu."
+msgstr "Vytvoriť simulovanú hardvérovú konfiguráciu"
 
 #: src/emc/usr_intf/stepconf/start.glade:129
 #: src/emc/usr_intf/pncconf/start.glade:63
@@ -12758,7 +12747,7 @@ msgstr "invert"
 #: src/emc/usr_intf/pncconf/build_HAL.py:1133
 #, python-format
 msgid "%(name)s Parport"
-msgstr "%(name)s Parport"
+msgstr "%(name)s Par. port"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:1138
 #: src/emc/usr_intf/pncconf/build_HAL.py:1146
@@ -14964,12 +14953,12 @@ msgstr ""
 "\n"
 "     Negatívne a pozitívne smery sú založené na pohybe nástroja, ktoré môžu "
 "byť odlišné\n"
-"      tj že na fréze sa zvyčajne pohybuje stôl a nie nástroj.\n"
+"      tj. že na fréze sa zvyčajne pohybuje stôl a nie nástroj.\n"
 "\n"
 "     Softvérové limity sú v oblasti koncového spínača.\n"
 "\n"
-"     (Ak používate navádzanie na základe snímača), snímač(e) navádzania "
-"využívajú koncové snímače (zdieľaná kalibrácia / koncový snímač)\n"
+"     (Ak používate kalibráciu na základe snímača(-ov), kalibr. využíva "
+"koncové snímače (zdieľaná kalibrácia / koncový snímač)\n"
 "     alebo sú v oblasti koncového snímača pri použití samostatného kalib. "
 "snímača.\n"
 "\n"
@@ -14977,29 +14966,31 @@ msgstr ""
 "je to nevyhnutné.\n"
 "\n"
 "     Ak používate samostatný prepínač východiskovej polohy, je možné spustiť "
-"návrat do východiskovej polohy na nesprávnej strane vypínača domácej "
+"návrat do východiskovej polohy na nesprávnej strane spínača východiskovej "
 "polohy,\n"
 "     čo v kombinácii s možnosťou HOME_IGNORE_LIMITS povedie k vážnemu "
 "zlyhaniu.\n"
-"     Tomuto sa môžete vyhnúť tak, že prepínač domov prepne svoj stav, keď je "
-"výletný pes na konkrétnej strane, až kým sa opäť nevráti cez bod výletu.\n"
-"     Inak povedané, stav spínača home musí reprezentovať polohu psa vzhľadom "
-"na spínač (tj pred alebo za spínačom),\n"
-"     a musí zostať tak, aj keď pes dobehne okolo spínača rovnakým smerom.\n"
+"     Tomuto sa môžete vyhnúť tak, že prepínač kalibrácie prepne svoj stav, "
+"keď je proces kal. na konkrétnej strane, až kým sa opäť nevráti cez bod "
+"kalibracie.\n"
+"\n"
+"     Inak povedané, stav kalib. spínača musí reprezentovať polohu proces "
+"kal. vzhľadom na spínač (tj pred alebo za spínačom),\n"
+"     a musí zostať tak, aj keď proces kal. prebehne okolo spínača rovnakým "
+"smerom.\n"
 "\n"
 "     Vzdialenosť medzi koncovými spínačmi a mäkkými limitmi (-L<->A a D<-+L) "
 "je v tomto príklade zväčšená\n"
 "     Všimnite si, že medzi koncovými spínačmi a skutočným fyzickým pevným "
-"dorazom je vzdialenosť pre dobeh po vypnutí zosilňovača."
+"dorazom je vzdialenosť pre dobeh po vypnutí ovládača pohonov "
 
 #: src/emc/usr_intf/pncconf/help.glade:111
 msgid "Help Page"
 msgstr "Stránka pomoci"
 
 #: src/emc/usr_intf/pncconf/help.glade:173
-#, fuzzy
 msgid "Mill"
-msgstr "Mill"
+msgstr "Obrabanie"
 
 #: src/emc/usr_intf/pncconf/help.glade:191
 msgid ""
@@ -15090,9 +15081,8 @@ msgid "Separate Homing Switches"
 msgstr "Samostatné kalibračné spínače"
 
 #: src/emc/usr_intf/pncconf/help.glade:428
-#, fuzzy
 msgid "Diagram"
-msgstr "Diagram"
+msgstr "diagram"
 
 #: src/emc/usr_intf/pncconf/help.glade:460
 msgid "Output"
@@ -15117,9 +15107,8 @@ msgid "7i77"
 msgstr "7i77"
 
 #: src/emc/usr_intf/pncconf/help.glade:659
-#, fuzzy
 msgid "Map"
-msgstr "Map"
+msgstr "Mapa"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:71
 #: src/emc/usr_intf/pncconf/mesa1.glade:71
@@ -15148,9 +15137,8 @@ msgstr "Firmware:"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:338
 #: src/emc/usr_intf/pncconf/mesa1.glade:338
-#, fuzzy
 msgid "Num of 3 pwm generators: "
-msgstr "Počet PWM generátorov:"
+msgstr "Počet PWM generátorov: "
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:366
 #: src/emc/usr_intf/pncconf/mesa1.glade:366
@@ -16530,15 +16518,13 @@ msgid "Smart Serial 7"
 msgstr "Smart serial 7"
 
 #: src/emc/usr_intf/pncconf/start.glade:27
-#, fuzzy
 msgid "Create a desktop launcher to start LinuxCNC with this configuration"
 msgstr ""
-"Vytvoriť odkaz na pracovnej ploche na spustenie stroja s touto konfiguráciou."
+"Vytvoriť odkaz na pracovnej ploche na spustenie stroja s touto konfiguráciou"
 
 #: src/emc/usr_intf/pncconf/start.glade:44
-#, fuzzy
 msgid "Create a desktop shortcut (symlink) to configuration files"
-msgstr "Vytvoriť odkaz na pracovnej ploche (symlink) na konfiguračné súbory."
+msgstr "Vytvoriť odkaz na pracovnej ploche (symlink) na konfiguračné súbory"
 
 #: src/emc/usr_intf/pncconf/start.glade:129
 #, fuzzy
@@ -16546,9 +16532,8 @@ msgid "Show Advanced Option Pages"
 msgstr "Príklady konfigurácií"
 
 #: src/emc/usr_intf/pncconf/start.glade:158
-#, fuzzy
 msgid "Use INI substitution for Mesa board names"
-msgstr "Použiť INI náhradu pre názvy dosiek Mesa."
+msgstr "Použiť INI náhradu pre názov dosky Mesa"
 
 #: src/emc/usr_intf/pncconf/external.glade:157
 msgid "9600"
@@ -16781,21 +16766,21 @@ msgstr " <b>d)</b>"
 #: src/emc/usr_intf/pncconf/external.glade:4165
 #: src/emc/usr_intf/pncconf/external.glade:5108
 msgid " abcd)"
-msgstr "  abcd)"
+msgstr " abcd )"
 
 #: src/emc/usr_intf/pncconf/external.glade:1713
 #: src/emc/usr_intf/pncconf/external.glade:3236
 #: src/emc/usr_intf/pncconf/external.glade:4179
 #: src/emc/usr_intf/pncconf/external.glade:5122
 msgid " bcd)"
-msgstr " bcd)"
+msgstr " bcd )"
 
 #: src/emc/usr_intf/pncconf/external.glade:1727
 #: src/emc/usr_intf/pncconf/external.glade:3250
 #: src/emc/usr_intf/pncconf/external.glade:4193
 #: src/emc/usr_intf/pncconf/external.glade:5136
 msgid " acd)"
-msgstr "  acd)"
+msgstr " acd )"
 
 #: src/emc/usr_intf/pncconf/external.glade:1741
 #: src/emc/usr_intf/pncconf/external.glade:3319
@@ -16858,7 +16843,7 @@ msgstr " ab)"
 #: src/emc/usr_intf/pncconf/external.glade:4248
 #: src/emc/usr_intf/pncconf/external.glade:5191
 msgid " abd)"
-msgstr "  abd)"
+msgstr " abd )"
 
 #: src/emc/usr_intf/pncconf/external.glade:2401
 msgid "ignore all inputs false"
@@ -18349,7 +18334,6 @@ msgid "Interface type:"
 msgstr "Typ rozhrania:"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:128
-#, fuzzy
 msgid ""
 "\n"
 "Pncconf will try to discover the board connected to the system.\n"
@@ -18357,9 +18341,11 @@ msgid ""
 "Field power should be connected to detect all pins.\n"
 "\n"
 msgstr ""
+"\n"
 "Pncconf sa pokúsi nájsť dosku pripojenú k systému.\n"
 "Vyberte príslušné nastavenia.\n"
-"Napájanie polí by malo byť pripojené kvôli detekciu všetkých pinov.\n"
+"Napájanie polí by malo byť pripojené kvôli detekcii všetkých pinov.\n"
+"\n"
 
 #: src/emc/usr_intf/pncconf/dialogs.glade:164
 msgid "Ethernet Address:"
@@ -19213,7 +19199,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3782
 msgid " Zero Origin"
-msgstr ""
+msgstr " Nulový pôvod"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3783
 #: src/emc/usr_intf/gscreen/gscreen.glade:4032
@@ -19225,25 +19211,32 @@ msgid ""
 "Invalid message configuration (missing text or type) in INI File [DISPLAY] "
 "section"
 msgstr ""
+"Neplatná konfigurácia správy (chýbajúci text alebo typ) v sekcii INI File "
+"[DISPLAY]"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3800
 msgid ""
 "Invalid message configuration (missing pinname) in INI File [DISPLAY] section"
 msgstr ""
+"Neplatná konfigurácia správy (chýba pinname) v sekcii INI File [DISPLAY]"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3802
 msgid ""
 "Invalid message configuration (missing boldtext) in INI File [DISPLAY] "
 "section"
 msgstr ""
+"Neplatná konfigurácia správy (chýba zvýraznený text) v sekcii INI File "
+"[DISPLAY]"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3806
 msgid "Invalid message type ({})in INI File [DISPLAY] section"
-msgstr ""
+msgstr "Neplatný typ správy ({}) INI súboru v sekcii [DISPLAY]"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3840
 msgid "Dialog error - Is the dialog handler missing from the handler file?"
 msgstr ""
+"Chyba dialógového okna – Chýba obslužný program dialógového okna v súbore "
+"obslužného programu?"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3842
 msgid "Manual Toolchange"
@@ -19251,7 +19244,7 @@ msgstr "Manuálna výmena nástrojov"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3844
 msgid "Operator Message"
-msgstr ""
+msgstr "Správa operátora"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3878
 #: src/emc/usr_intf/gscreen/gscreen.py:3883
@@ -19261,7 +19254,7 @@ msgstr "Reštart vstupu"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3895
 msgid "_Up     "
-msgstr ""
+msgstr "_Hore     "
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3897
 msgid "_Down"
@@ -19269,12 +19262,12 @@ msgstr "_Dole"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3899
 msgid "_Jump to"
-msgstr ""
+msgstr "_Skok na"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3918
 #, python-format
 msgid "Ready to Restart program from line %d"
-msgstr ""
+msgstr "Pripravený na reštartovanie programu z riadku %d"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:3951
 msgid "Invalid embedded tab configuration"
@@ -19283,47 +19276,47 @@ msgstr "Neplatná konfigurácia vloženej karty"
 #: src/emc/usr_intf/gscreen/gscreen.py:4203
 #: src/emc/usr_intf/gscreen/gscreen.py:4278
 msgid "Can't jog multiple axis"
-msgstr ""
+msgstr "Nie je možné posúvať viac osí"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4206
 msgid "No axis selected to jog"
-msgstr ""
+msgstr "Nie je vybratá žiadna os na pohyb"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4281
 msgid "No axis selected to move"
-msgstr ""
+msgstr "Nie je vybratá žiadna os na pohyb"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4351
 msgid "Can't home multiple axis - select HOME ALL instead"
-msgstr ""
+msgstr "Nie je možné kalibrovať viac osí - vyberte namiesto toho HOME ALL"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4354
 msgid "No axis selected to home"
-msgstr ""
+msgstr "Nie je vybratá žiadna os na skalibrovanie"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4361
 msgid "Can't unhome multiple axis"
-msgstr ""
+msgstr "Nie je možné rozkalibrovať viac osí"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4364
 msgid "No axis selected to unhome"
-msgstr ""
+msgstr "Nebola vybratá žiadna os na rozkalibrovanie"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4373
 msgid "No axis selected for origin zeroing"
-msgstr ""
+msgstr "Na nulovanie originu nie je vybratá žiadna os"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4384
 msgid "No axis selected for origin touch-off"
-msgstr ""
+msgstr "Nie je vybratá žiadna os na dotyk"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4390
 msgid "Can't tool touch-off multiple axes"
-msgstr ""
+msgstr "Nie je možné vykonať dotyk viacerých osí"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4393
 msgid "No axis selected for tool touch-off"
-msgstr ""
+msgstr "Nie je zvolená žiadna os pre dotyk nástroja"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4452
 #: src/emc/usr_intf/gscreen/gscreen.py:4537
@@ -19333,47 +19326,47 @@ msgstr "Chybná správa"
 #: src/emc/usr_intf/gscreen/gscreen.py:4452
 #, python-format
 msgid "Tool editor error - is the %s editor available?"
-msgstr ""
+msgstr "Chyba editora nástroja – je editor %s dostupný?"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4539
 #: src/emc/usr_intf/gscreen/gscreen.py:4541
 msgid "Message"
-msgstr ""
+msgstr "Správa"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4571
 #, python-format
 msgid "%d RPM"
-msgstr ""
+msgstr "%d RPM"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4682
 #, python-format
 msgid "Tool %(t)s     %(l)s"
-msgstr ""
+msgstr "Nástroj %(t)s %(l)s"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4714
 #, python-format
 msgid "%4.2f mm/min"
-msgstr ""
+msgstr "%4.2f mm/min"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4716
 #, python-format
 msgid "%3.2f IPM"
-msgstr ""
+msgstr "%3.2f IPM"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4719
 #, python-format
 msgid "%4.2f DPM"
-msgstr ""
+msgstr "%4.2f DPM"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4728
 #, python-format
 msgid "%(n)s   View -%(v)s               %(t)s"
-msgstr ""
+msgstr "%(n)s   Zobrazenie-%(v)s               %(t)s"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4737
 #: src/emc/usr_intf/gscreen/gscreen.py:4738
 msgid " mm "
-msgstr ""
+msgstr " mm "
 
 #: src/emc/usr_intf/gscreen/gscreen.py:4789
 msgid "Postgui filename: {}"
@@ -19381,19 +19374,19 @@ msgstr "Postgui názov súboru: {}"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:38
 msgid "S 1000"
-msgstr ""
+msgstr "S 1000"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:114
 msgid "FWD"
-msgstr ""
+msgstr "FWD"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:160
 msgid "REV"
-msgstr ""
+msgstr "REV"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:228
 msgid "Data Entry"
-msgstr ""
+msgstr "Zadávanie údajov"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:297
 msgid "<b>Calculator Entry</b>"
@@ -19401,11 +19394,11 @@ msgstr "<b>Kalkulačka</b>"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:359
 msgid "test"
-msgstr ""
+msgstr "test"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:362
 msgid "test2"
-msgstr ""
+msgstr "test2"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:374
 msgid "Program Restart"
@@ -19417,18 +19410,25 @@ msgid ""
 "up / down buttons or entering the line\n"
 "directly."
 msgstr ""
+"Zvýraznenie run-at-line pomocou\n"
+"tlačidlá hore / dole alebo vstup do riadku\n"
+"priamo."
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:447
 msgid ""
 "Line\n"
 "Up"
 msgstr ""
+"Riadok\n"
+"Hore"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:474
 msgid ""
 "Line\n"
 "Down"
 msgstr ""
+"Riadok\n"
+"Dolu"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:562
 #: src/emc/usr_intf/gscreen/gscreen.glade:575
@@ -19458,7 +19458,7 @@ msgstr ""
 #: src/emc/usr_intf/gscreen/gscreen.glade:1556
 #: src/emc/usr_intf/gscreen/gscreen.glade:1611
 msgid "0000.0000"
-msgstr ""
+msgstr "0000.0000"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:589
 #: src/emc/usr_intf/gscreen/gscreen.glade:713
@@ -19470,7 +19470,7 @@ msgstr ""
 #: src/emc/usr_intf/gscreen/gscreen.glade:1447
 #: src/emc/usr_intf/gscreen/gscreen.glade:1570
 msgid "REL"
-msgstr ""
+msgstr "REL"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:617
 #: src/emc/usr_intf/gscreen/gscreen.glade:741
@@ -19482,15 +19482,15 @@ msgstr ""
 #: src/emc/usr_intf/gscreen/gscreen.glade:1475
 #: src/emc/usr_intf/gscreen/gscreen.glade:1598
 msgid "ABS"
-msgstr ""
+msgstr "ABS"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1130
 msgid "B"
-msgstr ""
+msgstr "B"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1253
 msgid "C"
-msgstr ""
+msgstr "C"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1376
 msgid "U"
@@ -19498,7 +19498,7 @@ msgstr "U"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1499
 msgid "V"
-msgstr ""
+msgstr "V"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1776
 msgid "G-code"
@@ -19510,7 +19510,7 @@ msgstr "<b>Aktívne G Kódy</b>"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1925
 msgid "MV:100%"
-msgstr ""
+msgstr "MV:100%"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:1958
 msgid "Flood "
@@ -19522,15 +19522,15 @@ msgstr "V rýchlosti"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2022
 msgid "Jog mode"
-msgstr ""
+msgstr "Režim pohybov"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2073
 msgid "10 DPM"
-msgstr ""
+msgstr "10 DPM"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2087
 msgid "10 Ipm"
-msgstr ""
+msgstr "10 ipm"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2155
 msgid "<b>Status</b>"
@@ -19574,11 +19574,11 @@ msgstr "<b>Mód</b>"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2302
 msgid "Main Level"
-msgstr ""
+msgstr "Hlavná úroveň"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2355
 msgid "Themes"
-msgstr ""
+msgstr "Témy"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2379
 msgid "Relative Text Color"
@@ -19586,15 +19586,15 @@ msgstr "Relatívna farba textu"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2427
 msgid "DTG Text Color"
-msgstr ""
+msgstr "Farba textu DTG"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2450
 msgid "Warning Audio"
-msgstr ""
+msgstr "Zvuková výstraha"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2463
 msgid "Alert Audio"
-msgstr ""
+msgstr "Zvukové opozornenie"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2486
 msgid "Grid Size"
@@ -19602,7 +19602,7 @@ msgstr "Veľkosť mriežky"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2499
 msgid "0.000"
-msgstr ""
+msgstr "0.000"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2527
 msgid "Starting RPM"
@@ -19610,13 +19610,15 @@ msgstr "Počiatočné otáčky"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2552
 msgid "Metric"
-msgstr ""
+msgstr "Metrické"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2564
 msgid ""
 "Display\n"
 "Aux Screen"
 msgstr ""
+"Displej\n"
+"Prídavná obrazovka"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2577
 msgid ""
@@ -19648,22 +19650,28 @@ msgid ""
 "Gscreen\n"
 "Fullscreen"
 msgstr ""
+"Gscreen\n"
+"Celá obrazovka"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2642
 msgid ""
 "On M7 Use\n"
 "Aux Coolant"
 msgstr ""
+"Použiť M7\n"
+"na chladiacu kvapalinu"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2655
 msgid ""
 "On M8 Use\n"
 "Aux Coolant"
 msgstr ""
+"Použiť M8\n"
+"na chladiacu kvapalinu"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2668
 msgid "Hide Pointer"
-msgstr ""
+msgstr "Skryť ukazovateľ"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2680
 msgid ""
@@ -19680,7 +19688,7 @@ msgstr "Ladenie"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2784
 msgid "Alarm History"
-msgstr ""
+msgstr "História alarmov"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2805
 msgid ""
@@ -19745,6 +19753,8 @@ msgid ""
 "Toggle\n"
 "Readout"
 msgstr ""
+"Prepnúť\n"
+"Odpočet"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3093
 msgid ""
