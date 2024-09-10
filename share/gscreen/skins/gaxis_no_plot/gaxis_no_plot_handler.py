@@ -131,7 +131,6 @@ class HandlerClass:
         self.gscreen.homed_status_message = self.widgets.statusbar1.push(1,"Ready For Homing")
         model = self.widgets.jog_speed.get_model()
         for num,i in enumerate(self.data.jog_increments):
-            print(i)
             model.append([i])
             if i == "continuous":
                 self.data.current_jogincr_index = num
