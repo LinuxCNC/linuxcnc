@@ -5,8 +5,8 @@ msgstr ""
 "Project-Id-Version: sk\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-04-08 19:52+0200\n"
-"PO-Revision-Date: 2024-09-08 06:52+0000\n"
-"Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
+"PO-Revision-Date: 2024-09-10 17:41+0000\n"
+"Last-Translator: Juraj Adamkovic <stroje.hcnc@gmail.com>\n"
 "Language-Team: Slovak <emc-developers@lists.sourceforge.net>\n"
 "Language: sk\n"
 "MIME-Version: 1.0\n"
@@ -3905,9 +3905,8 @@ msgid "There is already an element!"
 msgstr "Tu už je prvok!"
 
 #: src/hal/classicladder/edit_sequential.c:788
-#, fuzzy
 msgid "A step can't be placed on even lines"
-msgstr "Krok nemožno umiestniť na even čiary"
+msgstr "Krok nemožno umiestniť na aktuálny riadok"
 
 #: src/hal/classicladder/edit_sequential.c:816
 msgid "Sequential memory full for transition"
@@ -4060,9 +4059,8 @@ msgid "One-shot"
 msgstr "One -shot"
 
 #: src/hal/classicladder/emc_mods.c:280
-#, fuzzy
 msgid "Counter"
-msgstr "_Counter"
+msgstr "_Počítadlo"
 
 #: src/hal/classicladder/emc_mods.c:285
 msgid "Error Flag Bit"
@@ -11714,7 +11712,7 @@ msgstr "Opačný"
 msgid ""
 "_:"
 ""
-msgstr ""
+msgstr " "
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
 #: src/emc/usr_intf/stepconf/axisy.glade:248
@@ -19761,6 +19759,8 @@ msgid ""
 "Jogging\n"
 "Mode"
 msgstr ""
+"Mód\n"
+"pohybov"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3108
 msgid ""
@@ -19789,7 +19789,7 @@ msgstr ""
 #: src/emc/usr_intf/gscreen/gscreen.glade:3275
 #: src/emc/usr_intf/gscreen/gscreen.glade:4284
 msgid "\n"
-msgstr ""
+msgstr "\n"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3322
 msgid "Open"
@@ -19872,48 +19872,64 @@ msgid ""
 "Adjust\n"
 "Rotary"
 msgstr ""
+"Upraviť\n"
+"Rotačné"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3543
 msgid ""
 "Change\n"
 "  View"
 msgstr ""
+"Zmeniť\n"
+" Zobrazenie"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3600
 msgid ""
 "Pan\n"
 "Vertical"
 msgstr ""
+"Pan\n"
+"Vertikálne"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3614
 msgid ""
 "Pan\n"
 "Horizontal"
 msgstr ""
+"Pan\n"
+"Horizontálne"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3628
 msgid ""
 "Rotate\n"
 "Horiontal"
 msgstr ""
+"Otočiť\n"
+"Horizontálne"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3642
 msgid ""
 "Rotate\n"
 "Vertical"
 msgstr ""
+"Otočiť\n"
+"Vertikálne"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3666
 msgid ""
 "Search\n"
 "Bwd"
 msgstr ""
+"Hľadať\n"
+"Bwd"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3680
 msgid ""
 "Search\n"
 "Fwd"
 msgstr ""
+"Hľadať\n"
+"Fwd"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3694
 msgid "Undo"
@@ -19944,18 +19960,20 @@ msgid ""
 "Clear\n"
 "status"
 msgstr ""
+"Clear\n"
+"stav"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3841
 msgid "G54"
-msgstr ""
+msgstr "G54"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:3856
 msgid "calc"
-msgstr ""
+msgstr "Kalk"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:4019
 msgid "Zero Origin"
-msgstr ""
+msgstr "Počiatočná nula"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:4084
 msgid "Tool Setting"
@@ -19975,10 +19993,12 @@ msgid ""
 "Change \n"
 "View"
 msgstr ""
+"Zmeniť\n"
+"Zobrazenie"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:4297
 msgid "Homing"
-msgstr ""
+msgstr "Kalibrácia"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:4321
 msgid ""
@@ -19999,27 +20019,31 @@ msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:4370
 msgid "Graphics"
-msgstr ""
+msgstr "Grafika"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:4383
 msgid ""
 "Menu\n"
 "Level"
 msgstr ""
+"Menu\n"
+"úroveň"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:4396
 msgid ""
 "Launch\n"
 "Keyboard"
 msgstr ""
+"Spustiť\n"
+"Klávesnicu"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:4414
 msgid "<b>Select Buttons</b>"
-msgstr ""
+msgstr "<b>Vybrať tlačidlá</b>"
 
 #: src/emc/usr_intf/gscreen/gscreen2.glade:35
 msgid "screen 2"
-msgstr ""
+msgstr "obrazovka 2"
 
 #: lib/python/gladevcp/iconview.py:129
 msgid "Move to your home directory"
@@ -20039,15 +20063,15 @@ msgstr "Vybrať nasledujúci súbor"
 
 #: lib/python/gladevcp/iconview.py:181
 msgid "Jump to user defined directory"
-msgstr ""
+msgstr "Skok do užívateľom definovaného adresára"
 
 #: lib/python/gladevcp/iconview.py:190
 msgid "select the highlighted file and return the path"
-msgstr ""
+msgstr "vyberte zvýraznený súbor a vráťte sa"
 
 #: lib/python/gladevcp/iconview.py:199
 msgid "Close without returning a file path"
-msgstr ""
+msgstr "Zatvorte bez vrátenia sa k súboru"
 
 #: lib/python/gladevcp/hal_mdihistory.py:90
 msgid "Command"
@@ -20105,11 +20129,11 @@ msgstr "Súbor nástroja bol od posledného čítania upravený"
 #: lib/python/gladevcp/gladevcp-test.glade:111
 #: lib/python/gladevcp/gladevcp-test.glade:125
 msgid "radiobutton"
-msgstr ""
+msgstr "prepínač"
 
 #: lib/python/gladevcp/gladevcp-test.glade:161
 msgid "checkbutton"
-msgstr ""
+msgstr "kontrolné tlačidlo"
 
 #: lib/python/gladevcp/gladevcp-test.glade:204
 msgid "button"
@@ -20208,11 +20232,11 @@ msgstr "Všetky ofsety"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:430
 msgid "X Wear"
-msgstr ""
+msgstr "X opotrebenie"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:452
 msgid "Z Wear"
-msgstr ""
+msgstr "Z opotrebenie"
 
 #: lib/python/gladevcp/tooledit_gtk.glade:596
 msgid "Lathe Wear Offsets"
@@ -20232,7 +20256,7 @@ msgstr "Ofsety nástrojov sústruhu"
 
 #: lib/python/gladevcp/calculator.glade:84
 msgid "CLR"
-msgstr ""
+msgstr "CLR"
 
 #: lib/python/gladevcp/calculator.glade:280
 msgid "DEL"
