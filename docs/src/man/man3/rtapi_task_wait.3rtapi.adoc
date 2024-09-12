@@ -1,0 +1,28 @@
+= rtapi_task_wait(3rtapi)
+
+== NAME
+
+rtapi_task_wait - suspend execution of this periodic task
+
+== SYNTAX
+
+....
+void rtapi_task_wait();
+....
+
+== DESCRIPTION
+
+*rtapi_task_wait* suspends execution of the current task until the next
+period. The task must be periodic. If not, the result is undefined.
+
+== REALTIME CONSIDERATIONS
+
+Call only from within a periodic realtime task.
+
+== RETURN VALUE
+
+None
+
+== SEE ALSO
+
+rtapi_task_start(3rtapi), rtapi_task_pause(3rtapi)

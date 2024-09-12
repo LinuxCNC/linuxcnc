@@ -1,0 +1,171 @@
+= hal_input(1)
+
+== NAME
+
+hal_input - control HAL pins with any Linux input device, including USB
+HID devices
+
+== SYNOPSIS
+
+*loadusr*_ *hal_input* [*-KRAL*] _inputspec_ ...
+
+== DESCRIPTION
+
+*hal_input* is an interface between HAL and any Linux input device,
+including USB HID devices. For each device named, *hal_input* creates
+pins corresponding to its keys, absolute axes, and LEDs. At a fixed rate
+of approximately 10 ms, it synchronizes the device and the HAL pins.
+
+== INPUT SPECIFICATION
+
+The _inputspec_ may be in one of several forms:
+
+A string _S_::
+  A substring or shell-style pattern match will be tested against the
+  "name" of the device, the "phys" (which gives information about how it
+  is connected), and the "id", which is a string of the form "Bus=...
+  Vendor=... Product=... Version=...". You can view the name, phys, and
+  id of attached devices by executing *less /proc/bus/input/devices*.
+  Examples:
+  +
+  SpaceBall
+  +
+  "Vendor=001f Product=0001"
+  +
+  serio*/input0
+
+A number _N_::
+  This opens */dev/input/event*_N_. Except for devices that are always
+  attached to the system, this number may change over reboots or when
+  the device is removed. For this reason, using an integer is not
+  recommended.
+
+When several devices are identified by the same string, add "*:*_N_"
+where _N_ is the index of the desired device. For example, if *Mouse*
+matches *input3* and *input10*, then *Mouse* and *Mouse:0* select
+*input3*. Specifying *mouse:1* selects input10.
+
+For devices that appear as multiple entries in /dev/input, these indices
+are likely to stay the same every time. For multiple identical devices,
+these indices are likely to depend on the insertion order, but stay the
+same across reboots as long as the devices are not moved to different
+ports or unplugged while the machine is booted.
+
+If the first character of the _inputspec_ is a "+", then *hal_input*
+requests exclusive access to the device. The first device matching an
+_inputspec_ is used. Any number of __inputspec__s may be used.
+
+A _subset option may precede each inputspec_. The subset option begins
+with a dash. Each letter in the subset option specifies a device feature
+to *include*. Features that are not specified are excluded. For
+instance, to export keyboard LEDs to HAL without exporting keys, use
+
+____
+hal_input -L _keyboard_ ...
+____
+
+== DEVICE FEATURES SUPPORTED
+
+* EV_KEY (buttons and keys). Subset -K
+* EV_ABS (absolute analog inputs). Subset -A
+* EV_REL (relative analog inputs). Subset -R
+* EV_LED (LED outputs). Subset -L
+
+== HAL PINS AND PARAMETERS
+
+=== For buttons
+
+**input.**_N_**.btn-**_name_ bit out::
+   +
+
+**input.**_N_**.btn-**_name_**-not** bit out::
+  Created for each button on the device.
+
+=== For keys
+
+**input.**_N_**.key-**_name_::
+
+**input**_N_**.key-**_name_**-not**::
+  Created for each key on the device.
+
+=== For absolute axes
+
+**input.**_N_**.abs-**_name_**-counts** s32 out::
+
+**input.**_N_**.abs-**_name_**-position** float out::
+
+**input.**_N_**.abs-**_name_**-scale** parameter float rw::
+
+**input.**_N_**.abs-**_name_**-offset** parameter float rw::
+
+**input.**_N_**.abs-**_name_**-fuzz** parameter s32 rw::
+
+**input.**_N_**.abs-**_name_**-flat** parameter s32 rw::
+
+**input.**_N_**.abs-**_name_**-min** parameter s32 r::
+
+**input.**_N_**.abs-**_name_**-max** parameter s32 r::
+  Created for each absolute axis on the device. Device positions closer
+  than *flat* to *offset* are reported as *offset* in *counts*, and
+  *counts* does not change until the device position changes by at least
+  *fuzz*. The position is computed as *position* = (*counts* - *offset*)
+  / *scale*. The default value of *scale* and *offset* map the range of
+  the axis reported by the operating system to [-1,1]. The default
+  values of *fuzz* and *flat* are those reported by the operating
+  system. The values of *min* and *max* are those reported by the
+  operating system.
+
+=== For relative axes
+
+**input.**_N_**.rel-**_name_**-counts** s32 out::
+
+**input.**_N_**.rel-**_name_**-position** float out::
+
+**input.**_N_**.rel-**_name_**-reset** bit in::
+
+**input.**_N_**.rel-**_name_**-scale** parameter float rw::
+
+**input.**_N_**.rel-**_name_**-absolute** parameter s32 rw::
+
+**input.**_N_**.rel-**_name_**-precision** parameter s32 rw::
+
+**input.**_N_**.rel-**_name_**-last** parameter s32 rw::
+  Created for each relative axis on the device. As long as *reset* is
+  true, *counts* is reset to zero regardless of any past or current axis
+  movement. Otherwise, *counts* increases or decreases according to the
+  motion of the axis. *counts* is divided by position-scale to give
+  *position*. The default value of *position* is 1. There are some
+  devices, notably scroll wheels, which return signed values with less
+  resolution than 32 bits. The default value of *precision* is 32.
+  *precision* can be set to 8 for a device that returns signed 8 bit
+  values, or any other value from 1 to 32. *absolute*, when set true,
+  ignores duplicate events with the same value. This allows for devices
+  that repeat events without any user action to work correctly. *last*
+  shows the most recent count value returned by the device, and is used
+  in the implementation of *absolute*.
+
+=== For LEDs
+
+**input.**_N_**.led-**_name_ bit out::
+
+**input.**_N_**.led-**_name_**-invert** parameter bit rw::
+  Created for each LED on the device.
+
+== PERMISSIONS AND UDEV
+
+By default, the input devices may not be accessible to regular users -- *hal_input* requires read-write access, even if the device has no outputs.
+
+Different versions of udev have slightly different, incompatible syntaxes.
+For this reason, it is not possible for this manual page to give an accurate example.
+The *udev(7)* manual page documents the syntax used on your Linux distribution.
+To view it in a terminal, the command is *man 7 udev*.
+
+== BUGS
+
+The initial state of keys, buttons, and absolute axes are erroneously
+reported as FALSE or 0 until an event is received for that key, button,
+or axis.
+
+== SEE ALSO
+
+udev(8), udev(7)

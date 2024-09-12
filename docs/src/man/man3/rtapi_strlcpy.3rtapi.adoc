@@ -1,0 +1,43 @@
+= rtapi_strlcpy(3rtapi)
+
+== NAME
+
+rtapi_strlcpy - RTAPI string manipulation functions
+
+== SYNTAX
+
+....
+#include <rtapi_string.h>
+
+size_t rtapi_strlcpy(char *dst, const char *src, size_t sz);
+#define rtapi_strxcpy(dst, src) ...
+size_t rtapi_strlcat(char *dst, const char *src, size_t sz);
+#define rtapi_strxcat(dst, src) ...
+....
+
+== DESCRIPTION
+
+rtapi_strlcpy will copy at most 'sz' chars from 'src' to 'dst'. Always
+leaves 'dst' NUL-terminated except if 'sz' is 0.
+
+rtapi_strxcpy(dst, src) checks that 'dst' is an array with known size,
+and calls rtapi_strlcpy(dst, src, sizeof(dst)). If it is not an array
+with a known size, it is a (possibly cryptic!) syntax error.
+
+rtapi_strlcat will append characters from 'src' to 'dst', stopping when
+the end of 'src' is reached, or 'dst' uses 'sz'-many bytes of storage
+including the tailing null.
+
+rtapi_strxcat(dst, src) checks that 'dst' is an array with known size,
+and calls rtapi_strlcat(dst, src, sizeof(dst)). If it is not an array
+with a known size, it is a (possibly cryptic!) syntax error.
+
+== RETURN VALUE
+
+The total length of the string strlcpy or strlcat tried to create. For
+strlcpy() that means the length of 'src'. If the return value is greater
+than or equal to 'sz', the result was truncated.
+
+== SEE ALSO
+
+strlcpy(3bsd), strlcat(3bsd)

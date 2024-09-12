@@ -1,0 +1,37 @@
+= rtapi_byteorder(3rtapi)
+
+== NAME
+
+rtapi_byteorder - RTAPI wrappers for linux kernel functionality
+
+== SYNTAX
+
+....
+#include <rtapi_byteorder.h>
+....
+
+RTAPI_BIG_ENDIAN::
+  Defined to 1 if the platform is big-endian, 0 otherwise
+RTAPI_LITTLE_ENDIAN::
+  Defined to 1 if the platform is little-endian, 0 otherwise
+RTAPI_FLOAT_BIG_ENDIAN::
+  Defined to 1 if the platform double-precision value is big-endian, 0
+  otherwise.
+
+== DESCRIPTION
+
+In kernel space, each rtapi_xxx or RTAPI_XXX identifier is mapped to the
+underlying kernel functionality, if available.
+
+In userspace, or in kernels where the underlying functionality is not
+provided by a kernel, generally another implementation--possibly with
+reduced functionality--is provided. (For example, the userspace
+implementation for rtapi_byteorder_register always succeeds)
+
+== REALTIME CONSIDERATIONS
+
+May be used at any time.
+
+== RETURN VALUE
+
+As in Linux.

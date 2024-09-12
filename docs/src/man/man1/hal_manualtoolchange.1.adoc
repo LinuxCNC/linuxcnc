@@ -1,0 +1,92 @@
+= hal_manualtoolchange(1)
+
+== NAME
+
+hal_manualtoolchange - HAL non-realtime component to enable manual tool changes.
+
+== SYNOPSIS
+
+loadusr hal_manualtoolchange
+
+== DESCRIPTION
+
+hal_manualtoolchange is a LinuxCNC non-realtime component that allows
+users with machines lacking automatic tool changers to make manual tool
+changes. In use when a M6 tool change is encountered, the motion
+component will stop the spindle and pause the program. The
+hal_manualtoolchange component will then receive a signal from the
+motion component causing it to display a tool change window prompting
+the user which tool number to load based on the last T- number
+programmed. The dialog will stay active until the "continue" button is
+pressed. When the "continue" button is pressed, hal_manualtoolchange
+will then signal the motion component that the tool change is complete
+thus allowing motion to turn the spindle back on and resume program
+execution.
+
+Additionally, the hal_manualtoolchange component includes a hal pin for
+a button that can be connected to a physical button to complete the tool
+change and remove the window prompt
+(hal_manualtoolchange.change_button).
+
+hal_manualtoolchange can be used even when AXIS is not used as the GUI.
+This component is most useful if you have presettable tools and you use
+the tool table.
+
+== PINS
+
+*hal_manualtoolchange.number* s32 in::
+  Receives last programmed T- number.
+*hal_manualtoolchange.change* bit in::
+  Receives signal to do tool change.
+*hal_manualtoolchange.changed* bit out::
+  Signifies that the tool change is complete.
+*hal_manualtoolchange.change_button* bit in::
+  Pin to allow an external switch to signify that the tool change is complete.
+
+== USAGE
+
+Normal usage is to load the component in your HAL file and net the
+appropriate pins from the__ motion__ and__ io__ components.
+The following lines are typical in a HAL file when using the
+hal_manualtoolchange non-realtime component.
+
+loadusr -W hal_manualtoolchange::
+  This will load the hal_manualtoolchange non-realtime component waiting
+  for the component to be ready before continuing.
+net tool-change iocontrol.0.tool-change => hal_manualtoolchange.change::
+  When an M6 code is run, motion sets `iocontrol.0.tool-change` to
+  high indicating a tool change. This pin should be netted to
+  `hal_manualtoolchange.change`. This causes the Tool change dialog to be
+  displayed on screen and wait for the user to either click the continue
+  button on the dialog or press an externally connected button.
+net tool-changed iocontrol.0.tool-changed <= hal_manualtoolchange.changed::
+  When the Tool change dialog's continue button is pressed, it will set
+  the `hal_manualtoolchange.changed` pin to high, this should be netted
+  to the `iocontrol.0.tool-changed` pin, indicating to the motion
+  controller that the tool change has been completed and can continue
+  with the execution of the G-code program.
+net tool-number iocontrol.0.tool-prep-number => hal_manualtoolchange.number::
+  When a `T-` command is executed in a G-code program, the tool number
+  will held in the `iocontrol.0.tool-prep-number`. This pin should be
+  netted to `hal_manualtoolchange.number`. The value of this pin, the
+  tool number is displayed in the tool change dialog to let the user
+  know which tool should be loaded.
+net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared::
+  The `iocontrol.0.tool-prepare` pin will go true when a T__n__ tool
+  prepare is requested. Since there is not automated tool changer this
+  pin should be netted to `iocontrol.0.tool-prepared` to indocate that
+  the tool has been prepared.
+
+If you wish to use an external button to signal the hal_manualtoolchange
+component that the tool change is complete simply bring the button into
+HAL (via a parport input pin or a hostmot2 gpio input or similar), and
+wire it directly to the `hal_manualtoolchange.change_button` pin. For
+Example:
+
+----
+net tool-changed-btn hal_manualtoolchange.change_button <= parport.0.pin-15-in
+----
+
+== SEE ALSO
+
+motion(1), iocontrol(1), halcmd(1).

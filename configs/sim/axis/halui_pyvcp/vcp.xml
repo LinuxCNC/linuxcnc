@@ -224,31 +224,6 @@
 	</vbox>
 	</hbox>
     </labelframe>
-    
-    <labelframe text="lube">
-	<hbox>
-	<vbox>
-    	    <button>
-                <halpin>"lube.on"</halpin>
-                <text>"on"</text> 
-                <justify>"center"</justify>
-    	    </button>
-    	    <button>
-                <halpin>"lube.off"</halpin>
-                <text>"off"</text> 
-                <justify>"center"</justify>
-	    </button>
-	</vbox>
-	<vbox>
-	    <led>
-		<halpin>"lube.is-on"</halpin>
-		<size>10</size>
-		<on_color>"green"</on_color>
-		<off_color>"black"</off_color>
-	    </led>
-	</vbox>
-	</hbox>
-    </labelframe>
 
     <labelframe text="flood">
 	<hbox>

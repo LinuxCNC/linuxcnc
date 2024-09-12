@@ -1,0 +1,39 @@
+= rtapi_app_exit(3rtapi)
+
+== NAME
+
+rtapi_app_exit - User-provided function to shut down a component
+
+== SYNTAX
+
+....
+#include <rtapi_app.h>
+void rtapi_app_exit(void);
+....
+
+== ARGUMENTS
+
+None
+
+== DESCRIPTION
+
+The body of *rtapi_app_exit*, which is provided by the component author,
+generally consists of a call to rtapi_exit or hal_exit, preceded by
+other component-specific shutdown code.
+
+This code is called when unloading a component which successfully
+initialized (i.e., returned zero from its *rtapi_app_main*). It is not
+called when the component did not successfully initialize.
+
+== RETURN VALUE
+
+None.
+
+== REALTIME CONSIDERATIONS
+
+Called automatically by the rtapi infrastructure in an initialization
+(not realtime) context.
+
+== SEE ALSO
+
+rtapi_app_main(3rtapi), rtapi_exit(3rtapi), hal_exit(3hal)

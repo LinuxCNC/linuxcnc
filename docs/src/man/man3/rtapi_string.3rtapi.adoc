@@ -1,0 +1,33 @@
+= rtapi_string(3rtapi)
+
+== NAME
+
+rtapi_string - RTAPI wrappers for linux kernel functionality
+
+== SYNTAX
+
+....
+#include <rtapi_string.h>
+char **rtapi_argv_split(rtapi_gfp_t g, const char *argstr, int *argc);
+void rtapi_argv_free(char **argv);
+char *rtapi_kstrdup(const char *s, rtapi_gfp_t t);
+....
+
+== DESCRIPTION
+
+In kernel space, each rtapi_xxx or RTAPI_XXX identifier is mapped to the
+underlying kernel functionality, if available.
+
+In userspace, or in kernels where the underlying functionality is not
+provided by a kernel, generally another implementation--possibly with
+reduced functionality--is provided. (For example, the userspace
+implementation for rtapi_device_register always succeeds)
+
+== REALTIME CONSIDERATIONS
+
+Call only from within init/cleanup code, not from realtime tasks. This
+function is not available from non-realtime code.
+
+== RETURN VALUE
+
+As in Linux.

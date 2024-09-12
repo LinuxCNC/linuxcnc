@@ -1,0 +1,24 @@
+= rtapi_bool(3rtapi)
+
+== NAME
+
+rtapi_bool - RTAPI wrappers for linux kernel functionality
+
+== SYNTAX
+
+....
+#include <rtapi_bool.h>
+....
+
+== DESCRIPTION
+
+Includes either <stdbool.h> or <linux/types.h> as appropriate, to obtain
+suitable declarations of "bool", "true" and "false".
+
+== REALTIME CONSIDERATIONS
+
+None.
+
+== NOTES
+
+Also permitted in C++ programs, where including it has no effect.

@@ -15,8 +15,11 @@
 ###############################################################################
 
 import os
-
 from PyQt5 import QtCore, QtWidgets, QtGui
+from PyQt5.QtWidgets import (QGraphicsBlurEffect,
+                QGraphicsColorizeEffect)
+from PyQt5.QtCore import QVariant
+
 import linuxcnc
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
@@ -140,10 +143,22 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self._calculatorDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._machineLogDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._runFromLineDialogColor = QtGui.QColor(0, 0, 0, 150)
+        self._User1Color = QtGui.QColor(100, 0, 0, 150)
+        self._User2Color = QtGui.QColor(100, 0, 0, 150)
+        self._User3Color = QtGui.QColor(100, 0, 0, 150)
+        self._User4Color = QtGui.QColor(100, 0, 0, 150)
+        self._User5Color = QtGui.QColor(100, 0, 0, 150)
+        self._User6Color = QtGui.QColor(100, 0, 0, 150)
+        self._User7Color = QtGui.QColor(100, 0, 0, 150)
+        self._User8Color = QtGui.QColor(100, 0, 0, 150)
+        self._User9Color = QtGui.QColor(100, 0, 0, 150)
+        self._User10Color = QtGui.QColor(100, 0, 0, 150)
         self._zmq_sub_subscribe_name = b""
         self._zmq_sub_socket_address = "tcp://127.0.0.1:5690"
         self._zmq_pub_socket_address = "tcp://127.0.0.1:5690"
         self._halBaseName = ''
+        self.__blurList = []
+        self.__tintList = []
 
     # self.QTVCP_INSTANCE_
     # self.HAL_GCOMP_
@@ -250,9 +265,16 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                 self.play_sounds = False
                 LOG.warning('Sound Option turned off due to error registering')
 
+        # If there is a widget named statusBar give a reference to desktop notify
+        try:
+            NOTICE.statusbar = self.QTVCP_INSTANCE_.statusbar
+        except:
+            LOG.debug('cannot add notifications to statusbar - no statusbar?:')
+            NOTICE.statusbar = None
+
         if self.user_messages:
-            self._msg = MSG.message_setup(self.HAL_GCOMP_, self.QTVCP_INSTANCE_)
-            MSG.message_option('NOTIFY', NOTICE)
+            self._msg = MSG.message_setup(self.HAL_GCOMP_,
+                                self.QTVCP_INSTANCE_, NOTICE)
             if self.play_sounds:
                 MSG.message_option('play_sounds', self.usrMsg_play_sound)
             else:
@@ -260,11 +282,6 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             MSG.message_option('alert_sound', self.usrMsg_sound_type)
             MSG.message_option('use_focus_overlay', self.usrMsg_use_FocusOverlay)
 
-        # If there is a widget named statusBar give a reference to desktop notify
-        try:
-            NOTICE.statusbar = self.QTVCP_INSTANCE_.statusbar
-        except:
-            LOG.debug('cannot add notifications to statusbar - no statusbar?:')
 
         # critical messages don't timeout, the greeting does
         if self.desktop_notify:
@@ -297,23 +314,27 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             # we prefer INI settings for screens
             if INFO.PREFERENCE_PATH and INFO.IS_SCREEN:
                 self.pref_filename = INFO.PREFERENCE_PATH
-                LOG.debug('Switching to Preference File Path from INI: {}'.format(INFO.PREFERENCE_PATH))
+                LOG.verbose('Switching to Preference File Path from INI: {}'.format(INFO.PREFERENCE_PATH))
+
             # substitute for keywords
             self.pref_filename = self.pref_filename.replace('CONFIGFOLDER',PATH.CONFIGPATH)
             self.pref_filename = self.pref_filename.replace('WORKINGFOLDER',PATH.WORKINGDIR)
+
             # check that there is a directory present
             dir = os.path.split(str(self.pref_filename))
-            dir = os.path.expanduser(dir[0])
-            if os.path.exists(dir):
-                return Access(self.pref_filename), self.pref_filename
-            else:
-                raise Exception('Cannot find directory: {} for preference file.'.format(dir))
+            # expand the directory path if there is one
+            if not dir[0] == '':
+                dir = os.path.expanduser(dir[0])
+                if not os.path.exists(dir):
+                    raise Exception('Cannot find directory: {} for preference file.'.format(dir))
+            LOG.debug('Preference File Path: {}'.format(self.pref_filename))
+            return Access(self.pref_filename), self.pref_filename
         return None,None
 
     # allow screen option to inject data to the main VCP object (basically the window)
     def _VCPObject_injection(self, vcpObject):
         if self.desktop_notify:
-            vcpObject._NOTICE = NOTICE # Guve reference
+            vcpObject._NOTICE = NOTICE # Give reference
 
     def on_periodic(self, w):
         try:
@@ -519,7 +540,6 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     @QtCore.pyqtSlot(bool)
     @QtCore.pyqtSlot(int)
     def showAboutDialog(self, value):
-        print(value)
         self.QTVCP_INSTANCE_.aboutDialog_.showdialog()
 
     def init_tool_dialog(self):
@@ -545,6 +565,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         w = self.QTVCP_INSTANCE_
         w.closeDialog_ = CloseDialog(w)
         w.closeDialog_.setObjectName('closeDialog_')
+        w._geoName = 'closeDialog_'
         w.closeDialog_.hal_init(HAL_NAME='')
         w.closeDialog_.overlay_color = self._messageDialogColor
 
@@ -573,7 +594,22 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         w.focusOverlay_.hal_init(HAL_NAME='')
 
     def init_focus_effect(self):
-        STATUS.connect('focus-overlay-changed', lambda w, data, text, color:
+       if self.use_focus_blur:
+            for i in (self.__blurList):
+                self['{}_blur'.format(i)] = QGraphicsBlurEffect()
+                self['{}_blur'.format(i)].setBlurRadius(5)
+                self['{}_blur'.format(i)].setEnabled(False)
+                self.QTVCP_INSTANCE_[i].setGraphicsEffect(self['{}_blur'.format(i)])
+
+       if self.use_focus_tint:
+            for i in (self.__tintList):
+                self['{}_tint'.format(i)] = QGraphicsColorizeEffect()
+                self['{}_tint'.format(i)].setColor(QtGui.QColor(100, 0, 0, 150))
+                self['{}_tint'.format(i)].setStrength(1)
+                self['{}_tint'.format(i)].setEnabled(False)
+                self.QTVCP_INSTANCE_[i].setGraphicsEffect(self['{}_tint'.format(i)])
+
+       STATUS.connect('focus-overlay-changed', lambda w, data, text, color:
                         self.effect(data, text, color))
 
     def init_keyboard_dialog(self):
@@ -721,9 +757,18 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
 
     def effect(self, data, text, color):
         if self.use_focus_blur:
-            ACTION.SET_BLUR(self.QTVCP_INSTANCE_,data)
-        elif self.use_focus_tint:
-            ACTION.SET_TINT(self.QTVCP_INSTANCE_, data, color)
+            if self.__blurList == []:
+                ACTION.SET_BLUR(self.QTVCP_INSTANCE_,data)
+            else:
+                for i in (self.__blurList):
+                    self['{}_blur'.format(i)].setEnabled(data)
+                    self.QTVCP_INSTANCE_[i].raise_()
+        if self.use_focus_tint:
+            for i in (self.__tintList):
+                if not color is None:
+                    self['{}_tint'.format(i)].setColor(color)
+                self['{}_tint'.format(i)].setEnabled(data)
+                self.QTVCP_INSTANCE_[i].raise_()
 
     #########################################################################
     # This is how designer can interact with our widget properties.
@@ -869,6 +914,14 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self.use_focus_blur = False
     focusBlur_option = QtCore.pyqtProperty(bool, get_focusBlur, set_focusBlur, reset_focusBlur)
 
+    def set_blurList(self, data):
+        self.__blurList = data
+    def get_blurList(self):
+        return self.__blurList
+    def reset_blurList(self):
+        self.__blurList = []
+    focusBlurList = QtCore.pyqtProperty(QVariant.typeToName(QVariant.StringList), get_blurList, set_blurList, reset_blurList)
+
     def set_focusTint(self, data):
         self.use_focus_tint = data
         if data:
@@ -878,6 +931,14 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def reset_focusTint(self):
         self.use_focus_tint = False
     focusTint_option = QtCore.pyqtProperty(bool, get_focusTint, set_focusTint, reset_focusTint)
+
+    def set_tintList(self, data):
+        self.__tintList = data
+    def get_tintList(self):
+        return self.__tintList
+    def reset_tintList(self):
+        self.__tintList = []
+    focusTintList = QtCore.pyqtProperty(QVariant.typeToName(QVariant.StringList), get_tintList, set_tintList, reset_tintList)
 
     # Dialogs ##########################################
 
@@ -1078,6 +1139,66 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def set_runFromLineDialogColor(self, value):
         self._runFromLineDialogColor = value
     runFromLine_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_runFromLineDialogColor, set_runFromLineDialogColor)
+
+    def get_User1Color(self):
+        return self._User1Color
+    def set_User1Color(self, value):
+        self._User1Color = value
+    user1Color = QtCore.pyqtProperty(QtGui.QColor, get_User1Color, set_User1Color)
+
+    def get_User2Color(self):
+        return self._User2Color
+    def set_User2Color(self, value):
+        self._User2Color = value
+    user2Color = QtCore.pyqtProperty(QtGui.QColor, get_User2Color, set_User2Color)
+
+    def get_User3Color(self):
+        return self._User3Color
+    def set_User3Color(self, value):
+        self._User3Color = value
+    user3Color = QtCore.pyqtProperty(QtGui.QColor, get_User3Color, set_User3Color)
+
+    def get_User4Color(self):
+        return self._User4Color
+    def set_User4Color(self, value):
+        self._User4Color = value
+    user4Color = QtCore.pyqtProperty(QtGui.QColor, get_User4Color, set_User4Color)
+
+    def get_User5Color(self):
+        return self._User5Color
+    def set_User5Color(self, value):
+        self._User5Color = value
+    user5Color = QtCore.pyqtProperty(QtGui.QColor, get_User5Color, set_User5Color)
+
+    def get_User6Color(self):
+        return self._User6Color
+    def set_User6Color(self, value):
+        self._User6Color = value
+    user6Color = QtCore.pyqtProperty(QtGui.QColor, get_User6Color, set_User6Color)
+
+    def get_User7Color(self):
+        return self._User7Color
+    def set_User7Color(self, value):
+        self._User7Color = value
+    user7Color = QtCore.pyqtProperty(QtGui.QColor, get_User7Color, set_User7Color)
+
+    def get_User8Color(self):
+        return self._User8Color
+    def set_User8Color(self, value):
+        self._User8Color = value
+    user8Color = QtCore.pyqtProperty(QtGui.QColor, get_User8Color, set_User8Color)
+
+    def get_User9Color(self):
+        return self._User9Color
+    def set_User9Color(self, value):
+        self._User9Color = value
+    user9Color = QtCore.pyqtProperty(QtGui.QColor, get_User9Color, set_User9Color)
+
+    def get_User10Color(self):
+        return self._User10Color
+    def set_User10Color(self, value):
+        self._User10Color = value
+    user10Color = QtCore.pyqtProperty(QtGui.QColor, get_User10Color, set_User10Color)
 
     def getHalCompName(self):
         return self._halBaseName

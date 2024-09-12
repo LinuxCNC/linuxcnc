@@ -1,0 +1,54 @@
+:manvolnum: 3
+
+= hal_export_funct(3hal)
+
+== NAME
+
+hal_export_funct, hal_export_functf - create a realtime function callable from a thread
+
+== SYNTAX
+
+typedef void(*hal_funct_t)(void * _arg_, long _period_)
+
+int hal_export_funct(const char *_name_, hal_funct_t _funct_, void
+*_arg_, int _uses_fp_, int _reentrant_, int _comp_id_)
+
+== ARGUMENTS
+
+name::
+  The name of the function.
+funct::
+  The pointer to the function
+arg::
+  The argument to be passed as the first parameter of _funct_
+uses_fp::
+  Nonzero if the function uses floating-point operations, including
+  assignment of floating point values with "=".
+reentrant::
+  If reentrant is non-zero, the function may be preempted and called
+  again before the first call completes. Otherwise, it may only be added
+  to one thread.
+comp_id::
+  A HAL component identifier returned by an earlier call to *hal_init*.
+
+== DESCRIPTION
+
+*hal_export_funct* makes a realtime function provided by a component
+available to the system. A subsequent call to *hal_add_funct_to_thread*
+can be used to schedule the execution of the function as needed by the
+system.
+
+When this function is placed on a HAL thread, and HAL threads are
+started, _funct_ is called repeatedly with two arguments: _void *arg_ is
+the same value that was given to *hal_export_funct*, and _long period_
+is the interval between calls in nanoseconds.
+
+Each call to the function should do a small amount of work and return.
+
+== RETURN VALUE
+
+Returns a HAL status code.
+
+== SEE ALSO
+
+hal_create_thread(3hal), hal_add_funct_to_thread(3hal)

@@ -28,11 +28,11 @@ class RCS_TIMER;
 class RCS_CMD_MSG;
 class RCS_STAT_MSG;
 
-enum RCS_STATUS {               /* Originally from nml_mod.hh */
-    UNINITIALIZED_STATUS = -1,
-    RCS_DONE = 1,
-    RCS_EXEC = 2,
-    RCS_ERROR = 3
+enum class RCS_STATUS {               /* Originally from nml_mod.hh */
+    UNINITIALIZED = -1,
+    DONE = 1,
+    EXEC = 2,
+    ERROR = 3
 };
 
 #include "nml_type.hh"

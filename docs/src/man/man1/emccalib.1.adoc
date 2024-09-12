@@ -1,4 +1,4 @@
-= emccalib (1)
+= emccalib(1)
 
 == NAME
 
@@ -43,7 +43,7 @@ version of emccalib.
 
 == SEE ALSO
 
-*linuxcnc*(1)
+linuxcnc(1)
 
 == AUTHOR
 

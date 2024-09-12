@@ -1,0 +1,77 @@
+= io(1)
+
+== NAME
+
+io - interacts with HAL or G-code in non-realtime
+
+== SYNOPSIS
+
+*[EMCIO]* +
+*EMCIO = io*
+
+== DESCRIPTION
+
+I/O control handles I/O tasks like coolant, toolchange and E-stop.
+The signals are turned on and off in non-realtime with G-code or in the case
+of E-stop in HAL.
+
+The following pins are created by the non-realtime IO controller,
+usually found in `$LINUXCNC_HOME/bin/io`.
+
+iocontrol is a non-realtime process - if you have strict timing
+requirements or simply need more I/O, consider using the realtime
+synchronized I/O provided by *motion*(9) instead.
+
+The INI file is searched for in the directory from which halcmd was run,
+unless an absolute path is specified.
+
+== PINS
+
+*iocontrol.0.coolant-flood* (Bit, Out)::
+  TRUE when flood coolant is requested.
+*iocontrol.0.coolant-mist* (Bit, Out)::
+  TRUE when mist coolant is requested.
+*iocontrol.0.emc-enable-in* (Bit, In)::
+  Should be driven FALSE when an external E-stop condition exists.
+*iocontrol.0.tool-change* (Bit, Out)::
+  TRUE when a tool change is requested.
+*iocontrol.0.tool-changed* (Bit, In)::
+  Should be driven TRUE when a tool change is completed.
+*iocontrol.0.tool-number* (s32, Out)::
+  Current tool number.
+*iocontrol.0.tool-prep-number* (s32, Out)::
+  The number of the next tool, from the RS274NGC T-word.
+*iocontrol.0.tool-prep-pocket* (s32, Out)::
+  This is the pocket number (location in the tool storage
+  mechanism) of the tool requested by the most recent T-word.
+*iocontrol.0.tool-prepare* (Bit, Out)::
+  TRUE when a T__n__ tool prepare is requested.
+*iocontrol.0.tool-prepared* (Bit, In)::
+  Should be driven TRUE when a tool prepare is completed.
+*iocontrol.0.user-enable-out* (Bit, Out)::
+  FALSE when an internal E-stop condition exists.
+*iocontrol.0.user-request-enable* (Bit, Out)::
+  TRUE when the user has requested that E-stop be cleared.
+*iocontrol.0.tool-prep-index* (s32, Out)::
+  IO's internal array index of the prepped tool requested by the most recent T-word.
+  0 if no tool is prepped.  On Random toolchanger machines this is the tool's pocket number
+  (i.e., the same as the tool-prep-pocket pin),
+  on Non-random toolchanger machines this is a small integer corresponding to
+  the tool's location in the internal representation of the tool table.
+  This parameter returns to 0 after a successful tool change (M6).
+
+== REPORTING BUGS
+
+Report bugs at https://github.com/LinuxCNC/linuxcnc/issues.
+
+== AUTHOR
+
+Derived from a work by Fred Proctor & Will Shackleford.
+
+== COPYRIGHT
+
+Copyright © 2004 the LinuxCNC project.
+
+This is free software; see the source for copying conditions. There is
+NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.

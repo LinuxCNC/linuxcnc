@@ -501,19 +501,6 @@ if [ "$retval" != "1.1" ]; then
     esac
 fi
 
-# 2.1.6 check if PlasmaC config, if true it requires migration to QtPlasmaC
-if [ `$INIVAR -ini "$INIFILE" -var MODE -sec PLASMAC 2> /dev/null` ]; then
-    echo -e "\nThis is a PlasmaC configuration, it requires migrating to QtPlasmac.\n"
-    exitstr=$(qtplasmac-plasmac2qt "$INIFILE")
-    exitval=$?
-    case "$exitval" in
-        0) echo -e "$exitstr";;
-        2) echo -e "Migration cancelled by user.\nPlasmaC is not available in LinuxCNC 2.9 and later.\n";;
-        *) echo -e "QtPlasmaC migration failed with an unknown error.\n";;
-    esac
-    exit 0
-fi
-
 @TCLSH@ $HALLIB_DIR/check_config.tcl "$INIFILE"
 exitval=$?
 case "$exitval" in
@@ -540,11 +527,6 @@ if [ -z "$HOMEMOD" ] ; then
     GetFromIniQuiet HOMEMOD EMCMOT
     HOMEMOD=${retval:-homemod} #use default if not found
 fi
-
-
-# 2.4. get io information
-GetFromIniEx IO IO EMCIO EMCIO io
-EMCIO=$retval
 
 # 2.5. get task information
 GetFromIni TASK TASK
@@ -829,19 +811,19 @@ fi
 # 4.3.3. export the location of the HAL realtime modules so that
 # "halcmd loadrt" can find them
 export HAL_RTMOD_DIR=$LINUXCNC_RTLIB_DIR
+echo "$(basename $0) TPMOD=$TPMOD HOMEMOD=$HOMEMOD EMCMOT=${EMCMOT%.*}"
+eval $HALCMD loadrt "$TPMOD"
+eval $HALCMD loadrt "$HOMEMOD"
 
-# 4.3.4. Run io in background if so defined in INI
-if [ "$EMCIO" != "" ] ; then
-        echo "Starting LinuxCNC IO program: $EMCIO" >>$PRINT_FILE
-        if ! program_available $EMCIO ; then
-                echo "Can't execute IO program $EMCIO"
-                Cleanup
-        exit 1
-        fi
-        $HALCMD loadusr -Wn iocontrol $EMCIO -ini "$INIFILE"
-else
-        echo "Skipping LinuxCNC IO program >>$PRINT_FILE"
+# 4.3.7. Run task in background
+echo "Starting TASK program: $EMCTASK" >>$PRINT_FILE
+if ! program_available $EMCTASK ; then
+    echo "Can't execute TASK program $EMCTASK"
+    Cleanup
+    exit 1
 fi
+
+halcmd loadusr -Wn inihal $EMCTASK -ini "$INIFILE"
 
 # 4.3.5. Run halui in background, if necessary
 if [ -n "$HALUI" ] ; then
@@ -855,10 +837,6 @@ if [ -n "$HALUI" ] ; then
 fi
 
 # 4.3.6. execute HALCMD config files (if any)
-
-echo "$(basename $0) TPMOD=$TPMOD HOMEMOD=$HOMEMOD EMCMOT=${EMCMOT%.*}"
-eval $HALCMD loadrt "$TPMOD"
-eval $HALCMD loadrt "$HOMEMOD"
 
 TWOPASS=`$INIVAR -ini "$INIFILE" -var TWOPASS -sec HAL -num 1 2> /dev/null`
 if [ -n "$TWOPASS" ] ; then
@@ -936,17 +914,6 @@ else
     done
 fi
 
-
-# 4.3.7. Run task in background
-echo "Starting TASK program: $EMCTASK" >>$PRINT_FILE
-if ! program_available $EMCTASK ; then
-    echo "Can't execute TASK program $EMCTASK"
-    Cleanup
-    exit 1
-fi
-
-halcmd loadusr -Wn inihal $EMCTASK -ini "$INIFILE" &
-
 # 4.3.8. execute discrete HAL commands from INI file (if any)
 # get first command from INI file
 NUM=1
@@ -970,6 +937,17 @@ $HALCMD start
 
 # 4.3.10. run other applications
 run_applications
+
+# wait for traj to process for up to 10s before screen loading do to race condition
+RACE_TIMEOUT=$(( $SECONDS + 10 ))
+chk=`halcmd getp ini.traj_max_velocity`
+while (( $(awk 'BEGIN {print ('$chk' == 0)}') )); do
+    if [ $SECONDS -ge $RACE_TIMEOUT ]; then
+        echo "ini.traj_max_velocity still 0.0 after $SECONDS seconds" | tee -a $PRINT_FILE $DEBUG_FILE
+        break
+    fi
+    chk=`halcmd getp ini.traj_max_velocity`
+done
 
 # 4.3.11. Run display in foreground
 echo "Starting DISPLAY program: $EMCDISPLAY" >>$PRINT_FILE

@@ -1,0 +1,51 @@
+:manvolnum: 3
+
+= hal_add_funct_to_thread(3hal)
+
+== NAME
+
+hal_add_funct_to_thread, hal_del_funct_from_thread - cause a function to be executed at regular intervals
+
+== SYNTAX
+
+int hal_add_funct_to_thread(const char *_funct_name_, const char
+*_thread_name_, int position)
+
+int hal_del_funct_from_thread(const char *_funct_name_, const char
+*_thread_name_)
+
+== ARGUMENTS
+
+funct_name::
+  The name of the function.
+thread_name::
+  The name of the thread.
+position::
+  The desired location within the thread. This determines when the
+  function will run, in relation to other functions in the thread. A
+  positive number indicates the desired location as measured from the
+  beginning of the thread, and a negative is measured from the end. So
+  +1 means this function will become the first one to run, +5 means it
+  will be the fifth one to run, -2 means it will be next to last, and -1
+  means it will be last. Zero is illegal.
+
+== DESCRIPTION
+
+*hal_add_funct_to_thread* adds a function exported by a realtime HAL
+component to a realtime thread. This determines how often and in what
+order functions are executed.
+
+*hal_del_funct_from_thread* removes a function from a thread.
+
+== RETURN VALUE
+
+Returns a HAL status code.
+
+== REALTIME CONSIDERATIONS
+
+Call only from realtime init code, not from other realtime or
+non-realtime code.
+
+== SEE ALSO
+
+hal_thread_new(3hal), hal_export_funct(3hal)

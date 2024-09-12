@@ -1,0 +1,61 @@
+= hm2_spi(9)
+
+== NAME
+
+hm2_spi - LinuxCNC HAL driver for the Mesa Electronics SPI Anything IO
+boards, with HostMot2 firmware.
+
+== SYNOPSIS
+
+*loadrt hm2_spi* [**config="**__str__[,__str__...]**"** ] [ **spidev_path=**_path_[,_path_...] ] [**spidev_rate=**__rate__[,__rate__...] ]
+
+____
+*config* [default: ""]::
+  HostMot2 config strings, described in the hostmot2(9) manpage.
+*spidev_path* [default: "/dev/spidev1.0"]::
+  The path to the spi device node, a character special device in /dev
+*spidev_rate* [default: 24000]::
+  The desired rate of the SPI clock in kHz. If the exact specified clock
+  is not available, a lower clock is used. Due to shortcomings in the
+  spidev API, it is not possible for hal to report the actual clock used.
+____
+
+== DESCRIPTION
+
+hm2_spi is a device driver that interfaces Mesa's SPI based Anything I/O
+boards (with the HostMot2 firmware) to the LinuxCNC HAL.
+
+The supported boards are: 7I90HD.
+
+The board must have a compatible firmware loaded on the board by the
+mesaflash(1) program.
+
+hm2_spi is only available when LinuxCNC is configured with "uspace" realtime.
+
+== INTERFACE CONFIGURATION
+
+It is possible for one SPI bus to connect several devices; in this
+configuration, a master device has several chip select lines. In order
+to meet realtime deadlines, hm2_spi should be used on a dedicated SPI
+interface not shared with any other slaves.
+
+== REALTIME PERFORMANCE OF LINUX SPIDEV DRIVERS
+
+As of kernel 3.8, most or all kernel SPI drivers do not achieve the high
+realtime response rate required for a typical LinuxCNC configuration.
+The driver was tested with a modified version of the spi-s3c64xx SPI
+driver on the Odroid U3 platform. The patched kernel resides
+https://github.com/jepler/odroid-linux/tree/odroid-3.8.13-rt[on github].
+
+== SPI CLOCK RATES
+
+The maximum SPI clock of the 7i90 is documented as 50MHz. Other elements
+of the data path between HAL and the 7i90 may impose other limitations.
+
+== SEE ALSO
+
+hostmot2(9)
+
+== LICENSE
+
+GPL

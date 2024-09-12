@@ -31,6 +31,7 @@ AxisToolButton:hover {
 }
 
 QPushButton:pressed,
+QToolButton:checked,
 QPushButton:checked {
     background: qlineargradient(spread:pad, x1:0, y1:0, x2:0, y2:1, stop:0 #808080, stop:1 #e0e0e0);
     border: 1px solid #e0e0e0;

@@ -157,7 +157,7 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
   if(block->radius_flag || block->theta_flag) {
       // someday, tediously add polar support for other planes here:
       CHKS((!_readers[(int)'x'] || !_readers[(int)'y']), _("Cannot use polar coordinate on a machine lacking X or Y axes"));
-      CHKS(((settings->plane != CANON_PLANE_XY)), _("Cannot use polar coordinate except in G17 plane"));
+      CHKS(((settings->plane != CANON_PLANE::XY)), _("Cannot use polar coordinate except in G17 plane"));
       CHKS(((block->x_flag)), _("Cannot specify both polar coordinate and X word"));
       CHKS(((block->y_flag)), _("Cannot specify both polar coordinate and Y word"));
   }
@@ -184,15 +184,16 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
       CHKS(((!axis_flag) && (mode0 == G_52 || mode0 == G_92)),
 	   NCE_ALL_AXES_MISSING_WITH_G52_OR_G92);
     } else {
-      CHKS(mode_zero_covets_axes,
-          NCE_CANNOT_USE_TWO_G_CODES_THAT_BOTH_USE_AXIS_VALUES);
+      CHKS(mode_zero_covets_axes, NCE_CANNOT_USE_TWO_G_CODES_THAT_BOTH_USE_AXIS_VALUES);
       CHKS(((!axis_flag && !polar_flag) &&
             mode1 != G_0 && mode1 != G_1 &&
-            mode1 != G_2 && mode1 != G_3 && mode1 != G_5_2 &&
+            mode1 != G_2 && mode1 != G_3 && 
+            mode1 != G_5_2 &&
+            mode1 != G_6_2 &&
             mode1 != G_70 &&
             mode1 != G_71 && mode1 != G_71_1 && mode1 != G_71_2 &&
             mode1 != G_72 && mode1 != G_72_1 && mode1 != G_72_2 &&
-	    ! IS_USER_GCODE(mode1)),
+                  !is_user_defined_g_code(mode1)),
           NCE_ALL_AXES_MISSING_WITH_MOTION_CODE);
     }
     block->motion_to_be = mode1;
@@ -273,7 +274,7 @@ int Interp::init_block(block_pointer block)      //!< pointer to a block to be i
   block->dollar_flag = false;
   block->e_flag = false;
   block->f_flag = false;
-  for (n = 0; n < 17; n++) {
+  for (n = 0; n < GM_MAX_MODAL_GROUPS; n++) {
     block->g_modes[n] = -1;
   }
   block->h_flag = false;

@@ -147,7 +147,7 @@ as the model is animated:
 ** first a _collection/part_ which can be pre-created earlier in the
    script, or could be created at this point if preferred eg
    `part1 = HalTranslate([Box(....)], ...)`.
-** The _HAL component_ is the next argument, ie the object returned by
+** The _HAL component_ is the next argument, i.e. the object returned by
    the `comp = hal.component(...)` command. After that is the name of
    the HAL in that will animate the motion, this needs to match an
    existing HAL pin that is part of the HAL component created earlier in

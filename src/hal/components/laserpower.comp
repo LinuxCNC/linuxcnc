@@ -1,0 +1,85 @@
+component laserpower "Scales laser power output based upon velocity input power and distance to go";
+pin in float min_power "Minimum allowed power level. ";
+pin in float max_power "Maximum allowed power level";
+pin in float req_velocity "Requested motion velocity";
+pin in float cur_velocity "Current motion velocity";
+pin in bit enabled "True when laser output enabled";
+
+pin in bit raster_mode "false for vector mode, true for raster mode";
+pin in float raster_power "Requested power level during raster operations";
+
+pin in float vector_power "Requested power level during vector operations";
+pin in float distance_to_go "Distance to go of current move";
+
+pin out float power "Current power level command";
+
+pin out float command_power "Commanded power before normalization and velocity scaling";
+pin out float start_power "Power level when reqPower last changed";
+pin out float start_distance "Distance amount when reqPower last changed";
+pin out float vel_scale "Velocity related scaling component.";
+
+description """During operation laserpower must be scaled proportionally to actual velocity vs commanded velocity.
+               This prevents uneven laser power when rounding tight corners.
+            
+            laserpower operates in 2 modes. 
+                Raster mode (when raster_mode = 1). 
+                    During raster mode raster_power is scaled between min_power and max_power proportionally to req_velocity and cur_velocity.
+
+                Velocity mode (when raster_mode = 0). 
+                    During velocity mode vector_power corresponds to the power level desired when reaching the next control point.
+                    This allows vector power to be scaled along moves.
+            """;
+
+function _;
+license "GPL";
+
+include <rtapi_math.h>;
+
+;;
+
+const hal_float_t zero = 0.00005;
+
+bool float_zero(hal_float_t a) {
+    return fabs(a) < zero;
+}
+
+
+FUNCTION(_) {
+    static float previous_vector_power = 0;
+    static float previous_distance_to_go = 0;
+        
+    //velocity gain is proportional to current velocity and requested velocity
+    //if the machine slows down around a corner, we lower the laser power proportionally
+    //if the machine is not moving, we want vel scale to be 0
+    if(float_zero(req_velocity) || float_zero(cur_velocity)) {
+        vel_scale = 0;
+    } else {
+        vel_scale = (fabs(cur_velocity) / fabs(req_velocity));
+    }
+
+    if (raster_mode) {
+        command_power = raster_power;
+    } else {
+        if((previous_distance_to_go < distance_to_go) || !float_zero(vector_power - previous_vector_power)) {
+            //if vector power changes during a move we begin scaling from the previously
+            //commanded vector power to the new power during the move
+            start_power = previous_vector_power;
+            start_distance = distance_to_go;
+        }
+           
+        previous_vector_power = vector_power;
+        previous_distance_to_go = distance_to_go;
+
+        command_power = start_power + ((vector_power-start_power) * (1 - (distance_to_go / start_distance)));
+        
+    }
+
+    if(!enabled || command_power < 0.0) {
+        //if we aren't performing a feed move or
+        // command power is less than 0 we don't output any power no matter what given min and max are
+        power = 0.0;
+    } else {
+        power = ((max_power-min_power) * vel_scale * (command_power / 100)) + min_power;
+    }
+}
+

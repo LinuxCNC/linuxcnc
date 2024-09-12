@@ -192,7 +192,7 @@ For instance, to invert the spindle control signal:
 
 [source,{hal}]
 ----
-setp parport.0.pin-09-invert TRUE
+setp parport.0.pin-09-out-invert TRUE
 ----
 
 === Adding PWM Spindle Speed Control

@@ -86,16 +86,16 @@ typedef struct{
 } hal_gpio_hal_t;
 
 /* flags are defined such:
- * bits 1 - 4 are gpiod flags
- * OPEN_DRAIN		= BIT(0) - not currently supported
- * OPEN_SOURCE		= BIT(1) - not currently supported
- * BIAS_DISABLE 	= BIT(2) - not currently supported
- * PULL_DOWN		= BIT(3) - not currently supported
- * PULL_UP		= BIT(4) - not currently supported
+ * bits 0 - 4 are gpiod flags
+ * OPEN_DRAIN		= BIT(0)
+ * OPEN_SOURCE		= BIT(1)
+ * BIAS_DISABLE 	= BIT(2)
+ * PULL_DOWN		= BIT(3)
+ * PULL_UP		= BIT(4)
  *
  * hal_gpio flags
  * INVERT 		= BIT(5)
- * RESET		= BIT(6) - not currently supported
+ * RESET		= BIT(6)
  */
 
 typedef struct {
@@ -206,7 +206,6 @@ int build_chips_collection(char *name, hal_gpio_bulk_t **ptr, int *count){
 int rtapi_app_main(void){
     int retval = 0;
     int i, c;
-    char hal_name[HAL_NAME_LEN];
     const char *line_name;
 
 #ifdef __KERNEL__
@@ -235,7 +234,7 @@ int rtapi_app_main(void){
     gpio->num_out_chips = 0;
     gpio->in_chips = NULL; // so that realloc knows that they need malloc first time throigh
     gpio->out_chips = NULL;
-    for (i = 0; inputs[i]; i++) {
+    for (i = 0; inputs[i] && strlen(inputs[i]); i++) {
 	retval = build_chips_collection(inputs[i], &gpio->in_chips, &gpio->num_in_chips);
 	if (retval < 0) goto fail0;
     }
@@ -257,7 +256,7 @@ int rtapi_app_main(void){
 	    
     }
     
-    for (i = 0; outputs[i]; i++) {
+    for (i = 0; outputs[i] && strlen(outputs[i]); i++) {
 	retval = build_chips_collection(outputs[i], &gpio->out_chips, &gpio->num_out_chips);
 	if (retval < 0) goto fail0;
     }
@@ -277,16 +276,13 @@ int rtapi_app_main(void){
 	}
     }
 
-    rtapi_snprintf(hal_name, HAL_NAME_LEN, "hal_gpio.read");
-    retval += hal_export_funct(hal_name, hal_gpio_read, gpio, 0, 0, comp_id);
-    rtapi_snprintf(hal_name, HAL_NAME_LEN, "hal_gpio.write");
-    retval += hal_export_funct(hal_name, hal_gpio_write, gpio, 0, 0, comp_id);
+    retval += hal_export_funct("hal_gpio.read", hal_gpio_read, gpio, 0, 0, comp_id);
+    retval += hal_export_funct("hal_gpio.write", hal_gpio_write, gpio, 0, 0, comp_id);
 
     if (reset_active){
 	gpio->reset_ns = hal_malloc(sizeof(hal_u32_t));
-	rtapi_snprintf(hal_name, HAL_NAME_LEN, "hal_gpio.reset");
 	retval += hal_param_u32_newf(HAL_RW, gpio->reset_ns, comp_id, "hal_gpio.reset_ns");
-	retval += hal_export_funct(hal_name, hal_gpio_reset, gpio, 0, 0, comp_id);
+	retval += hal_export_funct("hal_gpio.reset", hal_gpio_reset, gpio, 0, 0, comp_id);
     }
     if (retval < 0){
 	rtapi_print_msg(RTAPI_MSG_ERR, "hal_gpio: failed to export functions\n");

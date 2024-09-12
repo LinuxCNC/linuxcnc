@@ -65,8 +65,6 @@ def print_status(status):
     print("kinematics_type: {}".format(status.kinematics_type))
     print("limit: {}".format(status.limit))
     print("linear_units: {}".format(status.linear_units))
-    print("lube: {}".format(status.lube))
-    print("lube_level: {}".format(status.lube_level))
     print("max_acceleration: {}".format(status.max_acceleration))
     print("max_velocity: {}".format(status.max_velocity))
     print("mcodes: {}".format(status.mcodes))
@@ -267,9 +265,6 @@ assert(s.kinematics_type == 1)
 
 assert(not (1 in s.limit))
 assert(math.fabs(s.linear_units - 0.0393700787402) < 0.0000001)
-
-assert(s.lube == 0)
-assert(s.lube_level == 0)
 
 # FIXME: in master (663c914) this is initialized to 1e99
 #assert(math.fabs(s.max_acceleration - 123.45) < 0.0000001)

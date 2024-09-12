@@ -13,14 +13,26 @@
 ; #7 angle
 ; #8 tool number
 ; #9 max RPM
+
 ;Turning
 
 O<turning> sub
 
+O110 IF [#<_imperial>]
+    (MSG, IMPERIAL sizes)
+O110  ELSE
+    (MSG, METRIC sizes)
+O110  ENDIF
+
+(debug, Start Diameter %.3f#<_x>)
+(debug, Finish Diameter %.3f#1)
+(debug, Z Start %.3f#<_z>)
+(debug, Z Finish %.3f#5)
+
 O107 IF [#<_imperial>]
     (MSG, IMPERIAL ON)
     #1 = [#1 * 25.4]
-    #2 = [#2 * 304.8] ; sf/m to mm/m
+    #2 = [#2 * .3048] ; sf/m to m/m
     #3 = [#3 * 25.4]
     #4 = [#4 * 25.4]
     #5 = [#5 * 25.4]
@@ -35,8 +47,10 @@ G21 ; Metric Units
 G90 ; Absolute Distance
 G91.1 ; but not for arcs
 
+#<finishDiam> = #1
 #1 = [#1 / 2] ; because of radius mode
 #14 = [#<_x>] (starting X)
+#<startDiam> = [#14 *2]
 #13 = [#<_z>] (starting Z)
 
 #20 = [#6 * SIN[#7]]
@@ -46,16 +60,12 @@ G91.1 ; but not for arcs
 #24 = [[#13 - #23] * TAN[#7]]
 
 
-(debug, Start rad #14)
-(debug, start length #13)
-(debug, finish rad #1)
-(debug, finish length #5)
-(MSG, Unpause To start Turning Macro)
+(MSG, Unpause To Start Turning Macro)
 m0
 
 M6 T#8 G43
 
-G96 D500 S#2 ; Constant Surface Speed Mode
+G96 D#9 S#2 ; Constant Surface Speed Mode
 m3 ;Start Spindle
 g95 F#4 ; Feed-Per-Rev Mode
 

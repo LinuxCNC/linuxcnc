@@ -448,9 +448,11 @@ Since each loop has its own function, individual loops can be included in differ
   for a single PID loop.
 
 If you want to understand the exact algorithm used to compute the output of the PID loop, refer to
+
 - figure <<fig:pid-block-diag,PID Loop Block Diagram>>,
 - the comments at the beginning of 'emc2/src/hal/components/pid.c', and of course to
 - the code itself.
+
 The loop calculations are in the C function 'calc_pid()'.
 
 [[sec:simulated-encoder]]

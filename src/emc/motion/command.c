@@ -1342,26 +1342,6 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    }
 	    SET_JOINT_ACTIVE_FLAG(joint, 0);
 	    break;
-	case EMCMOT_JOINT_ENABLE_AMPLIFIER:
-	    /* enable the amplifier directly, but don't enable calculations */
-	    /* can be done at any time */
-	    rtapi_print_msg(RTAPI_MSG_DBG, "JOINT_ENABLE_AMP");
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
-	    if (joint == 0) {
-		break;
-	    }
-	    break;
-
-	case EMCMOT_JOINT_DISABLE_AMPLIFIER:
-	    /* disable the joint calculations and amplifier, but don't disable
-	       calculations */
-	    /* can be done at any time */
-	    rtapi_print_msg(RTAPI_MSG_DBG, "JOINT_DISABLE_AMP");
-	    rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
-	    if (joint == 0) {
-		break;
-	    }
-	    break;
 
 	case EMCMOT_JOINT_HOME:
 	    /* home the specified joint */

@@ -218,10 +218,10 @@ limits for a pending kinematics type.
 
 [NOTE]
 INI-HAL pins are typically not recognized during a G-code program
-unless a synchronization (queue-buster) command is issued.  See
-the milltask manpage for more information ($ man milltask)
+unless a synchronization (queue-buster) command is issued.
+See the milltask manpage for more information ($ man milltask).
 
-The relevant INI-HAL pins for a joint number (N) are:
+The relevant INI-HAL pins for a joint number (_N_) are:
 
 [source,{hal}]
 ----
@@ -245,8 +245,8 @@ ini.L.max_acceleration
 In general, there are no fixed mappings between joint numbers and
 axis coordinate letters.  There may be specific mappings for some
 kinematics modules especially those that implement identity
-kinematics (trivkins).  See the kins man page for more
-information ($ man kins)
+kinematics (trivkins).
+See the kins man page for more information ($ man kins).
 
 A user-provided M-code can alter any or all of the axis coordinate
 limits prior to changing the motion.switchkins-type pin and
@@ -264,10 +264,9 @@ EOF
 ----
 
 Scripts like this can be invoked as a user M-code and used *prior*
-to the kins switching M-code that updates the
-motion.switchkins-type HAL pin and forces an interp-motion sync.
-Typically, separate scripts would be used for each kinstype
-(0,1,2).
+to the kins switching M-code that updates the `motion.switchkins-type`
+HAL pin and forces an interp-motion sync.
+Typically, separate scripts would be used for each kinstype (0,1,2).
 
 When identity kinematics are provided as a means to control
 individual joints, it may be convenient to set or restore limits
@@ -286,7 +285,7 @@ M-code scripts can be designed as follows:
 . HAL: setp the INI-HAL limit pins for each axis letter ([AXIS_L])
   according to the 'identity-referenced' joint number INI file
   setting ([JOINT_N])
-. HAL: setp motion.switchkins-type 1
+. HAL: `setp motion.switchkins-type 1`
 . MDI: execute a syncing G-code (M66E0L0)
 
 *M128* (restore robot default kinematics type 0)
@@ -294,7 +293,7 @@ M-code scripts can be designed as follows:
 . read and parse INI file
 . HAL: setp the INI-HAL limit pins for each axis letter ([AXIS_L])
   according to the appropriate INI file setting ([AXIS_L])
-. HAL: setp motion.switchkins-type 0
+. HAL: `setp motion.switchkins-type 0`
 . MDI: execute a syncing G-code (M66E0L0)
 
 [NOTE]

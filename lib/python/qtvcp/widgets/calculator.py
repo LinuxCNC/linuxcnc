@@ -109,10 +109,25 @@ class Calculator(QDialog):
         mainLayout.addWidget(self.to_inch_btn, 6, 1)
         mainLayout.addWidget(self.tpi_btn, 6, 2)
 
+        self.backButton = QPushButton('Back')
+        self.backButton.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        self.backButton.clicked.connect(self.backAction)
+
+        self.nextButton = QPushButton('Next')
+        self.nextButton.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        self.nextButton.clicked.connect(self.nextAction)
+        self.applyNextButton = QPushButton('Apply\nNext')
+        self.applyNextButton.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        self.applyNextButton.clicked.connect(self.applyAction)
+        self.applyNextButton.setVisible(False)
+
         self.bBox = QDialogButtonBox()
         self.bBox.addButton('Apply', QDialogButtonBox.AcceptRole)
         self.bBox.addButton('Cancel', QDialogButtonBox.RejectRole)
-        self.bBox.rejected.connect( self.reject)
+        self.bBox.addButton(self.backButton, QDialogButtonBox.ActionRole)
+        self.bBox.addButton(self.nextButton, QDialogButtonBox.ActionRole)
+        self.bBox.addButton(self.applyNextButton, QDialogButtonBox.ActionRole)
+        self.bBox.rejected.connect(self.reject)
         self.bBox.accepted.connect(self.accept)
 
         calc_layout = QVBoxLayout()
@@ -388,6 +403,14 @@ class Calculator(QDialog):
                 return False
             self.factorSoFar /= rightOperand
         return True
+
+    # Subclass can redefine
+    def backAction(self):
+        pass
+    def nextAction(self):
+        pass
+    def applyAction(self):
+        pass
 
 if __name__ == '__main__':
 

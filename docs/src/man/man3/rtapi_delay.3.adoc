@@ -1,0 +1,45 @@
+:manvolnum: 3
+
+= rtapi_delay(3rtapi)
+
+== NAME
+
+rtapi_delay, rtapi_delay_max - Busy-loop for short delays
+
+== SYNTAX
+
+....
+void rtapi_delay(long int _nsec_);
+void rtapi_delay_max();
+....
+
+== ARGUMENTS
+
+nsec::
+  The desired delay length in nanoseconds
+
+== DESCRIPTION
+
+*rtapi_delay* is a simple delay. It is intended only for short delays,
+since it simply loops, wasting CPU cycles.
+
+*rtapi_delay_max* returns the max delay permitted (usually approximately
+1/4 of the clock period). Any call to *rtapi_delay* requesting a delay
+longer than the max will delay for the max time only.
+
+*rtapi_delay_max* should be called before using *rtapi_delay* to make
+sure the required delays can be achieved. The actual resolution of the
+delay may be as good as one nano-second, or as bad as a several
+microseconds.
+
+== REALTIME CONSIDERATIONS
+
+May be called from init/cleanup code, and from within realtime tasks.
+
+== RETURN VALUE
+
+*rtapi_delay_max returns the maximum delay permitted.*
+
+== SEE ALSO
+
+rtapi_clock_set_period(3rtapi)

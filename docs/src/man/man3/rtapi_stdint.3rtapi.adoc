@@ -1,0 +1,43 @@
+= rtapi_stdint(3rtapi)
+
+== NAME
+
+rtapi_stdint - RTAPI wrappers for linux kernel functionality
+
+== SYNTAX
+
+....
+#include <rtapi_stdint.h>
+
+typedef ... rtapi_s8;
+typedef ... rtapi_s16;
+typedef ... rtapi_s32;
+typedef ... rtapi_s64;
+typedef ... rtapi_intptr_t;
+typedef ... rtapi_u8;
+typedef ... rtapi_u16;
+typedef ... rtapi_u32;
+typedef ... rtapi_u64;
+typedef ... rtapi_uintptr_t;
+#define RTAPI_INT__xx___MIN ...
+#define RTAPI_INT__xx___MAX ...
+#define RTAPI_UINT__xx___MAX ...
+....
+
+== DESCRIPTION
+
+In kernel space, each rtapi_xxx or RTAPI_XXX identifier is mapped to the
+underlying kernel functionality, if available.
+
+In userspace, or in kernels where the underlying functionality is not
+provided by a kernel, generally another implementation--possibly with
+reduced functionality--is provided. (For example, the userspace
+implementation for rtapi_device_register always succeeds)
+
+== REALTIME CONSIDERATIONS
+
+None.
+
+== RETURN VALUE
+
+As in Linux.

@@ -53,7 +53,8 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
 
         self.colors['overlay_background'] = (0.0, 0.0, 0.0)  # blue
         self._overlayColor = QColor(0, 0, 0, 0)
-
+        self.colors['overlay_alpha'] = 0.75
+        self._overlayAlpha = 0.75
         self.colors['back'] = (0.0, 0.0, 0.75)  # blue
         self._backgroundColor = QColor(0, 0, 191, 150)
         self._jogColor = QColor(0, 0, 0, 0)
@@ -95,6 +96,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         self._block_autoLoad = STATUS.connect('file-loaded', self.load_program)
         self._block_reLoad = STATUS.connect('reload-display', self.reloadfile)
         STATUS.connect('actual-spindle-speed-changed', self.set_spindle_speed)
+        STATUS.connect('tool-info-changed', lambda w, data: self._tool_info(data))
         STATUS.connect('metric-mode-changed', lambda w, f: self.set_metric_units(w, f))
         self._block_viewChanged = STATUS.connect('graphics-view-changed', lambda w, v, a: self.set_view_signal(v, a))
         self._block_lineSelect = STATUS.connect('gcode-line-selected', lambda w, l: self.highlight_graphics(l))
@@ -140,7 +142,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
     def set_view_signal(self, view, args):
         v = view.lower()
         if v == 'clear':
-            self.logger.clear()
+            self.clear_live_plotter()
         elif v == 'zoom-in':
             self.zoomin()
         elif v == 'zoom-out':
@@ -206,24 +208,42 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
             self.set_font(True)
         elif v == 'set-small-dro':
             self.set_font(False)
+        elif v == 'scroll-mode':
+            m = args.get('MODE')
+            self.setScrollMode(int(m))
         else:
             self.set_view(v)
 
     def load_program(self, g, fname):
         LOG.debug('load the display: {}'.format(fname))
         self._reload_filename = fname
-        self.load(fname)
+        result = self.load(fname)
         STATUS.emit('graphics-gcode-properties',self.gcode_properties)
         # reset the current view to standard calculated zoom and position
         self.set_current_view()
+        return result
 
     def set_metric_units(self, w, state):
         self.metric_units = state
         self.updateGL()
 
     def set_spindle_speed(self, w, rate):
-        if rate < 1: rate = 1
-        self.spindle_speed = rate
+        self.spindle_speed = int(rate)
+        self.updateGL()
+
+    def _tool_info(self, data):
+        if data.id != -1:
+            self._tool_dia = self.conversion(data.diameter)
+        else:
+            self._tool_dia = 0
+
+    # This does the conversion units
+    # data must always be in machine units
+    def conversion(self, data):
+        if self.metric_units :
+            return INFO.convert_machine_to_metric(data)
+        else:
+            return INFO.convert_machine_to_imperial(data)
 
     def set_view(self, value):
         view = str(value).lower()
@@ -240,6 +260,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         LOG.debug('reload the display: {}'.format(self._reload_filename))
         try:
             self.load(self._reload_filename)
+            self.clear_live_plotter()
             STATUS.emit('graphics-gcode-properties',self.gcode_properties)
         except:
             print('error', self._reload_filename)
@@ -329,6 +350,16 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
 
     def get_joints_mode(self):
         return STATUS.stat.motion_mode == linuxcnc.TRAJ_MODE_FREE
+
+    def output_notify_message(self, message):
+        print("Preview Notified:", message)
+        mess = {}
+        mess['TITLE']= "Preview Notified"
+        mess["SHORTTEXT"]= "See log"
+        mess['DETAILS']= message
+        options ={'LOG=True,LEVEL=DEFAULT'}
+        STATUS.emit('status-message', mess, options)
+
     #########################################################################
     # This is how designer can interact with our widget properties.
     # property getter/setters
@@ -403,6 +434,16 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
     def resetOverlayColor(self):
         self._overlayColor = QColor(0, 0, 191, 150)
     overlay_color = pyqtProperty(QColor, getOverlayColor, setOverlayColor, resetOverlayColor)
+
+    def getOverlayAlpha(self):
+        return self._overlayAlpha
+    def setOverlayAlpha(self, value):
+        self._overlayAlpha = value
+        self.colors['overlay_alpha'] = value
+        self.updateGL()
+    def resetOverlayAlpha(self):
+        self._overlayAlpha = 0.75
+    overlay_alpha = pyqtProperty(float, getOverlayAlpha, setOverlayAlpha, resetOverlayAlpha)
 
     def getBackgroundColor(self):
         return self._backgroundColor

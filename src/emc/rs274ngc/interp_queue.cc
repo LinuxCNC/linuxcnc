@@ -31,7 +31,7 @@ static int debug_qc = 0;
 static double latheorigin_x(setup_pointer settings, double x) {
     int o = settings->cutter_comp_orientation;
     double r = settings->cutter_comp_radius;
-    if(settings->plane != CANON_PLANE_XZ) return x;
+    if(settings->plane != CANON_PLANE::XZ) return x;
 
     if(o==2 || o==6 || o==1) x -= r;
     if(o==3 || o==8 || o==4) x += r;
@@ -41,7 +41,7 @@ static double latheorigin_x(setup_pointer settings, double x) {
 static double latheorigin_z(setup_pointer settings, double z) {
     int o = settings->cutter_comp_orientation;
     double r = settings->cutter_comp_radius;
-    if(settings->plane != CANON_PLANE_XZ) return z;
+    if(settings->plane != CANON_PLANE::XZ) return z;
 
     if(o==2 || o==7 || o==3) z -= r;
     if(o==1 || o==5 || o==4) z += r;
@@ -271,7 +271,7 @@ int enqueue_STRAIGHT_FEED(setup_pointer settings, int l,
     q.type = QSTRAIGHT_FEED;
     q.data.straight_feed.line_number = l;
     switch(settings->plane) {
-    case CANON_PLANE_XY:
+    case CANON_PLANE::XY:
         q.data.straight_feed.dx = dx;
         q.data.straight_feed.dy = dy;
         q.data.straight_feed.dz = dz;
@@ -279,7 +279,7 @@ int enqueue_STRAIGHT_FEED(setup_pointer settings, int l,
         q.data.straight_feed.y = y;
         q.data.straight_feed.z = z;
         break;
-    case CANON_PLANE_XZ:
+    case CANON_PLANE::XZ:
         q.data.straight_feed.dz = dx;
         q.data.straight_feed.dx = dy;
         q.data.straight_feed.dy = dz;
@@ -310,7 +310,7 @@ int enqueue_STRAIGHT_TRAVERSE(setup_pointer settings, int l,
     q.type = QSTRAIGHT_TRAVERSE;
     q.data.straight_traverse.line_number = l;
     switch(settings->plane) {
-    case CANON_PLANE_XY:
+    case CANON_PLANE::XY:
         q.data.straight_traverse.dx = dx;
         q.data.straight_traverse.dy = dy;
         q.data.straight_traverse.dz = dz;
@@ -318,7 +318,7 @@ int enqueue_STRAIGHT_TRAVERSE(setup_pointer settings, int l,
         q.data.straight_traverse.y = y;
         q.data.straight_traverse.z = z;
         break;
-    case CANON_PLANE_XZ:
+    case CANON_PLANE::XZ:
         q.data.straight_traverse.dz = dx;
         q.data.straight_traverse.dx = dy;
         q.data.straight_traverse.dy = dz;
@@ -385,16 +385,6 @@ void enqueue_M_USER_COMMAND (int index, double p_number, double q_number) {
                         index,p_number,q_number);
     qc().push_back(q);
 }
-
-void enqueue_START_CHANGE (void) {
-    queued_canon q;
-    q.type = QSTART_CHANGE;
-    if(debug_qc) printf("enqueue START_CHANGE\n");
-    qc().push_back(q);
-}
-
-
-
 
 void qc_scale(double scale) {
     
@@ -547,11 +537,6 @@ void dequeue_canons(setup_pointer settings) {
                                                     q.data.mcommand.q_number);
             }
             break;
-	case QSTART_CHANGE:
-            if(debug_qc) printf("issuing start_change\n");
-            START_CHANGE();
-            free(q.data.comment.comment);
-            break;
         case QORIENT_SPINDLE:
             if(debug_qc) printf("issuing orient spindle\n");
             ORIENT_SPINDLE(q.data.set_spindle_speed.spindle,
@@ -611,13 +596,13 @@ int Interp::move_endpoint_and_flush(setup_pointer settings, double x, double y) 
             break;
         case QSTRAIGHT_TRAVERSE:
             switch(settings->plane) {
-            case CANON_PLANE_XY:
+            case CANON_PLANE::XY:
                 x1 = q.data.straight_traverse.dx; // direction of original motion
                 y1 = q.data.straight_traverse.dy;                
                 x2 = x - endpoint[0];         // new direction after clipping
                 y2 = y - endpoint[1];
                 break;
-            case CANON_PLANE_XZ:
+            case CANON_PLANE::XZ:
                 x1 = q.data.straight_traverse.dz; // direction of original motion
                 y1 = q.data.straight_traverse.dx;                
                 x2 = x - endpoint[0];         // new direction after clipping
@@ -637,11 +622,11 @@ int Interp::move_endpoint_and_flush(setup_pointer settings, double x, double y) 
                 ERS(_("Straight traverse in concave corner cannot be reached by the tool without gouging"));
             }
             switch(settings->plane) {
-            case CANON_PLANE_XY:
+            case CANON_PLANE::XY:
                 q.data.straight_traverse.x = x;
                 q.data.straight_traverse.y = y;
                 break;
-            case CANON_PLANE_XZ:
+            case CANON_PLANE::XZ:
                 q.data.straight_traverse.z = x;
                 q.data.straight_traverse.x = y;
                 break;
@@ -651,13 +636,13 @@ int Interp::move_endpoint_and_flush(setup_pointer settings, double x, double y) 
             break;
         case QSTRAIGHT_FEED: 
             switch(settings->plane) {
-            case CANON_PLANE_XY:
+            case CANON_PLANE::XY:
                 x1 = q.data.straight_feed.dx; // direction of original motion
                 y1 = q.data.straight_feed.dy;                
                 x2 = x - endpoint[0];         // new direction after clipping
                 y2 = y - endpoint[1];
                 break;
-            case CANON_PLANE_XZ:
+            case CANON_PLANE::XZ:
                 x1 = q.data.straight_feed.dz; // direction of original motion
                 y1 = q.data.straight_feed.dx;                
                 x2 = x - endpoint[0];         // new direction after clipping
@@ -665,7 +650,7 @@ int Interp::move_endpoint_and_flush(setup_pointer settings, double x, double y) 
                 break;
             default:
                 ERS(_("BUG: Unsupported plane [%d] in cutter compensation"),
-			settings->plane);
+			static_cast<int>(settings->plane));
             }
 
             dot = x1 * x2 + y1 * y2;
@@ -678,11 +663,11 @@ int Interp::move_endpoint_and_flush(setup_pointer settings, double x, double y) 
                 ERS(_("Straight feed in concave corner cannot be reached by the tool without gouging"));
             }
             switch(settings->plane) {
-            case CANON_PLANE_XY:
+            case CANON_PLANE::XY:
                 q.data.straight_feed.x = x;
                 q.data.straight_feed.y = y;
                 break;
-            case CANON_PLANE_XZ:
+            case CANON_PLANE::XZ:
                 q.data.straight_feed.z = x;
                 q.data.straight_feed.x = y;
                 break;

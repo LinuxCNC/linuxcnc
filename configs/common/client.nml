@@ -22,5 +22,3 @@ B emcError              SHMEM   192.168.0.4       8192    0       0       3     
 P xemc          emcCommand      REMOTE   192.168.0.4       W       0       10.0    0       10
 P xemc          emcStatus       REMOTE   192.168.0.4       R       0       10.0    0       10
 P xemc          emcError        REMOTE   192.168.0.4       R       0       10.0    0       10
-P xemc          toolCmd         REMOTE   192.168.0.4       W       0       10.0    0       10
-P xemc          toolSts         REMOTE   192.168.0.4       R       0       10.0    0       10

@@ -16,7 +16,8 @@ streamer - stream file data into HAL in real time
 
 *depth*=_depth1[,depth2...]_::
 
-    Sets the depth of the FIFO that the realtime *streamer* creates to receive data from the non-realtime *hal-streamer*.  Multiple values of _depth_ (separated by commas) can be specified if you need more than one FIFO (for example if you want to stream data to two different realtime threads).
+    Sets the depth of the FIFO that the realtime *streamer* creates to receive data from the non-realtime *hal-streamer*.
+    Multiple values of _depth_ (separated by commas) can be specified if you need more than one FIFO (for example if you want to stream data to two different realtime threads).
 
 *cfg*=_string1[,string2...]_::
 
@@ -56,7 +57,7 @@ One function is created per FIFO, numbered from zero.
     It increments whenever *empty* is true, and can be reset by the *setp* command.
 
 *streamer*._N_.*clock bit input::
-    Clock for data as specified by the clock-mode pin
+    Clock for data as specified by the clock-mode pin.
 
 *streamer*._N_.*clock-mode s32 input::
     Defines behavior of clock pin:
@@ -67,7 +68,8 @@ One function is created per FIFO, numbered from zero.
       * 3 clock on any edge of clock pin
 
 == SEE ALSO
-*halstreamer*(1), *sampler*(9), *halsampler*(1)
+
+halstreamer(1), sampler(9), halsampler(1)
 
 
 == BUGS
@@ -80,10 +82,12 @@ Improvements by several other members of the LinuxCNC development team.
 
 
 == REPORTING BUGS
-Report bugs to jmkasunich AT users DOT sourceforge DOT net
 
+Report bugs at https://github.com/LinuxCNC/linuxcnc/issues.
 
 == COPYRIGHT
-Copyright © 2006 John Kasunich.  This is free software; see the source for copying conditions.
+Copyright © 2006 John Kasunich.
+
+This is free software; see the source for copying conditions.
 There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 

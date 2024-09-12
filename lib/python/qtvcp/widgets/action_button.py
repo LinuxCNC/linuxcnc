@@ -42,7 +42,7 @@ LOG = logger.getLogger(__name__)
 # Force the log level for this module
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
-class ActionButton(IndicatedPushButton, _HalWidgetBase):
+class ActionButton(IndicatedPushButton):
     def __init__(self, parent=None):
         super(ActionButton, self).__init__(parent)
         self._block_signal = False
@@ -119,7 +119,9 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
         self.float_alt = 50.0
         self.view_type = 'p'
         self.command_text = ''
-        self.ini_mdi_num = 0
+        # legacy attribute
+        self.ini_mdi_num = -1
+        self.ini_mdi_keystring = ''
         self._textTemplate = '%1.3f in'
         self._alt_textTemplate = '%1.2f mm'
         self._run_from_line_int = 0
@@ -581,6 +583,13 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
         elif self.view_change:
             if self.view_type =='reload':
                  STATUS.emit('reload-display')
+            elif self.view_type in('mouse-button-mode', 'pan-lock-mode',
+                            'zoom-lock-mode', 'rotate-lock-mode'):
+                    if state:
+                        ACTION.SET_GRAPHICS_SCROLL_MODE(('mouse-button-mode',
+                        'pan-lock-mode', 'rotate-lock-mode', 'zoom-lock-mode').index(self.view_type))
+                    else:
+                        ACTION.SET_GRAPHICS_SCROLL_MODE(0)
             else:
                 try:
                     ACTION.SET_GRAPHICS_VIEW(self.view_type)
@@ -675,8 +684,17 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
             LOG.debug("MDI STRING COMMAND: {}".format(self.command_text))
             ACTION.CALL_MDI(self.command_text)
         elif self.ini_mdi_command:
-            LOG.debug("INI MDI COMMAND #: {}".format(self.ini_mdi_num))
-            ACTION.CALL_INI_MDI(self.ini_mdi_num)
+            # we prefer named INI MDI commands:
+            if not self.ini_mdi_keystring == '' and \
+                    not INFO.get_ini_mdi_command(self.ini_mdi_keystring) is None:
+                LOG.debug("INI MDI COMMAND #: {}".format(self.ini_mdi_keystring))
+                ACTION.CALL_INI_MDI(self.ini_mdi_keystring)
+            # legacy version (nth line)
+            elif not self.ini_mdi_num <0 and \
+                    not INFO.get_ini_mdi_command(self.ini_mdi_num) is None:
+                LOG.debug("INI MDI COMMAND #: {}".format(self.ini_mdi_num))
+                ACTION.CALL_INI_MDI(self.ini_mdi_num)
+
         elif self.dro_absolute:
             STATUS.emit('dro-reference-change-request', 0)
         elif self.dro_relative:
@@ -806,22 +824,34 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
     # see if the INI specified an optional new label
     # if so apply it, otherwise skip and use the original text
     def setMDILabel(self):
-        # if the MDI command is missing set a tooltip to say so
-        try:
-            mdi = INFO.MDI_COMMAND_LIST[self.ini_mdi_num]
-        except:
-            msg = 'MDI_COMMAND= # {} Not found under [MDI_COMMAND_LIST] in INI file'.format(self.ini_mdi_num)
-            self.setToolTip(msg)
-            return
+        key = None
+        # we prefer named INI MDI commands
+        if not self.ini_mdi_keystring == '' and \
+                not INFO.get_ini_mdi_command(self.ini_mdi_keystring) is None:
+            key = self.ini_mdi_keystring
+            # legacy version (nth line)
+        elif not self.ini_mdi_num <0 and \
+                not INFO.get_ini_mdi_command(self.ini_mdi_num) is None:
+            key = self.ini_mdi_num
 
-        # otherwise set any optional label
+        # change the button label if supplied in the INI
         try:
-            label = INFO.MDI_COMMAND_LABEL_LIST[self.ini_mdi_num]
-            self.setToolTip(INFO.MDI_COMMAND_LIST[self.ini_mdi_num].replace(';', '\n'))
+            label = INFO.get_ini_mdi_label(key)
             label = label.replace(r'\n', '\n')
             self.setText(label)
         except:
-            return
+            pass
+
+        # add tool tip of the command
+        try:
+            tooltiplabel = 'INI MDI CMD {}:\n'.format(key)
+            tooltiplabel += INFO.get_ini_mdi_command(key).replace(';', '\n')
+            self.setToolTip(tooltiplabel)
+        except Exception as e:
+            # if the MDI command is missing set a tooltip to say so
+            # otherwise set any optional label
+            msg = 'MDI_COMMAND_{} Not found under [MDI_COMMAND_LIST] in INI file'.format(key)
+            self.setToolTip(msg)
 
     #########################################################################
     # This is how designer can interact with our widget properties.
@@ -1440,7 +1470,8 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
         if not data.lower() in('x', 'y', 'y2', 'z', 'z2', 'p', 'clear',
                     'zoom-in','zoom-out','pan-up','pan-down',
                     'pan-left','pan-right','rotate-up','rotate-down',
-                    'rotate-cw','rotate-ccw','reload'):
+                    'rotate-cw','rotate-ccw','reload','zoom-lock-mode',
+                    'pan-lock-mode','rotate-lock-mode','scroll-mode'):
             data = 'p'
         self.view_type = data
     def get_view_type(self):
@@ -1460,7 +1491,14 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
     def get_ini_mdi_num(self):
         return self.ini_mdi_num
     def reset_ini_mdi_num(self):
-        self.ini_mdi_num = 0
+        self.ini_mdi_num = -1
+
+    def set_ini_mdi_key(self, data):
+        self.ini_mdi_keystring = data
+    def get_ini_mdi_key(self):
+        return self.ini_mdi_keystring
+    def reset_ini_mdi_key(self):
+        self.ini_mdi_keystring = ''
 
     # designer will show these properties in this order:
     # BOOL
@@ -1548,6 +1586,7 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
     view_type_string = QtCore.pyqtProperty(str, get_view_type, set_view_type, reset_view_type)
     command_text_string = QtCore.pyqtProperty(str, get_command_text, set_command_text, reset_command_text)
     ini_mdi_number = QtCore.pyqtProperty(int, get_ini_mdi_num, set_ini_mdi_num, reset_ini_mdi_num)
+    ini_mdi_key = QtCore.pyqtProperty(str, get_ini_mdi_key, set_ini_mdi_key, reset_ini_mdi_key)
 
     def set_textTemplate(self, data):
         self._textTemplate = data

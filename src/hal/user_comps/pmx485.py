@@ -1,8 +1,8 @@
 '''
 pmx485.py
 
-Copyright (C) 2019, 2020, 2021 Phillip A Carter
-Copyright (C) 2020, 2021  Gregory D Carl
+Copyright (C) 2019 - 2024 Phillip A Carter
+Copyright (C) 2020 - 2024 Gregory D Carl
 
 pmx485.py makes use of some code from hpmx.py by Pedro Grijalva Mireles
 
@@ -78,7 +78,7 @@ try:
                           timeout = 0.1
                          )
 except:
-    print('\nERROR: Could not open {} for Powermax communications\n'.format(comPort))
+    print(f'\nERROR: Could not open {comPort} for Powermax communications\n')
     raise SystemExit
 
 # get the checksum
@@ -91,7 +91,7 @@ def get_lrc(data):
                 lrc = (lrc + int(a + b, 16)) & 255
             except:
                 return '00'
-        lrc = ('{:02X}'.format((((lrc ^ 255) + 1) & 255))).upper()
+        lrc = (f'{(((lrc ^ 255) + 1) & 255):02X}').upper()
         return lrc
     except:
         return 0
@@ -99,10 +99,10 @@ def get_lrc(data):
 # write data to register
 def write_register(reg, value):
     try:
-        data = '{}{}{}{}'.format(address, regWrite, reg, value)
+        data = f'{address}{regWrite}{reg}{value}'
         if len(data) == 12:
             lrc = get_lrc(data)
-            packet = ':{}{}\r\n'.format(data, lrc)
+            packet = f':{data}{lrc}\r\n'
             reply = ''
             comms.write(packet.encode())
             reply = comms.readline().decode()
@@ -116,15 +116,15 @@ def write_register(reg, value):
 # read data from register
 def read_register(reg):
     try:
-        data = '{}{}{}0001'.format(address, regRead, reg)
+        data = f'{address}{regRead}{reg}0001'
         if len(data) == 12:
             lrc = get_lrc(data)
-            packet = ':{}{}\r\n'.format(data, lrc)
+            packet = f':{data}{lrc}\r\n'
             reply = ''
             comms.write(packet.encode())
             reply = comms.readline().decode()
             if reply:
-                if len(reply) == 15 and reply[:7] == ':{}{}'.format(address, validRead):
+                if len(reply) == 15 and reply[:7] == f':{address}{validRead}':
                     lrc = get_lrc(reply[1:11])
                     if lrc == reply[11:13]:
                         return reply[7:11]
@@ -134,18 +134,18 @@ def read_register(reg):
 
 # set machine to local mode
 def close_machine():
-    mode = write_register(rMode, '{:04X}'.format(0))
-    current = write_register(rCurrent, '{:04X}'.format(0))
-    pressure = write_register(rPressure, '{:04X}'.format(0))
+    write_register(rMode, f'{0:04X}')
+    write_register(rCurrent, f'{0:04X}')
+    write_register(rPressure, f'{0:04X}')
 
 # set machine to remote mode
 def open_machine():
     # set mode
-    mode = write_register(rMode, '{:04X}'.format(int(pmx485.mode_set)))
+    mode = write_register(rMode, f'{int(pmx485.mode_set):04X}')
     # set current
-    current = write_register(rCurrent, '{:04X}'.format(int(pmx485.current_set * 64.0)))
+    current = write_register(rCurrent, f'{int(pmx485.current_set * 64.0):04X}')
     # set pressure
-    pressure = write_register(rPressure, '{:04X}'.format(int(pmx485.pressure_set * 128.0)))
+    pressure = write_register(rPressure, f'{int(pmx485.pressure_set * 128.0):04X}')
     if mode and current and pressure:
         return True
     else:
@@ -198,7 +198,7 @@ while hal.component_exists('motmod'):
             else:
                 # set mode
                 if pmx485.mode_set != pmx485.mode:
-                    mode = write_register(rMode,  '{:04X}'.format(int(pmx485.mode_set)))
+                    mode = write_register(rMode, f'{int(pmx485.mode_set):04X}')
                     if mode:
                         pmx485.mode = pmx485.mode_set
                         get_limits()
@@ -209,7 +209,7 @@ while hal.component_exists('motmod'):
                         pmx485.mode = int(mode, 16)
                 # set current
                 if pmx485.current_set != round(pmx485.current, 1):
-                    current = write_register(rCurrent,  '{:04X}'.format(int(pmx485.current_set * 64)))
+                    current = write_register(rCurrent, f'{int(pmx485.current_set * 64):04X}')
                     if current:
                         pmx485.current = pmx485.current_set
                 # get current
@@ -219,7 +219,7 @@ while hal.component_exists('motmod'):
                         pmx485.current = round(int(current, 16) / 64.0, 1)
                 # set pressure
                 if pmx485.pressure_set != round(pmx485.pressure, 1):
-                    pressure = write_register(rPressure,  '{:04X}'.format(int(pmx485.pressure_set * 128)))
+                    pressure = write_register(rPressure, f'{int(pmx485.pressure_set * 128):04X}')
                     if pressure:
                         pmx485.pressure = pmx485.pressure_set
                 # get pressure

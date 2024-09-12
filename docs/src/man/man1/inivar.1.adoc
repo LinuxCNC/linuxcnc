@@ -1,0 +1,71 @@
+:docdate: 2023-12-17
+
+= inivar(1)
+
+== NAME
+
+inivar - Query an INI file
+
+== SYNOPSIS
+
+*inivar* *-var* _variable_ [*-sec* _section_] [*-num* _occurrence_number_] [*-tildeexpand*] [*-ini* _FILE_]
+
+== DESCRIPTION
+
+Prints to stdout the INI file result of a variable-in-section search, useful for scripts that want
+to pick things out of INI files.
+
+Uses _emc.ini_ as default filename. _variable_ needs to be supplied. If _section_ is omitted, first
+instance of _variable_ will be looked for in any section. Otherwise, only a match of the variable in
+_section_ will be returned.
+
+== OPTIONS
+
+*-var* _variable_::
+    The variable to search for, if multiple matches exists and *-num* is not specified, the first
+    match is returned.
+
+*-sec* _section_::
+    The section to search in, if omitted, all sections are searched.
+
+*-num* _occurrence_number_::
+    The occurrence number specifies which instance of the variable within the _FILE_, and _section_
+    if provided, should be returned. If omitted, the first matching occurrence is returned.
+
+*-tildeexpand*::
+    Replace the tilde (~) with the home directory path (equivalent to *$(HOME)*) in the value
+    obtained from _variable_ in _FILE_.
+
+*-ini* _FILE_::
+    The INI file to search in, defaults to _emc.ini_.
+
+== EXIT STATUS
+
+*0*::
+    Success.
+
+*1*::
+    _variable_ was not found.
+
+*-1*::
+    Failure.
+
+== BUGS
+
+None known at this time.
+
+== AUTHOR
+
+This man page written by Andy Pugh, as part of the LinuxCNC project.
+
+== REPORTING BUGS
+
+Report bugs at https://github.com/LinuxCNC/linuxcnc/issues.
+
+== COPYRIGHT
+
+Copyright (c) 2020 Andy Pugh.
+
+This is free software; see the source for copying conditions.  There
+is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.

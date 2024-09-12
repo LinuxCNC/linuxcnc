@@ -264,8 +264,8 @@ setp ohmicsense.ohmic-low            1.0
 net ohmic-vel ohmicsense.velocity-in <= hm2_7i76e.0.encoder.02.velocity
 
 # --- Replace QtPlasmaC's Ohmic sensing signal ---
-unlinkp debounce.0.2.in
-net ohmic-true ohmicsense.ohmic-on => debounce.0.2.in
+unlinkp db_ohmic.in
+net ohmic-true ohmicsense.ohmic-on => db_ohmic.in
 net plasmac:ohmic-enable    =>  ohmicsense.is-probing
 ----
 

@@ -1,0 +1,83 @@
+= haltcl(1)
+
+== NAME
+
+haltcl - manipulate the LinuxCNC HAL from the command line using a Tcl interpreter.
+
+== SYNOPSIS
+
+*haltcl* [*-i* _<INI file>_] [_filename_]
+
+== DESCRIPTION
+
+*haltcl* is used to manipulate the HAL (Hardware Abstraction Layer) from
+the command line using a Tcl interpreter. *haltcl* can optionally read
+commands from a file (filename), allowing complex HAL configurations to
+be set up with a single command.
+
+== OPTIONS
+
+*-i* _<INI file>_::
+  If specified, the INI file is read and used to create Tcl global variable arrays.
+  An array is created for each SECTION of the INI file with elements for each ITEM in the section.
+
+For example, if the INI file contains:
+
+----
+[SECTION_A]
+ITEM_1 = 1
+[SECTION_A]
+ITEM_2 = 2
+[SECTION_B]
+ITEM_1 = 10
+----
+
+The corresponding Tcl variables are:
+
+----
+SECTION_A(ITEM_1) = 1
+SECTION_A(ITEM_2) = 2
+SECTION_B(ITEM_1) = 10
+----
+
+*-ini* _<INI file>_ -- declining usage, use *-i* _<INI file>_::
+*filename*::
+  If specified, the Tcl commands of *filename* are executed. If no
+  filename is specified, haltcl opens an interactive session.
+
+== COMMANDS
+
+*haltcl* includes the commands of a Tcl interpreter augmented with
+commands for the hal language as described for *halcmd*(1). The
+augmented commands can be listed with the command:
+
+----
+haltcl: hal --commands
+
+addf alias delf delsig getp gets ptype stype help linkpp linkps linksp
+list loadrt loadusr lock net newsig save setexact_for_test_suite_only
+setp sets show source start status stop unalias unlinkp unload unloadrt
+unloadusr unlock waitusr
+----
+
+Two of the augmented commands, 'list' and 'gets', require special
+treatment to avoid conflict with Tcl built-in commands having the same
+names. To use these commands, precede them with the keyword 'hal':
+
+----
+hal list hal gets
+----
+
+== REPORTING BUGS
+
+Report bugs at https://github.com/LinuxCNC/linuxcnc/issues.
+
+== COPYRIGHT
+
+This is free software; see the source for copying conditions. There is
+NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.
+
+== SEE ALSO
+
+halcmd(1), halrun(1)

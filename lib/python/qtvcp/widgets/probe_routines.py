@@ -42,6 +42,22 @@ class ProbeRoutines():
         G90""".format(self.data_rapid_vel, self.data_z_clearance + self.data_extra_depth)        
         return self.CALL_MDI_WAIT(s, self.timeout)
 
+    # when probing tool diameter
+    def raise_tool_depth(self):
+        # move Z+
+        s = """G91
+        G1 F{} Z{}
+        G90""".format(self.data_rapid_vel, self.data_z_clearance)        
+        return self.CALL_MDI_WAIT(s, self.timeout)
+
+    # when probing tool diameter
+    def lower_tool_depth(self):
+        # move Z-
+        s = """G91
+        G1 F{} Z-{}
+        G90""".format(self.data_rapid_vel, self.data_z_clearance)        
+        return self.CALL_MDI_WAIT(s, self.timeout)
+
     def length_x(self):
         if self.status_xp is None: self.status_xp = 0
         if self.status_xm is None: self.status_xm = 0
@@ -85,15 +101,18 @@ class ProbeRoutines():
             self.CALL_MDI_WAIT(s, self.timeout)
             ACTION.RELOAD_DISPLAY()
 
-    def add_history(self, text, s="",xm=0.,xc=0.,xp=0.,lx=0.,ym=0.,yc=0.,yp=0.,ly=0.,z=0.,d=0.,a=0.):
-        tpl = '%.3f' if STATUS.is_metric_mode() else '%.4f'
-        c = text
-        list = ['Xm', 'Xc', 'Xp', 'Lx', 'Ym', 'Yc', 'Yp', 'Ly', 'Z', 'D', 'A']
-        arg = (xm, xc, xp, lx, ym, yc, yp, ly, z, d, a)
-        for i in range(len(list)):
-            if list[i] in s:
-                c += ' ' + list[i] + "[" + tpl%(arg[i]) + ']'
-        self.history_log = c
+    def add_history(self, *args):
+        if len(args) == 13:
+            tpl = '%.3f' if STATUS.is_metric_mode() else '%.4f'
+            c = args[0]
+            list = ['Xm', 'Xc', 'Xp', 'Lx', 'Ym', 'Yc', 'Yp', 'Ly', 'Z', 'D', 'A']
+            for i in range(0,len(list)):
+                if list[i] in args[1]:
+                    c += ' ' + list[i] + "[" + tpl%(args[i+2]) + ']'
+            self.history_log = c
+        else:
+            # should be a single string
+            self.history_log = args[0]
 
     def probe(self, name):
         if name == "xminus" or name == "yminus" :
@@ -240,19 +259,21 @@ class ProbeRoutines():
 
             cmdList = []
             cmdList.append('F{}'.format(self.data_rapid_vel))
-            cmdList.append('G91 ')
+            cmdList.append('G49')
+            cmdList.append('G91')
             # should start spindle in proper direction/speed here..
             cmdList.append('G1 X{}'.format(Xoffset))
             cmdList.append('G38.2 Z-{} F{}'.format(self.data_ts_max,self.data_search_vel))
             cmdList.append('G1 Z{} F{}'.format(self.data_latch_return_dist, self.data_rapid_vel))
             cmdList.append('F{}'.format(self.data_probe_vel))
             cmdList.append('G38.2 Z-{}'.format(self.data_latch_return_dist*1.2))
+            cmdList.append('#<touch_result> = #5063')
+            # adjustment to G53 number
+            cmdList.append('#<zworkoffset> = [#[5203 + #5220 *20] + #5213 * #5210]')
+            cmdList.append('G10 L1 P#5400  Z[#5063 + #<zworkoffset> - {}]'.format( self.data_tool_probe_height))
             cmdList.append('G1 Z{} F{}'.format(self.data_z_clearance, self.data_rapid_vel))
             cmdList.append('G1 X{}'.format(-Xoffset))
             cmdList.append('G90')
-            cmdList.append('#<touch_result> = #5063')
-            cmdList.append('G10 L1 P{}  Z[#<touch_result> -{}]'.format( 
-                    self.data_tool_number,self.data_tool_probe_height+self.data_tool_block_height))
             cmdList.append('G43')
             # call each command - if fail report the error and gcode command
             rtn = self.CALL_MDI_LIST(cmdList)
@@ -260,8 +281,12 @@ class ProbeRoutines():
                 return rtn
             h = STATUS.get_probed_position()[2]
             self.status_z = h
-            self.add_history('Probed Tool height',"Z",0,0,0,0,0,0,0,0,h,0,0)
-
+            p = self.data_tool_probe_height
+            toffset = (h-p)
+            self.add_history('''ToolSetter:
+                                    Calculated Tool Length Z: {:.4f}
+                                    Setter Height: {:.4f}
+                                    Probed Position: {:.4f}'''.format(toffset, p, h ))
             # report success
             return 1
         except Exception as e:
@@ -326,16 +351,21 @@ class ProbeRoutines():
             return 'cannot offset enough in - Y for tool radius offset + toolsetter radius'
 
 
-        # move X - edge_length- xy_clearance
+        # move X-  (1/2 tool diameter + xy_clearance)
         s="""G91
         G1 F%s X-%f
         G90""" % (self.data_rapid_vel, 0.5 * self.data_ts_diam + self.data_xy_clearance)
         rtn = self.CALL_MDI_WAIT(s, self.timeout) 
         if rtn != 1:
             return 'failed: {}'.format(rtn)
+
         rtn = self.z_clearance_down()
         if rtn != 1:
             return 'failed: {}'.format(rtn)
+
+        rtn = self.lower_tool_depth()
+        if rtn != 1:
+            return 'lower tool depth failed: {}'.format(rtn)
 
         # Start xplus
         rtn = self.probe('xplus')
@@ -345,6 +375,10 @@ class ProbeRoutines():
         # show X result
         a = STATUS.get_probed_position_with_offsets()
         xpres=float(a[0])+0.5*self.data_probe_diam
+
+        rtn = self.raise_tool_depth()
+        if rtn != 1:
+            return 'raise tool depth failed: {}'.format(rtn)
 
         # move Z to start point up
         rtn = self.z_clearance_up()
@@ -357,7 +391,7 @@ class ProbeRoutines():
         if rtn != 1:
             return 'failed: {}'.format(rtn)
 
-        # move X + data_ts_diam +  xy_clearance
+        # move X+ (data_ts_diam +  xy_clearance)
         aa=self.data_ts_diam+self.data_xy_clearance
         s="""G91
         G1 X%f
@@ -370,6 +404,10 @@ class ProbeRoutines():
         if rtn != 1:
             return 'failed: {}'.format(rtn)
 
+        rtn = self.lower_tool_depth()
+        if rtn != 1:
+            return 'lower tool depth failed: {}'.format(rtn)
+
         # Start xminus
         rtn = self.probe('xminus')
         if rtn != 1:
@@ -381,6 +419,10 @@ class ProbeRoutines():
         self.length_x()
         xcres=0.5*(xpres+xmres)
         self.status_xc = xcres
+
+        rtn = self.raise_tool_depth()
+        if rtn != 1:
+            return 'raise tool depth failed: {}'.format(rtn)
 
         # move Z to start point up
         rtn = self.z_clearance_up()
@@ -406,6 +448,10 @@ class ProbeRoutines():
         if rtn != 1:
             return 'failed: {}'.format(rtn)
 
+        rtn = self.lower_tool_depth()
+        if rtn != 1:
+            return 'lower tool depth failed: {}'.format(rtn)
+
         # Start yplus
         rtn = self.probe('yplus')
         if rtn != 1:
@@ -414,6 +460,11 @@ class ProbeRoutines():
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
         ypres=float(a[1])+0.5*self.data_probe_diam
+
+        rtn = self.raise_tool_depth()
+        if rtn != 1:
+            return 'raise tool depth failed: {}'.format(rtn)
+
         # move Z to start point up
         if self.z_clearance_up() == -1:
             return
@@ -432,9 +483,14 @@ class ProbeRoutines():
         rtn = self.CALL_MDI_WAIT(s, self.timeout) 
         if rtn != 1:
             return 'failed: {}'.format(rtn)
+
         rtn = self.z_clearance_down()
         if rtn != 1:
             return 'failed: {}'.format(rtn)
+
+        rtn = self.lower_tool_depth()
+        if rtn != 1:
+            return 'lower tool depth failed: {}'.format(rtn)
 
         # Start yminus
         rtn = self.probe('yminus')
@@ -451,10 +507,15 @@ class ProbeRoutines():
         diam=self.data_probe_diam + (ymres-ypres-self.data_ts_diam)
         self.status_d = diam
 
+        rtn = self.raise_tool_depth()
+        if rtn != 1:
+            return 'raise tool depth failed: {}'.format(rtn)
+
         # move Z to start point up
         rtn = self.z_clearance_up()
         if rtn != 1:
             return 'failed: {}'.format(rtn)
+
         tmpz=STATUS.stat.position[2] - self.data_z_clearance
         self.status_z=tmpz
         self.add_history('Tool diameter',"XcYcZD",0,xcres,0,0,0,ycres,0,0,tmpz,diam,0)
@@ -467,7 +528,6 @@ class ProbeRoutines():
         return 1
       except Exception as e:
         return '{}'.format(e)
-
 
     ########################
     # material

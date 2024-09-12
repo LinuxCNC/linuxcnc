@@ -1,0 +1,31 @@
+= rtapi_exit(3rtapi)
+
+== NAME
+
+rtapi_exit - Shut down RTAPI
+
+== SYNTAX
+
+....
+int rtapi_exit(int _module_id_);
+....
+
+== ARGUMENTS
+
+module_id::
+  An rtapi module identifier returned by an earlier call to
+  *rtapi_init*.
+
+== DESCRIPTION
+
+*rtapi_exit* shuts down and cleans up the RTAPI. It must be called prior
+to exit by any module that called *rtapi_init*.
+
+== REALTIME CONSIDERATIONS
+
+Call only from within non-realtime or realtime init/cleanup code, not
+from realtime tasks.
+
+== RETURN VALUE
+
+Returns a RTAPI status code.

@@ -12,7 +12,7 @@
 
 == Description
 
-I/O control handles I/O tasks like coolant, toolchange, E-stop and lube. The signals are turned on and off with G-code or in the case of E-stop in HAL.
+I/O control handles I/O tasks like coolant, toolchange and E-stop. The signals are turned on and off with G-code or in the case of E-stop in HAL.
 
 I/O Control V2 adds more toolchanger support for communication with the toolchanger.
 
@@ -66,10 +66,6 @@ DEBUG :: To get a (quite detailed) trace, set either the RCS debugging flag (0x0
 * 'iocontrol.0.coolant-flood' (bit, out) TRUE when flood coolant is requested.
 * 'iocontrol.0.coolant-mist' (bit, out) TRUE when mist coolant is requested.
 * 'iocontrol.0.emc-enable-in' (bit, in) Should be driven FALSE when an external E-stop condition exists.
-* 'iocontrol.0.lube' (bit, out) TRUE when lube is requested.
-  This pin gets driven TRUE when the controller comes out of E-stop, and when the "Lube On" command gets sent to the controller.
-  It gets driven FALSE when the controller goes into E-stop, and when the "Lube Off" command gets sent to the controller.
-* 'iocontrol.0.lube_level' (bit, in) Should be driven FALSE when lubrication tank is empty.
 * 'iocontrol.0.tool-change' (bit, out) TRUE when a tool change is requested
 * 'iocontrol.0.tool-changed' (bit, in) Should be driven TRUE when a tool change is completed.
 * 'iocontrol.0.tool-number' (s32, out) Current tool number

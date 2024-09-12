@@ -1,0 +1,69 @@
+= opto_ac5(9)
+
+== NAME
+
+opto_ac5 - Realtime driver for opto22 PCI-AC5 cards
+
+== SYNOPSIS
+
+*loadrt opto_ac5* [**portconfig0=0x**_N_] [**portconfig1=0x**_N_]
+
+== DESCRIPTION
+
+These pins and parameters are created by the realtime *opto_ac5* module.
+The portconfig0 and portconfig1 variables are used to configure the two
+ports of each card. The first 24 bits of a 32 bit number represent the
+24 i/o points of each port. The lowest (rightmost) bit would be HAL pin
+0 which is header connector pin 47. Then next bit to the left would be
+HAL pin 1, header connector pin 45 and so on, until bit 24 would be HAL
+pin 23, header connector pin 1. "1" bits represent output points. So
+channel 0..11 as inputs and 12..23 as outputs would be represented by
+(in binary) 111111111111000000000000 which is 0xfff000 in hexadecimal.
+That is the number you would use, e.g.,
+`loadrt opto_ac5 portconfig0=0xfff000`.
+
+If no portconfig variable is specified the default configuration is 12
+inputs then 12 outputs.
+
+Up to 4 boards are supported. Boards are numbered starting at 0.
+
+Portnumber can be 0 or 1. Port 0 is closest to the card bracket.
+
+== PINS
+
+**opto_ac5.**_BOARDNUMBER_**.port.**_PORTNUMBER_**.in-**_PINNUMBER_ OUT bit::
+   +
+
+**opto_ac5.**_BOARDNUMBER_**.port.**_PORTNUMBER_**.in-**_PINNUMBER_**-not** OUT bit::
+  Connect a HAL bit signal to this pin to read an i/o point from the card.
+  The PINNUMBER represents the position in the relay rack.  E.g., PINNUMBER 0 is
+  position 0 in a opto22 relay rack and would be pin 47 on the 50 pin header connector.
+  The *-not* pin is inverted so that LOW gives TRUE and HIGH gives FALSE.
+**opto_ac5.**_BOARDNUMBER_**.port.**_PORTNUMBER_**.out-**_PINNUMBER_ IN bit::
+  Connect a HAL bit signal to this pin to write to an i/o point of the
+  card. The PINNUMBER represents the position in the relay rack. E.g.,
+  PINNUMBER 23 is position 23 in a opto22 relay rack and would be pin 1
+  on the 50 pin header connector.
+**opto_ac5.**_BOARDNUMBER_**.led.**_NUMBER_ OUT bit::
+  Turns one of the on board LEDS on/off. LEDS are numbered 0 to 3.
+
+== PARAMETERS
+
+**opto_ac5.**_BOARDNUMBER_**.port.**_PORTNUMBER_**.out-**_PINNUMBER_**-invert** W bit::
+  When TRUE, invert the meaning of the corresponding *-out* pin so that
+  TRUE gives LOW and FALSE gives HIGH.
+
+== FUNCTIONS
+
+*opto_ac5.0.digital-read*::
+  Add this to a thread to read all the input points.
+*opto_ac5.0.digital-write*::
+  Add this to a thread to write all the output points and LEDS.
+
+== BUGS
+
+All boards are loaded with the same port configurations as the first board.
+
+== SEE ALSO
+
+http://wiki.linuxcnc.org/cgi-bin/wiki.pl?OptoPciAc5

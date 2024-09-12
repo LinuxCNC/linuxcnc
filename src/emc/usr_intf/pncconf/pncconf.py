@@ -63,7 +63,7 @@ import hal
 try:
     LINUXCNCVERSION = os.environ['LINUXCNCVERSION']
 except:
-    LINUXCNCVERSION = 'Master (2.9)'
+    LINUXCNCVERSION = 'Master (2.10)'
 
 def get_value(w):
     try:
@@ -343,28 +343,19 @@ class App:
             self.HAL.write_halfile(base)
             # qtplasmac specific
             if self.d.frontend == _PD._QTPLASMAC:
-                # copy M190 file
-                if BASE == "/usr":
-                    m190Path = os.path.join(BASE, 'share/doc/linuxcnc/examples/sample-configs/sim/qtplasmac/M190')
-                else:
-                    m190Path = os.path.join(BASE, 'configs/sim/qtplasmac/M190')
-                shutil.copy(m190Path, os.path.join(base, 'M190'))
                 # different looking tool table for qtplasmac
-
                 dest = os.path.join(base, "tool.tbl")
                 if not os.path.exists(dest):
                     file = open(dest, "w")
                     print("T0 P1 X0 Y0 ;torch", file=file)
                     print("T1 P2 X0 Y0 ;scribe", file=file)
                     file.close()
-
             # _not_ qtplasmac
             else:
                 dest = os.path.join(base, "tool.tbl")
                 print (base,'\ncopy:',dest,os.path.exists(dest))
                 if not os.path.exists(dest):
                     print('copied')
-                    # different looking tool table for qtplasmac
                     file = open(dest, "w")
                     if self.d.axes == 2:# lathe
                         if self.d.units == _PD._METRIC:
@@ -2274,7 +2265,6 @@ Clicking 'existing custom program' will avoid this warning. "),False):
             d = self._p.MESA_FIRMWAREDATA[search]
             if not d[self._p._BOARDTITLE] == title:continue
             temp.append(d[self._p._FIRMWARE])
-        temp.sort()
         for i in temp:
             #print(i)
             model.append_text(i)

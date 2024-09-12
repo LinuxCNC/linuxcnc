@@ -2,8 +2,8 @@
 '''
 pmx_test.py
 
-Copyright (C) 2020, 2021 Phillip A Carter
-Copyright (C) 2020, 2021  Gregory D Carl
+Copyright (C) 2020 - 2024 Phillip A Carter
+Copyright (C) 2020 - 2024 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -48,6 +48,7 @@ rArcTimeLow  = '209E'
 rArcTimeHigh = '209F'
 validRead    = '0402'
 
+
 class App(QWidget):
     def __init__(self):
         super().__init__()
@@ -80,11 +81,11 @@ class App(QWidget):
         self.portFile = None
         self.portScan.pressed.connect(self.on_port_scan)
         self.usePanel.toggled.connect(self.on_use_toggled)
-        self.modeSet.currentIndexChanged.connect(lambda:self.on_value_changed(self.modeSet, rMode, 1))
-        self.currentSet.valueChanged.connect(lambda:self.on_value_changed(self.currentSet, rCurrent, 64))
-        self.pressureSet.valueChanged.connect(lambda:self.on_value_changed(self.pressureSet, rPressure, 128))
+        self.modeSet.currentIndexChanged.connect(lambda: self.on_value_changed(self.modeSet, rMode, 1))
+        self.currentSet.valueChanged.connect(lambda: self.on_value_changed(self.currentSet, rCurrent, 64))
+        self.pressureSet.valueChanged.connect(lambda: self.on_value_changed(self.pressureSet, rPressure, 128))
         self.timer.timeout.connect(self.periodic)
-        self.setStyleSheet( \
+        self.setStyleSheet(
             'QWidget {color: #ffee06; background: #16160e} \
             QLabel {height: 20} \
             QPushButton {border: 1 solid #ffee06; border-radius: 4; height: 30; width: 80} \
@@ -96,8 +97,8 @@ class App(QWidget):
             QRadioButton::indicator {border: 1px solid #ffee06; border-radius: 4; height: 20; width: 20} \
             QRadioButton::indicator:checked {background: #ffee06} \
             QDoubleSpinBox::up-button {subcontrol-origin:padding; subcontrol-position:right; width: 28px; height: 24px} \
-            QDoubleSpinBox::down-button {subcontrol-origin:padding; subcontrol-position:left; width: 28px; height: 24px} \
-            ')
+            QDoubleSpinBox::down-button {subcontrol-origin:padding; subcontrol-position:left; width: 28px; height: 24px}'
+            )
 
     def periodic(self):
         if not os.path.exists(self.portFile):
@@ -112,21 +113,23 @@ class App(QWidget):
                 self.openPort.close()
             except:
                 pass
-            self.dialog_ok(
-                        QMessageBox.Warning,\
-                        'Error',\
-                        '\nCommunications device lost.\n'\
-                        '\nA Port Scan is required.\n')
+            self.dialog_ok(QMessageBox.Warning,
+                           'Error',
+                           '\nCommunications device lost.\n'
+                           '\nA Port Scan is required.\n')
         if self.connected:
             for reg in (rMode, rCurrent, rPressure, rFault):
-                if not self.read_register(reg): return True
+                if not self.read_register(reg):
+                    return True
 
     def on_value_changed(self, widget, reg, multiplier):
-        if not self.connected: return
+        if not self.connected:
+            return
         if reg == rMode:
             mode = self.modeSet.currentIndex() + 1
             self.pressureSet.setValue(0)
-            if not self.write_to_register(rMode, '{:04x}'.format(mode)): return
+            if not self.write_to_register(rMode, f'{mode:04x}'):
+                return
             self.mode_changed()
             return
         elif reg == rPressure:
@@ -140,10 +143,10 @@ class App(QWidget):
                     widget.setValue(self.minPressure)
                 elif widget.value() == self.minPressure - 1:
                     widget.setValue(0)
-            data = ('{:04X}'.format(int(widget.value() * multiplier))).upper()
+            data = (f'{int(widget.value() * multiplier):04X}').upper()
         elif reg == rCurrent:
-            data = ('{:04X}'.format(int(widget.value() * multiplier))).upper()
-        self.write_to_register(reg , data)
+            data = (f'{int(widget.value() * multiplier):04X}').upper()
+        self.write_to_register(reg, data)
 
     def get_lrc(self, data):
         lrc = 0
@@ -154,13 +157,13 @@ class App(QWidget):
             except:
                 print('broken packet in get_lrc')
                 return '00'
-        lrc = ('{:02X}'.format((((lrc ^ 255) + 1) & 255))).upper()
+        lrc = (f'{(((lrc ^ 255) + 1) & 255):02X}').upper()
         return lrc
 
     def write_to_register(self, reg, data):
-        data = '{}{}{}{}'.format(address, regWrite, reg, data)
+        data = f'{address}{regWrite}{reg}{data}'
         lrc = self.get_lrc(data)
-        packet = ':{}{}\r\n'.format(data, lrc)
+        packet = f':{data}{lrc}\r\n'
         errors = 0
         while 1:
             try:
@@ -176,18 +179,17 @@ class App(QWidget):
                 if errors == 3:
                     self.connected = False
                     self.usePanel.setChecked(True)
-                    self.dialog_ok(
-                                QMessageBox.Warning,\
-                                'Error',\
-                                '\nNo reply while writing to plasma unit.\n'\
-                                '\nCheck connections and retry when ready.\n')
+                    self.dialog_ok(QMessageBox.Warning,
+                                   'Error',
+                                   '\nNo reply while writing to plasma unit.\n'
+                                   '\nCheck connections and retry when ready.\n')
                     return False
         return True
 
     def read_from_register(self, reg):
-        data = '{}{}{}0001'.format(address, regRead, reg)
-        lrc =self.get_lrc(data)
-        packet = ':{}{}\r\n'.format(data, lrc)
+        data = f'{address}{regRead}{reg}0001'
+        lrc = self.get_lrc(data)
+        packet = f':{data}{lrc}\r\n'
         reply = ''
         self.openPort.write(packet.encode())
         reply = self.openPort.readline().decode()
@@ -196,10 +198,10 @@ class App(QWidget):
         else:
             self.connected = False
             self.usePanel.setChecked(True)
-            self.dialog_ok(QMessageBox.Warning,\
-                        'Error',\
-                        '\nNo reply while reading from plasma unit.\n'\
-                        '\nCheck connections and retry when ready.\n')
+            self.dialog_ok(QMessageBox.Warning,
+                           'Error',
+                           '\nNo reply while reading from plasma unit.\n'
+                           '\nCheck connections and retry when ready.\n')
             return None
 
     def read_register(self, reg):
@@ -209,8 +211,8 @@ class App(QWidget):
             return
         if result:
             if int(result.strip(), 16) >= 0:
-                if result[:6] == '{}{}'.format(address, validRead):
-                    lrc = self.get_lrc('{}'.format(result[:10]))
+                if result[:6] == f'{address}{validRead}':
+                    lrc = self.get_lrc(f'{result[:10]}')
                     if lrc == result[10:12]:
                         if reg == rMode:
                             data = int(result[6:10])
@@ -218,64 +220,64 @@ class App(QWidget):
                             return data
                         elif reg == rCurrent:
                             data = float(int(result[6:10], 16) / 64.0)
-                            self.currentValue.setText('{:.0f}'.format(data))
+                            self.currentValue.setText(f'{data:.0f}')
                             return data
                         elif reg == rPressure:
                             data = float(int(result[6:10], 16) / 128.0)
                             if self.pressureType == 'bar':
-                                self.pressureValue.setText('{:.1f}'.format(data))
+                                self.pressureValue.setText(f'{data:.1f}')
                             else:
-                                self.pressureValue.setText('{:.0f}'.format(data))
+                                self.pressureValue.setText(f'{data:.0f}')
                             return 1
                         elif reg == rFault:
                             fault = int(result[6:10], 16)
-                            code = '{:04d}'.format(fault)
+                            code = f'{fault:04d}'
                             if fault > 0:
                                 self.faultLabel.setText('FAULT')
-                                self.faultValue.setText('{}-{}-{}'.format(code[0], code[1:3], code[3]))
+                                self.faultValue.setText(f'{code[0]}-{code[1:3]}-{code[3]}')
                             else:
                                 self.faultLabel.setText('')
                                 self.faultValue.setText('')
                             if fault == 210:
-                                if float(self.currentMax.text()) >110:
-                                    self.faultName.setText('{}'.format(faultCode[code][1]))
+                                if float(self.currentMax.text()) > 110:
+                                    self.faultName.setText(f'{faultCode[code][1]}')
                                 else:
-                                    self.faultName.setText('{}'.format(faultCode[code][1]))
+                                    self.faultName.setText(f'{faultCode[code][1]}')
                             else:
                                 try:
-                                    self.faultName.setText('{}'.format(faultCode[code]))
+                                    self.faultName.setText(f'{faultCode[code]}')
                                 except:
                                     self.faultName.setText('UNKNOWN FAULT CODE')
                             return code
                         elif reg == rCurrentMin:
                             data = float(int(result[6:10], 16) / 64.0)
-                            self.currentMin.setText('{:.0f}'.format(data))
+                            self.currentMin.setText(f'{data:.0f}')
                             return data
                         elif reg == rCurrentMax:
                             data = float(int(result[6:10], 16) / 64.0)
-                            self.currentMax.setText('{:.0f}'.format(data))
+                            self.currentMax.setText(f'{data:.0f}')
                             return data
                         elif reg == rPressureMin:
                             data = float(int(result[6:10], 16) / 128.0)
                             self.minimumPressure = data
                             if data < 15:
                                 self.pressureType = 'bar'
-                                self.pressureMin.setText('{:.1f}'.format(data))
+                                self.pressureMin.setText(f'{data:.1f}')
                                 self.pressure.setSingleStep(0.1)
                                 self.pressure.setDecimals(1)
                             else:
                                 self.pressureType = 'psi'
-                                self.pressureMin.setText('{:.0f}'.format(data))
+                                self.pressureMin.setText(f'{data:.0f}')
                                 self.pressureSet.setSingleStep(1)
                                 self.pressureSet.setDecimals(0)
                             return data
                         elif reg == rPressureMax:
                             data = float(int(result[6:10], 16) / 128.0)
                             if self.pressureType == 'bar':
-                                self.pressureMax.setText('{:.1f}'.format(data))
+                                self.pressureMax.setText(f'{data:.1f}')
                                 self.pressureSet.setMaximum(data)
                             else:
-                                self.pressureMax.setText('{:.0f}'.format(data))
+                                self.pressureMax.setText(f'{data:.0f}')
                                 self.pressureSet.setMaximum(data)
                             return data
                         elif reg == rArcTimeLow:
@@ -289,46 +291,56 @@ class App(QWidget):
         if self.usePanel.isChecked():
             if self.connected:
                 self.connected = False
-                if not self.write_to_register(rMode, '0000'): return
-                if not self.write_to_register(rCurrent, '0000'): return
-                if not self.write_to_register(rPressure, '0000'): return
+                if not self.write_to_register(rMode, '0000'):
+                    return
+                if not self.write_to_register(rCurrent, '0000'):
+                    return
+                if not self.write_to_register(rPressure, '0000'):
+                    return
             self.clear_text()
             self.portName.setEnabled = True
         else:
             if self.currentSet.value() == 0:
-                result = self.dialog_ok(
-                        QMessageBox.Warning,\
-                        'Error',\
-                        '\nA value is required for Current.\n')
+                result = self.dialog_ok(QMessageBox.Warning,
+                                        'Error',
+                                        '\nA value is required for Current.\n')
                 if result:
                     self.usePanel.setEnabled(True)
                     return
             self.portName.setEnabled = False
             mode = self.modeSet.currentIndex() + 1
-            if not self.write_to_register(rMode, '{:04x}'.format(mode)): return
-            data = '{:04X}'.format(int(self.currentSet.value() * 64))
-            if not self.write_to_register(rCurrent, data): return
-            data = '{:04X}'.format(int(self.pressureSet.value() * 128))
-            if not self.write_to_register(rPressure, data): return
+            if not self.write_to_register(rMode, f'{mode:04x}'):
+                return
+            data = f'{int(self.currentSet.value() * 64):04X}'
+            if not self.write_to_register(rCurrent, data):
+                return
+            data = f'{int(self.pressureSet.value() * 128):04X}'
+            if not self.write_to_register(rPressure, data):
+                return
             self.mode_changed()
             self.timer.start(100)
             self.connected = True
 
     def mode_changed(self):
-        if not self.read_register(rCurrentMin): return
-        if not self.read_register(rCurrentMax): return
-        self.currentSet.setRange(int(float(self.currentMin.text())),int(float(self.currentMax.text())))
-        if not self.read_register(rPressureMin): return
-        if not self.read_register(rPressureMax): return
-        if not self.read_register(rFault): return
+        if not self.read_register(rCurrentMin):
+            return
+        if not self.read_register(rCurrentMax):
+            return
+        self.currentSet.setRange(int(float(self.currentMin.text())), int(float(self.currentMax.text())))
+        if not self.read_register(rPressureMin):
+            return
+        if not self.read_register(rPressureMax):
+            return
+        if not self.read_register(rFault):
+            return
         ArcTimeLow = self.read_register(rArcTimeLow)
         ArcTimeHigh = self.read_register(rArcTimeHigh)
         if ArcTimeLow and ArcTimeHigh:
             ArcTime = int((ArcTimeHigh + ArcTimeLow), 16)
             m, s = divmod(ArcTime, 60)
             h, m = divmod(m, 60)
-            self.arctimeValue.setText('{:.0f}:{:02.0f}:{:02.0f}'.format(h,m,s))
-        self.pressureSet.setRange((0),float(self.pressureMax.text()))
+            self.arctimeValue.setText(f'{h:.0f}:{m:02.0f}:{s:02.0f}')
+        self.pressureSet.setRange((0), float(self.pressureMax.text()))
         self.minPressure = float(self.pressureMin.text())
         self.maxPressure = float(self.pressureMax.text())
 
@@ -347,7 +359,7 @@ class App(QWidget):
         self.portName.showPopup()
         self.usePanel.setEnabled(False)
         self.useComms.setEnabled(False)
-        self.portName.setCurrentIndex( self.portName.count() - 1 )
+        self.portName.setCurrentIndex(self.portName.count() - 1)
         self.on_port_changed()
 
     def on_port_changed(self):
@@ -363,18 +375,17 @@ class App(QWidget):
         try:
             self.openPort = serial.Serial(
                     self.portName.currentText(),
-                    baudrate = 19200,
-                    bytesize = 8,
-                    parity = 'E',
-                    stopbits = 1,
-                    timeout = 0.1
+                    baudrate=19200,
+                    bytesize=8,
+                    parity='E',
+                    stopbits=1,
+                    timeout=0.1
                     )
-            print('\n{} is open...\n'.format(self.portName.currentText()))
+            print(f'\n{self.portName.currentText()} is open...\n')
         except:
-            self.dialog_ok(
-                    QMessageBox.Warning,\
-                    'Error',\
-                    '\nCould not open {}\n'.format(self.portName.currentText()))
+            self.dialog_ok(QMessageBox.Warning,
+                           'Error',
+                           f'\nCould not open {self.portName.currentText()}\n')
             return
         self.usePanel.setEnabled(True)
         self.useComms.setEnabled(True)
@@ -396,12 +407,12 @@ class App(QWidget):
         self.currentSet.setValue(40)
         self.pressureSet.setValue(0)
 
-    def dialog_ok(self,icon,title,text):
+    def dialog_ok(self, icon, title, text):
         response = QMessageBox()
         response.setIcon(icon)
         response.setWindowIcon(QIcon(os.path.join(self.iconBase, self.iconPath)))
         response.setWindowTitle(title)
-        response.setText(text);
+        response.setText(text)
         response.exec_()
         return response
 
@@ -412,88 +423,88 @@ class App(QWidget):
         for c in range(0, 5):
             self.grid.setColumnMinimumWidth(c, 100)
         self.portScan = QPushButton('PORT SCAN')
-        self.grid.addWidget(self.portScan,0,0)
+        self.grid.addWidget(self.portScan, 0, 0)
         self.portName = QComboBox()
         self.portName.setStyleSheet('QComboBox {width: 200}')
-        self.grid.addWidget(self.portName,0,2,1,2)
+        self.grid.addWidget(self.portName, 0, 2, 1, 2)
         self.usePanel = QRadioButton('PANEL')
         self.usePanel.setChecked(True)
         self.usePanel.setEnabled(False)
-        self.grid.addWidget(self.usePanel,0,4)
+        self.grid.addWidget(self.usePanel, 0, 4)
         self.useComms = QRadioButton('RS485')
         self.useComms.setEnabled(False)
-        self.grid.addWidget(self.useComms,1,4)
+        self.grid.addWidget(self.useComms, 1, 4)
         self.minLabel = QLabel('MIN.')
-        self.minLabel.setAlignment(Qt.AlignRight| Qt.AlignVCenter)
-        self.grid.addWidget(self.minLabel,2,1)
+        self.minLabel.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.grid.addWidget(self.minLabel, 2, 1)
         self.maxLabel = QLabel('MAX.')
-        self.maxLabel.setAlignment(Qt.AlignRight| Qt.AlignVCenter)
-        self.grid.addWidget(self.maxLabel,2,2)
+        self.maxLabel.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.grid.addWidget(self.maxLabel, 2, 2)
         self.valueLabel = QLabel('VALUE')
-        self.valueLabel.setAlignment(Qt.AlignRight| Qt.AlignVCenter)
-        self.grid.addWidget(self.valueLabel,2,3)
+        self.valueLabel.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.grid.addWidget(self.valueLabel, 2, 3)
         self.setLabel = QLabel('SET TO')
-        self.setLabel.setAlignment(Qt.AlignCenter| Qt.AlignVCenter)
-        self.grid.addWidget(self.setLabel,2,4)
+        self.setLabel.setAlignment(Qt.AlignCenter | Qt.AlignVCenter)
+        self.grid.addWidget(self.setLabel, 2, 4)
         self.modeLabel = QLabel('MODE')
-        self.modeLabel.setAlignment(Qt.AlignRight| Qt.AlignVCenter)
-        self.grid.addWidget(self.modeLabel,3,0)
+        self.modeLabel.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.grid.addWidget(self.modeLabel, 3, 0)
         self.currentLabel = QLabel('CURRENT')
-        self.currentLabel.setAlignment(Qt.AlignRight| Qt.AlignVCenter)
-        self.grid.addWidget(self.currentLabel,4,0)
+        self.currentLabel.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.grid.addWidget(self.currentLabel, 4, 0)
         self.pressureLabel = QLabel('PRESSURE')
-        self.pressureLabel.setAlignment(Qt.AlignRight| Qt.AlignVCenter)
-        self.grid.addWidget(self.pressureLabel,5,0)
+        self.pressureLabel.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.grid.addWidget(self.pressureLabel, 5, 0)
         self.arctimeLabel = QLabel('ARC ON TIME')
-        self.arctimeLabel.setAlignment(Qt.AlignRight| Qt.AlignVCenter)
-        self.grid.addWidget(self.arctimeLabel,6,0)
+        self.arctimeLabel.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.grid.addWidget(self.arctimeLabel, 6, 0)
         self.faultLabel = QLabel('ERROR')
-        self.faultLabel.setAlignment(Qt.AlignRight| Qt.AlignVCenter)
-        self.grid.addWidget(self.faultLabel,7,0)
+        self.faultLabel.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.grid.addWidget(self.faultLabel, 7, 0)
         self.modeValue = QLabel('0')
-        self.modeValue.setAlignment(Qt.AlignRight| Qt.AlignVCenter)
-        self.grid.addWidget(self.modeValue,3,3)
+        self.modeValue.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.grid.addWidget(self.modeValue, 3, 3)
         self.currentValue = QLabel('0')
-        self.currentValue.setAlignment(Qt.AlignRight| Qt.AlignVCenter)
-        self.grid.addWidget(self.currentValue,4,3)
+        self.currentValue.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.grid.addWidget(self.currentValue, 4, 3)
         self.pressureValue = QLabel('0')
-        self.pressureValue.setAlignment(Qt.AlignRight| Qt.AlignVCenter)
-        self.grid.addWidget(self.pressureValue,5,3)
+        self.pressureValue.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.grid.addWidget(self.pressureValue, 5, 3)
         self.arctimeValue = QLabel('0')
-        self.arctimeValue.setAlignment(Qt.AlignRight| Qt.AlignVCenter)
-        self.grid.addWidget(self.arctimeValue,6,3)
+        self.arctimeValue.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.grid.addWidget(self.arctimeValue, 6, 3)
         self.faultValue = QLabel('0')
-        self.faultValue.setAlignment(Qt.AlignRight| Qt.AlignVCenter)
-        self.grid.addWidget(self.faultValue,7,1)
+        self.faultValue.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.grid.addWidget(self.faultValue, 7, 1)
         self.currentMin = QLabel('0')
-        self.currentMin.setAlignment(Qt.AlignRight| Qt.AlignVCenter)
-        self.grid.addWidget(self.currentMin,4,1)
+        self.currentMin.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.grid.addWidget(self.currentMin, 4, 1)
         self.pressureMin = QLabel('0')
-        self.pressureMin.setAlignment(Qt.AlignRight| Qt.AlignVCenter)
-        self.grid.addWidget(self.pressureMin,5,1)
+        self.pressureMin.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.grid.addWidget(self.pressureMin, 5, 1)
         self.currentMax = QLabel('0')
-        self.currentMax.setAlignment(Qt.AlignRight| Qt.AlignVCenter)
-        self.grid.addWidget(self.currentMax,4,2)
+        self.currentMax.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.grid.addWidget(self.currentMax, 4, 2)
         self.pressureMax = QLabel('0')
-        self.pressureMax.setAlignment(Qt.AlignRight| Qt.AlignVCenter)
-        self.grid.addWidget(self.pressureMax,5,2)
+        self.pressureMax.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.grid.addWidget(self.pressureMax, 5, 2)
         self.faultName = QLabel('')
-        self.faultName.setAlignment(Qt.AlignLeft| Qt.AlignVCenter)
-        self.grid.addWidget(self.faultName,7,2,1,3)
+        self.faultName.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        self.grid.addWidget(self.faultName, 7, 2, 1, 3)
         self.modeSet = QComboBox()
-        self.modeSet.addItems(['NORMAL','CPA','GOUGE'])
+        self.modeSet.addItems(['NORMAL', 'CPA', 'GOUGE'])
         self.modeSet.setCurrentIndex(0)
-        self.grid.addWidget(self.modeSet,3,4)
+        self.grid.addWidget(self.modeSet, 3, 4)
         self.currentSet = QDoubleSpinBox()
         self.currentSet.setMaximum(125)
         self.currentSet.setWrapping(True)
-        self.currentSet.setAlignment(Qt.AlignRight| Qt.AlignVCenter)
-        self.grid.addWidget(self.currentSet,4,4)
+        self.currentSet.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.grid.addWidget(self.currentSet, 4, 4)
         self.pressureSet = QDoubleSpinBox()
         self.pressureSet.setMaximum(125)
         self.pressureSet.setWrapping(True)
-        self.pressureSet.setAlignment(Qt.AlignRight| Qt.AlignVCenter)
-        self.grid.addWidget(self.pressureSet,5,4)
+        self.pressureSet.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
+        self.grid.addWidget(self.pressureSet, 5, 4)
         self.clear_text()
 
     def shut_down(self):
@@ -501,6 +512,7 @@ class App(QWidget):
             self.write_to_register(rMode, '0000')
             self.write_to_register(rCurrent, '0000')
             self.write_to_register(rPressure, '0000')
+
 
 faultCode = {
              '0000': '',

@@ -149,8 +149,8 @@ int main(int argc, char **argv)
     signal(SIGTERM, quit);
     signal(SIGPIPE, SIG_IGN);
     /* connect to HAL */
-    /* create a unique module name, to allow for multiple streamers */
-    snprintf(comp_name, sizeof(comp_name), "halstreamer%d", getpid());
+    /* create module name for specified channel */
+    snprintf(comp_name, sizeof(comp_name), "halstreamer%d", channel);
     /* connect to the HAL */
     ignore_sig = 1;
     comp_id = hal_init(comp_name);

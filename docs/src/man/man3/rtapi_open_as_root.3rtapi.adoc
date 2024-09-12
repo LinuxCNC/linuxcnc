@@ -1,0 +1,48 @@
+= rtapi_open_as_root(3rtapi)
+
+== NAME
+
+rtapi_open_as_root - Open a file with "root" privilege
+
+== SYNTAX
+
+....
+#include <rtapi.h>
+int rtapi_open_as_root(const char *filename, int flags);
+....
+
+== ARGUMENTS
+
+filename::
+  The filename to open, as in *open(2)*. Note that rtapi has no
+  well-defined "current directory", so this should be an absolute path,
+  but this is not enforced.
+flags::
+  The open flags, as in *open(2)*. Should never include bits that open
+  or create files (e.g., O_CREAT, O_APPEND, etc) as this API is not
+  intended for creating or writing files, but this is not enforced.
+
+== DESCRIPTION
+
+In "uspace" realtime, root privileges are dropped whenever possible.
+This API temporarily switches on root privileges to open a file, and
+switches them off before returning. This can be useful for example when
+accessing device nodes or memory-mapped I/O.
+
+In the case of PCI devices on x86 and x86-64 systems, prefer the
+linux-style PCI interfaces provided in *<rtapi_pci.h>*.
+
+== RETURN VALUE
+
+In case of success, the nonnegative file descriptor opened. If the
+caller does not close it, it remains open until rtapi_app exits.
+
+In case of failure, a negative errno value.
+
+== REALTIME CONSIDERATIONS
+
+Call only from realtime initcode in "uspace" realtime.
+
+== SEE ALSO
+
+open(2), rtapi_pci(3)

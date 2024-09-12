@@ -71,6 +71,7 @@
     information, go to www.linuxcnc.org.
 */
 #include <Python.h>
+#include <pyconfig.h>
 #include <time.h>
 
 #include <stdio.h>
@@ -206,9 +207,11 @@ int main(int argc, char **argv)
 
     /* import the python module and get references for needed function */
     PyObject *pModule, *pFunc, *pPeriodicFunc, *pClass;
+    PyConfig config;
+    PyConfig_InitPythonConfig(&config);
     char name[] = "panelui"; 
     wchar_t *wname = Py_DecodeLocale(name, NULL);
-    Py_SetProgramName(wname);
+    PyConfig_SetString(&config, &config.program_name, wname);
     Py_Initialize();
     PyRun_SimpleString("import pyui\n"
                      "pyui.instance = pyui.master.keyboard()\n"

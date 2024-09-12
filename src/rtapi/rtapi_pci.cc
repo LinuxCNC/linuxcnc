@@ -458,7 +458,7 @@ int rtapi_request_firmware(const struct rtapi_firmware **fw, const char *name, s
         return -ENOENT;
     }
 
-    /* We've found and oepned the file, now let's get the size */
+    /* We've found and opened the file, now let's get the size */
     if (stat(path, &st) < 0)
     {
         rtapi_print_msg(RTAPI_MSG_ERR, "Could not determine size of file \"%s\". (%s)\n",

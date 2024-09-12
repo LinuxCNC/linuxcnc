@@ -813,6 +813,17 @@ def find(pattern):
                 else:
                     idx -= 1
                     continue
+        try:
+            phys = get_uniq(f)
+        except IOError:
+            pass
+        else:
+            if phys.find(pattern) != -1 or fnmatch.fnmatch(phys, pattern):
+                if idx == 0:
+                    return f
+                else:
+                    idx -= 1
+                    continue
 
         id = InputId.get(f)
         sid = "Bus=%s Vendor=%04x Product=%04x Version=%04x" % (\

@@ -139,12 +139,6 @@ Or see http://linuxcnc.org/docs/stable/html/man/man1/halui.1.html
 * 'halui.home-all' (bit, in) - pin for requesting all axis to home. This
   pin will only be there if HOME_SEQUENCE is set in the INI file.
 
-=== Lube
-
-* 'halui.lube.is-on' (bit, out) - indicates lube is on
-* 'halui.lube.off' (bit, in) - pin for requesting lube off
-* 'halui.lube.on' (bit, in) - pin for requesting lube on
-
 === Machine
 
 * 'halui.machine.units-per-mm' (float out) - pin  for  machine  units-per-mm
@@ -173,6 +167,9 @@ that is set in the [TRAJ] section of the INI file.
   If the command succeeds then it will place LinuxCNC in the MDI mode and then back to Manual mode. +
   If no [HALUI]MDI_COMMAND variables are set in the  ini  file, no halui.mdi-command-<nn> pins will be
   exported by halui.
+* 'halui.halui-mdi-is-running' (bit, out) - execution status of MDI commands sent by halui. The status is active
+  even during mode switching.
+  If no [HALUI]MDI_COMMAND variables are set in the  ini  file, this pins will not be exported by halui.
 
 === Joint
 

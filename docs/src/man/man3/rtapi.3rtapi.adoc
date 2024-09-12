@@ -1,0 +1,80 @@
+= intro(3rtapi)
+
+== NAME
+
+rtapi - Introduction to the RTAPI API
+
+== DESCRIPTION
+
+RTAPI is a library providing a uniform API for several real time
+operating systems. As of LinuxCNC 2.7, POSIX threads and RTAI are
+supported.
+
+== HEADER FILES
+
+=== rtapi.h
+
+The file *rtapi.h* defines the RTAPI for both realtime and non-realtime
+code. This is a change from Rev 2, where the non-realtime API was
+defined in ulapi.h and used different function names. The symbols RTAPI
+and ULAPI are used to determine which mode is being compiled, RTAPI for
+realtime and ULAPI for non-realtime.
+
+=== rtapi_math.h
+
+The file rtapi_math.h defines floating-point functions and constants. It
+should be used instead of <math.h> in rtapi real-time components.
+
+=== rtapi_string.h
+
+The file rtapi_string.h defines string-related functions. It should be
+used instead of <string.h> in rtapi real-time components.
+
+=== rtapi_byteorder.h
+
+This file defines the preprocessor macros RTAPI_BIG_ENDIAN,
+RTAPI_LITTLE_ENDIAN, and RTAPI_FLOAT_BIG_ENDIAN as true or false
+depending on the characteristics of the target system. It should be used
+instead of *<endian.h>* (userspace) or *<linux/byteorder.h>* (kernel
+space).
+
+=== rtapi_limits.h
+
+This file defines the minimum and maximum value of some fundamental
+integral types, such as INT_MIN and INT_MAX. This should be used instead
+of *<limits.h>* because that header file is not available to kernel
+modules.
+
+== REALTIME CONSIDERATIONS
+
+=== Non-realtime code
+
+Certain functions are not available in non-realtime code. This includes
+functions that perform direct device access such as *rtapi_inb(3)*.
+
+=== Init/cleanup code
+
+Certain functions may only be called from realtime init/cleanup code.
+This includes functions that perform memory allocation, such as
+*rtapi_shmem_new(3)*.
+
+=== Realtime code
+
+Only a few functions may be called from realtime code. This includes
+functions that perform direct device access such as *rtapi_inb(3)*. It
+excludes most Linux kernel APIs such as do_gettimeofday(3) and many
+rtapi APIs such as rtapi_shmem_new(3).
+
+=== Simulator
+
+For an RTAPI module to be buildable in the "sim" environment (fake
+realtime system without special privileges), it must not use *any* linux
+kernel APIs, and must not use the RTAPI APIs for direct device access
+such as *rtapi_inb(3)*. This automatically includes any hardware device
+drivers, and also devices which use Linux kernel APIs to do things like
+create special devices or entries in the */proc* filesystem.
+
+== RTAPI STATUS CODES
+
+Except as noted in specific manual pages, RTAPI returns negative errno
+values for errors, and nonnegative values for success.

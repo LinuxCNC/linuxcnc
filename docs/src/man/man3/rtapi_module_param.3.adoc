@@ -1,0 +1,82 @@
+:manvolnum: 3
+
+= rtapi_module_param(3rtapi)
+
+== NAME
+
+rtapi_module_param, EXPORT_FUNCTION, RTAPI_MP_INT, RTAPI_MP_LONG,
+RTAPI_MP_STRING, RTAPI_MP_ARRAY_INT, RTAPI_MP_ARRAY_LONG,
+RTAPI_MP_ARRAY_STRING, MODULE_LICENSE, MODULE_AUTHOR,
+MODULE_DESCRIPTION - Specifying module parameters
+
+== SYNTAX
+
+....
+RTAPI_MP_INT(_var_, _description_);
+RTAPI_MP_LONG(_var_, _description_);
+RTAPI_MP_STRING(_var_, _description_);
+RTAPI_MP_ARRAY_INT(_var_, _num_, _description_);
+RTAPI_MP_ARRAY_LONG(_var_, _num_, _description_);
+RTAPI_MP_ARRAY_STRING(_var_, _num_, _description_);
+MODULE_LICENSE(_license_);
+MODULE_AUTHOR(_author_);
+MODULE_DESCRIPTION(_description_);
+EXPORT_FUNCTION(_function_);
+....
+
+== ARGUMENTS
+
+var::
+  The variable where the parameter should be stored
+description::
+  A short description of the parameter or module
+num::
+  The maximum number of values for an array parameter
+license::
+  The license of the module, for instance "GPL"
+author::
+  The author of the module
+function::
+  The pointer to the function to be exported
+
+== DESCRIPTION
+
+These macros are portable ways to declare kernel module parameters. They
+must be used in the global scope, and are not followed by a terminating
+semicolon. They must be used after the associated variable or function
+has been defined.
+
+== NOTES
+
+EXPORT_FUNCTION makes a symbol available for use by a subsequently
+loaded component. It is unrelated to HAL functions, which are described
+in hal_export_funct(3hal)
+
+== Interpretation of license strings
+
+*MODULE_LICENSE* follows the kernel's definition of license strings.
+Notably, "GPL" indicates "GNU General Public License v2 _or later_".
+(emphasis ours).
+
+"GPL"::
+  GNU General Public License v2 or later
+"GPL v2"::
+  GNU General Public License v2
+"GPL and additional rights"::
+  GNU General Public License v2 rights and more
+"Dual BSD/GPL"::
+  GNU General Public License v2 or BSD license choice
+"Dual MIT/GPL"::
+  GNU General Public License v2 or MIT license choice
+"Dual MPL/GPL"::
+  GNU General Public License v2 or Mozilla license choice
+"Proprietary"::
+  Non-free products
+
+It is still good practice to include a license block which indicates the
+author, copyright date, and disclaimer of warranty as recommended by the
+GNU GPL.
+
+== REALTIME CONSIDERATIONS
+
+Not available in userspace code.

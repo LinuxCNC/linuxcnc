@@ -39,6 +39,7 @@ net plasmac:adaptive-feed        plasmac.adaptive-feed       =>  motion.adaptive
 net plasmac:feed-hold            plasmac.feed-hold           =>  motion.feed-hold
 net plasmac:jog-inhibit          plasmac.jog-inhibit         =>  motion.jog-inhibit motion.jog-stop
 net plasmac:offset-scale         plasmac.offset-scale        =>  axis.x.eoffset-scale axis.y.eoffset-scale axis.z.eoffset-scale
+net plasmac:probe-out            plasmac.probe-out           =>  motion.probe-input
 net plasmac:program-pause        plasmac.program-pause       =>  halui.program.pause
 net plasmac:program-resume       plasmac.program-resume      =>  halui.program.resume
 net plasmac:program-run          plasmac.program-run         =>  halui.program.run

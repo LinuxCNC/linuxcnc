@@ -24,7 +24,7 @@
 
 /* module information */
 MODULE_AUTHOR("Andy Pugh");
-MODULE_DESCRIPTION("Hal-to-text component for Mesa 7i73 and similar");
+MODULE_DESCRIPTION("Hal-to-text component for Mesa 7I73 and similar");
 MODULE_LICENSE("GPL");
 
 typedef struct {

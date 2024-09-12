@@ -1,0 +1,53 @@
+:manvolnum: 3
+
+= rtapi_prio(3rtapi)
+
+== NAME
+
+rtapi_prio, rtapi_prio_highest, rtapi_prio_lowest, rtapi_prio_next_higher, rtapi_prio_next_lower - thread priority functions
+
+== SYNTAX
+
+....
+int rtapi_prio_highest();
+int rtapi_prio_lowest();
+int rtapi_prio_next_higher(int _prio_);
+int rtapi_prio_next_lower(int _prio_);
+....
+
+== ARGUMENTS
+
+prio::
+  A value returned by a prior *rtapi_prio_xxx* call
+
+== DESCRIPTION
+
+The *rtapi_prio_xxxx* functions provide a portable way to set task
+priority. The mapping of actual priority to priority number depends on
+the RTOS. Priorities range from *rtapi_prio_lowest* to
+*rtapi_prio_highest*, inclusive. To use this API, use one of two
+methods:
+
+[arabic]
+. Set your lowest priority task to *rtapi_prio_lowest*, and for each
+task of the next lowest priority, set their priorities to
+*rtapi_prio_next_higher(previous)*.
+. Set your highest priority task to *rtapi_prio_highest*, and for each
+task of the next highest priority, set their priorities to
+*rtapi_prio_next_lower(previous)*.
+
+N.B. A high priority task will preempt or interrupt a lower priority
+task. Linux is always the lowest priority!
+
+== REALTIME CONSIDERATIONS
+
+Call these functions only from within init/cleanup code, not from
+realtime tasks.
+
+== RETURN VALUE
+
+Returns an opaque real-time priority number.
+
+== SEE ALSO
+
+rtapi_task_new(3rtapi)

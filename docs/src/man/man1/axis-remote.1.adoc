@@ -1,0 +1,59 @@
+= axis-remote(1)
+
+== NAME
+
+axis-remote - AXIS Remote Interface
+
+== SYNOPSIS
+
+*axis-remote __OPTIONS__|__FILENAME__*
+
+== DESCRIPTION
+
+*axis-remote* is a small script that triggers commands in a running AXIS GUI.
+
+Use *axis-remote --help* for further information.::
+
+== OPTIONS
+
+*--ping*, *-p*::
+  Check whether AXIS is running.
+*--reload*, *-r*::
+  Make AXIS reload the currently loaded file.
+*--clear*, *-c*::
+  Make AXIS clear the backplot.
+*--quit*, *-q*::
+  Make AXIS quit.
+*--help*, *-h*, *-?*::
+  Display a list of valid parameters for *axis-remote*.
+*--mdi* _COMMAND_, *-m* COMMAND::
+  Run the MDI command _COMMAND_.
+_FILENAME_::
+  Load the G-code file _FILENAME_.
+
+== SEE ALSO
+
+axis(1)
+
+Much more information about LinuxCNC and HAL is available in the
+LinuxCNC and HAL User Manuals, found at /usr/share/doc/linuxcnc/.
+
+== BUGS
+
+None known at this time.
+
+== AUTHOR
+
+This man page written by Alex Joni, as part of the LinuxCNC project.
+
+== REPORTING BUGS
+
+Report bugs at https://github.com/LinuxCNC/linuxcnc/issues.
+
+== COPYRIGHT
+
+Copyright © 2007 Alex Joni.
+
+This is free software; see the source for copying conditions. There is
+NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.

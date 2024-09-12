@@ -1,0 +1,52 @@
+= gladevcp(1)
+
+== NAME
+
+gladevcp - Virtual Control Panel for LinuxCNC based on Glade, Gtk and
+HAL widgets
+
+== SYNOPSIS
+
+*gladevcp* [*-g* _WxH+X+Y_] [*-c* _component-name_] [*-u* _handler_] [*-U* _useroption_] [*-H* _HAL-file_] [*-d*] _myfile.ui_
+
+== OPTIONS
+
+*-g* _WxH+X+Y_::
+  This sets the initial geometry of the root window. Use 'WxH' for just
+  size, '+X+Y' for just position, or 'WxH+X+Y' for both. Size / position
+  use pixel units. Position is referenced from top left.
+*-c* _component-name_::
+  Use _component-name_ as the HAL component name. If the component name
+  is not specified, the basename of the ui file is used.
+*-u* _handler_::
+  Instructs GladeVCP to inspect the Python script _handler_ for event
+  handlers, and connect them to signals in the ui file.
+*-U* _useroption_::
+  GladeVCP collects all _useroption_ strings and passes them to the
+  handler init() method as a list of strings without further inspection.
+*-x* _XID_::
+  Reparent GladeVCP into an existing window _XID_ instead of creating a
+  new top level window.
+*-H* _halfile_::
+  GladeVCP runs _HAL file_ - a list of HAL commands - by executing
+  _halcmd -c filename_ after the HAL component is finalized.
+*-d*::
+  enable debug output.
+*-R* _gtkrcfile_::
+  explicitly load a gtkrc file.
+*-t* _THEME_::
+  set gtk theme. Default is the _system_ theme.
+  Different panels can have different themes.
+*-m* _MAXIMUM_::
+  force panel window to maximize. Together with the _-g geometry_ option
+  one can move the panel to a second monitor and force it to use all of
+  the screen
+*-R*::
+  explicitly deactivate workaround for a GTK bug which makes matches of
+  widget and widget_class matches in GTK theme and gtkrc files fail.
+  Normally not needed.
+
+== SEE ALSO
+
+_GladeVCP_ in the LinuxCNC documentation for a description of GladeVCP's
+capabilities and the associated HAL widget set, along with examples.

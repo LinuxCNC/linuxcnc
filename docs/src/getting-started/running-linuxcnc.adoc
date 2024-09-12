@@ -52,6 +52,7 @@ new users and are organized around supported GUIs:
 * 'tklinuxcnc' - Keyboard and Mouse GUI (no longer maintained)
 * 'touchy' - Touch Screen GUI
 * 'woodpecker' - Touch Screen GUI
+
 A GUI configuration directory may contain subdirectories with
 configurations that illustrate special situations or the embedding
 of other applications.

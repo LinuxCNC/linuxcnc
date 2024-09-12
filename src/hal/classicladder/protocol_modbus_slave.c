@@ -27,8 +27,9 @@
 #include "classicladder.h"
 #include "global.h"
 #include "vars_access.h"
+#include "protocol_modbus_defines.h"
 #include "protocol_modbus_slave.h"
-#include "protocol_modbus_master.h" // some Modbus defines shared
+//////#include "protocol_modbus_master.h" // some Modbus defines shared
 
 
 
@@ -43,12 +44,13 @@ int ModbusRequestToRespond( unsigned char * Question, int LgtQuestion, unsigned 
 	int LgtResponse = 0;
 	int ErrorCode = 0;
 	int ScanEle;
-printf("FUNCTION CODE=%d\n", Question[ 0 ] );
-	switch( Question[ 0 ] )
+	unsigned char FunctionCode = Question[ 0 ];
+printf("FUNCTION CODE=%d\n", FunctionCode );
+	switch( FunctionCode )
 	{
 		// Read n bits (read or write bits)
-		case 1:
-		case 2:
+		case MODBUS_FC_READ_COILS:
+		case MODBUS_FC_READ_INPUTS:
 			if ( LgtQuestion>=5 )
 			{
 				int FirstBit = (Question[1]<<8) | Question[2];
@@ -56,7 +58,7 @@ printf("FUNCTION CODE=%d\n", Question[ 0 ] );
 				int NbrRealBytes = (NbrBits+7)/8;
 				int ScanByte, ScanBit;
 				// validity request verify
-				if ( FirstBit+1+NbrRealBytes*8>InfosGene->GeneralParams.SizesInfos.nbr_bits )
+				if ( FirstBit+1+NbrRealBytes*8>GetMobdusSlaveNbrVars( FunctionCode ) )
 					ErrorCode = MODBUS_ILLEGAL_DATA_ADDRESS;
 				if ( NbrBits>2000 )
 					ErrorCode = MODBUS_ILLEGAL_DATA_ADDRESS;
@@ -64,7 +66,7 @@ printf("FUNCTION CODE=%d\n", Question[ 0 ] );
 				if ( ErrorCode==0 )
 				{ 
 					// Code Function for response
-					Response[ LgtResponse++ ] = Question[ 0 ];
+					Response[ LgtResponse++ ] = FunctionCode;
 					// Length in bytes
 					Response[ LgtResponse++ ] = NbrRealBytes;
 					// Bits values
@@ -75,7 +77,7 @@ printf("FUNCTION CODE=%d\n", Question[ 0 ] );
 						unsigned char Mask = 0x01;
 						for( ScanBit=0; ScanBit<8; ScanBit++ )
 						{
-							if( ReadVar( VAR_MEM_BIT, FirstBit+OffsetForVars+ScanEle++ ) )
+							if( GetVarForModbusSlave( FunctionCode, FirstBit+ScanEle++ ) )
 								BitsValues = BitsValues|Mask;
 							Mask = Mask<<1;
 						}
@@ -89,14 +91,14 @@ printf("FUNCTION CODE=%d\n", Question[ 0 ] );
 			}
 			break;
 		// Read n words (read or write words)
-		case 3:
-		case 4:
+		case MODBUS_FC_READ_HOLD_REGS:
+		case MODBUS_FC_READ_INPUT_REGS:
 			if ( LgtQuestion>=5 )
 			{
 				int FirstWord = (Question[1]<<8) | Question[2];
 				int NbrWords = (Question[3]<<8) | Question[4];
 				// validity request verify
-				if ( FirstWord+1+NbrWords>InfosGene->GeneralParams.SizesInfos.nbr_words )
+				if ( FirstWord+1+NbrWords>GetMobdusSlaveNbrVars( FunctionCode ) )
 					ErrorCode = MODBUS_ILLEGAL_DATA_ADDRESS;
 				if ( NbrWords>200 )
 					ErrorCode = MODBUS_ILLEGAL_DATA_ADDRESS;
@@ -104,13 +106,13 @@ printf("FUNCTION CODE=%d\n", Question[ 0 ] );
 				if ( ErrorCode==0 )
 				{ 
 					// Code Function for response
-					Response[ LgtResponse++ ] = Question[ 0 ];
+					Response[ LgtResponse++ ] = FunctionCode;
 					// Length in bytes
 					Response[ LgtResponse++ ] = NbrWords*2;
 					// Words values
 					for( ScanEle=0; ScanEle<NbrWords; ScanEle++ )
 					{
-						int ValueWord = ReadVar( VAR_MEM_WORD, FirstWord+OffsetForVars+ScanEle );
+						int ValueWord = GetVarForModbusSlave( FunctionCode, FirstWord+ScanEle );
 						Response[ LgtResponse++ ] = (unsigned char)(ValueWord>>8);
 						Response[ LgtResponse++ ] = (unsigned char)ValueWord;
 					}
@@ -122,7 +124,7 @@ printf("FUNCTION CODE=%d\n", Question[ 0 ] );
 			}
 			break;
 		// Write one bit (write bit)
-		case 5:
+		case MODBUS_FC_FORCE_COIL:
 			if ( LgtQuestion>=5 )
 			{
 				int FirstBit = (Question[1]<<8) | Question[2];
@@ -132,16 +134,16 @@ printf("FUNCTION CODE=%d\n", Question[ 0 ] );
 				ValueBit = ValueBit | Question[ OffsetQuest++ ];
 			
 				// validity request verify
-				if ( FirstBit+1>InfosGene->GeneralParams.SizesInfos.nbr_bits )
+				if ( FirstBit+1>GetMobdusSlaveNbrVars( FunctionCode ) )
 					ErrorCode = MODBUS_ILLEGAL_DATA_ADDRESS;
 				if ( ValueBit!=MODBUS_BIT_ON && ValueBit!=MODBUS_BIT_OFF )
 					ErrorCode = MODBUS_ILLEGAL_DATA_VALUE;
 					
 				if ( ErrorCode==0 )
 				{
-					WriteVar( VAR_MEM_BIT, FirstBit+OffsetForVars, ValueBit?1:0 );
+					SetVarFromModbusSlave( FunctionCode, FirstBit, ValueBit?1:0 );
 					// Code Function for response
-					Response[ LgtResponse++ ] = Question[ 0 ];
+					Response[ LgtResponse++ ] = FunctionCode;
 					// First Bit
 					Response[ LgtResponse++ ] = (unsigned char)(FirstBit>>8);
 					Response[ LgtResponse++ ] = (unsigned char)(FirstBit);
@@ -152,13 +154,13 @@ printf("FUNCTION CODE=%d\n", Question[ 0 ] );
 			}
 			break;
 		// Write n bits (write bits)
-		case 15:
+		case MODBUS_FC_FORCE_COILS:
 			if ( LgtQuestion>=7 )
 			{
 				int FirstBit = (Question[1]<<8) | Question[2];
 				int NbrBits = (Question[3]<<8) | Question[4];
 				// validity request verify
-				if ( FirstBit+1+NbrBits>InfosGene->GeneralParams.SizesInfos.nbr_bits )
+				if ( FirstBit+1+NbrBits>GetMobdusSlaveNbrVars( FunctionCode ) )
 					ErrorCode = MODBUS_ILLEGAL_DATA_ADDRESS;
 				if ( NbrBits>2000 )
 					ErrorCode = MODBUS_ILLEGAL_DATA_ADDRESS;
@@ -176,7 +178,7 @@ printf("FUNCTION CODE=%d\n", Question[ 0 ] );
 						int Value = 0;
 						if ( Question[ ScanByte ]&Mask )
 							Value = 1;
-						WriteVar( VAR_MEM_BIT, CurrentBit+OffsetForVars, Value );
+						SetVarFromModbusSlave( FunctionCode, CurrentBit, Value );
 						ScanBit++;
 						Mask = Mask<<1; 
 						if ( ScanBit>=8 )
@@ -190,7 +192,7 @@ printf("FUNCTION CODE=%d\n", Question[ 0 ] );
 					while( CurrentBit<FirstBit+NbrBits );
 					
 					// Code Function for response
-					Response[ LgtResponse++ ] = Question[ 0 ];
+					Response[ LgtResponse++ ] = FunctionCode;
 					// First bit
 					Response[ LgtResponse++ ] = (unsigned char)(FirstBit>>8);
 					Response[ LgtResponse++ ] = (unsigned char)(FirstBit);
@@ -201,8 +203,8 @@ printf("FUNCTION CODE=%d\n", Question[ 0 ] );
 			}
 			break;
 		// Write 1 or n words (write words)
-		case 6:
-		case 16:
+		case MODBUS_FC_WRITE_HOLD_REG:
+		case MODBUS_FC_WRITE_HOLD_REGS:
 			if ( ( LgtQuestion>=5 && Question[0]==6 ) || ( LgtQuestion>=8 && Question[0]==16 ) )
 			{
 				int OffsetQuest = 3;
@@ -218,7 +220,7 @@ printf("FUNCTION CODE=%d\n", Question[ 0 ] );
 						ErrorCode = MODBUS_ILLEGAL_DATA_VALUE;
 				}
 				// request verify
-				if ( FirstWord+1+NbrWords>InfosGene->GeneralParams.SizesInfos.nbr_words )
+				if ( FirstWord+1+NbrWords>GetMobdusSlaveNbrVars( FunctionCode ) )
 					ErrorCode = MODBUS_ILLEGAL_DATA_ADDRESS;
 				if ( NbrWords>200 )
 					ErrorCode = MODBUS_ILLEGAL_DATA_ADDRESS;
@@ -230,10 +232,10 @@ printf("FUNCTION CODE=%d\n", Question[ 0 ] );
 					{
 						ValueWord = (Question[ OffsetQuest++ ]<<8 );
 						ValueWord = ValueWord | Question[ OffsetQuest++ ];
-						WriteVar( VAR_MEM_WORD, FirstWord+OffsetForVars+ScanEle, ValueWord );
+						SetVarFromModbusSlave( FunctionCode, FirstWord+ScanEle, ValueWord );
 					}
 					// Code Function for response
-					Response[ LgtResponse++ ] = Question[ 0 ];
+					Response[ LgtResponse++ ] = FunctionCode;
 					// First word
 					Response[ LgtResponse++ ] = (unsigned char)(FirstWord>>8);
 					Response[ LgtResponse++ ] = (unsigned char)(FirstWord);
@@ -258,16 +260,69 @@ printf("FUNCTION CODE=%d\n", Question[ 0 ] );
 			}
 			break;
 		default:
-			Response[ LgtResponse++ ] = 0x80 | Question[ 0 ];
+			Response[ LgtResponse++ ] = 0x80 | FunctionCode;
 			Response[ LgtResponse++ ] = MODBUS_ILLEGAL_FUNCTION;
 			break;
 	}
 	if ( ErrorCode>0 )
 	{
 		LgtResponse = 0;
-		Response[ LgtResponse++ ] = 0x80 | Question[ 0 ];
+		Response[ LgtResponse++ ] = 0x80 | FunctionCode;
 		Response[ LgtResponse++ ] = ErrorCode;
 	}
 	return LgtResponse;
+}
+
+
+int GetMobdusSlaveNbrVars( unsigned char FunctCode )
+{
+	switch( FunctCode )
+	{
+		case MODBUS_FC_READ_COILS:
+		case MODBUS_FC_READ_INPUTS:
+		case MODBUS_FC_FORCE_COIL:
+		case MODBUS_FC_FORCE_COILS:
+			return InfosGene->GeneralParams.SizesInfos.nbr_bits;
+		case MODBUS_FC_READ_HOLD_REGS:
+		case MODBUS_FC_READ_INPUT_REGS:
+		case MODBUS_FC_WRITE_HOLD_REG:
+		case MODBUS_FC_WRITE_HOLD_REGS:
+			return InfosGene->GeneralParams.SizesInfos.nbr_words;
+	}
+	return 0;
+}
+
+void SetVarFromModbusSlave( unsigned char FunctCode, int ModbusNum, int Value )
+{
+	switch( FunctCode )
+	{
+		case MODBUS_FC_READ_COILS:
+		case MODBUS_FC_READ_INPUTS:
+		case MODBUS_FC_FORCE_COIL:
+		case MODBUS_FC_FORCE_COILS:
+			WriteVar( VAR_MEM_BIT, ModbusNum+OffsetForVars, Value );
+		case MODBUS_FC_READ_HOLD_REGS:
+		case MODBUS_FC_READ_INPUT_REGS:
+		case MODBUS_FC_WRITE_HOLD_REG:
+		case MODBUS_FC_WRITE_HOLD_REGS:
+			WriteVar( VAR_MEM_WORD, ModbusNum+OffsetForVars, Value );
+	}
+}
+int GetVarForModbusSlave( unsigned char FunctCode, int ModbusNum )
+{
+	switch( FunctCode )
+	{
+		case MODBUS_FC_READ_COILS:
+		case MODBUS_FC_READ_INPUTS:
+		case MODBUS_FC_FORCE_COIL:
+		case MODBUS_FC_FORCE_COILS:
+			return ReadVar( VAR_MEM_BIT, ModbusNum+OffsetForVars );
+		case MODBUS_FC_READ_HOLD_REGS:
+		case MODBUS_FC_READ_INPUT_REGS:
+		case MODBUS_FC_WRITE_HOLD_REG:
+		case MODBUS_FC_WRITE_HOLD_REGS:
+			return ReadVar( VAR_MEM_WORD, ModbusNum+OffsetForVars );
+	}
+	return 0;
 }
 

@@ -43,31 +43,41 @@
 */
 
 enum CanonBool {
-    OFF,
-    ON
+	OFF,
+	ON
 };
 
-struct CONTROL_POINT {          /* type for NURBS control points */
-    double X,
-    Y,
-    W;
+struct NURBS_PLANE_POINT {
+	double NURBS_X,
+	NURBS_Y;
 };
 
-struct PLANE_POINT
-{
-    double X,
-    Y;
+struct NURBS_CONTROL_POINT {  // type for NURBS control points 
+        double NURBS_X,      		// in questa struttura vengono dichiarati i seguenti elementi: coordinate X, Y dei punti di controllo           
+               NURBS_Y,      		// Per l'algoritmo DE-Boor
+               NURBS_W;					// Algoritmo di suddivisione
 };
 
+struct NURBS_G6_CONTROL_POINT {           /* type for NURBS G6 control points */
+	double	NURBS_X,
+		NURBS_Y,
+		NURBS_R,	// this is the R value from gcode
+		NURBS_K;
+};
 
-enum CANON_PLANE
-{
-    CANON_PLANE_XY = 1,
-    CANON_PLANE_YZ,
-    CANON_PLANE_XZ,
-    CANON_PLANE_UV,
-    CANON_PLANE_VW,
-    CANON_PLANE_UW,
+struct NURBS_G6_DPLANE_POINT {
+        double DX,
+	DY;
+};	//è impiegata per salvare le derivate x'(u) y'(u).
+
+
+enum class CANON_PLANE {
+    XY = 1,
+    YZ,
+    XZ,
+    UV,
+    VW,
+    UW,
 };
 
 enum CANON_UNITS
@@ -466,28 +476,94 @@ extern void STRAIGHT_FEED(int lineno,
                           double a, double b, double c,
                           double u, double v, double w);
 
-/* Additional functions needed to calculate nurbs points */
+/* Additional functions needed to calculate nurbs G5 points */
 
-extern std::vector<unsigned int> knot_vector_creator(unsigned int n, unsigned int k);
-extern double Nmix(unsigned int i, unsigned int k, double u, 
-                    std::vector<unsigned int> knot_vector);
-extern double Rden(double u, unsigned int k,
-                  std::vector<CONTROL_POINT> nurbs_control_points,
+extern std::vector<unsigned int> nurbs_G5_knot_vector_creator(unsigned int n, unsigned int k);
+
+extern double nurbs_G5_Nmix(unsigned int i, unsigned int k, double u, std::vector<unsigned int> knot_vector);
+
+extern double nurbs_G5_Rden(double u, unsigned int k,
+                  std::vector<NURBS_CONTROL_POINT> nurbs_control_points,
                   std::vector<unsigned int> knot_vector);
-extern PLANE_POINT nurbs_point(double u, unsigned int k, 
-                  std::vector<CONTROL_POINT> nurbs_control_points,
+
+extern NURBS_PLANE_POINT nurbs_G5_point(double u, unsigned int k, 
+                  std::vector<NURBS_CONTROL_POINT> nurbs_control_points,
                   std::vector<unsigned int> knot_vector);
-extern PLANE_POINT nurbs_tangent(double u, unsigned int k,
-                  std::vector<CONTROL_POINT> nurbs_control_points,
+
+extern NURBS_PLANE_POINT nurbs_G5_tangent(double u, unsigned int k,
+                  std::vector<NURBS_CONTROL_POINT> nurbs_control_points,
                   std::vector<unsigned int> knot_vector);
-extern double alpha_finder(double dx, double dy);
+
+/* Additional functions needed to calculate nurbs points G_6_2*/
+
+extern std::vector<double> nurbs_g6_knot_vector_creator(unsigned int n, unsigned int k, std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points);
+
+std::vector<double> nurbs_interval_span_knot_vector_creator(unsigned int n, unsigned int k, std::vector<double> knot_vector_);
+
+extern double nurbs_lderv(double u, unsigned int k, std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points, std::vector<double> knot_vector_);
+
+extern double nurbs_Sa1_b1_length_(double a1, double b1, unsigned int k, std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points,	std::vector<double> knot_vector_);
+
+extern std::vector<double> nurbs_lenght_vector_creator(unsigned int k, std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points, std::vector<double> knot_vector_, std::vector<double> span_knot_vector);
+
+extern double nurbs_lenght_tot(int j, std::vector<double> span_knot_vector, std::vector<double> lenght_vector);
+
+extern double nurbs_lenght_l_u(double u, unsigned int k, std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points, std::vector<double> knot_vector_, std::vector<double> span_knot_vector, std::vector<double> lenght_vector);
+
+extern std::vector<double> nurbs_Du_span_knot_vector_creator(unsigned int k, std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points, std::vector<double> knot_vector_, std::vector<double> span_knot_vector);
+
+extern std::vector<double> nurbs_costant_crator(std::vector<double> span_knot_vector, std::vector<double> lenght_vector, std::vector<double> Du_span_knot_vector);
+
+extern double nurbs_uj_l(double l, std::vector<double> span_knot_vector, std::vector<double> lenght_vector, std::vector<double> nurbs_costant);
+
+/* Funzioni di supporto all'algoritmo di suddivisione */
+extern  std::vector<double> nurbs_G6_new_control_point_nurbs1(double u, unsigned int k, std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points, std::vector<double> knot_vector_ );
+
+extern std::vector<double> nurbs_G6_new_control_point_nurbs2(double u, unsigned int k, std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points, std::vector<double> knot_vector_ );
+
+extern std::vector<double> nurbs_G6_knot_vector_new_creator_sgment(unsigned int k, std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points);
+/* ... */
+
+extern double nurbs_G6_Nmix(unsigned int i, unsigned int k, double u, std::vector<double> knot_vector_);
+
+extern std::vector< std::vector<double> > nurbs_G6_Nmix_creator(double u, unsigned int k, double n, std::vector<double> knot_vector_);
+
+extern double nurbs_G6_Rden(double u, unsigned int k, std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points, std::vector<double> knot_vector_);
+
+extern NURBS_PLANE_POINT nurbs_G6_point(double u, unsigned int k, std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points, std::vector<double> knot_vector_);
+
+extern double nurbs_G6_Rdenx(double u, unsigned int k, std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points, std::vector<double> knot_vector_, std::vector< std::vector<double> > A6);
+
+extern NURBS_PLANE_POINT nurbs_G6_pointx(double u, unsigned int k, std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points, std::vector<double> knot_vector_, std::vector< std::vector<double> > A6);
+
+extern NURBS_PLANE_POINT nurbs_G6_point_x(double u, unsigned int k, std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points, std::vector<double> knot_vector_); 
+
+extern NURBS_PLANE_POINT nurbs_G6_tangent_x(double u, unsigned int k, std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points, std::vector<double> knot_vector_);
+
+/*Funzioni di supporto all'algoritmo di suddivisione********************************************************************/
+extern  std::vector<double> nurbs_G6_new_control_point_nurbs1(double u, unsigned int k, std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points, std::vector<double> knot_vector_ );
+
+extern std::vector<double> nurbs_G6_new_control_point_nurbs2(double u, unsigned int k, std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points, std::vector<double> knot_vector_ );
+
+extern std::vector<double> nurbs_G6_knot_vector_new_creator_sgment(unsigned int k, std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points);
+
+/* End of NURBS functions*/
+
 
 /* Canon calls */
 
-extern void NURBS_FEED(int lineno, std::vector<CONTROL_POINT> nurbs_control_points, unsigned int k);
+extern void NURBS_G5_FEED(int lineno, std::vector<NURBS_CONTROL_POINT> nurbs_control_points, unsigned int nurbs_order, CANON_PLANE plane);
 /* Move at the feed rate along an approximation of a NURBS with a variable number
  * of control points
  */
+
+extern void NURBS_G6_FEED(int lineno, std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points, unsigned int k, double feedrate, int l, CANON_PLANE plane);
+// this is for G6xx
+
+extern double alpha_finder(double dx, double dy);
+
+
+/********************************************************************************************************************/
 
 /* Move at existing feed rate so that at any time during the move,
 all axes have covered the same proportion of their required motion.
@@ -559,7 +635,7 @@ extern void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, EmcPose offset, double 
                                  double frontangle, double backangle, int orientation);
 extern void USE_TOOL_LENGTH_OFFSET(EmcPose offset);
 
-extern void CHANGE_TOOL(int slot);	/* slot is slot number */
+extern void CHANGE_TOOL();
 
 /* It is assumed that each cutting tool in the machine is assigned to a
 slot (intended to correspond to a slot number in a tool carousel).
@@ -603,11 +679,6 @@ toolnumber before shutdown isn't currently written, there is no provision
 to allow emc2 to safely restart knowing what tool is in the spindle.
 Using CHANGE_TOOL_NUMBER one can tell emc2 (without any physical action)
 to set the mapping of the currently loaded tool to a certain number */
-
-extern void START_CHANGE(void);
-/* executed at the very start of an M6 command before any movements,
-spindle stop or quill up have been issued, to speed up toolchanging
-process. Passed through to iocontrol to drive a pin. */
 
 /* Miscellaneous Functions */
 
@@ -970,12 +1041,6 @@ extern void ON_RESET(void);
 // expose CANON_ERROR
 extern void CANON_ERROR(const char *fmt, ...) __attribute__((format(printf,1,2)));
 
-// queue a call to a task-time Python plugin method
-// call is expected to be a tuple of (method,pickled posargs,pickled kwargs)
-extern void PLUGIN_CALL(int len, const char *call);
-
-// same for IoTask context
-extern void IO_PLUGIN_CALL(int len, const char *call);
 extern int     GET_EXTERNAL_OFFSET_APPLIED();
 extern EmcPose GET_EXTERNAL_OFFSETS();
 extern void UPDATE_TAG(StateTag tag);

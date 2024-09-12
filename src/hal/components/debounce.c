@@ -229,7 +229,6 @@ static void debounce(void *arg, long period)
 static int export_group(int num, debounce_group_t * addr, int group_size)
 {
     int n, retval, msg;
-    char buf[HAL_NAME_LEN + 1];
 
     /* This function exports a lot of stuff, which results in a lot of
        logging if msg_level is at INFO or ALL. So we save the current value
@@ -246,19 +245,17 @@ static int export_group(int num, debounce_group_t * addr, int group_size)
 	return -1;
     }
     /* export param variable for delay */
-    rtapi_snprintf(buf, sizeof(buf), "debounce.%d.delay", num);
-    retval = hal_param_s32_new(buf, HAL_RW, &(addr->delay), comp_id);
+    retval = hal_param_s32_newf(HAL_RW, &(addr->delay), comp_id, "debounce.%d.delay", num);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "DEBOUNCE: ERROR: '%s' param export failed\n", buf);
+	    "DEBOUNCE: ERROR: 'debounce.%d.delay' param export failed\n", num);
 	return retval;
     }
     /* export function */
-    rtapi_snprintf(buf, sizeof(buf), "debounce.%d", num);
-    retval = hal_export_funct(buf, debounce, addr, 0, 0, comp_id);
+    retval = hal_export_functf(debounce, addr, 0, 0, comp_id, "debounce.%d", num);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "DEBOUNCE: ERROR: '%s' funct export failed\n", buf);
+	    "DEBOUNCE: ERROR: 'debounce.%d' funct export failed\n", num);
 	return -1;
     }
     /* set default parameter values */

@@ -1,8 +1,8 @@
 '''
 conv_bolt.py
 
-Copyright (C) 2020, 2021, 2022  Phillip A Carter
-Copyright (C) 2020, 2021, 2022  Gregory D Carl
+Copyright (C) 2020 - 2024 Phillip A Carter
+Copyright (C) 2020 - 2024 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -26,24 +26,25 @@ from plasmac import bolt_circle as BOLT
 
 _translate = QCoreApplication.translate
 
+
 def preview(P, W, Conv):
     if P.dialogError:
         return
     if not W.xsEntry.text():
-        W.xsEntry.setText('{:0.3f}'.format(P.xOrigin))
+        W.xsEntry.setText(f'{P.xOrigin:0.3f}')
     if not W.ysEntry.text():
-        W.ysEntry.setText('{:0.3f}'.format(P.yOrigin))
+        W.ysEntry.setText(f'{P.yOrigin:0.3f}')
     origin = W.centLeft.text() == 'CENTER'
-    error = BOLT.preview(Conv, P.fTmp, P.fNgc, P.fNgcBkp, \
-            int(W.conv_material.currentText().split(':')[0]), \
-            W.conv_material.currentText().split(':')[1].strip(), \
-            P.preAmble, P.postAmble, \
-            W.liEntry.text(), W.loEntry.text(), W.aEntry.text(), \
-            origin, W.xsEntry.text(), W.ysEntry.text(), \
-            W.kerf_width.value(), \
-            W.overcut.isChecked(), W.ocEntry.text(), \
-            P.holeDiameter, P.holeSpeed, W.dEntry.text(), W.hdEntry.text(), \
-            W.hEntry.text(), W.caEntry.text(), P.invalidLeads)
+    error = BOLT.preview(Conv, P.fTmp, P.fNgc, P.fNgcBkp,
+                         int(W.conv_material.currentText().split(':')[0]),
+                         W.conv_material.currentText().split(':')[1].strip(),
+                         P.preAmble, P.postAmble,
+                         W.liEntry.text(), W.loEntry.text(), W.aEntry.text(),
+                         origin, W.xsEntry.text(), W.ysEntry.text(),
+                         W.kerf_width.value(),
+                         W.overcut.isChecked(), W.ocEntry.text(),
+                         P.holeDiameter, P.holeSpeed, W.dEntry.text(), W.hdEntry.text(),
+                         W.hEntry.text(), W.caEntry.text(), P.invalidLeads)
     if error:
         P.dialogError = True
         P.dialog_show_ok(QMessageBox.Warning, _translate('Conversational', 'Bolt-Circle Error'), error)
@@ -54,6 +55,7 @@ def preview(P, W, Conv):
         W.undo.setEnabled(True)
         Conv.conv_preview_button(P, W, True)
 
+
 def auto_preview(P, W, Conv, button=False):
     if button == 'center':
         if not W.centLeft.isChecked():
@@ -63,8 +65,10 @@ def auto_preview(P, W, Conv, button=False):
        W.dEntry.text() and W.hdEntry.text() and W.hEntry.text():
         preview(P, W, Conv)
 
+
 def entry_changed(P, W, Conv, widget):
     Conv.conv_entry_changed(P, W, widget, 'bolt')
+
 
 def widgets(P, W, Conv):
     if P.developmentPin.get():
@@ -75,10 +79,10 @@ def widgets(P, W, Conv):
     W.hEntry.setObjectName('intEntry')
     W.lDesc.setText(_translate('Conversational', 'CREATING BOLT CIRCLE'))
     W.iLabel.setPixmap(P.conv_bolt_l)
-    #alignment and size
-    rightAlign = ['spLabel', 'xsLabel', 'xsEntry', 'ysLabel', 'ysEntry', \
-                  'liLabel', 'liEntry', 'loLabel', 'loEntry', 'dLabel', 'dEntry', \
-                  'hdLabel', 'hdEntry', 'hLabel', 'hEntry', \
+    # alignment and size
+    rightAlign = ['spLabel', 'xsLabel', 'xsEntry', 'ysLabel', 'ysEntry',
+                  'liLabel', 'liEntry', 'loLabel', 'loEntry', 'dLabel', 'dEntry',
+                  'hdLabel', 'hdEntry', 'hLabel', 'hEntry',
                   'aLabel', 'aEntry', 'caLabel', 'caEntry', 'ocEntry']
     centerAlign = ['lDesc']
     leftAlign = ['ocLabel']
@@ -102,19 +106,19 @@ def widgets(P, W, Conv):
     for widget in pButton:
         W[widget].setFixedWidth(80)
         W[widget].setFixedHeight(24)
-    #connections
-    W.conv_material.currentTextChanged.connect(lambda:auto_preview(P, W, Conv))
-    W.centLeft.toggled.connect(lambda:auto_preview(P, W, Conv, 'center'))
-    W.overcut.toggled.connect(lambda:auto_preview(P, W, Conv))
-    W.preview.pressed.connect(lambda:preview(P, W, Conv))
-    W.add.pressed.connect(lambda:Conv.conv_add_shape_to_file(P, W))
-    W.undo.pressed.connect(lambda:Conv.conv_undo_shape(P, W))
-    entries = ['ocEntry', 'xsEntry', 'ysEntry', 'liEntry', 'loEntry', \
+    # connections
+    W.conv_material.currentTextChanged.connect(lambda: auto_preview(P, W, Conv))
+    W.centLeft.toggled.connect(lambda: auto_preview(P, W, Conv, 'center'))
+    W.overcut.toggled.connect(lambda: auto_preview(P, W, Conv))
+    W.preview.pressed.connect(lambda: preview(P, W, Conv))
+    W.add.pressed.connect(lambda: Conv.conv_add_shape_to_file(P, W))
+    W.undo.pressed.connect(lambda: Conv.conv_undo_shape(P, W))
+    entries = ['ocEntry', 'xsEntry', 'ysEntry', 'liEntry', 'loEntry',
                'dEntry', 'hdEntry', 'hEntry', 'aEntry', 'caEntry']
     for entry in entries:
-        W[entry].textChanged.connect(lambda:entry_changed(P, W, Conv, W.sender()))
-        W[entry].returnPressed.connect(lambda:preview(P, W, Conv))
-    #add to layout
+        W[entry].textChanged.connect(lambda: entry_changed(P, W, Conv, W.sender()))
+        W[entry].returnPressed.connect(lambda: preview(P, W, Conv))
+    # add to layout
     if P.landscape:
         W.entries.addWidget(W.spLabel, 0, 0)
         W.entries.addWidget(W.centLeft, 0, 1)
@@ -145,8 +149,8 @@ def widgets(P, W, Conv):
         W.entries.addWidget(W.preview, 12, 0)
         W.entries.addWidget(W.add, 12, 2)
         W.entries.addWidget(W.undo, 12, 4)
-        W.entries.addWidget(W.lDesc, 13 , 1, 1, 3)
-        W.entries.addWidget(W.iLabel, 0 , 2, 7, 3)
+        W.entries.addWidget(W.lDesc, 13, 1, 1, 3)
+        W.entries.addWidget(W.iLabel, 0, 2, 7, 3)
     else:
         W.entries.addWidget(W.conv_material, 0, 0, 1, 5)
         W.entries.addWidget(W.overcut, 1, 0)
@@ -178,7 +182,7 @@ def widgets(P, W, Conv):
         W.entries.addWidget(W.preview, 9, 0)
         W.entries.addWidget(W.add, 9, 2)
         W.entries.addWidget(W.undo, 9, 4)
-        W.entries.addWidget(W.lDesc, 10 , 1, 1, 3)
-        W.entries.addWidget(W.iLabel, 0 , 5, 7, 3)
+        W.entries.addWidget(W.lDesc, 10, 1, 1, 3)
+        W.entries.addWidget(W.iLabel, 0, 5, 7, 3)
     W.dEntry.setFocus()
     P.convSettingsChanged = False

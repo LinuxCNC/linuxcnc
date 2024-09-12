@@ -212,28 +212,42 @@ Copyright: 2011 LinuxCNC.org
 License: GPL-3+
 
 Files:
- src/emc/nml_intf/*
- src/emc/kinematics/*
- src/emc/motion/*
  src/emc/canterp/canterp.cc
- src/emc/sai/driver.cc
- src/emc/sai/saicanon.cc
- src/emc/usr_intf/*
- src/emc/tp/*
  src/emc/ini/*
- src/emc/task/*
- src/emc/rs274ngc/*
  src/emc/iotask/ioControl.cc
  src/emc/iotask/ioControl_v2.cc
- src/rtapi/rtapi_list.h
- src/rtapi/rtai_rtapi.c
- src/rtapi/rtapi.h
- src/rtapi/rtapi_vsnprintf.h
- src/rtapi/rtapi_proc.h
- src/rtapi/rtapi_common.h
- src/rtapi/rtai_ulapi.c
- src/hal/classicladder/README.txt
+ src/emc/kinematics/*
+ src/emc/motion/*
+ src/emc/nml_intf/*
+ src/emc/rs274ngc/*
+ src/emc/sai/driver.cc
+ src/emc/sai/saicanon.cc
+ src/emc/task/*
+ src/emc/tp/*
+ src/emc/usr_intf/*
+ src/hal/drivers/bcm2835.h
+ src/hal/drivers/hal_ax5214h.c
+ src/hal/drivers/hal_bb_gpio.c
+ src/hal/drivers/hal_evoreg.c
+ src/hal/drivers/hal_motenc.c
+ src/hal/drivers/hal_pi_gpio.c
+ src/hal/drivers/hal_ppmc.c
+ src/hal/drivers/hal_skeleton.c
+ src/hal/drivers/hal_speaker.c
+ src/hal/drivers/hal_stg.c
+ src/hal/drivers/hal_stg.h
+ src/hal/drivers/hal_tiro.c
+ src/hal/drivers/hal_vti.c
+ src/hal/drivers/hal_vti.h
+ src/hal/drivers/motenc.h
  src/hal/hal.h
+ src/hal/user_comps/gs2_vfd.c
+ src/hal/user_comps/hy_gt_vfd.c
+ src/hal/user_comps/pi500_vfd/pi500_vfd.comp
+ src/hal/user_comps/svd-ps_vfd.c
+ src/hal/user_comps/vfdb_vfd/vfdb_vfd.c
+ src/hal/user_comps/vfs11_vfd/vfs11_vfd.c
+ src/hal/user_comps/wj200_vfd/wj200_vfd.comp
  src/hal/utils/bitfile.c
  src/hal/utils/bitfile.h
  src/hal/utils/halcmd.c
@@ -261,28 +275,13 @@ Files:
  src/hal/utils/scope_vert.c
  src/hal/utils/upci.c
  src/hal/utils/upci.h
- src/hal/drivers/bcm2835.h
- src/hal/drivers/hal_ax5214h.c
- src/hal/drivers/hal_bb_gpio.c
- src/hal/drivers/hal_evoreg.c
- src/hal/drivers/hal_motenc.c
- src/hal/drivers/hal_pi_gpio.c
- src/hal/drivers/hal_ppmc.c
- src/hal/drivers/hal_skeleton.c
- src/hal/drivers/hal_speaker.c
- src/hal/drivers/hal_stg.c
- src/hal/drivers/hal_stg.h
- src/hal/drivers/hal_tiro.c
- src/hal/drivers/hal_vti.c
- src/hal/drivers/hal_vti.h
- src/hal/drivers/motenc.h
- src/hal/user_comps/vfs11_vfd/vfs11_vfd.c
- src/hal/user_comps/wj200_vfd/wj200_vfd.comp
- src/hal/user_comps/gs2_vfd.c
- src/hal/user_comps/pi500_vfd/pi500_vfd.comp
- src/hal/user_comps/svd-ps_vfd.c
- src/hal/user_comps/hy_gt_vfd.c
- src/hal/user_comps/vfdb_vfd/vfdb_vfd.c
+ src/rtapi/rtai_rtapi.c
+ src/rtapi/rtai_ulapi.c
+ src/rtapi/rtapi_common.h
+ src/rtapi/rtapi.h
+ src/rtapi/rtapi_list.h
+ src/rtapi/rtapi_proc.h
+ src/rtapi/rtapi_vsnprintf.h
 Copyright: same flock of LinuxCNC devs as above
 License: GPL-2
 
@@ -343,11 +342,12 @@ Copyright: 2021 Petter Reinholdtsen
 License: LGPL-2
 
 Files: src/hal/classicladder/*
-Copyright: 2001-2007 Marc Le Douarain <marc.le-douarain@laposte.net>
+Copyright: 2001-2010 Marc Le Douarain <marc.le-douarain@laposte.net>
 License: LGPL-2.1+
 Comment: The origin of this subtree is the Classic Ladder Project
- http://membres.lycos.fr/mavati/classicladder/ 
- http://www.sourceforge.net/projects/classicladder
+ https://sites.google.com/site/classicladder/
+ https://www.sourceforge.net/projects/classicladder
+
 
 Files: share/qtvcp/screens/woodpecker/images/QTvcp?Widgets_files/asciidoc.js
 Copyright:      2002 Mihai Bazon
@@ -369,8 +369,6 @@ Copyright: The LinuxCNC developers derived this work from
 License: LGPL-2
 
 Files: src/libnml/inifile/*
-       src/libnml/nml/nml_mod.cc
-       src/libnml/nml/nml_mod.hh
        src/libnml/nml/nml_type.hh
        src/libnml/buffer/tcpmem.cc
        src/libnml/buffer/tcpmem.hh

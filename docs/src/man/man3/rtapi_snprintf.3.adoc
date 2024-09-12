@@ -1,0 +1,41 @@
+:manvolnum: 3
+
+= rtapi_snprintf(3rtapi)
+
+== NAME
+
+rtapi_snprintf, rtapi_vsnprintf - Perform snprintf-like string formatting
+
+== SYNTAX
+
+....
+int rtapi_snprintf(char *_buf_, unsigned long int _size_,
+                   const char *_fmt_, _..._);
+int rtapi_vsnprintf(char *_buf_, unsigned long int _size_,
+                    const char *_fmt_, va_list _apf);
+....
+
+== ARGUMENTS
+
+As for _snprintf(3)_ or _vsnprintf(3)_.
+
+== DESCRIPTION
+
+These functions work like the standard C printf functions, except that a
+reduced set of formatting operations are supported.
+
+In particular: formatting of long long values is not supported.
+Formatting of floating-point values is done as though with %A even when
+other formats like %f are specified.
+
+== REALTIME CONSIDERATIONS
+
+May be called from non-realtime, init/cleanup, and realtime code.
+
+== RETURN VALUE
+
+The number of characters written to _buf_.
+
+== SEE ALSO
+
+printf(3)

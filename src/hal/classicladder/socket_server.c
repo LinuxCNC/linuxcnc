@@ -1,5 +1,5 @@
 /* Classic Ladder Project */
-/* Copyright (C) 2001-2006 Marc Le Douarain */
+/* Copyright (C) 2001-2009 Marc Le Douarain */
 /* http://www.multimania.com/mavati/classicladder */
 /* http://www.sourceforge.net/projects/classicladder */
 /* December 2004 */
@@ -44,9 +44,10 @@
 
 #include "classicladder.h"
 #include "global.h"
+#include "protocol_modbus_defines.h"
 #include "protocol_modbus_slave.h"
 #include "socket_server.h"
-#include "protocol_modbus_master.h" // some Modbus defines shared
+//////#include "protocol_modbus_master.h" // some Modbus defines shared
 
 
 #ifdef __WIN32__
@@ -83,7 +84,7 @@ void InitSocketServer( int UseUdpMode, int PortNbr )
 	signal(SIGPIPE, SIG_IGN);
 #endif
 
-        if( ModbusDebugLevel>=2 ){   printf(_("INFO CLASSICLADDER--- INIT SOCKET!!!\n"));  }	
+        if( ModbusConfig.ModbusDebugLevel>=2 ){   printf(_("INFO CLASSICLADDER--- INIT SOCKET!!!\n"));  }	
 	// Create a socket
 	server_s = socket(AF_INET, SOCK_STREAM, 0);
 	if ( server_s==SOCK_INVALID )
@@ -113,8 +114,9 @@ void InitSocketServer( int UseUdpMode, int PortNbr )
 				CloseSocketServer( );
 			}
 			else
-			{     
-                                SocketRunning = 1;		
+			{
+				SocketRunning = 1;
+		
 #ifdef __WIN32__
 				ThreadHandle = CreateThread( NULL/*no security attributes*/, 16*1024L/*default stack size*/,                                                   
 					(LPTHREAD_START_ROUTINE)SocketServerTcpMainLoop/* thread function*/, 
@@ -131,7 +133,7 @@ void InitSocketServer( int UseUdpMode, int PortNbr )
 					CloseSocketServer( );
 				}
 				else
-				{       SocketRunning = 1;
+				{
 					printf(_("INFO CLASSICLADDER--- Server socket init ok (modbus - port %d)!\n"), PortNbr);
 				}
 
@@ -201,18 +203,21 @@ void SocketServerTcpMainLoop( void )
 
 	while( SocketRunning )
 	{
-                if( ModbusDebugLevel>=2 ){   printf(_("INFO MODBUS SERVER--- SOCKET WAITING...\n"));   }
+		if( ModbusConfig.ModbusDebugLevel>=2 )
+			printf(_("INFO MODBUS SERVER--- SOCKET WAITING...\n"));
 		addr_len = sizeof(client_addr);
 		client_s = accept(server_s, (struct sockaddr *)&client_addr, &addr_len);
 		if ( client_s!=-1 )
 		{
-                  if( ModbusDebugLevel>=2 ){   printf(_("INFO MODBUS SERVER--- SOCKET CLIENT ACCEPTED...\n"));   }
+			if( ModbusConfig.ModbusDebugLevel>=2 )
+				printf(_("INFO MODBUS SERVER--- SOCKET CLIENT ACCEPTED...\n"));
 			do
 			{
 				// Request received from the client
 				//  - The return code from recv() is the number of bytes received
 				retcode = recv(client_s, in_buf, BUF_SIZE, 0);
-                                if( ModbusDebugLevel>=2 ){   printf(_("INFO MODBUS SERVER--- SOCKET RECEIVED=%d !\n"), retcode);   }
+				if ( ModbusConfig.ModbusDebugLevel>=2 )
+					printf(_("INFO MODBUS SERVER--- SOCKET RECEIVED=%d !\n"), retcode);
 				if ( retcode==-1 )
 				{
 					printf(_("ERROR CLASSICLADDER--- Failed to recv socket server...(error=%s)\n"), strerror(errno));
@@ -229,7 +234,8 @@ void SocketServerTcpMainLoop( void )
 
 			}
 			while( retcode>0 );
-                        if( ModbusDebugLevel>=2 ){   printf(_("INFO MODBUS SERVER--- CLOSE SOCK CLIENT.\n"));   }
+			if( ModbusConfig.ModbusDebugLevel>=2 )
+				printf(_("INFO MODBUS SERVER--- CLOSE SOCK CLIENT.\n"));
 			#ifdef __WIN32__
 			closesocket(client_s);
 			#else

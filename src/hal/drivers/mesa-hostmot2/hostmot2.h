@@ -133,6 +133,7 @@
 #define HM2_GTAG_SSR               (195)
 #define HM2_GTAG_SMARTSERIALB      (198) // smart-serial with 224 data bits
 #define HM2_GTAG_ONESHOT           (199) // One shot
+#define HM2_GTAG_PERIODM           (200) // Period module
 
 
 //
@@ -280,6 +281,7 @@ typedef struct {
             hal_s32_t *count_latch;  // (rawlatch - zero_offset)
             hal_float_t *position;
             hal_float_t *position_latch;
+            hal_float_t *position_interpolated;
             hal_float_t *velocity;
             hal_float_t *velocity_rpm;
             hal_bit_t *reset;
@@ -337,7 +339,7 @@ typedef struct {
         hal_u32_t *sample_frequency;
         hal_u32_t *skew;
         hal_s32_t *dpll_timer_num;
-	hal_bit_t *hires_timestamp;
+        hal_bit_t *hires_timestamp;
 
     } pin;
 } hm2_encoder_module_global_t;
@@ -657,6 +659,60 @@ typedef struct {
 } hm2_oneshot_t;
 
 //
+// period module
+// 
+
+
+typedef struct {
+
+    struct {
+
+        struct {
+            hal_float_t *period;
+            hal_float_t *width;
+            hal_float_t *dutycycle;
+            hal_float_t *frequency;
+            hal_float_t *filtertc;
+            hal_float_t *dutyscale;
+            hal_float_t *dutyoffset;
+            hal_float_t *minfreq;
+            hal_u32_t *averages;
+            hal_bit_t *polarity;
+            hal_bit_t *valid;
+            hal_bit_t *input;
+        } pin;
+
+    } hal;
+
+} hm2_periodm_instance_t;
+
+
+
+typedef struct {
+    int num_instances;
+    hm2_periodm_instance_t *instance;
+
+    rtapi_u32 clock_frequency;
+    rtapi_u8 version;
+
+    rtapi_u32 mode_read_addr;
+    rtapi_u32 *mode_read_reg;
+
+    rtapi_u32 mode_write_addr;
+    rtapi_u32 *mode_write_reg;
+
+    rtapi_u32 limit_addr;
+    rtapi_u32 *limit_reg;
+
+    rtapi_u32 period_addr;
+    rtapi_u32 *period_reg;
+
+    rtapi_u32 width_addr;
+    rtapi_u32 *width_reg;
+
+} hm2_periodm_t;
+
+//
 // rcpwmgen pwmgen optimized for RC servos
 // 
 
@@ -839,7 +895,13 @@ typedef struct {
 
     //scanwidth for this instance	
     rtapi_u32 scanwidth;	
-
+    
+    // mpg encoder presence this instance
+	 bool enc0_present;
+	 bool enc1_present;
+	 bool enc2_present;
+	 bool enc3_present;
+	 	
     //previous MPG counts for this instance	
     rtapi_s8 prev_enc0_count;	
     rtapi_s8 prev_enc1_count;	
@@ -1578,6 +1640,7 @@ typedef struct {
         int num_ssrs;
         int num_outms;
         int num_oneshots;
+        int num_periodms;
         char sserial_modes[4][8];
         int enable_raw;
         char *firmware;
@@ -1628,6 +1691,7 @@ typedef struct {
     hm2_ssr_t ssr;
     hm2_outm_t outm;
     hm2_oneshot_t oneshot;
+    hm2_periodm_t periodm;
 
     hm2_raw_t *raw;
 
@@ -1789,6 +1853,17 @@ void hm2_oneshot_prepare_tram_write(hostmot2_t *hm2);
 void hm2_oneshot_process_tram_read(hostmot2_t *hm2);
 
 //
+// periodm functions
+//
+int hm2_periodm_parse_md(hostmot2_t *hm2, int md_index);
+void hm2_periodm_print_module(hostmot2_t *hm2);
+void hm2_periodm_cleanup(hostmot2_t *hm2);
+void hm2_periodm_write(hostmot2_t *hm2);
+void hm2_periodm_force_write(hostmot2_t *hm2);
+void hm2_periodm_prepare_tram_write(hostmot2_t *hm2);
+void hm2_periodm_process_tram_read(hostmot2_t *hm2);
+
+//
 // rcpwmgen functions
 //
 
@@ -1865,8 +1940,8 @@ int hm2_bspi_write_chan(char* name, int chan, rtapi_u32 val);
 int hm2_allocate_bspi_tram(char* name);
 int hm2_tram_add_bspi_frame(char *name, int chan, rtapi_u32 **wbuff, rtapi_u32 **rbuff);
 int hm2_bspi_setup_chan(char *name, int chan, int cs, int bits, double mhz,
-                        int delay, int cpol, int cpha, int noclear, int noecho,
-                        int samplelate);
+int delay, int cpol, int cpha, int noclear, int noecho,
+int samplelate);
 int hm2_bspi_set_read_function(char *name, int (*func)(void *subdata), void *subdata);
 int hm2_bspi_set_write_function(char *name, int (*func)(void *subdata), void *subdata);
 
@@ -2001,11 +2076,11 @@ void hm2_outm_print_module(hostmot2_t *hm2);
 // ONESHOT functions
 //
 
-int hm2_oneshot_parse_md(hostmot2_t *hm2, int md_index);
-void hm2_oneshot_cleanup(hostmot2_t *hm2);
-void hm2_oneshot_force_write(hostmot2_t *hm2);
-void hm2_oneshot_prepare_tram_write(hostmot2_t *hm2);
-void hm2_oneshot_print_module(hostmot2_t *hm2);
+//int hm2_oneshot_parse_md(hostmot2_t *hm2, int md_index);
+//void hm2_oneshot_cleanup(hostmot2_t *hm2);
+//void hm2_oneshot_force_write(hostmot2_t *hm2);
+//void hm2_oneshot_prepare_tram_write(hostmot2_t *hm2);
+//void hm2_oneshot_print_module(hostmot2_t *hm2);
 
 
 //

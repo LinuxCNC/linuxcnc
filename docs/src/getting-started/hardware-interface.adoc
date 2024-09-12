@@ -1,0 +1,168 @@
+:lang: en
+:toc:
+
+[[cha:hardware-interface]]
+= Hardware Interface(((Hardware Interface)))
+
+= Hardware to run the LinuxCNC software
+A computer is required to run LinuxCNC itself. See <<cha:system-requirements,Computer System Requirements>>
+
+The most common is to use a x86 computer (standard Intel / AMD computer)
+
+ARM computers such as the Raspberry Pi or Orange Pi can be used
+
+= Hardware Interface to CNC machine
+An interface is necessary to transmit (and convert) signals and information between LinuxCNC (the software on the computer) and CNC hardware (such as stepper / servo drivers, limit switches, inputs and outputs etc.). There are multiple different ways to interface.
+
+Interfaces include:
+- Parallel Port
+- Ethernet
+- EtherCAT
+- PCI / PCIe
+- SPI (where the computer has a native SPI interface, such as Raspberry Pi)
+- USB (_not_ realtime interface)
+
+A mix of different interfaces can be used. For example, a combination of ethercat for servo drives, and parallel port for additional General Purpose Inputs / Outputs (GPIO)
+
+Some of these solutions are usable for all aspects of hardware interfacing, and some have specific roles (e.g. non-realtime GPIO for an operator interface with switches).
+
+Hardware interface options change over time. This list is not a 100% complete list of all hardware interfaces that can be used with LinuxCNC.
+
+== Parallel Port
+Using onboard motherboard parallel port, or a PCI/PCIe parallel port card.
+
+== Parallel Port Software Interface
+Realtime (time critical) tasks such as step generation are done in software on the LinuxCNC host - this means the parallel port interface is much more sensitive to the LinuxCNC computer's latency.
+
+__Advantages:__
+- Low cost
+- Simple configuration
+
+__Disadvantages:__
+- Sensitive to the LinuxCNC computer's latency
+- Limited inputs/outputs 
+- Some PCI/PCIe parallel port cards do not work well or do not properly support the EPP mode (EPP mode is required for parallel port interface to Mesa / PICO cards).
+
+
+== Parallel Port FPGA Communication
+Realtime (time critical) tasks such as step generation are done in hardware (not on the computer)
+
+=== Mesa via Parallel Port
+Mesa use Field-programmable gate array (FPGA) interfaced via parallel port - e.g. 7i43
+
+Website: http://mesanet.com/    Store: http://store.mesanet.com/
+
+=== Pico Systems via Parallel Port
+http://pico-systems.com/univstep.html
+
+
+== Ethernet
+=== Mesa Ethernet
+Mesa cards with a Field-programmable gate array (FPGA), interfaced to LinuxCNC computer via Ethernet. Time critical (realtime) tasks are performed on the FPGA card.
+
+Multiple ethernet interface FPGA cards are available, with many expansion cards
+
+Website: http://mesanet.com/    Store: http://store.mesanet.com/
+
+=== Remora Ethernet
+Realtime requirements are offloaded onto a controller board. Multiple different controller boards are supported - see https://remora-docs.readthedocs.io[Remora docs].
+
+Note that some of these controller boards (e.g. NVEM, EC300, EC500) are designed / sold for use with Mach3. Use with LinuxCNC requires flashing new firmware, which has been developed by the LinuxCNC community. The manufacturer does not support LinuxCNC.
+
+Expatria Technologies PicoBOB-DLX was designed for LinuxCNC Remora.
+
+Remora docs: https://remora-docs.readthedocs.io
+
+As of March 2024:
+```
+STM32 based controller boards
+
+    NVEM - an STM32F207 based board with Ethernet PHY chip, originally intended for Mach3. [No longer in production, Legacy Support - no new features]
+
+    EC500 - an STM32F407 based board with Ethernet PHY chip, originally intended for Mach3. [No longer in production, Legacy Support - no new features]
+
+    Expatria Technologies Flexi-HAL with uFlexiNET Ethernet adapter - an STM32F446 based board with W5500 Ethernet SPI adapter designed for Remora
+
+iMX RT1052 based controller boards
+
+    NVEM, EC300 & EC500 - iMXRT1052 based controller boards with Ethernet PHY chip, originally intended for Mach3. [In active development]
+
+RP2040 based controller boards
+
+    WIZnet W5500-EVB-Pico - Raspberry Pi RP2040 based development board with on-board W5500 Ethernet SPI adapter
+
+    Expatria Technologies PicoBOB-DLX - Raspberry Pi RP2040 based board with on-board W5500 Ethernet SPI adapter designed for Remora
+```
+
+=== Litex-CNC
+This project aims to make a generic CNC firmware and driver for FPGA cards which are supported by LiteX. Configuration of the board and driver is done using json-files. The supported boards are the Colorlight boards 5A-75B and 5A-75E, as these are fully supported with the open source toolchain.
+
+Colorlight 5A-75B and 5A-75E cards are designed as a LED receiver card - it outputs to LED matrix panels. These cards have outputs only - hardware modification is required to enable use for inputs. Soldering required. Output buffers can be replaced with an input buffer.
+
+https://litex-cnc.readthedocs.io
+
+
+=== LinuxCNC-RIO
+RealtimeIO for LinuxCNC based on an FPGA
+
+Ethernet interface can be used with a Ethernet to SPI interface.
+
+https://github.com/multigcs/LinuxCNC-RIO
+
+
+== EtherCAT
+Beckhoff EtherCAT(TM) and compatible systems can be made to work with LinuxCNC using the open source etherlab software.
+
+EtherCAT is the open real-time Ethernet network originally developed by Beckhoff.
+The EtherCAT master (LinuxCNC computer) uses a standard ethernet (network) interface - no special hardware is needed on the master. The slaves use special hardware.
+There are many EtherCAT slave devices available including servo drives, stepper drives, input, output interfaces, VFDs, and others.
+
+https://github.com/linuxcnc-ethercat/linuxcnc-ethercat
+
+== PCI / PCIe
+=== Mesa
+Mesa PCI / PCIe cards with a Field-programmable gate array (FPGA). Time critical (realtime) tasks are performed on the FPGA card.
+
+Multiple daughter / expansion cards are available
+
+Website: http://mesanet.com/    Store: http://store.mesanet.com/
+
+== SPI
+SPI = Serial Peripheral Interface. SPI interfaces can be found on single board computers like Raspberry Pi, or Orange Pi. SPI interface is _not_ generally present on standard computers (AMD/Intel).
+
+
+=== Remora SPI
+Realtime requirements are offloaded onto a controller board. https://remora-docs.readthedocs.io
+
+=== LinuxCNC-RIO
+RealtimeIO for LinuxCNC based on an FPGA
+
+https://github.com/multigcs/LinuxCNC-RIO
+
+=== Mesa
+Mesa cards with a Field-programmable gate array (FPGA), interfaced to LinuxCNC computer via SPI. Time critical (realtime) tasks are performed on the FPGA card.
+
+Example: 7C80 for Raspberry Pi
+
+Website: http://mesanet.com/    Store: http://store.mesanet.com/
+
+
+== USB
+USB devices cannot be used to control motors or perform other __"real time"__ tasks.
+
+USB to Parallel port converters are ___NOT___ usable / suitable for CNC use. 
+
+=== LinuxCNC_ArduinoConnector
+This Project enables you to connect an Arduino to LinuxCNC and provides as many I/Os as you could ever wish for. This Software is used as I/O Expansion for LinuxCNC.
+It is NOT intended for timing and security relevant I/Os. Do not use it for Emergency Stops or Endstop switches!
+
+Site: https://github.com/AlexmagToast/LinuxCNC_ArduinoConnector
+
+=== USB to RS485 / Modbus
+
+USB to serial (RS485 / Modbus) adaptors can be used for control of __non-realtime__ hardware such as variable frequency drives (VFD) for spindle control. Not suitable for time critical tasks.
+
+
+
+// vim: set syntax=asciidoc:
+

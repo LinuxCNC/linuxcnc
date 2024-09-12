@@ -15,6 +15,9 @@ log = logger.getLogger(__name__)
 STATUS = Status()
 INFO = Info()
 
+DEFAULT = 0
+WARNING = 1
+CRITICAL = 2
 
 class Message:
     def __init__(self):
@@ -33,8 +36,14 @@ class Message:
     # dialog displays a  Messagebox with yes or no buttons
     # okdialog displays a Messagebox with an ok button
     # dialogs require an answer before focus is sent back to main screen
-    def message_setup(self, hal_comp, window=None):
+    def message_setup(self, hal_comp, window=None, notify=None):
         self.HAL_GCOMP_ = hal_comp
+        self.NOTIFY = notify
+
+        # if no notify supplied, make our owm
+        if not notify is None:
+            self.notify_normal = self.NOTIFY.new_normal()
+
         if INFO.ZIPPED_USRMESS:
             for boldtext, text, pinname, details, name, icon in (INFO.ZIPPED_USRMESS):
                 if not ("status" in details)\
@@ -50,6 +59,7 @@ class Message:
                 if not name == None:
                     D = self['dialog-{}'.format(name)] = LcncDialog(window)
                     D._request_name = 'INI_MESSAGE_{}'.format(name)
+                    D._geoName = name+'-geometry'
                     D.hal_init(HAL_NAME=name)
                     D.pinname = name
 
@@ -59,7 +69,7 @@ class Message:
                     else:
                         D._halpin = self.HAL_GCOMP_.newpin(name, hal.HAL_BIT, hal.HAL_IO)
 
-                    D._halpin.value_changed.connect(self.dummy(self['dialog-{}'.format(name)],
+                    D._halpin.value_changed.connect(self.messageCallback(self['dialog-{}'.format(name)],
                                                 D._halpin, name, boldtext, text, pinname, details, icon))
 
                     if ("dialog" in details) and not ("nonedialog" in details):
@@ -69,14 +79,48 @@ class Message:
                             self.HAL_GCOMP_.newpin(name + "-response-s32", hal.HAL_S32, hal.HAL_OUT)
                             self.HAL_GCOMP_[name + "-response-s32"] = -1 # undetermined
 
+        if not INFO.USRMULTIMESS_ID is None:
+            for name in INFO.USRMULTIMESS_ID:
+                    mess = INFO['{}_MULTIMESS'.format(name)]
+                    D = self['dialog-MULTIMESSAGE-{}'.format(name)] = LcncDialog(window)
+                    D._request_name = 'INI_MULTIMESSAGE_{}'.format(name)
+                    D._geoName = name+'-geometry'
+                    D.hal_init(HAL_NAME=name)
+                    D.pinname = name
+
+                    D._halpin = self.HAL_GCOMP_.newpin(name, hal.HAL_S32, hal.HAL_IN)
+
+                    D._halpin.value_changed.connect(self.multiMessageCallback(D,
+                                                D._halpin, name, mess, ))
+
+                    if ("dialog" in details) and not ("nonedialog" in details):
+                        self.HAL_GCOMP_.newpin(name + "-waiting", hal.HAL_BIT, hal.HAL_OUT)
+
     # This weird code is so we can get access to proper variables.
     # using clicked.connect( self.on_printmessage(pin,name,bt,t,c) ) apparently doesn't easily
     # add user data - it seems you only get the last set added
     # found this closure technique hack on the web
     # truly weird black magic
-    def dummy(self, dialog, pin, pinname, boldtext, text, details, type, icon):
+    def messageCallback(self, dialog, pin, pinname, boldtext, text, details, type, icon):
         def calluser():
             self.on_printmessage(dialog, pin, pinname, boldtext, text, details, type, icon)
+        return calluser
+
+    def multiMessageCallback(self, dialog, pin, name, messages):
+        def calluser():
+            mess = messages.get(pin.get())
+            # no message? hide dialog and return
+            if mess is None:
+                dialog.record_geometry()
+                dialog.hide()
+                if self.use_focus_overlay:
+                    STATUS.emit('focus-overlay-changed', False, None, None)
+                return
+
+            # extract info from message
+            messtype, title, text, details, icon, options = mess
+
+            self.on_printmessage(dialog, pin, name, title, text, details, messtype, icon, options)
         return calluser
 
     # This is part of the user message system
@@ -86,7 +130,7 @@ class Message:
     # you can combine status and dialog messages so they print to the status bar
     # and pop a dialog
     # This gets called as the HAL pin changes state
-    def on_printmessage(self, dialog, pin, pinname, boldtext, text, details, type, icon):
+    def on_printmessage(self, dialog, pin, pinname, boldtext, text, details, type, icon, options={}):
 
         # hide a no button dialog if pin goes False
         if not pin.get():
@@ -97,14 +141,24 @@ class Message:
 
         if self.play_sounds:
             STATUS.emit('play-sound', self.alert_sound)
+
         if boldtext == "NONE": boldtext = ''
+
         if "status" in type:
-            if boldtext:
-                statustext = boldtext
-            else:
-                statustext = text
-            if self.NOTIFY:
-                self.NOTIFY.notify("INFO:", statustext)
+            mess = {}
+            mess['TITLE']=boldtext
+            mess["SHORTTEXT"]=text
+            mess['DETAILS']=details
+
+            STATUS.emit('status-message', mess, options)
+
+            # (NOTIFY object injected from screenoption widget)
+            if not self.NOTIFY is None:
+                if  "ok" in type:
+                    self.NOTIFY.notify_ok( boldtext, text, '',5, self.okReturn)
+                else:
+                    self.NOTIFY.update(self.notify_normal, boldtext, text)
+
         if "dialog" in type or "okdialog" in type:
             if self.use_focus_overlay:
                 STATUS.emit('focus-overlay-changed', True, self.focus_text, self._color)
@@ -129,6 +183,12 @@ class Message:
                            return_callback = None, flags = None, setflags = None,
                             title = None):
 
+        if type(icon) == str:
+            if icon.upper() == 'CRITICAL': icon = QMessageBox.Critical
+            elif icon.upper() == 'INFO': icon = QMessageBox.Information
+            elif icon.upper() == 'WARNING': icon = QMessageBox.Warning
+            else: icon = QMessageBox.Question
+
         if return_callback == None:
             return_callback = self.dialog_return
         flags =  (Qt.Tool | Qt.Dialog | Qt.WindowStaysOnTopHint\
@@ -139,7 +199,10 @@ class Message:
                            icon=icon, pinname=pinname, focus_text=None,
                            focus_color=None, play_alert=None, nblock= nblock,
                            return_callback = return_callback, flags = flags, setflags = setFlags,
-                            title = title)
+                            title = title,geoname=dialog._geoName)
+
+    def okReturn(self, data):
+        print(data)
 
     # for testing, could be overridden
     def msgbtn(self, i):
@@ -149,6 +212,7 @@ class Message:
     # a hacky way to adjust future options
     # using it to adjust runtime options from a preference file in screenoptions (presently)
     # 'with great power comes ....'
+    # screenOptions injects the NOTICE  library this way
     def message_option(self, option, data):
         try:
             self[option] = data

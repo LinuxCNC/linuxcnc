@@ -1,0 +1,10 @@
+= undocumented(3hal)
+
+== NAME
+
+undocumented - undocumented functions in HAL
+
+== SEE ALSO
+
+The header file _hal.h_. Most HAL functions have documentation in that
+file.

@@ -1,24 +1,23 @@
 /* brushed_metal_color stylesheet designed for qtdragon/hd */
 
 QMainWindow {
-   background-image: url(:/images/images/brushed_metal.png);
+    background-image: url(:/images/images/brushed_metal.png);
 }
 
 /* comment for blur effect with dialogs */
-screen_options {qproperty-focusBlur_option: false;}
+#screen_options {qproperty-focusBlur_option: false;}
 
 QPushButton,
 ActionButton,
 SystemToolButton,
 OffsetToolButton,
-AxisToolButton, 
+AxisToolButton,
 QToolButton {
 background: qlineargradient(spread:reflect, x1:0.5, y:0, x2:0.5, y2:1.6, stop:0 rgba(160, 160, 160, 225),  stop:0.6 rgba(110, 110, 110, 225));
     border: 2px solid black;
     border-radius: 4px;
     font: 10pt "Lato Heavy";
 }
-
 
 
 QPushButton:checked,
@@ -48,41 +47,40 @@ ActionButton#action_machine_on {
     color: #FF0000;
 }
 
-ActionButton#x_plus_jogbutton,
-ActionButton#x_minus_jogbutton {
+ActionButton#plus_jogbutton_0,
+ActionButton#minus_jogbutton_0 {
     border-radius: 4px;
     background: qlineargradient(spread:reflect, x1:0.5, y:0, x2:0.5, y2:1, stop:0 rgba(180, 255, 180,160),  stop:0.6 rgba(80, 255, 80, 160));
-    
 }
 
-ActionButton#y_plus_jogbutton,
-ActionButton#y_minus_jogbutton {
+ActionButton#plus_jogbutton_1,
+ActionButton#minus_jogbutton_1 {
     border-radius: 4px;
-   background: qlineargradient(spread:reflect, x1:0.5, y:0, x2:0.5, y2:1, stop:0 rgba(255, 180, 180,160),  stop:0.6 rgba(255, 80, 80,160));
-    
-}
-ActionButton#z_plus_jogbutton,
-ActionButton#z_minus_jogbutton {
-    border-radius: 4px;
-  background: qlineargradient(spread:reflect, x1:0.5, y:0, x2:0.5, y2:1, stop:0 rgba(180, 180, 255,160),  stop:0.6 rgba(80, 80, 255,160));    
+    background: qlineargradient(spread:reflect, x1:0.5, y:0, x2:0.5, y2:1, stop:0 rgba(255, 180, 180,160),  stop:0.6 rgba(255, 80, 80,160));
 }
 
+ActionButton#plus_jogbutton_2,
+ActionButton#minus_jogbutton_2 {
+    border-radius: 4px;
+    background: qlineargradient(spread:reflect, x1:0.5, y:0, x2:0.5, y2:1, stop:0 rgba(180, 180, 255,160),  stop:0.6 rgba(80, 80, 255,160));
+}
+
+
+
+#plus_jogbutton_3,
+#minus_jogbutton_3 {
+    border-radius: 4px;
+    font: 17pt "Lato Heavy";
+    background: qlineargradient(spread:reflect, x1:0.5, y:0, x2:0.5, y2:1, stop:0 rgba(203, 145, 27,250),  stop:0.6 rgba(173, 105, 6, 180));
+
+}
 
 
 #plus_jogbutton_4,
 #minus_jogbutton_4 {
-   border-radius: 4px;
-   font: 17pt "Lato Heavy";
-   background: qlineargradient(spread:reflect, x1:0.5, y:0, x2:0.5, y2:1, stop:0 rgba(203, 145, 27,250),  stop:0.6 rgba(173, 105, 6, 180));
-
-}
-
-
-#plus_jogbutton_5,
-#minus_jogbutton_5 {
-   border-radius: 4px;
-   font: 17pt "Lato Heavy";
-   background: qlineargradient(spread:reflect, x1:0.5, y:0, x2:0.5, y2:1, stop:0 rgba(193, 107, 188,250),  stop:0.6 rgba(150, 100,140, 200));
+    border-radius: 4px;
+    font: 17pt "Lato Heavy";
+    background: qlineargradient(spread:reflect, x1:0.5, y:0, x2:0.5, y2:1, stop:0 rgba(193, 107, 188,250),  stop:0.6 rgba(150, 100,140, 200));
 }
 
 ActionButton#action_machine_on[isStateOn=true] {
@@ -110,54 +108,30 @@ QLabel {
     color: black;
 }
 
-QLabel#lbl_jog_angular{
-    font: 18pt "Lato Heavy";
-    color: black;
-}
 
-QLabel#label_axis_x {
-    border: 2px solid black;
-    border-radius: 4px;
-    font: 20pt "Lato Heavy";
+#axis_select_0 {
+    font: 16pt "Lato Heavy";
     color: rgb(80, 255, 80);
-   background: qlineargradient(spread:reflect, x1:0.5, y:0, x2:0.5, y2:1.6, stop:0 rgba(160, 160, 160, 225),  stop:0.6 rgba(110, 110, 110, 225));
 }
 
-QLabel#label_axis_y {
-    border: 2px solid black;
-    border-radius: 4px;
-    font: 20pt "Lato Heavy";
+#axis_select_1 {
+    font: 16pt "Lato Heavy";
     color: rgb(255, 80, 80);
-    background: qlineargradient(spread:reflect, x1:0.5, y:0, x2:0.5, y2:1.6, stop:0 rgba(160, 160, 160, 225),  stop:0.6 rgba(110, 110, 110, 225));
 }
 
-QLabel#label_axis_z {
-    border: 2px solid black;
-    border-radius: 4px;
-    font: 20pt "Lato Heavy";
+#axis_select_2 {
+    font: 16pt "Lato Heavy";
     color:  rgb(80, 80, 255);
-    background: qlineargradient(spread:reflect, x1:0.5, y:0, x2:0.5, y2:1.6, stop:0 rgba(160, 160, 160, 225),  stop:0.6 rgba(110, 110, 110, 225));
 }
 
-#label_axis_4 {
-    border: 2px solid black;
-    border-radius: 4px;
-    font: 20pt "Lato Heavy";
+#axis_select_3 {
+    font: 16pt "Lato Heavy";
     color: rgb(233, 155, 37);
-    background: qlineargradient(spread:reflect, x1:0.5, y:0, x2:0.5, y2:1.6, stop:0 rgba(160, 160, 160, 225),  stop:0.6 rgba(110, 110, 110, 225));
 }
 
-#label_axis_5 {
-    border: 2px solid black;
-    border-radius: 4px;
-    font: 20pt "Lato Heavy";
+#axis_select_4 {
+    font: 16pt "Lato Heavy";
     color: rgb(223, 167, 198);
-    background: qlineargradient(spread:reflect, x1:0.5, y:0, x2:0.5, y2:1.6, stop:0 rgba(160, 160, 160, 225),  stop:0.6 rgba(110, 110, 110, 225));
-}
-
-QLabel#lbl_cycle_start,
-QLabel#lbl_home_all {
-    font: 10pt "Lato Heavy";
 }
 
 
@@ -190,9 +164,9 @@ Label {
 }
 
 StatusLabel#status_act_feedrate {
-  background: #303030;
-  color: #00FF00;
-  font: 13pt "Lato Heavy";
+    background: #303030;
+    color: #00FF00;
+    font: 13pt "Lato Heavy";
 }
 
 
@@ -206,9 +180,9 @@ DROLabel {
     border-radius: 4px;
     font: 20pt "Lato Heavy";
     color: #00FF00;
-    qproperty-imperial_template: '%9.4f'; 
-    qproperty-metric_template: '%10.2f'; 
-    qproperty-angular_template: '%11.1f';
+    qproperty-imperial_template: '%9.4f';
+    qproperty-metric_template: '%10.3f';
+    qproperty-angular_template: '%11.3f';
 }
 
 DROLabel[isHomed=false] {
@@ -230,11 +204,11 @@ QLineEdit {
 }
 
 QLineEdit#mdiline {
-    font: 12pt ;
+    font: 14pt ;
 }
 
 QLineEdit#lineEdit_statusbar {
- font: 12pt "Lato Heavy";
+    font: 12pt "Lato Heavy";
 }
 
 
@@ -260,7 +234,7 @@ QComboBox {
     border: 1px solid black;
     min-width: 100px;
     font: 10pt "Lato Heavy";
-    color: black;    
+    color: black;
 }
 
 QGroupBox {
@@ -311,7 +285,7 @@ QHeaderView {
     font: 10pt "Lato Heavy";
 }
 
-QHeaderView::section::vertical::first, 
+QHeaderView::section::vertical::first,
 QHeaderView::section::vertical::only-one {
     width: 60px;
 }
@@ -331,55 +305,75 @@ QSlider::groove:vertical {
 }
 
 QSlider::sub-page:horizontal {
-    background: qlineargradient(x1: 0, y1: 0.8, x2: 1, y2: 1,
-    stop: 0 #bbf stop: 1 #55f);
+    background: qlineargradient( y2: 0.5,x1: 1, y1: 0.5 stop: 0 #66f stop: 1 #99f);
     border: 1px solid #777;
-    border-radius: 3px;
-    height: 12px;
 }
 
 QSlider::add-page:horizontal {
-    background-color: rgb(120, 120, 120);
-    border: 1px solid #777;
-    border-radius: 3px;
-    width: 12px;
+    background-color: rgb(110, 110, 110);
 }
 
 QSlider::add-page:vertical {
-    background: qlineargradient(x1: 0, y: 0.8, x2: 1, y2: 1,
-    stop: 0 #bbf, stop: 1 #55f);
+    background: qlineargradient( x1:0.5, y1:0, x2:0.5,  y2:1 stop: 0 #66f, stop: 1 #99f);
     border: 1px solid #777;
-    border-radius: 3px;
-    height: 12px;
 }
 
 QSlider::sub-page:vertical {
-    background-color: rgb(120, 120, 120);
-    border: 1px solid #777;
-    border-radius: 3px;
-    width: 12px;
+    background-color: rgb(110, 110, 110);
 }
 
 QSlider::handle:horizontal {
     background: lightgray;
     border: 1px solid black;
-    width: 14px;
-    margin-top: -6px;
-    margin-bottom: -6px;
-    border-radius: 2px;
+    width: 18px;
+    margin-top: -8px;
+    margin-bottom: -8px;
+    border-radius: 3px;
 }
 
 QSlider::handle:vertical {
     background: lightgray;
     border: 1px solid black;
-    height: 14px;
-    margin-left: -6px;
-    margin-right: -6px;
-    border-radius: 2px;
+    height: 18px;
+    margin-left: -8px;
+    margin-right: -8px;
+    border-radius: 3px;
 }
+
+#slider_feed_ovr {
+    qproperty-alertOver: 105.0;
+}
+#slider_feed_ovr {
+    qproperty-alertUnder: 60;
+}
+#slider_feed_ovr[alertState='over'] {
+   background: qradialgradient(spread:pad, cx:1.2, cy:0.5, radius:0.63, fx:1, fy:0.5, stop:0.406912 rgba(255, 0, 0, 255), stop:1 rgba(255, 255, 255, 0));
+}
+#slider_feed_ovr[alertState='under'] {
+    background: qradialgradient(spread:pad, cx:-0.15, cy:0.5, radius:0.8, fx:0, fy:0.5, stop:0.326342 rgba(255, 255, 0, 255), stop:1 rgba(255, 255, 255, 0));
+}
+
+
+#slider_spindle_ovr {
+    qproperty-alertOver: 110.0;
+}
+#slider_spindle_ovr {
+    qproperty-alertUnder: 75;
+}
+#slider_spindle_ovr[alertState='over'] {
+    background: qradialgradient(spread:pad, cx:1.25, cy:0.5, radius:0.7, fx:1, fy:0.5, stop:0.406912 rgba(255, 255, 0, 255), stop:1 rgba(255, 255, 255, 0));
+
+}
+#slider_spindle_ovr[alertState='under'] {
+    background: qradialgradient(spread:pad, cx:-0.15, cy:0.5, radius:0.7, fx:0, fy:0.5, stop:0.326342 rgba(255, 0, 0, 255), stop:1 rgba(255, 255, 255, 0));
+
+}
+
+
 QDialog{
-background-image: url(:/images/images/brushed_metal.png);
+    background-image: url(:/images/images/brushed_metal.png);
 }
+
 ToolDialog QPushButton, AboutDialog QPushButton{
     width: 100px;
     height: 40px;
@@ -392,6 +386,35 @@ EntryDialog QPushButton, CloseDialog QPushButton{
 QTabWidget::pane { /* The tab widget frame */
     border-top: 0px solid #C2C7CB;
 }
+
+LcncDialog QPushButton,
+ToolDialog QPushButton,
+AboutDialog QPushButton {
+    width: 80px;
+    height: 40px;
+}
+
+RunFromLineDialog QPushButton,
+CalculatorDialog QPushButton,
+EntryDialog QPushButton,
+CloseDialog QPushButton {
+    font: 12pt "Lato Heavy";
+    width: 80px;
+    height: 40px;
+}
+
+CalculatorDialog QLineEdit {
+    font: 16pt "Lato Heavy";
+}
+
+
+/** Dialogs **/
+QDialog QPushButton {
+    width: 100px;
+    height: 40px;
+}
+
+
 
 /* Style the tab using the tab sub-control. Note that
     it reads QTabBar _not_ QTabWidget */
@@ -423,20 +446,96 @@ QTabBar::tab:!selected {
     margin-top: 2px; /* make non-selected tabs look smaller */
 }
 
-ToolOffsetView { 
+ToolOffsetView {
     font: 12pt "Lato Heavy";
-    qproperty-imperial_template: '%9.4f'; 
-    qproperty-metric_template: '%10.2f'; 
+    qproperty-imperial_template: '%9.4f';
+    qproperty-metric_template: '%10.3f';
 }
 
-OriginOffsetView { 
-   font: 11pt "Lato Heavy"; 
-   qproperty-imperial_template: '%9.4f'; 
-   qproperty-metric_template: '%10.2f'; 
+OriginOffsetView {
+    font: 11pt "Lato Heavy";
+    qproperty-imperial_template: '%9.4f';
+    qproperty-metric_template: '%10.3f';
+}
+
+/** Plain Text Edit **/
+QTextEdit,
+QPlainTextEdit,
+QListWidget {
+    background: #eeeeee;
+    font: 12pt "Lato Heavy";
+}
+
+QMenu {
+    font: 14pt "Lato Heavy";
+    background: #b0b0b0;
+    border: 2px solid black;
+}
+
+DROLabel{
+    qproperty-showLast: false;
+    qproperty-showDivide: false;
+    qproperty-showGotoOrigin: true;
+    qproperty-showZeroOrigin: false;
+    qproperty-showSetOrigin: false;
+}
+
+AxisToolButton{
+    qproperty-showLast: true;
+    qproperty-showDivide: true;
+    qproperty-showGotoOrigin: false;
+    qproperty-showZeroOrigin: true;
+    qproperty-showSetOrigin: true;
+}
+
+#screen_options {
+    qproperty-user1Color: white;     /*  default status     */
+    qproperty-user2Color: #fff466;   /*  warning status     */
+    qproperty-user3Color: #ff7882;   /*  critical status    */
+    qproperty-user4Color: #ffaa00;   /*  MPG select         */
+    qproperty-user5Color: #ff0000;   /*  Cycle Start select */
 }
 
 
+/** GCode Display **/
+EditorBase {
+    qproperty-styleColorBackground: #c0c0c0;
+    qproperty-styleColorMarginBackground: #666666;
+    qproperty-styleColorMarginText: #ffffff;
+    qproperty-styleColorMarkerBackground: #9f9f9f;
+    qproperty-styleColorSelectionBackground: #006aff;
+    qproperty-styleColorSelectionText: #ffffff;
+    qproperty-styleFont: "DejaVu Sans Mono,12,-1,5,50,0,0,0,1,0"; /* default */
+    qproperty-styleFont0: "DejaVu Sans Mono,12,-1,5,50,0,0,0,1,0";
+    qproperty-styleFont1: "DejaVu Sans Mono,12,-1,5,50,1,0,0,1,0";
+    qproperty-styleFont2: "DejaVu Sans Mono,12,-1,5,90,0,0,0,1,0";
+    qproperty-styleFont3: "DejaVu Sans Mono,12,-1,5,90,0,0,0,1,0";
+    qproperty-styleFont4: "DejaVu Sans Mono,12,-1,5,90,0,0,0,1,0";
+    qproperty-styleFont5: "DejaVu Sans Mono,12,-1,5,90,0,0,0,1,0";
+    qproperty-styleFont6: "DejaVu Sans Mono,12,-1,5,70,0,0,0,1,0";
+    qproperty-styleFont7: "DejaVu Sans Mono,12,-1,5,70,0,0,0,1,0";
+    qproperty-styleFontMargin: "DejaVu Sans Mono,10,-1,5,50,0,0,0,1,0";
+    qproperty-styleColor0: #efefef;/* default */
+    qproperty-styleColor1: #444444;/* LineNo & Comments */
+    qproperty-styleColor2: blue;/* Gcodes */
+    qproperty-styleColor3: #006412;/* Mcodes #007615; */
+    qproperty-styleColor4: #ad00ff;/* Axes */
+    qproperty-styleColor5: red;/* Other (feed, spindle, radius, etc) */
+    qproperty-styleColor6: #111155;/* Axes Values */
+    qproperty-styleColor7: #111155;/* Other Values */
+    qproperty-styleColorCursor: red
+}
 
+GcodeEditor QToolButton {
+    min-width: 35;
+    height: 35;
+    font: 12pt "Lato Heavy";
+}
 
+GcodeEditor QLineEdit {
+    width: 120;
+    height: 26;
+    font: 12pt "Lato Heavy";
+}
 
 

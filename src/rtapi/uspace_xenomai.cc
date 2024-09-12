@@ -1,7 +1,10 @@
 #include "config.h"
 #include "rtapi.h"
 #include "rtapi_uspace.hh"
-#include <posix/pthread.h>
+#include <pthread.h>
+#include  <errno.h>
+#include <stdio.h>
+#include <cstring>
 #include <atomic>
 #ifdef HAVE_SYS_IO_H
 #include <sys/io.h>
@@ -55,22 +58,23 @@ struct XenomaiApp : RtapiApp {
         int nprocs = sysconf( _SC_NPROCESSORS_ONLN );
         CPU_SET(nprocs-1, &cpuset); // assumes processor numbers are contiguous
 
+        int ret;
         pthread_attr_t attr;
-        if(pthread_attr_init(&attr) < 0)
-            return -errno;
-        if(pthread_attr_setstacksize(&attr, task->stacksize) < 0)
-            return -errno;
-        if(pthread_attr_setschedpolicy(&attr, policy) < 0)
-            return -errno;
-        if(pthread_attr_setschedparam(&attr, &param) < 0)
-            return -errno;
-        if(pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED) < 0)
-            return -errno;
+        if((ret = pthread_attr_init(&attr)) != 0)
+            return -ret;
+        if((ret = pthread_attr_setstacksize(&attr, task->stacksize)) != 0)
+            return -ret;
+        if((ret = pthread_attr_setschedpolicy(&attr, policy)) != 0)
+            return -ret;
+        if((ret = pthread_attr_setschedparam(&attr, &param)) != 0)
+            return -ret;
+        if((ret = pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED)) != 0)
+            return -ret;
         if(nprocs > 1)
-            if(pthread_attr_setaffinity_np(&attr, sizeof(cpuset), &cpuset) < 0)
-                return -errno;
-        if(pthread_create(&task->thr, &attr, &wrapper, reinterpret_cast<void*>(task)) < 0)
-            return -errno;
+            if((ret = pthread_attr_setaffinity_np(&attr, sizeof(cpuset), &cpuset)) != 0)
+                return -ret;
+        if((ret = pthread_create(&task->thr, &attr, &wrapper, reinterpret_cast<void*>(task))) != 0)
+            return -ret;
 
         return 0;
     }

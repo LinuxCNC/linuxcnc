@@ -59,7 +59,8 @@ advantage at all.
 
 == Quick Start ==
 
-Install the linuxcnc-dev package.
+Install the linuxcnc-uspace-dev or linuxcnc-dev package (depending on the
+LinuxCNC version installed).
 
 Create a new definition file similar to analogue.mod and relayboard.mod
 (the annotated mesa_uart.mod.sample file should help here)
@@ -108,8 +109,8 @@ float pin is specified then two extra HAL pins are created with the
 same name but suffixed with -scale and offset. The value from the
 modbus register will be interpreted as a sighed-16 bit number. It will
 then be multiplied by the scale value and then the offset will be
-added (ie the offset is in engineering units, and the scale converts 16
-bit register values to engineering units)
+added (i.e. the offset is in engineering units, and the scale converts 16
+bit register values to engineering units).
 
 The reverse transformation is performed when writing to the device.
 
@@ -141,8 +142,7 @@ module will create the following pins for each instance of the driver:
 
 *modname.fault* - indicates a fault with the device or comms
 
-*modname.last-error* - indicates the error code that set the fault
-output.
+*modname.last-error* - indicates the error code that set the fault output.
 
 These can be redefined at any time and will take effect the next time
 that a modbus packet is assembled.

@@ -1,0 +1,40 @@
+:manvolnum: 3
+
+= rtapi_get_msg_level(3rtapi)
+
+== NAME
+
+rtapi_get_msg_level, rtapi_set_msg_level - Get or set the logging level
+
+== SYNTAX
+
+....
+int rtapi_set_msg_level(int _level_);
+int rtapi_get_msg_level();
+....
+
+== ARGUMENTS
+
+level::
+  The desired logging level.
+
+== DESCRIPTION
+
+Get or set the RTAPI message level used by *rtapi_print_msg*. Depending
+on the RTOS, this level may apply to a single RTAPI module, or it may
+apply to a group of modules.
+
+== REALTIME CONSIDERATIONS
+
+May be called from non-realtime, init/cleanup, and realtime code.
+
+== RETURN VALUE
+
+*rtapi_set_msg_level* returns a status code, and *rtapi_get_msg_level*
+returns the current level. RTAPI_MSG_NONE = 0, RTAPI_MSG_ERR = 1,
+RTAPI_MSG_WARN = 2, RTAPI_MSG_INFO = 3, RTAPI_MSG_DBG = 4
+RTAPI_MSG_ALL = 5
+
+== SEE ALSO
+
+rtapi_print_msg(3rtapi)

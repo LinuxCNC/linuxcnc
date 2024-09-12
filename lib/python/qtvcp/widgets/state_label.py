@@ -138,7 +138,7 @@ class StateLabel(ScaledLabel, _HalWidgetBase):
     def set_fpr_mode(self, data):
         self.fpr_mode = data
         if data:
-            self._toggle_properties('fpr_modee')
+            self._toggle_properties('fpr_mode')
     def get_fpr_mode(self):
         return self.fpr_mode
     def reset_fpr_mode(self):

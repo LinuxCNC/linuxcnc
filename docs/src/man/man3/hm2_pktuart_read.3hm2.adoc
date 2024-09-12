@@ -1,0 +1,21 @@
+= hm2_pktuart_read(3hm2)
+
+== NAME
+
+hm2_pktuart_read - read data from a Hostmot2 UART buffer
+
+== SYNTAX
+
+....
+#include <hostmot2-serial.h>
+int hm2_pktuart_read(char *name,  unsigned char data[], rtapi_u8 *num_frames,
+                     rtapi_u16 *max_frame_length, rtapi_u16 frame_sizes[]);
+....
+
+== DESCRIPTION
+
+*hm2_pktuart_read* reads data from the PktUART "name".
+
+DEPRECATED except in setup code.
+
+Please see the combined document hm2_pktuart.3hm2

@@ -1,0 +1,454 @@
+= halui(1)
+
+== NAME
+
+halui - observe HAL pins and command LinuxCNC through NML
+
+== SYNOPSIS
+
+*halui* [*-ini* _<path-to-INI>_]
+
+== DESCRIPTION
+
+*halui* is used to build a User Interface using hardware knobs and switches.
+It exports a big number of pins, and acts accordingly when these change.
+
+== OPTIONS
+
+*-ini* _filename_::
+  Use the _filename_ as the configuration file. Note: halui must find
+  the nml file specified in the INI, usually that file is in the same
+  folder as the INI, so it makes sense to run halui from that folder.
+
+== USAGE
+
+When run, *halui* will export a large number of pins. A user can connect
+those to his physical knobs & switches & leds, and when a change is
+noticed halui triggers an appropriate event.
+
+*halui* expects the signals to be debounced, so if needed (bad knob
+contact) connect the physical button to a HAL debounce filter first.
+
+== PINS
+
+=== Abort
+
+*halui.abort bit in::
+  pin for clearing most errors
+
+=== Tool
+
+*halui.tool.length-offset.a  float out::
+  current applied tool length offset for the A axis
+*halui.tool.length-offset.b  float out::
+  current applied tool length offset for the B axis
+*halui.tool.length-offset.c  float out::
+  current applied tool length offset for the C axis
+*halui.tool.length-offset.u  float out::
+  current applied tool length offset for the U axis
+*halui.tool.length-offset.v  float out::
+  current applied tool length offset for the V axis
+*halui.tool.length-offset.w  float out::
+  current applied tool length offset for the W axis
+*halui.tool.length-offset.x  float out::
+  current applied tool length offset for the X axis
+*halui.tool.length-offset.y  float out::
+  current applied tool length offset for the Y axis
+*halui.tool.length-offset.z  float out::
+  current applied tool length offset for the Z axis
+*halui.tool.diameter  float out::
+  Current tool diameter, or 0 if no tool is loaded.
+*halui.tool.number  u32 out::
+  current selected tool
+
+=== Spindle
+
+ *halui.spindle.**_N_**.brake-is-on** bit out::
+  status pin that tells us if brake is on
+ *halui.spindle.**_N_**.brake-off** bit in::
+  pin for deactivating the spindle brake
+ *halui.spindle.**_N_**.brake-on** bit in::
+  pin for activating the spindle brake
+ *halui.spindle.**_N_**.decrease** bit in::
+  a rising edge on this pin decreases the current spindle speed by 100
+ *halui.spindle.**_N_**.forward** bit in::
+  a rising edge on this pin makes the spindle go forward
+ *halui.spindle.**_N_**.increase** bit in::
+  a rising edge on this pin increases the current spindle speed by 100
+ *halui.spindle.**_N_**.is-on** bit out::
+  status pin telling if the spindle is on
+ *halui.spindle.**_N_**.reverse** bit in::
+  a rising edge on this pin makes the spindle go reverse
+ *halui.spindle.**_N_**.runs-backward** bit out::
+  status pin telling if the spindle is running backward
+ *halui.spindle.**_N_**.runs-forward** bit out::
+  status pin telling if the spindle is running forward
+ *halui.spindle.**_N_**.start** bit in::
+  a rising edge on this pin starts the spindle
+ *halui.spindle.**_N_**.stop** bit in::
+  a rising edge on this pin stops the spindle
+
+=== Spindle Override
+
+(SO = spindle override. FO = feed override)::
+**halui.spindle.**_N_**.override.count-enable** bit in (default: *TRUE*)::
+  When TRUE, modify spindle override when counts changes.
+**halui.spindle.**_N_**.override.counts** s32 in::
+  counts X scale = spindle override percentage
+**halui.spindle.**_N_**.override.decrease** bit in::
+  pin for decreasing the SO (-=scale)
+**halui.spindle.**_N_**.override.direct-value** bit in::
+  pin to enable direct spindle override value input
+**halui.spindle.**_N_**.override.increase** bit in::
+  pin for increasing the SO (+=scale)
+**halui.spindle.**_N_**.override.reset** bit in::
+  pin for resetting the scale SO value (scale=1.0)
+**halui.spindle.**_N_**.override.scale** float in::
+  pin for setting the scale of counts for SO
+**halui.spindle.**_N_**.override.value** float out::
+  current FO value
+
+=== Program
+
+*halui.program.block-delete.is-on* bit out::
+  status pin telling that block delete is on
+*halui.program.block-delete.off* bit in::
+  pin for requesting that block delete is off
+*halui.program.block-delete.on* bit in::
+  pin for requesting that block delete is on
+*halui.program.is-idle* bit out::
+  status pin telling that no program is running
+*halui.program.is-paused* bit out::
+  status pin telling that a program is paused
+*halui.program.is-running bit out::
+  status pin telling that a program is running
+*halui.program.optional-stop.is-on* bit out::
+  status pin telling that the optional stop is on
+*halui.program.optional-stop.off* bit in::
+  pin requesting that the optional stop is off
+*halui.program.optional-stop.on* bit in::
+  pin requesting that the optional stop is on
+*halui.program.pause* bit in::
+  pin for pausing a program
+*halui.program.resume* bit in::
+  pin for resuming a program
+*halui.program.run* bit in::
+  pin for running a program
+*halui.program.step* bit in::
+  pin for stepping in a program
+*halui.program.stop* bit in::
+  pin for stopping a program (note: this pin does the same thing as
+  halui.abort)
+
+=== Mode
+
+*halui.mode.auto* bit in::
+  pin for requesting auto mode
+*halui.mode.is-auto* bit out::
+  pin for auto mode is on
+*halui.mode.is-joint* bit out::
+  pin showing joint by joint jog mode is on
+*halui.mode.is-manual* bit out::
+  pin for manual mode is on
+*halui.mode.is-mdi* bit out::
+  pin for MDI mode is on
+*halui.mode.is-teleop* bit out::
+  pin showing coordinated jog mode is on
+*halui.mode.joint* bit in::
+  pin for requesting joint by joint jog mode
+*halui.mode.manual* bit in::
+  pin for requesting manual mode
+*halui.mode.mdi* bit in::
+  pin for requesting MDI mode
+*halui.mode.teleop* bit in::
+  pin for requesting coordinated jog mode
+
+=== MDI (optional)
+
+**halui.mdi-command-**_XX_ bit in::
+  *halui* looks for INI variables named [HALUI]MDI_COMMAND, and exports
+  a pin for each command it finds. When the pin is driven TRUE, *halui*
+  runs the specified MDI command. _XX_ is a two digit number starting at
+  00. If no [HALUI]MDI_COMMAND variables are set in the INI file, no
+  halui.mdi-command-XX pins will be exported by halui.
+
+=== Mist coolant
+
+*halui.mist.is-on* bit out::
+  pin for mist is on
+*halui.mist.off* bit in::
+  pin for stopping mist
+*halui.mist.on* bit in::
+  pin for starting mist
+
+=== Max-velocity
+
+*halui.max-velocity.count-enable* bit in (default: *TRUE*)*::
+  When True, modify max velocity when halui.max-velocity.counts changes.
+*halui.max-velocity.counts* s32 in::
+  When .count-enable is True, halui changes the max velocity in response
+  to changes to this pin. It's usually connected to an MPG encoder on an
+  operator's panel or jog pendant. When .count-enable is False, halui
+  ignores this pin.
+*halui.max-velocity.direct-value* bit in::
+  When this pin is True, halui commands the max velocity directly to
+  (.counts * .scale). When this pin is False, halui commands the max
+  velocity in a relative way: change max velocity by an amount equal to
+  (change in .counts * .scale).
+*halui.max-velocity.increase* bit in::
+  A positive edge (a False to True transition) on this pin increases the
+  max velocity by the value of the .scale pin. (Note that halui always
+  responds to this pin, independent of the .count-enable pin.)
+*halui.max-velocity.decrease* bit in::
+  A positive edge (a False to True transition) on this pin decreases the
+  max velocity by the value of the .scale pin. (Note that halui always
+  responds to this pin, independent of the .count-enable pin.)
+*halui.max-velocity.scale* float in::
+  This pin controls the scale of changes to the max velocity. Each unit
+  change in .counts, and each positive edge on .increase and .decrease,
+  changes the max velocity by .scale. The units of the .scale pin are
+  machine-units per second.
+*halui.max-velocity.value* float out::
+  Current value for maximum velocity, in machine-units per second.
+
+=== Machine
+
+*halui.machine.units-per-mm* float out::
+  pin for machine units-per-mm (inch:1/25.4, mm:1) according to INI file setting: [TRAJ]LINEAR_UNITS
+*halui.machine.is-on* bit out::
+  pin for machine is On/Off
+*halui.machine.off* bit in::
+  pin for setting machine Off
+*halui.machine.on* bit in::
+  pin for setting machine On
+
+=== Joint
+
+_N_ = joint number (0 ... num_joints-1)
+
+**halui.joint.**_N_**.select** bit in::
+  pin for selecting joint _N_
+**halui.joint.**_N_**.is-selected** bit out::
+  status pin that joint _N_ is selected
+**halui.joint.**_N_**.has-fault** bit out::
+  status pin telling that joint _N_ has a fault
+**halui.joint.**_N_**.home** bit in::
+  pin for homing joint _N_
+**halui.joint.**_N_**.is-homed** bit out::
+  status pin telling that joint _N_ is homed
+**halui.joint.**_N_**.on-hard-max-limit** bit out::
+  status pin telling that joint _N_ is on the positive hardware limit
+**halui.joint.**_N_**.on-hard-min-limit** bit out::
+  status pin telling that joint _N_ is on the negative hardware limit
+**halui.joint.**_N_**.on-soft-max-limit** bit out::
+  status pin telling that joint _N_ is on the positive software limit
+**halui.joint.**_N_**.on-soft-min-limit** bit out::
+  status pin telling that joint _N_ is on the negative software limit
+**halui.joint.**_N_**.override-limits** bit out::
+  status pin telling that joint __N__'s limits are temporarily overridden
+**halui.joint.**_N_**.unhome** bit in::
+  pin for unhoming joint _N_
+**halui.joint.selected** u32 out::
+  selected joint number (0 ... num_joints-1)
+**halui.joint.selected.has-fault** bit out::
+  status pin selected joint is faulted
+**halui.joint.selected.home** bit in::
+  pin for homing the selected joint
+**halui.joint.selected.is-homed** bit out::
+  status pin telling that the selected joint is homed
+**halui.joint.selected.on-hard-max-limit** bit out::
+  status pin telling that the selected joint is on the positive hardware limit
+**halui.joint.selected.on-hard-min-limit** bit out::
+  status pin telling that the selected joint is on the negative hardware limit
+**halui.joint.selected.on-soft-max-limit** bit out::
+  status pin telling that the selected joint is on the positive software limit
+**halui.joint.selected.on-soft-min-limit** bit out::
+  status pin telling that the selected joint is on the negative software limit
+**halui.joint.selected.override-limits** bit out::
+  status pin telling that the selected joint's limits are temporarily overridden
+**halui.joint.selected.unhome** bit in::
+  pin for unhoming the selected joint
+
+=== Joint jogging (*N* = joint number (0 ... num_joints-1))
+
+*halui.joint.jog-deadband* float in::
+   pin for setting jog analog deadband (jog analog inputs smaller/slower than this (in absolute value) are ignored).
+*halui.joint.jog-speed* float in::
+  pin for setting jog speed for plus/minus jogging.
+**halui.joint.**_N_**.analog** float in::
+  pin for jogging the joint _N_ using an float value (e.g. joystick).
+  The value, typically set between 0.0 and ±1.0, is used as a jog-speed multiplier.
+**halui.joint.**_N_**.increment** float in::
+  pin for setting the jog increment for joint _N_ when using increment-plus/minus
+**halui.joint.**_N_**.increment-minus bit in::
+  a rising edge will will make joint _N_ jog in the negative direction
+  by the increment amount
+**halui.joint.**_N_**.increment-plus** bit in::
+  a rising edge will will make joint _N_ jog in the positive direction
+  by the increment amount
+**halui.joint.**_N_**.minus** bit in::
+  pin for jogging joint _N_ in negative direction at the
+  halui.joint.jog-speed velocity
+**halui.joint.**_N_**.plus** bit in::
+  pin for jogging joint _N_ in positive direction at the
+  halui.joint.jog-speed velocity
+*halui.joint.selected.increment* float in::
+  pin for setting the jog increment for the selected joint when using
+  increment-plus/minus
+*halui.joint.selected.increment-minus* bit in::
+  a rising edge will will make the selected joint jog in the negative
+  direction by the increment amount
+*halui.joint.selected.increment-plus* bit in::
+  a rising edge will will make the selected joint jog in the positive
+  direction by the increment amount
+*halui.joint.selected.minus* bit in::
+  pin for jogging the selected joint in negative direction at the
+  halui.joint.jog-speed velocity
+*halui.joint.selected.plus*::
+  pin for jogging the selected joint bit in in positive direction at the
+  halui.joint.jog-speed velocity
+
+=== Axis
+
+_L_ = axis letter (xyzabcuvw)
+
+**halui.axis.**_L_**.select** bit in::
+  pin for selecting axis by letter
+**halui.axis.**_L_**.is-selected** bit out::
+  status pin that axis _L_ is selected
+**halui.axis.**_L_**.pos-commanded** float out float out::
+  Commanded axis position in machine coordinates
+**halui.axis.**_L_**.pos-feedback** float out float out::
+  Feedback axis position in machine coordinates
+**halui.axis.**_L_**.pos-relative** float out float out::
+  Commanded axis position in relative coordinates
+
+=== Axis Jogging
+
+_L_ = axis letter (xyzabcuvw)
+
+*halui.axis.jog-deadband* float in::
+  pin for setting jog analog deadband (jog analog inputs smaller/slower
+  than this (in absolute value) are ignored)
+*halui.axis.jog-speed* float in::
+  pin for setting jog speed for plus/minus jogging.
+**halui.axis.**L**.analog** float in::
+  pin for jogging the axis L using an float value (e.g. joystick). The
+  value, typically set between 0.0 and ±1.0, is used as a jog-speed
+  multiplier.
+**halui.axis.**_L_**.increment** float in::
+  pin for setting the jog increment for axis L when using
+  increment-plus/minus
+**halui.axis.**_L_**.increment-minus bit in::
+  a rising edge will will make axis _L_ jog in the negative direction by
+  the increment amount
+*halui.axis.**_L_**.increment-plus** bit in::
+  a rising edge will will make axis _L_ jog in the positive direction by
+  the increment amount
+**halui.axis.**_L_**.minus** bit in::
+  pin for jogging axis _L_ in negative direction at the
+  halui.axis.jog-speed velocity
+**halui.axis.**_L_**.plus** bit in::
+  pin for jogging axis _L_ in positive direction at the
+  halui.axis.jog-speed velocity
+*halui.axis.selected* u32 out::
+  selected axis (by index: 0:x 1:y 2:z 3:a 4:b 5:cr 6:u 7:v 8:w)
+*halui.axis.selected.increment* float in::
+  pin for setting the jog increment for the selected axis when using increment-plus/minus
+*halui.axis.selected.increment-minus* bit in::
+  a rising edge will will make the selected axis jog in the negative
+  direction by the increment amount
+*halui.axis.selected.increment-plus* bit in::
+  a rising edge will will make the selected axis jog in the positive
+  direction by the increment amount
+*halui.axis.selected.minus* bit in::
+  pin for jogging the selected axis in negative direction at the halui.axis.jog-speed velocity
+*halui.axis.selected.plus* FIXME MISSING::
+  pin for jogging the selected axis bit in in positive direction at the halui.axis.jog-speed velocity
+
+=== Flood coolant
+
+*halui.flood.is-on* bit out::
+  pin for flood is on
+*halui.flood.off* bit in::
+  pin for stopping flood
+*halui.flood.on* bit in::
+  pin for starting flood
+
+=== Feed Override
+
+*halui.feed-override.count-enable* bit in (default: *TRUE*)*::
+  When TRUE, modify feed override when counts changes.
+*halui.feed-override.counts* s32 in::
+  counts X scale = feed override percentage
+*halui.feed-override.decrease* bit in::
+  pin for decreasing the FO (-=scale)
+*halui.feed-override.direct-value* bit in::
+  pin to enable direct value feed override input
+*halui.feed-override.increase* bit in::
+  pin for increasing the FO (+=scale)
+*halui.feed-override.reset* bit in::
+  pin for resetting the FO (scale=1.0)
+*halui.feed-override.scale* float in::
+  pin for setting the scale on changing the FO
+*halui.feed-override.value* float out::
+  current feed override value
+
+=== Rapid Override
+
+*halui.rapid-override.count-enable* bit in (default: *TRUE*)*::
+  When TRUE, modify rapid override when counts changes.
+*halui.rapid-override.counts* s32 in::
+  counts X scale = rapid override percentage
+*halui.rapid-override.decrease* bit in::
+  pin for decreasing the rapid override (-=scale)
+*halui.rapid-override.direct-value* bit in::
+  pin to enable direct value rapid override input
+*halui.rapid-override.increase* bit in::
+  pin for increasing the rapid override (+=scale)
+*halui.rapid-override.reset* bit in::
+  pin for resetting the rapid override (scale=1.0)
+*halui.rapid-override.scale* float in::
+  pin for setting the scale on changing the rapid override
+*halui.rapid-override.value* float out::
+  current rapid override value
+
+=== E-stop
+
+*halui.estop.activate bit* in::
+  pin for setting E-stop (LinuxCNC internal) On
+*halui.estop.is-activated bit* out::
+  pin for displaying E-stop state (LinuxCNC internal) On/Off
+*halui.estop.reset* bit in::
+  pin for resetting E-stop (LinuxCNC internal) Off
+
+=== Homing
+
+*halui.home-all* bit in::
+  pin for requesting home-all (only available when a valid homing
+  sequence is specified)
+
+== SEE ALSO
+
+axis(1), iocontrol(1)
+
+== BUGS
+
+None known at this time.
+
+== AUTHOR
+
+Written by Alex Joni, as part of the LinuxCNC project. Updated by John
+Thornton
+
+== REPORTING BUGS
+
+Report bugs at https://github.com/LinuxCNC/linuxcnc/issues
+
+== COPYRIGHT
+
+Copyright © 2006 Alex Joni.
+
+This is free software; see the source for copying conditions. There is
+NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.

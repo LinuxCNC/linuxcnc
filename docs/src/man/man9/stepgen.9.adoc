@@ -1,0 +1,196 @@
+= stepgen(9)
+
+== NAME
+
+stepgen - software step pulse generation
+
+== SYNOPSIS
+
+**loadrt stepgen step_type=**_type0_[,_type1_...] [**ctrl_type=**_type0_[,_type1_...]] [**user_step_type=#,#**...]
+
+== DESCRIPTION
+
+*stepgen* is used to control stepper motors. The maximum step rate
+depends on the CPU and other factors, and is usually in the range of 5
+kHz to 25 kHz. If higher rates are needed, a hardware step generator is
+a better choice.
+
+*stepgen* has two control modes, which can be selected on a channel by
+channel basis using *ctrl_type*. Possible values are "*p*" for position
+control, and "*v*" for velocity control. The default is position
+control, which drives the motor to a commanded position, subject to
+acceleration and velocity limits. Velocity control drives the motor at a
+commanded speed, again subject to accel and velocity limits. Usually,
+position mode is used for machine axes. Velocity mode is reserved for
+unusual applications where continuous movement at some speed is desired,
+instead of movement to a specific position. (Note that velocity mode
+replaces the former component *freqgen*.)
+
+*stepgen* can control a maximum of 16 motors. The number of
+motors/channels actually loaded depends on the number of _type_ values
+given. The value of each _type_ determines the outputs for that channel.
+Position or velocity mode can be individually selected for each channel.
+Both control modes support the same 16 possible step types.
+
+By far the most common step type is '0', standard step and direction.
+Others include up/down, quadrature, and a wide variety of three, four,
+and five phase patterns that can be used to directly control some types
+of motor windings. (When used with appropriate buffers of course.)
+
+Some of the stepping types are described below, but for more details
+(including timing diagrams) see the *stepgen* section of the HAL
+reference manual.
+
+type 0: step/dir::
+  Two pins, one for step and one for direction. *make-pulses* must run
+  at least twice for each step (once to set the step pin true, once to
+  clear it). This limits the maximum step rate to half (or less) of the
+  rate that can be reached by types 2-14. The parameters *steplen* and
+  *stepspace* can further lower the maximum step rate. Parameters
+  *dirsetup* and *dirhold* also apply to this step type.
+type 1: up/down::
+  Two pins, one for 'step up' and one for 'step down'. Like type 0,
+  *make-pulses* must run twice per step, which limits the maximum speed.
+type 2: quadrature::
+  Two pins, phase-A and phase-B. For forward motion, A leads B. Can
+  advance by one step every time *make-pulses* runs.
+type 3: three phase, full step::
+  Three pins, phase-A, phase-B, and phase-C. Three steps per full cycle,
+  then repeats. Only one phase is high at a time - for forward motion
+  the pattern is A, then B, then C, then A again.
+type 4: three phase, half step::
+  Three pins, phases A through C. Six steps per full cycle. First A is
+  high alone, then A and B together, then B alone, then B and C
+  together, etc.
+types 5 through 8: four phase, full step::
+  Four pins, phases A through D. Four steps per full cycle. Types 5 and
+  6 are suitable for use with unipolar steppers, where power is applied
+  to the center tap of each winding, and four open-collector transistors
+  drive the ends. Types 7 and 8 are suitable for bipolar steppers,
+  driven by two H-bridges.
+types 9 and 10: four phase, half step::
+  Four pins, phases A through D. Eight steps per full cycle. Type 9 is
+  suitable for unipolar drive, and type 10 for bipolar drive.
+types 11 and 12: five phase, full step::
+  Five pins, phases A through E. Five steps per full cycle. See HAL
+  reference manual for the patterns.
+types 13 and 14: five phase, half step::
+  Five pins, phases A through E. Ten steps per full cycle. See HAL
+  reference manual for the patterns.
+type 15: user-specified::
+  This uses the waveform specified by the *user_step_type* module
+  parameter, which may have up to 10 steps and 5 phases.
+
+== FUNCTIONS
+
+*stepgen.make-pulses* (no floating-point)::
+  Generates the step pulses, using information computed by *update-freq*.
+  Must be called as frequently as possible, to maximize the attainable step rate and minimize jitter.
+  Operates on all channels at once.
+*stepgen.capture-position* (uses floating point)::
+  Captures position feedback value from the high speed code and makes it available on a pin for use elsewhere in the system.
+  Operates on all channels at once.
+*stepgen.update-freq* (uses floating point)::
+  Accepts a velocity or position command and converts it into a form usable by *make-pulses* for step generation.
+  Operates on all channels at once.
+
+== PINS
+
+**stepgen.**__N__**.counts** s32 out::
+  The current position, in counts, for channel _N_. Updated by *capture-position*.
+**stepgen.**__N__**.position-fb** float out::
+  The current position, in length units (see parameter *position-scale*).
+  Updated by *capture-position*. The resolution of *position-fb* is much finer than a single step.
+  If you need to see individual steps, use *counts*.
+**stepgen.**__N__**.enable** bit in::
+  Enables output steps - when false, no steps are generated.
+**stepgen.**__N__**.velocity-cmd** float in (velocity mode only)::
+  Commanded velocity, in length units per second (see parameter
+  *position-scale*).
+**stepgen.**__N__**.position-cmd** float in (position mode only)::
+  Commanded position, in length units (see parameter *position-scale).*
+**stepgen.**__N__**.step** bit out (step type 0 only)::
+  Step pulse output.
+**stepgen.**__N__**.dir** bit out (step type 0 only)::
+  Direction output: low for forward, high for reverse.
+**stepgen.**__N__**.up** bit out (step type 1 only)::
+  Count up output, pulses for forward steps.
+**stepgen.**__N__**.down** bit out (step type 1 only)::
+  Count down output, pulses for reverse steps.
+**stepgen.**__N__**.phase-A** thru *phase-E* bit out (step types 2-14 only)::
+  Output bits. *phase-A* and *phase-B* are present for step types 2-14,
+  *phase-C* for types 3-14, *phase-D* for types 5-14, and *phase-E* for types 11-14.
+  Behavior depends on selected stepping type.
+
+== PARAMETERS
+
+*stepgen.*_N_*.frequency* float ro::
+  The current step rate, in steps per second, for channel _N_.
+*stepgen.*_N_*.maxaccel* float rw::
+  The acceleration/deceleration limit, in length units per second squared.
+*stepgen.*_N_*.maxvel* float rw::
+  The maximum allowable velocity, in length units per second.
+  If the requested maximum velocity cannot be reached with the current
+  combination of scaling and *make-pulses* thread period, it will be
+  reset to the highest attainable value.
+*stepgen.*_N_*.position-scale* float rw::
+  The scaling for position feedback, position command, and velocity
+  command, in steps per length unit.
+*stepgen.*_N_*.rawcounts* s32 ro::
+  The position in counts, as updated by *make-pulses*.
+  (Note: this is updated more frequently than the *counts* pin.)
+*stepgen.*_N_*.steplen* u32 rw::
+  The length of the step pulses, in nanoseconds.
+  Measured from rising edge to falling edge.
+*stepgen.*_N_*.stepspace* u32 rw (step types 0 and 1 only)::
+  The minimum space between step pulses, in nanoseconds. Measured from
+  falling edge to rising edge. The actual time depends on the step rate
+  and can be much longer. If *stepspace* is 0, then *step* can be
+  asserted every period. This can be used in conjunction with
+  *hal_parport*'s auto-resetting pins to output one step pulse per
+  period. In this mode, *steplen* must be set for one period or less.
+*stepgen.*_N_*.dirsetup* u32 rw (step type 0 only)::
+  The minimum setup time from direction to step, in nanoseconds periods.
+  Measured from change of direction to rising edge of step.
+*stepgen.*_N_*.dirhold* u32 rw (step type 0 only)::
+  The minimum hold time of direction after step, in nanoseconds.
+  Measured from falling edge of step to change of direction.
+*stepgen.*_N_*.dirdelay* u32 rw (step types 1 and higher only)::
+  The minimum time between a forward step and a reverse step, in nanoseconds.
+
+== TIMING
+
+There are five timing parameters which control the output waveform. No
+step type uses all five, and only those which will be used are exported
+to HAL. The values of these parameters are in nano-seconds, so no
+recalculation is needed when changing thread periods. In the timing
+diagrams that follow, they are identified by the following numbers:
+
+{empty}(1) *stepgen.n.steplen*
+
+{empty}(2) *stepgen.n.stepspace*
+
+{empty}(3) *stepgen.n.dirhold*
+
+{empty}(4) *stepgen.n.dirsetup*
+
+{empty}(5) *stepgen.n.dirdelay*
+
+For step type 0, timing parameters 1 thru 4 are used. The following
+timing diagram shows the output waveforms, and what each parameter
+adjusts.
+
+For step type 1, timing parameters 1, 2, and 5 are used. The following
+timing diagram shows the output waveforms, and what each parameter
+adjusts.
+
+For step types 2 and higher, the exact pattern of the outputs depends on
+the step type (see the HAL manual for a full listing). The outputs
+change from one state to another at a minimum interval of *steplen*.
+When a direction change occurs, the minimum time between the last step
+in one direction and the first in the other direction is the sum of
+*steplen* and *dirdelay*.
+
+== SEE ALSO
+
+The HAL User Manual.

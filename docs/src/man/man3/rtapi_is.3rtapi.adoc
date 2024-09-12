@@ -1,0 +1,36 @@
+= rtapi_is(3rtapi)
+
+== NAME
+
+rtapi_is - details of rtapi configuration
+
+== SYNTAX
+
+....
+int rtapi_is_kernelspace();
+int rtapi_is_realtime();
+....
+
+== DESCRIPTION
+
+*rtapi_is_kernelspace()* returns nonzero when rtapi modules run in
+kernel space (e.g., under RTAI) and zero when they run in userspace
+(e.g., under uspace).
+
+*rtapi_is_realtime()* returns nonzero when capable of running with
+realtime guarantees. For rtai, this always returns nonzero (but actually
+loading realtime modules will fail if not running under the appropriate
+kernel). For uspace, this returns nonzero when the running kernel
+indicates it is capable of realtime performance. If *rtapi_app* is not
+setuid root, this returns nonzero even though *rtapi_app* will not be
+able to obtain realtime scheduling or hardware access, so e.g.,
+attempting to *loadrt* a hardware driver will fail.
+
+== REALTIME CONSIDERATIONS
+
+May be called from non-realtime or from realtime setup code.
+*rtapi_is_realtime()* may perform filesystem I/O.
+
+== RETURN VALUE
+
+Zero for false, nonzero for true.

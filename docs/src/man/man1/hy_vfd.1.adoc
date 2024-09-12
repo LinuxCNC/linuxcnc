@@ -1,0 +1,301 @@
+= hy_vfd(1)
+
+== NAME
+
+hy_vfd - HAL non-realtime component for Huanyang VFDs
+
+== SYNOPSIS
+
+*hy_vfd* [OPTIONS]
+
+== DESCRIPTION
+
+This component connects the Huanyang VFD to the LinuxCNC HAL via a
+serial (RS-485) connection.
+
+The Huanyang VFD must be configured via the face plate user interface to
+accept serial communications:
+
+PD001 = 2::
+  Set register PD001 (source of run commands) to 2 (communication port).
+
+PD002 = 2::
+  Set register PD002 (source of operating frequency) to 2 (communication port).
+
+PD004::
+  Set register PD004 (Base Frequency) according to motor specs. This is
+  the rated frequency of the motor from the motor's name plate, in Hz.
+
+PD005::
+  Set register PD005 (max frequency) according to motor specs. This is
+  the maximum frequency of the motor's power supply, in Hz.
+
+PD011::
+  Set register PD011 (min frequency) according to motor specs. This is
+  the minimum frequency of the motor's power supply, in Hz.
+
+PD141::
+  Set register PD141 (rated motor voltage) according to motor name
+  plate. This is the motor's maximum voltage, in Volts.
+
+PD142::
+  Set register PD142 (rated motor current) according to motor name
+  plate. This is the motor's maximum current, in Ampere.
+
+PD143::
+  Set register PD143 (Number of Motor Poles) according to motor name plate.
+
+PD144::
+  Set register PD144 (rated motor revolutions) according to motor name
+  plate. This is the motor's speed in RPM at 50 Hz. Note: This is not
+  the motor's max speed (unless the max motor frequency happens to be 50 Hz)!
+
+PD163 = 1::
+  Set register PD163 (communication address) to 1. This matches the
+  default in the hy_vfd driver, change this if your setup has special needs.
+
+PD164 = 2::
+  Set register PD164 (baud rate) to 2 (19200 bps). This matches the
+  default in the hy_vfd driver, change this if your setup has special needs.
+
+PD165 = 3::
+  Set register PD165 (communication data method) to 3 (8n1 RTU). This
+  matches the default in the hy_vfd driver, change this if your setup
+  has special needs. Note that the hy_vfd driver only supports RTU
+  communication, not ASCII.
+
+Consult the Huanyang instruction manual for details on using the face
+plate to program the VFDs registers, and alternative values for the
+above registers.
+
+Access to devices such as /dev/ttyUSB0 is restricted to members of the
+"dialout" group. If you see error messages such as +
+*open: Permission denied* +
+*ERROR Can't open the device /dev/ttyUSB0 (errno 13)* +
+Check your groups membership with the command +
+*groups* +
+Then add your user to the dialout group with +
+*sudo addgroup your-username dialout* +
+You will need to log out and back in again for this to take effect.
+
+== OPTIONS
+
+-d, --device _<path>_::
+  (default /dev/ttyS0) Set the name of the serial device node to use.
+
+-g, --debug::
+  Turn on debug messages. Note that if there are serial errors, this may
+  become annoying. Debug mode will cause all serial communication
+  messages to be printed in hex on the terminal.
+
+-y, --regdump::
+  Print the current value of all registers as soon as the VFD is enabled.
+
+-n, --name _<string>_::
+  (default hy_vfd) Set the name of the HAL module. The HAL comp name
+  will be set to <string>, and all pin and parameter names will begin
+  with <string>.
+
+-b, --bits _<n>_::
+  (default 8) Set number of data bits to <n>, where n must be from 5 to
+  8 inclusive. This must match the setting in register PD165 of the
+  Huanyang VFD.
+
+-p, --parity [even,odd,none]::
+  (default odd) Set serial parity to even, odd, or none. This must match
+  the setting in register PD165 of the Huanyang VFD.
+
+-r, --rate _<n>_::
+  (default 38400) Set baud rate to <n>. It is an error if the rate is
+  not one of the following: 110, 300, 600, 1200, 2400, 4800, 9600,
+  19200, 38400, 57600, 115200. This must match the setting in register
+  PD164 of the Huanyang VFD.
+
+-s, --stopbits [1,2]::
+  (default 1) Set serial stop bits to 1 or 2. This must match the
+  setting in register PD165 of the HuanyangVFD.
+
+-t, --target _<n>_::
+  (default 1) Set HYCOMM target (slave) number. This must match the
+  device number you set on the Hyanyang VFD in register PD163.
+
+-F, --max-frequency _<n>_::
+  (default: read from VFD) If specified, program register PD005 of the
+  VFD with the specified max frequency of <n> Hz (and use the same max
+  frequency in the hy_vfd driver). If not specified, read the max
+  frequency to use from register PD005 of the VFD.
+
+-f, --min-frequency _<n>_::
+  (default: read from VFD) If specified, program register PD011 of the
+  VFD with the specified minimum frequency of <n> Hz (and use the same
+  minimum frequency in the hy_vfd driver). If not specified, read the
+  minimum frequency to use from register PD011 of the VFD.
+
+-V, --motor-voltage _<n>_::
+  (default: read from VFD) If specified, program register PD141 of the
+  VFD with the specified max motor voltage of <n> Volts. If not
+  specified, read the max motor voltage from register PD141 of the VFD.
+
+-I, --motor-current _<n>_::
+  (default: read from VFD) If specified, program register PD142 of the
+  VFD with the specified max motor current of <n> Amps. If not
+  specified, read the max motor current from register PD142 of the VFD.
+
+-S, --motor-speed _<n>_::
+  (default: compute from value read from VFD P144) This command-line
+  argument is the motor's max speed. If specified, compute the motor's
+  speed at 50 Hz from this argument and from the motor's max frequency
+  (from the --max-frequency argument or from P011 if --max-frequency is
+  not specified) and program register PD144 of the VFD. If not
+  specified, read the motor's speed at 50 Hz from register P144 of the
+  VFD, and use that and the max frequency to compute the motor's max
+  speed.
+
+-P, --motor-poles _<n>_::
+  (default: read value from VFD P143) This command-line argument is the
+  number of poles in the motor. If specified, this value is sent to the
+  VFD's register PD143. If not specified, the value is read from PD143
+  and reported on the corresponding HAL pin.
+
+-x, --register PD__nnn__=__mmm__ _<n>_::
+  Set a specific register to a new value. Can be used to set up to 10
+  registers. Parameters will "stick" (but only after hy_vfd.enable has
+  been set true) so to set more than ten parameters it is possible to
+  repeatedly load the driver with a set of registers to set then enable
+  (setp hy_vfd.enable 1) and unload (unload hy_vfd) the driver at a
+  halrun(1) prompt. For example: +
+  loadusr -W hy_vfd -d /ttyUSB0 --register PD014=30 --register PD015=30
+  +
+  Will set both ramp1 times to 3 seconds. The values should be scaled
+  according to the manual data. The example above uses values with a
+  resolution of 0.1 seconds, so the numbers are 10x larger than the
+  required value.
+
+== PINS
+
+<name>.enable::
+  (bit, in) Enable communication from the hy_vfd driver to the VFD.
+
+<name>.SetF::
+  (float, out)
+
+<name>.OutF::
+  (float, out)
+
+<name>.OutA::
+  (float, out)
+
+<name>.Rott::
+  (float, out)
+
+<name>.DCV::
+  (float, out)
+
+<name>.ACV::
+  (float, out)
+
+<name>.Cont::
+  (float, out)
+
+<name>.Tmp::
+  (float, out)
+
+<name>.spindle-forward::
+  (bit, in)
+
+<name>.spindle-reverse::
+  (bin, in)
+
+<name>.spindle-on::
+  (bin, in)
+
+<name>.CNTR::
+  (float, out)
+
+<name>.CNST::
+  (float, out)
+
+<name>.CNST-run::
+  (bit, out)
+
+<name>.CNST-jog::
+  (bit, out)
+
+<name>.CNST-command-rf::
+  (bit, out)
+
+<name>.CNST-running::
+  (bit, out)
+
+<name>.CNST-jogging::
+  (bit, out)
+
+<name>.CNST-running-rf::
+  (bit, out)
+
+<name>.CNST-bracking::
+  (bit, out)
+
+<name>.CNST-track-start::
+  (bit, out)
+
+<name>.speed-command::
+  (float, in)
+
+<name>.spindle-speed-fb::
+  (float, out) Current spindle speed as reported by Huanyang VFD (rpm).
+
+<name>.spindle-speed-fb-rps::
+  (float, out) Current spindle speed as reported by Huanyang VFD (rps).
+
+<name>.spindle-at-speed-tolerance::
+  (float, in) Spindle speed error tolerance. If the actual spindle speed
+  is within .spindle-at-speed-tolerance of the commanded speed, then the
+  .spindle-at-speed pin will go True. The default
+  .spindle-at-speed-tolerance is 0.02, which means the actual speed must
+  be within 2% of the commanded spindle speed.
+
+<name>.spindle-at-speed::
+  (bit, out) True when the current spindle speed is within
+  .spindle-at-speed-tolerance of the commanded speed.
+
+<name>.frequency-command::
+  (float, out)
+
+<name>.max-freq::
+  (float, out)
+
+<name>.base-freq::
+  (float, out)
+
+<name>.freq-lower-limit::
+  (float, out)
+
+<name>.rated-motor-voltage::
+  (float, out)
+
+<name>.rated-motor-current::
+  (float, out)
+
+<name>.rated-motor-rev::
+  (float, out)
+
+<name>.motor-poles::
+  (u32, out)
+
+<name>.hycomm-ok::
+  (bit, out)
+
+<name>.error-count::
+  (s32, RO)
+
+<name>.retval::
+  (u32, R0)
+
+== AUTHOR
+
+Sebastian Kuzminsky
+
+== LICENSE
+
+GPL

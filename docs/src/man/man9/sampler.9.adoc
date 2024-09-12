@@ -1,0 +1,96 @@
+= sampler(9)
+
+== NAME
+
+sampler - sample data from HAL in real time
+
+== SYNOPSIS
+
+*loadrt sampler* **depth=**_depth1_[,_depth2_...] **cfg=**_string1_[,_string2_...]
+
+== DESCRIPTION
+
+*sampler* and **halsampler**(1) are used together to sample HAL data in
+real time and store it in a file. *sampler* is a realtime HAL component
+that exports HAL pins and creates a FIFO in shared memory. It then
+begins sampling data from the HAL and storing it to the FIFO.
+*halsampler* is a non-realtime program that copies data from the FIFO to
+stdout, where it can be redirected to a file or piped to some other
+program.
+
+== OPTIONS
+
+*depth=*_depth1_[,_depth2_...]::
+  sets the depth of the realtime->non-realtime FIFO that *sampler*
+  creates to buffer the realtime data. Multiple values of _depth_
+  (separated by commas) can be specified if you need more than one FIFO
+  (for example if you want to sample data from two different realtime
+  threads).
+*cfg=*_string1_[,_string2_...]::
+  defines the set of HAL pins that *sampler* exports and later samples
+  data from. One _string_ must be supplied for each FIFO, separated by
+  commas. *sampler* exports one pin for each character in _string._
+  Legal characters are:
+
+::
+  *F, f* (float pin)
+::
+  *B, b* (bit pin)
+::
+  *S, s* (s32 pin)
+::
+  *U, u* (u32 pin)
+
+== FUNCTIONS
+
+*sampler.*_N_::
+  One function is created per FIFO, numbered from zero.
+
+== PINS
+
+*sampler.*_N_*.pin.*_M_ input::
+  Pin for the data that will wind up in column _M_ of FIFO _N_ (and in
+  column _M_ of the output file). The pin type depends on the config
+  string.
+*sampler.*_N_*.curr-depth* s32 output::
+  Current number of samples in the FIFO. When this reaches _depth_ new
+  data will begin overwriting old data, and some samples will be lost.
+*sampler.*_N_*.full* bit output::
+  TRUE when the FIFO _N_ is full, FALSE when there is room for another
+  sample.
+*sampler.*_N_*.enable* bit input::
+  When TRUE, samples are captured and placed in FIFO _N_, when FALSE, no
+  samples are acquired. Defaults to TRUE.
+
+== PARAMETERS
+
+**sampler.**_N_**.overruns** s32 read/write::
+  The number of times that *sampler* has tried to write data to the HAL
+  pins but found no room in the FIFO. It increments whenever *full* is
+  true, and can be reset by the *setp* command.
+**sampler.**_N_**.sample-num** s32 read/write::
+  A number that identifies the sample. It is automatically incremented
+  for each sample, and can be reset using the *setp* command. The sample
+  number can optionally be printed in the first column of the output
+  from *halsampler*, using the _-t_ option (see *man 1 halsampler* ).
+
+== SEE ALSO
+
+halsampler(1), streamer(9), halstreamer(1)
+
+== AUTHOR
+
+Original version by John Kasunich, as part of the LinuxCNC project.
+Improvements by several other members of the LinuxCNC development team.
+
+== REPORTING BUGS
+
+Report bugs at https://github.com/LinuxCNC/linuxcnc/issues.
+
+== COPYRIGHT
+
+Copyright © 2006 John Kasunich.
+
+This is free software; see the source for copying conditions. There is
+NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.

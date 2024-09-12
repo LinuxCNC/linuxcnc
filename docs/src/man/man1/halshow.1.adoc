@@ -1,0 +1,60 @@
+= halshow(1)
+
+== NAME
+
+halshow - Show HAL parameters, pins and signals
+
+== SYNOPSIS
+
+*halshow* [_options_] [_watchfile_]
+
+== OPTIONS
+
+--help:: (help)
+--fformat _format_string_for_float_::
+--iformat _format_string_for_int_::
+--noprefs:: don't use preference file to save settings
+
+For format see https://www.tcl.tk/man/tcl8.6.11/TclCmd/format.html[]
+
+Example: "%.5f" displays a float with 5 digits right of the decimal point
+
+== DESCRIPTION
+
+*halshow* creates a GUI interface to view and interact with a running HAL session.
+It is documented in the PDF and HTML docs much more completely than is possible in a manpage:
+http://linuxcnc.org/docs/html/hal/halshow.html[]
+
+== SEE ALSO
+
+linuxcnc(1)
+
+Much more information about LinuxCNC and HAL is available in the
+LinuxCNC and HAL User Manuals, found at /usr/share/doc/LinuxCNC/.
+
+== HISTORY
+
+LinuxCNC 2.9::
+ - Added buttons for pin/parameter/signal manipulation.
+ - Added menu entries for setting update interval, adding manually.
+ - Added right-click menu for copy, set, unlink pin and remove from view.
+
+== BUGS
+
+None known at this time.
+
+== AUTHOR
+
+Raymond E. Henry
+
+== REPORTING BUGS
+
+Report bugs at https://github.com/LinuxCNC/linuxcnc/issues.
+
+== COPYRIGHT
+
+Copyright © 2020 Andy Pugh.
+
+This is free software; see the source for copying conditions. There is
+NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.

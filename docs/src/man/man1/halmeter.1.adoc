@@ -1,0 +1,93 @@
+= halmeter(1)
+
+== NAME
+
+halmeter - observe HAL pins, signals, and parameters
+
+== SYNOPSIS
+
+*halmeter* [*-s*] [**pin**|**sig**|**param** _name_] [*-g* _X-position Y-position_ [_Width_]]
+
+== DESCRIPTION
+
+*halmeter* is used to observe HAL (Hardware Abstraction Layer) pins,
+signals, or parameters. It serves the same purpose as a multimeter does
+when working on physical systems.
+
+== OPTIONS
+
+*pin* _name_::
+  Display the HAL pin _name_.
+*sig* _name_::
+  Display the HAL signal _name_.
+*param* _name_::
+  Display the HAL parameter _name_.
+
+If neither *pin*, *sig*, or *param* are specified,
+the window starts out blank and the user must select an item to observe:
+
+*-s*::
+  Small window. Non-interactive, must be used with *pin*, *sig*, or
+  *param* to select the item to display. The item name is displayed in
+  the title bar instead of the window, and there are no "Select" or
+  "Exit" buttons. Handy when you want a lot of meters in a small space.
+*-g*::
+  Geometry position. Allows one to specify the initial starting position
+  and optionally the width of the meter. Referenced from top left of
+  screen in pixel units. Handy when you want to load a lot of meters in
+  a script with out them displaying on top of each other.
+
+== USAGE
+
+Unless *\-s* is specified, there are two buttons, "Select" and "Exit".
+"Select" opens a dialog box to select the item (pin, signal, or
+parameter) to be observed. "Exit" does what you expect.
+
+The selection dialog has "OK", "Apply", and "Cancel" buttons. OK
+displays the selected item and closes the dialog. "Apply" displays the
+selected item but keeps the selection dialog open. "Cancel" closes the
+dialog without changing the displayed item.
+
+== EXAMPLE
+
+*halmeter*::
+  Opens a meter window, with nothing initially displayed. Use the
+  "Select" button to choose an item to observe. Does not return until
+  the window is closed.
+*halmeter &*::
+  Open a meter window, with nothing initially displayed. Use the
+  "Select" button to choose an item. Runs in the background leaving the
+  shell free for other commands.
+*halmeter pin* _parport.0.pin-03-out_ *&*::
+  Open a meter window, initially displaying HAL pin
+  _parport.0.pin-03-out_. The "Select" button can be used to display
+  other items. Runs in background.
+*halmeter -s pin* _parport.0.pin-03-out_ *&*::
+  Open a small meter window, displaying HAL pin _parport.0.pin-03-out_.
+  The displayed item cannot be changed. Runs in background.
+*halmeter -s pin* _parport.0.pin-03-out_ *-g* _100 500_ *&*::
+  Open a small meter window, displaying HAL pin _parport.0.pin-03-out_.
+  places it 100 pixels to the left and 500 pixels down from top of
+  screen. The displayed item cannot be changed. Runs in background.
+*halmeter -s pin* _parport.0.pin-03-out_ *-g* _100 500 400_ *&*::
+  Open a small meter window, displaying HAL pin _parport.0.pin-03-out_.
+  places it 100 pixels to the left and 500 pixels down from top of
+  screen. The width will be 400 pixels (270 is default) The displayed
+  item cannot be changed. Runs in background.
+
+== AUTHOR
+
+Original version by John Kasunich, as part of the LinuxCNC project.
+Improvements by several other members of the LinuxCNC development team.
+
+== REPORTING BUGS
+
+Report bugs at https://github.com/LinuxCNC/linuxcnc/issues.
+
+== COPYRIGHT
+
+Copyright © 2003 John Kasunich.
+
+This is free software; see the source for copying conditions. There is
+NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.

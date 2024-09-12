@@ -1,0 +1,167 @@
+= gs2_vfd(1)
+
+== NAME
+
+gs2_vfd - HAL non-realtime component for Automation Direct GS2 VFDs
+
+== SYNOPSIS
+
+*gs2_vfd* [OPTIONS]
+
+== DESCRIPTION
+
+This manual page explains the *gs2_vfd* component. This component reads
+and writes to the GS2 via a modbus connection.
+
+*gs2_vfd* is for use with LinuxCNC
+
+== OPTIONS
+
+-b, --bits _<n>_::
+  Set number of data bits to _<n>_, where n must be from 5 to 8 inclusive (default 8)
+
+-d, --device _<path>_::
+  Set the path to the file representing the serial device to use. (default /dev/ttyS0)
+
+-v, --verbose::
+  Turn on verbose mode.
+
+-g, --debug::
+  Turn on debug messages. Note that if there are serial errors, this may become annoying.
+  Debug mode will cause all modbus messages to be printed in hex on the terminal.
+
+-n, --name <string>::
+  Set the name of the HAL module. The HAL comp name will be set to <string>,
+  and all pin and parameter names will begin with <string>. (default gs2_vfd)
+
+-p, --parity [even,odd,none]::
+  Set serial parity to even, odd, or none. (default odd)
+
+-r, --rate <n>::
+  Set baud rate to _<n>_. It is an error if the rate is
+  not one of the following: 110, 300, 600, 1200, 2400, 4800, 9600,
+  19200, 38400, 57600, 115200 (default 38400)
+
+-s, --stopbits [1,2]::
+  Set serial stop bits to 1 or 2 (default 1)
+
+-t, --target <n>::
+  Set MODBUS target (slave) number.
+  This must match the device number you set on the GS2. (default 1)
+
+-A, --accel-seconds <n>::
+  Seconds to accelerate the spindle from 0 to Max RPM. (default 10.0)
+
+-D, --decel-seconds <n>::
+  Seconds to decelerate the spindle from Max RPM to 0.
+  If set to 0.0 the spindle will be allowed to coast to a stop without
+  controlled deceleration. (default 0.0)
+
+-R, --braking-resistor::
+  This argument should be used when a braking resistor is installed on
+  the GS2 VFD (see Appendix A of the GS2 manual). It disables
+  deceleration over-voltage stall prevention (see GS2 modbus Parameter
+  6.05), allowing the VFD to keep braking even in situations where the
+  motor is regenerating high voltage. The regenerated voltage gets
+  safely dumped into the braking resistor.
+
+== PINS
+
+<name>.DC-bus-volts (float, out)::
+  from the VFD
+
+<name>.at-speed (bit, out)::
+  when drive is at commanded speed
+
+<name>.err-reset (bit, in)::
+  reset errors sent to VFD
+
+<name>.firmware-revision (s32, out)::
+  from the VFD
+
+<name>.frequency-command (float, out)::
+  from the VFD
+
+<name>.frequency-out (float, out)::
+  from the VFD
+
+<name>.is-stopped (bit, out)::
+  when the VFD reports 0 Hz output
+
+<name>.load-percentage (float, out)::
+  from the VFD
+
+<name>.motor-RPM (float, out)::
+  from the VFD
+
+<name>.output-current (float, out)::
+  from the VFD
+
+<name>.output-voltage (float, out)::
+  from the VFD
+
+<name>.power-factor (float, out)::
+  from the VFD
+
+<name>.scale-frequency (float, out)::
+  from the VFD
+
+<name>.speed-command (float, in)::
+  speed sent to VFD in RPM It is an error to send a speed faster than
+  the Motor Max RPM as set in the VFD
+
+<name>.spindle-fwd (bit, in)::
+  1 for FWD and 0 for REV sent to VFD
+
+<name>.spindle-on (bit, in)::
+  1 for ON and 0 for OFF sent to VFD, only on when running
+
+<name>.spindle-rev (bit, in)::
+  1 for ON and 0 for OFF, only on when running
+
+<name>.status-1 (s32, out)::
+  Drive Status of the VFD (see the GS2 manual)
+
+<name>.status-2 (s32, out)::
+  Drive Status of the VFD (see the GS2 manual) Note that the value is a
+  sum of all the bits that are on. So a 163 which means the drive is in
+  the run mode is the sum of 3 (run) + 32 (freq set by serial) + 128
+  (operation set by serial).
+
+== PARAMETERS
+
+<name>.error-count (s32, RW)::
+
+<name>.loop-time (float, RW)::
+  how often the modbus is polled (default 0.1)
+
+<name>.nameplate-HZ (float, RW)::
+  Nameplate Hz of motor (default 60)
+
+<name>.nameplate-RPM (float, RW)::
+  Nameplate RPM of motor (default 1730)
+
+<name>.retval (s32, RW)::
+  the return value of an error in HAL
+
+<name>.tolerance (float, RW)::
+  speed tolerance (default 0.01)
+
+<name>.ack-delay (s32, RW)::
+  number of read/write cycles before checking at-speed (default 2)
+
+== SEE ALSO
+
+_GS2 Driver_ in the LinuxCNC documentation for a full description of the
+*GS2* syntax
+
+_GS2 Examples_ in the LinuxCNC documentation for examples using the
+*GS2* component
+
+== AUTHOR
+
+John Thornton
+
+== LICENSE
+
+GPL

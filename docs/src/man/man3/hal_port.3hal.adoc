@@ -1,0 +1,140 @@
+= hal_port(3hal)
+
+== NAME
+
+hal_port - a HAL pin type that acts as an asynchronous one way byte
+stream
+
+== SYNOPSIS
+
+....
+#include <hal.h>
+bool hal_port_read(hal_port_t port, char* dest, unsigned count);
+bool hal_port_peek(hal_port_t port, char* dest, unsigned count);
+bool hal_port_peek_commit(hal_port_t port, unsigned count);
+unsigned hal_port_readable(hal_port_t port);
+void hal_port_clear(hal_port_t port);
+
+bool hal_port_write(hal_port_t port, const char* src, unsigned count);
+unsigned hal_port_writable(hal_port_t port);
+
+unsigned hal_port_buffer_size(hal_port_t port);
+
+#ifdef ULAPI
+void hal_port_wait_readable(hal_port_t** port, unsigned count,
+                            sig_atomic_t* stop);
+void hal_port_wait_writable(hal_port_t** port, unsigned count,
+                            sig_atomic_t* stop);
+#endif
+....
+
+== DESCRIPTION
+
+A HAL port pin is a HAL pin that acts as a one way byte oriented data
+stream in real-time. An output port on any component may be connected to
+an input port on any other component via a signal. Data written on the
+output pin becomes accessible to the input pin. A HAL port signal may
+link only a single writer and a single reader.
+
+A port also buffers data. Users should determine the proper buffer size
+based upon their intended application.
+
+=== *hal_port_read*
+
+Reads count bytes from the port into destination buffer dest.
+hal_port_read will read _count_ bytes if and only if _count_ bytes are
+available for reading and otherwise it will leave the port unaffected.
+Returns true if count bytes were read and false otherwise. This function
+should only be called by the component that owns the IN PORT pin.
+
+=== *hal_port_peek*
+
+Behaves the same as hal_port_read, however it does not consume bytes
+from the HAL port. Repeated calls to hal_port_peek will return the same
+data. Returns true if count bytes were read and false otherwise. This
+function should only be called by the component that owns the IN PORT
+pin.
+
+=== *hal_port_peek_commit*
+
+Advances the read position in the port buffer by count bytes. A
+hal_port_peek followed by a hal_port_peek_commit would function
+equivalently to hal_port_read given the same count value. Returns true
+if count readable bytes were skipped and are no longer accessible and
+false if no bytes wer skipped. This function should only be called by
+the component that owns the IN PORT pin.
+
+=== *hal_port_readable*
+
+Returns the number of bytes available for reading from port. It is safe
+to call this function from any component.
+
+=== *hal_port_clear*
+
+Emptys a given port of all data. hal_port_clear should only be called by
+the component that owns the IN PORT pin.
+
+=== *hal_port_write*
+
+Writes count bytes from src into the port. Returns true if count bytes
+were written and false otherwise. This function should only be called by
+the component that owns the OUT PORT pin.
+
+=== *hal_port_writable*
+
+Returns the number of bytes that can be written into the port. It is
+safe to call this function from any component.
+
+=== *hal_port_buffer_size*
+
+Returns the maximum number of bytes that a port can buffer. It is safe
+to call this function from any component.
+
+=== *hal_port_wait_readable*
+
+Waits until the port has count bytes or more available for reading or
+the stop flag is set.
+
+=== *hal_port_wait_writable*
+
+Waits until the port has count bytes or more available for writing or
+the stop flag is set.
+
+== ARGUMENTS
+
+hal_port_t::
+  A handle to a port object. Created by hal_pin_new
+dest::
+  An array of bytes that hal_port_read and hal_port_peek will copy data
+  into. This must be allocated by the caller and be at least count bytes
+  long.
+count::
+  The number of bytes that hal_port_read, hal_port_peek, and
+  hal_port_write will copy in to dest or out from src
+src::
+  An array of bytes that hal_port_write will copy data from into the
+  port buffer. This must be of size count bytes or larger.
+stop::
+  A pointer to a value which is monitored while waiting. If it is
+  nonzero, the wait operation returns early. This allows a wait call to
+  be safely terminated in the case of a signal.
+
+== SAMPLE CODE
+
+In the source tree under src/hal/components/raster.comp is a realtime
+component intended for laser control. src/tests/raster is a test program
+that also programs the raster component from python.
+
+== REALTIME CONSIDERATIONS
+
+*hal_port_read*, *hal_port_peek*, *hal_port_peek_commit*,
+*hal_port_readable*, *hal_port_clear*, *hal_port_write*,
+*hal_port_writable*, *hal_port_buffer_size* may be called from realtime
+code.
+
+*hal_port_wait_writable*, *hal_port_wait_readable* may be called from
+ULAPI code.
+
+== SEE ALSO
+
+raster(9)

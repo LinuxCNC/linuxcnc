@@ -279,7 +279,10 @@ typedef enum {
     HAL_FLOAT = 2,
     HAL_S32 = 3,
     HAL_U32 = 4,
-    HAL_PORT = 5
+    HAL_S64 = 6,
+    HAL_U64 = 7,
+    HAL_PORT = 5,
+    HAL_TYPE_MAX,
 } hal_type_t;
 
 /** HAL pins have a direction attribute.  A pin may be an input to 
@@ -315,6 +318,8 @@ typedef enum {
 typedef volatile bool hal_bit_t;
 typedef volatile rtapi_u32 hal_u32_t;
 typedef volatile rtapi_s32 hal_s32_t;
+typedef volatile rtapi_u64 hal_u64_t;
+typedef volatile rtapi_s64 hal_s64_t;
 typedef volatile int hal_port_t;
 typedef double real_t __attribute__((aligned(8)));
 typedef rtapi_u64 ireal_t __attribute__((aligned(8))); // integral type as wide as real_t / hal_float_t
@@ -330,6 +335,8 @@ typedef union {
     hal_u32_t u;
     hal_float_t f;
     hal_port_t p;
+    hal_s64_t ls;
+    hal_u64_t lu;
 } hal_data_u;
 
 typedef struct {
@@ -399,6 +406,10 @@ extern int hal_pin_u32_new(const char *name, hal_pin_dir_t dir,
     hal_u32_t ** data_ptr_addr, int comp_id);
 extern int hal_pin_s32_new(const char *name, hal_pin_dir_t dir,
     hal_s32_t ** data_ptr_addr, int comp_id);
+extern int hal_pin_u64_new(const char *name, hal_pin_dir_t dir,
+    hal_u64_t ** data_ptr_addr, int comp_id);
+extern int hal_pin_s64_new(const char *name, hal_pin_dir_t dir,
+    hal_s64_t ** data_ptr_addr, int comp_id);
 extern int hal_pin_port_new(const char *name, hal_pin_dir_t dir,
     hal_port_t ** data_ptr_addr, int comp_id);
 
@@ -420,6 +431,12 @@ extern int hal_pin_u32_newf(hal_pin_dir_t dir,
 	__attribute__((format(printf,4,5)));
 extern int hal_pin_s32_newf(hal_pin_dir_t dir,
     hal_s32_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
+	__attribute__((format(printf,4,5)));
+extern int hal_pin_u64_newf(hal_pin_dir_t dir,
+    hal_u64_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
+	__attribute__((format(printf,4,5)));
+extern int hal_pin_s64_newf(hal_pin_dir_t dir,
+    hal_s64_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
 	__attribute__((format(printf,4,5)));
 extern int hal_pin_port_newf(hal_pin_dir_t dir,
     hal_port_t** data_ptr_addr, int comp_id, const char *fmt, ...)
@@ -553,6 +570,10 @@ extern int hal_param_u32_new(const char *name, hal_param_dir_t dir,
     hal_u32_t * data_addr, int comp_id);
 extern int hal_param_s32_new(const char *name, hal_param_dir_t dir,
     hal_s32_t * data_addr, int comp_id);
+extern int hal_param_u64_new(const char *name, hal_param_dir_t dir,
+    hal_u64_t * data_addr, int comp_id);
+extern int hal_param_s64_new(const char *name, hal_param_dir_t dir,
+    hal_s64_t * data_addr, int comp_id);
 
 /** printf_style-style versions of hal_param_XXX_new */
 extern int hal_param_bit_newf(hal_param_dir_t dir, 
@@ -566,6 +587,12 @@ extern int hal_param_u32_newf(hal_param_dir_t dir,
 	__attribute__((format(printf,4,5)));
 extern int hal_param_s32_newf(hal_param_dir_t dir,
     hal_s32_t * data_addr, int comp_id, const char *fmt, ...)
+	__attribute__((format(printf,4,5)));
+extern int hal_param_u64_newf(hal_param_dir_t dir,
+    hal_u64_t * data_addr, int comp_id, const char *fmt, ...)
+	__attribute__((format(printf,4,5)));
+extern int hal_param_s64_newf(hal_param_dir_t dir,
+    hal_s64_t * data_addr, int comp_id, const char *fmt, ...)
 	__attribute__((format(printf,4,5)));
 
 
@@ -609,6 +636,8 @@ extern int hal_param_bit_set(const char *name, int value);
 extern int hal_param_float_set(const char *name, double value);
 extern int hal_param_u32_set(const char *name, unsigned long value);
 extern int hal_param_s32_set(const char *name, signed long value);
+extern int hal_param_u64_set(const char *name, unsigned long value);
+extern int hal_param_s64_set(const char *name, signed long value);
 
 /** 'hal_param_alias()' assigns an alternate name, aka an alias, to
     a parameter.  Once assigned, the parameter can be referred to by
@@ -709,6 +738,14 @@ extern int hal_get_param_value_by_name(
 */
 extern int hal_export_funct(const char *name, void (*funct) (void *, long),
     void *arg, int uses_fp, int reentrant, int comp_id);
+
+/** hal_export_functf is similar to hal_export_funct except that it also does
+    printf-style formatting to compute the function name.
+    If successful, it returns 0.
+    On failure it returns a negative error code.
+*/
+extern int hal_export_functf(void (*funct) (void *, long),
+    void *arg, int uses_fp, int reentrant, int comp_id, const char *fmt, ...);
 
 /** hal_create_thread() establishes a realtime thread that will
     execute one or more HAL functions periodically.
