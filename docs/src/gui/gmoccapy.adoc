@@ -1344,7 +1344,7 @@ Default is _use unlock code_ (default = *123*).
 This value will be presetted according to your settings in `[DISPLAY] DEFAULT_SPINDLE_SPEED` of your INI file.
 If you change the settings on the settings page, that value will be default from that moment, your INI file will not be modified.
 
-* _Spindle bar min_ and _Spindle bar max_ - Sets the limits of the spindle bar shown in the INFO frame on the main screen. 
+* _Spindle bar min_ and _Spindle bar max_ - Sets the limits of the spindle bar shown in the INFO frame on the main screen.
 +
 ====
 Default values are: +

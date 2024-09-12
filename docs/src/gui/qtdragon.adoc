@@ -491,7 +491,7 @@ If no feedback is available you can have the display show the requested speed by
 
 [source,{hal}]
 ----
-net spindle-speed-feedback spindle.0.speed-out-rps => spindle.0.speed-in 
+net spindle-speed-feedback spindle.0.speed-out-rps => spindle.0.speed-in
 ----
 
 This bit output pin can be connected to turn on a laser:
@@ -620,7 +620,7 @@ If using the Spindle lift option, HALUI can not be used to pause/resume the prog
 There is a pin, 'QtDragon.external-pause' available to pause/resume from an external source.
 You must also enable external offsets. In the setting tab check 'use external offsets'
 If you wish to inhibit the spindle when a probe tool is loaded, you will need to use an logical `or` component
-to combine the two spindle inhibit signals to connect to spindle.0.inhibit. 
+to combine the two spindle inhibit signals to connect to spindle.0.inhibit.
 
 This optional behaviour requires additions to the INI and the QtDragon_postgui HAL file.
 
@@ -939,31 +939,31 @@ The machine will probe down twice and the current user offset (G5X) will be zero
 
 === Overview
 
-QtDragon can be setup to do integrated auto tool measurement using the Versa Probe widget and remap code. 
+QtDragon can be setup to do integrated auto tool measurement using the Versa Probe widget and remap code.
 
 This feature assumes the use of two probes in concert:
 
- . A tool switch sensor, fixed somewhere on the machine (sometimes called a tool-setter), and 
- . A spindle probe that is installed temporarily at the beginning of the job (sometimes called an xyz probe or a Renishaw probe). 
+ . A tool switch sensor, fixed somewhere on the machine (sometimes called a tool-setter), and
+ . A spindle probe that is installed temporarily at the beginning of the job (sometimes called an xyz probe or a Renishaw probe).
 
 These techniques are useful for machines that do not have repeatable tool holders and do not have automatic tool changing devices. (For machines with repeatable tool holders, see the section on <<sub:touch-plate,measuring tool length>>. For machines with automatic tool changing devices, consult work done under the linuxcnc repository at configs/sim/axis/remap/rack-toolchange)
 
-To use this feature, you will need to do some additional settings and you may want to use the offered HAL pins to get values in your own ngc remap procedure. Those settings are covered later in the section. 
+To use this feature, you will need to do some additional settings and you may want to use the offered HAL pins to get values in your own ngc remap procedure. Those settings are covered later in the section.
 
-First, this document covers how to use this technique. Second, this document covers how to set up for this technique at the beginning of a production run.  
+First, this document covers how to use this technique. Second, this document covers how to set up for this technique at the beginning of a production run.
 
 === Workflow Overview
 
-A detailed workflow walkthrough follows this overview. 
+A detailed workflow walkthrough follows this overview.
 
 [IMPORTANT]
-Setup steps include: + 
- + 
-Entering the probe velocities on the versa probe settings page. + 
-Enabling "Use Tool Measurement" on the Versa Probe tab. + 
-Enabling "Use Tool Sensor" under Settings. + 
- + 
-When fist setting up auto tool measurement, please use caution until you confirm tool change and probe locations - it is easy to break a tool/probe. Abort will be honoured while the probe is in motion. 
+Setup steps include: +
+ +
+Entering the probe velocities on the versa probe settings page. +
+Enabling "Use Tool Measurement" on the Versa Probe tab. +
+Enabling "Use Tool Sensor" under Settings. +
+ +
+When fist setting up auto tool measurement, please use caution until you confirm tool change and probe locations - it is easy to break a tool/probe. Abort will be honoured while the probe is in motion.
 
 Tool Measurement in QtDragon is organized into the following steps which will be explained in more detail in the following section:
 
@@ -980,7 +980,7 @@ With the first given tool change the tool will be measured and the offset will b
 The advantage of this way is, that you do not need a reference tool.
 
 [NOTE]
-Your program must contain a tool change at the beginning. The tool will be measured, even it has been used before, so there is no danger if the block height has changed. There are several videos on you tube that demonstrate the technique using GMOCCAPY. The GMOCCAPY screen pioneered the technique. 
+Your program must contain a tool change at the beginning. The tool will be measured, even it has been used before, so there is no danger if the block height has changed. There are several videos on you tube that demonstrate the technique using GMOCCAPY. The GMOCCAPY screen pioneered the technique.
 
 The sequence of events (using the default files in the default setting):
 
@@ -996,41 +996,41 @@ The sequence of events (using the default files in the default setting):
 . Rapid move down to the Z position when the tool change was called
 
 [NOTE]
-The [TOOL_CHANGE] Z position should be high enough so the tool will not hit the tool probe when moving to the [VERSA_TOOLSETTER] X and Y position. + 
+The [TOOL_CHANGE] Z position should be high enough so the tool will not hit the tool probe when moving to the [VERSA_TOOLSETTER] X and Y position. +
   +
-MAXPROBE distance needs to be high enough for the tool to touch the probe. 
+MAXPROBE distance needs to be high enough for the tool to touch the probe.
 
 === Detailed Workflow Example
 
 ==== One Time Setup
 
-The following setups need only be done once as long as they remain in effect: 
+The following setups need only be done once as long as they remain in effect:
 
-. Under Probe Tool Screens: Insure reasonable values for "Rapid" and "Search," these are the speeds at which the probing will be performed and are in machine units per minute. + 
+. Under Probe Tool Screens: Insure reasonable values for "Rapid" and "Search," these are the speeds at which the probing will be performed and are in machine units per minute. +
 . Under Probe Tool Screens: insure that "Tool Measure" is enabled (this is a button that must be highlighted)
-. Under Settings: insure that "Use Tool Sensor" is enabled (this is a tick-box that must be checked) 
-. In the Tool Table: setup a tool for the spindle probe and insure that its Z offset is set to zero. 
+. Under Settings: insure that "Use Tool Sensor" is enabled (this is a tick-box that must be checked)
+. In the Tool Table: setup a tool for the spindle probe and insure that its Z offset is set to zero.
 
 [NOTE]
-It is possible to use a non-zero tool length for the tool probe, but this requires extra steps and is easy to make mistakes. The following procedure assumes a zero tool probe length. 
+It is possible to use a non-zero tool length for the tool probe, but this requires extra steps and is easy to make mistakes. The following procedure assumes a zero tool probe length.
 
 ==== Procedure before starting a program
 
-The following setup is done before beginning a program that has M6 tool change commands inside it. 
+The following setup is done before beginning a program that has M6 tool change commands inside it.
 
-. Physically load the spindle probe into the spindle. 
+. Physically load the spindle probe into the spindle.
 . Logically load the spindle probe into the spindle with the M61 Qx command where x is the number in the tool table for the spindle probe (there is a button inside the tool table tab that can also be used)
-. Position to the Toolsetter: Use the button under the Probe Screens for "Go To Toolsetter" to position the spindle above the Toolsetter. 
+. Position to the Toolsetter: Use the button under the Probe Screens for "Go To Toolsetter" to position the spindle above the Toolsetter.
 . Toolsetter Measure: Use the button under the Probe Screens for "Probe Tool Setter Z Height." Note that this will set and display on the Probe Settings screen the "Probe HT" value in ABS coordinates
-. Jog to your workpiece. 
+. Jog to your workpiece.
 . Workpiece Measure: Use the button under the Probe Screens for "Probe Z Height of Material:" this will set and display on the Probe Settings screen the "Block Ht" value in ABS coordinates. (Typically, this will now also be the zero Z for your Work Coordinate System)
-. Set Work Coordinate System (ie, G54, or other): Use the Probe Tool and whatever probe screen or other method is appropriate to set the X, Y, and Z coordinate system needed for your job. 
-. If your program begins with a TnM6 command before spinning the spindle, you may leave the spindle probe installed. You may also issue a TnM6 command to change out the spindle probe, and if the program issues the same one, it will skip the tool change. 
+. Set Work Coordinate System (ie, G54, or other): Use the Probe Tool and whatever probe screen or other method is appropriate to set the X, Y, and Z coordinate system needed for your job.
+. If your program begins with a TnM6 command before spinning the spindle, you may leave the spindle probe installed. You may also issue a TnM6 command to change out the spindle probe, and if the program issues the same one, it will skip the tool change.
 
-[CAUTION] 
+[CAUTION]
 Take care not to leave the spindle probe in the spindle if a program may start the spindle.
 
-Once those steps are complete, a program with multiple TnM6 toolchanges can be started and will operate with automatic pauses for manual tool change followed by automated tool measurement. 
+Once those steps are complete, a program with multiple TnM6 toolchanges can be started and will operate with automatic pauses for manual tool change followed by automated tool measurement.
 
 [NOTE]
 After probing the new tool length using the tool-setter, this remap code uses a G43 which applies the offset to the Work Coordinate system which was in effect when the M6 command was issued. Because remapping has adjusted the Work Coordinate system by the offset between the previous and the current tool, the tool tip will end up at the same point in space as the tip of the previous tool was when the tool change was called.

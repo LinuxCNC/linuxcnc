@@ -40,7 +40,7 @@ __Advantages:__
 
 __Disadvantages:__
 - Sensitive to the LinuxCNC computer's latency
-- Limited inputs/outputs 
+- Limited inputs/outputs
 - Some PCI/PCIe parallel port cards do not work well or do not properly support the EPP mode (EPP mode is required for parallel port interface to Mesa / PICO cards).
 
 
@@ -150,7 +150,7 @@ Website: https://mesanet.com/    Store: https://store.mesanet.com/
 == USB
 USB devices cannot be used to control motors or perform other __"real time"__ tasks.
 
-USB to Parallel port converters are ___NOT___ usable / suitable for CNC use. 
+USB to Parallel port converters are ___NOT___ usable / suitable for CNC use.
 
 === LinuxCNC_ArduinoConnector
 This Project enables you to connect an Arduino to LinuxCNC and provides as many I/Os as you could ever wish for. This Software is used as I/O Expansion for LinuxCNC.

@@ -59,10 +59,10 @@ number of characters allowed on a line.
 
 . an optional block delete character, which is a slash '/'.
 . an optional line number.
-. Any number of: 
+. Any number of:
 1. words,
-2. parameter settings, 
-3. subroutine codes, and 
+2. parameter settings,
+3. subroutine codes, and
 4. comments.
 . an end of line marker (carriage return or line feed or both).
 
@@ -149,13 +149,13 @@ The table includes N and O for completeness, even though, as defined above, line
 
 ==== Parameters(((Parameters)))
 
-Parameters are identified with a "#" symbol in front of them. See <<sec:overview-parameters,Parameters Section>> below. 
+Parameters are identified with a "#" symbol in front of them. See <<sec:overview-parameters,Parameters Section>> below.
 
 ==== Subroutine Codes(((Subroutine Codes)))
 
 Also called 'o-codes' these provide program flow control (such as if-else logic and callable subroutines) and are covered fully at the page on <<cha:o-codes,o-Codes>> and also below in <<sub:subroutine-parameters,Subroutine Codes and Parameters>>.
 
-NOTE: o-codes are sometimes also called o-words. 
+NOTE: o-codes are sometimes also called o-words.
 
 ==== Comments(((Comments)))
 
@@ -163,7 +163,7 @@ Comments can be embedded in a line using parentheses () or for the remainder of 
 
 === End of Line Marker(((End of Line Marker)))
 
-This is any combination of carriage return or line feed. 
+This is any combination of carriage return or line feed.
 
 [[gcode:numbers]]
 == Numbers(((Numbers)))
@@ -389,13 +389,13 @@ is written.
 [[sub:subroutine-parameters]]
 === Subroutine Codes and Parameters(((Subroutine Codes and Parameters)))
 
-Subroutine codes, or o-codes (sometimes also called o-words), provide for  logic and flow control in NGC programs (as in if-else logic). They are called Subroutine codes because they can also form called subroutines (as in sub-endsub). 
+Subroutine codes, or o-codes (sometimes also called o-words), provide for  logic and flow control in NGC programs (as in if-else logic). They are called Subroutine codes because they can also form called subroutines (as in sub-endsub).
 
 See the chapter on <<cha:o-codes,o-Codes>>.
 
 NOTE: If o-codes are used to form subroutines, then o-codes can also call those subroutines and pass up to 30 parameters, which are local to the subroutine and volatile. (Again, see <<cha:o-codes,o-Codes>> for fuller treatment and examples.)
 
-NOTE: While both lower and upper case o- are valid, best practice is using lower case "o-" because it disambiguates 0 (zero) and O (capital o).  
+NOTE: While both lower and upper case o- are valid, best practice is using lower case "o-" because it disambiguates 0 (zero) and O (capital o).
 
 [[gcode:named-parameters]]
 === Named Parameters(((Named Parameters)))

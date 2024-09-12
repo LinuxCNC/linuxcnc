@@ -122,7 +122,7 @@ gscreen-gaxis has a sample custom theme that looks for certain named widgets and
 The Estop and machine-on buttons use different colors then the rest of the buttons so that they stand out.
 This is done in the handler file by giving them specific names an by adding specific commands in the theme's gtkrc file.
 For some info on GTK theming (The sample theme uses the pixmap theme engine), see:
-https://wiki.gnome.org/Attic/GnomeArt/Tutorials/GtkThemes[GTK Themes], 
+https://wiki.gnome.org/Attic/GnomeArt/Tutorials/GtkThemes[GTK Themes],
 https://wiki.gnome.org/Attic/GnomeArt/Tutorials/GtkEngines/PixmapEngine[Pixmap Theme Engine].
 
 === Build a GladeVCP Panel

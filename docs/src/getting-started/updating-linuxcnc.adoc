@@ -52,7 +52,7 @@ Codename:       Buster
 ----
 
 You should be running on Debian Buster, Bullseye or Bookworm or Ubuntu 20.04 "Focal Fossa" or newer.
-LinuxCNC 2.9.y will not run on older distributions than these. 
+LinuxCNC 2.9.y will not run on older distributions than these.
 
 You will also need to check which realtime kernel is being used:
 
@@ -63,11 +63,11 @@ uname -r
 
 If you see (as above) `-rt-` in the kernel name then you are running the
 preempt-rt kernel and should install the "uspace" version of LinuxCNC.
-You should also install uspace for "sim" configs on non-realtime kernels
+You should also install uspace for "sim" configs on non-realtime kernels.
 
-If you see `-rtai-` in the kernel name then you are running RTAI
-realtime. See below for the LinuxCNC version to install. RTAI packages
-are available for Bookworm and Buster but not currently for Bullseye.
+If you see `-rtai-` in the kernel name then you are running RTAI realtime.
+See below for the LinuxCNC version to install.
+RTAI packages are available for Bookworm and Buster but not currently for Bullseye.
 
 [[_setting_apt_sources]]
 === Apt Sources Configuration
@@ -138,12 +138,11 @@ Debian uses the Synaptic Package Manager.
 [[getting-started:update-no-network]]
 == Updating without Network
 
-To update without a network connection you need to download the .deb then install
-it with dpkg. The .debs can be found in https://linuxcnc.org/dists/ .
+To update without a network connection you need to download the .deb then install it with dpkg.
+The .debs can be found in https://linuxcnc.org/dists/ .
 
-You have to drill down from the above link to find the correct deb for your
-installation. Open a <<faq:terminal,terminal>> and type in 'lsb_release -ic'
-to find the release name of your OS.
+You have to drill down from the above link to find the correct deb for your installation.
+Open a <<faq:terminal,terminal>> and type in 'lsb_release -ic' to find the release name of your OS.
 
 ----
 > lsb_release -ic
@@ -209,19 +208,19 @@ No changes should be necessary to configuration files when moving from 2.8.x to 
 
 It is now possible to add settings to the [SPINDLE] section of the INI file
 
-MAX_FORWARD_VELOCITY = 20000 The maximum spindle speed (in rpm)
+MAX_FORWARD_VELOCITY = 20000 The maximum spindle speed (in RPM)
 
-MIN_FORWARD_VELOCITY = 3000 The minimum spindle speed (in rpm)
+MIN_FORWARD_VELOCITY = 3000 The minimum spindle speed (in RPM)
 
 MAX_REVERSE_VELOCITY = 20000 This setting will default to
 MAX_FORWARD_VELOCITY if omitted.
 
 MIN_REVERSE_VELOCITY = 3000` This setting is equivalent to
-MIN_FORWARD_VELOCITY but for reverse spindle rotation. It will default
-to the MIN_FORWARD_VELOCITY if omitted.
+MIN_FORWARD_VELOCITY but for reverse spindle rotation.
+It will default to the MIN_FORWARD_VELOCITY if omitted.
 
-INCREMENT = 200 Sets the step size for spindle speed increment /
-decrement commands. This can have a different value for each spindle.
+INCREMENT = 200 Sets the step size for spindle speed increment / decrement commands.
+This can have a different value for each spindle.
 This setting is effective with AXIS and Touchy but note that some
 control screens may handle things differently.
 
@@ -261,8 +260,6 @@ A framework for controlling ModBus devices using the serial ports on
 many Mesa cards has been introduced.
 http://linuxcnc.org/docs/2.9/html/drivers/mesa_modbus.html
 
-A new GPIO driver for any GPIO which is supported by the gpiod library
-is now included:
+A new GPIO driver for any GPIO which is supported by the gpiod library is now included:
 http://linuxcnc.org/docs/2.9/html/drivers/hal_gpio.html
-
 
