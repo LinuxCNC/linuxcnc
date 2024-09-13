@@ -1811,6 +1811,8 @@ void rtapi_app_exit(void) {
 
 // this pushes our idea of what things are like into the FPGA's poor little mind
 void hm2_force_write(hostmot2_t *hm2) {
+    if (hm2->llio->set_force_enqueue != NULL)
+        hm2->llio->set_force_enqueue(hm2->llio, 1);
     hm2_watchdog_force_write(hm2);
     hm2_ioport_force_write(hm2);
     hm2_encoder_force_write(hm2);
@@ -1830,5 +1832,7 @@ void hm2_force_write(hostmot2_t *hm2) {
     // the IO Port pin directions is set appropriately.
     hm2_ssr_force_write(hm2);
     hm2_outm_force_write(hm2);
+    if (hm2->llio->set_force_enqueue != NULL)
+        hm2->llio->set_force_enqueue(hm2->llio, 0);
 }
 

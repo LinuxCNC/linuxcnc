@@ -309,7 +309,7 @@ See <<cha:gmoccapy,GMOCCAPY>> document for GMOCCAPY details.
   The INCREMENTS can be used to override the default.
   The values can be decimal numbers (e.g., 0.1000) or fractional numbers (e.g., 1/16), optionally followed by a unit (cm, mm, um, inch, in or mil).
   If a unit is not specified the machine unit is assumed.
-  Metric and imperial distances may be mixed: INCREMENTS = 1 inch, 1 mil, 1 cm, 1 mm, 1 µm is a valid entry.
+  Metric and imperial distances may be mixed: INCREMENTS = 1 inch, 1 mil, 1 cm, 1 mm, 1 um is a valid entry.
 * `GRIDS = 10 mm, 1 in, ...` - Defines the preset values for grid lines.
   The value is interpreted the same way as `INCREMENTS`.
 * `OPEN_FILE = /full/path/to/file.ngc` - The file to show in the preview plot when AXIS starts.

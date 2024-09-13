@@ -34,7 +34,7 @@
 #include "rs274ngc_interp.hh"
 #include "python_plugin.hh"
 #include "interp_python.hh"
-#include <rtapi_string.h>
+#include <rtapi_string.h>	// rtapi_strlcpy()
 
 namespace bp = boost::python;
 
@@ -60,7 +60,7 @@ int Interp::findFile( // ARGUMENTS
     snprintf(targetPath, PATH_MAX, "%s/%s", direct, target);
     file = fopen(targetPath, "r");
     if (file) {
-        strncpy(foundFileDirect, direct, PATH_MAX);
+        rtapi_strlcpy(foundFileDirect, direct, PATH_MAX);
         fclose(file);
         return INTERP_OK;
     }
@@ -71,8 +71,8 @@ int Interp::findFile( // ARGUMENTS
 
     while ((aFile = readdir(aDir))) {
         if (aFile->d_type == DT_DIR &&
-	    (0 != strcmp(aFile->d_name, "..")) &&
-	    (0 != strcmp(aFile->d_name, "."))) {
+	    (0 != strncmp(aFile->d_name, "..", 3)) &&
+	    (0 != strncmp(aFile->d_name, ".", 2))) {
 
             char path[PATH_MAX+1];
             snprintf(path, PATH_MAX, "%s/%s", direct, aFile->d_name);

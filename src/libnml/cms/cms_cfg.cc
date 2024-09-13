@@ -115,7 +115,7 @@ int load_nml_config_file(const char *file)
         loading_config_file = 0;
         return -1;
     }
-    strncpy(info->file_name, file, 80);
+    rtapi_strlcpy(info->file_name, file, 80);
     FILE *fp;
     fp = fopen(file, "r");
     if (fp == NULL) {
@@ -374,7 +374,7 @@ int cms_config(CMS ** cms, const char *bufname, const char *procname, const char
 		strcpy(default_ptr, bufname);
 		default_ptr += strlen(bufname);
 		strcpy(default_ptr, buf2);
-		strncpy(search.proc_line, buf, LINELEN);
+		rtapi_strlcpy(search.proc_line, buf, LINELEN);
 	    }
 	    rtapi_strxcat(search.proc_line, " defaultbuf");
 	}
@@ -398,7 +398,7 @@ int cms_config(CMS ** cms, const char *bufname, const char *procname, const char
 		strcpy(default_ptr, bufname);
 		default_ptr += strlen(bufname);
 		strcpy(default_ptr, buf2);
-		strncpy(search.proc_line, buf, LINELEN);
+		rtapi_strlcpy(search.proc_line, buf, LINELEN);
 	    }
 	    rtapi_strxcat(search.proc_line, " defaultproc defaultbuf");
 	}

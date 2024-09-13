@@ -1048,7 +1048,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
 
     def mouseDoubleClickEvent(self, event):
         if event.button() & self._buttonList[2]:
-            self.logger.clear()
+            self.clear_live_plotter()
 
     def mouseMoveEvent(self, event):
         self._mousemoved = True

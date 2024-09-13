@@ -298,13 +298,14 @@
 #include <fnmatch.h>
 #include <getopt.h>
 
-#include "rtapi.h"		/* RTAPI realtime OS API */
+#include "rtapi.h"		// RTAPI realtime OS API
 #include <rtapi_mutex.h>
-#include "hal.h"		/* HAL public API decls */
-#include "../hal_priv.h"	/* private HAL decls */
-/* non-EMC related uses of halrmt may want to avoid libnml dependency */
+#include <rtapi_string.h>	// rtapi_strlcpy
+#include "hal.h"		// HAL public API decls
+#include "../hal_priv.h"	// private HAL decls
+/* non-EMC related uses of halrmt may want to avoid libnml dependency
 #ifndef NO_INI
-#include "inifile.h"		/* iniFind() from libnml */
+#include "inifile.h"		// iniFind() from libnml
 #endif
 #include <rtapi_string.h>
 
@@ -1486,7 +1487,7 @@ static int doLoadUsr(char *args[])
     prog_path[0] = '\0';
     if ( prog_path[0] == '\0' ) {
 	/* try the name by itself */
-	strncpy (prog_path, prog_name, MAX_CMD_LEN);
+	rtapi_strlcpy(prog_path, prog_name, MAX_CMD_LEN);
 	rtapi_print_msg(RTAPI_MSG_DBG, "Trying '%s'\n", prog_path);
 	if ( stat(prog_path, &stat_buf) != 0 ) {
 	    /* no luck, clear prog_path to indicate failure */

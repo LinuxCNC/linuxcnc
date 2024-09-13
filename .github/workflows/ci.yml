@@ -29,7 +29,7 @@ jobs:
         set -x
         sudo apt-get install -y eatmydata
         eatmydata ./scripts/travis-install-build-deps.sh
-        eatmydata curl -O https://snapshot.debian.org/archive/debian/20220716T154603Z/pool/main/p/po4a/po4a_0.67-2_all.deb
+        eatmydata curl -L -O https://snapshot.debian.org/archive/debian/20220716T154603Z/pool/main/p/po4a/po4a_0.67-2_all.deb
         sudo eatmydata apt install ./po4a_0.67-2_all.deb
         cd src
         eatmydata ./autogen.sh
@@ -56,7 +56,7 @@ jobs:
         sudo apt-get install -y eatmydata
         eatmydata ./scripts/travis-install-build-deps.sh
         sudo eatmydata apt-get install -y clang
-        eatmydata curl -O https://snapshot.debian.org/archive/debian/20220716T154603Z/pool/main/p/po4a/po4a_0.67-2_all.deb
+        eatmydata curl -L -O https://snapshot.debian.org/archive/debian/20220716T154603Z/pool/main/p/po4a/po4a_0.67-2_all.deb
         sudo eatmydata apt install ./po4a_0.67-2_all.deb
         cd src
         eatmydata ./autogen.sh
@@ -81,7 +81,7 @@ jobs:
       run: |
         ./scripts/travis-install-build-deps.sh
         sudo apt-get install -y eatmydata
-        curl -O https://snapshot.debian.org/archive/debian/20220716T154603Z/pool/main/p/po4a/po4a_0.67-2_all.deb
+        curl -L -O https://snapshot.debian.org/archive/debian/20220716T154603Z/pool/main/p/po4a/po4a_0.67-2_all.deb
         sudo apt install ./po4a_0.67-2_all.deb
         cd src
         eatmydata ./autogen.sh
@@ -96,6 +96,7 @@ jobs:
     strategy:
       matrix:
         image: ["debian:buster", "debian:bullseye", "debian:bookworm", "debian:sid"]
+
     container:
       image: ${{ matrix.image }}
       # IPC_OWNER is needed for shmget IPC_CREAT

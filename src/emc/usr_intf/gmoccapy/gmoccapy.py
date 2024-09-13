@@ -426,7 +426,7 @@ class gmoccapy(object):
         # check the highlighting type
         # the following would load the python language
         # self.widgets.gcode_view.set_language("python")
-        LANGDIR = os.path.join(BASE, "share", "Gtksourceview-2.0", "language-specs")
+        LANGDIR = os.path.join(BASE, "share", "Gtksourceview-4", "language-specs")
         file_path = os.path.join(LANGDIR, "gcode.lang")
         if os.path.isfile(file_path):
             LOG.info("Gcode.lang found")
@@ -2435,11 +2435,8 @@ class gmoccapy(object):
                 self._on_play_sound(None, "alert")
 
     def on_gremlin_gcode_error(self, widget, errortext):
-        if self.gcodeerror == errortext:
-            return
-        else:
-            self.gcodeerror = errortext
-            self.dialogs.warning_dialog(self, _("Important Warning"), errortext)
+        self.gcodeerror = errortext
+        self.dialogs.warning_dialog(self, _("Important Warning"), errortext)
 
 
 # =========================================================

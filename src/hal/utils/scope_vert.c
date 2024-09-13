@@ -44,18 +44,19 @@
 #include <ctype.h>
 #include <string.h>
 
-#include "rtapi.h"		/* RTAPI realtime OS API */
+#include "rtapi.h"		// RTAPI realtime OS API
 #include <rtapi_mutex.h>
-#include "hal.h"		/* HAL public API decls */
-#include "../hal_priv.h"	/* private HAL decls */
+#include <rtapi_string.h>	// rtapi_strlcpy()
+#include "hal.h"		// HAL public API decls
+#include "../hal_priv.h"	// private HAL decls
 
 #include <gtk/gtk.h>
 
-#include "miscgtk.h"		/* generic GTK stuff */
-#include "scope_usr.h"		/* scope related declarations */
+#include "miscgtk.h"		// generic GTK stuff
+#include "scope_usr.h"		// scope related declarations
 #include <rtapi_string.h>
 
-#define BUFLEN 80		/* length for sprintf buffers */
+#define BUFLEN 80		// length for sprintf buffers
 
 /***********************************************************************
 *                  GLOBAL VARIABLES DECLARATIONS                       *
@@ -1047,7 +1048,7 @@ static void selection_changed(GtkTreeSelection *selection, char *name)
 
     if (gtk_tree_selection_get_selected(selection, &model, &iter)) {
         gtk_tree_model_get(model, &iter, LIST_ITEM, &tmp, -1);
-        strncpy(name, tmp, HAL_NAME_LEN);
+        rtapi_strlcpy(name, tmp, HAL_NAME_LEN);
         g_free(tmp);
     }
 }
