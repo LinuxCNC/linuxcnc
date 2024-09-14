@@ -32,6 +32,7 @@ class Info(IStatParent):
 
 # Now that the class is defined create a reference to it for the other classes
 INI = Info()
+INI.update()
 
 ################################################################
 # GStat class
@@ -64,8 +65,8 @@ class Status(GStat):
         GObject.Object.__init__(self)
         self.__class__._instanceNum += 1
         super(GStat, self).__init__()
-        self.current_jog_rate = INI.DEFAULT_LINEAR_JOG_VEL
-        self.angular_jog_velocity = INI.DEFAULT_ANGULAR_JOG_VEL
+        #self.current_jog_rate = INI.DEFAULT_LINEAR_JOG_VEL
+        #self.angular_jog_velocity = INI.DEFAULT_ANGULAR_JOG_VEL
 
 ################################################################
 # Lcnc_Action class

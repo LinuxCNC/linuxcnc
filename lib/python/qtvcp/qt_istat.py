@@ -32,64 +32,46 @@ class _IStat(object):
         # only initialize once for all instances
         if self.__class__._instanceNum >= 1:
             return
+ 
         self.__class__._instanceNum += 1
+
         self.LINUXCNC_IS_RUNNING = bool(INIPATH != '/dev/null')
+        self.ENVIRO_INI_PATH = INIPATH
+
         if not self.LINUXCNC_IS_RUNNING:
             # Reset the log level for this module
             # Linuxcnc isn't running so we expect INI errors
             log.setLevel(logger.CRITICAL)
+
         self.LINUXCNC_VERSION = LINUXCNCVERSION
-        self.INIPATH = INIPATH
-        self.INI = linuxcnc.ini(INIPATH)
-        # use configParser so we can iter thru header
-        self.parser = PARSER(strict=False)
-        try:
-            self.parser.read(filenames=INIPATH)
-        except:
-            pass
-        self.MDI_HISTORY_PATH = '~/.axis_mdi_history'
-        self.QTVCP_LOG_HISTORY_PATH = '~/qtvcp.log'
-        self.MACHINE_LOG_HISTORY_PATH = '~/.machine_log_history'
-        self.PREFERENCE_PATH = '~/.Preferences'
-        self.SUB_PATH = None
-        self.SUB_PATH_LIST = []
-        self.USER_M_PATH = None
-        self.USER_M_PATH_LIST = []
 
         self.MACRO_PATH_LIST = []
+        self.SUB_PATH_LIST = []
+        self.USER_M_PATH_LIST = []
+
+
         self.IMAGE_PATH = IMAGEDIR
         self.LIB_PATH = os.path.join(HOME, "share", "qtvcp")
-
-        self.MACHINE_IS_LATHE = False
-        self.MACHINE_IS_METRIC = False
-        self.MACHINE_UNIT_CONVERSION = 1
-        self.MACHINE_UNIT_CONVERSION_9 = [1] * 9
-        self.AVAILABLE_AXES = ['X', 'Y', 'Z']
-        self.AVAILABLE_JOINTS = [0, 1, 2]
-        self.GET_NAME_FROM_JOINT = {0: 'X', 1: 'Y', 2: 'Z'}
-        self.GET_JOG_FROM_NAME = {'X': 0, 'Y': 1, 'Z': 2}
-        self.NO_HOME_REQUIRED = False
-        self.JOG_INCREMENTS = None
-        self.ANGULAR_INCREMENTS = None
-
-        self.MAX_TRAJ_VELOCITY = 60
-
-        self.DEFAULT_LINEAR_VELOCITY = 15.0
-
-        self.AVAILABLE_SPINDLES = 1
-        self.DEFAULT_SPINDLE_SPEED = 200
-        self.MAX_SPINDLE_SPEED = 2500
-        self.MAX_FEED_OVERRIDE = 1.5
-        self.MAX_SPINDLE_OVERRIDE = 1.5
-        self.MIN_SPINDLE_OVERRIDE = 0.5
         self.TITLE = ""
         self.ICON = ""
         # this is updated in qtvcp.py on startup
         self.IS_SCREEN = False
 
-        self.update()
 
-    def update(self):
+    def update(self, ini=INIPATH):
+        #print('path ini',ini)
+        self.INIPATH = ini or  '/dev/null'
+        log.debug('INI Path: {}'.format(self.INIPATH))
+
+        self.INI = linuxcnc.ini(self.INIPATH)
+
+        # use configParser so we can iter thru header
+        self.parser = PARSER(strict=False)
+        try:
+            self.parser.read(filenames=self.INIPATH)
+        except:
+            pass
+
         ct = float(self.INI.find('DISPLAY', 'CYCLE_TIME') or 100) # possibly in seconds or ms
         if ct < 1:
             self.CYCLE_TIME = int(ct * 1000)
@@ -182,14 +164,14 @@ class _IStat(object):
         except:
             self.trajcoordinates ='xyz'
 
+        self.AVAILABLE_AXES = []
+        self.AVAILABLE_JOINTS = []
+        self.GET_NAME_FROM_JOINT = {}
+        self.GET_JOG_FROM_NAME = {}
         if axes is not None:  # i.e. LCNC is running, not just in Qt Designer
             axes = axes.replace(" ", "")
             self.TRAJCO = axes.lower()
             log.debug('TRAJ COORDINATES: {}'.format(axes))
-            self.AVAILABLE_AXES = []
-            self.GET_NAME_FROM_JOINT = {}
-            self.AVAILABLE_JOINTS = []
-            self.GET_JOG_FROM_NAME = {}
             temp = []
             for num, letter in enumerate(axes):
                 temp.append(letter)
