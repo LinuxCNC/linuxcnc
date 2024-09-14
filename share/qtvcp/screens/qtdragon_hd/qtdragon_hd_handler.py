@@ -650,6 +650,7 @@ class HandlerClass:
                 self.add_status("File not copied", CRITICAL)
         elif lower_code and name == 'MESSAGE':
             self.h['eoffset-spindle-count'] = 0
+            self.h['spindle-inhibit'] = False
             self.add_status(_translate("HandlerClass",'Spindle lowered after machine stopped'))
             self.w.spindle_eoffset_value.setText('0')
 
