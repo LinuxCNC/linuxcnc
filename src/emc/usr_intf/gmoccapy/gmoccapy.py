@@ -3542,12 +3542,6 @@ class gmoccapy(object):
             self.on_hal_status_interp_idle(None)
             return
 
-        if "G43" in self.active_gcodes and self.stat.task_mode != linuxcnc.MODE_AUTO:
-            self.command.mode(linuxcnc.MODE_MDI)
-            self.command.wait_complete()
-            self.command.mdi("G43")
-            self.command.wait_complete()
-
     def _set_enable_tooltips(self, value):
         LOG.debug("_set_enable_tooltips = {0}".format(value))
         # this will hide the tooltips from the glade file widgets,
