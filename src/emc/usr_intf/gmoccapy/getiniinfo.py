@@ -60,6 +60,10 @@ class GetIniInfo:
         postgui_halfile = self.inifile.findall("HAL", "POSTGUI_HALFILE") or None
         return postgui_halfile
 
+    def get_postgui_halcmds(self):
+        postgui_halcmds = self.inifile.findall("HAL", "POSTGUI_HALCMD") or None
+        return postgui_halcmds
+
     def get_preference_file_path(self):
         # we get the preference file, if there is none given in the INI
         # we use gmoccapy.pref in the config dir

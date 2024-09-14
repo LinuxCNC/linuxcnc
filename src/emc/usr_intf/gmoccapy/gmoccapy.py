@@ -5861,7 +5861,20 @@ if __name__ == "__main__":
                 res = os.spawnvp(os.P_WAIT, "haltcl", ["haltcl", "-i", inifile, f])
             else:
                 res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i", inifile, "-f", f])
-            if res: raise SystemExit(res)
+                if res:
+                    LOG.error('postgui halfile error:{}'.format(res))
+                    raise SystemExit(res)
+
+        postgui_halcmds = app.get_ini_info.get_postgui_halcmds()
+        LOG.info("Postgui commands: yellow<{}>".format(postgui_halcmds))
+        if postgui_halcmds is not None:
+            for f in postgui_halcmds:
+                f = os.path.expanduser(f)
+                res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd"] + f.split())
+                if res:
+                    LOG.error('postgui command error:{}'.format(res))
+                    raise SystemExit(res)
+
 
     # start the event loop
     Gtk.main()
