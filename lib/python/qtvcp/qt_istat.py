@@ -11,7 +11,7 @@ from . import logger
 
 log = logger.getLogger(__name__)
 # Force the log level for this module
-# log.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+#log.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 try:
     LINUXCNCVERSION = os.environ['LINUXCNCVERSION']
@@ -467,10 +467,12 @@ class _IStat(object):
                 #print(TEXT)
                 DETAILS = self.INI.findall("DISPLAY", "MULTIMESSAGE_{}_DETAILS".format(item))
                 #print(DETAILS)
-                ICON = self.INI.findall("DISPLAY", "MULTIMESSAGE_()_ICON".format(item))
+                ICON = self.INI.findall("DISPLAY", "MULTIMESSAGE_{}_ICON".format(item))
                 #print(ICON)
-                OPTIONS = self.INI.findall("DISPLAY", "MULTIMESSAGE_()_OPTIONS".format(item))
+                OPTIONS = self.INI.findall("DISPLAY", "MULTIMESSAGE_{}_OPTIONS".format(item))
+                #print(OPTIONS)
 
+            # fix any missing ICON to default to what the first entry was or 'INFO'
             if len(TEXT) != len(ICON):
                 log.warning('Invalid MULTI message configuration (missing icon) in INI File [DISPLAY] section')
                 if ICON == []:
@@ -482,6 +484,7 @@ class _IStat(object):
                     ICON.append(temp)
                 ##print(ICON)
 
+            # fix any missing ICON to default to what the first entry was or 'LOG=True,LEVEL=DEFAULT'
             if len(TEXT) != len(OPTIONS):
                 log.warning('Invalid message configuration (missing MESSAGE_OPTIONS) in INI File [DISPLAY] section')
                 if OPTIONS == []:
@@ -489,17 +492,23 @@ class _IStat(object):
                 else:
                     temp = OPTIONS[0]
                     OPTIONS = []
-                for i in self.USRMESS_TEXT:
+                for i in range(len(TEXT)):
                     OPTIONS.append(temp)
 
+            # process message OPTIONS
             for num,i in enumerate(OPTIONS):
                 OPTIONS[num] = self.parse_message_options(i)
+
+            # ZIP them up neatly
             try:
                 z = list(zip( TYPE,TITLE,TEXT,DETAILS,ICON,OPTIONS))
             except Exception as e:
                 print('error:',e)
                 z = None
 
+            # make a dict from the raw zipped list
+            # ie for a VFD multi message with 2 dialog messages:
+            # self.VFD_MULTIMESS={1:[].2:[] }
             if not z is None:
                 d = dict()
                 for num, i in enumerate(NUMBER):
@@ -846,6 +855,7 @@ class _IStat(object):
             except:
                 return None
 
+    # Process any multi message options like log level
     def parse_message_options(self, options):
         temp = {}
         if options is None:
