@@ -16,7 +16,7 @@ Custom component name::
 MB2HAL is a generic non-realtime HAL component to communicate with one or more Modbus devices.
 It supports Modbus RTU and Modbus TCP.
 
-See http://linuxcnc.org/docs/html/drivers/mb2hal.html[] for more information.
+See https://linuxcnc.org/docs/html/drivers/mb2hal.html[] for more information.
 
 == PINS
 

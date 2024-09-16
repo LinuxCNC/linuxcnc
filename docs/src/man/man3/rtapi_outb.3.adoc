@@ -8,10 +8,11 @@ rtapi_outb, rtapi_inb - Perform hardware I/O
 
 == SYNTAX
 
-....
+[source,c]
+----
 void rtapi_outb(unsigned char _byte_, unsigned int _port_);
 unsigned char rtapi_inb(unsigned int _port_);
-....
+----
 
 == ARGUMENTS
 
@@ -22,13 +23,12 @@ byte::
 
 == DESCRIPTION
 
-*rtapi_outb* writes a byte to a hardware I/O port. *rtapi_inb* reads a
-byte from a hardware I/O port.
+*rtapi_outb* writes a byte to a hardware I/O port. *rtapi_inb* reads a byte from a hardware I/O port.
 
 == REALTIME CONSIDERATIONS
 
-May be called from init/cleanup code and from within realtime tasks. Not
-available in non-realtime components.
+May be called from init/cleanup code and from within realtime tasks.
+Not available in non-realtime components.
 
 == RETURN VALUE
 
@@ -36,9 +36,8 @@ available in non-realtime components.
 
 == NOTES
 
-The I/O address should be within a region previously allocated by
-*rtapi_request_region*. Otherwise, another real-time module or the Linux
-kernel might attempt to access the I/O region at the same time.
+The I/O address should be within a region previously allocated by *rtapi_request_region*.
+Otherwise, another real-time module or the Linux kernel might attempt to access the I/O region at the same time.
 
 == SEE ALSO
 

@@ -47,9 +47,8 @@ this is a commonly-used value. If you use another network, you will also
 need to reconfigure the hostmot2 card to use an IP address on that
 network by using the mesaflash(1) utility and change jumper settings.
 Typically, you will choose one of the networks in the
-http://en.wikipedia.org/wiki/IPv4#Private_networks[Private IPv4 address
-space.] One common alternative is PC address 10.10.10.1, hostmot2
-address 10.10.10.10.
+https://en.wikipedia.org/wiki/IPv4#Private_networks[Private IPv4 address
+space.] One common alternative is PC address 10.10.10.1, hostmot2 address 10.10.10.10.
 
 Use of the dedicated ethernet interface while LinuxCNC is running can
 cause violation of realtime guarantees. hm2_eth will automatically
@@ -57,15 +56,15 @@ mitigate most accidental causes of interference.
 
 === Configure network with static address
 
-Add these lines to the file /etc/network/interfaces to configure eth1
-with a static address:
+Add these lines to the file /etc/network/interfaces to configure the
+Ethernet interface eth1 with a static address:
 
-....
+----
 auto eth1
 iface eth1 inet static
     address 192.168.1.1
     hardware-irq-coalesce-rx-usecs 0
-....
+----
 
 == PACKET LOSS
 
@@ -95,8 +94,8 @@ for each feedback signal, using *packet-error* as the mux2 *sel* input.
 
 == PINS
 
-In addition to the pins documented in *hostmot2(9)*, *hm2_eth(9)*
-creates additional pins:
+In addition to the pins documented in *hostmot2(9)*,
+*hm2_eth(9)* creates the following additional pins:
 
 (bit, out) hm2__<BoardType>_._<BoardNum>_.packet-error::
   This pin is TRUE when the most recent cycle detected a read or write
@@ -111,8 +110,8 @@ creates additional pins:
 
 == PARAMETERS
 
-In addition to the parameters documented in *hostmot2(9)*, *hm2_eth(9)*
-creates additional parameters:
+In addition to the parameters documented in *hostmot2(9)*,
+*hm2_eth(9)* creates the following additional parameters:
 
 hm2__<BoardType>_._<BoardNum>_.packet-error-decrement (s32, rw)::
   The amount deducted from _packet-error-level_ in a cycle without

@@ -7,10 +7,11 @@ write phase of a hostmot2 buffered SPI driver.
 
 == SYNTAX
 
-....
+[source,c]
+----
 #include <hostmot2-serial.h>
 int hm2_bspi_set_write_function(char *name, void *func, void *subdata)
-....
+----
 
 == DESCRIPTION
 
@@ -20,9 +21,7 @@ to be called every time that the main Hostmot2 driver calls the generic
 printed with rtapi_print_msg during the driver loading process and take
 the form:
 
-____
-hm2_<board name>.<board index>.bspi.<index>
-____
+**hm2_**_<board name>_**.**_<board index>_**.bspi**._<index>_
 
 For example hm2_5i23.0.bspi.0.
 
@@ -34,17 +33,14 @@ comp then the function must *not* use the FUNCTION() convenience macro,
 and the argument to the function in the definition must *always* be
 (struct state *inst).
 
-"subdata" is a pointer to the driver instance internal data. In the case
-of a driver written in comp this will always be "inst" in the function
-call.
+"subdata" is a pointer to the driver instance internal data.
+In the case of a driver written in comp this will always be "inst" in the function call.
 
-If using comp then the call to this function should be anywhere in the
-EXTRA_SETUP code.
+If using comp then the call to this function should be anywhere in the EXTRA_SETUP code.
 
 == REALTIME CONSIDERATIONS
 
-Call only from realtime init code, not from other realtime code or
-non-realtime components.
+Call only from realtime init code, not from other realtime code or non-realtime components.
 
 == RETURN VALUE
 

@@ -17,7 +17,7 @@ Sampler gets it's input from either the MESA 7i73 or sim_matrix_kb component.
 Panelui is configurable using an INI style text file to define button types, HAL pin types, and/or commands.
 
 Full documentation can be found in the HTML or PDF docs:
-http://linuxcnc.org/docs/html/gui/panelui.html
+https://linuxcnc.org/docs/html/gui/panelui.html
 
 == SEE ALSO
 

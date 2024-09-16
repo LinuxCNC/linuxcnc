@@ -34,6 +34,7 @@ Build-Depends:
     libusb-1.0-0-dev,
     libxmu-dev,
     netcat-traditional | netcat-openbsd | netcat,
+    netpbm,
     po4a,
     procps,
     psmisc,
@@ -49,7 +50,7 @@ Build-Depends:
 Build-Depends-Indep:
     @DOC_DEPENDS@,
 Build-Conflicts: libjpeg8-dev, libtiff4-dev
-Standards-Version: 4.6.1
+Standards-Version: 4.7.0
 Homepage: https://linuxcnc.org/
 Vcs-Browser: https://github.com/LinuxCNC/linuxcnc
 Vcs-Git: https://github.com/LinuxCNC/linuxcnc.git

@@ -6,7 +6,8 @@ rtapi_io - RTAPI wrappers for linux kernel functionality
 
 == SYNTAX
 
-....
+[source,c]
+----
 #include <rtapi_io.h>
 unsigned char rtapi_inb(unsigned short int port);
 unsigned short rtapi_inw(unsigned short int port);
@@ -16,11 +17,11 @@ unsigned void rtapi_outw(unsigned short value, unsigned short int port);
 unsigned void rtapi_inl(unsigned int value, unsigned short int port);
 int rtapi_ioperm(unsigned long from, unsigned long num, int turn_on);
 unsigned void rtapi_outl(unsigned int value, unsigned short int port);
-....
+----
 
 == DESCRIPTION
 
-In kernel space, each rtapi_xxx or RTAPI_XXX identifier is mapped to the
+In kernel space, each rtapi___xxx__ or RTAPI___XXX__ identifier is mapped to the
 underlying kernel functionality, if available.
 
 In userspace, or in kernels where the underlying functionality is not

@@ -11,7 +11,8 @@ MODULE_DESCRIPTION - Specifying module parameters
 
 == SYNTAX
 
-....
+[source,c]
+----
 RTAPI_MP_INT(_var_, _description_);
 RTAPI_MP_LONG(_var_, _description_);
 RTAPI_MP_STRING(_var_, _description_);
@@ -22,7 +23,7 @@ MODULE_LICENSE(_license_);
 MODULE_AUTHOR(_author_);
 MODULE_DESCRIPTION(_description_);
 EXPORT_FUNCTION(_function_);
-....
+----
 
 == ARGUMENTS
 
@@ -41,22 +42,19 @@ function::
 
 == DESCRIPTION
 
-These macros are portable ways to declare kernel module parameters. They
-must be used in the global scope, and are not followed by a terminating
-semicolon. They must be used after the associated variable or function
-has been defined.
+These macros are portable ways to declare kernel module parameters.
+They must be used in the global scope, and are not followed by a terminating semicolon.
+They must be used after the associated variable or function has been defined.
 
 == NOTES
 
-EXPORT_FUNCTION makes a symbol available for use by a subsequently
-loaded component. It is unrelated to HAL functions, which are described
-in hal_export_funct(3hal)
+EXPORT_FUNCTION makes a symbol available for use by a subsequently loaded component.
+It is unrelated to HAL functions, which are described in hal_export_funct(3hal)
 
 == Interpretation of license strings
 
 *MODULE_LICENSE* follows the kernel's definition of license strings.
-Notably, "GPL" indicates "GNU General Public License v2 _or later_".
-(emphasis ours).
+Notably, "GPL" indicates "GNU General Public License v2 _or later_".  (emphasis ours).
 
 "GPL"::
   GNU General Public License v2 or later
@@ -74,8 +72,7 @@ Notably, "GPL" indicates "GNU General Public License v2 _or later_".
   Non-free products
 
 It is still good practice to include a license block which indicates the
-author, copyright date, and disclaimer of warranty as recommended by the
-GNU GPL.
+author, copyright date, and disclaimer of warranty as recommended by the GNU GPL.
 
 == REALTIME CONSIDERATIONS
 

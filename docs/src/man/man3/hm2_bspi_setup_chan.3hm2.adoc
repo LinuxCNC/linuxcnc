@@ -6,11 +6,12 @@ hm2_bspi_setup_chan - setup a Hostmot2 bspi channel
 
 == SYNTAX
 
-....
+[source,c]
+----
 #include <hostmot2-serial.h>
-int hm2_bspi_setup_chan(char *name, int chan, int cs, int bits, float mhz,
+int hm2_bspi_setup_chan(char* name, int chan, int cs, int bits, float mhz,
                         int delay, int cpol, int cpha, int noclear, int noecho)
-....
+----
 
 == DESCRIPTION
 
@@ -21,9 +22,9 @@ name::
   A unique string given to the BSPI channel during hostmot2 setup. The
   names of the available channels are printed to standard output during
   the driver loading process and take the form
-  *hm2_*_board-name_*.*_board-index_*.bspi.*_bspi-index_. For example,
-  the first index on the first hm2_5i23 board would be called
-  hm2_5i23.0.bspi.0.
+  **hm2_**_board-name_**.**_board-index_**.bspi.**_bspi-index_.
+  For example, the first index on the first hm2_5i23 board would be called
+  `hm2_5i23.0.bspi.0`.
 chan::
   Channels are numbered 0 to 15. The value on the chip-select lines is
   set by cs and need not match the channel number.
@@ -44,16 +45,13 @@ delay::
 cpha and cpol::
   Set the clock phase and polarity (according to the device datasheet).
 noclear::
-  controls whether the frame clear bit is set after the 32 bit buffer
-  transfer. This parameter should be set to 1 when the frame length is
-  greater than 32 bits and the next data in the FIFO contains the other
-  bits.
+  Controls whether the frame clear bit is set after the 32 bit buffer transfer.
+  This parameter should be set to 1 when the frame length is greater than 32 bits and the next data in the FIFO contains the other bits.
 noecho::
   Set to 1 for devices which do not return data (such as DACs).
 samplelate::
-  Set to 1 to sample the received SPI data 1/2 SPI clock later than
-  normal. This is useful when high clock rates or isolation cause
-  significant delays from clock to received data.
+  Set to 1 to sample the received SPI data 1/2 SPI clock later than normal.
+  This is useful when high clock rates or isolation cause significant delays from clock to received data.
 
 == REALTIME CONSIDERATIONS
 

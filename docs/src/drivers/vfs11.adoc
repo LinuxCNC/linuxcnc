@@ -269,9 +269,8 @@ The VF-S11 has an RJ-45 jack for serial communication.
 Unfortunately, it does not have a standard RS-232 plug and logic levels.
 The Toshiba-recommended way is: connect the USB001Z USB-to-serial conversion unit to the drive, and plug the USB port into the PC.
 A cheaper alternative is a homebrew interface (
-http://git.mah.priv.at/gitweb/vfs11-vfd.git/blob_plain/refs/heads/f12-prod:/VFS11-RJ45_e.pdf[hints
-from Toshiba support],
-http://git.mah.priv.at/gitweb/vfs11-vfd.git/blob_plain/refs/heads/f12-prod:/vfs11-rs232.pdf[circuit diagram]).
+https://git.mah.priv.at/gitweb/vfs11-vfd.git/blob_plain/refs/heads/f12-prod:/VFS11-RJ45_e.pdf[hints from Toshiba support],
+https://git.mah.priv.at/gitweb/vfs11-vfd.git/blob_plain/refs/heads/f12-prod:/vfs11-rs232.pdf[circuit diagram]).
 
 Note: the 24V output from the VFD has no short-circuit protection.
 
@@ -289,11 +288,11 @@ I increased them from 50 to 80.
 
 See dump-params.mio for a description of non-standard VF-S11 parameters of my setup.
 This file is for the
-http://git.mah.priv.at/gitweb/modio.git[modio Modbus interactive utility].
+https://git.mah.priv.at/gitweb/modio.git[modio Modbus interactive utility].
 
 == Programming Note
 
-The vfs11_vfd driver uses the http://www.libmodbus.org[libmodbus version 3] library which is more recent than the version 2 code used in +gs2_vfd+.
+The vfs11_vfd driver uses the https://www.libmodbus.org[libmodbus version 3] library which is more recent than the version 2 code used in +gs2_vfd+.
 
 The Ubuntu +libmodbus5+ and +libmodbus-dev+ packages are only available starting from Ubuntu 12 ('Precise Pengolin').
 Moreover, these packages lack support for the MODBUS_RTS_MODE_* flags.

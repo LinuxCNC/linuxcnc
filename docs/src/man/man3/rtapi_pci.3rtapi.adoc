@@ -6,7 +6,8 @@ rtapi_pci - RTAPI wrappers for linux kernel functionality
 
 == SYNTAX
 
-....
+[source,c]
+----
 #include <rtapi_pci.h>
 
 struct rtapi_pci_device_id \{ ... };
@@ -28,7 +29,7 @@ void rtapi_pci_set_drvdata(struct rtapi_pci_dev *pdev, void *data)
 void rtapi_pci_set_drvdata(struct rtapi_pci_dev *pdev, void *data)
 void rtapi_iounmap(volatile void *addr);
 struct rtapi_pci;
-....
+----
 
 == DESCRIPTION
 
@@ -42,8 +43,7 @@ implementation for rtapi_pci_register always succeeds)
 
 == REALTIME CONSIDERATIONS
 
-Typically, these functions may be called from realtime init/cleanup
-code.
+Typically, these functions may be called from realtime init/cleanup code.
 
 == RETURN VALUE
 

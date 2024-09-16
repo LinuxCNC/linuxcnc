@@ -25,7 +25,7 @@ works for components that:
 . use names=|count= (.comp components created with halcompile)
 . have a *single* function
 
-Full docs: http://linuxcnc.org/docs/html/hal/tools.html#_halreport
+Full docs: https://linuxcnc.org/docs/html/hal/tools.html#_halreport
 
 == SEE ALSO
 
