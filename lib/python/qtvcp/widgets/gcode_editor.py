@@ -326,11 +326,17 @@ class EditorBase(QsciScintilla):
 
     def load_text(self, filepath):
         self.filepath = filepath
+        if filepath is None:
+            return
         try:
             fp = os.path.expanduser(filepath)
             with open(fp) as f:
                 self.setText(f.read())
         except OSError as e:
+            LOG.error("load_text(): {}".format(e))
+            self.setText('')
+            return
+        except Exception as e:
             LOG.error("load_text(): {}".format(e))
             self.setText('')
             return
@@ -609,6 +615,7 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
         if self.auto_show_preference:
             STATUS.connect('show-preference', self.load_preference)
         STATUS.connect('file-loaded', self.load_program)
+        STATUS.connect('reload-display', self.load_program)
         STATUS.connect('line-changed', self.external_highlight_request)
         STATUS.connect('graphics-line-selected', self.external_highlight_request)
         STATUS.connect('command-stopped', lambda w: self.run_stopped())
@@ -693,7 +700,7 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
                 LOG.debug('should reload the display')
                 self.load_text(STATUS.old['file'])
                 self._last_filename = STATUS.old['file']
-            self.emit_percent(line*100/self.lines())
+            self.emit_percent(round(line*100/self.lines()))
         self.moveMarker(line)
         self.setCursorPosition(line, 0)
         self.ensureCursorVisible()
