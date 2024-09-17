@@ -7,13 +7,14 @@
 # taotieren <admin@taotieren.com>, 2023.
 # bobyjx yu <502149532@qq.com>, 2023.
 # hyp90 <jexsp1224@gmail.com>, 2024.
+# 飞飞 <vip74120@gmail.com>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: LinuxCNC EMC2.8.0\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-04-08 19:52+0200\n"
-"PO-Revision-Date: 2024-04-19 06:03+0000\n"
-"Last-Translator: hyp90 <jexsp1224@gmail.com>\n"
+"PO-Revision-Date: 2024-09-16 19:09+0000\n"
+"Last-Translator: 飞飞 <vip74120@gmail.com>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
 "linuxcnc/linuxcnc/zh_Hans/>\n"
 "Language: zh_CN\n"
@@ -21,7 +22,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.5-dev\n"
+"X-Generator: Weblate 5.8-dev\n"
 "X-Poedit-Language: Chinese\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -430,12 +431,12 @@ msgstr "错误:无法从较低的对话级别(%d)恢复到较高的对话级别(
 #: src/emc/rs274ngc/interp_convert.cc:3619
 #, c-format
 msgid "BUG: restore from level %d !?"
-msgstr "错误:从级别%d恢复?"
+msgstr "错误:从级别%d恢复!?"
 
 #: src/emc/rs274ngc/interp_convert.cc:3620
 #, c-format
 msgid "BUG: restore to level %d !?"
-msgstr "错误:恢复到级别%d！?"
+msgstr "错误:恢复到级别%d!?"
 
 #: src/emc/rs274ngc/interp_convert.cc:3639
 #, c-format
@@ -8017,7 +8018,7 @@ msgstr "编辑_刀具数据..."
 
 #: share/axis/tcl/axis.tcl:90
 msgid "Reload tool _data"
-msgstr "重新加载道具数据"
+msgstr "重新加载刀具数据"
 
 #: share/axis/tcl/axis.tcl:96
 msgid "_Ladder Editor..."
@@ -10851,9 +10852,8 @@ msgid "Import a Mach file"
 msgstr "导入Mach文件"
 
 #: src/emc/usr_intf/stepconf/start.glade:73
-#, fuzzy
 msgid "Create a desktop _shortcut (symlink) to configuration files"
-msgstr "为配置文件创建桌面快捷方式(符号链接)。"
+msgstr "为配置文件创建桌面快捷方式(符号链接)"
 
 #: src/emc/usr_intf/stepconf/start.glade:89
 #, fuzzy
@@ -11542,6 +11542,7 @@ msgstr "反向"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
 msgid ""
 "_:"
+""
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
