@@ -7,9 +7,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gmoccapy\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-04-07 20:07+0200\n"
-"PO-Revision-Date: 2023-10-22 20:27+0000\n"
+"PO-Revision-Date: 2024-09-16 19:09+0000\n"
 "Last-Translator: gallegonovato <fran-carro@hotmail.es>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/linuxcnc/"
 "gmocappy/es/>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.1\n"
+"X-Generator: Weblate 5.8-dev\n"
 "X-Poedit-Language: German\n"
 "X-Poedit-Country: GERMANY\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -99,11 +99,10 @@ msgid "Press to return to main button list"
 msgstr "Volver a la lista de botones principales"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:804
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "could not resolve the image path '{0}' given for button '{1}'"
 msgstr ""
-"no se pudo resolver la ruta de la imagen'{0}' proporcionada para el botón "
-"'{1}'"
+"No se ha podido resolver la ruta de imagen '{0}' dada para el botón '{1}'"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:959
 msgid ""
@@ -152,11 +151,10 @@ msgstr ""
 "Oprima para establecer el sistema de coordenadas seleccionado como activo"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1080
-#, fuzzy
 msgid "No valid probe config in INI file. Tool measurement disabled."
 msgstr ""
-"No se encontró una configuración valida para el medidor de herramientas en "
-"el archivo INI."
+"No hay configuración válida para la medición de herramientas en el archivo "
+"INI. La medición de herramientas está desactivada."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1094
 msgid "Found valid probe config in INI file. Will use auto tool measurement."
@@ -165,12 +163,11 @@ msgstr ""
 "archivo INI."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1108
-#, fuzzy
 msgid ""
 "To many increments given in INI file for this screen. Only the first 10 will "
 "be reachable through this screen."
 msgstr ""
-"Hay muchos incrementos dados en el Archivo INI para esta pantalla. Sólo se "
+"Para muchos incrementos dados en el archivo INI para esta pantalla. Solo se "
 "podrá acceder a los 10 primeros a través de esta pantalla."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1118
@@ -193,9 +190,8 @@ msgid "Press to jog joint {0}"
 msgstr "Presione para mover el motor {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1306
-#, fuzzy
 msgid "Found more than 16 macros, will use only the first 16."
-msgstr "se encontraron más de 16 macros, utilizará sólo las 16 primeras"
+msgstr "Encontradas más de 16 macros, utilizará sólo las 16 primeras."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1317
 msgid "Press to display previous macro button"
@@ -1223,14 +1219,12 @@ msgstr ""
 "para probar su configuración."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:116
-#, fuzzy
 msgid "<b>gmoccapy messages</b>"
-msgstr "<b>Mensajes</b>"
+msgstr "<b>mensajes de gmocapy</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:117
-#, fuzzy
 msgid "Theme"
-msgstr "Temas"
+msgstr "Tema"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:118
 msgid "Icon Theme"
@@ -1249,9 +1243,8 @@ msgid "Enable sound"
 msgstr "Activar el sonido"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:122
-#, fuzzy
 msgid "G-code Theme"
-msgstr "Tema de iconos"
+msgstr "Tema G-code"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:123
 msgid "<b>Themes and sound</b>"
@@ -1358,9 +1351,8 @@ msgid "Probe Vel."
 msgstr "Vel de sonda."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:149
-#, fuzzy
 msgid "<b>Probe velocities</b>"
-msgstr "<b>Vel. de medición</b>"
+msgstr "<b> Velocidad de detección</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:150
 msgid ""
@@ -1433,9 +1425,8 @@ msgid "Select user dir"
 msgstr "Elige el directorio del operario"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:172
-#, fuzzy
 msgid "<b>Jump to dir</b>"
-msgstr "<b>Elige jump to dir</b>"
+msgstr "<b> Saltar al directorio</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:173
 msgid "Do not use run from line"
