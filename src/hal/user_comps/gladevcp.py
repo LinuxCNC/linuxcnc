@@ -49,7 +49,7 @@ import signal
 #   We have do do this before importing other modules because on import
 #   they set up their own loggers as children of the base logger.
 from qtvcp import logger
-LOG = logger.initBaseLogger('GladeVCP', log_file=None, log_level=logger.INFO)
+LOG = logger.initBaseLogger('GladeVCP', log_file=None, log_level=logger.WARNING)
 
 import gladevcp.makepins
 from gladevcp.gladebuilder import GladeBuilder
