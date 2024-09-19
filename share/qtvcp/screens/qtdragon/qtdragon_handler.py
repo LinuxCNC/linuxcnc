@@ -967,10 +967,15 @@ class HandlerClass:
         STATUS.emit('update-machine-log', None, 'DELETE')
 
     def btn_save_status_clicked(self):
-        text = self.w.machinelog.toPlainText()
+        if self.w.stackedWidget_log.currentIndex():
+            text = self.w.integrator_log.toPlainText()
+            name = 'sysLog_'
+        else:
+            text = self.w.machinelog.toPlainText()
+            name = 'mchnLog_'
         filename = self.w.lbl_clock.text()
-        filename = 'status_' + filename.replace(' ','_') + '.txt'
-        self.add_status("{} {}".format(_translate("HandlerClass","Saving Status file to"), filename))
+        filename = name + filename.replace(' ','_') + '.txt'
+        self.add_status("{} {}".format(_translate("HandlerClass","Saving Log file to"), filename))
         with open(filename, 'w') as f:
             f.write(text)
 
