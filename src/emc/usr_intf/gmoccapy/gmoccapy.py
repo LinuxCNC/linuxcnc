@@ -1812,7 +1812,7 @@ class gmoccapy(object):
     def _dynamic_tab(self, widget, text):
         s = Gtk.Socket()
         try:
-            widget.append_page(s, Gtk.Label(" " + text + " "))
+            widget.append_page(s, Gtk.Label.new(" " + text + " "))
         except:
             try:
                 widget.pack_end(s, True, True, 0)
