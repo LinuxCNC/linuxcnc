@@ -6,17 +6,17 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-04-07 20:07+0200\n"
-"PO-Revision-Date: 2023-11-28 12:20+0000\n"
+"PO-Revision-Date: 2024-09-19 02:24+0000\n"
 "Last-Translator: Juraj Adamkovic <stroje.hcnc@gmail.com>\n"
 "Language-Team: none\n"
 "Language: sk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=3; plural=(n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2;\n"
-"X-Generator: Weblate 5.3-dev\n"
+"Plural-Forms: nplurals=3; plural=((n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2);\n"
+"X-Generator: Weblate 5.8-dev\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:252
 msgid "user mode selected"
@@ -92,7 +92,7 @@ msgid "Press to return to main button list"
 msgstr "Návrat do hlavného zoznamu tlačidiel"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:804
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "could not resolve the image path '{0}' given for button '{1}'"
 msgstr "nepodarilo sa vyriešiť cestu k obrázku '{0}' pre dané tlačidlo '{1}'"
 
@@ -142,7 +142,6 @@ msgid "Press to set the selected coordinate system to be the active one"
 msgstr "Nastaviť vybraný súradnicový systém ako aktívny"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1080
-#, fuzzy
 msgid "No valid probe config in INI file. Tool measurement disabled."
 msgstr ""
 "V súbore INI nie je žiadna platná konfigurácia sondy. Meranie nástroja je "
@@ -155,13 +154,12 @@ msgstr ""
 "meranie nástroja."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1108
-#, fuzzy
 msgid ""
 "To many increments given in INI file for this screen. Only the first 10 will "
 "be reachable through this screen."
 msgstr ""
-"Príliš veľa inkrementov zadaných v súbore INI pre túto obrazovku. Cez túto "
-"obrazovku bude prístupných iba prvých 10."
+"Príliš veľa inkrementov zadaných v súbore INI pre túto obrazovku. Iba prvých "
+"10 bede použitých."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1118
 msgid "Continuous"
@@ -183,9 +181,8 @@ msgid "Press to jog joint {0}"
 msgstr "Pohyb kĺbu {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1306
-#, fuzzy
 msgid "Found more than 16 macros, will use only the first 16."
-msgstr "nájdených viac ako 16 makier, použije sa iba prvých 16"
+msgstr "Nájdených viac ako 16 makier, použije sa iba prvých 16"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1317
 msgid "Press to display previous macro button"
@@ -1199,10 +1196,9 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:116
 msgid "<b>gmoccapy messages</b>"
-msgstr ""
+msgstr "<b>gmoccapy správy</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:117
-#, fuzzy
 msgid "Theme"
 msgstr "Témy"
 
@@ -1223,9 +1219,8 @@ msgid "Enable sound"
 msgstr "Povoliť zvuk"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:122
-#, fuzzy
 msgid "G-code Theme"
-msgstr "Téma ikony"
+msgstr "Téma G-kódu"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:123
 msgid "<b>Themes and sound</b>"
@@ -1332,9 +1327,8 @@ msgid "Probe Vel."
 msgstr "Rýchlosť hľadania sondou."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:149
-#, fuzzy
 msgid "<b>Probe velocities</b>"
-msgstr "<b>Rýchlosti hľadania</b>"
+msgstr "<b>Rýchlosti sondy</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:150
 msgid ""
@@ -1407,9 +1401,8 @@ msgid "Select user dir"
 msgstr "Vyberte užívateľský adresár"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:172
-#, fuzzy
 msgid "<b>Jump to dir</b>"
-msgstr "<b>Vyberte smer skoku</b>"
+msgstr "<b>Skok do zložky</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:173
 msgid "Do not use run from line"

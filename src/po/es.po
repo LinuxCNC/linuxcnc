@@ -11,7 +11,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-04-08 19:52+0200\n"
-"PO-Revision-Date: 2024-05-14 07:44+0000\n"
+"PO-Revision-Date: 2024-09-17 04:27+0000\n"
 "Last-Translator: gallegonovato <fran-carro@hotmail.es>\n"
 "Language-Team: Spanish <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/es/>\n"
@@ -20,7 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.5.5\n"
+"X-Generator: Weblate 5.8-dev\n"
 
 #: src/emc/task/emctaskmain.cc:868
 #, c-format
@@ -11784,6 +11784,7 @@ msgstr "Opuesto"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
 msgid ""
 "_:"
+""
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -12660,9 +12661,8 @@ msgid "#  ---manual tool change signals to gmoccapy's dialog---"
 msgstr "# ---señal de cambio de herramienta manual al diálogo de gmoccapy---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:822
-#, fuzzy
 msgid "#  ---spindle-at-speed indicator---"
-msgstr "# ---Configurar el husillo a las señales de velocidad---"
+msgstr "# ---indicador de velocidad de giro---"
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:824
 msgid "net spindle-at-speed => gmoccapy.spindle_at_speed_led"
@@ -16631,9 +16631,8 @@ msgid "Show Advanced Option Pages"
 msgstr "Mostrar páginas de opciones avanzadas"
 
 #: src/emc/usr_intf/pncconf/start.glade:158
-#, fuzzy
 msgid "Use INI substitution for Mesa board names"
-msgstr "Use la sustitución INI para los nombres de la mesa Mesa."
+msgstr "Utilizar la sustitución INI para los nombres de los tableros Mesa"
 
 #: src/emc/usr_intf/pncconf/external.glade:157
 msgid "9600"
