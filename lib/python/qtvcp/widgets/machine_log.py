@@ -90,6 +90,10 @@ class MachineLog(QTextEdit, _HalWidgetBase):
         # scroll down to show last entry
         self.verticalScrollBar().setSliderPosition(self.verticalScrollBar().maximum())
 
+    def showEvent(self, ev):
+        # scroll down to show last entry
+        self.verticalScrollBar().setSliderPosition(self.verticalScrollBar().maximum())
+
 ################## properties ###################
 
     def _toggle_properties(self, picked):
