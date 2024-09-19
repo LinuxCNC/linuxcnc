@@ -56,7 +56,20 @@ class _IStat(object):
         self.ICON = ""
         # this is updated in qtvcp.py on startup
         self.IS_SCREEN = False
-
+        
+        log_level = self.INI.find('DISPLAY', 'VCP_LOGLEVEL')
+        if log_level == "DEBUG":
+            log.setLevel(logger.DEBUG)
+        elif log_level == "INFO":
+            log.setLevel(logger.INFO)
+        elif log_level == "WARNING":
+            log.setLevel(logger.WARNING)
+        elif log_level == "ERROR":
+            log.setLevel(logger.ERROR)
+        elif log_level == "CRITICAL":
+            log.setLevel(logger.CRITICAL)
+        elif log_level == "VERBOSE":
+            log.setLevel(logger.VERBOSE)
 
     def update(self, ini=INIPATH):
         #print('path ini',ini)
