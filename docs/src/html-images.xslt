@@ -3,8 +3,8 @@
   vim: sts=2 sw=2 et
   -->
 <xsl:stylesheet version="1.0"
-    xmlns:xsl="https://www.w3.org/1999/XSL/Transform"
-    xmlns:html="https://www.w3.org/1999/xhtml">
+    xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+    xmlns:html="http://www.w3.org/1999/xhtml">
 <xsl:output method='text'/>
 
 <xsl:template match="/">
