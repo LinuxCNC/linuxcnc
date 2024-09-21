@@ -21,7 +21,7 @@ G53.6 (P) : same as G53.1 but spindle orientation with tcp
                                             (this applies to the primary rotary, the secondary moves the shortest distance)
 
 For more:
-www.forum.linuxcnc.org/show-your-stuff/4...nutating-head#271334
+https://forum.linuxcnc.org/show-your-stuff/49103-kinematic-model-for-a-5axis-mill-with-universal-nutating-head?start=0#271334
 
 Full Documentation can be found at:
 https://github.com/Sigma1912/LinuxCNC_Demo_Configs/tree/main/table-rotary_spindle-rotary-nutating/Documentation
