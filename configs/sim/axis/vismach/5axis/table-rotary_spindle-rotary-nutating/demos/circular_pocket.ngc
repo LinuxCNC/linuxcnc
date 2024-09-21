@@ -1,0 +1,15 @@
+o<circular_pocket>sub
+; activate tool radius compensation
+g42
+; circular pocket
+g1 x50 f5000
+g2 i-25 z20
+g2 i-25 z0
+g2 i-25 z-20
+g2 i-50 z-20
+; deactivate tool radius compensation
+g40
+g1 x0 y0
+g0 z50
+o<circular_pocket>endsub
+M2
