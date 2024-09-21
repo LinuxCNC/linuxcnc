@@ -168,6 +168,10 @@ class gmoccapy(object):
         self.stat.poll()
         self.error_channel.poll()
 
+        # set INI path for INI info class before widgets are loaded
+        INFO = Info()
+        INFO.update(ini=argv[2])
+
         self.builder = Gtk.Builder()
         # translation of the glade file will be done with
         self.builder.set_translation_domain("gmoccapy")
@@ -5832,8 +5836,10 @@ if __name__ == "__main__":
 
     # Some of these libraries log when imported so logging level must already be set.
     import gladevcp.makepins
+    from gladevcp.core import Info
     from gladevcp.combi_dro import Combi_DRO  # we will need it to make the DRO
     from gmoccapy import widgets       # a class to handle the widgets
+
     from gmoccapy import notification  # this is the module we use for our error handling
     from gmoccapy import preferences   # this handles the preferences
     from gmoccapy import getiniinfo    # this handles the INI File reading so checking is done in that module

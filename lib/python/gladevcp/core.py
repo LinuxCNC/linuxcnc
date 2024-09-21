@@ -29,11 +29,6 @@ class Info(IStatParent):
             cls._instance = IStatParent.__new__(cls, *args, **kwargs)
         return cls._instance
 
-
-# Now that the class is defined create a reference to it for the other classes
-INI = Info()
-INI.update()
-
 ################################################################
 # GStat class
 ################################################################
