@@ -449,6 +449,8 @@ man9/weighted_sum.9
 man9/xhc_hb04_util.9
 man9/xor2.9
 man9/xyzab_tdr_kins.9
+man9/xyzacb_trsrn.9
+man9/xyzbca_trsrn.9
 # Ignore po4a-generated files for other languages
 ar/*
 bg/*
