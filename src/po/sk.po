@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: sk\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-04-08 19:52+0200\n"
-"PO-Revision-Date: 2024-09-10 17:41+0000\n"
+"PO-Revision-Date: 2024-09-21 13:02+0000\n"
 "Last-Translator: Juraj Adamkovic <stroje.hcnc@gmail.com>\n"
 "Language-Team: Slovak <emc-developers@lists.sourceforge.net>\n"
 "Language: sk\n"
@@ -1914,7 +1914,7 @@ msgstr "Opustiť"
 
 #: src/hal/utils/meter.c:336 src/hal/utils/meter.c:364
 msgid "Select Item to Probe"
-msgstr "Vyberte položku pre sondu"
+msgstr "Vyberte položku"
 
 #: src/hal/utils/meter.c:616
 msgid " _Pins "
