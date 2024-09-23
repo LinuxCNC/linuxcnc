@@ -2156,7 +2156,7 @@ When the changer responds by asserting "tool-prepared", it considers the prepare
 Again, this 'wait' is not strictly necessary IMO.
 
 .Building the prolog and epilog for `Tx`
-See the Python functions `prepare_prolog` and `prepare_epilog` in `configs/sim/axis/remap/toolchange/python/toolchange.py`.
+See the Python functions `prepare_prolog` and `prepare_epilog` in `nc_files/remap_lib/python-stdglue/stdglue.py`.
 
 === How M6 (Change tool) works
 
@@ -2211,7 +2211,7 @@ When that has happened:
 From there on, the interpreter has complete knowledge of the world model and continues with read ahead.
 
 .Building the prolog and epilog for `M6`
-See the Python functions `change_prolog` and `change_epilog` in `configs/sim/axis/remap/toolchange/python/toolchange.py`.
+See the Python functions `change_prolog` and `change_epilog` in `nc_files/remap_lib/python-stdglue/stdglue.py`.
 
 === How `M61` (Change tool number) works
 
@@ -2219,7 +2219,7 @@ See the Python functions `change_prolog` and `change_epilog` in `configs/sim/axi
 If zero, this means 'unload tool', else 'set current tool number to Q'.
 
 .Building the replacement for `M61`
-An example Python redefinition for `M61` can be found in the `set_tool_number` function in `configs/sim/axis/remap/toolchange/python/toolchange.py`.
+An example Python redefinition for `M61` can be found in the `set_tool_number` function in `nc_files/remap_lib/python-stdglue/stdglue.py`.
 
 
 ==  Status

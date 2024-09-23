@@ -1812,7 +1812,7 @@ class gmoccapy(object):
     def _dynamic_tab(self, widget, text):
         s = Gtk.Socket()
         try:
-            widget.append_page(s, Gtk.Label(" " + text + " "))
+            widget.append_page(s, Gtk.Label.new(" " + text + " "))
         except:
             try:
                 widget.pack_end(s, True, True, 0)
@@ -4589,10 +4589,12 @@ class gmoccapy(object):
 
     def _set_sourceview_theme(self, name):
         self.widgets["gcode_view"].set_style_scheme(name)
-        style  = self.widgets["gcode_view"].get_style_context()
-        color = style.get_background_color(Gtk.StateFlags.SELECTED)
-        color.alpha = 0.5
-        self.widgets["gcode_view"].add_mark_category('motion', color.to_string())
+        buffer = self.widgets["gcode_view"].get_buffer()
+        style = buffer.get_style_scheme().get_style('current-line')
+        color = style.props.background
+        rgba = Gdk.RGBA()
+        rgba.parse(color)
+        self.widgets["gcode_view"].add_mark_category('motion', rgba.to_string())
         
     def on_sourceview_theme_choice_changed(self, widget):
         active = widget.get_active_iter()
