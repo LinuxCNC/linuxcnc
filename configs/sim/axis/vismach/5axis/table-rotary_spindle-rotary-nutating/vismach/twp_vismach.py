@@ -1,3 +1,7 @@
+# This is a modified version of 'vismach.py' to visualize Tilted Work Plane (TWP)
+# Author: David mueller 
+# email: mueller_david@hotmail.com
+
 #    Copyright 2007 John Kasunich and Jeff Epler
 #
 #    This program is free software; you can redistribute it and/or modify
