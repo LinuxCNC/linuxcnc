@@ -1,0 +1,24 @@
+Standard GMOCCAPY configuration for a XYZ mill,
+
+including
+- example macros
+- pyngcgui in embedded user tab with support for .gcmc (G-Code Meta Compiler) files
+
+REQUIREMENT: Installation of gcmc, see instructions below.
+
+The .ngc and .gcmc files can be intermixed with
+ini file lines like:
+
+NGCGUI_SUBFILE    = drill.gcmc
+NGCGUI_SUBFILE    = wheels.gcmc
+NGCGUI_SUBFILE    = simp.ngc
+
+Installation instructions:
+1. Download from https://gitlab.com/gcmc/gcmc
+2. cd gcmc
+3. ./configure
+4. make
+5. sudo make install
+
+
+
