@@ -128,22 +128,30 @@ class QTVCP:
             print(self.PATH.find_panel_dirs())
             sys.exit(0)
 
-        # set paths using basename
-        if opts.ini_path:
-            i = opts.ini_path
-        else:
-            i = SCRN_INIPATH
-
         self.INFO = Info()
-        self.INFO.update(ini=i)
+
+        # use --ini switch setting
+        if opts.ini_path:
+            self.INFO.update(ini=opts.ini_path)
+
+        # use -ini switch from linuxcnc script setting
+        elif not SCRN_INIPATH is None:
+                self.INFO.update(ini=SCRN_INIPATH)
+
+        # let INFO read the ini from the environment
+        else:
+            self.INFO.update()
+
         self.STATUS = Status()
 
         # set default jog rates from INI settings
         self.STATUS.current_jog_rate = self.INFO.DEFAULT_LINEAR_JOG_VEL
         self.STATUS.angular_jog_velocity = self.INFO.DEFAULT_ANGULAR_JOG_VEL
 
+
         self.PATH = Path()
 
+        # set paths using basename
         error = self.PATH.set_paths(basepath, bool(SCRN_INIPATH), i)
         if error:
             sys.exit(0)
@@ -156,8 +164,6 @@ class QTVCP:
         # keep track of python version during this transition
         ver = 'Python 3'
 
-        self.INFO = Info()
-        self.INFO.update(ini=i)
         INITITLE = self.INFO.TITLE
         INIICON = self.INFO.ICON
         self.INFO.IS_SCREEN = bool(SCRN_INIPATH)
