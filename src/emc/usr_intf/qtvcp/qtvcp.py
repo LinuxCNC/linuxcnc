@@ -137,6 +137,11 @@ class QTVCP:
         self.INFO = Info()
         self.INFO.update(ini=i)
         self.STATUS = Status()
+
+        # set default jog rates from INI settings
+        self.STATUS.current_jog_rate = self.INFO.DEFAULT_LINEAR_JOG_VEL
+        self.STATUS.angular_jog_velocity = self.INFO.DEFAULT_ANGULAR_JOG_VEL
+
         self.PATH = Path()
 
         error = self.PATH.set_paths(basepath, bool(SCRN_INIPATH), i)
