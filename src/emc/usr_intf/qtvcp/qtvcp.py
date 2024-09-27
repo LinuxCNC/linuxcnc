@@ -146,7 +146,7 @@ class QTVCP:
 
         # set default jog rates from INI settings
         self.STATUS.current_jog_rate = self.INFO.DEFAULT_LINEAR_JOG_VEL
-        self.STATUS.angular_jog_velocity = self.INFO.DEFAULT_ANGULAR_JOG_VEL
+        self.STATUS.current_angular_jog_rate = self.INFO.DEFAULT_ANGULAR_JOG_VEL
 
 
         self.PATH = Path()
