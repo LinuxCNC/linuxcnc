@@ -10266,6 +10266,12 @@ Z COMP</string>
                 <property name="alignment">
                  <set>Qt::AlignCenter</set>
                 </property>
+                <property name="textTemplate" stdset="0">
+                 <string>%9.4f</string>
+                </property>
+                <property name="alt_textTemplate" stdset="0">
+                 <string>%10.3f</string>
+                </property>
                 <property name="index_number" stdset="0">
                  <number>2</number>
                 </property>
