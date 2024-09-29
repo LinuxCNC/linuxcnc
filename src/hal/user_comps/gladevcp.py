@@ -51,10 +51,6 @@ import signal
 from qtvcp import logger
 LOG = logger.initBaseLogger('GladeVCP', log_file=None, log_level=logger.INFO)
 
-import gladevcp.makepins
-from gladevcp.gladebuilder import GladeBuilder
-from gladevcp import xembed
-from gladevcp.core import Info, Status
 
 options = [ Option( '-c', dest='component', metavar='NAME'
                   , help="Set component name to NAME. Default is basename of UI file")
@@ -207,10 +203,16 @@ def main():
     else:
         logger.setGlobalLevel(logger.WARNING)
 
+    from gladevcp.core import Info, Status
+    import gladevcp.makepins
+    from gladevcp.gladebuilder import GladeBuilder
+    from gladevcp import xembed
+
     if opts.ini_path:
         # set INI path for INI info class before widgets are loaded
+        INFO = Info(ini=opts.ini_path)
+    else:
         INFO = Info()
-        INFO.update(ini=opts.ini_path)
     LOG.verbose('INI path = {}'.format(opts.ini_path))
 
     xmlname = args[0]

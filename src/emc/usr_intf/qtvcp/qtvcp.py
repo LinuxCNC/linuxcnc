@@ -128,19 +128,17 @@ class QTVCP:
             print(self.PATH.find_panel_dirs())
             sys.exit(0)
 
-        self.INFO = Info()
-
         # use --ini switch setting
         if opts.ini_path:
-            self.INFO.update(ini=opts.ini_path)
+            self.INFO = Info(ini=opts.ini_path)
 
         # use -ini switch from linuxcnc script setting
         elif not SCRN_INIPATH is None:
-                self.INFO.update(ini=SCRN_INIPATH)
+                self.INFO = Info(ini=SCRN_INIPATH)
 
         # let INFO read the ini from the environment
         else:
-            self.INFO.update()
+            self.INFO = Info()
 
         self.STATUS = Status()
 
