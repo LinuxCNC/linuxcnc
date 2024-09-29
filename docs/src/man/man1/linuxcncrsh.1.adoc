@@ -10,12 +10,17 @@ linuxcncrsh - text-mode interface for commanding LinuxCNC over the network
 
 == DESCRIPTION
 
-*linuxcncrsh* is a user interface for LinuxCNC.
+The command *linuxcncrsh* is a fully-functional text-based user interface for LinuxCNC.
 Instead of popping up a GUI window like AXIS(1) and Touchy(1) do,
 it processes text-mode commands that it receives via the network.
 A human (or a program) can interface with *linuxcncrsh* using telnet(1), nc(1) or similar programs.
 
-All features of LinuxCNC are available via the *linuxcncrsh* interface.
+It cannot be stressed enough that all features of LinuxCNC are available
+via the *linuxcncrsh* interface. It can substitute a graphical UI or be
+started in addition to it. If your environment needs to control/monitor
+more than one machine from a single location, this text interface may raise
+your interest. Also, a speech to text interface may be easier to adapt to
+this text-based interface than to a graphical one.
 
 == OPTIONS
 
@@ -51,13 +56,13 @@ All features of LinuxCNC are available via the *linuxcncrsh* interface.
 
 == Starting linuxcncrsh
 
-To use linuxcncrsh instead of a normal LinuxCNC GUI like AXIS or Touchy,
+To use *linuxcncrsh* instead of a normal LinuxCNC GUI like AXIS or Touchy,
 specify it in your INI file like this:
 
 ----
-*[DISPLAY]*
+[DISPLAY]
 
-*DISPLAY=linuxcncrsh*
+DISPLAY=linuxcncrsh
 ----
 
 To use `linuxcncrsh` in addition to a normal GUI, you can either
@@ -78,7 +83,7 @@ linuxcncrsh [OPTIONS] [-- LINUXCNC_OPTIONS]
 
 == Connecting
 
-Once LinuxCNC is up and linuxcncrsh is running, you can connect to it
+Once LinuxCNC is up and *linuxcncrsh* is running, you can connect to it
 using *telnet* or *nc* or similar:
 
 *telnet* _HOST_ _PORT_::
