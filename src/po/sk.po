@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: sk\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-04-08 19:52+0200\n"
-"PO-Revision-Date: 2024-09-21 13:02+0000\n"
+"PO-Revision-Date: 2024-09-29 05:04+0000\n"
 "Last-Translator: Juraj Adamkovic <stroje.hcnc@gmail.com>\n"
 "Language-Team: Slovak <emc-developers@lists.sourceforge.net>\n"
 "Language: sk\n"
@@ -6992,7 +6992,7 @@ msgstr "Naozaj chcete zatvoriť program?"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:156
 msgid "Confirm Close"
-msgstr "Potvrdiť zatvorením"
+msgstr "Potvrdiť zatvorenie"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:183
 msgid "Emergency stop"
@@ -7404,7 +7404,7 @@ msgid ""
 "Near line %(seq)d of %(f)s:\n"
 "%(error_str)s"
 msgstr ""
-"Blízko riadku %(seq)d z %(f)s:\n"
+"Nad riadkom %(seq)d z %(f)s:\n"
 "%(error_str)s"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1490
@@ -8672,7 +8672,7 @@ msgstr "Rýchla referencia programu AXIS"
 
 #: share/axis/tcl/axis.tcl:1756
 msgid "AXIS $::version on $::machine"
-msgstr "Verzia programu AXIS $::version _____Konfigurácia stroja $::machine"
+msgstr "Verzia programu AXIS $::version _____Názov stroja $::machine"
 
 #: share/axis/tcl/axis.tcl:1758
 msgid "(no file)"
