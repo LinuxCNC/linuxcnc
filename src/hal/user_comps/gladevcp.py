@@ -49,8 +49,7 @@ import signal
 #   We have do do this before importing other modules because on import
 #   they set up their own loggers as children of the base logger.
 from qtvcp import logger
-LOG = logger.initBaseLogger('GladeVCP', log_file=None, log_level=logger.INFO)
-
+LOG = None
 
 options = [ Option( '-c', dest='component', metavar='NAME'
                   , help="Set component name to NAME. Default is basename of UI file")
@@ -186,6 +185,10 @@ def main():
     if not args:
         parser.print_help()
         sys.exit(1)
+
+    temp = os.path.splitext(os.path.basename(args[0]))[0]
+    global LOG
+    LOG = logger.initBaseLogger('GladeVCP-'+ temp, log_file=None, log_level=logger.INFO)
 
     gladevcp_debug = debug = opts.debug
     if opts.debug:
