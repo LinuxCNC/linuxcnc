@@ -97,7 +97,7 @@ AC_CHECK_HEADER([rpc/rpc.h],[], [
     LIBTIRPC_LIBS=`pkg-config libtirpc --libs`
     AC_SUBST([LIBTIRPC_LIBS])
 
-    CFLAGS+=" `pkg-config libtirpc --cflags` "
+    CFLAGS="${CFLAGS:+$CFLAGS }$(pkg-config libtirpc --cflags)"
   fi
 
   # Update path
@@ -411,8 +411,8 @@ fi
 # Set flags for C and C++ if supported
 for commonflag in -Wno-stringop-truncation ; do
   if echo "int main() { return 0;}" | $CC -Werror $commonflag -E - > /dev/null; then
-    CFLAGS="$CFLAGS $flag"
-    CXXFLAGS="$CXXFLAGS $flag"
+    CFLAGS="${CFLAGS:+$CFLAGS }$flag"
+    CXXFLAGS="${CXXFLAGS:+$CXXFLAGS }$flag"
   fi
 done
 
