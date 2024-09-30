@@ -17,10 +17,10 @@ HAL widgets
   use pixel units. Position is referenced from top left.
 *-c* _component-name_::
   Use _component-name_ as the HAL component name. If the component name
-  is not specified, the basename of the ui file is used.
+  is not specified, the basename of the UI file is used.
 *-u* _handler_::
   Instructs GladeVCP to inspect the Python script _handler_ for event
-  handlers, and connect them to signals in the ui file.
+  handlers, and connect them to signals in the UI file.
 *-U* _useroption_::
   GladeVCP collects all _useroption_ strings and passes them to the
   handler init() method as a list of strings without further inspection.

@@ -61,7 +61,7 @@ line:
 latency-test 50000 1000000
 ----
 
-This will start the latency test with a base-thread period of 50uS and a
+This will start the latency test with a base-thread period of 50&thinsp;µs and a
 servo-thread period of 1&thinsp;ms.
 
 For available options, on the command line enter:
@@ -167,15 +167,14 @@ Options:
   --nobase         (servo thread only)
   --verbose        (progress and debug)
   --nox            (no gui, display elapsed,min,max,sdev for each thread)
+----
 
-Notes:
-LinuxCNC and HAL should not be running, stop with halrun -U.
+Note:
+When determining the latency, LinuxCNC and HAL should not be running, stop with halrun -U.
 Large number of bins and/or small binsizes will slow updates.
 For single thread, specify --nobase (and options for servo thread).
-Measured latencies outside of the +/- bin range are reported
-with special end bars.  Use --show to show count for
-the off-chart [pos|neg] bin
-----
+Measured latencies outside of the +/- bin range are reported with special end bars.
+Use --show to show count for the off-chart [pos|neg] bin
 
 .`latency-histogram` Window
 image::../config/images/latency-histogram.png["latency-histogram Window"]
