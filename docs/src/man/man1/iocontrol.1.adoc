@@ -22,7 +22,7 @@ with the toolchanger.
 Whether *io* or *iov2* is used can be chosen in the [EMCIO] section of
 the INI file.
 
-See also https://linuxcnc.org/docs/html/config/iov2.html[]
+See also https://linuxcnc.org/docs/html/config/iov2.html.
 
 == SEE ALSO
 
