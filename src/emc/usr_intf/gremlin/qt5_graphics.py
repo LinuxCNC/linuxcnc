@@ -11,15 +11,12 @@ LOG = logger.getLogger(__name__)
 from PyQt5.QtCore import pyqtProperty, pyqtSignal, QSize, Qt, QTimer
 from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import (QApplication, QHBoxLayout, QSlider,
-        QWidget)
-try:
-    from PyQt5.QtOpenGL import QGLWidget
-except ImportError:
-    LOG.critical("Qtvcp error with qt5_graphics - is package python3-pyqt5.qtopengl installed?")
+        QWidget, QOpenGLWidget)
 
 LIB_GOOD = True
 try:
     from OpenGL import GL
+    from OpenGL.GL import glColor4f
     from OpenGL import GLU
 except ImportError:
     LOG.error('Qtvcp Error with graphics - is python3-openGL installed?')
@@ -180,7 +177,7 @@ class StatCanon(glcanon.GLCanon, interpret.StatMixin):
 ###############################
 # widget for graphics plotting
 ###############################
-class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
+class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     percentLoaded = pyqtSignal(int)
     xRotationChanged = pyqtSignal(int)
     yRotationChanged = pyqtSignal(int)
@@ -610,15 +607,15 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
 
     # trick - we are not gtk
     def activate(self):
-        return
+        self.makeCurrent()
     def deactivate(self):
-        return
+        self.doneCurrent()
     def swapbuffers(self):
         return
     # redirect for conversion from pygtk to pyqt
     # gcannon assumes this function name
     def _redraw(self):
-        self.updateGL()
+        self.update()
 
     # This overrides glcannon.py method so we can change the joint DRO
     # this is turned off because amending extra variables (posstrs and droposstrs)
@@ -785,25 +782,28 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         if angle != self.xRot:
             self.xRot = angle
             self.xRotationChanged.emit(angle)
-            self.updateGL()
+            self.update()
 
     def setYRotation(self, angle):
         angle = self.normalizeAngle(angle)
         if angle != self.yRot:
             self.yRot = angle
             self.yRotationChanged.emit(angle)
-            self.updateGL()
+            self.update()
 
     def setZRotation(self, angle):
         angle = self.normalizeAngle(angle)
         if angle != self.zRot:
             self.zRot = angle
             self.zRotationChanged.emit(angle)
-            self.updateGL()
+            self.update()
 
     def setZoom(self, zoom):
         self.distance = zoom/100.0
-        self.updateGL()
+        self.update()
+        
+    def qglColor(self, color):
+        glColor4f(color.redF(), color.greenF(), color.blueF(), color.alphaF())          
 
     # called when widget is completely redrawn
     def initializeGL(self):
@@ -981,7 +981,7 @@ class Lcnc_3dGraphics(QGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     ####################################
     def set_alpha_mode(self, state):
         self.program_alpha = state
-        self.updateGL()
+        self.update()
 
     def set_inhibit_selection(self, state):
         self.inhibit_selection = state
@@ -1301,5 +1301,6 @@ if __name__ == '__main__':
     window = Window(inifilename)
     window.show()
     sys.exit(app.exec_())
+
 
 
