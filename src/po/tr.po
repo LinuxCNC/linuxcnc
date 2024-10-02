@@ -2,20 +2,21 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # kemal askan <kemalaskan90@gmail.com>, 2023, 2024.
+# Burak Yeler <burakyeler@gmail.com>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-04-08 19:52+0200\n"
-"PO-Revision-Date: 2024-02-18 20:47+0000\n"
-"Last-Translator: kemal askan <kemalaskan90@gmail.com>\n"
+"PO-Revision-Date: 2024-09-30 20:09+0000\n"
+"Last-Translator: Burak Yeler <burakyeler@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: tr\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.4\n"
+"X-Generator: Weblate 5.8-dev\n"
 
 #: src/emc/task/emctaskmain.cc:868
 #, c-format
@@ -97,7 +98,7 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_check.cc:89
 msgid "G4 not allowed with G2 or G3 because they both use P"
-msgstr ""
+msgstr "G4' e G2 veya G3 ile birlikte izin verilmez çünkü ikiside P kullanır"
 
 #: src/emc/rs274ngc/interp_check.cc:92
 msgid "Line with G10 does not have L0, L1, L10, L11, L2, or L20"
@@ -105,7 +106,7 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_check.cc:93
 msgid "P value not an integer with G10"
-msgstr ""
+msgstr "G10 ile kullanılan P değeri bir tamsayı(integer) değil "
 
 #: src/emc/rs274ngc/interp_check.cc:94
 #, c-format
@@ -11281,7 +11282,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid "_:"
+msgid ""
+"_:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
