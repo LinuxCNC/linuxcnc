@@ -1130,7 +1130,7 @@ class HandlerClass:
         self.w.conv_preview.setShowOffsets(False)
         self.w.conv_preview._font = 'monospace 11'
         self.w.conv_preview.inhibit_selection = True
-        self.w.conv_preview.updateGL()
+        self.w.conv_preview.update()
         self.w.conv_preview.setInhibitControls(True)
         self.w.estopButton = self.PREFS.getpref('Estop type', 0, int, 'GUI_OPTIONS')
         if self.w.estopButton == 0:
@@ -1709,8 +1709,8 @@ class HandlerClass:
             ACTION.CALL_MDI_WAIT('T0 M6')
             ACTION.SET_MANUAL_MODE()
             self.firstHoming = True
-        self.w.gcodegraphics.updateGL()
-        self.w.conv_preview.updateGL()
+        self.w.gcodegraphics.update()
+        self.w.conv_preview.update()
         log = _translate('HandlerClass', 'Machine homed')
         STATUS.emit('update-machine-log', log, 'TIME')
 
@@ -1736,8 +1736,8 @@ class HandlerClass:
         self.w.update
         STATUS.emit('dro-reference-change-request', 1)
         self.interp_idle(None)
-        self.w.gcodegraphics.updateGL()
-        self.w.conv_preview.updateGL()
+        self.w.gcodegraphics.update()
+        self.w.conv_preview.update()
 
     def hard_limit_tripped(self, obj, tripped, list_of_tripped):
         self.w.chk_override_limits.setEnabled(tripped)
@@ -1802,7 +1802,7 @@ class HandlerClass:
         self.w.lbl_mcodes.setText(f'{cod}')
 
     def metric_mode_changed(self, obj, state):
-        self.w.gcodegraphics.updateGL()
+        self.w.gcodegraphics.update()
 
     def set_start_line(self, line):
         if self.fileOpened:
@@ -2168,7 +2168,7 @@ class HandlerClass:
         widget.set_eyepoint_from_extents(xSize, ySize)
         widget.perspective = False
         widget.lat = widget.lon = 0
-        widget.updateGL()
+        widget.update()
 
     def view_p_pressed(self):
         self.w.gcodegraphics.set_view('P')
@@ -3359,8 +3359,8 @@ class HandlerClass:
             self.w[button].dialog_code = inputType
 
     def overlay_update(self, state):
-        self.w.gcodegraphics.updateGL()
-        self.w.conv_preview.updateGL()
+        self.w.gcodegraphics.update()
+        self.w.conv_preview.update()
 
     def dialog_show_ok(self, icon, title, error, bText=_translate('HandlerClass', 'OK')):
         msg = QMessageBox(self.w)
@@ -3771,8 +3771,8 @@ class HandlerClass:
             self.w[f'dro_label_{axis}'].setProperty('homed', teleop)
             self.w[f'dro_label_{axis}'].setStyle(self.w[f'dro_label_{axis}'].style())
         time.sleep(0.1)
-        self.w.gcodegraphics.updateGL()
-        self.w.conv_preview.updateGL()
+        self.w.gcodegraphics.update()
+        self.w.conv_preview.update()
 
 #########################################################################################################################
 # TIMER FUNCTIONS #
@@ -4434,7 +4434,7 @@ class HandlerClass:
                 command = newCommand
             ACTION.CALL_MDI(command)
             while not STATUS.is_interp_idle():
-                self.w.gcodegraphics.updateGL()
+                self.w.gcodegraphics.update()
                 QApplication.processEvents()
         elif command and command[0] == '%':
             command = command.lstrip('%').lstrip()
@@ -5452,7 +5452,7 @@ class HandlerClass:
             ACTION.CALL_MDI_WAIT(f'G10 L2 P0 R{zAngle}')
             ACTION.CALL_MDI('G0 X0 Y0')
             while not STATUS.is_interp_idle():
-                self.w.gcodegraphics.updateGL()
+                self.w.gcodegraphics.update()
             if self.fileOpened:
                 self.file_reload_clicked()
                 self.w.gcodegraphics.logger.clear()
@@ -5473,7 +5473,7 @@ class HandlerClass:
     def cam_goto_clicked(self):
         ACTION.CALL_MDI_WAIT('G0 X0 Y0')
         while not STATUS.is_interp_idle():
-            self.w.gcodegraphics.updateGL()
+            self.w.gcodegraphics.update()
         ACTION.SET_MANUAL_MODE()
 
     def cam_zoom_plus_pressed(self):
