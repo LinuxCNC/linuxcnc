@@ -1053,6 +1053,7 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         if not self.select_primed: return
         x, y = self.select_primed
         self.select_primed = None
+        self.makeCurrent()
         self.select(x, y)
 
     def select_cancel(self, widget=None, event=None):

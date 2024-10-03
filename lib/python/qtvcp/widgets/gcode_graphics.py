@@ -338,6 +338,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         if not self.select_primed: return
         x, y = self.select_primed
         self.select_primed = None
+        self.makeCurrent()
         self.select(x, y)
 
     # override user plot -One could add gl commands to plot static objects here
