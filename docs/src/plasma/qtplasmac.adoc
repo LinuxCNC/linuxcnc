@@ -3238,7 +3238,7 @@ It is valid to use the ~ character as a shortcut for the user's home directory.
 
 [source,{ini}]
 ----
-n Code = ~/user_script.py
+n Code = %~/user_script.py
 ----
 
 [[plasma:button-code]]
