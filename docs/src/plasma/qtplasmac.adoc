@@ -3238,7 +3238,7 @@ It is valid to use the ~ character as a shortcut for the user's home directory.
 
 [source,{ini}]
 ----
-n Code = %halshow
+n Code = ~/user_script.py
 ----
 
 [[plasma:button-code]]
@@ -3323,6 +3323,10 @@ n Code = dual-code ;; G91\G0X10\G90 ;; X-10 ;; G91\G0X-10\G90
 
 The original label will be X+10, when pressed the torch will move positive 10 in the X axis and the label will change to X-10.
 When pressed again the torch will move negative 10 in the X axis and the label will change to X+10.
+
+.Special Commands
+
+The following commands must be a single command per user button, and the button code must start with the special command. The exception is <<plasma:button-laser,toggle-laser>> which may be appear anywhere in the code as demonstrated below.
 
 [[plasma:button-toggle]]
 .*Toggle HAL Pin*
@@ -3640,7 +3644,7 @@ This allows the toggling between joint mode and teleop mode. The machine must be
 
 [source,{ini}]
 ----
-n Code = toggle_joint
+n Code = toggle-joint
 ----
 
 [[peripheral-offsets]]
