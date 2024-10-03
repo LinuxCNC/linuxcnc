@@ -634,6 +634,14 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
             STATUS.connect('interp_idle', lambda w: self.set_line_number(0))
         self.markerDeleteHandle(self.currentHandle)
 
+    def focusOutEvent(self, event):
+        self.setColorBackground(QColor(211, 211, 211))
+        super().focusOutEvent(event)
+
+    def focusInEvent(self, event):
+        self.setColorBackground(QColor(255, 255, 255))
+        super().focusInEvent(event)
+
     def load_program(self, w, filename=None):
         if filename is None:
             filename = self._last_filename
