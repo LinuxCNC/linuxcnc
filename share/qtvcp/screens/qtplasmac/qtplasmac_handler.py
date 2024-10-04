@@ -1,4 +1,4 @@
-VERSION = '008.051'
+VERSION = '008.052'
 LCNCVER = '2.10'
 DOCSVER = LCNCVER
 
@@ -1859,7 +1859,7 @@ class HandlerClass:
 
     def ext_pause(self, state):
         if self.w.pause.isEnabled() and state:
-            ACTION.PAUSE()
+            ACTION.PAUSE_MACHINE()
 
     def ext_touch_off(self, state):
         if self.w.touch_xy.isEnabled() and state:
