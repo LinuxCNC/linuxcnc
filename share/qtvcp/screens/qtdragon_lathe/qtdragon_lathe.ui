@@ -11934,6 +11934,15 @@ LIFT</string>
                         <property name="Qjoint_number" stdset="0">
                          <number>3</number>
                         </property>
+                        <property name="showSetOrigin" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="showLast" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="showDivide" stdset="0">
+                         <bool>true</bool>
+                        </property>
                         <property name="homed" stdset="0">
                          <bool>false</bool>
                         </property>
@@ -11970,6 +11979,15 @@ LIFT</string>
                         </property>
                         <property name="Qjoint_number" stdset="0">
                          <number>1</number>
+                        </property>
+                        <property name="showSetOrigin" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="showLast" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="showDivide" stdset="0">
+                         <bool>true</bool>
                         </property>
                         <property name="homed" stdset="0">
                          <bool>false</bool>
@@ -12273,6 +12291,15 @@ LIFT</string>
                         <property name="Qjoint_number" stdset="0">
                          <number>4</number>
                         </property>
+                        <property name="showSetOrigin" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="showLast" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="showDivide" stdset="0">
+                         <bool>true</bool>
+                        </property>
                         <property name="homed" stdset="0">
                          <bool>false</bool>
                         </property>
@@ -12411,6 +12438,15 @@ LIFT</string>
                         </property>
                         <property name="Qjoint_number" stdset="0">
                          <number>0</number>
+                        </property>
+                        <property name="showSetOrigin" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="showLast" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="showDivide" stdset="0">
+                         <bool>true</bool>
                         </property>
                         <property name="homed" stdset="0">
                          <bool>false</bool>
@@ -14030,6 +14066,15 @@ ALL</string>
                         </property>
                         <property name="Qjoint_number" stdset="0">
                          <number>2</number>
+                        </property>
+                        <property name="showSetOrigin" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="showLast" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="showDivide" stdset="0">
+                         <bool>true</bool>
                         </property>
                         <property name="homed" stdset="0">
                          <bool>false</bool>
@@ -16248,7 +16293,7 @@ SCROLL</string>
                 <height>146</height>
                </size>
               </property>
-              <layout class="QGridLayout" name="gridLayout" rowstretch="0,0,0,0,0,0">
+              <layout class="QGridLayout" name="gridLayout" rowstretch="0,0,0,0,0">
                <property name="sizeConstraint">
                 <enum>QLayout::SetDefaultConstraint</enum>
                </property>
@@ -17808,7 +17853,7 @@ SCROLL</string>
              <number>2</number>
             </property>
             <property name="text">
-             <string>12:55:23 </string>
+             <string>08:48:27 PM</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -17929,7 +17974,7 @@ SCROLL</string>
   </customwidget>
   <customwidget>
    <class>GCodeGraphics</class>
-   <extends>QWidget</extends>
+   <extends>QOpenGLWidget</extends>
    <header>qtvcp.widgets.gcode_graphics</header>
    <container>1</container>
   </customwidget>
@@ -18869,4 +18914,3 @@ SCROLL</string>
   <buttongroup name="selectButtonGroup"/>
  </buttongroups>
 </ui>
-
