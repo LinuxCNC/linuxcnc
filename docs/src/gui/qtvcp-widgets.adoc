@@ -183,15 +183,15 @@ image::images/qthalbar.png["QtVCP HalBar: Panel demonstrating the HAL Bar Level 
 This widget is used to indicate level or value, usually of a HAL s32/float pin. +
 You can also disable the HAL pin and use Qt signals or Python commands to change the level. +
 
-==== Bar Properties:
-HalBar is a subclass of the Bar widget, so it inherits these properties  + 
+==== Bar Properties
+HalBar is a subclass of the Bar widget, so it inherits these properties: +
 
 * 'stepColorList': a list of color strings, the number of colors defines the number of bars.
 * 'backgroundColor': a QColor definition of the background color.
 * 'setMaximum': an integer that defines the maximum level of indication.
 * 'setMinimum': an integer that defines the lowest level of indication.
 
-==== halBar Properties:
+==== HalBar Properties
 
 * 'pinType': to select *HAL pins type*:
 ** `NONE` no HAL pin will be added

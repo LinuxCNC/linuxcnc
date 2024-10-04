@@ -34,12 +34,12 @@ operator[](int _n_);::
   Return the __n__^th^ component of the vector (x=0, y=1, z=2) +
   FIXME: Unclear.
 
-int operator==(PM_CARTESIAN _v1_, PM_CARTESIAN _v2_)::
-int operator!=(PM_CARTESIAN _v1_, PM_CARTESIAN _v2_)::
+int operator==(PM_CARTESIAN __v~1~_, PM_CARTESIAN __v~2~__)::
+int operator!=(PM_CARTESIAN __v~1~_, PM_CARTESIAN __v~2~__)::
   Elementwise equality and inequality operator
 
-PM_CARTESIAN operator+(PM_CARTESIAN _v1_, PM_CARTESIAN _v2_)::
-PM_CARTESIAN operator-(PM_CARTESIAN _v1_, PM_CARTESIAN _v2_)::
+PM_CARTESIAN operator+(PM_CARTESIAN __v~1~__, PM_CARTESIAN __v~2~__)::
+PM_CARTESIAN operator-(PM_CARTESIAN __v~1~__, PM_CARTESIAN __v~2~__)::
   Addition and subtraction of vectors
 
 PM_CARTESIAN operator*(double _s_, PM_CARTESIAN _v_)::
