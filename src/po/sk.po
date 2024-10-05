@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: sk\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-04-08 19:52+0200\n"
-"PO-Revision-Date: 2024-09-29 05:04+0000\n"
+"PO-Revision-Date: 2024-10-05 10:05+0000\n"
 "Last-Translator: Juraj Adamkovic <stroje.hcnc@gmail.com>\n"
 "Language-Team: Slovak <emc-developers@lists.sourceforge.net>\n"
 "Language: sk\n"
@@ -2622,8 +2622,7 @@ msgstr "%s pohyb na riadku %d prekračuje joint %d negatívny limit"
 
 #: src/emc/motion/command.c:584
 msgid "all joints must be homed before going into coordinated mode"
-msgstr ""
-"všetky jointy musia byť pred prechodom do koordinovaného režimu skalibrované"
+msgstr "Stroj musí byť skalibrovaný pred prechodom do koordinovaného režimu"
 
 #: src/emc/motion/command.c:776 src/emc/motion/command.c:844
 #: src/emc/motion/command.c:923
@@ -7231,7 +7230,7 @@ msgstr "Vložiť schránku do histórie MDI"
 #: src/emc/usr_intf/axis/scripts/axis.py:229 share/axis/tcl/axis.tcl:950
 #: src/emc/usr_intf/touchy/touchy.glade:518
 msgid "Override Limits"
-msgstr "Prepísať limity"
+msgstr "Uvolniť limit"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:231
 msgid "Open program"
