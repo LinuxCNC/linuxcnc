@@ -1095,11 +1095,14 @@ class HandlerClass:
         self.w.btn_touchplate.setEnabled(state)
 
     def chk_use_virtual_changed(self, state):
-        codestring = "CALCULATOR" if state else "ENTRY"
-        for i in ("0", "1", "2"):
-            self.w["axistoolbutton_" + i].set_dialog_code(codestring)
-        if self.probe:
-            self.probe.dialog_code = codestring
+        #TODO modal dialogs don"t work with vurtual keyboard. maybe if we use open istead of exec?
+        #codestring = "ENTRY" if state else "CALCULATOR"
+        #for num in range(0,5):
+        #    if num < len(INFO.AVAILABLE_AXES):
+        #        self.w["dro_axis_" + str(num)].setProperty("dialogName",codestring)
+        #        self.w["axis_select_" + str(num)].setProperty("dialog_code_string",codestring)
+        #if self.probe:
+        #    self.probe.dialog_code = codestring
         if not state:
             self.w.stackedWidget_dro.setCurrentIndex(0)
 
