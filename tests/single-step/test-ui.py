@@ -67,7 +67,7 @@ def wait_complete_step():
     This function instead waits for status.task.execState to tell us
     that Task is no longer waiting for Motion in any way.'''
 
-    timeout = 5.0
+    timeout = 15.0
     start = time.time()
 
     # Wait for the command to be acknowledged by Task (FIXME or is it motion?).
@@ -84,7 +84,7 @@ def wait_complete_step():
             return
         time.sleep(0.1)
 
-    raise SystemExit('timeout in wait_complete_step()')
+    raise SystemExit(f'error: timeout in wait_complete_step(), {timeout} seconds were not enough')
 
 
 # Take first three steps (these cause no motion).
