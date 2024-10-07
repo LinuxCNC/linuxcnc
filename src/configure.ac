@@ -1684,7 +1684,7 @@ fi
 AC_MSG_RESULT([$PYTHON_TK_VERSION])
 
 AC_MSG_CHECKING(for site-package location)
-SITEPY=`$PYTHON -c 'import distutils.sysconfig; print(distutils.sysconfig.get_python_lib())'`
+SITEPY=`$PYTHON -c 'import sysconfig; print(sysconfig.get_path("platlib"))'`
 AC_MSG_RESULT($SITEPY)
 
 AC_MSG_CHECKING(for working GLU quadrics)
