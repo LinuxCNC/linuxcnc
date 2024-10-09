@@ -272,7 +272,7 @@ int emcTaskSetMode(EMC_TASK_MODE mode)
     int retval = 0;
 
     if (jogging_is_active()) {
-        emcOperatorError("Ignoring task mode change while jogging");
+        rcs_print("Ignoring task mode change while jogging");
         return 0;
     }
 
