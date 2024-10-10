@@ -1,14 +1,15 @@
 # nicolas <nicolas.camil@libertysurf.fr>, 2022, 2023.
 # Jérémie Tarot <silopolis@gmail.com>, 2023.
-# Xavier Soltner <soltner.xavier2@gmail.com>, 2023.
+# Xavier Soltner <soltner.xavier2@gmail.com>, 2023, 2024.
 # Axel BRUA <axel.brua.19@gmail.com>, 2024.
+# Paul Sauvignac <paul.sauvignac@gmail.com>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: fr\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-10-05 14:29+0200\n"
-"PO-Revision-Date: 2024-01-28 03:22+0000\n"
-"Last-Translator: Axel BRUA <axel.brua.19@gmail.com>\n"
+"PO-Revision-Date: 2024-10-07 13:42+0000\n"
+"Last-Translator: Xavier Soltner <soltner.xavier2@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "fr/>\n"
 "Language: fr\n"
@@ -16,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.4-dev\n"
+"X-Generator: Weblate 5.8-dev\n"
 
 #: src/emc/task/emctaskmain.cc:868
 #, c-format
@@ -163,9 +164,8 @@ msgid "J word with no G2, G3, G5, G5.1, G6, G6.1, G10, G76 or G87 to use it"
 msgstr "Mot J sans G2, G3, G5, G5.1, G10, G76 ou G87 l'utilisant"
 
 #: src/emc/rs274ngc/interp_check.cc:305
-#, fuzzy
 msgid "K word with no G2, G3, G6.2, G33, G33.1, G76, or G87 to use it"
-msgstr "Mot K sans G2, G3, G33, G33.1, G76 ou G87 l'utilisant"
+msgstr "Paramètre K sans G2, G3, G33, G33.1, G76 ou G87 l'utilisant"
 
 #: src/emc/rs274ngc/interp_check.cc:317
 msgid ""
@@ -176,13 +176,12 @@ msgstr ""
 "analogique, M98 ou code NURBS"
 
 #: src/emc/rs274ngc/interp_check.cc:334
-#, fuzzy
 msgid ""
 "P word with no G2 G3 G4 G10 G64 G5 G5.2 G6, G6.2, G76 G82 G86 G88 G89 or M50 "
 "M51 M52 M53 M62 M63 M64 M65 M66 M98 or user M code to use it"
 msgstr ""
-"Mot P sans G2 G3 G4 G10 G64 G5 G5.2 G76 G82 G86 G88 G89, ou M50 M51 M52 M53 "
-"M62 M63 M64 M65 M66 M98, ni code M utilisateur l'utilisant"
+"Paramètre P sans G2 G3 G4 G10 G64 G5 G5.2 G76 G82 G86 G88 G89, ou M50 M51 "
+"M52 M53 M62 M63 M64 M65 M66 M98, ni code M utilisateur pour la commande"
 
 #: src/emc/rs274ngc/interp_check.cc:340
 msgid "P value not an integer with M19 G2 or G3"
@@ -197,13 +196,12 @@ msgid "P value should be 1 or greater with G2 or G3"
 msgstr "Valeur de P doit être 1 ou plus avec G2 ou G3"
 
 #: src/emc/rs274ngc/interp_check.cc:355
-#, fuzzy
 msgid ""
 "Q word with no G5, G6, G10, G64, G73, G76, G83, M19, M66, M67, M68 or user M "
 "code that uses it"
 msgstr ""
-"Mot Q sans G5, G10, G64, G73, G76, G83, M19, M66, M67, M68 ou code M "
-"utilisateur l'utilisant"
+"Paramètre Q sans G5, G10, G64, G73, G76, G83, M19, M66, M67, M68 ou code M  "
+"ni code M utilisateur pour la commande"
 
 #: src/emc/rs274ngc/interp_check.cc:368
 msgid "R value must be within 0..360 with M19"
@@ -223,13 +221,10 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:199
 #: src/emc/rs274ngc/interp_convert.cc:387
-#, fuzzy
 msgid "You must specify both Y and Z coordinates for Control Points"
-msgstr ""
-"Vous devez spécifier les coordonnées X et Y pour les points de contrôle"
+msgstr "Vous devez spécifier les coordonnées Y et Z pour les points de contrôle"
 
 #: src/emc/rs274ngc/interp_convert.cc:204
-#, fuzzy
 msgid "Can specify P without Y and Z only for the first control point"
 msgstr ""
 "Possibilité de spécifier P sans X et Y, seulement pour le premier point de "
@@ -237,16 +232,13 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:211
 #: src/emc/rs274ngc/interp_convert.cc:394
-#, fuzzy
 msgid "You must specify both X and Z coordinates for Control Points"
-msgstr ""
-"Vous devez spécifier les coordonnées X et Y pour les points de contrôle"
+msgstr "Vous devez spécifier les coordonnées X et Z pour les points de contrôle"
 
 #: src/emc/rs274ngc/interp_convert.cc:216
-#, fuzzy
 msgid "Can specify P without X and Z only for the first control point"
 msgstr ""
-"Possibilité de spécifier P sans X et Y, seulement pour le premier point de "
+"Possibilité de spécifier P sans X et Z, seulement pour le premier point de "
 "contrôle"
 
 #: src/emc/rs274ngc/interp_convert.cc:222
@@ -276,32 +268,31 @@ msgstr "Un plan doit être sélectionné pour des courbes nurbs: XY, YZ, ZX"
 
 #: src/emc/rs274ngc/interp_convert.cc:400
 msgid "Program the nurbs order P in the first block of instruction"
-msgstr ""
+msgstr "Programmer l'ordre P du nurbs dans le premier bloc d'instruction"
 
 #: src/emc/rs274ngc/interp_convert.cc:404
-#, fuzzy
 msgid "nurbs order P number is not an integer"
-msgstr "Le nombre Q dans G10 n'est pas un entier"
+msgstr "L'ordre P du nurbs n'est pas un entier"
 
 #: src/emc/rs274ngc/interp_convert.cc:410
 msgid ""
 "Program the nurbs Q value (1,2,3) in the first block of nurbs instruction"
 msgstr ""
+"Programmer la valeur Q (1,2,3) du nurbs dans le premier bloc d'instruction "
+"nurbs"
 
 #: src/emc/rs274ngc/interp_convert.cc:415
-#, fuzzy
 msgid "nurbs Q value not in range 1 to 3"
-msgstr "Bogue : code hors gamme g54 a g593"
+msgstr "Valeur Q du nurbs doit être entre 1 et 3"
 
 #: src/emc/rs274ngc/interp_convert.cc:417
-#, fuzzy
 msgid "nurbs Q number is not an integer"
-msgstr "Le nombre Q dans G10 n'est pas un entier"
+msgstr "Paramètre Q du nurbs n'est pas un entier"
 
 #: src/emc/rs274ngc/interp_convert.cc:423
-#, fuzzy
 msgid "Must specify positive nurbs weight R for every Control Point"
-msgstr "Un poids P positif doit être spécifié pour chaque point de contrôle"
+msgstr ""
+"Un poids R positif doit être spécifié pour chaque point de contrôle nurbs"
 
 #: src/emc/rs274ngc/interp_convert.cc:428
 #, fuzzy
@@ -12064,7 +12055,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid "_:"
+msgid ""
+"_:"
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249

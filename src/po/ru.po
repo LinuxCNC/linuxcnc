@@ -14,9 +14,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: emc 2.2.8\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-10-05 14:29+0200\n"
-"PO-Revision-Date: 2024-05-14 07:44+0000\n"
+"PO-Revision-Date: 2024-10-06 13:48+0000\n"
 "Last-Translator: Ilya Koubatkin <ilya@kubatkin.ru>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/ru/>\n"
@@ -26,7 +26,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 5.5.5\n"
+"X-Generator: Weblate 5.8-dev\n"
 
 #: src/emc/task/emctaskmain.cc:868
 #, c-format
@@ -1360,14 +1360,12 @@ msgid "F word missing with inverse time g1 move"
 msgstr "F-слово не задано в движении G1 с инверсным временем"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:80
-#, fuzzy
 msgid "File ended with no percent sign (%)"
-msgstr "Файл закончился без знака процента"
+msgstr "Файл заканчивается без знака процента (%)"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:81
-#, fuzzy
 msgid "File ended with no percent sign (%) or program end (M2)"
-msgstr "Файл закончился без знака процента или конца программы"
+msgstr "Файл закончился без знака процента (%) или с концом программы (M2)"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:82
 msgid "File name too long"
@@ -8177,9 +8175,8 @@ msgid "_Save G-code as..."
 msgstr "_Сохранить G-код как..."
 
 #: share/axis/tcl/axis.tcl:80
-#, fuzzy
 msgid "G-code _properties..."
-msgstr "Свойства G-кода"
+msgstr "Свойства G-кода..."
 
 #: share/axis/tcl/axis.tcl:86
 msgid "Edit _tool data..."
@@ -11749,7 +11746,8 @@ msgstr "Обратное"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid "_:"
+msgid ""
+"_:"
 msgstr "пусто"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -20162,13 +20160,15 @@ msgstr "Ошибка плавающего виджета редактирова�
 
 #: lib/python/gladevcp/tooledit_widget.py:334
 msgid "Something wrong with the locale settings. Will not save the tool table."
-msgstr ""
+msgstr "Что-то не так с настройками locale . Не сохранит таблицу инструментов."
 
 #: lib/python/gladevcp/tooledit_widget.py:356
 msgid ""
 "Error converting a float with the given localization setting. A backup file "
 "has been created: "
 msgstr ""
+"Ошибка преобразования float с заданной настройкой локализации. Резервный "
+"файл создан: "
 
 #: lib/python/gladevcp/tooledit_widget.py:368
 msgid "Reloading tooltable into linuxcnc failed"
