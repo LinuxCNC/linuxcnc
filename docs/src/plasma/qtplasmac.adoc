@@ -3719,7 +3719,9 @@ The following HAL bit pins are always created. The HAL pin has the identical beh
 |User Button Function |HAL Pin |GUI Function
 |Toggle machine power m|qtplasmac.ext_power |POWER
 |Run the loaded G-code program m|qtplasmac.ext_run |CYCLE START
-|Pause/Resume the loaded G-code program m|qtplasmac.ext_pause |CYCLE PAUSE
+|Pause/Resume the loaded G-code program m|qtplasmac.ext_pause |CYCLE PAUSE/CYCLE RESUME
+|Pause the loaded G-code program m|qtplasmac.ext_pause_only |CYCLE PAUSE
+|Resume the loaded G-code program m|qtplasmac.ext_resume |CYCLE RESUME
 |Abort the loaded G-code program m|qtplasmac.ext_abort |CYCLE STOP
 |Touchoff X & Y axes to zero m|qtplasmac.ext_touchoff |X0Y0
 |Use a laser to set an origin with or without rotation m|qtplasmac.ext_laser_touchoff |LASER

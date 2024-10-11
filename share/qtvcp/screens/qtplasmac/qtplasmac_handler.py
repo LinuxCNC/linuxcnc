@@ -1,4 +1,4 @@
-VERSION = '008.052'
+VERSION = '008.053'
 LCNCVER = '2.10'
 DOCSVER = LCNCVER
 
@@ -836,9 +836,11 @@ class HandlerClass:
         self.extOhmicPin = self.h.newpin('ext_ohmic', hal.HAL_BIT, hal.HAL_IN)
         self.extOhmicProbeEnablePin = self.h.newpin('ext_ohmic_probe_enable', hal.HAL_BIT, hal.HAL_IN)
         self.extPausePin = self.h.newpin('ext_pause', hal.HAL_BIT, hal.HAL_IN)
+        self.extPauseOnlyPin = self.h.newpin('ext_pause_only', hal.HAL_BIT, hal.HAL_IN)
         self.extPowerPin = self.h.newpin('ext_power', hal.HAL_BIT, hal.HAL_IN)
         self.extProbePin = self.h.newpin('ext_probe', hal.HAL_BIT, hal.HAL_IN)
         self.extPulsePin = self.h.newpin('ext_pulse', hal.HAL_BIT, hal.HAL_IN)
+        self.extResumePin = self.h.newpin('ext_resume', hal.HAL_BIT, hal.HAL_IN)
         self.extRunPausePin = self.h.newpin('ext_run_pause', hal.HAL_BIT, hal.HAL_IN)
         self.extRunPin = self.h.newpin('ext_run', hal.HAL_BIT, hal.HAL_IN)
         self.extThcEnablePin = self.h.newpin('ext_thc_enable', hal.HAL_BIT, hal.HAL_IN)
@@ -1858,8 +1860,19 @@ class HandlerClass:
             self.abort_pressed()
 
     def ext_pause(self, state):
-        if self.w.pause.isEnabled() and state:
+        if self.w.pause_resume.isEnabled() and state:
+            if STATUS.stat.paused:
+                self.pause_resume_pressed()
+            ACTION.PAUSE()
+
+    def ext_pause_only(self, state):
+        if self.w.pause_resume.isEnabled() and state:
             ACTION.PAUSE_MACHINE()
+
+    def ext_resume(self, state):
+        if self.w.pause_resume.isEnabled() and state:
+            self.pause_resume_pressed()
+            ACTION.RESUME()
 
     def ext_touch_off(self, state):
         if self.w.touch_xy.isEnabled() and state:
@@ -1885,7 +1898,9 @@ class HandlerClass:
     def ext_run_pause(self, state):
         if self.w.run.isEnabled() and state:
             self.run_clicked()
-        elif self.w.pause.isEnabled() and state:
+        elif self.w.pause_resume.isEnabled() and state:
+            if STATUS.stat.paused:
+                self.pause_resume_pressed()
             ACTION.PAUSE()
 
     def power_button(self, action, state):
@@ -2031,7 +2046,7 @@ class HandlerClass:
             log = _translate('HandlerClass', 'Cycle aborted')
             STATUS.emit('update-machine-log', log, 'TIME')
 
-    def pause_pressed(self):
+    def pause_resume_pressed(self):
         if hal.get_value('plasmac.cut-recovering'):
             self.w.jog_stack.setCurrentIndex(self.JOG)
             self.laserOnPin.set(0)
@@ -2358,7 +2373,7 @@ class HandlerClass:
                 self.cutrec_buttons_enable(True)
                 self.cutrec_motion_enable(True)
                 if STATUS.is_interp_paused():
-                    self.w.pause.setEnabled(True)
+                    self.w.pause_resume.setEnabled(True)
                     self.w[self.ccButton].setEnabled(True)
                     if self.tpButton and self.w.torch_enable.isChecked():
                         self.w[self.tpButton].setEnabled(True)
@@ -2916,7 +2931,7 @@ class HandlerClass:
         self.w.power.released.connect(lambda: self.power_button("released", False))
         self.w.power.clicked.connect(lambda: self.power_button("clicked", None))
         self.w.run.clicked.connect(self.run_clicked)
-        self.w.pause.pressed.connect(self.pause_pressed)
+        self.w.pause_resume.pressed.connect(self.pause_resume_pressed)
         self.w.abort.pressed.connect(self.abort_pressed)
         self.w.file_reload.clicked.connect(self.file_reload_clicked)
         self.w.jog_slow.pressed.connect(self.jog_slow_pressed)
@@ -3103,6 +3118,8 @@ class HandlerClass:
         self.extPowerPin.value_changed.connect(lambda v: self.power_button("external", v))
         self.extRunPin.value_changed.connect(lambda v: self.ext_run(v))
         self.extPausePin.value_changed.connect(lambda v: self.ext_pause(v))
+        self.extPauseOnlyPin.value_changed.connect(lambda v: self.ext_pause_only(v))
+        self.extResumePin.value_changed.connect(lambda v: self.ext_resume(v))
         self.extAbortPin.value_changed.connect(lambda v: self.ext_abort(v))
         self.extTouchOffPin.value_changed.connect(lambda v: self.ext_touch_off(v))
         self.extLaserTouchOffPin.value_changed.connect(lambda v: self.ext_laser_touch_off(v))
@@ -3679,7 +3696,7 @@ class HandlerClass:
     def set_tab_jog_states(self, state):
         if STATUS.is_auto_paused():
             if self.torchPulse:
-                self.w.pause.setEnabled(state)
+                self.w.pause_resume.setEnabled(state)
             for n in range(self.w.main_tab_widget.count()):
                 if n > 1:
                     self.w.main_tab_widget.setTabEnabled(n, state)
@@ -3787,7 +3804,7 @@ class HandlerClass:
         self.w.run.setEnabled(False)
         if self.frButton:
             self.w[self.frButton].setEnabled(False)
-        self.w.pause.setEnabled(False)
+        self.w.pause_resume.setEnabled(False)
         self.w.abort.setEnabled(False)
         self.w.gcode_display.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.view_t_pressed(self.w.gcodegraphics)
@@ -3823,11 +3840,11 @@ class HandlerClass:
     def flasher_timeout(self):
         if STATUS.is_auto_paused():
             if self.flashState:
-                self.w.pause.setText(_translate('HandlerClass', 'CYCLE RESUME'))
+                self.w.pause_resume.setText(_translate('HandlerClass', 'CYCLE RESUME'))
             else:
-                self.w.pause.setText('')
+                self.w.pause_resume.setText('')
         elif self.w.jog_stack.currentIndex() == self.JOG:
-            self.w.pause.setText(_translate('HandlerClass', 'CYCLE PAUSE'))
+            self.w.pause_resume.setText(_translate('HandlerClass', 'CYCLE PAUSE'))
         text = _translate('HandlerClass', 'FEED')
         if self.w.feed_slider.value() != 100:
             if self.flashState:
@@ -4577,7 +4594,7 @@ class HandlerClass:
             self.w.run.setEnabled(False)
             if self.frButton:
                 self.w[self.frButton].setEnabled(False)
-            self.w.pause.setEnabled(False)
+            self.w.pause_resume.setEnabled(False)
             if not self.ccXpos:
                 self.ccXpos = STATUS.get_position()[0][0]
             if self.ccXpos < round(self.xMin, 6) + (10 * self.unitsPerMm):
@@ -6168,8 +6185,9 @@ class HandlerClass:
         if self.key_is_valid(event, state) and cntrl and not shift and self.w.main_tab_widget.currentIndex() == self.MAIN:
             if self.w.run.isEnabled():
                 self.run_clicked()
-            elif self.w.pause.isEnabled():
-                ACTION.PAUSE()
+            elif self.w.pause_resume.isEnabled() and STATUS.stat.paused:
+                self.pause_resume_pressed()
+                ACTION.RESUME()
 
     def on_keycall_PAUSE(self, event, state, shift, cntrl):
         if self.key_is_valid(event, state) and not shift and self.w.main_tab_widget.currentIndex() == self.MAIN:
@@ -6177,7 +6195,7 @@ class HandlerClass:
                 if self.w.screen_options.desktop_notify:
                     self.w.screen_options.QTVCP_INSTANCE_._NOTICE.external_close()
                 self.error_status(False)
-            elif self.w.pause.isEnabled() and STATUS.stat.interp_state != linuxcnc.INTERP_PAUSED:
+            elif self.w.pause_resume.isEnabled() and not STATUS.stat.paused:
                 ACTION.PAUSE()
 
     def on_keycall_OPEN(self, event, state, shift, cntrl):
