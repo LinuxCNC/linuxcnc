@@ -90,12 +90,14 @@ else
 fi
 export PYTHONPATH
 
-if [ -z "$TCLLIBPATH" ]; then
-    TCLLIBPATH=$LINUXCNC_HOME/lib/tcltk
-else
-    TCLLIBPATH=$LINUXCNC_HOME/lib/tcltk:"$TCLLIBPATH"
+if test "xyes" != "x@RUN_IN_PLACE@"; then
+    if [ -z "$TCLLIBPATH" ]; then
+         TCLLIBPATH=$LINUXCNC_HOME/lib/tcltk
+    else
+        TCLLIBPATH=$LINUXCNC_HOME/lib/tcltk:"$TCLLIBPATH"
+    fi
+    export TCLLIBPATH
 fi
-export TCLLIBPATH
 
 
 MODULE_EXT=@MODEXT@ # module extension, used when insmod'ing
