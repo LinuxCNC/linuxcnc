@@ -51,7 +51,7 @@ class _PStat(object):
             self.VISMACHDIR = os.path.join(self.LIBDIR, "qt_vismach")
 
             # share directory moves when using RIP vrs installed
-            home = os.environ.get('EMC2_HOME', '/usr')
+            home = os.environ.get('LINUXCNC_HOME', '/usr')
             if home is not None:
                 self.SHAREDIR = os.path.join(home,"share", "qtvcp")
             self.IMAGEDIR = os.path.join(self.SHAREDIR,  "images")

@@ -20,7 +20,7 @@ except:
 
 INIPATH = os.environ.get('INI_FILE_NAME', '/dev/null')
 
-HOME = os.environ.get('EMC2_HOME', '/usr')
+HOME = os.environ.get('LINUXCNC_HOME', '/usr')
 if HOME is not None:
     IMAGEDIR = os.path.join(HOME, "share", "qtvcp", "images")
 else:
