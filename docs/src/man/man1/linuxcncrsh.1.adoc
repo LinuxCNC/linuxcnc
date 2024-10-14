@@ -194,7 +194,7 @@ Subcommands for *get* and *set* are:
 
 *ini* _<var>_ _<section>_::
   Not currently implemented, do not use!
-  Should return the string value of _<var>_ in section <section> of the INI file.
+  Should return the string value of _<var>_ in section _<section>_ of the INI file.
 
 *debug* _<value>_::
   With get, any parameter is ignored and the current integer value of
@@ -327,18 +327,18 @@ _jog joint_number_ | _axis_letter_ _<speed>_::
   With get, returns the specified joint's actual position in absolute coordinates, excluding tool length offset.
   If no joint is specified, returns all joints' actual absolute position.
 
-*pos_offset [{X|Y|Z|R|P|W}]*
+*pos_offset [{X|Y|Z|R|P|W}]*::
   With get, returns the position offset associated with the world coordinate provided.
 
-*joint_limit [{0|1|...}]*
+*joint_limit [{0|1|...}]*::
   With get, returns limit status of the specified joint as "ok", "minsoft", "minhard", "maxsoft", or "maxhard".
   If no joint number is specified, returns the limit status of all joints.
 
-*joint_fault [{0|1|...}]*
+*joint_fault [{0|1|...}]*::
   With get, returns the fault status of the specified joint as "ok" or "fault".
   If no joint number is specified, returns the fault status of all joints.
 
-*joint_homed [{0|1|...}]*
+*joint_homed [{0|1|...}]*::
   With get, returns the homed status of the specified joint as "homed" or "not".
   If no joint number is specified, returns the homed status of all joints.
 

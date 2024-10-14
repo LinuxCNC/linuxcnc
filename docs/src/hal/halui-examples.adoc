@@ -10,8 +10,7 @@
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
-For any Halui examples to work you need to add the following line to the [HAL]
-section of the ini file.
+For any Halui examples to work you need to add the following line to the [HAL] section of the INI file.
 
 [source,{ini}]
 ----
@@ -23,14 +22,12 @@ HALUI = halui
 
 To connect a remote program start button to LinuxCNC you use the
 `halui.program.run` pin and the `halui.mode.auto` pin.
-You have to insure that it is OK to run first by using the
-`halui.mode.is-auto` pin. You do this with an `and2`
-component. The following figure shows how this is done.
-When the Remote Run Button is pressed it is connected to
-both `halui.mode.auto` and `and2.0.in0`. If it is OK for
-auto mode the pin `halui.mode.is-auto` will be on.
-If both the inputs to the `and2.0` component are on the
-`and2.0.out` will be on and this will start the program.
+You have to ensure that it is OK to run first by using the `halui.mode.is-auto` pin.
+You do this with an `and2` component. The following figure shows how this is done.
+When the Remote Run Button is pressed it is connected to both `halui.mode.auto` and `and2.0.in0`.
+If it is OK for auto mode the pin `halui.mode.is-auto` will be on.
+If both the inputs to the `and2.0` component are on the `and2.0.out` will be on
+and this will start the program.
 
 .Remote Start Example
 image::images/remote-start.png["Remote Start Example"]
@@ -74,9 +71,8 @@ net ispaused halui.program.is paused => "your output pin"
 net resume halui.program.resume <= "your input pin"
 ----
 
-Your input and output pins are connected to the pins
-wired to the other controller. They may be parallel port
-pins or any other I/O pins that you have access to.
+Your input and output pins are connected to the pins wired to the other controller.
+They may be parallel port pins or any other I/O pins that you have access to.
 
 This system works in the following way. When an M0 is
 encountered in your G-code, the `halui.program.is-paused`

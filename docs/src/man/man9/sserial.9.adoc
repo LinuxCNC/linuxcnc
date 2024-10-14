@@ -182,7 +182,8 @@ for example `hm2_5i23.0.7i64.1.3.output-01`.
 
 *Pins:*
 
-7i64.0.0.output-__NN__ (bit, in):: Writing a 1 or TRUE to this pin will enable output driver NN.
+7i64.0.0.output-__NN__ (bit, in)::
+ Writing a 1 or TRUE to this pin will enable output driver _NN_.
  Note that the outputs are drivers (switches) rather than voltage outputs.
  The LED adjacent to the connector on the board shows the status.
  The output can be inverted by setting a parameter.
@@ -227,7 +228,8 @@ whereas the smart-serial pins are associated with the 7I76 (`hm2_5i25.0.7i76.0.0
 
 .7i76.0.0.nvbaudrate (u32 ro):: Indicates the vbaud rate. This probably should not be altered.
 
-.7i76.0.0.nvunitnumber (u32 ro):: Indicates the serial number of the device and should match a sticker on the card.
+.7i76.0.0.nvunitnumber (u32 ro)::
+ Indicates the serial number of the device and should match a sticker on the card.
  This can be useful for working out which card is which.
 
 .7i76.0.0.nvwatchdogtimeout (u32 ro):: The sserial remote watchdog timeout.

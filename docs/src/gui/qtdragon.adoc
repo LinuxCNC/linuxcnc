@@ -965,7 +965,9 @@ Setup steps include:
 * Enabling "Use Tool Sensor" under Settings.
 
 [IMPORTANT]
-When fist setting up auto tool measurement, please use caution until you confirm tool change and probe locations - it is easy to break a tool/probe. Abort will be honoured while the probe is in motion.
+When fist setting up auto tool measurement, please use caution
+until you confirm tool change and probe locations - it is easy to break a tool/probe.
+Abort will be honoured while the probe is in motion.
 
 Tool Measurement in QtDragon is organized into the following steps which will be explained in more detail in the following section:
 
@@ -1008,13 +1010,15 @@ MAXPROBE distance needs to be high enough for the tool to touch the probe.
 
 The following setups need only be done once as long as they remain in effect:
 
-. Under Probe Tool Screens: Insure reasonable values for "Rapid" and "Search," these are the speeds at which the probing will be performed and are in machine units per minute. +
-. Under Probe Tool Screens: insure that "Tool Measure" is enabled (this is a button that must be highlighted)
-. Under Settings: insure that "Use Tool Sensor" is enabled (this is a tick-box that must be checked)
-. In the Tool Table: setup a tool for the spindle probe and insure that its Z offset is set to zero.
+. Under Probe Tool Screens: Ensure reasonable values for "Rapid" and "Search," these are the speeds at which the probing will be performed and are in machine units per minute. +
+. Under Probe Tool Screens: Ensure that "Tool Measure" is enabled (this is a button that must be highlighted)
+. Under Settings: Ensure that "Use Tool Sensor" is enabled (this is a tick-box that must be checked)
+. In the Tool Table: Set-up a tool for the spindle probe and ensure that its Z offset is set to zero.
 
 [NOTE]
-It is possible to use a non-zero tool length for the tool probe, but this requires extra steps and is easy to make mistakes. The following procedure assumes a zero tool probe length.
+It is possible to use a non-zero tool length for the tool probe,
+but this requires extra steps and is easy to make mistakes.
+The following procedure assumes a zero tool probe length.
 
 ==== Procedure before starting a program
 
