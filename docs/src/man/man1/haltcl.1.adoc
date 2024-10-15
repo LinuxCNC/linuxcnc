@@ -10,7 +10,9 @@ haltcl - manipulate the LinuxCNC HAL from the command line using a Tcl interpret
 
 == DESCRIPTION
 
-*haltcl* is used to manipulate the HAL (Hardware Abstraction Layer) from
+Tcl is a scripting language from the 90s that is very easy to extend.  *Haltcl*
+extends the regular Tcl interpreter with a set of commands to interact with HAL, i.e.
+it allows to manipulate the HAL (Hardware Abstraction Layer) from
 the command line using a Tcl interpreter. *haltcl* can optionally read
 commands from a file (filename), allowing complex HAL configurations to
 be set up with a single command.
@@ -47,9 +49,9 @@ SECTION_B(ITEM_1) = 10
 
 == COMMANDS
 
-*haltcl* includes the commands of a Tcl interpreter augmented with
-commands for the hal language as described for *halcmd*(1). The
-augmented commands can be listed with the command:
+The executable  *haltcl* includes the commands of a Tcl interpreter augmented with
+commands for the hal language as described for *halcmd*(1).
+The augmented commands can be listed with the command:
 
 ----
 haltcl: hal --commands
@@ -65,7 +67,8 @@ treatment to avoid conflict with Tcl built-in commands having the same
 names. To use these commands, precede them with the keyword 'hal':
 
 ----
-hal list hal gets
+hal list
+hal gets
 ----
 
 == REPORTING BUGS

@@ -16,26 +16,25 @@ halrun - manipulate the LinuxCNC HAL from the command line
 
 == DESCRIPTION
 
-*halrun* is a convenience script used to manipulate the HAL (Hardware
+The convenience script *halrun* can manipulate the HAL (Hardware
 Abstraction Layer) from the command line. When invoked, *halrun*:
 
-Sets up the realtime environment. Executes a command interpreter
-(*halcmd* or *haltcl*). (Optionally) runs an interactive session. Tears
-down the realtime environment.
+* Sets up the realtime environment.
+* Executes a command interpreter (*halcmd* or *haltcl*).
+* (Optionally) runs an interactive session.
+* Tears down the realtime environment.
 
-If no filename is specified, an interactive session is started. The
-session will use *halcmd*(1) unless -T is specified in which case
-*haltcl*(1) will be used.
+If no filename is specified, an interactive session is started.
+The session will use *halcmd*(1) unless -T is specified in which case *haltcl*(1) will be used.
 
-If a filename is specified and neither the -I nor the -T option is
-included, the filename will be processed by the command interpreter
-corresponding to the filename extension (*halcmd* or *haltcl*). After
-processing, the realtime environment will be torn down.
+If a filename is specified and neither the -I nor the -T option is included,
+the filename will be processed by the command interpreter
+corresponding to the filename extension (*halcmd* or *haltcl*).
+After processing, the realtime environment will be torn down.
 
-If a filename is specified and the -I or -T option is included, the file
-is processed by the appropriate command interpreter and then an
-interactive session is started for *halcmd* or *haltcl* according to the
--I or -T option.
+If a filename is specified and the -I or -T option is included,
+the file is processed by the appropriate command interpreter and then an
+interactive session is started for *halcmd* or *haltcl* according to the -I or -T option.
 
 == OPTIONS
 
@@ -52,7 +51,7 @@ interactive session is started for *halcmd* or *haltcl* according to the
   mutex, requests that all HAL components unload, and stops the realtime
   system. *-U* must be the only commandline argument.
 *-h*::
-  display a brief help screen and exit
+  Display a brief help screen and exit.
 
 == BUGS
 

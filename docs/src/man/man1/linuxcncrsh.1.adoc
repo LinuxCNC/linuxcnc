@@ -65,7 +65,7 @@ specify it in your INI file like this:
 DISPLAY=linuxcncrsh
 ----
 
-To use `linuxcncrsh` in addition to a normal GUI, you can either
+To use linuxcncrsh in addition to a normal GUI, you can either
 1. start it at the end of your HAL file, or
 2. run it by hand in a terminal window.
 
