@@ -300,9 +300,10 @@ exact program specified value of the S-word
 When adaptive feed is enabled, some external input value is used together
 with the user interface feed override value and the commanded feed rate
 to set the actual feed rate. In LinuxCNC, the HAL pin 'motion.adaptive-feed'
-is used for this purpose. Values on 'motion.adaptive-feed' should range
-from -1 (programmed speed in reverse) to 1 (full speed). 0 is equivalent
-to feed-hold.
+is used for this purpose. The range for 'motion.adaptive-feed' is defined
+by the MAX_FEED_OVERRIDE value in the [DISPLAY] section of the ini file
+and will be limited to a range of -MAX_FEED_OVERRIDE to MAX_FEED_OVERRIDE.
+0 is equivalent to feed-hold.
 
 [NOTE]
 The use of negative adaptive-feed for reverse run is a new

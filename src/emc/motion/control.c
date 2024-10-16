@@ -380,11 +380,11 @@ static void process_inputs(void)
     if ( enables & AF_ENABLED ) {
         /* read and clamp adaptive feed HAL pin */
         double adaptive_feed_in = *emcmot_hal_data->adaptive_feed;
-        // Clip range to +/- 1.0
-        if ( adaptive_feed_in > 1.0 ) {
-            adaptive_feed_in = 1.0;
-        } else if (adaptive_feed_in < -1.0) {
-            adaptive_feed_in = -1.0;
+        // Clip range to +/- MAX_FEED_OVERRIDE from the [DISPLAY] section of the ini file
+        if (adaptive_feed_in > emcmotConfig->maxFeedScale) {
+            adaptive_feed_in = emcmotConfig->maxFeedScale;
+        } else if (adaptive_feed_in < -emcmotConfig->maxFeedScale) {
+            adaptive_feed_in = -emcmotConfig->maxFeedScale;
         }
         // Handle case of negative adaptive feed
         // Actual scale factor is always positive by default
