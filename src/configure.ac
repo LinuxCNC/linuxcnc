@@ -1653,12 +1653,28 @@ fi
 AC_MSG_RESULT([$PYTHON_TK_VERSION])
 
 AC_MSG_CHECKING(for site-package location)
-# Call sysconfig.get_path("platlib", "deb_system") for Debian systems else sysconfig.get_path("platlib", "posix_prefix")
-SITEPY=`$PYTHON -c 'import sysconfig; print(sysconfig.get_path("platlib", "deb_system" if "deb_system" in sysconfig.get_scheme_names() else "posix_prefix"))'`
+# Call sysconfig.get_path("platlib", "deb_system") for Debian >= 12 systems
+# Call sysconfig.get_path("platlib", "rpm_prefix") for non-Debian systems
+# Set SITEPY to /usr/lib/python3/site-packages for all other (covering Debian <= 11 systems)
+SCHEME=`$PYTHON -c 'import sysconfig; print("deb_system" if "deb_system" in sysconfig.get_scheme_names() else "")'`
+if test "x$SCHEME" = "xdeb_system"; then
+  AC_MSG_NOTICE([Scheme deb_system found, assuming Debian >= 12])
+  SITEPY=`$PYTHON -c 'import sysconfig; print(sysconfig.get_path("platlib", "deb_system"))'`
+else
+  SCHEME=`$PYTHON -c 'import sysconfig; print("rpm_prefix" if "rpm_prefix" in sysconfig.get_scheme_names() else "")'`
+  if test "x$SCHEME" = "xrpm_prefix"; then
+    AC_MSG_NOTICE([Scheme rpm_prefix found, assuming non-Debian])
+    SITEPY=`$PYTHON -c 'import sysconfig; print(sysconfig.get_path("platlib", "rpm_prefix"))'`
+  else
+    AC_MSG_NOTICE([Neither scheme deb_system nor rpm_prefix found, assuming Debian <= 11])
+    SITEPY=/usr/lib/python3/site-packages
+  fi
+fi
+
 if test "x$SITEPY" = "x"; then
     AC_MSG_ERROR([sysconfig.get_path() returned no result])
 fi
-AC_MSG_RESULT($SITEPY)
+AC_MSG_RESULT([SITEPY: $SITEPY])
 
 AC_MSG_CHECKING(for working GLU quadrics)
 AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
