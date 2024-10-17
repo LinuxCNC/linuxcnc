@@ -1667,7 +1667,7 @@ else
     SITEPY=`$PYTHON -c 'import sysconfig; print(sysconfig.get_path("platlib", "rpm_prefix"))'`
   else
     AC_MSG_NOTICE([Neither scheme deb_system nor rpm_prefix found, assuming Debian <= 11])
-    SITEPY=/usr/lib/python3/site-packages
+    SITEPY=/usr/lib/python3/dist-packages
   fi
 fi
 
