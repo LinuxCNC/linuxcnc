@@ -95,7 +95,7 @@ PC.03 = 1::
     Set number of data bits to _N_.
     _N_ must be between 5 and 8 inclusive.
 
-*-p*, *--parity* [Even,Odd,None]
+*-p*, *--parity* [Even,Odd,None]::
     (default None) For Modbus communication.
     Set serial parity to Even, Odd, or None.
 
