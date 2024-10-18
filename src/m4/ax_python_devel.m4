@@ -133,7 +133,7 @@ variable to configure. See ``configure --help'' for reference.
 	fi
 
 	#
-	# Check if you have sysconfig, else fail
+	# Check if you have distutils, else fail
 	#
 	AC_MSG_CHECKING([for the sysconfig Python package])
 	ac_sysconfig_result=`$PYTHON -c "import sysconfig" 2>&1`
@@ -141,10 +141,19 @@ variable to configure. See ``configure --help'' for reference.
 		AC_MSG_RESULT([yes])
 		IMPORT_SYSCONFIG="import sysconfig"
 	else
-        AC_MSG_ERROR([cannot import Python module "sysconfig".
+		AC_MSG_RESULT([no])
+
+		AC_MSG_CHECKING([for the distutils Python package])
+		ac_sysconfig_result=`$PYTHON -c "from distutils import sysconfig" 2>&1`
+		if test $? -eq 0; then
+			AC_MSG_RESULT([yes])
+			IMPORT_SYSCONFIG="from distutils import sysconfig"
+		else
+			AC_MSG_ERROR([cannot import Python module "distutils".
 Please check your Python installation. The error was:
 $ac_sysconfig_result])
 			PYTHON_VERSION=""
+		fi
 	fi
 
 	#
@@ -158,6 +167,12 @@ $ac_sysconfig_result])
 				print (sysconfig.get_path ('include'));"`
 			plat_python_path=`$PYTHON -c "$IMPORT_SYSCONFIG; \
 				print (sysconfig.get_path ('platinclude'));"`
+		else
+			# old distutils way
+			python_path=`$PYTHON -c "$IMPORT_SYSCONFIG; \
+				print (sysconfig.get_python_inc ());"`
+			plat_python_path=`$PYTHON -c "$IMPORT_SYSCONFIG; \
+				print (sysconfig.get_python_inc (plat_specific=1));"`
 		fi
 		if test -n "${python_path}"; then
 			if test "${plat_python_path}" != "${python_path}"; then
@@ -258,6 +273,10 @@ EOD`
 		if test "$IMPORT_SYSCONFIG" = "import sysconfig"; then
 			PYTHON_SITE_PKG=`$PYTHON -c "$IMPORT_SYSCONFIG; \
 				print (sysconfig.get_path('purelib'));"`
+		else
+			# distutils.sysconfig way
+			PYTHON_SITE_PKG=`$PYTHON -c "$IMPORT_SYSCONFIG; \
+				print (sysconfig.get_python_lib(0,0));"`
 		fi
 	fi
 	AC_MSG_RESULT([$PYTHON_SITE_PKG])
@@ -271,6 +290,10 @@ EOD`
 		if test "$IMPORT_SYSCONFIG" = "import sysconfig"; then
 			PYTHON_PLATFORM_SITE_PKG=`$PYTHON -c "$IMPORT_SYSCONFIG; \
 				print (sysconfig.get_path('platlib'));"`
+		else
+			# distutils.sysconfig way
+			PYTHON_PLATFORM_SITE_PKG=`$PYTHON -c "$IMPORT_SYSCONFIG; \
+				print (sysconfig.get_python_lib(1,0));"`
 		fi
 	fi
 	AC_MSG_RESULT([$PYTHON_PLATFORM_SITE_PKG])
