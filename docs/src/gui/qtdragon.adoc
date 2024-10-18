@@ -946,7 +946,7 @@ This feature assumes the use of two probes in concert:
  . A tool switch sensor, fixed somewhere on the machine (sometimes called a tool-setter), and
  . A spindle probe that is installed temporarily at the beginning of the job (sometimes called an xyz probe or a Renishaw probe).
 
-These techniques are useful for machines that do not have repeatable tool holders and do not have automatic tool changing devices. (For machines with repeatable tool holders, see the section on <<sub:touch-plate,measuring tool length>>. For machines with automatic tool changing devices, consult work done under the linuxcnc repository at configs/sim/axis/remap/rack-toolchange .)
+These techniques are useful for machines that do not have repeatable tool holders and do not have automatic tool changing devices. (For machines with repeatable tool holders, see the section on <<sub:touch-plate,measuring tool length>>. For machines with automatic tool changing devices, consult work done under the linuxcnc repository at `configs/sim/axis/remap/rack-toolchange`.)
 
 To use this feature, you will need to do some additional settings and you may want to use the offered HAL pins to get values in your own ngc remap procedure. Those settings are covered later in the section.
 
