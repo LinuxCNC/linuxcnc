@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 rm -f gcode-output
 
 if nc -z localhost 5007; then
