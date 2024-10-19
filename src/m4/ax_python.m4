@@ -64,7 +64,7 @@ if test x$ax_python_bin != x; then
      AC_CHECK_LIB(${ax_python_bin}m, main, ax_python_lib=${ax_python_bin}m, ax_python_lib=no)
    fi
    if test x$ax_python_lib != xno; then
-     ax_python_header=`$ax_python_bin -c "from distutils.sysconfig import *; print(get_config_var('CONFINCLUDEPY'))"`
+     ax_python_header=`$ax_python_bin -c "import sysconfig; print(sysconfig.get_path('include'))"`
      if test x$ax_python_header != x; then
        break;
      fi
