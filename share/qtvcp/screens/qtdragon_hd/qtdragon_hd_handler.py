@@ -2,11 +2,13 @@ import os, time
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtCore import QCoreApplication
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
+from qtvcp.widgets.gcode_graphics import GCodeGraphics as GRAPHICS
 from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
 from qtvcp.widgets.tool_offsetview import ToolOffsetView as TOOL_TABLE
 from qtvcp.widgets.origin_offsetview import OriginOffsetView as OFFSET_VIEW
 from qtvcp.widgets.stylesheeteditor import StyleSheetEditor as SSE
 from qtvcp.widgets.file_manager import FileManager as FM
+from qtvcp.widgets.status_slider import StatusSlider as SLIDER
 from qtvcp.lib.qt_ngcgui.ngcgui import NgcGui
 from qtvcp.lib.auto_height.auto_height import Auto_Measure
 from qtvcp.lib.writer import writer
@@ -94,6 +96,10 @@ class HandlerClass:
         self.start_line = 0
         self.run_time = 0
         self.time_tenths = 0
+        self._last_count = 0
+        self._lastSelectButton = None
+        self.MPGFocusWidget = None
+        self.CycleFocusWidget = None
         self.timer_on = False
         self.home_all = False
         self.min_spindle_rpm = INFO.MIN_SPINDLE_SPEED
@@ -181,6 +187,7 @@ class HandlerClass:
             self.probe.hide()
         self.w.btn_dimensions.setChecked(True)
         self.w.page_buttonGroup.buttonClicked.connect(self.main_tab_changed)
+        self.w.selectButtonGroup.buttonClicked.connect(self.MPG_select_changed)
         self.w.filemanager_usb.showMediaDir(quiet = True)
 
     # hide or initiate AXES dro/jog/home
@@ -289,6 +296,10 @@ class HandlerClass:
         pin.value_changed.connect(self.comp_count_changed)
         QHAL.newpin("comp-on", Qhal.HAL_BIT, Qhal.HAL_OUT)
         QHAL.newpin("spindle-lift-on", Qhal.HAL_BIT, Qhal.HAL_OUT)
+
+        # MPG scrolling pin
+        self.pin_mpg_in = QHAL.newpin('mpg-in',QHAL.HAL_S32, QHAL.HAL_IN)
+        self.pin_mpg_in.value_changed.connect(lambda s: self.external_mpg(s))
 
         # dialog answer pins
         pin = QHAL.newpin("dialog-ok", QHAL.HAL_BIT, QHAL.HAL_IN)
@@ -507,15 +518,116 @@ class HandlerClass:
         self.auto_measure._hal_init()
 
     def processed_focus_event__(self, receiver, event):
+        #print(receiver.parent(), receiver)
+
+        if isinstance(receiver.parent(), GCODE):
+            #print ('Gcode editor focus',receiver.parent().parent().objectName())
+            self.removeMPGFocusBorder()
+
+            name = receiver.parent().parent().objectName()
+            color = self.w.screen_options.property('user4Color').name()
+            self.colorMPGFocusBorder(name, receiver.parent(), color)
+
+        elif isinstance(receiver, GRAPHICS):
+            #print ('Gcode graphics focus',receiver,receiver.parent().objectName())
+            self.removeMPGFocusBorder()
+
+            name = receiver.parent().objectName()
+            color = self.w.screen_options.property('user4Color').name()
+            self.colorMPGFocusBorder(name, receiver, color)
+
+        elif isinstance(receiver.parent(), FM):
+            self.removeMPGFocusBorder()
+
+            #print ('File Manager focus',receiver.parent().parent().objectName())
+            name = receiver.parent().parent().objectName()
+            color = self.w.screen_options.property('user4Color').name()
+            self.colorMPGFocusBorder(name, receiver.parent(), color)
+
+        elif isinstance(receiver, SLIDER):
+            #print('Slider',receiver.objectName(),receiver.parent())
+            if not receiver in(self.w.slider_jog_linear,self.w.slider_jog_angular):
+                self.removeMPGFocusBorder()
+                name = receiver.objectName()
+                color = self.w.screen_options.property('user4Color').name()
+                self.colorMPGFocusBorder(name, receiver, color)
+
+        elif isinstance(receiver, TOOL_TABLE):
+            self.removeMPGFocusBorder()
+
+            #print ('Tool Offset focus',receiver.parent().objectName())
+            name = receiver.parent().objectName()
+            color = self.w.screen_options.property('user4Color').name()
+            self.colorMPGFocusBorder(name, receiver, color)
+
+        elif isinstance(receiver, OFFSET_VIEW):
+            self.removeMPGFocusBorder()
+
+            #print ('origon Offset focus',receiver.parent().objectName())
+            name = receiver.parent().objectName()
+            color = self.w.screen_options.property('user4Color').name()
+            self.colorMPGFocusBorder(name, receiver, color)
+
+        elif isinstance(receiver, MDI_WIDGET):
+            self.removeMPGFocusBorder()
+            self.removeCycleFocusBorder()
+
+            #print ('MDI line focus',receiver.parent().objectName())
+            name = receiver.parent().objectName()
+            color = self.w.screen_options.property('user5Color').name()
+            self.colorCycleFocusBorder(name, receiver, color)
+
+        elif isinstance(receiver, self._probeLibrary):
+            self.removeCycleFocusBorder()
+
+            #print ('Versa/Basic Probe focus',receiver.parent().objectName())
+            name = receiver.parent().objectName()
+            color = self.w.screen_options.property('user5Color').name()
+            self.colorCycleFocusBorder(name, receiver, color)
+
+        # show virtual keyboard
         if not self.w.chk_use_virtual.isChecked() or STATUS.is_auto_mode(): return
         if isinstance(receiver, QtWidgets.QLineEdit):
             if not receiver.isReadOnly():
                 self.w.stackedWidget_dro.setCurrentIndex(1)
         elif isinstance(receiver, QtWidgets.QTableView):
             self.w.stackedWidget_dro.setCurrentIndex(1)
-        elif isinstance(receiver, QtWidgets.QCommonStyle):
-            return
-    
+
+    def removeMPGFocusBorder(self):
+        try:
+            self.MPGFocusWidget.setStyleSheet( '')
+            name = self.MPGFocusWidgetBorder
+            self.w[name].setStyleSheet('')
+        except:
+            pass
+
+    def removeCycleFocusBorder(self):
+        try:
+            self.CycleFocusWidget.setStyleSheet( '')
+            name = self.CycleFocusWidgetBorder
+            self.w[name].setStyleSheet('')
+        except:
+            pass
+
+    def recolorMPGFocusBorder(self):
+        try:
+            colorName = self.w.screen_options.property('user4Color').name()
+            name = self.MPGFocusWidgetBorder
+            self.w[name].setStyleSheet('#%s {border: 3px solid %s;}'%(name,colorName))
+        except:
+            pass
+
+    def colorMPGFocusBorder(self, name, receiver, colorName):
+        if self.w.btn_mpg_scroll.isChecked():
+            self.MPGFocusWidgetBorder = name
+            self.MPGFocusWidget = receiver
+            self.w[name].setStyleSheet('#%s {border: 3px solid %s;}'%(name,colorName))
+
+    def colorCycleFocusBorder(self, name, receiver, colorName):
+        self.CycleFocusWidgetBorder = name
+        self.CycleFocusWidget = receiver
+        self.w[name].setStyleSheet('#%s {border: 3px solid %s;}'%(name,colorName))
+
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions
         # so we catch and process the events directly.
@@ -674,7 +786,7 @@ class HandlerClass:
     def user_system_changed(self, data):
         sys = self.system_list[int(data) - 1]
         self.w.offset_table.selectRow(int(data) + 3)
-        self.w.actionbutton_rel.setText(sys)
+        self.w.systemtoolbutton.setText(sys)
 
     def metric_mode_changed(self, mode):
         unit = "MM" if mode else "IN"
@@ -1293,6 +1405,32 @@ class HandlerClass:
         self.h['eoffset-spindle-count'] = 0
         self.h['spindle-inhibit'] = False
 
+    def btn_systemtool_toggled(self, state):
+        if state:
+            STATUS.emit('dro-reference-change-request', 1)
+
+    def MPG_select_changed(self, button):
+        #print(button)
+        # Auto exclusive doesn't allow unchecking all buttons
+        # We force it here
+        if button == self._lastSelectButton:
+                button.group().setExclusive(False)
+                button.setChecked(False)
+                button.group().setExclusive(True)
+                self._lastSelectButton = None
+
+                if button == self.w.btn_mpg_scroll:
+                    self.removeMPGFocusBorder()
+                return
+        if button == self.w.btn_mpg_scroll:
+            if self.w.btn_mpg_scroll.isChecked():
+                self.recolorMPGFocusBorder()
+        else:
+                self.removeMPGFocusBorder()
+
+        #self.set_statusbar('MPG output Selected: {}'.format(cmd.toolTip()),DEFAULT,noLog=True)
+        self._lastSelectButton = button
+
     #####################
     # GENERAL FUNCTIONS #
     #####################
@@ -1783,6 +1921,69 @@ class HandlerClass:
             self.w['minus_jogbutton_{}'.format(num)].setIcon(icn)
         except Exception as e:
             self.w['minus_jogbutton_{}'.format(num)].setProperty('text','{}-'.format(axis))
+
+    # MPG scrolling of program or MDI history
+    def external_mpg(self, count):
+        diff = count - self._last_count
+        if self.w.btn_mpg_scroll.isChecked():
+            currentIndex = self.w.stackedWidget_mainTab.currentIndex()
+            if isinstance(self.MPGFocusWidget, SLIDER):
+                #print('Slider',self.MPGFocusWidget.objectName(),self.MPGFocusWidget.parent())
+                if self.MPGFocusWidget is self.w.slider_feed_ovr:
+                    scaled = (STATUS.stat.feedrate * 100 + diff)
+                    if scaled <0 :scaled = 0
+                    elif scaled > INFO.MAX_FEED_OVERRIDE:scaled = INFO.MAX_FEED_OVERRIDE
+                    ACTION.SET_FEED_RATE(scaled)
+                elif  self.MPGFocusWidget is self.w.slider_rapid_ovr:
+                    scaled = (STATUS.stat.rapidrate * 100 + diff)
+                    if scaled <0 :scaled = 0
+                    elif scaled > 100:scaled = 100
+                    ACTION.SET_RAPID_RATE(scaled)
+                elif  self.MPGFocusWidget is self.w.slider_spindle_ovr:
+                    scaled = (STATUS.stat.spindle[0]['override'] * 100 + diff)
+                    if scaled < INFO.MIN_SPINDLE_OVERRIDE:scaled = INFO.MIN_SPINDLE_OVERRIDE
+                    elif scaled > INFO.MAX_SPINDLE_OVERRIDE:scaled = INFO.MAX_SPINDLE_OVERRIDE
+                    ACTION.SET_SPINDLE_RATE(scaled)
+
+            elif isinstance(self.MPGFocusWidget, GRAPHICS):
+                if self.w.actionbutton_pan_rpyaye.isChecked():
+                    ACTION.ADJUST_GRAPHICS_ROTATE(diff,diff)
+                else:
+                    ACTION.ADJUST_GRAPHICS_PAN(diff,0)
+            elif isinstance(self.MPGFocusWidget, GCODE):
+                self.w.gcode_editor.jump_line(diff)
+                self.w.gcode_viewer.jump_line(diff)
+            elif isinstance(self.MPGFocusWidget, MDI_WIDGET):
+                if diff <0:
+                   self.MPGFocusWidget.line_down()
+                else:
+                   self.MPGFocusWidget.line_up()
+
+            elif currentIndex == TAB_FILE:
+                if isinstance(self.MPGFocusWidget, FM):
+                    widget =  self.MPGFocusWidget
+                else:
+                    widget = self.w.filemanager
+                if diff <0:
+                   widget.down()
+                else:
+                   widget.up()
+            elif currentIndex == TAB_TOOL:
+                if isinstance(self.MPGFocusWidget, TOOL_TABLE):
+                    #print('scroll offset view')
+                    if diff <0:
+                       self.MPGFocusWidget.down()
+                    else:
+                       self.MPGFocusWidget.up()
+            elif currentIndex == TAB_OFFSETS:
+                if isinstance(self.MPGFocusWidget, OFFSET_VIEW):
+                    #print('scroll offset view')
+                    if diff <0:
+                       self.MPGFocusWidget.down()
+                    else:
+                       self.MPGFocusWidget.up()
+
+        self._last_count = count
 
     def dialog_ext_control(self, pin, value, answer):
         if value:
