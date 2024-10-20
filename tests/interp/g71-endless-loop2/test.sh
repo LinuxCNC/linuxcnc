@@ -14,7 +14,7 @@ pid=$!
 count=5
 while [ 0 -lt $count ] && kill -0 $pid > /dev/null 2>&1 ; do
     sleep 1
-    count=$(($count - 1))
+    count=$((count - 1))
 done
 
 if kill -0 $pid > /dev/null 2>&1; then
