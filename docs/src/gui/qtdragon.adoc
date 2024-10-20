@@ -789,23 +789,23 @@ It can also be sued to auto probe tool length at tool changes with added remap c
 
 You must carefully set the 'Probing Parameters':
 
-* 'DIAMETER':: This is the diameter of the probe tip. The accuracy of probe measurements is directly affected by the accuracy of the probe tip diameter.
-* 'TRAVEL':: The distance that the probe will travel during the initial search. If the search distance is too short, you will receive a message like "G38 finished without making contact". For safety reasons, it is recommended to set this parameter to 3-4 mm more than probe stylus diameter.
-* 'LATCH RTN':: The distance the probe is retracted after making initial contact with the workpiece. This should be a short distance because the second approach will be at a slow speed, but large enough for the probe to break contact and bring it to the search ready state. If the Latch Rtn distance too large, you will end up spending a lot of time waiting for the search to complete. Recommendation: 1-2 mm
-* 'SEARCH':: This is the feed rate at which the probe searches for the target workpiece in machine units per minute. The search speed should be slow enough to give an acceptable initial accuracy, but fast enough to not waste time waiting for movement. Recommendation: 200-500 mm/min.
-* 'PROBE':: Once initial contact has been made and the probe is retracted, it will wait for 0.5 seconds before performing the search again at a lower speed, the probe velocity. This lower speed ensures the machine can stop movement as quickly as possible on contact with the workpiece.
-* 'RAPID':: Axis movements not associated with searching are done at the speed defined by RAPID in machine units per minute.
-* 'SIDE/EDGE LENGTH':: This is the distance the probe will move at the rapid rate to the position where it will begin a search. If measuring a corner, it will move EDGE LENGTH units away from the corner, then move away from the workpiece by XY CLEARANCE, lower by Z CLEARANCE and begin the initial search. If measuring an inner circle, then EDGE LENGTH should be set to the approximate radius of the circle. Note: NOT the diameter.
-* 'PROBE HT':: The height of the tool sensor from the machine table surface. This value is used to calculate the Z zero height for the current work coordinate system when using the probe with a tool setter sensor.
-* 'BLOCK HT':: The height of the top of the workpiece from the machine table surface. This value is used to calculate the Z zero height for the current work coordinate system when using the probe with a tool setter sensor.
-* 'XY CLEARANCE':: The distance that the probe will move away from an edge or corner before performing a search. It should be large enough to ensure that the probe will not contact the workpiece or any other fixtures before moving down. It should be small enough to avoid excessive waiting for movement while searching.
-* 'Z CLEARANCE':: The distance that the probe will move down before performing a search. If measuring an inside hole, the probe could be manually jogged to the starting Z height and then set Z CLEARANCE to 0.
+'DIAMETER':: This is the diameter of the probe tip. The accuracy of probe measurements is directly affected by the accuracy of the probe tip diameter.
+'TRAVEL':: The distance that the probe will travel during the initial search. If the search distance is too short, you will receive a message like "G38 finished without making contact". For safety reasons, it is recommended to set this parameter to 3-4 mm more than probe stylus diameter.
+'LATCH RTN':: The distance the probe is retracted after making initial contact with the workpiece. This should be a short distance because the second approach will be at a slow speed, but large enough for the probe to break contact and bring it to the search ready state. If the Latch Rtn distance too large, you will end up spending a lot of time waiting for the search to complete. Recommendation: 1-2 mm
+'SEARCH':: This is the feed rate at which the probe searches for the target workpiece in machine units per minute. The search speed should be slow enough to give an acceptable initial accuracy, but fast enough to not waste time waiting for movement. Recommendation: 200-500 mm/min.
+'PROBE':: Once initial contact has been made and the probe is retracted, it will wait for 0.5 seconds before performing the search again at a lower speed, the probe velocity. This lower speed ensures the machine can stop movement as quickly as possible on contact with the workpiece.
+'RAPID':: Axis movements not associated with searching are done at the speed defined by RAPID in machine units per minute.
+'SIDE/EDGE LENGTH':: This is the distance the probe will move at the rapid rate to the position where it will begin a search. If measuring a corner, it will move EDGE LENGTH units away from the corner, then move away from the workpiece by XY CLEARANCE, lower by Z CLEARANCE and begin the initial search. If measuring an inner circle, then EDGE LENGTH should be set to the approximate radius of the circle. Note: NOT the diameter.
+'PROBE HT':: The height of the tool sensor from the machine table surface. This value is used to calculate the Z zero height for the current work coordinate system when using the probe with a tool setter sensor.
+'BLOCK HT':: The height of the top of the workpiece from the machine table surface. This value is used to calculate the Z zero height for the current work coordinate system when using the probe with a tool setter sensor.
+'XY CLEARANCE':: The distance that the probe will move away from an edge or corner before performing a search. It should be large enough to ensure that the probe will not contact the workpiece or any other fixtures before moving down. It should be small enough to avoid excessive waiting for movement while searching.
+'Z CLEARANCE':: The distance that the probe will move down before performing a search. If measuring an inside hole, the probe could be manually jogged to the starting Z height and then set Z CLEARANCE to 0.
 
 There are three toggle buttons:
 
-* 'Auto Zero' This selects if after probing the relevant axis is set to zero in the current user system.
-* 'Auto Skew' This selects if after probing, the system will be rotated or just display the calculated rotation.
-* 'Tool Measure' This (if integrated) turns auto tool probing on and off.
+'Auto Zero':: This selects if after probing the relevant axis is set to zero in the current user system.
+'Auto Skew':: This selects if after probing, the system will be rotated or just display the calculated rotation.
+'Tool Measure':: This (if integrated) turns auto tool probing on and off.
 
 ==== HAL Pins
 
@@ -818,13 +818,13 @@ Currently the probe tool number is only editable in the preference file: +
 ps_probe_tool = 1
 ----
 
-* `qtversaprobe.enable` (HAL_BIT) measurement enabled or not tool. Reflects screen button state.
-* `qtversaprobe.blockheight` (HAL_FLOAT) the measured height of the top face of the workpiece. Reflects screen entry.
-* `qtversaprobe.probeheight` (HAL_FLOAT) the toolsetter probe switch height. Reflects screen entry.
-* `qtversaprobe.searchvel` (HAL_FLOAT) the velocity to search for the tool probe switch
-* `qtversaprobe.probevel` (HAL_FLOAT) the velocity to probe tool length. Reflects screen entry.
-* `qtversaprobe.backoffdist` (HAL_FLOAT) the distance the probe backs off after triggering. Reflects screen entry.
-* `qtversaprobe.probe-loaded` (HAL_BIT) reflect if the current tool is equal to the preference file probe number.
+`qtversaprobe.enable` (HAL_BIT):: Measurement enabled or not tool. Reflects screen button state.
+`qtversaprobe.blockheight` (HAL_FLOAT):: The measured height of the top face of the workpiece. Reflects screen entry.
+`qtversaprobe.probeheight` (HAL_FLOAT):: The toolsetter probe switch height. Reflects screen entry.
+`qtversaprobe.searchvel` (HAL_FLOAT):: The velocity to search for the tool probe switch
+`qtversaprobe.probevel` (HAL_FLOAT):: The velocity to probe tool length. Reflects screen entry.
+`qtversaprobe.backoffdist` (HAL_FLOAT):: The distance the probe backs off after triggering. Reflects screen entry.
+`qtversaprobe.probe-loaded` (HAL_BIT):: Reflect if the current tool is equal to the preference file probe number.
 
 === Basic probe
 
@@ -843,24 +843,24 @@ The combo box allows selecting the basic type of probing buttons shown:
 
 You must carefully set the 'Probing Parameters':
 
-* 'Probe Tool': will only allow probing if this tool number is in the spindle
-* 'Probe Diameter': the size of the probe tip
-* 'Probe Rapid': the speed of rapid moves in machine units
-* 'Probe Search': the speed of the first 'rough' search in machine units
-* 'Probe Feed': the speed of the second 'fine' search in machine units
-* 'Step Off': back off and re-probe distance
-* 'Max XY Distance': the maximum distance the probe will search for in X and Y before failing with error
-* 'Max Z Distance':  the maximum distance the probe will search for in Z before failing with error
-* 'XY Clearance': clearance distance from probe to wall edge before rapid traversing down in Z and 'rough' probing
-* 'Z Clearance': clearance distance from probed to top of material
-* 'Extra Depth': distance from top of material to desired probe depth
+'Probe Tool':: Will only allow probing if this tool number is in the spindle
+'Probe Diameter':: The size of the probe tip
+'Probe Rapid':: The speed of rapid moves in machine units
+'Probe Search':: The speed of the first 'rough' search in machine units
+'Probe Feed':: The speed of the second 'fine' search in machine units
+'Step Off':: Back off and re-probe distance
+'Max XY Distance':: The maximum distance the probe will search for in X and Y before failing with error
+'Max Z Distance'::  The maximum distance the probe will search for in Z before failing with error
+'XY Clearance':: Clearance distance from probe to wall edge before rapid traversing down in Z and 'rough' probing
+'Z Clearance':: Clearance distance from probed to top of material
+'Extra Depth':: Distance from top of material to desired probe depth
 
 There are also hint parameters depending on selected probing type:
 
-* 'Edge Width': desired distance from the probe start position, along wall edge before starting to probe
-* 'Diameter Hint': used by Round Boss or Round Pocket probing (start move: 1/2 diameter plus XY clearance)
-* 'X Hint': used by Rectangular Boss/Pocket probing (start move: 1/2 X length plus XY clearance)
-* 'Y Hint': used by Rectangular Boss/Pocket probing (start move: 1/2 Y length plus XY clearance)
+'Edge Width':: Desired distance from the probe start position, along wall edge before starting to probe
+'Diameter Hint':: Used by Round Boss or Round Pocket probing (start move: 1/2 diameter plus XY clearance)
+'X Hint':: Used by Rectangular Boss/Pocket probing (start move: 1/2 X length plus XY clearance)
+'Y Hint':: Used by Rectangular Boss/Pocket probing (start move: 1/2 Y length plus XY clearance)
 
 After setting the parameters and hints:
 
@@ -886,10 +886,10 @@ qtbasicprobe.probe-loaded
 Lets discuss inside corner probing using the top right button in Basic Probe (back_right_inside).
 While all probe entries must be correct, the most important settings to change for each each probe:
 
-* XY CLEARANCE - distance away from edge before rough probing,
-* Z CLEARANCE  - distance from probe to top of material,
-* EXTRA DEPTH  - distance to lower probe from top of material,
-* EDGE WIDTH   - distance along edge wall (away from corner) to start probing.
+XY CLEARANCE:: Distance away from edge before rough probing,
+Z CLEARANCE:: Distance from probe to top of material,
+EXTRA DEPTH:: Distance to lower probe from top of material,
+EDGE WIDTH:: Distance along edge wall (away from corner) to start probing.
 
 [NOTE]
 These distance are always to be set in 'machine units' (mm for metric machine, inch for imperial machine).
@@ -944,9 +944,11 @@ QtDragon can be setup to do integrated auto tool measurement using the Versa Pro
 This feature assumes the use of two probes in concert:
 
  . A tool switch sensor, fixed somewhere on the machine (sometimes called a tool-setter), and
- . A spindle probe that is installed temporarily at the beginning of the job (sometimes called an xyz probe or a Renishaw probe).
+ . a spindle probe that is installed temporarily at the beginning of the job (sometimes called an xyz probe or a Renishaw probe).
 
-These techniques are useful for machines that do not have repeatable tool holders and do not have automatic tool changing devices. (For machines with repeatable tool holders, see the section on <<sub:touch-plate,measuring tool length>>. For machines with automatic tool changing devices, consult work done under the linuxcnc repository at `configs/sim/axis/remap/rack-toolchange`.)
+These techniques are useful for machines that do not have repeatable tool holders and do not have automatic tool changing devices.
+(For machines with repeatable tool holders, see the section on <<sub:touch-plate,measuring tool length>>.
+For machines with automatic tool changing devices, consult work done under the LinuxCNC repository at `configs/sim/axis/remap/rack-toolchange`.)
 
 To use this feature, you will need to do some additional settings and you may want to use the offered HAL pins to get values in your own ngc remap procedure. Those settings are covered later in the section.
 
@@ -984,16 +986,16 @@ Your program must contain a tool change at the beginning. The tool will be measu
 
 The sequence of events (using the default files in the default setting):
 
-. Rapid move in Z to position defined in the INI's [TOOL_CHANGE] Z
-. Rapid move in X and Y to number defined in INI's [TOOL_CHANGE] X and Y
-. Perform normal M6 tool change: ie, stop spindle, send message to user to change the tool
-. Rapid move in X and Y to position defined in the INI's [VERSA_TOOLSETTER] X and Y
-. Rapid move down in Z to position defined in the INI's [VERSA_TOOLSETTER] Z
-. Probe down in Z to maximum defined in the INI's [VERSA_TOOLSETTER] MAXPROBE
-. Changes the offset of the current work coordinate system to match the difference between the previous tool and the currently measured tool
-. Rapid move up in Z to position defined in the INI's [VERSA_TOOLSETTER] Z_MAX_CLEAR
-. Rapid move to the X Y position when the tool change was called
-. Rapid move down to the Z position when the tool change was called
+. Rapid move in Z to position defined in the INI's [TOOL_CHANGE] Z.
+. Rapid move in X and Y to number defined in INI's [TOOL_CHANGE] X and Y.
+. Perform normal M6 tool change, i.e., stop spindle, send message to user to change the tool.
+. Rapid move in X and Y to position defined in the INI's [VERSA_TOOLSETTER] X and Y.
+. Rapid move down in Z to position defined in the INI's [VERSA_TOOLSETTER] Z.
+. Probe down in Z to maximum defined in the INI's [VERSA_TOOLSETTER] MAXPROBE.
+. Changes the offset of the current work coordinate system to match the difference between the previous tool and the currently measured tool.
+. Rapid move up in Z to position defined in the INI's [VERSA_TOOLSETTER] Z_MAX_CLEAR.
+. Rapid move to the X Y position when the tool change was called.
+. Rapid move down to the Z position when the tool change was called.
 
 [NOTE]
 The [TOOL_CHANGE] Z position should be high enough so the tool will not hit the tool probe when moving to the [VERSA_TOOLSETTER] X and Y position. +
@@ -1096,12 +1098,12 @@ Initial testing with no tool and safe heights is recommended.
 Versaprobe offers 5 output pins for tool measurement purpose.
 The pins are used to be read from a remap G-code subroutine, so the code can react to different values.
 
-* `qtversaprobe.enable` (HAL_BIT) measurement enabled or not tool. Reflects screen button state.
-* `qtversaprobe.blockheight` (HAL_FLOAT) the measured height of the top face of the workpiece. Reflects screen entry.
-* `qtversaprobe.probeheight` (HAL_FLOAT) the toolsetter probe switch height. Reflects screen entry.
-* `qtversaprobe.searchvel` (HAL_FLOAT) the velocity to search for the tool probe switch
-* `qtversaprobe.probevel` (HAL_FLOAT) the velocity to probe tool length. Reflects screen entry.
-* 'qtversaprobe.backoffdist' (HAL_FLOAT) the distance the probe backs off after triggering. Reflects screen entry.
+`qtversaprobe.enable` (HAL_BIT):: Measurement enabled or not tool. Reflects screen button state.
+`qtversaprobe.blockheight` (HAL_FLOAT):: The measured height of the top face of the workpiece. Reflects screen entry.
+`qtversaprobe.probeheight` (HAL_FLOAT):: The toolsetter probe switch height. Reflects screen entry.
+`qtversaprobe.searchvel` (HAL_FLOAT):: The velocity to search for the tool probe switch
+`qtversaprobe.probevel` (HAL_FLOAT):: The velocity to probe tool length. Reflects screen entry.
+`qtversaprobe.backoffdist` (HAL_FLOAT):: The distance the probe backs off after triggering. Reflects screen entry.
 
 === Tool Measurement INI File Modifications
 
