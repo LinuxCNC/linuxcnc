@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -e
 
 ${SUDO} halcompile --install userspace_count_names.comp
@@ -18,6 +18,6 @@ fi
 
 for HAL in *.hal; do
     echo "testing $HAL"
-    BASE=$(basename $HAL .hal)
-    halrun $HAL | tr ' ' '\n' >| $BASE.result
+    BASE=$(basename "$HAL" .hal)
+    halrun "$HAL" | tr ' ' '\n' >| "$BASE".result
 done

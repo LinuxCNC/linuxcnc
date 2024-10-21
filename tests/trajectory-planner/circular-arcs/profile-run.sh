@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 function say_done {
     espeak "done" 2> /dev/null
 }
@@ -15,7 +17,7 @@ operf rtapi_app > profile.log &
 linuxcnc -r circular_arcs.ini &
 LOCAL_LCNC_PID=$!
 echo $LOCAL_LCNC_PID
-(./machine_setup.py $1 && say_done) || say_failed
+(./machine_setup.py "$1" && say_done) || say_failed
 #fg
 #End profiling
 pkill -9 axis

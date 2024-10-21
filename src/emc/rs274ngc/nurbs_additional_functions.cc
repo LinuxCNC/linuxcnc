@@ -947,7 +947,7 @@ double nurbs_uj_l(double l, std::vector<double> span_knot_vector, std::vector<do
 		}
 	else
 		{
-		for(unsigned ii=0; ii<= nurbs_costant.size(); ii=ii+6)
+		for(unsigned ii=0; ii < nurbs_costant.size() - 5 ; ii=ii+6)
 			{
 			if((l <= lenght_vector[0]) && (at2 == 0) && (l>0))
 				{

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 set -e
 
 ${SUDO} halcompile --personalities=2 --install lincurve_test.comp
@@ -28,8 +28,8 @@ for INSTALLED_FILE in "${RTLIB_DIR}"/{lincurve_test,logic_test,bitslice_test}"${
 done
 
 for HAL in *.hal; do
-    echo "testing $HAL"
-    BASE=$(basename $HAL .hal)
+    echo "testing '$HAL'"
+    BASE=$(basename "$HAL" .hal)
     # use -s to avoid different user assignments in show output
-    halrun -s $HAL >| $BASE.result
+    halrun -s "$HAL" >| "$BASE".result
 done

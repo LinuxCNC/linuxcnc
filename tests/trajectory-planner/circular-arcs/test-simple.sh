@@ -1,3 +1,7 @@
+#!/bin/bash
+
+set -e
+
 cp position.blank position.txt
 mv constraints.log constraints_old.log
 linuxcnc circular_arcs.ini > test.log
