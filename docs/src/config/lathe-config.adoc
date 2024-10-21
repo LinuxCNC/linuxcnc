@@ -62,8 +62,7 @@ COORDINATES = X Z
 ----
 
 With joints_axes incorporation, a simpler configuration can be made with just
-the two required joints by specifying trivkins with the 'coordinates='
-parameter:
+the two required joints by specifying trivkins with the 'coordinates=' parameter:
 
 [source,{ini}]
 ----

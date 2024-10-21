@@ -9,12 +9,12 @@ These attributes lead many to see it as a confusing jumble of little things and 
 This page attempts to answer that question before you get into the thick of things.
 
 LinuxCNC started at the National Institute of Standards and Technology in the USA.
-It grew up using Unix as its operating system. Unix made it different.
-Among early Unix developers there grew a set of code writing ideas that some call the Unix way.
+It grew up using UNIX as its operating system. UNIX made it different.
+Among early UNIX developers there grew a set of code writing ideas that some call the UNIX way.
 These early LinuxCNC authors followed those ways.
 
-Eric S. Raymond, in his book The Art of Unix Programming, summarizes the Unix philosophy as the widely-used engineering philosophy, "Keep it Simple, Stupid" (KISS Principle).
-He then describes how he believes this overall philosophy is applied as a cultural Unix norm, although unsurprisingly it is not difficult to find severe violations of most of the following in actual Unix practice:
+Eric S. Raymond, in his book The Art of UNIX Programming, summarizes the UNIX philosophy as the widely-used engineering philosophy, "Keep it Simple, Stupid" (KISS Principle).
+He then describes how he believes this overall philosophy is applied as a cultural UNIX norm, although unsurprisingly it is not difficult to find severe violations of most of the following in actual UNIX practice:
 
 * Rule of Modularity: Write simple parts connected by clean interfaces.
 * Rule of Clarity: Clarity is better than cleverness.
@@ -38,7 +38,7 @@ We achieve connectability by setting up standard interfaces to sets of modules a
 The *Separation* rule requires that we make distinct parts that do little things.
 By separating functions debugging is much easier and replacement modules can be dropped into the system and comparisons easily made.
 
-What does the Unix way mean for you as a user of LinuxCNC.
+What does the UNIX way mean for you as a user of LinuxCNC.
 It means that you are able to make choices about how you will use the system.
 Many of these choices are a part of machine integration, but many also affect the way you will use your machine.
 As you read you will find many places where you will need to make comparisons.

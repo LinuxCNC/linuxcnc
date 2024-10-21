@@ -38,10 +38,9 @@ void hal_stream_wait_readable(hal_stream_t* stream, sig_atomic_t* stop);
 A HAL stream provides a limited ability for two components to
 communicate data which does not fit within the model of HAL pins.
 A reader and a writer must agree on a _key_ (32-bit integer identifier)
-and a data structure specified by _typestring._ They must also agree
-which component (the first one loaded) will *hal_stream_create* the
-stream, and which component (the second one loaded) will
-*hal_stream_attach* to the already-created stream.
+and a data structure specified by _typestring_.
+They must also agree which component (the first one loaded) will *hal_stream_create* the stream,
+and which component (the second one loaded) will *hal_stream_attach* to the already-created stream.
 
 The non-realtime part can be *halstreamer* or *halsampler*.
 In the case of *halstreamer* the key is 0x48535430 plus the channel number.
@@ -141,7 +140,7 @@ stop::
 
 == SAMPLE CODE
 
-In the source tree under _src/hal/components_, *sampler.c* and
+In the source tree under `src/hal/components`, *sampler.c* and
 *streamer.c* are realtime components that read and write HAL streams.
 
 == REALTIME CONSIDERATIONS
@@ -157,8 +156,8 @@ Other functions may be called in any context, including realtime contexts.
 
 == RETURN VALUE
 
-*hal_stream_create* , *hal_stream_attach* , *hal_stream_read* ,
-*hal_stream_write* , *hal_stream_detach* and *hal_stream_destroy* return
+The functions *hal_stream_create*, *hal_stream_attach*, *hal_stream_read*,
+*hal_stream_write*, *hal_stream_detach* and *hal_stream_destroy* return
 an RTAPI status code. Other functions' return values are explained above.
 
 == BUGS
@@ -167,7 +166,7 @@ The memory overhead of a stream can be large.
 Each element in a record uses 8 bytes, and the implicit sample number also uses 8 bytes.
 As a result, a stream which is used to transport 8-bit values uses 94% of its memory as overhead.
 However, for modest stream sizes this overhead is not important.
-(This memory is part of its own shared memory region and does not count against the HAL shared memory region used for pins, parameters and signals)
+(This memory is part of its own shared memory region and does not count against the HAL shared memory region used for pins, parameters and signals.)
 
 == SEE ALSO
 

@@ -23,37 +23,30 @@ The modules currently supported are: *trivkins*
 == OPTIONS
 
 *--help | -? | -- -h*::
-  Show options and exit
+  Show options and exit.
 *-mode* *onpause* | always::
-   +
   onpause: popup GUI to control offsets when program paused +
   always: show GUI to control offsets always +
   Default: *onpause*
 *-axes* _axis-names_::
-   +
-  Letters from set of \{x y z a b c u v w} +
+  Letters from set of \{x y z a b c u v w}. +
   Examples: -axes x, -axes xyz, -axes xz (no spaces) +
   Default: *xyz*
 *-inc* _incrementvalue_::
-   +
-  Specify one increment value per -inc (up to 4) +
+  Specify one increment value per -inc (up to 4). +
   Defaults: * 0.001 0.01 0.10 1.0*
 *-size* _integer_::
-   +
-  Overall gui size is based on font size, typically 8 - 20 +
+  Overall gui size is based on font size, typically 8 - 20. +
   Default: *14*
 *-loc* center | +x+y::
-   +
-  Initial location on screen +
+  Initial location on screen. +
   Examples: -loc center, -loc +20+100 +
   Default: *center*
 *-autoresume*::
-   +
-  Resume program when move-enable deasserted +
+  Resume program when move-enable deasserted. +
   Default: notused
 *-delay* _delay secs_::
-   +
-  Delay for autoresume (allow time to restore spindle speed etc)
+  Delay for autoresume (allow time to restore spindle speed etc). +
   Default: *5*
 
 == OTHER OPTIONS
@@ -61,24 +54,19 @@ The modules currently supported are: *trivkins*
 These options are available for special cases:
 
 *-noentry*::
-   +
-  Disables creation of entry widgets +
+  Disables creation of entry widgets. +
   Default: notused
 *-no_resume_inhibit*::
-   +
-  Disable use of resume-inhibit to controlling gui +
+  Disable use of resume-inhibit to controlling gui. +
   Default: notused
 *-no_pause_requirement*::
-   +
-  Disable check for halui.program.is-paused +
+  Disable check for halui.program.is-paused. +
   Default: notused
 *-no_cancel_autoresume*::
-   +
-  Useful for retracting offsets with simple external controls +
+  Useful for retracting offsets with simple external controls. +
   Default: notused
 *-no_display*::
-   +
-  Use when both external controls and external displays are in use +
+  Use when both external controls and external displays are in use. +
   Default: notused
 
 == NOTES
@@ -86,10 +74,10 @@ These options are available for special cases:
 LinuxCNC must be running.
 
 Halui must be loaded, typical INI file setting:
-```
+----
 [HAL]
 HALUI = halui
-```
+----
 
 The moveoff component must be loaded with the name 'mv' as: +
 **loadrt moveoff names=**_mv **personality=**_number_of_axes_
@@ -117,42 +105,42 @@ write functions in the proper order. These steps can be done at runtime
 using an existing configuration INI file and specifying a system library
 HALFILE *hookup_moveoff.tcl* as illustrated below:
 
-```
+----
 [HAL]
 HALUI = halui
 HALFILE = user_halfile_1
 etc ...
 HALFILE = user_halfile_n
 HALFILE = LIB:hookup_moveoff.tcl
-```
+----
 
 The `hookup_moveoff.tcl` HAL file will use INI file settings for the moveoff component control pins:
 
-```
+----
 [OFFSET]
 EPSILON =
 WAYPOINT_SAMPLE_SECS =
 WAYPOINT_THRESHOLD =
 BACKTRACK_ENABLE =
-```
+----
 
 The *hookup_moveoff.tcl* will use INI file settings for the moveoff per-axis limits:
 
-```
+----
 [AXIS_m]
 OFFSET_MAX_VELOCITY =
 OFFSET_MAX_ACCELERATION =
 OFFSET_MAX_LIMIT =
 OFFSET_MIN_LIMIT =
-```
+----
 
 The moveoff_gui program should be specified in the APPLICATIONS stanza of the INI file, for example:
 
-```
+----
 [APPLICATIONS]
 DELAY = delay_in_secs_to_allow_hal_connections
 APP = moveoff_gui -option1 -option2 ...
-```
+----
 
 == SEE ALSO
 
