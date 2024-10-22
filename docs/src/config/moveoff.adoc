@@ -10,14 +10,12 @@
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
-The moveoff HAL component is a HAL-only method
-for implementing offsets.  See the manpage ('$ man moveoff')
-for the IMPORTANT limitations and warnings.
+The moveoff HAL component is a HAL-only method for implementing offsets.
+See the manpage ('$ man moveoff') for the IMPORTANT limitations and warnings.
 
-The moveoff component is used to offset joint positions using custom HAL
-connections.  Implementing an offset-while-program-is-paused functionality is
-supported with appropriate connections for the input pins.  Nine joints are
-supported.
+The moveoff component is used to offset joint positions using custom HAL connections.
+Implementing an offset-while-program-is-paused functionality is supported
+with appropriate connections for the input pins.  Nine joints are supported.
 
 The axis offset pin values (offset-in-M) are continuously applied (respecting
 limits on value, velocity, and acceleration) to the output pins
@@ -44,12 +42,12 @@ regardless of the state of the backtrack-enable pin.  An enabling pin must be
 deasserted to allow a return to the original (non-offset position).
 
 Backtracking through waypoints results in 'slower' movement rates as the
-moves are point-to-point respecting velocity and acceleration settings.  The
-velocity and acceleration limit pins can be managed dynamically to control
-offsets at all times.
+moves are point-to-point respecting velocity and acceleration settings.
+The velocity and acceleration limit pins can be managed dynamically to
+control offsets at all times.
 
-When backtrack-enable is FALSE, the auto-return move is *NOT*
-coordinated, each axis returns to zero at its own rate.  If a controlled path
+When backtrack-enable is FALSE, the auto-return move is *NOT* coordinated,
+each axis returns to zero at its own rate.  If a controlled path
 is wanted in this condition, each axis should be manually returned to zero
 before deasserting an enabling pin.
 
@@ -63,10 +61,9 @@ when offsetting during a pause), offsets are returned to zero (respecting
 limits) and an 'Error' message is issued.
 
 [CAUTION]
-If offsets are enabled and applied and the machine is turned off for any
-reason, any 'external' HAL logic that manages the enabling pins and the
-offset-in-M inputs is responsible for their state when the machine is
-subsequently turned on again.
+If offsets are enabled and applied and the machine is turned off for any reason,
+any 'external' HAL logic that manages the enabling pins and the offset-in-M inputs
+is responsible for their state when the machine is subsequently turned on again.
 
 This HAL-only means of offsetting is typically not known to LinuxCNC
 nor available in GUI preview displays. *No protection is provided* for
@@ -123,12 +120,12 @@ to the corresponding joint.
 
 Modify an existing configuration as follows:
 
-Make sure there is an INI file entry for [HAL]HALUI and create a new
-[HAL]HALFILE entry for LIB:hookup_moveoff.tcl.
-The entry for LIB:hookup_moveoff.tcl should follow all HALFILE= entries
-for HAL files that connect the pins for joint.N.motor-pos-cmd,
-joint.N.motor-pos-fb, and any components connected to these pins (pid
-and encoder components in a servo system for instance).
+Make sure there is an INI file entry for `[HAL]HALUI` and create a new
+`[HAL]HALFILE` entry for LIB:hookup_moveoff.tcl.
+The entry for LIB:hookup_moveoff.tcl should follow all `HALFILE=` entries
+for HAL files that connect the pins for `joint.N.motor-pos-cmd`,
+`joint.N.motor-pos-fb`, and any components connected to these pins
+(pid and encoder components in a servo system for instance).
 
 [source,{ini}]
 ----
@@ -250,8 +247,8 @@ be managed by subsequent HALFILES (including POSTGUI_HALFILEs) to provide
 customized control of the component while using the moveoff_gui display
 for current offset values and offset status.
 
-The moveoff_gui is configured with command line options.  For details
-on the operation of moveoff_gui, see the man page:
+The moveoff_gui is configured with command line options.
+For details on the operation of moveoff_gui, see the man page:
 
 ----
 $ man moveoff_gui
