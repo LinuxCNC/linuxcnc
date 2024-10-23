@@ -224,6 +224,9 @@ class INI:
                 print("POSTGUI_HALFILE = qtvcp_postgui.hal", file=file)
             elif self.d.frontend == _PD._GMOCCAPY:
                 print("POSTGUI_HALFILE = gmoccapy_postgui.hal", file=file)
+        # qtplasmac always has a postgui hal fil
+        if self.d.frontend == _PD._QTPLASMAC:
+            print("POSTGUI_HALFILE = qtplasmac_postgui.hal", file=file)
         print("POSTGUI_HALFILE = custom_postgui.hal", file=file)
         print("SHUTDOWN = shutdown.hal", file=file)
         print(file=file)
