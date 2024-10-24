@@ -628,8 +628,8 @@ L = lathe tool orientation
 
 """
 G43 = """G43 Tool Length Offset
-G43 H
-H = tool number (optional)
+G43 Hn
+n = tool number, Hn is optional
 
 G43 enables tool length compensation. G43 changes
 subsequent motions by offsetting the axis
