@@ -10,7 +10,7 @@ files must be updated to add a new document file.
 
 The relevant pdf.adoc must be updated to include the new document in the
 pdf documentation. E.g., a new document belonging to the Master
-Documentation requires an entry in src/Master_Documentation.adoc.
+Documentation requires an entry in `src/Master_Documentation.adoc`.
 
 `docs.xml` is used to create the "previous" and "next" buttons at the top
 of each individual HTML document. It should generally match the order of
@@ -23,7 +23,7 @@ generating translated files using the files in `docs/po/`.
 
 The main LinuxCNC Makefile can optionally build the documentation and
 other files in this directory tree. Use "--enable-build-documentation"
-when invoking `src/configure`, and run "make" from src.
+when invoking `src/configure`, and run "make" from `src`.
 
 == Notes about drawings
 

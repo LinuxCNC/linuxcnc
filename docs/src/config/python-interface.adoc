@@ -93,7 +93,7 @@ see <<python:reading-ini-values,ReadingINI file values>> for an example.
   current value of the analog input pins.
 
 *angular_units*:: '(returns float)' -
-machine angular units per deg, reflects [TRAJ]ANGULAR_UNITS INI value.
+  machine angular units per deg, reflects [TRAJ]ANGULAR_UNITS INI value.
 
 *aout*:: '(returns tuple of floats)' -
   current value of the analog output pins.
@@ -112,7 +112,7 @@ machine angular units per deg, reflects [TRAJ]ANGULAR_UNITS INI value.
   block delete current status.
 
 *call_level*:: '(returns integer)'` -
-  current subroutine depth. - 0 If not in a subroutine, Depth if not otherwise specified.
+  current subroutine depth. - 0 if not in a subroutine, depth if not otherwise specified.
 
 *command*:: '(returns string)' -
   currently executing command.

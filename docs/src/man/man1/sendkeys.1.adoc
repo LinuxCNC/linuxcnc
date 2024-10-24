@@ -77,18 +77,18 @@ To generate keystrokes from other sources note that a keydown is simply `0xC0 & 
   Connect to scancode generator.
 
 **sendkeys.**_N_**.current-event** s32 out::
-  shows the current scancode without keyup / keydown markers.
+  Shows the current scancode without keyup / keydown markers.
 
 **sendkeys.**_N_**.init** bit in::
-  set this pin TRUE once all the event parameters have been set.
+  Set this pin TRUE once all the event parameters have been set.
 
 == PARAMETERS
 
 **sendkeys.**_N_**.scan-event-_MM_** u32 in::
-  assign the uinput event codes associated with each scancode.
+  Assign the uinput event codes associated with each scancode.
 
 **sendkeys.**_N_**.pin-event-_MM_** u32 in::
-  assign the uinput codes associated with each HAL bit pin.
+  Assign the uinput codes associated with each HAL bit pin.
 
 == EXAMPLE
 

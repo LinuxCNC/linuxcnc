@@ -23,7 +23,7 @@ Typically hostmot2 is loaded with no parameters unless debugging is required.
  When creating HAL pins for smart-serial devices name the pins by the
  board serial number rather than which board and port they are
  connected to. With this option set to 1 pins will have names like
-*hm2_8i20.1234.current* rather than *hm2_5i23.0.8i20.0.1.current*.
+ `hm2_8i20.1234.current` rather than `hm2_5i23.0.8i20.0.1.current`.
  The identifier consists of the last 4 digits of the board serial number,
  which is normally on a sticker on the board. This will make configs
  less portable, but does mean that boards can be re-connected less carefully.
@@ -797,12 +797,12 @@ __<Instance>__ is a 2-digit number. There will be num_3pwmgens instances,
 starting at 00. Each instance allocates 7 output and one input pins on
 the Mesa card connectors. Outputs are: PWM A, PWM B, PWM C, /PWM A, /PWM
 B, /PWM C, Enable. The first three pins are the high side drivers, the
-second three are their complementary low-side drivers. The enable bit is
-intended to control the servo amplifier. The input bit is a fault bit,
-typically wired to over-current detection. When set the PWM generator is
-disabled. The three phase duty-cycles are individually controllable from
--Scale to +Scale. Note that 0 corresponds to a 50% duty cycle and this
-is the initialization value.
+second three are their complementary low-side drivers.
+The enable bit is intended to control the servo amplifier.
+The input bit is a fault bit, typically wired to over-current detection.
+When set, the PWM generator is disabled.
+The three phase duty-cycles are individually controllable from -Scale to +Scale.
+Note that 0 corresponds to a 50% duty cycle and this is the initialization value.
 
 *Pins:*
 
@@ -815,8 +815,8 @@ enable (bit input)::
  When high the PWM is enabled as long as the fault bit is not set by
  the external fault input pin. When low the PWM is disabled, with both
  high- side and low-side drivers low. This is not the same as 0 output
- (50% duty cycle on both sets of pins) or negative full scale (where
- the low side drivers are "on" 100% of the time).
+ (50% duty cycle on both sets of pins) or negative full scale
+ (where the low side drivers are "on" 100% of the time).
 fault (bit output)::
  Indicates the status of the fault bit. This output latches high once
  set by the physical fault pin until the "enable" pin is set to high.
@@ -1244,7 +1244,8 @@ input-slow (bit in)::
  If True, selects the long time constant filter for the corresponding
  input bit, if False the short time constant is used.
 
-enc0-count,enc1-count,enc2-count,enc3-count (s32 out):: MPG counters 0 through 3.
+enc0-count,enc1-count,enc2-count,enc3-count (s32 out)::
+ MPG counters 0 through 3.
 enc0-reset,enc1-reset,enc2-reset,enc3-reset (bit in)::
  Reset for MPG counters 0 through 3, count is forced to 0 if true.
 
@@ -1295,7 +1296,7 @@ out-NN (bit in)::
  The state of this SSR instance's NNth output. Set to 0 to make the
  output pins act like an open switch (no connection), set to 1 to make
  them act like a closed switch.
- invert-NN (bit in)::
+invert-NN (bit in)::
  Inverts the state of this SSR instance's NNth output, defaults to 0.
  When invert-NN is set to 1, SSR output NN is closed when the out-NN
  pin is 0 and open when the out-NN pin is 1.
@@ -1489,7 +1490,7 @@ the response to the read request to arrive from board 0.
 
 hm2_pci(9), hm2_eth(9), hm2_spi(9), hm2_rpspi(9), hm2_7i43(9), hm2_7i90(9)
 
-Mesa's documentation for the Anything I/O boards, at link:[https://www.mesanet.com].
+Mesa's documentation for the Anything I/O boards, at https://www.mesanet.com.
 
 == LICENSE
 

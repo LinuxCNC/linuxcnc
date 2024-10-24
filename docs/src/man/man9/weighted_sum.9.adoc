@@ -25,21 +25,21 @@ There is a limit of 8 weighted summers and each may have up to 16 input bits.
 
 == FUNCTIONS
 
-*process_wsums (requires a floating point thread)*::
+*process_wsums* (requires a floating point thread)::
   Read all input values and update all output values.
 
 == PINS
 
 **wsum.**_N_**.bit.**_M_**.in** bit in::
-  The _m_'th input of weighted summer _n_.
+  The __m__^th^ input of weighted summer _n_.
 **wsum.**_N_**.hold** bit in::
   When TRUE, the _sum_ output does not change.
   When FALSE, the _sum_ output tracks the _bit_ inputs according to the weights and offset.
 **wsum.**_N_**.sum** signed out::
-  The output of the weighted summer
+  The output of the weighted summer.
 **wsum.**_N_**.bit.**_M_**.weight** signed rw::
-  The weight of the _m_'th input of weighted summer _n_.
-  The default value is 2^__m__.
+  The weight of the __m__^th^ input of weighted summer _n_.
+  The default value is 2^__m__^.
 **wsum.**_N_**.offset** signed rw::
   The offset is added to the weights corresponding to all TRUE inputs to give the final sum.
 
