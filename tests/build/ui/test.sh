@@ -2,5 +2,5 @@
 set -x
 g++ -I${HEADERS} \
     nml-position-logger.cc \
-    -L ${LIBDIR} -lnml -llinuxcnc \
+    -L "${LIBDIR}" -lnml -llinuxcnc \
     -o /dev/null
