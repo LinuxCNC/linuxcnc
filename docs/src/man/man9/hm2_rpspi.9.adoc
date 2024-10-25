@@ -137,12 +137,13 @@ of noise throwing off the SoC's PLL(s), resulting in strange behaviour.
 
 For optimal performance on the Rpi3, you must disable the "ondemand" CPU
 frequency governor. You may add the following to your /etc/rc.local
-file: echo -n 1200000 >
-/sys/devices/system/cpu/cpufreq/policy0/scaling_min_freq echo -n
-performance > /sys/devices/system/cpu/cpufreq/policy0/scaling_governor
+file:
+```
+echo -n 1200000 > /sys/devices/system/cpu/cpufreq/policy0/scaling_min_freq
+echo -n performance > /sys/devices/system/cpu/cpufreq/policy0/scaling_governor
+```
 
-Be sure to have a proper heatsink mounted on the SoC or it will get too
-warm and crash.
+Be sure to have a proper heatsink mounted on the SoC or it will get too warm and crashes.
 
 == SEE ALSO
 

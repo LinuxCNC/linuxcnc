@@ -106,8 +106,8 @@ and writes to the GS2 via a modbus connection.
   from the VFD
 
 <name>.speed-command (float, in)::
-  speed sent to VFD in RPM It is an error to send a speed faster than
-  the Motor Max RPM as set in the VFD
+  speed sent to VFD in RPM. It is an error to send a speed faster than
+  the Motor Max RPM as set in the VFD.
 
 <name>.spindle-fwd (bit, in)::
   1 for FWD and 0 for REV sent to VFD

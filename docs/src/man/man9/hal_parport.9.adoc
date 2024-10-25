@@ -59,10 +59,10 @@ For each pin created, **_p_** is the port number, and **_n_** is the
 physical pin number in the 25 pin D-shell connector.
 
 For each physical output pin, the driver creates a single HAL pin, for
-example: *parport.0.pin-14-out*.
+example: `parport.0.pin-14-out`.
 
 For each physical input pin, the driver creates two HAL pins, for
-example: **parport.0.pin-12-in** and *parport.0.pin-12-in-not*.
+example: `parport.0.pin-12-in`and `parport.0.pin-12-in-not`.
 
 The **-in **HAL pin is TRUE if the physical pin is high, and FALSE if
 the physical pin is low. The **-in-not** HAL pin is inverted and is
@@ -87,7 +87,7 @@ in the cfg="" string.
 **parport.**_p_**.pin-<n>-out-reset** (bit)::
   (only for out pins) TRUE if this pin should be reset when the .reset
   function is executed.
-**parport.**_p_**.reset-time** (U32)*::
+**parport.**_p_**.reset-time** (u32)*::
   The time (in nanoseconds) between a pin is set by write and reset by
   the reset function if it is enabled.
 
@@ -102,11 +102,11 @@ in the cfg="" string.
 **parport.write-all** (funct)::
   Reads HAL -out pins of all ports and updates all physical output pins.
 **parport.**_p**.reset** (funct)::
-  Waits until __reset-time __has elapsed since the associated write,
+  Waits until __reset-time__ has elapsed since the associated write,
   then resets pins to values indicated by __-out-reset__ and __-out-invert__ settings.
   Reset must be later in the same thread as write.
   If __-out-reset__ is TRUE, then the reset function will set
-  the pin to the value of _-out-invert_. This can be used in conjunction
+  the pin to the value of _ -out-invert_ . This can be used in conjunction
   with stepgen's doublefreq to produce one step per period. The stepgen
   stepspace for that pin must be set to 0 to enable doublefreq.
 
@@ -119,17 +119,17 @@ groups: data, control, and status. The data group consists of 8 output
 pins, the control group consists of 4 output pins, and the status group
 consists of 5 input pins.
 
-In the early 1990's, the bidirectional parallel port was introduced,
-which allows the data group to be used for output or input. The HAL
-driver supports the bidirectional port, and allows the user to set the
-data group as either input or output. If configured as _out_, a port
-provides a total of 12 outputs and 5 inputs. If configured as _in_, it
-provides 4 outputs and 13 inputs.
+In the early 1990s, the bidirectional parallel port was introduced,
+which allows the data group to be used for output or input.
+The HAL driver supports the bidirectional port,
+and allows the user to set the data group as either input or output.
+If configured as "out", a port provides a total of 12 outputs and 5 inputs.
+If configured as "in", it provides 4 outputs and 13 inputs.
 
 In some parallel ports, the control group pins are open collectors,
-which may also be driven low by an external gate. On a board with open
-collector control pins, if configured as _x_, it provides 8 outputs, and
-9 inputs.
+which may also be driven low by an external gate.
+On a board with open collector control pins,
+if configured as "x", it provides 8 outputs, and 9 inputs.
 
 In some parallel ports, the control group has push-pull drivers and
 cannot be used as an input.
