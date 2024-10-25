@@ -693,8 +693,17 @@ int Interp::find_remappings(block_pointer block, setup_pointer settings)
 	block->remappings.insert(STEP_M_7);
 
     // User defined M-Codes in group 8
-    if (is_user_defined_m_code(block, settings, 8))
-	block->remappings.insert(STEP_M_8);
+    if (is_user_defined_m_code(block, settings, 8)) {
+        if (((block->m_modes[8] == 7) && remap_in_progress("M7")) ||
+        ((block->m_modes[8] == 8) && remap_in_progress("M8")) ||
+        ((block->m_modes[8] == 9) && remap_in_progress("M9"))){
+        // recursive behavior
+        CONTROLLING_BLOCK(*settings).builtin_used = true;
+        } else {
+        // non-recursive (ie the built in) behavior
+        block->remappings.insert(STEP_M_8);
+        }
+    }
 
     // User defined M-Codes in group 9
     if (is_user_defined_m_code(block, settings, 9))
