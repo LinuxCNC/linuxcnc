@@ -1767,7 +1767,13 @@ The current set of *existing* codes open to redefinition is:
 - M61 (Set tool number)
 - M0 (pause a running program temporarily)
 - M1 (pause a running program temporarily if the optional stop switch is on)
+- M7 (activate coolant mist)
+- M8 (activate coolant flood)
+- M9 (deactivate coolant mist and flood)
 - M60 (exchange pallet shuttles and then pause a running program temporarily)
+- M62 .. M65 (digital output control)
+- M66 (wait on input)
+- M67, M68 (analog output control)
 - S  (set spindle speed)
 - F  (set feed)
 
