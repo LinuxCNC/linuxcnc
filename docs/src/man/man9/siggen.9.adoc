@@ -27,8 +27,10 @@ one.
 == NAMING
 
 The names for pins, parameters, and functions are prefixed as:
-**siggen.**_N_**.** for _N_=0,1,...,_num_-1 when using *num_chan=*_num_ *name*_N_*.* for
-nameN=name1,name2,... when using *names=name1,name2,...*
+
+**siggen.**_N_**.** for _N_ = 0, 1, ..., _num_-1 when using *num_chan=_num_*
+
+**name**_N_. for name__N__ = name1, name2, ... when using *names=name1,name2,...*
 
 The **siggen.**_N_**.** format is shown in the following descriptions.
 
@@ -52,7 +54,12 @@ The **siggen.**_N_**.** format is shown in the following descriptions.
   The output offset for signal generator _N_.
   This value is added directly to the output signal. The default value is zero.
 **siggen.**_N_**.reset** bit in::
-  Resets output pins to pretermined states: sine 0 sawtooth 0 square -1 * amplitude cosine -1 * amplitude triangle -1 * amplitude
+  Resets output pins to predetermined states: +
+  *sine*: 0 +
+  *sawtooth*: 0 +
+  *square*: -1 * amplitude +
+  *cosine*: -1 * amplitude +
+  *triangle*: -1 * amplitude
 **siggen.**_N_**.clock** bit out::
   The clock output. Bit type clock signal output at the commanded frequency.
 **siggen.**_N_**.square** float out::
