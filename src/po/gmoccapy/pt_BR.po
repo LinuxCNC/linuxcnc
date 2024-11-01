@@ -6,17 +6,17 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-10-05 14:29+0200\n"
-"PO-Revision-Date: 2024-08-02 21:17+0000\n"
-"Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
+"PO-Revision-Date: 2024-10-27 01:33+0000\n"
+"Last-Translator: Th3 Void <chmodxxzrxx@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.7-dev\n"
+"X-Generator: Weblate 5.8.2-dev\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:255
 msgid "user mode selected"
@@ -208,14 +208,12 @@ msgid "* GMOCCAPY ERROR *"
 msgstr "GMOCCAPY ERRO"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1470
-#, fuzzy
 msgid "this is not a lathe, as a lathe must have at least\n"
-msgstr "Isso não é um torno, pois um torno deve ter pelo menos"
+msgstr "Isso não é um torno, pois um torno deve ter pelo menos\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1471
-#, fuzzy
 msgid "an X and an Z axis\n"
-msgstr "um eixo X e um eixo Z"
+msgstr "um eixo X e um eixo Z\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1472
 msgid "Wrong lathe configuration, we will leave here"
@@ -228,14 +226,12 @@ msgid "Very critical situation"
 msgstr "Situação muito crítica"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1603
-#, fuzzy
 msgid "this is not a usual config\n"
-msgstr "Essa não é uma configuração comum"
+msgstr "Essa não é uma configuração comum\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1604
-#, fuzzy
 msgid "we miss one of X , Y or Z axis\n"
-msgstr "Está faltando um dos eixos X, Y ou Z"
+msgstr "Está faltando um dos eixos X, Y ou Z\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1605
 msgid "We will use by axisletter ordered jog button"
@@ -560,18 +556,16 @@ msgid "Manual Tool change"
 msgstr "Troca manual de ferramentas"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4931
-#, fuzzy
 msgid "Tool Change has been aborted!\n"
-msgstr "Troca de ferramentas cancelada!"
+msgstr "Troca de ferramentas cancelada!\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4932
 msgid "The old tool will remain set!"
 msgstr "A ferramenta antiga permanecerá configurada!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4940
-#, fuzzy
 msgid "You are trying to delete the tool mounted in the spindle\n"
-msgstr "Você está tentando excluir a ferramenta montada no spindle"
+msgstr "Você está tentando excluir a ferramenta montada no spindle\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4941
 msgid "This is not allowed, please change tool prior to delete it"
@@ -605,12 +599,11 @@ msgid "Your selection has been reset to the tool in spindle."
 msgstr "Sua seleção foi redefinida para a ferramenta no spindle."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4975
-#, fuzzy
 msgid ""
 "Tool touch off is not possible with cutter radius compensation switched on!\n"
 msgstr ""
 "O apalpamento da ferramenta não é possível quando a compensação do raio da "
-"ferramenta está ativada!"
+"ferramenta está ativada!\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4976
 msgid "Please emit an G40 before tool touch off."
@@ -752,9 +745,8 @@ msgstr ""
 "arquivo INI. "
 
 #: src/emc/usr_intf/gmoccapy/getiniinfo.py:109
-#, fuzzy
 msgid "gmoccapy will not start ****\n"
-msgstr "O gmoccapy não iniciará ****"
+msgstr "O gmoccapy não iniciará ****\n"
 
 #: src/emc/usr_intf/gmoccapy/getiniinfo.py:426
 msgid "No subroutine folder or program prefix is given in the INI file!"
@@ -1003,7 +995,7 @@ msgstr "<b>Spindle [RPM]</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:59
 msgid "Vel."
-msgstr "Vel."
+msgstr "Velocidade."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:60
 msgid "Displays the current velocity"
@@ -1043,11 +1035,11 @@ msgstr "Iniciar como janela"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:70
 msgid "X Pos."
-msgstr "X Pos."
+msgstr "Posição X."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:71
 msgid "Y Pos."
-msgstr ""
+msgstr "Posição Y."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:72
 msgid "Width"
@@ -1119,105 +1111,111 @@ msgstr "Cor Absoluta"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:89
 msgid "DTG Color"
-msgstr ""
+msgstr "Cor DTG"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:90
 msgid "Homed color"
-msgstr ""
+msgstr "Cor de referência"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:91
 msgid "Unhomed color"
-msgstr ""
+msgstr "Cor não referenciada"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:92
 msgid "Size"
-msgstr ""
+msgstr "Tamanho"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:93
 msgid "Digits"
-msgstr ""
+msgstr "Dígitos"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:94
 msgid ""
 "toggle DRO mode\n"
 "clicking on the DRO"
 msgstr ""
+"Alterna o modo DRO\n"
+"clicando no DRO"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:96
 msgid "<b>DRO</b>"
-msgstr ""
+msgstr "<b>DRO</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:97
 msgid "Grid size"
-msgstr ""
+msgstr "Tamanho da grade"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:98
 msgid "Show DRO"
-msgstr ""
+msgstr "Mostrar DRO"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:99
 msgid "Show offsets"
-msgstr ""
+msgstr "Mostrar desvios"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:100
 msgid "Show DTG"
-msgstr ""
+msgstr "Mostrar DTG"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:101
 msgid "<b>Mouse Button mode</b>"
-msgstr ""
+msgstr "<b>Modo de botão do mouse</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:102
 msgid "<b>Preview</b>"
-msgstr ""
+msgstr "<b>Pré-visualização</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:103
 msgid "X-position in pixel from top left corner of the screen"
-msgstr ""
+msgstr "Posição X em pixels a partir do canto superior esquerdo da tela"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:104
 msgid "Max. messages"
-msgstr ""
+msgstr "Número máximo de mensagens"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:105
 msgid "Font"
-msgstr ""
+msgstr "Fonte"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:106
 msgid "Y-position in pixel from top left corner of the screen"
-msgstr ""
+msgstr "Posição Y em pixels a partir do canto superior esquerdo da tela"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:107
 msgid "The width of the messages"
-msgstr ""
+msgstr "A largura das mensagens"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:108
 msgid "The maximum messages you want to be shown\t"
-msgstr ""
+msgstr "O número máximo de mensagens que você deseja exibi"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:109
 msgid "The font to use"
-msgstr ""
+msgstr "A fonte a ser utilizada"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:110
 msgid "Use frames"
-msgstr ""
+msgstr "Usar molduras"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:111
 msgid ""
 "If checked, the messages\n"
 "will be in a frame."
 msgstr ""
+"Se marcado, as mensagens\n"
+"estarão em uma moldura."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:113
 msgid "Launch test message"
-msgstr ""
+msgstr "Lançar mensagem de teste"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:114
 msgid ""
 "Push here to launch a test message\n"
 "to test your settings."
 msgstr ""
+"Clique aqui para enviar uma mensagem\n"
+"de teste para verificar suas configurações."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:116
 msgid "<b>gmoccapy messages</b>"

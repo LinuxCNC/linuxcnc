@@ -10,20 +10,21 @@
 # Edval Vitor da Silva Filho <edval.vitor@gmail.com>, 2023.
 # Luiz Diefenbach <luizhavoc@gmail.com>, 2024.
 # Petter Reinholdtsen <pere-weblate@hungry.com>, 2024.
+# Th3 Void <chmodxxzrxx@gmail.com>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: Emc2-axis cvs-head to 2.1\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-10-05 14:29+0200\n"
-"PO-Revision-Date: 2024-02-13 06:38+0000\n"
-"Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
+"PO-Revision-Date: 2024-10-27 01:33+0000\n"
+"Last-Translator: Th3 Void <chmodxxzrxx@gmail.com>\n"
 "Language-Team: Portuguese/Brazil <none>\n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.4-dev\n"
+"X-Generator: Weblate 5.8.2-dev\n"
 
 #: src/emc/task/emctaskmain.cc:868
 #, c-format
@@ -47,7 +48,9 @@ msgstr "impossível realizar (%s) no modo automático com o interpretador ocioso
 #: src/emc/task/emctaskmain.cc:1183
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter reading"
-msgstr "impossível realizar (%s) no modo automático com o interpretador lendo"
+msgstr ""
+"impossível realizar (%s) no modo automático com o interpretador fazendo a "
+"leitura"
 
 #: src/emc/task/emctaskmain.cc:1266
 #, c-format
@@ -96,14 +99,13 @@ msgid "Can't run a program when not homed"
 msgstr "Impossível executar programa enquanto a máquina não for referenciada"
 
 #: src/emc/rs274ngc/interp_arc.cc:111 src/emc/rs274ngc/interp_arc.cc:287
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "Zero-radius arc: start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,"
 "%c%.4f) r1=%.4f r2=%.4f"
 msgstr ""
-"Raio entre o ponto final e centro difere do raio entre início e o centro: "
-"início=(%c%.4f,%c%.4f) centro=(%c%.4f,%c%.4f) final=(%c%.4f,%c%.4f) r1=%.4f "
-"r2=%.4f erro_absoluto=%.4g erro_relativo=%.4f%%"
+"Arco de raio-zero: início=(%c%.4f,%c%.4f) centro=(%c%.4f,%c%.4f) final=(%c%."
+"4f,%c%.4f) r1=%.4f r2=%.4f"
 
 #: src/emc/rs274ngc/interp_arc.cc:122 src/emc/rs274ngc/interp_arc.cc:296
 #, c-format
@@ -112,9 +114,9 @@ msgid ""
 "center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f abs_err=%.4g "
 "rel_err=%.4f%%"
 msgstr ""
-"Raio entre o ponto final e centro difere do raio entre início e o centro: "
-"início=(%c%.4f,%c%.4f) centro=(%c%.4f,%c%.4f) final=(%c%.4f,%c%.4f) r1=%.4f "
-"r2=%.4f erro_absoluto=%.4g erro_relativo=%.4f%%"
+"O raio até o final do arco difere do raio até o início: início=(%c%.4f,%c%."
+"4f) centro=(%c%.4f,%c%.4f) final=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f "
+"erro_absoluto=%.4g erro_relativo=%.4f%%"
 
 #: src/emc/rs274ngc/interp_check.cc:89
 msgid "G4 not allowed with G2 or G3 because they both use P"
@@ -141,7 +143,7 @@ msgstr "Parâmetro P fora dos limites com G10 L%d"
 #: src/emc/rs274ngc/interp_check.cc:99
 msgid "Between G5.2 and G5.3 codes, only additional G5.2 codes are allowed."
 msgstr ""
-"Entre códigos G5.2 e G5.3, apenas códigos adicionais G5.2 são permitidos"
+"Entre códigos G5.2 e G5.3, apenas códigos adicionais G5.2 são permitidos."
 
 #: src/emc/rs274ngc/interp_check.cc:261
 msgid ""
@@ -197,7 +199,7 @@ msgid ""
 msgstr ""
 "Parâmetro P sem comando G2 G3 G4 G10 G64 G5 G5.2 G6, G6.2, G76 G82 G86 G88 "
 "G89 or M50 M51 M52 M53 M62 M63 M64 M65 M66 M98 ou código M de usuário para "
-"usá-lo."
+"usá-lo"
 
 #: src/emc/rs274ngc/interp_check.cc:340
 msgid "P value not an integer with M19 G2 or G3"
@@ -208,23 +210,20 @@ msgid "P value must be 0,1,or 2 with M19"
 msgstr "Parâmetro P deve ser 0,1,ou 2 com M19"
 
 #: src/emc/rs274ngc/interp_check.cc:344
-#, fuzzy
 msgid "P value should be 1 or greater with G2 or G3"
-msgstr "Parâmetro P fora dos limites com G10 L2"
+msgstr "O valor de P deve ser 1 ou maior com G2 ou G3"
 
 #: src/emc/rs274ngc/interp_check.cc:355
-#, fuzzy
 msgid ""
 "Q word with no G5, G6, G10, G64, G73, G76, G83, M19, M66, M67, M68 or user M "
 "code that uses it"
 msgstr ""
-"Parâmetro Q sem comando G5, G10, G64, G73, G76, G83, M66, M67, M68 ou código "
-"M de usuário para usá-lo"
+"Parâmetro Q sem comando G5, G6, G10, G64, G73, G76, G83, M19, M66, M67, M68 "
+"ou código M de usuário para usá-lo"
 
 #: src/emc/rs274ngc/interp_check.cc:368
-#, fuzzy
 msgid "R value must be within 0..360 with M19"
-msgstr "Parâmetro P fora dos limites com G10 L2"
+msgstr "O valor de R deve estar entre 0 e 360 com M19"
 
 #: src/emc/rs274ngc/interp_convert.cc:187
 #: src/emc/rs274ngc/interp_convert.cc:380
@@ -264,15 +263,12 @@ msgid "Must specify positive weight P for every Control Point"
 msgstr "Deve-se especificar o peso positivo P para cada Ponto de controle"
 
 #: src/emc/rs274ngc/interp_convert.cc:225
-#, fuzzy
 msgid "Cannot make a NURBS with 0 feedrate"
-msgstr "Impossível realizar arco com velocidade de movimentação zero"
+msgstr "Não é possível criar uma NURBS com taxa de movimentação zero."
 
 #: src/emc/rs274ngc/interp_convert.cc:317
-#, fuzzy
 msgid "Cannot use G5.3 without G5.2 first"
-msgstr ""
-"Impossível usar G28 ou G30 com compensação de raio de ferramenta ativado"
+msgstr "Não é possível usar G5.3 antes G5.2"
 
 #: src/emc/rs274ngc/interp_convert.cc:320
 #, c-format
@@ -285,26 +281,25 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:373
 msgid "one plane must be selected for nurbs: XY, YZ, ZX"
-msgstr "um plano deve ser selecionado para nurbs: XY, YZ, ZX"
+msgstr "um plano deve ser selecionado para NURBS: XY, YZ, ZX"
 
 #: src/emc/rs274ngc/interp_convert.cc:400
 msgid "Program the nurbs order P in the first block of instruction"
-msgstr "Programe a ordem do nurbs P no primeiro bloco de instrução"
+msgstr "Programa a ordem da NURBS P no primeiro bloco de instrução"
 
 #: src/emc/rs274ngc/interp_convert.cc:404
 msgid "nurbs order P number is not an integer"
-msgstr "numero de ordem do arco P não é um inteiro"
+msgstr "O número da ordem da NURBS P não é um inteiro"
 
 #: src/emc/rs274ngc/interp_convert.cc:410
 msgid ""
 "Program the nurbs Q value (1,2,3) in the first block of nurbs instruction"
 msgstr ""
-"Programe o nurbs valor Q (1,2,3) no primeiro bloco de instrução do nurbs"
+"Programa o valor Q da NURBS (1, 2, 3) no primeiro bloco da instrução NURBS."
 
 #: src/emc/rs274ngc/interp_convert.cc:415
-#, fuzzy
 msgid "nurbs Q value not in range 1 to 3"
-msgstr "Parâmetro P não é um inteiro com G10 L2"
+msgstr "O valor de Q para NURBS não está no intervalo de 1 a 3"
 
 #: src/emc/rs274ngc/interp_convert.cc:417
 msgid "nurbs Q number is not an integer"
@@ -324,18 +319,17 @@ msgid "nurbs K number is not an integer"
 msgstr "arco número K não é um inteiro"
 
 #: src/emc/rs274ngc/interp_convert.cc:437
-#, fuzzy
 msgid "Cannot make a nurbs with 0 feedrate"
-msgstr "Impossível realizar arco com velocidade de movimentação zero"
+msgstr "Não é possível criar uma NURBS com taxa de avanço zero"
 
 #: src/emc/rs274ngc/interp_convert.cc:503
-#, fuzzy, c-format
+#, c-format
 msgid ""
 "You must specify a number of control points at least equal to the order P = "
 "%d"
 msgstr ""
 "Você precisa especificar um número de pontos de controle pelo menos igual à "
-"ordem L=%d"
+"ordem P=%d"
 
 #: src/emc/rs274ngc/interp_convert.cc:567
 msgid "Cannot convert spline with cutter radius compensation"
@@ -382,9 +376,9 @@ msgstr ""
 #: src/emc/rs274ngc/interp_convert.cc:980
 #: src/emc/rs274ngc/interp_convert.cc:989
 #: src/emc/rs274ngc/interp_convert.cc:995
-#, fuzzy, c-format
+#, c-format
 msgid "%c word missing in absolute center arc"
-msgstr "Parâmetro F faltando com movimento em arco no modo de tempo inverso"
+msgstr "Palavra faltando no centro absoluto do arco"
 
 #: src/emc/rs274ngc/interp_convert.cc:1222
 msgid ""
@@ -458,7 +452,6 @@ msgid "G%d with lathe tool, but plane is not G18"
 msgstr "G%d com ferramenta de torno, mas plano não é G18"
 
 #: src/emc/rs274ngc/interp_convert.cc:2984
-#, fuzzy
 msgid "Cannot set reference point with cutter compensation in effect"
 msgstr ""
 "Impossível setar saída do movimento quando compensação de raio de corte está "
@@ -538,9 +531,8 @@ msgid "No valid P word with M65"
 msgstr "Nenhum parâmetro P válido com M65"
 
 #: src/emc/rs274ngc/interp_convert.cc:3851
-#, fuzzy
 msgid "invalid P-word with M66"
-msgstr "Nenhum parâmetro P válido com M62"
+msgstr "Nenhum parâmetro P válido com M66"
 
 #: src/emc/rs274ngc/interp_convert.cc:3866
 msgid "Cannot wait for digital input with cutter radius compensation on"
@@ -574,10 +566,9 @@ msgid "Invalid analog index with M68"
 msgstr "Índice analógico inválido com M68"
 
 #: src/emc/rs274ngc/interp_convert.cc:3932
-#, fuzzy
 msgid "Need non-negative Q-word to specify tool number with M61"
 msgstr ""
-"Precisa de parâmetro Q positivo para especificar um número de ferramenta com "
+"Precisa de parâmetro Q positivo para especificar um número da ferramenta com "
 "M61"
 
 #: src/emc/rs274ngc/interp_convert.cc:3976
@@ -687,7 +678,6 @@ msgid "I J words not allowed with G10 L2"
 msgstr "Parâmetros I J não permitidos com G10 L2"
 
 #: src/emc/rs274ngc/interp_convert.cc:4760
-#, fuzzy
 msgid ""
 "Cannot change the active coordinate system with cutter radius compensation on"
 msgstr ""
@@ -12113,7 +12103,8 @@ msgstr "Positivo"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid "_:"
+msgid ""
+"_:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
