@@ -7,9 +7,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gmoccapy\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-10-05 14:29+0200\n"
-"PO-Revision-Date: 2024-04-19 07:40+0000\n"
+"PO-Revision-Date: 2024-11-01 07:58+0000\n"
 "Last-Translator: Hans Unzner <hansunzner@gmail.com>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/gmocappy/"
 "de/>\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.5-dev\n"
+"X-Generator: Weblate 5.8.2-dev\n"
 "X-Poedit-Language: German\n"
 "X-Poedit-Country: GERMANY\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -1298,11 +1298,11 @@ msgstr "Nutze Entsperrcode"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:135
 msgid "Do not use unlock code"
-msgstr "Kein Entsperrcode verwenden"
+msgstr "Keinen Entsperrcode verwenden"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:136
 msgid "Use hal pin to unlock"
-msgstr "Benutze Hal pin zum Entsperren"
+msgstr "Benutze HAL-Pin zum Entsperren"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:137
 msgid "<b>Unlock settings</b>"
