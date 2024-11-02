@@ -16,20 +16,19 @@ constants are located in src/emc/usr_intf/axis/extensions/emcmodule.cc
 ////
 
 == Introduction
-User interfaces control LinuxCNC activity by sending
-NML messages to the LinuxCNC task controller, and monitor results by
-observing the LinuxCNC status structure, as well as the error reporting channel.
+User interfaces control LinuxCNC activity by sending NML messages to the LinuxCNC task controller,
+and monitor results by observing the LinuxCNC status structure, as well as the error reporting channel.
 
-Programmatic access to NML is through a C++ API; however, the most
-important parts of the NML interface to LinuxCNC are also available to
-Python programs through the `linuxcnc` module.
+Programmatic access to NML is through a C++ API;
+however, the most important parts of the NML interface to LinuxCNC
+are also available to Python programs through the `linuxcnc` module.
 
-Beyond the NML interface to the command, status and error channels,
-the `linuxcnc` module also contains:
+Beyond the NML interface to the command, status and error channels, the `linuxcnc` module also contains:
 
 - support for reading values from INI files
 
 ////
+FIXME
 - support for position logging  (???)
 ////
 
@@ -37,27 +36,24 @@ the `linuxcnc` module also contains:
 
 The general pattern for `linuxcnc` usage is roughly like this:
 
-- import the `linuxcnc` module
-- establish connections to the command, status and error NML channels as needed
-- poll the status channel, either periodically or as needed
-- before sending a command, determine from status whether it is in
-  fact OK to do so (for instance, there is no point in sending a 'Run'
-  command if task is in the ESTOP state, or the interpreter is not idle)
-- send the command by using one of the `linuxcnc` command channel methods
+- Import the `linuxcnc` module.
+- Establish connections to the command, status and error NML channels as needed.
+- Poll the status channel, either periodically or as needed.
+- Before sending a command, determine from status whether it is in fact OK to do so
+  (for instance, there is no point in sending a 'Run' command if task is in the ESTOP state, or the interpreter is not idle)
+- Send the command by using one of the `linuxcnc` command channel methods.
 
-To retrieve messages from the error channel, poll the error channel
-periodically, and process any messages retrieved.
+To retrieve messages from the error channel, poll the error channel periodically, and process any messages retrieved.
 
-- poll the status channel, either periodically or as needed
-- print any error message and explore the exception code
+- Poll the status channel, either periodically or as needed.
+- Print any error message and explore the exception code.
 
-`linuxcnc` also defines the `error` Python exception type to support error reporting.
+The module `linuxcnc` also defines the `error` Python exception type to support error reporting.
 
-== Reading LinuxCNC status
+== Reading LinuxCNC status with the linuxcnc Python module
 
-Here is a Python fragment to explore the contents of the
-`linuxcnc.stat` object which contains some 80+ values (run while
-linuxcnc is running for typical values):
+Here is a Python fragment to explore the contents of the `linuxcnc.stat` object
+which contains some 80+ values (run while LinuxCNC is running for typical values):
 
 [source,python]
 ----
@@ -76,9 +72,8 @@ for x in dir(s):
         print(x, getattr(s,x))
 ----
 
-Linuxcnc uses the default compiled-in path to the NML configuration
-file unless overridden, see <<python:reading-ini-values,Reading
-INI file values>> for an example.
+The linuxcnc module uses the default compiled-in path to the NML configuration file unless overridden,
+see <<python:reading-ini-values,ReadingINI file values>> for an example.
 
 === linuxcnc.stat attributes
 
@@ -98,28 +93,26 @@ INI file values>> for an example.
   current value of the analog input pins.
 
 *angular_units*:: '(returns float)' -
-machine angular units per deg, reflects [TRAJ]ANGULAR_UNITS INI value.
+  machine angular units per deg, reflects [TRAJ]ANGULAR_UNITS INI value.
 
 *aout*:: '(returns tuple of floats)' -
   current value of the analog output pins.
 
-*axes*:: Removed since version 2.9
-  use axis_mask.bit_count() to get the number of axes configured
+*axes* (_Removed since version 2.9_)::
+  instead, use `axis_mask.bit_count()` to get the number of axes configured.
 
 *axis*:: '(returns tuple of dicts)' -
-  reflecting current axis values. See
-  <<sec:the-axis-dictionary,The axis dictionary>>.
+  reflecting current axis values. See <<sec:the-axis-dictionary,The axis dictionary>>.
 
 *axis_mask*:: '(returns integer)' -
-  mask of axis available as defined by [TRAJ]COORDINATES in the INI
-  file. Returns the sum of the axes X=1, Y=2, Z=4, A=8, B=16, C=32, U=64,
-  V=128, W=256.
+  mask of axis available as defined by `[TRAJ]COORDINATES` in the INI file.
+  Returns the sum of the axes X=1, Y=2, Z=4, A=8, B=16, C=32, U=64, V=128, W=256.
 
 *block_delete*:: '(returns boolean)' -
   block delete current status.
 
 *call_level*:: '(returns integer)'` -
-  current subroutine depth. - 0 If not in a subroutine, Depth if not otherwise specified
+  current subroutine depth. - 0 if not in a subroutine, depth if not otherwise specified.
 
 *command*:: '(returns string)' -
   currently executing command.
@@ -152,10 +145,9 @@ machine angular units per deg, reflects [TRAJ]ANGULAR_UNITS INI value.
   remaining distance of current move for each axis, as reported by trajectory planner.
 
 *echo_serial_number*:: '(returns integer)' -
-  The serial number of the last completed command sent by a UI
-  to task. All commands carry a serial number. Once the command
-  has been executed, its serial number is reflected in
-  `echo_serial_number`.
+  The serial number of the last completed command sent by a UI to task.
+  All commands carry a serial number. Once the command has been executed,
+  its serial number is reflected in `echo_serial_number`.
 
 *enabled*:: '(returns boolean)' -
   trajectory planner enabled flag.
@@ -196,7 +188,7 @@ machine angular units per deg, reflects [TRAJ]ANGULAR_UNITS INI value.
 
 *gcodes*:: '(returns tuple of integers)' -
   Active G-codes for each modal group.
-  G-code constants
+  G-code constants:
   G_0, G_1, G_2, G_3, G_4, G_5, G_5_1, G_5_2, G_5_3, G_7, G_8, G_100, G_17,
   G_17_1, G_18, G_18_1, G_19, G_19_1, G_20, G_21, G_28, G_28_1, G_30, G_30_1,
   G_33, G_33_1, G_38_2, G_38_3, G_38_4, G_38_5, G_40, G_41, G_41_1, G_42, G_42_1,
@@ -206,10 +198,10 @@ machine angular units per deg, reflects [TRAJ]ANGULAR_UNITS INI value.
   G_92_1, G_92_2, G_92_3, G_93, G_94, G_95, G_96, G_97, G_98, G_99
 
 *homed*:: '(returns tuple of integers)' -
-  currently homed joints, 0 = not homed, 1 = homed.
+  currently homed joints, with 0 = not homed, 1 = homed.
 
 *id*:: '(returns integer)' -
-  currently executing motion id.
+  currently executing motion ID.
 
 *ini_filename*:: '(returns string)' -
   path to the INI file passed to linuxcnc.
@@ -304,7 +296,7 @@ machine angular units per deg, reflects [TRAJ]ANGULAR_UNITS INI value.
   trajectory position.
 
 *probe_tripped*:: '(returns boolean)' -
-  flag, True if probe has tripped (latch)
+  flag, True if probe has tripped (latch).
 
 *probe_val*:: '(returns integer)' -
   reflects value of the `motion.probe-input` pin.
@@ -334,32 +326,30 @@ machine angular units per deg, reflects [TRAJ]ANGULAR_UNITS INI value.
   current XY rotation angle around Z axis.
 
 *settings*:: '(returns tuple of floats)' -
-  current interpreter settings. settings[0] =
-  sequence number, settings[1] = feed rate, settings[2] = speed,
-  settings[3] = `G64 P` blend tolerance,
+  current interpreter settings: +
+  settings[0] = sequence number, +
+  settings[1] = feed rate, settings[2] = speed, +
+  settings[3] = `G64 P` blend tolerance, +
   settings[4] = `G64 Q` naive CAM tolerance.
 
 *spindle*:: ' (returns tuple of dicts) ' -
   returns the current spindle status,
-  see <<sec:the-spindle-dictionary, The spindle dictionary>>
+  see <<sec:the-spindle-dictionary, The spindle dictionary>>.
 
 *spindles*:: '(returns integer)' -
-  number of spindles. Reflects [TRAJ]SPINDLES INI value.
+  number of spindles. Reflects `[TRAJ]SPINDLES` INI value.
 
 *state*:: '(returns integer)' -
-  current command execution status. One of RCS_DONE,
-  RCS_EXEC, RCS_ERROR.
+  current command execution status. One of `RCS_DONE`, `RCS_EXEC`, `RCS_ERROR`.
 
 *task_mode*:: '(returns integer)' -
-  current task mode. one of MODE_MDI, MODE_AUTO,
-  MODE_MANUAL.
+  current task mode. One of `MODE_MDI`, `MODE_AUTO`, `MODE_MANUAL`.
 
 *task_paused*:: '(returns integer)' -
   task paused flag.
 
 *task_state*:: '(returns integer)' -
-  current task state. one of STATE_ESTOP,
-  STATE_ESTOP_RESET, STATE_ON, STATE_OFF.
+  current task state. One of `STATE_ESTOP`, `STATE_ESTOP_RESET`, `STATE_ON`, `STATE_OFF`.
 
 *tool_in_spindle*:: '(returns integer)' -
   current tool number.
@@ -375,7 +365,6 @@ machine angular units per deg, reflects [TRAJ]ANGULAR_UNITS INI value.
   id, xoffset, yoffset, zoffset, aoffset, boffset, coffset, uoffset, voffset,
   woffset, diameter, frontangle, backangle, orientation. The id and orientation
   are integers and the rest are floats.
-
 [source,python]
 ----
 #!/usr/bin/env python3
@@ -390,15 +379,13 @@ else:
     print("No tool loaded.")
 ----
 
-*toolinfo(toolno)*:: '(returns dict of tooldata for toolno)' -
+*toolinfo*(_toolno_):: '(returns dict of tooldata for toolno)' -
   An initial stat.poll() is required to initialize.
-  toolno must be greater than zero and less than or equal to the highest tool number in use.
+  _toolno_ must be greater than zero and less than or equal to the highest tool number in use.
   Dictionary items include all tooldata items:
-     'toolno', 'pocketno',
-     'diameter','frontangle','backangle','orientation',
-     'xoffset','yoffset', ...  'woffset',
-     'comment'
-
+  'toolno', 'pocketno', 'diameter','frontangle','backangle','orientation',
+  'xoffset','yoffset', ...  'woffset', 'comment'. +
+  As an example, the following script
 [source,python]
 ----
 #!/usr/bin/env python3
@@ -409,9 +396,10 @@ s.poll()
 toolno = 1
 print(s.toolinfo(toolno))
 ----
-
-
+  produces the output:
+----
 ': 0, 'xoffset': 0.0, 'yoffset': 0.0, 'zoffset': 0.18, 'aoffset': 0.0, 'boffset': 0.0, 'coffset': 0.0, 'uoffset': 0.0, 'voffset': 0.0, 'woffset': 0.0, 'comment': 'Tool_18 28Jan23:18.53.25'}
+----
 
 
 *velocity*:: '(returns float)' -
@@ -420,20 +408,18 @@ print(s.toolinfo(toolno))
 [[sec:the-axis-dictionary]]
 === The `axis` dictionary
 
-The axis configuration and status values are available through a list
-of per-axis dictionaries. Here's an example how to access an attribute
-of a particular axis:
+The axis configuration and status values are available through a list of per-axis dictionaries.
+Here's an example how to access an attribute of a particular axis:
 Note that many properties that were formerly in the `axis` dictionary are
 now in the `joint` dictionary, because on nontrivial kinematics machines
 these items (such as backlash) are not the properties of an axis.
 
 *max_position_limit*:: '(returns float)' -
   maximum limit (soft limit) for axis motion, in machine units.configuration
-  parameter, reflects [JOINT_n]MAX_LIMIT.
+  parameter, reflects `[JOINT___n__]MAX_LIMIT`.
 
 *min_position_limit*:: '(returns float)' -
-  minimum limit (soft limit) for axis motion, in machine units.configuration
-  parameter, reflects [JOINT_n]MIN_LIMIT.
+  minimum limit (soft limit) for axis motion, in machine units.configuration parameter, reflects `[JOINT___n__]MIN_LIMIT`.
 
 *velocity*:: '(returns float)' -
   current velocity.
@@ -454,7 +440,7 @@ print("Joint 1 homed: ", s.joint[1]["homed"])
 For each joint, the following dictionary keys are available:
 
 *backlash*:: '(returns float)' -
-  Backlash in machine units. configuration parameter, reflects [JOINT_n]BACKLASH.
+  Backlash in machine units. configuration parameter, reflects `[JOINT___n__]BACKLASH`.
 
 *enabled*:: '(returns integer)' -
   non-zero means enabled.
@@ -481,33 +467,31 @@ For each joint, the following dictionary keys are available:
   current input position.
 
 *jointType*:: '(returns integer)' -
-  type of axis configuration parameter, reflects
-  [JOINT_n]TYPE. LINEAR=1, ANGULAR=2. See <<sub:ini:sec:axis-letter, Joint
-  INI configuration>> for details.
+  type of axis configuration parameter, reflects `[JOINT___n__]TYPE` with `LINEAR=1`, `ANGULAR=2`.
+  See <<sub:ini:sec:axis-letter, Joint INI configuration>> for details.
 
 *max_ferror*:: '(returns float)' -
-  maximum following error. configuration
-  parameter, reflects [JOINT_n]FERROR.
+  maximum following error. configuration parameter, reflects `[JOINT___n__]FERROR`.
 
 *max_hard_limit*:: '(returns integer)' -
   non-zero means max hard limit exceeded.
 
 *max_position_limit*:: '(returns float)' -
   maximum limit (soft limit) for joint motion, in machine units. configuration
-  parameter, reflects [JOINT_n]MAX_LIMIT.
+  parameter, reflects `[JOINT___n__]MAX_LIMIT`.
 
 *max_soft_limit*::
   non-zero means `max_position_limit` was exceeded, int
 
 *min_ferror*:: '(returns float)' -
-  configuration parameter, reflects [JOINT_n]MIN_FERROR.
+  configuration parameter, reflects `[JOINT___n__]MIN_FERROR`.
 
 *min_hard_limit*:: '(returns integer)' -
   non-zero means min hard limit exceeded.
 
 *min_position_limit*:: '(returns float)' -
   minimum limit (soft limit) for joint motion, in machine units. configuration
-  parameter, reflects [JOINT_n]MIN_LIMIT.
+  parameter, reflects `[JOINT___n__]MIN_LIMIT`.
 
 *min_soft_limit*:: '(returns integer)' -
   non-zero means `min_position_limit` was exceeded.
@@ -521,7 +505,7 @@ For each joint, the following dictionary keys are available:
 *units*:: '(returns float)' -
   joint units per mm, or per degree for angular joints. +
   (joint units are the same as machine units, unless set otherwise
-  by the configuration parameter [JOINT_n]UNITS)
+  by the configuration parameter `[JOINT___n__]UNITS`)
 
 *velocity*:: '(returns float)' -
   current velocity.
@@ -533,7 +517,7 @@ For each joint, the following dictionary keys are available:
   value of the spindle brake flag.
 
 *direction*:: '(returns integer)' -
-  rotational direction of the spindle. forward=1, reverse=-1.
+  rotational direction of the spindle with forward=1, reverse=-1.
 
 *enabled*:: '(returns integer)' -
   value of the spindle enabled flag.
@@ -554,16 +538,15 @@ For each joint, the following dictionary keys are available:
   value of the spindle override enabled flag.
 
 *speed*:: '(returns float)' -
-  spindle speed value, rpm, > 0: clockwise, < 0:
-  counterclockwise.
+  spindle speed value, rpm, > 0: clockwise, < 0: counterclockwise.
 
 ==  Preparing to send commands
 
-Some commands can always be sent, regardless of mode and state; for
-instance, the `linuxcnc.command.abort()` method can always be called.
+Some commands can always be sent, regardless of mode and state;
+for instance, the `linuxcnc.command.abort()` method can always be called.
 
-Other commands may be sent only in appropriate state, and those tests
-can be a bit tricky. For instance, an MDI command can be sent only if:
+Other commands may be sent only in appropriate state, and those tests can be a bit tricky.
+For instance, an MDI command can be sent only if:
 
 - ESTOP has not been triggered, and
 - the machine is turned on and
@@ -571,8 +554,7 @@ can be a bit tricky. For instance, an MDI command can be sent only if:
 - the interpreter is not running and
 - the mode is set to `MDI mode`
 
-so an appropriate test before sending an MDI command through
-`linuxcnc.command.mdi()` could be:
+An appropriate test before sending an MDI command through `linuxcnc.command.mdi()` could be:
 
 [source,python]
 ----
@@ -769,17 +751,16 @@ c.tool_offset(toolno, z_offset,  x_offset, diameter, frontangle, backangle, orie
   set spindle override enabled. Defaults to spindle 0.
 
 `spindle(direction: int, speed: float=0, spindle: int=0, wait_for_speed: int=0)`::
-    - Direction: [SPINDLE_FORWARD, SPINDLE_REVERSE, SPINDLE_OFF, SPINDLE_INCREASE,
-      SPINDLE_DECREASE, or SPINDLE_CONSTANT]
-    - Speed: Speed in RPM, defaults to 0.
-    - Spindle: Spindle number to command defaults to 0.
-    - Wait_for_speed: if 1 motion will wait for speed before continuing, defaults to not.
+  - Direction: [`SPINDLE_FORWARD`, `SPINDLE_REVERSE`, `SPINDLE_OFF`, `SPINDLE_INCREASE`, `SPINDLE_DECREASE`, or `SPINDLE_CONSTANT`]
+  - Speed: Speed in RPM, defaults to 0.
+  - Spindle: Spindle number to command defaults to 0.
+  - Wait_for_speed: if 1 motion will wait for speed before continuing, defaults to not.
 
 [WARNING]
 MDI commands will ignore this. "S1000" after this will turn the spindle off.
 
 `text_msg(string)`::
-  sends a operator text message to the screen. (max 254 characters)
+  sends a operator text message to the screen (max 254 characters).
 
 [source,python]
 ----
@@ -810,11 +791,10 @@ c.spindle.(linuxcnc.SPINDLE_OFF, 0)
   Set spindle override factor. Defaults to spindle 0.
 
 `state(int)`::
-  Set the machine state. Machine state should be STATE_ESTOP, STATE_ESTOP_RESET, STATE_ON, or STATE_OFF.
+  Set the machine state. Machine state should be `STATE_ESTOP`, `STATE_ESTOP_RESET`, `STATE_ON`, or `STATE_OFF`.
 
 `task_plan_sync()`::
-  On completion of this call, the VAR file on disk is updated with
-  live values from the interpreter.
+  On completion of this call, the VAR file on disk is updated with live values from the interpreter.
 
 `teleop_enable(int)`::
   Enable/disable teleop mode (disable for joint jogging).
@@ -823,29 +803,24 @@ c.spindle.(linuxcnc.SPINDLE_OFF, 0)
   Set the tool offset. See usage example above.
 
 `traj_mode(int)`::
-  Set trajectory mode. Mode is one of MODE_FREE, MODE_COORD, or
-  MODE_TELEOP.
+  Set trajectory mode. Mode is one of `MODE_FREE`, `MODE_COORD`, or `MODE_TELEOP`.
 
 `unhome(int)`::
   Unhome a given joint.
 
 `wait_complete([float])`::
-  Wait for completion of the last command sent. If timeout in
-  seconds not specified, default is 5 seconds. Return -1 if
-  timed out, return RCS_DONE or RCS_ERROR according to command
-  execution status.
+  Wait for completion of the last command sent.
+  If timeout in seconds not specified, default is 5 seconds.
+  Return -1 if timed out, return `RCS_DONE` or `RCS_ERROR` according to command execution status.
 
 == Reading the error channel
 
-To handle error messages, connect to the error channel and
-periodically poll() it.
+To handle error messages, connect to the error channel and periodically poll() it.
 
-Note that the NML channel for error messages has a queue (other than
-the command and status channels), which means
-that the first consumer of an error message deletes that message from
-the queue; whether your another error message consumer (e.g. Axis)
-will 'see' the message is dependent on timing. It is recommended to have just
-one error channel reader task in a setup.
+Note that the NML channel for error messages has a queue (other than the command and status channels),
+which means that the first consumer of an error message deletes that message from the queue;
+whether your another error message consumer (e.g. AXIS) will 'see' the message is dependent on timing.
+It is recommended to have just one error channel reader task in a setup.
 
 [source,python]
 ----
@@ -868,8 +843,7 @@ if error:
 [[python:reading-ini-values]]
 == Reading INI file values
 
-Here's an example for reading values from an INI file through the
-`linuxcnc.ini` object:
+Here's an example for reading values from an INI file through the `linuxcnc.ini` object:
 
 [source,python]
 ----

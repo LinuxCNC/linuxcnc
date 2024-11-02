@@ -130,15 +130,12 @@ Preempt-RT::
 
 Non-realtime::
   LinuxCNC can also be built and run on non-realtime platforms,
-  such as a regular install of Debian or Ubuntu without any special realtime kernel.
-.  
+  such as a regular install of Debian or Ubuntu without any special realtime kernel. +
   In this mode LinuxCNC is not useful for controlling machine tools,
   but it is useful for simulating the execution of G-code and for testing the non-realtime parts of the system
-  (such as the user interfaces, and some kinds of components and device drivers).
-.  
+  (such as the user interfaces, and some kinds of components and device drivers). +
   To make use of the realtime capabilities of LinuxCNC, certain parts of LinuxCNC need to run with root privileges.
   To enable root for these parts, run this extra command after the `make` that builds LinuxCNC:
-
 -----
 $ sudo make setuid
 -----

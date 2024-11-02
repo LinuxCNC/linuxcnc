@@ -17,7 +17,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 '''
 
-VER = '20'
+VER = '21'
 
 ##############################################################################
 # the next line suppresses undefined variable errors in VSCode               #
@@ -30,8 +30,10 @@ VER = '20'
 ##############################################################################
 def update_check():
     ''' check for updates - the newest update must be added last here '''
-    # v15 (2024 Jan 30) set user_m_path to include /nc_files/plasmac/m_files
-    if 'nc_files/plasmac/m_files' not in inifile.find('RS274NGC', 'USER_M_PATH'):
+    # v15 (2024 Jan 30) set user_m_path to include <plasmac2/lib>
+    path = 'plasmac2/lib'
+    mPath = inifile.find('RS274NGC', 'USER_M_PATH')
+    if path not in mPath:
         version = 'v15'
         try:
             if os.path.isfile(os.path.join(configPath, 'M190')):
@@ -42,15 +44,7 @@ def update_check():
                 with open(s.ini_filename, 'w') as outFile:
                     for line in inFile:
                         if line.startswith('USER_M_PATH'):
-                            if '/usr' in BASE:
-                                mPath = '/usr/share/doc/linuxcnc/examples/nc_files/plasmac/m_files'
-                            else:
-                                mPath = os.path.realpath(os.path.join(BASE, 'nc_files/plasmac/m_files'))
-                            if line.strip().endswith(':./'):
-                                mPath = f"./:{mPath}"
-                                line = f"{line.strip()[:-3].replace('./plasmac2', mPath)}\n"
-                            else:
-                                line = line.replace('./plasmac2', mPath)
+                            line = line.replace(mPath, f'./:{path}')
                         outFile.write(line)
             if os.path.isfile(tmpFile):
                 os.remove(tmpFile)
@@ -5049,8 +5043,15 @@ if os.path.isdir(os.path.join(p2Path, 'lib')):
     rE('wm withdraw .keyp')
 
     # menu alterations
-    # delete existing
+	# remove tearoffs
+    rE('.menu.machine configure -tearoff 0')
+    rE('.menu.machine.home configure -tearoff 0')
+    rE('.menu.machine.unhome configure -tearoff 0')
+    # delete some existing
     rE('.menu.file delete last')
+    rE('.menu.machine delete last')
+    rE('.menu.machine delete last')
+    rE('.menu.machine delete last')
     rE('.menu.view delete 20')
     rE('.menu.view delete 8')
     rE('.menu.view delete 7')

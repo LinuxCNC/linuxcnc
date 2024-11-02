@@ -1,5 +1,5 @@
 # simpleminded INI filter for source-highlight 2.4
-# 
+#
 comment start "#"
 section start '\[.*\]'
 

@@ -73,7 +73,7 @@ Most OS's have the terminal as a menu item, usually in Accessories.
 == Man Pages(((Man Pages)))
 
 A man page (short for manual page) is a form of software documentation
-usually found on a Unix or Unix-like operating system like Linux.
+usually found on a UNIX or UNIX-like operating system like Linux.
 
 To view a man page open up a terminal to find out something about the
 find command in the terminal window type:
@@ -115,8 +115,7 @@ it will be named mymod.txt or what ever you named it.
 When you open the file browser and you see the owner of the file is
 root you must do extra steps to edit that file. Editing some root files
 can have bad results. Be careful when editing root files. Generally, you
-can open and view most root files, but they will open in 'read only'
-mode.
+can open and view most root files, but they will open in 'read only' mode.
 
 === The Command Line Way
 
@@ -130,11 +129,10 @@ Open the file with File > Open > Edit
 
 === The GUI Way
 
-. Right click on the desktop and select Create Launcher
-. Type a name in like sudo edit
-. Type 'gksudo "gnome-open %u"' as the command and save the launcher to
-  your desktop
-. Drag a file onto your launcher to open and edit
+. Right click on the desktop and select Create Launcher.
+. Type a name in like sudo edit.
+. Type 'gksudo "gnome-open %u"' as the command and save the launcher to your desktop.
+. Drag a file onto your launcher to open and edit.
 
 === Root Access
 
@@ -146,8 +144,7 @@ foul things up as root if you don't know what you're doing.
 
 === Working Directory
 
-To find out the path to the present working directory in the terminal
-window type:
+To find out the path to the present working directory in the terminal window, type:
 
 ----
 pwd

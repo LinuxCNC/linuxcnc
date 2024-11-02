@@ -490,7 +490,7 @@ When `.speed` is positive, `.phase-A` leads `.phase-B`.
 * (u32) `sim-encoder.`__<chan-num>__`.ppr` - Pulses Per Revolution.
 * (float) `sim-encoder.`__<chan-num>__`.scale` - Scale Factor for `.speed`.
   The default is 1.0, which means that `.speed` is in revolutions per second.
-  Change to 60 for RPM, to 360 for degrees per second, 6.283185 (= 2*&pi;) for radians per second, etc.
+  Change to 60 for RPM, to 360 for degrees per second, 6.283185 (= 2*π) for radians per second, etc.
 
 Note that pulses per revolution is not the same as counts per revolution.
 A pulse is a complete quadrature cycle.

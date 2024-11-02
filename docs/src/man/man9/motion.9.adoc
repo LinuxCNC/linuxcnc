@@ -16,19 +16,17 @@ The limits for the following items are compile-time settings:
   Minimum is 1, if *num_dio* is not specified, it defaults to *DEFAULT_DIO*.
 
 *names_dout*:: A comma-separated list of names for digital output pins.
-  This parameter is mutually exclusive with *num_dio*, but can be
-  combined with *names_din*. A maximum of *EMCMOT_MAX_DIO* names can be
-  specified. The default digital output pin has names like
-  *motion.digital-out-00* whereas *names_dout=*_is-homing-x,is-homing-y_
-  will create the HAL pins *motion.dout-is-homing-x* and
-  *motion.dout-is-homing-y*.
+  This parameter is mutually exclusive with *num_dio*, but can be combined with *names_din*.
+  A maximum of *EMCMOT_MAX_DIO* names can be specified.
+  The default digital output pin has names like *motion.digital-out-00* whereas *names_dout=*_is-homing-x,is-homing-y_
+  will create the HAL pins `motion.dout-is-homing-x` and `motion.dout-is-homing-y`.
 
 *names_din*:: A comma-separated list of names for digital input pins.
   This parameter is mutually exclusive with *num_dio*, but can be
   combined with *names_dout*. A maximum of *EMCMOT_MAX_DIO* names can be
   specified. The default digital input pin has names like
   *motion.digital-in-00* whereas *names_din=*_homed-x,homed-y_ will
-  create the HAL pins *motion.din-homed-x* and *motion.din-homed-y*.
+  create the HAL pins `motion.din-homed-x` and `motion.din-homed-y`.
 
 *num_aio*:: Maximum number of analog IO pins is set by
 *EMCMOT_MAX_AIO*.
@@ -39,29 +37,22 @@ The limits for the following items are compile-time settings:
   combined with *names_ain*. A maximum of *EMCMOT_MAX_AIO* names can be
   specified. The default analog output pin has names like
   *motion.analog-out-00* whereas *names_aout=*_feedrate1,feedrate2_ will
-  create the HAL pins *motion.aout-feedrate1* and
-  *motion.aout-feedrate2*.
+  create the HAL pins `motion.aout-feedrate1` and `motion.aout-feedrate2`.
 
 *names_ain*:: A comma-separated list of names for analog input pins.
   This parameter is mutually exclusive with *num_aio*, but can be
   combined with *names_aout*. A maximum of *EMCMOT_MAX_AIO* names can be
   specified. The default analog input pin has names like
   *motion.analog-in-00* whereas *names_ain=*_proxy1,proxy2_ will create
-  the HAL pins *motion.ain-proxy1* and *motion.ain-proxy2*.
+  the HAL pins `motion.ain-proxy1` and `motion.ain-proxy2`.
 
 *num_misc_error*:: Maximum number of extra error inputs is set by *EMCMOT_MAX_MISC_ERRORS*.
-   +
 
-*names_misc_errors*: A comma-separated list of names for extra error
-inputs.::
-  This parameter is mutually exclusive with num_misc_error. If using
-  num_misc_error the additional error input pins will have names like
-  *motion.misc-error-00* whereas *names_misc_errors=overtemp,undertemp*
-  will create hal pins *motion.err-overtemp* and
-  *motion.err-undertemp*
-
-*num_spindles*:: Maximum number of spindles is set by EMCMOT_MAX_SPINDLES.
-   +
+*names_misc_errors*:: A comma-separated list of names for extra error inputs.
+  This parameter is mutually exclusive with num_misc_error.
+  If using num_misc_error the additional error input pins will have names
+  like *motion.misc-error-00* whereas *names_misc_errors=overtemp,undertemp*
+  will create hal pins `motion.err-overtemp` and `motion.err-undertemp`.
 
 *num_spindles*:: Maximum number of spindles is set by *EMCMOT_MAX_SPINDLES*.
 
@@ -193,26 +184,23 @@ Note: feed-inhibit applies to G-code commands -- not jogs.
   motion.adaptive-feed setting (if M52 active). Value is zero if
   motion.feed-hold or motion.feed-inhibit are asserted.
 *motion.feed-mm-per-minute* OUT FLOAT::
-  Current feed rate in mm per minute for motion.motion-type feed(2) and
-  arc(3). Value is the mm equivalent of the G-code program F value
-  multiplied by the current feed override value and the
-  motion.adaptive-feed setting (if M52 active). Value is zero if
-  motion.feed-hold or motion.feed-inhibit are asserted.
+  Current feed rate in mm per minute for motion.motion-type feed(2) and arc(3).
+  Value is the mm equivalent of the G-code program F value multiplied by the
+  current feed override value and the motion.adaptive-feed setting (if M52 active).
+  Value is zero if motion.feed-hold or motion.feed-inhibit are asserted.
 *motion.feed-mm-per-second* OUT FLOAT::
-  Current feed rate in mm per second for motion.motion-type feed(2) and
-  arc(3). Value is the mm equivalent of the G-code program F value
-  multiplied by the current feed override value and the
-  motion.adaptive-feed setting (if M52 active). Value is zero if
-  motion.feed-hold or motion.feed-inhibit are asserted.
+  Current feed rate in mm per second for motion.motion-type feed(2) and arc(3).
+  Value is the mm equivalent of the G-code program F value multiplied by the current feed override value
+  and the motion.adaptive-feed setting (if M52 active).
+  Value is zero if motion.feed-hold or motion.feed-inhibit are asserted.
 *motion.homing-inhibit* IN BIT::
-  If this bit is TRUE, initiation of any joint homing move (including
-  "Home All") is disallowed and an error is reported. By default, homing
-  is allowed in joint mode whenever motion is enabled.
+  If this bit is TRUE, initiation of any joint homing move (including "Home All")
+  is disallowed and an error is reported.
+  By default, homing is allowed in joint mode whenever motion is enabled.
 *motion.is-all-homed* OUT BIT::
   TRUE if all active joints is homed.
 *motion.jog-inhibit* IN BIT::
-  If this bit is TRUE, jogging of any joint or axis is disallowed and an
-  error is reported.
+  If this bit is TRUE, jogging of any joint or axis is disallowed and an error is reported.
 *motion.jog-stop* IN BIT::
   If any jog is active when the pin state changes to TRUE then that jog
   will be stopped following the associated acceleration values.
@@ -222,12 +210,11 @@ Note: feed-inhibit applies to G-code commands -- not jogs.
 *motion.jog-is-active* OUT BIT::
   TRUE if any joint or axis is jogging.
 *motion.in-position* OUT BIT::
-  TRUE if the machine is in position (ie, not currently moving towards
-  the commanded position).
+  TRUE if the machine is in position (i.e., not currently moving towards the commanded position).
 **motion.misc-error-**_NN_ IN BIT::
-  Extra error inputs for faults such as over-temperature sensors, low
-  coolant warnings, custom HAL component errors. If driven TRUE this
-  will disable a machine. Similar to spindle.amp-fault-in.
+  Extra error inputs for faults such as over-temperature sensors,
+  low coolant warnings, custom HAL component errors.
+  If driven TRUE this will disable a machine. Similar to spindle.amp-fault-in.
 *motion.motion-enabled* OUT BIT::
 *motion.motion-type* OUT S32::
   These values are from src/emc/nml_intf/motion_types.h.
@@ -250,21 +237,20 @@ Note: feed-inhibit applies to G-code commands -- not jogs.
 
 *motion.on-soft-limit* OUT BIT::
 *motion.probe-input* IN BIT::
-  G38.n uses the value on this pin to determine when the probe has made
-  contact. TRUE for probe contact closed (touching), FALSE for probe
-  contact open.
+  G38.n uses the value on this pin to determine when the probe has made contact.
+  TRUE for probe contact closed (touching), FALSE for probe contact open.
 *motion.program-line* OUT S32::
-  The current program line while executing. Zero if not running or
-  between lines while single stepping.
+  The current program line while executing.
+  Zero if not running or between lines while single stepping.
 *motion.requested-vel* OUT FLOAT::
-  The current requested velocity in user units per second. This value is
-  the F-word setting from the G-code file, possibly reduced to
-  accommodate machine velocity and acceleration limits. The value on
-  this pin does not reflect the feed override or any other adjustments.
+  The current requested velocity in user units per second.
+  This value is the F-word setting from the G-code file,
+  possibly reduced to accommodate machine velocity and acceleration limits.
+  The value on this pin does not reflect the feed override or any other adjustments.
 *motion.servo.last-period* OUT U32::
   The number of CPU clocks between invocations of the servo thread.
-  Typically, this number divided by the CPU speed gives the time in
-  seconds, and can be used to determine whether the realtime motion
+  Typically, this number divided by the CPU speed gives the time in seconds,
+  and can be used to determine whether the realtime motion
   controller is meeting its timing constraints
 *motion.switchkins-type* IN float::
   Kinematics modules that define the functions kinematicsSwitchable()
@@ -275,8 +261,7 @@ Note: feed-inhibit applies to G-code commands -- not jogs.
 *motion.teleop-mode* OUT BIT::
   Motion mode is teleop (axis coordinate jogging available).
 *motion.tooloffset.L* OUT FLOAT::
-  Current tool offset for each axis where (*L* is the axis letter, one
-  of: *x y z a b c u v w*)
+  Current tool offset for each axis where (*L* is the axis letter, one of: *x y z a b c u v w*)
 *motion.tp-reverse* OUT BIT::
   Trajectory planning is reversed (reverse run)
 
@@ -314,18 +299,18 @@ Note: feed-inhibit applies to G-code commands -- not jogs.
   Sets the distance moved for each count on "jog-counts", in machine
   units.
 **axis.**_L_**.jog-vel-mode** IN BIT::
-  When FALSE (the default), the jogwheel operates in position mode. The
-  axis will move exactly jog-scale units for each count, regardless of
+  When FALSE (the default), the jogwheel operates in position mode.
+  The axis will move exactly jog-scale units for each count, regardless of
   how long that might take. When TRUE, the wheel operates in velocity
   mode - motion stops when the wheel stops, even if that means the
   commanded motion is not completed.
 **axis.**_L_**.kb-jog-active** OUT BIT::
   (free planner axis jogging active (keyboard or halui))
 **axis.**_L_**.pos-cmd** OUT FLOAT::
-  The axis commanded position. There may be several offsets between the
-  axis and motor coordinates: backlash compensation, screw error
-  compensation, and home offsets. External offsets are reported
-  separately (axis.*L*.eoffset).
+  The axis commanded position.
+  There may be several offsets between the axis and motor coordinates:
+  Backlash compensation, screw error compensation, and home offsets.
+  External offsets are reported separately (axis._L_.eoffset).
 **axis.**_L_**.teleop-pos-cmd** OUT FLOAT::
 **axis.**_L_**.teleop-tp-enable** OUT BIT::
   TRUE when the "teleop planner" is enabled for this axis.
@@ -348,13 +333,11 @@ Note: Pins marked *(DEBUG)* serve as debugging aids and are subject to change or
 **joint.**_N_**.amp-enable-out** OUT BIT::
   TRUE if the amplifier for this joint should be enabled.
 **joint.**_N_**.amp-fault-in** IN BIT::
-  Should be driven TRUE if an external fault is detected with the
-  amplifier for this joint.
+  Should be driven TRUE if an external fault is detected with the amplifier for this joint.
 **joint.**_N_**.backlash-corr** OUT FLOAT *(DEBUG)*::
   Backlash or screw compensation raw value.
 **joint.**_N_**.backlash-filt** OUT FLOAT *(DEBUG)*::
-  Backlash or screw compensation filtered value (respecting motion
-  limits).
+  Backlash or screw compensation filtered value (respecting motion limits).
 **joint.**_N_**.backlash-vel** OUT FLOAT *(DEBUG)*::
   Backlash or screw compensation velocity.
 **joint.**_N_**.coarse-pos-cmd** OUT FLOAT *(DEBUG)*::
@@ -388,9 +371,8 @@ Note: Pins marked *(DEBUG)* serve as debugging aids and are subject to change or
 **joint.**_N_**.is-unlocked** IN BIT::
   Indicates joint is unlocked (see JOINT UNLOCK PINS).
 **joint.**_N_**.jog-accel-fraction** IN FLOAT::
-  Sets acceleration for wheel jogging to a fraction of the INI
-  max_acceleration for the joint. Values greater than 1 or less than
-  zero are ignored.
+  Sets acceleration for wheel jogging to a fraction of the INI max_acceleration for the joint.
+  Values greater than 1 or less than zero are ignored.
 **joint.**_N_**.jog-counts** IN S32::
   Connect to the "counts" pin of an external encoder to use a physical jog wheel.
 **joint.**_N_**.jog-enable** IN BIT::
@@ -399,8 +381,8 @@ Note: Pins marked *(DEBUG)* serve as debugging aids and are subject to change or
 **joint.**_N_**.jog-scale** IN FLOAT::
   Sets the distance moved for each count on "jog-counts", in machine units.
 **joint.**_N_**.jog-vel-mode** IN BIT::
-  When FALSE (the default), the jogwheel operates in position mode. The
-  joint will move exactly jog-scale units for each count, regardless of
+  When FALSE (the default), the jogwheel operates in position mode.
+  The joint will move exactly jog-scale units for each count, regardless of
   how long that might take. When TRUE, the wheel operates in velocity
   mode - motion stops when the wheel stops, even if that means the
   commanded motion is not completed.
@@ -453,15 +435,15 @@ Example: loadrt motmod ... **unlock_joints_mask=**0x38 creates unlock pins for j
 
 == SPINDLE PINS
 
-(*M* is the spindle number (*0* ... *num_spindles-1*))
+(_M_ is the spindle number (*0* ... *num_spindles-1*))
 
 **spindle.**_M_**.amp-fault-in** IN BIT::
   Should be driven TRUE if an external fault is detected with the amplifier for this spindle.
 **spindle.**_M_**.at-speed** IN BIT::
-  Motion will pause until this pin is TRUE, under the following
-  conditions: before the first feed move after each spindle start or
-  speed change; before the start of every chain of spindle-synchronized
-  moves; and if in CSS mode, at every rapid->feed transition.
+  Motion will pause until this pin is TRUE, under the following conditions:
+  Before the first feed move after each spindle start or speed change;
+  before the start of every chain of spindle-synchronized moves;
+  and if in CSS mode, at every rapid->feed transition.
 **spindle.**_M_**.brake** OUT BIT::
   TRUE when the spindle brake should be applied.
 **spindle.**_M_**.forward** OUT BIT::
@@ -472,19 +454,20 @@ Example: loadrt motmod ... **unlock_joints_mask=**0x38 creates unlock pins for j
 **spindle.**_M_**.inhibit** IN BIT::
   When TRUE, the spindle speed is set and held to 0.
 **spindle.**_M_**.is-oriented** IN BIT::
-  Acknowledge pin for spindle-orient. Completes orient cycle. If
-  spindle-orient was true when spindle-is-oriented was asserted, the
-  spindle-orient pin is cleared and the spindle-locked pin is asserted.
+  Acknowledge pin for spindle-orient. Completes orient cycle.
+  If spindle-orient was true when spindle-is-oriented was asserted,
+  the spindle-orient pin is cleared and the spindle-locked pin is asserted.
   Also, the spindle-brake pin is asserted.
 **spindle.**_M_**.locked** OUT BIT::
   Spindle orient complete pin. Cleared by any of M3, M4 or M5.
 **spindle.**_M_**.on** OUT BIT::
   TRUE when spindle should rotate.
 **spindle.**_M_**.orient** OUT BIT::
-  Indicates start of spindle orient cycle. Set by M19. Cleared by any of M3, M4 or M5.
+  Indicates start of spindle orient cycle.
+  Set by M19. Cleared by any of M3, M4 or M5.
 
-If spindle-orient-fault is not zero during spindle-orient true, the M19
-command fails with an error message.
+If spindle-orient-fault is not zero during spindle-orient true,
+the M19 command fails with an error message.
 
 **spindle.**_M_**.orient-angle** OUT FLOAT::
   Desired spindle orientation for M19. Value of the M19 R word parameter
@@ -515,8 +498,7 @@ command fails with an error message.
 
 == MOTION PARAMETERS
 
-Many of the parameters serve as debugging aids, and are subject to
-change or removal at any time.
+Many of the parameters serve as debugging aids, and are subject to change or removal at any time.
 
 *motion-command-handler.tmax* RW S32::
   Show information about the execution time of these HAL functions in CPU clocks.
@@ -527,6 +509,7 @@ change or removal at any time.
   Show information about the execution time of these HAL functions in CPU clocks.
 
 *motion-controller.tmax-increased* RO BIT::
+
 *motion.debug-*_*_::
   These values are used for debugging purposes.
 
@@ -539,9 +522,8 @@ Generally, these functions are both added to the servo-thread in the order shown
   The pin named *motion-command-handler.time* and parameters
   **motion-command-handler.tmax,tmax-increased**are created for this function.
 *motion-controller*::
-  Runs the LinuxCNC motion controller.
-  The pin named *motion-controller.time* and parameters
-  *motion-controller.tmax,tmax-increased* are created for this function.
+  Runs the LinuxCNC motion controller. The pin named *motion-controller.time* and
+  parameters *motion-controller.tmax,tmax-increased* are created for this function.
 
 == BUGS
 

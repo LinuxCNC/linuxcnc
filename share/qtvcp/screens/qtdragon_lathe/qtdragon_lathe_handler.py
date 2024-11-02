@@ -88,6 +88,7 @@ class HandlerClass:
 
         # some global variables
         self.factor = 1.0
+        self._dialog_message = None
         self._spindle_wait = False
         self.probe = None
         self.default_setup = os.path.join(PATH.CONFIGPATH, "default_setup.html")
@@ -124,6 +125,7 @@ class HandlerClass:
         self.statusbar_reset_time = 10000 # ten seconds
 
         STATUS.connect('general', self.dialog_return)
+        STATUS.connect('dialog-request', self.dialog_request)
         STATUS.connect('state-on', lambda w: self.enable_onoff(True))
         STATUS.connect('state-off', lambda w: self.enable_onoff(False))
         STATUS.connect('mode-manual', lambda w: self.enable_auto(True))
@@ -351,6 +353,14 @@ class HandlerClass:
 
         self.pin_mpg_in = QHAL.newpin('mpg-in',QHAL.HAL_S32, QHAL.HAL_IN)
         self.pin_mpg_in.value_changed.connect(lambda s: self.external_mpg(s))
+
+        # dialog answer pins
+        pin = QHAL.newpin("dialog-ok", QHAL.HAL_BIT, QHAL.HAL_IN)
+        pin.pinValueChanged.connect(lambda p,v: self.dialog_ext_control(p,v,1))
+        pin = QHAL.newpin("dialog-no", QHAL.HAL_BIT, QHAL.HAL_IN)
+        pin.pinValueChanged.connect(lambda p,v: self.dialog_ext_control(p,v,2))
+        pin = QHAL.newpin("dialog-cancel", QHAL.HAL_BIT, QHAL.HAL_IN)
+        pin.pinValueChanged.connect(lambda p,v: self.dialog_ext_control(p,v,0))
 
     def init_preferences(self):
         if not self.w.PREFS_:
@@ -729,6 +739,13 @@ class HandlerClass:
         elif lower_code and name == 'MESSAGE':
             self.h['eoffset-spindle-count'] = 0
             self.add_status(_translate("HandlerClass",'Spindle lowered after machine stopped'))
+
+        # reset current dialog variable
+        self._dialog_message = None
+
+    # set current dialog variable
+    def dialog_request(self,w, message):
+        self._dialog_message = message
 
     def user_system_changed(self, data):
         sys = self.system_list[int(data) - 1]
@@ -1974,6 +1991,12 @@ class HandlerClass:
                        self.MPGFocusWidget.up()
 
         self._last_count = count
+
+    def dialog_ext_control(self, pin, value, answer):
+        if value:
+            if not self._dialog_message is None:
+                name = self._dialog_message.get('NAME')
+                STATUS.emit('dialog-update',{'NAME':name,'response':answer})
 
     #####################
     # KEY BINDING CALLS #

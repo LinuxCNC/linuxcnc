@@ -20,7 +20,7 @@ except:
 
 INIPATH = os.environ.get('INI_FILE_NAME', '/dev/null')
 
-HOME = os.environ.get('EMC2_HOME', '/usr')
+HOME = os.environ.get('LINUXCNC_HOME', '/usr')
 if HOME is not None:
     IMAGEDIR = os.path.join(HOME, "share", "qtvcp", "images")
 else:
@@ -28,7 +28,7 @@ else:
 
 
 class _IStat(object):
-    def __init__(self):
+    def __init__(self, ini=None):
         # only initialize once for all instances
         if self.__class__._instanceNum >= 1:
             return
@@ -49,7 +49,6 @@ class _IStat(object):
         self.SUB_PATH_LIST = []
         self.USER_M_PATH_LIST = []
 
-
         self.IMAGE_PATH = IMAGEDIR
         self.LIB_PATH = os.path.join(HOME, "share", "qtvcp")
         self.TITLE = ""
@@ -57,13 +56,18 @@ class _IStat(object):
         # this is updated in qtvcp.py on startup
         self.IS_SCREEN = False
 
+        # if no INI was given use the one from the environment
+        if ini is None:
+            ini = INIPATH
 
-    def update(self, ini=INIPATH):
-        #print('path ini',ini)
         self.INIPATH = ini or  '/dev/null'
         log.debug('INI Path: {}'.format(self.INIPATH))
 
         self.INI = linuxcnc.ini(self.INIPATH)
+
+        self.update()
+
+    def update(self):
 
         # use configParser so we can iter thru header
         self.parser = PARSER(strict=False)
@@ -354,13 +358,16 @@ class _IStat(object):
         self.MIN_LINEAR_JOG_VEL = float(self.get_error_safe_setting("DISPLAY", "MIN_LINEAR_VELOCITY", 0)) * 60
         safe = 125 if self.MACHINE_IS_METRIC else 5
         self.MAX_LINEAR_JOG_VEL = float(self.get_error_safe_setting("DISPLAY", "MAX_LINEAR_VELOCITY", safe)) * 60
+        log.debug('DEFAULT_LINEAR_VELOCITY = {}'.format(self.DEFAULT_LINEAR_JOG_VEL))
+        log.debug('MIN_LINEAR_VELOCITY = {}'.format(self.MIN_LINEAR_JOG_VEL))
+        log.debug('MAX_LINEAR_VELOCITY = {}'.format(self.MAX_LINEAR_JOG_VEL))
 
         self.DEFAULT_ANGULAR_JOG_VEL = float(self.get_error_safe_setting("DISPLAY", "DEFAULT_ANGULAR_VELOCITY", 6)) * 60
         self.MIN_ANGULAR_JOG_VEL = float(self.get_error_safe_setting("DISPLAY", "MIN_ANGULAR_VELOCITY", 0)) * 60
         self.MAX_ANGULAR_JOG_VEL = float(self.get_error_safe_setting("DISPLAY", "MAX_ANGULAR_VELOCITY", 60)) * 60
-        log.debug('DEFAULT_LINEAR_VELOCITY = {}'.format(self.DEFAULT_LINEAR_JOG_VEL))
-        log.debug('MIN_LINEAR_VELOCITY = {}'.format(self.MIN_LINEAR_JOG_VEL))
-        log.debug('MAX_LINEAR_VELOCITY = {}'.format(self.MAX_LINEAR_JOG_VEL))
+        log.debug('DEFAULT_ANGULAR_VELOCITY = {}'.format(self.DEFAULT_ANGULAR_JOG_VEL))
+        log.debug('MIN_ANGULAR_VELOCITY = {}'.format(self.MIN_ANGULAR_JOG_VEL))
+        log.debug('MAX_ANGULAR_VELOCITY = {}'.format(self.MAX_ANGULAR_JOG_VEL))
 
         self.AVAILABLE_SPINDLES = int(self.INI.find("TRAJ", "SPINDLES") or 1)
         self.SPINDLE_INCREMENT = int(self.INI.find("DISPLAY", "SPINDLE_INCREMENT") or 100)

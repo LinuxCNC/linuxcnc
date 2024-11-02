@@ -25,7 +25,8 @@ A string _S_::
   "name" of the device, the "phys" (which gives information about how it
   is connected), and the "id", which is a string of the form "Bus=...
   Vendor=... Product=... Version=...". You can view the name, phys, and
-  id of attached devices by executing *less /proc/bus/input/devices*.
+  id of attached devices by executing `less /proc/bus/input/devices` . +
+  +
   Examples:
   +
   SpaceBall
@@ -35,15 +36,15 @@ A string _S_::
   serio*/input0
 
 A number _N_::
-  This opens */dev/input/event*_N_. Except for devices that are always
-  attached to the system, this number may change over reboots or when
-  the device is removed. For this reason, using an integer is not
-  recommended.
+  This opens */dev/input/event*_N_.
+  Except for devices that are always attached to the system,
+  this number may change over reboots or when the device is removed.
+  For this reason, using an integer is not recommended.
 
 When several devices are identified by the same string, add "*:*_N_"
 where _N_ is the index of the desired device. For example, if *Mouse*
-matches *input3* and *input10*, then *Mouse* and *Mouse:0* select
-*input3*. Specifying *mouse:1* selects input10.
+matches *input3* and *input10*, then *Mouse* and *Mouse:0* select *input3*.
+Specifying *mouse:1* selects input10.
 
 For devices that appear as multiple entries in /dev/input, these indices
 are likely to stay the same every time. For multiple identical devices,
@@ -105,15 +106,13 @@ ____
 **input.**_N_**.abs-**_name_**-min** parameter s32 r::
 
 **input.**_N_**.abs-**_name_**-max** parameter s32 r::
-  Created for each absolute axis on the device. Device positions closer
-  than *flat* to *offset* are reported as *offset* in *counts*, and
-  *counts* does not change until the device position changes by at least
-  *fuzz*. The position is computed as *position* = (*counts* - *offset*)
-  / *scale*. The default value of *scale* and *offset* map the range of
-  the axis reported by the operating system to [-1,1]. The default
-  values of *fuzz* and *flat* are those reported by the operating
-  system. The values of *min* and *max* are those reported by the
-  operating system.
+  Created for each absolute axis on the device.
+  Device positions closer than *flat* to *offset* are reported as *offset* in *counts*,
+  and *counts* does not change until the device position changes by at least *fuzz*.
+  The position is computed as *position* = (*counts* - *offset*) / *scale*.
+  The default value of *scale* and *offset* map the range of the axis reported by the operating system to [-1,1].
+  The default values of *fuzz* and *flat* are those reported by the operating system.
+  The values of *min* and *max* are those reported by the operating system.
 
 === For relative axes
 
@@ -130,18 +129,14 @@ ____
 **input.**_N_**.rel-**_name_**-precision** parameter s32 rw::
 
 **input.**_N_**.rel-**_name_**-last** parameter s32 rw::
-  Created for each relative axis on the device. As long as *reset* is
-  true, *counts* is reset to zero regardless of any past or current axis
-  movement. Otherwise, *counts* increases or decreases according to the
-  motion of the axis. *counts* is divided by position-scale to give
-  *position*. The default value of *position* is 1. There are some
-  devices, notably scroll wheels, which return signed values with less
-  resolution than 32 bits. The default value of *precision* is 32.
-  *precision* can be set to 8 for a device that returns signed 8 bit
-  values, or any other value from 1 to 32. *absolute*, when set true,
-  ignores duplicate events with the same value. This allows for devices
-  that repeat events without any user action to work correctly. *last*
-  shows the most recent count value returned by the device, and is used
+  Created for each relative axis on the device.
+  As long as *reset* is true, *counts* is reset to zero regardless of any past or current axis movement.
+  Otherwise, *counts* increases or decreases according to the motion of the axis.  *counts* is divided by position-scale to give *position*.
+  The default value of *position* is 1.
+  There are some devices, notably scroll wheels, which return signed values with less resolution than 32 bits.
+  The default value of *precision* is 32.  *precision* can be set to 8 for a device that returns signed 8 bit values,
+  or any other value from 1 to 32. *absolute*, when set true, ignores duplicate events with the same value.
+  This allows for devices that repeat events without any user action to work correctly. *last* shows the most recent count value returned by the device, and is used
   in the implementation of *absolute*.
 
 === For LEDs
@@ -158,13 +153,12 @@ By default, the input devices may not be accessible to regular users -- *hal_inp
 Different versions of udev have slightly different, incompatible syntaxes.
 For this reason, it is not possible for this manual page to give an accurate example.
 The *udev(7)* manual page documents the syntax used on your Linux distribution.
-To view it in a terminal, the command is *man 7 udev*.
+To view it in a terminal, the command is `man 7 udev`.
 
 == BUGS
 
-The initial state of keys, buttons, and absolute axes are erroneously
-reported as FALSE or 0 until an event is received for that key, button,
-or axis.
+The initial state of keys, buttons, and absolute axes are erroneously reported as FALSE or 0
+until an event is received for that key, button, or axis.
 
 == SEE ALSO
 

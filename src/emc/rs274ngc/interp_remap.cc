@@ -42,6 +42,8 @@ bool Interp::is_m_code_remappable(int m_code)
             m_code == 0 ||
             m_code == 1 ||
             m_code == 6 ||
+            m_code == 7 ||
+            m_code == 8 ||
             m_code == 9 ||
             m_code == 60 ||
             m_code == 61 ||

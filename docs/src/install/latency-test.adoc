@@ -53,16 +53,16 @@ and run the following command:
 latency-test
 ----
 
-This will start the latency test with a base-thread period of 25&thinsp;µs and a
-servo-thread period of 1&thinsp;ms. The period times may be specified on the command
+This will start the latency test with a base-thread period of 25 µs and a
+servo-thread period of 1 ms. The period times may be specified on the command
 line:
 
 ----
 latency-test 50000 1000000
 ----
 
-This will start the latency test with a base-thread period of 50uS and a
-servo-thread period of 1&thinsp;ms.
+This will start the latency test with a base-thread period of 50 µs and a
+servo-thread period of 1 ms.
 
 For available options, on the command line enter:
 
@@ -91,7 +91,7 @@ You should run the test for at least several minutes; sometimes
 the worst case latency doesn't happen very often, or only happens
 when you do some particular action. For instance, one Intel
 motherboard worked pretty well most of the time, but every 64
-seconds it had a very bad 300&thinsp;µs latency. Fortunately that was
+seconds it had a very bad 300 µs latency. Fortunately that was
 fixable, see https://wiki.linuxcnc.org/cgi-bin/wiki.pl?FixingSMIIssues .
 
 So, what do the results mean? If your Max Jitter number is less
@@ -100,7 +100,7 @@ computer should give very nice results with software stepping.
 If the max latency is more like 30-50 microseconds, you can still
 get good results, but your maximum step rate might be a little
 disappointing, especially if you use microstepping or have very
-fine pitch leadscrews. If the numbers are 100&thinsp;µs or more,
+fine pitch leadscrews. If the numbers are 100 µs or more,
 i.e. >= 100,000 nanoseconds (ns), then the PC is not a good candidate for software
 stepping. Numbers over 1 millisecond (1,000,000 ns) mean
 the PC is not a good candidate for LinuxCNC, regardless of whether you
@@ -167,15 +167,14 @@ Options:
   --nobase         (servo thread only)
   --verbose        (progress and debug)
   --nox            (no gui, display elapsed,min,max,sdev for each thread)
+----
 
-Notes:
-LinuxCNC and HAL should not be running, stop with halrun -U.
+Note:
+When determining the latency, LinuxCNC and HAL should not be running, stop with halrun -U.
 Large number of bins and/or small binsizes will slow updates.
 For single thread, specify --nobase (and options for servo thread).
-Measured latencies outside of the +/- bin range are reported
-with special end bars.  Use --show to show count for
-the off-chart [pos|neg] bin
-----
+Measured latencies outside of the +/- bin range are reported with special end bars.
+Use --show to show count for the off-chart [pos|neg] bin
 
 .`latency-histogram` Window
 image::../config/images/latency-histogram.png["latency-histogram Window"]

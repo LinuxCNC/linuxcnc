@@ -185,7 +185,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
             self.rotateView(args.get('X'),args.get('Y'))
         elif v == 'grid-size':
             self.grid_size = args.get('SIZE')
-            self.updateGL()
+            self.update()
         elif v == 'alpha-mode-on':
             self.set_alpha_mode(True)
         elif v == 'alpha-mode-off':
@@ -196,10 +196,10 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
             self.inhibit_selection = False
         elif v == 'dimensions-on':
             self.show_extents_option = True
-            self.updateGL()
+            self.update()
         elif v == 'dimensions-off':
             self.show_extents_option = False
-            self.updateGL()
+            self.update()
         elif v == 'record-view':
             self.recordCurrentViewSettings()
         elif v == 'set-recorded-view':
@@ -225,11 +225,11 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
 
     def set_metric_units(self, w, state):
         self.metric_units = state
-        self.updateGL()
+        self.update()
 
     def set_spindle_speed(self, w, rate):
         self.spindle_speed = int(rate)
-        self.updateGL()
+        self.update()
 
     def _tool_info(self, data):
         if data.id != -1:
@@ -338,6 +338,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         if not self.select_primed: return
         x, y = self.select_primed
         self.select_primed = None
+        self.makeCurrent()
         self.select(x, y)
 
     # override user plot -One could add gl commands to plot static objects here
@@ -378,7 +379,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
     # DRO
     def setdro(self, state):
         self.enable_dro = state
-        self.updateGL()
+        self.update()
     def getdro(self):
         return self.enable_dro
     _dro = pyqtProperty(bool, getdro, setdro)
@@ -386,7 +387,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
     # DTG
     def setdtg(self, state):
         self.show_dtg = state
-        self.updateGL()
+        self.update()
     def getdtg(self):
         return self.show_dtg
     _dtg = pyqtProperty(bool, getdtg, setdtg)
@@ -394,7 +395,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
     # METRIC
     def setmetric(self, state):
         self.metric_units = state
-        self.updateGL()
+        self.update()
     def getmetric(self):
         return self.metric_units
     _metric = pyqtProperty(bool, getmetric, setmetric)
@@ -402,7 +403,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
     # overlay
     def setoverlay(self, overlay):
         self.show_overlay = overlay
-        self.updateGL()
+        self.update()
     def getoverlay(self):
         return self.show_overlay
     def resetoverlay(self):
@@ -412,7 +413,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
     # show Offsets
     def setShowOffsets(self, state):
         self.show_offsets = state
-        self.updateGL()
+        self.update()
     def getShowOffsets(self):
         return self.show_offsets
     _offsets = pyqtProperty(bool, getShowOffsets, setShowOffsets)
@@ -420,7 +421,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
     # show small origin
     def setShowSmallOrigin(self, state):
         self.show_small_origin = state
-        self.updateGL()
+        self.update()
     def getShowSmallOrigin(self):
         return self.show_small_origin
     _small_origin = pyqtProperty(bool, getShowSmallOrigin, setShowSmallOrigin)
@@ -430,7 +431,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
     def setOverlayColor(self, value):
         self._overlayColor = value
         self.colors['overlay_background'] = (value.redF(), value.greenF(), value.blueF())
-        self.updateGL()
+        self.update()
     def resetOverlayColor(self):
         self._overlayColor = QColor(0, 0, 191, 150)
     overlay_color = pyqtProperty(QColor, getOverlayColor, setOverlayColor, resetOverlayColor)
@@ -440,7 +441,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
     def setOverlayAlpha(self, value):
         self._overlayAlpha = value
         self.colors['overlay_alpha'] = value
-        self.updateGL()
+        self.update()
     def resetOverlayAlpha(self):
         self._overlayAlpha = 0.75
     overlay_alpha = pyqtProperty(float, getOverlayAlpha, setOverlayAlpha, resetOverlayAlpha)
@@ -452,20 +453,20 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         #print value.getRgbF()
         self.colors['back'] = (value.redF(), value.greenF(), value.blueF())
         self.gradient_color1 = (value.redF(), value.greenF(), value.blueF())
-        self.updateGL()
+        self.update()
     def resetBackgroundColor(self):
         self._backgroundColor = QColor(0, 0, 0, 0)
         self.gradient_color1 = QColor(0, 0, 0, 0)
         value = QColor(0, 0, 0, 0)
         self.gradient_color1 = (value.redF(), value.greenF(), value.blueF())
         self.colors['back'] = (value.redF(), value.greenF(), value.blueF())
-        self.updateGL()
+        self.update()
     background_color = pyqtProperty(QColor, getBackgroundColor, setBackgroundColor, resetBackgroundColor)
 
     # use gradient background
     def setGradientBackground(self, state):
         self.use_gradient_background = state
-        self.updateGL()
+        self.update()
     def getGradientBackground(self):
         return self.use_gradient_background
     _use_gradient_background = pyqtProperty(bool, getGradientBackground, setGradientBackground)
@@ -558,3 +559,4 @@ if __name__ == "__main__":
     widget.enable_dro = True
     widget.show()
     sys.exit(app.exec_())
+

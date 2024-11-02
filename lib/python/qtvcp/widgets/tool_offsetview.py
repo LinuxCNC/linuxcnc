@@ -197,7 +197,6 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
 
     # process the STATUS return message
     def return_value(self, w, message):
-        LOG.debug('message returned:{}'.format (message))
         num = message['RETURN']
         code = bool(message.get('ID') == '%s__'% self.objectName())
         name = bool(message.get('NAME') == self.dialog_code)
@@ -206,6 +205,8 @@ class ToolOffsetView(QTableView, _HalWidgetBase):
         next = message.get('NEXT', False)
         back = message.get('BACK', False)
 
+        if code:
+            LOG.debug('message returned:{}'.format (message))
         if code and name and num is not None:
             self.tablemodel.setData(item, num, None)
         elif code and name2 and num is not None:

@@ -368,6 +368,7 @@ class HAL:
             self.qtplasmac_connections(file, base)
             prefsfile = os.path.join(base, self.d.machinename + ".prefs")
             self.qtplasmac_prefs(prefsfile)
+            self.qtplasmacpostgui = []
 
         print(file=file)
         self.connect_output(file)
@@ -969,6 +970,14 @@ class HAL:
         else:
             if os.path.exists(pyfilename):
                 os.remove(pyfilename)
+
+        # add a postgui halfile for qtplasmac
+        if self.d.frontend == _PD._QTPLASMAC:
+            postgui = os.path.join(base, "qtplasmac_postgui.hal")
+            f1 = open(postgui, "w")
+            for line in self.qtplasmacpostgui:
+                print(line, file=f1)
+            f1.close
 
         # pncconf adds a custom.hal and custom_postgui.hal file if one is not present
         if self.d.frontend != _PD._QTPLASMAC:
@@ -1578,19 +1587,29 @@ class HAL:
 
     def connect_input(self, file):
         print(_("# external input signals"), file=file)
+        # comments for qtplasmac external pins are saved for a postgui hal file
+        if self.d.frontend == _PD._QTPLASMAC:
+            self.qtplasmacpostgui.append("\n# external input signals")
 
         def write_pins(pname,p,i,t):
             # for input pins
             if t in (_PD.GPIOI, _PD.INM0):
                 if not p == "unused-input":
                     pinname = self.a.make_pinname(pname, substitution = self.d.useinisubstitution)
-                    print("\n# ---",p.upper(),"---", file=file)
+                    # write comments if not a qtplasmac external pin
+                    if not (self.d.frontend == _PD._QTPLASMAC and "ext_" in p):
+                        print("\n# ---",p.upper(),"---", file=file)
                     if "parport" in pinname:
                         if i: print("net %s     <= %s-not" % (p, pinname), file=file)
                         else: print("net %s     <= %s" % (p, pinname), file=file)
                     elif "sserial" in pname or t == _PD.INM0:
                         if i: print("net %s     <=  "% (p)+pinname +"-not", file=file)
                         else: print("net %s     <=  "% (p)+pinname, file=file)
+                    # qtplasmac external pins are saved for a postgui hal file
+                    elif self.d.frontend == _PD._QTPLASMAC and "ext_" in p:
+                        invert = "_not" if i else "    "
+                        self.qtplasmacpostgui.append(f"net {p}  {pinname}.in{invert}  =>  {p.replace('plasmac:', 'qtplasmac.')}")
+                    # all others are written to the hal file
                     else:
                         if i: print("net %s     <=  "% (p)+pinname +".in_not", file=file)
                         else: print("net %s     <=  "% (p)+pinname +".in", file=file)
@@ -1673,13 +1692,18 @@ class HAL:
 
     def connect_output(self, file):
         print(_("# external output signals"), file=file)
+        # comments for qtplasmac external pins are saved for a postgui hal file
+        if self.d.frontend == _PD._QTPLASMAC:
+            self.qtplasmacpostgui.append("\n# external output signals")
 
         def write_pins(pname,p,i,t,boardnum,connector,port,channel,pin):
             # for output /open drain pins
             if t in (_PD.GPIOO,_PD.GPIOD,_PD.SSR0,_PD.OUTM0):
                 if not p == "unused-output":
                     pinname = self.a.make_pinname(pname, substitution = self.d.useinisubstitution)
-                    print("\n# ---",p.upper(),"---", file=file)
+                    # write comments if not a qtplasmac external pin
+                    if not (self.d.frontend == _PD._QTPLASMAC and "plasmac:ext_" in p):
+                        print("\n# ---",p.upper(),"---", file=file)
                     if "parport" in pinname:
                         if p == "force-pin-true":
                             print("setp %s true"% (pinname), file=file)
@@ -1698,21 +1722,41 @@ class HAL:
                                 temp = pinname + ".out"
                         # set pin true if force-pin-true otherwise connect to a signal
                         if p == "force-pin-true":
-                            print("setp %s true"% (temp), file=file)
+                            # qtplasmac external pins are saved for a postgui hal file
+                            if self.d.frontend == _PD._QTPLASMAC and "plasmac:ext_" in p:
+                                self.qtplasmacpostgui.append(f"setp {temp} true")
+                            # all others are written to the hal file
+                            else:
+                                print("setp %s true"% (temp), file=file)
                         else:
                             comment = ""
                             if self.d.frontend == _PD._QTPLASMAC and p in ['dout-01','dout-02','dout-03']:
                                 comment = "#qtplasmac uses digital output %s:\n#" % p
-                            print("%snet %s  =>     %s"% (comment,p,temp), file=file)
+                            # qtplasmac external pins are saved for a postgui hal file
+                            if self.d.frontend == _PD._QTPLASMAC and "plasmac:ext_" in p:
+                                self.qtplasmacpostgui.append(f"net {p}  {p}  =>  {temp}")#  =>  {p.replace('plasmac:', 'qtplasmac.')}")
+                            # all others are written to the hal file
+                            else:
+                                print("%snet %s  =>     %s"% (comment,p,temp), file=file)
                     if i: # invert pin
                         if t in (_PD.SSR0,_PD.OUTM0):
-                            print("setp %s true"%  (pinname.replace('.out-', '.invert-')), file=file)
+                            # qtplasmac external pins are saved for a postgui hal file
+                            if self.d.frontend == _PD._QTPLASMAC and "plasmac:ext_" in p:
+                                self.qtplasmacpostgui.append(f"setp {pinname.replace('.out-', '.invert-')} true")
+                            # all others are written to the hal file
+                            else:
+                                print("setp %s true"%  (pinname.replace('.out-', '.invert-')), file=file)
                         else:
                             if "sserial" in pname:
                                 ending = "-invert"
                             elif "parport" in pinname: ending = "-invert"
                             else: ending = ".invert_output"
-                            print("setp %s true"%  (pinname + ending ), file=file)
+                            # qtplasmac external pins are saved for a postgui hal file
+                            if self.d.frontend == _PD._QTPLASMAC and "plasmac:ext_" in p:
+                                self.qtplasmacpostgui.append(f"setp {pinname + ending}")
+                            # all others are written to the hal file
+                            else:
+                                print("setp %s true"%  (pinname + ending ), file=file)
 
             # for pwm pins
             elif t in (_PD.PWMP,_PD.PDMP,_PD.UDMU):

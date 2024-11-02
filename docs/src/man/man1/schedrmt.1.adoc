@@ -10,34 +10,38 @@ schedrmt - telnet based scheduler for LinuxCNC
 
 == DESCRIPTION
 
-With -- --port Waits for socket connections (Telnet) on specified socket, without port uses default port 5007.
-With -- --name _<server name>_ Sets the server name to specified name for Hello.
-With -- --connectpw _<password>_ Sets the connection password to _password_.  Default 'EMC'.
-With -- --enablepw _<password>_ Sets the enable password to _password_. Default 'EMCTOO'.
-With -- --sessions <max sessions> Sets the maximum number of simultaneous connextions to max sessions.
-Default is no limit (-1).
-With -- --path Sets the base path to program (G-Code) files, default is "../../nc_files/". Make sure to include the final slash (/).
-With -- -ini _<INI file>_, uses specified _INI file_ instead of default 'emc.ini'.
+With -- --port::
+  Waits for socket connections (Telnet) on specified socket, without port uses default port 5007.
+With -- --name _<server name>_::
+  Sets the server name to specified name for Hello.
+With -- --connectpw _<password>_::
+  Sets the connection password to _password_.  Default 'EMC'.
+With -- --enablepw _<password>_::
+  Sets the enable password to _password_. Default 'EMCTOO'.
+With -- --sessions <max sessions>::
+  Sets the maximum number of simultaneous connextions to max sessions.
+  Default is no limit (-1).
+With -- --path::
+  Sets the base path to program (G-Code) files, default is "../../nc_files/". Make sure to include the final slash (/).
+With -- -ini _<INI file>_::
+  Uses specified _INI file_ instead of default 'emc.ini'.
 
-There are six commands supported, for which the commands set and get contain
-LinuxCNC-specific sub-commands based on the commands supported by emcsh,
-but where the "emc_" prefix is omitted. Commands and most parameters are
-not case-sensitive. The exceptions are passwords, file paths and text
-strings.
+There are six commands supported, for which the commands set and get contain LinuxCNC-specific sub-commands
+based on the commands supported by emcsh, but where the "emc_" prefix is omitted.
+Commands and most parameters are not case-sensitive.
+The exceptions are passwords, file paths and text strings.
 
 The supported commands are as follows:
-==> HELLO <==:: Hello <password> <client> <version>
-If a valid password was entered the server will respond with HELLO ACK <Server Name> <Server Version> 
+==> HELLO <==:: Hello _<password>_ _<client>_ _<version>_ +
+If a valid password was entered the server will respond with HELLO ACK _<Server Name>_ _<Server Version>_,
 here server name and server version are looked up from the implementation.
-If an invalid password or any other syntax error occurs then the server
-responds with: `HELLO NAK`
+If an invalid password or any other syntax error occurs then the server responds with: `HELLO NAK`.
 ==> Get <==:: The get command includes one of the emc sub-commands, described below and zero or more additional parameters.
 ==> Set <==:: The set command inclides one of the emc sub-commands, described below and one or more additional parameters.
 ==> Quit <==:: The quit command disconnects the associated socket connection.
 ==> Shutdown <==::
 The shutdown command tells EMC to shutdown before quitting the connection.
-This command may only be issued if the Hello
-has been successfully negotiated and the connection has control of the CNC (see enable sub-command below).
+This command may only be issued if the Hello has been successfully negotiated and the connection has control of the CNC (see enable sub-command below).
 This command has no parameters. ==> Help <== The help command will return help information in text format over the telnet connection.
 If no parameters are specified, it will itemize the available commands.
 If a command is specified, it will provide usage information for the specified command.
@@ -74,7 +78,7 @@ INIFILE:: Returns the path and file name of the current configuration INI file.
 
 plat:: Returns the platform for which this was compiled, e.g., linux_2_0_36
 
-ini _<var>_ _<section>_:: Returns the string value of <var> in section <section>, in EMC_INIFILE.
+ini _<var>_ _<section>_:: Returns the string value of _<var>_ in section _<section>_, in EMC_INIFILE.
 
 debug {__<new value>__}:: With get, returns the integer value of EMC_DEBUG, in the EMC.
 Note that it may not be true that the local EMC_DEBUG variable here (in emcsh and the GUIs that use it) is the same as the EMC_DEBUG value in the EMC.
@@ -87,8 +91,8 @@ With no arg, returns the program queue status as "stop", "run", "pause"
 or "error". Otherwise, sends a command to set the current mode to
 "stop", "run" or "pause".
 
-QStatus _<Queue Size>_ _<First Tag Id>_ _<Last Tag Id>_ _<Queue CRC>_:: Get only,
-returns then number of programs in queue (Queue Size), the Tag id of the
+QStatus _<Queue Size>_ _<First Tag Id>_ _<Last Tag Id>_ _<Queue CRC>_ (Get only)::
+Returns then number of programs in queue (Queue Size), the Tag id of the
 first program in the queue, the Tag id of the last program in the queue,
 and the CRC of all of the Tag Ids in the queue. The actual calculation
 of the CRC is not important, the purpose is to be able to compare the
@@ -113,9 +117,8 @@ With get, returns the queue entry matching the specified tag id,
 including the priority, tag id, x, y, and z coordinates, the zone, file name, feed and spindle overrides and the default tool.
 
 PgmByIndex <_index_> [_priority_] [_tag id_] [_x_] [_y_] [_z_] [_zone_] [_file name_] [_feed override_] [_spindle override_] [_tool_]::
-With get, returns the queue entry matching the specified index into the queue, including the
-priority, tag id, x, y, and z coordinates, the zone, file name, feed and
-spindle overrides and the default tool.
+With get, returns the queue entry matching the specified index into the queue,
+including the priority, tag id, x, y, and z coordinates, the zone, file name, feed and spindle overrides and the default tool.
 
 PgmAll:: With get, performs effectively a PgmByIndex for every entry in the queue.
 Each result will be returned in the form: "PGMBYINDEX ..." with cr lf at the end of each record.

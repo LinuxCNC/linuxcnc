@@ -11,25 +11,21 @@ ShuttlePRO2 device made by Contour Design
 
 == DESCRIPTION
 
-shuttle is a non-realtime HAL component that interfaces Contour Design's
-ShuttleXpress, ShuttlePRO, and ShuttlePRO2 devices with LinuxCNC's HAL.
+Shuttle is a non-realtime HAL component that interfaces Contour Design's ShuttleXpress,
+ShuttlePRO, and ShuttlePRO2 devices with LinuxCNC's HAL.
 
-If the driver is started without command-line arguments, it will probe
-all /dev/hidraw* device files for Shuttle devices, and use all devices
-found.  If it is started with command-line arguments, it will only probe
-the devices specified.
+If the driver is started without command-line arguments,
+it will probe all /dev/hidraw* device files for Shuttle devices, and use all devices found.
+If it is started with command-line arguments, it will only probe the devices specified.
 
-The ShuttleXpress has five momentary buttons, a 10 counts/revolution jog
-wheel with detents, and a 15-position spring-loaded outer wheel that
-returns to center when released.
+The ShuttleXpress has five momentary buttons, a 10 counts/revolution jog wheel with detents,
+and a 15-position spring-loaded outer wheel that returns to center when released.
 
-The ShuttlePRO has 13 momentary buttons, a 10 counts/revolution jog
-wheel with detents, and a 15-position spring-loaded outer wheel that
-returns to center when released.
+The ShuttlePRO has 13 momentary buttons, a 10 counts/revolution jog wheel with detents,
+and a 15-position spring-loaded outer wheel that returns to center when released.
 
-The ShuttlePRO2 has 15 momentary buttons, a 10 counts/revolution jog
-wheel with detents, and a 15-position spring-loaded outer wheel that
-returns to center when released.
+The ShuttlePRO2 has 15 momentary buttons, a 10 counts/revolution jog wheel with detents,
+and a 15-position spring-loaded outer wheel that returns to center when released.
 
 == UDEV
 
@@ -63,17 +59,16 @@ So if you (for example) push one of the buttons at startup, the jog-wheel will w
 
 == Pins
 
-All HAL pin names are prefixed with `shuttle` followed by the index of
-the device (the order in which the driver found them), for example
-`shuttle.0` or "`huttle.2`.
+All HAL pin names are prefixed with `shuttle` followed by the index of the device
+(the order in which the driver found them), for example `shuttle.0` or `huttle.2`.
 
- _(prefix).button-(number)_ (bit out)::
- _(prefix).button-(number)-not_ (bit out)::
+_(prefix).button-(number)_ (bit out)::
+_(prefix).button-(number)-not_ (bit out)::
   The momentary buttons. "(number)" identifies which button corresponds to the HAL pin.
   The "button-(number)" pins are True when the button is pushed, the "button-(number)-not" pins are True when the button is not pushed.
- _(prefix).counts_ (s32 out)::
+_(prefix).counts_ (s32 out)::
   Accumulated counts from the jog wheel (the inner wheel).
- _(prefix).spring-wheel-s32_ (s32 out)::
+_(prefix).spring-wheel-s32_ (s32 out)::
   The current deflection of the spring-wheel (the outer wheel).
   It's 0 at rest, and ranges from -7 at the counter-clockwise extreme to +7 at the clockwise extreme.
 _(prefix).spring-wheel-f_ (float out)::

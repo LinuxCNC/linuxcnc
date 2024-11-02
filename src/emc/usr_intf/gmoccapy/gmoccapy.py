@@ -169,8 +169,7 @@ class gmoccapy(object):
         self.error_channel.poll()
 
         # set INI path for INI info class before widgets are loaded
-        INFO = Info()
-        INFO.update(ini=argv[2])
+        INFO = Info(ini=argv[2])
 
         self.builder = Gtk.Builder()
         # translation of the glade file will be done with

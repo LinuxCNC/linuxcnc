@@ -40,7 +40,7 @@ def clear_tool_tips(W):
         'pan_right', 'pan_left', 'pan_up', 'pan_down', 'zoom_in', 'zoom_out']
 
     main_machine_widgets = [
-        'estop', 'power', 'run', 'pause', 'abort', 'feed_slider', 'rapid_slider',
+        'estop', 'power', 'run', 'pause_resume', 'abort', 'feed_slider', 'rapid_slider',
         'jog_slider', 'feed_label', 'rapid_label', 'jogs_label']
 
     main_button_widgets = [

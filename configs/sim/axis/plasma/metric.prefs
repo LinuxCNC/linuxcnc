@@ -11,7 +11,7 @@ Exit warning text = Did I turn the gas off ?
 Window last = 983x562
 Jog speed = 2400
 Table zoom = 1.3
-Version = 2.0
+Version = 2.21
 Orientation = landscape
 GUI font = Sans
 Gcode font = Sans
@@ -83,6 +83,9 @@ THC Sample Counts = 50
 THC Sample Threshold = 1
 Void Sense Slope = 500
 Arc OK High = 99999
+Offset Feed Rate = 12000.0
+X Pierce Offset = 1.6
+Y Pierce Offset = 0.0
 
 [POWERMAX]
 Port = 

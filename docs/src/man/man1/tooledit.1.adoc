@@ -12,8 +12,6 @@ tooledit - tool table editor
 
 *tooledit* a graphical tool table editor
 
-details:
-
 == SEE ALSO
 
 linuxcnc(1)

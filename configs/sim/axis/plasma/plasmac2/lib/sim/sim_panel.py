@@ -12,9 +12,8 @@ import hal
 import signal
 import time
 
-def unload(e):
-    print('\nPreceding KeyboardInterrupt exception can be disregarded')
-    raise SystemExit('f{e}\nunloading plasmac sim panel\n')
+def unload(e, method):
+    raise SystemExit(f'\nplasmac2 sim panel unloaded:\n{e}\nerror in {method}\n')
 
 def time_out(signum, frame):
     unload('axis gui was closed')
@@ -23,7 +22,7 @@ def arc_voltage_changed(value):
     try:
         hal.set_p('sim-torch.offset-in', value)
     except Exception as e:
-        unload(e)
+        unload(e, 'arc_voltage_changed')
 
 def button_changed(event, button, pin):
     try:
@@ -48,7 +47,7 @@ def button_changed(event, button, pin):
             button.configure(background=buttonBg)
             button.configure(activebackground=buttonBg)
     except Exception as e:
-        unload(e)
+        unload(e, 'button_changed')
 
 def mode_change(mode):
     arcF.pack_forget()
@@ -110,10 +109,9 @@ def periodic():
             signal.alarm(1)
             window.after(100, periodic)
     except Exception as e:
-        unload(e)
+        unload(e, 'periodic')
 
 def estop_pressed(event):
-    print('estop pressed')
     if hal.get_value('estop_or.in0') == 0:
         hal.set_p('estop_or.in0', '1')
         estopB.configure(background=buttonRd)
@@ -123,6 +121,7 @@ def estop_pressed(event):
         estopB.configure(background=buttonGn)
         estopB.configure(activebackground=buttonGn)
 
+# MAIN
 try:
     window = Tk()
     window.title('Plasmac Sim')
@@ -175,10 +174,8 @@ try:
     mode = None
     units = I.find('TRAJ','LINEAR_UNITS') or 'mm'
     if units == 'inch':
-#        probeHeight = hal.get_value('ini.z.min_limit') + 0.4
         probeHeight = hal.get_value('ini.z.min_limit') + 0.8
     else:
-#        probeHeight = hal.get_value('ini.z.min_limit') + 10
         probeHeight = hal.get_value('ini.z.min_limit') + 20
     # set tkinter variables
     selectedSensor = IntVar()
@@ -241,35 +238,8 @@ try:
     downB.bind('<ButtonRelease-1>',lambda e:button_changed(e,downB,'plasmac.move-down'))
     moveF.columnconfigure(0,weight=1)
     moveF.columnconfigure(1,weight=1)
-    # convoluted estop for qtplasmac
-    if 'qtvcp' in I.find('DISPLAY','DISPLAY').lower():
-        estopF = LabelFrame(window)
-        estopF.configure(relief='groove',text='Estop')
-        estopB = Button(estopF)
-        estopB.configure(borderwidth='2',compound='left',text='ESTOP')
-        estopB.pack()
-        estopB.bind('<Button-1>',estop_pressed) #lambda e:button_changed(e,estopB,'db_arc-ok.in'))
-#        estopB.bind('<ButtonRelease-1>',lambda e:button_changed(e,estopB,'db_arc-ok.in'))
-        estopF.pack(padx=2,pady=2,fill='x')
-        estopB.configure(background=buttonRd)
-        estopB.configure(activebackground=buttonRd)
-        hal.set_p('estop_or.in0', '1')
-        # ---ESTOP HANDLING---
-        # loadrt or2 names=estop_or
-        # loadrt not names=estop_not,estop_not_1
-        # addf estop_or    servo-thread
-        # addf estop_not   servo-thread
-        # addf estop_not_1 servo-thread
-        # net sim:estop-raw estop_or.out  => estop_not.in
-        # net sim:estop-out estop_not.out => iocontrol.0.emc-enable-in
-    # def set_estop(self):
-    #     if self.prefs.getpref('Estop type', 0, int, 'GUI_OPTIONS') == 2:
-    #         RUN(['halcmd', 'net', 'sim:estop-1-raw', 'iocontrol.0.user-enable-out', 'estop_not_1.in'])
-    #         RUN(['halcmd', 'net', 'sim:estop-1-in', 'estop_not_1.out', 'estop_or.in1'])
-
     # basic estop for axis
-    else:
-        CALL(['halcmd', 'net', 'sim:estop-loop', 'iocontrol.0.user-enable-out', 'iocontrol.0.emc-enable-in'])
+    CALL(['halcmd', 'net', 'sim:estop-loop', 'iocontrol.0.user-enable-out', 'iocontrol.0.emc-enable-in'])
     # set default button color
     buttonBg = ohmicB['activebackground']
     # default to ohmic if ohmic probe is enabled
@@ -285,4 +255,4 @@ try:
 except KeyboardInterrupt:
     pass
 except Exception as e:
-    unload(e)
+    unload(e, 'MAIN')

@@ -1,4 +1,4 @@
-# GENERIC HAL TCL FILE FOR PLASMAC SIM CONFIGS WITH STEPGENS
+# GENERIC HAL TCL FILE FOR PLASMAC2 SIM CONFIGS WITH STEPGENS
 
 # ---SET CONSTANTS---
 set numJoints $::KINS(JOINTS)
@@ -57,7 +57,7 @@ net sim:tool-number                                    <= iocontrol.0.tool-prep-
 net sim:tool-change-loopback  iocontrol.0.tool-change  => iocontrol.0.tool-changed
 net sim:tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
 
-# ---ESTOP COMPONENTS FOR QTPLASMAC---
+# ---ESTOP COMPONENTS FOR PLASMAC2---
 loadrt or2 names=estop_or
 loadrt not names=estop_not,estop_not_1
 addf estop_or    servo-thread

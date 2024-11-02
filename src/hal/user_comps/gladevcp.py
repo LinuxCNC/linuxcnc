@@ -49,12 +49,7 @@ import signal
 #   We have do do this before importing other modules because on import
 #   they set up their own loggers as children of the base logger.
 from qtvcp import logger
-LOG = logger.initBaseLogger('GladeVCP', log_file=None, log_level=logger.INFO)
-
-import gladevcp.makepins
-from gladevcp.gladebuilder import GladeBuilder
-from gladevcp import xembed
-from gladevcp.core import Info, Status
+LOG = None
 
 options = [ Option( '-c', dest='component', metavar='NAME'
                   , help="Set component name to NAME. Default is basename of UI file")
@@ -191,6 +186,10 @@ def main():
         parser.print_help()
         sys.exit(1)
 
+    temp = os.path.splitext(os.path.basename(args[0]))[0]
+    global LOG
+    LOG = logger.initBaseLogger('GladeVCP-'+ temp, log_file=None, log_level=logger.INFO)
+
     gladevcp_debug = debug = opts.debug
     if opts.debug:
         # Log level defaults to INFO, so set lower if in debug mode
@@ -207,10 +206,16 @@ def main():
     else:
         logger.setGlobalLevel(logger.WARNING)
 
+    from gladevcp.core import Info, Status
+    import gladevcp.makepins
+    from gladevcp.gladebuilder import GladeBuilder
+    from gladevcp import xembed
+
     if opts.ini_path:
         # set INI path for INI info class before widgets are loaded
+        INFO = Info(ini=opts.ini_path)
+    else:
         INFO = Info()
-        INFO.update(ini=opts.ini_path)
     LOG.verbose('INI path = {}'.format(opts.ini_path))
 
     xmlname = args[0]

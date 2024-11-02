@@ -121,9 +121,9 @@ image::images/qtvcp_test_dial.png["QtVCP test_dial Panel - Test Dial VCP",align=
 
 - This panel has a *button that will set a HAL pin*.
 - The button can be selected as a _momentary_ or a _toggle_ button.
-- A HAL pin will be created that follows the button state
+- A HAL pin will be created that follows the button state.
 - The button's _indicator color_ can be adjusted from a drop down menu.
-- A HAL pin or signal can be selected to follow the button state 
+- A HAL pin or signal can be selected to follow the button state.
 - You can add more buttons from the drop down menu.
 - You can load a Halmeter from the drop down menu.
 - You can load a test LED from the drop down menu.

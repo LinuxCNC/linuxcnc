@@ -201,7 +201,7 @@ Older versions will not work, you will get a Python error.
 
 This section just outlines the initial LinuxCNC-specific steps.
 For more information and a tutorial on Glade, see http://glade.gnome.org.
-Some Glade tips & tricks may also be found on https://www.youtube.com[youtube].
+Some Glade tips & tricks may also be found on https://www.youtube.com[YouTube].
 
 Either modify an existing UI component by running +glade <file>.ui+ or start a new one by just running the +glade+ command from the shell.
 
@@ -1780,7 +1780,7 @@ NOTE: LinuxCNC requires remapping of tool calls to actually use wear offsets.
 
 `tooleditor` has the following properties:
 
-font:: 
+font::
   Display font to use
 hide_columns::
   This will hide the given columns. +
@@ -2033,8 +2033,8 @@ The command string may use special keywords to access important functions.
 
 * 'ACTION' for access to the ACTION command library.
 * `GSTAT` for access to the Gstat status message library.
-* 'INFO' for access to collected data from the INI file. 
-* 'HAL' for access to the HAL linuxcnc Python module
+* 'INFO' for access to collected data from the INI file.
+* 'HAL' for access to the HAL linuxcnc Python module.
 * `STAT` for access to LinuxCNC's raw status via the LinuxCNC Python module.
 * `CMD` for access to LinuxCNC's commands via the LinuxCNC Python module.
 * `EXT` for access to the handler file functions if available.

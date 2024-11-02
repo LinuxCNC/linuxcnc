@@ -2809,7 +2809,7 @@ ORIGIN</string>
                         </widget>
                        </item>
                        <item>
-                        <widget class="ActionButton" name="pause">
+                        <widget class="ActionButton" name="pause_resume">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
                            <horstretch>0</horstretch>
