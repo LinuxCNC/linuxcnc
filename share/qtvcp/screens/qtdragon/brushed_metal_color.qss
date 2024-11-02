@@ -21,7 +21,8 @@ background: qlineargradient(spread:reflect, x1:0.5, y:0, x2:0.5, y2:1.6, stop:0 
 
 
 QPushButton:checked,
-QPushButton:pressed {
+QPushButton:pressed,
+SystemToolButton:checked {
     border-color: blue;
     color: #0000FF;
 }
@@ -134,7 +135,10 @@ QLabel {
     color: rgb(223, 167, 198);
 }
 
-
+#jogincrements_linear,
+#jogincrements_angular {
+        font: 11pt "Lato Heavy";
+}
 
 StatusLabel,
 StateLabel {
@@ -537,5 +541,6 @@ GcodeEditor QLineEdit {
     height: 26;
     font: 12pt "Lato Heavy";
 }
+
 
 

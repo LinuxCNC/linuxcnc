@@ -13456,21 +13456,21 @@ SCROLL</string>
                    <item row="0" column="2">
                     <widget class="SystemToolButton" name="systemtoolbutton">
                      <property name="sizePolicy">
-                      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                       <horstretch>1</horstretch>
+                      <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                       <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
                      </property>
                      <property name="minimumSize">
                       <size>
-                       <width>58</width>
-                       <height>36</height>
+                       <width>84</width>
+                       <height>48</height>
                       </size>
                      </property>
                      <property name="maximumSize">
                       <size>
-                       <width>16777215</width>
-                       <height>76</height>
+                       <width>84</width>
+                       <height>64</height>
                       </size>
                      </property>
                      <property name="toolTip">
@@ -16077,7 +16077,7 @@ ANGULAR</string>
                  </property>
                  <property name="maximumSize">
                   <size>
-                   <width>100</width>
+                   <width>114</width>
                    <height>26</height>
                   </size>
                  </property>
@@ -16166,7 +16166,7 @@ ANGULAR</string>
                  </property>
                  <property name="maximumSize">
                   <size>
-                   <width>100</width>
+                   <width>114</width>
                    <height>26</height>
                   </size>
                  </property>
@@ -16911,7 +16911,7 @@ ANGULAR</string>
          <number>2</number>
         </property>
         <property name="text">
-         <string>02:31:40 PM</string>
+         <string>11:06:47 </string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -18100,7 +18100,8 @@ ANGULAR</string>
  </slots>
  <buttongroups>
   <buttongroup name="selectButtonGroup"/>
-  <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
+  <buttongroup name="mode_buttonGroup"/>
  </buttongroups>
 </ui>
+
