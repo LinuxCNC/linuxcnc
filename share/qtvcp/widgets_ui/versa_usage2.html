@@ -9,9 +9,11 @@
   <title>Versa Probe Usage (pg2)</title>
 </head>
 <body style="font-family:'Ubuntu'; font-size:10pt; font-weight:400; font-style:normal;">
-  <h1 style="margin-top:18px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style="font-size:xx-large; font-weight:600;">Versa Probe Usage (pg2)</span></h1>
-  <h3 style="margin-top:14px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style="font-size:large; font-weight:600;">DIAMETER</span></h3>
-  <p style="margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">This is the diameter of the probe tip. The accuracy of probe measurements is directly affected by the accuracy of the probe tip diameter.</p>
+  <h1 style="margin-top:18px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style="font-size:xx-large; font-weight:600;">Versa Probe Usage (page 2)</span></h1>
+  <p style="margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style="font-size:large; font-weight:600;">INPUT</span> <span style="font-weight:600;">(read-only)</span></p>
+  <p style="margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Defines the unit type of the current configuration.</p>
+  <p style="margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style="font-size:large; font-weight:600;">DIAMETER</span></p>
+  <p style="margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">This is the diameter of the probe tip. The accuracy of probe measurements is directly affected by the accuracy of the probe tip diameter.</p>
   <p style="margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style="font-size:large; font-weight:600;">TRAVEL</span> <span style="font-weight:600;">(velocity)</span></p>
   <p style="margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">The distance that the probe will travel during the initial search. If the search distance is too short, you will receive a message like "G38 finished without making contact". For safety reasons, it is recommended to set this parameter to 3-4 mm more than probe stylus diameter.</p>
   <p style="margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style="font-size:large; font-weight:600;">LATCH RTN</span> <span style="font-weight:600;">(latch retract)</span></p>
@@ -32,12 +34,18 @@
   <p style="margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">The distance that the probe will move away from an edge or corner before performing a search. It should be large enough to ensure that the probe will not contact the workpiece or any other fixtures before moving down. It should be small enough to avoid excessive waiting for movement while searching.</p>
   <p style="margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style="font-size:large; font-weight:600;">Z</span> <span style="font-weight:600;">(clearance)</span></p>
   <p style="margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">The distance that the probe will move down before performing a search. If measuring an inside hole, the probe could be manually jogged to the starting Z height and then set Z CLEARANCE to 0.</p>
-  <p style="margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">There are three toggle buttons:</p>
-  <p style="margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style="font-size:large; font-weight:600;">AUTO ZERO</span></p>
-  <p style="margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">If selected, after probing the relevant axis will be set to ZERO in the current user system.</p>
-  <p style="margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style="font-size:large; font-weight:600;">AUTO SKEW</span></p>
-  <p style="margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">If selected, after probing the system will be rotated or just display the calculated rotation.</p>
+  <p style="margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style="font-size:large; font-weight:600;">MOTION TYPE</span> <span style="font-weight:600;">(read-only)</span></p>
+  <p style="margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Indicates motion state when probing is active(real-time)</p>
+  <p style="margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">There are three <u>toggle</u> buttons:</p>
   <p style="margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style="font-size:large; font-weight:600;">TOOL MEASURE</span></p>
   <p style="margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Tool measure, if integrated, turns auto tool probing on and off.</p>
+  <p style="margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style="font-size:large; font-weight:600;">AUTO SKEW</span></p>
+  <p style="margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">If selected, after probing the system will be rotated or just display the calculated rotation.</p>
+  <p style="margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><span style="font-size:large; font-weight:600;">AUTO ZERO</span></p>
+  <p style="margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">If selected, after probing the relevant axis will be set to ZERO in the current user system.</p>
+  <h2 style="margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Probe Type</h2>
+  <p style="margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Clicking the probe type button cycles or round-robins through the different probe type options.</p>
+  <h2 style="margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Set Angle</h2>
+  <p style="margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;">Set Angle used in the skew pane.</p>
   <p style="-qt-paragraph-type:empty; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;"><br></p>
 </body></html>
