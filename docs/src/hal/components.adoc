@@ -80,7 +80,6 @@ To search in the man pages, use the UNIX tool `apropos`.
 |===
 | link:../man/man1/io.1.html[io]               |iocontrol - interacts with HAL or G-code in non-realtime                   ||
 | link:../man/man1/iocontrol.1.html[iocontrol] |Interacts with HAL or G-code in non-realtime                               ||
-| link:../man/man1/iov2.1.html[iov2]           |Interacts with HAL or G-code in non-realtime                               ||
 | link:../man/man1/mdi.1.html[mdi]             |Send G-code commands from the terminal to the running LinuxCNC instance    ||
 | link:../man/man1/milltask.1.html[milltask]   |Non-realtime task controller for LinuxCNC                                  ||
 |===
