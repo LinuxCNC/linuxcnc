@@ -42,7 +42,6 @@ man1/image-to-gcode.1
 man1/inivar.1
 man1/io.1
 man1/iocontrol.1
-man1/iov2.1
 man1/latency-histogram.1
 man1/latency-plot.1
 man1/latency-test.1
