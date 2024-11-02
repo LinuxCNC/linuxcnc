@@ -602,6 +602,7 @@ class HandlerClass:
             pass
 
     def removeCycleFocusBorder(self):
+        return
         try:
             self.CycleFocusWidget.setStyleSheet( '')
             name = self.CycleFocusWidgetBorder
@@ -624,6 +625,7 @@ class HandlerClass:
             self.w[name].setStyleSheet('#%s {border: 3px solid %s;}'%(name,colorName))
 
     def colorCycleFocusBorder(self, name, receiver, colorName):
+        return
         self.CycleFocusWidgetBorder = name
         self.CycleFocusWidget = receiver
         self.w[name].setStyleSheet('#%s {border: 3px solid %s;}'%(name,colorName))
