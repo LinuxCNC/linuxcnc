@@ -4068,9 +4068,9 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
       CHP(restore_settings(&_setup, _setup.call_level));
   }
 
-  if (is_user_defined_m_code(block, settings, 8) && ONCE_M(8)) {
-     return convert_remapped_code(block, settings, STEP_M_8, 'm',
-				   block->m_modes[8]);
+  if (is_user_defined_m_code(block, settings, 8) &&
+	  STEP_REMAPPED_IN_BLOCK(block, STEP_M_8) && ONCE_M(8))  {
+      return convert_remapped_code(block, settings, STEP_M_8, 'm', block->m_modes[8]);
   } else if ((block->m_modes[8] == 7) && ONCE_M(8)){
       enqueue_MIST_ON();
       settings->mist = true;
