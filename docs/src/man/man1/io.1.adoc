@@ -2,7 +2,7 @@
 
 == NAME
 
-io - interacts with HAL or G-code in non-realtime
+io, iocontrol - interacts with HAL or G-code in non-realtime
 
 == SYNOPSIS
 
