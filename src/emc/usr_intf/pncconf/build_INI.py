@@ -320,7 +320,6 @@ class INI:
             print("NO_FORCE_HOMING = 1", file=file)
         print(file=file)
         print("[EMCIO]", file=file)
-        print("CYCLE_TIME = 0.100", file=file)
         print("TOOL_TABLE = tool.tbl", file=file)
         # qtplasmac doesn't require these
         if self.d.frontend != _PD._QTPLASMAC:

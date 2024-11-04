@@ -250,7 +250,6 @@ class INI:
         print("MAX_LINEAR_VELOCITY = %.2f" % maxvel, file=file)
         print(file=file)
         print("[EMCIO]", file=file)
-        print("CYCLE_TIME = 0.100", file=file)
         print("TOOL_TABLE = tool.tbl", file=file)
 
         all_homes = "None"
