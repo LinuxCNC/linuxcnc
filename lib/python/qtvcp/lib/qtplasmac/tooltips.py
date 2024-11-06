@@ -193,7 +193,7 @@ def set_tool_tips(P, W):
     W.estop.setToolTip(_translate('ToolTips', 'Shows the Estop status'))
     W.power.setToolTip(_translate('ToolTips', 'Switches the GUI on or off\n\nA long press displays the GUI shutdown dialog'))
     W.run.setToolTip(_translate('ToolTips', 'Runs the currently loaded G-Code program'))
-    W.pause.setToolTip(_translate('ToolTips', 'Pauses or resume the currently running G-Code program'))
+    W.pause_resume.setToolTip(_translate('ToolTips', 'Pauses or resume the currently running G-Code program'))
     W.abort.setToolTip(_translate('ToolTips', 'Stops the currently running process'))
     W.feed_slider.setToolTip(_translate('ToolTips', 'Sets the feed override percentage'))
     W.rapid_slider.setToolTip(_translate('ToolTips', 'Sets the rapid override percentage'))
