@@ -12,8 +12,8 @@ connector.
 *loadrt mitsub_vfd* [*--baud* _baudrate_] [*--port* _devicename_] **name1=**__number~1~__[,**name2=**__number~2~__...]
 
 *name1*:: is user selectable (usually a description of the controlled device).
-__number~1~__:: is the slave number that was set on the VFD. Must be two digits (Parameter 117).
-**name~__N__~=__number~N~__**:: can be repeated for multiple VFD's connected together.
+__number1__:: is the slave number that was set on the VFD. Must be two digits (Parameter 117).
+name__N__=number__N__:: can be repeated for multiple VFD's connected together.
 *--baud* _baudrate_:: is optional as it defaults to 9600, all networked vfds must be set to the same baudrate.
 *--port* _devicename_:: is optional as it defaults to `ttyS0``, a common alternative is `/dev/ttyUSB0`.
 

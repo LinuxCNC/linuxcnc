@@ -18,7 +18,7 @@ when the command is processed. Such commands include all codes handled
 by the interpreter (*G-code* programs and *MDI* commands) and NML
 *jogging* commands issued by a GUI (including *halui*). *Wheel jogging*
 is implemented in the realtime motion module so *inihal* pin changes
-(e.g., `ini.\*.max_velocity`, `ini.*.max_acceleration`) may be honored as
+(e.g., `ini.*.max_velocity`, `ini.*.max_acceleration`) may be honored as
 soon as altered values are propagated to the motion module.
 
 == PINS
