@@ -339,11 +339,6 @@ example '##2'  means the value of the parameter whose index is the
   X, Y, Z, A, B, C, U, V & W, volatile.
 * '5599' - Flag for controlling the output of (DEBUG,) statements.
   1=output, 0=no output; default=1. Volatile.
-* '5600' - Toolchanger fault indicator. Used with the iocontrol-v2 component.
-  1: toolchanger faulted, 0: normal. Volatile.
-* '5601' - Toolchanger fault code. Used with the iocontrol-v2 component.
-  Reflects the value of the 'toolchanger-reason' HAL pin if a fault occurred.
-  Volatile.
 
 .Numbered Parameters Persistence
 The values of parameters in the persistent range are retained over

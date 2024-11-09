@@ -49,7 +49,6 @@ DOC_SRCS_EN := \
 	config/core-components.adoc \
 	config/ini-config.adoc \
 	config/ini-homing.adoc \
-	config/iov2.adoc \
 	config/integrator-concepts.adoc \
 	config/lathe-config.adoc \
 	config/moveoff.adoc \

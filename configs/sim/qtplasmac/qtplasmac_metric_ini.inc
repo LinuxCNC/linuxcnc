@@ -27,8 +27,6 @@ MACHINE                 = qtplasmac-metric
 DEBUG                   = 0
 
 [EMCIO]
-EMCIO                   = io
-CYCLE_TIME              = 0.100
 TOOL_TABLE              = metric_tool.tbl
 
 [TASK]

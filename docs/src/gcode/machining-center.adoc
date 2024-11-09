@@ -311,7 +311,6 @@ each tool is. The name of the tool table is defined in the INI file:
 [source,{ini}]
 ----
 [EMCIO]
-
 # tool table file
 TOOL_TABLE = tooltable.tbl
 ----

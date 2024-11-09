@@ -1586,11 +1586,6 @@ These wrap a NGC procedure for M6 Tool Change.
 
 .Actions of +change_prolog+
 
-* The following three steps are applicable only if the `iocontrol-v2` component is used:
-** If parameter 5600 (fault indicator) is greater than zero, this indicates a Toolchanger fault, which is handled as follows:
-** if parameter 5601 (error code) is negative, this indicates a hard fault and the prolog aborts with an error message.
-** if parameter 5601 (error code) is greater equal zero, this indicates a soft fault.
-   An informational message is displayed and the prolog continues.
 * If there was no preceding T command which caused a pocket to be selected, the prolog aborts with an error message.
 * If cutter radius compensation is on, the prolog aborts with an error message.
 
@@ -1603,10 +1598,6 @@ Then, the following parameters are exported to the NGC procedure:
 .Actions of +change_epilog
 
 * The NGC procedure is expected to return a positive value, otherwise an error message containing the return value is given and the interpreter aborts.
-* If parameter 5600 (fault indicator) is greater than zero, this indicates a Toolchanger fault, which is handled as follows (`iocontrol-v2`-only):
-** If parameter 5601 (error code) is negative, this indicates a hard fault and the epilog aborts with an error message.
-** If parameter 5601 (error code) is greater equal zero, this indicates a soft fault.
-   An informational message is displayed and the epilog continues.
 * In case the NGC procedure executed the M6 command (which then refers to the built in M6 behavior), no further action is taken.
   This can be used for instance to minimally adjust the built in behavior be preceding or following it with some other statements.
 * Otherwise, the `#<selected_pocket>` parameter is extracted from the subroutine's parameter space, and used to set the interpreter's `current_pocket` variable.
@@ -1782,8 +1773,6 @@ The current set of *existing* codes open to redefinition is:
 - M67, M68 (analog output control)
 - S  (set spindle speed)
 - F  (set feed)
-
-Note that the use of M61 currently requires the use of `iocontrol-v2`.
 
 [[remap:unallocated-g-codes]]
 === Currently unallocated G-codes:
@@ -2237,7 +2226,6 @@ An example Python redefinition for `M61` can be found in the `set_tool_number` f
 ==  Status
 
 . The RELOAD_ON_CHANGE feature is fairly broken. Restart after changing a Python file.
-. M61 (remapped or not) is broken in `iocontrol` and requires `iocontrol-v2` to actually work.
 
 // A short survey of LinuxCNC execution
 // Interpreter internals access - Python view
