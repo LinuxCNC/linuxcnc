@@ -547,9 +547,9 @@ def ui(im, nim, im_name):
         if event.char in "0123456789.": return
         return "break"
         
-    validate_float    = "expr {![regexp {^-?([0-9]+(\.[0-9]*)?|\.[0-9]+|)$} %P]}"
+    validate_float    = r"expr {![regexp {^-?([0-9]+(\.[0-9]*)?|\.[0-9]+|)$} %P]}"
     validate_int      = "expr {![regexp {^-?([0-9]+|)$} %P]}"
-    validate_posfloat = "expr {![regexp {^?([0-9]+(\.[0-9]*)?|\.[0-9]+|)$} %P]}"
+    validate_posfloat = r"expr {![regexp {^?([0-9]+(\.[0-9]*)?|\.[0-9]+|)$} %P]}"
     validate_posint   = "expr {![regexp {^([0-9]+|)$} %P]}"
     def floatentry(f, v):
         var = tkinter.DoubleVar(f)
