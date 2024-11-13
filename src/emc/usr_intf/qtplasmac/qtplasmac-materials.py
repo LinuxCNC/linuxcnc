@@ -310,19 +310,19 @@ class MaterialConverter(QMainWindow, object):
                         a,b = line.split('=',1)
                         self.materialCutS = "{id:}{val:.{i}f}".format(id='CUT_SPEED          = ',
                                              i=0, val=float(b.strip()) / self.divisor)
-                    elif line.startswith(r'Cut\ current') or (line.startswith('Preset\ current') and self.materialCutA == 'CUT_AMPS           = 0'):
+                    elif line.startswith(r'Cut\ current') or (line.startswith(r'Preset\ current') and self.materialCutA == 'CUT_AMPS           = 0'):
                         a,b = line.split('=',1)
                         self.materialCutA = 'CUT_AMPS           = {}'.format(b.strip())
-                    elif line.startswith(r'Cut\ voltage') or (line.startswith('Preset\ volts') and self.materialCutV == 'CUT_VOLTS          = 0'):
+                    elif line.startswith(r'Cut\ voltage') or (line.startswith(r'Preset\ volts') and self.materialCutV == 'CUT_VOLTS          = 0'):
                         a,b = line.split('=',1)
                         self.materialCutV = 'CUT_VOLTS          = {}'.format(b.strip())
                     elif line.startswith(r'Pause\ at\ end\ of\ cut'):
                         a,b = line.split('=',1)
                         self.materialPauseE = 'PAUSE_AT_END       = {}'.format(b.strip())
-                    elif line.startswith(r'Gas\ pressure') or (line.startswith('Preset\ Air\ Pressure') and self.materialGasP == 'GAS_PRESSURE       = 0'):
+                    elif line.startswith(r'Gas\ pressure') or (line.startswith(r'Preset\ Air\ Pressure') and self.materialGasP == 'GAS_PRESSURE       = 0'):
                         a,b = line.split('=',1)
                         self.materialGasp = 'GAS_PRESSURE       = {}'.format(b.strip())
-                    elif line.startswith(r'Cut\ mode') or (line.startswith('Preset\ mode') and self.materialCutM == 'CUT_MODE           = 1'):
+                    elif line.startswith(r'Cut\ mode') or (line.startswith(r'Preset\ mode') and self.materialCutM == 'CUT_MODE           = 1'):
                         a,b = line.split('=',1)
                         self.materialCutM = 'CUT_MODE           = {}'.format(b.strip())
                     count += 1
