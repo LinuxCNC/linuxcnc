@@ -17,6 +17,7 @@
 
 from PyQt5 import QtCore, QtWidgets
 
+import hal
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Info
 from qtvcp import logger
@@ -36,6 +37,7 @@ LOG = logger.getLogger(__name__)
 class JogIncrements(QtWidgets.QComboBox, _HalWidgetBase):
     def __init__(self, parent=None):
         super(JogIncrements, self).__init__(parent)
+        self._pin_name = ''
         self.linear = True
         self._block_signal = False
 
@@ -43,6 +45,13 @@ class JogIncrements(QtWidgets.QComboBox, _HalWidgetBase):
     # with a combo box display, it's assumed the showing increment
     # is valid - so we must update the rate if the units mode changes.
     def _hal_init(self):
+        # TODO should this be optional?
+        if 1==1:
+            if self._pin_name == '':
+                pname = self.HAL_NAME_
+            else:
+                pname = self._pin_name
+            self.hal_pin = self.HAL_GCOMP_.newpin(pname, hal.HAL_FLOAT, hal.HAL_OUT)
         if self.linear:
             for item in (INFO.JOG_INCREMENTS):
                 self.addItem(item)
@@ -66,6 +75,7 @@ class JogIncrements(QtWidgets.QComboBox, _HalWidgetBase):
     # in this way if some other widget sets a rate change
     # the combo box doesn't lie
     def _checkincrements(self,value, text):
+        self.hal_pin.set(value)
         for count in range(self.count()):
             label = self.itemText(count)
             try:
@@ -189,6 +199,16 @@ class JogIncrements(QtWidgets.QComboBox, _HalWidgetBase):
     # designer will show these properties in this order:
     # BOOL
     linear_option = QtCore.pyqtProperty(bool, get_linear, set_linear, reset_linear)
+
+    # VARIABLES---------------------------
+    def set_pin_name(self, value):
+        self._pin_name = value
+    def get_pin_name(self):
+        return self._pin_name
+    def reset_pin_name(self):
+        self._pin_name = ''
+
+    pinName = QtCore.pyqtProperty(str, get_pin_name, set_pin_name, reset_pin_name)
 
 if __name__ == "__main__":
 
