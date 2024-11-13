@@ -10095,6 +10095,9 @@ MM/MIN</string>
                       <property name="frame">
                        <bool>true</bool>
                       </property>
+                      <property name="pinName" stdset="0">
+                       <string>jog-linear-increments</string>
+                      </property>
                      </widget>
                     </item>
                    </layout>
@@ -10210,6 +10213,9 @@ MM/MIN</string>
                       </property>
                       <property name="linear_option" stdset="0">
                        <bool>false</bool>
+                      </property>
+                      <property name="pinName" stdset="0">
+                       <string>jog-angular-increments</string>
                       </property>
                      </widget>
                     </item>
@@ -17853,7 +17859,7 @@ SCROLL</string>
              <number>2</number>
             </property>
             <property name="text">
-             <string>08:48:27 PM</string>
+             <string>08:29:17 PM</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>

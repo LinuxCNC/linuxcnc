@@ -16099,6 +16099,9 @@ ANGULAR</string>
                  <property name="frame">
                   <bool>true</bool>
                  </property>
+                 <property name="pinName" stdset="0">
+                  <string>jog-linear-increments</string>
+                 </property>
                 </widget>
                </item>
               </layout>
@@ -16184,6 +16187,9 @@ ANGULAR</string>
                  </property>
                  <property name="linear_option" stdset="0">
                   <bool>false</bool>
+                 </property>
+                 <property name="pinName" stdset="0">
+                  <string>jog-angular-increments</string>
                  </property>
                 </widget>
                </item>
@@ -16911,7 +16917,7 @@ ANGULAR</string>
          <number>2</number>
         </property>
         <property name="text">
-         <string>11:06:47 </string>
+         <string>08:27:08 PM</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -18099,9 +18105,8 @@ ANGULAR</string>
   <slot>btn_systemtool_toggled()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="selectButtonGroup"/>
   <buttongroup name="page_buttonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
+  <buttongroup name="selectButtonGroup"/>
  </buttongroups>
 </ui>
-
