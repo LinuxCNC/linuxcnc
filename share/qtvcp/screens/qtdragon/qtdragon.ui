@@ -10097,7 +10097,7 @@ MM/MIN</string>
                        <bool>true</bool>
                       </property>
                       <property name="pinName" stdset="0">
-                       <string>jog-linear-increments</string>
+                       <string>jog-linear-increment</string>
                       </property>
                      </widget>
                     </item>
@@ -10216,7 +10216,7 @@ MM/MIN</string>
                        <bool>false</bool>
                       </property>
                       <property name="pinName" stdset="0">
-                       <string>jog-angular-increments</string>
+                       <string>jog-angular-increment</string>
                       </property>
                      </widget>
                     </item>
