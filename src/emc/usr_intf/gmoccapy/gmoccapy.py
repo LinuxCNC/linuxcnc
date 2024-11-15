@@ -2203,12 +2203,11 @@ class gmoccapy(object):
         self.widgets.offsetpage1.set_font("sans 12")
         self.widgets.offsetpage1.set_foreground_color(self._get_RGBA_color("#28D0D9"))
         self.widgets.offsetpage1.selection_mask = ("Tool", "G5x", "Rot")
-        systemlist = ["Tool", "G5x", "Rot", "G92", "G54", "G55", "G56", "G57", "G58", "G59", "G59.1",
-                      "G59.2", "G59.3"]
         names = []
-        for system in systemlist:
+        default_names = self.widgets.offsetpage1.get_names()
+        for system, name in default_names:
             system_name = "system_name_{0}".format(system)
-            name = self.prefs.getpref(system_name, system, str)
+            name = self.prefs.getpref(system_name, name, str)
             names.append([system, name])
         self.widgets.offsetpage1.set_names(names)
 
