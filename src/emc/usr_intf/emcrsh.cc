@@ -2554,7 +2554,7 @@ static cmdResponseType getSpindleOverride(connectionRecType *context)
             continue;
 
 		  double percent = emcStatus->motion.spindle[n].spindle_scale * 100.0;
-		  dprintf(context->cliSock, "SPINDLE_OVERRIDE %d %f\r\n", n, percent);
+		  OUT("SPINDLE_OVERRIDE %d %f", n, percent);
   }
 
   return rtNoError;
