@@ -254,7 +254,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
     def _hal_cleanup(self):
         if self.PREFS_:
             LOG.debug('Saving Versa probe data to preference file.')
-            self.PREFS_.putpref('ps_probe_tool', self.probe_number, int, 'VERSA_PROBE OPTIONS')
+            self.PREFS_.putpref('ps_probe_tool', self.probe_number, int, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_searchvel", float(self.input_search_vel.text()), float, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_probevel", float(self.input_probe_vel.text()), float, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_z_clearance", float(self.input_z_clearance.text()), float, 'VERSA_PROBE_OPTIONS')
