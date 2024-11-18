@@ -491,7 +491,7 @@ class gmoccapy(object):
             except:
                 tb = traceback.format_exc()
                 LOG.error(tb)
-                self.notification.add_message(_("Error in ") + rcfile + "\n" \
+                self.notification.add_message(_("Error in") + " " + rcfile + "\n" \
                     + _("Please check the console output."), ALERT_ICON)
 
         # Custom css file, e.g.:
@@ -512,7 +512,7 @@ class gmoccapy(object):
             except:
                 tb = traceback.format_exc()
                 LOG.error(tb)
-                self.notification.add_message(_("Error in ") + css_file + "\n" \
+                self.notification.add_message(_("Error in") + " " + css_file + "\n" \
                     + _("Please check the console output."), ALERT_ICON)
 
 
