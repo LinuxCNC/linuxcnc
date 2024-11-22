@@ -168,6 +168,28 @@ MESSAGE_TYPE = okdialog
 MESSAGE_PINNAME = oktest
 ----
 
+Multimessages use an s32 HAL pin to pop multiple defined messages.
+
+[source,{ini}]
+----
+[DISPLAY]
+MULTIMESSAGE_ID = VFD
+
+MULTIMESSAGE_VFD_NUMBER = 1
+MULTIMESSAGE_VFD_TYPE = okdialog status
+MULTIMESSAGE_VFD_TITLE = VFD Error: 1
+MULTIMESSAGE_VFD_TEXT = This is the longer text FOR MESSAGE NUMBER 1
+MULTIMESSAGE_VFD_DETAILS = DETAILS for VFD error 1
+MULTIMESSAGE_VFD_ICON = WARNING
+
+MULTIMESSAGE_VFD_NUMBER = 2
+MULTIMESSAGE_VFD_TYPE = nonedialog status
+MULTIMESSAGE_VFD_TITLE = VFD Error: 2
+MULTIMESSAGE_VFD_TEXT = This is the longer text FOR MESSAGE NUMBER 2
+MULTIMESSAGE_VFD_DETAILS = DETAILS for VFD error 2
+MULTIMESSAGE_VFD_ICON = INFO
+----
+
 === Embed Custom VCP Panels
 
 You can optionally embed QtVCP Virtual Control Panels into the QtDragon or QtDragon_hd screen. +
@@ -573,6 +595,14 @@ This input pin is available to toggle pause/resume of a running program.
 [source,{hal}]
 ----
 qtdragon.external-pause
+----
+
+You can externally operate dialog responses on most qtdragon dialogs.
+[source,{hal}]
+----
+qtdragon.dialog-ok
+qtdragon.dialog-no
+qtdragon.dialog-cancel
 ----
 
 == HAL files
