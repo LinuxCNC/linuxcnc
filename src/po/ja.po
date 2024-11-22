@@ -1,18 +1,19 @@
 # Eric Featherstone <eric.featherstone@gmail.com>, 2022.
 # Guitar Heart <chenxiyanghbk@gmail.com>, 2024.
+# Meteor2 <ryumeteor175@gmail.com>, 2024.
 msgid ""
 msgstr ""
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-10-05 14:29+0200\n"
-"PO-Revision-Date: 2024-03-12 12:19+0000\n"
-"Last-Translator: Guitar Heart <chenxiyanghbk@gmail.com>\n"
+"PO-Revision-Date: 2024-11-12 14:34+0000\n"
+"Last-Translator: Meteor2 <ryumeteor175@gmail.com>\n"
 "Language-Team: Japanese <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/ja/>\n"
 "Language: ja\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.5-dev\n"
+"X-Generator: Weblate 5.8.2\n"
 
 #: src/emc/task/emctaskmain.cc:868
 #, c-format
@@ -60,13 +61,13 @@ msgstr ""
 
 #: src/emc/task/emctaskmain.cc:2146
 msgid "failed to close file"
-msgstr ""
+msgstr "ファイルを閉じることができませんでした"
 
 #: src/emc/task/emctaskmain.cc:2212 tcl/bin/genedit.tcl:197
 #: tcl/tklinuxcnc.tcl:452
-#, fuzzy, c-format, tcl-format
+#, c-format, tcl-format
 msgid "can't open %s"
-msgstr "開けません"
+msgstr "%s を開けません"
 
 #: src/emc/task/emctaskmain.cc:2224
 msgid "Can't issue MDI command when not homed"
@@ -11587,7 +11588,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid "_:"
+msgid ""
+"_:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
