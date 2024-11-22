@@ -6,10 +6,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Gmoccapy 2.2.3.4\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-10-05 14:29+0200\n"
-"PO-Revision-Date: 2024-03-24 07:44+0000\n"
-"Last-Translator: 复予 <clonewith@qq.com>\n"
+"PO-Revision-Date: 2024-11-21 20:40+0000\n"
+"Last-Translator: Tron Lee <472734894@qq.com>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
 "linuxcnc/gmocappy/zh_Hans/>\n"
 "Language: zh_CN\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.5-dev\n"
+"X-Generator: Weblate 5.9-dev\n"
 "X-Poedit-Language: Chinese\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -96,9 +96,9 @@ msgid "Press to return to main button list"
 msgstr "按下返回主按钮列表"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:807
-#, fuzzy, python-brace-format
+#, python-brace-format
 msgid "could not resolve the image path '{0}' given for button '{1}'"
-msgstr "无法解析按钮 '{1}' 的图像路径 '{0}'"
+msgstr "无法解析为按钮 '{1}' 指定的图像路径 '{0}'"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:962
 msgid ""
@@ -146,20 +146,18 @@ msgid "Press to set the selected coordinate system to be the active one"
 msgstr "按下将选定的坐标系设置为活动坐标系"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1083
-#, fuzzy
 msgid "No valid probe config in INI file. Tool measurement disabled."
-msgstr "INI 文件中没有有效的探针配置。工具测量无效。"
+msgstr "INI 文件中没有有效的探针配置。工具测量已禁用。"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1097
 msgid "Found valid probe config in INI file. Will use auto tool measurement."
 msgstr "在 INI 文件中找到有效的探针配置。将使用自动工具测量。"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1111
-#, fuzzy
 msgid ""
 "To many increments given in INI file for this screen. Only the first 10 will "
 "be reachable through this screen."
-msgstr "在 INI 文件中为该屏幕指定的增量。只有前 10 个可以通过该屏幕访问。"
+msgstr "在 INI 文件中为该屏幕指定的太多增量。只有前 10 个可以通过该屏幕访问。"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1121
 msgid "Continuous"
@@ -181,9 +179,8 @@ msgid "Press to jog joint {0}"
 msgstr "按下以点动关节 {0}"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1309
-#, fuzzy
 msgid "Found more than 16 macros, will use only the first 16."
-msgstr "找到超过16个宏，将仅使用前16个宏"
+msgstr "找到超过16个宏，将仅使用前16个宏。"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:1320
 msgid "Press to display previous macro button"
@@ -935,11 +932,11 @@ msgstr "G和M代码信息以及速度和进给"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:54
 msgid "active_mcodes_label"
-msgstr ""
+msgstr "激活_m代码_标签"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:55
 msgid "active_gcodes_label"
-msgstr ""
+msgstr "激活_g代码_标签"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:56
 msgid "<b>G-Code</b>"
@@ -1099,7 +1096,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:96
 msgid "<b>DRO</b>"
-msgstr ""
+msgstr "<b>DRO</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:97
 msgid "Grid size"
@@ -1179,10 +1176,9 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:116
 msgid "<b>gmoccapy messages</b>"
-msgstr ""
+msgstr "<b>gmoccapy 信息</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:117
-#, fuzzy
 msgid "Theme"
 msgstr "主题"
 
@@ -1203,9 +1199,8 @@ msgid "Enable sound"
 msgstr "启用声音"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:122
-#, fuzzy
 msgid "G-code Theme"
-msgstr "图标主题"
+msgstr "G代码主题"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:123
 msgid "<b>Themes and sound</b>"
@@ -1312,7 +1307,6 @@ msgid "Probe Vel."
 msgstr "探测速度."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:149
-#, fuzzy
 msgid "<b>Probe velocities</b>"
 msgstr "<b>探测速度</b>"
 
@@ -1382,9 +1376,8 @@ msgid "Select user dir"
 msgstr "选择用户目录"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:172
-#, fuzzy
 msgid "<b>Jump to dir</b>"
-msgstr "<b>选择跳转到目录</b>"
+msgstr "<b>跳转到目录</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:173
 msgid "Do not use run from line"
