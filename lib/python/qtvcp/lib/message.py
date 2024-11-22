@@ -166,7 +166,7 @@ class Message:
             elif "okdialog" in type: style = LcncDialog.OK
             elif "yesnodialog" in type: style = LcncDialog.YESNO
             elif "okcancel" in type: style = LcncDialog.OKCANCEL
-            elif "closepromt" in type: style = LcncDialog.CLOSEPROMPT
+            elif "closeprompt" in type: style = LcncDialog.CLOSEPROMPT
 
             dialog.style = style
             if style != LcncDialog.NONE:
