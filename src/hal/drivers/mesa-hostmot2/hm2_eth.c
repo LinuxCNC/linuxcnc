@@ -100,7 +100,7 @@ int comm_active = 0;
 
 static int comp_id;
 
-static char *hm2_7i96_pin_names[] = {
+static const char *hm2_7i96_pin_names[] = {
     "TB3-01",
     "TB3-02",
     "TB3-03",
@@ -158,7 +158,7 @@ static char *hm2_7i96_pin_names[] = {
     "P1-25/DB25-13",
 };
 
-static char *hm2_7i94_pin_names[] = {
+static const char *hm2_7i94_pin_names[] = {
     "P2-01/DB25-01", /* P2 parallel expansion */
     "P2-02/DB25-14",
     "P2-03/DB25-02",
@@ -204,7 +204,7 @@ static char *hm2_7i94_pin_names[] = {
     "P2-/IOENA"
 };
 
-static char *hm2_7i95_pin_names[] = {
+static const char *hm2_7i95_pin_names[] = {
     "TB3-02/TB3-03", /* Step/Dir/Misc 5V out */
     "TB3-04/TB3-05",
     "TB3-08/TB3-09",
@@ -266,7 +266,7 @@ static char *hm2_7i95_pin_names[] = {
     "P1-25/DB25-13",
 };
 
-static char *hm2_7i97_pin_names[] = {
+static const char *hm2_7i97_pin_names[] = {
     "TB3-04", 		/* Analog out */
     "TB3-08",
     "TB3-12",
@@ -321,7 +321,7 @@ static char *hm2_7i97_pin_names[] = {
     "P1-25/DB25-13",
 };
 
-static char *hm2_Mc04_pin_names[] = {
+static const char *hm2_Mc04_pin_names[] = {
     "Relay2",
     "Relay3",
     "Relay4",
@@ -384,7 +384,7 @@ static char *hm2_Mc04_pin_names[] = {
     "Smart Serial Interface #0, pin rx0 (Input)"
 };
 
-static char *hm2_8cSS_pin_names[] = {
+static const char *hm2_8cSS_pin_names[] = {
     "Not used",
     "Not used",
     "Not used",
