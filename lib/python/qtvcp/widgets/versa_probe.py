@@ -104,7 +104,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.buildToolTip(self.input_search_vel, 'Search Velocity', 'search_vel')
         self.buildToolTip(self.input_probe_vel, 'Probe Velocity', 'probe_vel')
         self.buildToolTip(self.input_z_clearance, 'Z Clearence Distance', 'Zclearance')
-        self.buildToolTip(self.input_max_travel, 'Maximum Probe Search Distance', 'rappid')
+        self.buildToolTip(self.input_max_travel, 'Maximum Probe Search Distance', 'rapid')
         self.buildToolTip(self.input_latch_return_dist, 'Return After Latch Distance', 'rapid_return')
         self.buildToolTip(self.input_probe_diam,'Probe Diameter','probe_diam')
         self.buildToolTip(self.input_xy_clearance, 'XY Clearence Distance', 'XYclearance')
