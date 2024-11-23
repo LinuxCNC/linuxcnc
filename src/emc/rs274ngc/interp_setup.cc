@@ -49,7 +49,7 @@ setup::setup() :
     w_origin_offset(0.0),
 
     active_g_codes{},
-    active_m_codes{},
+    active_m_codes{-1,-1,-1,-1,-1,-1,-1,-1,-1,-1},
     active_settings{},
 
     arc_not_allowed(0),
