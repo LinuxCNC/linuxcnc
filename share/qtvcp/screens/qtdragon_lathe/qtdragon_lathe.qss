@@ -500,3 +500,14 @@ GcodeEditor QLineEdit {
     height: 35;
     font: 12pt "Lato Heavy";
 }
+
+Bar{
+    qproperty-useMultiColorIndicator: True;
+    qproperty-indicatorColor: #0044ff;
+    qproperty-split:20;
+}
+Bar#hal_bar_spindle_rpm{
+    qproperty-useMultiColorIndicator: False;
+    qproperty-indicatorColor: #0044ff;
+    qproperty-split:20;
+}
