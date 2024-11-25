@@ -152,7 +152,7 @@ struct hm2_lowlevel_io_struct {
     // will be used as an array of strings, indexed by IO number, where
     // each string is the name of the connector and pin of that IO.
     // For example, on a 7i43, IO 0's "connector pin name" is "P4-01".
-    char **io_connector_pin_names;
+    const char **io_connector_pin_names;
 
     // llio enumeration is the easiest place to count the leds
     int num_leds;

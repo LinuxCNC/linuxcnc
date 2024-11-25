@@ -112,7 +112,7 @@ static uint32_t aux_enables;					// Previous state of SPI1 enable
 static hm2_rpspi_t boards[RPSPI_MAX_BOARDS];	// Connected boards
 static int comp_id;				// Upstream assigned component ID
 
-static char *hm2_7c80_pin_names[] = {
+static const char *hm2_7c80_pin_names[] = {
 	"TB07-02/TB07-03",	/* Step/Dir/Misc 5V out */
 	"TB07-04/TB07-05",
 	"TB08-02/TB08-03",
@@ -170,7 +170,7 @@ static char *hm2_7c80_pin_names[] = {
 	"P1-25/DB25-13",
 };
 
-static char *hm2_7c81_pin_names[] = {
+static const char *hm2_7c81_pin_names[] = {
 	"P1-01/DB25-01",
 	"P1-02/DB25-14",
 	"P1-03/DB25-02",

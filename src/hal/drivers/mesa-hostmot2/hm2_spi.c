@@ -72,7 +72,7 @@ static hm2_spi_t boards[MAX_BOARDS];
 static int nboards;
 static int comp_id;
 
-static char *hm2_7c80_pin_names[] = {
+static const char *hm2_7c80_pin_names[] = {
 	"TB07-02/TB07-03",	/* Step/Dir/Misc 5V out */
 	"TB07-04/TB07-05",
 	"TB08-02/TB08-03",
@@ -130,7 +130,7 @@ static char *hm2_7c80_pin_names[] = {
 	"P1-25/DB25-13",
 };
 
-static char *hm2_7c81_pin_names[] = {
+static const char *hm2_7c81_pin_names[] = {
 	"P1-01/DB25-01",
 	"P1-02/DB25-14",
 	"P1-03/DB25-02",
