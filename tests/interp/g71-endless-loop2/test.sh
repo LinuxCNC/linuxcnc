@@ -1,5 +1,6 @@
 #!/bin/bash
-#
+set -e
+
 # Demonstrate endless loop when an additional segment is added in the G71 call.
 # This is a subset of a file that was supplied in
 # https://github.com/LinuxCNC/linuxcnc/issues/2844 and which worked up to and
@@ -13,7 +14,7 @@ pid=$!
 count=5
 while [ 0 -lt $count ] && kill -0 $pid > /dev/null 2>&1 ; do
     sleep 1
-    count=$(($count - 1))
+    count=$((count - 1))
 done
 
 if kill -0 $pid > /dev/null 2>&1; then

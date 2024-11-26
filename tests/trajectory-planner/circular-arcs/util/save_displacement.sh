@@ -1,7 +1,8 @@
 #!/bin/bash
 set -o nounset                              # Treat unset variables as an error
+set -e
 
-if [ -a $1 ] 
+if [ -a "$1" ] 
 then
-    awk '/tp_displacement/ {print $8,$3,$4,$5}' $1 > displacement_data.log
+    awk '/tp_displacement/ {print $8,$3,$4,$5}' "$1" > displacement_data.log
 fi
