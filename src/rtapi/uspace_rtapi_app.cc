@@ -1050,8 +1050,8 @@ int Posix::task_start(int task_id, unsigned long int period_nsec)
 #endif
           CPU_ZERO(&cpuset);
           CPU_SET(rt_cpu_number, &cpuset);
-          if((ret = pthread_attr_setaffinity_np(&attr, sizeof(cpuset), &cpuset)) != 0)
-               return -ret;
+          if(0 != pthread_setaffinity_np(task->thr, sizeof(cpuset), &cpuset))
+               rtapi_print("ERROR: failed to set thread scheduling affinity (%s)", strerror(errno));
       }
   }
   if((ret = pthread_create(&task->thr, &attr, &wrapper, reinterpret_cast<void*>(task))) != 0)
