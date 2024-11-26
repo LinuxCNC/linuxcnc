@@ -48,6 +48,31 @@ function testGet() {
     echo "get error"
 }
 
+#
+# Convert a gcode file to set mdi commands. 
+# Make sure test config size is compatible with gcode.
+#
+function gcode_to_mdi(){
+    #
+    #  Delete Lightburn lines beginning with comment.
+    #
+    sed '/^;/d' $1 > a.out
+    #
+    # Delete F360 comment lines beginning with "("
+    # Delete F360 comment lines beginning with "%"
+    # Delete F360 line numbers beginning with "Nxxx"
+    sed -i '/^(/d' a.out
+    sed -i '/^%/d' a.out
+    sed -i 's/^N[0-9]* //' a.out
+    # Delete blank lines.
+    #
+    sed -i '/^$/d' a.out 
+    #
+    # Insert set mdi command to every line.
+    # 
+    sed 's/^/set mdi /' a.out
+}
+
 (
     # initialize
     echo hello EMC mt 1.0
@@ -137,6 +162,12 @@ function testGet() {
     # here comes a big blob
     dd bs=4096 if=lots-of-gcode
     echo set mdi m100 p-3 q-4
+# gcode_to_mdi LBfocustest.ngc
+# gcode_to_mdi LBintervaltest.ngc
+# gcode_to_mdi LBmaterialtest.ngc
+# gcode_to_mdi LBtest.ngc
+# gcode_to_mdi F360test.ngc
+
 
     # test misc. get commands
     testGet error
