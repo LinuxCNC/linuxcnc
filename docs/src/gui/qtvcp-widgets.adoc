@@ -178,7 +178,7 @@ It is based on PyQt's `QGridLayout`.
 === 'HalBar' - HAL Bar Level Indicator
 
 .QtVCP `HalBar`: Panel demonstrating the HAL Bar Level Indicator
-image::images/qthalbar.png["QtVCP HalBar: Panel demonstrating the HAL Bar Level Indicator ",scale="25%"]
+image::images/qthalbar.png["QtVCP HalBar: Panel showing two options of the HAL Bar Level Indicator ",scale="25%"]
 
 This widget is used to indicate level or value, usually of a HAL s32/float pin. +
 You can also disable the HAL pin and use Qt signals or Python commands to change the level. +
@@ -188,6 +188,11 @@ HalBar is a subclass of the Bar widget, so it inherits these properties: +
 
 * 'stepColorList': a list of color strings, the number of colors defines the number of bars.
 * 'backgroundColor': a QColor definition of the background color.
+* 'indicatorColor': a QColor definition of the optional single color current value bar.
+* 'useMultiColorIndicator': bool switch for choosing the option of single or multicolor value bar.
+* 'split': the integer percentage split of max value bar versus current value bar (0 to 50%).
+* 'setVertical': bool switch for choosing vertical or horizontal indicator.
+* 'setInverted': bool switch for choosing inverted direction.
 * 'setMaximum': an integer that defines the maximum level of indication.
 * 'setMinimum': an integer that defines the lowest level of indication.
 
