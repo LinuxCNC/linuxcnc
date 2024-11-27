@@ -112,6 +112,7 @@ PREFERENCE_FILE_PATH = gmoccapy_preferences
 MAX_FEED_OVERRIDE = 1.5
 MAX_SPINDLE_OVERRIDE = 1.2
 MIN_SPINDLE_OVERRIDE = 0.5
+DEFAULT_SPINDLE_SPEED = 500
 LATHE = 1
 BACK_TOOL_LATHE = 1
 PROGRAM_PREFIX = ../../nc_files/
@@ -153,6 +154,11 @@ See also the <<gmoccapy:lathe-section,Lathe Specific Section>>.
 If not specified, GMOCCAPY will look in the following order for NGC files:
 First `linuxcnc/nc_files` and then the users home directory.
 
+- _DEFAULT_SPINDLE_SPEED_ - Start value for <<gmoccapy-settings-spindle,"Starting RPM">> if value not present in preferences file or file is not present. Will have no effect with valid preferences file.
+
+- _MIN_ANGULAR_VELOCITY_ - Sets the minimal jog velocity of the machine for rotary axes.
+- _MAX_ANGULAR_VELOCITY_ - Sets the maximal jog velocity of the machine for rotary axes.
+- _DEFAULT_ANGULAR_VELOCITY_ - Sets the default jog velocity of the machine for rotary axes.
 
 [[gmoccapy:traj-section]]
 === The TRAJ Section
@@ -163,8 +169,8 @@ First `linuxcnc/nc_files` and then the users home directory.
 If not set, half of 'MAX_LINEAR_VELOCITY' will be used.
 If that value is also not given, it will default to 180.
 
-// max. jog velocity?
 - _MAX_LINEAR_VELOCITY = 230.0_ - Sets the maximal velocity of the machine.
+This value will also be the maximum linear jog velocity.
 +
 [NOTE]
 Defaults to 600 if not set.
@@ -1288,7 +1294,7 @@ By default all scales are set using the calculation:
 (MAX - MIN)/100
 ----
 
-
+[[gmoccapy-settings-spindle]]
 .Spindle
 * _Starting RPM_ - Sets the rpm to be used if the spindle is started and no S value has been set.
 +
