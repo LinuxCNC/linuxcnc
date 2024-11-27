@@ -402,7 +402,7 @@ class _IStat(object):
         self.MAX_FEED_OVERRIDE = float(self.get_error_safe_setting("DISPLAY", "MAX_FEED_OVERRIDE", 1.5)) * 100
         if self.INI.find("TRAJ", "MAX_LINEAR_VELOCITY") is None:
             if self.LINUXCNC_IS_RUNNING:
-                log.critical('INI Parsing Error, No MAX_LINEAR_VELOCITY Entry in TRAJ')
+                log.critical('INI Parsing: No MAX_LINEAR_VELOCITY Entry in TRAJ')
         self.MAX_TRAJ_VELOCITY = float(self.get_error_safe_setting("TRAJ", "MAX_LINEAR_VELOCITY",
                                             self.get_error_safe_setting("AXIS_X", "MAX_VELOCITY", 5))) * 60
 
@@ -648,7 +648,7 @@ class _IStat(object):
                ('ANGULAR' in detail and not self.HAS_ANGULAR_JOINT):
                 return default
             else:
-                log.warning('INI Parsing Error, No {} Entry in {}, Using: {}'.format(detail, heading, default))
+                log.warning('INI Parsing: No {} Entry in {}, Using: {}'.format(detail, heading, default))
             return default
 
     # return a found float or else None by default, anything else by option
@@ -731,7 +731,7 @@ class _IStat(object):
                 temp.append('.ngc')
             return temp
         except Exception as e:
-            log.warning('Valid Extension Parsing Error: {}\n Using Default: *'.format(e))
+            log.warning('Valid Extension Parsing: {}\n Using Default: *'.format(e))
             return ('*')
 
     def get_filters_extensions(self):
@@ -747,7 +747,7 @@ class _IStat(object):
             all_extensions.append(['All (*)', ['*']])
             return all_extensions
         except Exception as e:
-            log.warning('filter Extension Parsing Error: {}\n Using Default: ALL (*)'.format(e))
+            log.warning('filter Extension Parsing: {}\n Using Default: ALL (*)'.format(e))
             return [['All (*)', ['*']]]
 
     # get filter extensions in QT format
@@ -764,7 +764,7 @@ class _IStat(object):
                 temp = '%s %s' % (temp, i)
             return temp
         except Exception as e:
-            log.warning('Qt filter Extension Parsing Error: {}\n Using Default: ALL (*)'.format(e))
+            log.warning('Qt filter Extension Parsing: {}\n Using Default: ALL (*)'.format(e))
             return ('All (*)')
 
     def program_extension_valid(self, fname):
