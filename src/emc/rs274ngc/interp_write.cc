@@ -312,7 +312,7 @@ int Interp::write_state_tag(block_pointer block,
 	(block == NULL) ? -1 : block->m_modes[4];
 
     state.flags[GM_FLAG_SPINDLE_ON] =
-	!(settings->spindle_turning[0] != CANON_STOPPED);
+	(settings->spindle_turning[0] != CANON_STOPPED);
     state.flags[GM_FLAG_SPINDLE_CW] =
 	(settings->spindle_turning[0] == CANON_CLOCKWISE);
 
