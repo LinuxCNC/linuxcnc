@@ -1086,7 +1086,7 @@ class ProbeRoutines():
             return 'Probe outside_xy_boss: Z clearance up failed: {}'.format(rtn)
 
         # move X+ (2 edge_length + latch return + xy_clearance)
-        aa = (2 * self.data_side_edge_length) + self.data_latch_return_dist + self.data_xy_clearance
+        aa = 2 * (self.data_side_edge_length + self.data_latch_return_dist + self.data_xy_clearance)
         s = """G91
         G1 F%s X%f
         G90""" % (self.data_rapid_vel, aa)
@@ -1151,7 +1151,7 @@ class ProbeRoutines():
             return 'Probe outside_xy_boss: Z clearance up failed: {}'.format(rtn)
 
         # move Y+ (2 * edge_length) + latch return +  xy_clearance)
-        aa = (2 * self.data_side_edge_length) + self.data_latch_return_dist + self.data_xy_clearance
+        aa = 2 * (self.data_side_edge_length + self.data_latch_return_dist + self.data_xy_clearance)
         s = """G91
         G1 F%s Y%f
         G90""" % (self.data_rapid_vel, aa)
