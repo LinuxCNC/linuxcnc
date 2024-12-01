@@ -244,18 +244,24 @@ int CMS_SERVER_REMOTE_TCP_PORT::accept_local_port_cms(CMS * _cms)
     if (_cms->total_subdivisions > max_total_subdivisions) {
 	max_total_subdivisions = _cms->total_subdivisions;
     }
+  /* get instance env variable */
+  const char *instance = getenv("LINUXCNC_INSTANCE");
+  long offset = 0;
+  if (instance) {
+    offset = strtol(instance, NULL, 10) * 16;
+  }
     if (server_socket_address.sin_port == 0) {
 	server_socket_address.sin_port =
-	    htons(((u_short) _cms->tcp_port_number));
-	port_num = _cms->tcp_port_number;
-	return 1;
-    }
-    if (server_socket_address.sin_port ==
-	htons(((u_short) _cms->tcp_port_number))) {
-	port_num = _cms->tcp_port_number;
-	return 1;
-    }
-    return 0;
+        htons(((u_short)_cms->tcp_port_number) + (u_short)offset);
+    port_num = _cms->tcp_port_number + offset;
+    return 1;
+  }
+  if (server_socket_address.sin_port ==
+      htons(((u_short)_cms->tcp_port_number + (u_short)offset))) {
+    port_num = _cms->tcp_port_number + offset;
+    return 1;
+  }
+  return 0;
 }
 
 void CMS_SERVER_REMOTE_TCP_PORT::register_port()
