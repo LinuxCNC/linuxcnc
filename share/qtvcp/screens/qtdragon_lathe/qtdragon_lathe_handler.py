@@ -155,6 +155,10 @@ class HandlerClass:
         txt3 = _translate("HandlerClass","Documents online")
         txt4 = _translate("HandlerClass","QtDragon online")
         txt5 = _translate("HandlerClass","Local files")
+
+        self.swoopPath = os.path.join(paths.IMAGEDIR,'lcnc_swoop.png')
+        self.swoopURL = QtCore.QUrl.fromLocalFile(self.swoopPath)
+
         self.html = """<html>
 <head>
 <title>Test page for the download:// scheme</title>
@@ -170,7 +174,7 @@ class HandlerClass:
 </body>
 </html>
 """%( txt1, txt2, txt3, txt4, os.path.expanduser('~/linuxcnc'), txt5,
-        os.path.join(paths.IMAGEDIR,'lcnc_swoop.png'))
+        self.swoopPath)
 
     def class_patch__(self):
         # override file manager load button
@@ -269,7 +273,7 @@ class HandlerClass:
                 if os.path.exists(self.default_setup):
                     self.w.webwidget.load(QtCore.QUrl.fromLocalFile(self.default_setup))
                 else:
-                    self.w.webwidget.setHtml(self.html)
+                    self.w.webwidget.setHtml(self.html, self.swoopURL)
                 self.w.webwidget.page().urlChanged.connect(self.onLoadFinished)
 
         except Exception as e:
@@ -1403,7 +1407,7 @@ class HandlerClass:
                     self.w.webwidget.loadFile(fname)
                     self.add_status("{} : {}".format(_translate("HandlerClass","Loaded HTML file"), fname), CRITICAL)
                 else:
-                    self.w.webwidget.setHtml(self.html)
+                    self.w.webwidget.setHtml(self.html, self.swoopURL)
             except Exception as e:
                 self.add_status("{} {} : {}".format(_translate("HandlerClass","Error loading HTML file"), fname,e))
             # look for PDF setup files
@@ -1656,7 +1660,7 @@ class HandlerClass:
             if os.path.exists(self.default_setup):
                 self.w.webwidget.load(QtCore.QUrl.fromLocalFile(self.default_setup))
             else:
-                self.w.webwidget.setHtml(self.html)
+                self.w.webwidget.setHtml(self.html, self.swoopURL)
         except:
             pass
     # setup tab's web page back button
@@ -1668,7 +1672,7 @@ class HandlerClass:
                 if os.path.exists(self.default_setup):
                     self.w.webwidget.load(QtCore.QUrl.fromLocalFile(self.default_setup))
                 else:
-                    self.w.webwidget.setHtml(self.html)
+                    self.w.webwidget.setHtml(self.html, self.swoopURL)
         except:
             pass
 
