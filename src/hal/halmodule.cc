@@ -39,19 +39,19 @@ PyObject *to_python(bool b) {
     return PyBool_FromLong(b);
 }
 
-PyObject *to_python(hal_u32_t u) {
+PyObject *to_python(rtapi_u32 u) {
     return PyLong_FromUnsignedLong(u);
 }
 
-PyObject *to_python(hal_s32_t i) {
+PyObject *to_python(rtapi_s32 i) {
     return PyLong_FromLong(i);
 }
 
-PyObject *to_python(hal_u64_t u) {
+PyObject *to_python(rtapi_u64 u) {
     return PyLong_FromUnsignedLongLong(u);
 }
 
-PyObject *to_python(hal_s64_t i) {
+PyObject *to_python(rtapi_s64 i) {
     return PyLong_FromLongLong(i);
 }
 

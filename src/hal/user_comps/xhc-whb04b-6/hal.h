@@ -373,7 +373,7 @@ public:
 
     //! Sets the new feed rate. The step mode must be set accordingly.
     //! \param feedRate the new feed rate independent of step mode
-    void setStepSize(const hal_float_t feedRate);
+    void setStepSize(const hal_float_nv_t feedRate);
     //! If lead is active.
     void setLead();
     //! Sets the hal state of the respective pin (reset). Usually called in case the reset
@@ -416,13 +416,13 @@ public:
     void setFeedMinus(bool enabled);
     //! Returns the current Max Velocity value.
     //! \sa Hal::In::feedOverrideMaxVel
-    hal_float_t getFeedOverrideMaxVel() const;
+    hal_float_nv_t getFeedOverrideMaxVel() const;
     //! Returns the current feed override value.
     //! \sa Hal::In::feedOverrideValue
     //! \return the current feed override value v: 0 <= v <= 1
-    hal_float_t getFeedOverrideValue() const;
+    hal_float_nv_t getFeedOverrideValue() const;
     //! \xrefitem HalMemory::Out::feedOverrideScale setter
-    void setFeedOverrideScale(hal_float_t scale);
+    void setFeedOverrideScale(hal_float_nv_t scale);
 
     //! Propagates the feed value 0.001 selection state to hal.
     //! \sa Hal::Out::feedValueSelected_2
@@ -455,13 +455,13 @@ public:
 
     //! Returns the spindle speed.
     //! \return the spindle speed in rounds per second
-    hal_float_t getspindleSpeedCmd() const;
-    hal_float_t getspindleSpeedChangeIncrease() const;
-    hal_float_t getspindleSpeedChangeDecrease() const;
+    hal_float_nv_t getspindleSpeedCmd() const;
+    hal_float_nv_t getspindleSpeedChangeIncrease() const;
+    hal_float_nv_t getspindleSpeedChangeDecrease() const;
     //! Returns the current spindle override value.
     //! \sa Hal::In::spindleOverrideValue
     //! \return the current spindle override value v: 0 <= v <= 1
-    hal_float_t getSpindleOverrideValue() const;
+    hal_float_nv_t getSpindleOverrideValue() const;
     //! \sa setSpindleOverridePlus(bool, size_t)
     void setSpindleOverridePlus(bool enabled);
     //! \sa setSpindleOverrideMinus(bool, size_t)
@@ -548,17 +548,17 @@ public:
     //! Returns the axis position.
     //! \param absolute true absolute, false relative
     //! \return the absolute or relative position in machine units
-    hal_float_t getAxisXPosition(bool absolute) const;
+    hal_float_nv_t getAxisXPosition(bool absolute) const;
     //! \xrefitem getAxisXPosition(bool)
-    hal_float_t getAxisYPosition(bool absolute) const;
+    hal_float_nv_t getAxisYPosition(bool absolute) const;
     //! \xrefitem getAxisXPosition(bool)
-    hal_float_t getAxisZPosition(bool absolute) const;
+    hal_float_nv_t getAxisZPosition(bool absolute) const;
     //! \xrefitem getAxisXPosition(bool)
-    hal_float_t getAxisAPosition(bool absolute) const;
+    hal_float_nv_t getAxisAPosition(bool absolute) const;
     //! \xrefitem getAxisXPosition(bool)
-    hal_float_t getAxisBPosition(bool absolute) const;
+    hal_float_nv_t getAxisBPosition(bool absolute) const;
     //! \xrefitem getAxisXPosition(bool)
-    hal_float_t getAxisCPosition(bool absolute) const;
+    hal_float_nv_t getAxisCPosition(bool absolute) const;
 
 
 private:

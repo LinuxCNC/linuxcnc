@@ -47,7 +47,7 @@ extern "C" {
 static double last_non_zero_x;
 static double last_x;
 
-static int not_zero(volatile double x)
+static int not_zero(double x)
 {
     last_x = x;
     if (x < -1E-6 && last_x < -1E-6) {

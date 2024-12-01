@@ -320,10 +320,11 @@ typedef volatile rtapi_u32 hal_u32_t;
 typedef volatile rtapi_s32 hal_s32_t;
 typedef volatile rtapi_u64 hal_u64_t;
 typedef volatile rtapi_s64 hal_s64_t;
-typedef volatile int hal_port_t;
+typedef int hal_port_t;
 typedef double real_t __attribute__((aligned(8)));
 typedef rtapi_u64 ireal_t __attribute__((aligned(8))); // integral type as wide as real_t / hal_float_t
 
+#define hal_float_nv_t real_t
 #define hal_float_t volatile real_t
        
 /** HAL "data union" structure
