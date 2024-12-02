@@ -120,8 +120,8 @@ spix_driver_t spix_rpi3 = {
 	.close		= rpi3_close,
 };
 
-static int has_spi_module;		// Set to non-zero when the kernel modules dw_spi and dw_spi_mmio are loaded
-static int driver_enabled;		// Set to non-zero ehen rpi3_setup() is successfully called
+static int has_spi_module;		// Set to non-zero when the kernel module spi_bcm2835 is loaded
+static int driver_enabled;		// Set to non-zero when rpi3_setup() is successfully called
 static int port_probe_mask;		// Which ports are requested
 
 static void *peripheralmem = MAP_FAILED;	// mmap'ed peripheral memory

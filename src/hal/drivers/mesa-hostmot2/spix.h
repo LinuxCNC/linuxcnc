@@ -122,8 +122,8 @@ typedef struct __spix_driver_t {
 	 * spix_port_t *open(int port, uint32_t clkw, uint32_t clkr)
 	 *
 	 * Open 'port' (number 0...N) with specified write clock 'clkw' and read
-	 * clock 'clkr'. The driver will check the values.
-	 * Return value is a reference to a the port to use or NULL on failure.
+	 * clock 'clkr' (both in Hz). The driver will check the values.
+	 * Return value is a reference to the port to use or NULL on failure.
 	 */
 	const spix_port_t *(*open)(int port, uint32_t clkw, uint32_t clkr);
 

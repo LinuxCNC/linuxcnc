@@ -37,10 +37,9 @@
  */
 typedef struct __spi_port_t {
 	spix_port_t	spix;	// The upstream container
-	int			isopen;	// Non-zero if successfully opened
 	int			fd;		// Spidev file descriptor
-	uint32_t	clkw;	// Write clock divider setting
-	uint32_t	clkr;	// Read clock divider setting
+	uint32_t	clkw;	// Write clock setting
+	uint32_t	clkr;	// Read clock setting
 } spidev_port_t;
 
 /* Forward decls */
@@ -76,7 +75,7 @@ spix_driver_t spix_spidev = {
 	.close		= spidev_close,
 };
 
-static int driver_enabled;	// Set to non-zero ehen spidev_setup() is successfully called
+static int driver_enabled;	// Set to non-zero when spidev_setup() is successfully called
 static int port_probe_mask;	// Which ports are requested
 
 
@@ -107,10 +106,10 @@ static int spi_transfer(const spix_port_t *sp, uint32_t *wptr, size_t txlen, int
 	sit.len = txlen * sizeof(uint32_t);
 	sit.speed_hz = rw ? sdp->clkr : sdp->clkw;
 	sit.bits_per_word = 8;
+	sit.delay_usecs = 10;	// Magic
 	if(ioctl(sdp->fd, SPI_IOC_MESSAGE(1), &sit) < 0) {
-		int e = errno;
-		LL_ERR("%s: SPI transfer failed: %s", sdp->spix.name, strerror(e));
-		return -e;
+		LL_ERR("%s: SPI transfer failed: %s", sdp->spix.name, strerror(errno));
+		return 0;
 	}
 
 	// Put the received words into host order
@@ -248,7 +247,7 @@ static int spidev_cleanup(void)
 
 	// Close any ports not closed already
 	for(i = 0; i < PORT_MAX; i++) {
-		if(spi_ports[i].isopen)
+		if(spi_ports[i].fd >= 0)
 			spix_spidev.close(&spi_ports[i].spix);
 	}
 
@@ -281,7 +280,7 @@ static const spix_port_t *spidev_open(int port, uint32_t clkw, uint32_t clkr)
 		return NULL;
 	}
 
-	if(sdp->isopen) {
+	if(sdp->fd >= 0) {
 		LL_ERR("%s: SPI port already open.\n", sdp->spix.name);
 		return NULL;
 	}
@@ -289,7 +288,6 @@ static const spix_port_t *spidev_open(int port, uint32_t clkw, uint32_t clkr)
 	if(port_configure(sdp, clkw, clkr) < 0)
 		return NULL;
 
-	sdp->isopen = 1;
 	LL_INFO("%s: write clock rate calculated: %u Hz\n", sdp->spix.name, sdp->clkw);
 	LL_INFO("%s: read clock rate calculated: %u Hz\n",  sdp->spix.name, sdp->clkr);
 
@@ -313,17 +311,14 @@ static int spidev_close(const spix_port_t *sp)
 		return -EINVAL;
 	}
 
-	if(!sdp->isopen) {
+	if(sdp->fd < 0) {
 		LL_ERR("%s: close(): SPI port not open.\n", sdp->spix.name);
 		return -ENODEV;
 	}
 
-	if(sdp->fd >= 0) {
-		close(sdp->fd);
-		sdp->fd = -1;
-	}
+	close(sdp->fd);
+	sdp->fd = -1;
 
-	sdp->isopen = 0;
 	return 0;
 }
 

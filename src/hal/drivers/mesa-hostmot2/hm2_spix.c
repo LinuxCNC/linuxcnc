@@ -606,7 +606,7 @@ static int spix_setup(void)
 		if(!(spi_probe & (1 << i)))		// Only probe if enabled
 			continue;
 
-		if(NULL == (port = hwdriver->open(i, spiclk_rate[j], spiclk_rate_rd[j]))) {
+		if(NULL == (port = hwdriver->open(i, spiclk_rate[j] * 1000, spiclk_rate_rd[j] * 1000))) {
 			LL_INFO("Failed to open hardware port index %d\n", i);
 			return i;
 		}
@@ -649,7 +649,6 @@ static void spix_cleanup(void)
 		buffer_free(&boards[i].wbuf);
 		buffer_free(&boards[i].rbuf);
 		buffer_free(&boards[i].rref);
-		hwdriver->close(boards[i].port);
 	}
 
 	if(hwdriver) {
