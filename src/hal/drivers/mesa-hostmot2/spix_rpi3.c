@@ -39,9 +39,9 @@
 //#define RPSPI_DEBUG_PIN	23	// Define for pin-debugging
 
 // The min/max allowed frequencies of the SPI clock
-#define SCLK_FREQ_MIN		30
-#define SCLK_FREQ_MAX		50000
-#define SCLK_FREQ_DEF		25000	// Default
+#define SCLK_FREQ_MIN		30000
+#define SCLK_FREQ_MAX		50000000
+#define SCLK_FREQ_DEF		25000000	// Default
 
 #define SPI_MAX_SPI			2		// SPI0 and SPI1
 
