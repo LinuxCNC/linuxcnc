@@ -19,7 +19,6 @@
 #include <unistd.h>
 #include <string.h>
 #include <fcntl.h>
-#include <sys/mman.h>
 #include <sys/ioctl.h>
 #include <linux/spi/spidev.h>
 
@@ -51,8 +50,6 @@ static int spidev_close(const spix_port_t *sp);
 static int spi_transfer(const spix_port_t *sp, uint32_t *wptr, size_t txlen, int rw);
 
 #define PORT_MAX	5
-#define PORT_SPI0	0	// port index for hardware SPI0
-#define PORT_SPI1	2	// port index for hardware SPI1
 static spidev_port_t spi_ports[PORT_MAX] = {
 	{ .spix = { .width = 8, .name = "/dev/spidev0.0", .transfer = spi_transfer }, .fd = -1 },
 	{ .spix = { .width = 8, .name = "/dev/spidev0.1", .transfer = spi_transfer }, .fd = -1 },

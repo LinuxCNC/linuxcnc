@@ -16,23 +16,12 @@
  * this program; if not, see <https://www.gnu.org/licenses/>.
  */
 
-/* Without Source Tree */
-#undef WOST
-
-#include <stdio.h>
 #include <unistd.h>
-#include <ctype.h>
 #include <fcntl.h>
 #include <string.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#include <sys/mman.h>
-#include <sys/wait.h>
 #include <errno.h>
 
-#include <hal.h>
 #include <rtapi.h>
-#include <rtapi_app.h>
 #include <rtapi_slab.h>
 
 #define HM2_LLIO_NAME "hm2_spix"
@@ -153,6 +142,18 @@ RTAPI_MP_INT(spi_noqueue, "Disable queued SPI requests, use for debugging only (
  */
 static int spi_debug = -1;
 RTAPI_MP_INT(spi_debug, "Set message level for debugging purpose [0...5] where 0=none and 5=all (default: -1; upstream defined)")
+
+/*
+ * We have these for compatibility with the hm2_rpspi driver. You can simply
+ * change the driver name in the ini/hal files without having to switch
+ * arguments.
+ */
+static int spi_pull_miso = -1;
+static int spi_pull_mosi = -1;
+static int spi_pull_sclk = -1;
+RTAPI_MP_INT(spi_pull_miso, "Obsolete parameter")
+RTAPI_MP_INT(spi_pull_mosi, "Obsolete parameter")
+RTAPI_MP_INT(spi_pull_sclk, "Obsolete parameter")
 
 /*********************************************************************/
 /*
@@ -493,7 +494,7 @@ ssize_t spix_read_file(const char *fname, void *buffer, size_t bufsize)
 
 	memset(buffer, 0, bufsize);
 
-	if(!(fd = open(fname, O_RDONLY))) {
+	if((fd = rtapi_open_as_root(fname, O_RDONLY)) < 0) {
 		LL_ERR("Cannot open '%s' for read (errno=%d: %s)\n", fname, errno, strerror(errno));
 		return -errno;
 	}
@@ -534,6 +535,11 @@ static int spix_setup(void)
 		if(spiclk_rate_rd[i] < 1)	// If not specified
 			spiclk_rate_rd[i] = spiclk_rate[i];	// use write rate as read rate
 
+	}
+
+	// Check if spi_pull_{miso,mosi,sclk} were set and warn if they were
+	if(spi_pull_miso != -1 || spi_pull_mosi != -1 || spi_pull_sclk != -1) {
+		LL_WARN("Setting spi_pull_{miso,mosi,sclk} has no effect in the hm2_spix driver.\n");
 	}
 
 	// Set process-level message level if requested

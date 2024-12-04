@@ -41,7 +41,6 @@
 // The min/max allowed frequencies of the SPI clock
 #define SCLK_FREQ_MIN		30000
 #define SCLK_FREQ_MAX		50000000
-#define SCLK_FREQ_DEF		25000000	// Default
 
 #define SPI_MAX_SPI			2		// SPI0 and SPI1
 
@@ -132,7 +131,7 @@ static bcm2835_spi_t *spi;		// SPI peripheral structure in mmap'ed address space
 static bcm2835_aux_t *aux;		// AUX peripheral structure in mmap'ed address space
 static uint32_t aux_enables;	// Previous state of SPI1 enable
 
-#define F_PERI	400000000UL
+#define F_PERI	500000000UL
 static uint32_t spiclk_base = F_PERI;	// The base clock (sys_clk) for the SPI port dividers
 
 /*********************************************************************/
@@ -498,8 +497,10 @@ static void peripheral_setup(void)
 
 		// Check if SPI1 needs to be enabled
 		aux_enables = reg_rd(&aux->enables);
-		if(!(aux_enables & AUX_ENABLES_SPI1))
+		if(!(aux_enables & AUX_ENABLES_SPI1)) {
 			reg_wr(&aux->enables, aux_enables | AUX_ENABLES_SPI1);	// Enable SPI1
+			LL_WARN("SPI1 needed to be enabled.\n");
+		}
 
 		spi1_reset();
 	}

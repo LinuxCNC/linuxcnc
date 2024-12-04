@@ -37,7 +37,6 @@
 // The min/max allowed frequencies of the SPI clock
 #define SCLK_FREQ_MIN		4000
 #define SCLK_FREQ_MAX		50000000
-#define SCLK_FREQ_DEF		25000000	// Default
 
 #define SPI_MAX_SPI			2		// SPI0 and SPI1
 
