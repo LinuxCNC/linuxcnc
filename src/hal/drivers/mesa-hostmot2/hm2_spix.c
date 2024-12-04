@@ -542,6 +542,16 @@ static int spix_setup(void)
 		LL_WARN("Setting spi_pull_{miso,mosi,sclk} has no effect in the hm2_spix driver.\n");
 	}
 
+	if(spi_probe > (1 << SPIX_MAX_BOARDS) - 1) {
+		LL_WARN("Probing with spi_probe must not have flags larger than %d included; truncating.\n", 1 << (SPIX_MAX_BOARDS - 1));
+		spi_probe &= (1 << SPIX_MAX_BOARDS) - 1;
+	}
+
+	if(!spi_probe) {
+		LL_ERR("No SPI ports to probe (spi_probe is zero).\n");
+		return -EINVAL;
+	}
+
 	// Set process-level message level if requested
 	if(spi_debug >= RTAPI_MSG_NONE && spi_debug <= RTAPI_MSG_ALL)
 		rtapi_set_msg_level(spi_debug);
