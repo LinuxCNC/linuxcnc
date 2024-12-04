@@ -273,7 +273,7 @@ static int32_t spi1_clkdiv_calc(uint32_t base, uint32_t rate)
 	uint32_t clkdiv;
 	if(rate >= base / 2)
 		return 0;
-	clkdiv = (base) / ((rate-1500) * 2) - 1;	// -1500 for same scaling as SPI0
+	clkdiv = base / (rate * 2) - 1;
 	if(clkdiv > 4095)
 		clkdiv = 4095;		// Slowest possible
 	return clkdiv;
@@ -301,33 +301,35 @@ static int spi1_transfer(const spix_port_t *sp, uint32_t *wptr, size_t txlen, in
 	gpio_debug_pin(false);
 
 	// Word-swap to assure most significant bit to be sent first in 16-bit transfers.
-	for(u = 0; u < tx16len; u += 2) {
+	for(u = 0; u < txlen * sizeof(*w16ptr); u += 2) {
 		uint16_t tt = w16ptr[u+0];
 		w16ptr[u+0] = w16ptr[u+1];
 		w16ptr[u+1] = tt;
 	}
 
 	// Setup clock speed and format
-	// Note: It seems that we cannot send 32 bits. Shift length 0 sends
-	// zero bits and there are only 6 bits available to set the length,
-	// giving a maximum of 31 bits. Furthermore, the shift seems to be
-	// delayed one clock. Therefore we need to shift 15 places (below) and
-	// not 16 as expected. The one-clock delay may be related to the
-	// OUT_RISING flag, but that is speculation.
+	// Note: It seems that we cannot send 32 bits. Shift length 0 sends zero
+	// bits and there are only 6 bits available to set the length, giving a
+	// maximum of 31 bits. Furthermore, the shift seems to be delayed one
+	// clock.
+	// Using variable width requires the upper byte of the data-word to hold
+	// the number of bits to shift. That too cannot be 32 because we cannot
+	// both use it for data and the shift count at the same time. The variable
+	// width needs to be left-aligned at bit 23.
 	reg_wr(&aux->spi0_cntl0,  AUX_SPI_CNTL0_SPEED(rw ? rp->clkdivr : rp->clkdivw)
 				| AUX_SPI_CNTL0_ENABLE
 				| AUX_SPI_CNTL0_MSB_OUT
-				| AUX_SPI_CNTL0_OUT_RISING
-				| AUX_SPI_CNTL0_SHIFT_LENGTH(16)
+				| AUX_SPI_CNTL0_IN_RISING
+				| AUX_SPI_CNTL0_VAR_WIDTH
 				| rp->cemask);
 	reg_wr(&aux->spi0_cntl1, AUX_SPI_CNTL1_MSB_IN);
 
 	// Send data to the fifo
 	while(tx16len > 0 && !(reg_rd(&aux->spi0_stat) & AUX_SPI_STAT_TX_FULL)) {
 		if(tx16len > 1)
-			reg_wr(&aux->spi0_hold, ((uint32_t)*w16ptr) << 15);	// More data to follow
+			reg_wr(&aux->spi0_hold, ((uint32_t)*w16ptr << 8) | (16 << 24));	// More data to follow
 		else
-			reg_wr(&aux->spi0_io, ((uint32_t)*w16ptr) << 15);	// Final write
+			reg_wr(&aux->spi0_io, ((uint32_t)*w16ptr << 8) | (16 << 24));	// Final write
 		++w16ptr;
 		--tx16len;
 	}
@@ -342,20 +344,20 @@ static int spi1_transfer(const spix_port_t *sp, uint32_t *wptr, size_t txlen, in
 		}
 		if(tx16len > 0 && !(stat & AUX_SPI_STAT_TX_FULL)) {
 			if(tx16len > 1)
-				reg_wr(&aux->spi0_hold, ((uint32_t)*w16ptr) << 15);	// More data to follow
+				reg_wr(&aux->spi0_hold, ((uint32_t)*w16ptr << 8) | (16 << 24));	// More data to follow
 			else
-				reg_wr(&aux->spi0_io, ((uint32_t)*w16ptr) << 15);	// Final write
+				reg_wr(&aux->spi0_io, ((uint32_t)*w16ptr << 8) | (16 << 24));	// Final write
 			++w16ptr;
 			--tx16len;
 		}
-
 	}
 
 	// Stop transfer
 	spi1_reset();
 
 	// Word-swap to fix the word order back to host-order.
-	for(u = 0; u < tx16len; u += 2) {
+	w16ptr = (uint16_t *)wptr;
+	for(u = 0; u < txlen * sizeof(*w16ptr); u += 2) {
 		uint16_t tt = w16ptr[u+0];
 		w16ptr[u+0] = w16ptr[u+1];
 		w16ptr[u+1] = tt;
@@ -507,6 +509,7 @@ static void peripheral_setup(void)
 
 #if defined(RPSPI_DEBUG_PIN)
 	gpio_fsel(RPSPI_DEBUG_PIN, GPIO_FSEL_X_GPIO_OUTPUT);
+	gpio_pull(RPSPI_DEBUG_PIN, GPIO_GPPUD_PULLUP);
 	gpio_debug_pin(true);
 #endif
 }
@@ -589,6 +592,7 @@ static uint32_t read_spiclkbase(void)
 		LL_ERR("Cannot interpret clock setting '%s' from '%s', using %d Hz\n", buf, sysclkref, spiclk_base);
 		return spiclk_base;
 	}
+	LL_INFO("SPI clock base frequency: %u\n", rate);
 	return rate;
 }
 
@@ -776,6 +780,7 @@ static int rpi3_cleanup(void)
 static const spix_port_t *rpi3_open(int port, uint32_t clkw, uint32_t clkr)
 {
 	rpi3_port_t *rpp;
+	uint32_t ccw, ccr;
 
 	if(!driver_enabled) {
 		LL_ERR("Driver is not setup.\n");
@@ -807,12 +812,16 @@ static const spix_port_t *rpi3_open(int port, uint32_t clkw, uint32_t clkr)
 	if(!rpp->spiport) {
 		rpp->clkdivw = spi0_clkdiv_calc(spiclk_base, clkw);
 		rpp->clkdivr = spi0_clkdiv_calc(spiclk_base, clkr);
+		ccw = spiclk_base / rpp->clkdivw;
+		ccr = spiclk_base / rpp->clkdivr;
 	} else {
 		rpp->clkdivw = spi1_clkdiv_calc(spiclk_base, clkw);
 		rpp->clkdivr = spi1_clkdiv_calc(spiclk_base, clkr);
+		ccw = spiclk_base / (2 * (rpp->clkdivw + 1));
+		ccr = spiclk_base / (2 * (rpp->clkdivr + 1));
 	}
-	LL_INFO("%s: write clock rate calculated: %u Hz (clkdiv: %u)\n", rpp->spix.name, spiclk_base / rpp->clkdivw, rpp->clkdivw);
-	LL_INFO("%s: read clock rate calculated: %u Hz (clkdiv: %u)\n",  rpp->spix.name, spiclk_base / rpp->clkdivr, rpp->clkdivr);
+	LL_INFO("%s: write clock rate calculated: %u Hz (clkdiv: %u)\n", rpp->spix.name, ccw, rpp->clkdivw);
+	LL_INFO("%s: read clock rate calculated: %u Hz (clkdiv: %u)\n",  rpp->spix.name, ccr, rpp->clkdivr);
 
 	rpp->isopen = 1;
 	return &rpp->spix;
