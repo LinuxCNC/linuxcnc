@@ -608,6 +608,7 @@ static int spix_setup(void)
 	// Follows SPI0/CE0, SPI0/CE1, SPI1/CE0, SPI1/CE1 and SPI1/CE2
 	for(j = i = 0; i < SPIX_MAX_BOARDS; i++) {
 		const spix_port_t *port;
+		int err;
 
 		if(!(spi_probe & (1 << i)))		// Only probe if enabled
 			continue;
@@ -631,13 +632,13 @@ static int spix_setup(void)
 			boards[j].llio.send_queued_writes  = hm2_spix_send_queued_writes;
 		}
 
-		if((i = probe_board(&boards[j])) < 0) {
-			return i;
+		if((err = probe_board(&boards[j])) < 0) {
+			return err;
 		}
 
-		if((i = hm2_register(&boards[j].llio, config[j])) < 0) {
+		if((err = hm2_register(&boards[j].llio, config[j])) < 0) {
 			LL_ERR("%s: hm2_register() failed.\n", port->name);
-			return i;
+			return err;
 		}
 
 		j++;	// Next board
