@@ -38,8 +38,7 @@
 
 //#define RPSPI_DEBUG_PIN	23	// Define for pin-debugging
 
-// The min/max allowed frequencies of the SPI clock
-#define SCLK_FREQ_MIN		30000
+// The absolute max allowed frequency of the SPI clock
 #define SCLK_FREQ_MAX		50000000
 
 #define SPI_MAX_SPI			2		// SPI0 and SPI1
@@ -73,13 +72,15 @@ typedef struct __spi_port_t {
 	uint32_t	clkdivw;	// Write clock divider setting
 	uint32_t	clkdivr;	// Read clock divider setting
 	uint32_t	cemask;		// Read clock divider setting
+	uint32_t	freqmin;	// Calculated minimal frequency for port
+	uint32_t	freqmax;	// Calculated maximum frequency for port
 } rpi3_port_t;
 
 /* Forward decls */
 static int rpi3_detect(const char *dtcs[]);
 static int rpi3_setup(int probemask);
 static int rpi3_cleanup(void);
-static const spix_port_t *rpi3_open(int port, uint32_t clkw, uint32_t clkr);
+static const spix_port_t *rpi3_open(int port, const spix_args_t *args);
 static int rpi3_close(const spix_port_t *sp);
 static int spi0_transfer(const spix_port_t *sp, uint32_t *wptr, size_t txlen, int rw);
 static int spi1_transfer(const spix_port_t *sp, uint32_t *wptr, size_t txlen, int rw);
@@ -108,7 +109,7 @@ static rpi3_port_t spi_ports[PORT_MAX] = {
 /*
  * The driver interface structure
  */
-spix_driver_t spix_rpi3 = {
+spix_driver_t spix_driver_rpi3 = {
 	.name		= HM2_LLIO_NAME,
 	.num_ports	= PORT_MAX,
 
@@ -688,9 +689,9 @@ static int rpi3_detect(const char *dtcs[])
 		return -ENODEV;	// We are not the device the driver supports
 
 	// Set the matched dtc and model informational strings
-	strncpy(spix_rpi3.dtc, dtcs[i], sizeof(spix_rpi3.dtc)-1);
-	if(spix_read_file("/proc/device-tree/model", spix_rpi3.model, sizeof(spix_rpi3.model)) < 0)
-		strncpy(spix_rpi3.model, "??? Unknown board ???", sizeof(spix_rpi3.model)-1);
+	strncpy(spix_driver_rpi3.dtc, dtcs[i], sizeof(spix_driver_rpi3.dtc)-1);
+	if(spix_read_file("/proc/device-tree/model", spix_driver_rpi3.model, sizeof(spix_driver_rpi3.model)) < 0)
+		strncpy(spix_driver_rpi3.model, "??? Unknown board ???", sizeof(spix_driver_rpi3.model)-1);
 
 	return 0;
 }
@@ -706,6 +707,7 @@ static int rpi3_setup(int probemask)
 	int err;
 	uintptr_t membase;
 	size_t memsize;
+	int i;
 
 	if(driver_enabled) {
 		LL_ERR("Driver is already setup.\n");
@@ -723,6 +725,18 @@ static int rpi3_setup(int probemask)
 	}
 
 	spiclk_base = read_spiclkbase();
+
+	// calculate the actual min/max frequencies
+	for(i = 0; i < PORT_MAX; i++) {
+		if(!spi_ports[i].spiport) {
+			spi_ports[i].freqmin = spiclk_base / 65536;
+			spi_ports[i].freqmax = spix_min((spiclk_base / 2), SCLK_FREQ_MAX);
+		} else {
+			spi_ports[i].freqmin = spiclk_base / (2 * (4095+1));
+			spi_ports[i].freqmax = spix_min((spiclk_base / 2), SCLK_FREQ_MAX);
+		}
+	}
+
 	if((err = read_membase(&membase, &memsize)) < 0)
 		return err;
 
@@ -757,7 +771,7 @@ static int rpi3_cleanup(void)
 	// Close any ports not closed already
 	for(i = 0; i < PORT_MAX; i++) {
 		if(spi_ports[i].isopen)
-			spix_rpi3.close(&spi_ports[i].spix);
+			spix_driver_rpi3.close(&spi_ports[i].spix);
 	}
 
 	if(peripheralmem != MAP_FAILED) {
@@ -777,7 +791,7 @@ static int rpi3_cleanup(void)
  * Open a SPI port at index 'port' with 'clkw' write clock and 'clkr' read
  * clock frequencies.
  */
-static const spix_port_t *rpi3_open(int port, uint32_t clkw, uint32_t clkr)
+static const spix_port_t *rpi3_open(int port, const spix_args_t *args)
 {
 	rpi3_port_t *rpp;
 	uint32_t ccw, ccr;
@@ -804,19 +818,19 @@ static const spix_port_t *rpi3_open(int port, uint32_t clkw, uint32_t clkr)
 		return NULL;
 	}
 
-	if(clkw < SCLK_FREQ_MIN || clkw > SCLK_FREQ_MAX) {
-		LL_ERR("%s: SPI write clock frequency outside acceptable range (%d..%d kHz).\n", rpp->spix.name, SCLK_FREQ_MIN, SCLK_FREQ_MAX);
+	if(args->clkw < rpp->freqmin || args->clkw > rpp->freqmax) {
+		LL_ERR("%s: SPI write clock frequency outside acceptable range (%d..%d kHz).\n", rpp->spix.name, rpp->freqmin / 1000, rpp->freqmax / 1000);
 		return NULL;
 	}
 
 	if(!rpp->spiport) {
-		rpp->clkdivw = spi0_clkdiv_calc(spiclk_base, clkw);
-		rpp->clkdivr = spi0_clkdiv_calc(spiclk_base, clkr);
+		rpp->clkdivw = spi0_clkdiv_calc(spiclk_base, args->clkw);
+		rpp->clkdivr = spi0_clkdiv_calc(spiclk_base, args->clkr);
 		ccw = spiclk_base / rpp->clkdivw;
 		ccr = spiclk_base / rpp->clkdivr;
 	} else {
-		rpp->clkdivw = spi1_clkdiv_calc(spiclk_base, clkw);
-		rpp->clkdivr = spi1_clkdiv_calc(spiclk_base, clkr);
+		rpp->clkdivw = spi1_clkdiv_calc(spiclk_base, args->clkw);
+		rpp->clkdivr = spi1_clkdiv_calc(spiclk_base, args->clkr);
 		ccw = spiclk_base / (2 * (rpp->clkdivw + 1));
 		ccr = spiclk_base / (2 * (rpp->clkdivr + 1));
 	}

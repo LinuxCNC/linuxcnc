@@ -79,6 +79,15 @@ typedef struct __spix_port_t {
 #define SPIX_MAX_MSG	(127+1)		// The docs say that the max. burstlen == 127 words (i.e. cmd+message <= 1+127)
 
 /*
+ * Module arguments passed to lower level
+ */
+typedef struct __spix_args_t {
+	uint32_t	clkw;		// The requested write clock
+	uint32_t	clkr;		// The requested read clock
+	const char	*spidev;	// spidev only: device node path override
+} spix_args_t;
+
+/*
  * SPI low level interface to hardware drivers
  */
 typedef struct __spix_driver_t {
@@ -119,13 +128,13 @@ typedef struct __spix_driver_t {
 	int (*cleanup)(void);
 
 	/*
-	 * spix_port_t *open(int port, uint32_t clkw, uint32_t clkr)
+	 * spix_port_t *open(int port, const spix_args_t *args)
 	 *
 	 * Open 'port' (number 0...N) with specified write clock 'clkw' and read
 	 * clock 'clkr' (both in Hz). The driver will check the values.
 	 * Return value is a reference to the port to use or NULL on failure.
 	 */
-	const spix_port_t *(*open)(int port, uint32_t clkw, uint32_t clkr);
+	const spix_port_t *(*open)(int port, const spix_args_t *args);
 
 	/*
 	 * close()
@@ -168,6 +177,11 @@ __attribute__((always_inline)) static inline uint32_t spix_cmd_read(uint32_t add
 __attribute__((always_inline)) static inline uint32_t spix_cmd_write(uint32_t addr, uint32_t msglen, int aib)
 {
 	return (addr << 16) | SPIX_HM2_CMD_WRITE | (aib ? SPIX_HM2_CMD_ADDRINC : 0) | ((msglen & 0x7f) << 4);
+}
+
+__attribute__((always_inline)) static inline uint32_t spix_min(uint32_t a, uint32_t b)
+{
+	return a <= b ? a : b;
 }
 
 #endif

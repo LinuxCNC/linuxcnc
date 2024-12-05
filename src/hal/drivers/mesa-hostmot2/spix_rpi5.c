@@ -75,7 +75,7 @@ typedef struct __spi_port_t {
 static int rpi5_detect(const char *dtcs[]);
 static int rpi5_setup(int probemask);
 static int rpi5_cleanup(void);
-static const spix_port_t *rpi5_open(int port, uint32_t clkw, uint32_t clkr);
+static const spix_port_t *rpi5_open(int port, const spix_args_t *args);
 static int rpi5_close(const spix_port_t *sp);
 static int spi_transfer(const spix_port_t *sp, uint32_t *wptr, size_t txlen, int rw);
 
@@ -93,7 +93,7 @@ static rpi5_port_t spi_ports[PORT_MAX] = {
 /*
  * The driver interface structure
  */
-spix_driver_t spix_rpi5 = {
+spix_driver_t spix_driver_rpi5 = {
 	.name		= HM2_LLIO_NAME,
 	.num_ports	= PORT_MAX,
 
@@ -517,9 +517,9 @@ static int rpi5_detect(const char *dtcs[])
 		return -ENODEV;	// We are not the device the driver supports
 
 	// Set the matched dtc and model informational strings
-	strncpy(spix_rpi5.dtc, dtcs[i], sizeof(spix_rpi5.dtc)-1);
-	if(spix_read_file("/proc/device-tree/model", spix_rpi5.model, sizeof(spix_rpi5.model)) < 0)
-		strncpy(spix_rpi5.model, "??? Unknown board ???", sizeof(spix_rpi5.model)-1);
+	strncpy(spix_driver_rpi5.dtc, dtcs[i], sizeof(spix_driver_rpi5.dtc)-1);
+	if(spix_read_file("/proc/device-tree/model", spix_driver_rpi5.model, sizeof(spix_driver_rpi5.model)) < 0)
+		strncpy(spix_driver_rpi5.model, "??? Unknown board ???", sizeof(spix_driver_rpi5.model)-1);
 
 	return 0;
 }
@@ -582,7 +582,7 @@ static int rpi5_cleanup(void)
 	// Close any ports not closed already
 	for(i = 0; i < PORT_MAX; i++) {
 		if(spi_ports[i].isopen)
-			spix_rpi5.close(&spi_ports[i].spix);
+			spix_driver_rpi5.close(&spi_ports[i].spix);
 	}
 
 	if(peripheralmem != MAP_FAILED) {
@@ -602,7 +602,7 @@ static int rpi5_cleanup(void)
  * Open a SPI port at index 'port' with 'clkw' write clock and 'clkr' read
  * clock frequencies.
  */
-static const spix_port_t *rpi5_open(int port, uint32_t clkw, uint32_t clkr)
+static const spix_port_t *rpi5_open(int port, const spix_args_t *args)
 {
 	rpi5_port_t *rpp;
 
@@ -628,14 +628,14 @@ static const spix_port_t *rpi5_open(int port, uint32_t clkw, uint32_t clkr)
 		return NULL;
 	}
 
-	if(clkw < SCLK_FREQ_MIN || clkw > SCLK_FREQ_MAX) {
+	if(args->clkw < SCLK_FREQ_MIN || args->clkw > SCLK_FREQ_MAX) {
 		LL_ERR("%s: SPI write clock frequency outside acceptable range (%d..%d kHz).\n", rpp->spix.name, SCLK_FREQ_MIN, SCLK_FREQ_MAX);
 		return NULL;
 	}
 
 	rpp->isopen = 1;
-	rpp->clkdivw = clkdiv_calc(clkw);
-	rpp->clkdivr = clkdiv_calc(clkr);
+	rpp->clkdivw = clkdiv_calc(args->clkw);
+	rpp->clkdivr = clkdiv_calc(args->clkr);
 	LL_INFO("%s: write clock rate calculated: %u Hz (clkdiv: %u)\n", rpp->spix.name, RP1_SPI_CLK / rpp->clkdivw, rpp->clkdivw);
 	LL_INFO("%s: read clock rate calculated: %u Hz (clkdiv: %u)\n",  rpp->spix.name, RP1_SPI_CLK / rpp->clkdivr, rpp->clkdivr);
 

@@ -76,16 +76,16 @@ static int comp_id;				// Upstream assigned component ID
  * Supported hardware drivers
  * These are defined in spix_XXX source files.
  */
-extern spix_driver_t spix_rpi3;
-extern spix_driver_t spix_rpi5;
-extern spix_driver_t spix_spidev;
+extern spix_driver_t spix_driver_rpi3;
+extern spix_driver_t spix_driver_rpi5;
+extern spix_driver_t spix_driver_spidev;
 
 static const spix_driver_t *drivers[] = {
-	&spix_rpi3,		// RPi3, RPi3[ab]+, RPi4b and RPi4CM
-	&spix_rpi5,		// RPi5 and RPi5CM
+	&spix_driver_rpi3,		// RPi3, RPi3[ab]+, RPi4b and RPi4CM
+	&spix_driver_rpi5,		// RPi5 and RPi5CM
 	// TODO: orange pi
 	// TODO: banana pi
-	&spix_spidev,
+	&spix_driver_spidev,	// Default spidev driver as fallback
 };
 
 static const spix_driver_t *hwdriver;	// The active driver
@@ -142,6 +142,12 @@ RTAPI_MP_INT(spi_noqueue, "Disable queued SPI requests, use for debugging only (
  */
 static int spi_debug = -1;
 RTAPI_MP_INT(spi_debug, "Set message level for debugging purpose [0...5] where 0=none and 5=all (default: -1; upstream defined)")
+
+/*
+ * Spidev driver device node path overrides
+ */
+static char *spidev_path[SPIX_MAX_BOARDS];
+RTAPI_MP_ARRAY_STRING(spidev_path, SPIX_MAX_BOARDS, "The device node path override(s) for the spidev driver (default /dev/spidev{0.[01],1.[012]})")
 
 /*
  * We have these for compatibility with the hm2_rpspi driver. You can simply
@@ -619,11 +625,15 @@ static int spix_setup(void)
 	for(j = i = 0; i < SPIX_MAX_BOARDS; i++) {
 		const spix_port_t *port;
 		int err;
+		spix_args_t sa;
 
 		if(!(spi_probe & (1 << i)))		// Only probe if enabled
 			continue;
 
-		if(NULL == (port = hwdriver->open(i, spiclk_rate[j] * 1000, spiclk_rate_rd[j] * 1000))) {
+		sa.clkw = spiclk_rate[j] * 1000;
+		sa.clkr = spiclk_rate_rd[j] * 1000;
+		sa.spidev = spidev_path[j];
+		if(NULL == (port = hwdriver->open(i, &sa))) {
 			LL_INFO("Failed to open hardware port index %d\n", i);
 			return i;
 		}

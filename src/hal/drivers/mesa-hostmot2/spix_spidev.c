@@ -45,7 +45,7 @@ typedef struct __spi_port_t {
 static int spidev_detect(const char *dtcs[]);
 static int spidev_setup(int probemask);
 static int spidev_cleanup(void);
-static const spix_port_t *spidev_open(int port, uint32_t clkw, uint32_t clkr);
+static const spix_port_t *spidev_open(int port, const spix_args_t *args);
 static int spidev_close(const spix_port_t *sp);
 static int spi_transfer(const spix_port_t *sp, uint32_t *wptr, size_t txlen, int rw);
 
@@ -61,7 +61,7 @@ static spidev_port_t spi_ports[PORT_MAX] = {
 /*
  * The driver interface structure
  */
-spix_driver_t spix_spidev = {
+spix_driver_t spix_driver_spidev = {
 	.name		= HM2_LLIO_NAME,
 	.num_ports	= PORT_MAX,
 
@@ -120,14 +120,17 @@ static int spi_transfer(const spix_port_t *sp, uint32_t *wptr, size_t txlen, int
 /*
  * Open and setup a /dev/spidevX.Y port
  */
-static int port_configure(spidev_port_t *sdp, uint32_t clkw, uint32_t clkr)
+static int port_configure(spidev_port_t *sdp, const spix_args_t *args)
 {
 	int fd;
 	uint8_t b;
 	uint32_t w;
 	int e;
+	uint32_t clkw = args->clkw;
+	uint32_t clkr = args->clkr;
+	const char *devname = args->spidev ? args->spidev : sdp->spix.name;
 
-	if((fd = open(sdp->spix.name, O_RDWR)) < 0) {
+	if((fd = open(devname, O_RDWR)) < 0) {
 		LL_ERR("%s: Cannot open port: %s\n", sdp->spix.name, strerror(e = errno));
 		return -e;
 	}
@@ -202,11 +205,11 @@ static int spidev_detect(const char *dtcs[])
 {
 	// Set the matched dtc and model informational strings
 	if(dtcs[0])
-		strncpy(spix_spidev.dtc, dtcs[0], sizeof(spix_spidev.dtc)-1);
+		strncpy(spix_driver_spidev.dtc, dtcs[0], sizeof(spix_driver_spidev.dtc)-1);
 	else
-		strncpy(spix_spidev.dtc, "spix_spidev-unknown-dtc", sizeof(spix_spidev.dtc)-1);
-	if(spix_read_file("/proc/device-tree/model", spix_spidev.model, sizeof(spix_spidev.model)) < 0)
-		strncpy(spix_spidev.model, "??? Unknown board ???", sizeof(spix_spidev.model)-1);
+		strncpy(spix_driver_spidev.dtc, "spix_spidev-unknown-dtc", sizeof(spix_driver_spidev.dtc)-1);
+	if(spix_read_file("/proc/device-tree/model", spix_driver_spidev.model, sizeof(spix_driver_spidev.model)) < 0)
+		strncpy(spix_driver_spidev.model, "??? Unknown board ???", sizeof(spix_driver_spidev.model)-1);
 
 	return 0;
 }
@@ -245,7 +248,7 @@ static int spidev_cleanup(void)
 	// Close any ports not closed already
 	for(i = 0; i < PORT_MAX; i++) {
 		if(spi_ports[i].fd >= 0)
-			spix_spidev.close(&spi_ports[i].spix);
+			spix_driver_spidev.close(&spi_ports[i].spix);
 	}
 
 	driver_enabled = 0;
@@ -256,7 +259,7 @@ static int spidev_cleanup(void)
  * Open a SPI port at index 'port' with 'clkw' write clock and 'clkr' read
  * clock frequencies.
  */
-static const spix_port_t *spidev_open(int port, uint32_t clkw, uint32_t clkr)
+static const spix_port_t *spidev_open(int port, const spix_args_t *args)
 {
 	spidev_port_t *sdp;
 
@@ -282,7 +285,7 @@ static const spix_port_t *spidev_open(int port, uint32_t clkw, uint32_t clkr)
 		return NULL;
 	}
 
-	if(port_configure(sdp, clkw, clkr) < 0)
+	if(port_configure(sdp, args) < 0)
 		return NULL;
 
 	LL_INFO("%s: write clock rate calculated: %u Hz\n", sdp->spix.name, sdp->clkw);
