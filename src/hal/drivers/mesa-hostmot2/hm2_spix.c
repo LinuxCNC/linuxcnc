@@ -470,9 +470,8 @@ static int probe_board(spix_board_t *board)
 
 	LL_INFO("%s: Valid cookie matched, idrom@%04x\n", port->name, ret);
 
-	// Read the board identification.
-	// The IDROM address offset is returned in the cookie check and the
-	// board_name offset is added (see hm2_idrom_t in hostmot2.h)
+	// Read the IDROM from the board. The IDROM address offset was returned in
+	// the cookie check.
 	if(!board->llio.read(&board->llio, (uint32_t)ret, &idrom, sizeof(hm2_idrom_t))) {
 		LL_ERR("%s: Board idrom read failed\n", port->name);
 		return -EIO;	// Cookie could be read, so this is a comms error
@@ -502,8 +501,9 @@ ssize_t spix_read_file(const char *fname, void *buffer, size_t bufsize)
 	memset(buffer, 0, bufsize);
 
 	if((fd = rtapi_open_as_root(fname, O_RDONLY)) < 0) {
-		LL_ERR("Cannot open '%s' for read (errno=%d: %s)\n", fname, errno, strerror(errno));
-		return -errno;
+		int e = errno;
+		LL_ERR("Cannot open '%s' for read (errno=%d: %s)\n", fname, e, strerror(e));
+		return -e;
 	}
 
 	while(1) {
@@ -511,10 +511,11 @@ ssize_t spix_read_file(const char *fname, void *buffer, size_t bufsize)
 		if(len == 0) {
 			LL_ERR("Nothing read from '%s', file contains no data\n", fname);
 		} else if(len < 0) {
-			if(errno == EINTR)
+			int e = errno;
+			if(e == EINTR)
 				continue;	// Interrupted syscall, retry read
-			LL_ERR("Error reading from '%s' (errno=%d: %s)\n", fname, errno, strerror(errno));
-			return -errno;
+			LL_ERR("Error reading from '%s' (errno=%d: %s)\n", fname, e, strerror(e));
+			return -e;
 		}
 		break;
 	}
@@ -565,7 +566,7 @@ static int spix_setup(void)
 
 	// Read the 'compatible' string-list from the device-tree
 	buflen = spix_read_file("/proc/device-tree/compatible", buf, sizeof(buf));
-	if(buflen <= 0) {
+	if(buflen < 0) {
 		LL_ERR("Failed to read platform identity.\n");
 		return buflen;	// negative errno from read_file()
 	}
