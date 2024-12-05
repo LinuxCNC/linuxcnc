@@ -22,6 +22,7 @@
 #include <errno.h>
 
 #include <rtapi.h>
+#include <rtapi_app.h>
 #include <rtapi_slab.h>
 
 #define HM2_LLIO_NAME "hm2_spix"
