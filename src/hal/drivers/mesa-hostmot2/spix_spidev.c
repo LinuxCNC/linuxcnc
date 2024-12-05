@@ -126,11 +126,14 @@ static int port_configure(spidev_port_t *sdp, const spix_args_t *args)
 	uint8_t b;
 	uint32_t w;
 	int e;
-	uint32_t clkw = args->clkw;
+	uint32_t clkw = args->clkw;	// Requested write and read clocks
 	uint32_t clkr = args->clkr;
-	const char *devname = args->spidev ? args->spidev : sdp->spix.name;
 
-	if((fd = open(devname, O_RDWR)) < 0) {
+	// Module argument override of device node path
+	if(args->spidev)
+		sdp->spix.name = args->spidev;
+
+	if((fd = open(sdp->spix.name, O_RDWR)) < 0) {
 		LL_ERR("%s: Cannot open port: %s\n", sdp->spix.name, strerror(e = errno));
 		return -e;
 	}
@@ -256,8 +259,7 @@ static int spidev_cleanup(void)
 }
 
 /*
- * Open a SPI port at index 'port' with 'clkw' write clock and 'clkr' read
- * clock frequencies.
+ * Open a SPI port at index 'port' using 'args' to configure.
  */
 static const spix_port_t *spidev_open(int port, const spix_args_t *args)
 {
