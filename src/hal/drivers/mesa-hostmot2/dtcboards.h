@@ -15,8 +15,8 @@
  * You should have received a copy of the GNU General Public License along with
  * this program; if not, see <https://www.gnu.org/licenses/>.
  */
-#ifndef HAL_DTCBOARDS_H
-#define HAL_DTCBOARDS_H
+#ifndef HAL_HM2_DTCBOARDS_H
+#define HAL_HM2_DTCBOARDS_H
 
 /*
  * Info about the hardware platform, see:
