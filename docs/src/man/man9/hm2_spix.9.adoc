@@ -159,7 +159,7 @@ and then work your way up from there.
 The SPI driver generates (very) discrete clock frequencies, especially
 in the high MHz range because of a simple clock divider structure. The
 base frequency is different between boards and the divider for SPI0/SPI1
-scales using discrete factors with formula f=base/(2*divider). The
+scales using discrete factors with formula f=trunc(base/(2*divider)). The
 following list specifies the highest possible *spiclk_rate* and
 *spiclk_rate_rd* frequencies (in kHz) for discrete divider settings:
 |===
@@ -179,6 +179,11 @@ following list specifies the highest possible *spiclk_rate* and
 | Slowest >| SPI0:4 >| SPI0:4 >| SPI0:4
 | Slowest >| SPI1:49 >| SPI1:62 >| SPI1:4
 |===
+
+Note that the clock rate setting is heavily influenced by rounding and may be
+higher than expected if the divider rounds to the next lower value. You can
+check the actual clock rate by enabling informational messages (set
+*spi_debug*=3).
 
 The slowest selectable SPI clock frequency for SPI0 and SPI1 are not for
 production systems. They can be selected for testing purposes. You
