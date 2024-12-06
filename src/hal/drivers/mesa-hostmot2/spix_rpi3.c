@@ -287,14 +287,29 @@ static inline void spi1_reset(void)
 	reg_wr(&aux->spi0_cntl1, AUX_SPI_CNTL0_CLEARFIFO);
 }
 
+/*
+ * This is needed because the SPI ports on AUX suck. It seems that the BCM2835
+ * hardware cannot keep track of its own fifo depth and we need to count for
+ * it. Using the fifo level status bits from the status register (spi0_stat)
+ * seems to work at first, but will fail very soon after. This may relate to
+ * the AUX_SPI_STAT_TX_FULL not being updated with correct timing. We are
+ * apparently losing data in the transfer, which causes LinuxCNC to stall in
+ * the real-time thread, which is a Bad Thing(TM).
+ * The Linux kernel driver seems to have the number 12, but I cannot get it to
+ * work with that number. The depth of four seems the highest working value.
+ * Either way, we already busy-loop here anyway, so it shouldn't matter.
+ */
+#define SPI1_FIFO_MAXDEPTH	4
+
 static int spi1_transfer(const spix_port_t *sp, uint32_t *wptr, size_t txlen, int rw)
 {
 	rpi3_port_t *rp = (rpi3_port_t *)sp;
 	uint16_t *w16ptr = (uint16_t *)wptr;
 	uint16_t *r16ptr = (uint16_t *)wptr;
-	size_t tx16len = txlen * sizeof(uint16_t);
-	size_t rx16len = txlen * sizeof(uint16_t);
+	size_t tx16len = txlen * 2;	// There are twice as many 16-bit words as there are 32-bit words
+	size_t rx16len = txlen * 2;
 	size_t u;
+	unsigned pending = 0;
 
 	if(!txlen)
 		return 1;	// Nothing to do, return success
@@ -302,7 +317,7 @@ static int spi1_transfer(const spix_port_t *sp, uint32_t *wptr, size_t txlen, in
 	gpio_debug_pin(false);
 
 	// Word-swap to assure most significant bit to be sent first in 16-bit transfers.
-	for(u = 0; u < txlen * sizeof(*w16ptr); u += 2) {
+	for(u = 0; u < txlen * 2; u += 2) {
 		uint16_t tt = w16ptr[u+0];
 		w16ptr[u+0] = w16ptr[u+1];
 		w16ptr[u+1] = tt;
@@ -326,13 +341,14 @@ static int spi1_transfer(const spix_port_t *sp, uint32_t *wptr, size_t txlen, in
 	reg_wr(&aux->spi0_cntl1, AUX_SPI_CNTL1_MSB_IN);
 
 	// Send data to the fifo
-	while(tx16len > 0 && !(reg_rd(&aux->spi0_stat) & AUX_SPI_STAT_TX_FULL)) {
+	while(tx16len > 0 && pending < SPI1_FIFO_MAXDEPTH && !(reg_rd(&aux->spi0_stat) & AUX_SPI_STAT_TX_FULL)) {
 		if(tx16len > 1)
 			reg_wr(&aux->spi0_hold, ((uint32_t)*w16ptr << 8) | (16 << 24));	// More data to follow
 		else
 			reg_wr(&aux->spi0_io, ((uint32_t)*w16ptr << 8) | (16 << 24));	// Final write
 		++w16ptr;
 		--tx16len;
+		++pending;
 	}
 
 	// Read and write until all done
@@ -342,14 +358,16 @@ static int spi1_transfer(const spix_port_t *sp, uint32_t *wptr, size_t txlen, in
 			*r16ptr = (uint16_t)reg_rd(&aux->spi0_io);	// Read available word
 			++r16ptr;
 			--rx16len;
+			--pending;
 		}
-		if(tx16len > 0 && !(stat & AUX_SPI_STAT_TX_FULL)) {
+		if(tx16len > 0 && pending < SPI1_FIFO_MAXDEPTH && !(stat & AUX_SPI_STAT_TX_FULL)) {
 			if(tx16len > 1)
 				reg_wr(&aux->spi0_hold, ((uint32_t)*w16ptr << 8) | (16 << 24));	// More data to follow
 			else
 				reg_wr(&aux->spi0_io, ((uint32_t)*w16ptr << 8) | (16 << 24));	// Final write
 			++w16ptr;
 			--tx16len;
+			++pending;
 		}
 	}
 
@@ -358,7 +376,7 @@ static int spi1_transfer(const spix_port_t *sp, uint32_t *wptr, size_t txlen, in
 
 	// Word-swap to fix the word order back to host-order.
 	w16ptr = (uint16_t *)wptr;
-	for(u = 0; u < txlen * sizeof(*w16ptr); u += 2) {
+	for(u = 0; u < txlen * 2; u += 2) {
 		uint16_t tt = w16ptr[u+0];
 		w16ptr[u+0] = w16ptr[u+1];
 		w16ptr[u+1] = tt;
