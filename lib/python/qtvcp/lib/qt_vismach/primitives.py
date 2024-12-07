@@ -961,6 +961,68 @@ class Color(Collection):
     def unapply(self):
         GL.glPopAttrib()
 
+# change the color of an object with a HAL U32 pin
+class HALColorRGB(Collection):
+    def __init__(self, parts, comp, var, alpha=1.0):
+        self.comp = comp
+        self.var = var
+        self.alpha = float(alpha)
+        Collection.__init__(self, parts)
+
+    def apply(self):
+        try:
+            if self.comp is None:
+                v = int(hal.get_value(self.var))
+            else:
+                v = int(self.comp[self.var])
+        except:
+            v = 0
+
+        # split the u32 value into 3 (0-1.0) floats representing RGB
+        r = ((v & 0x000000FF) >> 0)/255
+        g = ((v & 0x0000FF00) >> 8)/255
+        b = ((v & 0x00FF0000) >> 16)/255
+
+        # add preset alpha into the open GL color variable
+        c = [r,g,b,self.alpha]
+
+        GL.glPushAttrib(GL.GL_LIGHTING_BIT)
+        GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_AMBIENT_AND_DIFFUSE, c)
+        GL.glEnable(GL.GL_BLEND)
+        GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
+
+    def unapply(self):
+        GL.glPopAttrib()
+        GL.glDisable(GL.GL_BLEND)
+
+# change between two preset colors with a HAL Bit pin
+class HALColorFlip(Collection):
+    def __init__(self, color1, color2, parts, comp, var):
+        self.color1 = color1
+        self.color2 = color2
+        self.comp = comp
+        self.var = var
+        Collection.__init__(self, parts)
+
+    def apply(self):
+        try:
+            if self.comp is None:
+                v = bool(hal.get_value(self.var))
+            else:
+                v = bool(self.comp[self.var])
+        except:
+            v = False
+        if v : c = self.color2
+        else: c = self.color1
+
+        GL.glPushAttrib(GL.GL_LIGHTING_BIT)
+        GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_AMBIENT_AND_DIFFUSE, c)
+        GL.glEnable(GL.GL_BLEND)
+        GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
+
+    def unapply(self):
+        GL.glPopAttrib()
+        GL.glDisable(GL.GL_BLEND)
 
 class AsciiSTL:
     def __init__(self, filename=None, data=None):
