@@ -133,6 +133,13 @@ c.newpin("joint1", hal.HAL_FLOAT, hal.HAL_IN)
 c.ready()
 ----
 
+You can choose this differents in the function that take these entries:
+
+  `hal_comp`;; The _HAL component Object_ or None. +
+    In QtVCP if you are reading _system pins_ directly, then the component argument is set to `None`. +
+  `hal_pin`;; The _name of the BIT HAL IN pin_ that will change the color. +
+    if hal_comp is 'None' then this must be the full name of a system pin other wise this is the pin name excluding the component name
+
 [[sec:qtvcp:vismach:parts]]
 == Creating Parts
 
@@ -369,22 +376,60 @@ model = Collection([base, saddle, head, carousel])
 [[sec:qtvcp:vismach:functions]]
 == Other functions
 
+=== Color
+Sets the _display color of the part_. +
+
 *`part = Color([_colorspec_], [_part_])`*::
-  Sets the _display color of the part_. +
+
   Note that unlike the other functions, the part definition comes second in this case. +
   `_colorspec_`;; Three RGB values and opacity. +
   For example [1,0,0,0.5] for a 50% opacity red.
 
+=== HALColorFlip
+Sets the _display color of the part based on a designated HAL bit pin state_. +
+
+*`part = HALColorFlip([_colorspec_], [_colorspec_], [_part_], hal_comp, hal_pin)`*::
+
+  Note that unlike the other functions, the part definition comes second in this case. +
+  `_colorspec_`;; Three RGB values and opacity. +
+  For example [1,0,0,0.5] for a 50% opacity red.
+  `hal_comp`;; The _HAL component Object_ or None. +
+    In QtVCP if you are reading _system pins_ directly, then the component argument is set to `None`. +
+  `hal_pin`;; The _name of the BIT HAL IN pin_ that will change the color. +
+    if hal_comp is 'None' then this must be the full name of a system pin other wise this is the pin name excluding the component name
+
+=== HALColorRGB
+Sets the _display color of the part based on a designated HAL U32 pin value_. +
+The color is decoded from the U32 value. each color is a 0-255 decimal value (shown here in hex) +
+red = 0xXXXXXXRR +
+green = 0xXXXXGGXX +
+blue = 0xXXBBXXXX +
+combined as 0xXXBBGGRR +
+
+*`part = HALColorRGB([_part_], hal_comp, hal_pin, alpha=1.0)`*::
+
+  `hal_comp`;; The _HAL component Object_ or None. +
+    In QtVCP if you are reading _system pins_ directly, then the component argument is set to `None`. +
+  `hal_pin`;; The _name of the U32 HAL IN pin_ that will change the color. +
+    if hal_comp is 'None' then this must be the full name of a system pin other wise this is the pin name excluding the component name +
+  `alpha=`;; Sets the opacity. (0-1.0)
+
+=== Heads Up Display
+Creates a _heads-up display_ in the Vismach GUI to display items such as axis positions, titles, or messages.
+
 *`myhud = Hud()`*::
-  Creates a _heads-up display_ in the Vismach GUI to display items such as axis positions, titles, or messages.
+
 [source,python]
 ----
 myhud = Hud()
 myhud.show("Mill_XYZ")`
 ----
 
+=== HAL Heads Up Display
+A more advanced version of the Hud that allows HAL pins to be displayed:
+
 *`myhud = HalHud()`*::
-  A more advanced version of the Hud that allows HAL pins to be displayed:
+
 [source,python]
 ----
 myhud = HalHud()
@@ -397,17 +442,28 @@ myhud.add_pin('axis-z: ',"{:10.4f}","axis.z.pos-cmd")
 myhud.show("-------------")
 ----
 
-*`part = Capture()`*::
-  This sets the current position in the model.
+Some of the available HalHUD function: +
+
+* set_background_color(red, green, blue, alpha)
+* add_pin(text, format, pinname)
+* set_text_color(red, green, blue)
+
+=== Capture
+This sets the current position in the model.
+
+*`part = Capture()`*
+
+
+=== main
+This is the command that makes it all happen, creates the display, etc. if invoked directly from Python. +
+Usually this file is imported by QtVCP and the `window()` object is instantiated and embedded into another screen.
 
 *`main(model, tooltip, work, size=10, hud=myhud, rotation_vectors=None, lat=0, lon=0)`*::
-  This is the command that makes it all happen, creates the display, etc. if invoked directly from Python.
-  Usually this file is imported by QtVCP and the `window()` object is instantiated and embedded into another screen.
   `_model_`;; Should be a collection that contains all the machine parts.
   `_tooltip_` and `_work_`;; Need to be created by `Capture()` to visualize their motion in the backplot.
     See `mill_xyz.py` for an example of how to connect the tool tip to a tool and the tool to the model.
-  `_size_`;; Sets the extent of the volume visualized in the initial view. +
-    hud refers to a head-up display of axis positions.
+  `_size_`;; Sets the extent of the volume visualized in the initial view.
+  `_hud_`;; refers to a head-up display.
   `_rotation_vectors_` or `_lat, lon_`;; Can be used to set the original viewpoint.
     It is advisable to do as the default initial viewpoint is rather unhelpful from immediately overhead.
 
