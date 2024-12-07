@@ -176,7 +176,7 @@ HWREGACCESS_ALWAYS_INLINE static inline void gpio_debug_pin(bool set_reset)
  */
 static int32_t spi0_clkdiv_calc(uint32_t base, uint32_t rate)
 {
-	uint32_t clkdiv = base / rate;
+	uint32_t clkdiv = (base + rate - 1) / rate;
 	// Use only even divider values
 	// This is what the documentation (probably) states
 	if(clkdiv > 65534)
@@ -274,7 +274,7 @@ static int32_t spi1_clkdiv_calc(uint32_t base, uint32_t rate)
 	uint32_t clkdiv;
 	if(rate >= base / 2)
 		return 0;
-	clkdiv = base / (rate * 2) - 1;
+	clkdiv = (base + rate*2 - 1) / (rate * 2) - 1;
 	if(clkdiv > 4095)
 		clkdiv = 4095;		// Slowest possible
 	return clkdiv;

@@ -632,8 +632,17 @@ static int spix_setup(void)
 		if(!(spi_probe & (1 << i)))		// Only probe if enabled
 			continue;
 
-		sa.clkw = spiclk_rate[j] * 1000;
-		sa.clkr = spiclk_rate_rd[j] * 1000;
+		// The clock is increased by 1 kHz to compensate for the truncation of
+		// the listed values. The clock divider calculations will always be
+		// rounded down, making it consistent between hardware drivers and
+		// kernel's spidev driver.
+		// For example: On the RPi5, a clock of 33333 kHz would become 25000
+		// kHz without compensation because of recurring 3 behind the comma in
+		// 33333 kHz, which got truncated. With compensation we use 33334 kHz
+		// as the rate and that gets rounded down to 33333 kHz in the
+		// calculation.
+		sa.clkw = (spiclk_rate[j] + 1) * 1000;
+		sa.clkr = (spiclk_rate_rd[j] + 1) * 1000;
 		sa.spidev = spidev_path[j];
 		if(NULL == (port = hwdriver->open(i, &sa))) {
 			LL_INFO("Failed to open hardware port index %d\n", i);

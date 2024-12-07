@@ -171,7 +171,7 @@ HWREGACCESS_ALWAYS_INLINE static inline void gpio_debug_pin(bool set_reset)
  */
 static inline int32_t clkdiv_calc(uint32_t rate)
 {
-	uint32_t clkdiv = RP1_SPI_CLK / rate;
+	uint32_t clkdiv = (RP1_SPI_CLK + rate - 1) / rate;
 	// The documentation states: bit 0 is always zero, therefore, only even
 	// divider values supported. Divider value 0 disables the SCLK output.
 	if(clkdiv > 65534)
