@@ -1,0 +1,245 @@
+= hm2_spix(9)
+
+== NAME
+
+hm2_spix - LinuxCNC HAL driver for the Mesa Electronics Anything IO
+boards with SPI enabled HostMot2 firmware.
+
+== SYNOPSIS
+
+*loadrt hm2_spix*
+
+____
+*config* [default: ""]::
+  HostMot2 config strings, described in the *hostmot2*(9) manpage.
+*spiclk_rate* [default: 25000]::
+  Specify the SPI clock rate in kHz for each probed board. See *SPI
+  CLOCK RATES* below. Each entry follows the *spi_probe* setting, where
+  each probe takes the next value of the *spi_rate* list. A *spi_rate*
+  of 0 (zero) or less automatically selects the first rate in the list.
+  You may truncate the list to the number of boards you use.
+*spiclk_rate_rd* [default: same as *spiclk_rate*]::
+  Specify the SPI read clock rate in kHz. Usually you read and write at
+  the same speed. However, you may want to reduce the reading speed if
+  the round-trip is too long (see *SPI CLOCK RATES* below). You may
+  truncate the list to the number of boards you use.
+*spi_probe* [default: 1]::
+  Probe SPI port and CE lines for a card. This is a bit-field indicating
+  which combinations of SPI and CE should be probed: - 1 = SPI0/CE0, - 2
+  = SPI0/CE1, - 4 = SPI1/CE0, - 8 = SPI1/CE1, - 16 = SPI1/CE2. +
+  The probe is performed exactly in above order. Any boards found will
+  be numbered 0...4 in the order found. It is an error if a probe fails
+  and the driver will abort. See also *INTERFACE CONFIGURATION* below.
+*force_driver* [default: <auto probe>]::
+  Force a specific hardware driver to be selected. This is usually not
+  necessary and the hm2_spix driver will normally select the appropriate
+  hardware driver automatically. See also *HARDWARE DRIVERS* below.
+*spidev_path* [default: <empty>]::
+  Override the device node path to the spidev device. Default is
+  /dev/spidevX.Y, where X.Y is {0.0, 0.1, 1.0, 1.1, 1.2} in that order.
+  This option has only effect if the spix_spidev hardware driver is
+  selected or forced to be used.
+*spi_noqueue* [default: 0 (off)]::
+  Force disable queued command processing. Normally, all requests are
+  queued if requested by upstream and sent in one bulk transfer. This
+  reduces overhead significantly by up to 35%. Disabling the queue makes
+  each transfer visible and more easily debug-able. Set to any non-zero
+  value to disable the queue.
+*spi_debug* [default: -1]::
+  Set the message level of the running process. The message level is set
+  if *spi_debug* is set to a positive value between 0 and 5, where 0 means
+  no messages at all and 5 means everything. A value of -1 does not touch
+  the current message level. +
+  Caveat Emptor: changing the message level is process-wide and all
+  modules within the process will spit out messages at the requested
+  level. This may cause quite some clutter in your terminal.
+____
+
+== DESCRIPTION
+
+hm2_spix is a device driver for all computer boards with an available
+SPI port, including Raspberry Pi 3, 4 and 5. The SPI port interfaces
+with Mesa's SPI based Anything I/O boards with SPI enabled HostMot2
+firmware to the LinuxCNC HAL.
+
+This driver unifies all previous hostmot2 SPI hal drivers in one with
+dedicated hardware drivers for Raspberry Pi models 3, 4 and 5 and has a
+fall-back to spidev for unknown boards. Further hardware drivers may be
+created and integrated when requested.
+
+The supported Mesa boards are: 7I90HD, 7I43, 7C80 and 7C81.
+
+The board must have a compatible firmware (like: 7i90_spi_*-bit,
+7c80_*.bit and 7c81_*.bit) loaded on the board by the *mesaflash*(1)
+program.
+
+hm2_spix is only available when LinuxCNC is configured with "uspace"
+realtime. It works with Raspian and PREEMPT_RT kernel.
+
+See also *NOTES* below.
+
+== HARDWARE DRIVERS
+
+The following hardware drivers are implemented and probed in order:
+|===
+| Driver | Board
+
+| spix_rpi3
+| RPi3B, RPi3A+, RPi3B+, RPi4B, RPi4CM
+
+| spix_rpi5
+| RPi5B, RPi5CM
+
+| spix_spidev
+| Any board not recognised
+|===
+
+Probing the hardware is implemented by matching known computer boards
+against the device-tree compatible string-list from
+/proc/device-tree/compatible. Normally, the first hardware driver giving
+a match will be selected. However, it is possible to force a specific
+driver to be used using the *force_driver* option with the name of the
+driver you want to use.
+
+== INTERFACE CONFIGURATION
+
+Up to five device boards are supported. Two on SPI0 and three on SPI1.
+It is recommended that you, at most, use two devices and each device
+connected to a separate SPI port. You can choose which CE lines you
+prefer or fit your design and setup. Use the *spi_probe* parameter to
+instruct the driver where to search for the board(s).
+
+For the Mesa 7C80 and 7C81 you'll always want to configure SPI0/CE0.
+These boards have a matching 40-pin header for the computer board.
+
+The SPI ports are located on the 40-pin header for those computer boards
+with a compatible header. The GPIO numbers are only guaranteed to be
+valid for Raspberry Pi boards.
+
+Port SPI0:
+[cols=",>,>,"]
+|===
+| Pin  | GPIO | 40-pin | Devname
+| MOSI | 10 | 19 |
+| MISO |  9 | 21 |
+| SCLK | 11 | 23 |
+| CE0  |  8 | 24 | /dev/spidev0.0
+| CE1  |  7 | 26 | /dev/spidev0.1
+|===
+
+Port SPI1:
+[cols=",>,>,"]
+|===
+| Pin  | GPIO | 40-pin | Devname
+| MOSI | 20 | 38 |
+| MISO | 19 | 35 |
+| SCLK | 21 | 40 |
+| CE0  | 18 | 12 | /dev/spidev1.0
+| CE1  | 17 | 11 | /dev/spidev1.1
+| CE2  | 16 | 36 | /dev/spidev1.2
+|===
+
+== REALTIME PERFORMANCE OF THE HM2_SPIX DRIVER
+
+Using a RPi3 will work, but is not the best option. Currently, the RPi4
+is known to work adequately. The newer RPi5 is a lot faster and will
+normally run a servo-thread at 1 kHz without problems.
+
+All other computer boards and LinuxCNC configurations need to be tested
+thoroughly.
+
+All other parameters: TBD.
+
+== SPI CLOCK RATES
+
+The SPI driver can provide frequencies beyond what is acceptable for any
+board. A safe value to start with would be 12.5 MHz (spiclk_rate=12500)
+and then work your way up from there.
+
+The SPI driver generates (very) discrete clock frequencies, especially
+in the high MHz range because of a simple clock divider structure. The
+base frequency is different between boards and the divider for SPI0/SPI1
+scales using discrete factors with formula f=trunc(base/(2*divider)). The
+following list specifies the highest possible *spiclk_rate* and
+*spiclk_rate_rd* frequencies (in kHz) for discrete divider settings:
+|===
+| ^| RPi3 ^| RPi4 ^| RPi5
+| Base >| 400 MHz >| 500 MHz >| 200 MHz
+| Fastest >| 50000 >| 50000 >| 50000
+| >| 40000 >| 41666 >| 33333
+| >| 33333 >| 35714 >| 25000
+| >| 28571 >| 31250 >| 20000
+| >| 25000 >| 27777 >| 16666
+| >| 22222 >| 25000 >| 14285
+| >| 20000 >| 22727 >| 12500
+| >| 18181 >| 20833 >| 11111
+| >| 16666 >| 19230 >| 10000
+| >| 15384 >| 17857 >|  9090
+| >| ... >| ... >| ...
+| Slowest >| SPI0:4 >| SPI0:4 >| SPI0:4
+| Slowest >| SPI1:49 >| SPI1:62 >| SPI1:4
+|===
+
+Note that the clock rate setting is heavily influenced by rounding and may be
+higher than expected if the divider rounds to the next lower value. You can
+check the actual clock rate by enabling informational messages (set
+*spi_debug*=3).
+
+The slowest selectable SPI clock frequency for SPI0 and SPI1 are not for
+production systems. They can be selected for testing purposes. You
+should not expect any real-time performance with such slow setting.
+
+The highest theoretically possible SPI clock frequency is higher than
+stated in the above table. However, you will not be able to build any
+reliable hardware interface at that frequency. The driver limits the
+clock to 50.0 MHz (cpiclk_rate=50000). The Mesa board interface supports
+frequencies up to 50 MHz and that is with good cabling in write
+direction only.
+
+Writing to the Mesa board may be done faster than reading. This is
+especially important if you have "long" wires or any buffers on the
+SPI-bus path. You can set the read clock frequency to a lower value
+(using *spiclk_rate_rd*) to counter the effects of the SPI-bus
+round-trip needed for read actions. For example, you can write at 33.33
+MHz and read at 25.00 MHz.
+
+The maximum SPI clock of the spix_rpi5 driver has been tested up to
+50 MHz write speed and 33 MHz read speed on the 7C80 and 7C81. However,
+it is not recommended to run at the limit on production systems. A safe
+setting would be to set one step below the maximum speeds.
+
+== NOTES
+
+If you know your setup and do not require the spix_spidev driver, then
+it is *strongly* recommended that you unload/disable the kernel's SPI
+drivers *dw_spi* and *dw_spi_mmio* for the RPi5 or *spi_bmc2835* for the
+RPi3 and RPi4. The hm2_spix hardware drivers attempt to unload the
+kernel driver at startup if detected and restore it at exit if initially
+loaded. However, there are no guarantees about the effectiveness of the
+module unload/load actions.
+
+*Warning*: having both kernel and user-space SPI drivers installed can
+result in unexpected interactions and system instabilities.
+
+The Raspberry Pi *must* have an adequate power supply. At high speeds
+and noise on the supply, there is the possibility of strange behaviour
+if the noise gets out of hand.
+
+The Mesa 7C80 provides enough local power to the host via the 40-pin
+interface header if your external power supply is adequate (on connector
+TB6). The Mesa 7C81 needs an adequate external 5V power supply (on
+connector TB1) and feeds it directly to the host interface header.
+
+For the Raspberry Pi 4: Be sure to have a proper heat-sink mounted on
+the SoC or it will get too warm and may crash.
+
+For the Raspberry Pi 5: Be sure to have a proper *active* heat-sink
+mounted on the SoC or it will get too warm and may crash.
+
+== SEE ALSO
+
+hostmot2(9)
+
+== LICENSE
+
+GPL

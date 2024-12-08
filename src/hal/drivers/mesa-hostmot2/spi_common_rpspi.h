@@ -23,6 +23,8 @@
 #ifndef HAL_RPSPI_H
 #define HAL_RPSPI_H
 
+#include "hwregaccess.h"
+
 /*
  * Broadcom defines
  *
@@ -36,18 +38,6 @@
 #define BCM2835_SPI_OFFSET	0x204000
 #define BCM2835_AUX_OFFSET	0x215000
 
-
-#if !defined(__I) && !defined(__O) && !defined(__IO)
-#ifdef __cplusplus
-#define __I	volatile	/* read only permission */
-#else
-#define __I	volatile const	/* read only permission */
-#endif
-#define __O	volatile	/* write only permission */
-#define __IO	volatile	/* read/write permission */
-#else
-#error "Possible define collision for __I, __O and __IO"
-#endif
 
 /*
  * Alternate function specification see
