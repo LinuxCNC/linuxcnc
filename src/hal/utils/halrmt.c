@@ -308,6 +308,7 @@
 #include "inifile.h"		// iniFind() from libnml
 #endif
 #include <rtapi_string.h>
+*/
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
