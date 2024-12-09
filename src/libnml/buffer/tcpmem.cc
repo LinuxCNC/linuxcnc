@@ -102,6 +102,13 @@ TCPMEM::TCPMEM(const char *_bufline, const char *_procline):CMS(_bufline, _procl
     }
     server_host_entry = NULL;
 
+    /* get instance env variable */
+    const char* instance = getenv("LINUXCNC_INSTANCE");
+    if (instance) {
+        long offset = strtol(instance, NULL, 10) * 16;
+        tcp_port_number += offset;
+    }
+
     /* Set up the socket address structure. */
     memset(&server_socket_address, 0, sizeof(server_socket_address));
     server_socket_address.sin_family = AF_INET;
