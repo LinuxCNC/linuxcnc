@@ -10,6 +10,7 @@
 #error This is intended as a userspace component only.
 #endif
 
+#include <stdio.h>
 #include <readline.h>
 
 int main(int argc, char **argv)
