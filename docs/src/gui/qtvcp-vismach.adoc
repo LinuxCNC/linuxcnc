@@ -304,6 +304,20 @@ toolshape = Color([1, 1, 0, 1],[tool])
 toolshape = Color([1, 1, 0, 1],[HalToolTriangle()])
 ----
 
+=== HAL Adjustable Primitives
+All primitives can have HAL pin names substituted for coordinates. +
+Either by adding the component object as the first variable and substituting the pinname string for a coordinate, or +
+by substituting the full component/pinname string for a coordinate. +
+
+This example creates a _rectangular prism with opposite corners_ at the specified positions and edges parallel to the XYZ axes. +
+the Z start coordinate will be controlled by the HAL pin 'Zstart'
+
+[source,python]
+----
+box = Box(component, x1, y1, 'Zstart', x2, y2, z2)
+box = Box(x1, y1, 'componentName.Zstart', x2, y2, z2)
+----
+
 [[sec:qtvcp:vismach:assembly]]
 == Assembling the model
 
