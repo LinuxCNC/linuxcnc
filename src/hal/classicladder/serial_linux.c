@@ -181,6 +181,7 @@ void SerialSetRTS( int State )
 
 void SerialSend( char *Buff, int BuffLength )
 {
+	ssize_t err;
 	if ( PortIsOpened )
 	{
 		if ( ModbusConfig.ModbusSerialUseRtsToSend )
@@ -191,7 +192,28 @@ void SerialSend( char *Buff, int BuffLength )
 		}
 		if ( ModbusConfig.ModbusDebugLevel>=2 )
 			printf(_("Serial writing...\n"));
-		write(fd,Buff,BuffLength);
+write_again:
+		err = write(fd,Buff,BuffLength);
+		if (err < 0 && (errno == EINTR /*|| errno == EAGAIN */) )
+		{
+			// 'fd' is opened with O_NDELAY, which is equivalent to
+			// O_NONBLOCK. There is a potential that the write thus
+			// fails because it would block. Checking for EAGAIN
+			// (i.e. call would block), might not be the best of
+			// ideas. It might busy-loop for a long time if we do.
+			// The structure of the code should be refactored to
+			// use select or poll.
+			// On the other hand, EINTR (interrupted syscall) is
+			// simply restartable and we try again.
+			//
+			// FIXME:
+			// Zero and positive return values of the write should
+			// actually be tested too. Especially because write may
+			// return zero in case of error or return a value less
+			// than the amount you wanted to write (see write(2)
+			// for details).
+			goto write_again;
+		}
 		if ( ModbusConfig.ModbusDebugLevel>=2 )
 			printf(_("Writing done!\n"));
 		if ( ModbusConfig.ModbusSerialUseRtsToSend )
