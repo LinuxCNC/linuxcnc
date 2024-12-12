@@ -28,6 +28,7 @@ extern "C" {
 #include <string.h>		/* strchr(), memcpy(), memset() */
 #include <stdlib.h>		/* strtod */
 #include <physmem.hh>           /* PHYSMEM_HANDLE */
+#include <math.h>
 
 #ifdef __cplusplus
 }
@@ -44,21 +45,10 @@ extern "C" {
 //#include "autokey.h"
 /* rw-rw-r-- permissions */
 #define MODE (0700)
-static double last_non_zero_x;
-static double last_x;
 
-static int not_zero(volatile double x)
+static inline bool not_zero(double x)
 {
-    last_x = x;
-    if (x < -1E-6 && last_x < -1E-6) {
-	last_non_zero_x = x;
-	return 1;
-    }
-    if (x > 1E-6 && last_x > 1E-6) {
-	last_non_zero_x = x;
-	return 1;
-    }
-    return 0;
+	return fabs(x) > 1e-6;
 }
 
 /* SHMEM Member Functions. */
@@ -578,7 +568,7 @@ CMS_STATUS SHMEM::main_access(void *_local, int *serial_number)
 
     case CMS_READ_ACCESS:
 	if (NULL != bsem && status == CMS_READ_OLD &&
-	    (blocking_timeout > 1e-6 || blocking_timeout < -1E-6)) {
+	    not_zero(blocking_timeout)) {
 	    if (second_read > 10 && total_subdivisions <= 1) {
 		status = CMS_MISC_ERROR;
 		rcs_print_error
