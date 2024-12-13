@@ -64,6 +64,13 @@ SHMEM::SHMEM(const char *n, long s, int nt, key_t k, int m):CMS(s)
     master = m;
     key = k;
 
+    /* get instance env variable */
+    const char* instance = getenv("LINUXCNC_INSTANCE");
+    if (instance) {
+        long offset = strtol(instance, NULL, 10) * 16;
+        key += offset;
+    }
+
     /* open the shared mem buffer and create mutual exclusion semaphore */
     open();
 }
@@ -92,6 +99,13 @@ SHMEM::SHMEM(const char *bufline, const char *procline, int set_to_server,
     if (sscanf(bufline, "%*s %*s %*s %*s %*s %*s %*s %*s %*s %d", &key) != 1) {
 	rcs_print_error("SHMEM: Invalid configuration file format.\n");
 	return;
+    }
+
+    /* get instance env variable */
+    const char* instance = getenv("LINUXCNC_INSTANCE");
+    if (instance) {
+        long offset = strtol(instance, NULL, 10) * 16;
+        key += offset;
     }
 
     master = is_local_master;
