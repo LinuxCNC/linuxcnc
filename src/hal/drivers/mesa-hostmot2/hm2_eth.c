@@ -45,6 +45,7 @@
 #include "hostmot2-lowlevel.h"
 #include "hostmot2.h"
 #include "hm2_eth.h"
+#include "eshellf.h"
 
 struct kvlist {
     struct rtapi_list_head list;
@@ -463,32 +464,6 @@ static int eth_socket_recv(int sockfd, void *buffer, int len, int flags);
 #define IPTABLES "env \"PATH=/usr/sbin:/sbin:${PATH}\" iptables"
 #define CHAIN "hm2-eth-rules-output"
 
-static int shell(char *command) {
-    char *const argv[] = {"sh", "-c", command, NULL};
-    pid_t pid;
-    int res = rtapi_spawn_as_root(&pid, "/bin/sh", NULL, NULL, argv, environ);
-    if(res < 0) perror("rtapi_spawn_as_root");
-    int status;
-    waitpid(pid, &status, 0);
-    if(WIFEXITED(status)) return WEXITSTATUS(status);
-    else if(WIFSTOPPED(status)) return WTERMSIG(status)+128;
-    else return status;
-}
-
-static int eshellf(char *fmt, ...) {
-    char commandbuf[1024];
-    va_list ap;
-    va_start(ap, fmt);
-    vsnprintf(commandbuf, sizeof(commandbuf), fmt, ap);
-    va_end(ap);
-
-    int res = shell(commandbuf);
-    if(res == EXIT_SUCCESS) return 0;
-
-    LL_PRINT("ERROR: Failed to execute '%s'\n", commandbuf);
-    return -EINVAL;
-}
-
 static bool chain_exists() {
     int result =
         shell(IPTABLES" -n -L "CHAIN" > /dev/null 2>&1");
@@ -627,7 +602,7 @@ static int install_iptables_perinterface(const char *ifbuf) {
         ifbuf);
     if(res < 0) return res;
 
-    res = eshellf("/sbin/sysctl -q net.ipv6.conf.%s.disable_ipv6=1", ifbuf);
+    res = eshellf(HM2_LLIO_NAME, "/sbin/sysctl -q net.ipv6.conf.%s.disable_ipv6=1", ifbuf);
     if(res < 0) return res;
 
     return 0;
