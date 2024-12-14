@@ -112,7 +112,7 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         mouse_state = QtWidgets.qApp.mouseButtons()
         if event.angleDelta().y() < 0:
             if mouse_state == QtCore.Qt.NoButton:
-                self.diameter -= 2
+                self.diameter -= self.rotationIncrement
             if mouse_state == QtCore.Qt.LeftButton:
                 self.scale -= .1
             if mouse_state == QtCore.Qt.RightButton:
@@ -120,7 +120,7 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
                     self.rotation += self.rotationIncrement
         else:
             if mouse_state == QtCore.Qt.NoButton:
-                self.diameter += 2
+                self.diameter += self.rotationIncrement
             if mouse_state == QtCore.Qt.LeftButton:
                 self.scale += .1
             if mouse_state == QtCore.Qt.RightButton:
