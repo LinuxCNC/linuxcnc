@@ -1,0 +1,8 @@
+1. Run setup.py
+2. Move  colorlight_5a_75b.py into ./liteeth/bench/ folder
+3. Run python script: colorlight_5a_75b.py --build (it creates directory structures but emits an error)
+4. Move stepgen.v into ./build/colorlight_5a_75b/gateware/
+5. Run script again
+6. Flash into the board
+7. Reboot the board wuth the button on its edge. Test ping to 192.168.0.50/24
+8. The board is ready to be used with linuxcnc. IP address, as of now, is fixed.
