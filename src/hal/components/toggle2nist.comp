@@ -7,9 +7,9 @@ to control a device that has separate on and off inputs
 and an is-on output.
 A debounce delay in cycles can be set for 'in'. (default = 2)
 
-\[bu] On a rising edge on pin \\fIin\\fR when \\fIis-on\\fR is low: It sets \\fIon\\fR until \\fIis-on\\fR becomes high.
+\\[bu] On a rising edge on pin \\fIin\\fR when \\fIis-on\\fR is low: It sets \\fIon\\fR until \\fIis-on\\fR becomes high.
 
-\[bu] On a rising edge on pin \\fIin\\fR when \\fIis-on\\fR is high: It sets \\fIoff\\fR until \\fIis-on\\fR becomes low.
+\\[bu] On a rising edge on pin \\fIin\\fR when \\fIis-on\\fR is high: It sets \\fIoff\\fR until \\fIis-on\\fR becomes low.
 
 
        ┐     ┌─────xxxxxxxxxxxx┐           ┌─────xxxxxxxxxxxx┐
