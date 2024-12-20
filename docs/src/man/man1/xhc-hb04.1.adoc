@@ -287,7 +287,7 @@ pins 3) connect buttons to motion.* pins
 Another script is included to monitor the pendant and report loss of USB connectivity.
 See the README and .txt files in the above directory for usage.
 
-[Note]
+=== Note
 The sim configs use the AXIS GUI but the scripts are available
 with any HAL configuration or GUI. The same scripts can be used to adapt
 the xhc-hb04 to existing configurations provided that the halui, motion,

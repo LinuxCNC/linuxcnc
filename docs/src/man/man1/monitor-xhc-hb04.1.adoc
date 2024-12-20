@@ -14,10 +14,9 @@ monitor-xhc-hb04 - monitors the XHC-HB04 pendant and warns of disconnection
 This script runs in the background and will pop up a message when the pendant is disconnected or reconnected.
 
 Usage is optional; if used it is specified with INI file entry:
-```
-[APPLICATIONS]
-APP = monitor-xhc-hb04
-```
+[literal]
+ [APPLICATIONS]
+ APP = monitor-xhc-hb04
 
 == SEE ALSO
 
