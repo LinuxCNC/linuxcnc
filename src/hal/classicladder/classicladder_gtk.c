@@ -176,7 +176,7 @@ void GetTheSizesForRung( void )
 
 	// size of the page or block changed ?
 	if ( InfosGene->PageHeight!=PageHeightBak || InfosGene->BlockHeight!=BlockHeightBak )
-		UpdateVScrollBar( TRUE/*AutoSelectCurrentRung*/ );
+		UpdateVScrollBar( /*AutoSelectCurrentRung*/ );
 	PageHeightBak = InfosGene->PageHeight;
 	BlockHeightBak = InfosGene->BlockHeight;
 }
