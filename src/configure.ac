@@ -690,7 +690,7 @@ fe () {
     # Fully expand argument.  Example:
     # ${datadir} -> ${datarootdir} -> ${prefix}/share -> /usr/local
     case "$1" in
-    *\$*) eval fe \""$1"\" ;;
+    *\$*) eval fe "\"$1\"" ;;
     *) echo "$1" ;;
     esac
 }
