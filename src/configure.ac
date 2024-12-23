@@ -73,7 +73,6 @@ fi
 AC_SUBST([EMC2VERSION])
 
 AC_PATH_PROG(GREP, grep)
-AC_PATH_PROG(EGREP, egrep)
 
 #
 # check for pkg-config
