@@ -737,7 +737,7 @@ cairo_t * InitExportSurface( int SurfaceWidth, int SurfaceHeight, char * SvgFile
 
 void ExportSvgOrPngFile( char * FileToCreate, char GoForSvgExport )
 {
-	cairo_t *cr;
+	cairo_t *cr = NULL;
 	int iCurrentLanguage = SectionArray[ InfosGene->CurrentSection ].Language;
 	if ( iCurrentLanguage==SECTION_IN_LADDER )
 	{

@@ -17,7 +17,7 @@
 #define DRAW_FOR_TOOLBAR 1
 #define DRAW_FOR_PRINT 2
 
-void CreateVarNameForElement( char * pBuffToWrite, StrElement * pElem, char SymbolsVarsNamesIfAvail );
+void CreateVarNameForElement( char * pBuffToWrite, size_t BuffSize, StrElement * pElem, char SymbolsVarsNamesIfAvail );
 char * DisplayArithmExpr(char * Expr, char SymbolsVarsNamesIfAvail);
 void CreateFontPangoLayout( cairo_t *cr, int BlockPxHeight, char DrawingOption );
 int DrawPangoText( cairo_t * cr, int BaseX, int BaseY, int Width, int Height, char * Text );
