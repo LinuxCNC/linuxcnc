@@ -16,7 +16,7 @@
 
 function githelper() {
     if [ -z "$1" ]; then
-        GIT_BRANCH=$(git branch | egrep '^\*' | cut -d ' ' -f 2)
+        GIT_BRANCH=$(git branch | grep -E '^\*' | cut -d ' ' -f 2)
         if [ "$GIT_BRANCH" = "(no" ]; then
             echo "'git branch' says we're not on a branch, pass one in as an argument" > /dev/null 1>&2
             return

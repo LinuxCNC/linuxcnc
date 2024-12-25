@@ -125,6 +125,25 @@ class Collection(object):
         self.vol = vol;
 
 
+class HideCollection(Collection):
+    def __init__(self, parts, comp, var):
+        self.parts = parts
+        self.comp = comp
+        self.var = var
+        self.vol = 0
+
+    def traverse(self):
+        try:
+            if self.comp is None:
+                v = bool(hal.get_value(self.var))
+            else:
+                v = bool(self.comp[self.var])
+        except:
+            v = 0
+        if v:
+            return
+        super(HideCollection,self).traverse()
+
 class Translate(Collection):
     def __init__(self, parts, x, y, z):
         self.parts = parts

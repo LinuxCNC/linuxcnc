@@ -59,7 +59,7 @@ Usage:
 	    by swish is grepped for this pattern, and matching lines are
 	    printed.  By default, $b attempts to turn swish-pattern into
 	    a grep-pattern, but this only works if swish-pattern is a simple
-	    word.  For more information about grep patterns, see 'man egrep'
+	    word.  For more information about grep patterns, see 'man grep'
 EOF
 	exit 1
 }
@@ -69,7 +69,7 @@ while getopts "hRF:" opt
 do
 	case "$opt" in
 	R)	FORCEREBUILD=1 ;;
-	F)	FILEFILTER="egrep -z -e $OPTARG" ;;
+	F)	FILEFILTER="grep -E -z -e $OPTARG" ;;
 	h|?)	usage ;;
 	esac
 done
@@ -91,9 +91,9 @@ fi
 if ! [ -z "$FILEFILTER" ]; then
 	swish-e -f $SWISHINDEX -H0 -x '<swishdocpath>\0' -w "$PAT" \
 		| $FILEFILTER | makerelative \
-		| xargs -0 egrep -Hnis -e "$REGEXP"
+		| xargs -0 grep -E -Hnis -e "$REGEXP"
 else
 	swish-e -f $SWISHINDEX -H0 -x '<swishdocpath>\0' -w "$PAT" \
 		| makerelative \
-		| xargs -0 egrep -Hnis -e "$REGEXP"
+		| xargs -0 grep -E -Hnis -e "$REGEXP"
 fi
