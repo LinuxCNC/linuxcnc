@@ -3844,29 +3844,34 @@ static bool hal_port_compute_copy(unsigned read,
 }
 
 
-hal_port_t hal_port_alloc(unsigned size) {
+int hal_port_alloc(unsigned size, hal_port_t *port) {
+    if(!port)
+        return -EINVAL;
+
     hal_port_shm_t* new_port = shmalloc_up(sizeof(hal_port_shm_t) + size);
 
-    memset(new_port, 0, sizeof(hal_port_shm_t));
+    if(!new_port)
+        return -ENOMEM;
 
+    memset(new_port, 0, sizeof(hal_port_shm_t));
     new_port->size = size;
 
-    return SHMOFF(new_port);
+    *port = SHMOFF(new_port);
+    return 0;
 }
 
 
-bool hal_port_read(hal_port_t port, char* dest, unsigned count) {
+bool hal_port_read(const hal_port_t *port, char* dest, unsigned count) {
     unsigned read,
              write,
              end_bytes_to_read,   //number of bytes to read after read position and before end of buffer
              beg_bytes_to_read,   //number of bytes to read at beginning of buffer
              final_pos;           //final position after read
-    hal_port_shm_t* port_shm = SHMPTR(port);
-    
 
-    if(!port || !count) {
+    if(!port || !*port || !count) {
         return false;
     } else {
+        hal_port_shm_t* port_shm = SHMPTR(*port);
         hal_port_atomic_load(port_shm, &read, &write);
 
         if(hal_port_compute_copy(read, 
@@ -3888,17 +3893,17 @@ bool hal_port_read(hal_port_t port, char* dest, unsigned count) {
 }   
 
 
-bool hal_port_peek(hal_port_t port, char* dest, unsigned count) {
+bool hal_port_peek(const hal_port_t *port, char* dest, unsigned count) {
     unsigned read,
              write,
              end_bytes_to_read,   //number of bytes to read after read position and before end of buffer
              beg_bytes_to_read,   //number of bytes to read at beginning of buffer
              final_pos;           //final position of read
-    hal_port_shm_t* port_shm = SHMPTR(port);
 
-    if(!port || !count) {
+    if(!port || !*port || !count) {
         return false;
     } else {
+        hal_port_shm_t* port_shm = SHMPTR(*port);
         hal_port_atomic_load(port_shm, &read, &write);
 
         if(hal_port_compute_copy(read, 
@@ -3919,17 +3924,17 @@ bool hal_port_peek(hal_port_t port, char* dest, unsigned count) {
 }
 
 
-bool hal_port_peek_commit(hal_port_t port, unsigned count) {
+bool hal_port_peek_commit(const hal_port_t *port, unsigned count) {
     unsigned read,
              write,
              end_bytes_to_read,   //number of bytes to read after read position and before end of buffer
              beg_bytes_to_read,   //number of bytes to read at beginning of buffer
              final_pos;           //final position of read
-    hal_port_shm_t* port_shm = SHMPTR(port);
 
-    if(!port || !count) {
+    if(!port || !*port || !count) {
         return false;
     } else {
+        hal_port_shm_t* port_shm = SHMPTR(*port);
         hal_port_atomic_load(port_shm, &read, &write);
 
         if(hal_port_compute_copy(read,
@@ -3949,7 +3954,7 @@ bool hal_port_peek_commit(hal_port_t port, unsigned count) {
 }
 
 
-bool hal_port_write(hal_port_t port, const char* src, unsigned count) {
+bool hal_port_write(const hal_port_t *port, const char* src, unsigned count) {
     unsigned read,
              write,
              bytes_avail,
@@ -3957,12 +3962,11 @@ bool hal_port_write(hal_port_t port, const char* src, unsigned count) {
              end_bytes_to_write,
              beg_bytes_to_write,
              final_pos;
-   
-    hal_port_shm_t* port_shm = SHMPTR(port);
  
-    if(!port || !count) {
+    if(!port || !*port || !count) {
 	    return false;
     } else {
+       hal_port_shm_t* port_shm = SHMPTR(*port);
        hal_port_atomic_load(port_shm, &read, &write);
        bytes_avail = hal_port_bytes_writable(read, write, port_shm->size);
 
@@ -4002,42 +4006,40 @@ bool hal_port_write(hal_port_t port, const char* src, unsigned count) {
 }
 
 
-unsigned hal_port_readable(hal_port_t port) {
-    hal_port_shm_t* port_shm = SHMPTR(port);
-
-    if(!port) {
+unsigned hal_port_readable(const hal_port_t *port) {
+    if(!port || !*port) {
         return 0;
     } else {
+        hal_port_shm_t* port_shm = SHMPTR(*port);
         return hal_port_bytes_readable(port_shm->read, port_shm->write, port_shm->size);
     }
 }
 
 
-unsigned hal_port_writable(hal_port_t port) {
-    hal_port_shm_t* port_shm = SHMPTR(port);
-             
-    if(!port) {
+unsigned hal_port_writable(const hal_port_t *port) {
+    if(!port || !*port) {
         return 0;
     } else {
+        hal_port_shm_t* port_shm = SHMPTR(*port);
         return hal_port_bytes_writable(port_shm->read, port_shm->write, port_shm->size);
     }
 }
 
 
-unsigned hal_port_buffer_size(hal_port_t port) {
-    if(!port) {
+unsigned hal_port_buffer_size(const hal_port_t *port) {
+    if(!port || !*port) {
         return 0;
     } else {
-        return ((hal_port_shm_t*)SHMPTR(port))->size;
+        return ((hal_port_shm_t*)SHMPTR(*port))->size;
     }
 }
 
 
-void hal_port_clear(hal_port_t port) {
+void hal_port_clear(const hal_port_t *port) {
     unsigned read,write;
-    hal_port_shm_t* port_shm = SHMPTR(port);
 
-    if(port) {
+    if(port && *port) {
+        hal_port_shm_t* port_shm = SHMPTR(*port);
         hal_port_atomic_load(port_shm, &read, &write);
         hal_port_atomic_store_read(port_shm, write);
     }
@@ -4046,14 +4048,14 @@ void hal_port_clear(hal_port_t port) {
 
 #ifdef ULAPI
 void hal_port_wait_readable(hal_port_t** port, unsigned count, sig_atomic_t* stop) {
-    while((hal_port_readable(**port) < count) && (!stop || !*stop)) {
+    while((hal_port_readable(*port) < count) && (!stop || !*stop)) {
         rtapi_delay(10000000);
     }
 }
 
 
 void hal_port_wait_writable(hal_port_t** port, unsigned count, sig_atomic_t* stop) {
-    while((hal_port_writable(**port) < count) && (!stop || !*stop)) {
+    while((hal_port_writable(*port) < count) && (!stop || !*stop)) {
         rtapi_delay(10000000);
     }
 }
