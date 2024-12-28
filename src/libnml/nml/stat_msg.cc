@@ -35,7 +35,7 @@ int RCS_STAT_MSG_format(NMLTYPE t, void *buf, CMS * cms)
 {
     cms->update(((RCS_STAT_MSG *) buf)->command_type);
     cms->update(((RCS_STAT_MSG *) buf)->echo_serial_number);
-    cms->update((int&)(((RCS_STAT_MSG *) buf)->status));
+    cms->update(((RCS_STAT_MSG *) buf)->status_int);
     cms->update(((RCS_STAT_MSG *) buf)->state);
 
     switch (t) {

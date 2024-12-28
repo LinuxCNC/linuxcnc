@@ -23,7 +23,22 @@ class RCS_STAT_MSG:public NMLmsg {
     RCS_STAT_MSG(NMLTYPE t, size_t sz);
     NMLTYPE command_type;
     int echo_serial_number;
-    RCS_STATUS status;
+    // The anonymous union is provided to allow for RCS_STAT_MSG_format() in
+    // nml/stat_msg.cc to call cms->update() with an integer reference. Member
+    // 'status' is normally accessed. Casting the 'status' member to int& in
+    // the cms->update() call will give a 'type-punned pointer dereference'
+    // warning. We sidestep this problem with the union where we can address
+    // either field and get the same value.
+    // The union is necessary because the update() call implementation checks
+    // the address of its argument to be in a specific memory region, which
+    // excludes using a temporary. Now, with the union, both members 'status'
+    // and 'status_int' share the same memory location. The 'RCS_STATUS' enum
+    // in rcs/rcs.hh explicitly declares the enum's underlying type as int.
+    // Therefore, both union members are of same underlying type.
+    union {
+        RCS_STATUS status;
+        int status_int;
+    };
     int state;
 };
 
