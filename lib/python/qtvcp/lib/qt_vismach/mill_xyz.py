@@ -4,6 +4,9 @@
 # modded for qtvcp Chris Morley 2020
 
 from qtvcp.lib.qt_vismach.qt_vismach import *
+from qtvcp.core import Status
+
+STATUS = Status()
 
 #---------------------------------------------------------------------------------------------------------------------------------- # Starting and defining
 
@@ -257,6 +260,9 @@ class Window(QWidget):
         mainLayout.addWidget(self.glWidget)
         self.setLayout(mainLayout)
 
+        STATUS.connect('motion-type-changed', lambda w, data: v.choosePlotColor(data))
+        #v.setColorsAttribute('FEED',(0,1,0))
+        #print(v.colors)
 
 # but it you call this directly it should work too
 # It just makes a qtvcp5 window that is defined in qt_vismach.py
