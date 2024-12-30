@@ -866,7 +866,7 @@ extern int hal_set_constructor(int comp_id, constructor make);
         true: count bytes were read into dest
         false: no bytes were read into dest
  */
-extern bool hal_port_read(hal_port_t port, char* dest, unsigned count);
+extern bool hal_port_read(const hal_port_t *port, char* dest, unsigned count);
 
 
 /** hal_port_peek operates the same as hal_port_read but no bytes are consumed
@@ -876,7 +876,7 @@ extern bool hal_port_read(hal_port_t port, char* dest, unsigned count);
         true: count bytes were read into dest
         false: no bytes were read into dest
 */
-extern bool hal_port_peek(hal_port_t port, char* dest, unsigned count);
+extern bool hal_port_peek(const hal_port_t *port, char* dest, unsigned count);
 
 /** hal_port_peek_commit advances the read position in the port buffer
     by count bytes. A hal_port_peek followed by a hal_port_peek_commit
@@ -887,7 +887,7 @@ extern bool hal_port_peek(hal_port_t port, char* dest, unsigned count);
        true: count readable bytes were skipped and are no longer accessible
        false: no bytes wer skipped
 */ 
-extern bool hal_port_peek_commit(hal_port_t port, unsigned count);
+extern bool hal_port_peek_commit(const hal_port_t *port, unsigned count);
 
 /** hal_port_write writes count bytes from src into the port. 
     This function should only be called by the component that owns
@@ -897,28 +897,28 @@ extern bool hal_port_peek_commit(hal_port_t port, unsigned count);
         false: no bytes were written into dest
     
 */
-extern bool hal_port_write(hal_port_t port, const char* src, unsigned count);
+extern bool hal_port_write(const hal_port_t *port, const char* src, unsigned count);
 
 /** hal_port_readable returns the number of bytes available
     for reading from the port.
 */
-extern unsigned hal_port_readable(hal_port_t port);
+extern unsigned hal_port_readable(const hal_port_t *port);
 
 /** hal_port_writable returns the number of bytes that
     can be written into the port
 */
-extern unsigned hal_port_writable(hal_port_t port);
+extern unsigned hal_port_writable(const hal_port_t *port);
 
 /** hal_port_buffer_size returns the total number of bytes
     that a port can buffer
 */
-extern unsigned hal_port_buffer_size(hal_port_t port);
+extern unsigned hal_port_buffer_size(const hal_port_t *port);
 
 /** hal_port_clear emptys a given port of all data
     without consuming any of it.
     hal_port_clear should only be called by a reader
 */
-extern void hal_port_clear(hal_port_t port);
+extern void hal_port_clear(const hal_port_t *port);
 
 
 #ifdef ULAPI

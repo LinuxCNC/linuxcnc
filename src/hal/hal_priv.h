@@ -483,10 +483,11 @@ extern hal_pin_t *halpr_find_pin_by_sig(hal_sig_t * sig, hal_pin_t * start);
 
 
 /** hal_port_alloc allocates a new empty hal_port having a buffer of size bytes. 
-    returns a negative value on failure or a hal_port_t which can be used with
-    all other hal_port functions.
+    Returns a negative value on failure. On success zero (0) is returned and
+    the newly allocated hal_port_t is returned in the port argument and can be
+    used with all other hal_port functions.
 */
-extern hal_port_t hal_port_alloc(unsigned size);
+extern int hal_port_alloc(unsigned size, hal_port_t *port);
 
 
 

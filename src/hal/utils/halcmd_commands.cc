@@ -723,11 +723,13 @@ static int set_common(hal_type_t type, void *d_ptr, char *value) {
             halcmd_error("value '%s' invalid for PORT\n", value);
             retval = -EINVAL;
         } else {
-            if((*((hal_port_t*)d_ptr) != 0) && (hal_port_buffer_size(*((hal_port_t*)d_ptr)) > 0)) {
-                halcmd_error("port is already allocated with %u bytes.\n", hal_port_buffer_size(*((hal_port_t*)d_ptr)));
+            if((*((hal_port_t*)d_ptr) != 0) && (hal_port_buffer_size(((hal_port_t*)d_ptr)) > 0)) {
+                halcmd_error("port is already allocated with %u bytes.\n", hal_port_buffer_size(((hal_port_t*)d_ptr)));
                 retval = -EINVAL;
         } else {
-            *((hal_port_t*) (d_ptr)) = hal_port_alloc(uval);
+            retval = hal_port_alloc(uval, (hal_port_t *)d_ptr);
+            if(retval)
+                halcmd_error("failed to allocate PORT with size %u\n", uval);
         }
     }
     break;
@@ -2449,7 +2451,7 @@ static const char *data_value(int type, void *valptr)
     value_str = buf;
     break;
     case HAL_PORT:
-	snprintf(buf, 21, "%20u", hal_port_buffer_size(*((hal_port_t*) valptr)));
+	snprintf(buf, 21, "%20u", hal_port_buffer_size((hal_port_t*) valptr));
 	value_str = buf;
 	break;
     default:
@@ -2495,7 +2497,7 @@ static const char *data_value2(int type, void *valptr)
     value_str = buf;
     break;
     case HAL_PORT:
-	snprintf(buf, 14, "%u", hal_port_buffer_size(*((hal_port_t*) valptr)));
+	snprintf(buf, 14, "%u", hal_port_buffer_size((hal_port_t*) valptr));
 	value_str = buf;
 	break;
 
