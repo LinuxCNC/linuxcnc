@@ -1,4 +1,7 @@
 ver 3.4.8
+ - Remove some deprecation warnings (#3130)
+ - Migrate to GtKSourceview 4 (#3083)
+ - Don't hide recurrent gcode errors (#2947, thanks Sigma1912)
  - re-ordered settings pages to have all appearance-related on one page
  - add configuration for 800x600 screens
  - fix gremlin view p wasn't applied at startup
