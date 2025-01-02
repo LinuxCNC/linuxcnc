@@ -1140,12 +1140,40 @@ Example for the MDI window:
 ;py,print(2*3)
 ----
 
-Note that the interpreter instance is available here as `self`, so you could also run:
+Note that the interpreter instance is available here as `this`, so you could also run:
 
 ----
-;py,print(self.tool_table[0].toolno)
+;py,print(this.tool_table[0].toolno)
 ----
 
+Here is an approach to use an O word subroutine to read a preference file entry and add it as a Gcode parameter.
+
+[source,{ngc}]
+----
+(filename myofile.ngc)
+o<myofile> sub
+
+;py,from interpreter import *
+;py,import os
+;py,from qtvcp.lib.preferences import Access
+
+; find and print the preference file path
+;py,CONFPATH = os.environ.get('CONFIG_DIR', '/dev/null')
+; adjust for your preference file name
+;py,PREFFILE = os.path.join(CONFPATH,'qtdragon.pref')
+;py,print(PREFFILE)
+
+; get an preference instance
+;py,Pref = Access(PREFFILE)
+
+; load a preference and print it
+;py,this.params['toolToLoad']=Pref.getpref('Tool to load', 0, int,'CUSTOM_FORM_ENTRIES')
+;py,print('Tool to load->:',this.params['toolToLoad'])
+
+; return the value
+o<myofile> endsub [#<toolToLoad>]
+M2
+----
 [[remap:programming-embedded-python]]
 == Programming Embedded Python in the RS274NGC Interpreter
 
@@ -1220,7 +1248,8 @@ Python code is called from NGC in the following situations:
 
 - during normal program execution:
   * when an O-word call like `O<proc> call` is executed and the name `oword.proc` is defined and callable
-  * when a comment like `;py,<Python statement>` is executed - during execution of a remapped code: any `prolog=`, `python=` and `epilog=` handlers.
+  * when a comment like `;py,<Python statement>` is executed.
+  * during execution of a remapped code: any `prolog=`, `python=` and `epilog=` handlers.
 
 [[remap:python-o-word-procs]]
 .Calling O-word Python subroutines

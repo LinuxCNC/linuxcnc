@@ -1019,4 +1019,38 @@ You must parse and define what is accepted and what to do with it.
         # set the camera number either as default or if -o option changed the 'number' variable, to that number.
         self.w.camview._camNum = number
 ----
+
+== Gcode to read qt preferences
+Here is how to create an Oword program to read a qtdragon preference file entry and add it as a gcode parameter +
+Calling this oword will update the param 'toolToLoad' +
+This uses 'Python hot comment' to comunicate with the embeded python instance. +
+See the Remap section of the Documents for a description.
+
+[source,{ngc}]
+----
+(filename myofile.ngc)
+o<myofile> sub
+
+;py,from interpreter import *
+;py,import os
+;py,from qtvcp.lib.preferences import Access
+
+; find and print the preference file path
+;py,CONFPATH = os.environ.get('CONFIG_DIR', '/dev/null')
+; adjust for your preference file name
+;py,PREFFILE = os.path.join(CONFPATH,'qtdragon.pref')
+;py,print(PREFFILE)
+
+; get an preference instance
+;py,Pref = Access(PREFFILE)
+
+; load a preference and print it
+;py,this.params['toolToLoad']=Pref.getpref('Tool to load', 0, int,'CUSTOM_FORM_ENTRIES')
+;py,print('Tool to load->:',this.params['toolToLoad'])
+
+; return the value
+o<myofile> endsub [#<toolToLoad>]
+M2
+----
+
 // vim: set syntax=asciidoc:
