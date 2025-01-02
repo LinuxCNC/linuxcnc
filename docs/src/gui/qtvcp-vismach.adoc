@@ -475,6 +475,30 @@ chuckassembly = HideCollection([chuckassembly],comp,'hide-chuck')
 chuckassembly = HideCollection([chuckassembly],None,'myvismach.hide-chuck') 
 ----
 
+=== Plot Color Based on Mtotion Type
+If you wish to plot different colors for different motions you need to add some more python code. +
+
+
+add this at the top of the file:
+
+[source,python]
+----
+from qtvcp.core import Status
+STATUS = Status()
+----
+
+and this to the Window class:
+
+[source,python]
+----
+        STATUS.connect('motion-type-changed', lambda w, data: v.choosePlotColor(data))
+
+        # uncomment to change feed color and to see all colors printed to the terminal
+        #v.setColorsAttribute('FEED',(0,1,0))
+        #print(v.colors)
+----
+You can set DEFAULT, FEED, TRAVERSE, ARC, PROBE, ROTARYINDEX, TOOLCHANGE colors with setColorsAttribute()
+
 === Capture
 This sets the current position in the model.
 
@@ -532,6 +556,10 @@ then rotate/translate and run the script to confirm again.
 import hal
 from qtvcp.lib.qt_vismach.qt_vismach import *
 
+# import Status for motion type messages
+from qtvcp.core import Status
+STATUS = Status()
+
 # create HAL pins here if needed
 #c = hal.component("samplegui")
 #c.newpin("joint0", hal.HAL_FLOAT, hal.HAL_IN)
@@ -567,6 +595,14 @@ class Window(QWidget):
         # HUD needs to know where to draw
         #v.hud = myhud
         #v.hud.app = v
+
+        # update plot color based on motion type
+        STATUS.connect('motion-type-changed', lambda w, data: v.choosePlotColor(data))
+
+        # uncomment to change feed color
+        #v.setColorsAttribute('FEED',(0,1,0))
+        #  and to see all colors printed to the terminal
+        #print(v.colors)
 
         v.model = Collection([model, world])
         size = 600
