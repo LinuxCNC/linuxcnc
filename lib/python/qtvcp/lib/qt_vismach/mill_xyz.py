@@ -202,6 +202,7 @@ zassembly = Translate([zassembly], 0, 0, 400)
 
 # show a title and DRO to prove the HUD
 myhud = HalHud()
+myhud.display_on_right()
 myhud.set_background_color(0,.1,.2,0)
 myhud.show_top("Mill_XYZ")
 myhud.show_top("------------")

@@ -446,7 +446,9 @@ A more advanced version of the Hud that allows HAL pins to be displayed:
 [source,python]
 ----
 myhud = HalHud()
+myhud.display_on_right()
 myhud.set_background_color(0,.1,.2,0)
+myHud.set_text_color(1,1,1)
 myhud.show_top("Mill_XYZ")
 myhud.show_top("------------")
 myhud.add_pin('axis-x: ',"{:10.4f}","axis.x.pos-cmd")

@@ -755,6 +755,14 @@ class Hud(object):
         self._font = 'monospace bold 16'
         self._width = 9
         self._height = 15
+        self._displayOnRight = False
+
+
+    def display_on_left(self):
+        self._displayOnRight = False
+
+    def display_on_right(self):
+        self._displayOnRight = True
 
     def show(self, string="xyzzy"):
         self.showme = 1
@@ -783,8 +791,9 @@ class Hud(object):
             self.fontbase, self._width, linespace = use_pango_font(self._font, 0, 128)
         xmargin, ymargin = 5, 5
         ypos = float(self.app.winfo_height())
+        winWidth = int(self.app.winfo_width())
 
-        GL.glOrtho(0.0, self.app.winfo_width(), 0.0, ypos, -1.0, 1.0)
+        GL.glOrtho(0.0, winWidth, 0.0, ypos, -1.0, 1.0)
         GL.glMatrixMode(GL.GL_MODELVIEW)
         GL.glPushMatrix()
         GL.glLoadIdentity()
@@ -800,12 +809,20 @@ class Hud(object):
         GL.glBlendFunc(GL.GL_ONE, GL.GL_CONSTANT_ALPHA)
         GL.glColor3f(0.2, 0, 0)
         GL.glBlendColor(0, 0, 0, 0.5)  # rgba
+
+        # left side or right side display
+        if self._displayOnRight:
+            offset = winWidth-box_width-xmargin-xmargin
+        else:
+            offset = 0
+
         GL.glBegin(GL.GL_QUADS)
-        GL.glVertex3f(0, ypos, 1)  # upper left
-        GL.glVertex3f(0, ypos - 2 * ymargin - self._height * len(drawtext), 1)  # lower left
-        GL.glVertex3f(box_width + 2 * xmargin, ypos - 2 * ymargin - self._height * len(drawtext), 1)  # lower right
-        GL.glVertex3f(box_width + 2 * xmargin, ypos, 1)  # upper right
+        GL.glVertex3f(offset, ypos, 1)  # upper left
+        GL.glVertex3f(offset, ypos - 2 * ymargin - self._height * len(drawtext), 1)  # lower left
+        GL.glVertex3f(offset+box_width + 2 * xmargin, ypos - 2 * ymargin - self._height * len(drawtext), 1)  # lower right
+        GL.glVertex3f(offset+box_width + 2 * xmargin, ypos, 1)  # upper right
         GL.glEnd()
+
         GL.glDisable(GL.GL_BLEND)
         GL.glEnable(GL.GL_LIGHTING)
 
@@ -820,7 +837,7 @@ class Hud(object):
             #        if i < len(homed) and homed[i]:
             #                GL.glRasterPos2i(6, ypos)
             #                GL.glBitmap(13, 16, 0, 3, 17, 0, homeicon)
-            GL.glRasterPos2i(xmargin, int(ypos))
+            GL.glRasterPos2i(offset+xmargin, int(ypos))
             for char in string:
                 GL.glCallList(self.fontbase + ord(char))
             #        if i < len(homed) and limit[i]:
@@ -854,6 +871,13 @@ class HalHud(object):
                 self.text_color = (0.9,0.9,0.0)
                 self.char_width = 13
                 self.char_height = 18
+                self._displayOnRight = False
+
+        def display_on_left(self):
+            self._displayOnRight = False
+
+        def display_on_right(self):
+            self._displayOnRight = True
 
         def add_pin(self, text,form,pinname):
             self.strings.append(str(text))
@@ -918,12 +942,13 @@ class HalHud(object):
 
                 xmargin,ymargin = 5,5
                 ypos = float(self.app.winfo_height())
-                
-                GL.glOrtho(0.0, self.app.winfo_width(), 0.0, ypos, -1.0, 1.0)
+                winWidth = int(self.app.winfo_width())
+
+                GL.glOrtho(0.0, winWidth, 0.0, ypos, -1.0, 1.0)
                 GL.glMatrixMode(GL.GL_MODELVIEW)
                 GL.glPushMatrix()
                 GL.glLoadIdentity()
-                
+
                 #draw the text box
                 maxlen = max([len(p) for p in drawtext])
                 box_width = maxlen * self.char_width
@@ -936,11 +961,18 @@ class HalHud(object):
                 color = self.background_color
                 GL.glColor3f(color[0],color[1],color[2])
                 GL.glBlendColor(0,0,0,color[3]) #rgba, sets the transparency of the overlay using the 'a' value
+
+                # left side or right side display
+                if self._displayOnRight:
+                    offset = winWidth-box_width-xmargin-xmargin
+                else:
+                    offset = 0
+
                 GL.glBegin(GL.GL_QUADS)
-                GL.glVertex3f(0, ypos, 1) #upper left
-                GL.glVertex3f(0, ypos - 2*ymargin - self.char_height*len(drawtext), 1) #lower left
-                GL.glVertex3f(box_width+2*xmargin, ypos - 2*ymargin - self.char_height*len(drawtext), 1) #lower right
-                GL.glVertex3f(box_width+2*xmargin,  ypos , 1) #upper right
+                GL.glVertex3f(offset, ypos, 1) #upper left
+                GL.glVertex3f(offset, ypos - 2*ymargin - self.char_height*len(drawtext), 1) #lower left
+                GL.glVertex3f(offset+box_width+2*xmargin, ypos - 2*ymargin - self.char_height*len(drawtext), 1) #lower right
+                GL.glVertex3f(offset+box_width+2*xmargin,  ypos , 1) #upper right
                 GL.glEnd()
                 GL.glDisable(GL.GL_BLEND)
                 GL.glEnable(GL.GL_LIGHTING)
@@ -954,7 +986,7 @@ class HalHud(object):
                 GL.glColor3f(color[0],color[1],color[2])
                 for string in drawtext:
                         maxlen = max(maxlen, len(string))
-                        GL.glRasterPos2i(xmargin, int(ypos))
+                        GL.glRasterPos2i(offset+xmargin, int(ypos))
                         for char in string:
                                 GL.glCallList(self.fontbase + ord(char))
                         ypos -= self.char_height
