@@ -235,7 +235,7 @@ The first file found will be used.
 GMOCCAPY will also accept macros asking for parameters like:
 [source,{ini}]
 ----
-[MACRO]
+[MACROS]
 MACRO = go_to_position X-pos Y-pos Z-pos
 ----
 
