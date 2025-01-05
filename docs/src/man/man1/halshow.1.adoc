@@ -23,7 +23,7 @@ Example: "%.5f" displays a float with 5 digits right of the decimal point
 
 *halshow* creates a GUI interface to view and interact with a running HAL session.
 It is documented in the PDF and HTML docs much more completely than is possible in a manpage:
-http://linuxcnc.org/docs/html/hal/halshow.html[]
+https://linuxcnc.org/docs/html/hal/halshow.html[]
 
 == SEE ALSO
 

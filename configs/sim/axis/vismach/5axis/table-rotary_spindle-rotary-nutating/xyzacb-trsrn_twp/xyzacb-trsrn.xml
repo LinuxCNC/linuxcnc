@@ -1,0 +1,301 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pyvcp>
+  
+    <relief>"ridge"</relief>
+    <bd>5</bd>
+    <label>
+      <text>"SWITCHKINS"</text>
+      <relief>RIDGE</relief>
+      <bd>3</bd>
+    </label>
+    <multilabel>
+      <legends>["0: IDENTITY", "1:   TCP   ", "2: TOOL    "]</legends>
+      <font>("Helvetica",16)</font>
+      <bg>"black"</bg>
+      <fg>"yellow"</fg>
+    </multilabel>
+    <button>
+      <halpin>"type0-button"</halpin>
+      <text>"   IDENTITY  "</text>
+      <bd>3</bd>
+    </button>
+    <button>
+      <halpin>"type1-button"</halpin>
+      <text>"    TCP     "</text>
+      <bd>3</bd>
+    </button>
+    <button>
+      <halpin>"type2-button"</halpin>
+      <text>"    TOOL    "</text>
+      <bd>3</bd>
+    </button>
+
+<!-- create a space to the next element -->
+  <vbox>
+    <hbox>
+    <label>
+       <text>" "</text>
+       <font>("Helvetica",4)</font>
+    </label>
+    </hbox>
+  </vbox>
+
+  <vbox>
+  <labelframe text="Joint position">
+    <font>("Helvetica",14)</font>
+    <hbox>
+	<vbox>
+	    <hbox>
+	    <label>
+	       <text>"0: "</text>
+	       <font>("Helvetica",10)</font>
+	    </label>
+	    <number>
+	       <halpin>"joint0"</halpin>
+	       <font>("Helvetica",10)</font>
+	       <format>"4.4f"</format>
+	      </number>
+	   </hbox>
+	   <hbox>
+	    <label>
+	       <text>"1: "</text>
+	       <font>("Helvetica",10)</font>
+	    </label>
+	    <number>
+	       <halpin>"joint1"</halpin>
+	       <font>("Helvetica",10)</font>
+	       <format>"4.4f"</format>
+	      </number>
+	   </hbox>
+	   <hbox>
+	    <label>
+	       <text>"2: "</text>
+	       <font>("Helvetica",10)</font>
+	    </label>
+	    <number>
+	       <halpin>"joint2"</halpin>
+	       <font>("Helvetica",10)</font>
+	       <format>"4.4f"</format>
+	      </number>
+	    </hbox>
+	</vbox>
+	<vbox>
+	    <label>
+	       <text>"              "</text>
+       <font>("Helvetica",10)</font>
+	    </label>
+	</vbox>
+	<vbox>
+	    <hbox>
+	    <label>
+	       <text>"3: "</text>
+	       <font>("Helvetica",10)</font>
+	    </label>
+	    <number>
+	       <halpin>"joint3"</halpin>
+	       <font>("Helvetica",10)</font>
+	       <format>"4.4f"</format>
+	      </number>
+	   </hbox>
+	   <hbox>
+	    <label>
+	       <text>"4: "</text>
+	       <font>("Helvetica",10)</font>
+	    </label>
+	    <number>
+	       <halpin>"joint4"</halpin>
+	       <font>("Helvetica",10)</font>
+	       <format>"4.4f"</format>
+	      </number>
+	   </hbox>
+	   <hbox>
+	    <label>
+	       <text>"5: "</text>
+	       <font>("Helvetica",10)</font>
+	    </label>
+	    <number>
+	       <halpin>"joint5"</halpin>
+	       <font>("Helvetica",10)</font>
+	       <format>"4.4f"</format>
+	      </number>
+	    </hbox>
+	</vbox>
+     </hbox>
+  </labelframe>
+  </vbox>
+<!-- create a space to the next element -->
+  <vbox>
+    <hbox>
+    <label>
+       <text>" "</text>
+       <font>("Helvetica",4)</font>
+    </label>
+    </hbox>
+  </vbox>
+
+  <vbox>
+    <relief>"ridge"</relief>
+    <bd>5</bd>
+    <button>
+      <halpin>"vismach-clear"</halpin>
+      <text>"vismach-clear"</text>
+      <bd>3</bd>
+    </button>
+  </vbox>
+ <vbox>
+   <checkbutton>
+     <halpin>"hide-work-piece-1"</halpin>
+     <text>"Hide work piece 1"</text>
+   </checkbutton>
+   <checkbutton>
+     <halpin>"hide-spindle-body"</halpin>
+     <text>"Hide spindle body"</text>
+   </checkbutton>
+ </vbox>
+<!-- create a space to the next element -->
+  <vbox>
+    <hbox>
+    <label>
+       <text>" "</text>
+       <font>("Helvetica",4)</font>
+    </label>
+    </hbox>
+  </vbox>
+
+<!-- create another vertical panel -->
+  <vbox>
+     <relief>"ridge"</relief>
+     <bd>5</bd>
+
+  <vbox>
+  <labelframe text="Spindle Offsets">
+    <font>("Helvetica",14)</font>
+    <hbox>
+    <label>
+       <text>"nutation-angle:   "</text>
+       <font>("Helvetica",10)</font>
+    </label>
+    <scale>
+	<font>("Helvetica",10)</font>
+	<width>"12"</width>
+	<halpin>"nut-angle"</halpin>
+	<resolution>1</resolution>
+	<orient>HORIZONTAL</orient>
+	<initval>55</initval>
+	<min_>0</min_>
+	<max_>90</max_>
+    </scale>
+    </hbox>
+    <hbox>
+    <label>
+       <text>"y-pivot-length:   "</text>
+       <font>("Helvetica",10)</font>
+    </label>
+    <scale>
+	<font>("Helvetica",10)</font>
+	<width>"12"</width>
+	<halpin>"y-pivot"</halpin>
+	<resolution>1</resolution>
+	<orient>HORIZONTAL</orient>
+	<initval>50</initval>
+	<min_>0</min_>
+	<max_>300</max_>
+    </scale>
+    </hbox>
+    <hbox>
+    <label>
+       <text>"z-pivot-length:   "</text>
+       <font>("Helvetica",10)</font>
+    </label>
+    <scale>
+	<font>("Helvetica",10)</font>
+	<width>"12"</width>
+	<halpin>"z-pivot"</halpin>
+	<resolution>1</resolution>
+	<orient>HORIZONTAL</orient>
+	<initval>120</initval>
+	<min_>0</min_>
+	<max_>300</max_>
+    </scale>
+    </hbox>
+    <hbox>
+    <label>
+       <text>"x-offset:   "</text>
+       <font>("Helvetica",10)</font>
+    </label>
+    <scale>
+	<font>("Helvetica",10)</font>
+	<width>"12"</width>
+	<halpin>"x-offset"</halpin>
+	<resolution>1</resolution>
+	<orient>HORIZONTAL</orient>
+	<initval>0</initval>
+	<min_>-20</min_>
+	<max_>20</max_>
+    </scale>
+    </hbox>
+    <hbox>
+    <label>
+       <text>"y-offset:   "</text>
+       <font>("Helvetica",10)</font>
+    </label>
+    <scale>
+	<font>("Helvetica",10)</font>
+	<width>"12"</width>
+	<halpin>"y-offset"</halpin>
+	<resolution>1</resolution>
+	<orient>HORIZONTAL</orient>
+	<initval>0</initval>
+	<min_>-20</min_>
+	<max_>40</max_>
+    </scale>
+    </hbox>
+    <hbox>
+    <label>
+       <font>("Helvetica",8)</font>
+       <text>" "</text>
+    </label>
+    </hbox>
+    <hbox>
+    <label>
+       <text>"Scale Coords:   "</text>
+       <font>("Helvetica",10)</font>
+    </label>
+    <scale>
+	<font>("Helvetica",10)</font>
+	<width>"12"</width>
+	<halpin>"scale-coords"</halpin>
+	<resolution>0.05</resolution>
+	<orient>HORIZONTAL</orient>
+	<initval>1</initval>
+	<min_>0</min_>
+	<max_>2</max_>
+    </scale>
+    </hbox>
+    <hbox>
+    <label>
+       <text>"Use hover + mouse wheel to change values"</text>
+       <font>("Helvetica",6)</font>
+    </label>
+    </hbox>
+  </labelframe>
+  </vbox>
+<!-- create a space to the next element -->
+  <vbox>
+    <hbox>
+    <label>
+       <text>" "</text>
+       <font>("Helvetica",4)</font>
+    </label>
+    </hbox>
+  </vbox>
+  <vbox>
+    <hbox>
+    <label>
+       <text>" To test change values above\n reload and restart\n the demo gcode "</text>
+       <font>("Helvetica",10)</font>
+    </label>
+    </hbox>
+  </vbox>
+ </vbox>
+</pyvcp>

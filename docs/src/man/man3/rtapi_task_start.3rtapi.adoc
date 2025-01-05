@@ -6,9 +6,10 @@ rtapi_task_start - start a realtime task in periodic mode
 
 == SYNTAX
 
-....
-int rtapi_task_start(int _task_id_, unsigned long _period_nsec_);
-....
+[source,c]
+----
+int rtapi_task_start(int task_id, unsigned long period_nsec);
+----
 
 == ARGUMENTS
 
@@ -19,8 +20,8 @@ period_nsec::
 
 == DESCRIPTION
 
-*rtapi_task_start* starts a task in periodic mode. The task must be in
-the _paused_ state.
+*rtapi_task_start* starts a task in periodic mode.
+The task must be in the _paused_ state.
 
 == REALTIME CONSIDERATIONS
 
@@ -32,5 +33,4 @@ Returns an RTAPI status code.
 
 == SEE ALSO
 
-rtapi_task_new(3rtapi), rtapi_task_pause(3rtapi),
-rtapi_task_resume(3rtapi)
+rtapi_task_new(3rtapi), rtapi_task_pause(3rtapi), rtapi_task_resume(3rtapi)

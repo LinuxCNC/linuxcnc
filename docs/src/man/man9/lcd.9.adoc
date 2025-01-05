@@ -47,7 +47,7 @@ could be used to stream data to a serial device. Perhaps even a genuine
 ADM3. The strings contain a mixture of text values (which are displayed
 directly), "escaped" formatting codes and numerical format descriptors.
 For a detailed description of formatting codes see:
-http://en.wikipedia.org/wiki/Printf .
+https://en.wikipedia.org/wiki/Printf .
 
 The component can be configured to display an unlimited number of
 differently-formatted pages, which may be selected with a HAL pin.
@@ -60,7 +60,7 @@ differently-formatted pages, which may be selected with a HAL pin.
   wrap and omit the `\n` code.
 +
 `\t` Inserts a tab (actually 4 spaces in the current version rather than a
-true tab.)
+true tab).
 +
 `\`__NN__ inserts the character defined by the hexadecimal code __NN__.
 As the ',' character is used in the format string to separate LCD instances it must
@@ -84,10 +84,9 @@ the default and is not strictly necessary.
 + 
 "0" Pad the number to the specified width with the numeral 0.
 + 
-"+" Force display of a + symbol before positive numbers. This (like the
-- sign) will appear immediately to the left of the digits for a
-space-padded number and in the extreme left position for a 0-padded
-number.
+"+" Force display of a + symbol before positive numbers.
+This (like the - sign) will appear immediately to the left of the digits for a
+space-padded number and in the extreme left position for a 0-padded number.
 + 
 "1234567890" A numerical entry (other than the leading 0 above) defines
 the total number of characters to display including the decimal
@@ -108,38 +107,35 @@ many places of decimals to display. This entry is ignored in the case of
 integer formats.
  
 All the above modifiers are optional, but to specify a decimal precision
-the decimal point must precede the precision, e.g., as in "%.3f". The
-default decimal precision is 4.
+the decimal point must precede the precision, e.g., as in "%.3f".
+The default decimal precision is 4.
 
 The numerical formats supported are:
 
-*%f %F* (for example, %+09.3f): These create a floating-point type HAL
-pin. The example would be displayed in a 9-character field, with 3
-places of decimals, as a decimal separator, padded to the left with 0s
-and with a sign displayed for both positive and negative. Conversely a
-plain %f would be 6 digits of decimal, variable format width, with a
-sign only shown for negative numbers. Both %f and %F create exactly the
-same format.
+*%f %F* (for example, %+09.3f): These create a floating-point type HAL pin.
+The example would be displayed in a 9-character field, with 3 places of decimals,
+as a decimal separator, padded to the left with 0s and with a sign displayed
+for both positive and negative. Conversely a plain %f would be 6 digits of decimal,
+variable format width, with a sign only shown for negative numbers.
+Both %f and %F create exactly the same format.
 
 *%i %d* (For example %+ 4d): Creates a signed (s32) HAL pin. The example
 would display the value at a fixed 4 characters, space padded, width
 including the "+" giving a range of +999 to -999. %i and %d create
 identical output.
 
-*%u* (for example %08u): Creates an unsigned (u32) HAL pin. The example
-would be a fixed 8 characters wide, padded with zeros.
+*%u* (for example %08u): Creates an unsigned (u32) HAL pin.
+The example would be a fixed 8 characters wide, padded with zeros.
 
-*%x, %X*: Creates an unsigned (u32) HAL pin and displays the value in
-Hexadecimal. Both %x and %X display capital letters for digits ABCDEF. A
-width may be specified, though the u32 HAL type is only 8 hex digits
-wide.
+*%x, %X*: Creates an unsigned (u32) HAL pin and displays the value in Hexadecimal.
+Both %x and %X display capital letters for digits ABCDEF.
+A width may be specified, though the u32 HAL type is only 8 hex digits wide.
 
-*%o*: Creates an unsigned (u32) pin and displays the value in octal
-representation.
+*%o*: Creates an unsigned (u32) pin and displays the value in octal representation.
 
 *%c*: Creates a u32 HAL pin and displays the character corresponding to
-the value of the pin. Values less than 32 (space) are suppressed. A
-width specifier may be used, for example %20c might be used to create a
+the value of the pin. Values less than 32 (space) are suppressed.
+A width specifier may be used, for example %20c might be used to create a
 complete line of one character.
 
 *%b*: This specifier has no equivalent in printf. It creates a bit
@@ -149,8 +145,7 @@ second when false. Note that the characters follow, not precede the "b",
 unlike the case with other formats. The characters may be "escaped" Hex
 values. For example "%b\FF " will display a solid black block if true,
 and a space if false and "%b\7F\7E" would display right-arrow for false
-and left-arrow for true. An unexpected value of 'E' indicates a
-formatting error.
+and left-arrow for true. An unexpected value of 'E' indicates a formatting error.
 
 *Pages*: The page separator is the "|" (pipe) character (if the actual
 character is needed then \7C may be used). A "Page" in this context

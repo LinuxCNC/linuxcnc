@@ -6,14 +6,15 @@ rtapi_task_self - Retrieve ID of current task
 
 == SYNTAX
 
-....
+[source,c]
+----
 void rtapi_task_self();
-....
+----
 
 == DESCRIPTION
 
-*rtapi_task_self* retrieves the current task, or -EINVAL if not in a
-realtime task (e.g., in startup or shutdown code).
+*rtapi_task_self* retrieves the current task,
+or -EINVAL if not in a realtime task (e.g., in startup or shutdown code).
 
 == REALTIME CONSIDERATIONS
 

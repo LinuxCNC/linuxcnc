@@ -11,7 +11,7 @@ pyngcgui - Python implementation of NGCGUI
 == DESCRIPTION
 
 *pyngcgui* is an alternative implenentation of NGCGUI:
-http://linuxcnc.org/docs/html/gui/ngcgui.html
+https://linuxcnc.org/docs/html/gui/ngcgui.html
 
 == SEE ALSO
 

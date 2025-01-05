@@ -188,9 +188,9 @@ MOTOR_HZ, MOTOR_RPM::
 
 == USAGE
 
-The vfdb_vfd driver takes precedence over panel control while it is enabled (see _.enable_ pin), effectively disabling the panel.
-Clearing the _.enable_ pin re-enables the panel.
-Pins and parameters can still be set, but will not be written to the VFD untile the .enable pin is set.
+The vfdb_vfd driver takes precedence over panel control while it is enabled (see `.enable` pin), effectively disabling the panel.
+Clearing the `.enable` pin re-enables the panel.
+Pins and parameters can still be set, but will not be written to the VFD untile the `.enable` pin is set.
 Operating parameters are still read while bus control is disabled.
 
 Exiting the vfdb_vfd driver in a controlled way will release the VFD from the bus and restore panel control.

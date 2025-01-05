@@ -735,9 +735,9 @@ Serial:
 * If no port name for serial is set, TCP/IP mode will be used...
 * The slave address is the slave address (Modbus/RTU) or the IP address.
 * The IP address can be followed per the port number to use (xx.xx.xx.xx:pppp) else the port 9502 will be used per default.
-* 2 products have been used for tests: a Modbus/TCP one (Adam-6051, https://www.advantech.com) and a serial Modbus/RTU one (http://www.ipac.ws).
+* 2 products have been used for tests: a Modbus/TCP one (Adam-6051, https://www.advantech.com) and a serial Modbus/RTU one (https://www.ipac.ws).
 * See examples: adam-6051 and modbus_rtu_serial.
-* Web links: https://www.modbus.org and this interesting one: http://www.iatips.com/modbus.html
+* Web links: https://www.modbus.org and this interesting one: https://www.iatips.com/modbus.html
 * MODBUS TCP SERVER INCLUDED
 * ClassicLadder has a Modbus/TCP server integrated. Default port is 9502.  (the previous standard 502 requires that the application must be launched with root privileges).
 * List of Modbus functions code supported are: 1, 2, 3, 4, 5, 6, 15 and 16.

@@ -8,12 +8,11 @@ rtapi_snprintf, rtapi_vsnprintf - Perform snprintf-like string formatting
 
 == SYNTAX
 
-....
-int rtapi_snprintf(char *_buf_, unsigned long int _size_,
-                   const char *_fmt_, _..._);
-int rtapi_vsnprintf(char *_buf_, unsigned long int _size_,
-                    const char *_fmt_, va_list _apf);
-....
+[source,c]
+----
+int rtapi_snprintf(char* _buf_, unsigned long int _size_, const char* _fmt_, _..._);
+int rtapi_vsnprintf(char* _buf_, unsigned long int _size_, const char* _fmt_, va_list _apf);
+----
 
 == ARGUMENTS
 

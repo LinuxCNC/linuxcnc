@@ -39,6 +39,8 @@ use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just positi
                   , help="execute HAL statements from FILE with halcmd after the component is set up and ready")
           , Option( '-i', action='store_true', dest='info', default=False
                   , help="Enable info output")
+          , Option( '--ini', dest='ini_path', default=""
+                  , help="ini path")
           , Option( '-m', action='store_true', dest='maximum', help="Force panel window to maximize")
           , Option( '-f', action='store_true', dest='fullscreen', help="Force panel window to fullscreen")
           , Option( '-t', dest='theme', default="", help="Set QT style. Default is system theme")
@@ -82,13 +84,8 @@ class MyApplication(QtWidgets.QApplication):
 class QTVCP:
     def __init__(self):
         sys.excepthook = self.excepthook
-        self.STATUS = Status()
-        self.INFO = Info()
-        self.PATH = Path()
 
-        INIPATH = None
-        INITITLE = self.INFO.TITLE
-        INIICON = self.INFO.ICON
+        SCRN_INIPATH = None
         usage = "usage: %prog [options] myfile.ui"
         parser = OptionParser(usage=usage)
         parser.disable_interspersed_args()
@@ -100,7 +97,7 @@ class QTVCP:
                 # delete -ini
                 del sys.argv[i]
                 # pop out the INI path
-                INIPATH = sys.argv.pop(i)
+                SCRN_INIPATH = sys.argv.pop(i)
                 break
         (opts, args) = parser.parse_args()
 
@@ -111,21 +108,17 @@ class QTVCP:
         global APP
         APP = MyApplication(sys.argv)
 
-        # we import here so that the QApp is initialized before
-        # the Notify library is loaded because it uses DBusQtMainLoop
-        # DBusQtMainLoop must be initialized after to work properly
-        from qtvcp import qt_makepins, qt_makegui
-
         # a specific path has been set to load from or...
         # no path set but -ini is present: default qtvcp screen...or
         # oops error
         if args:
             basepath=args[0]
-        elif INIPATH:
+        elif SCRN_INIPATH:
             basepath = "qt_cnc"
         else:
             parser.print_help()
             print("")
+            self.PATH = Path()
 
             LOG.critical('Available built-in Machine Control Screens:')
             print(self.PATH.find_screen_dirs())
@@ -135,24 +128,53 @@ class QTVCP:
             print(self.PATH.find_panel_dirs())
             sys.exit(0)
 
+        # use --ini switch setting
+        if opts.ini_path:
+            self.INFO = Info(ini=opts.ini_path)
+
+        # use -ini switch from linuxcnc script setting
+        elif not SCRN_INIPATH is None:
+                self.INFO = Info(ini=SCRN_INIPATH)
+
+        # let INFO read the ini from the environment
+        else:
+            self.INFO = Info()
+
+        self.STATUS = Status()
+
+        # set default jog rates from INI settings
+        self.STATUS.current_jog_rate = self.INFO.DEFAULT_LINEAR_JOG_VEL
+        self.STATUS.current_angular_jog_rate = self.INFO.DEFAULT_ANGULAR_JOG_VEL
+
+
+        self.PATH = Path()
+
         # set paths using basename
-        error = self.PATH.set_paths(basepath, bool(INIPATH))
-        self.INFO.IS_SCREEN = bool(INIPATH)
+        error = self.PATH.set_paths(basepath, bool(SCRN_INIPATH), i)
         if error:
             sys.exit(0)
+
+        # we import here so that the QApp is initialized before
+        # the Notify library is loaded because it uses DBusQtMainLoop
+        # DBusQtMainLoop must be initialized after to work properly
+        from qtvcp import qt_makepins, qt_makegui
 
         # keep track of python version during this transition
         ver = 'Python 3'
 
+        INITITLE = self.INFO.TITLE
+        INIICON = self.INFO.ICON
+        self.INFO.IS_SCREEN = bool(SCRN_INIPATH)
+
         #################
         # Screen specific
         #################
-        if INIPATH:
+        if SCRN_INIPATH:
             LOG.info('green<Building A LinuxCNC Main Screen with: {}>'.format(ver))
             import linuxcnc
             # pull info from the INI file
-            self.inifile = linuxcnc.ini(INIPATH)
-            self.inipath = INIPATH
+            self.inifile = linuxcnc.ini(SCRN_INIPATH)
+            self.inipath = SCRN_INIPATH
 
             # if no handler file specified, use stock test one
             if not opts.usermod:
@@ -194,6 +216,12 @@ Pressing cancel will close linuxcnc.""" % target)
         # VCP specific
         #################
         else:
+            if opts.ini_path:
+                import linuxcnc
+                # pull info from the --ini specified INI file
+                self.inifile = linuxcnc.ini(opts.ini_path)
+                self.inipath = opts.ini_path
+
             LOG.info('green<Building A VCP Panel with: {}>'.format(ver))
             # if no handler file specified, use stock test one
             if not opts.usermod:
@@ -271,18 +299,19 @@ Pressing cancel will close linuxcnc.""" % target)
             myFilter = qt_makegui.MyEventFilter(window)
             APP.installEventFilter(myFilter)
 
-        # actually build the widgets
-        window.instance(filename=self.PATH.XML)
+        if not self.PATH.XML is None:
+            # actually build the widgets
+            window.instance(filename=self.PATH.XML)
 
-        # add a default program icon - this might be overridden later
-        window.setWindowIcon(QtGui.QIcon(os.path.join(self.PATH.IMAGEDIR, 'linuxcncicon.png')))
+            # add a default program icon - this might be overridden later
+            window.setWindowIcon(QtGui.QIcon(os.path.join(self.PATH.IMAGEDIR, 'linuxcncicon.png')))
 
-        # title
-        if INIPATH:
-            title ='QTvcp-Screen-%s'% opts.component
-        else:
-            title = 'QTvcp-Panel-%s'% opts.component
-        window.setWindowTitle(title)
+            # title
+            if SCRN_INIPATH:
+                title ='QTvcp-Screen-%s'% opts.component
+            else:
+                title = 'QTvcp-Panel-%s'% opts.component
+            window.setWindowTitle(title)
 
         if opts.usermod and "pre_hal_init__" in dir(window.handler_instance):
             LOG.debug('''Calling the handler file's pre_hal_init__ function''')
@@ -309,8 +338,13 @@ Pressing cancel will close linuxcnc.""" % target)
                 LOG.debug('''Calling the handler file's after_override__ function''')
                 window.handler_instance.after_override__()
 
+        # set the default jog speeds before the forced update
+        self.current_jog_rate = self.INFO.DEFAULT_LINEAR_JOG_VEL
+        self.current_angular_jog_rate = self.INFO.DEFAULT_ANGULAR_JOG_VEL
+
         # All Widgets should be added now - sync them to linuxcnc
         self.STATUS.forced_update()
+        self.STATUS.setTimer(self.INFO.CYCLE_TIME)
 
         # call a HAL file after widgets built
         if opts.halfile:
@@ -326,6 +360,8 @@ Pressing cancel will close linuxcnc.""" % target)
         # User components are set up so report that we are ready
         LOG.debug('Set HAL ready.')
         self.halcomp.ready()
+
+        self.hal.setUpdateRate(self.INFO.HALPIN_CYCLE_TIME)
 
         # embed us into an X11 window (such as AXIS)
         if opts.parent:
@@ -392,7 +428,7 @@ Pressing cancel will close linuxcnc.""" % target)
             self.panel.set_preference_geometry()
 
         window.show()
-        if INIPATH:
+        if SCRN_INIPATH:
             self.postgui()
             self.postgui_cmd()
             # if there is a valid INI based icon path, override the default icon.
@@ -476,7 +512,8 @@ Pressing cancel will close linuxcnc.""" % target)
             pass
 
         LOG.debug('Exiting HAL')
-        HAL.exit()
+        if not HAL is None:
+            HAL.exit()
 
         # Throws up a dialog with debug info when an error is encountered
     def excepthook(self, exc_type, exc_obj, exc_tb):

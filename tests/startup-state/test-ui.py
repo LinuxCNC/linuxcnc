@@ -270,7 +270,7 @@ assert(math.fabs(s.linear_units - 0.0393700787402) < 0.0000001)
 #assert(math.fabs(s.max_acceleration - 123.45) < 0.0000001)
 
 assert(math.fabs(s.max_velocity - 45.67) < 0.0000001)
-assert(s.mcodes == (0, -1, 5, -1, 9, -1, 48, -1, 53, 0))
+assert(s.mcodes == (0, -1, 5, -1, 9, -1, 48, -1, 53, -1))
 assert(s.mist == 0)
 assert(s.motion_line == 0)
 assert(s.motion_mode == linuxcnc.TRAJ_MODE_FREE)

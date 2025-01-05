@@ -4068,9 +4068,9 @@ int Interp::convert_m(block_pointer block,       //!< pointer to a block of RS27
       CHP(restore_settings(&_setup, _setup.call_level));
   }
 
-  if (is_user_defined_m_code(block, settings, 8) && ONCE_M(8)) {
-     return convert_remapped_code(block, settings, STEP_M_8, 'm',
-				   block->m_modes[8]);
+  if (is_user_defined_m_code(block, settings, 8) &&
+	  STEP_REMAPPED_IN_BLOCK(block, STEP_M_8) && ONCE_M(8))  {
+      return convert_remapped_code(block, settings, STEP_M_8, 'm', block->m_modes[8]);
   } else if ((block->m_modes[8] == 7) && ONCE_M(8)){
       enqueue_MIST_ON();
       settings->mist = true;
@@ -5843,16 +5843,10 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                                    double CC_end,        //!< C coordinate of end point
                                    double u_end, double v_end, double w_end)
 {
-    double alpha;
-    double beta;
     double end_x, end_y, end_z;                 /* x-coordinate of actual end point */
-    double gamma;
     double mid_x, mid_y;                 /* x-coordinate of end of added arc, if needed */
-    double radius;
-    CUTTER_COMP side;
     double small = TOLERANCE_CONCAVE_CORNER;      /* radians, testing corners */
     double opx = 0, opy = 0, opz = 0;      /* old programmed beginning point */
-    double theta;
     double cx, cy, cz;
     int concave;
 
@@ -5875,10 +5869,12 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
         // end already filled out, above
     } else {
         // some XY motion
-        side = settings->cutter_comp_side;
-        radius = settings->cutter_comp_radius;      /* will always be positive */
-        theta = atan2(cy - opy, cx - opx);
-        alpha = atan2(py - opy, px - opx);
+        double beta = 0.0;  // initializing to avoid confusion over else branch below
+        double gamma = 0.0; // that does not define value but returns form function.
+        CUTTER_COMP side = settings->cutter_comp_side;
+        double radius = settings->cutter_comp_radius;      /* will always be positive */
+        double theta = atan2(cy - opy, cx - opx);
+        double alpha = atan2(py - opy, px - opx);
 
         if (side == CUTTER_COMP::LEFT) {
             if (theta < alpha)
@@ -5890,8 +5886,10 @@ int Interp::convert_straight_comp2(int move,     //!< either G_0 or G_1
                 alpha = (alpha + (2 * M_PIl));
             beta = ((alpha - theta) - M_PI_2l);
             gamma = -M_PI_2l;
-        } else
+        } else {
             ERS(NCE_BUG_SIDE_NOT_RIGHT_OR_LEFT);
+            // the ERS macro will return from this function
+        }
         end_x = (px + (radius * cos(alpha + gamma)));
         end_y = (py + (radius * sin(alpha + gamma)));
         mid_x = (opx + (radius * cos(alpha + gamma)));

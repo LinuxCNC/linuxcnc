@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Gmoccapy 2.2.3.4\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-04-07 20:07+0200\n"
-"PO-Revision-Date: 2024-03-24 07:44+0000\n"
-"Last-Translator: 复予 <clonewith@qq.com>\n"
+"POT-Creation-Date: 2024-10-05 14:29+0200\n"
+"PO-Revision-Date: 2024-11-21 20:40+0000\n"
+"Last-Translator: Tron Lee <472734894@qq.com>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
 "linuxcnc/gmocappy/zh_Hans/>\n"
 "Language: zh_CN\n"
@@ -17,90 +17,90 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.5-dev\n"
+"X-Generator: Weblate 5.9-dev\n"
 "X-Poedit-Language: Chinese\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-SourceCharset: utf-8\n"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:252
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:255
 msgid "user mode selected"
 msgstr "选择用户模式"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:255
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:258
 #, python-brace-format
 msgid "logo entry found = {0}"
 msgstr "logo条目找到= {0}"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:259
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:262
 msgid "Logofile entry found, but could not be converted to path."
 msgstr "找到Logofile条目，但无法转换为路径。"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:260
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:263
 msgid "The file path should not contain any spaces"
 msgstr "文件路径不应该包含任何空格"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:491
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:512
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:494
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:515
 msgid "Error in "
 msgstr "错误在 "
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:492
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:513
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:495
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:516
 msgid "Please check the console output."
 msgstr "请检查控制台输出。"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:655
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:658
 msgid "axis"
 msgstr "轴"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:656
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:659
 msgid "axes"
 msgstr "点动轴数"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:661
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:664
 msgid "joint"
 msgstr "点动关节"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:662
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:665
 msgid "joints"
 msgstr "点动关节数"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:678
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:681
 #, python-brace-format
 msgid "Press to home all {0}"
 msgstr "按下全部回零 {0}"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:691
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:982
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:694
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:985
 msgid "Press to display previous homing button"
 msgstr "按下以显示上一个回零按钮"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:707
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:710
 #, python-brace-format
 msgid "Press to home {0} {1}"
 msgstr "按下以回零 {0} {1}"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:724
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1011
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:727
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1014
 msgid "Press to display next homing button"
 msgstr "按下以显示下一个回零按钮"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:739
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:742
 #, python-brace-format
 msgid "Press to unhome all {0}"
 msgstr "按下全部设为未回零 {0}"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:748
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1065
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:751
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1068
 msgid "Press to return to main button list"
 msgstr "按下返回主按钮列表"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:804
-#, fuzzy, python-brace-format
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:807
+#, python-brace-format
 msgid "could not resolve the image path '{0}' given for button '{1}'"
-msgstr "无法解析按钮 '{1}' 的图像路径 '{0}'"
+msgstr "无法解析为按钮 '{1}' 指定的图像路径 '{0}'"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:959
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:962
 msgid ""
 "edit\n"
 "offsets"
@@ -108,20 +108,20 @@ msgstr ""
 "编辑\n"
 "偏移量"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:968
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:971
 msgid "Press to edit the offsets"
 msgstr "点击编辑偏移量"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:994
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:997
 #, python-brace-format
 msgid "Press to set touch off value for axis {0}"
 msgstr "按下输入轴{0}的触发值"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1030
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1033
 msgid "Press to reset all G92 offsets"
 msgstr "按下重置所有G92的偏移量"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1036
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1039
 msgid ""
 " Block\n"
 "Height"
@@ -129,11 +129,11 @@ msgstr ""
 "块\n"
 "高度"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1041
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1044
 msgid "Press to enter new value for block height"
 msgstr "按下输入新的块高度"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1046
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1049
 msgid ""
 "set\n"
 "selected"
@@ -141,143 +141,140 @@ msgstr ""
 "设置\n"
 "已选择"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1055
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1058
 msgid "Press to set the selected coordinate system to be the active one"
 msgstr "按下将选定的坐标系设置为活动坐标系"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1080
-#, fuzzy
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1083
 msgid "No valid probe config in INI file. Tool measurement disabled."
-msgstr "INI 文件中没有有效的探针配置。工具测量无效。"
+msgstr "INI 文件中没有有效的探针配置。工具测量已禁用。"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1094
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1097
 msgid "Found valid probe config in INI file. Will use auto tool measurement."
 msgstr "在 INI 文件中找到有效的探针配置。将使用自动工具测量。"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1108
-#, fuzzy
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1111
 msgid ""
 "To many increments given in INI file for this screen. Only the first 10 will "
 "be reachable through this screen."
-msgstr "在 INI 文件中为该屏幕指定的增量。只有前 10 个可以通过该屏幕访问。"
+msgstr "在 INI 文件中为该屏幕指定的太多增量。只有前 10 个可以通过该屏幕访问。"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1118
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1121
 msgid "Continuous"
 msgstr "连续"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1236
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1239
 #, python-brace-format
 msgid "unknown jog command {0}"
 msgstr "未知点动命令 {0}"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1264
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1267
 #, python-brace-format
 msgid "Press to jog axis {0}"
 msgstr "按下以点动轴 {0}"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1285
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1288
 #, python-brace-format
 msgid "Press to jog joint {0}"
 msgstr "按下以点动关节 {0}"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1306
-#, fuzzy
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1309
 msgid "Found more than 16 macros, will use only the first 16."
-msgstr "找到超过16个宏，将仅使用前16个宏"
+msgstr "找到超过16个宏，将仅使用前16个宏。"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1317
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1320
 msgid "Press to display previous macro button"
 msgstr "按下可显示上一个宏按钮"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1339
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1342
 #, python-brace-format
 msgid "Press to run macro {0}"
 msgstr "按下以运行宏 {0}"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1350
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1353
 msgid "Press to display next macro button"
 msgstr "按下以显示下一个宏按钮"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1370
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1373
 msgid "Press to display the virtual keyboard"
 msgstr "按下显示虚拟键盘"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1466
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1469
 msgid "* GMOCCAPY ERROR *"
 msgstr "* GMOCCAPY 错误 *"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1467
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1470
 msgid "this is not a lathe, as a lathe must have at least\n"
 msgstr "这不是一个车床，车窗必须至少有\n"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1468
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1471
 msgid "an X and an Z axis\n"
 msgstr "X轴和Z轴\n"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1469
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1472
 msgid "Wrong lathe configuration, we will leave here"
 msgstr "车床配置错误，我们将离开这里"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1470
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1917
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2189
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1473
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1920
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2192
 msgid "Very critical situation"
 msgstr "紧急情况"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1600
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1603
 msgid "this is not a usual config\n"
 msgstr "这不是一个常见设置\n"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1601
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1604
 msgid "we miss one of X , Y or Z axis\n"
 msgstr "我们缺失了X，Y或Z轴中的一个\n"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1602
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1605
 msgid "We will use by axisletter ordered jog button"
 msgstr "我们将使用依轴字母排序的点动按钮"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1760
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1763
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2887
 msgid "mm/min"
 msgstr "毫米/分钟"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1763
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1766
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2890
 msgid "inch/min"
 msgstr "英寸/分钟"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1789
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1792
 msgid ""
 "No embedded tabs configured or invalid configuration. No tabs will be added!"
 msgstr "未配置嵌入式标签或配置无效。不会添加标签！"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1806
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1809
 msgid "ERROR, trying to initialize the user tabs or panels, check for typos"
 msgstr "错误，尝试初始化用户选项卡或面板，检查拼写错误"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1915
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:1918
 msgid "Did not find a toolfile file in [EMCIO] TOOL_TABLE"
 msgstr "在[EMCIO] TOOL_TABLE 中没有找到刀具文件"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2020
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2023
 msgid "Audio available!"
 msgstr "音频可用！"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2023
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2026
 msgid "Audio enabled!"
 msgstr "音频启用！"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2026
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2029
 msgid "Audio disabled!"
 msgstr "音频禁用！"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2038
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2041
 msgid ""
 "No audio available! PYGST library not installed? Is python-gstX.XX installed?"
 msgstr "无音频可用！PYGST 库未安装？是否安装了 python-gstX.XX？"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2067
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5359
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2070
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5361
 msgid ""
 " Joint\n"
 "mode"
@@ -285,44 +282,44 @@ msgstr ""
 "关节\n"
 "模式"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2109
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2112
 msgid "Virtual keyboard program found : <onboard>"
 msgstr "发现虚拟键盘程序: <onboard>"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2111
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2114
 msgid ""
 "No virtual keyboard installed, we checked for <onboard>. Try 'sudo apt-get "
 "install onboard'."
 msgstr ""
 "未安装虚拟键盘，我们检查了 <onboard>。尝试 \"sudo apt-get install onboard\"。"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2124
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2127
 msgid ""
 "Error with launching virtual keyboard. Is onboard installed?Try sudo apt-get "
 "install onboard"
 msgstr ""
 "启动虚拟键盘时出错。是否安装了onboard？尝试 sudo apt-get install onboard"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2157
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2160
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:3023
 msgid "interrupt running macro"
 msgstr "中断运行宏"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2187
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2190
 msgid "Did not find a parameter file in [RS274NGC] PARAMETER_FILE"
 msgstr "在 [RS274NGC] PARAMETER_FILE 中没有找到参数文件"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2257
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2260
 msgid "Select the file you want to be loaded at program start"
 msgstr "选择要在程序启动时加载的文件"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2291
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2315
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2294
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2318
 #, python-brace-format
 msgid "Message type {0} not supported"
 msgstr "不支持消息类型 {0}"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2428
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:2431
 msgid "Unknown error type and no error text given"
 msgstr "未知的错误类型，并没有给出错误文本"
 
@@ -360,8 +357,8 @@ msgid "Set parameter {0} to:"
 msgstr "将参数 {0} 设置为:"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:2993
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4994
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5017
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4996
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5019
 msgid "Conversion error !"
 msgstr "转换错误！"
 
@@ -473,10 +470,10 @@ msgid ""
 msgstr "您没有选择要更改的坐标系，所以没有任何改变"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4341
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5023
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5037
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5041
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5056
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5025
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5039
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5043
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5058
 msgid "Important Warning!"
 msgstr "重要警告!"
 
@@ -500,11 +497,11 @@ msgstr ""
 "请仅输入数值\n"
 "值未被应用"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4911
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4913
 msgid "Please remove the mounted tool and press OK when done"
 msgstr "请卸下已安装的刀具，完成后按OK"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4915
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4917
 #, python-brace-format
 msgid ""
 "Please change to tool\n"
@@ -519,7 +516,7 @@ msgstr ""
 "\n"
 " 然后单击确定."
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4917
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4919
 #, python-brace-format
 msgid ""
 "Tool\n"
@@ -534,116 +531,116 @@ msgstr ""
 "\n"
 "不在刀具表中!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4919
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4921
 msgid "Manual Tool change"
 msgstr "手动换刀"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4929
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4931
 msgid "Tool Change has been aborted!\n"
 msgstr "换刀已中止!\n"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4930
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4932
 msgid "The old tool will remain set!"
 msgstr "旧刀具将保持设置！"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4938
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4940
 msgid "You are trying to delete the tool mounted in the spindle\n"
 msgstr "您试图删除安装在主轴上的刀具\n"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4939
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4941
 msgid "This is not allowed, please change tool prior to delete it"
 msgstr "这是不允许的，请在删除之前更改刀具"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4940
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4942
 msgid "Warning Tool can not be deleted!"
 msgstr "警告：刀具无法删除！"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4959
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4961
 msgid "No or multiple tools selected in the tool table. "
 msgstr "在刀具表中选择了一个或多个刀具"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4960
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4962
 msgid "Please select only one tool in the table!"
 msgstr "请在表中仅选择一个刀具！"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4961
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4967
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4975
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4963
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4969
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4977
 msgid "Warning Tool Touch off not possible!"
 msgstr "警告:无法对刀!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4965
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4967
 msgid "You can not touch off a tool, which is not mounted in the spindle! "
 msgstr "无法对刀，刀具还没有安装到主轴上! "
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4966
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4968
 msgid "Your selection has been reset to the tool in spindle."
 msgstr "您的选择将被重置回主轴中的刀具。"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4973
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4975
 msgid ""
 "Tool touch off is not possible with cutter radius compensation switched on!\n"
 msgstr "刀具半径补偿打开时，不能对刀!\n"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4974
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4976
 msgid "Please emit an G40 before tool touch off."
 msgstr "请在对刀前发出G40。"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4983
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4985
 msgid "Real big error!"
 msgstr "严重错误!"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4984
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4986
 msgid ""
 "You managed to come to a place that is not possible in on_btn_tool_touchoff"
 msgstr "你设法来到一个不可能在 on_btn_tool_touchoff 的地方"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4988
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4990
 #, python-brace-format
 msgid "Enter value for axis {0} to set:"
 msgstr "输入轴{0} 的值进行设置："
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4989
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4991
 #, python-brace-format
 msgid "Set parameter of tool {0:d} and axis {1} to:"
 msgstr "将刀具{0:d} 和轴{1} 的参数设置为："
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4993
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:4995
 #, python-brace-format
 msgid "Conversion error because of wrong entry for touch off axis {0}"
 msgstr "轴{0}对刀偏移量输入错误导致转换错误"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5012
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5014
 msgid "Enter the tool number as integer "
 msgstr "输入刀号为整数"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5013
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5015
 msgid "Select the tool to change"
 msgstr "选择要更改的刀具"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5015
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5017
 msgid "Conversion error because of wrong entry for tool number.\n"
 msgstr "刀具编号输入错误导致转换错误。\n"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5016
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5018
 msgid "Enter only integer numbers!"
 msgstr "仅输入整数！"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5022
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5040
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5024
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5042
 msgid "Selected tool is already in spindle, no change needed."
 msgstr "所选刀具已经在主轴上，不需要改变。"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5036
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5038
 msgid ""
 "you selected no or more than one tool, the tool selection must be unique"
 msgstr "您没有选择或选择了多个刀具，刀具选择必须是唯一的"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5055
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5057
 msgid "Could not understand the entered tool number. Will not change anything!"
 msgstr "无法理解输入的刀具编号。不会改变任何事情！"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5364
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5366
 msgid ""
 "World\n"
 "mode"
@@ -651,7 +648,7 @@ msgstr ""
 "世界\n"
 "模式"
 
-#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5550
+#: src/emc/usr_intf/gmoccapy/gmoccapy.py:5552
 msgid "Axis jogging is only allowed in world mode, but you are in joint mode!"
 msgstr "点动只能在世界模式下进行，但是您处于关节模式！"
 
@@ -703,18 +700,18 @@ msgstr "_向下"
 msgid "_Jump to"
 msgstr "_跳转到"
 
-#: src/emc/usr_intf/gmoccapy/getiniinfo.py:104
+#: src/emc/usr_intf/gmoccapy/getiniinfo.py:108
 #, python-brace-format
 msgid ""
 "**** gmoccapy can only handle 9 axis, but you have given {0} through your "
 "INI file. "
 msgstr "**** gmoccapy 只能处理 9 个轴，但您在 INI 文件中给出了 {0}。 "
 
-#: src/emc/usr_intf/gmoccapy/getiniinfo.py:105
+#: src/emc/usr_intf/gmoccapy/getiniinfo.py:109
 msgid "gmoccapy will not start ****\n"
 msgstr "gmoccapy 无法启动 ****\n"
 
-#: src/emc/usr_intf/gmoccapy/getiniinfo.py:422
+#: src/emc/usr_intf/gmoccapy/getiniinfo.py:426
 msgid "No subroutine folder or program prefix is given in the INI file!"
 msgstr "INI 文件中未给出子程序文件夹或程序前缀！"
 
@@ -935,11 +932,11 @@ msgstr "G和M代码信息以及速度和进给"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:54
 msgid "active_mcodes_label"
-msgstr ""
+msgstr "激活_m代码_标签"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:55
 msgid "active_gcodes_label"
-msgstr ""
+msgstr "激活_g代码_标签"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:56
 msgid "<b>G-Code</b>"
@@ -1099,7 +1096,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:96
 msgid "<b>DRO</b>"
-msgstr ""
+msgstr "<b>DRO</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:97
 msgid "Grid size"
@@ -1179,10 +1176,9 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:116
 msgid "<b>gmoccapy messages</b>"
-msgstr ""
+msgstr "<b>gmoccapy 信息</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:117
-#, fuzzy
 msgid "Theme"
 msgstr "主题"
 
@@ -1203,9 +1199,8 @@ msgid "Enable sound"
 msgstr "启用声音"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:122
-#, fuzzy
 msgid "G-code Theme"
-msgstr "图标主题"
+msgstr "G代码主题"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:123
 msgid "<b>Themes and sound</b>"
@@ -1312,7 +1307,6 @@ msgid "Probe Vel."
 msgstr "探测速度."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:149
-#, fuzzy
 msgid "<b>Probe velocities</b>"
 msgstr "<b>探测速度</b>"
 
@@ -1382,9 +1376,8 @@ msgid "Select user dir"
 msgstr "选择用户目录"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:172
-#, fuzzy
 msgid "<b>Jump to dir</b>"
-msgstr "<b>选择跳转到目录</b>"
+msgstr "<b>跳转到目录</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:173
 msgid "Do not use run from line"

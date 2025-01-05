@@ -10095,6 +10095,9 @@ MM/MIN</string>
                       <property name="frame">
                        <bool>true</bool>
                       </property>
+                      <property name="pinName" stdset="0">
+                       <string>jog-linear-increment</string>
+                      </property>
                      </widget>
                     </item>
                    </layout>
@@ -10210,6 +10213,9 @@ MM/MIN</string>
                       </property>
                       <property name="linear_option" stdset="0">
                        <bool>false</bool>
+                      </property>
+                      <property name="pinName" stdset="0">
+                       <string>jog-angular-increment</string>
                       </property>
                      </widget>
                     </item>
@@ -11934,6 +11940,15 @@ LIFT</string>
                         <property name="Qjoint_number" stdset="0">
                          <number>3</number>
                         </property>
+                        <property name="showSetOrigin" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="showLast" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="showDivide" stdset="0">
+                         <bool>true</bool>
+                        </property>
                         <property name="homed" stdset="0">
                          <bool>false</bool>
                         </property>
@@ -11970,6 +11985,15 @@ LIFT</string>
                         </property>
                         <property name="Qjoint_number" stdset="0">
                          <number>1</number>
+                        </property>
+                        <property name="showSetOrigin" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="showLast" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="showDivide" stdset="0">
+                         <bool>true</bool>
                         </property>
                         <property name="homed" stdset="0">
                          <bool>false</bool>
@@ -12273,6 +12297,15 @@ LIFT</string>
                         <property name="Qjoint_number" stdset="0">
                          <number>4</number>
                         </property>
+                        <property name="showSetOrigin" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="showLast" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="showDivide" stdset="0">
+                         <bool>true</bool>
+                        </property>
                         <property name="homed" stdset="0">
                          <bool>false</bool>
                         </property>
@@ -12411,6 +12444,15 @@ LIFT</string>
                         </property>
                         <property name="Qjoint_number" stdset="0">
                          <number>0</number>
+                        </property>
+                        <property name="showSetOrigin" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="showLast" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="showDivide" stdset="0">
+                         <bool>true</bool>
                         </property>
                         <property name="homed" stdset="0">
                          <bool>false</bool>
@@ -14031,6 +14073,15 @@ ALL</string>
                         <property name="Qjoint_number" stdset="0">
                          <number>2</number>
                         </property>
+                        <property name="showSetOrigin" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="showLast" stdset="0">
+                         <bool>true</bool>
+                        </property>
+                        <property name="showDivide" stdset="0">
+                         <bool>true</bool>
+                        </property>
                         <property name="homed" stdset="0">
                          <bool>false</bool>
                         </property>
@@ -14457,7 +14508,7 @@ SCROLL</string>
                           <number>0</number>
                          </property>
                          <item>
-                          <widget class="HalBar" name="hal_bar_2">
+                          <widget class="HalBar" name="hal_bar_x_load">
                            <property name="maximumSize">
                             <size>
                              <width>16777215</width>
@@ -14486,7 +14537,7 @@ SCROLL</string>
                           </widget>
                          </item>
                          <item>
-                          <widget class="HalBar" name="hal_bar_3">
+                          <widget class="HalBar" name="hal_bar_z_load">
                            <property name="maximumSize">
                             <size>
                              <width>16777215</width>
@@ -14579,6 +14630,9 @@ SCROLL</string>
                            </property>
                            <property name="text">
                             <string>Z LOAD</string>
+                           </property>
+                           <property name="textFormat">
+                            <enum>Qt::PlainText</enum>
                            </property>
                            <property name="alignment">
                             <set>Qt::AlignCenter</set>
@@ -16248,7 +16302,7 @@ SCROLL</string>
                 <height>146</height>
                </size>
               </property>
-              <layout class="QGridLayout" name="gridLayout" rowstretch="0,0,0,0,0,0">
+              <layout class="QGridLayout" name="gridLayout" rowstretch="0,0,0,0,0">
                <property name="sizeConstraint">
                 <enum>QLayout::SetDefaultConstraint</enum>
                </property>
@@ -16370,7 +16424,7 @@ SCROLL</string>
                 </widget>
                </item>
                <item row="3" column="0" colspan="2">
-                <widget class="HalBar" name="hal_bar">
+                <widget class="HalBar" name="hal_bar_spindle_load">
                  <property name="maximumSize">
                   <size>
                    <width>16777215</width>
@@ -16383,6 +16437,9 @@ SCROLL</string>
                    <green>50</green>
                    <blue>50</blue>
                   </color>
+                 </property>
+                 <property name="useMultiColorIndicator" stdset="0">
+                  <bool>false</bool>
                  </property>
                  <property name="setMaximum" stdset="0">
                   <number>100</number>
@@ -16496,7 +16553,7 @@ SCROLL</string>
                 </widget>
                </item>
                <item row="2" column="0" colspan="2">
-                <widget class="HalBar" name="hal_bar_4">
+                <widget class="HalBar" name="hal_bar_spindle_rpm">
                  <property name="sizePolicy">
                   <sizepolicy hsizetype="Expanding" vsizetype="MinimumExpanding">
                    <horstretch>0</horstretch>
@@ -16524,6 +16581,9 @@ SCROLL</string>
                    <green>50</green>
                    <blue>50</blue>
                   </color>
+                 </property>
+                 <property name="useMultiColorIndicator" stdset="0">
+                  <bool>false</bool>
                  </property>
                  <property name="setMaximum" stdset="0">
                   <number>1000</number>
@@ -17808,7 +17868,7 @@ SCROLL</string>
              <number>2</number>
             </property>
             <property name="text">
-             <string>12:55:23 </string>
+             <string>10:40:02 PM</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -17929,7 +17989,7 @@ SCROLL</string>
   </customwidget>
   <customwidget>
    <class>GCodeGraphics</class>
-   <extends>QWidget</extends>
+   <extends>QOpenGLWidget</extends>
    <header>qtvcp.widgets.gcode_graphics</header>
    <container>1</container>
   </customwidget>
@@ -18244,8 +18304,8 @@ SCROLL</string>
    <slot>btn_dimensions_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>429</x>
-     <y>268</y>
+     <x>424</x>
+     <y>94</y>
     </hint>
     <hint type="destinationlabel">
      <x>0</x>
@@ -18756,8 +18816,8 @@ SCROLL</string>
    <slot>percent_loaded_changed()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>533</x>
-     <y>102</y>
+     <x>471</x>
+     <y>82</y>
     </hint>
     <hint type="destinationlabel">
      <x>484</x>
@@ -18864,9 +18924,8 @@ SCROLL</string>
   <slot>btn_systemtool_toggled()</slot>
  </slots>
  <buttongroups>
+  <buttongroup name="selectButtonGroup"/>
   <buttongroup name="page_buttonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
-  <buttongroup name="selectButtonGroup"/>
  </buttongroups>
 </ui>
-

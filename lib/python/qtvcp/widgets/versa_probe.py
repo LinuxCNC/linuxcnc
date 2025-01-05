@@ -104,7 +104,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.buildToolTip(self.input_search_vel, 'Search Velocity', 'search_vel')
         self.buildToolTip(self.input_probe_vel, 'Probe Velocity', 'probe_vel')
         self.buildToolTip(self.input_z_clearance, 'Z Clearence Distance', 'Zclearance')
-        self.buildToolTip(self.input_max_travel, 'Maximum Probe Search Distance', 'rappid')
+        self.buildToolTip(self.input_max_travel, 'Maximum Probe Search Distance', 'rapid')
         self.buildToolTip(self.input_latch_return_dist, 'Return After Latch Distance', 'rapid_return')
         self.buildToolTip(self.input_probe_diam,'Probe Diameter','probe_diam')
         self.buildToolTip(self.input_xy_clearance, 'XY Clearence Distance', 'XYclearance')
@@ -254,7 +254,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
     def _hal_cleanup(self):
         if self.PREFS_:
             LOG.debug('Saving Versa probe data to preference file.')
-            self.PREFS_.putpref('ps_probe_tool', self.probe_number, int, 'VERSA_PROBE OPTIONS')
+            self.PREFS_.putpref('ps_probe_tool', self.probe_number, int, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_searchvel", float(self.input_search_vel.text()), float, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_probevel", float(self.input_probe_vel.text()), float, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_z_clearance", float(self.input_z_clearance.text()), float, 'VERSA_PROBE_OPTIONS')

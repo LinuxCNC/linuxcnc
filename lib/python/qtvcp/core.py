@@ -32,10 +32,6 @@ class Info(IStatParent):
             cls._instance = IStatParent.__new__(cls, *args, **kwargs)
         return cls._instance
 
-
-# Now that the class is defined create a reference to it for the other classes
-INI = Info()
-
 class QPin(hal.Pin, QObject):
 
     value_changed = pyqtSignal('PyQt_PyObject')
@@ -52,7 +48,6 @@ class QPin(hal.Pin, QObject):
         self._prev = None
         self._prevDriven = None
         self.REGISTRY.append(self)
-        self.update_start()
         self.prefix = None
 
     def update(self):
@@ -100,13 +95,13 @@ class QPin(hal.Pin, QObject):
         return cls.UPDATE
 
     @classmethod
-    def update_start(cls):
+    def update_start(cls, cycletime=None):
         if QPin.UPDATE:
             return
         QPin.UPDATE = True
         cls.timer = QTimer()
         cls.timer.timeout.connect(cls.update_all)
-        cls.timer.start(INI.HALPIN_CYCLE_TIME)
+        cls.timer.start(cycletime)
 
     @classmethod
     def update_stop(cls):
@@ -166,6 +161,9 @@ class _QHal(object):
             comp = comp.comp
         self.comp = comp
         self.hal = hal
+
+    def setUpdateRate(self, cyclerate):
+        QPin.update_start(cyclerate)
 
     def newpin(self, *a, **kw):
         try:
@@ -274,18 +272,18 @@ class Status(GStat):
         self.__class__._instanceNum += 1
         super(GStat, self).__init__()
 
-        # set the default jog speeds before the forced update
-        self.current_jog_rate = INI.DEFAULT_LINEAR_JOG_VEL
-        self.current_angular_jog_rate = INI.DEFAULT_ANGULAR_JOG_VEL
-
         # can only have ONE error channel instance in qtvcp
         self.ERROR = linuxcnc.error_channel()
         self._block_polling = False
 
     # we override this function from hal_glib
-    def set_timer(self):
+    # add replace it with setTimer()
+    def set_timer(self, cycleTime=None):
+        pass
+
+    def setTimer(self, cycleTime=None):
         GObject.threads_init()
-        GObject.timeout_add(int(INI.CYCLE_TIME), self.update)
+        GObject.timeout_add(int(cycleTime), self.update)
 
     # error polling is usually set up by screen_option widget
     # to call this function

@@ -51,7 +51,7 @@ If you double click the tab or drag the tab, the tab will detach from the main w
 When a tab is detached, the contents are placed into a QDialog.  +
 The tab can be re-attached by closing the dialog or by double clicking on its window frame.
 
-It is based on PyQt's QTabWidget
+It is based on PyQt's QTabWidget.
 
 [[sub:qtvcp:widgets:doublescale]]
 === `DoubleScale` - Spin Button Entry Widget
@@ -178,20 +178,25 @@ It is based on PyQt's `QGridLayout`.
 === 'HalBar' - HAL Bar Level Indicator
 
 .QtVCP `HalBar`: Panel demonstrating the HAL Bar Level Indicator
-image::images/qthalbar.png["QtVCP HalBar: Panel demonstrating the HAL Bar Level Indicator ",scale="25%"]
+image::images/qthalbar.png["QtVCP HalBar: Panel showing two options of the HAL Bar Level Indicator ",scale="25%"]
 
 This widget is used to indicate level or value, usually of a HAL s32/float pin. +
 You can also disable the HAL pin and use Qt signals or Python commands to change the level. +
 
-==== Bar Properties:
-HalBar is a subclass of the Bar widget, so it inherits these properties  + 
+==== Bar Properties
+HalBar is a subclass of the Bar widget, so it inherits these properties: +
 
 * 'stepColorList': a list of color strings, the number of colors defines the number of bars.
 * 'backgroundColor': a QColor definition of the background color.
+* 'indicatorColor': a QColor definition of the optional single color current value bar.
+* 'useMultiColorIndicator': bool switch for choosing the option of single or multicolor value bar.
+* 'split': the integer percentage split of max value bar versus current value bar (0 to 50%).
+* 'setVertical': bool switch for choosing vertical or horizontal indicator.
+* 'setInverted': bool switch for choosing inverted direction.
 * 'setMaximum': an integer that defines the maximum level of indication.
 * 'setMinimum': an integer that defines the lowest level of indication.
 
-==== halBar Properties:
+==== HalBar Properties
 
 * 'pinType': to select *HAL pins type*:
 ** `NONE` no HAL pin will be added
@@ -388,17 +393,17 @@ A *LED like indicator* that optionally follows a HAL pin's logic.
 *`halpin_option`*::
   Selects if the LED follows an input HAL pin or program state.
 *`diameter`*::
-  Diameter of the LED. defaults to 15)
+  Diameter of the LED (defaults to 15).
 *`color`*::
-  Color of the LED when on. (defaults to green)
+  Color of the LED when on (defaults to green).
 *`off_color`*::
-  Color of the LED when off. (defaults to black)
+  Color of the LED when off (defaults to black).
 *`gradient`*::
-  turns the gradient high light on or off. (defaults to on)
+  turns the gradient high light on or off (defaults to on).
 *`on_gradient_color`*::
-  Color highlight of the LED when on. (defaults to white)
+  Color highlight of the LED when on (defaults to white).
 *`off_gradient_color`*::
-  Color highlight of the LED when off. (defaults to white)
+  Color highlight of the LED when off (defaults to white).
 *`alignment`*::
   Qt alignment hint.
 *`state`*::
@@ -466,7 +471,7 @@ TabWidget #name_of_tab{
 }
 ----
 
-It is based on PyQt's QTabWidget
+It is based on PyQt's QTabWidget.
 
 [[sub:qtvcp:widgets:widgetswitche]]
 === `WidgetSwitcher` - Multi-widget Layout View Switcher Widget
@@ -664,7 +669,7 @@ See the following sections for more information about:
 
 //TODO ActionToolButton widget capture
 
-*`ActionToolButton`* buttons are similar in concept to action buttons,
+`ActionToolButton` buttons are similar in concept to action buttons,
 but they use _QToolButtons_ to allow for *optional actions* to be selected by pushing and holding the button till the option menu pops up.
 
 //FIXME meaning only one ActionToolButton, right ?
@@ -721,18 +726,18 @@ usually this is selected from the screenOptions widget.
 These are the click-and-hold menu properties: +
 
 *`showLast`*::
- show the 'Set to last' action
+  show the 'Set to last' action
 *`showDivide`*::
- show the 'Divide by 2' action
+  show the 'Divide by 2' action
 *`showGotoOrigin`*::
- show the 'Go to G53/G5x origin' action
+  show the 'Go to G53/G5x origin' action
 *`showZeroOrigin`*::
- show the 'Zero Origin' action
+  show the 'Zero Origin' action
 *`showSetOrigin`*::
- show the 'Set Origin' action
+  show the 'Set Origin' action
 *`dialog_code_string`*::
-  Sets which dialog will pop up with numerical entry. ie. 'ENTRY' or 'CALCULATOR'
-to call a typing only entry dialog or a touch/typing calculator type entry dialog.
+  Sets which dialog will pop up with numerical entry,
+  i.e. 'ENTRY' or 'CALCULATOR' to call a typing only entry dialog or a touch/typing calculator type entry dialog.
 
 Here is a sample stylesheet entry:
 
@@ -800,23 +805,23 @@ You can also click on the label and see a list of actions. +
 *`display_as_per_m7m8`*::
   Toggles display option. Will follow the current M7/8 mode
 *`follow_reference_changes`*::
-  Toggles display option. Will follow the STATUS message reference mode. ie.
- you can use Action buttons to set how it's currently displayed.
+  Toggles display option. Will follow the STATUS message reference mode,
+  i.e. you can use Action buttons to set how it is currently displayed.
 
 These are the click-on-menu options:
 
 *`showLast`*::
- show the 'Set to last' action
+  show the 'Set to last' action
 *`showDivide`*::
- show the 'Divide by 2' action
+  show the 'Divide by 2' action
 *`showGotoOrigin`*::
- show the 'Go to G53/G5x origin' action
+  show the 'Go to G53/G5x origin' action
 *`showZeroOrigin`*::
- show the 'Zero Origin' action
+  show the 'Zero Origin' action
 *`showSetOrigin`*::
- show the 'Set Origin' action
+  show the 'Set Origin' action
 *`dialogName`*::
-  Sets which dialog will pop up with numerical entry. ie ENTRY or CALCULATOR
+  Sets which dialog window will pop up with numerical entry, i.e. ENTRY or CALCULATOR.
 
 The `DROLabel` widget holds a property *`isHomed`* that can be used with a stylesheet to change the _color of the `DRO_Label`
 based on homing state of the joint_ number in LinuxCNC.

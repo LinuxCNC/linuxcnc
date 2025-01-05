@@ -2,11 +2,13 @@ import os, time
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtCore import QCoreApplication
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
+from qtvcp.widgets.gcode_graphics import GCodeGraphics as GRAPHICS
 from qtvcp.widgets.mdi_line import MDILine as MDI_WIDGET
 from qtvcp.widgets.tool_offsetview import ToolOffsetView as TOOL_TABLE
 from qtvcp.widgets.origin_offsetview import OriginOffsetView as OFFSET_VIEW
 from qtvcp.widgets.stylesheeteditor import StyleSheetEditor as SSE
 from qtvcp.widgets.file_manager import FileManager as FM
+from qtvcp.widgets.status_slider import StatusSlider as SLIDER
 from qtvcp.lib.qt_ngcgui.ngcgui import NgcGui
 from qtvcp.lib.writer import writer
 from qtvcp.lib.keybindings import Keylookup
@@ -63,6 +65,7 @@ VERSION ='1.4'
 
 class HandlerClass:
     def __init__(self, halcomp, widgets, paths):
+        self.p = paths
         self.h = halcomp
         self.w = widgets
         self.gcodes = GCodes(widgets)
@@ -81,6 +84,7 @@ class HandlerClass:
 
         # some global variables
         self.factor = 1.0
+        self._dialog_message = None
         self._spindle_wait = False
         self.probe = None
         self.default_setup = os.path.join(PATH.CONFIGPATH, "default_setup.html")
@@ -88,6 +92,7 @@ class HandlerClass:
         self.start_line = 0
         self.run_time = 0
         self.time_tenths = 0
+        self._last_count = 0
         self.timer_on = False
         self.home_all = False
         self.min_spindle_rpm = INFO.MIN_SPINDLE_SPEED
@@ -99,6 +104,9 @@ class HandlerClass:
         self.last_loaded_program = ""
         self.first_turnon = True
         self._maintab_cycle = 1
+        self._lastSelectButton = None
+        self.MPGFocusWidget = None
+        self.CycleFocusWidget = None
         self.lineedit_list = ["work_height", "touch_height", "sensor_height", "laser_x", "laser_y",
                               "sensor_x", "sensor_y", "camera_x", "camera_y",
                               "search_vel", "probe_vel", "max_probe", "eoffset_count"]
@@ -109,10 +117,11 @@ class HandlerClass:
         self.button_response_list = ["btn_start", "btn_home_all", "btn_home_0", "btn_home_1",
                             "btn_home_2", "btn_home_3","btn_home_4", "btn_reload_file", "macrobutton0", "macrobutton1",
                             "macrobutton2", "macrobutton3", "macrobutton4", "macrobutton5", "macrobutton6",
-                            "macrobutton7", "macrobutton8", "macrobutton9", 'systemtoolbutton']
+                            "macrobutton7", "macrobutton8", "macrobutton9"]
         self.statusbar_reset_time = 10000 # ten seconds
 
         STATUS.connect('general', self.dialog_return)
+        STATUS.connect('dialog-request', self.dialog_request)
         STATUS.connect('state-on', lambda w: self.enable_onoff(True))
         STATUS.connect('state-off', lambda w: self.enable_onoff(False))
         STATUS.connect('mode-manual', lambda w: self.enable_auto(True))
@@ -137,6 +146,9 @@ class HandlerClass:
         STATUS.connect('graphics-gcode-properties', lambda w, d: self.update_gcode_properties(d))
         STATUS.connect('status-message', lambda w, d, o: self.add_external_status(d,o))
 
+        self.swoopPath = os.path.join(paths.IMAGEDIR,'lcnc_swoop.png')
+        self.swoopURL = QtCore.QUrl.fromLocalFile(self.swoopPath)
+
         txt1 = _translate("HandlerClass","Setup Tab")
         txt2 = _translate("HandlerClass","If you select a file with .html as a file ending, it will be shown here.")
         txt3 = _translate("HandlerClass","Documents online")
@@ -157,7 +169,7 @@ class HandlerClass:
 </body>
 </html>
 """%( txt1, txt2, txt3, txt4, os.path.expanduser('~/linuxcnc'), txt5,
-        os.path.join(paths.IMAGEDIR,'lcnc_swoop.png'))
+        self.swoopPath)
 
     def class_patch__(self):
         # override file manager load button
@@ -179,6 +191,7 @@ class HandlerClass:
         self.w.btn_spindle_pause.setEnabled(False)
         self.w.btn_dimensions.setChecked(True)
         self.w.page_buttonGroup.buttonClicked.connect(self.main_tab_changed)
+        self.w.selectButtonGroup.buttonClicked.connect(self.MPG_select_changed)
         self.w.filemanager_usb.showMediaDir(quiet = True)
 
     # hide or initiate 4th/5th AXIS dro/jog
@@ -255,7 +268,7 @@ class HandlerClass:
                 if os.path.exists(self.default_setup):
                     self.w.webwidget.load(QtCore.QUrl.fromLocalFile(self.default_setup))
                 else:
-                    self.w.webwidget.setHtml(self.html)
+                    self.w.webwidget.setHtml(self.html, self.swoopURL)
                 self.w.webwidget.page().urlChanged.connect(self.onLoadFinished)
 
         except Exception as e:
@@ -350,6 +363,18 @@ class HandlerClass:
 
         # total external offset
         pin = QHAL.newpin("eoffset-value", QHAL.HAL_FLOAT, QHAL.HAL_IN)
+
+        # MPG scrolling pin
+        self.pin_mpg_in = QHAL.newpin('mpg-in',QHAL.HAL_S32, QHAL.HAL_IN)
+        self.pin_mpg_in.value_changed.connect(lambda s: self.external_mpg(s))
+
+        # dialog answer pins
+        pin = QHAL.newpin("dialog-ok", QHAL.HAL_BIT, QHAL.HAL_IN)
+        pin.pinValueChanged.connect(lambda p,v: self.dialog_ext_control(p,v,1))
+        pin = QHAL.newpin("dialog-no", QHAL.HAL_BIT, QHAL.HAL_IN)
+        pin.pinValueChanged.connect(lambda p,v: self.dialog_ext_control(p,v,2))
+        pin = QHAL.newpin("dialog-cancel", QHAL.HAL_BIT, QHAL.HAL_IN)
+        pin.pinValueChanged.connect(lambda p,v: self.dialog_ext_control(p,v,0))
 
     def init_preferences(self):
         if not self.w.PREFS_:
@@ -481,15 +506,118 @@ class HandlerClass:
         self.probe.hal_init()
 
     def processed_focus_event__(self, receiver, event):
+        #print(receiver.parent(), receiver)
+
+        if isinstance(receiver.parent(), GCODE):
+            #print ('Gcode editor focus',receiver.parent().parent().objectName())
+            self.removeMPGFocusBorder()
+
+            name = receiver.parent().parent().objectName()
+            color = self.w.screen_options.property('user4Color').name()
+            self.colorMPGFocusBorder(name, receiver.parent(), color)
+
+        elif isinstance(receiver, GRAPHICS):
+            #print ('Gcode graphics focus',receiver,receiver.parent().objectName())
+            self.removeMPGFocusBorder()
+
+            name = receiver.parent().objectName()
+            color = self.w.screen_options.property('user4Color').name()
+            self.colorMPGFocusBorder(name, receiver, color)
+
+        elif isinstance(receiver.parent(), FM):
+            self.removeMPGFocusBorder()
+
+            #print ('File Manager focus',receiver.parent().parent().objectName())
+            name = receiver.parent().parent().objectName()
+            color = self.w.screen_options.property('user4Color').name()
+            self.colorMPGFocusBorder(name, receiver.parent(), color)
+
+        elif isinstance(receiver, SLIDER):
+            #print('Slider',receiver.objectName(),receiver.parent())
+            if not receiver in(self.w.slider_jog_linear,self.w.slider_jog_angular):
+                self.removeMPGFocusBorder()
+                name = receiver.objectName()
+                color = self.w.screen_options.property('user4Color').name()
+                self.colorMPGFocusBorder(name, receiver, color)
+
+        elif isinstance(receiver, TOOL_TABLE):
+            self.removeMPGFocusBorder()
+
+            #print ('Tool Offset focus',receiver.parent().objectName())
+            name = receiver.parent().objectName()
+            color = self.w.screen_options.property('user4Color').name()
+            self.colorMPGFocusBorder(name, receiver, color)
+
+        elif isinstance(receiver, OFFSET_VIEW):
+            self.removeMPGFocusBorder()
+
+            #print ('origon Offset focus',receiver.parent().objectName())
+            name = receiver.parent().objectName()
+            color = self.w.screen_options.property('user4Color').name()
+            self.colorMPGFocusBorder(name, receiver, color)
+
+        elif isinstance(receiver, MDI_WIDGET):
+            self.removeMPGFocusBorder()
+            self.removeCycleFocusBorder()
+
+            #print ('MDI line focus',receiver.parent().objectName())
+            name = receiver.parent().objectName()
+            color = self.w.screen_options.property('user5Color').name()
+            self.colorCycleFocusBorder(name, receiver, color)
+
+        elif isinstance(receiver, self._probeLibrary):
+            self.removeCycleFocusBorder()
+
+            #print ('Versa/Basic Probe focus',receiver.parent().objectName())
+            name = receiver.parent().objectName()
+            color = self.w.screen_options.property('user5Color').name()
+            self.colorCycleFocusBorder(name, receiver, color)
+
+        # show virtual keyboard
         if not self.w.chk_use_virtual.isChecked() or STATUS.is_auto_mode(): return
         if isinstance(receiver, QtWidgets.QLineEdit):
             if not receiver.isReadOnly():
                 self.w.stackedWidget_dro.setCurrentIndex(1)
         elif isinstance(receiver, QtWidgets.QTableView):
             self.w.stackedWidget_dro.setCurrentIndex(1)
-#        elif isinstance(receiver, QtWidgets.QCommonStyle):
-#            return
-    
+
+    def removeMPGFocusBorder(self):
+        try:
+            self.MPGFocusWidget.setStyleSheet( '')
+            name = self.MPGFocusWidgetBorder
+            self.w[name].setStyleSheet('')
+        except:
+            pass
+
+    def removeCycleFocusBorder(self):
+        return
+        try:
+            self.CycleFocusWidget.setStyleSheet( '')
+            name = self.CycleFocusWidgetBorder
+            self.w[name].setStyleSheet('')
+        except:
+            pass
+
+    def recolorMPGFocusBorder(self):
+        try:
+            colorName = self.w.screen_options.property('user4Color').name()
+            name = self.MPGFocusWidgetBorder
+            self.w[name].setStyleSheet('#%s {border: 3px solid %s;}'%(name,colorName))
+        except:
+            pass
+
+    def colorMPGFocusBorder(self, name, receiver, colorName):
+        if self.w.btn_mpg_scroll.isChecked():
+            self.MPGFocusWidgetBorder = name
+            self.MPGFocusWidget = receiver
+            self.w[name].setStyleSheet('#%s {border: 3px solid %s;}'%(name,colorName))
+
+    def colorCycleFocusBorder(self, name, receiver, colorName):
+        return
+        self.CycleFocusWidgetBorder = name
+        self.CycleFocusWidget = receiver
+        self.w[name].setStyleSheet('#%s {border: 3px solid %s;}'%(name,colorName))
+
     def processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):
         # when typing in MDI, we don't want keybinding to call functions
         # so we catch and process the events directly.
@@ -626,10 +754,15 @@ class HandlerClass:
             self.h['spindle-inhibit'] = False
             self.add_status(_translate("HandlerClass",'Spindle lowered after machine stopped'))
 
+        self._dialog_message = None
+
+    def dialog_request(self,w, message):
+        self._dialog_message = message
+
     def user_system_changed(self, data):
         sys = self.system_list[int(data) - 1]
         self.w.offset_table.selectRow(int(data) + 3)
-        self.w.actionbutton_rel.setText(sys)
+        self.w.systemtoolbutton.setText(sys)
 
     def metric_mode_changed(self, mode):
         rate = (float(self.w.slider_rapid_ovr.value()) / 100)
@@ -967,10 +1100,15 @@ class HandlerClass:
         STATUS.emit('update-machine-log', None, 'DELETE')
 
     def btn_save_status_clicked(self):
-        text = self.w.machinelog.toPlainText()
+        if self.w.stackedWidget_log.currentIndex():
+            text = self.w.integrator_log.toPlainText()
+            name = 'sysLog_'
+        else:
+            text = self.w.machinelog.toPlainText()
+            name = 'mchnLog_'
         filename = self.w.lbl_clock.text()
-        filename = 'status_' + filename.replace(' ','_') + '.txt'
-        self.add_status("{} {}".format(_translate("HandlerClass","Saving Status file to"), filename))
+        filename = name + filename.replace(' ','_') + '.txt'
+        self.add_status("{} {}".format(_translate("HandlerClass","Saving Log file to"), filename))
         with open(filename, 'w') as f:
             f.write(text)
 
@@ -1205,6 +1343,32 @@ class HandlerClass:
             self.w.btn_spindle_pause.setEnabled(not data)
         self.w.action_pause._blockSignals(False)
 
+    def btn_systemtool_toggled(self, state):
+        if state:
+            STATUS.emit('dro-reference-change-request', 1)
+
+    def MPG_select_changed(self, button):
+        #print(button)
+        # Auto exclusive doesn't allow unchecking all buttons
+        # We force it here
+        if button == self._lastSelectButton:
+                button.group().setExclusive(False)
+                button.setChecked(False)
+                button.group().setExclusive(True)
+                self._lastSelectButton = None
+
+                if button == self.w.btn_mpg_scroll:
+                    self.removeMPGFocusBorder()
+                return
+        if button == self.w.btn_mpg_scroll:
+            if self.w.btn_mpg_scroll.isChecked():
+                self.recolorMPGFocusBorder()
+        else:
+                self.removeMPGFocusBorder()
+
+        #self.set_statusbar('MPG output Selected: {}'.format(cmd.toolTip()),DEFAULT,noLog=True)
+        self._lastSelectButton = button
+
     #####################
     # GENERAL FUNCTIONS #
     #####################
@@ -1235,7 +1399,7 @@ class HandlerClass:
                     self.w.webwidget.loadFile(fname)
                     self.add_status("{} : {}".format(_translate("HandlerClass","Loaded HTML file"), fname), CRITICAL)
                 else:
-                    self.w.webwidget.setHtml(self.html)
+                    self.w.webwidget.setHtml(self.html, self.swoopURL)
             except Exception as e:
                 self.add_status("{} {} : {}".format(_translate("HandlerClass","Error loading HTML file"), fname,e))
             # look for PDF setup files
@@ -1488,7 +1652,7 @@ class HandlerClass:
             if os.path.exists(self.default_setup):
                 self.w.webwidget.load(QtCore.QUrl.fromLocalFile(self.default_setup))
             else:
-                self.w.webwidget.setHtml(self.html)
+                self.w.webwidget.setHtml(self.html, self.swoopURL)
         except:
             pass
     # setup tab's web page back button
@@ -1500,7 +1664,7 @@ class HandlerClass:
                 if os.path.exists(self.default_setup):
                     self.w.webwidget.load(QtCore.QUrl.fromLocalFile(self.default_setup))
                 else:
-                    self.w.webwidget.setHtml(self.html)
+                    self.w.webwidget.setHtml(self.html, self.swoopURL)
         except:
             pass
 
@@ -1760,6 +1924,75 @@ class HandlerClass:
             self.w['minus_jogbutton_{}'.format(num)].setIcon(icn)
         except Exception as e:
             self.w['minus_jogbutton_{}'.format(num)].setProperty('text','{}-'.format(axis))
+
+    # MPG scrolling of program or MDI history
+    def external_mpg(self, count):
+        diff = count - self._last_count
+        if self.w.btn_mpg_scroll.isChecked():
+            currentIndex = self.w.stackedWidget_mainTab.currentIndex()
+            if isinstance(self.MPGFocusWidget, SLIDER):
+                #print('Slider',self.MPGFocusWidget.objectName(),self.MPGFocusWidget.parent())
+                if self.MPGFocusWidget is self.w.slider_feed_ovr:
+                    scaled = (STATUS.stat.feedrate * 100 + diff)
+                    if scaled <0 :scaled = 0
+                    elif scaled > INFO.MAX_FEED_OVERRIDE:scaled = INFO.MAX_FEED_OVERRIDE
+                    ACTION.SET_FEED_RATE(scaled)
+                elif  self.MPGFocusWidget is self.w.slider_rapid_ovr:
+                    scaled = (STATUS.stat.rapidrate * 100 + diff)
+                    if scaled <0 :scaled = 0
+                    elif scaled > 100:scaled = 100
+                    ACTION.SET_RAPID_RATE(scaled)
+                elif  self.MPGFocusWidget is self.w.slider_spindle_ovr:
+                    scaled = (STATUS.stat.spindle[0]['override'] * 100 + diff)
+                    if scaled < INFO.MIN_SPINDLE_OVERRIDE:scaled = INFO.MIN_SPINDLE_OVERRIDE
+                    elif scaled > INFO.MAX_SPINDLE_OVERRIDE:scaled = INFO.MAX_SPINDLE_OVERRIDE
+                    ACTION.SET_SPINDLE_RATE(scaled)
+
+            elif isinstance(self.MPGFocusWidget, GRAPHICS):
+                if self.w.actionbutton_pan_rpyaye.isChecked():
+                    ACTION.ADJUST_GRAPHICS_ROTATE(diff,diff)
+                else:
+                    ACTION.ADJUST_GRAPHICS_PAN(diff,0)
+            elif isinstance(self.MPGFocusWidget, GCODE):
+                self.w.gcode_editor.jump_line(diff)
+                self.w.gcode_viewer.jump_line(diff)
+            elif isinstance(self.MPGFocusWidget, MDI_WIDGET):
+                if diff <0:
+                   self.MPGFocusWidget.line_down()
+                else:
+                   self.MPGFocusWidget.line_up()
+
+            elif currentIndex == TAB_FILE:
+                if isinstance(self.MPGFocusWidget, FM):
+                    widget =  self.MPGFocusWidget
+                else:
+                    widget = self.w.filemanager
+                if diff <0:
+                   widget.down()
+                else:
+                   widget.up()
+            elif currentIndex == TAB_TOOL:
+                if isinstance(self.MPGFocusWidget, TOOL_TABLE):
+                    print('scroll offset view')
+                    if diff <0:
+                       self.MPGFocusWidget.down()
+                    else:
+                       self.MPGFocusWidget.up()
+            elif currentIndex == TAB_OFFSETS:
+                if isinstance(self.MPGFocusWidget, OFFSET_VIEW):
+                    print('scroll offset view')
+                    if diff <0:
+                       self.MPGFocusWidget.down()
+                    else:
+                       self.MPGFocusWidget.up()
+
+        self._last_count = count
+
+    def dialog_ext_control(self, pin, value, answer):
+        if value:
+            if not self._dialog_message is None:
+                name = self._dialog_message.get('NAME')
+                STATUS.emit('dialog-update',{'NAME':name,'response':answer})
 
     #####################
     # KEY BINDING CALLS #

@@ -281,40 +281,40 @@ class MaterialConverter(QMainWindow, object):
                         self.materialCutM = 'CUT_MODE           = 1'
                     elif 'PlasmaTool' in line:
                         valid = True
-                    elif line.startswith('Tool\\ number'):
+                    elif line.startswith(r'Tool\ number'):
                         b = line.split('=')[1]
                         self.materialNum = f'[MATERIAL_NUMBER_{b.strip().replace("]","")}]'
                     elif line.startswith('Name='):
                         b = line.split('=', 1)[1]
                         self.materialName = f'NAME               = {b.strip()}'
-                    elif line.startswith('Kerf\\ width'):
+                    elif line.startswith(r'Kerf\ width'):
                         b = line.split('=', 1)[1]
                         self.materialKerf = f'KERF_WIDTH         = {float(b.strip()) / self.divisor:.{self.precision}f}'
-                    elif line.startswith('Pierce\\ height'):
+                    elif line.startswith(r'Pierce\ height'):
                         b = line.split('=', 1)[1]
                         self.materialPierceH = f'PIERCE_HEIGHT      = {float(b.strip()) / self.divisor:.{self.precision}f}'
-                    elif line.startswith('Pierce\\ delay'):
+                    elif line.startswith(r'Pierce\ delay'):
                         b = line.split('=', 1)[1]
                         self.materialPierceD = f'PIERCE_DELAY       = {b.strip()}'
-                    elif line.startswith('Cut\\ height'):
+                    elif line.startswith(r'Cut\ height'):
                         b = line.split('=', 1)[1]
                         self.materialCutH = f'CUT_HEIGHT         = {float(b.strip()) / self.divisor:.{self.precision}f}'
-                    elif line.startswith('Feed\\ rate'):
+                    elif line.startswith(r'Feed\ rate'):
                         b = line.split('=', 1)[1]
                         self.materialCutS = f'CUT_SPEED          = {float(b.strip()) / self.divisor:.0f}'
-                    elif line.startswith('Cut\\ current') or (line.startswith('Preset\\ current') and self.materialCutA == 'CUT_AMPS           = 0'):
+                    elif line.startswith(r'Cut\ current') or (line.startswith(r'Preset\ current') and self.materialCutA == 'CUT_AMPS           = 0'):
                         b = line.split('=', 1)[1]
                         self.materialCutA = f'CUT_AMPS           = {b.strip()}'
-                    elif line.startswith('Cut\\ voltage') or (line.startswith('Preset\\ volts') and self.materialCutV == 'CUT_VOLTS          = 0'):
+                    elif line.startswith(r'Cut\ voltage') or (line.startswith(r'Preset\ volts') and self.materialCutV == 'CUT_VOLTS          = 0'):
                         b = line.split('=', 1)[1]
                         self.materialCutV = f'CUT_VOLTS          = {b.strip()}'
-                    elif line.startswith('Pause\\ at\\ end\\ of\\ cut'):
+                    elif line.startswith(r'Pause\ at\ end\ of\ cut'):
                         b = line.split('=', 1)[1]
                         self.materialPauseE = f'PAUSE_AT_END       = {b.strip()}'
-                    elif line.startswith('Gas\\ pressure') or (line.startswith('Preset\\ Air\\ Pressure') and self.materialGasP == 'GAS_PRESSURE       = 0'):
+                    elif line.startswith(r'Gas\ pressure') or (line.startswith(r'Preset\ Air\ Pressure') and self.materialGasP == 'GAS_PRESSURE       = 0'):
                         b = line.split('=', 1)[1]
                         self.materialGasp = f'GAS_PRESSURE       = {b.strip()}'
-                    elif line.startswith('Cut\\ mode') or (line.startswith('Preset\\ mode') and self.materialCutM == 'CUT_MODE           = 1'):
+                    elif line.startswith(r'Cut\ mode') or (line.startswith(r'Preset\ mode') and self.materialCutM == 'CUT_MODE           = 1'):
                         b = line.split('=', 1)[1]
                         self.materialCutM = f'CUT_MODE           = {b.strip()}'
                     count += 1

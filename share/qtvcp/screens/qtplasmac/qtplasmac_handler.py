@@ -1,4 +1,4 @@
-VERSION = '008.050'
+VERSION = '008.056'
 LCNCVER = '2.10'
 DOCSVER = LCNCVER
 
@@ -836,9 +836,11 @@ class HandlerClass:
         self.extOhmicPin = self.h.newpin('ext_ohmic', hal.HAL_BIT, hal.HAL_IN)
         self.extOhmicProbeEnablePin = self.h.newpin('ext_ohmic_probe_enable', hal.HAL_BIT, hal.HAL_IN)
         self.extPausePin = self.h.newpin('ext_pause', hal.HAL_BIT, hal.HAL_IN)
+        self.extPauseOnlyPin = self.h.newpin('ext_pause_only', hal.HAL_BIT, hal.HAL_IN)
         self.extPowerPin = self.h.newpin('ext_power', hal.HAL_BIT, hal.HAL_IN)
         self.extProbePin = self.h.newpin('ext_probe', hal.HAL_BIT, hal.HAL_IN)
         self.extPulsePin = self.h.newpin('ext_pulse', hal.HAL_BIT, hal.HAL_IN)
+        self.extResumePin = self.h.newpin('ext_resume', hal.HAL_BIT, hal.HAL_IN)
         self.extRunPausePin = self.h.newpin('ext_run_pause', hal.HAL_BIT, hal.HAL_IN)
         self.extRunPin = self.h.newpin('ext_run', hal.HAL_BIT, hal.HAL_IN)
         self.extThcEnablePin = self.h.newpin('ext_thc_enable', hal.HAL_BIT, hal.HAL_IN)
@@ -1130,7 +1132,7 @@ class HandlerClass:
         self.w.conv_preview.setShowOffsets(False)
         self.w.conv_preview._font = 'monospace 11'
         self.w.conv_preview.inhibit_selection = True
-        self.w.conv_preview.updateGL()
+        self.w.conv_preview.update()
         self.w.conv_preview.setInhibitControls(True)
         self.w.estopButton = self.PREFS.getpref('Estop type', 0, int, 'GUI_OPTIONS')
         if self.w.estopButton == 0:
@@ -1709,8 +1711,8 @@ class HandlerClass:
             ACTION.CALL_MDI_WAIT('T0 M6')
             ACTION.SET_MANUAL_MODE()
             self.firstHoming = True
-        self.w.gcodegraphics.updateGL()
-        self.w.conv_preview.updateGL()
+        self.w.gcodegraphics.update()
+        self.w.conv_preview.update()
         log = _translate('HandlerClass', 'Machine homed')
         STATUS.emit('update-machine-log', log, 'TIME')
 
@@ -1736,8 +1738,8 @@ class HandlerClass:
         self.w.update
         STATUS.emit('dro-reference-change-request', 1)
         self.interp_idle(None)
-        self.w.gcodegraphics.updateGL()
-        self.w.conv_preview.updateGL()
+        self.w.gcodegraphics.update()
+        self.w.conv_preview.update()
 
     def hard_limit_tripped(self, obj, tripped, list_of_tripped):
         self.w.chk_override_limits.setEnabled(tripped)
@@ -1802,7 +1804,7 @@ class HandlerClass:
         self.w.lbl_mcodes.setText(f'{cod}')
 
     def metric_mode_changed(self, obj, state):
-        self.w.gcodegraphics.updateGL()
+        self.w.gcodegraphics.update()
 
     def set_start_line(self, line):
         if self.fileOpened:
@@ -1858,8 +1860,19 @@ class HandlerClass:
             self.abort_pressed()
 
     def ext_pause(self, state):
-        if self.w.pause.isEnabled() and state:
+        if self.w.pause_resume.isEnabled() and state:
+            if STATUS.stat.paused:
+                self.pause_resume_pressed()
             ACTION.PAUSE()
+
+    def ext_pause_only(self, state):
+        if self.w.pause_resume.isEnabled() and state:
+            ACTION.PAUSE_MACHINE()
+
+    def ext_resume(self, state):
+        if self.w.pause_resume.isEnabled() and state:
+            self.pause_resume_pressed()
+            ACTION.RESUME()
 
     def ext_touch_off(self, state):
         if self.w.touch_xy.isEnabled() and state:
@@ -1885,7 +1898,9 @@ class HandlerClass:
     def ext_run_pause(self, state):
         if self.w.run.isEnabled() and state:
             self.run_clicked()
-        elif self.w.pause.isEnabled() and state:
+        elif self.w.pause_resume.isEnabled() and state:
+            if STATUS.stat.paused:
+                self.pause_resume_pressed()
             ACTION.PAUSE()
 
     def power_button(self, action, state):
@@ -2031,7 +2046,7 @@ class HandlerClass:
             log = _translate('HandlerClass', 'Cycle aborted')
             STATUS.emit('update-machine-log', log, 'TIME')
 
-    def pause_pressed(self):
+    def pause_resume_pressed(self):
         if hal.get_value('plasmac.cut-recovering'):
             self.w.jog_stack.setCurrentIndex(self.JOG)
             self.laserOnPin.set(0)
@@ -2168,7 +2183,7 @@ class HandlerClass:
         widget.set_eyepoint_from_extents(xSize, ySize)
         widget.perspective = False
         widget.lat = widget.lon = 0
-        widget.updateGL()
+        widget.update()
 
     def view_p_pressed(self):
         self.w.gcodegraphics.set_view('P')
@@ -2358,7 +2373,7 @@ class HandlerClass:
                 self.cutrec_buttons_enable(True)
                 self.cutrec_motion_enable(True)
                 if STATUS.is_interp_paused():
-                    self.w.pause.setEnabled(True)
+                    self.w.pause_resume.setEnabled(True)
                     self.w[self.ccButton].setEnabled(True)
                     if self.tpButton and self.w.torch_enable.isChecked():
                         self.w[self.tpButton].setEnabled(True)
@@ -2916,7 +2931,7 @@ class HandlerClass:
         self.w.power.released.connect(lambda: self.power_button("released", False))
         self.w.power.clicked.connect(lambda: self.power_button("clicked", None))
         self.w.run.clicked.connect(self.run_clicked)
-        self.w.pause.pressed.connect(self.pause_pressed)
+        self.w.pause_resume.pressed.connect(self.pause_resume_pressed)
         self.w.abort.pressed.connect(self.abort_pressed)
         self.w.file_reload.clicked.connect(self.file_reload_clicked)
         self.w.jog_slow.pressed.connect(self.jog_slow_pressed)
@@ -3103,6 +3118,8 @@ class HandlerClass:
         self.extPowerPin.value_changed.connect(lambda v: self.power_button("external", v))
         self.extRunPin.value_changed.connect(lambda v: self.ext_run(v))
         self.extPausePin.value_changed.connect(lambda v: self.ext_pause(v))
+        self.extPauseOnlyPin.value_changed.connect(lambda v: self.ext_pause_only(v))
+        self.extResumePin.value_changed.connect(lambda v: self.ext_resume(v))
         self.extAbortPin.value_changed.connect(lambda v: self.ext_abort(v))
         self.extTouchOffPin.value_changed.connect(lambda v: self.ext_touch_off(v))
         self.extLaserTouchOffPin.value_changed.connect(lambda v: self.ext_laser_touch_off(v))
@@ -3359,8 +3376,8 @@ class HandlerClass:
             self.w[button].dialog_code = inputType
 
     def overlay_update(self, state):
-        self.w.gcodegraphics.updateGL()
-        self.w.conv_preview.updateGL()
+        self.w.gcodegraphics.update()
+        self.w.conv_preview.update()
 
     def dialog_show_ok(self, icon, title, error, bText=_translate('HandlerClass', 'OK')):
         msg = QMessageBox(self.w)
@@ -3679,7 +3696,7 @@ class HandlerClass:
     def set_tab_jog_states(self, state):
         if STATUS.is_auto_paused():
             if self.torchPulse:
-                self.w.pause.setEnabled(state)
+                self.w.pause_resume.setEnabled(state)
             for n in range(self.w.main_tab_widget.count()):
                 if n > 1:
                     self.w.main_tab_widget.setTabEnabled(n, state)
@@ -3771,8 +3788,8 @@ class HandlerClass:
             self.w[f'dro_label_{axis}'].setProperty('homed', teleop)
             self.w[f'dro_label_{axis}'].setStyle(self.w[f'dro_label_{axis}'].style())
         time.sleep(0.1)
-        self.w.gcodegraphics.updateGL()
-        self.w.conv_preview.updateGL()
+        self.w.gcodegraphics.update()
+        self.w.conv_preview.update()
 
 #########################################################################################################################
 # TIMER FUNCTIONS #
@@ -3787,7 +3804,7 @@ class HandlerClass:
         self.w.run.setEnabled(False)
         if self.frButton:
             self.w[self.frButton].setEnabled(False)
-        self.w.pause.setEnabled(False)
+        self.w.pause_resume.setEnabled(False)
         self.w.abort.setEnabled(False)
         self.w.gcode_display.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.view_t_pressed(self.w.gcodegraphics)
@@ -3823,11 +3840,11 @@ class HandlerClass:
     def flasher_timeout(self):
         if STATUS.is_auto_paused():
             if self.flashState:
-                self.w.pause.setText(_translate('HandlerClass', 'CYCLE RESUME'))
+                self.w.pause_resume.setText(_translate('HandlerClass', 'CYCLE RESUME'))
             else:
-                self.w.pause.setText('')
+                self.w.pause_resume.setText('')
         elif self.w.jog_stack.currentIndex() == self.JOG:
-            self.w.pause.setText(_translate('HandlerClass', 'CYCLE PAUSE'))
+            self.w.pause_resume.setText(_translate('HandlerClass', 'CYCLE PAUSE'))
         text = _translate('HandlerClass', 'FEED')
         if self.w.feed_slider.value() != 100:
             if self.flashState:
@@ -4037,7 +4054,13 @@ class HandlerClass:
                 for name in range(1, len(bNames)):
                     bLabel += f'\n{bNames[name]}'
             self.w[f'button_{str(bNum)}'].setText(bLabel)
-            if 'change-consumables' in bCode:
+            # toggle-laser can be anywhere in the button code
+            if 'toggle-laser' in bCode:
+                self.tlButton.append(f'button_{str(bNum)}')
+                self.idleHomedList.append(f'button_{str(bNum)}')
+                continue
+            # button code is required to start with the following codes
+            if code == 'change-consumables':
                 self.ccParm = bCode.replace('change-consumables', '').replace(' ', '').lower() or None
                 if self.ccParm is not None and ('x' in self.ccParm or 'y' in self.ccParm):
                     self.ccButton = f'button_{str(bNum)}'
@@ -4047,7 +4070,7 @@ class HandlerClass:
                     msg1 = _translate('HandlerClass', 'Check button code for invalid or missing arguments')
                     STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum}\n{msg1}\n')
                     continue
-            elif 'probe-test' in bCode:
+            elif code == 'probe-test':
                 if len(bCode.split()) < 3:
                     if bCode.lower().replace('probe-test', '').strip():
                         try:
@@ -4065,7 +4088,7 @@ class HandlerClass:
                     msg1 = _translate('HandlerClass', 'Check button code for extra arguments')
                     STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum}\n{msg1}\n')
                     continue
-            elif 'torch-pulse' in bCode:
+            elif code == 'torch-pulse':
                 if len(bCode.split()) < 3:
                     if bCode.lower().replace('torch-pulse', '').strip():
                         try:
@@ -4085,11 +4108,11 @@ class HandlerClass:
                     msg1 = _translate('HandlerClass', 'Check button code for extra arguments')
                     STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum}\n{msg1}\n')
                     continue
-            elif 'ohmic-test' in bCode:
+            elif code == 'ohmic-test':
                 self.otButton = f'button_{str(bNum)}'
                 self.idleOnList.append(self.otButton)
                 self.pausedValidList.append(self.otButton)
-            elif 'framing' in bCode:
+            elif code == 'framing':
                 frButton = True
                 self.defaultZ = True
                 self.frFeed = 0
@@ -4113,18 +4136,18 @@ class HandlerClass:
                 if frButton:
                     self.frButton = f'button_{str(bNum)}'
                     self.idleHomedList.append(self.frButton)
-            elif 'cut-type' in bCode:
+            elif code == 'cut-type':
                 self.ctButton = f'button_{str(bNum)}'
                 self.idleOnList.append(self.ctButton)
-            elif 'single-cut' in bCode:
+            elif code == 'single-cut':
                 self.scButton = f'button_{str(bNum)}'
                 self.idleHomedList.append(self.scButton)
-            elif 'manual-cut' in bCode:
+            elif code == 'manual-cut':
                 self.mcButton = f'button_{str(bNum)}'
                 self.idleHomedList.append(self.mcButton)
-            elif 'load' in bCode:
+            elif code == 'load':
                 self.idleOnList.append(f'button_{str(bNum)}')
-            elif 'toggle-halpin' in bCode:
+            elif code == 'toggle-halpin':
                 head = _translate('HandlerClass', 'HAL Pin Error')
                 altLabel = None
                 if ';;' in bCode:
@@ -4141,12 +4164,12 @@ class HandlerClass:
                     continue
                 halpin = bCode.lower().split('toggle-halpin')[1].split(' ')[1].strip()
                 excludedHalPins = ('plasmac.torch-pulse-start', 'plasmac.ohmic-test',
-                                   'plasmac.probe-test', 'plasmac.consumable-change')
+                                'plasmac.probe-test', 'plasmac.consumable-change')
                 if halpin in excludedHalPins:
                     msg1 = _translate('HandlerClass', 'HAL pin')
                     msg2 = _translate('HandlerClass', 'must be toggled')
                     msg3 = _translate('HandlerClass', 'using standard button code')
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum}\n{msg1} "{halpin}" {msg1}\n{msg3}\n')
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum}\n{msg1} "{halpin}" {msg2}\n{msg3}\n')
                     continue
                 else:
                     try:
@@ -4159,11 +4182,7 @@ class HandlerClass:
                         continue
                 # halTogglePins format is: button name, run critical flag, button text, alt button text
                 self.halTogglePins[halpin] = [f'button_{str(bNum)}', critical, bLabel, altLabel]
-            elif 'toggle-laser' in bCode:
-                self.tlButton.append(f'button_{str(bNum)}')
-                self.idleHomedList.append(f'button_{str(bNum)}')
-                continue
-            elif 'pulse-halpin' in bCode:
+            elif code == 'pulse-halpin':
                 if len(bCode.split()) < 4:
                     try:
                         code, halpin, delay = bCode.lower().strip().split()
@@ -4178,13 +4197,13 @@ class HandlerClass:
                             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum}\n{msg1}\n')
                             continue
                     excludedHalPins = ('plasmac.torch-pulse-start', 'plasmac.ohmic-test',
-                                       'plasmac.probe-test', 'plasmac.consumable-change')
+                                    'plasmac.probe-test', 'plasmac.consumable-change')
                     head = _translate('HandlerClass', 'HAL Pin Error')
                     if halpin in excludedHalPins:
                         msg1 = _translate('HandlerClass', 'HAL pin')
                         msg2 = _translate('HandlerClass', 'must be pulsed')
                         msg3 = _translate('HandlerClass', 'using standard button code')
-                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum}\n{msg1} "{halpin}" {msg1}\n{msg3}\n')
+                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum}\n{msg1} "{halpin}" {msg2}\n{msg3}\n')
                         continue
                     else:
                         try:
@@ -4208,17 +4227,17 @@ class HandlerClass:
                     msg1 = _translate('HandlerClass', 'Check button code for invalid arguments')
                     STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum}\n{msg1}\n')
                     continue
-            elif 'offsets-view' in bCode:
+            elif code == 'offsets-view':
                 self.ovButton = f'button_{str(bNum)}'
                 self.idleList.append(self.ovButton)
-            elif 'latest-file' in bCode:
+            elif code == 'latest-file':
                 self.llButton = f'button_{str(bNum)}'
                 self.idleList.append(self.llButton)
-            elif 'user-manual' in bCode:
+            elif code == 'user-manual':
                 self.umButton = f'button_{str(bNum)}'
                 self.idleList.append(self.umButton)
                 self.w.webview.load(self.umUrl)
-            elif 'toggle-joint' in bCode:
+            elif code == 'toggle-joint':
                 self.jtButton = f'button_{str(bNum)}'
                 self.idleHomedList.append(self.jtButton)
             else:
@@ -4434,7 +4453,7 @@ class HandlerClass:
                 command = newCommand
             ACTION.CALL_MDI(command)
             while not STATUS.is_interp_idle():
-                self.w.gcodegraphics.updateGL()
+                self.w.gcodegraphics.update()
                 QApplication.processEvents()
         elif command and command[0] == '%':
             command = command.lstrip('%').lstrip()
@@ -4575,7 +4594,7 @@ class HandlerClass:
             self.w.run.setEnabled(False)
             if self.frButton:
                 self.w[self.frButton].setEnabled(False)
-            self.w.pause.setEnabled(False)
+            self.w.pause_resume.setEnabled(False)
             if not self.ccXpos:
                 self.ccXpos = STATUS.get_position()[0][0]
             if self.ccXpos < round(self.xMin, 6) + (10 * self.unitsPerMm):
@@ -5452,7 +5471,7 @@ class HandlerClass:
             ACTION.CALL_MDI_WAIT(f'G10 L2 P0 R{zAngle}')
             ACTION.CALL_MDI('G0 X0 Y0')
             while not STATUS.is_interp_idle():
-                self.w.gcodegraphics.updateGL()
+                self.w.gcodegraphics.update()
             if self.fileOpened:
                 self.file_reload_clicked()
                 self.w.gcodegraphics.logger.clear()
@@ -5473,7 +5492,7 @@ class HandlerClass:
     def cam_goto_clicked(self):
         ACTION.CALL_MDI_WAIT('G0 X0 Y0')
         while not STATUS.is_interp_idle():
-            self.w.gcodegraphics.updateGL()
+            self.w.gcodegraphics.update()
         ACTION.SET_MANUAL_MODE()
 
     def cam_zoom_plus_pressed(self):
@@ -6166,8 +6185,9 @@ class HandlerClass:
         if self.key_is_valid(event, state) and cntrl and not shift and self.w.main_tab_widget.currentIndex() == self.MAIN:
             if self.w.run.isEnabled():
                 self.run_clicked()
-            elif self.w.pause.isEnabled():
-                ACTION.PAUSE()
+            elif self.w.pause_resume.isEnabled() and STATUS.stat.paused:
+                self.pause_resume_pressed()
+                ACTION.RESUME()
 
     def on_keycall_PAUSE(self, event, state, shift, cntrl):
         if self.key_is_valid(event, state) and not shift and self.w.main_tab_widget.currentIndex() == self.MAIN:
@@ -6175,7 +6195,7 @@ class HandlerClass:
                 if self.w.screen_options.desktop_notify:
                     self.w.screen_options.QTVCP_INSTANCE_._NOTICE.external_close()
                 self.error_status(False)
-            elif self.w.pause.isEnabled() and STATUS.stat.interp_state != linuxcnc.INTERP_PAUSED:
+            elif self.w.pause_resume.isEnabled() and not STATUS.stat.paused:
                 ACTION.PAUSE()
 
     def on_keycall_OPEN(self, event, state, shift, cntrl):

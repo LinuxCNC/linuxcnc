@@ -69,7 +69,7 @@ void RefreshSectionSelected( )
 	EditorButtonsAccordingSectionType( );
     //XXX search functionality, not implemented in LinuxCNC.
 	//EnableDisableMenusAccordingSectionType( );
-	UpdateVScrollBar( TRUE/*AutoSelectCurrentRung*/ );
+	UpdateVScrollBar( /*AutoSelectCurrentRung*/ );
 }
 
 void ManagerDisplaySections( char ForgetSectionSelected )

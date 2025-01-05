@@ -47,9 +47,8 @@ this is a commonly-used value. If you use another network, you will also
 need to reconfigure the hostmot2 card to use an IP address on that
 network by using the mesaflash(1) utility and change jumper settings.
 Typically, you will choose one of the networks in the
-http://en.wikipedia.org/wiki/IPv4#Private_networks[Private IPv4 address
-space.] One common alternative is PC address 10.10.10.1, hostmot2
-address 10.10.10.10.
+https://en.wikipedia.org/wiki/IPv4#Private_networks[Private IPv4 address
+space.] One common alternative is PC address 10.10.10.1, hostmot2 address 10.10.10.10.
 
 Use of the dedicated ethernet interface while LinuxCNC is running can
 cause violation of realtime guarantees. hm2_eth will automatically
@@ -57,15 +56,15 @@ mitigate most accidental causes of interference.
 
 === Configure network with static address
 
-Add these lines to the file /etc/network/interfaces to configure eth1
-with a static address:
+Add these lines to the file /etc/network/interfaces to configure the
+Ethernet interface eth1 with a static address:
 
-....
+----
 auto eth1
 iface eth1 inet static
     address 192.168.1.1
     hardware-irq-coalesce-rx-usecs 0
-....
+----
 
 == PACKET LOSS
 
@@ -74,8 +73,8 @@ will not have 100% perfect packet reception. The hm2_eth driver has a
 limited ability to deal with lost packets. Packet loss is detected by
 transmitting an expected read or write packet count with each request,
 and checking the value with each read response. When a lost packet is
-detected, the *packet-error* pin is asserted in that cycle, the
-*packet-error-level* pin is increased, and if it reaches a threshold
+detected, the `packet-error` pin is asserted in that cycle, the
+`packet-error-level` pin is increased, and if it reaches a threshold
 then a permanent low-level I/O error is signaled.
 
 However, not all hm2 special functions know how to properly recover from
@@ -95,65 +94,60 @@ for each feedback signal, using *packet-error* as the mux2 *sel* input.
 
 == PINS
 
-In addition to the pins documented in *hostmot2(9)*, *hm2_eth(9)*
-creates additional pins:
+In addition to the pins documented in *hostmot2(9)*,
+*hm2_eth(9)* creates the following additional pins:
 
-(bit, out) hm2__<BoardType>_._<BoardNum>_.packet-error::
-  This pin is TRUE when the most recent cycle detected a read or write
-  error, and FALSE at other times.
-(s32, out) hm2__<BoardType>_._<BoardNum>_.packet-error-level::
-  This pin shows the current error level, with higher numbers indicating
-  a greater number of recent detected errors. The error level is always
-  in the range from 0 to packet-error-limit, inclusive.
-(bit, out) hm2__<BoardType>_._<BoardNum>_.packet-error-exceeded::
-  This pin is TRUE when the current error level is equal to the maximum,
-  and FALSE at other times.
+hm2___<BoardType>__.__<BoardNum>__.packet-error (bit, out)::
+  This pin is TRUE when the most recent cycle detected a read or write error, and FALSE at other times.
+hm2___<BoardType>__.__<BoardNum>__.packet-error-level (s32, out)::
+  This pin shows the current error level, with higher numbers indicating a greater number of recent detected errors.
+  The error level is always in the range from 0 to packet-error-limit, inclusive.
+hm2___<BoardType>__.__<BoardNum>__.packet-error-exceeded (bit, out)::
+  This pin is TRUE when the current error level is equal to the maximum, and FALSE at other times.
 
 == PARAMETERS
 
-In addition to the parameters documented in *hostmot2(9)*, *hm2_eth(9)*
-creates additional parameters:
+In addition to the parameters documented in *hostmot2(9)*,
+*hm2_eth(9)* creates the following additional parameters:
 
-hm2__<BoardType>_._<BoardNum>_.packet-error-decrement (s32, rw)::
-  The amount deducted from _packet-error-level_ in a cycle without
+hm2___<BoardType>__.__<BoardNum>__.packet-error-decrement (s32, rw)::
+  The amount deducted from `packet-error-level` in a cycle without
   detected read or write errors, without going below zero.
-hm2__<BoardType>_._<BoardNum>_.packet-error-increment (s32, rw)::
-  The amount added to _packet-error-level_ in a cycle without detected
-  read or write errors, without going above packet-error-limit.
-hm2__<BoardType>_._<BoardNum>_.packet-error-limit (s32, rw)::
+hm2___<BoardType>__.__<BoardNum>__.packet-error-increment (s32, rw)::
+  The amount added to `packet-error-level` in a cycle without detected
+  read or write errors, without going above `packet-error-limit`.
+hm2___<BoardType>__.__<BoardNum>__.packet-error-limit (s32, rw)::
   The level at which a detected read or write error is treated as a
   permanent error. When this error level is reached, the board's
-  _io-error_ pin becomes TRUE and the condition must be manually reset.
-hm2__<BoardType>_._<BoardNum>_.packet-read-timeout (s32, rw)::
-  The length of time that must pass before a read request times out. If
-  the value is less than or equal to 0, it is interpreted as 80% of the
-  thread period. If the value is less than 100, it is interpreted as a
-  percentage of the thread period. Otherwise, it is interpreted as a
-  time in nanoseconds. In any case, the timeout is never less than 100
-  microseconds.
+  `io-error` pin becomes TRUE and the condition must be manually reset.
+hm2___<BoardType>__.__<BoardNum>__.packet-read-timeout (s32, rw)::
+  The length of time that must pass before a read request times out.
+  If the value is less than or equal to 0, it is interpreted as 80% of the thread period.
+  If the value is less than 100, it is interpreted as a percentage of the thread period.
+  Otherwise, it is interpreted as a time in nanoseconds.
+  In any case, the timeout is never less than 100 microseconds.
 
-Setting this value too low can cause spurious read errors. Setting it
-too high can cause realtime delay errors.
+Setting this value too low can cause spurious read errors.
+Setting it too high can cause realtime delay errors.
 
 == NOTES
 
-hm2_eth uses an iptables chain called "hm2-eth-rules-output. That
-technology is common to control network access to (INPUT chain), through
-(FORWARD chain) or from (OUTPUT chain) your computer. Someone who has
-configured a firewall on Linux has encountered iptables and is familiar
-with that technology. This chain contains additional rules to control
-network interface while HAL is running. The chain is created if it does
-not exist, and a jump to it is inserted at the beginning of the OUTPUT
-chain if it is not there already. If you have an existing iptables
-setup, you can insert a direct jump from OUTPUT to hm2-eth-rules-output
-in an order appropriate to your local network.
+hm2_eth uses an iptables chain called "hm2-eth-rules-output".
+That technology is common to control network access to (INPUT chain),
+through (FORWARD chain) or from (OUTPUT chain) your computer.
+Someone who has configured a firewall on Linux has encountered iptables is familiar with that technology.
+This chain contains additional rules to control network interface while HAL is running.
+The chain is created if it does not exist,
+and a jump to it is inserted at the beginning of the OUTPUT chain if it is not there already.
+If you have an existing iptables setup,
+you can insert a direct jump from OUTPUT to hm2-eth-rules-output in an order appropriate to your local network.
 
 At (normal) exit, hm2_eth will remove the rules. After a crash, you can
 manually clear the rules with *sudo iptables -F hm2-eth-rules-output*;
 the rules are also removed by a reboot.
 
-"hardware-irq-coalesce-rx-usecs" decreases time waiting to receive a
-packet on most systems, but on at least some Marvel-chipset NICs it is harmful.
+"hardware-irq-coalesce-rx-usecs" decreases time waiting to receive a packet on most systems,
+but on at least some Marvel-chipset NICs it is harmful.
 If the line does not improve system performance, then remove it.
 A reboot is required for the value to be set back to its power-on default.
 This requires the ethtool package to be installed.

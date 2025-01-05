@@ -36,8 +36,6 @@ COMM_TIMEOUT =          1.0
 SERVO_PERIOD =          1000000
 
 [EMCIO]
-EMCIO =                io
-CYCLE_TIME =           0.100
 TOOL_TABLE =           sim_mm.tbl
 TOOL_CHANGE_POSITION = 0 0 2
 

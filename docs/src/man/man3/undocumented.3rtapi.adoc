@@ -6,5 +6,4 @@ undocumented - undocumented functions in RTAPI
 
 == SEE ALSO
 
-The header file _rtapi.h_. Most rtapi functions have documentation in
-that file.
+The header file _rtapi.h_. Most RTAPI functions are documented in that file.

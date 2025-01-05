@@ -6,10 +6,11 @@ hm2_bspi_write_chan - write data to a Hostmot2 Buffered SPI channel
 
 == SYNTAX
 
-....
+[source,c]
+----
 #include <hostmot2-serial.h>
 hm2_bspi_write_chan(char* name, int chan, u32 val)
-....
+----
 
 == DESCRIPTION
 
@@ -17,18 +18,18 @@ hm2_bspi_write_chan(char* name, int chan, u32 val)
 the bspi instance "name". "name" is a unique string given to each bspi
 channel during hostmot2 setup. The names of the available channels are
 printed to standard output during the driver loading process and take
-the form: hm2_<board name>.<board index>.bspi.<index> For example
-hm2_5i23.0.bspi.0
+the form: hm2___<board name>__.__<board index>__.bspi.__<index>__.
+For example: `hm2_5i23.0.bspi.0`.
 
-This function performs a one-time write of data to the specified
-channel. It is typically used for setup and chip enabling purposes. It
-should not be used in the main loop for regular data transfers (but is
-appropriate to use for on-the- fly setup changes).
+This function performs a one-time write of data to the specified channel.
+It is typically used for setup and chip enabling purposes.
+It should not be used in the main loop for regular data transfers
+(but is appropriate to use for on-the-fly setup changes).
 
 == REALTIME CONSIDERATIONS
 
-May be called from init/cleanup code and from within realtime tasks. Not
-available in non-realtime components.
+May be called from init/cleanup code and from within realtime tasks.
+Not available in non-realtime components.
 
 == RETURN VALUE
 

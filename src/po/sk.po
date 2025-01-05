@@ -4,8 +4,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: sk\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
-"POT-Creation-Date: 2024-04-08 19:52+0200\n"
-"PO-Revision-Date: 2024-09-10 17:41+0000\n"
+"POT-Creation-Date: 2024-10-05 14:29+0200\n"
+"PO-Revision-Date: 2024-11-15 14:40+0000\n"
 "Last-Translator: Juraj Adamkovic <stroje.hcnc@gmail.com>\n"
 "Language-Team: Slovak <emc-developers@lists.sourceforge.net>\n"
 "Language: sk\n"
@@ -13,7 +13,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=((n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2);\n"
-"X-Generator: Weblate 5.8-dev\n"
+"X-Generator: Weblate 5.9-dev\n"
 "X-Poedit-Language: Slovak\n"
 "X-Poedit-Country: SLOVAKIA\n"
 
@@ -337,7 +337,7 @@ msgid "Cannot do an arc in planes G17.1, G18.1, or G19.1"
 msgstr "Nie je možné vytvoriť oblúk v rovinách G17.1, G18.1 alebo G19.1"
 
 #: src/emc/rs274ngc/interp_convert.cc:948
-#: src/emc/rs274ngc/interp_convert.cc:5334
+#: src/emc/rs274ngc/interp_convert.cc:5333
 msgid "Cannot feed with zero spindle speed in feed per rev mode"
 msgstr "Nie je možné ísť s nulovými otáčkami vretena v režime posuvu na otáčku"
 
@@ -380,9 +380,9 @@ msgstr ""
 #: src/emc/rs274ngc/interp_convert.cc:1615
 #: src/emc/rs274ngc/interp_convert.cc:1619
 #: src/emc/rs274ngc/interp_convert.cc:1623
-#: src/emc/rs274ngc/interp_convert.cc:4752
-#: src/emc/rs274ngc/interp_convert.cc:4755
-#: src/emc/rs274ngc/interp_convert.cc:4758 src/emc/rs274ngc/interp_find.cc:99
+#: src/emc/rs274ngc/interp_convert.cc:4751
+#: src/emc/rs274ngc/interp_convert.cc:4754
+#: src/emc/rs274ngc/interp_convert.cc:4757 src/emc/rs274ngc/interp_find.cc:99
 #, c-format
 msgid "Invalid absolute position %5.2f for wrapped rotary axis %c"
 msgstr "Neplatná absolútna poloha %5.2f pre rotačnú os %c"
@@ -606,108 +606,108 @@ msgstr "Indexovanie osi %c je možné posúvať iba pomocou G0"
 msgid "Indexing axis %c can only be moved alone"
 msgstr "Indexovanie osi %c je možné posúvať iba samostatne"
 
-#: src/emc/rs274ngc/interp_convert.cc:4427
+#: src/emc/rs274ngc/interp_convert.cc:4426
 msgid "Cannot probe with feed per rev mode"
 msgstr "Nie je možné sondovať s režimom posuvu na otáčky"
 
-#: src/emc/rs274ngc/interp_convert.cc:4475
+#: src/emc/rs274ngc/interp_convert.cc:4474
 msgid "Cannot change retract mode with cutter radius compensation on"
 msgstr ""
 "Nie je možné zmeniť režim stiahnutia so zapnutou kompenzáciou polomeru frézy"
 
-#: src/emc/rs274ngc/interp_convert.cc:4509
+#: src/emc/rs274ngc/interp_convert.cc:4508
 msgid "G10 L1 without offsets has no effect"
 msgstr "G10 L1 bez posunov nemá žiadny účinok"
 
-#: src/emc/rs274ngc/interp_convert.cc:4615
+#: src/emc/rs274ngc/interp_convert.cc:4614
 msgid "Q number in G10 is not an integer"
 msgstr "Číslo Q v G10 nie je celé číslo"
 
-#: src/emc/rs274ngc/interp_convert.cc:4616
+#: src/emc/rs274ngc/interp_convert.cc:4615
 msgid "Invalid tool orientation"
 msgstr "Neplatná orientácia nástroja"
 
-#: src/emc/rs274ngc/interp_convert.cc:4740
+#: src/emc/rs274ngc/interp_convert.cc:4739
 msgid "I J words not allowed with G10 L2"
 msgstr "I J slová nie sú povolené s G10 L2"
 
-#: src/emc/rs274ngc/interp_convert.cc:4761
+#: src/emc/rs274ngc/interp_convert.cc:4760
 msgid ""
 "Cannot change the active coordinate system with cutter radius compensation on"
 msgstr ""
 "Nie je možné zmeniť aktívny súradnicový systém so zapnutou korekciou "
 "polomeru nástroja"
 
-#: src/emc/rs274ngc/interp_convert.cc:4769
+#: src/emc/rs274ngc/interp_convert.cc:4768
 msgid "R not allowed in G10 L20"
 msgstr "R nie je povolené v G10 L20"
 
-#: src/emc/rs274ngc/interp_convert.cc:5115
+#: src/emc/rs274ngc/interp_convert.cc:5114
 msgid "Bug:  Reached convert_stop() from M99 as subprogram return"
 msgstr "Bug: Dosiahnuté convert_stop() z M99 ako návrat podprogramu"
 
-#: src/emc/rs274ngc/interp_convert.cc:5394
+#: src/emc/rs274ngc/interp_convert.cc:5393
 msgid "Invalid spindle ($) number in G33 move"
 msgstr "Neplatné číslo vretena ($) v ťahu G33"
 
-#: src/emc/rs274ngc/interp_convert.cc:5399
+#: src/emc/rs274ngc/interp_convert.cc:5398
 msgid "Spindle not turning in G33"
 msgstr "Vreteno sa neotáča v G33"
 
-#: src/emc/rs274ngc/interp_convert.cc:5409
+#: src/emc/rs274ngc/interp_convert.cc:5408
 msgid "Invalid spindle ($) number in G33.1 move"
 msgstr "Neplatné číslo vretena ($) v pohybe G33.1"
 
-#: src/emc/rs274ngc/interp_convert.cc:5414
+#: src/emc/rs274ngc/interp_convert.cc:5413
 msgid "Spindle not turning in G33.1"
 msgstr "Vreteno sa neotáča v G33.1"
 
-#: src/emc/rs274ngc/interp_convert.cc:5429
+#: src/emc/rs274ngc/interp_convert.cc:5428
 msgid "Invalid D-number in G76 cycle"
 msgstr "Neplatné D-číslo v cykle G76"
 
-#: src/emc/rs274ngc/interp_convert.cc:5434
+#: src/emc/rs274ngc/interp_convert.cc:5433
 #, c-format
 msgid "Chosen spindle (%i) not turning in G76"
 msgstr "Zvolené vreteno (%i) sa neotáča v G76"
 
-#: src/emc/rs274ngc/interp_convert.cc:5472
+#: src/emc/rs274ngc/interp_convert.cc:5471
 msgid "BUG: An axis incorrectly moved along with an indexer"
 msgstr "CHYBA: Os sa nesprávne pohybovala spolu s indexátorom"
 
-#: src/emc/rs274ngc/interp_convert.cc:5485
+#: src/emc/rs274ngc/interp_convert.cc:5484
 msgid "BUG: trying to index incorrect axis"
 msgstr "CHYBA: Pokus o indexovanie nesprávnej osi"
 
-#: src/emc/rs274ngc/interp_convert.cc:5580
+#: src/emc/rs274ngc/interp_convert.cc:5579
 msgid "Cannot use G76 threading cycle with cutter radius compensation on"
 msgstr ""
 "Nie je možné použiť cyklus závitovania G76 so zapnutou kompenzáciou polomeru "
 "frézy"
 
-#: src/emc/rs274ngc/interp_convert.cc:5583
+#: src/emc/rs274ngc/interp_convert.cc:5582
 msgid "In G76, I must not be 0"
 msgstr "V G76 nesmiem byť 0"
 
-#: src/emc/rs274ngc/interp_convert.cc:5585
+#: src/emc/rs274ngc/interp_convert.cc:5584
 msgid "In G76, J must be greater than 0"
 msgstr "V G76 musí byť J väčšie ako 0"
 
-#: src/emc/rs274ngc/interp_convert.cc:5587
+#: src/emc/rs274ngc/interp_convert.cc:5586
 msgid "In G76, K must be greater than J"
 msgstr "V G76 musí byť K väčšie ako J"
 
-#: src/emc/rs274ngc/interp_convert.cc:5730
+#: src/emc/rs274ngc/interp_convert.cc:5729
 msgid ""
 "Length of cutter compensation entry move is not greater than the tool radius"
 msgstr "Dĺžka vstupu korekcie frézy nie je väčšia ako polomer nástroja"
 
-#: src/emc/rs274ngc/interp_convert.cc:5949
+#: src/emc/rs274ngc/interp_convert.cc:5948
 msgid "Zero degree inside corner is invalid for cutter compensation"
 msgstr "Nulový stupeň vnútorného rohu je neplatný pre kompenzáciu frézy"
 
-#: src/emc/rs274ngc/interp_convert.cc:5987
-#: src/emc/rs274ngc/interp_convert.cc:5995
+#: src/emc/rs274ngc/interp_convert.cc:5986
+#: src/emc/rs274ngc/interp_convert.cc:5994
 msgid ""
 "Arc to straight motion makes a corner the compensated tool can't fit in "
 "without gouging"
@@ -715,19 +715,19 @@ msgstr ""
 "Pohyb z oblúka na priamy vytvára roh, do ktorého sa kompenzovaný nástroj bez "
 "nežiaducého\"zafrézovania\" nezmestí"
 
-#: src/emc/rs274ngc/interp_convert.cc:6079
+#: src/emc/rs274ngc/interp_convert.cc:6078
 msgid "Cannot change tools with cutter radius compensation on"
 msgstr "Nie je možné meniť nástroje so zapnutou korekciou polomeru frézy"
 
-#: src/emc/rs274ngc/interp_convert.cc:6202
+#: src/emc/rs274ngc/interp_convert.cc:6201
 msgid "Cannot change tool offset with cutter radius compensation on"
 msgstr "Nemožno zmeniť korekciu nástroja so zapnutou korekciou polomeru frézy"
 
-#: src/emc/rs274ngc/interp_convert.cc:6253
+#: src/emc/rs274ngc/interp_convert.cc:6252
 msgid "G43.2: Can not have both H and axis words"
 msgstr "G43.2: Nemôže mať obe H a aj písmeno osi"
 
-#: src/emc/rs274ngc/interp_convert.cc:6256
+#: src/emc/rs274ngc/interp_convert.cc:6255
 msgid "G43.2: No axes specified and H word missing"
 msgstr "G43.2: Nie sú špecifikované žiadne osi a chýba slovo H"
 
@@ -1325,12 +1325,12 @@ msgid "F word missing with inverse time g1 move"
 msgstr "Chýba F slovo s inverzným časom g1 pohybu"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:80
-msgid "File ended with no percent sign"
-msgstr "Súbor skončil bez znaku percenta"
+msgid "File ended with no percent sign (%)"
+msgstr "Súbor končí bez znaku percenta (%)"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:81
-msgid "File ended with no percent sign or program end"
-msgstr "Súbor skončil bez znaku percenta alebo konca programu"
+msgid "File ended with no percent sign (%) or program end (M2)"
+msgstr "Súbor končí bez znaku percenta (%) alebo konca programu (M2)"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:82
 msgid "File name too long"
@@ -1914,7 +1914,7 @@ msgstr "Opustiť"
 
 #: src/hal/utils/meter.c:336 src/hal/utils/meter.c:364
 msgid "Select Item to Probe"
-msgstr "Vyberte položku pre sondu"
+msgstr "Vyberte položku"
 
 #: src/hal/utils/meter.c:616
 msgid " _Pins "
@@ -1945,8 +1945,8 @@ msgid "Open Configuration File:"
 msgstr "Otvorte konfiguračný súbor:"
 
 #: src/hal/utils/scope.c:478 src/hal/utils/scope.c:501
-#: src/hal/utils/scope_horiz.c:808 src/hal/utils/scope_vert.c:700
-#: src/hal/utils/scope_vert.c:918 src/hal/utils/scope_trig.c:315
+#: src/hal/utils/scope_horiz.c:808 src/hal/utils/scope_vert.c:701
+#: src/hal/utils/scope_vert.c:919 src/hal/utils/scope_trig.c:315
 msgid "_Cancel"
 msgstr "_Zrušiť"
 
@@ -2096,7 +2096,7 @@ msgstr ""
 #: src/emc/usr_intf/axis/scripts/axis.py:1302
 #: src/emc/usr_intf/axis/scripts/axis.py:1662
 #: src/emc/usr_intf/axis/scripts/axis.py:2983
-#: src/emc/usr_intf/axis/scripts/axis.py:4239
+#: src/emc/usr_intf/axis/scripts/axis.py:4247
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:725
 #: lib/python/propertywindow.py:35 share/axis/tcl/axis.tcl:1580
 #: share/axis/tcl/axis.tcl:1617
@@ -2151,8 +2151,8 @@ msgstr ""
 "alebo\n"
 "Kliknite na 'Ukončiť' pre ukončenie HALSCOPE"
 
-#: src/hal/utils/scope_horiz.c:535 src/hal/utils/scope_vert.c:699
-#: src/hal/utils/scope_vert.c:917
+#: src/hal/utils/scope_horiz.c:535 src/hal/utils/scope_vert.c:700
+#: src/hal/utils/scope_vert.c:918
 msgid "_OK"
 msgstr "OK"
 
@@ -2334,7 +2334,7 @@ msgstr "kHz"
 msgid "MHz"
 msgstr "MHz"
 
-#: src/hal/utils/scope_vert.c:413 src/hal/utils/scope_vert.c:1117
+#: src/hal/utils/scope_vert.c:414 src/hal/utils/scope_vert.c:1118
 #, c-format
 msgid ""
 "Offset\n"
@@ -2343,15 +2343,15 @@ msgstr ""
 "Ofset\n"
 "%s"
 
-#: src/hal/utils/scope_vert.c:602
+#: src/hal/utils/scope_vert.c:603
 msgid "Gain"
 msgstr "_Gain"
 
-#: src/hal/utils/scope_vert.c:615 src/hal/utils/scope_trig.c:257
+#: src/hal/utils/scope_vert.c:616 src/hal/utils/scope_trig.c:257
 msgid "Pos"
 msgstr "Poz"
 
-#: src/hal/utils/scope_vert.c:630 tcl/ngcgui_ttt.tcl:215
+#: src/hal/utils/scope_vert.c:631 tcl/ngcgui_ttt.tcl:215
 #: src/emc/usr_intf/pncconf/x_motor.glade:1672
 #: src/emc/usr_intf/pncconf/y_motor.glade:1666
 #: src/emc/usr_intf/pncconf/z_motor.glade:1666
@@ -2361,7 +2361,7 @@ msgstr "Poz"
 msgid "Scale"
 msgstr "Mierka"
 
-#: src/hal/utils/scope_vert.c:635
+#: src/hal/utils/scope_vert.c:636
 msgid ""
 "Offset\n"
 "----"
@@ -2369,7 +2369,7 @@ msgstr ""
 "Ofset\n"
 "----"
 
-#: src/hal/utils/scope_vert.c:693
+#: src/hal/utils/scope_vert.c:694
 #, c-format
 msgid ""
 "Set the vertical offset\n"
@@ -2378,19 +2378,19 @@ msgstr ""
 "Nastaviť vertikálny ofset\n"
 "pre kanál %d."
 
-#: src/hal/utils/scope_vert.c:697
+#: src/hal/utils/scope_vert.c:698
 msgid "Set Offset"
 msgstr "Nastaviť ofset"
 
-#: src/hal/utils/scope_vert.c:716
+#: src/hal/utils/scope_vert.c:717
 msgid "AC Coupled"
 msgstr "AC spriahnuté"
 
-#: src/hal/utils/scope_vert.c:819
+#: src/hal/utils/scope_vert.c:820
 msgid "Too many channels"
 msgstr "Príliš veľa kanálov"
 
-#: src/hal/utils/scope_vert.c:822
+#: src/hal/utils/scope_vert.c:823
 msgid ""
 "You cannot add another channel.\n"
 "\n"
@@ -2402,20 +2402,20 @@ msgstr ""
 "Buď vypnite jeden alebo viac kanálov, alebo skráťte\n"
 "dĺžku záznamu, aby bolo možné použiť viac kanálov"
 
-#: src/hal/utils/scope_vert.c:912
+#: src/hal/utils/scope_vert.c:913
 #, c-format
 msgid "Select Channel %d Source"
 msgstr "Vybrať kanál %d zdroja"
 
-#: src/hal/utils/scope_vert.c:935
+#: src/hal/utils/scope_vert.c:936
 msgid "Pins"
 msgstr "Piny"
 
-#: src/hal/utils/scope_vert.c:936
+#: src/hal/utils/scope_vert.c:937
 msgid "Signals"
 msgstr "Signály"
 
-#: src/hal/utils/scope_vert.c:937
+#: src/hal/utils/scope_vert.c:938
 msgid "Parameters"
 msgstr "Parametre"
 
@@ -2542,22 +2542,22 @@ msgstr "kinematicsInverse poskytla non-finite joint lokalizovanú na joint %d"
 msgid "kinematicsInverse failed"
 msgstr "kinematicsInverse zlyhala"
 
-#: src/emc/motion/control.c:1510
+#: src/emc/motion/control.c:1515
 #, c-format
 msgid "Exceeded NEGATIVE soft limit (%.5f) on joint %d\n"
 msgstr "Prekročený NEGATÍVNY mäkký(softvérový) limit (%.5f) na joint %d\n"
 
-#: src/emc/motion/control.c:1513 src/emc/motion/control.c:1522
+#: src/emc/motion/control.c:1518 src/emc/motion/control.c:1527
 msgid "Joint must be unhomed, jogged into limits, rehomed"
 msgstr ""
 "Joint musí byť rozkalibrovaný, vrátený do povolených limitov a znova "
 "skalibrovaný"
 
-#: src/emc/motion/control.c:1515 src/emc/motion/control.c:1524
+#: src/emc/motion/control.c:1520 src/emc/motion/control.c:1529
 msgid "Hint: switch to joint mode to jog off soft limit"
 msgstr "Tip: prepnite do režimu \"joint\", aby ste vypli mäkký(soft.) limit"
 
-#: src/emc/motion/control.c:1519
+#: src/emc/motion/control.c:1524
 #, c-format
 msgid "Exceeded POSITIVE soft limit (%.5f) on joint %d\n"
 msgstr "Prekročený POZITÍVNY mäkký(softvérový) limit (%.5f) na joint %d\n"
@@ -2622,8 +2622,7 @@ msgstr "%s pohyb na riadku %d prekračuje joint %d negatívny limit"
 
 #: src/emc/motion/command.c:584
 msgid "all joints must be homed before going into coordinated mode"
-msgstr ""
-"všetky jointy musia byť pred prechodom do koordinovaného režimu skalibrované"
+msgstr "Stroj musí byť skalibrovaný pred prechodom do koordinovaného režimu"
 
 #: src/emc/motion/command.c:776 src/emc/motion/command.c:844
 #: src/emc/motion/command.c:923
@@ -5882,7 +5881,7 @@ msgid "Coordinate System Control Window"
 msgstr "Okno Kontroly Systému Súradníc"
 
 #: tcl/scripts/Set_Coordinates.tcl:83
-#: src/emc/usr_intf/axis/scripts/axis.py:3666
+#: src/emc/usr_intf/axis/scripts/axis.py:3667
 msgid "Axis "
 msgstr "Os"
 
@@ -6992,7 +6991,7 @@ msgstr "Naozaj chcete zatvoriť program?"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:156
 msgid "Confirm Close"
-msgstr "Potvrdiť zatvorením"
+msgstr "Potvrdiť zatvorenie"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:183
 msgid "Emergency stop"
@@ -7231,7 +7230,7 @@ msgstr "Vložiť schránku do histórie MDI"
 #: src/emc/usr_intf/axis/scripts/axis.py:229 share/axis/tcl/axis.tcl:950
 #: src/emc/usr_intf/touchy/touchy.glade:518
 msgid "Override Limits"
-msgstr "Prepísať limity"
+msgstr "Uvolniť limit"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:231
 msgid "Open program"
@@ -7404,7 +7403,7 @@ msgid ""
 "Near line %(seq)d of %(f)s:\n"
 "%(error_str)s"
 msgstr ""
-"Blízko riadku %(seq)d z %(f)s:\n"
+"Nad riadkom %(seq)d z %(f)s:\n"
 "%(error_str)s"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1490
@@ -7670,7 +7669,7 @@ msgstr "Nástroj %s ofset"
 msgid "Error saving file"
 msgstr "Chyba pri ukladaní súboru"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3438
+#: src/emc/usr_intf/axis/scripts/axis.py:3439
 #, python-format
 msgid ""
 "\n"
@@ -7683,7 +7682,7 @@ msgstr ""
 "%s\n"
 "Pozrite si dokumenty 'INI Configuration'\n"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3451
+#: src/emc/usr_intf/axis/scripts/axis.py:3452
 #, python-format
 msgid ""
 "\n"
@@ -7696,7 +7695,7 @@ msgstr ""
 "%s\n"
 "Pozrite si dokumenty 'INI Configuration'\n"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3464
+#: src/emc/usr_intf/axis/scripts/axis.py:3465
 #, python-format
 msgid ""
 "\n"
@@ -7709,48 +7708,48 @@ msgstr ""
 "%s\n"
 "Pozrite si dokumenty „INI Configuration“.\n"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3583
+#: src/emc/usr_intf/axis/scripts/axis.py:3584
 msgid "Axes"
 msgstr "Osi"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3585
+#: src/emc/usr_intf/axis/scripts/axis.py:3586
 msgid "Joints"
 msgstr "Kĺby"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3587
+#: src/emc/usr_intf/axis/scripts/axis.py:3588
 #: src/emc/usr_intf/touchy/touchy.glade:584
 #: src/emc/usr_intf/gscreen/gscreen.glade:3010
 msgid "Home All"
 msgstr "Kalibrácia"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3589
+#: src/emc/usr_intf/axis/scripts/axis.py:3590
 #, python-format
 msgid "Home all %s [Ctrl-Home]"
 msgstr "Skalibruje všetky %s [Ctrl-Home]"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3592
+#: src/emc/usr_intf/axis/scripts/axis.py:3593
 #, python-format
 msgid "Home All %s"
 msgstr "Skalibrovať všetky %s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3594
+#: src/emc/usr_intf/axis/scripts/axis.py:3595
 #, python-format
 msgid "Unhome All %s"
 msgstr "Rozkalibrovať všetky %s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3635
+#: src/emc/usr_intf/axis/scripts/axis.py:3636
 #, python-format
 msgid "Warning: Forward kinematics must handle duplicate coordinate letters:%s"
 msgstr ""
 "Upozornenie: Dopredná kinematika musí spracovať duplicitné súradnicové "
 "písmená: %s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3638
+#: src/emc/usr_intf/axis/scripts/axis.py:3639
 #, python-format
 msgid "Note: number of [TRAJ]COORDINATES=%(t)s exceeds [KINS]JOINTS=%(l)d"
 msgstr "Poznámka: počet [TRAJ]COORDINATES=%(t)s presahuje [KINS]JOINTS=%(l)d"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3670
+#: src/emc/usr_intf/axis/scripts/axis.py:3671
 msgid ""
 "\n"
 "Note:\n"
@@ -7760,42 +7759,42 @@ msgstr ""
 "Poznámka:\n"
 "Navádzanie na jednotlivé osi nie je momentálne podporované"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3671
+#: src/emc/usr_intf/axis/scripts/axis.py:3672
 #, python-format
 msgid "KINEMATICS_IDENTITY with duplicate axis letter <%s>\n"
 msgstr "KINEMATICS_IDENTITY s duplicitným písmenom osi <%s>\n"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3683
+#: src/emc/usr_intf/axis/scripts/axis.py:3684
 msgid "Joint"
 msgstr "Kĺb"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3685
+#: src/emc/usr_intf/axis/scripts/axis.py:3686
 msgid "Home Joint"
 msgstr "Skalibrovať kĺb"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3693
+#: src/emc/usr_intf/axis/scripts/axis.py:3694
 #, python-format
 msgid "Home %(name)s _%(id)s"
 msgstr "Kalibrácia %(name)s _%(id)s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3695
+#: src/emc/usr_intf/axis/scripts/axis.py:3696
 #, python-format
 msgid "Unhome %(name)s _%(id)s"
 msgstr "Rozkalibrovať %(name)s _%(id)s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3889
+#: src/emc/usr_intf/axis/scripts/axis.py:3890
 msgid "Run from here"
 msgstr "Spustiť z tohoto riadku(Nezabudni spustiť vreteno a funkcie)"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3950
+#: src/emc/usr_intf/axis/scripts/axis.py:3951
 msgid "toggle PYVCP panel visibility"
 msgstr "prepína viditeľnosť panela PYVCP"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3952 share/axis/tcl/axis.tcl:387
+#: src/emc/usr_intf/axis/scripts/axis.py:3953 share/axis/tcl/axis.tcl:387
 msgid "Show PyVCP pan_el"
 msgstr "Zobraziť PyVCP pan_el"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:4238
+#: src/emc/usr_intf/axis/scripts/axis.py:4246
 msgid "Error in ~/.axisrc"
 msgstr "Chyba v ~/.axisrc"
 
@@ -8125,8 +8124,9 @@ msgid "_Save G-code as..."
 msgstr "_Uložiť g-kód ako..."
 
 #: share/axis/tcl/axis.tcl:80
-msgid "_Properties..."
-msgstr "_Vlastnosti..."
+#, fuzzy
+msgid "G-code _properties..."
+msgstr "Vlastnosti G-kódu"
 
 #: share/axis/tcl/axis.tcl:86
 msgid "Edit _tool data..."
@@ -8672,7 +8672,7 @@ msgstr "Rýchla referencia programu AXIS"
 
 #: share/axis/tcl/axis.tcl:1756
 msgid "AXIS $::version on $::machine"
-msgstr "Verzia programu AXIS $::version _____Konfigurácia stroja $::machine"
+msgstr "Verzia programu AXIS $::version _____Názov stroja $::machine"
 
 #: share/axis/tcl/axis.tcl:1758
 msgid "(no file)"
@@ -11711,7 +11711,6 @@ msgstr "Opačný"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
 msgid ""
 "_:"
-""
 msgstr " "
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -20101,28 +20100,41 @@ msgstr "Chyba MDI v miniaplikácii stránky ofsetov – nulový rotačný posun"
 msgid "offsetpage_widget error: cannot select coordinate system"
 msgstr "chyba offsetpage_widget: nie je možné vybrať súradnicový systém"
 
-#: lib/python/gladevcp/tooledit_widget.py:228
+#: lib/python/gladevcp/tooledit_widget.py:229
 msgid "tooledit_widget error: cannot select tool number"
 msgstr "chyba tooledit_widget: nemožno vybrať číslo nástroja"
 
-#: lib/python/gladevcp/tooledit_widget.py:258
+#: lib/python/gladevcp/tooledit_widget.py:259
 msgid "Toolfile does not exist"
 msgstr "Súbor nástrojov neexistuje"
 
-#: lib/python/gladevcp/tooledit_widget.py:297
+#: lib/python/gladevcp/tooledit_widget.py:298
 msgid "Tooledit widget int error"
 msgstr "Interna chyba widgetu úpravy nástrojov"
 
-#: lib/python/gladevcp/tooledit_widget.py:307
-#: lib/python/gladevcp/tooledit_widget.py:312
+#: lib/python/gladevcp/tooledit_widget.py:308
+#: lib/python/gladevcp/tooledit_widget.py:313
 msgid "Tooledit widget float error"
 msgstr "Chyba \"float\" miniaplikácie Tooledit"
 
-#: lib/python/gladevcp/tooledit_widget.py:359
+#: lib/python/gladevcp/tooledit_widget.py:334
+msgid "Something wrong with the locale settings. Will not save the tool table."
+msgstr ""
+"Vyskytla sa chyba v miestnych nastaveniach. Tabuľka nástrojov sa neuloží."
+
+#: lib/python/gladevcp/tooledit_widget.py:356
+msgid ""
+"Error converting a float with the given localization setting. A backup file "
+"has been created: "
+msgstr ""
+"Chyba pri konverzii \"float\" s daným nastavením lokalizácie. Bol vytvorený "
+"záložný súbor: "
+
+#: lib/python/gladevcp/tooledit_widget.py:368
 msgid "Reloading tooltable into linuxcnc failed"
 msgstr "Opätovné načítanie tabuľky nástrojov do linuxcnc zlyhalo"
 
-#: lib/python/gladevcp/tooledit_widget.py:528
+#: lib/python/gladevcp/tooledit_widget.py:537
 msgid "Tool file was modified since it was last read"
 msgstr "Súbor nástroja bol od posledného čítania upravený"
 
@@ -20277,6 +20289,9 @@ msgstr "_Zrušiť_"
 #: lib/python/gladevcp/calculator.glade:335
 msgid "_Ok"
 msgstr "_OK"
+
+#~ msgid "_Properties..."
+#~ msgstr "_Vlastnosti..."
 
 #~ msgid "Lube on"
 #~ msgstr "Olej zapnutý"

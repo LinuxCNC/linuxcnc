@@ -26,12 +26,15 @@ src/modules.order
 /configs/*/emc.nml
 !/configs/common/emc.nml
 /docs/src/source-highlight/local
+docs/src/*/gui/gmoccapy_release_notes.txt
 lib/python/gremlin.py
 lib/python/qt5_graphics.py
 lib/python/touchy
 configs/sim/gmoccapy/*.pref
 configs/sim/gmoccapy/gmoccapy_plasma/*.pref
 configs/sim/gmoccapy/gmoccapy-JA/*.pref
+configs/**/*.tbl.bak
+configs/**/halshow.preferences
 # Miscellaneous generated files (Rob)
 cscope
 cscope.*
@@ -52,13 +55,3 @@ position.txt
 *.*-stamp
 # Ignore VSCode settings
 .vscode/settings.json
-# Ignore po4a-generated files for other languages
-docs/help/es/*
-docs/help/fr/*
-docs/help/hu/*
-docs/help/nb/*
-docs/help/vi/*
-docs/help/zh_CN/*
-docs/src/*/gui/gmoccapy_release_notes.txt
-configs/**/*.tbl.bak
-configs/**/halshow.preferences

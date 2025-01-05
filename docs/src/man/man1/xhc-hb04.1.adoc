@@ -56,14 +56,18 @@ $ xhc-hb04 [options]
 
 == Options
 
-*-h* list command line options and exit::
-*-I button-cfg-file* (see below for file format)::
-*-H* run in real-time HAL mode (simulation mode is default)::
-*-x* wait for pendant detection before creating HAL pins.::
-*-s *_ n_ _n_ is one of the following stepsize sequences::
-
-1: 1,10,100,1000 (default) 2: 1,5,10,20 3: 1,10,100 4: 1,5,10,20,50,100
-5: 1,10,50,100,1000 The stepsize selected is always multiplied by 0.001
+*-h*:: list command line options and exit
+*-I button-cfg-file*:: see below for file format
+*-H*:: run in real-time HAL mode (simulation mode is default)
+*-x*:: wait for pendant detection before creating HAL pins.
+*-s* _n_:: _n_ is one of the following stepsize sequences
++
+1: 1,10,100,1000 (default)
+2: 1,5,10,20 3: 1,10,100
+4: 1,5,10,20,50,100
+5: 1,10,50,100,1000
++
+The stepsize selected is always multiplied by 0.001.
 
 == button-cfg-file format
 
@@ -100,105 +104,102 @@ name to be assigned to the pin created for the button.
 
 Use the -H option to specify HAL mode and other options as required:
 
-_loadusr -W _ *xhc-hb04* _-H [Options]_
+`loadusr -W` xhc-hb04 `-H` _[options]_
 
-Example: _loadusr -W _ *xhc-hb04* _-H -I path_to_cfg_file -s 2_
+Example: `loadusr -W xhc-hb04-H -I` _path_to_cfg_file_ `-s 2`
 
 == Input Pins (Control)
 
-(bit in) _xhc-hb04.stepsize-up_::
+_xhc-hb04.stepsize-up (bit in)::
   A 1 pulse on this pin changes the stepsize to the next higher stepsize
   in the stepsize sequence specified in the xhc-hb04 (loadusr) command.
-(bit in) _xhc-hb04.stepsize-down_::
+xhc-hb04.stepsize-down (bit in)::
   A 1 pulse on this pin changes the stepsize to the next lower stepsize
   in the stepsize sequence specified in the xhc-hb04 (loadusr) command.
 
 == Input Pins (to the pendant LCD display)
 
-(float in) _xhc-hb04.[xyza].pos-absolute_::
+xhc-hb04.[xyza].pos-absolute (float in)::
   Absolute position display. The LCD display for pos-absolute is fixed
   format with a sign, 4 number digits and 3 fraction digits (+XXXX.XXX),
-  require: -9999.999 <= value <= 9999.999 (typically connect to:
-  halui.axis.N.pos-feedback).
-(float in) _xhc-hb04.[xyza].pos-relative_::
+  require: -9999.999 <= value <= 9999.999
+  (typically connect to: `halui.axis.N.pos-feedback`).
+xhc-hb04.[xyza].pos-relative (float in)::
   Relative position display (typically connect to:
   halui.axis.N.pos-relative). The LCD display for pos-relative is fixed
   format with a sign, 4 number digits and 3 fraction digits (+XXXX.XXX),
   require: -9999.999 <= value <= 9999.999.
-(float in) _xhc-hb04.feed-override_::
+xhc-hb04.feed-override (float in)::
   Feed-override value. The float value is converted to a 16 bit integer
   and multiplied by 100 in order to display as percent, require: 0 <=
-  pinvalue <= 655 (typically connect to: halui.feed-override.value).
-(float in) _xhc-hb04.feed-value_::
+  pinvalue <= 655 (typically connect to: `halui.feed-override.value`).
+xhc-hb04.feed-value (float in)::
   Current Feed-value (units/sec). The float value is converted to a 16
   bit integer and multiplied by 60 in order to display as
-  units-per-minute, require: 0 <= pinvalue <= 1092 (65520
-  units-per-minute) (typically connect to: motion.current-vel).
-(float in) _xhc-hb04.spindle-override_::
+  units-per-minute, require: 0 <= pinvalue <= 1092 (65520 units-per-minute)
+  (typically connect to: `motion.current-vel`).
+xhc-hb04.spindle-override (float in)::
   Spindle-override value. The float value is converted to a 16 bit
   integer and multiplied by 100 in order to display as percent, require:
-  0 <= pinvalue <= 655) (typically connect to:
-  halui.spindle-override.value).
-(float in) _xhc-hb04.spindle-rps_::
-  Spindle speed in RPS (revolutions per second). The float value is
-  converted to a 16 bit integer and multiplied by 60 in order to display
-  as RPMs, require: 0 <= pinvalue <= 1092 (65520 RPM) (typically connect
-  to: spindle.N.speed-out-rps-abs).
-(bit in) _xhc-hb04.inch-icon_::
+  0 <= pinvalue <= 655) (typically connect to: `halui.spindle-override.value`).
+xhc-hb04.spindle-rps (float in)::
+  Spindle speed in RPS (revolutions per second).
+  The float value is converted to a 16 bit integer and multiplied by 60
+  in order to display as RPMs, require: 0 <= pinvalue <= 1092 (65520 RPM)
+  (typically connect to: `spindle.N.speed-out-rps-abs`).
+xhc-hb04.inch-icon (bit in)::
   Use inch icon (default is mm):
 
 == Output Pins (Status)
 
-(bit out) _xhc-hb04.sleeping_::
+xhc-hb04.sleeping (bit out)::
   True when the driver receives a pendant inactive (sleeping) message.
-(bit out) _xhc-hb04.jog.enable-off_::
+xhc-hb04.jog.enable-off (bit out)::
   True when the pendant rotary selector switch is in the OFF position or
   when the pendant is sleeping.
-(bit out) _xhc-hb04.enable-[xyza]_::
+xhc-hb04.enable-[xyza] (bit out)::
   True when the pendant rotary selector switch is in the [xyza] position
   and not sleeping.
-(bit out) _xhc-hb04.enable-spindle-override_::
+xhc-hb04.enable-spindle-override (bit out)::
   True when the pendant rotary selector switch is in the Spindle
   position and not sleeping (typically connect to:
   halui.spindle-override-count-enable).
-(bit out) _xhc-hb04.enable-feed-override_::
+xhc-hb04.enable-feed-override (bit out)::
   True when the pendant rotary selector switch is in the feed position
   and not sleeping (typically connect to:
   halui.feed-override-count-enable).
-(bit out) _xhc-hb04.connected_::
+xhc-hb04.connected (bit out)::
   True when connection to the pendant is established over the USB
   interface.
-(bit out) _xhc-hb04.require_pendant_::
+xhc-hb04.require_pendant (bit out)::
   True if driver started with the -x option.
-(s32 out) _xhc-hb04.stepsize_::
+xhc-hb04.stepsize (s32 out)::
   Current stepsize in the stepsize sequence as controlled by the
   stepsize-up and/or stepsize-down pins.
 
 == Output Pins (for jogging using axis.N.jog-counts)
 
-(s32 out) _xhc-hb04.jog.counts_::
-  Number of counts of the wheel since start-up (50 counts per wheel
-  revolution) (typically connect to axis.N.jog-counts (lowpass filtering
-  may be helpful)).
-(s32 out) _xhc-hb04.jog.counts-neg_::
-  The value of the xhc-hb04.jog.counts multiplied by -1.
-(float out) _xhc-hb04.jog.scale_::
-  Value is the current stepsize multiplied by 0.001 (typically connect
-  to axis.N.jog-scale).
+xhc-hb04.jog.counts (s32 out)::
+  Number of counts of the wheel since start-up (50 counts per wheel revolution)
+  (typically connect to `axis.N.jog-counts` (lowpass filtering may be helpful)).
+xhc-hb04.jog.counts-neg (s32 out)::
+  The value of the `xhc-hb04.jog.counts` multiplied by -1.
+xhc-hb04.jog.scale (float out)::
+  Value is the current stepsize multiplied by 0.001 (typically connect to `axis.N.jog-scale`).
 
 == Experimental: Pins for halui plus/minus jogging.
 
 These pins provide some support for non-trivkins, world mode jogging.
 
-(float in) _xhc-hb04.jog.max-velocity_::
+xhc-hb04.jog.max-velocity (float in)::
   Connect to halui.max-velocity.value.
-(float out) _xhc-hb04.jog.velocity_::
+xhc-hb04.jog.velocity (float out)::
   Connect to halui.jog-speed.
-(bit out) _xhc-hb04.jog.plus-[xyza]_::
+xhc-hb04.jog.plus-[xyza] (bit out)::
   Connect to halui.jog.N.plus.
-(bit out) _xhc-hb04.jog.minus-[xyza]_::
+xhc-hb04.jog.minus-[xyza] (bit out)::
   Connect to halui.jog.N.minus.
-(float out) _xhc-hb04.jog.increment_::
+xhc-hb04.jog.increment (float out)::
   Debug pin -- abs(delta_pos).
 
 == Button output pins (for the 18 button, layout2 pendant)
@@ -257,8 +258,7 @@ export LIBUSB_DEBUG=[2 | 3 | 4]; xhc-hb04 [options]::
 
 == Sim Configs
 
-The distribution includes several simulation configurations in the
-directory:
+The distribution includes several simulation configurations in the directory:
 
 ....
    /usr/share/doc/linuxcnc/examples/sample-configs/sim/axis/xhc-hb04/
@@ -284,18 +284,17 @@ The sim configs illustrate button connections that: 1) connect pendant
 stepsize-up button to the step input pin. 2) connect buttons to halui.*
 pins 3) connect buttons to motion.* pins
 
-Another script is included to monitor the pendant and report loss of USB
-connectivity. See the README and .txt files in the above directory for
-usage.
+Another script is included to monitor the pendant and report loss of USB connectivity.
+See the README and .txt files in the above directory for usage.
 
-*Note:* The sim configs use the AXIS GUI but the scripts are available
+=== Note
+The sim configs use the AXIS GUI but the scripts are available
 with any HAL configuration or GUI. The same scripts can be used to adapt
 the xhc-hb04 to existing configurations provided that the halui, motion,
 and axis.N pins needed are not otherwise claimed. Instructions are
 included in README file in the directory named above.
 
-Use halcmd to display the pins and signals used by the xhc-hb04.tcl
-script:
+Use halcmd to display the pins and signals used by the xhc-hb04.tcl script:
 
 ....
   halcmd show pin xhc-hb04       (show all xhc-hb04 pins)

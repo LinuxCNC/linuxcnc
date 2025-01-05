@@ -168,8 +168,8 @@ contact) connect the physical button to a HAL debounce filter first.
 **halui.mdi-command-**_XX_ bit in::
   *halui* looks for INI variables named [HALUI]MDI_COMMAND, and exports
   a pin for each command it finds. When the pin is driven TRUE, *halui*
-  runs the specified MDI command. _XX_ is a two digit number starting at
-  00. If no [HALUI]MDI_COMMAND variables are set in the INI file, no
+  runs the specified MDI command. _XX_ is a two digit number starting
+  at 00. If no [HALUI]MDI_COMMAND variables are set in the INI file, no
   halui.mdi-command-XX pins will be exported by halui.
 
 === Mist coolant

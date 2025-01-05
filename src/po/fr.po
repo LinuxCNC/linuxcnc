@@ -1,14 +1,15 @@
 # nicolas <nicolas.camil@libertysurf.fr>, 2022, 2023.
 # Jérémie Tarot <silopolis@gmail.com>, 2023.
-# Xavier Soltner <soltner.xavier2@gmail.com>, 2023.
+# Xavier Soltner <soltner.xavier2@gmail.com>, 2023, 2024.
 # Axel BRUA <axel.brua.19@gmail.com>, 2024.
+# Paul Sauvignac <paul.sauvignac@gmail.com>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: fr\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-04-08 19:52+0200\n"
-"PO-Revision-Date: 2024-01-28 03:22+0000\n"
-"Last-Translator: Axel BRUA <axel.brua.19@gmail.com>\n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
+"POT-Creation-Date: 2024-10-05 14:29+0200\n"
+"PO-Revision-Date: 2024-10-07 13:42+0000\n"
+"Last-Translator: Xavier Soltner <soltner.xavier2@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "fr/>\n"
 "Language: fr\n"
@@ -16,7 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.4-dev\n"
+"X-Generator: Weblate 5.8-dev\n"
 
 #: src/emc/task/emctaskmain.cc:868
 #, c-format
@@ -163,9 +164,8 @@ msgid "J word with no G2, G3, G5, G5.1, G6, G6.1, G10, G76 or G87 to use it"
 msgstr "Mot J sans G2, G3, G5, G5.1, G10, G76 ou G87 l'utilisant"
 
 #: src/emc/rs274ngc/interp_check.cc:305
-#, fuzzy
 msgid "K word with no G2, G3, G6.2, G33, G33.1, G76, or G87 to use it"
-msgstr "Mot K sans G2, G3, G33, G33.1, G76 ou G87 l'utilisant"
+msgstr "Paramètre K sans G2, G3, G33, G33.1, G76 ou G87 l'utilisant"
 
 #: src/emc/rs274ngc/interp_check.cc:317
 msgid ""
@@ -176,13 +176,12 @@ msgstr ""
 "analogique, M98 ou code NURBS"
 
 #: src/emc/rs274ngc/interp_check.cc:334
-#, fuzzy
 msgid ""
 "P word with no G2 G3 G4 G10 G64 G5 G5.2 G6, G6.2, G76 G82 G86 G88 G89 or M50 "
 "M51 M52 M53 M62 M63 M64 M65 M66 M98 or user M code to use it"
 msgstr ""
-"Mot P sans G2 G3 G4 G10 G64 G5 G5.2 G76 G82 G86 G88 G89, ou M50 M51 M52 M53 "
-"M62 M63 M64 M65 M66 M98, ni code M utilisateur l'utilisant"
+"Paramètre P sans G2 G3 G4 G10 G64 G5 G5.2 G76 G82 G86 G88 G89, ou M50 M51 "
+"M52 M53 M62 M63 M64 M65 M66 M98, ni code M utilisateur pour la commande"
 
 #: src/emc/rs274ngc/interp_check.cc:340
 msgid "P value not an integer with M19 G2 or G3"
@@ -197,13 +196,12 @@ msgid "P value should be 1 or greater with G2 or G3"
 msgstr "Valeur de P doit être 1 ou plus avec G2 ou G3"
 
 #: src/emc/rs274ngc/interp_check.cc:355
-#, fuzzy
 msgid ""
 "Q word with no G5, G6, G10, G64, G73, G76, G83, M19, M66, M67, M68 or user M "
 "code that uses it"
 msgstr ""
-"Mot Q sans G5, G10, G64, G73, G76, G83, M19, M66, M67, M68 ou code M "
-"utilisateur l'utilisant"
+"Paramètre Q sans G5, G10, G64, G73, G76, G83, M19, M66, M67, M68 ou code M  "
+"ni code M utilisateur pour la commande"
 
 #: src/emc/rs274ngc/interp_check.cc:368
 msgid "R value must be within 0..360 with M19"
@@ -223,13 +221,10 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:199
 #: src/emc/rs274ngc/interp_convert.cc:387
-#, fuzzy
 msgid "You must specify both Y and Z coordinates for Control Points"
-msgstr ""
-"Vous devez spécifier les coordonnées X et Y pour les points de contrôle"
+msgstr "Vous devez spécifier les coordonnées Y et Z pour les points de contrôle"
 
 #: src/emc/rs274ngc/interp_convert.cc:204
-#, fuzzy
 msgid "Can specify P without Y and Z only for the first control point"
 msgstr ""
 "Possibilité de spécifier P sans X et Y, seulement pour le premier point de "
@@ -237,16 +232,13 @@ msgstr ""
 
 #: src/emc/rs274ngc/interp_convert.cc:211
 #: src/emc/rs274ngc/interp_convert.cc:394
-#, fuzzy
 msgid "You must specify both X and Z coordinates for Control Points"
-msgstr ""
-"Vous devez spécifier les coordonnées X et Y pour les points de contrôle"
+msgstr "Vous devez spécifier les coordonnées X et Z pour les points de contrôle"
 
 #: src/emc/rs274ngc/interp_convert.cc:216
-#, fuzzy
 msgid "Can specify P without X and Z only for the first control point"
 msgstr ""
-"Possibilité de spécifier P sans X et Y, seulement pour le premier point de "
+"Possibilité de spécifier P sans X et Z, seulement pour le premier point de "
 "contrôle"
 
 #: src/emc/rs274ngc/interp_convert.cc:222
@@ -276,32 +268,31 @@ msgstr "Un plan doit être sélectionné pour des courbes nurbs: XY, YZ, ZX"
 
 #: src/emc/rs274ngc/interp_convert.cc:400
 msgid "Program the nurbs order P in the first block of instruction"
-msgstr ""
+msgstr "Programmer l'ordre P du nurbs dans le premier bloc d'instruction"
 
 #: src/emc/rs274ngc/interp_convert.cc:404
-#, fuzzy
 msgid "nurbs order P number is not an integer"
-msgstr "Le nombre Q dans G10 n'est pas un entier"
+msgstr "L'ordre P du nurbs n'est pas un entier"
 
 #: src/emc/rs274ngc/interp_convert.cc:410
 msgid ""
 "Program the nurbs Q value (1,2,3) in the first block of nurbs instruction"
 msgstr ""
+"Programmer la valeur Q (1,2,3) du nurbs dans le premier bloc d'instruction "
+"nurbs"
 
 #: src/emc/rs274ngc/interp_convert.cc:415
-#, fuzzy
 msgid "nurbs Q value not in range 1 to 3"
-msgstr "Bogue : code hors gamme g54 a g593"
+msgstr "Valeur Q du nurbs doit être entre 1 et 3"
 
 #: src/emc/rs274ngc/interp_convert.cc:417
-#, fuzzy
 msgid "nurbs Q number is not an integer"
-msgstr "Le nombre Q dans G10 n'est pas un entier"
+msgstr "Paramètre Q du nurbs n'est pas un entier"
 
 #: src/emc/rs274ngc/interp_convert.cc:423
-#, fuzzy
 msgid "Must specify positive nurbs weight R for every Control Point"
-msgstr "Un poids P positif doit être spécifié pour chaque point de contrôle"
+msgstr ""
+"Un poids R positif doit être spécifié pour chaque point de contrôle nurbs"
 
 #: src/emc/rs274ngc/interp_convert.cc:428
 #, fuzzy
@@ -363,7 +354,7 @@ msgid "Cannot do an arc in planes G17.1, G18.1, or G19.1"
 msgstr "Un arc est impossible dans les plans G17.1, G18.1 ou G19.1"
 
 #: src/emc/rs274ngc/interp_convert.cc:948
-#: src/emc/rs274ngc/interp_convert.cc:5334
+#: src/emc/rs274ngc/interp_convert.cc:5333
 msgid "Cannot feed with zero spindle speed in feed per rev mode"
 msgstr ""
 "Mouvement impossible en mode longueur par tour avec une vitesse de broche à "
@@ -409,9 +400,9 @@ msgstr ""
 #: src/emc/rs274ngc/interp_convert.cc:1615
 #: src/emc/rs274ngc/interp_convert.cc:1619
 #: src/emc/rs274ngc/interp_convert.cc:1623
-#: src/emc/rs274ngc/interp_convert.cc:4752
-#: src/emc/rs274ngc/interp_convert.cc:4755
-#: src/emc/rs274ngc/interp_convert.cc:4758 src/emc/rs274ngc/interp_find.cc:99
+#: src/emc/rs274ngc/interp_convert.cc:4751
+#: src/emc/rs274ngc/interp_convert.cc:4754
+#: src/emc/rs274ngc/interp_convert.cc:4757 src/emc/rs274ngc/interp_find.cc:99
 #, c-format
 msgid "Invalid absolute position %5.2f for wrapped rotary axis %c"
 msgstr "Position absolue %5.2f invalide pour l'axe rotatif wrapped %c"
@@ -647,112 +638,112 @@ msgstr "L'axe d'indexation %c ne peut être déplacé qu'avec G0"
 msgid "Indexing axis %c can only be moved alone"
 msgstr "L'axe d'indexation %c ne peut être déplacé que seul"
 
-#: src/emc/rs274ngc/interp_convert.cc:4427
+#: src/emc/rs274ngc/interp_convert.cc:4426
 msgid "Cannot probe with feed per rev mode"
 msgstr "Mesure impossible dans le mode vitesse en unités par tour"
 
-#: src/emc/rs274ngc/interp_convert.cc:4475
+#: src/emc/rs274ngc/interp_convert.cc:4474
 msgid "Cannot change retract mode with cutter radius compensation on"
 msgstr ""
 "Changement de mode de retrait impossible avec la compensation de rayon "
 "d'outil"
 
-#: src/emc/rs274ngc/interp_convert.cc:4509
+#: src/emc/rs274ngc/interp_convert.cc:4508
 msgid "G10 L1 without offsets has no effect"
 msgstr "G10 L1 sans offsets n'a aucun effet"
 
-#: src/emc/rs274ngc/interp_convert.cc:4615
+#: src/emc/rs274ngc/interp_convert.cc:4614
 msgid "Q number in G10 is not an integer"
 msgstr "Le nombre Q dans G10 n'est pas un entier"
 
-#: src/emc/rs274ngc/interp_convert.cc:4616
+#: src/emc/rs274ngc/interp_convert.cc:4615
 msgid "Invalid tool orientation"
 msgstr "Orientation d'outil invalide"
 
-#: src/emc/rs274ngc/interp_convert.cc:4740
+#: src/emc/rs274ngc/interp_convert.cc:4739
 msgid "I J words not allowed with G10 L2"
 msgstr "Mots I J non permis avec G10 L2"
 
-#: src/emc/rs274ngc/interp_convert.cc:4761
+#: src/emc/rs274ngc/interp_convert.cc:4760
 msgid ""
 "Cannot change the active coordinate system with cutter radius compensation on"
 msgstr ""
 "Changement de système de coordonnées impossible avec la compensation de "
 "rayon d'outil activée"
 
-#: src/emc/rs274ngc/interp_convert.cc:4769
+#: src/emc/rs274ngc/interp_convert.cc:4768
 msgid "R not allowed in G10 L20"
 msgstr "R n'est pas permis avec G10 L20"
 
-#: src/emc/rs274ngc/interp_convert.cc:5115
+#: src/emc/rs274ngc/interp_convert.cc:5114
 msgid "Bug:  Reached convert_stop() from M99 as subprogram return"
 msgstr "BUG : convert_stop() atteint depuis M99 comme retour de sous-programme"
 
-#: src/emc/rs274ngc/interp_convert.cc:5394
+#: src/emc/rs274ngc/interp_convert.cc:5393
 msgid "Invalid spindle ($) number in G33 move"
 msgstr "Numéro de broche ($) invalide dans un mouvement G33"
 
-#: src/emc/rs274ngc/interp_convert.cc:5399
+#: src/emc/rs274ngc/interp_convert.cc:5398
 msgid "Spindle not turning in G33"
 msgstr "Broche pas en rotation en G33"
 
-#: src/emc/rs274ngc/interp_convert.cc:5409
+#: src/emc/rs274ngc/interp_convert.cc:5408
 msgid "Invalid spindle ($) number in G33.1 move"
 msgstr "Numéro de broche ($) invalide dans un mouvement G33.1"
 
-#: src/emc/rs274ngc/interp_convert.cc:5414
+#: src/emc/rs274ngc/interp_convert.cc:5413
 msgid "Spindle not turning in G33.1"
 msgstr "Broche pas en rotation en G33.1"
 
-#: src/emc/rs274ngc/interp_convert.cc:5429
+#: src/emc/rs274ngc/interp_convert.cc:5428
 msgid "Invalid D-number in G76 cycle"
 msgstr "Nombre D invalide dans le cycle G76"
 
-#: src/emc/rs274ngc/interp_convert.cc:5434
+#: src/emc/rs274ngc/interp_convert.cc:5433
 #, c-format
 msgid "Chosen spindle (%i) not turning in G76"
 msgstr "La broche choisie (%i) ne tourne pas en G76"
 
-#: src/emc/rs274ngc/interp_convert.cc:5472
+#: src/emc/rs274ngc/interp_convert.cc:5471
 #, fuzzy
 msgid "BUG: An axis incorrectly moved along with an indexer"
 msgstr "BUG : An axis incorrectly moved along with an indexer"
 
-#: src/emc/rs274ngc/interp_convert.cc:5485
+#: src/emc/rs274ngc/interp_convert.cc:5484
 msgid "BUG: trying to index incorrect axis"
 msgstr "BUG: trying to index incorrect axis"
 
-#: src/emc/rs274ngc/interp_convert.cc:5580
+#: src/emc/rs274ngc/interp_convert.cc:5579
 msgid "Cannot use G76 threading cycle with cutter radius compensation on"
 msgstr "Cycle de filetage G76 impossible avec la compensation de rayon d'outil"
 
-#: src/emc/rs274ngc/interp_convert.cc:5583
+#: src/emc/rs274ngc/interp_convert.cc:5582
 msgid "In G76, I must not be 0"
 msgstr "I ne peut pas être à 0 dans G76"
 
-#: src/emc/rs274ngc/interp_convert.cc:5585
+#: src/emc/rs274ngc/interp_convert.cc:5584
 msgid "In G76, J must be greater than 0"
 msgstr "J doit être supérieur à 0 dans G76"
 
-#: src/emc/rs274ngc/interp_convert.cc:5587
+#: src/emc/rs274ngc/interp_convert.cc:5586
 msgid "In G76, K must be greater than J"
 msgstr "K doit être plus grand que J dans G76"
 
-#: src/emc/rs274ngc/interp_convert.cc:5730
+#: src/emc/rs274ngc/interp_convert.cc:5729
 msgid ""
 "Length of cutter compensation entry move is not greater than the tool radius"
 msgstr ""
 "Le mouvement d'entrée en compensation de longueur d'outil doit être plus "
 "grand que le rayon d'outil"
 
-#: src/emc/rs274ngc/interp_convert.cc:5949
+#: src/emc/rs274ngc/interp_convert.cc:5948
 msgid "Zero degree inside corner is invalid for cutter compensation"
 msgstr ""
 "Un angle interne de zéro degré est invalide pour la compensation de rayon "
 "d'outil"
 
-#: src/emc/rs274ngc/interp_convert.cc:5987
-#: src/emc/rs274ngc/interp_convert.cc:5995
+#: src/emc/rs274ngc/interp_convert.cc:5986
+#: src/emc/rs274ngc/interp_convert.cc:5994
 msgid ""
 "Arc to straight motion makes a corner the compensated tool can't fit in "
 "without gouging"
@@ -760,22 +751,22 @@ msgstr ""
 "Mouvement d'arc vers une droite, pour initier la compensation d'outil, ne "
 "pouvant pas être suivi sans interférer avec la pièce"
 
-#: src/emc/rs274ngc/interp_convert.cc:6079
+#: src/emc/rs274ngc/interp_convert.cc:6078
 msgid "Cannot change tools with cutter radius compensation on"
 msgstr ""
 "Changement d'outil impossible avec la compensation de rayon d'outil active"
 
-#: src/emc/rs274ngc/interp_convert.cc:6202
+#: src/emc/rs274ngc/interp_convert.cc:6201
 msgid "Cannot change tool offset with cutter radius compensation on"
 msgstr ""
 "Changement d'offsetd'outil impossible avec la compensation de rayon d'outil "
 "active"
 
-#: src/emc/rs274ngc/interp_convert.cc:6253
+#: src/emc/rs274ngc/interp_convert.cc:6252
 msgid "G43.2: Can not have both H and axis words"
 msgstr "G43.2 : Le mot H et les axes ne peuvent être spécifiés simultanément"
 
-#: src/emc/rs274ngc/interp_convert.cc:6256
+#: src/emc/rs274ngc/interp_convert.cc:6255
 msgid "G43.2: No axes specified and H word missing"
 msgstr "G43.2 : Aucun axe spécifié et le mot H est manquant"
 
@@ -1396,11 +1387,13 @@ msgid "F word missing with inverse time g1 move"
 msgstr "Mot F manquant pour g1 en mouvement contrôle"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:80
-msgid "File ended with no percent sign"
+#, fuzzy
+msgid "File ended with no percent sign (%)"
 msgstr "Le fichier se termine sans signe pourcent"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:81
-msgid "File ended with no percent sign or program end"
+#, fuzzy
+msgid "File ended with no percent sign (%) or program end (M2)"
 msgstr "Le fichier se termine sans signe pourcent ni fin de programme"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:82
@@ -2024,8 +2017,8 @@ msgid "Open Configuration File:"
 msgstr "Ouvrir un fichier de configuration:"
 
 #: src/hal/utils/scope.c:478 src/hal/utils/scope.c:501
-#: src/hal/utils/scope_horiz.c:808 src/hal/utils/scope_vert.c:700
-#: src/hal/utils/scope_vert.c:918 src/hal/utils/scope_trig.c:315
+#: src/hal/utils/scope_horiz.c:808 src/hal/utils/scope_vert.c:701
+#: src/hal/utils/scope_vert.c:919 src/hal/utils/scope_trig.c:315
 msgid "_Cancel"
 msgstr "_Annuler"
 
@@ -2176,7 +2169,7 @@ msgstr ""
 #: src/emc/usr_intf/axis/scripts/axis.py:1302
 #: src/emc/usr_intf/axis/scripts/axis.py:1662
 #: src/emc/usr_intf/axis/scripts/axis.py:2983
-#: src/emc/usr_intf/axis/scripts/axis.py:4239
+#: src/emc/usr_intf/axis/scripts/axis.py:4247
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:725
 #: lib/python/propertywindow.py:35 share/axis/tcl/axis.tcl:1580
 #: share/axis/tcl/axis.tcl:1617
@@ -2231,8 +2224,8 @@ msgstr ""
 "ou\n"
 "Cliquer 'Quitter' pour sortir de HALSCOPE"
 
-#: src/hal/utils/scope_horiz.c:535 src/hal/utils/scope_vert.c:699
-#: src/hal/utils/scope_vert.c:917
+#: src/hal/utils/scope_horiz.c:535 src/hal/utils/scope_vert.c:700
+#: src/hal/utils/scope_vert.c:918
 msgid "_OK"
 msgstr "_OK"
 
@@ -2414,7 +2407,7 @@ msgstr "kHz"
 msgid "MHz"
 msgstr "MHz"
 
-#: src/hal/utils/scope_vert.c:413 src/hal/utils/scope_vert.c:1117
+#: src/hal/utils/scope_vert.c:414 src/hal/utils/scope_vert.c:1118
 #, c-format
 msgid ""
 "Offset\n"
@@ -2423,15 +2416,15 @@ msgstr ""
 "Offset\n"
 "%s"
 
-#: src/hal/utils/scope_vert.c:602
+#: src/hal/utils/scope_vert.c:603
 msgid "Gain"
 msgstr "Gain"
 
-#: src/hal/utils/scope_vert.c:615 src/hal/utils/scope_trig.c:257
+#: src/hal/utils/scope_vert.c:616 src/hal/utils/scope_trig.c:257
 msgid "Pos"
 msgstr "Pos"
 
-#: src/hal/utils/scope_vert.c:630 tcl/ngcgui_ttt.tcl:215
+#: src/hal/utils/scope_vert.c:631 tcl/ngcgui_ttt.tcl:215
 #: src/emc/usr_intf/pncconf/x_motor.glade:1672
 #: src/emc/usr_intf/pncconf/y_motor.glade:1666
 #: src/emc/usr_intf/pncconf/z_motor.glade:1666
@@ -2441,7 +2434,7 @@ msgstr "Pos"
 msgid "Scale"
 msgstr "Échelle"
 
-#: src/hal/utils/scope_vert.c:635
+#: src/hal/utils/scope_vert.c:636
 msgid ""
 "Offset\n"
 "----"
@@ -2449,7 +2442,7 @@ msgstr ""
 "Offset\n"
 "----"
 
-#: src/hal/utils/scope_vert.c:693
+#: src/hal/utils/scope_vert.c:694
 #, c-format
 msgid ""
 "Set the vertical offset\n"
@@ -2458,19 +2451,19 @@ msgstr ""
 "Ajuster l'offset vertical\n"
 "pour le canal %d."
 
-#: src/hal/utils/scope_vert.c:697
+#: src/hal/utils/scope_vert.c:698
 msgid "Set Offset"
 msgstr "Ajuster l'offset"
 
-#: src/hal/utils/scope_vert.c:716
+#: src/hal/utils/scope_vert.c:717
 msgid "AC Coupled"
 msgstr "AC Couplé"
 
-#: src/hal/utils/scope_vert.c:819
+#: src/hal/utils/scope_vert.c:820
 msgid "Too many channels"
 msgstr "Trop de canaux"
 
-#: src/hal/utils/scope_vert.c:822
+#: src/hal/utils/scope_vert.c:823
 msgid ""
 "You cannot add another channel.\n"
 "\n"
@@ -2482,20 +2475,20 @@ msgstr ""
 "Soit désactiver un ou plusieurs canaux, soit\n"
 "raccourcir la durée d'enregistrement"
 
-#: src/hal/utils/scope_vert.c:912
+#: src/hal/utils/scope_vert.c:913
 #, fuzzy, c-format
 msgid "Select Channel %d Source"
 msgstr "Sélectionner le canal source"
 
-#: src/hal/utils/scope_vert.c:935
+#: src/hal/utils/scope_vert.c:936
 msgid "Pins"
 msgstr "Pins"
 
-#: src/hal/utils/scope_vert.c:936
+#: src/hal/utils/scope_vert.c:937
 msgid "Signals"
 msgstr "Signaux"
 
-#: src/hal/utils/scope_vert.c:937
+#: src/hal/utils/scope_vert.c:938
 msgid "Parameters"
 msgstr "Paramètres"
 
@@ -2624,24 +2617,24 @@ msgstr ""
 msgid "kinematicsInverse failed"
 msgstr "kinematicsInverse a échoué"
 
-#: src/emc/motion/control.c:1510
+#: src/emc/motion/control.c:1515
 #, c-format
 msgid "Exceeded NEGATIVE soft limit (%.5f) on joint %d\n"
 msgstr "Limite logicielle négative (%.5f) dépassée sur la jointure %d\n"
 
-#: src/emc/motion/control.c:1513 src/emc/motion/control.c:1522
+#: src/emc/motion/control.c:1518 src/emc/motion/control.c:1527
 msgid "Joint must be unhomed, jogged into limits, rehomed"
 msgstr ""
 "La jointure doit avoir son origine réinitialisée, doit être télécommandée à "
 "l'intérieur des limites, et reprendre son origine"
 
-#: src/emc/motion/control.c:1515 src/emc/motion/control.c:1524
+#: src/emc/motion/control.c:1520 src/emc/motion/control.c:1529
 msgid "Hint: switch to joint mode to jog off soft limit"
 msgstr ""
 "Astuce : basculer en mode jointure pour permettre la télécommande au-delà "
 "des limites logicielles"
 
-#: src/emc/motion/control.c:1519
+#: src/emc/motion/control.c:1524
 #, c-format
 msgid "Exceeded POSITIVE soft limit (%.5f) on joint %d\n"
 msgstr "La limite logicielle positive (%.5f) est dépassé sur la jointure %d\n"
@@ -6094,7 +6087,7 @@ msgid "Coordinate System Control Window"
 msgstr "Fenêtre de contrôle des coordonnées système"
 
 #: tcl/scripts/Set_Coordinates.tcl:83
-#: src/emc/usr_intf/axis/scripts/axis.py:3666
+#: src/emc/usr_intf/axis/scripts/axis.py:3667
 msgid "Axis "
 msgstr "Axe"
 
@@ -7898,7 +7891,7 @@ msgstr "Toucher"
 msgid "Error saving file"
 msgstr "Erreur d'enregistrement du fichier"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3438
+#: src/emc/usr_intf/axis/scripts/axis.py:3439
 #, fuzzy, python-format
 msgid ""
 "\n"
@@ -7911,7 +7904,7 @@ msgstr ""
 "%s\n"
 "Voir la documentation 'Configuration INI'\n"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3451
+#: src/emc/usr_intf/axis/scripts/axis.py:3452
 #, fuzzy, python-format
 msgid ""
 "\n"
@@ -7924,7 +7917,7 @@ msgstr ""
 "%s\n"
 "Voir la documentation 'Configuration INI'\n"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3464
+#: src/emc/usr_intf/axis/scripts/axis.py:3465
 #, fuzzy, python-format
 msgid ""
 "\n"
@@ -7937,50 +7930,50 @@ msgstr ""
 "%s\n"
 "Voir la documentation 'Configuration INI'\n"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3583
+#: src/emc/usr_intf/axis/scripts/axis.py:3584
 msgid "Axes"
 msgstr "Axes"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3585
+#: src/emc/usr_intf/axis/scripts/axis.py:3586
 #, fuzzy
 msgid "Joints"
 msgstr "Jointure:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3587
+#: src/emc/usr_intf/axis/scripts/axis.py:3588
 #: src/emc/usr_intf/touchy/touchy.glade:584
 #: src/emc/usr_intf/gscreen/gscreen.glade:3010
 msgid "Home All"
 msgstr "Prise d'origine générale"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3589
+#: src/emc/usr_intf/axis/scripts/axis.py:3590
 #, fuzzy, python-format
 msgid "Home all %s [Ctrl-Home]"
 msgstr "Prise d'origine machine générale [Ctrl+origine]"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3592
+#: src/emc/usr_intf/axis/scripts/axis.py:3593
 #, fuzzy, python-format
 msgid "Home All %s"
 msgstr "Prise d'origine générale"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3594
+#: src/emc/usr_intf/axis/scripts/axis.py:3595
 #, fuzzy, python-format
 msgid "Unhome All %s"
 msgstr "Annulation OM de tous les axes"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3635
+#: src/emc/usr_intf/axis/scripts/axis.py:3636
 #, python-format
 msgid "Warning: Forward kinematics must handle duplicate coordinate letters:%s"
 msgstr ""
 "Avertissement : La cinématique directe doit gérer les lettres de coordonnées "
 "en double :%s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3638
+#: src/emc/usr_intf/axis/scripts/axis.py:3639
 #, python-format
 msgid "Note: number of [TRAJ]COORDINATES=%(t)s exceeds [KINS]JOINTS=%(l)d"
 msgstr ""
 "Remarque : le nombre de [TRAJ]COORDINATES=%(t)s dépasse [KINS]JOINTS=%(l)d"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3670
+#: src/emc/usr_intf/axis/scripts/axis.py:3671
 msgid ""
 "\n"
 "Note:\n"
@@ -7991,45 +7984,45 @@ msgstr ""
 "La prise d'origine d'axe individuel n'est actuellement pas pris en charge "
 "pour"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3671
+#: src/emc/usr_intf/axis/scripts/axis.py:3672
 #, python-format
 msgid "KINEMATICS_IDENTITY with duplicate axis letter <%s>\n"
 msgstr "KINEMATICS_IDENTITY avec une double lettre d'axe <%s> ;\n"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3683
+#: src/emc/usr_intf/axis/scripts/axis.py:3684
 #, fuzzy
 msgid "Joint"
 msgstr "Jointure:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3685
+#: src/emc/usr_intf/axis/scripts/axis.py:3686
 #, fuzzy
 msgid "Home Joint"
 msgstr "Emplacement de l'origine mac_hine:"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3693
+#: src/emc/usr_intf/axis/scripts/axis.py:3694
 #, python-format
 msgid "Home %(name)s _%(id)s"
 msgstr "Accueil %(name)s _%(id)s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3695
+#: src/emc/usr_intf/axis/scripts/axis.py:3696
 #, fuzzy, python-format
 msgid "Unhome %(name)s _%(id)s"
 msgstr "Annulation OM de l'axe _%s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3889
+#: src/emc/usr_intf/axis/scripts/axis.py:3890
 msgid "Run from here"
 msgstr "Démarrer depuis ici"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3950
+#: src/emc/usr_intf/axis/scripts/axis.py:3951
 msgid "toggle PYVCP panel visibility"
 msgstr "activer la visibilité du panneau PYVCP"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3952 share/axis/tcl/axis.tcl:387
+#: src/emc/usr_intf/axis/scripts/axis.py:3953 share/axis/tcl/axis.tcl:387
 #, fuzzy
 msgid "Show PyVCP pan_el"
 msgstr "Afficher le panel pyVCP"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:4238
+#: src/emc/usr_intf/axis/scripts/axis.py:4246
 msgid "Error in ~/.axisrc"
 msgstr "Erreur dans ~/.axisrc"
 
@@ -8350,8 +8343,9 @@ msgid "_Save G-code as..."
 msgstr "Enregi_strer le G-code sous..."
 
 #: share/axis/tcl/axis.tcl:80
-msgid "_Properties..."
-msgstr "_Propriétés..."
+#, fuzzy
+msgid "G-code _properties..."
+msgstr "Propriétés du G-code"
 
 #: share/axis/tcl/axis.tcl:86
 #, fuzzy
@@ -12061,7 +12055,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid "_:"
+msgid ""
+"_:"
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -20536,30 +20531,40 @@ msgstr ""
 msgid "offsetpage_widget error: cannot select coordinate system"
 msgstr "Décale toutes les coordonnées système"
 
-#: lib/python/gladevcp/tooledit_widget.py:228
+#: lib/python/gladevcp/tooledit_widget.py:229
 msgid "tooledit_widget error: cannot select tool number"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_widget.py:258
+#: lib/python/gladevcp/tooledit_widget.py:259
 #, fuzzy
 msgid "Toolfile does not exist"
 msgstr "Le fichier d'outils %s"
 
-#: lib/python/gladevcp/tooledit_widget.py:297
+#: lib/python/gladevcp/tooledit_widget.py:298
 msgid "Tooledit widget int error"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_widget.py:307
-#: lib/python/gladevcp/tooledit_widget.py:312
+#: lib/python/gladevcp/tooledit_widget.py:308
+#: lib/python/gladevcp/tooledit_widget.py:313
 msgid "Tooledit widget float error"
 msgstr ""
 
-#: lib/python/gladevcp/tooledit_widget.py:359
+#: lib/python/gladevcp/tooledit_widget.py:334
+msgid "Something wrong with the locale settings. Will not save the tool table."
+msgstr ""
+
+#: lib/python/gladevcp/tooledit_widget.py:356
+msgid ""
+"Error converting a float with the given localization setting. A backup file "
+"has been created: "
+msgstr ""
+
+#: lib/python/gladevcp/tooledit_widget.py:368
 #, fuzzy
 msgid "Reloading tooltable into linuxcnc failed"
 msgstr "Recharger la ta_ble d'outils"
 
-#: lib/python/gladevcp/tooledit_widget.py:528
+#: lib/python/gladevcp/tooledit_widget.py:537
 #, fuzzy
 msgid "Tool file was modified since it was last read"
 msgstr "Le fichier %r a été modifié depuis qu'il a été écrit par Stepconf"
@@ -20736,6 +20741,9 @@ msgstr "Annuler"
 #, fuzzy
 msgid "_Ok"
 msgstr "Ok"
+
+#~ msgid "_Properties..."
+#~ msgstr "_Propriétés..."
 
 #~ msgid "Lube on"
 #~ msgstr "Avec lubrifiant"

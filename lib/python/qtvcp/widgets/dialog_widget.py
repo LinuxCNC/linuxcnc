@@ -98,11 +98,12 @@ class LcncDialog(QMessageBox, GeometryMixin):
         self._geoName = 'LncMessage-geometry'
         self.set_default_geometry()
         self.hide()
-        self.buttonClicked.connect(self.msgbtn)
+        self.buttonClicked.connect(self.btn_callback)
 
     def _hal_init(self):
         self.read_preference_geometry(self._geoName)
         STATUS.connect('dialog-request', self._external_request)
+        STATUS.connect('dialog-update', self._external_update)
 
     # this processes STATUS called dialog requests
     # We check the cmd to see if it was for us
@@ -285,7 +286,7 @@ class LcncDialog(QMessageBox, GeometryMixin):
         super(LcncDialog, self).showEvent(event)
 
 
-    def msgbtn(self, i):
+    def btn_callback(self, i):
         LOG.debug('Button pressed is: {}'.format(i.text()))
 
         # update the dialog position
@@ -299,7 +300,9 @@ class LcncDialog(QMessageBox, GeometryMixin):
         btn = self.standardButton(self.clickedButton())
         result = self.qualifiedReturn(btn)
         LOG.debug('Value of {} pressed button: {}'.format(self, result))
+        self.process_result(result)
 
+    def process_result(self, result):
         # these directly call a function with btn info
         if not self._return_callback is None:
             self._return_callback(self, result)
@@ -326,6 +329,23 @@ class LcncDialog(QMessageBox, GeometryMixin):
                 self.findChild(QLabel, "qt_msgbox_label").setFixedWidth(200)
             else:
                 self.findChild(QLabel, "qt_msgbox_label").setFixedWidth(350)
+
+    # callback from status 'update-dialog'
+    def _external_update(self, w, message):
+        if message.get('NAME') == self._request_name:
+            if not self.isVisible(): return
+
+            response = message.get('response')
+            if not response is None:
+                LOG.debug('Response is: {}'.format(response))
+                # update the dialog position
+                self.record_geometry()
+                self.hide()
+
+                if response == 0:
+                    self.process_result(False)
+                elif response == 1:
+                    self.process_result(True)
 
     # **********************
     # Designer properties
@@ -1571,6 +1591,7 @@ class CalculatorDialog(Calculator, GeometryMixin):
         else:
             self.play_sound = False
         STATUS.connect('dialog-request', self._external_request)
+        STATUS.connect('dialog-update', self._external_update)
 
     # this processes STATUS called dialog requests
     # We check the cmd to see if it was for us
@@ -1605,6 +1626,18 @@ class CalculatorDialog(Calculator, GeometryMixin):
                 message['NEXT'] = False
             else:
                 num = self.showdialog(preload=preload, overlay=overlay, cycle=cycle)
+
+    # callback from status 'update-dialog'
+    def _external_update(self, w, message):
+        if message.get('NAME') == self._request_name:
+            if not self.isVisible(): return
+
+            response = message.get('response')
+            if not response is None:
+                if response == 0:
+                    self.reject()
+                elif response == 1:
+                    self.accept()
 
     def updatedialog(self, preload=None):
         self.setWindowTitle(self._title);

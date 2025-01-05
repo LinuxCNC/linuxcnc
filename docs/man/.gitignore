@@ -41,8 +41,8 @@ man1/hy_vfd.1
 man1/image-to-gcode.1
 man1/inivar.1
 man1/io.1
-man1/iocontrol.1
 man1/iov2.1
+man1/iocontrol.1
 man1/latency-histogram.1
 man1/latency-plot.1
 man1/latency-test.1
@@ -337,6 +337,7 @@ man9/hm2_eth.9
 man9/hm2_pci.9
 man9/hm2_rpspi.9
 man9/hm2_spi.9
+man9/hm2_spix.9
 man9/homecomp.9
 man9/hostmot2.9
 man9/hypot.9
@@ -449,9 +450,12 @@ man9/weighted_sum.9
 man9/xhc_hb04_util.9
 man9/xor2.9
 man9/xyzab_tdr_kins.9
+man9/xyzacb_trsrn.9
+man9/xyzbca_trsrn.9
 # Ignore po4a-generated files for other languages
 ar/*
 bg/*
+ckb/*
 cs/*
 da/*
 de/*
@@ -464,7 +468,9 @@ nb/*
 pl/*
 pt/*
 pt_BR/*
+ro/*
 ru/*
+sai/*
 sk/*
 sv/*
 tr/*

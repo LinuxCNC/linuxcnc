@@ -11,7 +11,7 @@ controller
 
 == DESCRIPTION
 
-*ngcgui* details: http://linuxcnc.org/docs/html/gui/ngcgui.html
+*ngcgui* details: https://linuxcnc.org/docs/html/gui/ngcgui.html
 
 == SEE ALSO
 

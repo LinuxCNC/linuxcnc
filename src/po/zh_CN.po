@@ -7,13 +7,15 @@
 # taotieren <admin@taotieren.com>, 2023.
 # bobyjx yu <502149532@qq.com>, 2023.
 # hyp90 <jexsp1224@gmail.com>, 2024.
+# 飞飞 <vip74120@gmail.com>, 2024.
+# Tron Lee <472734894@qq.com>, 2024.
 msgid ""
 msgstr ""
 "Project-Id-Version: LinuxCNC EMC2.8.0\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
-"POT-Creation-Date: 2024-04-08 19:52+0200\n"
-"PO-Revision-Date: 2024-04-19 06:03+0000\n"
-"Last-Translator: hyp90 <jexsp1224@gmail.com>\n"
+"POT-Creation-Date: 2024-10-05 14:29+0200\n"
+"PO-Revision-Date: 2024-11-21 20:40+0000\n"
+"Last-Translator: Tron Lee <472734894@qq.com>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
 "linuxcnc/linuxcnc/zh_Hans/>\n"
 "Language: zh_CN\n"
@@ -21,7 +23,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.5-dev\n"
+"X-Generator: Weblate 5.9-dev\n"
 "X-Poedit-Language: Chinese\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -270,29 +272,24 @@ msgid ""
 msgstr "在第一个 nurbs 指令块中编程 nurbs Q 值 (1,2,3)"
 
 #: src/emc/rs274ngc/interp_convert.cc:415
-#, fuzzy
 msgid "nurbs Q value not in range 1 to 3"
-msgstr "错误:代码不在范围g54到g593"
+msgstr "NURBS的Q值不在1至3的范围内"
 
 #: src/emc/rs274ngc/interp_convert.cc:417
-#, fuzzy
 msgid "nurbs Q number is not an integer"
-msgstr "G10中的Q号不是一个整数"
+msgstr "nurbs的Q值不是一个整数"
 
 #: src/emc/rs274ngc/interp_convert.cc:423
-#, fuzzy
 msgid "Must specify positive nurbs weight R for every Control Point"
-msgstr "必须为每个控制点指定正的权重P"
+msgstr "必须为每个控制点指定正（非负值）的nurbs权重R"
 
 #: src/emc/rs274ngc/interp_convert.cc:428
-#, fuzzy
 msgid "Must specify nurbs K number for every Control Point"
-msgstr "必须为每个控制点指定正的权重P"
+msgstr "必须为每个控制点指定nurbs的K值"
 
 #: src/emc/rs274ngc/interp_convert.cc:432
-#, fuzzy
 msgid "nurbs K number is not an integer"
-msgstr "G10中的Q号不是一个整数"
+msgstr "nurbs的K值不是一个整数"
 
 #: src/emc/rs274ngc/interp_convert.cc:437
 #, fuzzy
@@ -339,7 +336,7 @@ msgid "Cannot do an arc in planes G17.1, G18.1, or G19.1"
 msgstr "在平面G17.1，G18.1或G19.1中不能做圆弧"
 
 #: src/emc/rs274ngc/interp_convert.cc:948
-#: src/emc/rs274ngc/interp_convert.cc:5334
+#: src/emc/rs274ngc/interp_convert.cc:5333
 msgid "Cannot feed with zero spindle speed in feed per rev mode"
 msgstr "每转进给模式下无法以主轴转速进给"
 
@@ -377,12 +374,12 @@ msgstr "圆弧到圆弧运动使拐角补偿的刀具无法适应没有刨削槽
 #: src/emc/rs274ngc/interp_convert.cc:1615
 #: src/emc/rs274ngc/interp_convert.cc:1619
 #: src/emc/rs274ngc/interp_convert.cc:1623
-#: src/emc/rs274ngc/interp_convert.cc:4752
-#: src/emc/rs274ngc/interp_convert.cc:4755
-#: src/emc/rs274ngc/interp_convert.cc:4758 src/emc/rs274ngc/interp_find.cc:99
+#: src/emc/rs274ngc/interp_convert.cc:4751
+#: src/emc/rs274ngc/interp_convert.cc:4754
+#: src/emc/rs274ngc/interp_convert.cc:4757 src/emc/rs274ngc/interp_find.cc:99
 #, c-format
 msgid "Invalid absolute position %5.2f for wrapped rotary axis %c"
-msgstr "绝对位置 %5.2f 无效，旋转轴%c"
+msgstr "缠绕的旋转轴%c的绝对位置%5.2f无效"
 
 #: src/emc/rs274ngc/interp_convert.cc:2190
 msgid "Cannot change control mode with cutter radius compensation on"
@@ -430,12 +427,12 @@ msgstr "错误:无法从较低的对话级别(%d)恢复到较高的对话级别(
 #: src/emc/rs274ngc/interp_convert.cc:3619
 #, c-format
 msgid "BUG: restore from level %d !?"
-msgstr "错误:从级别%d恢复?"
+msgstr "错误:从级别%d恢复!?"
 
 #: src/emc/rs274ngc/interp_convert.cc:3620
 #, c-format
 msgid "BUG: restore to level %d !?"
-msgstr "错误:恢复到级别%d！?"
+msgstr "错误:恢复到级别%d!?"
 
 #: src/emc/rs274ngc/interp_convert.cc:3639
 #, c-format
@@ -586,121 +583,121 @@ msgstr "索引轴%c只能用G0移动"
 msgid "Indexing axis %c can only be moved alone"
 msgstr "索引轴%c只能单独移动 "
 
-#: src/emc/rs274ngc/interp_convert.cc:4427
+#: src/emc/rs274ngc/interp_convert.cc:4426
 msgid "Cannot probe with feed per rev mode"
 msgstr "使用每转进给模式时无法探测"
 
-#: src/emc/rs274ngc/interp_convert.cc:4475
+#: src/emc/rs274ngc/interp_convert.cc:4474
 msgid "Cannot change retract mode with cutter radius compensation on"
 msgstr "开启刀具半径补偿后，无法更改退刀模式"
 
-#: src/emc/rs274ngc/interp_convert.cc:4509
+#: src/emc/rs274ngc/interp_convert.cc:4508
 msgid "G10 L1 without offsets has no effect"
 msgstr "无偏移的G10 L1无效"
 
-#: src/emc/rs274ngc/interp_convert.cc:4615
+#: src/emc/rs274ngc/interp_convert.cc:4614
 msgid "Q number in G10 is not an integer"
 msgstr "G10中的Q号不是一个整数"
 
-#: src/emc/rs274ngc/interp_convert.cc:4616
+#: src/emc/rs274ngc/interp_convert.cc:4615
 msgid "Invalid tool orientation"
 msgstr "无效的刀具定位"
 
-#: src/emc/rs274ngc/interp_convert.cc:4740
+#: src/emc/rs274ngc/interp_convert.cc:4739
 msgid "I J words not allowed with G10 L2"
 msgstr "G10 L2不允许使用I J字"
 
-#: src/emc/rs274ngc/interp_convert.cc:4761
+#: src/emc/rs274ngc/interp_convert.cc:4760
 msgid ""
 "Cannot change the active coordinate system with cutter radius compensation on"
 msgstr "开启刀具半径补偿功能后，不能改变活动坐标系"
 
-#: src/emc/rs274ngc/interp_convert.cc:4769
+#: src/emc/rs274ngc/interp_convert.cc:4768
 msgid "R not allowed in G10 L20"
 msgstr "R不允许在G10 L20中使用"
 
-#: src/emc/rs274ngc/interp_convert.cc:5115
+#: src/emc/rs274ngc/interp_convert.cc:5114
 msgid "Bug:  Reached convert_stop() from M99 as subprogram return"
 msgstr "错误:从M99到达convert_stop() 作为子程序返回"
 
-#: src/emc/rs274ngc/interp_convert.cc:5394
+#: src/emc/rs274ngc/interp_convert.cc:5393
 msgid "Invalid spindle ($) number in G33 move"
 msgstr "G33移动中的主轴($) 编号无效"
 
-#: src/emc/rs274ngc/interp_convert.cc:5399
+#: src/emc/rs274ngc/interp_convert.cc:5398
 msgid "Spindle not turning in G33"
 msgstr "在 G33 中主轴未转动"
 
-#: src/emc/rs274ngc/interp_convert.cc:5409
+#: src/emc/rs274ngc/interp_convert.cc:5408
 msgid "Invalid spindle ($) number in G33.1 move"
 msgstr "G33.1移动中的主轴($) 编号无效"
 
-#: src/emc/rs274ngc/interp_convert.cc:5414
+#: src/emc/rs274ngc/interp_convert.cc:5413
 msgid "Spindle not turning in G33.1"
 msgstr "在 G33.1 中主轴未转动"
 
-#: src/emc/rs274ngc/interp_convert.cc:5429
+#: src/emc/rs274ngc/interp_convert.cc:5428
 msgid "Invalid D-number in G76 cycle"
 msgstr "G76循环中的D编号无效"
 
-#: src/emc/rs274ngc/interp_convert.cc:5434
+#: src/emc/rs274ngc/interp_convert.cc:5433
 #, c-format
 msgid "Chosen spindle (%i) not turning in G76"
 msgstr "选择的主轴(%i)未在G76中转动"
 
-#: src/emc/rs274ngc/interp_convert.cc:5472
+#: src/emc/rs274ngc/interp_convert.cc:5471
 msgid "BUG: An axis incorrectly moved along with an indexer"
 msgstr "错误: 一个轴不正确地与一个索引器一起移动"
 
-#: src/emc/rs274ngc/interp_convert.cc:5485
+#: src/emc/rs274ngc/interp_convert.cc:5484
 msgid "BUG: trying to index incorrect axis"
 msgstr "错误: 试图索引不正确的轴"
 
-#: src/emc/rs274ngc/interp_convert.cc:5580
+#: src/emc/rs274ngc/interp_convert.cc:5579
 msgid "Cannot use G76 threading cycle with cutter radius compensation on"
 msgstr "不能使用G76螺紋週期當刀具半徑補償在使用"
 
-#: src/emc/rs274ngc/interp_convert.cc:5583
+#: src/emc/rs274ngc/interp_convert.cc:5582
 msgid "In G76, I must not be 0"
 msgstr "在 G76，I 不能为 0"
 
-#: src/emc/rs274ngc/interp_convert.cc:5585
+#: src/emc/rs274ngc/interp_convert.cc:5584
 msgid "In G76, J must be greater than 0"
 msgstr "在 G76，J 必须大于 0"
 
-#: src/emc/rs274ngc/interp_convert.cc:5587
+#: src/emc/rs274ngc/interp_convert.cc:5586
 msgid "In G76, K must be greater than J"
 msgstr "在 G76，K 必须大于 J"
 
-#: src/emc/rs274ngc/interp_convert.cc:5730
+#: src/emc/rs274ngc/interp_convert.cc:5729
 msgid ""
 "Length of cutter compensation entry move is not greater than the tool radius"
 msgstr "刀具补偿进刀移动的长度不大于刀具半径"
 
-#: src/emc/rs274ngc/interp_convert.cc:5949
+#: src/emc/rs274ngc/interp_convert.cc:5948
 msgid "Zero degree inside corner is invalid for cutter compensation"
 msgstr "零度内角对刀具补偿无效"
 
-#: src/emc/rs274ngc/interp_convert.cc:5987
-#: src/emc/rs274ngc/interp_convert.cc:5995
+#: src/emc/rs274ngc/interp_convert.cc:5986
+#: src/emc/rs274ngc/interp_convert.cc:5994
 msgid ""
 "Arc to straight motion makes a corner the compensated tool can't fit in "
 "without gouging"
 msgstr "弧到直线运动做的角,刀具补偿不合适会做成刨削槽"
 
-#: src/emc/rs274ngc/interp_convert.cc:6079
+#: src/emc/rs274ngc/interp_convert.cc:6078
 msgid "Cannot change tools with cutter radius compensation on"
 msgstr "使用刀具半径补偿时无法更换刀具"
 
-#: src/emc/rs274ngc/interp_convert.cc:6202
+#: src/emc/rs274ngc/interp_convert.cc:6201
 msgid "Cannot change tool offset with cutter radius compensation on"
 msgstr "使用刀具半径补偿时不能改变刀具偏置"
 
-#: src/emc/rs274ngc/interp_convert.cc:6253
+#: src/emc/rs274ngc/interp_convert.cc:6252
 msgid "G43.2: Can not have both H and axis words"
 msgstr "G43.2: 不能同时有 H 编号和轴编号"
 
-#: src/emc/rs274ngc/interp_convert.cc:6256
+#: src/emc/rs274ngc/interp_convert.cc:6255
 msgid "G43.2: No axes specified and H word missing"
 msgstr "G43.2:未指定轴且缺失 H 编号"
 
@@ -1288,12 +1285,13 @@ msgid "F word missing with inverse time g1 move"
 msgstr "反时针g1移动缺少F字"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:80
-msgid "File ended with no percent sign"
+#, fuzzy
+msgid "File ended with no percent sign (%)"
 msgstr "文件结束没有%符号"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:81
-msgid "File ended with no percent sign or program end"
-msgstr "文件或程序结束没有%符号"
+msgid "File ended with no percent sign (%) or program end (M2)"
+msgstr "文件结尾没有百分号（%）或程序结束代码（M2）"
 
 #: src/emc/rs274ngc/rs274ngc_return.hh:82
 msgid "File name too long"
@@ -1908,8 +1906,8 @@ msgid "Open Configuration File:"
 msgstr "打开配置文件:"
 
 #: src/hal/utils/scope.c:478 src/hal/utils/scope.c:501
-#: src/hal/utils/scope_horiz.c:808 src/hal/utils/scope_vert.c:700
-#: src/hal/utils/scope_vert.c:918 src/hal/utils/scope_trig.c:315
+#: src/hal/utils/scope_horiz.c:808 src/hal/utils/scope_vert.c:701
+#: src/hal/utils/scope_vert.c:919 src/hal/utils/scope_trig.c:315
 msgid "_Cancel"
 msgstr "_取消"
 
@@ -2058,7 +2056,7 @@ msgstr ""
 #: src/emc/usr_intf/axis/scripts/axis.py:1302
 #: src/emc/usr_intf/axis/scripts/axis.py:1662
 #: src/emc/usr_intf/axis/scripts/axis.py:2983
-#: src/emc/usr_intf/axis/scripts/axis.py:4239
+#: src/emc/usr_intf/axis/scripts/axis.py:4247
 #: src/emc/usr_intf/axis/scripts/image-to-gcode.py:725
 #: lib/python/propertywindow.py:35 share/axis/tcl/axis.tcl:1580
 #: share/axis/tcl/axis.tcl:1617
@@ -2113,8 +2111,8 @@ msgstr ""
 "或\n"
 "点击退出，以离开HALSCOPE"
 
-#: src/hal/utils/scope_horiz.c:535 src/hal/utils/scope_vert.c:699
-#: src/hal/utils/scope_vert.c:917
+#: src/hal/utils/scope_horiz.c:535 src/hal/utils/scope_vert.c:700
+#: src/hal/utils/scope_vert.c:918
 msgid "_OK"
 msgstr "_确定"
 
@@ -2296,7 +2294,7 @@ msgstr "千赫兹"
 msgid "MHz"
 msgstr "兆赫"
 
-#: src/hal/utils/scope_vert.c:413 src/hal/utils/scope_vert.c:1117
+#: src/hal/utils/scope_vert.c:414 src/hal/utils/scope_vert.c:1118
 #, c-format
 msgid ""
 "Offset\n"
@@ -2305,15 +2303,15 @@ msgstr ""
 "偏移\n"
 "%s"
 
-#: src/hal/utils/scope_vert.c:602
+#: src/hal/utils/scope_vert.c:603
 msgid "Gain"
 msgstr "增益"
 
-#: src/hal/utils/scope_vert.c:615 src/hal/utils/scope_trig.c:257
+#: src/hal/utils/scope_vert.c:616 src/hal/utils/scope_trig.c:257
 msgid "Pos"
 msgstr "定位"
 
-#: src/hal/utils/scope_vert.c:630 tcl/ngcgui_ttt.tcl:215
+#: src/hal/utils/scope_vert.c:631 tcl/ngcgui_ttt.tcl:215
 #: src/emc/usr_intf/pncconf/x_motor.glade:1672
 #: src/emc/usr_intf/pncconf/y_motor.glade:1666
 #: src/emc/usr_intf/pncconf/z_motor.glade:1666
@@ -2323,7 +2321,7 @@ msgstr "定位"
 msgid "Scale"
 msgstr "比例"
 
-#: src/hal/utils/scope_vert.c:635
+#: src/hal/utils/scope_vert.c:636
 msgid ""
 "Offset\n"
 "----"
@@ -2331,7 +2329,7 @@ msgstr ""
 "偏移\n"
 "----"
 
-#: src/hal/utils/scope_vert.c:693
+#: src/hal/utils/scope_vert.c:694
 #, c-format
 msgid ""
 "Set the vertical offset\n"
@@ -2340,19 +2338,19 @@ msgstr ""
 "给通道 %d 设置\n"
 "垂直偏移量."
 
-#: src/hal/utils/scope_vert.c:697
+#: src/hal/utils/scope_vert.c:698
 msgid "Set Offset"
 msgstr "设置偏移"
 
-#: src/hal/utils/scope_vert.c:716
+#: src/hal/utils/scope_vert.c:717
 msgid "AC Coupled"
 msgstr "交流耦合"
 
-#: src/hal/utils/scope_vert.c:819
+#: src/hal/utils/scope_vert.c:820
 msgid "Too many channels"
 msgstr "通道太多"
 
-#: src/hal/utils/scope_vert.c:822
+#: src/hal/utils/scope_vert.c:823
 msgid ""
 "You cannot add another channel.\n"
 "\n"
@@ -2364,20 +2362,20 @@ msgstr ""
 "要么关闭一个或多个通道\n"
 "要么缩短记录长度以允许更多通道"
 
-#: src/hal/utils/scope_vert.c:912
+#: src/hal/utils/scope_vert.c:913
 #, c-format
 msgid "Select Channel %d Source"
 msgstr "选择通道 %d 信号源"
 
-#: src/hal/utils/scope_vert.c:935
+#: src/hal/utils/scope_vert.c:936
 msgid "Pins"
 msgstr "针脚"
 
-#: src/hal/utils/scope_vert.c:936
+#: src/hal/utils/scope_vert.c:937
 msgid "Signals"
 msgstr "信号"
 
-#: src/hal/utils/scope_vert.c:937
+#: src/hal/utils/scope_vert.c:938
 msgid "Parameters"
 msgstr "参数"
 
@@ -2504,20 +2502,20 @@ msgstr "运动学逆向在关节%d上给出非有限关节位置"
 msgid "kinematicsInverse failed"
 msgstr "运动学逆向失败"
 
-#: src/emc/motion/control.c:1510
+#: src/emc/motion/control.c:1515
 #, c-format
 msgid "Exceeded NEGATIVE soft limit (%.5f) on joint %d\n"
 msgstr "负向软限位 (%.5f) 在关节 %d 上已超程\n"
 
-#: src/emc/motion/control.c:1513 src/emc/motion/control.c:1522
+#: src/emc/motion/control.c:1518 src/emc/motion/control.c:1527
 msgid "Joint must be unhomed, jogged into limits, rehomed"
 msgstr "关节必须设为未回零，然后点动至限位，重新回零"
 
-#: src/emc/motion/control.c:1515 src/emc/motion/control.c:1524
+#: src/emc/motion/control.c:1520 src/emc/motion/control.c:1529
 msgid "Hint: switch to joint mode to jog off soft limit"
 msgstr "提示:切换到关节模式，点动软限位"
 
-#: src/emc/motion/control.c:1519
+#: src/emc/motion/control.c:1524
 #, c-format
 msgid "Exceeded POSITIVE soft limit (%.5f) on joint %d\n"
 msgstr "正向软限位 (%.5f) 在关节 %d 上已超程\n"
@@ -3409,7 +3407,7 @@ msgstr "反向"
 msgid ""
 "Error in I/O modbus conf: overflow for I,Q,B,IQ, or WQ mapping detected..."
 "ASKED=%i,MAX=%i\n"
-msgstr "I/O modbus conf出错:检测到I，B，Q，IQ或WQ映射溢出...ASKED=%i,MAX=%i\n"
+msgstr "I/O modbus conf出错:检测到 I，B，Q，IQ或WQ映射溢出...ASKED=%i,MAX=%i\n"
 
 #: src/hal/classicladder/config_gtk.c:664
 #, fuzzy
@@ -3476,9 +3474,8 @@ msgid "QUIET"
 msgstr "安静"
 
 #: src/hal/classicladder/config_gtk.c:786
-#, fuzzy
 msgid "LEVEL"
-msgstr "1级"
+msgstr "级别"
 
 #: src/hal/classicladder/config_gtk.c:786
 msgid "VERBOSE"
@@ -3628,9 +3625,8 @@ msgid "Expression too long"
 msgstr "表达式过长"
 
 #: src/hal/classicladder/edit.c:479
-#, fuzzy
 msgid "Incompatible type of variable for index (must be an integer!)"
-msgstr "变量类型不兼容(必须是整数!)"
+msgstr "索引的变量类型不兼容(必须是整数!)"
 
 #: src/hal/classicladder/edit.c:485
 msgid "Parser error for indexed variable !"
@@ -3665,8 +3661,9 @@ msgid "No more free arithmetic expression for this type available..."
 msgstr "该类型没有更多可用的自由算术表达式..."
 
 #: src/hal/classicladder/edit.c:1425
+#, fuzzy
 msgid "You clicked outside of the current rung actually selected..."
-msgstr ""
+msgstr "您在当前实际选择的范围之外单击了。。。"
 
 #: src/hal/classicladder/edit_gtk.c:143
 msgid "Current rung in edit mode..."
@@ -3770,13 +3767,13 @@ msgstr "链接: transi=%d (top=%d), step=%d\n"
 msgid ""
 "There is already a step to deactivate for this transition (clicked on top "
 "part)..."
-msgstr ""
+msgstr "已经有一个步骤可以停用此转换（单击顶部部件）。。。"
 
 #: src/hal/classicladder/edit_sequential.c:418
 msgid ""
 "There is already a step to activate for this transition (clicked on bottom "
 "part)..."
-msgstr ""
+msgstr "已经有一个步骤可以激活此转换（点击底部部件）。。。"
 
 #: src/hal/classicladder/edit_sequential.c:433
 msgid "Not selected first and last transitions to be joined !!??"
@@ -3802,7 +3799,7 @@ msgstr "Ele2的未知元素类型"
 #, c-format
 msgid ""
 "commonsearch: leftX=%d, rightX=%d, OffTransi=%d, StepsY=%d, TransiY=%d\n"
-msgstr ""
+msgstr "普通搜索： leftX=%d, rightX=%d, OffTransi=%d, StepsY=%d, TransiY=%d\n"
 
 #: src/hal/classicladder/edit_sequential.c:537
 #: src/hal/classicladder/edit_sequential.c:582
@@ -3875,16 +3872,17 @@ msgid "bottom"
 msgstr "底部"
 
 #: src/hal/classicladder/edit_sequential.c:842
+#, fuzzy
 msgid "Now select the transition."
-msgstr ""
+msgstr "请选择转换。"
 
 #: src/hal/classicladder/edit_sequential.c:844
 msgid "Now select the step that will be deactivated by this transition."
-msgstr ""
+msgstr "请选择将通过此转换停用的步骤。"
 
 #: src/hal/classicladder/edit_sequential.c:844
 msgid "Now select the step that will be activated by this transition."
-msgstr ""
+msgstr "请选择将通过此转换激活的步骤。"
 
 #: src/hal/classicladder/edit_sequential.c:846
 msgid "You haven't selected a step or a transition to link!!!"
@@ -3897,7 +3895,7 @@ msgstr ""
 
 #: src/hal/classicladder/edit_sequential.c:856
 msgid "You haven't selected a transition and then the step to link!!!"
-msgstr ""
+msgstr "您尚未选择转换和要链接的步骤！！！"
 
 #: src/hal/classicladder/edit_sequential.c:891
 msgid "Sequential memory full for comments"
@@ -4139,8 +4137,9 @@ msgstr "无法添加新部件。 已满?"
 
 #: src/hal/classicladder/manager_gtk.c:236
 #: src/hal/classicladder/manager_gtk.c:306
+#, fuzzy
 msgid "Not possible when program running..."
-msgstr ""
+msgstr "程序运行时被禁止"
 
 #: src/hal/classicladder/manager_gtk.c:247
 #, fuzzy
@@ -5035,7 +5034,7 @@ msgstr "已添加"
 
 #: tcl/bin/halshow.tcl:332
 msgid "Full path (regex)"
-msgstr ""
+msgstr "完整路径（正则表达式）"
 
 #: tcl/bin/halshow.tcl:336 tcl/bin/halshow.tcl:349
 msgid "Filter tree"
@@ -5160,15 +5159,15 @@ msgstr "指令可以在这里测试，但不会被保存"
 
 #: tcl/bin/halshow.tcl:1305
 msgid "Integer (disabled by \"--iformat\" argument)"
-msgstr ""
+msgstr "整数（由“--iformat”参数禁用）"
 
 #: tcl/bin/halshow.tcl:1312
 msgid "Float (disabled by \"--fformat\" argument)"
-msgstr ""
+msgstr "浮点数（由“--fformat”参数禁用）"
 
 #: tcl/bin/halshow.tcl:1319
 msgid "\"--noprefs\" option set. Settings will not be saved!"
-msgstr ""
+msgstr "“--noprefs”选项设置。设置将不会被保存！"
 
 #: tcl/bin/pickconfig.tcl:99
 msgid ""
@@ -5794,7 +5793,7 @@ msgid "Coordinate System Control Window"
 msgstr "坐标系统控制窗口"
 
 #: tcl/scripts/Set_Coordinates.tcl:83
-#: src/emc/usr_intf/axis/scripts/axis.py:3666
+#: src/emc/usr_intf/axis/scripts/axis.py:3667
 msgid "Axis "
 msgstr "轴 "
 
@@ -6856,11 +6855,13 @@ msgid "%s"
 msgstr "秒"
 
 #: tcl/tooledit.tcl:1043
-#, tcl-format
+#, fuzzy, tcl-format
 msgid ""
 "differs from the the ini specified file:\n"
 "%s"
 msgstr ""
+"与ini指定的文件不同：\n"
+"%s"
 
 #: tcl/tooledit.tcl:1046
 #, fuzzy
@@ -7277,7 +7278,7 @@ msgstr "刀具 %(tool)d, zo %(zo)g, xo %(xo)g, dia %(dia)g"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1100
 msgid "G-code preview loading timed out"
-msgstr ""
+msgstr "G代码预览加载超时"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1127
 msgid "Filtering..."
@@ -7420,7 +7421,7 @@ msgstr "程序超出机床极限"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1894
 msgid "Re-Check"
-msgstr ""
+msgstr "重新检查"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:1894
 msgid "Run Anyway"
@@ -7475,6 +7476,9 @@ msgid ""
 "\n"
 "            Run homing process?"
 msgstr ""
+"在打开机床的电源后，你需要寻找各轴原点。\n"
+"\n"
+"            要运行寻找机床原点的程序吗？"
 
 #: src/emc/usr_intf/axis/scripts/axis.py:2244
 msgid "All machinable files"
@@ -7564,7 +7568,7 @@ msgstr "刀具%s对刀"
 msgid "Error saving file"
 msgstr "保存文件时发生错误"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3438
+#: src/emc/usr_intf/axis/scripts/axis.py:3439
 #, python-format
 msgid ""
 "\n"
@@ -7577,7 +7581,7 @@ msgstr ""
 "%s\n"
 "请参阅“INI配置”文档\n"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3451
+#: src/emc/usr_intf/axis/scripts/axis.py:3452
 #, python-format
 msgid ""
 "\n"
@@ -7590,7 +7594,7 @@ msgstr ""
 "%s\n"
 "请参阅“INI配置”文档\n"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3464
+#: src/emc/usr_intf/axis/scripts/axis.py:3465
 #, python-format
 msgid ""
 "\n"
@@ -7603,46 +7607,46 @@ msgstr ""
 "%s\n"
 "请参阅“INI配置”文档\n"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3583
+#: src/emc/usr_intf/axis/scripts/axis.py:3584
 msgid "Axes"
 msgstr "轴"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3585
+#: src/emc/usr_intf/axis/scripts/axis.py:3586
 msgid "Joints"
 msgstr "关节"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3587
+#: src/emc/usr_intf/axis/scripts/axis.py:3588
 #: src/emc/usr_intf/touchy/touchy.glade:584
 #: src/emc/usr_intf/gscreen/gscreen.glade:3010
 msgid "Home All"
 msgstr "全部回零"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3589
+#: src/emc/usr_intf/axis/scripts/axis.py:3590
 #, python-format
 msgid "Home all %s [Ctrl-Home]"
 msgstr "回零全部%s [Ctrl+Home]"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3592
+#: src/emc/usr_intf/axis/scripts/axis.py:3593
 #, python-format
 msgid "Home All %s"
 msgstr "全部%s回零"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3594
+#: src/emc/usr_intf/axis/scripts/axis.py:3595
 #, python-format
 msgid "Unhome All %s"
 msgstr "全部%s消零"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3635
+#: src/emc/usr_intf/axis/scripts/axis.py:3636
 #, python-format
 msgid "Warning: Forward kinematics must handle duplicate coordinate letters:%s"
 msgstr "警告：正向运动学必须处理重复的坐标字母:%s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3638
+#: src/emc/usr_intf/axis/scripts/axis.py:3639
 #, python-format
 msgid "Note: number of [TRAJ]COORDINATES=%(t)s exceeds [KINS]JOINTS=%(l)d"
 msgstr "注意: [TRAJ]COORDINATES=%(t)s 的数量超过了 [KINS]JOINTS=%(l)d"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3670
+#: src/emc/usr_intf/axis/scripts/axis.py:3671
 msgid ""
 "\n"
 "Note:\n"
@@ -7652,43 +7656,43 @@ msgstr ""
 "注意:\n"
 "目前不支持单轴回原点"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3671
+#: src/emc/usr_intf/axis/scripts/axis.py:3672
 #, python-format
 msgid "KINEMATICS_IDENTITY with duplicate axis letter <%s>\n"
 msgstr "KINEMATICS_IDENTITY 带有重复轴字母 <%s>\n"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3683
+#: src/emc/usr_intf/axis/scripts/axis.py:3684
 msgid "Joint"
 msgstr "关节"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3685
+#: src/emc/usr_intf/axis/scripts/axis.py:3686
 msgid "Home Joint"
 msgstr "回零关节"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3693
+#: src/emc/usr_intf/axis/scripts/axis.py:3694
 #, python-format
 msgid "Home %(name)s _%(id)s"
 msgstr "回零 %(name)s _%(id)s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3695
+#: src/emc/usr_intf/axis/scripts/axis.py:3696
 #, python-format
 msgid "Unhome %(name)s _%(id)s"
 msgstr "消零 %(name)s _%(id)s"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3889
+#: src/emc/usr_intf/axis/scripts/axis.py:3890
 msgid "Run from here"
 msgstr "从这里运行"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3950
+#: src/emc/usr_intf/axis/scripts/axis.py:3951
 msgid "toggle PYVCP panel visibility"
 msgstr "显示/隐藏PYVCP面板"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:3952 share/axis/tcl/axis.tcl:387
+#: src/emc/usr_intf/axis/scripts/axis.py:3953 share/axis/tcl/axis.tcl:387
 #, fuzzy
 msgid "Show PyVCP pan_el"
 msgstr "显示pyVCP面板"
 
-#: src/emc/usr_intf/axis/scripts/axis.py:4238
+#: src/emc/usr_intf/axis/scripts/axis.py:4246
 msgid "Error in ~/.axisrc"
 msgstr "~/.axisrc 错误"
 
@@ -7722,6 +7726,11 @@ msgid ""
 "Diameter: %(diameter)s%(units)s\n"
 "Comment: %(comment)s"
 msgstr ""
+"插入刀具，准备就绪后单击“继续”.\n"
+"\n"
+"刀具编号: %(number)s\n"
+"刀具直径: %(diameter)s%(units)s\n"
+"注释: %(comment)s"
 
 #: src/emc/usr_intf/axis/scripts/hal_manualtoolchange.py:75
 #, python-format
@@ -8008,8 +8017,9 @@ msgid "_Save G-code as..."
 msgstr "文件另存为.."
 
 #: share/axis/tcl/axis.tcl:80
-msgid "_Properties..."
-msgstr "属性..."
+#, fuzzy
+msgid "G-code _properties..."
+msgstr "G-代码属性"
 
 #: share/axis/tcl/axis.tcl:86
 msgid "Edit _tool data..."
@@ -8017,7 +8027,7 @@ msgstr "编辑_刀具数据..."
 
 #: share/axis/tcl/axis.tcl:90
 msgid "Reload tool _data"
-msgstr "重新加载道具数据"
+msgstr "重新加载刀具数据"
 
 #: share/axis/tcl/axis.tcl:96
 msgid "_Ladder Editor..."
@@ -10851,9 +10861,8 @@ msgid "Import a Mach file"
 msgstr "导入Mach文件"
 
 #: src/emc/usr_intf/stepconf/start.glade:73
-#, fuzzy
 msgid "Create a desktop _shortcut (symlink) to configuration files"
-msgstr "为配置文件创建桌面快捷方式(符号链接)。"
+msgstr "为配置文件创建桌面快捷方式(符号链接)"
 
 #: src/emc/usr_intf/stepconf/start.glade:89
 #, fuzzy
@@ -19699,7 +19708,6 @@ msgstr ""
 "行运行"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:4193
-#, fuzzy
 msgid ""
 "Change \n"
 "View"
@@ -19791,7 +19799,7 @@ msgstr "指令"
 
 #: lib/python/gladevcp/hal_mdihistory.py:276
 msgid "ERROR loading halshow"
-msgstr ""
+msgstr "加载halshow时出错"
 
 #: lib/python/gladevcp/offsetpage_widget.py:357
 msgid "offsetpage widget error: unrecognized float input"
@@ -19813,29 +19821,39 @@ msgstr "偏移页面中的MDI错误 - 置零旋转偏移"
 msgid "offsetpage_widget error: cannot select coordinate system"
 msgstr "偏移页面小部件错误:无法选择坐标系"
 
-#: lib/python/gladevcp/tooledit_widget.py:228
+#: lib/python/gladevcp/tooledit_widget.py:229
 msgid "tooledit_widget error: cannot select tool number"
 msgstr "刀具编辑小部件错误:无法选择刀具编号"
 
-#: lib/python/gladevcp/tooledit_widget.py:258
+#: lib/python/gladevcp/tooledit_widget.py:259
 msgid "Toolfile does not exist"
 msgstr "刀具文件不存在"
 
-#: lib/python/gladevcp/tooledit_widget.py:297
+#: lib/python/gladevcp/tooledit_widget.py:298
 msgid "Tooledit widget int error"
 msgstr "刀具编辑小部件初始化错误"
 
-#: lib/python/gladevcp/tooledit_widget.py:307
-#: lib/python/gladevcp/tooledit_widget.py:312
+#: lib/python/gladevcp/tooledit_widget.py:308
+#: lib/python/gladevcp/tooledit_widget.py:313
 #, fuzzy
 msgid "Tooledit widget float error"
 msgstr "刀具编辑小部件浮动错误"
 
-#: lib/python/gladevcp/tooledit_widget.py:359
+#: lib/python/gladevcp/tooledit_widget.py:334
+msgid "Something wrong with the locale settings. Will not save the tool table."
+msgstr "区域设置有问题。不会保存工具表。"
+
+#: lib/python/gladevcp/tooledit_widget.py:356
+msgid ""
+"Error converting a float with the given localization setting. A backup file "
+"has been created: "
+msgstr "使用给定的本地化设置转换浮点数时出错。已创建备份文件："
+
+#: lib/python/gladevcp/tooledit_widget.py:368
 msgid "Reloading tooltable into linuxcnc failed"
 msgstr "将刀具表重新加载到linuxcnc失败"
 
-#: lib/python/gladevcp/tooledit_widget.py:528
+#: lib/python/gladevcp/tooledit_widget.py:537
 msgid "Tool file was modified since it was last read"
 msgstr "刀具文件自上次读取后被修改"
 
@@ -19969,7 +19987,7 @@ msgstr "车床刀具补偿"
 
 #: lib/python/gladevcp/calculator.glade:84
 msgid "CLR"
-msgstr ""
+msgstr "清除"
 
 #: lib/python/gladevcp/calculator.glade:280
 msgid "DEL"
@@ -19977,11 +19995,11 @@ msgstr "删除"
 
 #: lib/python/gladevcp/calculator.glade:294
 msgid "mm → in"
-msgstr ""
+msgstr "毫米 → 英寸"
 
 #: lib/python/gladevcp/calculator.glade:307
 msgid "in → mm"
-msgstr ""
+msgstr "英寸 → 毫米"
 
 #: lib/python/gladevcp/calculator.glade:320
 msgid "_Cancel_"
@@ -19990,6 +20008,9 @@ msgstr "_取消_"
 #: lib/python/gladevcp/calculator.glade:335
 msgid "_Ok"
 msgstr "_确定"
+
+#~ msgid "_Properties..."
+#~ msgstr "属性..."
 
 #~ msgid "Lube on"
 #~ msgstr "润滑 开"

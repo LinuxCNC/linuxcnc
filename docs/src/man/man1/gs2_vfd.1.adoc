@@ -13,15 +13,15 @@ gs2_vfd - HAL non-realtime component for Automation Direct GS2 VFDs
 This manual page explains the *gs2_vfd* component. This component reads
 and writes to the GS2 via a modbus connection.
 
-*gs2_vfd* is for use with LinuxCNC
+*gs2_vfd* is for use with LinuxCNC.
 
 == OPTIONS
 
--b, --bits _<n>_::
-  Set number of data bits to _<n>_, where n must be from 5 to 8 inclusive (default 8)
+-b, --bits _n_::
+  Set number of data bits to _n_, where _n_ must be from 5 to 8 inclusive (default 8).
 
--d, --device _<path>_::
-  Set the path to the file representing the serial device to use. (default /dev/ttyS0)
+-d, --device _path_::
+  Set the path to the file representing the serial device to use (default /dev/ttyS0).
 
 -v, --verbose::
   Turn on verbose mode.
@@ -30,40 +30,39 @@ and writes to the GS2 via a modbus connection.
   Turn on debug messages. Note that if there are serial errors, this may become annoying.
   Debug mode will cause all modbus messages to be printed in hex on the terminal.
 
--n, --name <string>::
-  Set the name of the HAL module. The HAL comp name will be set to <string>,
-  and all pin and parameter names will begin with <string>. (default gs2_vfd)
+-n, --name _string_::
+  Set the name of the HAL module. The HAL comp name will be set to _string_,
+  and all pin and parameter names will begin with _string_ (default gs2_vfd).
 
 -p, --parity [even,odd,none]::
-  Set serial parity to even, odd, or none. (default odd)
+  Set serial parity to even, odd, or none (default odd).
 
--r, --rate <n>::
-  Set baud rate to _<n>_. It is an error if the rate is
+-r, --rate n::
+  Set baud rate to _n_. It is an error if the rate is
   not one of the following: 110, 300, 600, 1200, 2400, 4800, 9600,
-  19200, 38400, 57600, 115200 (default 38400)
+  19200, 38400, 57600, 115200 (default 38400).
 
 -s, --stopbits [1,2]::
-  Set serial stop bits to 1 or 2 (default 1)
+  Set serial stop bits to 1 or 2 (default 1).
 
 -t, --target <n>::
   Set MODBUS target (slave) number.
-  This must match the device number you set on the GS2. (default 1)
+  This must match the device number you set on the GS2 (default 1).
 
 -A, --accel-seconds <n>::
-  Seconds to accelerate the spindle from 0 to Max RPM. (default 10.0)
+  Seconds to accelerate the spindle from 0 to Max RPM (default 10.0).
 
 -D, --decel-seconds <n>::
   Seconds to decelerate the spindle from Max RPM to 0.
   If set to 0.0 the spindle will be allowed to coast to a stop without
-  controlled deceleration. (default 0.0)
+  controlled deceleration (default 0.0).
 
 -R, --braking-resistor::
-  This argument should be used when a braking resistor is installed on
-  the GS2 VFD (see Appendix A of the GS2 manual). It disables
-  deceleration over-voltage stall prevention (see GS2 modbus Parameter
-  6.05), allowing the VFD to keep braking even in situations where the
-  motor is regenerating high voltage. The regenerated voltage gets
-  safely dumped into the braking resistor.
+  This argument should be used when a braking resistor is installed
+  on the GS2 VFD (see Appendix A of the GS2 manual).
+  It disables deceleration over-voltage stall prevention (see GS2 modbus Parameter 6.05),
+  allowing the VFD to keep braking even in situations where the motor is regenerating high voltage.
+  The regenerated voltage gets safely dumped into the braking resistor.
 
 == PINS
 
@@ -107,8 +106,8 @@ and writes to the GS2 via a modbus connection.
   from the VFD
 
 <name>.speed-command (float, in)::
-  speed sent to VFD in RPM It is an error to send a speed faster than
-  the Motor Max RPM as set in the VFD
+  speed sent to VFD in RPM. It is an error to send a speed faster than
+  the Motor Max RPM as set in the VFD.
 
 <name>.spindle-fwd (bit, in)::
   1 for FWD and 0 for REV sent to VFD
@@ -152,11 +151,9 @@ and writes to the GS2 via a modbus connection.
 
 == SEE ALSO
 
-_GS2 Driver_ in the LinuxCNC documentation for a full description of the
-*GS2* syntax
+_GS2 Driver_ in the LinuxCNC documentation for a full description of the *GS2* syntax
 
-_GS2 Examples_ in the LinuxCNC documentation for examples using the
-*GS2* component
+_GS2 Examples_ in the LinuxCNC documentation for examples using the *GS2* component
 
 == AUTHOR
 

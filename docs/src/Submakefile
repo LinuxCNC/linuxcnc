@@ -49,7 +49,6 @@ DOC_SRCS_EN := \
 	config/core-components.adoc \
 	config/ini-config.adoc \
 	config/ini-homing.adoc \
-	config/iov2.adoc \
 	config/integrator-concepts.adoc \
 	config/lathe-config.adoc \
 	config/moveoff.adoc \
@@ -441,12 +440,12 @@ MAN_SRCS_NOSO = $(patsubst $(DOC_DIR)/man/%,%, \
 PDF_MAN_ORDER := man1/linuxcnc.1 $(filter-out %/linuxcnc.1, $(filter man1/%, $(MAN_SRCS_NOSO))) \
 	man3/hal.3 $(filter-out %/undocumented.3hal %/hal.3, $(filter man3/%.3hal, $(MAN_SRCS_NOSO))) \
 	man3/undocumented.3hal man3/rtapi.3 $(filter-out %/undocumented.3rtapi %/rtapi.3, $(filter man3/%.3rtapi, $(MAN_SRCS_NOSO))) \
-	man3/undocumented.3rtapi $(filter man9/%, $(MAN_SRCS_NOSO)) 
+	man3/undocumented.3rtapi $(filter man9/%, $(MAN_SRCS_NOSO))
 
 $(DOC_DIR)/LinuxCNC_Manual_Pages.pdf: $(MAN_SRCS) objects/var-PDF_MAN_ORDER
 	@echo Formatting manual pages as PDF
 	(cd $(DOC_DIR)/man; groff -t -rC1 -rD1 -Tps -man $(PDF_MAN_ORDER)) \
-		| ps2pdf - $@ 
+		| ps2pdf - $@
 
 $(DOC_DIR)/LinuxCNC_Getting_Started.pdf: $(DOC_SRCDIR)/Master_Getting_Started.pdf
 	@ln -f $< $@
@@ -998,10 +997,11 @@ TARGETS += manpages
 # For more information, see https://github.com/asciidoc/asciidoc/issues/44
 GENERATED_MANPAGES += $(patsubst $(DOC_DIR)/src/man/%.adoc, $(DOC_DIR)/man/%, $(wildcard $(DOC_DIR)/src/man/man?/*.adoc))
 $(DOC_DIR)/man/%: $(DOC_DIR)/src/man/%.adoc
-	@mkdir -p `dirname $@`
-	a2x -v --doctype manpage \
+	$(ECHO) Making manpage $(notdir $@)
+	@mkdir -p $(dir $@)
+	$(Q)a2x --doctype manpage \
 		--format manpage \
-		--destination-dir `dirname $@` \
+		--destination-dir $(dir $@) \
 		--xsltproc-opts="--nonet" \
 		-a mansource=LinuxCNC \
 		-a manmanual='LinuxCNC Documentation' \

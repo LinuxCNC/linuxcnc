@@ -976,30 +976,44 @@ These messages are:
 * _defined in the INI file under the `[DISPLAY]` heading_, and
 * _controlled by HAL pins_.
 
+Use this style if you need independent HAL pins for each dialog message.
+
 === Properties
 
-*`_BOLDTEXT`*:: Generally is a title.
-*`_TEXT`*:: Text below title, and usually longer.
-*`_DETAIL`*:: Text hidden unless clicked on.
-*`_PINNAME`*:: Basename of the HAL pin(s).
-*`_TYPE`*:: Specifies whether it is a:
-  * *Status message* - shown in the _status bar and the notify dialog_. +
+*`BOLDTEXT`*:: Generally is a title.
+*`TEXT`*:: Text below title, and usually longer.
+*`DETAIL`*:: Text hidden unless clicked on.
+*`PINNAME`*:: Basename of the HAL pin(s).
+*`TYPE`*:: Specifies whether it is a (can have dialog and status options together):
+  * *status* - shown in the _status bar and the notify dialog_. +
 Requires no user intervention.
-  * *OK message* - _requiring the user to click OK to close the dialog_. +
+  * *nonedialog* - specifically does not show a dialog. +
+  * *okdialog* - _requiring the user to click OK to close the dialog_. +
 OK messages have _two HAL pins_:
   ** One HAL pin to launch the dialog, and
   ** One to signify it's waiting for response.
-  * *Yes/No message* - _requiring the user to select yes or no buttons to close the dialog_. +
+  * *yesnodialog* - _requiring the user to select yes or no buttons to close the dialog_. +
 Yes/No messages have _three HAL pins_:
   ** One to show the dialog,
   ** One for waiting, and
   ** one for the answer.
+  * *'okcanceldialog'* - _requiring the user to select ok or cancel +
+Ok/Cancel messages have _three HAL pins_:
+  ** One to show the dialog,
+  ** One for waiting, and
+  ** one for the answer.
+  * *'closepromptdialog'* - _requiring the user to select_
 
-//FIXME Messages: means STATUS messages will be generated each
-//  time a focus_overlay is called or an alert sound emitted ?
-By default it will send `STATUS` messages for `focus_overlay` and alert sound.
+By default, `STATUS` messages for `focus_overlay` and alert sound will be sent when the dialog shows. +
+This allows screen 'focus' dimming/blurring and sounds to be added to alerts.
 
-//FIXME Messages: Usage
+=== HAL Pins
+The HAL pin names would use these patterns:
+
+*_<SCREEN BASENAME>.<PINNAME>_*:: invoking s32 pin
+*_<SCREEN BASENAME>.<PINNAME>-waiting_*:: 'Waiting for the user's response' output bit pin
+*_<SCREEN BASENAME>.<PINNAME>-response_*:: 'The user response' output bit pin
+*_<SCREEN BASENAME>.<PINNAME>-response-s32_*:: 'The user response' output s32 pin
 
 === Examples
 
@@ -1039,6 +1053,70 @@ MESSAGE_PINNAME = bothtest
 ----
 
 The `ScreenOptions` widget can automatically set up the message system.
+
+==  multimessages
+*`Messages`* module is used to *display pop up dialog messages on the screen*.
+
+These messages are:
+
+* _defined in the INI file under the `[DISPLAY]` heading_, and
+* _controlled by one s32 HAL pin per defined id_.
+* _each message is called by a corresponding number on the s32 pin._
+
+Use this style of user messages for instance when a VFD sends error messages encoded as numbers. +
+It uses common invoke/response/wait HAL pins for all (per ID name) multimessage dialogs.
+The HAL pin names would use these patterns:
+
+*_<SCREEN BASENAME>.<ID NAME>_*:: invoking s32 pin
+*_<SCREEN BASENAME>.<ID NAME>-waiting_*:: 'Waiting for the user's response' output bit pin
+*_<SCREEN BASENAME>.<ID NAME>-response_*:: 'The user response' output bit pin
+*_<SCREEN BASENAME>.<ID NAME>-response-s32_*:: 'The user response' output s32 pin
+
+=== Properties
+
+*`TITLE`*:: This is the title shown on the dialog window.
+*`TEXT`*:: Text below title, and usually longer.
+*`DETAIL`*:: Text hidden unless clicked on.
+*`TYPE`*:: Specifies type of message the user sees (can have dialog and status options together):
+  * *status* - shown in the _status bar and the notify dialog_. +
+Requires no user intervention.
+  * *nonedialog* - specifically does not show a dialog. +
+  * *okdialog* - _requiring the user to click OK to close the dialog_. +
+OK messages use _two HAL pins_:
+  ** One HAL pin to launch the dialog, and
+  ** One to signify it's waiting for response.
+  * *yesnodialog* - _requiring the user to select yes or no buttons to close the dialog_. +
+Yes/No messages use _three HAL pins_:
+  ** One to show the dialog,
+  ** One for waiting, and
+  ** one for the answer.
+
+By default, `STATUS` messages for `focus_overlay` and alert sound will be sent when the dialog shows. +
+This allows screen 'focus' dimming/blurring and sounds to be added to alerts.
+
+=== Examples
+
+Here are sample INI message definition code blocks that would be found under the `[DISPLAY]` heading:
+
+[source,{ini}]
+----
+[DISPLAY]
+MULTIMESSAGE_ID = VFD
+
+MULTIMESSAGE_VFD_NUMBER = 1
+MULTIMESSAGE_VFD_TYPE = okdialog status
+MULTIMESSAGE_VFD_TITLE = VFD Error: 1
+MULTIMESSAGE_VFD_TEXT = This is the longer text FOR MESSAGE NUMBER 1
+MULTIMESSAGE_VFD_DETAILS = DETAILS for VFD error 1
+MULTIMESSAGE_VFD_ICON = WARNING
+
+MULTIMESSAGE_VFD_NUMBER = 2
+MULTIMESSAGE_VFD_TYPE = nonedialog status
+MULTIMESSAGE_VFD_TITLE = VFD Error: 2
+MULTIMESSAGE_VFD_TEXT = This is the longer text FOR MESSAGE NUMBER 2
+MULTIMESSAGE_VFD_DETAILS = DETAILS for VFD error 2
+MULTIMESSAGE_VFD_ICON = INFO
+----
 
 == `Notify`
 
@@ -1179,7 +1257,7 @@ It uses https://launchpad.net/onboard[`Onboard`] or https://git.yoctoproject.org
 
 //TODO Virtual Keyboard: What about other VKB alternatives like:
 //  * kvkbd https://github.com/KDE/kvkbd
-//  * Florence http://florence.sourceforge.net/
+//  * Florence https://florence.sourceforge.net/
 //  * Maliit https://maliit.github.io/, https://github.com/maliit/keyboard
 //    which seems to have interesting contextual features.
 

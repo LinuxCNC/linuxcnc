@@ -20,10 +20,10 @@ needed, a hardware PWM generator is a better choice.
 actually loaded depends on the number of _type_ values given. The value
 of each _type_ determines the outputs for that channel.
 
-type 0: single output A single output pin, *pwm*, whose duty cycle is
+type 0: single output::
+  A single output pin, *pwm*, whose duty cycle is
 determined by the input value for positive inputs, and which is off (or
-at *min-dc*) for negative inputs.::
-  Suitable for single ended circuits.
+at *min-dc*) for negative inputs. Suitable for single ended circuits.
 type 1: pwm/direction::
   Two output pins, *pwm* and *dir*. The duty cycle on *pwm* varies as a
   function of the input value. *dir* is low for positive inputs and high
@@ -49,43 +49,43 @@ type 2: up/down::
 
 == PINS
 
-**pwmgen.**_N_**.enable* bit in::
+**pwmgen.**_N_**.enable** bit in::
   Enables PWM generator _N_ - when false, all **pwmgen.**_N_ output pins are low.
-**pwmgen.**_N_**.value* float in::
+**pwmgen.**_N_**.value** float in::
   Commanded value. When *value* = 0.0, duty cycle is 0%, and when
   *value* = ±**scale**, duty cycle is ± 100% (subject to *min-dc* and
   *max-dc* limitations).
 **pwmgen.**_N_**.pwm* bit out (output types 0 and 1 only)::
   PWM/PDM waveform.
-**pwmgen.**_N_**.dir* bit out (output type 1 only)::
+**pwmgen.**_N_**.dir** bit out (output type 1 only)::
   Direction output: low for forward, high for reverse.
-**pwmgen.**_N_**.up* bit out (output type 2 only)::
+**pwmgen.**_N_**.up** bit out (output type 2 only)::
   PWM/PDM waveform for positive input values, low for negative inputs.
-**pwmgen.**_N_**.down* bit out (output type 2 only)::
+**pwmgen.**_N_**.down** bit out (output type 2 only)::
   PWM/PDM waveform for negative input values, low for positive inputs.
-**pwmgen.**_N_**.curr-dc* float out::
+**pwmgen.**_N_**.curr-dc** float out::
   The current duty cycle, after all scaling and limits have been applied.
   Range is from -1.0 to +1.0.
-**pwmgen.**_N_**.max-dc* float in/out::
+**pwmgen.**_N_**.max-dc** float in/out::
   The maximum duty cycle. A value of 1.0 corresponds to 100%.
   This can be useful when using transistor drivers with bootstrapped power supplies,
   since the supply requires some low time to recharge.
-**pwmgen.**_N_**.min-dc* float in/out::
+**pwmgen.**_N_**.min-dc** float in/out::
   The minimum duty cycle. A value of 1.0 corresponds to 100%.
   Note that when the pwm generator is disabled, the outputs are constantly low,
   regardless of the setting of *min-dc*.
-**pwmgen.**_N_**.scale* float in/out::
+**pwmgen.**_N_**.scale** float in/out::
 
-**pwmgen.**_N_**.offset* float in/out::
+**pwmgen.**_N_**.offset** float in/out::
   These parameters provide a scale and offset from the *value* pin to the actual duty cycle.
   The duty cycle is calculated according to _dc = (value/scale) + offset_, with 1.0 meaning 100%.
-**pwmgen.**_N_**.pwm-freq* float in/out::
+**pwmgen.**_N_**.pwm-freq** float in/out::
   PWM frequency in Hz. The upper limit is half of the frequency at which
   *make-pulses* is invoked, and values above that limit will be changed to the limit.
   If *dither-pwm* is false, the value will be changed to
   the nearest integer submultiple of the *make-pulses* frequency.
   A value of zero produces Pulse Density Modulation instead of Pulse Width Modulation.
-**pwmgen.**_N_**.dither-pwm* bit in/out::
+**pwmgen.**_N_**.dither-pwm** bit in/out::
   Because software-generated PWM uses a fairly slow timebase (several to
   many microseconds), it has limited resolution. For example, if
   *make-pulses* is called at a 20 kHz rate, and *pwm-freq* is 2 kHz,

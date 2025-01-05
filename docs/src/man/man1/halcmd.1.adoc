@@ -10,14 +10,14 @@ halcmd - manipulate the LinuxCNC HAL from the command line
 
 == DESCRIPTION
 
-*halcmd* is used to manipulate the HAL (Hardware Abstraction Layer) from
+The tool *halcmd* is used to manipulate the HAL (Hardware Abstraction Layer) from
 the command line. *halcmd* can optionally read commands from a file,
 allowing complex HAL configurations to be set up with a single command.
 
-If the *readline* library is available when LinuxCNC is compiled, then
-*halcmd* offers commandline editing and completion when running
-interactively. Use the up arrow to recall previous commands, and press
-tab to complete the names of items such as pins and signals.
+If the *readline* library is available when LinuxCNC is compiled,
+then *halcmd* offers commandline editing and completion when running interactively.
+Use the up arrow to recall previous commands,
+and press tab to complete the names of items such as pins and signals.
 
 == OPTIONS
 
@@ -54,7 +54,7 @@ tab to complete the names of items such as pins and signals.
   display results of each command
 *-V*::
   display lots of debugging junk
-*-h* [_<command>_]::
+*-h* [_command_]::
   display a help screen and exit, displays extended help on _command_ if
   specified
 
@@ -66,8 +66,9 @@ used to read commands from a file, *halcmd* reads each line of the file
 as a new command. Anything following '*#*' on a line is a comment.
 
 *loadrt* _modname_::
-  (_load_ __r__eal__t__ime module) Loads a realtime HAL module called _modname_.
-  *halcmd* looks for the module in a directory specified at compile time.
+ (short for _load_ __r__eal__t__ime module)
+ Loads a realtime HAL module called _modname_.
+ *halcmd* looks for the module in a directory specified at compile time.
 
 In systems with kernel-based realtime support (e.g. RTAI), *halcmd*
 calls the *linuxcnc_module_helper* to load realtime modules.
@@ -90,9 +91,9 @@ requested component with a call to *dlopen(3)*.
   called _modname_. If _modname_ is "all", it will unload all currently
   loaded realtime HAL modules. *unloadrt* also works by execing
   *linuxcnc_module_helper* or *rtapi_app*, just like *loadrt*.
-*loadusr* [_flags_] _unix-command_::
+*loadusr* [_flags_] _UNIX-command_::
   (_load_ __Us__e__r__space component) Executes the given
-  _unix-command_, usually to load a non-realtime component. _[flags]_
+  _UNIX-command_, usually to load a non-realtime component. _[flags]_
   may be one or more of:
   +
   * *-W* to wait for the component to become ready.
@@ -127,15 +128,15 @@ requested component with a call to *dlopen(3)*.
   does not exist.
 *sets* _signame_ _value_::
   (_set_ __s__ignal) Sets the value of signal _signame_ to _value_.
-  Fails if _signame_ does not exist, if it already has a writer, or if
-  _value_ is not a legal value. Legal values depend on the signals's
-  type.
+  Fails if _signame_ does not exist, if it already has a writer,
+  or if _value_ is not a legal value.
+  Legal values depend on the signals's type.
 *stype* _name_::
-  (__s__ignal type) Gets the type of signal _name_. Fails if _name_ does
-  not exist as a signal.
+  (__s__ignal type) Gets the type of signal _name_.
+  Fails if _name_ does not exist as a signal.
 *gets* _signame_::
-  (_get_ __s__ignal) Gets the value of signal _signame_. Fails if
-  _signame_ does not exist.
+  (_get_ __s__ignal) Gets the value of signal _signame_.
+  Fails if _signame_ does not exist.
 *linkps* _pinname_ [_arrow_] _signame_::
   (OBSOLETE - use *net* instead) (_link_ __p__in to __s__ignal)
   Establishes a link between a HAL component pin _pinname_ and a HAL
@@ -216,8 +217,7 @@ _pinname_ *=* _value_::
 
 "*comp*" generates a *loadrt* command for realtime component.
 
-"*alias*" generates an *alias* command for each pin or parameter alias
-pairing
+"*alias*" generates an *alias* command for each pin or parameter alias pairing
 
 "*sig*" (or "*signal*") generates a *newsig* command for each signal,
 and "*sigu*" generates a *newsig* command for each unlinked signal (for
@@ -245,7 +245,7 @@ If _item_ is *allu*), *save* does the equivalent of *comp*, *alias*, *sigu*, *ne
 If _item_ is omitted (or *all*), *save* does the equivalent of *comp*, *alias*, *sigu*, *netla*, *param*, and *thread*.
 
 *source* _filename.hal_::
-  Execute the commands from _filename.hal_.
+  Executes the commands from _filename.hal_.
 *alias* _type_ _name_ _alias_::
   Assigns "*alias*" as a second name for the pin or parameter "name".
   For most operations, an alias provides a second name that can be used
@@ -256,9 +256,9 @@ If _item_ is omitted (or *all*), *save* does the equivalent of *comp*, *alias*, 
   to use in HAL. The original names can still be seen with "show all" or
   "show alias" Existing nets will be preserved when a pin name is aliased.
 *unalias* _type_ _alias_::
-  Removes any alias from the pin or parameter alias. "type" must be
-  *pin* or *param* "alias" must be an existing name or *alias* of the
-  specified type.
+  Removes any alias from the pin or parameter alias.
+  "type" must be *pin* or *param* "alias" must be an existing name
+  or *alias* of the specified type.
 *list* _type_ [_pattern_]::
   Prints the names of HAL items of the specified type. 'type' is
   '*comp*', '*pin*', '*sig*', '*param*', '*funct*', or '*thread*'. If

@@ -1,6 +1,6 @@
 from PyQt5 import QtWidgets
-from PyQt5.QtGui import QColor, QBrush, QPainter
-from PyQt5.QtCore import (Qt, pyqtSlot, pyqtProperty, QVariant, QRectF,
+from PyQt5.QtGui import QColor, QBrush, QPainter, QLinearGradient
+from PyQt5.QtCore import (Qt, pyqtSlot, pyqtProperty, pyqtSignal, QVariant, QRectF,
     QSize)
 
 try:
@@ -20,6 +20,7 @@ LOG = logger.getLogger(__name__)
 #LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class Bar(QtWidgets.QWidget):
+    valueChanged = pyqtSignal([int],[float])
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -40,7 +41,10 @@ class Bar(QtWidgets.QWidget):
 
         self._bar_solid_percent = 0.9
         self._background_color = QColor('black')
-        self._padding = 4.0  # n-pixel gap around edge.
+        self._padding = 2.0  # n-pixel gap around edge.
+        self._split = .2 # percent of full scale indicator 
+        self._useMultiColor = True
+        self._singleIndicatorColor = QColor('blue')
 
     def paintEvent(self, e):
         painter = QPainter(self)
@@ -73,46 +77,82 @@ class Bar(QtWidgets.QWidget):
 
             n =-1 # default fall through value if n_steps_to_draw = 0
             # draw complete step bars
-            for n in range(n_steps_to_draw):
+            for n in range(self.n_steps):
                 brush.setColor(QColor(self._step_color_list[n]))
                 if self._opposite:
-                    rect = QRectF(
-                        self._padding,
-                        self._padding + (( + n) * step_size) + bar_spacer,
-                        d_width,
-                        bar_height
-                        )
+                    top = self._padding + (( + n) * step_size) + bar_spacer
                 else:
-                    rect = QRectF(
-                        self._padding,
-                        self._padding + d_height - ((1 + n) * step_size) + bar_spacer,
-                        d_width,
+                    top = self._padding + d_height - ((1 + n) * step_size) + bar_spacer
+
+                # full scale indicator:
+                # QRextF(left, top, width and height )
+                rect = QRectF(
+                    self._padding,
+                    top,
+                    d_width * self._split,
+                    bar_height
+                    )
+                painter.fillRect(rect, brush)
+
+                # value indicator:
+                if n < n_steps_to_draw:
+                    rect2 = QRectF(
+                        self._padding + (d_width * self._split),
+                        top ,
+                        d_width  * (1-self._split),
                         bar_height
                         )
-                painter.fillRect(rect, brush)
+                    if self._useMultiColor:
+                        color = QColor(self._step_color_list[n])
+                    else:
+                        color = self._singleIndicatorColor
+                    gradient = QLinearGradient(0, 0, 1, 0)
+                    gradient.setColorAt(0.0, color)
+                    gradient.setColorAt(0.5, color.lighter())
+                    gradient.setColorAt(1.0, color)
+                    gradient.setCoordinateMode(gradient.ObjectMode)
+                    painter.fillRect(rect2, QBrush(gradient))
 
             # draw partial step bar for in-between values
             if partial > 0:
-                n +=1
+                n = n_steps_to_draw
                 brush.setColor(QColor(self._step_color_list[n]))
+                # right to left
+                height = (bar_height* partial)
                 if self._opposite:
-                    rect = QRectF(
-                        self._padding,
-                        self._padding  + (n * step_size) + bar_spacer,
-                        d_width,
-                        bar_height * partial
-                        )
+                    top = self._padding  + (n * step_size) + bar_spacer
                 else:
-                    height = (bar_height* partial)
-                    # left,top,width,height
-                    rect = QRectF(
-                        self._padding,
-                        self._padding + d_height - (n * step_size) + bar_spacer - height,
-                        d_width,
-                        height- bar_spacer
-                        )
+                    top = self._padding - (n * step_size) + d_height - height- bar_spacer
 
+                # full scale indicator
+                rect = QRectF(
+                    self._padding,
+                    top,
+                    d_width * self._split,
+                    height
+                    )
                 painter.fillRect(rect, brush)
+
+                # value indicator
+                rect2 = QRectF(
+                    self._padding + d_width * self._split,
+                    top ,
+                    d_width *(1- self._split),
+                    height
+                    )
+
+                if self._useMultiColor:
+                    color = QColor(self._step_color_list[n])
+                else:
+                    color = self._singleIndicatorColor
+
+                gradient = QLinearGradient(0, 0, 1, 0)
+                gradient.setColorAt(0.0, color)
+                gradient.setColorAt(0.5, color.lighter())
+                gradient.setColorAt(1.0, color)
+                gradient.setCoordinateMode(gradient.ObjectMode)
+                painter.fillRect(rect2, QBrush(gradient))
+
 
         else:
             # Draw the horizontal bars.
@@ -127,7 +167,7 @@ class Bar(QtWidgets.QWidget):
             #print('pre',value,pc, n_steps_to_draw, partial)
 
             n=-1 # default fall through value if n_steps_to_draw = 0
-            for n in range(n_steps_to_draw):
+            for n in range(self.n_steps):
                 brush.setColor(QColor(self._step_color_list[n]))
                 # left, top, width and height floats
                 if self._opposite:
@@ -138,34 +178,69 @@ class Bar(QtWidgets.QWidget):
                     left ,
                     self._padding ,
                     bar_width,
-                    d_height
+                    d_height * self._split
                 )
                 painter.fillRect(rect, brush)
 
+                if n < n_steps_to_draw:
+                    rect2 = QRectF(
+                        left ,
+                        self._padding + d_height * self._split,
+                        bar_width,
+                        d_height * (1-self._split)
+                    )
+
+                    if self._useMultiColor:
+                        color = QColor(self._step_color_list[n])
+                    else:
+                        color = self._singleIndicatorColor
+
+                    gradient = QLinearGradient(0, 1, 0, 0)
+                    gradient.setColorAt(0.0, color)
+                    gradient.setColorAt(0.5, color.lighter())
+                    gradient.setColorAt(1.0, color)
+                    gradient.setCoordinateMode(gradient.ObjectMode)
+                    painter.fillRect(rect2, QBrush(gradient))
+
             # draw partial step bar for in-between values
             if partial > 0:
-                n+=1
+                n = n_steps_to_draw
                 brush.setColor(QColor(self._step_color_list[n]))
+
                 # right to left
+                width = (bar_width* partial)
                 if self._opposite:
-                    width = (bar_width* partial)
-                    left = self._padding - (n * step_size) + d_width - width
-                    rect = QRectF(
-                                left ,
-                                self._padding ,
-                                width - bar_spacer,
-                                d_height
-                                )
+                    left = self._padding - (n * step_size) + d_width - width - bar_spacer
                 # left to right
                 else:
                     left = self._padding + bar_spacer + (n * step_size)
-                    rect = QRectF(
-                                left,
-                                self._padding ,
-                                bar_width * partial,
-                                d_height
-                                )
+
+                # full scale indicator
+                rect = QRectF(
+                            left,
+                            self._padding ,
+                            width,
+                            d_height * self._split
+                            )
                 painter.fillRect(rect, brush)
+
+                # value indicator
+                rect2 = QRectF(
+                    left ,
+                    self._padding + d_height * self._split,
+                    width,
+                    d_height * (1-self._split)
+                )
+                if self._useMultiColor:
+                    color = QColor(self._step_color_list[n])
+                else:
+                    color = self._singleIndicatorColor
+                gradient = QLinearGradient(0, 1, 0, 0)
+                gradient.setColorAt(0.0, color)
+                gradient.setColorAt(0.5, color.lighter())
+                gradient.setColorAt(1.0, color)
+                gradient.setCoordinateMode(gradient.ObjectMode)
+                painter.fillRect(rect2, QBrush(gradient))
 
         painter.end()
 
@@ -199,7 +274,10 @@ class Bar(QtWidgets.QWidget):
             if data >  self._maximum: data = self._maximum
             if data <  self._minimum : data =  self._minimum
             self._value = data
+            self.valueChanged.emit(int(data))
+            self.valueChanged[float].emit(float(data))
             self.update()
+
 
     def sizeHint(self):
         if self._vertical:
@@ -254,10 +332,30 @@ class Bar(QtWidgets.QWidget):
 
     def getBackgroundColor(self):
         return self._background_color
-
     @pyqtSlot(QColor)
     def setBackgroundColor(self, value):
         self._background_color = value
+        self.update()
+
+    def get_indicatorColor(self):
+        return self._singleIndicatorColor
+    @pyqtSlot(QColor)
+    def set_indicatorColor(self, value):
+        self._singleIndicatorColor = value
+        self.update()
+    def reset_indicatorColor(self, value):
+        self._singleIndicatorColor = QColor('blue')
+        self.update()
+
+    def getSplit(self):
+        return int(self._split * 100)
+    def setSplit(self, data):
+        if data <0: data == 0
+        elif data >100: data == 100
+        self._split = data/100
+        self.update()
+    def resetSplit(self):
+        self._split = .2
         self.update()
 
     def getMax(self):
@@ -274,12 +372,21 @@ class Bar(QtWidgets.QWidget):
     def resetMin(self):
         self._minimum = 0
 
-    def getVertical(self):
+    def getMultiColor(self):
+        return self._useMultiColor
+    def setMultiColor(self, data):
+        self._useMultiColor = data
+        self.update()
+    def resetMultiColor(self):
+        self._useMultiColor = False
+        self.update()
+
+    def getVert(self):
         return self._vertical
-    def setVertical(self, data):
+    def setVert(self, data):
         self._vertical = data
         self.update()
-    def resetVertical(self):
+    def resetVert(self):
         self._vertical = False
         self.update()
 
@@ -288,9 +395,12 @@ class Bar(QtWidgets.QWidget):
                          get_step_color_l, set_step_color_l, reset_step_color_l)
 
     backgroundColor = pyqtProperty(QColor, getBackgroundColor, setBackgroundColor)
+    indicatorColor = pyqtProperty(QColor, get_indicatorColor, set_indicatorColor, reset_indicatorColor)
+    useMultiColorIndicator = pyqtProperty(bool, getMultiColor, setMultiColor, resetMultiColor)
+    split = pyqtProperty(int, getSplit, setSplit, resetSplit)
     setMaximum = pyqtProperty(int, getMax, setMax, resetMax)
     setMinimum = pyqtProperty(int, getMin, setMin, resetMin)
-    setVertical = pyqtProperty(bool, getVertical, setVertical, resetVertical)
+    setVertical = pyqtProperty(bool, getVert, setVert, resetVert)
     setInverted = pyqtProperty(bool, getInvertedAppearance, setInvertedAppearance, resetInvertedAppearance)
 
 class HALPinType:
@@ -364,11 +474,68 @@ class  HalBar(Bar, _HalWidgetBase):
     invertOnNegative = pyqtProperty(bool, get_invert_negative, set_invert_negative, reset_invert_negative)
 
 if __name__ == '__main__':
+    from PyQt5.QtWidgets import (QLabel, QSlider, QWidget, QVBoxLayout,
+        QHBoxLayout, QPushButton, QCheckBox)
+
     app = QtWidgets.QApplication([])
+    w = QWidget()
+    w.setGeometry(100, 100, 200, 100)
+    w.setWindowTitle('Bar widget')
+    layout = QVBoxLayout(w)
+
+    label = QLabel()
+
     bar = HalBar()
     bar.setProperty('setInverted',True)
-    bar.setProperty('setVertical',True)
-    bar.setValue(51)
-    bar.show()
+    bar.setProperty('setVertical',False)
+
+    #bar.setValue(51)
+
+    slider = QSlider(Qt.Horizontal)
+    slider.setMinimum(0)
+    slider.setMaximum(200)
+    slider.setSingleStep(10)
+    slider.setPageStep(100)
+    slider.valueChanged.connect(bar.setValue)
+    slider.valueChanged.connect(label.setNum)
+    slider.setValue(51)
+
+    layout.addWidget(label)
+    layout.addWidget(bar)
+    layout.addWidget(slider)
+
+    button = QPushButton('Vertical')
+    button.setCheckable(True)
+    button.setChecked(bar.getVert())
+    button.toggled.connect(bar.setVert)
+
+    layout.addWidget(button)
+
+    button = QPushButton('Use Multi Color')
+    button.setCheckable(True)
+    button.setChecked(bar.getMultiColor())
+    button.toggled.connect(bar.setMultiColor)
+
+    layout.addWidget(button)
+
+    lyt = QHBoxLayout()
+    check1 = QCheckBox('o%')
+    check1.setAutoExclusive (True)
+    check1.stateChanged.connect(lambda value: bar.setSplit(0))
+
+    check2 = QCheckBox('20%')
+    check2.setAutoExclusive (True)
+    check2.stateChanged.connect(lambda value: bar.setSplit(20))
+
+    check3 = QCheckBox('50%')
+    check3.setAutoExclusive (True)
+    check3.stateChanged.connect(lambda value: bar.setSplit(50))
+
+    lyt.addWidget(check1)
+    lyt.addWidget(check2)
+    lyt.addWidget(check3)
+    layout.addLayout(lyt)
+
+    w.show()
     app.exec_()
 

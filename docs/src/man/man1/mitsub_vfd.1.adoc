@@ -12,8 +12,8 @@ connector.
 *loadrt mitsub_vfd* [*--baud* _baudrate_] [*--port* _devicename_] **name1=**__number~1~__[,**name2=**__number~2~__...]
 
 *name1*:: is user selectable (usually a description of the controlled device).
-__number~1~__:: is the slave number that was set on the VFD. Must be two digits (Parameter 117).
-**name~__N__~=__number~N~__**:: can be repeated for multiple VFD's connected together.
+__number1__:: is the slave number that was set on the VFD. Must be two digits (Parameter 117).
+name__N__=number__N__:: can be repeated for multiple VFD's connected together.
 *--baud* _baudrate_:: is optional as it defaults to 9600, all networked vfds must be set to the same baudrate.
 *--port* _devicename_:: is optional as it defaults to `ttyS0``, a common alternative is `/dev/ttyUSB0`.
 
@@ -68,7 +68,7 @@ This driver assumes certain other VFD settings:
 - That the status bit 3 is up to speed.
 - That the status bit 7 is alarm.
 
-Some models (eg E500) cannot monitor status. +
+Some models, e.g. the E500, cannot monitor status. +
 You must set set the monitor pin to false. +
 In this case pins such as up-to-speed, amps, alarm and status bits are not useful.
 
@@ -83,7 +83,7 @@ If false, request-status command will not be sent to VFD.
 Status, amps, power, motor-feedback, and alarm would then not be useful.
 _VFD_NAME_**.estop** (bit, in):: Set E-stop mode pin.
 This will stop the VFD. Restarting requires the run pin to cycle.
-_VFD_NAME_**.fwd** (bit, out):: Up-to-speed status pin Motor is at requested speed within VFD's settings tolerance.
+_VFD_NAME_**.fwd** (bit, out):: Up-to-speed status pin. Motor is at requested speed within VFD's settings tolerance.
 _VFD_NAME_**.alarm** (bit, out):: Alarm status pin
 _VFD_NAME_**.motor-cmd** (float, in):: The requested motor speed, in Hertz (Hz)
 _VFD_NAME_**.motor-fb** (float, out):: The motor feedback speed (from VFD) in Hertz (Hz)

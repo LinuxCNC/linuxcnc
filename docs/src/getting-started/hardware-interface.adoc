@@ -40,7 +40,7 @@ __Advantages:__
 
 __Disadvantages:__
 - Sensitive to the LinuxCNC computer's latency
-- Limited inputs/outputs 
+- Limited inputs/outputs
 - Some PCI/PCIe parallel port cards do not work well or do not properly support the EPP mode (EPP mode is required for parallel port interface to Mesa / PICO cards).
 
 
@@ -50,10 +50,10 @@ Realtime (time critical) tasks such as step generation are done in hardware (not
 === Mesa via Parallel Port
 Mesa use Field-programmable gate array (FPGA) interfaced via parallel port - e.g. 7i43
 
-Website: http://mesanet.com/    Store: http://store.mesanet.com/
+Website: https://mesanet.com/    Store: https://store.mesanet.com/
 
 === Pico Systems via Parallel Port
-http://pico-systems.com/univstep.html
+https://pico-systems.com/univstep.html
 
 
 == Ethernet
@@ -62,7 +62,7 @@ Mesa cards with a Field-programmable gate array (FPGA), interfaced to LinuxCNC c
 
 Multiple ethernet interface FPGA cards are available, with many expansion cards
 
-Website: http://mesanet.com/    Store: http://store.mesanet.com/
+Website: https://mesanet.com/    Store: https://store.mesanet.com/
 
 === Remora Ethernet
 Realtime requirements are offloaded onto a controller board. Multiple different controller boards are supported - see https://remora-docs.readthedocs.io[Remora docs].
@@ -125,7 +125,7 @@ Mesa PCI / PCIe cards with a Field-programmable gate array (FPGA). Time critical
 
 Multiple daughter / expansion cards are available
 
-Website: http://mesanet.com/    Store: http://store.mesanet.com/
+Website: https://mesanet.com/    Store: https://store.mesanet.com/
 
 == SPI
 SPI = Serial Peripheral Interface. SPI interfaces can be found on single board computers like Raspberry Pi, or Orange Pi. SPI interface is _not_ generally present on standard computers (AMD/Intel).
@@ -144,13 +144,13 @@ Mesa cards with a Field-programmable gate array (FPGA), interfaced to LinuxCNC c
 
 Example: 7C80 for Raspberry Pi
 
-Website: http://mesanet.com/    Store: http://store.mesanet.com/
+Website: https://mesanet.com/    Store: https://store.mesanet.com/
 
 
 == USB
 USB devices cannot be used to control motors or perform other __"real time"__ tasks.
 
-USB to Parallel port converters are ___NOT___ usable / suitable for CNC use. 
+USB to Parallel port converters are ___NOT___ usable / suitable for CNC use.
 
 === LinuxCNC_ArduinoConnector
 This Project enables you to connect an Arduino to LinuxCNC and provides as many I/Os as you could ever wish for. This Software is used as I/O Expansion for LinuxCNC.

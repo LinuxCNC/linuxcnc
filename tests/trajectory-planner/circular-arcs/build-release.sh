@@ -1,4 +1,7 @@
-#/bin/bash
+#!/bin/bash
+
+set -e
+
 cd ../../../src
 #Ugly way to force rebuild of kinematics, which assumes that tp_debug isn't
 #used anywhere else...

@@ -766,7 +766,7 @@ KEYBTN_invert = KEY_invert.copy()
 KEYBTN_invert.update(BTN_invert)
 
 def humanize(s):
-    s = re.split("(\d+)", s)
+    s = re.split(r"(\d+)", s)
     def maybe_int(ss):
         if ss and ss[0] in "0123456789": return int(ss)
         return ss

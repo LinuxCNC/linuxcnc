@@ -8,7 +8,7 @@ hm2_tram_add_bspi_frame - add a register-write to the Hostmot2 TRAM
 
 ....
 #include <hostmot2-serial.h>
-hm2_tram_add_bspi_frame(char *name, int chan, u32 **wbuff, u32 **rbuff);
+hm2_tram_add_bspi_frame(char* name, int chan, u32** wbuff, u32** rbuff);
 ....
 
 == DESCRIPTION
@@ -22,16 +22,14 @@ index>.bspi.<index> For example hm2_5i23.0.bspi.0
 
 This function is used to add a regular, every thread, write or
 write-read transaction to the Translation RAM system. A write need not
-have a read (use 0 for **rbuff) but it is an error to have a read
+have a read (use 0 for _rbuff_) but it is an error to have a read
 without a write. Note that the TRAM list is not actioned until the
 hm2_allocate_bspi_tram function is called. The read and write parameters
-must be pointers to pointers, as TRAM re-maps the buffers into
-contiguous memory.
+must be pointers to pointers, as TRAM re-maps the buffers into contiguous memory.
 
 == REALTIME CONSIDERATIONS
 
-Call only from realtime init code, not from other realtime code or
-non-realtime components.
+Call only from realtime init code, not from other realtime code or non-realtime components.
 
 == RETURN VALUE
 

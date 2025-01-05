@@ -39,7 +39,7 @@ class _PStat(object):
         if self.__class__._instanceNum >= 1:
             return
         self.__class__._instanceNum += 1
-
+        self.INI_PATH = None
         try:
             self.WORKINGDIR = os.getcwd()
 
@@ -51,7 +51,7 @@ class _PStat(object):
             self.VISMACHDIR = os.path.join(self.LIBDIR, "qt_vismach")
 
             # share directory moves when using RIP vrs installed
-            home = os.environ.get('EMC2_HOME', '/usr')
+            home = os.environ.get('LINUXCNC_HOME', '/usr')
             if home is not None:
                 self.SHAREDIR = os.path.join(home,"share", "qtvcp")
             self.IMAGEDIR = os.path.join(self.SHAREDIR,  "images")
@@ -80,16 +80,20 @@ class _PStat(object):
             print ('qt_Pstat:',e)
             pass
 
-    def set_paths(self, filename='dummy', isscreen=False):
+    def set_paths(self, filename='dummy', isscreen=False, INI=None):
         self.PREFS_FILENAME = None
         self.IS_SCREEN = isscreen
         self.QRC_IS_LOCAL = None
         self.QRCPY_IS_LOCAL = None
+        self.INI_PATH = INI
 
         if isscreen:
             # path to the configuration the user requested
-            self.CONFIGPATH = os.environ['CONFIG_DIR']
-            sys.path.insert(0, self.CONFIGPATH)
+            try:
+                self.CONFIGPATH = os.environ['CONFIG_DIR']
+                sys.path.insert(0, self.CONFIGPATH)
+            except:
+                self.CONFIGPATH = self.WORKINGDIR
         else:
             # VCP panels don't usually have config paths but QTVCP looks for one.
             # TODO this fixes the error but maybe it should be something else
@@ -172,16 +176,7 @@ class _PStat(object):
             else:
                 # error
                 self.XML = None
-                LOG.critical("No UI file found - Did you add the .ui name/path?")
-                LOG.info('Available built-in Machine Control Screens:')
-                for i in self.find_screen_dirs():
-                   print(('{}'.format(i)))
-                print('')
-                LOG.info('Available built-in VCP Panels:')
-                for i in self.find_panel_dirs():
-                    print(('{}'.format(i)))
-                print('')
-                return True # error
+                LOG.info("No ui file found.")
 
         if not self.HANDLER is None:
             self.XMLDIR = os.path.dirname(self.HANDLER)
@@ -319,6 +314,18 @@ class _PStat(object):
             else:
                 self.ABOUT = ""
                 LOG.debug("No about file found.")
+
+        if self.XML is None and self.HANDLER is None:
+            LOG.critical("No UI or handler file found - Did you add the .ui name/path?")
+            LOG.info('Available built-in Machine Control Screens:')
+            for i in self.find_screen_dirs():
+               print(('{}'.format(i)))
+            print('')
+            LOG.info('Available built-in VCP Panels:')
+            for i in self.find_panel_dirs():
+                print(('{}'.format(i)))
+            print('')
+            return True # error
 
     # search for local ui paths or default to standard
     def find_widget_path(self,uifile=''):

@@ -149,12 +149,13 @@ static retCode parse_pin_names(const char * const names_string, mb_tx_t * const 
         if(name_count >= name_buf_size)
         {
             name_buf_size += NAME_ALLOC_SIZE;
-            name_ptrs = realloc(name_ptrs, sizeof(char *) * name_buf_size);
-            if(name_ptrs == NULL)
+            char ** tmp = realloc(name_ptrs, sizeof(char *) * name_buf_size);
+            if(NULL == tmp)
             {
                 ERR(gbl.init_dbg, "Failed allocating memory");
                 return retERR;
             }
+            name_ptrs = tmp;
         }
         name_ptrs[name_count++]=name;
         name = strtok(NULL, ",");

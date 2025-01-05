@@ -88,6 +88,7 @@ class HandlerClass:
 
         # some global variables
         self.factor = 1.0
+        self._dialog_message = None
         self._spindle_wait = False
         self.probe = None
         self.default_setup = os.path.join(PATH.CONFIGPATH, "default_setup.html")
@@ -124,6 +125,7 @@ class HandlerClass:
         self.statusbar_reset_time = 10000 # ten seconds
 
         STATUS.connect('general', self.dialog_return)
+        STATUS.connect('dialog-request', self.dialog_request)
         STATUS.connect('state-on', lambda w: self.enable_onoff(True))
         STATUS.connect('state-off', lambda w: self.enable_onoff(False))
         STATUS.connect('mode-manual', lambda w: self.enable_auto(True))
@@ -153,6 +155,10 @@ class HandlerClass:
         txt3 = _translate("HandlerClass","Documents online")
         txt4 = _translate("HandlerClass","QtDragon online")
         txt5 = _translate("HandlerClass","Local files")
+
+        self.swoopPath = os.path.join(paths.IMAGEDIR,'lcnc_swoop.png')
+        self.swoopURL = QtCore.QUrl.fromLocalFile(self.swoopPath)
+
         self.html = """<html>
 <head>
 <title>Test page for the download:// scheme</title>
@@ -168,7 +174,7 @@ class HandlerClass:
 </body>
 </html>
 """%( txt1, txt2, txt3, txt4, os.path.expanduser('~/linuxcnc'), txt5,
-        os.path.join(paths.IMAGEDIR,'lcnc_swoop.png'))
+        self.swoopPath)
 
     def class_patch__(self):
         # override file manager load button
@@ -267,7 +273,7 @@ class HandlerClass:
                 if os.path.exists(self.default_setup):
                     self.w.webwidget.load(QtCore.QUrl.fromLocalFile(self.default_setup))
                 else:
-                    self.w.webwidget.setHtml(self.html)
+                    self.w.webwidget.setHtml(self.html, self.swoopURL)
                 self.w.webwidget.page().urlChanged.connect(self.onLoadFinished)
 
         except Exception as e:
@@ -351,6 +357,14 @@ class HandlerClass:
 
         self.pin_mpg_in = QHAL.newpin('mpg-in',QHAL.HAL_S32, QHAL.HAL_IN)
         self.pin_mpg_in.value_changed.connect(lambda s: self.external_mpg(s))
+
+        # dialog answer pins
+        pin = QHAL.newpin("dialog-ok", QHAL.HAL_BIT, QHAL.HAL_IN)
+        pin.pinValueChanged.connect(lambda p,v: self.dialog_ext_control(p,v,1))
+        pin = QHAL.newpin("dialog-no", QHAL.HAL_BIT, QHAL.HAL_IN)
+        pin.pinValueChanged.connect(lambda p,v: self.dialog_ext_control(p,v,2))
+        pin = QHAL.newpin("dialog-cancel", QHAL.HAL_BIT, QHAL.HAL_IN)
+        pin.pinValueChanged.connect(lambda p,v: self.dialog_ext_control(p,v,0))
 
     def init_preferences(self):
         if not self.w.PREFS_:
@@ -730,6 +744,13 @@ class HandlerClass:
             self.h['eoffset-spindle-count'] = 0
             self.add_status(_translate("HandlerClass",'Spindle lowered after machine stopped'))
 
+        # reset current dialog variable
+        self._dialog_message = None
+
+    # set current dialog variable
+    def dialog_request(self,w, message):
+        self._dialog_message = message
+
     def user_system_changed(self, data):
         sys = self.system_list[int(data) - 1]
         self.w.offset_table.selectRow(int(data) + 3)
@@ -1086,10 +1107,15 @@ class HandlerClass:
         STATUS.emit('update-machine-log', None, 'DELETE')
 
     def btn_save_status_clicked(self):
-        text = self.w.machinelog.toPlainText()
+        if self.w.stackedWidget_log.currentIndex():
+            text = self.w.integrator_log.toPlainText()
+            name = 'sysLog_'
+        else:
+            text = self.w.machinelog.toPlainText()
+            name = 'mchnLog_'
         filename = self.w.lbl_clock.text()
-        filename = 'status_' + filename.replace(' ','_') + '.txt'
-        self.add_status("{} {}".format(_translate("HandlerClass","Saving Status file to"), filename))
+        filename = name + filename.replace(' ','_') + '.txt'
+        self.add_status("{} {}".format(_translate("HandlerClass","Saving Log file to"), filename))
         with open(filename, 'w') as f:
             f.write(text)
 
@@ -1381,7 +1407,7 @@ class HandlerClass:
                     self.w.webwidget.loadFile(fname)
                     self.add_status("{} : {}".format(_translate("HandlerClass","Loaded HTML file"), fname), CRITICAL)
                 else:
-                    self.w.webwidget.setHtml(self.html)
+                    self.w.webwidget.setHtml(self.html, self.swoopURL)
             except Exception as e:
                 self.add_status("{} {} : {}".format(_translate("HandlerClass","Error loading HTML file"), fname,e))
             # look for PDF setup files
@@ -1634,7 +1660,7 @@ class HandlerClass:
             if os.path.exists(self.default_setup):
                 self.w.webwidget.load(QtCore.QUrl.fromLocalFile(self.default_setup))
             else:
-                self.w.webwidget.setHtml(self.html)
+                self.w.webwidget.setHtml(self.html, self.swoopURL)
         except:
             pass
     # setup tab's web page back button
@@ -1646,7 +1672,7 @@ class HandlerClass:
                 if os.path.exists(self.default_setup):
                     self.w.webwidget.load(QtCore.QUrl.fromLocalFile(self.default_setup))
                 else:
-                    self.w.webwidget.setHtml(self.html)
+                    self.w.webwidget.setHtml(self.html, self.swoopURL)
         except:
             pass
 
@@ -1969,6 +1995,12 @@ class HandlerClass:
                        self.MPGFocusWidget.up()
 
         self._last_count = count
+
+    def dialog_ext_control(self, pin, value, answer):
+        if value:
+            if not self._dialog_message is None:
+                name = self._dialog_message.get('NAME')
+                STATUS.emit('dialog-update',{'NAME':name,'response':answer})
 
     #####################
     # KEY BINDING CALLS #

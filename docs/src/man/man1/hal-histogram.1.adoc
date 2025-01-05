@@ -12,7 +12,7 @@ hal-histogram - plots the value of a HAL pin as a histogram
 
 *hal-histogram* represents the values of a HAL pin graphically.
 
-Details: http://linuxcnc.org/docs/html/hal/tools.html#_hal_histogram
+Details: https://linuxcnc.org/docs/html/hal/tools.html#_hal_histogram
 
 == SEE ALSO
 

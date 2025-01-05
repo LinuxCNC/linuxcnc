@@ -272,7 +272,7 @@ int emcTaskSetMode(EMC_TASK_MODE mode)
     int retval = 0;
 
     if (jogging_is_active()) {
-        emcOperatorError("Ignoring task mode change while jogging");
+        rcs_print("Ignoring task mode change while jogging");
         return 0;
     }
 
@@ -718,7 +718,7 @@ int emcTaskUpdate(EMC_TASK_STAT * stat)
 					emcStatus->motion.traj.tag);
 	if (res_state != INTERP_ERROR) {
             rtapi_strxcpy(stat->file, emcStatus->motion.traj.tag.filename);
-            stat->currentLine = emcStatus->motion.traj.tag.fields[0];
+        //    stat->currentLine = emcStatus->motion.traj.tag.fields[0];
 	}
     } 
     // If we get an error from trying to unpack from the motion state, always

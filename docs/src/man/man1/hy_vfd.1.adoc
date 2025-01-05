@@ -81,7 +81,7 @@ You will need to log out and back in again for this to take effect.
 == OPTIONS
 
 -d, --device _<path>_::
-  (default /dev/ttyS0) Set the name of the serial device node to use.
+  Set the name of the serial device node to use (defaults to /dev/ttyS0).
 
 -g, --debug::
   Turn on debug messages. Note that if there are serial errors, this may
@@ -91,80 +91,74 @@ You will need to log out and back in again for this to take effect.
 -y, --regdump::
   Print the current value of all registers as soon as the VFD is enabled.
 
--n, --name _<string>_::
-  (default hy_vfd) Set the name of the HAL module. The HAL comp name
-  will be set to <string>, and all pin and parameter names will begin
-  with <string>.
+-n, --name _string_::
+  Sets the name of the HAL module.
+  The HAL comp name will be set to _string_, and all pin and parameter names will begin with _string_ (defaults to hy_vfd).
 
--b, --bits _<n>_::
-  (default 8) Set number of data bits to <n>, where n must be from 5 to
-  8 inclusive. This must match the setting in register PD165 of the
-  Huanyang VFD.
+-b, --bits _n_::
+  Set number of data bits to _n_, where n must be from 5 to 8 inclusive.
+  This must match the setting in register PD165 of the Huanyang VFD (defaults to 8).
 
 -p, --parity [even,odd,none]::
-  (default odd) Set serial parity to even, odd, or none. This must match
-  the setting in register PD165 of the Huanyang VFD.
+  Set serial parity to even, odd, or none. This must match
+  the setting in register PD165 of the Huanyang VFD (default odd).
 
--r, --rate _<n>_::
-  (default 38400) Set baud rate to <n>. It is an error if the rate is
+-r, --rate _n_::
+  Set baud rate to _n_. It is an error if the rate is
   not one of the following: 110, 300, 600, 1200, 2400, 4800, 9600,
   19200, 38400, 57600, 115200. This must match the setting in register
-  PD164 of the Huanyang VFD.
+  PD164 of the Huanyang VFD (defaults to 38400).
 
 -s, --stopbits [1,2]::
-  (default 1) Set serial stop bits to 1 or 2. This must match the
-  setting in register PD165 of the HuanyangVFD.
+  Set serial stop bits to 1 or 2. This must match the
+  setting in register PD165 of the HuanyangVFD (defaults to 1).
 
--t, --target _<n>_::
-  (default 1) Set HYCOMM target (slave) number. This must match the
-  device number you set on the Hyanyang VFD in register PD163.
+-t, --target _n_::
+  Set HYCOMM target (slave) number. This must match the device number
+  you set on the Hyanyang VFD in register PD163 (defaults to 1).
 
--F, --max-frequency _<n>_::
-  (default: read from VFD) If specified, program register PD005 of the
-  VFD with the specified max frequency of <n> Hz (and use the same max
+-F, --max-frequency _n_::
+  If specified, program register PD005 of the
+  VFD with the specified max frequency of _n_ Hz (and use the same max
   frequency in the hy_vfd driver). If not specified, read the max
-  frequency to use from register PD005 of the VFD.
+  frequency to use from register PD005 of the VFD (default: read from VFD).
 
--f, --min-frequency _<n>_::
-  (default: read from VFD) If specified, program register PD011 of the
-  VFD with the specified minimum frequency of <n> Hz (and use the same
-  minimum frequency in the hy_vfd driver). If not specified, read the
-  minimum frequency to use from register PD011 of the VFD.
+-f, --min-frequency _n_::
+  If specified, program register PD011 of the VFD with the specified minimum frequency
+  of <n> Hz (and use the same minimum frequency in the hy_vfd driver).
+  If not specified, read the minimum frequency to use from register PD011 of the VFD (default: read from VFD).
 
--V, --motor-voltage _<n>_::
-  (default: read from VFD) If specified, program register PD141 of the
-  VFD with the specified max motor voltage of <n> Volts. If not
-  specified, read the max motor voltage from register PD141 of the VFD.
+-V, --motor-voltage _n_::
+  If specified, program register PD141 of the VFD with the specified max motor voltage of _n_ Volts.
+  If not specified, read the max motor voltage from register PD141 of the VFD (default: read from VFD).
 
--I, --motor-current _<n>_::
-  (default: read from VFD) If specified, program register PD142 of the
-  VFD with the specified max motor current of <n> Amps. If not
-  specified, read the max motor current from register PD142 of the VFD.
+-I, --motor-current _n_::
+  If specified, program register PD142 of the VFD with the specified max motor current of _n_ Amps.
+  If not specified, read the max motor current from register PD142 of the VFD (default: read from VFD).
 
--S, --motor-speed _<n>_::
+-S, --motor-speed _n_::
   (default: compute from value read from VFD P144) This command-line
   argument is the motor's max speed. If specified, compute the motor's
   speed at 50 Hz from this argument and from the motor's max frequency
   (from the --max-frequency argument or from P011 if --max-frequency is
   not specified) and program register PD144 of the VFD. If not
   specified, read the motor's speed at 50 Hz from register P144 of the
-  VFD, and use that and the max frequency to compute the motor's max
-  speed.
+  VFD, and use that and the max frequency to compute the motor's max speed.
 
--P, --motor-poles _<n>_::
+-P, --motor-poles _n_::
   (default: read value from VFD P143) This command-line argument is the
   number of poles in the motor. If specified, this value is sent to the
   VFD's register PD143. If not specified, the value is read from PD143
   and reported on the corresponding HAL pin.
 
--x, --register PD__nnn__=__mmm__ _<n>_::
+-x, --register PD__nnn__=__mmm__ _n_::
   Set a specific register to a new value. Can be used to set up to 10
   registers. Parameters will "stick" (but only after hy_vfd.enable has
   been set true) so to set more than ten parameters it is possible to
   repeatedly load the driver with a set of registers to set then enable
   (setp hy_vfd.enable 1) and unload (unload hy_vfd) the driver at a
   halrun(1) prompt. For example: +
-  loadusr -W hy_vfd -d /ttyUSB0 --register PD014=30 --register PD015=30
+  `loadusr -W hy_vfd -d /ttyUSB0 --register PD014=30 --register PD015=30`
   +
   Will set both ramp1 times to 3 seconds. The values should be scaled
   according to the manual data. The example above uses values with a
@@ -173,125 +167,54 @@ You will need to log out and back in again for this to take effect.
 
 == PINS
 
-<name>.enable::
-  (bit, in) Enable communication from the hy_vfd driver to the VFD.
-
-<name>.SetF::
-  (float, out)
-
-<name>.OutF::
-  (float, out)
-
-<name>.OutA::
-  (float, out)
-
-<name>.Rott::
-  (float, out)
-
-<name>.DCV::
-  (float, out)
-
-<name>.ACV::
-  (float, out)
-
-<name>.Cont::
-  (float, out)
-
-<name>.Tmp::
-  (float, out)
-
-<name>.spindle-forward::
-  (bit, in)
-
-<name>.spindle-reverse::
-  (bin, in)
-
-<name>.spindle-on::
-  (bin, in)
-
-<name>.CNTR::
-  (float, out)
-
-<name>.CNST::
-  (float, out)
-
-<name>.CNST-run::
-  (bit, out)
-
-<name>.CNST-jog::
-  (bit, out)
-
-<name>.CNST-command-rf::
-  (bit, out)
-
-<name>.CNST-running::
-  (bit, out)
-
-<name>.CNST-jogging::
-  (bit, out)
-
-<name>.CNST-running-rf::
-  (bit, out)
-
-<name>.CNST-bracking::
-  (bit, out)
-
-<name>.CNST-track-start::
-  (bit, out)
-
-<name>.speed-command::
-  (float, in)
-
-<name>.spindle-speed-fb::
-  (float, out) Current spindle speed as reported by Huanyang VFD (rpm).
-
-<name>.spindle-speed-fb-rps::
-  (float, out) Current spindle speed as reported by Huanyang VFD (rps).
-
-<name>.spindle-at-speed-tolerance::
-  (float, in) Spindle speed error tolerance. If the actual spindle speed
-  is within .spindle-at-speed-tolerance of the commanded speed, then the
-  .spindle-at-speed pin will go True. The default
-  .spindle-at-speed-tolerance is 0.02, which means the actual speed must
-  be within 2% of the commanded spindle speed.
-
-<name>.spindle-at-speed::
-  (bit, out) True when the current spindle speed is within
-  .spindle-at-speed-tolerance of the commanded speed.
-
-<name>.frequency-command::
-  (float, out)
-
-<name>.max-freq::
-  (float, out)
-
-<name>.base-freq::
-  (float, out)
-
-<name>.freq-lower-limit::
-  (float, out)
-
-<name>.rated-motor-voltage::
-  (float, out)
-
-<name>.rated-motor-current::
-  (float, out)
-
-<name>.rated-motor-rev::
-  (float, out)
-
-<name>.motor-poles::
-  (u32, out)
-
-<name>.hycomm-ok::
-  (bit, out)
-
-<name>.error-count::
-  (s32, RO)
-
-<name>.retval::
-  (u32, R0)
-
+_<name>_.enable (bit, in)::
+  Enable communication from the hy_vfd driver to the VFD.
+_<name>_.SetF (float, out)::
+_<name>_.OutF (float, out)::
+_<name>_.OutA (float, out)::
+_<name>_.Rott (float, out)::
+_<name>_.DCV (float, out)::
+_<name>_.ACV (float, out)::
+_<name>_.Cont (float, out)::
+_<name>_.Tmp (float, out)::
+_<name>_.spindle-forward (bit, in)::
+_<name>_.spindle-reverse (bin, in)::
+_<name>_.spindle-on (bin, in)::
+_<name>_.CNTR (float, out)::
+_<name>_.CNST (float, out)::
+_<name>_.CNST-run (bit, out)::
+_<name>_.CNST-jog (bit, out)::
+_<name>_.CNST-command-rf (bit, out)::
+_<name>_.CNST-running (bit, out)::
+_<name>_.CNST-jogging (bit, out)::
+_<name>_.CNST-running-rf (bit, out)::
+_<name>_.CNST-bracking (bit, out)::
+_<name>_.CNST-track-start (bit, out)::
+_<name>_.speed-command (float, in)::
+_<name>_.spindle-speed-fb (float, out)::
+  Current spindle speed as reported by Huanyang VFD (rpm).
+_<name>_.spindle-speed-fb-rps (float, out)::
+  Current spindle speed as reported by Huanyang VFD (rps).
+_<name>_.spindle-at-speed-tolerance (float, in)::
+  Spindle speed error tolerance. If the actual spindle speed is
+  within `.spindle-at-speed-tolerance` of the commanded speed,
+  then the `.spindle-at-speed pin` will go True.
+  The default `.spindle-at-speed-tolerance` is 0.02, which means
+  the actual speed must be within 2% of the commanded spindle speed.
+_<name>_.spindle-at-speed (bit, out)::
+  True when the current spindle speed is within `.spindle-at-speed-tolerance` of the commanded speed.
+_<name>_.frequency-command (float, out)::
+_<name>_.max-freq (float, out)::
+_<name>_.base-freq (float, out)::
+_<name>_.freq-lower-limit (float, out)::
+_<name>_.rated-motor-voltage (float, out)::
+_<name>_.rated-motor-current (float, out)::
+_<name>_.rated-motor-rev (float, out)::
+_<name>_.motor-poles (u32, out)::
+_<name>_.hycomm-ok (bit, out)::
+_<name>_.error-count (s32, RO)::
+_<name>_.retval (u32, R0)::
+ 
 == AUTHOR
 
 Sebastian Kuzminsky

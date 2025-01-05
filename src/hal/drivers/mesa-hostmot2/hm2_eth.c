@@ -45,6 +45,7 @@
 #include "hostmot2-lowlevel.h"
 #include "hostmot2.h"
 #include "hm2_eth.h"
+#include "eshellf.h"
 
 struct kvlist {
     struct rtapi_list_head list;
@@ -100,7 +101,7 @@ int comm_active = 0;
 
 static int comp_id;
 
-static char *hm2_7i96_pin_names[] = {
+static const char *hm2_7i96_pin_names[] = {
     "TB3-01",
     "TB3-02",
     "TB3-03",
@@ -158,7 +159,7 @@ static char *hm2_7i96_pin_names[] = {
     "P1-25/DB25-13",
 };
 
-static char *hm2_7i94_pin_names[] = {
+static const char *hm2_7i94_pin_names[] = {
     "P2-01/DB25-01", /* P2 parallel expansion */
     "P2-02/DB25-14",
     "P2-03/DB25-02",
@@ -204,7 +205,7 @@ static char *hm2_7i94_pin_names[] = {
     "P2-/IOENA"
 };
 
-static char *hm2_7i95_pin_names[] = {
+static const char *hm2_7i95_pin_names[] = {
     "TB3-02/TB3-03", /* Step/Dir/Misc 5V out */
     "TB3-04/TB3-05",
     "TB3-08/TB3-09",
@@ -266,7 +267,7 @@ static char *hm2_7i95_pin_names[] = {
     "P1-25/DB25-13",
 };
 
-static char *hm2_7i97_pin_names[] = {
+static const char *hm2_7i97_pin_names[] = {
     "TB3-04", 		/* Analog out */
     "TB3-08",
     "TB3-12",
@@ -321,7 +322,7 @@ static char *hm2_7i97_pin_names[] = {
     "P1-25/DB25-13",
 };
 
-static char *hm2_Mc04_pin_names[] = {
+static const char *hm2_Mc04_pin_names[] = {
     "Relay2",
     "Relay3",
     "Relay4",
@@ -384,7 +385,7 @@ static char *hm2_Mc04_pin_names[] = {
     "Smart Serial Interface #0, pin rx0 (Input)"
 };
 
-static char *hm2_8cSS_pin_names[] = {
+static const char *hm2_8cSS_pin_names[] = {
     "Not used",
     "Not used",
     "Not used",
@@ -462,32 +463,6 @@ static int eth_socket_recv(int sockfd, void *buffer, int len, int flags);
 
 #define IPTABLES "env \"PATH=/usr/sbin:/sbin:${PATH}\" iptables"
 #define CHAIN "hm2-eth-rules-output"
-
-static int shell(char *command) {
-    char *const argv[] = {"sh", "-c", command, NULL};
-    pid_t pid;
-    int res = rtapi_spawn_as_root(&pid, "/bin/sh", NULL, NULL, argv, environ);
-    if(res < 0) perror("rtapi_spawn_as_root");
-    int status;
-    waitpid(pid, &status, 0);
-    if(WIFEXITED(status)) return WEXITSTATUS(status);
-    else if(WIFSTOPPED(status)) return WTERMSIG(status)+128;
-    else return status;
-}
-
-static int eshellf(char *fmt, ...) {
-    char commandbuf[1024];
-    va_list ap;
-    va_start(ap, fmt);
-    vsnprintf(commandbuf, sizeof(commandbuf), fmt, ap);
-    va_end(ap);
-
-    int res = shell(commandbuf);
-    if(res == EXIT_SUCCESS) return 0;
-
-    LL_PRINT("ERROR: Failed to execute '%s'\n", commandbuf);
-    return -EINVAL;
-}
 
 static bool chain_exists() {
     int result =
@@ -627,7 +602,7 @@ static int install_iptables_perinterface(const char *ifbuf) {
         ifbuf);
     if(res < 0) return res;
 
-    res = eshellf("/sbin/sysctl -q net.ipv6.conf.%s.disable_ipv6=1", ifbuf);
+    res = eshellf(HM2_LLIO_NAME, "/sbin/sysctl -q net.ipv6.conf.%s.disable_ipv6=1", ifbuf);
     if(res < 0) return res;
 
     return 0;

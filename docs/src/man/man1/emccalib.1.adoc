@@ -27,12 +27,10 @@ _L_ is an axis coordinate letter (X,Y,Z,A,B,C,U,V,W),
 and _S_ is a spindle number (0 .. 9).
 
 [NOTE]
-
 The number of allowed spindles is 8 but legacy configurations
 may include a stanza [SPINDLE_9] unrelated to an actual spindle number.
 
 [NOTE]
-
 The [TUNE] stanza may be used for specifying tunable items
 not relevant to the other supported stanzas.
 

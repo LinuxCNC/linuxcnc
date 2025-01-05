@@ -168,6 +168,9 @@ class gmoccapy(object):
         self.stat.poll()
         self.error_channel.poll()
 
+        # set INI path for INI info class before widgets are loaded
+        INFO = Info(ini=argv[2])
+
         self.builder = Gtk.Builder()
         # translation of the glade file will be done with
         self.builder.set_translation_domain("gmoccapy")
@@ -488,7 +491,7 @@ class gmoccapy(object):
             except:
                 tb = traceback.format_exc()
                 LOG.error(tb)
-                self.notification.add_message(_("Error in ") + rcfile + "\n" \
+                self.notification.add_message(_("Error in") + " " + rcfile + "\n" \
                     + _("Please check the console output."), ALERT_ICON)
 
         # Custom css file, e.g.:
@@ -509,7 +512,7 @@ class gmoccapy(object):
             except:
                 tb = traceback.format_exc()
                 LOG.error(tb)
-                self.notification.add_message(_("Error in ") + css_file + "\n" \
+                self.notification.add_message(_("Error in") + " " + css_file + "\n" \
                     + _("Please check the console output."), ALERT_ICON)
 
 
@@ -1812,7 +1815,7 @@ class gmoccapy(object):
     def _dynamic_tab(self, widget, text):
         s = Gtk.Socket()
         try:
-            widget.append_page(s, Gtk.Label(" " + text + " "))
+            widget.append_page(s, Gtk.Label.new(" " + text + " "))
         except:
             try:
                 widget.pack_end(s, True, True, 0)
@@ -4583,10 +4586,12 @@ class gmoccapy(object):
 
     def _set_sourceview_theme(self, name):
         self.widgets["gcode_view"].set_style_scheme(name)
-        style  = self.widgets["gcode_view"].get_style_context()
-        color = style.get_background_color(Gtk.StateFlags.SELECTED)
-        color.alpha = 0.5
-        self.widgets["gcode_view"].add_mark_category('motion', color.to_string())
+        buffer = self.widgets["gcode_view"].get_buffer()
+        style = buffer.get_style_scheme().get_style('current-line')
+        color = style.props.background
+        rgba = Gdk.RGBA()
+        rgba.parse(color)
+        self.widgets["gcode_view"].add_mark_category('motion', rgba.to_string())
         
     def on_sourceview_theme_choice_changed(self, widget):
         active = widget.get_active_iter()
@@ -5824,8 +5829,10 @@ if __name__ == "__main__":
 
     # Some of these libraries log when imported so logging level must already be set.
     import gladevcp.makepins
+    from gladevcp.core import Info
     from gladevcp.combi_dro import Combi_DRO  # we will need it to make the DRO
     from gmoccapy import widgets       # a class to handle the widgets
+
     from gmoccapy import notification  # this is the module we use for our error handling
     from gmoccapy import preferences   # this handles the preferences
     from gmoccapy import getiniinfo    # this handles the INI File reading so checking is done in that module
@@ -5855,7 +5862,20 @@ if __name__ == "__main__":
                 res = os.spawnvp(os.P_WAIT, "haltcl", ["haltcl", "-i", inifile, f])
             else:
                 res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i", inifile, "-f", f])
-            if res: raise SystemExit(res)
+                if res:
+                    LOG.error('postgui halfile error:{}'.format(res))
+                    raise SystemExit(res)
+
+        postgui_halcmds = app.get_ini_info.get_postgui_halcmds()
+        LOG.info("Postgui commands: yellow<{}>".format(postgui_halcmds))
+        if postgui_halcmds is not None:
+            for f in postgui_halcmds:
+                f = os.path.expanduser(f)
+                res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd"] + f.split())
+                if res:
+                    LOG.error('postgui command error:{}'.format(res))
+                    raise SystemExit(res)
+
 
     # start the event loop
     Gtk.main()

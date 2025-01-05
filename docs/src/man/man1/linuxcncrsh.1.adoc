@@ -2,8 +2,7 @@
 
 == NAME
 
-linuxcncrsh - text-mode interface for commanding LinuxCNC over the
-network
+linuxcncrsh - text-mode interface for commanding LinuxCNC over the network
 
 == SYNOPSIS
 
@@ -11,12 +10,17 @@ network
 
 == DESCRIPTION
 
-*linuxcncrsh* is a user interface for LinuxCNC. Instead of popping up a
-GUI window like AXIS(1) and Touchy(1) do, it processes text-mode
-commands that it receives via the network. A human (or a program) can
-interface with *linuxcncrsh* using telnet(1), nc(1) or similar programs.
+The command *linuxcncrsh* is a fully-functional text-based user interface for LinuxCNC.
+Instead of popping up a GUI window like AXIS(1) and Touchy(1) do,
+it processes text-mode commands that it receives via the network.
+A human (or a program) can interface with *linuxcncrsh* using telnet(1), nc(1) or similar programs.
 
-All features of LinuxCNC are available via the *linuxcncrsh* interface.
+It cannot be stressed enough that all features of LinuxCNC are available
+via the *linuxcncrsh* interface. It can substitute a graphical UI or be
+started in addition to it. If your environment needs to control/monitor
+more than one machine from a single location, this text interface may raise
+your interest. Also, a speech to text interface may be easier to adapt to
+this text-based interface than to a graphical one.
 
 == OPTIONS
 
@@ -34,9 +38,9 @@ All features of LinuxCNC are available via the *linuxcncrsh* interface.
   Defaults to EMC if omitted.
 
 *-e*,*--enablepw* _PASSWORD_::
-  Specify the password required to enable LinuxCNC via linuxcncrsh. Note
-  that the password is sent in the clear, so it can be read by anyone who
-  can read packets on the network between the server and the client.
+  Specify the password required to enable LinuxCNC via linuxcncrsh.
+  Note that the password is sent in the clear, so it can be read by anyone
+  who can read packets on the network between the server and the client.
   Defaults to EMCTOO if omitted.
 
 *-s*,*--sessions* _MAX_SESSIONS_::
@@ -48,21 +52,22 @@ All features of LinuxCNC are available via the *linuxcncrsh* interface.
 
 *-ini* _LINUXCNC_INI_FILE_::
   LinuxCNC INI file to use. The -ini option *must* be preceded by two dashes: "--".
-  Defaults to emc.ini if omitted.
+  Defaults to 'emc.ini' if omitted.
 
 == Starting linuxcncrsh
 
-To use linuxcncrsh instead of a normal LinuxCNC GUI like AXIS or Touchy,
+To use *linuxcncrsh* instead of a normal LinuxCNC GUI like AXIS or Touchy,
 specify it in your INI file like this:
 
 ----
-*[DISPLAY]*
+[DISPLAY]
 
-*DISPLAY=linuxcncrsh*
+DISPLAY=linuxcncrsh
 ----
 
-To use linuxcncrsh in addition to a normal GUI, you can either start it
-at the end of your HAL file, or run it by hand in a terminal window.
+To use linuxcncrsh in addition to a normal GUI, you can either
+1. start it at the end of your HAL file, or
+2. run it by hand in a terminal window.
 
 To start it from HAL, add a line like this to the end of your HAL file:
 
@@ -70,7 +75,7 @@ To start it from HAL, add a line like this to the end of your HAL file:
 loadusr linuxcncrsh [OPTIONS] [-- LINUXCNC_OPTIONS]
 ----
 
-To start it from the terminal, run linuxcncrsh manually like this:
+To start it from the terminal, run `linuxcncrsh` manually like this:
 
 ----
 linuxcncrsh [OPTIONS] [-- LINUXCNC_OPTIONS]
@@ -78,35 +83,34 @@ linuxcncrsh [OPTIONS] [-- LINUXCNC_OPTIONS]
 
 == Connecting
 
-Once LinuxCNC is up and linuxcncrsh is running, you can connect to it
+Once LinuxCNC is up and *linuxcncrsh* is running, you can connect to it
 using *telnet* or *nc* or similar:
 
 *telnet* _HOST_ _PORT_::
-  _HOST_ is the hostname or IP address of the computer running
-  linuxcncrsh, and _PORT_ is the port it's listening on (5007 if you
-  did not give linuxcncrsh the --port option).
+  _HOST_ is the hostname or IP address of the computer running linuxcncrsh,
+  and _PORT_ is the port it's listening on
+  (5007 if you did not give linuxcncrsh the --port option).
 
 == Network protocol
 
-linuxcncrsh accepts TCP connections on the port specified by the --port
-option, or 5007 if not specified.
+linuxcncrsh accepts TCP connections on the port specified by the --port option,
+or 5007 if not specified.
 
 The client sends requests, and the linuxcncrsh server returns replies.
-Requests consist of a command word followed by optional command-specific
-parameters. Requests and most request parameters are case insensitive.
+Requests consist of a command word followed by optional command-specific parameters.
+Requests and most request parameters are case insensitive.
 The exceptions are passwords, file paths and text strings.
 
-Requests to linuxcncrsh are terminated with line endings, any
-combination of one or more '\r' and '\n' characters. Replies from
-linuxcncrsh are terminated with the sequence '\r\n'.
+Requests to linuxcncrsh are terminated with line endings,
+any combination of one or more '\r' and '\n' characters.
+Replies from linuxcncrsh are terminated with the sequence '\r\n'.
 
 The supported commands are as follows:
 
 *hello* _<password>_ _<client>_ _<version>_::
-  <password> must match linuxcncrsh's connect password, or "EMC" if no
-  --connectpw was supplied. The three arguments may not contain
-  whitespace. If a valid password was entered the server will respond
-  with:
+  <password> must match linuxcncrsh's connect password, or "EMC" if no --connectpw was supplied.
+  The three arguments may not contain whitespace.
+  If a valid password was entered the server will respond with:
   +
   `HELLO ACK <ServerName> <ServerVersion>`
   +
@@ -129,15 +133,14 @@ The supported commands are as follows:
 *shutdown*::
   The shutdown command tells LinuxCNC to shutdown and disconnect the session.
   This command may only be issued if the Hello has been successfully negotiated
-  and the connection has control of the CNC (see *enable* subcommand in
-  the *LinuxCNC Subcommands* section, below).
+  and the connection has control of the CNC
+  (see *enable* subcommand in the *LinuxCNC Subcommands* section, below).
 
 *help*::
-  The help command will return help information in text format over the
-  connection. If no parameters are specified, it will itemize the
-  available commands. If a command is specified, it will provide usage
-  information for the specified command. Help will respond regardless of
-  whether a "Hello" has been successfully negotiated.
+  The help command will return help information in text format over the connection.
+  If no parameters are specified, it will itemize the available commands.
+  If a command is specified, it will provide usage information for the specified command.
+  Help will respond regardless of whether a "Hello" has been successfully negotiated.
 
 == LinuxCNC Subcommands
 
@@ -161,10 +164,9 @@ Subcommands for *get* and *set* are:
   The verbose state is local to each connection, and starts out OFF on new connections.
 
 *enable* { _<passwd>_ | off }::
-  The session's enable state indicates whether the current connection is
-  enabled to perform control functions. With get, any parameter is
-  ignored, and the current enable state is returned. With set and a valid
-  password matching linuxcncrsh's --enablepw (EMCTOO if not specified),
+  The session's enable state indicates whether the current connection is enabled to perform control functions.
+  With get, any parameter is ignored, and the current enable state is returned.
+  With set and a valid password matching linuxcncrsh's --enablepw (EMCTOO if not specified),
   the current connection is enabled for control functions. "OFF" may not
   be used as a password and disables control functions for this connection.
 
@@ -183,16 +185,16 @@ Subcommands for *get* and *set* are:
   highest version number supported by the server implementation.
 
 *inifile*::
-  Not currently implemented! With get, returns the string "emc.ini".
+  Not currently implemented! With get, returns the string 'emc.ini'.
   Should return the full path and file name of the current configuration INI file.
   Setting this does nothing.
 
 *plat*::
-  With get, returns the string "Linux".
+  With get, returns the string 'Linux'.
 
 *ini* _<var>_ _<section>_::
   Not currently implemented, do not use!
-  Should return the string value of _<var>_ in section <section> of the INI file.
+  Should return the string value of _<var>_ in section _<section>_ of the INI file.
 
 *debug* _<value>_::
   With get, any parameter is ignored and the current integer value of
@@ -203,25 +205,26 @@ Subcommands for *get* and *set* are:
   the same, since they really ought to be the same.
 
 *wait_mode* { received | done }::
-  The wait_mode setting controls the wait after receiving a command. It
-  can be "received" (after the command was sent and received) or "done"
-  (after the command was done). With get, any parameter is ignored and the
-  current wait_mode setting is returned. With set, set the wait_mode
-  setting to the specified value.
+  The wait_mode setting controls the wait after receiving a command.
+  It can be "received" (after the command was sent and received) or "done"
+  (after the command was done).
+  With get, any parameter is ignored and the current wait_mode setting is returned.
+  With set, set the wait_mode setting to the specified value.
 
 *wait* { received | done }::
   With set, force a wait for the previous command to be received, or done.
 
 *set_timeout* _<timeout>_::
   With set, set the timeout for commands to return to <timeout> seconds.
-  Timeout is a real number. If it's <= 0.0, it means wait forever. Default
-  is 0.0, wait forever.
+  Timeout is a real number. If it's <= 0.0, it means wait forever.
+  Default is 0.0, wait forever.
 
 *update* { none | auto }::
-  The update mode controls whether to return fresh or stale values for
-  "get" requests. When the update mode is "none" it returns stale values,
-  when it's "auto" it returns fresh values. Defaults to "auto" for new
-  connections. Set this to "none" if you like to be confused.
+  The update mode controls whether to return fresh or stale values for "get" requests.
+  When the update mode is "none" it returns stale values,
+  when it's "auto" it returns fresh values.
+  Defaults to "auto" for new connections.
+  Set this to "none" if you like to be confused.
 
 *error*::
   With get, returns the current error string, or "ok" if no error.
@@ -265,9 +268,10 @@ Subcommands for *get* and *set* are:
   If "spindle" is omitted, spindle 0 is selected.  If -1, all spindles are selected.
 
 *brake* { on | off } {<spindle>}::
-  With get, any parameter is ignored and the current brake setting is
-  returned. With set, the brake is set as specified. If "spindle" is
-  omitted, spindle 0 is selected. If -1, all spindles are selected.
+  With get, any parameter is ignored and the current brake setting is returned.
+  With set, the brake is set as specified.
+  If "spindle" is omitted, spindle 0 is selected.
+  If -1, all spindles are selected.
 
 *tool*::
   With get, returns the id of the currently loaded tool.
@@ -295,15 +299,13 @@ _jog joint_number_ | _axis_letter_ _<speed>_::
   If TELEOP_ENABLE is ON, use __axis_letter__.
 
 *feed_override* _<percent>_::
-  With get, any parameter is ignored and the current feed override is
-  returned (as a percentage of commanded feed). With set, sets the feed
-  override as specified.
+  With get, any parameter is ignored and the current feed override is returned (as a percentage of commanded feed).
+  With set, sets the feed override as specified.
 
-*spindle_override* _<percent>_ {_<spindle>_}::
-  With get, any parameter is ignored and the current spindle override is
-  returned (as a percentage of commanded speed). With set, sets the
-  spindle override as specified. If "spindle" is omitted, spindle 0 is
-  selected. If -1, all spindles are selected.
+*spindle_override* _<percent>_ {__<spindle>__}::
+  With get, any parameter is ignored and the current spindle override is returned (as a percentage of commanded speed).
+  With set, sets the spindle override as specified.
+  If "spindle" is omitted, spindle 0 is selected. If -1, all spindles are selected.
 
 *abs_cmd_pos* [{0|1|...}]::
   With get, returns the specified axis' commanded position in absolute coordinates.
@@ -325,18 +327,18 @@ _jog joint_number_ | _axis_letter_ _<speed>_::
   With get, returns the specified joint's actual position in absolute coordinates, excluding tool length offset.
   If no joint is specified, returns all joints' actual absolute position.
 
-*pos_offset [{X|Y|Z|R|P|W}]*
+*pos_offset [{X|Y|Z|R|P|W}]*::
   With get, returns the position offset associated with the world coordinate provided.
 
-*joint_limit [{0|1|...}]*
+*joint_limit [{0|1|...}]*::
   With get, returns limit status of the specified joint as "ok", "minsoft", "minhard", "maxsoft", or "maxhard".
   If no joint number is specified, returns the limit status of all joints.
 
-*joint_fault [{0|1|...}]*
+*joint_fault [{0|1|...}]*::
   With get, returns the fault status of the specified joint as "ok" or "fault".
   If no joint number is specified, returns the fault status of all joints.
 
-*joint_homed [{0|1|...}]*
+*joint_homed [{0|1|...}]*::
   With get, returns the homed status of the specified joint as "homed" or "not".
   If no joint number is specified, returns the homed status of all joints.
 
@@ -347,14 +349,14 @@ _jog joint_number_ | _axis_letter_ _<speed>_::
   With set, initializes the program interpreter.
 
 *open* _<filename>_::
-  With set, opens the named file. The <filename> is opened by linuxcnc, so
-  it should either be an absolute path or a relative path starting in the
-  LinuxCNC working directory (the directory of the active INI file).
+  With set, opens the named file. The <filename> is opened by linuxcnc,
+  so it should either be an absolute path or a relative path
+  starting in the LinuxCNC working directory (the directory of the active INI file).
 
 *run* [_<StartLine>_]::
-  With set, runs the opened program. If no StartLine is specified, runs
-  from the beginning. If a StartLine is specified, start line, runs from
-  that line. A start line of -1 runs in verify mode.
+  With set, runs the opened program. If no StartLine is specified, runs from the beginning.
+  If a StartLine is specified, start line, runs from that line.
+  A start line of -1 runs in verify mode.
 
 *pause*::
   With set, pause program execution.
@@ -380,7 +382,7 @@ _jog joint_number_ | _axis_letter_ _<speed>_::
 *program_codes*::
   With get, returns the string for the currently active program codes.
 
-*joint_type [_<joint>_]::
+*joint_type* [_<joint>_]::
   With get, returns "linear", "angular", or "custom" for the type of the
   specified joint (or for all joints if none is specified).
 
@@ -416,13 +418,13 @@ _jog joint_number_ | _axis_letter_ _<speed>_::
   Like with linear units, this is obtained heuristically.
 
 *display_linear_units*::
-  With get, returns "inch", "mm", "cm", or "custom", for the linear units
-  that are active in the display.
+  With get, returns "inch", "mm", "cm", or "custom",
+  for the linear units that are active in the display.
   This is effectively the value of linearUnitConversion.
 
-*display_angular_units*
-  With get, returns "deg", "rad", "grad", or "custom", for the angular
-  units that are active in the display.
+*display_angular_units*::
+  With get, returns "deg", "rad", "grad", or "custom",
+  for the angular units that are active in the display.
   This is effectively the value of angularUnitConversion.
 
 *linear_unit_conversion* { inch | mm | cm | auto }::
@@ -452,15 +454,14 @@ _jog joint_number_ | _axis_letter_ _<speed>_::
   With get, any parameter is ignored and the current teleop mode is returned.
   With set, sets the teleop mode as specified.
 
-*kinematics_typeÜ::
+*kinematics_type*::
   With get, returns the type of kinematics functions used (identity=1, serial=2, parallel=3, custom=4).
 
 *override_limits* { on | off }::
-With get, any parameter is ignored and the override_limits setting is
-returned. With set, the override_limits parameter is set as specified.
-If override_limits is on, disables end of travel hardware limits to
-allow jogging off of a limit. If parameters is off, then hardware limits
-are enabled.
+  With get, any parameter is ignored and the override_limits setting is returned.
+  With set, the override_limits parameter is set as specified.
+  If override_limits is on, disables end of travel hardware limits to allow jogging off of a limit.
+  If parameters is off, then hardware limits are enabled.
 
 *optional_stop* {0|1}::
   With get, any parameter is ignored and the current "optional stop on M1"
@@ -468,10 +469,9 @@ are enabled.
 
 == Example Session
 
-This section shows an example session to the local machine
-(*localhost*). Bold items are typed by you, non-bold is machine output.
-Default values are shown for --port _PORT_NUMBER_ (*5007*), --conectpw
-_PASSWORD_ (*EMC*), and --enablepw _PASSWORD_ (*EMCTOO*).
+This section shows an example session to the local machine (*localhost*).
+Bold items are typed by you, non-bold is machine output.
+Default values are shown for --port _PORT_NUMBER_ (*5007*), --conectpw _PASSWORD_ (*EMC*), and --enablepw _PASSWORD_ (*EMCTOO*).
 
 The user connects to linuxcncrsh, handshakes with the server (hello),
 enables machine commanding from this session (set enable), brings the

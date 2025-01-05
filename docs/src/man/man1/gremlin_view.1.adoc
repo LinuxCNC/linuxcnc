@@ -38,7 +38,7 @@ on_show_limits_clicked
 
 == SEE ALSO
 
-linuxcnc(1), http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Gremlin
+linuxcnc(1), https://wiki.linuxcnc.org/cgi-bin/wiki.pl?Gremlin
 
 Much more information about LinuxCNC and HAL is available in the
 LinuxCNC and HAL User Manuals, found at /usr/share/doc/LinuxCNC/.

@@ -6,25 +6,24 @@ hal_init - Sets up HAL and RTAPI
 
 == SYNTAX
 
-int hal_init(const char *_modname_)
+int hal_init(const char* _modname_)
 
 == ARGUMENTS
 
 modname::
-  The name of this HAL module
+  The name of this HAL module.
 
 == DESCRIPTION
 
-*hal_init* sets up HAL and RTAPI. It must be called by any module that
-intends to use the API, before any other RTAPI calls.
+*hal_init* sets up HAL and RTAPI. It must be called by any module
+that intends to use the API, before any other RTAPI calls.
 
-_modname_ must point to a string that identifies the module. The string
-may be no longer than *HAL_NAME_LEN* characters.
+_modname_ must point to a string that identifies the module.
+The string may be no longer than *HAL_NAME_LEN* characters.
 
 == REALTIME CONSIDERATIONS
 
-Call only from within non-realtime or init/cleanup code, not from
-realtime tasks.
+Call only from within non-realtime or init/cleanup code, not from realtime tasks.
 
 == RETURN VALUE
 

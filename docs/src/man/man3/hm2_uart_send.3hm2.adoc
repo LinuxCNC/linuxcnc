@@ -13,19 +13,17 @@ int hm2_uart_send(char* name,  unsigned char data[], int count);
 
 == DESCRIPTION
 
-*hm2_uart_send* write 'count' bytes of data to the UART "name" from the
-buffer 'data'.
+*hm2_uart_send* write 'count' bytes of data to the UART "name" from the buffer 'data'.
 
-The UART FIFO is 64 bytes deep, attempts to transmit more than 64 bytes
-may have unexpected effects.
+The UART FIFO is 64 bytes deep, attempts to transmit more than 64 bytes may have unexpected effects.
 
-"name" is a unique string given to each UART during hostmot2 setup. The
-names of the available channels are printed to standard output during
-the driver loading process and take the form: hm2_<board name>.<board
-index>.uart.<index> For example hm2_5i23.0.uart.0
+"name" is a unique string given to each UART during hostmot2 setup.
+The names of the available channels are printed to standard output during
+the driver loading process and take the form: hm2___<board name>__.__<board index>__.uart.__<index>__,
+for example `hm2_5i23.0.uart.0`.
 
-This function performs writes of data to the specified UART. It should
-be used inside a function in a realtime or non-realtime HAL component.
+This function performs writes of data to the specified UART.
+It should be used inside a function in a realtime or non-realtime HAL component.
 
 == RETURN VALUE
 

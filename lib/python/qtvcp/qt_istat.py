@@ -11,7 +11,7 @@ from . import logger
 
 log = logger.getLogger(__name__)
 # Force the log level for this module
-# log.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+#log.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 try:
     LINUXCNCVERSION = os.environ['LINUXCNCVERSION']
@@ -20,7 +20,7 @@ except:
 
 INIPATH = os.environ.get('INI_FILE_NAME', '/dev/null')
 
-HOME = os.environ.get('EMC2_HOME', '/usr')
+HOME = os.environ.get('LINUXCNC_HOME', '/usr')
 if HOME is not None:
     IMAGEDIR = os.path.join(HOME, "share", "qtvcp", "images")
 else:
@@ -28,68 +28,54 @@ else:
 
 
 class _IStat(object):
-    def __init__(self):
+    def __init__(self, ini=None):
         # only initialize once for all instances
         if self.__class__._instanceNum >= 1:
             return
+ 
         self.__class__._instanceNum += 1
+
         self.LINUXCNC_IS_RUNNING = bool(INIPATH != '/dev/null')
+        self.ENVIRO_INI_PATH = INIPATH
+
         if not self.LINUXCNC_IS_RUNNING:
             # Reset the log level for this module
             # Linuxcnc isn't running so we expect INI errors
             log.setLevel(logger.CRITICAL)
+
         self.LINUXCNC_VERSION = LINUXCNCVERSION
-        self.INIPATH = INIPATH
-        self.INI = linuxcnc.ini(INIPATH)
-        # use configParser so we can iter thru header
-        self.parser = PARSER(strict=False)
-        try:
-            self.parser.read(filenames=INIPATH)
-        except:
-            pass
-        self.MDI_HISTORY_PATH = '~/.axis_mdi_history'
-        self.QTVCP_LOG_HISTORY_PATH = '~/qtvcp.log'
-        self.MACHINE_LOG_HISTORY_PATH = '~/.machine_log_history'
-        self.PREFERENCE_PATH = '~/.Preferences'
-        self.SUB_PATH = None
-        self.SUB_PATH_LIST = []
-        self.USER_M_PATH = None
-        self.USER_M_PATH_LIST = []
 
         self.MACRO_PATH_LIST = []
+        self.SUB_PATH_LIST = []
+        self.USER_M_PATH_LIST = []
+
         self.IMAGE_PATH = IMAGEDIR
         self.LIB_PATH = os.path.join(HOME, "share", "qtvcp")
-
-        self.MACHINE_IS_LATHE = False
-        self.MACHINE_IS_METRIC = False
-        self.MACHINE_UNIT_CONVERSION = 1
-        self.MACHINE_UNIT_CONVERSION_9 = [1] * 9
-        self.AVAILABLE_AXES = ['X', 'Y', 'Z']
-        self.AVAILABLE_JOINTS = [0, 1, 2]
-        self.GET_NAME_FROM_JOINT = {0: 'X', 1: 'Y', 2: 'Z'}
-        self.GET_JOG_FROM_NAME = {'X': 0, 'Y': 1, 'Z': 2}
-        self.NO_HOME_REQUIRED = False
-        self.JOG_INCREMENTS = None
-        self.ANGULAR_INCREMENTS = None
-
-        self.MAX_TRAJ_VELOCITY = 60
-
-        self.DEFAULT_LINEAR_VELOCITY = 15.0
-
-        self.AVAILABLE_SPINDLES = 1
-        self.DEFAULT_SPINDLE_SPEED = 200
-        self.MAX_SPINDLE_SPEED = 2500
-        self.MAX_FEED_OVERRIDE = 1.5
-        self.MAX_SPINDLE_OVERRIDE = 1.5
-        self.MIN_SPINDLE_OVERRIDE = 0.5
         self.TITLE = ""
         self.ICON = ""
         # this is updated in qtvcp.py on startup
         self.IS_SCREEN = False
 
+        # if no INI was given use the one from the environment
+        if ini is None:
+            ini = INIPATH
+
+        self.INIPATH = ini or  '/dev/null'
+        log.debug('INI Path: {}'.format(self.INIPATH))
+
+        self.INI = linuxcnc.ini(self.INIPATH)
+
         self.update()
 
     def update(self):
+
+        # use configParser so we can iter thru header
+        self.parser = PARSER(strict=False)
+        try:
+            self.parser.read(filenames=self.INIPATH)
+        except:
+            pass
+
         ct = float(self.INI.find('DISPLAY', 'CYCLE_TIME') or 100) # possibly in seconds or ms
         if ct < 1:
             self.CYCLE_TIME = int(ct * 1000)
@@ -182,14 +168,14 @@ class _IStat(object):
         except:
             self.trajcoordinates ='xyz'
 
+        self.AVAILABLE_AXES = []
+        self.AVAILABLE_JOINTS = []
+        self.GET_NAME_FROM_JOINT = {}
+        self.GET_JOG_FROM_NAME = {}
         if axes is not None:  # i.e. LCNC is running, not just in Qt Designer
             axes = axes.replace(" ", "")
             self.TRAJCO = axes.lower()
             log.debug('TRAJ COORDINATES: {}'.format(axes))
-            self.AVAILABLE_AXES = []
-            self.GET_NAME_FROM_JOINT = {}
-            self.AVAILABLE_JOINTS = []
-            self.GET_JOG_FROM_NAME = {}
             temp = []
             for num, letter in enumerate(axes):
                 temp.append(letter)
@@ -372,13 +358,16 @@ class _IStat(object):
         self.MIN_LINEAR_JOG_VEL = float(self.get_error_safe_setting("DISPLAY", "MIN_LINEAR_VELOCITY", 0)) * 60
         safe = 125 if self.MACHINE_IS_METRIC else 5
         self.MAX_LINEAR_JOG_VEL = float(self.get_error_safe_setting("DISPLAY", "MAX_LINEAR_VELOCITY", safe)) * 60
+        log.debug('DEFAULT_LINEAR_VELOCITY = {}'.format(self.DEFAULT_LINEAR_JOG_VEL))
+        log.debug('MIN_LINEAR_VELOCITY = {}'.format(self.MIN_LINEAR_JOG_VEL))
+        log.debug('MAX_LINEAR_VELOCITY = {}'.format(self.MAX_LINEAR_JOG_VEL))
 
         self.DEFAULT_ANGULAR_JOG_VEL = float(self.get_error_safe_setting("DISPLAY", "DEFAULT_ANGULAR_VELOCITY", 6)) * 60
         self.MIN_ANGULAR_JOG_VEL = float(self.get_error_safe_setting("DISPLAY", "MIN_ANGULAR_VELOCITY", 0)) * 60
         self.MAX_ANGULAR_JOG_VEL = float(self.get_error_safe_setting("DISPLAY", "MAX_ANGULAR_VELOCITY", 60)) * 60
-        log.debug('DEFAULT_LINEAR_VELOCITY = {}'.format(self.DEFAULT_LINEAR_JOG_VEL))
-        log.debug('MIN_LINEAR_VELOCITY = {}'.format(self.MIN_LINEAR_JOG_VEL))
-        log.debug('MAX_LINEAR_VELOCITY = {}'.format(self.MAX_LINEAR_JOG_VEL))
+        log.debug('DEFAULT_ANGULAR_VELOCITY = {}'.format(self.DEFAULT_ANGULAR_JOG_VEL))
+        log.debug('MIN_ANGULAR_VELOCITY = {}'.format(self.MIN_ANGULAR_JOG_VEL))
+        log.debug('MAX_ANGULAR_VELOCITY = {}'.format(self.MAX_ANGULAR_JOG_VEL))
 
         self.AVAILABLE_SPINDLES = int(self.INI.find("TRAJ", "SPINDLES") or 1)
         self.SPINDLE_INCREMENT = int(self.INI.find("DISPLAY", "SPINDLE_INCREMENT") or 100)
@@ -467,10 +456,12 @@ class _IStat(object):
                 #print(TEXT)
                 DETAILS = self.INI.findall("DISPLAY", "MULTIMESSAGE_{}_DETAILS".format(item))
                 #print(DETAILS)
-                ICON = self.INI.findall("DISPLAY", "MULTIMESSAGE_()_ICON".format(item))
+                ICON = self.INI.findall("DISPLAY", "MULTIMESSAGE_{}_ICON".format(item))
                 #print(ICON)
-                OPTIONS = self.INI.findall("DISPLAY", "MULTIMESSAGE_()_OPTIONS".format(item))
+                OPTIONS = self.INI.findall("DISPLAY", "MULTIMESSAGE_{}_OPTIONS".format(item))
+                #print(OPTIONS)
 
+            # fix any missing ICON to default to what the first entry was or 'INFO'
             if len(TEXT) != len(ICON):
                 log.warning('Invalid MULTI message configuration (missing icon) in INI File [DISPLAY] section')
                 if ICON == []:
@@ -482,6 +473,7 @@ class _IStat(object):
                     ICON.append(temp)
                 ##print(ICON)
 
+            # fix any missing ICON to default to what the first entry was or 'LOG=True,LEVEL=DEFAULT'
             if len(TEXT) != len(OPTIONS):
                 log.warning('Invalid message configuration (missing MESSAGE_OPTIONS) in INI File [DISPLAY] section')
                 if OPTIONS == []:
@@ -489,17 +481,23 @@ class _IStat(object):
                 else:
                     temp = OPTIONS[0]
                     OPTIONS = []
-                for i in self.USRMESS_TEXT:
+                for i in range(len(TEXT)):
                     OPTIONS.append(temp)
 
+            # process message OPTIONS
             for num,i in enumerate(OPTIONS):
                 OPTIONS[num] = self.parse_message_options(i)
+
+            # ZIP them up neatly
             try:
                 z = list(zip( TYPE,TITLE,TEXT,DETAILS,ICON,OPTIONS))
             except Exception as e:
                 print('error:',e)
                 z = None
 
+            # make a dict from the raw zipped list
+            # ie for a VFD multi message with 2 dialog messages:
+            # self.VFD_MULTIMESS={1:[].2:[] }
             if not z is None:
                 d = dict()
                 for num, i in enumerate(NUMBER):
@@ -846,6 +844,7 @@ class _IStat(object):
             except:
                 return None
 
+    # Process any multi message options like log level
     def parse_message_options(self, options):
         temp = {}
         if options is None:

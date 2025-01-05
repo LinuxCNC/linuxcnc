@@ -112,7 +112,7 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         mouse_state = QtWidgets.qApp.mouseButtons()
         if event.angleDelta().y() < 0:
             if mouse_state == QtCore.Qt.NoButton:
-                self.diameter -= 2
+                self.diameter -= self.rotationIncrement
             if mouse_state == QtCore.Qt.LeftButton:
                 self.scale -= .1
             if mouse_state == QtCore.Qt.RightButton:
@@ -120,7 +120,7 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
                     self.rotation += self.rotationIncrement
         else:
             if mouse_state == QtCore.Qt.NoButton:
-                self.diameter += 2
+                self.diameter += self.rotationIncrement
             if mouse_state == QtCore.Qt.LeftButton:
                 self.scale += .1
             if mouse_state == QtCore.Qt.RightButton:
@@ -586,13 +586,64 @@ class CamAngle(CamView):
 if __name__ == '__main__':
 
     import sys
+    from PyQt5.QtWidgets import (QLabel, QSlider, QDial,QWidget, QVBoxLayout,
+        QHBoxLayout)
+    from PyQt5.QtCore import (Qt)
+
+    def hDialMoved():
+        print("Dial value = %i" % (hdial.value()))
+        capture.scaleX = hdial.value()/100
+
+    def vDialMoved():
+        print("VDial value = %i" % (vdial.value()))
+        capture.scaleY = vdial.value()/100
+
+    def setScale():
+        print("slider value = %i" % (slider.value()))
+        capture.scale = slider.value()/100
+
     app = QtWidgets.QApplication(sys.argv)
+    w = QWidget()
+    w.setGeometry(100, 100, 400, 200)
+    w.setWindowTitle('Bar widget')
+    layout = QVBoxLayout(w)
+    hlyt = QHBoxLayout()
+
     capture = CamAngle()
-    capture.show()
+
+    slider = QSlider(Qt.Horizontal)
+    slider.setMinimum(100)
+    slider.setMaximum(400)
+    slider.setSingleStep(10)
+    slider.setPageStep(100)
+    slider.valueChanged.connect(setScale)
+    slider.setValue(100)
+
+    hdial = QDial()
+    hdial.setMinimum(100)
+    hdial.setMaximum(200)
+    hdial.setValue(100)
+    hdial.valueChanged.connect(hDialMoved)
+
+    vdial = QDial()
+    vdial.setMinimum(100)
+    vdial.setMaximum(200)
+    vdial.setValue(100)
+    vdial.valueChanged.connect(vDialMoved)
+
+    hlyt.addWidget(capture)
+    hlyt.addWidget(hdial)
+    hlyt.addWidget(vdial)
+
+    layout.addLayout(hlyt)
+    layout.addWidget(slider)
 
     def jump():
         capture.nextFrameSlot(None)
+
     timer = QtCore.QTimer()
     timer.timeout.connect(jump)
-    timer.start(10)
+    timer.start(100)
+
+    w.show()
     sys.exit(app.exec_())

@@ -444,7 +444,7 @@ static PyObject * pyhal_create_pin(halobject *self, char *name, hal_type_t type,
     halitem pin;
     pin.is_pin = 1;
 
-    if(type < HAL_BIT || type > HAL_U32) {
+    if(type < HAL_BIT || type > HAL_U64) {
         PyErr_Format(pyhal_error_type, "Invalid pin type %d", type);
         return NULL;
     }

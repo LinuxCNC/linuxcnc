@@ -182,7 +182,8 @@ class Private_Data:
             S.Z_HALL1_OUT,S.Z_HALL2_OUT,S.Z_HALL3_OUT,S.Z_C1_OUT,S.Z_C2_OUT,S.Z_C4_OUT,S.Z_C8_OUT,
             S.A_HALL1_OUT,S.A_HALL2_OUT,S.A_HALL3_OUT,S.A_C1_OUT,S.A_C2_OUT,S.A_C4_OUT,S.A_C8_OUT,
             S.S_HALL1_OUT,S.S_HALL2_OUT,S.S_HALL3_OUT,S.S_C1_OUT,S.S_C2_OUT,S.S_C4_OUT,S.S_C8_OUT,
-            S.OHMIC_ENABLE,S.SCRIBE_ARM,S.SCRIBE_ON,S.TORCH_ON,S.LASER_ON
+            S.OHMIC_ENABLE,S.SCRIBE_ARM,S.SCRIBE_ON,S.TORCH_ON,S.LASER_ON,
+            S.EXT_OUT_0, S.EXT_OUT_1, S.EXT_OUT_2
         ) = self.hal_output_names = [
             "unused-output",
             "spindle-enable", "spindle-cw", "spindle-ccw", "spindle-brake",
@@ -194,7 +195,8 @@ class Private_Data:
             "z-hall1-out","z-hall2-out","z-hall3-out","z-gray-c1-out","z-gray-c2-out","z-gray-C4-out","z-gray-C8-out",
             "a-hall1-out","a-hall2-out","a-hall3-out","a-gray-c1-out","a-gray-c2-out","a-gray-C4-out","a-gray-C8-out",
             "s-hall1-out","s-hall2-out","s-hall3-out","s-gray-c1-out","s-gray-c2-out","s-gray-C4-out","s-gray-C8-out",
-            "plasmac:ohmic-enable", "plasmac:scribe-arm", "plasmac:scribe-on", "plasmac:torch-on", "plasmac:laser-on"]
+            "plasmac:ohmic-enable", "plasmac:scribe-arm", "plasmac:scribe-on", "plasmac:torch-on", "plasmac:laser-on",
+            "plasmac:ext_out_0", "plasmac:ext_out_1", "plasmac:ext_out_2"]
 
         ###
         (   S.UNUSED_INPUT,
@@ -226,7 +228,19 @@ class Private_Data:
             S.MIN_HOME_X2,S.MIN_HOME_Y2,S.MIN_HOME_Z2,S.MIN_HOME_A2,
             S.MAX_HOME_X2,S.MAX_HOME_Y2,S.MAX_HOME_Z2,S.MAX_HOME_A2,
             S.BOTH_HOME_X2,S.BOTH_HOME_Y2,S.BOTH_HOME_Z2,S.BOTH_HOME_A2,
-            S.ARC_OK,S.OHMIC_SENSE,S.FLOAT_SWITCH,S.BREAKAWAY,S.MOVE_UP,S.MOVE_DOWN
+            S.ARC_OK,S.OHMIC_SENSE,S.FLOAT_SWITCH,S.BREAKAWAY,S.MOVE_UP,S.MOVE_DOWN,
+            S.EXT_POWER, S.EXT_RUN, S.EXT_PAUSE, S.EXT_PAUSE_ONLY, S.EXT_RESUME,
+            S.EXT_RUN_PAUSE, S.EXT_ABORT, S.EXT_TOUCHOFF, S.EXT_LASER_TOUCHOFF,
+            S.EXT_LASER_TOGGLE, S.EXT_HEIGHT_OVR_PLUS, S.EXT_HEIGHT_OVR_MINUS,
+            S.EXT_HEIGHT_OVR_RESET, S.EXT_HEIGHT_OVR_SCALE, S.EXT_JOG_SLOW,
+            S.EXT_THC_ENABLE, S.EXT_TORCH_ENABLE, S.EXT_CORNERLOCK_ENABLE,
+            S.EXT_VOIDLOCK_ENABLE, S.EXT_AUTO_VOLTS_ENABLE, S.EXT_OHMIC_PROBE_ENABLE,
+            S.EXT_MESH_MODE, S.EXT_IGNORE_ARC_OK, S.EXT_CUTREC_FWD,
+            S.EXT_CUTREC_REV, S.EXT_CUTREC_CANCEL, S.EXT_CUTREC_N, S.EXT_CUTREC_S,
+            S.EXT_CUTREC_E, S.EXT_CUTREC_W, S.EXT_CUTREC_NE, S.EXT_CUTREC_NW,
+            S.EXT_CUTREC_SE, S.EXT_CUTREC_SW, S.EXT_HEIGHT_OVR_COUNT_ENABLE,
+            S.EXT_HEIGHT_OVR_COUNTS, S.EXT_PROBE, S.EXT_PULSE, S.EXT_OHMIC,
+            S.EXT_CONSUMABLES, S.EXT_FRAME_JOB,
         ) = self.hal_input_names = [
             "unused-input",
             "min-x", "min-y", "min-z", "min-a",
@@ -258,8 +272,20 @@ class Private_Data:
             "min-home-x2", "min-home-y2", "min-home-z2", "min-home-a2",
             "max-home-x2", "max-home-y2", "max-home-z2", "max-home-a2",
             "both-home-x2", "both-home-y2", "both-home-z2", "both-home-a2",
-            "plasmac:arc-ok-in", "plasmac:ohmic-sense-in", "plasmac:float-switch",
-            "plasmac:breakaway", "plasmac:move-up", "plasmac:move-down"]
+            "plasmac:arc-ok-in", "plasmac:ohmic-sense-in", "plasmac:float-switch", "plasmac:breakaway",
+            "plasmac:move-up", "plasmac:move-down",
+            "plasmac:ext_power", "plasmac:ext_run", "plasmac:ext_pause", "plasmac:ext_pause_only",
+            "plasmac:ext_resume", "plasmac:ext_run_pause", "plasmac:ext_abort", "plasmac:ext_touchoff",
+            "plasmac:ext_laser_touchoff", "plasmac:ext_laser_toggle", "plasmac:ext_height_ovr_plus",
+            "plasmac:ext_height_ovr_minus", "plasmac:ext_height_ovr_reset", "plasmac:ext_height_ovr_scale",
+            "plasmac:ext_jog_slow", "plasmac:ext_thc_enable", "plasmac:ext_torch_enable",
+            "plasmac:ext_cornerlock_enable", "plasmac:ext_voidlock_enable", "plasmac:ext_auto_volts_enable",
+            "plasmac:ext_ohmic_probe_enable", "plasmac:ext_mesh_mode", "plasmac:ext_ignore_arc_ok",
+            "plasmac:ext_cutrec_fwd", "plasmac:ext_cutrec_rev", "plasmac:ext_cutrec_cancel",
+            "plasmac:ext_cutrec_n", "plasmac:ext_cutrec_s", "plasmac:ext_cutrec_e", "plasmac:ext_cutrec_w",
+            "plasmac:ext_cutrec_ne", "plasmac:ext_cutrec_nw", "plasmac:ext_cutrec_se", "plasmac:ext_cutrec_sw",
+            "plasmac:ext_height_ovr_count_enable", "plasmac:ext_height_ovr_counts", "plasmac:ext_probe",
+            "plasmac:ext_pulse", "plasmac:ext_ohmic", "plasmac:ext_consumables", "plasmac:ext_frame_job"]
 
         (   S.UNUSED_PWM,
             S.X_PWM_PULSE,S.X_PWM_DIR,S.X_PWM_ENABLE,  S.Y_PWM_PULSE,S.Y_PWM_DIR,S.Y_PWM_ENABLE,
@@ -462,8 +488,25 @@ class Private_Data:
         blimits = [[_("Main Axis"),limit],[_("Tandem Axis"),limit2]]
         bhome = [[_("Main Axis"),home],[_("Tandem Axis"),home2]]
         bshared = [[_("Main Axis"),home_limits_shared],[_("Tandem Axis"),home_limits_shared2]]
+        plasma_in_ext_gui = [ [_("Power"),S.EXT_POWER], [_("Cycle Start"),S.EXT_RUN], [_("Pause/Resume"),S.EXT_PAUSE], [_("Pause Only"),S.EXT_PAUSE_ONLY],
+            [_("Resume Only"),S.EXT_PAUSE], [_("Run/Pause/Resume"),S.EXT_RUN_PAUSE], [_("Cycle Stop"),S.EXT_ABORT], [_("Touchoff"),S.EXT_TOUCHOFF],
+            [_("Laser Touchoff"),S.EXT_LASER_TOUCHOFF], [_("Laser Toggle"),S.EXT_LASER_TOGGLE], [_("Jog Slow"),S.EXT_JOG_SLOW],
+            [_("THC Enable"),S.EXT_THC_ENABLE], [_("Torch Enable"),S.EXT_TORCH_ENABLE], [_("VAD Enable"),S.EXT_CORNERLOCK_ENABLE],
+            [_("Voidlock Enable"),S.EXT_VOIDLOCK_ENABLE], [_("Auto Volts Enable"),S.EXT_AUTO_VOLTS_ENABLE], [_("Ohmic Probe Enable"),S.EXT_OHMIC_PROBE_ENABLE],
+            [_("Mesh Mode"),S.EXT_MESH_MODE], [_("Ignore Arc OK"),S.EXT_IGNORE_ARC_OK] ]
+        plasma_in_ext_button = [ [_("Probe Test"),S.EXT_PROBE], [_("Pulse Torch"),S.EXT_PULSE], [_("Ohmic Test"),S.EXT_OHMIC],
+            [_("Change Consumables"),S.EXT_CONSUMABLES], [_("Frame Job"),S.EXT_FRAME_JOB] ]
+        plasma_in_ext_height = [ [_("Plus"),S.EXT_HEIGHT_OVR_PLUS], [_("Minus"),S.EXT_HEIGHT_OVR_MINUS], [_("Reset"),S.EXT_HEIGHT_OVR_RESET],
+            [_("Scale"),S.EXT_HEIGHT_OVR_SCALE], [_("MPG Enable"),S.EXT_HEIGHT_OVR_COUNT_ENABLE], [_("MPG Counts"),S.EXT_HEIGHT_OVR_COUNTS] ]
+        plasma_in_ext_recovery = [ [_("Forward"),S.EXT_CUTREC_FWD], [_("Reverse"),S.EXT_CUTREC_REV], [_("Cancel"),S.EXT_CUTREC_CANCEL],
+            [_("North"),S.EXT_CUTREC_N], [_("South"),S.EXT_CUTREC_S], [_("East"),S.EXT_CUTREC_E], [_("West"),S.EXT_CUTREC_W],
+            [_("NorthEast"),S.EXT_CUTREC_NE], [_("NorthWest"),S.EXT_CUTREC_NW],[_("SouthEast"),S.EXT_CUTREC_SE], [_("SouthWest"),S.EXT_CUTREC_SW] ]
         plasma_in = [[_("Arc OK"),S.ARC_OK ], [_("Ohmic Contact"),S.OHMIC_SENSE ], [_("Float Switch"),S.FLOAT_SWITCH ],
-                     [_("Breakaway"),S.BREAKAWAY ], [_("Move Up"),S.MOVE_UP ], [_("Move Down"),S.MOVE_DOWN ] ]
+                     [_("Breakaway"),S.BREAKAWAY ], [_("Move Up"),S.MOVE_UP ], [_("Move Down"),S.MOVE_DOWN ],
+                     [_("External GUI Functions"), plasma_in_ext_gui],
+                     [_("External User Buttons"), plasma_in_ext_button],
+                     [_("External Height Override"), plasma_in_ext_height],
+                     [_("External Cut Recovery"), plasma_in_ext_recovery]]
 
         self.human_input_names = [ [_("Unused Input"),S.UNUSED_INPUT],[_("Limits"),blimits],
             [_("home"),bhome],[_("Limits/Home Shared"),bshared],
@@ -527,7 +570,8 @@ class Private_Data:
                 _("A Gray C1"),_("A Gray C2"),_("A Gray C4"),_("A Gray C8")]
         smotor_control = [_("S HALL 1"),_("S HALL 2"),_("S HALL 3"),
                 _("S Gray C1"),_("S Gray C2"),_("S Gray C4"),_("S Gray C8")]
-        plasma_out = [_("Ohmic Enable"), _("Scribe Arm"), _("Scribe On"), _("Torch On"), _("Laser On")]
+        plasma_out = [_("Ohmic Enable"), _("Scribe Arm"), _("Scribe On"), _("Torch On"), _("Laser On"),
+                      _("External Output 0"), _("External Output 1"), _("External Output 2")]
 
         self.human_output_names = [ [_("Unused Output"),[]],[_("Spindle"),spindle_output],
             [_("Coolant"),coolant_output],[_("Control"),control_output],

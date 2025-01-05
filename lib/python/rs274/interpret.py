@@ -140,8 +140,9 @@ class StatMixin:
         self.tools = list(s.tool_table)
         self.random = r
 
-    def change_tool(self, idx):
+    def change_tool(self, tool_nr):
         global tool_in_spindle
+        idx = self.get_index(tool_nr)
         if self.random:
             self.tools[0], self.tools[idx] = self.tools[idx], self.tools[0]
             tool_in_spindle = idx
@@ -157,6 +158,14 @@ class StatMixin:
                 return tuple(self.tools[0])
             return tuple(self.tools[idx])
         return empty_spindle_data
+
+    def get_index(self, tool_nr):
+        index = 1
+        for tool in self.tools[1:]:
+            if tool.id == tool_nr:
+                return index
+            index = index + 1
+        return 0
 
     def get_external_angular_units(self):
         return self.s.angular_units or 1.0
