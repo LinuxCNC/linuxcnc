@@ -200,66 +200,8 @@ correspondingly needs to change from `libcanterp.so` to `canterp.so`.
 
 
 
-== Updating Configuration Files (for 2.9.y)
+== Updating Configuration Files (for 2.10.y)
 
-No changes should be necessary to configuration files when moving from 2.8.x to 2.9.y.
-
-=== Spindle limits in the INI
-
-It is now possible to add settings to the [SPINDLE] section of the INI file
-
-MAX_FORWARD_VELOCITY = 20000 The maximum spindle speed (in RPM)
-
-MIN_FORWARD_VELOCITY = 3000 The minimum spindle speed (in RPM)
-
-MAX_REVERSE_VELOCITY = 20000 This setting will default to
-MAX_FORWARD_VELOCITY if omitted.
-
-MIN_REVERSE_VELOCITY = 3000` This setting is equivalent to
-MIN_FORWARD_VELOCITY but for reverse spindle rotation.
-It will default to the MIN_FORWARD_VELOCITY if omitted.
-
-INCREMENT = 200 Sets the step size for spindle speed increment / decrement commands.
-This can have a different value for each spindle.
-This setting is effective with AXIS and Touchy but note that some
-control screens may handle things differently.
-
-HOME_SEARCH_VELOCITY = 100 - Accepted but currently does nothing
-
-HOME_SEQUENCE = 0 - Accepted but currently does nothing
-
-== New HAL components
-
-=== Non-Realtime
-mdro
-mqtt-publisher
-pi500_vfd
-pmx485-test
-qtplasmac-materials
-sim-torch
-svd-ps_vfd
-
-=== Realtime
-anglejog
-div2
-enum
-filter_kalman
-flipflop
-hal_parport
-homecomp
-limit_axis
-mesa_uart
-millturn
-scaled_s32_sums
-tof
-ton
-
-== New Drivers
-
-A framework for controlling ModBus devices using the serial ports on
-many Mesa cards has been introduced.
-http://linuxcnc.org/docs/2.9/html/drivers/mesa_modbus.html
-
-A new GPIO driver for any GPIO which is supported by the gpiod library is now included:
-http://linuxcnc.org/docs/2.9/html/drivers/hal_gpio.html
-
+Touchy: the Touchy MACRO entries should now be placed in a [MACROS]
+section of the INI rather than in the [TOUCHY] section. This is part of
+a process of commonising the INI setting between GUIs. 
