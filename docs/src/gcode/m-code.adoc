@@ -696,7 +696,7 @@ parameter of the INI file) is executed with the optional P and Q values
 as its two arguments.
 
 Execution of the G-code file pauses until the external program exits.
-If the external program exits with exit code other than '0' gcode program exection is
+If the external program exits with exit code other than '0' gcode program execution is
 stopped.
 Any valid executable file can be used. The file must be located in the search
 path specified in the INI file configuration.
