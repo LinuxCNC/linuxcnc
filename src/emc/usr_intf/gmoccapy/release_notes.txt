@@ -1,3 +1,9 @@
+ver 3.5.0
+ - version for 2.10 (master) branche
+ - removed internal AUTOMATIC_G43 function, it is recommended to add
+   the M6/M61 remap with the G43 command to the INI configuration.
+   Internal AUTOMATIC_G43 caused bugs in some configurations and situations.
+
 ver 3.4.8
  - re-ordered settings pages to have all appearance-related on one page
  - add configuration for 800x600 screens
