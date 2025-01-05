@@ -300,7 +300,7 @@ M-code scripts can be designed as follows:
 The vismach simulation configurations for a puma robot demonstrate
 M-code scripts (M128,M129,M130) for this example use case.
 
-=== Offset considerations
+=== Coordinate system offset considerations
 
 Like INI file limit settings, coordinate system offsets (G92,
 G10L2, G10L20, G43, etc) are generally applicable only for the
@@ -308,6 +308,18 @@ type 0 default startup kinematics type.  When switching
 kinematics types, it may be *important* to either reset all offsets
 prior to switching or update offsets based on system-specific
 requirements.
+
+=== External offset considerations 
+
+External offsets (set to an axis (_L_) via axis.L.eoffset-request) are preserved during 
+kinematics switches. When an offset is active on an axis before the switch
+(visible in axis.L.eoffset), the trajectory planner maintains that same 
+offset after the switch, similar to how it maintains the commanded 
+position from a G-code. This ensures consistent machine behavior regardless
+of the active kinematics.
+
+If maintaining the offset will be an issue due to axis limit changes or other concerns,
+be sure to clear and possibly disable the eoffset before making a kinematics switch
 
 == Simulation configs
 
