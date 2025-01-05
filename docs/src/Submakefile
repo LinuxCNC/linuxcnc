@@ -997,10 +997,11 @@ TARGETS += manpages
 # For more information, see https://github.com/asciidoc/asciidoc/issues/44
 GENERATED_MANPAGES += $(patsubst $(DOC_DIR)/src/man/%.adoc, $(DOC_DIR)/man/%, $(wildcard $(DOC_DIR)/src/man/man?/*.adoc))
 $(DOC_DIR)/man/%: $(DOC_DIR)/src/man/%.adoc
-	@mkdir -p `dirname $@`
-	a2x -v --doctype manpage \
+	$(ECHO) Making manpage $(notdir $@)
+	@mkdir -p $(dir $@)
+	$(Q)a2x --doctype manpage \
 		--format manpage \
-		--destination-dir `dirname $@` \
+		--destination-dir $(dir $@) \
 		--xsltproc-opts="--nonet" \
 		-a mansource=LinuxCNC \
 		-a manmanual='LinuxCNC Documentation' \
