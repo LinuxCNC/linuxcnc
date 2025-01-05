@@ -16,7 +16,6 @@
 
 import sys, os
 import math
-import linuxcnc
 import re
 import inspect
 
@@ -73,6 +72,8 @@ class HAL_DRO(Gtk.Label):
                     GObject.ParamFlags.READWRITE),
         'homed_color' : (Gdk.RGBA.__gtype__, 'Homed Color', 'The color of the DRO text when homed',
                     GObject.ParamFlags.READWRITE),
+        'background_color' : (Gdk.RGBA.__gtype__, 'Background Color', 'The color of the DRO background',
+                    GObject.ParamFlags.READWRITE),
     }
     __gproperties = __gproperties__
 
@@ -82,6 +83,7 @@ class HAL_DRO(Gtk.Label):
     font-family: sans;
     font-size: 26px;
     font-weight: bold;
+    background: black;
     }}
 .dro_unhomed {{color: red}}
 .dro_homed {{color: green}}
@@ -91,18 +93,6 @@ class HAL_DRO(Gtk.Label):
         self.display_units_mm = 0
         self.machine_units_mm = 0
         self.unit_convert=[1]*9
-
-        self.css_text = """
-                        .background  {background-color: #000000;}
-                        .labelcolor  {color: #FF0000;}
-                        """
-
-        self.css = Gtk.CssProvider()
-        self.css.load_from_data(bytes(self.css_text, 'utf-8'))
-        self.get_style_context().add_provider(self.css,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
-        self.get_style_context().add_class('background')
-        self.get_style_context().add_class('labelcolor')
-
         try:
             self.inifile = linuxcnc.ini(INIPATH)
             # check the INI file if UNITS are set to mm"
@@ -127,6 +117,7 @@ class HAL_DRO(Gtk.Label):
         self.get_style_context().add_class('dro_unhomed')
         self.unhomed_color = self.str_to_rgba('red')
         self.homed_color = self.str_to_rgba('green')
+        self.background_color = self.str_to_rgba('black')
         if self.linuxcnc:
             GStat().connect('homed', self._homed )
             GStat().connect('unhomed', self._homed )
@@ -184,6 +175,13 @@ class HAL_DRO(Gtk.Label):
             else:
                 LOG.warning(f"Invalid homed_color '{value}', " \
                              "it should be a Gdk.RGBA color")
+        elif name == "background_color":
+            if not value: value = self.background_color
+            if isinstance(value, gi.overrides.Gdk.RGBA):
+                self.set_style("background", self.rgba_to_hex(value))
+            else:
+                LOG.warning(f"Invalid background_color '{value}', " \
+                             "it should be a Gdk.RGBA color")
         if name in list(self.__gproperties.keys()):
             setattr(self, name, value)
             self.queue_draw()
@@ -200,6 +198,9 @@ class HAL_DRO(Gtk.Label):
         elif property == "weight":
             old = '-wei.*'
             new = f"-weight: {value};"
+        elif property == "background":
+            old = 'background.*'
+            new = f"background: {value};"
         elif property == "unhomed":
             old = '.dro_u.*'
             new = f".dro_unhomed {{color: {value}}}"
@@ -325,33 +326,6 @@ class HAL_DRO(Gtk.Label):
 
     def set_to_radius(self):
         self.diameter = False
-
-    def set_style(self, property, Data):
-#         self.css_text = """
-#                         .background  {background-color: black;}
-#                         .labelcolor  {color: red;}
-#                         """
-
-        if property == "background":
-            self.get_style_context().remove_class('background')
-            replacement_string = ".background  {background-color: " + Data + ";}"        
-            self.css_text = re.sub(r'[.][b][a][c][k][g][r][o][u][n][d].*', replacement_string, self.css_text, re.IGNORECASE)
-        
-        elif property == "labelcolor":
-            self.get_style_context().remove_class('labelcolor')
-            replacement_string = ".labelcolor  {color: " + Data + ";}"        
-            self.css_text = re.sub(r'[.][l][a][b][e][l][c][o][l][o][r].*', replacement_string, self.css_text, re.IGNORECASE)
-
-        else:
-            print("Got unknown property in <<set_style>>")
-            return
-
-        self.css.load_from_data(bytes(self.css_text, 'utf-8'))
-        
-        self.get_style_context().add_class('background')
-        self.get_style_context().add_class('labelcolor')
-                
-        self.queue_draw()
 
 # for testing without glade editor:
 def main():
