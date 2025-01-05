@@ -258,7 +258,10 @@ class touchy:
                 units=self.ini.find("TRAJ","LINEAR_UNITS")
 
                 if units==None:
-                        units=self.ini.find("AXIS_X","UNITS")
+                        # complain to user
+                        print("No [TRAJ]UNITS INI file entry, assuming inch")
+                        # Regrettably this has always been the default
+                        units = "inch"
 
                 if units=="mm" or units=="metric" or units == "1.0":
                         self.machine_units_mm=1
