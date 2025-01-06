@@ -151,7 +151,7 @@ class Migrate(Tk):
         title = _('Directory Name')
         msg1 = _('The new directory name will be')
         msg2 = _('If you change it to the same name as the QtPlasmaC config')
-        msg3 = _('then the QtPlasmaC config directory wil be renamed to:')
+        msg3 = _('then the QtPlasmaC config directory will be renamed to:')
         msg4 = _('Accept it or change it then accept')
         reply = Dialog(self, title, f"{msg1}: {newBase}\n\n{msg2}\n{msg3}\n{base}_qtplasmac\n\n{msg4}\n", buttons=2, entry=newBase).show()
         if reply == base:

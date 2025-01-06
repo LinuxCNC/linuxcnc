@@ -2,7 +2,7 @@ This is a simulation configuration for a 6 axis machine with one table rotary an
 
 This simulation also includes a python remap of Gcodes for tilted workplane (TWP) functionality.
 Both the kinematic and the twp remap support nutation of the secondary rotary joints (ie A or B ) form 0 to 90°. 
-Hence this also works for the 'usual' orthogonal spindle rotary-tilt type machines by seting the nutation angle to 90°.
+Hence this also works for the 'usual' orthogonal spindle rotary-tilt type machines by setting the nutation angle to 90°.
 
 Implemented TWP functionality:
 G68.2 : defines twp using euler-angles, pitch-roll-yaw, 2-vectors, 3 points, optionally with offset in XYZ and rotation in XY

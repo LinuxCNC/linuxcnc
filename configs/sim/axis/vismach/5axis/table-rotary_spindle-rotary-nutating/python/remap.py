@@ -70,7 +70,7 @@ else:
     log.info('Joint letter for secondary is %s with MIN/MAX Limits: %s,%s', joint_letter_secondary, secondary_min_limit, secondary_max_limit)
 
 
-## CONECTIONS TO THE KINEMATIC COMPONENT
+## CONNECTIONS TO THE KINEMATIC COMPONENT
 # get the name of the kinematic component (this seems to ingest also the next line)
 kins_comp = (config['KINS']['KINEMATICS']).partition('\n')[0]
 # name of the hal pin that represents the nutation-angle
@@ -82,7 +82,7 @@ kins_primary_rotation = kins_comp + '_kins.primary-angle'
 # name of the hal pin that represents the secondary joint orientation angle
 kins_secondary_rotation = kins_comp + '_kins.secondary-angle'
 
-## CONECTIONS TO THE HELPER COMPONENT 
+## CONNECTIONS TO THE HELPER COMPONENT 
 twp_comp = 'twp-helper-comp.'
 twp_is_defined = twp_comp + 'twp-is-defined' 
 twp_is_active = twp_comp + 'twp-is-active' 
@@ -137,7 +137,7 @@ def kins_tool_transformation(theta_1, theta_2, pre_rot, matrix_in, direction='fw
         Rp = Ry(theta_1)
     elif joint_letter_primary == 'C':
         Rp = Rz(theta_1)
-    # add fourth colums on the right
+    # add fourth column on the right
     Rp = np.hstack((Rp, [[0],[0],[0]]))
     # expand to 4x4 array and make into a matrix
     row_4 = [0,0,0,1]
@@ -152,7 +152,7 @@ def kins_tool_transformation(theta_1, theta_2, pre_rot, matrix_in, direction='fw
         Rs = Ry(theta_2)
     elif joint_letter_secondary == 'C':
         Rs = Rz(theta_2)
-    # add fourth colums on the right
+    # add fourth column on the right
     Rs = np.hstack((Rs, [[0],[0],[0]]))
     # expand to 4x4 array and make into a matrix
     row_4 = [0,0,0,1]
@@ -243,7 +243,7 @@ def kins_calc_tool_rot_c_for_horizontal_x(self, theta_1, theta_2):
     return tc
 
 
-# calulates the secondary joint position for a given tool-vector
+# calculates the secondary joint position for a given tool-vector
 # secondary being the joint closest to the tool
 # Note: this uses functions derived from the custom kinematic
 def kins_calc_secondary(self, tool_z_req):
@@ -283,7 +283,7 @@ def kins_calc_secondary(self, tool_z_req):
     return [theta_2 , -theta_2]
 
 
-# calulates the primary joint position for a given tool-vector
+# calculates the primary joint position for a given tool-vector
 # Note: this uses functions derived from the custom kinematic
 def kins_calc_primary(self, tool_z_req, theta_2_list):
     global joint_letter_primary, joint_letter_secondary
@@ -379,7 +379,7 @@ def kins_calc_jnt_angles(self, tool_z_req):
             # rotate an identity matrix using the custom tool kinematic model and the (theta_1, theta_2)
             matrix_in = np.asmatrix(np.identity(4))
             t_out = kins_tool_transformation(theta_1_pair[i], theta_2_pair[j], 0, matrix_in,'inv')
-            # the resulting tool-z vector for this pair of (theta_1, theta_2) is found in the third collumn
+            # the resulting tool-z vector for this pair of (theta_1, theta_2) is found in the third column
             tool_z_would_be = np.array([t_out[0,2], t_out[1,2], t_out[2,2]])
             log.debug('tool_z_would_be: %s', tool_z_would_be)
             # calculate the difference of the respective elements
@@ -499,7 +499,7 @@ def calc_angle_pairs_and_distances(self, possible_prim_sec_angle_pairs):
 # For orient_mode=(1,2): If no move can be found within joint limits we return None
 def calc_optimal_joint_move(self, possible_prim_sec_angle_pairs):
     global orient_mode
-    # this retruns a list with all moves ((prim_move, sec_move),(prim_dist, sec_dist)) that
+    # this returns a list with all moves ((prim_move, sec_move),(prim_dist, sec_dist)) that
     # will result in correct tool orientation, stay within the rotary axis limits and respect the 
     # orient_mode if set by the operator
     valid_joint_moves_and_distances = calc_angle_pairs_and_distances(self, possible_prim_sec_angle_pairs)
@@ -511,7 +511,7 @@ def calc_optimal_joint_move(self, possible_prim_sec_angle_pairs):
         if orient_mode == 0 and fabs(dists[0]) < fabs(dist): # shortest move requested
             (theta_1, theta_2) = trgt_angles            
             dist = dists[0]
-        elif orient_mode == 1 and fabs(dists[0]) < fabs(dist) and dists[0] >= 0: # positve primary rotation only
+        elif orient_mode == 1 and fabs(dists[0]) < fabs(dist) and dists[0] >= 0: # positive primary rotation only
             (theta_1, theta_2) = trgt_angles            
             dist = dists[0]
         elif orient_mode == 2 and fabs(dists[0]) < fabs(dist) and dists[0] <= 0: # negative primary rotation only
@@ -535,7 +535,7 @@ def kins_calc_pre_rot(self, theta_1, theta_2, tool_x_req, tool_z_requested):
     # using the given joint angles and pre-rotation zero
     matrix_in = np.asmatrix(np.identity(4))
     t_out = kins_tool_transformation(theta_1, theta_2, 0, matrix_in,'inv')
-    # the tool-x vector for the given machine joint rotations is found directly in the first collumn
+    # the tool-x vector for the given machine joint rotations is found directly in the first column
     tool_x_is = [t_out[0,0], t_out[1,0], t_out[2,0]]
     log.debug("tool-x after machine rotation would be: %s", tool_x_is)
     # we calculate the angular difference between the two vectors so we can 'pre-rotate'
@@ -567,7 +567,7 @@ def kins_calc_pre_rot(self, theta_1, theta_2, tool_x_req, tool_z_requested):
             # using the given joint angles and pre-rotation angle in the list
             matrix_in = np.asmatrix(np.identity(4))
             t_out = kins_tool_transformation(theta_1, theta_2, pre_rot, matrix_in,'inv')
-            # the tool-x vector for the given primary and secondary rotations is found directly in the first collumn
+            # the tool-x vector for the given primary and secondary rotations is found directly in the first column
             tool_x_would_be = [t_out[0,0], t_out[1,0], t_out[2,0]]
             log.debug('tool_x_would_be: %s', tool_x_would_be)
             # calculate the difference of the respective elements
@@ -811,7 +811,7 @@ def g53x_core(self):
         # calculate all possible pairs of (primary, secondary) angles so our tool-z vector matches the requested tool-z
         # angles are returned in [-pi,pi]
         possible_prim_sec_angle_pairs = kins_calc_jnt_angles(self, tool_z_requested)
-    # An excepton will occur if the requested tool orientation cannot be achieved wtih the kinematic at hand 
+    # An excepton will occur if the requested tool orientation cannot be achieved with the kinematic at hand 
     except Exception as error:
         log.error('G53.x: Calculation failed, %s', error)
         possible_prim_sec_angle_pairs = []
