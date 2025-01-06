@@ -49,7 +49,7 @@ s = linuxcnc.stat()
 
 try:
     while 1:
-        # puplish twp-status
+        # publish twp-status
         if h['twp-status'] == 1:
             h['twp-is-defined'] = 1
             h['twp-is-active']  = 0

@@ -124,7 +124,7 @@ class HalSpindleHousingZ(CylinderZ):
     def coords(self):
         r = 140
         length = c.pivot_z + 200
-        # start the spindle housing at hight 100 above the spindle nose
+        # start the spindle housing at height 100 above the spindle nose
         return length, r, 100, r
 
 # used to create the spindle rotary as set by the variable 'pivot_y'
@@ -147,7 +147,7 @@ class HalPivotZ(CylinderZ):
     def coords(self):
         r = 2
         length = c.pivot_z
-        # start the spindle housing at hight 100 above the spindle nose
+        # start the spindle housing at height 100 above the spindle nose
         return length, 1, 0, r
 
 # used to create an indicator for the variable 'pivot_y'
