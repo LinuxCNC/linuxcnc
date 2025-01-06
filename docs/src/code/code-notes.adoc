@@ -1082,7 +1082,7 @@ called by the NML read/write functions when the NML formatter is called --
 the pointer to the formatter will have been declared in the NML
 constructor at some point. By virtue of the linked lists NML creates,
 it is able to select cms pointer that is passed to the formatter and
-therefor which buffer is to be used.
+therefore which buffer is to be used.
 
 == Adding custom NML commands
 

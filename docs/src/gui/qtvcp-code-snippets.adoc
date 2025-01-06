@@ -1023,7 +1023,7 @@ You must parse and define what is accepted and what to do with it.
 == Gcode to read qt preferences
 Here is how to create an Oword program to read a qtdragon preference file entry and add it as a gcode parameter +
 Calling this oword will update the param 'toolToLoad' +
-This uses 'Python hot comment' to comunicate with the embeded python instance. +
+This uses 'Python hot comment' to communicate with the embedded python instance. +
 See the Remap section of the Documents for a description.
 
 [source,{ngc}]
