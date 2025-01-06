@@ -253,7 +253,7 @@ See matrixkins(9) man page for detailed instructions.
 === maxkins - 5-axis kinematics example
 
 Kinematics for Chris Radek's tabletop 5 axis mill named 'max' with
-tilting head (B axis) and horizintal rotary mounted to the table (C axis).
+tilting head (B axis) and horizontal rotary mounted to the table (C axis).
 Provides UVW motion in the rotated coordinate system.
 The source file, maxkins.c, may be a useful starting point for other 5-axis systems.
 

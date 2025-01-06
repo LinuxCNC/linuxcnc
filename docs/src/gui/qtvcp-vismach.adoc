@@ -133,12 +133,12 @@ c.newpin("joint1", hal.HAL_FLOAT, hal.HAL_IN)
 c.ready()
 ----
 
-You can choose this differents in the function that take these entries:
+You can select between the two options in the functions that take these entries:
 
   `hal_comp`;; The _HAL component Object_ or None. +
     In QtVCP if you are reading _system pins_ directly, then the component argument is set to `None`. +
   `hal_pin`;; The _name of the BIT HAL IN pin_ that will change the color. +
-    if hal_comp is 'None' then this must be the full name of a system pin other wise this is the pin name excluding the component name
+    if hal_comp is 'None' then this must be the full name of a system pin otherwise this is the pin name excluding the component name
 
 [[sec:qtvcp:vismach:parts]]
 == Creating Parts

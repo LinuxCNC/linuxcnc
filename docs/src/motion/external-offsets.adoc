@@ -322,7 +322,7 @@ are not acknowledged while a program is running.
 The opa.ini configuration uses the INI component eoffset_per_angle
 (*$ man eoffset_per_angle*) to demonstrate an XZC machine with functional
 offsets computed from the C coordinate (angle) and applied to
-the transvers (X) coordinate.  Offset computations are based on
+the transverse (X) coordinate.  Offset computations are based on
 a specified reference radius typically set by a program (or MDI)
 M68 command to control a *motion.analog-out-NN* pin.
 

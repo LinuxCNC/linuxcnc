@@ -2499,7 +2499,7 @@ The following two custom layouts are used for soft key support:
 
 image::images/qtplasmac_numpad.png[caption="", title="Number keypad - used for the CONVERSATIONAL Tab and the PARAMETERS Tab",width=240,align="center"]
 
-image::images/qtplasmac_keypad.png[caption="", title="Alpha-numeric keypad - used for G-code editing and file management.",width=700,align="center"]
+image::images/qtplasmac_keypad.png[caption="", title="Alphanumeric keypad - used for G-code editing and file management.",width=700,align="center"]
 
 If the virtual keyboard has been repositioned and on the next opening of a virtual keyboard it is not visible, then clicking twice on the onboard icon in the system tray will reposition the virtual keyboard so the move handle is visible.
 
