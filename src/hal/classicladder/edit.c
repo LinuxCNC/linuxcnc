@@ -145,7 +145,7 @@ void LoadElementProperties(StrElement * Element)
 			case ELE_OUTPUT_SET:
 			case ELE_OUTPUT_RESET:
 				rtapi_strxcpy(TextToWrite,CreateVarName(Element->VarType,Element->VarNum, InfosGene->DisplaySymbols));
-//				CreateVarNameForElement( TextToWrite, Element, InfosGene->DisplaySymbols );
+//				CreateVarNameForElement( TextToWrite, sizeof(TextToWrite), Element, InfosGene->DisplaySymbols );
 				SetProperty(0,_("Variable"),TextToWrite,TRUE);
 				break;
 			case ELE_OUTPUT_JUMP:

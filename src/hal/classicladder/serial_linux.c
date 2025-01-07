@@ -181,6 +181,11 @@ void SerialSetRTS( int State )
 
 void SerialSend( char *Buff, int BuffLength )
 {
+	ssize_t written = 0;
+
+	if ( BuffLength <= 0 )
+		return;	// write() on zero length is undefined
+
 	if ( PortIsOpened )
 	{
 		if ( ModbusConfig.ModbusSerialUseRtsToSend )
@@ -191,7 +196,41 @@ void SerialSend( char *Buff, int BuffLength )
 		}
 		if ( ModbusConfig.ModbusDebugLevel>=2 )
 			printf(_("Serial writing...\n"));
-		write(fd,Buff,BuffLength);
+		// Writing a buffer to a serial port may write fewer than
+		// requested. We must repeat the write from where it stopped.
+		while ( BuffLength - written > 0 )
+		{
+			ssize_t n = write(fd, Buff + written, BuffLength - written);
+			if (n < 0)
+			{
+				// Interrupted by signal
+				if (errno == EINTR)
+					continue;
+
+				// We shouldn't be able to get EAGAIN because
+				// fd is changed from non-blocking to blocking
+				// after open.
+
+				// Getting here means something went really
+				// wrong...  What else to do?
+				perror(_("Serial port write failed"));
+				if ( ModbusConfig.ModbusSerialUseRtsToSend )
+				{
+					tcdrain( fd );
+					DoPauseMilliSecs( 10 );
+					SerialSetRTS( 0 );
+				}
+				// SerialClose(); // This might be prudent after the failure...
+				return;
+			}
+			// n being zero could happen if another thread closes
+			// fd causing a spectacular problem. But I guess we are
+			// single threaded here. So we will take it to be a
+			// 'warning' and try to continue. It would busy-loop if
+			// we only get zero back, but you should get an error
+			// somewhere down the line.
+			written += n;	// We have written n bytes this round
+		}
 		if ( ModbusConfig.ModbusDebugLevel>=2 )
 			printf(_("Writing done!\n"));
 		if ( ModbusConfig.ModbusSerialUseRtsToSend )
