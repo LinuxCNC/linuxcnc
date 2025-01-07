@@ -40,7 +40,7 @@
   */
 
 
-
+#include <sys/time.h>
 
 #include <Python.h>
 #include <structmember.h>
