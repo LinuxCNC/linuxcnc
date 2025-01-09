@@ -51,9 +51,16 @@ class _PStat(object):
             self.VISMACHDIR = os.path.join(self.LIBDIR, "qt_vismach")
 
             # share directory moves when using RIP vrs installed
-            home = os.environ.get('LINUXCNC_HOME', '/usr')
-            if home is not None:
-                self.SHAREDIR = os.path.join(home,"share", "qtvcp")
+            home = os.environ.get('EMC2_HOME', '/usr')
+            if home is None:
+                self.RIP = False
+                home = os.environ.get('LINUXCNC_HOME', '/usr')
+                if home is None:
+                    LOG.error('Linuxcnc Home directory not found in environmental variable: {}'.format(home))
+            else:
+                self.RIP = True
+            self.SHAREDIR = os.path.join(home,"share", "qtvcp")
+
             self.IMAGEDIR = os.path.join(self.SHAREDIR,  "images")
             self.SCREENDIR = os.path.join(self.SHAREDIR, "screens")
             self.PANELDIR = os.path.join(self.SHAREDIR, "panels")
