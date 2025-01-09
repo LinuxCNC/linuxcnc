@@ -250,9 +250,7 @@ class HandlerClass:
         if flag:
             self.w.frame_macro_buttons.hide()
 
-        message = "--- QtDragon_hd Version {} on Linuxcnc {} ---".format(
-            VERSION, STATUS.get_linuxcnc_version())
-        STATUS.emit('update-machine-log', message, None)
+        self.log_version()
 
     #############################
     # SPECIAL FUNCTIONS SECTION #
@@ -1252,9 +1250,8 @@ class HandlerClass:
         AUX_PRGM.load_gcode_ripper()
 
     def btn_about_clicked(self):
-        txt1 = _translate("HandlerClass","QtDragon_hd Version")
-        txt2 = _translate("HandlerClass","on Linuxcnc")
-        self.add_status(f"{txt1} {VERSION} {txt2} {STATUS.get_linuxcnc_version()}", CRITICAL)
+        self.log_version()
+
         info = ACTION.GET_ABOUT_INFO()
         self.w.aboutDialog_.showdialog()
 
@@ -1996,6 +1993,20 @@ class HandlerClass:
             if not self._dialog_message is None:
                 name = self._dialog_message.get('NAME')
                 STATUS.emit('dialog-update',{'NAME':name,'response':answer})
+
+    def log_version(self):
+        if INFO.RIP:
+            t = _translate("HandlerClass","(RIP)")
+        else:
+            t = _translate("HandlerClass","(Installed)")
+        mess = "--- {} {} {} {} {} ---".format(
+                _translate("HandlerClass","QtDragon HD Version"),
+                VERSION,
+                _translate("HandlerClass","on Linuxcnc"),
+                STATUS.get_linuxcnc_version(),
+                 t)
+        self.add_status(mess, CRITICAL,noLog=True)
+        STATUS.emit('update-machine-log', mess, None)
 
     #####################
     # KEY BINDING CALLS #

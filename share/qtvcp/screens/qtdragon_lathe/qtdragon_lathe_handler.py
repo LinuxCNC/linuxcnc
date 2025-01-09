@@ -304,8 +304,7 @@ class HandlerClass:
         if flag:
             self.w.frame_macro_buttons.hide()
 
-        message = f"--- QtDragon Version {VERSION} on Linuxcnc {STATUS.get_linuxcnc_version()} ---"
-        STATUS.emit('update-machine-log', message, None)
+        self.log_version()
 
     def init_utils(self):
 
@@ -1189,9 +1188,8 @@ class HandlerClass:
             self.w.stackedWidget.setCurrentIndex(PAGE_GCODE)
 
     def btn_about_clicked(self):
-        self.add_status("{} {} {} {} ".format(
-            _translate("HandlerClass","QtDragon Version"), _translate("HandlerClass","on Linuxcnc"),
-            VERSION, STATUS.get_linuxcnc_version()), CRITICAL)
+        self.log_version()
+
         info = ACTION.GET_ABOUT_INFO()
         self.w.aboutDialog_.showdialog()
 
@@ -2001,6 +1999,20 @@ class HandlerClass:
             if not self._dialog_message is None:
                 name = self._dialog_message.get('NAME')
                 STATUS.emit('dialog-update',{'NAME':name,'response':answer})
+
+    def log_version(self):
+        if INFO.RIP:
+            t = _translate("HandlerClass","(RIP)")
+        else:
+            t = _translate("HandlerClass","(Installed)")
+        mess = "--- {} {} {} {} {} ---".format(
+                _translate("HandlerClass","QtDragon Lathe Version"),
+                VERSION,
+                _translate("HandlerClass","on Linuxcnc"),
+                STATUS.get_linuxcnc_version(),
+                 t)
+        self.add_status(mess, CRITICAL,noLog=True)
+        STATUS.emit('update-machine-log', mess, None)
 
     #####################
     # KEY BINDING CALLS #
