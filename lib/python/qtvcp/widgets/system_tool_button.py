@@ -71,10 +71,10 @@ class SystemToolButton(QToolButton, _HalWidgetBase):
         STATUS.connect('user-system-changed', self._set_user_system_text)
 
     def G54(self):
-        ACTION.SET_USER_SYSTEM('54')
+        ACTION.SET_USER_SYSTEM('G54')
 
     def G55(self):
-        ACTION.SET_USER_SYSTEM(55)
+        ACTION.SET_USER_SYSTEM('G55')
 
     def G56(self):
         ACTION.SET_USER_SYSTEM('G56')
