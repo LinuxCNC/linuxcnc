@@ -87,7 +87,7 @@ bool from_python(PyObject *o, hal_u32_t *u) {
 
     l = PyLong_AsLongLong(tmp);
     if(PyErr_Occurred()) goto fail;
-    if(l < 0 || l != (hal_u32_t)l) {
+    if(l < 0 || l != (rtapi_u32)l) {
         PyErr_Format(PyExc_OverflowError, "Value %lld out of range", l);
         goto fail;
     }
@@ -108,7 +108,7 @@ bool from_python(PyObject *o, hal_s32_t *i) {
 
     l = PyLong_AsLongLong(tmp);
     if(PyErr_Occurred()) goto fail;
-    if(l != (hal_s32_t)l) {
+    if(l != (rtapi_s32)l) {
         PyErr_Format(PyExc_OverflowError, "Value %lld out of range", l);
         goto fail;
     }
@@ -129,7 +129,7 @@ bool from_python(PyObject *o, hal_u64_t *u) {
 
     l = PyLong_AsLongLong(tmp);
     if(PyErr_Occurred()) goto fail;
-    if(l < 0 || l != (hal_u64_t)l) {
+    if(l < 0 || l != (rtapi_u64)l) {
         PyErr_Format(PyExc_OverflowError, "Value %lld out of range", l);
         goto fail;
     }
@@ -150,7 +150,7 @@ bool from_python(PyObject *o, hal_s64_t *i) {
 
     l = PyLong_AsLongLong(tmp);
     if(PyErr_Occurred()) goto fail;
-    if(l != (hal_s64_t)l) {
+    if(l != (rtapi_s64)l) {
         PyErr_Format(PyExc_OverflowError, "Value %lld out of range", l);
         goto fail;
     }

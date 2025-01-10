@@ -135,7 +135,7 @@ uint16_t Usb::getUsbProductId() const
     return usbProductId;
 }
 // ----------------------------------------------------------------------
-const bool Usb::isDeviceOpen() const
+bool Usb::isDeviceOpen() const
 {
     return deviceHandle != nullptr;
 }

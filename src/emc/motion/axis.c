@@ -457,7 +457,7 @@ void axis_apply_ext_offsets_to_carte_pos(int extfactor, double *pcmd_p[])
     }
 }
 
-hal_bit_t axis_plan_external_offsets(double servo_period, bool motion_enable_flag, bool all_homed)
+bool axis_plan_external_offsets(double servo_period, bool motion_enable_flag, bool all_homed)
 {
     static int first_pass = 1;
     int n;
