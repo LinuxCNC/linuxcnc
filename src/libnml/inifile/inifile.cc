@@ -601,14 +601,14 @@ iniFind(FILE *fp, const char *tag, const char *section)
     return(f.Find(tag, section).value_or(nullptr));
 }
 
-extern "C" const int
+extern "C" int
 iniFindInt(FILE *fp, const char *tag, const char *section, int *result)
 {
     IniFile f(false, fp);
     return(f.Find(result, tag, section));
 }
 
-extern "C" const int
+extern "C" int
 iniFindDouble(FILE *fp, const char *tag, const char *section, double *result)
 {
     IniFile f(false, fp);
