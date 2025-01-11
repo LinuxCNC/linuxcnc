@@ -89,35 +89,35 @@ static PyObject *LineCode_mcodes(LineCode *l) {
 }
 
 static PyGetSetDef LineCodeGetSet[] = {
-    {(char*)"gcodes", (getter)LineCode_gcodes},
-    {(char*)"mcodes", (getter)LineCode_mcodes},
-    {NULL, NULL},
+    {(char*)"gcodes", (getter)LineCode_gcodes, NULL, NULL, NULL},
+    {(char*)"mcodes", (getter)LineCode_mcodes, NULL, NULL, NULL},
+    {},
 };
 
 static PyMemberDef LineCodeMembers[] = {
-    {(char*)"sequence_number", T_INT, offsetof(LineCode, gcodes[0]), READONLY},
+    {(char*)"sequence_number", T_INT, offsetof(LineCode, gcodes[0]), READONLY, NULL},
 
-    {(char*)"feed_rate", T_DOUBLE, offsetof(LineCode, settings[1]), READONLY},
-    {(char*)"speed", T_DOUBLE, offsetof(LineCode, settings[2]), READONLY},
-    {(char*)"motion_mode", T_INT, offsetof(LineCode, gcodes[1]), READONLY},
-    {(char*)"block", T_INT, offsetof(LineCode, gcodes[2]), READONLY},
-    {(char*)"plane", T_INT, offsetof(LineCode, gcodes[3]), READONLY},
-    {(char*)"cutter_side", T_INT, offsetof(LineCode, gcodes[4]), READONLY},
-    {(char*)"units", T_INT, offsetof(LineCode, gcodes[5]), READONLY},
-    {(char*)"distance_mode", T_INT, offsetof(LineCode, gcodes[6]), READONLY},
-    {(char*)"feed_mode", T_INT, offsetof(LineCode, gcodes[7]), READONLY},
-    {(char*)"origin", T_INT, offsetof(LineCode, gcodes[8]), READONLY},
-    {(char*)"tool_length_offset", T_INT, offsetof(LineCode, gcodes[9]), READONLY},
-    {(char*)"retract_mode", T_INT, offsetof(LineCode, gcodes[10]), READONLY},
-    {(char*)"path_mode", T_INT, offsetof(LineCode, gcodes[11]), READONLY},
+    {(char*)"feed_rate", T_DOUBLE, offsetof(LineCode, settings[1]), READONLY, NULL},
+    {(char*)"speed", T_DOUBLE, offsetof(LineCode, settings[2]), READONLY, NULL},
+    {(char*)"motion_mode", T_INT, offsetof(LineCode, gcodes[1]), READONLY, NULL},
+    {(char*)"block", T_INT, offsetof(LineCode, gcodes[2]), READONLY, NULL},
+    {(char*)"plane", T_INT, offsetof(LineCode, gcodes[3]), READONLY, NULL},
+    {(char*)"cutter_side", T_INT, offsetof(LineCode, gcodes[4]), READONLY, NULL},
+    {(char*)"units", T_INT, offsetof(LineCode, gcodes[5]), READONLY, NULL},
+    {(char*)"distance_mode", T_INT, offsetof(LineCode, gcodes[6]), READONLY, NULL},
+    {(char*)"feed_mode", T_INT, offsetof(LineCode, gcodes[7]), READONLY, NULL},
+    {(char*)"origin", T_INT, offsetof(LineCode, gcodes[8]), READONLY, NULL},
+    {(char*)"tool_length_offset", T_INT, offsetof(LineCode, gcodes[9]), READONLY, NULL},
+    {(char*)"retract_mode", T_INT, offsetof(LineCode, gcodes[10]), READONLY, NULL},
+    {(char*)"path_mode", T_INT, offsetof(LineCode, gcodes[11]), READONLY, NULL},
 
-    {(char*)"stopping", T_INT, offsetof(LineCode, mcodes[1]), READONLY},
-    {(char*)"spindle", T_INT, offsetof(LineCode, mcodes[2]), READONLY},
-    {(char*)"toolchange", T_INT, offsetof(LineCode, mcodes[3]), READONLY},
-    {(char*)"mist", T_INT, offsetof(LineCode, mcodes[4]), READONLY},
-    {(char*)"flood", T_INT, offsetof(LineCode, mcodes[5]), READONLY},
-    {(char*)"overrides", T_INT, offsetof(LineCode, mcodes[6]), READONLY},
-    {NULL}
+    {(char*)"stopping", T_INT, offsetof(LineCode, mcodes[1]), READONLY, NULL},
+    {(char*)"spindle", T_INT, offsetof(LineCode, mcodes[2]), READONLY, NULL},
+    {(char*)"toolchange", T_INT, offsetof(LineCode, mcodes[3]), READONLY, NULL},
+    {(char*)"mist", T_INT, offsetof(LineCode, mcodes[4]), READONLY, NULL},
+    {(char*)"flood", T_INT, offsetof(LineCode, mcodes[5]), READONLY, NULL},
+    {(char*)"overrides", T_INT, offsetof(LineCode, mcodes[6]), READONLY, NULL},
+    {}
 };
 
 static PyTypeObject LineCodeType = {
@@ -162,6 +162,20 @@ static PyTypeObject LineCodeType = {
     PyType_GenericNew,      /*tp_new*/
     0,                      /*tp_free*/
     0,                      /*tp_is_gc*/
+    0,                      /*tp_bases*/
+    0,                      /*tp_mro*/
+    0,                      /*tp_cache*/
+    0,                      /*tp_subclasses*/
+    0,                      /*tp_weaklink*/
+    0,                      /*tp_del*/
+    0,                      /*tp_version_tag*/
+    0,                      /*tp_finalize*/
+#if PY_VERSION_HEX >= 0x030800f0	// 3.8
+    0,                      /*tp_vectorcall*/
+#if PY_VERSION_HEX >= 0x030c00f0	// 3.12
+    0,                      /*tp_watched*/
+#endif
+#endif
 };
 
 static PyObject *callback;
@@ -649,7 +663,7 @@ void GET_EXTERNAL_PARAMETER_FILE_NAME(char *name, int max_size) {
 }
 CANON_UNITS GET_EXTERNAL_LENGTH_UNIT_TYPE() { return CANON_UNITS_INCHES; }
 CANON_TOOL_TABLE GET_EXTERNAL_TOOL_TABLE(int pocket) {
-    CANON_TOOL_TABLE tdata = {-1,-1,{{0,0,0},0,0,0,0,0,0},0,0,0,0};
+    CANON_TOOL_TABLE tdata = {-1,-1,{{0,0,0},0,0,0,0,0,0},0,0,0,0,{}};
     if(interp_error) return tdata;
     PyObject *result =
         callmethod(callback, "get_tool", "i", pocket);
@@ -1168,7 +1182,7 @@ static PyMethodDef gcode_methods[] = {
         "Calculate information about extents of gcode"},
     {"arc_to_segments", (PyCFunction)rs274_arc_to_segments, METH_VARARGS,
         "Convert an arc to straight segments"},
-    {NULL}
+    {}
 };
 
 static struct PyModuleDef gcode_moduledef = {
@@ -1176,7 +1190,11 @@ static struct PyModuleDef gcode_moduledef = {
     "gcode",                                  /* m_name    */
     "Interface to EMC rs274ngc interpreter",  /* m_doc     */
     -1,                                       /* m_size    */
-    gcode_methods                             /* m_methods */
+    gcode_methods,                            /* m_methods */
+    NULL,                                     /* m_slots   */
+    NULL,                                     /* m_traverse*/
+    NULL,                                     /* m_clear   */
+    NULL,                                     /* m_free    */
 };
 
 PyMODINIT_FUNC PyInit_gcode(void);

@@ -32,8 +32,8 @@ int main(int argc, char *argv[])
     char buffer[BUFFERLEN];
     int inverse = 1;
     int jacobian = 0;
-    EmcPose pos = { {0.0, 0.0, 0.0}, 0.0, 0.0, 0.0 };
-    EmcPose vel = { {0.0, 0.0, 0.0}, 0.0, 0.0, 0.0 }; // will need this for
+    EmcPose pos = { {0.0, 0.0, 0.0}, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+    EmcPose vel = { {0.0, 0.0, 0.0}, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }; // will need this for
                                                       // jacobian
     double joints[6] = { 0.0 };
     double jointvels[6] = { 0.0 };

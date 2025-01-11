@@ -639,7 +639,7 @@ static PyMethodDef hal_methods[] = {
         "Call hal_ready"},
     {"unready", pyhal_unready, METH_NOARGS,
         "Call hal_unready"},
-    {NULL},
+    {},
 };
 
 static PyMappingMethods halobject_map = {
@@ -690,6 +690,20 @@ PyTypeObject halobject_type = {
     PyType_GenericNew,         /*tp_new*/
     0,                         /*tp_free*/
     0,                         /*tp_is_gc*/
+    0,                         /*tp_bases*/
+    0,                         /*tp_mro*/
+    0,                         /*tp_cache*/
+    0,                         /*tp_subclasses*/
+    0,                         /*tp_weaklink*/
+    0,                         /*tp_del*/
+    0,                         /*tp_version_tag*/
+    0,                         /*tp_finalize*/
+#if PY_VERSION_HEX >= 0x030800f0	// 3.8
+    0,                         /*tp_vectorcall*/
+#if PY_VERSION_HEX >= 0x030c00f0	// 3.12
+    0,                         /*tp_watched*/
+#endif
+#endif
 };
 
 static const char * pin_type2name(hal_type_t type) {
@@ -793,7 +807,7 @@ static PyMethodDef halpin_methods[] = {
     {"get_dir", pyhal_pin_get_dir, METH_NOARGS, "Get item direction"},
     {"get_name", pyhal_pin_get_name, METH_NOARGS, "Get item name"},
     {"is_pin", pyhal_pin_is_pin, METH_NOARGS, "If item is pin or param"},
-    {NULL},
+    {},
 };
 
 static
@@ -838,6 +852,20 @@ PyTypeObject halpin_type = {
     PyType_GenericNew,         /*tp_new*/
     0,                         /*tp_free*/
     0,                         /*tp_is_gc*/
+    0,                         /*tp_bases*/
+    0,                         /*tp_mro*/
+    0,                         /*tp_cache*/
+    0,                         /*tp_subclasses*/
+    0,                         /*tp_weaklink*/
+    0,                         /*tp_del*/
+    0,                         /*tp_version_tag*/
+    0,                         /*tp_finalize*/
+#if PY_VERSION_HEX >= 0x030800f0	// 3.8
+    0,                         /*tp_vectorcall*/
+#if PY_VERSION_HEX >= 0x030c00f0	// 3.12
+    0,                         /*tp_watched*/
+#endif
+#endif
 };
 
 static PyObject * pyhal_pin_new(halitem * pin, const char * name) {
@@ -1584,7 +1612,7 @@ static PyMethodDef shm_methods[] = {
 	"Get a writable buffer object for the shared memory segment"},
     {"setsize", shm_setsize, METH_VARARGS,
 	"Set the size of the shared memory segment"},
-    {NULL},
+    {},
 };
 
 static
@@ -1629,6 +1657,20 @@ PyTypeObject shm_type = {
     PyType_GenericNew,         /*tp_new*/
     0,                         /*tp_free*/
     0,                         /*tp_is_gc*/
+    0,                         /*tp_bases*/
+    0,                         /*tp_mro*/
+    0,                         /*tp_cache*/
+    0,                         /*tp_subclasses*/
+    0,                         /*tp_weaklink*/
+    0,                         /*tp_del*/
+    0,                         /*tp_version_tag*/
+    0,                         /*tp_finalize*/
+#if PY_VERSION_HEX >= 0x030800f0	// 3.8
+    0,                         /*tp_vectorcall*/
+#if PY_VERSION_HEX >= 0x030c00f0	// 3.12
+    0,                         /*tp_watched*/
+#endif
+#endif
 };
 
 struct streamobj {
@@ -1760,8 +1802,8 @@ PyObject *stream_write(PyObject *_self, PyObject *args) {
 }
 
 static PyMethodDef stream_methods[] = {
-    {"read", stream_read, METH_NOARGS},
-    {"write", stream_write, METH_VARARGS},
+    {"read", stream_read, METH_NOARGS, NULL},
+    {"write", stream_write, METH_VARARGS, NULL},
     {}
 };
 
@@ -1864,6 +1906,20 @@ PyTypeObject stream_type = {
     PyType_GenericNew,         /*tp_new*/
     0,                         /*tp_free*/
     0,                         /*tp_is_gc*/
+    0,                         /*tp_bases*/
+    0,                         /*tp_mro*/
+    0,                         /*tp_cache*/
+    0,                         /*tp_subclasses*/
+    0,                         /*tp_weaklink*/
+    0,                         /*tp_del*/
+    0,                         /*tp_version_tag*/
+    0,                         /*tp_finalize*/
+#if PY_VERSION_HEX >= 0x030800f0	// 3.8
+    0,                         /*tp_vectorcall*/
+#if PY_VERSION_HEX >= 0x030c00f0	// 3.12
+    0,                         /*tp_watched*/
+#endif
+#endif
 };
 
 
@@ -1898,7 +1954,7 @@ PyMethodDef module_methods[] = {
 	".get_info_signals(): Get a list of dicts for all the signals; {NAME:, VALUE:}"},
     {"get_info_params", get_info_params, METH_VARARGS,
 	".get_info_params(): Get a list of dicts for all the parameters; {NAME:, VALUE:}"},
-    {NULL},
+    {},
 };
 
 const char *module_doc = "Interface to emc2's hal\n"
@@ -1930,9 +1986,13 @@ const char *module_doc = "Interface to emc2's hal\n"
 static struct PyModuleDef hal_moduledef = {
     PyModuleDef_HEAD_INIT,  /* m_base */
     "_hal",                 /* m_name */
-    module_doc,                   /* m_doc */
+    module_doc,             /* m_doc */
     -1,                     /* m_size */
-    module_methods            /* m_methods */
+    module_methods,         /* m_methods */
+    NULL,                   /* m_slots */
+    NULL,                   /* m_traverse */
+    NULL,                   /* m_clear */
+    NULL,                   /* m_free */
 };
 
 PyMODINIT_FUNC PyInit__hal(void);
