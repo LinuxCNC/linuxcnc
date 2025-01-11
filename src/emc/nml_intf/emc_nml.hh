@@ -1342,10 +1342,11 @@ class EMC_TOOL_STAT_MSG:public RCS_STAT_MSG {
 class EMC_TOOL_STAT:public EMC_TOOL_STAT_MSG {
   public:
     EMC_TOOL_STAT();
+    EMC_TOOL_STAT(const EMC_TOOL_STAT &) = delete; // No copy constructor
 
     // For internal NML/CMS use only.
     void update(CMS * cms);
-    EMC_TOOL_STAT operator =(EMC_TOOL_STAT s);	// need this for [] members
+    EMC_TOOL_STAT& operator =(const EMC_TOOL_STAT &s);	// need this for [] members
 
     int pocketPrepped;		// idx ready for loading from
     int toolInSpindle;		// tool loaded, 0 is no tool

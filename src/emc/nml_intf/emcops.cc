@@ -196,7 +196,7 @@ EMC_COOLANT_STAT::EMC_COOLANT_STAT():EMC_COOLANT_STAT_MSG(EMC_COOLANT_STAT_TYPE,
 }
 
 // overload = , since class has array elements
-EMC_TOOL_STAT EMC_TOOL_STAT::operator =(EMC_TOOL_STAT s)
+EMC_TOOL_STAT& EMC_TOOL_STAT::operator =(const EMC_TOOL_STAT& s)
 {
     pocketPrepped = s.pocketPrepped; // idx
     toolInSpindle = s.toolInSpindle; // toolno
@@ -221,7 +221,7 @@ EMC_TOOL_STAT EMC_TOOL_STAT::operator =(EMC_TOOL_STAT s)
     toolTableCurrent = tdata;
 #endif //}
 
-    return s;
+    return *this;
 }
 
 EMC_STAT::EMC_STAT():EMC_STAT_MSG(EMC_STAT_TYPE, sizeof(EMC_STAT))

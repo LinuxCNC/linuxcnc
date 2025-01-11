@@ -95,7 +95,17 @@
 #define PM_REF
 #endif
 
+#if __cplusplus < 201103L
+/*
+ * Not required in C++11 and beyond. It will generate a warning:
+ *    "implicitly-declared 'constexpr ...' is deprecated [-Wdeprecated-copy]"
+ * If, somehow, somewhere, it is required, then you probably must implement
+ * both copy-constructor, destructor and operator= override (rule of three).
+ * Otherwise, if you do not have anything special in the members, then the
+ * compiler will do a good job at doing the right thing for you.
+ */
 #define INCLUDE_POSEMATH_COPY_CONSTRUCTORS
+#endif
 
 /* forward declarations-- conversion ctors will need these */
 
