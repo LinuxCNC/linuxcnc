@@ -1,3 +1,8 @@
+ver 3.4.9
+- Fix problems with duplicated entries in the preferences file
+- Remove Gtk.Paned for upper main area (introduced in 3.4.0)
+- Fix wrong states of spindle button images after program abort
+
 ver 3.4.8
  - Remove some deprecation warnings (#3130)
  - Migrate to GtKSourceview 4 (#3083)
