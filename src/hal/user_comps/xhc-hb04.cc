@@ -515,7 +515,7 @@ static void quit(int sig)
 static int hal_pin_simu(char *pin_name, void **ptr, int s)
 {
 	printf("Creating pin: %s\n", pin_name);
-	*ptr = calloc(s, 1);
+	*ptr = calloc(1, s);
 	return 0;
 }
 
@@ -585,7 +585,7 @@ static void hal_setup()
 		}
 	}
 	else {
-		xhc.hal = (xhc_hal_t *)calloc(sizeof(xhc_hal_t), 1);
+		xhc.hal = (xhc_hal_t *)calloc(1, sizeof(xhc_hal_t));
 	}
 
     r = 0;
