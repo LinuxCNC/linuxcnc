@@ -76,7 +76,7 @@ sys.excepthook = excepthook
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 3.4.8"
+_RELEASE = " 3.4.9"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -1963,7 +1963,7 @@ class gmoccapy(object):
                 except:
                     pass
         temp = 0
-        theme_name = self.prefs.getpref("Gtk_theme", "Follow System Theme", str)
+        theme_name = self.prefs.getpref("gtk_theme", "Follow System Theme", str)
         for index, theme in enumerate(themes):
             model.append((theme,))
             if theme == theme_name:
@@ -2206,12 +2206,11 @@ class gmoccapy(object):
         self.widgets.offsetpage1.set_font("sans 12")
         self.widgets.offsetpage1.set_foreground_color(self._get_RGBA_color("#28D0D9"))
         self.widgets.offsetpage1.selection_mask = ("Tool", "G5x", "Rot")
-        systemlist = ["Tool", "G5x", "Rot", "G92", "G54", "G55", "G56", "G57", "G58", "G59", "G59.1",
-                      "G59.2", "G59.3"]
         names = []
-        for system in systemlist:
-            system_name = "system_name_{0}".format(system)
-            name = self.prefs.getpref(system_name, system, str)
+        default_names = self.widgets.offsetpage1.get_names()
+        for system, name in default_names:
+            system_name = "system_name_{0}".format(system).lower()
+            name = self.prefs.getpref(system_name, name, str)
             names.append([system, name])
         self.widgets.offsetpage1.set_names(names)
 
@@ -2331,7 +2330,7 @@ class gmoccapy(object):
         else:
             names = self.widgets.offsetpage1.get_names()
             for system, name in names:
-                system_name = "system_name_{0}".format(system)
+                system_name = "system_name_{0}".format(system).lower()
                 self.prefs.putpref(system_name, name)
             page.hide()
 
@@ -3989,7 +3988,10 @@ class gmoccapy(object):
             widget.set_image(self.widgets.img_spindle_forward_on)
             self._set_spindle("forward")
         else:
-            self.widgets.rbt_forward.set_image(self.widgets.img_spindle_forward)
+            widget.set_image(self.widgets.img_spindle_forward)
+        # Toggling the sensitive property is important here! See the commit description.
+        widget.set_sensitive(not widget.get_sensitive())
+        widget.set_sensitive(not widget.get_sensitive())
 
     def on_rbt_reverse_clicked(self, widget, data=None):
         if widget.get_active():
@@ -3997,13 +3999,19 @@ class gmoccapy(object):
             self._set_spindle("reverse")
         else:
             widget.set_image(self.widgets.img_spindle_reverse)
+        # Toggling the sensitive property is important here! See the commit description.
+        widget.set_sensitive(not widget.get_sensitive())
+        widget.set_sensitive(not widget.get_sensitive())
 
     def on_rbt_stop_clicked(self, widget, data=None):
         if widget.get_active():
             widget.set_image(self.widgets.img_spindle_stop_on)
             self._set_spindle("stop")
         else:
-            self.widgets.rbt_stop.set_image(self.widgets.img_spindle_stop)
+            widget.set_image(self.widgets.img_spindle_stop)
+        # Toggling the sensitive property is important here! See the commit description.
+        widget.set_sensitive(not widget.get_sensitive())
+        widget.set_sensitive(not widget.get_sensitive())
 
     def _set_spindle(self, command):
         # if we are in estop state, we will have to leave here, otherwise
@@ -4016,18 +4024,6 @@ class gmoccapy(object):
         # be set to the commanded value due to the next code part
         if self.stat.task_mode != linuxcnc.MODE_MANUAL:
             if self.stat.interp_state == linuxcnc.INTERP_READING or self.stat.interp_state == linuxcnc.INTERP_WAITING:
-                if self.stat.spindle[0]['direction'] > 0:
-                    self.widgets.rbt_forward.set_sensitive(False)
-                    self.widgets.rbt_reverse.set_sensitive(True)
-                    self.widgets.rbt_stop.set_sensitive(True)
-                elif self.stat.spindle[0]['direction'] < 0:
-                    self.widgets.rbt_forward.set_sensitive(True)
-                    self.widgets.rbt_reverse.set_sensitive(False)
-                    self.widgets.rbt_stop.set_sensitive(True)
-                else:
-                    self.widgets.rbt_forward.set_sensitive(True)
-                    self.widgets.rbt_reverse.set_sensitive(True)
-                    self.widgets.rbt_stop.set_sensitive(False)
                 return
 
         rpm = self._check_spindle_range()
@@ -4413,7 +4409,7 @@ class gmoccapy(object):
         if active is None:
             return
         theme = widget.get_model()[active][0]
-        self.prefs.putpref('Gtk_theme', theme)
+        self.prefs.putpref("gtk_theme", theme)
         if theme == "Follow System Theme":
             theme = self.default_theme
         settings = Gtk.Settings.get_default()

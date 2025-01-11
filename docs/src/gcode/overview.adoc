@@ -628,8 +628,9 @@ o100 endif
 
 The value is read from the INI file once, and cached in the
 interpreter. These parameters are read-only - assigning a value will
-cause a runtime error. The names are not case sensitive - they are
-converted to uppercase before consulting the INI file.
+cause a runtime error. In the G-code the names are not case sensitive - they are
+converted to uppercase before consulting the INI file. Hence INI entries that
+contain lowercase characters can not be accessed from G-code.
 
 * '#<_hal[HAL item]>'
   Allows G-code programs to read the values of HAL pins Variable access is

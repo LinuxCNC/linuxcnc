@@ -4,7 +4,15 @@ ver 3.5.0
    the M6/M61 remap with the G43 command to the INI configuration.
    Internal AUTOMATIC_G43 caused bugs in some configurations and situations.
 
+ver 3.4.9
+- Fix problems with duplicated entries in the preferences file
+- Remove Gtk.Paned for upper main area (introduced in 3.4.0)
+- Fix wrong states of spindle button images after program abort
+
 ver 3.4.8
+ - Remove some deprecation warnings (#3130)
+ - Migrate to GtKSourceview 4 (#3083)
+ - Don't hide recurrent gcode errors (#2947, thanks Sigma1912)
  - re-ordered settings pages to have all appearance-related on one page
  - add configuration for 800x600 screens
  - fix gremlin view p wasn't applied at startup
