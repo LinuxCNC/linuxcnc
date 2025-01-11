@@ -1960,7 +1960,7 @@ class gmoccapy(object):
                 except:
                     pass
         temp = 0
-        theme_name = self.prefs.getpref("Gtk_theme", "Follow System Theme", str)
+        theme_name = self.prefs.getpref("gtk_theme", "Follow System Theme", str)
         for index, theme in enumerate(themes):
             model.append((theme,))
             if theme == theme_name:
@@ -2206,7 +2206,7 @@ class gmoccapy(object):
         names = []
         default_names = self.widgets.offsetpage1.get_names()
         for system, name in default_names:
-            system_name = "system_name_{0}".format(system)
+            system_name = "system_name_{0}".format(system).lower()
             name = self.prefs.getpref(system_name, name, str)
             names.append([system, name])
         self.widgets.offsetpage1.set_names(names)
@@ -2327,7 +2327,7 @@ class gmoccapy(object):
         else:
             names = self.widgets.offsetpage1.get_names()
             for system, name in names:
-                system_name = "system_name_{0}".format(system)
+                system_name = "system_name_{0}".format(system).lower()
                 self.prefs.putpref(system_name, name)
             page.hide()
 
@@ -4405,7 +4405,7 @@ class gmoccapy(object):
         if active is None:
             return
         theme = widget.get_model()[active][0]
-        self.prefs.putpref('Gtk_theme', theme)
+        self.prefs.putpref("gtk_theme", theme)
         if theme == "Follow System Theme":
             theme = self.default_theme
         settings = Gtk.Settings.get_default()
