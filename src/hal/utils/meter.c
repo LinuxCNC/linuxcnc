@@ -177,10 +177,10 @@ int main(int argc, gchar * argv[])
             n++;
             if ( argc > n ){
                 rtapi_strxcpy(buf,argv[n]);
-                for (i=0; i< strlen(argv[n]); i++) {
+                for (i=0; i< (int)strlen(argv[n]); i++) {
                     if (isdigit(buf[i]) == 0) { break; } 
                 }
-                if (strlen(argv[n]) == i){
+                if ((int)strlen(argv[n]) == i){
                     width =  atoi(argv[n]);
                     n++;
                 }

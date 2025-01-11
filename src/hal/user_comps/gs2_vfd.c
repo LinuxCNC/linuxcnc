@@ -168,7 +168,8 @@ static void quit(int sig) {
 static int comm_delay = 0; // JET delay counter for at-speed
 
 int match_string(char *string, char **matches) {
-    int len, which, match;
+    size_t len;
+    int which, match;
     which=0;
     match=-1;
     if ((matches==NULL) || (string==NULL)) return -1;

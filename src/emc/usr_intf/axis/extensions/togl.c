@@ -154,7 +154,7 @@ static LRESULT (CALLBACK *tkWinChildProc)(HWND hwnd, UINT message,
 
 /* The constant DUMMY_WINDOW is used to signal window creation 
    failure from the Togl_CreateWindow() */
-#define DUMMY_WINDOW -1
+#define DUMMY_WINDOW ((Window)-1)
 
 #define ALL_EVENTS_MASK 	\
    (KeyPressMask |		\
