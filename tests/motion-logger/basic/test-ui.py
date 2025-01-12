@@ -64,7 +64,7 @@ end_log('builtin-startup')
 for ngc in glob.glob('*.ngc'):
     if ngc == 'reset.ngc': continue
 
-    m = re.match('(.*)\.ngc', ngc)
+    m = re.match('(.*)\\.ngc', ngc)
     basename = m.group(1)
 
     c.program_open('reset.ngc')
