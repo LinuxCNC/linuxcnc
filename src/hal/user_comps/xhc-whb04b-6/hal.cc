@@ -68,6 +68,7 @@ Hal::Hal(Profiles::HalRequestProfile halRequestProfile) :
     mStepMode(HandwheelStepmodes::Mode::MPG),
     mHalRequestProfile(halRequestProfile)
 {
+    (void)mStepMode;
 }
 // ----------------------------------------------------------------------
 Hal::~Hal()
