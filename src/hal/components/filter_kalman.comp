@@ -71,11 +71,11 @@ typedef hal_float_t D; // to Keep code synchronized with C++ based TrivialKalman
 
 // Based on: https://github.com/dwrobel/TrivialKalmanFilter/blob/master/src/TrivialKalmanFilter.h
 // Assumes simplified model
-static const D k    = 1;
+//static const D k  = 1;
 static const D Bk   = 0;
 static const D uk   = 0;
 static const D Fk   = 1;
-static const D T    = 1;
+//static const D T  = 1;
 static const D Fk_T = 1; // pow(Fk, T);
 static const D Hk   = 1;
 static const D Hk_T = 1; // pow(Hk, T);

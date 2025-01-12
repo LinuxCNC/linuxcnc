@@ -567,7 +567,7 @@ int _hal_pin_bit_newf(hal_pin_dir_t dir, hal_bit_t ** data_ptr_addr, int comp_id
     }
 }
 
-static void hal_setup()
+static int hal_setup()
 {
 	int r, i;
 
@@ -661,7 +661,7 @@ static void hal_setup()
     r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->jog_plus_a), hal_comp_id, "%s.jog.plus-a", modname);
     r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->jog_minus_a), hal_comp_id, "%s.jog.minus-a", modname);
 
-	return;
+	return r;
 }
 
 int read_ini_file(char *filename)
@@ -768,7 +768,10 @@ int main (int argc,char **argv)
     }
     stepsize_last_idx  =  idx - 1;
 
-	hal_setup();
+	if(hal_setup()) {
+		fprintf(stderr, "%s: ERROR: hal pin creation failed\n", modname);
+		exit(EXIT_FAILURE);
+	}
 
     signal(SIGINT, quit);
 	signal(SIGTERM, quit);
