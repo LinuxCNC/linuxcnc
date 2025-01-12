@@ -1077,14 +1077,6 @@ hm2_spix-objs  :=			  \
     hal/drivers/mesa-hostmot2/llio_info.o \
     hal/drivers/mesa-hostmot2/eshellf.o \
     $(MATHSTUB)
-hm2_spix-objs  :=			  \
-    hal/drivers/mesa-hostmot2/hm2_spix.o  \
-    hal/drivers/mesa-hostmot2/spix_rpi5.o \
-    hal/drivers/mesa-hostmot2/spix_rpi3.o \
-    hal/drivers/mesa-hostmot2/spix_spidev.o \
-    hal/drivers/mesa-hostmot2/llio_info.o \
-    hal/drivers/mesa-hostmot2/eshellf.o   \
-    $(MATHSTUB)
 hm2_test-objs :=			  \
     hal/drivers/mesa-hostmot2/hm2_test.o  \
     hal/drivers/mesa-hostmot2/bitfile.o   \
