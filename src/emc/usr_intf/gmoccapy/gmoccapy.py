@@ -5187,6 +5187,7 @@ class gmoccapy(object):
         self.widgets.ntb_preview.hide()
         self.widgets.grid_DRO.hide()
         self.widgets.vbox14.hide()
+        self.widgets.vbox_jog.set_hexpand(True)
         self.widgets.box_dro_side.hide()
         if not self.widgets.vbx_jog.get_visible():
             self.widgets.vbx_jog.set_visible(True)
@@ -5265,6 +5266,7 @@ class gmoccapy(object):
             self.widgets.ntb_preview.show()
             self.widgets.grid_DRO.show()
             self.widgets.vbox14.show()
+            self.widgets.vbox_jog.set_hexpand(False)
             self.widgets.box_dro_side.show()
             self.widgets.gcode_view.set_sensitive(False)
             self.widgets.btn_save.set_sensitive(True)
