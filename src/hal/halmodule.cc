@@ -1700,12 +1700,19 @@ static int pystream_init(PyObject *_self, PyObject *args, PyObject *kw) {
 PyObject *stream_read(PyObject *_self, PyObject *unused) {
     streamobj *self = (streamobj *)_self;
     int n = PyBytes_Size(self->pyelt);
-    hal_stream_data buf[n];
-    if(hal_stream_read(&self->stream, buf, &self->sampleno) < 0)
+    if(n <= 0)
         Py_RETURN_NONE;
+    hal_stream_data *buf = new hal_stream_data[n];
+    if(hal_stream_read(&self->stream, buf, &self->sampleno) < 0) {
+        delete[] buf;
+        Py_RETURN_NONE;
+    }
 
     PyObject *r = PyTuple_New(n);
-    if(!r) return 0;
+    if(!r) {
+        delete[] buf;
+        return 0;
+    }
 
     for(int i=0; i<n; i++) {
         PyObject *o;
@@ -1718,10 +1725,12 @@ PyObject *stream_read(PyObject *_self, PyObject *unused) {
         }
         if(!o) {
             Py_DECREF(r);
+            delete[] buf;
             return 0;
         }
         PyTuple_SET_ITEM(r, i, o);
     }
+    delete[] buf;
     return r;
 }
 
@@ -1741,21 +1750,25 @@ PyObject *stream_write(PyObject *_self, PyObject *args) {
         return NULL;
     }
 
-    hal_stream_data buf[n];
+    hal_stream_data *buf = new hal_stream_data[n];
     for(int i=0; i<n; i++) {
         PyObject *o = PyTuple_GET_ITEM(data, i);
         switch(PyBytes_AS_STRING(self->pyelt)[i]) {
         case 'b': buf[i].b = PyObject_IsTrue(o); break;
-        case 'f': if(!from_python(o, &buf[i].f)) return NULL; break;
-        case 's': if(!from_python(o, &buf[i].s)) return NULL; break;
-        case 'u': if(!from_python(o, &buf[i].u)) return NULL; break;
+        case 'f': if(!from_python(o, &buf[i].f)) { delete[] buf; return NULL; } break;
+        case 's': if(!from_python(o, &buf[i].s)) { delete[] buf; return NULL; } break;
+        case 'u': if(!from_python(o, &buf[i].u)) { delete[] buf; return NULL; } break;
         default: memset(&buf[i], 0, sizeof(buf[i])); break;
         }
     }
     int r = hal_stream_write(&self->stream, buf);
     if(r < 0) {
-        errno = -r; PyErr_SetFromErrno(PyExc_IOError); return 0;
+        errno = -r;
+        PyErr_SetFromErrno(PyExc_IOError);
+        delete[] buf;
+        return 0;
     }
+    delete[] buf;
     Py_RETURN_NONE;
 }
 
