@@ -2599,7 +2599,14 @@ static void save_comps(FILE *dst)
 	next = comp->next_ptr;
     }
 
-    hal_comp_t *comps[ncomps], **compptr = comps;
+    if(!ncomps) {
+        // No components found, bail
+        rtapi_mutex_give(&(hal_data->mutex));
+        return;
+	}
+
+    hal_comp_t **comps = new hal_comp_t*[ncomps];
+    hal_comp_t **compptr = comps;
     next = hal_data->comp_list_ptr;
     while(next != 0)  {
 	comp = SHMPTR(next);
@@ -2621,6 +2628,9 @@ static void save_comps(FILE *dst)
                 (char *)SHMPTR(comp->insmod_args));
         }
     }
+
+    delete[] comps;
+
 #if 0  /* newinst deferred to version 2.2 */
     next = hal_data->comp_list_ptr;
     while (next != 0) {
