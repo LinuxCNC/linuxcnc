@@ -206,13 +206,10 @@ class AxisToolButton(QToolButton, IndicatedMixIn):
             STATUS.emit('update-machine-log', 'Unhomed Axis %s' % self._joint, 'TIME')
 
     def goToG53(self):
-        j = "XYZABCUVW"
-        jnum = j.find(self._axis)
-        ACTION.CALL_MDI('G53 G0 {}0'.format(INFO.GET_NAME_FROM_JOINT.get(jnum)))
+        ACTION.CALL_MDI('G53 G0 {}0'.format(self._axis))
+
     def goToG5x(self):
-        j = "XYZABCUVW"
-        jnum = j.find(self._axis)
-        ACTION.CALL_MDI('G0 {}0'.format(INFO.GET_NAME_FROM_JOINT.get(jnum)))
+        ACTION.CALL_MDI('G0 {}0'.format(self._axis))
 
     def _a_from_j(self, axis):
         if STATUS.is_joint_mode():
