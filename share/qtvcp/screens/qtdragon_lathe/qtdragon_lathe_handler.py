@@ -2001,7 +2001,7 @@ class HandlerClass:
                 STATUS.emit('dialog-update',{'NAME':name,'response':answer})
 
     def log_version(self):
-        if INFO.RIP:
+        if INFO.RIP_FLAG:
             t = _translate("HandlerClass","(RIP)")
         else:
             t = _translate("HandlerClass","(Installed)")

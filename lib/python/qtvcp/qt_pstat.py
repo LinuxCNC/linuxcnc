@@ -26,7 +26,7 @@ from . import logger
 LOG = logger.getLogger(__name__)
 
 
-# Force the log level for this module
+# Force the log level for this modul
 # LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 # BASE is the absolute path to linuxcnc base
@@ -50,15 +50,23 @@ class _PStat(object):
             self.PLUGINDIR = os.path.join(here,"plugins")
             self.VISMACHDIR = os.path.join(self.LIBDIR, "qt_vismach")
 
-            # share directory moves when using RIP vrs installed
-            home = os.environ.get('EMC2_HOME', '/usr')
-            if home is None:
-                self.RIP = False
-                home = os.environ.get('LINUXCNC_HOME', '/usr')
-                if home is None:
-                    LOG.error('Linuxcnc Home directory not found in environmental variable: {}'.format(home))
+            self.RIP_FLAG = bool(os.environ.get('LINUXCNC_RIP_FLAG', False))
+
+            if self.RIP_FLAG:
+                home = os.environ.get('EMC2_HOME', None)
             else:
-                self.RIP = True
+                home = os.environ.get('LINUXCNC_HOME', None)
+                # fallback until the RIP_FLAG is common
+                if home is None:
+                    home = os.environ.get('EMC2_HOME', None)
+
+            if home is None:
+                if self.RIP_FLAG:
+                    LOG.error('Linuxcnc Home directory not found in environmental variable: EMC3_HOME')
+                else:
+                    LOG.error('Linuxcnc Home directory not found in environmental variable: LINUXCNC_HOME')
+
+            # share directory moves when using RIP vrs installed
             self.SHAREDIR = os.path.join(home,"share", "qtvcp")
 
             self.IMAGEDIR = os.path.join(self.SHAREDIR,  "images")

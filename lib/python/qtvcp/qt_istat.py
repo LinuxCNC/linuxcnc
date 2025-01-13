@@ -20,22 +20,20 @@ except:
 
 INIPATH = os.environ.get('INI_FILE_NAME', '/dev/null')
 
-# RUN IN PLACE still uses EMC2
-HOME = os.environ.get('EMC2_HOME', '/usr')
-if HOME is None:
-    RIP = False
-    # installed uses linuxcnc
-    HOME = os.environ.get('LINUXCNC_HOME', '/usr')
-    if HOME is None:
-        log.error('Linuxcnc Home directory not found in environmental variable: {}'.format(HOME))
+RIP_FLAG = bool(os.environ.get('LINUXCNC_RIP_FLAG', False))
+
+if RIP_FLAG:
+    HOME = os.environ.get('EMC2_HOME', None)
 else:
-    RIP = True
+    HOME = os.environ.get('LINUXCNC_HOME', None)
+    # fallback until the RIP_FLAG is common
+    if HOME is None:
+        HOME = os.environ.get('EMC2_HOME', None)
 
 if HOME is not None:
     IMAGEDIR = os.path.join(HOME, "share", "qtvcp", "images")
 else:
     IMAGEDIR = None
-
 
 class _IStat(object):
     def __init__(self, ini=None):
@@ -49,7 +47,7 @@ class _IStat(object):
         self.ENVIRO_INI_PATH = INIPATH
 
         # Are we using RIP or installed version?
-        self.RIP = RIP
+        self.RIP_FLAG = RIP_FLAG
 
         if not self.LINUXCNC_IS_RUNNING:
             # Reset the log level for this module
