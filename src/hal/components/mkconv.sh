@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 if [ $# -lt 2 ]; then
 	echo "Too few arguments to $(basename "$0")." >&2
@@ -73,30 +73,28 @@ minval() {
 #
 
 # Enable (val > MAX) test
-MAXEN="s,@MAXEN@,$([[ \
-		"$1" == "float" || \
-		"$2" == "bit" || \
-		( "$2" == "s32" && "$1" != "bit" ) || \
-		( "$1" == "u64" && "$2" != "float" ) || \
-		( "$1" == "s64" && "$2" == "u32" ) \
-	]]; echo $?),g"
+test	"$1" = 'float' -o \
+	"$2" = 'bit' -o \
+	\( "$2" = 's32' -a "$1" != 'bit' \) -o \
+	\( "$1" = 'u64' -a "$2" != 'float' \) -o \
+	\( "$1" = 's64' -a "$2" = 'u32' \)
+MAXEN="s,@MAXEN@,$?,g"
 
 # Enable (val < MIN) test
-MINEN="s,@MINEN@,$([[ \
-		"$1" == "float" || \
-		( "$1" == "s64" && "$2" != "float" ) || \
-		( "$1" == "s32" && ( "$2" == "u32" || "$2" == "u64" || "$2" == "bit" ) ) \
-	]]; echo $?),g"
+test	"$1" = 'float' -o \
+	\( "$1" = 's64' -a "$2" != 'float' \) -o \
+	\( "$1" = 's32' -a \( "$2" = 'u32' -o "$2" = 'u64' -o "$2" = 'bit' \) \)
+MINEN="s,@MINEN@,$?,g"
 
 # Disable clamp code
-CC="s,@CC@,$([[ \
-		"$2" == "float" || \
-		"$1" == "bit" || \
-		( "$1" == "u32" && ( "$2" == "u64" || "$2" == "s64" ) ) || \
-		( "$1" == "s32" && "$2" == "s64" ) \
-	]] && echo "//"),g"
+if test	"$2" = 'float' -o \
+	"$1" = 'bit' -o \
+	\( "$1" = 'u32' -a \( "$2" = 'u64' -o "$2" = 's64' \) \) -o \
+	\( "$1" = 's32' -a "$2" = 's64' \)
+then CC="s,@CC@,//,g"; else CC="s,@CC@,,g"; fi
 
-FP="s,@FP@,$([[ "$1" == "float" || "$2" == "float" ]] || echo "nofp"),g"
+if test "$1" = 'float' -o "$2" = 'float'; then FP="s,@FP@,,g"; else FP="s,@FP@,nofp,g"; fi
+
 IN="s,@IN@,$1,g"
 OUT="s,@OUT@,$2,g"
 MIN="s,@MIN@,$(minval "$2"),g"
