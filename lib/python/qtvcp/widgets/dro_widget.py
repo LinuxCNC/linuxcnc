@@ -45,8 +45,8 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
         self._joint_type = 1
         self.diameter = False
         self.reference_type = 0
-        # joint index of 9 axis
-        self.joint_number = 0
+        # axis index of 9 axis
+        self.axis_index = 0
         # linuxcnc joint number
         self._jointNum = 0
         self.display_units_mm = 0
@@ -99,12 +99,12 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
             self.lastButton.setEnabled(state)
             menu.addAction(self.lastButton)
         if  self._showGoto:
-            text = 'Go To G53 Origin in {}'.format(INFO.GET_NAME_FROM_JOINT.get(self.joint_number))
+            text = 'Go To G53 Origin in {}'.format(INFO.GET_NAME_FROM_JOINT.get(self.axis_index))
             self.goToG53Button = QAction(QIcon('exit24.png'), text, self)
             self.goToG53Button.triggered.connect(self.goToG53)
             self.goToG53Button.setEnabled(state)
             menu.addAction(self.goToG53Button)
-            text = 'Go To G5x Origin in {}'.format(INFO.GET_NAME_FROM_JOINT.get(self.joint_number))
+            text = 'Go To G5x Origin in {}'.format(INFO.GET_NAME_FROM_JOINT.get(self.axis_index))
             self.goToG5xButton = QAction(QIcon('exit24.png'), text, self)
             self.goToG5xButton.triggered.connect(self.goToG5x)
             self.goToG5xButton.setEnabled(state)
@@ -117,12 +117,12 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
         STATUS.connect('homed', lambda w,d: self._home_status_polish(int(d), True))
         STATUS.connect('unhomed', lambda w,d: self._home_status_polish(int(d), False))
         # get position update from STATUS every 100 ms
-        if self.joint_number == 10:
+        if self.axis_index == 10:
             STATUS.connect('current-z-rotation', self.update_rotation)
         else:
-            self._jointNum = INFO.GET_JOINT_NUM_FROM_AXIS_INDEX.get(self.joint_number)
+            self._jointNum = INFO.GET_JOINT_NUM_FROM_AXIS_INDEX.get(self.axis_index)
             if self._jointNum is None:
-                LOG.debug('axis number {} not found in available-axis to joint conversion dict {} of widget: {}'.format(self.joint_number, INFO.GET_JOINT_NUM_FROM_AXIS_INDEX, self.objectName()))
+                LOG.debug('axis number {} not found in available-axis to joint conversion dict {} of widget: {}'.format(self.axis_index, INFO.GET_JOINT_NUM_FROM_AXIS_INDEX, self.objectName()))
                 self._jointNum = 0
 
             STATUS.connect('motion-mode-changed',self.motion_mode)
@@ -151,7 +151,7 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
     # polish widget so stylesheet sees the property change
     # some stylesheets color the text on home/unhome
     def _home_status_polish(self, d, state):
-        if d == self._jointNum or (self.joint_number==10 and d==1):
+        if d == self._jointNum or (self.axis_index==10 and d==1):
             self.setProperty('isHomed', state)
             self.style().unpolish(self)
             self.style().polish(self)
@@ -188,11 +188,11 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
                 if not self._mode and STATUS.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
                     self.setText(tmpl(joint[self._jointNum]))
                 else:
-                    self.setText(tmpl(absolute[self.joint_number]*self._scale))
+                    self.setText(tmpl(absolute[self.axis_index]*self._scale))
             elif self.reference_type == 1:
-                self.setText(tmpl(relative[self.joint_number]*self._scale))
+                self.setText(tmpl(relative[self.axis_index]*self._scale))
             elif self.reference_type == 2:
-                self.setText(tmpl(dtg[self.joint_number]*self._scale))
+                self.setText(tmpl(dtg[self.axis_index]*self._scale))
 
             elif self.reference_type == 10:
                 self.setText(tmpl(self._user*self._scale))
@@ -217,7 +217,7 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
     def _switch_modes(self, w, mode):
         self.diameter = mode
         # only joint 0 (X) can use diameter mode
-        if mode and self.joint_number == 0:
+        if mode and self.axis_index == 0:
             self._scale = 2.0
         else:
             self._scale = 1
@@ -238,7 +238,7 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
 
     def set_to_diameter(self):
         self.diameter = True
-        if self.joint_number == 0:
+        if self.axis_index == 0:
             self._scale = 2.0
 
     def set_to_radius(self):
@@ -262,14 +262,14 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
     def Zero(self):
         pos = self.get_current_position()
         if not pos is None:
-            axis = INFO.GET_NAME_FROM_JOINT.get(self.joint_number)
+            axis = "XYZABCUVW"[self.axis_index]
             ACTION.SET_AXIS_ORIGIN(axis, 0)
             STATUS.emit('update-machine-log', 'Zeroed Axis %s' % axis, 'TIME')
 
     def SetOrigin(self):
         pos = self.get_current_position()
         if not pos is None:
-            axis = INFO.GET_NAME_FROM_JOINT.get(self.joint_number)
+            axis = "XYZABCUVW"[self.axis_index]
             mess = {'NAME':self.dialog_code,'ID':'%s__' % self.objectName(),
             'AXIS':axis,
             'CURRENT':pos,
@@ -293,7 +293,7 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
     def Divide(self):
         pos = self.get_current_position()
         if not pos is None:
-            axis = INFO.GET_NAME_FROM_JOINT.get(self.joint_number)
+            axis = "XYZABCUVW"[self.axis_index]
             try:
                 x = pos/2.0
                 ACTION.SET_AXIS_ORIGIN(axis, x)
@@ -305,7 +305,7 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
     def Last(self):
         pos = self.get_current_position()
         if not pos is None:
-            axis = INFO.GET_NAME_FROM_JOINT.get(self.joint_number)
+            axis = "XYZABCUVW"[self.axis_index]
             last = ACTION.GET_LAST_RECORDED_ORIGIN(axis)
             ACTION.SET_AXIS_ORIGIN(axis, last)
             text = 'Reset Axis %s from %f to Last Value: %f' %(axis, pos, last)
@@ -317,12 +317,12 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
         p,r,d = STATUS.get_position()
         if self.display_units_mm != INFO.MACHINE_IS_METRIC:
             r = INFO.convert_units_9(r)
-        return r[self.joint_number]
+        return r[self.axis_index]
 
     def goToG53(self):
-        ACTION.CALL_MDI('G53 G0 {}0'.format(INFO.GET_NAME_FROM_JOINT.get(self.joint_number)))
+        ACTION.CALL_MDI('G53 G0 {}0'.format(INFO.GET_NAME_FROM_JOINT.get(self.axis_index)))
     def goToG5x(self):
-        ACTION.CALL_MDI('G0 {}0'.format(INFO.GET_NAME_FROM_JOINT.get(self.joint_number)))
+        ACTION.CALL_MDI('G0 {}0'.format(INFO.GET_NAME_FROM_JOINT.get(self.axis_index)))
 
     #########################################################################
     # This is how designer can interact with our widget properties.
@@ -386,13 +386,13 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
     def setjoint_number(self, data):
         if data >10: data = 10
         if data < 0: data = 0
-        self.joint_number = data
+        self.axis_index = data
         if data < 10:
             self.set_joint_type(data)
     def getjoint_number(self):
-        return self.joint_number
+        return self.axis_index
     def resetjoint_number(self):
-        self.joint_number = 0
+        self.axis_index = 0
     Qjoint_number = QtCore.pyqtProperty(int, getjoint_number, setjoint_number, resetjoint_number)
 
     # user system Number
