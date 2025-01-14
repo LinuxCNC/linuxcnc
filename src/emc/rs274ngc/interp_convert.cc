@@ -3652,10 +3652,9 @@ int Interp::restore_settings(setup_pointer settings,
     if (!cmd.empty()) {
 	// the sequence can be multiline, separated by nl
 	// so split and execute each line
-	char *buf = new char[cmd.size() + 1];
-	strcpy(buf, cmd.c_str());
+	std::string cpy = cmd;
 	char *stateptr = NULL;
-	char *s = strtok_r(buf, "\n", &stateptr);
+	char *s = strtok_r(cpy.data(), "\n", &stateptr);
 	while (s != NULL) {
 	    int status = execute(s);
 	    if (status != INTERP_OK) {
@@ -3665,7 +3664,6 @@ int Interp::restore_settings(setup_pointer settings,
 	    }
 	    s = strtok_r(NULL, "\n", &stateptr);
 	}
-	delete[] buf;
 	write_g_codes((block_pointer) NULL, settings);
 	write_m_codes((block_pointer) NULL, settings);
 	write_settings(settings);
@@ -3723,10 +3721,9 @@ int Interp::restore_from_tag(StateTag const &tag)
     if (!cmd.empty()) {
         // the sequence can be multiline, separated by nl
         // so split and execute each line
-        char *buf = new char[cmd.size() + 1];
-        strcpy(buf, cmd.c_str());
+        std::string cpy = cmd;
         char *stateptr = NULL;
-        char *s = strtok_r(buf, "\n", &stateptr);
+        char *s = strtok_r(cpy.data(), "\n", &stateptr);
         while (s != NULL) {
             int status = execute(s);
             if (status != INTERP_OK) {
@@ -3737,7 +3734,6 @@ int Interp::restore_from_tag(StateTag const &tag)
             }
             s = strtok_r(NULL, "\n", &stateptr);
         }
-        delete[] buf;
         write_g_codes((block_pointer) NULL, &_setup);
         write_m_codes((block_pointer) NULL, &_setup);
         write_settings(&_setup);

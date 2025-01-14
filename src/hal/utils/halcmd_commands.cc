@@ -56,7 +56,7 @@
 #include <errno.h>
 #include <time.h>
 #include <fnmatch.h>
-
+#include <vector>
 
 static int unloadrt_comp(char *mod_name);
 static void print_comp_info(char **patterns);
@@ -2605,8 +2605,8 @@ static void save_comps(FILE *dst)
         return;
 	}
 
-    hal_comp_t **comps = new hal_comp_t*[ncomps];
-    hal_comp_t **compptr = comps;
+    std::vector<hal_comp_t *> comps(ncomps, nullptr);
+    hal_comp_t **compptr = comps.data();
     next = hal_data->comp_list_ptr;
     while(next != 0)  {
 	comp = SHMPTR(next);
@@ -2628,9 +2628,6 @@ static void save_comps(FILE *dst)
                 (char *)SHMPTR(comp->insmod_args));
         }
     }
-
-    delete[] comps;
-
 #if 0  /* newinst deferred to version 2.2 */
     next = hal_data->comp_list_ptr;
     while (next != 0) {

@@ -350,13 +350,9 @@ static string read_string(int fd) {
         throw ReadError();
     if(!len)
         return string();
-    char *buf = new char[len];
-    if(read(fd, buf, len) != len) {
-        delete[] buf;
+    string str(len, 0);
+    if(read(fd, str.data(), len) != len)
         throw ReadError();
-    }
-    string str(buf, len);
-    delete[] buf;
     return str;
 }
 
