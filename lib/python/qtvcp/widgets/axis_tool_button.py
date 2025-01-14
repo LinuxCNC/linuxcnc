@@ -43,7 +43,6 @@ class AxisToolButton(QToolButton, IndicatedMixIn):
         super(AxisToolButton, self).__init__(parent)
         self._joint = 0
         self._axis = ''
-        self._last = 0
         self._block_signal = False
         self._halpin_option = True
         self.dialog_code = 'ENTRY'
@@ -146,7 +145,6 @@ class AxisToolButton(QToolButton, IndicatedMixIn):
     def Zero(self):
         axis, now = self._a_from_j(self._axis)
         if axis:
-            self._last = now
             ACTION.SET_AXIS_ORIGIN(axis, 0)
             STATUS.emit('update-machine-log', 'Zeroed Axis %s' % axis, 'TIME')
 
@@ -169,14 +167,12 @@ class AxisToolButton(QToolButton, IndicatedMixIn):
         if code and name and num is not None:
             LOG.debug('message return:{}'.format (message))
             axis = message.get('AXIS')
-            self._last = message.get('CURRENT')
             ACTION.SET_AXIS_ORIGIN(axis, num)
             STATUS.emit('update-machine-log', 'Set Origin of Axis %s to %f' %(axis, num), 'TIME')
 
     def Divide(self):
         axis, now = self._a_from_j(self._axis)
         if axis:
-            self._last = now
             try:
                 x = now/2.0
                 ACTION.SET_AXIS_ORIGIN(axis, x)
@@ -188,10 +184,10 @@ class AxisToolButton(QToolButton, IndicatedMixIn):
     def Last(self):
         axis, now = self._a_from_j(self._axis)
         if axis:
-            ACTION.SET_AXIS_ORIGIN(axis, self._last)
-            text = 'Reset Axis %s from %f to Last Value: %f' %(axis, now, self._last)
+            last = ACTION.GET_LAST_RECORDED_ORIGIN(axis)
+            ACTION.SET_AXIS_ORIGIN(axis, last)
+            text = 'Reset Axis %s from %f to Last Value: %f' %(axis, now, last)
             STATUS.emit('update-machine-log', text, 'TIME')
-            self._last = now
 
     def Home(self):
         #axis, now = self._a_from_j(self._axis)
@@ -211,6 +207,9 @@ class AxisToolButton(QToolButton, IndicatedMixIn):
     def goToG5x(self):
         ACTION.CALL_MDI('G0 {}0'.format(self._axis))
 
+    # if in joint mode -nope
+    # if axis is '' the find the selected axis from gstat
+    # find the joint number so we can get current position
     def _a_from_j(self, axis):
         if STATUS.is_joint_mode():
             return None, None
@@ -277,8 +276,6 @@ class AxisToolButton(QToolButton, IndicatedMixIn):
 
     def _switch_units(self, widget, data):
         self.display_units_mm = data
-        if self.display_units_mm != INFO.MACHINE_IS_METRIC:
-            self._last = INFO.convert_units(self._last)
 
     #########################################################################
     # This is how designer can interact with our widget properties.
