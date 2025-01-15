@@ -208,7 +208,7 @@ int tooldata_db_getall() {
         int nonran_start_idx = 1;
         tooldata_add_init(nonran_start_idx);
     }
-    int ct=1;
+    //int ct=1;
     while (1) {
         char reply[CANON_TOOL_ENTRY_LEN];
         if (read_reply(reply,sizeof(reply)) <0) {
@@ -223,7 +223,7 @@ int tooldata_db_getall() {
         }
 
         int foundidx = tooldata_read_entry(reply);
-        ct++;
+        //ct++;
         if (foundidx < 0) {
             fprintf(stderr,"!!!tooldata_db_getall %s\n",reply);
             return -1;

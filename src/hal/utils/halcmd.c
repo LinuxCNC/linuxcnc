@@ -724,7 +724,7 @@ static int strlimcpy(char **dest, char *src, int srclen, int *destspace) {
 */
 static int replace_vars(char *source_str, char *dest_str, int max_chars, char **detail)
 {
-    int retval = 0, loopcount=0;
+    int retval = 0;
     int next_delim, remaining, buf_space;
     char *replacement, sec[128], var[128];
     static char info[256];
@@ -736,7 +736,6 @@ static int replace_vars(char *source_str, char *dest_str, int max_chars, char **
     *dest_str='\0';			/* return null string if input is null string */
     buf_space = max_chars-1;		/* leave space for terminating null */
     while ((remaining = strlen(sp)) > 0) {
-	loopcount++;
 	next_delim=strcspn(sp, "$[");
 	if (strlimcpy(&dp, sp, next_delim, &buf_space) < 0)
 	    return -6;
