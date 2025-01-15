@@ -543,6 +543,7 @@ FeedRotaryButton::FeedRotaryButton(const KeyCode& keyCode,
     mStepSize(0),
     mEventListener(listener)
 {
+    (void)mEventListener;
 }
 // ----------------------------------------------------------------------
 FeedRotaryButton::~FeedRotaryButton()
@@ -647,6 +648,7 @@ AxisRotaryButton::AxisRotaryButton(const KeyCode& keyCode, KeyEventListener* lis
     RotaryButton(keyCode),
     mEventListener(listener)
 {
+    (void)mEventListener;
 }
 // ----------------------------------------------------------------------
 AxisRotaryButton::~AxisRotaryButton()
@@ -681,6 +683,7 @@ Handwheel::Handwheel(const FeedRotaryButton& feedButton, KeyEventListener* liste
     mWheelCout(&std::cout),
     mPrefix("pndnt ")
 {
+    (void)mFeedButton;
 }
 // ----------------------------------------------------------------------
 Handwheel::~Handwheel()
@@ -753,6 +756,7 @@ ButtonsState::ButtonsState(KeyEventListener* listener, const ButtonsState* previ
     mPreviousState(previousState),
     mEventListener(listener)
 {
+    (void)mPreviousState;
 }
 // ----------------------------------------------------------------------
 ButtonsState::~ButtonsState()

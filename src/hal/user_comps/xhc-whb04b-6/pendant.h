@@ -588,8 +588,8 @@ private:
     bool         mIsLeadModeFeed = false;
     bool         mIsStepMode_5_10 = false;
 
-    float mScale;
-    float mMaxVelocity;
+    // float mScale;
+    // float mMaxVelocity;
 
     const char  * mPrefix;
     std::ostream  mDevNull{nullptr};
