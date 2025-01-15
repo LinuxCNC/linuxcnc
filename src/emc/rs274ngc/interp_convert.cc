@@ -3652,17 +3652,17 @@ int Interp::restore_settings(setup_pointer settings,
     if (!cmd.empty()) {
 	// the sequence can be multiline, separated by nl
 	// so split and execute each line
-        char buf[cmd.size() + 1];
-        strncpy(buf, cmd.c_str(), sizeof(buf));
-	char *last = buf;
-	char *s;
-	while ((s = strtok_r(last, "\n", &last)) != NULL) {
+	std::string cpy = cmd;
+	char *stateptr = NULL;
+	char *s = strtok_r(cpy.data(), "\n", &stateptr);
+	while (s != NULL) {
 	    int status = execute(s);
 	    if (status != INTERP_OK) {
 		char currentError[LINELEN+1];
 		rtapi_strxcpy(currentError,getSavedError());
 		CHKS(status, _("M7x: restore_settings failed executing: '%s': %s"), s, currentError);
 	    }
+	    s = strtok_r(NULL, "\n", &stateptr);
 	}
 	write_g_codes((block_pointer) NULL, settings);
 	write_m_codes((block_pointer) NULL, settings);
@@ -3721,11 +3721,10 @@ int Interp::restore_from_tag(StateTag const &tag)
     if (!cmd.empty()) {
         // the sequence can be multiline, separated by nl
         // so split and execute each line
-        char buf[cmd.size() + 1];
-        strncpy(buf, cmd.c_str(), sizeof(buf));
-        char *last = buf;
-        char *s;
-        while ((s = strtok_r(last, "\n", &last)) != NULL) {
+        std::string cpy = cmd;
+        char *stateptr = NULL;
+        char *s = strtok_r(cpy.data(), "\n", &stateptr);
+        while (s != NULL) {
             int status = execute(s);
             if (status != INTERP_OK) {
                 char currentError[LINELEN+1];
@@ -3733,6 +3732,7 @@ int Interp::restore_from_tag(StateTag const &tag)
                 CHKS(status, _("Failed to restore interp state on abort "
 			       "'%s': %s"), s, currentError);
             }
+            s = strtok_r(NULL, "\n", &stateptr);
         }
         write_g_codes((block_pointer) NULL, &_setup);
         write_m_codes((block_pointer) NULL, &_setup);

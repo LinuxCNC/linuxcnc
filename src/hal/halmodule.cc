@@ -20,6 +20,7 @@
 #include <structmember.h>
 #include <string>
 #include <map>
+#include <vector>
 using namespace std;
 
 #include "config.h"
@@ -1742,8 +1743,10 @@ static int pystream_init(PyObject *_self, PyObject *args, PyObject *kw) {
 PyObject *stream_read(PyObject *_self, PyObject *unused) {
     streamobj *self = (streamobj *)_self;
     int n = PyBytes_Size(self->pyelt);
-    hal_stream_data buf[n];
-    if(hal_stream_read(&self->stream, buf, &self->sampleno) < 0)
+    if(n <= 0)
+        Py_RETURN_NONE;
+    vector<hal_stream_data> buf(n);
+    if(hal_stream_read(&self->stream, buf.data(), &self->sampleno) < 0)
         Py_RETURN_NONE;
 
     PyObject *r = PyTuple_New(n);
@@ -1783,7 +1786,7 @@ PyObject *stream_write(PyObject *_self, PyObject *args) {
         return NULL;
     }
 
-    hal_stream_data buf[n];
+    vector<hal_stream_data> buf(n);
     for(int i=0; i<n; i++) {
         PyObject *o = PyTuple_GET_ITEM(data, i);
         switch(PyBytes_AS_STRING(self->pyelt)[i]) {
@@ -1794,7 +1797,7 @@ PyObject *stream_write(PyObject *_self, PyObject *args) {
         default: memset(&buf[i], 0, sizeof(buf[i])); break;
         }
     }
-    int r = hal_stream_write(&self->stream, buf);
+    int r = hal_stream_write(&self->stream, buf.data());
     if(r < 0) {
         errno = -r; PyErr_SetFromErrno(PyExc_IOError); return 0;
     }

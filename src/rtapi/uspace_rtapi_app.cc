@@ -346,14 +346,21 @@ static int read_number(int fd) {
 
 static string read_string(int fd) {
     int len = read_number(fd);
-    char buf[len];
-    if(read(fd, buf, len) != len) throw ReadError();
-    return string(buf, len);
+    if(len < 0)
+        throw ReadError();
+    if(!len)
+        return string();
+    string str(len, 0);
+    if(read(fd, str.data(), len) != len)
+        throw ReadError();
+    return str;
 }
 
 static vector<string> read_strings(int fd) {
     vector<string> result;
     int count = read_number(fd);
+    if(count < 0)
+        return result;
     for(int i=0; i<count; i++) {
         result.push_back(read_string(fd));
     }
