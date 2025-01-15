@@ -493,11 +493,11 @@ extern int hal_port_alloc(unsigned size, hal_port_t *port);
 
 #define HAL_STREAM_MAGIC_NUM		0x4649464F
 struct hal_stream_shm {
-    unsigned int magic;
-    volatile unsigned int in;
-    volatile unsigned int out;
+    unsigned magic;
+    volatile unsigned in;
+    volatile unsigned out;
     unsigned this_sample;
-    int depth;
+    unsigned depth;
     int num_pins;
     unsigned long num_overruns, num_underruns;
     hal_type_t type[HAL_STREAM_MAX_PINS];

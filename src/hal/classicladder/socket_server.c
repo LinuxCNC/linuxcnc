@@ -56,8 +56,8 @@
 HANDLE ThreadHandle = NULL;
 DWORD ThreadId;
 #else
-#define SOCK_FD unsigned int
-#define SOCK_INVALID -1
+#define SOCK_FD int
+#define SOCK_INVALID (-1)
 pthread_t thread_socket_server;
 #endif
 

@@ -4111,7 +4111,7 @@ int halpr_parse_types(hal_type_t type[HAL_STREAM_MAX_PINS], const char *cfg)
     return n;
 }
 
-int hal_stream_create(hal_stream_t *stream, int comp, int key, int depth, const char *typestring)
+int hal_stream_create(hal_stream_t *stream, int comp, int key, unsigned depth, const char *typestring)
 {
     int result = 0;
     hal_type_t type[HAL_STREAM_MAX_PINS];
@@ -4144,13 +4144,13 @@ extern void hal_stream_destroy(hal_stream_t *stream)
     hal_stream_detach(stream);
 }
 
-static int hal_stream_advance(hal_stream_t *stream, int n) {
+static unsigned hal_stream_advance(hal_stream_t *stream, unsigned n) {
     n = n + 1;
     if(n >= stream->fifo->depth) n = 0;
     return n;
 }
 
-static int hal_stream_newin(hal_stream_t *stream) {
+static unsigned hal_stream_newin(hal_stream_t *stream) {
     return hal_stream_advance(stream, stream->fifo->in);
 }
 
@@ -4170,7 +4170,7 @@ int hal_stream_depth(hal_stream_t *stream) {
     return result;
 }
 
-int hal_stream_maxdepth(hal_stream_t *stream) {
+unsigned hal_stream_maxdepth(hal_stream_t *stream) {
     return stream->fifo->depth;
 }
 
@@ -4280,7 +4280,7 @@ int hal_stream_attach(hal_stream_t *stream, int comp_id, int key, const char *ty
         }
     }
     /* now use data in fifo structure to calculate proper shmem size */
-    int depth = fifo->depth;
+    unsigned depth = fifo->depth;
     int pin_count = fifo->num_pins;
     size_t size = sizeof(struct hal_stream_shm) + sizeof(union hal_stream_data) * depth * (1+pin_count);
     /* close shmem, re-open with proper size */

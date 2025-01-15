@@ -748,7 +748,7 @@ static int replace_vars(char *source_str, char *dest_str, int max_chars, char **
 		if (*sp=='(') {		/* look for a parenthesized var */
 		    varP=++sp;
 		    next_delim=strcspn(varP, ")");
-		    if (next_delim >= strlen(varP))	/* error - no matching parens */
+		    if (next_delim >= (int)strlen(varP))	/* error - no matching parens */
 			return -1;
 		    sp++;
 		} else next_delim = strspn(varP, words);
@@ -773,7 +773,7 @@ static int replace_vars(char *source_str, char *dest_str, int max_chars, char **
 	    case '[':
 		secP = sp;
 		next_delim = strcspn(secP, "]");
-		if (next_delim >= strlen(secP))	/* error - no matching square bracket */
+		if (next_delim >= (int)strlen(secP))	/* error - no matching square bracket */
 		    return -3;
 		if (next_delim > 127)		/* section name too long */
 		    return -7;
@@ -784,7 +784,7 @@ static int replace_vars(char *source_str, char *dest_str, int max_chars, char **
 		if (*sp=='(') {		/* look for a parenthesized var */
 		    varP=++sp;
 		    next_delim=strcspn(varP, ")");
-		    if (next_delim > strlen(varP))	/* error - no matching parens */
+		    if (next_delim > (int)strlen(varP))	/* error - no matching parens */
 			return -1;
 		    sp++;
 		} else next_delim = strspn(varP, words);

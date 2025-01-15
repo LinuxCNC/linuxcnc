@@ -413,14 +413,10 @@ void capture_complete(void)
 
 static void init_usr_control_struct(void *shmem)
 {
-    char *cp;
     int n, skip;
 
     /* first clear entire user struct to all zeros */
-    cp = (char *) ctrl_usr;
-    for (n = 0; n < sizeof(scope_usr_control_t); n++) {
-	cp[n] = 0;
-    }
+    memset(ctrl_usr, 0, sizeof(scope_usr_control_t));
 
     /* save pointer to shared control structure */
     ctrl_shm = shmem;

@@ -29,7 +29,7 @@
 
 #include <rtapi_errno.h>
 #include <rtapi_mutex.h>
-static int msg_level = RTAPI_MSG_ERR;	/* message printing level */
+static msg_level_t msg_level = RTAPI_MSG_ERR;	/* message printing level */
 
 #include <sys/ipc.h>		/* IPC_* */
 #include <sys/shm.h>		/* shmget() */
@@ -275,7 +275,7 @@ int rtapi_vsnprintf(char *buffer, unsigned long int size, const char *fmt,
 }
 
 int rtapi_set_msg_level(int level) {
-    msg_level = level;
+    msg_level = (msg_level_t)level;
     return 0;
 }
 

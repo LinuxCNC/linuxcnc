@@ -217,7 +217,7 @@ struct shuttle *check_for_shuttle(char *dev_filename) {
         goto fail1;
     }
 
-    for (int i = 0; i < sizeof(contour_dev)/sizeof(contour_dev_t); i ++) {
+    for (unsigned i = 0; i < sizeof(contour_dev)/sizeof(contour_dev_t); i ++) {
         if (devinfo.vendor != contour_dev[i].vendor_id) {
             continue;
         }
