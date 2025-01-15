@@ -135,6 +135,11 @@ class Calculator(QDialog):
         calc_layout.addWidget(self.bBox)
         self.setLayout(calc_layout)
 
+        button_list = self.bBox.buttons()
+        for button in button_list:
+            if button.text() == 'Cancel' or button.text() == 'Apply':
+                button.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+
         self.setWindowTitle("Calculator")
         if not INFO.LINUXCNC_IS_RUNNING:
             self.axisButton.setEnabled(False)
