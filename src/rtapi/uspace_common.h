@@ -55,7 +55,7 @@ typedef struct {
 
 #define SHMEM_MAGIC   25453	/* random numbers used as signatures */
 
-static rtapi_shmem_handle shmem_array[MAX_SHM] = {{0},};
+static rtapi_shmem_handle shmem_array[MAX_SHM];
 
 int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 {

@@ -3315,7 +3315,7 @@ int main(int argc, char *argv[])
     }
 
     // create EMC2_TMP_DIR if it's not existing, yet
-    struct stat s = {0};
+    struct stat s;
     if (stat(EMC2_TMP_DIR, &s) != 0) {
         if(mkdir(EMC2_TMP_DIR, 0700) != 0) {
 		rcs_print_error("mkdir(%s): %s", EMC2_TMP_DIR, strerror(errno));

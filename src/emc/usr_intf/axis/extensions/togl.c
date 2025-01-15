@@ -351,7 +351,7 @@ static Tk_ConfigSpec configSpecs[] = {
 
 #ifndef NO_TK_CURSOR
     { TK_CONFIG_ACTIVE_CURSOR, "-cursor", "cursor", "Cursor",
-     "", Tk_Offset(struct Togl, Cursor), TK_CONFIG_NULL_OK },
+     "", Tk_Offset(struct Togl, Cursor), TK_CONFIG_NULL_OK, NULL },
 #endif
 
     {TK_CONFIG_INT, "-time", "time", "Time",
