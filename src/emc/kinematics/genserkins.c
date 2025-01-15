@@ -30,9 +30,12 @@ https://www.mail-archive.com/emc-developers@lists.sourceforge.net/msg15285.html
 */
 
 //----------------------------------------------------------------------
+// Only gcc/g++ supports the #pragma
+#if __GNUC__ && !defined(__clang__)
 // genserKinematicsInverse() is 5104 with buster amd64 gcc 8.3.0-6
 //#pragma GCC diagnostic error   "-Wframe-larger-than=6000"
   #pragma GCC diagnostic warning "-Wframe-larger-than=6000"
+#endif
 
 #include "rtapi.h"
 #include <rtapi_string.h>
