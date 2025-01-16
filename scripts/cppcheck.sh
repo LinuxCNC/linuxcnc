@@ -72,3 +72,5 @@ do
     echo "I (4/4): checking $d"
     docheck "$d"
 done
+
+exit 0
