@@ -545,35 +545,35 @@ static PyObject *pose(const EmcPose &p) {
     return res;
 }
 
-static PyObject *Stat_g5x_index(pyStatChannel *s) {
+static PyObject *Stat_g5x_index(pyStatChannel *s, void *) {
     return PyLong_FromLong(s->status.task.g5x_index);
 }
 
-static PyObject *Stat_g5x_offset(pyStatChannel *s) {
+static PyObject *Stat_g5x_offset(pyStatChannel *s, void *) {
     return pose(s->status.task.g5x_offset);
 }
 
-static PyObject *Stat_g92_offset(pyStatChannel *s) {
+static PyObject *Stat_g92_offset(pyStatChannel *s, void *) {
     return pose(s->status.task.g92_offset);
 }
 
-static PyObject *Stat_tool_offset(pyStatChannel *s) {
+static PyObject *Stat_tool_offset(pyStatChannel *s, void *) {
     return pose(s->status.task.toolOffset);
 }
 
-static PyObject *Stat_position(pyStatChannel *s) {
+static PyObject *Stat_position(pyStatChannel *s, void *) {
     return pose(s->status.motion.traj.position);
 }
 
-static PyObject *Stat_dtg(pyStatChannel *s) {
+static PyObject *Stat_dtg(pyStatChannel *s, void *) {
     return pose(s->status.motion.traj.dtg);
 }
 
-static PyObject *Stat_actual(pyStatChannel *s) {
+static PyObject *Stat_actual(pyStatChannel *s, void *) {
     return pose(s->status.motion.traj.actualPosition);
 }
 
-static PyObject *Stat_joint_position(pyStatChannel *s) {
+static PyObject *Stat_joint_position(pyStatChannel *s, void *) {
     PyObject *res = PyTuple_New(EMCMOT_MAX_JOINTS);
     for(int i=0; i<EMCMOT_MAX_JOINTS; i++) {
         PyTuple_SetItem(res, i,
@@ -582,7 +582,7 @@ static PyObject *Stat_joint_position(pyStatChannel *s) {
     return res;
 }
 
-static PyObject *Stat_joint_actual(pyStatChannel *s) {
+static PyObject *Stat_joint_actual(pyStatChannel *s, void *) {
     PyObject *res = PyTuple_New(EMCMOT_MAX_JOINTS);
     for(int i=0; i<EMCMOT_MAX_JOINTS; i++) {
         PyTuple_SetItem(res, i,
@@ -591,31 +591,31 @@ static PyObject *Stat_joint_actual(pyStatChannel *s) {
     return res;
 }
 
-static PyObject *Stat_probed(pyStatChannel *s) {
+static PyObject *Stat_probed(pyStatChannel *s, void *) {
     return pose(s->status.motion.traj.probedPosition);
 }
 
-static PyObject *Stat_activegcodes(pyStatChannel *s) {
+static PyObject *Stat_activegcodes(pyStatChannel *s, void *) {
     return int_array(s->status.task.activeGCodes, ACTIVE_G_CODES);
 }
 
-static PyObject *Stat_activemcodes(pyStatChannel *s) {
+static PyObject *Stat_activemcodes(pyStatChannel *s, void *) {
     return int_array(s->status.task.activeMCodes, ACTIVE_M_CODES);
 }
 
-static PyObject *Stat_activesettings(pyStatChannel *s) {
+static PyObject *Stat_activesettings(pyStatChannel *s, void *) {
    return double_array(s->status.task.activeSettings, ACTIVE_SETTINGS);
 }
 
-static PyObject *Stat_din(pyStatChannel *s) {
+static PyObject *Stat_din(pyStatChannel *s, void *) {
     return int_array(s->status.motion.synch_di, EMCMOT_MAX_AIO);
 }
 
-static PyObject *Stat_dout(pyStatChannel *s) {
+static PyObject *Stat_dout(pyStatChannel *s, void *) {
     return int_array(s->status.motion.synch_do, EMCMOT_MAX_AIO);
 }
 
-static PyObject *Stat_limit(pyStatChannel *s) {
+static PyObject *Stat_limit(pyStatChannel *s, void *) {
     PyObject *res = PyTuple_New(EMCMOT_MAX_JOINTS);
     for(int i = 0; i < EMCMOT_MAX_JOINTS; i++) {
         int v = 0;
@@ -628,7 +628,7 @@ static PyObject *Stat_limit(pyStatChannel *s) {
     return res;
 }
 
-static PyObject *Stat_homed(pyStatChannel *s) {
+static PyObject *Stat_homed(pyStatChannel *s, void *) {
     PyObject *res = PyTuple_New(EMCMOT_MAX_JOINTS);
     for(int i = 0; i < EMCMOT_MAX_JOINTS; i++) {
         PyTuple_SET_ITEM(res, i, PyLong_FromLong(s->status.motion.joint[i].homed));
@@ -636,15 +636,15 @@ static PyObject *Stat_homed(pyStatChannel *s) {
     return res;
 }
 
-static PyObject *Stat_ain(pyStatChannel *s) {
+static PyObject *Stat_ain(pyStatChannel *s, void *) {
     return double_array(s->status.motion.analog_input, EMCMOT_MAX_AIO);
 }
 
-static PyObject *Stat_aout(pyStatChannel *s) {
+static PyObject *Stat_aout(pyStatChannel *s, void *) {
     return double_array(s->status.motion.analog_output, EMCMOT_MAX_AIO);
 }
 
-static PyObject *Stat_misc_error(pyStatChannel *s){
+static PyObject *Stat_misc_error(pyStatChannel *s, void *){
   return int_array(s->status.motion.misc_error, EMCMOT_MAX_MISC_ERROR);
 }
 
@@ -679,7 +679,7 @@ static PyObject *Stat_joint_one(pyStatChannel *s, int jointno) {
 #undef F
 #undef F2
 
-static PyObject *Stat_joint(pyStatChannel *s) {
+static PyObject *Stat_joint(pyStatChannel *s, void *) {
     PyObject *res = PyTuple_New(EMCMOT_MAX_JOINTS);
     for(int i=0; i<EMCMOT_MAX_JOINTS; i++) {
         PyTuple_SetItem(res, i, Stat_joint_one(s, i));
@@ -700,7 +700,7 @@ static PyObject *Stat_axis_one(pyStatChannel *s, int axisno) {
 #undef F
 #undef F2
 
-static PyObject *Stat_axis(pyStatChannel *s) {
+static PyObject *Stat_axis(pyStatChannel *s, void *) {
     PyObject *res = PyTuple_New(EMCMOT_MAX_AXIS);
     for(int i=0; i<EMCMOT_MAX_AXIS; i++) {
         PyTuple_SetItem(res, i, Stat_axis_one(s, i));
@@ -726,7 +726,7 @@ static PyObject *Stat_spindle_one(pyStatChannel *s, int spindleno) {
 #undef F
 #undef F2
 
-static PyObject *Stat_spindle(pyStatChannel *s) {
+static PyObject *Stat_spindle(pyStatChannel *s, void *) {
     PyObject *res = PyTuple_New(EMCMOT_MAX_SPINDLES);
     for(int i=0; i<EMCMOT_MAX_SPINDLES; i++) {
         PyTuple_SetItem(res, i, Stat_spindle_one(s, i));
@@ -761,7 +761,7 @@ static PyStructSequence_Desc tool_result_desc = {
 
 static PyTypeObject ToolResultType;
 
-static PyObject *Stat_tool_table(pyStatChannel *s) {
+static PyObject *Stat_tool_table(pyStatChannel *s, void *) {
     PyObject *res;
     int j = 0;
 
@@ -966,7 +966,7 @@ static PyObject *mode(pyCommandChannel *s, PyObject *o) {
     return Py_None;
 }
 
-static PyObject *task_plan_synch(pyCommandChannel *s) {
+static PyObject *task_plan_synch(pyCommandChannel *s, PyObject *) {
     EMC_TASK_PLAN_SYNCH synch;
     emcSendCommand(s, synch);
     Py_INCREF(Py_None);
@@ -1312,7 +1312,9 @@ static PyObject *program_open(pyCommandChannel *s, PyObject *o) {
             PyErr_Format(PyExc_OSError, "fseek(%s) error: %s", file, strerror(errno));
             return PyErr_SetFromErrno(PyExc_OSError);
         }
-        if((m.remote_filesize = ftell(fd)) < 0) {
+        long ftpos = ftell(fd);
+        m.remote_filesize = ftpos;
+        if(ftpos < 0) {
             fclose(fd);
             PyErr_Format(PyExc_OSError, "ftell(%s) error: %s", file, strerror(errno));
             return PyErr_SetFromErrno(PyExc_OSError);
@@ -1701,7 +1703,7 @@ static int Error_init(pyErrorChannel *self, PyObject *a, PyObject *k) {
     return 0;
 }
 
-static PyObject* Error_poll(pyErrorChannel *s) {
+static PyObject* Error_poll(pyErrorChannel *s, PyObject *) {
     if(!s->c->valid()) {
         PyErr_Format( error, "Error buffer invalid" );
         return NULL;
@@ -2186,7 +2188,7 @@ static void UNLOCK() { pthread_mutex_unlock(&mutex); }
 static int Logger_init(pyPositionLogger *self, PyObject *a, PyObject *k) {
     char *geometry;
     struct color *c = self->colors;
-    self->p = (logger_point*)malloc(0);
+    self->p = (logger_point*)malloc(sizeof(self->p[0])); // Will be realloc'ed
     self->npts = self->mpts = 0;
     self->exit = self->clear = 0;
     self->changed = 1;
@@ -2242,7 +2244,7 @@ static PyObject *Logger_set_colors(pyPositionLogger *s, PyObject *a) {
     return Py_None;
 }
 
-static PyObject *Logger_get_colors(pyPositionLogger *s) {
+static PyObject *Logger_get_colors(pyPositionLogger *s, PyObject *) {
     struct color *c = s->colors;
     PyObject *result = NULL;
         result = Py_BuildValue("(BBBB)(BBBB)(BBBB)(BBBB)(BBBB)(BBBB)",

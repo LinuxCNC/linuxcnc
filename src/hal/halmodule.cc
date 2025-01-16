@@ -124,13 +124,13 @@ fail:
 
 bool from_python(PyObject *o, hal_u64_t *u) {
     PyObject *tmp = 0;
-    unsigned long long l;
+    long long l;
     tmp = PyLong_Check(o) ? o : PyNumber_Long(o);
     if(!tmp) goto fail;
 
     l = PyLong_AsLongLong(tmp);
     if(PyErr_Occurred()) goto fail;
-    if(l < 0 || l != (rtapi_u64)l) {
+    if(l < 0 || l >= (long long)UINT64_MAX) {
         PyErr_Format(PyExc_OverflowError, "Value %lld out of range", l);
         goto fail;
     }

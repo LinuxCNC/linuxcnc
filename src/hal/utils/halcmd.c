@@ -132,47 +132,47 @@ void halcmd_shutdown(void) {
    command.
 */
 
-#define FUNCT(x) ((halcmd_func_t)x)
+#define FUNCT(x,t) { ./**/t = x }
 
 struct halcmd_command halcmd_commands[] = {
-    {"addf",    FUNCT(do_addf_cmd),    A_TWO | A_PLUS },
-    {"alias",   FUNCT(do_alias_cmd),   A_THREE },
-    {"delf",    FUNCT(do_delf_cmd),    A_TWO | A_OPTIONAL },
-    {"delsig",  FUNCT(do_delsig_cmd),  A_ONE },
-    {"debug",   FUNCT(do_set_debug_cmd),A_ONE },
-    {"echo",    FUNCT(do_echo_cmd),    A_ZERO },
-    {"getp",    FUNCT(do_getp_cmd),    A_ONE },
-    {"gets",    FUNCT(do_gets_cmd),    A_ONE },
-    {"print",   FUNCT(do_print_cmd),   A_ONE | A_OPTIONAL},
-    {"ptype",   FUNCT(do_ptype_cmd),   A_ONE },
-    {"stype",   FUNCT(do_stype_cmd),   A_ONE },
-    {"help",    FUNCT(do_help_cmd),    A_ONE | A_OPTIONAL },
-    {"linkpp",  FUNCT(do_linkpp_cmd),  A_TWO | A_REMOVE_ARROWS },
-    {"linkps",  FUNCT(do_linkps_cmd),  A_TWO | A_REMOVE_ARROWS },
-    {"linksp",  FUNCT(do_linksp_cmd),  A_TWO | A_REMOVE_ARROWS },
-    {"list",    FUNCT(do_list_cmd),    A_ONE | A_PLUS },
-    {"loadrt",  FUNCT(do_loadrt_cmd),  A_ONE | A_PLUS },
-    {"loadusr", FUNCT(do_loadusr_cmd), A_PLUS | A_TILDE },
-    {"lock",    FUNCT(do_lock_cmd),    A_ONE | A_OPTIONAL },
-    {"net",     FUNCT(do_net_cmd),     A_ONE | A_PLUS | A_REMOVE_ARROWS },
-    {"newsig",  FUNCT(do_newsig_cmd),  A_TWO },
-    {"save",    FUNCT(do_save_cmd),    A_TWO | A_OPTIONAL | A_TILDE },
-    {"setexact_for_test_suite_only", FUNCT(do_setexact_cmd), A_ZERO },
-    {"setp",    FUNCT(do_setp_cmd),    A_TWO },
-    {"sets",    FUNCT(do_sets_cmd),    A_TWO },
-    {"show",    FUNCT(do_show_cmd),    A_ONE | A_OPTIONAL | A_PLUS},
-    {"source",  FUNCT(do_source_cmd),  A_ONE | A_TILDE },
-    {"start",   FUNCT(do_start_cmd),   A_ZERO},
-    {"status",  FUNCT(do_status_cmd),  A_ONE | A_OPTIONAL },
-    {"stop",    FUNCT(do_stop_cmd),    A_ZERO},
-    {"unalias", FUNCT(do_unalias_cmd), A_TWO },
-    {"unecho",  FUNCT(do_unecho_cmd),  A_ZERO },
-    {"unlinkp", FUNCT(do_unlinkp_cmd), A_ONE },
-    {"unload",  FUNCT(do_unload_cmd),  A_ONE },
-    {"unloadrt", FUNCT(do_unloadrt_cmd), A_ONE },
-    {"unloadusr", FUNCT(do_unloadusr_cmd), A_ONE },
-    {"unlock",  FUNCT(do_unlock_cmd),  A_ONE | A_OPTIONAL },
-    {"waitusr", FUNCT(do_waitusr_cmd), A_ONE },
+    {"addf",    FUNCT(do_addf_cmd, cp_cp_cpp), A_TWO | A_PLUS },
+    {"alias",   FUNCT(do_alias_cmd, cp_cp_cp), A_THREE },
+    {"delf",    FUNCT(do_delf_cmd, cp_cp),     A_TWO | A_OPTIONAL },
+    {"delsig",  FUNCT(do_delsig_cmd, cp),      A_ONE },
+    {"debug",   FUNCT(do_set_debug_cmd, cp),   A_ONE },
+    {"echo",    FUNCT(do_echo_cmd, v),         A_ZERO },
+    {"getp",    FUNCT(do_getp_cmd, cp),        A_ONE },
+    {"gets",    FUNCT(do_gets_cmd, cp),        A_ONE },
+    {"print",   FUNCT(do_print_cmd, cp),       A_ONE | A_OPTIONAL},
+    {"ptype",   FUNCT(do_ptype_cmd, cp),       A_ONE },
+    {"stype",   FUNCT(do_stype_cmd, cp),       A_ONE },
+    {"help",    FUNCT(do_help_cmd, cp),        A_ONE | A_OPTIONAL },
+    {"linkpp",  FUNCT(do_linkpp_cmd, cp_cp),   A_TWO | A_REMOVE_ARROWS },
+    {"linkps",  FUNCT(do_linkps_cmd, cp_cp),   A_TWO | A_REMOVE_ARROWS },
+    {"linksp",  FUNCT(do_linksp_cmd, cp_cp),   A_TWO | A_REMOVE_ARROWS },
+    {"list",    FUNCT(do_list_cmd, cp_cpp),    A_ONE | A_PLUS },
+    {"loadrt",  FUNCT(do_loadrt_cmd, cp_cpp),  A_ONE | A_PLUS },
+    {"loadusr", FUNCT(do_loadusr_cmd, ccpp),   A_PLUS | A_TILDE },
+    {"lock",    FUNCT(do_lock_cmd, cp),        A_ONE | A_OPTIONAL },
+    {"net",     FUNCT(do_net_cmd, cp_cpp),     A_ONE | A_PLUS | A_REMOVE_ARROWS },
+    {"newsig",  FUNCT(do_newsig_cmd, cp_cp),   A_TWO },
+    {"save",    FUNCT(do_save_cmd, ccp_cp),    A_TWO | A_OPTIONAL | A_TILDE },
+    {"setexact_for_test_suite_only", FUNCT(do_setexact_cmd, v), A_ZERO },
+    {"setp",    FUNCT(do_setp_cmd, cp_cp),     A_TWO },
+    {"sets",    FUNCT(do_sets_cmd, cp_cp),     A_TWO },
+    {"show",    FUNCT(do_show_cmd, cp_cpp),    A_ONE | A_OPTIONAL | A_PLUS},
+    {"source",  FUNCT(do_source_cmd, cp),      A_ONE | A_TILDE },
+    {"start",   FUNCT(do_start_cmd, v),        A_ZERO},
+    {"status",  FUNCT(do_status_cmd, cp),      A_ONE | A_OPTIONAL },
+    {"stop",    FUNCT(do_stop_cmd, v),         A_ZERO},
+    {"unalias", FUNCT(do_unalias_cmd, cp_cp),  A_TWO },
+    {"unecho",  FUNCT(do_unecho_cmd, v),       A_ZERO },
+    {"unlinkp", FUNCT(do_unlinkp_cmd, cp),     A_ONE },
+    {"unload",  FUNCT(do_unload_cmd, cp),      A_ONE },
+    {"unloadrt", FUNCT(do_unloadrt_cmd, cp),   A_ONE },
+    {"unloadusr", FUNCT(do_unloadusr_cmd, cp), A_ONE },
+    {"unlock",  FUNCT(do_unlock_cmd, cp),      A_ONE | A_OPTIONAL },
+    {"waitusr", FUNCT(do_waitusr_cmd, cp),     A_ONE },
 };
 int halcmd_ncommands = (sizeof(halcmd_commands) / sizeof(halcmd_commands[0]));
 
@@ -375,57 +375,37 @@ static int parse_cmd1(char **argv) {
 	if(!strcmp(command->name, "echo")) {echo_mode = 1;}
 	if(!strcmp(command->name, "unecho")) {echo_mode = 0;}
 	switch(nargs | is_plus) {
-	case A_ZERO: {
-	    result = command->func();
+	case A_ZERO:
+	    result = command->func.v();
 	    break;
-	}
 
-	case A_PLUS: {
-	    int(*f)(char **args) = (int(*)(char**))command->func;
-	    result = f(REST(1));
+	case A_PLUS:
+	    result = command->func.cpp(REST(1));
 	    break;
-	}
 
-	case A_ONE: {
-	    int(*f)(char *arg) = (int(*)(char*))command->func;
-	    result = f(ARG(1));
+	case A_ONE:
+	    result = command->func.cp(ARG(1));
 	    break;
-	}
 
-	case A_ONE | A_PLUS: {
-	    int(*f)(char *arg, char **rest) =
-                (int(*)(char*,char**))command->func;
-	    result = f(ARG(1), REST(2));
+	case A_ONE | A_PLUS:
+	    result = command->func.cp_cpp(ARG(1), REST(2));
 	    break;
-	}
 
-	case A_TWO: {
-	    int(*f)(char *arg, char *arg2) =
-                (int(*)(char*,char*))command->func;
-	    result = f(ARG(1), ARG(2));
+	case A_TWO:
+	    result = command->func.cp_cp(ARG(1), ARG(2));
 	    break;
-	}
 
-	case A_TWO | A_PLUS: {
-	    int(*f)(char *arg, char *arg2, char **rest) =
-                (int(*)(char*,char*,char**))command->func;
-	    result = f(ARG(1), ARG(2), REST(3));
+	case A_TWO | A_PLUS:
+	    result = command->func.cp_cp_cpp(ARG(1), ARG(2), REST(3));
 	    break;
-	}
 
-	case A_THREE: {
-	    int(*f)(char *arg, char *arg2, char *arg3) =
-                (int(*)(char*,char*,char*))command->func;
-	    result = f(ARG(1), ARG(2), ARG(3));
+	case A_THREE:
+	    result = command->func.cp_cp_cp(ARG(1), ARG(2), ARG(3));
 	    break;
-	}
 
-	case A_THREE | A_PLUS: {
-	    int(*f)(char *arg, char *arg2, char *arg3, char **rest) =
-                (int(*)(char*,char*,char*,char**))command->func;
-	    result = f(ARG(1), ARG(2), ARG(3), REST(4));
+	case A_THREE | A_PLUS:
+	    result = command->func.cp_cp_cp_cpp(ARG(1), ARG(2), ARG(3), REST(4));
 	    break;
-	}
 
 	default:
 	    halcmd_error("BUG: unchandled case: command=%s type=0x%x",
