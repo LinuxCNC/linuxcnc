@@ -60,6 +60,9 @@ class _PStat(object):
                 if home is None:
                     home = os.environ.get('EMC2_HOME', None)
 
+            # catch all
+            if home is None: home = '/usr'
+
             if home is None:
                 if self.RIP_FLAG:
                     LOG.error('Linuxcnc Home directory not found in environmental variable: EMC3_HOME')

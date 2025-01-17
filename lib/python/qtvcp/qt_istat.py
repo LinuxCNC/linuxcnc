@@ -30,6 +30,9 @@ else:
     if HOME is None:
         HOME = os.environ.get('EMC2_HOME', None)
 
+# catch all
+if HOME is None: Home = '/usr'
+
 if HOME is not None:
     IMAGEDIR = os.path.join(HOME, "share", "qtvcp", "images")
 else:
