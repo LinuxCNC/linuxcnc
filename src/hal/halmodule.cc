@@ -130,7 +130,7 @@ bool from_python(PyObject *o, hal_u64_t *u) {
 
     l = PyLong_AsLongLong(tmp);
     if(PyErr_Occurred()) goto fail;
-    if(l < 0 || l >= (long long)UINT64_MAX) {
+    if(l < 0) {
         PyErr_Format(PyExc_OverflowError, "Value %lld out of range", l);
         goto fail;
     }
