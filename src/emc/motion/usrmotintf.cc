@@ -9,7 +9,7 @@
 * Author:
 * License: GPL Version 2
 * System: Linux
-*    
+*
 * Copyright (c) 2004 All rights reserved.
 ********************************************************************/
 
@@ -50,7 +50,7 @@ static emcmot_struct_t *emcmotStruct = 0;
 int usrmotIniLoad(const char *filename)
 {
     IniFile inifile(IniFile::ERR_CONVERSION);   // Enable exception.
-    
+
     /* open it */
     if (!inifile.Open(filename)) {
 	rtapi_print("can't find emcmot INI file %s\n", filename);
@@ -89,7 +89,6 @@ int usrmotWriteEmcmotCommand(emcmot_command_t * c)
         rcs_print("USRMOT: ERROR: can't connect to shared memory\n");
 	return EMCMOT_COMM_ERROR_CONNECT;
     }
-
     /* copy entire command structure to shared memory */
     rtapi_mutex_get(&emcmotStruct->command_mutex);
     *emcmotCommand = *c;
@@ -111,6 +110,15 @@ int usrmotWriteEmcmotCommand(emcmot_command_t * c)
 	    }
 	}
 	esleep(25e-6);
+	/* KLUDGE: while waiting on motion to be ready, */
+	/* this particular command requires a re-copy to update for some reason */
+	/* otherwise it times out and "fails" task */
+	if (c->command == EMCMOT_SET_NUM_JOINTS) {
+		/* re-copy entire command structure to shared memory */
+		rtapi_mutex_get(&emcmotStruct->command_mutex);
+		*emcmotCommand = *c;
+		rtapi_mutex_give(&emcmotStruct->command_mutex);
+	}
     }
     rcs_print("USRMOT: ERROR: command %u timeout\n", c->command);
     return EMCMOT_COMM_ERROR_TIMEOUT;
@@ -120,7 +128,7 @@ int usrmotWriteEmcmotCommand(emcmot_command_t * c)
 int usrmotReadEmcmotStatus(emcmot_status_t * s)
 {
     int split_read_count;
-    
+
     /* check for shmem still around */
     if (0 == emcmotStatus) {
 	return EMCMOT_COMM_ERROR_CONNECT;
@@ -143,7 +151,7 @@ int usrmotReadEmcmotStatus(emcmot_status_t * s)
 int usrmotReadEmcmotConfig(emcmot_config_t * s)
 {
     int split_read_count;
-    
+
     /* check for shmem still around */
     if (0 == emcmotConfig) {
 	return EMCMOT_COMM_ERROR_CONNECT;
@@ -167,7 +175,7 @@ printf("ReadEmcmotConfig COMM_SPLIT_READ_TIMEOUT\n" );
 int usrmotReadEmcmotInternal(emcmot_internal_t * s)
 {
     int split_read_count;
-    
+
     /* check for shmem still around */
     if (0 == emcmotInternal) {
 	return EMCMOT_COMM_ERROR_CONNECT;
@@ -217,7 +225,7 @@ int usrmotReadEmcmotError(char *e)
  converts short int to 0-1 style string, in s. Assumes a short is 2 bytes.
 */
 /*! \todo Another #if 0 */
-#if 0				/*! \todo FIXME - don't know if this is still needed 
+#if 0				/*! \todo FIXME - don't know if this is still needed
 				 */
 
 static int htostr(char *s, unsigned short h)
@@ -237,7 +245,7 @@ static int htostr(char *s, unsigned short h)
 void printEmcPose(EmcPose * pose)
 {
     printf("x=%f\ty=%f\tz=%f\tu=%f\tv=%f\tw=%f\ta=%f\tb=%f\tc=%f",
-           pose->tran.x, pose->tran.y, pose->tran.z, 
+           pose->tran.x, pose->tran.y, pose->tran.z,
            pose->u, pose->v, pose->w,
            pose->a, pose->b, pose->c);
 }
@@ -617,7 +625,7 @@ int usrmotExit(void)
 
 /* Loads pairs of comp from the compensation file.
    The default way is to specify nominal, forward & reverse triplets in the file
-   However if type != 0, it expects nominal, forward_trim & reverse_trim 
+   However if type != 0, it expects nominal, forward_trim & reverse_trim
 	(where forward_trim = nominal - forward
 	       reverse_trim = nominal - reverse)
 */
@@ -650,9 +658,9 @@ int usrmotLoadComp(int joint, const char *file, int type)
 	} else {
 	    // got a triplet
 	    if (type == 0) {
-		/* expecting nominal-forward-reverse triplets, e.g., 
-		    0.000000 0.000000 -0.001279 
-		    0.100000 0.098742  0.051632 
+		/* expecting nominal-forward-reverse triplets, e.g.,
+		    0.000000 0.000000 -0.001279
+		    0.100000 0.098742  0.051632
 		    0.200000 0.171529  0.194216 */
     		emcmotCommand.comp_nominal = nom;
     		emcmotCommand.comp_forward = nom - fwd; //convert to diffs
@@ -661,7 +669,7 @@ int usrmotLoadComp(int joint, const char *file, int type)
 		/* expecting nominal-forw_trim-rev_trim triplets */
     		emcmotCommand.comp_nominal = nom;
     		emcmotCommand.comp_forward = fwd;
-    		emcmotCommand.comp_reverse = rev;		
+    		emcmotCommand.comp_reverse = rev;
 	    }
 	    emcmotCommand.joint = joint;
 	    emcmotCommand.command = EMCMOT_SET_JOINT_COMP;
