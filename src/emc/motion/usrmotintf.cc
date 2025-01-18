@@ -127,6 +127,7 @@ int usrmotReadEmcmotStatus(emcmot_status_t * s)
     }
     split_read_count = 0;
     do {
+	if(split_read_count > 0) esleep(1e-6);	// Don't busy-loop and give time to process
 	/* copy status struct from shmem to local memory */
 	memcpy(s, emcmotStatus, sizeof(emcmot_status_t));
 	/* got it, now check head-tail matche */
@@ -135,7 +136,6 @@ int usrmotReadEmcmotStatus(emcmot_status_t * s)
 	    return EMCMOT_COMM_OK;
 	}
 	/* inc counter and try again, max three times */
-	esleep(1e-6);	// Don't busy-loop
     } while ( ++split_read_count < 3 );
     rcs_print("%s: Split read timeout\n", __FUNCTION__);
     return EMCMOT_COMM_SPLIT_READ_TIMEOUT;
@@ -152,6 +152,7 @@ int usrmotReadEmcmotConfig(emcmot_config_t * s)
     }
     split_read_count = 0;
     do {
+	if(split_read_count > 0) esleep(1e-6);	// Don't busy-loop and give time to process
 	/* copy config struct from shmem to local memory */
 	memcpy(s, emcmotConfig, sizeof(emcmot_config_t));
 	/* got it, now check head-tail matches */
@@ -160,7 +161,6 @@ int usrmotReadEmcmotConfig(emcmot_config_t * s)
 	    return EMCMOT_COMM_OK;
 	}
 	/* inc counter and try again, max three times */
-	esleep(1e-6);	// Don't busy-loop
     } while ( ++split_read_count < 3 );
     rcs_print("%s: Split read timeout\n", __FUNCTION__);
     return EMCMOT_COMM_SPLIT_READ_TIMEOUT;
@@ -177,6 +177,7 @@ int usrmotReadEmcmotInternal(emcmot_internal_t * s)
     }
     split_read_count = 0;
     do {
+	if(split_read_count > 0) esleep(1e-6);	// Don't busy-loop and give time to process
 	/* copy debug struct from shmem to local memory */
 	memcpy(s, emcmotInternal, sizeof(emcmot_internal_t));
 	/* got it, now check head-tail matches */
@@ -185,7 +186,6 @@ int usrmotReadEmcmotInternal(emcmot_internal_t * s)
 	    return EMCMOT_COMM_OK;
 	}
 	/* inc counter and try again, max three times */
-	esleep(1e-6);	// Don't busy-loop
     } while ( ++split_read_count < 3 );
     rcs_print("%s: Split read timeout\n", __FUNCTION__);
     return EMCMOT_COMM_SPLIT_READ_TIMEOUT;
