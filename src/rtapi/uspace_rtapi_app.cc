@@ -494,9 +494,13 @@ _get_fifo_path() {
            "rtapi_app: RTAPI_FIFO_PATH and HOME are unset.  rtapi fifo creation is unsafe.");
        return NULL;
     }
-    if(s.size() + 1 > sizeof(sockaddr_un::sun_path)) {
-       rtapi_print_msg(RTAPI_MSG_ERR,
-           "rtapi_app: rtapi fifo path is too long (arch limit %zd): %s",
+    if (getenv("LINUXCNC_INSTANCE")) {
+        s += "-";
+        s += getenv("LINUXCNC_INSTANCE");
+    }
+    if (s.size() + 1 > sizeof(sockaddr_un::sun_path)) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "rtapi_app: rtapi fifo path is too long (arch limit %zd): %s",
                sizeof(sockaddr_un::sun_path), s.c_str());
        return NULL;
     }
