@@ -23,15 +23,24 @@ INIPATH = os.environ.get('INI_FILE_NAME', '/dev/null')
 RIP_FLAG = bool(os.environ.get('LINUXCNC_RIP_FLAG', False))
 
 if RIP_FLAG:
-    HOME = os.environ.get('EMC2_HOME', None)
+    BASE = os.environ.get('EMC2_HOME', None)
 else:
-    HOME = os.environ.get('LINUXCNC_HOME', None)
+    BASE = os.environ.get('LINUXCNC_HOME', None)
     # fallback until the RIP_FLAG is common
-    if HOME is None:
-        HOME = os.environ.get('EMC2_HOME', None)
+    if BASE is None:
+        BASE = os.environ.get('EMC2_HOME', None)
+# catch all
+if BASE is None:
+    BASE = '/usr'
+    if self.RIP_FLAG:
+        log.verbose('Linuxcnc Base directory not found in environmental variable: EMC3_HOME')
+    else:
+        log.verbose('Linuxcnc Base directory not found in environmental variable: LINUXCNC_HOME')
 
-if HOME is not None:
-    IMAGEDIR = os.path.join(HOME, "share", "qtvcp", "images")
+log.verbose('Using Linuxcnc Base directory: {}'.format(BASE))
+
+if BASE is not None:
+    IMAGEDIR = os.path.join(BASE, "share", "qtvcp", "images")
 else:
     IMAGEDIR = None
 
@@ -61,7 +70,7 @@ class _IStat(object):
         self.USER_M_PATH_LIST = []
 
         self.IMAGE_PATH = IMAGEDIR
-        self.LIB_PATH = os.path.join(HOME, "share", "qtvcp")
+        self.LIB_PATH = os.path.join(BASE, "share", "qtvcp")
         self.TITLE = ""
         self.ICON = ""
         # this is updated in qtvcp.py on startup

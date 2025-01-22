@@ -53,21 +53,20 @@ class _PStat(object):
             self.RIP_FLAG = bool(os.environ.get('LINUXCNC_RIP_FLAG', False))
 
             if self.RIP_FLAG:
-                home = os.environ.get('EMC2_HOME', None)
+                BASE = os.environ.get('EMC2_HOME', None)
             else:
-                home = os.environ.get('LINUXCNC_HOME', None)
+                BASE = os.environ.get('LINUXCNC_HOME', None)
                 # fallback until the RIP_FLAG is common
-                if home is None:
-                    home = os.environ.get('EMC2_HOME', None)
+                if BASE is None:
+                    BASE = os.environ.get('EMC2_HOME', None)
 
-            if home is None:
-                if self.RIP_FLAG:
-                    LOG.error('Linuxcnc Home directory not found in environmental variable: EMC3_HOME')
-                else:
-                    LOG.error('Linuxcnc Home directory not found in environmental variable: LINUXCNC_HOME')
+            # catch all
+            if BASE is None:
+                BASE = '/usr'
+                LOG.debug('Linuxcnc Home directory found in environmental variable: {}'.format(BASE))
 
             # share directory moves when using RIP vrs installed
-            self.SHAREDIR = os.path.join(home,"share", "qtvcp")
+            self.SHAREDIR = os.path.join(BASE,"share", "qtvcp")
 
             self.IMAGEDIR = os.path.join(self.SHAREDIR,  "images")
             self.SCREENDIR = os.path.join(self.SHAREDIR, "screens")

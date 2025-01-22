@@ -959,7 +959,9 @@ int sendProgramOpen(char *program)
             rcs_print_error("fseek(%s) error: %s\n", program, strerror(errno));
             return -1;
         }
-        if((msg.remote_filesize = ftell(fd)) < 0) {
+        long ftpos = ftell(fd);
+        msg.remote_filesize = ftpos;
+        if(ftpos < 0) {
             fclose(fd);
             rcs_print_error("ftell(%s) error: %s\n", program, strerror(errno));
             return -1;

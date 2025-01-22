@@ -81,10 +81,10 @@ typedef struct {
     int mcodes[ACTIVE_M_CODES];
 } LineCode;
 
-static PyObject *LineCode_gcodes(LineCode *l) {
+static PyObject *LineCode_gcodes(LineCode *l, void *) {
     return int_array(l->gcodes, ACTIVE_G_CODES);
 }
-static PyObject *LineCode_mcodes(LineCode *l) {
+static PyObject *LineCode_mcodes(LineCode *l, void *) {
     return int_array(l->mcodes, ACTIVE_M_CODES);
 }
 

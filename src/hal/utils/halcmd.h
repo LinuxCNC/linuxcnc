@@ -76,8 +76,30 @@ enum halcmd_argtype {
     A_TILDE = 0x800,         /* tilde-expand all arguments */
 };
 
-typedef int(*halcmd_func_t)(void);
 
+typedef int(*halcmd_func_v_t)(void);
+typedef int(*halcmd_func_cp_t)(char *);
+typedef int(*halcmd_func_cpp_t)(char **);
+typedef int(*halcmd_func_ccpp_t)(const char **);
+typedef int(*halcmd_func_cp_cp_t)(char *, char *);
+typedef int(*halcmd_func_ccp_cp_t)(const char *, char *);
+typedef int(*halcmd_func_cp_cpp_t)(char *, char **);
+typedef int(*halcmd_func_cp_cp_cp_t)(char *, char *, char *);
+typedef int(*halcmd_func_cp_cp_cpp_t)(char *, char *, char **);
+typedef int(*halcmd_func_cp_cp_cp_cpp_t)(char *, char *, char *, char **);
+
+typedef union {
+	halcmd_func_v_t		v;
+	halcmd_func_cp_t	cp;
+	halcmd_func_cpp_t	cpp;
+	halcmd_func_ccpp_t	ccpp;
+	halcmd_func_cp_cp_t	cp_cp;
+	halcmd_func_ccp_cp_t	ccp_cp;
+	halcmd_func_cp_cpp_t	cp_cpp;
+	halcmd_func_cp_cp_cp_t	cp_cp_cp;
+	halcmd_func_cp_cp_cpp_t	cp_cp_cpp;
+	halcmd_func_cp_cp_cp_cpp_t cp_cp_cp_cpp;
+} halcmd_func_t;
 
 struct halcmd_command {
     const char *name;

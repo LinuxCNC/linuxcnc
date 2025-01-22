@@ -96,9 +96,6 @@ static int init_comm_buffers(void) {
 	return -1;
     }
 
-    /* zero shared memory before doing anything else. */
-    memset(emcmotStruct, 0, sizeof(emcmot_struct_t));
-
     /* we'll reference emcmotStruct directly */
     c = &emcmotStruct->command;
     emcmotStatus = &emcmotStruct->status;

@@ -641,7 +641,7 @@ private:
 
 public:
     g7x() = default;
-    g7x(g7x const &other) {
+    g7x(g7x const &other) : std::list<std::unique_ptr<segment>>() {
 	delta=other.delta;
 	escape=other.escape;
 	flip_state=other.flip_state;
