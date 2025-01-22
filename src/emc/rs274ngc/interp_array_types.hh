@@ -26,9 +26,15 @@
 namespace pp = pyplusplus::containers::static_sized;
 
 typedef pp::array_1_t<double, EMCMOT_MAX_SPINDLES> spindle_speed_array, (*spindle_speed_w)(Interp &);
-typedef pp::array_1_t< int, ACTIVE_G_CODES> active_g_codes_array, (*active_g_codes_w)( Interp & );
-typedef pp::array_1_t< int, ACTIVE_M_CODES> active_m_codes_array, (*active_m_codes_w)( Interp & );
-typedef pp::array_1_t< double, ACTIVE_SETTINGS> active_settings_array, (*active_settings_w)( Interp & );
+typedef pp::array_1_t< int, ACTIVE_G_CODES> active_g_codes_array,
+    (*active_g_codes_w)( Interp & ),
+    (*active_g_codes_w_ctx)( context & );
+typedef pp::array_1_t< int, ACTIVE_M_CODES> active_m_codes_array,
+    (*active_m_codes_w)( Interp & ),
+    (*active_m_codes_w_ctx)( context & );
+typedef pp::array_1_t< double, ACTIVE_SETTINGS> active_settings_array,
+    (*active_settings_w)( Interp & ),
+    (*active_settings_w_ctx)( context & );
 typedef pp::array_1_t< block, MAX_NESTED_REMAPS> blocks_array, (*blocks_w)( Interp & );
 
 typedef pp::array_1_t< double, interp_param_global::RS274NGC_MAX_PARAMETERS > parameters_array, (*parameters_w)( Interp & );
