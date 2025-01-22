@@ -1,4 +1,4 @@
-#!/bin/bash -e
+#!/bin/bash
 
 if ! command -v cppcheck; then
   echo "E: Please install the program 'cppcheck' prior to executing this script."
@@ -10,33 +10,67 @@ if command -v nproc; then
   nproc=$(nproc)
 fi
 
-# *** C dominated folder ***
-echo -n "I (1/4): checking HAL folders with C code only from dir "; pwd
-for d in src/hal/classicladder src/hal/components src/hal/drivers \
-         src/hal/user_comps $(find src/hal/user_comps/ -type d src/hal/utils)
+# See if cppcheck accepts --check-level
+EXHAUSTIVE=$(cppcheck --check-level=exhaustive --version > /dev/null 2>&1 && echo "--check-level=exhaustive")
+
+CPPCHKOPT="-j $nproc --force $EXHAUSTIVE"
+CPPCHKOPT="$CPPCHKOPT --enable=warning,performance,portability"
+CPPCHKOPT="$CPPCHKOPT -I$(realpath "$(dirname "$0")/../include")"
+
+# Even cppcheck 2.3 (debian 11) supports c++17 (undocumented)
+CCSTD="--std=c11 --language=c"
+CXSTD="--std=c++17 --language=c++"
+
+CPPCHKCC="$CPPCHKOPT $CCSTD"
+CPPCHKCX="$CPPCHKOPT $CXSTD"
+
+# Do this from the source directory
+cd "$(dirname "$0")/../src"
+
+docheck() {
+    files=$(find "$1" -maxdepth 1 \( -name "*.c" -o -name "*.h" \) )
+    [ ! -z "$files" ] && cppcheck -I"$1" $CPPCHKCC $files
+
+    files=$(find "$1" -maxdepth 1 \( -name "*.cc" -o -name "*.hh" \) )
+    [ ! -z "$files" ] && cppcheck -I"$1" $CPPCHKCX $files
+}
+
+# *** HAL files ***
+echo "I (1/4): checking HAL folders with both C and C++ code"
+for d in $(find hal/ -type d -not -name "*__pycache__")
 do
-  (cd "$d" && cppcheck -j $nproc --language=c --force *.h *.c)
+    # Don't care about examples
+    case "$d" in hal/user_comps/mb2hal/examples*) continue;; esac
+
+    echo "I (1/4): checking $d"
+    docheck "$d"
 done
 
-echo -n "I (2/4): checking EMC folders with C code only from dir "; pwd
-for d in src/emc/motion-logger src/emc/tp
+# *** EMC files ***
+echo "I (2/4): checking EMC folders with both C and C++ code"
+for d in $(find emc/ -type d -not -name "*__pycache__")
 do
-    (cd "$d" && cppcheck -j $nproc --language=c --force *.h *.c)
-done
-# problematic: src/hal/drivers src/hal/user_comps src/hal/utits
+    # Will give Tcl problems
+    case "$d" in emc/usr_intf/axis/extensions*) continue;; esac
 
-# *** C++ dominated folder ***
-echo -n "I (3/4): checking EMC folders with C++ code only from dir "; pwd
-for d in src/emc/canterp src/emc/ini src/emc/pythonplugin src/emc/tooldata
-do
-    (cd "$d" && cppcheck -j $nproc --language=c++ --force *.hh *.cc)
+    echo "I (2/4): checking $d"
+    docheck "$d"
 done
-# problematic iotask src/emc/sai src/emc/task
 
-# *** C++ and C++ in same folder ***
-echo -n "I (4/4): checking EMC folders with both C and C++ code from dir "; pwd
-for d in src/emc/rs274ngc;
+# *** NML files ***
+echo "I (3/4): checking LIBNML folders with both C and C++ code"
+for d in $(find libnml/ -type d -not -name "*__pycache__")
 do
-    (cd "$d" && cppcheck -j $nproc --language=c --force *.h *.c && cppcheck -j $nproc --language=c++ --force *.hh *.cc)
+    echo "I (3/4): checking $d"
+    docheck "$d"
 done
-# problematic src/emc/kinematics src/emc/nml_intf src/emc/usr_intf
+
+# *** RTAPI files ***
+echo "I (4/4): checking RTAPI folders with both C and C++ code"
+for d in $(find rtapi/ -type d -not -name "*__pycache__")
+do
+    echo "I (4/4): checking $d"
+    docheck "$d"
+done
+
+exit 0
