@@ -65,7 +65,7 @@ PyObject *install(PyObject *s, PyObject *arg) {
 
 PyMethodDef togl_methods[] = {
     {"install", (PyCFunction)install, METH_O, "install togl in a tkinter application"},
-    {NULL}
+    {}
 };
 
 static struct PyModuleDef togl_moduledef = {
