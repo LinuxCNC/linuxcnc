@@ -25,6 +25,7 @@
 #define HM2_SSERIAL_TYPE_8I20               0x30324938  // '8i20' as 4 ascii
 #define HM2_SSERIAL_TYPE_7I64               0x34364937  // '7i64' All newer cards self-declare
 #define HM2_SSERIAL_MAX_STRING_LENGTH       48
+#define HM2_SSERIAL_MAX_DATALENGTH          (255+1)     // unsigned char max value plus one for buffer sizing
 #define HM2_SSERIAL_MAX_PORTS               8           // only used in pins.c
 #define HM2_SSERIAL_NUMREGS                 7           // 224 bits of data per channel in sserialb
 
