@@ -1499,6 +1499,7 @@ fail1:
             inst->r_index = 0;
             inst->g_index = 0;
             *inst->state2 = 1;
+            /* Fallthrough */
         case 1:
             if (inst->num_remotes == 0) return 0;
             r = &(inst->remotes[inst->r_index]);
@@ -1538,6 +1539,7 @@ fail1:
                                 // ( double significand - variable type significand)
                                 default:
                                 HM2_ERR("Non IEEE float type parameter of length %i\n", g->DataLength);
+                                /* Fallthrough */
                                 case 8:
                                     shift = (52 -  4); break; // 1.3.4 minifloat, if we ever add them
                                 case 16:
@@ -1985,7 +1987,7 @@ int hm2_sserial_read_pins(hm2_sserial_remote_t *chan){
                     break;
                 }
                 buff = buff_store;
-                /* no break */
+                /* Fallthrough */
             case LBP_ENCODER:
             {
                 int bitlength;

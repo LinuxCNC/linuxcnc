@@ -1137,7 +1137,7 @@ int do_loadrt_cmd(char *mod_name, char *args[])
     argv[m++] = NULL;
     retval = do_loadusr_cmd(argv);
 #else
-    static char *rtmod_dir = EMC2_RTLIB_DIR;
+    static const char *rtmod_dir = EMC2_RTLIB_DIR;
     struct stat stat_buf;
     char mod_path[MAX_CMD_LEN+1];
 
@@ -1157,7 +1157,7 @@ int do_loadrt_cmd(char *mod_name, char *args[])
         if (r < 0) {
             halcmd_error("error making module path for %s/%s%s\n", rtmod_dir, mod_name, MODULE_EXT);
             return -1;
-        } else if (r >= sizeof(mod_path)) {
+        } else if (r >= (int)sizeof(mod_path)) {
             // truncation!
             halcmd_error("module path too long (max %lu) for %s/%s%s\n", (unsigned long)sizeof(mod_path)-1, rtmod_dir, mod_name, MODULE_EXT);
             return -1;

@@ -2524,7 +2524,7 @@ STATIC void tpUpdateRigidTapState(TP_STRUCT const * const tp,
         case RIGIDTAP_START:
             old_spindlepos = new_spindlepos;
             tc->coords.rigidtap.state = TAPPING;
-            // Deliberate fallthrough
+            /* Fallthrough */
         case TAPPING:
             tc_debug_print("TAPPING\n");
             if (tc->progress >= tc->coords.rigidtap.reversal_target) {

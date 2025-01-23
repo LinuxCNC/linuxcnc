@@ -696,7 +696,7 @@ extern "C" {
 //#define pmSq(x) ((x)*(x))
 
 int pmClose(double a, double b, double eps); 
-inline double pmSq(double x) { return x*x; }
+__attribute__((always_inline)) static inline double pmSq(double x) { return x*x; }
 
 #ifdef TO_DEG
 #undef TO_DEG
