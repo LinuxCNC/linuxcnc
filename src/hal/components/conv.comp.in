@@ -8,7 +8,7 @@ license "GPL";
 author "Jeff Epler";
 
 ;;
-#include <stdint.h>
+#include <rtapi_stdint.h>
 FUNCTION(_) {
 	@TYPI@ val = in;
 @CC@	if(clamp) {

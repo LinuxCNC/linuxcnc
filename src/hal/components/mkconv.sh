@@ -23,10 +23,10 @@ utype() {
 maxval() {
 	case "$1" in
 	"bit")	echo "1" ;;
-	"s32")	echo "INT32_MAX" ;;
-	"u32")	echo "UINT32_MAX" ;;
-	"s64")	echo "INT64_MAX" ;;
-	"u64")	echo "UINT64_MAX" ;;
+	"s32")	echo "RTAPI_INT32_MAX" ;;
+	"u32")	echo "RTAPI_UINT32_MAX" ;;
+	"s64")	echo "RTAPI_INT64_MAX" ;;
+	"u64")	echo "RTAPI_UINT64_MAX" ;;
 	"float") echo "Never_Used" ;;
 	*)	echo "This_Will_Generate_An_Error" ;;
 	esac
@@ -36,9 +36,9 @@ maxval() {
 minval() {
 	case "$1" in
 	"bit")	echo "0" ;;
-	"s32")	echo "INT32_MIN" ;;
+	"s32")	echo "RTAPI_INT32_MIN" ;;
 	"u32")	echo "0" ;;
-	"s64")	echo "INT64_MIN" ;;
+	"s64")	echo "RTAPI_INT64_MIN" ;;
 	"u64")	echo "0" ;;
 	"float") echo "Never_Used" ;;
 	*)	echo "This_Will_Generate_An_Error" ;;
