@@ -390,9 +390,12 @@ man9/oneshot.9
 man9/opto_ac5.9
 man9/or2.9
 man9/orient.9
+man9/pcl720.9
 man9/pentakins.9
 man9/pid.9
 man9/plasmac.9
+man9/pluto_servo.9
+man9/pluto_step.9
 man9/pumakins.9
 man9/pwmgen.9
 man9/raster.9
