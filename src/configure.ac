@@ -200,7 +200,7 @@ AC_ARG_ENABLE(toolnml,
 
 #at this point if RTS is empty, we need to find RT ourselves
 AC_MSG_CHECKING([for rtai-config])
-if test -z "$RTDIR"; then
+if test -z "$RTS"; then
   DIRS="/usr/realtime-`uname -r` /usr/realtime /usr/realtime* /usr /usr/src/rtai*"
 else
   DIRS="$RTS"
