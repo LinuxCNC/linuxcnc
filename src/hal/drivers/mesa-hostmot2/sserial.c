@@ -386,7 +386,7 @@ int hm2_sserial_get_param_value(hostmot2_t *hm2,
             break; // Hard to imagine an encoder not in Process data
         case LBP_FLOAT:
             {
-                char buf[g->DataLength/8];
+                char buf[HM2_SSERIAL_MAX_DATALENGTH/8];
                 r = hm2_sserial_get_bytes(hm2, chan, &buf[0], g->ParmAddr, g->DataLength/8);
                 if (g->DataLength == sizeof(float) * 8) {
                     float temp;
