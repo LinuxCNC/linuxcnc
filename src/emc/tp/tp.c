@@ -55,6 +55,12 @@
 #include "hal.h"
 #endif // }
 
+// Only gcc/g++ supports the #pragma
+#if __GNUC__ && !defined(__clang__)
+// tpHandleBlendArc() is 2512
+  #pragma GCC diagnostic warning "-Wframe-larger-than=2600"
+#endif
+
 static emcmot_status_t *emcmotStatus;
 static emcmot_config_t *emcmotConfig;
 

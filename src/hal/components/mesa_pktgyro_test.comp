@@ -106,6 +106,11 @@ FUNCTION(receive){
 
 
 }
+// Only gcc/g++ supports the #pragma
+#if __GNUC__ && !defined(__clang__)
+// EXTRA_SETUP() is 2400
+#pragma GCC diagnostic warning "-Wframe-larger-than=2500"
+#endif
 
 EXTRA_SETUP(){ // the names parameters are passed in 'prefix'.
 	if (prefix[0] == 'm'){ // should be the 'm' of hm2_....
@@ -238,7 +243,7 @@ EXTRA_SETUP(){ // the names parameters are passed in 'prefix'.
 	and receive 16 ACK datagrams as replies.
 	*/
 
-	static unsigned char disable16[11*16] ={
+	static const unsigned char disable16[11*16] ={
 	0x75, 0x65, 0x0C,0x05,  0x05,0x11, 0x01,0x01, 0x00, 0x03, 0x19,
 	0x75, 0x65, 0x0C,0x05,  0x05,0x11, 0x01,0x01, 0x00, 0x03, 0x19,
 	0x75, 0x65, 0x0C,0x05,  0x05,0x11, 0x01,0x01, 0x00, 0x03, 0x19,
@@ -259,7 +264,7 @@ EXTRA_SETUP(){ // the names parameters are passed in 'prefix'.
 	0x75, 0x65, 0x0C,0x05,  0x05,0x11, 0x01,0x01, 0x00, 0x03, 0x19,
 	0x75, 0x65, 0x0C,0x05,  0x05,0x11, 0x01,0x01, 0x00, 0x03, 0x19
 	};
-	static rtapi_u16 disable_size16[16]={11,11,11,11, 11,11,11,11, 11,11,11,11, 11,11,11,11};
+	static const rtapi_u16 disable_size16[16]={11,11,11,11, 11,11,11,11, 11,11,11,11, 11,11,11,11};
 	num_frames = 16;
 	retval=hm2_pktuart_send(name, disable16, &num_frames, disable_size16);
 	rtapi_print_msg(RTAPI_MSG_INFO, "%s sent: bytes %d, frames %u\n", name, retval, num_frames);
