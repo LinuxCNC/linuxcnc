@@ -424,6 +424,7 @@ int rtapi_vsnprintf(char *buf, unsigned long size, const char *fmt, va_list args
 	    break;
 	case 'X':
 	    flags |= LARGE;
+	    /* Fallthrough */
 	case 'x':
 	    base = 16;
 	    break;
