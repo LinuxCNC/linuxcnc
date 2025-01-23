@@ -17,7 +17,8 @@
    02111-1307 USA.
  */
 
-#pragma once
+#ifndef __XHC_WHB04B_6_HAL_H
+#define __XHC_WHB04B_6_HAL_H
 
 // local includes
 #include "pendant-types.h"
@@ -642,3 +643,4 @@ private:
     bool requestMode(bool isRisingEdge, hal_bit_t* requestPin, hal_bit_t* modeFeedbackPin);
 };
 }
+#endif

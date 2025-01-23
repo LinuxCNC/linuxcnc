@@ -17,7 +17,8 @@
    02111-1307 USA.
  */
 
-#pragma once
+#ifndef __XHC_WHB04B_6_XHC_WHB04B6_H
+#define __XHC_WHB04B_6_XHC_WHB04B6_H
 
 // system includes
 #include <stdint.h>
@@ -110,3 +111,4 @@ private:
     void printHexdump(const UsbInPackage& inPackage);
 };
 }
+#endif

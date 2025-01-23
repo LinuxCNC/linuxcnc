@@ -17,7 +17,8 @@
    02111-1307 USA.
  */
 
-#pragma once
+#ifndef __XHC_WHB04B_6_PENDANT_TYPES_H
+#define __XHC_WHB04B_6_PENDANT_TYPES_H
 
 // system includes
 #include <stdint.h>
@@ -85,3 +86,4 @@ private:
 
 std::ostream& operator<<(std::ostream& os, const HandWheelCounters& data);
 }
+#endif
