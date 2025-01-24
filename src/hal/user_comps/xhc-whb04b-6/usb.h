@@ -17,7 +17,8 @@
    02111-1307 USA.
  */
 
-#pragma once
+#ifndef __XHC_WHB04B_6_USB_H
+#define __XHC_WHB04B_6_USB_H
 
 // system includes
 #include <stdint.h>
@@ -336,3 +337,4 @@ std::ostream& operator<<(std::ostream& os, const UsbOutPackageData& data);
 std::ostream& operator<<(std::ostream& os, const UsbOutPackageBlockFields& block);
 std::ostream& operator<<(std::ostream& os, const UsbOutPackageBlocks& blocks);
 }
+#endif
