@@ -50,7 +50,7 @@ StandaloneInterpInternals _sai = StandaloneInterpInternals();
 char               _parameter_file_name[PARAMETER_FILE_NAME_LENGTH];
 
 /* where to print */
-FILE * _outfile=nullptr;      /* where to print, set in main */
+FILE * _outfile = stdout;      /* where to print, set in main */
 static bool fo_enable=true, so_enable=true;
 
 /************************************************************************/
@@ -79,11 +79,6 @@ void print_nc_line_number()
   int k;
   int m;
 
-  if(!_outfile)
-    {
-      _outfile = stdout;
-    }
-
   pinterp->line_text(text, 256);
   for (k = 0;
        ((k < 256) &&
@@ -107,7 +102,6 @@ void print_nc_line_number()
 
 #define PRINT(control, ...) do \
 { \
-    _outfile = _outfile ?: stdout; \
     fprintf(_outfile,  "%5d ", _sai._line_number++); \
     print_nc_line_number(); \
     fprintf(_outfile, control, ##__VA_ARGS__); \
