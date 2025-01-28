@@ -32,8 +32,8 @@ else:
 # catch all
 if BASE is None:
     BASE = '/usr'
-    if self.RIP_FLAG:
-        log.verbose('Linuxcnc Base directory not found in environmental variable: EMC3_HOME')
+    if RIP_FLAG:
+        log.verbose('Linuxcnc Base directory not found in environmental variable: EMC2_HOME')
     else:
         log.verbose('Linuxcnc Base directory not found in environmental variable: LINUXCNC_HOME')
 
