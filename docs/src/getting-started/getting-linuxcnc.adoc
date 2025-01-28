@@ -40,7 +40,7 @@ This section describes some methods for downloading the Live/Install image.
 Software for LinuxCNC to download is presented on the project's
 https://linuxcnc.org/downloads/[Downloads page].
 Most users will aim for the disk image for Intel/AMD PCs, the URL
-will resemble https://www.linuxcnc.org/iso/linuxcnc_2.9.2-amd64.hybrid.iso.
+will resemble https://www.linuxcnc.org/iso/linuxcnc_2.9.4-amd64.hybrid.iso.
 
 For the Raspberry Pi, multiple images are provided to address
 differences between the RPi4 and RPi5.
@@ -67,7 +67,7 @@ sudo apt-get install zsync
 . Then run this command to download the iso to your computer
 +
 ----
-zsync https://www.linuxcnc.org/iso/linuxcnc_2.9.2-amd64.hybrid.iso
+zsync https://www.linuxcnc.org/iso/linuxcnc_2.9.4-amd64.hybrid.iso
 ----
 
 .zsync in Windows
@@ -83,13 +83,13 @@ https://www.assembla.com/spaces/zsync-windows/documents .
 . After downloading, verify the checksum of the image to ensure integrity.
 
 ----
-md5sum linuxcnc-2.9.2-amd64.iso
+md5sum linuxcnc-2.9.4-amd64.iso
 ----
 
 or
 
 ----
-sha256sum linuxcnc-2.9.2-amd64.iso
+sha256sum linuxcnc-2.9.4-amd64.iso
 ----
 . Then compare to these checksums
 
@@ -139,7 +139,7 @@ It looks more complicated but seems to be more compatible with various BIOSes.
   then use this command:
 +
 -----
-dd if=linuxcnc_2.9.2-amd64.hybrid.iso of=/dev/sde
+dd if=linuxcnc_2.9.4-amd64.hybrid.iso of=/dev/sde
 -----
 
 === Command line - MacOS
@@ -159,7 +159,7 @@ diskutil unmountDisk /dev/diskN
   Note that the disk name has an added "r" at the beginning.
 +
 -----
-sudo dd if=/linuxcnc_2.9.2-amd64.hybrid.iso of=/dev/rdiskN bs=1m
+sudo dd if=/linuxcnc_2.9.4-amd64.hybrid.iso of=/dev/rdiskN bs=1m
 -----
 . Note that this may take a long time to complete and there will be no
   feedback during the process.

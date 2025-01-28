@@ -3,8 +3,138 @@ linuxcnc (1:2.10.0~pre0) UNRELEASED; urgency=medium
   * Master branch open for new features.
 
  -- Andy Pugh <andy@bodgesoc.org>  Mon, 09 Oct 2023 10:39:03 +0100
+
+linuxcnc (1:2.9.4) UNRELEASED; urgency=medium
+
+  * Merge pull request #3283 from Sigma1912/patch-2
+  * Gmoccapy: fix bugs caused by GStat missing changes in interpreter mode
+  * gmoccapy: expand G-code editor in edit mode
+  * gmoccapy: revert "remember position of hbox2 (GtkPaned)"
+  * Merge pull request #3269 from hansu/gmoccapy-3-4-9
+  * gmoccapy_3_4_9: set version number and update release notes
+  * gmoccapy: ensure usage of lowercase for settings in pref file (#3181)
+  * gmoccapy: get offset names directly from offsetpage-widget
+  * offsetpage-widget: don't translate column 0
+  * gmoccapy: revert "added Gtk.Paned for upper main area"
+  * gmoccapy: fix wrong states of spindle button images after program abort
+  * Follow symlinks in config dir
+  * Merge pull request #3259 from BsAtHome/backport-debian_sid-include
+  * Necessary include for gettimeofday() in debian:sid.
+  * Merge pull request #3251 from Sigma1912/patch-1
+  * Add clearer info on ini entries containing lowercase chars
+  * Update m-code.adoc - typo exection -> execution
+  * Merge pull request #3247 from Sigma1912/patch-1
+  * gmoccapy.adoc: correct INI section name [MACROS]
+  * Disable "override limits" at the end of the jog. This fixes the issue that the override was not cleared in teleop (homed) mode Issue #2482
+  * Doc: User Defined Command, add note on exit codes != 0
+  * gmoccapy: update release notes
+  * docs: fix list in building-linuxcnc.adoc
+  * Typos in carousel.comp
+  * Merge pull request #3227 from BsAtHome/backport_2.9_3200-3202
+  * Merge pull request #3226 from BsAtHome/backport_2.9_fix-hm2_spi
+  * Backport fix hm2_spi driver. This was discovered in master and fixed in PR #3225.
+  * Backport fix superfluous NULL check to 2.9 branch (issue #3202).
+  * Backport fix invalid printf format to 2.9 branch (issue #3200).
+  * Merge pull request #3212 from BsAtHome/hm2_spix-backport-2.9
+  * Add missing include to fix checks.
+  * Backport the hm2_spix driver for Raspberry Pi 3, 4 and 5 to the 2.9 branch.
+  * qtvcp -cam align panel: fix setting x and y scaling
+  * gmoccapy: further corrections of sample INI-file regarding really used values
+  * docs: update gmoccapy docs regarding INI values
+  * halshow: fix error on right click "Set to .."
+  * docs: little typo in gstat.adoc
+  * gmoccapy: move spaces out of translatable strings
+  * Fix "Change to raw strings to fix Python SyntaxWarning" (2)
+  * Merge pull request #3179 from hansu/issue-3175
+  * Fix "Change to raw strings to fix Python SyntaxWarning"
+  * docs: gmoccapy - fix order of settings section according to actual order
+  * Merge pull request #3172 from havardAasen/fix-python-syntax-warning
+  * Fix deprecated locale.format() -> locale.format_string()
+  * Update regex
+  * Change to raw strings to fix Python SyntaxWarning
+  * docs: improve "HAL Component Generator" doc page (halcompile)
+  * Merge pull request #3158 from petterreinholdtsen/bug-debian-1080668-python3-setuptools
+  * Dropped use of depricated python3-setuptools / distutils.
+  * Merge pull request #3159 from petterreinholdtsen/2.9-upstream-ax-python
+  * Fetched latest ax_python.m4 and ax_python_devel.m4 from upstream.
+  * Revert "Remove remaining use of deprecated distutils."
+  * Revert "Distutils, fix error in previous fix"
+  * Distutils, fix error in previous fix Addresses #1080668
+  * Remove remaining use of deprecated distutils. Addresses #1080668
+  * QTVCP: Typo in error message
+  * Merge pull request #3137 from petterreinholdtsen/2.9-avoid-bashism-configure-ac
+  * Avoid bashism in configure.ac
+  * qtvcp -test_panel: remove distutils library requirement
+  * Merge pull request #3048 from hansu/gmoccapy-gcmc-config
+  * qtvcp -action_buttons: fix momentary buttons status indicator
+  * Merge pull request #3130 from hansu/gmoccapy-deprecation-warning-2
+  * gmoccapy: fix deprecation warning "Gtk.StyleContext.get_background_color is deprecated"
+  * Merge pull request #3115 from zz912/patch-30
+  * Merge pull request #3125 from hansu/gmoccapy-deprecation-warning
+  * gscreen: remove deprecated use of GtkLabel constructor
+  * gmoccapy: remove deprecated use of GtkLabel constructor
+  * Merge pull request #3118 from zz912/patch-31
+  * lathe_macros.ini - enable postgui.hal
+  * Replace non-exist toolchange.py by stdglue.py
+  * Merge pull request #3106 from LinuxCNC/andypugh/gscreen
+  * gscreen: Fix Spartan sim homing
+  * gscreen: Further tidying up to clear up runtime errors and startup verbosity
+  * gscreen: Fix broken configs - Silverdragon++ I found how to do settings when fixing gaxis
+  * gscreen: Fix broken configs - tester
+  * gscreen: Fix broken configs - gaxis
+  * gscreen: Fix broken configs - 9-axis
+  * gscreen: Fix broken configs - Spartan
+  * gscreen: Fix broken configs - Industrial
+  * gscreen: Fix broken configs
+  * docs: add note to gmoccapy keyboard shortcuts
+  * fix: eliminated printf in shell script
+  * Merge pull request #3090 from Sigma1912/2.9-fix-configs-apps-gladevcp
+  * Fix sim config: apps/gladevcp/animated-backdrop
+  * Add workaround for long keys= in mqtt-publisher This fixes #3084
+  * docs: fixed wrong unit: µm --> um
+  * Merge pull request #3099 from Sigma1912/2.9-configs-apps-xhc-hb04-2
+  * Add note about required 'XTerm' to README 'configs/apps/xhc-hb04'
+  * Update configs/apps/gladevcp/animated-backdrop/cairodraw.py
+  * Merge pull request #3083 from hansu/gtk-sourceview-4-migration
+  * configs/apps/gladevcp/animated-backdrop: partial fix
+  * configs/apps/gladevcp/by-widget/sourceview: fix 'up','down' button functionalitiy
+  * fix configs/apps/gladevcp: update to gtk3 ('sourceview' and 'animated backdrop' still not 100%))
+  * Use now GtkSourceview 4
+  * qtplasmac: fix file load after single cut
+  * Merge pull request #3076 from Sigma1912/2.9-fix-sim-config-rack-toolchange
+  * Fix glade panel and remove depricated 'Features' entries in ini
+  * qtvcp -tab_widget: fix float/int error with new libraries
+  * Merge pull request #3054 from petterreinholdtsen/2.9-build-sid
+  * Reinsert github CI test build on sid
+  * Merge pull request #3026 from hansu/2966-gmoccapy-destroys-tooltable
+  * Merge pull request #3049 from mark-v-d/2.9
+  * We need to turn cutter compensation off for the rapid to the startpoint as well.
+  * Merge pull request #3017 from petterreinholdtsen/2-9-smoe-debian_manpages
+  * gmoccapy: add sim config for gcmc support
+  * tooledit: throw exeption when locale not set
+  * tooltable: create a backup file when error occurs on saving + add exception message
+  * Adjusted handling of man pages to avoid duplicate lists.
+  * Merge pull request #3043 from petterreinholdtsen/2.9-disable-unstable-build
+  * Disabled github CI build on unstable/sid until it start working again.
+  * Merge pull request #3042 from petterreinholdtsen/2.9-new-manpage-install
+  * Merge pull request #3041 from rmu75/rs/fix-locale-restore-2.9
+  * Added new man pages to debian/linuxcnc.install.in.
+  * fix restoring of locale setting in interp
+  * Revert "docs: force monospace font in ASCII art (related to #3007)"
+  * Merge pull request #3035 from sensille/litehm2-2.9
+  * hostmot2: collect initial writes into a single packet
+  * shmen.cc: Revert a mistaken srrncmp->rtapi_srtlcpy change,
+  * Add missing mapages (#3029)
+  * docs: force monospace font in ASCII art (related to #3007)
+  * docs: fix missing line break in toggle2nist man page
+  * Merge pull request #3020 from mark-v-d/2.9
+  * Fixed bug #2939. But now new and improved. This fixes the case where the sub actually has a leadout, but it is too short.
+  * Fixed bug #2939. When fixing the case where there was no leadout move, I broke the case where the leadout was exceeding the starting point.
+  * Allow uniq_id to be used to select hal_input devices. (#3015)
+
+ -- andypugh <andy@bodgesoc.org>  Sat, 25 Jan 2025 12:20:01 +0000
  
-linuxcnc (1:2.9.3) unstable; urgency=medium
+linuxcnc (1:2.9.3) UNRELEASED; urgency=medium
 
   * Make warning about file endings more explicit for new users. (#3013)
   * strncpy -> rtapi_strlcpy for string termination (#2683)

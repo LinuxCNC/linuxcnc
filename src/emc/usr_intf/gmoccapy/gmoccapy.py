@@ -5020,7 +5020,10 @@ class gmoccapy(object):
             self.command.wait_complete()
             command = "T{0} M6".format(int(value))
             self.command.mdi(command)
-
+            # Next two lines fix issue #3129 caused by GStat missing changes in interpreter mode
+            command = "G4 P{0}".format(self.get_ini_info.get_cycle_time()/1000)
+            self.command.mdi(command)
+            
     # set tool with M61 Q? or with T? M6
     def on_btn_selected_tool_clicked(self, widget, data=None):
         tool = self.widgets.tooledit1.get_selected_tool()
@@ -5042,6 +5045,9 @@ class gmoccapy(object):
                 command = "T{0} M6".format(tool)
             else:
                 command = "M61 Q{0}".format(tool)
+            self.command.mdi(command)
+            # Next two lines fix issue #3120 also caused by GStat missing changes in interpreter mode
+            command = "G4 P{0}".format(self.get_ini_info.get_cycle_time()/1000)
             self.command.mdi(command)
         else:
             message = _("Could not understand the entered tool number. Will not change anything!")
