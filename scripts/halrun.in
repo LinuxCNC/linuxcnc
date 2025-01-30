@@ -150,9 +150,9 @@ if $HAVEFILE ; then
         halcmd_twopass "$filename"; result=$?    
     fi
   elif $IS_HALTCL; then
-    haltcl "$@"; result=$?
+    haltcl $@; result=$?
   else
-    halcmd "$@"; result=$?
+    halcmd $@; result=$?
   fi
 fi
 
