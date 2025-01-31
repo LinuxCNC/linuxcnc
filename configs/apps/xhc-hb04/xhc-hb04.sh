@@ -2,7 +2,7 @@
 
 thisfile=$(readlink -f "$0")
 thisdir=$(dirname "$thisfile")
-cd "$thisdir" || exit
+cd "$thisdir" || { echo "E: Could not change directory to '$thisdir'"; exit 1; }
 
 LAYOUT=${1:-""}
 
