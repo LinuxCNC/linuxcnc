@@ -22,10 +22,10 @@ includes () {
 
 images() {
 	DIR=$(dirname "$1")
-	sed -ne "s|^.*image:\{1,2\}\([^[]*\)\[.*\].*$|$DIR/\1|p" "$1"
+	sed -ne "s|^.*image:\{1,2\}\([^[]*\)\[.*\].*$|$DIR/\1|p" "$1" | tr '\n' ' '
 }
 
-INCLUDES=$(includes "$1")
+INCLUDES=$(includes "$1" | tr '\n' ' ')
 IMAGES=$(images "$1")
 for f in $INCLUDES; do
 	IMAGES="$IMAGES $(images "$f")"
