@@ -16,7 +16,7 @@ export LANGUAGES=
 TOPDIR="$(realpath "$(dirname "$0")/..")"
 
 prefix=@prefix@
-# Shellcheck does not now about substitutions
+# Shellcheck does not know about substitutions
 # shellcheck disable=SC2050
 if [ "@RUN_IN_PLACE@" = yes ]; then
     . "$TOPDIR/scripts/rip-environment" >&/dev/null
