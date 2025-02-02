@@ -2204,9 +2204,9 @@ class ControlPanel():
 
         xcmd.append(m.sub_file)
         print("xcmd=",xcmd)
-        e_message = ".*Runtime message\(\): *(.*)"
-        e_warning = ".*Runtime warning\(\): *(.*)"
-        e_error   = ".*Runtime error\(\): *(.*)"
+        e_message = r".*Runtime message\(\): *(.*)"
+        e_warning = r".*Runtime warning\(\): *(.*)"
+        e_error   = r".*Runtime error\(\): *(.*)"
 
         s = subprocess.Popen(xcmd
                              ,stdout=subprocess.PIPE

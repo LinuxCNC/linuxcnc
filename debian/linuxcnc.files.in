@@ -31,7 +31,7 @@ usr/share/linuxcnc/pncconf/*.glade
 usr/share/locale/*/LC_MESSAGES/*.mo
 usr/share/man/man1/*
 usr/share/man/man9/*
-usr/share/gtksourceview-2.0/
+usr/share/gtksourceview-4/
 usr/share/gscreen
 usr/share/gmoccapy
 usr/share/qtvcp

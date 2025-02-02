@@ -14,7 +14,7 @@ from tkinter import messagebox
 
 def copysection(block):
     #Just makes a straight copy of blocks that don't need any work
-    regex = "^\s*\[%s\](.+?)(?:^\s*\[|\Z)" % block
+    regex = r"^\s*\[%s\](.+?)(?:^\s*\[|\Z)" % block
     section = re.search(regex, inistring, re.M | re.DOTALL)
     newini.write("\n[%s]" % block)
     if section != None:
@@ -178,7 +178,7 @@ if version == "$Revision$" or version < "1.0":
     inistring = open(filename,'r').read()
     newini = open(filename, 'w')
     # Get a list of all sections
-    all_sections = re.findall("^\s*\[(.+)\]", inistring, re.MULTILINE)
+    all_sections = re.findall(r"^\s*\[(.+)\]", inistring, re.MULTILINE)
 
     # A C-style Switch would be nice here, to allow us to fall through successive
     # version updates.
@@ -190,13 +190,13 @@ if version == "$Revision$" or version < "1.0":
     newini.write("# The original config files may be found in the %s directory\n\n" % backupdir)
 
     # reproduce everything before the first [section] verbatim
-    section = re.match("(.*?)^\[", inistring, re.DOTALL | re.MULTILINE)
+    section = re.match(r"(.*?)^\[", inistring, re.DOTALL | re.MULTILINE)
     if section !=None:
         newini.write(section.group(1))
 
     #[EMC] Section, change the version number
     all_sections.remove("EMC")
-    section = re.search("\[EMC\](.+?)\n\[", inistring, re.DOTALL)
+    section = re.search(r"\[EMC\](.+?)\n\[", inistring, re.DOTALL)
     if section: section = section.group(1)
     newini.write("[EMC]\n")
     if section != None:
@@ -215,7 +215,7 @@ if version == "$Revision$" or version < "1.0":
 
     #[RS274NGC] Section, change FEATURES to separate entries
     all_sections.remove("RS274NGC")
-    section = re.search("\[RS274NGC\](.+?)\n\[", inistring, re.DOTALL)
+    section = re.search(r"\[RS274NGC\](.+?)\n\[", inistring, re.DOTALL)
     if section: section = section.group(1)
     newini.write("\n[RS274NGC]\n")
     if section != None:
@@ -233,7 +233,7 @@ if version == "$Revision$" or version < "1.0":
     newini.write(section)
 
     all_sections.remove("EMCMOT")
-    section = re.search("\[EMCMOT\](.+?)\n\[", inistring, re.DOTALL)
+    section = re.search(r"\[EMCMOT\](.+?)\n\[", inistring, re.DOTALL)
     if section: section = section.group(1)
     newini.write("[EMCMOT]\n")
     section = re.sub("# Interval between tries to emcmot.*?\n", "", section)
@@ -264,14 +264,14 @@ if version == "$Revision$" or version < "1.0":
     for halfile in halpaths:
         hal = open(os.path.join(os.path.dirname(filename), halfile), 'r')
         for line in hal.readlines():
-            match = re.match('(?:#autoconverted|loadrt) +(\w+kins)', line)
+            match = re.match(r'(?:#autoconverted|loadrt) +(\w+kins)', line)
             if match:
                 kins = match.group(1)
-                match = re.search('coordinates *= *(\w+)', line)
+                match = re.search(r'coordinates *= *(\w+)', line)
                 if match:
                     coordinates = list(match.group(1))
                     coords_entry = 1
-                match = re.search('kinstype *= *(\w+)', line)
+                match = re.search(r'kinstype *= *(\w+)', line)
                 if kinstype: kinstype = match.group(1)
                 break
         if kins: break
@@ -286,7 +286,7 @@ if version == "$Revision$" or version < "1.0":
         for halfile in halpaths:
             hal = open(os.path.join(os.path.dirname(filename), halfile), 'r')
             for line in hal.readlines():
-                match = re.match('setp +gantrykins.joint-(\d) +(\d)', line)
+                match = re.match(r'setp +gantrykins.joint-(\d) +(\d)', line)
                 if match:
                     j = int(match.group(1))
                     if j > joints: joints = j
@@ -298,7 +298,7 @@ if version == "$Revision$" or version < "1.0":
 
     # In JA [TRAJ] expects MAX_LINEAR_VELOCITY not MAX_VELOCITY
     all_sections.remove("TRAJ")
-    section = re.search("\[TRAJ\](.+?)\n\[", inistring, re.DOTALL)
+    section = re.search(r"\[TRAJ\](.+?)\n\[", inistring, re.DOTALL)
     if section: section = section.group(1)
     newini.write("\n[TRAJ]\n")
     if section != None:
@@ -306,7 +306,7 @@ if version == "$Revision$" or version < "1.0":
             if re.search("MAX_VELOCITY", section):
                 section = re.sub("MAX_VELOCITY", "MAX_LINEAR_VELOCITY", section)
             else:
-                mv = re.findall("MAX_VELOCITY[\s=]+(\d*(\.\d+)?)", inistring, re.MULTILINE)
+                mv = re.findall(r"MAX_VELOCITY[\s=]+(\d*(\.\d+)?)", inistring, re.MULTILINE)
                 section = ("\n# this value based on fastest single axis" +
                           "\nMAX_LINEAR_VELOCITY = %s" % max(mv)[0] + section)
         if not re.search("DEFAULT_LINEAR_VELOCITY", section):
@@ -338,8 +338,8 @@ if version == "$Revision$" or version < "1.0":
     L2J={}
     while 1:
          # Search preferentially in "[JOINT_N] in case the file is part-converted already
-        if re.search("^(\[JOINT_%i\])"%j, inistring, re.MULTILINE):
-            if re.search("^(\[AXIS_%s\])" % "XYZABCUVW"[j], inistring, re.MULTILINE):
+        if re.search(r"^(\[JOINT_%i\])"%j, inistring, re.MULTILINE):
+            if re.search(r"^(\[AXIS_%s\])" % "XYZABCUVW"[j], inistring, re.MULTILINE):
                 copysection("AXIS_%s" % "XYZABCUVW"[j])
             #    copysection("JOINT_%i" % j)
             elif j < len(coordinates):
@@ -385,17 +385,17 @@ if version == "$Revision$" or version < "1.0":
             for J in L2J[L]:
                 # Take the coordinates index as the JOINT_Number
                 newini.write("\n[JOINT_%i]" % J)
-                section = re.search("\[AXIS_%i\](.+?)(\n\[|$)" % J, inistring, re.DOTALL)
+                section = re.search(r"\[AXIS_%i\](.+?)(\n\[|$)" % J, inistring, re.DOTALL)
                 if not section:
-                    section = re.search("\[AXIS_%i\](.+?)(\n\[|$)" % "XYZABCUVW".index(coordinates[J]), inistring, re.DOTALL)
+                    section = re.search(r"\[AXIS_%i\](.+?)(\n\[|$)" % "XYZABCUVW".index(coordinates[J]), inistring, re.DOTALL)
                 if section:
                     section = re.sub("HOME_SEQUENCE.*", sequence, section.group(1))
                     newini.write(section)
-                    if not '\[AXIS_%i\]' % axisnum in subs:
-                        subs.update({'\[AXIS_%i\]' % axisnum : '[JOINT_%i]' % J})
-                        subs2.update({'joint\.%i\.' % axisnum : 'joint.%i.' % J})
+                    if not r'\[AXIS_%i\]' % axisnum in subs:
+                        subs.update({r'\[AXIS_%i\]' % axisnum : '[JOINT_%i]' % J})
+                        subs2.update({r'joint\.%i\.' % axisnum : 'joint.%i.' % J})
                     else:
-                        subs.update({'\[AXIS_%i\]' % J : '[JOINT_%i]' % J})
+                        subs.update({r'\[AXIS_%i\]' % J : '[JOINT_%i]' % J})
                 else:
                     print("File parsing error, found an [AXIS_%i] section, but no content" % J)
                     exit()
@@ -484,7 +484,7 @@ if version == "$Revision$" or version < "1.0":
     'halui.joint.selected':       'halui.joint.selected',
     'halui.joint.selected.is_homed':'halui.joint.selected.is-homed',
     'halui.joint.selected.on-soft-limit':'halui.joint.selected.on-soft-max-limit',
-    'num_joints=\[TRAJ\]AXES':    'num_joints=[KINS]JOINTS',
+    'num_joints=[TRAJ]AXES':      'num_joints=[KINS]JOINTS',
     'loadrt(.+kins)':             'loadrt [KINS]KINEMATICS\n#autoconverted \\1',
     'shuttlexpress':              'shuttle',
     'shuttlepro':                 'shuttle',
@@ -495,7 +495,7 @@ if version == "$Revision$" or version < "1.0":
 
     # converts @axN@ pattern to axis.L and splits any malformed setp from mpg
     subs2.update({
-    '^\s*setp\s+(joint\S+)\s+(axis\S+)\s+(\S+)\s*$':
+    r'^\s*setp\s+(joint\S+)\s+(axis\S+)\s+(\S+)\s*$':
                                  'setp \\1 \\3\nsetp \\2 \\3\n',
     '@ax0@':                     'axis.x',
     '@ax1@':                     'axis.y',

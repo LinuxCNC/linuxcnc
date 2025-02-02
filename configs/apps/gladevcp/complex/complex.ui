@@ -1,127 +1,145 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.38.2 -->
 <interface>
-  <!-- interface-requires gladevcp 0.0 -->
-  <requires lib="gtk+" version="2.16"/>
-  <!-- interface-naming-policy project-wide -->
+  <requires lib="gtk+" version="3.0"/>
+  <requires lib="gladevcp" version="0.0"/>
+  <object class="GtkAction" id="action1"/>
+  <object class="GtkAdjustment" id="adjustment1">
+    <property name="upper">100</property>
+    <property name="step-increment">1</property>
+  </object>
+  <object class="GtkAdjustment" id="adjustment2">
+    <property name="upper">100</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
+    <property name="page-size">10</property>
+  </object>
   <object class="GtkWindow" id="window1">
+    <property name="can-focus">False</property>
     <child>
       <object class="HAL_Table" id="hal_table1">
         <property name="visible">True</property>
-        <property name="n_rows">3</property>
-        <property name="n_columns">3</property>
-        <signal name="destroy" handler="on_destroy"/>
+        <property name="can-focus">False</property>
+
+        <signal name="destroy" handler="on_destroy" swapped="no"/>
         <child>
           <object class="HAL_LED" id="hal_led1">
             <property name="visible">True</property>
-            <signal name="hal_pin_changed" handler="on_led_pin_changed"/>
+            <property name="can-focus">False</property>
+            <property name="led-blink-rate">0</property>
+            <signal name="hal-pin-changed" handler="on_led_pin_changed" swapped="no"/>
           </object>
         </child>
         <child>
           <object class="HAL_Button" id="hal_button1">
             <property name="label" translatable="yes">button</property>
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="receives_default">True</property>
-            <signal name="pressed" handler="on_button_press"/>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
+            <signal name="pressed" handler="on_button_press" swapped="no"/>
           </object>
           <packing>
-            <property name="left_attach">2</property>
-            <property name="right_attach">3</property>
+            <property name="left-attach">2</property>
+            <property name="right-attach">3</property>
           </packing>
         </child>
         <child>
           <object class="HAL_SpinButton" id="hal_spinbutton1">
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="invisible_char">&#x25CF;</property>
+            <property name="can-focus">True</property>
+            <property name="invisible-char">●</property>
             <property name="adjustment">adjustment1</property>
           </object>
           <packing>
-            <property name="top_attach">1</property>
-            <property name="bottom_attach">2</property>
+            <property name="top-attach">1</property>
+            <property name="bottom-attach">2</property>
           </packing>
         </child>
         <child>
           <object class="HAL_ToggleButton" id="hal_togglebutton1">
             <property name="label" translatable="yes">Toggle LED</property>
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="receives_default">True</property>
-            <signal name="toggled" handler="on_toggle_button"/>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
+            <signal name="toggled" handler="on_toggle_button" swapped="no"/>
           </object>
           <packing>
-            <property name="left_attach">2</property>
-            <property name="right_attach">3</property>
-            <property name="top_attach">1</property>
-            <property name="bottom_attach">2</property>
+            <property name="left-attach">2</property>
+            <property name="right-attach">3</property>
+            <property name="top-attach">1</property>
+            <property name="bottom-attach">2</property>
           </packing>
         </child>
         <child>
           <object class="HAL_HScale" id="hal_hscale1">
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
+            <property name="can-focus">True</property>
             <property name="adjustment">adjustment2</property>
           </object>
           <packing>
-            <property name="left_attach">1</property>
-            <property name="right_attach">2</property>
-            <property name="top_attach">2</property>
-            <property name="bottom_attach">3</property>
+            <property name="left-attach">1</property>
+            <property name="right-attach">2</property>
+            <property name="top-attach">2</property>
+            <property name="bottom-attach">3</property>
           </packing>
         </child>
         <child>
           <object class="GtkButton" id="button1">
             <property name="label" translatable="yes">Restore defaults</property>
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="receives_default">True</property>
-            <signal name="pressed" handler="on_restore_defaults"/>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
+            <signal name="pressed" handler="on_restore_defaults" swapped="no"/>
           </object>
           <packing>
-            <property name="left_attach">1</property>
-            <property name="right_attach">2</property>
+            <property name="left-attach">1</property>
+            <property name="right-attach">2</property>
           </packing>
         </child>
         <child>
           <object class="GtkButton" id="button2">
             <property name="label" translatable="yes">Save settings</property>
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="receives_default">True</property>
-            <signal name="pressed" handler="on_save_settings"/>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
+            <signal name="pressed" handler="on_save_settings" swapped="no"/>
           </object>
           <packing>
-            <property name="left_attach">1</property>
-            <property name="right_attach">2</property>
-            <property name="top_attach">1</property>
-            <property name="bottom_attach">2</property>
+            <property name="left-attach">1</property>
+            <property name="right-attach">2</property>
+            <property name="top-attach">1</property>
+            <property name="bottom-attach">2</property>
           </packing>
         </child>
         <child>
           <object class="HAL_Label" id="message">
             <property name="visible">True</property>
-            <property name="text_template">Total runtime: %s seconds</property>
+            <property name="can-focus">False</property>
+            <property name="text-template">Total runtime: %s seconds</property>
           </object>
           <packing>
-            <property name="left_attach">2</property>
-            <property name="right_attach">3</property>
-            <property name="top_attach">2</property>
-            <property name="bottom_attach">3</property>
+            <property name="left-attach">2</property>
+            <property name="right-attach">3</property>
+            <property name="top-attach">2</property>
+            <property name="bottom-attach">3</property>
           </packing>
         </child>
         <child>
           <object class="GtkVBox" id="vbox1">
             <property name="visible">True</property>
+            <property name="can-focus">False</property>
             <child>
               <object class="HAL_RadioButton" id="hal_radiobutton1">
                 <property name="label" translatable="yes">lemon</property>
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="draw_indicator">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">False</property>
+                <property name="draw-indicator">True</property>
                 <property name="group">hal_radiobutton2</property>
               </object>
               <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
                 <property name="position">0</property>
               </packing>
             </child>
@@ -129,12 +147,14 @@
               <object class="HAL_RadioButton" id="hal_radiobutton2">
                 <property name="label" translatable="yes">banana</property>
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">False</property>
                 <property name="active">True</property>
-                <property name="draw_indicator">True</property>
+                <property name="draw-indicator">True</property>
               </object>
               <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
                 <property name="position">1</property>
               </packing>
             </child>
@@ -142,33 +162,24 @@
               <object class="HAL_RadioButton" id="hal_radiobutton3">
                 <property name="label" translatable="yes">chocolate</property>
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="draw_indicator">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">False</property>
+                <property name="draw-indicator">True</property>
                 <property name="group">hal_radiobutton2</property>
               </object>
               <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
                 <property name="position">2</property>
               </packing>
             </child>
           </object>
           <packing>
-            <property name="top_attach">2</property>
-            <property name="bottom_attach">3</property>
+            <property name="top-attach">2</property>
+            <property name="bottom-attach">3</property>
           </packing>
         </child>
       </object>
     </child>
-  </object>
-  <object class="GtkAction" id="action1"/>
-  <object class="GtkAdjustment" id="adjustment1">
-    <property name="upper">100</property>
-    <property name="step_increment">1</property>
-  </object>
-  <object class="GtkAdjustment" id="adjustment2">
-    <property name="upper">100</property>
-    <property name="step_increment">1</property>
-    <property name="page_increment">10</property>
-    <property name="page_size">10</property>
   </object>
 </interface>

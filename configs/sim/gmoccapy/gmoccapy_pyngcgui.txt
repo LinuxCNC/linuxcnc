@@ -1,4 +1,4 @@
-Standard GMOCCCPAY configuration for a XYZ mill,
+Standard GMOCCAPY configuration for a XYZ mill,
 
 including
 

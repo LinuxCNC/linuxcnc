@@ -316,7 +316,7 @@ int SHMEM::open()
 	if (!shm->created) {
 	    char *cptr = (char *) shm->addr;
 	    cptr[31] = 0;
-	    if (rtapi_strlcpy(cptr, BufferName, 31)) {
+	    if (strncmp(cptr, BufferName, 31)) {
 		rcs_print_error
 		    ("Shared memory buffers %s and %s may conflict. (key=%d(0x%X))\n",
 		    BufferName, cptr, key, key);

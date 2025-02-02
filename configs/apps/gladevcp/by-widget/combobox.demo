@@ -4,4 +4,4 @@ thisfile=$(readlink -f "$0")
 thisdir=$(dirname "$thisfile")
 cd "$thisdir"
 
-gladevcp_demo -u ./combobox ./combobox.ui
+gladevcp_demo -u combobox.py combobox.ui

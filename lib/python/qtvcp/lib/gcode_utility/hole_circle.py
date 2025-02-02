@@ -167,18 +167,18 @@ class Hole_Circle(QtWidgets.QWidget):
     def set_validator(self):
         # set valid input formats for lineEdits
         if self.btn_inch.isChecked():
-            valid_size = QtGui.QRegExpValidator(QRegExp('^((\d+(\.\d{,4})?)|(\.\d{,4}))$'))
-            valid_radius = QtGui.QRegExpValidator(QRegExp('^((\d{1,3}(\.\d{1,4})?)|(\.\d{1,4}))$'))
+            valid_size = QtGui.QRegExpValidator(QRegExp(r'^((\d+(\.\d{,4})?)|(\.\d{,4}))$'))
+            valid_radius = QtGui.QRegExpValidator(QRegExp(r'^((\d{1,3}(\.\d{1,4})?)|(\.\d{1,4}))$'))
             valid_feed = QtGui.QRegExpValidator(QRegExp('[0-9]{0,6}[.][0-9]{0,3}'))
         else:
-            valid_size = QtGui.QRegExpValidator(QRegExp('^((\d+(\.\d{,3})?)|(\.\d{,3}))$'))
-            valid_radius = QtGui.QRegExpValidator(QRegExp('^((\d{1,4}(\.\d{1,3})?)|(\.\d{1,3}))$'))
-            valid_feed = QtGui.QRegExpValidator(QRegExp('\d{0,5}[.]\d{0,1}'))
+            valid_size = QtGui.QRegExpValidator(QRegExp(r'^((\d+(\.\d{,3})?)|(\.\d{,3}))$'))
+            valid_radius = QtGui.QRegExpValidator(QRegExp(r'^((\d{1,4}(\.\d{1,3})?)|(\.\d{1,3}))$'))
+            valid_feed = QtGui.QRegExpValidator(QRegExp(r'\d{0,5}[.]\d{0,1}'))
 
-        self.lineEdit_spindle.setValidator(QtGui.QRegExpValidator(QRegExp('\d{0,5}')))
+        self.lineEdit_spindle.setValidator(QtGui.QRegExpValidator(QRegExp(r'\d{0,5}')))
         self.lineEdit_num_holes.setValidator(QtGui.QDoubleValidator(0, 99, 0))
         self.lineEdit_radius.setValidator(valid_radius)
-        self.lineEdit_first.setValidator(QtGui.QRegExpValidator(QRegExp('\d{0,3}[.]\d{0,2}')))
+        self.lineEdit_first.setValidator(QtGui.QRegExpValidator(QRegExp(r'\d{0,3}[.]\d{0,2}')))
         self.lineEdit_safe_z.setValidator(valid_size)
         self.lineEdit_start_height.setValidator(valid_size)
         self.lineEdit_depth.setValidator(valid_size)

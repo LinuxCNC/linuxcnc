@@ -663,7 +663,7 @@ public:
 	p	Number of passes to go from d to e
     */
     void do_g70(motion_base *out, double x, double z, double d, double e,
-	double p
+	double p, int *cutter_comp_side
     ) {
 	front()->sp()=std::complex<double>(z,x);
 
@@ -690,7 +690,10 @@ public:
 	    g7x path(*this);
 	    path.add_distance(distance);
 
+	    auto comp=*cutter_comp_side;
+	    *cutter_comp_side=0;
 	    swapped_out->straight_rapid(path.front()->sp());
+	    *cutter_comp_side=comp;
 	    swapped_out->straight_rapid(path.front()->ep());
 	    for(auto p=++path.begin(); p!=--path.end(); p++)
 		    (*p)->draw(swapped_out.get());
@@ -1059,7 +1062,10 @@ int Interp::convert_g7x(int mode,
     original_block.x_number=x;
     original_block.z_number=z;
 
+    auto cutter_comp=settings->cutter_comp_side;
+    settings->cutter_comp_side=0;
     int error=convert_straight(G_0, block, settings);
+    settings->cutter_comp_side=cutter_comp;
     if(error!=INTERP_OK)
 	return error;
 
@@ -1192,12 +1198,16 @@ int Interp::convert_g7x(int mode,
     if(i<=0)
 	ERS("G7X error: I must be greater than zero.");
 
+    auto dfront=path.front()->ep()-path.front()->sp();
+    auto dback=path.back()->ep()-path.back()->sp();
     motion_machine motion(this, settings, block);
     try {
 	switch(cycle) {
-	case 70: path.do_g70(&motion,x,z,d,e,p); break;
+	case 70:
+	    path.do_g70(&motion,x,z,d,e,p,&settings->cutter_comp_side);
+	    break;
 	case 71:
-	    if(x!=imag(start)) {
+	    if(std::abs(real(dback))>0 && imag(dfront)*(x-imag(start))<0) {
 		std::complex<double> end{real(start),x};
 		path.emplace_back(std::make_unique<straight_segment>(
 		    start, end
@@ -1206,7 +1216,7 @@ int Interp::convert_g7x(int mode,
 	    path.do_g71(&motion,subcycle,x,z,u,w,d,i,r);
 	    break;
 	case 72:
-	    if(z!=real(start)) {
+	    if(std::abs(imag(dback))>0 && real(dfront)*(z-real(start))<0) {
 		std::complex<double> end{z,imag(start)};
 		path.emplace_back(std::make_unique<straight_segment>(
 		    start, end
