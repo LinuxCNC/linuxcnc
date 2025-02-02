@@ -108,7 +108,7 @@ done
 cd "$(dirname "$HALFILE")" || { echo "E: Could not change directory to '$(dirname "$HALFILE")'"; exit 1; }
 
 halmsg=/tmp/pyvcp_demo_halcmd.err
-halcmd -f "$HALFILE" > "$halmsg" 2>&1
+halcmd -f "$HALFILE" >| "$halmsg" 2>&1
 halstatus=$?
 if [ "$halstatus" != 0 ] ; then
   IFS=$'\n' # split lines
