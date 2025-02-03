@@ -261,10 +261,10 @@ int read_modbus_register(modbus_t *mb, modbus_register_t *reg) {
             switch (reg->type) {
             case REGISTER_FLOAT:
                 *reg->hal_pin_float = data * reg->multiplier;
-                ;;
+                break;
             case REGISTER_U32:
                 *reg->hal_pin_u32 = data;
-                ;;
+                break;
             }
             return 0;
         }
