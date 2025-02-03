@@ -295,7 +295,7 @@ int Interp::execute_call(setup_pointer settings,
 		plist.append(eblock->params[i]); // positional args
 	    current_frame->pystuff.impl->tupleargs = bp::tuple(plist);
 	    current_frame->pystuff.impl->kwargs = bp::dict();
-
+	    /* Fallthrough */
 	case CS_REEXEC_PYOSUB:
 	    if (settings->call_state ==  CS_REEXEC_PYOSUB)
 		CHP(read_inputs(settings));
@@ -440,6 +440,7 @@ int Interp::execute_return(setup_pointer settings, context_pointer current_frame
 	    }
 	}
 	// fall through to normal NGC return handling 
+	/* Fallthrough */
     case CT_NGC_OWORD_SUB:
     case CT_NGC_M98_SUB:
     case CT_NONE:  // sub definition
