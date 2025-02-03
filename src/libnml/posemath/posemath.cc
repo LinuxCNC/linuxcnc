@@ -292,8 +292,8 @@ PM_ROTATION_MATRIX::PM_ROTATION_MATRIX(double xx, double xy, double xz,
     /*! \todo FIXME-- need a matrix orthonormalization function pmMatNorm() */
 }
 
-PM_ROTATION_MATRIX::PM_ROTATION_MATRIX(PM_CARTESIAN _x, PM_CARTESIAN _y,
-    PM_CARTESIAN _z)
+PM_ROTATION_MATRIX::PM_ROTATION_MATRIX(const PM_CARTESIAN& _x, const PM_CARTESIAN& _y,
+    const PM_CARTESIAN& _z)
 {
     x = _x;
     y = _y;
@@ -640,7 +640,7 @@ double &PM_RPY::operator [] (int n) {
 
 // PM_POSE class
 
-PM_POSE::PM_POSE(PM_CARTESIAN v, PM_QUATERNION q)
+PM_POSE::PM_POSE(const PM_CARTESIAN& v, const PM_QUATERNION& q)
 {
     tran.x = v.x;
     tran.y = v.y;
@@ -703,7 +703,7 @@ PM_POSE::PM_POSE(PM_CCONST PM_POSE & p)
 #endif
 // PM_HOMOGENEOUS class
 
-PM_HOMOGENEOUS::PM_HOMOGENEOUS(PM_CARTESIAN v, PM_ROTATION_MATRIX m)
+PM_HOMOGENEOUS::PM_HOMOGENEOUS(const PM_CARTESIAN& v, const PM_ROTATION_MATRIX&	 m)
 {
     tran = v;
     rot = m;
@@ -763,7 +763,7 @@ PM_LINE::PM_LINE(PM_CCONST PM_LINE & l)
 }
 #endif
 
-int PM_LINE::init(PM_POSE start, PM_POSE end)
+int PM_LINE::init(const PM_POSE& start, const PM_POSE& end)
 {
     PmLine _line;
     PmPose _start, _end;
@@ -810,8 +810,8 @@ PM_CIRCLE::PM_CIRCLE(PM_CCONST PM_CIRCLE & c)
 }
 #endif
 
-int PM_CIRCLE::init(PM_POSE start, PM_POSE end,
-    PM_CARTESIAN center, PM_CARTESIAN normal, int turn)
+int PM_CIRCLE::init(const PM_POSE& start, const PM_POSE& end,
+    const PM_CARTESIAN& center, const PM_CARTESIAN& normal, int turn)
 {
     PmCircle _circle;
     PmPose _start, _end;
@@ -956,7 +956,7 @@ PM_ROTATION_MATRIX norm(PM_ROTATION_MATRIX m)
 
 // isNorm
 
-int isNorm(PM_CARTESIAN v)
+int isNorm(const PM_CARTESIAN& v)
 {
     PmCartesian _v;
 
@@ -965,7 +965,7 @@ int isNorm(PM_CARTESIAN v)
     return pmCartIsNorm(&_v);
 }
 
-int isNorm(PM_QUATERNION q)
+int isNorm(const PM_QUATERNION& q)
 {
     PmQuaternion _q;
 
@@ -974,7 +974,7 @@ int isNorm(PM_QUATERNION q)
     return pmQuatIsNorm(&_q);
 }
 
-int isNorm(PM_ROTATION_VECTOR r)
+int isNorm(const PM_ROTATION_VECTOR& r)
 {
     PmRotationVector _r;
 
@@ -983,7 +983,7 @@ int isNorm(PM_ROTATION_VECTOR r)
     return pmRotIsNorm(&_r);
 }
 
-int isNorm(PM_ROTATION_MATRIX m)
+int isNorm(const PM_ROTATION_MATRIX& m)
 {
     PmRotationMatrix _m;
 

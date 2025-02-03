@@ -102,7 +102,7 @@ int emcToolPrepare(int tool) { return task_methods->emcToolPrepare(tool); }
 int emcToolLoad() { return task_methods->emcToolLoad(); }
 int emcToolUnload()  { return task_methods->emcToolUnload(); }
 int emcToolLoadToolTable(const char *file) { return task_methods->emcToolLoadToolTable(file); }
-int emcToolSetOffset(int pocket, int toolno, EmcPose offset, double diameter,
+int emcToolSetOffset(int pocket, int toolno, const EmcPose& offset, double diameter,
                      double frontangle, double backangle, int orientation) {
     return task_methods->emcToolSetOffset( pocket,  toolno,  offset,  diameter,
 					   frontangle,  backangle,  orientation); }
@@ -519,7 +519,7 @@ int Task::emcToolLoadToolTable(const char *file)//EMC_TOOL_LOAD_TOOL_TABLE_TYPE
     return 0;
 }
 
-int Task::emcToolSetOffset(int idx, int toolno, EmcPose offset, double diameter,
+int Task::emcToolSetOffset(int idx, int toolno, const EmcPose& offset, double diameter,
                      double frontangle, double backangle, int orientation)//EMC_TOOL_SET_OFFSET
 {
 

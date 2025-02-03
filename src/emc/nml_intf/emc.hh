@@ -365,18 +365,18 @@ extern int emcTrajForward();
 extern int emcTrajStep();
 extern int emcTrajResume();
 extern int emcTrajDelay(double delay);
-extern int emcTrajLinearMove(EmcPose end, int type, double vel,
+extern int emcTrajLinearMove(const EmcPose& end, int type, double vel,
                              double ini_maxvel, double acc, int indexer_jnum);
-extern int emcTrajCircularMove(EmcPose end, PM_CARTESIAN center, PM_CARTESIAN
+extern int emcTrajCircularMove(const EmcPose& end, const PM_CARTESIAN& center, const PM_CARTESIAN&
         normal, int turn, int type, double vel, double ini_maxvel, double acc);
 extern int emcTrajSetTermCond(int cond, double tolerance);
 extern int emcTrajSetSpindleSync(int spindle, double feed_per_revolution, bool wait_for_index);
-extern int emcTrajSetOffset(EmcPose tool_offset);
-extern int emcTrajSetHome(EmcPose home);
+extern int emcTrajSetOffset(const EmcPose& tool_offset);
+extern int emcTrajSetHome(const EmcPose& home);
 extern int emcTrajClearProbeTrippedFlag();
-extern int emcTrajProbe(EmcPose pos, int type, double vel, 
+extern int emcTrajProbe(const EmcPose& pos, int type, double vel,
                         double ini_maxvel, double acc, unsigned char probe_type);
-extern int emcTrajRigidTap(EmcPose pos, double vel, double ini_maxvel, double acc, double scale);
+extern int emcTrajRigidTap(const EmcPose& pos, double vel, double ini_maxvel, double acc, double scale);
 
 extern int emcTrajUpdate(EMC_TRAJ_STAT * stat);
 
@@ -401,7 +401,7 @@ extern int emcToolPrepare(int tool);
 extern int emcToolLoad();
 extern int emcToolUnload();
 extern int emcToolLoadToolTable(const char *file);
-extern int emcToolSetOffset(int pocket, int toolno, EmcPose offset, double diameter,
+extern int emcToolSetOffset(int pocket, int toolno, const EmcPose& offset, double diameter,
                             double frontangle, double backangle, int orientation);
 extern int emcToolSetNumber(int number);
 
