@@ -93,7 +93,7 @@ static int debug_velacc = 0;
 
 static StateTag _tag;
 
-void UPDATE_TAG(StateTag tag) {
+void UPDATE_TAG(const StateTag& tag) {
     canon_debug("--Got UPDATE_TAG: %d--\n",tag.fields[GM_FIELD_LINE_NUMBER]);
     _tag = tag;
 }
@@ -213,7 +213,7 @@ static void rotate_and_offset_xyz(PM_CARTESIAN & xyz) {
 			canon.toolOffset.tran.z);
 }
 
-static CANON_POSITION unoffset_and_unrotate_pos(const CANON_POSITION pos) {
+static CANON_POSITION unoffset_and_unrotate_pos(const CANON_POSITION& pos) {
     CANON_POSITION res;
 
     res = pos;
@@ -264,7 +264,7 @@ static void rotate_and_offset_pos(double &x, double &y, double &z, double &a, do
 }
 
 
-static CANON_POSITION unoffset_and_unrotate_pos(const EmcPose pos) {
+static CANON_POSITION unoffset_and_unrotate_pos(const EmcPose& pos) {
     CANON_POSITION res(pos);
     return unoffset_and_unrotate_pos(res);
 }
@@ -712,7 +712,7 @@ static AccelData getStraightAcceleration(double x, double y, double z,
     return out;
 }
 
-static AccelData getStraightAcceleration(CANON_POSITION pos)
+static AccelData getStraightAcceleration(const CANON_POSITION& pos)
 {
 
     return getStraightAcceleration(pos.x,
@@ -848,7 +848,7 @@ static VelData getStraightVelocity(double x, double y, double z,
     return out;
 }
 
-static VelData getStraightVelocity(CANON_POSITION pos)
+static VelData getStraightVelocity(const CANON_POSITION& pos)
 {
 
     return getStraightVelocity(pos.x,
@@ -994,7 +994,7 @@ linkable(double x, double y, double z,
 
 static void
 see_segment(int line_number,
-	    StateTag tag,
+	    const StateTag& tag,
 	    double x, double y, double z, 
             double a, double b, double c,
             double u, double v, double w) {
@@ -1380,8 +1380,8 @@ biarc(int lineno, double p0x, double p0y, double tsx, double tsy,
 
 //-----------------------------------------------------------------------------------------------------------------------------------------
 void NURBS_G5_FEED(int lineno,
-		   std::vector<NURBS_CONTROL_POINT>
-		   nurbs_control_points, unsigned int nurbs_order,
+		   const std::vector<NURBS_CONTROL_POINT>& nurbs_control_points,
+		   unsigned int nurbs_order,
 		   CANON_PLANE /*plane*/)
 {
 	flush_segments();
@@ -1418,9 +1418,8 @@ void NURBS_G5_FEED(int lineno,
 // G6.2 Q_option=3=NICL NURBS interpolation with linear motion
 //-----------------------------------------------------------------------------------------------------------------------------------------
 void NURBS_FEED_G6_2_WITH_LINEAR_MOTION(int lineno,
-					std::vector<NURBS_G6_CONTROL_POINT>
-					nurbs_control_points,
-					std::vector<double>knot_vector,
+					const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points,
+					const std::vector<double>& knot_vector,
 					unsigned int k, double feedrate)
 {
 	flush_segments();
@@ -1552,7 +1551,6 @@ void NURBS_FEED_G6_2_WITH_LINEAR_MOTION(int lineno,
 			STRAIGHT_FEED(lineno, P1.NURBS_Y, p.y, P1.NURBS_X,
 				      p.a, p.b, p.c, p.u, p.v, p.w);
 		}
-		knot_vector.clear();
 		span_knot_vector.clear();
 		lenght_vector.clear();
 		Du_span_knot_vector.clear();
@@ -1633,7 +1631,6 @@ void NURBS_FEED_G6_2_WITH_LINEAR_MOTION(int lineno,
 			STRAIGHT_FEED(lineno, P1.NURBS_Y, p.y, P1.NURBS_X,
 				      p.a, p.b, p.c, p.u, p.v, p.w);
 		}
-		knot_vector.clear();
 		span_knot_vector.clear();
 		lenght_vector.clear();
 		Du_span_knot_vector.clear();
@@ -1645,9 +1642,8 @@ void NURBS_FEED_G6_2_WITH_LINEAR_MOTION(int lineno,
 // G6.2 Q_option=2=NICC NURBS interpolation with circular motion
 //-----------------------------------------------------------------------------------------------------------------------------------------
 void NURBS_FEED_G6_2_WITH_CIRCULAR_MOTION(int lineno,
-					  std::vector<NURBS_G6_CONTROL_POINT>
-					  nurbs_control_points,
-					  std::vector<double> knot_vector,
+					  const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points,
+					  const std::vector<double>& knot_vector,
 					  unsigned int k, double feedrate)
 {
 	flush_segments();
@@ -1763,7 +1759,6 @@ void NURBS_FEED_G6_2_WITH_CIRCULAR_MOTION(int lineno,
 			STRAIGHT_FEED(lineno, P1.NURBS_Y, p.y, P1.NURBS_X,
 				      p.a, p.b, p.c, p.u, p.v, p.w);
 		}
-		knot_vector.clear();
 		span_knot_vector.clear();
 		lenght_vector.clear();
 		Du_span_knot_vector.clear();
@@ -1844,7 +1839,6 @@ void NURBS_FEED_G6_2_WITH_CIRCULAR_MOTION(int lineno,
 			STRAIGHT_FEED(lineno, P1.NURBS_Y, p.y, P1.NURBS_X,
 				      p.a, p.b, p.c, p.u, p.v, p.w);
 		}
-		knot_vector.clear();
 		span_knot_vector.clear();
 		lenght_vector.clear();
 		Du_span_knot_vector.clear();
@@ -1856,9 +1850,8 @@ void NURBS_FEED_G6_2_WITH_CIRCULAR_MOTION(int lineno,
 // G6.2/G6.3 Q_option=1=NICU NURBS interpolation with biarc, du=const
 //-----------------------------------------------------------------------------------------------------------------------------------------
 void NURBS_FEED_G6_2_WITH_BIARCH_DU_CONST(int lineno,
-					  std::vector<NURBS_G6_CONTROL_POINT>
-					  nurbs_control_points,
-					  std::vector<double> knot_vector,
+					  const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points,
+					  const std::vector<double>& knot_vector,
 					  unsigned int k, double /*feedrate*/)
 {
 	double u = knot_vector[0];
@@ -1925,7 +1918,6 @@ void NURBS_FEED_G6_2_WITH_BIARCH_DU_CONST(int lineno,
 			STRAIGHT_FEED(lineno, P1.NURBS_Y, p.y, P1.NURBS_X,
 				      p.a, p.b, p.c, p.u, p.v, p.w);
 		}
-		knot_vector.clear();
 		A6.clear();
 	} else {
 		NURBS_PLANE_POINT P1;
@@ -1987,7 +1979,6 @@ void NURBS_FEED_G6_2_WITH_BIARCH_DU_CONST(int lineno,
 			STRAIGHT_FEED(lineno, P1.NURBS_Y, p.y, P1.NURBS_X,
 				      p.a, p.b, p.c, p.u, p.v, p.w);
 		}
-		knot_vector.clear();
 		A6.clear();
 	}
 }
@@ -2140,9 +2131,8 @@ void NURBS_FEED_DIVIDE(int lineno,
 //Non viene realizzata alcuna suddivisione in quanto il numero dei punti di controllo è <2*k =due volte l'ordine
 //No subdivision is made as the number of control points is <3*k = twice the order
 void NURBS_FEED_NO_SUBDIVISION(int lineno,
-			       std::vector<NURBS_G6_CONTROL_POINT>
-			       nurbs_control_points,
-			       std::vector<double> knot_vector,
+			       const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points,
+			       const std::vector<double>& knot_vector,
 			       unsigned int nurbs_order, double feedrate,
 			       int Q_option)
 {
@@ -2189,8 +2179,8 @@ void NURBS_FEED_NO_SUBDIVISION(int lineno,
 /* Canon calls G_6_2 */
 //-----------------------------------------------------------------------------------------------------------------------------------------
 void NURBS_G6_FEED(int lineno,
-		   std::vector<NURBS_G6_CONTROL_POINT>
-		   nurbs_control_points, unsigned int nurbs_order,
+		   const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points,
+		   unsigned int nurbs_order,
 		   double feedrate, int Q_option, CANON_PLANE /*plane*/)
 {				// (L_option: NICU, NICL, NICC see publication from Lo Valvo and Drago) 
 	int n = nurbs_control_points.size() - 1 - nurbs_order;
@@ -2803,7 +2793,7 @@ void USE_NO_SPINDLE_FORCE(void)
 /* Tool Functions */
 
 /* this is called with distances in external (machine) units */
-void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, EmcPose offset, double diameter,
+void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, const EmcPose& offset, double diameter,
                           double frontangle, double backangle, int orientation) {
     auto o = std::make_unique<EMC_TOOL_SET_OFFSET>();
     flush_segments();
@@ -2821,7 +2811,7 @@ void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, EmcPose offset, double diamete
   EMC has no tool length offset. To implement it, we save it here,
   and apply it when necessary
   */
-void USE_TOOL_LENGTH_OFFSET(EmcPose offset)
+void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset)
 {
     auto set_offset_msg = std::make_unique<EMC_TRAJ_SET_OFFSET>();
 

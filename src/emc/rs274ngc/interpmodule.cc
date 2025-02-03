@@ -158,7 +158,7 @@ private:
     int line_number;
     std::string line_text;
 public:
-    InterpreterException(std::string error_message, int line_number, std::string line_text)  {
+    InterpreterException(const std::string& error_message, int line_number, const std::string& line_text)  {
 	this->error_message = error_message;
 	this->line_number = line_number;
 	this->line_text = line_text;
@@ -247,7 +247,7 @@ static int wrap_interp_read(Interp &interp, const char *command)
 static inline EmcPose get_tool_offset (Interp &interp)  {
     return interp._setup.tool_offset;
 }
-static inline void set_tool_offset(Interp &interp, EmcPose value)  {
+static inline void set_tool_offset(Interp &interp, const EmcPose& value)  {
     interp._setup.tool_offset = value;
 }
 static inline bool get_arc_not_allowed (Interp &interp)  {
