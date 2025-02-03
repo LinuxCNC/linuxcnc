@@ -42,7 +42,7 @@ const char *fmt, *efmt;
 	// after the format.
         char block[63 + 1];
         int fmt_len = efmt - fmt;
-	if(fmt_len >= sizeof(block))
+	if(fmt_len >= (int)sizeof(block))
 		fmt_len = sizeof(block) - 1;
         memcpy(block, fmt, fmt_len);
         block[fmt_len] = 0;
