@@ -761,7 +761,7 @@ static PyStructSequence_Desc tool_result_desc = {
 
 static PyTypeObject ToolResultType;
 
-static PyObject *Stat_tool_table(pyStatChannel *s, void *) {
+static PyObject *Stat_tool_table(pyStatChannel * /*s*/, void *) {
     PyObject *res;
     int j = 0;
 
