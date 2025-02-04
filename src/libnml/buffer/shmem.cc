@@ -54,34 +54,21 @@ static inline bool not_zero(double x)
 /* SHMEM Member Functions. */
 
 /* Constructor for hard coded tests. */
-SHMEM::SHMEM(const char * /*n*/, long s, int /*nt*/, key_t k, int m):CMS(s)
+SHMEM::SHMEM(const char * /*n*/, long s, int /*nt*/, key_t k, int m)
+  : CMS(s), fast_mode(0), key(k), bsem_key(-1), shm(NULL), sem(NULL), master(m)
 {
-    /* Set pointers to null so only properly opened pointers are closed. */
-    shm = NULL;
-//  sem = NULL;
-
-    /* save constructor args */
-    master = m;
-    key = k;
-
     /* open the shared mem buffer and create mutual exclusion semaphore */
     open();
 }
 
 /* Constructor for use with cms_config. */
-SHMEM::SHMEM(const char *bufline, const char *procline, int set_to_server,
-    int set_to_master):CMS(bufline, procline, set_to_server)
+SHMEM::SHMEM(const char *bufline, const char *procline, int set_to_server, int set_to_master)
+  : CMS(bufline, procline, set_to_server), bsem_key(-1),
+    second_read(0), shm(NULL), sem(NULL), sem_delay(0.00001),
+    use_os_sem(1), use_os_sem_only(1), mutex_type(OS_SEM_MUTEX)
 {
     /* Set pointers to null so only properly opened pointers are closed. */
-    shm = NULL;
-    sem = NULL;
-    sem_delay = 0.00001;
     char *semdelay_equation;
-    use_os_sem = 1;
-    use_os_sem_only = 1;
-    mutex_type = OS_SEM_MUTEX;
-    bsem_key = -1;
-    second_read = 0;
 
     if (status < 0) {
 	rcs_print_error("SHMEM: status = %d\n", status);
