@@ -202,7 +202,7 @@ int upci_scan_bus(void)
 	devices[num_devs++] = dev;
 	n = sscanf(lineptr,
 	    "%hx %x %x %x %x %x %x %x %x %x %x %x %x %x %x %x %x",
-	    &busdevfunc, &vendordev, &(dev->p.irq),
+	    &busdevfunc, &vendordev, (unsigned *)&(dev->p.irq),
 	    &dev->p.base_addr[0],  &dev->p.base_addr[1], &dev->p.base_addr[2],
 	    &dev->p.base_addr[3],  &dev->p.base_addr[4], &dev->p.base_addr[5],
 	    &dev->p.rom_base_addr,
