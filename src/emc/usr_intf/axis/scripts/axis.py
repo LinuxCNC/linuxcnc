@@ -2798,7 +2798,7 @@ class TclCommands(nf.TclCommands):
         # calculation.  this is for unmotorized axes where the commanded position does not change, but actual does via an external encoder.
         if axis_letter_upper in position_tuple_order and inifile.find("AXIS_%s" % axis_letter_upper, "TOUCHOFF_ACTUAL") is not None:
             axis_idx = position_tuple_order.index(axis_letter_upper)
-            new_axis_value = str(float(new_axis_value) + s.actual_position[axis_idx])
+            new_axis_value = str(float(new_axis_value) - s.actual_position[axis_idx])
 
         offset_command = "G10 L20 %s %c[[%s]*%.12f]" % (system.split()[0], axis_letter_upper, new_axis_value, scale)
         c.mdi(offset_command)
