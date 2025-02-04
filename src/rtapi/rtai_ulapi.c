@@ -351,7 +351,7 @@ void rtapi_printall(void)
 	    printf("    key     = %d\n", shmems[n].key);
 	    printf("    rtusers = %d\n", shmems[n].rtusers);
 	    printf("    ulusers = %d\n", shmems[n].ulusers);
-	    printf("    size    = %ld\n", shmems[n].size);
+	    printf("    size    = %lu\n", shmems[n].size);
 	    printf("    bitmap  = ");
 	    for (m = 0; m <= RTAPI_MAX_MODULES; m++) {
 		if (test_bit(m, shmems[n].bitmap)) {
@@ -386,7 +386,7 @@ void rtapi_printall(void)
 	    printf("    key    = %d\n", fifos[n].key);
 	    printf("    reader = %d\n", fifos[n].reader);
 	    printf("    writer = %d\n", fifos[n].writer);
-	    printf("    size   = %ld\n", fifos[n].size);
+	    printf("    size   = %lu\n", fifos[n].size);
 	}
     }
     for (n = 0; n <= RTAPI_MAX_IRQS; n++) {

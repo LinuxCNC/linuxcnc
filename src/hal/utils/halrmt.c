@@ -1878,7 +1878,7 @@ static void getThreadInfo(char *pattern, connectionRecType *context)
         }
 	}
 
-        snprintf(context->outBuf, sizeof(context->outBuf), "THREAD %s %11d %s %d %d",
+        snprintf(context->outBuf, sizeof(context->outBuf), "THREAD %s %11u %s %u %u",
 	  tptr->name, 
 	  (unsigned int)tptr->period, 
 	  (tptr->uses_fp ? "YES" : "NO "),  
@@ -2072,7 +2072,7 @@ static char *data_value2(int type, void *valptr)
 	value_str = buf;
 	break;
     case HAL_U32:
-	snprintf(buf, 14, "%ld", (unsigned long)*((hal_u32_t *) valptr));
+	snprintf(buf, 14, "%lu", (unsigned long)*((hal_u32_t *) valptr));
 	value_str = buf;
 	break;
     default:

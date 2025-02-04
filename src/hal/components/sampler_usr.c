@@ -206,7 +206,7 @@ int main(int argc, char **argv)
 	    last_sample = this_sample;
 	}
 	if ( tag ) {
-	    printf ( "%d ", this_sample-1 );
+	    printf ( "%u ", this_sample-1 );
 	}
 	for ( n = 0 ; n < num_pins; n++ ) {
 	    switch ( hal_stream_element_type(&stream, n) ) {
