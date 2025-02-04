@@ -334,10 +334,12 @@ int hm2_uart_read(char *name, unsigned char data[])
             HM2_ERR("UART READ: Error in buffer parsing.\n");
             return -EINVAL;
     }
+/* FIXME: Unreachable. Should be checked after assignment of 'r' above.
     if (r < 0) {
         HM2_ERR("UART READ: hm2->llio->write failure %s\n", name);
         return -EINVAL;
     }
+*/
 }
 
 void hm2_uart_print_module(hostmot2_t *hm2){
