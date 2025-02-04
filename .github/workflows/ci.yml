@@ -33,9 +33,13 @@ jobs:
       run: |
         set -x
         sudo apt-get install -y eatmydata
-        ./"subdir with blanks in name"/scripts/travis-install-build-deps.sh
+        # still in subdir?
+        pwd
+        #./"subdir with blanks in name"
+        ./scripts/travis-install-build-deps.sh
         sudo eatmydata apt --quiet --yes upgrade
-        cd "subdir with blanks in name"/src
+        #cd "subdir with blanks in name"
+        cd ./src
         eatmydata ./autogen.sh
         eatmydata ./configure --disable-check-runtime-deps
         eatmydata make -O -j$((1+$(nproc))) default pycheck V=1
