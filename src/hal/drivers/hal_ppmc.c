@@ -1646,7 +1646,7 @@ static rtapi_u32 block(int min, int max)
 
     mask = 0;
     for ( n = min ; n <= max ; n++ ) {
-	mask |= ( 1 << n );
+	mask |= ( 1u << n );
     }
     return mask;
 }
