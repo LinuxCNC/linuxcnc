@@ -25,7 +25,19 @@ CPPCHKCC=( "${CPPCHKOPT[@]}" "${CCSTD[@]}" )
 CPPCHKCX=( "${CPPCHKOPT[@]}" "${CXSTD[@]}" )
 
 # Do this from the source directory
-cd "$(dirname "$0")/../src" || exit
+cd "$(dirname "$0")/../src" || { echo "Could not change directory to '$(dirname "$0")/../src'"; exit 1; }
+
+# Only process individual files if passed on the command line.
+if [ $# -gt 0 ]; then
+    for f in "$@"; do
+        if [ -r "$f" ]; then
+            cppcheck -I"$(dirname "$f")" "${CPPCHKCC[@]}" "$f"
+        else
+            echo "Cannot read file '$f'"
+        fi
+    done
+    exit 0
+fi
 
 docheck() {
     mapfile -t files < <(find "$1" -maxdepth 1 \( -name "*.c" -o -name "*.h" \) )
