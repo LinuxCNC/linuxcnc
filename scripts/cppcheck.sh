@@ -1,12 +1,12 @@
 #!/bin/bash
 
-if ! command -v cppcheck; then
+if ! command -v cppcheck > /dev/null; then
   echo "E: Please install the program 'cppcheck' prior to executing this script."
   exit 1
 fi
 
 nproc=2
-if command -v nproc; then
+if command -v nproc > /dev/null; then
   nproc=$(nproc)
 fi
 
@@ -31,7 +31,14 @@ cd "$(dirname "$0")/../src" || { echo "Could not change directory to '$(dirname 
 if [ $# -gt 0 ]; then
     for f in "$@"; do
         if [ -r "$f" ]; then
-            cppcheck -I"$(dirname "$f")" "${CPPCHKCC[@]}" "$f"
+            case "$f" in
+            *.hh|*.cc)
+                cppcheck -I"$(dirname "$f")" "${CPPCHKCX[@]}" "$f"
+                ;;
+            *.h|*.c)
+                cppcheck -I"$(dirname "$f")" "${CPPCHKCC[@]}" "$f"
+                ;;
+            esac
         else
             echo "Cannot read file '$f'"
         fi
