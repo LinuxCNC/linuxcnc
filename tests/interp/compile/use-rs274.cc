@@ -102,7 +102,7 @@ void STRAIGHT_FEED(int lineno,
     printf("-> %.1f %.1f\n", x, y);
 }
 
-void NURBS_G5_FEED(int lineno, std::vector<NURBS_CONTROL_POINT> nurbs_control_points, unsigned int k, CANON_PLANE plane) {
+void NURBS_G5_FEED(int lineno, const std::vector<NURBS_CONTROL_POINT>& nurbs_control_points, unsigned int k, CANON_PLANE plane) {
     double u = 0.0;
     unsigned int n = nurbs_control_points.size() - 1;
     double umax = n - k + 2;
@@ -120,7 +120,7 @@ void NURBS_G5_FEED(int lineno, std::vector<NURBS_CONTROL_POINT> nurbs_control_po
     knot_vector.clear();
 }
 
-void NURBS_G6_FEED(int lineno, std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points, unsigned int k, double feedrate, int L_option, CANON_PLANE plane) { // (L_option: NICU, NICL, NICC see publication from Lo Valvo and Drago) 
+void NURBS_G6_FEED(int lineno, const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points, unsigned int k, double feedrate, int L_option, CANON_PLANE plane) { // (L_option: NICU, NICL, NICC see publication from Lo Valvo and Drago)
 	}
 
 void RIGID_TAP(int lineno,
@@ -143,9 +143,9 @@ void WAIT_SPINDLE_ORIENT_COMPLETE(int spindle, double timeout) {}
 void LOCK_SPINDLE_Z() {}
 void USE_SPINDLE_FORCE() {}
 void USE_NO_SPINDLE_FORCE() {}
-void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, EmcPose offset, double diameter,
+void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, const EmcPose& offset, double diameter,
                                  double frontangle, double backangle, int orientation) {}
-void USE_TOOL_LENGTH_OFFSET(EmcPose offset) {}
+void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset) {}
 void CHANGE_TOOL() {}	
 void SELECT_TOOL(int tool) {}	
 void CHANGE_TOOL_NUMBER(int number) {}
@@ -259,7 +259,7 @@ int GET_EXTERNAL_AXIS_MASK() { return 7; }
 void FINISH(void) {}
 void ON_RESET(void) {}
 void CANON_ERROR(const char *fmt, ...) {}
-void UPDATE_TAG(StateTag tag) {}
+void UPDATE_TAG(const StateTag& tag) {}
 USER_DEFINED_FUNCTION_TYPE
     USER_DEFINED_FUNCTION[USER_DEFINED_FUNCTION_NUM];
 int GET_EXTERNAL_OFFSET_APPLIED() { return 0; };

@@ -212,7 +212,7 @@ static void maybe_new_line(int sequence_number) {
 
 //das ist für die Vorschau
 /* G_5_2/G_5_3*/
-void NURBS_G5_FEED(int line_number, std::vector<NURBS_CONTROL_POINT> nurbs_control_points, unsigned int nurbs_order, CANON_PLANE plane) 
+void NURBS_G5_FEED(int line_number, const std::vector<NURBS_CONTROL_POINT>& nurbs_control_points, unsigned int nurbs_order, CANON_PLANE plane)
     {
     double u = 0.0;
     unsigned int n = nurbs_control_points.size() - 1;
@@ -257,7 +257,7 @@ void NURBS_G5_FEED(int line_number, std::vector<NURBS_CONTROL_POINT> nurbs_contr
 
 /* G_6_2  L_option is unused */
 //-----------------------------------------------------------------------------------------------------------------------------------------
-void NURBS_G6_FEED(int line_number, std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points, unsigned int k, double /*feedrate*/, int /*L_option*/, CANON_PLANE plane) { // (L_option: NICU, NICL, NICC see publication from Lo Valvo and Drago)
+void NURBS_G6_FEED(int line_number, const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points, unsigned int k, double /*feedrate*/, int /*L_option*/, CANON_PLANE plane) { // (L_option: NICU, NICL, NICC see publication from Lo Valvo and Drago)
     double u = 0.0;
     unsigned int n = nurbs_control_points.size() - 1-k;
     double umax = nurbs_control_points[n+k].NURBS_K;
@@ -507,19 +507,26 @@ void COMMENT(const char *comment) {
     Py_XDECREF(result);
 }
 
-void SET_TOOL_TABLE_ENTRY(int /*pocket*/, int /*toolno*/, EmcPose /*offset*/, double /*diameter*/,
+void SET_TOOL_TABLE_ENTRY(int /*pocket*/, int /*toolno*/, const EmcPose& /*offset*/, double /*diameter*/,
                           double /*frontangle*/, double /*backangle*/, int /*orientation*/) {
 }
 
-void USE_TOOL_LENGTH_OFFSET(EmcPose offset) {
+void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset) {
     tool_offset = offset;
     maybe_new_line();
     if(interp_error) return;
+    PyObject *result;
     if(metric) {
-        offset.tran.x /= 25.4; offset.tran.y /= 25.4; offset.tran.z /= 25.4;
-        offset.u /= 25.4; offset.v /= 25.4; offset.w /= 25.4; }
-    PyObject *result = callmethod(callback, "tool_offset", "ddddddddd", offset.tran.x, offset.tran.y, offset.tran.z,
-        offset.a, offset.b, offset.c, offset.u, offset.v, offset.w);
+        result = callmethod(callback, "tool_offset", "ddddddddd",
+                    offset.tran.x / 25.4, offset.tran.y / 25.4, offset.tran.z / 25.4,
+                    offset.a, offset.b, offset.c,
+                    offset.u / 25.4, offset.v / 25.4, offset.w / 25.4);
+    } else {
+        result = callmethod(callback, "tool_offset", "ddddddddd",
+                    offset.tran.x, offset.tran.y, offset.tran.z,
+                    offset.a, offset.b, offset.c,
+                    offset.u, offset.v, offset.w);
+    }
     if(result == NULL) interp_error ++;
     Py_XDECREF(result);
 }
@@ -544,7 +551,7 @@ void FINISH() {}
 void ON_RESET() {}
 void PALLET_SHUTTLE() {}
 void SELECT_TOOL(int tool) {selected_tool = tool;}
-void UPDATE_TAG(StateTag /*tag*/) {}
+void UPDATE_TAG(const StateTag& /*tag*/) {}
 void OPTIONAL_PROGRAM_STOP() {}
 int  GET_EXTERNAL_TC_FAULT() {return 0;}
 int  GET_EXTERNAL_TC_REASON() {return 0;}

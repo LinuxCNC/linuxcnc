@@ -312,7 +312,7 @@ void STOP_SPEED_FEED_SYNCH()
 /* Machining Functions */
 
 /* Machining Functions G_5_2 */
-void NURBS_G5_FEED(int /*lineno*/, std::vector<NURBS_CONTROL_POINT> nurbs_control_points, unsigned int /*nurbs_order*/, CANON_PLANE /*plane*/) {
+void NURBS_G5_FEED(int /*lineno*/, const std::vector<NURBS_CONTROL_POINT>& nurbs_control_points, unsigned int /*nurbs_order*/, CANON_PLANE /*plane*/) {
   ECHO_WITH_ARGS("%lu, ...", (unsigned long)nurbs_control_points.size());
 
   _sai._program_position_x = nurbs_control_points[nurbs_control_points.size()].NURBS_X;
@@ -320,7 +320,7 @@ void NURBS_G5_FEED(int /*lineno*/, std::vector<NURBS_CONTROL_POINT> nurbs_contro
 }
 
 /* Machining Functions G_6_2 */
-void NURBS_G6_FEED(int /*lineno*/, std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points, unsigned int /*k*/, double /*feedrate*/, int /*l*/, CANON_PLANE /*plane*/) {
+void NURBS_G6_FEED(int /*lineno*/, const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points, unsigned int /*k*/, double /*feedrate*/, int /*l*/, CANON_PLANE /*plane*/) {
   //fprintf(_outfile, "%5d ", _line_number++);
   print_nc_line_number();
   fprintf(_outfile, "saicanon NURBS_G6_FEED_(%lu, ...)\n", (unsigned long)nurbs_control_points.size());
@@ -507,7 +507,7 @@ void USE_NO_SPINDLE_FORCE()
 {PRINT("USE_NO_SPINDLE_FORCE()\n");}
 
 /* Tool Functions */
-void SET_TOOL_TABLE_ENTRY(int idx, int toolno, EmcPose offset, double diameter,
+void SET_TOOL_TABLE_ENTRY(int idx, int toolno, const EmcPose& offset, double diameter,
                           double frontangle, double backangle, int orientation) {
 
 #ifdef TOOL_NML //{
@@ -539,7 +539,7 @@ void SET_TOOL_TABLE_ENTRY(int idx, int toolno, EmcPose offset, double diameter,
             frontangle, backangle, orientation);
 }
 
-void USE_TOOL_LENGTH_OFFSET(EmcPose offset)
+void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset)
 {
     _sai._tool_offset = offset;
     ECHO_WITH_ARGS("%.4f %.4f %.4f, %.4f %.4f %.4f, %.4f %.4f %.4f",
@@ -1184,6 +1184,6 @@ StandaloneInterpInternals::StandaloneInterpInternals() :
   _toolchanger_reason(0)
 {
 }
-void UPDATE_TAG(StateTag /*tag*/){
+void UPDATE_TAG(const StateTag& /*tag*/){
     //Do nothing
 }

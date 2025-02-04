@@ -43,7 +43,7 @@
 #define MAX_PRIORITY 0x80000000
 #define POLYNOMIAL 0xD8  /* 11011 followed by 0's */
 #define WIDTH  (8 * sizeof(crc))
-#define TOPBIT (1 << (WIDTH - 1))
+#define TOPBIT (1u << (WIDTH - 1))
 
 typedef uint32_t crc;
 crc crcTable[256];
@@ -75,9 +75,9 @@ class SchedEntry {
     int getZone() const;
     void setZone(int z);
     string getFileName() const;
-    void setFileName(string s);
+    void setFileName(const string& s);
     string getProgramName() const;
-    void setProgramName(string s);
+    void setProgramName(const string& s);
     float getFeedOverride() const;
     void setFeedOverride(float f);
     float getSpindleOverride() const;
@@ -152,7 +152,7 @@ string SchedEntry::getFileName() const {
   return fileName;
   }
 
-void SchedEntry::setFileName(string s) {
+void SchedEntry::setFileName(const string& s) {
   fileName = s;
   }
 
@@ -160,7 +160,7 @@ string SchedEntry::getProgramName() const {
   return programName;
   }
 
-void SchedEntry::setProgramName(string s) {
+void SchedEntry::setProgramName(const string& s) {
   programName = s;
   }
 
@@ -320,7 +320,7 @@ void updateQueue() {
     }
   }
 
-int addProgram(int pri, int tag, float x, float y, float z, int azone, string progName, float feedOvr, float spindleOvr, int toolNum) {
+int addProgram(int pri, int tag, float x, float y, float z, int azone, const string& progName, float feedOvr, float spindleOvr, int toolNum) {
   SchedEntry p;
 
   p.setPriority(pri);
