@@ -43,7 +43,7 @@
 #define MAX_PRIORITY 0x80000000
 #define POLYNOMIAL 0xD8  /* 11011 followed by 0's */
 #define WIDTH  (8 * sizeof(crc))
-#define TOPBIT (1 << (WIDTH - 1))
+#define TOPBIT (1u << (WIDTH - 1))
 
 typedef uint32_t crc;
 crc crcTable[256];

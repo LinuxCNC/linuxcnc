@@ -462,11 +462,11 @@ static void gpio_pull(unsigned pin, uint32_t pud)
 	reg_wr(&gpio->gppud, pud);
 	waste_150_cycles();
 	if(pin <= 31) {
-		reg_wr(&gpio->gppudclk0, 1 << pin);
+		reg_wr(&gpio->gppudclk0, 1u << pin);
 		waste_150_cycles();
 		reg_wr(&gpio->gppudclk0, 0);
 	} else if(pin <= 53) {
-		reg_wr(&gpio->gppudclk1, 1 << (pin - 32));
+		reg_wr(&gpio->gppudclk1, 1u << (pin - 32));
 		waste_150_cycles();
 		reg_wr(&gpio->gppudclk1, 0);
 	}
