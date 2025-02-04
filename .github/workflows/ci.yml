@@ -33,7 +33,7 @@ jobs:
       run: |
         set -x
         sudo apt-get install -y eatmydata
-        eatmydata ./"subdir with blanks in name"/scripts/travis-install-build-deps.sh
+        ./"subdir with blanks in name"/scripts/travis-install-build-deps.sh
         sudo eatmydata apt --quiet --yes upgrade
         cd "subdir with blanks in name"/src
         eatmydata ./autogen.sh
