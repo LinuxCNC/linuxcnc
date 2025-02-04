@@ -713,7 +713,7 @@ double Interp::find_turn(double x1,      //!< X-coordinate of start point
   return (theta);
 }
 
-int Interp::find_tool_index(setup_pointer /*settings*/, int toolno, int *index)
+int Interp::find_tool_index(setup_pointer settings, int toolno, int *index)
 {
 
 #ifdef TOOL_NML //{
@@ -722,6 +722,7 @@ int Interp::find_tool_index(setup_pointer /*settings*/, int toolno, int *index)
         return INTERP_OK;
     }
 #else //}{
+    (void)settings;
     // special case is included in tooldata_find_index_for_tool()
 #endif //}
 
@@ -731,7 +732,7 @@ int Interp::find_tool_index(setup_pointer /*settings*/, int toolno, int *index)
     return INTERP_OK;
 }
 
-int Interp::find_tool_pocket(setup_pointer /*settings*/, int toolno, int *pocket)
+int Interp::find_tool_pocket(setup_pointer settings, int toolno, int *pocket)
 {
 #ifdef TOOL_NML //{
     if(!settings->random_toolchanger && toolno == 0) {
@@ -739,6 +740,7 @@ int Interp::find_tool_pocket(setup_pointer /*settings*/, int toolno, int *pocket
         return INTERP_OK;
     }
 #else //}{
+    (void)settings;
     // special case is included in tooldata_find_index_for_tool()
 #endif //}
     int idx = tooldata_find_index_for_tool(toolno);
