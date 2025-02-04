@@ -623,7 +623,7 @@ private:
 	    auto p(h); --p;
 	    (*h)->do_finish((*p).get(),(*(++h)).get());
 	}
-	for(auto p=begin(); p!=end(); p++)
+	for(auto p=begin(); p!=end(); ++p)
 	    if((*p)->radius()<1e-3)
 		erase(p--);
     }
@@ -741,7 +741,7 @@ void g7x::pocket(int cycle, std::complex<double> location, iterator p,
 
     if(cycle==2) {
 	// This skips the initial roughing pass
-	for(; p!=end(); p++) {
+	for(; p!=end(); ++p) {
 	    if((*p)->dive(location,-1e9,out,p==begin()))
 		break;
 	}
@@ -756,13 +756,13 @@ void g7x::pocket(int cycle, std::complex<double> location, iterator p,
 		/* After the initial roughing pass, move along the final
 		   contour and we're done
 		*/
-		for(; p!=end(); p++)
+		for(; p!=end(); ++p)
 		    (*p)->climb_only(location,out);
 	    } else {
 		/* Move along the final contour until a pocket is found,
 		   then start cutting that pocket
 		*/
-		for(; p!=end(); p++) {
+		for(; p!=end(); ++p) {
 		    if((*p)->climb(location,out)) {
 			if(cycle==3) {
 			    if(imag(location)>imag(pocket_starts.back())
@@ -791,11 +791,11 @@ void g7x::pocket(int cycle, std::complex<double> location, iterator p,
 	    /* Our x coordinate is beyond the current segment, move onto
 	       the next
 	    */
-	    p++;
+	    ++p;
 	    continue;
 	}
 
-	for(auto ip=p; ip!=end(); ip++) {
+	for(auto ip=p; ip!=end(); ++ip) {
 	    segment::intersections_t is;
 	    (*ip)->intersection_z(location.imag(),is);
 	    if(is.empty())
@@ -857,13 +857,13 @@ void g7x::add_distance(double distance) {
 	if(distance<0)
 	    max_distance=-max_distance;
 
-	for(auto p=begin(); p!=end(); p++) {
+	for(auto p=begin(); p!=end(); ++p) {
 	    (*p)->offset(max_distance);
 	    if((*p)->radius()<1e-3)
 		erase(p--);
 	}
 
-	for(auto p=begin(); p!=--end(); p++) {
+	for(auto p=begin(); p!=--end(); ++p) {
 	    auto n=p; ++n;
 	    if(real((*p)->ep()-(*n)->sp())>1e-2) {
 		// insert connecting arc
@@ -874,11 +874,11 @@ void g7x::add_distance(double distance) {
 		auto center=(s->ep()+e->sp())/2.0;
 		emplace(n, std::make_unique<round_segment>(
 		    distance>0,(*p)->ep(),center,(*n)->sp()));
-		p++;
+		++p;
 	    }
 	}
 
-	for(auto p=begin(); p!=--end(); p++) {
+	for(auto p=begin(); p!=--end(); ++p) {
 	    if(!(*p)->monotonic()) {
 		std::cout << "Oops " << (*p)->sp()-(*p)->ep() << std::endl;
 		auto pp=p; --pp;
@@ -897,7 +897,7 @@ void g7x::add_distance(double distance) {
 	}
 	current_distance+=max_distance;
     }
-    for(auto p=begin(); p!=--end(); p++) {
+    for(auto p=begin(); p!=--end(); ++p) {
 	auto n=p; ++n;
 	auto mid=((*p)->ep()+(*n)->sp())/2.0;
 	(*p)->ep()=(*n)->sp()=mid;
