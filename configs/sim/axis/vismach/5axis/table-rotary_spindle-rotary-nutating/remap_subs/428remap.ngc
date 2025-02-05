@@ -1,6 +1,6 @@
 ;M428 by remap: kinstype==0 (IDENTITY kinematics)
 o<428remap>sub
-  #<kinstype> = 0        
+  #<kinstype> = 0
   #<SWITCHKINS_PIN> = 3  ; set N as required: motion.analog-out-0N
 
 o1 if [exists [#<_hal[motion.switchkins-type]>]]

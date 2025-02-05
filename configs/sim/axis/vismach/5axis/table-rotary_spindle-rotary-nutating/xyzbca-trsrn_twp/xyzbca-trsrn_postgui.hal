@@ -21,7 +21,7 @@ net :rotary-b                             => pyvcp.joint4
 net :hide-work-piece-1                    <= pyvcp.hide-work-piece-1
 net :hide-spindle-body                    <= pyvcp.hide-spindle-body
 
-net :nutation-angle                       <= pyvcp.nut-angle-f                         
+net :nutation-angle                       <= pyvcp.nut-angle-f
 net :pivot-x                              <= pyvcp.x-pivot-f
 net :pivot-z                              <= pyvcp.z-pivot-f
 net :offset-x                             <= pyvcp.x-offset-f
@@ -29,4 +29,4 @@ net :offset-y                             <= pyvcp.y-offset-f
 net :rot-axis-x                           <= tcp.x-rot-axis-f
 net :rot-axis-z                           <= tcp.z-rot-axis-f
 
-net :scale-coords                         <= pyvcp.scale-coords-f  
+net :scale-coords                         <= pyvcp.scale-coords-f

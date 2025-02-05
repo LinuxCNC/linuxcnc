@@ -1,5 +1,5 @@
 # This is a modified version of 'vismach.py' to visualize Tilted Work Plane (TWP)
-# Author: David mueller 
+# Author: David mueller
 # email: mueller_david@hotmail.com
 
 #    Copyright 2007 John Kasunich and Jeff Epler
@@ -161,31 +161,31 @@ class HalRotateEuler(Collection):
         elif order =='313':
             glRotatef(th1, 0, 0, 1)
             glRotatef(th2, 1, 0, 0)
-            glRotatef(th3, 0, 0, 1) 
+            glRotatef(th3, 0, 0, 1)
         elif order =='123':
             glRotatef(th1, 1, 0, 0)
             glRotatef(th2, 0, 1, 0)
-            glRotatef(th3, 0, 0, 1) 
+            glRotatef(th3, 0, 0, 1)
         elif order =='132':
             glRotatef(th1, 1, 0, 0)
             glRotatef(th2, 0, 0, 1)
-            glRotatef(th3, 0, 1, 0) 
+            glRotatef(th3, 0, 1, 0)
         elif order =='213':
             glRotatef(th1, 0, 1, 0)
             glRotatef(th2, 1, 0, 0)
-            glRotatef(th3, 0, 0, 1) 
+            glRotatef(th3, 0, 0, 1)
         elif order =='231':
             glRotatef(th1, 0, 1, 0)
             glRotatef(th2, 0, 0, 1)
-            glRotatef(th3, 1, 0, 0) 
+            glRotatef(th3, 1, 0, 0)
         elif order =='321':
             glRotatef(th1, 0, 0, 1)
             glRotatef(th2, 0, 1, 0)
-            glRotatef(th3, 1, 0, 0) 
+            glRotatef(th3, 1, 0, 0)
         elif order =='312':
             glRotatef(th1, 0, 0, 1)
             glRotatef(th2, 1, 0, 0)
-            glRotatef(th3, 0, 1, 0) 
+            glRotatef(th3, 0, 1, 0)
 
     def unapply(self):
         glPopMatrix()
@@ -330,7 +330,7 @@ class HalLine():
     def unapply(self):
         glPopMatrix()
 
-# draw a plane defined by it's normal vector(vx,vy,vz) origin at (x,y,z)  
+# draw a plane defined by it's normal vector(vx,vy,vz) origin at (x,y,z)
 class HalPlaneFromNormal():
     def __init__(self, comp,  x, y, z, vx, vy, vz, s=500):
         self.comp = comp
@@ -383,8 +383,8 @@ class HalPlaneFromNormal():
         glPopMatrix()
 
 
-# draw a grid defined by it's normal vector(zx,zy,zz) and x-direction vector(xx, xy, xz)
-# optional s to define the half-width from the origin (ox,oy,oz)  
+# draw a coordinate system defined by it's normal vector(zx,zy,zz) and x-direction vector(xx, xy, xz)
+# optional r to define the thickness of the cylinders
 class HalCoordsFromNormalAndDirection():
     def __init__(self, comp, ox, oy, oz, xx, xy, xz, zx, zy, zz, stretch, r=5):
         self.comp = comp
@@ -405,7 +405,7 @@ class HalCoordsFromNormalAndDirection():
     def draw_vector(self, color):
         gluCylinder(self.q, self.r, self.r, 50*self.stretch, 32, 1)
         glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, color)
- 
+
     def draw(self):
         # check for zero values in the arguments
         ox = 0 if self.ox == 0 else self.comp[self.ox]
@@ -442,7 +442,7 @@ class HalCoordsFromNormalAndDirection():
 
 
 # draw a grid defined by it's normal vector(zx,zy,zz) and x-direction vector(xx, xy, xz)
-# optional s to define the half-width from the origin (ox,oy,oz)  
+# optional s to define the half-width from the origin (ox,oy,oz)
 class HalGridFromNormalAndDirection():
     def __init__(self, comp, ox, oy, oz, xx, xy, xz, zx, zy, zz, s=500):
         self.comp = comp
@@ -499,7 +499,7 @@ class HalGridFromNormalAndDirection():
     def unapply(self):
         glPopMatrix()
 
-# draw a grid defined by it's normal vector(vx,vy,vz) origin at (x,y,z)  
+# draw a grid defined by it's normal vector(vx,vy,vz) origin at (x,y,z)
 class HalGridFromNormal():
     def __init__(self, comp,  x, y, z, vx, vy, vz, s=500):
         self.comp = comp
@@ -553,7 +553,7 @@ class HalGridFromNormal():
     def unapply(self):
         glPopMatrix()
 
-# draw a grid defined by it's normal vector(vx,vy,vz) origin at (x,y,z)  
+# draw a grid defined by it's normal vector(vx,vy,vz) origin at (x,y,z)
 class HalGrid():
     def __init__(self, comp, s=500):
         self.comp = comp

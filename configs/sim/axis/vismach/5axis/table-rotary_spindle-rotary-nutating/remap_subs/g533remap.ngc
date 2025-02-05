@@ -4,12 +4,12 @@ o<g533remap>sub
 M66 L0 E0                                                   ;force sync, stop read ahead
 o100 if [[EXISTS [#<X>]] AND [EXISTS [#<Y>]] AND [EXISTS [#<Z>]]]
  M68 E3 Q0                                                  ;switch to identity kinematic
-o100 else 
+o100 else
  (abort, G53.3: X,Y and Z words are required)               ;it is an error if X,Y or Z word is missing
 o100 endif
 o105 if [EXISTS [#<P>]]                                     ;check if a P word has been passed
  ;(print, P=#<P>)
-o105 else 
+o105 else
     #<P> = 0                                                ;if no P word has been passed we use the default (0)
 o105 endif
 M66 L0 E0
