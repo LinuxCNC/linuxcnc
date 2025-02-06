@@ -50,7 +50,7 @@ static void map_parports() {
         }
         struct portinfo pi;
         pi.port_id = i;
-        if(fscanf(f, "%hd %hd", &pi.base, &pi.base_hi) != 2) {
+        if(fscanf(f, "%hu %hu", &pi.base, &pi.base_hi) != 2) {
             rtapi_print_msg(RTAPI_MSG_ERR, "Failed to parse base-addr for port #%d\n", i);
             fclose(f);
             continue;

@@ -530,7 +530,7 @@ CMS_STATUS CMS_DISPLAY_ASCII_UPDATER::update(unsigned int &x)
 		("CMS_DISPLAY_ASCII_UPDATER: unsigned int %d is too large. (Use type long.)\n",
 		x);
 	}
-	snprintf(end_current_string, max_length_current_string-(end_current_string - begin_current_string), "%6d,", x);
+	snprintf(end_current_string, max_length_current_string-(end_current_string - begin_current_string), "%6u,", x);
     } else {
 	if (0 == end_current_string[0]) {
 	    x = 0;
@@ -635,7 +635,7 @@ CMS_STATUS CMS_DISPLAY_ASCII_UPDATER::update(unsigned long int &x)
     }
 
     if (encoding) {
-	snprintf(end_current_string, max_length_current_string-(end_current_string - begin_current_string), "%ld,", x);
+	snprintf(end_current_string, max_length_current_string-(end_current_string - begin_current_string), "%lu,", x);
 
     } else {
 	if (0 == end_current_string[0]) {

@@ -1430,14 +1430,14 @@ static int iniLoad(const char *filename)
 
     // set flags if RCS_DEBUG in ini file
     if ((inistring = inifile.Find("RCS_DEBUG", "EMC"))) {
-        static long int flags;
+        long unsigned int flags;
         if (sscanf(*inistring, "%lx", &flags) < 1) {
             perror("failed to parse [EMC] RCS_DEBUG");
         }
         // clear all flags
         clear_rcs_print_flag(PRINT_EVERYTHING);
         // set parsed flags
-        set_rcs_print_flag(flags);
+        set_rcs_print_flag((long)flags);
     }
     // output infinite RCS errors by default
     max_rcs_errors_to_print = -1;
