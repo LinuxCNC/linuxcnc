@@ -2485,7 +2485,7 @@ static const char *data_value2(int type, void *valptr)
 	value_str = buf;
 	break;
     case HAL_U32:
-	snprintf(buf, 14, "%ld", (unsigned long)*((hal_u32_t *) valptr));
+	snprintf(buf, 14, "%lu", (unsigned long)*((hal_u32_t *) valptr));
 	value_str = buf;
 	break;
     case HAL_S64:

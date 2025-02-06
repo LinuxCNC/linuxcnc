@@ -53,17 +53,17 @@ int main(int argc, char **argv) {
 #else
   fprintf(stderr,"tool_watch: TOOLTABLE:mmap\n");
 #endif
-    fprintf(stderr,"%8ld EMC_STAT\n",sizeof(EMC_STAT));
-    fprintf(stderr,"%8ld   EMC_IO_STAT\n",sizeof(EMC_IO_STAT));
-    fprintf(stderr,"%8ld    EMC_TOOL_STAT\n",sizeof(EMC_TOOL_STAT));
-    fprintf(stderr,"%8ld     EMC_COOLANT_STAT\n",sizeof(EMC_COOLANT_STAT));
-    fprintf(stderr,"%8ld     EMC_AUX_STAT\n",sizeof(EMC_AUX_STAT));
-    fprintf(stderr,"%8ld   EMC_TASK_STAT\n",sizeof(EMC_TASK_STAT));
-    fprintf(stderr,"%8ld   EMC_MOTION_STAT\n",sizeof(EMC_MOTION_STAT));
-    fprintf(stderr,"%8ld     EMC_TRAJ_STAT\n",sizeof(EMC_TRAJ_STAT));
-    fprintf(stderr,"%8ld     EMC_JOINT_STAT\n",sizeof(EMC_JOINT_STAT));
-    fprintf(stderr,"%8ld     EMC_AXIS_STAT\n",sizeof(EMC_AXIS_STAT));
-    fprintf(stderr,"%8ld     EMC_SPINDLE_STAT\n",sizeof(EMC_SPINDLE_STAT));
+    fprintf(stderr,"%8zu EMC_STAT\n",sizeof(EMC_STAT));
+    fprintf(stderr,"%8zu   EMC_IO_STAT\n",sizeof(EMC_IO_STAT));
+    fprintf(stderr,"%8zu    EMC_TOOL_STAT\n",sizeof(EMC_TOOL_STAT));
+    fprintf(stderr,"%8zu     EMC_COOLANT_STAT\n",sizeof(EMC_COOLANT_STAT));
+    fprintf(stderr,"%8zu     EMC_AUX_STAT\n",sizeof(EMC_AUX_STAT));
+    fprintf(stderr,"%8zu   EMC_TASK_STAT\n",sizeof(EMC_TASK_STAT));
+    fprintf(stderr,"%8zu   EMC_MOTION_STAT\n",sizeof(EMC_MOTION_STAT));
+    fprintf(stderr,"%8zu     EMC_TRAJ_STAT\n",sizeof(EMC_TRAJ_STAT));
+    fprintf(stderr,"%8zu     EMC_JOINT_STAT\n",sizeof(EMC_JOINT_STAT));
+    fprintf(stderr,"%8zu     EMC_AXIS_STAT\n",sizeof(EMC_AXIS_STAT));
+    fprintf(stderr,"%8zu     EMC_SPINDLE_STAT\n",sizeof(EMC_SPINDLE_STAT));
     fprintf(stderr,"\n");
 
     header();hdr_ct=1;

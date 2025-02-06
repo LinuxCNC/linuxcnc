@@ -310,7 +310,7 @@ int main(int argc, char **argv)
             last_sample = this_sample;
         }
         if ( tag ) {
-            printf ( "%d ", this_sample-1 );
+            printf ( "%u ", this_sample-1 );
         }
         /* get raw value, mask keyup and keydown codes */
         /* compute row and column */

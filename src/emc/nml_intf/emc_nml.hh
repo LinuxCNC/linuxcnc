@@ -116,7 +116,7 @@ class EMC_SET_DEBUG:public RCS_CMD_MSG {
     // For internal NML/CMS use only.
     void update(CMS * cms);
 
-    int debug;
+    unsigned debug;
 };
 
 

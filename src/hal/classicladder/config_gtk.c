@@ -467,7 +467,7 @@ void GetIOSettings( char ForInputs )
 					case 2:
 						text = (char *)gtk_entry_get_text((GtkEntry *)*IOParamEntry);
 						if ( DeviceTypeValue==DEVICE_TYPE_DIRECT_ACCESS )
-							sscanf( text, "%X", &pConf->SubDevOrAdr );
+							sscanf( text, "%X", (unsigned *)&pConf->SubDevOrAdr );
 						else
 							pConf->SubDevOrAdr = atoi( text );
 						break;
