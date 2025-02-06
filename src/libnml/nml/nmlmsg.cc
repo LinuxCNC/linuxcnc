@@ -95,12 +95,3 @@ void NMLmsg::clear()
 	size = sizeof(NMLmsg);
     }
 }
-
-/* Error message stub for base class. */
- /* update should only be called with derived classes. */
-void NMLmsg::update(CMS * cms)
-{
-    rcs_print_error("update called for NMLmsg base class.");
-    rcs_print_error("(This is an error.)\n");
-    cms->status = CMS_MISC_ERROR;
-}

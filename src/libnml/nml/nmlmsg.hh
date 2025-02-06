@@ -56,8 +56,6 @@ class NMLmsg {
     NMLTYPE type;		/* Each derived type should have a unique id */
     long size;			/* The size is used so that the entire buffer 
 				   is not copied unnecessarily. */
-
-    void update(CMS *);
 };
 
 // This is just a symbol passed to the RCS Java Tools (CodeGen, RCS-Design, RCS-Diagnostis)
