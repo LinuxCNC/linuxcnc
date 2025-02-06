@@ -95,7 +95,7 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        image: ["debian:bullseye", "debian:bookworm", "debian:sid"]
+        image: ["debian:bookworm", "debian:sid"]
     container:
       image: ${{ matrix.image }}
       # IPC_OWNER is needed for shmget IPC_CREAT
@@ -176,7 +176,7 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        image: ["debian:bullseye", "debian:bookworm", "debian:sid"]
+        image: ["debian:bookworm", "debian:sid"]
     container:
       image: ${{ matrix.image }}
       # IPC_OWNER is needed for shmget IPC_CREAT
