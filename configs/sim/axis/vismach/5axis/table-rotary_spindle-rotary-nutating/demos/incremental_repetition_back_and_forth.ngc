@@ -7,13 +7,13 @@ g0 x0y0z100
 o100 REPEAT[1000]
 
  g68.4 x50 q232 i45 j0 k0
- g53.6 
+ g53.6
  ;g52 x100
  g0 x0y0z100
  o<square> call
 
  g68.4 x-50 q323 i0 j-45 k0
- g53.6 
+ g53.6
  ;G52 x-100
  g0 x0y0z100
  o<square> call

@@ -5,11 +5,11 @@
 ;NOTE: we cannot run remapped codes here only custom Mcodes (ie M100..M199)
 
 o<on_abort_no_twp_reset> sub
-;Workaround for 
+;Workaround for
 ;https://github.com/LinuxCNC/linuxcnc/issues/2745
 ;https://github.com/LinuxCNC/linuxcnc/issues/2908
 ;store current offset index
-#1 = #5220 
+#1 = #5220
 ; we must switch through at least 3 indexes
 G59.3
 G59.2

@@ -5,8 +5,8 @@ import linuxcnc
 
 h = hal.component("twp-helper-comp")
 
-# this pin reflects the machine.analog pin used for the 
-# twp-status 
+# this pin reflects the machine.analog pin used for the
+# twp-status
 h.newpin("twp-status", hal.HAL_FLOAT, hal.HAL_IN)
 # these pins are created here from 'twp-status''
 h.newpin("twp-is-redefined", hal.HAL_BIT, hal.HAL_OUT)
@@ -45,7 +45,7 @@ h.newpin("twp-oz-world", hal.HAL_FLOAT, hal.HAL_OUT)
 h.ready()
 
 # create a connection to the status channel
-s = linuxcnc.stat() 
+s = linuxcnc.stat()
 
 try:
     while 1:
@@ -71,7 +71,7 @@ try:
         h['twp-zy'] = h['twp-zy-in']
         h['twp-zz'] = h['twp-zz-in']
 
-        # we only want to expose offsets when twp is not defined    
+        # we only want to expose offsets when twp is not defined
         if not h['twp-is-defined']:
             s.poll() # get current values
             g5x_offset = s.g5x_offset

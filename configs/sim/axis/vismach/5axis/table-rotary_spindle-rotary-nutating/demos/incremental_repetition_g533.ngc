@@ -12,7 +12,7 @@ o100 REPEAT[100]
  g0 x-50
  g0 y-50
  g0 x50
- g0 y50 
+ g0 y50
  g0 x0y0z120
 o100 ENDREPEAT
 g69
