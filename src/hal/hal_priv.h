@@ -153,7 +153,7 @@ class hal_shmfield {
 public:
     hal_shmfield() : off{} {}
     hal_shmfield(T *t) : off{hal_shmoff(t)} {}
-    hal_shmfield &operator=(T *t) { off = hal_shmoff(t); }
+    hal_shmfield &operator=(T *t) { off = hal_shmoff(t); return *this; }
     T *get() { return hal_shmptr<T>(off); }
     const T *get() const { return hal_shmptr<T>(off); }
     T *operator *() { return get(); }
