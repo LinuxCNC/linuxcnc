@@ -974,6 +974,9 @@ If QtVCP finds these it will call them, if not it will silently ignore them.
   _Class patching_, also known as _monkey patching_, allows to *override function calls in an imported module*. +
   Class patching must be done _before the module is instantiated_, and it _modifies all instances_ made after that. +
   An example might be patching button calls from the G-code editor to call functions in the handler file instead. +
+  Class patching function redefined here, will be called with the HandlerClass instance as 'self' rather then +
+  the patched class instance. This can make access to the patched class function/variables more difficult. +
+  When class patching outside of the HandlerClass class, the function call will use the patched class instance as 'self'. 
 
 *`initialized__(self):`*::
   This function is _called after the widgets and HAL pins are built_. +
@@ -984,7 +987,7 @@ If QtVCP finds these it will call them, if not it will silently ignore them.
   * status of LinuxCNC connected to functions.
   * keybindings would be added.
 
-*`before_hal_init__(self):`*::
+*`pre_hal_init__(self):`*::
   This function is called before the HAL-ified widgets have their hal_init_ function called. +
   Some property changes need to be done before HAL_init is called on the widget.
 

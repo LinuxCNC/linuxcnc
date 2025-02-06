@@ -42,7 +42,7 @@ import os
 import configparser
 # get the path for the ini file used to start this config
 inifile = os.environ.get("INI_FILE_NAME")
-# instantiate a parser in non-strict mode because we have multiple entries for 
+# instantiate a parser in non-strict mode because we have multiple entries for
 # some sections in the ini
 config = configparser.ConfigParser(strict=False)
 # ingest the ini file
@@ -54,7 +54,7 @@ joint_letter_primary = (config['TWP']['PRIMARY']).capitalize()
 # spindle secondary joint (ie the one closer to the tool)
 joint_letter_secondary = (config['TWP']['SECONDARY']).capitalize()
 
-if not joint_letter_primary in ('A','B','C') or not joint_letter_secondary in ('A','B','C'):  
+if not joint_letter_primary in ('A','B','C') or not joint_letter_secondary in ('A','B','C'):
     log.error("Unable to parse joint letters given in INI [TWP].")
 elif joint_letter_primary == joint_letter_secondary:
     log.error("Letters for primary and secondary joints in INI [TWP] must not be the same.")
@@ -74,7 +74,7 @@ else:
 # get the name of the kinematic component (this seems to ingest also the next line)
 kins_comp = (config['KINS']['KINEMATICS']).partition('\n')[0]
 # name of the hal pin that represents the nutation-angle
-kins_nutation_angle = kins_comp + '_kins.nut-angle' 
+kins_nutation_angle = kins_comp + '_kins.nut-angle'
 # name of the hal pin that represents the pre-rotation
 kins_pre_rotation = kins_comp + '_kins.pre-rot'
 # name of the hal pin that represents the primary joint orientation angle
@@ -82,14 +82,14 @@ kins_primary_rotation = kins_comp + '_kins.primary-angle'
 # name of the hal pin that represents the secondary joint orientation angle
 kins_secondary_rotation = kins_comp + '_kins.secondary-angle'
 
-## CONNECTIONS TO THE HELPER COMPONENT 
+## CONNECTIONS TO THE HELPER COMPONENT
 twp_comp = 'twp-helper-comp.'
-twp_is_defined = twp_comp + 'twp-is-defined' 
-twp_is_active = twp_comp + 'twp-is-active' 
+twp_is_defined = twp_comp + 'twp-is-defined'
+twp_is_active = twp_comp + 'twp-is-active'
 
 
 # raise InterpreterException if execute() or read() fail
-throw_exceptions = 1 
+throw_exceptions = 1
 
 ## VALUE INITIALIZATION
 # we start with the identity matrix (ie the twp is equal to the world coordinates)
@@ -117,7 +117,7 @@ orient_mode = 0
 # returns 4x4 transformation matrix for given angles and 4x4 input matrix
 # NOTE: these matrices must be the same as the ones used to derive the kinematic model
 def kins_tool_transformation(theta_1, theta_2, pre_rot, matrix_in, direction='fwd'):
-    global joint_letter_primary, joint_letter_secondary 
+    global joint_letter_primary, joint_letter_secondary
     global kins_nutation_angle
     T_in = matrix_in
 
@@ -175,7 +175,7 @@ def kins_tool_transformation(theta_1, theta_2, pre_rot, matrix_in, direction='fw
                       [ -Sv*Ss,      t,      s, 0],
                       [      0,      0,      0, 1]])
 
-    elif (joint_letter_primary, joint_letter_secondary)== ('C', 'A'):  
+    elif (joint_letter_primary, joint_letter_secondary)== ('C', 'A'):
         # Additional definitions for nutating joint
         v = radians(hal.get_value(kins_nutation_angle))
         Sv = sin(v)
@@ -210,9 +210,9 @@ def kins_tool_transformation(theta_1, theta_2, pre_rot, matrix_in, direction='fw
         return 0
 
 
-# returns angle 'tc' required to rotate the x-axis of the tool-coords parallelto the machine-xy plane 
+# returns angle 'tc' required to rotate the x-axis of the tool-coords parallelto the machine-xy plane
 # for given machine joint position angles.
-# For G68.3 this is the default tool-x direction 
+# For G68.3 this is the default tool-x direction
 # NOTE: this uses formulas derived from the transformation matrix in the inverse tool kinematic
 def kins_calc_tool_rot_c_for_horizontal_x(self, theta_1, theta_2):
     global joint_letter_primary, joint_letter_secondary
@@ -225,15 +225,15 @@ def kins_calc_tool_rot_c_for_horizontal_x(self, theta_1, theta_2):
     global kins_nutation_angle
     v = radians(hal.get_value(kins_nutation_angle))
     Cv = cos(v)
-    Sv = sin(v)    
+    Sv = sin(v)
     Cs = cos(theta_2)
     Ss = sin(theta_2)
     Cp = cos(theta_1)
     Sp = sin(theta_1)
-    if (joint_letter_primary, joint_letter_secondary)== ('C', 'B'):  
+    if (joint_letter_primary, joint_letter_secondary)== ('C', 'B'):
         t = Sv*Cv*(1-Cs)
         tc = atan2((Sv*Ss),t)
-    elif (joint_letter_primary, joint_letter_secondary)== ('C', 'A'):  
+    elif (joint_letter_primary, joint_letter_secondary)== ('C', 'A'):
         t = Sv*Cv*(1-Cs)
         tc = atan2(-t,(Sv*Ss))
     else:
@@ -248,13 +248,15 @@ def kins_calc_tool_rot_c_for_horizontal_x(self, theta_1, theta_2):
 # Note: this uses functions derived from the custom kinematic
 def kins_calc_secondary(self, tool_z_req):
     global joint_letter_primary, joint_letter_secondary
+    global secondary_min_limit, secondary_max_limit
     global kins_nutation_angle
     epsilon = 0.000001
+    theta_2_list=[]
     (Kzx, Kzy, Kzz) = (tool_z_req[0], tool_z_req[1], tool_z_req[2])
 
-    if (joint_letter_primary, joint_letter_secondary)== ('C', 'B'):  
+    if (joint_letter_primary, joint_letter_secondary)== ('C', 'B'):
         # This kinmatic has infinite results for the vertical tool orientation
-        # so we expilitly define the angles for that specific case 
+        # so we explicitly define the angles for that specific case
         if Kzz > 1 - epsilon:
             return [0]
         else:
@@ -262,12 +264,9 @@ def kins_calc_secondary(self, tool_z_req):
             Sv = sin(v)
             Cv = cos(v)
             theta_2 = acos((Kzz - Cv*Cv)/(1 - Cv*Cv))
-            # since we are using acos() we really have two solutions theta_2 and -theta_2
-            log.debug('Angle B (theta_2 , -theta_2): %s', (theta_2 , -theta_2))
-
-    elif (joint_letter_primary, joint_letter_secondary)== ('C', 'A'):  
+    elif (joint_letter_primary, joint_letter_secondary)== ('C', 'A'):
         # This kinmatic has infinite results for the vertical tool orientation
-        # so we expilitly define the angles for that specific case 
+        # so we explicitly define the angles for that specific case
         if Kzz > 1 - epsilon:
             return [0]
         else:
@@ -275,25 +274,31 @@ def kins_calc_secondary(self, tool_z_req):
             Sv = sin(v)
             Cv = cos(v)
             theta_2 = acos((Kzz - Cv*Cv)/(1 - Cv*Cv))
-            # since we are using acos() we really have two solutions theta_2 and -theta_2
-            log.debug('Angle A (theta_2 , -theta_2): %s', (theta_2 , -theta_2))
     else:
         log.error('No formula for this spindle kinematic (primary, secondary) %s', (joint_letter_primary, joint_letter_secondary))
-
-    return [theta_2 , -theta_2]
+    # since we are using acos() we really have two solutions theta_2 and -theta_2
+    for theta in [theta_2, -theta_2]:
+        log.debug('Checking if result %s is within secondary joint limits of %s and %s.',
+                    degrees(theta), secondary_min_limit, secondary_max_limit)
+        if theta > secondary_min_limit and theta < secondary_max_limit:
+            log.debug('Adding %s to valid angles list.', degrees(theta))
+            theta_2_list.append(theta)
+    log.debug('List of possible secondary angles: %s\n',  theta_2_list)
+    return theta_2_list
 
 
 # calculates the primary joint position for a given tool-vector
 # Note: this uses functions derived from the custom kinematic
 def kins_calc_primary(self, tool_z_req, theta_2_list):
     global joint_letter_primary, joint_letter_secondary
+    global primary_min_limit, primary_max_limit
     global kins_nutation_angle
     epsilon = 0.000001
     theta_1_list=[]
     (Kzx, Kzy, Kzz) = (tool_z_req[0], tool_z_req[1], tool_z_req[2])
-    if (joint_letter_primary, joint_letter_secondary)== ('C', 'B'):  
+    if (joint_letter_primary, joint_letter_secondary)== ('C', 'B'):
         # This kinmatic has infinite results for the vertical tool orientation
-        # so we expilitly define the angles for that specific case 
+        # so we explicitly define the angles for that specific case
         if Kzz > 1 - epsilon:
             return [0]
         else:
@@ -306,16 +311,11 @@ def kins_calc_primary(self, tool_z_req, theta_2_list):
                 Cs  = cos(theta_2)
                 t = Sv*Cv*(1-Cs)
                 p = Sv * Ss
-            
-                theta_1 = asin((p*Kzy - t*Kzx)/(t*t + p*p))
 
-                # since we are using asin() we really have two solutions theta_1 and pi-theta_2
-                theta_1_list.append(theta_1)
-                theta_1_list.append(transform_to_pipi(pi - theta_1))
-            log.debug('Angles C,B: %s', theta_1_list)
-    elif (joint_letter_primary, joint_letter_secondary)== ('C', 'A'):  
+                theta_1 = asin((p*Kzy - t*Kzx)/(t*t + p*p))
+    elif (joint_letter_primary, joint_letter_secondary)== ('C', 'A'):
         # This kinmatic has infinite results for the vertical tool orientation
-        # so we expilitly define the angles for that specific case 
+        # so we explicitly define the angles for that specific case
         if Kzz > 1 - epsilon:
             return [0]
         else:
@@ -330,13 +330,16 @@ def kins_calc_primary(self, tool_z_req, theta_2_list):
                 p = Sv * Ss
                 q = (t*Kzy - p*Kzx)/(t*t + p*p)
                 theta_1 = asin(q)
-                # since we are using asin() we really have two solutions theta_1 and pi-theta_2
-                theta_1_list.append(theta_1)
-                theta_1_list.append(transform_to_pipi(pi - theta_1))
-            log.debug('Angles C,A: %s', theta_1_list)
     else:
         log.error('No formula for this spindle kinematic (primary, secondary) %s', (joint_letter_primary, joint_letter_secondary))
-
+    # since we are using asin() we really have two solutions theta_1 and pi-theta_2
+    for theta in [theta_1, transform_to_pipi(pi - theta_1)]:
+        log.debug('Checking if result %s is within secondary joint limits of %s and %s.',
+                    degrees(theta), secondary_min_limit, secondary_max_limit)
+        if theta > secondary_min_limit and theta < secondary_max_limit:
+            log.debug('Adding %s to valid angles list.', degrees(theta))
+            theta_1_list.append(theta)
+    log.debug('List of possible secondary angles: %s\n',  theta_2_list)
     return theta_1_list
 
 
@@ -393,10 +396,10 @@ def kins_calc_jnt_angles(self, tool_z_req):
                     log.debug('Appending (theta_1_pair, theta_2_pair) %s', (degrees(theta_1_pair[i]), degrees(theta_2_pair[j])))
                     joint_angles_list.append((theta_1_pair[i], theta_2_pair[j]))
     log.info('Found valid joint angles: %s', joint_angles_list)
-    if joint_angles_list: 
+    if joint_angles_list:
         return joint_angles_list
         #return joint_angles_list[-1]
-    else: 
+    else:
         return None, None
 
 def calc_shortest_distance(pos, trgt, mode):
@@ -408,19 +411,19 @@ def calc_shortest_distance(pos, trgt, mode):
     dist_short = (trgt - pos + 180) % 360 - 180
     # calculate short and long distance
     if dist_short >= 0: # ie dist_long should be negative
-        dist_long = -(360 - dist_short)       
-    else: 
+        dist_long = -(360 - dist_short)
+    else:
         dist_long =  360 + dist_short
     log.debug('Calculated (dist_short, dist_long):  %s', (dist_short, dist_long))
-    if mode == 1: # positive rotation only, ie we want a positive distance 
-        if dist_short >= 0: # ie we want this one 
+    if mode == 1: # positive rotation only, ie we want a positive distance
+        if dist_short >= 0: # ie we want this one
             dist = dist_short
-        else:  # ie we need to go the other way 
+        else:  # ie we need to go the other way
             dist = dist_long
-    if mode == 2: # negative rotation only ie we want a positive distance 
-        if dist_short >= 0: # ie we need to go the other way 
+    if mode == 2: # negative rotation only ie we want a positive distance
+        if dist_short >= 0: # ie we need to go the other way
             dist = dist_long
-        else: # ie we want this one 
+        else: # ie we want this one
             dist = dist_short
     else: # mode = 0 ie we want the shortest distance either way
         dist = dist_short
@@ -439,15 +442,15 @@ def calc_rotary_move_with_joint_limits(position, target, max_limit, min_limit, m
     # the operator (ie shortest (= default), positive rotation only, negative rotation only )
     dist = calc_shortest_distance(pos, trgt, mode)
     # check that the result is within the rotary axis limits defined in the ini file
-    if dist >= 0: # shortest way is in the positive direction 
-        if (pos + dist) <=  max_limit: # if the limits allow we rotate the joint in the positive sense 
+    if dist >= 0: # shortest way is in the positive direction
+        if (pos + dist) <=  max_limit: # if the limits allow we rotate the joint in the positive sense
             log.debug('Max_limit OK, target changed to: %s', (pos + dist))
             theta = pos + dist
         else: # if positive limits would be exceeded we need to go the longer wey in the other direction
             if mode == 0:
-                log.debug('Max_limit reached, target remains: %s', trgt)        
+                log.debug('Max_limit reached, target remains: %s', trgt)
                 theta = trgt
-            else: # if the rotation direction was set by the operator then we can not change direction 
+            else: # if the rotation direction was set by the operator then we can not change direction
                 theta = None
                 dist = None
     else:  # shortest way is in the negative direction
@@ -456,9 +459,9 @@ def calc_rotary_move_with_joint_limits(position, target, max_limit, min_limit, m
             theta = pos + dist
         else: # if negative limits would be exceeded we need to go the longer way int the other direction
             if mode == 0:
-                log.debug('Min_limit reached, target remains:  %s', trgt)    
+                log.debug('Min_limit reached, target remains:  %s', trgt)
                 theta = trgt
-            else: # if the rotation direction was set by the operator then we can not change direction 
+            else: # if the rotation direction was set by the operator then we can not change direction
                 theta = None
                 dist = None
     # we also attach the distance for this particular move and mode
@@ -466,15 +469,15 @@ def calc_rotary_move_with_joint_limits(position, target, max_limit, min_limit, m
     return theta, dist
 
 
-# this takes a list of joint angle pairs in [-pi,pi] and optimizes them for shortest moves 
+# this takes a list of joint angle pairs in [-pi,pi] and optimizes them for shortest moves
 # in (min_limit, max_linit) from the current joint positions using the orient_mode set by
-# the operator: 0=shortest (default), 1=positive rotation only, 2=negative rotation only 
+# the operator: 0=shortest (default), 1=positive rotation only, 2=negative rotation only
 def calc_angle_pairs_and_distances(self, possible_prim_sec_angle_pairs):
     global primary_min_limit, primary_max_limit, secondary_min_limit, secondary_max_limit
     global orient_mode
     # get the current joint positions
     prim_pos, sec_pos = get_current_rotary_positions(self)
-    # we want to return a list of angles that are optimized for the orient_mode and the 
+    # we want to return a list of angles that are optimized for the orient_mode and the
     # rotary axes limits as set in the ini file
     target_dist_list= []
     for prim_trgt, sec_trgt in possible_prim_sec_angle_pairs:
@@ -494,13 +497,13 @@ def calc_angle_pairs_and_distances(self, possible_prim_sec_angle_pairs):
 
 
 # find the optimal joint move from current to target positions in the list
-# for this we look at the primary joint move only 
+# for this we look at the primary joint move only
 # orient_mode is 0=shortest, 1=positive rotation only, 2=negative rotation only
 # For orient_mode=(1,2): If no move can be found within joint limits we return None
 def calc_optimal_joint_move(self, possible_prim_sec_angle_pairs):
     global orient_mode
     # this returns a list with all moves ((prim_move, sec_move),(prim_dist, sec_dist)) that
-    # will result in correct tool orientation, stay within the rotary axis limits and respect the 
+    # will result in correct tool orientation, stay within the rotary axis limits and respect the
     # orient_mode if set by the operator
     valid_joint_moves_and_distances = calc_angle_pairs_and_distances(self, possible_prim_sec_angle_pairs)
     # now we need to pick and return the (primary angle, secondary angle) that results in the
@@ -509,13 +512,13 @@ def calc_optimal_joint_move(self, possible_prim_sec_angle_pairs):
     dist = 3600
     for trgt_angles, dists in valid_joint_moves_and_distances:
         if orient_mode == 0 and fabs(dists[0]) < fabs(dist): # shortest move requested
-            (theta_1, theta_2) = trgt_angles            
+            (theta_1, theta_2) = trgt_angles
             dist = dists[0]
         elif orient_mode == 1 and fabs(dists[0]) < fabs(dist) and dists[0] >= 0: # positive primary rotation only
-            (theta_1, theta_2) = trgt_angles            
+            (theta_1, theta_2) = trgt_angles
             dist = dists[0]
         elif orient_mode == 2 and fabs(dists[0]) < fabs(dist) and dists[0] <= 0: # negative primary rotation only
-            (theta_1, theta_2) = trgt_angles            
+            (theta_1, theta_2) = trgt_angles
             dist = dists[0]
     log.debug('Shortest move selected for (orient_mode, theta_1, theta_2):  %s', (orient_mode, theta_1, theta_2))
     return theta_1, theta_2
@@ -596,7 +599,7 @@ def kins_calc_tool_transformation(self, matrix_in, theta_1=None, theta_2=None, p
         log.debug("got for primary joint: %s", theta_1)
     # pre-rot is the virtual rotary axis around the tool-z axis to align the tool-x axis
     # if no pre-rot angle is passed then we use the currently active value
-    if pre_rot == None: 
+    if pre_rot == None:
         pre_rot =  hal.get_value(kins_pre_rotation )
         log.debug("current pre-rot: %s", pre_rot)
     else:
@@ -689,7 +692,7 @@ def gui_update_twp(self):
 
 
 # NOTE: Due to easier abort handling we currently restrict the use of twp to G54
-# as LinuxCNC seems to revert to G54 as the default system 
+# as LinuxCNC seems to revert to G54 as the default system
 def get_current_work_offset(self):
     # get which offset is active (g54=1 .. g59.3=9)
     active_offset = int(self.params[5220])
@@ -709,19 +712,19 @@ def get_current_work_offset(self):
 def get_current_rotary_positions(self):
     global joint_letter_primary, joint_letter_secondary
     if joint_letter_primary == 'A':
-        theta_1 = radians(self.AA_current)  
+        theta_1 = radians(self.AA_current)
     elif joint_letter_primary == 'B':
-        theta_1 = radians(self.BB_current)  
+        theta_1 = radians(self.BB_current)
     elif joint_letter_primary == 'C':
-        theta_1 = radians(self.CC_current)  
+        theta_1 = radians(self.CC_current)
     log.debug('Current position Primary joint: %s', degrees(theta_1))
     # read current spindle rotary angles and convert to radians
     if joint_letter_secondary == 'A':
-        theta_2 = radians(self.AA_current)  
+        theta_2 = radians(self.AA_current)
     elif joint_letter_secondary == 'B':
-        theta_2 = radians(self.BB_current)  
+        theta_2 = radians(self.BB_current)
     elif joint_letter_secondary == 'C':
-        theta_2 = radians(self.CC_current)   
+        theta_2 = radians(self.CC_current)
     log.debug('Current position Secondary joint: %s', degrees(theta_2))
     return theta_1, theta_2
 
@@ -756,8 +759,8 @@ def reset_twp_params(self):
 # Note: To avoid that this python code is run prematurely by the read ahead we need a quebuster at the beginning but
 # because we need self.execute() to switch the WCS properly this remap needs to be called from
 # an ngc reamp that contains a quebuster before calling this code
-# IMPORTANT: 
-# The correct kinematic mode (ie TCP for 53.1 / IDENTITY for G53.6) must be active when this code is called 
+# IMPORTANT:
+# The correct kinematic mode (ie TCP for 53.1 / IDENTITY for G53.6) must be active when this code is called
 # (ie do it in the ngc remap mentioned above!)
 def g53x_core(self):
     global saved_work_offset, twp_matrix, twp_flag, pre_rot
@@ -765,7 +768,7 @@ def g53x_core(self):
     global orient_mode
     if self.task == 0: # ignore the preview interpreter
         yield INTERP_EXECUTE_FINISH
-        return INTERP_OK     
+        return INTERP_OK
 
     if not  hal.get_value(twp_is_defined):
          # reset the twp parameters
@@ -793,7 +796,7 @@ def g53x_core(self):
     x = c.i_number if c.i_flag else None
     y = c.j_number if c.j_flag else None
     z = c.k_number if c.k_flag else None
-    log.debug('G53.x Words passed: (P, X,Y,Z): %s', (p,x,y,z))    
+    log.debug('G53.x Words passed: (P, X,Y,Z): %s', (p,x,y,z))
     if p not in [0,1,2]:
          # reset the twp parameters
         reset_twp_params(self)
@@ -811,11 +814,11 @@ def g53x_core(self):
         # calculate all possible pairs of (primary, secondary) angles so our tool-z vector matches the requested tool-z
         # angles are returned in [-pi,pi]
         possible_prim_sec_angle_pairs = kins_calc_jnt_angles(self, tool_z_requested)
-    # An excepton will occur if the requested tool orientation cannot be achieved with the kinematic at hand 
+    # An excepton will occur if the requested tool orientation cannot be achieved with the kinematic at hand
     except Exception as error:
         log.error('G53.x: Calculation failed, %s', error)
         possible_prim_sec_angle_pairs = []
-    if not possible_prim_sec_angle_pairs: 
+    if not possible_prim_sec_angle_pairs:
          # reset the twp parameters
         reset_twp_params(self)
         msg = "G53.x ERROR: Requested tool orientation not reachable -> aborting G53.x"
@@ -827,7 +830,7 @@ def g53x_core(self):
 
     # this returns one pair of optimized angles in degrees, or (None, None) if no solution could be found
     theta_1, theta_2 = calc_optimal_joint_move(self, possible_prim_sec_angle_pairs)
-    if theta_1 == None: 
+    if theta_1 == None:
          # reset the twp parameters
         reset_twp_params(self)
         msg = ("G53.x ERROR: Requested tool orientation not reachable -> aborting G53.x")
@@ -844,7 +847,7 @@ def g53x_core(self):
     pre_rot = kins_calc_pre_rot(self,theta_1, theta_2, tool_x_requested, tool_z_requested)
     log.debug("Calculated pre-rotation (pre_rot) to match requested tool-x): %s", pre_rot)
     # mark twp-flag as active
-    twp_flag = [0, 'active']    
+    twp_flag = [0, 'active']
     gui_update_twp(self)
     # set the pre-rotation value in the kinematic component
     log.debug("G53.x: setting primary, secondary and pre_rotation angles in kinematic component: %s", (degrees(theta_1), degrees(theta_2), degrees(pre_rot)))
@@ -881,10 +884,10 @@ def g53x_core(self):
     return INTERP_OK
 
 
-# Cancel an active TWP definition and reset the parameters to zero 
+# Cancel an active TWP definition and reset the parameters to zero
 # Note: To avoid that this python code is run prematurely by the read ahead we need a quebuster at the beginning but
 # because we need self.execute() to switch the WCS properly this remap needs to be called from
-# an ngc that contains a quebuster before calling this code 
+# an ngc that contains a quebuster before calling this code
 def g69_core(self):
     global twp_flag, saved_work_offset_number, saved_work_offset
     if self.task == 0: # ignore the preview interpreter
@@ -910,7 +913,7 @@ def g683(self, **words):
         return INTERP_OK
 
     # ! IMPORTANT !
-    #  We need to use 'yield INTERP_EXECUTE_FINISH' here to stop the read ahead 
+    #  We need to use 'yield INTERP_EXECUTE_FINISH' here to stop the read ahead
     # and avoid it executing the rest of the remap ahead of time
     ## NOTE: No 'self.execute(..)' command can be used after 'yield INTERP_EXECUTE_FINISH'
     yield INTERP_EXECUTE_FINISH
@@ -926,7 +929,7 @@ def g683(self, **words):
         return INTERP_ERROR
 
     # NOTE: Due to easier abort handling we currently restrict the use of twp to G54
-    # as LinuxCNC seems to revert to G54 as the default system 
+    # as LinuxCNC seems to revert to G54 as the default system
     # get which offset is active (g54=1 .. g59.3=9)
     (n, offsets) = get_current_work_offset(self)
     if n != 1:
@@ -947,7 +950,7 @@ def g683(self, **words):
     # parse the requested rotation of tool-x around the origin
     r = c.r_number if c.r_flag else 0
 
-    twp_flag = [0, 1, 'empty'] # one call to define the twp in this mode  
+    twp_flag = [0, 1, 'empty'] # one call to define the twp in this mode
     theta_1, theta_2 = get_current_rotary_positions(self)
     # calculate tool-prerotation necessary to have tool-x vector in machine xy-plane
     pre_rot = kins_calc_tool_rot_c_for_horizontal_x(self, theta_1, theta_2 )
@@ -987,7 +990,7 @@ def g682(self, **words):
         return INTERP_OK
 
     # ! IMPORTANT !
-    #  We need to use 'yield INTERP_EXECUTE_FINISH' here to stop the read ahead 
+    #  We need to use 'yield INTERP_EXECUTE_FINISH' here to stop the read ahead
     # and avoid it executing the rest of the remap ahead of time
     ## NOTE: No 'self.execute(..)' command can be used after 'yield INTERP_EXECUTE_FINISH'
     yield INTERP_EXECUTE_FINISH
@@ -1003,7 +1006,7 @@ def g682(self, **words):
         return INTERP_ERROR
 
     # NOTE: Due to easier abort handling we currently restrict the use of twp to G54
-    # as LinuxCNC seems to revert to G54 as the default system 
+    # as LinuxCNC seems to revert to G54 as the default system
     (n, offsets) = get_current_work_offset(self)
     if n != 1:
          # reset the twp parameters
@@ -1057,7 +1060,7 @@ def g682(self, **words):
         log.debug('G68.2 (P0): Twp_euler_rotation \n%s',twp_euler_rotation)
         # calculate the total twp_rotation using matrix multiplication
         twp_rotation = np.asmatrix(twp_origin_rotation) * np.asmatrix(twp_euler_rotation)
-        # combine rotation and translation and form the 4x4 twp-transformation matrix 
+        # combine rotation and translation and form the 4x4 twp-transformation matrix
         twp_matrix = np.hstack((twp_rotation, twp_origin))
         twp_row_4 = [0,0,0,1]
         twp_matrix = np.vstack((twp_matrix, twp_row_4))
@@ -1102,7 +1105,7 @@ def g682(self, **words):
         log.debug('G68.2 P1: Twp_euler_rotation \n%s',twp_euler_rotation)
         # calculate the total twp_rotation using matrix multiplication
         twp_rotation = np.asmatrix(twp_origin_rotation) * np.asmatrix(twp_euler_rotation)
-        # combine rotation and translation and form the 4x4 twp-transformation matrix 
+        # combine rotation and translation and form the 4x4 twp-transformation matrix
         twp_matrix = np.hstack((twp_rotation, twp_origin))
         twp_row_4 = [0,0,0,1]
         twp_matrix = np.vstack((twp_matrix, twp_row_4))
@@ -1190,7 +1193,7 @@ def g682(self, **words):
             twp_vect_rotation_t = np.vstack((twp_vect_rotation_t, twp_vect_z))
             twp_vect_rotation = np.transpose(twp_vect_rotation_t)
             log.debug("G68.2 P2: Built the twp-rotation-matrix: \n%s", twp_vect_rotation)
-            # convert requested origin rotation to radians 
+            # convert requested origin rotation to radians
             # we use xzx-euler rotation to create the rotation matrix for the requested origin rotation
             twp_origin_rotation = twp_calc_euler_rot_matrix(0, r, 0, '131')
             log.debug('G68.2 P2: Twp-origin-rotation-matrix \n%s',twp_origin_rotation)
@@ -1332,7 +1335,7 @@ def g684(self, **words):
         return INTERP_OK
 
     # ! IMPORTANT !
-    #  We need to use 'yield INTERP_EXECUTE_FINISH' here to stop the read ahead 
+    #  We need to use 'yield INTERP_EXECUTE_FINISH' here to stop the read ahead
     # and avoid it executing the rest of the remap ahead of time
     ## NOTE: No 'self.execute(..)' command can be used after 'yield INTERP_EXECUTE_FINISH'
     yield INTERP_EXECUTE_FINISH
@@ -1346,7 +1349,7 @@ def g684(self, **words):
         yield INTERP_EXECUTE_FINISH # w/o this the error message is not displayed
         yield INTERP_EXIT # w/o this the error does not abort a running gcode program
         return INTERP_ERROR
-    
+
     # collect the currently active work offset values (ie g54, g55 or other)
     n = get_current_work_offset(self)[0]
     # Must be in one of the dedicated offset systems for TWP
@@ -1361,12 +1364,12 @@ def g684(self, **words):
         return INTERP_ERROR
 
 
-    # store the current TWP to 
+    # store the current TWP to
     twp_matrix_current = np.matrix.copy(twp_matrix)
 
     c = self.blocks[self.remap_level]
     p = c.p_number if c.p_flag else 0
-    
+
     if p == 0: # true euler angles (this is the default mode)
         twp_flag = [int(p), 1, 'empty'] # one call to define the twp in this mode
         # parse requested order of rotations (default is '313' ie: ZXZ)
@@ -1403,7 +1406,7 @@ def g684(self, **words):
         log.debug('G68.4 (P0): Twp_euler_rotation \n%s',twp_euler_rotation)
         # calculate the total twp_rotation using matrix multiplication
         twp_rotation = np.asmatrix(twp_origin_rotation) * np.asmatrix(twp_euler_rotation)
-        # combine rotation and translation and form the 4x4 twp-transformation matrix 
+        # combine rotation and translation and form the 4x4 twp-transformation matrix
         twp_matrix = np.hstack((twp_rotation, twp_origin))
         twp_row_4 = [0,0,0,1]
         twp_matrix = np.vstack((twp_matrix, twp_row_4))
@@ -1447,7 +1450,7 @@ def g684(self, **words):
         log.debug('G68.4 P1: Twp_euler_rotation \n%s',twp_euler_rotation)
         # calculate the total twp_rotation using matrix multiplication
         twp_rotation = np.asmatrix(twp_origin_rotation) * np.asmatrix(twp_euler_rotation)
-        # combine rotation and translation and form the 4x4 twp-transformation matrix 
+        # combine rotation and translation and form the 4x4 twp-transformation matrix
         twp_matrix = np.hstack((twp_rotation, twp_origin))
         twp_row_4 = [0,0,0,1]
         twp_matrix = np.vstack((twp_matrix, twp_row_4))

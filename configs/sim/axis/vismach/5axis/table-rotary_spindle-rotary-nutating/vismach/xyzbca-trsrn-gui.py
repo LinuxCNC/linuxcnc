@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
-# This is a machine simulation for the 'xyzbca-trsrn' simulation config in linuxcnc 
-# Author: David mueller 
+# This is a machine simulation for the 'xyzbca-trsrn' simulation config in linuxcnc
+# Author: David mueller
 # email: mueller_david@hotmail.com
 
 from twp_vismach import *
@@ -16,7 +16,7 @@ current = os.path.dirname(os.path.realpath(__file__))
 # Getting the parent directory name
 # where the current directory is present.
 parent = os.path.dirname(current)
-# adding the parent directory to 
+# adding the parent directory to
 # the sys.path.
 sys.path.append(parent)
 # now we can import the module in the parent
@@ -87,7 +87,7 @@ c.newpin("twp_active", hal.HAL_BIT, hal.HAL_IN)
 c.newpin("twp_ox_world", hal.HAL_FLOAT, hal.HAL_IN)
 c.newpin("twp_oy_world", hal.HAL_FLOAT, hal.HAL_IN)
 c.newpin("twp_oz_world", hal.HAL_FLOAT, hal.HAL_IN)
-# origin of the twp 
+# origin of the twp
 c.newpin("twp_ox", hal.HAL_FLOAT, hal.HAL_IN)
 c.newpin("twp_oy", hal.HAL_FLOAT, hal.HAL_IN)
 c.newpin("twp_oz", hal.HAL_FLOAT, hal.HAL_IN)
@@ -134,7 +134,7 @@ class HalSpindleHousingX(CylinderX):
 
     def coords(self):
         r = 120
-        length =  c.pivot_x + 150 
+        length =  c.pivot_x + 150
         return length, r-30, 0, r
 
 # used to create an indicator for the variable 'pivot_z'
@@ -196,7 +196,7 @@ class CoordSystem(Collection):
     # creates a visual object for a coordinate system
     def __init__(self, comp, r=4, l=500):
         # set arrow length
-        al = l/10 
+        al = l/10
         self.parts = [Color([1,0,0,1],[CylinderX(0,r,l,r)]),
                       Color([1,0,0,1],[CylinderX(l,2*r,l+al,1)]),
                       Color([0,1,0,1],[CylinderY(0,r,l,r)]),
@@ -232,14 +232,14 @@ class HalRotateNutation(HalVectorRotate):
 
 
 #indicators
-# create vismach coordinates to show the origin during construction of the model 
-vismach_coords = CoordSystem(c,2,5000) 
+# create vismach coordinates to show the origin during construction of the model
+vismach_coords = CoordSystem(c,2,5000)
 
-# create absolute coordinates  
+# create absolute coordinates
 abs_coords = CoordSystem(c,8,300)
 abs_coords = HalScale([abs_coords],c,1,1,1,"scale_coords")
 # create work coordinates that represent work_offset offset
-work_coords = CoordSystem(c,2,100) 
+work_coords = CoordSystem(c,2,100)
 work_coords = HalScale([work_coords],c,1,1,1,"scale_coords")
 # work coordinates for identity mode
 work_coords_ident = HalShow([work_coords],c,0,"kinstype_select")
@@ -247,7 +247,7 @@ work_coords_ident = HalShow([work_coords],c,0,"kinstype_select")
 work_coords_tcp = HalShow([work_coords],c,1,"kinstype_select")
 # work coordinates for tool mode
 work_coords_tool = HalShow([work_coords],c,2,"kinstype_select")
-# rotate to match the current tool orientation 
+# rotate to match the current tool orientation
 work_coords_tool = HalRotateNutation([work_coords_tool],c,"rotary_a",-1,0,0,0)
 work_coords_tool = HalRotate([work_coords_tool],c,"rotary_c",1,0,0,1)
 
@@ -257,12 +257,12 @@ work_coords_ident = Translate([work_coords_ident], machine_zero_x, machine_zero_
 work_coords_tcp   = Translate([work_coords_tcp]  , machine_zero_x, machine_zero_y, machine_zero_z)
 work_coords_tool  = Translate([work_coords_tool] , machine_zero_x, machine_zero_y, machine_zero_z)
 
-# move the  work offsets by the work_offset 
+# move the  work offsets by the work_offset
 work_coords_ident = HalVectorTranslate([work_coords_ident],c,"twp_ox_world","twp_oy_world","twp_oz_world")
 work_coords_tcp   = HalVectorTranslate([work_coords_tcp]  ,c,"twp_ox_world","twp_oy_world","twp_oz_world")
 work_coords_tool  = HalVectorTranslate([work_coords_tool] ,c,"twp_ox_world","twp_oy_world","twp_oz_world")
 
-# create a visual indicator for the position of the control point 
+# create a visual indicator for the position of the control point
 ctrl_pt = Point(c)
 # move the control point indicator to the control-position
 #ctrl_pt = HalVectorTranslate([ctrl_pt],c,"abs_pos_x","abs_pos_y","abs_pos_z")
@@ -284,7 +284,7 @@ coords = Collection([
 rot_axis = Color([1,1,0.3,1],[CylinderY(0,2,2000,2)])
 # move the rot_axis indicator by the designated (x,y)-home offset
 rot_axis= Translate([rot_axis], machine_zero_x, 0, machine_zero_z)
-# now move it to the position set by the user 
+# now move it to the position set by the user
 rot_axis = HalVectorTranslate([rot_axis],c,"rot_axis_x",0,"rot_axis_z")
 #/indicators
 
@@ -355,7 +355,7 @@ ind_pivot_point = Collection([
                   ind_axis_c
                   ])
 
-# create the part of joint A that attaches to the spindle body 
+# create the part of joint A that attaches to the spindle body
 spindle_housing_nut = Collection([
                       Color([0.7,0.7,0,1],[CylinderZ(0,60,150,145)]),
                       Color([0.7,0.7,0,1],[CylinderZ(150,145,180,145)])
@@ -398,7 +398,7 @@ spindle_rotary_nut = Collection([
 # rotate the nutation joint to the nutation angle
 spindle_rotary_nut = HalRotate([spindle_rotary_nut],c,"nutation_angle",1,0,1,0)
 
-# create the part that connects the nutation joint to the rotary C 
+# create the part that connects the nutation joint to the rotary C
 spindle_rotary_arm = Color([1,0.5,0,0],[BoxCenteredXY(300, 600, 100)])
 spindle_rotary_arm = Rotate([spindle_rotary_arm],50,-1,0,0)
 spindle_rotary_arm = Translate([spindle_rotary_arm],0,120,200)
@@ -411,7 +411,7 @@ spindle_rotary_plate = Translate([spindle_rotary_plate],0,0,400)
 spindle_rotary = Collection([
                  spindle_rotary_nut,
                  spindle_rotary_arm,
-                 spindle_rotary_plate 
+                 spindle_rotary_plate
                  ])
 # make it hidable
 spindle_rotary = HalShow([spindle_rotary],c,True,"hide_spindle_body",0,1)
@@ -455,7 +455,7 @@ work_piece = BoxCenteredXY(600, 600, 600)
 # create a more complex work piece from stl
 #work_piece = Translate([work_piece],0,0,0)
 work_piece = Color([0.5,0.5,0.5,0.9], [work_piece])
-# move the workpiece 
+# move the workpiece
 work_piece = Translate([work_piece],0,300,300)
 work_piece = HalShow([work_piece],c,1,"hide_work_piece_1",0,1)
 # create rotary_table_c
@@ -477,7 +477,7 @@ rotary_table_b = Collection([
                  ])
 # rotate into the xz plane
 rotary_table_b = Rotate([rotary_table_b],90,1,0,0)
-# create HAL-link for rotary table 
+# create HAL-link for rotary table
 rotary_table_b = HalRotate([rotary_table_b],c,"rotary_b",-1,0,1,0)
 rotary_table_b = Translate([rotary_table_b ],0,1700,0)
 
@@ -485,14 +485,14 @@ rotary_table_b = Translate([rotary_table_b ],0,1700,0)
 work_coords_tcp = HalRotate([work_coords_tcp],c,"rotary_b",-1,0,1,0)
 
 # create the work_plane using the origin (as measured from current work offset (world),
-# normal vector vz(zx,zy,zz) and  x-orientation vector vx(xx,xy,xz) 
-# these are used to create a transformation matrix 
-# with y-orientation vector being the cross_product(vz, vx) 
+# normal vector vz(zx,zy,zz) and  x-orientation vector vx(xx,xy,xz)
+# these are used to create a transformation matrix
+# with y-orientation vector being the cross_product(vz, vx)
 work_plane =  HalGridFromNormalAndDirection(c,
         "twp_ox", "twp_oy", "twp_oz",
         "twp_xx", "twp_xy", "twp_xz",
         "twp_zx", "twp_zy", "twp_zz"
-        ) 
+        )
 # for twp-defined = true, we show the plane in gray
 work_plane_defined =  Color([0.7,0.7,0.7,1],[work_plane])
 work_plane_defined = HalShow([work_plane_defined],c,0,"twp_active")
@@ -511,7 +511,7 @@ work_plane = Collection([work_plane_defined, work_plane_active, work_plane_coord
 work_plane = HalShow([work_plane],c,1,"twp_defined")
 # move plane by home offset
 work_plane = Translate([work_plane], machine_zero_x, machine_zero_y, machine_zero_z)
-# move plane to current work offset 
+# move plane to current work offset
 work_plane = HalVectorTranslate([work_plane],c,"twp_ox_world","twp_oy_world","twp_oz_world")
 table = Collection([
         rotary_table_b,

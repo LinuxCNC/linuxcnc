@@ -529,7 +529,7 @@ static PyObject *pyhal_get_pins(PyObject *_self, PyObject * /*o*/) {
   EXCEPTION_IF_NOT_LIVE(NULL);
 
   PyObject *d = PyDict_New();
-  for(itemmap::iterator i = self->items->begin(); i != self->items->end(); i++) {
+  for(itemmap::iterator i = self->items->begin(); i != self->items->end(); ++i) {
     halitem * pin = &(i->second);
     name = strdup(i->first.c_str());
     PyDict_SetItemString(d, name, pyhal_read_common(pin));

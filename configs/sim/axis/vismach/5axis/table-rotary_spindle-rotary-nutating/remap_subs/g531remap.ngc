@@ -1,10 +1,10 @@
 ; this is the wrapper remap to orient the spindle using IDENTITY kinematics G53.1
 
 o<g531remap>sub
-M66 L0 E0                                                   ;force sync, stop read ahead    
+M66 L0 E0                                                   ;force sync, stop read ahead
 o100 if [EXISTS [#<P>]]
 o100 else
-    #<P> = 0                                                ;if no P word has been passed we use the default (0)      
+    #<P> = 0                                                ;if no P word has been passed we use the default (0)
 o100 endif
 M68 E3 Q0                                                   ;switch to identity kinematic
 M66 L0 E0

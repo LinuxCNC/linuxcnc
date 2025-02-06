@@ -2088,6 +2088,7 @@ NMLTYPE NML::str2msg(const char *string)
     case CMS_MISC_ERROR:
     case CMS_NO_MASTER_ERROR:
 	error_type = NML_INTERNAL_CMS_ERROR;
+	/* Fallthrough */
     default:
 	return -1;
     }
