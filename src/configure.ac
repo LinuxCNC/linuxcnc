@@ -39,7 +39,7 @@ m4_include([m4/ax_python.m4])
 m4_include([m4/ax_python_devel.m4])
 m4_include([m4/ax_boost_base.m4])
 m4_include([m4/ax_boost_python.m4])
-AX_CXX_COMPILE_STDCXX(17, , mandatory)
+AX_CXX_COMPILE_STDCXX(20, , mandatory)
 
 AC_MSG_CHECKING(build toplevel)
 BUILD_TOPLEVEL="$(cd ..; pwd -P)"
@@ -405,14 +405,6 @@ if test -z "$CC"; then
 elif ! test `$CC -dumpversion | cut -d '.' -f 1` -gt 2 ; then
   AC_MSG_ERROR([Compilers older than gcc 3.x are no longer supported])
 fi
-
-# Set flags for C and C++ if supported
-for commonflag in -Wno-stringop-truncation ; do
-  if echo "int main() { return 0;}" | $CC -Werror $commonflag -E - > /dev/null; then
-    CFLAGS="${CFLAGS:+$CFLAGS }$flag"
-    CXXFLAGS="${CXXFLAGS:+$CXXFLAGS }$flag"
-  fi
-done
 
 AC_MSG_CHECKING([for usability of linux/hidraw.h])
 AC_LINK_IFELSE([AC_LANG_PROGRAM([[
@@ -1559,7 +1551,7 @@ AC_SUBST([READLINE_LIBS])
 # if you don't have nls tools, allow a way out!
 
 AC_ARG_ENABLE(nls,
-    AS_HELP_STRING([--disable-nls], [Don't use NLS.]),
+    AS_HELP_STRING([--disable-nls], [Do not use NLS.]),
               USE_NLS=no, USE_NLS=yes)
 AC_SUBST(USE_NLS)
 
@@ -1669,6 +1661,37 @@ AC_CHECK_HEADERS(X11/Xmu/Xmu.h,[],[AC_MSG_ERROR([Required Xmu header missing.  I
 
 AC_SUBST([LIBPYTHON])
 AC_SUBST([SITEPY])
+
+#
+# Add extra options to CFLAGS and CXXFLAGS
+#
+add_to_cflags() {
+    # Add $1 to CFLAGS and CXXFLAGS if not already there
+    if test -z "$1"; then return; fi
+    if echo "$CFLAGS" | grep -q -w -v -- "$1"; then
+        CFLAGS="${CFLAGS:+$CFLAGS }$1"
+    fi
+    if echo "$CXXFLAGS" | grep -q -w -v -- "$1"; then
+        CXXFLAGS="${CXXFLAGS:+$CXXFLAGS }$1"
+    fi
+}
+
+# Always add -Wextra
+add_to_cflags "-Wextra"
+
+# The last thing before subst-exporting CFLAGS and CXXFLAGS is to add -Werror
+# if requested. Doing it earlier causes conf-tests to fail that are supposed to
+# succeed when they generate warnings.
+AC_ARG_ENABLE(werror,
+    AS_HELP_STRING(
+      [--enable-werror],
+      [Treat all compiler warnings as errors (-Werror).],
+    ),
+    [
+      case "$enableval" in
+        (yes) add_to_cflags "-Werror" ;;
+      esac
+    ])
 
 AC_SUBST([CFLAGS])
 AC_SUBST([CPPFLAGS])
