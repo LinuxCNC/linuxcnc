@@ -86,18 +86,16 @@ class SchedEntry {
     void setTool(int t);
   };
 
-SchedEntry::SchedEntry() {
-    priority = 0;
-    tagId = 0;
-    xpos = 0.0;
-    ypos = 0.0;
-    zpos = 0.0;
-    zone = 0;
-    fileName = "";
-    feedOverride = 100.0;
-    spindleOverride = 100.0;
-    tool = 1;
-  }
+SchedEntry::SchedEntry()
+    : priority(0), tagId(0),
+      xpos(0.0), ypos(0.0), zpos(0.0),
+      zone(0),
+      programName(""), fileName(""),
+      feedOverride(100.0),
+      spindleOverride(100.0),
+      tool(1)
+{
+}
 
 list<SchedEntry> q;
 
