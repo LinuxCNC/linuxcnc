@@ -2765,15 +2765,14 @@ class TclCommands(nf.TclCommands):
 
     def touch_off_system(event=None, new_axis_value = None):
         global system
-        axis_letter = vars.ja_rbutton.get()
-        axis_letter_upper = axis_letter.upper()
-        position_tuple_order = "XYZABCUVW"
-
         if not manual_ok(): return
+
+        touchoff_actual_position = inifile.find(f"AXIS_{vars.ja_rbutton.get().upper()}", "TOUCHOFF_ACTUAL")
+        offset_axis = trajcoordinates.index(vars.ja_rbutton.get())
         if new_axis_value is None:
             new_axis_value, system = prompt_touchoff(
-                title=_("Touch Off (system)"),
-                text=_("Enter %s coordinate relative to %%s:") % axis_letter_upper,
+                title=_(f"Touch Off ({'system' if touchoff_actual_position is None else 'system ACTUAL'})"),
+                text=_("Enter %s coordinate relative to %%s:") % vars.ja_rbutton.get().upper(),
                 default=0.0,
                 tool_only=False,
                 system=vars.touch_off_system.get()
@@ -2787,20 +2786,17 @@ class TclCommands(nf.TclCommands):
         ensure_mode(linuxcnc.MODE_MDI)
         s.poll()
 
-        linear_axis = axis_letter in "xyzuvw"
+        linear_axis = vars.ja_rbutton.get() in "xyzuvw"
         if linear_axis and vars.metric.get(): scale = 1/25.4
         else: scale = 1
 
         if linear_axis and 210 in s.gcodes:
             scale *= 25.4
 
-        # set TOUCHOFF_ACTUAL = TRUE under the appropriate [AXIS_x] section in the .INI file to incorporate the actual position into the touch-off
-        # calculation.  this is for unmotorized axes where the commanded position does not change, but actual does via an external encoder.
-        if axis_letter_upper in position_tuple_order and inifile.find("AXIS_%s" % axis_letter_upper, "TOUCHOFF_ACTUAL") is not None:
-            axis_idx = position_tuple_order.index(axis_letter_upper)
-            new_axis_value = str(float(new_axis_value) - s.actual_position[axis_idx])
+        if touchoff_actual_position is not None:
+            new_axis_value = str(float(new_axis_value) + (-1.0 if touchoff_actual_position.upper() == "MINUS" else 1.0) * s.actual_position[offset_axis])
 
-        offset_command = "G10 L20 %s %c[[%s]*%.12f]" % (system.split()[0], axis_letter_upper, new_axis_value, scale)
+        offset_command = "G10 L20 %s %c[[%s]*%.12f]" % (system.split()[0], vars.ja_rbutton.get(), new_axis_value, scale)
         c.mdi(offset_command)
         c.wait_complete()
 
