@@ -2732,7 +2732,8 @@ class gmoccapy(object):
         if self.widgets.tbtn_user_tabs.get_active():
             self.widgets.tbtn_user_tabs.set_active(False)
         self.widgets.ntb_main.set_current_page(0)
-        self.widgets.ntb_button.set_current_page(_BB_MANUAL)
+        if self.widgets.ntb_button.get_current_page() != _BB_TOUCH_OFF:
+            self.widgets.ntb_button.set_current_page(_BB_MANUAL)
         self.widgets.ntb_info.set_current_page(0)
         self.widgets.ntb_jog.set_current_page(0)
 
@@ -4246,23 +4247,23 @@ class gmoccapy(object):
     def on_tbtn_edit_offsets_toggled(self, widget, data=None):
         state = widget.get_active()
         self.widgets.offsetpage1.edit_button.set_active(state)
-        self.widgets.ntb_preview.set_current_page(1)
 
         if self.widgets.rbtn_show_preview.get_active() and not state:
             self.widgets.ntb_preview.set_current_page(0)
+        else:
+            self.widgets.ntb_preview.set_current_page(1)
 
+        # de-sensitize other buttons
         widgetlist = ["ntb_jog", "rbt_mdi","rbt_auto","tbtn_setup"]
-
         if self.user_tabs_enabled:
             widgetlist.append("tbtn_user_tabs")
         self._sensitize_widgets( widgetlist, not state )
-
         for element in self.touch_button_dic:
             if self.touch_button_dic[element].get_property("name") in ["edit_offsets", "touch_back"]:
                 continue
             self.touch_button_dic[element].set_sensitive(not state)
 
-        # if no system is selected we will set the button not sensitive
+        # if no system is selected, set the "set active" button not sensitive
         system, name = self.widgets.offsetpage1.get_selected()
         if not system:
             self.touch_button_dic["set_active"].set_sensitive(False)
