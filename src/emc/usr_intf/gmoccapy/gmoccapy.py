@@ -4475,7 +4475,7 @@ class gmoccapy(object):
                 ("img_fullsize_preview1_close", "fullscreen_close", 48),
                 # ref
                 ("img_ref_menu",            "ref_all",          48),
-                ("img_ref_menu_close",      "back_to_app",      32),
+                ("img_ref_menu_close",      "back_to_app",      48),
                 ("img_ref_paginate_next",   "chevron_right",    32),
                 ("img_ref_paginate_prev",   "chevron_left",     32),
                 ("img_ref_all",             "ref_all",          48),
@@ -4499,7 +4499,7 @@ class gmoccapy(object):
                 ("img_ref_7", "ref_7", 48),
                 # touch off
                 ("img_touch_off",           "touch_off", 48),
-                ("img_touch_menu_close",    "back_to_app",  32),
+                ("img_touch_menu_close",    "back_to_app",  48),
                 ("img_touch_paginate_next",   "chevron_right",    32),
                 ("img_touch_paginate_prev",   "chevron_left",     32),
                 ("img_touch_x", "touch_x", 48),
@@ -4514,7 +4514,7 @@ class gmoccapy(object):
                 # tool settings
                 ("img_tools",       "hsk_mill_tool",        48),
                 ("img_toolchange",  "mill_tool_change",     48),
-                ("img_back_tool",   "back_to_app",          32),
+                ("img_back_tool",   "back_to_app",          48),
                 ("img_tool_by_no",  "mill_tool_change_num", 48),
                 ("img_index_tool",  "mill_tool_set_num",    48),
                 # auto mode buttons
@@ -4536,7 +4536,7 @@ class gmoccapy(object):
                 ("img_sel_next",        "chevron_right",        32),
                 ("img_jump_to",         "user_defined_folder",  32),
                 ("img_select",          "select_file",          32),
-                ("img_back_file_load",  "back_to_app",          32),
+                ("img_back_file_load",  "back_to_app",          48),
                 # edit file menu
                 ("img_edit_menu_reload",        "refresh",          32),
                 ("img_edit_menu_save",          "save",             32),
@@ -4544,7 +4544,7 @@ class gmoccapy(object):
                 ("img_edit_menu_new",           "new_document",     32),
                 ("img_edit_menu_keyboard",      "keyboard",         32),
                 ("img_edit_menu_keyboard_hide", "keyboard_hide",    32),
-                ("img_edit_menu_close",         "back_to_app",      32),
+                ("img_edit_menu_close",         "back_to_app",      48),
                 # macro menu
                 ("img_macro_menu_keyboard",         "keyboard",         32),
                 ("img_macro_menu_keyboard_hide",    "keyboard_hide",    32),
