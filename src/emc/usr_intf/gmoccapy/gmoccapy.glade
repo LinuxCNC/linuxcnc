@@ -7388,6 +7388,27 @@ tool z</property>
                   </packing>
                 </child>
                 <child>
+                  <object class="GtkButton" id="btn_jump_to">
+                    <property name="use-action-appearance">False</property>
+                    <property name="width-request">90</property>
+                    <property name="height-request">56</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">True</property>
+                    <property name="tooltip-text" translatable="yes">Jump to user defined directory</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
+                    <property name="image">img_jump_to</property>
+                    <property name="image-position">top</property>
+                    <signal name="clicked" handler="on_btn_jump_to_clicked" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
                   <object class="GtkButton" id="btn_dir_up">
                     <property name="use-action-appearance">False</property>
                     <property name="width-request">90</property>
@@ -7404,7 +7425,7 @@ tool z</property>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">False</property>
-                    <property name="position">1</property>
+                    <property name="position">2</property>
                   </packing>
                 </child>
                 <child>
@@ -7417,7 +7438,7 @@ tool z</property>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">False</property>
-                    <property name="position">2</property>
+                    <property name="position">3</property>
                   </packing>
                 </child>
                 <child>
@@ -7438,7 +7459,7 @@ tool z</property>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">False</property>
-                    <property name="position">3</property>
+                    <property name="position">4</property>
                   </packing>
                 </child>
                 <child>
@@ -7455,27 +7476,6 @@ tool z</property>
                     <property name="image">img_sel_next</property>
                     <property name="image-position">top</property>
                     <signal name="clicked" handler="on_btn_sel_next_clicked" swapped="no"/>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">4</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkButton" id="btn_jump_to">
-                    <property name="use-action-appearance">False</property>
-                    <property name="width-request">90</property>
-                    <property name="height-request">56</property>
-                    <property name="visible">True</property>
-                    <property name="can-focus">True</property>
-                    <property name="receives-default">True</property>
-                    <property name="tooltip-text" translatable="yes">Jump to user defined directory</property>
-                    <property name="halign">center</property>
-                    <property name="valign">center</property>
-                    <property name="image">img_jump_to</property>
-                    <property name="image-position">top</property>
-                    <signal name="clicked" handler="on_btn_jump_to_clicked" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
