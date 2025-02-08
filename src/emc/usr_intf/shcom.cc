@@ -1324,18 +1324,19 @@ int iniLoad(const char *filename)
 	    strncpy(version, *inistring, LINELEN-1);
     }
 
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        if ((inistring = inifile.Find("MACHINE", "EMC"))) {
+            strncpy(machine, *inistring, LINELEN-1);
+        } else {
+            strncpy(machine, "unknown", LINELEN-1);
+        }
 
-    if ((inistring = inifile.Find("MACHINE", "EMC"))) {
-	    strncpy(machine, *inistring, LINELEN-1);
-    } else {
-	    strncpy(machine, "unknown", LINELEN-1);
+        extern char *program_invocation_short_name;
+        rcs_print(
+            "%s (%d) shcom: machine '%s'  version '%s'\n",
+            program_invocation_short_name, getpid(), machine, version
+        );
     }
-
-    extern char *program_invocation_short_name;
-    rcs_print(
-        "%s (%d) shcom: machine '%s'  version '%s'\n",
-        program_invocation_short_name, getpid(), machine, version
-    );
 
     if ((inistring = inifile.Find("NML_FILE", "EMC"))) {
 

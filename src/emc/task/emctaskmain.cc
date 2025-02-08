@@ -3163,16 +3163,18 @@ static int iniLoad(const char *filename)
         }
     }
 
-    inistring = inifile.Find("VERSION", "EMC");
-    rtapi_strlcpy(version, inistring.value_or("unknown"), LINELEN-1);
+	if (emc_debug & EMC_DEBUG_CONFIG) {
+		inistring = inifile.Find("VERSION", "EMC");
+		rtapi_strlcpy(version, inistring.value_or("unknown"), LINELEN-1);
 
-    inistring = inifile.Find("MACHINE", "EMC");
-    rtapi_strlcpy(machine, inistring.value_or("unknown"), LINELEN-1);
-    extern char *program_invocation_short_name;
-    rcs_print(
-	"%s (%d) task: machine '%s'  version '%s'\n",
-	program_invocation_short_name, getpid(), machine, version
-    );
+		inistring = inifile.Find("MACHINE", "EMC");
+		rtapi_strlcpy(machine, inistring.value_or("unknown"), LINELEN-1);
+		extern char *program_invocation_short_name;
+		rcs_print(
+		"%s (%d) task: machine '%s'  version '%s'\n",
+		program_invocation_short_name, getpid(), machine, version
+		);
+	}
 
     if ((inistring = inifile.Find("NML_FILE", "EMC"))) {
 	// copy to global
