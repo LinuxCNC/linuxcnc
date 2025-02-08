@@ -549,9 +549,6 @@ class gmoccapy(object):
         self.rabbit_jog = self.get_ini_info.get_jog_vel()
         self.jog_rate_max = self.get_ini_info.get_max_jog_vel()
 
-        self.min_ang_vel = self.get_ini_info.get_min_ang_jog_vel()
-        self.default_ang_vel = self.get_ini_info.get_default_ang_jog_vel()
-        self.max_ang_vel = self.get_ini_info.get_max_ang_jog_vel()
         self.spindle_override_max = self.get_ini_info.get_max_spindle_override()
         self.spindle_override_min = self.get_ini_info.get_min_spindle_override()
         self.feed_override_max = self.get_ini_info.get_max_feed_override()
@@ -1772,9 +1769,9 @@ class gmoccapy(object):
         if not "a" in self.axis_list and not "b" in self.axis_list and not "c" in self.axis_list:
             self.widgets.spc_ang_jog_vel.hide()
         else:
-            self.widgets.spc_ang_jog_vel.set_property("min", self.min_ang_vel)
-            self.widgets.spc_ang_jog_vel.set_property("max", self.max_ang_vel)
-            self.widgets.spc_ang_jog_vel.set_value(self.default_ang_vel)
+            self.widgets.spc_ang_jog_vel.set_property("min", self.get_ini_info.get_min_ang_jog_vel())
+            self.widgets.spc_ang_jog_vel.set_property("max", self.get_ini_info.get_max_ang_jog_vel())
+            self.widgets.spc_ang_jog_vel.set_value(self.get_ini_info.get_default_ang_jog_vel())
 
 # =============================================================
 # Dynamic tabs handling Start
