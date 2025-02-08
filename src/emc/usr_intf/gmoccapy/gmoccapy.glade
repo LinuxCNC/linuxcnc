@@ -102,13 +102,13 @@
     <signal name="value-changed" handler="on_adj_spindle_bar_max_value_changed" swapped="no"/>
   </object>
   <object class="GtkAdjustment" id="adj_spindle_bar_min">
-    <property name="upper">10000</property>
+    <property name="upper">20000</property>
     <property name="step-increment">50</property>
     <signal name="value-changed" handler="on_adj_spindle_bar_min_value_changed" swapped="no"/>
   </object>
   <object class="GtkAdjustment" id="adj_start_spindle_RPM">
     <property name="lower">50</property>
-    <property name="upper">10000</property>
+    <property name="upper">20000</property>
     <property name="value">300</property>
     <property name="step-increment">25</property>
     <signal name="value-changed" handler="on_adj_start_spindle_RPM_value_changed" swapped="no"/>
