@@ -488,6 +488,9 @@ class gmoccapy(object):
         # CYCLE_TIME = time, in milliseconds, that display will sleep between polls
         cycle_time = self.get_ini_info.get_cycle_time()
         GLib.timeout_add( cycle_time, self._periodic )  # time between calls to the function, in milliseconds
+        GLib.timeout_add(1000, self._periodic_1s)       # 1 s timer for elapsed time display
+        self.elapsed_time_run = 0
+        self.progress = 0
 
         # This allows sourcing an user defined file
         rcfile = "~/.gmoccapyrc"
@@ -2424,6 +2427,14 @@ class gmoccapy(object):
         # keep the timer running
         return True
 
+    # every 1 second this gets called
+    def _periodic_1s(self):
+        if hal.get_value('halui.program.is-running'):
+            self.elapsed_time_run += 1
+            self._update_progressbar_text()
+        return True
+
+
     def _show_error(self, error):
         kind, text = error
         # print(kind,text)
@@ -2576,9 +2587,13 @@ class gmoccapy(object):
 
         # The program length used for the progress calculation is decreased here by 1 because
         # the last line doesn't emit a line-changed signal.
-        progress = line / (self.halcomp["program.length"]-1)
-        if progress > 1.0: progress = 1.0
-        self.widgets.progressbar_pgm.set_fraction(progress)
+        self.progress = line / (self.halcomp["program.length"]-1)
+        if self.progress > 1.0: self.progress = 1.0
+        self.widgets.progressbar_pgm.set_fraction(self.progress)
+        self._update_progressbar_text()
+
+    def _update_progressbar_text(self):
+        self.widgets.progressbar_pgm.set_text(f"{self.progress*100:.0f} %  ({self.seconds_to_hms(self.elapsed_time_run)})")
 
     def on_hal_status_interp_idle(self, widget):
         LOG.debug("IDLE")
@@ -2650,6 +2665,7 @@ class gmoccapy(object):
 
         self._change_kbd_image("img_macro_menu_stop")
         self.macro_dic["keyboard"].set_sensitive(True)
+        self.elapsed_time_run = 0
 
     def on_hal_status_tool_in_spindle_changed(self, object, new_tool_no):
         LOG.debug("hal signal tool changed")
