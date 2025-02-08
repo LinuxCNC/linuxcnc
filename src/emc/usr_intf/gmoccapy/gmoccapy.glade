@@ -1747,25 +1747,52 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkScrolledWindow" id="scrolledwindow1">
+                                  <object class="GtkBox" id="vbox_gcode">
                                     <property name="visible">True</property>
-                                    <property name="can-focus">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="orientation">vertical</property>
                                     <child>
-                                      <object class="EMC_SourceView" id="gcode_view">
-                                        <property name="name">gcode_view</property>
+                                      <object class="GtkScrolledWindow" id="scrolledwindow1">
                                         <property name="visible">True</property>
                                         <property name="can-focus">True</property>
-                                        <property name="tooltip-text" translatable="yes">Shows the code to execute</property>
-                                        <property name="left-margin">2</property>
-                                        <property name="right-margin">2</property>
-                                        <property name="show-line-numbers">True</property>
-                                        <property name="show-line-marks">True</property>
-                                        <property name="tab-width">4</property>
-                                        <property name="auto-indent">True</property>
-                                        <property name="highlight-current-line">True</property>
-                                        <property name="indent-on-tab">False</property>
-                                        <signal name="changed" handler="on_gcode_view_changed" swapped="no"/>
+                                        <child>
+                                          <object class="EMC_SourceView" id="gcode_view">
+                                            <property name="name">gcode_view</property>
+                                            <property name="visible">True</property>
+                                            <property name="can-focus">True</property>
+                                            <property name="tooltip-text" translatable="yes">Shows the code to execute</property>
+                                            <property name="left-margin">2</property>
+                                            <property name="right-margin">2</property>
+                                            <property name="show-line-numbers">True</property>
+                                            <property name="show-line-marks">True</property>
+                                            <property name="tab-width">4</property>
+                                            <property name="auto-indent">True</property>
+                                            <property name="highlight-current-line">True</property>
+                                            <property name="indent-on-tab">False</property>
+                                            <signal name="changed" handler="on_gcode_view_changed" swapped="no"/>
+                                          </object>
+                                        </child>
                                       </object>
+                                      <packing>
+                                        <property name="expand">True</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkProgressBar" id="progressbar_pgm">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="margin-start">10</property>
+                                        <property name="margin-end">10</property>
+                                        <property name="margin-bottom">5</property>
+                                        <property name="show-text">True</property>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">False</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">1</property>
+                                      </packing>
                                     </child>
                                   </object>
                                   <packing>

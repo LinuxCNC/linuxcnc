@@ -151,6 +151,12 @@ class gmoccapy(object):
             #eb_program_label, #eb_blockheight_label {
                 background: rgba(0,0,0,1);
             }
+            progress, trough {
+                min-height: 5px;
+            }
+            progress, text {
+                font-size: 13.3px;
+            }
         """
         screen = Gdk.Screen.get_default()
         provider = Gtk.CssProvider()
@@ -2566,7 +2572,8 @@ class gmoccapy(object):
             self.halcomp["program.progress"] = 100.00 * line / self.halcomp["program.length"]
         else:
             self.halcomp["program.progress"] = 0.0
-            # print("Progress = {0:.2f} %".format(100.00 * line / self.halcomp["program.length"]))
+
+        self.widgets.progressbar_pgm.set_fraction(self.halcomp["program.progress"] / 100)
 
     def on_hal_status_interp_idle(self, widget):
         LOG.debug("IDLE")
@@ -2619,6 +2626,7 @@ class gmoccapy(object):
 
         self.halcomp["program.current-line"] = 0
         self.halcomp["program.progress"] = 0.0
+        self.widgets.progressbar_pgm.set_fraction(0)
 
     def on_hal_status_interp_run(self, widget):
         LOG.debug("RUN")
@@ -5245,11 +5253,11 @@ class gmoccapy(object):
         self.widgets.gcode_view.grab_focus()
         if self.widgets.chk_use_kb_on_edit.get_active():
             self.widgets.ntb_info.set_current_page(1)
-            
         else:
             self.widgets.ntb_info.hide()
             
         self.widgets.grid_search.show()
+        self.widgets.progressbar_pgm.hide()
         self.gcodeerror = ""
         self.file_changed = False
         # deactivate the mode buttons, so changing modes is not possible while we are editing
@@ -5325,6 +5333,7 @@ class gmoccapy(object):
             self.widgets.ntb_info.show()
             self.widgets.ntb_info.set_size_request(-1, -1)
             self.widgets.grid_search.hide()
+            self.widgets.progressbar_pgm.show()
 
     # make a new file
     def on_btn_new_clicked(self, widget, data=None):
