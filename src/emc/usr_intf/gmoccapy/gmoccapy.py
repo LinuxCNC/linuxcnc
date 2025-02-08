@@ -2574,7 +2574,11 @@ class gmoccapy(object):
         else:
             self.halcomp["program.progress"] = 0.0
 
-        self.widgets.progressbar_pgm.set_fraction(self.halcomp["program.progress"] / 100)
+        # The program length used for the progress calculation is decreased here by 1 because
+        # the last line doesn't emit a line-changed signal.
+        progress = line / (self.halcomp["program.length"]-1)
+        if progress > 1.0: progress = 1.0
+        self.widgets.progressbar_pgm.set_fraction(progress)
 
     def on_hal_status_interp_idle(self, widget):
         LOG.debug("IDLE")
@@ -2627,7 +2631,6 @@ class gmoccapy(object):
 
         self.halcomp["program.current-line"] = 0
         self.halcomp["program.progress"] = 0.0
-        self.widgets.progressbar_pgm.set_fraction(0)
 
     def on_hal_status_interp_run(self, widget):
         LOG.debug("RUN")
