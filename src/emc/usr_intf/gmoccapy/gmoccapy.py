@@ -451,7 +451,7 @@ class gmoccapy(object):
         self.widgets.chk_toggle_readout.set_active(self.toggle_readout)
 
         self.widgets.adj_start_spindle_RPM.set_value(self.spindle_start_rpm)
-        self.widgets.gcode_view.set_sensitive(False)
+        self.widgets.gcode_view.set_editable(False)
         self.widgets.ntb_user_tabs.remove_page(0)
 
         # call the function to change the button status
@@ -2573,7 +2573,7 @@ class gmoccapy(object):
         if self.load_tool:
             return
 
-        widgetlist = ["ntb_jog", "btn_from_line",
+        widgetlist = ["ntb_jog", "btn_from_line", "gcode_view",
                       "tbtn_flood", "tbtn_mist", "rbt_forward", "rbt_reverse", "rbt_stop",
                       "btn_load", "btn_edit", "tbtn_optional_blocks", "btn_reload"
         ]
@@ -2630,7 +2630,7 @@ class gmoccapy(object):
         ]
         # in MDI it should be possible to add more commands, even if the interpreter is running
         if self.stat.task_mode != linuxcnc.MODE_MDI:
-            widgetlist.append("ntb_jog")
+            widgetlist.append("gcode_view")
 
         self._sensitize_widgets(widgetlist, False)
         self.widgets.btn_run.set_sensitive(False)
@@ -5241,7 +5241,7 @@ class gmoccapy(object):
         self.widgets.box_dro_side.hide()
         if not self.widgets.vbx_jog.get_visible():
             self.widgets.vbx_jog.set_visible(True)
-        self.widgets.gcode_view.set_sensitive(True)
+        self.widgets.gcode_view.set_editable(True)
         self.widgets.gcode_view.grab_focus()
         if self.widgets.chk_use_kb_on_edit.get_active():
             self.widgets.ntb_info.set_current_page(1)
@@ -5318,7 +5318,7 @@ class gmoccapy(object):
             self.widgets.vbox14.show()
             self.widgets.vbox_jog.set_hexpand(False)
             self.widgets.box_dro_side.show()
-            self.widgets.gcode_view.set_sensitive(False)
+            self.widgets.gcode_view.set_editable(False)
             self.widgets.btn_save.set_sensitive(True)
             self.widgets.hal_action_reload.emit("activate")
             self.widgets.ntb_info.set_current_page(0)
@@ -5360,7 +5360,7 @@ class gmoccapy(object):
     # this can not be done with the status widget,
     # because it will not emit a RESUME signal
     def on_tbtn_pause_toggled(self, widget, data=None):
-        widgetlist = ["rbt_forward", "rbt_reverse", "rbt_stop", "ntb_jog"]
+        widgetlist = ["rbt_forward", "rbt_reverse", "rbt_stop", "gcode_view"]
         self._sensitize_widgets(widgetlist, widget.get_active())
         widget.set_image(self.widgets["img_pause_active" if widget.get_active() else "img_pause"])
 
