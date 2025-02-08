@@ -406,6 +406,7 @@ class gmoccapy(object):
 
         GSTAT = hal_glib.GStat()
         GSTAT.connect("graphics-gcode-properties", self.on_gcode_properties)
+        GSTAT.connect("file-loaded", self.on_hal_status_file_loaded)
 
         # get if run from line should be used
         rfl = self.prefs.getpref("run_from_line", "no_run", str)
@@ -4027,6 +4028,8 @@ class gmoccapy(object):
         self.widgets.lbl_gcode_x.set_text(data['x'])
         self.widgets.lbl_gcode_y.set_text(data['y'])
         self.widgets.lbl_gcode_z.set_text(data['z'])
+        # alternative way to calculate program length
+        # self.halcomp["program.length"] = int(data['size'].split("\n")[1].split(" ")[0] )
     
     def on_ntb_tool_code_info_switch_page(self, widget, page, page_num):
         self.prefs.putpref("info_tab_page", page_num, int)
