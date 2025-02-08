@@ -2766,10 +2766,12 @@ class TclCommands(nf.TclCommands):
     def touch_off_system(event=None, new_axis_value = None):
         global system
         if not manual_ok(): return
+
+        touchoff_actual_position = inifile.find(f"AXIS_{vars.ja_rbutton.get().upper()}", "TOUCHOFF_ACTUAL")
         offset_axis = trajcoordinates.index(vars.ja_rbutton.get())
         if new_axis_value is None:
             new_axis_value, system = prompt_touchoff(
-                title=_("Touch Off (system)"),
+                title=_(f"Touch Off ({'system' if touchoff_actual_position is None else 'system ACTUAL'})"),
                 text=_("Enter %s coordinate relative to %%s:") % vars.ja_rbutton.get().upper(),
                 default=0.0,
                 tool_only=False,
@@ -2790,6 +2792,9 @@ class TclCommands(nf.TclCommands):
 
         if linear_axis and 210 in s.gcodes:
             scale *= 25.4
+
+        if touchoff_actual_position is not None:
+            new_axis_value = str(float(new_axis_value) + (-1.0 if touchoff_actual_position.upper() == "MINUS" else 1.0) * s.actual_position[offset_axis])
 
         offset_command = "G10 L20 %s %c[[%s]*%.12f]" % (system.split()[0], vars.ja_rbutton.get(), new_axis_value, scale)
         c.mdi(offset_command)
