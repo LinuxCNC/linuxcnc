@@ -295,12 +295,15 @@ static int loadTraj(EmcIniFile *trajInifile)
                         homePose.b = d;
                     else if (t == 5)
                         homePose.c = d;
+/*
+ * The following have no effect. The loop only counts [0..5].
                     else if (t == 6)
                         homePose.u = d;
                     else if (t == 7)
                         homePose.v = d;
                     else
                         homePose.w = d;
+*/
 
                     // position string ptr past this value
                     len += strlen(home);
