@@ -276,7 +276,7 @@ int separate_words(char **_dest, int _max, char *_src)
     }
     rtapi_strxcpy(word_buffer, _src);
     _dest[0] = strtok(word_buffer, " \n\r\t");
-    for (i = 0; NULL != _dest[i] && i < _max - 1; i++) {
+    for (i = 0; i < _max - 1 && NULL != _dest[i]; i++) {
 	_dest[i + 1] = strtok(NULL, " \n\r\t");
     }
     if (_dest[_max - 1] == NULL && i == _max - 1) {
