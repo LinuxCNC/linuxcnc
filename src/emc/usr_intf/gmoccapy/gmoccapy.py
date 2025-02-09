@@ -492,6 +492,8 @@ class gmoccapy(object):
         self.elapsed_time_run = 0
         self.progress = 0
 
+        self._startup_message()
+
         # This allows sourcing an user defined file
         rcfile = "~/.gmoccapyrc"
         user_command_file = self.get_ini_info.get_user_command_file()
@@ -528,7 +530,23 @@ class gmoccapy(object):
                 self.notification.add_message(_("Error in") + " " + css_file + "\n" \
                     + _("Please check the console output."), ALERT_ICON)
 
+    def _startup_message(self):
+        title = _("Important change(s)")
+        # This array holds information about new features or things that changed. They can be hidden using the dialog's checkbox.
+        # It is important that strings are only appended to this array (not removed), otherwise some messages could get hidden unwanted.
+        messages =[ _("<b>3.5.0 (LinuxCNC 2.10.0): Gmoccapy does no longer automatically retain G43 after a toolchange!</b>\n"\
+                    "Automatic reactivation of G43 is possible using a REMAP.\n"\
+                    "Examples can be found in the Gmoccapy sim configurations."),
+                    # _("<b>3.5.1 (LinuxCNC 2.10.1): </b> Example for new feature"),
+                    ]
+        hide_message = self.prefs.getpref("hide_startup_messsage", 0, int)
+        if hide_message < len(messages):
+            message = "\n\n".join(messages[hide_message:])
+            message += _('\n\nFor more information see the <a href="https://linuxcnc.org/docs/html/gui/gmoccapy_release_notes.txt">release notes</a>.')
 
+            dont_show = self.dialogs.show_user_message(self, message, title, checkbox = True)
+            if dont_show:
+                self.prefs.putpref("hide_startup_messsage", len(messages), str)
 
     def _get_ini_data(self):
         self.get_ini_info = getiniinfo.GetIniInfo()
