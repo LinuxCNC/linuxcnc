@@ -280,7 +280,7 @@ static int loadTraj(EmcIniFile *trajInifile)
                     continue;    // position t at index of next non-zero mark
                 }
                 // there is a mark, so read the string for a value
-                if (1 == sscanf(&homes[len], "%s", home) &&
+                if (1 == sscanf(&homes[len], "%255s", home) &&
                     1 == sscanf(home, "%lf", &d)) {
                     // got an entry, index into coordinateMark[] is 't'
                     if (t == 0)
