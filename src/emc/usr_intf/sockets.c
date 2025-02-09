@@ -259,7 +259,7 @@ char* sockGetError(void)
 #else
   static char retString[256];
   long err;
-  char* tmp;
+  char* tmp = NULL;
 
   err = WSAGetLastError();
 
