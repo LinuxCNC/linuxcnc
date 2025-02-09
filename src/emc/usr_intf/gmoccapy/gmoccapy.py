@@ -76,7 +76,7 @@ sys.excepthook = excepthook
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 3.4.9"
+_RELEASE = " 3.5.0"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
