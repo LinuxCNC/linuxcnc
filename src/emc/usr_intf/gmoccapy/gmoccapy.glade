@@ -159,6 +159,18 @@
     <signal name="value-changed" handler="on_adj_y_pos_popup_value_changed" swapped="no"/>
   </object>
   <object class="GtkTextBuffer" id="alarm_buffer"/>
+  <object class="GtkImage" id="edit-redo">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <property name="icon-name">edit-redo</property>
+    <property name="icon_size">5</property>
+  </object>
+  <object class="GtkImage" id="edit-undo">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+    <property name="icon-name">edit-undo</property>
+    <property name="icon_size">5</property>
+  </object>
   <object class="GtkFileFilter" id="ff_file_to_load"/>
   <object class="GtkFileFilter" id="filefilter1"/>
   <object class="EMC_Action_Open" id="hal_action_open"/>
@@ -1807,14 +1819,18 @@
                             <property name="can-focus">False</property>
                             <child>
                               <object class="GtkButton" id="btn_undo">
-                                <property name="label" translatable="yes">Undo</property>
                                 <property name="use-action-appearance">False</property>
                                 <property name="name">gcode_edit</property>
                                 <property name="height-request">48</property>
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <property name="receives-default">False</property>
+                                <property name="tooltip-text" translatable="yes">Undo</property>
                                 <property name="valign">center</property>
+                                <property name="margin-start">2</property>
+                                <property name="margin-end">2</property>
+                                <property name="image">edit-undo</property>
+                                <property name="image-position">top</property>
                                 <signal name="clicked" handler="on_btn_undo_clicked" swapped="no"/>
                               </object>
                               <packing>
@@ -1879,6 +1895,7 @@
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
                                 <property name="valign">center</property>
+                                <property name="hexpand">True</property>
                                 <property name="invisible-char">●</property>
                                 <property name="primary-icon-activatable">False</property>
                                 <property name="secondary-icon-activatable">False</property>
@@ -1917,6 +1934,7 @@
                                 <property name="visible">True</property>
                                 <property name="can-focus">True</property>
                                 <property name="valign">center</property>
+                                <property name="hexpand">True</property>
                                 <property name="invisible-char">●</property>
                                 <property name="primary-icon-activatable">False</property>
                                 <property name="secondary-icon-activatable">False</property>
@@ -2014,14 +2032,17 @@
                             </child>
                             <child>
                               <object class="GtkButton" id="btn_redo">
-                                <property name="label" translatable="yes">Redo</property>
                                 <property name="use-action-appearance">False</property>
                                 <property name="name">gcode_edit</property>
                                 <property name="height-request">48</property>
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
                                 <property name="receives-default">False</property>
+                                <property name="tooltip-text" translatable="yes">Redo</property>
                                 <property name="valign">center</property>
+                                <property name="margin-start">2</property>
+                                <property name="margin-end">2</property>
+                                <property name="image">edit-redo</property>
                                 <signal name="clicked" handler="on_btn_redo_clicked" swapped="no"/>
                               </object>
                               <packing>

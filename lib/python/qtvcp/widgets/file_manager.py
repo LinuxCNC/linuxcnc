@@ -9,8 +9,8 @@ from PyQt5.QtWidgets import (QApplication, QFileSystemModel, QWidget, QVBoxLayou
                              QListView, QComboBox, QPushButton, QToolButton, QSizePolicy,
                              QMenu, QAction, QLineEdit, QCheckBox, QTableView, QHeaderView)
 from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import (QModelIndex, QDir, Qt, pyqtSlot,
-                    QItemSelectionModel, QItemSelection, pyqtProperty)
+from PyQt5.QtCore import (QModelIndex, QDir, Qt, pyqtSlot, pyqtProperty, pyqtSignal,
+                          QItemSelectionModel, QItemSelection, QSortFilterProxyModel)
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action, Info
@@ -31,6 +31,23 @@ LOG = logger.getLogger(__name__)
 # Force the log level for this module
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
+class RestrictedProxyModel(QSortFilterProxyModel):
+    # Proxy model to filter out directories above a certain root path.
+    def __init__(self, root_path, parent=None):
+        super().__init__(parent)
+        self.base_path = QDir(root_path).absolutePath()
+
+    def filterAcceptsRow(self, source_row, source_parent):
+        index = self.sourceModel().index(source_row, 0, source_parent)
+        if not index.isValid():
+            return False
+        file_path = self.sourceModel().filePath(index)
+        if self.sourceModel().fileName(index) == ".." and source_parent == self.sourceModel().index(self.base_path):
+            return False
+        # Only allow paths inside the base path
+        return file_path.startswith(self.base_path)
+
+
 class FileManager(QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
         super(FileManager, self).__init__(parent)
@@ -42,6 +59,9 @@ class FileManager(QWidget, _HalWidgetBase):
         self._last = 0
         self._doubleClick = False
         self._showListView = False
+        self.role = 'User'
+        self.restricted_path = '/home'
+        self.restricted = False
 
         if INFO.PROGRAM_PREFIX is not None:
             self.user_path = os.path.expanduser(INFO.PROGRAM_PREFIX)
@@ -217,15 +237,16 @@ class FileManager(QWidget, _HalWidgetBase):
         # install jump paths into toolbutton menu
         for i in self._jumpList:
             self.addAction(i)
-
-        # set recorded columns sort settings
-        self.SETTINGS_.beginGroup("FileManager-{}".format(self.objectName()))
-        sect = self.SETTINGS_.value('sortIndicatorSection', type = int)
-        order = self.SETTINGS_.value('sortIndicatorOrder', type = int)
-        self.SETTINGS_.endGroup()
-        if not None in(sect,order):
-            self.table.horizontalHeader().setSortIndicator(sect,order)
-
+        try:
+            # set recorded columns sort settings
+            self.SETTINGS_.beginGroup("FileManager-{}".format(self.objectName()))
+            sect = self.SETTINGS_.value('sortIndicatorSection', type = int)
+            order = self.SETTINGS_.value('sortIndicatorOrder', type = int)
+            self.SETTINGS_.endGroup()
+            if not None in(sect,order):
+                self.table.horizontalHeader().setSortIndicator(sect,order)
+        except:
+            pass
         self.connectSelection()
 
     # when qtvcp closes this gets called
@@ -262,6 +283,10 @@ class FileManager(QWidget, _HalWidgetBase):
 
     def updateDirectoryView(self, path, quiet = False):
         if os.path.exists(path):
+            self.list.selectionModel().clearSelection()
+            self.list.setRootIndex(QModelIndex())
+            self.table.selectionModel().clearSelection()
+            self.table.setRootIndex(QModelIndex())
             self.list.setRootIndex(self.model.setRootPath(path))
             self.table.setRootIndex(self.model.setRootPath(path))
         else:
@@ -276,21 +301,35 @@ class FileManager(QWidget, _HalWidgetBase):
 
     def listClicked(self, index):
         # the signal passes the index of the clicked item
-        dir_path = os.path.normpath(self.model.filePath(index))
-        if self.model.fileInfo(index).isFile():
+        if self.restricted:
+            source_index = self.proxy_model.mapToSource(index)
+            file_info = self.model.fileInfo(source_index)
+        else:
+            file_info = self.model.fileInfo(index)
+        dir_path = os.path.normpath(file_info.filePath())
+        if file_info.isFile():
             self.currentPath = dir_path
             self.textLine.setText(self.currentPath)
             return
         else:
             self.currentPath = None
-        root_index = self.model.setRootPath(dir_path)
-        self.list.setRootIndex(root_index)
-        self.table.setRootIndex(root_index)
+            self.textLine.setText(os.path.abspath(dir_path))
+        if self.restricted:
+            self.update_proxy_index(dir_path)
+        else:
+            self.currentPath = None
+            self.updateDirectoryView(dir_path)
 
     def onUserClicked(self):
+        if self.restricted: return
+        self.role = 'User'
+        self.restricted_path = self.user_path
         self.showUserDir()
 
     def onMediaClicked(self):
+        if self.restricted: return
+        self.role = 'Media'
+        self.restricted_path = self.media_path
         self.showMediaDir()
 
     # jump directly to a saved path shown on the button
@@ -306,9 +345,9 @@ class FileManager(QWidget, _HalWidgetBase):
                 self.updateDirectoryView(temp)
             else:
                 STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'file jumppath: {} not valid'.format(data))
-                log.debug('file jumopath: {} not valid'.format(data))
+                log.debug('file jumppath: {} not valid'.format(data))
         else:
-            self.jumpButton.setText('User')
+            self.jumpButton.setText(self.role)
 
     # jump directly to a saved path from the menu
     def jumpTriggered(self, data):
@@ -341,7 +380,7 @@ class FileManager(QWidget, _HalWidgetBase):
                 self.settingMenu.clear()
                 for key in self._jumpList:
                     self.addAction(key)
-                self.jumpButton.setText('User')
+                self.jumpButton.setText(self.role)
             except Exception as e:
                 print(e)
 
@@ -381,6 +420,27 @@ class FileManager(QWidget, _HalWidgetBase):
     # helper functions
     ########################
 
+    def setRestricted(self):
+        # once set restricted, it can't be undone or done again
+        if self.restricted: return
+        self.restricted = True
+        self.proxy_model = RestrictedProxyModel(self.restricted_path)
+        self.proxy_model.setSourceModel(self.model)
+        index = self.model.index(self.restricted_path)
+        self.proxy_index = self.proxy_model.mapFromSource(index)
+
+        self.list.setModel(self.proxy_model)
+        self.table.setModel(self.proxy_model)
+        self.list.setRootIndex(self.proxy_index)
+        self.table.setRootIndex(self.proxy_index)
+        
+    def update_proxy_index(self, path):
+        index = self.model.index(path)
+        self.proxy_index = self.proxy_model.mapFromSource(index)
+        self.list.setRootIndex(self.proxy_index)
+        self.table.setRootIndex(self.proxy_index)
+        self.model.setRootPath(path)
+        
     def addAction(self, i):
         action = QAction(QIcon.fromTheme('user-home'), i, self)
         # weird lambda i=i to work around 'function closure'
@@ -409,9 +469,11 @@ class FileManager(QWidget, _HalWidgetBase):
             self.pasteButton.hide()
 
     def showMediaDir(self, quiet = False):
+        self.jumpButton.setText('Media')
         self.updateDirectoryView(self.media_path, quiet)
 
     def showUserDir(self, quiet = False):
+        self.jumpButton.setText('User')
         self.updateDirectoryView(self.user_path, quiet)
 
     def copyFile(self, s, d):
@@ -482,14 +544,23 @@ class FileManager(QWidget, _HalWidgetBase):
         else:
             selectionModel = self.table.selectionModel()
         index = selectionModel.currentIndex()
-        dir_path = os.path.normpath(self.model.filePath(index))
-        if self.model.fileInfo(index).isFile():
+        if self.restricted:
+            source_index = self.proxy_model.mapToSource(index)
+            file_info = self.model.fileInfo(source_index)
+            dir_path = os.path.normpath(self.model.filePath(source_index))
+        else:
+            file_info = self.model.fileInfo(index)
+            dir_path = os.path.normpath(self.model.filePath(index))
+        if file_info.isFile():
             return (dir_path, True)
         else:
             return (dir_path, False)
 
     # This can be class patched to do something else
     def load(self, fname=None):
+        result = self.getCurrentSelected()
+        print(f'Load" {fname} {result}')
+        return
         try:
             if fname is None:
                 self._getPathActivated()
@@ -557,4 +628,9 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     gui = FileManager()
     gui.show()
+    #gui.PREFS_ = True
+    gui._hal_init()
+    gui.connectSelection()
+    gui.onUserClicked()
+    gui.setRestricted()
     sys.exit(app.exec_())
