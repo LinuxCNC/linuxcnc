@@ -1059,6 +1059,11 @@ For more information on probing see the <<gcode:g38,G38>> section.
 Examples of logging are in 'nc_files/examples/smartprobe.ngc' and in
 'nc_files/ngcgui_lib/rectange_probe.ngc' sample G-code files.
 
+== Abort Messages(((Abort Messages)))
+
+* '(ABORT,)' - displays a message like '(MSG,)' with the addition of special
+  handling for comment parameters as described below and of aborting the current running process.
+
 [[gcode:debug]]
 == Debug Messages(((Debug Messages)))
 
