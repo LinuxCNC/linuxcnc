@@ -142,6 +142,10 @@ class gmoccapy(object):
                 padding: 3px;
                 margin: 1px;
             }
+            entry#gcode_edit {
+                min-height: 18px;
+                padding:1px;
+            }
             /* #__jog_incr_buttons *:checked {
                 background: rgba(230,230,50,0.8);
             } */
@@ -4816,6 +4820,10 @@ class gmoccapy(object):
                 ("img_select",          "select_file",          32),
                 ("img_back_file_load",  "back_to_app",          48),
                 # edit file menu
+                ("img_up",                      "chevron_up",       24),
+                ("img_down",                    "chevron_down",     24),
+                ("img_edit-undo",               "edit_undo",        32),
+                ("img_edit-redo",               "edit_redo",        32),
                 ("img_edit_menu_reload",        "refresh",          32),
                 ("img_edit_menu_save",          "save",             32),
                 ("img_edit_menu_save_as",       "save_as",          32),
