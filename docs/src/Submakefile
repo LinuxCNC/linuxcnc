@@ -847,9 +847,6 @@ else
 :
 	@:
 
-docs:
-	$(error Cannot build documents, missing AsciiDoc or some other required program, or explicitly disabled in configure)
-
 endif
 
 manpages: $(GENERATED_MANPAGES)
