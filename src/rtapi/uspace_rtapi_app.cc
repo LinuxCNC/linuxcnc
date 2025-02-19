@@ -30,7 +30,6 @@
 #include <errno.h>
 #include <dlfcn.h>
 #include <signal.h>
-#include <iostream>
 #include <vector>
 #include <string>
 #include <map>
@@ -39,7 +38,6 @@
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <errno.h>
 #ifdef HAVE_SYS_IO_H
 #include <sys/io.h>
 #endif
@@ -58,7 +56,6 @@
 #include "hal/hal_priv.h"
 #include "rtapi_uspace.hh"
 
-#include <string.h>
 #include <boost/lockfree/queue.hpp>
 
 std::atomic<int> WithRoot::level;
@@ -112,7 +109,7 @@ static void set_namef(const char *fmt, ...) {
 }
 
 pthread_t queue_thread;
-void *queue_function(void *arg) {
+void *queue_function(void * /*arg*/) {
     set_namef("rtapi_app:mesg");
     // note: can't use anything in this function that requires App() to exist
     // but it's OK to use functions that aren't safe for realtime (that's the
@@ -349,14 +346,21 @@ static int read_number(int fd) {
 
 static string read_string(int fd) {
     int len = read_number(fd);
-    char buf[len];
-    if(read(fd, buf, len) != len) throw ReadError();
-    return string(buf, len);
+    if(len < 0)
+        throw ReadError();
+    if(!len)
+        return string();
+    string str(len, 0);
+    if(read(fd, str.data(), len) != len)
+        throw ReadError();
+    return str;
 }
 
 static vector<string> read_strings(int fd) {
     vector<string> result;
     int count = read_number(fd);
+    if(count < 0)
+        return result;
     for(int i=0; i<count; i++) {
         result.push_back(read_string(fd));
     }
@@ -454,14 +458,15 @@ static pthread_t main_thread{};
 
 static int master(int fd, vector<string> args) {
     main_thread = pthread_self();
-    if(pthread_create(&queue_thread, nullptr, &queue_function, nullptr) < 0) {
+    int result;
+    if((result = pthread_create(&queue_thread, nullptr, &queue_function, nullptr)) != 0) {
+        errno = result;
         perror("pthread_create (queue function)");
         return -1;
     }
     do_load_cmd("hal_lib", vector<string>());
     instance_count = 0;
     App(); // force rtapi_app to be created
-    int result=0;
     if(args.size()) {
         result = handle_command(args);
         if(result != 0) goto out;
@@ -524,14 +529,14 @@ int main(int argc, char **argv) {
                 "    sudo env RTAPI_UID=`id -u` RTAPI_FIFO_PATH=$HOME/.rtapi_fifo gdb " EMC2_BIN_DIR "/rtapi_app\n");
             exit(1);
         }
-        setreuid(fallback_uid, 0);
+        if (setreuid(fallback_uid, 0) != 0) { perror("setreuid"); abort(); }
         fprintf(stderr,
             "Running with fallback_uid.  getuid()=%d geteuid()=%d\n",
             getuid(), geteuid());
     }
     ruid = getuid();
     euid = geteuid();
-    setresuid(euid, euid, ruid);
+    if (setresuid(euid, euid, ruid) != 0) { perror("setresuid"); abort(); }
 #ifdef __linux__
     setfsuid(ruid);
 #endif
@@ -657,7 +662,7 @@ struct Posix : RtapiApp
     void do_delay(long ns);
 };
 
-static void signal_handler(int sig, siginfo_t *si, void *uctx)
+static void signal_handler(int sig, siginfo_t * /*si*/, void * /*uctx*/)
 {
     switch (sig) {
     case SIGXCPU:
@@ -706,7 +711,22 @@ static void configure_memory()
                   "mallopt(M_MMAP_MAX, -1) failed\n");
     }
 #endif
-    char *buf = static_cast<char *>(malloc(PRE_ALLOC_SIZE));
+    /*
+     * The following code seems pointless, but there is a non-observable effect
+     * in the allocation and loop.
+     *
+     * The malloc() is forced to set brk() because mmap() allocation is
+     * disabled in a call to mallopt() above. All touched pages become resident
+     * and locked in the loop because of above mlockall() call (see notes in
+     * mlockall(2)). The mallopt() trim setting prevents the brk() from being
+     * reduced after free(), effectively creating an open space for future
+     * allocations that will not generate page faults.
+     *
+     * The qualifier 'volatile' on the buffer pointer is required because newer
+     * clang would remove the malloc(), for()-loop and free() completely.
+     * Marking 'buf' volatile ensures that the code will remain in place.
+     */
+    volatile char *buf = static_cast<volatile char *>(malloc(PRE_ALLOC_SIZE));
     if (buf == NULL) {
         rtapi_print_msg(RTAPI_MSG_WARN, "malloc(PRE_ALLOC_SIZE) failed\n");
         return;
@@ -719,7 +739,7 @@ static void configure_memory()
              * memory and never given back to the system. */
             buf[i] = 0;
     }
-    free(buf);
+    free((void *)buf);
 }
 
 static int harden_rt()
@@ -730,9 +750,11 @@ static int harden_rt()
 #if defined(__linux__) && (defined(__x86_64__) || defined(__i386__))
     if (iopl(3) < 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
+                        "iopl() failed: %s\n"
                         "cannot gain I/O privileges - "
                         "forgot 'sudo make setuid' or using secure boot? -"
-                        "parallel port access is not allow\n");
+                        "parallel port access is not allowed\n",
+                        strerror(errno));
     }
 #endif
 
@@ -835,37 +857,52 @@ struct rtapi_task *task_array[MAX_TASKS];
 
 /* Priority functions.  Uspace uses POSIX task priorities. */
 
-int RtapiApp::prio_highest()
+int RtapiApp::prio_highest() const
 {
     return sched_get_priority_max(policy);
 }
 
-int RtapiApp::prio_lowest()
+int RtapiApp::prio_lowest() const
 {
   return sched_get_priority_min(policy);
 }
 
-int RtapiApp::prio_next_higher(int prio)
-{
-  /* return a valid priority for out of range arg */
-  if (prio >= rtapi_prio_highest())
-    return rtapi_prio_highest();
-  if (prio < rtapi_prio_lowest())
-    return rtapi_prio_lowest();
-
-  /* return next higher priority for in-range arg */
-  return prio + 1;
+int RtapiApp::prio_higher_delta() const {
+    if(rtapi_prio_highest() > rtapi_prio_lowest()) {
+        return 1;
+    }
+    return -1;
 }
 
-int RtapiApp::prio_next_lower(int prio)
+int RtapiApp::prio_bound(int prio) const {
+    if(rtapi_prio_highest() > rtapi_prio_lowest()) {
+        if (prio >= rtapi_prio_highest())
+            return rtapi_prio_highest();
+        if (prio < rtapi_prio_lowest())
+            return rtapi_prio_lowest();
+    } else {
+        if (prio <= rtapi_prio_highest())
+            return rtapi_prio_highest();
+        if (prio > rtapi_prio_lowest())
+            return rtapi_prio_lowest();
+    }
+    return prio;
+}
+
+int RtapiApp::prio_next_higher(int prio) const
 {
-  /* return a valid priority for out of range arg */
-  if (prio <= rtapi_prio_lowest())
-    return rtapi_prio_lowest();
-  if (prio > rtapi_prio_highest())
-    return rtapi_prio_highest();
-  /* return next lower priority for in-range arg */
-  return prio - 1;
+    prio = prio_bound(prio);
+    if(prio != rtapi_prio_highest())
+        return prio + prio_higher_delta();
+    return prio;
+}
+
+int RtapiApp::prio_next_lower(int prio) const
+{
+    prio = prio_bound(prio);
+    if(prio != rtapi_prio_lowest())
+        return prio - prio_higher_delta();
+    return prio;
 }
 
 int RtapiApp::allocate_task_id()
@@ -918,7 +955,7 @@ rtapi_task *RtapiApp::get_task(int task_id) {
     return task;
 }
 
-void RtapiApp::unexpected_realtime_delay(rtapi_task *task, int nperiod) {
+void RtapiApp::unexpected_realtime_delay(rtapi_task *task, int /*nperiod*/) {
     static int printed = 0;
     if(!printed)
     {
@@ -1012,16 +1049,17 @@ int Posix::task_start(int task_id, unsigned long int period_nsec)
   int nprocs = sysconf( _SC_NPROCESSORS_ONLN );
 
   pthread_attr_t attr;
-  if(pthread_attr_init(&attr) < 0)
-      return -errno;
-  if(pthread_attr_setstacksize(&attr, task->stacksize) < 0)
-      return -errno;
-  if(pthread_attr_setschedpolicy(&attr, policy) < 0)
-      return -errno;
-  if(pthread_attr_setschedparam(&attr, &param) < 0)
-      return -errno;
-  if(pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED) < 0)
-      return -errno;
+  int ret;
+  if((ret = pthread_attr_init(&attr)) != 0)
+      return -ret;
+  if((ret = pthread_attr_setstacksize(&attr, task->stacksize)) != 0)
+      return -ret;
+  if((ret = pthread_attr_setschedpolicy(&attr, policy)) != 0)
+      return -ret;
+  if((ret = pthread_attr_setschedparam(&attr, &param)) != 0)
+      return -ret;
+  if((ret = pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED)) != 0)
+      return -ret;
   if(nprocs > 1) {
       const static int rt_cpu_number = find_rt_cpu_number();
       if(rt_cpu_number != -1) {
@@ -1032,12 +1070,12 @@ int Posix::task_start(int task_id, unsigned long int period_nsec)
 #endif
           CPU_ZERO(&cpuset);
           CPU_SET(rt_cpu_number, &cpuset);
-          if(pthread_attr_setaffinity_np(&attr, sizeof(cpuset), &cpuset) < 0)
-               return -errno;
+          if((ret = pthread_attr_setaffinity_np(&attr, sizeof(cpuset), &cpuset)) != 0)
+               return -ret;
       }
   }
-  if(pthread_create(&task->thr, &attr, &wrapper, reinterpret_cast<void*>(task)) < 0)
-      return -errno;
+  if((ret = pthread_create(&task->thr, &attr, &wrapper, reinterpret_cast<void*>(task))) != 0)
+      return -ret;
 
   return 0;
 }
@@ -1199,7 +1237,12 @@ int rtapi_task_delete(int id) {
 
 int rtapi_task_start(int task_id, unsigned long period_nsec)
 {
-    return App().task_start(task_id, period_nsec);
+    int ret = App().task_start(task_id, period_nsec);
+    if(ret != 0) {
+        errno = -ret;
+        perror("rtapi_task_start()");
+    }
+    return ret;
 }
 
 int rtapi_task_pause(int task_id)

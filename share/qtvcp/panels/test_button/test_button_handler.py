@@ -88,6 +88,7 @@ class HandlerClass:
         button._halpin_option = False
         button.hal_init('button')
         button.setMaximumWidth(30)
+        self.connectOurSignals(button)
 
         hbox.addWidget(button)
         hbox.addWidget(le)
@@ -108,7 +109,7 @@ class HandlerClass:
         menu.addAction(actionColor)
 
         # remember signal watched, line edit widget, button widget and last state
-        self.buttonDict[button] = [None,le,None,button,False]
+        self.buttonDict[button] = [{},le,None,button,False]
 
         # button to pop menu
         btn = QPushButton('Opt')
@@ -120,19 +121,19 @@ class HandlerClass:
         # combo box for HAL pin selection
         cb = HALSelectionBox()
         cb.setShowTypes([cb.PINS,cb.SIGNALS])
-        cb.setPinTypes([cb.HAL_BIT])
+        cb.setPinTypes([cb.HAL_BIT], direction = [cb.HAL_IN])
         cb.setSignalTypes([cb.HAL_BIT], driven = [False,True])
         cb.hal_init()
-        cb.selectionUpdated.connect(lambda w: self.signalSelected(w,button))
+        cb.objectSelected.connect(lambda w: self.selectedUpdated(w, button))
 
         # wrap combobox so as to add it to menu
         action = QWidgetAction(menu)
         action.setDefaultWidget(cb)
-        #menu.addAction(action)
+        menu.addAction(action)
 
         # HalMeter option launch button
         actionHalMeter = QAction('Load HalMeter',menu)
-        actionHalMeter.triggered.connect(lambda w, b=(actionHalMeter,button): self.actionTriggered('HalMeter',b))
+        actionHalMeter.triggered.connect(lambda w, b=(actionHalMeter, button): self.actionTriggered('HalMeter',b))
         menu.addAction(actionHalMeter)
 
         # Led option launch button
@@ -170,10 +171,7 @@ class HandlerClass:
             self.w.setMinimumHeight(h)
         elif widget == 'Checkable':
             b[1].setCheckable(b[0].isChecked())
-            # kill existing signals - we need to change signal type
-            b[1].disconnectSignals()
-            # add new signals back
-            b[1].connectSignals()
+            self.connectOurSignals(b[1])
         elif widget == 'Color':
             # Get a color from the text dialog
             color = QColorDialog.getColor()
@@ -190,11 +188,37 @@ class HandlerClass:
     def updateLabel(self,v):
         self.w.hallabel.setDisplay(v)
 
-    def signalSelected(self, sig,button):
-        print('Watching:',sig)
-        if sig != '':
-            self.buttonDict[button][0] = sig
-        return
+    def selectedUpdated(self, meta, button):
+        #print('Watching:',meta,self.buttonDict[button])
+        self.buttonDict[button][0] = meta
+
+    def _updatePin(self,button, data):
+        name = self.buttonDict[button][0].get('NAME')
+        obj = self.buttonDict[button][0].get('OBJECT')
+        if name is None: return
+        if obj == 'pin':
+            try:
+                self.h.setp(name,str(int(data)))
+            except Exception as e:
+                print(e)
+        elif obj == 'signal':
+            try:
+                self.h.sets(name,str(int(data)))
+            except Exception as e:
+                print('QtVCP Testbutton:',e)
+
+
+    def connectOurSignals(self, button):
+
+        #reconnect indicator class signals
+        button.disconnectSignals()
+        button.connectSignals()
+
+        if button.isCheckable():
+            button.toggled[bool].connect(lambda data,b=button: self._updatePin(b,data))
+        else:
+            button.pressed.connect(lambda b=button: self._updatePin(b,True))
+            button.released.connect(lambda b=button: self._updatePin(b, False))
 
     #####################
     # KEY BINDING CALLS #

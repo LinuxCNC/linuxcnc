@@ -44,6 +44,7 @@ class CustomDialog(QDialog):
 
             # if done end with no error/error message
             if self._percentDone == 100:
+                print("m2")
                 raise SystemExit(0)
 
         except Exception as e:

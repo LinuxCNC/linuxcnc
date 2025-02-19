@@ -205,7 +205,7 @@ BOARD</string>
       </property>
       <property name="icon">
        <iconset>
-        <normalon>../../../gmoccapy/images/exit_application.png</normalon>
+        <normalon>../../images/logout.png</normalon>
        </iconset>
       </property>
       <property name="iconSize">

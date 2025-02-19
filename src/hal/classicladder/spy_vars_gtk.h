@@ -15,6 +15,7 @@
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 void RefreshAllBoolsVars( );
+void OpenSpyBoolVarsWindow( GtkAction * ActionOpen, gboolean OpenIt );
 void DisplayFreeVarSpy( );
-void OpenSpyVarsWindow( );
+void OpenSpyFreeVarsWindow( GtkAction * ActionOpen, gboolean OpenIt );
 void VarsWindowInitGtk( );

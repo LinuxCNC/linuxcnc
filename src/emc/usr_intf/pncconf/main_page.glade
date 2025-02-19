@@ -283,7 +283,7 @@ Data</property>
                   <object class="GtkLabel" id="opening_text">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">This program creates configuration files (.ini and .hal) for milling machines and lathes connected to a Mesa Card.
+                    <property name="label" translatable="yes">This program creates configuration files (INI and HAL) for milling machines and lathes connected to a Mesa Card.
 
 It is a recommended strategy to start with very basic axes options, get them functional then go back and add other options such as VFD spindle control  or advanced limit/home control etc.</property>
                     <property name="wrap">True</property>

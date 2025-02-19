@@ -2170,10 +2170,10 @@
                <bool>true</bool>
               </property>
               <property name="image_path" stdset="0">
-               <pixmap>../../../gmoccapy/images/machine_on.png</pixmap>
+               <pixmap>../../images/machine_on.png</pixmap>
               </property>
               <property name="false_image_path" stdset="0">
-               <pixmap>../../../gmoccapy/images/machine_off.png</pixmap>
+               <pixmap>../../images/machine_off.png</pixmap>
               </property>
              </widget>
             </item>
@@ -2195,10 +2195,10 @@
                <bool>true</bool>
               </property>
               <property name="image_path" stdset="0">
-               <pixmap>../../../gmoccapy/images/E-Stop.gif</pixmap>
+               <pixmap>../../images/E-Stop.gif</pixmap>
               </property>
               <property name="false_image_path" stdset="0">
-               <pixmap>../../../gmoccapy/images/estopred.png</pixmap>
+               <pixmap>../../images/estopred.png</pixmap>
               </property>
              </widget>
             </item>

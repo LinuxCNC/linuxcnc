@@ -61,19 +61,20 @@ struct RtaiApp : RtapiApp {
         task->pll_correction_limit = 0;
         task->pll_correction = 0;
 
+        int ret;
         pthread_attr_t attr;
-        if(pthread_attr_init(&attr) < 0)
-            return -errno;
-        if(pthread_attr_setstacksize(&attr, task->stacksize) < 0)
-            return -errno;
-        if(pthread_attr_setschedpolicy(&attr, policy) < 0)
-            return -errno;
-        if(pthread_attr_setschedparam(&attr, &param) < 0)
-            return -errno;
-        if(pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED) < 0)
-            return -errno;
-        if(pthread_create(&task->thr, &attr, &wrapper, reinterpret_cast<void*>(task)) < 0)
-            return -errno;
+        if((ret = pthread_attr_init(&attr)) != 0)
+            return -ret;
+        if((ret = pthread_attr_setstacksize(&attr, task->stacksize)) != 0)
+            return -ret;
+        if((ret = pthread_attr_setschedpolicy(&attr, policy)) != 0)
+            return -ret;
+        if((ret = pthread_attr_setschedparam(&attr, &param)) != 0)
+            return -ret;
+        if((ret = pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED)) != 0)
+            return -ret;
+        if((ret = pthread_create(&task->thr, &attr, &wrapper, reinterpret_cast<void*>(task))) != 0)
+            return -ret;
 
         return 0;
     }
@@ -132,12 +133,16 @@ struct RtaiApp : RtapiApp {
     unsigned char do_inb(unsigned int port) {
 #ifdef HAVE_SYS_IO_H
         return inb(port);
+#else
+        return 0;
 #endif
     }
 
     void do_outb(unsigned char val, unsigned int port) {
 #ifdef HAVE_SYS_IO_H
         return outb(val, port);
+#else
+        return 0;
 #endif
     }
 
@@ -164,6 +169,14 @@ struct RtaiApp : RtapiApp {
 
     void do_delay(long ns) {
         rt_sleep(nano2count(ns));
+    }
+
+    int prio_highest() const {
+        return RT_SCHED_HIGHEST_PRIORITY;
+    }
+
+    int prio_lowest() const {
+        return RT_SCHED_LOWEST_PRIORITY;
     }
 };
 

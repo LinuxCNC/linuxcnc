@@ -72,7 +72,6 @@ static inline int pci_8255_inb(hal_u32_t base, int offset) {
 
 
 static int export(char *prefix, struct port *inst, int ioaddr, int dir) {
-    char buf[HAL_NAME_LEN + 1];
     int r = 0;
     int i;
     hal_pin_dir_t direction;
@@ -132,11 +131,9 @@ static int export(char *prefix, struct port *inst, int ioaddr, int dir) {
     r = hal_param_u32_newf(HAL_RO, &(inst->dir_), comp_id,
         "%s.dir", prefix);
     if(r != 0) return r;
-    rtapi_snprintf(buf, sizeof(buf), "%s.read", prefix);
-    r = hal_export_funct(buf, (void(*)(void *inst, long))read, inst, 0, 0, comp_id);
+    r = hal_export_functf((void(*)(void *inst, long))read, inst, 0, 0, comp_id, "%s.read", prefix);
     if(r != 0) return r;
-    rtapi_snprintf(buf, sizeof(buf), "%s.write", prefix);
-    r = hal_export_funct(buf, (void(*)(void *inst, long))write, inst, 0, 0, comp_id);
+    r = hal_export_functf((void(*)(void *inst, long))write, inst, 0, 0, comp_id, "%s.write", prefix);
     if(r != 0) return r;
 
     rtapi_print_msg(RTAPI_MSG_DBG, "registering %s ... %x %x\n", prefix,
@@ -208,8 +205,7 @@ int rtapi_app_main(void) {
 	hal_pin_bit_newf(HAL_IN, &(inst[i].relay), comp_id, "pci8255.%d.relay", i);
 	hal_param_bit_newf(HAL_RW, &(inst[i].relay_invert), comp_id, 
 		    "pci8255.%d.relay-invert", i);
-	rtapi_snprintf(buf, sizeof(buf), "pci8255.%d.write-relay", i);
-	r = hal_export_funct(buf, (void(*)(void *inst, long))write_relay, &inst[i], 0, 0, comp_id);
+	r = hal_export_functf((void(*)(void *inst, long))write_relay, &inst[i], 0, 0, comp_id, "pci8255.%d.write-relay", i);
 	r = hal_param_u32_newf(HAL_RO, &(inst->ioaddr), comp_id,
 	    "pci8255.%d.io-addr", i);
 	inst->ioaddr = io[i];

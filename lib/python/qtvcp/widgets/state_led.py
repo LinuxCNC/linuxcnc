@@ -506,7 +506,7 @@ class StateLED(LED):
     def get_spindle_near_percent(self):
         return int(self._at_speed_percent * 100)
     def reset_spindle_near_percent(self):
-        self._at_speed_percen = 0.10
+        self._at_speed_percent = 0.10
 
     def set_halpin_name(self, data):
         self._halpin_name = data

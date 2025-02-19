@@ -2,12 +2,17 @@
 Name=classic
 Comment=Classic gmoccapy icon theme
 Inherits=hicolor
-Directories=24x24/actions,32x32/actions,48x48/actions,scalable/actions
+Directories=24x24/actions,24x24/status,32x32/actions,48x48/actions
 
 [24x24/actions]
 Size=24
 Type=Fixed
 Context=Actions
+
+[24x24/status]
+Size=24
+Type=Fixed
+Context=Status
 
 [32x32/actions]
 Size=32

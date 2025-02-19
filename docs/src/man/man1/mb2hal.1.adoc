@@ -1,0 +1,89 @@
+= mb2hal(1)
+
+== NAME
+
+mb2hal - HAL non-realtime component for Modbus
+
+== SYNOPSIS
+
+Default component name::
+  loadusr -W mb2hal config=config_file.ini
+Custom component name::
+  loadusr -Wn mymodule mb2hal config=config_file.ini
+
+== DESCRIPTION
+
+MB2HAL is a generic non-realtime HAL component to communicate with one or more Modbus devices.
+It supports Modbus RTU and Modbus TCP.
+
+See https://linuxcnc.org/docs/html/drivers/mb2hal.html[] for more information.
+
+== PINS
+
+=== fnct_01_read_coils:
+
+*mb2hal.m.n.bit* bit out +
+*mb2hal.m.n.bit-inv* bit out
+
+=== fnct_02_read_discrete_inputs:
+
+*mb2hal.m.n.bit* bit out +
+*mb2hal.m.n.bit-inv* bit out
+
+=== fnct_03_read_holding_registers:
+
+*mb2hal.m.n.float* float out +
+*mb2hal.m.n.int* s32 out
+
+=== fnct_04_read_input_registers:
+
+*mb2hal.m.n.float* float out +
+*mb2hal.m.n.int* s32 out
+
+=== fnct_05_write_single_coil:
+
+*mb2hal.m.n.bit* bit in::
+  NELEMENTS needs to be 1 or PIN_NAMES must contain just one name.
+
+=== fnct_06_write_single_register:
+
+*mb2hal.m.n.float* float in
+
+*mb2hal.m.n.int* s32 in::
+  NELEMENTS needs to be 1 or PIN_NAMES must contain just one name. +
+  Both pin values are added and limited to 65535 (UINT16_MAX).
+  Use one and let the other open (read as 0).
+
+=== fnct_15_write_multiple_coils:
+
+*mb2hal.m.n.bit* bit in
+
+=== fnct_16_write_multiple_registers:
+
+*mb2hal.m.n.float* float in
+
+*mb2hal.m.n.int* s32 in::
+  Both pin values are added and limited to 65535 (UINT16_MAX).
+  Use one and let the other open (read as 0).
+
+=== Each transaction
+
+*mb2hal.m.num_errors* u32 in::
+  Error counter
+
+
+m = HAL_TX_NAME or transaction number if not set +
+n = element number (NELEMENTS)
+
+Example:
+....
+mb2hal.00.01.int (TRANSACTION_00, second register)
+mb2hal.readStatus.01.bit (HAL_TX_NAME=readStatus, first bit)
+....
+== AUTHOR
+
+Victor Rocco
+
+== LICENSE
+
+GPL

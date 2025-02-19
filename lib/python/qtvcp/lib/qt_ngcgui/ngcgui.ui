@@ -140,7 +140,7 @@
           <item>
            <widget class="QCheckBox" name="chk_save">
             <property name="toolTip">
-             <string>Aways save when code is finalized</string>
+             <string>Always save when code is finalized</string>
             </property>
             <property name="text">
              <string>Save?</string>

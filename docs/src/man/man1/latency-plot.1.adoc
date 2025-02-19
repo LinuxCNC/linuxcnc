@@ -1,0 +1,62 @@
+= latency-plot(1)
+
+== NAME
+
+latency-plot - another way to view latency numbers
+
+== SYNOPSIS
+
+*latency-plot* [ *-?* | *--help* ] [ *-H* | *--hal* ] [ *-b* | *--base* *_ns_* ] [ *-s* | *--servo* *_ns_* ] [ *-t* | *--time* *_ms_* ] [ *--relative* ] [ *--actual* ]
+
+== DESCRIPTION
+
+*latency-plot* makes a strip chart recording for a base and a servo thread.
+It may be useful to see spikes in latency when other applications are started or used.
+Mainly superseded by latency-histogram.
+
+LinuxCNC and HAL should not be running, stop with _halrun -U_.
+
+More details: https://linuxcnc.org/docs/html/install/latency-test.html
+
+== OPTIONS
+
+*-?*, *--help*::
+  Show options and exit.
+*-H*, *--hal*::
+*-b*, *--base* _ns_::
+  base thread interval in nanoseconds, default: 25000
+*-s*, *--servo* _ns_::
+  servo thread interval in nanoseconds, default: 1000000
+*-t*, *--time* _ms_::
+  report interval in milliseconds, default: 1000, min: 100, max: 10000
+*--relative*::
+  relative clock time (default)
+*--actual*::
+  actual clock time
+
+== SEE ALSO
+
+*latency-histogram*(1), *latency-test*(1), *linuxcnc*(1)
+
+Much more information about LinuxCNC and HAL is available in the
+LinuxCNC and HAL User Manuals, found at _/usr/share/doc/linuxcnc/_.
+
+== BUGS
+
+None known at this time.
+
+== AUTHOR
+
+This man page written by Andy Pugh, as part of the LinuxCNC project.
+
+== REPORTING BUGS
+
+Report bugs at https://github.com/LinuxCNC/linuxcnc/issues.
+
+== COPYRIGHT
+
+Copyright © 2020 Andy Pugh.
+
+This is free software; see the source for copying conditions. There is
+NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.

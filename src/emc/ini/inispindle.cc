@@ -35,7 +35,7 @@ extern value_inihal_data old_inihal_data;
 /*
   loadSpindls(int spindle)
 
-  Loads ini file params for the specified spindle
+  Loads INI file params for the specified spindle
   spindle max and min velocities
   */
 
@@ -43,10 +43,10 @@ static int loadSpindle(int spindle, EmcIniFile *spindleIniFile)
 {
     int num_spindles = 1;
     char spindleString[11];
-    double max_pos = 1e99;
-    double max_neg = 0;
-    double min_pos = 0;
-    double min_neg = -1e99;
+    double fastest_pos = 1e99;
+    double slowest_neg = 0;
+    double slowest_pos = 0;
+    double fastest_neg = -1e99;
     int home_sequence = 0;
     double search_vel = 0;
     double home_angle = 0;
@@ -62,22 +62,22 @@ static int loadSpindle(int spindle, EmcIniFile *spindleIniFile)
     snprintf(spindleString, sizeof(spindleString), "SPINDLE_%i", spindle);
 
     // set max positive speed limit
-    if (spindleIniFile->Find(&limit, "MAX_VELOCITY", spindleString) == 0){
-        max_pos = limit;
-        min_neg = limit;
+    if (spindleIniFile->Find(&limit, "MAX_FORWARD_VELOCITY", spindleString) == 0){
+        fastest_pos = limit;
+        fastest_neg = -1.0 * limit;
     }
     // set min positive speed limit
-    if (spindleIniFile->Find(&limit, "MIN_VELOCITY", spindleString) == 0){
-        min_pos = limit;
-        max_neg = limit;
+    if (spindleIniFile->Find(&limit, "MIN_FORWARD_VELOCITY", spindleString) == 0){
+        slowest_pos = limit;
+        slowest_neg = -1.0 * limit;
     }
     // set min negative speed limit
     if (spindleIniFile->Find(&limit, "MIN_REVERSE_VELOCITY", spindleString) == 0){
-        max_neg = -1.0 * fabs(limit);
+        slowest_neg = -1.0 * fabs(limit);
     }
     // set max negative speed limit
     if (spindleIniFile->Find(&limit, "MAX_REVERSE_VELOCITY", spindleString) == 0){
-        min_neg = -1.0 * fabs(limit);
+        fastest_neg = -1.0 * fabs(limit);
     }
     // set home sequence
     if (spindleIniFile->Find(&limit, "HOME_SEQUENCE", spindleString) == 0){
@@ -97,8 +97,8 @@ static int loadSpindle(int spindle, EmcIniFile *spindleIniFile)
         increment = limit;
     }
 
-    if (0 != emcSpindleSetParams(spindle, max_pos, min_pos, max_neg,
-        min_neg, search_vel, home_angle, home_sequence, increment)) {
+    if (0 != emcSpindleSetParams(spindle, fastest_pos, slowest_pos, slowest_neg,
+        fastest_neg, search_vel, home_angle, home_sequence, increment)) {
         return -1;
     }
     return 0;
@@ -107,7 +107,7 @@ static int loadSpindle(int spindle, EmcIniFile *spindleIniFile)
 /*
   iniAxis(int axis, const char *filename)
 
-  Loads ini file parameters for specified axis, [0 .. AXES - 1]
+  Loads INI file parameters for specified axis, [0 .. AXES - 1]
 
  */
 int iniSpindle(int spindle, const char *filename)

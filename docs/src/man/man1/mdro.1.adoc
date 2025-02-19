@@ -1,0 +1,110 @@
+= mdro(1)
+
+== NAME
+
+mdro - manual only Digital Read Out (DRO)
+
+== SYNOPSIS
+
+*mdro* [*-v*] [*-p* _point_size_] [*-m*] [*-l* _file.var_] [_axes_]
+
+== DESCRIPTION
+
+*mdro* is a manual only DRO providing functionality similar to a
+traditional manual DRO. It is most useful for manual machines converted
+to CNC. It allows the user to manually control the machine while
+continuing to use the DRO scales on the axes. The GUI can be sized to
+match the user's screen. It is mouse-only and touchscreen friendly.
+
+== OPTIONS
+
+These command line options are normally used when *mdro* is started in a
+HAL file. See below for the corresponding .ini file options.
+
+*v*::
+  Turn on verbose debug prints. *-vv* is even more verbose.
+*p* _point_size_::
+  Set the point size for the text in the application. This option
+  controls the overall size of the window on the screen. Default is 20.
+  Typical values range from 20 to 30.
+*m*::
+  Set this if the DRO scales provide data scaled in millimeters.
+*l* _file.var_::
+  Load G54 through G57 coordinates from _file.var_.
+_axes_::
+  This option is used to specify the names of the axes handled by the
+  program. The default is "XYZ". A four axis mill would use "XYZA", and
+  a lathe with a two axis DRO might use "XZ".
+
+== SCREEN CONFIGURATION
+
+The top of the screen includes a row for each axis specified in _axes_.
+Data in these rows are derived from signals on the _mdro.axis.n_ pins
+that are instantiated when *mdro* is started. Each row includes buttons
+that allow the value to be be zeroed, to be halved or a new value to be
+entered. There is also a button that enables the index zero process for
+that axis.
+
+The screen includes buttons that allow the selection of one of four
+different coordinate systems. The machine coordinate system can also be
+selected though it cannot be changed.
+
+The screen includes a keypad that can be used with a mouse or a touch
+screen to enter coordinate data.
+
+Finally, buttons on the screen allow the selection of inch or mm data
+display.
+
+== USAGE
+
+*mdro* is normally started from the _[DISPLAY]_ entry in a dedicated
+*mdro.ini* file. The INI file and the associated HAL files should
+include the pins and signals that support the DRO scales. The HAL
+connections to *mdro* must be done in the _POSTGUI_HALFILE_ referenced
+in the INI file.
+
+Other _[DISPLAY]_ section options:::
+_GEOMETRY_ = _axes_::
+  Names the coordinate axes used in the program. For example, "XYZ" for
+  a 3 axis mill or "XZ" for a lathe, Default is "XYZ".
+_MDRO_VAR_FILE_ = _file.var_::
+  Preload a VAR file. This is typically the VAR file used by the
+  operational code.
+_POINT_SIZE_ = _n_::
+  This option sets the size of the font used which sets the overall size
+  of the window. The default point size is 20, Typical sizes are 20 to
+  30.
+_MM_ = _1_::
+  Set this if the DRO scales provide data scaled in millimeters.
+
+== EXAMPLE
+
+Using an example of "XYZA" for an _axes_ argument, these pins will be
+created when *mdro* starts:
+
+mdro.axis.0 mdro.axis.1 mdro.axis.2 mdro.axis.3 mdro.index-enable.0
+mdro.index-enable.1 mdro.index-enable.2 mdro.index-enable.3
+
+In this example, the first row will be labeled "X" and will show the
+data associated with pin mdro.axis.0. In many configurations,
+mdro.axis.0 can be connected directly to x-pos-fb in the POSTGUI-HAL
+file. The index pins should be connected to the corresponding
+index-enable pins from the DRO.
+
+*mdro* can also be started via a "loadusr" command in a HAL file for a
+trial. Here's an example of a sim setup:
+
+loadusr -W mdro -l sim.var XYZ net x-pos-fb => mdro.axis.0 net y-pos-fb
+=> mdro.axis.1 net z-pos-fb => mdro.axis.2
+
+== AUTHOR
+
+Robert Bond
+
+== COPYRIGHT
+
+Copyright © 2022 Robert Bond
+
+This is free software; see the source for copying conditions. There is
+NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.

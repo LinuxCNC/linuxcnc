@@ -1,9 +1,0 @@
-T1 P1 Z32 D6 ;6mm x 32mm end mill 
-T2 P2 Z42 D4 ;4mm x 42mm end mill 
-T3 P3 Z32 D3 ;3mm drill 
-T10 P10 Z50 D6 ;6mm x 50 end mill 
-T4 P4 Z50 D6 ;4mm x 50 ball nose 
-T11 P11 Z50 D6 ;added 20130916 
-T6 P6 Z32 D6 ;6mm x 32mm ball nose 
-T5 P5 Z32 D3.17 ;1/8" 0.3 30deg vgroove 
-T7 P7 Z30 D3.17 ;2mm Dremmel bit 

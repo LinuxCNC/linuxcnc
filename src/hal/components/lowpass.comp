@@ -11,8 +11,7 @@ lowpass filter LaPlace transfer function is:
 
 \\fBH(s) = a/(s + a)\\fR
 
-For a sampling period \\fBT\\fR (seconds), the gain for this
-Hal lowpass component is:
+For a sampling period \\fBT\\fR (seconds), the gain for this HAL lowpass component is:
 
 \\fBgain = 1 - e^(-a * T)\\fR
 
@@ -38,7 +37,7 @@ param rw float gain;
 function _;
 license "GPL";
 author "Jeff Epler";
-notes "The effect of a specific \\fBgain\\fR value is dependent on the period of the function that \\fBlowpass.\\fIN\\fR is added to";
+notes "The effect of a specific \\fBgain\\fR value is dependent on the period of the function that \\fBlowpass.\\fIN\\fR is added to.";
 ;;
 FUNCTION(_) {
     if(load)

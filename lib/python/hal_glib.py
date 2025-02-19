@@ -146,6 +146,7 @@ class _GStat(GObject.GObject):
         'current-tool-offset': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
 
         'motion-mode-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_INT,)),
+        'motion-type-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_INT,)),
         'spindle-control-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE,
              (GObject.TYPE_INT, GObject.TYPE_BOOLEAN, GObject.TYPE_INT, GObject.TYPE_BOOLEAN)),
         'current-feed-rate': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
@@ -177,6 +178,7 @@ class _GStat(GObject.GObject):
         'm-code-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
         'g-code-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
         'f-code-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+        's-code-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
         'blend-code-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT, GObject.TYPE_FLOAT)),
 
         'metric-mode-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
@@ -195,6 +197,7 @@ class _GStat(GObject.GObject):
         'move-text-lineup': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
         'move-text-linedown': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
         'dialog-request': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
+        'dialog-update': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
         'focus-overlay-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN, GObject.TYPE_STRING,
                             GObject.TYPE_PYOBJECT)),
         'play-sound': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
@@ -204,6 +207,7 @@ class _GStat(GObject.GObject):
                                         (GObject.TYPE_STRING, GObject.TYPE_BOOLEAN)),
         'show-preference': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, ()),
         'shutdown': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, ()),
+        'status-message': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT, GObject.TYPE_PYOBJECT)),
         'error': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_INT, GObject.TYPE_STRING)),
         'general': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
         'forced-update': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, ()),
@@ -228,6 +232,10 @@ class _GStat(GObject.GObject):
              , linuxcnc.INTERP_IDLE: 'interp-idle'
              }
 
+    DEFAULT = 0
+    WARNING = 1
+    CRITICAL = 2
+
     TEMPARARY_MESSAGE = 255
     OPERATOR_ERROR = linuxcnc.OPERATOR_ERROR
     OPERATOR_TEXT = linuxcnc.OPERATOR_TEXT
@@ -250,6 +258,7 @@ class _GStat(GObject.GObject):
         self._status_active = False
         self.old = {}
         self.old['tool-prep-number'] = 0
+        self.previous_mode = self.MANUAL
         try:
             self.stat.poll()
             self.merge()
@@ -292,6 +301,7 @@ class _GStat(GObject.GObject):
         except RuntimeError:
              self.old['tool-prep-number'] = -1
         self.old['motion-mode'] = self.stat.motion_mode
+        self.old['motion-type'] = self.stat.motion_type
         self.old['spindle-or'] = self.stat.spindle[0]['override']
         self.old['feed-or'] = self.stat.feedrate
         self.old['rapid-or'] = self.stat.rapidrate
@@ -392,6 +402,7 @@ class _GStat(GObject.GObject):
         self.old['tool-info']  = self.stat.tool_table[0]
         settings = self.stat.settings
         self.old['f-code'] = settings[1]
+        self.old['s-code'] = settings[2]
         self.old['blend-tolerance-code'] = settings[3]
         self.old['nativecam-tolerance-code'] = settings[4]
 
@@ -443,6 +454,7 @@ class _GStat(GObject.GObject):
         mode_old = old.get('mode', 0)
         mode_new = self.old['mode']
         if mode_new != mode_old:
+            self.previous_mode = mode_old
             self.emit(self.MODES[mode_new])
 
         interp_old = old.get('interp', 0)
@@ -504,6 +516,11 @@ class _GStat(GObject.GObject):
         motion_mode_new = self.old['motion-mode']
         if motion_mode_new != motion_mode_old:
             self.emit('motion-mode-changed', motion_mode_new)
+
+        motion_type_old = old.get('motion-type', None)
+        motion_type_new = self.old['motion-type']
+        if motion_type_new != motion_type_old:
+            self.emit('motion-type-changed', motion_type_new)
 
         # if the homed status has changed
         # check number of homed joints against number of available joints
@@ -713,6 +730,12 @@ class _GStat(GObject.GObject):
         if f_code_new != f_code_old:
             self.emit('f-code-changed',f_code_new)
 
+        # s code
+        s_code_old = old.get('s-code', None)
+        s_code_new = self.old['s-code']
+        if s_code_new != s_code_old:
+            self.emit('s-code-changed',s_code_new)
+
         # g53 blend code
         blend_code_old = old.get('blend-tolerance-code', None)
         blend_code_new = self.old['blend-tolerance-code']
@@ -837,6 +860,10 @@ class _GStat(GObject.GObject):
         f_code_new = self.old['f-code']
         self.emit('f-code-changed',f_code_new)
 
+        # s code
+        s_code_new = self.old['s-code']
+        self.emit('s-code-changed',s_code_new)
+
         # g53 blend code
         blend_code_new = self.old['blend-tolerance-code']
         cam_code_new = self.old['nativecam-tolerance-code']
@@ -845,6 +872,10 @@ class _GStat(GObject.GObject):
         # Trajectory Motion mode
         motion_mode_new = self.old['motion-mode']
         self.emit('motion-mode-changed', motion_mode_new)
+
+        # Trajectory Motion type
+        motion_type_new = self.old['motion-type']
+        self.emit('motion-type-changed', motion_type_new)
 
         # Spindle requested speed
         spindle_spd_new = self.old['spindle-speed']
@@ -938,6 +969,9 @@ class _GStat(GObject.GObject):
 
     def get_current_mode(self):
         return self.old['mode']
+
+    def get_previous_mode(self):
+        return self.previous_mode
 
     # linear - in machine units
     def set_jograte(self, upm):
@@ -1039,7 +1073,8 @@ class _GStat(GObject.GObject):
         return self.stat.task_mode == linuxcnc.MODE_AUTO and self.stat.interp_state != linuxcnc.INTERP_IDLE
 
     def is_auto_paused(self):
-        return self.old['paused']
+        self.stat.poll()
+        return self.stat.paused
 
     def is_interp_running(self):
         self.stat.poll()
@@ -1075,7 +1110,7 @@ class _GStat(GObject.GObject):
         self.stat.poll()
         return self.stat.spindle[num]['enabled']
 
-    def get_spindle_speed(self, num):
+    def get_spindle_speed(self, num=0):
         self.stat.poll()
         return self.stat.spindle[num]['speed']
 
@@ -1085,6 +1120,13 @@ class _GStat(GObject.GObject):
         except:
             return None
         return bool(self.stat.motion_mode == linuxcnc.TRAJ_MODE_FREE)
+
+    def is_world_mode(self):
+        try:
+            self.stat.poll()
+        except:
+            return None
+        return bool(self.stat.motion_mode == linuxcnc.TRAJ_MODE_TELEOP)
 
     def is_status_valid(self):
         return self._status_active
@@ -1172,6 +1214,10 @@ class _GStat(GObject.GObject):
         if jjogmode == JOGJOINT: j_or_a = self.jnum_for_axisnum(axisnum)
         return jjogmode,j_or_a
 
+    def get_probed_position(self):
+        self.stat.poll()
+        return list(self.stat.probed_position)
+
     def get_probed_position_with_offsets(self) :
         self.stat.poll()
         probed_position=list(self.stat.probed_position)
@@ -1198,6 +1244,9 @@ class _GStat(GObject.GObject):
 
     def shutdown(self):
         self.emit('shutdown')
+
+    def get_linuxcnc_version(self):
+        return linuxcnc.version
 
     def __getitem__(self, item):
         return getattr(self, item)

@@ -24,6 +24,10 @@
 *  2) 5 axis mill (XYZBC)
 *     This mill has a tilting table (B axis) and horizontal rotary
 *     mounted to the table (C axis).
+*
+* Note: The directions of the rotational axes are the opposite of the 
+* conventional axis directions. See 
+* https://linuxcnc.org/docs/html/gcode/machining-center.html
 
 ********************************************************************/
 
@@ -116,7 +120,7 @@ int trtKinematicsSetup(const int   comp_id,
     for (jno=0; jno<EMCMOT_MAX_JOINTS; jno++) {
         if (axis_idx_for_jno[jno] == -1) break; //fini
         rtapi_print("   Joint %d ==> Axis %c\n",
-                   jno,*("XYZABCUVW"+axis_idx_for_jno[jno]));
+                   jno,"XYZABCUVW"[axis_idx_for_jno[jno]]);
     }
 
     haldata = hal_malloc(sizeof(struct haldata));

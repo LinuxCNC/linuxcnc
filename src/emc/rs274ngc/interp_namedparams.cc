@@ -153,7 +153,7 @@ int Interp::read_named_parameter(
 				 char *line,   //!< string: line of RS274/NGC code being processed
 				 int *counter, //!< pointer to a counter for position on the line
 				 double *double_ptr,   //!< pointer to double to be read
-				 double *parameters,   //!< array of system parameters
+				 double * /*parameters*/,   //!< array of system parameters
 				 bool check_exists)    //!< test for existence, not value
 {
     static char name[] = "read_named_parameter";
@@ -190,7 +190,7 @@ int Interp::read_named_parameter(
 // if the variable is of the form '_ini[section]name', then treat it as
 // an inifile  variable. Lookup section/name and cache the value
 // as global and read-only.
-// the shortest possible ini variable is '_ini[s]n' or 8 chars long .
+// the shortest possible INI variable is '_ini[s]n' or 8 chars long .
 int Interp::fetch_ini_param( const char *nameBuf, int *status, double *value)
 {
     char *s;
@@ -206,19 +206,18 @@ int Interp::fetch_ini_param( const char *nameBuf, int *status, double *value)
 	int closeBracket = s - nameBuf;
 
 	if ((iniFileName = getenv("INI_FILE_NAME")) == NULL) {
-	    logNP("warning: referencing ini parameter '%s': no ini file",nameBuf);
+	    logNP("warning: referencing INI parameter '%s': no INI file",nameBuf);
 	    *status = 0;
 	    return INTERP_OK;
 	}
 	if (!inifile.Open(iniFileName)) {
 	    *status = 0;
-	    ERS(_("can\'t open ini file '%s'"), iniFileName);
+	    ERS(_("can\'t open INI file '%s'"), iniFileName);
 	}
 
 	char capName[LINELEN];
 
-	strncpy(capName, nameBuf, n);
-	capName[n] = '\0';
+	snprintf(capName, LINELEN, "%s", nameBuf);
 	for (char *p = capName; *p != 0; p++)
 	    *p = toupper(*p);
 	capName[closeBracket] = '\0';
@@ -229,7 +228,7 @@ int Interp::fetch_ini_param( const char *nameBuf, int *status, double *value)
 	} else {
 	    inifile.Close();
 	    *status = 0;
-	    ERS(_("Named ini parameter #<%s> not found in inifile '%s': error=0x%x"),
+	    ERS(_("Named INI parameter #<%s> not found in INI file '%s': error=0x%x"),
 		nameBuf, iniFileName, retval);
 	}
     }
@@ -239,7 +238,7 @@ int Interp::fetch_ini_param( const char *nameBuf, int *status, double *value)
 // if the variable is of the form '_hal[hal_name]', then treat it as
 // a HAL pin, signal or param. Lookup value, convert to float, and export as global and read-only.
 // do not cache.
-// the shortest possible ini variable is '_hal[x]' or 7 chars long .
+// the shortest possible INI variable is '_hal[x]' or 7 chars long .
 int Interp::fetch_hal_param( const char *nameBuf, int *status, double *value)
 {
     static int comp_id;
@@ -514,22 +513,22 @@ int Interp::lookup_named_param(const char *nameBuf,
 
     case NP_PLANE: // _plane
 	switch(_setup.plane) {
-	case CANON_PLANE_XY:
+	case CANON_PLANE::XY:
 	    *value = G_17;
 	    break;
-	case CANON_PLANE_XZ:
+	case CANON_PLANE::XZ:
 	    *value = G_18;
 	    break;
-	case CANON_PLANE_YZ:
+	case CANON_PLANE::YZ:
 	    *value = G_19;
 	    break;
-	case CANON_PLANE_UV:
+	case CANON_PLANE::UV:
 	    *value = G_17_1;
 	    break;
-	case CANON_PLANE_UW:
+	case CANON_PLANE::UW:
 	    *value = G_18_1;
 	    break;
-	case CANON_PLANE_VW:
+	case CANON_PLANE::VW:
 	    *value = G_19_1;
 	    break;
 	}
@@ -537,8 +536,8 @@ int Interp::lookup_named_param(const char *nameBuf,
 
     case NP_CCOMP: // _ccomp - cutter compensation
 	*value =
-	    (_setup.cutter_comp_side == RIGHT) ? G_42 :
-	(_setup.cutter_comp_side == LEFT) ? G_41 : G_40;
+	    (_setup.cutter_comp_side == CUTTER_COMP::RIGHT) ? G_42 :
+	(_setup.cutter_comp_side == CUTTER_COMP::LEFT) ? G_41 : G_40;
 	break;
 
     case NP_METRIC: // _metric
@@ -550,23 +549,23 @@ int Interp::lookup_named_param(const char *nameBuf,
 	break;
 
     case NP_ABSOLUTE: // _absolute - distance mode
-	*value = (_setup.distance_mode == MODE_ABSOLUTE);
+	*value = (_setup.distance_mode == DISTANCE_MODE::ABSOLUTE);
 	break;
 
     case NP_INCREMENTAL: // _incremental - distance mode
-	*value = (_setup.distance_mode == MODE_INCREMENTAL);
+	*value = (_setup.distance_mode == DISTANCE_MODE::INCREMENTAL);
 	break;
 
     case NP_INVERSE_TIME: // _inverse_time - feed mode
-	*value = (_setup.feed_mode == INVERSE_TIME);
+	*value = (_setup.feed_mode == FEED_MODE::INVERSE_TIME);
 	break;
 
     case NP_UNITS_PER_MINUTE: // _units_per_minute - feed mode
-	*value = (_setup.feed_mode == UNITS_PER_MINUTE);
+	*value = (_setup.feed_mode == FEED_MODE::UNITS_PER_MINUTE);
 	break;
 
     case NP_UNITS_PER_REV: // _units_per_rev - feed mode
-	*value = (_setup.feed_mode == UNITS_PER_REVOLUTION);
+	*value = (_setup.feed_mode == FEED_MODE::UNITS_PER_REVOLUTION);
 	break;
 
     case NP_COORD_SYSTEM: // _coord_system - 0-9
@@ -582,23 +581,23 @@ int Interp::lookup_named_param(const char *nameBuf,
 	break;
 
     case NP_RETRACT_R_PLANE: // _retract_r_plane - G98
-	*value = (_setup.retract_mode == R_PLANE);
+	*value = (_setup.retract_mode == RETRACT_MODE::R_PLANE);
 	break;
 
     case NP_RETRACT_OLD_Z: // _retract_old_z - G99
-	*value = (_setup.retract_mode == OLD_Z);
+	*value = (_setup.retract_mode == RETRACT_MODE::OLD_Z);
 	break;
 
     case NP_SPINDLE_RPM_MODE: // _spindle_rpm_mode G97 currently only reports for spindle 0
-	*value = (_setup.spindle_mode[0] == CONSTANT_RPM);
+	*value = (_setup.spindle_mode[0] == SPINDLE_MODE::CONSTANT_RPM);
 	break;
 
     case NP_SPINDLE_CSS_MODE: // _spindle_css_mode G96
-	*value = (_setup.spindle_mode[0] == CONSTANT_SURFACE);
+	*value = (_setup.spindle_mode[0] == SPINDLE_MODE::CONSTANT_SURFACE);
 	break;
 
     case NP_IJK_ABSOLUTE_MODE: //_ijk_absolute_mode - G90.1
-	*value = (_setup.ijk_distance_mode == MODE_ABSOLUTE);
+	*value = (_setup.ijk_distance_mode == DISTANCE_MODE::ABSOLUTE);
 	break;
 
     case NP_LATHE_DIAMETER_MODE: // _lathe_diameter_mode - G7
@@ -671,6 +670,10 @@ int Interp::lookup_named_param(const char *nameBuf,
 	break;
 
     case NP_CURRENT_POCKET:
+    if (_setup.current_pocket == -1) {
+	    *value = -1;
+	    break;
+    }
     if(_setup.random_toolchanger){//random changers already report the real pocket number
 	    *value = _setup.current_pocket;
     }
@@ -838,7 +841,7 @@ int Interp::init_named_parameters()
   init_readonly_param("_line", NP_LINE, PA_USE_LOOKUP);
 
   // any of G1 G2 G3 G5.2 G73 G80 G82 G83 G86 G87 G88 G89
-  // value is number after 'G' mutiplied by 10 (10,20,30,52..)
+  // value is number after 'G' multiplied by 10 (10,20,30,52..)
 
   init_readonly_param("_motion_mode", NP_MOTION_MODE, PA_USE_LOOKUP);
 
@@ -961,7 +964,7 @@ double Interp::inicheck()
 {
     IniFile inifile;
     const char *filename;
-    const char *inistring;
+    std::optional<const char*> inistring;
     double result = -1.0;
 
 	if ((filename = getenv("INI_FILE_NAME")) == NULL) {
@@ -973,8 +976,8 @@ double Interp::inicheck()
 	    return -1.0;
     }
 
-    if (NULL != (inistring = inifile.Find("LINEAR_UNITS", "TRAJ"))) {
-        if (!strcmp(inistring, "inch")) {
+    if ((inistring = inifile.Find("LINEAR_UNITS", "TRAJ"))) {
+        if (!strcmp(*inistring, "inch")) {
              result = 0.0;
         } else {
             result = 1.0;

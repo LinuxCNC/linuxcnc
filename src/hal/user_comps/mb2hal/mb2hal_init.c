@@ -89,6 +89,15 @@ retCode parse_common_section()
     iniFindInt(gbl.ini_file_ptr, tag, section, &gbl.init_dbg);
     DBG(gbl.init_dbg, "[%s] [%s] [%d]", section, tag, gbl.init_dbg);
 
+    tag     = "VERSION"; //optional
+    tmpstr = iniFind(gbl.ini_file_ptr, tag, section);
+    if (tmpstr != NULL) {
+        int major, minor;
+        sscanf(tmpstr, "%d.%d", &major, &minor);
+        gbl.version = major*1000 + minor;
+    }
+    DBG(gbl.init_dbg, "[%s] [%s] [%d]", section, tag, gbl.version);
+
     tag    = "HAL_MODULE_NAME"; //optional
     tmpstr = iniFind(gbl.ini_file_ptr, tag, section);
     if (tmpstr != NULL) {
@@ -116,19 +125,19 @@ retCode parse_common_section()
 }
 
 #define NAME_ALLOC_SIZE 5
-retCode parse_pin_names(const char * names_string, mb_tx_t *this_mb_tx)
+static retCode parse_pin_names(const char * const names_string, mb_tx_t * const this_mb_tx)
 {
     char *fnct_name = "parse_pin_names";
     int name_count = 0;
     int name_buf_size = NAME_ALLOC_SIZE;
     char **name_ptrs = malloc(sizeof(char *) * name_buf_size);
-    char *names = malloc(strlen(names_string)  + 1);
+    /* FIXME This memory block is leaked */
+    char *names = strndup(names_string,999942);
     if(name_ptrs == NULL || names == NULL)
     {
         ERR(gbl.init_dbg, "Failed allocating memory");
         return retERR;
     }
-    strcpy(names, names_string);	// Keep the names in a buffer
     char * name = strtok(names, ",");
     while(name)
     {
@@ -139,13 +148,14 @@ retCode parse_pin_names(const char * names_string, mb_tx_t *this_mb_tx)
         }
         if(name_count >= name_buf_size)
         {
-            name_count += NAME_ALLOC_SIZE;
-            name_ptrs = realloc(name_ptrs, sizeof(char *) * name_buf_size);
-            if(name_ptrs == NULL)
+            name_buf_size += NAME_ALLOC_SIZE;
+            char ** tmp = realloc(name_ptrs, sizeof(char *) * name_buf_size);
+            if(NULL == tmp)
             {
                 ERR(gbl.init_dbg, "Failed allocating memory");
                 return retERR;
             }
+            name_ptrs = tmp;
         }
         name_ptrs[name_count++]=name;
         name = strtok(NULL, ",");
@@ -344,7 +354,8 @@ retCode parse_transaction_section(const int mb_tx_num)
                 break;
             }
         }
-        if (this_mb_tx->mb_tx_fnct <= mbtxERR || this_mb_tx->mb_tx_fnct >= mbtxMAX) {
+        mb_tx_fnct max = gbl.version<1001?mbtx_01_READ_COILS:mbtxMAX;
+        if (this_mb_tx->mb_tx_fnct <= mbtxERR || this_mb_tx->mb_tx_fnct >= max) {
             ERR(gbl.init_dbg, "[%s] [%s] [%s] out of range", section, tag, tmpstr);
             return retERR;
         }
@@ -686,7 +697,11 @@ retCode init_mb_links()
             this_mb_link->lp_link_type = this_mb_tx->cfg_link_type;
 
             if (this_mb_link->lp_link_type == linkRTU) { //serial
-                strncpy(this_mb_link->lp_serial_device, this_mb_tx->cfg_serial_device, MB2HAL_MAX_DEVICE_LENGTH-1);
+                if (strlen(this_mb_tx->cfg_serial_device) >= MB2HAL_MAX_DEVICE_LENGTH) {
+                    ERR(gbl.init_dbg, "serial_device name to long [%s]", this_mb_tx->cfg_serial_device);
+                    return retERR;
+                }
+                rtapi_strlcpy(this_mb_link->lp_serial_device, this_mb_tx->cfg_serial_device, MB2HAL_MAX_DEVICE_LENGTH);
                 this_mb_link->lp_serial_baud=this_mb_tx->cfg_serial_baud;
 
                 if (strcasecmp(this_mb_tx->cfg_serial_parity, "even") == 0) {
@@ -713,7 +728,11 @@ retCode init_mb_links()
                 }
             }
             else { //tcp
-                strncpy(this_mb_link->lp_tcp_ip, this_mb_tx->cfg_tcp_ip, sizeof(this_mb_tx->cfg_tcp_ip)-1);
+                if (strlen(this_mb_tx->cfg_tcp_ip) >= sizeof(this_mb_link->lp_tcp_ip)) {
+                    ERR(gbl.init_dbg, "tcp_ip too long [%s]", this_mb_tx->cfg_tcp_ip);
+                    return retERR;
+                }
+                rtapi_strlcpy(this_mb_link->lp_tcp_ip, this_mb_tx->cfg_tcp_ip, sizeof(this_mb_tx->cfg_tcp_ip));
                 this_mb_link->lp_tcp_port=this_mb_tx->cfg_tcp_port;
 
                 this_mb_link->modbus = modbus_new_tcp(this_mb_link->lp_tcp_ip, this_mb_link->lp_tcp_port);

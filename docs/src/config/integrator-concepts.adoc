@@ -11,7 +11,7 @@ location depends on how you run LinuxCNC.
 
 === Installed
 
-If your running LinuxCNC from the LiveCD or you installed via a .deb and use the
+If your running LinuxCNC from the Live CD or you installed via a .deb and use the
 configuration picker 'LinuxCNC' from the menu LinuxCNC looks in the following
 directories:
 
@@ -89,14 +89,14 @@ a while and are impossible to troubleshoot.
 The simplest way to avoid this problem is to choose a BASE_PERIOD that
 is the sum of the longest timing requirement of your drive, and the
 worst case latency of your computer. This is not always the best choice.
-For example, if you are running a drive with a 20&thinsp;µs  direction signal hold time
+For example, if you are running a drive with a 20 µs  direction signal hold time
 requirement, and your latency test said you have a maximum latency of
-11&thinsp;µs , then if you set the BASE_PERIOD to 20+11 = 31&thinsp;µs  you get a
+11 µs , then if you set the BASE_PERIOD to 20+11 = 31 µs  you get a
 not-so-nice 32,258 steps per second in one mode and 16,129 steps per
 second in another mode.
 
-The problem is with the 20&thinsp;µs  hold time requirement. That plus the 11&thinsp;µs
-latency is what forces us to use a slow 31&thinsp;µs  period. But the LinuxCNC
+The problem is with the 20 µs  hold time requirement. That plus the 11 µs
+latency is what forces us to use a slow 31 µs  period. But the LinuxCNC
 software step generator has some parameters that let you increase the
 various times from one period to several. For example, if 'steplen' footnote:[steplen
 refers to a parameter that adjusts the performance of LinuxCNC's built-in step generator,
@@ -108,16 +108,16 @@ refers to a parameter that adjusts the length of the direction hold time.] is
 changed from 1 to 3, there will be at least three periods between the step
 pulse and a change of the direction pin.
 
-If we can use 'dirhold' to meet the 20&thinsp;µs  hold time requirement, then the
-next longest time is the 4.5&thinsp;µs  high time. Add the 11&thinsp;µs  latency to the
-4.5&thinsp;µs  high time, and you get a minimum period of 15.5&thinsp;µs . When you try
-15.5&thinsp;µs , you find that the computer is sluggish, so you settle on 16&thinsp;µs .
+If we can use 'dirhold' to meet the 20 µs  hold time requirement, then the
+next longest time is the 4.5 µs  high time. Add the 11 µs  latency to the
+4.5 µs  high time, and you get a minimum period of 15.5 µs . When you try
+15.5 µs , you find that the computer is sluggish, so you settle on 16 µs .
 If we leave 'dirhold' at 1 (the default), then the minimum time between
-step and direction is the 16&thinsp;µs  period minus the 11&thinsp;µs  latency = 5&thinsp;µs ,
-which is not enough. We need another 15&thinsp;µs . Since the period is 16&thinsp;µs , we
+step and direction is the 16 µs  period minus the 11 µs  latency = 5 µs ,
+which is not enough. We need another 15 µs . Since the period is 16 µs , we
 need one more period. So we change 'dirhold' from 1 to 2. Now the minimum
 time from the end of the step pulse to the changing direction pin is
-5+16=21&thinsp;µs , and we don't have to worry about the drive stepping the
+5+16=21 µs , and we don't have to worry about the drive stepping the
 wrong direction because of latency.
 
 For more information on stepgen see the <<sec:stepgen,stepgen section>>.
@@ -277,5 +277,23 @@ shutdown has been started, and that's why you might need to push the power
 button to completely turn off your computer. The RTAI group has been
 improving this in recent releases, so your LinuxCNC system may shut off by
 itself after all.
+
+== Computer/Machine Interface Hardware Options
+
+=== litehm2/rv901t
+
+Litehm2 is a board-agnostic port of the HostMot2 FPGA firmware. The first
+board it supports is the linsn rv901t, which was originally built as a LED
+controller board, but due to the available I/O it is well suited to act as
+a machine controller. It offers around 80 5V-buffered I/O ports and can
+switch between all input and all output. it is also easily modified to split
+the ports half/half between input and output. The rv901t interfaces to the
+computer via Gigabit or 100Mbit Ethernet.
+
+Litehm2 is based on the LiteX framework which supports a wide range of
+FPGA boards. Currently only the rv901t is supported, but support for more
+boards is under development.
+
+More information can be found at https://github.com/sensille/litehm2.
 
 // vim: set syntax=asciidoc:

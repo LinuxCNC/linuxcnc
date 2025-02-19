@@ -25,7 +25,7 @@ an adapter.
 
 See the manufacturer's website for more info:
 
-http://www.opto22.com/site/pr_details.aspx?cid=4&item=PCI-AC5
+https://www.opto22.com/site/pr_details.aspx?cid=4&item=PCI-AC5
 
 I would like to thank Opto22 for releasing info in their manual,
 easing the writing of this driver!

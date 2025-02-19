@@ -206,15 +206,27 @@ EXTRA_SETUP(){
                       "quitting\n", -r);
         return -EINVAL;
     }
+
+    // Clear BSPI Rx & Tx FIFOs.
+    // This discards the received data from the ADC setup writes above,
+    // and any other old stale data.
+    r = hm2_bspi_clear_fifo(name);
+    if (r < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "failed to clear BSPI fifos on %s\n", name);
+    }
+
     // Add BSPI Frames
+    // digital inputs and outputs
     r += hm2_tram_add_bspi_frame(name, 4, &CPLD_write,
                             &CPLD_read);
 
+    // analog inputs
     for(i = 0; i < 8; i++) {
         r += hm2_tram_add_bspi_frame(name, 3, &AD7329_write[i],
                                 &AD7329_read[i]);
     }
 
+    // analog outputs
     r += hm2_tram_add_bspi_frame(name, 1, &AD5754_1A,0);
     r += hm2_tram_add_bspi_frame(name, 1, &AD5754_1B,0);
     r += hm2_tram_add_bspi_frame(name, 1, &AD5754_1C,0);

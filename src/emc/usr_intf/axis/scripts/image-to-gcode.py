@@ -519,7 +519,7 @@ def ui(im, nim, im_name):
     nw = int(w / max(r1, r2))
     nh = int(h / max(r1, r2))
 
-    ui_image = im.resize((nw,nh), Image.ANTIALIAS)
+    ui_image = im.resize((nw,nh), Image.LANCZOS)
     ui_image = ImageTk.PhotoImage(ui_image, master = app)
     i = tkinter.Label(app, image=ui_image, compound="top",
         text=_("Image size: %(w)d x %(h)d pixels\n"
@@ -547,9 +547,9 @@ def ui(im, nim, im_name):
         if event.char in "0123456789.": return
         return "break"
         
-    validate_float    = "expr {![regexp {^-?([0-9]+(\.[0-9]*)?|\.[0-9]+|)$} %P]}"
+    validate_float    = r"expr {![regexp {^-?([0-9]+(\.[0-9]*)?|\.[0-9]+|)$} %P]}"
     validate_int      = "expr {![regexp {^-?([0-9]+|)$} %P]}"
-    validate_posfloat = "expr {![regexp {^?([0-9]+(\.[0-9]*)?|\.[0-9]+|)$} %P]}"
+    validate_posfloat = r"expr {![regexp {^?([0-9]+(\.[0-9]*)?|\.[0-9]+|)$} %P]}"
     validate_posint   = "expr {![regexp {^([0-9]+|)$} %P]}"
     def floatentry(f, v):
         var = tkinter.DoubleVar(f)
@@ -769,7 +769,7 @@ def main():
     im = im.convert("L") #grayscale
     w, h = im.size
 
-    nim = numpy.fromstring(tobytes(im), dtype=numpy.uint8).reshape((h, w)).astype(numpy.float32)
+    nim = numpy.frombuffer(tobytes(im), dtype=numpy.uint8).reshape((h, w)).astype(numpy.float32)
     options = ui(im, nim, im_name)
 
     step = options['pixelstep']

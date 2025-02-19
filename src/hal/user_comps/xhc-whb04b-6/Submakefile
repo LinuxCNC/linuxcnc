@@ -2,7 +2,7 @@ GCC_GTEQ_470 := $(shell $(CC) --version | head -n1 | grep gcc >/dev/null && (exp
 ifeq "$(GCC_GTEQ_470)" "1"
 ifdef HAVE_LIBUSB10
 
-XHC_WHB04B6_LIB_DEPENDENCIES = ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcncini.so.0
+XHC_WHB04B6_LIB_DEPENDENCIES = ../lib/liblinuxcnchal.so.0
 XHC_WHB04B6_SRC = hal/user_comps/xhc-whb04b-6/hal.cc \
                   hal/user_comps/xhc-whb04b-6/usb.cc \
                   hal/user_comps/xhc-whb04b-6/pendant-types.cc \

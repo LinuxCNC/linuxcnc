@@ -28,7 +28,7 @@ DBusQtMainLoop = None
 try:
     from dbus.mainloop.pyqt5 import DBusQtMainLoop
 except ImportError:
-    LOG.warning("Could not import DBusQtMainLoop, is package 'python-dbus.mainloop.pyqt5' installed?")
+    LOG.warning("Could not import DBusQtMainLoop, is package 'python3-dbus.mainloop.pyqt5' installed?")
 
 APP_NAME = ''
 DBUS_IFACE = None

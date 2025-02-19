@@ -96,7 +96,16 @@ endif
 	$(ECHO) Copying python script $(notdir $@)
 	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
 
-TARGETS += ../bin/halcompile ../bin/elbpcom
+../bin/modcompile: ../bin/%: hal/drivers/mesa-hostmot2/modbus/%.py
+	@$(ECHO) Syntax checking python script $(notdir $@)
+	$(Q)$(PYTHON) -m py_compile $<
+	$(ECHO) Copying python script $(notdir $@)
+	$(Q)(echo '#!$(PYTHON)'; sed '1 { /^#!/d; }' $<) > $@.tmp && chmod +x $@.tmp && mv -f $@.tmp $@
+../share/linuxcnc/mesa_modbus.c.tmpl: hal/drivers/mesa-hostmot2/modbus/mesa_modbus.c.tmpl
+	$(ECHO) Copying Modbus template $(notdir $@)
+	$(Q)cp -f $< $@
+
+TARGETS += ../bin/halcompile ../bin/elbpcom ../bin/modcompile ../share/linuxcnc/mesa_modbus.c.tmpl
 objects/%.py: %.g
 	@mkdir -p $(dir $@)
 	$(Q)$(YAPPS) $< $@

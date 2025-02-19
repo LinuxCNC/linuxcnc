@@ -30,16 +30,16 @@ if test "$srcdir" != "."; then
     AC_MSG_ERROR([Building outside of srcdir is not supported])
 fi
 
-AC_PROG_CXX
+AC_PROG_CXX([$RTSCC c++ clang++])
 AC_PROG_INSTALL
 
-m4_include([m4/ax_cxx_compile_stdcxx_11.m4])
+m4_include([m4/ax_require_defined.m4])
+m4_include([m4/ax_cxx_compile_stdcxx.m4])
 m4_include([m4/ax_python.m4])
 m4_include([m4/ax_python_devel.m4])
 m4_include([m4/ax_boost_base.m4])
 m4_include([m4/ax_boost_python.m4])
-# make this optional - it will likely only result in warnings
-AX_CXX_COMPILE_STDCXX_11(noext,optional)
+AX_CXX_COMPILE_STDCXX(20, , mandatory)
 
 AC_MSG_CHECKING(build toplevel)
 BUILD_TOPLEVEL="$(cd ..; pwd -P)"
@@ -73,12 +73,11 @@ fi
 AC_SUBST([EMC2VERSION])
 
 AC_PATH_PROG(GREP, grep)
-AC_PATH_PROG(EGREP, egrep)
 
 #
 # check for pkg-config
 #
-AC_PATH_PROG([PKG_CONFIG], [pkg-config])
+PKG_PROG_PKG_CONFIG
 if test -z "$PKG_CONFIG"; then
   AC_MSG_ERROR([pkg-config is required to build LinuxCNC])
 fi
@@ -95,7 +94,7 @@ AC_CHECK_HEADER([rpc/rpc.h],[], [
     LIBTIRPC_LIBS=`pkg-config libtirpc --libs`
     AC_SUBST([LIBTIRPC_LIBS])
 
-    CFLAGS+=" `pkg-config libtirpc --cflags` "
+    CFLAGS="${CFLAGS:+$CFLAGS }$(pkg-config libtirpc --cflags)"
   fi
 
   # Update path
@@ -110,6 +109,7 @@ AC_CHECK_HEADER([rpc/rpc.h],[], [
   ])
 ])
 
+DEPFOUND=true
 
 ##############################################################################
 # Section 2                                                                  #
@@ -200,7 +200,7 @@ AC_ARG_ENABLE(toolnml,
 
 #at this point if RTS is empty, we need to find RT ourselves
 AC_MSG_CHECKING([for rtai-config])
-if test -z "$RTDIR"; then
+if test -z "$RTS"; then
   DIRS="/usr/realtime-`uname -r` /usr/realtime /usr/realtime* /usr /usr/src/rtai*"
 else
   DIRS="$RTS"
@@ -519,6 +519,19 @@ install with "sudo apt-get install libusb-1.0-0-dev" or disable with
 )
 
 
+
+#
+# check for libgpiod
+#
+PKG_CHECK_MODULES([LIBGPIOD], [libgpiod < 2.0.0],
+            [AC_DEFINE_UNQUOTED([LIBGPIOD_VER], `pkg-config libgpiod --modversion | awk -F. '{print ($1 * 100)+($2) }'`,
+            [libgpiod version, undefined if not present])
+            LDFLAGS="$LDFLAGS $LIBGPIOD_LIBS"
+            LIBGPIOD_VERSION=`pkg-config libgpiod --modversion`
+            AC_MSG_NOTICE([libgpiod version $LIBGPIOD_VERSION found])
+            AC_SUBST([LIBGPIOD_VER], `pkg-config libgpiod --modversion | awk -F. '{print ($1 * 100)+($2) }'`)],
+            [AC_MSG_WARN([Could not find libgpiod, not building hal_gpio])])
+
 ##############################################################################
 # Subsection 3.2 - check for the kernel version, with RT patches             #
 #----------------------------------------------------------------------------#
@@ -668,7 +681,7 @@ fe () {
     # Fully expand argument.  Example:
     # ${datadir} -> ${datarootdir} -> ${prefix}/share -> /usr/local
     case "$1" in
-    *\$*) eval fe \""$1"\" ;;
+    *\$*) eval fe "\"$1\"" ;;
     *) echo "$1" ;;
     esac
 }
@@ -725,6 +738,7 @@ AC_DEFINE_UNQUOTED([EMC2_PO_DIR], "$EMC2_PO_DIR", [Directory for po/mo translati
 AC_DEFINE_UNQUOTED([EMC2_NCFILES_DIR], "$EMC2_NCFILES_DIR", [Directory for nc files])
 AC_DEFINE_UNQUOTED([EMC2_IMAGE_DIR], "$EMC2_IMAGE_DIR", [Directory for images])
 
+AC_SUBST([EMC2_TMP_DIR])
 AC_SUBST([EMC2_BIN_DIR])
 AC_SUBST([EMC2_TCL_DIR])
 AC_SUBST([EMC2_TCL_LIB_DIR])
@@ -747,6 +761,14 @@ LINUXCNC_AUX_GLADEVCP=/usr/share/linuxcnc/aux_gladevcp
 LINUXCNC_AUX_EXAMPLES=/usr/share/linuxcnc/aux_examples
 AC_SUBST([LINUXCNC_AUX_GLADEVCP])
 AC_SUBST([LINUXCNC_AUX_EXAMPLES])
+
+# define temporary directory
+AC_ARG_WITH(tmpdir,
+   [  --with-tmpdir=PATH      Specify path for temporary files],
+   tmpdir="$withval",
+   tmpdir="/tmp")
+AC_DEFINE_UNQUOTED(EMC2_TMP_DIR, "$tmpdir/linuxcnc", [Temporary files directory])
+AC_SUBST(EMC2_TMP_DIR, [$tmpdir])
 
 ##############################################################################
 # Subsection 3.5 - check for GTK                                             #
@@ -792,54 +814,11 @@ if test "$BUILD_GTK" = "yes"; then
   fi
 fi
 
-AC_SUBST(HAVE_GNOMEPRINT)
 AC_SUBST(GTK_VER)
 AC_SUBST(GTK_LIBS)
 AC_SUBST(GTK_CFLAGS)
 AC_SUBST(GLIB_LIBS)
 AC_SUBST(GLIB_CFLAGS)
-
-AC_ARG_ENABLE(gtk2,
-    AS_HELP_STRING(
-        [--disable-gtk2],
-        [Disable the parts of LinuxCNC that depend on GTK2. Ónly needed for classicladder)]
-    ),
-    [
-	case "$enableval" in
-	Y*|y*)
-	    BUILD_GTK2=yes ;;
-	*)
-	    BUILD_GTK2=no ;;
-	esac
-    ],
-    [BUILD_GTK2=yes])
-
-if test "$BUILD_GTK2" = "yes"; then
-  AC_MSG_CHECKING([for GTK 2.4.0 or above])
-  if pkg-config gtk+-2.0 --atleast-version 2.4.0 >/dev/null 2>&1; then
-    GTK2_VER=`pkg-config gtk+-2.0 --modversion`
-    AC_MSG_RESULT(yes - $GTK2_VER)
-    GTK2_CFLAGS=`pkg-config gtk+-2.0 --cflags`
-    GTK2_LIBS=`pkg-config gtk+-2.0 --libs`
-    AC_MSG_CHECKING(for libgnomeprintui-2.2)
-    if pkg-config --exists libgnomeprintui-2.2; then
-      AC_MSG_RESULT(yes)
-      GTK2_CFLAGS="$GTK2_CFLAGS `pkg-config --cflags libgnomeprintui-2.2`"
-      GTK2_LIBS="$GTK2_LIBS `pkg-config --libs libgnomeprintui-2.2`"
-      HAVE_GNOMEPRINT=yes
-    else
-      AC_MSG_RESULT(no -- printing from classicladder will not be possible)
-      HAVE_GNOMEPRINT=
-    fi
-  else
-    AC_MSG_RESULT(no)
-    AC_MSG_ERROR([GTK2 missing.  Install with "sudo apt install libgtk2.0-dev" or specify --disable-gtk2 to skip building classicladder])
-  fi
-fi
-
-AC_SUBST(GTK2_VER)
-AC_SUBST(GTK2_LIBS)
-AC_SUBST(GTK2_CFLAGS)
 
 ##############################################################################
 # Subsection 3.6 - check for utility programs needed to build and run EMC    #
@@ -991,7 +970,7 @@ AC_SUBST(YAPPS)
 ##############################################################################
 # Subsection 3.7 - check for programs needed to build documentation          #
 #                                                                            #
-# Check for LyX and other programs we need to build and install docs.        #
+# Check for programs we need to build and install docs.                      #
 # (Optional, if not present, just don't build the docs.)                     #
 ##############################################################################
 
@@ -999,7 +978,11 @@ AX_BOOST_BASE(,,AC_MSG_ERROR([libboost not found]))
 AX_PYTHON
 AC_PATH_PROG(PYTHON,[$PYTHON_BIN])
 AX_PYTHON_DEVEL(,,AC_MSG_ERROR([python-dev not found]))
-AX_BOOST_PYTHON(,,AC_MSG_ERROR([libboost-python not found]))
+AX_BOOST_PYTHON()
+if test "x" = "x$BOOST_PYTHON_LIB"; then
+    AC_MSG_NOTICE([error: libboost-python not found])
+    DEPFOUND=false
+fi
 
 AC_MSG_CHECKING([whether to build documentation])
 AC_ARG_ENABLE(build-documentation,
@@ -1059,7 +1042,7 @@ if ( test "$BUILD_DOCS" = "yes" ) ; then
 :ascii-ids:
 
 ....
-umläut nuß
+Matúš hat Geläut am Fuß
 ....
 EOF
     if $A2X --dblatex-opts "-P latex.encoding=utf8" $temp_asciidoc > /dev/null 2>&1;
@@ -1161,7 +1144,7 @@ fi
 AC_ARG_ENABLE(build-documentation-translation,
     AS_HELP_STRING(
         [--disable-build-documentation-translation],
-        [Disable building documention in other languages than English.]
+        [Disable building documentation in languages other than English.]
     ),
     [
     case "$enableval" in
@@ -1545,7 +1528,8 @@ GPL-2 only) and Readline version 6 and greater (GPL-3 or later).])
             AC_MSG_ERROR(
 [To configure LinuxCNC in this way, you must
 invoke configure with "--enable-non-distributable=yes".  Note that on
-Debian-based systems, you may be able to use libreadline-gplv2-dev instead.])
+Debian-based systems, you may be able to use libeditreadline-dev or
+libreadline-gplv2-dev instead of libreadline-dev.])
         fi
 ])
 
@@ -1567,7 +1551,7 @@ AC_SUBST([READLINE_LIBS])
 # if you don't have nls tools, allow a way out!
 
 AC_ARG_ENABLE(nls,
-    AS_HELP_STRING([--disable-nls], [Don't use NLS.]),
+    AS_HELP_STRING([--disable-nls], [Do not use NLS.]),
               USE_NLS=no, USE_NLS=yes)
 AC_SUBST(USE_NLS)
 
@@ -1660,7 +1644,7 @@ fi
 AC_MSG_RESULT([$PYTHON_TK_VERSION])
 
 AC_MSG_CHECKING(for site-package location)
-SITEPY=`$PYTHON -c 'import distutils.sysconfig; print(distutils.sysconfig.get_python_lib())'`
+SITEPY="$($PYTHON -c 'import sysconfig; s = sysconfig.get_scheme_names(); m=list(set(("deb_system", "rpm_prefix")) & set(s)); print(sysconfig.get_path("platlib", m.__getitem__(0))) if m else print("/usr/lib/python3/dist-packages");')"
 AC_MSG_RESULT($SITEPY)
 
 AC_MSG_CHECKING(for working GLU quadrics)
@@ -1677,6 +1661,37 @@ AC_CHECK_HEADERS(X11/Xmu/Xmu.h,[],[AC_MSG_ERROR([Required Xmu header missing.  I
 
 AC_SUBST([LIBPYTHON])
 AC_SUBST([SITEPY])
+
+#
+# Add extra options to CFLAGS and CXXFLAGS
+#
+add_to_cflags() {
+    # Add $1 to CFLAGS and CXXFLAGS if not already there
+    if test -z "$1"; then return; fi
+    if echo "$CFLAGS" | grep -q -w -v -- "$1"; then
+        CFLAGS="${CFLAGS:+$CFLAGS }$1"
+    fi
+    if echo "$CXXFLAGS" | grep -q -w -v -- "$1"; then
+        CXXFLAGS="${CXXFLAGS:+$CXXFLAGS }$1"
+    fi
+}
+
+# Always add -Wextra
+add_to_cflags "-Wextra"
+
+# The last thing before subst-exporting CFLAGS and CXXFLAGS is to add -Werror
+# if requested. Doing it earlier causes conf-tests to fail that are supposed to
+# succeed when they generate warnings.
+AC_ARG_ENABLE(werror,
+    AS_HELP_STRING(
+      [--enable-werror],
+      [Treat all compiler warnings as errors (-Werror).],
+    ),
+    [
+      case "$enableval" in
+        (yes) add_to_cflags "-Werror" ;;
+      esac
+    ])
 
 AC_SUBST([CFLAGS])
 AC_SUBST([CPPFLAGS])
@@ -1742,8 +1757,12 @@ echo "#   tools such as milling machines. LinuxCNC is released under the   #"
 echo "#   GPL.  Check out http://www.linuxcnc.org/ for more details.       #"
 echo "#                                                                    #"
 echo "#                                                                    #"
-echo "#   It seems that ./configure completed successfully.                #"
-echo "#   This means that RT is properly installed                         #"
+if $DEPFOUND ; then
+  echo "#   It seems that ./configure completed successfully.                #"
+  echo "#   This means that RT is properly installed                         #"
+else
+  echo "#   It seems that ./configure detected a problem.                    #"
+fi
 echo "#   If things don't work check config.log for errors & warnings      #"
 echo "#                                                                    #"
 
@@ -1778,3 +1797,5 @@ echo "#                                                                    #"
 echo "######################################################################"
 echo ""
 echo ""
+
+$DEPFOUND

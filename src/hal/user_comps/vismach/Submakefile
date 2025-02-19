@@ -14,7 +14,8 @@ VISMACH_PY :=  \
 	melfagui.py \
 	millturngui.py \
 	xyzac-trt-gui.py \
-	xyzbc-trt-gui.py
+	xyzbc-trt-gui.py \
+	xyzab-tdr-gui.py
 
 VISMACH_PYBIN := $(patsubst %.py,../bin/%,$(VISMACH_PY))
 PYTARGETS += $(VISMACH_PYBIN)

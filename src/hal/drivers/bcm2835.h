@@ -8,7 +8,7 @@
 // Copyright (C) 2011 Mike McCauley
 // $Id: bcm2835.h,v 1.4 2012/07/16 23:57:59 mikem Exp mikem $
 //
-/// \mainpage C library for Broadcom BCM 2835 as used in Raspberry Pi
+/// \brief C library for Broadcom BCM 2835 as used in Raspberry Pi
 ///
 /// This is a C library for Raspberry Pi (RPi). It provides access to
 /// GPIO and other IO functions on the Broadcom BCM 2835 chip,
@@ -129,7 +129,7 @@
 /// \version 1.6 Document testing on 2012-07-15-wheezy-raspbian and Occidentalisv01
 ///              Functions bcm2835_gpio_ren(), bcm2835_gpio_fen(), bcm2835_gpio_hen()
 ///               bcm2835_gpio_len(), bcm2835_gpio_aren() and bcm2835_gpio_afen() now
-///               changes only the pin specified. Other pins that were already previoulsy
+///               changes only the pin specified. Other pins that were already previously
 ///               enabled stay enabled.
 ///              Added  bcm2835_gpio_clr_ren(), bcm2835_gpio_clr_fen(), bcm2835_gpio_clr_hen()
 ///                bcm2835_gpio_clr_len(), bcm2835_gpio_clr_aren(), bcm2835_gpio_clr_afen()

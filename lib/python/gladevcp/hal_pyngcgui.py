@@ -23,6 +23,7 @@ import os
 import gi
 from gi.repository import Gtk
 from gi.repository import GObject
+from gi.repository import GLib
 from gi.repository import Pango
 
 from . import hal_actions
@@ -30,7 +31,9 @@ import pyngcgui
 g_module = os.path.basename(__file__)
 #-----------------------------------------------------------------------------
 # class to make a gladevcp widget:
-class PyNgcGui(Gtk.Frame,hal_actions._EMC_ActionBase):
+# changed to a Box as a Frame caused issues due to the default Alignment widget
+# not sure why Gtk3 adds an Alignment considering it is deprecated???
+class PyNgcGui(Gtk.Box,hal_actions._EMC_ActionBase):
     """PyNgcGui -- gladevcp widget"""
     __gtype_name__  = 'PyNgcGui'
     __gproperties__ = {
@@ -74,10 +77,7 @@ class PyNgcGui(Gtk.Frame,hal_actions._EMC_ActionBase):
 
     __gproperties = __gproperties__ # self.__gproperties
     def __init__(self):
-        super(PyNgcGui,self).__init__(label=None)  # glade creates label anyway
-        self.set_label(None)                       # this doesn't work here
-        # the two attempts above don't prevent glade from making a Frame label
-
+        super(PyNgcGui,self).__init__()
         # put default property values in self.property_dict[]
         self.property_dict = {}
         for name in self.__gproperties.keys():
@@ -89,7 +89,7 @@ class PyNgcGui(Gtk.Frame,hal_actions._EMC_ActionBase):
                 or gtype == GObject.TYPE_FLOAT):
                 ty,lbl,tip,minv,maxv,dflt,other = self.__gproperties[name]
             self.property_dict[name] = dflt
-        GObject.timeout_add(1,self.go_ngcgui) # deferred
+        GLib.timeout_add(1,self.go_ngcgui) # deferred
 
     def do_get_property(self,property):
         name = property.name.replace('-', '_')
@@ -117,12 +117,6 @@ class PyNgcGui(Gtk.Frame,hal_actions._EMC_ActionBase):
             ,send_to_dir         = self.property_dict['send_to_dir']
             ,control_font_name   = self.property_dict['control_font_name']
             )
-        GObject.timeout_add(1,self.remove_unwanted_label)
-
-    def remove_unwanted_label(self):
-        # coerce removal of unwanted label
-        self.set_label(None)
-        return False # one-time-only
 
     def start_NgcGui(self
                     ,debug=False
@@ -134,8 +128,7 @@ class PyNgcGui(Gtk.Frame,hal_actions._EMC_ActionBase):
                     ):
 
         thenotebook = Gtk.Notebook()
-        self.add(thenotebook) # tried with self=VBox,HBox,Frame
-                              # Frame shows up best in glade designer
+        self.add(thenotebook)
 
         keyboardfile = None
         if use_keyboard: keyboardfile = 'default'

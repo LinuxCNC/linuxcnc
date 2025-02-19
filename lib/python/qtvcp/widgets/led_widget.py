@@ -37,6 +37,9 @@ class LED(QWidget, _HalWidgetBase):
         self._diameter = 15
         self._color = QColor("red")
         self._off_color = QColor("black")
+        self._gradient = True
+        self._on_gradient_color = Qt.white
+        self._off_gradient_color = Qt.white
         self._border_color = QColor("black")
         self._alignment = Qt.AlignCenter
         self.state = False
@@ -49,6 +52,7 @@ class LED(QWidget, _HalWidgetBase):
         self._timer.timeout.connect(self.toggleState)
 
         self.setDiameter(self._diameter)
+        self.setGradient(self._gradient)        
 
         self._halpin_option = True
 
@@ -62,9 +66,6 @@ class LED(QWidget, _HalWidgetBase):
 
             self.hal_pin = self.HAL_GCOMP_.newpin(pname, hal.HAL_BIT, hal.HAL_IN)
             self.hal_pin.value_changed.connect(lambda s: self.change_state(s))
-            # not sure we need a flash pin
-            #self.hal_pin_flash = self.HAL_GCOMP_.newpin(self.HAL_NAME_+'-flash', hal.HAL_BIT, hal.HAL_IN)
-            #self.hal_pin_flash.value_changed.connect( lambda s: self.setFlashing(s))
 
     @pyqtSlot(bool)
     def change_state(self, data):
@@ -97,17 +98,23 @@ class LED(QWidget, _HalWidgetBase):
         elif self._alignment & Qt.AlignVCenter:
             y = (self.height() - self._diameter) // 2
 
-        gradient = QRadialGradient(x + self._diameter / 2, y + self._diameter / 2,
-                                   self._diameter * 0.4, self._diameter * 0.4, self._diameter * 0.4)
-        gradient.setColorAt(0, Qt.white)
+        if self._gradient:
+            gradient = QRadialGradient(x + self._diameter / 2, y + self._diameter / 2,
+                                       self._diameter * 0.4, self._diameter * 0.4, self._diameter * 0.4)
 
-        if self._state:
-            gradient.setColorAt(1, self._color)
+
+            if self._state:
+                gradient.setColorAt(0, self._on_gradient_color)
+                gradient.setColorAt(1, self._color)
+            else:
+                gradient.setColorAt(0, self._off_gradient_color)
+                gradient.setColorAt(1, self._off_color)
+
+            brush = QBrush(gradient)
         else:
-            gradient.setColorAt(1, self._off_color)
+            brush = QBrush(self._color if self._state else self._off_color)
 
         painter.begin(self)
-        brush = QBrush(gradient)
         painter.setPen(self._border_color)
         painter.setRenderHint(QPainter.Antialiasing, True)
         painter.setBrush(brush)
@@ -150,6 +157,37 @@ class LED(QWidget, _HalWidgetBase):
     def setOffColor(self, value):
         self._off_color = value
         self.update()
+
+    def getOnGradientColor(self):
+        return self._on_gradient_color
+    @pyqtSlot(QColor)
+    def setOnGradientColor(self, value):
+        self._on_gradient_color = value
+        self.update()
+    def resetOnGradientColor(self, value):
+        self._on_gradient_color = Qt.white
+        self.update()
+
+    def getOffGradientColor(self):
+        return self._off_gradient_color
+    @pyqtSlot(QColor)
+    def setOffGradientColor(self, value):
+        self._off_gradient_color = value
+        self.update()
+    def resetOffGradientColor(self, value):
+        self._off_gradient_color = Qt.white
+        self.update()
+
+    def getGradient(self):
+        return self._gradient            
+
+    @pyqtSlot(bool)
+    def setGradient(self, value):
+        self._gradient = value
+        self.update()            
+
+    def resetGradient(self):
+        self._gradient = True        
 
     def getBorderColor(self):
         return self._border_color
@@ -229,8 +267,11 @@ class LED(QWidget, _HalWidgetBase):
     pin_name = pyqtProperty(str, get_pin_name, set_pin_name, reset_pin_name)
     halpin_option = pyqtProperty(bool, get_halpin_option, set_halpin_option, reset_halpin_option)
     diameter = pyqtProperty(int, getDiameter, setDiameter)
+    gradient = pyqtProperty(bool, getGradient, setGradient, resetGradient)
     color = pyqtProperty(QColor, getColor, setColor)
     off_color = pyqtProperty(QColor, getOffColor, setOffColor)
+    off_gradient_color = pyqtProperty(QColor, getOffGradientColor, setOffGradientColor, resetOffGradientColor)
+    on_gradient_color = pyqtProperty(QColor, getOnGradientColor, setOnGradientColor, resetOnGradientColor)
     border_color = pyqtProperty(QColor, getBorderColor, setBorderColor)
     alignment = pyqtProperty(Qt.Alignment, getAlignment, setAlignment, resetAlignment)
     currentstate = pyqtProperty(bool, getState, setState, resetState)

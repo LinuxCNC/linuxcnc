@@ -4,7 +4,7 @@ PROGRAM_EXTENSION = .py Python Script
               png = image-to-gcode
               gif = image-to-gcode
               jpg = image-to-gcode
-               py = python
+               py = python3
 
 [TASK]
       TASK = milltask
@@ -29,8 +29,6 @@ DEFAULT_LINEAR_VELOCITY = 5
 MAX_LINEAR_VELOCITY = 5
 
 [EMCIO]
-               EMCIO = io
-          CYCLE_TIME = 0.100
           TOOL_TABLE = sim.tbl
 TOOL_CHANGE_POSITION = 0 0 0
 TOOL_CHANGE_QUILL_UP = 1

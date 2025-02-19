@@ -2,7 +2,7 @@ Source: linuxcnc
 Section: misc
 Priority: optional
 Maintainer: LinuxCNC Developers <emc-developers@lists.sourceforge.net>
-Uploaders: Jeff Epler <jepler@gmail.com>, Sebastian Kuzminsky <seb@highlab.com>
+Uploaders: Sebastian Kuzminsky <seb@highlab.com>
 Build-Depends:
     @DEBHELPER@,
     @PYTHON_PACKAGING_DEPENDS@,
@@ -13,8 +13,8 @@ Build-Depends:
     docbook-xsl,
     asciidoc,
     ghostscript,
+    groff-base,
     imagemagick,
-    source-highlight,
     asciidoc-dblatex,
     autoconf,
     automake,
@@ -24,16 +24,17 @@ Build-Depends:
     intltool,
     libboost-python-dev,
     libepoxy-dev,
-    libgl1-mesa-dev | libgl1-mesa-swx11-dev,
+    libgl-dev | libgl1-mesa-dev,
     libglu1-mesa-dev,
-    libgtk2.0-dev,
     libgtk-3-dev,
     libmodbus-dev (>= 3.0),
+    libgpiod-dev,
     @LIBREADLINE_DEV@,
     libtirpc-dev,
     libusb-1.0-0-dev,
     libxmu-dev,
-    netcat,
+    netcat-traditional | netcat-openbsd | netcat,
+    netpbm,
     po4a,
     procps,
     psmisc,
@@ -44,10 +45,12 @@ Build-Depends:
     tcl@TCLTK_VERSION@-dev,
     tclx,
     tk@TCLTK_VERSION@-dev,
+    xvfb <!nocheck>,
     yapps2
 Build-Depends-Indep:
     @DOC_DEPENDS@,
-Standards-Version: 4.6.1
+Build-Conflicts: libjpeg8-dev, libtiff4-dev
+Standards-Version: 4.7.0
 Homepage: https://linuxcnc.org/
 Vcs-Browser: https://github.com/LinuxCNC/linuxcnc
 Vcs-Git: https://github.com/LinuxCNC/linuxcnc.git

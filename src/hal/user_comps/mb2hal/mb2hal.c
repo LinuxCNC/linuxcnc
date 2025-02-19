@@ -91,7 +91,6 @@ int main(int argc, char **argv)
 
     /* Each link has it's own thread */
     pthread_attr_init(&thrd_attr);
-    pthread_attr_setdetachstate(&thrd_attr, PTHREAD_CREATE_DETACHED);
     for (counter = 0; counter < gbl.tot_mb_links; counter++) {
         ret = pthread_create(&gbl.mb_links[counter].thrd, &thrd_attr, link_loop_and_logic, (void *) &gbl.mb_links[counter].mb_link_num);
         if (ret != 0) {
@@ -103,6 +102,14 @@ int main(int argc, char **argv)
     OK(gbl.init_dbg, "%s is running", gbl.hal_mod_name);
     while (gbl.quit_flag == 0) {
         sleep(1);
+    }
+
+    for (counter = 0; counter < gbl.tot_mb_links; counter++) {
+        ret = pthread_join(gbl.mb_links[counter].thrd, NULL);
+        if (ret != 0) {
+            ERR(gbl.init_dbg, "Unable to join thread for link number %d: %s", counter, strerror(ret));
+        }
+        // OK(gbl.init_dbg, "Link thread %d joined OK OK", counter);
     }
 
 QUIT_CLEANUP:
@@ -230,7 +237,7 @@ void *link_loop_and_logic(void *thrd_link_num)
             }
             else if (ret != retOK) {  //transaction failure but link OK
                 (**this_mb_tx->num_errors)++;
-                ERR(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] transaction failure, num_errors[%d]",
+                ERR(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] transaction failure, num_errors[%u]",
                     this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_link_num, modbus_get_socket(this_mb_link->modbus), **this_mb_tx->num_errors);
                 // Clear any unread data. Otherwise the link might get out of sync
                 modbus_flush(this_mb_link->modbus);
@@ -400,10 +407,11 @@ retCode get_tx_connection(const int this_mb_tx_num, int *ret_connected)
 
 void set_init_gbl_params()
 {
-    gbl.hal_mod_name = "mb2hal"; //until readed in config file
+    gbl.hal_mod_name = "mb2hal"; //until read in config file
     gbl.hal_mod_id   = -1;
-    gbl.init_dbg     = debugERR; //until readed in config file
-    gbl.slowdown     = 0;        //until readed in config file
+    gbl.init_dbg     = debugERR; //until read in config file
+    gbl.version      = 1000;     //defaults to 1000 (= 1.000) if not set
+    gbl.slowdown     = 0;        //until read in config file
     gbl.mb_tx_fncts[mbtxERR]                         = "";
     gbl.mb_tx_fncts[mbtx_01_READ_COILS]              = "fnct_01_read_coils";
     gbl.mb_tx_fncts[mbtx_02_READ_DISCRETE_INPUTS]    = "fnct_02_read_discrete_inputs";

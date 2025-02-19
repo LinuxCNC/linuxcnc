@@ -76,6 +76,9 @@ struct hm2_lowlevel_io_struct {
     int (*program_fpga)(hm2_lowlevel_io_t *self, const bitfile_t *bitfile);
     int (*reset)(hm2_lowlevel_io_t *self);
 
+    // collect all writes into a single packet while this is set
+    int64_t force_enqueue;
+
     // for devices with a lot of inherent latency (ethernet and spi are two
     // examples), it is useful to divide the work of the bulk reads which occur
     // every servo cycle into up to three groups:
@@ -102,6 +105,11 @@ struct hm2_lowlevel_io_struct {
     // (in which case a dummy implementation of ->queue_write delegates to ->write)
     int (*queue_write)(hm2_lowlevel_io_t *self, rtapi_u32 addr, const void *buffer, int size);
     int (*send_queued_writes)(hm2_lowlevel_io_t *self);
+
+    // setting this to one will enqueue all following writes into a single packet. When set
+    // set back to 0, the packet is set.
+    int (*set_force_enqueue)(hm2_lowlevel_io_t *self, int do_enqueue);
+
     // 
     // This is a HAL parameter allocated and added to HAL by hostmot2.
     // 
@@ -144,7 +152,7 @@ struct hm2_lowlevel_io_struct {
     // will be used as an array of strings, indexed by IO number, where
     // each string is the name of the connector and pin of that IO.
     // For example, on a 7i43, IO 0's "connector pin name" is "P4-01".
-    char **io_connector_pin_names;
+    const char **io_connector_pin_names;
 
     // llio enumeration is the easiest place to count the leds
     int num_leds;

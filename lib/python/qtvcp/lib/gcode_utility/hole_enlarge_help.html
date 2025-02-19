@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hole Enlarge Help</title>
+</head>
+<body>
+<h1>SPIRAL HOLE ENLARGEMENT</h1>
+<p>This program creates a gcode file that can be loaded into linuxnc to run a spiral hole enlargement program.
+It is for cases where a hole that has already been made needs to be slightly enlarged for whatever reason.
+</p>
+<p>The machine should be X and Y zeroed at the center of the hole to be enlarged. This can be done manually or by
+using the probe utility.</p>
+<p>Machining will begin at the current radius of the hole and will then proceed to spiral outward to the desired
+final radius.</p>
+<p>The parameter units are set to whatever mode the machine is currently in, either metric or imperial.</p>
+<h2>Validation of Inputs</h2>
+<ul>
+    <li>checks that the tool number is > 0</li>
+    <li>checks that the tool diameter is > 0</li>
+    <li>checks that the spindle RPM is within operating range and adjusts if necessary</li>
+    <li>checks that the start diameter > 0</li>
+    <li>checks that the final diameter > start diameter</li>
+    <li>checks that the number of spiral loops > 0</li>
+    <li>checks that the cut depth > 0</li>
+    <li>checks that the Z safe travel height > 0</li>
+    <li>checks that the feed rate > 0</li>
+</ul>
+<h2>PREVIEW PROGRAM</h2>
+<ul>
+    <li>checks for valid input fields</li>
+    <li>creates a gcode program according to the parameter setting and the checkboxes</li>
+    <li>displays the calculated toolpath in the preview pane</li>
+</ul>
+
+<h2>SAVE AS PROGRAM</h2>
+<ul>
+    <li>checks for valid input fields</li>
+    <li>creates a gcode program according to the parameter setting and the checkboxes</li>
+    <li>opens a dialog window to get a filename to save the program</li>
+</ul>
+<h2>SEND TO LINUXCNC</h2>
+<ul>
+    <li>checks for valid input fields</li>
+    <li>creates a gcode program according to the parameter setting and the checkboxes</li>
+    <li>creates a temporary file and loads it to linuxcnc</li>
+    <li>the temporary file is automatically deleted when linuxcnc exits</li>
+</ul>
+<p>If the parameters contain invalid fields, that field is shown with a red border.</p>
+</body>
+</html>

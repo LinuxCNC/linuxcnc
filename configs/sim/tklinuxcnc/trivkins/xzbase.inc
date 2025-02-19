@@ -14,7 +14,7 @@ MAX_LINEAR_ACCELERATION = 22.2222
 [DISPLAY]
              DISPLAY = tklinuxcnc
                LATHE = 1
-              #EDITOR = gedit
+              #EDITOR = geany
          TOOL_EDITOR = tooledit diam z
       PROGRAM_PREFIX = ../../nc_files/
           CYCLE_TIME = 0.100
@@ -32,7 +32,7 @@ PROGRAM_EXTENSION = .py Python Script
               png = image-to-gcode
               gif = image-to-gcode
               jpg = image-to-gcode
-               py = python
+               py = python3
 
 [RS274NGC]
 PARAMETER_FILE = xz.var
@@ -49,8 +49,6 @@ CYCLE_TIME = 0.001
 
 
 [EMCIO]
-                      EMCIO = io
-                 CYCLE_TIME = 0.100
                  TOOL_TABLE = xz.tbl
        TOOL_CHANGE_POSITION = 2 0 1
 TOOL_CHANGE_WITH_SPINDLE_ON = 1

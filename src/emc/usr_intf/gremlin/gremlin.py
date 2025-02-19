@@ -46,7 +46,6 @@ from gi.repository import GLib
 import sys
 from OpenGL.GL import *
 from OpenGL.GLU import *
-from OpenGL.GLUT import *
 from OpenGL import GLX
 from OpenGL.raw.GLX._types import struct__XDisplay
 from OpenGL import GL
@@ -93,6 +92,10 @@ class StatCanon(rs274.glcanon.GLCanon, rs274.interpret.StatMixin):
 
 
 
+# Gtk is not capable of creating a "legacy" or "compatibility" context, which necessitates
+# descending to the GLX API layer to create the required context. This can only be removed
+# someday when the core drawing routines of Gremlin/AXIS are upgraded to modern OpenGL style,
+# a large undertaking.
 
 class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
     xlib = cdll.LoadLibrary('libX11.so')
@@ -115,12 +118,6 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
     
         self.xwindow_id = None
 
-        #self.set_has_alpha(True)
-        #'set_has_stencil_buffer',
-        glutInit()
-        glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH )
-
-
         self.add_attribute(GLX.GLX_RGBA, True)
         self.add_attribute(GLX.GLX_RED_SIZE, 1)
         self.add_attribute(GLX.GLX_GREEN_SIZE, 1)
@@ -131,18 +128,7 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
         configs = GLX.glXChooseFBConfig(self.xdisplay, 0, None, byref(c_int()))
         self.context = GLX.glXCreateContext(self.xdisplay, xvinfo, None, True)
 
-
-#class Gremlin(gtk.gtkgl.widget.DrawingArea, glnav.GlNavBase,
-#              rs274.glcanon.GlCanonDraw):
-#    rotation_vectors = [(1.,0.,0.), (0., 0., 1.)]
-
-#    def __init__(self, inifile):
-#
-#        display_mode = ( gtk.gdkgl.MODE_RGB | gtk.gdkgl.MODE_DEPTH |
-#                         gtk.gdkgl.MODE_DOUBLE )
-#        glconfig = gtk.gdkgl.Config(mode=display_mode)
-
-#        gtk.gtkgl.widget.DrawingArea.__init__(self, glconfig)
+        Gtk.DrawingArea.__init__(self)
         glnav.GlNavBase.__init__(self)
         def C(s):
             a = self.colors[s + "_alpha"]
@@ -198,6 +184,7 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
         self.use_commanded = True
         self.show_limits = True
         self.show_extents_option = True
+        self.gcode_properties = None
         self.show_live_plot = True
         self.show_velocity = True
         self.metric_units = True
@@ -236,24 +223,14 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
         """make cairo context current for drawing"""
         if(not GLX.glXMakeCurrent(self.xdisplay, self.xwindow_id, self.context)):
             print("failed binding opengl context")
-        #glcontext = gtk.gtkgl.widget_get_gl_context(self)
-        #gldrawable = gtk.gtkgl.widget_get_gl_drawable(self)
-
-        #return gldrawable and glcontext and gldrawable.gl_begin(glcontext)
         return True
 
     def swapbuffers(self):
         GLX.glXSwapBuffers(self.xdisplay, self.xwindow_id)
-        #gldrawable = gtk.gtkgl.widget_get_gl_drawable(self)
-        #gldrawable.swap_buffers()
         return
 
     def deactivate(self):
-        #yolo (actually @makecurrent the previous context should be cached + rebound and buffers maybe should be swapped, but yolo)
         return
-        #TODO
-        #gldrawable = Gtk.gtkgl.widget_get_gl_drawable(self)
-        #gldrawable.gl_end()
 
     def winfo_width(self):
         return  self.get_allocated_width()
@@ -354,11 +331,112 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
             result, seq = self.load_preview(filename, canon, unitcode, initcode)
             if result > gcode.MIN_ERROR:
                 self.report_gcode_error(result, seq, filename)
+            self.calculate_gcode_properties(canon)
+        except Exception as e:
+            print (e)
+            self.gcode_properties = None
 
         finally:
             shutil.rmtree(td)
 
         self.set_current_view()
+
+    def from_internal_linear_unit(self, v, unit=None):
+        if unit is None:
+            unit = self.stat.linear_units
+        lu = (unit or 1) * 25.4
+        return v*lu
+
+    def calculate_gcode_properties(self, canon):
+        def dist(xxx_todo_changeme, xxx_todo_changeme1):
+            (x,y,z) = xxx_todo_changeme
+            (p,q,r) = xxx_todo_changeme1
+            return ((x-p)**2 + (y-q)**2 + (z-r)**2) ** .5
+        def from_internal_units(pos, unit=None):
+            if unit is None:
+                unit = self.stat.linear_units
+            lu = (unit or 1) * 25.4
+
+            lus = [lu, lu, lu, 1, 1, 1, lu, lu, lu]
+            return [a*b for a, b in zip(pos, lus)]
+
+        props = {}
+        loaded_file = self._current_file
+        max_speed = float(
+            self.inifile.find("DISPLAY","MAX_LINEAR_VELOCITY")
+            or self.inifile.find("TRAJ","MAX_LINEAR_VELOCITY")
+            or self.inifile.find("AXIS_X","MAX_VELOCITY")
+            or 1)
+
+        if not loaded_file:
+            props['name'] = "No file loaded"
+        else:
+            ext = os.path.splitext(loaded_file)[1]
+            program_filter = None
+            if ext:
+                program_filter = self.inifile.find("FILTER", ext[1:])
+            name = os.path.basename(loaded_file)
+            if program_filter:
+                props['name'] = "generated from %s" % name
+            else:
+                props['name'] = name
+
+            size = os.stat(loaded_file).st_size
+            lines = sum(1 for line in open(loaded_file))
+            props['size'] = "%(size)s bytes\n%(lines)s gcode lines" % {'size': size, 'lines': lines}
+
+            if self.metric_units:
+                conv = 1
+                units = "mm"
+                fmt = "%.3f"
+                mach = 'Metric'
+            else:
+                conv = 1/25.4
+                units = "in"
+                fmt = "%.4f"
+                mach = 'Imperial'
+
+            mf = max_speed
+            #print canon.traverse[0]
+
+            g0 = sum(dist(l[1][:3], l[2][:3]) for l in canon.traverse)
+            g1 = (sum(dist(l[1][:3], l[2][:3]) for l in canon.feed) +
+                sum(dist(l[1][:3], l[2][:3]) for l in canon.arcfeed))
+            gt = (sum(dist(l[1][:3], l[2][:3])/min(mf, l[3]) for l in canon.feed) +
+                sum(dist(l[1][:3], l[2][:3])/min(mf, l[3])  for l in canon.arcfeed) +
+                sum(dist(l[1][:3], l[2][:3])/mf  for l in canon.traverse) +
+                canon.dwell_time
+                )
+
+            props['g0'] = "%f %s".replace("%f", fmt) % (self.from_internal_linear_unit(g0, conv), units)
+            props['g1'] = "%f %s".replace("%f", fmt) % (self.from_internal_linear_unit(g1, conv), units)
+            if gt > 120:
+                props['run'] = "%.1f Minutes" % (gt/60)
+            else:
+                props['run'] = "%d Seconds" % (int(gt))
+
+            props['toollist'] = canon.tool_list
+
+            min_extents = from_internal_units(canon.min_extents, conv)
+            max_extents = from_internal_units(canon.max_extents, conv)
+            min_extents_zero_rxy = from_internal_units(canon.min_extents_zero_rxy, conv)
+            max_extents_zero_rxy = from_internal_units(canon.max_extents_zero_rxy, conv)
+            for (i, c) in enumerate("xyz"):
+                a = min_extents[i]
+                b = max_extents[i]
+                d = min_extents_zero_rxy[i]
+                e = max_extents_zero_rxy[i]
+                props[c] = "%f to %f = %f %s".replace("%f", fmt) % (a, b, b-a, units)
+                props[c + '_zero_rxy'] = "%f to %f = %f %s".replace("%f", fmt) % ( d, e, e-d, units)
+            props['machine_unit_sys'] = mach
+
+            if 200 in canon.state.gcodes:
+                gcode_units = "in"
+            else:
+                gcode_units = "mm"
+            props['gcode_units'] = gcode_units
+
+        self.gcode_properties = props
 
     def get_program_alpha(self): return self.program_alpha
     def get_num_joints(self): return self.num_joints
@@ -374,6 +452,7 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
     def get_joints_mode(self): return self.use_joints_mode
     def get_show_commanded(self): return self.use_commanded
     def get_show_extents(self): return self.show_extents_option
+    def get_gcode_properties(self): return self.gcode_properties
     def get_show_limits(self): return self.show_limits
     def get_show_live_plot(self): return self.show_live_plot
     def get_show_machine_speed(self): return self.show_velocity
@@ -411,6 +490,13 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
 
     @rs274.glcanon.with_context
     def select_fire(self, widget, event):
+        # if program is running, do not update the line:
+        # if the user clicks in the preview, 
+        # Highlighting the line can cause an error with buffer OverflowError
+        #print("DEBUG NORBERT",self.stat.state, linuxcnc.RCS_EXEC)
+        if self.stat.state == linuxcnc.RCS_EXEC:
+            return
+ 
         if not self.select_primed: return
         x, y = self.select_primed
         self.select_primed = None

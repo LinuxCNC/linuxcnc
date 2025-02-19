@@ -10,17 +10,14 @@
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
-The halcmd language excels in specifying components and connections but
-offers no computational capabilities.  As a result, INI files are limited in
-the clarity and brevity that is possible with higher level languages.
+halcmd excels in specifying components and connections but these scripts offer no computational capabilities.
+As a result, INI files are limited in the clarity and brevity that is possible with higher level languages.
 
-The haltcl facility provides a means to use Tcl scripting and its features for
-computation, looping, branching, procedures, etc. in INI files.  To use this
-functionality, you use the Tcl language and the extension .tcl for HAL files.
+The haltcl facility provides a means to use Tcl scripting and its features for computation, looping, branching, procedures, etc. in INI files.
+To use this functionality, you use the Tcl language and the extension .tcl for HAL files.
 
-The .tcl extension is understood by the main script (linuxcnc) that processes
-INI files.  Haltcl files are identified in the the HAL section of INI files
-(just like HAL files).
+The .tcl extension is understood by the main script (`linuxcnc`) that processes INI files.
+Haltcl files are identified in the the HAL section of INI files (just like HAL files).
 
 .Example
 [source,{ini}]
@@ -34,14 +31,12 @@ With appropriate care, HAL and Tcl files can be intermixed.
 
 == Compatibility
 
-The halcmd language used in HAL files has a simple syntax that is actually a
-subset of the more powerful general-purpose Tcl scripting language.
+The halcmd language used in HAL files has a simple syntax that is actually a subset of the more powerful general-purpose Tcl scripting language.
 
 == Haltcl Commands
 
-Haltcl files use the Tcl scripting language augmented with the specific
-commands of the LinuxCNC hardware abstraction layer (HAL).  The HAL-specific
-commands are:
+Haltcl files use the Tcl scripting language augmented with the specific commands of the LinuxCNC hardware abstraction layer (HAL).
+The HAL-specific commands are:
 
 [source,{hal}]
 ----
@@ -58,9 +53,8 @@ unalias, unlinkp, unload, unloadrt, unloadusr, unlock,
 waitusr
 ----
 
-Two special cases occur for the 'gets' and 'list' commands due to
-conflicts with Tcl builtin commands.  For haltcl, these
-commands must be preceded with the keyword 'hal':
+Two special cases occur for the 'gets' and 'list' commands due to conflicts with Tcl builtin commands.
+For haltcl, these commands must be preceded with the keyword 'hal':
 
 ----
 halcmd   haltcl
@@ -71,11 +65,8 @@ list     hal list
 
 == Haltcl INI-file variables
 
-INI file variables are accessible by both halcmd and haltcl but with
-differing syntax.
-
-LinuxCNC INI files use SECTION and ITEM specifiers to identify
-configuration items:
+INI file variables are accessible by both `halcmd` and `haltcl` but with differing syntax.
+LinuxCNC INI files use SECTION and ITEM specifiers to identify configuration items:
 
 [source,{ini}]
 ----
@@ -87,16 +78,14 @@ ITEM2 = value_2
 ...
 ----
 
-The INI file values are accessible by text substitution in HAL files using the
-form:
+The INI file values are accessible by text substitution in HAL files using the form:
 
 [source,{hal}]
 ----
 [SECTION]ITEM
 ----
 
-The same INI file values are accessible in Tcl files using the form of a Tcl
-global array variable:
+The same INI file values are accessible in Tcl files using the form of a Tcl global array variable:
 
 [source,tcl]
 ----
@@ -114,17 +103,13 @@ MAX_VELOCITY = 4
 is expressed as   `[JOINT_0]MAX_VELOCITY`  in HAL files for halcmd +
 and as            `$::JOINT_0(MAX_VELOCITY)` in Tcl files for haltcl.
 
-Because INI files can repeat the same ITEM in the same SECTION multiple times,
-`$::SECTION(ITEM)` is actually a Tcl list of each individual value.
+Because INI files can repeat the same ITEM in the same SECTION multiple times, `$::SECTION(ITEM)` is actually a Tcl list of each individual value.
 
-When there is just one value and it is a simple value (all values that
-are just letters and numbers without whitespace are in this group), then it is
-possible to treat `$::SECTION(ITEM)` as though it is not a list.
+When there is just one value and it is a simple value (all values that are just letters and numbers without whitespace are in this group),
+then it is possible to treat `$::SECTION(ITEM)` as though it is not a list.
 
-When the value could contain special characters--quote characters,
-curly-brace characters, embedded whitespace, and other characters that
-have special meaning in Tcl--it is necessary to distinguish between the list of
-values and the initial (and possibly only) value in the list.
+When the value could contain special characters (quote characters, curly-brace characters, embedded whitespace, and other characters that have special meaning in Tcl)
+then it is necessary to distinguish between the list of values and the initial (and possibly only) value in the list.
 
 In Tcl, this is written `[lindex $::SECTION(ITEM) 0]`.
 
@@ -164,9 +149,8 @@ loadrt $::HOSTMOT2(DRIVER) board_ip=[lindex $::HOSTMOT2(IPADDR) 0] config=[linde
 
 == Converting HAL files to Tcl files
 
-Existing HAL files can be converted to Tcl files by hand editing to adapt to
-the differences mentioned above.  The process can be automated with scripts
-that convert using these substitutions.
+Existing HAL files can be converted to Tcl files by hand editing to adapt to the differences mentioned above.
+The process can be automated with scripts that convert using these substitutions.
 
 ----
 [SECTION]ITEM ---> $::SECTION(ITEM)
@@ -176,8 +160,7 @@ list          ---> hal list
 
 == Haltcl Notes
 
-In haltcl, the value argument for the 'sets' and 'setp' commands
-is implicitly treated as an expression in the Tcl language.
+In haltcl, the value argument for the 'sets' and 'setp' commands is implicitly treated as an expression in the Tcl language.
 
 .Example
 [source,tcl]
@@ -186,16 +169,14 @@ is implicitly treated as an expression in the Tcl language.
 setp scale.0.gain 6.28/360.0*$::JOINT_0(radius)*60.0
 ----
 
-Whitespace in the bare expression is not allowed, use quotes
-for that:
+Whitespace in the bare expression is not allowed, use quotes for that:
 
 [source,tcl]
 ----
 setp scale.0.gain "6.28 / 360.0 * $::JOINT_0(radius) * 60.0"
 ----
 
-In other contexts, such as 'loadrt', you must explicitly use
-the Tcl expr command ([expr {}]) for computational expressions.
+In other contexts, such as 'loadrt', you must explicitly use the Tcl expr command ([expr {}]) for computational expressions.
 
 .Example
 [source,tcl]
@@ -205,10 +186,9 @@ loadrt motion base_period=[expr {500000000/$::TRAJ(MAX_PULSE_RATE)}]
 
 == Haltcl Examples
 
-Consider the topic of 'stepgen headroom'.  Software stepgen runs best with an
-acceleration constraint that is "a bit higher" than the one used by the motion
-planner.  So, when using halcmd files, we force INI files to have a manually
-calculated value.
+Consider the topic of 'stepgen headroom'.
+Software `stepgen` runs best with an acceleration constraint that is "a bit higher" than the one used by the motion planner.
+So, when using `halcmd` files, we force INI files to have a manually calculated value.
 
 [source,{ini}]
 ----
@@ -217,18 +197,17 @@ MAXACCEL = 10.0
 STEPGEN_MAXACCEL = 10.5
 ----
 
-With haltcl, you can use Tcl commands to do the computation and
-eliminate the STEPGEN_MAXACCEL INI file item altogether:
+With `haltcl`, you can use Tcl commands to do the computation and eliminate the `STEPGEN_MAXACCEL` INI file item altogether:
 
 [source,tcl]
 ----
 setp stepgen.0.maxaccel $::JOINT_0(MAXACCEL)*1.05
 ----
 
-Another haltcl feature is looping and testing.  For example, many simulator
-configurations use "core_sim.hal" or "core_sim9.hal" HAL files.  These differ
-because of the requirement to connect more or fewer axes.  The following haltcl
-code would work for any combination of axes in a trivkins machine.
+Another `haltcl` feature is looping and testing.
+For example, many simulator configurations use "core_sim.hal" or "core_sim9.hal" HAL files.
+These differ because of the requirement to connect more or fewer axes.
+The following haltcl code would work for any combination of axes in a trivkins machine.
 
 [source,tcl]
 ----
@@ -253,9 +232,9 @@ puts [show sig *acc]
 
 == Haltcl Interactive
 
-The halrun command recognizes haltcl files.  With the -T option,
-haltcl can be run interaactively as a Tcl interpreter.  This
-capability is useful for testing and for standalone HAL applications.
+The `halrun` command recognizes haltcl files.
+With the -T option, haltcl can be run interaactively as a Tcl interpreter.
+This capability is useful for testing and for standalone HAL applications.
 
 .Example
 ----
@@ -264,9 +243,7 @@ $ halrun -T haltclfile.tcl
 
 == Haltcl Distribution Examples (sim)
 
-The configs/sim/axis/simtcl directory includes an INI file that uses a .tcl file
-to demonstrate a haltcl configuration in conjunction with the usage of
-twopass processing.  The example shows the use of Tcl procedures, looping, the
-use of comments and output to the terminal.
+The configs/sim/axis/simtcl directory includes an INI file that uses a .tcl file to demonstrate a haltcl configuration in conjunction with the usage of twopass processing.
+The example shows the use of Tcl procedures, looping, the use of comments and output to the terminal.
 
 // vim: set syntax=asciidoc:

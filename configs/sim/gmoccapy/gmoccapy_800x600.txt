@@ -1,0 +1,9 @@
+GMOCCAPY configuration for a XYZ mill for screens with a resolution of 800x600.
+
+This is done with a user command file specified by
+
+USER_COMMAND_FILE=gmoccapy_800x600.py
+
+This file allows further modification.
+For more information see: https://linuxcnc.org/docs/html/gui/gmoccapy.html#_user_command_file
+

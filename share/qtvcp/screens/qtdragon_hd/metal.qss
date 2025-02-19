@@ -2,6 +2,9 @@ QMainWindow {
    background-image: url(:/images/images/brushed_metal.png);
 }
 
+
+/** Pushbuttons **/
+QToolButton,
 QPushButton,
 ActionButton,
 SystemToolButton,
@@ -12,6 +15,7 @@ AxisToolButton {
 }
 
 QPushButton:checked,
+QToolButton:checked,
 QPushButton:pressed {
     border-color: blue;
     color: #0000FF;
@@ -53,7 +57,9 @@ QLabel {
 QLabel#label_axis_x,
 QLabel#label_axis_y, 
 QLabel#label_axis_z, 
-QLabel#label_axis_a {
+QLabel#label_axis_a,
+QLabel#label_axis_4,
+QLabel#label_axis_5 {
     border: 2px solid black;
     border-radius: 4px;
     font: 20pt "Lato Heavy";
@@ -102,6 +108,12 @@ QComboBox {
     min-width: 120px;
     font: 10pt "Lato Heavy";
     color: black;    
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    padding: 0 3px;
+    color: black;
 }
 
 QGroupBox {
@@ -204,7 +216,7 @@ QSlider::handle:vertical {
 QDialog{
 background-image: url(:/images/images/brushed_metal.png);
 }
-ToolDialog QPushButton{
+ToolDialog QPushButton, AboutDialog QPushButton{
     width: 100px;
     height: 40px;
 }
@@ -226,3 +238,4 @@ QCheckBox::indicator:unchecked {
     height: 25px;
     width: 25px;
 }
+

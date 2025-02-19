@@ -14,10 +14,10 @@ param rw float min1 = 0 "Minimum allowed speed in gear range 1";
 param rw float max1 = 100000 "Maximum allowed speed in gear range 1";
 param rw float min2 = 0 "Minimum allowed speed in gear range 2";
 param rw float max2 = 100000 "Maximum allowed speed in gear range 2";
-param rw float scale2 = 1.0 """Relative scale of gear 2 vs. gear 1
+param rw float scale2 = 1.0 """Relative scale of gear 2 vs. gear 1.
 Since it is assumed that gear 2 is "high gear", \\fBscale2\\fR must be
 greater than 1, and will be reset to 1 if set lower.""";
-param rw bit reverse = 0 "Set to 1 to reverse the spindle in second gear";
+param rw bit reverse = 0 "Set to 1 to reverse the spindle in second gear.";
 
 function _;
 license "GPL";

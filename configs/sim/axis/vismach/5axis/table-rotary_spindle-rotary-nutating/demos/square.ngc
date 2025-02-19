@@ -1,0 +1,9 @@
+o<square>sub
+ g0 x50y50z100
+ g0 x-50
+ g0 y-50
+ g0 x50
+ g0 y50
+ g0 x0y0z120
+ g52 x0y0z0
+o<square>endsub

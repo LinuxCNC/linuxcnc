@@ -50,7 +50,7 @@
 
   schedrmt {-- --port <port number> --name <server name> --connectpw <password>
              --enablepw <password> --sessions <max sessions> --path <path>
-             -ini<inifile>}
+             -ini <INI file>}
 
   With -- --port Waits for socket connections (Telnet) on specified socket, without port
             uses default port 5007.
@@ -61,7 +61,7 @@
             to max sessions. Default is no limit (-1).
   With -- --path Sets the base path to program (G-Code) files, default is "../../nc_files/".
             Make sure to include the final slash (/).
-  With -- -ini <inifile>, uses inifile instead of emc.ini. 
+  With -- -ini <INI file>, uses specified INI file instead of default emc.ini. 
 
   There are six commands supported, Where the commands set and get contain EMC
   specific sub-commands based on the commands supported by emcsh, but where the "emc_"
@@ -147,7 +147,7 @@
   supported by the server implementation.
 
   INIFILE
-  Returns the path and file name of the current configuration inifile.
+  Returns the path and file name of the current configuration INI file.
 
   plat
   Returns the platform for which this was compiled, e.g., linux_2_0_36
@@ -159,7 +159,7 @@
   With get, returns the integer value of EMC_DEBUG, in the EMC. Note that
   it may not be true that the local EMC_DEBUG variable here (in emcsh and
   the GUIs that use it) is the same as the EMC_DEBUG value in the EMC. This
-  can happen if the EMC is started from one .ini file, and the GUI is started
+  can happen if the EMC is started from one INI file, and the GUI is started
   with another that has a different value for DEBUG.
   With set, sends a command to the EMC to set the new debug level,
   and sets the EMC_DEBUG global here to the same value. This will make
@@ -329,7 +329,7 @@ static int initSockets()
   return 0;
 }
 
-static void sigQuit(int sig)
+static void sigQuit(int /*sig*/)
 {
     thisQuit();
 }
@@ -452,7 +452,7 @@ static cmdResponseType setEnable(char *s, connectionRecType *context)
      else return rtStandardError;
 }
 
-static cmdResponseType setDebug(char *s, connectionRecType *context)
+static cmdResponseType setDebug(char *s, connectionRecType * /*context*/)
 {
   int level;
   
@@ -462,7 +462,7 @@ static cmdResponseType setDebug(char *s, connectionRecType *context)
   return rtNoError;
 }
 
-static cmdResponseType setConfig(char *s, connectionRecType *context)
+static cmdResponseType setConfig(char * /*s*/, connectionRecType * /*context*/)
 {
   return rtNoError;
 }
@@ -477,7 +477,7 @@ static cmdResponseType setCommMode(char *s, connectionRecType *context)
   return rtNoError;
 }
 
-static cmdResponseType setCommProt(char *s, connectionRecType *context)
+static cmdResponseType setCommProt(char * /*s*/, connectionRecType *context)
 {
   char *pVersion;
   
@@ -487,7 +487,7 @@ static cmdResponseType setCommProt(char *s, connectionRecType *context)
   return rtNoError;
 }
 
-static cmdResponseType setQMode(char *s, connectionRecType *context)
+static cmdResponseType setQMode(char *s, connectionRecType * /*context*/)
 {
   queueStatusType st;
 
@@ -504,7 +504,7 @@ static cmdResponseType setQMode(char *s, connectionRecType *context)
   return rtNoError;
 }
 
-static cmdResponseType setAutoTagId(char *s, connectionRecType *context)
+static cmdResponseType setAutoTagId(char *s, connectionRecType * /*context*/)
 {
   int tagId;
 
@@ -514,7 +514,7 @@ static cmdResponseType setAutoTagId(char *s, connectionRecType *context)
   return rtNoError;
 }
 
-static cmdResponseType setPgmAdd(connectionRecType *context)
+static cmdResponseType setPgmAdd(connectionRecType * /*context*/)
 {
   char *pch;
   int pri;
@@ -562,7 +562,7 @@ static cmdResponseType setPgmAdd(connectionRecType *context)
   return rtNoError;
 }
 
-static cmdResponseType setPriorityById(connectionRecType *context)
+static cmdResponseType setPriorityById(connectionRecType * /*context*/)
 {
   int id;
   int pri;
@@ -578,7 +578,7 @@ static cmdResponseType setPriorityById(connectionRecType *context)
   return rtNoError;
 }
 
-static cmdResponseType setPriorityByIndex(connectionRecType *context)
+static cmdResponseType setPriorityByIndex(connectionRecType * /*context*/)
 {
   int index;
   int pri;
@@ -594,7 +594,7 @@ static cmdResponseType setPriorityByIndex(connectionRecType *context)
   return rtNoError;
 }
 
-static cmdResponseType setDeleteById(char *s, connectionRecType *context)
+static cmdResponseType setDeleteById(char *s, connectionRecType * /*context*/)
 {
   int id;
 
@@ -603,7 +603,7 @@ static cmdResponseType setDeleteById(char *s, connectionRecType *context)
   return rtNoError;
 }
 
-static cmdResponseType setDeleteByIndex(char *s, connectionRecType *context)
+static cmdResponseType setDeleteByIndex(char *s, connectionRecType * /*context*/)
 {
   int index;
 
@@ -613,7 +613,7 @@ static cmdResponseType setDeleteByIndex(char *s, connectionRecType *context)
   return rtNoError;
 }
 
-static cmdResponseType setPollRate(char *s, connectionRecType *context)
+static cmdResponseType setPollRate(char *s, connectionRecType * /*context*/)
 {
   float rate;
 
@@ -688,7 +688,7 @@ int commandSet(connectionRecType *context)
   return 0;
 }
 
-static cmdResponseType getEcho(char *s, connectionRecType *context)
+static cmdResponseType getEcho(char * /*s*/, connectionRecType *context)
 {
   const char *pEchoStr = "ECHO %s";
   
@@ -697,7 +697,7 @@ static cmdResponseType getEcho(char *s, connectionRecType *context)
   return rtNoError;
 }
 
-static cmdResponseType getVerbose(char *s, connectionRecType *context)
+static cmdResponseType getVerbose(char * /*s*/, connectionRecType *context)
 {
   const char *pVerboseStr = "VERBOSE %s";
   
@@ -706,7 +706,7 @@ static cmdResponseType getVerbose(char *s, connectionRecType *context)
   return rtNoError;
 }
 
-static cmdResponseType getEnable(char *s, connectionRecType *context)
+static cmdResponseType getEnable(char * /*s*/, connectionRecType *context)
 {
   const char *pEnableStr = "ENABLE %s";
   
@@ -717,7 +717,7 @@ static cmdResponseType getEnable(char *s, connectionRecType *context)
   return rtNoError;
 }
 
-static cmdResponseType getConfig(char *s, connectionRecType *context)
+static cmdResponseType getConfig(char * /*s*/, connectionRecType *context)
 {
   const char *pConfigStr = "CONFIG";
 
@@ -725,7 +725,7 @@ static cmdResponseType getConfig(char *s, connectionRecType *context)
   return rtNoError;
 }
 
-static cmdResponseType getCommMode(char *s, connectionRecType *context)
+static cmdResponseType getCommMode(char * /*s*/, connectionRecType *context)
 {
   const char *pCommModeStr = "COMM_MODE %s";
   
@@ -736,7 +736,7 @@ static cmdResponseType getCommMode(char *s, connectionRecType *context)
   return rtNoError;
 }
 
-static cmdResponseType getCommProt(char *s, connectionRecType *context)
+static cmdResponseType getCommProt(char * /*s*/, connectionRecType *context)
 {
   const char *pCommProtStr = "COMM_PROT %s";
   
@@ -744,7 +744,7 @@ static cmdResponseType getCommProt(char *s, connectionRecType *context)
   return rtNoError;
 }
 
-static cmdResponseType getDebug(char *s, connectionRecType *context)
+static cmdResponseType getDebug(char * /*s*/, connectionRecType *context)
 {
   const char *pUpdateStr = "DEBUG %d";
   
@@ -752,7 +752,7 @@ static cmdResponseType getDebug(char *s, connectionRecType *context)
   return rtNoError;
 }
 
-static cmdResponseType getIniFile(char *s, connectionRecType *context)
+static cmdResponseType getIniFile(char * /*s*/, connectionRecType *context)
 {
   const char *pIniFile = "INIFILE %s";
   
@@ -760,7 +760,7 @@ static cmdResponseType getIniFile(char *s, connectionRecType *context)
   return rtNoError;
 }
 
-static cmdResponseType getPlat(char *s, connectionRecType *context)
+static cmdResponseType getPlat(char * /*s*/, connectionRecType *context)
 {
   const char *pPlatStr = "PLAT %s";
   
@@ -768,7 +768,7 @@ static cmdResponseType getPlat(char *s, connectionRecType *context)
   return rtNoError;  
 }
 
-static cmdResponseType getQMode(char *s, connectionRecType *context)
+static cmdResponseType getQMode(char * /*s*/, connectionRecType *context)
 {
   const char *pQMode = "QMODE %s";
 
@@ -1134,7 +1134,7 @@ int parseCommand(connectionRecType *context)
   return ret;
 }
 
-void *checkQueue(void *arg)
+void *checkQueue(void * /*arg*/)
 {
   while (1) {
     updateQueue();
@@ -1143,7 +1143,7 @@ void *checkQueue(void *arg)
   return 0;
 }  
 
-void *readClient(void *arg)
+void *readClient(void * /*arg*/)
 {
   char str[1600];
   char buf[1600];

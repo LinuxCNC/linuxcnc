@@ -24,10 +24,10 @@ from qtvcp.lib.aux_program_loader import Aux_program_loader
 from qtvcp import logger
 
 # Instiniate the libraries with global reference
-# STATUS gives us status messages from linuxcnc
+# STATUS gives us status messages from LinuxCNC
 # AUX_PRGM holds helper program loader
-# INI holds ini details
-# ACTION gives commands to linuxcnc
+# INI holds INI details
+# ACTION gives commands to LinuxCNC
 # LOG is for running code logging
 STATUS = Status()
 AUX_PRGM = Aux_program_loader()

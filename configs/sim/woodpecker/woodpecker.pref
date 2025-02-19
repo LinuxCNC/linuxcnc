@@ -1,0 +1,143 @@
+[DIALOG_OPTIONS]
+EntryDialog_play_sound = True
+EntryDialog_sound_type = READY
+toolDialog_play_sound = True
+toolDialog_speak = True
+toolDialog_sound_type = READY
+fileDialog_play_sound = True
+fileDialog_sound_type = READY
+CalculatorDialog_play_sound = True
+CalculatorDialog_sound_type = READY
+MachineLogDialog_play_sound = True
+MachineLogDialog_sound_type = READY
+RunFromLineDialog_play_sound = True
+RunFromLineDialog_sound_type = READY
+
+[DIALOG_GEOMETRY]
+ToolChangeDialog-geometry = 650 435 368 247
+LncMessage-geometry = 650 435 392 118
+CalculatorDialog-geometry = 650 435 472 378
+AboutDialog-geometry = half
+
+[BOOK_KEEPING]
+last_loaded_directory = 
+last_loaded_file = None
+style_QSS_Path = /home/chris/emc/share/qtvcp/screens/woodpecker/argentium.qss
+
+[SCREEN_OPTIONS]
+overlay_play_sound = False
+overlay_sound_type = RING
+catch_errors = True
+desktop_notify = True
+notify_max_msgs = 10
+shutdown_check = True
+sound_player_on = True
+mainwindow_geometry = 60 -18 1280 960
+MainWindow-geometry = 60 -27 1280 960
+
+[MCH_MSG_OPTIONS]
+mchnMsg_play_sound = True
+mchnMsg_speak_errors = False
+mchnMsg_speak_text = True
+mchnMsg_sound_type = BELL
+
+[USR_MSG_OPTIONS]
+usermsg_play_sound = True
+userMsg_sound_type = BELL
+userMsg_use_focusOverlay = True
+
+[SHUTDOWN_OPTIONS]
+shutdown_play_sound = True
+shutdown_alert_sound_type = READY
+shutdown_exit_sound_type = LOGOUT
+shutdown_msg_title = Do you want to Shutdown now?
+shutdown_msg_focus_text = 
+shutdown_msg_detail = 
+
+[NOTIFY_OPTIONS]
+notify_start_greeting = False
+notify_start_title = Welcome
+notify_start_detail = This option can be changed in the preference file
+notify_start_timeout = 5
+
+[PROBE OPTIONS]
+Probe tool = 0
+Probe diameter = 4
+Probe rapid = 10
+Probe feed = 10
+Probe search = 10
+Probe max travel = 10
+Probe max z = 2
+Probe extra depth = 0
+Probe step off = 10
+Probe xy clearance = 10
+Probe z clearance = 10
+Probe edge width = 10
+Calibration offset = 0
+Cal x width = 0
+Cal y width = 0
+Cal diameter = 0
+
+[ORIGINOFFSET_SYSTEM_NAMES]
+offset_table-G54 = User System 1
+offset_table-G55 = User System 2
+offset_table-G56 = User System 3
+offset_table-G57 = User System 4
+offset_table-G58 = User System 5
+offset_table-G59 = User System 6
+offset_table-G59.1 = User System 7
+offset_table-G59.2 = User System 8
+offset_table-G59.3 = User System 9
+__dialogOffsetViewWidget-G54 = User System 1
+__dialogOffsetViewWidget-G55 = User System 2
+__dialogOffsetViewWidget-G56 = User System 3
+__dialogOffsetViewWidget-G57 = User System 4
+__dialogOffsetViewWidget-G58 = User System 5
+__dialogOffsetViewWidget-G59 = User System 6
+__dialogOffsetViewWidget-G59.1 = User System 7
+__dialogOffsetViewWidget-G59.2 = User System 8
+__dialogOffsetViewWidget-G59.3 = User System 9
+
+[FILEMANAGER_JUMPLIST]
+
+[SCREEN_CONTROL_LAST_SETTING]
+gcodegraphics-user-view = p
+gcodegraphics-user-zoom = 10.0
+gcodegraphics-user-panx = 0.0
+gcodegraphics-user-pany = 0.0
+gcodegraphics-user-lat = 0.0
+gcodegraphics-user-lon = 0.0
+
+[CUSTOM_FORM_ENTRIES]
+Tool to load = 0
+Laser X = 100.0
+Laser Y = -20.0
+Sensor X = 10.0
+Sensor Y = 10.0
+Work Height = 20.0
+Touch Height = 40.0
+Sensor Height = 40.0
+Camera X = 10.0
+Camera Y = 10.0
+Search Velocity = 40.0
+Probe Velocity = 10.0
+Max Probe = 10.0
+Eoffset count = 0
+External offsets = False
+Reload program = False
+Reload tool = False
+Use keyboard = False
+Run from line = False
+Use virtual keyboard = False
+Use tool sensor = False
+Use camera = False
+Use alpha display mode = False
+Inhibit display mouse selection = True
+Z Safe Travel = 10.0
+Retract Distance = 10.0
+Use MDI Keyboard = False
+
+[GUI_OPTIONS]
+Preview cone size = 0.5
+Preview grid size = 0.0
+

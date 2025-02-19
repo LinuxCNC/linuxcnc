@@ -3,6 +3,7 @@ pin in s32 in;
 pin in bit hold;
 pin out s32 out;
 function _ nofp;
+see_also "\\fBtristate\\fR(9)";
 license "GPL";
 author "Stephen Wille Padnos";
 ;;

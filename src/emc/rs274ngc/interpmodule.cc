@@ -61,6 +61,10 @@ namespace pp = pyplusplus::containers::static_sized;
 #define IS_STRING(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyString_Type))
 #define IS_INT(x) (PyObject_IsInstance(x.ptr(), (PyObject*)&PyInt_Type))
 
+static  spindle_speed_array spindle_speed_wrapper (Interp & inst) {
+    return spindle_speed_array(inst._setup.speed);
+}
+
 static  active_g_codes_array active_g_codes_wrapper ( Interp & inst) {
     return active_g_codes_array(inst._setup.active_g_codes);
 }
@@ -129,7 +133,7 @@ static  ParamClass param_wrapper ( Interp & inst) {
     return ParamClass(inst);
 }
 
-static int get_task(Interp &i) { return _task; };
+static int get_task(Interp & /*i*/) { return _task; };
 static const char *get_filename(Interp &i) { return i._setup.filename; };
 static const char *get_linetext(Interp &i) { return i._setup.linetext; };
 
@@ -154,7 +158,7 @@ private:
     int line_number;
     std::string line_text;
 public:
-    InterpreterException(std::string error_message, int line_number, std::string line_text)  {
+    InterpreterException(const std::string& error_message, int line_number, const std::string& line_text)  {
 	this->error_message = error_message;
 	this->line_number = line_number;
 	this->line_text = line_text;
@@ -243,7 +247,7 @@ static int wrap_interp_read(Interp &interp, const char *command)
 static inline EmcPose get_tool_offset (Interp &interp)  {
     return interp._setup.tool_offset;
 }
-static inline void set_tool_offset(Interp &interp, EmcPose value)  {
+static inline void set_tool_offset(Interp &interp, const EmcPose& value)  {
     interp._setup.tool_offset = value;
 }
 static inline bool get_arc_not_allowed (Interp &interp)  {
@@ -378,6 +382,14 @@ static inline double get_CC_origin_offset (Interp &interp)  {
 static inline void set_CC_origin_offset(Interp &interp, double value)  {
     interp._setup.CC_origin_offset = value;
 }
+
+static inline int get_active_spindle (Interp const & interp)  {
+    return interp._setup.active_spindle;
+}
+static inline void set_active_spindle(Interp & interp, int value)  {
+    interp._setup.active_spindle = value;
+}
+
 static inline double get_axis_offset_x (Interp &interp)  {
     return interp._setup.axis_offset_x;
 }
@@ -522,12 +534,6 @@ static inline double get_rotation_xy (Interp &interp)  {
 static inline void set_rotation_xy(Interp &interp, double value)  {
     interp._setup.rotation_xy = value;
 }
-static inline double get_speed (Interp &interp, int spindle)  {
-    return interp._setup.speed[spindle];
-}
-static inline void set_speed(Interp &interp, int spindle, double value)  {
-    interp._setup.speed[spindle] = value;
-}
 static inline double get_traverse_rate (Interp &interp)  {
     return interp._setup.traverse_rate;
 }
@@ -637,10 +643,10 @@ static inline void set_cutter_comp_orientation(Interp &interp, int value)  {
     interp._setup.cutter_comp_orientation = value;
 }
 static inline int get_cutter_comp_side (Interp &interp)  {
-    return interp._setup.cutter_comp_side;
+    return (int)interp._setup.cutter_comp_side;
 }
 static inline void set_cutter_comp_side(Interp &interp, int value)  {
-    interp._setup.cutter_comp_side = value;
+    interp._setup.cutter_comp_side = (CUTTER_COMP)value;
 }
 static inline int get_cycle_il_flag (Interp &interp)  {
     return interp._setup.cycle_il_flag;
@@ -661,19 +667,19 @@ static inline void set_debugmask(Interp &interp, int value)  {
     interp._setup.debugmask = value;
 }
 static inline int get_distance_mode (Interp &interp)  {
-    return interp._setup.distance_mode;
+    return (int)interp._setup.distance_mode;
 }
 static inline void set_distance_mode(Interp &interp, DISTANCE_MODE value)  {
     interp._setup.distance_mode = value;
 }
 static inline int get_feed_mode (Interp &interp)  {
-    return interp._setup.feed_mode;
+    return (int)interp._setup.feed_mode;
 }
 static inline void set_feed_mode(Interp &interp, int value)  {
-    interp._setup.feed_mode = value;
+    interp._setup.feed_mode = (FEED_MODE)value;
 }
 static inline int get_ijk_distance_mode (Interp &interp)  {
-    return interp._setup.ijk_distance_mode;
+    return (int)interp._setup.ijk_distance_mode;
 }
 static inline void set_ijk_distance_mode(Interp &interp, DISTANCE_MODE value)  {
     interp._setup.ijk_distance_mode = value;
@@ -709,7 +715,7 @@ static inline void set_origin_index(Interp &interp, int value)  {
     interp._setup.origin_index = value;
 }
 static inline int get_plane (Interp &interp)  {
-    return interp._setup.plane;
+    return (int)interp._setup.plane;
 }
 static inline void set_plane(Interp &interp, int value)  {
     interp._setup.plane = static_cast<CANON_PLANE>(value);
@@ -727,7 +733,7 @@ static inline void set_remap_level(Interp &interp, int value)  {
     interp._setup.remap_level = value;
 }
 static inline int get_retract_mode (Interp &interp)  {
-    return interp._setup.retract_mode;
+    return (int)interp._setup.retract_mode;
 }
 static inline void set_retract_mode(Interp &interp, RETRACT_MODE value)  {
     interp._setup.retract_mode = value;
@@ -757,7 +763,7 @@ static inline void set_speed_feed_mode(Interp &interp, int value)  {
     interp._setup.speed_feed_mode = static_cast<CANON_SPEED_FEED_MODE>(value);
 }
 static inline int get_spindle_mode (Interp &interp, int spindle)  {
-    return interp._setup.spindle_mode[spindle];
+    return (int)interp._setup.spindle_mode[spindle];
 }
 static inline void set_spindle_mode(Interp &interp, int spindle, SPINDLE_MODE value)  {
     interp._setup.spindle_mode[spindle] = value;
@@ -804,11 +810,23 @@ static inline int get_tool_change_quill_up (Interp &interp)  {
 static inline void set_tool_change_quill_up(Interp &interp, int value)  {
     interp._setup.tool_change_quill_up = value;
 }
-static inline int get_tool_change_with_spindle_on (Interp &interp)  {
+static inline int get_tool_change_with_spindle_on(Interp &interp)  {
     return interp._setup.tool_change_with_spindle_on;
 }
 static inline void set_tool_change_with_spindle_on(Interp &interp, int value)  {
     interp._setup.tool_change_with_spindle_on = value;
+}
+static inline double get_parameter_g73_peck_clearance (Interp &interp)  {
+    return interp._setup.parameter_g73_peck_clearance;
+}
+static inline void set_parameter_g73_peck_clearance(Interp &interp, double value)  {
+    interp._setup.parameter_g73_peck_clearance = value;
+}
+static inline double get_parameter_g83_peck_clearance (Interp &interp)  {
+    return interp._setup.parameter_g83_peck_clearance;
+}
+static inline void set_parameter_g83_peck_clearance(Interp &interp, double value)  {
+    interp._setup.parameter_g83_peck_clearance = value;
 }
 
 BOOST_PYTHON_MODULE(interpreter) {
@@ -832,29 +850,30 @@ BOOST_PYTHON_MODULE(interpreter) {
     scope().attr("TOLERANCE_EQUAL") = TOLERANCE_EQUAL;
 
     BOOST_PYENUM_(DISTANCE_MODE)
-            .BOOST_PYENUM_VAL(MODE_ABSOLUTE)
-            .BOOST_PYENUM_VAL(MODE_INCREMENTAL)
+            .value("MODE_ABSOLUTE", DISTANCE_MODE::ABSOLUTE)
+            .value("MODE_INCREMENTAL", DISTANCE_MODE::INCREMENTAL)
             .export_values();
 
     BOOST_PYENUM_(RETRACT_MODE)
-            .BOOST_PYENUM_VAL(R_PLANE)
-            .BOOST_PYENUM_VAL(OLD_Z)
+            .value("R_PLANE", RETRACT_MODE::R_PLANE)
+            .value("OLD_Z", RETRACT_MODE::OLD_Z)
             .export_values();
 
     BOOST_PYENUM_(FEED_MODE)
-            .BOOST_PYENUM_VAL(UNITS_PER_MINUTE)
-            .BOOST_PYENUM_VAL(INVERSE_TIME)
-            .BOOST_PYENUM_VAL(UNITS_PER_REVOLUTION)
+            .value("UNITS_PER_MINUTE", FEED_MODE::UNITS_PER_MINUTE)
+            .value("INVERSE_TIME", FEED_MODE::INVERSE_TIME)
+            .value("UNITS_PER_REVOLUTION", FEED_MODE::UNITS_PER_REVOLUTION)
             .export_values();
 
-    BOOST_PYENUM_(CUTTER_COMP_DIRECTION)
-            .BOOST_PYENUM_VAL(RIGHT)
-            .BOOST_PYENUM_VAL(LEFT)
+    enum_<CUTTER_COMP>("CUTTER_COMP_DIRECTION")
+            .value("OFF", CUTTER_COMP::OFF)
+            .value("RIGHT", CUTTER_COMP::RIGHT)
+            .value("LEFT", CUTTER_COMP::LEFT)
             .export_values();
 
     BOOST_PYENUM_(SPINDLE_MODE)
-            .BOOST_PYENUM_VAL(CONSTANT_RPM)
-            .BOOST_PYENUM_VAL(CONSTANT_SURFACE)
+            .value("CONSTANT_RPM", SPINDLE_MODE::CONSTANT_RPM)
+            .value("CONSTANT_SURFACE", SPINDLE_MODE::CONSTANT_SURFACE)
             .export_values();
 
 
@@ -926,6 +945,7 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.add_property("CC_axis_offset", &get_CC_axis_offset, &set_CC_axis_offset)
 	.add_property("CC_current", &get_CC_current, &set_CC_current)
 	.add_property("CC_origin_offset", &get_CC_origin_offset, &set_CC_origin_offset)
+        .add_property("active_spindle", &get_active_spindle, &set_active_spindle)
 	.add_property("axis_offset_x", &get_axis_offset_x, &set_axis_offset_x)
 	.add_property("axis_offset_y", &get_axis_offset_y, &set_axis_offset_y)
 	.add_property("axis_offset_z", &get_axis_offset_z, &set_axis_offset_z)
@@ -950,7 +970,6 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.add_property("program_z", &get_program_z, &set_program_z)
 	.add_property("return_value", &get_return_value, &set_return_value)
 	.add_property("rotation_xy", &get_rotation_xy, &set_rotation_xy)
-	.add_property("speed", &get_speed, &set_speed)
 	.add_property("traverse_rate", &get_traverse_rate, &set_traverse_rate)
 	.add_property("u_axis_offset", &get_u_axis_offset, &set_u_axis_offset)
 	.add_property("u_origin_offset", &get_u_origin_offset, &set_u_origin_offset)
@@ -1001,6 +1020,8 @@ BOOST_PYTHON_MODULE(interpreter) {
 	.add_property("tool_change_quill_up", &get_tool_change_quill_up, &set_tool_change_quill_up)
 	.add_property("tool_change_with_spindle_on", &get_tool_change_with_spindle_on,
              &set_tool_change_with_spindle_on)
+	.add_property("parameter_g73_peck_clearance", &get_parameter_g73_peck_clearance, &set_parameter_g73_peck_clearance)
+    .add_property("parameter_g83_peck_clearance", &get_parameter_g83_peck_clearance, &set_parameter_g83_peck_clearance)
 
 	.add_property( "params",
 		       bp::make_function( &param_wrapper,
@@ -1008,6 +1029,14 @@ BOOST_PYTHON_MODULE(interpreter) {
 
 
 	// _setup arrays
+        .add_property(
+            "speed",
+            bp::make_function(
+                spindle_speed_w(&spindle_speed_wrapper),
+                bp::with_custodian_and_ward_postcall<0, 1>()
+            )
+        )
+
 	.add_property( "active_g_codes",
 		       bp::make_function( active_g_codes_w(&active_g_codes_wrapper),
 					  bp::with_custodian_and_ward_postcall< 0, 1 >()))

@@ -63,7 +63,7 @@ import hal
 try:
     LINUXCNCVERSION = os.environ['LINUXCNCVERSION']
 except:
-    LINUXCNCVERSION = 'Master (2.9)'
+    LINUXCNCVERSION = 'Master (2.10)'
 
 def get_value(w):
     try:
@@ -273,6 +273,13 @@ class App:
         self.widgets.createshortcut.set_active(short)
         self.widgets.advancedconfig.set_active(show_pages)
 
+        # setup stylesheet for widget coloring
+        # we use this later to highlight missing axis and encoder info
+        self.css_provider = Gtk.CssProvider()
+        context = Gtk.StyleContext()
+        screen = Gdk.Screen.get_default()
+        context.add_provider_for_screen(screen, self.css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+
         tempfile = os.path.join(self._p.DISTDIR, "configurable_options/ladder/TEMP.clp")
         if os.path.exists(tempfile):
            os.remove(tempfile)
@@ -322,38 +329,109 @@ class App:
 
     def copy(self, base, filename):
         dest = os.path.join(base, filename)
+        print (base,'\ncopy:',dest,os.path.exists(dest))
         if not os.path.exists(dest):
+            print('copied')
             shutil.copy(os.path.join(self._p.DISTDIR, filename), dest)
 
     def buid_config(self):
         base = self.build_base()
-        self.d.save(base)
-        #self.write_readme(base)
-        self.INI.write_inifile(base)
-        self.HAL.write_halfile(base)
-        # qtplasmac specific
-        if self.d.frontend == _PD._QTPLASMAC:
-            # copy M190 file
-            if BASE == "/usr":
-                m190Path = os.path.join(BASE, 'share/doc/linuxcnc/examples/sample-configs/by_machine/qtplasmac/M190')
+        if self.validate_database():
+            self.d.save(base)
+            #self.write_readme(base)
+            self.INI.write_inifile(base)
+            self.HAL.write_halfile(base)
+            # qtplasmac specific
+            if self.d.frontend == _PD._QTPLASMAC:
+                # different looking tool table for qtplasmac
+                dest = os.path.join(base, "tool.tbl")
+                if not os.path.exists(dest):
+                    file = open(dest, "w")
+                    print("T0 P1 X0 Y0 ;torch", file=file)
+                    print("T1 P2 X0 Y0 ;scribe", file=file)
+                    file.close()
+            # _not_ qtplasmac
             else:
-                m190Path = os.path.join(BASE, 'configs/by_machine/qtplasmac/M190')
-            shutil.copy(m190Path, os.path.join(base, 'M190'))
-            # different looking tool table for qtplasmac
-            filename = os.path.join(base, "tool.tbl")
-            file = open(filename, "w")
-            print("T0 P1 X0 Y0 ;torch", file=file)
-            print("T1 P2 X0 Y0 ;scribe", file=file)
-            file.close()
-        self.copy(base, "tool.tbl")
-        if self.warning_dialog(self._p.MESS_QUIT,False):
-            Gtk.main_quit()
+                dest = os.path.join(base, "tool.tbl")
+                print (base,'\ncopy:',dest,os.path.exists(dest))
+                if not os.path.exists(dest):
+                    print('copied')
+                    file = open(dest, "w")
+                    if self.d.axes == 2:# lathe
+                        if self.d.units == _PD._METRIC:
+                            print("T1 P1 D3 Z+3 I+95.000000 J+155.000000 Q1 ; Sample Tool", file=file)
+                            print("T2 P2 D3 I+85.000000 J+25.000000 Q2 ; Sample Tool", file=file)
+                            print("T3 P3 D3 I+275.000000 J+335.000000 Q3 ; Sample Tool", file=file)
+                            print("T4 P4 D3 I+265.000000 J+205.000000 Q4 ; Sample Tool", file=file)
+                        else:
+                            print("T1 P1 D0.100000 Z+0.100000 I+95.000000 J+155.000000 Q1 ; Sample Tool", file=file)
+                            print("T2 P2 D0.100000 I+85.000000 J+25.000000 Q2 ; Sample Tool", file=file)
+                            print("T3 P3 D0.100000 I+275.000000 J+335.000000 Q3 ; Sample Tool", file=file)
+                            print("T4 P4 D0.100000 I+265.000000 J+205.000000 Q4 ; Sample Tool", file=file)
+                            print("T5 P5 D0.100000 I+210.000000 J+150.000000 Q5 ; Sample Tool", file=file)
+                            print("T6 P6 D0.100000 X+0.500000 Z+0.500000 I+120.000000 J+60.000000 Q6 ; Sample Tool", file=file)
+                            print("T7 P7 D0.100000 I-30.000000 J+30.000000 Q7 ; Sample Tool", file=file)
+                            print("T8 P8 D0.100000 I+240.000000 J+300.000000 Q8 ; Sample Tool", file=file)
+                    else:
+                        if self.d.units == _PD._METRIC:
+                            print("T1 P1 Z0.511 D3 ;3mm end mill Sample Tool", file=file)
+                            print("T2 P4 Z0.1 D1.5 ;1.5mm  end mill Sample Tool", file=file)
+                            print("T3 P3 Z1.273 D5 ;5mm tap drill Sample Tool", file=file)
+                            print("T4 P2 Z10 D16 ;16 mm Sample Tool", file=file)
+                            print("T5 P5 Z25 D25 ;25mm er Sample Tool", file=file)
+                        else:
+                            print("T1 P1 Z0.511 D0.125 ;1/8 end mill Sample Tool", file=file)
+                            print("T2 P2 Z0.1 D0.0625 ;1/16 end mill Sample Tool", file=file)
+                            print("T3 P3 Z1.273 D0.201 ;#7 tap drill Sample Tool", file=file)
+                            print("T4 P4 Z0 D2 ; 2 inch mill Sample Tool", file=file)
+
+                    file.close()
+
+            if self.warning_dialog(self._p.MESS_QUIT,False):
+                Gtk.main_quit()
 
     def save(self):
         base = self.build_base()
         self.d.save(base)
 
 # helper functions
+
+    def validate_database(self):
+        ''' validate various parameters before writing data '''
+        changes = ''
+        # validate home_sequences
+        changed = False
+        seq = []
+        if self.d.axes == 0: myAxes = 'xyz'
+        elif self.d.axes == 1: myAxes = 'xyza'
+        elif self.d.axes == 2: myAxes = 'xz'
+        for axis in myAxes: seq.append(self.d[axis + "homesequence"])
+        mini = min(seq)
+        if mini != 0: # first home sequence must be 0
+            for n in range(len(seq)):
+                seq[n] -= mini
+            changed = True
+        order = list(set(seq)) # used sequence numbers must be consecutive
+        if len(order) > 1:
+            for n in range(1, len(order)):
+                if order[n] > order[n-1] + 1:
+                    for s in range(len(seq)):
+                        if seq[s] == order[n]:
+                            seq[s] = order[n-1] + 1
+                    order[n] = order[n-1] + 1
+                    changed = True
+        if changed:
+            for n in range(len(seq)):
+                if seq[n] != self.d[myAxes[n] + "homesequence"]:
+                    change = f'{myAxes[n]} axis home sequence changed from {self.d[myAxes[n] + "homesequence"]+1} to {seq[n]+1}'
+                    changes += change + '\n'
+                self.widgets[myAxes[n] + "homesequence"].set_active(seq[n])
+                self.d[myAxes[n] + "homesequence"] = seq[n]
+
+        if changes:
+            self.warning_dialog(changes, True)
+            return False
+        return True
 
     def get_discovery_meta(self):
         self.widgets.boarddiscoverydialog.set_title(_("Discovery metadata update"))
@@ -577,8 +655,12 @@ class App:
                 self._p.MESA_BOARDNAMES.append(folder)
         else:
             #TODO what if there are no external firmware is this enough?
-            self.warning_dialog(_("You have no hostmot2 firmware downloaded in folder:\n%s\n\
-PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
+            self.warning_dialog(_("""Some older cards require firmware.
+You have no hostmot2 firmware downloaded in folder:
+%s
+PNCconf will use It's internal firmware data samples so you can continue.
+You could also try the discovery option if your card is connected and doesn't require firmware to be loaded at run time.
+Discovery option requires the advanced options checked on this page."""%self._p.FIRMDIR),True)
         for firmware in self._p.MESA_INTERNAL_FIRMWAREDATA:
             if 'internal' in firmware[0].lower():
                 if firmware[0] in self._p.MESA_BOARDNAMES:
@@ -1076,8 +1158,8 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                  "RESOLVER SPIDI 1":_PD.RES1,"RESOLVER ADC CHANNEL 2":_PD.RES2,"RESOLVER ADC CHANNEL 1":_PD.RES3,
                  "RESOLVER ADC CHANNEL 0":_PD.RES4,"RESOLVER SPI CLK":_PD.RES5,"RESOLVER SPI CHIP SELECT":_PD.RESU,
                  "RESOLVER PDMM":_PD.RESU,"RESOLVER PDMP":_PD.RESU}
-            pinconvertstep = {"STEP":_PD.STEPA,"DIR":_PD.STEPB,"STEP/TABLE1":_PD.STEPA,"DIR/TABLE2":_PD.STEPB}
-                #"StepTable 2":STEPC,"StepTable 3":STEPD,"StepTable 4":STEPE,"StepTable 5":STEPF
+            pinconvertstep = {"STEP":_PD.STEPA,"DIR":_PD.STEPB,"STEP/TABLE1":_PD.STEPA,"DIR/TABLE2":_PD.STEPB,
+                "STEPTABLE 2":_PD.STEPC,"STEPTABLE 3":_PD.STEPD,"STEPTABLE 4":_PD.STEPE,"STEPTABLE 5":_PD.STEPF}
             pinconvertppwm = {"PWM/UP":_PD.PWMP,"DIR/DOWN":_PD.PWMD,"ENABLE":_PD.PWME,
                     "PWM":_PD.PWMP,"DIR":_PD.PWMD,"/ENABLE":_PD.PWME}
             pinconverttppwm = {"PWM A":_PD.TPPWMA,"PWM B":_PD.TPPWMB,"PWM C":_PD.TPPWMC,
@@ -1616,15 +1698,16 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
         self._p.MESA_BOARDNAMES.append(boardname)
         # add discovery address to entry
         self.widgets["mesa%s_card_addrs"%bdnum].set_text(self.widgets.discovery_address_entry.get_text())
+
         # add firmname to combo box if it's not there
-        model = self.widgets["mesa%s_firmware"%bdnum].get_model()
+        combo = self.widgets["mesa%s_firmware"%bdnum]
         flag = True
-        for search,item in enumerate(model):
+        for search,item in enumerate(combo):
             if model[search][0]  == firmname:
                 flag = False
                 break
         if flag:
-            model.append((firmname,))
+            combo.append_text(firmname)
             search = 0
             model = self.widgets["mesa%s_firmware"%bdnum].get_model()
             for search,item in enumerate(model):
@@ -1714,7 +1797,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
             if not self.warning_dialog("\n".join(text),False):return
             tempname = sourcefile+"LINUXCNCtempspecific.rules"
             file = open(tempname, "w")
-            print(("# This is a rule for LINUXCNC's hal_input\n"), file=file)
+            print(("# This is a rule for LinuxCNC's hal_input\n"), file=file)
             print(("# For devicename=%s\n"% name), file=file)
             print(("""SYSFS{idProduct}=="%s", SYSFS{idVendor}=="%s", MODE="0660", GROUP="plugdev" """%(product,vendor)), file=file)
             file.close()
@@ -1805,7 +1888,7 @@ PNCconf will use internal firmware data"%self._p.FIRMDIR),True)
                 self.widgets[key].set_active(False)
             else:
                 self.widgets[key].set_active(True)
-                self.widgets[key+"button"].set_color(gdk.color_parse(data))
+                self.widgets[key+"button"].set_color(Gdk.color_parse(data))
         self.widgets.touchyforcemax.set_active(bool(prefs.getpref('window_force_max')))
 
     def set_touchy_preference(self, value, default, type):
@@ -2093,10 +2176,10 @@ Clicking 'existing custom program' will avoid this warning. "),False):
             dbg('Looking for firmware data %s'%self.d["mesa%d_firmware"% boardnum])
             found = False
             search = 0
-            model = self.widgets["mesa%d_firmware"% boardnum].get_model()
-            for search,item in enumerate(model):
-                dbg('%d,%s'%(search,model[search][0]))
-                if model[search][0]  == self.d["mesa%d_firmware"% boardnum]:
+            combo_model = self.widgets["mesa%d_firmware"% boardnum].get_model()
+            for search,item in enumerate(combo_model):
+                dbg('%d,%s'%(search,combo_model[search][0]))
+                if combo_model[search][0]  == self.d["mesa%d_firmware"% boardnum]:
                     self.widgets["mesa%d_firmware"% boardnum].set_active(search)
                     found = True
                     dbg('found firmware # %d'% search)
@@ -2105,9 +2188,10 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                 dbg('firmware not found')
                 cur_firm = self.d['mesa%d_currentfirmwaredata'% boardnum][_PD._FIRMWARE]
                 dbg('looking for: %s'% cur_firm )
+                combo = self.widgets["mesa%d_firmware"% boardnum]
                 #self.widgets["mesa%d_firmware"% boardnum].set_active(0)
                 self._p.MESA_FIRMWAREDATA.append(self.d['mesa%d_currentfirmwaredata'% boardnum])
-                model.append((cur_firm,))
+                combo.append_text(cur_firm)
                 self.init_mesa_options(boardnum)
                 return
             else:
@@ -2181,7 +2265,6 @@ Clicking 'existing custom program' will avoid this warning. "),False):
             d = self._p.MESA_FIRMWAREDATA[search]
             if not d[self._p._BOARDTITLE] == title:continue
             temp.append(d[self._p._FIRMWARE])
-        temp.sort()
         for i in temp:
             #print(i)
             model.append_text(i)
@@ -2296,7 +2379,7 @@ Clicking 'existing custom program' will avoid this warning. "),False):
         for channel in range (0,self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._MAXSSERIALCHANNELS]):
                 if channel == _PD._NUM_CHANNELS: break # TODO may not have all channels worth of glade widgets
                 subboardname = self.d["mesa%dsserial%d_%dsubboard"% (boardnum, port, channel)]
-                #print("data transfer-channel ",channel," subboard name",subboardname)
+                print("data transfer-channel ",channel," subboard name",subboardname)
                 if subboardname == "none":
                     #print("no subboard for %s"% subboardname)
                     continue
@@ -2393,7 +2476,7 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                     ptypetree = self.d._tppwmliststore
                     signaltocheck = _PD.hal_tppwm_output_names
                 # type step gen
-                elif pintype in (_PD.STEPA,_PD.STEPB):
+                elif pintype in (_PD.STEPA,_PD.STEPB,_PD.STEPC,_PD.STEPD,_PD.STEPE,_PD.STEPF):
                     ptypetree = self.d._stepperliststore
                     signaltocheck = _PD.hal_stepper_names
                 # type sserial
@@ -2446,8 +2529,8 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                 self.d[p] = signaltocheck[index+index2]
                 self.d[ptype] = widgetptype
                 self.d[pinv] = self.widgets[pinv].get_active()
-                #if "serial" in p:
-                #    #print("*** INFO PNCCONF mesa pin:",p,"signalname:",self.d[p],"pin type:",widgetptype)
+                if "serial" in p:
+                    print("*** INFO PNCCONF mesa pin:",p,"signalname:",self.d[p],"pin type:",widgetptype)
 
     def on_mesa_pintype_changed(self, widget,boardnum,connector,channel,pin):
                 #print("mesa pintype changed:",boardnum,connector,channel,pin)
@@ -2596,6 +2679,7 @@ Clicking 'existing custom program' will avoid this warning. "),False):
 
         self.pbar.set_text("Setting up Mesa tabs")
         self.window.show()
+        error_flag = None
         for concount,connector in enumerate(self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._NUMOFCNCTRS]) :
             for pin in range (0,24):
                 self.pbar.set_fraction((pin+1)/24.0)
@@ -2617,8 +2701,16 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                 self.widgets[p].handler_block(self.d[blocksignal])
 #TODO TODO ???
 #                self.widgets[p].get_child().handler_block(self.d[actblocksignal])
-                self.firmware_to_widgets(boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,ppc,pin,numofencoders,
+                error = self.firmware_to_widgets(boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,ppc,pin,numofencoders,
                                         numofpwmgens,numoftppwmgens,numofstepgens,None,numofsserialports,numofsserialchannels,False)
+                # only show one error at end of the process
+                if type(error) == str:
+                    error_flag = error
+
+        # check is currently to see if firmware has more channels then pncconf's max
+        if error_flag is not None:
+            warnings = [error_flag +'\nfirmware has more channels then Pncconf can work with.\nSome channels will not be configurable.']
+            self.warning_dialog("\n".join(warnings),True)
 
         self.d["mesa%d_numof_stepgens"% boardnum] = numofstepgens
         self.d["mesa%d_numof_pwmgens"% boardnum] = numofpwmgens
@@ -2685,7 +2777,7 @@ Clicking 'existing custom program' will avoid this warning. "),False):
             numofpwmgens = 12
             numoftppwmgens = 0
             numofstepgens = 0
-            self.firmware_to_widgets(boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,ppc,pin,numofencoders,
+            error = self.firmware_to_widgets(boardnum,firmptype,p,ptype,pinv,complabel,compnum,concount,ppc,pin,numofencoders,
                                     numofpwmgens,numoftppwmgens,numofstepgens,subboardname,numofsserialports,numofsserialchannels,True)
         # all this to unblock signals
         for pin in range (0,self._p._SSCOMBOLEN):
@@ -2971,6 +3063,19 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                                         _PD.TXDATA6,_PD.TXDATA7,_PD.SS7I76M0,_PD.SS7I76M2,_PD.SS7I76M3,
                                         _PD.SS7I77M0,_PD.SS7I77M1,_PD.SS7I77M3,_PD.SS7I77M4):
                         CONTROL = True
+
+                    # if too many channels, don't error, just can't configure
+                    if channelnum > _PD._NUM_CHANNELS:
+                        self.widgets[p].hide()
+                        self.widgets[pinv].hide()
+                        self.widgets[complabel].hide()
+                        self.widgets[ptype].set_model(self.d._notusedliststore)
+                        self.widgets[ptype].set_active(0)
+                        self.widgets[ptype].set_sensitive(0)
+                        self.widgets[p].set_model(self.d._notusedsignaltree)
+                        self.widgets[p].set_active(0)
+                        return 'ERROR: more then maximum channels'
+
                     #print("**** INFO: SMART SERIAL ENCODER:",firmptype," compnum = ",compnum," channel = ",channelnum)
                     #print("sserial channel:%d"% numofsserialchannels)
                     if numofsserialports >= (compnum + 1) and numofsserialchannels >= (channelnum):
@@ -3026,7 +3131,7 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                                     self.widgets[p].set_sensitive(0)
                                 self.d[ptype] = firmptype
                             else:
-                                print('found a sserial channel')
+                                print('found a sserial port# {} channel# {}'.format(compnum, channelnum))
                                 ssdevice = self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._SSDEVICES]
                                 for port,channel,device in (ssdevice):
                                     print(port,channel,device,channelnum)
@@ -3038,14 +3143,25 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                                         elif '7I73' in device:
                                             if not '7i73' in self.d[p]:
                                                 self.d[p] = _PD.I7I73_M1_T
+
                         else:
                             self.widgets[complabel].set_text("")
                             self.widgets[p].set_sensitive(0)
+
+                        # TODO more then one port
+                        # can't configure ports above 0 so make it un sensitive to input
+                        # compnum is the port number from firmware
+                        if compnum > 0:
+                            print(p)
+                            self.widgets[ptype].set_sensitive(0)
+                            self.widgets[p].set_sensitive(0)
+                            return
+
                     else:
                         firmptype = _PD.GPIOI
                         compnum = 0
                 # ---SETUP FOR STEPPER FAMILY COMPONENT---
-                elif firmptype in (_PD.STEPA,_PD.STEPB):
+                elif firmptype in (_PD.STEPA,_PD.STEPB,_PD.STEPC,_PD.STEPD,_PD.STEPE,_PD.STEPF):
                     if numofstepgens >= (compnum+1):
                         self.widgets[ptype].set_model(self.d._stepperliststore)
                         self.widgets[p].set_model(self.d._steppersignaltree)
@@ -3058,7 +3174,7 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                         if firmptype == _PD.STEPA:
                             self.widgets[complabel].set_text("%d:"%compnum)
                             self.widgets[p].set_sensitive(1)
-                        elif firmptype == _PD.STEPB:
+                        else:
                             self.widgets[complabel].set_text("")
                             self.widgets[p].set_sensitive(0)
                     else:
@@ -3634,7 +3750,8 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                     relatedsearch = [_PD.TPPWMA,_PD.TPPWMB,_PD.TPPWMC,_PD.TPPWMAN,_PD.TPPWMBN,_PD.TPPWMCN,_PD.TPPWME,_PD.TPPWMF]
                     relatedending = ["-a","-b","c","-anot","-bnot","cnot","-enable","-fault"]
                     customindex = len(humansignallist)-1
-                elif widgetptype in (_PD.TXDATA0,_PD.TXDATA1,_PD.TXDATA2,_PD.TXDATA3,_PD.TXDATA4,_PD.TXDATA5,_PD.SS7I76M0,_PD.SS7I76M3,
+                elif widgetptype in (_PD.TXDATA0,_PD.TXDATA1,_PD.TXDATA2,_PD.TXDATA3,_PD.TXDATA4,_PD.TXDATA5,
+                                     _PD.TXDATA6,_PD.TXDATA7,_PD.SS7I76M0,_PD.SS7I76M3,
                                      _PD.SS7I76M2,_PD.SS7I77M0,_PD.SS7I77M1,_PD.SS7I77M3,_PD.SS7I77M4):
                     portnum = 0 #TODO support more ports
                     for count,temp in enumerate(self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._NUMOFCNCTRS]) :
@@ -3646,6 +3763,8 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                             elif widgetptype in (_PD.TXDATA3,_PD.SS7I77M3,_PD.SS7I76M3): channelnum = 3
                             elif widgetptype in (_PD.TXDATA4,_PD.SS7I77M4): channelnum = 4
                             elif widgetptype in (_PD.TXDATA5): channelnum = 5
+                            elif widgetptype in (_PD.TXDATA6): channelnum = 6
+                            elif widgetptype in (_PD.TXDATA7): channelnum = 7
                             BASE = "mesa%dsserial0_%d"% (boardnum,channelnum)
                             if self.widgets[p].get_active_text() == _("Unused Channel"):
                                 self.widgets[BASE].hide()
@@ -4228,7 +4347,7 @@ Clicking 'existing custom program' will avoid this warning. "),False):
             w[axis+"homesearchvel"].set_text("%d" % (d[axis+"homesearchvel"]*60))
             w[axis+"homelatchvel"].set_text("%d" % (d[axis+"homelatchvel"]*60))
             w[axis+"homefinalvel"].set_text("%d" % (d[axis+"homefinalvel"]*60))
-            w[axis+"homesequence"].set_text("%d" % abs(d[axis+"homesequence"]))
+            set_active("homesequence")
             set_active("searchdir")
             set_active("latchdir")
             set_active("usehomeindex")
@@ -4419,7 +4538,7 @@ Clicking 'existing custom program' will avoid this warning. "),False):
             d[axis + "homesearchvel"] = (get_value(w[axis + "homesearchvel"])/60)
             d[axis + "homelatchvel"] = (get_value(w[axis + "homelatchvel"])/60)
             d[axis + "homefinalvel"] = (get_value(w[axis + "homefinalvel"])/60)
-            d[axis+"homesequence"] = (abs(get_value(w[axis+"homesequence"])))
+            get_active("homesequence")
             get_active("searchdir")
             get_active("latchdir")
             get_active("usehomeindex")
@@ -4777,16 +4896,22 @@ Clicking 'existing custom program' will avoid this warning. "),False):
         if self.findsignal(axis+"-encoder-a"): encoder = True
         if self.findsignal(axis+"-resolver"): resolver = True
         if self.findsignal(axis+"-pot-outpot"): pot = True
+        css = ""
         if encoder or resolver:
             if self.widgets[axis+"encoderscale"].get_value() < 1:
-                self.widgets[axis+"encoderscale"].override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA.from_color(Gdk.color_parse('red')))
+                css += f'#{axis}encoderscale'
                 dbg('encoder resolver scale bad %f'%self.widgets[axis+"encoderscale"].get_value())
                 bad = True
         if stepdrive:
             if self.widgets[axis+"stepscale"].get_value() < 1:
-                self.widgets[axis+"stepscale"].override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA.from_color(Gdk.color_parse('red')))
+                if css:
+                    css += ", "
+                css += f'#{axis}stepscale'
                 dbg('step scale bad')
                 bad = True
+        if css:
+            css += '{background-color: red}'
+            self.css_provider.load_from_data(css.encode())
         if not (encoder or resolver) and not stepdrive and not axis == "s":
             dbg('encoder %s resolver %s stepper %s axis %s'%(encoder,resolver,stepdrive,axis))
             bad = True
@@ -4803,8 +4928,8 @@ Clicking 'existing custom program' will avoid this warning. "),False):
             self.widgets[axis + "axistest"].set_sensitive(0)
         else:
             dbg('motor %s_encoder sanity check - good'%axis)
-            self.widgets[axis+"encoderscale"].override_background_color(Gtk.StateFlags.NORMAL, self.origbg)
-            self.widgets[axis+"stepscale"].override_background_color(Gtk.StateFlags.NORMAL, self.origbg)
+            css = f'#{axis}stepscale, #{axis}encoderscale {{background-color: @theme_bg_color;}}'
+            self.css_provider.load_from_data(css.encode())
             self.p.set_buttons_sensitive(1,1)
             self.widgets[axis + "axistune"].set_sensitive(1)
             self.widgets[axis + "axistest"].set_sensitive(1)
@@ -4911,18 +5036,23 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                         firmptype,compnum = self.d["mesa%d_currentfirmwaredata"% boardnum][_PD._STARTOFDATA+pin+(concount*24)]
                         p = 'mesa%dc%dpin%d' % (boardnum, connector, pin)
                         ptype = 'mesa%dc%dpin%dtype' % (boardnum, connector , pin)
-                        if self.d[ptype] in (_PD.TXDATA0,_PD.TXDATA1,_PD.TXDATA2,_PD.TXDATA3,_PD.TXDATA4,_PD.SS7I76M0,_PD.SS7I76M2,_PD.SS7I76M3,
+                        if self.d[ptype] in (_PD.TXDATA0,_PD.TXDATA1,_PD.TXDATA2,_PD.TXDATA3,
+                                             _PD.TXDATA4,_PD.TXDATA5,_PD.TXDATA6,_PD.TXDATA7,
+                                             _PD.SS7I76M0,_PD.SS7I76M2,_PD.SS7I76M3,
                                                 _PD.SS7I77M0,_PD.SS7I77M1,_PD.SS7I77M3,_PD.SS7I77M4) and not self.d[p] == _PD.UNUSED_SSERIAL:
                             if self.d[ptype] in (_PD.TXDATA0,_PD.SS7I76M0,_PD.SS7I77M0): channelnum = 0
                             elif self.d[ptype] in (_PD.TXDATA1,_PD.SS7I77M1): channelnum = 1
                             elif self.d[ptype] == _PD.TXDATA2: channelnum = 2
                             elif self.d[ptype] in (_PD.TXDATA3,_PD.SS7I76M3,_PD.SS7I77M3): channelnum = 3
                             elif self.d[ptype] in (_PD.TXDATA4,_PD.SS7I77M4): channelnum = 4
+                            elif self.d[ptype] in (_PD.TXDATA5): channelnum = 5
+                            elif self.d[ptype] in (_PD.TXDATA6): channelnum = 6
+                            elif self.d[ptype] in (_PD.TXDATA7): channelnum = 7
                             keeplist.append(channelnum)
             #print("board # %d sserial keeplist"%(boardnum),keeplist)
             # ok clear the sserial pins unless they are in the keeplist
             port = 0# TODO hard code at only 1 sserial port
-            for channel in range(0,_PD._NUM_CHANNELS): #TODO hardcoded at 5 sserial channels instead of 8
+            for channel in range(0,_PD._NUM_CHANNELS):
                 if channel in keeplist: continue
                 # This initializes pins
                 for i in range(0,self._p._SSCOMBOLEN):
@@ -5123,9 +5253,9 @@ Clicking 'existing custom program' will avoid this warning. "),False):
             elif not "5i25" in board1 and not '7i90' in board1:
                 firmstring1 = "firmware=hm2/%s/%s.BIT " % (directory1, firm1)
 
-            # TODO fix this hardcoded hack: only one serialport
-            ssconfig0 = ssconfig1 = resolver0 = resolver1 = temp = ""
-            if self.d.mesa0_numof_sserialports:
+            ssport0 = ssport1 = resolver0 = resolver1 = ""
+            for p in range(0, self.d.mesa0_numof_sserialports):
+                temp = ""
                 for i in range(1,_PD._NUM_CHANNELS+1):
                     if i <= self.d.mesa0_numof_sserialchannels:
                         # m number in the name signifies the required sserial mode
@@ -5136,19 +5266,22 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                         else: temp = temp + "0" # default case
                     else:
                         temp = temp + "x"
-                ssconfig0 = " sserial_port_0=%s"% temp
-            if self.d.number_mesa == 2 and self.d.mesa1_numof_sserialports:
-                for i in range(1,_PD._NUM_CHANNELS+1):
-                    if i <= self.d.mesa1_numof_sserialchannels:
-                        # m number in the name signifies the required sserial mode
-                        for j in ("123456789"):
-                            if ("m"+j) in self.d["mesa1sserial0_%dsubboard"% (i-1)]:
-                                temp = temp + j
-                                break
-                        else: temp = temp + "0" # default case
-                    else:
-                        temp = temp + "x"
-                ssconfig1 = " sserial_port_0=%s"% temp
+                ssport0 += " sserial_port_{}={}".format(p, temp)
+
+            if self.d.number_mesa == 2:
+                for p in range(0, self.d.mesa01numof_sserialports):
+                    for i in range(1,_PD._NUM_CHANNELS+1):
+                        if i <= self.d.mesa1_numof_sserialchannels:
+                            # m number in the name signifies the required sserial mode
+                            for j in ("123456789"):
+                                if ("m"+j) in self.d["mesa1sserial0_%dsubboard"% (i-1)]:
+                                    temp = temp + j
+                                    break
+                            else: temp = temp + "0" # default case
+                        else:
+                            temp = temp + "x"
+                ssport1 += " sserial_port_{}={}".format(p, temp)
+
             if self.d.mesa0_numof_resolvers:
                 resolver0 = " num_resolvers=%d"% self.d.mesa0_numof_resolvers
             if self.d.mesa1_numof_resolvers:
@@ -5162,25 +5295,25 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                 load_cmnds.append( """loadrt%s%s%s config="%snum_encoders=%d num_pwmgens=%d%s num_stepgens=%d%s%s" """ % (
                     driver0, board0_ip, mesa0_ioaddr,
                     firmstring0, self.d.mesa0_numof_encodergens, self.d.mesa0_numof_pwmgens, mesa0_3pwm, self.d.mesa0_numof_stepgens,
-                    ssconfig0, resolver0))
+                    ssport0, resolver0))
             elif self.d.number_mesa == 2 and (driver0 == driver1):
                 loadstring  = """loadrt%s%s%s%s%s config="%snum_encoders=%d num_pwmgens=%d%s num_stepgens=%d%s%s,""" % (
                     driver0, board0_ip, board1_ip, mesa0_ioaddr, mesa1_ioaddr,
                     firmstring0, self.d.mesa0_numof_encodergens, self.d.mesa0_numof_pwmgens, mesa0_3pwm, self.d.mesa0_numof_stepgens,
-                    ssconfig0, resolver0)
+                    ssport0, resolver0)
                 loadstring += """ %snum_encoders=%d num_pwmgens=%d%s num_stepgens=%d%s%s" """ % (
                     firmstring1, self.d.mesa1_numof_encodergens, self.d.mesa1_numof_pwmgens, mesa1_3pwm, self.d.mesa1_numof_stepgens,
-                    ssconfig1, resolver1)
+                    ssport1, resolver1)
                 load_cmnds.append(loadstring)
             elif self.d.number_mesa == 2:
                 load_cmnds.append( """loadrt%s%s%s config="%snum_encoders=%d num_pwmgens=%d%s num_stepgens=%d%s%s" """ % (
                     driver0, board0_ip, mesa0_ioaddr,
                     firmstring0, self.d.mesa0_numof_encodergens, self.d.mesa0_numof_pwmgens, mesa0_3pwm, self.d.mesa0_numof_stepgens,
-                    ssconfig0, resolver0 ))
+                    ssport0, resolver0 ))
                 load_cmnds.append( """loadrt%s%s%s config="%snum_encoders=%d num_pwmgens=%d%s num_stepgens=%d%s%s" """ % (
                     driver1, board1_ip, mesa1_ioaddr,
                     firmstring1, self.d.mesa1_numof_encodergens, self.d.mesa1_numof_pwmgens, mesa1_3pwm, self.d.mesa1_numof_stepgens,
-                    ssconfig1, resolver1 ))
+                    ssport1, resolver1 ))
             for boardnum in range(0,int(self.d.number_mesa)):
                 if boardnum == 1 and (board0 == board1):
                     halnum = 1

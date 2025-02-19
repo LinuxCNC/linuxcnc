@@ -1,0 +1,137 @@
+= mitsub_vfd(1)
+
+== NAME
+
+mitsub_vfd - HAL non-realtime component for Mitsubishi A500 F500 E500
+A500 D700 E700 F700-series VFDs (others may work) This uses the COMPUTER
+LINK protocol _not_ MODBUS. The connection is made through the PU
+connector.
+
+== SYNOPSIS
+
+*loadrt mitsub_vfd* [*--baud* _baudrate_] [*--port* _devicename_] **name1=**__number~1~__[,**name2=**__number~2~__...]
+
+*name1*:: is user selectable (usually a description of the controlled device).
+__number1__:: is the slave number that was set on the VFD. Must be two digits (Parameter 117).
+name__N__=number__N__:: can be repeated for multiple VFD's connected together.
+*--baud* _baudrate_:: is optional as it defaults to 9600, all networked vfds must be set to the same baudrate.
+*--port* _devicename_:: is optional as it defaults to `ttyS0``, a common alternative is `/dev/ttyUSB0`.
+
+== DESCRIPTION
+
+The mitsub_vfd component interfaces a Mitsubishi VFD to LinuxCNC.
+The VFD is connected via RS-485 serial to the computer's USB or serial port using a RS-232/RS-485 converter.
+
+== HARDWARE SETUP
+
+reference manual 'communication option reference manual' and A500 technical manual for 500 series.
+Fr-A700 F700 E700 D700 technical manual for the 700 series. +
+The inverter must be set manually for communication (you may have to set PR 77 to 1 to unlock PR modification). +
+You must power cycle the inverter for some of these, e.g. 79.
+
+*VFD INTERNAL PARAMETERS*:
+
+*PARAMETER 79*:: 1 or 0
+
+*PARAMETER 117*:: Station number - 1 +
+(can be optionally set 0 - 31) if component is also set
+
+*PARAMETER 118*:: Communication speed 96 +
+(can be optionally set 48, 96, 192 if component is also set)
+
+*PARAMETER 119*:: Stop bit/data length - 1 +
+(8 bits, two stop - don't change)
+
+*PARAMETER 120*:: Parity - 0 +
+(no parity - don't change)
+
+*PARAMETER 121*:: COM tries - 10 +
+(if maximum 10 COM errors then inverter faults- can change.)
+
+*PARAMETER 122*:: COM check time interval 9999 +
+(never check - if communication is lost inverter will not know (can change))
+
+*PARAMETER 123*:: Wait time - 9999 +
+No wait time is added to the serial data frame (don't change).
+
+*PARAMETER 124*:: CR selection - 0 +
+Don't change.
+
+*PARAMETER 549*:: Communication protocol - 0 +
+Computer link protocol - don't change - (not all VFDs have this)
+
+== NOTES
+
+This driver assumes certain other VFD settings:
+
+- That the motor frequency status is set to show Hertz.
+- That the status bit 3 is up to speed.
+- That the status bit 7 is alarm.
+
+Some models, e.g. the E500, cannot monitor status. +
+You must set set the monitor pin to false. +
+In this case pins such as up-to-speed, amps, alarm and status bits are not useful.
+
+== PINS
+
+_VFD_NAME_**.fwd** (bit, in):: Forward/reverse pin
+_VFD_NAME_**.run** (bit, in):: Run/stop pin
+_VFD_NAME_**.debug** (bit, in):: Set debug mode pin.
+This will print many messages to the terminal.
+_VFD_NAME_**.monitor** (bit, in):: Set monitor mode pin.
+If false, request-status command will not be sent to VFD.
+Status, amps, power, motor-feedback, and alarm would then not be useful.
+_VFD_NAME_**.estop** (bit, in):: Set E-stop mode pin.
+This will stop the VFD. Restarting requires the run pin to cycle.
+_VFD_NAME_**.fwd** (bit, out):: Up-to-speed status pin. Motor is at requested speed within VFD's settings tolerance.
+_VFD_NAME_**.alarm** (bit, out):: Alarm status pin
+_VFD_NAME_**.motor-cmd** (float, in):: The requested motor speed, in Hertz (Hz)
+_VFD_NAME_**.motor-fb** (float, out):: The motor feedback speed (from VFD) in Hertz (Hz)
+_VFD_NAME_**.motor-amps** (float, out):: The motor current, in amperes (A)
+_VFD_NAME_**.motor-power** (float, out):: The motor power
+_VFD_NAME_**.scale-cmd** (float, in):: Motor command's scale setting defaults to 1
+_VFD_NAME_**.scale-cmd** (float, in):: Motor command's scale setting defaults to 1
+_VFD_NAME_**.scale-cmd** (float, in):: Motor command's scale setting defaults to 1
+_VFD_NAME_**.stat-bit-0** (bit, out):: Raw status bit
+_VFD_NAME_**.stat-bit-1** (bit, out):: Raw status bit
+_VFD_NAME_**.stat-bit-2** (bit, out):: Raw status bit
+_VFD_NAME_**.stat-bit-3** (bit, out):: Raw status bit. Configure the VFD so that the function 'Up to frequency' or 'motor-at-speed' is assigned to status bit 3 (parameter 191 for 700 series).
+_VFD_NAME_**.stat-bit-4** (bit, out):: Raw status bit
+_VFD_NAME_**.stat-bit-5** (bit, out):: Raw status bit
+_VFD_NAME_**.stat-bit-6** (bit, out):: Raw status bit
+_VFD_NAME_**.stat-bit-7** (bit, out):: Raw status bit. Configure the VFD so that the function 'alarm' is assigned to status bit 7 (parameter 195 for 700 series)
+
+== SAMPLE HAL
+
+....
+loadusr -Wn coolant mitsub_vfd --port /dev/ttyUSB0 spindle=02 coolant=01
+# **************** Spindle VFD setup slave 2 ****************
+net spindle-vel-cmd spindle.motor-cmd
+net spindle-cw spindle.fwd
+net spindle-on spindle.run
+net spindle-at-speed spindle.up-to-speed
+net estop-out spindle.estop
+# cmd scaled to RPM (belt/gearbox driven)
+setp spindle.scale-cmd .135
+# feedback is in rpm (recipicale of command)
+setp spindle.scale-fb 7.411
+# turn on monitoring so feedback works
+setp spindle.monitor 1
+net spindle-speed-indicator spindle.motor-fb
+# *************** Coolant VFD setup slave 1 *****************
+net coolant-flood coolant.run
+net coolant-is-on coolant.up-to-speed
+# cmd and feedback scaled to hertz
+setp coolant.scale-cmd 1
+setp coolant.scale-fb 1
+# command full speed
+setp coolant.motor-cmd 60
+# allows us to see status
+setp coolant.monitor 1
+net estop-out coolant.estop
+....
+
+== ISSUES
+
+Some models, e.g. E500, cannot monitor status, so set the monitor pin to false.
+In this case, pins such as up-to-speed, amps, alarm and status bits are not useful.

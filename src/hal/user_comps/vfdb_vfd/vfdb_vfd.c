@@ -177,7 +177,7 @@ typedef struct params {
     int motor_rpm;  // rated speed of the motor
 } params_type, *param_pointer;
 
-// default options; read from inifile or command line
+// default options; read from INI file or command line
 static params_type param = {
         .modname = NULL,
         .modbus_debug = 0,
@@ -240,17 +240,20 @@ void  windup(param_pointer p)
 
 static void toggle_modbus_debug(int sig)
 {
+    (void)sig;
     param.modbus_debug = !param.modbus_debug;
     modbus_set_debug(param.ctx, param.modbus_debug);
 }
 
 static void toggle_debug(int sig)
 {
+    (void)sig;
     param.debug = !param.debug;
 }
 
 static void quit(int sig) 
 {
+    (void)sig;
     if (param.debug)
         fprintf(stderr,"quit(connection_state=%d)\n",connection_state);
 
@@ -337,7 +340,7 @@ int read_ini(param_pointer p)
             return -1;
         p->parity = value;
     } else {
-        fprintf(stderr, "%s:can not open inifile '%s'\n",
+        fprintf(stderr, "%s:can not open INI file '%s'\n",
                 p->progname, p->inifile);
         return -1;
     }
@@ -345,12 +348,13 @@ int read_ini(param_pointer p)
 }
 
 void usage(int argc, char **argv) {
+    (void)argc;
     printf("Usage:  %s [options]\n", argv[0]);
     printf("This is a userspace HAL program, typically loaded using the halcmd \"loadusr\" command:\n"
             "    loadusr vfdb_vfd [options]\n"
             "Options are:\n"
-            "-I or --ini <inifile>\n"
-            "    Use <inifile> (default: take ini filename from environment variable INI_FILE_NAME)\n"
+            "-I or --ini <INI file>\n"
+            "    Use <inifile> (default: take INI filename from environment variable INI_FILE_NAME)\n"
             "-S or --section <section-name> (default 8)\n"
             "    Read parameters from <section_name> (default 'VFD-B')\n"
             "-d or --debug\n"
@@ -694,7 +698,7 @@ int main(int argc, char **argv)
         if (!p->modname)
             p->modname = "vfdb_vfd";
     } else {
-        fprintf(stderr, "%s: ERROR: no inifile - either use '--ini inifile' or set INI_FILE_NAME environment variable\n", p->progname);
+        fprintf(stderr, "%s: ERROR: no inifile - either use '--ini filename' or set INI_FILE_NAME environment variable\n", p->progname);
         goto finish;
     }
 

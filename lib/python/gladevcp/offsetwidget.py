@@ -58,7 +58,7 @@ class HAL_Offset(Gtk.Label):
         # The update time: every 500 milliseconds
         GLib.timeout_add(500, self.periodic)
 
-        # check the ini file if UNITS are set to mm
+        # check the INI file if UNITS are set to mm
         # first check the global settings
         # else then the X axis units
         try:
@@ -141,7 +141,7 @@ class HAL_Offset(Gtk.Label):
         return g5x,tool,g92,rot
 
     # This does the units conversion
-    # it just mutiplies the two arrays 
+    # it just multiplies the two arrays 
     def convert_units(self,v):
         c = self.conversion
         return list(map(lambda x,y: x*y, v, c))
@@ -157,10 +157,11 @@ class HAL_Offset(Gtk.Label):
 # for testing without glade editor:
 def main():
     window = Gtk.Dialog("My dialog",
-                   None,
-                   Gtk.DialogFlags.MODAL | Gtk.DialogFlags.DESTROY_WITH_PARENT,
-                   (Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
-                    Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT))
+                        None,
+                        modal = True,
+                        destroy_with_parent = True)
+    window.add_buttons(Gtk.STOCK_CANCEL, Gtk.ResponseType.REJECT,
+                       Gtk.STOCK_OK, Gtk.ResponseType.ACCEPT)
     offset = HAL_Offset()
     window.vbox.add(offset)
     window.connect("destroy", Gtk.main_quit)

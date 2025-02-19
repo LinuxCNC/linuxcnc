@@ -28,6 +28,6 @@ def get_T_number(self,**words):
             return INTERP_ERROR
         self.params["tool"] = cblock.t_number
         return INTERP_OK
-    except Exception, e:
+    except Exception as e:
         self.set_errormsg("T%d/prepare_prolog: %s" % (int(words['t']), e))
         return INTERP_ERROR

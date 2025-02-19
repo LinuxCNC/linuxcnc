@@ -38,12 +38,12 @@
  */
 
 #include "config.h"
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "hal.h"		/* HAL public API decls */
-#include "../hal_priv.h"	/* private HAL decls */
+#include "rtapi.h"		// RTAPI realtime OS API
+#include "hal.h"		// HAL public API decls
+#include "../hal_priv.h"	// private HAL decls
 #include "halcmd_commands.h"
 #include <rtapi_mutex.h>
-#include <rtapi_string.h>
+#include <rtapi_string.h>	// rtapi_strlcpy
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -56,7 +56,7 @@
 #include <errno.h>
 #include <time.h>
 #include <fnmatch.h>
-
+#include <vector>
 
 static int unloadrt_comp(char *mod_name);
 static void print_comp_info(char **patterns);
@@ -559,7 +559,7 @@ int do_newinst_cmd(char *comp_name, char *inst_name) {
         nanosleep(&ts, NULL);
         rtapi_mutex_get(&(hal_data->mutex));
     }
-    strncpy(hal_data->constructor_prefix, inst_name, HAL_NAME_LEN);
+    rtapi_strlcpy(hal_data->constructor_prefix, inst_name, HAL_NAME_LEN);
     hal_data->constructor_prefix[HAL_NAME_LEN]=0;
     hal_data->pending_constructor = comp->make;
     rtapi_mutex_give(&(hal_data->mutex));
@@ -628,6 +628,10 @@ int do_newsig_cmd(char *name, char *type)
 	retval = hal_signal_new(name, HAL_U32);
     } else if (strcasecmp(type, "s32") == 0) {
 	retval = hal_signal_new(name, HAL_S32);
+    } else if (strcasecmp(type, "u64") == 0) {
+    retval = hal_signal_new(name, HAL_U64);
+    } else if (strcasecmp(type, "s64") == 0) {
+    retval = hal_signal_new(name, HAL_S64);
     } else if (strcasecmp(type, "port") == 0) {
 	retval = hal_signal_new(name, HAL_PORT);
     } else {
@@ -646,6 +650,8 @@ static int set_common(hal_type_t type, void *d_ptr, char *value) {
     double fval;
     long lval;
     unsigned long ulval;
+    int64_t s64val;
+    uint64_t u64val;
     unsigned uval;
     char *cp = value;
 
@@ -691,17 +697,39 @@ static int set_common(hal_type_t type, void *d_ptr, char *value) {
 	    *((hal_u32_t *) (d_ptr)) = ulval;
 	}
 	break;
+    case HAL_S64:
+    s64val = strtoll(value, &cp, 0);
+    if ((*cp != '\0') && (!isspace(*cp))) {
+        /* invalid chars in string */
+        halcmd_error("value '%s' invalid for S64\n", value);
+        retval = -EINVAL;
+    } else {
+        *((hal_s64_t *) (d_ptr)) = s64val;
+    }
+    break;
+    case HAL_U64:
+    u64val = strtoull(value, &cp, 0);
+    if ((*cp != '\0') && (!isspace(*cp))) {
+        /* invalid chars in string */
+        halcmd_error("value '%s' invalid for U64\n", value);
+        retval = -EINVAL;
+    } else {
+        *((hal_u64_t *) (d_ptr)) = u64val;
+    }
+    break;
     case HAL_PORT:
         uval = strtoul(value, &cp, 0);
         if ((*cp != '\0') && (!isspace(*cp))) {
             halcmd_error("value '%s' invalid for PORT\n", value);
             retval = -EINVAL;
         } else {
-            if((*((hal_port_t*)d_ptr) != 0) && (hal_port_buffer_size(*((hal_port_t*)d_ptr)) > 0)) {
-                halcmd_error("port is already allocated with %u bytes.\n", hal_port_buffer_size(*((hal_port_t*)d_ptr)));
+            if((*((hal_port_t*)d_ptr) != 0) && (hal_port_buffer_size(((hal_port_t*)d_ptr)) > 0)) {
+                halcmd_error("port is already allocated with %u bytes.\n", hal_port_buffer_size(((hal_port_t*)d_ptr)));
                 retval = -EINVAL;
         } else {
-            *((hal_port_t*) (d_ptr)) = hal_port_alloc(uval);
+            retval = hal_port_alloc(uval, (hal_port_t *)d_ptr);
+            if(retval)
+                halcmd_error("failed to allocate PORT with size %u\n", uval);
         }
     }
     break;
@@ -963,6 +991,8 @@ static int get_type(char ***patterns) {
     if(strcmp(typestr, "bit") == 0) return HAL_BIT;
     if(strcmp(typestr, "s32") == 0) return HAL_S32;
     if(strcmp(typestr, "u32") == 0) return HAL_U32;
+    if(strcmp(typestr, "s64") == 0) return HAL_S64;
+    if(strcmp(typestr, "u64") == 0) return HAL_U64;
     if(strcmp(typestr, "signed") == 0) return HAL_S32;
     if(strcmp(typestr, "unsigned") == 0) return HAL_U32;
     if(strcmp(typestr, "port") == 0) return HAL_PORT;
@@ -1107,7 +1137,7 @@ int do_loadrt_cmd(char *mod_name, char *args[])
     argv[m++] = NULL;
     retval = do_loadusr_cmd(argv);
 #else
-    static char *rtmod_dir = EMC2_RTLIB_DIR;
+    static const char *rtmod_dir = EMC2_RTLIB_DIR;
     struct stat stat_buf;
     char mod_path[MAX_CMD_LEN+1];
 
@@ -1127,7 +1157,7 @@ int do_loadrt_cmd(char *mod_name, char *args[])
         if (r < 0) {
             halcmd_error("error making module path for %s/%s%s\n", rtmod_dir, mod_name, MODULE_EXT);
             return -1;
-        } else if (r >= sizeof(mod_path)) {
+        } else if (r >= (int)sizeof(mod_path)) {
             // truncation!
             halcmd_error("module path too long (max %lu) for %s/%s%s\n", (unsigned long)sizeof(mod_path)-1, rtmod_dir, mod_name, MODULE_EXT);
             return -1;
@@ -1178,7 +1208,7 @@ int do_loadrt_cmd(char *mod_name, char *args[])
 	return -1;
     }
     /* copy string to shmem */
-    strcpy (cp1, arg_string);
+    strcpy(cp1, arg_string);
     /* get mutex before accessing shared data */
     rtapi_mutex_get(&(hal_data->mutex));
     /* search component list for the newly loaded component */
@@ -1221,8 +1251,7 @@ int do_delsig_cmd(char *mod_name)
 	    sig = SHMPTR(next);
 	    /* we want to unload this signal, remember its name */
 	    if ( n < ( MAX_EXPECTED_SIGS - 1 ) ) {
-	        strncpy(sigs[n], sig->name, HAL_NAME_LEN );
-		sigs[n][HAL_NAME_LEN] = '\0';
+		snprintf(sigs[n], sizeof(sigs[n]), "%s", sig->name);
 		n++;
 	    }
 	    next = sig->next_ptr;
@@ -1315,8 +1344,7 @@ int do_unloadrt_cmd(char *mod_name)
 	    if ( all || ( strcmp(mod_name, comp->name) == 0 )) {
 		/* we want to unload this component, remember its name */
 		if ( n < 63 ) {
-		    strncpy(comps[n], comp->name, HAL_NAME_LEN );
-		    comps[n][HAL_NAME_LEN] = '\0';
+		    snprintf(comps[n], sizeof(comps[n]), "%s", comp->name);
 		    n++;
 		}
 	    }
@@ -1708,7 +1736,7 @@ static void print_pin_info(int type, char **patterns)
 
     if (scriptmode == 0) {
 	halcmd_output("Component Pins:\n");
-	halcmd_output("Owner   Type  Dir         Value  Name\n");
+	halcmd_output("Owner   Type  Dir                 Value  Name\n");
     }
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->pin_list_ptr;
@@ -1793,7 +1821,7 @@ static void print_sig_info(int type, char **patterns)
 	return;
     }
     halcmd_output("Signals:\n");
-    halcmd_output("Type          Value  Name     (linked to)\n");
+    halcmd_output("Type                  Value  Name     (linked to)\n");
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->sig_list_ptr;
     while (next != 0) {
@@ -1805,7 +1833,7 @@ static void print_sig_info(int type, char **patterns)
 	    /* look for pin(s) linked to this signal */
 	    pin = halpr_find_pin_by_sig(sig, 0);
 	    while (pin != 0) {
-		halcmd_output("                         %s %s\n",
+		halcmd_output("                                 %s %s\n",
 		    data_arrow2((int) pin->dir), pin->name);
 		pin = halpr_find_pin_by_sig(sig, pin);
 	    }
@@ -1857,7 +1885,7 @@ static void print_param_info(int type, char **patterns)
 
     if (scriptmode == 0) {
 	halcmd_output("Parameters:\n");
-	halcmd_output("Owner   Type  Dir         Value  Name\n");
+	halcmd_output("Owner   Type  Dir                 Value  Name\n");
     }
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->param_list_ptr;
@@ -1924,7 +1952,7 @@ static void print_funct_info(char **patterns)
 
     if (scriptmode == 0) {
 	halcmd_output("Exported Functions:\n");
-	halcmd_output("Owner   CodeAddr  Arg       FP   Users  Name\n");
+	halcmd_output("Owner   CodeAddr      Arg           FP   Users   Name\n");
     }
     rtapi_mutex_get(&(hal_data->mutex));
     next = hal_data->funct_list_ptr;
@@ -2253,6 +2281,12 @@ static const char *data_type(int type)
     case HAL_U32:
 	type_str = "u32  ";
 	break;
+    case HAL_S64:
+    type_str = "s64  ";
+    break;
+    case HAL_U64:
+    type_str = "u64  ";
+    break;
     case HAL_PORT:
 	type_str = "port ";
 	break;
@@ -2280,6 +2314,12 @@ static const char *data_type2(int type)
     case HAL_U32:
 	type_str = "u32";
 	break;
+    case HAL_S64:
+    type_str = "s64";
+    break;
+    case HAL_U64:
+    type_str = "u64";
+    break;
     case HAL_PORT:
 	type_str = "port";
 	break;
@@ -2375,49 +2415,59 @@ static const char *data_arrow2(int dir)
     return arrow;
 }
 
-/* Switch function to return var value for the print_*_list functions  */
-/* the value is printed in a 12 character wide field */
+/* Switch function to return var value for the print_*_info functions
+   (scriptmode = 0) as well as save_params() and save_unconnected_input_pin_values().
+   The value is printed in a 20 character wide field. */
 static const char *data_value(int type, void *valptr)
 {
     const char *value_str;
-    static char buf[15];
+    static char buf[21];
 
     switch (type) {
     case HAL_BIT:
 	if (*((char *) valptr) == 0)
-	    value_str = "       FALSE";
+	    value_str = "               FALSE";
 	else
-	    value_str = "        TRUE";
+	    value_str = "                TRUE";
 	break;
     case HAL_FLOAT:
-	snprintf(buf, 14, "%12.7g", (double)*((hal_float_t *) valptr));
+	snprintf(buf, 21, "%20.7g", (double)*((hal_float_t *) valptr));
 	value_str = buf;
 	break;
     case HAL_S32:
-	snprintf(buf, 14, "  %10ld", (long)*((hal_s32_t *) valptr));
+	snprintf(buf, 21, "%20ld", (long)*((hal_s32_t *) valptr));
 	value_str = buf;
 	break;
     case HAL_U32:
-	snprintf(buf, 14, "  0x%08lX", (unsigned long)*((hal_u32_t *) valptr));
+	snprintf(buf, 21, "          0x%08lX", (unsigned long)*((hal_u32_t *) valptr));
 	value_str = buf;
 	break;
+    case HAL_S64:
+    snprintf(buf, 21, "%20" PRId64, (int64_t)*((hal_s64_t *) valptr));
+    value_str = buf;
+    break;
+    case HAL_U64:
+    snprintf(buf, 21, "  0x%016" PRIX64, (uint64_t)*((hal_u64_t *) valptr));
+    value_str = buf;
+    break;
     case HAL_PORT:
-	snprintf(buf, 14, "  %10u", hal_port_buffer_size(*((hal_port_t*) valptr)));
+	snprintf(buf, 21, "%20u", hal_port_buffer_size((hal_port_t*) valptr));
 	value_str = buf;
 	break;
     default:
 	/* Shouldn't get here, but just in case... */
-	value_str = "   undef    ";
+	value_str = "        undef       ";
     }
     return value_str;
 }
 
-/* Switch function to return var value in string form  */
-/* the value is printed as a packed string (no whitespace */
+/* Switch function to return var value in string form for the
+   print_*_info functions (scriptmode = 1) and getp and gets command.
+   The value is printed as a packed string (no whitespaces). */
 static const char *data_value2(int type, void *valptr)
 {
     const char *value_str;
-    static char buf[15];
+    static char buf[21];
 
     switch (type) {
     case HAL_BIT:
@@ -2435,11 +2485,19 @@ static const char *data_value2(int type, void *valptr)
 	value_str = buf;
 	break;
     case HAL_U32:
-	snprintf(buf, 14, "%ld", (unsigned long)*((hal_u32_t *) valptr));
+	snprintf(buf, 14, "%lu", (unsigned long)*((hal_u32_t *) valptr));
 	value_str = buf;
 	break;
+    case HAL_S64:
+    snprintf(buf, 21, "%" PRId64, (int64_t)*((hal_s64_t *) valptr));
+    value_str = buf;
+    break;
+    case HAL_U64:
+    snprintf(buf, 21, "%" PRIu64, (uint64_t)*((hal_u64_t *) valptr));
+    value_str = buf;
+    break;
     case HAL_PORT:
-	snprintf(buf, 14, "%u", hal_port_buffer_size(*((hal_port_t*) valptr)));
+	snprintf(buf, 14, "%u", hal_port_buffer_size((hal_port_t*) valptr));
 	value_str = buf;
 	break;
 
@@ -2541,7 +2599,14 @@ static void save_comps(FILE *dst)
 	next = comp->next_ptr;
     }
 
-    hal_comp_t *comps[ncomps], **compptr = comps;
+    if(!ncomps) {
+        // No components found, bail
+        rtapi_mutex_give(&(hal_data->mutex));
+        return;
+	}
+
+    std::vector<hal_comp_t *> comps(ncomps, nullptr);
+    hal_comp_t **compptr = comps.data();
     next = hal_data->comp_list_ptr;
     while(next != 0)  {
 	comp = SHMPTR(next);

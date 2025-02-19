@@ -91,11 +91,11 @@ QCheckBox::indicator {
 }
 
 QCheckBox::indicator:unchecked {
-    image: url(images/unchecked.png);
+    image: url(:/images/images/unchecked.png);
 }
 
 QCheckBox::indicator:checked {
-    image: url(images/checked.png);
+    image: url(:/images/images/checked.png);
 }
 
 /** ComboBoxes **/

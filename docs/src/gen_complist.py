@@ -55,7 +55,7 @@ def generate_complist(complist_path):
     file2.close()
 
     generate_links(gen_filename, False, True)
-    print('gen_complist: Added {} uncategorized and {} potentially obsolete entrie(s) to hal component list'.format(len(miss_in_list), len(miss_in_man)))
+    print('gen_complist: Added {} uncategorized and {} potentially obsolete entry/entries to hal component list'.format(len(miss_in_list), len(miss_in_man)))
 
 
 def generate_links(filename, create_backup=True, add_descr=False):

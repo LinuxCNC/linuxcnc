@@ -42,6 +42,9 @@
 *  9) Coordinates XYZBCW are required, AUV may be used
 *     if specified with the coordinates parameter and will
 *     be mapped one-to-one with the assigned joint.
+* 10) The direction of the tilt axis is the opposite of the 
+*     conventional axis direction. See 
+*     https://linuxcnc.org/docs/html/gcode/machining-center.html
 ********************************************************************/
 
 // non-required coordinates (A,U,V) can be set by using

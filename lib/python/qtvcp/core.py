@@ -17,6 +17,9 @@ from . import logger
 log = logger.getLogger(__name__)
 # log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL, VERBOSE
 
+# The order of these classes is importanr, otherwise - circular imports.
+# the some of the later classes reference the earlier classes
+
 ################################################################
 # IStat class
 ################################################################
@@ -29,35 +32,45 @@ class Info(IStatParent):
             cls._instance = IStatParent.__new__(cls, *args, **kwargs)
         return cls._instance
 
-
-# Now that the class is defined create a reference to it for the other classes
-INI = Info()
-
 class QPin(hal.Pin, QObject):
 
     value_changed = pyqtSignal('PyQt_PyObject')
+    pinValueChanged = pyqtSignal('PyQt_PyObject','PyQt_PyObject')
+    isDrivenChanged = pyqtSignal('PyQt_PyObject','PyQt_PyObject')
     REGISTRY = []
     UPDATE = False
 
     def __init__(self, *a, **kw):
         super(QPin, self).__init__(*a, **kw)
         QObject.__init__(self, None)
+        self.hal = hal
         self._item_wrap(self._item)
         self._prev = None
+        self._prevDriven = None
         self.REGISTRY.append(self)
-        self.update_start()
+        self.prefix = None
 
     def update(self):
         tmp = self.get()
         if tmp != self._prev:
             self.value_changed.emit(tmp)
+            self.pinValueChanged.emit(self, tmp)
         self._prev = tmp
+
+    def isDriven(self):
+        return hal.pin_has_writer('{}.{}'.format(self.prefix, self.get_name()))
+
+    def updateDriven(self):
+        tmp = self.isDriven()
+        if tmp != self._prevDriven:
+            self.isDrivenChanged.emit(self, tmp)
+        self._prevDriven = tmp
 
     def text(self):
         return self.get_name()
 
     # always returns False because
-    # there was no errpr when making pin
+    # there was no error when making pin
     # see class DUMMY
     def error(self):
         return False
@@ -74,18 +87,21 @@ class QPin(hal.Pin, QObject):
                 kill.append(p)
                 log.error("Error updating pin {}; Removing".format(p))
                 log.exception(e)
+            if p.receivers(p.isDrivenChanged) > 0:
+                p.updateDriven()
+
         for p in kill:
             cls.REGISTRY.remove(p)
         return cls.UPDATE
 
     @classmethod
-    def update_start(cls):
+    def update_start(cls, cycletime=None):
         if QPin.UPDATE:
             return
         QPin.UPDATE = True
         cls.timer = QTimer()
         cls.timer.timeout.connect(cls.update_all)
-        cls.timer.start(INI.HALPIN_CYCLE_TIME)
+        cls.timer.start(cycletime)
 
     @classmethod
     def update_stop(cls):
@@ -102,7 +118,7 @@ class DummyPin(QObject):
         self._kw = kw
 
     # always returns True because
-    # there was an errpr when making HAL pin
+    # there was an error when making HAL pin
     # see class QPin
     def error(self):
         return True
@@ -146,6 +162,9 @@ class _QHal(object):
         self.comp = comp
         self.hal = hal
 
+    def setUpdateRate(self, cyclerate):
+        QPin.update_start(cyclerate)
+
     def newpin(self, *a, **kw):
         try:
             p = QPin(_hal.component.newpin(self.comp, *a, **kw))
@@ -174,6 +193,7 @@ class _QHal(object):
                 format(e, t[0], t[1], t[2]))
             log.error("Qhal: {}".format(traceback.format_exc()))
             p = DummyPin(*a, ERROR=e)
+        p.prefix = self.comp.getprefix()
         return p
 
     def getpin(self, *a, **kw): return QPin(_hal.component.getpin(self.comp, *a, **kw))
@@ -182,13 +202,19 @@ class _QHal(object):
         try:
             return hal.get_value(name)
         except Exception as e:
-            log.error("Qhal: Error getting value of {}\n {}".format(name, e))
+            raise("Qhal: Error getting value of {}\n {}".format(name, e))
 
     def setp(self,name, value):
         try:
             return hal.set_p(name,value)
         except Exception as e:
-            log.error("Qhal: Error setting value of {} to {}\n {}".format(name,value, e))
+            raise("Qhal: Error setting pin {} to {}\n {}".format(name,value, e))
+
+    def sets(self,name, value):
+        try:
+            return hal.set_s(name,value)
+        except Exception as e:
+            raise("Qhal: Error setting signal {} to {}\n {}".format(name,value, e))
 
     def exit(self, *a, **kw): return self.comp.exit(*a, **kw)
 
@@ -245,22 +271,25 @@ class Status(GStat):
         GObject.Object.__init__(self)
         self.__class__._instanceNum += 1
         super(GStat, self).__init__()
-        self.current_jog_rate = INI.DEFAULT_LINEAR_JOG_VEL
-        self.angular_jog_velocity = INI.DEFAULT_ANGULAR_JOG_VEL
+
         # can only have ONE error channel instance in qtvcp
         self.ERROR = linuxcnc.error_channel()
         self._block_polling = False
 
     # we override this function from hal_glib
-    def set_timer(self):
+    # add replace it with setTimer()
+    def set_timer(self, cycleTime=None):
+        pass
+
+    def setTimer(self, cycleTime=None):
         GObject.threads_init()
-        GObject.timeout_add(int(INI.CYCLE_TIME), self.update)
+        GObject.timeout_add(int(cycleTime), self.update)
 
     # error polling is usually set up by screen_option widget
     # to call this function
     # but when using MDI subprograms, the subprogram must be the only
     # polling instance.
-    # this is done by blocking the main screen polling untill the
+    # this is done by blocking the main screen polling until the
     # subprogram is done.
     def poll_error(self):
         if self._block_polling: return None
@@ -274,6 +303,20 @@ class Status(GStat):
         if name: print(name,'unblock')
         self._block_polling = False
 
+################################################################
+# PStat class
+################################################################
+from qtvcp.qt_pstat import _PStat as _PStatParent
+
+
+class Path(_PStatParent):
+    _instance = None
+    _instanceNum = 0
+
+    def __new__(cls, *args, **kwargs):
+        if not cls._instance:
+            cls._instance = _PStatParent.__new__(cls, *args, **kwargs)
+        return cls._instance
 ################################################################
 # Lcnc_Action class
 ################################################################
@@ -306,17 +349,4 @@ class Tool(_TStatParent):
         return cls._instance
 
 
-################################################################
-# PStat class
-################################################################
-from qtvcp.qt_pstat import _PStat as _PStatParent
 
-
-class Path(_PStatParent):
-    _instance = None
-    _instanceNum = 0
-
-    def __new__(cls, *args, **kwargs):
-        if not cls._instance:
-            cls._instance = _PStatParent.__new__(cls, *args, **kwargs)
-        return cls._instance

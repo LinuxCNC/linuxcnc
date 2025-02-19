@@ -27,6 +27,7 @@ pin in float in3;
 function _;
 license "GPL";
 author "Jeff Epler";
+see_also "mux2(9), mux8(9), mux16(9), mux_generic(9).";
 ;;
 FUNCTION(_) {
     if(sel1) {

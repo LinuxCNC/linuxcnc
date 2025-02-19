@@ -1,6 +1,6 @@
 ; This demonstrates doing an M61 remapped to a named oword sub
 ;
-; to activate, incantate as follows in the ini file:
+; to activate, incantate as follows in the INI file:
 ;
 ; [RS274NGC]
 

@@ -664,7 +664,7 @@ image:images/nurbs01.png["Sample NURBS Output",align="center"]
 
 More information on NURBS can be found here:
 
-http://wiki.linuxcnc.org/cgi-bin/wiki.pl?NURBS[http://wiki.linuxcnc.org/cgi-bin/wiki.pl?NURBS]
+https://wiki.linuxcnc.org/cgi-bin/wiki.pl?NURBS[https://wiki.linuxcnc.org/cgi-bin/wiki.pl?NURBS]
 
 [[gcode:g7]]
 == G7 Lathe Diameter Mode(((G7 Lathe Diameter Mode)))
@@ -795,7 +795,7 @@ effect on 'G10 L2'.
 
 Important Concepts:
 
-* G10 L2 Pn does not change from the current coordinate system to the
+* `G10 L2 Pn` does not change from the current coordinate system to the
   one specified by P, you have to use G54-59.3 to select a coordinate
   system.
 * When a rotation is in effect jogging an axis will only move that axis
@@ -1032,7 +1032,7 @@ if TOOL_CHANGE_AT_G30=1 is in the [EMCIO] section of the INI file.
 .G30 Example Line
 [source,{ngc}]
 ----
-G30 Z2.5 (rapid to Z2.5 then to the Z location specified in #5i83)
+G30 Z2.5 (rapid to Z2.5 then to the Z location specified in #5183)
 ----
 
 It is an error if :
@@ -1249,6 +1249,24 @@ If the probing operation failed, G38.2 and G38.4 will signal an error
 by posting an message on screen if the selected GUI supports that.
 And by halting program execution.
 
+Here is an example formula to probe tool height with conversion from a
+local coordinate system Z offset to machine coordinates which is
+stored in the tool table.  The existing tool height compensation is
+first cancelled with G49 to avoid including it in the calculation of
+height, and the new height is loaded from the tool table.  The start
+position must be high enough above the tool height probe to compensate
+for the use of G49.
+
+.G38.2 Example
+[source,{ngc}]
+----
+G49
+G38.2 Z-100 F100
+#<zworkoffset> = [#[5203 + #5220 * 20] + #5213 * #5210]
+G10 L1 P#5400 Z#<zworkoffset> (set new tool offset)
+G43
+----
+
 A comment of the form '(PROBEOPEN filename.txt)' will open
 'filename.txt' and store the 9-number coordinate consisting of
 XYZABCUVW of each successful straight probe in it.
@@ -1391,6 +1409,9 @@ G43 <H->
 'Tn M6'.
 
 'G43 Hn' uses the offset for tool n.
+
+The active tool length compensation values are stored in the numbered
+parameters '5401-5409'.
 
 [NOTE]
 'G43 H0' is a little special.  Its behavior is different on random
@@ -1616,8 +1637,8 @@ G64 <P- <Q->>
   The P- tolerance means that the actual path will be no more than P-
   away from the programmed endpoint. The velocity will be reduced if
   needed to maintain the path.
-  In addition, when you activate G64 P- Q- it turns on the 'Naive CAM
-  Detector'; when there are a series of linear XYZ feed moves at the
+  If you set Q to a non-zero value it turns on the 'Naive CAM
+  Detector': when there are a series of linear XYZ feed moves at the
   same <<sec:set-feed-rate,feed rate>> that are less than Q- away from
   being collinear, they are collapsed into a single linear move.
   On G2/G3 moves in the G17 (XY) plane when the maximum
@@ -1625,13 +1646,14 @@ G64 <P- <Q->>
   tolerance the arc is broken into two lines (from start of arc to
   midpoint, and from midpoint to end). those lines are then subject to
   the naive cam algorithm for lines. Thus, line-arc, arc-arc, and
-  arc-line cases as well as line-line benefit from the 'naive cam
-  detector'. This improves contouring performance by simplifying the
+  arc-line cases as well as line-line benefit from the 'Naive CAM
+  Detector'. This improves contouring performance by simplifying the
   path. It is OK to program for the mode that is already active. See
   also the <<sec:trajectory-control,Trajectory Control>> section for
   more information on these modes.
   If Q is not specified then it will have the same behavior as before
   and use the value of P-.
+  Set Q to zero to disable the 'Naive CAM Detector'.
 
 .G64 P- Example Line
 [source,{ngc}]
@@ -1688,6 +1710,10 @@ It is an error if:
 
 [[gcode:g71-g72]]
 == G71 G72 Lathe roughing cycles(((G71 G72 Lathe roughing cycles)))
+
+[NOTE]
+The G71 and G72 cycles are currently somewhat fragile.
+See issue https://github.com/LinuxCNC/linuxcnc/issues/2939[#2939] for example.
 
 [source,{ngc}]
 ----
@@ -1756,7 +1782,7 @@ It is an error if:
 
 [source,{ngc}]
 ----
-G73 X- Y- Z- R- Q- <L->
+G73 X- Y- Z- R- Q- P- <L->
 ----
 
 * 'R' - retract position along the Z axis.
@@ -1765,7 +1791,7 @@ G73 X- Y- Z- R- Q- <L->
 
 The 'G73' cycle is drilling or milling with chip breaking.
 This cycle takes a Q number which represents a 'delta' increment along
-the Z axis.
+the Z axis. Peck clearance can be specified by optional P number.
 
 * Preliminary motion.
   ** If the current Z position is below the R position, The Z axis does
@@ -1832,19 +1858,15 @@ image::images/g76-threads_en.svg["G76 Threading",align="center"]
 
 * 'Drive Line' - A line through the initial X position parallel to the Z.
 * 'P-' - The 'thread pitch' in distance per revolution.
-* 'Z-' - The final position of threads. At the end of the cycle the tool
-  will be at this Z position.
+* 'Z-' - The final position of threads. At the end of the cycle the tool will be at this Z position.
 
 [NOTE]
-When G7 'Lathe Diameter Mode' is in force the values for 'I', 'J' and 'K'
-are diameter measurements. When G8 'Lathe Radius Mode' is in force the
-values for 'I', 'J' and 'K' are radius measurements.
+When G7 'Lathe Diameter Mode' is in force the values for 'I', 'J' and 'K' are diameter measurements.
+When G8 'Lathe Radius Mode' is in force the values for 'I', 'J' and 'K' are radius measurements.
 
 * 'I-' - The 'thread peak' offset from the 'drive line'.
-  Negative 'I' values are external threads, and positive 'I' values are
-  internal threads.
-  Generally the material has been turned to this size before the 'G76'
-  cycle.
+  Negative 'I' values are external threads, and positive 'I' values are internal threads.
+  Generally the material has been turned to this size before the 'G76' cycle.
 * 'J-' - A positive value specifying the 'initial cut depth'.
   The first threading cut will be 'J' beyond the 'thread peak' position.
 * 'K-' - A positive value specifying the 'full thread depth'.
@@ -1852,41 +1874,29 @@ values for 'I', 'J' and 'K' are radius measurements.
 
 Optional settings
 
-* '$-' - The spindle number to which the motion will be synchronised
-  (default 0).
-  For example is $1 is programmed then the motion will begin on the
-  reset od spindle.1.index-enable and proceed in synchrony with the
-  value of spindle.1.revs
-* 'R-' - The 'depth degression'. 'R1.0' selects constant depth on
-  successive threading passes. 'R2.0' selects constant area.
+* '$-' - The spindle number to which the motion will be synchronised (default 0).
+  For example if $1 is programmed then the motion will begin on the reset of `spindle.1.index-enable` and proceed in synchrony with the value of `spindle.1.revs`.
+* 'R-' - The 'depth degression'. 'R1.0' selects constant depth on successive threading passes. 'R2.0' selects constant area.
   Values between 1.0 and 2.0 select decreasing depth but increasing area.
   Values above 2.0 select decreasing area.
-  Beware that unnecessarily high degression values will cause a large
-  number of passes to be used. (degression = a descent by stages or
-  steps.)
+  Beware that unnecessarily high degression values will cause a large number of passes to be used.
+  (degression = a descent by stages or steps.)
 
 [WARNING]
-Unnecessarily high degression values will produce an unnecessarily high
-number of passes. (degressing = dive in stages)
+Unnecessarily high degression values will produce an unnecessarily high number of passes. (degressing = dive in stages)
 
-* 'Q-' - The 'compound slide angle' is the angle (in degrees) describing
-  to what extent successive passes should be offset along the drive line.
-  This is used to cause one side of the tool to remove more material than
-  the other. A positive 'Q' value causes the leading edge of the tool to
-  cut more heavily.
-  Typical values are 29, 29.5 or 30.
+* 'Q-' - The 'compound slide angle' is the angle (in degrees) describing to what extent successive passes should be offset along the drive line.
+  This is used to cause one side of the tool to remove more material than the other.
+  A positive 'Q' value causes the leading edge of the tool to cut more heavily.  Typical values are 29, 29.5 or 30.
 * 'H-' - The number of 'spring passes'.
   Spring passes are additional passes at full thread depth.
   If no additional passes are desired, program 'H0'.
 
-Thread entries and exits can be programmed tapered with the 'E'
-and 'L' values.
+Thread entries and exits can be programmed tapered with the 'E' and 'L' values.
 
 * 'E-' - Specifies the distance along the drive line used for the taper.
-  The angle of the taper will be so the last pass tapers to the thread
-  crest over the distance specified with E.
-  'E0.2' will give a taper for the first/last 0.2 length units along the
-  thread.
+  The angle of the taper will be so the last pass tapers to the thread crest over the distance specified with E.
+  'E0.2' will give a taper for the first/last 0.2 length units along the thread.
   For a 45 degree taper program E the same as K.
 * 'L-' - Specifies which ends of the thread get the taper.
   Program 'L0' for no taper (the default), 'L1' for entry taper, 'L2'
@@ -2370,7 +2380,7 @@ seconds at the bottom of the hole.
 
 [source,{ngc}]
 ----
-G83 (X- Y- Z-) or (U- V- W-) R- L- Q-
+G83 (X- Y- Z-) or (U- V- W-) R- L- Q- P-
 ----
 
 The 'G83' cycle (often called peck drilling) is intended for deep
@@ -2380,7 +2390,8 @@ drilling in aluminum). This cycle takes a Q number which represents a
 'delta' increment along the Z-axis. The retract before final depth will
 always be to the 'retract' plane even if G98 is in effect. The final
 retract will honor the G98/99 in effect. G83 functions the same as G81
-with the addition of retracts during the drilling operation.
+with the addition of retracts during the drilling operation. Peck clearance
+can be specified by optional P number.
 
 * Preliminary motion, as described in the
   <<gcode:preliminary-motion,Preliminary and In-Between Motion>> section.
@@ -2538,7 +2549,7 @@ G0 X2.5 (rapid move 2.5 from current position along the X axis)
   When G90.1 is in effect I and J both must be specified with G2/3
   for the XY plane or J and K for the XZ plane or it is an error.
 * 'G91.1' - incremental distance mode for I, J & K offsets.
-  G91.1 Returns I, J & K to their default behavior.
+  `G91.1` Returns I, J & K to their default behavior.
 
 [[gcode:g92]]
 == G92 Coordinate System Offset(((G92 Coordinate System Offset)))
@@ -2549,14 +2560,12 @@ G92 axes
 ----
 
 [WARNING]
-Only use 'G92' after your machine has been positioned to the desired
-point.
+Only use 'G92' after your machine has been positioned to the desired point.
 
-'G92' makes the current point have the coordinates you want (without
-motion), where the axis words contain the axis numbers you want.
+'G92' makes the current point have the coordinates you want (without motion),
+where the axis words contain the axis numbers you want.
 All axis words are optional, except that at least one must be used.
-If an axis word is not used for a given axis, the offset for that axis
-will be zero.
+If an axis word is not used for a given axis, the offset for that axis will be zero.
 
 When 'G92' is executed, the <<sec:machine-coordinate-system,origins>>
 of all coordinate systems move. They move such that the value of the
@@ -2566,67 +2575,57 @@ becomes the specified value. All of the coordinate system's origins
 
 'G92' uses the values stored in <<sub:numbered-parameters,parameters>>
 5211-5219 as the X Y Z A B C U V W offset values for each axis.
-The parameter values are 'absolute' machine coordinates
-in the native machine 'units' as specified in the INI file.
+The parameter values are 'absolute' machine coordinates in the native machine 'units' as specified in the INI file.
 All axes defined in the INI file will be offset when G92 is active.
-If an axis was not entered following the G92, that axis' offset
-will be zero.
+If an axis was not entered following the G92, that axis' offset will be zero.
 
 For example, suppose the current point is at X=4 and there is
-currently no 'G92' offset active. Then 'G92 X7' is programmed. This
-moves all origins -3 in X, which causes the
-current point to become X=7. This -3 is saved in parameter 5211.
+currently no 'G92' offset active. Then 'G92 X7' is programmed.
+This moves all origins -3 in X, which causes the current point to become X=7.
+This -3 is saved in parameter 5211.
 
 Being in incremental distance mode (G91 instead of G90) has no effect
-on the action of 'G92'.
+on the action of `G92`.
 
-'G92' offsets may be already be in effect when the 'G92' is called.
+'G92' offsets may be already be in effect when the `G92` is called.
 If this is the case, the offset is replaced with a new
 offset that makes the current point become the specified value.
 
 It is an error if all axis words are omitted.
 
 LinuxCNC stores the G92 offsets and reuses them on the next run of a
-program. To prevent this, one can program a G92.1 (to erase them), or
-program a G92.2 (to remove them - they are still stored).
+program. To prevent this, one can program a `G92.1` (to erase them), or
+program a `G92.2` (to remove them - they are still stored).
 
 [NOTE]
-The 'G52' command can also be used to change this offset; see the
-<<sec:g52-and-g92-offsets,Offsets>> section for more details about
-'G92' and 'G52' and how they interact.
+The 'G52' command can also be used to change this offset;
+see the <<sec:g52-and-g92-offsets,Offsets>> section for more details about `G92` and `G52` and how they interact.
 
-See the <<cha:coordinate-system,Coordinate System>> section for an
-overview of coordinate systems.
+See the <<cha:coordinate-system,Coordinate System>> section for an overview of coordinate systems.
 
-See the <<sec:overview-parameters,Parameters>> section for more
-information.
+See the <<sec:overview-parameters,Parameters>> section for more information.
 
 [[gcode:g92.1-g92.2]]
 == G92.1, G92.2 Reset G92 Offsets(((G92.1, G92.2 Reset G92 Offsets)))
 
-* 'G92.1' - turn off G92 offsets and reset
-  <<sub:numbered-parameters,parameters>> 5211 - 5219 to zero.
-* 'G92.2' - turn off G92 offsets but keep
-  <<sub:numbered-parameters,parameters>> 5211 - 5219 available.
+* 'G92.1' - turn off G92 offsets and reset <<sub:numbered-parameters,parameters>> 5211 - 5219 to zero.
+* 'G92.2' - turn off G92 offsets but keep <<sub:numbered-parameters,parameters>> 5211 - 5219 available.
 
 [NOTE]
-G92.1 only clears G92 offsets, to change G53-G59.3 coordinate system
-offsets in G-code use either <<gcode:g10-l2,G10 L2>> or
-<<gcode:g10-l20,G10 L20>>.
+G92.1 only clears G92 offsets, to change G53-G59.3 coordinate system offsets in G-code use either <<gcode:g10-l2,G10 L2>> or <<gcode:g10-l20,G10 L20>>.
 
 [[gcode:g92.3]]
 == G92.3 Restore G92 Offsets(((G92.3 Restore G92 Offsets)))
 
-* 'G92.3' - set the G92 offset to the values saved in parameters 5211 to
-  5219
+* 'G92.3' - set the `G92` offset to the values saved in parameters 5211 to 5219
 
-You can set axis offsets in one program and use the same offsets in
-another program. Program 'G92' in the first program. This will set
-parameters 5211 to 5219. Do not use 'G92.1' in the remainder of the
-first program. The parameter values will be saved when the first
-program exits and restored when the second one starts up.
-Use 'G92.3' near the beginning of the second program. That will restore
-the offsets saved in the first program.
+You can set axis offsets in one program and use the same offsets in another program.
+Program `G92` in the first program.
+This will set parameters 5211 to 5219.
+Do not use `G92.1` in the remainder of the first program.
+The parameter values will be saved when the first program exits and restored when the second one starts up.
+Use `G92.3` near the beginning of the second program.
+That will restore the offsets saved in the first program.
 
 [[gcode:g93-g94-g95]]
 == G93, G94, G95 Feed Rate Mode(((G93, G94, G95 Feed Rate Mode)))
@@ -2638,30 +2637,28 @@ the offsets saved in the first program.
   half a minute.
 +
 When the inverse time feed rate mode is active, an F word must appear
-on every line which has a G1, G2, or G3 motion, and an F word on a line
-that does not have G1, G2, or G3 is ignored. Being in inverse time feed
-rate mode does not affect G0 (<<gcode:g0,rapid move>>) motions.
+on every line which has a `G1`, `G2`, or `G3` motion, and an F-word on a line
+that does not have `G1`, `G2`, or `G3` is ignored. Being in inverse time feed
+rate mode does not affect `G0` (<<gcode:g0,rapid move>>) motions.
 
 * 'G94' - is Units per Minute Mode.
-  In units per minute feed mode, an F word is interpreted to mean the
-  controlled point should move at a certain number of inches per minute,
-  millimeters per minute, or degrees per minute, depending upon what
-  length units are being used and which axis or axes are moving.
+  In units per minute feed mode,
+  an F word is interpreted to mean the controlled point should move at a certain number of inches per minute,
+  millimeters per minute, or degrees per minute,
+  depending upon what length units are being used and which axis or axes are moving.
 
 * 'G95' - is Units per Revolution Mode
-  In units per revolution mode, an F word is interpreted to mean the
-  controlled point should move a certain number of inches per revolution
-  of the spindle, depending on what length units are being used and which
-  axis or axes are moving. G95 is not suitable for threading, for
-  threading use G33 or G76.
-  G95 requires that spindle.N.speed-in to be connected. The actual
-  spindle to which the feed is synchronised is chosen by the $ parameter
+  In units per revolution mode,
+  an F-word is interpreted to mean the controlled point should move a certain number of inches per revolution of the spindle,
+  depending on what length units are being used and which axis or axes are moving.
+  `G95` is not suitable for threading, for threading use `G33` or `G76`.
+  `G95` requires that `spindle.N.speed-in` to be connected.
+  The actual spindle to which the feed is synchronised is chosen by the `$` parameter.
 
 It is an error if:
 
-* Inverse time feed mode is active and a line with G1, G2, or G3
-  (explicitly or implicitly) does not have an F word.
-* A new feed rate is not specified after switching to G94 or G95
+* Inverse time feed mode is active and a line with `G1`, `G2`, or `G3`  (explicitly or implicitly) does not have an F-word.
+* A new feed rate is not specified after switching to `G94` or `G95`
 
 [[gcode:g96-g97]]
 == G96, G97 Spindle Control Mode(((G96, G97 Spindle Control Mode)))
@@ -2677,8 +2674,8 @@ G97 S- <$-> (RPM Mode)
 . '$' - the spindle of which the speed will be varied, optional.
 
 * 'G96 S- <D->' - selects constant surface speed of 'S':
-** In feet per minute if G20 is in effect,
-** or meters per minute if G21 is in effect.
+** In feet per minute if `G20` is in effect,
+** or meters per minute if `G21` is in effect.
 
 When using G96, ensure that X0 in
 the current coordinate system (including offsets and tool lengths) is

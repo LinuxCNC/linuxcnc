@@ -11,11 +11,11 @@
 *
 ********************************************************************/
 /** This file, 'sampler_usr.c', is the user part of a HAL component
-    that allows values to be sampled from HAL pins at a uniform 
+    that allows values to be sampled from HAL pins at a uniform
     realtime sample rate, and writes them to a stdout (from which
     they can be redirected to a file).  When the realtime module
     is loaded, it creates a stream in shared memory and begins capturing
-    samples to the stream.  Then, the user space program 'hal_ssampler'
+    samples to the stream.  Then, the user space program 'hal_sampler'
     is invoked to read from the stream and print to stdout.
 
     Invoking:
@@ -96,6 +96,7 @@ char comp_name[HAL_NAME_LEN+1];	/* name for this instance of sampler */
 static sig_atomic_t stop;
 static void quit(int sig)
 {
+    (void)sig;
     if ( ignore_sig ) {
 	return;
     }
@@ -160,7 +161,7 @@ int main(int argc, char **argv)
 	    exit(1);
 	}
 	// make stdout be the named file
-	fd = open(argv[n], O_WRONLY | O_CREAT, 0666);
+	fd = open(argv[n], O_WRONLY | O_CREAT | O_TRUNC, 0666);
 	close(1);
 	dup2(fd, 1);
     }
@@ -170,8 +171,8 @@ int main(int argc, char **argv)
     signal(SIGTERM, quit);
     signal(SIGPIPE, quit);
     /* connect to HAL */
-    /* create a unique module name, to allow for multiple samplers */
-    snprintf(comp_name, sizeof(comp_name), "halsampler%d", getpid());
+    /* create module name for specified channel */
+    snprintf(comp_name, sizeof(comp_name), "halsampler%d", channel);
     /* connect to the HAL */
     ignore_sig = 1;
     comp_id = hal_init(comp_name);
@@ -205,7 +206,7 @@ int main(int argc, char **argv)
 	    last_sample = this_sample;
 	}
 	if ( tag ) {
-	    printf ( "%d ", this_sample-1 );
+	    printf ( "%u ", this_sample-1 );
 	}
 	for ( n = 0 ; n < num_pins; n++ ) {
 	    switch ( hal_stream_element_type(&stream, n) ) {

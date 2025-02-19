@@ -1,36 +1,37 @@
-;imperial temporary materials
+(imperial temporary materials)
 
-G20
-G64 P0.01
-M52 P1 ;to enable reverse-run
+G20 (imperial units)
+G64 P0.005 (path tolerance)
+M52 P1 (enable reverse-run)
 
 (o=0, na=Steel 0.10", ph=0.10, pd=0.0, ch=0.01, fr=100, kw=0.040)
-F#<_hal[plasmac.cut-feed-rate]> ; feed rate from cut parameters
+F#<_hal[plasmac.cut-feed-rate]> (feed rate from cut parameters)
 G0 X1 Y1
-M3 $0 S1 (select plasma torch)
+M3 $0 S1 (start plasma torch)
 G1 X5
-M5 $0
+M5 $0 (stop plasma torch)
 
 (o=0, na=Steel 0.11", ph=0.11, pd=0.1, ch=0.011, fr=101, kw=0.041)
-F#<_hal[plasmac.cut-feed-rate]> ; feed rate from cut parameters
+F#<_hal[plasmac.cut-feed-rate]> (feed rate from cut parameters)
 G0 Y2
-M3 $0 S1 (select plasma torch)
+M3 $0 S1 (start plasma torch)
 G1 X1
-M5 $0
+M5 $0 (stop plasma torch)
 
 (o=0, na=Steel 0.12", ph=0.2, pd=0.2, ch=0.012, fr=102, kw=0.042)
-F#<_hal[plasmac.cut-feed-rate]> ; feed rate from cut parameters
+F#<_hal[plasmac.cut-feed-rate]> (feed rate from cut parameters)
 G0 X1 Y3
-M3 $0 S1 (select plasma torch)
+M3 $0 S1 (start plasma torch)
 G1 X5
-M5 $0
+M5 $0 (stop plasma torch)
 
 (o=0, na=Steel 0.13", ph=0.3, pd=0.3, ch=0.013, fr=103, kw=0.043)
-F#<_hal[plasmac.cut-feed-rate]> ; feed rate from cut parameters
+F#<_hal[plasmac.cut-feed-rate]> (feed rate from cut parameters)
 G0 Y4
-M3 $0 S1 (select plasma torch)
+M3 $0 S1 (start plasma torch)
 G1 X1
-M5 $0
+M5 $0 (stop plasma torch)
 
 G0 X0 Y0
-M2
+M190 P-1 (default material)
+M2 (end program)

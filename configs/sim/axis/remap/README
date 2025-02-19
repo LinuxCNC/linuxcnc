@@ -18,7 +18,7 @@ iocontrol-removed: a 'research part' of the (now merged) remapping branch: It de
 
 python-stdglue contains embedded Python code supporting the above examples. This should eventually evolve into canned code which users need not touch except in more exotic circumstances. Note all examples above use the same glue code from remap.py.
 
-common_nc_subs: this contains reset_state.ngc, which should be called from ON_ABORT procedure.  Note that it is in particular important to reset the modal state after a failed remap procedure because this can lead to susequent failures (e.g. bug ID 3437928).  The demos use their own on_abort sub and call reset_state.
+common_nc_subs: this contains reset_state.ngc, which should be called from ON_ABORT procedure.  Note that it is in particular important to reset the modal state after a failed remap procedure because this can lead to subsequent failures (e.g. bug ID 3437928).  The demos use their own on_abort sub and call reset_state.
 
 Remapping Documentation:
   http://www.linuxcnc.org/docs/devel/html/remap/structure.html

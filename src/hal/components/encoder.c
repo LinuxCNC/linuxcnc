@@ -137,6 +137,7 @@ typedef struct {
     double old_scale;		/* c:rw stored scale value */
     double scale;		/* c:rw reciprocal value used for scaling */
     int counts_since_timeout;	/* c:rw used for velocity calcs */
+    int gaps; 			/* gap counter (unlikely to ever be > 1) */
 } counter_t;
 
 static rtapi_u32 timebase;		/* master timestamp for all counters */
@@ -262,6 +263,7 @@ int rtapi_app_main(void)
 	cntr->state = 0;
 	cntr->oldZ = 0;
 	cntr->Zmask = 0;
+	cntr->gaps = 0;
 	*(cntr->x4_mode) = 1;
 	*(cntr->counter_mode) = 0;
 	*(cntr->latch_rising) = 1;
@@ -329,7 +331,6 @@ static void update(void *arg, long period)
 
     cntr = arg;
     for (n = 0; n < howmany; n++) {
-	int gap = 0;
 	buf = (atomic *) cntr->bp;
 	cntr->dt += period;
 	/* get state machine current state */
@@ -351,10 +352,9 @@ static void update(void *arg, long period)
 	}
 	/* should we count? */
 	if (state & SM_CNT_UP_MASK) {
-		if (*(cntr->missing_teeth) && cntr->dt > cntr->limit_dt){
-			gap = 1;
-			(*cntr->raw_counts)+= *(cntr->missing_teeth);
-		}
+	    if (*(cntr->missing_teeth) && cntr->dt > cntr->limit_dt){
+		cntr->gaps++;
+	    }
 	    (*cntr->raw_counts)++;
 	    buf->raw_count = *(cntr->raw_counts);
 	    buf->timestamp = timebase;
@@ -371,7 +371,7 @@ static void update(void *arg, long period)
 	/* get old phase Z state, make room for new bit value */
 	state = cntr->oldZ << 1;
 	/* add new value of phase Z */
-	if (*(cntr->phaseZ) || gap) {
+	if (*(cntr->phaseZ) || cntr->gaps) {
 	    state |= 1;
 	}
 	cntr->oldZ = state & 3;
@@ -472,27 +472,32 @@ static void capture(void *arg, long period)
 	if ( buf->count_detected ) {
 	    /* one or more counts in the last period */
 	    buf->count_detected = 0;
-	    delta_counts = buf->raw_count - cntr->raw_count;
 	    delta_time = buf->timestamp - cntr->timestamp;
-	    cntr->raw_count = buf->raw_count;
+	    delta_counts = buf->raw_count - cntr->raw_count;
+	    // lowpass the gap detector deliberately ignoring missing teeth
+	    // see https://github.com/LinuxCNC/linuxcnc/issues/2635
+	    if (delta_counts != 0){
+		cntr->limit_dt *= 0.9;
+		cntr->limit_dt += 0.1 * ((*(cntr->missing_teeth) + 0.5) * (delta_time / delta_counts));
+	    }
+	    // correct counts for tooth gap
+	    *cntr->raw_counts += *(cntr->missing_teeth) * cntr->gaps;
+	    cntr->raw_count = buf->raw_count + *(cntr->missing_teeth) * cntr->gaps;
+	    delta_counts += *(cntr->missing_teeth) * cntr->gaps;
+	    cntr->gaps = 0;
 	    cntr->timestamp = buf->timestamp;
 	    if ( cntr->counts_since_timeout < 2 ) {
 		cntr->counts_since_timeout++;
 	    } else {
 		vel = (delta_counts * cntr->scale ) / (delta_time * 1e-9);
 		*(cntr->vel) = vel;
-		/* decide how many ns to detect missing-pulse index */
-		if (delta_counts) {
-		    cntr->limit_dt *= 0.9;
-		    cntr->limit_dt += 0.1 * ((*(cntr->missing_teeth) + 0.5) * (delta_time / delta_counts));
-		}
 	    }
 	} else {
 	    /* no count */
 	    if ( cntr->counts_since_timeout ) {
 		/* calc time since last count */
 		delta_time = timebase - cntr->timestamp;
-		if ( *(cntr->missing_teeth) && delta_time < 2 * cntr->limit_dt){
+		if (*(cntr->missing_teeth) && delta_time > 1.5 * cntr->limit_dt){
 			// dont update the velocity in the tooth gap
 		} else if ( delta_time < 1e9 / ( *(cntr->min_speed) * cntr->scale )) {
 		    /* not to long, estimate vel if a count arrived now */
@@ -673,6 +678,21 @@ static int export_encoder(counter_t * addr,char * prefix)
     if (retval != 0) {
 	return retval;
     }
+
+/* uncomment to debug missing tooth
+    retval = hal_param_s32_newf(HAL_RO, &(addr->dt), comp_id,
+            "%s.dt", prefix);
+    if (retval != 0) {
+	return retval;
+    }
+
+    retval = hal_param_s32_newf(HAL_RO, &(addr->limit_dt), comp_id,
+            "%s.limit_dt", prefix);
+    if (retval != 0) {
+	return retval;
+    }
+*/
+
     /* restore saved message level */
     rtapi_set_msg_level(msg);
     return 0;

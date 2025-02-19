@@ -1,5 +1,5 @@
 /* Classic Ladder Project */
-/* Copyright (C) 2001-2007 Marc Le Douarain */
+/* Copyright (C) 2001-2009 Marc Le Douarain */
 /* http://membres.lycos.fr/mavati/classicladder/ */
 /* http://www.sourceforge.net/projects/classicladder */
 /* February 2001 */
@@ -39,16 +39,15 @@
 
 void InitVars(void)
 {
-	int NumVar;
-	for (NumVar=0; NumVar<SIZE_VAR_ARRAY; NumVar++)
-		VarArray[NumVar] = FALSE;
-	for (NumVar=0; NumVar<SIZE_VAR_WORD_ARRAY; NumVar++)
-		VarWordArray[NumVar] = 0;
-	for (NumVar=0; NumVar<SIZE_VAR_FLOAT_ARRAY; NumVar++)
-		VarFloatArray[NumVar] = 0;
-	/* to tell the GTK application to refresh the bits */
-	InfosGene->CmdRefreshVarsBits = TRUE;
-	InfosGene->HideGuiState = FALSE;
+    int NumVar;
+    for (NumVar=0; NumVar<SIZE_VAR_ARRAY; NumVar++)
+        VarArray[NumVar] = FALSE;
+    for (NumVar=0; NumVar<SIZE_VAR_WORD_ARRAY; NumVar++)
+        VarWordArray[NumVar] = 0;
+    for (NumVar=0; NumVar<SIZE_VAR_FLOAT_ARRAY; NumVar++)
+        VarFloatArray[NumVar] = 0;
+    /* to tell the GTK application to refresh the bits */
+    InfosGene->CmdRefreshVarsBits = TRUE;
 }
 
 int ReadVar(int TypeVar,int Offset)
@@ -59,6 +58,17 @@ int ReadVar(int TypeVar,int Offset)
 			return VarArray[Offset];
 		case VAR_ERROR_BIT:
 			return VarArray[NBR_STEPS+NBR_BITS+NBR_PHYS_INPUTS+NBR_PHYS_OUTPUTS+Offset];
+		case VAR_PHYS_INPUT:
+			return VarArray[NBR_BITS+Offset];
+		case VAR_PHYS_OUTPUT:
+			return VarArray[NBR_BITS+NBR_PHYS_INPUTS+Offset];
+		case VAR_SYSTEM:
+			return VarArray[NBR_BITS+NBR_PHYS_INPUTS+NBR_PHYS_OUTPUTS+Offset];
+#ifdef SEQUENTIAL_SUPPORT
+		case VAR_STEP_ACTIVITY:
+//            return Sequential->Step[ Offset ].Activated;
+			return VarArray[NBR_BITS+NBR_PHYS_INPUTS+NBR_PHYS_OUTPUTS+NBR_VARS_SYSTEM+Offset];
+#endif
 #ifdef OLD_TIMERS_MONOS_SUPPORT
 		case VAR_TIMER_DONE:
 			return TimerArray[Offset].OutputDone;
@@ -75,29 +85,22 @@ int ReadVar(int TypeVar,int Offset)
 			return CounterArray[Offset].OutputFull;
 		case VAR_TIMER_IEC_DONE:
 			return NewTimerArray[Offset].Output;
+		case VAR_MEM_WORD:
+			return VarWordArray[Offset];
 		case VAR_PHYS_WORD_INPUT:
 			return VarWordArray[NBR_WORDS+Offset];
 		case VAR_PHYS_WORD_OUTPUT:
 			return VarWordArray[NBR_WORDS+NBR_PHYS_WORDS_INPUTS+Offset];
-#ifdef SEQUENTIAL_SUPPORT
-		case VAR_STEP_ACTIVITY:
-//			return Sequential->Step[ Offset ].Activated;
-			return VarArray[NBR_BITS+NBR_PHYS_INPUTS+NBR_PHYS_OUTPUTS+Offset];
-#endif
-		case VAR_PHYS_INPUT:
-			return VarArray[NBR_BITS+Offset];
-		case VAR_PHYS_OUTPUT:
-			return VarArray[NBR_BITS+NBR_PHYS_INPUTS+Offset];
 		case VAR_PHYS_FLOAT_INPUT:
 			return VarFloatArray[Offset];
 		case VAR_PHYS_FLOAT_OUTPUT:
 			return VarFloatArray[NBR_PHYS_FLOAT_INPUTS+Offset];
-		case VAR_MEM_WORD:
-			return VarWordArray[Offset];
+		case VAR_WORD_SYSTEM:
+			return VarWordArray[NBR_WORDS+NBR_PHYS_WORDS_INPUTS+NBR_PHYS_WORDS_OUTPUTS+Offset];
 #ifdef SEQUENTIAL_SUPPORT
 		case VAR_STEP_TIME:
-//			return Sequential->Step[ Offset ].TimeActivated/1000;
-			return VarWordArray[NBR_WORDS+NBR_PHYS_WORDS_INPUTS+NBR_PHYS_WORDS_OUTPUTS+Offset];
+//            return Sequential->Step[ Offset ].TimeActivated/1000;
+			return VarWordArray[NBR_WORDS+NBR_PHYS_WORDS_INPUTS+NBR_PHYS_WORDS_OUTPUTS+NBR_VARS_WORDS_SYSTEM+Offset];
 #endif
 #ifdef OLD_TIMERS_MONOS_SUPPORT
 		case VAR_TIMER_PRESET:
@@ -117,10 +120,10 @@ int ReadVar(int TypeVar,int Offset)
 			return NewTimerArray[Offset].Preset;
 		case VAR_TIMER_IEC_VALUE:
 			return NewTimerArray[Offset].Value;
-		default:
-			debug_printf("!!! Error : Type (=%d) not found in ReadVar(%d,%d)\n", TypeVar, TypeVar, Offset);
-	}
-	return 0;
+        default:
+            debug_printf("!!! Error : Type (=%d) not found in ReadVar(%d,%d)\n", TypeVar, TypeVar, Offset);
+    }
+    return 0;
 }
 
 void WriteVar(int TypeVar,int NumVar,int Value)
@@ -128,11 +131,32 @@ void WriteVar(int TypeVar,int NumVar,int Value)
 	switch(TypeVar)
 	{
 		case VAR_MEM_BIT:
+                    //XXX disabling log functionality
+//			if ( LogVarArray[ NumVar ] )
+//			{
+//				// a new state ?
+//				if ( VarArray[NumVar]!=Value )
+//					VarStateChanged( TypeVar, NumVar, Value );
+//			}
 			VarArray[NumVar] = Value;
 			break;
 		case VAR_ERROR_BIT:
 			VarArray[NBR_STEPS+NBR_BITS+NBR_PHYS_INPUTS+NBR_PHYS_OUTPUTS+NumVar] = Value;
+            break;
+		case VAR_PHYS_INPUT:
+			VarArray[NBR_BITS+NumVar] = Value;
 			break;
+		case VAR_PHYS_OUTPUT:
+			VarArray[NBR_BITS+NBR_PHYS_INPUTS+NumVar] = Value;
+			break;
+		case VAR_SYSTEM:
+			VarArray[NBR_BITS+NBR_PHYS_INPUTS+NBR_PHYS_OUTPUTS+NumVar] = Value;
+			break;
+#ifdef SEQUENTIAL_SUPPORT
+		case VAR_STEP_ACTIVITY:
+			VarArray[NBR_BITS+NBR_PHYS_INPUTS+NBR_PHYS_OUTPUTS+NBR_VARS_SYSTEM+NumVar] = Value;
+			break;
+#endif
 		case VAR_COUNTER_DONE:
 			CounterArray[NumVar].OutputDone = Value;
 			break;
@@ -144,17 +168,6 @@ void WriteVar(int TypeVar,int NumVar,int Value)
 			break;
 		case VAR_TIMER_IEC_DONE:
 			NewTimerArray[NumVar].Output = Value;
-			break;
-#ifdef SEQUENTIAL_SUPPORT
-		case VAR_STEP_ACTIVITY:
-			VarArray[NBR_BITS+NBR_PHYS_INPUTS+NBR_PHYS_OUTPUTS+NumVar] = Value;
-			break;
-#endif
-		case VAR_PHYS_INPUT:
-			VarArray[NBR_BITS+NumVar] = Value;
-			break;
-		case VAR_PHYS_OUTPUT:
-			VarArray[NBR_BITS+NBR_PHYS_INPUTS+NumVar] = Value;
 			break;
 		case VAR_MEM_WORD:
 			VarWordArray[NumVar] = Value;
@@ -170,19 +183,22 @@ void WriteVar(int TypeVar,int NumVar,int Value)
 			break;
 		case VAR_PHYS_FLOAT_OUTPUT:
 			VarFloatArray[NBR_PHYS_FLOAT_INPUTS+NumVar] = Value;
+           break; 
+		case VAR_WORD_SYSTEM:
+			VarWordArray[NBR_WORDS+NBR_PHYS_WORDS_INPUTS+NBR_PHYS_WORDS_OUTPUTS+NumVar] = Value;
 			break;
 #ifdef SEQUENTIAL_SUPPORT
 		case VAR_STEP_TIME:
-			VarWordArray[NBR_WORDS+NBR_PHYS_WORDS_INPUTS+NBR_PHYS_WORDS_OUTPUTS+NumVar] = Value;
+			VarWordArray[NBR_WORDS+NBR_PHYS_WORDS_INPUTS+NBR_PHYS_WORDS_OUTPUTS+NBR_VARS_WORDS_SYSTEM+NumVar] = Value;
 			break;
 #endif
 #ifdef OLD_TIMERS_MONOS_SUPPORT
 		case VAR_TIMER_PRESET:
 			TimerArray[NumVar].Preset = Value * TimerArray[NumVar].Base;
-			break;
+            break;
 		case VAR_MONOSTABLE_PRESET:
 			MonostableArray[NumVar].Preset = Value * MonostableArray[NumVar].Base;
-			break;
+            break;
 #endif
 		case VAR_COUNTER_PRESET:
 			CounterArray[NumVar].Preset = Value;
@@ -192,7 +208,7 @@ void WriteVar(int TypeVar,int NumVar,int Value)
 			break;
 		case VAR_TIMER_IEC_PRESET:
 			NewTimerArray[NumVar].Preset = Value;
-			break;
+            break;
 		case VAR_TIMER_IEC_VALUE:
 			NewTimerArray[NumVar].Value = Value;
 			break;
@@ -206,9 +222,23 @@ void WriteVar(int TypeVar,int NumVar,int Value)
 		case VAR_MEM_BIT:
 		case VAR_PHYS_INPUT:
 		case VAR_PHYS_OUTPUT:
+// with a thread for all versions, do no more call a gtk function from this thread !
+//////			// for Xenomai, do not do it now to avoid a domain mode switch !
+//////if defined( GTK_INTERFACE ) && !defined( __XENO__ )
+//////			RefreshOneBoolVar( TypeVar, NumVar, Value );
+//////else
+			/* to tell the GTK application to refresh the bits */
 			InfosGene->CmdRefreshVarsBits = TRUE;
+//////#endif
 			break;
 	}
+}
+
+void DumpVars(void)
+{
+	int NumVar;
+	for (NumVar=0; NumVar<20; NumVar++)
+		debug_printf("Var %d=%d\n",NumVar,ReadVar(VAR_MEM_BIT,NumVar));
 }
 
 /* these are only useful for the MAT-connected version */

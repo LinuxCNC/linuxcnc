@@ -559,12 +559,18 @@ class EMC_Action_UnHome(_EMC_Action):
         self.linuxcnc.unhome(self.axis)
 
 def prompt_areyousure(type, message, secondary=None):
-    dialog = Gtk.MessageDialog(None, 0, type, Gtk.BUTTONS_YES_NO, message)
+    dialog = Gtk.MessageDialog(parent=None,
+                               modal=True,
+                               message_type=type,
+                               text=message)
+    dialog.add_buttons(Gtk.STOCK_YES, Gtk.ResponseType.YES,
+                       Gtk.STOCK_NO, Gtk.ResponseType.NO)
+    dialog.set_keep_above(True)
     if secondary:
         dialog.format_secondary_text(secondary)
     r = dialog.run()
     dialog.destroy()
-    return r == Gtk.RESPONSE_YES
+    return r == Gtk.ResponseType.YES
 
 class EMC_Action_Home(_EMC_Action):
     __gtype_name__ = 'EMC_Action_Home'
@@ -591,7 +597,7 @@ class EMC_Action_Home(_EMC_Action):
         #if not manual_ok(): return
         ensure_mode(self.stat, self.linuxcnc, linuxcnc.MODE_MANUAL)
         if self.confirm_homed and self.homed():
-            if not prompt_areyousure(Gtk.MESSAGE_WARNING,
+            if not prompt_areyousure(Gtk.MessageType.WARNING,
                             _("Axis is already homed, are you sure you want to re-home?")):
                 return
         self.linuxcnc.teleop_enable(False)

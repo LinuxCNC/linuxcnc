@@ -14,7 +14,7 @@ information.
 
 Time returns the hours, minutes, and seconds that time.N.start is true.
 
-Sample pyVCP code to display the hours:minutes:seconds.
+Sample PyVCP code to display the hours:minutes:seconds.
 
 <pyvcp>
   <hbox>

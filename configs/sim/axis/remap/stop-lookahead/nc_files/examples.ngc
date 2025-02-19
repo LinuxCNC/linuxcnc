@@ -1,14 +1,14 @@
 ;
 ; demo for stopping interpreter readahead
 ;
-; assuming the G70 line is commented out, what would happen is:
+; assuming the G13 line is commented out, what would happen is:
 ;
 ; the interpreter parses and queues the msg commands, then encounters abort
 ; and immediately flushes the interpreter queue
 ; consequence: the message from (msg,xx) dont appear since they are flushed before they can be executed by
 ; task and the gui.
 ;
-; if G70 is active, this means interpreter readahead stops at that very line until all preceding
+; if G13 is active, this means interpreter readahead stops at that very line until all preceding
 ; commands have been executed 
 ; hence the messages appear in that case
 
@@ -16,9 +16,9 @@
 (msg,two)
 (msg,three)
 
-G70 (dont lookahead further)
-
-(abort, aborting)
+G13 (dont lookahead further)
+o10 if [#<_task> EQ 1] (this avoids an abort message when starting the config)
+ (abort, aborting)
+o10 endif
 m2
-
 

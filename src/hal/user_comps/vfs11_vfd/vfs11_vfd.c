@@ -360,17 +360,20 @@ void  windup(param_pointer p)
 
 static void toggle_modbus_debug(int sig)
 {
+    (void)sig;
     param.modbus_debug = !param.modbus_debug;
     modbus_set_debug(param.ctx, param.modbus_debug);
 }
 
 static void toggle_debug(int sig)
 {
+    (void)sig;
     param.debug = !param.debug;
 }
 
 static void quit(int sig) 
 {
+    (void)sig;
     if (param.debug)
 	fprintf(stderr,"quit(connection_state=%d)\n",connection_state);
 
@@ -506,18 +509,19 @@ int read_ini(param_pointer p)
 }
 
 void usage(int argc, char **argv) {
+    (void)argc;
     printf("Usage:  %s [options]\n", argv[0]);
     printf("This is a userspace HAL program, typically loaded using the halcmd \"loadusr\" command:\n"
 	   "    loadusr vfs11_vfd [options]\n"
 	   "Options are:\n"
-	   "-I or --ini <inifile>\n"
-	   "    Use <inifile> (default: take ini filename from environment variable INI_FILE_NAME)\n"
+	   "-I or --ini <INI file>\n"
+	   "    Use <INI file> (default: take INI file name from environment variable INI_FILE_NAME)\n"
 	   "-S or --section <section-name> (default 8)\n"
 	   "    Read parameters from <section_name> (default 'VFS11')\n"
 	   "-d or --debug\n"
 	   "    Turn on debugging messages. Toggled by USR1 signal.\n"
 	   "-m or --modbus-debug\n"
-	   "    Turn on modbus debugging.  This will cause all modbus messages\n"
+	   "    Turn on Modbus debugging.  This will cause all Modbus messages\n"
 	   "    to be printed in hex on the terminal. Toggled by USR2 signal.\n"	   
 	   "-r or --report-device\n"
 	   "    Report device properties on console at startup\n");
@@ -611,7 +615,7 @@ int write_data(modbus_t *ctx, haldata_t *haldata, param_pointer p)
     DBG("write_data: cmd1_reg=0x%4.4X old cmd1_reg=0x%4.4X\n", cmd1_reg,p->old_cmd1_reg);
 
     if (modbus_write_register(ctx, REG_COMMAND1, cmd1_reg) < 0) {
-	// modbus transaction timed out. This may happen if VFD is in E-Stop.
+	// Modbus transaction timed out. This may happen if VFD is in E-Stop.
 	// if VFD was in E-Stop, and a fault reset was sent, wait about 2 seconds for recovery
 	// we must assume that any command and frequency values sent were cleared, so we restart
 	// the operation.
@@ -916,7 +920,7 @@ int main(int argc, char **argv)
 	if (!p->modname)
 	    p->modname = "vfs11_vfd";
     } else {
-	fprintf(stderr, "%s: ERROR: no inifile - either use '--ini inifile' or set INI_FILE_NAME environment variable\n", p->progname);
+	fprintf(stderr, "%s: ERROR: no INI file - either use '--ini <INI_file>' or set INI_FILE_NAME environment variable\n", p->progname);
 	goto finish;
     }
 

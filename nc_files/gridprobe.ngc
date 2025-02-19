@@ -2,7 +2,7 @@
 (                                                                       )
 ( This program repeatedly probes in a regular XY grid and writes the    )
 ( probed location to the file 'probe-results.txt' in the same directory )
-( as the .ini file                                                      )
+( as the INI file                                                      )
 
 (Configuration section)
 G20   (Inches)

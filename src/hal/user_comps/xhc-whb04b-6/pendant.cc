@@ -543,6 +543,7 @@ FeedRotaryButton::FeedRotaryButton(const KeyCode& keyCode,
     mStepSize(0),
     mEventListener(listener)
 {
+    (void)mEventListener;
 }
 // ----------------------------------------------------------------------
 FeedRotaryButton::~FeedRotaryButton()
@@ -647,6 +648,7 @@ AxisRotaryButton::AxisRotaryButton(const KeyCode& keyCode, KeyEventListener* lis
     RotaryButton(keyCode),
     mEventListener(listener)
 {
+    (void)mEventListener;
 }
 // ----------------------------------------------------------------------
 AxisRotaryButton::~AxisRotaryButton()
@@ -681,6 +683,7 @@ Handwheel::Handwheel(const FeedRotaryButton& feedButton, KeyEventListener* liste
     mWheelCout(&std::cout),
     mPrefix("pndnt ")
 {
+    (void)mFeedButton;
 }
 // ----------------------------------------------------------------------
 Handwheel::~Handwheel()
@@ -753,6 +756,7 @@ ButtonsState::ButtonsState(KeyEventListener* listener, const ButtonsState* previ
     mPreviousState(previousState),
     mEventListener(listener)
 {
+    (void)mPreviousState;
 }
 // ----------------------------------------------------------------------
 ButtonsState::~ButtonsState()
@@ -1093,12 +1097,6 @@ bool Pendant::onButtonPressedEvent(const MetaButtonCodes& metaButton)
         mHal.setMacro1(true);
         isHandled = true;
     }
-    else if (metaButton == KeyCodes::Meta.macro2)
-    {
-        mHal.toggleLubeOnOff(true);
-        mHal.setMacro2(true);
-        isHandled = true;
-    }
     else if (metaButton == KeyCodes::Meta.macro3)
     {
         mHal.setMacro3(true);
@@ -1259,12 +1257,6 @@ bool Pendant::onButtonReleasedEvent(const MetaButtonCodes& metaButton)
     else if (metaButton == KeyCodes::Meta.macro1)
     {
         mHal.setMacro1(false);
-        isHandled = true;
-    }
-    else if (metaButton == KeyCodes::Meta.macro2)
-    {
-        mHal.toggleLubeOnOff(false);
-        mHal.setMacro2(false);
         isHandled = true;
     }
     else if (metaButton == KeyCodes::Meta.macro3)
@@ -1565,17 +1557,17 @@ void Pendant::dispatchAxisEventToHal(const KeyCode& axis, bool isActive)
     }
 }
 // ----------------------------------------------------------------------
-void Pendant::setLeadModeSpindle(bool enable)
+void Pendant::setLeadModeSpindle(bool /*enable*/)
 {
     mIsLeadModeSpindle = true;
 }
 // ----------------------------------------------------------------------
-void Pendant::setLeadModeFeed(bool enable)
+void Pendant::setLeadModeFeed(bool /*enable*/)
 {
     mIsLeadModeFeed = true;
 }
 // ----------------------------------------------------------------------
-void Pendant::setStepMode_5_10(bool enable)
+void Pendant::setStepMode_5_10(bool /*enable*/)
 {
     mIsStepMode_5_10 = true;
 }
@@ -1624,7 +1616,7 @@ bool Display::onButtonPressedEvent(const MetaButtonCodes& metaButton)
     return false;
 }
 // ----------------------------------------------------------------------
-bool Display::onButtonReleasedEvent(const MetaButtonCodes& metaButton)
+bool Display::onButtonReleasedEvent(const MetaButtonCodes& /*metaButton*/)
 {
     return false;
 }
@@ -1643,11 +1635,11 @@ void Display::onAxisActiveEvent(const KeyCode& axis)
     }
 }
 // ----------------------------------------------------------------------
-void Display::onAxisInactiveEvent(const KeyCode& axis)
+void Display::onAxisInactiveEvent(const KeyCode& /*axis*/)
 {
 }
 // ----------------------------------------------------------------------
-void Display::onFeedActiveEvent(const KeyCode& feed)
+void Display::onFeedActiveEvent(const KeyCode& /*feed*/)
 {
     if (mCurrentButtonsState.feedButton().stepMode() == HandwheelStepmodes::Mode::STEP)
     {
@@ -1666,11 +1658,11 @@ void Display::onFeedActiveEvent(const KeyCode& feed)
     }
 }
 // ----------------------------------------------------------------------
-void Display::onFeedInactiveEvent(const KeyCode& feed)
+void Display::onFeedInactiveEvent(const KeyCode& /*feed*/)
 {
 }
 // ----------------------------------------------------------------------
-bool Display::onJogDialEvent(const HandWheelCounters& counters, int8_t delta)
+bool Display::onJogDialEvent(const HandWheelCounters& /*counters*/, int8_t /*delta*/)
 {
     return false;
 }

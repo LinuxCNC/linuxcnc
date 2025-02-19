@@ -24,26 +24,36 @@
 
 '''
 import gi
-from gi.repository import Gtk as gtk
-from gi.repository import GObject as gobject
-import gst
+from gi.repository import GLib
+
+from qtvcp import logger
+LOG = logger.getLogger(__name__)
+# Force the log level for this module
+#LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL# attempt to setup audio
+
+try:
+    gi.require_version('Gst', '1.0')
+    from gi.repository import Gst
+except:
+    LOG.warning("Gst module missing, - is package python3-gst installed?")
+    raise Exception("module missing")
 
 # the player class does the work of playing the audio hints
 # http://pygstdocs.berlios.de/pygst-tutorial/introduction.html
 class Player:
 
     def __init__(self):
-        import gst
+        Gst.init(None)
         # Element playbin automatic plays any file
-        self.player = gst.element_factory_make("playbin", "player")
+        self.player = Gst.ElementFactory.make("playbin", "player")
         # Enable message bus to check for errors in the pipeline
         bus = self.player.get_bus()
         bus.add_signal_watch()
         bus.connect("message", self.on_message)
-        self.loop = gobject.MainLoop()
+        self.loop = GLib.MainLoop()
 
     def run(self):
-        self.player.set_state(gst.STATE_PLAYING)
+        self.player.set_state(Gst.State.PLAYING)
         self.loop.run()
 
     def set_sound(self, file):
@@ -52,13 +62,13 @@ class Player:
 
     def on_message(self, bus, message):
         t = message.type
-        if t == gst.MESSAGE_EOS:
+        if t == Gst.MessageType.EOS:
             # file ended, stop
-            self.player.set_state(gst.STATE_NULL)
+            self.player.set_state(Gst.State.NULL)
             self.loop.quit()
-        elif t == gst.MESSAGE_ERROR:
+        elif t == Gst.MessageType.ERROR:
             # Error occurred, print and stop
-            self.player.set_state(gst.STATE_NULL)
+            self.player.set_state(Gst.State.NULL)
             err, debug = message.parse_error()
             print ("Error: %s" % err, debug)
             self.loop.quit()

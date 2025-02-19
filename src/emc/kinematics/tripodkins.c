@@ -348,6 +348,7 @@ int main(int argc, char *argv[])
 #include "rtapi_app.h"		/* RTAPI realtime module decls */
 #include "hal.h"
 
+KINS_NOT_SWITCHABLE
 EXPORT_SYMBOL(kinematicsType);
 EXPORT_SYMBOL(kinematicsForward);
 EXPORT_SYMBOL(kinematicsInverse);

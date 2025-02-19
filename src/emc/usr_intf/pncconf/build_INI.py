@@ -157,9 +157,13 @@ class INI:
         # qtplasmac has extra rs274ngc variables
         if self.d.frontend == _PD._QTPLASMAC:
             code = 21 if self.d.units == _PD._METRIC else 20
+            if '/usr' in self.d.qtplasmacbase:
+                mPath = '/usr/share/doc/linuxcnc/examples/nc_files/plasmac/m_files'
+            else:
+                mPath = os.path.realpath(os.path.join(self.d.qtplasmacbase, 'nc_files/plasmac/m_files'))
             print("RS274NGC_STARTUP_CODE = G{} G40 G49 G80 G90 G92.1 G94 G97 M52P1".format(code), file=file)
             print("SUBROUTINE_PATH = ./:../../nc_files", file=file)
-            print("USER_M_PATH = ./:../../nc_files", file=file)
+            print(f"USER_M_PATH = ./:{mPath}", file=file)
             print("", file=file)
         else:
             if self.d.units == _PD._METRIC:
@@ -220,6 +224,9 @@ class INI:
                 print("POSTGUI_HALFILE = qtvcp_postgui.hal", file=file)
             elif self.d.frontend == _PD._GMOCCAPY:
                 print("POSTGUI_HALFILE = gmoccapy_postgui.hal", file=file)
+        # qtplasmac always has a postgui hal fil
+        if self.d.frontend == _PD._QTPLASMAC:
+            print("POSTGUI_HALFILE = qtplasmac_postgui.hal", file=file)
         print("POSTGUI_HALFILE = custom_postgui.hal", file=file)
         print("SHUTDOWN = shutdown.hal", file=file)
         print(file=file)
@@ -313,8 +320,6 @@ class INI:
             print("NO_FORCE_HOMING = 1", file=file)
         print(file=file)
         print("[EMCIO]", file=file)
-        print("EMCIO = io", file=file)
-        print("CYCLE_TIME = 0.100", file=file)
         print("TOOL_TABLE = tool.tbl", file=file)
         # qtplasmac doesn't require these
         if self.d.frontend != _PD._QTPLASMAC:
@@ -335,8 +340,8 @@ class INI:
         ##############################################################
         # self.d.axes:
         # 0 = xyz
-        # 1 = xz
-        # 2 = xyza
+        # 1 = xyza
+        # 2 = xz
         # todo: simplify hardcoding for trivkins sequential joint no.s
 
         jnum = 0
@@ -530,7 +535,8 @@ class INI:
 
         # if  user doesn't request manual individual homing, add the sequence number:
         if not self.d.individual_homing:
-            seqnum = int(get("homesequence"))
+            # start home sequences at 1 because tandem axes cannot be 0
+            seqnum = int(get("homesequence")) + 1
             # if a tandem joint we wish to finish the home sequence together
             if tandemflag: wait ='-'
             else: wait = ''

@@ -24,11 +24,11 @@ parser Hal:
     token END: ";;"
     token PARAMDIRECTION: "rw|r"
     token PINDIRECTION: "in|out|io"
-    token TYPE: "float|bit|signed|unsigned|u32|s32"
+    token TYPE: "float|bit|signed|unsigned|u32|s32|u64|s64|port"
     token NAME: "[a-zA-Z_][a-zA-Z0-9_]*"
     token STARREDNAME: "[*]*[a-zA-Z_][a-zA-Z0-9_]*"
     token HALNAME: "[#a-zA-Z_][-#a-zA-Z0-9_.]*"
-    token FPNUMBER: "-?([0-9]*\.[0-9]+|[0-9]+\.?)([Ee][+-]?[0-9]+)?f?"
+    token FPNUMBER: "-?([0-9]*\\.[0-9]+|[0-9]+\\.?)([Ee][+-]?[0-9]+)?f?"
     token NUMBER: "0x[0-9a-fA-F]+|[+-]?[0-9]+"
     token STRING: "\"(\\.|[^\\\"])*\""
     token HEADER: "<.*?>"
@@ -63,9 +63,9 @@ parser Hal:
     rule Personality: {{ pp = [] }} (PersonalityPart {{ pp.append(PersonalityPart) }} )* {{ return " ".join(pp) }}
     rule PersonalityPart: NUMBER {{ return NUMBER }}
             | POP {{ return POP }}
-    rule OptSimpleArray: "\[" NUMBER "\]" {{ return int(NUMBER) }}
+    rule OptSimpleArray: "\\[" NUMBER "\\]" {{ return int(NUMBER) }}
             | {{ return 0 }}
-    rule OptArray: "\[" NUMBER OptArrayPersonality "\]" {{ return OptArrayPersonality and (int(NUMBER), OptArrayPersonality) or int(NUMBER) }}
+    rule OptArray: "\\[" NUMBER OptArrayPersonality "\\]" {{ return OptArrayPersonality and (int(NUMBER), OptArrayPersonality) or int(NUMBER) }}
             | {{ return 0 }}
     rule OptArrayPersonality: ":" Personality {{ return Personality }}
             | {{ return None }} 
@@ -150,7 +150,7 @@ deprmap = {'s32': 'signed', 'u32': 'unsigned'}
 deprecated = ['s32', 'u32']
 
 def initialize():
-    global functions, params, pins, options, comp_name, names, docs, variables
+    global functions, params, pins, comp_name, names, docs, variables
     global modparams, includes
 
     functions = []; params = []; pins = []; options = {}; variables = []
@@ -334,24 +334,24 @@ static int comp_id;
     for name, type, array, dir, value, personality in pins:
         if array:
             if isinstance(array, tuple): array = array[0]
-            print("    hal_%s_t *%s[%s];" % (type, to_c(name), array), file=f)
+            print("    hal_%s_t *%s_p[%s];" % (type, to_c(name), array), file=f)
         else:
-            print("    hal_%s_t *%s;" % (type, to_c(name)), file=f)
+            print("    hal_%s_t *%s_p;" % (type, to_c(name)), file=f)
         names[name] = 1
 
     for name, type, array, dir, value, personality in params:
         if array:
             if isinstance(array, tuple): array = array[0]
-            print("    hal_%s_t %s[%s];" % (type, to_c(name), array), file=f)
+            print("    hal_%s_t %s_p[%s];" % (type, to_c(name), array), file=f)
         else:
-            print("    hal_%s_t %s;" % (type, to_c(name)), file=f)
+            print("    hal_%s_t %s_p;" % (type, to_c(name)), file=f)
         names[name] = 1
 
     for type, name, array, value in variables:
         if array:
-            print("    %s %s[%d];\n" % (type, name, array), file=f)
+            print("    %s %s_p[%d];\n" % (type, name, array), file=f)
         else:
-            print("    %s %s;\n" % (type, name), file=f)
+            print("    %s %s_p;\n" % (type, name), file=f)
     if has_data:
         print("    void *_data;", file=f)
 
@@ -390,6 +390,7 @@ static int comp_id;
         print("static int export(char *prefix, long extra_arg, long personality) {", file=f)
     else:
         print("static int export(char *prefix, long extra_arg) {", file=f)
+    print("    (void)extra_arg;", file=f)
     if len(functions) > 0:
         print("    char buf[HAL_NAME_LEN + 1];", file=f)
     print("    int r = 0;", file=f)
@@ -422,20 +423,20 @@ static int comp_id;
                 print("    }", file=f)
             else: cnt = array
             print("    for(j=0; j < (%s); j++) {" % cnt, file=f)
-            print("        r = hal_pin_%s_newf(%s, &(inst->%s[j]), comp_id," % (
+            print("        r = hal_pin_%s_newf(%s, &(inst->%s_p[j]), comp_id," % (
                 type, dirmap[dir], to_c(name)), file=f)
             print("            \"%%s%s\", prefix, j);" % to_hal("." + name), file=f)
             print("        if(r != 0) return r;", file=f)
             if value is not None:
-                print("    *(inst->%s[j]) = %s;" % (to_c(name), value), file=f)
+                print("    *(inst->%s_p[j]) = %s;" % (to_c(name), value), file=f)
             print("    }", file=f)
         else:
-            print("    r = hal_pin_%s_newf(%s, &(inst->%s), comp_id," % (
+            print("    r = hal_pin_%s_newf(%s, &(inst->%s_p), comp_id," % (
                 type, dirmap[dir], to_c(name)), file=f)
             print("        \"%%s%s\", prefix);" % to_hal("." + name), file=f)
             print("    if(r != 0) return r;", file=f)
             if value is not None:
-                print("    *(inst->%s) = %s;" % (to_c(name), value), file=f)
+                print("    *(inst->%s_p) = %s;" % (to_c(name), value), file=f)
         if personality:
             print("}", file=f)
 
@@ -453,19 +454,19 @@ static int comp_id;
                 print("    }", file=f)
             else: cnt = array
             print("    for(j=0; j < (%s); j++) {" % cnt, file=f)
-            print("        r = hal_param_%s_newf(%s, &(inst->%s[j]), comp_id," % (
+            print("        r = hal_param_%s_newf(%s, &(inst->%s_p[j]), comp_id," % (
                 type, dirmap[dir], to_c(name)), file=f)
             print("            \"%%s%s\", prefix, j);" % to_hal("." + name), file=f)
             print("        if(r != 0) return r;", file=f)
             if value is not None:
-                print("    inst->%s[j] = %s;" % (to_c(name), value), file=f)
+                print("    inst->%s_p[j] = %s;" % (to_c(name), value), file=f)
             print("    }", file=f)
         else:
-            print("    r = hal_param_%s_newf(%s, &(inst->%s), comp_id," % (
+            print("    r = hal_param_%s_newf(%s, &(inst->%s_p), comp_id," % (
                 type, dirmap[dir], to_c(name)), file=f)
             print("        \"%%s%s\", prefix);" % to_hal("." + name), file=f)
             if value is not None:
-                print("    inst->%s = %s;" % (to_c(name), value), file=f)
+                print("    inst->%s_p = %s;" % (to_c(name), value), file=f)
             print("    if(r != 0) return r;", file=f)
         if personality:
             print("}", file=f)
@@ -474,10 +475,10 @@ static int comp_id;
         if value is None: continue
         if array:
             print("    for(j=0; j < %s; j++) {" % array, file=f)
-            print("        inst->%s[j] = %s;" % (name, value), file=f)
+            print("        inst->%s_p[j] = %s;" % (name, value), file=f)
             print("    }", file=f)
         else:
-            print("    inst->%s = %s;" % (name, value), file=f)
+            print("    inst->%s_p = %s;" % (name, value), file=f)
 
     for name, fp in functions:
         print("    rtapi_snprintf(buf, sizeof(buf), \"%%s%s\", prefix);"\
@@ -727,27 +728,30 @@ int __comp_parse_names(int *argc, char **argv) {
         print("#define fperiod (period * 1e-9)", file=f)
         for name, type, array, dir, value, personality in pins:
             print("#undef %s" % to_c(name), file=f)
+            print("#undef %s_ptr" % to_c(name), file=f)
             if array:
+                print("#define %s_ptr(i) (__comp_inst->%s_p[i])" % (to_c(name), to_c(name)), file=f)
                 if dir == 'in':
-                    print("#define %s(i) (0+*(__comp_inst->%s[i]))" % (to_c(name), to_c(name)), file=f)
+                    print("#define %s(i) (0+*(__comp_inst->%s_p[i]))" % (to_c(name), to_c(name)), file=f)
                 else:
-                    print("#define %s(i) (*(__comp_inst->%s[i]))" % (to_c(name), to_c(name)), file=f)
+                    print("#define %s(i) (*(__comp_inst->%s_p[i]))" % (to_c(name), to_c(name)), file=f)
             else:
+                print("#define %s_ptr (__comp_inst->%s_p)" % (to_c(name), to_c(name)), file=f)
                 if dir == 'in':
-                    print("#define %s (0+*__comp_inst->%s)" % (to_c(name), to_c(name)), file=f)
+                    print("#define %s (0+*__comp_inst->%s_p)" % (to_c(name), to_c(name)), file=f)
                 else:
-                    print("#define %s (*__comp_inst->%s)" % (to_c(name), to_c(name)), file=f)
+                    print("#define %s (*__comp_inst->%s_p)" % (to_c(name), to_c(name)), file=f)
         for name, type, array, dir, value, personality in params:
             print("#undef %s" % to_c(name), file=f)
             if array:
-                print("#define %s(i) (__comp_inst->%s[i])" % (to_c(name), to_c(name)), file=f)
+                print("#define %s(i) (__comp_inst->%s_p[i])" % (to_c(name), to_c(name)), file=f)
             else:
-                print("#define %s (__comp_inst->%s)" % (to_c(name), to_c(name)), file=f)
+                print("#define %s (__comp_inst->%s_p)" % (to_c(name), to_c(name)), file=f)
 
         for type, name, array, value in variables:
             name = name.replace("*", "")
             print("#undef %s" % name, file=f)
-            print("#define %s (__comp_inst->%s)" % (name, name), file=f)
+            print("#define %s (__comp_inst->%s_p)" % (name, name), file=f)
 
         if has_data:
             print("#undef data", file=f)
@@ -886,7 +890,7 @@ def document(filename, outfilename):
         if personality: has_personality = True
         if isinstance(array, tuple): has_personality = True
 
-    print("""
+    print(""".\\" -*- mode: troff; coding: utf-8 -*-
 .\\"*******************************************************************
 .\\"
 .\\" This file was extracted from %s using halcompile.g.
@@ -932,7 +936,7 @@ def document(filename, outfilename):
                     print(".B loadrt %s" % comp_name, end='', file=f)
             else:
                 if has_personality:
-                    print(".B loadrt %s [count=\\fIN\\fB|names=\\fIname1\\fB[,\\fIname2...\\fB]] [personality=\\fIP,P,...\\fB]" % comp_name, end='', file=f)
+                    print(".B loadrt %s [count=\\fIN\\fB|names=\\fIname1\\fB[,\\fIname2...\\fB]] [personality=\\fIP1,P2,...\\fB]" % comp_name, end='', file=f)
                 else:
                     print(".B loadrt %s [count=\\fIN\\fB|names=\\fIname1\\fB[,\\fIname2...\\fB]]" % comp_name, end='', file=f)
             for type, name, default, doc in modparams:
@@ -1120,6 +1124,13 @@ Usage:
 
 Option to set maximum 'personalities' items:
     --personalities=integer_value   (default is %(dflt)d)
+
+Options to add compile and link flags (only for userspace, only for .c files)
+    --extra-compile-args="-I/usr/include/..."
+    --extra-link-args="-l..."
+
+Do not use [sudo] for RIP installation.
+
 """ % {'name': os.path.basename(sys.argv[0]),'dflt':MAX_PERSONALITIES})
     raise SystemExit(exitval)
 
@@ -1133,15 +1144,17 @@ def main():
     mode = PREPROCESS
     outfile = None
     userspace = False
+    global options
+    options = {}
     try:
         opts, args = getopt.getopt(sys.argv[1:], "Uluijcpdo:h?P:",
                            ['unix', 'install', 'compile', 'preprocess', 'outfile=',
                             'document', 'help', 'userspace', 'install-doc',
                             'view-doc', 'require-license', 'print-modinc',
-                            'personalities='])
+                            'personalities=', "extra-compile-args=",
+                            'extra-link-args='])
     except getopt.GetoptError:
         usage(1)
-
     for k, v in opts:
         if k in ("-U", "--unix"):
             require_unix_line_endings = True
@@ -1173,6 +1186,10 @@ def main():
                 print("MAX_PERSONALITIES=%d"%(MAX_PERSONALITIES))
             except Exception as detail:
                 raise SystemExit("Bad value for -P (--personalities)=",v,"\n",detail)
+        if k in ("--extra-compile-args"):
+            option("extra_compile_args", v)
+        if k in ("--extra-link-args"):
+            option("extra_link_args", v)
         if k in ("-?", "-h", "--help"):
             usage(0)
 
@@ -1211,7 +1228,7 @@ def main():
             elif f.endswith(".py") and mode == INSTALL:
                 lines = open(f).readlines()
                 if lines[0].startswith("#!"): del lines[0]
-                lines[0] = "#!%s\n" % sys.executable
+                lines.insert(0, "#!%s\n" % sys.executable)
                 outfile = os.path.join(BINDIR, basename)
                 try: os.unlink(outfile)
                 except os.error: pass

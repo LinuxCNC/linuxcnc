@@ -1,0 +1,4 @@
+debian/extras/usr/share/applications/linuxcnc-documentation_de.desktop   usr/share/applications
+debian/extras/usr/share/applications/linuxcnc-gcoderef_de.desktop        usr/share/applications
+debian/extras/usr/share/applications/linuxcnc-gettingstarted_de.desktop  usr/share/applications
+debian/extras/usr/share/applications/linuxcnc-integratorinfo_de.desktop  usr/share/applications

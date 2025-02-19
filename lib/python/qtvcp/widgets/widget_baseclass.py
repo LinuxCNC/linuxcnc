@@ -49,20 +49,25 @@ class _HalWidgetBase_(object):
         #print self.__class__._instanceNum >=1
         #print 'comp',comp,self.__class__._instanceNum
 
-
-    def hal_init(self, HAL_NAME=None):
+        # INSTANCE_NAME is the embedded panel name
+    def hal_init(self, HAL_NAME=None,INSTANCE_NAME = None):
         self.__class__.QTVCP_INSTANCE_.registerHalWidget(self)
+        if INSTANCE_NAME is not None:
+            self.__class__.THIS_INSTANCE_ = self.__class__.QTVCP_INSTANCE_[INSTANCE_NAME]
+        else:
+            self.__class__.THIS_INSTANCE_ = self.__class__.QTVCP_INSTANCE_
         if HAL_NAME is not None:
             self.HAL_NAME_ = str(HAL_NAME)
         else:
             if self.objectName() =='':
-                LOG.warning('No objectName for HAL pin: {}'.format(self))
+                LOG.warning('No objectName or HAL_NAME specified for object: {}'.format(self))
             self.HAL_NAME_ = self.objectName()
         self.QT_OBJECT_ = self
         try:
             self.PREFS_ = self.QTVCP_INSTANCE_.PREFS_
         except:
             self.PREFS_ = None
+        LOG.verbose("HAL_init: ObjectName:'{}'\n    SELF:{}\n    HAL NAME:{}\n    PREFS:{}\n    INSTANMCE:{}".format(self.objectName(),self,self.HAL_NAME_,self.PREFS_ ,self.__class__.THIS_INSTANCE_))
         self._hal_init()
 
     def _hal_init(self):
@@ -85,7 +90,7 @@ class _HalWidgetBase_(object):
 
 # we do this so we can manipulate all instances based on this.
 # we wish to embed variables.
-# This class gets get instatiated in qt_makegui.py
+# This class gets get instantiated in qt_makegui.py
 class _HalWidgetBase(_HalWidgetBase_):
     _instance = None
     _instanceNum = 0

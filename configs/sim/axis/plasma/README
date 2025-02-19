@@ -1,0 +1,14 @@
+plasmac2 is a customised AXIS GUI for operating a plasma cutting table using the plasmac component.
+
+Included is an application to enable migrating a working QtPlasmaC configuration to plasmac2.
+To begin a migration, call the application from a terminal using one of the following commands depending on the LinuxCNC installation type:
+
+Package installation:
+python3 /usr/share/doc/linuxcnc/examples/sample-configs/sim/axis/plasmac2/plasmac2/migrate.py
+
+Run-In-Place installation:
+python3 ~/linuxcnc-dev/configs/sim/axis/plasmac2/plasmac2/migrate.py
+
+The correct file link may be copied from the plasmac2 menu Help > Migration or directly from above.
+
+See the file customizing.html for user customization tips.

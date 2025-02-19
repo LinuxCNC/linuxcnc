@@ -1,5 +1,5 @@
 #//////////////////////////////////////////////////////////////////////////
-### Example edit your ini and add :
+### Example edit your INI and add :
 #
 #[HAL]
 #HALFILE = <your-machine-hal>.hal
@@ -121,10 +121,6 @@ net  pdnt.flood.on                        whb.halui.flood.on                    
 net  pdnt.mist.is-on                      whb.halui.mist.is-on                  halui.mist.is-on                 #return signal is on or off
 net  pdnt.mist.off                        whb.halui.mist.off                    halui.mist.off                   #reserved whb.button.macro-16
 net  pdnt.mist.on                         whb.halui.mist.on                     halui.mist.on                    #reserved whb.button.macro-16
-
-#net  pdnt.lube.is-on                      whb.halui.lube.is-on                  halui.lube.is-on                 #return signal is on or off
-#net  pdnt.lube.off                        whb.halui.lube.off                    halui.lube.off                   #reserved whb.button.macro-2
-#net  pdnt.lube.on                         whb.halui.lube.on                     halui.lube.on                    #reserved whb.button.macro-2
 
 
 # default function button signals

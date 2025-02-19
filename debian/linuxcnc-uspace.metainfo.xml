@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component>
-  <id>org.linuxcnc</id>
+  <id>org.linuxcnc.linuxcnc</id>
   <metadata_license>MIT</metadata_license>
   <name>LinuxCNC</name>
   <summary>LinuxCNC Machine Controller</summary>
@@ -9,6 +9,7 @@
       lathes, 3D printers, laser cutters, plasma cutters, robot arms,
       hexapods, and more.</p>
   </description>
+  <launchable type="desktop-id">linuxcnc.desktop</launchable>
   <provides>
     <modalias>usb:v05F3p0240d*</modalias>
     <modalias>usb:v10CEpEB70d*</modalias>

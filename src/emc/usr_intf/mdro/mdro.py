@@ -15,13 +15,8 @@
 # Manual DRO
 # Hook this one directly to the dro pins
 
-from __future__ import print_function
-import sys
 import os
-if sys.version_info[0] == 2:
-    import Tkinter as tk
-else:
-    import tkinter as tk
+import tkinter as tk
 import argparse
 import time
 import linuxcnc
@@ -385,12 +380,12 @@ class main_gui():
                 self.axis_row[i].disable_index()
 
 def run_postgui():
-    # Run the postgui hal files if called from DISPLAY section of .ini file
+    # Run the postgui HAL files if called from DISPLAY section of INI file
     if params["ini"] is None or params["inifile"] is None:
         print("mdro inifile missing!")
         exit(1)
     if params["verbose"]:
-        print("mdro ini file: ", params["ini"])
+        print("mdro INI file: ", params["ini"])
     postgui_halfiles = params["inifile"].findall("HAL", "POSTGUI_HALFILE") or None
     if not postgui_halfiles is None:
         for f in postgui_halfiles:
@@ -469,7 +464,7 @@ if __name__ == '__main__':
                     help='dro values in mm')
     parser.add_argument("--load_cs", "-l", type=str,
                     help="load g5x coordinate system")
-    parser.add_argument("--ini", "-ini", type=str, help="ini file name")
+    parser.add_argument("--ini", "-ini", type=str, help="INI file name")
     parser.add_argument("axes", nargs='?', type=str, default='XYZ',
                     help="Axes (example: XYZ)")
 

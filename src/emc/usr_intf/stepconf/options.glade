@@ -1071,7 +1071,7 @@ panel</property>
                                 </child>
                                 <child>
                                   <object class="GtkCheckButton" id="modbus">
-                                    <property name="label" translatable="yes">Include modbus master support</property>
+                                    <property name="label" translatable="yes">Include Modbus master support</property>
                                     <property name="visible">True</property>
                                     <property name="can-focus">True</property>
                                     <property name="receives-default">False</property>
@@ -1152,7 +1152,7 @@ panel</property>
                                 </child>
                                 <child>
                                   <object class="GtkRadioButton" id="radiobutton3">
-                                    <property name="label" translatable="yes">Serial modbus program</property>
+                                    <property name="label" translatable="yes">Serial Modbus program</property>
                                     <property name="visible">True</property>
                                     <property name="can-focus">True</property>
                                     <property name="receives-default">False</property>

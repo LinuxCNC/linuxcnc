@@ -63,7 +63,7 @@ def use_pango_font(font, start, count, will_call_prepost=False):
         context.restore()
         w, h = int(w / Pango.SCALE), int(h / Pango.SCALE)
         GL.glNewList(base+i, GL.GL_COMPILE)
-        GL.glBitmap(0, 0, 0, 0, 0, h-d, ''.encode())
+        GL.glBitmap(1, 0, 0, 0, 0, h-d, bytearray([0]*4))
         #glDrawPixels(0, 0, 0, 0, 0, h-d, '');
         if not will_call_prepost:
             pango_font_pre()
@@ -74,7 +74,7 @@ def use_pango_font(font, start, count, will_call_prepost=False):
             except Exception as e:
                 print("glnav Exception ",e)
 
-        GL.glBitmap(0, 0, 0, 0, w, -h+d, ''.encode())
+        GL.glBitmap(1, 0, 0, 0, w, -h+d, bytearray([0]*4))
         if not will_call_prepost:
             pango_font_post()
         GL.glEndList()
@@ -124,6 +124,25 @@ class Collection(object):
     def set_volume(self, vol):
         self.vol = vol;
 
+
+class HideCollection(Collection):
+    def __init__(self, parts, comp, var):
+        self.parts = parts
+        self.comp = comp
+        self.var = var
+        self.vol = 0
+
+    def traverse(self):
+        try:
+            if self.comp is None:
+                v = bool(hal.get_value(self.var))
+            else:
+                v = bool(self.comp[self.var])
+        except:
+            v = 0
+        if v:
+            return
+        super(HideCollection,self).traverse()
 
 class Translate(Collection):
     def __init__(self, parts, x, y, z):
@@ -186,9 +205,9 @@ class Track(Collection):
 
     def map_coords(self, tx, ty, tz, transform):
         # now we have to transform them to the world frame
-        wx = tx * transform[0] + ty * transform[4] + tz * transform[8] + transform[12]
-        wy = tx * transform[1] + ty * transform[5] + tz * transform[9] + transform[13]
-        wz = tx * transform[2] + ty * transform[6] + tz * transform[10] + transform[14]
+        wx = tx*transform[0][0]+ty*transform[1][0]+tz*transform[2][0]+transform[3][0]
+        wy = tx*transform[0][1]+ty*transform[1][1]+tz*transform[2][1]+transform[3][1]
+        wz = tx*transform[0][2]+ty*transform[1][2]+tz*transform[2][2]+transform[3][2]
         return ([wx, wy, wz])
 
     def apply(self):
@@ -225,7 +244,7 @@ class Track(Collection):
 
 class CoordsBase(object):
     def __init__(self, *args):
-        if args and isinstance(args[0], hal.component):
+        if args and (isinstance(args[0], hal.component) or args[0] is None):
             self.comp = args[0]
             args = args[1:]
         else:
@@ -736,6 +755,14 @@ class Hud(object):
         self._font = 'monospace bold 16'
         self._width = 9
         self._height = 15
+        self._displayOnRight = False
+
+
+    def display_on_left(self):
+        self._displayOnRight = False
+
+    def display_on_right(self):
+        self._displayOnRight = True
 
     def show(self, string="xyzzy"):
         self.showme = 1
@@ -764,8 +791,9 @@ class Hud(object):
             self.fontbase, self._width, linespace = use_pango_font(self._font, 0, 128)
         xmargin, ymargin = 5, 5
         ypos = float(self.app.winfo_height())
+        winWidth = int(self.app.winfo_width())
 
-        GL.glOrtho(0.0, self.app.winfo_width(), 0.0, ypos, -1.0, 1.0)
+        GL.glOrtho(0.0, winWidth, 0.0, ypos, -1.0, 1.0)
         GL.glMatrixMode(GL.GL_MODELVIEW)
         GL.glPushMatrix()
         GL.glLoadIdentity()
@@ -781,12 +809,20 @@ class Hud(object):
         GL.glBlendFunc(GL.GL_ONE, GL.GL_CONSTANT_ALPHA)
         GL.glColor3f(0.2, 0, 0)
         GL.glBlendColor(0, 0, 0, 0.5)  # rgba
+
+        # left side or right side display
+        if self._displayOnRight:
+            offset = winWidth-box_width-xmargin-xmargin
+        else:
+            offset = 0
+
         GL.glBegin(GL.GL_QUADS)
-        GL.glVertex3f(0, ypos, 1)  # upper left
-        GL.glVertex3f(0, ypos - 2 * ymargin - self._height * len(drawtext), 1)  # lower left
-        GL.glVertex3f(box_width + 2 * xmargin, ypos - 2 * ymargin - self._height * len(drawtext), 1)  # lower right
-        GL.glVertex3f(box_width + 2 * xmargin, ypos, 1)  # upper right
+        GL.glVertex3f(offset, ypos, 1)  # upper left
+        GL.glVertex3f(offset, ypos - 2 * ymargin - self._height * len(drawtext), 1)  # lower left
+        GL.glVertex3f(offset+box_width + 2 * xmargin, ypos - 2 * ymargin - self._height * len(drawtext), 1)  # lower right
+        GL.glVertex3f(offset+box_width + 2 * xmargin, ypos, 1)  # upper right
         GL.glEnd()
+
         GL.glDisable(GL.GL_BLEND)
         GL.glEnable(GL.GL_LIGHTING)
 
@@ -801,7 +837,7 @@ class Hud(object):
             #        if i < len(homed) and homed[i]:
             #                GL.glRasterPos2i(6, ypos)
             #                GL.glBitmap(13, 16, 0, 3, 17, 0, homeicon)
-            GL.glRasterPos2i(xmargin, int(ypos))
+            GL.glRasterPos2i(offset+xmargin, int(ypos))
             for char in string:
                 GL.glCallList(self.fontbase + ord(char))
             #        if i < len(homed) and limit[i]:
@@ -817,6 +853,152 @@ class Hud(object):
         GL.glPopMatrix()
         GL.glMatrixMode(GL.GL_MODELVIEW)
 
+class HalHud(object):
+        '''head up display - draws a semi-transparent text box.
+        use HUD.strs for things that must be updated constantly,
+        and HUD.show("stuff") for one-shot things like error messages'''
+        def __init__(self):
+                self.showme = 0
+                self._font = 'monospace bold 16'
+                self.strs = []
+                self.messages = []
+                self.messages_top = []
+                self.fontbase = []
+                self.strings = []
+                self.formats = []
+                self.pinnames = []
+                self.background_color = (0,0.2,0,.5)
+                self.text_color = (0.9,0.9,0.0)
+                self.char_width = 13
+                self.char_height = 18
+                self._displayOnRight = False
+
+        def display_on_left(self):
+            self._displayOnRight = False
+
+        def display_on_right(self):
+            self._displayOnRight = True
+
+        def add_pin(self, text,form,pinname):
+            self.strings.append(str(text))
+            self.formats.append(form)
+            self.pinnames.append(pinname)
+
+        def show_top(self, string):
+                self.showme = 1
+                self.messages_top += [str(string)]
+
+        def show(self, string):
+                self.showme = 1
+                self.messages += [str(string)]
+        
+        def hide(self):
+                self.showme = 0
+                
+        def clear(self):
+                self.messages = []
+
+        # changes the hud color and transparency
+        def set_background_color(self, r, g, b, a =.7):
+            self.background_color = (r, g, b, 1-a)
+
+        # changes the hud text color
+        def set_text_color(self, r, g, b):
+            self.text_color = (r, g, b)
+
+        def set_char_width(self, width):
+            self.char_width = width
+
+        def set_char_height(self, height):
+            self.char_height = height
+
+        def set_font(self, font):
+            self._font = font
+ 
+        def draw(self):
+                self.strs = []
+                # create the strings with the updated values using the corresponding list elements
+                for n in range(len(self.strings)):
+                    try:
+                        value = hal.get_value( self.pinnames[n])
+                    except:
+                        value = 0.0
+                    self.strs += [self.strings[n] +
+                                  str(self.formats[n].format(value))]
+
+                drawtext = self.messages_top + self.strs + self.messages
+                self.lines = len(drawtext)
+
+                # draw head-up-display
+                if ((self.showme == 0) or (self.lines == 0)):
+                        return
+                
+                GL.glMatrixMode(GL.GL_PROJECTION)
+                GL.glPushMatrix()
+                GL.glLoadIdentity()
+                
+                if not self.fontbase:
+                    self.fontbase, self._width, linespace = use_pango_font(self._font, 0, 128)
+
+                xmargin,ymargin = 5,5
+                ypos = float(self.app.winfo_height())
+                winWidth = int(self.app.winfo_width())
+
+                GL.glOrtho(0.0, winWidth, 0.0, ypos, -1.0, 1.0)
+                GL.glMatrixMode(GL.GL_MODELVIEW)
+                GL.glPushMatrix()
+                GL.glLoadIdentity()
+
+                #draw the text box
+                maxlen = max([len(p) for p in drawtext])
+                box_width = maxlen * self.char_width
+                GL.glDepthFunc(GL.GL_ALWAYS)
+                GL.glDepthMask(GL.GL_FALSE)
+                GL.glDisable(GL.GL_LIGHTING)
+                GL.glEnable(GL.GL_BLEND)
+                GL.glEnable(GL.GL_NORMALIZE)
+                GL.glBlendFunc(GL.GL_ONE, GL.GL_CONSTANT_ALPHA)
+                color = self.background_color
+                GL.glColor3f(color[0],color[1],color[2])
+                GL.glBlendColor(0,0,0,color[3]) #rgba, sets the transparency of the overlay using the 'a' value
+
+                # left side or right side display
+                if self._displayOnRight:
+                    offset = winWidth-box_width-xmargin-xmargin
+                else:
+                    offset = 0
+
+                GL.glBegin(GL.GL_QUADS)
+                GL.glVertex3f(offset, ypos, 1) #upper left
+                GL.glVertex3f(offset, ypos - 2*ymargin - self.char_height*len(drawtext), 1) #lower left
+                GL.glVertex3f(offset+box_width+2*xmargin, ypos - 2*ymargin - self.char_height*len(drawtext), 1) #lower right
+                GL.glVertex3f(offset+box_width+2*xmargin,  ypos , 1) #upper right
+                GL.glEnd()
+                GL.glDisable(GL.GL_BLEND)
+                GL.glEnable(GL.GL_LIGHTING)
+                
+                #fill the box with text
+                maxlen = 0
+                ypos -= self.char_height+ymargin
+                i=0
+                GL.glDisable(GL.GL_LIGHTING)
+                color = self.text_color
+                GL.glColor3f(color[0],color[1],color[2])
+                for string in drawtext:
+                        maxlen = max(maxlen, len(string))
+                        GL.glRasterPos2i(offset+xmargin, int(ypos))
+                        for char in string:
+                                GL.glCallList(self.fontbase + ord(char))
+                        ypos -= self.char_height
+                        i = i + 1
+                GL.glDepthFunc(GL.GL_LESS)
+                GL.glDepthMask(GL.GL_TRUE)
+                GL.glEnable(GL.GL_LIGHTING)
+        
+                GL.glPopMatrix()
+                GL.glMatrixMode(GL.GL_PROJECTION)
+                GL.glPopMatrix()
+                GL.glMatrixMode(GL.GL_MODELVIEW)
 
 class Color(Collection):
     def __init__(self, color, parts):
@@ -830,6 +1012,68 @@ class Color(Collection):
     def unapply(self):
         GL.glPopAttrib()
 
+# change the color of an object with a HAL U32 pin
+class HALColorRGB(Collection):
+    def __init__(self, parts, comp, var, alpha=1.0):
+        self.comp = comp
+        self.var = var
+        self.alpha = float(alpha)
+        Collection.__init__(self, parts)
+
+    def apply(self):
+        try:
+            if self.comp is None:
+                v = int(hal.get_value(self.var))
+            else:
+                v = int(self.comp[self.var])
+        except:
+            v = 0
+
+        # split the u32 value into 3 (0-1.0) floats representing RGB
+        r = ((v & 0x000000FF) >> 0)/255
+        g = ((v & 0x0000FF00) >> 8)/255
+        b = ((v & 0x00FF0000) >> 16)/255
+
+        # add preset alpha into the open GL color variable
+        c = [r,g,b,self.alpha]
+
+        GL.glPushAttrib(GL.GL_LIGHTING_BIT)
+        GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_AMBIENT_AND_DIFFUSE, c)
+        GL.glEnable(GL.GL_BLEND)
+        GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
+
+    def unapply(self):
+        GL.glPopAttrib()
+        GL.glDisable(GL.GL_BLEND)
+
+# change between two preset colors with a HAL Bit pin
+class HALColorFlip(Collection):
+    def __init__(self, color1, color2, parts, comp, var):
+        self.color1 = color1
+        self.color2 = color2
+        self.comp = comp
+        self.var = var
+        Collection.__init__(self, parts)
+
+    def apply(self):
+        try:
+            if self.comp is None:
+                v = bool(hal.get_value(self.var))
+            else:
+                v = bool(self.comp[self.var])
+        except:
+            v = False
+        if v : c = self.color2
+        else: c = self.color1
+
+        GL.glPushAttrib(GL.GL_LIGHTING_BIT)
+        GL.glMaterialfv(GL.GL_FRONT_AND_BACK, GL.GL_AMBIENT_AND_DIFFUSE, c)
+        GL.glEnable(GL.GL_BLEND)
+        GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
+
+    def unapply(self):
+        GL.glPopAttrib()
+        GL.glDisable(GL.GL_BLEND)
 
 class AsciiSTL:
     def __init__(self, filename=None, data=None):
@@ -994,12 +1238,11 @@ class HalToolCylinder(CylinderZ):
     IMPERIAL = 25.4
     MODEL_SCALING = IMPERIAL
 
-    def __init__(self, comp, *args):
+    def __init__(self, comp=None, *args):
         # get machine access so it can
         # change itself as it runs
         # specifically tool cylinder in this case.
         CylinderZ.__init__(self, *args)
-        self.comp = comp
 
     def coords(self):
         # get diameter and divide by 2 to get radius.
@@ -1026,7 +1269,7 @@ class HalToolCylinder(CylinderZ):
 # we use a triangle for the tool
 # since we need to visualize a lathe tool here
 class HalToolTriangle(TriangleXZ):
-    def __init__(self, comp, *args):
+    def __init__(self, comp=None, *args):
         # get machine access so it can
         # change itself as it runs
         # specifically tool cylinder in this case.

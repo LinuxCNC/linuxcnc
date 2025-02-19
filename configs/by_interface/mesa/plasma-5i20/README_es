@@ -1,5 +1,0 @@
-Esta configuración muestra cómo conectar la tarjeta Mesa THCAD con LinuxCNC en un cortador de plasma.
-
-Hay dos configuraciones, plasma-5i20 que requiere que tenga instalada una Mesa 5i20, y plasma-demo usando un puerto paralelo. La versión de demostración de plasma es solo para mostrar cómo se ve esta configuración y no es un buen candidato para la tarjeta THCAD debido a la lenta velocidad de actualización cuando se utiliza un codificador software con el puerto paralelo.
-
-La subrutina touchoff.ngc se usa con un cabezal flotante y la entrada de la sonda para ajustar la antorcha a la altura inicial del corte. Los archivos de ejemplo x-trim.ngc y touchtest.ngc demuestran el uso de touchoff.ngc. El uso de touchoff.ngc requiere que tenga entrada de sonda y entrada Arc Ok. Utiliza M66 para esperar la entrada Arc Ok después de encender la antorcha. Se pasan tres parámetros; altura de perforación, retardo de perforación y altura de corte. En un uso real, deberá ajustar la altura para elevar la antorcha después de tocar a Z0 para que coincida con su configuración real.

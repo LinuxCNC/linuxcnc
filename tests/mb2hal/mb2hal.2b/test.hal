@@ -1,0 +1,12 @@
+# Load MB2HAL
+loadusr -W mb2hal config=mb2hal.ini
+
+# specifying these pins so detailed to avoid varying values of
+# mb2hal.<MB_TX_CODE>.num_errors
+show pin mb2hal.Modbus_fnct_02.0
+show pin mb2hal.Modbus_fnct_03.0
+show pin mb2hal.Modbus_fnct_06.0
+show pin mb2hal.Modbus_fnct_15.0
+show pin mb2hal.Modbus_fnct_16.0
+show pin mb2hal.Modbus_fnct_01.0
+show pin mb2hal.Modbus_fnct_05.0

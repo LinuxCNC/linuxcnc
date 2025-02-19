@@ -90,7 +90,6 @@ class Dialogs(GObject.GObject):
         calc.entry.connect("activate", lambda w : dialog.emit("response", Gtk.ResponseType.ACCEPT))
         dialog.parse_geometry("460x400")
         dialog.set_decorated(True)
-        self.emit("play_sound", "alert")
         if integer: # The user is only allowed to enter integer values, we hide some button
             calc.integer_entry_only(True)
             calc.num_pad_only(True)            
@@ -171,7 +170,7 @@ class Dialogs(GObject.GObject):
         dialog.destroy()
         return response == Gtk.ResponseType.YES
 
-    def show_user_message(self, caller, message, title = _("Operator Message")):
+    def show_user_message(self, caller, message, title = _("Operator Message"), checkbox = False):
         dialog = Gtk.MessageDialog(caller.widgets.window1,
                                    Gtk.DialogFlags.DESTROY_WITH_PARENT,
                                    Gtk.MessageType.INFO,
@@ -184,13 +183,22 @@ class Dialogs(GObject.GObject):
         ok_button.connect("clicked",lambda w:dialog.response(Gtk.ResponseType.OK))
         box = Gtk.HButtonBox()
         box.add(ok_button)
-        dialog.action_area.add(box)
+        
+        if checkbox:
+            cb = Gtk.CheckButton(label = _("Don't show this again"))
+            dialog.get_content_area().add(cb)
+        
+        dialog.get_action_area().add(box)
         dialog.set_border_width(5)
         dialog.show_all()
         self.emit("play_sound", "alert")
         response = dialog.run()
         dialog.destroy()
-        return response == Gtk.ResponseType.OK
+        
+        if checkbox and response == Gtk.ResponseType.OK:
+            return cb.get_active()
+        else:
+            return response == Gtk.ResponseType.OK
 
     # dialog for run from line
     def restart_dialog(self, caller):
@@ -236,16 +244,15 @@ class Dialogs(GObject.GObject):
         downbutton.set_image(Gtk.Image.new_from_icon_name("go-down", Gtk.IconSize.BUTTON))
         enterbutton = Gtk.Button.new_with_mnemonic(_("_Jump to"))
         enterbutton.set_image(Gtk.Image.new_from_icon_name("go-jump", Gtk.IconSize.BUTTON))
-        calc.table.attach(upbutton,3,4,1,2)
-        calc.table.attach(downbutton,3,4,2,3)
-        calc.table.attach(enterbutton,3,4,3,4)
+        calc.table.attach(upbutton,3,1,1,1)
+        calc.table.attach(downbutton,3,2,1,1)
+        calc.table.attach(enterbutton,3,3,1,1)
         upbutton.connect("clicked", restart_up, caller, calc)
         downbutton.connect("clicked", restart_down, caller, calc)
         enterbutton.connect("clicked", on_enter_button, caller, calc)
 
         restart_dialog.parse_geometry("410x400+0+0")
         restart_dialog.show_all()
-        self.emit("play_sound", "alert")
         result = restart_dialog.run()
         restart_dialog.destroy()
         if result == Gtk.ResponseType.REJECT:

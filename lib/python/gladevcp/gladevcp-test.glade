@@ -1,167 +1,173 @@
-<?xml version="1.0"?>
-<glade-interface>
-  <!-- interface-requires gladevcp 0.0 -->
-  <!-- interface-requires gladevcp 0.0 -->
-  <!-- interface-requires gtk+ 2.16 -->
-  <!-- interface-naming-policy project-wide -->
-  <widget class="GtkWindow" id="window1">
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.38.2 -->
+<interface>
+  <requires lib="gtk+" version="3.24"/>
+  <requires lib="gladevcp" version="0.0"/>
+  <object class="GtkWindow" id="window1">
+    <property name="can-focus">False</property>
     <child>
-      <widget class="GtkHBox" id="hbox1">
+      <object class="GtkBox" id="hbox1">
         <property name="visible">True</property>
+        <property name="can-focus">False</property>
         <child>
-          <widget class="HAL_Table" id="hal_table1">
+          <!-- n-columns=4 n-rows=4 -->
+          <object class="HAL_Table" id="hal_table1">
             <property name="visible">True</property>
-            <property name="n_rows">4</property>
-            <property name="n_columns">3</property>
+            <property name="can-focus">False</property>
             <child>
-              <widget class="HAL_SpinButton" id="hal_spinbutton1">
+              <object class="HAL_SpinButton" id="hal_spinbutton1">
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="invisible_char">&#x25CF;</property>
-                <property name="adjustment">0 0 100 1 10 0</property>
-              </widget>
+                <property name="can-focus">True</property>
+                <property name="invisible-char">●</property>
+              </object>
               <packing>
-                <property name="left_attach">1</property>
-                <property name="right_attach">2</property>
-                <property name="top_attach">1</property>
-                <property name="bottom_attach">2</property>
+                <property name="left-attach">0</property>
+                <property name="top-attach">1</property>
               </packing>
             </child>
             <child>
-              <widget class="HAL_HBox" id="hal_hbox1">
+              <!-- n-columns=3 n-rows=1 -->
+              <object class="HAL_Table" id="hal_hbox1">
                 <property name="visible">True</property>
+                <property name="can-focus">False</property>
                 <child>
-                  <widget class="HAL_LED" id="hal_led1">
+                  <object class="HAL_LED" id="hal_led1">
                     <property name="visible">True</property>
-                    <property name="pick_color_on">#f88096020000</property>
-                    <property name="pick_color_off">#00002724ffff</property>
-                  </widget>
+                    <property name="can-focus">False</property>
+                    <property name="led-blink-rate">0</property>
+                    <property name="pick-color-off">#00002724ffff</property>
+                    <property name="pick-color-on">#f88096020000</property>
+                  </object>
                   <packing>
-                    <property name="position">0</property>
+                    <property name="left-attach">0</property>
+                    <property name="top-attach">0</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="HAL_LED" id="hal_led2">
+                  <object class="HAL_LED" id="hal_led2">
                     <property name="visible">True</property>
-                  </widget>
+                    <property name="can-focus">False</property>
+                    <property name="led-blink-rate">0</property>
+                  </object>
                   <packing>
-                    <property name="position">1</property>
+                    <property name="left-attach">1</property>
+                    <property name="top-attach">0</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="HAL_LED" id="hal_led3">
+                  <object class="HAL_LED" id="hal_led3">
                     <property name="visible">True</property>
-                  </widget>
+                    <property name="can-focus">False</property>
+                    <property name="led-blink-rate">0</property>
+                  </object>
                   <packing>
-                    <property name="position">2</property>
+                    <property name="left-attach">2</property>
+                    <property name="top-attach">0</property>
                   </packing>
                 </child>
-              </widget>
+              </object>
               <packing>
-                <property name="left_attach">1</property>
-                <property name="right_attach">2</property>
+                <property name="left-attach">0</property>
+                <property name="top-attach">0</property>
               </packing>
             </child>
             <child>
-              <widget class="HAL_VScale" id="hal_vscale1">
+              <object class="HAL_VScale" id="hal_vscale1">
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
+                <property name="can-focus">True</property>
                 <property name="orientation">vertical</property>
-                <property name="adjustment">0 0 100 1 10 10</property>
-              </widget>
+              </object>
               <packing>
-                <property name="left_attach">2</property>
-                <property name="right_attach">3</property>
+                <property name="left-attach">1</property>
+                <property name="top-attach">0</property>
               </packing>
             </child>
             <child>
-              <widget class="HAL_Label" id="hal_label1">
+              <object class="HAL_Label" id="hal_label1">
                 <property name="visible">True</property>
+                <property name="can-focus">False</property>
                 <property name="label" translatable="yes">label</property>
-                <property name="label_pin_type">1</property>
-                <property name="text_template">%.02f</property>
-              </widget>
+                <property name="label-pin-type">1</property>
+                <property name="text-template">%.02f</property>
+              </object>
               <packing>
-                <property name="left_attach">2</property>
-                <property name="right_attach">3</property>
-                <property name="top_attach">1</property>
-                <property name="bottom_attach">2</property>
+                <property name="left-attach">1</property>
+                <property name="top-attach">1</property>
               </packing>
             </child>
             <child>
-              <widget class="HAL_Label" id="hal_label2">
+              <object class="HAL_Label" id="hal_label2">
                 <property name="visible">True</property>
+                <property name="can-focus">False</property>
                 <property name="label" translatable="yes">label</property>
-              </widget>
+              </object>
               <packing>
-                <property name="top_attach">1</property>
-                <property name="bottom_attach">2</property>
+                <property name="left-attach">2</property>
+                <property name="top-attach">1</property>
               </packing>
             </child>
             <child>
-              <widget class="HAL_RadioButton" id="hal_radiobutton2">
+              <object class="HAL_RadioButton" id="hal_radiobutton2">
                 <property name="label" translatable="yes">radiobutton</property>
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="draw_indicator">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">False</property>
+                <property name="draw-indicator">True</property>
                 <property name="group">hal_radiobutton1</property>
-              </widget>
+              </object>
               <packing>
-                <property name="left_attach">1</property>
-                <property name="right_attach">2</property>
-                <property name="top_attach">3</property>
-                <property name="bottom_attach">4</property>
+                <property name="left-attach">0</property>
+                <property name="top-attach">3</property>
               </packing>
             </child>
             <child>
-              <widget class="HAL_RadioButton" id="hal_radiobutton1">
+              <object class="HAL_RadioButton" id="hal_radiobutton1">
                 <property name="label" translatable="yes">radiobutton</property>
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">False</property>
                 <property name="active">True</property>
-                <property name="draw_indicator">True</property>
-              </widget>
+                <property name="draw-indicator">True</property>
+              </object>
               <packing>
-                <property name="left_attach">1</property>
-                <property name="right_attach">2</property>
-                <property name="top_attach">2</property>
-                <property name="bottom_attach">3</property>
+                <property name="left-attach">0</property>
+                <property name="top-attach">2</property>
               </packing>
             </child>
             <child>
-              <widget class="HAL_LED" id="hal_led4">
+              <object class="HAL_LED" id="hal_led4">
                 <property name="visible">True</property>
-                <property name="on_color">green</property>
-              </widget>
+                <property name="can-focus">False</property>
+                <property name="led-blink-rate">0</property>
+              </object>
               <packing>
-                <property name="left_attach">2</property>
-                <property name="right_attach">3</property>
-                <property name="top_attach">2</property>
-                <property name="bottom_attach">3</property>
+                <property name="left-attach">1</property>
+                <property name="top-attach">2</property>
               </packing>
             </child>
             <child>
-              <widget class="HAL_LED" id="hal_led5">
+              <object class="HAL_LED" id="hal_led5">
                 <property name="visible">True</property>
-                <property name="led_blink_rate">500</property>
-              </widget>
+                <property name="can-focus">False</property>
+                <property name="led-blink-rate">500</property>
+              </object>
               <packing>
-                <property name="left_attach">2</property>
-                <property name="right_attach">3</property>
-                <property name="top_attach">3</property>
-                <property name="bottom_attach">4</property>
+                <property name="left-attach">1</property>
+                <property name="top-attach">3</property>
               </packing>
             </child>
             <child>
-              <widget class="HAL_CheckButton" id="hal_checkbutton1">
+              <object class="HAL_CheckButton" id="hal_checkbutton1">
                 <property name="label" translatable="yes">checkbutton</property>
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="draw_indicator">True</property>
-              </widget>
+                <property name="can-focus">True</property>
+                <property name="receives-default">False</property>
+                <property name="draw-indicator">True</property>
+              </object>
+              <packing>
+                <property name="left-attach">3</property>
+                <property name="top-attach">0</property>
+              </packing>
             </child>
             <child>
               <placeholder/>
@@ -169,34 +175,53 @@
             <child>
               <placeholder/>
             </child>
-          </widget>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+          </object>
           <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
             <property name="position">0</property>
           </packing>
         </child>
         <child>
-          <widget class="GtkVBox" id="vbox1">
+          <object class="GtkBox" id="vbox1">
             <property name="visible">True</property>
+            <property name="can-focus">False</property>
             <property name="orientation">vertical</property>
             <child>
-              <widget class="HAL_Button" id="hal_button1">
+              <object class="HAL_Button" id="hal_button1">
                 <property name="label" translatable="yes">button</property>
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-              </widget>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+              </object>
               <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
                 <property name="position">0</property>
               </packing>
             </child>
             <child>
-              <widget class="HAL_ToggleButton" id="hal_togglebutton1">
+              <object class="HAL_ToggleButton" id="hal_togglebutton1">
                 <property name="label" translatable="yes">togglebutton</property>
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-              </widget>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+              </object>
               <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
                 <property name="position">1</property>
               </packing>
             </child>
@@ -204,60 +229,71 @@
               <placeholder/>
             </child>
             <child>
-              <widget class="HAL_HScale" id="hal_hscale1">
+              <object class="HAL_HScale" id="hal_hscale1">
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="adjustment">0 0 100 1 10 10</property>
-              </widget>
+                <property name="can-focus">True</property>
+              </object>
               <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
                 <property name="position">3</property>
               </packing>
             </child>
             <child>
-              <widget class="GtkHBox" id="hbox2">
+              <object class="GtkBox" id="hbox2">
                 <property name="visible">True</property>
+                <property name="can-focus">False</property>
                 <child>
-                  <widget class="GtkLabel" id="label1">
+                  <object class="GtkLabel" id="label1">
                     <property name="visible">True</property>
+                    <property name="can-focus">False</property>
                     <property name="label" translatable="yes">Scale</property>
-                  </widget>
+                  </object>
                   <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
                     <property name="position">0</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="HAL_SpinButton" id="hal_spinbutton2">
+                  <object class="HAL_SpinButton" id="hal_spinbutton2">
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="invisible_char">&#x25CF;</property>
-                    <property name="adjustment">0 0 1000 1 10 0</property>
-                  </widget>
+                    <property name="can-focus">True</property>
+                    <property name="invisible-char">●</property>
+                  </object>
                   <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
                     <property name="position">1</property>
                   </packing>
                 </child>
-              </widget>
+              </object>
               <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
                 <property name="position">4</property>
               </packing>
             </child>
             <child>
-              <widget class="HAL_ProgressBar" id="hal_progressbar1">
+              <object class="HAL_ProgressBar" id="hal_progressbar1">
                 <property name="visible">True</property>
+                <property name="can-focus">False</property>
                 <property name="scale">180</property>
-              </widget>
+              </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
                 <property name="position">5</property>
               </packing>
             </child>
-          </widget>
+          </object>
           <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
             <property name="position">1</property>
           </packing>
         </child>
-      </widget>
+      </object>
     </child>
-  </widget>
-</glade-interface>
+  </object>
+</interface>

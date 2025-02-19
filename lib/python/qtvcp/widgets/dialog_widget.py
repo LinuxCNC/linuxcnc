@@ -21,7 +21,7 @@ import hal
 from PyQt5.QtWidgets import (QMessageBox, QFileDialog, QDesktopWidget,
         QDialog, QDialogButtonBox, QVBoxLayout, QPushButton, QHBoxLayout,
         QHBoxLayout, QLineEdit, QPushButton, QDialogButtonBox, QTabWidget,
-        QTextEdit)
+        QTextEdit,QLabel)
 from PyQt5.QtGui import QColor
 from PyQt5.QtCore import Qt, pyqtSlot, pyqtProperty, QEvent, QUrl
 from PyQt5 import uic
@@ -36,6 +36,7 @@ from qtvcp.widgets.virtualkeyboard import VirtualKeyboard
 from qtvcp.widgets.calculator import Calculator
 from qtvcp.widgets.machine_log import MachineLog
 from qtvcp.lib.notify import Notify
+from qtvcp.widgets.dialogMixin import GeometryMixin
 from qtvcp.core import Status, Action, Info, Tool
 from qtvcp import logger
 
@@ -57,107 +58,14 @@ LOG = logger.getLogger(__name__)
 #LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
     #########################################
-    # geometry helper functions
+    # GeometryMixin helper class
     #########################################
-
-    # This general function parses the geometry string and places
+    # adds geometry class and _HalWidgetBase class into the dialogs.
+    # the geometry class parses the geometry string and places
     # the dialog based on what it finds.
-    # there are directive words allowed.
-    # If there are no letters in the string, it will check the
-    # preference file (if there is one) to see what the last position
-    # was. If all else fails it uses it's natural Designer stated
-    # geometry
-class GeometryMixin(_HalWidgetBase):
-    def __init__(self, ):
-        super(GeometryMixin, self).__init__()
-        self._geometry_string = 'default'
+    # it needed to be in a separate file do to circular imports
+    # found when using versaProbe
 
-    def set_default_geometry(self):
-        geom = self.frameGeometry()
-        geom.moveCenter(QDesktopWidget().availableGeometry().center())
-        self.setGeometry(geom)
-        x = self.geometry().x()
-        y = self.geometry().y()
-        w = self.geometry().width()
-        h = self.geometry().height()
-        self._default_geometry=[x,y,w,h]
-        return x,y,w,h
-
-    def read_preference_geometry(self,name):
-        self._geoName = name
-        if self.PREFS_:
-            self._geometry_string = self.PREFS_.getpref(name,
-                                        self.get_default_geometry(),
-                                        str, 'DIALOG_GEOMETRY')
-        else:
-            self._geometry_string = 'default'
-
-    def get_default_geometry(self):
-        a,b,c,d = self._default_geometry
-        return '%s %s %s %s'% (a,b,c,d)
-
-    def set_geometry(self):
-        def go(x,y,w,h):
-            self.setGeometry(x,y,w,h)
-        try:
-            if self._geometry_string.replace(' ','').isdigit():
-                self._geometry_string = self.PREFS_.getpref(self._geoName, '', str, 'DIALOG_GEOMETRY')
-            # If there is a preference file object use it to load the geometry
-            if self._geometry_string in('default',''):
-                x,y,w,h = self._default_geometry
-                go(x,y,w,h)
-            elif 'center' in self._geometry_string.lower():
-                geom = self.frameGeometry()
-                geom.moveCenter(QDesktopWidget().availableGeometry().center())
-                self.setGeometry(geom)
-                return
-            elif 'bottomleft' in self._geometry_string.lower():
-                # move to bottom left of parent
-                ph = self.topParent.geometry().height()
-                px = self.topParent.geometry().x()
-                py = self.topParent.geometry().y()
-                dw = self.geometry().width()
-                dh = self.geometry().height()
-                go(px, py+ph-dh, dw, dh)
-            elif 'onwindow' in self._geometry_string.lower():
-                # move relative to parent position
-                px = self.topParent.geometry().x()
-                py = self.topParent.geometry().y()
-                # remove everything except digits and spaces
-                temp =  [x for x in self._geometry_string if (x.isdigit() or x == ' ')]
-                # remove lead and trailing spaces and then slit on spaces
-                temp = temp.strip(' ').split(' ')
-                go(px+int(temp[0]), py+int(temp[1]), int(temp[2]), int(temp[3]))
-            else:
-                temp = self._geometry_string.split(' ')
-                go(int(temp[0]), int(temp[1]), int(temp[2]), int(temp[3]))
-        except Exception as e:
-            try:
-                LOG.error('Calculating geometry of {}. Will use natural placement.'.format(self.HAL_NAME_))
-            except AttributeError:
-                pass
-            LOG.debug('Dialog geometry python error: {}'.format(e))
-            x = self.geometry().x()
-            y = self.geometry().y()
-            w = self.geometry().width()
-            h = self.geometry().height()
-            go( x,y,w,h)
-
-    def record_geometry(self):
-        try:
-            if self.PREFS_ :
-                temp = self._geometry_string.replace(' ','')
-                temp = temp.strip('-')
-                if temp in('','default')  or temp.isdigit():
-                    LOG.debug('Saving {} data from widget {} to file.'.format( self._geoName,self.HAL_NAME_))
-                    x = self.geometry().x()
-                    y = self.geometry().y()
-                    w = self.geometry().width()
-                    h = self.geometry().height()
-                    geo = '%s %s %s %s'% (x,y,w,h)
-                    self.PREFS_.putpref(self._geoName, geo, str, 'DIALOG_GEOMETRY')
-        except:
-            pass
 ################################################################################
 # Generic messagebox Dialog
 ################################################################################
@@ -185,15 +93,17 @@ class LcncDialog(QMessageBox, GeometryMixin):
         self._return_callback = None
         self._pinname = None
         self._title = 'Message Dialog'
-        self._forcedFlag = False
+        self._forcedFlag = True
         self._use_exec = False
+        self._geoName = 'LncMessage-geometry'
         self.set_default_geometry()
         self.hide()
-        self.buttonClicked.connect(self.msgbtn)
+        self.buttonClicked.connect(self.btn_callback)
 
     def _hal_init(self):
-        self.read_preference_geometry('LncMessage-geometry')
+        self.read_preference_geometry(self._geoName)
         STATUS.connect('dialog-request', self._external_request)
+        STATUS.connect('dialog-update', self._external_update)
 
     # this processes STATUS called dialog requests
     # We check the cmd to see if it was for us
@@ -203,8 +113,14 @@ class LcncDialog(QMessageBox, GeometryMixin):
     def _external_request(self, w, message):
         self._message = message
         if message.get('NAME') == self._request_name:
+
+            # request to close dialog early
+            if message.get('CLOSE'):
+                self.close()
+                STATUS.emit('focus-overlay-changed', False, None, None)
+                return
+
             geo = message.get('GEONAME') or 'LncMessage-geometry'
-            self.read_preference_geometry(geo)
             t = message.get('TITLE')
             if not t:
                 t = 'Message Dialog'
@@ -220,10 +136,12 @@ class LcncDialog(QMessageBox, GeometryMixin):
             fcolor = message.get('FOCUSCOLOR')
             alert = message.get('PLAYALERT')
             nblock = message.get('NONBLOCKING')
+            forceOpen = message.get('NONBLOCKING')
             callback = message.get('CALLBACK') # this needs testing
             self.showdialog(messtext, more, details, mtype, 
                                     icon, pin, ftext, fcolor, alert,
-                                    nblock, title = t, return_callback = callback)
+                                    nblock, geoname=geo,title = t, return_callback = callback,
+                                    force_open = forceOpen)
 
     # This actually builds and displays the dialog.
     # there are three ways to get results:
@@ -234,7 +152,8 @@ class LcncDialog(QMessageBox, GeometryMixin):
                    icon=QMessageBox.Information, pinname=None, focus_text=None,
                    focus_color=None, play_alert=None, nblock=False,
                    return_callback = None, flags = None, setflags = None,
-                    title = None, use_exec = False):
+                    title = None, use_exec = False,geoname=None,
+                    force_open = None):
 
         self._pinname = pinname
         self._nblock = nblock
@@ -314,7 +233,12 @@ class LcncDialog(QMessageBox, GeometryMixin):
         if play_alert:
             STATUS.emit('play-sound', play_alert)
  
+        if geoname is None:
+            geoname = self._geoName
+        self.read_preference_geometry(geoname)
         self.show()
+        if not force_open is None:
+            self._forcedFlag = force_open
         self.forceDetailsOpen()
 
         if use_exec:
@@ -362,7 +286,7 @@ class LcncDialog(QMessageBox, GeometryMixin):
         super(LcncDialog, self).showEvent(event)
 
 
-    def msgbtn(self, i):
+    def btn_callback(self, i):
         LOG.debug('Button pressed is: {}'.format(i.text()))
 
         # update the dialog position
@@ -376,7 +300,9 @@ class LcncDialog(QMessageBox, GeometryMixin):
         btn = self.standardButton(self.clickedButton())
         result = self.qualifiedReturn(btn)
         LOG.debug('Value of {} pressed button: {}'.format(self, result))
+        self.process_result(result)
 
+    def process_result(self, result):
         # these directly call a function with btn info
         if not self._return_callback is None:
             self._return_callback(self, result)
@@ -389,6 +315,37 @@ class LcncDialog(QMessageBox, GeometryMixin):
         # just return result
         else:
             LOG.error('No callback or STATUS message specified for: {}'.format(self.objectName()))
+
+    def setGeometry(self,*args):
+        #print(args,len(args))
+        if len(args) == 1:
+            super().setGeometry(args[0])
+            width = args[0].width()
+        else:
+            super().setGeometry(args[0],args[1],args[2],args[3])
+            width = args[2]
+        if isinstance(self,QMessageBox) and width < 200:
+            if isinstance(self,CloseDialog):
+                self.findChild(QLabel, "qt_msgbox_label").setFixedWidth(200)
+            else:
+                self.findChild(QLabel, "qt_msgbox_label").setFixedWidth(350)
+
+    # callback from status 'update-dialog'
+    def _external_update(self, w, message):
+        if message.get('NAME') == self._request_name:
+            if not self.isVisible(): return
+
+            response = message.get('response')
+            if not response is None:
+                LOG.debug('Response is: {}'.format(response))
+                # update the dialog position
+                self.record_geometry()
+                self.hide()
+
+                if response == 0:
+                    self.process_result(False)
+                elif response == 1:
+                    self.process_result(True)
 
     # **********************
     # Designer properties
@@ -449,6 +406,7 @@ class ToolDialog(LcncDialog, GeometryMixin):
         self._actionbutton = self.addButton('Pause For Jogging', QMessageBox.ApplyRole)
         self._actionbutton.setEnabled(False)
         self._flag = True
+        self._forcedFlag = False
 
     # We want the tool change HAL pins the same as what's used in AXIS so it is
     # easier for users to connect to.
@@ -750,7 +708,7 @@ class FileDialog(QFileDialog, GeometryMixin):
         if preselect:
             self.selectFile(preselect)
         else:
-            self.selectFile('')
+            self.selectFile(' ')
         if directory:
             self.setDirectory(directory)
         self.setWindowTitle('Save')
@@ -1620,6 +1578,7 @@ class CalculatorDialog(Calculator, GeometryMixin):
         self._title = 'Calculator Entry'
         self._nblock = False
         self._message = None
+        self._overlay = None
         self.setWindowFlags(self.windowFlags() | Qt.Tool |
                             Qt.Dialog | Qt.WindowStaysOnTopHint |
                             Qt.WindowSystemMenuHint)
@@ -1632,6 +1591,7 @@ class CalculatorDialog(Calculator, GeometryMixin):
         else:
             self.play_sound = False
         STATUS.connect('dialog-request', self._external_request)
+        STATUS.connect('dialog-update', self._external_update)
 
     # this processes STATUS called dialog requests
     # We check the cmd to see if it was for us
@@ -1650,23 +1610,57 @@ class CalculatorDialog(Calculator, GeometryMixin):
                 self._title = 'Calculator Entry'
             preload = message.get('PRELOAD')
             axis = message.get('AXIS')
+
+            next = message.get('NEXT', False)
+            cycle = message.get('WIDGETCYCLE', False)
+
             if axis in ('X','Y','Z','A','B','C','U','V','W'):
                 self.axisTriggered(axis)
             self._nblock = message.get('NONBLOCKING')
             overlay = message.get('OVERLAY')
             if overlay is None:
                 overlay = True
-            num = self.showdialog(preload=preload, overlay=overlay)
-            message['RETURN'] = num
-            STATUS.emit('general', message)
+            self._overlay = overlay
+            if next:
+                self.updatedialog(preload=preload)
+                message['NEXT'] = False
+            else:
+                num = self.showdialog(preload=preload, overlay=overlay, cycle=cycle)
 
-    def showdialog(self, preload=None, overlay=True):
+    # callback from status 'update-dialog'
+    def _external_update(self, w, message):
+        if message.get('NAME') == self._request_name:
+            if not self.isVisible(): return
+
+            response = message.get('response')
+            if not response is None:
+                if response == 0:
+                    self.reject()
+                elif response == 1:
+                    self.accept()
+
+    def updatedialog(self, preload=None):
+        self.setWindowTitle(self._title);
+        if self.play_sound:
+            STATUS.emit('play-sound', self.sound_type)
+        if self._overlay:
+            STATUS.emit('focus-overlay-changed', True, '', self._color)
+        if preload is not None:
+            self.display.setText(str(preload))
+
+    def showdialog(self, preload=None, overlay=True, cycle=False):
         self.setWindowTitle(self._title);
         if self.play_sound:
             STATUS.emit('play-sound', self.sound_type)
         self.set_geometry()
         if preload is not None:
             self.display.setText(str(preload))
+
+        # show/hide the widget cycling buttons
+        self.applyNextButton.setVisible(cycle)
+        self.nextButton.setVisible(cycle)
+        self.backButton.setVisible(cycle)
+
         if self._nblock:
             self.show()
         else:
@@ -1684,6 +1678,7 @@ class CalculatorDialog(Calculator, GeometryMixin):
             LOG.debug('Displayed value when accepted: {}'.format(num))
             if self._message is not None:
                 self._message['RETURN'] = num
+                self._message['NEXT'] = False
                 STATUS.emit('general', self._message)
                 self._message = None
         except Exception as e:
@@ -1692,6 +1687,47 @@ class CalculatorDialog(Calculator, GeometryMixin):
     def reject(self):
         self.record_geometry()
         super(CalculatorDialog, self).reject()
+        self._message['RETURN'] = None
+        self._message['NEXT'] = False
+        STATUS.emit('general', self._message)
+        self._message = None
+
+    # used for cycling between different widgets.
+    # the actual cycling is done in the calling code
+    def backAction(self):
+        try:
+            if self._message is not None:
+                self._message['RETURN'] = None
+                self._message['NEXT'] = False
+                self._message['BACK'] = True
+                STATUS.emit('general', self._message)
+        except Exception as e:
+                print(e)
+
+    # used for cycling between different widgets.
+    # the actual cycling is done in the calling code
+    def nextAction(self):
+        try:
+            if self._message is not None:
+                self._message['RETURN'] = None
+                self._message['NEXT'] = True
+                self._message['BACK'] = False
+                STATUS.emit('general', self._message)
+        except Exception as e:
+                print(e)
+
+    # used to apply and then cycle to the next widget.
+    # the actual cycling is done in the calling code
+    def applyAction(self):
+        try:
+            num =  float(self.display.text())
+            if self._message is not None:
+                self._message['RETURN'] = num
+                self._message['NEXT'] = True
+                self._message['BACK'] = False
+                STATUS.emit('general', self._message)
+        except Exception as e:
+                print(e)
 
     def getColor(self):
         return self._color
@@ -1795,6 +1831,14 @@ class MachineLogDialog(QDialog, GeometryMixin):
             return False
         else:
             self.show()
+
+    def accept(self):
+        self.record_geometry()
+        super(MachineLogDialog, self).accept()
+
+    def reject(self):
+        self.record_geometry()
+        super(MachineLogDialog, self).reject()
 
     def getColor(self):
         return self._color
@@ -1915,6 +1959,101 @@ class RunFromLineDialog(QDialog, GeometryMixin):
         speed  = self.spinBox_rpm.value()
         ACTION.CALL_MDI_WAIT('s{} {}'.format(speed,direction), mode_return=True)
 
+################################################################################
+# About Dialog
+################################################################################
+class AboutDialog(QDialog, GeometryMixin):
+    def __init__(self, parent=None):
+        super(AboutDialog, self).__init__(parent)
+        self._geometry_string = 'half'
+        self._color = QColor(0, 0, 0, 150)
+        self._request_name = 'ABOUT'
+        self._title = 'QtVCP About'
+        self.play_sound = False
+        self.text  = QTextEdit('This is an ABOUT dialog')
+        self.text.setReadOnly(True)
+        self.setWindowFlags(self.windowFlags() | Qt.Tool |
+                            Qt.Dialog | Qt.WindowStaysOnTopHint |
+                            Qt.WindowSystemMenuHint)
+
+    def _hal_init(self):
+        self.buildWidget()
+        self.set_default_geometry()
+        self.read_preference_geometry('AboutDialog-geometry')
+        STATUS.connect('dialog-request', self._external_request)
+
+    def buildWidget(self):
+        # add a vertical layout to dialog
+        l = QVBoxLayout()
+        self.setLayout(l)
+        l.addWidget(self.text)
+        # build dialog buttons
+        self.bBox = QDialogButtonBox()
+        self.bBox.addButton('Ok', QDialogButtonBox.AcceptRole)
+        self.bBox.accepted.connect(self.accept)
+        # add buttons to layout
+        l.addWidget(self.bBox)
+
+    def setText(self, txt):
+        self.text.setText(txt)
+        self.adjustSize()
+
+    # this processes STATUS called dialog requests
+    # We check the cmd to see if it was for us
+    # then we check for a id string
+    # if all good show the dialog
+    # and then send back the dialog response via a general message
+    def _external_request(self, w, message):
+        if message.get('NAME') == self._request_name:
+            geo = message.get('GEONAME') or 'AboutDialog-geometry'
+            self.read_preference_geometry(geo)
+            t = message.get('TITLE')
+            if t:
+                self._title = t
+            else:
+                self._title = 'About'
+            nonblock = message.get('NONBLOCKING')
+            num = self.showdialog(nonblock)
+            message['RETURN'] = num
+            STATUS.emit('general', message)
+
+    def showdialog(self, nonblock=None):
+        if nonblock is not None:
+            STATUS.emit('focus-overlay-changed', True, 'Machine Log', self._color)
+        self.setWindowTitle(self._title);
+        if self.play_sound:
+            STATUS.emit('play-sound', self.sound_type)
+        self.set_geometry()
+        if nonblock is not None:
+            self.exec_()
+            STATUS.emit('focus-overlay-changed', False, None, None)
+            self.record_geometry()
+            return False
+        else:
+            self.show()
+
+    def accept(self):
+        self.record_geometry()
+        super(AboutDialog, self).accept()
+
+    def getColor(self):
+        return self._color
+    def setColor(self, value):
+        self._color = value
+    def resetState(self):
+        self._color = QColor(0, 0, 0, 150)
+
+    def getIdName(self):
+        return self._request_name
+    def setIdName(self, name):
+        self._request_name = name
+    def resetIdName(self):
+        self._request_name = 'ABOUT'
+
+    # designer will show these properties in this order:
+    launch_id = pyqtProperty(str, getIdName, setIdName, resetIdName)
+    overlay_color = pyqtProperty(QColor, getColor, setColor)
+
 ################################
 # for testing without editor:
 ################################
@@ -1923,7 +2062,9 @@ def main():
     from PyQt5.QtWidgets import QApplication
 
     app = QApplication(sys.argv)
-    widget = KeyboardDialog()
+    widget = AboutDialog()
+    widget.setText('</b>This is new text<\b>')
+   # widget = KeyboardDialog()
     #widget = CalculatorDialog()
     #widget = RunFromLineDialog()
     #widget = MachineLogDialog()
@@ -1940,7 +2081,7 @@ def main():
     widget.HAL_NAME_ = 'test'
     widget.PREFS_ = None
     widget._hal_init()
-    t = widget.showdialog()
+    t = widget.showdialog(1)
     print (t)
     sys.exit()
 if __name__ == '__main__':

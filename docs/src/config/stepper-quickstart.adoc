@@ -4,8 +4,8 @@
 [[cha:stepper-quickstart]]
 = Stepper Quickstart
 
-This section assumes you have done a standard install from the Live
-CD. After installation it is recommended that you connect the computer
+This section assumes you have done a standard install from the Live CD.
+After installation it is recommended that you connect the computer
 to the Internet and wait for the update manager to pop up and get the
 latest updates for LinuxCNC and Ubuntu before continuing.
 
@@ -38,7 +38,7 @@ Gather the information about each axis of your machine.
 Drive timing is in nano seconds. If you're unsure about the timing
 many popular drives are included in the stepper configuration wizard.
 Note some newer Gecko drives have different timing than the original
-one. A http://wiki.linuxcnc.org/[list] is also on the user maintained LinuxCNC
+one. A https://wiki.linuxcnc.org/[list] is also on the user maintained LinuxCNC
 wiki site of more drives.
 
 [width="100%",options="header"]
@@ -73,7 +73,7 @@ PC parallel port.
 |===
 
 Note any pins not used should be set to Unused in the drop down box.
-These can always be changed later by running Stepconf again.
+These can always be changed later by running StepConf again.
 
 == Mechanical Information
 

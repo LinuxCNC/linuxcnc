@@ -39,6 +39,7 @@ void export_Arrays()
     using namespace boost::python;
     using namespace boost;
 
+    pp::register_array_1<double, EMCMOT_MAX_SPINDLES>("SpindleSpeedArray");
     pp::register_array_1< int, ACTIVE_G_CODES> ("ActiveGcodesArray" );
     pp::register_array_1< int, ACTIVE_M_CODES> ("ActiveMcodesArray" );
     pp::register_array_1< double, ACTIVE_SETTINGS> ("ActiveSettingsArray");
@@ -49,7 +50,7 @@ void export_Arrays()
 	bp::return_internal_reference< 1, bp::default_call_policies > > ("ToolTableArray");
     pp::register_array_1< context, INTERP_SUB_ROUTINE_LEVELS,
 	bp::return_internal_reference< 1, bp::default_call_policies > > ("SubcontextArray");
-    pp::register_array_1< int, 17> ("GmodesArray");
+    pp::register_array_1< int, GM_MAX_MODAL_GROUPS> ("GmodesArray");
     pp::register_array_1< int, 11> ("MmodesArray");
     pp::register_array_1< double, INTERP_SUB_PARAMS> ("SubroutineParamsArray");
 }

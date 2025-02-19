@@ -19,7 +19,6 @@
         <property name="verbose">False</property>
         <property name="send_function_name">default_send</property>
         <property name="send_to_dir"></property>
-        <property name="gtk_theme_name"></property>
         <property name="control_font_name"></property>
       </object>
     </child>

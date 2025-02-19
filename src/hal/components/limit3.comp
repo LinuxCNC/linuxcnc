@@ -12,7 +12,8 @@ and maxa""";
 pin in float min_=-1e20;
 pin in float max_=1e20;
 pin in float maxv=1e20;
-pin in float maxa=1e20;
+pin in float maxa=1e7 """Max Acceleration. Note that the component becomes
+unstable with maxa greater than about 1e7 in a 1kHz thread""";
 pin in u32 smooth_steps=2
     """Smooth out acceleration this many periods before reaching input or
 max/min limit.  Higher values avoid oscillation, but will accelerate

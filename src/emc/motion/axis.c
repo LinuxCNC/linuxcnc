@@ -261,6 +261,7 @@ double axis_get_ext_offset_curr_pos(int axis_num)
 
 void axis_jog_cont(int axis_num, double vel, long servo_period)
 {
+    (void)servo_period;
     emcmot_axis_t *axis = &axis_array[axis_num];
 
     if (vel > 0.0) {
@@ -277,6 +278,7 @@ void axis_jog_cont(int axis_num, double vel, long servo_period)
 
 void axis_jog_incr(int axis_num, double offset, double vel, long servo_period)
 {
+    (void)servo_period;
     emcmot_axis_t *axis = &axis_array[axis_num];
     double tmp1;
 
@@ -457,7 +459,7 @@ void axis_apply_ext_offsets_to_carte_pos(int extfactor, double *pcmd_p[])
     }
 }
 
-hal_bit_t axis_plan_external_offsets(double servo_period, bool motion_enable_flag, bool all_homed)
+bool axis_plan_external_offsets(double servo_period, bool motion_enable_flag, bool all_homed)
 {
     static int first_pass = 1;
     int n;

@@ -39,10 +39,11 @@ class QTPanel():
     def __init__(self, halcomp, path, window, debug):
         xmlname = path.XML
         self.window = window
-        self.window['PREFS_'] = None
         self.window['panel_'] = self
         self._screenOptions = None
         self._geo_string = ''
+        self.PATH = path
+        window._VCPWindowList.append(window)
 
         # see if a screenoptions widget is present
         # if it is then initiate the preference file
@@ -83,30 +84,59 @@ class QTPanel():
                 # if 'loadusr' is present, it's assumed embedding into AXIS
                 # so ignore it.
                 if 'qtvcp' in cmd and not 'loadusr' in cmd:
-                    cmd = cmd.split()[1]
-                    LOG.info('green<QTVCP: Found external qtvcp {} panel to instantiate>'.format(cmd))
+                    temp = cmd.split()
+                    hdlrName = temp[len(cmd.split())-1]
+                    LOG.info('green<QTVCP: Found external qtvcp {} panel to instantiate>'.format(hdlrName))
 
                     pName = name.replace(' ','_')
                     window[pName] = window.makeMainPage(name)
 
-                    hndlr = os.path.join(path.PANELDIR , cmd, cmd+'_handler.py')
-                    if os.path.exists(hndlr):
+                    # find and pass -o option variables
+                    ucmd = []
+                    for num,i in enumerate(temp):
+                        if i == '-o':
+                         ucmd.append(temp[num+1])
+                    LOG.debug('user commands:{}'.format(ucmd))
+                    if ucmd == []:
+                        window[pName].USEROPTIONS_ = None
+                    else:
+                        window[pName].USEROPTIONS_ = ucmd
+
+                    # search for handler path and load if available
+                    hndlr = self.PATH.find_embed_handler_path(hdlrName)
+                    if hndlr is not True and os.path.exists(hndlr):
                         window[pName].load_extension(hndlr)
 
-                    window[pName].instance(os.path.join(path.PANELDIR , cmd, cmd+'.ui'))
-                    window[pName].handler_instance.initialized__()
+                        # do any class patching now #TODO not tested feature
+                        if "class_patch__" in dir(window[pName].handler_instance):
+                            window[pName].handler_instance.class_patch__()
 
+                    # search for ui path and load if available
+                    uipath = self.PATH.find_embed_panel_path(hdlrName)
+                    window[pName].instance(uipath)
+                    window._VCPWindowList.append(window[pName])
+
+                    # record HAL component base name because we are going to change it
                     oldname = halcomp.comp.getprefix()
-                    halcomp.comp.setprefix('{}.{}'.format(oldname,cmd))
+                    halName = hdlrName.replace('_','-')
+                    halcomp.comp.setprefix('{}.{}'.format(oldname,halName))
+                    LOG.debug('embedded halpin prefix name: cyan<{}.{}>'.format(oldname,halName))
 
-                    LOG.debug('QTVCP: Parsing external qtvcp {} panel for EMBEDDED HAL widgets.'.format(cmd))
+                    LOG.debug('QTVCP: Parsing external qtvcp {} panel for EMBEDDED HAL widgets.'.format(hdlrName))
                     for widget in window[pName].findChildren(QObject):
                         if isinstance(widget, _HalWidgetBase):
                             idname = widget.objectName()
                             LOG.verbose('{}: HAL-ified widget: {}'.format(name.upper(), idname))
                             if not isinstance(widget, ScreenOptions):
-                                widget.hal_init()
+                                # give panel name to halified widgets
+                                widget.hal_init(INSTANCE_NAME= pName)
+
+                    # restore HAL component name
                     halcomp.comp.setprefix(oldname)
+
+                    # initialize handler if available
+                    if hndlr is not True and os.path.exists(hndlr):
+                        window[pName].handler_instance.initialized__()
 
         # parse for HAL objects:
         # initiate the hal function on each
@@ -149,7 +179,8 @@ class QTPanel():
             w = self.window.geometry().width()
             h = self.window.geometry().height()
             geo = '%s %s %s %s' % (x, y, w, h)
-            self.window['PREFS_'].putpref('mainwindow_geometry', geo, str, 'SCREEN_OPTIONS')
+            mainName = self.window.objectName()+ '-geometry'
+            self.window['PREFS_'].putpref(mainName, geo, str, 'SCREEN_OPTIONS')
 
     # if there is a screen option widget and we haven't set INI switch geometry
     # then call screenoptions function to set preference geometry
@@ -164,7 +195,8 @@ class QTPanel():
             self.window.setGeometry(x, y, w, h)
 
         try:
-            self._geo_string = self.window.PREFS_.getpref('mainwindow_geometry', '', str, 'SCREEN_OPTIONS')
+            mainName = self.window.objectName() + '-geometry'
+            self._geo_string = self.window.PREFS_.getpref(mainName, '', str, 'SCREEN_OPTIONS')
             LOG.debug('Calculating geometry of main window using natural placement: {}'.format(self._geo_string))
             # If there is a preference file object use it to load the geometry
             if self._geo_string in ('default', ''):
@@ -178,7 +210,7 @@ class QTPanel():
                 temp = self._geo_string.split(' ')
                 go(int(temp[0]), int(temp[1]), int(temp[2]), int(temp[3]))
         except Exception as e:
-            LOG.error('main window gometry python error: {}'.format(e))
+            LOG.exception('main window geometry python error: {}'.format(e))
             LOG.error('Calculating geometry of main window using natural placement.')
             x = self.window.geometry().x()
             y = self.window.geometry().y()

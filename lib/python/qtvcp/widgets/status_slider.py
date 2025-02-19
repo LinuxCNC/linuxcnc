@@ -104,9 +104,11 @@ class StatusSlider(DoubleSlider, _HalWidgetBase):
             self.setMinimum(int(INFO.MIN_SPINDLE_OVERRIDE))
         elif self.jograte:
             STATUS.connect('jograte-changed', lambda w, data: self.setValue(data))
+            self.setMinimum(int(INFO.MIN_LINEAR_JOG_VEL))
             self.setMaximum(int(INFO.MAX_LINEAR_JOG_VEL))
         elif self.jograte_angular:
             STATUS.connect('jograte-angular-changed', lambda w, data: self.setValue(data))
+            self.setMinimum(int(INFO.MIN_ANGULAR_JOG_VEL))
             self.setMaximum(int(INFO.MAX_ANGULAR_JOG_VEL))
         elif self.max_velocity:
             STATUS.connect('max-velocity-override-changed', lambda w, data: self.setValue(data))

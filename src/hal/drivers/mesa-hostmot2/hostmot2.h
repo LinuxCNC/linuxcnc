@@ -132,6 +132,8 @@
 #define HM2_GTAG_TWIDDLER          (194) // Not supported
 #define HM2_GTAG_SSR               (195)
 #define HM2_GTAG_SMARTSERIALB      (198) // smart-serial with 224 data bits
+#define HM2_GTAG_ONESHOT           (199) // One shot
+#define HM2_GTAG_PERIODM           (200) // Period module
 
 
 //
@@ -279,6 +281,7 @@ typedef struct {
             hal_s32_t *count_latch;  // (rawlatch - zero_offset)
             hal_float_t *position;
             hal_float_t *position_latch;
+            hal_float_t *position_interpolated;
             hal_float_t *velocity;
             hal_float_t *velocity_rpm;
             hal_bit_t *reset;
@@ -336,7 +339,7 @@ typedef struct {
         hal_u32_t *sample_frequency;
         hal_u32_t *skew;
         hal_s32_t *dpll_timer_num;
-	hal_bit_t *hires_timestamp;
+        hal_bit_t *hires_timestamp;
 
     } pin;
 } hm2_encoder_module_global_t;
@@ -512,6 +515,7 @@ typedef struct {
             hal_float_t scale;
             hal_bit_t offset_mode;
             hal_s32_t output_type; 
+            hal_bit_t dither;            
         } param;
 
     } hal;
@@ -527,6 +531,11 @@ typedef struct {
     // this keeps track of the enable bit for this instance that we've told
     // the FPGA, so we know if we need to update it
     rtapi_s32 written_enable;
+    
+    // this keeps track of the dither bit for this instance that we've told
+    // the FPGA, so we know if we need to update it
+    rtapi_s32 written_dither;
+    
 } hm2_pwmgen_instance_t;
 
 
@@ -557,7 +566,7 @@ typedef struct {
 
     // number of bits of resolution of the PWM signal (PDM is fixed at 12 bits)
     int pwm_bits;
-
+    int firmware_supports_dither;
 
     rtapi_u32 pwm_value_addr;
     rtapi_u32 *pwm_value_reg;
@@ -574,6 +583,134 @@ typedef struct {
     rtapi_u32 enable_addr;
     rtapi_u32 enable_reg;  // one register for the whole Function
 } hm2_pwmgen_t;
+
+
+//
+// oneshot
+// 
+
+
+typedef struct {
+
+    struct {
+
+        struct {
+            hal_float_t *width1;
+            hal_float_t *width2; 
+            hal_float_t *filter1;
+            hal_float_t *filter2;
+            hal_float_t *rate;
+            hal_u32_t *trigselect1;
+            hal_u32_t *trigselect2;
+            hal_bit_t *trigrise1;
+            hal_bit_t *trigrise2;
+            hal_bit_t *trigfall1;
+            hal_bit_t *trigfall2;
+            hal_bit_t *retrig1;
+            hal_bit_t *retrig2;
+            hal_bit_t *enable1;
+            hal_bit_t *enable2;
+            hal_bit_t *reset1;
+            hal_bit_t *reset2;
+            hal_bit_t *swtrig1;
+            hal_bit_t *swtrig2;
+            hal_bit_t *exttrig1;
+            hal_bit_t *exttrig2;
+            hal_bit_t *out1;
+            hal_bit_t *out2;
+            
+            hal_s32_t *dpll_timer_num;
+        } pin;
+
+    } hal;
+
+} hm2_oneshot_instance_t;
+
+
+
+typedef struct {
+    int num_instances;
+    hm2_oneshot_instance_t *instance;
+
+    rtapi_u32 clock_frequency;
+    rtapi_u8 version;
+
+    rtapi_u32 width1_addr;
+    rtapi_u32 *width1_reg;
+
+    rtapi_u32 width2_addr;
+    rtapi_u32 *width2_reg;
+
+    rtapi_u32 filter1_addr;
+    rtapi_u32 *filter1_reg;
+
+    rtapi_u32 filter2_addr;
+    rtapi_u32 *filter2_reg;
+
+    rtapi_u32 rate_addr;
+    rtapi_u32 *rate_reg;
+
+    rtapi_u32 control_addr;
+    rtapi_u32 *control_reg;
+
+    rtapi_u32 control_read_addr;
+    rtapi_u32 *control_read_reg;
+
+} hm2_oneshot_t;
+
+//
+// period module
+// 
+
+
+typedef struct {
+
+    struct {
+
+        struct {
+            hal_float_t *period;
+            hal_float_t *width;
+            hal_float_t *dutycycle;
+            hal_float_t *frequency;
+            hal_float_t *filtertc;
+            hal_float_t *dutyscale;
+            hal_float_t *dutyoffset;
+            hal_float_t *minfreq;
+            hal_u32_t *averages;
+            hal_bit_t *polarity;
+            hal_bit_t *valid;
+            hal_bit_t *input;
+        } pin;
+
+    } hal;
+
+} hm2_periodm_instance_t;
+
+
+
+typedef struct {
+    int num_instances;
+    hm2_periodm_instance_t *instance;
+
+    rtapi_u32 clock_frequency;
+    rtapi_u8 version;
+
+    rtapi_u32 mode_read_addr;
+    rtapi_u32 *mode_read_reg;
+
+    rtapi_u32 mode_write_addr;
+    rtapi_u32 *mode_write_reg;
+
+    rtapi_u32 limit_addr;
+    rtapi_u32 *limit_reg;
+
+    rtapi_u32 period_addr;
+    rtapi_u32 *period_reg;
+
+    rtapi_u32 width_addr;
+    rtapi_u32 *width_reg;
+
+} hm2_periodm_t;
 
 //
 // rcpwmgen pwmgen optimized for RC servos
@@ -758,7 +895,13 @@ typedef struct {
 
     //scanwidth for this instance	
     rtapi_u32 scanwidth;	
-
+    
+    // mpg encoder presence this instance
+	 bool enc0_present;
+	 bool enc1_present;
+	 bool enc2_present;
+	 bool enc3_present;
+	 	
     //previous MPG counts for this instance	
     rtapi_s8 prev_enc0_count;	
     rtapi_s8 prev_enc1_count;	
@@ -1237,22 +1380,29 @@ typedef struct {
 
 typedef struct {
     rtapi_u32 clock_freq;
-    rtapi_u32 bitrate;
+    rtapi_u32 tx_bitrate;
+    rtapi_u32 rx_bitrate;
     rtapi_u32 tx_fifo_count_addr;
     rtapi_u32 tx_bitrate_addr;
     rtapi_u32 tx_addr;
     rtapi_u32 tx_mode_addr;
+    rtapi_u32 tx_mode;
     rtapi_u32 rx_fifo_count_addr;
     rtapi_u32 rx_bitrate_addr;
     rtapi_u32 rx_addr;
     rtapi_u32 rx_mode_addr;
+    rtapi_u32 rx_mode;
     char name[HAL_NAME_LEN+1];
 } hm2_pktuart_instance_t;
 
 typedef struct {
     int version;
+    int tx_version;
+    int rx_version;
     int num_instances;
     hm2_pktuart_instance_t *instance;
+    rtapi_u32 *tx_status_reg;
+    rtapi_u32 *rx_status_reg;
     rtapi_u8 instances;
     rtapi_u8 num_registers;
     struct rtapi_heap *heap;
@@ -1489,6 +1639,8 @@ typedef struct {
         int num_xy2mods;
         int num_ssrs;
         int num_outms;
+        int num_oneshots;
+        int num_periodms;
         char sserial_modes[4][8];
         int enable_raw;
         char *firmware;
@@ -1538,6 +1690,8 @@ typedef struct {
     hm2_led_t led;
     hm2_ssr_t ssr;
     hm2_outm_t outm;
+    hm2_oneshot_t oneshot;
+    hm2_periodm_t periodm;
 
     hm2_raw_t *raw;
 
@@ -1687,6 +1841,29 @@ void hm2_pwmgen_force_write(hostmot2_t *hm2);
 void hm2_pwmgen_prepare_tram_write(hostmot2_t *hm2);
 
 //
+// oneshot functions
+//
+
+int hm2_oneshot_parse_md(hostmot2_t *hm2, int md_index);
+void hm2_oneshot_print_module(hostmot2_t *hm2);
+void hm2_oneshot_cleanup(hostmot2_t *hm2);
+void hm2_oneshot_write(hostmot2_t *hm2);
+void hm2_oneshot_force_write(hostmot2_t *hm2);
+void hm2_oneshot_prepare_tram_write(hostmot2_t *hm2);
+void hm2_oneshot_process_tram_read(hostmot2_t *hm2);
+
+//
+// periodm functions
+//
+int hm2_periodm_parse_md(hostmot2_t *hm2, int md_index);
+void hm2_periodm_print_module(hostmot2_t *hm2);
+void hm2_periodm_cleanup(hostmot2_t *hm2);
+void hm2_periodm_write(hostmot2_t *hm2);
+void hm2_periodm_force_write(hostmot2_t *hm2);
+void hm2_periodm_prepare_tram_write(hostmot2_t *hm2);
+void hm2_periodm_process_tram_read(hostmot2_t *hm2);
+
+//
 // rcpwmgen functions
 //
 
@@ -1753,6 +1930,7 @@ int hm2_sserial_read_configs(hostmot2_t *hm2, hm2_sserial_remote_t *chan);
 int  hm2_bspi_parse_md(hostmot2_t *hm2, int md_index);
 void hm2_bspi_print_module(hostmot2_t *hm2);
 void hm2_bspi_cleanup(hostmot2_t *hm2);
+int hm2_bspi_clear_fifo(char * name);
 void hm2_bspi_write(hostmot2_t *hm2);
 void hm2_bspi_force_write(hostmot2_t *hm2);
 void hm2_bspi_prepare_tram_write(hostmot2_t *hm2, long period);
@@ -1762,8 +1940,8 @@ int hm2_bspi_write_chan(char* name, int chan, rtapi_u32 val);
 int hm2_allocate_bspi_tram(char* name);
 int hm2_tram_add_bspi_frame(char *name, int chan, rtapi_u32 **wbuff, rtapi_u32 **rbuff);
 int hm2_bspi_setup_chan(char *name, int chan, int cs, int bits, double mhz,
-                        int delay, int cpol, int cpha, int noclear, int noecho,
-                        int samplelate);
+int delay, int cpol, int cpha, int noclear, int noecho,
+int samplelate);
 int hm2_bspi_set_read_function(char *name, int (*func)(void *subdata), void *subdata);
 int hm2_bspi_set_write_function(char *name, int (*func)(void *subdata), void *subdata);
 
@@ -1792,8 +1970,11 @@ void hm2_pktuart_write(hostmot2_t *hm2);
 void hm2_pktuart_force_write(hostmot2_t *hm2); // ?? 
 void hm2_pktuart_prepare_tram_write(hostmot2_t *hm2, long period); //??
 void hm2_pktuart_process_tram_read(hostmot2_t *hm2, long period);  //  ??
-int hm2_pktuart_setup(char *name, int bitrate, rtapi_s32 tx_mode, rtapi_s32 rx_mode, int txclear, int rxclear);
-int hm2_pktuart_send(char *name,  unsigned char data[], rtapi_u8 *num_frames, rtapi_u16 frame_sizes[]);
+int hm2_pktuart_setup(char *name, unsigned int bitrate, rtapi_s32 tx_mode, rtapi_s32 rx_mode, int txclear, int rxclear);
+int hm2_pktuart_setup_rx(char *name, unsigned int bitrate, unsigned int filter_hz, unsigned int parity, int frame_delay, bool rx_enable, bool rx_mask);
+int hm2_pktuart_setup_tx(char *name, unsigned int bitrate, unsigned int parity, int frame_delay, bool drive_enable, bool drive_auto, int enable_delay);
+void hm2_pktuart_reset(char *name);
+int hm2_pktuart_send(char *name, const unsigned char data[], rtapi_u8 *num_frames, rtapi_u16 const frame_sizes[]);
 int hm2_pktuart_read(char *name, unsigned char data[],  rtapi_u8 *num_frames, rtapi_u16 *max_frame_length, rtapi_u16 frame_sizes[]);
 
 //
@@ -1890,6 +2071,16 @@ void hm2_outm_cleanup(hostmot2_t *hm2);
 void hm2_outm_force_write(hostmot2_t *hm2);
 void hm2_outm_prepare_tram_write(hostmot2_t *hm2);
 void hm2_outm_print_module(hostmot2_t *hm2);
+
+//
+// ONESHOT functions
+//
+
+//int hm2_oneshot_parse_md(hostmot2_t *hm2, int md_index);
+//void hm2_oneshot_cleanup(hostmot2_t *hm2);
+//void hm2_oneshot_force_write(hostmot2_t *hm2);
+//void hm2_oneshot_prepare_tram_write(hostmot2_t *hm2);
+//void hm2_oneshot_print_module(hostmot2_t *hm2);
 
 
 //

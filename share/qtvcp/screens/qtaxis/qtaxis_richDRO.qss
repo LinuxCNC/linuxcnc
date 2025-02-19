@@ -171,3 +171,8 @@ DROLabel[isHomed=false],
 #statuslabel_dro_z[isHomed=false]  {
     color: red;
 }
+
+QDialog QPushButton {
+    width: 100px;
+    height: 40px;
+}

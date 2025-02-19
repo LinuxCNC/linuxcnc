@@ -1,0 +1,23 @@
+# switchkins pyvcp connections for:
+# xyzab-tdr-kins.ini
+
+net :kinstype.is-0 <= kinstype.is-0 => pyvcp.multilabel.0.legend0
+net :kinstype.is-1 <= kinstype.is-1 => pyvcp.multilabel.0.legend1
+
+net :vismach-clear <= pyvcp.vismach-clear => vismach.plotclear
+
+net :type0-button  <= pyvcp.type0-button  => halui.mdi-command-00
+net :type1-button  <= pyvcp.type1-button  => halui.mdi-command-01
+
+net :axis-x                               => pyvcp.joint0
+net :axis-y                               => pyvcp.joint1
+net :axis-z                               => pyvcp.joint2
+net :rotary-a                             => pyvcp.joint3
+net :rotary-b                             => pyvcp.joint4
+
+net :x-offset                             => pyvcp.x-offset-f
+net :z-offset                             => pyvcp.z-offset-f
+net :x-rot-point                          => pyvcp.x-rot-point-f
+net :y-rot-point                          => pyvcp.y-rot-point-f
+net :z-rot-point                          => pyvcp.z-rot-point-f
+

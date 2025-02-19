@@ -4,7 +4,7 @@
 # kinematics
 loadrt [KINS]KINEMATICS
 #loadrt lineardeltakins
-# motion controller, get name and thread periods from ini file
+# motion controller, get name and thread periods from INI file
 loadrt [EMCMOT]EMCMOT servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
 
 loadusr -W lineardelta MIN_JOINT=-420
@@ -37,7 +37,6 @@ net spindle-fwd spindle.0.forward
 net spindle-rev spindle.0.reverse
 #net spindle-speed spindle.0.speed-out
 
-net lube iocontrol.0.lube
 net flood iocontrol.0.coolant-flood
 net mist iocontrol.0.coolant-mist
 

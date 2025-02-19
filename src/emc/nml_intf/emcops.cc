@@ -60,7 +60,7 @@ EMC_TRAJ_STAT_MSG(EMC_TRAJ_STAT_TYPE, sizeof(EMC_TRAJ_STAT)),
     cycleTime = 0.0;
     joints = 1;
     axis_mask = 1;
-    mode = EMC_TRAJ_MODE_FREE;
+    mode = EMC_TRAJ_MODE::FREE;
     enabled = OFF;
     inpos = ON;
     queue = 0;
@@ -117,10 +117,10 @@ EMC_TASK_STAT_MSG(EMC_TASK_STAT_TYPE, sizeof(EMC_TASK_STAT))
 {
     int t;
 
-    mode = EMC_TASK_MODE_MANUAL;
-    state = EMC_TASK_STATE_ESTOP;
-    execState = EMC_TASK_EXEC_DONE;
-    interpState = EMC_TASK_INTERP_IDLE;
+    mode = EMC_TASK_MODE::MANUAL;
+    state = EMC_TASK_STATE::ESTOP;
+    execState = EMC_TASK_EXEC::DONE;
+    interpState = EMC_TASK_INTERP::IDLE;
     callLevel = 0;
     motionLine = 0;
     currentLine = 0;
@@ -152,19 +152,20 @@ EMC_TASK_STAT_MSG(EMC_TASK_STAT_TYPE, sizeof(EMC_TASK_STAT))
     queuedMDIcommands = 0;
 }
 
-EMC_TOOL_STAT::EMC_TOOL_STAT():
-EMC_TOOL_STAT_MSG(EMC_TOOL_STAT_TYPE, sizeof(EMC_TOOL_STAT))
+EMC_TOOL_STAT::EMC_TOOL_STAT()
+  : EMC_TOOL_STAT_MSG(EMC_TOOL_STAT_TYPE, sizeof(EMC_TOOL_STAT)),
+    pocketPrepped(0), // idx
+    toolInSpindle(0), // toolno
+    toolFromPocket(0) // tool_from_pocket
+#ifndef TOOL_NML // {
+    , toolTableCurrent(tooldata_entry_init())
+#endif
 {
-    pocketPrepped = 0; // idx
-    toolInSpindle = 0; // toolno
-    toolFromPocket = 0; // tool_from_pocket
 #ifdef TOOL_NML //{
     int idx;
     for (idx = 0; idx < CANON_POCKETS_MAX; idx++) {
         toolTable[idx] = tooldata_entry_init();
     }
-#else //}{
-    toolTableCurrent = tooldata_entry_init();
 #endif //}
 }
 
@@ -195,15 +196,8 @@ EMC_COOLANT_STAT::EMC_COOLANT_STAT():EMC_COOLANT_STAT_MSG(EMC_COOLANT_STAT_TYPE,
     flood = 0;
 }
 
-EMC_LUBE_STAT::EMC_LUBE_STAT():
-EMC_LUBE_STAT_MSG(EMC_LUBE_STAT_TYPE, sizeof(EMC_LUBE_STAT))
-{
-    on = 0;
-    level = 1;
-}
-
 // overload = , since class has array elements
-EMC_TOOL_STAT EMC_TOOL_STAT::operator =(EMC_TOOL_STAT s)
+EMC_TOOL_STAT& EMC_TOOL_STAT::operator =(const EMC_TOOL_STAT& s)
 {
     pocketPrepped = s.pocketPrepped; // idx
     toolInSpindle = s.toolInSpindle; // toolno
@@ -228,7 +222,7 @@ EMC_TOOL_STAT EMC_TOOL_STAT::operator =(EMC_TOOL_STAT s)
     toolTableCurrent = tdata;
 #endif //}
 
-    return s;
+    return *this;
 }
 
 EMC_STAT::EMC_STAT():EMC_STAT_MSG(EMC_STAT_TYPE, sizeof(EMC_STAT))

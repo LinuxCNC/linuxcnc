@@ -1,0 +1,59 @@
+= sim_pin(1)
+
+== NAME
+
+sim_pin - GUI for displaying and setting one or more HAL inputs
+
+== SYNOPSIS
+
+**sim_pin* _[Options]_ _name1_ [_name2_ [_name3_ ...]]*
+
+_Options_: *--help* (shows help text) *--title title_string*
+
+For bit items, the name may include a /mode= specifier:
+_namei_*/mode=*[*pulse* | *toggle* | *hold*] (default is toggle)
+
+== DESCRIPTION
+
+HAL boolean items (bit) and numerical items (u32, s32, float) are
+supported.
+
+If the named input is a numerical type, the GUI displays:
+
+*Entry* Entry widget for value or a valid Tcl expression. +
+*Set* Pushbutton to set new value from Entry (or use <RETURN>) +
+*Reset* Pushbutton to reset to the value present on initiation If the
+input is a *bit* type, the GUI shows a single pushbutton that is
+controlled by radio-button selectors:
+
+mode=**pulse** Pulse input to 1 for each pushbutton press +
+mode=**toggle** Toggle input for each pushbutton press +
+mode=**hold** Set input to 1 while pushbutton pressed
+
+If the bit item mode begins with an uppercase letter, the radio buttons
+for selecting other modes are not shown
+
+== NOTES
+
+LinuxCNC or a standalone HAL application must be running
+
+A named item can specify a *pin*, *param*, or *signal*. The named item
+must be writable:
+
+*pin IN or I/O* (and not connected to a signal with a writer) +
+*param RW* +
+*signal connected to a writable pin*
+
+== USAGE
+
+*sim_pin* can be used interactively from a shell command line or started
+automatically from a configuration INI file.
+
+== EXAMPLE
+
+Example for INI file usage:
+
+[APPLICATIONS] DELAY = 5 APP = *sim_pin* \ +
+halui.machine.off/mode=pulse \ +
+ini.traj_arc_blend_enable \ +
+motion-command-handler-tmax

@@ -24,12 +24,14 @@ class Aux_program_loader:
     def load_ladder(self, *args):
         if hal.component_exists('classicladder_rt'):
             p = os.popen("classicladder  &", "w")
+        else:
+            ACTION.SET_ERROR_MESSAGE("Classiclader's realtime component is not present\n So the user component will not  be loaded.")
 
     def load_gcode_ripper(self,*args):
         if args:
             pass
         else:
-            p = os.popen('python {}'.format(os.path.join(PATH.LIBDIR, 'ripper/gcode_ripper.py')))
+            p = os.popen('python3 {}'.format(os.path.join(PATH.LIBDIR, 'ripper/gcode_ripper.py')))
 
     # opens halshow
     def load_halshow(self, *args):

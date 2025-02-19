@@ -1,5 +1,5 @@
 QMainWindow {
-/*    background: url(images/brushed_metal.png);*/
+/*    background: url(:/images/images/brushed_metal.png);*/
     background: #404040;
 }
 
@@ -120,11 +120,11 @@ QCheckBox::indicator {
 }
 
 QCheckBox::indicator:unchecked {
-    image: url(images/unchecked.png);
+    image: url(:/images/images/unchecked.png);
 }
 
 QCheckBox::indicator:checked {
-    image: url(images/checked.png);
+    image: url(:/images/images/checked.png);
 }
 
 QComboBox {
@@ -134,7 +134,7 @@ QComboBox {
     padding-right: 4px;
     min-width: 100px;
     font: 10pt "Lato Heavy";
-    color: white;    
+    color: white;
 }
 
 QComboBox QAbstractItemView {
@@ -190,7 +190,7 @@ QProgressBar::chunk {
 }
 
 .QFrame {
-    background: url(:/newPrefix/images/qtdragon/images/brushed_metal.png)
+    background: url(:/images/images/brushed_metal.png)
 }
 
 QTabWidget::pane > QWidget {

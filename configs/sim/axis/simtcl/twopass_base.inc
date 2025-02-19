@@ -13,7 +13,7 @@ DEFAULT_LINEAR_VELOCITY = .25
          PROGRAM_PREFIX = ../../nc_files/
           INTRO_GRAPHIC = linuxcnc.gif
              INTRO_TIME = 5
-                 #EDITOR = gedit
+                 #EDITOR = geany
             TOOL_EDITOR = tooledit
              INCREMENTS = 1 in, 0.1 in, 10 mil, 1 mil, 1mm, .1mm, 1/8000 in
 
@@ -23,7 +23,7 @@ PROGRAM_EXTENSION = .py Python Script
               png = image-to-gcode
               gif = image-to-gcode
               jpg = image-to-gcode
-               py = python
+               py = python3
 
 [TASK]
 TASK       = milltask
@@ -107,8 +107,6 @@ MAX_ACCELERATION = 100.0
     HOME_IS_SHARED = 1
 
 [EMCIO]
-               EMCIO = io
-          CYCLE_TIME = 0.100
           TOOL_TABLE = sim.tbl
 TOOL_CHANGE_POSITION = 0 0 0
 TOOL_CHANGE_QUILL_UP = 1

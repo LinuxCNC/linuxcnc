@@ -1,5 +1,6 @@
 :lang: en
 :toc:
+:toclevels: 3
 
 [[cha:qtdragon-gui]]
 = QtDragon GUI(((QtDragon)))
@@ -17,53 +18,50 @@ LinuxCNC's version is adapted from Persei8's Github versions.
 It is primarily meant for 3/4 axes machines such as mills or routers.
 It works well with a touchscreen and/or mouse.
 QtDragon supports multiple ways to touch off tools and probing work pieces.
-You can use LinuxCNC's external offsets capability to automatically raise the
-spindle during a pause.
-If you the VersaProbe option and remap code you can add auto tool length probing
-at tool changes.
+You can use LinuxCNC's external offsets capability to automatically raise the spindle during a pause.
+If you the VersaProbe option and remap code you can add auto tool length probing at tool changes.
 
 [NOTE]
 QtDragon and QtVCP are relatively new programs added into LinuxCNC.
-Bugs and oddities are possible. Please test carefully when using a
-dangerous machine. Please forward reports to the forum or maillist.
+Bugs and oddities are possible. Please test carefully when using a dangerous machine.
+Please forward reports to the forum or maillist.
 
 === QtDragon
 
-.QtDragon - 3 or 4 Axes Sample (1440x860) in silver theme
+.QtDragon - 3 or 4 axis sample (1440x860) in silver theme
 image::images/silverdragon.png["QtDragon Router",scale="25%"]
 
 QtDragon is resizable from a resolution of 1280x768 to 1680x1200.
-It will work in window mode on any monitor with higher resolution but not
-on monitors with lower resolution.
+It will work in window mode on any monitor with higher resolution but not on monitors with lower resolution.
 
 === QtDragon_hd
 
-.QtDragon_hd - 3 or 4 Axis Sample for larger monitors (1920x1056) in dark theme
+.QtDragon_hd - 3 or 4 axis sample for larger monitors (1920x1056) in dark theme
 image::images/qtdragon_hd.png["QtDragon_hd",scale="25%"]
 
-QtDragon_hd is a similar design as QtDragon but modified to utilize the extra
-space of modern larger monitors.
+QtDragon_hd is a similar design as QtDragon but modified to utilize the extra space of modern larger monitors.
 There are some small differences in layout and utility.
 
-QtDragon_hd has a resolution of 1920x1056 and is not realizable.
-It will work in window mode on any monitor with higher resolution but not on
-monitors with lower resolution.
+QtDragon_hd has a resolution of 1920x1056 and is not resizeable.
+It will work in window mode on any monitor with higher resolution but not on monitors with lower resolution.
 
-== Getting Started
+== Getting Started - The INI File
 
-If your configuration is not currently set up to use QtDragon,
-you can change it by editing the INI file [DISPLAY] section.
-For an exhaustive list of options, see the
-<<sub:ini:sec:display,display section>> of INI file documentation.
+If your configuration is not currently set up to use QtDragon, you can change it by editing the INI file sections.
+For an exhaustive list of options, see the <<sub:ini:sec:display,display section>> of the INI file documentation.
+
+[NOTE]
+You can only have one of each section (e.g., [HAL]) in the INI file.
+If you see in these docs multiple section options, place them all under the one appropriate section name.
 
 === Display
 
-In the section '[DISPLAY]' change the 'DISPLAY' line to read:
+In the section `[DISPLAY]` change the `DISPLAY =` assignment to read:
 
 * `qtdragon` for a small version
 * `qtdradon_hd` for the large version.
 
-You can add `-d` or `-v` for debug output to the terminal.
+You can add `-v`, `-d`, `-i`, or `-q` for (respectably) verbose, debug, info or quiet output to the terminal.
 
 [source,{ini}]
 ----
@@ -74,9 +72,10 @@ DISPLAY = qtvcp qtdragon
 === Preferences
 
 To keep track of preferences, QtDragon looks for a preference text file.
-add the following entry under the '[DISPLAY]' heading.
+Add the following entry under the `[DISPLAY]` heading. +
+It can use `~` for home directory or `WORKINGFOLDER` or `CONFIGFOLDER` to represent QtVCP's idea of those directories: +
 This example will save the file in the config folder of the launch screen.
-(other options are possible see the QtVCP's screenoption widget docs.)
+(Other options are possible see the QtVCP's screenoption widget docs.)
 
 [source,{ini}]
 ----
@@ -86,7 +85,8 @@ PREFERENCE_FILE_PATH = WORKINGFOLDER/qtdragon.pref
 
 === Logging
 
-You can specify where to save history/logs.
+You can specify where to save history/logs. +
+These file names can be user selected. +
 In the section `[DISPLAY]` add:
 
 [source,{ini}]
@@ -99,7 +99,7 @@ LOG_FILE = qtdragon.log
 
 === Override controls
 
-set override controls (1.0 = 100 percent):
+These set qtdragon's override controls (1.0 = 100 percent):
 
 [source,{ini}]
 ----
@@ -125,7 +125,8 @@ MAX_SPINDLE_POWER = 1500
 
 === Jogging increments
 
-Set selectable jogging increments
+Set selectable jogging increments. +
+These increments can be user changed.
 
 [source,{ini}]
 ----
@@ -136,7 +137,7 @@ ANGULAR_INCREMENTS = 1, 5, 10, 30, 45, 90, 180, 360
 
 === Jog speed
 
-Set jog speed controls (in units per minute)
+Set jog speed controls (in units per second)
 
 [source,{ini}]
 ----
@@ -144,14 +145,18 @@ Set jog speed controls (in units per minute)
 MIN_LINEAR_VELOCITY     = 0
 MAX_LINEAR_VELOCITY     = 60.00
 DEFAULT_LINEAR_VELOCITY = 50.0
+DEFAULT_ANGULAR_VELOCITY = 10
+MIN_ANGULAR_VELOCITY = 1
+MAX_ANGULAR_VELOCITY = 360
 ----
 
 === User message dialog system
-Optional popup custom message dialogs, controlled by HAL pins.
+
+Optional popup custom message dialogs, controlled by HAL pins. +
 MESSAGE_TYPE can be 'okdialog' or 'yesnodialog'.
-See qtvcp/library/messages for more information
-This example shows how to make a dialog that requires the user to select
- 'ok' to acknowledge and hide.
+See `qtvcp/library/messages` for more information. +
+This example shows how to make a dialog that requires the user to select 'ok' to acknowledge and hide. +
+These dialogs could be used for such things as low lube oil warnings, etc.
 
 [source,{ini}]
 ----
@@ -163,16 +168,44 @@ MESSAGE_TYPE = okdialog
 MESSAGE_PINNAME = oktest
 ----
 
+Multimessages use an s32 HAL pin to pop multiple defined messages.
+
+[source,{ini}]
+----
+[DISPLAY]
+MULTIMESSAGE_ID = VFD
+
+MULTIMESSAGE_VFD_NUMBER = 1
+MULTIMESSAGE_VFD_TYPE = okdialog status
+MULTIMESSAGE_VFD_TITLE = VFD Error: 1
+MULTIMESSAGE_VFD_TEXT = This is the longer text FOR MESSAGE NUMBER 1
+MULTIMESSAGE_VFD_DETAILS = DETAILS for VFD error 1
+MULTIMESSAGE_VFD_ICON = WARNING
+
+MULTIMESSAGE_VFD_NUMBER = 2
+MULTIMESSAGE_VFD_TYPE = nonedialog status
+MULTIMESSAGE_VFD_TITLE = VFD Error: 2
+MULTIMESSAGE_VFD_TEXT = This is the longer text FOR MESSAGE NUMBER 2
+MULTIMESSAGE_VFD_DETAILS = DETAILS for VFD error 2
+MULTIMESSAGE_VFD_ICON = INFO
+----
+
 === Embed Custom VCP Panels
 
-You can embed QtVCP Virtual Control Panels into the QtDragon or QtDragon_hd screen. +
+You can optionally embed QtVCP Virtual Control Panels into the QtDragon or QtDragon_hd screen. +
 These panels can be either user built or builtin <<cha:qtvcp:panels,QtVCP Panels>>. +
-The `TAB_NAME` entry will used as the title for the new tab. +
-Tab `TAB_LOCATION` options include: `tabWidget_utilities` and `tabWidget_setup`.
-See qtvcp/VCP panels for other available builtin panels.
+See QtVCP/VCP panels for other available builtin panels.
 
-This sample adds a builtin panel; a graphical animated machine using the vismach library.
+The `EMBED_TAB_NAME` entry will used as the title for the new tab.(must be unique) +
+Tab `EMBED_TAB_LOCATION` options include: `tabWidget_utilities`, `tabWidget_setup` and `stackedWidget_mainTab`. +
+Tab `EMBED_TAB_COMMAND` specifies what embed-able program to run, including any of its command line options.
 
+If using the `tabWidget_utilities` or `tabWidget_setup` locations, an extra tab will appear with the panel. +
+If using `stackedWidget_mainTab`, a button labelled 'User' will appear. +
+Pressing this button will cycle through displaying all available panels (specified for this location) on the main tab area.
+
+==== Embedding Vismach Mill
+.Sample adding a builtin panel to the utilities tab, i.e., a graphical animated machine using the vismach library.
 [source,{ini}]
 ----
 [DISPLAY]
@@ -181,12 +214,55 @@ EMBED_TAB_COMMAND = qtvcp vismach_mill_xyz
 EMBED_TAB_LOCATION = tabWidget_utilities
 ----
 
+==== Embedding Spindle Belts Panel
+
+This example panel is designed to display additional RS485 VFD data and also to configure a 4 sheave, 2 belt spindle drive via a series of buttons.
+
+image::images/qtdragon_spindle_belts.png["QtDragon spindle_belts Panel - Spindle Belts VCP",align="center"]
+[source,{ini}]
+----
+[DISPLAY]
+EMBED_TAB_NAME = Spindle Belts
+EMBED_TAB_COMMAND = qtvcp spindle_belts
+EMBED_TAB_LOCATION = tabWidget_utilities
+----
+
+=== Subroutine Paths
+
+If using NGCGUI, remap or custom M codes routines, LinuxCNC needs to know where to look for the files. +
+This sample is typical of what is needed for NgcGui, Basic Probe. and Versa Probe remap code. +
+These paths will need to be adjusted to point to the actual files on your system.
+<<sub:ini:sec:rs274ngc,RS274NZGC Section Details>>
+
+[source,{ini}]
+----
+[RS274NGC]
+SUBROUTINE_PATH = :~/linuxcnc/nc_files/examples/ngcgui_lib:~/linuxcnc/nc_files/examples/ngcgui_lib/utilitysubs: \
+~/linuxcnc/nc_files/examples/probe/basic_probe/macros:~/linuxcnc/nc_files/examples/remap-subroutines: \
+~/linuxcnc/nc_files/examples/ngcgui_lib/remap_lib
+----
+
+QtVCP's NGCGUI program also need to know where to open for subroutine selection and pre-selection. +
+NGCGUI_SUBFILE_PATH must point to an actual path on your system and also a path described in SUBROUTINE_PATHS.
+
+[source,{ini}]
+----
+[DISPLAY]
+# NGCGUI subroutine path.
+# Thr path must also  be in [RS274NGC] SUBROUTINE_PATH
+NGCGUI_SUBFILE_PATH = ~/linuxcnc/nc_files/examples/ngcgui_lib
+# pre selected programs tabs
+# specify filenames only, files must be in the NGCGUI_SUBFILE_PATH
+NGCGUI_SUBFILE = slot.ngc
+NGCGUI_SUBFILE = qpocket.ngc
+----
+
 === Preview Control
 
-Magic comments can be used to control the G-code preview. +
-On very large programs the preview can take a long time to load. You can control
-what is shown and what is hidden the the graphics screen by adding the appropriate
-comments from this list into your gcode:
+Magic comments can be used to control the G-code preview.
+
+On very large programs the preview can take a long time to load.
+You can control what is shown and what is hidden the the graphics screen by adding the appropriate comments from this list into your G-code:
 
 ----
 (PREVIEW,stop)
@@ -196,33 +272,27 @@ comments from this list into your gcode:
 
 === Program Extensions/Filters
 
-You can control what programs are displayed in the filemanager window with
-program extensions:
-Create a line with the . endings you wish to use separated by commas, then a
-space and the description.
+You can control what programs are displayed in the filemanager window with program extensions. +
+Create a line with the '.' endings you wish to use separated by commas, then a space and the description. +
 You can add multiple lines for different selections in the combo box.
 
 [source,{ini}]
 ----
 [FILTER]
-PROGRAM_EXTENSION = .ngc,.nc,.tap G-Code File (*.ngc,*.nc,*.tap)
+PROGRAM_EXTENSION = .ngc,.nc,.tap G-Code file (*.ngc,*.nc,*.tap)
 ----
 
 QtDragon has the ability to send loaded files through a 'filter program'.
-This filter can do any desired task: Something as simple as making sure
-the file ends with 'M2', or something as complicated as generating
-G-Code from an image.
+This filter can do any desired task: Something as simple as making sure the file ends with 'M2', or something as complicated as generating G-code from an image.
 See <<cha:filter,Filter Programs>> for more information.
 
 The '[FILTER]'  section of the INI file controls how filters work.
 First, for each type of file, write a 'PROGRAM_EXTENSION' line.
 Then, specify the program to execute for each type of file.
-This program is given the name of the input file as its first argument,
-and must write rs274ngc code to standard output. This output is what
-will be displayed in the text area, previewed in the display area, and
-executed by LinuxCNC when 'Run'. The following lines add support for the
-`image-to-gcode` converter included with LinuxCNC and running Python based
-filter programs:
+This program is given the name of the input file as its first argument, and must write rs274ngc code to standard output.
+This output is what will be displayed in the text area, previewed in the display area, and executed by LinuxCNC when 'Run'.
+
+The following lines add support for the `image-to-gcode` converter included with LinuxCNC and running Python based filter programs:
 
 [source,{ini}]
 ----
@@ -237,28 +307,13 @@ py = python
 
 === Probe/Touchplate/Laser Settings
 
-QtDragon has custom INI entries for required setup.
-
-[source,{ini}]
-----
-[TOOLSENSOR]
-MAXPROBE = 40
-SEARCH_VEL = 200
-PROBE_VEL = 50
-TOUCH = 29.7
-
-[LASER]
-X = 106.9
-Y = -16.85
-----
-
-QtDragon has two optional probing tab screens available.
+QtDragon has INI entries for two optional probing tab screens available.
 Comment/uncomment which ever you prefer.
 
-'Versa probe' is a Qtvcp ported version of a popular Gladevcp probing panel.
-'Basic Probe' is a Qtvcp ported version based on the third party basic probe 
-screen.
-Both do similar probing routines. 
+* 'Versa probe' is a QtVCP ported version of a popular GladeVCP probing panel.
+* 'Basic Probe' is a QtVCP ported version based on the third party basic probe screen.
+
+Both perform similar probing routines, though Versa probe optionally handles auto tool measurement.
 
 [source,{ini}]
 ----
@@ -267,37 +322,111 @@ Both do similar probing routines.
 USE_PROBE = basicprobe
 ----
 
+=== Abort detection
+When using qtdragon's probing routines, it is important to detect a user abort request. +
+By default, LinuxCNC does not report an abort in a useful way for the probe routines. +
+You need to add a ngc file to print out an error that can be detected.
+<<sub:remap:sec:error-handling, Remap Abort Details>>
+
+[source,{ini}]
+----
+[RS274NGC]
+# on abort, this ngc file is called. required for basic/versa probe routines. +
+ON_ABORT_COMMAND=O <on_abort> call
+----
+
+This example code will send a message on abort. The probe routines can detect this sample. +
+According to the setting above, it would need to be saved as 'on_abort.ngc' within LinuxCNC's [RS274NGC] SUBROUTINE_PATHS and [DISPLAY] PROGRAM_PREFIX search paths.
+
+[source,{ngc}]
+----
+o<on_abort> sub
+
+o100 if [#1 eq 5]
+    (machine on)
+o100 elseif [#1 eq 6]
+    (machine off)
+o100 elseif [#1 eq 7]
+    (estopped)
+o100 elseif [#1 eq 8]
+    (msg,Process Aborted)
+o100 else
+    (DEBUG,Abort Parameter is %d[#1])
+o100 endif
+
+o<on_abort> endsub
+m2
+----
+
+=== Startup codes
+
+You should set default M/G code for start up. These will be overridden by running a NGC file. +
+These are only sample codes, integrator should choose appropriate codes.
+
+[source,{ini}]
+----
+[RS274NGC]
+# start up G/M codes when first loaded
+RS274NGC_STARTUP_CODE = G17 G20 G40 G43H0 G54 G64P0.0005 G80 G90 G94 G97 M5 M9
+----
+
 === Macro Buttons
 
-QtDragon has up to ten convenience macro buttons.
+QtDragon has up to ten convenience buttons for calling 'macro actions'. +
+These are under the heading '[MDI_COMMAND_LIST]' as 'MDI_COMMAND_MACRO0 =' to 'MDI_COMMAND_MACRO9 =' +
+These could also call OWord routines if desired. +
 In the sample configurations they are labelled for moving between
-current user system origin (zero point) and Machine system origin.
-User origin is the first MDI command in the INI list, machine origin is the
-second.
-These could also call OWord routines if desired.
-This example shows how to move Z axis up first. The commands are separated by
-the ';'
-The label is set after the comma. The symbols '\n' adds a line break.
+current user system origin (zero point) and Machine system origin. +
+User origin is the first MDI command in the INI list, machine origin is the second. +
+This example shows how to move Z axis up first. Commands separated by the ';' are run one after another. +
+The button label text can be set with any text after a comma, the `\n` symbol adds a line break.
 
 [source,{ini}]
 ----
 [MDI_COMMAND_LIST]
 # for macro buttons
-MDI_COMMAND = G0 Z25;X0 Y0;Z0, Goto\nUser\nZero
-MDI_COMMAND = G53 G0 Z0;G53 G0 X0 Y0,Goto\nMachn\nZero
+MDI_COMMAND_MACRO0 = G0 Z25;X0 Y0;Z0, Goto\nUser\nZero
+MDI_COMMAND_MACRO1 = G53 G0 Z0;G53 G0 X0 Y0,Goto\nMachn\nZero
+----
+
+=== Post GUI HAL File
+
+These optional HAL files will be called after QtDragon has loaded everything else. +
+You can add multiple line for multiple file. Each one will be called in the order they appear. +
+Calling HAL files after QtDragon is already loaded assures that QtDragon's HAL pins are available.
+
+.Sample with typical entries for the specificion of HAL files to be read after the QtDragon was started. Adjust these lines to match actual requirements.
+[source,{ini}]
+----
+[HAL]
+POSTGUI_HALFILE = qtdragon_hd_postgui.hal
+POSTGUI_HALFILE = qtdragon_hd_debugging.hal
+----
+
+=== Post GUI HAL Command
+
+These optional HAL commands will be run after QtDragon has loaded everything else. +
+You can add multiple line. Each one will be called in the order they appear. +
+Any HAL command can be used.
+
+.Sample with typical files in INI file to load modules after the GUI is available. Adjusti these to match your actual requirements.
+[source,{ini}]
+----
+[HAL]
+POSTGUI_HALCMD = loadusr qtvcp test_probe
+POSTGUI_HALCMD = loadusr qtvcp test_led
+POSTGUI_HALCMD = loadusr halmeter
 ----
 
 === Builtin Sample Configurations
 
-The sample configurations 'sim/qtvcp_screens/qtdragon/qtdragon_xyza.ini' is
-already configured to use QtDragon as its front-end. +
-There are several others, to demonstrate different machine configurations.
+The sample configurations `sim/qtdragon/` or `sim/qtdragon_hd` are already configured to use QtDragon as the screen.
+There are several examples that demonstrate various machine configurations.
 
 == Key Bindings
 
-QtDragon is not intended to primarily use a keyboard for machine control.
-It lacks many keyboard short cuts that for instance AXIS has - but you can use
-a mouse.
+QtDragon is not intended to primarily use a keyboard for machine control. +
+It lacks many keyboard short cuts that for instance AXIS has - but you can use a mouse or touchscreen. +
 There are several key presses that will control the machine for convenience.
 
 ----
@@ -311,31 +440,29 @@ Pause - Pause Machine Movement
 
 == Buttons
 
-Buttons that are checkable will change their text colour when checked. +
-This is controlled by the stylesheet/theme +
+Buttons that are checkable will change their text colour when checked.
+This is controlled by the stylesheet/theme
 
 == Virtual Keyboard
 
-QtDragon includes a virtual keyboard for use with touchscreens. +
-To enable the keyboard, check the Use Virtual Keyboard checkbox in the Settings
-page. +
-Clicking on any input field, such as probe parameters or tool table entries,
-will show the keyboard. +
+QtDragon includes a virtual keyboard for use with touchscreens.
+To enable the keyboard, check the Use Virtual Keyboard checkbox in the Settings page.
+Clicking on any input field, such as probe parameters or tool table entries, will show the keyboard.
 To hide the keyboard, do one of the following:
 
 - click the MAIN page button
-- The curently selected page button.
+- The currently selected page button.
 - go into AUTO mode
 
-It should be noted that keyboard jogging is disabled when using the virtual
-keyboard.
+It should be noted that keyboard jogging is disabled when using the virtual keyboard.
 
 == HAL Pins
 
-These pins are specific to the QtDragon screen, There are of course are many
-more HAL pins that must be connected for LinuxCNC to function.
+These pins are specific to the QtDragon screen. +
+There are of course are many more HAL pins that must be connected for LinuxCNC to function.
 
-If you need a manual tool change prompt, add these lines in your postgui file.
+If you need a manual tool change prompt, add these lines in your postgui file. +
+QtDragon emulates the hal_manualtoolchange HAL pins - don't load the separate HAL component 'hal_manualtoolchange'.
 
 [source,{hal}]
 ----
@@ -344,31 +471,49 @@ net tool-changed     hal_manualtoolchange.changed  <=  iocontrol.0.tool-changed
 net tool-prep-number hal_manualtoolchange.number   <=  iocontrol.0.tool-prep-number
 ----
 
-This input pin should be connected to indicate probe state:
+Also if you don't have an automatic tool changer make sure these pins are connected in one of the HAL files:
+
+[source,{hal}]
+----
+net tool-prepare-loopback iocontrol.0.tool-prepare => iocontrol.0.tool-prepared
+----
+
+This input pin should be connected to indicate probe state.
 
 [source,{hal}]
 ----
 qtdragon.led-probe
 ----
 
-These pins are inputs related to spindle VFD indicating:
+These pins are inputs related to spindle VFD indicating. +
 The volt and amp pins are used to calculate spindle power.
-(You must also set the MAX_SPINDLE_POWER in the INI)
+You must also set the MAX_SPINDLE_POWER in the INI.
 
 [source,{hal}]
 ----
+qtdragon.spindle-modbus-connection
 qtdragon.spindle-modbus-errors
 qtdragon.spindle-amps
 qtdragon.spindle-fault
 qtdragon.spindle-volts
 ----
 
-This bit pin is an output to the spindle control to pause it:
-You would connect it to spindle.0.inhibit.
+This bit pin is an output to the spindle control to pause it. +
+You would connect it to `spindle.0.inhibit`.
 
 [source,{hal}]
 ----
 qtdragon.spindle-inhibit
+----
+
+QtDragon spindle speed display and spindle-at-speed LED require that
+ `spindle.0.speed-in` be connected to spindle speed feedback. +
+Encoder or VFD feedback could be used, as long as the feedback is in revolutions per second (RPS). +
+If no feedback is available you can have the display show the requested speed by connecting pins like so:
+
+[source,{hal}]
+----
+net spindle-speed-feedback spindle.0.speed-out-rps => spindle.0.speed-in
 ----
 
 This bit output pin can be connected to turn on a laser:
@@ -385,14 +530,16 @@ This float output pin indicates the camera rotation in degrees:
 qtdragon.cam-rotation
 ----
 
-These bit/s32 pins are related to external offsets if they are used:
+These bit/s32/float pins are related to external offsets if they are used:
 
 [source,{hal}]
 ----
 qtdragon.eoffset-clear
-qtdragon.eoffset-count
 qtdragon.eoffset-enable
 qtdragon.eoffset-value
+qtdragon.eoffset-spindle-count
+qtdragon.eoffset-zlevel-count
+qtdragon.eoffset-is-active
 ----
 
 These float output pins reflect the current slider jograte (in machine units):
@@ -413,30 +560,62 @@ qtdragon.slider-override-rapid
 qtdragon.slider-override-spindle
 ----
 
-These pins are available when setting the Versa Probe INI option.
-They can be used for auto-tool-length-probe at tool change - with added
-remap code.
+These output pins are available when setting the Versa Probe INI option.
+They can be used for auto-tool-length-probe at tool change - with added remap code.
 
 [source,{hal}]
 ----
-qtdragon.versaprobe-blockheight
-qtdragon.versaprobe-probeheight
-qtdragon.versaprobe-probevel
-qtdragon.versaprobe-searchvel
+qtversaprobe.enable
+qtversaprobe.blockheight
+qtversaprobe.probeheight
+qtversaprobe.probevel
+qtversaprobe.searchvel
+qtversaprobe.backoffdist
+----
+
+This pin will be true when the loaded tool equals the number set in the Versa Probe tool number in the preference file. +
+It can be used (for example) to inhibit the spindle when the probe is loaded by connecting it to `spindle.0.inhibit`.
+
+[source,{hal}]
+----
+qtversaprobe.probe-loaded
+----
+
+This output pin is available when setting the Basic Probe INI option. +
+This pin will be true when the loaded tool equals the number set in the Basic Probe tool number edit box. +
+It can be used (for example) to inhibit the spindle when the probe is loaded by connecting it to `spindle.0.inhibit`.
+
+[source,{hal}]
+----
+qtbasicprobe.probe-loaded
+----
+
+This input pin is available to toggle pause/resume of a running program.
+
+[source,{hal}]
+----
+qtdragon.external-pause
+----
+
+You can externally operate dialog responses on most qtdragon dialogs.
+[source,{hal}]
+----
+qtdragon.dialog-ok
+qtdragon.dialog-no
+qtdragon.dialog-cancel
 ----
 
 == HAL files
 
-The HAL files supplied are for simulation only. A real machine needs its own
-custom HAL files. The QtDragon screen works with 3 or 4 axes with one joint per
-axis or 3 or 4 axes in a gantry configuration (2 joints on 1 axis).
+The HAL files supplied are for simulation only.
+A real machine needs its own custom HAL files.
+The QtDragon screen works with 3 or 4 axes with one joint per axis or 3 or 4 axes in a gantry configuration (2 joints on 1 axis).
 
 == Manual Tool Changes
 
-If your machine requires manual tool changes, QtDragon can pop a message box to
-direct you.
-You must connect the proper HAL pin in the postgui HAL file.
-For example:
+If your machine requires manual tool changes, QtDragon can pop a message box to direct you.
+QtDragon emulates the hal_manualtoolchange HAL pins - don't load the separate HAL component 'hal_manualtoolchange'.
+Hereto you must connect the proper HAL pin in the postgui HAL file, for example:
 
 [source,{hal}]
 ----
@@ -447,21 +626,33 @@ net tool-prep-number hal_manualtoolchange.number   <=  iocontrol.0.tool-prep-num
 
 == Spindle
 
-The screen is intended to interface to a VFD, but will still work without it.
-There are a number of VFD drivers included
-in the LinuxCNC distribution. It is up to the end user to supply the appropriate
-driver and HAL file connections according to his own machine setup.
+The screen is intended to interface to a VFD, but will still work without it. +
+There are a number of VFD drivers included in the LinuxCNC distribution. +
+It is up to the end user to supply the appropriate driver and HAL file connections according to his own machine setup.
 
-== Auto Raise Z Axis on Spindle Pause
+== Auto Raise Z Axis on Program Pause
 
-QtDragon can be set up to automatically raise and lower the Z axis when the
-spindle is paused.
-When a program is paused, then you press the 'Spindle Pause' button to stop the
-spindle and raise it in Z.
-Press the button again to start spindle and lower it, then unpause program.
-The amount to raise and lower is set in the 'Settings' tab under the heading
-'Z Ext Offset'.
-This requires additions to the INI and the qtdragon_post_gui file.
+QtDragon can be set up to automatically raise and lower the Z axis and stop the spindle, when the program is paused. +
+You toggle the 'SPINDLE LIFT' or 'NO LIFT' button to select the option to raise the spindle in Z when paused. +
+Then when you press the 'PAUSE' button the spindle will lift the amount set on the 'Settings' tab and the spindle will stop. +
+Pressing 'RESUME' will start the spindle and lower the spindle. +
+If you have the HAL pin `spindle.0.at-speed` connected to a driving pin, the spindle will not lower until the pin is true +
+You typically connect this to a timer or logic that detects the speed of the spindle. +
+If that pin is not connected to a driving pin, a dialog will pop up to warn you to wait for the spindle speed. +
+The spindle will lower when you close that dialog. +
+The amount to raise is set in the 'Settings' tab under the heading 'SPINDLE RAISE'. +
+This line edit box can only be directly set when not in Auto mode. +
+The up/down buttons can be used to adjust the raise amount at any time, including when the spindle is already raised. +
+The button increments are 1 inch or 5 mm (depending on the units the machine is based on).
+
+[NOTE]
+If using the Spindle lift option, HALUI can not be used to pause/resume the program.
+There is a pin, 'QtDragon.external-pause' available to pause/resume from an external source.
+You must also enable external offsets. In the setting tab check 'use external offsets'
+If you wish to inhibit the spindle when a probe tool is loaded,
+you will need to use an logical `or`-component to combine the two spindle inhibit signals to connect to `spindle.0.inhibit`. 
+
+This optional behaviour requires additions to the INI and the QtDragon_postgui HAL file.
 
 In the INI, under the AXIS_Z heading.
 
@@ -470,18 +661,24 @@ In the INI, under the AXIS_Z heading.
 [AXIS_Z]
 OFFSET_AV_RATIO  = 0.2
 ----
+This reserves 20% of max velocity and max acceleration for the external offsets. +
+This will limit max velocity of the machine by 20% +
 
 In the qtdragon_postgui.hal file add:
 
 [source,{hal}]
 ----
 # Set up Z axis external offsets
-net eoffset_clear    qtdragon.eoffset-clear => axis.z.eoffset-clear
-net eoffset_count    qtdragon.eoffset-count => axis.z.eoffset-counts
-net eoffset          qtdragon.eoffset-value <= axis.z.eoffset
+net eoffset_clear    qtdragon.eoffset-clear          =>  axis.z.eoffset-clear
+net eoffset_count    qtdragon.eoffset-spindle-count  =>  axis.z.eoffset-counts
+net eoffset          qtdragon.eoffset-value          <=  axis.z.eoffset
+net eoffset-state    qtdragon.eoffset-is-active      <=  motion.eoffset-active
+
+# Inhibit spindle when paused
+net spindle-pause    qtdragon.spindle-inhibit        =>  spindle.0.inhibit
 
 # uncomment for dragon_hd
-#net limited          qtdragon.led-limits-tripped <= motion.eoffset-limited
+#net limited          qtdragon.led-limits-tripped     <= motion.eoffset-limited
 
 setp axis.z.eoffset-enable 1
 setp axis.z.eoffset-scale 1.0
@@ -489,30 +686,23 @@ setp axis.z.eoffset-scale 1.0
 
 == Z level compensation
 
-QtDragon_hd can be set up to probe and compensate for Z level height changes 
-by utilizing the external program 'G-code Ripper'.
+QtDragon_hd can be set up to probe and compensate for Z level height changes by utilizing the external program 'G-code Ripper'.
 
 [NOTE]
 This is only available in the QtDragon_hd version.
 
-Z level compensation is a bed levelling/distortion correction function 
-typically used in 3D printing or engraving. It uses a HAL user space 
-component which utilizes the external offsets feature of LinuxCNC. The 
-component has a HAL pin that specifies an interpolation type, which must
-be one of  cubic, linear or nearest (0,1,2 respectively). If none is 
-specified or if an invalid number is specified, the default is assumed 
-to be cubic.
+Z level compensation is a bed levelling/distortion correction function typically used in 3D printing or engraving.
+It uses a HAL non-realtime component which utilizes the external offsets feature of LinuxCNC.
+The component has a HAL pin that specifies an interpolation type, which must be one of cubic, linear or nearest (0, 1, 2 respectively).
+If none is specified or if an invalid number is specified, the default is assumed to be cubic.
 
-When Z LEVEL COMP is enabled, the compensation component reads a probe 
-data file, which must be called 'probe_points.txt'. The file can be 
-modified or updated at any time while compensation is disabled. When 
-next enabled, the file will be reread and the compensation map is 
-recalculated. This file is expected to be in the configuration directory.
+When Z LEVEL COMP is enabled, the compensation component reads a probe data file, which must be called 'probe_points.txt'.
+The file can be modified or updated at any time while compensation is disabled.
+When next enabled, the file will be reread and the compensation map is recalculated.
+This file is expected to be in the configuration directory.
 
-The probe data file is generated by a probing program which itself is 
-generated by an external python program called gcode_ripper, 
-which can be launched from the file manager tab using the 'G-code Ripper' 
-button.
+The probe data file is generated by a probing program, which itself is generated by an external python program called `gcode_ripper`,
+which can be launched from the file manager tab using the 'G-code Ripper' button.
 
 === Using G-code Ripper for Z level Compensation
 
@@ -523,30 +713,32 @@ image::images/qtdragon_hd_gcoderipper.png["QtDragon G-code Ripper"]
 G-code Ripper offers many functions that we will not go in to here.
 This is only available in the QtDragon_hd version.
 
-* In Qtdragon_hd switch to the file tab and press the load G-code Ripper button.
-* set origin to match the origin of the gcode file to be probed
-* under G-Code Operations, check Auto Probe 
+* In qtdragon_hd, switch to the file tab and press the load G-code Ripper button.
+* Set origin to match the origin of the G-code file to be probed.
+* Under G-Code Operations, check Auto Probe.
 * File -> Open G-Code File (The file you will run after compensation)
-* if necessary, make adjustments and press Recalculate
-* press Save G-Code File - Probe Only
-* save the generated file to the nc_files folder
-* exit gcode_ripper
-* There should now be a file in the nc_files folder called {something}-probe-only.ngc. Set the file filter to G-Code Files, navigate to the nc_files directory and load this file.
+* If necessary, make adjustments and press Recalculate.
+* Press Save G-Code File - Probe Only.
+* Save the generated file to the nc_files folder.
+* Exit gcode_ripper.
+* There should now be a file in the nc_files folder called {something}-probe-only.ngc. Set the file filter to G-Code files, navigate to the nc_files directory and load this file.
 * Without changing the offsets, run this program. Make sure the probe tool is installed. When complete, there will be a file in the config directory called 'probe_points.txt'.
-* In Qtdragon_hd press the 'Enable Z Comp' button to enable compensation. 
-Look at the status line for indication of success or failure. 
-Active compensation will be displayed beside the label: 'Z Level Comp'
-While jogging that display should change based on the compensation component.
+* In qtdragon_hd, press the 'Enable Z Comp' button to enable compensation.
+  Look at the status line for indication of success or failure.
+  Active compensation will be displayed beside the label: 'Z Level Comp'
+  While jogging that display should change based on the compensation component.
 
 [NOTE]
-If you use auto raise Z to lift the spindle on pause, you must combine the two 
-with a HAL component and feed that to LinuxCNC's motion component.
+If you use auto raise Z to lift the spindle on pause, you must combine the two with a HAL component and feed that to LinuxCNC's motion component.
 
-sample postgui HAL file for combined spindle raise and Z Level compensation
+.Sample postgui HAL file for combined spindle raise and Z Level compensation
 [source,{hal}]
 ----
 # load components
 ########################################################################
+
+loadrt logic names=logic-and personality=0x102
+addf logic-and servo-thread
 
 # load a summing component for adding spindle lift and Z compensation
 loadrt scaled_s32_sums
@@ -554,8 +746,8 @@ addf scaled-s32-sums.0 servo-thread
 
 loadusr -Wn z_level_compensation z_level_compensation
 # method parameter must be one of nearest(2), linear(1), cubic (0)
-setp z_level_compensation.method 1
 setp z_level_compensation.fade-height 0.0
+setp z_level_compensation.method 1
 
 # connect signals to LinuxCNC's motion component
 ########################################################################
@@ -568,20 +760,23 @@ setp axis.z.eoffset-enable True
 
 # external offsets for spindle pause function
 ########################################################################
-net eoffset-spindle-count   <= qtdragon.eoffset-spindle-count    
+net eoffset-clear              qtdragon.eoffset-clear
+net eoffset-spindle-count   <= qtdragon.eoffset-spindle-count
+net spindle-pause              qtdragon.spindle-inhibit        =>  spindle.0.inhibit
+net eoffset-state              qtdragon.eoffset-is-active      <=  motion.eoffset-active
 
-# Z level compensation
-########################################################################
+## Z level compensation
+####################################################
+net eoffset-clr2            z_level_compensation.clear      => logic-and.in-01
 net xpos-cmd                z_level_compensation.x-pos      <= axis.x.pos-cmd
 net ypos-cmd                z_level_compensation.y-pos      <= axis.y.pos-cmd
 net zpos-cmd                z_level_compensation.z-pos      <= axis.z.pos-cmd
 net z_compensation_on       z_level_compensation.enable-in  <= qtdragon.comp-on
 net eoffset-zlevel-count    z_level_compensation.counts     => qtdragon.eoffset-zlevel-count
 
-# set up scaled sum component
-########################################################################
+# add Z level and scaled spindle raise level values together
 net eoffset-spindle-count   scaled-s32-sums.0.in0
-net eoffset-zlevel-count    scaled-s32-sums.0.in1       qtdragon.eoffset-value
+net eoffset-zlevel-count    scaled-s32-sums.0.in1
 setp scaled-s32-sums.0.scale0 1000
 net eoffset-counts          scaled-s32-sums.0.out-s
 
@@ -589,106 +784,297 @@ net eoffset-counts          scaled-s32-sums.0.out-s
 
 == Probing
 
-The probe screen has been through basic testing but there could still be some
-minor bugs.
-When running probing routines, use extreme caution until you are familiar with
-how everything works.
-Probe routines run without blocking the main GUI. This gives the operator the
-opportunity to watch the DROs and stop the routine at any time.
+The probe screen has been through basic testing but there could still be some minor bugs.
+When running probing routines, use extreme caution until you are familiar with how everything works.
+Probe routines run without blocking the main GUI.
+This gives the operator the opportunity to watch the DROs and stop the routine at any time.
 
 [NOTE]
 Probing is very unforgiving to mistakes; be sure to check settings before using.
 
-.QtDragon - Basic Probe Option
-image::images/silverdragon_probe.png["QtDragon Probe",scale="25%"]
+QtDragon has 2 methods for setting Z0.
+The first is a touchplate, where a metal plate of known thickness is placed on top of the workpiece,
+then the tool is lowered until it touches the plate, triggering the probe signal.
+The current user system's (G5x) Z0 is set to probe height - the entered plate thickness.
+
+The second method uses a tool setter in a fixed position and a known height above the table where the probe signal will be triggered.
+In order to set Z0 to the top of the workpiece, it has to know
+
+ . how far above the table the probe trigger point is (tool setter height) and
+ . how far above the table the top of the workpiece is.
+
+This operation has to be done every time the tool is changed as the tool length is not saved.
+
+For touching off with a touch probe, whether you use the touchplate operation with thickness set to 0 or use a probing routine,
+the height from table to top of workpiece parameter is not taken into account and can be ignored.
+It is only for the tool setter.
+
+=== Versa Probe
 
 .QtDragon - Versa Probe Option
-image::images/qtdragon_versaprobe.png["QtDragon Probe",scale="25%"]
+image::images/qtvcp_versaProbe.png["QtDragon Probe",scale="25%"]
 
-QtDragon has 2 methods for setting Z0. The first is a touchplate, where
-a metal plate of known thickness is placed on top of the workpiece and then the
-tool is lowered until it touches the plate, triggering the probe signal. Z0 is
-set to probe height - plate thickness.
+Versa probe is used to semi-automatically probe work pieces to find edges, centers and angles. +
+It can also be sued to auto probe tool length at tool changes with added remap code.
 
-The second method uses a tool setter in a fixed position and a known height
-above the table where the probe signal will be triggered. In order to set Z0 to
-the top of the workpiece, it has to know how far above the table the probe
-trigger point is (tool setter height) and how far above the table the top of the
-workpiece is. This operation has to be done every time the tool is changed as
-the tool length is not saved.
+You must carefully set the 'Probing Parameters':
 
-For touching off with a touch probe, whether you use the touchplate operation
-with thickness set to 0 or use a probing routine, the height from table to top
-of workpiece parameter is not taken into account and can be ignored. It is only
-for the tool setter.
+'DIAMETER':: This is the diameter of the probe tip. The accuracy of probe measurements is directly affected by the accuracy of the probe tip diameter.
+'TRAVEL':: The distance that the probe will travel during the initial search. If the search distance is too short, you will receive a message like "G38 finished without making contact". For safety reasons, it is recommended to set this parameter to 3-4 mm more than probe stylus diameter.
+'LATCH RTN':: The distance the probe is retracted after making initial contact with the workpiece. This should be a short distance because the second approach will be at a slow speed, but large enough for the probe to break contact and bring it to the search ready state. If the Latch Rtn distance too large, you will end up spending a lot of time waiting for the search to complete. Recommendation: 1-2 mm
+'SEARCH':: This is the feed rate at which the probe searches for the target workpiece in machine units per minute. The search speed should be slow enough to give an acceptable initial accuracy, but fast enough to not waste time waiting for movement. Recommendation: 200-500 mm/min.
+'PROBE':: Once initial contact has been made and the probe is retracted, it will wait for 0.5 seconds before performing the search again at a lower speed, the probe velocity. This lower speed ensures the machine can stop movement as quickly as possible on contact with the workpiece.
+'RAPID':: Axis movements not associated with searching are done at the speed defined by RAPID in machine units per minute.
+'SIDE/EDGE LENGTH':: This is the distance the probe will move at the rapid rate to the position where it will begin a search. If measuring a corner, it will move EDGE LENGTH units away from the corner, then move away from the workpiece by XY CLEARANCE, lower by Z CLEARANCE and begin the initial search. If measuring an inner circle, then EDGE LENGTH should be set to the approximate radius of the circle. Note: NOT the diameter.
+'PROBE HT':: The height of the tool sensor from the machine table surface. This value is used to calculate the Z zero height for the current work coordinate system when using the probe with a tool setter sensor.
+'BLOCK HT':: The height of the top of the workpiece from the machine table surface. This value is used to calculate the Z zero height for the current work coordinate system when using the probe with a tool setter sensor.
+'XY CLEARANCE':: The distance that the probe will move away from an edge or corner before performing a search. It should be large enough to ensure that the probe will not contact the workpiece or any other fixtures before moving down. It should be small enough to avoid excessive waiting for movement while searching.
+'Z CLEARANCE':: The distance that the probe will move down before performing a search. If measuring an inside hole, the probe could be manually jogged to the starting Z height and then set Z CLEARANCE to 0.
 
+There are three toggle buttons:
+
+'Auto Zero':: This selects if after probing the relevant axis is set to zero in the current user system.
+'Auto Skew':: This selects if after probing, the system will be rotated or just display the calculated rotation.
+'Tool Measure':: This (if integrated) turns auto tool probing on and off.
+
+==== HAL Pins
+
+Versaprobe offers 5 output pins for tool measurement purpose and one that can be used to inhibit the spindle when the probe is loaded. +
+The 5 pins are used to be read from a remap G-code subroutine, so the code can react to different values. +
+Currently the probe tool number is only editable in the preference file: +
+
+----
+[VERSA_PROBE_OPTIONS]
+ps_probe_tool = 1
+----
+
+`qtversaprobe.enable` (HAL_BIT):: Measurement enabled or not tool. Reflects screen button state.
+`qtversaprobe.blockheight` (HAL_FLOAT):: The measured height of the top face of the workpiece. Reflects screen entry.
+`qtversaprobe.probeheight` (HAL_FLOAT):: The toolsetter probe switch height. Reflects screen entry.
+`qtversaprobe.searchvel` (HAL_FLOAT):: The velocity to search for the tool probe switch
+`qtversaprobe.probevel` (HAL_FLOAT):: The velocity to probe tool length. Reflects screen entry.
+`qtversaprobe.backoffdist` (HAL_FLOAT):: The distance the probe backs off after triggering. Reflects screen entry.
+`qtversaprobe.probe-loaded` (HAL_BIT):: Reflect if the current tool is equal to the preference file probe number.
+
+=== Basic probe
+
+.QtDragon - Basic Probe Option
+image::images/qtvcp_basicProbe.png["QtDragon Probe",scale="25%"]
+
+Basic probe is used to semi-automatically probe work pieces to find edges, centers and angles.
+The combo box allows selecting the basic type of probing buttons shown:
+
+* Outside Corners
+* Inside Corners
+* Edge Angles
+* Boss and Pockets
+* Ridge and Valleys
+* Calibration
+
+You must carefully set the 'Probing Parameters':
+
+'Probe Tool':: Will only allow probing if this tool number is in the spindle
+'Probe Diameter':: The size of the probe tip
+'Probe Rapid':: The speed of rapid moves in machine units
+'Probe Search':: The speed of the first 'rough' search in machine units
+'Probe Feed':: The speed of the second 'fine' search in machine units
+'Step Off':: Back off and re-probe distance
+'Max XY Distance':: The maximum distance the probe will search for in X and Y before failing with error
+'Max Z Distance'::  The maximum distance the probe will search for in Z before failing with error
+'XY Clearance':: Clearance distance from probe to wall edge before rapid traversing down in Z and 'rough' probing
+'Z Clearance':: Clearance distance from probed to top of material
+'Extra Depth':: Distance from top of material to desired probe depth
+
+There are also hint parameters depending on selected probing type:
+
+'Edge Width':: Desired distance from the probe start position, along wall edge before starting to probe
+'Diameter Hint':: Used by Round Boss or Round Pocket probing (start move: 1/2 diameter plus XY clearance)
+'X Hint':: Used by Rectangular Boss/Pocket probing (start move: 1/2 X length plus XY clearance)
+'Y Hint':: Used by Rectangular Boss/Pocket probing (start move: 1/2 Y length plus XY clearance)
+
+After setting the parameters and hints:
+
+* Manually move the probe to the approximate position represented by the green target on the button.
+* Confirm the parameters are reasonable.
+* Press the desired probing button.
+
+The probing routine will start immediately.
+[NOTE]
+Pressing the stop button or the keyboard escape key, will abort the probing.
+
+==== HAL Pins
+This can be used to inhibit the spindle when the probe is loaded. +
+You would connect it to spindle.0.inhibit
+
+[source,{hal}]
+----
+qtbasicprobe.probe-loaded
+----
+
+==== Corner Probe Example
+
+Lets discuss inside corner probing using the top right button in Basic Probe (back_right_inside).
+While all probe entries must be correct, the most important settings to change for each each probe:
+
+XY CLEARANCE:: Distance away from edge before rough probing,
+Z CLEARANCE:: Distance from probe to top of material,
+EXTRA DEPTH:: Distance to lower probe from top of material,
+EDGE WIDTH:: Distance along edge wall (away from corner) to start probing.
+
+[NOTE]
+These distance are always to be set in 'machine units' (mm for metric machine, inch for imperial machine).
+
+Preset:
+
+* manual set probe at the intersection of the edges (ie corner) of material as described by the green bullseye on the button. Set it Z CLEARANCE above the top of material. These can be done by eye.
+* set EXTRA CLEARANCE to a value that you want the probe to go below the _top_ of material.
+  (So the probe will move from its start position down  Z Clearance + Extra Clearance distance.)
+* set XY CLEARANCE to a value that definitely gives clearance from the wall so when the probe goes down it does not hit anything.
+* set EDGE WIDTH to a value that describes the distance measured from the corner, along the wall to where you wish to probe. this edge distance will be used along the X wall and then the Y wall.
+
+Sequence after pressing the probe button: +
+
+. Rapid EDGE WIDTH distance away from corner at the same time moving XY CLEARANCE away from edge. So this is a slightly diagonal move.
+. Move probe down by Z CLEARANCE + EXTRA DEPTH,
+. probe wall twice (rough and fine),
+. move diagonally to the other wall as set by EDGE WIDTH and XY CLEARANCE,
+. probe wall twice,
+. raise probe up by Z CLEARANCE + EXTRA DEPTH (returns to starting height),
+. rapid back to starting corner (now calculated using the probed walls),
+. if auto zero button is enabled, set X and Y of the current user system to zero.
+
+[[sub:touch-plate]]
 == Touch plate
 
 .QtDragon - Touch Plate
 image::images/qtdragon_touchplate.png["QtDragon Touch Plate",scale="25%"]
 
-You can use a conductive touch plate or equivalent to auto touch off (zero the
-user coordinate) for the Z position of a tool.
+You can use a conductive touch plate or equivalent to auto touch off (zero the user coordinate) for the Z position of a tool.
 There must be a tool loaded prior to probing.
-In the tool tab or settings tab, set the touch plate height, search and probe
-velocity and Max probing distance.
+In the tool tab or settings tab, set the touch plate height, search and probe velocity and max. probing distance.
 
 [NOTE]
-When using a conductive plate the search and probe velocity should be the same
-and slow.
-If using a tool setter that has spring loaded travel then you can set search
-velocity faster.
-LinuxCNC ramps speed down at the maximum acceleration rate, so there can be
-travel after the probe trip if the speed is set to high.
+When using a conductive plate the search and probe velocity should be the same and slow.
+If using a tool setter that has spring loaded travel then you can set search velocity faster.
+LinuxCNC ramps speed down at the maximum acceleration rate, so there can be travel after the probe trip if the speed is set to high.
 
 Place the plate on top of the surface you wish to zero Z on.
-Connect the probe input wire to the tool (if using a conductive plate)
+Connect the probe input wire to the tool (if using a conductive plate).
 There is a LED to confirm the probe connection is reliable prior to probing.
 Move the tool manually within the max probe distance.
 Press the 'Touch Plate' button.
-The machine will probe down twice and the current user offset (G5X) will be
-zeroed at the bottom of the plate by calculation from the touchplate height
-setting.
+The machine will probe down twice and the current user offset (G5X) will be zeroed at the bottom of the plate by calculation from the touchplate height setting.
 
 == Auto Tool Measurement
 
-QtDragon can be setup to do integrated auto tool measurement using the
-Versa Probe widget and remap code.
-To use this feature, you will need to do some additional settings and you may
-want to use the offered HAL pin to get values in your own ngc remap procedure.
+=== Overview
+
+QtDragon can be setup to do integrated auto tool measurement using the Versa Probe widget and remap code.
+
+This feature assumes the use of two probes in concert:
+
+ . A tool switch sensor, fixed somewhere on the machine (sometimes called a tool-setter), and
+ . a spindle probe that is installed temporarily at the beginning of the job (sometimes called an xyz probe or a Renishaw probe).
+
+These techniques are useful for machines that do not have repeatable tool holders and do not have automatic tool changing devices.
+(For machines with repeatable tool holders, see the section on <<sub:touch-plate,measuring tool length>>.
+For machines with automatic tool changing devices, consult work done under the LinuxCNC repository at `configs/sim/axis/remap/rack-toolchange`.)
+
+To use this feature, you will need to do some additional settings and you may want to use the offered HAL pins to get values in your own ngc remap procedure. Those settings are covered later in the section.
+
+First, this document covers how to use this technique. Second, this document covers how to set up for this technique at the beginning of a production run.
+
+=== Workflow Overview
+
+A detailed workflow walkthrough follows this overview.
+
+Setup steps include:
+
+* Entering the probe velocities on the versa probe settings page.
+* Enabling "Use Tool Measurement" on the Versa Probe tab. 
+* Enabling "Use Tool Sensor" under Settings.
 
 [IMPORTANT]
-Before starting the first test, do not forget to enter the probe
-height and probe velocities on the versa probe settings page.
+When fist setting up auto tool measurement, please use caution
+until you confirm tool change and probe locations - it is easy to break a tool/probe.
+Abort will be honoured while the probe is in motion.
 
-Tool Measurement in QtDragon is done with the following steps:
+Tool Measurement in QtDragon is organized into the following steps which will be explained in more detail in the following section:
 
-* Touch of you workpiece in X and Y.
-* Measure the height of your block from the base where your tool switch is
-  located, to the upper face of the block (including chuck etc.).
-* In the Versa probe tab, enter the measured value for block height.
-* Make sure the use tool measurement button in the Vesa probe tab is enabled.
-* Go to auto mode and start your program.
-
-[NOTE]
-When fist setting up auto tool measurement, please use caution until you confirm
-tool change and probe locations - it's easy to break a tool/probe. Abort will
-be honoured while the probe is in motion.
+. Zero the probe tool by measuring the tool setter with the spindle probe installed
+. Touch off your workpiece in X and Y.
+. Measure the height of your block from the base, where your tool switch is located, to the upper face of the block (including chuck etc.).
+. In the Versa probe tab, enter the measured value for block height.
+. Go to auto mode and start your program.
 
 .Auto tool measurement
 image::images/sketch_auto_tool_measurement.png[align="left"]
 
-With the first given tool change the tool will be measured and the offset will
-be set automatically to fit the block height.
+With the first given tool change the tool will be measured and the offset will be set automatically to fit the block height.
 The advantage of this way is, that you do not need a reference tool.
 
 [NOTE]
-Your program must contain a tool change at the beginning.
-The tool will be measured, even it has been used before, so there is no danger
-if the block height has changed.
-There are several videos on you tube that demonstrate the technique using
-GMOCCAPY.
-The GMOCCAPY screen pioneered the technique.
+Your program must contain a tool change at the beginning. The tool will be measured, even it has been used before, so there is no danger if the block height has changed. There are several videos on you tube that demonstrate the technique using GMOCCAPY. The GMOCCAPY screen pioneered the technique.
+
+The sequence of events (using the default files in the default setting):
+
+. Rapid move in Z to position defined in the INI's [TOOL_CHANGE] Z.
+. Rapid move in X and Y to number defined in INI's [TOOL_CHANGE] X and Y.
+. Perform normal M6 tool change, i.e., stop spindle, send message to user to change the tool.
+. Rapid move in X and Y to position defined in the INI's [VERSA_TOOLSETTER] X and Y.
+. Rapid move down in Z to position defined in the INI's [VERSA_TOOLSETTER] Z.
+. Probe down in Z to maximum defined in the INI's [VERSA_TOOLSETTER] MAXPROBE.
+. Changes the offset of the current work coordinate system to match the difference between the previous tool and the currently measured tool.
+. Rapid move up in Z to position defined in the INI's [VERSA_TOOLSETTER] Z_MAX_CLEAR.
+. Rapid move to the X Y position when the tool change was called.
+. Rapid move down to the Z position when the tool change was called.
+
+[NOTE]
+The [TOOL_CHANGE] Z position should be high enough so the tool will not hit the tool probe when moving to the [VERSA_TOOLSETTER] X and Y position. +
+  +
+MAXPROBE distance needs to be high enough for the tool to touch the probe.
+
+=== Detailed Workflow Example
+
+==== One Time Setup
+
+The following setups need only be done once as long as they remain in effect:
+
+. Under Probe Tool Screens: Ensure reasonable values for "Rapid" and "Search," these are the speeds at which the probing will be performed and are in machine units per minute. +
+. Under Probe Tool Screens: Ensure that "Tool Measure" is enabled (this is a button that must be highlighted)
+. Under Settings: Ensure that "Use Tool Sensor" is enabled (this is a tick-box that must be checked)
+. In the Tool Table: Set up a tool for the spindle probe and ensure that its Z offset is set to zero.
+
+[NOTE]
+It is possible to use a non-zero tool length for the tool probe,
+but this requires extra steps and is easy to make mistakes.
+The following procedure assumes a zero tool probe length.
+
+==== Procedure before starting a program
+
+The following setup is done before beginning a program that has M6 tool change commands inside it.
+
+. Physically load the spindle probe into the spindle.
+. Logically load the spindle probe into the spindle with the M61 Qx command where x is the number in the tool table for the spindle probe (there is a button inside the tool table tab that can also be used)
+. Position to the Toolsetter: Use the button under the Probe Screens for "Go To Toolsetter" to position the spindle above the Toolsetter.
+. Toolsetter Measure: Use the button under the Probe Screens for "Probe Tool Setter Z Height." Note that this will set and display on the Probe Settings screen the "Probe HT" value in ABS coordinates
+. Jog to your workpiece.
+. Workpiece Measure: Use the button under the Probe Screens for "Probe Z Height of Material:" this will set and display on the Probe Settings screen the "Block Ht" value in ABS coordinates. (Typically, this will now also be the zero Z for your Work Coordinate System)
+. Set Work Coordinate System (ie, G54, or other): Use the Probe Tool and whatever probe screen or other method is appropriate to set the X, Y, and Z coordinate system needed for your job.
+. If your program begins with a TnM6 command before spinning the spindle, you may leave the spindle probe installed. You may also issue a TnM6 command to change out the spindle probe, and if the program issues the same one, it will skip the tool change.
+
+[CAUTION]
+Take care not to leave the spindle probe in the spindle if a program may start the spindle.
+
+Once those steps are complete, a program with multiple TnM6 toolchanges can be started and will operate with automatic pauses for manual tool change followed by automated tool measurement.
+
+[NOTE]
+After probing the new tool length using the tool-setter, this remap code uses a G43 which applies the offset to the Work Coordinate system which was in effect when the M6 command was issued. Because remapping has adjusted the Work Coordinate system by the offset between the previous and the current tool, the tool tip will end up at the same point in space as the tip of the previous tool was when the tool change was called.
+
+=== Work Piece Height Probing in QtDragon_hd
+The [TOOL_CHANGE] Z position should be high enough so the tool will not hit the tool probe
+when moving to the [VERSA_TOOLSETTER] X and Y position.
+MAXPROBE distance needs to be high enough for the tool to touch the probe.
 
 === Work Piece Height Probing
 
@@ -701,11 +1087,11 @@ This program probes 2 user specified locations in the Z axis and calculates the 
 This is only available in the QtDragon_hd version.
 
 .Enable Probe Position Set Buttons
-* Wwhen checked, the SET buttons are enabled.
+* When checked, the SET buttons are enabled.
 * This allows the user to automatically fill in the X, Y and Z parameters with the current position as displayed on the DROs.
 
 .Autofill Workpiece Height on Main Screen
-* When checked, the calculated height is automatically transferred to the Workpice Height field in the main screen.
+* When checked, the calculated height is automatically transferred to the Workpiece Height field in the main screen.
 * Otherwise, the main screen is not affected.
 
 .Workpiece Probe At
@@ -726,10 +1112,10 @@ This is only available in the QtDragon_hd version.
 * The parameters for search velocity, probe velocity, maximum probe distance and return distance are read from the main GUI Settings page.
 
 .ABORT button
-* causes all jog and probe routines currently executing to stop
+* causes all jog and probe routines currently executing to stop.
 
 .HELP button
-* displays this help file
+* displays this help file.
 
 [NOTE]
 * Any 2 points within the machine operating volume can be specified.
@@ -738,25 +1124,24 @@ This is only available in the QtDragon_hd version.
 * Units are irrelevant in this program. The probed values are not saved and only the difference is reported.
 
 [CAUTION]
-Setting incorrect values can lead to crashes into fixtures on the machine work surface. Initial testing with no tool and safe heights is recommended.
+Setting incorrect values can lead to crashes into fixtures on the machine work surface.
+Initial testing with no tool and safe heights is recommended.
 
 === Tool Measurement Pins
 
-Versaprobe offers 5 pins for tool measurement purpose. The pins are used
-to be read from a remap G-code subroutine, so the code can react to different
-values.
+Versaprobe offers 5 output pins for tool measurement purpose.
+The pins are used to be read from a remap G-code subroutine, so the code can react to different values.
 
-* `qtversaprobe.toolmeasurement` (HAL_BIT) enable or not tool measurement
-* `qtversaprobe.blockheight` (HAL_FLOAT) the measured value of the top face of the
-  workpiece
-* `qtversaprobe.probeheight` (HAL_FLOAT) the probe switch height
-* `qtversaprobe.searchvel` (HAL_FLOAT) the velocity to search for the tool probe
-  switch
-* `qtversaprobe.probevel` (HAL_FLOAT) the velocity to probe tool length
+`qtversaprobe.enable` (HAL_BIT):: Measurement enabled or not tool. Reflects screen button state.
+`qtversaprobe.blockheight` (HAL_FLOAT):: The measured height of the top face of the workpiece. Reflects screen entry.
+`qtversaprobe.probeheight` (HAL_FLOAT):: The toolsetter probe switch height. Reflects screen entry.
+`qtversaprobe.searchvel` (HAL_FLOAT):: The velocity to search for the tool probe switch
+`qtversaprobe.probevel` (HAL_FLOAT):: The velocity to probe tool length. Reflects screen entry.
+`qtversaprobe.backoffdist` (HAL_FLOAT):: The distance the probe backs off after triggering. Reflects screen entry.
 
 === Tool Measurement INI File Modifications
 
-Modify your INI File to include the following:
+Modify your INI file to include the following:
 
 ==== The PROBE section
 
@@ -771,14 +1156,22 @@ USE_PROBE = basicprobe
 ----
 
 ==== The RS274NGC section
+<<sub:ini:sec:rs274ngc, RS274NGC Section Details>> +
+<<sub:remap:sec:remap-statement, Remap Statement Details>> +
+<<sub:remap:sec:error-handling, Remap Abort Details>>
+
+[NOTE]
+These default entries should work fine in most situations. Some systems may need to use 'linuxcnc/nc_files/examples/'
+instead of 'linuxcnc/nc_files/'. please check that paths are valid. Custom entries pointing to modified file are possible.
 
 [source,{ini}]
 ----
 [RS274NGC]
 
-# adjust this paths to point to folders with stdglu.py and qt_auto_tool_probe.ngc
-# or similarly coded custom remap files
-SUBROUTINE_PATH = ~/linuxcnc/nc_files/remap-subroutines:~/linuxcnc/nc_files/remap_lib
+# Adjust this paths to point to folders with stdglue.py, qt_auto_tool_probe.ngc and on_abort.ngc
+# or similarly coded custom remap files.
+SUBROUTINE_PATH = ~/linuxcnc/nc_files/remap-subroutines:\
+~/linuxcnc/nc_files/remap_lib
 
 # is the sub, with is called when a error during tool change happens.
 ON_ABORT_COMMAND=O <on_abort> call
@@ -787,48 +1180,47 @@ ON_ABORT_COMMAND=O <on_abort> call
 REMAP=M6  modalgroup=6 prolog=change_prolog ngc=qt_auto_probe_tool epilog=change_epilog
 ----
 
-The abort command file should be in the configuration folder and look something like this:
-
-----
-o<on_abort> sub
-
-o100 if [#1 eq 5]
-    (machine on)
-o100 elseif [#1 eq 6]
-    (machine off)
-o100 elseif [#1 eq 7]
-    (estopped)
-o100 elseif [#1 eq 8]
-    (msg,Process Aborted)
-o100 else
-    (DEBUG,Abort Parameter is %d[#1])
-o100 endif
-
-o<on_abort> endsub
-m2
-----
-
 ==== The Tool Sensor Section
 
-The position of the tool sensor and the start position of the probing movement,
-all values are absolute (G53) coordinates, except MAXPROBE, what must be given
-in relative movement.
-All values are in machine native units.
+The position of the tool sensor and the start position of the probing movement. +
+All values are absolute (G53) coordinates, except MAXPROBE, which is expressed as an absolute length of movement. +
+All values are in machine native units. +
+X, Y, & Z set the tool setter probe location. +
 
+Auto probe action sequence in the default qt_auto_probe_tool example remap defined above (this behavior can be changed by modifying either the remap statement in the RS274NGC section, or by modifying the qt_auto_probe_tool.ngc code.): +
+
+. rapid move to the INI's [CHANGE_POSITION] Z position (this is a relative move, it adds this Z value to the current Z coordinate)
+. rapid move to the INI's [CHANGE_POSITION] X & Y position.
+. wait for manual tool change acknowledgement
+. rapid move to the INI's [VERSA_TOOLSETTER] X & Y position
+. rapid move to the INI's [VERSA_TOOLSETTER] Z_MAX_CLEAR Z position
+. fast probe
+. slow probe
+. rapid move to the INI's [VERSA_TOOLSETTER] Z_MAX_CLEAR Z position
+
+Z_MAX_CLEAR is the Z position to go to before moving to the tool setter when using the 'Travel to Toolsetter button'. +
+'Travel to Toolsetter' Action sequence: +
+
+. rapid move to [VERSA_TOOLSETTER] Z_MAX_CLEAR Z position
+. rapid move to [VERSA_TOOLSETTER] XY position
+. rapid move to [VERSA_TOOLSETTER] Z position.
+
+Example settings:
 [source,{ini}]
 ----
-[TOOLSENSOR]
+[VERSA_TOOLSETTER]
 X = 10
 Y = 10
 Z = -20
+Z_MAX_CLEAR = -2
 MAXPROBE =  -20
 ----
 
 ==== The Change Position Section
 
-This is not named TOOL_CHANGE_POSITION  on purpose - *canon uses that name and
-will interfere otherwise.* The position to move the machine before giving the
-change tool command. All values are in absolute coordinates.
+This is not named TOOL_CHANGE_POSITION  on purpose - *canon uses that name and will interfere otherwise*.
+The position to which to move the machine before giving the change tool command.
+All values are in absolute coordinates.
 All values are in machine native units.
 
 [source,{ini}]
@@ -841,69 +1233,22 @@ Z = -2
 
 ==== The Python Section
 
-The Python section sets up what files LinuxCNC's Python interpreter looks for.
-ie. 'toplevel.py' file in the 'python' folder in the configuration directory:
+The Python section sets up what files LinuxCNC's Python interpreter looks for, e.g., `toplevel.py` file in the `python` folder in the configuration directory:
+These default entries should work fine in most situations. Some systems may need to use 'linuxcnc/nc_files/examples/' instead of 'linuxcnc/nc_files/'.
+Custom entries pointing to modified file are possible.
 
 [source,{ini}]
 ----
-[PYTHON]
-# The path to start a search for user modules
-PATH_PREPEND = python
-# The start point for all.
-TOPLEVEL = python/toplevel.py
+# The path start point for all remap searches, i.e. Python's sys.path.append()
+PATH_APPEND = ~/linuxcnc/nc_files/remap_lib/python-stdglue/python
+# path to the tremap's 'toplevel file
+TOPLEVEL = ~/linuxcnc/nc_files/remap_lib/python-stdglue/python/toplevel.py
 ----
 
-=== Needed Files
-
-You must copy the following files to your config directory
-
-First create a folder named 'python' in your machine's configuration folder.
-
-If using a compiled RIP version of LinuxCNC: +
-From 'YOUR-LINUXCNC-DIRECTORY/configs/sim/QtDragon/python', copy 'toplevel.py'
-and 'remap.py' to your configuration's new 'python' folder.
-
-if using an installed version of LinuxCNC: +
-from '/usr/share/doc/linuxcnc/examples/sample-configs/sim/qtvcp_screens/qtdragon/python/'
-, copy 'toplevel.py' and 'remap.py' to your configuration's new 'python' folder.
-
-Alternately, you can make new files in your 'python' folder that you made in your configuration folder,
-with a text editor.
-
-One named 'remap.py' saved with this text: 
-[source,python]
-----
-from stdglue import *
-----
-
-One named 'toplevel.py' saved with this text:
-[source,python]
-----
-import remap
-----
-
-Make a symbolic link or copy the following files into the 'python' folder
-described above.
-
-In '~/linuxcnc/nc_files/examples/remap_subroutine/' folder
-
-In '~/linuxcnc/nc_files/examples/remap_lib/python_stdglue/' folder
-
-[NOTE]
-These file names and location could be different depending on installed verses
-development (RIP) version of LinuxCNC.
-For instance '&ndash;/linuxcnc/nc_files/macros' is '&ndash;/linuxcnc/nc_files/examples/macros'
-in installed versions of LinuxCNC.
-You could use customized versions of the same files or name them differently.
-The entries in the '[RS274NGC]' section dictate to LinuxCNC what and where to
-look.
-The names and location quoted should be available in either system by default.
-
-=== Needed HAL Connections
+=== Required HAL Connections
 
 Make sure to connect the tool probe input in your HAL file:
-If connected properly, you should be able to toggle the probe LED in QtDragon
-if you press the probe stylus.
+If connected properly, you should be able to toggle the probe LED in QtDragon if you press the probe stylus.
 
 [source,{hal}]
 ----
@@ -912,147 +1257,249 @@ net probe  motion.probe-input <= <your_input_pin>
 
 == Run from Line
 
-A G-code program can be started at any line by clicking on the desired line in
-the G-code display while in AUTO mode.
-It is the operator's responsibility to ensure the machine is in the desired
-operational mode.
+A G-code program can be started at any line by clicking on the desired line in the G-code display while in AUTO mode.
+It is the operator's responsibility to ensure the machine is in the desired operational mode.
 A dialog will be shown allowing the spindle direction and speed to be preset.
-The start line is indicated in the box labelled LINE, next to the CYCLE START
-button.
+The start line is indicated in the box labelled LINE, next to the CYCLE START button.
 The run from line feature can be disabled in the settings page.
 
 [NOTE]
-LinuxCNC's run-from-line is not very user friendly. E.g., it does not start the
-spindle or confirm the proper tool.
-Also, it does not handle subroutines well. If used it is best to start on a rapid
-move.
+LinuxCNC's run-from-line is not very user friendly.
+E.g., it does not start the spindle or confirm the proper tool.
+Also, it does not handle subroutines well. If used it is best to start on a rapid move.
 
 == Laser buttons
 
-The LASER ON/OFF button in intended to turn an output on or off which is
-connected to a small laser crosshair projector.
-When the crosshair is positioned over a desired reference point on the workpiece,
-the REF LASER button can be pushed which then sets
-the X and Y offsets to the values indicated by the LASER OFFSET fields in the
-Settings page and the INI file.
+The LASER ON/OFF button in intended to turn an output on or off which is connected to a small laser crosshair projector.
+When the crosshair is positioned over a desired reference point on the workpiece, the REF LASER button can be pushed,
+which then sets the X and Y offsets to the values indicated by the LASER OFFSET fields in the Settings page.
 
 == Tabs Description
 
-Tabs allow the user to select the most appropriate info/control on the top three
-panels. +
-If the on screen keyboard is showing and the user wishes to hide it but keep the
-current tab, +
-they can do that by pressing the current show tab.
+Tabs allow the user to select the most appropriate info/control on the top three panels.
+If the on screen keyboard is showing and the user wishes to hide it but keep the current tab, they can do that by pressing the current show tab.
+In QtDragon, there is a splitter handle between the G-code text display and the G-code graphical display.
+One can use this to split the size between the two areas. This can be set differently in each tab and in each mode.
 
 === Main tab
 
-This tab displays the graphical representation of the current program. +
+This tab displays the graphical representation of the current program.
 The side buttons will control the display.
 
-* 'User View': Select/restore a user set view of the current program
-* 'P','X','Y','Z': Set standard views
-* 'D': Toggle display of dimensions
-* '+', '-': Zoom controls
-* 'C': Clear graphics of tool movement lines
+* 'User View': Select/restore a user set view of the current program.
+* 'P','X','Y','Z': Set standard views.
+* 'D': Toggle display of dimensions.
+* '+', '-': Zoom controls.
+* 'C': Clear graphics of tool movement lines.
 
-In QtDragon_hd there are also macro buttons available on the right side. +
+In `qtdragon_hd` there are also macro buttons available on the right side.
 Up to tens buttons can be defined in the INI.
 
 === File Tab
 
-You can use this tab to load or transfer programs. +
+You can use this tab to load or transfer programs.
 Editing of G-code programs can be selected from this tab.
-With qtdragon_hd, this is where you can load 'Gcode Ripper'
+With `qtdragon_hd`, this is where you can load the 'G-code Ripper'.
 
 === Offsets Tab
 
 You can monitor/modify system offsets from this tab.
-there are convenience buttons for zeroing the rotation.G92 and current G5x user
-offset.
+There are convenience buttons for zeroing the rotation.G92 and current G5x user offset.
 
 === Tool Tab
 
-You can monitor/modify tool offsets from this tab. +
+You can monitor/modify tool offsets from this tab.
 Adding and deleting tools from the tool file can also be done from this tab.
+When this tab is selected the individual home buttons in the DRO area will change to tool offset setting buttons.
+They will return to home buttons when you select another tab.
+Pressing this tool button will drop down a when menu of options:
+
+* Set Current Tool Position
+* Adjust Current Tool Position
+* Zero Current Tool Position
+* Set Tool Offset Directly
+* Reset To Last
 
 === Status Tab
 
-A time-stamped log of important machine or system events will be shown here. +
-Machine events would be more suited to an operator, where the system events may
-help in debugging problems.
+A time-stamped log of important machine or system events will be shown here.
+Machine events would be more suited to an operator, where the system events may help in debugging problems.
 
 === Probe Tab
 
-Probing routines options are displayed on this tab. Depending on INI options,
-this could be +
-VersaProbe or BasicProbe style. They are functionally similar. +
+Probing routines options are displayed on this tab.
+Depending on INI options, this could be VersaProbe or BasicProbe style.
+They are functionally similar.
 QtDragon_hd will also show a smaller graphics display window.
 
 === Camview Tab
 
-If the recognized webcam is connected, this tab will display the video image
-overlayed with a cross-hair +
-, circle and degree readout. This can be adjusted to suit a part feature for
-such things as touchoff. +
-The underlying library uses openCV Python module to connect to the webcam.
+If the recognized webcam is connected, this tab will display the video image overlaid with a cross-hair, circle and degree readout.
+This can be adjusted to suit a part feature for such things as touchoff.
+The underlying library uses openCV Python module to connect to the webcam. +
+To adjust the X or Y size aspect ratio, or camera number, look in the preference file for: +
+
+----
+[CUSTOM_FORM_ENTRIES]
+Camview xscale = 100
+Camview yscale = 100
+Camview cam number = 0
+----
+
+These are in percent, usually the range will be 100 - 200 in one axis. +
+Negating these scales can be used to flip the image in X, Y or both axes. +
+The preference file can only be edited when QtDragon is not running.
 
 === G-codes Tab
 
-This tab will display a list of LinuxCNC's G-code. +
+This tab will display a list of LinuxCNC's G-code.
 if you click on a line, a description of the code will be displayed.
 
 === Setup Tab
 
-It's possible to load HTML or PDF file (.html / .pdf ending) with setup
-notes. 
-HTML/PDF docs will be displayed in the setup tab.
-Some program, such as Fusion 360 and Aspire will create these files for
-you.
-If you load a G-code program and there is an HTML/PDF file of the same
-name, it will load automatically.
-You can also write your own HTML docs with the included SetUp Writer
-button.
+It's possible to load HTML or PDF file (.html / .pdf ending) with setup notes, and will be displayed in the setup tab. +
+If you load a G-code program and there is an HTML/PDF file of the same name, it will load automatically. +
+Some program, such as Fusion 360 and Aspire will create these files for you.
+You can also write your own HTML docs with the included SetUp Writer button. +
+There are three sub tabs:
+
+* 'HTML' - any loaded HTML pages are displayed here. The navigation buttons work on this page.
+* 'PDF' - any loaded PDF setup pages are displayed here.
+* 'PROPERTIES' - when a program is loaded its G-code properties are displayed here.
+
+There are navigation buttons for HTML page:
+
+* The up arrow returns you to the default HTML page.
+* The left arrow moves backward one HTML page.
+* The right arrow moves forward one HTML page.
+
+If you wish to include a custom default HTML page, name it 'default_setup.html' and place it in your configuration folder. +
+Custom QtVCP panels can be displayed in this tab by setting the EMBED_TAB_LOCATION option to 'tabWidget_setup'.
 
 .QtDragon - Setup Tab Sample
-image::images/silverdragon_setup.png["QtDragon Setup Tab",scale="25%"]
+image::images/qtdragon_setup_page.png["QtDragon Setup Tab",scale="25%"]
 
 === Settings Tab
 
-The settings tab is used to set running options, probing/touchplate/laser/camera
-offsets and load debugging external programs.
+The settings tab is used to set running options, probing/touchplate/laser/camera offsets and load debugging external programs.
 
 === Utilities Tab
 
-This tabs will display another stab election of G-code utility programs. +
+This tabs will display another stab election of G-code utility programs:
 
-* 'Facing': allows quick face milling of a definable area at angles of 0,45 and
-  90 degrees
-* 'Hole Circle': allows quick setting of a program to drill a bolt circle of
-  definable diameter and number of holes.
-* 'NGCGUI': is a QtVCP version of the popular G-code subroutine builder/selector.
+* 'Facing': allows quick face milling of a definable area at angles of 0,45 and 90 degrees.
+* 'Hole Circle': allows quick setting of a program to drill a bolt circle of definable diameter and number of holes.
+* 'NGCGUI': is a QtVCP version of the popular G-code subroutine builder/selector, see <<sub:qtvcp:widgets:qt-ngcgui,Widgets-NGCGUI>>.
+
+Custom QtVCP panels can be displayed here by setting the EMBED_TAB_LOCATION option to `tabWidget_utilities`
+
+=== User Tab
+
+This tab will only be displayed if an embedded panel has been designated for the location `stackedWidget_mainTab`.
+If more then one embedded tab has been designated, then pressing the user tab will cycle through them.
 
 == Styles
 
-Nearly all aspects of the GUI appearance are configurable via the QtDragon.qss
-stylesheet file. The file can be edited manually or
-through the stylesheet dialog widget in the GUI. To call up the dialog, press
-F12 on the main window. New styles can be applied
-temporarily and then saved to a new qss file, or overwrite the current qss file.
+Nearly all aspects of the GUI appearance are configurable via the QtDragon.qss stylesheet file.
+The file can be edited manually or through the stylesheet dialog widget in the GUI.
+To call up the dialog, press F12 on the main window.
+New styles can be applied temporarily and then saved to a new qss file, or overwrite the current qss file.
 
 .QtDragon - Two Style Examples
 image::images/style-comparison.png["QtDragon styles",scale="25%"]
 
+== Internationalisation
+
+It is possible to create translation files for QtDragon to display in the language of the current locale.
+
+To create and or edit a translation file requires that LinuxCNC has been installed as run in place.
+
+The following assumes that the LinuxCNC git directory is ~/linuxcnc-dev.
+
+[NOTE]
+If using QtDragon_hd substitute 'qtdragon_hd' for 'qtdragon'
+
+All language files are kept in ~/linuxcnc-dev/share/screens/qtdragon/languages.
+
+The qtdragon.py file is a Python version of the GUI file used for translation purposes.
+
+The .ts files are the translation source files for the translations.
+These are the files that require creating/editing for each language.
+
+The .qm files are the compiled translation files used by pyqt.
+
+The language is determined by an underscore plus the first two letters of the locale,
+for example if an Italian translation was being done then it would be `_it`.
+It will be referred to as `_xx` in this document, so `qtdragon_xx.ts` in this document would actually be `qtdragon_it.ts` for an Italian translation.
+
+The default locale for QtDragon is `_en` which means that any translation files created as `qtdragon_en.*` will not be used for translations.
+
+If any of the required utilities (pyuic5, pylupdate5, linguist) are not installed then the user will need to install the required development tools:
+----
+sudo apt install qttools5-dev-tools pyqt5-dev-tools
+----
+
+Change to the languages directory:
+----
+cd ~/linuxcnc-dev/share/qtvcp/screens/qtdragon/languages
+----
+
+If any text changes have been made to the GUI then run the following to update the GUI Python file:
+----
+pyuic5 ../qtdragon.ui > qtdragon.py
+----
+
+The user can either create a new translation source file for a non-existing language translation
+or modify an existing translation source file due to changes being made to some text in a QtDragon source file.
+If modifying an existing translation that has had no source file changes then this step is not required.
+
+Create or edit a .ts file:
+----
+./langfile xx
+----
+
+[NOTE]
+this command is a script which runs the following: $ pylupdate5 *.py ../*.py ../../../../../lib/python/qtvcp/lib/qtdragon/*.py -ts qtdragon_xx.ts
+
+The editing of the translation is done with the linguist application:
+----
+linguist
+----
+
+. Open the TS file and translate the strings
+
+It is not necessary to provide a translation for every text string, if no translation is specified for a string then the original string will be used in the application.
+The user needs to be careful with the length of strings that appear on widgets as space is limited. If possible try to make the translation no longer than the original.
+
+When editing is complete save the file: +
+`File -> Save`
+
+Then create the .qm file: +
+`File -> Release`
+
+QtDragon will be translated to the language of the current locale on the next start so long as a .qm file exists in that language.
+
+Users are welcome to submit translation files for inclusion into QtDragon.
+The preferred method is to submit a pull request from the users GitHub account as described in the https://www.linuxcnc.org/docs/html/code/contributing-to-linuxcnc.html[contributing to LinuxCNC] documentation.
+The only files required to be committed are qtdragon_xx.ts and qtdragon_xx.qm.
+
 == Customization
+
+A general overview of <<cha:qtvcp:modifying-screens,Customizing Stock Screens>>.
 
 === Stylesheets
 
-Stylesheets can be leveraged to do a fair amount of customization, but you
-usually need to know a bit about the widget names.
-Pressing F12 will display a stylesheet editor dialog to load/test/save
-modification.
-For instance:
+Stylesheets can be leveraged to do a fair amount of customization, but you usually need to know a bit about the widget names.
+Pressing F12 will display a stylesheet editor dialog to load/test/save modification. +
+The 'View Sheet' tab will allow you to select and apply what stylesheet QtDragon will use when it's first loaded. +
+Press the button 'Copy to Edit Tab' to copy the current stylesheet to the edit tab. +
+The 'Edit Sheet' tab allows editing, applying and saving of changes od the displayed stylesheet.
 
-To change the DRO font (look for this entry and change the font name):
+image::images/qtdragon_stylesheet_editor.png["QtDragon stylesheet editor",scale=25]
+
+Sometimes these lines will be present and you can change them, otherwise you will need to add them. +
+
+For instance, to change the DRO font (look for this entry and change the font name):
 
 [source,{ini}]
 ----
@@ -1064,26 +1511,149 @@ StatusLabel#status_rpm {
 }
 ----
 
+To change the DRO display font and display format:
+
+[source,{ini}]
+----
+DROLabel {
+    font: 25pt "Lato Heavy";
+    qproperty-imperial_template: '%9.5f';
+    qproperty-metric_template: '%10.4f';
+    qproperty-angular_template: '%11.2f';
+
+    /*Adjust the menu options */
+    qproperty-showLast: true;
+    qproperty-showDivide : false;
+    qproperty-showGotoOrigin: false;
+    qproperty-showZeroOrigin: false;
+    qproperty-showSetOrigin: true;
+    qproperty-dialogName: CALCULATOR;
+}
+----
+
+Change the axis select button's click menu items:
+
+[source,{ini}]
+----
+AxisToolButton {
+    /* Adjust all the menu options */
+    qproperty-showLast: false;
+    qproperty-showDivide : true;
+    qproperty-showGotoOrigin: true;
+    qproperty-showZeroOrigin: true;
+    qproperty-showSetOrigin: false;
+    qproperty-dialog_code_string: CALCULATOR;
+}
+----
+
 To change the text of the mist button to 'air' (add these lines)
 
 [source,{ini}]
 ----
 #action_mist{
-qproperty-true_state_string: "Air\\nOn";
-qproperty-false_state_string: "Air\\nOff";
+    qproperty-true_state_string: "Air\\nOn";
+    qproperty-false_state_string: "Air\\nOff";
 }
 ----
 
+To change the Offsets display font and format:
+
+[source,{ini}]
+----
+ToolOffsetView {
+    font: 20pt "Lato Heavy";
+    qproperty-imperial_template: '%9.1f';
+    qproperty-metric_template: '%10.1f';
+
+}
+
+OriginOffsetView {
+    font: 12pt "Lato Heavy";
+    qproperty-imperial_template: '%9.1f';
+    qproperty-metric_template: '%10.1f';
+}
+----
+
+To stop the blur effect with dialogs:
+
+[source,{ini}]
+----
+#screen_options {
+    qproperty-focusBlur_option: false;
+}
+----
+
+To change status highlight/selection colors:
+[source,{ini}]
+----
+#screen_options {
+    qproperty-user1Color: white;     /*  default status     */
+    qproperty-user2Color: #ff9000;   /*  warning status     */
+    qproperty-user3Color: #ff8a96;   /*  critical status    */
+    qproperty-user4Color: #ffaa00;   /*  MPG select         */
+    qproperty-user5Color: #ff0000;   /*  Cycle Start select */
+}
+----
+
+Change the G-code text display colors/fonts:
+
+[source,{ini}]
+----
+}
+EditorBase{
+background:black;
+qproperty-styleColorCursor:white;
+qproperty-styleColorBackground:grey;
+qproperty-styleColor0: black;
+qproperty-styleColor1: darkblue;
+qproperty-styleColor2: blue;
+qproperty-styleColor3: red;
+qproperty-styleColor4: lightblue;
+qproperty-styleColor5: white;
+qproperty-styleColor6: lightGreen;
+qproperty-styleColor7: yellow ;
+qproperty-styleColorSelectionText: white;
+qproperty-styleColorSelectionBackground: blue;
+qproperty-styleFont0: "Times,15,-1,5,90,0,0,1,1,0";
+qproperty-styleFont1: "Times,15,-1,5,90,1,0,1,0,0";
+qproperty-styleFont2: "Times,15,-1,5,90,0,0,1,1,0";
+qproperty-styleFont3: "Times,15,-1,5,90,0,0,1,1,0";
+qproperty-styleFont4: "Times,15,-1,5,90,0,0,1,1,0";
+qproperty-styleFont5: "Times,15,-1,5,90,0,0,1,1,0";
+qproperty-styleFont6: "Times,15,-1,5,90,0,0,1,1,0";
+qproperty-styleFont7: "Times,15,-1,5,90,0,0,1,1,0";
+}
+----
+
+To have the manual spindle buttons also incrementally increase/decrease speed:
+
+[source,{ini}]
+----
+#action_spindle_fwd{
+    qproperty-spindle_up_action: true;
+}
+#action_spindle_rev{
+    qproperty-spindle_down_action: true;
+}
+----
+
+
 === Qt Designer and Python code
 
-All aspects of the GUI are fully customization through Qt Designer and/or
-Python code.
+All aspects of the GUI are fully customization through Qt Designer and/or Python code.
 This capability is included with the QtVCP development environment.
-The extensive use of QtVCP widgets keeps the amount of required Python code to
-a minimum, allowing relatively easy modifications.
-The LinuxCNC website has extensive documentation on the installation and use of
-QtVCP libraries.
-<<cha:qtvcp,QtVCP Overview>> for more information
+The extensive use of QtVCP widgets keeps the amount of required Python code to a minimum, allowing relatively easy modifications.
+The LinuxCNC website has extensive documentation on the installation and use of QtVCP libraries.
+See <<cha:qtvcp,QtVCP>> for more information about QtVCP in general. +
+QtDragon can also utilize QtVCP's rc file to do minor python code modifications without using a custom handler file.
+
+[source,{ini}]
+----
+[DISPLAY]
+USER_COMMAND_FILE = CONFIGFOLDER/qtdragonrc.py
+----
+
+See <<cha:qtvcp:modifying-screens,Modifying Screens>> for more information about customization.
 
 .QtDragon - Customized QtDragon
 image::images/silverdragon_custom.png["QtDragon customized",scale=25]

@@ -164,16 +164,16 @@ class touchy:
                 else:
                     self.pointer_show()
 
-                self.wTree.get_object("controlfontbutton").set_font_name(self.control_font_name)
+                self.wTree.get_object("controlfontbutton").set_font(self.control_font_name)
                 self.control_font = Pango.FontDescription(self.control_font_name)
 
-                self.wTree.get_object("drofontbutton").set_font_name(self.dro_font_name)
+                self.wTree.get_object("drofontbutton").set_font(self.dro_font_name)
                 self.dro_font = Pango.FontDescription(self.dro_font_name)
 
-                self.wTree.get_object("errorfontbutton").set_font_name(self.error_font_name)
+                self.wTree.get_object("errorfontbutton").set_font(self.error_font_name)
                 self.error_font = Pango.FontDescription(self.error_font_name)
 
-                self.wTree.get_object("listingfontbutton").set_font_name(self.listing_font_name)
+                self.wTree.get_object("listingfontbutton").set_font(self.listing_font_name)
                 self.listing_font = Pango.FontDescription(self.listing_font_name)
 
                 settings = Gtk.Settings.get_default()
@@ -181,7 +181,7 @@ class touchy:
                 if not self.theme_name == "Follow System Theme":
                     settings.set_string_property("gtk-theme-name", self.theme_name, "")
 
-                # interactive mdi command builder and issuer
+                # interactive MDI command builder and issuer
                 mdi_labels = []
                 mdi_eventboxes = []
                 for i in range(self.num_mdi_labels):
@@ -190,7 +190,18 @@ class touchy:
                 self.mdi_control = mdi.mdi_control(Gtk, linuxcnc, mdi_labels, mdi_eventboxes)
 
                 if self.ini:
-                    macros = self.ini.findall("TOUCHY", "MACRO")
+                    # Instruct user to update config
+                    if self.ini.findall("TOUCHY", "MACRO"):
+                        dialog = Gtk.MessageDialog(
+                                 message_type=Gtk.MessageType.WARNING,
+                                 buttons=Gtk.ButtonsType.OK,
+                                 text="MACRO entries found in [TOUCHY] section of INI")
+                        dialog.format_secondary_text(
+                                 "in LinuxCNC 2.10.n and later these now need to be in the [MACROS] section")
+                        response = dialog.run()
+                        dialog.destroy()
+
+                    macros = self.ini.findall("MACROS", "MACRO")
                     if len(macros) > 0:
                         self.mdi_control.mdi.add_macros(macros)
                     else:
@@ -253,13 +264,15 @@ class touchy:
                                                        floods, mists, spindles, prefs,
                                                        opstop, blockdel)
 
-                self.current_file = self.status.emcstat.file
-                # check the ini file if UNITS are set to mm"
+                # check the INI file if UNITS are set to mm"
                 # first check the global settings
                 units=self.ini.find("TRAJ","LINEAR_UNITS")
 
                 if units==None:
-                        units=self.ini.find("AXIS_X","UNITS")
+                        # complain to user
+                        print("No [TRAJ]UNITS INI file entry, assuming inch")
+                        # Regrettably this has always been the default
+                        units = "inch"
 
                 if units=="mm" or units=="metric" or units == "1.0":
                         self.machine_units_mm=1
@@ -296,6 +309,7 @@ class touchy:
                         self.linuxcnc.opstop_off(0)                        
 
                 self.linuxcnc.emccommand.program_open(empty_program.name)
+                self.current_file = empty_program.name
 
                 self.linuxcnc.max_velocity(self.mv_val)
                                 
@@ -585,19 +599,19 @@ class touchy:
                 self.setfont()
 
         def change_dro_font(self, fontbutton):
-                self.dro_font_name = fontbutton.get_font_name()
+                self.dro_font_name = fontbutton.get_font()
                 self.prefs.putpref('dro_font', self.dro_font_name, str)
                 self.dro_font = Pango.FontDescription(self.dro_font_name)
                 self.setfont()
 
         def change_error_font(self, fontbutton):
-                self.error_font_name = fontbutton.get_font_name()
+                self.error_font_name = fontbutton.get_font()
                 self.prefs.putpref('error_font', self.error_font_name, str)
                 self.error_font = Pango.FontDescription(self.error_font_name)
                 self.setfont()
 
         def change_listing_font(self, fontbutton):
-                self.listing_font_name = fontbutton.get_font_name()
+                self.listing_font_name = fontbutton.get_font()
                 self.prefs.putpref('listing_font', self.listing_font_name, str)
                 self.listing_font = Pango.FontDescription(self.listing_font_name)
                 self.setfont()
@@ -869,7 +883,7 @@ class touchy:
 
 if __name__ == "__main__":
         if len(sys.argv) > 2 and sys.argv[1] == '-ini':
-            print("ini", sys.argv[2])
+            print("INI", sys.argv[2])
             hwg = touchy(sys.argv[2])
         else:
             hwg = touchy()

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>688</width>
+    <height>534</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="spacing">
+     <number>4</number>
+    </property>
+    <property name="leftMargin">
+     <number>4</number>
+    </property>
+    <property name="topMargin">
+     <number>4</number>
+    </property>
+    <property name="rightMargin">
+     <number>4</number>
+    </property>
+    <property name="bottomMargin">
+     <number>4</number>
+    </property>
+    <item>
+     <widget class="ScreenOptions" name="screen_options">
+      <property name="notify_option" stdset="0">
+       <bool>false</bool>
+      </property>
+      <property name="catch_close_option" stdset="0">
+       <bool>true</bool>
+      </property>
+      <property name="catch_errors_option" stdset="0">
+       <bool>false</bool>
+      </property>
+      <property name="play_sounds_option" stdset="0">
+       <bool>false</bool>
+      </property>
+      <property name="pref_filename_string" stdset="0">
+       <string>~/.qtvcp_versaprobe_preferences</string>
+      </property>
+      <property name="embedded_program_option" stdset="0">
+       <bool>false</bool>
+      </property>
+      <property name="closeDialog_option" stdset="0">
+       <bool>false</bool>
+      </property>
+      <property name="calculatorDialog_option" stdset="0">
+       <bool>true</bool>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="VersaProbe" name="versaprobe"/>
+       </item>
+      </layout>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>688</width>
+     <height>24</height>
+    </rect>
+   </property>
+  </widget>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ScreenOptions</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.screen_options</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>VersaProbe</class>
+   <extends>QWidget</extends>
+   <header>qtvcp.widgets.versa_probe</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>

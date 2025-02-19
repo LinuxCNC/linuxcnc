@@ -10,10 +10,13 @@ on:
   check_suite:
     types: [rerequested]
 
+permissions:
+  contents: read #  to fetch code (actions/checkout)
+
 jobs:
 
   rip-and-test:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     steps:
     - name: Dump GitHub context
       env:
@@ -23,22 +26,22 @@ jobs:
       with:
         submodules: true
         fetch-depth: 0
-    - run: git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc refs/tags/*:refs/tags/*
+    - run: git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc +refs/tags/*:refs/tags/*
     - name: Build RIP & test
       run: |
-        ./scripts/travis-install-build-deps.sh
+        set -x
         sudo apt-get install -y eatmydata
-        curl -O https://snapshot.debian.org/archive/debian/20220716T154603Z/pool/main/p/po4a/po4a_0.67-2_all.deb
-        sudo apt install ./po4a_0.67-2_all.deb
+        eatmydata ./scripts/travis-install-build-deps.sh
+        sudo eatmydata apt --quiet --yes upgrade
         cd src
         eatmydata ./autogen.sh
-        eatmydata ./configure --with-realtime=uspace --disable-check-runtime-deps
+        eatmydata ./configure --disable-check-runtime-deps
         eatmydata make -O -j$((1+$(nproc))) default pycheck V=1
         # Note that the package build covers html docs
-        ../scripts/rip-environment runtests -p
+        eatmydata ../scripts/rip-environment runtests -p
 
-  htmldocs:
-    runs-on: ubuntu-20.04
+  rip-and-test-clang:
+    runs-on: ubuntu-24.04
     steps:
     - name: Dump GitHub context
       env:
@@ -48,26 +51,51 @@ jobs:
       with:
         submodules: true
         fetch-depth: 0
-    - run: git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc refs/tags/*:refs/tags/*
+    - run: git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc +refs/tags/*:refs/tags/*
+    - name: Clang build RIP & test
+      run: |
+        set -x
+        sudo apt-get install -y eatmydata
+        eatmydata ./scripts/travis-install-build-deps.sh
+        sudo eatmydata apt-get install -y clang
+        sudo eatmydata apt --quiet --yes upgrade
+        cd src
+        eatmydata ./autogen.sh
+        CC=clang CXX=clang++ eatmydata ./configure --disable-check-runtime-deps
+        eatmydata make -O -j$((1+$(nproc))) default pycheck V=1
+        # Note that the package build covers html docs
+        eatmydata ../scripts/rip-environment runtests -p
+
+  htmldocs:
+    runs-on: ubuntu-24.04
+    steps:
+    - name: Dump GitHub context
+      env:
+        GITHUB_CONTEXT: ${{ toJson(github) }}
+      run: echo "$GITHUB_CONTEXT"
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+        fetch-depth: 0
+    - run: git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc +refs/tags/*:refs/tags/*
     - name: Build HTML docmentation
       run: |
         ./scripts/travis-install-build-deps.sh
         sudo apt-get install -y eatmydata
-        curl -O https://snapshot.debian.org/archive/debian/20220716T154603Z/pool/main/p/po4a/po4a_0.67-2_all.deb
-        sudo apt install ./po4a_0.67-2_all.deb
+        sudo eatmydata apt --quiet --yes upgrade
         cd src
         eatmydata ./autogen.sh
-        eatmydata ./configure --with-realtime=uspace --disable-check-runtime-deps --enable-build-documentation=html
+        eatmydata ./configure --disable-check-runtime-deps --enable-build-documentation=html
         eatmydata make -O -j$((1+$(nproc))) manpages
         eatmydata make -O -j$((1+$(nproc))) translateddocs
         eatmydata make -O -j$((1+$(nproc))) docs
         # Note that the package build covers html docs
 
   package-arch:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
-        image: ["debian:buster", "debian:bullseye", "debian:bookworm", "debian:sid"]
+        image: ["debian:bookworm", "debian:sid"]
     container:
       image: ${{ matrix.image }}
       # IPC_OWNER is needed for shmget IPC_CREAT
@@ -85,8 +113,10 @@ jobs:
         set -e
         set -x
         apt-get --quiet update
+        apt-get --yes --quiet install eatmydata curl
+        eatmydata apt --quiet --yes upgrade
         # Install stuff needed to check out the linuxcnc repo and turn it into a debian source package.
-        apt-get --yes --quiet install --no-install-suggests git lsb-release python3 devscripts
+        eatmydata apt-get --yes --quiet install --no-install-suggests git lsb-release python3 devscripts
 
     - uses: actions/checkout@v3
       with:
@@ -107,11 +137,11 @@ jobs:
         esac
         set -e
         set -x
-        apt-get --yes --quiet install --no-install-recommends gpg software-properties-common
-        gpg --homedir="${PWD}/gnupg" --output /etc/apt/trusted.gpg.d/linuxcnc-deb-archive.gpg --export 3CB9FD148F374FEF
+        eatmydata apt-get --yes --quiet install --no-install-recommends gpg software-properties-common
+        eatmydata gpg --homedir="${PWD}/gnupg" --output /etc/apt/trusted.gpg.d/linuxcnc-deb-archive.gpg --export 3CB9FD148F374FEF
         DIST=$(echo ${{matrix.image}} | cut -d : -f 2)
-        add-apt-repository "deb http://linuxcnc.org $DIST base"
-        apt-get --quiet update
+        eatmydata add-apt-repository "deb http://linuxcnc.org $DIST base"
+        eatmydata apt-get --quiet update
 
     - name: Build architecture-specific Debian packages
       env:
@@ -121,13 +151,12 @@ jobs:
       run: |
         set -e
         set -x
-        git config --global --add safe.directory "${PWD}"
-        debian/configure
-        debian/update-dch-from-git
-        scripts/get-version-from-git | sed -re 's/^v(.*)$/\1/' >| VERSION; cat VERSION
-        git diff
-        apt-get --yes --quiet build-dep --arch-only .
-        apt-get --yes --quiet install eatmydata
+        eatmydata git config --global --add safe.directory "${PWD}"
+        eatmydata debian/configure
+        eatmydata debian/update-dch-from-git
+        eatmydata scripts/get-version-from-git | sed -re 's/^v(.*)$/\1/' >| VERSION; cat VERSION
+        eatmydata git diff
+        eatmydata apt-get --yes --quiet build-dep --arch-only .
         eatmydata debuild -us -uc --build=any
     - name: Test debian packages
       env:
@@ -135,19 +164,19 @@ jobs:
       run: |
         set -e
         set -x
-        apt-get --yes --quiet install ../*.deb
-        apt-get --yes --quiet install sudo # some tests run sudo...
-        adduser --disabled-password --gecos "" testrunner
-        passwd -d testrunner
-        adduser testrunner sudo
+        eatmydata apt-get --yes --quiet install ../*.deb
+        eatmydata apt-get --yes --quiet install sudo # some tests run sudo...
+        eatmydata adduser --disabled-password --gecos "" testrunner
+        eatmydata passwd -d testrunner
+        eatmydata adduser testrunner sudo
         chmod 0777 $(find tests/ -type d) # make test dirs world-writable for the testrunner
-        su -c "./scripts/runtests -p ./tests" testrunner
+        su -c "eatmydata ./scripts/runtests -p ./tests" testrunner
 
   package-indep:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
-        image: ["debian:buster", "debian:bullseye", "debian:bookworm", "debian:sid"]
+        image: ["debian:bookworm", "debian:sid"]
     container:
       image: ${{ matrix.image }}
       # IPC_OWNER is needed for shmget IPC_CREAT
@@ -166,8 +195,10 @@ jobs:
         set -e
         set -x
         apt-get --quiet update
+        apt-get --yes --quiet install eatmydata curl
+        eatmydata apt --quiet --yes upgrade
         # Install stuff needed to check out the linuxcnc repo and turn it into a debian source package.
-        apt-get --yes --quiet install --no-install-suggests git lsb-release python3 devscripts
+        eatmydata apt-get --yes --quiet install --no-install-suggests git lsb-release python3 devscripts
 
     - uses: actions/checkout@v3
       with:
@@ -188,11 +219,11 @@ jobs:
         esac
         set -e
         set -x
-        apt-get --yes --quiet install gpg software-properties-common
-        gpg --homedir="${PWD}/gnupg" --output /etc/apt/trusted.gpg.d/linuxcnc-deb-archive.gpg --export 3CB9FD148F374FEF
+        eatmydata apt-get --yes --quiet install gpg software-properties-common
+        eatmydata gpg --homedir="${PWD}/gnupg" --output /etc/apt/trusted.gpg.d/linuxcnc-deb-archive.gpg --export 3CB9FD148F374FEF
         DIST=$(echo ${{matrix.image}} | cut -d : -f 2)
-        add-apt-repository "deb http://linuxcnc.org $DIST base"
-        apt-get --quiet update
+        eatmydata add-apt-repository "deb http://linuxcnc.org $DIST base"
+        eatmydata apt-get --quiet update
 
     - name: Build architecture-independent Debian packages
       env:
@@ -202,13 +233,12 @@ jobs:
       run: |
         set -e
         set -x
-        git config --global --add safe.directory "${PWD}"
-        debian/configure
-        debian/update-dch-from-git
-        scripts/get-version-from-git | sed -re 's/^v(.*)$/\1/' >| VERSION; cat VERSION
-        git diff
-        apt-get --yes --quiet build-dep --indep-only .
-        apt-get --yes --quiet install eatmydata
+        eatmydata git config --global --add safe.directory "${PWD}"
+        eatmydata debian/configure
+        eatmydata debian/update-dch-from-git
+        eatmydata scripts/get-version-from-git | sed -re 's/^v(.*)$/\1/' >| VERSION; cat VERSION
+        eatmydata git diff
+        eatmydata apt-get --yes --quiet build-dep --indep-only .
         eatmydata debuild -us -uc --build=all
     - name: Test install debian packages
       env:
@@ -216,4 +246,23 @@ jobs:
       run: |
         set -e
         set -x
-        apt-get --yes --quiet install ../*.deb
+        eatmydata apt-get --yes --quiet install ../*.deb
+
+  cppcheck:
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+        fetch-depth: 0
+    - name: Perform Source Code checks that were successful in the past
+      continue-on-error: true
+      run: |
+        set -x
+        git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc refs/tags/*:refs/tags/*
+        sudo apt-get -y install cppcheck shellcheck
+        scripts/cppcheck.sh
+    - name: Shellcheck
+      continue-on-error: true
+      run: |
+        scripts/shellcheck.sh

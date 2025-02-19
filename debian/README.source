@@ -1,107 +1,178 @@
-Debian packaging of LinuxCNC
-============================
+# Debian packaging of LinuxCNC
 
-debian/copyright
-----------------
+## Introduction
+
+LinuxCNC is packaged in two different ways:
+
+ 1. a simple way for the builds on the LinxuCNC buildbot
+    CI system (<http://buildbot.linuxcnc.org>), and
+ 2. a different (more complicated) way for official debian.org packages.
+
+Packaging by the LinuxCNC CI system is not covered in this document, see
+<http://linuxcnc.org/docs/devel/html/code/building-linuxcnc.html#_building_debian_packages>
+for a brief description on that.
+
+This document describes the official packaging for debian.org.
+Packaging of LinuxCNC for debian.org is split between:
+
+linuxcnc.git (in <https://github.com/LinuxCNC/linuxcnc.git>)::
+  This is the regular LinuxCNC repository. This already provides instructions
+  to build a Debian package in the subdirectory "debian/".
+  Branches for this repository reflect the ongoing developments for LinuxCNC.
+linuxcnc-gbp.git (in <https://github.com/LinuxCNC/linuxcnc-gbp.git>)::
+  This repository has the same content as the release version, just that
+  branches now describe the release of Debian that the package shall be
+  used for. In particular, the script debian/configure was already executed.
+  Default uploads go to Debian unstable, aka "sid", which needs
+  to be stated in the file debian/changelog. Also the version number of the
+  uploads to Debian are sligtly different, so that multiple revisions of the
+  Debian package is possible for the same release of LinuxCNC.
+```
+$ git branch
+* debian/unstable
+  upstream
+```
+
+## debian/copyright
 
 Automated tools to check licenses within the source tree will likely find
 CC-2.5 referenced. But this refers only to some image files that were
-not adopted by the source tree, only the README describing them was 
+not adopted by the source tree, only the README describing them was
 intentionally left unchanged.
 
-Steps
------
 
-The following steps were performed to transform Upstream's git repository
-into
- - a source tarball and
- - a debian subdirectory
-for Debian's main distribution.
-
-LinuxCNC is used across a wide span of releases, now supporting from
-Squeeze up to the latest version of Ubuntu. Not too many changes are
-required for Debian unstable.
-
-1. Generate the source tarball, This will use the version as specified
-   in the first line of the debian/changelog file. And maybe remove
-   anything outdated, just to avoid confusions:
-
-   If this is not the original tarball but an interim git tag/snapshot,
-   then set the version in debian/changelog. For git checkout, the
-   version stated in debian/changelog receives the suffix +gitYYYYMMDD.githash
-
-   VERSION=$(head -n1 debian/changelog |cut -f2 -d' ' | tr -d "()" | sed -e 's/^[0-9]://' )
-
-   If the current source tree is not the regular release but git checkout also
-   create the fitting tarball:
-
-   echo -n "I: Version: $VERSION -> "
-   VERSION=$(git log --date=format:%Y%m%d --pretty=${VERSION}+git%cd.%h| head -n1)
-   echo $VERSION
-   foldername=$(basename $(pwd))
-   if [ -d debian/patches ]; then quilt pop -a && rm -rf .pc; fi
-   echo "I: taring up CWD into linuxcnc_${VERSION}.orig.tar.xz - this will take a minute or two"
-   (cd .. && tar --exclude=.git* --exclude=.pc -cJf "linuxcnc_${VERSION}.orig.tar.xz" "$foldername")
-   du -sh ../$foldername
-   echo "I: Please inspect with 'tar Jtf ../linuxcnc_${VERSION}.orig.tar.xz'"
-
-2. Prepare shell to work in temp directory
-
-   export VERSION
-   export WORKDIR=$(mktemp -d)
-   mv "../linuxcnc_${VERSION}.orig.tar.xz" ${WORKDIR}/ && \
-   pushd $WORKDIR && bash
-   echo -n "I: Now working in "; pwd
-
-3. Unpack
-
-   echo -n "I: Unpacking source tree to build from newly generated orig.tar.xz"
-   tar xJvf linuxcnc_*.orig.tar.xz
-   cd linuxcnc
-
-4. Configure debian directory for the "uspace" packages that are
-   prepared for the Non-RTAI but preempt realtime kernels that are
-   distributed with Debian.
-
-   debian/configure
-
-5. Slightly adapt for upload to d/unstable
-
-   mkdir -p debian/source
-   echo "3.0 (quilt)" > debian/source/format
-
-   # dch is from the devscripts package
-   dch -b -m -v "$VERSION" --distribution unstable  "New upstream version."
-
-6a. build Debian package if in doubt - optional
-
-   dpkg-buildpackage
-
-6b. build Debian source package, which is what is uploaded to Debian upon acceptance and for updates
-
-   dpkg-buildpackage -S
-
-7. test build in cowbuilder
-
-   sudo cowbuilder --update
-   sudo cowbuilder --build ../linuxcnc_*.dsc
-
-8. check that nothing avoidable slipped through
-
-   lintian -i /var/cache/pbuilder/results/linuxcnc_*.changes
-
-8. get all the files just created
-
-   exit
-   mv ${WORKDIR}/linuxcnc_* ..
-
-Above sketched differences are not impeding routine workflows of Debian
-packaging. For instance we found that the routine-update script (from the
-Debian Science team) deals with these adaptations just fine.
+## Build a new DSC for upload to debian.org
 
 
-How to contribute
------------------
+### Make the new orig tarball
 
-LinuxCNC does not have a representation on salsa.debian.org. 
+Do this step in `linuxcnc.git`.
+
+```
+git checkout ${COMMIT}  # check out the commit you want
+git reset --hard
+git clean -fdx .
+VERSION=$(head -n1 debian/changelog |cut -f2 -d' ' | tr -d "()" | sed -e 's/^[0-9]://' )
+```
+If you are not uploading the exact same version of what is in the release tarball,
+then also specify the git tag as part of the version:
+
+```
+VERSION=$(git log --date=format:%Y%m%d --pretty=${VERSION}+git%cd.%h| head -n1)
+```
+Inspect the version and create the file VERSION.
+```
+echo ${VERSION} | tee VERSION
+```
+
+We use `--exclude=.git` instead of `--exclude-vcs` because the linuxcnc
+git repo uses .gitignore to keep otherwise-empty directories around,
+and the build system is too lazy to mkdir them as needed.
+
+```
+tar --create --xz --exclude=.git --exclude=.github --transform "flags=r;s|^./|linuxcnc-${VERSION}/|" --file ../debian-packaging/linuxcnc_${VERSION}.orig.tar.xz .
+```
+
+### Start the new gbp version
+
+Do this step in `linuxcnc-gbp.git`.
+
+Import the new orig tarball into gbp `upstream` branch, but *don't*
+let gbp auto-merge it into `debian/unstable`.
+
+```
+git fetch
+
+git checkout upstream
+git merge --ff-only origin/upstream
+
+git checkout debian/unstable
+git merge --ff-only origin/debian/unstable
+
+gbp import-orig --no-merge ../linuxcnc_${VERSION}.orig.tar.xz
+git merge --no-commit upstream
+# verify contents of debian/*, especially changelog
+git commit
+```
+
+
+### Update the debian/ files
+
+Do this step in `linuxcnc-gbp.git`.
+
+Run `debian/configure` in a clean, minimal instance of the distro we're building for:
+
+```
+export IMAGE="debian:bookworm"
+docker pull ${IMAGE}
+docker run --rm --interactive --tty --volume ${PWD}:${PWD} --workdir ${PWD} ${IMAGE}
+apt-get --quiet update
+apt-get --quiet --yes install --no-install-recommends --no-install-suggests \
+    git \
+    lsb-release \
+    python3
+debian/configure
+exit
+```
+
+Update d/changelog (preserve entries from previous debs), include "New
+upstream version", close any fixed bugs:
+
+```
+gbp dch
+dch -e
+```
+
+Commit all changes to the debian/ directory:
+
+```
+git commit
+```
+
+### Test the new debian package
+
+`gbp buildpackage` should work in a minimal installation of the target distro:
+
+```
+docker run --rm --interactive --tty --volume ${PWD}:${PWD} --workdir ${PWD} ${IMAGE}
+apt-get --quiet update
+apt-get --quiet --yes install --no-install-recommends --no-install-suggests git-buildpackage
+apt-get --quiet --yes build-dep .
+gbp buildpackage --build=full --no-sign
+```
+
+In addition to `--build=full` (build source, architecture-specific,
+and architecture-independent packages), `--build=any`
+(build architecture-specific packages) and `--build=all` (build
+architecture-independent packages) should also build from scratch in a
+clean minimal environment.
+
+(The docker build environment described above is just one option, other
+possibilities are cowbuilder, pbuilder, etc., etc.)
+
+Run lintian to verify the build products:
+
+```
+apt-get --quiet --yes install lintian
+lintian -i ../linuxcnc_*.changes
+```
+
+
+### Release
+
+```
+gbp dch --release
+gbp tag
+
+git push --tags origin debian/unstable upstream
+```
+
+Build & sign the dsc:
+
+`dpkg-buildpackage --build=source -k${KEY_ID}`
+
+
+## How to contribute
+
+LinuxCNC does not have a representation on salsa.debian.org.
 Please join us on https://github.com/LinuxCNC/linuxcnc/ .

@@ -1,0 +1,24 @@
+M68 E0 Q0  (set minimum laser power to 0)
+M68 E1 Q100 (set maximum laser power to 100)
+
+G64 P0.1 Q0.1 
+
+G0 X0 Y0
+F1000
+M68 E2 Q100 (set commanded power to 100)
+G1 X2
+G1 Y2
+G1 X0
+G1 Y0
+
+G0 X0 Y0
+M68 E2 Q0 (set commanded power to 0)
+G1 X5 M67 E2 Q25 (move from 0 to 5 scaling power from 0 to 25 along the way)
+G1 X10 M67 E2 Q75 (move from 5 to 10 scaling power from 25 to 75 along the way)
+G1 Y10 (move with output power at 75) 
+G1 X0 M67 E2 Q50 (move scaling from power 75 down to 50)
+G1 Y0 M67 E2 Q0 (move scaling from power 50 down to 0)
+
+M2
+
+

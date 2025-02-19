@@ -2,7 +2,7 @@ This directory contains halfiles (*.hal and *.tcl) that are available
 using the LinuxCNC halfile search path or by an explicit directive.
 
 The HALLIB_PATH is '.:HALLIB_DIR'
-   The '.' specifies the directory containing the ini file.
+   The '.' specifies the directory containing the INI file.
    HALIB_DIR specifies this directory.
 
 The explicit directive uses a prefix (LIB:) to identify halfiles:
@@ -42,7 +42,7 @@ tripodsim.hal              simulated tripodkins system
 Haltcl Files (*.tcl)       Notes
 -----------------------    ---------------------------------------------
 basic_sim.tcl              set up a sim config (arbitrary no. of axes)
-var_show.tcl               show ini variables and context
+var_show.tcl               show INI variables and context
 hookup_moveoff.tcl         make connections for a moveoff component
 plasmac.tcl                common connections for the plasmac component
 
@@ -66,5 +66,5 @@ sim_lib.tcl                simulator config procedures
 util_lib.tcl               utility procedures
                              procs:
                                show_context (calling parms)
-                               show_ini     (ini file settings)
+                               show_ini     (INI file settings)
                                show_env     (environmental vars)

@@ -340,6 +340,7 @@ static void handle_kinematicsSwitch(void) {
                ,anum,beforePose[anum],*pcmd_p[anum],*pcmd_p[anum]-beforePose[anum]);
     }
 #endif
+    axis_apply_ext_offsets_to_carte_pos(-1, pcmd_p);
     tpSetPos(&emcmotInternal->coord_tp, &emcmotStatus->carte_pos_cmd);
 } //handle_kinematicsSwitch()
 
@@ -380,11 +381,11 @@ static void process_inputs(void)
     if ( enables & AF_ENABLED ) {
         /* read and clamp adaptive feed HAL pin */
         double adaptive_feed_in = *emcmot_hal_data->adaptive_feed;
-        // Clip range to +/- 1.0
-        if ( adaptive_feed_in > 1.0 ) {
-            adaptive_feed_in = 1.0;
-        } else if (adaptive_feed_in < -1.0) {
-            adaptive_feed_in = -1.0;
+        // Clip range to +/- MAX_FEED_OVERRIDE from the [DISPLAY] section of the ini file
+        if (adaptive_feed_in > emcmotConfig->maxFeedScale) {
+            adaptive_feed_in = emcmotConfig->maxFeedScale;
+        } else if (adaptive_feed_in < -emcmotConfig->maxFeedScale) {
+            adaptive_feed_in = -emcmotConfig->maxFeedScale;
         }
         // Handle case of negative adaptive feed
         // Actual scale factor is always positive by default
@@ -734,22 +735,30 @@ static void process_probe_inputs(void)
                 continue;
             }
 
-            // abort any homing
-            if(get_homing(i)) {
-                do_cancel_homing(i);
-                aborted=1;
+            // inhibit_probe_home_error is set by [TRAJ]->NO_PROBE_HOME_ERROR in the ini file
+            if (!emcmotConfig->inhibit_probe_home_error) {
+                // abort any homing
+                if(get_homing(i)) {
+                    do_cancel_homing(i);
+                    aborted=1;
+                }
             }
 
-            // abort any joint jogs
-            if(joint->free_tp.enable == 1) {
-                joint->free_tp.enable = 0;
-                // since homing uses free_tp, this protection of aborted
-                // is needed so the user gets the correct error.
-                if(!aborted) aborted=2;
+            // inhibit_probe_jog_error is set by [TRAJ]->NO_PROBE_JOG_ERROR in the ini file
+            if (!emcmotConfig->inhibit_probe_jog_error) {
+                // abort any joint jogs
+                if(joint->free_tp.enable == 1) {
+                    joint->free_tp.enable = 0;
+                    // since homing uses free_tp, this protection of aborted
+                    // is needed so the user gets the correct error.
+                    if(!aborted) aborted=2;
+                }
             }
         }
-        if (axis_jog_abort_all(1)) {
-            aborted = 3;
+        if (!emcmotConfig->inhibit_probe_jog_error) {
+            if (axis_jog_abort_all(1)) {
+                aborted = 3;
+            }
         }
 
         if(aborted == 1) {
@@ -1391,6 +1400,13 @@ static void get_pos_cmds(long period)
 
         axis_sync_carte_pos_to_teleop_tp(+1, pcmd_p); // teleop
 
+	if ( axis_jog_is_active() ) {
+	    /* is any limit disabled for this move? */
+	    if ( emcmotStatus->overrideLimitMask ) {
+		emcmotInternal->overriding = 1;
+	    }
+	}
+
 	/* the next position then gets run through the inverse kins,
 	    to compute the next positions of the joints */
 
@@ -1431,7 +1447,14 @@ static void get_pos_cmds(long period)
 
 	/* END OF OUTPUT KINS */
 
+	/* if overriding is true and the jog is complete, the limits should be re-enabled */
+	if ( ( emcmotInternal->overriding ) && ( !axis_jog_is_active() ) ) {
+	    emcmotStatus->overrideLimitMask = 0;
+	    emcmotInternal->overriding = 0;
+	}
+
 	/* end of teleop mode */
+
 	break;
 
     case EMCMOT_MOTION_DISABLED:
@@ -1463,6 +1486,11 @@ static void get_pos_cmds(long period)
     for (joint_num = 0; joint_num < ALL_JOINTS; joint_num++) {
 	/* point to joint data */
 	joint = &joints[joint_num];
+	
+	/* Zero values */
+	joint_limit[joint_num][0] = 0;
+	joint_limit[joint_num][1] = 0;
+	
 	/* skip inactive or unhomed axes */
 	if ((!GET_JOINT_ACTIVE_FLAG(joint)) || (!get_homed(joint_num))) {
 	    continue;
@@ -1482,7 +1510,7 @@ static void get_pos_cmds(long period)
 	if ( ! emcmotStatus->on_soft_limit ) {
         /* Unexpectedly hit a joint soft limit.
         ** Possible causes:
-        **  1) a joint positional limit was reduced by an ini halpin
+        **  1) a joint positional limit was reduced by an INI halpin
         **     (like ini.N.max_limit) -- undetected by trajectory planning
         **     including simple_tp
         **  2) issues like https://github.com/LinuxCNC/linuxcnc/issues/80
@@ -1898,7 +1926,7 @@ static void output_to_hal(void)
 	*(emcmot_hal_data->spindle[spindle_num].spindle_speed_out_abs) = fabs(speed);
 	*(emcmot_hal_data->spindle[spindle_num].spindle_speed_out_rps_abs) = fabs(speed / 60);
 	*(emcmot_hal_data->spindle[spindle_num].spindle_on) = 
-        ((emcmotStatus->spindle_status[spindle_num].state * speed) !=0) ? 1 : 0;
+        ((emcmotStatus->spindle_status[spindle_num].state) !=0) ? 1 : 0;
 	*(emcmot_hal_data->spindle[spindle_num].spindle_forward) = (speed > 0) ? 1 : 0;
 	*(emcmot_hal_data->spindle[spindle_num].spindle_reverse) = (speed < 0) ? 1 : 0;
 	*(emcmot_hal_data->spindle[spindle_num].spindle_brake) =

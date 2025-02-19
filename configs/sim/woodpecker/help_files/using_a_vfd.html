@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QtDragon Documentation</title>
+  <link href="help.css" rel="stylesheet">
+</head>
+<body>
+
+<div class="sidenav">
+    <img src="images/WoodPecker.png" alt="Qt_WoodPecker">
+    <ul style="list-style-type:none">
+    <li><a href="hole_circle_utility.html">HOLE CIRCLE UTILITY</a></li>
+    <li><a href="facing_utility.html">FACING UTILITY</a></li>
+    <li><a href="ngcgui.html">NGCGUI</a></li>
+    <li><a href="using_a_vfd.html">USING A VFD</a></li>
+    <li><a href="spindle_pause.html">SPINDLE PAUSE</a></li>
+    <li><a href="z_level_comp.html">Z LEVEL COMPENSATION</a></li>
+    <li><a href="using_a_mpg.html">USING A MPG</a></li>
+    <li><a href="probing.html">PROBING</a></li>
+    <li><a href="runfromline.html">RUN FROM LINE</a></li>
+    <li><a href="stylesheets.html">STYLESHEETS</a></li>
+    <li><a href="about.html">ABOUT</a></li>
+    </ul>
+</div>
+        
+<div class = "main">
+<h1>USING A VFD</h1>
+<p>QtWoodPecker was designed to interface to a VFD, but will work without one for simulation purposes.
+There are a number of VFD drivers included in the linuxcnc distribution, including hy_gt_vfd and mb2hal.
+A custom HAL component has been created for use with QtDragon, called hy_gt_vfd.py (same name as the linuxcnc version)</p>
+<p>The following HAL connections must be added to the qtdragon_postgui.hal file:</p>
+
+<div class="code-block">
+    <pre class="hal">loadusr -Wn gt_vfd ./hy_gt_vfd.py -d /dev/ttyUSB0</pre>
+    <pre class="hal">net spindle-on       gt_vfd.spindle-on <= spindle.0.on</pre>
+    <pre class="hal">net spindle-fb       gt_vfd.speed-fb => spindle.0.speed-in</pre>
+    <pre class="hal">net spindle-cmd      gt_vfd.speed-cmd <= spindle.0.speed-out-abs</pre>
+    <pre class="hal">net spindle-amps     gt_vfd.output-amps => woodpecker.spindle_amps</pre>
+    <pre class="hal">net spindle-volts    gt_vfd.output-volts => woodpecker.spindle_volts</pre>
+    <pre class="hal">net spindle-fault    gt_vfd.fault-info => woodpecker.spindle_fault</pre>
+    <pre class="hal">net modbus-errors    gt_vfd.modbus-errors => woodpecker.modbus-errors</pre>
+    <pre class="hal">net spindle-fwd      spindle.0.forward => and2.0.in1</pre>
+    <pre class="hal">net at-speed-fwd     spindle.0.at-speed <= and2.0.out</pre>
+    <pre class="hal">net at-speed-fwd     woodpecker.hal_led_atspeed</pre>
+</div>
+
+<div class="admonition">
+    <p>NOTE: The hy_gt_vfd.py module requires the python pymodbus library.</p>
+    <p>sudo apt install python3-pymodbus</p>
+</div>
+</body>
+</html>

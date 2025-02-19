@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg
-   xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
    sodipodi:docname="jog_b_minus.svg"
    width="40"
    height="40"
    viewBox="0 0 10.583333 10.583333"
    version="1.1"
    id="svg2193"
-   inkscape:version="1.0 (4035a4fb49, 2020-05-01)">
+   inkscape:version="1.2.2 (b0a8486541, 2022-12-01)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
   <defs
      id="defs2187">
     <marker
@@ -36,9 +36,9 @@
      inkscape:guide-bbox="true"
      showguides="true"
      inkscape:window-maximized="1"
-     inkscape:window-y="-8"
-     inkscape:window-x="1912"
-     inkscape:window-height="1027"
+     inkscape:window-y="27"
+     inkscape:window-x="0"
+     inkscape:window-height="1144"
      inkscape:window-width="1920"
      inkscape:showpageshadow="false"
      id="base"
@@ -48,13 +48,15 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="5.6568545"
-     inkscape:cx="41.145382"
-     inkscape:cy="32.115672"
+     inkscape:cx="41.188968"
+     inkscape:cy="32.261745"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      inkscape:document-rotation="0"
      showgrid="true"
-     units="px">
+     units="px"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1">
     <inkscape:grid
        id="grid830"
        type="xygrid" />
@@ -67,7 +69,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
         <dc:date>2020, 2021, 2022</dc:date>
         <dc:creator>
           <cc:Agent>
@@ -84,16 +86,16 @@
     <path
        id="path1517"
        style="fill:none;stroke:#000000;stroke-width:0.264583px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 9.0019094,0.13206153 H 1.5935762 M 6.647885,9.525228 10.352052,2.1168948 M 3.974153,9.6045768 0.24702985,2.1512801 M 8.9960631,0.13252053 a 1.4552079,1.4552079 0 0 1 1.2544729,0.717694 1.4552079,1.4552079 0 0 1 0.01708,1.44516367 M 0.26425485,2.1927447 A 1.4552084,1.4552084 0 0 1 0.37137185,0.78891293 1.4552084,1.4552084 0 0 1 1.6170658,0.13281553 M 6.6488643,9.5216745 A 1.4552084,1.4552084 0 0 1 5.3409595,10.450444 1.4552084,1.4552084 0 0 1 3.9734358,9.6119297" />
+       d="M 10.451499,9.0016813 V 1.5933481 M 1.058333,6.6476569 8.4666662,10.351824 M 0.97898418,3.9739249 8.4322809,0.24680171 M 10.45104,8.995835 a 1.4552079,1.4552079 0 0 1 -0.7176935,1.254473 1.4552079,1.4552079 0 0 1 -1.4451637,0.01708 M 8.3908163,0.26402671 a 1.4552084,1.4552084 0 0 1 1.4038318,0.107117 1.4552084,1.4552084 0 0 1 0.6560969,1.24569399 M 1.0618865,6.6486362 A 1.4552084,1.4552084 0 0 1 0.13311698,5.3407314 1.4552084,1.4552084 0 0 1 0.97163128,3.9732077" />
     <text
        id="text1521"
-       y="5.5055928"
-       x="3.1200366"
+       y="6.8159013"
+       x="4.1943178"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.23333px;line-height:1.25;font-family:'DejaVu Sans';-inkscape-font-specification:'DejaVu Sans, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke-width:0.264583"
        xml:space="preserve"><tspan
          style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:4.58611px;font-family:'DejaVu Sans';-inkscape-font-specification:'DejaVu Sans, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;stroke-width:0.264583"
-         y="5.5055928"
-         x="3.1200366"
+         y="6.8159013"
+         x="4.1943178"
          id="tspan1519"
          sodipodi:role="line">B-</tspan></text>
   </g>

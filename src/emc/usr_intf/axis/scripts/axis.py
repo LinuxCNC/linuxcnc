@@ -23,7 +23,6 @@ import sys, os
 import string
 from OpenGL.GL import *
 from OpenGL.GLU import *
-from OpenGL.GLUT import *
 BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
 sys.path.insert(0, os.path.join(BASE, "lib", "python"))
 
@@ -121,6 +120,7 @@ inifile = linuxcnc.ini(sys.argv[2])
 ap = AxisPreferences()
 
 os.system("xhost -SI:localuser:gdm -SI:localuser:root > /dev/null 2>&1")
+os.system("xset r off")
 root_window = Tkinter.Tk(className="Axis")
 dpi_value = root_window.winfo_fpixels('1i')
 root_window.tk.call('tk', 'scaling', '-displayof', '.', dpi_value / 72.0)
@@ -154,6 +154,7 @@ except TclError:
 def General_Halt():
     text = _("Do you really want to close LinuxCNC?")
     if not root_window.tk.call("nf_dialog", ".error", _("Confirm Close"), text, "warning", 1, _("Yes"), _("No")):
+        os.system("xset r on")
         root_window.destroy()
 
 root_window.protocol("WM_DELETE_WINDOW", General_Halt)
@@ -272,6 +273,7 @@ def joints_mode():
     return s.motion_mode == linuxcnc.TRAJ_MODE_FREE
 
 def set_motion_teleop(value):
+    if running(): return
     # 1:teleop, 0: joint
     vars.teleop_mode.set(value)
     c.teleop_enable(value)
@@ -962,7 +964,9 @@ class LivePlotter:
 
 def running(do_poll=True):
     if do_poll: s.poll()
-    return s.task_mode == linuxcnc.MODE_AUTO and s.interp_state != linuxcnc.INTERP_IDLE
+    return ( (s.task_mode == linuxcnc.MODE_AUTO or s.task_mode == linuxcnc.MODE_MDI)
+             and s.interp_state != linuxcnc.INTERP_IDLE)
+
 
 def manual_tab_visible():
     page = root_window.tk.call(widgets.tabs, "raise")
@@ -977,6 +981,7 @@ initiated action (whether an MDI command or a jog) is acceptable.
 This means this function returns True when the mdi tab is visible."""
     if do_poll: s.poll()
     if s.task_state != linuxcnc.STATE_ON: return False
+    if running(): return 0
     return s.interp_state == linuxcnc.INTERP_IDLE or (s.task_mode == linuxcnc.MODE_MDI and s.queued_mdi_commands < vars.max_queued_mdi_commands.get())
 
 # If LinuxCNC is not already in one of the modes given, switch it to the
@@ -1176,11 +1181,9 @@ def open_file_guts(f, filtered=False, addrecent=True):
     if addrecent:
         add_recent_file(f)
     if not filtered:
-        global loaded_file
-        loaded_file = f
         program_filter = get_filter(f)
         if program_filter:
-            tempfile = os.path.join(tempdir, os.path.basename(f))
+            tempfile = os.path.join(tempdir, "filtered-" + os.path.basename(f))
             exitcode, stderr = filter_program(program_filter, f, tempfile)
             if exitcode:
                 root_window.tk.call("nf_dialog", (".error", "-ext", stderr),
@@ -1266,7 +1269,10 @@ def open_file_guts(f, filtered=False, addrecent=True):
                 # will appear at s.gcodes[2] which caused issue #269
                 if i in (0, 1, 2): continue
                 if g == -1: continue
-                initcodes.append("G%.1f" % (g * .1))
+                if g == 960: # Issue #1232
+                    initcodes.append("G96 S%.0f" % s.settings[2])
+                else:
+                    initcodes.append("G%.1f" % (g * .1))
             tool_offset = "G43.1"
             for i in range(9):
                 if s.axis_mask & (1<<i):
@@ -1356,7 +1362,7 @@ widget_list=[
 
        ("ajogspeed", Entry, pane_top + ".ajogspeed"),
 
-       ("lubel", Label, tabs_manual + ".coolant"),
+       ("coolant", Label, tabs_manual + ".coolant"),
        ("flood", Checkbutton, tabs_manual + ".flood"),
        ("mist", Checkbutton, tabs_manual + ".mist"),
 
@@ -1813,10 +1819,10 @@ property_names = [
     ('name', _("Name:")), ('size', _("Size:")),
     ('tools', _("Tool order:")), ('g0', _("Rapid distance:")),
     ('g1', _("Feed distance:")), ('g', _("Total distance:")),
-    ('run', _("Run time:")), ('x', _("X bounds:")),
-    ('y', _("Y bounds:")), ('z', _("Z bounds:")),
-    ('a', _("A bounds:")), ('b', _("B bounds:")),
-    ('c', _("C bounds:"))
+    ('run', _("Run time:")),('toollist',_('Tool Change List:')),
+    ('x', _("X bounds:")),('y', _("Y bounds:")),
+    ('z', _("Z bounds:")),('a', _("A bounds:")),
+    ('b', _("B bounds:")),('c', _("C bounds:"))
 ]
 
 def dist(xxx_todo_changeme, xxx_todo_changeme1):
@@ -1861,6 +1867,7 @@ def get_max_jog_speed(a):
         else:
             return vars.max_aspeed.get()
 def get_max_jog_speed_map(a):
+    if a >= len(jog_order): return 0
     if not get_jog_mode():
         axis_letter = jog_order[a]
         a = "XYZABCUVW".index(axis_letter)
@@ -1872,10 +1879,10 @@ def run_warn():
         machine_limit_min, machine_limit_max = soft_limits()
         for i in range(3): # Does not enforce angle limits
             if not(s.axis_mask & (1<<i)): continue
-            if o.canon.min_extents_notool[i] + to_internal_linear_unit(o.last_tool_offset[i]) < machine_limit_min[i]:
+            if o.canon.min_extents_notool[i] < machine_limit_min[i]:
                 warnings.append(_("Program exceeds machine minimum on axis %s")
                     % "XYZABCUVW"[i])
-            if o.canon.max_extents_notool[i] + to_internal_linear_unit(o.last_tool_offset[i]) > machine_limit_max[i]:
+            if o.canon.max_extents_notool[i] > machine_limit_max[i]:
                 warnings.append(_("Program exceeds machine maximum on axis %s")
                     % "XYZABCUVW"[i])
     if warnings:
@@ -1884,7 +1891,7 @@ def run_warn():
             _("Program exceeds machine limits"),
             text,
             "warning",
-            1, _("Run Anyway"), _("Cancel")))
+            1, _("Re-Check"), _("Run Anyway"), _("Cancel"))) + 1
     return 0
 
 def reload_file(refilter=True):
@@ -1897,9 +1904,14 @@ def reload_file(refilter=True):
     o.set_highlight_line(None)
 
     if refilter or not get_filter(loaded_file):
-        open_file_guts(loaded_file, False, False)
-    else:
+        # we copy the file to a temporary file so that even if it subsequently
+        # changes on disk, LinuxCNC is parsing the file contents from the time
+        # the user opened the file
         tempfile = os.path.join(tempdir, os.path.basename(loaded_file))
+        shutil.copyfile(loaded_file, tempfile)
+        open_file_guts(tempfile, False, False)
+    else:
+        tempfile = os.path.join(tempdir, "filtered-" + os.path.basename(loaded_file))
         open_file_guts(tempfile, True, False)
     if line:
         o.set_highlight_line(line)
@@ -1994,6 +2006,9 @@ class TclCommands(nf.TclCommands):
     def redraw_soon(event=None):
         o.redraw_soon()
 
+    def redraw_dro(event=None):
+        o.redraw_dro()
+
     def to_internal_linear_unit(a, b=None):
         if b is not None: b = float(b)
         return to_internal_linear_unit(float(a), b)
@@ -2072,6 +2087,7 @@ class TclCommands(nf.TclCommands):
                 b = max_extents[i]
                 if a != b:
                     props[c] = _("%(a)f to %(b)f = %(diff)f %(units)s").replace("%f", fmt) % {'a': a, 'b': b, 'diff': b-a, 'units': units}
+            props['toollist'] = o.canon.tool_list
         properties(root_window, _("G-Code Properties"), property_names, props)
 
     def launch_website(event=None):
@@ -2210,6 +2226,11 @@ class TclCommands(nf.TclCommands):
         s.poll()
         if s.task_state == linuxcnc.STATE_ESTOP_RESET:
             c.state(linuxcnc.STATE_ON)
+            homing_prompt = bool(inifile.find("DISPLAY", "HOMING_PROMPT"))
+            if homing_prompt:
+                run_homing = prompt_areyousure(_("Homing request"),_("After turning On the machine power,\nYou need find axes origins.\n\n            Run homing process?"))
+                if run_homing:
+                    commands.home_all_joints()
         else:
             c.state(linuxcnc.STATE_OFF)
 
@@ -2249,6 +2270,8 @@ class TclCommands(nf.TclCommands):
         return ""
 
     def open_file_name(f):
+        global loaded_file
+        loaded_file = f
         open_file_guts(f)
         if str(widgets.view_x['relief']) == "sunken":
             commands.set_view_x()
@@ -2329,7 +2352,12 @@ class TclCommands(nf.TclCommands):
             root_window.tk.call("exec", *e)
 
     def task_run(*event):
-        if run_warn(): return
+        res = 1
+        while res == 1:
+            res = run_warn()
+            if res in [0, 2]: break
+            if res == 3: return
+            reload_file()
 
         global program_start_line, program_start_line_last
         program_start_line_last = program_start_line;
@@ -2738,10 +2766,12 @@ class TclCommands(nf.TclCommands):
     def touch_off_system(event=None, new_axis_value = None):
         global system
         if not manual_ok(): return
+
+        touchoff_actual_position = inifile.find(f"AXIS_{vars.ja_rbutton.get().upper()}", "TOUCHOFF_ACTUAL")
         offset_axis = trajcoordinates.index(vars.ja_rbutton.get())
         if new_axis_value is None:
             new_axis_value, system = prompt_touchoff(
-                title=_("Touch Off (system)"),
+                title=_(f"Touch Off ({'system' if touchoff_actual_position is None else 'system ACTUAL'})"),
                 text=_("Enter %s coordinate relative to %%s:") % vars.ja_rbutton.get().upper(),
                 default=0.0,
                 tool_only=False,
@@ -2762,6 +2792,9 @@ class TclCommands(nf.TclCommands):
 
         if linear_axis and 210 in s.gcodes:
             scale *= 25.4
+
+        if touchoff_actual_position is not None:
+            new_axis_value = str(float(new_axis_value) + (-1.0 if touchoff_actual_position.upper() == "MINUS" else 1.0) * s.actual_position[offset_axis])
 
         offset_command = "G10 L20 %s %c[[%s]*%.12f]" % (system.split()[0], vars.ja_rbutton.get(), new_axis_value, scale)
         c.mdi(offset_command)
@@ -3332,6 +3365,7 @@ extensions = inifile.findall("FILTER", "PROGRAM_EXTENSION")
 extensions = [e.split(None, 1) for e in extensions]
 extensions = tuple([(v, tuple(k.split(","))) for k, v in extensions])
 postgui_halfile = inifile.findall("HAL", "POSTGUI_HALFILE") or None
+postgui_halcmds = inifile.findall("HAL", "POSTGUI_HALCMD") or None
 max_feed_override = float(inifile.find("DISPLAY", "MAX_FEED_OVERRIDE") or 1.0)
 max_spindle_override = float(inifile.find("DISPLAY", "MAX_SPINDLE_OVERRIDE") or max_feed_override)
 max_feed_override = int(max_feed_override * 100 + 0.5)
@@ -3356,7 +3390,7 @@ for j in range(jointcount):
 
 axis_type = [None] * linuxcnc.MAX_AXIS
 for a in range(linuxcnc.MAX_AXIS):
-    # supply defaults, supersede with ini [AXIS_*]TYPE
+    # supply defaults, supersede with INI [AXIS_*]TYPE
     letter = "xyzabcuvw"[a]
     if not (letter in trajcoordinates): continue
     if letter in "abc":
@@ -3492,7 +3526,7 @@ if db_program is not None: default_tooleditor = None
 tooleditor = inifile.find("DISPLAY","TOOL_EDITOR") or default_tooleditor
 
 if inifile.find("RS274NGC", "PARAMETER_FILE") is None:
-    raise SystemExit("Missing ini file setting for [RS274NGC]PARAMETER_FILE")
+    raise SystemExit("Missing INI file setting for [RS274NGC]PARAMETER_FILE")
 try:
     lu = units(inifile.find("TRAJ", "LINEAR_UNITS"))
 except TypeError:
@@ -4080,6 +4114,13 @@ def check_dynamic_tabs():
                 else:
                     res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd", "-i", vars.emcini.get(), "-f", f])
                 if res: raise SystemExit(res)
+
+        if postgui_halcmds is not None:
+            for f in postgui_halcmds:
+                f = os.path.expanduser(f)
+                res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd"] + f.split())
+                if res: raise SystemExit(res)
+
         root_window.deiconify()
         destroy_splash()
         return
@@ -4194,7 +4235,7 @@ if not has_limit_switch:
 
 forget(widgets.mist, "iocontrol.0.coolant-mist")
 forget(widgets.flood, "iocontrol.0.coolant-flood")
-forget(widgets.lubel, "iocontrol.0.coolant-flood", "iocontrol.0.coolant-mist")
+forget(widgets.coolant, "iocontrol.0.coolant-flood", "iocontrol.0.coolant-mist")
 
 rcfile = "~/.axisrc"
 user_command_file = inifile.find("DISPLAY", "USER_COMMAND_FILE") or ""

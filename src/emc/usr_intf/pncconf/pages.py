@@ -205,10 +205,6 @@ class Pages:
         self.a.fill_pintype_model()
 
         self.intro_prepare()
-        # get the original background color, must realize the widget first to get the true color.
-        # we use this later to high light missing axis info
-        self.w.xencoderscale.realize()
-        self.a.origbg = self.w.xencoderscale.get_style_context().get_property("background-color", Gtk.StateFlags.NORMAL)
 # TODO TODO cannot set size correctly, try in pncconf.py L289
 #        self.w.window1.set_geometry_hints(min_width=750)
         self.w.button_save.set_visible(False)
@@ -312,6 +308,14 @@ class Pages:
             self.page_set_state('%s_motor'%let,state)
             self.page_set_state('s_axis',self.d.include_spindle)
             self.page_set_state('s_motor',self.d.include_spindle)
+            # adjust home sequence model
+            model = self.w['%shomesequence_store'%let]
+            model.clear()
+            for count, i in enumerate(('1','2','3','4')):
+                if count == len(self.d.available_axes)-1:
+                    break
+                else:
+                    model.append((i,))
         i = self.w.mesa0_checkbutton.get_active()
         j = self.w.mesa1_checkbutton.get_active()
         self.d.number_mesa = int(i)+int(j)
@@ -975,6 +979,7 @@ class Pages:
 
     def search_for_serial_device_name(self):
         match = os.popen("""ls /sys/class/tty/*/device/driver | grep 'driver' | cut -d "/" -f 5""").read().split()
+        if len(match) <1: return
         model = self.w.gs2_vfd_device_name.get_model()
         model.clear()
         for item in match:
@@ -1293,7 +1298,7 @@ class Pages:
         self.w.voltsbox.hide()
         if self.d._arcvpin:
             self.w.voltsbox.show()
-        self.w.voltsmodel.set_active(["5", "10", "300"].index(self.d.voltsmodel))
+        self.w.voltsmodel.set_active(["2 (W1 down)", "2 (W1 up)", "5", "10", "300"].index(self.d.voltsmodel))
         self.w.voltsfjumper.set_active(["1", "32", "64", "128"].index(self.d.voltsfjumper))
         self.w.voltszerof.set_value(self.d.voltszerof)
         self.w.voltsfullf.set_value(self.d.voltsfullf)

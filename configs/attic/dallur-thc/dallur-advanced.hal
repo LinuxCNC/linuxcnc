@@ -11,7 +11,7 @@
 # Load Driver for Two Parallel Ports, one for Breakout Board, other for Plasma Torch Height Control
 loadrt hal_parport cfg="0xa400 0xac00"
 
-# Connect both Paralell Ports to Threads for Read / Write
+# Connect both Parallel Ports to Threads for Read / Write
 addf parport.0.read base-thread 1
 addf parport.0.write base-thread -1
 addf parport.1.read base-thread 1
@@ -28,10 +28,10 @@ addf classicladder.0.refresh        servo-thread 1
 # later we will need to add the clp file mentioned below
 # to the ini file so that we do not need to hardcode it here.
 loadusr -w classicladder --nogui dallur-advanced.clp
-# load the GUI aswell
+# load the GUI as well
 loadusr classicladder
 
-#Reverse Direction for A(Auxilary) Axis so both motors drive in same direction
+#Reverse Direction for A(Auxiliary) Axis so both motors drive in same direction
 setp parport.0.pin-09-out-invert 1
 
 # begin to connect physical pins to signals
@@ -42,7 +42,7 @@ net Xdir parport.0.pin-06-out
 #Axis for Gantry, primary stepper motor (same side as ctrl box), marked Axis Y in breakout
 net Ystep parport.0.pin-03-out
 net Ydir parport.0.pin-07-out
-#Axis for Gantry, secondary stepper motor (other side of ctrl box), marked Axis A(Auxilary) in breakout
+#Axis for Gantry, secondary stepper motor (other side of ctrl box), marked Axis A(Auxiliary) in breakout
 net Ystep parport.0.pin-05-out
 net Ydir parport.0.pin-09-out
 #Axis for Height Control, single stepper motor marked Axis Z in breakout
@@ -62,7 +62,7 @@ net estop-in iocontrol.0.user-request-enable  classicladder.0.in-02
 # This bit is an external estop button connected to parport pin 10 
 net ext-estop parport.0.pin-10-in
 net ext-estop classicladder.0.in-01
-# This bit signal is comand to estop from CL to EMC
+# This bit signal is command to estop from CL to EMC
 net emc-enable-in iocontrol.0.emc-enable-in classicladder.0.out-00 
 
 
@@ -114,7 +114,7 @@ net stepcp parport.1.pin-17-out
 
 ###########Torch Height Control ########
 
-# Load the neccessary functions
+# Load the necessary functions
 loadrt mux2 count=7
 loadrt or2 count=4
 loadrt not count=4
@@ -146,7 +146,7 @@ net senseZUp not.2.out
 # Make a sensor for the Z Float Switch
 # Invert because THC has active low
 # The Z float switch is a proxmity sensor from torch to work piece
-# PNP or NPN Capacative or Inductive switches are recomended, Capacative for non metals but Inductive for metals
+# PNP or NPN Capacative or Inductive switches are recommended, Capacative for non metals but Inductive for metals
 net senseZFloatSwitchInverted <= parport.1.pin-13-in
 
 # invert the senseZFloatSwitch so TRUE = At distance (active high)

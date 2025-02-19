@@ -43,7 +43,7 @@
 InterpBase *pinterp;
 #define interp_new (*pinterp)
 const char *prompt = "READ => ";
-const char *history = "~/.rs274";
+const char *histfile = "~/.rs274";
 #define RS274_HISTORY "RS274_HISTORY"
 
 #define active_settings  interp_new.active_settings
@@ -137,15 +137,15 @@ void initialize_readline ()
     rl_readline_name = "rs274";
  
     if ((s = getenv(RS274_HISTORY)))
-	history = s;
+	histfile = s;
     // tilde-expand 
-    if (wordexp(history, &p, WRDE_SHOWERR|WRDE_UNDEF )) {
+    if (wordexp(histfile, &p, WRDE_SHOWERR|WRDE_UNDEF )) {
 	perror("wordexp");
     } else {
-	history = strdup(p.we_wordv[0]);
+	histfile = strdup(p.we_wordv[0]);
     }
-    if (history)
-	read_history(history);
+    if (histfile)
+	read_history(histfile);
 }
 
 /***********************************************************************/
@@ -186,8 +186,8 @@ int interpret_from_keyboard(  /* ARGUMENTS                 */
 	{
 	    line = readline ( prompt);
 	    if (!line || strcmp (line, "quit") == 0) {
-		if (history)
-		    write_history(history);
+		if (histfile)
+		    write_history(histfile);
 		return 0;
 	    }
 	    if (*line)
@@ -338,7 +338,7 @@ int read_tool_file(  /* ARGUMENTS         */
     }
 
   // no toolTable[] param used
-  return tooldata_load(tool_file_name, 0);
+  return tooldata_load(tool_file_name);
 }
 
 /************************************************************************/
@@ -560,7 +560,6 @@ int main (int argc, char ** argv)
   print_stack = OFF;
   tool_flag = 0;
   SET_PARAMETER_FILE_NAME(default_name);
-  _outfile = stdout; /* may be reset below */
   go_flag = 0;
 
 #ifdef TOOL_NML //{
@@ -610,7 +609,7 @@ usage:
             "    -b: Toggle the 'block delete' flag (default: OFF)\n"
             "    -s: Toggle the 'print stack' flag (default: OFF)\n"
             "    -g: Toggle the 'go (batch mode)' flag (default: OFF)\n"
-            "    -i: specify the .ini file (default: no ini file)\n"
+            "    -i: specify the INI file (default: no INI file)\n"
             "    -T: call task_init()\n"
             "    -l: specify the log_level (default: -1)\n"
             , argv[0]);
@@ -674,7 +673,21 @@ usage:
           exit(1);
         }
     }
+  _sai._external_length_units =  0.03937007874016;
   if (inifile!= 0) {
+      std::optional<const char*> inistring;
+      IniFile ini;
+      // open it
+      if (ini.Open(inifile) == false) {
+	    fprintf(stderr, "could not open supplied INI file %s\n", inifile);
+        exit(1);
+      }
+
+      if ((inistring = ini.Find("LINEAR_UNITS", "TRAJ"))) {
+          if (!strcmp(*inistring, "mm")) {
+             _sai._external_length_units = 1.0;
+          }
+      }
       setenv("INI_FILE_NAME",inifile,1);
   } else
       unsetenv("INI_FILE_NAME");
@@ -715,13 +728,9 @@ usage:
 
 /***********************************************************************/
 
-int  emcOperatorError(int id, const char *fmt, ...)
+int  emcOperatorError(const char *fmt, ...)
 {
     va_list ap;
-
-    if (id)
-	fprintf(stderr,"[%d] ", id);
-
     va_start(ap, fmt);
     vfprintf(stderr, fmt, ap);
     va_end(ap);

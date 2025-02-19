@@ -66,6 +66,7 @@ typedef struct {
         hal_s32_t packet_error_increment;
         hal_s32_t packet_error_decrement;
         hal_bit_t *packet_error;
+        hal_u32_t *packet_error_total;
         hal_s32_t *packet_error_level;
         hal_bit_t *packet_error_exceeded;
     } *hal;

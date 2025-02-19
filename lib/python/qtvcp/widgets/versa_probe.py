@@ -21,10 +21,12 @@ import hal
 import json
 
 from PyQt5 import QtGui, QtCore, QtWidgets, uic
-from PyQt5.QtCore import QProcess, QEvent
+from PyQt5.QtCore import QProcess, QEvent, Qt, pyqtProperty
+from PyQt5.QtWidgets import QDialogButtonBox, QAbstractSlider
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-from qtvcp.core import Status, Action, Info
+from qtvcp.core import Status, Action, Info, Path
+from qtvcp.widgets.dialogMixin import GeometryMixin
 from qtvcp import logger
 # Instantiate the libraries with global reference
 # STATUS gives us status messages from linuxcnc
@@ -32,40 +34,58 @@ from qtvcp import logger
 STATUS = Status()
 ACTION = Action()
 INFO = Info()
+PATH = Path()
 LOG = logger.getLogger(__name__)
 # Force the log level for this module
-LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+#LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 current_dir = os.path.dirname(__file__)
 SUBPROGRAM = os.path.abspath(os.path.join(current_dir, 'probe_subprog.py'))
-HELP = os.path.join(INFO.LIB_PATH,'widgets_ui', 'versa_usage.html')
-ICONPATH = os.path.join(INFO.IMAGE_PATH, 'probe_icons')
+
+# can use/favours local image and help files
+HELP = PATH.find_widget_path()
+ICONPATH = os.path.join(PATH.find_image_path(), 'probe_icons')
+
+DEFAULT = 0
+WARNING = 1
+CRITICAL = 2
 
 class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
         super(VersaProbe, self).__init__(parent)
         self.proc = None
+        self.tool_diameter = None
+        self.tool_number = None
+        self.probe_number = -1
+        self._nextIndex = 0
+        self._cmd = None
+        self._runImmediately = True
+
+        STATUS.connect('tool-info-changed', lambda w, data: self._tool_info(data))
         if INFO.MACHINE_IS_METRIC:
-            self.valid = QtGui.QDoubleValidator(0.0, 999.999, 3)
+            self.valid = QtGui.QRegExpValidator(QtCore.QRegExp(r'^((\d{1,4}(\.\d{1,3})?)|(\.\d{1,3}))$'))
         else:
-            self.valid = QtGui.QDoubleValidator(0.0, 99.9999, 4)
+            self.valid = QtGui.QRegExpValidator(QtCore.QRegExp(r'^((\d{1,3}(\.\d{1,4})?)|(\.\d{1,4}))$'))
         self.setMinimumSize(600, 420)
-        # Load the widgets UI file:
-        self.filename = os.path.join(INFO.LIB_PATH,'widgets_ui', 'versa_probe.ui')
+        # Load the widgets UI file will use local file if available:
+        self.filename = PATH.find_widget_path('versa_probe.ui')
         try:
             self.instance = uic.loadUi(self.filename, self)
         except AttributeError as e:
             LOG.critical(e)
         self.dialog_code = 'CALCULATOR'
+        self.hilightStyle = "border: 2px solid red;"
+
         #create parameter dictionary
         self.send_dict = {}
         # these parameters are sent to the subprogram
-        self.parm_list = ['adj_x', 'adj_y', 'adj_z', 'adj_angle',
-                          'probe_diam', 'max_travel', 'latch_return_dist',
-                          'search_vel', 'probe_vel', 'rapid_vel',
-                          'side_edge_length', 'tool_probe_height', 'tool_block_height',
-                          'xy_clearance', 'z_clearance']
-        self.status_list = ['xm', 'xc', 'xp', 'ym', 'yc', 'yp', 'lx', 'ly', 'z', 'd', 'a']
+        # the is also the order of the next widget when dialog 'next' button is pressed
+        self.parm_list = ['probe_diam', 'rapid_vel', 'search_vel', 'probe_vel',
+                          'xy_clearance', 'z_clearance', 'side_edge_length',
+                          'max_travel', 'max_z_travel', 'latch_return_dist',
+                          'tool_probe_height', 'tool_block_height',
+                          'adj_x', 'adj_y', 'adj_z', 'adj_angle',]
+        self.status_list = ['xm', 'xc', 'xp', 'ym', 'yc', 'yp', 'lx', 'ly', 'z', 'd', 'a','th','bh']
 
         for i in self.parm_list:
             self['input_' + i].setValidator(self.valid)
@@ -75,6 +95,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.outside_buttonGroup.buttonClicked.connect(self.probe_btn_clicked)
         self.skew_buttonGroup.buttonClicked.connect(self.probe_btn_clicked)
         self.length_buttonGroup.buttonClicked.connect(self.probe_btn_clicked)
+        self.tool_buttonGroup.buttonClicked.connect(self.probe_btn_clicked)
         self.pbtn_set_x.released.connect(self.pbtn_set_x_released)
         self.pbtn_set_y.released.connect(self.pbtn_set_y_released)	
         self.pbtn_set_z.released.connect(self.pbtn_set_z_released)
@@ -83,7 +104,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.buildToolTip(self.input_search_vel, 'Search Velocity', 'search_vel')
         self.buildToolTip(self.input_probe_vel, 'Probe Velocity', 'probe_vel')
         self.buildToolTip(self.input_z_clearance, 'Z Clearence Distance', 'Zclearance')
-        self.buildToolTip(self.input_max_travel, 'Maximum Probe Search Distance', 'rappid')
+        self.buildToolTip(self.input_max_travel, 'Maximum Probe Search Distance', 'rapid')
         self.buildToolTip(self.input_latch_return_dist, 'Return After Latch Distance', 'rapid_return')
         self.buildToolTip(self.input_probe_diam,'Probe Diameter','probe_diam')
         self.buildToolTip(self.input_xy_clearance, 'XY Clearence Distance', 'XYclearance')
@@ -102,13 +123,36 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             if isinstance(obj, QtWidgets.QLineEdit):
                 # only if mouse selected
                 if event.reason () == 0:
+                    self._nextIndex = self.parm_list.index(obj.objectName().replace('input_',''))
                     self.popEntry(obj)
+                    if self.dialog_code == 'CALCULATOR':
+                        obj.clearFocus()
+                        event.accept()
+                        return True
         return super(VersaProbe, self).eventFilter(obj, event)
 
-    def _hal_init(self):
+    # keep track of tool number and diameter
+    # update the probe loaded HAL pin
+    # can be used to inhibit the spindle
+    def _tool_info(self, data):
+        if data.id != -1:
+            self.tool_diameter = data.diameter
+            self.tool_number = data.id
+            if self.probe_number == self.tool_number:
+                self.probe_loaded.set(True)
+            else:
+                self.probe_loaded.set(False)
+            return
+        self.tool_diameter = None
+        self.tool_number = None
+        self.probe_loaded.set(False)
 
+    def _hal_init(self):
         def homed_on_test():
             return (STATUS.machine_is_on() and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
+
+        # get current style of the line input
+        self._oldstyle = self.input_search_vel.styleSheet()
 
         # have to call hal_init on widgets in this widget ourselves
         # qtvcp doesn't see them otherwise
@@ -120,6 +164,11 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
 
         self.allow_auto_skew.hal_init()
         self.allow_auto_zero.hal_init()
+        self.statuslabel_motiontype.hal_init()
+        self.statelabel_machineUnits.hal_init()
+        self.statelabel_machineUnits_2.hal_init()
+        self.help = HelpDialog(self.QTVCP_INSTANCE_)
+        self.help.hal_init(HAL_NAME='_versa_help')
 
         # connect to STATUS
         STATUS.connect('state-off', lambda w: self.setEnabled(False))
@@ -136,6 +185,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.input_probe_vel.installEventFilter(self)
         self.input_z_clearance.installEventFilter(self)
         self.input_max_travel.installEventFilter(self)
+        self.input_max_z_travel.installEventFilter(self)
         self.input_latch_return_dist.installEventFilter(self)
         self.input_probe_diam.installEventFilter(self)
         self.input_xy_clearance.installEventFilter(self)
@@ -148,11 +198,15 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.input_adj_angle.installEventFilter(self)
         self.input_rapid_vel.installEventFilter(self)
 
+        self.set_checkableButtons(not self._runImmediately)
+
         if self.PREFS_:
+            self.probe_number = self.PREFS_.getpref('ps_probe_tool', -1, int, 'VERSA_PROBE_OPTIONS')
             self.input_search_vel.setText(str(self.PREFS_.getpref( "ps_searchvel", 300.0, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_probe_vel.setText(str(self.PREFS_.getpref( "ps_probevel", 10.0, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_z_clearance.setText(str(self.PREFS_.getpref( "ps_z_clearance", 3.0, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_max_travel.setText(str(self.PREFS_.getpref( "ps_probe_max", 1.0, float, 'VERSA_PROBE_OPTIONS')) )
+            self.input_max_z_travel.setText(str(self.PREFS_.getpref( "ps_probe_max_z_travel", 1.0, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_latch_return_dist.setText(str(self.PREFS_.getpref( "ps_probe_latch", 0.5, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_probe_diam.setText(str(self.PREFS_.getpref( "ps_probe_diam", 2.0, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_xy_clearance.setText(str(self.PREFS_.getpref( "ps_xy_clearance", 5.0, float, 'VERSA_PROBE_OPTIONS')) )
@@ -166,6 +220,13 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.input_adj_angle.setText(str(self.PREFS_.getpref( "ps_offs_angle", 0.0, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_rapid_vel.setText(str(self.PREFS_.getpref( "ps_probe_rapid_vel", 60.0, float, 'VERSA_PROBE_OPTIONS')) )
 
+        self.z_max_clear = INFO.get_safe_float("VERSA_TOOLSETTER", "Z_MAX_CLEAR")
+        self.ts_x =  INFO.get_safe_float('VERSA_TOOLSETTER','X')
+        self.ts_y = INFO.get_safe_float('VERSA_TOOLSETTER','Y')
+        self.ts_z = INFO.get_safe_float('VERSA_TOOLSETTER','Z')
+        self.ts_max = INFO.get_safe_float('VERSA_TOOLSETTER','MAXPROBE')
+        self.ts_diam = INFO.get_safe_float('VERSA_TOOLSETTER','DIAMETER')
+
         # make pins available for tool measure remaps
         oldname = self.HAL_GCOMP_.comp.getprefix()
         self.HAL_GCOMP_.comp.setprefix('qtversaprobe')
@@ -177,6 +238,9 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.pin_pheight.set(float(self.input_tool_probe_height.text()))
         self.pin_bheight = self.HAL_GCOMP_.newpin("blockheight", hal.HAL_FLOAT, hal.HAL_OUT)
         self.pin_bheight.set(float(self.input_tool_block_height.text()))
+        self.pin_latch_rtn = self.HAL_GCOMP_.newpin("backoffdist", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.pin_latch_rtn.set(float(self.input_latch_return_dist.text()))
+        self.probe_loaded = self.HAL_GCOMP_.newpin("probe-loaded", hal.HAL_BIT, hal.HAL_OUT)
         self.HAL_GCOMP_.comp.setprefix(oldname)
 
         # install callbacks to update HAL pins
@@ -184,15 +248,18 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.input_probe_vel.textChanged.connect(self.update_probe_vel_pin)
         self.input_tool_probe_height.textChanged.connect(self.update_probe_height_pin)
         self.input_tool_block_height.textChanged.connect(self.update_block_height_pin)
+        self.input_latch_return_dist.textChanged.connect(self.update_latch_return_dist_pin)
 
     # when qtvcp closes this gets called
     def _hal_cleanup(self):
         if self.PREFS_:
             LOG.debug('Saving Versa probe data to preference file.')
+            self.PREFS_.putpref('ps_probe_tool', self.probe_number, int, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_searchvel", float(self.input_search_vel.text()), float, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_probevel", float(self.input_probe_vel.text()), float, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_z_clearance", float(self.input_z_clearance.text()), float, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_probe_max", float(self.input_max_travel.text()), float, 'VERSA_PROBE_OPTIONS')
+            self.PREFS_.putpref( "ps_probe_max_z_travel", float(self.input_max_z_travel.text()), float, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_probe_latch", float(self.input_latch_return_dist.text()), float, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_probe_diam", float(self.input_probe_diam.text()), float, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_xy_clearance", float(self.input_xy_clearance.text()), float, 'VERSA_PROBE_OPTIONS')
@@ -212,21 +279,45 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         num = message['RETURN']
         code = bool(message.get('ID') == '%s__'% self.objectName())
         name = bool(message.get('NAME') == self.dialog_code)
-        if code and name and num is not None:
-            LOG.debug('message return:{}'.format (message))
+        next = message.get('NEXT', False)
+        back = message.get('BACK', False)
+        if code and name:
             obj = message.get('OBJECT')
-            obj.setText(str(num))
+            if num is not None:
+                LOG.debug('message return:{}'.format (message))
+                obj.setText(str(num))
+            # clear high lighting
+            obj.setStyleSheet(self._oldstyle)
+            # request for next input widget from parm_list
+            if next:
+                self._nextIndex += 1
+                if self._nextIndex == len(self.parm_list):
+                    self._nextIndex = 0
+                newobj = self['input_{}'.format(self.parm_list[self._nextIndex])]
+                # update the dialog
+                self.popEntry(newobj,True)
+            elif back:
+                self._nextIndex -= 1
+                if self._nextIndex == -1:
+                    self._nextIndex = len(self.parm_list)-1
+                newobj = self['input_{}'.format(self.parm_list[self._nextIndex])]
+                # update the dialog
+                self.popEntry(newobj,True)
 
-    def popEntry(self, obj):
-            mess = {'NAME':self.dialog_code,
-                    'ID':'%s__' % self.objectName(),
-                    'OVERLAY':False,
-                    'OBJECT':obj,
-                    'TITLE':'Set Entry for {}'.format(obj.objectName().upper()),
-                    'GEONAME':'_{}'.format(self.dialog_code)
-            }
-            STATUS.emit('dialog-request', mess)
-            LOG.debug('message sent:{}'.format (mess))
+
+    def popEntry(self, obj, next=False):
+        obj.setStyleSheet(self.hilightStyle)
+        mess = {'NAME':self.dialog_code,
+                'ID':'%s__' % self.objectName(),
+                'OVERLAY':False,
+                'OBJECT':obj,
+                'TITLE':'Set Entry for {}'.format(obj.objectName().upper()),
+                'GEONAME':'_{}'.format(self.dialog_code),
+                'NEXT':next,
+                'WIDGETCYCLE': True
+        }
+        STATUS.emit('dialog-request', mess)
+        LOG.debug('message sent:{}'.format (mess))
 
     def buildToolTip(self,obj, text, icon):
         path = os.path.join(ICONPATH, icon)
@@ -276,14 +367,17 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
 
     def parse_input(self, line):
         line = line.decode("utf-8")
-        if "ERROR" in line:
+        if "ERROR INFO" in line:
+            ACTION.SET_ERROR_MESSAGE(line)
+        elif "ERROR" in line:
             #print(line)
             STATUS.unblock_error_polling()
             ACTION.SET_ERROR_MESSAGE('Versa Probe process finished in error')
-        elif "DEBUG" in line:
-            print(line)
+        elif "PROBE_ROUTINES" in line:
+            if LOG.getEffectiveLevel() < logger.INFO:
+                print(line)
         elif "INFO" in line:
-            print(line)
+            pass
         elif "COMPLETE" in line:
             STATUS.unblock_error_polling()
             LOG.info("Versa Probing routine completed without errors")
@@ -291,9 +385,10 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             data = json.loads(return_data[1])
             self.show_results(data)
         elif "HISTORY" in line:
-            temp = line.strip('HISTORY$')
-            STATUS.emit('update-machine-log', temp, 'TIME')
-            LOG.info("Probe history updated to machine log")
+            if not self.set_statusbar(line, DEFAULT):
+                STATUS.emit('update-machine-log', line, 'TIME')
+        elif "DEBUG" in line:
+            pass
         else:
             LOG.error("Error parsing return data from sub_processor. Line={}".format(line))
 
@@ -305,10 +400,42 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         self.pop_help()
 
     def probe_btn_clicked(self, button):
-        cmd = button.property('probe')
-        print("Button clicked ", cmd)
+        cmd = button
+        #print("Button clicked ", cmd.property('probe'),self._cmd)
+
+        # run probe when buttons are pressed
+        if self._runImmediately:
+            self.set_statusbar('Versa Probe: Start Cycle: {}'.format(cmd.toolTip(),DEFAULT))
+            self.get_parms()
+            self.start_probe(cmd.property('probe'))
+
+        # select probe when buttons pressed, run when start_cycle function called 
+        else:
+            # Auto exclusive doesn't allow unchecking all buttons
+            # We force it here
+            if cmd == self._cmd:
+                button.group().setExclusive(False)
+                button.blockSignals(True)
+                button.setChecked(False)
+                button.blockSignals(False)
+                button.group().setExclusive(True)
+                self._cmd = None
+                return
+            self.set_statusbar('Versa probe: Selected: {}'.format(cmd.toolTip()),DEFAULT,noLog=True)
+            self._cmd = cmd
+
+    # called externally to run selected routine
+    # if not in _runImmediately mode
+    def cycle_start(self):
+        if self._runImmediately:
+            self.set_statusbar('Versa Probe set to run buttons immediately',WARNING)
+            return
+        if self._cmd is None:
+            self.set_statusbar('No Versa Probe probe selected',WARNING)
+            return
+        self.set_statusbar('Versa Probe: Start Cycle: {}'.format(self._cmd.toolTip(),DEFAULT))
         self.get_parms()
-        self.start_probe(cmd)
+        self.start_probe(self._cmd.property('probe'))
 
     ###### set origin offset ######################
     def pbtn_set_x_released(self):
@@ -333,6 +460,25 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         s +=  " R%.4f"% float(self.input_adj_angle.text())
         ACTION.CALL_MDI_WAIT(s, 30)
 
+    # selects probe routine group of buttons
+    def input_next(self):
+        next = self.stackedWidget_probe_type.currentIndex() +1
+        if next == self.stackedWidget_probe_type.count():
+            next = 0
+        self.stackedWidget_probe_type.setCurrentIndex(next)
+
+        if self._runImmediately:
+            return
+        # Auto exclusive doesn't allow unchecking all buttons
+        # We force it here
+        if not self._cmd is None:
+            button = self._cmd
+            button.group().setExclusive(False)
+            button.blockSignals(True)
+            button.setChecked(False)
+            button.blockSignals(False)
+            button.group().setExclusive(True)
+            self._cmd = None
 #####################################################
 # Entry callbacks
 #####################################################
@@ -352,17 +498,43 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         except:
             pass
     def update_block_height_pin(self, text):
+        value = float(text)
+        #if value == self.pin_bheight.get(): return
+        origin = float(INFO.INI.find("AXIS_Z", "MIN_LIMIT")) + value
+        ACTION.CALL_MDI_WAIT( "G10 L2 P0 Z%s" % origin )
         try:
-            self.pin_bheight.set(float(text))
+            self.pin_bheight.set(value)
         except:
             pass
+    def update_latch_return_dist_pin(self, text):
+        try:
+            self.pin_latch_rtn.set(float(text))
+        except:
+            pass
+
 #####################################################
 # Helper functions
 #####################################################
+
+    # return false if failed so other ways of reporting can be used.
+    # there might not be a statusbar in main screen.
+    def set_statusbar(self, msg, priority = DEFAULT, noLog = False):
+        try:
+            self.QTVCP_INSTANCE_.add_status(msg, priority, noLog)
+        except:
+            return False
+        return True
+
+
     def get_parms(self):
         self.send_dict = {key: self['input_' + key].text() for key in (self.parm_list)}
         for key in ['allow_auto_zero', 'allow_auto_skew']:
             val = '1' if self[key].isChecked() else '0'
+            self.send_dict.update( {key: val} )
+        # come from INI
+        for key in ['ts_diam','z_max_clear','ts_x','ts_y','ts_z','ts_max','tool_diameter','tool_number']:
+            val = str(self[key])
+            if val == 'NONE': val = None
             self.send_dict.update( {key: val} )
 
     def check_probe(self):
@@ -373,34 +545,39 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
 
     def show_results(self, line):
         for key in self.status_list:
-            self['status_' + key].setText(line[key])
+            if key in('th','bh'):
+                if key == 'bh' and line[key] != 'None':
+                    self.input_tool_block_height.setText(line[key])
+                elif line[key] != 'None':
+                    self.input_tool_probe_height.setText(line[key])
+            elif line[key] != 'None':
+                self['status_' + key].setText(line[key])
+            else:
+                self['status_' + key].setText('')
 
     def pop_help(self):
-        d = QtWidgets.QDialog(self)
-        d.setMinimumWidth(600)
-        l = QtWidgets.QVBoxLayout()
-        t = QtWidgets.QTextEdit()
-        t.setReadOnly(False)
-        l.addWidget(t)
+        self.help.showDialog()
 
-        bBox = QtWidgets.QDialogButtonBox()
-        bBox.addButton('Ok', QtWidgets.QDialogButtonBox.AcceptRole)
-        bBox.accepted.connect(d.accept)
-        l.addWidget(bBox)
-        d.setLayout(l)
+    # run-immediately buttons are momentary
+    # pre-select buttons are checkable
+    # focus policy changes for 'cycle start button steering'
+    # with pre-select option
 
-        try:
-            file = QtCore.QFile(HELP)
-            file.open(QtCore.QFile.ReadOnly)
-            html = file.readAll()
-            html = str(html, encoding='utf8')
-            html = html.replace("../images/probe_icons/","{}/probe_icons/".format(INFO.IMAGE_PATH))
-            t.setHtml(html)
-        except Exception as e:
-            t.setText('Versa Probe Help file Unavailable:\n\n{}'.format(e))
-
-        d.show()
-        d.exec_()
+    def set_checkableButtons(self, state):
+        if state:
+            policy = Qt.ClickFocus
+        else:
+            policy = Qt.NoFocus
+        for i in self.outside_buttonGroup.buttons():
+            i.setCheckable(state)
+        for i in self.inside_buttonGroup.buttons():
+            i.setCheckable(state)
+        for i in self.skew_buttonGroup.buttons():
+            i.setCheckable(state)
+        for i in self.length_buttonGroup.buttons():
+            i.setCheckable(state)
+        for i in self.tool_buttonGroup.buttons():
+            i.setCheckable(state)
 
 ########################################
 # required boiler code
@@ -409,6 +586,150 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
         return getattr(self, item)
     def __setitem__(self, item, value):
         return setattr(self, item, value)
+
+    #########################################################################
+    # This is how designer can interact with our widget properties.
+    # designer will show the pyqtProperty properties in the editor
+    # it will use the get set and reset calls to do those actions
+    #########################################################################
+
+    def set_dialog_code(self, data):
+        self.dialog_code = data
+    def get_dialog_code(self):
+        return self.dialog_code
+    def reset_dialog_code(self):
+        self.dialog_code = 'CALCULATOR'
+    dialogCodeString = pyqtProperty(str, get_dialog_code, set_dialog_code, reset_dialog_code)
+
+    def set_runImmediately(self, data):
+        self._runImmediately = data
+        self.set_checkableButtons(not data)
+    def get_runImmediately(self):
+        return self._runImmediately
+    def reset_runImmediately(self):
+        self._runImmediately = True
+
+    # toggle run on button push or run on function call
+    runImmediately = pyqtProperty(bool, get_runImmediately, set_runImmediately, reset_runImmediately)
+
+class HelpDialog(QtWidgets.QDialog, GeometryMixin):
+    def __init__(self, parent=None):
+        super(HelpDialog, self).__init__(parent)
+        self._title = 'Versa Help'
+        self.setWindowFlags(self.windowFlags() | Qt.Tool |
+                            Qt.Dialog | Qt.WindowStaysOnTopHint |
+                            Qt.WindowSystemMenuHint)
+        self.currentHelpPage=-1
+        self.setMinimumWidth(600)
+        self.setMinimumHeight(600)
+        self.helpPages = ['versa_usage.html','versa_usage1.html','versa_usage2.html',
+                        'versa_usage3.html','versa_usage4.html','versa_usage5.html',
+                        'versa_usage6.html','versa_usage7.html','versa_usage8.html']
+
+    def _hal_init(self):
+        self.buildWidget()
+        self.set_default_geometry()
+        self.read_preference_geometry('VersaHelpDialog-geometry')
+
+    def buildWidget(self):
+
+        l = QtWidgets.QVBoxLayout()
+        t = QtWidgets.QTextEdit('Versa Probe Help')
+        t.setReadOnly(True)
+        l.addWidget(t)
+
+        buttons = QDialogButtonBox()
+
+        closebutton = QtWidgets.QPushButton()
+        closebutton.setIconSize(QtCore.QSize(38, 38))
+        closebutton.setIcon(QtGui.QIcon(':/qt-project.org/styles/commonstyle/images/standardbutton-cancel-128.png'))
+        closebutton.clicked.connect(lambda : self.close())
+
+        nextbutton = QtWidgets.QPushButton()
+        nextbutton.setIconSize(QtCore.QSize(38, 38))
+        nextbutton.setIcon(QtGui.QIcon(':/qt-project.org/styles/commonstyle/images/right-32.png'))
+        nextbutton.clicked.connect(lambda : self.next(t,True))
+
+        previousbutton = QtWidgets.QPushButton()
+        previousbutton.setIconSize(QtCore.QSize(38, 38))
+        previousbutton.setIcon(QtGui.QIcon(':/qt-project.org/styles/commonstyle/images/left-32.png'))
+        previousbutton.clicked.connect(lambda : self.next(t,False))
+
+        self.pageStepUpbutton = QtWidgets.QPushButton()
+        self.pageStepUpbutton.setIconSize(QtCore.QSize(38, 38))
+        self.pageStepUpbutton.setIcon(QtGui.QIcon(':/qt-project.org/styles/commonstyle/images/up-32.png'))
+        self.pageStepUpbutton.clicked.connect(lambda : self.pageStep(t,False))
+
+        self.pageStepDwnbutton = QtWidgets.QPushButton()
+        self.pageStepDwnbutton.setIconSize(QtCore.QSize(38, 38))
+        self.pageStepDwnbutton.setIcon(QtGui.QIcon(':/qt-project.org/styles/commonstyle/images/down-32.png'))
+        self.pageStepDwnbutton.clicked.connect(lambda : self.pageStep(t,True))
+
+        bBox = QDialogButtonBox(buttons)
+        bBox.addButton(self.pageStepUpbutton, QDialogButtonBox.ActionRole)
+        bBox.addButton(self.pageStepDwnbutton, QDialogButtonBox.ActionRole)
+        bBox.addButton(previousbutton, QDialogButtonBox.ActionRole)
+        bBox.addButton(nextbutton, QDialogButtonBox.ActionRole)
+        bBox.addButton(closebutton, QDialogButtonBox.DestructiveRole)
+        bBox.rejected.connect(self.reject)
+
+        l.addWidget(bBox)
+        self.setLayout(l)
+
+        try:
+            self.next(t)
+        except Exception as e:
+                t.setText('Versa Probe Help file Unavailable:\n\n{}'.format(e))
+
+    def next(self,t,direction=None):
+            if direction is None:
+                self.currentHelpPage = 0
+            elif direction:
+                self.currentHelpPage +=1
+                if self.currentHelpPage > len(self.helpPages)-1:
+                    self.currentHelpPage = len(self.helpPages)-1
+            else:
+                self.currentHelpPage -=1
+                if self.currentHelpPage < 0:
+                    self.currentHelpPage = 0
+            try:
+                pagePath = os.path.join(HELP, self.helpPages[self.currentHelpPage])
+                file = QtCore.QFile(pagePath)
+                file.open(QtCore.QFile.ReadOnly)
+                html = file.readAll()
+                html = str(html, encoding='utf8')
+                html = html.replace("../images/probe_icons/","{}/probe_icons/".format(INFO.IMAGE_PATH))
+                t.setHtml(html)
+                if t.verticalScrollBar().isVisible():
+                    t.verticalScrollBar().setPageStep(20)
+                    self.pageStepDwnbutton.show()
+                    self.pageStepUpbutton.show()
+                else:
+                    self.pageStepDwnbutton.hide()
+                    self.pageStepUpbutton.hide()
+
+            except Exception as e:
+                t.setText('Versa Probe Help file Unavailable:\n\n{}'.format(e))
+            if direction is None:
+                return
+            self.show()
+
+    def pageStep(self, t, state):
+        if state:
+            t.verticalScrollBar().triggerAction (QAbstractSlider.SliderPageStepAdd)
+        else:
+            t.verticalScrollBar().triggerAction (QAbstractSlider.SliderPageStepSub)
+
+    # accept button applies presets and if line number given starts linuxcnc
+    def close(self):
+        self.record_geometry()
+        super(HelpDialog, self).close()
+
+    def showDialog(self):
+        self.setWindowTitle(self._title);
+        self.set_geometry()
+        retval = self.exec_()
+        LOG.debug('Value of pressed button: {}'.format(retval))
 
 ####################################
 # Testing

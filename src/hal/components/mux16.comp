@@ -10,7 +10,7 @@ This stops unwanted jumps in output between transitions of input.
 but make in00 unavailable.
 """;
 pin in float debounce_time"""\
-sets debouce time in seconds.  eg. .10 = a tenth of a second
+sets debounce time in seconds.  eg. .10 = a tenth of a second
 input must be stable this long before outputs changes. This
 helps to ignore 'noisy' switches.
 """;
@@ -42,6 +42,7 @@ variable int running;
 function _;
 license "GPL";
 author "Chris S Morley";
+see_also "mux2(9), mux4(9), mux8(9), mux_generic(9).";
 ;;
 FUNCTION(_) {
     int i,num = 0;

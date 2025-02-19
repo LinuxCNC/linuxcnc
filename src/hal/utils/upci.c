@@ -202,7 +202,7 @@ int upci_scan_bus(void)
 	devices[num_devs++] = dev;
 	n = sscanf(lineptr,
 	    "%hx %x %x %x %x %x %x %x %x %x %x %x %x %x %x %x %x",
-	    &busdevfunc, &vendordev, &(dev->p.irq),
+	    &busdevfunc, &vendordev, (unsigned *)&(dev->p.irq),
 	    &dev->p.base_addr[0],  &dev->p.base_addr[1], &dev->p.base_addr[2],
 	    &dev->p.base_addr[3],  &dev->p.base_addr[4], &dev->p.base_addr[5],
 	    &dev->p.rom_base_addr,
@@ -359,7 +359,7 @@ static int incr_io_usage ( void )
 	/* enable access */
 	/* this needs privileges */
 	if (seteuid(0) != 0) {
-	    errmsg(__func__, "need root privilges (or setuid root)");
+	    errmsg(__func__, "need root privileges (or setuid root)");
 	    return -1;
 	}
 	/* do it */
@@ -408,7 +408,7 @@ static int incr_mem_usage ( void )
 	/* open it */
 	/* this needs privileges */
 	if (seteuid(0) != 0) {
-	    errmsg(__func__, "need root privilges (or setuid root)");
+	    errmsg(__func__, "need root privileges (or setuid root)");
 	    return -1;
 	}
 	/* do it */

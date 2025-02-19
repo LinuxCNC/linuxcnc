@@ -69,8 +69,8 @@ def setspeed_epilog(self,**words):
             pass
             #print "---------- S builtin recursion, nothing to do"
         else:
-            self.speed = self.params["speed"]
-            emccanon.enqueue_SET_SPINDLE_SPEED(self.speed)
+            self.speed[0] = self.params["speed"]
+            emccanon.enqueue_SET_SPINDLE_SPEED(self.speed[0])
         return INTERP_OK
     except Exception as e:
         self.set_errormsg("S/setspeed_epilog: %s)" % (e))
@@ -167,13 +167,6 @@ def prepare_epilog(self, **words):
 
 def change_prolog(self, **words):
     try:
-        # this is relevant only when using iocontrol-v2.
-        if self.params[5600] > 0.0:
-            if self.params[5601] < 0.0:
-                self.set_errormsg("Toolchanger hard fault %d" % (int(self.params[5601])))
-                return INTERP_ERROR
-            print("change_prolog: Toolchanger soft fault %d" % int(self.params[5601]))
-
         if self.selected_pocket < 0:
             self.set_errormsg("M6: no tool prepared")
             return INTERP_ERROR
@@ -196,12 +189,6 @@ def change_epilog(self, **words):
             self.set_errormsg("the %s remap procedure %s did not return a value"
                              % (r.name,r.remap_ngc if r.remap_ngc else r.remap_py))
             yield INTERP_ERROR
-        # this is relevant only when using iocontrol-v2.
-        if self.params[5600] > 0.0:
-            if self.params[5601] < 0.0:
-                self.set_errormsg("Toolchanger hard fault %d" % (int(self.params[5601])))
-                yield INTERP_ERROR
-            print("change_epilog: Toolchanger soft fault %d" % int(self.params[5601]))
 
         if self.blocks[self.remap_level].builtin_used:
             #print "---------- M6 builtin recursion, nothing to do"
@@ -210,7 +197,7 @@ def change_epilog(self, **words):
             if self.return_value > 0.0:
                 # commit change
                 self.selected_pocket =  int(self.params["selected_pocket"])
-                emccanon.CHANGE_TOOL(self.selected_pocket)
+                emccanon.CHANGE_TOOL()
                 self.current_pocket = self.selected_pocket
                 self.selected_pocket = -1
                 self.selected_tool = -1
@@ -358,7 +345,7 @@ def cycle_prolog(self,**words):
         if not "r" in self.sticky_params[r.name]:
             return "%s: cycle requires R word" % (r.name)
         else:
-            if self.sticky_params[r.name] <= 0.0:
+            if self.sticky_params[r.name]['r'] <= 0.0:
                 return "%s: R word must be > 0 if used (%.4f)" % (r.name, words["r"])
 
         if "l" in words:
@@ -476,7 +463,7 @@ def index_lathe_tool_with_wear(self,**words):
         # change tool
         try:
             self.selected_pocket =  int(self.params["selected_pocket"])
-            emccanon.CHANGE_TOOL(self.selected_pocket)
+            emccanon.CHANGE_TOOL()
             self.current_pocket = self.selected_pocket
             self.selected_pocket = -1
             self.selected_tool = -1
@@ -572,7 +559,7 @@ def tool_probe_m6(self, **words):
 
         try:
             self.selected_pocket =  int(self.params["selected_pocket"])
-            emccanon.CHANGE_TOOL(self.selected_pocket)
+            emccanon.CHANGE_TOOL()
             self.current_pocket = self.selected_pocket
             self.selected_pocket = -1
             self.selected_tool = -1

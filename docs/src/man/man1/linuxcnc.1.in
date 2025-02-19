@@ -28,7 +28,8 @@
 linuxcnc \- LinuxCNC (The Enhanced Machine Controller)
 .SH SYNOPSIS
 .B linuxcnc
-[\fI-v\fR] [\fI-d\fR] [\fIINI file\fR]
+[\fI-h\fR] [\fI-v\fR] [\fI-d\fR] [\fI-r\fR] [\fI-l\fR] [\fI-k\fR] [\fI-t <tpmodulename> [parameters]\fR]
+[\fI-m <homemodulename> [parameters]\fR] [\fI-H <dirname>\fR] [\fIINI file\fR]
 .SH DESCRIPTION
 \fBlinuxcnc\fR is used to start LinuxCNC (The Enhanced Machine Controller). It
 starts the realtime system and then initializes a number of LinuxCNC
@@ -38,7 +39,10 @@ to run. If \fIINI file\fR is not specified, the \fBlinuxcnc\fR script presents
 a graphical wizard to let you choose one.
 .SH OPTIONS
 .TP
-\fB\-v\fR 
+\fB\-h\fR
+Shows the help
+.TP
+\fB\-v\fR
 Be a little bit verbose. This causes the script to print information
 as it works.
 .TP
@@ -47,11 +51,28 @@ Print lots of debug information. All executed commands
 are echoed to the screen. This mode is useful when something is
 not working as it should.
 .TP
+\fB\-r\fR
+Disable redirection of stdout and stderr to ~/linuxcnc_print.txt and
+~/linuxcnc_debug.txt when stdin is not a tty.
+Used when running linuxcnc tests non-interactively.
+.TP
 \fB\-l\fR
 Use the last-used INI file without prompting. This is often a good choice
 for a shortcut command or startup item.
 .TP
-\fBINIFILE\fR
+\fB\-k\fR
+Continue in the presence of errors in HAL files
+.TP
+\fB\-t <tpmodulename> [parameters] \fR
+Specify custom trajectory_planning_module overrides optional INI setting [TRAJ]TPMOD
+.TP
+\fB\-m <homemodulename> [parameters]\fR
+Specify custom homing_module overrides optional INI setting [EMCMOT]HOMEMOD
+.TP
+\fB\-H <dirname>\fR
+Search dirname for HAL files before searching INI directory and system library: $HALLIB_DIR
+.TP
+\fB<INIFILE>\fR
 The INI file is the main piece of a LinuxCNC configuration. It is not the
 entire configuration; there are various other files that go with it
 (NML files, HAL files, TBL files, VAR files). It is, however, the most

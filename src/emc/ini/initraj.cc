@@ -63,7 +63,7 @@ static int loadKins(EmcIniFile *trajInifile)
 /*
   loadTraj()
 
-  Loads ini file params for traj
+  Loads INI file params for traj
 
   COORDINATES <char[]>            axes in system
   LINEAR_UNITS <float>            units per mm
@@ -313,7 +313,7 @@ static int loadTraj(EmcIniFile *trajInifile)
                     }
                 } else {
                     // badly formatted entry
-                    rcs_print("invalid inifile value for [TRAJ] HOME: %s\n",
+                    rcs_print("invalid INI file value for [TRAJ] HOME: %s\n",
                           inistring);
                         return -1;
                 }
@@ -337,7 +337,7 @@ static int loadTraj(EmcIniFile *trajInifile)
 /*
   iniTraj(const char *filename)
 
-  Loads ini file parameters for trajectory, from [TRAJ] section
+  Loads INI file parameters for trajectory, from [TRAJ] section
  */
 int iniTraj(const char *filename)
 {

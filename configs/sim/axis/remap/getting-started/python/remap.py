@@ -45,7 +45,7 @@ def involute(self, **words):
         self.set_errormsg("feedrate > 0 required")
         return INTERP_ERROR
 
-    if equal(self.speed,0.0):
+    if equal(self.speed[0], 0.0):
         self.set_errormsg("spindle speed > 0 required")
         return INTERP_ERROR
 
@@ -81,7 +81,7 @@ def involute(self, **words):
         if c.z_flag: # retract to starting height
             self.execute("G0 Z%f" % (old_z),lineno())
 
-    except InterpreterException,e:
+    except InterpreterException as e:
         msg = "%d: '%s' - %s" % (e.line_number,e.line_text, e.error_message)
         self.set_errormsg(msg) # replace builtin error message
         return INTERP_ERROR

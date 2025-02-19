@@ -71,10 +71,12 @@ struct RtapiApp
 
     RtapiApp(int policy = SCHED_OTHER) : policy(policy), period(0) {}
 
-    int prio_highest();
-    int prio_lowest();
-    int prio_next_higher(int prio);
-    int prio_next_lower(int prio);
+    virtual int prio_highest() const;
+    virtual int prio_lowest() const;
+    int prio_higher_delta() const;
+    int prio_bound(int prio) const;
+    int prio_next_higher(int prio) const;
+    int prio_next_lower(int prio) const;
     long clock_set_period(long int period_nsec);
     int task_new(void (*taskcode)(void*), void *arg,
             int prio, int owner, unsigned long int stacksize, int uses_fp);

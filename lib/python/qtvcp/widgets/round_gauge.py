@@ -18,9 +18,14 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
         self._dial_font_size = 10
         self._value_font_size = 10
         self._label_font_size = 10
+        self._base_gradient_color = QColor(180, 180, 180)
+        self._base_color = QColor(40, 40, 40)
+        self._center_gradient_color = QColor("gray")
+        self._center_color = QColor("#404040")
         self._zone1_color = QColor("green")
         self._zone2_color = QColor("red")
         self._bezel_color = QColor("gray")
+        self._bezel_width = 6
         self.qpa = list()
         self.canvas = QRect()
         self.canvas.setSize(QSize(self.width(), self.height()))
@@ -47,7 +52,7 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
             self.qpa[i] = QPointF(x, y)
 
     def paintEvent(self, event):
-        w = min(event.rect().width(), event.rect().height())
+        w = int(min(event.rect().width(), event.rect().height()))
         painter = QPainter(self)
         painter.setRenderHint(painter.Antialiasing)
         self.draw_background(painter, event, w)
@@ -68,20 +73,21 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
         rect.moveCenter(center)
         fp = QPoint(int(center.x() - w/4), int(center.y() - w/4))
         bg = QRadialGradient(center, w/2, fp)
-        bg.setColorAt(0, QColor(180, 180, 180))
-        bg.setColorAt(1, QColor(40, 40, 40))
-        qp.setPen(QPen(self._bezel_color, 6))
+        bg.setColorAt(0, self._base_gradient_color)
+        bg.setColorAt(1, self._base_color)
+        qp.setPen(QPen(self._bezel_color, self._bezel_width))
         qp.setBrush(QBrush(bg))
         qp.drawEllipse(rect)
         qp.drawArc(rect, 0, 360 * 16)
 
     def draw_zones(self, qp, event, w):
         segment1 = -45
-        span1 = ((self._max_value - self._threshold) * 270) / self._max_value
+        span1 = int(((self._max_value - self._threshold) * 270) / self._max_value)
         segment2 = span1 - 45
         span2 = 270 - span1
         rect = QRect()
-        rect.setSize(QSize(w/2, w/2))
+        w = int(w/2)
+        rect.setSize(QSize(w, w))
         rect.moveCenter(event.rect().center())
         qp.setPen(QPen(self._zone1_color, self.arc_width, cap = Qt.FlatCap))
         qp.drawArc(rect, segment1*16, span1*16)
@@ -90,6 +96,7 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
 
     def draw_gauge(self, qp, event, w):
         w *= 0.6
+        w =int(w)
         rect = QRect()
         rect.setSize(QSize(w, w))
         rect.moveCenter(event.rect().center())
@@ -127,14 +134,15 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
 
     def draw_center(self, qp, event, w):
         w *= 0.2
+        w = int(w)
         rect = QRect()
         rect.setSize(QSize(w, w))
         rect.moveCenter(event.rect().center())
         rad = rect.width()/2
         cap = QRadialGradient(rect.center(), rad)
-        cap.setColorAt(0, Qt.white)
-        cap.setColorAt(1, Qt.gray)
-        qp.setPen(QPen(Qt.black, 1))
+        cap.setColorAt(0, self._center_gradient_color)
+        cap.setColorAt(1, self._center_color)
+        qp.setPen(QPen(self._bezel_color, 1.5))
         qp.setBrush(QBrush(cap))
         qp.drawEllipse(rect)
 
@@ -162,13 +170,13 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
     def draw_readout(self, qp, event, w):
         center = event.rect().center()
         rect = QRect()
-        rect.setSize(QSize(w/4, w/8))
-        rect.moveCenter(QPoint(center.x(), center.y() + w/4))
+        rect.setSize(QSize(int(w/4), int(w/8)))
+        rect.moveCenter(QPoint(center.x(), center.y() + int(w/4)))
         text = "{}".format(self.value)
         qp.setPen(QPen(Qt.white, 4))
         qp.setFont(QFont('Lato Heavy', self._value_font_size))
         qp.drawText(rect, Qt.AlignCenter, text)
-        rect.moveCenter(QPoint(center.x(), center.y() + w/3))
+        rect.moveCenter(QPoint(center.x(), center.y() + int(w/3)))
         text = self._gauge_label
         qp.setFont(QFont('Lato Heavy', self._label_font_size))
         qp.drawText(rect, Qt.AlignCenter, text)
@@ -252,6 +260,65 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
 
     def reset_label(self):
         self._gauge_label = "GAUGE"
+        
+    @pyqtSlot(QColor)
+    def set_base_gradient_color(self, color):
+        self._base_gradient_color = color
+        self.update()
+
+    def get_base_gradient_color(self):
+        return self._base_gradient_color
+
+    def reset_base_gradient_color(self):
+        self._base_gradient_color = QColor(180, 180, 180)
+        self.update()
+
+    @pyqtSlot(QColor)
+    def set_base_color(self, color):
+        self._base_color = color
+        self.update()
+
+    def get_base_color(self):
+        return self._base_color
+
+    def reset_base_color(self):
+        self._base_color = QColor(40, 40, 40)        
+        self.update()
+
+    @pyqtSlot(QColor)
+    def set_center_gradient_color(self, color):
+        self._center_gradient_color = color
+        self.update()
+
+    def get_center_gradient_color(self):
+        return self._center_gradient_color
+
+    def reset_center_gradient_color(self):
+        self._center_gradient_color = QColor("gray")
+        self.update()
+
+    @pyqtSlot(QColor)
+    def set_center_color(self, color):
+        self._center_color = color
+        self.update()
+
+    def get_center_color(self):
+        return self._center_color
+
+    def reset_center_color(self):
+        self._center_color = QColor("#404040")        
+        self.update()
+
+    @pyqtSlot(QColor)
+    def set_zone2_color(self, color):
+        self._zone2_color = color
+        self.update()
+
+    def get_zone2_color(self):
+        return self._zone2_color
+
+    def reset_zone2_color(self):
+        self._zone2_color = QColor("red")        
 
     @pyqtSlot(QColor)
     def set_zone1_color(self, color):
@@ -297,6 +364,30 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
 
     def reset_halpin_option(self):
         self._halpin_option = True
+        
+    @pyqtSlot(int)
+    def set_bezel_width(self, value):
+        self._bezel_width = value
+        self.update()
+
+    def get_bezel_width(self):
+        return self._bezel_width
+
+    def reset_bezel_width(self):
+        self._bezel_width = 6
+        self.update()
+
+    def sizeHint(self):
+        return QtCore.QSize(200, 200)
+
+    def set_halpin_option(self, value):
+        self._halpin_option = value
+
+    def get_halpin_option(self):
+        return self._halpin_option
+
+    def reset_halpin_option(self):
+        self._halpin_option = True        
 
     halpin_option = pyqtProperty(bool, get_halpin_option, set_halpin_option, reset_halpin_option)
     threshold = pyqtProperty(int, get_threshold, set_threshold, reset_threshold)
@@ -304,9 +395,14 @@ class Gauge(QtWidgets.QWidget, _HalWidgetBase):
     max_reading = pyqtProperty(int, get_max_reading, set_max_reading, reset_max_reading)
     num_ticks = pyqtProperty(int, get_num_ticks, set_num_ticks, reset_num_ticks)
     gauge_label = pyqtProperty(str, get_label, set_label, reset_label)
+    base_gradient_color = pyqtProperty(QColor, get_base_gradient_color, set_base_gradient_color, reset_base_gradient_color)
+    base_color = pyqtProperty(QColor, get_base_color, set_base_color, reset_base_color)
+    center_gradient_color = pyqtProperty(QColor, get_center_gradient_color, set_center_gradient_color, reset_center_gradient_color)
+    center_color = pyqtProperty(QColor, get_center_color, set_center_color, reset_center_color)
     zone1_color = pyqtProperty(QColor, get_zone1_color, set_zone1_color, reset_zone1_color)
     zone2_color = pyqtProperty(QColor, get_zone2_color, set_zone2_color, reset_zone2_color)
     bezel_color = pyqtProperty(QColor, get_bezel_color, set_bezel_color, reset_bezel_color)
+    bezel_width = pyqtProperty(int, get_bezel_width, set_bezel_width, reset_bezel_width)
 
     #############################
     # Testing                   #

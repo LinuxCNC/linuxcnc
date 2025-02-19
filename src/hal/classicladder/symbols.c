@@ -1,5 +1,5 @@
 /* Classic Ladder Project */
-/* Copyright (C) 2001-2006 Marc Le Douarain */
+/* Copyright (C) 2001-2008 Marc Le Douarain */
 /* http://www.multimania.com/mavati/classicladder */
 /* http://www.sourceforge.net/projects/classicladder */
 /* October 2006 */
@@ -95,13 +95,14 @@ StrSymbol * ConvSymbolParamInSymbolPtr( char * tcMnemoSaisi )//, char bPartiel )
 	char bFound = FALSE;
 	char tcPartialSymbolString[ LGT_SYMBOL_STRING ];
 	// creating partial var name (before '.' attribute)
+	// also used for indexed variable, to stop before '[' mark for index coming
 	char * pVarNameSrc = tcMnemoSaisi;
 	char * pVarNameDest = tcPartialSymbolString;
 	do
 	{
 		*pVarNameDest++ = *pVarNameSrc++;
 	}
-	while( *pVarNameSrc!=VAR_ATTRIBUTE_SEP && *pVarNameSrc!='\0' );
+	while( *pVarNameSrc!=VAR_ATTRIBUTE_SEP && *pVarNameSrc!='[' && *pVarNameSrc!='\0' );
 	*pVarNameDest = '\0';
 	// searching complete or partial in symbols list
 	do

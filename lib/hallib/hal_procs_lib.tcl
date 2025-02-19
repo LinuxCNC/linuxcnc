@@ -175,7 +175,7 @@ proc find_file_in_hallib_path {filename {inifile .}} {
     if {[file pathtype $filename] == "absolute"} {
       set usehalname $filename
     } else {
-      # relative file specifier (relative to ini file directory)
+      # relative file specifier (relative to INI file directory)
       set usehalname [file join [file dirname $inifile] $halname]
       if ![file readable $usehalname] {
         # use ::env(HALLIB_DIR)

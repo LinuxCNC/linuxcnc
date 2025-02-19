@@ -149,3 +149,8 @@ QSpinBox::up-arrow {
     width: 20px;
     height: 20px;
 }
+
+QDialog QPushButton {
+    width: 100px;
+    height: 40px;
+}

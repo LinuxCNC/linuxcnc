@@ -188,7 +188,7 @@ int main(int argc, char **argv)
                 break;
 #ifndef NO_INI
 	    case 'i':
-		/* -i = allow reading 'setp' values from an ini file */
+		/* -i = allow reading 'setp' values from an INI file */
 		if (halcmd_inifile == NULL) {
 		    /* it's the first -i (ignore repeats) */
                     /* there is a following arg, and it's not an option */
@@ -196,7 +196,7 @@ int main(int argc, char **argv)
                     halcmd_inifile = fopen(filename, "r");
                     if (halcmd_inifile == NULL) {
                         fprintf(stderr,
-                            "Could not open ini file '%s'\n",
+                            "Could not open INI file '%s'\n",
                             filename);
                         exit(-1);
                     }
@@ -397,6 +397,7 @@ static char **completion_callback(const char *text, hal_generator_func cb) {
 
 /* completion text starts with "halcmd", so remove that from the string */
 static int propose_completion(char *all, char *fragment, int start) {
+    (void)start;
     int sp=0, len=strlen(all), i=0;
     for(; i<len; i++) if(all[i] == ' ') sp = i;
     if(sp) sp++;
@@ -414,8 +415,8 @@ static void print_help_general(int showR)
     printf("  -f [filename]  Read commands from 'filename', not command\n");
     printf("                 line.  If no filename, read from stdin.\n");
 #ifndef NO_INI
-    printf("  -i filename    Open .ini file 'filename', allow commands\n");
-    printf("                 to get their values from ini file.\n");
+    printf("  -i filename    Open INI file 'filename', allow commands\n");
+    printf("                 to get their values from INI file.\n");
 #endif
     printf("  -k             Keep going after failed command.  Default\n");
     printf("                 is to exit if any command fails. (Useful with -f)\n");

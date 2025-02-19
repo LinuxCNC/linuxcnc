@@ -132,8 +132,8 @@ class Private_Data:
 
         (   self.STEPA,self.STEPB,self.STEPC,self.STEPD,self.STEPE,self.STEPF
         ) = self.pintype_stepper = [
-            _("Step Gen-A"),_("Dir Gen-B"),_("Step/Dir Gen-C"), _("Step/Dir Gen-D"),
-            _("Step/Dir Gen-E"),_("Step/dir Gen-F") ]
+            _("Step Gen-A"),_("Dir Gen-B"),_("StepGen Phase-C"), _("StepGen Phase-D"),
+            _("StepGen Phase-E"),_("StepGen Phase-F") ]
 
         (   self.PWMP,self.PWMD,self.PWME ) = self.pintype_pwm = [ _("PWM Gen-P"),_("PWM Gen-D"),_("PWM Gen-E") ]
         (   self.PDMP,self.PDMD,self.PDME ) = self.pintype_pdm = [ _("PDM Gen-P"),_("PDM Gen-D"),_("PDM Gen-E") ]
@@ -182,7 +182,8 @@ class Private_Data:
             S.Z_HALL1_OUT,S.Z_HALL2_OUT,S.Z_HALL3_OUT,S.Z_C1_OUT,S.Z_C2_OUT,S.Z_C4_OUT,S.Z_C8_OUT,
             S.A_HALL1_OUT,S.A_HALL2_OUT,S.A_HALL3_OUT,S.A_C1_OUT,S.A_C2_OUT,S.A_C4_OUT,S.A_C8_OUT,
             S.S_HALL1_OUT,S.S_HALL2_OUT,S.S_HALL3_OUT,S.S_C1_OUT,S.S_C2_OUT,S.S_C4_OUT,S.S_C8_OUT,
-            S.OHMIC_ENABLE,S.SCRIBE_ARM,S.SCRIBE_ON,S.TORCH_ON,S.LASER_ON
+            S.OHMIC_ENABLE,S.SCRIBE_ARM,S.SCRIBE_ON,S.TORCH_ON,S.LASER_ON,
+            S.EXT_OUT_0, S.EXT_OUT_1, S.EXT_OUT_2
         ) = self.hal_output_names = [
             "unused-output",
             "spindle-enable", "spindle-cw", "spindle-ccw", "spindle-brake",
@@ -194,7 +195,8 @@ class Private_Data:
             "z-hall1-out","z-hall2-out","z-hall3-out","z-gray-c1-out","z-gray-c2-out","z-gray-C4-out","z-gray-C8-out",
             "a-hall1-out","a-hall2-out","a-hall3-out","a-gray-c1-out","a-gray-c2-out","a-gray-C4-out","a-gray-C8-out",
             "s-hall1-out","s-hall2-out","s-hall3-out","s-gray-c1-out","s-gray-c2-out","s-gray-C4-out","s-gray-C8-out",
-            "plasmac:ohmic-enable", "plasmac:scribe-arm", "plasmac:scribe-on", "plasmac:torch-on", "plasmac:laser-on"]
+            "plasmac:ohmic-enable", "plasmac:scribe-arm", "plasmac:scribe-on", "plasmac:torch-on", "plasmac:laser-on",
+            "plasmac:ext_out_0", "plasmac:ext_out_1", "plasmac:ext_out_2"]
 
         ###
         (   S.UNUSED_INPUT,
@@ -226,7 +228,19 @@ class Private_Data:
             S.MIN_HOME_X2,S.MIN_HOME_Y2,S.MIN_HOME_Z2,S.MIN_HOME_A2,
             S.MAX_HOME_X2,S.MAX_HOME_Y2,S.MAX_HOME_Z2,S.MAX_HOME_A2,
             S.BOTH_HOME_X2,S.BOTH_HOME_Y2,S.BOTH_HOME_Z2,S.BOTH_HOME_A2,
-            S.ARC_OK,S.OHMIC_SENSE,S.FLOAT_SWITCH,S.BREAKAWAY,S.MOVE_UP,S.MOVE_DOWN
+            S.ARC_OK,S.OHMIC_SENSE,S.FLOAT_SWITCH,S.BREAKAWAY,S.MOVE_UP,S.MOVE_DOWN,
+            S.EXT_POWER, S.EXT_RUN, S.EXT_PAUSE, S.EXT_PAUSE_ONLY, S.EXT_RESUME,
+            S.EXT_RUN_PAUSE, S.EXT_ABORT, S.EXT_TOUCHOFF, S.EXT_LASER_TOUCHOFF,
+            S.EXT_LASER_TOGGLE, S.EXT_HEIGHT_OVR_PLUS, S.EXT_HEIGHT_OVR_MINUS,
+            S.EXT_HEIGHT_OVR_RESET, S.EXT_HEIGHT_OVR_SCALE, S.EXT_JOG_SLOW,
+            S.EXT_THC_ENABLE, S.EXT_TORCH_ENABLE, S.EXT_CORNERLOCK_ENABLE,
+            S.EXT_VOIDLOCK_ENABLE, S.EXT_AUTO_VOLTS_ENABLE, S.EXT_OHMIC_PROBE_ENABLE,
+            S.EXT_MESH_MODE, S.EXT_IGNORE_ARC_OK, S.EXT_CUTREC_FWD,
+            S.EXT_CUTREC_REV, S.EXT_CUTREC_CANCEL, S.EXT_CUTREC_N, S.EXT_CUTREC_S,
+            S.EXT_CUTREC_E, S.EXT_CUTREC_W, S.EXT_CUTREC_NE, S.EXT_CUTREC_NW,
+            S.EXT_CUTREC_SE, S.EXT_CUTREC_SW, S.EXT_HEIGHT_OVR_COUNT_ENABLE,
+            S.EXT_HEIGHT_OVR_COUNTS, S.EXT_PROBE, S.EXT_PULSE, S.EXT_OHMIC,
+            S.EXT_CONSUMABLES, S.EXT_FRAME_JOB,
         ) = self.hal_input_names = [
             "unused-input",
             "min-x", "min-y", "min-z", "min-a",
@@ -258,8 +272,20 @@ class Private_Data:
             "min-home-x2", "min-home-y2", "min-home-z2", "min-home-a2",
             "max-home-x2", "max-home-y2", "max-home-z2", "max-home-a2",
             "both-home-x2", "both-home-y2", "both-home-z2", "both-home-a2",
-            "plasmac:arc-ok-in", "plasmac:ohmic-sense-in", "plasmac:float-switch",
-            "plasmac:breakaway", "plasmac:move-up", "plasmac:move-down"]
+            "plasmac:arc-ok-in", "plasmac:ohmic-sense-in", "plasmac:float-switch", "plasmac:breakaway",
+            "plasmac:move-up", "plasmac:move-down",
+            "plasmac:ext_power", "plasmac:ext_run", "plasmac:ext_pause", "plasmac:ext_pause_only",
+            "plasmac:ext_resume", "plasmac:ext_run_pause", "plasmac:ext_abort", "plasmac:ext_touchoff",
+            "plasmac:ext_laser_touchoff", "plasmac:ext_laser_toggle", "plasmac:ext_height_ovr_plus",
+            "plasmac:ext_height_ovr_minus", "plasmac:ext_height_ovr_reset", "plasmac:ext_height_ovr_scale",
+            "plasmac:ext_jog_slow", "plasmac:ext_thc_enable", "plasmac:ext_torch_enable",
+            "plasmac:ext_cornerlock_enable", "plasmac:ext_voidlock_enable", "plasmac:ext_auto_volts_enable",
+            "plasmac:ext_ohmic_probe_enable", "plasmac:ext_mesh_mode", "plasmac:ext_ignore_arc_ok",
+            "plasmac:ext_cutrec_fwd", "plasmac:ext_cutrec_rev", "plasmac:ext_cutrec_cancel",
+            "plasmac:ext_cutrec_n", "plasmac:ext_cutrec_s", "plasmac:ext_cutrec_e", "plasmac:ext_cutrec_w",
+            "plasmac:ext_cutrec_ne", "plasmac:ext_cutrec_nw", "plasmac:ext_cutrec_se", "plasmac:ext_cutrec_sw",
+            "plasmac:ext_height_ovr_count_enable", "plasmac:ext_height_ovr_counts", "plasmac:ext_probe",
+            "plasmac:ext_pulse", "plasmac:ext_ohmic", "plasmac:ext_consumables", "plasmac:ext_frame_job"]
 
         (   S.UNUSED_PWM,
             S.X_PWM_PULSE,S.X_PWM_DIR,S.X_PWM_ENABLE,  S.Y_PWM_PULSE,S.Y_PWM_DIR,S.Y_PWM_ENABLE,
@@ -462,8 +488,25 @@ class Private_Data:
         blimits = [[_("Main Axis"),limit],[_("Tandem Axis"),limit2]]
         bhome = [[_("Main Axis"),home],[_("Tandem Axis"),home2]]
         bshared = [[_("Main Axis"),home_limits_shared],[_("Tandem Axis"),home_limits_shared2]]
+        plasma_in_ext_gui = [ [_("Power"),S.EXT_POWER], [_("Cycle Start"),S.EXT_RUN], [_("Pause/Resume"),S.EXT_PAUSE], [_("Pause Only"),S.EXT_PAUSE_ONLY],
+            [_("Resume Only"),S.EXT_PAUSE], [_("Run/Pause/Resume"),S.EXT_RUN_PAUSE], [_("Cycle Stop"),S.EXT_ABORT], [_("Touchoff"),S.EXT_TOUCHOFF],
+            [_("Laser Touchoff"),S.EXT_LASER_TOUCHOFF], [_("Laser Toggle"),S.EXT_LASER_TOGGLE], [_("Jog Slow"),S.EXT_JOG_SLOW],
+            [_("THC Enable"),S.EXT_THC_ENABLE], [_("Torch Enable"),S.EXT_TORCH_ENABLE], [_("VAD Enable"),S.EXT_CORNERLOCK_ENABLE],
+            [_("Voidlock Enable"),S.EXT_VOIDLOCK_ENABLE], [_("Auto Volts Enable"),S.EXT_AUTO_VOLTS_ENABLE], [_("Ohmic Probe Enable"),S.EXT_OHMIC_PROBE_ENABLE],
+            [_("Mesh Mode"),S.EXT_MESH_MODE], [_("Ignore Arc OK"),S.EXT_IGNORE_ARC_OK] ]
+        plasma_in_ext_button = [ [_("Probe Test"),S.EXT_PROBE], [_("Pulse Torch"),S.EXT_PULSE], [_("Ohmic Test"),S.EXT_OHMIC],
+            [_("Change Consumables"),S.EXT_CONSUMABLES], [_("Frame Job"),S.EXT_FRAME_JOB] ]
+        plasma_in_ext_height = [ [_("Plus"),S.EXT_HEIGHT_OVR_PLUS], [_("Minus"),S.EXT_HEIGHT_OVR_MINUS], [_("Reset"),S.EXT_HEIGHT_OVR_RESET],
+            [_("Scale"),S.EXT_HEIGHT_OVR_SCALE], [_("MPG Enable"),S.EXT_HEIGHT_OVR_COUNT_ENABLE], [_("MPG Counts"),S.EXT_HEIGHT_OVR_COUNTS] ]
+        plasma_in_ext_recovery = [ [_("Forward"),S.EXT_CUTREC_FWD], [_("Reverse"),S.EXT_CUTREC_REV], [_("Cancel"),S.EXT_CUTREC_CANCEL],
+            [_("North"),S.EXT_CUTREC_N], [_("South"),S.EXT_CUTREC_S], [_("East"),S.EXT_CUTREC_E], [_("West"),S.EXT_CUTREC_W],
+            [_("NorthEast"),S.EXT_CUTREC_NE], [_("NorthWest"),S.EXT_CUTREC_NW],[_("SouthEast"),S.EXT_CUTREC_SE], [_("SouthWest"),S.EXT_CUTREC_SW] ]
         plasma_in = [[_("Arc OK"),S.ARC_OK ], [_("Ohmic Contact"),S.OHMIC_SENSE ], [_("Float Switch"),S.FLOAT_SWITCH ],
-                     [_("Breakaway"),S.BREAKAWAY ], [_("Move Up"),S.MOVE_UP ], [_("Move Down"),S.MOVE_DOWN ] ]
+                     [_("Breakaway"),S.BREAKAWAY ], [_("Move Up"),S.MOVE_UP ], [_("Move Down"),S.MOVE_DOWN ],
+                     [_("External GUI Functions"), plasma_in_ext_gui],
+                     [_("External User Buttons"), plasma_in_ext_button],
+                     [_("External Height Override"), plasma_in_ext_height],
+                     [_("External Cut Recovery"), plasma_in_ext_recovery]]
 
         self.human_input_names = [ [_("Unused Input"),S.UNUSED_INPUT],[_("Limits"),blimits],
             [_("home"),bhome],[_("Limits/Home Shared"),bshared],
@@ -527,7 +570,8 @@ class Private_Data:
                 _("A Gray C1"),_("A Gray C2"),_("A Gray C4"),_("A Gray C8")]
         smotor_control = [_("S HALL 1"),_("S HALL 2"),_("S HALL 3"),
                 _("S Gray C1"),_("S Gray C2"),_("S Gray C4"),_("S Gray C8")]
-        plasma_out = [_("Ohmic Enable"), _("Scribe Arm"), _("Scribe On"), _("Torch On"), _("Laser On")]
+        plasma_out = [_("Ohmic Enable"), _("Scribe Arm"), _("Scribe On"), _("Torch On"), _("Laser On"),
+                      _("External Output 0"), _("External Output 1"), _("External Output 2")]
 
         self.human_output_names = [ [_("Unused Output"),[]],[_("Spindle"),spindle_output],
             [_("Coolant"),coolant_output],[_("Control"),control_output],
@@ -691,6 +735,168 @@ class Private_Data:
       [S.STEPA,0],[S.STEPB,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.STEPA,1],[S.STEPB,1],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],
       [S.STEPA,2],[S.STEPB,2],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.STEPA,3],[S.STEPB,3],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0]
      ],
+
+    # 7c81 ####################
+    ['7c81-Internal Data', '7c81', '5ABOBX1', '7c81', 'hm2_rpspi',
+         1,3, 0,0, 3,1, 0,0, 10,2, 1,2, [],0,0,0,0,0,0,0, 1, 57, 100, 200, [1,2,7,5,6],
+        # TAB 1
+        [S.PWMP,0],[S.GPIOI,0],[S.STEPA,0],[S.GPIOI,0],[S.STEPB,0],[S.GPIOI,0],[S.STEPA,1],[S.GPIOI,0],[S.STEPB,1],[S.STEPA,2],
+        [S.STEPB,2],[S.STEPA,3],[S.STEPB,3],[S.GPIOI,0],[S.ENCA,0],[S.ENCB,0],[S.ENCI,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        # TAB 2
+        [S.PWMP,1],[S.GPIOI,0],[S.STEPA,4],[S.GPIOI,0],[S.STEPB,4],[S.GPIOI,0],[S.STEPA,5],[S.GPIOI,0],[S.STEPB,5],[S.STEPA,6],
+        [S.STEPB,6],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        # TAB 7
+        [S.PWMP,2],[S.GPIOI,0],[S.STEPA,7],[S.GPIOI,0],[S.STEPB,7],[S.GPIOI,0],[S.STEPA,8],[S.GPIOI,0],[S.STEPB,8],[S.STEPA,9],
+        [S.STEPB,9],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+	# TAB 5
+	[S.TXDATA0,0],[S.TXEN0,0],[S.RXDATA0,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0], [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0], [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+	# TAB 6
+	[S.TXDATA1,0],[S.TXEN1,0],[S.RXDATA1,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0], [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0], [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
+
+    ['7c81-Internal Data', '7c81', '5ABOBX2', '7c81', 'hm2_rpspi',
+         2,3, 0,0, 2,1, 0,0, 8,2, 1,2, [],0,0,0,0,0,0,0, 1, 57, 100, 200, [1,2,7],
+        # TAB 1
+        [S.PWMP,0],[S.GPIOI,0],[S.STEPA,0],[S.GPIOI,0],[S.STEPB,0],[S.GPIOI,0],[S.STEPA,1],[S.GPIOI,0],[S.STEPB,1],[S.STEPA,2],
+        [S.STEPB,2],[S.STEPA,3],[S.STEPB,3],[S.GPIOI,0],[S.ENCA,0],[S.ENCB,0],[S.ENCI,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        # TAB 2
+        [S.PWMP,1],[S.GPIOI,0],[S.STEPA,4],[S.GPIOI,0],[S.STEPB,4],[S.GPIOI,0],[S.STEPA,5],[S.GPIOI,0],[S.STEPB,5],[S.STEPA,6],
+        [S.STEPB,6],[S.STEPA,7],[S.STEPB,7],[S.GPIOI,0],[S.ENCA,1],[S.ENCB,1],[S.ENCI,1],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        # TAB 7
+        [S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],
+        [S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+	# TAB 5
+	[S.TXDATA0,0],[S.TXEN0,0],[S.RXDATA0,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0], [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0], [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+	# TAB 6
+	[S.TXDATA1,0],[S.TXEN1,0],[S.RXDATA1,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0], [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0], [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
+
+    ['7c81-Internal Data', '7c81', '5ABOBX3', '7c81', 'hm2_rpspi',
+         3,3, 0,0, 3,1, 0,0, 12,2, 0,0,[],0,0,0,0,0,0,0, 1, 57, 100, 200,[1,2,7],
+        # TAB 1
+        [S.PWMP,0],[S.GPIOI,0],[S.STEPA,0],[S.GPIOI,0],[S.STEPB,0],[S.GPIOI,0],[S.STEPA,1],[S.GPIOI,0],[S.STEPB,1],[S.STEPA,2],
+        [S.STEPB,2],[S.STEPA,3],[S.STEPB,3],[S.GPIOI,0],[S.ENCA,0],[S.ENCB,0],[S.ENCI,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        # TAB 2
+        [S.PWMP,1],[S.GPIOI,0],[S.STEPA,4],[S.GPIOI,0],[S.STEPB,4],[S.GPIOI,0],[S.STEPA,5],[S.GPIOI,0],[S.STEPB,5],[S.STEPA,6],
+        [S.STEPB,6],[S.STEPA,7],[S.STEPB,7],[S.GPIOI,0],[S.ENCA,1],[S.ENCB,1],[S.ENCI,1],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        # TAB 7
+        [S.PWMP,2],[S.GPIOI,0],[S.STEPA,8],[S.GPIOI,0],[S.STEPB,8],[S.GPIOI,0],[S.STEPA,9],[S.GPIOI,0],[S.STEPB,9],[S.STEPA,10],
+        [S.STEPB,10],[S.STEPA,11],[S.STEPB,11],[S.GPIOI,0],[S.ENCA,2],[S.ENCB,2],[S.ENCI,2],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+	# TAB 5
+	[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0], [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0], [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+	# TAB 6
+	[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0], [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0], [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
+
+    ['7c81-Internal Data', '7c81', '7I76X2', '7c81', 'hm2_rpspi',
+         2,3, 0,0, 0,0, 0,0, 10,2, 1,4,[],0,0,0,0,0,0,0, 1, 57, 100, 200,[1,2,7],
+        # TAB 1
+        [S.STEPB,0],[S.STEPA,0],[S.STEPB,1],[S.STEPA,1],[S.STEPB,2],[S.STEPA,2],[S.STEPB,3],[S.STEPA,3],[S.STEPB,4],[S.STEPA,4],
+        [S.TXDATA0,0],[S.RXDATA0,0],[S.TXDATA1,0],[S.RXDATA1,0],[S.ENCI,0],[S.ENCB,0],[S.ENCA,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        # TAB 2
+        [S.STEPB,5],[S.STEPA,5],[S.STEPB,6],[S.STEPA,6],[S.STEPB,7],[S.STEPA,7],[S.STEPB,8],[S.STEPA,8],[S.STEPB,9],[S.STEPA,9],
+        [S.TXDATA2,0],[S.RXDATA2,0],[S.TXDATA3,0],[S.RXDATA3,0],[S.ENCI,1],[S.ENCB,1],[S.ENCA,1],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        # TAB 7
+        [S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],
+        [S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+	# TAB 5
+	[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0], [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0], [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+	# TAB 6
+	[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0], [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0], [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
+
+    ['7c81-Internal Data', '7c81', 'C11GX2', '7c81', 'hm2_rpspi',
+         2,3, 0,0, 2,1, 0,0, 10,2, 1,2,[],0,0,0,0,0,0,0, 1, 57, 100, 200,[1,2,7],
+        # TAB 1
+        [S.GPIOI,0],[S.PWMP,0],[S.STEPA,0],[S.GPIOI,0],[S.STEPB,0],[S.GPIOI,0],[S.STEPA,1],[S.STEPA,4],[S.STEPB,1],[S.STEPA,2],
+        [S.STEPB,2],[S.STEPA,3],[S.STEPB,3],[S.ENCA,0],[S.ENCB,0],[S.ENCI,0],[S.GPIOI,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        # TAB 2
+        [S.GPIOI,0],[S.PWMP,1],[S.STEPA,5],[S.GPIOI,0],[S.STEPB,5],[S.GPIOI,0],[S.STEPA,6],[S.STEPA,9],[S.STEPB,6],[S.STEPA,7],
+        [S.STEPB,7],[S.STEPA,8],[S.STEPB,8],[S.ENCA,1],[S.ENCB,1],[S.ENCI,1],[S.GPIOI,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        # TAB 7
+        [S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],
+        [S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+	# TAB 5
+	[S.TXDATA0,0],[S.TXEN0,0],[S.RXDATA0,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0], [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0], [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+	# TAB 6
+	[S.TXDATA1,0],[S.TXEN1,0],[S.RXDATA1,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0], [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0], [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
+
+    ['7c81-Internal Data', '7c81', 'G540X2', '7c81', 'hm2_rpspi',
+         2,3, 0,0, 2,1, 0,0, 10,2, 1,2,[],0,0,0,0,0,0,0, 1, 57, 100, 200,[1,2,7],
+        # TAB 1
+        [S.GPIOI,0],[S.PWMP,0],[S.STEPA,0],[S.GPIOI,0],[S.STEPB,0],[S.STEPA,4],[S.STEPA,1],[S.GPIOI,0],[S.STEPB,1],[S.STEPA,2],
+        [S.STEPB,2],[S.STEPA,3],[S.STEPB,3],[S.ENCA,0],[S.ENCB,0],[S.ENCI,0],[S.GPIOI,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        # TAB 2
+        [S.GPIOI,0],[S.PWMP,1],[S.STEPA,5],[S.GPIOI,0],[S.STEPB,5],[S.STEPA,9],[S.STEPA,6],[S.GPIOI,0],[S.STEPB,6],[S.STEPA,7],
+        [S.STEPB,7],[S.STEPA,8],[S.STEPB,8],[S.ENCA,1],[S.ENCB,1],[S.ENCI,1],[S.GPIOI,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        # TAB 7
+        [S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],
+        [S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+	# TAB 5
+	[S.TXDATA0,0],[S.TXEN0,0],[S.RXDATA0,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0], [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0], [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+	# TAB 6
+	[S.TXDATA1,0],[S.TXEN1,0],[S.RXDATA1,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0], [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0], [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
+
+    ['7c81-Internal Data', '7c81', 'MX3660X2', '7c81', 'hm2_rpspi',
+         2,3, 0,0, 2,1, 0,0, 8,2, 1,2,[],0,0,0,0,0,0,0, 1, 57, 100, 200,[1,2,7],
+        # TAB 1
+        [S.GPIOI,0],[S.PWMP,0],[S.STEPA,0],[S.GPIOI,0],[S.STEPB,0],[S.STEPA,3],[S.STEPA,1],[S.GPIOI,0],[S.STEPB,1],[S.STEPA,2],
+        [S.STEPB,2],[S.GPIOI,0],[S.GPIOI,0],[S.ENCA,0],[S.ENCB,0],[S.ENCI,0],[S.GPIOI,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        # TAB 2
+        [S.GPIOI,0],[S.PWMP,1],[S.STEPA,4],[S.GPIOI,0],[S.STEPB,4],[S.STEPA,7],[S.STEPA,5],[S.GPIOI,0],[S.STEPB,5],[S.STEPA,6],
+        [S.STEPB,6],[S.GPIOI,0],[S.GPIOI,0],[S.ENCA,1],[S.ENCB,1],[S.ENCI,1],[S.GPIOI,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        # TAB 7
+        [S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],
+        [S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+	# TAB 5
+	[S.TXDATA0,0],[S.TXEN0,0],[S.RXDATA0,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0], [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0], [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+	# TAB 6
+	[S.TXDATA1,0],[S.TXEN1,0],[S.RXDATA1,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0], [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0], [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
 
     # 7i76e ####################
     ['7i76e-Internal Data', '7i76e', '7i76e', '7i76', 'hm2_eth',
@@ -907,6 +1113,29 @@ class Private_Data:
         [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
         [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
 
+    ['7i96-Internal Data', '7i96', '7i96d_1pwm', '7i96', 'hm2_eth',
+        1,3, 0,0, 1,2, 0,0, 4,2, 1,1, [],0,0,0,0,0,0,0, 1, 34, 33, 200, [1, 2, 3],
+        # TAB 1
+        [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
+        [S.GPIOI, 0],[S.SSR0, 100],[S.SSR0, 101],[S.SSR0, 102],[S.SSR0, 103],[S.SSR0, 104],[S.SSR0, 105],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        # TAB 2
+        [S.STEPB,0],[S.STEPA,0],[S.STEPB,1],[S.STEPA,1],[S.STEPB,2],[S.STEPA,2],[S.STEPB,3],[S.STEPA,3],[S.PWMP,0],[S.PWMD,0],
+        [S.ENCA,0],[S.ENCB,0],[S.ENCI,0],[S.RXDATA0,0],[S.TXDATA0,0],[S.TXEN0,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        # TAB 3
+        [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
+        [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
+
+        ['7i96-Internal Data', '7i96', '7i96_7i74d', '7i96', 'hm2_eth', 1,3, 0,0, 0,3, 0,0, 5,2, 1,8, [],0,0,0,0,0,0,0, 1, 34, 33, 200, [1, 2, 3],
+         # TAB 1
+        [S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0],[S.GPIOI, 0], [S.GPIOI, 0],[S.SSR0, 100],[S.SSR0, 101],[S.SSR0, 102],[S.SSR0, 103],[S.SSR0, 104],[S.SSR0, 105], [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+         # TAB 2
+        [S.STEPB,0],[S.STEPA,0],[S.STEPB,1],[S.STEPA,1],[S.STEPB,2],[S.STEPA,2],[S.STEPB,3],[S.STEPA,3],[S.STEPB,4],[S.STEPA,4], [S.ENCA,0],[S.ENCB,0],[S.ENCI,0],[S.RXDATA0,0],[S.TXDATA0,0],[S.TXEN0,0],[S.NUSED,0], [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+         # TAB 3 
+        [S.RXDATA1, 0],[S.RXDATA2, 0],[S.RXDATA3, 0],[S.RXDATA4, 0],[S.TXDATA1, 0],[S.TXDATA2, 0],[S.TXDATA3, 0],[S.TXDATA4, 0],[S.RXDATA5, 0],[S.RXDATA6, 0], [S.RXDATA7, 0],[S.NUSED, 0],[S.TXDATA5, 0],[S.TXDATA6, 0],[S.TXDATA7, 0],[S.NUSED, 0],[S.NUSED, 0], [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
+
     # 7i96s ####################
     ['7i96s-Internal Data', '7i96s', '7i96s_d', '7i96s', 'hm2_eth',
         1,3, 0,0, 1,3, 0,0, 5,2, 1,1, [],0,0,0,0,0,0,0, 1, 34, 33, 200, [1, 2, 3],
@@ -961,12 +1190,26 @@ class Private_Data:
         [S.STEPB,9],[S.STEPA,10],[S.STEPB,10],[S.STEPA,11],[S.STEPB,1],[S.GPIOI, 0],[S.ENCA,2],[S.ENCB,2],
         [S.ENCI,2],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],],
 
+    ['7i96s-Internal Data', '7i96s', '7i96s_7i74', '7i96s', 'hm2_eth',
+         1, 3, 0, 10, 1, 3, 0, 0, 5, 2, 2, 8, [], 0, 0, 0, 0, 0, 0, 0, 1, 51, 100.0, 200.0, [1, 2, 3],
+    [S.INM0, 100], [S.INM0, 101], [S.INM0, 102], [S.INM0, 103],[S.INM0, 104], [S.INM0, 105], [S.INM0, 106], [S.INM0, 107],
+    [S.INM0, 108], [S.INM0, 109], [S.INM0, 110], [S.SSR0, 100],[S.SSR0, 101], [S.SSR0, 102], [S.SSR0, 103], [S.OUTM0, 104],
+    [S.OUTM0, 105], (S.NUSED, 0), (S.NUSED, 0), (S.NUSED, 0),(S.NUSED, 0), (S.NUSED, 0), (S.NUSED, 0), (S.NUSED, 0),
+ [S.STEPA, 0], [S.STEPB, 0], [S.STEPA, 1], [S.STEPB, 1], [S.STEPA, 2], [S.STEPB, 2], [S.STEPA, 3], [S.STEPB, 3], [S.STEPA, 4],
+ [S.STEPB, 4], [S.ENCA, 0], [S.ENCB, 0], [S.ENCI, 0], [S.RXDATA0, 0], [S.TXDATA0, 0], [S.TXEN0, 0], [S.PWMP, 0],
+ (S.NUSED, 0), (S.NUSED, 0), (S.NUSED, 0), (S.NUSED, 0), (S.NUSED, 0), (S.NUSED, 0), (S.NUSED, 0), [S.RXDATA0, 1],
+
+ [S.RXDATA1, 1], [S.RXDATA3, 1], [S.RXDATA3, 1], [S.TXDATA0, 1], [S.TXDATA1, 1], [S.TXDATA2, 1], [S.TXDATA3, 1],
+ [S.RXDATA4, 1], [S.RXDATA5, 1], [S.RXDATA6, 1], [S.RXDATA7, 1], [S.TXDATA4, 1], [S.TXDATA5, 1],
+ [S.TXDATA6, 1], [S.TXDATA7, 1], [S.TXEN7, 1],
+ (S.NUSED, 0), (S.NUSED, 0), (S.NUSED, 0), (S.NUSED, 0), (S.NUSED, 0), (S.NUSED, 0), (S.NUSED, 0)]
+
     ]
 
         #**************************
         # mesa daughter board data
         #**************************
-        self._NUM_CHANNELS = 6
+        self._NUM_CHANNELS = 8
         self._SUBBOARDNAME = 0; self._SUBFIRMNAME = 1; self._SUBMODE = 2;self._SUBCONLIST = 3;self._SUBSTARTOFDATA = 12 # 4-10 spare for now.
 
         self.MESA_DAUGHTERDATA = [ ["8i20", "8i20", 0,[_("Axis Selection"),"Not Used","Not Used"], 0,0,0,0,0,0,0,0,
@@ -1137,6 +1380,8 @@ class Private_Data:
                             ["jvlsmd41", _("JVL-SMD41 or 42"), 500, 500, 2500, 2500],
                             ["hobbycnc", _("Hobbycnc Pro Chopper"), 2000, 2000, 2000, 2000],
                             ["keling", _("Keling 4030"), 5000, 5000, 20000, 20000],
+                            ["dm860tv10", _("DM860T v1.0"), 5000, 5000, 5000, 5000],
+                            ["dm860tv30", _("DM860T v3.0"), 5000, 5000, 5000, 5000],
                             ]
 
         self.MESA_BOARDNAMES = []
@@ -1148,6 +1393,7 @@ class Private_Data:
         '5i23':{'DRIVER':'hm2_pci','PINS_PER_CONNECTOR':24,'TOTAL_CONNECTORS':3},
         '5i24':{'DRIVER':'hm2_pci','PINS_PER_CONNECTOR':24,'TOTAL_CONNECTORS':3},
         '5i25':{'DRIVER':'hm2_pci','PINS_PER_CONNECTOR':17,'TOTAL_CONNECTORS':2,'TAB_NUMS':[2,3],'TAB_NAMES':['P2','P3']},
+        '7c81':{'DRIVER':'hm2_rpspi','PINS_PER_CONNECTOR':19,'TOTAL_CONNECTORS':3,'TAB_NUMS':[1,2,7,5,6],'TAB_NAMES':['P1','P2','P7','P5','P6']},
         '7i43':{'DRIVER':'hm2_7i43','PINS_PER_CONNECTOR':24,'TOTAL_CONNECTORS':2},
         '7i68':{'DRIVER':'hm2_pci','PINS_PER_CONNECTOR':24,'TOTAL_CONNECTORS':6},
         '7i76e':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':17,'TOTAL_CONNECTORS':3,'TAB_NUMS':[1,2,3],'TAB_NAMES':['TB2/TB3','P1','P2']},

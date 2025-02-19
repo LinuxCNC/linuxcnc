@@ -2,7 +2,7 @@
 Name=material
 Comment=Material icon theme for gmoccapy
 Inherits=hicolor
-Directories=16x16/actions,24x24/actions,32x32/actions,48x48/actions
+Directories=16x16/actions,24x24/actions,24x24/status,32x32/actions,48x48/actions
 
 [16x16/actions]
 Size=16
@@ -13,6 +13,11 @@ Context=Actions
 Size=24
 Type=Fixed
 Context=Actions
+
+[24x24/status]
+Size=24
+Type=Fixed
+Context=Status
 
 [32x32/actions]
 Size=32

@@ -37,7 +37,7 @@
 #include "rtapi.h"
 
 
-// If a modbus transaction fails, retry this many times before giving up.
+// If a Modbus transaction fails, retry this many times before giving up.
 #define NUM_MODBUS_RETRIES 5
 
 
@@ -109,12 +109,14 @@ static char *stopstrings[] = {"1", "2", NULL};
 
 
 static void quit(int sig) {
+    (void)sig;
     done = 1;
 }
 
 
 int match_string(char *string, char **matches) {
-    int len, which, match;
+    size_t len;
+    int which, match;
     which=0;
     match=-1;
     if ((matches==NULL) || (string==NULL)) return -1;
@@ -131,6 +133,7 @@ int match_string(char *string, char **matches) {
 
 
 void usage(int argc, char **argv) {
+    (void)argc;
     printf("Usage:  %s [ARGUMENTS]\n", argv[0]);
     printf(
         "\n"
@@ -460,7 +463,7 @@ int main(int argc, char **argv) {
 
     mb = modbus_new_rtu(device, baud, parity, bits, stopbits);
     if (mb == NULL) {
-        printf("%s: ERROR: couldn't open modbus serial device: %s\n", modname, modbus_strerror(errno));
+        printf("%s: ERROR: couldn't open Modbus serial device: %s\n", modname, modbus_strerror(errno));
         goto out_noclose;
     }
 

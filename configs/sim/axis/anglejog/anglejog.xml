@@ -1,0 +1,203 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pyvcp>
+
+  <vbox>
+    <relief>"sunken"</relief>
+    <bd>3</bd>
+    <label>
+      <text>"ANGLE JOG"</text>
+      <anchor>"w"</anchor>
+    </label>
+    <label>
+         <bg>"black"</bg>
+         <fg>"gold"</fg>
+      <font>"bold"</font>
+      <text>"NOTE:\nDisable required to change\nScale or Angle"</text>
+    </label>
+    <hbox>
+       <checkbutton>
+         <halpin>"enable"</halpin>
+         <text>""</text>
+         <initval>0</initval>
+       </checkbutton>
+         <label>
+           <anchor>"w"</anchor>
+           <text>"Enable/Disable"</text>
+         </label>
+      </hbox>
+
+      <hbox>
+       <led>
+         <halpin>"enabled"</halpin>
+           <on_color>"light green"</on_color>
+           <off_color>"#d9d9d9"</off_color>
+       </led>
+       <label>
+         <text>"       Enabled"</text>
+         <anchor>"w"</anchor>
+       </label>
+      </hbox>
+      <hbox>
+       <led>
+         <halpin>"active"</halpin>
+           <on_color>"blue"</on_color>
+           <off_color>"#d9d9d9"</off_color>
+       </led>
+       <label>
+         <text>"       active"</text>
+         <anchor>"w"</anchor>
+       </label>
+      </hbox>
+      <hbox>
+        <spinbox>
+          <halpin>"max-vel"</halpin>
+          <width>10</width>
+          <initval>1.0</initval>
+          <resolution>.1</resolution>
+          <format>"10.1f"</format>
+          <font>"bold"</font>
+          <param_pin>1</param_pin>
+        </spinbox>
+        <label>
+          <anchor>"w"</anchor>
+          <text>"Max vel"</text>
+          <font>"bold"</font>
+        </label>
+      </hbox>
+      <hbox>
+        <spinbox>
+          <halpin>"max-accel"</halpin>
+          <width>10</width>
+          <initval>10.0</initval>
+          <resolution>.1</resolution>
+          <format>"10.1f"</format>
+          <font>"bold"</font>
+          <param_pin>1</param_pin>
+        </spinbox>
+        <label>
+          <anchor>"w"</anchor>
+          <text>"Max accel"</text>
+          <font>"bold"</font>
+        </label>
+      </hbox>
+
+      <hbox>
+        <spinbox>
+          <halpin>"accel-fraction"</halpin>
+          <width>10</width>
+          <initval>1.0</initval>
+          <resolution>.1</resolution>
+          <format>"10.1f"</format>
+          <font>"bold"</font>
+          <param_pin>1</param_pin>
+        </spinbox>
+        <label>
+          <anchor>"w"</anchor>
+          <text>"Accel fraction"</text>
+          <font>"bold"</font>
+        </label>
+      </hbox>
+
+      <hbox>
+        <spinbox>
+          <halpin>"scale-in"</halpin>
+          <width>10</width>
+          <initval>0.001</initval>
+          <resolution>0.001</resolution>
+          <format>"10.4f"</format>
+          <font>"bold"</font>
+          <max_>0.1</max_>
+          <min_>0.0001</min_>
+          <param_pin>1</param_pin>
+        </spinbox>
+        <label>
+          <anchor>"w"</anchor>
+          <text>"Scale"</text>
+          <font>"bold"</font>
+        </label>
+      </hbox>
+      <hbox>
+       <number>
+         <halpin>"current-scale"</halpin>
+         <format>"10.8f"</format>
+         <width>"13"</width>
+         <bg>"black"</bg>
+         <fg>"cyan"</fg>
+       </number>
+       <label>
+         <text>"current-scale"</text>
+         <anchor>"w"</anchor>
+       </label>
+      </hbox>
+      <hbox>
+       <number>
+         <halpin>"current-scale-out"</halpin>
+         <format>"10.8f"</format>
+         <width>"13"</width>
+         <bg>"black"</bg>
+         <fg>"cyan"</fg>
+       </number>
+       <label>
+         <text>"current-scale-out"</text>
+         <anchor>"w"</anchor>
+       </label>
+      </hbox>
+      <hbox>
+        <spinbox>
+          <halpin>"angle-degrees"</halpin>
+          <min_>-90.0</min_>
+          <max_>90.0</max_>
+          <width>10</width>
+          <initval>30</initval>
+          <resolution>5</resolution>
+          <format>"10.1f"</format>
+          <font>"bold"</font>
+          <param_pin>1</param_pin>
+        </spinbox>
+        <label>
+          <anchor>"w"</anchor>
+          <text>"Angle"</text>
+          <font>"bold"</font>
+        </label>
+      </hbox>
+     <hbox>
+       <number>
+         <halpin>"current-angle-degrees"</halpin>
+         <format>"10.3f"</format>
+         <width>"13"</width>
+         <bg>"black"</bg>
+         <fg>"cyan"</fg>
+       </number>
+       <label>
+         <text>"Current angle"</text>
+         <anchor>"w"</anchor>
+       </label>
+     </hbox>
+     <hbox>
+       <scale>
+         <width>"25"</width>
+         <halpin>"mpg"</halpin>
+         <param_pin>1</param_pin>
+         <resolution>1</resolution>
+         <orient>HORIZONTAL</orient>
+         <initval>0</initval>
+         <min_>-500</min_>
+         <max_> 500</max_>
+       </scale>
+       <label>
+         <text>"MPG counts"</text>
+         <anchor>"w"</anchor>
+       </label>
+     </hbox>
+
+     <vbox>
+       <button>
+         <halpin>"mpgreset"</halpin>
+         <text>"MPG Reset"</text>
+         <bd>4</bd>
+         <justify>"center"</justify>
+       </button>
+     </vbox>
+
+</vbox>
+</pyvcp>

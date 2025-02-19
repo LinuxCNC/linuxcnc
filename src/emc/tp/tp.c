@@ -55,6 +55,12 @@
 #include "hal.h"
 #endif // }
 
+// Only gcc/g++ supports the #pragma
+#if __GNUC__ && !defined(__clang__)
+// tpHandleBlendArc() is 2512
+  #pragma GCC diagnostic warning "-Wframe-larger-than=2600"
+#endif
+
 static emcmot_status_t *emcmotStatus;
 static emcmot_config_t *emcmotConfig;
 
@@ -464,8 +470,6 @@ int tpClear(TP_STRUCT * const tp)
     struct state_tag_t tag = {{0}};
     tp->execTag = tag;
     tp->motionType = 0;
-    tp->termCond = TC_TERM_COND_PARABOLIC;
-    tp->tolerance = 0.0;
     tp->done = 1;
     tp->depth = tp->activeDepth = 0;
     tp->aborting = 0;
@@ -515,6 +519,8 @@ int tpInit(TP_STRUCT * const tp)
     tp->spindle.waiting_for_atspeed = MOTION_INVALID_ID;
 
     tp->reverse_run = TC_DIR_FORWARD;
+    tp->termCond = TC_TERM_COND_PARABOLIC;
+    tp->tolerance = 0.0;
 
     ZERO_EMC_POSE(tp->currentPos);
 
@@ -1589,7 +1595,7 @@ int tpAddRigidTap(TP_STRUCT * const tp,
      * */
     tcInit(&tc,
             TC_RIGIDTAP,
-            0,
+            2,
             tp->cycleTime,
             enables,
             1);
@@ -1764,7 +1770,7 @@ STATIC int tpRunOptimization(TP_STRUCT * const tp) {
                 tp_debug_print("Found 2nd non-tangent segment, stopping optimization\n");
                 return TP_ERR_OK;
             } else  {
-                tp_debug_print("Found first non-tangent segment, contining\n");
+                tp_debug_print("Found first non-tangent segment, continuing\n");
                 hit_non_tangent = true;
                 continue;
             }
@@ -2524,7 +2530,7 @@ STATIC void tpUpdateRigidTapState(TP_STRUCT const * const tp,
         case RIGIDTAP_START:
             old_spindlepos = new_spindlepos;
             tc->coords.rigidtap.state = TAPPING;
-            // Deliberate fallthrough
+            /* Fallthrough */
         case TAPPING:
             tc_debug_print("TAPPING\n");
             if (tc->progress >= tc->coords.rigidtap.reversal_target) {

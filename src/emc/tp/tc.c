@@ -41,6 +41,7 @@ double tcGetMaxTargetVel(TC_STRUCT const * const tc,
 
         case TC_SYNC_VELOCITY: //Fallthrough
             max_scale = 1.0;
+            /* Fallthrough */
         case TC_SYNC_POSITION:
             // Assume no spindle override during blend target
         default:
@@ -78,7 +79,7 @@ double tcGetTangentialMaxAccel(TC_STRUCT const * const tc)
     // within overall limits (accounts for centripetal acceleration while
     // moving along the circular path).
     if (tc->motion_type == TC_CIRCULAR || tc->motion_type == TC_SPHERICAL) {
-        //Limit acceleration for cirular arcs to allow for normal acceleration
+        //Limit acceleration for circular arcs to allow for normal acceleration
         a_scale *= tc->acc_ratio_tan;
     }
     return a_scale;

@@ -1,0 +1,518 @@
+= linuxcncrsh(1)
+
+== NAME
+
+linuxcncrsh - text-mode interface for commanding LinuxCNC over the network
+
+== SYNOPSIS
+
+*linuxcncrsh* [OPTIONS] [-- LINUXCNC_OPTIONS]
+
+== DESCRIPTION
+
+The command *linuxcncrsh* is a fully-functional text-based user interface for LinuxCNC.
+Instead of popping up a GUI window like AXIS(1) and Touchy(1) do,
+it processes text-mode commands that it receives via the network.
+A human (or a program) can interface with *linuxcncrsh* using telnet(1), nc(1) or similar programs.
+
+It cannot be stressed enough that all features of LinuxCNC are available
+via the *linuxcncrsh* interface. It can substitute a graphical UI or be
+started in addition to it. If your environment needs to control/monitor
+more than one machine from a single location, this text interface may raise
+your interest. Also, a speech to text interface may be easier to adapt to
+this text-based interface than to a graphical one.
+
+== OPTIONS
+
+*-p*,*--port* _PORT_NUMBER_::
+  Specify the port for linuxcncrsh to listen on. Defaults to 5007 if omitted.
+
+*-n*,*--name* _SERVER_NAME_::
+  Sets the server name that linuxcncrsh will use to identify itself during
+  handshaking with a new client. Defaults to EMCNETSVR if omitted.
+
+*-w*,*--connectpw* PASSWORD::
+  Specify the connection password to use during handshaking with a new client.
+  Note that the password is sent in the clear, so it can be read by anyone
+  who can read packets on the network between the server and the client.
+  Defaults to EMC if omitted.
+
+*-e*,*--enablepw* _PASSWORD_::
+  Specify the password required to enable LinuxCNC via linuxcncrsh.
+  Note that the password is sent in the clear, so it can be read by anyone
+  who can read packets on the network between the server and the client.
+  Defaults to EMCTOO if omitted.
+
+*-s*,*--sessions* _MAX_SESSIONS_::
+  Specify the maximum number of simultaneous connections.
+  Defaults to -1 (no limit) if not specified.
+  +
+  In addition to the options listed above, linuxcncrsh accepts an optional
+  special LINUXCNC_OPTION at the end:
+
+*-ini* _LINUXCNC_INI_FILE_::
+  LinuxCNC INI file to use. The -ini option *must* be preceded by two dashes: "--".
+  Defaults to 'emc.ini' if omitted.
+
+== Starting linuxcncrsh
+
+To use *linuxcncrsh* instead of a normal LinuxCNC GUI like AXIS or Touchy,
+specify it in your INI file like this:
+
+----
+[DISPLAY]
+
+DISPLAY=linuxcncrsh
+----
+
+To use linuxcncrsh in addition to a normal GUI, you can either
+1. start it at the end of your HAL file, or
+2. run it by hand in a terminal window.
+
+To start it from HAL, add a line like this to the end of your HAL file:
+
+----
+loadusr linuxcncrsh [OPTIONS] [-- LINUXCNC_OPTIONS]
+----
+
+To start it from the terminal, run `linuxcncrsh` manually like this:
+
+----
+linuxcncrsh [OPTIONS] [-- LINUXCNC_OPTIONS]
+----
+
+== Connecting
+
+Once LinuxCNC is up and *linuxcncrsh* is running, you can connect to it
+using *telnet* or *nc* or similar:
+
+*telnet* _HOST_ _PORT_::
+  _HOST_ is the hostname or IP address of the computer running linuxcncrsh,
+  and _PORT_ is the port it's listening on
+  (5007 if you did not give linuxcncrsh the --port option).
+
+== Network protocol
+
+linuxcncrsh accepts TCP connections on the port specified by the --port option,
+or 5007 if not specified.
+
+The client sends requests, and the linuxcncrsh server returns replies.
+Requests consist of a command word followed by optional command-specific parameters.
+Requests and most request parameters are case insensitive.
+The exceptions are passwords, file paths and text strings.
+
+Requests to linuxcncrsh are terminated with line endings,
+any combination of one or more '\r' and '\n' characters.
+Replies from linuxcncrsh are terminated with the sequence '\r\n'.
+
+The supported commands are as follows:
+
+*hello* _<password>_ _<client>_ _<version>_::
+  <password> must match linuxcncrsh's connect password, or "EMC" if no --connectpw was supplied.
+  The three arguments may not contain whitespace.
+  If a valid password was entered the server will respond with:
+  +
+  `HELLO ACK <ServerName> <ServerVersion>`
+  +
+  If an invalid password or any other syntax error occurs then the server responds with:
+  +
+  `HELLO NAK`
+
+*get* _<subcommand>_ _[<parameters>]_::
+  The get command takes one of the LinuxCNC sub-commands (described in the
+  section *LinuxCNC Subcommands*, below) and zero or more additional
+  subcommand-specific parameters.
+
+*set* _<subcommand>_ _<parameters>_::
+  The set command takes one of the LinuxCNC sub-commands (described in the
+  section *LinuxCNC Subcommands*, below) and one or more additional parameters.
+
+*quit*::
+  The quit command disconnects the associated socket connection.
+
+*shutdown*::
+  The shutdown command tells LinuxCNC to shutdown and disconnect the session.
+  This command may only be issued if the Hello has been successfully negotiated
+  and the connection has control of the CNC
+  (see *enable* subcommand in the *LinuxCNC Subcommands* section, below).
+
+*help*::
+  The help command will return help information in text format over the connection.
+  If no parameters are specified, it will itemize the available commands.
+  If a command is specified, it will provide usage information for the specified command.
+  Help will respond regardless of whether a "Hello" has been successfully negotiated.
+
+== LinuxCNC Subcommands
+
+Subcommands for *get* and *set* are:
+
+*echo* {on|off}::
+  With get, any on/off parameter is ignored and the current echo state is returned.
+  With set, sets the echo state as specified.
+  Echo defaults to on when the connection is first established.
+  When echo is on, all commands will be echoed upon receipt.
+  This state is local to each connection.
+
+*verbose* {on|off}::
+  With get, any on/off parameter is ignored and the current verbose state is returned.
+  With set, sets the verbose state as specified. When verbose mode is on
+  all set commands return positive acknowledgement in the form
+  +
+  SET <COMMAND> ACK
+  +
+  and text error messages will be issued (FIXME: I don't know what this means).
+  The verbose state is local to each connection, and starts out OFF on new connections.
+
+*enable* { _<passwd>_ | off }::
+  The session's enable state indicates whether the current connection is enabled to perform control functions.
+  With get, any parameter is ignored, and the current enable state is returned.
+  With set and a valid password matching linuxcncrsh's --enablepw (EMCTOO if not specified),
+  the current connection is enabled for control functions. "OFF" may not
+  be used as a password and disables control functions for this connection.
+
+*config* [TBD]::
+  Unused, ignore for now.
+
+*comm_mode* { ascii | binary }::
+  With get, any parameter is ignored and the current communications mode is returned.
+  With set, will set the communications mode to the specified mode.
+  The ASCII mode is the text request/reply mode, the binary protocol is not currently designed or implemented.
+
+*comm_prot* _<version>_::
+  With get, any parameter is ignored and the current protocol version used
+  by the server is returned. With set, sets the server to use the
+  specified protocol version, provided it is lower than or equal to the
+  highest version number supported by the server implementation.
+
+*inifile*::
+  Not currently implemented! With get, returns the string 'emc.ini'.
+  Should return the full path and file name of the current configuration INI file.
+  Setting this does nothing.
+
+*plat*::
+  With get, returns the string 'Linux'.
+
+*ini* _<var>_ _<section>_::
+  Not currently implemented, do not use!
+  Should return the string value of _<var>_ in section _<section>_ of the INI file.
+
+*debug* _<value>_::
+  With get, any parameter is ignored and the current integer value of
+  EMC_DEBUG is returned. Note that the value of EMC_DEBUG returned is the
+  from the UI's INI file, which may be different than emc's INI file. With
+  set, sends a command to the EMC to set the new debug level, and sets the
+  EMC_DEBUG global here to the same value. This will make the two values
+  the same, since they really ought to be the same.
+
+*wait_mode* { received | done }::
+  The wait_mode setting controls the wait after receiving a command.
+  It can be "received" (after the command was sent and received) or "done"
+  (after the command was done).
+  With get, any parameter is ignored and the current wait_mode setting is returned.
+  With set, set the wait_mode setting to the specified value.
+
+*wait* { received | done }::
+  With set, force a wait for the previous command to be received, or done.
+
+*set_timeout* _<timeout>_::
+  With set, set the timeout for commands to return to <timeout> seconds.
+  Timeout is a real number. If it's <= 0.0, it means wait forever.
+  Default is 0.0, wait forever.
+
+*update* { none | auto }::
+  The update mode controls whether to return fresh or stale values for "get" requests.
+  When the update mode is "none" it returns stale values,
+  when it's "auto" it returns fresh values.
+  Defaults to "auto" for new connections.
+  Set this to "none" if you like to be confused.
+
+*error*::
+  With get, returns the current error string, or "ok" if no error.
+
+*operator_display*::
+  With get, returns the current operator display string, or "ok" if none.
+
+*operator_text*::
+  With get, returns the current operator text string, or "ok" if none.
+
+*time*::
+  With get, returns the time, in seconds, from the start of the epoch.
+  This starting time depends on the platform.
+
+*estop* { on | off }::
+  With get, ignores any parameters and returns the current estop setting
+  as "on" or "off". With set, sets the estop as specified. E-stop "on"
+  means the machine is in the estop state and won't run.
+
+*machine* { on | off }::
+  With get, ignores any parameters and returns the current machine power setting as "on" or "off".
+  With set, sets the machine on or off as specified.
+
+*mode* { manual | auto | mdi }::
+  With get, ignores any parameters and returns the current machine mode.
+  With set, sets the machine mode as specified.
+
+*mist* { on | off }::
+  With get, ignores any parameters and returns the current mist coolant setting.
+  With set, sets the mist setting as specified.
+
+*flood* { on | off }::
+  With get, ignores any parameters and returns the current flood coolant setting.
+  With set, sets the flood setting as specified.
+
+*spindle* { forward | reverse | increase | decrease | constant | off } {_<spindle>_}::
+  With get, any parameter is ignored and the current spindle state is returned as
+  "forward", "reverse", "increase", "decrease", or "off".
+  With set, sets the spindle as specified. Note that "increase" and "decrease"
+  will cause a speed change in the corresponding direction until a "constant" command is sent.
+  If "spindle" is omitted, spindle 0 is selected.  If -1, all spindles are selected.
+
+*brake* { on | off } {<spindle>}::
+  With get, any parameter is ignored and the current brake setting is returned.
+  With set, the brake is set as specified.
+  If "spindle" is omitted, spindle 0 is selected.
+  If -1, all spindles are selected.
+
+*tool*::
+  With get, returns the id of the currently loaded tool.
+
+*tool_offset*::
+  With get, returns the currently applied tool length offset.
+
+*load_tool_table* <file>::
+  With set, loads the tool table specified by <file>.
+
+*home* {0|1|2|...} | -1::
+  With set, homes the indicated joint or, if -1, homes all joints.
+
+*jog_stop* __joint_number__|__axis_letter__
+  With set, stop any in-progress jog on the specified joint or axis.
+  If TELEOP_ENABLE is OFF, use __joint_number__.  If TELEOP_ENABLE is ON, use __axis_letter__.
+
+_jog joint_number_ | _axis_letter_ _<speed>_::
+  With set, jog the specified joint or axis at <speed>; sign of speed is direction.
+  If TELEOP_ENABLE is OFF, use joint_number; If TELEOP_ENABLE is ON, use axis_letter.
+
+*jog_incr* __jog_number__ | __axis_letter__ __<speed>__ __<incr>__::
+  With set, jog the indicated joint or axis by increment <incr> at the _<speed>_;
+  sign of speed is direction. If TELEOP_ENABLE is OFF, use __joint_number__.
+  If TELEOP_ENABLE is ON, use __axis_letter__.
+
+*feed_override* _<percent>_::
+  With get, any parameter is ignored and the current feed override is returned (as a percentage of commanded feed).
+  With set, sets the feed override as specified.
+
+*spindle_override* _<percent>_ {__<spindle>__}::
+  With get, any parameter is ignored and the current spindle override is returned (as a percentage of commanded speed).
+  With set, sets the spindle override as specified.
+  If "spindle" is omitted, spindle 0 is selected. If -1, all spindles are selected.
+
+*abs_cmd_pos* [{0|1|...}]::
+  With get, returns the specified axis' commanded position in absolute coordinates.
+  If no axis is specified, returns all axes' commanded absolute position.
+
+*abs_act_pos* [{0|1|...}]::
+  With get, returns the specified axis' actual position in absolute coordinates.
+  If no axis is specified, returns all axes' actual absolute position.
+
+*rel_cmd_pos* [{0|1|...}]::
+  With get, returns the specified axis' commanded position in relative coordinates, including tool length offset.
+  If no axis is specified, returns all axes' commanded relative position.
+
+*rel_act_pos* [{0|1|...}]::
+  With get, returns the specified axis' actual position in relative coordinates, including tool length offset.
+  If no axis is specified, returns all axes' actual relative position.
+
+*joint_pos* [{0|1|...}]::
+  With get, returns the specified joint's actual position in absolute coordinates, excluding tool length offset.
+  If no joint is specified, returns all joints' actual absolute position.
+
+*pos_offset [{X|Y|Z|R|P|W}]*::
+  With get, returns the position offset associated with the world coordinate provided.
+
+*joint_limit [{0|1|...}]*::
+  With get, returns limit status of the specified joint as "ok", "minsoft", "minhard", "maxsoft", or "maxhard".
+  If no joint number is specified, returns the limit status of all joints.
+
+*joint_fault [{0|1|...}]*::
+  With get, returns the fault status of the specified joint as "ok" or "fault".
+  If no joint number is specified, returns the fault status of all joints.
+
+*joint_homed [{0|1|...}]*::
+  With get, returns the homed status of the specified joint as "homed" or "not".
+  If no joint number is specified, returns the homed status of all joints.
+
+*mdi* _<string>_::
+  With set, sends _<string>_ as an MDI command.
+
+*task_plan_init*::
+  With set, initializes the program interpreter.
+
+*open* _<filename>_::
+  With set, opens the named file. The <filename> is opened by linuxcnc,
+  so it should either be an absolute path or a relative path
+  starting in the LinuxCNC working directory (the directory of the active INI file).
+
+*run* [_<StartLine>_]::
+  With set, runs the opened program. If no StartLine is specified, runs from the beginning.
+  If a StartLine is specified, start line, runs from that line.
+  A start line of -1 runs in verify mode.
+
+*pause*::
+  With set, pause program execution.
+
+*resume*::
+  With set, resume program execution.
+
+*abort*::
+  With set, abort program or MDI execution.
+
+*step*::
+  With set, step the program one line.
+
+*program*::
+  With get, returns the name of the currently opened program, or "none".
+
+*program_line*::
+  With get, returns the currently executing line of the program.
+
+*program_status*::
+  With get, returns "idle", "running", or "paused".
+
+*program_codes*::
+  With get, returns the string for the currently active program codes.
+
+*joint_type* [_<joint>_]::
+  With get, returns "linear", "angular", or "custom" for the type of the
+  specified joint (or for all joints if none is specified).
+
+*joint_units* [__<joint>__]::
+  With get, returns "inch", "mm", "cm", or "deg", "rad", "grad", or "custom",
+  for the corresponding native units of the specified joint (or for all joints if none is specified).
+  The type of the axis (linear or angular) is used to resolve which type of units are returned.
+  The units are obtained heuristically, based on the EMC_AXIS_STAT::units numerical value of user units per mm or deg.
+  For linear joints, something close to 0.03937 is deemed "inch", 1.000 is "mm", 0.1 is "cm", otherwise it's "custom".
+  For angular joints, something close to 1.000 is deemed "deg", PI/180 is "rad", 100/90 is "grad", otherwise it's "custom".
+
+*program_units*::
+  Synonym for program_linear_units.
+
+*program_linear_units*::
+  With get, returns "inch", "mm", "cm", or "none", for the corresponding
+  linear units that are active in the program interpreter.
+
+*program_angular_units*::
+  With get, returns "deg", "rad", "grad", or "none" for the corresponding
+  angular units that are active in the program interpreter.
+
+*user_linear_units*::
+  With get, returns "inch", "mm", "cm", or "custom", for the corresponding
+  native user linear units of the LinuxCNC trajectory level. This is
+  obtained heuristically, based on the EMC_TRAJ_STAT::linearUnits
+  numerical value of user units per mm. Something close to 0.03937 is
+  deemed "inch", 1.000 is "mm", 0.1 is "cm", otherwise it's "custom".
+
+*user_angular_units*::
+  Returns "deg", "rad", "grad", or "custom" for the corresponding native
+  user angular units of the LinuxCNC trajectory level.
+  Like with linear units, this is obtained heuristically.
+
+*display_linear_units*::
+  With get, returns "inch", "mm", "cm", or "custom",
+  for the linear units that are active in the display.
+  This is effectively the value of linearUnitConversion.
+
+*display_angular_units*::
+  With get, returns "deg", "rad", "grad", or "custom",
+  for the angular units that are active in the display.
+  This is effectively the value of angularUnitConversion.
+
+*linear_unit_conversion* { inch | mm | cm | auto }::
+  With get, any parameter is ignored and the active unit conversion is returned.
+  With set, sets the unit to be displayed.
+  If it's "auto", the units to be displayed match the program units.
+
+*angular_unit_conversion* { deg | rad | grad | auto }::
+  With get, any parameter is ignored and the active unit conversion is returned.
+  With set, sets the units to be displayed.
+  If it's "auto", the units to be displayed match the program units.
+
+*probe_clear*::
+  With set, clear the probe tripped flag.
+
+*probe_tripped*::
+  With get, return the probe state - has the probe tripped since the last clear?
+
+*probe_value*::
+  With get, return the current value of the probe signal.
+
+*probe* _<x>_ _<y>_ _<z>_::
+  With set, move toward a certain location. If the probe is tripped on the
+  way stop motion, record the position and raise the probe tripped flag.
+
+*teleop_enable* [ on | off ]::
+  With get, any parameter is ignored and the current teleop mode is returned.
+  With set, sets the teleop mode as specified.
+
+*kinematics_type*::
+  With get, returns the type of kinematics functions used (identity=1, serial=2, parallel=3, custom=4).
+
+*override_limits* { on | off }::
+  With get, any parameter is ignored and the override_limits setting is returned.
+  With set, the override_limits parameter is set as specified.
+  If override_limits is on, disables end of travel hardware limits to allow jogging off of a limit.
+  If parameters is off, then hardware limits are enabled.
+
+*optional_stop* {0|1}::
+  With get, any parameter is ignored and the current "optional stop on M1"
+  setting is returned. With set, the setting is set as specified.
+
+== Example Session
+
+This section shows an example session to the local machine (*localhost*).
+Bold items are typed by you, non-bold is machine output.
+Default values are shown for --port _PORT_NUMBER_ (*5007*), --conectpw _PASSWORD_ (*EMC*), and --enablepw _PASSWORD_ (*EMCTOO*).
+
+The user connects to linuxcncrsh, handshakes with the server (hello),
+enables machine commanding from this session (set enable), brings the
+machine out of E-stop (set estop off) and turns it on (set machine on),
+homes all the axes, switches the machine to mdi mode, sends an MDI
+G-code command, then disconnects and shuts down LinuxCNC.
+
+ > *telnet localhost 5007* +
+ Trying 127.0.0.1... +
+ Connected to 127.0.0.1 +
+ Escape character is '^]'. +
+ *hello EMC user-typing-at-telnet 1.0* +
+ HELLO ACK EMCNETSVR 1.1 +
+ *set enable EMCTOO* +
+ set enable EMCTOO +
+ *set mode manual* +
+ set mode manual +
+ *set estop off* +
+ set estop off +
+ *set machine on* +
+ set machine on +
+ *set home 0* +
+ set home 0 +
+ *set home 1* +
+ set home 1 +
+ *set home 2* +
+ set home 2 +
+ *set mode mdi* +
+ set mode mdi +
+ *set mdi g0x1* +
+ set mdi g0x1 +
+ *help* +
+ help +
+ Available commands: Hello <password> <client name> <protocol version>
+ Get <emc command> Set <emc command> Shutdown Help <command> +
+ *help get* +
+ help get +
+ Usage: Get <emc command> Get commands require that a hello has been
+ successfully negotiated. Emc command may be one of: Abs_act_pos
+ Abs_cmd_pos +
+ * ... * +
+ *shutdown* +
+ shutdown +
+ Connection closed by foreign host.

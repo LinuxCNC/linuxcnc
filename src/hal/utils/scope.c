@@ -93,6 +93,12 @@ static void rm_single_button_clicked(GtkWidget * widget, gpointer * gdata);
 static void rm_roll_button_clicked(GtkWidget * widget, gpointer * gdata);
 static void rm_stop_button_clicked(GtkWidget * widget, gpointer * gdata);
 
+static void exit_on_signal(int signum) {
+    fprintf(stderr,"%s Caught signum=%d <%s>\n   killing userspace comp_id=%d\n"
+           ,__FILE__,signum,strsignal(signum),comp_id);
+    exit_from_hal();
+    exit(1);
+}
 /***********************************************************************
 *                        MAIN() FUNCTION                               *
 ************************************************************************/
@@ -204,6 +210,8 @@ int main(int argc, gchar * argv[])
     /* register signal handlers for ctrl-C and SIGTERM */
     signal(SIGINT, quit);
     signal(SIGTERM, quit);
+    signal(SIGSEGV, exit_on_signal);
+    signal(SIGFPE,  exit_on_signal);
 
     /* The interface is now completely set up */
     /* show the window */
@@ -228,6 +236,7 @@ int main(int argc, gchar * argv[])
 
 static int heartbeat(gpointer data)
 {
+    (void)data;
     refresh_state_info();
     /* check watchdog */
     if (ctrl_shm->watchdog < 10) {
@@ -405,14 +414,10 @@ void capture_complete(void)
 
 static void init_usr_control_struct(void *shmem)
 {
-    char *cp;
     int n, skip;
 
     /* first clear entire user struct to all zeros */
-    cp = (char *) ctrl_usr;
-    for (n = 0; n < sizeof(scope_usr_control_t); n++) {
-	cp[n] = 0;
-    }
+    memset(ctrl_usr, 0, sizeof(scope_usr_control_t));
 
     /* save pointer to shared control structure */
     ctrl_shm = shmem;
@@ -740,20 +745,28 @@ static void init_run_mode_window(void)
 static void exit_from_hal(void)
 {
     rtapi_shmem_delete(shm_id, comp_id);
-    hal_exit(comp_id);
+    if (comp_id >= 0) hal_exit(comp_id);
+    // set comp_id to avoid repeat invocations of hal_exit()
+    // when handling signal with atexit() in use:
+    comp_id = -1;
 }
 
 static void main_window_closed(GtkWidget * widget, gpointer * gdata)
 {
+    (void)widget;
+    (void)gdata;
     quit(0);
 }
 
 static void set_focus(GtkWindow *window, GtkWidget *widget, gpointer *data) {
+    (void)widget;
+    (void)data;
     gtk_window_set_urgency_hint(window, FALSE);
 }
 
 static void quit(int sig)
 {
+    (void)sig;
     gtk_main_quit();
 }
 
@@ -785,6 +798,7 @@ int set_run_mode(int mode)
 
 static void rm_normal_button_clicked(GtkWidget * widget, gpointer * gdata)
 {
+    (void)gdata;
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)) != TRUE) {
 	/* not pressed, ignore it */
 	return;
@@ -797,6 +811,7 @@ static void rm_normal_button_clicked(GtkWidget * widget, gpointer * gdata)
 
 static void rm_single_button_clicked(GtkWidget * widget, gpointer * gdata)
 {
+    (void)gdata;
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)) != TRUE) {
 	/* not pressed, ignore it */
 	return;
@@ -809,6 +824,7 @@ static void rm_single_button_clicked(GtkWidget * widget, gpointer * gdata)
 
 static void rm_roll_button_clicked(GtkWidget * widget, gpointer * gdata)
 {
+    (void)gdata;
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)) != TRUE) {
 	/* not pressed, ignore it */
 	return;
@@ -821,6 +837,7 @@ static void rm_roll_button_clicked(GtkWidget * widget, gpointer * gdata)
 
 static void rm_stop_button_clicked(GtkWidget * widget, gpointer * gdata)
 {
+    (void)gdata;
     if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)) != TRUE) {
 	/* not pressed, ignore it */
 	return;

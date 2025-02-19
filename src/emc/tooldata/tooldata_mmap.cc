@@ -22,6 +22,7 @@
 #include <fcntl.h>
 #include <sys/mman.h>
 #include <string.h>
+#include "config.h"
 #include "rtapi_mutex.h"
 #include "tooldata.hh"
 
@@ -73,7 +74,7 @@ typedef struct {
 static char* tool_mmap_fname(void) {
     if (*filename) {return filename;}
     char* hdir = secure_getenv("HOME");
-    if (!hdir) {hdir = (char*)"/tmp";}
+    if (!hdir) { hdir = (char *) EMC2_TMP_DIR; }
     snprintf(filename,sizeof(filename),"%s/%s",hdir,TOOL_MMAP_FILENAME);
     return(filename);
 }
@@ -169,7 +170,6 @@ int tool_mmap_user()
                   TOOL_MMAP_USER_OPEN_FLAGS, TOOL_MMAP_MODE);
 
     if (fd < 0) {
-        perror("tool_mmap_user(): file open fail");
         /*
         ** For the LinuxCNC application, tool_mmap_creator()
         ** should start first and create the mmap file needed here.
@@ -178,7 +178,7 @@ int tool_mmap_user()
         ** continue execution if no mmap file is open.
         ** So print message and return fail indicator.
         */
-        fprintf(stderr,"tool_mmap_user(): no mmap file,continuing\n");
+        fprintf(stderr,"tool_mmap_user(): tool mmap not available\n");
         tool_mmap_base = (char*)0;
         return(-1);
     }
@@ -288,7 +288,8 @@ toolidx_t tooldata_get(CANON_TOOL_TABLE* pdata, int idx)
         exit(EXIT_FAILURE);
     }
     if (idx < 0 || idx >= CANON_POCKETS_MAX) {
-        UNEXPECTED_MSG;
+        // ui programs may query for nonexistent idx values
+        // and must handle this error
         return IDX_FAIL;
     }
 
@@ -306,6 +307,8 @@ int tooldata_find_index_for_tool(int toolno)
     tooldata_header_t *hptr = HPTR();
     tool_mmap_mutex_get();
     int idx;
+
+    if (toolno == -1) {tool_mmap_mutex_give(); return -1;}
 
     if (!hptr->is_random_toolchanger && toolno == 0) {
         tool_mmap_mutex_give(); return 0;

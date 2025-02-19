@@ -346,8 +346,7 @@ static int init_streamer(int num, streamer_t *str)
 	pptr++;
     }
     /* export update function */
-    rtapi_snprintf(buf, sizeof(buf), "streamer.%d", num);
-    retval = hal_export_funct(buf, update, str, usefp, 0, comp_id);
+    retval = hal_export_functf(update, str, usefp, 0, comp_id, "streamer.%d", num);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "STREAMER: ERROR: function export failed\n");

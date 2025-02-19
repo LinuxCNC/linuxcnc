@@ -1,22 +1,22 @@
-;imperial wrench
+(imperial wrench)
 
-#<holes> = 4
+#<holes> = 4 (holes and arcs with overburn)
 
-G20
-G64 P0.002
-M52 P1
+G20 (imperial units)
+G64 P0.005 (path tolerance)
+M52 P1 (enable reverse-run)
 
-F#<_hal[plasmac.cut-feed-rate]>
+F#<_hal[plasmac.cut-feed-rate]> (feed rate from cut parameters)
 
-; THE HOLE
+(the hole)
 G0 X5.8952 Y1.0807
-M3 $0 S1 (PLASMA TORCH ON)
+M3 $0 S1 (start plasma torch)
 G3 X5.8952 Y1.0807 I-0.0787 J0
-M5 $0 (TORCH OFF)
+M5 $0 (stop plasma torch)
 
-; THE WRENCH
+(the wrench)
 G0 X0.1937 Y1.5240
-M3$0S1 (PLASMA TORCH ON)
+M3 $0 S1 (start plasma torch)
 G1 X0.1937 Y1.7208
 G2 X0.2323 Y1.8082 I0.1181 J-0.0000
 G2 X1.6956 Y1.6535 I0.6627 J-0.7298
@@ -31,7 +31,7 @@ G1 X0.1937 Y0.5393
 G1 X0.8629 Y0.5393
 G3 X0.8629 Y1.6220 I-0.3221 J0.5413
 G1 X0.1937 Y1.6220
-M5 $0 (TORCH OFF)
+M5 $0 (stop plasma torch)
 
 G0 X0 Y0
-M2
+M2 (end program)

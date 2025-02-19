@@ -29,16 +29,16 @@ The two main ways that project developers communicate with each other are:
 == The LinuxCNC Source Forge project
 
 We use Source Forge for
-http://sourceforge.net/p/emc/mailman/[mailing lists].
+https://sourceforge.net/p/emc/mailman/[mailing lists].
 
 == The Git Revision Control System
 
 All of the LinuxCNC source is maintained in the
-http://git-scm.com/[Git revision control system].
+https://git-scm.com/[Git revision control system].
 
 === LinuxCNC official Git repo
 
-The official LinuxCNC git repo is at http://github.com/linuxcnc/linuxcnc/
+The official LinuxCNC git repo is at https://github.com/linuxcnc/linuxcnc/
 
 Anyone can get a read-only copy of the LinuxCNC source tree via git:
 
@@ -99,7 +99,7 @@ follow-on documentation are also available online here:
   https://www.kernel.org/pub/software/scm/git/docs/user-manual.html
 
 For a more thorough documentation of git see the "Pro Git" book:
-http://git-scm.com/book
+https://git-scm.com/book
 
 Another online tutorial that has been recommended is "Git for the Lazy":
 https://wiki.spheredev.org/index.php/Git_for_the_lazy
@@ -109,29 +109,18 @@ https://wiki.spheredev.org/index.php/Git_for_the_lazy
 The high-level overview of how to contribute changes to the source goes
 like this:
 
-* Communicate with the project developers and let us know what you're
-  hacking on
-* Clone the git repo
-* Make your changes in a local branch, making sure you "sign off" your commits
-  according to our signed-off-by policy (see below).
-* Adding documentation and tests is an important part of adding a new
-  feature.  Otherwise, others won't know how to use your feature, and
-  if other changes break your feature it can go unnoticed without a test.
+* Communicate with the project developers and let us know what you're hacking on.  Explain what you are doing, and why.
+* Clone the git repo.
+* Make your changes in a local branch.
+* Adding documentation and <<cha:writing-tests,writing tests>> is an important part of adding a new feature.  Otherwise, others won't know how to use your feature, and if other changes break your feature it can go unnoticed without a test.
 * Share your changes with the other project developers in one of these ways:
-** Push your branch to github and create a github pull request to
-   https://github.com/linuxcnc/linuxcnc (this requires a github account)
-** Push your branch to a publicly visible git repo (such as github,
-   bitbucket, your own publicly-accessible server, etc) and share that
-   location on the emc-developers mailing list, or
-** Email your commits to the LinuxCNC-developers mailing list
-   (emc-developers@lists.sourceforge.net) (use `git
-   format-patch` to create the patches)
-* Advocate for your patch
-** Explain what problem it addresses and why it should be included
-   in LinuxCNC
+** Push your branch to github and create a github pull request to <https://github.com/linuxcnc/linuxcnc> (this requires a github account), or
+** Push your branch to a publicly visible git repo (such as github, or your own publicly-accessible server, etc) and share that location on the emc-developers mailing list, or
+** Email your commits to the LinuxCNC-developers mailing list (<emc-developers@lists.sourceforge.net>) (use `git format-patch` to create the patches).
+* Advocate for your patch:
+** Explain what problem it addresses and why it should be included in LinuxCNC.
 ** Be receptive to questions and feedback from the developer community.
-** It is not uncommon for a patch to go through several revisions before
-   it is accepted.
+** It is not uncommon for a patch to go through several revisions before it is accepted.
 
 == git configuration
 
@@ -232,7 +221,7 @@ sure your branch builds, it is important to assure every single commit
 builds as well.
 
 There's an automatic way to check a branch for each commit being
-buildable - see http://dustin.sallings.org/2010/03/28/git-test-sequence.html
+buildable - see https://dustin.sallings.org/2010/03/28/git-test-sequence.html
 and the code at https://github.com/dustin/bindir/blob/master/git-test-sequence.
 Use as follows (in this case testing every commit from origin/master to
 HEAD, including running regression tests):
@@ -259,6 +248,7 @@ revisions that are ahead of origin/master, so you can do things like
 `git format-patch` them to share with others without pushing to the
 central repository.
 
+[[sec:contributing-translations]]
 == Translations
 
 The LinuxCNC project uses `gettext` to translate the software into
@@ -268,15 +258,12 @@ any programming, and you don't need to install any special translation
 programs or other software.
 
 The easiest way to help with translations is using Weblate,
-an open-source web service.  Our translation project is here:
+an open-source web service. Our translation project is here:
+
 https://hosted.weblate.org/projects/linuxcnc/
 
 Documentation on how to use Weblate is here:
 https://docs.weblate.org/en/latest/user/basic.html
-
-If web services are not your thing, you can also work on translations
-using a variety of local gettext translator apps including gtranslator,
-poedit, and many more.
 
 == Other ways to contribute
 

@@ -350,7 +350,7 @@ static void do_homing_sequence(void)
             }
         }
         sequence_is_set = 1;
-        //drop through----drop through----drop through----drop through
+        /* Fallthrough */
 
     case HOME_SEQUENCE_DO_ONE_SEQUENCE:
         // Expect multiple joints with home_state==HOME_START
@@ -378,8 +378,7 @@ static void do_homing_sequence(void)
             }
         }
         sequence_state = HOME_SEQUENCE_START;
-
-        //drop through----drop through----drop through----drop through
+        /* Fallthrough */
 
     case HOME_SEQUENCE_START:
         // Request to home all joints or a single sequence
@@ -430,7 +429,7 @@ static void do_homing_sequence(void)
         }
         /* tell the world we're on the job */
         homing_active = 1;
-        //drop through----drop through----drop through----drop through
+        /* Fallthrough */
 
     case HOME_SEQUENCE_START_JOINTS:
         seen = 0;
@@ -561,6 +560,8 @@ static void base_do_home_joint(int jno) {
 
 static void base_do_cancel_homing(int jno) {
     if (H[jno].homing) {
+        H[jno].home_state = HOME_ABORT;
+    }else if(H[jno].joint_in_sequence){
         H[jno].home_state = HOME_ABORT;
     }
 }
@@ -1342,6 +1343,9 @@ static int base_1joint_state_machine(int joint_num)
             H[joint_num].homing = 0;
             H[joint_num].homed = 1; // finished
             H[joint_num].home_state = HOME_IDLE;
+            if ( ! (H[joint_num].home_flags & HOME_ABSOLUTE_ENCODER)) {
+                joints[joint_num].free_tp.curr_pos = H[joint_num].home;
+            }
             immediate_state = 1;
             H[joint_num].joint_in_sequence = 0;
             break;

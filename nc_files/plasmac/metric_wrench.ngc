@@ -1,22 +1,22 @@
-;metric wrench
+(metric wrench)
 
-#<holes> = 4
+#<holes> = 4 (holes and arcs with overburn)
 
-G21
-G64 P0.05
-M52 P1
+G21 (metric units)
+G64 P0.125 (path tolerance)
+M52 P1 (enable reverse-run)
 
-F#<_hal[plasmac.cut-feed-rate]>
+F#<_hal[plasmac.cut-feed-rate]> (feed rate from cut parameters)
 
-; THE HOLE
+(the hole)
 G0 X149.739 Y27.45
-M3 $0 S1 (PLASMA TORCH ON)
+M3 $0 S1 (start plasma torch)
 G3 X149.739 Y27.45 I-2 J0
-M5 $0 (TORCH OFF)
+M5 $0 (stop plasma torch)
 
-; THE WRENCH
+(the wrench)
 G0 X4.920 Y38.710
-M3$0S1 (PLASMA TORCH ON)
+M3 $0 S1 (start plasma torch)
 G1 X4.920 Y43.710
 G2 X5.900 Y45.928 I3 J-0
 G2 X43.068 Y42 I16.833 J-18.538
@@ -31,7 +31,7 @@ G1 X4.92 Y13.7
 G1 X21.92 Y13.70
 G3 X21.92 Y41.2 I-8.182 J13.75
 G1 X4.92 Y41.2
-M5 $0 (TORCH OFF)
+M5 $0 (stop plasma torch)
 
 G0 X0 Y0
-M2
+M2 (end program)

@@ -62,10 +62,11 @@ void emit(int fd, int type, int code, int val)
    ie.type = type;
    ie.code = code;
    ie.value = val;
-   write(fd, &ie, sizeof(ie));
+   if (write(fd, &ie, sizeof(ie)) != sizeof(ie)) { perror("write(input_event)"); }
 }
 
 static void exit_handler(int sig) {
+    (void)sig;
     printf("sendkeys: exiting\n");
     exit(0);
 }
@@ -219,7 +220,6 @@ int init(int argc, char* argv[]){
 }
 
 int main(int argc, char* argv[]) {
-    struct uinput_user_dev uidev;
     int i, j;
     
     signal(SIGINT, exit_handler);
@@ -246,8 +246,11 @@ int main(int argc, char* argv[]) {
             if (! *hal->init) continue;
             if (*hal->init && ! param->inited) {
                 param->fd = open("/dev/uinput", O_WRONLY | O_NONBLOCK);
-                if (param->fd < 0) rtapi_print_msg(RTAPI_MSG_ERR, 
-                    "Cannot open /dev/uinput. Suggest chmod 666 /dev/uinput\n");
+                if (param->fd < 0) {
+                    rtapi_print_msg(RTAPI_MSG_ERR,
+                        "Cannot open /dev/uinput. Suggest chmod 666 /dev/uinput\n");
+                    abort();
+                }
                 ioctl(param->fd, UI_SET_EVBIT, EV_KEY);
                 for (j = 0; j < param->num_events; j++){
                     if (hal->event[j] > 0 && hal->event[j] < KEY_MAX){
@@ -255,6 +258,7 @@ int main(int argc, char* argv[]) {
                         rtapi_print("SET_EVBIT %i\n", hal->event[j]);
                     }
                 }
+                struct uinput_user_dev uidev;
                 memset(&uidev, 0, sizeof(uidev));
                 strcpy(uidev.name, "linuxcnc-hal");
                 uidev.id.bustype = BUS_USB;
@@ -262,13 +266,13 @@ int main(int argc, char* argv[]) {
                 uidev.id.product = 0x1;
                 uidev.id.version = 1;
 
-                write(param->fd, &uidev, sizeof(uidev));
-                ioctl(param->fd, UI_DEV_CREATE);
+                if (write(param->fd, &uidev, sizeof(uidev)) != sizeof(uidev)) { perror("write(uinput_user_dev)"); abort(); }
+                if (ioctl(param->fd, UI_DEV_CREATE) < 0) { perror("ioctl(UI_DEV_CREATE)"); abort(); }
                 param->inited = 1;
             }
             if (*hal->keycode != param->oldcode) {
                 /* Key press, report the event, send key release, and report again*/
-                if ((*hal->keycode & 0x3F) > param->num_events) continue;
+                if ((int)(*hal->keycode & 0x3F) > param->num_events) continue;
                 if (hal->event[*hal->keycode & 0x3F] == 0) continue;
                 if ((*hal->keycode & 0xC0) == 0xC0){ // keydown
                     emit(param->fd, EV_KEY, hal->event[*hal->keycode & 0x3F], 1);

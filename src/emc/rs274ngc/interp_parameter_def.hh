@@ -198,10 +198,6 @@ enum InterpParameterIndex {
     RELATIVE_POSITION_W,
 // 5599 - Flag for controlling the output of (DEBUG,) statements. 1=output, 0=no output; default=1. Volatile.
     DEBUG_LEVEL_FLAG=5599,
-// 5600 - Toolchanger fault indicator. Used with the iocontrol-v2 component. 1: toolchanger faulted, 0: normal. Volatile.
-    TOOLCHANGER_FAULT=5600,
-// 5601 - Toolchanger fault code. Used with the iocontrol-v2 component. Reflects the value of the toolchanger-reason HAL pin if a fault occurred. Volatile.
-    TOOLCHANGER_FAULT_CODE=5601,
     RS274NGC_MAX_PARAMETERS=5602
 };
 }

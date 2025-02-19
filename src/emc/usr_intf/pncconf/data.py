@@ -314,12 +314,13 @@ class Data:
         self.qtplasmacpause = 0
         self.qtplasmacstop = 0
         self.qtplasmacpmx = ""
+        self.qtplasmacbase = _BASE
         self.increments_metric_qtplasmac = "10mm 1mm .1mm .01mm .001mm"
         self.increments_imperial_qtplasmac= "1in .1in .01in .001in .0001in"
-        self.qtplasmac_bnames = ["OHMIC\TEST","PROBE\TEST","SINGLE\CUT","NORMAL\CUT","TORCH\PULSE","FRAMING", \
-                                 "","","","","","","","","","","","","",""]
-        self.qtplasmac_bcodes = ["ohmic-test","probe-test 10","single-cut","cut-type","torch-pulse 0.5","framing", \
-                                 "","","","","","","","","","","","","",""]
+        self.qtplasmac_bnames = ["OHMIC\\TEST","PROBE\\TEST","SINGLE\\CUT","NORMAL\\CUT","TORCH\\PULSE","FRAMING", "USER\\MANUAL",
+                                 "","","","","","","","","","","","",""]
+        self.qtplasmac_bcodes = ["ohmic-test","probe-test 10","single-cut","cut-type","torch-pulse 0.5","framing", "user-manual",
+                                 "","","","","","","","","","","","",""]
         self._arcvpin = None
         self.voltsmodel = "10"
         self.voltsfjumper = "32"
@@ -918,14 +919,6 @@ If you have a REALLY large config that you wish to convert to this newer version
         _APP.makedirs(base+"/backups")
 
         self.md5sums = []
-
-        filename = os.path.join(base, "tool.tbl")
-        file = open(filename, "w")
-        print("T0 P0 ;", file=file)
-        print("T1 P1 ;", file=file)
-        print("T2 P2 ;", file=file)
-        print("T3 P3 ;", file=file)
-        file.close()
 
         filename = "%s.pncconf" % base
 

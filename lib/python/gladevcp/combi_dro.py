@@ -47,7 +47,7 @@ except:
     pass
 
 # This is the main class
-class Combi_DRO(Gtk.VBox):
+class Combi_DRO(Gtk.Box):
     '''
     Combi_DRO will display an linuxcnc DRO with all three types at ones
 
@@ -104,6 +104,7 @@ class Combi_DRO(Gtk.VBox):
     # Init the class
     def __init__(self, joint_number = 0):
         super(Combi_DRO, self).__init__()
+        self.set_orientation(Gtk.Orientation.VERTICAL)
 
         # we have to distinguish this, as we use the joints number to check homing
         # and we do need the axis to check for the positions
@@ -138,11 +139,13 @@ class Combi_DRO(Gtk.VBox):
         self.dtg = 0
         self.abs_pos = 0
         self.rel_pos = 0
+        self.margin_left = 5
+        self.margin_right = 5
 
         self.widgets = {}  # will hold all our widgets we need to style
 
         # Make the GUI and connect signals
-        
+
         self.css_text = """
                         .background  {background-color: #000000;}
                         .labelcolor  {color: #FF0000;}
@@ -157,9 +160,10 @@ class Combi_DRO(Gtk.VBox):
         eventbox.get_style_context().add_provider(self.css,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
         eventbox.get_style_context().add_class('background')
         self.add(eventbox)
-        vbox_main = Gtk.VBox(homogeneous = False, spacing = 0)
+        vbox_main = Gtk.Box(homogeneous = False, spacing = 0)
+        vbox_main.set_orientation(Gtk.Orientation.VERTICAL)
         eventbox.add(vbox_main)
-        hbox_up = Gtk.HBox(homogeneous = False, spacing = 5)
+        hbox_up = Gtk.Box(homogeneous = False, spacing = 5)
         vbox_main.pack_start(hbox_up, True, True, 0)
         self.widgets["eventbox"] = eventbox
 
@@ -168,15 +172,17 @@ class Combi_DRO(Gtk.VBox):
         lbl_axisletter.get_style_context().add_class('background')
         lbl_axisletter.get_style_context().add_class('labelcolor')
         lbl_axisletter.get_style_context().add_class('size_big')
+        lbl_axisletter.set_margin_left(self.margin_left)
         hbox_up.pack_start(lbl_axisletter, False, False, 0)
         self.widgets["lbl_axisletter"] = lbl_axisletter
 
-        vbox_ref_type = Gtk.VBox(homogeneous = False, spacing = 0)
+        vbox_ref_type = Gtk.Box(homogeneous = False, spacing = 0)
+        vbox_ref_type.set_orientation(Gtk.Orientation.VERTICAL)
         hbox_up.pack_start(vbox_ref_type, False, False, 0)
         # This label is needed to press the main index (rel,Abs;Dtg) to the upper part
         lbl_space = Gtk.Label(label = "")
         vbox_ref_type.pack_start(lbl_space, True, True, 0)
-        
+
         lbl_sys_main = Gtk.Label(label = self.system)
         lbl_sys_main.get_style_context().add_provider(self.css,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
         lbl_sys_main.get_style_context().add_class('background')
@@ -191,10 +197,11 @@ class Combi_DRO(Gtk.VBox):
         main_dro.get_style_context().add_class('labelcolor')
         main_dro.get_style_context().add_class("size_big")
         main_dro.set_xalign(1.0)
+        main_dro.set_margin_right(self.margin_right)
         hbox_up.pack_start(main_dro, True, True, 0)
         self.widgets["main_dro"] = main_dro
 
-        hbox_down = Gtk.HBox(homogeneous = True, spacing = 5)
+        hbox_down = Gtk.Box(homogeneous = True, spacing = 5)
         vbox_main.pack_start(hbox_down, False, False, 0)
 
         lbl_sys_left = Gtk.Label(label = "Abs")
@@ -203,6 +210,7 @@ class Combi_DRO(Gtk.VBox):
         lbl_sys_left.get_style_context().add_class('background')
         lbl_sys_left.get_style_context().add_class('labelcolor')
         lbl_sys_left.get_style_context().add_class('size_small')
+        lbl_sys_left.set_margin_left(self.margin_left)
         hbox_down.pack_start(lbl_sys_left, True, True, 0)
         self.widgets["lbl_sys_left"] = lbl_sys_left
 
@@ -223,13 +231,14 @@ class Combi_DRO(Gtk.VBox):
         lbl_sys_right.get_style_context().add_class('size_small')
         hbox_down.pack_start(lbl_sys_right, False, False, 0)
         self.widgets["lbl_sys_right"] = lbl_sys_right
-        
+
         dro_right = Gtk.Label(label = "22.222")
         dro_right.get_style_context().add_provider(self.css,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
         dro_right.get_style_context().add_class('background')
         dro_right.get_style_context().add_class('labelcolor')
         dro_right.get_style_context().add_class('size_small')
         dro_right.set_xalign(1.0)
+        dro_right.set_margin_right(self.margin_right)
         hbox_down.pack_start(dro_right, True, True, 0)
         self.widgets["dro_right"] = dro_right
 
@@ -248,7 +257,7 @@ class Combi_DRO(Gtk.VBox):
         # linuxcnc may not be working
         try:
             self.inifile = self.linuxcnc.ini(INIPATH)
-            # check the ini file if UNITS are set to mm"
+            # check the INI file if UNITS are set to mm"
             # first check the global settings
             units = self.inifile.find("TRAJ", "LINEAR_UNITS")
             if units == None:
@@ -278,6 +287,7 @@ class Combi_DRO(Gtk.VBox):
     def do_get_property(self, property):
         name = property.name.replace('-', '_')
         if name in list(self.__gproperties.keys()):
+            if name == 'auto_units': name = '_auto_units'
             return getattr(self, name)
         else:
             raise AttributeError('unknown property %s' % property.name)
@@ -293,12 +303,10 @@ class Combi_DRO(Gtk.VBox):
             if name in list(self.__gproperties.keys()):
 #                 setattr(self, name, value)
 #                 self.queue_draw()
-                if name in ('mm_text_template', 'imperial_text_template'):
-                    try:
-                        v = value % 0.0
-                    except Exception as e:
-                        print("Invalid format string '%s': %s" % (value, e))
-                        return False
+                if name == 'mm_text_template':
+                    self.mm_text_template = value
+                if name == 'imperial_text_template':
+                    self.imperial_text_template = value                    
                 if name == "homed_color":
                     self.homed_color = self.convert_color(value)
                     if self.homed:
@@ -348,7 +356,7 @@ class Combi_DRO(Gtk.VBox):
                 if code >= 540 and code <= 590:
                     return "G%s" % int((code / 10))
                 elif code > 590 and code <= 593:
-                    return "G%s" % int((code / 10.0))
+                    return "G%s" % (code / 10.0)
             return "Rel"
 
     # Get the units used according to gcode
@@ -362,7 +370,10 @@ class Combi_DRO(Gtk.VBox):
 
     # update the labels
     def _set_labels(self):
-        self.status.poll()
+        try:
+            self.status.poll()
+        except:
+            pass
         if self._ORDER[0] == "Rel":
             self.widgets["lbl_sys_main"].set_text(self._get_current_system())
         else:
@@ -389,22 +400,22 @@ class Combi_DRO(Gtk.VBox):
         if property == "background":
             for widget in self.widgets:
                 self.widgets[widget].get_style_context().remove_class('background')
-            replacement_string = ".background  {background-color: " + Data + ";}"        
+            replacement_string = ".background  {background-color: " + Data + ";}"
             self.css_text = re.sub(r'[.][b][a][c][k][g][r][o][u][n][d].*', replacement_string, self.css_text, re.IGNORECASE)
-        
+
         elif property == "labelcolor":
             for widget in self.widgets:
                 self.widgets[widget].get_style_context().remove_class('labelcolor')
-            replacement_string = ".labelcolor  {color: " + Data + ";}"        
+            replacement_string = ".labelcolor  {color: " + Data + ";}"
             self.css_text = re.sub(r'[.][l][a][b][e][l][c][o][l][o][r].*', replacement_string, self.css_text, re.IGNORECASE)
-            
-        elif property == "size":            
+
+        elif property == "size":
             for widget in self.widgets:
                 self.widgets[widget].get_style_context().remove_class('size_big')
                 self.widgets[widget].get_style_context().remove_class('size_small')
-            replacement_string = ".size_big    {font-size: " + str(Data) + "px;font-weight: bold;}"        
+            replacement_string = ".size_big    {font-size: " + str(Data) + "px;font-weight: bold;}"
             self.css_text = re.sub(r'[.][s][i][z][e][_][b][i][g].*', replacement_string, self.css_text, re.IGNORECASE)
-            replacement_string = ".size_small    {font-size: " + str(int(Data / 2.5)) + "px;font-weight: bold;}"        
+            replacement_string = ".size_small    {font-size: " + str(int(Data / 2.5)) + "px;font-weight: bold;}"
             self.css_text = re.sub(r'[.][s][i][z][e][_][s][m][a][l][l].*', replacement_string, self.css_text, re.IGNORECASE)
 
         else:
@@ -412,7 +423,7 @@ class Combi_DRO(Gtk.VBox):
             return
 
         self.css.load_from_data(bytes(self.css_text, 'utf-8'))
-        
+
         for widget in self.widgets:
             self.widgets[widget].get_style_context().add_class('background')
             self.widgets[widget].get_style_context().add_class('labelcolor')
@@ -420,7 +431,7 @@ class Combi_DRO(Gtk.VBox):
                 self.widgets[widget].get_style_context().add_class('size_big')
             else:
                 self.widgets[widget].get_style_context().add_class('size_small')
-                
+
         self.queue_draw()
 
     def _user_system_changed(self, object, system):
@@ -492,7 +503,7 @@ class Combi_DRO(Gtk.VBox):
         if self.homed:
             self.set_style("labelcolor", self.homed_color)
         else:
-            self.set_style("labelcolor", self.unhomed_color)            
+            self.set_style("labelcolor", self.unhomed_color)
 
     def _all_homed(self, widget, data = None):
         if self.status.kinematics_type == linuxcnc.KINEMATICS_IDENTITY:
@@ -666,7 +677,8 @@ class Combi_DRO(Gtk.VBox):
 def main():
     window = Gtk.Window(type = Gtk.WindowType.TOPLEVEL)
 
-    vbox = Gtk.VBox(homogeneous = False, spacing = 5)
+    vbox = Gtk.Box(homogeneous = False, spacing = 5)
+    vbox.set_orientation(Gtk.Orientation.VERTICAL)
     MDRO_X = Combi_DRO(0)
     MDRO_Y = Combi_DRO(1)
     MDRO_Z = Combi_DRO(2)

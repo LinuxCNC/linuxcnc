@@ -20,7 +20,7 @@
   Using halrmt:
 
   halrmt {-- --port <port number> --name <server name> --connectpw <password>
-             --enablepw <password> --sessions <max sessions> -ini<inifile>}
+             --enablepw <password> --sessions <max sessions> -ini <INI file>}
 
   With -- --port Waits for socket connections (Telnet) on specified socket, without port
             uses default port 5006. (note: linuxcncrsh uses 5007 as default)
@@ -29,7 +29,7 @@
   With -- --enablepw <password> Sets the enable password to 'password'. Default EMCTOO
   With -- --sessions <max sessions> Sets the maximum number of simultaneous connextions
             to max sessions. Default is no limit (-1).
-  With -- -ini <inifile>, uses inifile instead of emc.ini. 
+  With -- -ini <INI file>, uses specified INI file instead of default emc.ini. 
 
   There are six commands supported, Where the commands set and get contain HAL
   specific sub-commands based on the commands supported by halcmd. Commands and 
@@ -298,15 +298,17 @@
 #include <fnmatch.h>
 #include <getopt.h>
 
-#include "rtapi.h"		/* RTAPI realtime OS API */
+#include "rtapi.h"		// RTAPI realtime OS API
 #include <rtapi_mutex.h>
-#include "hal.h"		/* HAL public API decls */
-#include "../hal_priv.h"	/* private HAL decls */
-/* non-EMC related uses of halrmt may want to avoid libnml dependency */
+#include <rtapi_string.h>	// rtapi_strlcpy
+#include "hal.h"		// HAL public API decls
+#include "../hal_priv.h"	// private HAL decls
+/* non-EMC related uses of halrmt may want to avoid libnml dependency
 #ifndef NO_INI
-#include "inifile.h"		/* iniFind() from libnml */
+#include "inifile.h"		// iniFind() from libnml
 #endif
 #include <rtapi_string.h>
+*/
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
@@ -427,6 +429,7 @@ const char *halCommands[] = {
 /* signal handler */
 static void quit(int sig)
 {
+    (void)sig;
     if ( hal_flag ) {
 	/* this process might have the hal mutex, so just set the
 	   'done' flag and return, exit after mutex work finishes */
@@ -907,6 +910,7 @@ static int doNewsig(char *name, char *type, connectionRecType *context)
 }
 
 static int set_common(hal_type_t type, void *d_ptr, char *value, connectionRecType *context) {
+    (void)context;
     // This function assumes that the mutex is held
     int retval = 0;
     double fval;
@@ -1262,8 +1266,7 @@ static int doDelsig(char *mod_name, connectionRecType *context)
         sig = SHMPTR(next);
         /* we want to unload this signal, remember it's name */
         if (n < ( MAX_EXPECTED_SIGS - 1)) {
-          strncpy(sigs[n], sig->name, HAL_NAME_LEN );
-	  sigs[n][HAL_NAME_LEN] = '\0';
+          snprintf(sigs[n], sizeof(sigs[n]), "%s", sig->name);
 	  n++;
 	  }
         next = sig->next_ptr;
@@ -1318,7 +1321,7 @@ static int doUnload(char *mod_name, connectionRecType *context)
 	    if ( all || ( strcmp(mod_name, comp->name) == 0 )) {
 		/* we want to unload this component, remember its name */
 		if ( n < 63 ) {
-		    strncpy(comps[n], comp->name, HAL_NAME_LEN );
+		    snprintf(comps[n], sizeof(comps[n]), "%s", comp->name);
 		    comps[n][HAL_NAME_LEN] = '\0';
 		    n++;
 		}
@@ -1487,7 +1490,7 @@ static int doLoadUsr(char *args[])
     prog_path[0] = '\0';
     if ( prog_path[0] == '\0' ) {
 	/* try the name by itself */
-	strncpy (prog_path, prog_name, MAX_CMD_LEN);
+	rtapi_strlcpy(prog_path, prog_name, MAX_CMD_LEN);
 	rtapi_print_msg(RTAPI_MSG_DBG, "Trying '%s'\n", prog_path);
 	if ( stat(prog_path, &stat_buf) != 0 ) {
 	    /* no luck, clear prog_path to indicate failure */
@@ -1875,7 +1878,7 @@ static void getThreadInfo(char *pattern, connectionRecType *context)
         }
 	}
 
-        snprintf(context->outBuf, sizeof(context->outBuf), "THREAD %s %11d %s %d %d",
+        snprintf(context->outBuf, sizeof(context->outBuf), "THREAD %s %11u %s %u %u",
 	  tptr->name, 
 	  (unsigned int)tptr->period, 
 	  (tptr->uses_fp ? "YES" : "NO "),  
@@ -2069,7 +2072,7 @@ static char *data_value2(int type, void *valptr)
 	value_str = buf;
 	break;
     case HAL_U32:
-	snprintf(buf, 14, "%ld", (unsigned long)*((hal_u32_t *) valptr));
+	snprintf(buf, 14, "%lu", (unsigned long)*((hal_u32_t *) valptr));
 	value_str = buf;
 	break;
     default:
@@ -2347,7 +2350,7 @@ static int do_help_cmd(char *command)
 	printf("  using the syntax '$name'./n");
 #else
 	printf("  using the syntax '$name'.  If option -i was given,\n");
-	printf("  'value' may also be a reference to an ini file entry\n");
+	printf("  'value' may also be a reference to an INI file entry\n");
 	printf("  using the syntax '[section]name'.\n");
 #endif
     } else if (strcmp(command, "sets") == 0) {
@@ -2431,8 +2434,8 @@ static void print_help_general(int showR)
     printf("  -f [filename]  Read commands from 'filename', not command\n");
     printf("                 line.  If no filename, read from stdin.\n");
 #ifndef NO_INI
-    printf("  -i filename    Open .ini file 'filename', allow commands\n");
-    printf("                 to get their values from ini file.\n");
+    printf("  -i filename    Open INI file 'filename', allow commands\n");
+    printf("                 to get their values from INI file.\n");
 #endif
     printf("  -q             Quiet - print errors only (default).\n");
     printf("  -Q             Very quiet - print nothing.\n");
@@ -2487,6 +2490,7 @@ static halCommandType lookupHalCommand(char *s)
 
 static cmdResponseType getEcho(char *s, connectionRecType *context)
 {
+  (void)s;
   const char *pEchoStr = "ECHO %s";
   
   if (context->echo == 1) snprintf(context->outBuf, sizeof(context->outBuf), pEchoStr, "ON");
@@ -2496,6 +2500,7 @@ static cmdResponseType getEcho(char *s, connectionRecType *context)
 
 static cmdResponseType getVerbose(char *s, connectionRecType *context)
 {
+  (void)s;
   const char *pVerboseStr = "VERBOSE %s";
   
   if (context->verbose == 1) snprintf(context->outBuf, sizeof(context->outBuf), pVerboseStr, "ON");
@@ -2505,6 +2510,7 @@ static cmdResponseType getVerbose(char *s, connectionRecType *context)
 
 static cmdResponseType getEnable(char *s, connectionRecType *context)
 {
+  (void)s;
   const char *pEnableStr = "ENABLE %s";
   
   if (context->cliSock == enabledConn) snprintf(context->outBuf, sizeof(context->outBuf), pEnableStr, "ON");
@@ -2514,6 +2520,7 @@ static cmdResponseType getEnable(char *s, connectionRecType *context)
 
 static cmdResponseType getConfig(char *s, connectionRecType *context)
 {
+  (void)s;
   const char *pConfigStr = "CONFIG";
 
   rtapi_strxcpy(context->outBuf, pConfigStr);
@@ -2522,6 +2529,7 @@ static cmdResponseType getConfig(char *s, connectionRecType *context)
 
 static cmdResponseType getCommMode(char *s, connectionRecType *context)
 {
+  (void)s;
   const char *pCommModeStr = "COMM_MODE %s";
   
   switch (context->commMode) {
@@ -2533,6 +2541,7 @@ static cmdResponseType getCommMode(char *s, connectionRecType *context)
 
 static cmdResponseType getCommProt(char *s, connectionRecType *context)
 {
+  (void)s;
   const char *pCommProtStr = "COMM_PROT %s";
   
   snprintf(context->outBuf, sizeof(context->outBuf), pCommProtStr, context->version);
@@ -2826,6 +2835,8 @@ static cmdResponseType setEnable(char *s, connectionRecType *context)
 
 static cmdResponseType setConfig(char *s, connectionRecType *context)
 {
+  (void)s;
+  (void)context;
   return rtNoError;
 }
 
@@ -2841,6 +2852,7 @@ static cmdResponseType setCommMode(char *s, connectionRecType *context)
 
 static cmdResponseType setCommProt(char *s, connectionRecType *context)
 {
+  (void)s;
   char *pVersion;
   
   pVersion = strtok(NULL, delims);
@@ -2880,6 +2892,7 @@ static cmdResponseType setUnload(char *s, connectionRecType *context)
 
 static cmdResponseType setLoadUsr(char *s, connectionRecType *context)
 {
+  (void)context;
   char *argv[MAX_TOK+1] = {0};
 
   argv[0] = s;
@@ -3371,6 +3384,7 @@ int parseCommand(connectionRecType *context)
 
 void *readClient(void *arg)
 {
+  (void)arg;
   char str[1600];
   char buf[1600];
   unsigned int i, j;
@@ -3549,7 +3563,7 @@ int main(int argc, char **argv)
 		break;
 #ifndef NO_INI
 	    case 'i':
-		/* -i = allow reading 'setp' values from an ini file */
+		/* -i = allow reading 'setp' values from an INI file */
 		if (inifile == NULL) {
 		    /* it's the first -i (ignore repeats) */
 		    if ((n < argc) && (argv[n][0] != '-')) {
@@ -3558,7 +3572,7 @@ int main(int argc, char **argv)
 			inifile = fopen(filename, "r");
 			if (inifile == NULL) {
 			    fprintf(stderr,
-				"Could not open ini file '%s'\n",
+				"Could not open INI file '%s'\n",
 				filename);
 			    exit(-1);
 			}
@@ -3568,7 +3582,7 @@ int main(int argc, char **argv)
 		    } else {
 			/* no filename followed -i option, error */
 			fprintf(stderr,
-			    "No missing ini filename for -i option\n");
+			    "No missing INI filename for -i option\n");
 			exit(-1);
 		    }
 		}

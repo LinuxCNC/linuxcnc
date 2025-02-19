@@ -1,0 +1,41 @@
+= linuxcnc_info(1)
+
+== NAME
+
+linuxcnc_info - collects information about the LinuxCNC version and the host
+
+== SYNOPSIS
+
+*linuxcnc_info*
+
+== DESCRIPTION
+
+*linuxcnc_info* supplies information about the LinuxCNC version and system info.
+It creates a text file and opens it in the default text editor.
+
+== SEE ALSO
+
+linuxcnc(1)
+
+Much more information about LinuxCNC and HAL is available in the
+LinuxCNC and HAL User Manuals, found at /usr/share/doc/LinuxCNC/.
+
+== BUGS
+
+It appears to hang until the text editor is closed.
+
+== AUTHOR
+
+This man page written by Andy Pugh, as part of the LinuxCNC project.
+
+== REPORTING BUGS
+
+Report bugs at https://github.com/LinuxCNC/linuxcnc/issues.
+
+== COPYRIGHT
+
+Copyright © 2020 Andy Pugh.
+
+This is free software; see the source for copying conditions. There is
+NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.

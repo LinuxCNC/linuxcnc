@@ -1,4 +1,4 @@
-A touch screen unser interface for mills, lathes and plasma cutters.
+A touch screen user interface for mills, lathes and plasma cutters.
 Based of the design of moccagui, a GUI coded in FreePascal.
 GMOCCAPY is using Python instead.
 

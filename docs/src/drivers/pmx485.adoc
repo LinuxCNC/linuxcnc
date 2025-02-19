@@ -10,13 +10,9 @@
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
-This is a userspace HAL program, written in python, to control Hypetherm
-Powermax plasma cutters  using the Modbus ASCII protocol over RS485. +
+This is a non-realtime HAL program, written in python, to control Hypetherm Powermax plasma cutters using the Modbus ASCII protocol over RS485.
 
-NOTE: Since this is a userspace program it can be affected by computer
-loading and latency. It is possible to lose communications which will be
-indicated by a change in the status output. One should always have an
-Estop circuit that kills the power to the unit in case of emergency.
+NOTE: Since this is a non-realtime program it can be affected by computer loading and latency. It is possible to lose communications which will be indicated by a change in the status output. One should always have an Estop circuit that kills the power to the unit in case of emergency.
 
 This component is loaded using the halcmd "loadusr" command:
 

@@ -1,0 +1,81 @@
+= qtvcp(1)
+
+== NAME
+
+qtvcp - Qt-based virtual control panels
+
+== SYNOPSIS
+
+*qtvcp* [_OPTIONS_] myfile.ui
+
+== DESCRIPTION
+
+*QtVCP* is a system for creating user interfaces for LinuxCNC.
+
+Full documentation at https://linuxcnc.org/docs/html/gui/qtvcp.html
+
+== OPTIONS
+
+*-h, --help*::
+  Show this help message and exit.
+*-c* [_<NAME>_]::
+  Set component name to NAME. Default is basename of UI file.
+*-a*::
+  Set the window to always be on top.
+*-d*::
+  Enable debug output.
+*-v*::
+  Enable verbose debug output.
+*-q*::
+  Enable only error debug output.
+*-g* [_<GEOMETRY>_]::
+  Set geometry WIDTHxHEIGHT+XOFFSET+YOFFSET.
+  Values are in pixel units, XOFFSET/YOFFSET is referenced from top left of screen.
+  Use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just position.
+  +
+  Example: `-g 200x400+0+100`
+*-H* [_<FILE>_]::
+  Execute HAL statements from _FILE_ with halcmd after the component is set up and ready.
+*-i*::
+  Enable info output.
+*-m*::
+  Force panel window to maximize.
+*-f*::
+  Force panel window to fullscreen.
+*-t* [_<THEME>_]::
+  Set Qt style. Default is system theme.
+*-x* [_<XID>_]::
+  Reparent QtVCP into an existing window XID instead of creating a new top level window.
+*--push_xid*::
+  Reparent window into a plug add push the plug xid number to standardout.
+*-u* [_<USERMOD>_]::
+  File path of user defined handler file.
+*-o* [_<USEROPTS>_]::
+  Pass _USEROPTS_ strings to handler under self.w.USEROPTIONS_ list variable.
+
+== SEE ALSO
+
+linuxcnc(1)
+
+Much more information about LinuxCNC and HAL is available in the
+LinuxCNC and HAL User Manuals, found at /usr/share/doc/LinuxCNC/.
+
+== BUGS
+
+None known at this time.
+
+== AUTHOR
+
+This man page written by Andy Pugh, as part of the LinuxCNC project.
+
+== REPORTING BUGS
+
+Report bugs at https://github.com/LinuxCNC/linuxcnc/issues.
+
+== COPYRIGHT
+
+Copyright © 2020 Andy Pugh.
+
+This is free software; see the source for copying conditions. There is
+NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.

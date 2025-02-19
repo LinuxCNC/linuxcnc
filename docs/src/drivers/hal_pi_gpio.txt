@@ -1,0 +1,106 @@
+[[cha:hal_pi_gpio-driver]]
+
+= HAL Driver for Raspberry Pi GPIO pins
+
+Note: This driver will not be compiled into images aimed at non-ARM CPUS.
+It is only really intended to work on the Raspberry Pi. It may, or may not, work on similar boards or direct clones.
+
+== Purpose
+
+This driver allows the use of the Rapberry Pi GPIO pins in a way analogous to the parallel port driver on x86 PCs. It can use the same step generators, encoder counters and similar components.
+
+== Usage
+
+----
+loadrt hal_pi_gpio dir=0x13407 exclude=0x1F64BF8
+----
+
+The "dir" mask determines whether the pins are inputs and outputs, the exclude mask prevents the driver from using the pins (and so allows them to be used for their normal RPi purposes such as SPI or UART)
+
+The mask can be in decimal or hexadecimal (hex may be easier as there will be no carries)
+
+Add up the values for all pins that should be configured as output, and for all pins that should be excluded according to the following table.
+
+[cols="1,1,1,1"]
+|===
+|	GPIO Num	|	Decimal	|	Hex	|	Pin Num
+
+|	2	|	1	|	0x00000001	|	3
+|	3	|	2	|	0x00000002	|	5
+|	4	|	4	|	0x00000004	|	7
+|	5	|	8	|	0x00000008	|	29
+|	6	|	16	|	0x00000010	|	31
+|	7	|	32	|	0x00000020	|	26
+|	8	|	64	|	0x00000040	|	24
+|	9	|	128	|	0x00000080	|	21
+|	10	|	256	|	0x00000100	|	19
+|	11	|	512	|	0x00000200	|	23
+|	12	|	1024	|	0x00000400	|	32
+|	13	|	2048	|	0x00000800	|	33
+|	14	|	4096	|	0x00001000	|	8
+|	15	|	8192	|	0x00002000	|	10
+|	16	|	16384	|	0x00004000	|	36
+|	17	|	32768	|	0x00008000	|	11
+|	18	|	65536	|	0x00010000	|	12
+|	19	|	131072	|	0x00020000	|	35
+|	20	|	262144	|	0x00040000	|	38
+|	21	|	524288	|	0x00080000	|	40
+|	22	|	1048576	|	0x00100000	|	15
+|	23	|	2097152	|	0x00200000	|	16
+|	24	|	4194304	|	0x00400000	|	18
+|	25	|	8388608	|	0x00800000	|	22
+|	26	|	16777216	|	0x01000000	|	37
+|	27	|	33554432	|	0x02000000	|	13
+|===
+
+Note that in the calculation of the masks the GPIO numbers are used. Whereas in the naming of the HAL pins it is the Raspberry Pi header pin numbers.
+
+So, for example, if you enable GPIO 17 as an output (dir=0x200) then that output will be controlled by the hal pin *hal_pi_gpio.pin-11-out*.
+
+
+== Pins
+
+* hal_pi_gpio.pin-NN-out
+* hal_pi_gpio.pin-NN-in
+
+Depending on the dir and exclude masks.
+
+== Parameters
+
+Only the standard timing parameters which are created for all components exist.
+
+*hal_pi_gpio.read.tmax
+*hal_pi_gpio.read.tmax-increased
+*hal_pi_gpio.write.tmax
+*hal_pi_gpio.write.tmax-increased
+
+For unknown reasons the driver also creates HAL _pins_ to indicate timing
+
+*hal_pi_gpio.read.time
+*hal_pi_gpio.write.time
+
+
+== Functions
+
+* 'hal_pi_gpio.read' - Add this to the base thread to update the HAL pin values to match the physical input values.
+
+* 'hal_pi_gpio.write' - Add this to the base thread to update the physical pins to match the HAL values.
+
+Typically the 'read' function will be early in the call list, before any encoder counters and the 'write' function will be later in the call list, after stepgen.make-pulses.
+
+
+== Pin Numbering
+
+The GPIO connector and the pinout has been consistent since around 2015.
+These older Pi models are probably a poor choice for LinuxCNC anyway.
+However, this driver is designed to work with them, and will detect and correctly configure for the two alternative pinouts.
+
+The current pinout mapping between GPIO numbers and connector pin numbers is included in the table above.
+
+Note that the config string uses GPIO numbers, but once the driver is loaded the HAL pin names refer to connector pin numbers.
+
+This may be more logical than it first appears. When setting up you need to configure enough pins of each type, whilst avoiding overwriting any other functions that your system needs. Then once the driver is loaded, in the HAL layer you just want to know where to connect the wires for each HAL pin.
+
+== Known Bugs
+
+At the moment (2023-07-16) this driver only seems to work on Raspbian as the generic Debian image does not set up the correct interfaces in /dev/gpiomem and restricts access to the /sys/mem interface.

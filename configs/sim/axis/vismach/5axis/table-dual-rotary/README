@@ -1,0 +1,42 @@
+Switchable Table Dual Rotary (tdr) Sim config
+
+xyzab-tdr (switchable kinematics)
+
+
+Demonstrations:
+
+For a demonstration of XYZAB_TCP kinematics the user can run the preloaded demo gcode with the default offsets.
+
+In the right hand panel of the axis gui sliders are provided to
+
+- change the geometrical (x,z)-offsets as measured from the rotation-point of the A/B rotary-assembly to the
+  face center of the rotary A table. The offsets are visibly adjusted in the vismach simulation and represented by a red indicator
+  for the x-offset and a blue indicator for the z-offset.
+
+- see the effects of misconfiguring the (x,y,z)-rot-point values used in the kinematics. These values represent the
+  physical position of the rotary-assembly in the machine as measured from the machine home position to the rotation-point
+  of the assembly. The rotation-point is identical to the intersection of the two rotational axes A and B when the (x,z)-offsets
+  are zero. When (x,z)-offsets are applied the rotation-point stays on the rotational B axis. The 'rot-point' as set by
+  these values as well as the true rotation-point of the rotary-assembly are indicated in the vismach simulation by a yellow cross
+  and a red sphere respectively.
+
+NOTE:
+For proper tool-path preview RELOAD THE CGODE after startup and after changing offset values.
+
+
+
+***********************************************
+Note: IMPORTANT ini file requirements:
+
+[HAL]
+HALCMD = net :kinstype-select <= motion.analog-out-0N => motion.switchkins-type
+
+[RS274NGC]
+SUBROUTINE_PATH = ./remap_subs
+          REMAP = M428  modalgroup=10  ngc=428remap
+          REMAP = M429  modalgroup=10  ngc=429remap
+
+[HALUI]
+MDI_COMMAND = M429
+MDI_COMMAND = M428
+***********************************************

@@ -1,0 +1,14 @@
+= at_pid(9)
+
+== NAME
+
+at_pid - obsolete pid HAL component
+
+== DESCRIPTION
+
+The functionality of the at_pid component has been merged into the pid
+component.
+
+== SEE ALSO
+
+pid(9)

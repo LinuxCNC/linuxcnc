@@ -181,7 +181,7 @@ addf encoder.update-counters        base-thread
 
 # -------------------------------------------------
 
-# Next, create signals with meaningfull names, and attach them to the
+# Next, create signals with meaningful names, and attach them to the
 #  physical pins.  There are a lot of these, so they are broken up
 
 # ---------------------------------------------------
@@ -628,7 +628,7 @@ setp pid.2.maxoutput [JOINT_2]MAX_OUTPUT
 
 # LADDER LOGIC!!!
 #
-# Classic ladder doesn't let you use meaningfull names, so this
+# Classic ladder doesn't let you use meaningful names, so this
 # will be the magic decoder ring
 
 # INPUTS to CL

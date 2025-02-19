@@ -87,7 +87,7 @@ class GEditor(QMainWindow, _HalWidgetBase):
         self.createActions()
 
         # Create toolbar and add action
-        self.toolBar = QToolBar('File')
+        self.toolBar = QToolBar(self)
         self.toolBar.setObjectName('{}_toolbarfile'.format( self.objectName()))
         self.toolBar.addAction(self.newAction)
         self.toolBar.addAction(self.openAction)
@@ -272,7 +272,7 @@ class GEditor(QMainWindow, _HalWidgetBase):
     def gcodeLexerCall(self):
         self.gcodeLexer()
     def gcodeLexer(self):
-        self.editor.set_gcode_lexer()
+        self.editor.set_lexer("g-code")
 
     def nextCall(self):
         self.next()
@@ -303,7 +303,7 @@ class GEditor(QMainWindow, _HalWidgetBase):
     def pythonLexerCall(self):
         self.pythonLexer()
     def pythonLexer(self):
-        self.editor.set_python_lexer()
+        self.editor.set_lexer("python")
 
     def redoCall(self):
         self.redo()

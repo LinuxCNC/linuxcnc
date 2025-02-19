@@ -10,9 +10,9 @@
 #      this script (and any prior executed hal commands)
 #
 # Coordinate letters and number_of_joints are determined from the usual
-# ini # file settings.
+# INI file settings.
 #
-# Ini file usage:
+# INI file usage:
 #                 [HAL]HALFILE = basic_sim.tcl [Options]
 # Options:
 #                 -no_make_ddts
@@ -24,7 +24,7 @@
 # Notes:
 #  1) ::env() is a global associative array of environmental variables
 #     as exported by the main LinuxCNC script (linuxcnc)
-#  2) Settings from the ini file are available as global associative
+#  2) Settings from the INI file are available as global associative
 #     arrays named: ::SECTION(varname)
 #     example: ::EMCMOT(SERVO_PERIOD)
 #  3) procs are from sim_lib.tcl

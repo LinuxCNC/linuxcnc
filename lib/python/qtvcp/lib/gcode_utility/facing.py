@@ -6,8 +6,8 @@ import tempfile
 import atexit
 import shutil
 
-from PyQt5 import QtCore, QtGui, QtWidgets, uic
-from PyQt5.QtCore import QFile
+from PyQt5 import QtGui, QtWidgets, uic
+from PyQt5.QtCore import QFile, QRegExp
 from PyQt5.QtWidgets import QFileDialog, QMessageBox
 
 from linuxcnc import OPERATOR_ERROR, NML_ERROR
@@ -37,8 +37,9 @@ class Facing(QtWidgets.QWidget):
         self.mb.setWindowTitle("Facing Help")
         self.mb.setText(help_text)
         self.mb.setStandardButtons(QMessageBox.Ok)
+        STATUS.connect('forced-update',lambda w:self.init())
 
-        
+    def init(self):
         # Initial values
         self._tmp = None
         self.unit_code = "G21"
@@ -55,18 +56,14 @@ class Facing(QtWidgets.QWidget):
         self.valid = True
         self.units_text = ''
 
-        # set valid input formats for lineEdits
-        self.lineEdit_tool.setValidator(QtGui.QDoubleValidator(0, 999, 3))
+        self.units_changed()
+
+        # set defaults
         self.lineEdit_tool.setText(str(self.tool_dia))
-        self.lineEdit_spindle.setValidator(QtGui.QDoubleValidator(0, 99999, 0))
         self.lineEdit_spindle.setText(str(self.rpm))
-        self.lineEdit_feedrate.setValidator(QtGui.QDoubleValidator(0, 9999, 1))
         self.lineEdit_feedrate.setText(str(self.feedrate))
-        self.lineEdit_stepover.setValidator(QtGui.QDoubleValidator(0, 99, 1))
         self.lineEdit_stepover.setText(str(self.stepover))
-        self.lineEdit_size_x.setValidator(QtGui.QDoubleValidator(0, 9999, 3))
         self.lineEdit_size_x.setText(str(self.size_x))
-        self.lineEdit_size_y.setValidator(QtGui.QDoubleValidator(0, 9999, 3))
         self.lineEdit_size_y.setText(str(self.size_y))
         self.lineEdit_comment.setText('Face slabbing Program')
 
@@ -83,9 +80,10 @@ class Facing(QtWidgets.QWidget):
         self.rbtn_raster_0.clicked.connect(self.raster_changed)
         self.rbtn_raster_45.clicked.connect(self.raster_changed)
         self.rbtn_raster_90.clicked.connect(self.raster_changed)
+        self.rbtn_raster_climb_across.clicked.connect(self.raster_changed)
+        self.rbtn_raster_climb_in.clicked.connect(self.raster_changed)
         self.btn_help.clicked.connect(lambda obj: self.mb.show())
 
-        self.units_changed()
         self.validate()
         self.raster_changed()
 
@@ -103,6 +101,24 @@ class Facing(QtWidgets.QWidget):
         self.lbl_stepover_unit.setText(text)
         self.lbl_size_unit.setText(text)
         self.units_text = ("**NOTE - All units are in {}".format(text))
+        self.set_validator()
+
+    def set_validator(self):
+        # set valid input formats for lineEdits
+        if self.rbtn_inch.isChecked():
+            valid_size = QtGui.QRegExpValidator(QRegExp('[0-9]{0,6}[.][0-9]{0,4}'))
+            valid_step = QtGui.QRegExpValidator(QRegExp('[0-9]{0,6}[.][0-9]{0,2}'))
+            valid_feed = QtGui.QRegExpValidator(QRegExp('[0-9]{0,6}[.][0-9]{0,3}'))
+        else:
+            valid_size = QtGui.QRegExpValidator(QRegExp('[0-9]{0,6}[.][0-9]{0,3}'))
+            valid_step = QtGui.QRegExpValidator(QRegExp('[0-9]{0,5}[.][0-9]{0,1}'))
+            valid_feed = QtGui.QRegExpValidator(QRegExp('[0-9]{0,5}[.][0-9]{0,1}'))
+        self.lineEdit_tool.setValidator(valid_size)
+        self.lineEdit_spindle.setValidator(QtGui.QRegExpValidator(QRegExp('[0-9]{0,5}')))
+        self.lineEdit_feedrate.setValidator(valid_feed)
+        self.lineEdit_stepover.setValidator(valid_step)
+        self.lineEdit_size_x.setValidator(valid_size)
+        self.lineEdit_size_y.setValidator(valid_size)
 
     def raster_changed(self):
         if self.rbtn_raster_0.isChecked():
@@ -111,6 +127,10 @@ class Facing(QtWidgets.QWidget):
             pixmap = QtGui.QPixmap(os.path.join(IMAGES, 'raster_45.png'))
         elif self.rbtn_raster_90.isChecked():
             pixmap = QtGui.QPixmap(os.path.join(IMAGES, 'raster_90.png'))
+        elif self.rbtn_raster_climb_across.isChecked():
+            pixmap = QtGui.QPixmap(os.path.join(IMAGES, 'raster_climb_across.png'))
+        elif self.rbtn_raster_climb_in.isChecked():
+            pixmap = QtGui.QPixmap(os.path.join(IMAGES, 'raster_climb_in.png'))
         self.lbl_image.setPixmap(pixmap)
 
     def validate(self):
@@ -221,17 +241,44 @@ class Facing(QtWidgets.QWidget):
         self.next_line("{} G40 G49 G64 P0.03".format(self.unit_code))
         self.next_line("G17")
         self.next_line("G0 Z{}".format(self.safe_z))
-        self.next_line("G0 X0.0 Y0.0")
+
+        # self.next_line("G0 X0.0 Y0.0")
         self.next_line("S{} M3".format(self.rpm))
-        self.next_line("G0 Z{}".format(self.safe_z / 2))
-        self.next_line("G1 Z0.0 F{}".format(self.feedrate / 2))
+        # self.next_line("G0 Z{}".format(self.safe_z / 2))
+        # self.next_line("G1 Z0.0 F{}".format(self.feedrate / 2))
         # main section
         if self.rbtn_raster_0.isChecked():
+            self.next_line("G0 X0.0 Y0.0")
+            self.next_line("G0 Z{}".format(self.safe_z / 2))
+            self.next_line("G1 Z0.0 F{}".format(self.feedrate / 2))
             self.raster_0()
         elif self.rbtn_raster_45.isChecked():
+            self.next_line("G0 X0.0 Y0.0")
+            self.next_line("G0 Z{}".format(self.safe_z / 2))
+            self.next_line("G1 Z0.0 F{}".format(self.feedrate / 2))
             self.raster_45()
         elif self.rbtn_raster_90.isChecked():
+            self.next_line("G0 X0.0 Y0.0")
+            self.next_line("G0 Z{}".format(self.safe_z / 2))
+            self.next_line("G1 Z0.0 F{}".format(self.feedrate / 2))
             self.raster_90()
+        elif self.rbtn_raster_climb_across.isChecked():
+            start_x = self.size_x + self.tool_dia
+            # start_y = 0.0 - self.stepover
+            start_y = 0.0
+            self.next_line("G0 X{} Y{}".format(start_x, start_y))
+            self.next_line("G0 Z{}".format(self.safe_z / 2))
+            self.next_line("G1 Z0.0 F{}".format(self.feedrate / 2))
+
+            self.raster_climb_across()
+        elif self.rbtn_raster_climb_in.isChecked():
+            start_x = self.size_x + self.tool_dia
+            start_y = 0.0
+            self.next_line("G0 X{} Y{}".format(start_x, start_y))
+            self.next_line("G0 Z{}".format(self.safe_z / 2))
+            self.next_line("G1 Z0.0 F{}".format(self.feedrate / 2))
+
+            self.raster_climb_in()
         else:
             print("Fatal error occurred - exiting")
             sys.exit()
@@ -348,6 +395,57 @@ class Facing(QtWidgets.QWidget):
             next_x = min(next_x + self.stepover, self.size_x)
             self.next_line("X{}".format(next_x))
             self.next_line("Y{}".format(next_y))
+
+    def raster_climb_across(self):
+        # Remember 0,0 is at the lower left 
+        start_x = self.size_x + self.tool_dia
+        end_x = 0.0 - self.tool_dia
+        # next_y = 0.0 - self.stepover
+        next_y = 0.0
+        self.next_line("G1 X{} F{}".format(end_x, self.feedrate))
+        while next_y < self.size_y:
+            # i ^= 1
+            # next_x = x[i]
+            # lift the spindle
+            self.next_line("G0 Z{} F{}".format(self.safe_z,self.feedrate))
+
+            next_y = min(next_y + self.stepover, self.size_y)
+            # Move back to the starting side (right)
+            self.next_line("G0 X{} Y{} F{}".format(start_x,next_y,self.feedrate))
+            # lower the spindle
+            self.next_line("G1 Z0.0 F{}".format(self.feedrate / 2))
+
+            # facing cut
+            self.next_line("G1 X{} F{}".format(end_x, self.feedrate))
+
+
+    def raster_climb_in(self):
+        # Remember 0,0 is at the lower left
+        left_x = 0.0
+        back_y = self.size_y
+        front_y = 0.0
+        right_x = self.size_x
+        # Walk around the outside (I'm assuming the stepover is 1/2 tool diameter)
+        while front_y < self.size_y/2:
+            self.next_line("G1 X{} F{}".format(left_x, self.feedrate))           # Front edge
+            front_y = front_y + self.stepover
+            
+            self.next_line("G1 Y{}".format(back_y))                              # Left edge
+            left_x = left_x + self.stepover
+
+            self.next_line("G1 X{}".format(right_x))                        # Back edge
+            back_y = back_y - self.stepover
+
+            
+            self.next_line("G1 Y{}".format(front_y))                        # Right edge, stop before you get all the way to Y 0
+            right_x = right_x - self.stepover
+        
+        # lift the spindle when done
+        self.next_line("G0 Z{} F{}".format(self.safe_z,self.feedrate))
+        
+
+
+
 
     def next_line(self, text):
         self.file.write("N{} ".format(self.line_num) + text + "\n")

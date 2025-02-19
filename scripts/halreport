@@ -690,9 +690,9 @@ output, input, and io pins (OUT:,IN:,IO:) followed by
 the function name, thread_name, and the addf-order for
 the function.
 
-For critcal signal paths (e.g., pid loops), the signal OUT
+For critical signal paths (e.g., pid loops), the signal OUT
 pin should be numerically lower in order than the order of
-any timing-critcal IN pins for the signal."
+any timing-critical IN pins for the signal."
 
   set ::HR(thread_names) [hal list thread]
   set ::HR(functs)       [hal list funct]
@@ -893,7 +893,7 @@ any timing-critcal IN pins for the signal."
 
   puts $fd "Notes:
 1) Userspace functions are not ordered and are marked \"notRT\".
-2) Most in-tree components important for timing-critcal signal
+2) Most in-tree components important for timing-critical signal
    paths are handled.  When a component is not handled explicitly,
    a function may be tagged as ?-function_name.
 3) When alias pin names are used, the actual pin name is shown

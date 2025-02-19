@@ -62,7 +62,13 @@ def use_pango_font(font, start, count, will_call_prepost=False):
         context.restore()
         w, h = int(w / Pango.SCALE), int(h / Pango.SCALE)
         glNewList(base+i, GL_COMPILE)
-        glBitmap(0, 0, 0, 0, 0, h-d, ''.encode())
+        #workaround: https://github.com/LinuxCNC/linuxcnc/pull/2446
+        try:
+            glBitmap(1, 0, 0, 0, 0, h-d, bytearray([0]*4))
+        except OpenGL.error.GLError:
+            glBitmap(1, 1, 0, 0, 0, h-d, bytearray([0]*4))
+
+
         #glDrawPixels(0, 0, 0, 0, 0, h-d, '');
         if not will_call_prepost:
             pango_font_pre()
@@ -72,8 +78,12 @@ def use_pango_font(font, start, count, will_call_prepost=False):
                 glDrawPixels(w, h, GL_LUMINANCE, GL_UNSIGNED_BYTE, a.tobytes())
             except Exception as e:
                 print("glnav Exception ",e)
+        #workaround: https://github.com/LinuxCNC/linuxcnc/pull/2446
+        try:
+            glBitmap(1, 0, 0, 0, w, -h+d, bytearray([0]*4))
+        except OpenGL.error.GLError:
+            glBitmap(1, 1, 0, 0, w, -h+d, bytearray([0]*4))
 
-        glBitmap(0, 0, 0, 0, w, -h+d, ''.encode())
         if not will_call_prepost:
             pango_font_post()
         glEndList()
@@ -320,10 +330,10 @@ class GlNavBase:
         self.recordMouse(x, y)
 
 
-    def set_viewangle(self, lat, lon):
+    def set_viewangle(self, lat, lon, forcerotate=0):
         self.lat = lat
         self.lon = lon
-        if self.perspective:
+        if forcerotate or self.perspective:
             glRotateScene(self, 0.5, self.xcenter, self.ycenter, self.zcenter, 0, 0, 0, 0)
         self._redraw()
 

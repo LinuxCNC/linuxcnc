@@ -956,7 +956,7 @@ proc popupmenu_watch {vartype label index writable which x y} {
     # add entries
     $m add command -label [msgcat::mc "Copy"] -command [list copyName $label]
     if {$writable} {
-        $m add command -label [msgcat::mc "Set to .."] -command [list setValue $label]
+        $m add command -label [msgcat::mc "Set to .."] -command [list setpValue $label]
     }
     if {$writable == -1} {
         $m add command -label [msgcat::mc "Unlink pin"] -command [list unlinkp $label $index]
@@ -1283,7 +1283,7 @@ proc usage {} {
   puts "           --help    (this help)"
   puts "           --fformat format_string_for_float"
   puts "           --iformat format_string_for_int"
-  puts "           --noprefs don't use preference file so save settings"
+  puts "           --noprefs don't use preference file to save settings"
   puts ""
   puts "Notes:"
   puts "       Create watchfile in halshow using: 'File/Save Watch List'."

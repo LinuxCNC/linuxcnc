@@ -149,9 +149,10 @@ class Track(Collection):
         
     def map_coords(self,tx,ty,tz,transform):
         # now we have to transform them to the world frame
-        wx = tx*transform[0]+ty*transform[4]+tz*transform[8]+transform[12]
-        wy = tx*transform[1]+ty*transform[5]+tz*transform[9]+transform[13]
-        wz = tx*transform[2]+ty*transform[6]+tz*transform[10]+transform[14]
+        wx = tx*transform[0][0]+ty*transform[1][0]+tz*transform[2][0]+transform[3][0]
+        wy = tx*transform[0][1]+ty*transform[1][1]+tz*transform[2][1]+transform[3][1]
+        wz = tx*transform[0][2]+ty*transform[1][2]+tz*transform[2][2]+transform[3][2]
+
         return([wx,wy,wz])
         
         
@@ -1019,7 +1020,7 @@ def main(model, tool, work, size=10, hud=0, rotation_vectors=None, lat=0, lon=0)
     # we want to be able to see the model from all angles
     t.set_latitudelimits(-180, 180)
     # set starting viewpoint if desired
-    t.after(100, lambda: t.set_viewangle(lat, lon))
+    t.after(100, lambda: t.set_viewangle(lat, lon, forcerotate=1))
 
     vcomp = hal.component("vismach")
     vcomp.newpin("plotclear",hal.HAL_BIT,hal.HAL_IN)

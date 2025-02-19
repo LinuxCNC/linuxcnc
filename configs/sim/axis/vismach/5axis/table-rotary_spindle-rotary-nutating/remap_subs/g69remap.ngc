@@ -1,0 +1,11 @@
+; this is the wrapper remap to cancel TWP
+
+o<g69remap>sub
+M66 L0 E0       ; force sync, stop read ahead
+M469            ; call the python G69_core code
+M68 E3 Q0       ; switch to identity kins
+M68 E2 Q0       ; reset twp-state to 'undefined' (0)
+G54             ; switch to G54
+M66 L0 E0       ; force sync, stop read ahead
+o<g69remap>endsub
+m2

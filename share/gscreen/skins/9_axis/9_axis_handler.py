@@ -54,6 +54,20 @@ class HandlerClass:
         self.nhits += 1
         widget.set_label("hits: %d" % self.nhits)
 
+    # This is a new method that calls a gscreen method to toggle the DRO units
+    # Gscreen's regular unit button saves the state
+    # for startup, This one just changes it for the session
+    def on_metric_select_clicked(self,widget):
+        data = (self.data.dro_units -1) * -1
+        self.gscreen.set_dro_units(data,False)
+        for i in ("1","2","3"):
+            for letter in self.data.axis_list:
+                axis = "dro_%s%s"% (letter,i)
+                try:
+                    self.widgets[axis].set_property("display_units_mm",data)
+                except:
+                    pass
+
     # This method is overridden from gscreen
     # We selected this method name in the glade file as a callback.
     # Since this method name is the same as one in gscreen,

@@ -154,7 +154,7 @@ static LRESULT (CALLBACK *tkWinChildProc)(HWND hwnd, UINT message,
 
 /* The constant DUMMY_WINDOW is used to signal window creation 
    failure from the Togl_CreateWindow() */
-#define DUMMY_WINDOW -1
+#define DUMMY_WINDOW ((Window)-1)
 
 #define ALL_EVENTS_MASK 	\
    (KeyPressMask |		\
@@ -351,7 +351,7 @@ static Tk_ConfigSpec configSpecs[] = {
 
 #ifndef NO_TK_CURSOR
     { TK_CONFIG_ACTIVE_CURSOR, "-cursor", "cursor", "Cursor",
-     "", Tk_Offset(struct Togl, Cursor), TK_CONFIG_NULL_OK },
+     "", Tk_Offset(struct Togl, Cursor), TK_CONFIG_NULL_OK, NULL },
 #endif
 
     {TK_CONFIG_INT, "-time", "time", "Time",
@@ -1599,7 +1599,7 @@ static LRESULT CALLBACK Win32WinProc( HWND hwnd, UINT message,
 static Window Togl_CreateWindow(Tk_Window tkwin,
 				Window parent, 
 				ClientData instanceData) {
-  
+  (void)tkwin;
   struct Togl *togl = (struct Togl*) instanceData;
   XVisualInfo *visinfo = NULL;
   Display *dpy;

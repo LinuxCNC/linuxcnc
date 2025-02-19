@@ -47,11 +47,11 @@ s********************************************************************/
 // http://elinux.org/index.php?title=RPi_Low-level_peripherals&printable=yes
 // Rev 1 Raspberry:
 static unsigned char rev1_gpios[] = {0, 1, 4, 7,   8,  9, 10, 11, 14, 15, 17, 18, 21, 22, 23, 24, 25};
-static unsigned char rev1_pins[] = {3, 5, 7, 26, 24, 21, 19, 23,  8, 10, 11, 12, 13, 15, 16, 18, 22};
+static unsigned char rev1_pins[] =  {3, 5, 7, 26, 24, 21, 19, 23,  8, 10, 11, 12, 13, 15, 16, 18, 22};
 
 // Rev2 Raspberry:
 static unsigned char rev2_gpios[] = {2, 3, 4,  7,  8,  9, 10, 11, 14, 15, 17, 18, 22, 23, 24, 25, 27};
-static unsigned char rev2_pins[] = {3, 5, 7, 26, 24, 21, 19, 23, 8,  10, 11, 12, 15, 16, 18, 22, 13};
+static unsigned char rev2_pins[] =  {3, 5, 7, 26, 24, 21, 19, 23, 8,  10, 11, 12, 15, 16, 18, 22, 13};
 
 // Raspberry2/3:
 static unsigned char rpi2_gpios[] = {2, 3, 4,  5,  6,  7,  8,  9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27 };
@@ -237,50 +237,30 @@ int rtapi_app_main(void)
     rtapi_print_msg(RTAPI_MSG_INFO, "%d cores rev %d", ncores, rev);
 
     switch (rev) {
-     case 6:
-      rtapi_print_msg(RTAPI_MSG_INFO, "RaspberryPi400\n");
-      pins = rpi2_pins;
-      gpios = rpi2_gpios;
-      npins = sizeof(rpi2_pins);
-      break;
-    case 5:
-      rtapi_print_msg(RTAPI_MSG_INFO, "Raspberry4\n");
-      pins = rpi2_pins;
-      gpios = rpi2_gpios;
-      npins = sizeof(rpi2_pins);
-      break;
-    case 4:
-      rtapi_print_msg(RTAPI_MSG_INFO, "Raspberry3\n");
-      pins = rpi2_pins;
-      gpios = rpi2_gpios;
-      npins = sizeof(rpi2_pins);
-      break;
-
-    case 3:
-      rtapi_print_msg(RTAPI_MSG_INFO, "Raspberry2\n");
-      pins = rpi2_pins;
-      gpios = rpi2_gpios;
-      npins = sizeof(rpi2_pins);
-      break;
-
-    case 1:
-      rtapi_print_msg(RTAPI_MSG_INFO, "Raspberry1 rev 1.0\n");
+     case 1:
       pins = rev1_pins;
       gpios = rev1_gpios;
       npins = sizeof(rev1_pins);
       break;
-
-    case 2:
-      rtapi_print_msg(RTAPI_MSG_INFO, "Raspberry1 Rev 2.0\n");
+     case 2:
       pins = rev2_pins;
       gpios = rev2_gpios;
       npins = sizeof(rev2_pins);
       break;
-
-    default:
-	rtapi_print_msg(RTAPI_MSG_ERR,
-			"HAL_PI_GPIO: ERROR: board revision %d not supported\n", rev);
-	return -EINVAL;
+     default: // This will need to change if there is a V3 pinout
+      pins = rpi2_pins;
+      gpios = rpi2_gpios;
+      npins = sizeof(rpi2_pins);
+      if (rev > 20){ // Rev 20 is Compute Module 4
+	int db = rtapi_get_msg_level();
+	rtapi_set_msg_level(3);
+	rev = get_rpi_revision(); // call the function with a higher message level to print model
+	rtapi_print_msg(RTAPI_MSG_INFO, "The Pi model %i is not known to "
+	      "work with this driver but will be assumed to be be using "
+	      "the RPi2+ layout 40 pin connector\n", rev);
+	rtapi_set_msg_level(db);
+      }
+      break;
     }
     port_data = hal_malloc(npins * sizeof(void *));
     if (port_data == 0) {

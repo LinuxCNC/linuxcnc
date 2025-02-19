@@ -1,5 +1,5 @@
 /* Classic Ladder Project */
-/* Copyright (C) 2001-2007 Marc Le Douarain */
+/* Copyright (C) 2001-2010 Marc Le Douarain */
 /* http://membres.lycos.fr/mavati/classicladder/ */
 /* http://www.sourceforge.net/projects/classicladder */
 /* October 2002 */
@@ -138,14 +138,18 @@ void RefreshStepsVars( void )
 	int NumStep;
 	for( NumStep=0; NumStep<NBR_STEPS; NumStep++ )
 	{
-		if ( Sequential->Step[ NumStep ].Activated )
-			Sequential->Step[ NumStep ].TimeActivated += InfosGene->GeneralParams.PeriodicRefreshMilliSecs;
-		else
-			Sequential->Step[ NumStep ].TimeActivated = 0;
+		//added in 0.8.7, otherwise Step 0 vars were lost by all the default 0 steps not created!!!
+		if ( Sequential->Step[ NumStep ].NumPage!=-1 )
+		{
+			if ( Sequential->Step[ NumStep ].Activated )
+				Sequential->Step[ NumStep ].TimeActivated += InfosGene->GeneralParams.PeriodicRefreshMilliSecs;
+			else
+				Sequential->Step[ NumStep ].TimeActivated = 0;
 
-		/* refresh the vars for the step number associated to this step */
-		WriteVar( VAR_STEP_ACTIVITY, Sequential->Step[ NumStep ].StepNumber, Sequential->Step[ NumStep ].Activated );
-		WriteVar( VAR_STEP_TIME, Sequential->Step[ NumStep ].StepNumber, Sequential->Step[ NumStep ].TimeActivated/1000 );
+			/* refresh the vars for the step number associated to this step */
+			WriteVar( VAR_STEP_ACTIVITY, Sequential->Step[ NumStep ].StepNumber, Sequential->Step[ NumStep ].Activated );
+			WriteVar( VAR_STEP_TIME, Sequential->Step[ NumStep ].StepNumber, Sequential->Step[ NumStep ].TimeActivated/1000 );
+		}
 	}
 }
 

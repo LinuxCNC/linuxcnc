@@ -3,7 +3,7 @@
 # first load all the RT modules that will be needed
 # kinematics
 loadrt [KINS]KINEMATICS
-# motion controller, get name and thread periods from ini file
+# motion controller, get name and thread periods from INI file
 loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS
 # PID module, for three PID loops
 loadrt pid names=pid_x,pid_y,pid_z
@@ -146,7 +146,7 @@ setp pid_z.maxoutput [JOINT_2]MAX_VELOCITY
 # do "halcmd show param | grep pid" to get a listing 
 # of the tuning parameters, and enter those values here.
 
-# the values below come from the ini
+# the values below come from the INI
 setp pid_x.Pgain [JOINT_0]PGAIN
 setp pid_x.Igain [JOINT_0]IGAIN
 setp pid_x.Dgain [JOINT_0]DGAIN

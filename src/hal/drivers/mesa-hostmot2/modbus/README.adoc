@@ -1,0 +1,11 @@
+Do not edit mesa_modbus.c (Unless you are sure that you want to, of
+course).
+Create a new xxxxx.mod file that describes your particular modbus device
+and run
+----
+modcompile xxxxx.mod
+----
+to compile, and install, the component on your system.
+
+See the main mesa_modbus docs (in the "Hardware Drivers" section for
+further information.

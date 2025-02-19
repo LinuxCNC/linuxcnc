@@ -255,7 +255,7 @@
                </size>
               </property>
               <property name="maxLength">
-               <number>5</number>
+               <number>3</number>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -369,7 +369,7 @@
                </size>
               </property>
               <property name="maxLength">
-               <number>6</number>
+               <number>10</number>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -603,7 +603,7 @@
                </size>
               </property>
               <property name="maxLength">
-               <number>4</number>
+               <number>10</number>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -709,6 +709,9 @@
                 <width>80</width>
                 <height>16777215</height>
                </size>
+              </property>
+              <property name="maxLength">
+               <number>10</number>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
@@ -821,6 +824,9 @@
                 <height>16777215</height>
                </size>
               </property>
+              <property name="maxLength">
+               <number>10</number>
+              </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>
               </property>
@@ -919,6 +925,9 @@
                 <width>80</width>
                 <height>16777215</height>
                </size>
+              </property>
+              <property name="maxLength">
+               <number>10</number>
               </property>
               <property name="alignment">
                <set>Qt::AlignCenter</set>

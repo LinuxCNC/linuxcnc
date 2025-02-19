@@ -20,7 +20,7 @@ Axis::
     linear axes relative to the tool are called U, V, and W
     respectively.
 
-Axis(GUI)::
+AXIS(GUI)::
      (((GUI))) One of the Graphical User Interfaces available to users of
     LinuxCNC. It features the modern use of menus and mouse buttons while
     automating and hiding some of the more traditional LinuxCNC controls. It is
@@ -192,7 +192,7 @@ Home::
     that is used to make sure the computer and the actual machine both
     agree on the tool position.
 
-ini file::
+INI file::
      (((INI))) A text file that contains most of the information
     that configures LinuxCNC for a particular machine.
 
@@ -213,7 +213,7 @@ Jog::
     jog speed can be set from the graphical interface.
 
 kernel-space::
-     See real-time.
+     Code running inside the kernel, as opposed to code running in userspace.  Some realtime systems (like RTAI) run realtime code in the kernel and non-realtime code in userspace, while other realtime systems (like Preempt-RT) run both realtime and non-realtime code in userspace.
 
 Kinematics::
      (((kinematics))) The position relationship between world
@@ -232,7 +232,7 @@ Lead-screw::
 
 Machine units::
      (((machine units))) The linear and angular units used for machine
-    configuration. These units are specified and used in the ini file.
+    configuration. These units are specified and used in the INI file.
     HAL pins and parameters are also generally in machine units.
 
 MDI::
@@ -273,7 +273,7 @@ Program Units::
 
 Python::
      General-purpose, very high-level programming language. Used in LinuxCNC
-    for the Axis GUI, the Stepconf configuration tool, and several G-code
+    for the Axis GUI, the StepConf configuration tool, and several G-code
     programming scripts.
 
 Rapid::
@@ -288,11 +288,7 @@ Rapid rate::
     testing a G-code program for the first time.
 
 Real-time::
-    (((real-time))) Software that is intended to meet
-    very strict timing deadlines. Under Linux, in order to meet these
-    requirements it is necessary to install a realtime kernel such
-    as RTAI and build the software to run in the special real-time
-    environment. For this reason real-time software runs in kernel-space.
+    (((real-time))) Software that is intended to meet very strict timing deadlines. On Linux, in order to meet these requirements it is necessary to install a realtime kernel such as RTAI or Preempt-RT, and build the LinuxCNC software to run in the special real-time environment.  Realtime software can run in the kernel or in userspace, depending on the facilities offered by the system.
 
 RTAI::
      (((RTAI))) Real Time Application Interface, see
@@ -324,9 +320,8 @@ Servo Loop::
     velocity of an motor equipped with a feedback device.
 
 Signed Integer::
-     (((Signed Integer))) A whole number that can have a positive or
-    negative sign. In HAL it is known as s32. (A signed 32-bit
-    integer has a usable range of -2,147,483,647 to +2,147,483,647.)
+     (((Signed Integer))) A whole number that can have a positive or negative sign.
+     In HAL it is usually a <<sub:hal-s32,s32>>, but could be also a <<sub:hal-s64,s64>>.
 
 Spindle::
      (((spindle))) The part of a machine tool that spins
@@ -339,7 +334,7 @@ Spindle Speed Override::
     chatter caused by the cutter's teeth. Spindle Speed Override assumes
     that the LinuxCNC software has been configured to control spindle speed.
 
-Stepconf::
+StepConf::
      An LinuxCNC configuration wizard. It is able to handle many
     step-and-direction motion command based machines. It writes a full
     configuration after the user answers a few questions about the computer
@@ -368,9 +363,8 @@ Units::
     (((units))) See "Machine Units", "Display Units", or "Program Units".
 
 Unsigned Integer::
-     (((Unsigned Integer))) A whole number that has no sign. In HAL
-    it is known as u32. (An unsigned 32-bit integer has a usable range of
-    zero to 4,294,967,296.)
+    (((Unsigned Integer))) A whole number that has no sign.
+    In HAL it is usually a <<sub:hal-u32,u32>> but could be also a <<sub:hal-u64,u64>>.
 
 World Coordinates::
      (((world coordinates))) This is the absolute

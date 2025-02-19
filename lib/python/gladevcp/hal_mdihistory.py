@@ -50,7 +50,7 @@ except:
 
 import gettext             # to extract the strings to be translated
 
-class EMC_MDIHistory(Gtk.VBox, _EMC_ActionBase):
+class EMC_MDIHistory(Gtk.Box, _EMC_ActionBase):
     '''
     EMC_MDIHistory will store each MDI command to a file on your hard drive
     and display the grabbed commands in a treeview so they can be used again
@@ -73,7 +73,8 @@ class EMC_MDIHistory(Gtk.VBox, _EMC_ActionBase):
                    }
 
     def __init__(self, *a, **kw):
-        Gtk.VBox.__init__(self, *a, **kw)
+        Gtk.Box.__init__(self, *a, **kw)
+        self.set_orientation(Gtk.Orientation.VERTICAL)
 
         self.use_double_click = False
         self.filename = os.path.expanduser(INFO.MDI_HISTORY_PATH)
@@ -123,7 +124,7 @@ class EMC_MDIHistory(Gtk.VBox, _EMC_ActionBase):
         GSTAT.connect('not-all-homed', lambda w,uj: self.set_sensitive(INFO.NO_HOME_REQUIRED) )
         self.reload()
         self.show_all()
-        
+
     def reload(self):
         self.model.clear()
 
@@ -135,12 +136,16 @@ class EMC_MDIHistory(Gtk.VBox, _EMC_ActionBase):
         fp.close()
 
         lines = filter(bool, lines)
+        last = Gtk.TreeIter()
         for l in lines:
-            self.model.append((l,))
-        #path = (len(list(lines))-1,)
-        path = 0 #TODO: breaks the functionality
-        self.tv.scroll_to_cell(path)
-        self.tv.set_cursor(path)
+            last = self.model.append((l,))
+        path = self.model.get_path(last)
+        # if the hal mdi history file is empty, the model is empty and we will get an None iter
+        try:
+            self.tv.scroll_to_cell(path)
+            self.tv.set_cursor(path)
+        except:
+            pass
         self.entry.set_text('')
 
     def submit(self, *a):
