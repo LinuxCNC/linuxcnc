@@ -39,12 +39,12 @@ variable int debounce_cntr;
 variable unsigned debounce_set;
 variable int state;
 
+option period no;
 function _ nofp;
 license "GPL";
 author "Anders Wallin, David Mueller";
 ;;
 FUNCTION(_)  {
-    (void)period;
 
     if (( debounce < 1 ) || ( debounce > 10000 )) {
         debounce_set = 2; /* set a sane value */

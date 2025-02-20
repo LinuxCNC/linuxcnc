@@ -47,12 +47,12 @@ switches triggered by the \\fB j0,j1 motor\\fR positions.
 (man kins for more information)
 """;
 
+option period no;
 license "GPL";
 author "Dewey Garrett based on forum post from nbremond";
 ;;
 
 FUNCTION(_) {
-    (void)period;
 
     // forward kinematics (j0==x,j1==y from motor positions):
     j0_motor_pos_fb = alpha_fb + beta_fb;

@@ -15,6 +15,7 @@ pin in bit in "button input";
 pin io bit out "on/off output";
 param rw u32 debounce = 2 "debounce delay in periods";
 option data toggle_data;
+option period no;
 
 function _ nofp;
 license "GPL";
@@ -27,7 +28,6 @@ typedef struct {
 } toggle_data;
 
 FUNCTION(_) {
-    (void)period;
 
     if (( debounce < 1 ) || ( debounce > 10000 )) {
 	/* set a sane value, we don't want 2 million second delays */

@@ -49,6 +49,7 @@ pin in  bit     reset_bit    = false  "Bit reset value";
 pin in  bit     retriggerable = true  "Allow additional edges to reset";
 pin in  bit     rising        = true  "Trigger on rising edge";
 pin in  bit     falling       = false "Trigger on falling edge";
+option period no;
 function _  fp "Update the output value";
 description """
 Component to reset IO signals.
@@ -63,7 +64,6 @@ author "Alexander Rössler";
 variable hal_bit_t last_trigger = false;
 ;;
 FUNCTION(_) {
-    (void)period;
     if (((rising && (trigger)) || (falling && (!trigger)))
        && (trigger != last_trigger))
     {

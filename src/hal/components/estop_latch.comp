@@ -71,6 +71,7 @@ pin in bit reset;
 pin out bit ok_out = false;
 pin out bit fault_out = true;
 pin out bit watchdog;
+option period no;
 function _ nofp;
 option data estop_data;
 license "GPL";
@@ -80,7 +81,6 @@ author "John Kasunich";
 typedef struct { int old_reset; } estop_data;
 
 FUNCTION(_) {
-    (void)period;
     /* check inputs */
     if ( ok_in && !fault_in) {
 	/* no fault conditions, check for reset edge */

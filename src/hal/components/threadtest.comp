@@ -1,5 +1,6 @@
 component threadtest "LinuxCNC HAL component for testing thread behavior";
 pin out unsigned count;
+option period no;
 function increment nofp;
 function reset nofp;
 license "GPL";
@@ -7,5 +8,5 @@ author "Jeff Epler";
 
 ;;
 
-FUNCTION(increment) { (void)period; count++; }
-FUNCTION(reset) { (void)period; count=0; }
+FUNCTION(increment) { count++; }
+FUNCTION(reset) { count=0; }

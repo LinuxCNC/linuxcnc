@@ -22,12 +22,12 @@ pin in float vel "Current velocity";
 param rw float feed "Feed rate reference value";
 notes "Note that if enable is false, out = in.";
 
+option period no;
 function _;
 license "GPL";
 author "Eric H. Johnson";
 ;;
 FUNCTION(_) {
-  (void)period;
   if (enable) out = in * (vel / feed);
   else out = in;
 }

@@ -70,13 +70,13 @@ When a joint home switch trips, the commanded velocity will drop immediately fro
 """;
 license "GPL";
 author "Charles Steinkuehler";
+option period no;
 variable float offset[7] = 0.0;
 variable float prev_cmd = 0.0;
 variable int   fb_joint = 0;
 variable int   latching = 0;
 ;;
 FUNCTION(read) {
-    (void)period;
     int i=1;
 
     // First (or only) joint
@@ -124,7 +124,6 @@ FUNCTION(read) {
 }
 
 FUNCTION(write) {
-    (void)period;
     int i;
     float delta;
 

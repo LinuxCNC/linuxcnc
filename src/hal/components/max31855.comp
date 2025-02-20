@@ -40,6 +40,7 @@ pin out unsigned fault_flags.# [15 : (personality & 0xf)]  "Fault flags: 0x1  = 
 variable unsigned data_frame [15];
 variable unsigned state = 1;
 
+option period no;
 function bitbang_spi fp;
 license "GPL";
 author "Joseph Calderon";
@@ -152,7 +153,6 @@ static float read_celsius_adjusted(int32_t sensor_data) {
 }
 
 FUNCTION(bitbang_spi) {
-  (void)period;
   int nbit = (state >> 1) & 0x3f;
   int delay = (state >> 7) & 0x3ff;
   int cs = state & 0x1;

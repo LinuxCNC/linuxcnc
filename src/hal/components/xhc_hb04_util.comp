@@ -39,6 +39,7 @@ pin out float divide_by_k_out;
 pin in  float k = 1.0;
 
 option data xhc_data;
+option period no;
 
 variable double value0;
 variable double value1;
@@ -54,7 +55,6 @@ author "Dewey Garrett";
 typedef struct { int old_start_or_pause; } xhc_data;
 
 FUNCTION(_) {
-    (void)period;
 
     if (k == 0) {
       divide_by_k_out = 1e99;

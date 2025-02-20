@@ -67,6 +67,7 @@ pin out bit ok_out = true "Ok output";
 
 variable hal_bit_t last_reset = false;
 
+option period no;
 function _ nofp;
 license "GPL";
 author "Alexander Rössler";
@@ -76,7 +77,6 @@ author "Alexander Rössler";
 
 FUNCTION(_)
 {
-    (void)period;
     if (!enable)
     {
         error_out = error_in;

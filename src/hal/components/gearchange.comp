@@ -19,12 +19,12 @@ Since it is assumed that gear 2 is "high gear", \\fBscale2\\fR must be
 greater than 1, and will be reset to 1 if set lower.""";
 param rw bit reverse = 0 "Set to 1 to reverse the spindle in second gear.";
 
+option period no;
 function _;
 license "GPL";
 author "Stephen Wille Padnos";
 ;;
 FUNCTION(_) {
-    (void)period;
     hal_float_t temp_in = speed_in;
     hal_float_t sign=1;
     /* Assume that the output device is scaled so that gear 1 is "Pass-through" */

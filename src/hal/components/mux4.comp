@@ -24,13 +24,13 @@ pin in float in0;
 pin in float in1;
 pin in float in2;
 pin in float in3;
+option period no;
 function _;
 license "GPL";
 author "Jeff Epler";
 see_also "mux2(9), mux8(9), mux16(9), mux_generic(9).";
 ;;
 FUNCTION(_) {
-    (void)period;
     if(sel1) {
         if(sel0) out = in3;
         else out = in2;

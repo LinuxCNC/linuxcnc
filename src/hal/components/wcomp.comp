@@ -7,12 +7,12 @@ pin out bit under "True if \\fBin\\fR is less than or equal to \\fBmin\\fR";
 pin out bit over "True if \\fBin\\fR is greater than or equal to \\fBmax\\fR";
 notes "If \\fBmax\\fR <= \\fBmin\\fR then the behavior is undefined.";
 
+option period no;
 function _;
 license "GPL";
 author "Jeff Epler";
 ;;
 FUNCTION(_) { 
-  (void)period;
   double tmp = in;
   under = (tmp <= min_);
   over = (tmp >= max_);

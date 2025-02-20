@@ -33,6 +33,7 @@ pin io float out-io "The output value, compatible with PID gains";
 variable unsigned i = 0;
 
 option extra_setup 1;
+option period no;
 
 author "Andy Pugh";
 license "GPL";
@@ -42,7 +43,6 @@ function _;
 ;;
 
 FUNCTION(_){
-    (void)period;
     double f, x;
     x = in_;
     if (x >= x_val(personality-1)) {

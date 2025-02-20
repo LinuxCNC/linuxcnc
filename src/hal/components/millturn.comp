@@ -31,6 +31,7 @@ chapter (docs/src/motion/switchkins.txt)
 // The fpin pin is not accessible in kinematics functions.
 // Use the *_setup() function for pins and params used by kinematics.
 pin out s32 fpin=0"pin to demonstrate use of a conventional (non-kinematics) function fdemo";
+option period no;
 function fdemo;
 license "GPL";
 author "David Mueller";
@@ -53,7 +54,6 @@ static struct haldata {
 } *haldata;
 
 FUNCTION(fdemo) {
-    (void)period;
    // This function can be added to a thread (addf) for
    // purposes not related to the kinematics functions.
    if (fpin == 0) {

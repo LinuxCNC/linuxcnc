@@ -3,6 +3,7 @@ pin in @IN@ in;
 pin out @OUT@ out;
 @CC@pin out bit out_of_range "TRUE when 'in' is not in the range of @OUT@";
 @CC@param rw bit clamp """If TRUE, then clamp to the range of @OUT@.  If FALSE, then allow the value to "wrap around".""";
+option period no;
 function _ @FP@ "Update 'out' based on 'in'";
 license "GPL";
 author "Jeff Epler";
@@ -10,7 +11,6 @@ author "Jeff Epler";
 ;;
 #include <rtapi_stdint.h>
 FUNCTION(_) {
-    (void)period;
 	@TYPI@ val = in;
 @CC@	if(clamp) {
 #if @MAXEN@ == 0

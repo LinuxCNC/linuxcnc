@@ -46,6 +46,7 @@ pin out s32 rx-bytes "Number of Bytes received";
 variable char *name; // UART name
 
 option extra_setup yes;
+option period no;
 
 function send;
 function receive;
@@ -59,7 +60,6 @@ char *uart_chans[18] = {0,};
 RTAPI_MP_ARRAY_STRING(uart_chans, 16, "UART Channel names");
 
 FUNCTION(send){
-    (void)period;
 /* This function uses the hm2_uart_send function to transmit data see 
 man hm2_uart_send for more information. Data may be up to 64 bytes in size*/
     
@@ -74,7 +74,6 @@ man hm2_uart_send for more information. Data may be up to 64 bytes in size*/
 }
 
 FUNCTION(receive){
-    (void)period;
 /* This function uses the hm2_uart_send function to transmit data. 
  See man hm2_uart_send for more information. 16 bytes in the Rx buffer*/
     

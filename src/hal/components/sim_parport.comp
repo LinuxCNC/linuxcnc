@@ -124,6 +124,7 @@ pin out bit pin_15_in_not;
 
 pin in float reset_time;
 
+option period no;
 function read nofp;
 function write nofp;
 function reset nofp;
@@ -132,7 +133,6 @@ author "Chris S Morley";
 ;;
 
 FUNCTION(read) {
-    (void)period;
 
 pin_02_in = pin_02_in_fake;
 pin_03_in = pin_03_in_fake;
@@ -165,7 +165,6 @@ pin_15_in_not = ! pin_15_in_fake;
 }
 
 FUNCTION(write) {
-    (void)period;
 
  pin_01_out_fake =  pin_01_out ^ pin_01_out_invert;
  pin_02_out_fake =  pin_02_out ^ pin_02_out_invert;
@@ -183,6 +182,5 @@ FUNCTION(write) {
 
 FUNCTION(reset) {
     (void)__comp_inst;
-    (void)period;
     return;
 }

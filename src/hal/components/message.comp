@@ -72,6 +72,7 @@ variable hal_bit_t prev_edge = TRUE;
  
 option extra_setup yes;
  
+option period no;
 function _ nofp "Display a message";
 license "GPL v2";
 author "Les Newell";
@@ -81,7 +82,6 @@ char *messages[16] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
 RTAPI_MP_ARRAY_STRING(messages, 16, "Displayed strings");
  
 FUNCTION(_){
-    (void)period;
     hal_bit_t show = false;    
     if(!!prev_edge != !!edge) /* edge type has changed */
     {

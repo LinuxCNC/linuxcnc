@@ -24,6 +24,7 @@ pin out float out "Output value.";
 
 param rw bit open "If true, select values outside the range 0.0 to 1.0 give values outside the range in2 to in1.  If false, outputs are clamped to the the range in2 to in1";
 
+option period no;
 function _;
 license "GPL";
 author "Jeff Epler";
@@ -31,7 +32,6 @@ author "Jeff Epler";
 ;;
 
 FUNCTION(_) {
-    (void)period;
     double select_ = select;
     if(!open) { if(select_ < 0) select_ = 0; if(select_ > 1) select_ = 1; }
     out = in1 * select_ + in2 * (1 - select_);

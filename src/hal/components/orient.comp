@@ -13,6 +13,7 @@ variable int   last_enable = 0;
 variable int    debounce = 0; // to prevent the in-position triggering with the spindle moving
 
 option fp yes;
+option period no;
 
 function _ "Update \\fBcommand\\fR based on \\fBenable\\fR, \\fBposition\\fR, \\fBmode\\fR and \\fBangle\\fR.";
 author "Michael Haberler";
@@ -68,7 +69,6 @@ license "GPL";
 #include <rtapi_math.h>
 
 FUNCTION(_) {
-    (void)period;
 
     double target_angle;
     double latched_position;

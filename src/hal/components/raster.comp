@@ -56,6 +56,7 @@ description """The raster component converts a single raster program line to las
                
             
 
+option period no;
 function _;
 license "GPL";
 
@@ -182,7 +183,6 @@ bool read_pixel_data(const hal_port_t *port, int bits_per_pixel, hal_float_t* po
 }
 
 FUNCTION(_) { 
-    (void)period;
 
     output = -1.0;
     enabled = 0;

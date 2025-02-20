@@ -21,12 +21,12 @@ see_also "\\fBselect8\\fR(9)";
 license "GPL 2+";
 author "Andy Pugh";
 
+option period no;
 function _;
 
 ;;
 
 FUNCTION(_){
-    (void)period;
     int i, bit;
 
     bit = sel_u32 + sel_bit(0) + (sel_bit(1) << 1) + (sel_bit(2) << 2)

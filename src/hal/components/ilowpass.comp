@@ -29,6 +29,7 @@ towards the input value in each period.""";
 
 variable double value;
 
+option period no;
 function _ "Update the output based on the input and parameters.";
 
 license "GPL";
@@ -37,7 +38,6 @@ author "Jeff Epler";
 #include <rtapi_math.h>
 
 FUNCTION(_) {
-    (void)period;
     value += (in - value) * gain;
     out = (int)(rtapi_s64)floor((value * scale) + 0.5);
 }

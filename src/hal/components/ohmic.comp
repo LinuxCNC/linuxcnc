@@ -69,13 +69,13 @@ pin in  float volt_divider = 4.9         "The divide ratio";
 pin out bit   ohmic_on                   "True if ohmic circuit is closed (material is sensed)";
 pin out float ohmic_volts                "Calculated ohmic voltage";
 
+option period no;
 function _;
 license "GPL";
 ;;
 #include <rtapi_math.h>
 
 FUNCTION(_) {
-    (void)period;
     double thcad_vel_scale = 1/((thcad_max_volt_freq - thcad_0_volt_freq)/thcad_fullscale/thcad_divide);
     double thcad_scale_offset = thcad_0_volt_freq/thcad_divide;
 

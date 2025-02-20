@@ -10,6 +10,7 @@ param rw s32 min "If clamp or wrap is set, count will never be less than this nu
 variable int oldup;
 variable int olddown;
 variable int first = 1;
+option period no;
 function _ nofp "Process inputs and update count if necessary";
 license "GPL";
 author "Stephen Wille Padnos";
@@ -17,7 +18,6 @@ author "Stephen Wille Padnos";
 ;;
 
 FUNCTION(_) {
-    (void)period;
 	hal_s32_t temp_count = count;
 	if (first) {
 		oldup=countup;

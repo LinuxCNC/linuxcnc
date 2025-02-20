@@ -23,9 +23,9 @@ see_also """
 """;
 license "GPL";
 author "John Kasunich";
+option period no;
 ;;
 FUNCTION(_) {
-    (void)period;
     if (( in0 && !in1 ) || ( in1 && !in0 )) {
 	out = 1;
     } else {

@@ -30,6 +30,7 @@ license "GPL";
 
 option extra_setup 1;
 
+option period no;
 function _;
 
 pin out bit error-no-range "error pin indicating that no range matches the fb";
@@ -49,7 +50,6 @@ pin out bit error-limit-## [10:personality] = 1 "Error bit indicating that the m
 ;;
 
 FUNCTION(_){
-  (void)period;
   int i;
   // Check sticky bit
   if(sticky(current_range)){

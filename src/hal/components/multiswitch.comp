@@ -36,6 +36,7 @@ Ignore the "personality" parameter, that is auto-generated.""";
 function _ ;
 option extra_setup yes;
 option count_function yes;
+option period no;
 
 variable int old_up = 0;
 variable int old_down = 0;
@@ -49,7 +50,6 @@ int cfg[MAX_COUNT];
 RTAPI_MP_ARRAY_INT(cfg, MAX_COUNT, "array of function sizes");
 
 FUNCTION(_) {
-    (void)period;
     int i;
     
     // debounce

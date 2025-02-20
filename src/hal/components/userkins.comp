@@ -51,6 +51,7 @@ for a machine with identity kinematics for an xyz machine employing 3 joints (mo
 // The fpin pin is not accessible in kinematics functions.
 // Use the *_setup() function for pins and params used by kinematics.
 pin out s32 fpin=0"pin to demonstrate use of a conventional (non-kinematics) function fdemo";
+option period no;
 function fdemo;
 license "GPL";
 author "Dewey Garrett";
@@ -74,7 +75,6 @@ static struct haldata {
 // hal_float_t float (double precision)
 
 FUNCTION(fdemo) {
-   (void)period;
    // This function can be added to a thread (addf) for
    // purposes not related to the kinematics functions.
    if (fpin == 0) {
