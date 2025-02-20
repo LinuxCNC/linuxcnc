@@ -852,16 +852,15 @@ class HandlerClass:
             self.w[i].setEnabled(not state)
 
     def add_external_status(self, message, option):
-        level = option.get('LEVEL') or 0
-        log = option.get("LOG") or True
-        title = message.get('TITLE')
-        mess = message.get('SHORTTEXT')
-        logtext = message.get('DETAILS')
+        level = option.get('LEVEL', STATUS.DEFAULT) 
+        log = option.get("LOG", True)
+        title = message.get('TITLE', '')
+        mess = message.get('SHORTTEXT', '')
+        logtext = message.get('DETAILS', '')
 
-        self.add_status(mess,level,False)
-        if noLog:
-            return
-        STATUS.emit('update-machine-log', "{}\n{}".format(title, logtext), 'TIME')
+        self.add_status(mess, level, noLog=True)
+        if log:
+            STATUS.emit('update-machine-log', "{}\n{}".format(title, logtext), 'TIME')
 
     #######################
     # CALLBACKS FROM FORM #

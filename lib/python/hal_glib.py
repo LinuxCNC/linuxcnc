@@ -232,6 +232,10 @@ class _GStat(GObject.GObject):
              , linuxcnc.INTERP_IDLE: 'interp-idle'
              }
 
+    DEFAULT = 0
+    WARNING = 1
+    CRITICAL = 2
+
     TEMPARARY_MESSAGE = 255
     OPERATOR_ERROR = linuxcnc.OPERATOR_ERROR
     OPERATOR_TEXT = linuxcnc.OPERATOR_TEXT
