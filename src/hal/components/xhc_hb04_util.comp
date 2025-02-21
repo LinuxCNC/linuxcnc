@@ -39,6 +39,7 @@ pin out float divide_by_k_out;
 pin in  float k = 1.0;
 
 option data xhc_data;
+option period no;
 
 variable double value0;
 variable double value1;

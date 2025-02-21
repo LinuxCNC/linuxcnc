@@ -24,6 +24,7 @@ pin out bit out;
 
 param rw bit invert;
 
+option period no;
 function _ nofp;
 
 license "GPL";

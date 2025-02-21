@@ -14,6 +14,7 @@ Otherwise,
 \\fBout=FALSE\\fR
 .RE"""
 ;
+option period no;
 function _ nofp;
 see_also """
 \\fBlogic\\fR(9),

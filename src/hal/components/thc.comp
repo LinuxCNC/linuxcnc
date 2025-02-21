@@ -85,6 +85,7 @@ param rw float correction_vel "The amount of change in user units per period to 
 variable float offset;
 variable float last_z_in;
 
+option period no;
 function _;
 
 ;;

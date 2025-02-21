@@ -56,6 +56,7 @@ description """The raster component converts a single raster program line to las
                
             
 
+option period no;
 function _;
 license "GPL";
 
@@ -214,7 +215,7 @@ FUNCTION(_) {
             } else if(!read_int(program_ptr, &count) || (count < 2)) {
                 state = FAULT;
                 fault_code = ERROR_INVALID_COUNT;
-            } else if(hal_port_readable(program_ptr) != ((bpp / 4) * count)) {
+            } else if((int)hal_port_readable(program_ptr) != ((bpp / 4) * count)) {
                 state = FAULT;
                 fault_code = ERROR_PROGWRONGSIZE;
             } else {

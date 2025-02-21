@@ -39,6 +39,7 @@ option count_function;
 option extra_setup;
 option extra_cleanup;
 option constructable no;
+option period no;
 
 function read nofp;
 function write nofp;
@@ -60,6 +61,7 @@ int get_count(void) {
 }
 
 EXTRA_SETUP() {
+    (void)prefix;
     rtapi_print_msg(RTAPI_MSG_INFO, "requesting I/O region 0x%x\n",
 			io[extra_arg]);
     if(!rtapi_request_region(io[extra_arg], 7, "serport")) {

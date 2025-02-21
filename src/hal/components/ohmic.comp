@@ -69,6 +69,7 @@ pin in  float volt_divider = 4.9         "The divide ratio";
 pin out bit   ohmic_on                   "True if ohmic circuit is closed (material is sensed)";
 pin out float ohmic_volts                "Calculated ohmic voltage";
 
+option period no;
 function _;
 license "GPL";
 ;;
