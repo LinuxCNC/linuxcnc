@@ -157,6 +157,13 @@ class Calculator(QDialog):
         STATUS.connect('all-homed', lambda w: self.axisButton.setEnabled(True))
         STATUS.connect('not-all-homed', lambda w, data: self.axisButton.setEnabled(False))
 
+        self.behaviorOnShow = INFO.get_error_safe_setting('DISPLAY', 'CALCULATOR_ON_SHOW', None)
+
+    def showEvent(self, event):
+        if self.behaviorOnShow is not None:
+            if self.behaviorOnShow.upper() == 'CLEAR_ALL':
+                self.clearAll()
+
     def digitClicked(self):
         clickedButton = self.sender()
         digitValue = int(clickedButton.text())
