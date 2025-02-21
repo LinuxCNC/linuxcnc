@@ -1172,7 +1172,7 @@ p, li { white-space: pre-wrap; }
      <bool>true</bool>
     </property>
     <property name="camViewDialog_option" stdset="0">
-     <bool>true</bool>
+     <bool>false</bool>
     </property>
     <property name="toolOffsetDialog_option" stdset="0">
      <bool>true</bool>
@@ -4480,7 +4480,7 @@ font: 75 18pt &quot;Noto Sans&quot;;</string>
   </customwidget>
   <customwidget>
    <class>GCodeGraphics</class>
-   <extends>QWidget</extends>
+   <extends>QOpenGLWidget</extends>
    <header>qtvcp.widgets.gcode_graphics</header>
    <container>1</container>
   </customwidget>

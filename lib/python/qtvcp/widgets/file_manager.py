@@ -5,18 +5,18 @@ import os
 import shutil
 from collections import OrderedDict
 
+from PyQt5.QtCore import QCoreApplication
 from PyQt5.QtWidgets import (QApplication, QFileSystemModel, QWidget, QVBoxLayout, QHBoxLayout,
                              QListView, QComboBox, QPushButton, QToolButton, QSizePolicy,
-                             QMenu, QAction, QLineEdit, QCheckBox, QTableView, QHeaderView)
-from PyQt5.QtGui import QIcon
-from PyQt5.QtCore import (QModelIndex, QDir, Qt, pyqtSlot,
-                    QItemSelectionModel, QItemSelection, pyqtProperty)
+                             QMenu, QAction, QLineEdit, QCheckBox, QTableView, QHeaderView,
+                                QMessageBox)
+from PyQt5.QtGui import QIcon, QDragEnterEvent, QDropEvent
+from PyQt5.QtCore import (QModelIndex, QDir, Qt, pyqtSlot, pyqtSignal, pyqtProperty, QFileInfo, QMimeData,
+                          QItemSelectionModel, QItemSelection, QSortFilterProxyModel)
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Action, Info
 from qtvcp import logger
-from linuxcnc import OPERATOR_ERROR, NML_ERROR
-LOW_ERROR = 255
 
 # Instantiate the libraries with global reference
 # STATUS gives us status messages from linuxcnc
@@ -31,14 +31,106 @@ LOG = logger.getLogger(__name__)
 # Force the log level for this module
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
+_translate = QCoreApplication.translate
+
+class SharedViewMixin:
+    itemDropped = pyqtSignal(list)
+    def dragEnterEvent(self, event: QDragEnterEvent):
+        if event.mimeData().hasUrls():
+            event.acceptProposedAction()
+
+    def dragMoveEvent(self, event: QDragEnterEvent):
+        event.acceptProposedAction()
+
+    def dropEvent(self, event: QDropEvent):
+        if event.mimeData().hasUrls():
+            for url in event.mimeData().urls():
+                source_path = url.toLocalFile()
+                proxy_index = self.indexAt(event.pos())
+                if proxy_index.isValid():
+                    source_index = self.proxy_model.mapToSource(proxy_index)
+                    if source_index.isValid():
+                        destination_path = self.source_model.filePath(source_index)
+                        if os.path.isdir(destination_path):
+                            dest_file = os.path.join(destination_path, os.path.basename(source_path))
+                        else:
+                            dest_file = os.path.join(os.path.dirname(destination_path), os.path.basename(source_path))
+                else:
+                    destination_path = self.source_model.rootPath()
+                    dest_file = os.path.join(destination_path, os.path.basename(source_path))
+#                isdir = True if os.path.isdir(source_path) else False
+                self.itemDropped.emit([source_path, dest_file])
+            event.acceptProposedAction()
+        else:
+            event.ignore()
+
+    
+class CustomTableView(QTableView, SharedViewMixin):
+    def __init__(self, proxy_model, parent=None):
+        super().__init__(parent)
+        self.setModel(proxy_model)
+        self.proxy_model = proxy_model
+        self.source_model = proxy_model.sourceModel()
+        
+        self.setDragEnabled(True)
+        self.setAcceptDrops(True)
+        self.setDropIndicatorShown(True)
+        self.setDragDropMode(QTableView.DragDrop)
+
+
+class CustomListView(QListView, SharedViewMixin):
+    def __init__(self, proxy_model, parent=None):
+        super().__init__(parent)
+        self.setModel(proxy_model)
+        self.proxy_model = proxy_model
+        self.source_model = proxy_model.sourceModel()
+
+        self.setDragEnabled(True)
+        self.setAcceptDrops(True)
+        self.setDropIndicatorShown(True)
+        self.setDragDropMode(QListView.DragDrop)
+
+
+class RestrictedProxyModel(QSortFilterProxyModel):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.base_path = '/home'
+        self.restricted = False
+
+    def filterAcceptsRow(self, source_row, source_parent):
+        if not self.restricted:
+            return True
+        model = self.sourceModel()
+        index = model.index(source_row, 0, source_parent)
+        if not index.isValid():
+            return False
+        # Only allow paths inside the base path
+        file_path = QDir(model.filePath(index)).canonicalPath()
+        return file_path.startswith(self.base_path)
+
+    def set_rootpath(self, path):
+        self.base_path = path
+
+    def get_rootpath(self):
+        return self.base_path
+
+    def set_restricted(self, state: bool):
+        self.restricted = state
+        self.invalidateFilter()
+
+    def lessThan(self, left, right):
+        left_data = self.sourceModel().fileInfo(left)
+        right_data = self.sourceModel().fileInfo(right)
+        if left_data.isDir() and not right_data.isDir():
+            return True
+        if not left_data.isDir() and right_data.isDir():
+            return False
+        return left_data.fileName().lower() < right_data.fileName().lower()
+
 class FileManager(QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
         super(FileManager, self).__init__(parent)
-        self.title = 'Qtvcp File System View'
-        self.left = 10
-        self.top = 10
-        self.width = 640
-        self.height = 480
+        self.title = _translate('FileManager','Qtvcp File System View')
         self._last = 0
         self._doubleClick = False
         self._showListView = False
@@ -65,14 +157,13 @@ class FileManager(QWidget, _HalWidgetBase):
 
     def initUI(self):
         self.setWindowTitle(self.title)
-        self.setGeometry(self.left, self.top, self.width, self.height)
-
+        self.setSizePolicy(QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred))
         line_policy = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        button_policy = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        box_policy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        button_policy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        box_policy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
 
         self.textLine = QLineEdit()
-        self.textLine.setToolTip('Current Director/selected File')
+        self.textLine.setToolTip('Current Directory/selected File')
         self.textLine.setSizePolicy(line_policy)
         self.textLine.setMinimumHeight(40)
         self.pasteButton = QPushButton()
@@ -89,7 +180,7 @@ class FileManager(QWidget, _HalWidgetBase):
 
         self.copyLine = QLineEdit()
         self.copyLine.setSizePolicy(line_policy)
-        self.copyLine.setToolTip('File path to copy from, when pasting')
+        self.copyLine.setToolTip('File path to copy from when pasting')
         self.copyLine.setMinimumHeight(40)
         self.copyLine.setReadOnly(True)
         self.copyButton = QPushButton()
@@ -110,14 +201,17 @@ class FileManager(QWidget, _HalWidgetBase):
         self.model.setNameFilterDisables(False)
         self.model.rootPathChanged.connect(self.folderChanged)
 
-        self.list = QListView()
-        self.list.setModel(self.model)
+        self.proxy_model = RestrictedProxyModel()
+        self.proxy_model.setSourceModel(self.model)
+
+        self.list = CustomListView(self.proxy_model)
+        self.list.setModel(self.proxy_model)
         self.list.resize(640, 480)
         self.list.setAlternatingRowColors(True)
         self.list.hide()
 
-        self.table = QTableView()
-        self.table.setModel(self.model)
+        self.table = CustomTableView(self.proxy_model)
+        self.table.setModel(self.proxy_model)
         self.table.resize(640, 480)
         self.table.setAlternatingRowColors(True)
 
@@ -139,7 +233,7 @@ class FileManager(QWidget, _HalWidgetBase):
         self.cb.setSizePolicy(QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed))
 
         self.jumpButton = QToolButton()
-        self.jumpButton.setText('User')
+        self.jumpButton.setText(_translate('FileManager','User'))
         self.jumpButton.setSizePolicy(line_policy)
         self.jumpButton.setMinimumSize(40, 40)
         self.jumpButton.setMaximumSize(80, 40)
@@ -147,7 +241,7 @@ class FileManager(QWidget, _HalWidgetBase):
         self.jumpButton.clicked.connect(self.onJumpClicked)
 
         self.addButton = QPushButton()
-        self.addButton.setText('Add\n Jump')
+        self.addButton.setText(_translate('FileManager','Add\nJump'))
         self.addButton.setSizePolicy(line_policy)
         self.addButton.setMinimumSize(40, 40)
         self.addButton.setMaximumSize(80, 40)
@@ -155,7 +249,7 @@ class FileManager(QWidget, _HalWidgetBase):
         self.addButton.clicked.connect(self.onActionClicked)
 
         self.delButton = QPushButton()
-        self.delButton.setText('Del\n Jump')
+        self.delButton.setText(_translate('FileManager','Del\nJump'))
         self.delButton.setSizePolicy(line_policy)
         self.delButton.setMinimumSize(40, 40)
         self.delButton.setMaximumSize(80, 40)
@@ -163,18 +257,26 @@ class FileManager(QWidget, _HalWidgetBase):
         self.delButton.clicked.connect(self.onActionClicked)
 
         self.loadButton = QPushButton()
-        self.loadButton.setText('Load')
+        self.loadButton.setText(_translate('FileManager','Load'))
         self.loadButton.setSizePolicy(line_policy)
         self.loadButton.setMinimumSize(40, 40)
         self.loadButton.setMaximumSize(80, 40)
         self.loadButton.setToolTip('Load selected file')
         self.loadButton.clicked.connect(self._getPathActivated)
 
-        self.copy_control = QCheckBox()
-        self.copy_control.setText('Show Copy\n Controls')
+        self.chk_restricted = QCheckBox(_translate('FileManager','Restricted'))
+        self.chk_restricted.setSizePolicy(box_policy)
+        self.chk_restricted.setToolTip('Restrict navigation past root path')
+        self.chk_restricted.stateChanged.connect(lambda state: self.setRestricted(state))
+
+        self.copy_control = QCheckBox(_translate('FileManager','Copy Controls'))
         self.copy_control.setSizePolicy(box_policy)
-        self.copy_control.setMinimumSize(40, 40)
         self.copy_control.stateChanged.connect(lambda state: self.showCopyControls(state))
+
+        self.checkbox = QHBoxLayout()
+        self.checkbox.addWidget(self.chk_restricted)
+        self.checkbox.addWidget(self.copy_control)
+        self.checkbox.insertStretch(2, stretch=0)
 
         self.settingMenu = QMenu(self)
         self.jumpButton.setMenu(self.settingMenu)
@@ -184,8 +286,6 @@ class FileManager(QWidget, _HalWidgetBase):
         hbox.addWidget(self.addButton)
         hbox.addWidget(self.delButton)
         hbox.addWidget(self.loadButton)
-        hbox.addWidget(self.copy_control)
-        hbox.insertStretch (4, stretch = 0)
         hbox.addWidget(self.cb)
 
         self.windowLayout = QVBoxLayout()
@@ -194,8 +294,8 @@ class FileManager(QWidget, _HalWidgetBase):
         self.windowLayout.addWidget(self.list)
         self.windowLayout.addWidget(self.table)
         self.windowLayout.addLayout(hbox)
+        self.windowLayout.addLayout(self.checkbox)
         self.setLayout(self.windowLayout)
-        self.show()
 
     def _hal_init(self):
         if self.PREFS_:
@@ -262,12 +362,20 @@ class FileManager(QWidget, _HalWidgetBase):
 
     def updateDirectoryView(self, path, quiet = False):
         if os.path.exists(path):
-            self.list.setRootIndex(self.model.setRootPath(path))
-            self.table.setRootIndex(self.model.setRootPath(path))
+            self.list.selectionModel().clearSelection()
+            self.list.setRootIndex(QModelIndex())
+            self.table.selectionModel().clearSelection()
+            self.table.setRootIndex(QModelIndex())
+            index = self.model.setRootPath(path)
+            if index.isValid():
+                proxy_index = self.proxy_model.mapFromSource(index)
+                self.list.setRootIndex(proxy_index)
+                self.table.setRootIndex(proxy_index)
+                self.proxy_model.invalidate()
         else:
             LOG.debug("Set directory view error - no such path {}".format(path))
             if not quiet:
-                STATUS.emit('error', LOW_ERROR, "File Manager error - No such path: {}".format(path))
+                STATUS.emit('error', STATUS.TEMPARARY_MESSAGE, "File Manager error - No such path: {}".format(path))
 
     # retrieve selected filter (it's held as QT.userData)
     def filterChanged(self, index):
@@ -276,16 +384,16 @@ class FileManager(QWidget, _HalWidgetBase):
 
     def listClicked(self, index):
         # the signal passes the index of the clicked item
-        dir_path = os.path.normpath(self.model.filePath(index))
-        if self.model.fileInfo(index).isFile():
+        source_index = self.proxy_model.mapToSource(index)
+        dir_path = os.path.normpath(self.model.filePath(source_index))
+        if self.model.fileInfo(source_index).isFile():
             self.currentPath = dir_path
             self.textLine.setText(self.currentPath)
             return
         else:
             self.currentPath = None
-        root_index = self.model.setRootPath(dir_path)
-        self.list.setRootIndex(root_index)
-        self.table.setRootIndex(root_index)
+            self.textLine.setText(os.path.abspath(dir_path))
+            self.updateDirectoryView(dir_path)
 
     def onUserClicked(self):
         self.showUserDir()
@@ -305,8 +413,8 @@ class FileManager(QWidget, _HalWidgetBase):
             if temp is not None:
                 self.updateDirectoryView(temp)
             else:
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, 'file jumppath: {} not valid'.format(data))
-                log.debug('file jumopath: {} not valid'.format(data))
+                STATUS.emit('error',STATUS.OPERATOR_ERROR, 'file jumppath: {} not valid'.format(data))
+                log.debug('file jumppath: {} not valid'.format(data))
         else:
             self.jumpButton.setText('User')
 
@@ -369,7 +477,7 @@ class FileManager(QWidget, _HalWidgetBase):
         else:
             self.copyLine.setText('')
             self.pasteButton.setEnabled(False)
-            STATUS.emit('error', OPERATOR_ERROR, 'Can only copy a file, not a folder')
+            STATUS.emit('error', STATUS.OPERATOR_ERROR, 'Can only copy a file, not a folder')
 
     def paste(self):
         res = self.copyFile(self.copyLine.text(), self.textLine.text())
@@ -380,6 +488,10 @@ class FileManager(QWidget, _HalWidgetBase):
     ########################
     # helper functions
     ########################
+
+    def setRestricted(self, state):
+        self.proxy_model.set_restricted(state)
+        self.updateDirectoryView(self.proxy_model.get_rootpath())
 
     def addAction(self, i):
         action = QAction(QIcon.fromTheme('user-home'), i, self)
@@ -409,18 +521,59 @@ class FileManager(QWidget, _HalWidgetBase):
             self.pasteButton.hide()
 
     def showMediaDir(self, quiet = False):
+        self.proxy_model.set_rootpath(self.media_path)
+        self.jumpButton.setText(_translate('FileManager','Media'))
         self.updateDirectoryView(self.media_path, quiet)
 
     def showUserDir(self, quiet = False):
+        self.proxy_model.set_rootpath(self.user_path)
+        self.jumpButton.setText(_translate('FileManager','User'))
         self.updateDirectoryView(self.user_path, quiet)
 
+    def dropCopy(self, data):
+        source, dest = data
+        self.copyChecks(source, dest)
+
     def copyFile(self, s, d):
+        self.copyChecks(source, dest)
+
+    def overwriteMessage(self, d):
+        title = "File Already Exists"
+        info = f"Overwrite {d}?"
+        buttons = QMessageBox.No | QMessageBox.Yes
+        retval =  QMessageBox.warning(
+            self, title, info, buttons)
+        if retval == QMessageBox.No:
+            return False
+        return True
+
+    # likely class patch candidate 
+    def copyChecks(self, s, d):
+        if os.path.isfile(d) or os.path.isdir(d):
+            retval = self.overwriteMessage(d)
+            if retval == False:
+                txt = f'File {d} not copied'
+                mess = {'SHORTTEXT':txt,'TITLE':'FileManager',
+                    'DETAILS':txt}
+                opt = {'LOG':True,'LEVEL':STATUS.WARNING}
+                STATUS.emit('status-message',mess,opt)
+                return False
+        self.copy(s, d)
+
+    def copy(self, s, d):
         try:
-            shutil.copy(s, d)
+            if os.path.isdir(s):
+                shutil.copytree(s, d)
+            else:
+                shutil.copy2(s, d)
+            txt = f' Copied {s} to {d}'
+            mess = {'SHORTTEXT':txt,'TITLE':'FileManager',
+                    'DETAILS':txt}
+            opt = {'LOG':True,'LEVEL':STATUS.DEFAULT}
+            STATUS.emit('status-message',mess,opt)
             return True
         except Exception as e:
-            LOG.error("Copy file error: {}".format(e))
-            STATUS.emit('error', OPERATOR_ERROR, "Copy file error: {}".format(e))
+            STATUS.emit('error', STATUS.OPERATOR_ERROR, "Copy file error: {}".format(e))
             return False
 
     @pyqtSlot(float)
@@ -481,15 +634,18 @@ class FileManager(QWidget, _HalWidgetBase):
             selectionModel = self.list.selectionModel()
         else:
             selectionModel = self.table.selectionModel()
-        index = selectionModel.currentIndex()
+        index = self.proxy_model.mapToSource(selectionModel.currentIndex())
         dir_path = os.path.normpath(self.model.filePath(index))
         if self.model.fileInfo(index).isFile():
             return (dir_path, True)
+        elif dir_path == '.':
+            return (self.proxy_model.get_rootpath(), False)
         else:
             return (dir_path, False)
 
     # This can be class patched to do something else
     def load(self, fname=None):
+        return
         try:
             if fname is None:
                 self._getPathActivated()
@@ -499,7 +655,7 @@ class FileManager(QWidget, _HalWidgetBase):
             STATUS.emit('update-machine-log', 'Loaded: ' + fname, 'TIME')
         except Exception as e:
             LOG.error("Load file error: {}".format(e))
-            STATUS.emit('error', NML_ERROR, "Load file error: {}".format(e))
+            STATUS.emit('error', STATUS.NML_ERROR, "Load file error: {}".format(e))
 
     # This can be class patched to do something else
     def recordBookKeeping(self):
@@ -518,6 +674,10 @@ class FileManager(QWidget, _HalWidgetBase):
             self.table.activated.connect(self._getPathActivated)
         except:
             pass
+
+        self.list.itemDropped.connect(self.dropCopy)
+        self.table.itemDropped.connect(self.dropCopy)
+
         # choose double click or single click for folder selection
         if self._doubleClick:
             self.list.doubleClicked[QModelIndex].connect(self.listClicked)
@@ -557,4 +717,10 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     gui = FileManager()
     gui.show()
+    gui.PREFS_ = True
+    gui.connectSelection()
+    gui.onUserClicked()
+#    gui.onMediaClicked()
+    gui.setRestricted(True)
     sys.exit(app.exec_())
+
