@@ -2658,6 +2658,13 @@ When using ``STATUS``'s `request-dialog` function, the default launch name is *`
 
 It is based on PyQt's _QDialog_.
 
+==== INI file options for CALCULATOR
+
+In the `DISPLAY` section of the INI file the following options may be set:
+
+* `CALCULATOR_CONST_VALUES` - a comma-delimited list of common values you might enter, that will appear on a dedicated row of buttons at the bottom of the calculator.  e.g. setting to `0.100,-0.100` would provide two buttons for +0.100 and -0.100 which are commonly used when edge-finding on inch mills.  Up to six (6) values may be entered, beyond that the list will be truncated.  Values must be valid floating point or integer.
+* `CALCULATOR_ON_SHOW` - optionally set to `CLEAR_ALL` to issue a "Clear All" each time the calculator is shown.  This will clear any previously entered values from the last time the calculator was used and open with the display value set to `0`
+
 [[sub:qtvcp:widgets:runfromlinedialog]]
 === `RunFromLine` - Run-From-Line Dialog Widget
 
