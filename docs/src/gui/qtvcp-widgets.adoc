@@ -1421,6 +1421,53 @@ It is a comma separated list of keyword and data:
  *`SAVE:yes`*::
   Shows a save button.
 
+[[sub:qtvcp:widgets:operatorvalueline]]
+=== `OperatorValueLine` - Operator Value Line Entry Widget
+
+The operator enters values into this widget, which will be applied to a template and then optionally issued to the MDI either immediately or applied at a later time.  The widget supports the optional popup calculator or keyboard for touchscreen-friendly entry.
+
+image::images/qtvcp_operator_value.png["QtVCP OperatorValueLine",scale="25%"]
+
+
+==== Formatting MDI Command
+The widget supports a formatting option which is passed to Python's string `format()` to produce the final output for the MDI command.  The special token `{value}` can be inserted anywhere in this format string where the value should appear.  The formatting property is called `mdi_command_format_option`, e.g.:
+
+* `M3 S{value}` to start the spindle at the speed entered by the operator.
+* `M6 T{value} G43 H{value}` to issue a tool change and tool length offset change from the tool number entered
+
+==== Automatic vs Deferred MDI Issue
+The widget may be configured to automatically issue the MDI command upon submit when `issue_mdi_on_submit_option` is set to `True`. If `False` issuing the command may be done at a later time via a signal or function call from another widget.
+
+In cases where `issue_mdi_on_submit_option` is `False`, calling the `issue_mdi()` function will issue the command.  Slots attached to widgets such as PushButtons can trigger the MDI command when pressed, e.g.:
+
+----
+    def setSpindleSpeed(self, event):
+        self.w.lineSpindleSpeed.issue_mdi()
+        ACTION.SET_MANUAL_MODE()
+
+    def setToolNumber(self, event):
+        self.w.lineToolNumber.issue_mdi()
+        ACTION.SET_MANUAL_MODE()
+----
+
+==== Pending State Styling Example
+
+The widget tracks whether a value entered is pending and has not yet been issued via the property `isPendingValue`.  This may be used to style the widget via the stylesheet.  This can be used to alert the operator that they entered a value but another action must be taken to apply it.
+
+The following style sheet excerpt will highlight the entry widget with a cyan background when values are pending and have not been applied.
+
+----
+#lineSpindleSpeed[isPendingValue=true],
+#lineToolNumber[isPendingValue=true] {
+    background: cyan;
+}
+
+#lineSpindleSpeed[isPendingValue=false],
+#lineToolNumber[isPendingValue=false] {
+    background: none;
+}
+----
+
 [[sub:qtvcp:widgets:mdiline]]
 === `MDILine` - MDI Commands Line Entry Widget
 
