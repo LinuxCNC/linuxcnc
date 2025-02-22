@@ -572,6 +572,7 @@ class IndicatedMixIn( _HalWidgetBase):
     @pyqtSlot(int)
     def setFlashRate(self, value):
         self._flashRate = value
+        self._timer.setInterval(self._flashRate)
         self.update()
 
     def set_indicator_size(self, data):

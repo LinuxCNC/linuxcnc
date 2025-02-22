@@ -109,6 +109,17 @@ class Calculator(QDialog):
         mainLayout.addWidget(self.to_inch_btn, 6, 1)
         mainLayout.addWidget(self.tpi_btn, 6, 2)
 
+        self.constButtons = []
+        constValues = INFO.get_error_safe_setting('DISPLAY', 'CALCULATOR_CONST_VALUES', None)
+        if constValues is not None:
+            constValues = ''.join(constValues.split())
+            for value in constValues.split(',')[:6]:
+                constButton = QPushButton(value)
+                constButton.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+                constButton.clicked.connect(self.constClicked)
+                mainLayout.addWidget(constButton, 7, len(self.constButtons))
+                self.constButtons.append(constButton)
+
         self.backButton = QPushButton('Back')
         self.backButton.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
         self.backButton.clicked.connect(self.backAction)
@@ -145,6 +156,13 @@ class Calculator(QDialog):
             self.axisButton.setEnabled(False)
         STATUS.connect('all-homed', lambda w: self.axisButton.setEnabled(True))
         STATUS.connect('not-all-homed', lambda w, data: self.axisButton.setEnabled(False))
+
+        self.behaviorOnShow = INFO.get_error_safe_setting('DISPLAY', 'CALCULATOR_ON_SHOW', None)
+
+    def showEvent(self, event):
+        if self.behaviorOnShow is not None:
+            if self.behaviorOnShow.upper() == 'CLEAR_ALL':
+                self.clearAll()
 
     def digitClicked(self):
         clickedButton = self.sender()
@@ -326,6 +344,17 @@ class Calculator(QDialog):
             return
         self.display.setText(str(result))
         self.waitingForOperand = True
+
+    def constClicked(self):
+        clickedButton = self.sender()
+        constValue = float(clickedButton.text())
+
+        if self.waitingForOperand:
+            self.display.clear()
+            self.waitingForOperand = False
+
+        self.display.setText(str(constValue))
+
 
     def clear(self):
         if self.waitingForOperand:
