@@ -1715,6 +1715,7 @@ uncomment selection</property>
                                 </child>
                                 <child>
                                   <object class="EMC_MDIHistory" id="hal_mdihistory">
+                                    <property name="name">mdi_entry</property>
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
                                     <property name="use-double-click">True</property>

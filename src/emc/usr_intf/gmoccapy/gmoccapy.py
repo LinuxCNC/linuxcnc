@@ -161,7 +161,11 @@ class gmoccapy(object):
             progress, text {
                 font-size: 13.3px;
             }
-        """
+            #mdi_entry image.right { background: rgba(146,149,149,0.3); padding: 20px; border-radius: 3px; }
+            #mdi_entry entry { border-width: 2px; margin-top: 3px; padding-right: 0px; }
+            #mdi_entry entry:focus { border-width: 1px; padding-right: 1px; padding-top: 1px; padding-bottom: 1px; }
+         """
+            
         screen = Gdk.Screen.get_default()
         provider = Gtk.CssProvider()
         provider.load_from_data(css)
