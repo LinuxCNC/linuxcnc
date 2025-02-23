@@ -39,7 +39,7 @@ import platform
 import tkinter as Tkinter
 import math
 
-from custom_widgets import Data 
+from qtvcp.lib.native_cam.custom_widgets import Data
 
 SYS_DIR = os.path.dirname(os.path.realpath(__file__))
 

@@ -14,10 +14,11 @@ import gcode
 from qtvcp import logger
 LOG = logger.getLogger(__name__)
 
-from qtncam import NCam
+from qtvcp.lib.native_cam.qtncam import NCam
 
-from message import ZMQMessage
-from custom_widgets import MetaClass, TreeItem, tv_select, ComboDelegate, treeModel, ToolButton, IconView
+from qtvcp.lib.native_cam.message import ZMQMessage
+from qtvcp.lib.native_cam.custom_widgets import (MetaClass, TreeItem,
+ tv_select, ComboDelegate, treeModel, ToolButton, IconView)
 from qt5_graphics import Lcnc_3dGraphics
 from qtvcp.core import Info, Status
 
