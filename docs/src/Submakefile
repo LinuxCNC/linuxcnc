@@ -1,4 +1,4 @@
-.PHONY: docs docsclean checkref checkref_en checkref_ar checkref_de checkref_es checkref_fr checkref_nb checkref_ru checkref_sv checkref_tr checkref_zh_CN
+.PHONY: docs docclean checkref checkref_en checkref_ar checkref_de checkref_es checkref_fr checkref_nb checkref_ru checkref_sv checkref_tr checkref_zh_CN
 .PHONY: pdfdocs htmldocs install-doc install-doc-pdf install-doc-html
 
 # To make linuxcnc-checklink widely available
@@ -22,8 +22,10 @@ MAN_SRCS = $(sort \
 	$(wildcard $(DOC_DIR)/man/es/man9/*.9) \
 	$(GENERATED_MANPAGES))
 
-../docs/man/man1/linuxcnc.1: $(DOC_SRCDIR)/man/man1/linuxcnc.1.in config.status
+$(DOC_SRCDIR)/man/man1/linuxcnc.1.adoc: $(DOC_SRCDIR)/man/man1/linuxcnc.1.adoc.in config.status
 	./config.status --file=$@:$<
+
+../docs/man/man1/linuxcnc.1: $(DOC_SRCDIR)/man/man1/linuxcnc.1.adoc
 
 ifneq ($(MANDB),)
 docs: $(DOC_DIR)/man/index.db
@@ -396,7 +398,7 @@ htmldocs: svgs_made_from_dots .htmldoc-stamp checkref_en
 	touch $@
 
 copy_asciidoc_files: $(wildcard /etc/asciidoc/stylesheets/*.css) $(wildcard /etc/asciidoc/javascripts/*.js)
-	cp -f $^ $(DOC_DIR)/html
+	if test -n "$^"; then cp -f $^ $(DOC_DIR)/html ; fi
 
 gen_complist: $(DOC_SRCDIR)/gen_complist.py $(DOC_SRCDIR)/hal/components.adoc $(MAN_HTML_TARGETS)
 	mkdir -p $(DOC_DIR)/html/hal
@@ -949,6 +951,7 @@ docclean:
 	-rm -f .images-stamp
 	-rm -f .include-stamp
 	-rm -f $(DOTFILES:.dot=.svg)
+	$(RM) $(DOC_SRCDIR)/man/man1/linuxcnc.1.adoc
 
 
 MAN_DEPS := $(patsubst $(DOC_DIR)/man/%, depends/%.d, $(MAN_SRCS))
@@ -985,6 +988,8 @@ else
 docs:
 	$(error Cannot build documents, missing AsciiDoc or some other required program, or explicitly disabled in configure)
 
+clean:
+	$(RM) $(DOC_SRCDIR)/man/man1/linuxcnc.1.adoc
 endif
 
 manpages: $(GENERATED_MANPAGES)
