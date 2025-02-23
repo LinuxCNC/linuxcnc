@@ -8,7 +8,10 @@ class ZMQMessage:
     def __init__(self):
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.PUB)
-        self.socket.bind("tcp://127.0.0.1:5690")
+        try:
+            self.socket.bind("tcp://127.0.0.1:5690")
+        except Exception as e:
+            print(e)
         self.topic = b'QtVCP'
 
     def reload(self, fname):
@@ -21,6 +24,8 @@ class ZMQMessage:
             }
         # convert to JSON object
         m1 = json.dumps(x)
-        self.socket.send_multipart([self.topic, bytes((m1).encode('utf-8'))])
-
+        try:
+            self.socket.send_multipart([self.topic, bytes((m1).encode('utf-8'))])
+        except:
+            pass
 
