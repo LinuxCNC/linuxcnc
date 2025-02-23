@@ -437,7 +437,7 @@ checkref_zh_CN: $(DOC_TARGETS_HTML_ZH_CN) $(DOC_DIR)/html/zh_CN/gcode.html .html
 	@$(DOC_SRCDIR)/checkref Chinese $^
 
 MAN_SRCS_NOSO = $(patsubst $(DOC_DIR)/man/%,%, \
-			$(shell grep -L '^\.so ' $(MAN_SRCS)))
+			$(shell grep -s -L '^\.so ' $(MAN_SRCS)))
 
 PDF_MAN_ORDER := man1/linuxcnc.1 $(filter-out %/linuxcnc.1, $(filter man1/%, $(MAN_SRCS_NOSO))) \
 	man3/hal.3 $(filter-out %/undocumented.3hal %/hal.3, $(filter man3/%.3hal, $(MAN_SRCS_NOSO))) \
