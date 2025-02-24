@@ -277,6 +277,9 @@ Pressing cancel will close linuxcnc.""" % target)
         # initialize the window
         self.w = window = qt_makegui.VCPWindow(self.hal, self.PATH)
 
+        # give the window an id name
+        window._idName = basepath
+
         # give reference to user command line options
         if opts.useropts:
             window.USEROPTIONS_ = opts.useropts
@@ -458,7 +461,6 @@ Pressing cancel will close linuxcnc.""" % target)
         # start loop
         global _app
         _app = APP.exec()
-
         self.shutdown()
 
     # finds the postgui file name and INI file path
@@ -506,7 +508,7 @@ Pressing cancel will close linuxcnc.""" % target)
 
         # call HAL widget 'hal_cleanuo_' functions
         try:
-            self.w.panel_.shutdown()
+            self.panel.shutdown()
         except Exception as e:
             print(e)
             pass
