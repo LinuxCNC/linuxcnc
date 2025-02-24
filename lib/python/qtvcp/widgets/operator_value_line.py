@@ -147,7 +147,6 @@ class OperatorValueLine(OperatorValue):
                 self._style_polish('isPendingValue', self.pending_value)
 
             LOG.debug('message return:{}'.format (message))
-            STATUS.emit('update-machine-log', 'Set OperatorValue {}'.format(value), 'TIME')
 
     def issue_mdi(self):
         self.submit(self.mdi_command_format)
