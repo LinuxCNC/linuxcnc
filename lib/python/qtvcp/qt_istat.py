@@ -659,7 +659,7 @@ class _IStat(object):
     ###################
     # return a found string or else None by default, anything else by option
     # since this is used in this file there are some workarounds for plasma machines
-    def get_error_safe_setting(self, heading, detail, default=None):
+    def get_error_safe_setting(self, heading, detail, default=None, warning = True):
         result = self.INI.find(heading, detail)
         if result:
             return result
@@ -667,7 +667,7 @@ class _IStat(object):
             if ('SPINDLE' in detail and self.MACHINE_IS_QTPLASMAC) or \
                ('ANGULAR' in detail and not self.HAS_ANGULAR_JOINT):
                 return default
-            else:
+            elif warning:
                 log.warning('INI Parsing Error, No {} Entry in {}, Using: {}'.format(detail, heading, default))
             return default
 

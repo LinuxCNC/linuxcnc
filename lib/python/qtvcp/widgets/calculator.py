@@ -110,7 +110,7 @@ class Calculator(QDialog):
         mainLayout.addWidget(self.tpi_btn, 6, 2)
 
         self.constButtons = []
-        constValues = INFO.get_error_safe_setting('DISPLAY', 'CALCULATOR_CONST_VALUES', None)
+        constValues = INFO.get_error_safe_setting('DISPLAY', 'CALCULATOR_CONST_VALUES', None, warning=False)
         if constValues is not None:
             constValues = ''.join(constValues.split())
             for value in constValues.split(',')[:6]:
@@ -157,7 +157,7 @@ class Calculator(QDialog):
         STATUS.connect('all-homed', lambda w: self.axisButton.setEnabled(True))
         STATUS.connect('not-all-homed', lambda w, data: self.axisButton.setEnabled(False))
 
-        self.behaviorOnShow = INFO.get_error_safe_setting('DISPLAY', 'CALCULATOR_ON_SHOW', None)
+        self.behaviorOnShow = INFO.get_error_safe_setting('DISPLAY', 'CALCULATOR_ON_SHOW', None, warning=None)
 
     def showEvent(self, event):
         if self.behaviorOnShow is not None:
