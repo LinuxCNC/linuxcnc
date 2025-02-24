@@ -213,14 +213,14 @@ class _PStat(object):
         for localqss in local:
             LOG.debug("Checking for .qss in: yellow<{}>".format(localqss))
             if os.path.exists(localqss):
-                LOG.info("Using LOCAL qss file from: yellow<{}>".format(localqss))
+                LOG.info("Using LOCAL qss file as default stylesheet: yellow<{}>".format(localqss))
                 self.QSS = localqss
                 break
         # if no break
         else:
             LOG.debug("Checking for .qss in: yellow<{}>".format(defaultqss))
             if os.path.exists(defaultqss):
-                LOG.debug("Using DEFAULT qss file from: yellow<{}>".format(defaultqss))
+                LOG.debug("Using DEFAULT qss file as default stylesheet: yellow<{}>".format(defaultqss))
                 self.QSS = defaultqss
             else:
                 self.QSS = None

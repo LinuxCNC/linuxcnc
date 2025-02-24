@@ -223,6 +223,7 @@ Python Error:\n {}'''.format(str(e))
         # apply one word system theme
         if fname in (list(QtWidgets.QStyleFactory.keys())):
             QtWidgets.qApp.setStyle(fname)
+            log.info('Applied System Style name: yellow<{}>'.format(fname))
             return
 
         # Check for Preference file specified qss
@@ -255,6 +256,7 @@ Python Error:\n {}'''.format(str(e))
             # qss files aren't friendly about changing image paths
             qss_file = qss_file.replace('url(:/newPrefix/images', 'url({}'.format(self.PATHS.IMAGEDIR))
             self.setStyleSheet(qss_file)
+            log.info('Applied Style Sheet path: yellow<{}>'.format(qssname))
             return
         except:
             if fname:
