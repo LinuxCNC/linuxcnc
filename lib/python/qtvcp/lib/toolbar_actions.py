@@ -236,6 +236,8 @@ class ToolBarActions():
             function = (self.actOnSystemShutdown)
         elif action == 'tooloffsetdialog':
             function = (self.actOnToolOffsetDialog)
+        elif action == 'toolchooserdialog':
+            function = (self.actOnToolChooserDialog)
         elif action == 'originoffsetdialog':
             function = (self.actOnOriginOffsetDialog)
         elif action == 'calculatordialog':
@@ -584,13 +586,16 @@ class ToolBarActions():
         STATUS.emit('dialog-request', {'NAME': 'RUNFROMLINE', 'LINE':self.selected_line})
         #ACTION.RUN(self.selected_line)
 
-    def actOnToolOffsetDialog(self, wudget, state=None):
+    def actOnToolChooserDialog(self, widget, state=None):
+        STATUS.emit('dialog-request', {'NAME': 'TOOLCHOOSER'})
+
+    def actOnToolOffsetDialog(self, widget, state=None):
         STATUS.emit('dialog-request', {'NAME': 'TOOLOFFSET'})
 
-    def actOnOriginOffsetDialog(self, wudget, state=None):
+    def actOnOriginOffsetDialog(self, widget, state=None):
         STATUS.emit('dialog-request', {'NAME': 'ORIGINOFFSET'})
 
-    def actOnCalculatorDialog(self, wudget, state=None):
+    def actOnCalculatorDialog(self, widget, state=None):
         STATUS.emit('dialog-request', {'NAME': 'CALCULATOR'})
 
     def actOnAlphaMode(self, widget, state):
