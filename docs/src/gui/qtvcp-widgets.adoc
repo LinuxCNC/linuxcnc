@@ -1424,7 +1424,7 @@ It is a comma separated list of keyword and data:
 [[sub:qtvcp:widgets:operatorvalueline]]
 === `OperatorValueLine` - Operator Value Line Entry Widget
 
-The operator enters values into this widget, which will be applied to a template and then optionally issued to the MDI either immediately or applied at a later time.  The widget supports the optional popup calculator or keyboard for touchscreen-friendly entry.
+The operator enters values into this widget, which will be applied to a template and then optionally issued to the MDI either immediately or applied at a later time.  The widget supports the optional popup calculator, keyboard, or tool chooser for touchscreen-friendly entry by setting the `dialog_keyboard_option`.  To change which type of dialog is presented, edit the `dialog_code_option`.
 
 image::images/qtvcp_operator_value.png["QtVCP OperatorValueLine",scale="25%"]
 
@@ -2641,6 +2641,21 @@ If there is an Focus Overlay widget present, it will signal it to display.
 When using `STATUS` 's `request-dialog` function, the default launch name is *`TOOLOFFSET`*.
 
 It is based on PyQt's _QDialog_.
+
+[[sub:qtvcp:widgets:toolchooserdialog]]
+=== `ToolChooserDialog` - Tool Chooser Dialog Widget
+
+.QtVCP `ToolChooserDialog`: Tool Chooser Dialog Widget
+image::images/qtvcp_toolChooser.png["QtVCP `ToolChooserDialog`: Tool Chooser Dialog Widget",scale="25%"]
+
+This widget allows the operator to select one of the tools defined in the tool table.  If a tool is selected and 'Apply' is pressed or the tool is double-clicked, the dialog will return the tool number selected.  This can be used in conjunction with the `OperatorValueLine` widget to create a tool change widget, for example.
+
+If there is an Focus Overlay widget present, it will signal it to display.
+
+When using `STATUS` 's `request-dialog` function, the default launch name is *`TOOLCHOOSER`*. 
+
+It is based on PyQt's _QDialog_.
+
 
 [[sub:qtvcp:widgets:machinelog]]
 === `MachineLog` - Machine Events Journal Display Widget
