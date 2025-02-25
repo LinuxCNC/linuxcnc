@@ -1041,7 +1041,7 @@ class ToolChooserDialog(QDialog, GeometryMixin):
         self.setWindowFlags(self.windowFlags() | Qt.Tool |
                             Qt.Dialog |
                             Qt.WindowStaysOnTopHint | Qt.WindowSystemMenuHint)
-        self.setMinimumSize(400, 400)
+        self.setMinimumSize(200, 200)
 
         self._o = TOOLCHOOSER_WIDGET()
         self._o.setObjectName('__dialogToolChooserWidget')
@@ -1057,7 +1057,6 @@ class ToolChooserDialog(QDialog, GeometryMixin):
         STATUS.connect('interp-idle', lambda w: buttonBox.setEnabled(STATUS.machine_is_on()
                                                     and STATUS.is_all_homed()))
         STATUS.connect('interp-run', lambda w: buttonBox.setEnabled(False))
-
 
         v = QVBoxLayout()
         v.addWidget(self._o)
@@ -1079,7 +1078,7 @@ class ToolChooserDialog(QDialog, GeometryMixin):
         self.record_geometry()
         try:
             num = int(self._o.getSelectedTool())
-            LOG.debug('Displayed value when accepted: {}'.format(num))
+            LOG.debug('Selected tool when accepted: {}'.format(num))
             if self._message is not None:
                 self._message['RETURN'] = num
                 STATUS.emit('general', self._message)
@@ -1087,7 +1086,6 @@ class ToolChooserDialog(QDialog, GeometryMixin):
         except Exception as e:
                 print(e)
         self.hide()
-        
 
     def reject(self):
         self.record_geometry()
@@ -1101,7 +1099,6 @@ class ToolChooserDialog(QDialog, GeometryMixin):
     def _hal_init(self):
         self.set_default_geometry()
         STATUS.connect('dialog-request', self._external_request)
-
 
     def _external_request(self, w, message):
         self._message = message
@@ -1137,12 +1134,9 @@ class ToolChooserDialog(QDialog, GeometryMixin):
         STATUS.emit('focus-overlay-changed', False, None, None)
         self.record_geometry()
 
-
-    # set the geometry when dialog shown
     def showEvent(self, event):
         self.set_geometry()
         super(ToolChooserDialog, self).showEvent(event)
-
 
     def __getitem__(self, item):
         return getattr(self, item)

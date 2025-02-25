@@ -25,16 +25,11 @@ LOG = logger.getLogger(__name__)
 # Force the log level for this module
 #LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
-ICONPATH = os.path.join(INFO.LIB_PATH, 'images/widgets/tool_offsetview')
-
 class ToolChooser(QTableView, _HalWidgetBase):
 
     def __init__(self, parent=None):
         super(ToolChooser, self).__init__(parent)
         self._current_tool = -1
-        self.filename = INFO.PARAMETER_FILE
-        self.axisletters = ["x", "y", "z", "a", "b", "c", "u", "v", "w"]
-
         self.createAllView()
 
     def _hal_init(self):
@@ -50,19 +45,16 @@ class ToolChooser(QTableView, _HalWidgetBase):
         for i in (0,2,3,4,5,6,7,8,9,10,11,12,13,14,16,17,18):
             self.hideColumn(i)
 
-
-
     def currentTool(self, tool):
-        print(f"Current Tool: {tool}")
         self._current_tool = tool
 
     def createAllView(self):
         styledItemDelegate=QStyledItemDelegate()
         self.setItemDelegate(styledItemDelegate)
 
-        self.tablemodel = MyTableModel(self)
+        self.tablemodel = ToolTableModel(self)
         self.setModel(self.tablemodel)
-        self.setMinimumSize(500, 400)
+        self.setMinimumSize(100, 100)
 
         hh = self.horizontalHeader()
         hh.setSectionResizeMode(3)
@@ -90,47 +82,28 @@ class ToolChooser(QTableView, _HalWidgetBase):
         return setattr(self, item, value)
 
 
-
 #########################################
-# custom model
+# model holds the tool data
 #########################################
-class MyTableModel(QAbstractTableModel):
+class ToolTableModel(QAbstractTableModel):
     def __init__(self, parent=None):
-        """
-        Args:
-            datain: a list of lists\n
-            headerdata: a list of strings
-        """
-        super(MyTableModel, self).__init__(parent)
+        super(ToolTableModel, self).__init__(parent)
         self.text_template = '%.4f'
-        self.metric_text_template = '%10.3f'
-        self.zero_text_template = '%10.1f'
-        self.imperial_text_template = '%9.4f'
-        self.degree_text_template = '%10.1f'
-        self.metric_display = False
-        self.diameter_display = False
-        self._highlightcolor = '#00ffff'
+        self._current_tool_bg_color = '#00ffff'
+        self._current_tool_color = '#777777'
         self._selectedcolor = '#00ff00'
         self.headerdata = ['','tool','pocket','X','X Wear', 'Y', 'Y Wear', 'Z', 'Z Wear', 'A', 'B', 'C', 'U', 'V', 'W', 'Diameter', 'Front Angle', 'Back Angle','Orient','Comment']
         if INFO.MACHINE_IS_LATHE:
             self.headerdata[2] = 'Stn'
         self.vheaderdata = []
-        self.arraydata = [[0, 0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, 0,'No Tool']]
+        self.arraydata = [[0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, 0,'No Tool']]
         STATUS.connect('toolfile-stale',lambda o, d: self.update(d))
         self.update(None)
-
-    def metricDisplay(self, state):
-        self.metric_display = state
-        self.layoutChanged.emit()
-
-    def diameterDisplay(self, state):
-        self.diameter_display = state
-        self.layoutChanged.emit()
 
     def update(self, models):
         data = TOOL.CONVERT_TO_WEAR_TYPE(models)
         if data in (None, []):
-            data = [[0,0, 0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, 0,'No Tool']]
+            data = [[0,0,0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0, 0,'No Tool']]
         self.arraydata = data
         self.layoutChanged.emit()
 
@@ -145,21 +118,18 @@ class MyTableModel(QAbstractTableModel):
     def data(self, index, role=Qt.DisplayRole):
         if role == Qt.DisplayRole:
             value = self.arraydata[index.row()][index.column()]
-            col = index.column()
-
             if isinstance(value, str):
                 return '%s' % value
-            # Default (anything not captured above: e.g. int)
             return value
-
+        
         elif role == Qt.BackgroundRole:
             if self.arraydata[index.row()][1] == self.parent()._current_tool:
-                return QColor(self._highlightcolor)
+                return QColor(self._current_tool_bg_color)
             return QVariant()
         
         elif role == Qt.ForegroundRole:
             if self.arraydata[index.row()][1] == self.parent()._current_tool:
-                return QColor('gray')
+                return QColor(self._current_tool_color)
             return QVariant()
 
     def flags(self, index):
@@ -168,11 +138,10 @@ class MyTableModel(QAbstractTableModel):
         else:
             return Qt.ItemIsEnabled | Qt.ItemIsSelectable
 
-
     def headerData(self, col, orientation, role):
         if orientation == Qt.Horizontal and role == Qt.DisplayRole:
             return QVariant(self.headerdata[col])
-        if orientation != Qt.Horizontal and role == Qt.DisplayRole:
+        elif orientation != Qt.Horizontal and role == Qt.DisplayRole:
             return QVariant('')
         return QVariant()
 
