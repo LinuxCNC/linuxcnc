@@ -119,13 +119,30 @@ class RestrictedProxyModel(QSortFilterProxyModel):
         self.invalidateFilter()
 
     def lessThan(self, left, right):
-        left_data = self.sourceModel().fileInfo(left)
-        right_data = self.sourceModel().fileInfo(right)
-        if left_data.isDir() and not right_data.isDir():
-            return True
-        if not left_data.isDir() and right_data.isDir():
-            return False
-        return left_data.fileName().lower() < right_data.fileName().lower()
+        # name
+        if left.column() == 0:
+            left_data = self.sourceModel().fileInfo(left)
+            right_data = self.sourceModel().fileInfo(right)
+            if left_data.isDir() and not right_data.isDir():
+                return True
+            if not left_data.isDir() and right_data.isDir():
+                return False
+            return left_data.fileName().lower() < right_data.fileName().lower()
+
+        # size
+        if left.column() == 1:
+            left_data = self.sourceModel().size(left)
+            right_data = self.sourceModel().size(right)
+            return left_data < right_data
+
+        # last modified
+        if left.column() == 3:
+            left_data = self.sourceModel().fileInfo(left)
+            right_data = self.sourceModel().fileInfo(right)
+            return left_data.lastModified() < right_data.lastModified()
+
+        # default
+        return False
 
 class FileManager(QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
