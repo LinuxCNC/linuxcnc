@@ -369,7 +369,9 @@ int hm2_fabs_parse(hostmot2_t *hm2, char *token, int gtag){
     }
     def->gtag = gtag;
     def->index = i;
-    strncpy(def->string, ++token, MAX_ABSENC_LEN);
+    // MAX_ABS_LENGTH-1 because this string, in a fixed size buffer, must be
+    // NUL-terminated. It is used as such in abs_encoder.c.
+    strncpy(def->string, ++token, MAX_ABSENC_LEN-1);
     rtapi_list_add(&def->list, &hm2->config.absenc_formats);
     return 0;
 }
