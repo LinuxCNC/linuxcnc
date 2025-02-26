@@ -169,15 +169,15 @@ int rtapi_app_main(void)
     outw(0x82c9,base); /* set indexregister */
 
     /* Set all outputs to zero */
-    writew(0, port_data_array->io_base + 0x20); /* digital out 0-15  */
-    writew(0, port_data_array->io_base + 0x40); /* digital out 16-23 */
-    writew(0, port_data_array->io_base + 0x60); /* DAC 1 */
-    writew(0, port_data_array->io_base + 0x80); /* DAC 2 */
-    writew(0, port_data_array->io_base + 0xa0); /* DAC 3 */
+    writew(0, (char *)port_data_array->io_base + 0x20); /* digital out 0-15  */
+    writew(0, (char *)port_data_array->io_base + 0x40); /* digital out 16-23 */
+    writew(0, (char *)port_data_array->io_base + 0x60); /* DAC 1 */
+    writew(0, (char *)port_data_array->io_base + 0x80); /* DAC 2 */
+    writew(0, (char *)port_data_array->io_base + 0xa0); /* DAC 3 */
     /* Reset Encoder's */
-    writew(0, port_data_array->io_base + 0x02); /* ENCODER 1 */
-    writew(0, port_data_array->io_base + 0x0a); /* ENCODER 2 */
-    writew(0, port_data_array->io_base + 0x12); /* ENCODER 3 */
+    writew(0, (char *)port_data_array->io_base + 0x02); /* ENCODER 1 */
+    writew(0, (char *)port_data_array->io_base + 0x0a); /* ENCODER 2 */
+    writew(0, (char *)port_data_array->io_base + 0x12); /* ENCODER 3 */
     
     /* STEP 3: export the pin(s) */
 
@@ -289,14 +289,14 @@ static void update_port(void *arg, long period)
     port = arg;
 
 /* write DAC's */
-    writew((*(port->dac_out[0])/10 * 0x7fff), port->io_base + 0x60);
-    writew((*(port->dac_out[1])/10 * 0x7fff), port->io_base + 0x80);
-    writew((*(port->dac_out[2])/10 * 0x7fff), port->io_base + 0xa0);
+    writew((*(port->dac_out[0])/10 * 0x7fff), (char *)port->io_base + 0x60);
+    writew((*(port->dac_out[1])/10 * 0x7fff), (char *)port->io_base + 0x80);
+    writew((*(port->dac_out[2])/10 * 0x7fff), (char *)port->io_base + 0xa0);
 
 /* Read Encoders, improve the 16bit hardware counters to 32bit and scale the values */
     raw_counts[0] = (__u16) readw(port->io_base);
-    raw_counts[1] = (__u16) readw(port->io_base + 0x08 );
-    raw_counts[2] = (__u16) readw(port->io_base + 0x10 );
+    raw_counts[1] = (__u16) readw((char *)port->io_base + 0x08 );
+    raw_counts[2] = (__u16) readw((char *)port->io_base + 0x10 );
 
     port->counts[0] += (__s16) (raw_counts[0] - port->raw_counts_old[0]);
     port->raw_counts_old[0] = raw_counts[0];
@@ -313,20 +313,20 @@ static void update_port(void *arg, long period)
 
 
 /* read digital inputs */
-     tmp = readw(port->io_base + 0x20);       /* digital input 0-15 */
+     tmp = readw((char *)port->io_base + 0x20);       /* digital input 0-15 */
       mask = 0x01;
 	for (pin=0 ; pin < 16 ; pin++) {
 	*port->digital_in[pin] = (tmp & mask) ? 1:0 ;
 	mask <<= 1;
 	}
-     tmp = readw(port->io_base + 0x40);       /* digital input 16-31 */
+     tmp = readw((char *)port->io_base + 0x40);       /* digital input 16-31 */
       mask = 0x01;
 	for (pin=16 ; pin < 32 ; pin++) {
 	*port->digital_in[pin] = (tmp & mask) ? 1:0 ;
 	mask <<= 1;
 	}
 
-     tmp = readw(port->io_base + 0x60);       /* digital input 32-45 */
+     tmp = readw((char *)port->io_base + 0x60);       /* digital input 32-45 */
       mask = 0x01;
 	for (pin=32 ; pin < 46 ; pin++) {
 	*port->digital_in[pin] = (tmp & mask) ? 1:0 ;
@@ -343,7 +343,7 @@ static void update_port(void *arg, long period)
         mask <<= 1;
         }
      }
-     writew( tmp, port->io_base + 0x20);  /* digital output 0-15 */
+     writew( tmp, (char *)port->io_base + 0x20);  /* digital output 0-15 */
 
 
      tmp = 0x0;
@@ -354,6 +354,6 @@ static void update_port(void *arg, long period)
         mask <<= 1;
         }
      }
-     writew( tmp, port->io_base + 0x40);  /* digital output 16-23 */
+     writew( tmp, (char *)port->io_base + 0x40);  /* digital output 16-23 */
 
 }

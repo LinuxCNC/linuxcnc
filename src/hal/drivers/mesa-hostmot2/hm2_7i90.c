@@ -197,17 +197,18 @@ static void hm2_7i90_nanosleep(unsigned long int nanoseconds) {
 int hm2_7i90_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, int size) {
     int bytes_remaining = size;
     hm2_7i90_t *board = this->private;
+    char *cptr = buffer;
 
     hm2_7i90_epp_addr16(addr | HM2_7I90_ADDR_AUTOINCREMENT, board);
 
     for (; bytes_remaining > 3; bytes_remaining -= 4) {
-        *((rtapi_u32*)buffer) = hm2_7i90_epp_read32(board);
-        buffer += 4;
+        *((rtapi_u32*)cptr) = hm2_7i90_epp_read32(board);
+        cptr += 4;
     }
 
     for ( ; bytes_remaining > 0; bytes_remaining --) {
-        *((rtapi_u8*)buffer) = hm2_7i90_epp_read(board);
-        buffer ++;
+        *((rtapi_u8*)cptr) = hm2_7i90_epp_read(board);
+        cptr++;
     }
 
     if (hm2_7i90_epp_check_for_timeout(board)) {
@@ -227,17 +228,18 @@ int hm2_7i90_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, int siz
 int hm2_7i90_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, const void *buffer, int size) {
     int bytes_remaining = size;
     hm2_7i90_t *board = this->private;
+    const char *cptr = buffer;
 
     hm2_7i90_epp_addr16(addr | HM2_7I90_ADDR_AUTOINCREMENT, board);
 
     for (; bytes_remaining > 3; bytes_remaining -= 4) {
-        hm2_7i90_epp_write32(*((rtapi_u32*)buffer), board);
-        buffer += 4;
+        hm2_7i90_epp_write32(*((rtapi_u32*)cptr), board);
+        cptr += 4;
     }
 
     for ( ; bytes_remaining > 0; bytes_remaining --) {
-        hm2_7i90_epp_write(*((rtapi_u8*)buffer), board);
-        buffer ++;
+        hm2_7i90_epp_write(*((rtapi_u8*)cptr), board);
+        cptr++;
     }
 
     if (hm2_7i90_epp_check_for_timeout(board)) {

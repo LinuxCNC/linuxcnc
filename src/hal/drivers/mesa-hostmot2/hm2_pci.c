@@ -213,12 +213,13 @@ MODULE_DEVICE_TABLE(pci, hm2_pci_tbl);
 
 static int hm2_pci_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, int size) {
     hm2_pci_t *board = this->private;
-    void *src = board->base + addr;
+    char *src = (char *)board->base + addr;
+    char *dst = buffer;
 
     while (size > 0) {
-        *(rtapi_u32*)buffer = *(rtapi_u32*)src;
+        *(rtapi_u32*)dst = *(rtapi_u32*)src;
         src += 4;
-        buffer += 4;
+        dst += 4;
         size -=4;
     }
 
@@ -227,12 +228,13 @@ static int hm2_pci_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, i
 
 static int hm2_pci_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, const void *buffer, int size) {
     hm2_pci_t *board = this->private;
-    void *dest = board->base + addr;
+    char *dest = (char *)board->base + addr;
+    const char *src = buffer;
 
     while (size > 0) {
-        *(rtapi_u32*)dest = *(rtapi_u32*)buffer;
+        *(rtapi_u32*)dest = *(rtapi_u32*)src;
         dest += 4;
-        buffer += 4;
+        src += 4;
         size -=4;
     }
 
