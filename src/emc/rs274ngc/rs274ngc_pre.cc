@@ -1953,6 +1953,13 @@ int Interp::save_parameters(const char *filename,      //!< name of file to writ
   infile = fopen(filename, "r");
   if(!infile)
     infile = fopen("/dev/null", "r");
+  if(!infile) {
+    // If we can't open the 'filename', we may not be able to open "/dev/null"
+    // either. If so, print an error, close 'outfile' and continue.
+    perror("Interp::save_parameters(): fopen(/dev/null)");
+    fclose(outfile);
+    return INTERP_OK;
+  }
 
   k = 0;
   index = 0;
