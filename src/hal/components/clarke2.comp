@@ -15,6 +15,7 @@ pin in float a;
 pin in float b "first two phases of three phase input";
 pin out float x;
 pin out float y "cartesian components of output";
+option period no;
 function _;
 license "GPL";
 author "John Kasunich";

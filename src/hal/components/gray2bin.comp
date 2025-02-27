@@ -5,6 +5,7 @@ pin out unsigned out "binary code out";
 license "GPL";
 author "Andy Pugh";
 function _ nofp;
+option period no;
 ;;
 unsigned int mask;
 out = in;

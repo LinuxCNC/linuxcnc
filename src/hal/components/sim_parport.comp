@@ -124,6 +124,7 @@ pin out bit pin_15_in_not;
 
 pin in float reset_time;
 
+option period no;
 function read nofp;
 function write nofp;
 function reset nofp;
@@ -180,6 +181,6 @@ FUNCTION(write) {
 }
 
 FUNCTION(reset) {
-
-return;
+    (void)__comp_inst;
+    return;
 }

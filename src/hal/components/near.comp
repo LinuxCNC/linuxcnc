@@ -8,6 +8,7 @@ pin out bit out """
 \\fBscale\\fR (i.e., for in1 positive, in1/scale <= in2 <= in1*scale), OR
 if their absolute difference is no greater than \\fBdifference\\fR (i.e.,
 |in1-in2| <= difference).  \\fBout\\fR is false otherwise.""";
+option period no;
 function _;
 license "GPL";
 author "Chris Radek";

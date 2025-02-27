@@ -35,6 +35,7 @@ This is simple mathematics. """;
 license "GPL"; // indicates GPL v2 or later
 author "Noel Rodes";
 see_also "mult2(9), invert(9) ";
+option period no;
 function _;
 
 ;;

@@ -29,6 +29,7 @@ pin out float fb_out "The feedback output value";
 
 license "GPL";
 author "Jeff Epler";
+option period no;
 ;;
 
 FUNCTION(update_feedback) { fb_out = fb_in - offset; }

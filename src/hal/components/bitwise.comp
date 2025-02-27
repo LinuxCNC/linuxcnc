@@ -11,6 +11,7 @@ pin out u32 out-xnor "The inverse of the bitwise XOR";
 author "Andy Pugh";
 license "GPL 2+";
 function _ nofp;
+option period no;
 ;;
 
 out_and = (in0 & in1);

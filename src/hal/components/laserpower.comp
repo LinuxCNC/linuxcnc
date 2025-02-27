@@ -30,6 +30,7 @@ description """During operation laserpower must be scaled proportionally to actu
                     This allows vector power to be scaled along moves.
             """;
 
+option period no;
 function _;
 license "GPL";
 

@@ -41,6 +41,7 @@ pin in float in4;
 pin in float in5;
 pin in float in6;
 pin in float in7;
+option period no;
 function _;
 license "GPL";
 author "Stuart Stevenson";

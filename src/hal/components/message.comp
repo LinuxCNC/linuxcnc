@@ -72,6 +72,7 @@ variable hal_bit_t prev_edge = TRUE;
  
 option extra_setup yes;
  
+option period no;
 function _ nofp "Display a message";
 license "GPL v2";
 author "Les Newell";
@@ -110,6 +111,7 @@ FUNCTION(_){
 }
  
 EXTRA_SETUP(){
+    (void)prefix;
     myidx = extra_arg;
     if(myidx<0 || myidx >15)
     {

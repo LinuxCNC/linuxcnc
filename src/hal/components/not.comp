@@ -11,5 +11,6 @@ see_also """
 """;
 license "GPL";
 author "Jeff Epler";
+option period no;
 ;;
 FUNCTION(_) { out = ! in; }

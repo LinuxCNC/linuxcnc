@@ -29,6 +29,7 @@ towards the input value in each period.""";
 
 variable double value;
 
+option period no;
 function _ "Update the output based on the input and parameters.";
 
 license "GPL";

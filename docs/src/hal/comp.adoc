@@ -31,6 +31,7 @@ component ddt "Compute the derivative of the input function";
 pin in float in;
 pin out float out;
 variable double old;
+option period no;
 function _;
 license "GPL"; // indicates GPL v2 or later
 ;;
@@ -173,7 +174,7 @@ If neither 'count' nor 'names' is specified, a single numbered instance is creat
 
 Functions are implicitly passed the 'period' parameter which is the time in nanoseconds of the last period to execute the component.
 Functions which use floating-point can also refer to 'fperiod' which is the floating-point time in seconds, or (period*1e-9).
-This can be useful in components that need the timing information.
+This can be useful in components that need the timing information. See also 'option period' below.
 
 == Syntax
 
@@ -292,18 +293,24 @@ r"\fIexample\fB"
 
 The currently defined options are:
 
-* 'option singleton yes' - (default: no)
-  Do not create a 'count' module parameter, and always create a single instance.
-  With 'singleton', items are named 'component-name.item-name' and without 'singleton', items for numbered instances are named 'component-name.<num>.item-name'.
-* 'option default_count number' - (default: 1)
-  Normally, the module parameter 'count' defaults to 1. If specified, the 'count' will default to this value instead.
-* 'option count_function yes' - (default: no)
-  Normally, the number of instances to create is specified in the module parameter 'count';
-  if 'count_function' is specified, the value returned by the function 'int get_count(void)' is used instead, and the 'count' module parameter is not defined.
-* 'option rtapi_app no' - (default: yes)
+* 'option singleton yes' - (default: no) +
+  Do not create a 'count' module parameter, and always create a single instance. With
+  'singleton', items are named 'component-name.item-name' and without 'singleton', items for
+  numbered instances are named 'component-name.<num>.item-name'.
+
+* 'option default_count number' - (default: 1) +
+  Normally, the module parameter 'count' defaults to 1. If specified, the 'count' will default
+  to this value instead.
+
+* 'option count_function yes' - (default: no) +
+  Normally, the number of instances to create is specified in the module parameter 'count'; if
+  'count_function' is specified, the value returned by the function 'int get_count(void)' is
+  used instead, and the 'count' module parameter is not defined.
+
+* 'option rtapi_app no' - (default: yes) +
   Normally, the functions `rtapi_app_main()` and `rtapi_app_exit()` are automatically defined.
   With 'option rtapi_app no', they are not, and must be provided in the C code.
-  Use the following prototypes:
+  Use the following prototypes: +
 +
 ----
 `int rtapi_app_main(void);`
@@ -339,7 +346,7 @@ When implementing your own `rtapi_app_main()`, call the function `int export(cha
   This function may process the commandline arguments or take other actions.
   Its return type is 'void'; it may call 'exit()' if it wishes to terminate rather than create a HAL component (e.g., because the commandline arguments were invalid).
 
-* 'option extra_link_args "..."' - (default: "")
+* 'option extra_link_args "..."' - (default: "") +
    This option is ignored if the option 'userspace' (see above) is set to 'no'.
    When linking a non-realtime component, the arguments given are inserted in the link line.
    Note that because compilation takes place in a temporary directory,
@@ -347,7 +354,7 @@ When implementing your own `rtapi_app_main()`, call the function `int export(cha
    This option can be set in the halcompile command-line with -extra-link-args="-L.....".
    This alternative provides a way to set extra flags in cases where the input file is a .c file rather than a .comp file.
 
-* 'option extra_compile_args "..."' - (default: "")
+* 'option extra_compile_args "..."' - (default: "") +
    This option is ignored if the option 'userspace' (see above) is set to 'no'.
    When compiling a non-realtime component, the arguments given are inserted in the compiler command line.
    If the input file is a .c file this option can be set in the halcompile command-line with --extra-compile-args="-I.....".
@@ -358,6 +365,14 @@ When implementing your own `rtapi_app_main()`, call the function `int export(cha
 
 * 'option tpmod yes' - (default: no) +
   Module is a custom Trajectory Planning (tp) module loaded using `[TRAJ]TPMOD=`__modulename__ .
+
+* 'option period no' - (default: yes) +
+  Control the implicit 'period' parameter of the function(s) defined in the component. A
+  standard function has an implicit parameter 'period'. Many components do no use the 'period'
+  parameter and would cause a "unused parameter" compiler warning. Setting 'option period no'
+  creates a function declaration omitting the 'period' parameter preventing the warning.
+  Setting this option will also prevent 'fperiod' from being defined, as it depends on
+  'period'.
 
 If an option's VALUE is not specified, then it is equivalent to specifying 'option … yes'. +
 The result of assigning an inappropriate value to an option is undefined. +
@@ -432,7 +447,7 @@ they will generally be referred to using the macros below.
 The details of `struct __comp_state` and these macros may change from one version of 'halcompile' to the next.
 
 * `FUNCTION(`__name__`)` - Use this macro to begin the definition of a realtime function, which was previously declared with 'function NAME'.
-  The function includes a parameter 'period' which is the integer number of nanoseconds between calls to the function.
+  The function includes a parameter 'period' which is the integer number of nanoseconds between calls to the function. See also 'option period' above.
 * `EXTRA_SETUP()` - Use this macro to begin the definition of the function called to perform extra setup of this instance.
   Return a negative UNIX 'errno' value to indicate failure (e.g., 'return -EBUSY' on failure to reserve an I/O port), or 0 to indicate success.
 * `EXTRA_CLEANUP()` - Use this macro to begin the definition of the function called to perform extra cleanup of the component.
@@ -450,7 +465,7 @@ When the item is a conditional item, it is only legal to refer to it when its 'c
 * 'variable_name' - For each variable 'variable_name' there is a macro which allows the name to be used on its own to refer to the variable.
   When 'variable_name' is an array, the normal C-style subscript is used: 'variable_name[idx]'.
 * 'data' - If "option data" is specified, this macro allows access to the instance data.
-* 'fperiod' - The floating-point number of seconds between calls to this realtime function.
+* 'fperiod' - The floating-point number of seconds between calls to this realtime function. See also 'option period' above.
 * `FOR_ALL_INSTS() {`...`}` - For non-realtime components.
   This macro iterates over all the defined instances.
   Inside the body of the loop, the 'pin_name', 'parameter_name', and 'data' macros work as they do in realtime functions.
@@ -505,6 +520,7 @@ The file name must match the component name.
 component constant;
 pin out float out;
 param r float value = 1.0;
+option period no;
 function _;
 license "GPL"; // indicates GPL v2 or later
 ;;
@@ -526,6 +542,7 @@ component sincos;
 pin out float sin_;
 pin out float cos_;
 pin in float theta;
+option period no;
 function _;
 license "GPL"; // indicates GPL v2 or later
 ;;
@@ -548,6 +565,7 @@ param r unsigned ioaddr;
 
 function _;
 
+option period no;
 option count_function;
 option extra_setup;
 option extra_cleanup;
@@ -613,6 +631,7 @@ This realtime component illustrates use of fixed-size arrays:
 component arraydemo "4-bit Shift register";
 pin in bit in;
 pin out bit out-# [4];
+option period no;
 function _ nofp;
 license "GPL"; // indicates GPL v2 or later
 ;;
@@ -654,6 +673,7 @@ pin in bit in-##[16 : personality & 0xff];
 pin out bit and if personality & 0x100;
 pin out bit or if personality & 0x200;
 pin out bit xor if personality & 0x400;
+option period no;
 function _ nofp;
 description """
 Experimental general 'logic function' component.  Can perform 'and', 'or'
@@ -706,6 +726,7 @@ pin in s32 in;
 pin out bit out1;
 pin out bit out2;
 
+option period no;
 function _;
 license "GPL";
 ;;

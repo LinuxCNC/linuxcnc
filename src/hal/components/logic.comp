@@ -79,6 +79,7 @@ see_also """
 """;
 license "GPL";
 author "Jeff Epler";
+option period no;
 ;;
 FUNCTION(_) {
     int i, a=1, o=0, x=0;

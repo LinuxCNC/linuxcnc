@@ -10,6 +10,7 @@ pin in float scale2 = 1.0;
 pin in float scale3 = 1.0;
 pin out s32 out_s;
 pin out float out_f "out-s = out-f = (in0 * scale0) + (in1 * scale1) + (in2 * scale2) + (in3 * scale3)";
+option period no;
 function _;
 license "GPL";
 author "Chris S Morley";

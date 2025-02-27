@@ -47,6 +47,7 @@ pin out s32 rxbytes  "Number of Bytes received or negative Error code";
 variable char *name; // PktUART name
 
 option extra_setup yes;
+option period no;
 
 function receive;
 
@@ -113,6 +114,7 @@ FUNCTION(receive){
 #endif
 
 EXTRA_SETUP(){ // the names parameters are passed in 'prefix'.
+	(void)extra_arg;
 	if (prefix[0] == 'm'){ // should be the 'm' of hm2_....
 		rtapi_print_msg(0, "mesa_pktuart_test can not be loaded using the 'count' "
 						"parameter, see man mesa_uart for details\n");

@@ -13,6 +13,7 @@ pin in signed r "Radius of hemisphere in counts";
 
 pin out bit probe-out;
 
+option period no;
 function _ nofp "update probe-out based on inputs";
 ;;
 #undef abs

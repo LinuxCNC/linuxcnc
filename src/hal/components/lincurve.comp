@@ -33,6 +33,7 @@ pin io float out-io "The output value, compatible with PID gains";
 variable unsigned i = 0;
 
 option extra_setup 1;
+option period no;
 
 author "Andy Pugh";
 license "GPL";
@@ -63,6 +64,8 @@ FUNCTION(_){
 }
 
 EXTRA_SETUP(){
+	(void)prefix;
+	(void)extra_arg;
 	if (personality > 16) personality = 16;
 	if (personality < 2) personality = 2;
 	return 0;

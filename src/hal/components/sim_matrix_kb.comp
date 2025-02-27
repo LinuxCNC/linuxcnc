@@ -16,6 +16,7 @@ variable int keyup = 0x80;
 variable int nokeychange = 0x40;
 variable int last[64];
 
+option period no;
 function _;
 license "GPL";
 author "Chris S Morley";

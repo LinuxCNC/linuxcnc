@@ -39,6 +39,7 @@ variable int debounce_cntr;
 variable unsigned debounce_set;
 variable int state;
 
+option period no;
 function _ nofp;
 license "GPL";
 author "Anders Wallin, David Mueller";
@@ -53,7 +54,7 @@ FUNCTION(_)  {
 
     if (in && state == 0 )  { /* input has changed from debounced 0 -> 1 */
         debounce_cntr++;
-        if ( debounce_cntr >= debounce_set ) {
+        if ( debounce_cntr >= (int)debounce_set ) {
             if (!is_on) { /* turn ON if it's off */
                 on=1;
                 off=0;
@@ -66,7 +67,7 @@ FUNCTION(_)  {
         }
     } else if (!in && state == 1) { /* input has changed from debounced 1 -> 0 */
         debounce_cntr++;
-        if ( debounce_cntr >= debounce_set ) {
+        if ( debounce_cntr >= (int)debounce_set ) {
             state = 0;
             debounce_cntr = 0;
         }

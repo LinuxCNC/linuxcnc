@@ -12,6 +12,7 @@ separated by distance \\fBhyst\\fR around the point where \\fBin1\\fR = \\fBin0\
 Keep in mind that floating point calculations are never absolute
 and it is wise to always set \\fBhyst\\fR if you intend to use equal """;
 
+option period no;
 function _ fp "Update the comparator";
 license "GPL";
 author "Jeff Epler";

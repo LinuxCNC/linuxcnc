@@ -1,5 +1,6 @@
 component threadtest "LinuxCNC HAL component for testing thread behavior";
 pin out unsigned count;
+option period no;
 function increment nofp;
 function reset nofp;
 license "GPL";

@@ -99,6 +99,7 @@ variable int  err_stop = 0;
 option data the_data;
 //---------------------------------------------------------------------
 
+option period no;
 function _;
 license "GPL";
 author "Dewey Garrett";
