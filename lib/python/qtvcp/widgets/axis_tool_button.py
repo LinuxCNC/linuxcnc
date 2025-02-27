@@ -146,7 +146,7 @@ class AxisToolButton(QToolButton, IndicatedMixIn):
         axis, now = self._a_from_j(self._axis)
         if axis:
             ACTION.SET_AXIS_ORIGIN(axis, 0)
-            STATUS.emit('update-machine-log', 'Zeroed Axis %s' % axis, 'TIME')
+            STATUS.emit('update-machine-log', 'Zeroed Axis %s' % axis, 'TIME,SUCCESS')
 
     def SetOrigin(self):
         axis, now = self._a_from_j(self._axis)
@@ -168,7 +168,7 @@ class AxisToolButton(QToolButton, IndicatedMixIn):
             LOG.debug('message return:{}'.format (message))
             axis = message.get('AXIS')
             ACTION.SET_AXIS_ORIGIN(axis, num)
-            STATUS.emit('update-machine-log', 'Set Origin of Axis %s to %f' %(axis, num), 'TIME')
+            STATUS.emit('update-machine-log', 'Set Origin of Axis %s to %f' %(axis, num), 'TIME,SUCCESS')
 
     def Divide(self):
         axis, now = self._a_from_j(self._axis)
@@ -177,7 +177,7 @@ class AxisToolButton(QToolButton, IndicatedMixIn):
                 x = now/2.0
                 ACTION.SET_AXIS_ORIGIN(axis, x)
                 text = 'Divided Axis %s in Half - %f'% (axis, x)
-                STATUS.emit('update-machine-log', text, 'TIME')
+                STATUS.emit('update-machine-log', text, 'TIME,SUCCESS')
             except ZeroDivisionError:
                 pass
 
@@ -187,19 +187,19 @@ class AxisToolButton(QToolButton, IndicatedMixIn):
             last = ACTION.GET_LAST_RECORDED_ORIGIN(axis)
             ACTION.SET_AXIS_ORIGIN(axis, last)
             text = 'Reset Axis %s from %f to Last Value: %f' %(axis, now, last)
-            STATUS.emit('update-machine-log', text, 'TIME')
+            STATUS.emit('update-machine-log', text, 'TIME,SUCCESS')
 
     def Home(self):
         #axis, now = self._a_from_j(self._axis)
         #if axis:
             ACTION.SET_MACHINE_HOMING(self._joint)
-            STATUS.emit('update-machine-log', 'Homed Axis %s' % self._joint, 'TIME')
+            STATUS.emit('update-machine-log', 'Homed Axis %s' % self._joint, 'TIME,SUCCESS')
 
     def Unhome(self):
         #axis, now = self._a_from_j(self._axis)
         #if axis:
             ACTION.SET_MACHINE_UNHOMED(self._joint)
-            STATUS.emit('update-machine-log', 'Unhomed Axis %s' % self._joint, 'TIME')
+            STATUS.emit('update-machine-log', 'Unhomed Axis %s' % self._joint, 'TIME,WARNING')
 
     def goToG53(self):
         ACTION.CALL_MDI('G53 G0 {}0'.format(self._axis))

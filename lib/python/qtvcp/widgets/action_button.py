@@ -525,7 +525,7 @@ class ActionButton(IndicatedPushButton):
                 except IndexError:
                     LOG.error("can't zero origin for specified joint {}".format(self.joint))
             ACTION.SET_AXIS_ORIGIN(axis, 0)
-            STATUS.emit('update-machine-log', 'Zeroed Axis %s' % axis, 'TIME')
+            STATUS.emit('update-machine-log', 'Zeroed Axis %s' % axis, 'TIME,SUCCESS')
         elif self.zero_g5x:
             ACTION.ZERO_G5X_OFFSET(0)
         elif self.zero_g92:

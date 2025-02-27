@@ -511,7 +511,7 @@ class ToolDialog(LcncDialog, GeometryMixin):
             self.changed.set(True)
         elif answer == False:
             ACTION.ABORT()
-            STATUS.emit('update-machine-log', 'tool change Aborted', 'TIME')
+            STATUS.emit('update-machine-log', 'tool change Aborted', 'TIME,WARNING')
 
         self.record_geometry()
         STATUS.emit('focus-overlay-changed', False, None, None)
@@ -1559,7 +1559,7 @@ class EntryDialog(QDialog, GeometryMixin):
                                 text = text.replace('%s'%let,'%s'%Pos)
                         process = eval(text)
                         answer = float(process)
-                        STATUS.emit('update-machine-log', 'Convert Entry from: {} to {}'.format(otext,text), 'TIME')
+                        STATUS.emit('update-machine-log', 'Convert Entry from: {} to {}'.format(otext,text), 'TIME,SUCCESS')
                         flag = True
                     except Exception as e:
                         self.setWindowTitle('%s'%e)
@@ -1675,7 +1675,7 @@ class KeyboardDialog(QDialog, GeometryMixin):
         retval = self.exec_()
         answer = self.edit.text()
         if retval:   
-            STATUS.emit('update-machine-log', 'keyboard Entry {}'.format(answer), 'TIME')
+            STATUS.emit('update-machine-log', 'keyboard Entry {}'.format(answer), 'TIME,DEBUG')
         else:
             answer = None
 

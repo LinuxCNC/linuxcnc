@@ -310,7 +310,7 @@ class MDILine(MDI):
             self.setText(text)
             self.submit()
             LOG.debug('message return:{}'.format (message))
-            STATUS.emit('update-machine-log', 'Set MDI {}'.format(text), 'TIME')
+            STATUS.emit('update-machine-log', 'Set MDI {}'.format(text), 'TIME,SUCCESS')
 
     #########################################################################
     # This is how designer can interact with our widget properties.
