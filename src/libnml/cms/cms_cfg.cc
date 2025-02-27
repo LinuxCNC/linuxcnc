@@ -122,9 +122,7 @@ int load_nml_config_file(const char *file)
     if (fp == NULL) {
 	rcs_print_error("cms_config: can't open '%s'. Error = %d -- %s\n",
 	    file, errno, strerror(errno));
-	if (NULL != info) {
-	    delete info;
-	}
+	delete info;
 	loading_config_file = 0;
 	return -1;
     }
