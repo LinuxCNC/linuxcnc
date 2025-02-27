@@ -180,7 +180,6 @@ class NCamWindow(QMainWindow, NCam):
                 if arg is None:
                     act.triggered.connect(callback)
                 else:
-                    print('callback',arg)
                     act.triggered.connect(lambda s, arg=arg: callback(arg))
 
             if accel is not None:
@@ -212,8 +211,8 @@ class NCamWindow(QMainWindow, NCam):
         ca(self.actionDelete,"Delete", 'action-delete.gif', None, "<control>Delete", _('Remove selected subroutine'), self.action_delete)
         ca(self.actionAppendItm,"AppendItm", QStyle.SP_MediaSeekBackward, _("Add to Items"), "<control>Right", _("Add to Items"), self.action_appendItm)
         ca(self.actionRemoveItm,"RemoveItm", QStyle.SP_TrashIcon, _("Remove from Items"), "<control>Left", _('Remove from Items'), self.action_removeItem)
-        ca(self.actionMoveUp,"MoveUp", QStyle.SP_ArrowUp, _('Move up'), "<control>Up", _('Move up'), self.move, -1)
-        ca(self.actionMoveDown,"MoveDown", QStyle.SP_ArrowDown, _('Move down'), "<control>Down", _('Move down'), self.move, 1)
+        ca(self.actionMoveUp,"MoveUp", QStyle.SP_ArrowUp, _('Move up'), "<control>Up", _('Move up'), self.moveItem, -1)
+        ca(self.actionMoveDown,"MoveDown", QStyle.SP_ArrowDown, _('Move down'), "<control>Down", _('Move down'), self.moveItem, 1)
         ca(self.actionSaveUser,"SaveUser", QStyle.SP_DialogSaveButton, _('Save Values as Defaults'), '', _('Save Values of this Subroutine as Defaults'), self.action_saveUser)
         ca(self.actionDeleteUser,"DeleteUser", QStyle.SP_TitleBarCloseButton, _("Delete Custom Default Values"), None, _("Delete Custom Default Values"), self.action_deleteUser)
 
@@ -458,11 +457,13 @@ class NCamWindow(QMainWindow, NCam):
             # convert 'selected type' (str) to selected itr (int)
             if self.selected_type == "items" :
                 self.iter_selected_type = tv_select.items
-                self.items_ts_parent_s = selectedItem.meta.xml.get_name()
 
                 self.items_path = int(selectedItem.findPath())
+                # string representation of the gtk iter ie 1:2:0
+                self.items_ts_parent_s = model.indexToPath(selectedIndex)
+
                 n_children = selectedItem.childCount()
-                print('Path:',self.items_path, n_children)
+                print('item Path:',self.items_path, n_children)
                 self.items_lpath = (self.items_path + n_children)
 
             elif self.selected_type in ["header", 'sub-header'] :
@@ -480,7 +481,9 @@ class NCamWindow(QMainWindow, NCam):
             if self.iter_selected_type in [tv_select.items, tv_select.header] :
                 items_ts_path =  model.indexToPath(selectedIndex)
                 #sortedIndex = self.treestore.iter_parent(sortedIndex)
-                self.items_ts_parent_s = selectedItem.meta.xml.get_name()
+
+                # string representation of the gtk iter ie 1:2:0
+                self.items_ts_parent_s = items_ts_path
 
             # find top parent item of selection?
             itemParent = selectedItem

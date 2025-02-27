@@ -1945,30 +1945,35 @@ class NCam():
         found_lib_dir = False
         try :
             subroutine_path = ini_instance.find('RS274NGC', 'SUBROUTINE_PATH')
-            if subroutine_path is None :
-                self.err_exit(_('Required lib missing:\n\n'
-                           '[RS274NGC]SUBROUTINE_PATH'))
+            whiz_path = ini_instance.find('WIZARD', 'WIZARD_ROOT')
 
-            print("[RS274NGC]SUBROUTINE_PATH = %s\n  Real paths:" % subroutine_path)
+            if subroutine_path is None and whiz_path is None:
+                    self.err_exit(_('Required lib missing:\n\n'
+                               '[RS274NGC]SUBROUTINE_PATH'))
 
-            for i, d in enumerate(subroutine_path.split(":")):
-                d = os.path.expanduser(d)
-                if os.path.isabs(d) :
-                    thedir = d
-                else :
-                    thedir = os.path.join(os.path.realpath(os.path.dirname(fname)), d)
-                if os.path.isdir(thedir) :
-                    print("   %s" % (os.path.realpath(thedir)))
-                    if not found_lib_dir :
-                        found_lib_dir = thedir.find(require_lib) == 0
+            for name, checkPath in (('[RS274NGC]SUBROUTINE_PATH',subroutine_path),
+                    ('[WIZARD]WIZARD_ROOT', whiz_path)):
 
-            print("")
+                print("{} = {}\n  Real paths:".format(name, checkPath))
+
+                for i, d in enumerate(checkPath.split(":")):
+                    d = os.path.expanduser(d)
+                    if os.path.isabs(d) :
+                        thedir = d
+                    else :
+                        thedir = os.path.join(os.path.realpath(os.path.dirname(fname)), d)
+                    if os.path.isdir(thedir) :
+                        print("   %s" % (os.path.realpath(thedir)))
+                        if not found_lib_dir :
+                            found_lib_dir = thedir.find(require_lib) == 0
+
+                print("")
 
             if not found_lib_dir :
-                self.mess_dlg (_('\nThe required NativeCAM lib directory :\n<%(lib)s>\n\n'
-                          'is not in [RS274NGC]SUBROUTINE_PATH:\n'
-                          '<%(path)s>\n\nEdit ini and correct\n'
-                        % {'lib':require_lib, 'path':subroutine_path}))
+                    self.mess_dlg (_('\nThe required NativeCAM lib directory :\n<%(lib)s>\n\n'
+                              'is not in [RS274NGC]SUBROUTINE_PATH:\n'
+                              '<%(path)s>\n\nEdit ini and correct\n'
+                            % {'lib':require_lib, 'path':checkPath}))
 
         except Exception as detail :
             self.err_exit(_('Required NativeCAM lib\n%(err_details)s') % {'err_details':detail})
@@ -2763,7 +2768,7 @@ class NCam():
         self.add_iconview = self.builder.get_object("add_iconview")
         self.hint_label = self.builder.get_object("hint_label")
 
-    def move(self, delta) :
+    def moveItem(self, delta) :
         parent = self.selected_feature_itr
 
         self._model.moveRow(parent, delta)
@@ -3329,6 +3334,10 @@ class NCam():
                 opt = 0
                 next_path = None
             elif self.iter_selected_type == tv_select.items :
+                for i in xml:
+                    print (i)
+                print('add items',self.items_ts_parent_s,xml.find(".//*[@path='%s']/param[@type='items']" %
+                                self.items_ts_parent_s))
                 # will append to items
                 dest = xml.find(".//*[@path='%s']/param[@type='items']" %
                                 self.items_ts_parent_s)
@@ -3816,7 +3825,8 @@ class NCam():
                     pa = f.get_attr('path')
                     xmlpath_ = xmlpath.find(".//*[@path='%s']/param[@type='items']" % pa)
                     if xmlpath_ is not None:
-                        self.treestore_to_xml_recursion(self.treestore.iter_children(citer), xmlpath_)
+                        print('items',citer,citer.child(0))
+                        self.treestore_to_xml_recursion(citer.child(0), xmlpath_)
 
             # check for next items
             if allitems :
