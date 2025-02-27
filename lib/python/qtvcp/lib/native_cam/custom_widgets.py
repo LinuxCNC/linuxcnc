@@ -234,7 +234,7 @@ class ComboDelegate(QStyledItemDelegate):
             value = index.model().data(index,Qt.UserRole).get_value()
             idx = editor.findData(value) 
             #print('set combo', idx)
-            editor.setCurrentIndex(value)
+            editor.setCurrentIndex(idx)
             return
         elif editorType == 'tool':
             # get model data 'magic number'
