@@ -68,6 +68,9 @@ class NML_SUPER_SERVER {
   public:
     LinkedList * servers;
     NML_SUPER_SERVER();
+    // Don't copy or assign
+    NML_SUPER_SERVER(const NML_SUPER_SERVER&) = delete;
+    NML_SUPER_SERVER& operator=(const NML_SUPER_SERVER&) = delete;
     ~NML_SUPER_SERVER();
     void add_to_list(NML *);
     void add_to_list(NML_SERVER *);
