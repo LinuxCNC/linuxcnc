@@ -394,7 +394,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                                 linuxcnc.OPERATOR_DISPLAY, STATUS.TEMPARARY_MESSAGE):
                         STATUS.emit('play-sound', 'SPEAK %s ' % text)
 
-            STATUS.emit('update-machine-log', text, 'TIME')
+            STATUS.emit('update-machine-log', text, 'TIME,ERROR')
 
 
     def closeEvent(self, event):
@@ -461,7 +461,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
             toolnum = tool_entry[0]
             tool_table_line = TOOL.GET_TOOL_INFO(toolnum)
             text = 'Tool %s: %s'%(str(tool_table_line[0]),str(tool_table_line[index]))
-            STATUS.emit('update-machine-log', text, 'TIME')
+            STATUS.emit('update-machine-log', text, 'TIME,SUCCESS')
         except:
             pass
 

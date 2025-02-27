@@ -346,7 +346,7 @@ class _Lcnc_Action(object):
         try:
             outfile = open(npath, 'w')
             outfile.write(source)
-            STATUS.emit('update-machine-log', 'Saved: ' + npath, 'TIME')
+            STATUS.emit('update-machine-log', 'Saved: ' + npath, 'TIME,SUCCESS')
         except Exception as e:
             print(e)
             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, e)
@@ -728,9 +728,15 @@ class _Lcnc_Action(object):
         subprocess.call('shutdown now')
 
     def UPDATE_MACHINE_LOG(self, text, option=None):
-        if option not in ('TIME', 'DATE', 'DELETE', None):
-            LOG.warning("Machine_log option not recognized: {}".format(option))
-        STATUS.emit('update-machine-log', text, option)
+        valid_options = {'INITIAL', 'TIME', 'DATE', 'DELETE', 'CRITICAL', 'ERROR', 'WARNING', 'SUCCESS', 'DEBUG'}
+        options = set(option.split(',')) if option else {None}
+        
+        if not options.issubset(valid_options):
+            invalid_options = options - valid_options
+            LOG.warning("Machine_log option(s) not recognized: {}".format(', '.join(invalid_options)))
+            options = None
+    
+        STATUS.emit('update-machine-log', text, options)
 
     def CALL_DIALOG(self, command):
         try:

@@ -264,7 +264,7 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
         if not pos is None:
             axis = "XYZABCUVW"[self.axis_index]
             ACTION.SET_AXIS_ORIGIN(axis, 0)
-            STATUS.emit('update-machine-log', 'Zeroed Axis %s' % axis, 'TIME')
+            STATUS.emit('update-machine-log', 'Zeroed Axis %s' % axis, 'TIME,SUCCESS')
 
     def SetOrigin(self):
         pos = self.get_current_position()
@@ -288,7 +288,7 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
             LOG.debug('message return:{}'.format (message))
             axis = message.get('AXIS')
             ACTION.SET_AXIS_ORIGIN(axis, num)
-            STATUS.emit('update-machine-log', 'Set Origin of Axis %s to %f' %(axis, num), 'TIME')
+            STATUS.emit('update-machine-log', 'Set Origin of Axis %s to %f' %(axis, num), 'TIME,SUCCESS')
 
     def Divide(self):
         pos = self.get_current_position()
@@ -298,7 +298,7 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
                 x = pos/2.0
                 ACTION.SET_AXIS_ORIGIN(axis, x)
                 text = 'Divided Axis %s in Half - %f'% (axis, x)
-                STATUS.emit('update-machine-log', text, 'TIME')
+                STATUS.emit('update-machine-log', text, 'TIME,SUCCESS')
             except ZeroDivisionError:
                 pass
 
@@ -309,7 +309,7 @@ class DROLabel(ScaledLabel, _HalWidgetBase):
             last = ACTION.GET_LAST_RECORDED_ORIGIN(axis)
             ACTION.SET_AXIS_ORIGIN(axis, last)
             text = 'Reset Axis %s from %f to Last Value: %f' %(axis, pos, last)
-            STATUS.emit('update-machine-log', text, 'TIME')
+            STATUS.emit('update-machine-log', text, 'TIME,SUCCESS')
 
     def get_current_position(self):
         if STATUS.is_joint_mode():
