@@ -3212,8 +3212,8 @@ static int emc_pendant(ClientData /*clientdata*/,
 		inBytes[4] = fgetc(inFile);	// Status byte
 		inBytes[2] = fgetc(inFile);	// Horizontal movement
 		inBytes[3] = fgetc(inFile);	// Vertical Movement
+	        fclose(inFile);
 	    }
-	    fclose(inFile);
 
 	    if (!strcmp(port, "/dev/psaux")) {	// For PS/2
 		inBytes[0] = (inBytes[4] & 0x01);	// Left button

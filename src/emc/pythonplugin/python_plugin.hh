@@ -70,8 +70,8 @@ public:
     int plugin_status() { return status; };
     bool usable() { return (status >= PLUGIN_OK); }
     int initialize();
-    std::string last_exception() { return exception_msg; };
-    std::string last_errmsg() { return error_msg; };
+    const std::string& last_exception() { return exception_msg; };
+    const std::string& last_errmsg() { return error_msg; };
     boost::python::object main_namespace;
 
 private:

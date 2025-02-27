@@ -293,6 +293,8 @@ pycontext::~pycontext() { delete impl; }
 pycontext::pycontext(const pycontext &other)
     : impl(new pycontext_impl(*other.impl)) {}
 pycontext &pycontext::operator=(const pycontext &other) {
+    if(&other == this)  // Assign to self
+        return *this;
     delete impl;
     impl = new pycontext_impl(*other.impl);
     return *this;

@@ -128,6 +128,10 @@ rcs_sem_t *rcs_sem_open(key_t name, int oflag, /* int mode */ ...)
        so we need to allocate space that users will free later with
        rcs_sem_close */
     retval = (rcs_sem_t *) malloc(sizeof(rcs_sem_t));
+    if(!retval) {
+        rcs_print_error("rcs_sem_open: %s\n", strerror(errno));
+        return NULL;
+    }
     *retval = semid;
     return retval;
 }

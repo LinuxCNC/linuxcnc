@@ -60,7 +60,7 @@ LOCMEM::LOCMEM(const char *bufline, const char *procline, int set_to_server,
 	}
 	my_node = new BUFFERS_LIST_NODE;
 	lm_addr = my_node->addr = malloc(size);
-	if (my_node == NULL || lm_addr == NULL) {
+	if (lm_addr == NULL) {
 	    rcs_print_error("Can't malloc needed space.\n");
 	    status = CMS_CREATE_ERROR;
 	    return;

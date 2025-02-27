@@ -3395,6 +3395,10 @@ void *readClient(void *arg)
   
 //  res = 1;
   context = (connectionRecType *) malloc(sizeof(connectionRecType));
+  if(NULL == context) {
+    perror("readClient():malloc");
+    abort();  // There is no "clean" way. Ensure we make some noise.
+  }
   context->cliSock = client_sockfd;
   context->linked = 0;
   context->echo = 1;

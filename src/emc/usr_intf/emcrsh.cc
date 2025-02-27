@@ -1839,7 +1839,7 @@ static cmdResponseType getBrake(connectionRecType *context)
         if (n != spindle && spindle != -1)
             continue;
 
-        if (emcStatus->motion.spindle[spindle].brake == 1)
+        if (emcStatus->motion.spindle[n].brake == 1)
             OUT(pBrakeStr, "ON");
         else
             OUT(pBrakeStr, "OFF");

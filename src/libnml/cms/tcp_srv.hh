@@ -47,6 +47,9 @@ class CLIENT_TCP_PORT;
 class CMS_SERVER_REMOTE_TCP_PORT:public CMS_SERVER_REMOTE_PORT {
   public:
     CMS_SERVER_REMOTE_TCP_PORT(CMS_SERVER * _cms_server);
+    // Don't copy or assign
+    CMS_SERVER_REMOTE_TCP_PORT(const CMS_SERVER_REMOTE_TCP_PORT&) = delete;
+    CMS_SERVER_REMOTE_TCP_PORT& operator=(const CMS_SERVER_REMOTE_TCP_PORT&) = delete;
     virtual ~ CMS_SERVER_REMOTE_TCP_PORT();
     int accept_local_port_cms(CMS *);
     void run();

@@ -187,7 +187,6 @@ NML::NML(NML_FORMAT_PTR f_ptr, const char *buf, const char *proc, const char *fi
     else {
 	rtapi_strlcpy(cfgfilename, file, 160);
     }
-    snprintf(cfgfilename, 160, "%s", file);
 
     if (rcs_errors_printed >= max_rcs_errors_to_print
 	&& max_rcs_errors_to_print > 0 && nml_reset_errors_printed) {
@@ -414,21 +413,19 @@ NML::NML(const char *buf, const char *proc, const char *file, const int set_to_s
     cms_status = (int *) &(cms->status);
     cms_inbuffer_header_size = &(cms->header.in_buffer_size);
 
-    if (NULL != cms) {
-	char *forced_type_eq = strstr(cms->buflineupper, "FORCE_TYPE=");
-	if (forced_type_eq != NULL) {
-	    long temp = 0;
-	    temp = strtol(forced_type_eq + 11, NULL, 0);
-	    if (temp > 0) {
-		forced_type = temp;
-		fast_mode = 0;
-	    }
-	}
-	char *brpi_eq = strstr(cms->buflineupper, "BRPI=");
-	if (brpi_eq != NULL) {
-	    blocking_read_poll_interval = strtod(brpi_eq + 5, NULL);
-	}
+    char *forced_type_eq = strstr(cms->buflineupper, "FORCE_TYPE=");
+    if (forced_type_eq != NULL) {
+        long temp = 0;
+        temp = strtol(forced_type_eq + 11, NULL, 0);
+        if (temp > 0) {
+	    forced_type = temp;
+        fast_mode = 0;
+        }
     }
+    char *brpi_eq = strstr(cms->buflineupper, "BRPI=");
+    if (brpi_eq != NULL) {
+        blocking_read_poll_interval = strtod(brpi_eq + 5, NULL);
+}
 
 }
 
@@ -522,23 +519,20 @@ NML::NML(const char * buffer_line, const char * proc_line)
     }
     cms_status = (int *) &(cms->status);
     cms_inbuffer_header_size = &(cms->header.in_buffer_size);
-    if (NULL != cms) {
-	char *forced_type_eq = strstr(cms->buflineupper, "FORCE_TYPE=");
-	if (forced_type_eq != NULL) {
-	    long temp = 0;
-	    temp = strtol(forced_type_eq + 11, NULL, 0);
-	    if (temp > 0) {
-		forced_type = temp;
-		fast_mode = 0;
-	    }
-	}
-	char *brpi_eq = strstr(cms->buflineupper, "BRPI=");
-	if (brpi_eq != NULL) {
-	    blocking_read_poll_interval = strtod(brpi_eq + 5, NULL);
-	}
-	register_with_server();
+    char *forced_type_eq = strstr(cms->buflineupper, "FORCE_TYPE=");
+    if (forced_type_eq != NULL) {
+        long temp = 0;
+        temp = strtol(forced_type_eq + 11, NULL, 0);
+        if (temp > 0) {
+            forced_type = temp;
+            fast_mode = 0;
+        }
     }
-
+    char *brpi_eq = strstr(cms->buflineupper, "BRPI=");
+    if (brpi_eq != NULL) {
+        blocking_read_poll_interval = strtod(brpi_eq + 5, NULL);
+    }
+    register_with_server();
 }
 
 /***************************************************************
@@ -637,7 +631,7 @@ NML::NML(NML * nml_ptr, const int set_to_server, const int set_to_master)
     }
     if (!ignore_format_chain) {
 	format_chain = new LinkedList;
-	if ((NULL != nml_ptr->format_chain) && (NULL != format_chain)) {
+	if (NULL != nml_ptr && NULL != nml_ptr->format_chain) {
 	    LinkedList *from, *to;
 	    NML_FORMAT_PTR format_func_ptr;
 	    from = nml_ptr->format_chain;

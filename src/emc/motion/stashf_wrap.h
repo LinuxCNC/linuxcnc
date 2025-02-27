@@ -91,7 +91,10 @@ const char *fmt, *efmt;
     if(*fmt) {
         result = PRINT("%s", fmt);
         if(result < 0) return SET_ERRNO(result);
-        EXTRA
+        // The below expansion of 'EXTRA' makes no sense. The function is about
+        // to exit and changing anything here does not change the outcome in
+        // any way. Therefore, make it a comment.
+        // EXTRA
     }
 
     return SET_ERRNO(result);

@@ -234,6 +234,10 @@ int LinkedList::store_at_head(void *_data, size_t _size, int _copy)
 
     if (_copy) {
 	last_data_stored = malloc(_size);
+        if(!last_data_stored) {
+            perror("LinkedList::store_at_head()");
+            return -1;
+        }
 	memcpy(last_data_stored, _data, _size);
 	last_size_stored = _size;
 	new_head = new LinkedListNode(last_data_stored, _size);
@@ -316,6 +320,10 @@ int LinkedList::store_at_tail(void *_data, size_t _size, int _copy)
 
     if (_copy) {
 	last_data_stored = malloc(_size);
+        if(!last_data_stored) {
+            perror("LinkedList::store_at_tail()");
+            return -1;
+        }
 	memcpy(last_data_stored, _data, _size);
 	last_size_stored = _size;
 	new_tail = new LinkedListNode(last_data_stored, _size);
@@ -419,6 +427,10 @@ int LinkedList::store_after_current_node(void *_data, size_t _size,
 
     if (_copy) {
 	last_data_stored = malloc(_size);
+        if(!last_data_stored) {
+            perror("LinkedList::store_after_current_node()");
+            return -1;
+        }
 	memcpy(last_data_stored, _data, _size);
 	last_size_stored = _size;
 	new_node = new LinkedListNode(last_data_stored, _size);
@@ -539,6 +551,10 @@ int LinkedList::store_before_current_node(void *_data, size_t _size,
 
     if (_copy) {
 	last_data_stored = malloc(_size);
+        if(!last_data_stored) {
+            perror("LinkedList::store_before_current_node()");
+            return -1;
+        }
 	memcpy(last_data_stored, _data, _size);
 	last_size_stored = _size;
 	new_node = new LinkedListNode(last_data_stored, _size);

@@ -54,6 +54,10 @@ public:
     Task(EMC_IO_STAT &emcioStatus_in);
     virtual ~Task();
 
+    // Don't copy or assign
+    Task(const Task&) = delete;
+    Task& operator=(const Task&) = delete;
+
     virtual int emcIoInit();
     virtual int emcIoAbort(EMC_ABORT reason);
     virtual int emcAuxEstopOn();

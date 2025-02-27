@@ -82,12 +82,12 @@ void tpMotFunctions(void(  *pDioWrite)(int,char)
                    ,double(*paxis_get_acc_limit)(int)
                    )
 {
-    _DioWrite            = *pDioWrite;
-    _AioWrite            = *pAioWrite;
-    _SetRotaryUnlock     = *pSetRotaryUnlock;
-    _GetRotaryIsUnlocked = *pGetRotaryIsUnlocked;
-    _axis_get_vel_limit  = *paxis_get_vel_limit;
-    _axis_get_acc_limit  = *paxis_get_acc_limit;
+    _DioWrite            = pDioWrite;
+    _AioWrite            = pAioWrite;
+    _SetRotaryUnlock     = pSetRotaryUnlock;
+    _GetRotaryIsUnlocked = pGetRotaryIsUnlocked;
+    _axis_get_vel_limit  = paxis_get_vel_limit;
+    _axis_get_acc_limit  = paxis_get_acc_limit;
 }
 
 void tpMotData(emcmot_status_t *pstatus

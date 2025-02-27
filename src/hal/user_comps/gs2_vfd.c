@@ -554,6 +554,8 @@ int main(int argc, char **argv)
                     goto out_noclose;
                 }
                 device = strdup(optarg);
+                if(!device)
+                    device  = "/dev/strdup/error_out_of_memory";
                 break;
             case 'g':
                 debug = 1;
