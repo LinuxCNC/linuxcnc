@@ -255,7 +255,7 @@
           <enum>QTabWidget::South</enum>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>4</number>
          </property>
          <property name="usesScrollButtons">
           <bool>false</bool>
@@ -18383,11 +18383,14 @@ CONFIG</string>
                    <property name="focusPolicy">
                     <enum>Qt::ClickFocus</enum>
                    </property>
-                   <property name="frameShape">
-                    <enum>QFrame::NoFrame</enum>
+                   <property name="machine_log_option" stdset="0">
+                    <bool>true</bool>
                    </property>
-                   <property name="frameShadow">
-                    <enum>QFrame::Plain</enum>
+                   <property name="machine_log_severity_option" stdset="0">
+                    <bool>false</bool>
+                   </property>
+                   <property name="integrator_log_option" stdset="0">
+                    <bool>false</bool>
                    </property>
                   </widget>
                  </item>
@@ -18445,7 +18448,7 @@ CONFIG</string>
   </customwidget>
   <customwidget>
    <class>MachineLog</class>
-   <extends>QTextEdit</extends>
+   <extends>QWidget</extends>
    <header>qtvcp.widgets.machine_log</header>
   </customwidget>
   <customwidget>
@@ -18465,7 +18468,7 @@ CONFIG</string>
   </customwidget>
   <customwidget>
    <class>GCodeGraphics</class>
-   <extends>QWidget</extends>
+   <extends>QOpenGLWidget</extends>
    <header>qtvcp.widgets.gcode_graphics</header>
    <container>1</container>
   </customwidget>

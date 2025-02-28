@@ -1278,7 +1278,7 @@ class HandlerClass:
             for f in range(0, len(logFiles) - (numLogs - 1)):
                 os.remove(logFiles[0])
                 logFiles = logFiles[1:]
-        text = self.w.machinelog.toPlainText()
+        text = self.w.machinelog.getLogText()
         logName = f'{self.PATHS.CONFIGPATH}/{logPre}{time.strftime("%y-%m-%d_%H-%M-%S")}.txt'
         with open(logName, 'w') as f:
             f.write(text)
@@ -2344,8 +2344,8 @@ class HandlerClass:
             self.autorepeat_keys(True)
         elif tab == self.STATISTICS:
             self.vkb_hide()
-            self.w.machinelog.moveCursor(QTextCursor.End)
-            self.w.machinelog.setCursorWidth(0)
+            self.w.machinelog.scrollToBottom()
+            self.w.machinelog.hideCursor()
             self.error_status(False)
 
     def z_height_changed(self, value):
