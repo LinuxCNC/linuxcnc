@@ -5031,20 +5031,8 @@ ROTATION</string>
                                  <verstretch>0</verstretch>
                                 </sizepolicy>
                                </property>
-                               <property name="frameShape">
-                                <enum>QFrame::NoFrame</enum>
-                               </property>
-                               <property name="frameShadow">
-                                <enum>QFrame::Plain</enum>
-                               </property>
-                               <property name="documentTitle">
-                                <string>Machine Log</string>
-                               </property>
-                               <property name="readOnly">
+                               <property name="machine_log_severity_option" stdset="0">
                                 <bool>true</bool>
-                               </property>
-                               <property name="placeholderText">
-                                <string>Machine Log</string>
                                </property>
                               </widget>
                              </item>
@@ -5074,21 +5062,6 @@ ROTATION</string>
                                  <horstretch>0</horstretch>
                                  <verstretch>0</verstretch>
                                 </sizepolicy>
-                               </property>
-                               <property name="frameShape">
-                                <enum>QFrame::NoFrame</enum>
-                               </property>
-                               <property name="frameShadow">
-                                <enum>QFrame::Plain</enum>
-                               </property>
-                               <property name="documentTitle">
-                                <string>Integrator Log</string>
-                               </property>
-                               <property name="readOnly">
-                                <bool>true</bool>
-                               </property>
-                               <property name="placeholderText">
-                                <string>Integrator Log</string>
                                </property>
                                <property name="integrator_log_option" stdset="0">
                                 <bool>true</bool>
@@ -17790,7 +17763,7 @@ SCROLL</string>
              <number>2</number>
             </property>
             <property name="text">
-             <string>08:17:31 PM</string>
+             <string>12:35:39 PM</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -17886,7 +17859,7 @@ SCROLL</string>
   </customwidget>
   <customwidget>
    <class>MachineLog</class>
-   <extends>QTextEdit</extends>
+   <extends>QWidget</extends>
    <header>qtvcp.widgets.machine_log</header>
   </customwidget>
   <customwidget>
