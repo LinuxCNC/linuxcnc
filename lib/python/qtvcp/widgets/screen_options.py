@@ -117,6 +117,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self.add_macrotab_dialog = False
         self.add_camview_dialog = False
         self.add_originoffset_dialog = False
+        self.add_toolchooser_dialog = False
         self.add_tooloffset_dialog = False
         self.add_calculator_dialog = False
         self.add_machinelog_dialog = False
@@ -138,6 +139,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self._camViewDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._originOffsetDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._toolOffsetDialogColor = QtGui.QColor(0, 0, 0, 150)
+        self._toolChooserDialogColor = QtGui.QColor(0, 0, 0, 150)
         self._toolUseDesktopNotify = False
         self._toolFrameless = False
         self._calculatorDialogColor = QtGui.QColor(0, 0, 0, 150)
@@ -200,6 +202,9 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
 
         if self.add_camview_dialog:
             self.init_camview_dialog()
+
+        if self.add_toolchooser_dialog:
+            self.init_toolchooser_dialog()
 
         if self.add_tooloffset_dialog:
             self.init_tooloffset_dialog()
@@ -644,6 +649,14 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         w.camViewDialog_.hal_init(HAL_NAME='')
         w.camViewDialog_.overlay_color = self._camViewDialogColor
 
+    def init_toolchooser_dialog(self):
+        from qtvcp.widgets.dialog_widget import ToolChooserDialog
+        w = self.QTVCP_INSTANCE_
+        w.toolChooserDialog_ = ToolChooserDialog(w)
+        w.toolChooserDialog_.setObjectName('toolChooserDialog_')
+        w.toolChooserDialog_.hal_init(HAL_NAME='')
+        w.toolChooserDialog_.overlay_color = self._toolChooserDialogColor
+
     def init_tooloffset_dialog(self):
         from qtvcp.widgets.dialog_widget import ToolOffsetDialog
         w = self.QTVCP_INSTANCE_
@@ -1073,6 +1086,20 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
     def set_camViewDialogColor(self, value):
         self._camViewDialogColor = value
     camView_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_camViewDialogColor, set_camViewDialogColor)
+
+    def set_toolChooserDialog(self, data):
+        self.add_toolchooser_dialog = data
+    def get_toolChooserDialog(self):
+        return self.add_toolchooser_dialog
+    def reset_toolChooserDialog(self):
+        self.add_toolchooser_dialog = False
+    toolChooserDialog_option = QtCore.pyqtProperty(bool, get_toolChooserDialog, set_toolChooserDialog, reset_toolChooserDialog)
+
+    def get_toolChooserDialogColor(self):
+            return self._toolChooserDialogColor
+    def set_toolChooserDialogColor(self, value):
+            self._toolChooserDialogColor = value
+    toolChooser_overlay_color = QtCore.pyqtProperty(QtGui.QColor, get_toolChooserDialogColor, set_toolChooserDialogColor)
 
     def set_toolOffsetDialog(self, data):
         self.add_tooloffset_dialog = data

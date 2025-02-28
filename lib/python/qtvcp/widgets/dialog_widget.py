@@ -29,6 +29,7 @@ from PyQt5 import uic
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase, hal
 from qtvcp.widgets.origin_offsetview import OriginOffsetView as OFFVIEW_WIDGET
 from qtvcp.widgets.tool_offsetview import ToolOffsetView as TOOLVIEW_WIDGET
+from qtvcp.widgets.tool_chooser import ToolChooser as TOOLCHOOSER_WIDGET
 from qtvcp.widgets.macro_widget import MacroTab
 from qtvcp.widgets.versa_probe import VersaProbe
 from qtvcp.widgets.entry_widget import SoftInputWidget
@@ -1024,6 +1025,153 @@ class ToolOffsetDialog(QDialog, GeometryMixin):
     state = pyqtProperty(bool, getState, setState, resetState)
     overlay_color = pyqtProperty(QColor, getColor, setColor)
 
+
+################################################################################
+# Tool Chooser Dialog
+################################################################################
+class ToolChooserDialog(QDialog, GeometryMixin):
+    def __init__(self, parent=None):
+        super(ToolChooserDialog, self).__init__(parent)
+        self._color = QColor(0, 0, 0, 150)
+        self._state = False
+        self._request_name = 'TOOLCHOOSER'
+        self._message = None
+
+        self.setWindowModality(Qt.ApplicationModal)
+        self.setWindowFlags(self.windowFlags() | Qt.Tool |
+                            Qt.Dialog |
+                            Qt.WindowStaysOnTopHint | Qt.WindowSystemMenuHint)
+        self.setMinimumSize(200, 200)
+
+        self._o = TOOLCHOOSER_WIDGET()
+        self._o.setObjectName('__dialogToolChooserWidget')
+        self._o._hal_init()
+
+        buttonBox = QDialogButtonBox()
+        buttonBox.setEnabled(False)
+        STATUS.connect('not-all-homed', lambda w, axis: buttonBox.setEnabled(False))
+        STATUS.connect('all-homed', lambda w: buttonBox.setEnabled(True))
+        STATUS.connect('state-estop', lambda w: buttonBox.setEnabled(False))
+        STATUS.connect('state-estop-reset', lambda w: buttonBox.setEnabled(STATUS.machine_is_on()
+                                                    and STATUS.is_all_homed()))
+        STATUS.connect('interp-idle', lambda w: buttonBox.setEnabled(STATUS.machine_is_on()
+                                                    and STATUS.is_all_homed()))
+        STATUS.connect('interp-run', lambda w: buttonBox.setEnabled(False))
+
+        v = QVBoxLayout()
+        v.addWidget(self._o)
+
+        self.bBox = QDialogButtonBox()
+        self.bBox.addButton('Apply', QDialogButtonBox.AcceptRole)
+        self.bBox.addButton('Cancel', QDialogButtonBox.RejectRole)
+        self.bBox.rejected.connect(self.reject)
+        self.bBox.accepted.connect(self.accept)
+
+        self._o.doubleClicked.connect(self.accept)
+
+        v.addWidget(self.bBox)
+
+        self.setModal(True)
+        self.setLayout(v)
+
+    def accept(self):
+        self.record_geometry()
+        try:
+            num = int(self._o.getSelectedTool())
+            LOG.debug('Selected tool when accepted: {}'.format(num))
+            if self._message is not None:
+                self._message['RETURN'] = num
+                STATUS.emit('general', self._message)
+                self._message = None
+        except Exception as e:
+                print(e)
+        self.hide()
+
+    def reject(self):
+        self.record_geometry()
+        if self._message is not None:
+            self._message['RETURN'] = None
+            STATUS.emit('general', self._message)
+            self._message = None
+        self.hide()
+        
+
+    def _hal_init(self):
+        self.set_default_geometry()
+        STATUS.connect('dialog-request', self._external_request)
+
+    def _external_request(self, w, message):
+        self._message = message
+        if message.get('NAME') == self._request_name:
+            geo = message.get('GEONAME') or 'ToolChooserDialog-geometry'
+            self.read_preference_geometry(geo)
+            self._title = 'Choose Tool'
+
+            self.showdialog(message)
+
+    def showdialog(self, message, more_info=None, details=None,
+                    play_alert=None,
+                    frameless = True):
+
+        self.setWindowModality(Qt.ApplicationModal)
+        if frameless:
+            self.setWindowFlags(self.windowFlags() | Qt.Tool |
+                            Qt.FramelessWindowHint | Qt.Dialog |
+                            Qt.WindowStaysOnTopHint | Qt.WindowSystemMenuHint)
+        else:
+            self.setWindowFlags(self.windowFlags() | Qt.Tool |
+                            Qt.Dialog | Qt.WindowStaysOnTopHint
+                            | Qt.WindowSystemMenuHint)
+        self.setWindowFlags(self.windowFlags() | Qt.CustomizeWindowHint)
+        self.setWindowFlag(Qt.WindowCloseButtonHint, False)
+
+        self.setWindowTitle(self._title)
+
+        STATUS.emit('focus-overlay-changed', True, 'Tool Chooser', self._color)
+        self.set_geometry()
+        self.show()
+        self.exec_()
+        STATUS.emit('focus-overlay-changed', False, None, None)
+        self.record_geometry()
+
+    def showEvent(self, event):
+        self.set_geometry()
+        super(ToolChooserDialog, self).showEvent(event)
+
+    def __getitem__(self, item):
+        return getattr(self, item)
+    def __setitem__(self, item, value):
+        return setattr(self, item, value)
+
+    @pyqtSlot(bool)
+    def setState(self, value):
+        self._state = value
+        if value:
+            self.show()
+        else:
+            self.hide()
+    def getState(self):
+        return self._state
+    def resetState(self):
+        self._state = False
+
+    def getColor(self):
+        return self._color
+    def setColor(self, value):
+        self._color = value
+    def resetColor(self):
+        self._color = QColor(0, 0, 0, 150)
+
+    def getIdName(self):
+        return self._request_name
+    def setIdName(self, name):
+        self._request_name = name
+    def resetIdName(self):
+        self._request_name = 'TOOLCHOOSER'
+
+    launch_id = pyqtProperty(str, getIdName, setIdName, resetIdName)
+    state = pyqtProperty(bool, getState, setState, resetState)
+    overlay_color = pyqtProperty(QColor, getColor, setColor)
 
 ################################################################################
 # CamView Dialog
@@ -2063,8 +2211,8 @@ def main():
 
     app = QApplication(sys.argv)
     widget = AboutDialog()
-    widget.setText('</b>This is new text<\b>')
-   # widget = KeyboardDialog()
+    #widget.setText('</b>This is new text<\b>')
+    #widget = KeyboardDialog()
     #widget = CalculatorDialog()
     #widget = RunFromLineDialog()
     #widget = MachineLogDialog()
