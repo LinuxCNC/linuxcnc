@@ -669,7 +669,7 @@ class FileManager(QWidget, _HalWidgetBase):
                 return
             self.recordBookKeeping()
             ACTION.OPEN_PROGRAM(fname)
-            STATUS.emit('update-machine-log', 'Loaded: ' + fname, 'TIME')
+            STATUS.emit('update-machine-log', 'Loaded: ' + fname, 'TIME,SUCCESS')
         except Exception as e:
             LOG.error("Load file error: {}".format(e))
             STATUS.emit('error', STATUS.NML_ERROR, "Load file error: {}".format(e))

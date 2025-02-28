@@ -306,6 +306,52 @@ class OriginOffsetDialogPlugin(QPyDesignerCustomWidgetPlugin):
 
 
 ###############################################################################
+# ToolChooser Dialog
+###############################################################################
+class ToolChooserDialogPlugin(QPyDesignerCustomWidgetPlugin):
+
+    def __init__(self, parent=None):
+        super(ToolChooserDialogPlugin, self).__init__(parent)
+
+        self.initialized = False
+
+    def initialize(self, core):
+        if self.initialized:
+            return
+
+        self.initialized = True
+
+    def isInitialized(self):
+        return self.initialized
+
+    def createWidget(self, parent):
+        return ToolChooserDialog(parent)
+
+    def name(self):
+        return "ToolChooserDialog"
+
+    def group(self):
+        return "Linuxcnc - Dialogs"
+
+    def icon(self):
+        return QIcon(QPixmap(ICON.get_path('Toolchooserdialog')))
+
+    def toolTip(self):
+        return "Tool Chooser Dialog"
+
+    def whatsThis(self):
+        return ""
+
+    def isContainer(self):
+        return False
+
+    def domXml(self):
+        return '<widget class="ToolChooserDialog" name="toolchooserdialog" />\n'
+
+    def includeFile(self):
+        return "qtvcp.widgets.dialog_widget"
+
+###############################################################################
 # ToolOffset Dialog
 ###############################################################################
 class ToolOffsetDialogPlugin(QPyDesignerCustomWidgetPlugin):

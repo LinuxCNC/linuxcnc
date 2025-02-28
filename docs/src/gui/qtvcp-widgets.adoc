@@ -1424,7 +1424,7 @@ It is a comma separated list of keyword and data:
 [[sub:qtvcp:widgets:operatorvalueline]]
 === `OperatorValueLine` - Operator Value Line Entry Widget
 
-The operator enters values into this widget, which will be applied to a template and then optionally issued to the MDI either immediately or applied at a later time.  The widget supports the optional popup calculator or keyboard for touchscreen-friendly entry.
+The operator enters values into this widget, which will be applied to a template and then optionally issued to the MDI either immediately or applied at a later time.  The widget supports the optional popup calculator, keyboard, or tool chooser for touchscreen-friendly entry by setting the `dialog_keyboard_option`.  To change which type of dialog is presented, edit the `dialog_code_option`.
 
 image::images/qtvcp_operator_value.png["QtVCP OperatorValueLine",scale="25%"]
 
@@ -2642,11 +2642,54 @@ When using `STATUS` 's `request-dialog` function, the default launch name is *`T
 
 It is based on PyQt's _QDialog_.
 
+[[sub:qtvcp:widgets:toolchooserdialog]]
+=== `ToolChooserDialog` - Tool Chooser Dialog Widget
+
+.QtVCP `ToolChooserDialog`: Tool Chooser Dialog Widget
+image::images/qtvcp_toolChooser.png["QtVCP `ToolChooserDialog`: Tool Chooser Dialog Widget",scale="25%"]
+
+This widget allows the operator to select one of the tools defined in the tool table.  If a tool is selected and 'Apply' is pressed or the tool is double-clicked, the dialog will return the tool number selected.  This can be used in conjunction with the `OperatorValueLine` widget to create a tool change widget, for example.
+
+If there is an Focus Overlay widget present, it will signal it to display.
+
+When using `STATUS` 's `request-dialog` function, the default launch name is *`TOOLCHOOSER`*. 
+
+It is based on PyQt's _QDialog_.
+
+
 [[sub:qtvcp:widgets:machinelog]]
 === `MachineLog` - Machine Events Journal Display Widget
 
-//TODO MachineLog widget capture/example
-FIXME MachineLog documentation
+This widget displays various *log event messages* that have been output by the system during the current session.  This includes informational messages as well as errors.
+
+.QtVCP `MachineLog`: Machine Events Log in `machine_log` (plain) mode
+image::images/qtvcp_machinelog_plain.png["QtVCP `MachineLog`: Machine Log Widget",scale="25%"]
+
+
+.QtVCP `MachineLog`: Machine Events Log in `machine_log_severity` mode
+image::images/qtvcp_machinelog.png["QtVCP `MachineLog`: Machine Log Widget",scale="25%"]
+
+Two distinct types of logs may be displayed:
+
+- machine log (plain text or severity highlighted)
+- integrator log (plain text only)
+
+The type of log shown by the widget is controlled by the option properties of the widget.  By selecting `machine_log_option` or `integrator_log_option` the appropriate log will be displayed.  These options will display plain styled logs in a Qt `QTextEdit` widget.
+
+Additionally, there is a `machine_log_severity_option` property that may be chosen that will display the machine log in a variety of colors depending on the severity of the message, by using a `QTableWidget`.  The colors may be configured with the properties of the widget.
+
+==== Emitting Log messages with Severity
+
+Severity is conveyed via the `option` value sent along with the `STATUS` signal called `update-machine-log`.  The `option` parameter is a comma-delimited list, containing typically   
+
+```
+text = 'an error has occurred.'
+STATUS.emit('update-machine-log', text, 'TIME,ERROR')
+```
+
+==== Clearing the Log
+
+The log may be cleared by calling the `clear()` method of the widget.
 
 [[sub:qtvcp:widgets:macrotabdialog]]
 === `MacroTabDialog` - Macro Launch Dialog Widget

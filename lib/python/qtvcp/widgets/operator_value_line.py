@@ -147,7 +147,6 @@ class OperatorValueLine(OperatorValue):
                 self._style_polish('isPendingValue', self.pending_value)
 
             LOG.debug('message return:{}'.format (message))
-            STATUS.emit('update-machine-log', 'Set OperatorValue {}'.format(value), 'TIME')
 
     def issue_mdi(self):
         self.submit(self.mdi_command_format)
@@ -203,6 +202,15 @@ class OperatorValueLine(OperatorValue):
 
     dialog_keyboard_option = pyqtProperty(bool, get_dialog_keyboard, set_dialog_keyboard, reset_dialog_keyboard)
 
+    def set_dialog_code(self, data):
+            self.dialog_code = data
+    def get_dialog_code(self):
+            return self.dialog_code
+    def reset_dialog_code(self):
+            self.dialog_code = False
+
+    dialog_code_option = pyqtProperty(str, get_dialog_code, set_dialog_code, reset_dialog_code)
+    
     def set_pending_value(self, data):
         self.pending_value = data
     def get_pending_value(self):
