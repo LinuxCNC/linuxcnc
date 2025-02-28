@@ -206,9 +206,18 @@ class MachineLog(QWidget, _HalWidgetBase):
         self.logText.verticalScrollBar().setSliderPosition(self.logText.verticalScrollBar().maximum())
 
     def showEvent(self, ev):
+        self.scrollToBottom()
+
+    def scrollToBottom(self):
         # scroll down to show last entry
         self.logText.verticalScrollBar().setSliderPosition(self.logText.verticalScrollBar().maximum())
         self.logTable.scrollToBottom()
+
+    def hideCursor(self):
+        self.logText.setCursorWidth(0)
+
+    def getLogText(self):
+        return self.logText.toPlainText()
 
     def clear(self):
         self.logTable.clearContents()
