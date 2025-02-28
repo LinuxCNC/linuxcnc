@@ -201,6 +201,9 @@ class MachineLog(QWidget, _HalWidgetBase):
         file.open(QFile.ReadOnly)
         logText = file.readAll()
         file.close()
+        if str(logText, encoding='utf8') == "":
+            self.logText.setPlainText('No Logging found. Is QtVcp in debugging or verbose mode (-d or -v)?')
+            return
         self.logText.setPlainText(str(logText, encoding='utf8'))
         # scroll down to show last entry
         self.logText.verticalScrollBar().setSliderPosition(self.logText.verticalScrollBar().maximum())
