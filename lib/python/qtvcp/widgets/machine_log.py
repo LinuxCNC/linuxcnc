@@ -127,6 +127,8 @@ class MachineLog(QWidget, _HalWidgetBase):
 
     def updateMachineLog(self, message, option):
         if message:
+            if option is None: option = ''
+
             if 'DATE' in option:
                 dateItem = QTableWidgetItem(time.strftime("%a, %b %d %Y %X"))
             else:
@@ -247,7 +249,7 @@ class MachineLog(QWidget, _HalWidgetBase):
     def set_integrator_log(self, value):
         self._integrator_log = value
         if value:
-            self._toggle_properties('machine_log_integrator')
+            self._toggle_properties('integrator_log')
     def get_integrator_log(self):
         return self._integrator_log
     def reset_integrator_log(self):
