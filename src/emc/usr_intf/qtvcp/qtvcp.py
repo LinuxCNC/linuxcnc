@@ -574,7 +574,13 @@ if __name__ == "__main__":
         #   Ex: LOG = logger.getLogger(__name__)
 
         from qtvcp import logger
-        LOG = logger.initBaseLogger('QTvcp', log_file=None, log_level=logger.WARNING)
+
+        if '-d' in sys.argv or '-v' in sys.argv:
+            state = True
+        else:
+            state = False
+        LOG = logger.initBaseLogger('QTvcp', log_file=None,
+             log_level=logger.WARNING, logToFile=state)
 
         # we set the log level early so the imported modules get the right level
         if '-d' in sys.argv:
