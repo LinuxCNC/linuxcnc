@@ -29,11 +29,11 @@ class MachineLogger():
             return
         try:
             message = message.rstrip('\n')
-            if option == 'TIME':
+            if 'TIME' in option:
                 self.log_message_time(message)
-            elif option == 'DATE':
+            elif 'DATE' in option:
                 self.log_message_date(message)
-            elif option == 'INITIAL':
+            elif 'INITIAL' in option:
                 self.initial_greeting()
             else:
                 self.log_message(message)

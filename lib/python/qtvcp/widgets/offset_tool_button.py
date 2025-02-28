@@ -100,10 +100,10 @@ class OffsetToolButton(QToolButton, _HalWidgetBase):
                 if adjust:
                     num = self._last - num
                 ACTION.SET_DIRECT_TOOL_OFFSET(axis,num)
-                STATUS.emit('update-machine-log', 'Set Direct tool offset of Axis {}: {} to {}'.format(axis, self._last, num), 'TIME')
+                STATUS.emit('update-machine-log', 'Set Direct tool offset of Axis {}: {} to {}'.format(axis, self._last, num), 'TIME,SUCCESS')
             else:
                 ACTION.SET_TOOL_OFFSET(axis,num,fixture)
-                STATUS.emit('update-machine-log', 'Adjust Tool offset of Axis {}, {} to {}'.format(axis, self._last, num), 'TIME')
+                STATUS.emit('update-machine-log', 'Adjust Tool offset of Axis {}, {} to {}'.format(axis, self._last, num), 'TIME,SUCCESS')
 
     def zeroOffset(self):
         axis, tool, now = self._get_current_info(self._axis)
@@ -111,7 +111,7 @@ class OffsetToolButton(QToolButton, _HalWidgetBase):
             self._last = now
             fixture = False
             ACTION.SET_TOOL_OFFSET(axis, 0, fixture)
-            STATUS.emit('update-machine-log', 'Zeroed Tool Offset {} of Tool {}'.format(axis, tool), 'TIME')
+            STATUS.emit('update-machine-log', 'Zeroed Tool Offset {} of Tool {}'.format(axis, tool), 'TIME,SUCCESS')
 
     def setOffset(self):
         axis, tool, now = self._get_current_info(self._axis)
@@ -145,7 +145,7 @@ class OffsetToolButton(QToolButton, _HalWidgetBase):
         if axis:
             fixture = False
             ACTION.SET_DIRECT_TOOL_OFFSET(axis, self._last)
-            STATUS.emit('update-machine-log', 'Reset Tool {}  Offset To Last {}'.format(tool, self._last), 'TIME')
+            STATUS.emit('update-machine-log', 'Reset Tool {}  Offset To Last {}'.format(tool, self._last), 'TIME,SUCCESS')
             self._last = now
 
     def _get_current_info(self, axis):

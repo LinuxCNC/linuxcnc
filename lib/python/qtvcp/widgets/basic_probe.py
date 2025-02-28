@@ -307,7 +307,7 @@ class BasicProbe(QtWidgets.QWidget, _HalWidgetBase):
         if t != STATUS.get_current_tool():
             msg = "Probe tool # {}. not mounted in spindle".format(t)
             if not self.set_statusbar(msg,CRITICAL):
-                STATUS.emit('update-machine-log', msg, 'TIME')
+                STATUS.emit('update-machine-log', msg, 'TIME,CRITICAL')
                 ACTION.SET_ERROR_MESSAGE(msg)
             return
 
