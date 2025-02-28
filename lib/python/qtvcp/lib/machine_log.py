@@ -24,9 +24,12 @@ class MachineLogger():
         self.dateFormat = "%a, %b %d %Y %X: "
 
     def log_it(self, w, message, option=None):
+        if option is None: option = ''
+
         if option == 'DELETE':
             self.delete_log()
             return
+
         try:
             message = message.rstrip('\n')
             if 'TIME' in option:
