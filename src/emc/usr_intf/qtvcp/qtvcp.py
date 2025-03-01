@@ -515,7 +515,10 @@ Pressing cancel will close linuxcnc.""" % target)
 
         LOG.debug('Exiting HAL')
         if not HAL is None:
-            HAL.exit()
+            try:
+                HAL.exit()
+            except Exception as e:
+                print(e)
 
         # Throws up a dialog with debug info when an error is encountered
     def excepthook(self, exc_type, exc_obj, exc_tb):
