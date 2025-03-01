@@ -160,7 +160,7 @@ diskutil unmountDisk /dev/diskN
   has an added "r" at the begining
 +
 -----
-sudo dd if=/linuxcnc_2.9.4-amd64.hybrid.iso of=/dev/rdiskN bs=1m
+sudo dd if=linuxcnc_2.9.4-amd64.hybrid.iso of=/dev/rdiskN bs=1m
 -----
 . Note that this may take a long time to complete and there will be no
   feedback during the process.
