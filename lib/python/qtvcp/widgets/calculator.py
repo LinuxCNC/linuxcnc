@@ -36,7 +36,7 @@ class Calculator(QDialog):
 
         self.display = QLineEdit('0')
         self.display.setMinimumHeight(30)
-        self.display.setReadOnly(False)
+        self.display.setReadOnly(True)
         self.display.setAlignment(Qt.AlignRight)
         self.display.setMaxLength(15)
 
@@ -116,7 +116,7 @@ class Calculator(QDialog):
         
         if self.PREFS_:
             constValues = self.PREFS_.getpref('constValuesList', None, str, self.PREF_SECTION)
-            if constValues is not None:
+            if constValues != 'None':
                 self.constButtons = []
                 constValues = ''.join(constValues.split())
                 for value in constValues.split(',')[:6]:
