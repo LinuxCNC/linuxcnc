@@ -391,6 +391,7 @@ SRCHEADERS := \
     emc/rs274ngc/modal_state.hh \
     emc/rs274ngc/rs274ngc.hh \
     emc/rs274ngc/saicanon.hh \
+    emc/tooldata/tooldata.hh \
     hal/hal.h \
     hal/hal_parport.h \
     hal/drivers/mesa-hostmot2/hostmot2-serial.h \
