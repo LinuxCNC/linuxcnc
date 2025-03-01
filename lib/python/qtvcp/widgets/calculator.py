@@ -20,6 +20,12 @@ class Calculator(QDialog):
     def __init__(self, parent=None):
         super(Calculator, self).__init__(parent)
 
+        try:
+            self.PREFS_ = self.QTVCP_INSTANCE_.PREFS_
+            self.PREF_SECTION = 'CALCULATOR'
+        except:
+            self.PREFS_ = None
+
         self.pendingAdditiveOperator = ''
         self.pendingMultiplicativeOperator = ''
 
@@ -76,7 +82,6 @@ class Calculator(QDialog):
         mainLayout = QGridLayout()
         mainLayout.setSizeConstraint(QLayout.SetFixedSize)
 
-        mainLayout.addWidget(self.display, 0, 0, 1, 6)
         mainLayout.addWidget(self.backspaceButton, 1, 0, 1, 1)
         mainLayout.addWidget(self.axisButton, 1, 1, 1, 2)
         mainLayout.addWidget(self.clearButton, 1, 3, 1, 1)
@@ -108,17 +113,21 @@ class Calculator(QDialog):
         mainLayout.addWidget(self.to_mm_btn, 6, 0)
         mainLayout.addWidget(self.to_inch_btn, 6, 1)
         mainLayout.addWidget(self.tpi_btn, 6, 2)
+        
+        if self.PREFS_:
+            constValues = self.PREFS_.getpref('constValuesList', None, str, self.PREF_SECTION)
+            if constValues is not None:
+                self.constButtons = []
+                constValues = ''.join(constValues.split())
+                for value in constValues.split(',')[:6]:
+                    constButton = QPushButton(value)
+                    constButton.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+                    constButton.clicked.connect(self.constClicked)
+                    mainLayout.addWidget(constButton, len(self.constButtons) + 1, 6)
+                    self.constButtons.append(constButton)
 
-        self.constButtons = []
-        constValues = INFO.get_error_safe_setting('DISPLAY', 'CALCULATOR_CONST_VALUES', None, warning=False)
-        if constValues is not None:
-            constValues = ''.join(constValues.split())
-            for value in constValues.split(',')[:6]:
-                constButton = QPushButton(value)
-                constButton.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
-                constButton.clicked.connect(self.constClicked)
-                mainLayout.addWidget(constButton, 7, len(self.constButtons))
-                self.constButtons.append(constButton)
+        mainLayout.addWidget(self.display, 0, 0, 1, mainLayout.columnCount())
+
 
         self.backButton = QPushButton('Back')
         self.backButton.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
@@ -141,6 +150,10 @@ class Calculator(QDialog):
         self.bBox.rejected.connect(self.reject)
         self.bBox.accepted.connect(self.accept)
 
+        if self.PREFS_:
+            if self.PREFS_.getpref('acceptOnReturnKey', False, bool, self.PREF_SECTION):
+                self.display.returnPressed.connect(self.accept)
+        
         calc_layout = QVBoxLayout()
         calc_layout.addLayout(mainLayout)
         calc_layout.addWidget(self.bBox)
@@ -157,12 +170,17 @@ class Calculator(QDialog):
         STATUS.connect('all-homed', lambda w: self.axisButton.setEnabled(True))
         STATUS.connect('not-all-homed', lambda w, data: self.axisButton.setEnabled(False))
 
-        self.behaviorOnShow = INFO.get_error_safe_setting('DISPLAY', 'CALCULATOR_ON_SHOW', None, warning=None)
+        if self.PREFS_:
+            self.behaviorOnShow = self.PREFS_.getpref('onShowBehavior', None, str, self.PREF_SECTION)
+        else:
+            self.behaviorOnShow = None
 
     def showEvent(self, event):
         if self.behaviorOnShow is not None:
-            if self.behaviorOnShow.upper() == 'CLEAR_ALL':
+            if 'CLEAR_ALL' in self.behaviorOnShow.upper():
                 self.clearAll()
+            if 'FORCE_FOCUS' in self.behaviorOnShow.upper():
+                self.display.setFocus()
 
     def digitClicked(self):
         clickedButton = self.sender()
