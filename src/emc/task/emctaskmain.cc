@@ -459,7 +459,7 @@ static int checkInterpList(NML_INTERP_LIST * il, EMC_STAT * /*stat*/)
     while (il->len() > 0) {
 	auto cmd = il->get();
 
-	switch (cmd->type) {
+	switch (cmd->_type) {
 
 	case EMC_OPERATOR_ERROR_TYPE: {
 	    auto error_msg = static_cast<EMC_OPERATOR_ERROR*>(cmd.get());
@@ -731,7 +731,7 @@ static bool allow_while_idle_type() {
     // expect immediate command
     RCS_CMD_MSG *emcCommand;
     emcCommand = emcCommandBuffer->get_address();
-    switch(emcCommand->type) {
+    switch(emcCommand->_type) {
       case EMC_JOG_CONT_TYPE:
       case EMC_JOG_INCR_TYPE:
       case EMC_JOG_STOP_TYPE:
@@ -756,7 +756,7 @@ static int emcTaskPlan(void)
     // check for new command
     if (emcCommand->serial_number != emcStatus->echo_serial_number) {
         // flag it here locally as a new command
-	type = emcCommand->type;
+	type = emcCommand->_type;
     } else {
 	// no new command-- reset local flag
 	type = 0;
@@ -1498,7 +1498,7 @@ static EMC_TASK_EXEC emcTaskCheckPreconditions(NMLmsg * cmd)
 	return EMC_TASK_EXEC::DONE;
     }
 
-    switch (cmd->type) {
+    switch (cmd->_type) {
 	// operator messages, if queued, will go out when everything before
 	// them is done
     case EMC_OPERATOR_ERROR_TYPE:
@@ -1604,7 +1604,7 @@ static EMC_TASK_EXEC emcTaskCheckPreconditions(NMLmsg * cmd)
 	// unrecognized command
 	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
 	    rcs_print_error("preconditions: unrecognized command %d:%s\n",
-			    (int)cmd->type, emc_symbol_lookup(cmd->type));
+			    (int)cmd->_type, emc_symbol_lookup(cmd->_type));
 	}
 	return EMC_TASK_EXEC::ERROR;
 	break;
@@ -1638,10 +1638,10 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	return 0;
     }
     if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
-	rcs_print("Issuing %s -- \t (%s)\n", emcSymbolLookup(cmd->type),
+	rcs_print("Issuing %s -- \t (%s)\n", emcSymbolLookup(cmd->_type),
 		  emcCommandBuffer->msg2str(cmd));
     }
-    switch (cmd->type) {
+    switch (cmd->_type) {
 	// general commands
 
     case EMC_OPERATOR_ERROR_TYPE:
@@ -2399,7 +2399,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	// unrecognized command
 	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
 	    rcs_print_error("ignoring issue of unknown command %d:%s\n",
-			    (int)cmd->type, emc_symbol_lookup(cmd->type));
+			    (int)cmd->_type, emc_symbol_lookup(cmd->_type));
 	}
 	retval = 0;		// don't consider this an error
 	break;
@@ -2407,8 +2407,8 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 
     if (retval == -1) {
 	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
-	    rcs_print_error("error executing command %d:%s\n", (int)cmd->type,
-			    emc_symbol_lookup(cmd->type));
+	    rcs_print_error("error executing command %d:%s\n", (int)cmd->_type,
+			    emc_symbol_lookup(cmd->_type));
 	}
     }
     /* debug */
@@ -2433,7 +2433,7 @@ static EMC_TASK_EXEC emcTaskCheckPostconditions(NMLmsg * cmd)
 	return EMC_TASK_EXEC::DONE;
     }
 
-    switch (cmd->type) {
+    switch (cmd->_type) {
     case EMC_OPERATOR_ERROR_TYPE:
     case EMC_OPERATOR_TEXT_TYPE:
     case EMC_OPERATOR_DISPLAY_TYPE:
@@ -2510,7 +2510,7 @@ static EMC_TASK_EXEC emcTaskCheckPostconditions(NMLmsg * cmd)
 	// unrecognized command
 	if (emc_debug & EMC_DEBUG_TASK_ISSUE) {
 	    rcs_print_error("postconditions: unrecognized command %d:%s\n",
-			    (int)cmd->type, emc_symbol_lookup(cmd->type));
+			    (int)cmd->_type, emc_symbol_lookup(cmd->_type));
 	}
 	return EMC_TASK_EXEC::DONE;
 	break;
@@ -3511,11 +3511,11 @@ int main(int argc, char *argv[])
 	// is not an NML_MODULE and they won't be set automatically
 
 	// do task
-	emcStatus->task.command_type = emcCommand->type;
+	emcStatus->task.command_type = emcCommand->_type;
 	emcStatus->task.echo_serial_number = emcCommand->serial_number;
 
 	// do top level
-	emcStatus->command_type = emcCommand->type;
+	emcStatus->command_type = emcCommand->_type;
 	emcStatus->echo_serial_number = emcCommand->serial_number;
 
 	if (taskPlanError || taskExecuteError ||

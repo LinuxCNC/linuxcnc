@@ -53,7 +53,7 @@ class NMLmsg {
 
     static int automatically_clear;	/* controls whether NMLmsgs are set
 					   to zero in the constructor. */
-    NMLTYPE type;		/* Each derived type should have a unique id */
+    NMLTYPE _type;		/* Each derived type should have a unique id */
     long size;			/* The size is used so that the entire buffer 
 				   is not copied unnecessarily. */
 };

@@ -1701,13 +1701,13 @@ class EMC_SPINDLE_CMD_MSG:public RCS_CMD_MSG {
   public:
     EMC_SPINDLE_CMD_MSG(NMLTYPE t, size_t s)
       : RCS_CMD_MSG(t, s),
-        spindle(0)
+        _spindle(0)
     {};
 
     // For internal NML/CMS use only.
     void update(CMS * cms);
 
-    int spindle;
+    int _spindle;
 };
 
 class EMC_SPINDLE_SPEED:public EMC_SPINDLE_CMD_MSG {
