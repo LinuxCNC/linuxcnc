@@ -329,7 +329,8 @@ class GLWidget(QOpenGLWidget):
         if len(self.plotdata) == self.plotlen:
             del self.plotdata[:self.plotlen // 10]
         point = [wx, wy, wz]
-        if not self.plotdata or point != self.plotdata[-1]:
+        # if tool position is different from last time, record plot position
+        if not self.plotdata or point != self.plotdata[-1][0]:
             self.plotdata.append([point,self.plotColor])
 
         # now lets draw something in the tool coordinate system
