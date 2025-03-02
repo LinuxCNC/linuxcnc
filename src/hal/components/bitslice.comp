@@ -9,6 +9,7 @@ author "Andy Pugh";
 license "GPL2+";
 function _ nofp;
 option personality yes;
+option period no;
 ;;
 int i;
 for (i = 0; i < personality ; i++){

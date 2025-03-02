@@ -142,6 +142,10 @@ def parse(filename):
     if require_license:
         if not finddoc('license'):
             raise SystemExit("%s:0: License not specified" % filename)
+
+    if not "period" in options:
+        options["period"] = 1    # Option period defaults to on
+
     return a, b
 
 dirmap = {'r': 'HAL_RO', 'rw': 'HAL_RW', 'in': 'HAL_IN', 'out': 'HAL_OUT', 'io': 'HAL_IO' }
@@ -366,7 +370,15 @@ static int comp_id;
     for name, fp in functions:
         if name in names:
             Error("Duplicate item name: %s" % name)
-        print("static void %s(struct __comp_state *__comp_inst, long period);" % to_c(name), file=f)
+        if options.get("period"):
+            print("static void %s(struct __comp_state *__comp_inst, long period);" % to_c(name), file=f)
+        else:
+            print("static void __no_period_%s(struct __comp_state *__comp_inst);" % to_c(name), file=f)
+            # Define a tail-call function that the compiler can eliminate. It
+            # hides the period parameter from the user function. Worst case it
+            # becomes a jump instruction.
+            print("static void %s(struct __comp_state *__comp_inst, long period)" % to_c(name), file=f)
+            print("{ (void)period; __no_period_%s(__comp_inst); }" % to_c(name), file=f)
         names[name] = 1
 
     print("static int __comp_get_data_size(void);", file=f)
@@ -719,13 +731,17 @@ int __comp_parse_names(int *argc, char **argv) {
     print("", file=f)
     if not options.get("no_convenience_defines"):
         print("#undef FUNCTION", file=f)
-        print("#define FUNCTION(name) static void name(struct __comp_state *__comp_inst, long period)", file=f)
+        if options.get("period"):
+            print("#define FUNCTION(name) static void name(struct __comp_state *__comp_inst, long period)", file=f)
+        else:
+            print("#define FUNCTION(name) static void __no_period_##name(struct __comp_state *__comp_inst)", file=f)
         print("#undef EXTRA_SETUP", file=f)
         print("#define EXTRA_SETUP() static int extra_setup(struct __comp_state *__comp_inst, char *prefix, long extra_arg)", file=f)
         print("#undef EXTRA_CLEANUP", file=f)
         print("#define EXTRA_CLEANUP() static void extra_cleanup(void)", file=f)
-        print("#undef fperiod", file=f)
-        print("#define fperiod (period * 1e-9)", file=f)
+        if options.get("period"):
+            print("#undef fperiod", file=f)
+            print("#define fperiod (period * 1e-9)", file=f)
         for name, type, array, dir, value, personality in pins:
             print("#undef %s" % to_c(name), file=f)
             print("#undef %s_ptr" % to_c(name), file=f)
@@ -1071,6 +1087,7 @@ def process(filename, mode, outfilename):
 
         if options.get("homemod"): options["singleton"] = 1
         if options.get("tpmod"):   options["singleton"] = 1
+        if options.get("no_convenience_defines"): options["period"] = 1
 
         if options.get("userinit") and not options.get("userspace"):
             print("Warning: comp '%s' sets 'userinit' without 'userspace', ignoring" % filename, file=sys.stderr)
