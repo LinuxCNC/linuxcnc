@@ -541,7 +541,7 @@ __u8 upci_read_u8(int rd, __u32 offset)
 	data = inb(port);
     } else {
 	/* region is memory */
-	ptr = (__u8 *)(reg->mapped_ptr + offset);
+	ptr = (__u8 *)reg->mapped_ptr + offset;
 	data = *ptr;
     }
     return data;
@@ -561,7 +561,7 @@ __s8 upci_read_s8(int rd, __u32 offset)
 	port = reg->base_addr + offset;
 	data = inb(port);
     } else {
-	ptr = (__s8 *)(reg->mapped_ptr + offset);
+	ptr = (__s8 *)reg->mapped_ptr + offset;
 	data = *ptr;
     }
     return data;
@@ -581,7 +581,7 @@ __u16 upci_read_u16(int rd, __u32 offset)
 	port = reg->base_addr + offset;
 	data = inw(port);
     } else {
-	ptr = (__u16 *)(reg->mapped_ptr + offset);
+	ptr = (__u16 *)((__u8 *)reg->mapped_ptr + offset);
 	data = *ptr;
     }
     return data;
@@ -601,7 +601,7 @@ __s16 upci_read_s16(int rd, __u32 offset)
 	port = reg->base_addr + offset;
 	data = inw(port);
     } else {
-	ptr = (__s16 *)(reg->mapped_ptr + offset);
+	ptr = (__s16 *)((__u8 *)reg->mapped_ptr + offset);
 	data = *ptr;
     }
     return data;
@@ -621,7 +621,7 @@ __u32 upci_read_u32(int rd, __u32 offset)
 	port = reg->base_addr + offset;
 	data = inl(port);
     } else {
-	ptr = (__u32 *)(reg->mapped_ptr + offset);
+	ptr = (__u32 *)((__u8 *)reg->mapped_ptr + offset);
 	data = *ptr;
     }
     return data;
@@ -641,7 +641,7 @@ __s32 upci_read_s32(int rd, __u32 offset)
 	port = reg->base_addr + offset;
 	data = inl(port);
     } else {
-	ptr = (__s32 *)(reg->mapped_ptr + offset);
+	ptr = (__s32 *)((__u8 *)reg->mapped_ptr + offset);
 	data = *ptr;
     }
     return data;
@@ -663,7 +663,7 @@ void upci_write_u8(int rd, __u32 offset, __u8 data)
 	outb(data, port);
     } else {
 	/* region is memory */
-	ptr = (__u8 *)(reg->mapped_ptr + offset);
+	ptr = (__u8 *)reg->mapped_ptr + offset;
 	*ptr = data;
     }
     return;
@@ -683,7 +683,7 @@ void upci_write_s8(int rd, __u32 offset, __s8 data)
 	port = reg->base_addr + offset;
 	outb(data, port);
     } else {
-	ptr = (__s8 *)(reg->mapped_ptr + offset);
+	ptr = (__s8 *)reg->mapped_ptr + offset;
 	*ptr = data;
     }
     return;
@@ -703,7 +703,7 @@ void upci_write_u16(int rd, __u32 offset, __u16 data)
 	port = reg->base_addr + offset;
 	outw(data, port);
     } else {
-	ptr = (__u16 *)(reg->mapped_ptr + offset);
+	ptr = (__u16 *)((__u8 *)reg->mapped_ptr + offset);
 	*ptr = data;
     }
     return;
@@ -723,7 +723,7 @@ void upci_write_s16(int rd, __u32 offset, __s16 data)
 	port = reg->base_addr + offset;
 	outw(data, port);
     } else {
-	ptr = (__s16 *)(reg->mapped_ptr + offset);
+	ptr = (__s16 *)((__u8 *)reg->mapped_ptr + offset);
 	*ptr = data;
     }
     return;
@@ -743,7 +743,7 @@ void upci_write_u32(int rd, __u32 offset, __u32 data)
 	port = reg->base_addr + offset;
 	outl(data, port);
     } else {
-	ptr = (__u32 *)(reg->mapped_ptr + offset);
+	ptr = (__u32 *)((__u8 *)reg->mapped_ptr + offset);
 	*ptr = data;
     }
     return;
@@ -763,7 +763,7 @@ void upci_write_s32(int rd, __u32 offset, __s32 data)
 	port = reg->base_addr + offset;
 	outl(data, port);
     } else {
-	ptr = (__s32 *)(reg->mapped_ptr + offset);
+	ptr = (__s32 *)((__u8 *)reg->mapped_ptr + offset);
 	*ptr = data;
     }
     return;

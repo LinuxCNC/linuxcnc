@@ -798,7 +798,7 @@ int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
     memset(&new->dummysig, 0, sizeof(hal_data_u));
     rtapi_snprintf(new->name, sizeof(new->name), "%s", name);
     /* make 'data_ptr' point to dummy signal */
-    *data_ptr_addr = comp->shmem_base + SHMOFF(&(new->dummysig));
+    *data_ptr_addr = (char *)comp->shmem_base + SHMOFF(&(new->dummysig));
     /* search list for 'name' and insert new structure */
     prev = &(hal_data->pin_list_ptr);
     next = *prev;
@@ -1246,7 +1246,7 @@ int hal_link(const char *pin_name, const char *sig_name)
     /* everything is OK, make the new link */
     data_ptr_addr = SHMPTR(pin->data_ptr_addr);
     comp = SHMPTR(pin->owner_ptr);
-    data_addr = comp->shmem_base + sig->data_ptr;
+    data_addr = (char *)comp->shmem_base + sig->data_ptr;
     *data_ptr_addr = data_addr;
 
     /* if the pin is a HAL_PORT the buffer belongs to the signal, port pins not linked
@@ -3483,7 +3483,7 @@ static void unlink_pin(hal_pin_t * pin)
     /* make pin's 'data_ptr' point to its dummy signal */
     data_ptr_addr = SHMPTR(pin->data_ptr_addr);
     comp = SHMPTR(pin->owner_ptr);
-    dummy_addr = comp->shmem_base + SHMOFF(&(pin->dummysig));
+    dummy_addr = (void *)((char *)comp->shmem_base + SHMOFF(&(pin->dummysig)));
     *data_ptr_addr = dummy_addr;
 
     /* copy current signal value to dummy */
