@@ -2735,10 +2735,10 @@ It is based on PyQt's _QDialog_.
 [[sub:qtvcp:widgets:calculatordialog]]
 === `CalculatorDialog` - Calculator Dialog Widget
 
+This is a dialog to *display a calculator for numeric entry*, such as origin offset, spindle RPM, etc.  It is primarily intended for touchscreen use, but it has support for physical keyboard input as well.
+
 .QtVCP `CalculatorDialog`: Calculator Dialog Widget
 image::images/qtvcp_calculator.png["QtVCP CalculatorDialog: Calculator Dialog Widget",scale="25%"]
-
-This is a dialog to *display a calculator for numeric entry*, such as origin offset, spindle RPM, etc.
 
 It returns the entry via `STATUS` messages using a Python `DICT`.
 
@@ -2756,7 +2756,17 @@ In the `CALCULATOR` section of the preferences file the following options may be
 * `onShowBehavior` - A list of optional behaviors that will be triggered when the calculator dialog is shown.  Each option must be separated by a comma.
   - `CLEAR_ALL` to issue a *Clear All* each time the calculator is shown.  This will clear any previously entered values from the last time the calculator was used and open with the display value set to `0`
   - `FORCE_FOCUS` will force the focus to the calculator input field when the widget is shown.  This will allow a physical keyboard to provide input to the widget properly without additional clicks.  Also, it has the side-effect of selecting the current value, such that typing from a physical keyboard will replace the existing value unless the text selection is changed.
-* `acceptOnReturnKey` - If set to `True`, the calculator will accept the current value and close the dialog when the return key is pressed.  If set to `False`, the return key will be ignored and the *Apply* button must be clicked.
+* `acceptOnReturnKey` - If set to `True`, the calculator will accept the current value and close the dialog when the keyboard return/enter key is pressed.  If set to `False`, the return key will be ignored and the *Apply* button must be clicked.  For cases where the *Apply Next* button is available, the return key will perform this action instead, and the dialog will remain open.
+
+==== Physical keyboard support
+
+While the intent of this widget is to provide a touchscreen-friendly interface, it is possible to use a physical keyboard to enter values, typically via a numeric keypad. The keys perform mostly as one would expect, but a few special key functions also exist:
+
+* the *Enter* or *Return* key is equivalent to the *Equal* (=) operator in the cases where a calculation is pending.  Otherwise it will perform the *Apply* function if it is enabled via the `acceptOnReturnKey` preference.
+* the *minus key* ('-') will toggle the sign of the current number in the calculator display when it is hit twice in a row.  Otherwise when hit only once it will perform a subtraction operator as expected.
+* *Alt+Left Arrow* will perform *Back* function, moving to the previous field for cases where this is supported.
+* *Alt+Right Arrow* will perform a *Next* function, moving to the next field for cases where this is supported.
+* *Alt+Backspace* will cancel out of the calculator and not provide a return value to the calling widget.
 
 [[sub:qtvcp:widgets:runfromlinedialog]]
 === `RunFromLine` - Run-From-Line Dialog Widget
