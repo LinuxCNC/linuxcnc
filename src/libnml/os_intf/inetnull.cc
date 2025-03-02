@@ -39,9 +39,7 @@ INET_FILE *inet_file_open(const char *url, char *type)
 	return NULL;
     }
     inet_file = new INET_FILE;
-    if (NULL != inet_file) {
-	inet_file->fp = fp;
-    }
+    inet_file->fp = fp;
     return inet_file;
 }
 

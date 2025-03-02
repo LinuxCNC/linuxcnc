@@ -37,8 +37,8 @@ void homeMotFunctions(void(*pSetRotaryUnlock)(int,int)
                      ,int (*pGetRotaryIsUnlocked)(int)
                      )
 {
-    SetRotaryUnlock     = *pSetRotaryUnlock;
-    GetRotaryIsUnlocked = *pGetRotaryIsUnlocked;
+    SetRotaryUnlock     = pSetRotaryUnlock;
+    GetRotaryIsUnlocked = pGetRotaryIsUnlocked;
 }
 
 //========================================================

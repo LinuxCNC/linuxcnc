@@ -1508,9 +1508,6 @@ void CMS_SERVER_REMOTE_TCP_PORT::add_subscription_client(int buffer_number,
     if (NULL == subscription_buffers) {
 	subscription_buffers = new LinkedList();
     }
-    if (NULL == subscription_buffers) {
-	rcs_print_error("Can`t create subscription_buffers list.\n");
-    }
 
     TCP_BUFFER_SUBSCRIPTION_INFO *buf_info =
 	(TCP_BUFFER_SUBSCRIPTION_INFO *) subscription_buffers->get_head();
