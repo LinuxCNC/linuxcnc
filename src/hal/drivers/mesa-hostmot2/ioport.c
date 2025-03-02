@@ -204,8 +204,12 @@ static int do_alias(const char *orig_base, const char *alias_base,
         const char *suffix, int (*funct)(const char *, const char *)) {
     char orig_name[HAL_NAME_LEN];
     char alias_name[HAL_NAME_LEN];
-    snprintf(orig_name, sizeof(orig_name), "%s%s", orig_base, suffix);
-    snprintf(alias_name, sizeof(alias_name), "%s%s", alias_base, suffix);
+    // Take ncpy/ncat tour. Using snprintf() causes warning about possible
+    // trunctation, which in practice never happens.
+    strncpy(orig_name, orig_base, sizeof(orig_name)-1);
+    strncat(orig_name, suffix, sizeof(orig_name)-1);
+    strncpy(alias_name, alias_base, sizeof(alias_name)-1);
+    strncat(alias_name, suffix, sizeof(alias_name)-1);
     return funct(orig_name, alias_name);
 }
 

@@ -49,7 +49,7 @@
 
 struct kvlist {
     struct rtapi_list_head list;
-    char key[16];
+    char key[16+1];
     int value;
 };
 
@@ -63,7 +63,7 @@ static int *kvlist_lookup(struct rtapi_list_head *head, const char *name) {
         if(strncmp(name, ent->key, sizeof(ent->key)) == 0) return &ent->value;
     }
     struct kvlist *ent = rtapi_kzalloc(sizeof(struct kvlist), RTAPI_GPF_KERNEL);
-    strncpy(ent->key, name, sizeof(ent->key));
+    strncpy(ent->key, name, sizeof(ent->key)-1);
     rtapi_list_add(&ent->list, head);
     return &ent->value;
 }
@@ -1054,8 +1054,8 @@ static int hm2_eth_probe(hm2_eth_t *board) {
     lbp16_cmd_addr read_packet;
 
     int ret, send, recv;
-    char board_name[16] = {0, };
-    char llio_name[16] = {0, };
+    char board_name[16] = {};
+    char llio_name[16] = {};
 
     LBP16_INIT_PACKET4(read_packet, CMD_READ_BOARD_INFO_ADDR16_INCR(16/2), 0);
     send = eth_socket_send(board->sockfd, (void*) &read_packet, sizeof(read_packet), 0);
@@ -1075,8 +1075,7 @@ static int hm2_eth_probe(hm2_eth_t *board) {
     board->llio.split_read = true;
 
     if (strncmp(board_name, "7I80DB-16", 9) == 0) {
-        strncpy(llio_name, board_name, 4);
-        llio_name[1] = tolower(llio_name[1]);
+        memcpy(llio_name, board_name, 4);
 
         board->llio.num_ioport_connectors = 4;
         board->llio.pins_per_connector = 17;
@@ -1087,8 +1086,7 @@ static int hm2_eth_probe(hm2_eth_t *board) {
         board->llio.fpga_part_number = "XC6SLX16";
         board->llio.num_leds = 4;
     } else if (strncmp(board_name, "7I80DB-25", 9) == 0) {
-        strncpy(llio_name, board_name, 4);
-        llio_name[1] = tolower(llio_name[1]);
+        memcpy(llio_name, board_name, 4);
 
         board->llio.num_ioport_connectors = 4;
         board->llio.pins_per_connector = 17;
@@ -1099,8 +1097,7 @@ static int hm2_eth_probe(hm2_eth_t *board) {
         board->llio.fpga_part_number = "XC6SLX25";
         board->llio.num_leds = 4;
     } else if (strncmp(board_name, "7I80HD-16", 9) == 0) {
-        strncpy(llio_name, board_name, 4);
-        llio_name[1] = tolower(llio_name[1]);
+        memcpy(llio_name, board_name, 4);
 
         board->llio.num_ioport_connectors = 3;
         board->llio.pins_per_connector = 24;
@@ -1110,8 +1107,7 @@ static int hm2_eth_probe(hm2_eth_t *board) {
         board->llio.fpga_part_number = "XC6SLX16";
         board->llio.num_leds = 4;
     } else if (strncmp(board_name, "7I80HD-25", 9) == 0) {
-        strncpy(llio_name, board_name, 4);
-        llio_name[1] = tolower(llio_name[1]);
+        memcpy(llio_name, board_name, 4);
 
         board->llio.num_ioport_connectors = 3;
         board->llio.pins_per_connector = 24;
@@ -1121,8 +1117,7 @@ static int hm2_eth_probe(hm2_eth_t *board) {
         board->llio.fpga_part_number = "XC6SLX25";
         board->llio.num_leds = 4;
     } else if (strncmp(board_name, "7I80HDT", 7) == 0) {
-        strncpy(llio_name, board_name, 4);
-        llio_name[1] = tolower(llio_name[1]);
+        memcpy(llio_name, board_name, 4);
 
         board->llio.num_ioport_connectors = 3;
         board->llio.pins_per_connector = 24;
@@ -1132,9 +1127,7 @@ static int hm2_eth_probe(hm2_eth_t *board) {
         board->llio.fpga_part_number = "T20F256";
         board->llio.num_leds = 4;
     } else if (strncmp(board_name, "7I76E-16", 8) == 0) {
-        strncpy(llio_name, board_name, 5);
-        llio_name[1] = tolower(llio_name[1]);
-        llio_name[4] = tolower(llio_name[4]);
+        memcpy(llio_name, board_name, 5);
 
         board->llio.num_ioport_connectors = 3;
         board->llio.pins_per_connector = 17;
@@ -1144,9 +1137,7 @@ static int hm2_eth_probe(hm2_eth_t *board) {
         board->llio.fpga_part_number = "XC6SLX16";
         board->llio.num_leds = 4;
     } else if (strncmp(board_name, "7I76EU", 8) == 0) {
-        strncpy(llio_name, board_name, 5);
-        llio_name[1] = tolower(llio_name[1]);
-        llio_name[4] = tolower(llio_name[4]);
+        memcpy(llio_name, board_name, 5);
 
         board->llio.num_ioport_connectors = 3;
         board->llio.pins_per_connector = 17;
@@ -1156,8 +1147,7 @@ static int hm2_eth_probe(hm2_eth_t *board) {
         board->llio.fpga_part_number = "T20F256";
         board->llio.num_leds = 4;
     } else if (strncmp(board_name, "7I92", 4) == 0) {
-        strncpy(llio_name, board_name, 4);
-        llio_name[1] = tolower(llio_name[1]);
+        memcpy(llio_name, board_name, 4);
 
         board->llio.num_ioport_connectors = 2;
         board->llio.pins_per_connector = 17;
@@ -1166,8 +1156,7 @@ static int hm2_eth_probe(hm2_eth_t *board) {
         board->llio.fpga_part_number = "XC6SLX9";
         board->llio.num_leds = 4;
     } else if (strncmp(board_name, "7I92T", 5) == 0) {
-        strncpy(llio_name, board_name, 4);
-        llio_name[1] = tolower(llio_name[1]);
+        memcpy(llio_name, board_name, 4);
 
         board->llio.num_ioport_connectors = 2;
         board->llio.pins_per_connector = 17;
@@ -1177,8 +1166,7 @@ static int hm2_eth_probe(hm2_eth_t *board) {
         board->llio.num_leds = 4;
 
     } else if (strncmp(board_name, "7I93", 4) == 0) {
-        strncpy(llio_name, board_name, 4);
-        llio_name[1] = tolower(llio_name[1]);
+        memcpy(llio_name, board_name, 4);
         board->llio.num_ioport_connectors = 2;
         board->llio.pins_per_connector = 24;
         board->llio.ioport_connector_name[0] = "P2";
@@ -1187,8 +1175,7 @@ static int hm2_eth_probe(hm2_eth_t *board) {
         board->llio.num_leds = 4;
 
     } else if (strncmp(board_name, "7I94", 8) == 0) {
-        strncpy(llio_name, board_name, 8);
-        llio_name[1] = tolower(llio_name[1]);
+        memcpy(llio_name, board_name, 4);
         board->llio.num_ioport_connectors = 2;
         board->llio.pins_per_connector = 21;
         board->llio.io_connector_pin_names = hm2_7i94_pin_names;
@@ -1208,8 +1195,7 @@ static int hm2_eth_probe(hm2_eth_t *board) {
         board->llio.fpga_part_number = "6slx9tqg144";
         board->llio.num_leds = 4;
     } else if (strncmp(board_name, "7I94T", 8) == 0) {
-        strncpy(llio_name, board_name, 4);
-        llio_name[1] = tolower(llio_name[1]);
+        memcpy(llio_name, board_name, 4);
         board->llio.num_ioport_connectors = 2;
         board->llio.pins_per_connector = 21;
         board->llio.io_connector_pin_names = hm2_7i94_pin_names;
@@ -1230,8 +1216,7 @@ static int hm2_eth_probe(hm2_eth_t *board) {
         board->llio.num_leds = 4;
 
     } else if (strncmp(board_name, "7I95", 8) == 0) {
-        strncpy(llio_name, board_name, 4);
-        llio_name[1] = tolower(llio_name[1]);
+        memcpy(llio_name, board_name, 4);
         board->llio.num_ioport_connectors = 2;
         board->llio.pins_per_connector = 29;
         board->llio.io_connector_pin_names = hm2_7i95_pin_names;
@@ -1261,8 +1246,7 @@ static int hm2_eth_probe(hm2_eth_t *board) {
         board->llio.num_leds = 4;
 
     } else if (strncmp(board_name, "7I95T", 8) == 0) {
-        strncpy(llio_name, board_name, 4); 
-        llio_name[1] = tolower(llio_name[1]);
+        memcpy(llio_name, board_name, 4);
         board->llio.num_ioport_connectors = 2;
         board->llio.pins_per_connector = 29;
         board->llio.io_connector_pin_names = hm2_7i95_pin_names;
@@ -1292,8 +1276,7 @@ static int hm2_eth_probe(hm2_eth_t *board) {
         board->llio.num_leds = 4;
 
     } else if (strncmp(board_name, "7I96", 8) == 0) {
-        strncpy(llio_name, board_name, 8);
-        llio_name[1] = tolower(llio_name[1]);
+        memcpy(llio_name, board_name, 4);
         board->llio.num_ioport_connectors = 3;
         board->llio.pins_per_connector = 17;
         board->llio.io_connector_pin_names = hm2_7i96_pin_names;
@@ -1314,10 +1297,8 @@ static int hm2_eth_probe(hm2_eth_t *board) {
         board->llio.num_leds = 4;
 
     } else if (strncmp(board_name, "7I96S", 8) == 0) {
-        strncpy(llio_name, board_name, 8);
-        llio_name[1] = tolower(llio_name[1]);
-        llio_name[4] = tolower(llio_name[4]);
-       board->llio.num_ioport_connectors = 3;
+        memcpy(llio_name, board_name, 5);
+        board->llio.num_ioport_connectors = 3;
         board->llio.pins_per_connector = 17;
         board->llio.io_connector_pin_names = hm2_7i96_pin_names;
 
@@ -1337,8 +1318,7 @@ static int hm2_eth_probe(hm2_eth_t *board) {
         board->llio.num_leds = 4;
 
     } else if (strncmp(board_name, "7I97", 8) == 0) {
-        strncpy(llio_name, board_name, 8);
-        llio_name[1] = tolower(llio_name[1]);
+        memcpy(llio_name, board_name, 4);
         board->llio.num_ioport_connectors = 3;
         board->llio.pins_per_connector = 17;
         board->llio.io_connector_pin_names = hm2_7i97_pin_names;
@@ -1365,8 +1345,7 @@ static int hm2_eth_probe(hm2_eth_t *board) {
         board->llio.num_leds = 4;
 
     } else if (strncmp(board_name, "7I97T", 8) == 0) {
-        strncpy(llio_name, board_name, 4);
-        llio_name[1] = tolower(llio_name[1]);
+        memcpy(llio_name, board_name, 4);
         board->llio.num_ioport_connectors = 3;
         board->llio.pins_per_connector = 17;
         board->llio.io_connector_pin_names = hm2_7i97_pin_names;
@@ -1394,8 +1373,7 @@ static int hm2_eth_probe(hm2_eth_t *board) {
 
 
     } else if (strncmp(board_name, "7I98", 4) == 0) {
-        strncpy(llio_name, board_name, 4);
-        llio_name[1] = tolower(llio_name[1]);
+        memcpy(llio_name, board_name, 4);
         board->llio.num_ioport_connectors = 3;
         board->llio.pins_per_connector = 17;
         board->llio.ioport_connector_name[0] = "P1";
@@ -1406,8 +1384,7 @@ static int hm2_eth_probe(hm2_eth_t *board) {
 
 
     } else if (strncmp(board_name, "MC04", 4) == 0) {
-        strncpy(llio_name, board_name, 4);
-        llio_name[1] = tolower(llio_name[1]);
+        memcpy(llio_name, board_name, 4);
         board->llio.num_ioport_connectors = 2;
         board->llio.pins_per_connector = 30;
         board->llio.ioport_connector_name[0] = "P1";
@@ -1420,8 +1397,7 @@ static int hm2_eth_probe(hm2_eth_t *board) {
 
 
      } else if (strncmp(board_name, "8CSS", 4) == 0) {
-        strncpy(llio_name, board_name, 4);
-        llio_name[1] = tolower(llio_name[1]);
+        memcpy(llio_name, board_name, 4);
         board->llio.num_ioport_connectors = 2;
         board->llio.pins_per_connector = 30;
         board->llio.ioport_connector_name[0] = "P1";
@@ -1434,8 +1410,7 @@ static int hm2_eth_probe(hm2_eth_t *board) {
 
     } else {
         LL_PRINT("Unrecognized ethernet board found: %.16s -- port names will be wrong\n", board_name);
-        strncpy(llio_name, board_name, 4);
-        llio_name[1] = tolower(llio_name[1]);
+        memcpy(llio_name, board_name, 4);
 
         // this is a layering violation.  it would be nice if special values
         // (such as 0 or -1) could be passed here and the layer which can
@@ -1455,6 +1430,11 @@ static int hm2_eth_probe(hm2_eth_t *board) {
             board->llio.ioport_connector_name[i] = "??";
         board->llio.fpga_part_number = "??";
         board->llio.num_leds = 0;
+    }
+
+    // Make llio_name lower case
+    for(char *cptr = llio_name; *cptr; cptr++) {
+        *cptr = tolower(*cptr);
     }
 
     LL_PRINT("discovered %.*s\n", 16, board_name);
