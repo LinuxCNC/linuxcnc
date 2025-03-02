@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-
 import math
 import sys
 
@@ -13,6 +12,10 @@ from PyQt5 import QtCore
 from qtvcp.core import Status, Info
 STATUS = Status()
 INFO = Info()
+
+# TODO: this needs to handle internationalization since much of the world uses
+# commas instead of periods for decimal points.
+
 
 class CalculatorLineEdit(QLineEdit):
     operatorKeyPressed = QtCore.pyqtSignal(str)
@@ -34,6 +37,7 @@ class CalculatorLineEdit(QLineEdit):
 
     def keyPressEvent(self, event):
         # The digit and decimal keys emit a digitKeyPressed signal
+
         if (event.key() >= Qt.Key_0 and event.key() <= Qt.Key_9) or event.key() == Qt.Key_Period:
             self.digitKeyPressed.emit(str(event.text()))
 
@@ -66,7 +70,6 @@ class CalculatorLineEdit(QLineEdit):
 
 class Calculator(QDialog):
     NumDigitButtons = 10
-    
     def __init__(self, parent=None):
         super(Calculator, self).__init__(parent)
 
@@ -90,6 +93,7 @@ class Calculator(QDialog):
         self.display.setMaxLength(15)
 
         self.display.textEdited.connect(self.displayTextEdited)
+        self.display.textChanged.connect(self.displayTextChanged)
 
         self.pendingLabel = QLabel()
         self.pendingLabel.setAlignment(Qt.AlignRight)
@@ -103,7 +107,6 @@ class Calculator(QDialog):
         self.display.fieldKeyPressed.connect(self.physFieldKeyPressed)
         self.display.cancelKeyPressed.connect(self.physCancelKeyPressed)
         self.digitButtons = []
-        
         for i in range(Calculator.NumDigitButtons):
             self.digitButtons.append(self.createButton(str(i),
                     self.digitClicked))
@@ -171,7 +174,6 @@ class Calculator(QDialog):
         mainLayout.addWidget(self.to_mm_btn, 7, 0)
         mainLayout.addWidget(self.to_inch_btn, 7, 1)
         mainLayout.addWidget(self.tpi_btn, 7, 2)
-        
         if self.PREFS_:
             constValues = self.PREFS_.getpref('constValuesList', 'None', str, self.PREF_SECTION)
             if constValues != 'None':
@@ -213,7 +215,6 @@ class Calculator(QDialog):
         applyBtn.clicked.connect(self.accept)
 
         self.display.returnPressed.connect(self.physReturnPressed)
-      
         calc_layout = QVBoxLayout()
         calc_layout.addLayout(mainLayout)
         calc_layout.addWidget(self.bBox)
@@ -234,8 +235,6 @@ class Calculator(QDialog):
         else:
             self.behaviorOnShow = 'None'
 
-        
-
     def showEvent(self, event):
         if self.behaviorOnShow != 'None':
             if 'CLEAR_ALL' in self.behaviorOnShow.upper():
@@ -244,8 +243,13 @@ class Calculator(QDialog):
                 self.display.setFocus()
 
     def displayTextEdited(self):
+        # this only triggers on user changes
         if self.display.text() == '':
             self.display.setText('0')
+
+    def displayTextChanged(self):
+        # this triggers on both user and programmatic changes
+        self.display.setStyleSheet("QLineEdit { }")
 
     def physCancelKeyPressed(self):
         self.reject()
@@ -506,6 +510,7 @@ class Calculator(QDialog):
 
         self.display.setText('0')
         self.waitingForOperand = True
+        self.pendingLabel.clear()
         self.display.setFocus()
 
     def clearAll(self):
@@ -515,6 +520,7 @@ class Calculator(QDialog):
         self.pendingMultiplicativeOperator = ''
         self.display.setText('0')
         self.display.setFocus()
+        self.pendingLabel.clear()
         self.waitingForOperand = True
 
     def updateMemLabel(self):
@@ -568,7 +574,9 @@ class Calculator(QDialog):
 
     def abortOperation(self):
         self.clearAll()
-        self.display.setText("####")
+        # this should really be dictated by the stylesheet in use
+        self.display.setStyleSheet("QLineEdit { background-color: #ff7777; }")
+        self.display.setFocus()
 
     def getDisplay(self):
         try:
