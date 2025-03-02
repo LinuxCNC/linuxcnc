@@ -15,6 +15,8 @@ export LANGUAGES=
 
 TOPDIR="$(realpath "$(dirname "$0")/..")"
 
+# $prefix is used in the substitutions of @...@ strings below
+# shellcheck disable=SC2034
 prefix=@prefix@
 # Shellcheck does not know about substitutions
 # shellcheck disable=SC2050
@@ -176,22 +178,22 @@ run_tests () {
     find "$*" -name test.hal -or -name test.sh -or -name test \
 	| sort > "$TMPDIR/alltests"
 
-    while read testname; do
-	testdir=$(dirname $testname)
+    while read -r testname; do
+	testdir=$(dirname "$testname")
         # check if there's a "musthave" file with prerequisites from config.h
-        if [ -e $testdir/musthave ] ; then
+        if [ -e "$testdir/musthave" ] ; then
             # one prerequisite per line
             while IFS= read -r prereq ; do
                 if ! grep --quiet --regexp "^#define HAVE_$prereq.*" "$TOPDIR/src/config.h" ; then
                     echo "Skipping test for missing prerequisite \"$prereq\": $testdir" 1>&2
-                    SKIP=$(($SKIP+1))
+                    SKIP=$((SKIP + 1))
                     continue 3
                 fi
-            done < $testdir/musthave
+            done < "$testdir/musthave"
         fi
         # skip test if there's a "skip" file
-	if [ -e $testdir/skip ]; then
-	    if ! [ -x $testdir/skip ] || ! $testdir/skip; then
+	if [ -e "$testdir/skip" ]; then
+	    if ! [ -x "$testdir/skip" ] || ! "$testdir/skip"; then
 
 		echo "Skipping disabled test: $testdir" 1>&2
 		SKIP=$((SKIP + 1))
