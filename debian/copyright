@@ -275,13 +275,6 @@ Files:
  src/hal/utils/scope_vert.c
  src/hal/utils/upci.c
  src/hal/utils/upci.h
- src/rtapi/rtai_rtapi.c
- src/rtapi/rtai_ulapi.c
- src/rtapi/rtapi_common.h
- src/rtapi/rtapi.h
- src/rtapi/rtapi_list.h
- src/rtapi/rtapi_proc.h
- src/rtapi/rtapi_vsnprintf.h
 Copyright: same flock of LinuxCNC devs as above
 License: GPL-2
 
