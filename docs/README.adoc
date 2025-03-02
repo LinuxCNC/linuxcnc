@@ -5,25 +5,25 @@
 
 == Adding files
 
-The src/Submakefile, src/docs.xml, docs/po4a.cfg and src/index.tmpl
+The `src/Submakefile`, `src/docs.xml`, `docs/po4a.cfg` and `src/index.tmpl`
 files must be updated to add a new document file.
 
 The relevant pdf.adoc must be updated to include the new document in the
-pdf documentation. e.g. if a new document belongs in the Master
-Documentation then an entry is required in src/Master_Documentation.adoc.
+pdf documentation. E.g., a new document belonging to the Master
+Documentation requires an entry in `src/Master_Documentation.adoc`.
 
-docs.xml is used to create the "previous" and "next" buttons at the top
+`docs.xml` is used to create the "previous" and "next" buttons at the top
 of each individual HTML document. It should generally match the order of
 the index.tmpl.
 
-po4a.cfg is used to map source files to translated documentation when
-generating translated files using the files in docs/po/.
+`po4a.cfg` is used to map source files to translated documentation when
+generating translated files using the files in `docs/po/`.
 
 == Notes on LinuxCNC documentation
 
 The main LinuxCNC Makefile can optionally build the documentation and
 other files in this directory tree. Use "--enable-build-documentation"
-when invoking src/configure, and run "make" from src.
+when invoking `src/configure`, and run "make" from `src`.
 
 == Notes about drawings
 
@@ -130,7 +130,7 @@ e.g. vec2web drawing.dxf drawing.png
 ```
 
 Initial attempts to use vec2web resulted in the graphical parts of the
-drawing being converted, but all text was lost. I don't know if vec2web
+drawing being converted, but all text was lost. It is not clear if vec2web
 is worth spending much more time on, however, it _is_ GPLv2, and it
 includes a library for reading DXF files, which might be worthwhile to
 the LinuxCNC community.

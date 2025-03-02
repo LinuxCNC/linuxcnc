@@ -5,5 +5,3 @@ usr/lib/liblinuxcnc.a
 usr/lib/*.so
 usr/share/linuxcnc/Makefile.modinc
 usr/share/linuxcnc/mesa_modbus.c.tmpl
-usr/share/man/man1/halcompile.1
-usr/share/man/man3

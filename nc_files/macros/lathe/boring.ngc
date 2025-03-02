@@ -1,5 +1,5 @@
-; MACROCOMMAND=Finish Diameter,SFM,DOC,FPR,Finish Length,Radius,Angle,Tool Number
-; MACRODEFAULTS=1,500,.02,.007,-2,0,0,1
+; MACROCOMMAND=Finish Diameter,Surface Speed,DOC,FPR,Finish Length,Radius,Angle,Tool Number, Max RPM
+; MACRODEFAULTS=1,500,.02,.007,-2,0,0,1,1500
 ; MACROSVG=LatheMacro.svg,1
 
 ; MACROOPTIONS=load:yes,save:yes,default:default.txt,path:~/macros
@@ -13,10 +13,23 @@
 ; #6 radius
 ; #7 angle
 ; #8 tool number
+; #9 max RPM
 
 ;boring
 
 O<boring> sub
+
+O110 IF [#<_imperial>]
+    (MSG, IMPERIAL sizes)
+O110  ELSE
+    (MSG, METRIC sizes)
+O110  ENDIF
+
+
+(debug, Start Diameter %.3f#<_x>)
+(debug, Finish Diameter %.3f#1)
+(debug, Z Start %.3f#<_z>)
+(debug, Z Finish %.3f#5)
 
 O107 IF [#<_imperial>]
     (MSG, IMPERIAL ON)
@@ -28,13 +41,13 @@ O107 IF [#<_imperial>]
     #6 = [#6 * 25.4]; radius
 O107  ENDIF
 
+M73 ;save/restore codes
+
 G8 ; Radius mode (easier maths)
 G18 ; XZ Plane
 G21 ; Metric Units
 G90 ; Absolute Distance
 G91.1 ; but not for arcs
-
-M6 T#8 G43
 
 #1 = [#1 / 2] ; because of radius mode
 
@@ -47,8 +60,12 @@ M6 T#8 G43
 #23 = [#5 + #6 - #20]
 #24 = [[#23 - #13] * TAN[#7]]
 
+(MSG, Unpause To Start Boring Macro)
+m0
 
-G96 D1500 S#2 ; Constant Surface Speed Mode
+M6 T#8 G43
+
+G96 D#9 S#2 ; Constant Surface Speed Mode
 m3 ;Start Spindle
 g95 F#4 ; Feed-Per-Rev Mode
 

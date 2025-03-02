@@ -42,6 +42,22 @@ class ProbeRoutines():
         G90""".format(self.data_rapid_vel, self.data_z_clearance + self.data_extra_depth)        
         return self.CALL_MDI_WAIT(s, self.timeout)
 
+    # when probing tool diameter
+    def raise_tool_depth(self):
+        # move Z+
+        s = """G91
+        G1 F{} Z{}
+        G90""".format(self.data_rapid_vel, self.data_z_clearance)        
+        return self.CALL_MDI_WAIT(s, self.timeout)
+
+    # when probing tool diameter
+    def lower_tool_depth(self):
+        # move Z-
+        s = """G91
+        G1 F{} Z-{}
+        G90""".format(self.data_rapid_vel, self.data_z_clearance)        
+        return self.CALL_MDI_WAIT(s, self.timeout)
+
     def length_x(self):
         if self.status_xp is None: self.status_xp = 0
         if self.status_xm is None: self.status_xm = 0
@@ -90,9 +106,9 @@ class ProbeRoutines():
             tpl = '%.3f' if STATUS.is_metric_mode() else '%.4f'
             c = args[0]
             list = ['Xm', 'Xc', 'Xp', 'Lx', 'Ym', 'Yc', 'Yp', 'Ly', 'Z', 'D', 'A']
-            for i in range(1,len(list)):
+            for i in range(0,len(list)):
                 if list[i] in args[1]:
-                    c += ' ' + list[i] + "[" + tpl%(args[i+1]) + ']'
+                    c += ' ' + list[i] + "[" + tpl%(args[i+2]) + ']'
             self.history_log = c
         else:
             # should be a single string
@@ -335,16 +351,21 @@ class ProbeRoutines():
             return 'cannot offset enough in - Y for tool radius offset + toolsetter radius'
 
 
-        # move X - edge_length- xy_clearance
+        # move X-  (1/2 tool diameter + xy_clearance)
         s="""G91
         G1 F%s X-%f
         G90""" % (self.data_rapid_vel, 0.5 * self.data_ts_diam + self.data_xy_clearance)
         rtn = self.CALL_MDI_WAIT(s, self.timeout) 
         if rtn != 1:
             return 'failed: {}'.format(rtn)
+
         rtn = self.z_clearance_down()
         if rtn != 1:
             return 'failed: {}'.format(rtn)
+
+        rtn = self.lower_tool_depth()
+        if rtn != 1:
+            return 'lower tool depth failed: {}'.format(rtn)
 
         # Start xplus
         rtn = self.probe('xplus')
@@ -354,6 +375,10 @@ class ProbeRoutines():
         # show X result
         a = STATUS.get_probed_position_with_offsets()
         xpres=float(a[0])+0.5*self.data_probe_diam
+
+        rtn = self.raise_tool_depth()
+        if rtn != 1:
+            return 'raise tool depth failed: {}'.format(rtn)
 
         # move Z to start point up
         rtn = self.z_clearance_up()
@@ -366,7 +391,7 @@ class ProbeRoutines():
         if rtn != 1:
             return 'failed: {}'.format(rtn)
 
-        # move X + data_ts_diam +  xy_clearance
+        # move X+ (data_ts_diam +  xy_clearance)
         aa=self.data_ts_diam+self.data_xy_clearance
         s="""G91
         G1 X%f
@@ -379,6 +404,10 @@ class ProbeRoutines():
         if rtn != 1:
             return 'failed: {}'.format(rtn)
 
+        rtn = self.lower_tool_depth()
+        if rtn != 1:
+            return 'lower tool depth failed: {}'.format(rtn)
+
         # Start xminus
         rtn = self.probe('xminus')
         if rtn != 1:
@@ -390,6 +419,10 @@ class ProbeRoutines():
         self.length_x()
         xcres=0.5*(xpres+xmres)
         self.status_xc = xcres
+
+        rtn = self.raise_tool_depth()
+        if rtn != 1:
+            return 'raise tool depth failed: {}'.format(rtn)
 
         # move Z to start point up
         rtn = self.z_clearance_up()
@@ -415,6 +448,10 @@ class ProbeRoutines():
         if rtn != 1:
             return 'failed: {}'.format(rtn)
 
+        rtn = self.lower_tool_depth()
+        if rtn != 1:
+            return 'lower tool depth failed: {}'.format(rtn)
+
         # Start yplus
         rtn = self.probe('yplus')
         if rtn != 1:
@@ -423,6 +460,11 @@ class ProbeRoutines():
         # show Y result
         a = STATUS.get_probed_position_with_offsets()
         ypres=float(a[1])+0.5*self.data_probe_diam
+
+        rtn = self.raise_tool_depth()
+        if rtn != 1:
+            return 'raise tool depth failed: {}'.format(rtn)
+
         # move Z to start point up
         if self.z_clearance_up() == -1:
             return
@@ -441,9 +483,14 @@ class ProbeRoutines():
         rtn = self.CALL_MDI_WAIT(s, self.timeout) 
         if rtn != 1:
             return 'failed: {}'.format(rtn)
+
         rtn = self.z_clearance_down()
         if rtn != 1:
             return 'failed: {}'.format(rtn)
+
+        rtn = self.lower_tool_depth()
+        if rtn != 1:
+            return 'lower tool depth failed: {}'.format(rtn)
 
         # Start yminus
         rtn = self.probe('yminus')
@@ -460,10 +507,15 @@ class ProbeRoutines():
         diam=self.data_probe_diam + (ymres-ypres-self.data_ts_diam)
         self.status_d = diam
 
+        rtn = self.raise_tool_depth()
+        if rtn != 1:
+            return 'raise tool depth failed: {}'.format(rtn)
+
         # move Z to start point up
         rtn = self.z_clearance_up()
         if rtn != 1:
             return 'failed: {}'.format(rtn)
+
         tmpz=STATUS.stat.position[2] - self.data_z_clearance
         self.status_z=tmpz
         self.add_history('Tool diameter',"XcYcZD",0,xcres,0,0,0,ycres,0,0,tmpz,diam,0)
@@ -476,7 +528,6 @@ class ProbeRoutines():
         return 1
       except Exception as e:
         return '{}'.format(e)
-
 
     ########################
     # material
@@ -1035,7 +1086,7 @@ class ProbeRoutines():
             return 'Probe outside_xy_boss: Z clearance up failed: {}'.format(rtn)
 
         # move X+ (2 edge_length + latch return + xy_clearance)
-        aa = (2 * self.data_side_edge_length) + self.data_latch_return_dist + self.data_xy_clearance
+        aa = 2 * (self.data_side_edge_length + self.data_latch_return_dist + self.data_xy_clearance)
         s = """G91
         G1 F%s X%f
         G90""" % (self.data_rapid_vel, aa)
@@ -1100,7 +1151,7 @@ class ProbeRoutines():
             return 'Probe outside_xy_boss: Z clearance up failed: {}'.format(rtn)
 
         # move Y+ (2 * edge_length) + latch return +  xy_clearance)
-        aa = (2 * self.data_side_edge_length) + self.data_latch_return_dist + self.data_xy_clearance
+        aa = 2 * (self.data_side_edge_length + self.data_latch_return_dist + self.data_xy_clearance)
         s = """G91
         G1 F%s Y%f
         G90""" % (self.data_rapid_vel, aa)

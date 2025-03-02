@@ -95,7 +95,17 @@
 #define PM_REF
 #endif
 
+#if __cplusplus < 201103L
+/*
+ * Not required in C++11 and beyond. It will generate a warning:
+ *    "implicitly-declared 'constexpr ...' is deprecated [-Wdeprecated-copy]"
+ * If, somehow, somewhere, it is required, then you probably must implement
+ * both copy-constructor, destructor and operator= override (rule of three).
+ * Otherwise, if you do not have anything special in the members, then the
+ * compiler will do a good job at doing the right thing for you.
+ */
 #define INCLUDE_POSEMATH_COPY_CONSTRUCTORS
+#endif
 
 /* forward declarations-- conversion ctors will need these */
 
@@ -217,7 +227,7 @@ struct PM_ROTATION_MATRIX {
 #endif
     PM_ROTATION_MATRIX(double xx, double xy, double xz,
 	double yx, double yy, double yz, double zx, double zy, double zz);
-    PM_ROTATION_MATRIX(PM_CARTESIAN _x, PM_CARTESIAN _y, PM_CARTESIAN _z);
+    PM_ROTATION_MATRIX(const PM_CARTESIAN& _x, const PM_CARTESIAN& _y, const PM_CARTESIAN& _z);
     PM_ROTATION_MATRIX(PM_CONST PM_ROTATION_VECTOR PM_REF v);	/* conversion 
 								 */
     PM_ROTATION_MATRIX(PM_CONST PM_QUATERNION PM_REF q);	/* conversion 
@@ -336,7 +346,7 @@ struct PM_POSE {
 #ifdef INCLUDE_POSEMATH_COPY_CONSTRUCTORS
     PM_POSE(PM_CCONST PM_POSE & p);
 #endif
-    PM_POSE(PM_CARTESIAN v, PM_QUATERNION q);
+    PM_POSE(const PM_CARTESIAN& v, const PM_QUATERNION& q);
     PM_POSE(double x, double y, double z,
 	double s, double sx, double sy, double sz);
     PM_POSE(PM_CONST PM_HOMOGENEOUS PM_REF h);	/* conversion */
@@ -358,7 +368,7 @@ struct PM_HOMOGENEOUS {
 #ifdef INCLUDE_POSEMATH_COPY_CONSTRUCTORS
     PM_HOMOGENEOUS(PM_CCONST PM_HOMOGENEOUS & h);
 #endif
-    PM_HOMOGENEOUS(PM_CARTESIAN v, PM_ROTATION_MATRIX m);
+    PM_HOMOGENEOUS(const PM_CARTESIAN& v, const PM_ROTATION_MATRIX& m);
     PM_HOMOGENEOUS(PM_CONST PM_POSE PM_REF p);	/* conversion */
 
     /* operators */
@@ -380,7 +390,7 @@ struct PM_LINE {
 #endif
 
     /* functions */
-    int init(PM_POSE start, PM_POSE end);
+    int init(const PM_POSE& start, const PM_POSE& end);
     int point(double len, PM_POSE * point);
 
     /* data */
@@ -393,15 +403,18 @@ struct PM_LINE {
 
 struct PM_CIRCLE {
     /* ctors/dtors */
-    PM_CIRCLE() {
-    };
+    PM_CIRCLE()
+      : radius(0.0),
+        angle(0.0),
+        spiral(0.0)
+    {};
 #ifdef INCLUDE_POSEMATH_COPY_CONSTRUCTORS
     PM_CIRCLE(PM_CCONST PM_CIRCLE &);
 #endif
 
     /* functions */
-    int init(PM_POSE start, PM_POSE end,
-	PM_CARTESIAN center, PM_CARTESIAN normal, int turn);
+    int init(const PM_POSE& start, const PM_POSE& end,
+	const PM_CARTESIAN& center, const PM_CARTESIAN& normal, int turn);
     int point(double angle, PM_POSE * point);
 
     /* data */
@@ -682,8 +695,11 @@ extern "C" {
 
 /* quicky macros */
 
-#define pmClose(a, b, eps) ((fabs((a) - (b)) < (eps)) ? 1 : 0)
-#define pmSq(x) ((x)*(x))
+//#define pmClose(a, b, eps) ((fabs((a) - (b)) < (eps)) ? 1 : 0)
+//#define pmSq(x) ((x)*(x))
+
+int pmClose(double a, double b, double eps); 
+__attribute__((always_inline)) static inline double pmSq(double x) { return x*x; }
 
 #ifdef TO_DEG
 #undef TO_DEG
@@ -953,33 +969,47 @@ extern "C" {
 
 /* slicky macros for item-by-item copying between C and C++ structs */
 
-#define toCart(src,dst) {(dst)->x = (src).x; (dst)->y = (src).y; (dst)->z = (src).z;}
-
-#define toCyl(src,dst) {(dst)->theta = (src).theta; (dst)->r = (src).r; (dst)->z = (src).z;}
-
-#define toSph(src,dst) {(dst)->theta = (src).theta; (dst)->phi = (src).phi; (dst)->r = (src).r;}
-
-#define toQuat(src,dst) {(dst)->s = (src).s; (dst)->x = (src).x; (dst)->y = (src).y; (dst)->z = (src).z;}
-
-#define toRot(src,dst) {(dst)->s = (src).s; (dst)->x = (src).x; (dst)->y = (src).y; (dst)->z = (src).z;}
-
-#define toMat(src,dst) {toCart((src).x, &((dst)->x)); toCart((src).y, &((dst)->y)); toCart((src).z, &((dst)->z));}
-
-#define toEulerZyz(src,dst) {(dst)->z = (src).z; (dst)->y = (src).y; (dst)->zp = (src).zp;}
-
-#define toEulerZyx(src,dst) {(dst)->z = (src).z; (dst)->y = (src).y; (dst)->x = (src).x;}
-
-#define toRpy(src,dst) {(dst)->r = (src).r; (dst)->p = (src).p; (dst)->y = (src).y;}
-
-#define toPose(src,dst) {toCart((src).tran, &((dst)->tran)); toQuat((src).rot, &((dst)->rot));}
-
-#define toHom(src,dst) {toCart((src).tran, &((dst)->tran)); toMat((src).rot, &((dst)->rot));}
-
-#define toLine(src,dst) {toPose((src).start, &((dst)->start)); toPose((src).end, &((dst)->end)); toCart((src).uVec, &((dst)->uVec));}
-
-#define toCircle(src,dst) {toCart((src).center, &((dst)->center)); toCart((src).normal, &((dst)->normal)); toCart((src).rTan, &((dst)->rTan)); toCart((src).rPerp, &((dst)->rPerp)); toCart((src).rHelix, &((dst)->rHelix)); (dst)->radius = (src).radius; (dst)->angle = (src).angle; (dst)->spiral = (src).spiral;}
-
 #ifdef __cplusplus
 }				/* matches extern "C" for C++ */
+
+template <class A, class B>
+void toCart(const A& src, B* dst) {(dst)->x = (src).x; (dst)->y = (src).y; (dst)->z = (src).z;}
+
+template <class A, class B>
+void toCyl(const A& src, B* dst) {(dst)->theta = (src).theta; (dst)->r = (src).r; (dst)->z = (src).z;}
+
+template <class A, class B>
+void toSph(const A& src, B* dst) {(dst)->theta = (src).theta; (dst)->phi = (src).phi; (dst)->r = (src).r;}
+
+template <class A, class B>
+void toQuat(const A& src, B* dst) {(dst)->s = (src).s; (dst)->x = (src).x; (dst)->y = (src).y; (dst)->z = (src).z;}
+
+template <class A, class B>
+void toRot(const A& src, B* dst) {(dst)->s = (src).s; (dst)->x = (src).x; (dst)->y = (src).y; (dst)->z = (src).z;}
+
+template <class A, class B>
+void toMat(const A& src, B* dst) {toCart((src).x, &((dst)->x)); toCart((src).y, &((dst)->y)); toCart((src).z, &((dst)->z));}
+
+template <class A, class B>
+void toEulerZyz(const A& src, B* dst) {(dst)->z = (src).z; (dst)->y = (src).y; (dst)->zp = (src).zp;}
+
+template <class A, class B>
+void toEulerZyx(const A& src, B* dst) {(dst)->z = (src).z; (dst)->y = (src).y; (dst)->x = (src).x;}
+
+template <class A, class B>
+void toRpy(const A& src, B* dst) {(dst)->r = (src).r; (dst)->p = (src).p; (dst)->y = (src).y;}
+
+template <class A, class B>
+void toPose(const A& src, B* dst) {toCart((src).tran, &((dst)->tran)); toQuat((src).rot, &((dst)->rot));}
+
+template <class A, class B>
+void toHom(const A& src, B* dst) {toCart((src).tran, &((dst)->tran)); toMat((src).rot, &((dst)->rot));}
+
+template <class A, class B>
+void toLine(const A& src, B* dst) {toPose((src).start, &((dst)->start)); toPose((src).end, &((dst)->end)); toCart((src).uVec, &((dst)->uVec));}
+
+template <class A, class B>
+void toCircle(const A& src, B* dst) {toCart((src).center, &((dst)->center)); toCart((src).normal, &((dst)->normal)); toCart((src).rTan, &((dst)->rTan)); toCart((src).rPerp, &((dst)->rPerp)); toCart((src).rHelix, &((dst)->rHelix)); (dst)->radius = (src).radius; (dst)->angle = (src).angle; (dst)->spiral = (src).spiral;}
+
 #endif
 #endif				/* #ifndef POSEMATH_H */

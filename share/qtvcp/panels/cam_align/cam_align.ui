@@ -95,6 +95,9 @@
          <property name="ini_mdi_number" stdset="0">
           <number>0</number>
          </property>
+         <property name="ini_mdi_key" stdset="0">
+          <string>CAM_ALIGN1</string>
+         </property>
         </widget>
        </item>
        <item>
@@ -137,6 +140,9 @@
          </property>
          <property name="ini_mdi_number" stdset="0">
           <number>1</number>
+         </property>
+         <property name="ini_mdi_key" stdset="0">
+          <string>CAM_ALIGN2</string>
          </property>
         </widget>
        </item>

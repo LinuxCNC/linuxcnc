@@ -43,7 +43,7 @@
 #define MAX_PRIORITY 0x80000000
 #define POLYNOMIAL 0xD8  /* 11011 followed by 0's */
 #define WIDTH  (8 * sizeof(crc))
-#define TOPBIT (1 << (WIDTH - 1))
+#define TOPBIT (1u << (WIDTH - 1))
 
 typedef uint32_t crc;
 crc crcTable[256];
@@ -75,9 +75,9 @@ class SchedEntry {
     int getZone() const;
     void setZone(int z);
     string getFileName() const;
-    void setFileName(string s);
+    void setFileName(const string& s);
     string getProgramName() const;
-    void setProgramName(string s);
+    void setProgramName(const string& s);
     float getFeedOverride() const;
     void setFeedOverride(float f);
     float getSpindleOverride() const;
@@ -86,18 +86,16 @@ class SchedEntry {
     void setTool(int t);
   };
 
-SchedEntry::SchedEntry() {
-    priority = 0;
-    tagId = 0;
-    xpos = 0.0;
-    ypos = 0.0;
-    zpos = 0.0;
-    zone = 0;
-    fileName = "";
-    feedOverride = 100.0;
-    spindleOverride = 100.0;
-    tool = 1;
-  }
+SchedEntry::SchedEntry()
+    : priority(0), tagId(0),
+      xpos(0.0), ypos(0.0), zpos(0.0),
+      zone(0),
+      programName(""), fileName(""),
+      feedOverride(100.0),
+      spindleOverride(100.0),
+      tool(1)
+{
+}
 
 list<SchedEntry> q;
 
@@ -152,7 +150,7 @@ string SchedEntry::getFileName() const {
   return fileName;
   }
 
-void SchedEntry::setFileName(string s) {
+void SchedEntry::setFileName(const string& s) {
   fileName = s;
   }
 
@@ -160,7 +158,7 @@ string SchedEntry::getProgramName() const {
   return programName;
   }
 
-void SchedEntry::setProgramName(string s) {
+void SchedEntry::setProgramName(const string& s) {
   programName = s;
   }
 
@@ -320,7 +318,7 @@ void updateQueue() {
     }
   }
 
-int addProgram(int pri, int tag, float x, float y, float z, int azone, string progName, float feedOvr, float spindleOvr, int toolNum) {
+int addProgram(int pri, int tag, float x, float y, float z, int azone, const string& progName, float feedOvr, float spindleOvr, int toolNum) {
   SchedEntry p;
 
   p.setPriority(pri);

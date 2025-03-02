@@ -1,5 +1,6 @@
 :lang: en
 :toc:
+:toclevels: 3
 
 [[cha:qtdragon-gui]]
 = QtDragon GUI(((QtDragon)))
@@ -167,6 +168,28 @@ MESSAGE_TYPE = okdialog
 MESSAGE_PINNAME = oktest
 ----
 
+Multimessages use an s32 HAL pin to pop multiple defined messages.
+
+[source,{ini}]
+----
+[DISPLAY]
+MULTIMESSAGE_ID = VFD
+
+MULTIMESSAGE_VFD_NUMBER = 1
+MULTIMESSAGE_VFD_TYPE = okdialog status
+MULTIMESSAGE_VFD_TITLE = VFD Error: 1
+MULTIMESSAGE_VFD_TEXT = This is the longer text FOR MESSAGE NUMBER 1
+MULTIMESSAGE_VFD_DETAILS = DETAILS for VFD error 1
+MULTIMESSAGE_VFD_ICON = WARNING
+
+MULTIMESSAGE_VFD_NUMBER = 2
+MULTIMESSAGE_VFD_TYPE = nonedialog status
+MULTIMESSAGE_VFD_TITLE = VFD Error: 2
+MULTIMESSAGE_VFD_TEXT = This is the longer text FOR MESSAGE NUMBER 2
+MULTIMESSAGE_VFD_DETAILS = DETAILS for VFD error 2
+MULTIMESSAGE_VFD_ICON = INFO
+----
+
 === Embed Custom VCP Panels
 
 You can optionally embed QtVCP Virtual Control Panels into the QtDragon or QtDragon_hd screen. +
@@ -214,7 +237,7 @@ These paths will need to be adjusted to point to the actual files on your system
 [source,{ini}]
 ----
 [RS274NGC]
-SUBROUTINE_PATH = :~/linuxcnc/nc_files/examples/ngcgui_lib:~/linuxcnc/nc_files/examples/ngcgui_lib/utilitysubs; \
+SUBROUTINE_PATH = :~/linuxcnc/nc_files/examples/ngcgui_lib:~/linuxcnc/nc_files/examples/ngcgui_lib/utilitysubs: \
 ~/linuxcnc/nc_files/examples/probe/basic_probe/macros:~/linuxcnc/nc_files/examples/remap-subroutines: \
 ~/linuxcnc/nc_files/examples/ngcgui_lib/remap_lib
 ----
@@ -490,7 +513,7 @@ If no feedback is available you can have the display show the requested speed by
 
 [source,{hal}]
 ----
-net spindle-speed-feedback spindle.0.speed-out-rps => spindle.0.speed-in 
+net spindle-speed-feedback spindle.0.speed-out-rps => spindle.0.speed-in
 ----
 
 This bit output pin can be connected to turn on a laser:
@@ -516,6 +539,7 @@ qtdragon.eoffset-enable
 qtdragon.eoffset-value
 qtdragon.eoffset-spindle-count
 qtdragon.eoffset-zlevel-count
+qtdragon.eoffset-is-active
 ----
 
 These float output pins reflect the current slider jograte (in machine units):
@@ -549,6 +573,38 @@ qtversaprobe.searchvel
 qtversaprobe.backoffdist
 ----
 
+This pin will be true when the loaded tool equals the number set in the Versa Probe tool number in the preference file. +
+It can be used (for example) to inhibit the spindle when the probe is loaded by connecting it to `spindle.0.inhibit`.
+
+[source,{hal}]
+----
+qtversaprobe.probe-loaded
+----
+
+This output pin is available when setting the Basic Probe INI option. +
+This pin will be true when the loaded tool equals the number set in the Basic Probe tool number edit box. +
+It can be used (for example) to inhibit the spindle when the probe is loaded by connecting it to `spindle.0.inhibit`.
+
+[source,{hal}]
+----
+qtbasicprobe.probe-loaded
+----
+
+This input pin is available to toggle pause/resume of a running program.
+
+[source,{hal}]
+----
+qtdragon.external-pause
+----
+
+You can externally operate dialog responses on most qtdragon dialogs.
+[source,{hal}]
+----
+qtdragon.dialog-ok
+qtdragon.dialog-no
+qtdragon.dialog-cancel
+----
+
 == HAL files
 
 The HAL files supplied are for simulation only.
@@ -574,20 +630,29 @@ The screen is intended to interface to a VFD, but will still work without it. +
 There are a number of VFD drivers included in the LinuxCNC distribution. +
 It is up to the end user to supply the appropriate driver and HAL file connections according to his own machine setup.
 
-== Auto Raise Z Axis on Spindle Pause
+== Auto Raise Z Axis on Program Pause
 
-QtDragon can be set up to automatically raise and lower the Z axis when the spindle is paused. +
-When a program is paused, then you press the 'Spindle Pause' button to stop the spindle and raise it in Z. +
-Press the button again to start spindle and lower it, then unpause the program. +
+QtDragon can be set up to automatically raise and lower the Z axis and stop the spindle, when the program is paused. +
+You toggle the 'SPINDLE LIFT' or 'NO LIFT' button to select the option to raise the spindle in Z when paused. +
+Then when you press the 'PAUSE' button the spindle will lift the amount set on the 'Settings' tab and the spindle will stop. +
+Pressing 'RESUME' will start the spindle and lower the spindle. +
 If you have the HAL pin `spindle.0.at-speed` connected to a driving pin, the spindle will not lower until the pin is true +
 You typically connect this to a timer or logic that detects the speed of the spindle. +
-If that pin is not connected to a driving pin, a dialog will pop up to warn you to wait for the spindle response. +
+If that pin is not connected to a driving pin, a dialog will pop up to warn you to wait for the spindle speed. +
 The spindle will lower when you close that dialog. +
 The amount to raise is set in the 'Settings' tab under the heading 'SPINDLE RAISE'. +
 This line edit box can only be directly set when not in Auto mode. +
 The up/down buttons can be used to adjust the raise amount at any time, including when the spindle is already raised. +
-The button increments are 1 inch or 5 mm (depending on the units the machine is based on) +
-This optional behaviour requires additions to the INI and the qtdragon_post_gui HAL file.
+The button increments are 1 inch or 5 mm (depending on the units the machine is based on).
+
+[NOTE]
+If using the Spindle lift option, HALUI can not be used to pause/resume the program.
+There is a pin, 'QtDragon.external-pause' available to pause/resume from an external source.
+You must also enable external offsets. In the setting tab check 'use external offsets'
+If you wish to inhibit the spindle when a probe tool is loaded,
+you will need to use an logical `or`-component to combine the two spindle inhibit signals to connect to `spindle.0.inhibit`. 
+
+This optional behaviour requires additions to the INI and the QtDragon_postgui HAL file.
 
 In the INI, under the AXIS_Z heading.
 
@@ -596,18 +661,24 @@ In the INI, under the AXIS_Z heading.
 [AXIS_Z]
 OFFSET_AV_RATIO  = 0.2
 ----
+This reserves 20% of max velocity and max acceleration for the external offsets. +
+This will limit max velocity of the machine by 20% +
 
 In the qtdragon_postgui.hal file add:
 
 [source,{hal}]
 ----
 # Set up Z axis external offsets
-net eoffset_clear    qtdragon.eoffset-clear => axis.z.eoffset-clear
-net eoffset_count    qtdragon.eoffset-spindle-count => axis.z.eoffset-counts
-net eoffset          qtdragon.eoffset-value <= axis.z.eoffset
+net eoffset_clear    qtdragon.eoffset-clear          =>  axis.z.eoffset-clear
+net eoffset_count    qtdragon.eoffset-spindle-count  =>  axis.z.eoffset-counts
+net eoffset          qtdragon.eoffset-value          <=  axis.z.eoffset
+net eoffset-state    qtdragon.eoffset-is-active      <=  motion.eoffset-active
+
+# Inhibit spindle when paused
+net spindle-pause    qtdragon.spindle-inhibit        =>  spindle.0.inhibit
 
 # uncomment for dragon_hd
-#net limited          qtdragon.led-limits-tripped <= motion.eoffset-limited
+#net limited          qtdragon.led-limits-tripped     <= motion.eoffset-limited
 
 setp axis.z.eoffset-enable 1
 setp axis.z.eoffset-scale 1.0
@@ -691,7 +762,8 @@ setp axis.z.eoffset-enable True
 ########################################################################
 net eoffset-clear              qtdragon.eoffset-clear
 net eoffset-spindle-count   <= qtdragon.eoffset-spindle-count
-net spindle-pause              qtdragon.spindle-inhibit     spindle.0.inhibit
+net spindle-pause              qtdragon.spindle-inhibit        =>  spindle.0.inhibit
+net eoffset-state              qtdragon.eoffset-is-active      <=  motion.eoffset-active
 
 ## Z level compensation
 ####################################################
@@ -747,23 +819,42 @@ It can also be sued to auto probe tool length at tool changes with added remap c
 
 You must carefully set the 'Probing Parameters':
 
-* 'DIAMETER':: This is the diameter of the probe tip. The accuracy of probe measurements is directly affected by the accuracy of the probe tip diameter.
-* 'TRAVEL':: The distance that the probe will travel during the initial search. If the search distance is too short, you will receive a message like "G38 finished without making contact". For safety reasons, it is recommended to set this parameter to 3-4 mm more than probe stylus diameter.
-* 'LATCH RTN':: The distance the probe is retracted after making initial contact with the workpiece. This should be a short distance because the second approach will be at a slow speed, but large enough for the probe to break contact and bring it to the search ready state. If the Latch Rtn distance too large, you will end up spending a lot of time waiting for the search to complete. Recommendation: 1-2 mm
-* 'SEARCH':: This is the feed rate at which the probe searches for the target workpiece in machine units per minute. The search speed should be slow enough to give an acceptable initial accuracy, but fast enough to not waste time waiting for movement. Recommendation: 200-500 mm/min.
-* 'PROBE':: Once initial contact has been made and the probe is retracted, it will wait for 0.5 seconds before performing the search again at a lower speed, the probe velocity. This lower speed ensures the machine can stop movement as quickly as possible on contact with the workpiece.
-* 'RAPID':: Axis movements not associated with searching are done at the speed defined by RAPID in machine units per minute.
-* 'SIDE/EDGE LENGTH':: This is the distance the probe will move at the rapid rate to the position where it will begin a search. If measuring a corner, it will move EDGE LENGTH units away from the corner, then move away from the workpiece by XY CLEARANCE, lower by Z CLEARANCE and begin the initial search. If measuring an inner circle, then EDGE LENGTH should be set to the approximate radius of the circle. Note: NOT the diameter.
-* 'PROBE HT':: The height of the tool sensor from the machine table surface. This value is used to calculate the Z zero height for the current work coordinate system when using the probe with a tool setter sensor.
-* 'BLOCK HT':: The height of the top of the workpiece from the machine table surface. This value is used to calculate the Z zero height for the current work coordinate system when using the probe with a tool setter sensor.
-* 'XY CLEARANCE':: The distance that the probe will move away from an edge or corner before performing a search. It should be large enough to ensure that the probe will not contact the workpiece or any other fixtures before moving down. It should be small enough to avoid excessive waiting for movement while searching.
-* 'Z CLEARANCE':: The distance that the probe will move down before performing a search. If measuring an inside hole, the probe could be manually jogged to the starting Z height and then set Z CLEARANCE to 0.
+'DIAMETER':: This is the diameter of the probe tip. The accuracy of probe measurements is directly affected by the accuracy of the probe tip diameter.
+'TRAVEL':: The distance that the probe will travel during the initial search. If the search distance is too short, you will receive a message like "G38 finished without making contact". For safety reasons, it is recommended to set this parameter to 3-4 mm more than probe stylus diameter.
+'LATCH RTN':: The distance the probe is retracted after making initial contact with the workpiece. This should be a short distance because the second approach will be at a slow speed, but large enough for the probe to break contact and bring it to the search ready state. If the Latch Rtn distance too large, you will end up spending a lot of time waiting for the search to complete. Recommendation: 1-2 mm
+'SEARCH':: This is the feed rate at which the probe searches for the target workpiece in machine units per minute. The search speed should be slow enough to give an acceptable initial accuracy, but fast enough to not waste time waiting for movement. Recommendation: 200-500 mm/min.
+'PROBE':: Once initial contact has been made and the probe is retracted, it will wait for 0.5 seconds before performing the search again at a lower speed, the probe velocity. This lower speed ensures the machine can stop movement as quickly as possible on contact with the workpiece.
+'RAPID':: Axis movements not associated with searching are done at the speed defined by RAPID in machine units per minute.
+'SIDE/EDGE LENGTH':: This is the distance the probe will move at the rapid rate to the position where it will begin a search. If measuring a corner, it will move EDGE LENGTH units away from the corner, then move away from the workpiece by XY CLEARANCE, lower by Z CLEARANCE and begin the initial search. If measuring an inner circle, then EDGE LENGTH should be set to the approximate radius of the circle. Note: NOT the diameter.
+'PROBE HT':: The height of the tool sensor from the machine table surface. This value is used to calculate the Z zero height for the current work coordinate system when using the probe with a tool setter sensor.
+'BLOCK HT':: The height of the top of the workpiece from the machine table surface. This value is used to calculate the Z zero height for the current work coordinate system when using the probe with a tool setter sensor.
+'XY CLEARANCE':: The distance that the probe will move away from an edge or corner before performing a search. It should be large enough to ensure that the probe will not contact the workpiece or any other fixtures before moving down. It should be small enough to avoid excessive waiting for movement while searching.
+'Z CLEARANCE':: The distance that the probe will move down before performing a search. If measuring an inside hole, the probe could be manually jogged to the starting Z height and then set Z CLEARANCE to 0.
 
 There are three toggle buttons:
 
-* 'Auto Zero' This selects if after probing the relevant axis is set to zero in the current user system.
-* 'Auto Skew' This selects if after probing, the system will be rotated or just display the calculated rotation.
-* 'Tool Measure' This (if integrated) turns auto tool probing on and off.
+'Auto Zero':: This selects if after probing the relevant axis is set to zero in the current user system.
+'Auto Skew':: This selects if after probing, the system will be rotated or just display the calculated rotation.
+'Tool Measure':: This (if integrated) turns auto tool probing on and off.
+
+==== HAL Pins
+
+Versaprobe offers 5 output pins for tool measurement purpose and one that can be used to inhibit the spindle when the probe is loaded. +
+The 5 pins are used to be read from a remap G-code subroutine, so the code can react to different values. +
+Currently the probe tool number is only editable in the preference file: +
+
+----
+[VERSA_PROBE_OPTIONS]
+ps_probe_tool = 1
+----
+
+`qtversaprobe.enable` (HAL_BIT):: Measurement enabled or not tool. Reflects screen button state.
+`qtversaprobe.blockheight` (HAL_FLOAT):: The measured height of the top face of the workpiece. Reflects screen entry.
+`qtversaprobe.probeheight` (HAL_FLOAT):: The toolsetter probe switch height. Reflects screen entry.
+`qtversaprobe.searchvel` (HAL_FLOAT):: The velocity to search for the tool probe switch
+`qtversaprobe.probevel` (HAL_FLOAT):: The velocity to probe tool length. Reflects screen entry.
+`qtversaprobe.backoffdist` (HAL_FLOAT):: The distance the probe backs off after triggering. Reflects screen entry.
+`qtversaprobe.probe-loaded` (HAL_BIT):: Reflect if the current tool is equal to the preference file probe number.
 
 === Basic probe
 
@@ -782,24 +873,24 @@ The combo box allows selecting the basic type of probing buttons shown:
 
 You must carefully set the 'Probing Parameters':
 
-* 'Probe Tool': will only allow probing if this tool number is in the spindle
-* 'Probe Diameter': the size of the probe tip
-* 'Probe Rapid': the speed of rapid moves in machine units
-* 'Probe Search': the speed of the first 'rough' search in machine units
-* 'Probe Feed': the speed of the second 'fine' search in machine units
-* 'Step Off': back off and re-probe distance
-* 'Max XY Distance': the maximum distance the probe will search for in X and Y before failing with error
-* 'Max Z Distance':  the maximum distance the probe will search for in Z before failing with error
-* 'XY Clearance': clearance distance from probe to wall edge before rapid traversing down in Z and 'rough' probing
-* 'Z Clearance': clearance distance from probed to top of material
-* 'Extra Depth': distance from top of material to desired probe depth
+'Probe Tool':: Will only allow probing if this tool number is in the spindle
+'Probe Diameter':: The size of the probe tip
+'Probe Rapid':: The speed of rapid moves in machine units
+'Probe Search':: The speed of the first 'rough' search in machine units
+'Probe Feed':: The speed of the second 'fine' search in machine units
+'Step Off':: Back off and re-probe distance
+'Max XY Distance':: The maximum distance the probe will search for in X and Y before failing with error
+'Max Z Distance'::  The maximum distance the probe will search for in Z before failing with error
+'XY Clearance':: Clearance distance from probe to wall edge before rapid traversing down in Z and 'rough' probing
+'Z Clearance':: Clearance distance from probed to top of material
+'Extra Depth':: Distance from top of material to desired probe depth
 
 There are also hint parameters depending on selected probing type:
 
-* 'Edge Width': desired distance from the probe start position, along wall edge before starting to probe
-* 'Diameter Hint': used by Round Boss or Round Pocket probing (start move: 1/2 diameter plus XY clearance)
-* 'X Hint': used by Rectangular Boss/Pocket probing (start move: 1/2 X length plus XY clearance)
-* 'Y Hint': used by Rectangular Boss/Pocket probing (start move: 1/2 Y length plus XY clearance)
+'Edge Width':: Desired distance from the probe start position, along wall edge before starting to probe
+'Diameter Hint':: Used by Round Boss or Round Pocket probing (start move: 1/2 diameter plus XY clearance)
+'X Hint':: Used by Rectangular Boss/Pocket probing (start move: 1/2 X length plus XY clearance)
+'Y Hint':: Used by Rectangular Boss/Pocket probing (start move: 1/2 Y length plus XY clearance)
 
 After setting the parameters and hints:
 
@@ -811,15 +902,24 @@ The probing routine will start immediately.
 [NOTE]
 Pressing the stop button or the keyboard escape key, will abort the probing.
 
+==== HAL Pins
+This can be used to inhibit the spindle when the probe is loaded. +
+You would connect it to spindle.0.inhibit
+
+[source,{hal}]
+----
+qtbasicprobe.probe-loaded
+----
+
 ==== Corner Probe Example
 
 Lets discuss inside corner probing using the top right button in Basic Probe (back_right_inside).
 While all probe entries must be correct, the most important settings to change for each each probe:
 
-* XY CLEARANCE - distance away from edge before rough probing,
-* Z CLEARANCE  - distance from probe to top of material,
-* EXTRA DEPTH  - distance to lower probe from top of material,
-* EDGE WIDTH   - distance along edge wall (away from corner) to start probing.
+XY CLEARANCE:: Distance away from edge before rough probing,
+Z CLEARANCE:: Distance from probe to top of material,
+EXTRA DEPTH:: Distance to lower probe from top of material,
+EDGE WIDTH:: Distance along edge wall (away from corner) to start probing.
 
 [NOTE]
 These distance are always to be set in 'machine units' (mm for metric machine, inch for imperial machine).
@@ -843,6 +943,7 @@ Sequence after pressing the probe button: +
 . rapid back to starting corner (now calculated using the probed walls),
 . if auto zero button is enabled, set X and Y of the current user system to zero.
 
+[[sub:touch-plate]]
 == Touch plate
 
 .QtDragon - Touch Plate
@@ -866,23 +967,45 @@ The machine will probe down twice and the current user offset (G5X) will be zero
 
 == Auto Tool Measurement
 
+=== Overview
+
 QtDragon can be setup to do integrated auto tool measurement using the Versa Probe widget and remap code.
-To use this feature, you will need to do some additional settings and you may want to use the offered HAL pin to get values in your own ngc remap procedure.
+
+This feature assumes the use of two probes in concert:
+
+ . A tool switch sensor, fixed somewhere on the machine (sometimes called a tool-setter), and
+ . a spindle probe that is installed temporarily at the beginning of the job (sometimes called an xyz probe or a Renishaw probe).
+
+These techniques are useful for machines that do not have repeatable tool holders and do not have automatic tool changing devices.
+(For machines with repeatable tool holders, see the section on <<sub:touch-plate,measuring tool length>>.
+For machines with automatic tool changing devices, consult work done under the LinuxCNC repository at `configs/sim/axis/remap/rack-toolchange`.)
+
+To use this feature, you will need to do some additional settings and you may want to use the offered HAL pins to get values in your own ngc remap procedure. Those settings are covered later in the section.
+
+First, this document covers how to use this technique. Second, this document covers how to set up for this technique at the beginning of a production run.
+
+=== Workflow Overview
+
+A detailed workflow walkthrough follows this overview.
+
+Setup steps include:
+
+* Entering the probe velocities on the versa probe settings page.
+* Enabling "Use Tool Measurement" on the Versa Probe tab. 
+* Enabling "Use Tool Sensor" under Settings.
 
 [IMPORTANT]
-Before starting the first test, do not forget to enter the probe height and probe velocities on the versa probe settings page.
-
-Tool Measurement in QtDragon is done with the following steps:
-
-* Touch off your workpiece in X and Y.
-* Measure the height of your block from the base, where your tool switch is located, to the upper face of the block (including chuck etc.).
-* In the Versa probe tab, enter the measured value for block height.
-* Make sure the use tool measurement button in the Vesa probe tab is enabled.
-* Go to auto mode and start your program.
-
-[NOTE]
-When fist setting up auto tool measurement, please use caution until you confirm tool change and probe locations - it is easy to break a tool/probe.
+When fist setting up auto tool measurement, please use caution
+until you confirm tool change and probe locations - it is easy to break a tool/probe.
 Abort will be honoured while the probe is in motion.
+
+Tool Measurement in QtDragon is organized into the following steps which will be explained in more detail in the following section:
+
+. Zero the probe tool by measuring the tool setter with the spindle probe installed
+. Touch off your workpiece in X and Y.
+. Measure the height of your block from the base, where your tool switch is located, to the upper face of the block (including chuck etc.).
+. In the Versa probe tab, enter the measured value for block height.
+. Go to auto mode and start your program.
 
 .Auto tool measurement
 image::images/sketch_auto_tool_measurement.png[align="left"]
@@ -890,24 +1013,65 @@ image::images/sketch_auto_tool_measurement.png[align="left"]
 With the first given tool change the tool will be measured and the offset will be set automatically to fit the block height.
 The advantage of this way is, that you do not need a reference tool.
 
+[NOTE]
+Your program must contain a tool change at the beginning. The tool will be measured, even it has been used before, so there is no danger if the block height has changed. There are several videos on you tube that demonstrate the technique using GMOCCAPY. The GMOCCAPY screen pioneered the technique.
+
+The sequence of events (using the default files in the default setting):
+
+. Rapid move in Z to position defined in the INI's [TOOL_CHANGE] Z.
+. Rapid move in X and Y to number defined in INI's [TOOL_CHANGE] X and Y.
+. Perform normal M6 tool change, i.e., stop spindle, send message to user to change the tool.
+. Rapid move in X and Y to position defined in the INI's [VERSA_TOOLSETTER] X and Y.
+. Rapid move down in Z to position defined in the INI's [VERSA_TOOLSETTER] Z.
+. Probe down in Z to maximum defined in the INI's [VERSA_TOOLSETTER] MAXPROBE.
+. Changes the offset of the current work coordinate system to match the difference between the previous tool and the currently measured tool.
+. Rapid move up in Z to position defined in the INI's [VERSA_TOOLSETTER] Z_MAX_CLEAR.
+. Rapid move to the X Y position when the tool change was called.
+. Rapid move down to the Z position when the tool change was called.
 
 [NOTE]
-Your program must contain a tool change at the beginning.
-The tool will be measured, even it has been used before, so there is no danger if the block height has changed.
-There are several videos on you tube that demonstrate the technique using GMOCCAPY.
-The GMOCCAPY screen pioneered the technique.
+The [TOOL_CHANGE] Z position should be high enough so the tool will not hit the tool probe when moving to the [VERSA_TOOLSETTER] X and Y position. +
+  +
+MAXPROBE distance needs to be high enough for the tool to touch the probe.
 
-The sequence of events (using the default files):
+=== Detailed Workflow Example
 
-* Rapid move in Z to position defined in the INI's [TOOL_CHANGE] Z
-* Rapid move in X and Y to number defined in INI's [TOOL_CHANGE] X and Y
-* Request tool change
-* Rapid move in X and Y to position defined in the INI's [VERSA_TOOLSETTER] X and Y
-* Rapid move down in Z to position defined in the INI's [VERSA_TOOLSETTER] Z
-* Probe down in Z to maximum defined in the INI's [VERSA_TOOLSETTER] MAXPROBE
-* Return Z to position defined in the INI's [TOOL_CHANGE] Z
+==== One Time Setup
+
+The following setups need only be done once as long as they remain in effect:
+
+. Under Probe Tool Screens: Ensure reasonable values for "Rapid" and "Search," these are the speeds at which the probing will be performed and are in machine units per minute. +
+. Under Probe Tool Screens: Ensure that "Tool Measure" is enabled (this is a button that must be highlighted)
+. Under Settings: Ensure that "Use Tool Sensor" is enabled (this is a tick-box that must be checked)
+. In the Tool Table: Set up a tool for the spindle probe and ensure that its Z offset is set to zero.
 
 [NOTE]
+It is possible to use a non-zero tool length for the tool probe,
+but this requires extra steps and is easy to make mistakes.
+The following procedure assumes a zero tool probe length.
+
+==== Procedure before starting a program
+
+The following setup is done before beginning a program that has M6 tool change commands inside it.
+
+. Physically load the spindle probe into the spindle.
+. Logically load the spindle probe into the spindle with the M61 Qx command where x is the number in the tool table for the spindle probe (there is a button inside the tool table tab that can also be used)
+. Position to the Toolsetter: Use the button under the Probe Screens for "Go To Toolsetter" to position the spindle above the Toolsetter.
+. Toolsetter Measure: Use the button under the Probe Screens for "Probe Tool Setter Z Height." Note that this will set and display on the Probe Settings screen the "Probe HT" value in ABS coordinates
+. Jog to your workpiece.
+. Workpiece Measure: Use the button under the Probe Screens for "Probe Z Height of Material:" this will set and display on the Probe Settings screen the "Block Ht" value in ABS coordinates. (Typically, this will now also be the zero Z for your Work Coordinate System)
+. Set Work Coordinate System (ie, G54, or other): Use the Probe Tool and whatever probe screen or other method is appropriate to set the X, Y, and Z coordinate system needed for your job.
+. If your program begins with a TnM6 command before spinning the spindle, you may leave the spindle probe installed. You may also issue a TnM6 command to change out the spindle probe, and if the program issues the same one, it will skip the tool change.
+
+[CAUTION]
+Take care not to leave the spindle probe in the spindle if a program may start the spindle.
+
+Once those steps are complete, a program with multiple TnM6 toolchanges can be started and will operate with automatic pauses for manual tool change followed by automated tool measurement.
+
+[NOTE]
+After probing the new tool length using the tool-setter, this remap code uses a G43 which applies the offset to the Work Coordinate system which was in effect when the M6 command was issued. Because remapping has adjusted the Work Coordinate system by the offset between the previous and the current tool, the tool tip will end up at the same point in space as the tip of the previous tool was when the tool change was called.
+
+=== Work Piece Height Probing in QtDragon_hd
 The [TOOL_CHANGE] Z position should be high enough so the tool will not hit the tool probe
 when moving to the [VERSA_TOOLSETTER] X and Y position.
 MAXPROBE distance needs to be high enough for the tool to touch the probe.
@@ -968,12 +1132,12 @@ Initial testing with no tool and safe heights is recommended.
 Versaprobe offers 5 output pins for tool measurement purpose.
 The pins are used to be read from a remap G-code subroutine, so the code can react to different values.
 
-* `qtversaprobe.enable` (HAL_BIT) measurement enabled or not tool. Reflects screen button state.
-* `qtversaprobe.blockheight` (HAL_FLOAT) the measured height of the top face of the workpiece. Reflects screen entry.
-* `qtversaprobe.probeheight` (HAL_FLOAT) the toolsetter probe switch height. Reflects screen entry.
-* `qtversaprobe.searchvel` (HAL_FLOAT) the velocity to search for the tool probe switch
-* `qtversaprobe.probevel` (HAL_FLOAT) the velocity to probe tool length. Reflects screen entry.
-* 'qtversaprobe.backoffdist' (HAL_FLOAT) the distance the probe backs off after triggering. Reflects screen entry.
+`qtversaprobe.enable` (HAL_BIT):: Measurement enabled or not tool. Reflects screen button state.
+`qtversaprobe.blockheight` (HAL_FLOAT):: The measured height of the top face of the workpiece. Reflects screen entry.
+`qtversaprobe.probeheight` (HAL_FLOAT):: The toolsetter probe switch height. Reflects screen entry.
+`qtversaprobe.searchvel` (HAL_FLOAT):: The velocity to search for the tool probe switch
+`qtversaprobe.probevel` (HAL_FLOAT):: The velocity to probe tool length. Reflects screen entry.
+`qtversaprobe.backoffdist` (HAL_FLOAT):: The distance the probe backs off after triggering. Reflects screen entry.
 
 === Tool Measurement INI File Modifications
 
@@ -1019,27 +1183,29 @@ REMAP=M6  modalgroup=6 prolog=change_prolog ngc=qt_auto_probe_tool epilog=change
 ==== The Tool Sensor Section
 
 The position of the tool sensor and the start position of the probing movement. +
-All values are absolute (G53) coordinates, except MAXPROBE, which is expressed in relative movement. +
+All values are absolute (G53) coordinates, except MAXPROBE, which is expressed as an absolute length of movement. +
 All values are in machine native units. +
-X,Y,Z set the tool setter probe location. +
-auto probe action sequence (this could be changed with a modified ngc remap file): +
+X, Y, & Z set the tool setter probe location. +
 
-* go to TOOLCHANGE Z position
-* go to TOOLCHANGE XY position.
-* wait for manual tool change acknowledgement
-* go to VERSA_TOOLSETTER XY position
-* go to VERSA_TOOLSETTER Z position
-* fast probe
-* slow probe
-* go to TOOLCHANGE Z position
+Auto probe action sequence in the default qt_auto_probe_tool example remap defined above (this behavior can be changed by modifying either the remap statement in the RS274NGC section, or by modifying the qt_auto_probe_tool.ngc code.): +
+
+. rapid move to the INI's [CHANGE_POSITION] Z position (this is a relative move, it adds this Z value to the current Z coordinate)
+. rapid move to the INI's [CHANGE_POSITION] X & Y position.
+. wait for manual tool change acknowledgement
+. rapid move to the INI's [VERSA_TOOLSETTER] X & Y position
+. rapid move to the INI's [VERSA_TOOLSETTER] Z_MAX_CLEAR Z position
+. fast probe
+. slow probe
+. rapid move to the INI's [VERSA_TOOLSETTER] Z_MAX_CLEAR Z position
 
 Z_MAX_CLEAR is the Z position to go to before moving to the tool setter when using the 'Travel to Toolsetter button'. +
 'Travel to Toolsetter' Action sequence: +
 
-* go to VERSA_TOOLSETTER Z_MAX_CLEAR Z position
-* go to VERSA_TOOLSETTER XY position
-* go to VERSA_TOOLSETTER Z position.
+. rapid move to [VERSA_TOOLSETTER] Z_MAX_CLEAR Z position
+. rapid move to [VERSA_TOOLSETTER] XY position
+. rapid move to [VERSA_TOOLSETTER] Z position.
 
+Example settings:
 [source,{ini}]
 ----
 [VERSA_TOOLSETTER]
@@ -1053,7 +1219,7 @@ MAXPROBE =  -20
 ==== The Change Position Section
 
 This is not named TOOL_CHANGE_POSITION  on purpose - *canon uses that name and will interfere otherwise*.
-The position to move the machine before giving the change tool command.
+The position to which to move the machine before giving the change tool command.
 All values are in absolute coordinates.
 All values are in machine native units.
 
@@ -1171,15 +1337,17 @@ QtDragon_hd will also show a smaller graphics display window.
 If the recognized webcam is connected, this tab will display the video image overlaid with a cross-hair, circle and degree readout.
 This can be adjusted to suit a part feature for such things as touchoff.
 The underlying library uses openCV Python module to connect to the webcam. +
-To adjust the X or Y size aspect ratio, look in the preference file for: +
+To adjust the X or Y size aspect ratio, or camera number, look in the preference file for: +
 
 ----
 [CUSTOM_FORM_ENTRIES]
 Camview xscale = 100
 Camview yscale = 100
+Camview cam number = 0
 ----
 
 These are in percent, usually the range will be 100 - 200 in one axis. +
+Negating these scales can be used to flip the image in X, Y or both axes. +
 The preference file can only be edited when QtDragon is not running.
 
 === G-codes Tab
@@ -1240,6 +1408,81 @@ New styles can be applied temporarily and then saved to a new qss file, or overw
 .QtDragon - Two Style Examples
 image::images/style-comparison.png["QtDragon styles",scale="25%"]
 
+== Internationalisation
+
+It is possible to create translation files for QtDragon to display in the language of the current locale.
+
+To create and or edit a translation file requires that LinuxCNC has been installed as run in place.
+
+The following assumes that the LinuxCNC git directory is ~/linuxcnc-dev.
+
+[NOTE]
+If using QtDragon_hd substitute 'qtdragon_hd' for 'qtdragon'
+
+All language files are kept in ~/linuxcnc-dev/share/screens/qtdragon/languages.
+
+The qtdragon.py file is a Python version of the GUI file used for translation purposes.
+
+The .ts files are the translation source files for the translations.
+These are the files that require creating/editing for each language.
+
+The .qm files are the compiled translation files used by pyqt.
+
+The language is determined by an underscore plus the first two letters of the locale,
+for example if an Italian translation was being done then it would be `_it`.
+It will be referred to as `_xx` in this document, so `qtdragon_xx.ts` in this document would actually be `qtdragon_it.ts` for an Italian translation.
+
+The default locale for QtDragon is `_en` which means that any translation files created as `qtdragon_en.*` will not be used for translations.
+
+If any of the required utilities (pyuic5, pylupdate5, linguist) are not installed then the user will need to install the required development tools:
+----
+sudo apt install qttools5-dev-tools pyqt5-dev-tools
+----
+
+Change to the languages directory:
+----
+cd ~/linuxcnc-dev/share/qtvcp/screens/qtdragon/languages
+----
+
+If any text changes have been made to the GUI then run the following to update the GUI Python file:
+----
+pyuic5 ../qtdragon.ui > qtdragon.py
+----
+
+The user can either create a new translation source file for a non-existing language translation
+or modify an existing translation source file due to changes being made to some text in a QtDragon source file.
+If modifying an existing translation that has had no source file changes then this step is not required.
+
+Create or edit a .ts file:
+----
+./langfile xx
+----
+
+[NOTE]
+this command is a script which runs the following: $ pylupdate5 *.py ../*.py ../../../../../lib/python/qtvcp/lib/qtdragon/*.py -ts qtdragon_xx.ts
+
+The editing of the translation is done with the linguist application:
+----
+linguist
+----
+
+. Open the TS file and translate the strings
+
+It is not necessary to provide a translation for every text string, if no translation is specified for a string then the original string will be used in the application.
+The user needs to be careful with the length of strings that appear on widgets as space is limited. If possible try to make the translation no longer than the original.
+
+When editing is complete save the file: +
+`File -> Save`
+
+Then create the .qm file: +
+`File -> Release`
+
+QtDragon will be translated to the language of the current locale on the next start so long as a .qm file exists in that language.
+
+Users are welcome to submit translation files for inclusion into QtDragon.
+The preferred method is to submit a pull request from the users GitHub account as described in the https://www.linuxcnc.org/docs/html/code/contributing-to-linuxcnc.html[contributing to LinuxCNC] documentation.
+The only files required to be committed are qtdragon_xx.ts and qtdragon_xx.qm.
+
 == Customization
 
 A general overview of <<cha:qtvcp:modifying-screens,Customizing Stock Screens>>.
@@ -1247,8 +1490,14 @@ A general overview of <<cha:qtvcp:modifying-screens,Customizing Stock Screens>>.
 === Stylesheets
 
 Stylesheets can be leveraged to do a fair amount of customization, but you usually need to know a bit about the widget names.
-Pressing F12 will display a stylesheet editor dialog to load/test/save modification.
-Sometimes these lines will be present and you can change them, otherwise you will need to add them.
+Pressing F12 will display a stylesheet editor dialog to load/test/save modification. +
+The 'View Sheet' tab will allow you to select and apply what stylesheet QtDragon will use when it's first loaded. +
+Press the button 'Copy to Edit Tab' to copy the current stylesheet to the edit tab. +
+The 'Edit Sheet' tab allows editing, applying and saving of changes od the displayed stylesheet.
+
+image::images/qtdragon_stylesheet_editor.png["QtDragon stylesheet editor",scale=25]
+
+Sometimes these lines will be present and you can change them, otherwise you will need to add them. +
 
 For instance, to change the DRO font (look for this entry and change the font name):
 
@@ -1271,6 +1520,29 @@ DROLabel {
     qproperty-imperial_template: '%9.5f';
     qproperty-metric_template: '%10.4f';
     qproperty-angular_template: '%11.2f';
+
+    /*Adjust the menu options */
+    qproperty-showLast: true;
+    qproperty-showDivide : false;
+    qproperty-showGotoOrigin: false;
+    qproperty-showZeroOrigin: false;
+    qproperty-showSetOrigin: true;
+    qproperty-dialogName: CALCULATOR;
+}
+----
+
+Change the axis select button's click menu items:
+
+[source,{ini}]
+----
+AxisToolButton {
+    /* Adjust all the menu options */
+    qproperty-showLast: false;
+    qproperty-showDivide : true;
+    qproperty-showGotoOrigin: true;
+    qproperty-showZeroOrigin: true;
+    qproperty-showSetOrigin: false;
+    qproperty-dialog_code_string: CALCULATOR;
 }
 ----
 
@@ -1311,13 +1583,26 @@ To stop the blur effect with dialogs:
 }
 ----
 
+To change status highlight/selection colors:
+[source,{ini}]
+----
+#screen_options {
+    qproperty-user1Color: white;     /*  default status     */
+    qproperty-user2Color: #ff9000;   /*  warning status     */
+    qproperty-user3Color: #ff8a96;   /*  critical status    */
+    qproperty-user4Color: #ffaa00;   /*  MPG select         */
+    qproperty-user5Color: #ff0000;   /*  Cycle Start select */
+}
+----
+
 Change the G-code text display colors/fonts:
 
 [source,{ini}]
 ----
 }
 EditorBase{
- background:black;
+background:black;
+qproperty-styleColorCursor:white;
 qproperty-styleColorBackground:grey;
 qproperty-styleColor0: black;
 qproperty-styleColor1: darkblue;
@@ -1351,6 +1636,7 @@ To have the manual spindle buttons also incrementally increase/decrease speed:
     qproperty-spindle_down_action: true;
 }
 ----
+
 
 === Qt Designer and Python code
 

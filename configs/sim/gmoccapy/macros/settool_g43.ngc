@@ -1,0 +1,20 @@
+o<settool_g43> sub
+;(debug, tool=#<tool> pocket=#<pocket>)
+
+; we must execute this only in the milltask interpreter
+; or preview will break, so test for '#<_task>' which is 1 for 
+; the milltask interpreter and 0 in the UI's
+O100 if [#<_task> EQ 0]
+        (debug, Task ist Null)
+O100     return [999]
+O100 endif
+
+; using the code being remapped here means 'use builtin behaviour'
+m61 q#<tool>
+
+; set tool offset
+G43
+
+; signal success be returning a value > 0:
+o<settool_g43> endsub [1]
+M2

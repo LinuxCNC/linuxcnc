@@ -386,7 +386,7 @@ int hm2_sserial_get_param_value(hostmot2_t *hm2,
             break; // Hard to imagine an encoder not in Process data
         case LBP_FLOAT:
             {
-                char buf[g->DataLength/8];
+                char buf[HM2_SSERIAL_MAX_DATALENGTH/8];
                 r = hm2_sserial_get_bytes(hm2, chan, &buf[0], g->ParmAddr, g->DataLength/8);
                 if (g->DataLength == sizeof(float) * 8) {
                     float temp;
@@ -1499,6 +1499,7 @@ fail1:
             inst->r_index = 0;
             inst->g_index = 0;
             *inst->state2 = 1;
+            /* Fallthrough */
         case 1:
             if (inst->num_remotes == 0) return 0;
             r = &(inst->remotes[inst->r_index]);
@@ -1538,6 +1539,7 @@ fail1:
                                 // ( double significand - variable type significand)
                                 default:
                                 HM2_ERR("Non IEEE float type parameter of length %i\n", g->DataLength);
+                                /* Fallthrough */
                                 case 8:
                                     shift = (52 -  4); break; // 1.3.4 minifloat, if we ever add them
                                 case 16:
@@ -1547,7 +1549,7 @@ fail1:
                                 case 64:
                                     shift = 0;
                                 }
-                            if (abs(((int)(p->s64_param) - (int)(p->s64_written)) >> shift) > 2) break;
+                            if (labs((p->s64_param - p->s64_written) >> shift) > 2) break;
                             *inst->state2 = 2; // increment indices
                             return *inst->state2;
                         default:
@@ -1985,7 +1987,7 @@ int hm2_sserial_read_pins(hm2_sserial_remote_t *chan){
                     break;
                 }
                 buff = buff_store;
-                /* no break */
+                /* Fallthrough */
             case LBP_ENCODER:
             {
                 int bitlength;

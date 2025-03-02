@@ -69,8 +69,6 @@ include::config/ini-config.adoc[]
 
 include::config/ini-homing.adoc[]
 
-include::config/iov2.adoc[]
-
 include::config/lathe-config.adoc[]
 
 include::config/stepper-quickstart.adoc[]

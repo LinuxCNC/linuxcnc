@@ -1,1 +1,0 @@
-Configuración para la tarjeta PWM Universal de los sistemas Pico. Esta configuración incluye conexiones de movimiento y un conjunto de IO para manejar Estop dentro de HAL. La configuración de E/S en univpwm_io.hal no incluye conexiones de manejo de señales del tipo bridgeportio.

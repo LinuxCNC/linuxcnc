@@ -289,6 +289,12 @@ Descriptions of the interfaces are in the Interfaces section of the User Manual.
   Usually the default is fine.
 * `PREVIEW_TIMEOUT = 5` - Timeout (in seconds) for loading graphical preview of G-code. Currently AXIS only.
 * `HOMING_PROMPT = TRUE` - Show prompt message with homing request, when the Power On button is pressed in AXIS GUI. Pressing the "Ok" button in prompt message is equivalent to pressing the "Home All" button(or the Ctrl-HOME key).
+* `FOAM_W = 1.5` sets the foam W height.
+* `FOAM_Z = 0` sets the foam Z height.
+* `GRAPHICAL_MAX_FILE_SIZE = 20` largest size (in mega bytes) that will be displayed graphically.
+  If the program is bigger than this setting, a bounding box will be displayed.
+  By default, this setting is at 20 MB or 1/4 of the system memory, which ever is smaller.
+  A negative value is interpreted as unlimited.
 
 [NOTE]
 The following [DISPLAY] items are used by GladeVCP and PyVCP,
@@ -315,7 +321,7 @@ See <<cha:gmoccapy,GMOCCAPY>> document for GMOCCAPY details.
   The INCREMENTS can be used to override the default.
   The values can be decimal numbers (e.g., 0.1000) or fractional numbers (e.g., 1/16), optionally followed by a unit (cm, mm, um, inch, in or mil).
   If a unit is not specified the machine unit is assumed.
-  Metric and imperial distances may be mixed: INCREMENTS = 1 inch, 1 mil, 1 cm, 1 mm, 1 µm is a valid entry.
+  Metric and imperial distances may be mixed: INCREMENTS = 1 inch, 1 mil, 1 cm, 1 mm, 1 um is a valid entry.
 * `GRIDS = 10 mm, 1 in, ...` - Defines the preset values for grid lines.
   The value is interpreted the same way as `INCREMENTS`.
 * `OPEN_FILE = /full/path/to/file.ngc` - The file to show in the preview plot when AXIS starts.

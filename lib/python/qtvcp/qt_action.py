@@ -37,6 +37,11 @@ class _Lcnc_Action(object):
         self.prefilter_path = None
         self.home_all_warning_flag = False
         self.proc = None
+        self.lastOriginSet = [0,0,0,0,0,0,0,0,0]
+
+        # imported here to avoid circular imports
+        from qtvcp.lib.mdi_subprogram.mdi_command_process import MDICommand
+        self.MDIPROCESS = MDICommand()
 
     def SET_DEBUG_LEVEL(self, level):
         self.cmd.debug(level)
@@ -184,6 +189,16 @@ class _Lcnc_Action(object):
             return -1
         self.ensure_mode(linuxcnc.MODE_MDI)
         self.cmd.mdi('%s' % code)
+        return 1
+
+    def CALL_BACKGROUND_MDI(self, code, label='Background MDI',timeout=30):
+        LOG.debug('CALL_MDI Command: {} called {}'.format(label, code))
+        if STATUS.is_auto_running():
+            LOG.error('Can not run MDI command:{} when linuxcnc is running in auto mode'.format(code))
+            return -1
+        self.ensure_mode(linuxcnc.MODE_MDI)
+        self.MDIPROCESS.run(cmdList={'LABEL':label,'COMMANDS':code,'TIMEOUT':timeout})
+        return 1
 
     def CALL_MDI_WAIT(self, code, time=5, mode_return=False):
         LOG.debug('MDI_WAIT_Command= {}, maxt = {}'.format(code, time))
@@ -276,11 +291,13 @@ class _Lcnc_Action(object):
         old = STATUS.stat.file
         flt = INFO.get_filter_program(str(fname))
 
-        if os.path.basename(fname).count('.') > 1:
-            e = 'Open File error: Multiple \'.\' not allowed in Linuxcnc'
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, e)
-            LOG.debug(e)
-            return
+        # probably not needed now but in case wanted
+        if INFO.INI.find("DISPLAY", "NO_MULTIPLE_DOT_FILENAME"):
+            if os.path.basename(fname).count('.') > 1:
+                e = 'Open File error: Multiple \'.\' not allowed in Linuxcnc'
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, e)
+                LOG.debug(e)
+                return
 
         if flt:
             LOG.debug('get {} filtered program {}'.format(flt, fname))
@@ -304,15 +321,20 @@ class _Lcnc_Action(object):
         # normalize to absolute path
         try:
             path = os.path.abspath(fname)
-            if '.' not in path:
-                path += ending
-            if path.count('.') > 1:
-                e = 'Save Error: Multiple \'.\' not allowed in Linuxcnc'
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, e)
-                LOG.debug(e)
-                return None
-            name, ext = path.rsplit('.')
-            npath = name + '.' + ext.lower()
+            name, ext = os.path.splitext(path)
+
+            # add extension if missing
+            if ext == '':
+                ext = ending
+            npath = name + ext.lower()
+
+            # might not need this now but here it is in case wanted
+            if INFO.INI.find("DISPLAY", "NO_MULTIPLE_DOT_FILENAME"):
+                if npath.count('.') > 1:
+                    e = 'Save Error: Multiple \'.\' not allowed in Linuxcnc'
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, e)
+                    LOG.debug(e)
+                    return None
         except Exception as e:
             LOG.debug('save error: {}'.format(e))
             LOG.debug('Original save path: {}'.format(fname))
@@ -324,7 +346,7 @@ class _Lcnc_Action(object):
         try:
             outfile = open(npath, 'w')
             outfile.write(source)
-            STATUS.emit('update-machine-log', 'Saved: ' + npath, 'TIME')
+            STATUS.emit('update-machine-log', 'Saved: ' + npath, 'TIME,SUCCESS')
         except Exception as e:
             print(e)
             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, e)
@@ -343,12 +365,28 @@ class _Lcnc_Action(object):
     def SET_AXIS_ORIGIN(self, axis, value):
         if axis == '' or axis.upper() not in ("XYZABCUVW"):
             LOG.warning("Couldn't set origin -axis >{}< not recognized:".format(axis))
+            return
+
+        # record current setting
+        j = "XYZABCUVW"
+        jnum = j.find(axis)
+        p,r,d = STATUS.get_position()
+        if STATUS.is_metric_mode() != INFO.MACHINE_IS_METRIC:
+            r = INFO.convert_units_9(r)
+        self.lastOriginSet[jnum] = r[jnum]
+
+        # set new position
         m = "G10 L20 P0 %s%f" % (axis, value)
         fail, premode = self.ensure_mode(linuxcnc.MODE_MDI)
         self.cmd.mdi(m)
         self.cmd.wait_complete()
         self.ensure_mode(premode)
         self.RELOAD_DISPLAY()
+
+    def GET_LAST_RECORDED_ORIGIN(self, axis):
+        j = "XYZABCUVW"
+        jnum = j.find(axis)
+        return  self.lastOriginSet[jnum]
 
     # Adjust tool offsets so current position ends up the given value
     def SET_TOOL_OFFSET(self, axis, value, fixture=False):
@@ -393,11 +431,26 @@ class _Lcnc_Action(object):
     def ABORT(self):
         self.cmd.abort()
 
+    # much used Legacy code
     def PAUSE(self):
         if not STATUS.stat.paused:
             self.cmd.auto(linuxcnc.AUTO_PAUSE)
         else:
             LOG.debug('resume')
+            self.cmd.auto(linuxcnc.AUTO_RESUME)
+
+    def TOGGLE_PAUSE(self):
+        if not STATUS.stat.paused:
+            self.cmd.auto(linuxcnc.AUTO_PAUSE)
+        else:
+            self.cmd.auto(linuxcnc.AUTO_RESUME)
+
+    def PAUSE_MACHINE(self):
+        if not STATUS.stat.paused:
+            self.cmd.auto(linuxcnc.AUTO_PAUSE)
+
+    def RESUME(self):
+        if STATUS.stat.paused:
             self.cmd.auto(linuxcnc.AUTO_RESUME)
 
     def SET_MAX_VELOCITY_RATE(self, rate):
@@ -659,17 +712,14 @@ class _Lcnc_Action(object):
 
     def SHUT_SYSTEM_DOWN_PROMPT(self):
         import subprocess
+        import shutil
         try:
-            try:
+            if shutil.which('gnome-session-quit'):
                 subprocess.call('gnome-session-quit --power-off', shell=True)
-            except:
-                try:
-                    subprocess.call('xfce4-session-logout', shell=True)
-                except:
-                    try:
-                        subprocess.call('systemctl poweroff', shell=True)
-                    except:
-                        raise
+            elif shutil.which('xfce4-session-logout'):
+                subprocess.call('xfce4-session-logout', shell=True)
+            else:
+                subprocess.call('systemctl poweroff', shell=True)
         except Exception as e:
             LOG.warning("Couldn't shut system down: {}".format(e))
 
@@ -678,9 +728,15 @@ class _Lcnc_Action(object):
         subprocess.call('shutdown now')
 
     def UPDATE_MACHINE_LOG(self, text, option=None):
-        if option not in ('TIME', 'DATE', 'DELETE', None):
-            LOG.warning("Machine_log option not recognized: {}".format(option))
-        STATUS.emit('update-machine-log', text, option)
+        valid_options = {'INITIAL', 'TIME', 'DATE', 'DELETE', 'CRITICAL', 'ERROR', 'WARNING', 'SUCCESS', 'DEBUG'}
+        options = set(option.split(',')) if option else {None}
+        
+        if not options.issubset(valid_options):
+            invalid_options = options - valid_options
+            LOG.warning("Machine_log option(s) not recognized: {}".format(', '.join(invalid_options)))
+            options = None
+    
+        STATUS.emit('update-machine-log', text, options)
 
     def CALL_DIALOG(self, command):
         try:
@@ -771,8 +827,10 @@ class _Lcnc_Action(object):
         self._touchoff_return = rtn_method
         self._touchoff_error_return = error_rtn
 
-        if self.proc is not None:
-            return 0
+        if not self.proc is None:
+            return "Touchoff routine is already running"
+        if not os.path.exists(self.TOUCHOFF_SUBPROGRAM):
+            return "Touchoff subroutine path not found at:{}".format(self.TOUCHOFF_SUBPROGRAM)
         self.proc = QProcess()
         self.proc.setReadChannel(QProcess.StandardOutput)
         self.proc.started.connect(self.touchoff_started)
@@ -806,7 +864,7 @@ class _Lcnc_Action(object):
         self.proc.readyReadStandardOutput.connect(self.read_stdout)
         self.proc.readyReadStandardError.connect(self.read_stderror)
         self.proc.finished.connect(self.touchoff_finished)
-        self.proc.start('python3 {}'.format(TOUCHOFF_SUBPROGRAM))
+        self.proc.start('python3 {}'.format(self.TOUCHOFF_SUBPROGRAM))
         # block polling here, the sub program will poll now
         STATUS.block_error_polling()
         self.proc.writeData(bytes(string_to_send, 'utf-8'))

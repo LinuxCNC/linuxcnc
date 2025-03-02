@@ -428,7 +428,7 @@ int hm2_pktuart_setup(char *name, unsigned int bitrate, rtapi_s32 tx_mode, rtapi
 
 
 EXPORT_SYMBOL_GPL(hm2_pktuart_send);
-int hm2_pktuart_send(char *name,  unsigned char data[], rtapi_u8 *num_frames, rtapi_u16 frame_sizes[])
+int hm2_pktuart_send(char *name, const unsigned char data[], rtapi_u8 *num_frames, const rtapi_u16 frame_sizes[])
 {
     hostmot2_t *hm2;
     rtapi_u32 buff;

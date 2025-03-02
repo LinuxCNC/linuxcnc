@@ -417,11 +417,17 @@ def toggle_continuous_clicked(self, state):
 
 [NOTE]
 Class patching (monkey patching) is a little like _black magic_ - so use it _only if needed_.
-
-The File manager widget is designed to load a selected program in LinuxCNC.
+The Major problem is if the widget library functions are changed during development, thw function might be broken. +
+The File manager widget is designed to load a selected program in LinuxCNC. +
 But maybe you want to print the file name first.
 
-We can "class patch" the library to _redirect the function call_.
+We can "class patch" the library to _redirect the function call_. +
+You can do this class patch inside or outside the HandlerClass instance. +
+This will change what 'self' represents in the function. +
+Outside the HanderClass, 'self' will be the patched class instance. +
+Inside the HanderClass, 'self' will be the HandlerClass instance. +
+This would change what functions/variables you can access in the function. +
+Here we show an inside the HandlerClass example: +
 In the `IMPORT SECTION` add:
 
 [source,python]
@@ -449,6 +455,7 @@ def class_patch__(self):
 +
 . _Write a custom function to replace the original_: +
   This function must have the *same signature as the original function*. +
+  'self' is the HandlerClass instance _not_ the patched class instance. +
   In this example we are still going to call the original function by using the reference to it we recorded earlier. +
   It _requires the first argument to be the widget instance_,
   which in this case is `self.w.filemanager` (the name given in the Qt Designer editor).
@@ -1019,4 +1026,38 @@ You must parse and define what is accepted and what to do with it.
         # set the camera number either as default or if -o option changed the 'number' variable, to that number.
         self.w.camview._camNum = number
 ----
+
+== Gcode to read qt preferences
+Here is how to create an Oword program to read a qtdragon preference file entry and add it as a gcode parameter +
+Calling this oword will update the param 'toolToLoad' +
+This uses 'Python hot comment' to communicate with the embedded python instance. +
+See the Remap section of the Documents for a description.
+
+[source,{ngc}]
+----
+(filename myofile.ngc)
+o<myofile> sub
+
+;py,from interpreter import *
+;py,import os
+;py,from qtvcp.lib.preferences import Access
+
+; find and print the preference file path
+;py,CONFPATH = os.environ.get('CONFIG_DIR', '/dev/null')
+; adjust for your preference file name
+;py,PREFFILE = os.path.join(CONFPATH,'qtdragon.pref')
+;py,print(PREFFILE)
+
+; get an preference instance
+;py,Pref = Access(PREFFILE)
+
+; load a preference and print it
+;py,this.params['toolToLoad']=Pref.getpref('Tool to load', 0, int,'CUSTOM_FORM_ENTRIES')
+;py,print('Tool to load->:',this.params['toolToLoad'])
+
+; return the value
+o<myofile> endsub [#<toolToLoad>]
+M2
+----
+
 // vim: set syntax=asciidoc:

@@ -15,6 +15,7 @@
 # GNU General Public License for more details.
 
 import sys, os, linuxcnc, hashlib
+import shutil # for backup of tooltable
 datadir = os.path.abspath(os.path.dirname(__file__))
 KEYWORDS = ['S','T', 'P', 'X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W', 'D', 'I', 'J', 'Q', ';']
 
@@ -307,7 +308,7 @@ class ToolEdit(Gtk.Box):
                                 print(_("Tooledit widget float error"))
                         else:
                             try:
-                                array[offset]= locale.format_string("%10.4f", float(word.lstrip(i)))
+                                array[offset]= f"{float(word.lstrip(i)):10.4f}"
                             except:
                                 print(_("Tooledit widget float error"))
                         break
@@ -316,7 +317,6 @@ class ToolEdit(Gtk.Box):
             # add array line to liststore
             self.add(None,array)
 
-        # Note we have to save the float info with a decimal even if the locale uses a comma
     def save(self,widget):
         if self.toolfile == None:return
         liststore = self.model
@@ -330,6 +330,11 @@ class ToolEdit(Gtk.Box):
                 self.warning_dialog(line_number)
                 return
 
+        if(locale.getlocale(locale.LC_NUMERIC)[0] is None):
+            raise ExceptionMessage("\n\n"+_("Something wrong with the locale settings. Will not save the tool table."))
+            return
+
+        shutil.copy(self.toolfile, self.toolfile + ".bak")
         file = open(self.toolfile, "w")
         #print self.toolfile
         for row in liststore:
@@ -344,8 +349,12 @@ class ToolEdit(Gtk.Box):
                     test = i.strip()
                     line = line + "%s%s "%(KEYWORDS[num],test)
                 else:
-                    test = i.lstrip() # localized floats
-                    line = line + "%s%s "%(KEYWORDS[num], locale.atof(test))
+                    test = i.lstrip()
+                    try:
+                        line = line + "%s%s "%(KEYWORDS[num], float(test))
+                    except ValueError:
+                        raise ExceptionMessage("\n\n"+_("Error converting a float with the given localization setting. A backup file has been created: "
+                                                    + self.toolfile + ".bak"))
 
             print(line, file=file)
         # These lines are required to make sure the OS doesn't cache the data
@@ -467,7 +476,7 @@ class ToolEdit(Gtk.Box):
         # validate input for float columns
         elif col in range(3,15):
             try:
-                self.model[path][col] = locale.format("%10.4f",locale.atof(new_text))
+                self.model[path][col] = f"{float(new_text.replace(',', '.')):10.4f}"
             except:
                 pass
         # validate input for orientation: check if int and valid range
@@ -694,6 +703,12 @@ class ToolEdit(Gtk.Box):
         else:
             pass
 
+class ExceptionMessage(Exception):
+    """ Exception to display a Message as an Eception.
+    Usage: raise ExceptionMessage(<message>)
+    """
+    def __init__(self, message):
+        super().__init__(message)
 
 # for testing without glade editor:
 # for what ever reason tooledit always shows both display lists,

@@ -292,6 +292,7 @@ XhcWhb04b6Component::XhcWhb04b6Component() :
     packageReceivedEventReceiver(*this),
     mPendant(mHal, mUsb.getOutputPackageData())
 {
+    (void)packageReceivedEventReceiver;
     setSimulationMode(true);
     enableVerbosePendant(false);
     enableVerboseRx(false);

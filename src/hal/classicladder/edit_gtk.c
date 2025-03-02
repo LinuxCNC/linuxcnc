@@ -248,6 +248,9 @@ void ButtonCancelCurrentRung()
 
 gint EditorWindowDeleteEvent( GtkWidget * widget, GdkEvent * event, gpointer data )
 {
+	(void)widget;
+	(void)event;
+	(void)data;
 	gtk_widget_hide( EditWindow );
 	SetToggleMenuForEditorWindow( FALSE/*OpenedWin*/ );
 	// we do not want that the window be destroyed.
@@ -387,7 +390,7 @@ void InitAllForToolbar( void )
 
 void CreateOneToolbar( GtkWidget * Box, int NumTable, char * PtrOnToolTipsText[][NBR_ELE_TOOLBAR_X_MAX] )
 {
-	StrElement ToolBarEle;
+	StrElement ToolBarEle = {};
 	int ScanToolBarX,ScanToolBarY;
 	GSList * PtrListRadiosBtn = NULL;
 	StrToolbarDatas * pToolbarDatas = &ToolbarDatas[ NumTable ];

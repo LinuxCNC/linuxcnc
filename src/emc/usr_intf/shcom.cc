@@ -959,7 +959,9 @@ int sendProgramOpen(char *program)
             rcs_print_error("fseek(%s) error: %s\n", program, strerror(errno));
             return -1;
         }
-        if((msg.remote_filesize = ftell(fd)) < 0) {
+        long ftpos = ftell(fd);
+        msg.remote_filesize = ftpos;
+        if(ftpos < 0) {
             fclose(fd);
             rcs_print_error("ftell(%s) error: %s\n", program, strerror(errno));
             return -1;
@@ -1181,7 +1183,7 @@ int sendJointSetBacklash(int joint, double backlash)
     return 0;
 }
 
-int sendJointLoadComp(int joint, const char *file, int type)
+int sendJointLoadComp(int /*joint*/, const char *file, int type)
 {
     EMC_JOINT_LOAD_COMP emc_joint_load_comp_msg;
 
@@ -1300,14 +1302,14 @@ int iniLoad(const char *filename)
 
     // set flags if RCS_DEBUG in ini file
     if ((inistring = inifile.Find("RCS_DEBUG", "EMC"))) {
-        static long int flags;
+        long unsigned int flags;
         if (sscanf(*inistring, "%lx", &flags) < 1) {
             perror("failed to parse [EMC] RCS_DEBUG");
         }
         // clear all flags
         clear_rcs_print_flag(PRINT_EVERYTHING);
         // set parsed flags
-        set_rcs_print_flag(flags);
+        set_rcs_print_flag((long)flags);
     }
     // output infinite RCS errors by default
     max_rcs_errors_to_print = -1;
@@ -1322,18 +1324,19 @@ int iniLoad(const char *filename)
 	    strncpy(version, *inistring, LINELEN-1);
     }
 
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        if ((inistring = inifile.Find("MACHINE", "EMC"))) {
+            strncpy(machine, *inistring, LINELEN-1);
+        } else {
+            strncpy(machine, "unknown", LINELEN-1);
+        }
 
-    if ((inistring = inifile.Find("MACHINE", "EMC"))) {
-	    strncpy(machine, *inistring, LINELEN-1);
-    } else {
-	    strncpy(machine, "unknown", LINELEN-1);
+        extern char *program_invocation_short_name;
+        rcs_print(
+            "%s (%d) shcom: machine '%s'  version '%s'\n",
+            program_invocation_short_name, getpid(), machine, version
+        );
     }
-
-    extern char *program_invocation_short_name;
-    rcs_print(
-        "%s (%d) shcom: machine '%s'  version '%s'\n",
-        program_invocation_short_name, getpid(), machine, version
-    );
 
     if ((inistring = inifile.Find("NML_FILE", "EMC"))) {
 

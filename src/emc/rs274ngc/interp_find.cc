@@ -722,6 +722,7 @@ int Interp::find_tool_index(setup_pointer settings, int toolno, int *index)
         return INTERP_OK;
     }
 #else //}{
+    (void)settings;
     // special case is included in tooldata_find_index_for_tool()
 #endif //}
 
@@ -739,6 +740,7 @@ int Interp::find_tool_pocket(setup_pointer settings, int toolno, int *pocket)
         return INTERP_OK;
     }
 #else //}{
+    (void)settings;
     // special case is included in tooldata_find_index_for_tool()
 #endif //}
     int idx = tooldata_find_index_for_tool(toolno);

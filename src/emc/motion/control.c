@@ -340,6 +340,7 @@ static void handle_kinematicsSwitch(void) {
                ,anum,beforePose[anum],*pcmd_p[anum],*pcmd_p[anum]-beforePose[anum]);
     }
 #endif
+    axis_apply_ext_offsets_to_carte_pos(-1, pcmd_p);
     tpSetPos(&emcmotInternal->coord_tp, &emcmotStatus->carte_pos_cmd);
 } //handle_kinematicsSwitch()
 
@@ -380,11 +381,11 @@ static void process_inputs(void)
     if ( enables & AF_ENABLED ) {
         /* read and clamp adaptive feed HAL pin */
         double adaptive_feed_in = *emcmot_hal_data->adaptive_feed;
-        // Clip range to +/- 1.0
-        if ( adaptive_feed_in > 1.0 ) {
-            adaptive_feed_in = 1.0;
-        } else if (adaptive_feed_in < -1.0) {
-            adaptive_feed_in = -1.0;
+        // Clip range to +/- MAX_FEED_OVERRIDE from the [DISPLAY] section of the ini file
+        if (adaptive_feed_in > emcmotConfig->maxFeedScale) {
+            adaptive_feed_in = emcmotConfig->maxFeedScale;
+        } else if (adaptive_feed_in < -emcmotConfig->maxFeedScale) {
+            adaptive_feed_in = -emcmotConfig->maxFeedScale;
         }
         // Handle case of negative adaptive feed
         // Actual scale factor is always positive by default
@@ -1399,6 +1400,13 @@ static void get_pos_cmds(long period)
 
         axis_sync_carte_pos_to_teleop_tp(+1, pcmd_p); // teleop
 
+	if ( axis_jog_is_active() ) {
+	    /* is any limit disabled for this move? */
+	    if ( emcmotStatus->overrideLimitMask ) {
+		emcmotInternal->overriding = 1;
+	    }
+	}
+
 	/* the next position then gets run through the inverse kins,
 	    to compute the next positions of the joints */
 
@@ -1439,7 +1447,14 @@ static void get_pos_cmds(long period)
 
 	/* END OF OUTPUT KINS */
 
+	/* if overriding is true and the jog is complete, the limits should be re-enabled */
+	if ( ( emcmotInternal->overriding ) && ( !axis_jog_is_active() ) ) {
+	    emcmotStatus->overrideLimitMask = 0;
+	    emcmotInternal->overriding = 0;
+	}
+
 	/* end of teleop mode */
+
 	break;
 
     case EMCMOT_MOTION_DISABLED:
@@ -1471,6 +1486,11 @@ static void get_pos_cmds(long period)
     for (joint_num = 0; joint_num < ALL_JOINTS; joint_num++) {
 	/* point to joint data */
 	joint = &joints[joint_num];
+	
+	/* Zero values */
+	joint_limit[joint_num][0] = 0;
+	joint_limit[joint_num][1] = 0;
+	
 	/* skip inactive or unhomed axes */
 	if ((!GET_JOINT_ACTIVE_FLAG(joint)) || (!get_homed(joint_num))) {
 	    continue;

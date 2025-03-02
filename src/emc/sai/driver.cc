@@ -560,7 +560,6 @@ int main (int argc, char ** argv)
   print_stack = OFF;
   tool_flag = 0;
   SET_PARAMETER_FILE_NAME(default_name);
-  _outfile = stdout; /* may be reset below */
   go_flag = 0;
 
 #ifdef TOOL_NML //{

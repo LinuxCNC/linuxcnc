@@ -9,7 +9,7 @@ tap                     = qtplasmac_gcode
 RS274NGC_STARTUP_CODE   = G21 G40 G49 G80 G90 G92.1 G94 G97 M52P1
 PARAMETER_FILE          = metric_parameters.txt
 SUBROUTINE_PATH         = ./:../../nc_files
-USER_M_PATH             = ./:../../nc_files/plasmac/m_files
+USER_M_PATH             = ./:../../nc_files/examples/plasmac/m_files:../../nc_files/plasmac/m_files
 
 [HAL]
 TWOPASS                 = ON
@@ -27,8 +27,6 @@ MACHINE                 = qtplasmac-metric
 DEBUG                   = 0
 
 [EMCIO]
-EMCIO                   = io
-CYCLE_TIME              = 0.100
 TOOL_TABLE              = metric_tool.tbl
 
 [TASK]

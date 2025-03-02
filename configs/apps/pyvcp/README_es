@@ -1,9 +1,0 @@
-﻿Demostración de algunos pyvcp_widgets
-
-Notas:
-
-El widget de barra cambia de color en ciertos rangos de valores.
-
-El valor de las casillas de selección y los diales se puede cambiar utilizando señales HAL.
-
-multilabel cambiará el texto dependiendo de la señal HAL.

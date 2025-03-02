@@ -83,12 +83,16 @@ class ToolBarActions():
             STATUS.connect('state-on', lambda w: widget.setChecked(True))
             STATUS.connect('state-off', lambda w: widget.setChecked(False))
             function = (self.actOnPower)
-        elif action == 'load':
+        elif action == 'load_restricted':
             STATUS.connect('state-off', lambda w: widget.setEnabled(False))
             STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
             STATUS.connect('interp-idle', lambda w: widget.setEnabled(STATUS.machine_is_on()))
             STATUS.connect('interp-run', lambda w: widget.setEnabled(False))
             STATUS.connect('all-homed', lambda w: widget.setChecked(True))
+            function = (self.actOnLoad)
+        elif action == 'load':
+            STATUS.connect('interp-idle', lambda w: widget.setEnabled(True))
+            STATUS.connect('interp-run', lambda w: widget.setEnabled(False))
             function = (self.actOnLoad)
         elif action == 'reload':
             STATUS.connect('state-off', lambda w: widget.setEnabled(False))
@@ -232,6 +236,8 @@ class ToolBarActions():
             function = (self.actOnSystemShutdown)
         elif action == 'tooloffsetdialog':
             function = (self.actOnToolOffsetDialog)
+        elif action == 'toolchooserdialog':
+            function = (self.actOnToolChooserDialog)
         elif action == 'originoffsetdialog':
             function = (self.actOnOriginOffsetDialog)
         elif action == 'calculatordialog':
@@ -350,6 +356,12 @@ class ToolBarActions():
             STATUS.connect('interp-run', lambda w: widget.setEnabled(False))
             self.addUnHomeActions(widget)
         elif submenu == 'recent_submenu':
+            self._recentActionWidget = widget
+            STATUS.connect('interp-idle', lambda w: widget.setEnabled(True))
+            STATUS.connect('interp-run', lambda w: widget.setEnabled(False))
+            STATUS.connect('file-loaded', lambda w, d: self.updateRecentPaths(widget, d))
+            self.addRecentPaths()
+        elif submenu == 'recent_submenu_restricted':
             self._recentActionWidget = widget
             STATUS.connect('state-off', lambda w: widget.setEnabled(False))
             STATUS.connect('state-estop', lambda w: widget.setEnabled(False))
@@ -574,13 +586,16 @@ class ToolBarActions():
         STATUS.emit('dialog-request', {'NAME': 'RUNFROMLINE', 'LINE':self.selected_line})
         #ACTION.RUN(self.selected_line)
 
-    def actOnToolOffsetDialog(self, wudget, state=None):
+    def actOnToolChooserDialog(self, widget, state=None):
+        STATUS.emit('dialog-request', {'NAME': 'TOOLCHOOSER'})
+
+    def actOnToolOffsetDialog(self, widget, state=None):
         STATUS.emit('dialog-request', {'NAME': 'TOOLOFFSET'})
 
-    def actOnOriginOffsetDialog(self, wudget, state=None):
+    def actOnOriginOffsetDialog(self, widget, state=None):
         STATUS.emit('dialog-request', {'NAME': 'ORIGINOFFSET'})
 
-    def actOnCalculatorDialog(self, wudget, state=None):
+    def actOnCalculatorDialog(self, widget, state=None):
         STATUS.emit('dialog-request', {'NAME': 'CALCULATOR'})
 
     def actOnAlphaMode(self, widget, state):

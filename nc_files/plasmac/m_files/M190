@@ -3,8 +3,8 @@
 '''
 M190
 
-Copyright (C) 2019, 2020, 2021, 2023 Phillip A Carter
-Copyright (C) 2020, 2021, 2022, 2023 Gregory D Carl
+Copyright (C) 2019 - 2024 Phillip A Carter
+Copyright (C) 2020 - 2024 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -28,22 +28,28 @@ from subprocess import run as RUN
 materialNum = int(float(sys.argv[1]))
 timeout = 0.5
 
+
 def get_material():
-    response = RUN(['halcmd', 'getp', 'qtplasmac.material_change_number'], capture_output = True)
+    response = RUN(['halcmd', 'getp', 'qtplasmac.material_change_number'], capture_output=True)
     return int(response.stdout.decode())
+
 
 def set_material(material):
     RUN(['halcmd', 'setp', 'qtplasmac.material_change_number', f'{material}'])
 
+
 def get_change():
-    response = RUN(['halcmd', 'getp', 'qtplasmac.material_change'], capture_output = True)
+    response = RUN(['halcmd', 'getp', 'qtplasmac.material_change'], capture_output=True)
     return int(response.stdout.decode())
+
 
 def set_change(value):
     RUN(['halcmd', 'setp', 'qtplasmac.material_change', f'{value}'])
 
+
 def set_timeout():
     RUN(['halcmd', 'setp', 'qtplasmac.material_change_timeout', 1])
+
 
 try:
     if materialNum != get_material():

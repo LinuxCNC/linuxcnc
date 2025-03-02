@@ -6,7 +6,7 @@ enum - enumerate integer values into bits
 
 == SYNOPSIS
 
-*loadrt enum enums=E;enum1pin1;enum1pin2;;;enum1pin3,D;;;enum2pin1;enum2pin2 [names=name1,name2]*
+**loadrt enum enums=**E;enum1pin1;enum1pin2;;;enum1pin3,D;;;enum2pin1;enum2pin2 [**names=**_name1_,_name2_]
 
 == DESCRIPTION
 
@@ -14,8 +14,8 @@ enum - enumerate integer values into bits
 
 The component is especially suitable for encoding and decoding register
 values for modbus devices, where control commands and status are frequently
-encoded as enumerations rather than bits. For example 0 = stop, 1 =
-forwards, 2 = backwards, 3 = jog-forwards etc.
+encoded as enumerations rather than bits.
+For example, 0 = stop, 1 = forwards, 2 = backwards, 3 = jog-forwards etc.
 
 The pins created and the behaviour of the component are controlled by
 the load-time modparams "enums=" and "names="
@@ -52,32 +52,31 @@ E and D-type enumerations may be freely mixed in separate instances.
 
 == FUNCTIONS
 
-*enum-decode._NN_* - if instance type = "D"
+**enum-decode.**_NN_:: if instance type = "D"
 
-*enum-encode._NN_* - if instance type = "E"
+**enum-encode.**_NN_:: if instance type = "E"
 
 == PINS
 
-*enum-decode._NN_.input* - The integer value to be decoded
+**enum-decode.**_NN_.input:: The integer value to be decoded
 
-*enum-decode._NN_.label-out* -  output bits of a decode instance
+**enum-decode.**_NN_.label-out::  Output bits of a decode instance
 
-*enum-decode._NN_.label-val* -  The enumeration value corresponding to
+**enum-decode.**_NN_.label-val::  The enumeration value corresponding to
                                 each specific bit output. These are
                                 populated in sequence during loading
                                 but may be over-ridden in HAL if
                                 convenient.
 
-*enum-encode._NN_.label-in*  -  input bits of a decode instance
+**enum-encode.**_NN_**.label-in**::  input bits of a decode instance
 
-*enum-encode._NN_.label-val* -  The enumeration value corresponding to
+**enum-encode.**_NN_**.label-val**::  The enumeration value corresponding to
                                 each specified bit input. These are
                                 populated in sequence during loading
                                 but may be over-ridden in HAL if
                                 convenient.
                                 
-*enum-decode._NN_.output* - The integer value corresponding to the
-                                set bit input.
+**enum-decode.**_NN_**.output**:: The integer value corresponding to the set bit input.
 
 == BUGS
 
@@ -89,11 +88,14 @@ defined enumeration.
 Andy Pugh
 
 == REPORTING BUGS
-Report bugs to at the LinuxCNC github issues list:
-https://github.com/LinuxCNC/linuxcnc/issues
+
+Report bugs at https://github.com/LinuxCNC/linuxcnc/issues.
 
 == COPYRIGHT
-Copyright © 2023 Andy Pugh.  This is free software; see the
-source for copying conditions.  There is NO warranty; not even for
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+Copyright © 2023 Andy Pugh.
+
+This is free software; see the source for copying conditions.  There
+is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.
 

@@ -2,7 +2,7 @@ Source: linuxcnc
 Section: misc
 Priority: optional
 Maintainer: LinuxCNC Developers <emc-developers@lists.sourceforge.net>
-Uploaders: Jeff Epler <jepler@gmail.com>, Sebastian Kuzminsky <seb@highlab.com>
+Uploaders: Sebastian Kuzminsky <seb@highlab.com>
 Build-Depends:
     @DEBHELPER@,
     @PYTHON_PACKAGING_DEPENDS@,
@@ -13,6 +13,7 @@ Build-Depends:
     docbook-xsl,
     asciidoc,
     ghostscript,
+    groff-base,
     imagemagick,
     asciidoc-dblatex,
     autoconf,
@@ -33,6 +34,7 @@ Build-Depends:
     libusb-1.0-0-dev,
     libxmu-dev,
     netcat-traditional | netcat-openbsd | netcat,
+    netpbm,
     po4a,
     procps,
     psmisc,
@@ -43,12 +45,12 @@ Build-Depends:
     tcl@TCLTK_VERSION@-dev,
     tclx,
     tk@TCLTK_VERSION@-dev,
-    xvfb,
+    xvfb <!nocheck>,
     yapps2
 Build-Depends-Indep:
     @DOC_DEPENDS@,
-Build-Conflict: libjpeg8-dev, libtiff4-dev
-Standards-Version: 4.6.1
+Build-Conflicts: libjpeg8-dev, libtiff4-dev
+Standards-Version: 4.7.0
 Homepage: https://linuxcnc.org/
 Vcs-Browser: https://github.com/LinuxCNC/linuxcnc
 Vcs-Git: https://github.com/LinuxCNC/linuxcnc.git

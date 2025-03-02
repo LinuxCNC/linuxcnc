@@ -102,7 +102,7 @@ struct pyErrorChannel {
 
 static PyObject *m = NULL, *error = NULL;
 
-static int Ini_init(pyIniFile *self, PyObject *a, PyObject *k) {
+static int Ini_init(pyIniFile *self, PyObject *a, PyObject * /*k*/) {
     char *inifile;
     if(!PyArg_ParseTuple(a, "s", &inifile)) return -1;
 
@@ -155,7 +155,7 @@ static PyMethodDef Ini_methods[] = {
     {"findall", (PyCFunction)Ini_findall, METH_VARARGS,
         "Find value in inifile as a list.  This uses the ConfigParser-style "
         "(section,option) order, not the linuxcnc order."},
-    {NULL}
+    {}
 };
 
 static PyTypeObject Ini_Type = {
@@ -200,6 +200,20 @@ static PyTypeObject Ini_Type = {
     PyType_GenericNew,      /*tp_new*/
     0,                      /*tp_free*/
     0,                      /*tp_is_gc*/
+    0,                      /*tp_bases*/
+    0,                      /*tp_mro*/
+    0,                      /*tp_cache*/
+    0,                      /*tp_subclasses*/
+    0,                      /*tp_weaklink*/
+    0,                      /*tp_del*/
+    0,                      /*tp_version_tag*/
+    0,                      /*tp_finalize*/
+#if PY_VERSION_HEX >= 0x030800f0	// 3.8
+    0,                      /*tp_vectorcall*/
+#if PY_VERSION_HEX >= 0x030c00f0	// 3.12
+    0,                      /*tp_watched*/
+#endif
+#endif
 };
 
 #define EMC_COMMAND_TIMEOUT 5.0  // how long to wait until timeout
@@ -251,7 +265,7 @@ static const char *get_nmlfile(void) {
     return PyUnicode_AsUTF8(fileobj);
 }
 
-static int Stat_init(pyStatChannel *self, PyObject *a, PyObject *k) {
+static int Stat_init(pyStatChannel *self, PyObject * /*a*/, PyObject * /*k*/) {
     const char *file = get_nmlfile();
     if(file == NULL) return -1;
 
@@ -281,7 +295,7 @@ static bool check_stat(RCS_STAT_CHANNEL *emcStatusBuffer) {
 
 static bool initialized=0;
 
-static PyObject *poll(pyStatChannel *s, PyObject *o) {
+static PyObject *poll(pyStatChannel *s, PyObject * /*o*/) {
 #ifdef TOOL_NML //{
     if (!initialized) {
       //fprintf(stderr,"%8d tool_nml_register\n",getpid());
@@ -329,7 +343,7 @@ static void dict_add(PyObject *d, const char *name, int v) {
     Py_XDECREF(o);
 }
 
-static PyObject *toolinfo(pyStatChannel *s, PyObject *o) {
+static PyObject *toolinfo(pyStatChannel * /*s*/, PyObject *o) {
     /*Note: this method uses the tooldata interface and is included
     **      as a Stat method for convenience.
     **      pyStatChannel is not used but an initial stat poll()
@@ -395,18 +409,18 @@ static PyMethodDef Stat_methods[] = {
          "   returns dict for toolnumber parameters (pocket,offsets,etc)\n"
          "   ValueError Exception if toolnumber not available"
     },
-    {NULL}
+    {}
 };
 
 #define O(x) offsetof(pyStatChannel,status.x)
 static PyMemberDef Stat_members[] = {
 // stat
-    {(char*)"echo_serial_number", T_INT, O(echo_serial_number), READONLY},
-    {(char*)"echo_serial_number", T_INT, O(echo_serial_number), READONLY},
-    {(char*)"state", T_INT, O(status), READONLY},
+    {(char*)"echo_serial_number", T_INT, O(echo_serial_number), READONLY, NULL},
+    {(char*)"echo_serial_number", T_INT, O(echo_serial_number), READONLY, NULL},
+    {(char*)"state", T_INT, O(status), READONLY, NULL},
 
 // task
-    {(char*)"task_mode", T_INT, O(task.mode), READONLY},
+    {(char*)"task_mode", T_INT, O(task.mode), READONLY, NULL},
     {(char*)"task_state", T_INT, O(task.state), READONLY,
         "Current Task state.  Possible values:\n"
         "    STATE_ESTOP: E-Stop is active.\n"
@@ -414,61 +428,61 @@ static PyMemberDef Stat_members[] = {
         "    STATE_OFF: Same as STATE_ESTOP_RESET, this one is not used.\n"
         "    STATE_ON: Machine is out of E-Stop and is powered on.\n"
     },
-    {(char*)"exec_state", T_INT, O(task.execState), READONLY},
-    {(char*)"interp_state", T_INT, O(task.interpState), READONLY},
-    {(char*)"call_level", T_INT, O(task.callLevel), READONLY},
-    {(char*)"read_line", T_INT, O(task.readLine), READONLY},
-    {(char*)"motion_line", T_INT, O(task.motionLine), READONLY},
-    {(char*)"current_line", T_INT, O(task.currentLine), READONLY},
-    {(char*)"file", T_STRING_INPLACE, O(task.file), READONLY},
-    {(char*)"command", T_STRING_INPLACE, O(task.command), READONLY},
-    {(char*)"program_units", T_INT, O(task.programUnits), READONLY},
-    {(char*)"interpreter_errcode", T_INT, O(task.interpreter_errcode), READONLY},
-    {(char*)"optional_stop", T_BOOL, O(task.optional_stop_state), READONLY},
-    {(char*)"block_delete", T_BOOL, O(task.block_delete_state), READONLY},
-    {(char*)"task_paused", T_INT, O(task.task_paused), READONLY},
-    {(char*)"input_timeout", T_BOOL, O(task.input_timeout), READONLY},
-    {(char*)"rotation_xy", T_DOUBLE, O(task.rotation_xy), READONLY},
-    {(char*)"ini_filename", T_STRING_INPLACE, O(task.ini_filename), READONLY},
-    {(char*)"delay_left", T_DOUBLE, O(task.delayLeft), READONLY},
+    {(char*)"exec_state", T_INT, O(task.execState), READONLY, NULL},
+    {(char*)"interp_state", T_INT, O(task.interpState), READONLY, NULL},
+    {(char*)"call_level", T_INT, O(task.callLevel), READONLY, NULL},
+    {(char*)"read_line", T_INT, O(task.readLine), READONLY, NULL},
+    {(char*)"motion_line", T_INT, O(task.motionLine), READONLY, NULL},
+    {(char*)"current_line", T_INT, O(task.currentLine), READONLY, NULL},
+    {(char*)"file", T_STRING_INPLACE, O(task.file), READONLY, NULL},
+    {(char*)"command", T_STRING_INPLACE, O(task.command), READONLY, NULL},
+    {(char*)"program_units", T_INT, O(task.programUnits), READONLY, NULL},
+    {(char*)"interpreter_errcode", T_INT, O(task.interpreter_errcode), READONLY, NULL},
+    {(char*)"optional_stop", T_BOOL, O(task.optional_stop_state), READONLY, NULL},
+    {(char*)"block_delete", T_BOOL, O(task.block_delete_state), READONLY, NULL},
+    {(char*)"task_paused", T_INT, O(task.task_paused), READONLY, NULL},
+    {(char*)"input_timeout", T_BOOL, O(task.input_timeout), READONLY, NULL},
+    {(char*)"rotation_xy", T_DOUBLE, O(task.rotation_xy), READONLY, NULL},
+    {(char*)"ini_filename", T_STRING_INPLACE, O(task.ini_filename), READONLY, NULL},
+    {(char*)"delay_left", T_DOUBLE, O(task.delayLeft), READONLY, NULL},
     {(char*)"queued_mdi_commands", T_INT, O(task.queuedMDIcommands), READONLY, (char*)"Number of MDI commands queued waiting to run." },
 
 //   EMC_TRAJ_STAT traj
-    {(char*)"linear_units", T_DOUBLE, O(motion.traj.linearUnits), READONLY},
-    {(char*)"angular_units", T_DOUBLE, O(motion.traj.angularUnits), READONLY},
-    {(char*)"cycle_time", T_DOUBLE, O(motion.traj.cycleTime), READONLY},
-    {(char*)"joints", T_INT, O(motion.traj.joints), READONLY},
-    {(char*)"spindles", T_INT, O(motion.traj.spindles), READONLY},
-    {(char*)"axis_mask", T_INT, O(motion.traj.axis_mask), READONLY},
+    {(char*)"linear_units", T_DOUBLE, O(motion.traj.linearUnits), READONLY, NULL},
+    {(char*)"angular_units", T_DOUBLE, O(motion.traj.angularUnits), READONLY, NULL},
+    {(char*)"cycle_time", T_DOUBLE, O(motion.traj.cycleTime), READONLY, NULL},
+    {(char*)"joints", T_INT, O(motion.traj.joints), READONLY, NULL},
+    {(char*)"spindles", T_INT, O(motion.traj.spindles), READONLY, NULL},
+    {(char*)"axis_mask", T_INT, O(motion.traj.axis_mask), READONLY, NULL},
     {(char*)"motion_mode", T_INT, O(motion.traj.mode), READONLY, (char*)"The current mode of the Motion controller.  One of TRAJ_MODE_FREE,\n"
         "TRAJ_MODE_COORD, or TRAJ_MODE_TELEOP." },
-    {(char*)"enabled", T_BOOL, O(motion.traj.enabled), READONLY},
-    {(char*)"inpos", T_BOOL, O(motion.traj.inpos), READONLY},
-    {(char*)"queue", T_INT, O(motion.traj.queue), READONLY},
-    {(char*)"active_queue", T_INT, O(motion.traj.activeQueue), READONLY},
-    {(char*)"queue_full", T_BOOL, O(motion.traj.queueFull), READONLY},
-    {(char*)"motion_id", T_INT, O(motion.traj.id), READONLY},
-    {(char*)"paused", T_BOOL, O(motion.traj.paused), READONLY},
-    {(char*)"feedrate", T_DOUBLE, O(motion.traj.scale), READONLY},
-    {(char*)"rapidrate", T_DOUBLE, O(motion.traj.rapid_scale), READONLY},
-    {(char*)"velocity", T_DOUBLE, O(motion.traj.velocity), READONLY},
-    {(char*)"acceleration", T_DOUBLE, O(motion.traj.acceleration), READONLY},
-    {(char*)"max_velocity", T_DOUBLE, O(motion.traj.maxVelocity), READONLY},
-    {(char*)"max_acceleration", T_DOUBLE, O(motion.traj.maxAcceleration), READONLY},
-    {(char*)"probe_tripped", T_BOOL, O(motion.traj.probe_tripped), READONLY},
-    {(char*)"probing", T_BOOL, O(motion.traj.probing), READONLY},
-    {(char*)"probe_val", T_INT, O(motion.traj.probeval), READONLY},
-    {(char*)"kinematics_type", T_INT, O(motion.traj.kinematics_type), READONLY},
+    {(char*)"enabled", T_BOOL, O(motion.traj.enabled), READONLY, NULL},
+    {(char*)"inpos", T_BOOL, O(motion.traj.inpos), READONLY, NULL},
+    {(char*)"queue", T_INT, O(motion.traj.queue), READONLY, NULL},
+    {(char*)"active_queue", T_INT, O(motion.traj.activeQueue), READONLY, NULL},
+    {(char*)"queue_full", T_BOOL, O(motion.traj.queueFull), READONLY, NULL},
+    {(char*)"motion_id", T_INT, O(motion.traj.id), READONLY, NULL},
+    {(char*)"paused", T_BOOL, O(motion.traj.paused), READONLY, NULL},
+    {(char*)"feedrate", T_DOUBLE, O(motion.traj.scale), READONLY, NULL},
+    {(char*)"rapidrate", T_DOUBLE, O(motion.traj.rapid_scale), READONLY, NULL},
+    {(char*)"velocity", T_DOUBLE, O(motion.traj.velocity), READONLY, NULL},
+    {(char*)"acceleration", T_DOUBLE, O(motion.traj.acceleration), READONLY, NULL},
+    {(char*)"max_velocity", T_DOUBLE, O(motion.traj.maxVelocity), READONLY, NULL},
+    {(char*)"max_acceleration", T_DOUBLE, O(motion.traj.maxAcceleration), READONLY, NULL},
+    {(char*)"probe_tripped", T_BOOL, O(motion.traj.probe_tripped), READONLY, NULL},
+    {(char*)"probing", T_BOOL, O(motion.traj.probing), READONLY, NULL},
+    {(char*)"probe_val", T_INT, O(motion.traj.probeval), READONLY, NULL},
+    {(char*)"kinematics_type", T_INT, O(motion.traj.kinematics_type), READONLY, NULL},
     {(char*)"motion_type", T_INT, O(motion.traj.motion_type), READONLY, (char*)"The type of the currently executing motion (one of MOTION_TYPE_TRAVERSE,\n"
         "MOTION_TYPE_FEED, MOTION_TYPE_ARC, MOTION_TYPE_TOOLCHANGE,\n"
         "MOTION_TYPE_PROBING, or MOTION_TYPE_INDEXROTARY), or 0 if no motion is\n"
         "currently taking place."},
-    {(char*)"distance_to_go", T_DOUBLE, O(motion.traj.distance_to_go), READONLY},
-    {(char*)"current_vel", T_DOUBLE, O(motion.traj.current_vel), READONLY},
-    {(char*)"feed_override_enabled", T_BOOL, O(motion.traj.feed_override_enabled), READONLY},
-    {(char*)"adaptive_feed_enabled", T_BOOL, O(motion.traj.adaptive_feed_enabled), READONLY},
-    {(char*)"feed_hold_enabled", T_BOOL, O(motion.traj.feed_hold_enabled), READONLY},
-    {(char*)"num_extrajoints", T_INT, O(motion.numExtraJoints), READONLY},
+    {(char*)"distance_to_go", T_DOUBLE, O(motion.traj.distance_to_go), READONLY, NULL},
+    {(char*)"current_vel", T_DOUBLE, O(motion.traj.current_vel), READONLY, NULL},
+    {(char*)"feed_override_enabled", T_BOOL, O(motion.traj.feed_override_enabled), READONLY, NULL},
+    {(char*)"adaptive_feed_enabled", T_BOOL, O(motion.traj.adaptive_feed_enabled), READONLY, NULL},
+    {(char*)"feed_hold_enabled", T_BOOL, O(motion.traj.feed_hold_enabled), READONLY, NULL},
+    {(char*)"num_extrajoints", T_INT, O(motion.numExtraJoints), READONLY, NULL},
 
 
 // EMC_SPINDLE_STAT motion.spindle
@@ -491,14 +505,14 @@ static PyMemberDef Stat_members[] = {
     },
 
 // EMC_COOLANT_STAT io.cooland
-    {(char*)"mist", T_INT, O(io.coolant.mist), READONLY},
-    {(char*)"flood", T_INT, O(io.coolant.flood), READONLY},
+    {(char*)"mist", T_INT, O(io.coolant.mist), READONLY, NULL},
+    {(char*)"flood", T_INT, O(io.coolant.flood), READONLY, NULL},
 
 // EMC_AUX_STAT     io.aux
-    {(char*)"estop", T_INT, O(io.aux.estop), READONLY},
+    {(char*)"estop", T_INT, O(io.aux.estop), READONLY, NULL},
 
-    {(char*)"debug", T_INT, O(debug), READONLY},
-    {NULL}
+    {(char*)"debug", T_INT, O(debug), READONLY, NULL},
+    {}
 };
 
 static PyObject *int_array(int *arr, int sz) {
@@ -531,35 +545,35 @@ static PyObject *pose(const EmcPose &p) {
     return res;
 }
 
-static PyObject *Stat_g5x_index(pyStatChannel *s) {
+static PyObject *Stat_g5x_index(pyStatChannel *s, void *) {
     return PyLong_FromLong(s->status.task.g5x_index);
 }
 
-static PyObject *Stat_g5x_offset(pyStatChannel *s) {
+static PyObject *Stat_g5x_offset(pyStatChannel *s, void *) {
     return pose(s->status.task.g5x_offset);
 }
 
-static PyObject *Stat_g92_offset(pyStatChannel *s) {
+static PyObject *Stat_g92_offset(pyStatChannel *s, void *) {
     return pose(s->status.task.g92_offset);
 }
 
-static PyObject *Stat_tool_offset(pyStatChannel *s) {
+static PyObject *Stat_tool_offset(pyStatChannel *s, void *) {
     return pose(s->status.task.toolOffset);
 }
 
-static PyObject *Stat_position(pyStatChannel *s) {
+static PyObject *Stat_position(pyStatChannel *s, void *) {
     return pose(s->status.motion.traj.position);
 }
 
-static PyObject *Stat_dtg(pyStatChannel *s) {
+static PyObject *Stat_dtg(pyStatChannel *s, void *) {
     return pose(s->status.motion.traj.dtg);
 }
 
-static PyObject *Stat_actual(pyStatChannel *s) {
+static PyObject *Stat_actual(pyStatChannel *s, void *) {
     return pose(s->status.motion.traj.actualPosition);
 }
 
-static PyObject *Stat_joint_position(pyStatChannel *s) {
+static PyObject *Stat_joint_position(pyStatChannel *s, void *) {
     PyObject *res = PyTuple_New(EMCMOT_MAX_JOINTS);
     for(int i=0; i<EMCMOT_MAX_JOINTS; i++) {
         PyTuple_SetItem(res, i,
@@ -568,7 +582,7 @@ static PyObject *Stat_joint_position(pyStatChannel *s) {
     return res;
 }
 
-static PyObject *Stat_joint_actual(pyStatChannel *s) {
+static PyObject *Stat_joint_actual(pyStatChannel *s, void *) {
     PyObject *res = PyTuple_New(EMCMOT_MAX_JOINTS);
     for(int i=0; i<EMCMOT_MAX_JOINTS; i++) {
         PyTuple_SetItem(res, i,
@@ -577,31 +591,31 @@ static PyObject *Stat_joint_actual(pyStatChannel *s) {
     return res;
 }
 
-static PyObject *Stat_probed(pyStatChannel *s) {
+static PyObject *Stat_probed(pyStatChannel *s, void *) {
     return pose(s->status.motion.traj.probedPosition);
 }
 
-static PyObject *Stat_activegcodes(pyStatChannel *s) {
+static PyObject *Stat_activegcodes(pyStatChannel *s, void *) {
     return int_array(s->status.task.activeGCodes, ACTIVE_G_CODES);
 }
 
-static PyObject *Stat_activemcodes(pyStatChannel *s) {
+static PyObject *Stat_activemcodes(pyStatChannel *s, void *) {
     return int_array(s->status.task.activeMCodes, ACTIVE_M_CODES);
 }
 
-static PyObject *Stat_activesettings(pyStatChannel *s) {
+static PyObject *Stat_activesettings(pyStatChannel *s, void *) {
    return double_array(s->status.task.activeSettings, ACTIVE_SETTINGS);
 }
 
-static PyObject *Stat_din(pyStatChannel *s) {
+static PyObject *Stat_din(pyStatChannel *s, void *) {
     return int_array(s->status.motion.synch_di, EMCMOT_MAX_AIO);
 }
 
-static PyObject *Stat_dout(pyStatChannel *s) {
+static PyObject *Stat_dout(pyStatChannel *s, void *) {
     return int_array(s->status.motion.synch_do, EMCMOT_MAX_AIO);
 }
 
-static PyObject *Stat_limit(pyStatChannel *s) {
+static PyObject *Stat_limit(pyStatChannel *s, void *) {
     PyObject *res = PyTuple_New(EMCMOT_MAX_JOINTS);
     for(int i = 0; i < EMCMOT_MAX_JOINTS; i++) {
         int v = 0;
@@ -614,7 +628,7 @@ static PyObject *Stat_limit(pyStatChannel *s) {
     return res;
 }
 
-static PyObject *Stat_homed(pyStatChannel *s) {
+static PyObject *Stat_homed(pyStatChannel *s, void *) {
     PyObject *res = PyTuple_New(EMCMOT_MAX_JOINTS);
     for(int i = 0; i < EMCMOT_MAX_JOINTS; i++) {
         PyTuple_SET_ITEM(res, i, PyLong_FromLong(s->status.motion.joint[i].homed));
@@ -622,15 +636,15 @@ static PyObject *Stat_homed(pyStatChannel *s) {
     return res;
 }
 
-static PyObject *Stat_ain(pyStatChannel *s) {
+static PyObject *Stat_ain(pyStatChannel *s, void *) {
     return double_array(s->status.motion.analog_input, EMCMOT_MAX_AIO);
 }
 
-static PyObject *Stat_aout(pyStatChannel *s) {
+static PyObject *Stat_aout(pyStatChannel *s, void *) {
     return double_array(s->status.motion.analog_output, EMCMOT_MAX_AIO);
 }
 
-static PyObject *Stat_misc_error(pyStatChannel *s){
+static PyObject *Stat_misc_error(pyStatChannel *s, void *){
   return int_array(s->status.motion.misc_error, EMCMOT_MAX_MISC_ERROR);
 }
 
@@ -665,7 +679,7 @@ static PyObject *Stat_joint_one(pyStatChannel *s, int jointno) {
 #undef F
 #undef F2
 
-static PyObject *Stat_joint(pyStatChannel *s) {
+static PyObject *Stat_joint(pyStatChannel *s, void *) {
     PyObject *res = PyTuple_New(EMCMOT_MAX_JOINTS);
     for(int i=0; i<EMCMOT_MAX_JOINTS; i++) {
         PyTuple_SetItem(res, i, Stat_joint_one(s, i));
@@ -686,7 +700,7 @@ static PyObject *Stat_axis_one(pyStatChannel *s, int axisno) {
 #undef F
 #undef F2
 
-static PyObject *Stat_axis(pyStatChannel *s) {
+static PyObject *Stat_axis(pyStatChannel *s, void *) {
     PyObject *res = PyTuple_New(EMCMOT_MAX_AXIS);
     for(int i=0; i<EMCMOT_MAX_AXIS; i++) {
         PyTuple_SetItem(res, i, Stat_axis_one(s, i));
@@ -712,7 +726,7 @@ static PyObject *Stat_spindle_one(pyStatChannel *s, int spindleno) {
 #undef F
 #undef F2
 
-static PyObject *Stat_spindle(pyStatChannel *s) {
+static PyObject *Stat_spindle(pyStatChannel *s, void *) {
     PyObject *res = PyTuple_New(EMCMOT_MAX_SPINDLES);
     for(int i=0; i<EMCMOT_MAX_SPINDLES; i++) {
         PyTuple_SetItem(res, i, Stat_spindle_one(s, i));
@@ -721,21 +735,21 @@ static PyObject *Stat_spindle(pyStatChannel *s) {
 }
 
 static PyStructSequence_Field tool_fields[] = {
-    {(char*)"id", },
-    {(char*)"xoffset", },
-    {(char*)"yoffset", },
-    {(char*)"zoffset", },
-    {(char*)"aoffset", },
-    {(char*)"boffset", },
-    {(char*)"coffset", },
-    {(char*)"uoffset", },
-    {(char*)"voffset", },
-    {(char*)"woffset", },
-    {(char*)"diameter", },
-    {(char*)"frontangle", },
-    {(char*)"backangle", },
-    {(char*)"orientation", },
-    {0,},
+    {(char*)"id", NULL},
+    {(char*)"xoffset", NULL},
+    {(char*)"yoffset", NULL},
+    {(char*)"zoffset", NULL},
+    {(char*)"aoffset", NULL},
+    {(char*)"boffset", NULL},
+    {(char*)"coffset", NULL},
+    {(char*)"uoffset", NULL},
+    {(char*)"voffset", NULL},
+    {(char*)"woffset", NULL},
+    {(char*)"diameter", NULL},
+    {(char*)"frontangle", NULL},
+    {(char*)"backangle", NULL},
+    {(char*)"orientation", NULL},
+    {},
 };
 
 static PyStructSequence_Desc tool_result_desc = {
@@ -747,7 +761,7 @@ static PyStructSequence_Desc tool_result_desc = {
 
 static PyTypeObject ToolResultType;
 
-static PyObject *Stat_tool_table(pyStatChannel *s) {
+static PyObject *Stat_tool_table(pyStatChannel * /*s*/, void *) {
     PyObject *res;
     int j = 0;
 
@@ -788,39 +802,39 @@ static PyObject *Stat_tool_table(pyStatChannel *s) {
 }
 
 static PyGetSetDef Stat_getsetlist[] = {
-    {(char*)"actual_position", (getter)Stat_actual},
-    {(char*)"ain", (getter)Stat_ain},
-    {(char*)"aout", (getter)Stat_aout},
-    {(char*)"joint", (getter)Stat_joint},
-    {(char*)"axis", (getter)Stat_axis},
-    {(char*)"spindle", (getter)Stat_spindle},
-    {(char*)"din", (getter)Stat_din},
-    {(char*)"dout", (getter)Stat_dout},
-    {(char*)"gcodes", (getter)Stat_activegcodes},
+    {(char*)"actual_position", (getter)Stat_actual, NULL, NULL, NULL},
+    {(char*)"ain", (getter)Stat_ain, NULL, NULL, NULL},
+    {(char*)"aout", (getter)Stat_aout, NULL, NULL, NULL},
+    {(char*)"joint", (getter)Stat_joint, NULL, NULL, NULL},
+    {(char*)"axis", (getter)Stat_axis, NULL, NULL, NULL},
+    {(char*)"spindle", (getter)Stat_spindle, NULL, NULL, NULL},
+    {(char*)"din", (getter)Stat_din, NULL, NULL, NULL},
+    {(char*)"dout", (getter)Stat_dout, NULL, NULL, NULL},
+    {(char*)"gcodes", (getter)Stat_activegcodes, NULL, NULL, NULL},
     {(char*)"homed", (getter)Stat_homed, (setter)NULL,
-        (char*)"An array of integers indicating the 'homed' status of each joint (0 or 1)."
+        (char*)"An array of integers indicating the 'homed' status of each joint (0 or 1).", NULL
     },
-    {(char*)"limit", (getter)Stat_limit},
-    {(char*)"mcodes", (getter)Stat_activemcodes},
-    {(char*)"misc_error", (getter)Stat_misc_error},
-    {(char*)"g5x_offset", (getter)Stat_g5x_offset},
-    {(char*)"g5x_index", (getter)Stat_g5x_index},
-    {(char*)"g92_offset", (getter)Stat_g92_offset},
-    {(char*)"position", (getter)Stat_position},
-    {(char*)"dtg", (getter)Stat_dtg},
-    {(char*)"joint_position", (getter)Stat_joint_position},
-    {(char*)"joint_actual_position", (getter)Stat_joint_actual},
-    {(char*)"probed_position", (getter)Stat_probed},
+    {(char*)"limit", (getter)Stat_limit, NULL, NULL, NULL},
+    {(char*)"mcodes", (getter)Stat_activemcodes, NULL, NULL, NULL},
+    {(char*)"misc_error", (getter)Stat_misc_error, NULL, NULL, NULL},
+    {(char*)"g5x_offset", (getter)Stat_g5x_offset, NULL, NULL, NULL},
+    {(char*)"g5x_index", (getter)Stat_g5x_index, NULL, NULL, NULL},
+    {(char*)"g92_offset", (getter)Stat_g92_offset, NULL, NULL, NULL},
+    {(char*)"position", (getter)Stat_position, NULL, NULL, NULL},
+    {(char*)"dtg", (getter)Stat_dtg, NULL, NULL, NULL},
+    {(char*)"joint_position", (getter)Stat_joint_position, NULL, NULL, NULL},
+    {(char*)"joint_actual_position", (getter)Stat_joint_actual, NULL, NULL, NULL},
+    {(char*)"probed_position", (getter)Stat_probed, NULL, NULL, NULL},
     {(char*)"settings", (getter)Stat_activesettings, (setter)NULL,
         (char*)"This is an array containing the Interp active settings: sequence number,\n"
-        "feed rate, spindle speed, and G64 blend and naive CAM tolerances."
+        "feed rate, spindle speed, and G64 blend and naive CAM tolerances.", NULL
     },
-    {(char*)"tool_offset", (getter)Stat_tool_offset},
+    {(char*)"tool_offset", (getter)Stat_tool_offset, NULL, NULL, NULL},
     {(char*)"tool_table", (getter)Stat_tool_table, (setter)NULL,
         (char*)"The tooltable, expressed as a list of tools.  Each tool is a dict with the\n"
-        "tool id (tool number), diameter, offsets, etc."
+        "tool id (tool number), diameter, offsets, etc.", NULL
     },
-    {NULL}
+    {}
 };
 
 static PyTypeObject Stat_Type = {
@@ -865,9 +879,23 @@ static PyTypeObject Stat_Type = {
     PyType_GenericNew,      /*tp_new*/
     0,                      /*tp_free*/
     0,                      /*tp_is_gc*/
+    0,                      /*tp_bases*/
+    0,                      /*tp_mro*/
+    0,                      /*tp_cache*/
+    0,                      /*tp_subclasses*/
+    0,                      /*tp_weaklink*/
+    0,                      /*tp_del*/
+    0,                      /*tp_version_tag*/
+    0,                      /*tp_finalize*/
+#if PY_VERSION_HEX >= 0x030800f0	// 3.8
+    0,                      /*tp_vectorcall*/
+#if PY_VERSION_HEX >= 0x030c00f0	// 3.12
+    0,                      /*tp_watched*/
+#endif
+#endif
 };
 
-static int Command_init(pyCommandChannel *self, PyObject *a, PyObject *k) {
+static int Command_init(pyCommandChannel *self, PyObject * /*a*/, PyObject * /*k*/) {
     const char *file = get_nmlfile();
     if(file == NULL) return -1;
 
@@ -938,7 +966,7 @@ static PyObject *mode(pyCommandChannel *s, PyObject *o) {
     return Py_None;
 }
 
-static PyObject *task_plan_synch(pyCommandChannel *s) {
+static PyObject *task_plan_synch(pyCommandChannel *s, PyObject *) {
     EMC_TASK_PLAN_SYNCH synch;
     emcSendCommand(s, synch);
     Py_INCREF(Py_None);
@@ -1148,7 +1176,7 @@ static PyObject *brake(pyCommandChannel *s, PyObject *o) {
     return Py_None;
 }
 
-static PyObject *load_tool_table(pyCommandChannel *s, PyObject *o) {
+static PyObject *load_tool_table(pyCommandChannel *s, PyObject * /*o*/) {
     EMC_TOOL_LOAD_TOOL_TABLE m;
     m.file[0] = '\0'; // don't override the INI file
     emcSendCommand(s, m);
@@ -1156,14 +1184,14 @@ static PyObject *load_tool_table(pyCommandChannel *s, PyObject *o) {
     return Py_None;
 }
 
-static PyObject *emcabort(pyCommandChannel *s, PyObject *o) {
+static PyObject *emcabort(pyCommandChannel *s, PyObject * /*o*/) {
     EMC_TASK_ABORT m;
     emcSendCommand(s, m);
     Py_INCREF(Py_None);
     return Py_None;
 }
 
-static PyObject *override_limits(pyCommandChannel *s, PyObject *o) {
+static PyObject *override_limits(pyCommandChannel *s, PyObject * /*o*/) {
     EMC_JOINT_OVERRIDE_LIMITS m;
     m.joint = 0; // same number for all
     emcSendCommand(s, m);
@@ -1245,7 +1273,7 @@ static PyObject *jog(pyCommandChannel *s, PyObject *o) {
     return Py_None;
 }
 
-static PyObject *reset_interpreter(pyCommandChannel *s, PyObject *o) {
+static PyObject *reset_interpreter(pyCommandChannel *s, PyObject * /*o*/) {
     EMC_TASK_PLAN_INIT m;
     emcSendCommand(s, m);
     Py_INCREF(Py_None);
@@ -1284,7 +1312,9 @@ static PyObject *program_open(pyCommandChannel *s, PyObject *o) {
             PyErr_Format(PyExc_OSError, "fseek(%s) error: %s", file, strerror(errno));
             return PyErr_SetFromErrno(PyExc_OSError);
         }
-        if((m.remote_filesize = ftell(fd)) < 0) {
+        long ftpos = ftell(fd);
+        m.remote_filesize = ftpos;
+        if(ftpos < 0) {
             fclose(fd);
             PyErr_Format(PyExc_OSError, "ftell(%s) error: %s", file, strerror(errno));
             return PyErr_SetFromErrno(PyExc_OSError);
@@ -1533,15 +1563,15 @@ static PyObject *display_msg(pyCommandChannel *s,  PyObject *args ) {
 }
 
 static PyMemberDef Command_members[] = {
-    {(char*)"serial", T_INT, offsetof(pyCommandChannel, serial), READONLY},
-    {NULL}
+    {(char*)"serial", T_INT, offsetof(pyCommandChannel, serial), READONLY, NULL},
+    {}
 };
 
 static PyMethodDef Command_methods[] = {
-    {"debug", (PyCFunction)debug, METH_VARARGS},
-    {"teleop_enable", (PyCFunction)teleop, METH_VARARGS},
-    {"traj_mode", (PyCFunction)set_traj_mode, METH_VARARGS},
-    {"wait_complete", (PyCFunction)wait_complete, METH_VARARGS},
+    {"debug", (PyCFunction)debug, METH_VARARGS, NULL},
+    {"teleop_enable", (PyCFunction)teleop, METH_VARARGS, NULL},
+    {"traj_mode", (PyCFunction)set_traj_mode, METH_VARARGS, NULL},
+    {"wait_complete", (PyCFunction)wait_complete, METH_VARARGS, NULL},
     {"state", (PyCFunction)state, METH_VARARGS,
         "state(NEW_STATE) - Set the machine E-Stop & Power-On state.\n"
         "Possible values for `NEW_STATE` are:\n"
@@ -1550,26 +1580,26 @@ static PyMethodDef Command_methods[] = {
         "    STATE_ON: Power on (only works from STATE_ESTOP_RESET state).\n"
         "    STATE_OFF: Power off (only works from STATE_ON state).\n"
     },
-    {"mdi", (PyCFunction)mdi, METH_VARARGS},
-    {"mode", (PyCFunction)mode, METH_VARARGS},
-    {"feedrate", (PyCFunction)feedrate, METH_VARARGS},
-    {"rapidrate", (PyCFunction)rapidrate, METH_VARARGS},
-    {"maxvel", (PyCFunction)maxvel, METH_VARARGS},
-    {"spindleoverride", (PyCFunction)spindleoverride, METH_VARARGS},
-    {"spindle", (PyCFunction)spindle, METH_VARARGS},
-    {"tool_offset", (PyCFunction)tool_offset, METH_VARARGS},
-    {"mist", (PyCFunction)mist, METH_VARARGS},
-    {"flood", (PyCFunction)flood, METH_VARARGS},
-    {"brake", (PyCFunction)brake, METH_VARARGS},
-    {"load_tool_table", (PyCFunction)load_tool_table, METH_NOARGS},
-    {"abort", (PyCFunction)emcabort, METH_NOARGS},
-    {"task_plan_synch", (PyCFunction)task_plan_synch, METH_NOARGS},
-    {"override_limits", (PyCFunction)override_limits, METH_NOARGS},
+    {"mdi", (PyCFunction)mdi, METH_VARARGS, NULL},
+    {"mode", (PyCFunction)mode, METH_VARARGS, NULL},
+    {"feedrate", (PyCFunction)feedrate, METH_VARARGS, NULL},
+    {"rapidrate", (PyCFunction)rapidrate, METH_VARARGS, NULL},
+    {"maxvel", (PyCFunction)maxvel, METH_VARARGS, NULL},
+    {"spindleoverride", (PyCFunction)spindleoverride, METH_VARARGS, NULL},
+    {"spindle", (PyCFunction)spindle, METH_VARARGS, NULL},
+    {"tool_offset", (PyCFunction)tool_offset, METH_VARARGS, NULL},
+    {"mist", (PyCFunction)mist, METH_VARARGS, NULL},
+    {"flood", (PyCFunction)flood, METH_VARARGS, NULL},
+    {"brake", (PyCFunction)brake, METH_VARARGS, NULL},
+    {"load_tool_table", (PyCFunction)load_tool_table, METH_NOARGS, NULL},
+    {"abort", (PyCFunction)emcabort, METH_NOARGS, NULL},
+    {"task_plan_synch", (PyCFunction)task_plan_synch, METH_NOARGS, NULL},
+    {"override_limits", (PyCFunction)override_limits, METH_NOARGS, NULL},
     {"home", (PyCFunction)home, METH_VARARGS,
         "home(JOINT) - Home the specified joint.\n"
         "JOINT can be a valid joint number (0-9), or -1 to home all joints.\n"
     },
-    {"unhome", (PyCFunction)unhome, METH_VARARGS},
+    {"unhome", (PyCFunction)unhome, METH_VARARGS, NULL},
     {"jog", (PyCFunction)jog, METH_VARARGS,
         "jog(JOG_CONTINUOUS, joint_flag, index, speed)\n"
         "jog(JOG_INCREMENT, joint_flag, index, speed, increment)\n"
@@ -1582,23 +1612,23 @@ static PyMethodDef Command_methods[] = {
         "    speed: jog speed\n"
         "    increment: distance to jog\n"
     },
-    {"reset_interpreter", (PyCFunction)reset_interpreter, METH_NOARGS},
-    {"program_open", (PyCFunction)program_open, METH_VARARGS},
-    {"auto", (PyCFunction)emcauto, METH_VARARGS},
-    {"set_optional_stop", (PyCFunction)optional_stop, METH_VARARGS},
-    {"set_block_delete", (PyCFunction)block_delete, METH_VARARGS},
-    {"set_min_limit", (PyCFunction)set_min_limit, METH_VARARGS},
-    {"set_max_limit", (PyCFunction)set_max_limit, METH_VARARGS},
-    {"set_feed_override", (PyCFunction)set_feed_override, METH_VARARGS},
-    {"set_spindle_override", (PyCFunction)set_spindle_override, METH_VARARGS},
-    {"set_feed_hold", (PyCFunction)set_feed_hold, METH_VARARGS},
-    {"set_adaptive_feed", (PyCFunction)set_adaptive_feed, METH_VARARGS},
-    {"set_digital_output", (PyCFunction)set_digital_output, METH_VARARGS},
-    {"set_analog_output", (PyCFunction)set_analog_output, METH_VARARGS},
+    {"reset_interpreter", (PyCFunction)reset_interpreter, METH_NOARGS, NULL},
+    {"program_open", (PyCFunction)program_open, METH_VARARGS, NULL},
+    {"auto", (PyCFunction)emcauto, METH_VARARGS, NULL},
+    {"set_optional_stop", (PyCFunction)optional_stop, METH_VARARGS, NULL},
+    {"set_block_delete", (PyCFunction)block_delete, METH_VARARGS, NULL},
+    {"set_min_limit", (PyCFunction)set_min_limit, METH_VARARGS, NULL},
+    {"set_max_limit", (PyCFunction)set_max_limit, METH_VARARGS, NULL},
+    {"set_feed_override", (PyCFunction)set_feed_override, METH_VARARGS, NULL},
+    {"set_spindle_override", (PyCFunction)set_spindle_override, METH_VARARGS, NULL},
+    {"set_feed_hold", (PyCFunction)set_feed_hold, METH_VARARGS, NULL},
+    {"set_adaptive_feed", (PyCFunction)set_adaptive_feed, METH_VARARGS, NULL},
+    {"set_digital_output", (PyCFunction)set_digital_output, METH_VARARGS, NULL},
+    {"set_analog_output", (PyCFunction)set_analog_output, METH_VARARGS, NULL},
     {"error_msg", (PyCFunction)error_msg, METH_VARARGS, "Send operator error message"},
     {"text_msg", (PyCFunction)text_msg, METH_VARARGS, "Send operator text message"},
     {"display_msg", (PyCFunction)display_msg, METH_VARARGS, "Send operator display message"},
-    {NULL}
+    {}
 };
 
 static PyTypeObject Command_Type = {
@@ -1643,9 +1673,23 @@ static PyTypeObject Command_Type = {
     PyType_GenericNew,      /*tp_new*/
     0,                      /*tp_free*/
     0,                      /*tp_is_gc*/
+    0,                      /*tp_bases*/
+    0,                      /*tp_mro*/
+    0,                      /*tp_cache*/
+    0,                      /*tp_subclasses*/
+    0,                      /*tp_weaklink*/
+    0,                      /*tp_del*/
+    0,                      /*tp_version_tag*/
+    0,                      /*tp_finalize*/
+#if PY_VERSION_HEX >= 0x030800f0	// 3.8
+    0,                      /*tp_vectorcall*/
+#if PY_VERSION_HEX >= 0x030c00f0	// 3.12
+    0,                      /*tp_watched*/
+#endif
+#endif
 };
 
-static int Error_init(pyErrorChannel *self, PyObject *a, PyObject *k) {
+static int Error_init(pyErrorChannel *self, PyObject * /*a*/, PyObject * /*k*/) {
     const char *file = get_nmlfile();
     if(file == NULL) return -1;
 
@@ -1659,7 +1703,7 @@ static int Error_init(pyErrorChannel *self, PyObject *a, PyObject *k) {
     return 0;
 }
 
-static PyObject* Error_poll(pyErrorChannel *s) {
+static PyObject* Error_poll(pyErrorChannel *s, PyObject *) {
     if(!s->c->valid()) {
         PyErr_Format( error, "Error buffer invalid" );
         return NULL;
@@ -1706,7 +1750,7 @@ static void Error_dealloc(PyObject *self) {
 
 static PyMethodDef Error_methods[] = {
     {"poll", (PyCFunction)Error_poll, METH_NOARGS, "Poll for errors"},
-    {NULL}
+    {}
 };
 
 static PyTypeObject Error_Type = {
@@ -1751,6 +1795,20 @@ static PyTypeObject Error_Type = {
     PyType_GenericNew,      /*tp_new*/
     0,                      /*tp_free*/
     0,                      /*tp_is_gc*/
+    0,                      /*tp_bases*/
+    0,                      /*tp_mro*/
+    0,                      /*tp_cache*/
+    0,                      /*tp_subclasses*/
+    0,                      /*tp_weaklink*/
+    0,                      /*tp_del*/
+    0,                      /*tp_version_tag*/
+    0,                      /*tp_finalize*/
+#if PY_VERSION_HEX >= 0x030800f0	// 3.8
+    0,                      /*tp_vectorcall*/
+#if PY_VERSION_HEX >= 0x030c00f0	// 3.12
+    0,                      /*tp_watched*/
+#endif
+#endif
 };
 
 #define AXIS_MASK_A 0x08
@@ -1899,7 +1957,7 @@ static void line9b(const double p1[9], const double p2[9], const char *geometry)
     }
 }
 
-static PyObject *pyline9(PyObject *s, PyObject *o) {
+static PyObject *pyline9(PyObject * /*s*/, PyObject *o) {
     double pt1[9], pt2[9];
     const char *geometry;
 
@@ -1918,7 +1976,7 @@ static PyObject *pyline9(PyObject *s, PyObject *o) {
     Py_RETURN_NONE;
 }
 
-static PyObject *pyvertex9(PyObject *s, PyObject *o) {
+static PyObject *pyvertex9(PyObject * /*s*/, PyObject *o) {
     double pt1[9], pt[3];
     char *geometry;
     if(!PyArg_ParseTuple(o, "s(ddddddddd):vertex9",
@@ -1932,7 +1990,7 @@ static PyObject *pyvertex9(PyObject *s, PyObject *o) {
     return Py_BuildValue("(ddd)", &pt[0], &pt[1], &pt[2]);
 }
 
-static PyObject *pygui_respect_offsets (PyObject *s, PyObject *o) {
+static PyObject *pygui_respect_offsets (PyObject * /*s*/, PyObject *o) {
     char* coords;
 
     if(!PyArg_ParseTuple(o, "si",&coords, &roffsets.respect_offsets)) {
@@ -1949,7 +2007,7 @@ static PyObject *pygui_respect_offsets (PyObject *s, PyObject *o) {
     return Py_None;
 }
 
-static PyObject *pygui_rot_offsets(PyObject *s, PyObject *o) {
+static PyObject *pygui_rot_offsets(PyObject * /*s*/, PyObject *o) {
     if(!PyArg_ParseTuple(o, "ddd", &roffsets.x,&roffsets.y,&roffsets.z)) {
         return NULL;
     }
@@ -1957,7 +2015,7 @@ static PyObject *pygui_rot_offsets(PyObject *s, PyObject *o) {
     return Py_None;
 }
 
-static PyObject *pydraw_lines(PyObject *s, PyObject *o) {
+static PyObject *pydraw_lines(PyObject * /*s*/, PyObject *o) {
     PyListObject *li;
     int for_selection = 0;
     int i;
@@ -2005,7 +2063,7 @@ static PyObject *pydraw_lines(PyObject *s, PyObject *o) {
     return Py_None;
 }
 
-static PyObject *pydraw_dwells(PyObject *s, PyObject *o) {
+static PyObject *pydraw_dwells(PyObject * /*s*/, PyObject *o) {
     PyListObject *li;
     int for_selection = 0, is_lathe = 0, i, n;
     double alpha;
@@ -2127,10 +2185,10 @@ static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 static void LOCK() { pthread_mutex_lock(&mutex); }
 static void UNLOCK() { pthread_mutex_unlock(&mutex); }
 
-static int Logger_init(pyPositionLogger *self, PyObject *a, PyObject *k) {
+static int Logger_init(pyPositionLogger *self, PyObject *a, PyObject * /*k*/) {
     char *geometry;
     struct color *c = self->colors;
-    self->p = (logger_point*)malloc(0);
+    self->p = (logger_point*)malloc(sizeof(self->p[0])); // Will be realloc'ed
     self->npts = self->mpts = 0;
     self->exit = self->clear = 0;
     self->changed = 1;
@@ -2186,7 +2244,7 @@ static PyObject *Logger_set_colors(pyPositionLogger *s, PyObject *a) {
     return Py_None;
 }
 
-static PyObject *Logger_get_colors(pyPositionLogger *s) {
+static PyObject *Logger_get_colors(pyPositionLogger *s, PyObject *) {
     struct color *c = s->colors;
     PyObject *result = NULL;
         result = Py_BuildValue("(BBBB)(BBBB)(BBBB)(BBBB)(BBBB)(BBBB)",
@@ -2332,19 +2390,19 @@ static PyObject *Logger_start(pyPositionLogger *s, PyObject *o) {
     return Py_None;
 }
 
-static PyObject* Logger_clear(pyPositionLogger *s, PyObject *o) {
+static PyObject* Logger_clear(pyPositionLogger *s, PyObject * /*o*/) {
     s->clear = true;
     Py_INCREF(Py_None);
     return Py_None;
 }
 
-static PyObject* Logger_stop(pyPositionLogger *s, PyObject *o) {
+static PyObject* Logger_stop(pyPositionLogger *s, PyObject * /*o*/) {
     s->exit = true;
     Py_INCREF(Py_None);
     return Py_None;
 }
 
-static PyObject* Logger_call(pyPositionLogger *s, PyObject *o) {
+static PyObject* Logger_call(pyPositionLogger *s, PyObject * /*o*/) {
     if(!s->clear) {
         LOCK();
         if(s->is_xyuv) {
@@ -2402,8 +2460,8 @@ static PyObject *Logger_last(pyPositionLogger *s, PyObject *o) {
 }
 
 static PyMemberDef Logger_members[] = {
-    {(char*)"npts", T_INT, offsetof(pyPositionLogger, npts), READONLY},
-    {0, 0, 0, 0},
+    {(char*)"npts", T_INT, offsetof(pyPositionLogger, npts), READONLY, NULL},
+    {},
 };
 
 static PyMethodDef Logger_methods[] = {
@@ -2423,7 +2481,7 @@ static PyMethodDef Logger_methods[] = {
         "get the plotting colors"},
     {"last", (PyCFunction)Logger_last, METH_VARARGS,
         "Return the most recent point on the plot or None"},
-    {NULL, NULL, 0, NULL},
+    {},
 };
 
 static PyTypeObject PositionLoggerType = {
@@ -2468,6 +2526,20 @@ static PyTypeObject PositionLoggerType = {
     PyType_GenericNew,      /*tp_new*/
     0,                      /*tp_free*/
     0,                      /*tp_is_gc*/
+    0,                      /*tp_bases*/
+    0,                      /*tp_mro*/
+    0,                      /*tp_cache*/
+    0,                      /*tp_subclasses*/
+    0,                      /*tp_weaklink*/
+    0,                      /*tp_del*/
+    0,                      /*tp_version_tag*/
+    0,                      /*tp_finalize*/
+#if PY_VERSION_HEX >= 0x030800f0	// 3.8
+    0,                      /*tp_vectorcall*/
+#if PY_VERSION_HEX >= 0x030c00f0	// 3.12
+    0,                      /*tp_watched*/
+#endif
+#endif
 };
 
 static PyMethodDef emc_methods[] = {
@@ -2478,7 +2550,7 @@ METH(line9, "Draw a single line in the 'rs274.glcanon' format; assumes glBegin(G
 METH(vertex9, "Get the 3d location for a 9d point"),
 METH(gui_rot_offsets, "Set x,y,z offsets for A,B,C rotations"),
 METH(gui_respect_offsets, "Enable rotations about g5x,g92 offsets"),
-    {NULL}
+    {}
 #undef METH
 };
 
@@ -2491,11 +2563,15 @@ METH(gui_respect_offsets, "Enable rotations about g5x,g92 offsets"),
 #define ENUMX(x,e) PyModule_AddIntConstant(m, x + const_cast<char*>(#e), e)
 
 static struct PyModuleDef linuxcnc_moduledef = {
-    PyModuleDef_HEAD_INIT,  /* m_base */
-    "linuxcnc",     /* m_name */
-    "Interface to LinuxCNC",    /* m_doc */
-    -1,     /* m_size */
-    emc_methods     /* m_methods */
+    PyModuleDef_HEAD_INIT, /* m_base */
+    "linuxcnc",            /* m_name */
+    "Interface to LinuxCNC", /* m_doc */
+    -1,                    /* m_size */
+    emc_methods,           /* m_methods */
+    NULL,                  /* m_slots */
+    NULL,                  /* m_travese */
+    NULL,                  /* m_clear */
+    NULL,                  /* m_free */
 };
 
 PyMODINIT_FUNC PyInit_linuxcnc(void);

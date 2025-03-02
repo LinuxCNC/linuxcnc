@@ -1,8 +1,8 @@
 '''
 star.py
 
-Copyright (C) 2020, 2021, 2022, 2023 Phillip A Carter
-Copyright (C) 2020, 2021, 2022, 2023 Gregory D Carl
+Copyright (C) 2020 - 2024 Phillip A Carter
+Copyright (C) 2020 - 2024 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -29,17 +29,18 @@ for f in sys.path:
         if '/usr' in f:
             localeDir = 'usr/share/locale'
         else:
-            localeDir = os.path.join(f'{f.split("/lib")[0]}','share','locale')
+            localeDir = os.path.join(f'{f.split("/lib")[0]}', 'share', 'locale')
         break
 gettext.install("linuxcnc", localedir=localeDir)
 
+
 # Conv is the upstream calling module
-def preview(Conv, fTmp, fNgc, fNgcBkp, \
-            matNumber, matName, \
-            preAmble, postAmble, \
-            leadinLength, leadoutLength, \
-            isCenter, xOffset, yOffset, \
-            kerfWidth, isExternal, \
+def preview(Conv, fTmp, fNgc, fNgcBkp,
+            matNumber, matName,
+            preAmble, postAmble,
+            leadinLength, leadoutLength,
+            isCenter, xOffset, yOffset,
+            kerfWidth, isExternal,
             points, extDia, intDia, angle):
     error = ''
     msg1 = _('entry is invalid')
@@ -108,9 +109,9 @@ def preview(Conv, fTmp, fNgc, fNgcBkp, \
     # get all points
     pList = get_points(points, angle, xC, yC, extRadius, intRadius)
     # get external offset required
-    extOffset = get_offset([pList[3][0],pList[3][1]], [pList[2][0],pList[2][1]], [pList[1][0],pList[1][1]], kerfWidth)
+    extOffset = get_offset([pList[3][0], pList[3][1]], [pList[2][0], pList[2][1]], [pList[1][0], pList[1][1]], kerfWidth)
     # get internal offset required
-    intOffset = get_offset([pList[0][0],pList[0][1]], [pList[1][0],pList[1][1]], [pList[2][0],pList[2][1]], kerfWidth)
+    intOffset = get_offset([pList[0][0], pList[0][1]], [pList[1][0], pList[1][1]], [pList[2][0], pList[2][1]], kerfWidth)
     # get new points
     move = 0 if isCenter else extOffset
     if isExternal:
@@ -197,6 +198,7 @@ def preview(Conv, fTmp, fNgc, fNgcBkp, \
     outNgc.close()
     return False
 
+
 def get_points(points, angle, xC, yC, extRadius, intRadius):
     pList = []
     for i in range(points * 2):
@@ -210,6 +212,7 @@ def get_points(points, angle, xC, yC, extRadius, intRadius):
         pList.append([round(x, 3), round(y, 3)])
     return pList
 
+
 def get_offset(A, B, C, kerfWidth):
     # Ax, Ay = A[0] - B[0], A[1] - B[1]
     # Cx, Cy = C[0] - B[0], C[1] - B[1]
@@ -217,8 +220,10 @@ def get_offset(A, B, C, kerfWidth):
     # c = math.atan2(Cy, Cx)
     a = math.atan2(A[1] - B[1], A[0] - B[0])
     c = math.atan2(C[1] - B[1], C[0] - B[0])
-    if a < 0: a += math.pi * 2
-    if c < 0: c += math.pi * 2
+    if a < 0:
+        a += math.pi * 2
+    if c < 0:
+        c += math.pi * 2
     ang = (math.pi * 2 + c - a) if a > c else (c - a)
     ang = math.radians(90) - (ang / 2)
     adj = (kerfWidth / 2) / math.sin(ang)

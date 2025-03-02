@@ -80,6 +80,7 @@ static int axis_mask = 0;
 \
     FIELD(hal_bit_t,program_is_idle) /* pin for notifying user that program is idle */ \
     FIELD(hal_bit_t,program_is_running) /* pin for notifying user that program is running */ \
+    FIELD(hal_bit_t,halui_mdi_is_running) /* pin for notifying user that halui MDI commands is running */ \
     FIELD(hal_bit_t,program_is_paused) /* pin for notifying user that program is paused */ \
     FIELD(hal_bit_t,program_run) /* pin for running program */ \
     FIELD(hal_bit_t,program_pause) /* pin for pausing program */ \
@@ -266,7 +267,7 @@ static double receiveTimeout = 10.0;
 // how long to wait for Task to finish running our command
 static double doneTimeout = 60.;
 
-static void quit(int sig)
+static void quit(int /*sig*/)
 {
     done = 1;
 }
@@ -598,6 +599,12 @@ int halui_hal_init(void)
     if (retval < 0) return retval;
     retval = halui_export_pin_OUT_bit(&(halui_data->program_is_running), "halui.program.is-running");
     if (retval < 0) return retval;
+    
+    if (num_mdi_commands>0){
+    retval = halui_export_pin_OUT_bit(&(halui_data->halui_mdi_is_running), "halui.halui-mdi-is-running");
+    if (retval < 0) return retval;
+	}
+    
     retval = halui_export_pin_OUT_bit(&(halui_data->program_is_paused), "halui.program.is-paused");
     if (retval < 0) return retval;
     retval = halui_export_pin_OUT_bit(&(halui_data->program_os_is_on), "halui.program.optional-stop.is-on");
@@ -1007,7 +1014,14 @@ static int sendMdiCommand(int n)
         // so we can restore it when all the MDI commands finish.
         halui_old_mode = emcStatus->task.mode;
     }
+    
+    halui_sent_mdi = 1;
 
+    if (num_mdi_commands>0){
+    *(halui_data->halui_mdi_is_running) = halui_sent_mdi;
+    updateStatus();
+    }
+    
     // switch to MDI mode if needed
     if (emcStatus->task.mode != EMC_TASK_MODE::MDI) {
 	if (sendMdi() != 0) {
@@ -1028,7 +1042,7 @@ static int sendMdiCommand(int n)
         rtapi_print("halui: %s: failed to send mdi command %d\n", __func__, n);
 	return -1;
     }
-    halui_sent_mdi = 1;
+
     return 0;
 }
 
@@ -1416,14 +1430,14 @@ static int iniLoad(const char *filename)
 
     // set flags if RCS_DEBUG in ini file
     if ((inistring = inifile.Find("RCS_DEBUG", "EMC"))) {
-        static long int flags;
+        long unsigned int flags;
         if (sscanf(*inistring, "%lx", &flags) < 1) {
             perror("failed to parse [EMC] RCS_DEBUG");
         }
         // clear all flags
         clear_rcs_print_flag(PRINT_EVERYTHING);
         // set parsed flags
-        set_rcs_print_flag(flags);
+        set_rcs_print_flag((long)flags);
     }
     // output infinite RCS errors by default
     max_rcs_errors_to_print = -1;
@@ -1438,18 +1452,19 @@ static int iniLoad(const char *filename)
 	    strncpy(version, *inistring, LINELEN-1);
     }
 
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        if ((inistring = inifile.Find("MACHINE", "EMC"))) {
+            strncpy(machine, *inistring, LINELEN-1);
+        } else {
+            strncpy(machine, "unknown", LINELEN-1);
+        }
 
-    if ((inistring = inifile.Find("MACHINE", "EMC"))) {
-	    strncpy(machine, *inistring, LINELEN-1);
-    } else {
-	    strncpy(machine, "unknown", LINELEN-1);
+        extern char *program_invocation_short_name;
+        rcs_print(
+            "%s (%d) halui: machine '%s'  version '%s'\n",
+            program_invocation_short_name, getpid(), machine, version
+        );
     }
-
-    extern char *program_invocation_short_name;
-    rcs_print(
-        "%s (%d) halui: machine '%s'  version '%s'\n",
-        program_invocation_short_name, getpid(), machine, version
-    );
 
     if ((inistring = inifile.Find("NML_FILE", "EMC"))) {
 	// copy to global
@@ -2154,7 +2169,6 @@ static void modify_hal_pins()
 
     if (halui_sent_mdi) { // we have an ongoing MDI command
 	if (emcStatus->status == RCS_STATUS::DONE) { //which seems to have finished
-	    halui_sent_mdi = 0;
 	    switch (halui_old_mode) {
 		case EMC_TASK_MODE::MANUAL: sendManual();break;
 		case EMC_TASK_MODE::MDI: break;
@@ -2199,6 +2213,22 @@ static void modify_hal_pins()
     *(halui_data->program_is_running) = emcStatus->task.interpState == EMC_TASK_INTERP::READING ||
                                         emcStatus->task.interpState == EMC_TASK_INTERP::WAITING;
     *(halui_data->program_is_idle) = emcStatus->task.interpState == EMC_TASK_INTERP::IDLE;
+    
+    if (num_mdi_commands>0){
+		// we wants initialize program_is_idle and mode_is_mdi before halui_sent_mdi
+		if (halui_sent_mdi) { // we have an ongoing MDI command
+			if (emcStatus->status == RCS_STATUS::DONE){ //which seems to have finished
+			halui_sent_mdi = 0;
+			esleep(0.02); //sleep for a while
+			updateStatus();
+			esleep(0.02); //sleep for a while
+			}
+		}
+		*(halui_data->halui_mdi_is_running) = halui_sent_mdi;
+	}
+
+
+    
     *(halui_data->program_os_is_on) = emcStatus->task.optional_stop_state;
     *(halui_data->program_bd_is_on) = emcStatus->task.block_delete_state;
 

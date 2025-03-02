@@ -227,11 +227,14 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="focusPolicy">
+          <enum>Qt::ClickFocus</enum>
+         </property>
          <property name="tabPosition">
           <enum>QTabWidget::South</enum>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>4</number>
          </property>
          <property name="usesScrollButtons">
           <bool>false</bool>
@@ -388,6 +391,9 @@
                        <height>40</height>
                       </size>
                      </property>
+                     <property name="focusPolicy">
+                      <enum>Qt::ClickFocus</enum>
+                     </property>
                      <property name="text">
                       <string>20</string>
                      </property>
@@ -400,6 +406,9 @@
                        <width>100</width>
                        <height>40</height>
                       </size>
+                     </property>
+                     <property name="focusPolicy">
+                      <enum>Qt::ClickFocus</enum>
                      </property>
                      <property name="text">
                       <string>19</string>
@@ -414,6 +423,9 @@
                        <height>40</height>
                       </size>
                      </property>
+                     <property name="focusPolicy">
+                      <enum>Qt::ClickFocus</enum>
+                     </property>
                      <property name="text">
                       <string>18</string>
                      </property>
@@ -426,6 +438,9 @@
                        <width>100</width>
                        <height>40</height>
                       </size>
+                     </property>
+                     <property name="focusPolicy">
+                      <enum>Qt::ClickFocus</enum>
                      </property>
                      <property name="text">
                       <string>17</string>
@@ -440,6 +455,9 @@
                        <height>40</height>
                       </size>
                      </property>
+                     <property name="focusPolicy">
+                      <enum>Qt::ClickFocus</enum>
+                     </property>
                      <property name="text">
                       <string>16</string>
                      </property>
@@ -452,6 +470,9 @@
                        <width>100</width>
                        <height>40</height>
                       </size>
+                     </property>
+                     <property name="focusPolicy">
+                      <enum>Qt::ClickFocus</enum>
                      </property>
                      <property name="text">
                       <string>15</string>
@@ -466,6 +487,9 @@
                        <height>40</height>
                       </size>
                      </property>
+                     <property name="focusPolicy">
+                      <enum>Qt::ClickFocus</enum>
+                     </property>
                      <property name="text">
                       <string>14</string>
                      </property>
@@ -478,6 +502,9 @@
                        <width>100</width>
                        <height>40</height>
                       </size>
+                     </property>
+                     <property name="focusPolicy">
+                      <enum>Qt::ClickFocus</enum>
                      </property>
                      <property name="text">
                       <string>13</string>
@@ -492,6 +519,9 @@
                        <height>40</height>
                       </size>
                      </property>
+                     <property name="focusPolicy">
+                      <enum>Qt::ClickFocus</enum>
+                     </property>
                      <property name="text">
                       <string>12</string>
                      </property>
@@ -504,6 +534,9 @@
                        <width>100</width>
                        <height>40</height>
                       </size>
+                     </property>
+                     <property name="focusPolicy">
+                      <enum>Qt::ClickFocus</enum>
                      </property>
                      <property name="text">
                       <string>11</string>
@@ -518,6 +551,9 @@
                        <height>40</height>
                       </size>
                      </property>
+                     <property name="focusPolicy">
+                      <enum>Qt::ClickFocus</enum>
+                     </property>
                      <property name="text">
                       <string>10</string>
                      </property>
@@ -530,6 +566,9 @@
                        <width>100</width>
                        <height>40</height>
                       </size>
+                     </property>
+                     <property name="focusPolicy">
+                      <enum>Qt::ClickFocus</enum>
                      </property>
                      <property name="text">
                       <string>9</string>
@@ -549,6 +588,9 @@
                        <width>100</width>
                        <height>40</height>
                       </size>
+                     </property>
+                     <property name="focusPolicy">
+                      <enum>Qt::ClickFocus</enum>
                      </property>
                      <property name="text">
                       <string>8</string>
@@ -575,6 +617,9 @@
                        <height>16777215</height>
                       </size>
                      </property>
+                     <property name="focusPolicy">
+                      <enum>Qt::ClickFocus</enum>
+                     </property>
                      <property name="text">
                       <string>7</string>
                      </property>
@@ -599,6 +644,9 @@
                        <width>16777215</width>
                        <height>16777215</height>
                       </size>
+                     </property>
+                     <property name="focusPolicy">
+                      <enum>Qt::ClickFocus</enum>
                      </property>
                      <property name="text">
                       <string>6</string>
@@ -625,6 +673,9 @@
                        <height>16777215</height>
                       </size>
                      </property>
+                     <property name="focusPolicy">
+                      <enum>Qt::ClickFocus</enum>
+                     </property>
                      <property name="text">
                       <string>5</string>
                      </property>
@@ -649,6 +700,9 @@
                        <width>16777215</width>
                        <height>16777215</height>
                       </size>
+                     </property>
+                     <property name="focusPolicy">
+                      <enum>Qt::ClickFocus</enum>
                      </property>
                      <property name="text">
                       <string>4</string>
@@ -675,6 +729,9 @@
                        <height>16777215</height>
                       </size>
                      </property>
+                     <property name="focusPolicy">
+                      <enum>Qt::ClickFocus</enum>
+                     </property>
                      <property name="text">
                       <string>3</string>
                      </property>
@@ -700,6 +757,9 @@
                        <height>16777215</height>
                       </size>
                      </property>
+                     <property name="focusPolicy">
+                      <enum>Qt::ClickFocus</enum>
+                     </property>
                      <property name="text">
                       <string>2</string>
                      </property>
@@ -724,6 +784,9 @@
                        <width>16777215</width>
                        <height>16777215</height>
                       </size>
+                     </property>
+                     <property name="focusPolicy">
+                      <enum>Qt::ClickFocus</enum>
                      </property>
                      <property name="text">
                       <string>1</string>
@@ -843,6 +906,9 @@
                             <width>16777215</width>
                             <height>16777215</height>
                            </size>
+                          </property>
+                          <property name="focusPolicy">
+                           <enum>Qt::ClickFocus</enum>
                           </property>
                          </widget>
                         </item>
@@ -1008,6 +1074,9 @@
                                <height>28</height>
                               </size>
                              </property>
+                             <property name="focusPolicy">
+                              <enum>Qt::ClickFocus</enum>
+                             </property>
                              <property name="text">
                               <string>C</string>
                              </property>
@@ -1046,6 +1115,9 @@
                                <height>28</height>
                               </size>
                              </property>
+                             <property name="focusPolicy">
+                              <enum>Qt::ClickFocus</enum>
+                             </property>
                              <property name="text">
                               <string>+</string>
                              </property>
@@ -1067,6 +1139,9 @@
                                <width>40</width>
                                <height>28</height>
                               </size>
+                             </property>
+                             <property name="focusPolicy">
+                              <enum>Qt::ClickFocus</enum>
                              </property>
                              <property name="text">
                               <string>-</string>
@@ -1109,6 +1184,9 @@
                                <height>28</height>
                               </size>
                              </property>
+                             <property name="focusPolicy">
+                              <enum>Qt::ClickFocus</enum>
+                             </property>
                              <property name="text">
                               <string>↑</string>
                              </property>
@@ -1130,6 +1208,9 @@
                                <width>40</width>
                                <height>28</height>
                               </size>
+                             </property>
+                             <property name="focusPolicy">
+                              <enum>Qt::ClickFocus</enum>
                              </property>
                              <property name="text">
                               <string>↓</string>
@@ -1153,6 +1234,9 @@
                                <height>28</height>
                               </size>
                              </property>
+                             <property name="focusPolicy">
+                              <enum>Qt::ClickFocus</enum>
+                             </property>
                              <property name="text">
                               <string>←</string>
                              </property>
@@ -1174,6 +1258,9 @@
                                <width>40</width>
                                <height>28</height>
                               </size>
+                             </property>
+                             <property name="focusPolicy">
+                              <enum>Qt::ClickFocus</enum>
                              </property>
                              <property name="text">
                               <string>→</string>
@@ -1216,6 +1303,9 @@
                                <height>28</height>
                               </size>
                              </property>
+                             <property name="focusPolicy">
+                              <enum>Qt::ClickFocus</enum>
+                             </property>
                              <property name="text">
                               <string>Z</string>
                              </property>
@@ -1244,6 +1334,9 @@
                                <height>28</height>
                               </size>
                              </property>
+                             <property name="focusPolicy">
+                              <enum>Qt::ClickFocus</enum>
+                             </property>
                              <property name="text">
                               <string>P</string>
                              </property>
@@ -1268,6 +1361,9 @@
                                <width>40</width>
                                <height>28</height>
                               </size>
+                             </property>
+                             <property name="focusPolicy">
+                              <enum>Qt::ClickFocus</enum>
                              </property>
                              <property name="text">
                               <string>T</string>
@@ -2311,6 +2407,9 @@ ORIGIN</string>
                            <height>40</height>
                           </size>
                          </property>
+                         <property name="focusPolicy">
+                          <enum>Qt::ClickFocus</enum>
+                         </property>
                          <property name="text">
                           <string>EDIT</string>
                          </property>
@@ -2329,6 +2428,9 @@ ORIGIN</string>
                            <width>60</width>
                            <height>40</height>
                           </size>
+                         </property>
+                         <property name="focusPolicy">
+                          <enum>Qt::ClickFocus</enum>
                          </property>
                          <property name="text">
                           <string>MDI</string>
@@ -2448,6 +2550,9 @@ ORIGIN</string>
                            <width>0</width>
                            <height>0</height>
                           </size>
+                         </property>
+                         <property name="focusPolicy">
+                          <enum>Qt::ClickFocus</enum>
                          </property>
                          <property name="text">
                           <string>ESTOP</string>
@@ -2572,6 +2677,9 @@ ORIGIN</string>
                            <height>0</height>
                           </size>
                          </property>
+                         <property name="focusPolicy">
+                          <enum>Qt::ClickFocus</enum>
+                         </property>
                          <property name="toolTip">
                           <string/>
                          </property>
@@ -2692,13 +2800,16 @@ ORIGIN</string>
                            <height>40</height>
                           </size>
                          </property>
+                         <property name="focusPolicy">
+                          <enum>Qt::ClickFocus</enum>
+                         </property>
                          <property name="text">
                           <string>CYCLE START</string>
                          </property>
                         </widget>
                        </item>
                        <item>
-                        <widget class="ActionButton" name="pause">
+                        <widget class="ActionButton" name="pause_resume">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
                            <horstretch>0</horstretch>
@@ -2716,6 +2827,9 @@ ORIGIN</string>
                            <width>16777215</width>
                            <height>40</height>
                           </size>
+                         </property>
+                         <property name="focusPolicy">
+                          <enum>Qt::ClickFocus</enum>
                          </property>
                          <property name="text">
                           <string>CYCLE PAUSE</string>
@@ -2909,6 +3023,9 @@ ORIGIN</string>
                            <height>40</height>
                           </size>
                          </property>
+                         <property name="focusPolicy">
+                          <enum>Qt::ClickFocus</enum>
+                         </property>
                          <property name="text">
                           <string>CYCLE STOP</string>
                          </property>
@@ -2994,6 +3111,9 @@ ORIGIN</string>
                               <height>16777215</height>
                              </size>
                             </property>
+                            <property name="focusPolicy">
+                             <enum>Qt::ClickFocus</enum>
+                            </property>
                             <property name="text">
                              <string>FEED</string>
                             </property>
@@ -3018,6 +3138,9 @@ ORIGIN</string>
                               <width>16777215</width>
                               <height>16777215</height>
                              </size>
+                            </property>
+                            <property name="focusPolicy">
+                             <enum>Qt::ClickFocus</enum>
                             </property>
                             <property name="maximum">
                              <number>100</number>
@@ -3071,6 +3194,9 @@ ORIGIN</string>
                               <height>16777215</height>
                              </size>
                             </property>
+                            <property name="focusPolicy">
+                             <enum>Qt::ClickFocus</enum>
+                            </property>
                             <property name="text">
                              <string>RAPID</string>
                             </property>
@@ -3089,6 +3215,9 @@ ORIGIN</string>
                               <width>0</width>
                               <height>0</height>
                              </size>
+                            </property>
+                            <property name="focusPolicy">
+                             <enum>Qt::ClickFocus</enum>
                             </property>
                             <property name="maximum">
                              <number>100</number>
@@ -3136,6 +3265,9 @@ ORIGIN</string>
                               <height>16777215</height>
                              </size>
                             </property>
+                            <property name="focusPolicy">
+                             <enum>Qt::ClickFocus</enum>
+                            </property>
                             <property name="text">
                              <string>JOG</string>
                             </property>
@@ -3154,6 +3286,9 @@ ORIGIN</string>
                               <width>0</width>
                               <height>0</height>
                              </size>
+                            </property>
+                            <property name="focusPolicy">
+                             <enum>Qt::ClickFocus</enum>
                             </property>
                             <property name="maximum">
                              <number>100</number>
@@ -3399,6 +3534,9 @@ ORIGIN</string>
                               <height>40</height>
                              </size>
                             </property>
+                            <property name="focusPolicy">
+                             <enum>Qt::ClickFocus</enum>
+                            </property>
                             <property name="text">
                              <string>0</string>
                             </property>
@@ -3441,6 +3579,9 @@ ORIGIN</string>
                               <width>40</width>
                               <height>40</height>
                              </size>
+                            </property>
+                            <property name="focusPolicy">
+                             <enum>Qt::ClickFocus</enum>
                             </property>
                             <property name="text">
                              <string>0</string>
@@ -3528,6 +3669,9 @@ ORIGIN</string>
                                  <height>40</height>
                                 </size>
                                </property>
+                               <property name="focusPolicy">
+                                <enum>Qt::ClickFocus</enum>
+                               </property>
                                <property name="text">
                                 <string/>
                                </property>
@@ -3569,6 +3713,9 @@ ORIGIN</string>
                                  <height>40</height>
                                 </size>
                                </property>
+                               <property name="focusPolicy">
+                                <enum>Qt::ClickFocus</enum>
+                               </property>
                                <property name="text">
                                 <string>CAMERA</string>
                                </property>
@@ -3593,6 +3740,9 @@ ORIGIN</string>
                                  <width>60</width>
                                  <height>40</height>
                                 </size>
+                               </property>
+                               <property name="focusPolicy">
+                                <enum>Qt::ClickFocus</enum>
                                </property>
                                <property name="text">
                                 <string>LASER</string>
@@ -3621,6 +3771,9 @@ ORIGIN</string>
                               <width>48</width>
                               <height>40</height>
                              </size>
+                            </property>
+                            <property name="focusPolicy">
+                             <enum>Qt::ClickFocus</enum>
                             </property>
                             <property name="text">
                              <string>HOME</string>
@@ -3727,6 +3880,9 @@ ORIGIN</string>
                               <height>16777215</height>
                              </size>
                             </property>
+                            <property name="focusPolicy">
+                             <enum>Qt::ClickFocus</enum>
+                            </property>
                             <property name="toolTip">
                              <string/>
                             </property>
@@ -3795,6 +3951,9 @@ HOME ALL</string>
                               <width>48</width>
                               <height>40</height>
                              </size>
+                            </property>
+                            <property name="focusPolicy">
+                             <enum>Qt::ClickFocus</enum>
                             </property>
                             <property name="text">
                              <string>HOME</string>
@@ -3910,6 +4069,9 @@ HOME ALL</string>
                               <width>48</width>
                               <height>40</height>
                              </size>
+                            </property>
+                            <property name="focusPolicy">
+                             <enum>Qt::ClickFocus</enum>
                             </property>
                             <property name="text">
                              <string>HOME</string>
@@ -4059,6 +4221,9 @@ HOME ALL</string>
                               <height>40</height>
                              </size>
                             </property>
+                            <property name="focusPolicy">
+                             <enum>Qt::ClickFocus</enum>
+                            </property>
                             <property name="text">
                              <string>X0Y0</string>
                             </property>
@@ -4083,6 +4248,9 @@ HOME ALL</string>
                               <width>40</width>
                               <height>40</height>
                              </size>
+                            </property>
+                            <property name="focusPolicy">
+                             <enum>Qt::ClickFocus</enum>
                             </property>
                             <property name="text">
                              <string>0</string>
@@ -4163,6 +4331,9 @@ HOME ALL</string>
                               <width>48</width>
                               <height>40</height>
                              </size>
+                            </property>
+                            <property name="focusPolicy">
+                             <enum>Qt::ClickFocus</enum>
                             </property>
                             <property name="text">
                              <string>HOME</string>
@@ -4299,6 +4470,9 @@ HOME ALL</string>
                               <width>48</width>
                               <height>40</height>
                              </size>
+                            </property>
+                            <property name="focusPolicy">
+                             <enum>Qt::ClickFocus</enum>
                             </property>
                             <property name="text">
                              <string>HOME</string>
@@ -4492,6 +4666,9 @@ HOME ALL</string>
                               <height>40</height>
                              </size>
                             </property>
+                            <property name="focusPolicy">
+                             <enum>Qt::ClickFocus</enum>
+                            </property>
                             <property name="text">
                              <string>0</string>
                             </property>
@@ -4534,6 +4711,9 @@ HOME ALL</string>
                               <width>40</width>
                               <height>40</height>
                              </size>
+                            </property>
+                            <property name="focusPolicy">
+                             <enum>Qt::ClickFocus</enum>
                             </property>
                             <property name="text">
                              <string>0</string>
@@ -4659,6 +4839,9 @@ HOME ALL</string>
                               <height>40</height>
                              </size>
                             </property>
+                            <property name="focusPolicy">
+                             <enum>Qt::ClickFocus</enum>
+                            </property>
                             <property name="text">
                              <string>HOME</string>
                             </property>
@@ -4714,6 +4897,9 @@ HOME ALL</string>
                               <width>40</width>
                               <height>39</height>
                              </size>
+                            </property>
+                            <property name="focusPolicy">
+                             <enum>Qt::ClickFocus</enum>
                             </property>
                             <property name="text">
                              <string>0</string>
@@ -4894,6 +5080,9 @@ HOME ALL</string>
                                      <height>16</height>
                                     </size>
                                    </property>
+                                   <property name="focusPolicy">
+                                    <enum>Qt::ClickFocus</enum>
+                                   </property>
                                    <property name="text">
                                     <string>CLEAR</string>
                                    </property>
@@ -4928,6 +5117,9 @@ HOME ALL</string>
                                      <height>16</height>
                                     </size>
                                    </property>
+                                   <property name="focusPolicy">
+                                    <enum>Qt::ClickFocus</enum>
+                                   </property>
                                    <property name="text">
                                     <string>OPEN</string>
                                    </property>
@@ -4952,6 +5144,9 @@ HOME ALL</string>
                                      <width>60</width>
                                      <height>16</height>
                                     </size>
+                                   </property>
+                                   <property name="focusPolicy">
+                                    <enum>Qt::ClickFocus</enum>
                                    </property>
                                    <property name="text">
                                     <string>RELOAD</string>
@@ -5333,6 +5528,9 @@ HOME ALL</string>
                                      <height>40</height>
                                     </size>
                                    </property>
+                                   <property name="focusPolicy">
+                                    <enum>Qt::ClickFocus</enum>
+                                   </property>
                                   </widget>
                                  </item>
                                  <item>
@@ -5354,6 +5552,9 @@ HOME ALL</string>
                                      <width>40</width>
                                      <height>40</height>
                                     </size>
+                                   </property>
+                                   <property name="focusPolicy">
+                                    <enum>Qt::ClickFocus</enum>
                                    </property>
                                    <property name="toolTip">
                                     <string/>
@@ -5431,6 +5632,9 @@ HOME ALL</string>
                                      <height>40</height>
                                     </size>
                                    </property>
+                                   <property name="focusPolicy">
+                                    <enum>Qt::ClickFocus</enum>
+                                   </property>
                                    <property name="iconSize">
                                     <size>
                                      <width>40</width>
@@ -5458,6 +5662,9 @@ HOME ALL</string>
                                      <width>40</width>
                                      <height>40</height>
                                     </size>
+                                   </property>
+                                   <property name="focusPolicy">
+                                    <enum>Qt::ClickFocus</enum>
                                    </property>
                                    <property name="text">
                                     <string/>
@@ -5490,6 +5697,9 @@ HOME ALL</string>
                                      <height>40</height>
                                     </size>
                                    </property>
+                                   <property name="focusPolicy">
+                                    <enum>Qt::ClickFocus</enum>
+                                   </property>
                                    <property name="iconSize">
                                     <size>
                                      <width>40</width>
@@ -5517,6 +5727,9 @@ HOME ALL</string>
                                      <width>40</width>
                                      <height>40</height>
                                     </size>
+                                   </property>
+                                   <property name="focusPolicy">
+                                    <enum>Qt::ClickFocus</enum>
                                    </property>
                                    <property name="iconSize">
                                     <size>
@@ -5546,6 +5759,9 @@ HOME ALL</string>
                                      <height>40</height>
                                     </size>
                                    </property>
+                                   <property name="focusPolicy">
+                                    <enum>Qt::ClickFocus</enum>
+                                   </property>
                                    <property name="iconSize">
                                     <size>
                                      <width>32</width>
@@ -5573,6 +5789,9 @@ HOME ALL</string>
                                      <width>40</width>
                                      <height>40</height>
                                     </size>
+                                   </property>
+                                   <property name="focusPolicy">
+                                    <enum>Qt::ClickFocus</enum>
                                    </property>
                                    <property name="iconSize">
                                     <size>
@@ -5602,6 +5821,9 @@ HOME ALL</string>
                                      <height>40</height>
                                     </size>
                                    </property>
+                                   <property name="focusPolicy">
+                                    <enum>Qt::ClickFocus</enum>
+                                   </property>
                                    <property name="iconSize">
                                     <size>
                                      <width>40</width>
@@ -5629,6 +5851,9 @@ HOME ALL</string>
                                      <width>40</width>
                                      <height>40</height>
                                     </size>
+                                   </property>
+                                   <property name="focusPolicy">
+                                    <enum>Qt::ClickFocus</enum>
                                    </property>
                                    <property name="iconSize">
                                     <size>
@@ -5658,6 +5883,9 @@ HOME ALL</string>
                                      <height>40</height>
                                     </size>
                                    </property>
+                                   <property name="focusPolicy">
+                                    <enum>Qt::ClickFocus</enum>
+                                   </property>
                                    <property name="iconSize">
                                     <size>
                                      <width>32</width>
@@ -5685,6 +5913,9 @@ HOME ALL</string>
                                      <width>40</width>
                                      <height>40</height>
                                     </size>
+                                   </property>
+                                   <property name="focusPolicy">
+                                    <enum>Qt::ClickFocus</enum>
                                    </property>
                                    <property name="text">
                                     <string/>
@@ -5717,6 +5948,9 @@ HOME ALL</string>
                                      <height>40</height>
                                     </size>
                                    </property>
+                                   <property name="focusPolicy">
+                                    <enum>Qt::ClickFocus</enum>
+                                   </property>
                                    <property name="text">
                                     <string/>
                                    </property>
@@ -5747,6 +5981,9 @@ HOME ALL</string>
                                      <width>40</width>
                                      <height>40</height>
                                     </size>
+                                   </property>
+                                   <property name="focusPolicy">
+                                    <enum>Qt::ClickFocus</enum>
                                    </property>
                                    <property name="text">
                                     <string/>
@@ -6771,7 +7008,11 @@ MOVE</string>
                                  </widget>
                                 </item>
                                 <item row="0" column="0">
-                                 <widget class="CheckBox" name="thc_enable"/>
+                                 <widget class="CheckBox" name="thc_enable">
+                                  <property name="focusPolicy">
+                                   <enum>Qt::ClickFocus</enum>
+                                  </property>
+                                 </widget>
                                 </item>
                                </layout>
                               </widget>
@@ -7344,6 +7585,9 @@ MOVE</string>
                                     <height>16</height>
                                    </size>
                                   </property>
+                                  <property name="focusPolicy">
+                                   <enum>Qt::ClickFocus</enum>
+                                  </property>
                                   <property name="text">
                                    <string>OVERRIDE</string>
                                   </property>
@@ -7393,6 +7637,9 @@ MOVE</string>
                                        <height>24</height>
                                       </size>
                                      </property>
+                                     <property name="focusPolicy">
+                                      <enum>Qt::ClickFocus</enum>
+                                     </property>
                                      <property name="text">
                                       <string>-</string>
                                      </property>
@@ -7433,6 +7680,9 @@ MOVE</string>
                                        <width>24</width>
                                        <height>24</height>
                                       </size>
+                                     </property>
+                                     <property name="focusPolicy">
+                                      <enum>Qt::ClickFocus</enum>
                                      </property>
                                      <property name="text">
                                       <string>+</string>
@@ -7553,6 +7803,9 @@ MOVE</string>
                                  <height>16777215</height>
                                 </size>
                                </property>
+                               <property name="focusPolicy">
+                                <enum>Qt::ClickFocus</enum>
+                               </property>
                                <property name="layoutDirection">
                                 <enum>Qt::LeftToRight</enum>
                                </property>
@@ -7632,6 +7885,9 @@ MOVE</string>
                                  <height>0</height>
                                 </size>
                                </property>
+                               <property name="focusPolicy">
+                                <enum>Qt::ClickFocus</enum>
+                               </property>
                               </widget>
                              </item>
                             </layout>
@@ -7686,6 +7942,9 @@ MOVE</string>
                                  <width>16777215</width>
                                  <height>16777215</height>
                                 </size>
+                               </property>
+                               <property name="focusPolicy">
+                                <enum>Qt::ClickFocus</enum>
                                </property>
                                <property name="layoutDirection">
                                 <enum>Qt::LeftToRight</enum>
@@ -7771,6 +8030,9 @@ MOVE</string>
                                  <width>16777215</width>
                                  <height>16777215</height>
                                 </size>
+                               </property>
+                               <property name="focusPolicy">
+                                <enum>Qt::ClickFocus</enum>
                                </property>
                                <property name="layoutDirection">
                                 <enum>Qt::LeftToRight</enum>
@@ -7913,6 +8175,9 @@ MOVE</string>
                                  <height>16777215</height>
                                 </size>
                                </property>
+                               <property name="focusPolicy">
+                                <enum>Qt::ClickFocus</enum>
+                               </property>
                                <property name="layoutDirection">
                                 <enum>Qt::LeftToRight</enum>
                                </property>
@@ -8053,6 +8318,9 @@ MOVE</string>
                                  <width>16777215</width>
                                  <height>16777215</height>
                                 </size>
+                               </property>
+                               <property name="focusPolicy">
+                                <enum>Qt::ClickFocus</enum>
                                </property>
                                <property name="layoutDirection">
                                 <enum>Qt::LeftToRight</enum>
@@ -8195,6 +8463,9 @@ MOVE</string>
                                  <height>16777215</height>
                                 </size>
                                </property>
+                               <property name="focusPolicy">
+                                <enum>Qt::ClickFocus</enum>
+                               </property>
                                <property name="layoutDirection">
                                 <enum>Qt::LeftToRight</enum>
                                </property>
@@ -8275,6 +8546,9 @@ MOVE</string>
                                  <width>16777215</width>
                                  <height>16777215</height>
                                 </size>
+                               </property>
+                               <property name="focusPolicy">
+                                <enum>Qt::ClickFocus</enum>
                                </property>
                                <property name="text">
                                 <string/>
@@ -8464,24 +8738,308 @@ MOVE</string>
                    <property name="frameShadow">
                     <enum>QFrame::Plain</enum>
                    </property>
-                   <layout class="QVBoxLayout" name="verticalLayout_55">
-                    <property name="spacing">
-                     <number>0</number>
-                    </property>
-                    <property name="leftMargin">
-                     <number>0</number>
-                    </property>
-                    <property name="topMargin">
-                     <number>0</number>
-                    </property>
-                    <property name="rightMargin">
-                     <number>0</number>
-                    </property>
-                    <property name="bottomMargin">
-                     <number>0</number>
-                    </property>
+                   <layout class="QHBoxLayout" name="horizontalLayout_49">
                     <item>
                      <widget class="GCodeGraphics" name="conv_preview"/>
+                    </item>
+                    <item>
+                     <widget class="QFrame" name="conv_preview_buttons">
+                      <property name="enabled">
+                       <bool>true</bool>
+                      </property>
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>40</width>
+                        <height>16777215</height>
+                       </size>
+                      </property>
+                      <property name="autoFillBackground">
+                       <bool>true</bool>
+                      </property>
+                      <layout class="QVBoxLayout" name="verticalLayout_55">
+                       <property name="spacing">
+                        <number>8</number>
+                       </property>
+                       <property name="leftMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="topMargin">
+                        <number>2</number>
+                       </property>
+                       <property name="rightMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="bottomMargin">
+                        <number>2</number>
+                       </property>
+                       <item>
+                        <spacer name="verticalSpacer_23">
+                         <property name="orientation">
+                          <enum>Qt::Vertical</enum>
+                         </property>
+                         <property name="sizeHint" stdset="0">
+                          <size>
+                           <width>20</width>
+                           <height>40</height>
+                          </size>
+                         </property>
+                        </spacer>
+                       </item>
+                       <item>
+                        <widget class="QPushButton" name="conv_view_t">
+                         <property name="minimumSize">
+                          <size>
+                           <width>40</width>
+                           <height>28</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>40</width>
+                           <height>28</height>
+                          </size>
+                         </property>
+                         <property name="focusPolicy">
+                          <enum>Qt::ClickFocus</enum>
+                         </property>
+                         <property name="text">
+                          <string notr="true">T</string>
+                         </property>
+                         <property name="checkable">
+                          <bool>true</bool>
+                         </property>
+                         <property name="autoExclusive">
+                          <bool>true</bool>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QPushButton" name="conv_view_z">
+                         <property name="minimumSize">
+                          <size>
+                           <width>40</width>
+                           <height>28</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>40</width>
+                           <height>28</height>
+                          </size>
+                         </property>
+                         <property name="focusPolicy">
+                          <enum>Qt::ClickFocus</enum>
+                         </property>
+                         <property name="text">
+                          <string notr="true">Z</string>
+                         </property>
+                         <property name="checkable">
+                          <bool>true</bool>
+                         </property>
+                         <property name="checked">
+                          <bool>true</bool>
+                         </property>
+                         <property name="autoExclusive">
+                          <bool>true</bool>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QLabel" name="view_spacer_4">
+                         <property name="minimumSize">
+                          <size>
+                           <width>0</width>
+                           <height>10</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>16777215</width>
+                           <height>10</height>
+                          </size>
+                         </property>
+                         <property name="text">
+                          <string/>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QPushButton" name="conv_pan_right">
+                         <property name="minimumSize">
+                          <size>
+                           <width>40</width>
+                           <height>28</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>40</width>
+                           <height>28</height>
+                          </size>
+                         </property>
+                         <property name="focusPolicy">
+                          <enum>Qt::ClickFocus</enum>
+                         </property>
+                         <property name="text">
+                          <string notr="true">→</string>
+                         </property>
+                         <property name="autoRepeat">
+                          <bool>true</bool>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QPushButton" name="conv_pan_left">
+                         <property name="minimumSize">
+                          <size>
+                           <width>40</width>
+                           <height>28</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>40</width>
+                           <height>28</height>
+                          </size>
+                         </property>
+                         <property name="focusPolicy">
+                          <enum>Qt::ClickFocus</enum>
+                         </property>
+                         <property name="text">
+                          <string notr="true">←</string>
+                         </property>
+                         <property name="autoRepeat">
+                          <bool>true</bool>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QPushButton" name="conv_pan_up">
+                         <property name="minimumSize">
+                          <size>
+                           <width>40</width>
+                           <height>28</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>40</width>
+                           <height>28</height>
+                          </size>
+                         </property>
+                         <property name="focusPolicy">
+                          <enum>Qt::ClickFocus</enum>
+                         </property>
+                         <property name="text">
+                          <string notr="true">↑</string>
+                         </property>
+                         <property name="autoRepeat">
+                          <bool>true</bool>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QPushButton" name="conv_pan_down">
+                         <property name="minimumSize">
+                          <size>
+                           <width>40</width>
+                           <height>28</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>40</width>
+                           <height>28</height>
+                          </size>
+                         </property>
+                         <property name="focusPolicy">
+                          <enum>Qt::ClickFocus</enum>
+                         </property>
+                         <property name="text">
+                          <string notr="true">↓</string>
+                         </property>
+                         <property name="autoRepeat">
+                          <bool>true</bool>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QLabel" name="view_spacer_5">
+                         <property name="minimumSize">
+                          <size>
+                           <width>0</width>
+                           <height>10</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>16777215</width>
+                           <height>10</height>
+                          </size>
+                         </property>
+                         <property name="text">
+                          <string/>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QPushButton" name="conv_zoom_in">
+                         <property name="minimumSize">
+                          <size>
+                           <width>40</width>
+                           <height>28</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>40</width>
+                           <height>28</height>
+                          </size>
+                         </property>
+                         <property name="focusPolicy">
+                          <enum>Qt::ClickFocus</enum>
+                         </property>
+                         <property name="text">
+                          <string notr="true">+</string>
+                         </property>
+                         <property name="autoRepeat">
+                          <bool>true</bool>
+                         </property>
+                        </widget>
+                       </item>
+                       <item>
+                        <widget class="QPushButton" name="conv_zoom_out">
+                         <property name="minimumSize">
+                          <size>
+                           <width>40</width>
+                           <height>28</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>40</width>
+                           <height>28</height>
+                          </size>
+                         </property>
+                         <property name="focusPolicy">
+                          <enum>Qt::ClickFocus</enum>
+                         </property>
+                         <property name="text">
+                          <string notr="true">-</string>
+                         </property>
+                         <property name="autoRepeat">
+                          <bool>true</bool>
+                         </property>
+                        </widget>
+                       </item>
+                      </layout>
+                     </widget>
                     </item>
                    </layout>
                   </widget>
@@ -8536,6 +9094,9 @@ MOVE</string>
                         <height>16777215</height>
                        </size>
                       </property>
+                      <property name="focusPolicy">
+                       <enum>Qt::ClickFocus</enum>
+                      </property>
                       <property name="iconSize">
                        <size>
                         <width>48</width>
@@ -8570,6 +9131,9 @@ MOVE</string>
                         <height>16777215</height>
                        </size>
                       </property>
+                      <property name="focusPolicy">
+                       <enum>Qt::ClickFocus</enum>
+                      </property>
                       <property name="iconSize">
                        <size>
                         <width>48</width>
@@ -8597,6 +9161,9 @@ MOVE</string>
                         <width>52</width>
                         <height>52</height>
                        </size>
+                      </property>
+                      <property name="focusPolicy">
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="text">
                        <string/>
@@ -8628,6 +9195,9 @@ MOVE</string>
                         <width>16777215</width>
                         <height>16777215</height>
                        </size>
+                      </property>
+                      <property name="focusPolicy">
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="iconSize">
                        <size>
@@ -8663,6 +9233,9 @@ MOVE</string>
                         <height>16777215</height>
                        </size>
                       </property>
+                      <property name="focusPolicy">
+                       <enum>Qt::ClickFocus</enum>
+                      </property>
                       <property name="iconSize">
                        <size>
                         <width>48</width>
@@ -8696,6 +9269,9 @@ MOVE</string>
                         <width>16777215</width>
                         <height>16777215</height>
                        </size>
+                      </property>
+                      <property name="focusPolicy">
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="iconSize">
                        <size>
@@ -8731,6 +9307,9 @@ MOVE</string>
                         <height>16777215</height>
                        </size>
                       </property>
+                      <property name="focusPolicy">
+                       <enum>Qt::ClickFocus</enum>
+                      </property>
                       <property name="iconSize">
                        <size>
                         <width>48</width>
@@ -8764,6 +9343,9 @@ MOVE</string>
                         <width>16777215</width>
                         <height>16777215</height>
                        </size>
+                      </property>
+                      <property name="focusPolicy">
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="iconSize">
                        <size>
@@ -8799,6 +9381,9 @@ MOVE</string>
                         <height>16777215</height>
                        </size>
                       </property>
+                      <property name="focusPolicy">
+                       <enum>Qt::ClickFocus</enum>
+                      </property>
                       <property name="iconSize">
                        <size>
                         <width>48</width>
@@ -8833,6 +9418,9 @@ MOVE</string>
                         <height>16777215</height>
                        </size>
                       </property>
+                      <property name="focusPolicy">
+                       <enum>Qt::ClickFocus</enum>
+                      </property>
                       <property name="iconSize">
                        <size>
                         <width>48</width>
@@ -8866,6 +9454,9 @@ MOVE</string>
                         <width>16777215</width>
                         <height>16777215</height>
                        </size>
+                      </property>
+                      <property name="focusPolicy">
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="iconSize">
                        <size>
@@ -8913,6 +9504,9 @@ MOVE</string>
                         <width>16777215</width>
                         <height>16777215</height>
                        </size>
+                      </property>
+                      <property name="focusPolicy">
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="iconSize">
                        <size>
@@ -9066,7 +9660,11 @@ MOVE</string>
                                 <number>4</number>
                                </property>
                                <item row="0" column="0">
-                                <widget class="QComboBox" name="conv_material"/>
+                                <widget class="QComboBox" name="conv_material">
+                                 <property name="focusPolicy">
+                                  <enum>Qt::ClickFocus</enum>
+                                 </property>
+                                </widget>
                                </item>
                               </layout>
                              </item>
@@ -9129,6 +9727,9 @@ MOVE</string>
                               <height>16777215</height>
                              </size>
                             </property>
+                            <property name="focusPolicy">
+                             <enum>Qt::ClickFocus</enum>
+                            </property>
                             <property name="text">
                              <string>NEW</string>
                             </property>
@@ -9153,6 +9754,9 @@ MOVE</string>
                               <width>90</width>
                               <height>16777215</height>
                              </size>
+                            </property>
+                            <property name="focusPolicy">
+                             <enum>Qt::ClickFocus</enum>
                             </property>
                             <property name="text">
                              <string>SAVE</string>
@@ -9179,6 +9783,9 @@ MOVE</string>
                               <height>16777215</height>
                              </size>
                             </property>
+                            <property name="focusPolicy">
+                             <enum>Qt::ClickFocus</enum>
+                            </property>
                             <property name="text">
                              <string>SETTINGS</string>
                             </property>
@@ -9203,6 +9810,9 @@ MOVE</string>
                               <width>90</width>
                               <height>16777215</height>
                              </size>
+                            </property>
+                            <property name="focusPolicy">
+                             <enum>Qt::ClickFocus</enum>
                             </property>
                             <property name="text">
                              <string>SEND</string>
@@ -9339,6 +9949,9 @@ MOVE</string>
                      <height>16</height>
                     </size>
                    </property>
+                   <property name="focusPolicy">
+                    <enum>Qt::ClickFocus</enum>
+                   </property>
                    <property name="text">
                     <string>SAVE</string>
                    </property>
@@ -9357,6 +9970,9 @@ MOVE</string>
                      <width>60</width>
                      <height>16</height>
                     </size>
+                   </property>
+                   <property name="focusPolicy">
+                    <enum>Qt::ClickFocus</enum>
                    </property>
                    <property name="text">
                     <string>NEW</string>
@@ -9399,6 +10015,9 @@ MOVE</string>
                      <height>16</height>
                     </size>
                    </property>
+                   <property name="focusPolicy">
+                    <enum>Qt::ClickFocus</enum>
+                   </property>
                    <property name="text">
                     <string>DELETE</string>
                    </property>
@@ -9417,6 +10036,9 @@ MOVE</string>
                      <width>60</width>
                      <height>16</height>
                     </size>
+                   </property>
+                   <property name="focusPolicy">
+                    <enum>Qt::ClickFocus</enum>
                    </property>
                    <property name="text">
                     <string>RELOAD</string>
@@ -9476,6 +10098,9 @@ MOVE</string>
                     </property>
                     <item>
                      <widget class="QComboBox" name="materials_box">
+                      <property name="focusPolicy">
+                       <enum>Qt::ClickFocus</enum>
+                      </property>
                       <property name="currentText">
                        <string/>
                       </property>
@@ -10550,6 +11175,9 @@ MOVE</string>
                      <height>16</height>
                     </size>
                    </property>
+                   <property name="focusPolicy">
+                    <enum>Qt::ClickFocus</enum>
+                   </property>
                    <property name="text">
                     <string>SAVE</string>
                    </property>
@@ -10590,6 +11218,9 @@ MOVE</string>
                      <width>60</width>
                      <height>16</height>
                     </size>
+                   </property>
+                   <property name="focusPolicy">
+                    <enum>Qt::ClickFocus</enum>
                    </property>
                    <property name="text">
                     <string>RELOAD</string>
@@ -11416,6 +12047,9 @@ MOVE</string>
                              </item>
                              <item row="1" column="0">
                               <widget class="CheckBox" name="thc_auto">
+                               <property name="focusPolicy">
+                                <enum>Qt::ClickFocus</enum>
+                               </property>
                                <property name="layoutDirection">
                                 <enum>Qt::RightToLeft</enum>
                                </property>
@@ -13920,6 +14554,9 @@ MOVE</string>
                            <height>16777215</height>
                           </size>
                          </property>
+                         <property name="focusPolicy">
+                          <enum>Qt::ClickFocus</enum>
+                         </property>
                         </widget>
                        </item>
                        <item row="1" column="3">
@@ -13942,6 +14579,9 @@ MOVE</string>
                            <height>16777215</height>
                           </size>
                          </property>
+                         <property name="focusPolicy">
+                          <enum>Qt::ClickFocus</enum>
+                         </property>
                         </widget>
                        </item>
                        <item row="3" column="3">
@@ -13963,6 +14603,9 @@ MOVE</string>
                            <width>16777215</width>
                            <height>16777215</height>
                           </size>
+                         </property>
+                         <property name="focusPolicy">
+                          <enum>Qt::ClickFocus</enum>
                          </property>
                         </widget>
                        </item>
@@ -14007,6 +14650,9 @@ MOVE</string>
                            <width>16777215</width>
                            <height>16777215</height>
                           </size>
+                         </property>
+                         <property name="focusPolicy">
+                          <enum>Qt::ClickFocus</enum>
                          </property>
                         </widget>
                        </item>
@@ -14068,6 +14714,9 @@ MOVE</string>
                            <height>16777215</height>
                           </size>
                          </property>
+                         <property name="focusPolicy">
+                          <enum>Qt::ClickFocus</enum>
+                         </property>
                         </widget>
                        </item>
                        <item row="0" column="0">
@@ -14089,6 +14738,9 @@ MOVE</string>
                            <width>16777215</width>
                            <height>16777215</height>
                           </size>
+                         </property>
+                         <property name="focusPolicy">
+                          <enum>Qt::ClickFocus</enum>
                          </property>
                         </widget>
                        </item>
@@ -14169,6 +14821,9 @@ MOVE</string>
                            <height>16777215</height>
                           </size>
                          </property>
+                         <property name="focusPolicy">
+                          <enum>Qt::ClickFocus</enum>
+                         </property>
                         </widget>
                        </item>
                        <item row="1" column="2">
@@ -14232,6 +14887,9 @@ MOVE</string>
                            <height>16777215</height>
                           </size>
                          </property>
+                         <property name="focusPolicy">
+                          <enum>Qt::ClickFocus</enum>
+                         </property>
                         </widget>
                        </item>
                        <item row="2" column="3">
@@ -14253,6 +14911,9 @@ MOVE</string>
                            <width>16777215</width>
                            <height>16777215</height>
                           </size>
+                         </property>
+                         <property name="focusPolicy">
+                          <enum>Qt::ClickFocus</enum>
                          </property>
                         </widget>
                        </item>
@@ -14358,6 +15019,9 @@ MOVE</string>
                            <height>30</height>
                           </size>
                          </property>
+                         <property name="focusPolicy">
+                          <enum>Qt::ClickFocus</enum>
+                         </property>
                          <property name="layoutDirection">
                           <enum>Qt::RightToLeft</enum>
                          </property>
@@ -14387,6 +15051,9 @@ MOVE</string>
                            <height>0</height>
                           </size>
                          </property>
+                         <property name="focusPolicy">
+                          <enum>Qt::ClickFocus</enum>
+                         </property>
                          <property name="layoutDirection">
                           <enum>Qt::RightToLeft</enum>
                          </property>
@@ -14403,6 +15070,9 @@ MOVE</string>
                            <height>30</height>
                           </size>
                          </property>
+                         <property name="focusPolicy">
+                          <enum>Qt::ClickFocus</enum>
+                         </property>
                          <property name="layoutDirection">
                           <enum>Qt::RightToLeft</enum>
                          </property>
@@ -14413,6 +15083,9 @@ MOVE</string>
                        </item>
                        <item row="2" column="0">
                         <widget class="QCheckBox" name="chk_exit_warning">
+                         <property name="focusPolicy">
+                          <enum>Qt::ClickFocus</enum>
+                         </property>
                          <property name="layoutDirection">
                           <enum>Qt::RightToLeft</enum>
                          </property>
@@ -14474,6 +15147,9 @@ MOVE</string>
                        </item>
                        <item row="4" column="0">
                         <widget class="QCheckBox" name="chk_tool_tips">
+                         <property name="focusPolicy">
+                          <enum>Qt::ClickFocus</enum>
+                         </property>
                          <property name="layoutDirection">
                           <enum>Qt::RightToLeft</enum>
                          </property>
@@ -14501,6 +15177,9 @@ MOVE</string>
                            <width>16777215</width>
                            <height>16777215</height>
                           </size>
+                         </property>
+                         <property name="focusPolicy">
+                          <enum>Qt::ClickFocus</enum>
                          </property>
                          <property name="text">
                           <string/>
@@ -14563,6 +15242,9 @@ MOVE</string>
                            <height>0</height>
                           </size>
                          </property>
+                         <property name="focusPolicy">
+                          <enum>Qt::ClickFocus</enum>
+                         </property>
                          <property name="layoutDirection">
                           <enum>Qt::RightToLeft</enum>
                          </property>
@@ -14590,6 +15272,9 @@ MOVE</string>
                            <width>16777215</width>
                            <height>16777215</height>
                           </size>
+                         </property>
+                         <property name="focusPolicy">
+                          <enum>Qt::ClickFocus</enum>
                          </property>
                          <property name="text">
                           <string/>
@@ -14644,6 +15329,9 @@ MOVE</string>
                            <height>16777215</height>
                           </size>
                          </property>
+                         <property name="focusPolicy">
+                          <enum>Qt::ClickFocus</enum>
+                         </property>
                          <property name="layoutDirection">
                           <enum>Qt::RightToLeft</enum>
                          </property>
@@ -14661,6 +15349,9 @@ MOVE</string>
                        </item>
                        <item row="7" column="0">
                         <widget class="QCheckBox" name="chk_override_jog">
+                         <property name="focusPolicy">
+                          <enum>Qt::ClickFocus</enum>
+                         </property>
                          <property name="layoutDirection">
                           <enum>Qt::RightToLeft</enum>
                          </property>
@@ -14962,6 +15653,9 @@ MOVE</string>
                            <height>16777215</height>
                           </size>
                          </property>
+                         <property name="focusPolicy">
+                          <enum>Qt::ClickFocus</enum>
+                         </property>
                         </widget>
                        </item>
                       </layout>
@@ -15069,6 +15763,9 @@ MOVE</string>
                         <height>40</height>
                        </size>
                       </property>
+                      <property name="focusPolicy">
+                       <enum>Qt::ClickFocus</enum>
+                      </property>
                       <property name="text">
                        <string>HAL SHOW</string>
                       </property>
@@ -15138,6 +15835,9 @@ MOVE</string>
                         <width>90</width>
                         <height>40</height>
                        </size>
+                      </property>
+                      <property name="focusPolicy">
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="text">
                        <string>HAL SCOPE</string>
@@ -15209,6 +15909,9 @@ MOVE</string>
                         <height>40</height>
                        </size>
                       </property>
+                      <property name="focusPolicy">
+                       <enum>Qt::ClickFocus</enum>
+                      </property>
                       <property name="text">
                        <string>HAL METER</string>
                       </property>
@@ -15279,6 +15982,9 @@ MOVE</string>
                         <height>40</height>
                        </size>
                       </property>
+                      <property name="focusPolicy">
+                       <enum>Qt::ClickFocus</enum>
+                      </property>
                       <property name="text">
                        <string>CALIBRATION</string>
                       </property>
@@ -15306,6 +16012,9 @@ MOVE</string>
                         <width>90</width>
                         <height>40</height>
                        </size>
+                      </property>
+                      <property name="focusPolicy">
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="text">
                        <string>STATUS</string>
@@ -15390,6 +16099,9 @@ MOVE</string>
                         <height>40</height>
                        </size>
                       </property>
+                      <property name="focusPolicy">
+                       <enum>Qt::ClickFocus</enum>
+                      </property>
                       <property name="text">
                        <string>SET
 OFFSETS</string>
@@ -15415,6 +16127,9 @@ OFFSETS</string>
                         <width>90</width>
                         <height>40</height>
                        </size>
+                      </property>
+                      <property name="focusPolicy">
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="text">
                        <string>BACKUP
@@ -15559,6 +16274,9 @@ CONFIG</string>
                         <height>16</height>
                        </size>
                       </property>
+                      <property name="focusPolicy">
+                       <enum>Qt::ClickFocus</enum>
+                      </property>
                       <property name="text">
                        <string>SAVE</string>
                       </property>
@@ -15605,6 +16323,9 @@ CONFIG</string>
                         <width>60</width>
                         <height>16</height>
                        </size>
+                      </property>
+                      <property name="focusPolicy">
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="text">
                        <string>RELOAD</string>
@@ -15727,6 +16448,9 @@ CONFIG</string>
                      <height>20</height>
                     </size>
                    </property>
+                   <property name="focusPolicy">
+                    <enum>Qt::ClickFocus</enum>
+                   </property>
                    <property name="frameShape">
                     <enum>QFrame::NoFrame</enum>
                    </property>
@@ -15741,7 +16465,7 @@ CONFIG</string>
                      <rect>
                       <x>0</x>
                       <y>0</y>
-                      <width>101</width>
+                      <width>163</width>
                       <height>636</height>
                      </rect>
                     </property>
@@ -17057,6 +17781,9 @@ CONFIG</string>
                         <height>16</height>
                        </size>
                       </property>
+                      <property name="focusPolicy">
+                       <enum>Qt::ClickFocus</enum>
+                      </property>
                       <property name="text">
                        <string>SAVE</string>
                       </property>
@@ -17103,6 +17830,9 @@ CONFIG</string>
                         <width>60</width>
                         <height>16</height>
                        </size>
+                      </property>
+                      <property name="focusPolicy">
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="text">
                        <string>RELOAD</string>
@@ -17309,11 +18039,8 @@ CONFIG</string>
                     </property>
                     <item>
                      <widget class="MachineLog" name="machinelog">
-                      <property name="frameShape">
-                       <enum>QFrame::NoFrame</enum>
-                      </property>
-                      <property name="frameShadow">
-                       <enum>QFrame::Plain</enum>
+                      <property name="focusPolicy">
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                      </widget>
                     </item>
@@ -17430,6 +18157,9 @@ CONFIG</string>
                         <verstretch>0</verstretch>
                        </sizepolicy>
                       </property>
+                      <property name="focusPolicy">
+                       <enum>Qt::ClickFocus</enum>
+                      </property>
                       <property name="text">
                        <string>RESET</string>
                       </property>
@@ -17505,6 +18235,9 @@ CONFIG</string>
                         <verstretch>0</verstretch>
                        </sizepolicy>
                       </property>
+                      <property name="focusPolicy">
+                       <enum>Qt::ClickFocus</enum>
+                      </property>
                       <property name="text">
                        <string>RESET</string>
                       </property>
@@ -17517,6 +18250,9 @@ CONFIG</string>
                         <horstretch>0</horstretch>
                         <verstretch>0</verstretch>
                        </sizepolicy>
+                      </property>
+                      <property name="focusPolicy">
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="text">
                        <string>RESET</string>
@@ -17561,6 +18297,9 @@ CONFIG</string>
                         <verstretch>0</verstretch>
                        </sizepolicy>
                       </property>
+                      <property name="focusPolicy">
+                       <enum>Qt::ClickFocus</enum>
+                      </property>
                       <property name="text">
                        <string>RESET</string>
                       </property>
@@ -17595,6 +18334,9 @@ CONFIG</string>
                         <horstretch>0</horstretch>
                         <verstretch>0</verstretch>
                        </sizepolicy>
+                      </property>
+                      <property name="focusPolicy">
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="text">
                        <string>RESET ALL</string>
@@ -17708,6 +18450,9 @@ CONFIG</string>
                         <verstretch>0</verstretch>
                        </sizepolicy>
                       </property>
+                      <property name="focusPolicy">
+                       <enum>Qt::ClickFocus</enum>
+                      </property>
                       <property name="text">
                        <string>RESET</string>
                       </property>
@@ -17741,6 +18486,9 @@ CONFIG</string>
                         <verstretch>0</verstretch>
                        </sizepolicy>
                       </property>
+                      <property name="focusPolicy">
+                       <enum>Qt::ClickFocus</enum>
+                      </property>
                       <property name="text">
                        <string>RESET</string>
                       </property>
@@ -17753,6 +18501,9 @@ CONFIG</string>
                         <horstretch>0</horstretch>
                         <verstretch>0</verstretch>
                        </sizepolicy>
+                      </property>
+                      <property name="focusPolicy">
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="text">
                        <string>RESET</string>
@@ -17826,6 +18577,9 @@ CONFIG</string>
                         <horstretch>0</horstretch>
                         <verstretch>0</verstretch>
                        </sizepolicy>
+                      </property>
+                      <property name="focusPolicy">
+                       <enum>Qt::ClickFocus</enum>
                       </property>
                       <property name="text">
                        <string>RESET</string>
@@ -18058,7 +18812,7 @@ CONFIG</string>
   </customwidget>
   <customwidget>
    <class>PushButton</class>
-   <extends>IndicatedPushButton</extends>
+   <extends>QPushButton</extends>
    <header>qtvcp.widgets.simple_widgets</header>
   </customwidget>
   <customwidget>
@@ -18083,7 +18837,7 @@ CONFIG</string>
   </customwidget>
   <customwidget>
    <class>MachineLog</class>
-   <extends>QTextEdit</extends>
+   <extends>QWidget</extends>
    <header>qtvcp.widgets.machine_log</header>
   </customwidget>
   <customwidget>
@@ -18103,7 +18857,7 @@ CONFIG</string>
   </customwidget>
   <customwidget>
    <class>GCodeGraphics</class>
-   <extends>QWidget</extends>
+   <extends>QOpenGLWidget</extends>
    <header>qtvcp.widgets.gcode_graphics</header>
    <container>1</container>
   </customwidget>
@@ -18173,6 +18927,96 @@ CONFIG</string>
    <header>qtvcp.widgets.system_tool_button</header>
   </customwidget>
  </customwidgets>
+ <tabstops>
+  <tabstop>cut_amps</tabstop>
+  <tabstop>cut_volts</tabstop>
+  <tabstop>puddle_jump_height</tabstop>
+  <tabstop>puddle_jump_delay</tabstop>
+  <tabstop>pause_at_end</tabstop>
+  <tabstop>cut_mode</tabstop>
+  <tabstop>kerf_width</tabstop>
+  <tabstop>pierce_height</tabstop>
+  <tabstop>pierce_delay</tabstop>
+  <tabstop>cut_height</tabstop>
+  <tabstop>cut_feed_rate</tabstop>
+  <tabstop>gas_pressure</tabstop>
+  <tabstop>thc_delay</tabstop>
+  <tabstop>thc_sample_counts</tabstop>
+  <tabstop>thc_sample_threshold</tabstop>
+  <tabstop>thc_threshold</tabstop>
+  <tabstop>pid_p_gain</tabstop>
+  <tabstop>cornerlock_threshold</tabstop>
+  <tabstop>voidlock_slope</tabstop>
+  <tabstop>pid_i_gain</tabstop>
+  <tabstop>pid_d_gain</tabstop>
+  <tabstop>float_switch_travel</tabstop>
+  <tabstop>probe_feed_rate</tabstop>
+  <tabstop>probe_start_height</tabstop>
+  <tabstop>ohmic_probe_offset</tabstop>
+  <tabstop>ohmic_max_attempts</tabstop>
+  <tabstop>skip_ihs_distance</tabstop>
+  <tabstop>offset_feed_rate</tabstop>
+  <tabstop>safe_height</tabstop>
+  <tabstop>arc_fail_delay</tabstop>
+  <tabstop>arc_max_starts</tabstop>
+  <tabstop>arc_restart_delay</tabstop>
+  <tabstop>arc_voltage_scale</tabstop>
+  <tabstop>arc_voltage_offset</tabstop>
+  <tabstop>height_per_volt</tabstop>
+  <tabstop>arc_ok_high</tabstop>
+  <tabstop>arc_ok_low</tabstop>
+  <tabstop>scribe_arm_delay</tabstop>
+  <tabstop>scribe_on_delay</tabstop>
+  <tabstop>spotting_threshold</tabstop>
+  <tabstop>spotting_time</tabstop>
+  <tabstop>setup_feed_rate</tabstop>
+  <tabstop>x_pierce_offset</tabstop>
+  <tabstop>y_pierce_offset</tabstop>
+  <tabstop>grid_size</tabstop>
+  <tabstop>cone_size</tabstop>
+  <tabstop>table_zoom_scale</tabstop>
+  <tabstop>ub_name_1</tabstop>
+  <tabstop>ub_code_1</tabstop>
+  <tabstop>ub_name_2</tabstop>
+  <tabstop>ub_code_2</tabstop>
+  <tabstop>ub_name_3</tabstop>
+  <tabstop>ub_code_3</tabstop>
+  <tabstop>ub_name_4</tabstop>
+  <tabstop>ub_code_4</tabstop>
+  <tabstop>ub_name_5</tabstop>
+  <tabstop>ub_code_5</tabstop>
+  <tabstop>ub_name_6</tabstop>
+  <tabstop>ub_code_6</tabstop>
+  <tabstop>ub_name_7</tabstop>
+  <tabstop>ub_code_7</tabstop>
+  <tabstop>ub_name_8</tabstop>
+  <tabstop>ub_code_8</tabstop>
+  <tabstop>ub_name_9</tabstop>
+  <tabstop>ub_code_9</tabstop>
+  <tabstop>ub_name_10</tabstop>
+  <tabstop>ub_code_10</tabstop>
+  <tabstop>ub_name_11</tabstop>
+  <tabstop>ub_code_11</tabstop>
+  <tabstop>ub_name_12</tabstop>
+  <tabstop>ub_code_12</tabstop>
+  <tabstop>ub_name_13</tabstop>
+  <tabstop>ub_code_13</tabstop>
+  <tabstop>ub_name_14</tabstop>
+  <tabstop>ub_code_14</tabstop>
+  <tabstop>ub_name_15</tabstop>
+  <tabstop>ub_code_15</tabstop>
+  <tabstop>ub_name_16</tabstop>
+  <tabstop>ub_code_16</tabstop>
+  <tabstop>ub_name_17</tabstop>
+  <tabstop>ub_code_17</tabstop>
+  <tabstop>ub_name_18</tabstop>
+  <tabstop>ub_code_18</tabstop>
+  <tabstop>ub_name_19</tabstop>
+  <tabstop>ub_code_19</tabstop>
+  <tabstop>ub_name_20</tabstop>
+  <tabstop>ub_code_20</tabstop>
+  <tabstop>sd_text</tabstop>
+ </tabstops>
  <resources>
   <include location="."/>
  </resources>

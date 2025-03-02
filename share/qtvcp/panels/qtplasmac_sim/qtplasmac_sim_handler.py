@@ -2,8 +2,8 @@
 '''
 qtplasmac_sim_handler.py
 
-Copyright (C) 2020, 2021, 2022, 2023 Phillip A Carter
-Copyright (C) 2020, 2021, 2022, 2023 Gregory D Carl
+Copyright (C) 2020 - 2024 Phillip A Carter
+Copyright (C) 2020 - 2024 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -32,15 +32,16 @@ from qtvcp.lib.preferences import Access
 
 INFO = Info()
 
+
 class HandlerClass:
     def __init__(self, halcomp, widgets, paths):
         self.hal = halcomp
         self.w = widgets
         self.paths = paths
         self.iniFile = INFO.INI
-        self.w.setWindowFlags(QtCore.Qt.CustomizeWindowHint | \
-                              QtCore.Qt.WindowTitleHint | \
-                              QtCore.Qt.WindowStaysOnTopHint )
+        self.w.setWindowFlags(QtCore.Qt.CustomizeWindowHint |
+                              QtCore.Qt.WindowTitleHint |
+                              QtCore.Qt.WindowStaysOnTopHint)
         self.machineName = self.iniFile.find('EMC', 'MACHINE')
         self.prefs = Access(os.path.join(self.paths.CONFIGPATH, self.machineName + '.prefs'))
         self.styleFile = f'{paths.CONFIGPATH}/qtplasmac_sim.qss'
@@ -72,9 +73,9 @@ class HandlerClass:
             RUN(['halcmd', 'net', 'plasmac:axis-position', 'qtplasmac_sim.z_position'])
         RUN(['halcmd', 'net', 'plasmac:state', 'qtplasmac_sim.state'])
         self.torchPin.value_changed.connect(self.torch_changed)
-        self.zPosPin.value_changed.connect(lambda v:self.z_position_changed(v))
-        self.statePin.value_changed.connect(lambda v:self.plasmac_state_changed(v))
-        self.w.arc_voltage_offset.valueChanged.connect(lambda v:self.arc_volts_offset_changed(v))
+        self.zPosPin.value_changed.connect(lambda v: self.z_position_changed(v))
+        self.statePin.value_changed.connect(lambda v: self.plasmac_state_changed(v))
+        self.w.arc_voltage_offset.valueChanged.connect(lambda v: self.arc_volts_offset_changed(v))
         self.w.sensor_flt.pressed.connect(self.float_pressed)
         self.w.sensor_ohm.pressed.connect(self.ohmic_pressed)
         self.w.sensor_brk.pressed.connect(self.break_pressed)
@@ -105,7 +106,6 @@ class HandlerClass:
         self.floatLatched = False
         self.ohmicLatched = False
 
-
     def set_estop(self):
         if self.prefs.getpref('Estop type', 0, int, 'GUI_OPTIONS') == 2:
             RUN(['halcmd', 'net', 'sim:estop-1-raw', 'iocontrol.0.user-enable-out', 'estop_not_1.in'])
@@ -118,54 +118,54 @@ class HandlerClass:
         self.estopColor = self.prefs.getpref('Estop', '', str, 'COLOR_OPTIONS')
         with open(self.styleFile, 'w') as outFile:
             outFile.write(
-            '\n/****** DEFAULT ************/\n'\
-            f'* {{\n'\
-            f'    color: {self.foreColor};\n'\
-            f'    background: {self.backColor};\n'\
-            f'    font: 10pt DejaVuSans }}\n'\
-            '\n/****** BUTTONS ************/\n'\
-            f'QPushButton {{\n'\
-            f'    color: {self.foreColor};\n'\
-            f'    background: {self.backColor};\n'\
-            f'    border: 1px solid {self.foreColor};\n'\
-            '    border-radius: 4px;\n'\
-            f'}}\n'\
-            '\n/****** SLIDER ************/\n'\
-            f'QSlider::groove:horizontal {{\n'\
-            '    background: gray;\n'\
-            '    border-radius: 4px;\n'\
-            f'    height: 20px }}\n'\
-            f'\nQSlider::handle:horizontal {{\n'\
-            f'    background: {self.foreColor};\n'\
-            f'    border: 0px solid {self.foreColor};\n'\
-            '    border-radius: 4px;\n'\
-            f'    width: 24px }}\n'\
-            f'\nQSlider::handle:horizontal:disabled {{\n'\
-            f'    background: {self.backColor} }}\n'\
-            f'\nQSlider::add-page:horizontal {{\n'\
-            f'    background: {self.backAlt};\n'\
-            f'    border: 1px solid {self.backAlt};\n'\
-            f'    border-radius: 4px }}\n'\
-            f'\nQSlider::sub-page:horizontal {{\n'\
-            f'    background: {self.backAlt};\n'\
-            f'    border: 1px solid {self.backAlt};\n'\
-            f'    border-radius: 4px }}\n'\
-            f'\nLine {{\n'\
-            '    color: red;\n'\
-            f'    background: red }}\n'\
-            f'\nQCheckBox {{\n'\
-            f'    spacing: 20px }}\n'\
-            f'\nQCheckBox::indicator {{\n'\
-            f'    border: 1px solid {self.foreColor};\n'\
-            '    border-radius: 4px;\n'\
-            '    width: 20px;\n'\
-            f'    height: 20px }}\n'\
-            f'\nQCheckBox::indicator:pressed {{\n'\
-            f'    background: {self.foreColor} }}\n'\
-            f'\nQCheckBox::indicator:checked {{\n'\
-            f'    background: {self.foreColor} }}\n'\
-            f'\nQCheckBox::indicator:checked:pressed {{\n'\
-            f'    background: {self.foreColor} }}\n'\
+                '\n/****** DEFAULT ************/\n'
+                f'* {{\n'
+                f'    color: {self.foreColor};\n'
+                f'    background: {self.backColor};\n'
+                f'    font: 10pt DejaVuSans }}\n'
+                '\n/****** BUTTONS ************/\n'
+                f'QPushButton {{\n'
+                f'    color: {self.foreColor};\n'
+                f'    background: {self.backColor};\n'
+                f'    border: 1px solid {self.foreColor};\n'
+                '    border-radius: 4px;\n'
+                f'}}\n'
+                '\n/****** SLIDER ************/\n'
+                f'QSlider::groove:horizontal {{\n'
+                '    background: gray;\n'
+                '    border-radius: 4px;\n'
+                f'    height: 20px }}\n'
+                f'\nQSlider::handle:horizontal {{\n'
+                f'    background: {self.foreColor};\n'
+                f'    border: 0px solid {self.foreColor};\n'
+                '    border-radius: 4px;\n'
+                f'    width: 24px }}\n'
+                f'\nQSlider::handle:horizontal:disabled {{\n'
+                f'    background: {self.backColor} }}\n'
+                f'\nQSlider::add-page:horizontal {{\n'
+                f'    background: {self.backAlt};\n'
+                f'    border: 1px solid {self.backAlt};\n'
+                f'    border-radius: 4px }}\n'
+                f'\nQSlider::sub-page:horizontal {{\n'
+                f'    background: {self.backAlt};\n'
+                f'    border: 1px solid {self.backAlt};\n'
+                f'    border-radius: 4px }}\n'
+                f'\nLine {{\n'
+                '    color: red;\n'
+                f'    background: red }}\n'
+                f'\nQCheckBox {{\n'
+                f'    spacing: 20px }}\n'
+                f'\nQCheckBox::indicator {{\n'
+                f'    border: 1px solid {self.foreColor};\n'
+                '    border-radius: 4px;\n'
+                '    width: 20px;\n'
+                f'    height: 20px }}\n'
+                f'\nQCheckBox::indicator:pressed {{\n'
+                f'    background: {self.foreColor} }}\n'
+                f'\nQCheckBox::indicator:checked {{\n'
+                f'    background: {self.foreColor} }}\n'
+                f'\nQCheckBox::indicator:checked:pressed {{\n'
+                f'    background: {self.foreColor} }}\n'
             )
 
     def arc_ok_clicked(self):
@@ -269,21 +269,24 @@ class HandlerClass:
             self.w.estop.setStyleSheet(f'color: {self.foreColor}; background: {self.backColor}')
 
     def set_mode(self, mode):
-        mode0 = [self.w.sensor_line, \
-                 self.w.arc_ok, self.w.arc_ok_label, self.w.arc_ok_line, \
+        mode0 = [self.w.sensor_line,
+                 self.w.arc_ok, self.w.arc_ok_label, self.w.arc_ok_line,
                  self.w.move_up, self.w.move_down, self.w.move_label]
-        mode1 = [self.w.arc_ok_line, \
+        mode1 = [self.w.arc_ok_line,
                  self.w.move_up, self.w.move_down, self.w.move_label]
-        mode2 = [self.w.offset_label, self.w.arc_voltage_offset, \
-                  self.w.arc_voltage_label, self.w.arc_voltage_line]
+        mode2 = [self.w.offset_label, self.w.arc_voltage_offset,
+                 self.w.arc_voltage_label, self.w.arc_voltage_line]
         if mode == 1:
             self.w.mode_label.setText('Mode 1')
-            for widget in mode1: widget.hide()
+            for widget in mode1:
+                widget.hide()
         elif mode == 2:
             self.w.mode_label.setText('Mode 2')
-            for widget in mode2: widget.hide()
+            for widget in mode2:
+                widget.hide()
         else:
-            for widget in mode0: widget.hide()
+            for widget in mode0:
+                widget.hide()
         self.w.resize(self.w.minimumSizeHint())
 
     def torch_changed(self, halpin):
@@ -335,7 +338,7 @@ class HandlerClass:
         buttonY.setText('OK')
         msg.setIcon(QMessageBox.Information)
         msg.setWindowTitle('Sim Panel Help')
-        message  = 'This panel provides buttons for simulating basic plasma signals.\n'
+        message = 'This panel provides buttons for simulating basic plasma signals.\n'
         message += '\nThe operating mode of QtPlasmaC determines which widgets appear on the panel.\n'
         message += '\nESTOP is required to be cleared before turning the main GUI on and homing the config.\n'
         message += '\nIf a gcode program is loaded and the CYCLE START button pressed then the panel is fully automatic during the running of the program.\n'
@@ -347,5 +350,6 @@ class HandlerClass:
         msg.setText(message)
         msg.exec_()
 
-def get_handlers(halcomp,widgets,paths):
-     return [HandlerClass(halcomp,widgets,paths)]
+
+def get_handlers(halcomp, widgets, paths):
+    return [HandlerClass(halcomp, widgets, paths)]

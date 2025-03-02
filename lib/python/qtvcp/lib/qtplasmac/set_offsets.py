@@ -1,8 +1,8 @@
 '''
 set_offsets.py
 
-Copyright (C) 2020, 2021, 2022, 2023 Phillip A Carter
-Copyright (C) 2020, 2021, 2022, 2023 Gregory D Carl
+Copyright (C) 2020 - 2024 Phillip A Carter
+Copyright (C) 2020 - 2024 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -23,8 +23,8 @@ import os
 from shutil import copy as COPY
 from PyQt5 import QtCore
 from PyQt5.QtCore import QCoreApplication
-from PyQt5.QtWidgets import QDialog, QMessageBox, QPushButton, QGridLayout, QLabel, QComboBox#, QSplashScreen
-from PyQt5.QtGui import QIcon, QCursor, QPixmap
+from PyQt5.QtWidgets import QDialog, QMessageBox, QPushButton, QGridLayout, QLabel, QComboBox
+from PyQt5.QtGui import QIcon
 
 _translate = QCoreApplication.translate
 
@@ -270,7 +270,6 @@ def get_reply(P, STATUS, xOffset, yOffset, probe=False, delay=0.0, new=0.0):
 
 def camera_search(P, W, dlg):
     head = _translate('Offsets', 'Camera Search')
-    devices = 0
     cameras = []
     try:
         import cv2

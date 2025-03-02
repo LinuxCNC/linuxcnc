@@ -668,7 +668,7 @@ void hm2_pwmgen_prepare_tram_write(hostmot2_t *hm2) {
 	}
         hm2->pwmgen.pwm_value_reg[i] = register_value * 65536;
         if (scaled_value < 0) {
-            hm2->pwmgen.pwm_value_reg[i] |= (1 << 31);
+            hm2->pwmgen.pwm_value_reg[i] |= (1u << 31);
         }
     }
 }

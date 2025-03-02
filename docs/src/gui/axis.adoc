@@ -512,16 +512,23 @@ image::images/touchoff.png["Touch Off Window",align="center"]
 
 See also the Machine menu options: 'Touch part' and 'Touch part holder'.
 
+.Actual Position Touch Off
+An axis may be configured in the .INI file to incorporate the actual position value for an axis into the touch off calculation, either adding or subtracting this value.  This is primarily useful for machines which have a non-motorized axis such as a quill with an encoder.  When this feature is enabled for an axis, the title bar of the touch off window will indicate *(system ACTUAL)*.
+
+See <<axis:touchoff-actual>> for more information.
+
 .Tool Touch Off
 By pressing the 'Tool Touch Off' button the tool length and offsets of
 the currently loaded tool will be changed so that the current tool tip
 position matches the entered coordinate.
+
 
 .Tool Touch Off Window
 image::images/tooltouchoff.png["Tool Touch Off Window",align="center"]
 
 See also the 'Tool touch off to workpiece' and 'Tool touch off to fixture'
 options in the Machine menu.
+
 
 .Override Limits
 By pressing Override Limits, the machine will temporarily be allowed
@@ -618,7 +625,7 @@ The most frequently used keyboard shortcuts are shown in the following table:
 
 [[tab:common-keyboard-shortcuts]]
 .Most Common Keyboard Shortcuts(((AXIS,Keyboard Shortcuts)))
-[width="80%",options="header",cols="^,<,^"]
+[width="80%",options="header",cols="^,<,^",frame="none", grid="none"]
 |===
 |Keystroke        |Action Taken                              |Mode
 |F1               |Toggle Emergency Stop                     |Any
@@ -666,16 +673,16 @@ shown on a red background.
 
 == MDI interface
 
-AXIS includes a program called `mdi` which allows text-mode entry of
-MDI commands to a running LinuxCNC session. You can run this program by
-opening a terminal and typing:
+AXIS includes a program called `mdi`, short for manual data input,
+which allows text-mode entry of MDI commands to a running LinuxCNC session.
+You can run this program directly from the UNIX command line by opening a terminal and typing:
 
 ----
 mdi
 ----
 
-Once it is running, it displays the prompt 'MDI>'. When a blank line
-is entered, the machine's current position is shown.
+Once it is running, it displays the prompt 'MDI>'.
+When a blank line is entered, the machine's current position is shown.
 When a command is entered, it is sent to LinuxCNC to be executed.
 
 This is a sample session of mdi:
@@ -693,19 +700,17 @@ MDI>
 
 == axis-remote
 
-AXIS includes a program called 'axis-remote' which can send certain
-commands to a running AXIS. The available commands are shown by running
-'axis-remote --help' and include checking whether AXIS is running
-('--ping'), loading a file by name, reloading the currently loaded
+AXIS includes a program called 'axis-remote' which can send certain commands to a running AXIS.
+The available commands are shown by running 'axis-remote --help'
+and include checking whether AXIS is running ('--ping'), loading a file by name, reloading the currently loaded
 file ('--reload'), and making AXIS exit ('--quit').
 
 [[sec:manual-tool-change]]
 == Manual Tool Change(((AXIS:Manual Tool Change)))
 
 LinuxCNC includes a non-realtime HAL component called 'hal_manualtoolchange',
-which shows a window prompt telling you what tool is expected when a
-'M6' command is issued. After the OK button is pressed, execution of
-the program will continue.
+which shows a window prompt telling you what tool is expected when a 'M6' command is issued.
+After the OK button is pressed, execution of the program will continue.
 
 The hal_manualtoolchange component includes a HAL pin for a button that
 can be connected to a physical button to complete the tool change and
@@ -715,8 +720,7 @@ The HAL configuration file 'lib/hallib/axis_manualtoolchange.hal'
 shows the HAL commands necessary to use this component.
 
 hal_manualtoolchange can be used even when AXIS is not used as the GUI.
-This component is most useful if you have presettable tools and
-you use the tool table.
+This component is most useful if you have presettable tools and you use the tool table.
 
 [NOTE]
 Important Note: Rapids will not show on the preview after
@@ -833,10 +837,9 @@ PROGRAM_EXTENSION = .py Python Script
 py = python
 ----
 
-In this way, any Python script can be opened, and its output is
-treated as G-code. One such example script is available at
-'nc_files/holecircle.py'. This script creates G-code for drilling a
-series of holes along the circumference of a circle.
+In this way, any Python script can be opened, and its output is treated as G-code.
+One such example script is available at 'nc_files/holecircle.py'.
+This script creates G-code for drilling a series of holes along the circumference of a circle.
 
 .Circular Holes
 image::images/holes.png["Circular Holes",align="center"]
@@ -849,8 +852,8 @@ written to stderr of the form
 FILTER_PROGRESS=%d
 ----
 
-will set the AXIS progress bar to the given percentage. This feature
-should be used by any filter that runs for a long time.
+will set the AXIS progress bar to the given percentage.
+This feature should be used by any filter that runs for a long time.
 
 === The X Resource Database
 
@@ -882,9 +885,8 @@ AXIS defaults, include the following line in your X Resources:
 ----
 // in this case, we want the asterisks to actually appear.
 
-this causes the built-in options to be created at the option level
-'widgetDefault', so that X Resources (which are level 'userDefault')
-can override them.
+this causes the built-in options to be created at the option level 'widgetDefault',
+so that X Resources (which are level 'userDefault') can override them.
 
 [[sub:axis-jogwheel]]
 === Jogwheel(((AXIS:Jogwheel)))
@@ -902,10 +904,11 @@ which can only be used once.
 [[sub:axis-axisrc]]
 === ~/.axisrc(((AXIS:.axisrc)))
 
-If it exists, the contents of `~/.axisrc`  are executed as Python
-source code just before the AXIS GUI is
-displayed. The details of what may be written in the `~/.axisrc` are subject
-to change during the development cycle.
+If it exists, the contents of `~/.axisrc` are executed as Python source code
+just before the AXIS GUI is displayed.
+//FIXME: Unclear - does AXIS write to .axisrc?
+The details of what may be written in the `~/.axisrc`
+are subject to change during the development cycle.
 
 The following adds Control-Q as a keyboard shortcut for Quit.
 
@@ -941,8 +944,7 @@ implementation and subject to change during the development cycle.
 
 === user_hal_pins()
 
-The AXIS GUI includes a no-op (placeholder) function named
-'user_hal_pins()'. +
+The AXIS GUI includes a no-op (placeholder) function named 'user_hal_pins()'. +
 It is executed just after the .axisrc file is called and
 just before any GladeVCP panels / embedded tabs are initialized. +
 This function may be implemented
@@ -955,7 +957,7 @@ HAL comp.ready() is called just after this function returns.
 
 The menu options File > Edit... and File > Edit Tool Table... become
 available after defining the editor in the INI section [DISPLAY].
-Useful values include EDITOR=gedit and EDITOR=gnome-terminal -e vim.
+Useful values include `EDITOR=gedit` and `EDITOR=gnome-terminal -e vim`.
 For more information, see the <<sub:ini:sec:display,Display Section>>
 of the INI Configuration Chapter.
 
@@ -964,8 +966,8 @@ of the INI Configuration Chapter.
 AXIS can display a custom virtual control panel in either the right
 side column or the bottom row.
 Additionally one or more panels may be displayed as embedded tabs.
-You can program buttons, indicators, data displays and more. For
-more information, see the <<cha:pyvcp,PyVCP>> and the <<cha:glade-vcp,GladeVCP>> chapters.
+You can program buttons, indicators, data displays and more.
+For more information, see the <<cha:pyvcp,PyVCP>> and the <<cha:glade-vcp,GladeVCP>> chapters.
 
 [[axis:preview-control]]
 === Preview Control(((AXIS: Preview Control)))
@@ -988,6 +990,24 @@ preview on certain parts that are already working OK).
 - (AXIS,notify,the_text) Displays the_text as an info display
 
 This display can be useful in the AXIS preview when (debug,message) comments are not displayed.
+
+[[axis:touchoff-actual]]
+=== Touch Off using Actual Position
+The Touch Off feature can optionally incorporate the actual axis position value into the calculation for the offset.  This is primarily used in cases where a non-motorized axis such as the quill in a milling machine provides feedback to LinuxCNC via an encoder, but there is no motor to control movement.  This allows AXIS to provide a DRO display for such an axis with working touch off capability.
+
+This feature is enabled on an axis by altering the appropriate '[AXIS_x]' section of the .INI file.  Add an option named 'TOUCHOFF_ACTUAL' and set the value to 'PLUS' or 'MINUS' depending on how you want to apply the actual position to the offset.
+
+Example:
+
+[source,{ini}]
+----
+[AXIS_Z]
+TOUCHOFF_ACTUAL = MINUS
+----
+
+Ordinarily, only the commanded position of an axis is used to set this offset, meaning it does not work properly because non-motorized axes are never commanded to move and thus their commanded position is always 0.
+
+Touch off sends a 'G10 L20' command to the MDI to set the new offset value.  The value applied is normally just the value entered into the dialog box. When this feature is enabled, it will either add or subtract the current position value from the value entered in the dialog, depending on how it is configured.
 
 [[sec:axis-axisui-pins]]
 == Axisui(((AXIS: axisui pins)))

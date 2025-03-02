@@ -29,7 +29,7 @@
 #include "rs274ngc_interp.hh"
 #include "rtapi_math.h"
 #include <cmath>
-#include <rtapi_string.h>
+#include <rtapi_string.h>	// rtapi_strlcpy()
 
 using namespace interp_param_global;
 
@@ -288,7 +288,7 @@ present only so that this will have the same argument list as the other
 int Interp::read_comment(char *line,     //!< string: line of RS274 code being processed   
                         int *counter,   //!< pointer to a counter for position on the line
                         block_pointer block,    //!< pointer to a block being filled from the line
-                        double *parameters)     //!< array of system parameters                   
+                        double * /*parameters*/)     //!< array of system parameters
 {
   int n;
 
@@ -307,8 +307,8 @@ int Interp::read_comment(char *line,     //!< string: line of RS274 code being p
 
 int Interp::read_semicolon(char *line,     //!< string: line of RS274 code being processed   
                            int *counter,   //!< pointer to a counter for position on the line
-                           block_pointer block,    //!< pointer to a block being filled from the line
-                           double *parameters)     //!< array of system parameters                   
+                           block_pointer /*block*/,    //!< pointer to a block being filled from the line
+                           double * /*parameters*/)     //!< array of system parameters
 {
     CHKS((line[*counter] != ';'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
     (*counter) = strlen(line);
@@ -1597,7 +1597,7 @@ int Interp::read_o(    /* ARGUMENTS                                     */
 	  // context
           if (strlen(_setup.sub_context[_setup.call_level].subName) >= sizeof(oNameBuf))
               ERS(NCE_UNABLE_TO_OPEN_FILE, _setup.sub_context[_setup.call_level].subName);
-	  strncpy(oNameBuf, _setup.sub_context[_setup.call_level].subName,
+	  rtapi_strlcpy(oNameBuf, _setup.sub_context[_setup.call_level].subName,
                   sizeof(oNameBuf));
       } else
 	  // any other m-code should have been handled by read_m()
@@ -2147,7 +2147,7 @@ to be evaluated. That situation is handled by read_parameter.
 int Interp::read_parameter_setting(
     char *line,   //!< string: line of RS274/NGC code being processed
     int *counter, //!< pointer to a counter for position on the line 
-    block_pointer block,  //!< pointer to a block being filled from the line 
+    block_pointer /*block*/,  //!< pointer to a block being filled from the line
     double *parameters)   //!< array of system parameters
 {
   static char name[] = "read_parameter_setting";
@@ -2273,7 +2273,7 @@ int Interp::read_named_parameter_setting(
     char *line,   //!< string: line of RS274/NGC code being processed
     int *counter, //!< pointer to a counter for position on the line 
     char **param,  //!< pointer to the char * to be returned 
-    double *parameters)   //!< array of system parameters
+    double * /*parameters*/)   //!< array of system parameters
 {
   static char name[] = "read_named_parameter_setting";
   int status;
@@ -3154,7 +3154,7 @@ int Interp::read_text(
          index--) { // remove space at end of raw_line, especially CR & LF
       raw_line[index] = 0;
     }
-    strncpy(line, raw_line, LINELEN);
+    rtapi_strlcpy(line, raw_line, LINELEN);
     CHP(close_and_downcase(line));
     if ((line[0] == '%') && (line[1] == 0) && (_setup.percent_flag)) {
         FINISH();
@@ -3162,8 +3162,8 @@ int Interp::read_text(
     }
   } else {
     CHKS((strlen(command) >= LINELEN), NCE_COMMAND_TOO_LONG);
-    strncpy(raw_line, command, LINELEN);
-    strncpy(line, command, LINELEN);
+    rtapi_strlcpy(raw_line, command, LINELEN);
+    rtapi_strlcpy(line, command, LINELEN);
     CHP(close_and_downcase(line));
   }
 

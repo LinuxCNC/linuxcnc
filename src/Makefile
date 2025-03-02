@@ -27,7 +27,7 @@ install: install-software install-docs
 install-software: install-kernel-dep install-kernel-indep install-menu
 
 ifeq ($(origin KERNELRELEASE), undefined)
-MAKEFLAGS += --warn-undefined-variables
+#MAKEFLAGS += --warn-undefined-variables
 endif
 
 EXTRAFLAGS :=
@@ -255,7 +255,6 @@ OPT := -Os $(INTEGER_OVERFLOW_FLAGS)
 DEBUG := $(DEBUG) -g -Wall -D_FORTIFY_SOURCE=2
 CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI -std=gnu11 -Werror=implicit-function-declaration $(CFLAGS) $(CPPFLAGS) $(EXTRA_DEBUG)
 CXXFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI -Werror=overloaded-virtual $(CXXFLAGS) $(CPPFLAGS) $(EXTRA_DEBUG)
-CXXFLAGS += -std=gnu++17
 # In Debian 11, any inclusion of <boost/python.hpp> leads to several
 # diagnostics from included headers about deprecated features. LinuxCNC does
 # not directly use these deprecated features, but it does use boost::python.
@@ -687,7 +686,7 @@ install-dirs:
 		$(DESTDIR)$(datadir)/gmoccapy/icons \
 		$(DESTDIR)$(datadir)/glade/catalogs \
 		$(DESTDIR)$(datadir)/glade/pixmaps/hicolor/22x22/actions \
-		$(DESTDIR)$(datadir)/gtksourceview-2.0/language-specs \
+		$(DESTDIR)$(datadir)/gtksourceview-4/language-specs \
 		$(DESTDIR)$(datadir)/linuxcnc/stepconf \
 		$(DESTDIR)$(datadir)/linuxcnc/pncconf \
 		$(DESTDIR)$(datadir)/linuxcnc/pncconf/pncconf-help \
@@ -763,7 +762,7 @@ install-kernel-indep: install-dirs
 	$(FILE) ../lib/python/gladevcp/hal_python.xml $(DESTDIR)$(datadir)/glade/catalogs/
 	$(FILE) ../share/glade/pixmaps/hicolor/22x22/actions/widget*.png  $(DESTDIR)$(datadir)/glade/pixmaps/hicolor/22x22/actions/
 
-	$(FILE) ../share/gtksourceview-2.0/language-specs/*.lang  $(DESTDIR)$(datadir)/gtksourceview-2.0/language-specs/
+	$(FILE) ../share/gtksourceview-4/language-specs/*.lang  $(DESTDIR)$(datadir)/gtksourceview-4/language-specs/
 
 	$(FILE) ../src/hal/drivers/mesa-hostmot2/modbus/*.tmpl  $(DESTDIR)$(prefix)/share/linuxcnc/
 
@@ -1013,7 +1012,7 @@ endif
 
 obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_test.o hm2_pci.o hm2_7i43.o hm2_7i90.o setsserial.o
 ifeq ($(BUILD_SYS),uspace)
-obj-$(CONFIG_HOSTMOT2) += hm2_eth.o hm2_spi.o hm2_rpspi.o
+obj-$(CONFIG_HOSTMOT2) += hm2_eth.o hm2_spi.o hm2_rpspi.o hm2_spix.o
 endif
 hostmot2-objs :=			  \
     hal/drivers/mesa-hostmot2/hostmot2.o  \
@@ -1058,12 +1057,24 @@ hm2_pci-objs  :=			  \
     $(MATHSTUB)
 hm2_eth-objs  :=			  \
     hal/drivers/mesa-hostmot2/hm2_eth.o   \
+    hal/drivers/mesa-hostmot2/eshellf.o   \
     $(MATHSTUB)
 hm2_spi-objs  :=			  \
     hal/drivers/mesa-hostmot2/hm2_spi.o   \
+    hal/drivers/mesa-hostmot2/llio_info.o \
     $(MATHSTUB)
 hm2_rpspi-objs  :=			  \
-    hal/drivers/mesa-hostmot2/hm2_rpspi.o   \
+    hal/drivers/mesa-hostmot2/hm2_rpspi.o \
+    hal/drivers/mesa-hostmot2/llio_info.o \
+    hal/drivers/mesa-hostmot2/eshellf.o   \
+    $(MATHSTUB)
+hm2_spix-objs  :=			  \
+    hal/drivers/mesa-hostmot2/hm2_spix.o  \
+    hal/drivers/mesa-hostmot2/spix_rpi5.o \
+    hal/drivers/mesa-hostmot2/spix_rpi3.o \
+    hal/drivers/mesa-hostmot2/spix_spidev.o \
+    hal/drivers/mesa-hostmot2/llio_info.o \
+    hal/drivers/mesa-hostmot2/eshellf.o \
     $(MATHSTUB)
 hm2_test-objs :=			  \
     hal/drivers/mesa-hostmot2/hm2_test.o  \
@@ -1293,13 +1304,11 @@ endif
 ../rtlib/weighted_sum$(MODULE_EXT): $(addprefix objects/rt,$(weighted_sum-objs))
 ../rtlib/watchdog$(MODULE_EXT): $(addprefix objects/rt,$(watchdog-objs))
 ../rtlib/modmath$(MODULE_EXT): $(addprefix objects/rt,$(modmath-objs))
-../rtlib/t_on$(MODULE_EXT): $(addprefix objects/rt,$(t_on-objs))
-../rtlib/t_off$(MODULE_EXT): $(addprefix objects/rt,$(t_off-objs))
-../rtlib/t_p$(MODULE_EXT): $(addprefix objects/rt,$(t_p-objs))
 ../rtlib/streamer$(MODULE_EXT): $(addprefix objects/rt,$(streamer-objs))
 ../rtlib/sampler$(MODULE_EXT): $(addprefix objects/rt,$(sampler-objs))
 ../rtlib/hal_parport$(MODULE_EXT): $(addprefix objects/rt,$(hal_parport-objs))
 #../rtlib/uparport$(MODULE_EXT): $(addprefix objects/rt,$(uparport-objs))
+ifneq ($(BUILD_SYS),uspace)
 ../rtlib/pci_8255$(MODULE_EXT): $(addprefix objects/rt,$(pci_8255-objs))
 ../rtlib/hal_tiro$(MODULE_EXT): $(addprefix objects/rt,$(hal_tiro-objs))
 ../rtlib/hal_stg$(MODULE_EXT): $(addprefix objects/rt,$(hal_stg-objs))
@@ -1307,12 +1316,13 @@ endif
 ../rtlib/hal_evoreg$(MODULE_EXT): $(addprefix objects/rt,$(hal_evoreg-objs))
 ../rtlib/hal_motenc$(MODULE_EXT): $(addprefix objects/rt,$(hal_motenc-objs))
 ../rtlib/hal_ax5214h$(MODULE_EXT): $(addprefix objects/rt,$(hal_ax5214h-objs))
-../rtlib/hal_ppmc$(MODULE_EXT): $(addprefix objects/rt,$(hal_ppmc-objs))
 ../rtlib/hal_skeleton$(MODULE_EXT): $(addprefix objects/rt,$(hal_skeleton-objs))
+../rtlib/opto_ac5$(MODULE_EXT): $(addprefix objects/rt,$(opto_ac5-objs))
+endif
+../rtlib/hal_ppmc$(MODULE_EXT): $(addprefix objects/rt,$(hal_ppmc-objs))
 ifeq ($(X86ARCH),true)
 ../rtlib/hal_speaker$(MODULE_EXT): $(addprefix objects/rt,$(hal_speaker-objs))
 endif
-../rtlib/opto_ac5$(MODULE_EXT): $(addprefix objects/rt,$(opto_ac5-objs))
 ../rtlib/scope_rt$(MODULE_EXT): $(addprefix objects/rt,$(scope_rt-objs))
 ../rtlib/hal_lib$(MODULE_EXT): $(addprefix objects/rt,$(hal_lib-objs))
 ../rtlib/motmod$(MODULE_EXT): $(addprefix objects/rt,$(motmod-objs))
@@ -1341,6 +1351,7 @@ endif
 ../rtlib/hm2_eth$(MODULE_EXT): $(addprefix objects/rt,$(hm2_eth-objs))
 ../rtlib/hm2_spi$(MODULE_EXT): $(addprefix objects/rt,$(hm2_spi-objs))
 ../rtlib/hm2_rpspi$(MODULE_EXT): $(addprefix objects/rt,$(hm2_rpspi-objs))
+../rtlib/hm2_spix$(MODULE_EXT): $(addprefix objects/rt,$(hm2_spix-objs))
 ../rtlib/hal_bb_gpio$(MODULE_EXT): $(addprefix objects/rt,$(hal_bb_gpio-objs))
 ../rtlib/hal_pi_gpio$(MODULE_EXT): $(addprefix objects/rt,$(hal_pi_gpio-objs))
 ifdef LIBGPIOD_VER

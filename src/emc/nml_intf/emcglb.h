@@ -38,7 +38,7 @@ extern "C" {
    get these into Tk automatically */
 
     // there's also an emc_Debug function in emc/usr_intf/emcsh.cc
-    extern int emc_debug;
+    extern unsigned emc_debug;
 
     // EMC_DEBUG_* flag definitions moved to debugflags.h
 

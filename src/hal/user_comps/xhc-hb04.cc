@@ -303,34 +303,34 @@ void linuxcnc_simu(xhc_t *xhc)
 		int delta_int = *(hal->jog_counts) - last_jog_counts;
 		float delta = delta_int * *(hal->jog_scale);
 		if (*(hal->jog_enable_x)) {
-			*(hal->x_mc) += delta;
-			*(hal->x_wc) += delta;
+			*(hal->x_mc) = *(hal->x_mc) + delta;
+			*(hal->x_wc) = *(hal->x_wc) + delta;
 		}
 
 		if (*(hal->jog_enable_y)) {
-			*(hal->y_mc) += delta;
-			*(hal->y_wc) += delta;
+			*(hal->y_mc) = *(hal->y_mc) + delta;
+			*(hal->y_wc) = *(hal->y_wc) + delta;
 		}
 
 		if (*(hal->jog_enable_z)) {
-			*(hal->z_mc) += delta;
-			*(hal->z_wc) += delta;
+			*(hal->z_mc) = *(hal->z_mc) + delta;
+			*(hal->z_wc) = *(hal->z_wc) + delta;
 		}
 
 		if (*(hal->jog_enable_a)) {
-			*(hal->a_mc) += delta;
-			*(hal->a_wc) += delta;
+			*(hal->a_mc) = *(hal->a_mc) + delta;
+			*(hal->a_wc) = *(hal->a_wc) + delta;
 		}
 
 		if (*(hal->jog_enable_spindle)) {
-			*(hal->spindle_override) += delta_int * 0.01;
+			*(hal->spindle_override) = *(hal->spindle_override) + delta_int * 0.01;
 			if (*(hal->spindle_override) > 1) *(hal->spindle_override) = 1;
 			if (*(hal->spindle_override) < 0) *(hal->spindle_override) = 0;
 			*(hal->spindle_rps) = 25000.0/60.0 * *(hal->spindle_override);
 		}
 
 		if (*(hal->jog_enable_feedrate)) {
-			*(hal->feedrate_override) += delta_int * 0.01;
+			*(hal->feedrate_override) = *(hal->feedrate_override) + delta_int * 0.01;
 			if (*(hal->feedrate_override) > 1) *(hal->feedrate_override) = 1;
 			if (*(hal->feedrate_override) < 0) *(hal->feedrate_override) = 0;
 			*(hal->feedrate) = 3000.0/60.0 * *(hal->feedrate_override);
@@ -431,7 +431,7 @@ void cb_response_in(struct libusb_transfer *transfer)
 		xhc.button_code = in_buf[1];
 		xhc.axis = (xhc_axis_t)in_buf[3];
 
-		*(xhc.hal->jog_counts) += ((signed char)in_buf[4]);
+		*(xhc.hal->jog_counts) = *(xhc.hal->jog_counts) + ((signed char)in_buf[4]);
 		*(xhc.hal->jog_counts_neg) = - *(xhc.hal->jog_counts);
 		*(xhc.hal->jog_enable_off) = (xhc.axis == axis_off);
 		*(xhc.hal->jog_enable_x) = (xhc.axis == axis_x);
@@ -509,13 +509,14 @@ void setup_asynch_transfer(libusb_device_handle *dev_handle)
 
 static void quit(int sig)
 {
+	(void)sig;
 	do_exit = 1;
 }
 
 static int hal_pin_simu(char *pin_name, void **ptr, int s)
 {
 	printf("Creating pin: %s\n", pin_name);
-	*ptr = calloc(s, 1);
+	*ptr = calloc(1, s);
 	return 0;
 }
 
@@ -567,7 +568,7 @@ int _hal_pin_bit_newf(hal_pin_dir_t dir, hal_bit_t ** data_ptr_addr, int comp_id
     }
 }
 
-static void hal_setup()
+static int hal_setup()
 {
 	int r, i;
 
@@ -585,7 +586,7 @@ static void hal_setup()
 		}
 	}
 	else {
-		xhc.hal = (xhc_hal_t *)calloc(sizeof(xhc_hal_t), 1);
+		xhc.hal = (xhc_hal_t *)calloc(1, sizeof(xhc_hal_t));
 	}
 
     r = 0;
@@ -661,7 +662,7 @@ static void hal_setup()
     r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->jog_plus_a), hal_comp_id, "%s.jog.plus-a", modname);
     r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->jog_minus_a), hal_comp_id, "%s.jog.minus-a", modname);
 
-	return;
+	return r;
 }
 
 int read_ini_file(char *filename)
@@ -676,7 +677,7 @@ int read_ini_file(char *filename)
 	}
 
 	while ((bt = iniFile.Find("BUTTON", section, nb_buttons+1)) && nb_buttons < NB_MAX_BUTTONS) {
-		if (sscanf(*bt, "%x:%s", &xhc.buttons[nb_buttons].code, xhc.buttons[nb_buttons].pin_name) !=2 ) {
+		if (sscanf(*bt, "%x:%255s", &xhc.buttons[nb_buttons].code, xhc.buttons[nb_buttons].pin_name) !=2 ) {
 			fprintf(stderr, "%s: syntax error\n", *bt);
 			return -1;
 		}
@@ -768,7 +769,10 @@ int main (int argc,char **argv)
     }
     stepsize_last_idx  =  idx - 1;
 
-	hal_setup();
+	if(hal_setup()) {
+		fprintf(stderr, "%s: ERROR: hal pin creation failed\n", modname);
+		exit(EXIT_FAILURE);
+	}
 
     signal(SIGINT, quit);
 	signal(SIGTERM, quit);

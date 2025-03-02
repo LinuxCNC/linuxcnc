@@ -1,0 +1,42 @@
+= hm2_allocate_bspi_tram(3hm2)
+
+== NAME
+
+hm2_allocate_bspi_tram - Allocate the TRAM regions for a BSPI channel
+
+== SYNTAX
+
+....
+#include <hostmot2-serial.h>
+hm2_allocate_bspi_tram(char* name)
+....
+
+== DESCRIPTION
+
+*hm2_allocate_bspi_tram* Allocate the TRAM memory for bspi instance
+"name". "name" is a unique string given to each bspi channel during
+hostmot2 setup. The names of the available channels are printed to
+standard output during the driver loading process and take the form:
+hm2_<board name>.<board index>.bspi.<index>, for example:
+hm2_5i23.0.bspi.0 .
+
+This function allocates the TRAM memory and sets up the regular data
+transfers. It should be called only when all the frames have been
+defined by calls to hm2_tram_add_bspi_frame().
+
+== REALTIME CONSIDERATIONS
+
+Call only from realtime init code, not from other realtime code or
+non-realtime components.
+
+== RETURN VALUE
+
+Returns 0 on success and -1 on failure.
+
+== SEE ALSO
+
+hm2_bspi_set_read_function(3hm2), hm2_bspi_setup_chan(3hm2),
+hm2_bspi_set_write_function(3hm2), hm2_bspi_write_chan(3hm2),
+hm2_tram_add_bspi_frame(3hm2)
+
+See src/hal/drivers mesa_7i65.comp for an example usage.

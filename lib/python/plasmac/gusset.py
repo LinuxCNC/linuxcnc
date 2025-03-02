@@ -1,8 +1,8 @@
 '''
 gusset.py
 
-Copyright (C) 2020, 2021, 2022, 2023 Phillip A Carter
-Copyright (C) 2020, 2021, 2022, 2023 Gregory D Carl
+Copyright (C) 2020 - 2024 Phillip A Carter
+Copyright (C) 2020 - 2024 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -29,17 +29,18 @@ for f in sys.path:
         if '/usr' in f:
             localeDir = 'usr/share/locale'
         else:
-            localeDir = os.path.join(f'{f.split("/lib")[0]}','share','locale')
+            localeDir = os.path.join(f'{f.split("/lib")[0]}', 'share', 'locale')
         break
 gettext.install("linuxcnc", localedir=localeDir)
 
+
 # Conv is the upstream calling module
-def preview(Conv, fTmp, fNgc, fNgcBkp, \
-            matNumber, matName, \
-            preAmble, postAmble, \
-            leadinLength, leadoutLength, \
-            xOffset, yOffset, \
-            kerfWidth, isExternal, \
+def preview(Conv, fTmp, fNgc, fNgcBkp,
+            matNumber, matName,
+            preAmble, postAmble,
+            leadinLength, leadoutLength,
+            xOffset, yOffset,
+            kerfWidth, isExternal,
             width, height, angle, radius, rButton):
     error = ''
     msg1 = _('entry is invalid')
@@ -52,7 +53,7 @@ def preview(Conv, fTmp, fNgc, fNgcBkp, \
         msg0 = _('Y ORIGIN')
         error += f'{msg0} {msg1}\n\n'
     valid, leadinLength = Conv.conv_is_float(leadinLength)
-    if not valid and leadinLength :
+    if not valid and leadinLength:
         msg0 = _('LEAD IN')
         error += f'{msg0} {msg1}\n\n'
     valid, leadoutLength = Conv.conv_is_float(leadoutLength)
@@ -89,10 +90,10 @@ def preview(Conv, fTmp, fNgc, fNgcBkp, \
     if angle == 0:
         msg = _('ANGLE cannot be zero')
         error += f'{msg}\n\n'
-    if radius > width: # this needs a real calculation in the future *********
+    if radius > width:  # this needs a real calculation in the future *********
         msg = _('must be less than WIDTH')
         error += f'{rButton} {msg}\n\n'
-    if radius > height: # this needs a real calculation in the future *********
+    if radius > height:  # this needs a real calculation in the future *********
         msg = _('must be less than HEIGHT')
         error += f'{rButton} {msg}\n\n'
     if error:
@@ -111,7 +112,7 @@ def preview(Conv, fTmp, fNgc, fNgcBkp, \
     y1 = y0 + width * math.sin(right)
     # get offset start point
     x0n, y0n, = get_offset_coordinates([x1, y1], [x0, y0], angle, kerfWidth, isExternal)
-    # get new start poin
+    # get new start point
     x0 = x0n + (x0 - x0n) * 2
     y0 = y0n + (y0 - y0n) * 2
     # get new points
@@ -247,6 +248,7 @@ def preview(Conv, fTmp, fNgc, fNgcBkp, \
     outNgc.close()
     return None
 
+
 def get_offset_coordinates(fromPoint, thisPoint, angle, kerfWidth, isExternal):
     kOffset = kerfWidth / 2
     inAng = math.atan2(thisPoint[1] - fromPoint[1], thisPoint[0] - fromPoint[0])
@@ -264,10 +266,13 @@ def get_offset_coordinates(fromPoint, thisPoint, angle, kerfWidth, isExternal):
         y = y + kOffset * math.sin(inAng + math.radians(-90))
     return x, y
 
+
 def get_angle(fromPoint, thisPoint, nextPoint):
     a = math.atan2(fromPoint[1] - thisPoint[1], fromPoint[0] - thisPoint[0])
     c = math.atan2(nextPoint[1] - thisPoint[1], nextPoint[0] - thisPoint[0])
-    if a < 0: a += math.pi * 2
-    if c < 0: c += math.pi * 2
+    if a < 0:
+        a += math.pi * 2
+    if c < 0:
+        c += math.pi * 2
     ang = (math.pi * 2 + c - a) if a > c else (c - a)
     return ang

@@ -86,16 +86,16 @@ typedef struct{
 } hal_gpio_hal_t;
 
 /* flags are defined such:
- * bits 1 - 4 are gpiod flags
- * OPEN_DRAIN		= BIT(0) - not currently supported
- * OPEN_SOURCE		= BIT(1) - not currently supported
- * BIAS_DISABLE 	= BIT(2) - not currently supported
- * PULL_DOWN		= BIT(3) - not currently supported
- * PULL_UP		= BIT(4) - not currently supported
+ * bits 0 - 4 are gpiod flags
+ * OPEN_DRAIN		= BIT(0)
+ * OPEN_SOURCE		= BIT(1)
+ * BIAS_DISABLE 	= BIT(2)
+ * PULL_DOWN		= BIT(3)
+ * PULL_UP		= BIT(4)
  *
  * hal_gpio flags
  * INVERT 		= BIT(5)
- * RESET		= BIT(6) - not currently supported
+ * RESET		= BIT(6)
  */
 
 typedef struct {
@@ -234,7 +234,7 @@ int rtapi_app_main(void){
     gpio->num_out_chips = 0;
     gpio->in_chips = NULL; // so that realloc knows that they need malloc first time throigh
     gpio->out_chips = NULL;
-    for (i = 0; inputs[i]; i++) {
+    for (i = 0; inputs[i] && strlen(inputs[i]); i++) {
 	retval = build_chips_collection(inputs[i], &gpio->in_chips, &gpio->num_in_chips);
 	if (retval < 0) goto fail0;
     }
@@ -256,7 +256,7 @@ int rtapi_app_main(void){
 	    
     }
     
-    for (i = 0; outputs[i]; i++) {
+    for (i = 0; outputs[i] && strlen(outputs[i]); i++) {
 	retval = build_chips_collection(outputs[i], &gpio->out_chips, &gpio->num_out_chips);
 	if (retval < 0) goto fail0;
     }

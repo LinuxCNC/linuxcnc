@@ -86,7 +86,7 @@ bool float_eq(hal_float_t a, hal_float_t b) {
     return fabs(a-b) < epsilon;
 }
 
-bool read_float(hal_port_t port, hal_float_t* value) {
+bool read_float(const hal_port_t *port, hal_float_t* value) {
     char data[32];
     int available = hal_port_readable(port);
     char* pos;
@@ -110,7 +110,7 @@ bool read_float(hal_port_t port, hal_float_t* value) {
     return true;
 }
 
-bool read_int(hal_port_t port, hal_s32_t* value) {
+bool read_int(const hal_port_t *port, hal_s32_t* value) {
     char data[10];
     long val;
     int available = hal_port_readable(port);
@@ -148,7 +148,7 @@ bool read_int(hal_port_t port, hal_s32_t* value) {
     pixels bpp must be defined in increments of 4.
     a pixel value with all 1 bits is a special value considered "off" for the raster and no power will be output
 */
-bool read_pixel_data(hal_port_t port, int bits_per_pixel, hal_float_t* power) {
+bool read_pixel_data(const hal_port_t *port, int bits_per_pixel, hal_float_t* power) {
     char data[8];
     long value = 0;
     unsigned int off = 0xFFFFFFFF >> (32 - bits_per_pixel);
@@ -190,7 +190,7 @@ FUNCTION(_) {
         state = IDLE;
         fault = 0;
         fault_code = ERROR_NONE;
-        hal_port_clear(program);
+        hal_port_clear(program_ptr);
     } else if (state == FAULT) {
         fault = 1;
     } else if (state == IDLE) {
@@ -202,19 +202,19 @@ FUNCTION(_) {
         //when run is asserted, the port must be full of 1 line of raster data
         if(run) {
 
-            if(!read_float(program, &program_offset)) {
+            if(!read_float(program_ptr, &program_offset)) {
                 state = FAULT;
                 fault_code = ERROR_INVALID_OFFSET;
-            } else if(!read_int(program, &bpp) || (bpp == 0) || (bpp > 32) || ((bpp % 4) != 0)) {
+            } else if(!read_int(program_ptr, &bpp) || (bpp == 0) || (bpp > 32) || ((bpp % 4) != 0)) {
                 state = FAULT;
                 fault_code = ERROR_INVALID_BPP;
-            } else if(!read_float(program, &ppu) || (ppu <= 0.0)) {
+            } else if(!read_float(program_ptr, &ppu) || (ppu <= 0.0)) {
                 state = FAULT;
                 fault_code = ERROR_INVALID_PPU;
-            } else if(!read_int(program, &count) || (count < 2)) {
+            } else if(!read_int(program_ptr, &count) || (count < 2)) {
                 state = FAULT;
                 fault_code = ERROR_INVALID_COUNT;
-            } else if(hal_port_readable(program) != ((bpp / 4) * count)) {
+            } else if(hal_port_readable(program_ptr) != ((bpp / 4) * count)) {
                 state = FAULT;
                 fault_code = ERROR_PROGWRONGSIZE;
             } else {
@@ -227,7 +227,7 @@ FUNCTION(_) {
 
         if(!run) {
             state = IDLE;
-            hal_port_clear(program);
+            hal_port_clear(program_ptr);
         } else {
             enabled = 1;
 
@@ -236,7 +236,7 @@ FUNCTION(_) {
                 current_pixel_index = current_pixel_index+1;
                 previous_pixel_value = current_pixel_value;
 
-                if(!read_pixel_data(program, bpp, &current_pixel_value)) {
+                if(!read_pixel_data(program_ptr, bpp, &current_pixel_value)) {
                     state = FAULT;
                     fault_code = ERROR_BADPIXELDATA;
                     return;

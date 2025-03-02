@@ -58,7 +58,7 @@ void Hal::freeSimulatedPin(void** pin)
     if (*pin != nullptr)
     {
         free(*pin);
-        pin = nullptr;
+        *pin = nullptr;
     }
 }
 // ----------------------------------------------------------------------
@@ -68,6 +68,7 @@ Hal::Hal(Profiles::HalRequestProfile halRequestProfile) :
     mStepMode(HandwheelStepmodes::Mode::MPG),
     mHalRequestProfile(halRequestProfile)
 {
+    (void)mStepMode;
 }
 // ----------------------------------------------------------------------
 Hal::~Hal()
@@ -220,7 +221,7 @@ Hal::~Hal()
     delete memory;
 }
 // ----------------------------------------------------------------------
-int Hal::newSimulatedHalPin(char* pin_name, void** ptr, int s)
+int Hal::newSimulatedHalPin(char* /*pin_name*/, void** ptr, int s)
 {
     *ptr = calloc(s, 1);
     assert(*ptr != nullptr);
@@ -574,12 +575,7 @@ void Hal::init(const MetaButtonCodes* metaButtons, const KeyCodes& keyCodes)
     mIsInitialized = true;
 }
 // ----------------------------------------------------------------------
-bool Hal::isInitialized()
-{
-    return mIsInitialized;
-}
-// ----------------------------------------------------------------------
-hal_float_t Hal::getAxisXPosition(bool absolute) const
+real_t Hal::getAxisXPosition(bool absolute) const
 {
     if (absolute)
     {
@@ -588,7 +584,7 @@ hal_float_t Hal::getAxisXPosition(bool absolute) const
     return *memory->in.axisXPositionRelative;
 }
 // ----------------------------------------------------------------------
-hal_float_t Hal::getAxisYPosition(bool absolute) const
+real_t Hal::getAxisYPosition(bool absolute) const
 {
     if (absolute)
     {
@@ -597,7 +593,7 @@ hal_float_t Hal::getAxisYPosition(bool absolute) const
     return *memory->in.axisYPositionRelative;
 }
 // ----------------------------------------------------------------------
-hal_float_t Hal::getAxisZPosition(bool absolute) const
+real_t Hal::getAxisZPosition(bool absolute) const
 {
     if (absolute)
     {
@@ -606,7 +602,7 @@ hal_float_t Hal::getAxisZPosition(bool absolute) const
     return *memory->in.axisZPositionRelative;
 }
 // ----------------------------------------------------------------------
-hal_float_t Hal::getAxisAPosition(bool absolute) const
+real_t Hal::getAxisAPosition(bool absolute) const
 {
     if (absolute)
     {
@@ -615,7 +611,7 @@ hal_float_t Hal::getAxisAPosition(bool absolute) const
     return *memory->in.axisAPositionRelative;
 }
 // ----------------------------------------------------------------------
-hal_float_t Hal::getAxisBPosition(bool absolute) const
+real_t Hal::getAxisBPosition(bool absolute) const
 {
     if (absolute)
     {
@@ -624,7 +620,7 @@ hal_float_t Hal::getAxisBPosition(bool absolute) const
     return *memory->in.axisBPositionRelative;
 }
 // ----------------------------------------------------------------------
-hal_float_t Hal::getAxisCPosition(bool absolute) const
+real_t Hal::getAxisCPosition(bool absolute) const
 {
     if (absolute)
     {
@@ -645,7 +641,7 @@ void Hal::enableVerbose(bool enable)
     }
 }
 // ----------------------------------------------------------------------
-void Hal::setNoAxisActive(bool enabled)
+void Hal::setNoAxisActive(bool /*enabled*/)
 {
     *mHalCout << "hal   OFF no axis active" << endl;
 }
@@ -692,7 +688,7 @@ void Hal::setAxisCActive(bool enabled)
     *mHalCout << "hal   C axis active" << endl;
 }
 // ----------------------------------------------------------------------
-void Hal::setStepSize(const hal_float_t stepSize)
+void Hal::setStepSize(const real_t stepSize)
 {
     *memory->out.axisXJogScale = stepSize;
     *memory->out.axisYJogScale = stepSize;
@@ -848,32 +844,32 @@ void Hal::setFeedMinus(bool enabled)
     setPin(enabled, KeyCodes::Buttons.feed_minus.text);
 }
 // ----------------------------------------------------------------------
-hal_float_t Hal::getspindleSpeedCmd() const
+real_t Hal::getspindleSpeedCmd() const
 {
     return *memory->in.spindleSpeedCmd;
 }
 // ----------------------------------------------------------------------
-hal_float_t Hal::getspindleSpeedChangeIncrease() const
+real_t Hal::getspindleSpeedChangeIncrease() const
 {
     return *memory->out.spindleDoIncrease;
 }
 // ----------------------------------------------------------------------
-hal_float_t Hal::getspindleSpeedChangeDecrease() const
+real_t Hal::getspindleSpeedChangeDecrease() const
 {
     return *memory->out.spindleDoDecrease;
 }
 // ----------------------------------------------------------------------
-hal_float_t Hal::getSpindleOverrideValue() const
+real_t Hal::getSpindleOverrideValue() const
 {
     return *memory->in.spindleOverrideValue;
 }
 // ----------------------------------------------------------------------
-hal_float_t Hal::getFeedOverrideMaxVel() const
+real_t Hal::getFeedOverrideMaxVel() const
 {
     return *memory->in.feedOverrideMaxVel;
 }
 // ----------------------------------------------------------------------
-hal_float_t Hal::getFeedOverrideValue() const
+real_t Hal::getFeedOverrideValue() const
 {
     return *memory->in.feedOverrideValue;
 }
@@ -913,7 +909,7 @@ void Hal::setFeedValueSelectedLead(bool selected)
     *memory->out.feedValueSelected_lead = selected;
 }
 // ----------------------------------------------------------------------
-void Hal::setFeedOverrideScale(hal_float_t scale)
+void Hal::setFeedOverrideScale(real_t scale)
 {
     *memory->out.feedOverrideScale = scale;
 }

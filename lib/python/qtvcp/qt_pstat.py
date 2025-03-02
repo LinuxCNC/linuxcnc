@@ -26,7 +26,7 @@ from . import logger
 LOG = logger.getLogger(__name__)
 
 
-# Force the log level for this module
+# Force the log level for this modul
 # LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 # BASE is the absolute path to linuxcnc base
@@ -39,7 +39,7 @@ class _PStat(object):
         if self.__class__._instanceNum >= 1:
             return
         self.__class__._instanceNum += 1
-
+        self.INI_PATH = None
         try:
             self.WORKINGDIR = os.getcwd()
 
@@ -50,41 +50,64 @@ class _PStat(object):
             self.PLUGINDIR = os.path.join(here,"plugins")
             self.VISMACHDIR = os.path.join(self.LIBDIR, "qt_vismach")
 
+            self.RIP_FLAG = bool(os.environ.get('LINUXCNC_RIP_FLAG', False))
+
+            if self.RIP_FLAG:
+                BASE = os.environ.get('EMC2_HOME', None)
+            else:
+                BASE = os.environ.get('LINUXCNC_HOME', None)
+                # fallback until the RIP_FLAG is common
+                if BASE is None:
+                    BASE = os.environ.get('EMC2_HOME', None)
+
+            # catch all
+            if BASE is None:
+                BASE = '/usr'
+                LOG.debug('Linuxcnc Home directory found in environmental variable: {}'.format(BASE))
+
             # share directory moves when using RIP vrs installed
-            home = os.environ.get('EMC2_HOME', '/usr')
-            if home is not None:
-                self.SHAREDIR = os.path.join(home,"share", "qtvcp")
+            self.SHAREDIR = os.path.join(BASE,"share", "qtvcp")
+
             self.IMAGEDIR = os.path.join(self.SHAREDIR,  "images")
             self.SCREENDIR = os.path.join(self.SHAREDIR, "screens")
             self.PANELDIR = os.path.join(self.SHAREDIR, "panels")
             self.WIDGETUI = os.path.join(self.SHAREDIR, "widgets_ui")
 
             # Linuxcnc project base directory moves when using RIP vrs installed
-            self.BASEDIR = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
+            try:
+                self.BASEDIR = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
+            except:
+                # TODO not sure if working directory is right - this is to fix an error with designer
+                # loading widget libraries
+                self.BASEDIR = self.WORKINGDIR
             self.RIPCONFIGDIR = os.path.join(self.BASEDIR, "configs", "sim", "qtvcp_screens")
-
+            self.CONFIGPATH = self.WORKINGDIR
             # specific library paths
             self.TOUCHOFF_SUBPROGRAM = os.path.abspath(os.path.join(
-                self.BASEDIR, 'lib/python/qtvcp/lib/touchoff_subprogram.py'))
+                self.LIBDIR, 'touchoff_subprogram.py'))
 
             # python RIP library directory
             self.PYDIR = os.path.join(self.BASEDIR, "lib", "python")
             sys.path.insert(0, self.PYDIR)
 
         except Exception as e:
-            print (e)
+            print ('qt_Pstat:',e)
             pass
 
-    def set_paths(self, filename='dummy', isscreen=False):
+    def set_paths(self, filename='dummy', isscreen=False, INI=None):
         self.PREFS_FILENAME = None
         self.IS_SCREEN = isscreen
         self.QRC_IS_LOCAL = None
         self.QRCPY_IS_LOCAL = None
+        self.INI_PATH = INI
 
         if isscreen:
             # path to the configuration the user requested
-            self.CONFIGPATH = os.environ['CONFIG_DIR']
-            sys.path.insert(0, self.CONFIGPATH)
+            try:
+                self.CONFIGPATH = os.environ['CONFIG_DIR']
+                sys.path.insert(0, self.CONFIGPATH)
+            except:
+                self.CONFIGPATH = self.WORKINGDIR
         else:
             # VCP panels don't usually have config paths but QTVCP looks for one.
             # TODO this fixes the error but maybe it should be something else
@@ -167,16 +190,7 @@ class _PStat(object):
             else:
                 # error
                 self.XML = None
-                LOG.critical("No UI file found - Did you add the .ui name/path?")
-                LOG.info('Available built-in Machine Control Screens:')
-                for i in self.find_screen_dirs():
-                   print(('{}'.format(i)))
-                print('')
-                LOG.info('Available built-in VCP Panels:')
-                for i in self.find_panel_dirs():
-                    print(('{}'.format(i)))
-                print('')
-                return True # error
+                LOG.info("No ui file found.")
 
         if not self.HANDLER is None:
             self.XMLDIR = os.path.dirname(self.HANDLER)
@@ -199,14 +213,14 @@ class _PStat(object):
         for localqss in local:
             LOG.debug("Checking for .qss in: yellow<{}>".format(localqss))
             if os.path.exists(localqss):
-                LOG.info("Using LOCAL qss file from: yellow<{}>".format(localqss))
+                LOG.info("Using LOCAL qss file as default stylesheet: yellow<{}>".format(localqss))
                 self.QSS = localqss
                 break
         # if no break
         else:
             LOG.debug("Checking for .qss in: yellow<{}>".format(defaultqss))
             if os.path.exists(defaultqss):
-                LOG.debug("Using DEFAULT qss file from: yellow<{}>".format(defaultqss))
+                LOG.debug("Using DEFAULT qss file as default stylesheet: yellow<{}>".format(defaultqss))
                 self.QSS = defaultqss
             else:
                 self.QSS = None
@@ -314,6 +328,18 @@ class _PStat(object):
             else:
                 self.ABOUT = ""
                 LOG.debug("No about file found.")
+
+        if self.XML is None and self.HANDLER is None:
+            LOG.critical("No UI or handler file found - Did you add the .ui name/path?")
+            LOG.info('Available built-in Machine Control Screens:')
+            for i in self.find_screen_dirs():
+               print(('{}'.format(i)))
+            print('')
+            LOG.info('Available built-in VCP Panels:')
+            for i in self.find_panel_dirs():
+                print(('{}'.format(i)))
+            print('')
+            return True # error
 
     # search for local ui paths or default to standard
     def find_widget_path(self,uifile=''):
@@ -472,7 +498,7 @@ class _PStat(object):
         module = "{}.{}".format(base,panel)
         return module
 
-    # tempararily adds the screen directory to path
+    # temporarily adds the screen directory to path
     # so the handler can be imported to be used for subclassing
     def importDefaultHandler(self, module=None):
         import importlib

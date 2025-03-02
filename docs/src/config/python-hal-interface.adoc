@@ -219,3 +219,11 @@ Set a pin value of any pin in the HAL system.
 ----
 hal.set_p("pinname","10")
 ----
+
+*set_s* ::
+Set the value of any unconnected signal in the HAL system.
+
+.Example
+----
+hal.set_s("signalname","10")
+----

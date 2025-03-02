@@ -17,7 +17,8 @@
    02111-1307 USA.
  */
 
-#pragma once
+#ifndef __XHC_WHB04B_6_HAL_H
+#define __XHC_WHB04B_6_HAL_H
 
 // local includes
 #include "pendant-types.h"
@@ -344,7 +345,7 @@ public:
     void init(const MetaButtonCodes* metaButtons, const KeyCodes& codes);
     //! \return true if void init(const MetaButtonCodes*, const KeyCodes&) has been called beforehand,
     //! false otherwise
-    bool isInitialized();
+    bool isInitialized() const { return mIsInitialized; };
     //! \return true if simulation mode is enabled, false otherwise
     bool isSimulationModeEnabled() const;
     //! indicates the program has been invoked in hal mode or normal
@@ -373,7 +374,7 @@ public:
 
     //! Sets the new feed rate. The step mode must be set accordingly.
     //! \param feedRate the new feed rate independent of step mode
-    void setStepSize(const hal_float_t feedRate);
+    void setStepSize(const real_t feedRate);
     //! If lead is active.
     void setLead();
     //! Sets the hal state of the respective pin (reset). Usually called in case the reset
@@ -416,13 +417,13 @@ public:
     void setFeedMinus(bool enabled);
     //! Returns the current Max Velocity value.
     //! \sa Hal::In::feedOverrideMaxVel
-    hal_float_t getFeedOverrideMaxVel() const;
+    real_t getFeedOverrideMaxVel() const;
     //! Returns the current feed override value.
     //! \sa Hal::In::feedOverrideValue
     //! \return the current feed override value v: 0 <= v <= 1
-    hal_float_t getFeedOverrideValue() const;
+    real_t getFeedOverrideValue() const;
     //! \xrefitem HalMemory::Out::feedOverrideScale setter
-    void setFeedOverrideScale(hal_float_t scale);
+    void setFeedOverrideScale(real_t scale);
 
     //! Propagates the feed value 0.001 selection state to hal.
     //! \sa Hal::Out::feedValueSelected_2
@@ -455,13 +456,13 @@ public:
 
     //! Returns the spindle speed.
     //! \return the spindle speed in rounds per second
-    hal_float_t getspindleSpeedCmd() const;
-    hal_float_t getspindleSpeedChangeIncrease() const;
-    hal_float_t getspindleSpeedChangeDecrease() const;
+    real_t getspindleSpeedCmd() const;
+    real_t getspindleSpeedChangeIncrease() const;
+    real_t getspindleSpeedChangeDecrease() const;
     //! Returns the current spindle override value.
     //! \sa Hal::In::spindleOverrideValue
     //! \return the current spindle override value v: 0 <= v <= 1
-    hal_float_t getSpindleOverrideValue() const;
+    real_t getSpindleOverrideValue() const;
     //! \sa setSpindleOverridePlus(bool, size_t)
     void setSpindleOverridePlus(bool enabled);
     //! \sa setSpindleOverrideMinus(bool, size_t)
@@ -548,17 +549,17 @@ public:
     //! Returns the axis position.
     //! \param absolute true absolute, false relative
     //! \return the absolute or relative position in machine units
-    hal_float_t getAxisXPosition(bool absolute) const;
+    real_t getAxisXPosition(bool absolute) const;
     //! \xrefitem getAxisXPosition(bool)
-    hal_float_t getAxisYPosition(bool absolute) const;
+    real_t getAxisYPosition(bool absolute) const;
     //! \xrefitem getAxisXPosition(bool)
-    hal_float_t getAxisZPosition(bool absolute) const;
+    real_t getAxisZPosition(bool absolute) const;
     //! \xrefitem getAxisXPosition(bool)
-    hal_float_t getAxisAPosition(bool absolute) const;
+    real_t getAxisAPosition(bool absolute) const;
     //! \xrefitem getAxisXPosition(bool)
-    hal_float_t getAxisBPosition(bool absolute) const;
+    real_t getAxisBPosition(bool absolute) const;
     //! \xrefitem getAxisXPosition(bool)
-    hal_float_t getAxisCPosition(bool absolute) const;
+    real_t getAxisCPosition(bool absolute) const;
 
 
 private:
@@ -642,3 +643,4 @@ private:
     bool requestMode(bool isRisingEdge, hal_bit_t* requestPin, hal_bit_t* modeFeedbackPin);
 };
 }
+#endif

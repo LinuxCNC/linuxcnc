@@ -69,9 +69,14 @@ static hostmot2_t* hm2=NULL;
 
 
 FUNCTION(receive){
-	rtapi_u16 max_frame_length = 20;
-	rtapi_u8 num_frames = 20;
-	unsigned char Replyd3[num_frames*max_frame_length];
+#define MAX_FRAME_LENGTH 20
+#define NUM_FRAMES 20
+	rtapi_u16 max_frame_length = MAX_FRAME_LENGTH;
+	rtapi_u8 num_frames = NUM_FRAMES;
+	unsigned char Replyd3[NUM_FRAMES*MAX_FRAME_LENGTH];
+#undef MAX_FRAME_LENGTH
+#undef NUM_FRAMES
+
 	rtapi_u16 frame_sizes3[20];
 	rxbytes=hm2_pktuart_read(name, Replyd3, &num_frames, &max_frame_length, frame_sizes3);
 	rtapi_print_msg(RTAPI_MSG_INFO, "PktUART receive: got %d bytes, %d frames\n", rxbytes, num_frames);
@@ -101,6 +106,11 @@ FUNCTION(receive){
 
 
 }
+// Only gcc/g++ supports the #pragma
+#if __GNUC__ && !defined(__clang__)
+// EXTRA_SETUP() is 2400
+#pragma GCC diagnostic warning "-Wframe-larger-than=2500"
+#endif
 
 EXTRA_SETUP(){ // the names parameters are passed in 'prefix'.
 	if (prefix[0] == 'm'){ // should be the 'm' of hm2_....
@@ -170,12 +180,16 @@ EXTRA_SETUP(){ // the names parameters are passed in 'prefix'.
 	  Anyway as long as the array size we pass to hm2_pktuart_read
 	  is big enough, we can read everything which is in the Rx buffer.
 	*/
-	rtapi_u16 max_frame_length = 58*2;
-	rtapi_u8 num_frames = 20;
+#define MAX_FRAME_LENGTH (58*2)
+#define NUM_FRAMES 20
+	rtapi_u16 max_frame_length = MAX_FRAME_LENGTH;
+	rtapi_u8 num_frames = NUM_FRAMES;
 
 	// If Rx buffer <= 1024 bytes, than 2*58*20 bytes of read1 array are enough
-	unsigned char read1[num_frames*max_frame_length];
-	rtapi_u16 read1_sizes[num_frames];
+	unsigned char read1[NUM_FRAMES*MAX_FRAME_LENGTH];
+	rtapi_u16 read1_sizes[NUM_FRAMES];
+#undef MAX_FRAME_LENGTH
+#undef NUM_FRAMES
 
 	// read out as many frames as possible
 	retval=hm2_pktuart_read(name, read1, &num_frames, &max_frame_length, read1_sizes);
@@ -229,7 +243,7 @@ EXTRA_SETUP(){ // the names parameters are passed in 'prefix'.
 	and receive 16 ACK datagrams as replies.
 	*/
 
-	unsigned char disable16[11*16] ={
+	static const unsigned char disable16[11*16] ={
 	0x75, 0x65, 0x0C,0x05,  0x05,0x11, 0x01,0x01, 0x00, 0x03, 0x19,
 	0x75, 0x65, 0x0C,0x05,  0x05,0x11, 0x01,0x01, 0x00, 0x03, 0x19,
 	0x75, 0x65, 0x0C,0x05,  0x05,0x11, 0x01,0x01, 0x00, 0x03, 0x19,
@@ -250,7 +264,7 @@ EXTRA_SETUP(){ // the names parameters are passed in 'prefix'.
 	0x75, 0x65, 0x0C,0x05,  0x05,0x11, 0x01,0x01, 0x00, 0x03, 0x19,
 	0x75, 0x65, 0x0C,0x05,  0x05,0x11, 0x01,0x01, 0x00, 0x03, 0x19
 	};
-	rtapi_u16 disable_size16[16]={11,11,11,11, 11,11,11,11, 11,11,11,11, 11,11,11,11};
+	static const rtapi_u16 disable_size16[16]={11,11,11,11, 11,11,11,11, 11,11,11,11, 11,11,11,11};
 	num_frames = 16;
 	retval=hm2_pktuart_send(name, disable16, &num_frames, disable_size16);
 	rtapi_print_msg(RTAPI_MSG_INFO, "%s sent: bytes %d, frames %u\n", name, retval, num_frames);

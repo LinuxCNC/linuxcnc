@@ -121,7 +121,19 @@ int Interp::write_g_codes(block_pointer block,   //!< pointer to a block of RS27
     (settings->spindle_mode[0] == SPINDLE_MODE::CONSTANT_RPM) ? G_97 : G_96;
   settings->active_g_codes[14] = (settings->ijk_distance_mode == DISTANCE_MODE::ABSOLUTE) ? G_90_1 : G_91_1;
   settings->active_g_codes[15] = (settings->lathe_diameter_mode) ? G_7 : G_8;
-  settings->active_g_codes[16] = (settings->parameters[5210])? G_92_3: G_92_2;
+  // 'G52','G92' are handled in modal group 0 which is cleared on startup, m2/m30 and abort, hence there
+  // is no indication of active G92 offsets after such events so we need modal group 16 as a workaround
+  if (block == NULL){ // this handles config startup
+    if (settings->parameters[5210] == 1){
+      settings->active_g_codes[16] = G_92_3;
+    } else {
+      settings->active_g_codes[16] = -1;
+    }
+  } else if (settings->parameters[5210] == 1 && block->g_modes[GM_MODAL_0] == -1){ // this handles aborts, m2/m30
+    settings->active_g_codes[16] = G_92_3;
+  } else {
+    settings->active_g_codes[16] = block->g_modes[GM_G92_IS_APPLIED];
+  }
   return INTERP_OK;
 }
 
@@ -213,6 +225,8 @@ int Interp::write_state_tag(block_pointer block,
     bool in_sub = (settings->call_level > 0 && settings->remap_level == 0);
     bool external_sub = strcmp(settings->filename,
 			       settings->sub_context[0].filename);
+    strncpy(state.filename, settings->filename, sizeof(state.filename));
+    state.filename[sizeof(state.filename)-1] = 0;
 
     state.flags[GM_FLAG_IN_REMAP] = in_remap;
     state.flags[GM_FLAG_IN_SUB] = in_sub;
@@ -298,7 +312,7 @@ int Interp::write_state_tag(block_pointer block,
 	(block == NULL) ? -1 : block->m_modes[4];
 
     state.flags[GM_FLAG_SPINDLE_ON] =
-	!(settings->spindle_turning[0] != CANON_STOPPED);
+	(settings->spindle_turning[0] != CANON_STOPPED);
     state.flags[GM_FLAG_SPINDLE_CW] =
 	(settings->spindle_turning[0] == CANON_CLOCKWISE);
 

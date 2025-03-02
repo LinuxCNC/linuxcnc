@@ -1,8 +1,8 @@
 '''
 run_from_line.py
 
-Copyright (C) 2019-2024  Phillip A Carter
-Copyright (C) 2020-2024  Gregory D Carl
+Copyright (C) 2019 - 2024 Phillip A Carter
+Copyright (C) 2020 - 2024 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -21,12 +21,13 @@ with this program; if not, write to the Free Software Foundation, Inc
 
 import math
 
-def run_from_line_get(file, startLine):
-    preData,postData,newData,params,material = [],[],[],[],[]
-    codes = {'g2_':'','g4_':'','g6_':'','g9_':'','g9arc':'','d3':'','d2':'','a3':'','x1':'','y1':'','x2':'','y2':''}
-    codes['last'] = {'feed':'', 'code':''}
-    codes['move'] = {'isSet':False, 'isG00':False}
-    codes['spindle'] = {'code':False, 'line':None}
+
+def run_from_line_get(file, startLine, lastLine=0):
+    preData, postData, newData, params, material = [], [], [], [], [None, None]
+    codes = {'g2_': '', 'g4_': '', 'g6_': '', 'g9_': '', 'g9arc': '', 'd3': '', 'd2': '', 'a3': '', 'x1': '', 'y1': '', 'x2': '', 'y2': ''}
+    codes['last'] = {'feed': '', 'code': ''}
+    codes['move'] = {'isSet': False, 'isG00': False}
+    codes['spindle'] = {'code': False, 'line': None}
     oSub = []
     cutComp = False
     count = 0
@@ -43,7 +44,7 @@ def run_from_line_get(file, startLine):
                     elif 'G20' in line:
                         newData.append('G20')
                 # find the type of first move
-                if not codes['move']['isSet'] and not 'G53G0' in line.replace(' ','') and not 'G20' in line and not 'G21' in line:
+                if not codes['move']['isSet'] and 'G53G0' not in line.replace(' ', '') and 'G20' not in line and 'G21' not in line:
                     if 'G00' in line:
                         codes['move']['isSet'] = True
                         codes['move']['isG00'] = True
@@ -60,6 +61,10 @@ def run_from_line_get(file, startLine):
                             continue
                         codes['spindle']['line'] = line.strip()
                 postData.append(line)
+            if lastLine and count == lastLine:
+                postData.append('M02\n')
+                postData.append(';qtplasmac filtered G-code file\n')
+                break
             count += 1
     # read all lines before selected line to get last used codes
     for line in preData:
@@ -68,15 +73,15 @@ def run_from_line_get(file, startLine):
                 material = [line.strip()]
             continue
         elif line.startswith('M190'):
-            material.append(line.strip())
+            material = [line.strip()]
             continue
-        elif line.replace(' ','').startswith('M66P3'):
+        elif line.replace(' ', '').startswith('M66P3'):
             material.append(line.strip())
             continue
         elif line.startswith('#'):
             params.append(line.strip())
             continue
-        for t1 in ['G20','G21','G40','G41.1','G42.1','G61','G61.1','G64','G90','G90.1','G91','G91.1']:
+        for t1 in ['G20', 'G21', 'G40', 'G41.1', 'G42.1', 'G61', 'G61.1', 'G64', 'G90', 'G90.1', 'G91', 'G91.1']:
             if t1 in line:
                 if t1[1] == '2':
                     codes['g2_'] = t1
@@ -88,15 +93,15 @@ def run_from_line_get(file, startLine):
                         cutComp = False
                 elif t1[1] == '6':
                     codes['g6_'] = t1 + line.split(t1)[1]
-                elif t1 == 'G90' and not 'G90.1' in line:
+                elif t1 == 'G90' and 'G90.1' not in line:
                     codes['g9_'] = 'G90'
-                elif t1 == 'G91' and not 'G91.1' in line:
+                elif t1 == 'G91' and 'G91.1' not in line:
                     codes['g9_'] = 'G91'
                 elif t1 == 'G90.1' in line:
                     codes['g9arc'] = 'G90.1'
                 elif t1 == 'G91.1' in line:
                     codes['g9arc'] = 'G91.1'
-        if 'G00' in line and not 'G53g00' in line:
+        if 'G00' in line and 'G53g00' not in line:
             codes['last']['code'] = 'G0'
         if 'G01' in line:
             tmp = line.split('G01')[1]
@@ -114,27 +119,27 @@ def run_from_line_get(file, startLine):
             codes['x1'] = get_rfl_pos(line.strip(), codes['x1'], 'X')
         if 'Y' in line:
             codes['y1'] = get_rfl_pos(line.strip(), codes['y1'], 'Y')
-        if 'M03$' in line.replace(' ','') and not codes['spindle']['line']:
+        if 'M03$' in line.replace(' ', '') and not codes['spindle']['line']:
             codes['spindle']['line'] = line.strip()
-        if 'M62P3' in line.replace(' ',''):
+        if 'M62P3' in line.replace(' ', ''):
             codes['d3'] = 'M62 P3 (Disable Torch)'
-        elif 'M63P3' in line.replace(' ',''):
+        elif 'M63P3' in line.replace(' ', ''):
             codes['d3'] = 'M63 P3 (Enable Torch)'
-        elif 'M64P3' in line.replace(' ',''):
+        elif 'M64P3' in line.replace(' ', ''):
             codes['d3'] = 'M64 P3 (Disable Torch)'
-        elif 'M65P3' in line.replace(' ',''):
+        elif 'M65P3' in line.replace(' ', ''):
             codes['d3'] = 'M65 P3 (Enable Torch)'
-        if 'M62P2' in line.replace(' ',''):
+        if 'M62P2' in line.replace(' ', ''):
             codes['d2'] = 'M62 P2 (Disable THC)'
-        elif 'M63P2' in line.replace(' ',''):
+        elif 'M63P2' in line.replace(' ', ''):
             codes['d2'] = 'M63 P2 (Enable THC)'
-        elif 'M64P2' in line.replace(' ',''):
+        elif 'M64P2' in line.replace(' ', ''):
             codes['d2'] = 'M64 P2 (Disable THC)'
-        elif 'M65P2' in line.replace(' ',''):
+        elif 'M65P2' in line.replace(' ', ''):
             codes['d2'] = 'M65 P2 (Enable THC)'
-        if 'M67E3Q' in line.replace(' ',''):
+        if 'M67E3Q' in line.replace(' ', ''):
             codes['a3'] = 'M67 E3 Q'
-            tmp = line.replace(' ','').split('M67E3Q')[1]
+            tmp = line.replace(' ', '').split('M67E3Q')[1]
             while 1:
                 if tmp[0] in '-.0123456789':
                     codes['a3'] += tmp[0]
@@ -144,9 +149,9 @@ def run_from_line_get(file, startLine):
             pc = float(codes['a3'].split('M67 E3 Q')[1])
             pc = pc if pc > 0 else 100
             codes['a3'] += f' (Velocity {pc}%)'
-        if 'M68E3Q' in line.replace(' ',''):
+        if 'M68E3Q' in line.replace(' ', ''):
             codes['a3'] = 'M68 E3 Q'
-            tmp = line.replace(' ','').split('M68E3Q')[1]
+            tmp = line.replace(' ', '').split('M68E3Q')[1]
             while 1:
                 if tmp[0] in '-.0123456789':
                     codes['a3'] += tmp[0]
@@ -163,7 +168,7 @@ def run_from_line_get(file, startLine):
             else:
                 if line[1] == '<':
                     os = 'O<'
-                    tmp = line.replace(' ','').split('O<')[1]
+                    tmp = line.replace(' ', '').split('O<')[1]
                     while 1:
                         if tmp[0] != '>':
                             os += tmp[0]
@@ -173,7 +178,7 @@ def run_from_line_get(file, startLine):
                     oSub.append(f'{os}>')
                 else:
                     os = 'O'
-                    tmp = line.replace(' ','').split('O')[1]
+                    tmp = line.replace(' ', '').split('O')[1]
                     while 1:
                         if tmp[0] in '0123456789':
                             os += tmp[0]
@@ -185,9 +190,10 @@ def run_from_line_get(file, startLine):
             codes['last']['feed'] = line.strip()
     # return an error line within a subroutine or if using cutter compensation
     if cutComp or oSub:
-        return {'error':True, 'compError':cutComp, 'subError':oSub}
+        return {'error': True, 'compError': cutComp, 'subError': oSub}
     # else return all data
-    return {'error':False, 'codes':codes, 'params':params, 'material':material, 'postData':postData, 'newData':newData}
+    return {'error': False, 'codes': codes, 'params': params, 'material': material, 'postData': postData, 'newData': newData}
+
 
 def run_from_line_set(rflFile, data, leadin, unitsPerMm):
     error = False
@@ -228,9 +234,10 @@ def run_from_line_set(rflFile, data, leadin, unitsPerMm):
         data['newData'].append(data['codes']['a3'])
     if zMax:
         data['newData'].append(zMax)
-    if data['material']:
-        for line in data['material']:
-            data['newData'].append(line)
+    if data['material'][0]:
+        data['newData'].append(data['material'][0])
+    if data['material'][1]:
+        data['newData'].append(data['material'][1])
     if data['codes']['last']['feed']:
         data['newData'].append(data['codes']['last']['feed'])
     # if g00 is not the first motion command after selected line set x and y coordinates
@@ -244,13 +251,13 @@ def run_from_line_set(rflFile, data, leadin, unitsPerMm):
     # if no spindle command yet then find the next one for the correct tool
     if not data['codes']['spindle']['line']:
         for line in data['postData']:
-            if 'M3$' in line.replace(' ',''):
+            if 'M3$' in line.replace(' ', ''):
                 data['codes']['spindle']['line'] = line.strip()
                 break
     # add all the code from the selected line to the end
     for line in data['postData']:
         # if we have the first spindle code we don't need it again
-        if 'M03$' in line.replace(' ','') and data['codes']['spindle']['code']:
+        if 'M03$' in line.replace(' ', '') and data['codes']['spindle']['code']:
             data['codes']['spindle']['code'] = False
             continue
         # if G00 is the first motion command after the selected line
@@ -275,7 +282,8 @@ def run_from_line_set(rflFile, data, leadin, unitsPerMm):
     with open(rflFile, 'w') as outFile:
         for line in data['newData']:
             outFile.write(f'{line}\n')
-    return {'error':error}
+    return {'error': error}
+
 
 def set_leadin_coordinates(x, y, scale, length, angle):
     xL = x
@@ -290,6 +298,7 @@ def set_leadin_coordinates(x, y, scale, length, angle):
     except:
         return(True, x, y)
     return(False, xL, yL)
+
 
 def set_spindle_start(xL, yL, x, y, line, newData, reply):
     leadIn = {}
@@ -309,6 +318,7 @@ def set_spindle_start(xL, yL, x, y, line, newData, reply):
     if leadIn:
         newData.append(f'G01 X{leadIn["x"]} Y{leadIn["y"]} (leadin)')
     return reply
+
 
 def get_rfl_pos(line, axisPos, axisLetter):
     maths = 0
@@ -338,7 +348,8 @@ def get_rfl_pos(line, axisPos, axisLetter):
                     done = True
                     break
                 else:
-                    if len(line) == 1: break
+                    if len(line) == 1:
+                        break
                     break
                 if len(line) == 1:
                     break

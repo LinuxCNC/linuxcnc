@@ -58,7 +58,7 @@ struct CANON_POSITION {
 
     const CANON_POSITION abs() const;
     const CANON_POSITION absdiff(const CANON_POSITION &o) const;
-    const double max() const;
+    double max() const;
 
     const EmcPose toEmcPose() const;
 

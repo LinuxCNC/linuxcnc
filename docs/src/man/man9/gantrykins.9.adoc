@@ -1,0 +1,16 @@
+= gantrykins(9)
+
+== NAME
+
+gantrykins - *Superseded* by the general purpose *trivkins* kinematics module.
+
+== SYNOPSIS
+
+To specify a gantry with non-identity kinematics: use trivkins with the
+kinstype parameter set for KINEMATICS_BOTH. Example:
+
+**loadrt trivkins coordinates=**xyyz **kinstypes=**BOTH
+
+== SEE ALSO
+
+trivkins(9)

@@ -228,18 +228,18 @@ State_LED #name_of_led{
 ----
 
 ==== Handler Patching - Subclassing Builtin Screens
-We can have QtVCP load a subclassed version of the standard handler file. in that file we can manipulate the original functions or add new ones. +
-Subclassing just means our handler file first loads the original handler file and adds our new code on top of it - so a patch of changes. +
+We can have QtVCP load a subclassed version of the standard handler file. In that file we can manipulate the original functions or add new ones. +
+Subclassing just means our handler file first loads the original handler file and adds our new code on top of it - effectively a patch of changes. +
 This is useful for changing/adding behaviour while still retaining standard handler updates from LinuxCNC repositories.
 
 You may still need to use the handler copy dialog to copy the original handler file to decide how to patch it.
 See 'custom handler file'
 
 There should be a folder in the config folder; for screens: named '<CONFIG FOLDER>/qtvcp/screens/<SCREEN NAME>/' +
-add the handle patch file there, named like so <ORIGINAL SCREEN NAME>_handler.py. +
-i.e. for QtDragon the file would be called 'qtdragon_handler.py'.
+add the handle patch file there, named like so <ORIGINAL SCREEN NAME>_handler.py, +
+e.g., for QtDragon the file would be called 'qtdragon_handler.py'.
 
-Here is a sample to add X axis jog pins to a screen like QtDragon: +
+Here is a sample to add X axis jog pins to a screen like QtDragon:
 
 [source,python]
 ----
@@ -974,6 +974,9 @@ If QtVCP finds these it will call them, if not it will silently ignore them.
   _Class patching_, also known as _monkey patching_, allows to *override function calls in an imported module*. +
   Class patching must be done _before the module is instantiated_, and it _modifies all instances_ made after that. +
   An example might be patching button calls from the G-code editor to call functions in the handler file instead. +
+  Class patching function redefined here, will be called with the HandlerClass instance as 'self' rather then +
+  the patched class instance. This can make access to the patched class function/variables more difficult. +
+  When class patching outside of the HandlerClass class, the function call will use the patched class instance as 'self'. 
 
 *`initialized__(self):`*::
   This function is _called after the widgets and HAL pins are built_. +
@@ -983,6 +986,10 @@ If QtVCP finds these it will call them, if not it will silently ignore them.
   * styles applied to widgets,
   * status of LinuxCNC connected to functions.
   * keybindings would be added.
+
+*`pre_hal_init__(self):`*::
+  This function is called before the HAL-ified widgets have their hal_init_ function called. +
+  Some property changes need to be done before HAL_init is called on the widget.
 
 *`after_override__(self):`*::
   This function is called after the optional override file is loaded but +

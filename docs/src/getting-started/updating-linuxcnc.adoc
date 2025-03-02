@@ -52,7 +52,7 @@ Codename:       Buster
 ----
 
 You should be running on Debian Buster, Bullseye or Bookworm or Ubuntu 20.04 "Focal Fossa" or newer.
-LinuxCNC 2.9.y will not run on older distributions than these. 
+LinuxCNC 2.9.y will not run on older distributions than these.
 
 You will also need to check which realtime kernel is being used:
 
@@ -63,11 +63,11 @@ uname -r
 
 If you see (as above) `-rt-` in the kernel name then you are running the
 preempt-rt kernel and should install the "uspace" version of LinuxCNC.
-You should also install uspace for "sim" configs on non-realtime kernels
+You should also install uspace for "sim" configs on non-realtime kernels.
 
-If you see `-rtai-` in the kernel name then you are running RTAI
-realtime. See below for the LinuxCNC version to install. RTAI packages
-are available for Bookworm and Buster but not currently for Bullseye.
+If you see `-rtai-` in the kernel name then you are running RTAI realtime.
+See below for the LinuxCNC version to install.
+RTAI packages are available for Bookworm and Buster but not currently for Bullseye.
 
 [[_setting_apt_sources]]
 === Apt Sources Configuration
@@ -93,7 +93,7 @@ are available for Bookworm and Buster but not currently for Bullseye.
 [cols="3,5",options="header"]
 |===
 | OS / Realtime Version      | Repository
-| Debian Buster - preempt   m| deb https://linuxcnc.org buster base 2.9-rtpreempt
+| Debian Buster - preempt   m| deb https://linuxcnc.org buster base 2.9-uspace
 | Debian Buster - RTAI      m| deb https://linuxcnc.org buster base 2.9-rt
 | Debian Bullseye - preempt m| deb https://linuxcnc.org bullseye base 2.9-uspace
 | Debian Bookworm - preempt m| deb https://linuxcnc.org bookworm base 2.9-uspace
@@ -138,12 +138,11 @@ Debian uses the Synaptic Package Manager.
 [[getting-started:update-no-network]]
 == Updating without Network
 
-To update without a network connection you need to download the .deb then install
-it with dpkg. The .debs can be found in https://linuxcnc.org/dists/ .
+To update without a network connection you need to download the .deb then install it with dpkg.
+The .debs can be found in https://linuxcnc.org/dists/ .
 
-You have to drill down from the above link to find the correct deb for your
-installation. Open a <<faq:terminal,terminal>> and type in 'lsb_release -ic'
-to find the release name of your OS.
+You have to drill down from the above link to find the correct deb for your installation.
+Open a <<faq:terminal,terminal>> and type in 'lsb_release -ic' to find the release name of your OS.
 
 ----
 > lsb_release -ic
@@ -201,71 +200,8 @@ correspondingly needs to change from `libcanterp.so` to `canterp.so`.
 
 
 
-== Updating Configuration Files (for 2.9.y)
+== Updating Configuration Files (for 2.10.y)
 
-No changes should be necessary to configuration files when moving from 2.8.x to 2.9.y.
-
-=== Spindle limits in the INI
-
-It is now possible to add settings to the [SPINDLE] section of the INI file
-
-MAX_FORWARD_VELOCITY = 20000 The maximum spindle speed (in rpm)
-
-MIN_FORWARD_VELOCITY = 3000 The minimum spindle speed (in rpm)
-
-MAX_REVERSE_VELOCITY = 20000 This setting will default to
-MAX_FORWARD_VELOCITY if omitted.
-
-MIN_REVERSE_VELOCITY = 3000` This setting is equivalent to
-MIN_FORWARD_VELOCITY but for reverse spindle rotation. It will default
-to the MIN_FORWARD_VELOCITY if omitted.
-
-INCREMENT = 200 Sets the step size for spindle speed increment /
-decrement commands. This can have a different value for each spindle.
-This setting is effective with AXIS and Touchy but note that some
-control screens may handle things differently.
-
-HOME_SEARCH_VELOCITY = 100 - Accepted but currently does nothing
-
-HOME_SEQUENCE = 0 - Accepted but currently does nothing
-
-== New HAL components
-
-=== Non-Realtime
-mdro
-mqtt-publisher
-pi500_vfd
-pmx485-test
-qtplasmac-cfg2prefs
-qtplasmac-materials
-qtplasmac-plasmac2qt
-qtplasmac-setup
-sim-torch
-svd-ps_vfd
-
-=== Realtime
-anglejog
-div2
-enum
-filter_kalman
-flipflop
-hal_parport
-homecomp
-limit_axis
-mesa_uart
-millturn
-scaled_s32_sums
-tof
-ton
-
-== New Drivers
-
-A framework for controlling ModBus devices using the serial ports on
-many Mesa cards has been introduced.
-http://linuxcnc.org/docs/2.9/html/drivers/mesa_modbus.html
-
-A new GPIO driver for any GPIO which is supported by the gpiod library
-is now included:
-http://linuxcnc.org/docs/2.9/html/drivers/hal_gpio.html
-
-
+Touchy: the Touchy MACRO entries should now be placed in a [MACROS]
+section of the INI rather than in the [TOUCHY] section. This is part of
+a process of commonising the INI setting between GUIs. 

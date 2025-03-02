@@ -42,7 +42,7 @@ LOG = logger.getLogger(__name__)
 # Force the log level for this module
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
-class ActionButton(IndicatedPushButton, _HalWidgetBase):
+class ActionButton(IndicatedPushButton):
     def __init__(self, parent=None):
         super(ActionButton, self).__init__(parent)
         self._block_signal = False
@@ -107,7 +107,7 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
         self.exit = False
         self.template_label = False
         self.lathe_mirror_x = False
-
+        self.home_no_unhome = False
         self.toggle_float = False
         self._toggle_state = 0
         self.joint = -1
@@ -473,15 +473,19 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
                 if state:
                     ACTION.SET_MACHINE_HOMING(self.joint)
                 else:
-                    ACTION.SET_MACHINE_UNHOMED(self.joint)
+                    if not self.home_no_unhome:
+                        ACTION.SET_MACHINE_UNHOMED(self.joint)
             else:
                 if self.joint == -1:
                     if STATUS.is_all_homed():
-                        ACTION.SET_MACHINE_UNHOMED(-1)
+                        if not self.home_no_unhome:
+                            ACTION.SET_MACHINE_UNHOMED(-1)
                     else:
                         ACTION.SET_MACHINE_HOMING(-1)
                 elif STATUS.is_joint_homed(self.joint):
-                    ACTION.SET_MACHINE_UNHOMED(self.joint)
+                    if not self.home_no_unhome:
+                        ACTION.SET_MACHINE_UNHOMED(self.joint)
+                    pass
                 else:
                     ACTION.SET_MACHINE_HOMING(self.joint)
         elif self.unhome:
@@ -521,6 +525,7 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
                 except IndexError:
                     LOG.error("can't zero origin for specified joint {}".format(self.joint))
             ACTION.SET_AXIS_ORIGIN(axis, 0)
+            STATUS.emit('update-machine-log', 'Zeroed Axis %s' % axis, 'TIME,SUCCESS')
         elif self.zero_g5x:
             ACTION.ZERO_G5X_OFFSET(0)
         elif self.zero_g92:
@@ -1421,6 +1426,14 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
     def reset_lathe_mirror_x(self):
         self.lathe_mirror_x = False
 
+    def set_home_no_unhome(self, data):
+        self.home_no_unhome = data
+    def get_home_no_unhome(self):
+        return self.home_no_unhome
+    def reset_home_no_unhome(self):
+        self.home_no_unhome = False
+
+
     # NON BOOL VARIABLES------------------
     def set_incr_imperial(self, data):
         self.jog_incr_imperial = data
@@ -1566,6 +1579,9 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
     machine_log_dialog_action = QtCore.pyqtProperty(bool, get_machine_log_dialog, set_machine_log_dialog, reset_machine_log_dialog)
     lathe_mirror_x_action = QtCore.pyqtProperty(bool, get_lathe_mirror_x, set_lathe_mirror_x, reset_lathe_mirror_x)
 
+
+    home_no_unhome_option = QtCore.pyqtProperty(bool, get_home_no_unhome, set_home_no_unhome, reset_home_no_unhome)
+
     def set_template_label(self, data):
         self.template_label = data
     def get_template_label(self):
@@ -1573,6 +1589,7 @@ class ActionButton(IndicatedPushButton, _HalWidgetBase):
     def reset_template_label(self):
         self.template_label = False
     template_label_option = QtCore.pyqtProperty(bool, get_template_label, set_template_label, reset_template_label)
+
 
     # NON BOOL
     joint_number = QtCore.pyqtProperty(int, get_joint, set_joint, reset_joint)

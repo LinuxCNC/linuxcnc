@@ -476,3 +476,24 @@ EditorBase {
     qproperty-styleColor6: #8282aa;	/* Axes Values */
     qproperty-styleColor7: #cd6197;	/* Other Values */
 }
+
+Gauge {
+qproperty-base_color: black;
+qproperty-base_gradient_color: blue;
+qproperty-center_color: gray;
+qproperty-center_gradient_color: #404040;
+qproperty-bezel_color: orange;
+qproperty-bezel_width: 2;
+}
+
+GcodeEditor QToolButton {
+    min-width: 40;
+    height: 40;
+    font: 12pt "Lato Heavy";
+}
+
+GcodeEditor QLineEdit {
+    width: 120;
+    height: 35;
+    font: 12pt "Lato Heavy";
+}

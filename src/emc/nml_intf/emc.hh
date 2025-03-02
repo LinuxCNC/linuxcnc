@@ -233,18 +233,18 @@ enum class EMC_TRAJ_MODE {
 };
 
 // types for emcIoAbort() reasons
-enum EMC_IO_ABORT_REASON_ENUM {
-	EMC_ABORT_TASK_EXEC_ERROR = 1,
-	EMC_ABORT_AUX_ESTOP = 2,
-	EMC_ABORT_MOTION_OR_IO_RCS_ERROR = 3,
-	EMC_ABORT_TASK_STATE_OFF = 4,
-	EMC_ABORT_TASK_STATE_ESTOP_RESET = 5,
-	EMC_ABORT_TASK_STATE_ESTOP = 6,
-	EMC_ABORT_TASK_STATE_NOT_ON = 7,
-	EMC_ABORT_TASK_ABORT = 8,
-	EMC_ABORT_INTERPRETER_ERROR = 9,	// interpreter failed during readahead
-	EMC_ABORT_INTERPRETER_ERROR_MDI = 10,	// interpreter failed during MDI execution
-	EMC_ABORT_USER = 100  // user-defined abort codes start here
+enum class EMC_ABORT {
+	TASK_EXEC_ERROR = 1,
+	AUX_ESTOP = 2,
+	MOTION_OR_IO_RCS_ERROR = 3,
+	TASK_STATE_OFF = 4,
+	TASK_STATE_ESTOP_RESET = 5,
+	TASK_STATE_ESTOP = 6,
+	TASK_STATE_NOT_ON = 7,
+	TASK_ABORT = 8,
+	INTERPRETER_ERROR = 9,	// interpreter failed during readahead
+	INTERPRETER_ERROR_MDI = 10,	// interpreter failed during MDI execution
+	USER = 100  // user-defined abort codes start here
 };
 // --------------
 // EMC VOCABULARY
@@ -365,18 +365,18 @@ extern int emcTrajForward();
 extern int emcTrajStep();
 extern int emcTrajResume();
 extern int emcTrajDelay(double delay);
-extern int emcTrajLinearMove(EmcPose end, int type, double vel,
+extern int emcTrajLinearMove(const EmcPose& end, int type, double vel,
                              double ini_maxvel, double acc, int indexer_jnum);
-extern int emcTrajCircularMove(EmcPose end, PM_CARTESIAN center, PM_CARTESIAN
+extern int emcTrajCircularMove(const EmcPose& end, const PM_CARTESIAN& center, const PM_CARTESIAN&
         normal, int turn, int type, double vel, double ini_maxvel, double acc);
 extern int emcTrajSetTermCond(int cond, double tolerance);
 extern int emcTrajSetSpindleSync(int spindle, double feed_per_revolution, bool wait_for_index);
-extern int emcTrajSetOffset(EmcPose tool_offset);
-extern int emcTrajSetHome(EmcPose home);
+extern int emcTrajSetOffset(const EmcPose& tool_offset);
+extern int emcTrajSetHome(const EmcPose& home);
 extern int emcTrajClearProbeTrippedFlag();
-extern int emcTrajProbe(EmcPose pos, int type, double vel, 
+extern int emcTrajProbe(const EmcPose& pos, int type, double vel,
                         double ini_maxvel, double acc, unsigned char probe_type);
-extern int emcTrajRigidTap(EmcPose pos, double vel, double ini_maxvel, double acc, double scale);
+extern int emcTrajRigidTap(const EmcPose& pos, double vel, double ini_maxvel, double acc, double scale);
 
 extern int emcTrajUpdate(EMC_TRAJ_STAT * stat);
 
@@ -393,7 +393,7 @@ extern int emcMotionSetDout(unsigned char index, unsigned char start,
 
 extern int emcMotionUpdate(EMC_MOTION_STAT * stat);
 
-extern int emcAbortCleanup(int reason,const char *message = "");
+extern int emcAbortCleanup(EMC_ABORT reason,const char *message = "");
 
 // implementation functions for EMC_TOOL types
 
@@ -401,7 +401,7 @@ extern int emcToolPrepare(int tool);
 extern int emcToolLoad();
 extern int emcToolUnload();
 extern int emcToolLoadToolTable(const char *file);
-extern int emcToolSetOffset(int pocket, int toolno, EmcPose offset, double diameter,
+extern int emcToolSetOffset(int pocket, int toolno, const EmcPose& offset, double diameter,
                             double frontangle, double backangle, int orientation);
 extern int emcToolSetNumber(int number);
 
@@ -435,7 +435,7 @@ extern int emcCoolantFloodOff();
 // implementation functions for EMC_IO types
 
 extern int emcIoInit();
-extern int emcIoAbort(int reason);
+extern int emcIoAbort(EMC_ABORT reason);
 
 // implementation functions for EMC aggregate types
 

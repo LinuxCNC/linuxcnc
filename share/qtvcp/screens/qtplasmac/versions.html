@@ -9,7 +9,7 @@
 </style>
 </head>
 <body>
-<b>Version Numbering  <font color="green">nnn</font>.<font color="blue">nnn</font></b>
+<b>Version Numbering <font color="green">nnn</font>.<font color="blue">nnn</font></b>
 <table>
     <tr>
         <th>Number</th>
@@ -26,6 +26,154 @@
 </table>
 <br>
 <!--- ****** ADD NEXT VERSION BELOW THIS LINE ****** --->
+<br><b><u>008.056 2024 Nov 30</u></b>
+<ul style="margin:0;">
+  <li>fix paths in langlink file</li>
+</ul>
+
+<br><b><u>008.055 2024 Nov 26</u></b>
+<ul style="margin:0;">
+  <li>fix linking and documentation for internationalization</li>
+</ul>
+
+<br><b><u>008.054 2024 Nov 5</u></b>
+<ul style="margin:0;">
+  <li>fix tooltip variable name missed in 008.053 (commit bb07323)</li>
+</ul>
+
+<br><b><u>008.053 2024 Oct 11</u></b>
+<ul style="margin:0;">
+  <li>revert change in 008.052 (commit cbfe160)</li>
+  <li>add ext_pause_only, add ext_resume</li>
+  <li>add missing calls to the pause_pressed method</li>
+</ul>
+
+<br><b><u>008.052 2024 Oct 4</u></b>
+<ul style="margin:0;">
+  <li>make ext_pause only pause the machine (no resume)</li>
+</ul>
+
+<br><b><u>008.051 2024 Oct 2</u></b>
+<ul style="margin:0;">
+  <li>fix button setup logic and error message</li>
+  <li>update for latest opengl libraries added in commit 8c68df8</li>
+</ul>
+
+<br><b><u>008.050 2024 Sept 6</u></b>
+<ul style="margin:0;">
+  <li>fix sim m_code pathing</li>
+  <li>allow update 001-017 to be correctly applied</li>
+</ul>
+
+<br><b><u>008.049 2024 Sept 2</u></b>
+<ul style="margin:0;">
+  <li>process element names for custom stylesheets as well</li>
+</ul>
+
+<br><b><u>008.048 2024 Aug 21</u></b>
+<ul style="margin:0;">
+  <li>remove work around for pyqt5.11 not having setTabVisible</li>
+</ul>
+
+<br><b><u>008.047 2024 Aug 21</u></b>
+<ul style="margin:0;">
+  <li>fix file load after single cut</li>
+</ul>
+
+<br><b><u>008.046 2024 June 5</u></b>
+<ul style="margin:0;">
+  <li>add control buttons to conversational preview</li>
+</ul>
+
+<br><b><u>008.045 2024 May 28</u></b>
+<ul style="margin:0;">
+  <li>fix run from line temporary material error</li>
+</ul>
+
+<br><b><u>008.044 2024 May 21</u></b>
+<ul style="margin:0;">
+  <li>make all bounds check errors congruent</li>
+  <li>PEP 8/linter housekeeping</li>
+</ul>
+
+<br><b><u>008.043 2024 May 4</u></b>
+<ul style="margin:0;">
+  <li>align component bounds check with gui bounds check</li>
+</ul>
+
+<br><b><u>007.043 2024 May 3</u></b>
+<ul style="margin:0;">
+  <li>reinstate different grid sizes for preview and conversational</li>
+</ul>
+
+<br><b><u>007.042 2024 May 3</u></b>
+<ul style="margin:0;">
+  <li>add laser_mode input pin for fiber laser use to plasmac.comp</li>
+</ul>
+
+<br><b><u>006.042 2024 Apr 27</u></b>
+<ul style="margin:0;">
+  <li>calculate pierce points in conversational blocks</li>
+</ul>
+
+<br><b><u>006.041 2024 Apr 25</u></b>
+<ul style="margin:0;">
+  <li>simplify and enhance color changing for user buttons</li>
+  <li>fix odd cursor behavior when editing text in conversational</li>
+</ul>
+
+<br><b><u>006.040 2024 Apr 21</u></b>
+<ul style="margin:0;">
+  <li>change focusPolicy from NoFocus to ClickFocus</li>
+</ul>
+
+<br><b><u>006.039 2024 Apr 21</u></b>
+<ul style="margin:0;">
+  <li>enhance tab key usage</li>
+</ul>
+
+<br><b><u>006.038 2024 Apr 21</u></b>
+<ul style="margin:0;">
+  <li>conv_polygon fix variable name</li>
+</ul>
+
+<br><b><u>006.037 2024 Apr 20</u></b>
+<ul style="margin:0;">
+  <li>add laser dry run without probing</li>
+  <li>add single cutpath to run from line</li>
+</ul>
+
+<br><b><u>005.036 2024 Apr 14</u></b>
+<ul style="margin:0;">
+  <li>fix button_normal "pressed" color</li>
+</ul>
+
+<br><b><u>005.035 2024 Apr 10</u></b>
+<ul style="margin:0;">
+  <li>fix g-code filter retrieval of pierce points</li>
+</ul>
+
+<br><b><u>005.034 2024 Apr 9</u></b>
+<ul style="margin:0;">
+  <li>fix button interlock when bounds error is present</li>
+  <li>remove unused variables</li>
+</ul>
+
+<br><b><u>005.033 2024 Mar 30</u></b>
+<ul style="margin:0;">
+  <li>check for valid default material</li>
+</ul>
+
+<br><b><u>005.032 2024 Mar 24</u></b>
+<ul style="margin:0;">
+  <li>use real USER_M_PATH in package configs</li>
+</ul>
+
+<br><b><u>005.031 2024 Mar 21</u></b>
+<ul style="margin:0;">
+  <li>fix missing error message for invalid parameter in temporary material</li>
+</ul>
+
 <br><b><u>005.030 2024 Mar 15</u></b>
 <ul style="margin:0;">
   <li>prevent torch hitting material during offset probing</li>

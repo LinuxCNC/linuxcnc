@@ -133,6 +133,13 @@ c.newpin("joint1", hal.HAL_FLOAT, hal.HAL_IN)
 c.ready()
 ----
 
+You can select between the two options in the functions that take these entries:
+
+  `hal_comp`;; The _HAL component Object_ or None. +
+    In QtVCP if you are reading _system pins_ directly, then the component argument is set to `None`. +
+  `hal_pin`;; The _name of the BIT HAL IN pin_ that will change the color. +
+    if hal_comp is 'None' then this must be the full name of a system pin otherwise this is the pin name excluding the component name
+
 [[sec:qtvcp:vismach:parts]]
 == Creating Parts
 
@@ -164,6 +171,9 @@ It is much easier to move while building if the origin of the model is at a rota
 === Build from Geometric Primitives
 
 Alternatively parts can be _created inside the model script from a range of shape primitives_.
+
+*`assembly = collction([part1,part2,part3])`*::
+ Collection is a general container of related parts
 
 Many shapes are _created at the origin_ and need to be _moved to the required location_ after creation.
 
@@ -203,9 +213,6 @@ part4 = Collection([part1, part2])
 Parts may need to be moved in the Vismach space to assemble the model.
 The origin does not move - Translate() and Rotate() move the Collection as you add parts, relative to a stationary origin.
 
-//FIXME unclear
-They may also need to be moved to create the animation as the animation rotation axis is created at the origin (but moves with the Part).
-
 [[sub:qtvcp:vismach:translate]]
 === Translating Model parts
 
@@ -220,7 +227,6 @@ They may also need to be moved to create the animation as the animation rotation
 [[sec:qtvcp:vismach:animate]]
 == Animating Parts
 
-//FIXME 2 or 3 functions ? HalToolCylinder not documented here ?
 To *animate the model controlled by the values of HAL pins* there are four functions:
 `HalTranslate`, `HalRotate`, `HalToolCylinder` and `HalToolTriangle`.
 
@@ -297,6 +303,20 @@ toolshape = Color([1, 1, 0, 1],[tool])
 toolshape = Color([1, 1, 0, 1],[HalToolTriangle()])
 ----
 
+=== HAL Adjustable Primitives
+All shape primitives can have HAL pin names substituted for coordinates. +
+Either by adding the component object as the first variable and substituting the pinname string for a coordinate, or +
+by substituting the full component/pinname string for a coordinate. +
+
+This example creates a _rectangular prism with opposite corners_ at the specified positions and edges parallel to the XYZ axes. +
+the Z start coordinate will be controlled by the HAL pin 'Zstart'
+
+[source,python]
+----
+box = Box(component, x1, y1, 'Zstart', x2, y2, z2)
+box = Box(x1, y1, 'componentName.Zstart', x2, y2, z2)
+----
+
 [[sec:qtvcp:vismach:assembly]]
 == Assembling the model
 
@@ -340,7 +360,7 @@ head = HalTranslate([head],c,"Z",0,0,0.1)
 
 # base
 base = AsciiSTL(filename="./base.stl")
-base = Color([0.5,0.5,0.5,1],[base]) 
+base = Color([0.5,0.5,0.5,1],[base])
 # mount head on it
 base = Collection([head, base])
 ----
@@ -369,26 +389,66 @@ model = Collection([base, saddle, head, carousel])
 [[sec:qtvcp:vismach:functions]]
 == Other functions
 
+=== Color
+Sets the _display color of the part_. +
+
 *`part = Color([_colorspec_], [_part_])`*::
-  Sets the _display color of the part_. +
+
   Note that unlike the other functions, the part definition comes second in this case. +
-  `_colorspec_`;; Three RGB values and opacity. +
-  For example [1,0,0,0.5] for a 50% opacity red.
+  `_colorspec_`;; Three (0-1.0) RGB values and opacity. [R,G,B,A] +
+  For example [1.0,0,0,0.5] for a 50% opacity red.
+
+=== HALColorFlip
+Sets the _display color of the part based on a designated HAL bit pin state_. +
+
+*`part = HALColorFlip([_colorspec_], [_colorspec_], [_part_], hal_comp, hal_pin)`*::
+
+  Note that unlike the other functions, the part definition comes second in this case. +
+  `_colorspec_`;; Three (0-1.0) RGB values and opacity. +
+  For example [1.0,0,0,0.5] for a 50% opacity red.
+  `hal_comp`;; The _HAL component Object_ or None. +
+    In QtVCP if you are reading _system pins_ directly, then the component argument is set to `None`. +
+  `hal_pin`;; The _name of the BIT HAL IN pin_ that will change the color. +
+    if hal_comp is 'None' then this must be the full name of a system pin other wise this is the pin name excluding the component name
+
+=== HALColorRGB
+Sets the _display color of the part based on a designated HAL U32 pin value_. +
+The color is decoded from the U32 value. each color is a 0-255 decimal value (shown here in hex) +
+red = 0xXXXXXXRR +
+green = 0xXXXXGGXX +
+blue = 0xXXBBXXXX +
+combined as 0xXXBBGGRR +
+
+*`part = HALColorRGB([_part_], hal_comp, hal_pin, alpha=1.0)`*::
+
+  `hal_comp`;; The _HAL component Object_ or None. +
+    In QtVCP if you are reading _system pins_ directly, then the component argument is set to `None`. +
+  `hal_pin`;; The _name of the U32 HAL IN pin_ that will change the color. +
+    if hal_comp is 'None' then this must be the full name of a system pin other wise this is the pin name excluding the component name +
+  `alpha=`;; Sets the opacity. (0-1.0)
+
+=== Heads Up Display
+Creates a _heads-up display_ in the Vismach GUI to display items such as axis positions, titles, or messages.
 
 *`myhud = Hud()`*::
-  Creates a _heads-up display_ in the Vismach GUI to display items such as axis positions, titles, or messages.
+
 [source,python]
 ----
 myhud = Hud()
 myhud.show("Mill_XYZ")`
 ----
 
+=== HAL Heads Up Display
+A more advanced version of the Hud that allows HAL pins to be displayed:
+
 *`myhud = HalHud()`*::
-  A more advanced version of the Hud that allows HAL pins to be displayed:
+
 [source,python]
 ----
 myhud = HalHud()
+myhud.display_on_right()
 myhud.set_background_color(0,.1,.2,0)
+myHud.set_text_color(1,1,1)
 myhud.show_top("Mill_XYZ")
 myhud.show_top("------------")
 myhud.add_pin('axis-x: ',"{:10.4f}","axis.x.pos-cmd")
@@ -397,17 +457,66 @@ myhud.add_pin('axis-z: ',"{:10.4f}","axis.z.pos-cmd")
 myhud.show("-------------")
 ----
 
-*`part = Capture()`*::
-  This sets the current position in the model.
+Some of the available HalHUD function: +
+
+* set_background_color(red, green, blue, alpha)
+* add_pin(text, format, pinname)
+* set_text_color(red, green, blue)
+
+=== HideCollection
+
+ HideCollection is a container that uses a HAL pin to control display of the contained parts. +
+ A logic high on the HAL pin will hide the contained parts.
+
+[source,python]
+----
+comp.newpin("hide-chuck", hal.HAL_BIT, hal.HAL_IN)
+# <snip make a machine with an A axis chuck assembly>
+chuckassembly = HideCollection([chuckassembly],comp,'hide-chuck')
+# also can be used like this
+chuckassembly = HideCollection([chuckassembly],None,'myvismach.hide-chuck') 
+----
+
+=== Plot Color Based on Mtotion Type
+If you wish to plot different colors for different motions you need to add some more python code. +
+
+
+add this at the top of the file:
+
+[source,python]
+----
+from qtvcp.core import Status
+STATUS = Status()
+----
+
+and this to the Window class:
+
+[source,python]
+----
+        STATUS.connect('motion-type-changed', lambda w, data: v.choosePlotColor(data))
+
+        # uncomment to change feed color and to see all colors printed to the terminal
+        #v.setColorsAttribute('FEED',(0,1,0))
+        #print(v.colors)
+----
+You can set DEFAULT, FEED, TRAVERSE, ARC, PROBE, ROTARYINDEX, TOOLCHANGE colors with setColorsAttribute()
+
+=== Capture
+This sets the current position in the model.
+
+*`part = Capture()`*
+
+
+=== main
+This is the command that makes it all happen, creates the display, etc. if invoked directly from Python. +
+Usually this file is imported by QtVCP and the `window()` object is instantiated and embedded into another screen.
 
 *`main(model, tooltip, work, size=10, hud=myhud, rotation_vectors=None, lat=0, lon=0)`*::
-  This is the command that makes it all happen, creates the display, etc. if invoked directly from Python.
-  Usually this file is imported by QtVCP and the `window()` object is instantiated and embedded into another screen.
   `_model_`;; Should be a collection that contains all the machine parts.
   `_tooltip_` and `_work_`;; Need to be created by `Capture()` to visualize their motion in the backplot.
     See `mill_xyz.py` for an example of how to connect the tool tip to a tool and the tool to the model.
-  `_size_`;; Sets the extent of the volume visualized in the initial view. +
-    hud refers to a head-up display of axis positions.
+  `_size_`;; Sets the extent of the volume visualized in the initial view.
+  `_hud_`;; refers to a head-up display.
   `_rotation_vectors_` or `_lat, lon_`;; Can be used to set the original viewpoint.
     It is advisable to do as the default initial viewpoint is rather unhelpful from immediately overhead.
 
@@ -449,6 +558,10 @@ then rotate/translate and run the script to confirm again.
 import hal
 from qtvcp.lib.qt_vismach.qt_vismach import *
 
+# import Status for motion type messages
+from qtvcp.core import Status
+STATUS = Status()
+
 # create HAL pins here if needed
 #c = hal.component("samplegui")
 #c.newpin("joint0", hal.HAL_FLOAT, hal.HAL_IN)
@@ -484,6 +597,14 @@ class Window(QWidget):
         # HUD needs to know where to draw
         #v.hud = myhud
         #v.hud.app = v
+
+        # update plot color based on motion type
+        STATUS.connect('motion-type-changed', lambda w, data: v.choosePlotColor(data))
+
+        # uncomment to change feed color
+        #v.setColorsAttribute('FEED',(0,1,0))
+        #  and to see all colors printed to the terminal
+        #print(v.colors)
 
         v.model = Collection([model, world])
         size = 600

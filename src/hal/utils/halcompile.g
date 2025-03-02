@@ -28,7 +28,7 @@ parser Hal:
     token NAME: "[a-zA-Z_][a-zA-Z0-9_]*"
     token STARREDNAME: "[*]*[a-zA-Z_][a-zA-Z0-9_]*"
     token HALNAME: "[#a-zA-Z_][-#a-zA-Z0-9_.]*"
-    token FPNUMBER: "-?([0-9]*\.[0-9]+|[0-9]+\.?)([Ee][+-]?[0-9]+)?f?"
+    token FPNUMBER: "-?([0-9]*\\.[0-9]+|[0-9]+\\.?)([Ee][+-]?[0-9]+)?f?"
     token NUMBER: "0x[0-9a-fA-F]+|[+-]?[0-9]+"
     token STRING: "\"(\\.|[^\\\"])*\""
     token HEADER: "<.*?>"
@@ -63,9 +63,9 @@ parser Hal:
     rule Personality: {{ pp = [] }} (PersonalityPart {{ pp.append(PersonalityPart) }} )* {{ return " ".join(pp) }}
     rule PersonalityPart: NUMBER {{ return NUMBER }}
             | POP {{ return POP }}
-    rule OptSimpleArray: "\[" NUMBER "\]" {{ return int(NUMBER) }}
+    rule OptSimpleArray: "\\[" NUMBER "\\]" {{ return int(NUMBER) }}
             | {{ return 0 }}
-    rule OptArray: "\[" NUMBER OptArrayPersonality "\]" {{ return OptArrayPersonality and (int(NUMBER), OptArrayPersonality) or int(NUMBER) }}
+    rule OptArray: "\\[" NUMBER OptArrayPersonality "\\]" {{ return OptArrayPersonality and (int(NUMBER), OptArrayPersonality) or int(NUMBER) }}
             | {{ return 0 }}
     rule OptArrayPersonality: ":" Personality {{ return Personality }}
             | {{ return None }} 
@@ -390,6 +390,7 @@ static int comp_id;
         print("static int export(char *prefix, long extra_arg, long personality) {", file=f)
     else:
         print("static int export(char *prefix, long extra_arg) {", file=f)
+    print("    (void)extra_arg;", file=f)
     if len(functions) > 0:
         print("    char buf[HAL_NAME_LEN + 1];", file=f)
     print("    int r = 0;", file=f)
@@ -889,7 +890,7 @@ def document(filename, outfilename):
         if personality: has_personality = True
         if isinstance(array, tuple): has_personality = True
 
-    print("""
+    print(""".\\" -*- mode: troff; coding: utf-8 -*-
 .\\"*******************************************************************
 .\\"
 .\\" This file was extracted from %s using halcompile.g.

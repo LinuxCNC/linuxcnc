@@ -1,0 +1,9 @@
+= gentrivkins(9)
+
+== NAME
+
+gentrivkins - *Superseded* by the general purpose *trivkins* kinematics module.
+
+== SEE ALSO
+
+trivkins(9)

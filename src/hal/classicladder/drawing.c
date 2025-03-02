@@ -52,14 +52,14 @@ int PrintRightMarginNumExpr = 0;
 int PrintRightMarginPosiX;
 int PrintRightMarginWidth;
 
-void CreateVarNameForElement( char * pBuffToWrite, StrElement * pElem, char SymbolsVarsNamesIfAvail )
+void CreateVarNameForElement( char * pBuffToWrite, size_t BuffSize, StrElement * pElem, char SymbolsVarsNamesIfAvail )
 {
 	char VarIndexBuffer[20];
 	if ( pElem->IndexedVarType!=-1 )
 	{
 		// buffer for index required as CreateVarName() returns on a static buffer !
 		rtapi_strxcpy( VarIndexBuffer, CreateVarName(pElem->IndexedVarType,pElem->IndexedVarNum,SymbolsVarsNamesIfAvail) );
-		snprintf( pBuffToWrite, sizeof(pBuffToWrite), "%s", CreateVarName(pElem->VarType,pElem->VarNum,SymbolsVarsNamesIfAvail) );
+		snprintf( pBuffToWrite, BuffSize, "%s", CreateVarName(pElem->VarType,pElem->VarNum,SymbolsVarsNamesIfAvail) );
 	}
 	else
 	{
@@ -215,11 +215,12 @@ char * DrawExprForCompareOperate( cairo_t * cr, int BaseX, int BaseY, int Width,
 		if ( DrawingOption==DRAW_FOR_PRINT )
 		{
 			// print the expression entirely in the right margin
-			char * pReportNumAndText = malloc( strlen(Text)+10 );
+			size_t TextSize;
+			char * pReportNumAndText = malloc( TextSize = strlen(Text)+10 );
 			if ( pReportNumAndText )
 			{
 				int Hgt;
-				snprintf( pReportNumAndText, sizeof(pReportNumAndText), "(*%d) ", PrintRightMarginNumExpr );
+				snprintf( pReportNumAndText, TextSize, "(*%d) ", PrintRightMarginNumExpr );
 				strcat( pReportNumAndText, Text );
 				Hgt = DrawPangoTextOptions( cr, PrintRightMarginPosiX, PrintRightMarginExprPosiY, PrintRightMarginWidth, 0/*Height*/, pReportNumAndText, FALSE/*CenterAlignment*/ );
 				PrintRightMarginExprPosiY += Hgt;
@@ -744,7 +745,7 @@ cairo_stroke( cr );
 			case ELE_OUTPUT_NOT:
 			case ELE_OUTPUT_SET:
 			case ELE_OUTPUT_RESET:
-				CreateVarNameForElement( BufTxt, &Element, InfosGene->DisplaySymbols );
+				CreateVarNameForElement( BufTxt, sizeof(BufTxt), &Element, InfosGene->DisplaySymbols );
 				DrawPangoText( cr, x, y+HeiDiv4+1, Width, -1, BufTxt );
 				break;
 			case ELE_OUTPUT_JUMP:
@@ -926,6 +927,7 @@ void DrawGhostZone( cairo_t * cr, int OffX, int AddPosiY )
 
 void DrawPathLabelCommentHeader( cairo_t * cr, StrRung * Rung, int OffX, int PosiY, int BlockWidth, int HeaderHeight, char Background, char DrawingOption )
 {
+	(void)DrawingOption;
 	int HeaderBarHeight = HeaderHeight*70/100;
 	int OffsetStartY = HeaderHeight*15/100;
 	int Margin = BlockWidth/4;

@@ -34,7 +34,7 @@
 #include "rs274ngc_interp.hh"
 #include "python_plugin.hh"
 #include "interp_python.hh"
-#include <rtapi_string.h>
+#include <rtapi_string.h>	// rtapi_strlcpy()
 
 namespace bp = boost::python;
 
@@ -60,7 +60,7 @@ int Interp::findFile( // ARGUMENTS
     snprintf(targetPath, PATH_MAX, "%s/%s", direct, target);
     file = fopen(targetPath, "r");
     if (file) {
-        strncpy(foundFileDirect, direct, PATH_MAX);
+        rtapi_strlcpy(foundFileDirect, direct, PATH_MAX);
         fclose(file);
         return INTERP_OK;
     }
@@ -71,8 +71,8 @@ int Interp::findFile( // ARGUMENTS
 
     while ((aFile = readdir(aDir))) {
         if (aFile->d_type == DT_DIR &&
-	    (0 != strcmp(aFile->d_name, "..")) &&
-	    (0 != strcmp(aFile->d_name, "."))) {
+	    (0 != strncmp(aFile->d_name, "..", 3)) &&
+	    (0 != strncmp(aFile->d_name, ".", 2))) {
 
             char path[PATH_MAX+1];
             snprintf(path, PATH_MAX, "%s/%s", direct, aFile->d_name);
@@ -295,7 +295,7 @@ int Interp::execute_call(setup_pointer settings,
 		plist.append(eblock->params[i]); // positional args
 	    current_frame->pystuff.impl->tupleargs = bp::tuple(plist);
 	    current_frame->pystuff.impl->kwargs = bp::dict();
-
+	    /* Fallthrough */
 	case CS_REEXEC_PYOSUB:
 	    if (settings->call_state ==  CS_REEXEC_PYOSUB)
 		CHP(read_inputs(settings));
@@ -430,6 +430,7 @@ int Interp::execute_return(setup_pointer settings, context_pointer current_frame
 		    settings->call_state = CS_REEXEC_EPILOG;
 		    eblock->call_type = CT_REMAP;
 		    CHP(status);
+		    break;
 		default:
 		    settings->call_state = CS_NORMAL;
 		    settings->sequence_number = previous_frame->sequence_number;
@@ -439,6 +440,7 @@ int Interp::execute_return(setup_pointer settings, context_pointer current_frame
 	    }
 	}
 	// fall through to normal NGC return handling 
+	/* Fallthrough */
     case CT_NGC_OWORD_SUB:
     case CT_NGC_M98_SUB:
     case CT_NONE:  // sub definition
@@ -647,7 +649,7 @@ int Interp::handler_returned( setup_pointer settings,  context_pointer active_fr
 	    settings->value_returned = 1;
 	} else 
 	    return active_frame->pystuff.impl->py_returned_int;
-
+	break;
     case RET_ERRORMSG:
 	status = INTERP_ERROR;
 	break;

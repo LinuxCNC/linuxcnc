@@ -1,0 +1,84 @@
+= mux_generic(9)
+
+== NAME
+
+mux_generic - choose one from several input values
+
+== SYNOPSIS
+
+**loadrt mux_generic config="**bb8,fu12....**"**
+
+== FUNCTIONS
+
+**mux-gen.**_NN_ Depending on the data types can run in either a floating point or non-floating point thread.
+
+== PINS
+
+**mux-gen.**_NN_**.suppress-no-input** bit in::
+  This suppresses changing the output if all select lines are false.
+  This stops unwanted jumps in output between transitions of input but makes in00 unavailable.
+**mux-gen.**_NN_**.debounce-us* unsigned in::
+  sets debounce time in microseconds, e.g. 100000 = a tenth of a second.
+  The selection inputs must be stable this long before the output
+  changes. This helps to ignore 'noisy' switches.
+**mux-gen.**_NN_**.sel-bit-*_MM_ bit in (M=0..N)::
+**mux-gen.**_NN_**.sel-int* unsigned in::
+  Together, these determine which **in**_N_ value is copied to *output*.
+  The bit pins are interpreted as binary bits, and the result is simply
+  added on to the integer pin input. It is expected that either one or
+  the other would normally be used. However, the possibility exists to
+  use a higher-order bit to "shift" the values set by the integer pin.
+  The sel-bit pins are only created when the size of the mux_gen
+  component is an integer power of two. This component (unlike mux16)
+  does not offer the option of decoding Gray-code, however the same
+  effect can be achieved by arranging the order of the input values to suit.
+**mux-gen.**_NN_**.out-**[**bit**/**float**/**s32**/**u32**] variable-type out::
+  Follows the value of one of the *in*_N_ values according to the
+  selection bits and/or the selection number. Values will be
+  converted/truncated according to standard C rules. This means, for
+  example that a float input greater than 2147483647 will give an S32
+  output of -2147483648.
+**mux-gen.**_NN_**.in-**[**bit**/**float**/**s32**/**u32**]**-**_MM_ variable-type in::
+  The possible output values that are selected by the selection pins.
+
+== PARAMETERS
+
+**mux-gen.**_N_**.elapsed** float r::
+  Current value of the internal debounce timer for debugging.
+**mux-gen.**_N_**.selected** s32 r::
+  Current value of the internal selection variable after conversion for debugging.
+  Possibly useful for setting up gray-code switches.
+
+== DESCRIPTION
+
+This component is a more general version of the other multiplexing
+components. It allows the creation of arbitrary-size multiplexers (up to
+1024 entries) and also supports differing data types on the input and
+output pins. The configuration string is a comma-separated list of
+code-letters and numbers, such as "bb4,fu12". This would create a
+4-element bit-to-bit mux and a 12-element float-to-unsigned mux. The
+code letters are b = bit, f = float, s = signed integer, u = unsigned
+integer. The first letter code is the input type, the second is the
+output type. The codes are not case-sensitive. The order of the letters
+is significant but the position in the string is not. Do not insert any
+spaces in the config string. Any non-zero float value will be converted
+to a "true" output in bit form. Be wary that float datatypes can be
+very, very, close to zero and not actually be equal to zero.
+
+Each mux has its own HAL function and must be added to a thread
+separately. If neither input nor output is of type float then the
+function is base-thread (non floating-point) safe. Any mux_generic with
+a floating point input or output can only be added to a floating-point
+thread.
+
+== SEE ALSO
+
+mux2(9), mux4(9), mux8(9), mux16(9)
+
+== AUTHOR
+
+Andy Pugh
+
+== LICENSE
+
+GPL

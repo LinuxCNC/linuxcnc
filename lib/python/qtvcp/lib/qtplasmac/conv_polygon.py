@@ -1,8 +1,8 @@
 '''
 conv_polygon.py
 
-Copyright (C) 2020, 2021, 2022, 2023 Phillip A Carter
-Copyright (C) 2020, 2021, 2022, 2023 Gregory D Carl
+Copyright (C) 2020 - 2024 Phillip A Carter
+Copyright (C) 2020 - 2024 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -26,6 +26,7 @@ from plasmac import polygon as POLYGON
 
 _translate = QCoreApplication.translate
 
+
 def preview(P, W, Conv):
     if P.dialogError:
         return
@@ -34,15 +35,15 @@ def preview(P, W, Conv):
     if not W.ysEntry.text():
         W.ysEntry.setText(f'{P.yOrigin:0.3f}')
     origin = W.centLeft.text() == 'CENTER'
-    error = POLYGON.preview( Conv, P.fTmp, P.fNgc, P.fNgcBkp, \
-            int(W.conv_material.currentText().split(':')[0]), \
-            W.conv_material.currentText().split(':')[1].strip(), \
-            P.preAmble, P.postAmble, \
-            W.liEntry.text(), W.loEntry.text(), \
-            origin, W.xsEntry.text(), W.ysEntry.text(), \
-            W.kerf_width.value(), P.intExt, \
-            W.sEntry.text(), W.dEntry.text(), W.aEntry.text(), \
-            W.mCombo.currentIndex(), W.dLabel.text())
+    error = POLYGON.preview(Conv, P.fTmp, P.fNgc, P.fNgcBkp,
+                            int(W.conv_material.currentText().split(':')[0]),
+                            W.conv_material.currentText().split(':')[1].strip(),
+                            P.preAmble, P.postAmble,
+                            W.liEntry.text(), W.loEntry.text(),
+                            origin, W.xsEntry.text(), W.ysEntry.text(),
+                            W.kerf_width.value(), P.intExt,
+                            W.sEntry.text(), W.dEntry.text(), W.aEntry.text(),
+                            W.mCombo.currentIndex(), W.dLabel.text())
     if error:
         P.dialogError = True
         P.dialog_show_ok(QMessageBox.Warning, _translate('Conversational', 'Polygon Error'), error)
@@ -52,6 +53,7 @@ def preview(P, W, Conv):
         W.add.setEnabled(True)
         W.undo.setEnabled(True)
         Conv.conv_preview_button(P, W, True)
+
 
 def auto_preview(P, W, Conv, button=False):
     if button == 'intext':
@@ -66,8 +68,10 @@ def auto_preview(P, W, Conv, button=False):
        W.sEntry.text() and W.dEntry.text():
         preview(P, W, Conv)
 
+
 def entry_changed(P, W, Conv, widget):
     Conv.conv_entry_changed(P, W, widget)
+
 
 def mode_changed(P, W, Conv):
     if W.mCombo.currentIndex() == 2:
@@ -75,6 +79,7 @@ def mode_changed(P, W, Conv):
     else:
         W.dLabel.setText(_translate('Conversational', 'DIAMETER'))
     auto_preview(P, W, Conv)
+
 
 def widgets(P, W, Conv):
     if P.developmentPin.get():
@@ -86,9 +91,9 @@ def widgets(P, W, Conv):
     W.sLabel.setText(_translate('Conversational', 'SIDES'))
     W.lDesc.setText(_translate('Conversational', 'CREATING POLYGON'))
     W.iLabel.setPixmap(P.conv_polygon_l)
-    #alignment and size
-    rightAlign = ['ctLabel', 'spLabel', 'xsLabel', 'xsEntry', 'ysLabel', \
-                  'ysEntry', 'liLabel', 'liEntry', 'loLabel', 'loEntry', \
+    # alignment and size
+    rightAlign = ['ctLabel', 'spLabel', 'xsLabel', 'xsEntry', 'ysLabel',
+                  'ysEntry', 'liLabel', 'liEntry', 'loLabel', 'loEntry',
                   'sLabel', 'sEntry', 'dLabel', 'dEntry', 'aLabel', 'aEntry']
     centerAlign = ['lDesc']
     rButton = ['intExt', 'centLeft']
@@ -107,20 +112,20 @@ def widgets(P, W, Conv):
     for widget in pButton:
         W[widget].setFixedWidth(80)
         W[widget].setFixedHeight(24)
-    #connections
-    W.conv_material.currentTextChanged.connect(lambda:auto_preview(P, W, Conv))
-    W.intExt.toggled.connect(lambda:auto_preview(P, W, Conv, 'intext'))
-    W.centLeft.toggled.connect(lambda:auto_preview(P, W, Conv, 'center'))
-    W.mCombo.currentIndexChanged.connect(lambda:mode_changed(P, W, Conv))
-    W.preview.pressed.connect(lambda:preview(P, W, Conv))
-    W.add.pressed.connect(lambda:Conv.conv_add_shape_to_file(P, W))
-    W.undo.pressed.connect(lambda:Conv.conv_undo_shape(P, W))
-    entries = ['xsEntry', 'ysEntry', 'liEntry', 'loEntry', \
+    # connections
+    W.conv_material.currentTextChanged.connect(lambda: auto_preview(P, W, Conv))
+    W.intExt.toggled.connect(lambda: auto_preview(P, W, Conv, 'intext'))
+    W.centLeft.toggled.connect(lambda: auto_preview(P, W, Conv, 'center'))
+    W.mCombo.currentIndexChanged.connect(lambda: mode_changed(P, W, Conv))
+    W.preview.pressed.connect(lambda: preview(P, W, Conv))
+    W.add.pressed.connect(lambda: Conv.conv_add_shape_to_file(P, W))
+    W.undo.pressed.connect(lambda: Conv.conv_undo_shape(P, W))
+    entries = ['xsEntry', 'ysEntry', 'liEntry', 'loEntry',
                'sEntry', 'dEntry', 'aEntry']
     for entry in entries:
-        W[entry].textChanged.connect(lambda:entry_changed(P, W, Conv, W.sender()))
-        W[entry].returnPressed.connect(lambda:preview(P, W, Conv))
-    #add to layout
+        W[entry].textChanged.connect(lambda: entry_changed(P, W, Conv, W.sender()))
+        W[entry].returnPressed.connect(lambda: preview(P, W, Conv))
+    # add to layout
     if P.landscape:
         W.entries.addWidget(W.ctLabel, 0, 0)
         W.entries.addWidget(W.intExt, 0, 1)
@@ -141,21 +146,21 @@ def widgets(P, W, Conv):
         W.entries.addWidget(W.dEntry, 8, 1)
         W.entries.addWidget(W.aLabel, 9, 0)
         W.entries.addWidget(W.aEntry, 9, 1)
-        for r in [10,11]:
+        for r in [10, 11]:
             W[f's{r}'] = QLabel('')
             W[f's{r}'].setFixedHeight(24)
             W.entries.addWidget(W[f's{r}'], r, 0)
         W.entries.addWidget(W.preview, 12, 0)
         W.entries.addWidget(W.add, 12, 2)
         W.entries.addWidget(W.undo, 12, 4)
-        W.entries.addWidget(W.lDesc, 13 , 1, 1, 3)
-        W.entries.addWidget(W.iLabel, 0 , 2, 7, 3)
+        W.entries.addWidget(W.lDesc, 13, 1, 1, 3)
+        W.entries.addWidget(W.iLabel, 0, 2, 7, 3)
     else:
         W.entries.addWidget(W.conv_material, 0, 0, 1, 5)
         W.entries.addWidget(W.ctLabel, 1, 0)
         W.entries.addWidget(W.intExt, 1, 1)
         W.entries.addWidget(W.spLabel, 2, 0)
-        W.entries.addWidget(W.centLeftBox, 2, 1)
+        W.entries.addWidget(W.centLeft, 2, 1)
         W.entries.addWidget(W.xsLabel, 3, 0)
         W.entries.addWidget(W.xsEntry, 3, 1)
         W.entries.addWidget(W.ysLabel, 3, 2)
@@ -174,7 +179,7 @@ def widgets(P, W, Conv):
         W.entries.addWidget(W.preview, 9, 0)
         W.entries.addWidget(W.add, 9, 2)
         W.entries.addWidget(W.undo, 9, 4)
-        W.entries.addWidget(W.lDesc, 10 , 1, 1, 3)
-        W.entries.addWidget(W.iLabel, 0 , 5, 7, 3)
+        W.entries.addWidget(W.lDesc, 10, 1, 1, 3)
+        W.entries.addWidget(W.iLabel, 0, 5, 7, 3)
     W.sEntry.setFocus()
     P.convSettingsChanged = False

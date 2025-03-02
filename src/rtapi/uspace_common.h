@@ -29,7 +29,7 @@
 
 #include <rtapi_errno.h>
 #include <rtapi_mutex.h>
-static int msg_level = RTAPI_MSG_ERR;	/* message printing level */
+static msg_level_t msg_level = RTAPI_MSG_ERR;	/* message printing level */
 
 #include <sys/ipc.h>		/* IPC_* */
 #include <sys/shm.h>		/* shmget() */
@@ -55,13 +55,14 @@ typedef struct {
 
 #define SHMEM_MAGIC   25453	/* random numbers used as signatures */
 
-static rtapi_shmem_handle shmem_array[MAX_SHM] = {{0},};
+static rtapi_shmem_handle shmem_array[MAX_SHM];
 
 int rtapi_shmem_new(int key, int module_id, unsigned long int size)
 {
 #ifdef RTAPI
   WITH_ROOT;
 #endif
+  (void)module_id;
   rtapi_shmem_handle *shmem;
   int i;
 
@@ -185,6 +186,7 @@ int rtapi_shmem_delete(int handle, int module_id)
   struct shmid_ds d;
   int r1, r2;
   rtapi_shmem_handle *shmem;
+  (void)module_id;
 
   if(handle < 0 || handle >= MAX_SHM)
     return -EINVAL;
@@ -275,7 +277,7 @@ int rtapi_vsnprintf(char *buffer, unsigned long int size, const char *fmt,
 }
 
 int rtapi_set_msg_level(int level) {
-    msg_level = level;
+    msg_level = (msg_level_t)level;
     return 0;
 }
 
@@ -307,8 +309,9 @@ typedef struct {
 static         int  uuid_mem_id = 0;
 int rtapi_init(const char *modname)
 {
+    (void)modname;
     static uuid_data_t* uuid_data   = 0;
-    const static   int  uuid_id     = 0;
+    static const   int  uuid_id     = 0;
 
     static char* uuid_shmem_base = 0;
     int retval,id;
@@ -351,8 +354,7 @@ static int _rtapi_is_realtime = -1;
 #ifdef __linux__
 static int detect_preempt_rt() {
     struct utsname u;
-    int crit1, crit2 = 0;
-    FILE *fd;
+    int crit1 = 0;
 
     uname(&u);
     crit1 = strcasestr (u.version, "PREEMPT RT") != 0;
@@ -360,13 +362,7 @@ static int detect_preempt_rt() {
     //"PREEMPT_RT" is used in the version string instead of "PREEMPT RT" starting with kernel version 5.4
     crit1 = crit1 || (strcasestr(u.version, "PREEMPT_RT") != 0);
 
-    if ((fd = fopen("/sys/kernel/realtime","r")) != NULL) {
-        int flag;
-        crit2 = ((fscanf(fd, "%d", &flag) == 1) && (flag == 1));
-        fclose(fd);
-    }
-
-    return crit1 && crit2;
+    return crit1;
 }
 #else
 static int detect_preempt_rt() {
@@ -422,6 +418,7 @@ static int rtapi_clock_nanosleep(clockid_t clock_id, int flags,
         const struct timespec *prequest, struct timespec *remain,
         const struct timespec *pnow)
 {
+    (void)pnow;
 #if defined(HAVE_CLOCK_NANOSLEEP)
     return clock_nanosleep(clock_id, flags, prequest, remain);
 #else

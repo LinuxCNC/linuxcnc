@@ -1,8 +1,8 @@
 '''
 block.py
 
-Copyright (C) 2020, 2021, 2022, 2023 Phillip A Carter
-Copyright (C) 2020, 2021, 2022, 2023 Gregory D Carl
+Copyright (C) 2020 - 2024 Phillip A Carter
+Copyright (C) 2020 - 2024 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -19,12 +19,6 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 '''
 
-'''
-NOTE:
-mirror is done externally by inverting convMirror and calling the preview function
-flip is done externally by inverting convFlip and calling the preview function
-'''
-
 import os
 import sys
 from shutil import copy as COPY
@@ -35,14 +29,21 @@ for f in sys.path:
         if '/usr' in f:
             localeDir = 'usr/share/locale'
         else:
-            localeDir = os.path.join(f'{f.split("/lib")[0]}','share','locale')
+            localeDir = os.path.join(f'{f.split("/lib")[0]}', 'share', 'locale')
         break
 gettext.install("linuxcnc", localedir=localeDir)
 
+'''
+NOTE:
+mirror is done externally by inverting convMirror and calling the preview function
+flip is done externally by inverting convFlip and calling the preview function
+'''
+
+
 # Conv is the upstream calling module
-def preview(Conv, fNgc, fTmp, columns, rows, cOffset, \
-            rOffset, xOffset, yOffset, angle, \
-            scale, rotation, convBlock, convMirror, convFlip, \
+def preview(Conv, fNgc, fTmp, columns, rows, cOffset,
+            rOffset, xOffset, yOffset, angle,
+            scale, rotation, convBlock, convMirror, convFlip,
             convMirrorToggle, convFlipToggle, g5xIndex, convUnits):
     error = ''
     msg1 = _('entry is invalid')
@@ -99,7 +100,7 @@ def preview(Conv, fNgc, fTmp, columns, rows, cOffset, \
     if rows > 1 and not rOffset:
         msg = _('ROWS OFFSET is required')
         error += f'{msg}\n\n'
-    if scale <=0:
+    if scale <= 0:
         msg = _('SCALE cannot be zero')
         error += f'{msg}\n\n'
     if error:
@@ -109,7 +110,6 @@ def preview(Conv, fNgc, fTmp, columns, rows, cOffset, \
     outNgc = open(fNgc, 'w')
     # edit existing parameters
     if convBlock[0]:
-        indent = False
         for line in inCode:
             if line.startswith('#<array_x_offset>'):
                 line = f'#<array_x_offset> = {cOffset}\n'
@@ -141,7 +141,7 @@ def preview(Conv, fNgc, fTmp, columns, rows, cOffset, \
             outNgc.write(f'{line}')
     # create new array
     else:
-        xIndex = [5221,5241,5261,5281,5301,5321,5341,5361,5381][(g5xIndex - 1)]
+        xIndex = [5221, 5241, 5261, 5281, 5301, 5321, 5341, 5361, 5381][(g5xIndex - 1)]
         outNgc.write(';conversational block\n\n')
         # inputs
         outNgc.write(';inputs\n')
@@ -182,25 +182,27 @@ def preview(Conv, fNgc, fTmp, columns, rows, cOffset, \
         # the shape
         started, ended = False, False
         for line in inCode:
-            line = line.strip().lower()
             # remove line numbers
-            if line.startswith('n'):
+            if line[0].lower() == 'n':
                 line = line[1:]
                 while line[0].isdigit() or line[0] == '.':
                     line = line[1:].lstrip()
                     if not line:
                         break
+            # no need to process comments or empty lines
+            if line[0] in ';(\n':
+                outNgc.write(f'    {line}')
+                continue
+            line = line.strip().lower()
             # remove leading 0's from G & M codes
-            elif (line.lower().startswith('g') or \
-               line.lower().startswith('m')) and \
-               len(line) > 2:
-                while line[1] == '0' and len(line) > 2:
+            if len(line) > 2 and line[0].lower() in 'gm':
+                while len(line) > 2 and line[1] == '0':
                     if line[2].isdigit():
                         line = line[:1] + line[2:]
                     else:
                         break
             # scale the shape
-            if len(line) and line[0] in 'gxyz':
+            if line[0] in 'gxyz':
                 started = True
                 rLine = scale_shape(line, convMirrorToggle, convFlipToggle)
                 if rLine is not None:
@@ -216,8 +218,6 @@ def preview(Conv, fNgc, fTmp, columns, rows, cOffset, \
                 outNgc.write('        #<this_row> = [#<this_row> + 1]\n')
                 outNgc.write('    o<count> endif\n')
                 outNgc.write('o<loop> endwhile\n')
-            elif not line:
-                outNgc.write('\n')
             elif ended and ('m2' in line or 'm30' in line or line.startswith('%')):
                 pass
             else:
@@ -229,6 +229,7 @@ def preview(Conv, fNgc, fTmp, columns, rows, cOffset, \
     outNgc.close()
     return False
 
+
 def scale_shape(line, convMirrorToggle, convFlipToggle):
     if line[0] == 'g' and (line[1] not in '0123' or (line[1] in '0123' and len(line) > 2 and line[2] in '0123456789')):
         return f'{line}'
@@ -238,7 +239,6 @@ def scale_shape(line, convMirrorToggle, convFlipToggle):
     namParam = False
     fWord = False
     lastAxis = ''
-    offset = ''
     while 1:
         # remove spaces
         if line[0] == ' ':
@@ -287,8 +287,8 @@ def scale_shape(line, convMirrorToggle, convFlipToggle):
                         newLine += '*#<blk_scale>*#<shape_flip>]'
                     elif lastAxis == 'j':
                         newLine += '*#<blk_scale>*#<shape_flip>]'
+                    # elif lastAxis not in 'p':
                     else:
-#                    elif lastAxis not in 'p':
                         newLine += '*#<blk_scale>]'
                 lastAxis = line[0]
                 if line[0] == 'f':
@@ -306,7 +306,7 @@ def scale_shape(line, convMirrorToggle, convFlipToggle):
             namParam = True
             newLine += line[0]
             line = line[1:]
-        #if end of numbered parameter
+        # if end of numbered parameter
         elif not line[0].isdigit() and numParam:
             numParam = False
             newLine += line[0]
@@ -316,7 +316,7 @@ def scale_shape(line, convMirrorToggle, convFlipToggle):
             namParam = False
             newLine += line[0]
             line = line[1:]
-        #if last axis was x, y, z, i, j, or r
+        # if last axis was x, y, z, i, j, or r
         elif newLine[-1] in 'xyzijr' and not numParam and not namParam:
             multiAxis = True
             newLine += f'[{line[0]}'

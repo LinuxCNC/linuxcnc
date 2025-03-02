@@ -12,15 +12,15 @@
 
 == Use of O-codes
 
-O-codes provide for flow control in NC programs. Each block has an
-associated number, which is the number used after O. Care must be taken
-to properly match the O-numbers. O codes use the letter 'O' not the
-number zero as the first character in the number like O100 or o100. o-codes are also sometimes called o-words and these terms are interchangeable. 
+O-codes provide for flow control in NC programs.
+Each block has an associated number, which is the number used after O.
+Care must be taken to properly match the O-numbers.
+O-codes use the letter 'O' not the number zero as the first character in the number like O100 or o100.
+O-codes are also sometimes called o-words and these terms are interchangeable.
 
 [NOTE]
-Using the lower case 'o' makes it easier to distinguish from a 0
-that might have been mistyped. For example 'o100' is easier to
-see than 'O100' that it is not a '0'.
+Using the lower case 'o' makes it easier to distinguish from a 0 that might have been mistyped.
+For example 'o100' is easier to see than 'O100' that it is not a '0'.
 
 == Numbering
 
@@ -77,8 +77,8 @@ M2
 See <<gcode:g53,G53>>, <<gcode:g0,G0>> and <<mcode:m2-m30,M2>> sections for more information.
 
 .O- Return
-Inside a subroutine, 'o- return' can be executed. This immediately
-returns to the calling code, just as though 'o- endsub' was encountered.
+Inside a subroutine, 'o- return' can be executed.
+This immediately returns to the calling code, just as though 'o- endsub' was encountered.
 
 .O- Return Example
 [source,{ngc}]
@@ -97,16 +97,14 @@ o100 endsub
 See the <<gcode:binary-operators,Binary Operators>> and <<sec:overview-parameters,Parameters>> sections for more information.
 
 .O- Call
-'o- Call' takes up to 30 optional arguments, which are passed to the subroutine
-as '#1', '#2' , ..., #N. Parameters from #N+1 to #30 have the same
-value as in the calling context.
-On return from the subroutine, the values of
-parameters #1 through #30 (regardless of the number of arguments) will
-be restored to the values they had before the call. Parameters #1 - #30
-are local to the subroutine.
+'o- Call' takes up to 30 optional arguments, which are passed to the subroutine as '#1', '#2' , ..., #N.
+Parameters from #N+1 to #30 have the same value as in the calling context.
+On return from the subroutine, the values of parameters #1 through #30 (regardless of the number of arguments)
+will be restored to the values they had before the call.
+Parameters #1 - #30 are local to the subroutine.
 
-Because '1 2 3' is parsed as the number 123, the parameters must be
-enclosed in square brackets. The following calls a subroutine with 3 arguments:
+Because '1 2 3' is parsed as the number 123, the parameters must be enclosed in square brackets.
+The following calls a subroutine with 3 arguments:
 
 .O- Call Example
 [source,{ngc}]
@@ -125,10 +123,10 @@ o100 endsub
 o100 call [100] [2] [325]
 ----
 
-Subroutine bodies may not be nested. They may only be called after
-they are defined. They may be called from other functions, and may call
-themselves recursively if it makes sense to do so. The maximum
-subroutine nesting level is 10.
+Subroutine bodies may not be nested.
+They may only be called after they are defined.
+They may be called from other functions, and may call themselves recursively if it makes sense to do so.
+The maximum subroutine nesting level is 10.
 
 Subroutines can change the value of parameters above #30 and those changes will be visible to the calling code.
 Subroutines may also change the value of <<gcode:named-parameters,global named parameters>> (i.e. parameters whose names begin with the underscore character "`_`").
@@ -136,10 +134,9 @@ Subroutines may also change the value of <<gcode:named-parameters,global named p
 [[ocode:fanuc-style-programs]]
 === Fanuc-Style Numbered Programs(((Subroutines,M98,M99)))
 
-Numbered programs (both main and subprograms), the 'M98' call and
-'M99' return M-codes, and their respective semantic differences are an
-alternative to the rs274ngc subroutines described above, provided for
-compatibility with Fanuc and other machine controllers.
+Numbered programs (both main and subprograms), the 'M98' call and 'M99' return M-codes,
+and their respective semantic differences are an alternative to the rs274ngc subroutines described above,
+provided for compatibility with Fanuc and other machine controllers.
 
 Numbered programs are enabled by default, and may be disabled by
 placing `DISABLE_FANUC_STYLE_SUB = 1` in the `[RS274NGC]` section of the `.ini` file.
@@ -163,9 +160,8 @@ M99               ; Return from subprogram 100
 ----
 
 .'o1 (Title)'
-The optional main program beginning block gives the main program the
-number `1`.  Some controllers treat an optional following
-parenthesized comment as a program title, `Example 1` in this example,
+The optional main program beginning block gives the main program the number `1`.
+Some controllers treat an optional following parenthesized comment as a program title, `Example 1` in this example,
 but this has no special meaning in the rs274ngc interpreter.
 
 .'M98 P- <L\->'

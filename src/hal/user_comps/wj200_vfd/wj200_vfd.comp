@@ -174,7 +174,7 @@ bool wj200_getStatus(modbus_t* ctx, wj200_status* status)
 void print_modbus_error(struct __comp_state *__comp_inst, const char* msg)
 {
 	fprintf(stderr,
-		"Error: wj200_vfd slave(%d): %s - Modbus error (%d) -  %s\n",
+		"Error: wj200_vfd slave(%u): %s - Modbus error (%d) -  %s\n",
 		mbslaveaddr,
 		msg,
 		errno,

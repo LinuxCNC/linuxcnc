@@ -37,7 +37,7 @@
     </columns>
     <data>
       <row>
-        <col id="0" translatable="yes">Tool</col>
+        <col id="0">Tool</col>
         <col id="1">0</col>
         <col id="2">0</col>
         <col id="3">0</col>
@@ -71,7 +71,7 @@
         <col id="14">G5x</col>
       </row>
       <row>
-        <col id="0" translatable="yes">Rot</col>
+        <col id="0">Rot</col>
         <col id="1">0</col>
         <col id="2">0</col>
         <col id="3">0</col>

@@ -138,7 +138,7 @@ int sockPrintf(int fd, const char *format, .../*args*/ )
     rcs_print_error("sock_printf: vsnprintf failed\n");
     return -1;
     }
-  if (size > sizeof(buf)) {
+  if (size > (int)sizeof(buf)) {
     rcs_print_error("sock_printf: vsnprintf truncated message\n");
     }
   return sockSendString(fd, buf);
@@ -182,7 +182,7 @@ int sockRecvString(int fd, char *dest, size_t maxlen)
     recvBytes++;
 
     // stop at max. bytes allowed, at NUL or at LF
-    if (recvBytes == maxlen || *ptr == '\0' || *ptr == '\n') {
+    if (recvBytes == (int)maxlen || *ptr == '\0' || *ptr == '\n') {
       *ptr = '\0';
       break;
       }
@@ -193,7 +193,7 @@ int sockRecvString(int fd, char *dest, size_t maxlen)
   if (recvBytes == 1 && dest[0] == '\0')
     return 0;
 
-  if (recvBytes < maxlen - 1)
+  if (recvBytes < (int)maxlen - 1)
     dest[recvBytes] = '\0';
 
   return recvBytes;
@@ -202,7 +202,7 @@ int sockRecvString(int fd, char *dest, size_t maxlen)
 // Send/receive raw data
 int sockSend(int fd, const void *src, size_t size)
 {
-  int offset = 0;
+  size_t offset = 0;
 
   if (!src) return -1;
 
@@ -210,9 +210,9 @@ int sockSend(int fd, const void *src, size_t size)
     // write isn't guaranteed to send the entire string at once,
     // so we have to sent it in a loop like this
 #ifndef WINSOCK2
-    int sent = write(fd, ((const char *) src) + offset, size - offset);
+    ssize_t sent = write(fd, ((const char *) src) + offset, size - offset);
 #else
-    int sent = send(fd, ((const char *) src) + offset, size - offset, 0);
+    ssize_t sent = send(fd, ((const char *) src) + offset, size - offset, 0);
 #endif
     if (sent == -1) {
       if (errno != EAGAIN) {
@@ -226,7 +226,7 @@ int sockSend(int fd, const void *src, size_t size)
     offset += sent;
     } // while
 
-  return offset;
+  return (int)offset;
 }
 
 int sockRecv(int fd, void *dest, size_t maxlen)
@@ -259,7 +259,7 @@ char* sockGetError(void)
 #else
   static char retString[256];
   long err;
-  char* tmp;
+  char* tmp = NULL;
 
   err = WSAGetLastError();
 
@@ -276,9 +276,12 @@ char* sockGetError(void)
 
     /* append the message text after the error code and ensure a terminating
        character ends the string */
+  // The 'tmp' buffer is allocated by FormatMessage().
+  // cppcheck-suppress nullPointer
   strncpy(retString + strlen(retString), tmp, 
           sizeof(retString) - strlen(retString) - 1);
   retString[sizeof(retString) - 1] = '\0';
+  LocalFree(tmp);
 
   return retString;
 #endif
@@ -317,7 +320,7 @@ int sockPrintfError(int fd, const char *format, .../*args*/ )
     rcs_print_error("sock_printf_error: vsnprintf failed\n");
     return -1;
     }
-  if (size >= sizeof(buf) - (sizeof(huh)-1)) {
+  if (size >= (int)(sizeof(buf) - (sizeof(huh)-1))) {
     rcs_print_error("sock_printf_error: vsnprintf truncated message\n");
     }
 

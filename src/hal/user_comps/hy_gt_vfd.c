@@ -117,12 +117,14 @@ static char *stopstrings[] = {"1", "2", NULL};
 
 
 static void quit(int sig) {
+    (void)sig;
     done = 1;
 }
 
 
 int match_string(char *string, char **matches) {
-    int len, which, match;
+    size_t len;
+    int which, match;
     which=0;
     match=-1;
     if ((matches==NULL) || (string==NULL)) return -1;
@@ -139,6 +141,7 @@ int match_string(char *string, char **matches) {
 
 
 void usage(int argc, char **argv) {
+    (void)argc;
     printf("Usage:  %s [ARGUMENTS]\n", argv[0]);
     printf(
         "\n"
@@ -258,10 +261,10 @@ int read_modbus_register(modbus_t *mb, modbus_register_t *reg) {
             switch (reg->type) {
             case REGISTER_FLOAT:
                 *reg->hal_pin_float = data * reg->multiplier;
-                ;;
+                break;
             case REGISTER_U32:
                 *reg->hal_pin_u32 = data;
-                ;;
+                break;
             }
             return 0;
         }
@@ -306,6 +309,7 @@ modbus_register_t *add_modbus_register_float(modbus_t *mb, int address, const ch
 modbus_register_t *add_modbus_register_u32(modbus_t *mb, int address, const char *pin_name, float multiplier) {
     int r;
     modbus_register_t *reg;
+    (void)multiplier;
 
     reg = &modbus_register[num_modbus_registers];
     reg->type = REGISTER_U32;

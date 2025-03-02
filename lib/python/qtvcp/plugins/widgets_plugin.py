@@ -4,6 +4,8 @@ from PyQt5 import QtGui
 from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin
 from qtvcp.widgets.dro_widget import DROLabel
 from qtvcp.widgets.mdi_line import MDILine
+from qtvcp.widgets.operator_value_line import OperatorValueLine
+from qtvcp.widgets.tool_chooser import ToolChooser
 from qtvcp.widgets.mdi_history import MDIHistory
 from qtvcp.widgets.mdi_touchy import MDITouchy
 from qtvcp.widgets.gcode_editor import GcodeEditor, GcodeDisplay
@@ -105,6 +107,94 @@ class MDILinePlugin(QPyDesignerCustomWidgetPlugin):
 
     def includeFile(self):
         return "qtvcp.widgets.mdi_line"
+
+
+####################################
+# Tool Chooser
+####################################
+class ToolChooserPlugin(QPyDesignerCustomWidgetPlugin):
+    def __init__(self, parent=None):
+        super(ToolChooserPlugin, self).__init__(parent)
+        self.initialized = False
+
+    def initialize(self, formEditor):
+        if self.initialized:
+            return
+        self.initialized = True
+
+    def isInitialized(self):
+        return self.initialized
+
+    def createWidget(self, parent):
+        return ToolChooser(parent)
+
+    def name(self):
+        return "ToolChooser"
+
+    def group(self):
+        return "Linuxcnc - Controller"
+
+    def icon(self):
+        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('toolchooser')))
+
+    def toolTip(self):
+        return "Tool chooser Widget"
+
+    def whatsThis(self):
+        return ""
+
+    def isContainer(self):
+        return True
+
+    def domXml(self):
+        return '<widget class="ToolChooser" name="toolchooser" />\n'
+
+    def includeFile(self):
+        return "qtvcp.widgets.tool_chooser"
+    
+
+####################################
+# Operator Value edit line
+####################################
+class OperatorValueLinePlugin(QPyDesignerCustomWidgetPlugin):
+    def __init__(self, parent=None):
+        super(OperatorValueLinePlugin, self).__init__(parent)
+        self.initialized = False
+
+    def initialize(self, formEditor):
+        if self.initialized:
+            return
+        self.initialized = True
+
+    def isInitialized(self):
+        return self.initialized
+
+    def createWidget(self, parent):
+        return OperatorValueLine(parent)
+
+    def name(self):
+        return "OperatorValueLine"
+
+    def group(self):
+        return "Linuxcnc - Controller"
+
+    def icon(self):
+        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('operatorvalueline')))
+
+    def toolTip(self):
+        return "Operator value edit line Widget"
+
+    def whatsThis(self):
+        return ""
+
+    def isContainer(self):
+        return True
+
+    def domXml(self):
+        return '<widget class="OperatorValueLine" name="operatorvalueline" />\n'
+
+    def includeFile(self):
+        return "qtvcp.widgets.operator_value_line"
 
 
 ####################################

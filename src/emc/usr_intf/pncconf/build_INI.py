@@ -158,7 +158,7 @@ class INI:
         if self.d.frontend == _PD._QTPLASMAC:
             code = 21 if self.d.units == _PD._METRIC else 20
             if '/usr' in self.d.qtplasmacbase:
-                mPath = '../../nc_files/plasmac/m_files'
+                mPath = '/usr/share/doc/linuxcnc/examples/nc_files/plasmac/m_files'
             else:
                 mPath = os.path.realpath(os.path.join(self.d.qtplasmacbase, 'nc_files/plasmac/m_files'))
             print("RS274NGC_STARTUP_CODE = G{} G40 G49 G80 G90 G92.1 G94 G97 M52P1".format(code), file=file)
@@ -224,6 +224,9 @@ class INI:
                 print("POSTGUI_HALFILE = qtvcp_postgui.hal", file=file)
             elif self.d.frontend == _PD._GMOCCAPY:
                 print("POSTGUI_HALFILE = gmoccapy_postgui.hal", file=file)
+        # qtplasmac always has a postgui hal fil
+        if self.d.frontend == _PD._QTPLASMAC:
+            print("POSTGUI_HALFILE = qtplasmac_postgui.hal", file=file)
         print("POSTGUI_HALFILE = custom_postgui.hal", file=file)
         print("SHUTDOWN = shutdown.hal", file=file)
         print(file=file)
@@ -317,8 +320,6 @@ class INI:
             print("NO_FORCE_HOMING = 1", file=file)
         print(file=file)
         print("[EMCIO]", file=file)
-        print("EMCIO = io", file=file)
-        print("CYCLE_TIME = 0.100", file=file)
         print("TOOL_TABLE = tool.tbl", file=file)
         # qtplasmac doesn't require these
         if self.d.frontend != _PD._QTPLASMAC:

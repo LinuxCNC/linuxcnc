@@ -301,11 +301,13 @@ void SetVarFromModbusSlave( unsigned char FunctCode, int ModbusNum, int Value )
 		case MODBUS_FC_FORCE_COIL:
 		case MODBUS_FC_FORCE_COILS:
 			WriteVar( VAR_MEM_BIT, ModbusNum+OffsetForVars, Value );
+			break;
 		case MODBUS_FC_READ_HOLD_REGS:
 		case MODBUS_FC_READ_INPUT_REGS:
 		case MODBUS_FC_WRITE_HOLD_REG:
 		case MODBUS_FC_WRITE_HOLD_REGS:
 			WriteVar( VAR_MEM_WORD, ModbusNum+OffsetForVars, Value );
+			break;
 	}
 }
 int GetVarForModbusSlave( unsigned char FunctCode, int ModbusNum )

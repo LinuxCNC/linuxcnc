@@ -6286,7 +6286,7 @@ Y ERROR</string>
   </customwidget>
   <customwidget>
    <class>PushButton</class>
-   <extends>IndicatedPushButton</extends>
+   <extends>QPushButton</extends>
    <header>qtvcp.widgets.simple_widgets</header>
   </customwidget>
   <customwidget>
@@ -6318,12 +6318,12 @@ Y ERROR</string>
  <resources/>
  <connections/>
  <buttongroups>
-  <buttongroup name="cal_buttonGroup"/>
-  <buttongroup name="boss_pocket_buttonGroup"/>
-  <buttongroup name="inside_buttonGroup"/>
   <buttongroup name="outside_buttonGroup"/>
+  <buttongroup name="boss_pocket_buttonGroup"/>
   <buttongroup name="skew_buttonGroup"/>
-  <buttongroup name="ridge_valley_buttonGroup"/>
+  <buttongroup name="inside_buttonGroup"/>
   <buttongroup name="clear_buttonGroup"/>
+  <buttongroup name="cal_buttonGroup"/>
+  <buttongroup name="ridge_valley_buttonGroup"/>
  </buttongroups>
 </ui>

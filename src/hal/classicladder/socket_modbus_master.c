@@ -60,8 +60,8 @@
 HANDLE ThreadHandleClient = NULL;
 DWORD ThreadIdClient;
 #else
-#define SOCK_FD unsigned int
-#define SOCK_INVALID -1
+#define SOCK_FD int
+#define SOCK_INVALID (-1)
 pthread_t thread_socket_client;
 #endif
 
@@ -122,7 +122,7 @@ void ConfigSerialModbusMaster( void )
 	int Error = 0;
 	if ( ModbusConfig.ModbusSerialPortNameUsed[ 0 ]!='\0' )
 	{
-		if ( !SerialOpen( ModbusConfig.ModbusSerialPortNameUsed, ModbusConfig.ModbusSerialSpeed ) )
+		if ( !SerialOpen( /*ModbusConfig.ModbusSerialPortNameUsed, ModbusConfig.ModbusSerialSpeed*/ ) )
 		{
 			Error = -1;
                         printf(_("INFO CLASSICLADDER---I/O Modbus master Data bits %i Stop bits %i Parity %i\n"),ModbusConfig.ModbusSerialDataBits,ModbusConfig.ModbusSerialStopBits,ModbusConfig.ModbusSerialParity);
@@ -251,6 +251,7 @@ int SendSocketModbusMaster( char * SlaveAdr, int NumPort, char * Frame, int LgtF
 {
 	int Status = -1;
 	int LgtSend;
+	(void)NumPort;
 	if ( VerifyTcpConnection( SlaveAdr ) )
 	{
 		if( ModbusConfig.ModbusDebugLevel>=2 )

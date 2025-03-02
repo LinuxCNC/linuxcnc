@@ -146,7 +146,7 @@ void DrawSeqTransition( cairo_t * cr,int x,int y,int Size,StrTransition * pTrans
 		}
 	}
 
-	// multiple steps desactivation ?
+	// multiple steps deactivation ?
 	for ( ScanSwitch=1; ScanSwitch<NBR_SWITCHS_MAX; ScanSwitch++ )
 	{
 		int NumStep;

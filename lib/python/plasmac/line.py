@@ -1,8 +1,8 @@
 '''
 line.py
 
-Copyright (C) 2020, 2021, 2022, 2023 Phillip A Carter
-Copyright (C) 2020, 2021, 2022, 2023 Gregory D Carl
+Copyright (C) 2020 - 2024 Phillip A Carter
+Copyright (C) 2020 - 2024 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -23,7 +23,6 @@ import os
 import sys
 import math
 import numpy
-from shutil import copy as COPY
 import gettext
 
 for f in sys.path:
@@ -31,9 +30,10 @@ for f in sys.path:
         if '/usr' in f:
             localeDir = 'usr/share/locale'
         else:
-            localeDir = os.path.join(f'{f.split("/lib")[0]}','share','locale')
+            localeDir = os.path.join(f'{f.split("/lib")[0]}', 'share', 'locale')
         break
 gettext.install("linuxcnc", localedir=localeDir)
+
 
 # Conv is the upstream calling module
 def do_line_point_to_point(Conv, xStart, yStart, xEnd, yEnd):
@@ -64,6 +64,7 @@ def do_line_point_to_point(Conv, xStart, yStart, xEnd, yEnd):
         return True, error
     code = f'g1 x{float(xEnd):.6f} y{float(yEnd):.6f}\n'
     return False, xEnd, yEnd, code
+
 
 def do_line_by_angle(Conv, xStart, yStart, length, angle):
     error = ''
@@ -96,6 +97,7 @@ def do_line_by_angle(Conv, xStart, yStart, length, angle):
     y = yStart + (length * math.sin(ang))
     code = f'g1 x{x:.6f} y{y:.6f}\n'
     return False, x, y, code
+
 
 def do_arc_3_points(Conv, xStart, yStart, xNext, yNext, xEnd, yEnd):
     error = ''
@@ -144,8 +146,6 @@ def do_arc_3_points(Conv, xStart, yStart, xNext, yNext, xEnd, yEnd):
         a = numpy.linalg.norm(C - B)
         b = numpy.linalg.norm(C - A)
         c = numpy.linalg.norm(B - A)
-        s = (a + b + c) / 2
-        R = a*b*c / 4 / numpy.sqrt(s * (s - a) * (s - b) * (s - c))
         b1 = a*a * (b*b + c*c - a*a)
         b2 = b*b * (a*a + c*c - b*b)
         b3 = c*c * (a*a + b*b - c*c)
@@ -163,6 +163,7 @@ def do_arc_3_points(Conv, xStart, yStart, xNext, yNext, xEnd, yEnd):
         msg = _('SYSTEM ERROR')
         error = f'{msg}:\n\n{e}'
         return True, e
+
 
 def do_arc_2_points_radius(Conv, xStart, yStart, xEnd, yEnd, radius, arcType):
     error = ''
@@ -215,6 +216,7 @@ def do_arc_2_points_radius(Conv, xStart, yStart, xEnd, yEnd, radius, arcType):
         error = f'{msg}:\n\n{e}'
         return True, e
 
+
 def do_arc_by_angle_radius(Conv, xStart, yStart, length, angle, radius, arcType):
     error = ''
     msg1 = _('entry is invalid')
@@ -254,6 +256,7 @@ def do_arc_by_angle_radius(Conv, xStart, yStart, length, angle, radius, arcType)
     result = do_arc_2_points_radius(Conv, xStart, yStart, xEnd, yEnd, radius, arcType)
     return result
 
+
 def first_segment(fTmp, fNgc, fNgcBkp, preAmble, lineType, xStart, yStart, matNumber, matName):
     with open(fTmp, 'w') as outTmp:
         with open(fNgc, 'w') as outNgc:
@@ -280,6 +283,7 @@ def first_segment(fTmp, fNgc, fNgcBkp, preAmble, lineType, xStart, yStart, matNu
         outTmp.write(f'g0 x{xStart:.6f} y{yStart:.6f}\n')
         outTmp.write('m3 $0 s1\n')
 
+
 def next_segment(fTmp, fNgc):
     with open(fTmp, 'w') as outTmp:
         with open(fNgc, 'r') as inNgc:
@@ -289,8 +293,8 @@ def next_segment(fTmp, fNgc):
                     break
                 else:
                     outTmp.write(line)
-    COPY(fTmp, fNgc)
-    outNgc = open(fNgc, 'w')
+    open(fNgc, 'w')
+
 
 def last_segment(fTmp, fNgc, code, postAmble):
     with open(fTmp, 'a') as outTmp:

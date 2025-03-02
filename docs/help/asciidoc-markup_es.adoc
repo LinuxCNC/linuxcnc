@@ -19,7 +19,7 @@ Los atributos típicos autorizados son: doctype, lang, encoding, icons,
 data-uri, toc, numbered
 
 Más información aquí
-http://www.methods.co.nz/asciidoc/userguide.html#_introduction
+https://www.methods.co.nz/asciidoc/userguide.html#_introduction
 8.2 Header
 
 = Título del documento (nivel 0)
@@ -47,7 +47,7 @@ Solo se mostrará "bombas" en el texto con un subrayado, así que siempre
 proporcione una leyenda para un enlace.
 
 Enlace externo
-http://linuxnc.org/someplace[descripcion del link]
+https://linuxnc.org/someplace[descripcion del link]
 
 = Bloque de comentarios
 
@@ -181,8 +181,8 @@ alternativa es utilizar Open Office Math (o LibreOffice) para crear la
 imagen matemática y gimp para la captura de pantalla y guardarla en un
 png.
 
-Compruebe la http://powerman.name/doc/asciidoc[hoja de referencia de asciidoc]
-o el http://www.methods.co.nz/asciidoc/userguide.html[manual del usuario]
+Compruebe la https://powerman.name/doc/asciidoc[hoja de referencia de asciidoc]
+o el https://www.methods.co.nz/asciidoc/userguide.html[manual del usuario]
 para detalles sobre el formato.
 
 // vim: set syntax=asciidoc:

@@ -237,7 +237,7 @@ void *link_loop_and_logic(void *thrd_link_num)
             }
             else if (ret != retOK) {  //transaction failure but link OK
                 (**this_mb_tx->num_errors)++;
-                ERR(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] transaction failure, num_errors[%d]",
+                ERR(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] transaction failure, num_errors[%u]",
                     this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_link_num, modbus_get_socket(this_mb_link->modbus), **this_mb_tx->num_errors);
                 // Clear any unread data. Otherwise the link might get out of sync
                 modbus_flush(this_mb_link->modbus);

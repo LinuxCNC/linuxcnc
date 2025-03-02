@@ -2,8 +2,8 @@
 '''
 qtplasmac-materials.py
 
-Copyright (C) 2020, 2021, 2022, 2023 Phillip A Carter
-Copyright (C) 2020, 2021, 2022, 2023 Gregory D Carl
+Copyright (C) 2020 - 2024 Phillip A Carter
+Copyright (C) 2020 - 2024 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -25,6 +25,7 @@ import sys
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
+
 
 class MaterialConverter(QMainWindow, object):
 
@@ -77,8 +78,8 @@ class MaterialConverter(QMainWindow, object):
                           QLineEdit {border: 1px solid #ffee06; border-radius: 4; height: 20; width: 360} \
                           QLineEdit:disabled {color: #16160e; border: none} \
                           QRadioButton::indicator {border: 1px solid #ffee06; border-radius: 4; height: 20; width: 20} \
-                          QRadioButton::indicator:checked {background: #ffee06}' \
-                         )
+                          QRadioButton::indicator:checked {background: #ffee06}'
+                          )
 
     def create_widgets(self):
         self.T = QGridLayout()
@@ -186,7 +187,7 @@ class MaterialConverter(QMainWindow, object):
                 self.inButton.setEnabled(True)
                 self.inFile.setEnabled(True)
                 self.convert.setText('CONVERT')
-            elif button.text() == 'Fusion360':
+            elif button.text() == 'Fusion 360':
                 self.outUnits.hide()
                 self.outMetric.hide()
                 self.outImperial.hide()
@@ -210,24 +211,24 @@ class MaterialConverter(QMainWindow, object):
             self.msgLabel.setText('converting...')
 #            try:
             with open(self.outFileName, 'w') as f_out:
-                f_out.write('#plasmac material file\n'\
-                            '# example only, may be deleted\n'\
-                            '# items marked * are mandatory\n'\
-                            '# other items are optional and will default to 0\n'\
-                            '#[MATERIAL_NUMBER_1]  \n'\
-                            '#NAME               = \n'\
-                            '#KERF_WIDTH         = \n'\
-                            '#PIERCE_HEIGHT      = *\n'\
-                            '#PIERCE_DELAY       = *\n'\
-                            '#PUDDLE_JUMP_HEIGHT = \n'\
-                            '#PUDDLE_JUMP_DELAY  = \n'\
-                            '#CUT_HEIGHT         = *\n'\
-                            '#CUT_SPEED          = *\n'\
-                            '#CUT_AMPS           = \n'\
-                            '#CUT_VOLTS          = \n'\
+                f_out.write('#plasmac material file\n'
+                            '# example only, may be deleted\n'
+                            '# items marked * are mandatory\n'
+                            '# other items are optional and will default to 0\n'
+                            '#[MATERIAL_NUMBER_1]  \n'
+                            '#NAME               = \n'
+                            '#KERF_WIDTH         = \n'
+                            '#PIERCE_HEIGHT      = *\n'
+                            '#PIERCE_DELAY       = *\n'
+                            '#PUDDLE_JUMP_HEIGHT = \n'
+                            '#PUDDLE_JUMP_DELAY  = \n'
+                            '#CUT_HEIGHT         = *\n'
+                            '#CUT_SPEED          = *\n'
+                            '#CUT_AMPS           = \n'
+                            '#CUT_VOLTS          = \n'
                             '#PAUSE_AT_END       = \n'
-                            '#GAS_PRESSURE       = \n'\
-                            '#CUT_MODE           = \n'\
+                            '#GAS_PRESSURE       = \n'
+                            '#CUT_MODE           = \n'
                             '\n')
 #            except:
 #                self.msgLabel.setText('WRITE ERROR!!!')
@@ -255,12 +256,12 @@ class MaterialConverter(QMainWindow, object):
             self.output()
             self.convert.setText('ADD')
         elif self.inSheetcam.isChecked():
-#            try:
+            # try:
             with open(self.inFileName, 'r') as f_in:
                 count = 0
                 valid = False
                 for line in f_in:
-                    if line.startswith('[Tool') and not 'Custom' in line:
+                    if line.startswith('[Tool') and 'Custom' not in line:
                         if count and valid:
                             self.output()
                         valid = False
@@ -280,41 +281,41 @@ class MaterialConverter(QMainWindow, object):
                         self.materialCutM = 'CUT_MODE           = 1'
                     elif 'PlasmaTool' in line:
                         valid = True
-                    elif line.startswith('Tool\ number'):
-                        a,b = line.split('=')
+                    elif line.startswith(r'Tool\ number'):
+                        b = line.split('=')[1]
                         self.materialNum = f'[MATERIAL_NUMBER_{b.strip().replace("]","")}]'
                     elif line.startswith('Name='):
-                        a,b = line.split('=',1)
+                        b = line.split('=', 1)[1]
                         self.materialName = f'NAME               = {b.strip()}'
-                    elif line.startswith('Kerf\ width'):
-                        a,b = line.split('=',1)
+                    elif line.startswith(r'Kerf\ width'):
+                        b = line.split('=', 1)[1]
                         self.materialKerf = f'KERF_WIDTH         = {float(b.strip()) / self.divisor:.{self.precision}f}'
-                    elif line.startswith('Pierce\ height'):
-                        a,b = line.split('=',1)
+                    elif line.startswith(r'Pierce\ height'):
+                        b = line.split('=', 1)[1]
                         self.materialPierceH = f'PIERCE_HEIGHT      = {float(b.strip()) / self.divisor:.{self.precision}f}'
-                    elif line.startswith('Pierce\ delay'):
-                        a,b = line.split('=',1)
+                    elif line.startswith(r'Pierce\ delay'):
+                        b = line.split('=', 1)[1]
                         self.materialPierceD = f'PIERCE_DELAY       = {b.strip()}'
-                    elif line.startswith('Cut\ height'):
-                        a,b = line.split('=',1)
+                    elif line.startswith(r'Cut\ height'):
+                        b = line.split('=', 1)[1]
                         self.materialCutH = f'CUT_HEIGHT         = {float(b.strip()) / self.divisor:.{self.precision}f}'
-                    elif line.startswith('Feed\ rate'):
-                        a,b = line.split('=',1)
+                    elif line.startswith(r'Feed\ rate'):
+                        b = line.split('=', 1)[1]
                         self.materialCutS = f'CUT_SPEED          = {float(b.strip()) / self.divisor:.0f}'
-                    elif line.startswith('Cut\ current') or (line.startswith('Preset\ current') and self.materialCutA == 'CUT_AMPS           = 0'):
-                        a,b = line.split('=',1)
+                    elif line.startswith(r'Cut\ current') or (line.startswith(r'Preset\ current') and self.materialCutA == 'CUT_AMPS           = 0'):
+                        b = line.split('=', 1)[1]
                         self.materialCutA = f'CUT_AMPS           = {b.strip()}'
-                    elif line.startswith('Cut\ voltage') or (line.startswith('Preset\ volts') and self.materialCutV == 'CUT_VOLTS          = 0'):
-                        a,b = line.split('=',1)
+                    elif line.startswith(r'Cut\ voltage') or (line.startswith(r'Preset\ volts') and self.materialCutV == 'CUT_VOLTS          = 0'):
+                        b = line.split('=', 1)[1]
                         self.materialCutV = f'CUT_VOLTS          = {b.strip()}'
-                    elif line.startswith('Pause\ at\ end\ of\ cut'):
-                        a,b = line.split('=',1)
+                    elif line.startswith(r'Pause\ at\ end\ of\ cut'):
+                        b = line.split('=', 1)[1]
                         self.materialPauseE = f'PAUSE_AT_END       = {b.strip()}'
-                    elif line.startswith('Gas\ pressure') or (line.startswith('Preset\ Air\ Pressure') and self.materialGasP == 'GAS_PRESSURE       = 0'):
-                        a,b = line.split('=',1)
+                    elif line.startswith(r'Gas\ pressure') or (line.startswith(r'Preset\ Air\ Pressure') and self.materialGasP == 'GAS_PRESSURE       = 0'):
+                        b = line.split('=', 1)[1]
                         self.materialGasp = f'GAS_PRESSURE       = {b.strip()}'
-                    elif line.startswith('Cut\ mode') or (line.startswith('Preset\ mode') and self.materialCutM == 'CUT_MODE           = 1'):
-                        a,b = line.split('=',1)
+                    elif line.startswith(r'Cut\ mode') or (line.startswith(r'Preset\ mode') and self.materialCutM == 'CUT_MODE           = 1'):
+                        b = line.split('=', 1)[1]
                         self.materialCutM = f'CUT_MODE           = {b.strip()}'
                     count += 1
                 if valid:
@@ -359,13 +360,16 @@ class MaterialConverter(QMainWindow, object):
             self.msgLabel.setText('Invalid Conversion')
 
     def find_key(self, obj, key):
-        if key in obj: return obj[key]
+        if key in obj:
+            return obj[key]
         for k, v in obj.items():
-            if isinstance(v,dict):
+            # variable is not currently used
+            del k
+            if isinstance(v, dict):
                 item = self.find_key(v, key)
                 if item is not None:
                     return item
-            elif isinstance(v,list):
+            elif isinstance(v, list):
                 for list_item in v:
                     item = self.find_key(list_item, key)
                     if item is not None:
@@ -375,22 +379,22 @@ class MaterialConverter(QMainWindow, object):
         sys.exit()
 
     def output(self):
-#        try:
+        # try:
         with open(self.outFileName, 'a') as f_out:
-            f_out.write(self.materialNum + '\n' + \
-                        self.materialName + '\n' + \
-                        self.materialKerf + '\n' + \
-                        self.materialPierceH + '\n' + \
-                        self.materialPierceD + '\n' + \
-                        self.materialPuddleH + '\n' + \
-                        self.materialPuddleD + '\n' + \
-                        self.materialCutH + '\n' + \
-                        self.materialCutS + '\n' + \
-                        self.materialCutA + '\n' + \
-                        self.materialCutV + '\n' + \
-                        self.materialPauseE + '\n' +\
-                        self.materialGasP + '\n' + \
-                        self.materialCutM + '\n' + \
+            f_out.write(self.materialNum + '\n' +
+                        self.materialName + '\n' +
+                        self.materialKerf + '\n' +
+                        self.materialPierceH + '\n' +
+                        self.materialPierceD + '\n' +
+                        self.materialPuddleH + '\n' +
+                        self.materialPuddleD + '\n' +
+                        self.materialCutH + '\n' +
+                        self.materialCutS + '\n' +
+                        self.materialCutA + '\n' +
+                        self.materialCutV + '\n' +
+                        self.materialPauseE + '\n' +
+                        self.materialGasP + '\n' +
+                        self.materialCutM + '\n' +
                         '\n')
 #        except:
 #            self.msgLabel.setText('WRITE ERROR!!!')
@@ -403,72 +407,72 @@ class MaterialConverter(QMainWindow, object):
         topL = QLabel('Items with a *** are mandatory')
         infL = QLabel(f'For Material # {self.fNUM}\n{self.fNAM}')
         dNUl = QLabel('Material Number ***')
-        dNUl.setAlignment(Qt.AlignBottom|Qt.AlignRight)
+        dNUl.setAlignment(Qt.AlignBottom | Qt.AlignRight)
         dNU = QLineEdit()
         dNU.setText(self.fNUM)
         dNU.setAlignment(Qt.AlignRight)
         dNAl = QLabel('Material Name')
-        dNAl.setAlignment(Qt.AlignBottom|Qt.AlignRight)
+        dNAl.setAlignment(Qt.AlignBottom | Qt.AlignRight)
         dNA = QLineEdit()
         dNA.setText(self.fNAM)
         dNA.setAlignment(Qt.AlignRight)
         dKWl = QLabel('Kerf Width')
-        dKWl.setAlignment(Qt.AlignBottom|Qt.AlignRight)
+        dKWl.setAlignment(Qt.AlignBottom | Qt.AlignRight)
         dKW = QLineEdit()
         dKW.setText(self.fKW)
         dKW.setAlignment(Qt.AlignRight)
         dPHl = QLabel('Pierce Height ***')
-        dPHl.setAlignment(Qt.AlignBottom|Qt.AlignRight)
+        dPHl.setAlignment(Qt.AlignBottom | Qt.AlignRight)
         dPH = QLineEdit()
         dPH.setText(self.fPH)
         dPH.setAlignment(Qt.AlignRight)
         dPDl = QLabel('Pierce Delay ***')
-        dPDl.setAlignment(Qt.AlignBottom|Qt.AlignRight)
+        dPDl.setAlignment(Qt.AlignBottom | Qt.AlignRight)
         dPD = QLineEdit()
         dPD.setText(self.fPD)
         dPD.setAlignment(Qt.AlignRight)
         dPJHl = QLabel('Puddle Jump Height')
-        dPJHl.setAlignment(Qt.AlignBottom|Qt.AlignRight)
+        dPJHl.setAlignment(Qt.AlignBottom | Qt.AlignRight)
         dPJH = QLineEdit()
         dPJH.setText(self.fPJH)
         dPJH.setAlignment(Qt.AlignRight)
         dPJDl = QLabel('Puddle Jump Delay')
-        dPJDl.setAlignment(Qt.AlignBottom|Qt.AlignRight)
+        dPJDl.setAlignment(Qt.AlignBottom | Qt.AlignRight)
         dPJD = QLineEdit()
         dPJD.setText(self.fPJD)
         dPJD.setAlignment(Qt.AlignRight)
         dCHl = QLabel('Cut Height ***')
-        dCHl.setAlignment(Qt.AlignBottom|Qt.AlignRight)
+        dCHl.setAlignment(Qt.AlignBottom | Qt.AlignRight)
         dCH = QLineEdit()
         dCH.setText(self.fCH)
         dCH.setAlignment(Qt.AlignRight)
         dCSl = QLabel('Cut Speed ***')
-        dCSl.setAlignment(Qt.AlignBottom|Qt.AlignRight)
+        dCSl.setAlignment(Qt.AlignBottom | Qt.AlignRight)
         dCS = QLineEdit()
         dCS.setText(self.fCS)
         dCS.setAlignment(Qt.AlignRight)
         dCAl = QLabel('Cut Amps')
-        dCAl.setAlignment(Qt.AlignBottom|Qt.AlignRight)
+        dCAl.setAlignment(Qt.AlignBottom | Qt.AlignRight)
         dCA = QLineEdit()
         dCA.setText(self.fCA)
         dCA.setAlignment(Qt.AlignRight)
         dCVl = QLabel('Cut Volts')
-        dCVl.setAlignment(Qt.AlignBottom|Qt.AlignRight)
+        dCVl.setAlignment(Qt.AlignBottom | Qt.AlignRight)
         dCV = QLineEdit()
         dCV.setText(self.fCV)
         dCV.setAlignment(Qt.AlignRight)
         dPEl = QLabel('Pause At End Of Cut')
-        dPEl.setAlignment(Qt.AlignBottom|Qt.AlignRight)
+        dPEl.setAlignment(Qt.AlignBottom | Qt.AlignRight)
         dPE = QLineEdit()
         dPE.setText(self.fPE)
         dPE.setAlignment(Qt.AlignRight)
         dGPl = QLabel('Gas Pressure')
-        dGPl.setAlignment(Qt.AlignBottom|Qt.AlignRight)
+        dGPl.setAlignment(Qt.AlignBottom | Qt.AlignRight)
         dGP = QLineEdit()
         dGP.setText(self.fGP)
         dGP.setAlignment(Qt.AlignRight)
         dCMl = QLabel('Cut Mode')
-        dCMl.setAlignment(Qt.AlignBottom|Qt.AlignRight)
+        dCMl.setAlignment(Qt.AlignBottom | Qt.AlignRight)
         dCM = QLineEdit()
         dCM.setText(self.fCM)
         dCM.setAlignment(Qt.AlignRight)
@@ -536,6 +540,7 @@ class MaterialConverter(QMainWindow, object):
         self.fGP = dGP.text()
         self.fCM = dCM.text()
         return response
+
 
 if __name__ == '__main__':
     app = QApplication(sys.argv)

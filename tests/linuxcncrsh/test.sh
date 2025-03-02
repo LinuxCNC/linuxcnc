@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 rm -f gcode-output
 
 if nc -z localhost 5007; then
@@ -13,12 +15,12 @@ linuxcnc -r linuxcncrsh-test.ini &
 # let linuxcnc come up
 TOGO=80
 while [  $TOGO -gt 0 ]; do
-    echo trying to connect to linuxcncrsh TOGO=$TOGO
+    echo "trying to connect to linuxcncrsh TOGO=$TOGO"
     if nc -z localhost 5007; then
         break
     fi
     sleep 0.25
-    TOGO=$(($TOGO - 1))
+    TOGO=$((TOGO - 1))
 done
 if [  $TOGO -eq 0 ]; then
     echo connection to linuxcncrsh timed out
@@ -34,7 +36,7 @@ function testSet() {
     # get before value
     echo "get $1"
     # set cmd
-    echo "set $@"
+    echo "set $*"
     # get after value
     echo "get $1"
     # get error from server (or OK)
@@ -44,7 +46,7 @@ function testSet() {
 # get command with collecting possible error from linuxcncsvr
 function testGet() {
     cmd="$@"
-    echo "get $@"
+    echo "get $*"
     echo "get error"
 }
 
@@ -57,8 +59,10 @@ function testGet() {
     testSet echo off
     # ask linuxcncrsh to not read the next command until it's done running
     # the current one
+    # shellcheck disable=SC1010
     testSet wait_mode done
     # test deprecation mode of set_wait -> wait_mode rename
+    # shellcheck disable=SC1010
     testSet set_wait done
 
     # check default global settings
@@ -126,6 +130,7 @@ function testGet() {
     # test pause
     testSet wait_mode received             # otherwise pause will stall
     testSet pause
+    # shellcheck disable=SC1010
     testSet wait_mode done
     testSet resume
 

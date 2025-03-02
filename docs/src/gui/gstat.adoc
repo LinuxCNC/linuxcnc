@@ -112,7 +112,7 @@ class HandlerClass:
         GSTAT.connect("state-estop",lambda w: self.update_estate_label('ESTOP'))
         GSTAT.connect("state-estop-reset",lambda w: self.update_estate_label('RESET'))
 
-        GSTAT.connect("state-on",lambda w: self.update_state_label('MACHIBE ON'))
+        GSTAT.connect("state-on",lambda w: self.update_state_label('MACHINE ON'))
         GSTAT.connect("state-off",lambda w: self.update_state_label('MACHINE OFF'))
 
         GSTAT.connect("interp-paused",lambda w: self.update_interp_label('Paused'))
@@ -156,7 +156,7 @@ class HandlerClass:
         GSTAT.connect("state-estop",lambda w: self.update_estate_label('ESTOP'))
         GSTAT.connect("state-estop-reset",lambda w: self.update_estate_label('RESET'))
 
-        GSTAT.connect("state-on",lambda w: self.update_state_label('MACHIBE ON'))
+        GSTAT.connect("state-on",lambda w: self.update_state_label('MACHINE ON'))
         GSTAT.connect("state-off",lambda w: self.update_state_label('MACHINE OFF'))
 
         GSTAT.connect("interp-paused",lambda w: self.update_interp_label('Paused'))
@@ -486,6 +486,62 @@ This depends on the widget/libraries used.
 *shutdown* :: '(returns None)' -
 intended to be sent when requesting LinuxCNC to shutdown. +
 This depends on the widget/libraries used.
+
+*status-message* :: 'returns python dict (message), python dict (options)'
+Intended for a screen/panel to get status/log messages from widgets, but can be used generally. +
+The listening object is expected to look for and handle at least these entries: +
+
+The message dict would include: +
+
+ * TITLE: (string)
+ * SHORTTEXT: (string)
+ * DETAILS: (string)
+
+The options dict would include: +
+
+ * LEVEL: (integer)
+ * LOG: (bool)
+
+The listening object could use this to display information on a text line or message dialog. +
+The LEVEL would indicate urgency 0 = DEFAULT 1 = WARNING 2 = CRITICAL +
+LOG indicates whether the message should be logged to a file/page if available. +
+LOG messages would be assumed to use the DETAILS entry. +
+
+An example of how to send a message:
+
+[source,python]
+----
+mess = {'SHORTTEXT':'File Copy Failed',
+        'TITLE':'FileManager',
+        'DETAILS':'There is not enough room on disk to copy the file'}
+opt = {'LOG':True,'LEVEL':2}
+STATUS.emit('status-message',mess,opt)
+----
+
+An example of the listening object:
+
+[source,python]
+----
+# tell STATUS we want to respond to any sent 'status-message' messages.
+STATUS.connect('status-message', lambda w, d, o: self.add_external_status(m,o))
+
+    def add_external_status(self, message, option):
+
+        # extract and trap errors for expected entries
+        level = option.get('LEVEL', STATUS.DEFAULT) 
+        log = option.get("LOG", True)
+        title = message.get('TITLE', '')
+        mess = message.get('SHORTTEXT', '')
+        logtext = message.get('DETAILS', '')
+
+        # call a function to print the message on a statusbar:
+        self.add_status(mess, level, noLog=True)
+
+        # request a log file update
+        if log:
+            STATUS.emit('update-machine-log', "{}\n{}".format(title, logtext), 'TIME')
+
+----
 
 *error* :: '(returns integer, string)' -
 intended to be sent when an error has been reported . +

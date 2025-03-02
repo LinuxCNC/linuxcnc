@@ -6,12 +6,24 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>350</width>
-    <height>412</height>
+    <width>494</width>
+    <height>551</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>MainWindow</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">QGroupBox {
+    border: 2px solid b;axk;
+    margin-top: 0.5em;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    left: 10px;
+    padding: 0 3px 0 3px;
+}</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -36,63 +48,210 @@
         </property>
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
-          <widget class="QRadioButton" name="radiobutton_screen">
-           <property name="text">
-            <string>Screen Code</string>
+          <layout class="QHBoxLayout" name="horizontalLayout_4">
+           <property name="spacing">
+            <number>3</number>
            </property>
-           <property name="checked">
-            <bool>true</bool>
+           <item>
+            <widget class="QGroupBox" name="groupBox">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="title">
+              <string>Object</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_3">
+              <item>
+               <widget class="QRadioButton" name="radiobutton_screen">
+                <property name="text">
+                 <string>Screen Code</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="radiobutton_vcp">
+                <property name="text">
+                 <string>VCP Panel Code</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QRadioButton" name="radiobutton_vismach">
+                <property name="text">
+                 <string>QtVismach Model</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+           <item>
+            <widget class="QGroupBox" name="groupBoxType">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="title">
+              <string>Copy Type</string>
+             </property>
+             <layout class="QVBoxLayout" name="handlerOptionsLayout">
+              <item>
+               <widget class="QCheckBox" name="checkBoxCopyHandler">
+                <property name="text">
+                 <string>Copy  All Files</string>
+                </property>
+                <property name="checked">
+                 <bool>true</bool>
+                </property>
+                <property name="autoExclusive">
+                 <bool>true</bool>
+                </property>
+                <attribute name="buttonGroup">
+                 <string notr="true">buttonGroup</string>
+                </attribute>
+               </widget>
+              </item>
+              <item>
+               <widget class="QCheckBox" name="checkBoxSubclassHandler">
+                <property name="text">
+                 <string>Make a Subclass Handler 
+ And Copy UI</string>
+                </property>
+                <property name="autoRepeat">
+                 <bool>false</bool>
+                </property>
+                <property name="autoExclusive">
+                 <bool>true</bool>
+                </property>
+                <attribute name="buttonGroup">
+                 <string notr="true">buttonGroup</string>
+                </attribute>
+               </widget>
+              </item>
+              <item>
+               <spacer name="verticalSpacer">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeType">
+                 <enum>QSizePolicy::Fixed</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>12</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+             </layout>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="groupBox">
+           <property name="styleSheet">
+            <string notr="true"/>
            </property>
+           <property name="title">
+            <string>Object Code Folder</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_4">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>6</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>6</number>
+            </property>
+            <item>
+             <widget class="QComboBox" name="comboBox"/>
+            </item>
+           </layout>
           </widget>
          </item>
          <item>
-          <widget class="QRadioButton" name="radiobutton_vcp">
-           <property name="text">
-            <string>VCP Panel Code</string>
+          <widget class="QGroupBox" name="groupBox_2">
+           <property name="title">
+            <string>Copy Base Name</string>
            </property>
+           <property name="flat">
+            <bool>false</bool>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_5">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>6</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>6</number>
+            </property>
+            <item>
+             <widget class="QLineEdit" name="lineEdit"/>
+            </item>
+           </layout>
           </widget>
          </item>
          <item>
-          <widget class="QRadioButton" name="radiobutton_vismach">
-           <property name="text">
-            <string>QtVismach Model</string>
+          <widget class="QGroupBox" name="groupBox_3">
+           <property name="title">
+            <string>Destination Folder</string>
            </property>
+           <layout class="QVBoxLayout" name="verticalLayout_6">
+            <property name="spacing">
+             <number>0</number>
+            </property>
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>3</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="FileManager" name="filemanager"/>
+            </item>
+           </layout>
           </widget>
-         </item>
-         <item>
-          <widget class="QLabel" name="label">
-           <property name="text">
-            <string>Screen Code Folder:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QComboBox" name="comboBox"/>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_3">
-           <property name="text">
-            <string>Base Name:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="lineEdit"/>
-         </item>
-         <item>
-          <widget class="QLabel" name="label_2">
-           <property name="text">
-            <string>Destination Folder:</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="FileManager" name="filemanager"/>
          </item>
          <item>
           <layout class="QHBoxLayout" name="horizontalLayout_2">
+           <property name="spacing">
+            <number>6</number>
+           </property>
            <item>
             <layout class="QHBoxLayout" name="horizontalLayout_3">
+             <item>
+              <widget class="QPushButton" name="helpButton">
+               <property name="text">
+                <string>Help</string>
+               </property>
+              </widget>
+             </item>
              <item>
               <spacer name="horizontalSpacer">
                <property name="orientation">
@@ -136,8 +295,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>350</width>
-     <height>24</height>
+     <width>494</width>
+     <height>22</height>
     </rect>
    </property>
   </widget>
@@ -165,8 +324,8 @@
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>242</x>
-     <y>368</y>
+     <x>381</x>
+     <y>501</y>
     </hint>
     <hint type="destinationlabel">
      <x>147</x>
@@ -181,12 +340,28 @@
    <slot>applyClicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>329</x>
-     <y>368</y>
+     <x>473</x>
+     <y>501</y>
     </hint>
     <hint type="destinationlabel">
      <x>349</x>
      <y>411</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>helpButton</sender>
+   <signal>clicked()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>helpClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>83</x>
+     <y>501</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>99</x>
+     <y>493</y>
     </hint>
    </hints>
   </connection>
@@ -198,10 +373,10 @@
    <hints>
     <hint type="sourcelabel">
      <x>83</x>
-     <y>60</y>
+     <y>73</y>
     </hint>
     <hint type="destinationlabel">
-     <x>96</x>
+     <x>129</x>
      <y>28</y>
     </hint>
    </hints>
@@ -213,12 +388,12 @@
    <slot>updateCombo()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>128</x>
-     <y>86</y>
+     <x>138</x>
+     <y>95</y>
     </hint>
     <hint type="destinationlabel">
-     <x>216</x>
-     <y>28</y>
+     <x>246</x>
+     <y>24</y>
     </hint>
    </hints>
   </connection>
@@ -229,12 +404,12 @@
    <slot>updateCombo()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>53</x>
-     <y>115</y>
+     <x>57</x>
+     <y>126</y>
     </hint>
     <hint type="destinationlabel">
-     <x>34</x>
-     <y>25</y>
+     <x>27</x>
+     <y>26</y>
     </hint>
    </hints>
   </connection>
@@ -242,5 +417,9 @@
  <slots>
   <slot>applyClicked()</slot>
   <slot>updateCombo()</slot>
+  <slot>helpClicked()</slot>
  </slots>
+ <buttongroups>
+  <buttongroup name="buttonGroup"/>
+ </buttongroups>
 </ui>

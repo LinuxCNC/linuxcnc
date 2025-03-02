@@ -89,7 +89,7 @@ include an option for suppressing superfluous commands.
 #include <set>
 #include <stdexcept>
 #include <new>
-#include <rtapi_string.h>
+#include <rtapi_string.h>	// rtapi_strlcpy()
 
 #include "rtapi.h"
 #include "inifile.hh"		// INIFILE
@@ -667,7 +667,7 @@ int Interp::find_remappings(block_pointer block, setup_pointer settings)
 	    block->remappings.insert(STEP_PREPARE);
     }
     // User defined M-Codes in group 5
-    if (IS_USER_MCODE(block,settings,5) &&
+    if (is_user_defined_m_code(block, settings, 5) &&
 	!(((block->m_modes[5] == 62) && remap_in_progress("M62")) ||
 	  ((block->m_modes[5] == 63) && remap_in_progress("M63")) ||
 	  ((block->m_modes[5] == 64) && remap_in_progress("M64")) ||
@@ -682,32 +682,41 @@ int Interp::find_remappings(block_pointer block, setup_pointer settings)
     // call the remap procedure if it the code in that group is remapped unless:
     // it's an M6 or M61 and a remap is in progress
     // (recursion case)
-    if (IS_USER_MCODE(block,settings,6) &&  
+    if (is_user_defined_m_code(block, settings, 6) &&
 	!(((block->m_modes[6] == 6) && remap_in_progress("M6")) ||
-	  ((block->m_modes[6] == 61) && remap_in_progress("M61")))) {  
+	  ((block->m_modes[6] == 61) && remap_in_progress("M61")))) {
 	block->remappings.insert(STEP_M_6); // then call the remap procedure
     } // else we get the builtin behaviour
     
     // User defined M-Codes in group 7
-    if (IS_USER_MCODE(block,settings,7))
+    if (is_user_defined_m_code(block, settings, 7))
 	block->remappings.insert(STEP_M_7);
 
     // User defined M-Codes in group 8
-    if (IS_USER_MCODE(block,settings,8))
-	block->remappings.insert(STEP_M_8);
+    if (is_user_defined_m_code(block, settings, 8)) {
+        if (((block->m_modes[8] == 7) && remap_in_progress("M7")) ||
+        ((block->m_modes[8] == 8) && remap_in_progress("M8")) ||
+        ((block->m_modes[8] == 9) && remap_in_progress("M9"))){
+        // recursive behavior
+        CONTROLLING_BLOCK(*settings).builtin_used = true;
+        } else {
+        // non-recursive (ie the built in) behavior
+        block->remappings.insert(STEP_M_8);
+        }
+    }
 
     // User defined M-Codes in group 9
-    if (IS_USER_MCODE(block,settings,9))
+    if (is_user_defined_m_code(block, settings, 9))
 	block->remappings.insert(STEP_M_9);
 
     // User defined M-Codes in group 10
-    if (IS_USER_MCODE(block,settings,10))
+    if (is_user_defined_m_code(block, settings, 10))
 	block->remappings.insert(STEP_M_10);
 
     // User-defined motion codes (G0 to G3, G33, G73, G76, G80 to G89)
     // as modified (possibly) by G53.
     int mode = block->g_modes[GM_MOTION];
-    if ((mode != -1) && IS_USER_GCODE(mode))
+    if ((mode != -1) && is_user_defined_g_code(mode))
 	block->remappings.insert(STEP_MOTION);
     
     // this makes it possible to call remapped codes like cycles:
@@ -722,12 +731,12 @@ int Interp::find_remappings(block_pointer block, setup_pointer settings)
     //     return INTERP_OK
 
     mode = block->motion_to_be;
-    if ((mode != -1) && IS_USER_GCODE(mode)) {
+    if ((mode != -1) && is_user_defined_g_code(mode)) {
 	block->remappings.insert(STEP_MOTION);
     }
 
     // User defined M-Codes in group 4 (stopping)
-    if (IS_USER_MCODE(block,settings,4)) {
+    if (is_user_defined_m_code(block, settings, 4)) {
 
 	if (remap_in_progress("M0") ||
 	    remap_in_progress("M1") ||

@@ -59,10 +59,10 @@ number of characters allowed on a line.
 
 . an optional block delete character, which is a slash '/'.
 . an optional line number.
-. Any number of: 
+. Any number of:
 1. words,
-2. parameter settings, 
-3. subroutine codes, and 
+2. parameter settings,
+3. subroutine codes, and
 4. comments.
 . an end of line marker (carriage return or line feed or both).
 
@@ -123,14 +123,14 @@ The table includes N and O for completeness, even though, as defined above, line
 |C | C axis of machine
 |D | Tool radius compensation number
 |F | Feed rate
-|G | General function (See table  <<cap:modal-groups,Modal Groups>>)
+|G | General function (See table  <<cap:modal-groups,G-code Modal Groups>>)
 |H | Tool length offset index
 |I | X offset for arcs and G87 canned cycles
 |J | Y offset for arcs and G87 canned cycles
 .2+|K | Z offset for arcs and G87 canned cycles.
 <| Spindle-Motion Ratio for G33 synchronized movements.
 |L | generic parameter word for G10, M66 and others
-|M | Miscellaneous function (See table  <<cap:modal-groups,Modal Groups>>)
+|M | Miscellaneous function (See table  <<tbl:mcodes-modal-groups,M-code Modal Groups>>)
 |N | Line number (not recommended, see <<gcode:best-practices, Best Practices>>)
 |O | o-codes for program flow control (See <<cha:o-codes,o-Codes>>)
 .2+|P | Dwell time in canned cycles and with G4.
@@ -149,13 +149,13 @@ The table includes N and O for completeness, even though, as defined above, line
 
 ==== Parameters(((Parameters)))
 
-Parameters are identified with a "#" symbol in front of them. See <<sec:overview-parameters,Parameters Section>> below. 
+Parameters are identified with a "#" symbol in front of them. See <<sec:overview-parameters,Parameters Section>> below.
 
 ==== Subroutine Codes(((Subroutine Codes)))
 
 Also called 'o-codes' these provide program flow control (such as if-else logic and callable subroutines) and are covered fully at the page on <<cha:o-codes,o-Codes>> and also below in <<sub:subroutine-parameters,Subroutine Codes and Parameters>>.
 
-NOTE: o-codes are sometimes also called o-words. 
+NOTE: o-codes are sometimes also called o-words.
 
 ==== Comments(((Comments)))
 
@@ -163,7 +163,7 @@ Comments can be embedded in a line using parentheses () or for the remainder of 
 
 === End of Line Marker(((End of Line Marker)))
 
-This is any combination of carriage return or line feed. 
+This is any combination of carriage return or line feed.
 
 [[gcode:numbers]]
 == Numbers(((Numbers)))
@@ -175,16 +175,13 @@ digit is a single character between 0 and 9.
 ** an optional plus or minus sign, followed by
 ** zero to many digits, followed, possibly, by
 ** one decimal point, followed by
-** zero to many digits - provided that there is at least
-   one digit somewhere in the number.
+** zero to many digits - provided that there is at least one digit somewhere in the number.
 * There are two kinds of numbers:
 ** Integers, that does not have a decimal point,
 ** Decimals, that do have a decimal point.
-* Numbers may have any number of digits, subject to the limitation on
-  line length. Only about seventeen significant figures will be retained,
-  however (enough for all known applications).
-* A non-zero number with no sign but the first character is assumed to be
-  positive.
+* Numbers may have any number of digits, subject to the limitation on line length.
+  Only about seventeen significant figures will be retained, however (enough for all known applications).
+* A non-zero number with no sign but the first character is assumed to be positive.
 
 Notice that initial (before the decimal point and the first non-zero
 digit) and trailing (after the decimal point and the last non-zero
@@ -222,9 +219,9 @@ Syntax:: There are three kinds of syntactic appearance:
 * 'named local' - #<localvalue>
 * 'named global' - #<_globalvalue>
 
-Scope:: The scope of a parameter is either global, or local within a
-subroutine. Subroutine parameters and local named variables have local
-scope. Global named parameters and numbered parameters starting from
+Scope:: The scope of a parameter is either global, or local within a subroutine.
+Subroutine parameters and local named variables have local scope.
+Global named parameters and numbered parameters starting from
 number 31 are global in scope. RS274/NGC uses 'lexical scoping' -
 in a subroutine only the local variables defined therein, and any
 global variables are visible. The local variables of a
@@ -257,12 +254,9 @@ Intended Use::
   available for general-purpose storage of floating-point values, like
   intermediate results, flags etc, throughout program execution. They
   are read/write (can be assigned a value).
-* <<sub:subroutine-parameters,subroutine parameters>> - these are used to
-  hold the actual parameters passed to a subroutine.
-* <<sub:numbered-parameters,numbered parameters>> - most of these are used
-  to access offsets of coordinate systems.
-* <<sub:system-parameters,system parameters>> - used to determine the current
-  running version. They are read-only.
+* <<sub:subroutine-parameters,subroutine parameters>> - these are used to hold the actual parameters passed to a subroutine.
+* <<sub:numbered-parameters,numbered parameters>> - most of these are used to access offsets of coordinate systems.
+* <<sub:system-parameters,system parameters>> - used to determine the current running version. They are read-only.
 
 [[sub:numbered-parameters]]
 === Numbered Parameters(((Numbered Parameters)))
@@ -287,8 +281,7 @@ A parameter setting does not take
 effect until after all parameter values on the same line have been
 found. For example, if parameter 3 has been previously set to 15 and
 the line '#3=6 G1 X#3' is interpreted, a straight move to a point
-where X equals 15 will
-occur and the value of parameter 3 will be 6.
+where X equals 15 will occur and the value of parameter 3 will be 6.
 
 The '\#'  character takes precedence over other operations, so that, for
 example, '\#1+2' means the number found by adding 2 to the value of
@@ -336,7 +329,7 @@ example '##2'  means the value of the parameter whose index is the
   Persistent.
 * '5399' - Result of M66 - Check or wait for input. Volatile.
 * '5400' - Tool Number. Volatile.
-* '5401-5409' - Tool Offsets for X, Y, Z, A, B, C, U, V & W. Volatile.
+* '5401-5409' - Tool Offsets for X, Y, Z, A, B, C, U, V & W. Set by G43. Volatile.
 * '5410' - Tool Diameter. Volatile.
 * '5411' - Tool Front Angle. Volatile.
 * '5412' - Tool Back Angle. Volatile.
@@ -346,11 +339,6 @@ example '##2'  means the value of the parameter whose index is the
   X, Y, Z, A, B, C, U, V & W, volatile.
 * '5599' - Flag for controlling the output of (DEBUG,) statements.
   1=output, 0=no output; default=1. Volatile.
-* '5600' - Toolchanger fault indicator. Used with the iocontrol-v2 component.
-  1: toolchanger faulted, 0: normal. Volatile.
-* '5601' - Toolchanger fault code. Used with the iocontrol-v2 component.
-  Reflects the value of the 'toolchanger-reason' HAL pin if a fault occurred.
-  Volatile.
 
 .Numbered Parameters Persistence
 The values of parameters in the persistent range are retained over
@@ -396,13 +384,13 @@ is written.
 [[sub:subroutine-parameters]]
 === Subroutine Codes and Parameters(((Subroutine Codes and Parameters)))
 
-Subroutine codes, or o-codes (sometimes also called o-words), provide for  logic and flow control in NGC programs (as in if-else logic). They are called Subroutine codes because they can also form called subroutines (as in sub-endsub). 
+Subroutine codes, or o-codes (sometimes also called o-words), provide for  logic and flow control in NGC programs (as in if-else logic). They are called Subroutine codes because they can also form called subroutines (as in sub-endsub).
 
 See the chapter on <<cha:o-codes,o-Codes>>.
 
 NOTE: If o-codes are used to form subroutines, then o-codes can also call those subroutines and pass up to 30 parameters, which are local to the subroutine and volatile. (Again, see <<cha:o-codes,o-Codes>> for fuller treatment and examples.)
 
-NOTE: While both lower and upper case o- are valid, best practice is using lower case "o-" because it disambiguates 0 (zero) and O (capital o).  
+NOTE: While both lower and upper case o- are valid, best practice is using lower case "o-" because it disambiguates 0 (zero) and O (capital o).
 
 [[gcode:named-parameters]]
 === Named Parameters(((Named Parameters)))
@@ -640,8 +628,9 @@ o100 endif
 
 The value is read from the INI file once, and cached in the
 interpreter. These parameters are read-only - assigning a value will
-cause a runtime error. The names are not case sensitive - they are
-converted to uppercase before consulting the INI file.
+cause a runtime error. In the G-code the names are not case sensitive - they are
+converted to uppercase before consulting the INI file. Hence INI entries that
+contain lowercase characters can not be accessed from G-code.
 
 * '#<_hal[HAL item]>'
   Allows G-code programs to read the values of HAL pins Variable access is
@@ -942,8 +931,8 @@ being in effect. The modal groups are shown in the following Table.
 |===
 |Modal Group Meaning                    | Member Words
 |Non-modal codes (Group 0)              | G4, G10 G28, G30, G52, G53, G92, G92.1, G92.2, G92.3,
-.2+|Motion (Group 1)                    | G0, G1, G2, G3, G33, G38.n, G73, G76, G80, G81
-                                        | G82, G83, G84, G85, G86, G87, G88, G89
+|Motion (Group 1)                       | G0, G1, G2, G3, G33, G38.n, G73, G76, G80, G81
+                                          G82, G83, G84, G85, G86, G87, G88, G89
 |Plane selection (Group 2)              | G17, G18, G19, G17.1, G18.1, G19.1
 |Distance Mode (Group 3)                | G90, G91
 |Arc IJK Distance Mode (Group 4)        | G90.1, G91.1
@@ -964,8 +953,9 @@ being in effect. The modal groups are shown in the following Table.
 |===
 |Modal Group Meaning         | Member Words
 |Stopping (Group 4)          | M0, M1, M2, M30, M60
-|On/Off I/O ('Group 5')      | FIXME M6 T__n__
-|Toolchange ('Group 6')      | M6 T__n__
+|I/O Pins (Group 5)          | (M62-M65 digital output), (M66 digital or analog input),
+                               (M67, M68 analog output)
+|Toolchange (Group 6)        | M6 T__n__
 |Spindle (Group 7)           | M3, M4, M5
 |Coolant (Group 8)           | (M7 M8 can both be on), M9
 |Override Switches (Group 9) | M48, M49
@@ -1068,6 +1058,11 @@ For more information on probing see the <<gcode:g38,G38>> section.
 
 Examples of logging are in 'nc_files/examples/smartprobe.ngc' and in
 'nc_files/ngcgui_lib/rectange_probe.ngc' sample G-code files.
+
+== Abort Messages(((Abort Messages)))
+
+* '(ABORT,)' - displays a message like '(MSG,)' with the addition of special
+  handling for comment parameters as described below and of aborting the current running process.
 
 [[gcode:debug]]
 == Debug Messages(((Debug Messages)))
@@ -1187,7 +1182,7 @@ position of each item on the line, but by the following list:
 * Set distance mode (G90, G91).
 * Set retract mode (G98, G99).
 * Go to reference location (G28, G30) or change coordinate system
-  data (G10) or set axis offsets (G52, G92, G92.1, G92.2, G94).
+  data (G10) or set axis offsets (G52, G92, G92.1, G92.2, G92.3).
 * Perform motion (G0 to G3, G33, G38.n, G73, G76, G80 to G89), as modified
   (possibly) by G53.
 * Stop (M0, M1, M2, M30, M60).

@@ -37,6 +37,7 @@ AxisToolButton:hover {
 }
 
 QPushButton:pressed,
+QToolButton:checked,
 QPushButton:checked {
     border-color: #9ad58d;
     color: #9ad58d;

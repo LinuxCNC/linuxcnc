@@ -701,7 +701,6 @@ static int
 Device_ExportMiscPinsParametersFunctions(Device *this, int componentId, int boardId)
 {
     int					halError;
-    char				name[HAL_NAME_LEN + 1];
 
     // Export Pins.
     halError = hal_pin_bit_newf(HAL_OUT, &(this->misc.pEstopIn), componentId,

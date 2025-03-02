@@ -1,0 +1,1 @@
+Creating a hal stream should fail if the cfg string is invalid.

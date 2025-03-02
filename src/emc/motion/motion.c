@@ -212,9 +212,13 @@ static rtapi_msg_handler_t old_handler = NULL;
 static void emc_message_handler(msg_level_t level, const char *fmt, va_list ap)
 {
     va_list apc;
+    // False positive. Cppcheck does not seem to know the properties of va_copy()
+    // cppcheck-suppress va_list_usedBeforeStarted
     va_copy(apc, ap);
+    // cppcheck-suppress va_list_usedBeforeStarted
     if(level == RTAPI_MSG_ERR) emcmotErrorPutfv(emcmotError, fmt, apc);
     if(old_handler) old_handler(level, fmt, ap);
+    // cppcheck-suppress va_list_usedBeforeStarted
     va_end(apc);
 }
 
@@ -826,9 +830,6 @@ static int init_comm_buffers(void)
 	return -1;
     }
 
-    /* zero shared memory before doing anything else. */
-    memset(emcmotStruct, 0, sizeof(emcmot_struct_t));
-
     /* we'll reference emcmotStruct directly */
     emcmotCommand = &emcmotStruct->command;
     emcmotStatus = &emcmotStruct->status;
@@ -839,9 +840,16 @@ static int init_comm_buffers(void)
     /* init error struct */
     emcmotErrorInit(emcmotError);
 
-    /* init command struct */
-    emcmotCommand->command = 0;
-    emcmotCommand->commandNum = 0;
+    /*
+     * DO NOT init the command struct!
+     * This is a reader process and the writer (f.ex. milltask) may already
+     * have written a command in there before we get attached to shared memory.
+     * We might (actually will) lose a command if we write to the command
+     * structure.
+     *
+     * emcmotCommand->command = 0;
+     * emcmotCommand->commandNum = 0;
+     */
 
     /* init status struct */
     emcmotStatus->head = 0;

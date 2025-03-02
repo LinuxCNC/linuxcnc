@@ -1,8 +1,0 @@
-Configuración para el conjunto de placas PPMC de Pico Systems
-Esta configuración incluye conexiones de movimiento
-y un juego de IO para manejar Estop dentro de HAL.
-La configuración IO en ppmc_io.hal incluye conexiones
-de señal para manejo de señal del tipo bridgeportio.
-Este conjunto de configuraciones incluye la opción de
-estimación de la velocidad por codificador a través de la marca de tiempo,
-y le dice cómo cambiar la frecuencia del filtro digital del codificador.

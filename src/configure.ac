@@ -35,13 +35,11 @@ AC_PROG_INSTALL
 
 m4_include([m4/ax_require_defined.m4])
 m4_include([m4/ax_cxx_compile_stdcxx.m4])
-m4_include([m4/ax_cxx_compile_stdcxx_17.m4])
 m4_include([m4/ax_python.m4])
 m4_include([m4/ax_python_devel.m4])
 m4_include([m4/ax_boost_base.m4])
 m4_include([m4/ax_boost_python.m4])
-# make this optional - it will likely only result in warnings
-AX_CXX_COMPILE_STDCXX_17(ext,mandatory)
+AX_CXX_COMPILE_STDCXX(20, , mandatory)
 
 AC_MSG_CHECKING(build toplevel)
 BUILD_TOPLEVEL="$(cd ..; pwd -P)"
@@ -75,7 +73,6 @@ fi
 AC_SUBST([EMC2VERSION])
 
 AC_PATH_PROG(GREP, grep)
-AC_PATH_PROG(EGREP, egrep)
 
 #
 # check for pkg-config
@@ -97,7 +94,7 @@ AC_CHECK_HEADER([rpc/rpc.h],[], [
     LIBTIRPC_LIBS=`pkg-config libtirpc --libs`
     AC_SUBST([LIBTIRPC_LIBS])
 
-    CFLAGS+=" `pkg-config libtirpc --cflags` "
+    CFLAGS="${CFLAGS:+$CFLAGS }$(pkg-config libtirpc --cflags)"
   fi
 
   # Update path
@@ -203,7 +200,7 @@ AC_ARG_ENABLE(toolnml,
 
 #at this point if RTS is empty, we need to find RT ourselves
 AC_MSG_CHECKING([for rtai-config])
-if test -z "$RTDIR"; then
+if test -z "$RTS"; then
   DIRS="/usr/realtime-`uname -r` /usr/realtime /usr/realtime* /usr /usr/src/rtai*"
 else
   DIRS="$RTS"
@@ -408,14 +405,6 @@ if test -z "$CC"; then
 elif ! test `$CC -dumpversion | cut -d '.' -f 1` -gt 2 ; then
   AC_MSG_ERROR([Compilers older than gcc 3.x are no longer supported])
 fi
-
-# Set flags for C and C++ if supported
-for commonflag in -Wno-stringop-truncation ; do
-  if echo "int main() { return 0;}" | $CC -Werror $commonflag -E - > /dev/null; then
-    CFLAGS="$CFLAGS $flag"
-    CXXFLAGS="$CXXFLAGS $flag"
-  fi
-done
 
 AC_MSG_CHECKING([for usability of linux/hidraw.h])
 AC_LINK_IFELSE([AC_LANG_PROGRAM([[
@@ -692,7 +681,7 @@ fe () {
     # Fully expand argument.  Example:
     # ${datadir} -> ${datarootdir} -> ${prefix}/share -> /usr/local
     case "$1" in
-    *\$*) eval fe \""$1"\" ;;
+    *\$*) eval fe "\"$1\"" ;;
     *) echo "$1" ;;
     esac
 }
@@ -1562,7 +1551,7 @@ AC_SUBST([READLINE_LIBS])
 # if you don't have nls tools, allow a way out!
 
 AC_ARG_ENABLE(nls,
-    AS_HELP_STRING([--disable-nls], [Don't use NLS.]),
+    AS_HELP_STRING([--disable-nls], [Do not use NLS.]),
               USE_NLS=no, USE_NLS=yes)
 AC_SUBST(USE_NLS)
 
@@ -1655,7 +1644,7 @@ fi
 AC_MSG_RESULT([$PYTHON_TK_VERSION])
 
 AC_MSG_CHECKING(for site-package location)
-SITEPY=`$PYTHON -c 'import distutils.sysconfig; print(distutils.sysconfig.get_python_lib())'`
+SITEPY="$($PYTHON -c 'import sysconfig; s = sysconfig.get_scheme_names(); m=list(set(("deb_system", "rpm_prefix")) & set(s)); print(sysconfig.get_path("platlib", m.__getitem__(0))) if m else print("/usr/lib/python3/dist-packages");')"
 AC_MSG_RESULT($SITEPY)
 
 AC_MSG_CHECKING(for working GLU quadrics)
@@ -1672,6 +1661,37 @@ AC_CHECK_HEADERS(X11/Xmu/Xmu.h,[],[AC_MSG_ERROR([Required Xmu header missing.  I
 
 AC_SUBST([LIBPYTHON])
 AC_SUBST([SITEPY])
+
+#
+# Add extra options to CFLAGS and CXXFLAGS
+#
+add_to_cflags() {
+    # Add $1 to CFLAGS and CXXFLAGS if not already there
+    if test -z "$1"; then return; fi
+    if echo "$CFLAGS" | grep -q -w -v -- "$1"; then
+        CFLAGS="${CFLAGS:+$CFLAGS }$1"
+    fi
+    if echo "$CXXFLAGS" | grep -q -w -v -- "$1"; then
+        CXXFLAGS="${CXXFLAGS:+$CXXFLAGS }$1"
+    fi
+}
+
+# Always add -Wextra
+add_to_cflags "-Wextra"
+
+# The last thing before subst-exporting CFLAGS and CXXFLAGS is to add -Werror
+# if requested. Doing it earlier causes conf-tests to fail that are supposed to
+# succeed when they generate warnings.
+AC_ARG_ENABLE(werror,
+    AS_HELP_STRING(
+      [--enable-werror],
+      [Treat all compiler warnings as errors (-Werror).],
+    ),
+    [
+      case "$enableval" in
+        (yes) add_to_cflags "-Werror" ;;
+      esac
+    ])
 
 AC_SUBST([CFLAGS])
 AC_SUBST([CPPFLAGS])

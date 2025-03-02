@@ -1,5 +1,4 @@
-QTPLASMAC_PY := qtplasmac-materials.py qtplasmac-plasmac2qt.py qtplasmac-cfg2prefs.py \
-	qtplasmac_gcode.py pmx485-test.py
+QTPLASMAC_PY := qtplasmac-materials.py qtplasmac_gcode.py pmx485-test.py
 QTPLASMAC_PYBIN := $(patsubst %.py,../bin/%,$(QTPLASMAC_PY))
 
 PYTARGETS += $(QTPLASMAC_PYBIN)

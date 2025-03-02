@@ -86,7 +86,7 @@ int hm2_absenc_register_tram(hostmot2_t *hm2){
             r += hm2_register_tram_read_region(hm2, chan->rw_addr[2],
                     sizeof(rtapi_u32),
                     &chan->read[2]);
-                    /* no break */
+            /* Fallthrough */
         case HM2_GTAG_SSI:
             r += hm2_register_tram_read_region(hm2, chan->rw_addr[1],
                     sizeof(rtapi_u32),

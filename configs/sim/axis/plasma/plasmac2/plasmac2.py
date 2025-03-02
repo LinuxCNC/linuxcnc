@@ -17,7 +17,7 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 '''
 
-VER = '18'
+VER = '21'
 
 ##############################################################################
 # the next line suppresses undefined variable errors in VSCode               #
@@ -30,8 +30,10 @@ VER = '18'
 ##############################################################################
 def update_check():
     ''' check for updates - the newest update must be added last here '''
-    # v15 (2024 Jan 30) set user_m_path to include /nc_files/plasmac/m_files
-    if 'nc_files/plasmac/m_files' not in inifile.find('RS274NGC', 'USER_M_PATH'):
+    # v15 (2024 Jan 30) set user_m_path to include <plasmac2/lib>
+    path = 'plasmac2/lib'
+    mPath = inifile.find('RS274NGC', 'USER_M_PATH')
+    if path not in mPath:
         version = 'v15'
         try:
             if os.path.isfile(os.path.join(configPath, 'M190')):
@@ -42,15 +44,7 @@ def update_check():
                 with open(s.ini_filename, 'w') as outFile:
                     for line in inFile:
                         if line.startswith('USER_M_PATH'):
-                            if '/usr' in BASE:
-                                mPath = '../../nc_files/plasmac/m_files'
-                            else:
-                                mPath = os.path.realpath(os.path.join(BASE, 'nc_files/plasmac/m_files'))
-                            if line.strip().endswith(':./'):
-                                mPath = f"./:{mPath}"
-                                line = f"{line.strip()[:-3].replace('./plasmac2', mPath)}\n"
-                            else:
-                                line = line.replace('./plasmac2', mPath)
+                            line = line.replace(mPath, f'./:{path}')
                         outFile.write(line)
             if os.path.isfile(tmpFile):
                 os.remove(tmpFile)
@@ -136,7 +130,9 @@ class plasmacPopUp(Tkinter.Toplevel):
         ttl = Tkinter.Label(self.frm, text=title, fg=colorBack, bg=colorFore)
         ttl.pack(fill='x')
         b1Text = b2Text = b3Text = b4Text = None
-        if func == 'rfl':
+        if func == 'rfl_type':
+            b1Text, b2Text = self.popup_rfl_type(func)
+        elif func == 'rfl':
             b1Text, b2Text = self.popup_run_from_line(func)
         elif func == 'sc':
             b1Text, b2Text = self.popup_single_cut(func)
@@ -168,6 +164,16 @@ class plasmacPopUp(Tkinter.Toplevel):
             vkbData['required'] = True
             vkb_show(vkb)
         root_window.wait_window(self)
+
+    def popup_rfl_type(self, func):
+        self.rflType = Tkinter.StringVar(self, 'run')
+        f1 = Tkinter.Frame(self.frm, bg=colorBack)
+        run = Tkinter.Radiobutton(f1, text=_('Here to end'), variable=self.rflType, value='run', width=12, bg=colorBack, highlightthickness=0, anchor='w')
+        cut = Tkinter.Radiobutton(f1, text=_('This cutpath'), variable=self.rflType, value='cut', width=12, bg=colorBack, highlightthickness=0, anchor='w')
+        run.pack(anchor='w')
+        cut.pack(anchor='w')
+        f1.pack(padx=4, pady=4, anchor='w')
+        return _('OK'), _('Cancel')
 
     def popup_run_from_line(self, func):
         self.leadIn = Tkinter.BooleanVar()
@@ -258,7 +264,9 @@ class plasmacPopUp(Tkinter.Toplevel):
             return _('OK'), _('Cancel')
 
     def popup_complete(self, value, func):
-        if func == 'rfl':
+        if func == 'rfl_type':
+            self.reply = value, self.rflType.get()
+        elif func == 'rfl':
             self.reply = value, self.leadIn.get(), float(self.leadLength.get()), float(self.leadAngle.get())
         elif func == 'sc':
             self.reply = value, self.xLength.get(), self.yLength.get()
@@ -681,7 +689,7 @@ def conv_toggle(state, convSent=False):
             CONV = conversational.Conv(convFirstRun, root_window, widgets.toolFrame, \
                    widgets.convFrame, bwidget.ComboBox, imagePath, tmpPath, pVars, \
                    unitsPerMm, comp, PREF, getPrefs, putPrefs, open_file_guts, \
-                   wcs_rotation, conv_toggle, color_change, plasmacPopUp)
+                   wcs_rotation, conv_toggle, color_change, plasmacPopUp, o)
             convFirstRun = False
         # set_conv_preview()
         if loaded_file:
@@ -716,6 +724,7 @@ def conv_toggle(state, convSent=False):
             commands.set_view_t()
         else:
             commands.set_view_z()
+        CONV.oldConvButton = 'line'
 
 def clear_program():
     file = os.path.join(tmpPath, 'clear.ngc')
@@ -1616,6 +1625,8 @@ def rotate_frame(coordinates):
 ##############################################################################
 def bounds_check_file():
     msg = _('G-code')
+    # canon units are always returned as imperial
+    # ensure returned units are in machine units
     unitsMultiplier = 25.4 if s.linear_units == 1 else 1
     xMin = (o.canon.min_extents[0] * unitsMultiplier)
     xMax = (o.canon.max_extents[0] * unitsMultiplier)
@@ -1636,9 +1647,9 @@ def bounds_check_probe(local):
             #TODO PHILL - Do you want this from the GUI or HAL??
             xPierceOffset = comp['x-pierce-offset']
             yPierceOffset = comp['y-pierce-offset']
-        if s.linear_units == 1 and 200 in o.canon.state.gcodes:
+        if s.linear_units == 1 and not vars.metric.get():
             unitsMultiplier = 25.4
-        elif s.linear_units != 1 and 210 in o.canon.state.gcodes:
+        elif s.linear_units != 1 and vars.metric.get():
             unitsMultiplier = 1 / 25.4
         else:
             unitsMultiplier = 1
@@ -1651,17 +1662,18 @@ def bounds_check_probe(local):
 
 def bounds_check_framing(xOffset=0, yOffset=0, laser=False):
     msg = _('Framing move')
-    msg1 = ''
-    unitsMultiplier = 25.4 if s.linear_units == 1 else 1
     if laser:
         msg1 = _('due to laser offset')
-    xStart = s.g5x_offset[0]
-    yStart = s.g5x_offset[1]
+    else:
+        msg1 = ''
+    # canon units are always returned as imperial
+    # ensure returned units are in machine units
+    unitsMultiplier = 25.4 if s.linear_units == 1 else 1
     xMin = (o.canon.min_extents_zero_rxy[0] * unitsMultiplier + xOffset)
     xMax = (o.canon.max_extents_zero_rxy[0] * unitsMultiplier + xOffset)
     yMin = (o.canon.min_extents_zero_rxy[1] * unitsMultiplier + yOffset)
     yMax = (o.canon.max_extents_zero_rxy[1] * unitsMultiplier + yOffset)
-    coordinates = [[xStart, yStart], [xMin, yMin], [xMin, yMax], [xMax, yMax], [xMax, yMin]]
+    coordinates = [[s.g5x_offset[0], s.g5x_offset[1]], [xMin, yMin], [xMin, yMax], [xMax, yMax], [xMax, yMin]]
     frame_points, xMin, yMin, xMax, yMax = rotate_frame(coordinates)
     errMsg = bounds_compare(xMin, xMax, yMin, yMax, msg, msg1)
     return (errMsg, frame_points)
@@ -2084,6 +2096,29 @@ def reload_file(refilter=True):
     live_plotter.clear()
 
 def task_run(*event):
+    global dryRun
+    if event and event[0]== 'dry-run' and loaded_file:
+        if laserOffsets['X'] or laserOffsets['Y']:
+            framingError = bounds_check_framing(laserOffsets['X'], laserOffsets['Y'], True)[0]
+            if framingError:
+                title = _('AXIS LIMIT ERROR')
+                plasmacPopUp('warn', title, framingError)
+                return
+            dryRun = [s.g5x_offset[0], s.g5x_offset[1]]
+            newX = s.actual_position[0] - s.g5x_offset[0] - laserOffsets['X']
+            newY = s.actual_position[1] - s.g5x_offset[1] - laserOffsets['Y']
+            units = '21' if vars.metric.get() else '20'
+            if s.linear_units == 1 and units == '20':
+                unitsMultiplier = 1 / 25.4
+            elif s.linear_units != 1 and units == '20':
+                unitsMultiplier =  25.4
+            else:
+                unitsMultiplier = 1
+            ensure_mode(linuxcnc.MODE_MDI)
+            c.mdi(f'G{units} G10 L20 P0 X{newX * unitsMultiplier} Y{newY * unitsMultiplier}')
+            c.wait_complete()
+            comp['laser-on'] = 1
+            hal.set_p('plasmac.dry-run', '1')
     if run_warn() or not critical_button_check():
         return
     global program_start_line, program_start_line_last
@@ -2106,9 +2141,46 @@ def task_run_line():
         rflIn = loaded_file
     if comp['development']:
         reload(RFL)
-    setup = RFL.run_from_line_get(rflIn, pVars.startLine.get())
-    # cannot do run from line within a subroutine or if using cutter compensation
+    # get rfl type
+    rfl = {}
+    title = _('RUN FROM LINE')
+    valid, type_ = plasmacPopUp('rfl_type', title, None, 'numpad').reply
+    vkbData['required'] = False
+    if not valid:
+        pVars.rflActive = False
+        pVars.startLine.set(0)
+        return
+    lastLine = 0
+    # get start and end of cutpath
+    if type_ == 'cut':
+        count = 0
+        start = 0
+        with open(rflIn, 'r') as inFile:
+            for line in inFile:
+                line = line.strip()
+                if line[:3] == 'G00':
+                    start = count
+                if line[:3] == 'M05' and count > pVars.startLine.get():
+                    break
+                count += 1
+        lastLine = count
+        pVars.startLine.set(start)
+        rfl['do'] = False
+        rfl['length'] = 0.0
+        rfl['angle'] = 0.0
+    # get leadin parameters
+    else:
+        valid, rfl['do'], rfl['length'], rfl['angle'] = plasmacPopUp('rfl', title, None, 'numpad').reply
+        vkbData['required'] = False
+    # cancel rfl
+    if not valid:
+        pVars.rflActive = False
+        pVars.startLine.set(0)
+        return
+    # get the old data
+    setup = RFL.run_from_line_get(rflIn, pVars.startLine.get(), lastLine)
     if setup['error']:
+    # cannot do run from line within a subroutine or if using cutter compensation
         if setup['compError']:
             msg0 = _('Cannot run from line while cutter compensation is active')
             notifications.add('error', f"{msg0}\n")
@@ -2121,29 +2193,19 @@ def task_run_line():
             pVars.rflActive = False
             pVars.startLine.set(0)
     else:
-        # get user input
-        rfl = {}
-        title = _('RUN FROM LINE')
-        valid, rfl['do'], rfl['length'], rfl['angle'] = plasmacPopUp('rfl', title, None, 'numpad').reply
-        vkbData['required'] = False
-        # rfl cancel clicked
-        if not valid:
-            pVars.rflActive = False
-            pVars.startLine.set(0)
-        else:
-            # rfl load clicked
-            rflFile = os.path.join(tmpPath, 'rfl.ngc')
-            result = RFL.run_from_line_set(rflFile, setup, rfl, unitsPerMm)
-            # leadin cannot be used
-            if result['error']:
-                msg0 = _('Unable to calculate a leadin for this cut')
-                msg1 = _('Program will run from selected line with no leadin applied')
-                notifications.add('error', f"{msg0}\n{msg1}\n")
-            # load rfl file
-            if loaded_file != os.path.join(tmpPath, 'rfl.ngc'):
-                pVars.preRflFile.set(loaded_file)
-            open_file_guts(os.path.join(tmpPath, 'rfl.ngc'), False, False)
-            commands.set_view_z()
+        # set the new data
+        rflFile = os.path.join(tmpPath, 'rfl.ngc')
+        result = RFL.run_from_line_set(rflFile, setup, rfl, unitsPerMm)
+        # if leadin cannot be used
+        if result['error']:
+            msg0 = _('Unable to calculate a leadin for this cut')
+            msg1 = _('Program will run from selected line with no leadin applied')
+            notifications.add('error', f"{msg0}\n{msg1}\n")
+        # load rfl file
+        if loaded_file != os.path.join(tmpPath, 'rfl.ngc'):
+            pVars.preRflFile.set(loaded_file)
+        open_file_guts(os.path.join(tmpPath, 'rfl.ngc'), False, False)
+        commands.set_view_z()
 
 def open_file_name(f):    # from axis.py
     ''' set view to Z '''
@@ -2265,7 +2327,7 @@ def update_title(*args):
         file = name = os.path.basename(vars.taskfile.get())
     base = f"{vars.machine.get()}    plasmac2 v{VER} + AXIS {linuxcnc.version}"
     rE(f"wm title {root_window} {{{base}    ({file})}}")
-    rE(f"wm iconname {root_window} {name}")
+    rE(f"wm iconname {root_window} {{{name}}}")
 
 def update_jog_slider_vel(value):
     ''' inhibit slider update if manual cut is active
@@ -4049,7 +4111,7 @@ def set_orientation():
     user_button_setup()
     populate_settings_frame()
     for box in rSpinBoxes:
-        rE(f"{box} configure -font {fontGui}")
+        rE(f"{box} configure -font fontGui")
     color_change()
     set_window_size()
     load_materials(get_displayed_material(), keepTemp=True)
@@ -4080,6 +4142,7 @@ def set_orient_frames():
     rE(f"frame {fbuttons} -relief flat")
     rE(f"frame {fruns} -relief flat")
     make_torch_button()
+    make_dry_run_button()
     make_toolmat_frame()
     make_run_panel()
 
@@ -4091,6 +4154,16 @@ def make_torch_button():
         rE(f"{fbuttons}.torch-enable configure -height 1")
     rE(f"grid {fbuttons}.torch-enable -column 0 -row 0 -sticky new -padx {{2 0}} -pady {{2 0}}")
     rE(f"bind {fbuttons}.torch-enable <ButtonPress-1> torch_enable")
+
+def make_dry_run_button():
+    if pVars.orient.get() == 'portrait':
+        col = 1
+        row = 0
+    else:
+        col = 0
+        row = 1
+    rE(f"button {fbuttons}.dry-run -takefocus 0 -width 10 -highlightthickness 0 -text {{Dry Run}} -command {{task_run dry-run}}")
+    rE(f"grid {fbuttons}.dry-run -column {col} -row {row} -sticky new -padx {{2 0}} -pady {{2 0}}")
 
 def make_toolmat_frame():
     rE(f"frame {toolmat} -borderwidth 1 -relief raised")
@@ -4239,11 +4312,11 @@ def populate_settings_frame():
 
 def populate_user_buttons():
     if pVars.orient.get() == 'portrait':
-        col = 1
-        row = 0
-    else:
         col = 0
         row = 1
+    else:
+        col = 0
+        row = 2
     width = 0
     for n in range(1, maxUserButtons + 1):
         rE(f"grid forget {fbuttons}.button{n}")
@@ -4442,6 +4515,7 @@ if os.path.isdir(os.path.join(p2Path, 'lib')):
     singleCut = {'state':False, 'G91':False}
     framingState = False
     runState = False
+    dryRun = None
     lastMotionMode = None
     laserTimer = 0.0
     laserButtonState = 'laser'
@@ -4969,8 +5043,15 @@ if os.path.isdir(os.path.join(p2Path, 'lib')):
     rE('wm withdraw .keyp')
 
     # menu alterations
-    # delete existing
+	# remove tearoffs
+    rE('.menu.machine configure -tearoff 0')
+    rE('.menu.machine.home configure -tearoff 0')
+    rE('.menu.machine.unhome configure -tearoff 0')
+    # delete some existing
     rE('.menu.file delete last')
+    rE('.menu.machine delete last')
+    rE('.menu.machine delete last')
+    rE('.menu.machine delete last')
     rE('.menu.view delete 20')
     rE('.menu.view delete 8')
     rE('.menu.view delete 7')
@@ -5750,7 +5831,7 @@ def user_live_update():
     global currentTool, pmx485, homeInProgress
     global materialChangePin, materialChangeNumberPin
     global materialReloadPin, materialTempPin
-    global materialChangeTimeoutPin
+    global materialChangeTimeoutPin, dryRun
     # set machine state variables
     isIdle = s.task_state == linuxcnc.STATE_ON and s.interp_state == linuxcnc.INTERP_IDLE
     isIdleHomed = isIdle and all_homed()
@@ -5865,6 +5946,21 @@ def user_live_update():
         comp['laser-on'] = 0
         framingState = False
         activeFunction = False
+        live_plotter.clear()
+    # dry run button state
+    wState = 'disabled' if rE('.toolbar.program_run cget -state') == 'disabled' or not loaded_file else 'normal'
+    rE(f"{fbuttons}.dry-run configure -state {wState}")
+    # reset after dry run
+    if dryRun and isIdle:
+        oldX = s.actual_position[0] - dryRun[0]
+        oldY = s.actual_position[1] - dryRun[1]
+        units = '20' if s.linear_units != 1 else '21'
+        ensure_mode(linuxcnc.MODE_MDI)
+        c.mdi(f'G{units} G10 L20 P0 X{oldX} Y{oldY}')
+        c.wait_complete()
+        dryRun = None
+        comp['laser-on'] = 0
+        hal.set_p('plasmac.dry-run', '0')
         live_plotter.clear()
     # set X0Y0, laser, and offset_setup buttons state
     wState = 'normal' if isIdleHomed else 'disabled'

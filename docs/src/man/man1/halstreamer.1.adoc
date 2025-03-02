@@ -1,6 +1,5 @@
 = halstreamer(1)
 
-
 == NAME
 
 halstreamer - stream file data into HAL in real-time
@@ -21,14 +20,12 @@ halstreamer - stream file data into HAL in real-time
 == OPTIONS
 
 *-c* _CHAN_::
-
-    Instructs *halstreamer* to write to FIFO _CHAN_.
-    FIFOs are numbered from zero, and the default value is zero,
-    so this option is not needed unless multiple FIFOs have been created.
+  Instructs *halstreamer* to write to FIFO _CHAN_.
+  FIFOs are numbered from zero, and the default value is zero,
+  so this option is not needed unless multiple FIFOs have been created.
 
 _FILENAME_::
-
-    Instructs *halsampler* to read from _FILENAME_ instead of from stdin.
+  Instructs *halsampler* to read from _FILENAME_ instead of from stdin.
 
 
 == USAGE
@@ -76,7 +73,7 @@ If it is terminated before the input ends, it returns failure.
 
 == SEE ALSO
 
-*streamer*(9) *sampler*(9) *halsampler*(1)
+streamer(9), sampler(9), halsampler(1)
 
 
 == AUTHOR
@@ -87,11 +84,13 @@ Improvements by several other members of the LinuxCNC development team.
 
 == REPORTING BUGS
 
-Report bugs to jmkasunich AT users DOT sourceforge DOT net
-
+Report bugs at https://github.com/LinuxCNC/linuxcnc/issues.
 
 == COPYRIGHT
-Copyright © 2006 John Kasunich.  This is free software; see the
-source for copying conditions.  There is NO warranty; not even for
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+Copyright © 2006 John Kasunich.
+
+This is free software; see the source for copying conditions.  There
+is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.
 
