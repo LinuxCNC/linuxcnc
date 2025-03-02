@@ -3203,6 +3203,7 @@ static int emc_pendant(ClientData /*clientdata*/,
 		if (strcmp(port, "/dev/psaux")) {	// For Serial mice
 		    inBytes[1] = fgetc(inFile);	// read the first Byte
 		    if (inBytes[1] != 77) {	// If first byte not "M"
+			fseek(inFile, 0, SEEK_CUR); // C standard: write-after-read needs this
 			fputc(77, inFile);	// Request data resent
 			fflush(inFile);
 			inBytes[1] = fgetc(inFile);	// and hope it is

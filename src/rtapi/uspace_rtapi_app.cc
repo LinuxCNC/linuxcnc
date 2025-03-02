@@ -523,9 +523,12 @@ int main(int argc, char **argv) {
         int fallback_uid = fallback_uid_str ? atoi(fallback_uid_str) : 0;
         if(fallback_uid == 0)
         {
+	    // Cppcheck cannot see EMC2_BIN_DIR when RTAPI is defined, but that
+	    // doesn't happen in uspace.
             fprintf(stderr,
                 "Refusing to run as root without fallback UID specified\n"
                 "To run under a debugger with I/O, use e.g.,\n"
+                // cppcheck-suppress unknownMacro
                 "    sudo env RTAPI_UID=`id -u` RTAPI_FIFO_PATH=$HOME/.rtapi_fifo gdb " EMC2_BIN_DIR "/rtapi_app\n");
             exit(1);
         }

@@ -572,11 +572,18 @@ static int spix_setup(void)
 
 	// Decompose the device-tree buffer into a string-list with the pointers to
 	// each string in dtcs. Don't go beyond the buffer's size.
+	// Note on cppcheck: it thinks that cptr can be NULL, but it cannot. It is
+	// initialized at the start of the buffer and moves inside it. The cptr is
+	// set to NULL when the double NUL character is detected at the end of the
+	// buffer. The loop terminates if cptr becomes NULL and cannot cause
+	// strlen() to be fed a NULL-pointer.
 	memset(dtcs, 0, sizeof(dtcs));
 	cptr = buf;
 	for(unsigned i = 0; i < DTC_MAX && cptr; i++) {
 		dtcs[i] = cptr;
+		// cppcheck-suppress nullPointer
 		int j = strlen(cptr);
+		// cppcheck-suppress nullPointerArithmetic
 		if((cptr - buf) + j + 1 < buflen)
 			cptr += j + 1;
 		else
