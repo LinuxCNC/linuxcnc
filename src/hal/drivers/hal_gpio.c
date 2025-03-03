@@ -54,23 +54,23 @@ static unsigned long ns2tsc_factor;
 #define MAX_CHAN 128
 
 char *inputs[MAX_CHAN];
-RTAPI_MP_ARRAY_STRING(inputs, MAX_CHAN, "list of pins to use for input")
+RTAPI_MP_ARRAY_STRING(inputs, MAX_CHAN, "list of pins to use for input");
 char *outputs[MAX_CHAN];
-RTAPI_MP_ARRAY_STRING(outputs, MAX_CHAN, "list of pins to use for output")
+RTAPI_MP_ARRAY_STRING(outputs, MAX_CHAN, "list of pins to use for output");
 char *invert[MAX_CHAN];
-RTAPI_MP_ARRAY_STRING(invert, MAX_CHAN, "set as inverted")
+RTAPI_MP_ARRAY_STRING(invert, MAX_CHAN, "set as inverted");
 char *reset[MAX_CHAN];
-RTAPI_MP_ARRAY_STRING(reset, MAX_CHAN, "add to reset list")
+RTAPI_MP_ARRAY_STRING(reset, MAX_CHAN, "add to reset list");
 char *opendrain[MAX_CHAN];
-RTAPI_MP_ARRAY_STRING(opendrain, MAX_CHAN, "set OPEN_DRAIN flag")
+RTAPI_MP_ARRAY_STRING(opendrain, MAX_CHAN, "set OPEN_DRAIN flag");
 char *opensource[MAX_CHAN];
-RTAPI_MP_ARRAY_STRING(opensource, MAX_CHAN, "set OPEN_SOURCE flag")
+RTAPI_MP_ARRAY_STRING(opensource, MAX_CHAN, "set OPEN_SOURCE flag");
 char *biasdisable[MAX_CHAN];
-RTAPI_MP_ARRAY_STRING(biasdisable, MAX_CHAN, "set BIAS_DISABLE flag")
+RTAPI_MP_ARRAY_STRING(biasdisable, MAX_CHAN, "set BIAS_DISABLE flag");
 char *pulldown[MAX_CHAN];
-RTAPI_MP_ARRAY_STRING(pulldown, MAX_CHAN, "set BIAS_PULL_DOWN flag")
+RTAPI_MP_ARRAY_STRING(pulldown, MAX_CHAN, "set BIAS_PULL_DOWN flag");
 char *pullup[MAX_CHAN];
-RTAPI_MP_ARRAY_STRING(pullup, MAX_CHAN, "set BIAS_PULL_UP flag")
+RTAPI_MP_ARRAY_STRING(pullup, MAX_CHAN, "set BIAS_PULL_UP flag");
 
 /***********************************************************************
 *                STRUCTURES AND GLOBAL VARIABLES                       *

@@ -118,7 +118,7 @@ static int comp_id;				// Upstream assigned component ID
  * Configuration parameters
  */
 static char *config[RPSPI_MAX_BOARDS];
-RTAPI_MP_ARRAY_STRING(config, RPSPI_MAX_BOARDS, "config string for the AnyIO boards (see hostmot2(9) manpage)")
+RTAPI_MP_ARRAY_STRING(config, RPSPI_MAX_BOARDS, "config string for the AnyIO boards (see hostmot2(9) manpage)");
 
 /*
  * RPI3 NOTE:
@@ -160,8 +160,8 @@ RTAPI_MP_ARRAY_STRING(config, RPSPI_MAX_BOARDS, "config string for the AnyIO boa
  */
 static int spiclk_rate = 31250;
 static int spiclk_rate_rd = -1;
-RTAPI_MP_INT(spiclk_rate, "SPI clock rate in kHz (default 31250 kHz, slowest 3 kHz)")
-RTAPI_MP_INT(spiclk_rate_rd, "SPI clock rate for reading in kHz (default same as spiclk_rate)")
+RTAPI_MP_INT(spiclk_rate, "SPI clock rate in kHz (default 31250 kHz, slowest 3 kHz)");
+RTAPI_MP_INT(spiclk_rate_rd, "SPI clock rate for reading in kHz (default same as spiclk_rate)");
 
 /*
  * Override the "safe" base frequency of the SPI peripheral. The clock speed
@@ -171,7 +171,7 @@ RTAPI_MP_INT(spiclk_rate_rd, "SPI clock rate for reading in kHz (default same as
  */
 #define F_PERI	400000000UL
 static int spiclk_base = F_PERI;
-RTAPI_MP_INT(spiclk_base, "SPI clock base rate in Hz (default 400000000 Hz)")
+RTAPI_MP_INT(spiclk_base, "SPI clock base rate in Hz (default 400000000 Hz)");
 
 /*
  * Enable/disable pullup/pulldown on the SPI pins
@@ -182,9 +182,9 @@ RTAPI_MP_INT(spiclk_base, "SPI clock base rate in Hz (default 400000000 Hz)")
 static int spi_pull_miso = SPI_PULL_DOWN;
 static int spi_pull_mosi = SPI_PULL_DOWN;
 static int spi_pull_sclk = SPI_PULL_DOWN;
-RTAPI_MP_INT(spi_pull_miso, "Enable/disable pull-{up,down} on SPI MISO (default pulldown, 0=off, 1=pulldown, 2=pullup)")
-RTAPI_MP_INT(spi_pull_mosi, "Enable/disable pull-{up,down} on SPI MOSI (default pulldown, 0=off, 1=pulldown, 2=pullup)")
-RTAPI_MP_INT(spi_pull_sclk, "Enable/disable pull-{up,down} on SPI SCLK (default pulldown, 0=off, 1=pulldown, 2=pullup)")
+RTAPI_MP_INT(spi_pull_miso, "Enable/disable pull-{up,down} on SPI MISO (default pulldown, 0=off, 1=pulldown, 2=pullup)");
+RTAPI_MP_INT(spi_pull_mosi, "Enable/disable pull-{up,down} on SPI MOSI (default pulldown, 0=off, 1=pulldown, 2=pullup)");
+RTAPI_MP_INT(spi_pull_sclk, "Enable/disable pull-{up,down} on SPI SCLK (default pulldown, 0=off, 1=pulldown, 2=pullup)");
 
 /*
  * Select which SPI channel(s) to probe. There are two SPI interfaces exposed
@@ -213,7 +213,7 @@ RTAPI_MP_INT(spi_pull_sclk, "Enable/disable pull-{up,down} on SPI SCLK (default 
 #define SPI1_PROBE_CE2	(1 << 4)
 #define SPI1_PROBE_MASK	(SPI1_PROBE_CE0 | SPI1_PROBE_CE1 | SPI1_PROBE_CE2)
 static int spi_probe = SPI0_PROBE_CE0;
-RTAPI_MP_INT(spi_probe, "Bit-field to select which SPI/CE combinations to probe (default 1 (SPI0/CE0))")
+RTAPI_MP_INT(spi_probe, "Bit-field to select which SPI/CE combinations to probe (default 1 (SPI0/CE0))");
 
 /*
  * Set the message level for debugging purpose. This has the (side-)effect that
@@ -222,7 +222,7 @@ RTAPI_MP_INT(spi_probe, "Bit-field to select which SPI/CE combinations to probe 
  * The upstream message level is not touched if spi_debug == -1.
  */
 static int spi_debug = -1;
-RTAPI_MP_INT(spi_debug, "Set message level for debugging purpose [0...5] where 0=none and 5=all (default: -1; upstream defined)")
+RTAPI_MP_INT(spi_debug, "Set message level for debugging purpose [0...5] where 0=none and 5=all (default: -1; upstream defined)");
 
 /*********************************************************************/
 #if defined(RPSPI_DEBUG_PIN)

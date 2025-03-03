@@ -75,7 +75,7 @@ static int parse_fmt(char *in, int *ptr, char *out, void *val, char dp);
 char *digits = "0123456789ABCDEF";
 
 char *fmt_strings[MAX_CHAN];
-RTAPI_MP_ARRAY_STRING(fmt_strings, MAX_CHAN, "screen formatting scancodes")
+RTAPI_MP_ARRAY_STRING(fmt_strings, MAX_CHAN, "screen formatting scancodes");
 
 #ifndef do_div
 # define do_div(n,base) ({					 \
