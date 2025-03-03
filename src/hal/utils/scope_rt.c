@@ -46,7 +46,7 @@ MODULE_LICENSE("GPL");
 
 long num_samples = 16000;
 long shm_size;
-RTAPI_MP_LONG(num_samples, "Number of samples in the shared memory block")
+RTAPI_MP_LONG(num_samples, "Number of samples in the shared memory block");
 
 /***********************************************************************
 *                         GLOBAL VARIABLES                             *

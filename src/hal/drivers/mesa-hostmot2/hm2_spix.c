@@ -105,27 +105,27 @@ static const uint32_t iocookie[3] = {
  * Configuration parameters forwarded to hostmot2 hm2_register() call
  */
 static char *config[SPIX_MAX_BOARDS];
-RTAPI_MP_ARRAY_STRING(config, SPIX_MAX_BOARDS, "config string for the AnyIO boards (see hostmot2(9) manpage)")
+RTAPI_MP_ARRAY_STRING(config, SPIX_MAX_BOARDS, "config string for the AnyIO boards (see hostmot2(9) manpage)");
 
 /*
  * SPI clock rates for read and write.
  */
 static int spiclk_rate[SPIX_MAX_BOARDS] = { 25000 };
 static int spiclk_rate_rd[SPIX_MAX_BOARDS];
-RTAPI_MP_ARRAY_INT(spiclk_rate, SPIX_MAX_BOARDS, "SPI clock rates in kHz (default 25000 kHz)")
-RTAPI_MP_ARRAY_INT(spiclk_rate_rd, SPIX_MAX_BOARDS, "SPI clock rates for reading in kHz (default same as spiclk_rate)")
+RTAPI_MP_ARRAY_INT(spiclk_rate, SPIX_MAX_BOARDS, "SPI clock rates in kHz (default 25000 kHz)");
+RTAPI_MP_ARRAY_INT(spiclk_rate_rd, SPIX_MAX_BOARDS, "SPI clock rates for reading in kHz (default same as spiclk_rate)");
 
 /*
  * Forcefully specify the hardware driver
  */
 static const char *force_driver = NULL;
-RTAPI_MP_STRING(force_driver, "Force one specific hardware driver (default empty, auto detecting hardware))")
+RTAPI_MP_STRING(force_driver, "Force one specific hardware driver (default empty, auto detecting hardware))");
 
 /*
  * Which SPI port(s) to probe
  */
 static int spi_probe = SPIX_PROBE_SPI0_CE0;
-RTAPI_MP_INT(spi_probe, "Bit-field to select which SPI/CE combinations to probe (default 1 (SPI0/CE0))")
+RTAPI_MP_INT(spi_probe, "Bit-field to select which SPI/CE combinations to probe (default 1 (SPI0/CE0))");
 
 /*
  * Normally, all requests are queued if requested by upstream and sent in one
@@ -133,7 +133,7 @@ RTAPI_MP_INT(spi_probe, "Bit-field to select which SPI/CE combinations to probe 
  * each transfer visible and more easily debugable.
  */
 static int spi_noqueue = 0;
-RTAPI_MP_INT(spi_noqueue, "Disable queued SPI requests, use for debugging only (default 0 (off))")
+RTAPI_MP_INT(spi_noqueue, "Disable queued SPI requests, use for debugging only (default 0 (off))");
 
 /*
  * Set the message level for debugging purpose. This has the (side-)effect that
@@ -142,13 +142,13 @@ RTAPI_MP_INT(spi_noqueue, "Disable queued SPI requests, use for debugging only (
  * The upstream message level is not touched if spi_debug == -1.
  */
 static int spi_debug = -1;
-RTAPI_MP_INT(spi_debug, "Set message level for debugging purpose [0...5] where 0=none and 5=all (default: -1; upstream defined)")
+RTAPI_MP_INT(spi_debug, "Set message level for debugging purpose [0...5] where 0=none and 5=all (default: -1; upstream defined)");
 
 /*
  * Spidev driver device node path overrides
  */
 static char *spidev_path[SPIX_MAX_BOARDS];
-RTAPI_MP_ARRAY_STRING(spidev_path, SPIX_MAX_BOARDS, "The device node path override(s) for the spidev driver (default /dev/spidev{0.[01],1.[012]})")
+RTAPI_MP_ARRAY_STRING(spidev_path, SPIX_MAX_BOARDS, "The device node path override(s) for the spidev driver (default /dev/spidev{0.[01],1.[012]})");
 
 /*
  * We have these for compatibility with the hm2_rpspi driver. You can simply
@@ -158,9 +158,9 @@ RTAPI_MP_ARRAY_STRING(spidev_path, SPIX_MAX_BOARDS, "The device node path overri
 static int spi_pull_miso = -1;
 static int spi_pull_mosi = -1;
 static int spi_pull_sclk = -1;
-RTAPI_MP_INT(spi_pull_miso, "Obsolete parameter")
-RTAPI_MP_INT(spi_pull_mosi, "Obsolete parameter")
-RTAPI_MP_INT(spi_pull_sclk, "Obsolete parameter")
+RTAPI_MP_INT(spi_pull_miso, "Obsolete parameter");
+RTAPI_MP_INT(spi_pull_mosi, "Obsolete parameter");
+RTAPI_MP_INT(spi_pull_sclk, "Obsolete parameter");
 
 /*********************************************************************/
 /*

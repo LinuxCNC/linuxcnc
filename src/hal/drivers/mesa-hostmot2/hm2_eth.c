@@ -90,7 +90,7 @@ static char *board_ip[MAX_ETH_BOARDS];
 RTAPI_MP_ARRAY_STRING(board_ip, MAX_ETH_BOARDS, "ip address of ethernet board(s)");
 
 static char *config[MAX_ETH_BOARDS];
-RTAPI_MP_ARRAY_STRING(config, MAX_ETH_BOARDS, "config string for the AnyIO boards (see hostmot2(9) manpage)")
+RTAPI_MP_ARRAY_STRING(config, MAX_ETH_BOARDS, "config string for the AnyIO boards (see hostmot2(9) manpage)");
 
 int debug = 0;
 RTAPI_MP_INT(debug, "Developer/debug use only!  Enable debug logging.");
