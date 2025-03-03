@@ -1028,7 +1028,10 @@ class Feature(object):
 
         # add "." in the begining of multiline parameters to save indents
         f = re.sub(r"(?m)^(\ |\t)", r"\1.", f)
-        test = src_config.read_file(io.StringIO(f))
+        try:
+            test = src_config.read_file(io.StringIO(f))
+        except Exception as e:
+            self.err_exit(e)
 
         # remove "." in the begining of multiline parameters to save indents
         conf = {}
@@ -1294,27 +1297,18 @@ class Feature(object):
                 (("%s:msgid-%d" % (self.get_type(), msgid)) in EXCL_MESSAGES)) :
             return
 
+        #FIXME
         # create dialog with image and checkbox
-        dlg = gtk.MessageDialog(parent = None,
-            flags = gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-            type = gtk.MESSAGE_WARNING,
-            buttons = gtk.BUTTONS_NONE,
-            message_format = self.get_name())
-        dlg.set_title('NativeCAM')
-        dlg.format_secondary_text(msg)
-        img = gtk.Image()
-        img.set_from_pixbuf(self.get_icon(add_dlg_icon_size))
-        dlg.set_image(img)
-        cb = gtk.CheckButton(label = _("Do not show again"))
-        dlg.get_content_area().pack_start(cb, True, True, 0)
-        dlg.add_button(gtk.STOCK_OK, gtk.RESPONSE_OK).grab_focus()
+        print(self.get_name())
+        #img.set_from_pixbuf(self.get_icon(add_dlg_icon_size))
+        #cb = gtk.CheckButton(label = _("Do not show again"))
 
-        dlg.set_keep_above(True)
-        dlg.show_all()
-        dlg.run()
-        if cb.get_active() :
-            GLOBAL_PREF.add_excluded_msg(self.get_type(), msgid)
-        dlg.destroy()
+        self.mess_dlg(mess=msg, winTitle = 'NativeCAM', title="NativeCAM", info='')
+
+
+        #if cb.get_active() :
+        #    GLOBAL_PREF.add_excluded_msg(self.get_type(), msgid)
+
 
     def check_hash(self, s, default = 0):
         try :
@@ -1333,6 +1327,13 @@ class Feature(object):
         if not VALIDATED :
             print('%s failed validation\n' % self.get_name())
         return True
+
+    #FIXME use a gui dialog see ncam_window
+    def err_exit(self, errtxt):
+        print(errtxt)
+        #mess_dlg(errtxt)
+        sys.exit(1)
+
 
 class Preferences(object):
 
@@ -1684,7 +1685,7 @@ class NCam():
             optlist, arg = getopt.getopt(sys.argv[arg_start:], opt, optl)
             optlist = dict(optlist)
         except getopt.GetoptError as err:
-            self.err_exit(err)
+            self.err_exit(str(err))
 
         self.USER_SUBROUTINES = USER_SUBROUTINES
         # initialize class variables
