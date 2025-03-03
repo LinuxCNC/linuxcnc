@@ -63,6 +63,8 @@ static int *kvlist_lookup(struct rtapi_list_head *head, const char *name) {
         if(strncmp(name, ent->key, sizeof(ent->key)) == 0) return &ent->value;
     }
     struct kvlist *ent = rtapi_kzalloc(sizeof(struct kvlist), RTAPI_GPF_KERNEL);
+    if(!ent)
+        return NULL;
     strncpy(ent->key, name, sizeof(ent->key)-1);
     rtapi_list_add(&ent->list, head);
     return &ent->value;
@@ -1047,6 +1049,8 @@ static int hm2_eth_set_force_enqueue(hm2_lowlevel_io_t *this, int do_enqueue) {
 
 static int llio_idx(const char *llio_name) {
     int *idx = kvlist_lookup(&board_num, llio_name);
+    if(!idx)
+        return -1;
     return (*idx)++;
 }
 
@@ -1439,7 +1443,10 @@ static int hm2_eth_probe(hm2_eth_t *board) {
 
     LL_PRINT("discovered %.*s\n", 16, board_name);
 
-    rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_%.*s.%d", (int)strlen(llio_name), llio_name, llio_idx(llio_name));
+    int llidx = llio_idx(llio_name);
+    if(llidx < 0)
+        return -ENOMEM;
+    rtapi_snprintf(board->llio.name, sizeof(board->llio.name), "hm2_%.*s.%d", (int)strlen(llio_name), llio_name, llidx);
 
     board->llio.comp_id = comp_id;
 
@@ -1585,6 +1592,8 @@ int rtapi_app_main(void) {
         } 
         boards[i].read_cnt = boards[i].write_cnt = 0;
         int *added = kvlist_lookup(&ifnames, ifptr);
+        if(!added)
+            goto error;
         if(*added) continue;
         install_iptables_perinterface(ifptr);
         *added = 1;
