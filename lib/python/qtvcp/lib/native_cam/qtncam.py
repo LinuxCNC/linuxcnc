@@ -1679,6 +1679,10 @@ class NCam():
         global NCAM_DIR, default_metric, NGC_DIR, SYS_DIR, no_ini, TOOL_TABLE, \
             GLOBAL_PREF, machine_metric
 
+        #FIXME we want this as a library so shouldn't read options here
+        # probably should pass them to here from nacam_window the subclass
+        # when using qtvcp embedded panels the args for qtvcp are being read
+        # as if they are for ncam
         arg_start = (sys.argv[0:].index('-U') + 1) if "-U" in sys.argv[0:] else 1
         opt, optl = 'U:x:c:i:t', ["catalog=", "ini="]
         try :
