@@ -1,5 +1,9 @@
 = hm2_rpspi(9)
 
+== NOTE
+
+This driver has been superseded for most purposes by the hm2_spix driver.
+
 == NAME
 
 hm2_rpspi - LinuxCNC HAL driver for the Mesa Electronics SPI Anything IO
