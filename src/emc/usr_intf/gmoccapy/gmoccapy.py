@@ -4419,7 +4419,7 @@ class gmoccapy(object):
         self.prefs.putpref("info_tab_page", page_num, int)
 
     def external_load(self, path):
-        print('gmoccapy external reload:',path)
+        print('gmoccapy external load:',path)
         if path is None:
             self.widgets.hal_action_reload.emit("activate")
         else:
@@ -4430,8 +4430,8 @@ class gmoccapy(object):
     def external_call(self, topic, function, args):
         print('gmoccapy ext call:',topic, function, args)
         # allow reloading of files
-        if function == 'external_reload':
-            self.external_reload(args[0])
+        if function == 'external_load':
+            self.external_load(args[0])
 
     # This is for handling mouse clicks on the GUI button
     def on_rbt_forward_clicked(self, widget, data=None):
@@ -6491,17 +6491,6 @@ if __name__ == "__main__":
                 if res:
                     LOG.error('postgui halfile error:{}'.format(res))
                     raise SystemExit(res)
-
-        postgui_halcmds = app.get_ini_info.get_postgui_halcmds()
-        LOG.info("Postgui commands: yellow<{}>".format(postgui_halcmds))
-        if postgui_halcmds is not None:
-            for f in postgui_halcmds:
-                f = os.path.expanduser(f)
-                res = os.spawnvp(os.P_WAIT, "halcmd", ["halcmd"] + f.split())
-                if res:
-                    LOG.error('postgui command error:{}'.format(res))
-                    raise SystemExit(res)
-
 
     postgui_commands = app.get_ini_info.get_postgui_halcmds()
     LOG.info("Postgui commands: yellow<{}>".format(postgui_commands))
