@@ -348,7 +348,7 @@ class Calculator(QDialog):
             self.factorSoFar = 0.0
             self.pendingMultiplicativeOperator = ''
 
-        if self.pendingAdditiveOperator:
+        if self.pendingAdditiveOperator and not self.waitingForOperand:
             if not self.calculate(operand, self.pendingAdditiveOperator):
                 self.abortOperation()
                 return
@@ -367,7 +367,7 @@ class Calculator(QDialog):
         clickedOperator = clickedButton.text()
         operand = float(self.display.text())
 
-        if self.pendingMultiplicativeOperator:
+        if self.pendingMultiplicativeOperator and not self.waitingForOperand:
             if not self.calculate(operand, self.pendingMultiplicativeOperator):
                 self.abortOperation()
                 return
