@@ -1,13 +1,11 @@
 = hm2_rpspi(9)
 
-== NOTE
-
-This driver has been superseded for most purposes by the hm2_spix driver.
-
 == NAME
 
-hm2_rpspi - LinuxCNC HAL driver for the Mesa Electronics SPI Anything IO
-boards, with HostMot2 firmware.
+hm2_rpspi - This driver has been superseded by the hm2_spix driver. LinuxCNC
+HAL driver for the Mesa Electronics SPI Anything IO boards, with HostMot2
+firmware.
+
 
 == SYNOPSIS
 
@@ -149,9 +147,14 @@ echo -n performance > /sys/devices/system/cpu/cpufreq/policy0/scaling_governor
 
 Be sure to have a proper heatsink mounted on the SoC or it will get too warm and crashes.
 
+== NOTE
+
+This driver has been superseded for most purposes by the hm2_spix driver.
+
 == SEE ALSO
 
 hostmot2(9)
+hm2_spix(9)
 
 == LICENSE
 
