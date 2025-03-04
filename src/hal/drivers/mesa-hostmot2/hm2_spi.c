@@ -57,7 +57,7 @@ static char *spidev_path[MAX_BOARDS] = { "/dev/spidev1.0" };
 RTAPI_MP_ARRAY_STRING(spidev_path, MAX_BOARDS, "path to spi device");
 
 static char *config[MAX_BOARDS];
-RTAPI_MP_ARRAY_STRING(config, MAX_BOARDS, "config string for the AnyIO boards (see hostmot2(9) manpage)")
+RTAPI_MP_ARRAY_STRING(config, MAX_BOARDS, "config string for the AnyIO boards (see hostmot2(9) manpage)");
 
 typedef struct {
     hm2_lowlevel_io_t llio;
