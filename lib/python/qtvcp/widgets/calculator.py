@@ -115,7 +115,7 @@ class Calculator(QDialog):
         mainLayout.addWidget(self.tpi_btn, 6, 2)
         
         if self.PREFS_:
-            constValues = self.PREFS_.getpref('constValuesList', None, str, self.PREF_SECTION)
+            constValues = self.PREFS_.getpref('constValuesList', 'None', str, self.PREF_SECTION)
             if constValues != 'None':
                 self.constButtons = []
                 constValues = ''.join(constValues.split())
