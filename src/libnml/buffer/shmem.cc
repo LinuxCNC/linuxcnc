@@ -56,7 +56,6 @@ static inline bool not_zero(double x)
 /* Constructor for hard coded tests. */
 SHMEM::SHMEM(const char * /*n*/, long s, int /*nt*/, key_t k, int m)
   : CMS(s),
-    fast_mode(0),
     key(k),
     bsem_key(-1),
     second_read(0),
@@ -79,7 +78,6 @@ SHMEM::SHMEM(const char * /*n*/, long s, int /*nt*/, key_t k, int m)
 /* Constructor for use with cms_config. */
 SHMEM::SHMEM(const char *bufline, const char *procline, int set_to_server, int set_to_master)
   : CMS(bufline, procline, set_to_server),
-    fast_mode(0),
     bsem_key(-1),
     second_read(0),
     shm(NULL),
