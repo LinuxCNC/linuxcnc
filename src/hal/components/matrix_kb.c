@@ -64,9 +64,9 @@ static int comp_id;
 static kb_t *kb;
 
 char *config[MAX_CHAN];
-RTAPI_MP_ARRAY_STRING(config, MAX_CHAN, "screen formatting scancodes")
+RTAPI_MP_ARRAY_STRING(config, MAX_CHAN, "screen formatting scancodes");
 char *names[MAX_CHAN];
-RTAPI_MP_ARRAY_STRING(names, MAX_CHAN, "component names")
+RTAPI_MP_ARRAY_STRING(names, MAX_CHAN, "component names");
 
 void keyup(kb_inst_t *inst){
     unsigned r, c;
