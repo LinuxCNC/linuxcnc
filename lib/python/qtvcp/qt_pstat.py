@@ -283,7 +283,7 @@ class _PStat(object):
         qm_fn = "languages/{}_{}.qm".format(self.BASEPATH,lang)
         defaultqm = os.path.join(self.SCREENDIR, self.BASEPATH, qm_fn)
         local = []
-        local.append( os.path.join(self.CONFIGPATH, 'qtvcp/screens',self.BASEPATH, qrc_fn))
+        local.append( os.path.join(self.CONFIGPATH, 'qtvcp/screens',self.BASEPATH, qm_fn))
         local.append( os.path.join(self.CONFIGPATH, self.BASEPATH, qm_fn))
 
         for localqm in local:
