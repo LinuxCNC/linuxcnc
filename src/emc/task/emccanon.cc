@@ -112,8 +112,6 @@ void UPDATE_TAG(const StateTag& tag) {
 
 /* macros for converting program units to internal (mm/deg) units */
 #define FROM_PROG_LEN(prog) ((prog) * (canon.lengthUnits == CANON_UNITS_INCHES ? 25.4 : canon.lengthUnits == CANON_UNITS_CM ? 10.0 : 1.0))
-// Compiler will optimize: a=FROM_PROG_ANG(a) ==> a=a.
-// cppcheck-suppress-macro selfAssignment
 #define FROM_PROG_ANG(prog) (prog)
 
 /* Certain axes are periodic.  Hardcode this for now */
@@ -275,8 +273,13 @@ static void from_prog(double &x, double &y, double &z, double &a, double &b, dou
     x = FROM_PROG_LEN(x);
     y = FROM_PROG_LEN(y);
     z = FROM_PROG_LEN(z);
+    // Compiler will optimize: a=FROM_PROG_ANG(a) ==> a=a.
+    // 2.10 cannot handle suppress-macro
+    // cppcheck-suppress selfAssignment
     a = FROM_PROG_ANG(a);
+    // cppcheck-suppress selfAssignment
     b = FROM_PROG_ANG(b);
+    // cppcheck-suppress selfAssignment
     c = FROM_PROG_ANG(c);
     u = FROM_PROG_LEN(u);
     v = FROM_PROG_LEN(v);
@@ -2329,8 +2332,13 @@ void ARC_FEED(int line_number,
 		rotate_and_offset_pos(fe, se, ae, unused, unused, unused, unused, unused, unused);
 		rotate_and_offset_pos(fa, sa, unused, unused, unused, unused, unused, unused, unused);
         if (chord_deviation(lx, ly, fe, se, fa, sa, rotation, mx, my) < canon.naivecamTolerance) {
+			// Compiler will optimize: a=FROM_PROG_ANG(a) ==> a=a.
+			// 2.10 cannot handle suppress-macro
+			// cppcheck-suppress selfAssignment
 			a = FROM_PROG_ANG(a);
+			// cppcheck-suppress selfAssignment
 			b = FROM_PROG_ANG(b);
+			// cppcheck-suppress selfAssignment
 			c = FROM_PROG_ANG(c);
 			u = FROM_PROG_LEN(u);
 			v = FROM_PROG_LEN(v);

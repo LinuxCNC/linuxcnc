@@ -72,6 +72,7 @@ class CMS_DIAG_PROC_INFO:public CMS_DIAG_STATIC_PROC_INFO {
 
 class CMS_DIAG_HEADER {
   public:
+    CMS_DIAG_HEADER() : last_writer(0), last_reader(0) {}
     virtual ~CMS_DIAG_HEADER() {}
     long last_writer;
     long last_reader;

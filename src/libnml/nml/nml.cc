@@ -170,6 +170,9 @@ void NML::operator delete(void *nml_space)
 *  later if the constructor returned before creating the objects
 *  the pointers are intended to point at.
 ******************************************************************/
+// Cppcheck 2.10 cannot see that a function called from the constructor
+// does the initialization.
+// cppcheck-suppress uninitMemberVar
 NML::NML(NML_FORMAT_PTR f_ptr, const char *buf, const char *proc, const char *file,
     const int set_to_server, const int set_to_master)
 {
