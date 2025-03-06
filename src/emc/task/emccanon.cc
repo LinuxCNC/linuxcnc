@@ -112,6 +112,8 @@ void UPDATE_TAG(const StateTag& tag) {
 
 /* macros for converting program units to internal (mm/deg) units */
 #define FROM_PROG_LEN(prog) ((prog) * (canon.lengthUnits == CANON_UNITS_INCHES ? 25.4 : canon.lengthUnits == CANON_UNITS_CM ? 10.0 : 1.0))
+// Compiler will optimize: a=FROM_PROG_ANG(a) ==> a=a.
+// cppcheck-suppress-macro selfAssignment
 #define FROM_PROG_ANG(prog) (prog)
 
 /* Certain axes are periodic.  Hardcode this for now */
