@@ -56,7 +56,6 @@ class CMS_DISPLAY_ASCII_UPDATER:public CMS_UPDATER {
     char *end_current_string;
     long max_length_current_string;
     long length_current_string;
-    int encoding;
     int warning_count;
     int warning_count_max;
     int updating_string;
