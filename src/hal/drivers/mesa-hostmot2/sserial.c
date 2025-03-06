@@ -2274,17 +2274,15 @@ void hm2_sserial_cleanup(hostmot2_t *hm2){
                          &buff,
                          sizeof(rtapi_u32));
         if (hm2->sserial.instance[i].remotes != NULL){
-            if (hm2->sserial.instance[i].remotes){
-                for (r = 0 ; r < hm2->sserial.instance[i].num_remotes; r++){
-                    if (hm2->sserial.instance[i].remotes[r].num_confs > 0){
-                        rtapi_kfree(hm2->sserial.instance[i].remotes[r].confs);
-                    };
-                    if (hm2->sserial.instance[i].remotes[r].num_modes > 0){
-                        rtapi_kfree(hm2->sserial.instance[i].remotes[r].modes);
-                    }
+            for (r = 0 ; r < hm2->sserial.instance[i].num_remotes; r++){
+                if (hm2->sserial.instance[i].remotes[r].num_confs > 0){
+                    rtapi_kfree(hm2->sserial.instance[i].remotes[r].confs);
+                };
+                if (hm2->sserial.instance[i].remotes[r].num_modes > 0){
+                    rtapi_kfree(hm2->sserial.instance[i].remotes[r].modes);
                 }
-                rtapi_kfree(hm2->sserial.instance[i].remotes);
             }
+            rtapi_kfree(hm2->sserial.instance[i].remotes);
         }
 
     }
