@@ -182,6 +182,7 @@ class Calculator(QDialog):
                 for value in constValues.split(',')[:6]:
                     constButton = QPushButton(value)
                     constButton.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+                    constButton.setFocusPolicy(Qt.NoFocus)
                     constButton.clicked.connect(self.constClicked)
                     mainLayout.addWidget(constButton, len(self.constButtons) + 2, 6)
                     self.constButtons.append(constButton)
@@ -192,10 +193,12 @@ class Calculator(QDialog):
 
         self.backButton = QPushButton('Back')
         self.backButton.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        self.backButton.setFocusPolicy(Qt.NoFocus)
         self.backButton.clicked.connect(self.backActionWrapper)
 
         self.nextButton = QPushButton('Next')
         self.nextButton.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        self.nextButton.setFocusPolicy(Qt.NoFocus)
         self.nextButton.clicked.connect(self.nextActionWrapper)
         self.applyNextButton = QPushButton('Apply\nNext')
         self.applyNextButton.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
@@ -204,15 +207,17 @@ class Calculator(QDialog):
 
         self.bBox = QDialogButtonBox()
 
-        self.bBox.addButton(QDialogButtonBox.StandardButton.Cancel)
-        applyBtn = self.bBox.addButton(QDialogButtonBox.StandardButton.Apply)
+        cancelButton = self.bBox.addButton(QDialogButtonBox.StandardButton.Cancel)
+        cancelButton.setFocusPolicy(Qt.NoFocus)
+        applyButton = self.bBox.addButton(QDialogButtonBox.StandardButton.Apply)
+        applyButton.setFocusPolicy(Qt.NoFocus)
         self.bBox.addButton(self.backButton, QDialogButtonBox.ActionRole)
         self.bBox.addButton(self.nextButton, QDialogButtonBox.ActionRole)
         self.bBox.addButton(self.applyNextButton, QDialogButtonBox.ActionRole)
         self.bBox.rejected.connect(self.reject)
         self.bBox.accepted.connect(self.accept)
 
-        applyBtn.clicked.connect(self.accept)
+        applyButton.clicked.connect(self.accept)
 
         self.display.returnPressed.connect(self.physReturnPressed)
         calc_layout = QVBoxLayout()
@@ -348,7 +353,7 @@ class Calculator(QDialog):
             self.factorSoFar = 0.0
             self.pendingMultiplicativeOperator = ''
 
-        if self.pendingAdditiveOperator:
+        if self.pendingAdditiveOperator and not self.waitingForOperand:
             if not self.calculate(operand, self.pendingAdditiveOperator):
                 self.abortOperation()
                 return
@@ -367,7 +372,7 @@ class Calculator(QDialog):
         clickedOperator = clickedButton.text()
         operand = float(self.display.text())
 
-        if self.pendingMultiplicativeOperator:
+        if self.pendingMultiplicativeOperator and not self.waitingForOperand:
             if not self.calculate(operand, self.pendingMultiplicativeOperator):
                 self.abortOperation()
                 return
@@ -550,6 +555,7 @@ class Calculator(QDialog):
     def createButton(self, text, member, tip=None):
         button = QPushButton(text)
         button.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        button.setFocusPolicy(Qt.NoFocus)
         button.setMinimumSize(70, 40)
         button.clicked.connect(member)
         if tip is not None:
