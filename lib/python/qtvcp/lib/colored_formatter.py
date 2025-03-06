@@ -37,6 +37,8 @@ COLORS = {
     'cyan': 36,
     'white': 37,
     'bgred': 41,
+    'bggreen': 42,
+    'bgyellow': 43,
     'bggrey': 100
 }
 
