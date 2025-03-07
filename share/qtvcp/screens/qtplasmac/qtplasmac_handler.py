@@ -505,7 +505,7 @@ class HandlerClass:
         self.qt5_graphics_patch()
         self.screen_options_patch()
 
-    # patched file manager functions
+# patched file manager functions
     def file_manager_patch(self):
         self.old_load = FILE_MAN.load
         FILE_MAN.load = self.new_load
@@ -1631,8 +1631,10 @@ class HandlerClass:
             self.lastLoadedProgram = ''
             return
         if filename is not None:
+            if 'qtplasmac_file_clear.ngc' in filename:
+                self.fileClear = True
             self.overlayProgress.setValue(0)
-            if not any(name in filename for name in ['qtplasmac_program_clear', 'single_cut']):
+            if not any(name in filename for name in ['qtplasmac_file_clear.ngc', 'single_cut.ngc']):
                 self.lastLoadedProgram = filename
             if not self.cameraOn:
                 self.preview_index_return(self.w.preview_stack.currentIndex())
@@ -1687,7 +1689,7 @@ class HandlerClass:
         if self.w.main_tab_widget.currentIndex() != self.MAIN:
             self.w.main_tab_widget.setCurrentIndex(self.MAIN)
         # forces the view to remain "table view" if T is checked when a file is loaded, or change to table view upon clicking CLEAR
-        if self.w.view_t.isChecked() or 'qtplasmac_program_clear.ngc' in filename:
+        if self.w.view_t.isChecked() or 'qtplasmac_file_clear.ngc' in filename:
             self.view_t_pressed(self.w.gcodegraphics)
         if 'single_cut.ngc' not in filename:
             self.preSingleCutMaterial = None
@@ -2240,10 +2242,9 @@ class HandlerClass:
             self.button_normal(self.ctButton)
             self.w[self.ctButton].setText(self.cutTypeText)
         if self.fileOpened:
-            self.fileClear = True
             if self.rflActive:
                 self.clear_rfl()
-            clearFile = f'{self.tmpPath}qtplasmac_program_clear.ngc'
+            clearFile = f'{self.tmpPath}qtplasmac_file_clear.ngc'
             with open(clearFile, 'w') as outFile:
                 outFile.write('m2')
             if ACTION.prefilter_path:
