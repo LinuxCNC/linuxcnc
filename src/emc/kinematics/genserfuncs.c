@@ -247,7 +247,7 @@ int genser_kin_jac_inv(void *kins,
     GO_MATRIX_DECLARE(Jfwd, Jfwd_stg, 6, GENSER_MAX_JOINTS);
     GO_MATRIX_DECLARE(Jinv, Jinv_stg, GENSER_MAX_JOINTS, 6);
     go_pose T_L_0;
-    go_link linkout[GENSER_MAX_JOINTS];
+    go_link linkout[GENSER_MAX_JOINTS] = {};
     go_real vw[6];
     int link;
     int retval;
@@ -287,7 +287,7 @@ int genser_kin_jac_fwd(void *kins,
     genser_struct *genser = (genser_struct *) kins;
     GO_MATRIX_DECLARE(Jfwd, Jfwd_stg, 6, GENSER_MAX_JOINTS);
     go_pose T_L_0;
-    go_link linkout[GENSER_MAX_JOINTS];
+    go_link linkout[GENSER_MAX_JOINTS] = {};
     go_real vw[6];
     int link;
     int retval;
@@ -395,7 +395,7 @@ int genserKinematicsForward(const double *joint,
 int genser_kin_fwd(void *kins, const go_real * joints, go_pose * pos)
 {
     genser_struct *genser = kins;
-    go_link linkout[GENSER_MAX_JOINTS];
+    go_link linkout[GENSER_MAX_JOINTS] = {};
 
     int link;
     int retval;

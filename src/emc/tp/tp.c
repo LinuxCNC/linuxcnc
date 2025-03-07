@@ -1644,7 +1644,7 @@ STATIC blend_type_t tpCheckBlendArcType(
 
     //If exact stop, we don't compute the arc
     if (prev_tc->term_cond != TC_TERM_COND_PARABOLIC) {
-        tp_debug_print("Wrong term cond = %u\n", prev_tc->term_cond);
+        tp_debug_print("Wrong term cond = %d\n", prev_tc->term_cond);
         return BLEND_NONE;
     }
 
@@ -1659,7 +1659,7 @@ STATIC blend_type_t tpCheckBlendArcType(
         return BLEND_NONE;
     }
 
-    tp_debug_print("Motion types: prev_tc = %u, tc = %u\n",
+    tp_debug_print("Motion types: prev_tc = %d, tc = %d\n",
             prev_tc->motion_type,tc->motion_type);
     //If not linear blends, we can't easily compute an arc
     if ((prev_tc->motion_type == TC_LINEAR) && (tc->motion_type == TC_LINEAR)) {

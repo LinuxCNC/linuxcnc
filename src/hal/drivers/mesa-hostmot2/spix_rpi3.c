@@ -209,7 +209,11 @@ static int spi0_transfer(const spix_port_t *sp, uint32_t *wptr, size_t txlen, in
 	rpi3_port_t *rp = (rpi3_port_t *)sp;
 	uint8_t *w8ptr = (uint8_t *)wptr;
 	uint8_t *r8ptr = (uint8_t *)wptr;	// read into write buffer
+	// Happens with cppcheck 2.13, not with 2.17. Debian 12 (2.10)
+	// cannot handle suppress-begin/suppress-end ranges
+	// cppcheck-suppress duplicateAssignExpression
 	size_t tx8len = txlen * sizeof(uint32_t);	// Bytes to send
+	// cppcheck-suppress duplicateAssignExpression
 	size_t rx8len = txlen * sizeof(uint32_t);	// Bytes to read
 	size_t u;
 	uint32_t cs;
@@ -306,7 +310,11 @@ static int spi1_transfer(const spix_port_t *sp, uint32_t *wptr, size_t txlen, in
 	rpi3_port_t *rp = (rpi3_port_t *)sp;
 	uint16_t *w16ptr = (uint16_t *)wptr;
 	uint16_t *r16ptr = (uint16_t *)wptr;
+	// Happens with cppcheck 2.13, not with 2.17. Debian 12 (2.10)
+	// cannot handle suppress-begin/suppress-end ranges
+	// cppcheck-suppress duplicateAssignExpression
 	size_t tx16len = txlen * 2;	// There are twice as many 16-bit words as there are 32-bit words
+	// cppcheck-suppress duplicateAssignExpression
 	size_t rx16len = txlen * 2;
 	size_t u;
 	unsigned pending = 0;

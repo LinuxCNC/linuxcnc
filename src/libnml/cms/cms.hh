@@ -460,6 +460,7 @@ class CMS {
     CMS_DIAG_PROC_INFO *dpi;
     virtual CMS_DIAG_PROC_INFO *get_diag_proc_info();
     virtual void set_diag_proc_info(CMS_DIAG_PROC_INFO *);
+    // cppcheck-suppress virtualCallInConstructor
     virtual void setup_diag_proc_info();
     virtual void calculate_and_store_diag_info(PHYSMEM_HANDLE * _handle,
 	void *);

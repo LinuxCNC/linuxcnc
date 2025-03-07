@@ -246,7 +246,7 @@ void write_log_file(char *filename)
     scope_vert_t *vert;
     hal_type_t type[16];
 
-    char *label[16];
+    char *label[16] = {};
     char *old_locale, *saved_locale;
     int sample_len, chan_active, chan_num, sample_period_ns, samples, n;
     FILE *fp;
