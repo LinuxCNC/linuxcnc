@@ -1,4 +1,4 @@
-VERSION = '008.056'
+VERSION = '008.057'
 LCNCVER = '2.10'
 DOCSVER = LCNCVER
 
@@ -6,7 +6,7 @@ DOCSVER = LCNCVER
 qtplasmac_handler.py
 
 Copyright (C) 2020-2024 Phillip A Carter
-Copyright (C) 2020-2024 Gregory D Carl
+Copyright (C) 2020-2025 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -4289,20 +4289,28 @@ class HandlerClass:
                         break
 
     def user_button_down(self, bNum):
-        commands = self.iniButtonCodes[bNum]
-        if not commands:
+        bCode = self.iniButtonCodes[bNum]
+        if not bCode:
             return
-        if 'change-consumables' in commands.lower() and 'e-halpin' not in commands.lower():
+        # toggle-laser is the only code that can appear anywhere in the button code
+        if 'toggle-laser' in bCode.lower():
+            self.laserOnPin.set(not self.laserOnPin.get())
+            for command in bCode.split('\\'):
+                command = command.strip()
+                if command != 'toggle-laser':
+                    self.user_button_command(bNum, command)
+            ACTION.SET_MANUAL_MODE()
+        elif bCode.lower().startswith('change-consumables') and 'e-halpin' not in bCode.lower():
             self.change_consumables(True)
-        elif 'probe-test' in commands.lower() and 'e-halpin' not in commands.lower():
+        elif bCode.lower().startswith('probe-test') and 'e-halpin' not in bCode.lower():
             self.probe_test(True)
-        elif 'torch-pulse' in commands.lower() and 'e-halpin' not in commands.lower():
+        elif bCode.lower().startswith('torch-pulse') and 'e-halpin' not in bCode.lower():
             self.torch_pulse(True)
-        elif 'ohmic-test' in commands.lower() and 'e-halpin' not in commands.lower():
+        elif bCode.lower().startswith('ohmic-test') and 'e-halpin' not in bCode.lower():
             self.ohmic_test(True)
-        elif 'framing' in commands.lower():
+        elif bCode.lower().startswith('framing'):
             self.frame_job(True)
-        elif 'cut-type' in commands.lower():
+        elif bCode.lower().startswith('cut-type'):
             self.w.gcodegraphics.logger.clear()
             self.cutType ^= 1
             if self.cutType:
@@ -4317,13 +4325,13 @@ class HandlerClass:
             self.overlayProgress.setValue(0)
             if self.fileOpened:
                 self.file_reload_clicked()
-        elif 'load' in commands.lower():
-            lFile = f'{self.programPrefix}/{commands.split("load", 1)[1].strip()}'
+        elif bCode.lower().startswith('load'):
+            lFile = f'{self.programPrefix}/{bCode.split("load", 1)[1].strip()}'
             self.overlayProgress.setValue(0)
             self.remove_temp_materials()
             ACTION.OPEN_PROGRAM(lFile)
-        elif 'toggle-halpin' in commands.lower():
-            halpin = commands.lower().split('toggle-halpin')[1].split(' ')[1].strip()
+        elif bCode.lower().startswith('toggle-halpin'):
+            halpin = bCode.lower().split('toggle-halpin')[1].split(' ')[1].strip()
             try:
                 if halpin in self.halPulsePins and self.halPulsePins[halpin][3] > 0.05:
                     self.halPulsePins[halpin][3] = 0.0
@@ -4334,17 +4342,10 @@ class HandlerClass:
                 msg0 = _translate('HandlerClass', 'Invalid code for user button')
                 msg1 = _translate('HandlerClass', 'Failed to toggle HAL pin')
                 STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head,}:\n{msg0} #{bNum}\n{msg1}\n"{halpin}" {err}\n')
-        elif 'toggle-laser' in commands.lower():
-            self.laserOnPin.set(not self.laserOnPin.get())
-            for command in commands.split('\\'):
-                command = command.strip()
-                if command != 'toggle-laser':
-                    self.user_button_command(bNum, command)
-            ACTION.SET_MANUAL_MODE()
-        elif 'pulse-halpin' in commands.lower():
+        elif bCode.lower().startswith('pulse-halpin'):
             head = _translate('HandlerClass', 'HAL Pin Error')
             msg1 = _translate('HandlerClass', 'Failed to pulse HAL pin')
-            halpin = commands.lower().strip().split()[1]
+            halpin = bCode.lower().strip().split()[1]
             # halPulsePins format is: button name, pulse time, button text, remaining time, button number
             try:
                 if self.halPulsePins[halpin][3] > 0.05:
@@ -4357,19 +4358,19 @@ class HandlerClass:
             except:
                 msg0 = _translate('HandlerClass', 'Invalid code for user button')
                 STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum}\n{msg1} "{halpin}"\n')
-        elif 'single-cut' in commands.lower():
+        elif bCode.lower().startswith('single-cut'):
             self.single_cut()
-        elif 'manual-cut' in commands.lower():
+        elif bCode.lower().startswith('manual-cut'):
             self.manual_cut()
-        elif 'offsets-view' in commands.lower():
+        elif bCode.lower().startswith('offsets-view'):
             if self.w.preview_stack.currentIndex() != self.OFFSETS:
                 self.w.preview_stack.setCurrentIndex(self.OFFSETS)
             else:
                 self.preview_index_return(self.w.preview_stack.currentIndex())
-        elif 'latest-file' in commands.lower():
+        elif bCode.lower().startswith('latest-file'):
             try:
-                if len(commands.split()) == 2:
-                    dir = commands.split()[1]
+                if len(bCode.split()) == 2:
+                    dir = bCode.split()[1]
                 else:
                     dir = self.w.PREFS_.getpref('last_loaded_directory', '', str, 'BOOK_KEEPING')
                 files = glob.glob(f'{dir}/*.ngc')
@@ -4381,28 +4382,28 @@ class HandlerClass:
                 head = _translate('HandlerClass', 'File Error')
                 msg0 = _translate('HandlerClass', 'Cannot open latest file from user button')
                 STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0} #{bNum}\n')
-        elif 'user-manual' in commands.lower():
+        elif bCode.lower().startswith('user-manual'):
             if self.w.preview_stack.currentIndex() != self.USER_MANUAL:
                 self.prevPreviewIndex = self.w.preview_stack.currentIndex()
                 self.w.preview_stack.setCurrentIndex(self.USER_MANUAL)
             else:
                 self.w.preview_stack.setCurrentIndex(self.prevPreviewIndex)
                 self.prevPreviewIndex = self.USER_MANUAL
-        elif 'toggle-joint' in commands.lower():
+        elif bCode.lower().startswith('toggle-joint'):
             self.toggle_joint_mode()
         else:
             self.reloadRequired = False
-            if 'dual-code' in commands:
+            if bCode.lower().startswith('dual-code'):
                 # dualCodeButtons format is: code1 ;; label1 ;; code2 ;; label2 ;; checked
                 if self.w[f'button_{bNum}'].text() == self.dualCodeButtons[bNum][3]:
-                    commands = self.dualCodeButtons[bNum][0]
+                    bCode = self.dualCodeButtons[bNum][0]
                     self.w[f'button_{bNum}'].setText(self.dualCodeButtons[bNum][1])
                     self.w[f'button_{bNum}'].setChecked(True)
                 else:
-                    commands = self.dualCodeButtons[bNum][2]
+                    bCode = self.dualCodeButtons[bNum][2]
                     self.w[f'button_{bNum}'].setText(self.dualCodeButtons[bNum][3])
                     self.w[f'button_{bNum}'].setChecked(False)
-            for command in commands.split('\\'):
+            for command in bCode.split('\\'):
                 command = command.strip()
                 self.user_button_command(bNum, command)
                 if command[0] == "%":

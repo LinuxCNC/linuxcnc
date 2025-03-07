@@ -204,7 +204,7 @@ o = 0.5 * a * (v / a)^2
 
 where: o = overrun, a = acceleration in units/s^2^ and v = velocity in units/s.
 
-Metric example:  given a Z axis MAX_ACCELERATION of 600 mm/s^2^ and MAX_VELOCITY of 60 mm/s, the overrun would be 3 mm.
+Metric example: given a Z axis MAX_ACCELERATION of 600 mm/s^2^ and MAX_VELOCITY of 60 mm/s, the overrun would be 3 mm.
 
 Imperial example: given a Z axis MAX_ACCELERATION of 24 in/s^2^ and MAX_VELOCITY of 2.4 in/s, the overrun would be 0.12 in.
 
@@ -1159,7 +1159,7 @@ If the "onboard" virtual keyboard is installed then the <<custom_kb_layouts,cust
 |KB Shortcuts |This radio button allows the user to enable or disable <<plasma:keyboard-shortcuts,Keyboard Shortcuts>> within the GUI (such as keyboard jogging). +
 In addition to the standard jog keys, a list of the additional shortcuts is available in the <<plasma:keyboard-shortcuts,keyboard shortcuts>> section.
 |View Material |This radio button allows the user to enable or disable the addition of a visual reference showing key material cut settings to the Preview Windows of the <<plasma:main-tab,MAIN>> and <<plasma:conversational-tab,CONVERSATIONAL>> tabs. +
-Examples are:  Feed Rate, Pierce Height, Pierce Delay, and Cut Height. Cut Amps will be shown if PowerMax communications are enabled.
+Examples are: Feed Rate, Pierce Height, Pierce Delay, and Cut Height. Cut Amps will be shown if PowerMax communications are enabled.
 |Exit Warning |This radio button allows the user to enable or disable whether a warning will always be displayed during shutdown. +
 It is possible to add a custom message to the warning by editing the <<plasma:exit-warning,EXIT WARNING MESSAGE>> option in the *[GUI_OPTIONS]* section of the _<machine_name>_.prefs file. +
 The custom message can be made multi-line by adding a "\" between lines.
@@ -2555,7 +2555,7 @@ If SLOW jogging is already active, the axis will jog at the displayed jog speed.
 === MDI
 
 In addition to the typical G and M codes that are allowed by LinuxCNC in MDI mode, the MDI in QtPlasmaC can be used to access several other handy features.
-The following link outlines the features and their use:  <<sub:qtvcp:widgets:mdiline>>[MDILine Widget]
+The following link outlines the features and their use: <<sub:qtvcp:widgets:mdiline>>[MDILine Widget]
 
 [NOTE]
 M3, M4, and M5 are not allowed in the QtPlasmaC MDI.
@@ -2605,7 +2605,7 @@ The general functions are as follows:
 |Name               |Description
 |Material Drop-Down |Allows the user to select the desired material for cutting. +
 If "VIEW MATERIAL" is selected on the <<plasma:settings-tab,SETTINGS Tab>>, a visual reference showing key material cut settings will be displayed on the Conversational Preview Window. +
-Examples are:  Feed Rate, Pierce Height, Pierce Delay, Cut Height, and Kerf Width (for Conversational only). Cut Amps will be shown if PowerMax communications are enabled.
+Examples are: Feed Rate, Pierce Height, Pierce Delay, Cut Height, and Kerf Width (for Conversational only). Cut Amps will be shown if PowerMax communications are enabled.
 |NEW |Removes the current G-code file and load a blank G-code file.
 |SAVE |Opens a dialog box allowing the current shape to be saved as a G-code file.
 |SETTINGS |Allows the changing of the global settings.
@@ -3089,7 +3089,7 @@ Preview = #000000
 === Custom Python Code
 
 It is possible to add custom Python code to change some existing functions or to add new ones.
-Custom code can be added in two different ways:  a user command file or a user periodic file.
+Custom code can be added in two different ways: a user command file or a user periodic file.
 
 A user command file is specified in the DISPLAY section of the _<machine_name>_.ini file and contains Python code that is processed only once during startup.
 
@@ -3296,11 +3296,11 @@ n Code = %halshow \ g0x.5y.5 \ %halmeter
 [[plasma:button-dual]]
 .*Dual Code*
 
-Dual Code allows the running of two code snippets alternately each button press.
-The button text may also alternate each button press and the indicator light may be optionally enabled.
+Dual Code allows the running of two code snippets alternately with each button press.
+The button text will alternate with each button press and the indicator light may be optionally enabled.
 
-It is mandatory to specify "dual-code", the first code, the alternate button text, and the second code separated by double semicolons.
-If the indicator is required then optionally add ";; true" at the end.
+It is mandatory to specify the button code in the following order: "dual-code", the first code, the alternate button text, and the second code separated by double semicolons.
+If an indicator is required then optionally add ";; true" at the end.
 
 [source,{ini}]
 ----
