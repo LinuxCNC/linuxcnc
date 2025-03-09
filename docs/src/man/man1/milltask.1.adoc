@@ -6,8 +6,9 @@ milltask - Non-realtime task controller for LinuxCNC
 
 == DESCRIPTION
 
-*milltask* is an internal process of LinuxCNC. It is generally not
-invoked directly but by an INI file setting: *[TASK]TASK=milltask*.
+The internal process *milltask* of LinuxCNC is generally not
+invoked directly but by an INI file setting:
+`[TASK]TASK=milltask``.
 The *milltask* process creates the `ini.\*` HAL pins listed below and owned by the *inihal* component.
 These pins may be modified while LinuxCNC is running to alter values
 that are typically specified statically in an INI file.
@@ -15,8 +16,7 @@ that are typically specified statically in an INI file.
 The *inihal* pins are sampled in every task cycle, however, commands
 affected by their values typically use the value present at the time
 when the command is processed. Such commands include all codes handled
-by the interpreter (*G-code* programs and *MDI* commands) and NML
-*jogging* commands issued by a GUI (including *halui*). *Wheel jogging*
+by the interpreter (*G-code* programs and *MDI* commands) and NML *jogging* commands issued by a GUI (including *halui*). *Wheel jogging*
 is implemented in the realtime motion module so *inihal* pin changes
 (e.g., `ini.*.max_velocity`, `ini.*.max_acceleration`) may be honored as
 soon as altered values are propagated to the motion module.
@@ -84,11 +84,9 @@ soon as altered values are propagated to the motion module.
 == NOTES
 
 The *inihal* pins cannot be linked or set in a HAL file that is
-specified by an INI file **[HAL]HALFILE** item because they are not
+specified by an INI file `[HAL]HALFILE` item because they are not
 created until *milltask* is started. The *inihal* pin values can be
-altered by independent halcmd programs specified by **[APPLICATION]APP**
-items or by GUIs that support a **[HAL]POSTGUI_HALFILE**.
+altered by independent halcmd programs specified by `[APPLICATION]APP`
+items or by GUIs that support a `[HAL]POSTGUI_HALFILE`.
 
-The INI file is not automatically updated with values altered by
-*inihal* pin settings but can be updated using the calibration program
-(emccalib.tcl) when using a **[HAL]POSTGUI_HALFILE**.
+The INI file is not automatically updated with values altered by *inihal* pin settings but can be updated using the calibration program (emccalib.tcl) when using a `[HAL]POSTGUI_HALFILE`.

@@ -52,7 +52,7 @@ file.
 
 Usage:
 
-$ xhc-hb04 [options]
+`xhc-hb04` [_options_]
 
 == Options
 
@@ -110,7 +110,7 @@ Example: `loadusr -W xhc-hb04-H -I` _path_to_cfg_file_ `-s 2`
 
 == Input Pins (Control)
 
-_xhc-hb04.stepsize-up (bit in)::
+xhc-hb04.stepsize-up (bit in)::
   A 1 pulse on this pin changes the stepsize to the next higher stepsize
   in the stepsize sequence specified in the xhc-hb04 (loadusr) command.
 xhc-hb04.stepsize-down (bit in)::
@@ -238,10 +238,7 @@ ROW 5
 
 == Synthesized button pins
 
-Additional buttons are synthesized for buttons named *zero*,
-*goto-zero*, and *half*. These synthesized buttons are active when the
-button is pressed AND the selector-switch is set to the corresponding
-axis [xyza].
+Additional buttons are synthesized for buttons named *zero*, *goto-zero*, and *half*. These synthesized buttons are active when the button is pressed AND the selector-switch is set to the corresponding axis [xyza].
 
 ....
    (bit out) xhc-hb04.button-zero-[xyza]
@@ -291,7 +288,7 @@ See the README and .txt files in the above directory for usage.
 The sim configs use the AXIS GUI but the scripts are available
 with any HAL configuration or GUI. The same scripts can be used to adapt
 the xhc-hb04 to existing configurations provided that the halui, motion,
-and axis.N pins needed are not otherwise claimed. Instructions are
+and axis._N_ pins needed are not otherwise claimed. Instructions are
 included in README file in the directory named above.
 
 Use halcmd to display the pins and signals used by the xhc-hb04.tcl script:

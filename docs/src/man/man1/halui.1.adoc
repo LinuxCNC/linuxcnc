@@ -10,7 +10,7 @@ halui - observe HAL pins and command LinuxCNC through NML
 
 == DESCRIPTION
 
-*halui* is used to build a User Interface using hardware knobs and switches.
+The program *halui* is used to build a User Interface using hardware knobs and switches.
 It exports a big number of pins, and acts accordingly when these change.
 
 == OPTIONS
@@ -26,7 +26,7 @@ When run, *halui* will export a large number of pins. A user can connect
 those to his physical knobs & switches & leds, and when a change is
 noticed halui triggers an appropriate event.
 
-*halui* expects the signals to be debounced, so if needed (bad knob
+Caveat, *halui* expects the signals to be debounced, so if needed (bad knob
 contact) connect the physical button to a HAL debounce filter first.
 
 == PINS
