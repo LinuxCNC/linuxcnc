@@ -1,6 +1,6 @@
 VERSION = '008.057'
 LCNCVER = '2.10'
-DOCSVER = LCNCVER
+DOCSVER = 'devel'
 
 '''
 qtplasmac_handler.py
