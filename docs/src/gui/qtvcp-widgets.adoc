@@ -2792,7 +2792,7 @@ It is based on PyQt's _QDialog_.
 === `MachineLogDialog` - Machine and Debugging Logs Dialog Widget
 
 .QtVCP `MachineLogDialog`: Machine and Debugging Logs Dialog Widget
-image::images/qtvcp_machineLog.png["QtVCP MachineLogDialog: Machine and Debugging Logs Dialog Widget",scale="25%"]
+image::images/qtvcp_machineLogDialog.png["QtVCP MachineLogDialog: Machine and Debugging Logs Dialog Widget",scale="25%"]
 
 This is a dialog to *display the machine log and QtVCP's debugging log*.
 
