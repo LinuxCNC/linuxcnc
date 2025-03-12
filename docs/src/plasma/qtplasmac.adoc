@@ -532,7 +532,7 @@ The _<machine_name>_.prefs file is plain text and may be edited with any text ed
 
 QtPlasmaC has some specific _<machine_name>_.ini file variables as follows:
 
-.*[FILTER]* Section
+*[FILTER]* Section
 
 These variables are mandatory.
 
@@ -804,7 +804,7 @@ This button is only visible if a PM_PORT option is configured in the `[POWERMAX]
 For more information, see the <<plasma:pm_comms,PowerMax Communications>> section.
 |===
 
-.SENSOR
+.*SENSOR*
 
 [width="100%",cols="4,16",options="header"]
 |===
@@ -814,7 +814,7 @@ For more information, see the <<plasma:pm_comms,PowerMax Communications>> sectio
 |BREAK |Indicates that the torch breakaway sensor is activated.
 |===
 
-.THC
+.*THC*
 
 [width="100%",cols="4,16",options="header"]
 |===
@@ -826,7 +826,7 @@ For more information, see the <<plasma:pm_comms,PowerMax Communications>> sectio
 |DOWN    |This LED indicates that the THC is commanding the Z axis to lower.
 |===
 
-.*JOGGING*.
+.*JOGGING*
 
 [NOTE]
 During Paused Motion, this section will become <<plasma:cut-recovery,CUT RECOVERY>>
@@ -844,7 +844,7 @@ During Paused Motion, this section will become <<plasma:cut-recovery,CUT RECOVER
 |Z-         |This button moves the Z axis in the negative direction.
 |===
 
-.CUT RECOVERY
+.*CUT RECOVERY*
 
 [NOTE]
 During Paused Motion, this section will be shown on top of the JOGGING panel.
