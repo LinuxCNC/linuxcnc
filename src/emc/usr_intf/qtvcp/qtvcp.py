@@ -578,7 +578,7 @@ if __name__ == "__main__":
 
         from qtvcp import logger
 
-        if '-d' in sys.argv or '-v' in sys.argv:
+        if '-i' in sys.argv or'-d' in sys.argv or '-v' in sys.argv:
             state = True
         else:
             state = False

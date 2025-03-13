@@ -202,7 +202,7 @@ class MachineLog(QWidget, _HalWidgetBase):
         logText = file.readAll()
         file.close()
         if str(logText, encoding='utf8') == "":
-            self.logText.setPlainText('No Logging found. Is QtVcp in debugging or verbose mode (-d or -v)?')
+            self.logText.setPlainText('No Logging found. Is QtVcp in debugging or verbose mode (-i, -d or -v)?')
             return
         self.logText.setPlainText(str(logText, encoding='utf8'))
         # scroll down to show last entry
