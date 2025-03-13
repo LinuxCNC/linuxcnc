@@ -1,4 +1,4 @@
-VERSION = '008.057'
+VERSION = '008.058'
 LCNCVER = '2.10'
 DOCSVER = 'devel'
 
@@ -162,7 +162,7 @@ class HandlerClass:
         if os.path.basename(self.PATHS.XML) == 'qtplasmac_9x16.ui':
             self.landscape = False
         self.upFile = os.path.join(self.PATHS.CONFIGPATH, 'user_periodic.py')
-        self.umUrl = QUrl(f'http://linuxcnc.org/docs/{DOCSVER}/html/plasma/qtplasmac.html')
+        self.umUrl = f'https://linuxcnc.org/docs/{DOCSVER}/html/plasma/qtplasmac.html'
         KEYBIND.add_call('Key_F12', 'on_keycall_F12')
         KEYBIND.add_call('Key_F9', 'on_keycall_F9')
         KEYBIND.add_call('Key_Plus', 'on_keycall_PLUS')
@@ -2482,7 +2482,7 @@ class HandlerClass:
         self.w.webview.forward()
 
     def web_reload_pressed(self):
-        self.w.webview.load(self.umUrl)
+        self.w.webview.load(QUrl(self.umUrl))
 
 #########################################################################################################################
 # GENERAL FUNCTIONS #
@@ -3187,6 +3187,7 @@ class HandlerClass:
         self.w.webview_back.pressed.connect(self.web_back_pressed)
         self.w.webview_forward.pressed.connect(self.web_forward_pressed)
         self.w.webview_reload.pressed.connect(self.web_reload_pressed)
+        self.w.webview.page().loadFinished.connect(self.style_user_manual)
 
     def conv_call(self, operation):
         if self.developmentPin.get():
@@ -4237,7 +4238,7 @@ class HandlerClass:
             elif code == 'user-manual':
                 self.umButton = f'button_{str(bNum)}'
                 self.idleList.append(self.umButton)
-                self.w.webview.load(self.umUrl)
+                self.w.webview.load(QUrl(self.umUrl))
             elif code == 'toggle-joint':
                 self.jtButton = f'button_{str(bNum)}'
                 self.idleHomedList.append(self.jtButton)
@@ -6064,6 +6065,8 @@ class HandlerClass:
         self.w.gcode_editor.editor.setCaretForegroundColor(QColor(self.fore1Color))
         # gcode editor active line
         self.w.gcode_editor.editor.setCaretLineBackgroundColor(QColor(self.backColor))
+        # webview background
+        self.w.webview.page().setBackgroundColor(QColor(self.backColor))
 
     def standard_stylesheet(self):
         baseStyleFile = os.path.join(self.PATHS.SCREENDIR, self.PATHS.BASEPATH, 'qtplasmac.style')
@@ -6153,6 +6156,77 @@ class HandlerClass:
             self.w[item].setIcon(QIcon(self.image))
         elif type == 'image':
             self[item] = QPixmap(self.image)
+
+    def style_user_manual(self):
+        # There is a brief delay between the "loadFinished" signal and the versioning site's readiness for CSS changes
+        if 'qtplasmac/versions.html' in self.w.webview.url().toString():
+            delayTime = 150
+        else:
+            delayTime = 0
+        customStyling = f"""
+            setTimeout(function() {{
+                var style = document.createElement('style');
+                style.innerHTML = `
+                    /* Apply background color to elements */
+                    .caption, a, blockquote, body, figcaption, caption, code, div, div.content,
+                    h1, h2, h3, h4, h5, h6, table, td, th, pre, ol, ul {{
+                        background-color: {self.backColor} !important; }}
+
+                    /* Apply foreground color to elements */
+                    body, blockquote, caption, div, li, td, p {{
+                        color: {self.foreColor} !important; }}
+
+                    /* Apply highlight color to elements */
+                    .caption, a, code, div.title, dt, em, figcaption, h1, h2, h3, h4, h5, h6,
+                    span, strong, th, tt, ul {{
+                        color: {self.fore1Color} !important; }}
+
+                    /* Change table borders color and fix sizing */
+                    table {{
+                        border: 2px solid {self.foreColor} !important;
+                        border-collapse: collapse !important; }}
+
+                    /* Change table divider color and fix sizing */
+                    td, th {{
+                        border: 1px solid {self.foreColor} !important; }}
+
+                    /* Remove borders from these elements, or things look odd after the other styling */
+                    hr, div, div.content {{
+                        border: none !important; }}
+
+                    /* Apply highlight color to header underline */
+                    h1, h2, h3, h4, h5, h6 {{
+                        border-bottom: solid {self.fore1Color} !important; }}
+
+                    /* Some images have a transparent background, this makes them visible */
+                    img {{
+                        background-color: white !important; }}
+
+                    /* Apply alternate background color to highlighted sections (on section link click from TOC) */
+                    :target {{
+                        background: {self.back1Color} !important; }}
+
+                    /* The following change scroll bar to match GUI styling */
+                    ::-webkit-scrollbar {{
+                        width: 20px;
+                        height: 20px; }}
+
+                    ::-webkit-scrollbar-thumb {{
+                        background: {self.foreColor} !important;
+                        border-radius: 4px;
+                        min-height: 40px !important;
+                        min-width: 40px !important; }}
+
+                    ::-webkit-scrollbar-track {{
+                        background: {self.back1Color} !important;
+                        border-radius: 4px; }}
+
+                    ::-webkit-scrollbar-corner {{
+                        background: {self.backColor} !important; }}
+                `;
+                document.head.appendChild(style); }}, {delayTime});
+        """
+        self.w.webview.page().runJavaScript(customStyling)
 
 #########################################################################################################################
 # KEY BINDING CALLS #

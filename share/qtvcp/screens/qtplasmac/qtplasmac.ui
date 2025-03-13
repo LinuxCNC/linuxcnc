@@ -1698,7 +1698,7 @@ EDGE</string>
                            </size>
                           </property>
                           <property name="text">
-                           <string>RELOAD</string>
+                           <string>RELOAD USER MANUAL</string>
                           </property>
                          </widget>
                         </item>
