@@ -5,7 +5,8 @@ from PyQt5.QtWidgets import (QStyledItemDelegate, QComboBox, QWidget, QVBoxLayou
                     QToolBar, QToolButton,  QLabel, QListWidget, QListWidgetItem,
                     QInputDialog)
 from PyQt5.QtGui import QFont, QColor, QIcon
- 
+from qtvcp.widgets.calculator import Calculator
+
 HORIZONTAL_HEADERS = ("Property", "Value")
 
 class tv_select :  # 'enum' items
@@ -231,12 +232,16 @@ class ComboDelegate(QStyledItemDelegate):
             dialog.setWindowTitle('Note')
             dialog.setLabelText('Editable Comment (installed in Gcode)')
             return dialog
+        elif editorType in ('int','float'):
+            calc = Calculator(parent)
+            return calc
         else:
             return super().createEditor(parent, option, index)
 
-    # set combobox display
+    
     def setEditorData(self, editor, index):
         editorType = index.model().data(index,Qt.UserRole).get_type()
+
         # set combo box index from treemodel
         if editorType == 'combo':
             # get model data 'magic number'
@@ -245,6 +250,7 @@ class ComboDelegate(QStyledItemDelegate):
             #print('set combo', idx)
             editor.setCurrentIndex(idx)
             return
+
         elif editorType == 'tool':
             # get model data 'magic number'
             value = index.model().data(index,Qt.UserRole).get_value()
@@ -252,14 +258,21 @@ class ComboDelegate(QStyledItemDelegate):
             print('set tool combo', idx)
             editor.setCurrentIndex(int(value))
             return
+
         elif editorType == 'text':
             text = index.model().data(index,Qt.UserRole).get_value()
             editor.setTextValue(text)
+
+        elif editorType in ('int','float'):
+            text = index.model().data(index,Qt.UserRole).get_value()
+            editor.display.setText(text)
+
         else:
             return super().setEditorData(editor, index)
 
     def setModelData(self, editor, model, index):
         editorType = index.model().data(index,Qt.UserRole).get_type()
+
         # set model to combobox selection
         if editorType == 'combo':
             if index.column() == 1:
@@ -267,17 +280,27 @@ class ComboDelegate(QStyledItemDelegate):
                 data = editor.itemData(editor.currentIndex(), Qt.UserRole)
                 #print('set model data',data)
                 model.setData(index, data, Qt.DisplayRole)
+
         elif editorType == 'tool':
                 # extract integer user data ('magic number') from combobox
                 data = editor.itemData(editor.currentIndex(), Qt.UserRole)
                 print('set tool model data',data)
                 model.setData(index, data, Qt.DisplayRole)
+
         elif editorType == 'text':
             data = editor.textValue()
             result = editor.result()
             if result == QInputDialog.Accepted:
-                print('dialog return',data)
                 model.setData(index, data, Qt.DisplayRole)
+
+        elif editorType in('int','float'):
+            if editorType == 'int':
+                result = editor.intResult
+            else:
+                result = editor.floatResult
+            if not result is None:
+                model.setData(index, str(result), Qt.EditRole)
+
         else:
             return super().setModelData(editor, model, index)
 
@@ -424,7 +447,7 @@ class treeModel(QAbstractItemModel):
                 metaType = item.meta.get_type()
                 #print(item.meta.find_attr('type'))
 
-                if metaType  in ('float,''int'):
+                if metaType  in ('float','int'):
                     print('int/float',item.meta.xml)
                     rtn = item.meta.set_value(value)
                     self.dataChanged.emit(index, index)
@@ -464,6 +487,10 @@ class treeModel(QAbstractItemModel):
                     rtn = item.meta.set_value(value)
                     self.dataChanged.emit(index, index)
                 elif metaType == 'text':
+                    rtn = item.meta.set_value(value)
+                    self.dataChanged.emit(index, index)
+                elif metaType  in ('float','int'):
+                    print('Set int/float')
                     rtn = item.meta.set_value(value)
                     self.dataChanged.emit(index, index)
         print('after=>', item.meta)
