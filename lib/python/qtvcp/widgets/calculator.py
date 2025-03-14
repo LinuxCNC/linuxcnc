@@ -87,6 +87,9 @@ class Calculator(QDialog):
         self.factorSoFar = 0.0
         self.waitingForOperand = True
 
+        self.intResult = None
+        self.floatResult = None
+
         self.display = CalculatorLineEdit('0')
         self.display.setMinimumHeight(30)
         self.display.setAlignment(Qt.AlignRight)
@@ -619,6 +622,16 @@ class Calculator(QDialog):
     def applyActionWrapper(self):
         self.applyAction()
         self.display.setFocus()
+
+    def accept(self):
+        self.intResult = int(float(self.display.text()))
+        self.floatResult = float(self.display.text())
+        super(Calculator, self).accept()
+
+    def reject(self):
+        self.intResult = None
+        self.floatResult = None
+        super(Calculator, self).reject()
 
     # Subclass can redefine
     def backAction(self):
