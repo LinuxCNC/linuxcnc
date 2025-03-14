@@ -10,7 +10,7 @@ sampler - sample data from HAL in real time
 
 == DESCRIPTION
 
-The HAL components *sampler* and **halsampler**(1) are used together
+The HAL component *sampler* and the program **halsampler**(1) are used together
 to sample HAL data in real time and store it in a file.
 Of these, *sampler* performs in realtime, exporting HAL pins and creates a FIFO (first-in, first out queue) in shared memory.
 It then samples data from the HAL and sends these to the FIFO.
