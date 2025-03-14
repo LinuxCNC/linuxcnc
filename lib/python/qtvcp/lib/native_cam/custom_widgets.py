@@ -2,7 +2,8 @@ import os
 
 from PyQt5.QtCore import QVariant, pyqtSlot, Qt, QAbstractItemModel, QModelIndex, QSize
 from PyQt5.QtWidgets import (QStyledItemDelegate, QComboBox, QWidget, QVBoxLayout,
-                    QToolBar, QToolButton,  QLabel, QListWidget, QListWidgetItem)
+                    QToolBar, QToolButton,  QLabel, QListWidget, QListWidgetItem,
+                    QInputDialog)
 from PyQt5.QtGui import QFont, QColor, QIcon
  
 HORIZONTAL_HEADERS = ("Property", "Value")
@@ -222,6 +223,14 @@ class ComboDelegate(QStyledItemDelegate):
                 combo.addItem(data[0],data[1])
             combo.currentIndexChanged.connect(self.currentIndexChanged)
             return combo
+        elif editorType == 'text':
+            dialog = QInputDialog(parent)
+            dialog.setWindowFlags(dialog.windowFlags() | Qt.Dialog |
+                            Qt.WindowStaysOnTopHint | Qt.WindowSystemMenuHint)
+            dialog.setOption(QInputDialog.UsePlainTextEditForTextInput)
+            dialog.setWindowTitle('Note')
+            dialog.setLabelText('Editable Comment (installed in Gcode)')
+            return dialog
         else:
             return super().createEditor(parent, option, index)
 
@@ -243,6 +252,9 @@ class ComboDelegate(QStyledItemDelegate):
             print('set tool combo', idx)
             editor.setCurrentIndex(int(value))
             return
+        elif editorType == 'text':
+            text = index.model().data(index,Qt.UserRole).get_value()
+            editor.setTextValue(text)
         else:
             return super().setEditorData(editor, index)
 
@@ -259,6 +271,12 @@ class ComboDelegate(QStyledItemDelegate):
                 # extract integer user data ('magic number') from combobox
                 data = editor.itemData(editor.currentIndex(), Qt.UserRole)
                 print('set tool model data',data)
+                model.setData(index, data, Qt.DisplayRole)
+        elif editorType == 'text':
+            data = editor.textValue()
+            result = editor.result()
+            if result == QInputDialog.Accepted:
+                print('dialog return',data)
                 model.setData(index, data, Qt.DisplayRole)
         else:
             return super().setModelData(editor, model, index)
@@ -305,7 +323,7 @@ class treeModel(QAbstractItemModel):
         if role == Qt.DisplayRole:
 
             if item.meta and index.column() == 1:
-
+                print('*:',item.meta.get_type())
                 # don't display data if there is a checkbox
                 if item.meta.get_type() == 'bool':
                     return None
@@ -322,20 +340,27 @@ class treeModel(QAbstractItemModel):
                             #print('bingo')
                             return text
                     return('Unknown {}'.format(get_data()))
-                elif item.meta.get_type() == 'tool':
 
+                elif item.meta.get_type() == 'tool':
                     val = item.meta.find_attr('value')
                     text = self.DATA.TOOL_TABLE.get_text(val)
                     print(self.DATA.TOOL_TABLE.list.split(':'))
                     print('tool',val,text)
                     return text
+
                 elif item.meta.get_type() == 'prjname':
                     h, dval = os.path.split(self.DATA.CURRENT_PROJECT)
                     dval, h = os.path.splitext(dval)
                     print('prjname',dval,h)
                     return dval
+
+                elif item.meta.get_type() == 'text':
+                    val = item.meta.find_attr('value')
+                    print('Found ->note text:',val)
+                    return val
+
                 else:
-                    print('Unknown {}'.format(item.meta.get_type()))
+                    print('Unknown data {}'.format(item.meta.get_type()))
 
             return item.data(index.column())
 
@@ -398,17 +423,29 @@ class treeModel(QAbstractItemModel):
             if item.meta and index.column() == 1:
                 metaType = item.meta.get_type()
                 #print(item.meta.find_attr('type'))
+
                 if metaType  in ('float,''int'):
                     print('int/float',item.meta.xml)
                     rtn = item.meta.set_value(value)
                     self.dataChanged.emit(index, index)
+
                 elif metaType == 'tool':
                     print('Set Tool',value)
                     rtn = item.meta.set_value(value)
                     self.dataChanged.emit(index, index)
+
                 elif metaType == 'engrave':
                     rtn = item.meta.set_value(value)
                     self.dataChanged.emit(index, index)
+
+                elif metaType == 'text':
+                    print('Set Note text')
+                    rtn = item.meta.set_value(value)
+                    self.dataChanged.emit(index, index)
+
+                elif metaType == 'prjname':
+                    print('prjname')
+
                 else:
                     print('unknown but trying updated:',metaType)
                     rtn = item.meta.set_value(value)
@@ -417,15 +454,18 @@ class treeModel(QAbstractItemModel):
         elif role == Qt.DisplayRole:
             print('display role',role,index.column())
             if item.meta and index.column() == 1:
-                if item.meta.get_type() in ('combo', 'combo-user', 'list'):
+                metaType = item.meta.get_type()
+                if metaType in ('combo', 'combo-user', 'list'):
                     optionList = item.meta.get_options().split(':')
                     #print(optionList,value)
                     rtn = item.meta.set_value(value)
                     self.dataChanged.emit(index, index)
-                elif item.meta.get_type() == 'tool':
+                elif metaType == 'tool':
                     rtn = item.meta.set_value(value)
                     self.dataChanged.emit(index, index)
-
+                elif metaType == 'text':
+                    rtn = item.meta.set_value(value)
+                    self.dataChanged.emit(index, index)
         print('after=>', item.meta)
         #item.meta.fname = value
 
