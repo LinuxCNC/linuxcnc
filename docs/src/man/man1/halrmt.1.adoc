@@ -22,7 +22,7 @@ socket, without port specification it uses default port 5006.
 == DESCRIPTION
 
 The application *halrmt* supports six commands that are meant to be sent
-to an instance of HAl that is running on another machine. Of these, the commands _set_ and _get_ contain HAL specific sub-commands that are based
+to an instance of HAL that is running on another machine. Of these, the commands _set_ and _get_ contain HAL specific sub-commands that are based
 on the commands supported by _halcmd_.
 
 Commands and most parameters are not case sensitive.
