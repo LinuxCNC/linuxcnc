@@ -102,7 +102,7 @@ get good results, but your maximum step rate might be a little
 disappointing, especially if you use microstepping or have very
 fine pitch leadscrews. If the numbers are 100 µs or more,
 i.e. >= 100,000 nanoseconds (ns), then the PC is not a good candidate for software
-stepping. Numbers over 1 millisecond (1,000,000 ns) mean
+stepping. Numbers over 1 millisecond (1,000,000 ns) mean
 the PC is not a good candidate for LinuxCNC, regardless of whether you
 use software stepping or not.
 
@@ -169,12 +169,12 @@ Options:
   --nox            (no gui, display elapsed,min,max,sdev for each thread)
 ----
 
-Note:
-When determining the latency, LinuxCNC and HAL should not be running, stop with halrun -U.
+[NOTE]
+When determining the latency, LinuxCNC and HAL should not be running, stop with `halrun -U`.
 Large number of bins and/or small binsizes will slow updates.
-For single thread, specify --nobase (and options for servo thread).
+For single thread, specify `--nobase` (and options for servo thread).
 Measured latencies outside of the +/- bin range are reported with special end bars.
-Use --show to show count for the off-chart [pos|neg] bin
+Use `--show` to show count for the off-chart [pos|neg] bin.
 
 .`latency-histogram` Window
 image::../config/images/latency-histogram.png["latency-histogram Window"]

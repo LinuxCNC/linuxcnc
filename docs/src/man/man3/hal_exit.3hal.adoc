@@ -15,8 +15,8 @@ comp_id::
 
 == DESCRIPTION
 
-*hal_exit* shuts down and cleans up HAL and RTAPI. It must be called
-prior to exit by any module that called *hal_init*.
+The function *hal_exit* shuts down and cleans up HAL and RTAPI.
+It must be called prior to exit by any module that called *hal_init*.
 
 == REALTIME CONSIDERATIONS
 

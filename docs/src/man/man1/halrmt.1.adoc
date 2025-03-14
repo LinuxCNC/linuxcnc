@@ -21,12 +21,15 @@ socket, without port specification it uses default port 5006.
 
 == DESCRIPTION
 
-*halrmt* supports six commands of which the commands _set_ and _get_
-contain HAL specific sub-commands based on the commands supported by
-_halcmd_. Commands and most parameters are not case sensitive. The
-exceptions are passwords, file paths and text strings. The supported
-commands are as follows: *HELLO* Hello <password> <client> <version>
+The application *halrmt* supports six commands that are meant to be sent
+to an instance of HAL that is running on another machine. Of these, the commands _set_ and _get_ contain HAL specific sub-commands that are based
+on the commands supported by _halcmd_.
 
+Commands and most parameters are not case sensitive.
+The exceptions are passwords, file paths and text strings.
+The supported commands are as follows:
+
+Hello <password> <client> <version>::
 If a valid password was entered the server will respond with HELLO ACK
 _Server Name>_ _<Server Version>_ where server name and server version are
 looked up from the implementation. If an invalid password or any other
