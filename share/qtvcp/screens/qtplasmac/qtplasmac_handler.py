@@ -1,4 +1,4 @@
-VERSION = '008.058'
+VERSION = '008.059'
 LCNCVER = '2.10'
 DOCSVER = 'devel'
 
@@ -29,7 +29,7 @@ from shutil import copy as COPY
 from subprocess import Popen, PIPE
 from subprocess import run as RUN
 from subprocess import call as CALL
-from importlib import reload
+from importlib import reload, util
 import time
 import tarfile
 import math
@@ -162,7 +162,7 @@ class HandlerClass:
         if os.path.basename(self.PATHS.XML) == 'qtplasmac_9x16.ui':
             self.landscape = False
         self.upFile = os.path.join(self.PATHS.CONFIGPATH, 'user_periodic.py')
-        self.umUrl = f'https://linuxcnc.org/docs/{DOCSVER}/html/plasma/qtplasmac.html'
+        self.umUrl = QUrl(f'https://linuxcnc.org/docs/{DOCSVER}/html/plasma/qtplasmac.html')
         KEYBIND.add_call('Key_F12', 'on_keycall_F12')
         KEYBIND.add_call('Key_F9', 'on_keycall_F9')
         KEYBIND.add_call('Key_Plus', 'on_keycall_PLUS')
@@ -2482,7 +2482,7 @@ class HandlerClass:
         self.w.webview.forward()
 
     def web_reload_pressed(self):
-        self.w.webview.load(QUrl(self.umUrl))
+        self.w.webview.load(self.umUrl)
 
 #########################################################################################################################
 # GENERAL FUNCTIONS #
@@ -3187,7 +3187,6 @@ class HandlerClass:
         self.w.webview_back.pressed.connect(self.web_back_pressed)
         self.w.webview_forward.pressed.connect(self.web_forward_pressed)
         self.w.webview_reload.pressed.connect(self.web_reload_pressed)
-        self.w.webview.page().loadFinished.connect(self.style_user_manual)
 
     def conv_call(self, operation):
         if self.developmentPin.get():
@@ -4238,7 +4237,16 @@ class HandlerClass:
             elif code == 'user-manual':
                 self.umButton = f'button_{str(bNum)}'
                 self.idleList.append(self.umButton)
-                self.w.webview.load(QUrl(self.umUrl))
+                if util.find_spec("PyQt5.QtWebEngineWidgets") is not None:
+                    self.w.webview.page().loadFinished.connect(self.style_user_manual)
+                    self.w.webview.page().setBackgroundColor(QColor(self.backColor))
+                else:
+                    head = _translate('HandlerClass', 'User Button Warning')
+                    msg1 = _translate('HandlerClass', 'QtWebEngine dependency missing for user button')
+                    msg2 = _translate('HandlerClass', 'User Manual styling will not match GUI')
+                    msg3 = _translate('HandlerClass', 'Fix using "sudo apt install python3-pyqt5.qtwebengine"')
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg1} #{bNum}\n{msg2}\n{msg3}\n')
+                self.w.webview.load(self.umUrl)
             elif code == 'toggle-joint':
                 self.jtButton = f'button_{str(bNum)}'
                 self.idleHomedList.append(self.jtButton)
@@ -6065,8 +6073,6 @@ class HandlerClass:
         self.w.gcode_editor.editor.setCaretForegroundColor(QColor(self.fore1Color))
         # gcode editor active line
         self.w.gcode_editor.editor.setCaretLineBackgroundColor(QColor(self.backColor))
-        # webview background
-        self.w.webview.page().setBackgroundColor(QColor(self.backColor))
 
     def standard_stylesheet(self):
         baseStyleFile = os.path.join(self.PATHS.SCREENDIR, self.PATHS.BASEPATH, 'qtplasmac.style')
@@ -6159,10 +6165,7 @@ class HandlerClass:
 
     def style_user_manual(self):
         # There is a brief delay between the "loadFinished" signal and the versioning site's readiness for CSS changes
-        if 'qtplasmac/versions.html' in self.w.webview.url().toString():
-            delayTime = 150
-        else:
-            delayTime = 0
+        delayTime = 500 if 'qtplasmac/versions.html' in self.w.webview.url().toString() else 0
         customStyling = f"""
             setTimeout(function() {{
                 var style = document.createElement('style');

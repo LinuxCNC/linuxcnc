@@ -922,6 +922,10 @@ KeyboardDialog QLineEdit {
     height: 36px }
 
 /****** WEBVIEW ************/
+QWebView {
+    color: black;
+    background: white }
+
 #webview_back, #webview_reload, #webview_forward {
     color: backgnd;
     background: foregnd;
