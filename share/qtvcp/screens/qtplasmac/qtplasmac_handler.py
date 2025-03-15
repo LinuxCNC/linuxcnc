@@ -1881,7 +1881,7 @@ class HandlerClass:
             self.touch_xy_clicked()
 
     def ext_laser_touch_off(self, state):
-        if self.w.laser.isVisible():
+        if self.w.laser.isEnabled():
             if state:
                 self.extLaserButton = True
                 self.laser_pressed()
@@ -1890,7 +1890,7 @@ class HandlerClass:
                 self.laser_clicked()
 
     def ext_laser_toggle(self, state):
-        if self.w.laser.isVisible() and state:
+        if self.w.laser.isEnabled() and state:
             self.laserOnPin.set(not self.laserOnPin.get())
 
     def ext_jog_slow(self, state):
@@ -4734,7 +4734,7 @@ class HandlerClass:
         if self.gcodeProps and state:
             self.w.run.setEnabled(False)
             response = False
-            if self.w.laser.isVisible():
+            if self.w.laser.isEnabled():
                 framingError, framePoints = self.bounds_check_framing(self.laserOffsetX, self.laserOffsetY, True)
                 if framingError:
                     head = _translate('HandlerClass', 'Axis Limit Error')
@@ -6435,7 +6435,7 @@ class HandlerClass:
             self.touch_xy_clicked()
 
     def on_keycall_DELETE(self, event, state, shift, cntrl):
-        if self.keyboard_shortcuts() and self.w.main_tab_widget.currentIndex() == self.MAIN and self.w.laser.isVisible():
+        if self.keyboard_shortcuts() and self.w.main_tab_widget.currentIndex() == self.MAIN and self.w.laser.isEnabled():
             if state and not event.isAutoRepeat():
                 self.extLaserButton = True
                 self.laser_pressed()
