@@ -997,6 +997,12 @@ class HandlerClass:
             self.add_status("{} {}".format(_translate("HandlerClass","Loaded program file"), self.last_loaded_program))
             ACTION.OPEN_PROGRAM(self.last_loaded_program)
 
+    def external_load(self, fname):
+        fname = fname[0]
+        self.w.progressBar.setValue(0)
+        self.add_status("external request to Loaded program file {}".format(fname))
+        ACTION.OPEN_PROGRAM(fname)
+
     # DRO frame
     def btn_home_all_clicked(self, obj):
         if self.home_all is False:
