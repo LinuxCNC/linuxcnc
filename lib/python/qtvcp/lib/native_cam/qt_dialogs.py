@@ -1,5 +1,12 @@
 from PyQt5.QtWidgets import ( QMessageBox, QFileDialog, QTextEdit, QMenu)
 from PyQt5.QtCore import QUrl, Qt
+
+QUESTION = QMessageBox.Question
+CRITICAL = QMessageBox.Critical
+WARNING = QMessageBox.Warning
+INFORMATION = QMessageBox.Information
+NOICON = QMessageBox.NoIcon
+
 #############
 # dialogs
 #############
@@ -9,7 +16,7 @@ def helpDialog(**kward):
         lic = kward.get('licence') or ''
         ver = kward.get('version') or ''
 
-        self.mess_dlg(title =  kward.get('title') or 'Help',
+        mess_dlg(title =  kward.get('title') or 'Help',
                       mess = lic, info = ver, winTitle='About')
 
 def openDialog(**kward):
@@ -94,7 +101,7 @@ def action_save_ngc(*arg) :
             filechooserdialog.destroy()
 
 
-def mess_dlg( mess, winTitle = '', title="NativeCAM", info='', icon=QMessageBox.Critical):
+def mess_dlg( mess, winTitle = 'NativeCAM', title="NativeCAM", info='', icon=QMessageBox.Critical):
         def forceDetailsOpen(dlg):
           try:
             # force the details box open on first time display
