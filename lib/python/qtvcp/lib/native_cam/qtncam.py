@@ -40,6 +40,7 @@ import tkinter as Tkinter
 import math
 
 from qtvcp.lib.native_cam.custom_widgets import Data
+from qtvcp.lib.native_cam.qt_dialogs import mess_dlg
 
 SYS_DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -299,7 +300,7 @@ def search_path(warn, f, *argsl) :
         print(_("Can not find file %(filename)s") % {"filename":f})
 
     if warn == search_warning.dialog :
-        self.mess_dlg(_("Can not find file %(filename)s") % {"filename":f})
+        mess_dlg(_("Can not find file %(filename)s") % {"filename":f})
     return None
 
 def translate(fstring):
@@ -1227,7 +1228,7 @@ class Feature(object):
                          'e= %(e)s\n') \
                          % {'errcode':e.returncode, 'output':e.output, 'e':e}
                 print(msg)
-                self.mess_dlg(msg)
+                mess_dlg(msg)
                 return ''
 
         def import_callback(m) :
@@ -1303,7 +1304,7 @@ class Feature(object):
         #img.set_from_pixbuf(self.get_icon(add_dlg_icon_size))
         #cb = gtk.CheckButton(label = _("Do not show again"))
 
-        self.mess_dlg(mess=msg, winTitle = 'NativeCAM', title="NativeCAM", info='')
+        mess_dlg(mess=msg, winTitle = 'NativeCAM', title="NativeCAM", info='')
 
 
         #if cb.get_active() :
@@ -1679,17 +1680,6 @@ class NCam():
         global NCAM_DIR, default_metric, NGC_DIR, SYS_DIR, no_ini, TOOL_TABLE, \
             GLOBAL_PREF, machine_metric
 
-        #FIXME we want this as a library so shouldn't read options here
-        # probably should pass them to here from nacam_window the subclass
-        # when using qtvcp embedded panels the args for qtvcp are being read
-        # as if they are for ncam
-        arg_start = (sys.argv[0:].index('-U') + 1) if "-U" in sys.argv[0:] else 1
-        opt, optl = 'U:x:c:i:t', ["catalog=", "ini="]
-        try :
-            optlist, arg = getopt.getopt(sys.argv[arg_start:], opt, optl)
-            optlist = dict(optlist)
-        except getopt.GetoptError as err:
-            self.err_exit(str(err))
 
         self.USER_SUBROUTINES = USER_SUBROUTINES
         # initialize class variables
@@ -1748,17 +1738,7 @@ class NCam():
 
         machine_metric = True
 
-        if "-c" in optlist :
-            self.catalog_dir = optlist["-c"]
-        elif "--catalog" in optlist :
-            self.catalog_dir = optlist["--catalog"]
-
         ini = os.getenv("INI_FILE_NAME")
-        if "-i" in optlist :
-            ini = optlist["-i"]
-        elif "--ini" in optlist :
-            ini = optlist["--ini"]
-
         no_ini = ini is None
 
         if no_ini :
@@ -1779,7 +1759,7 @@ class NCam():
 
             #val = ini_instance.find('DISPLAY', 'DISPLAY')
             #if val not in ['axis', 'gmoccapy', 'gscreen',] :
-            #    self.mess_dlg(_("DISPLAY can only be 'axis', 'gmoccapy' or 'gscreen'"))
+            #    mess_dlg(_("DISPLAY can only be 'axis', 'gmoccapy' or 'gscreen'"))
             #    sys.exit(-1)
 
             val = ini_instance.find('DISPLAY', 'GLADEVCP')
@@ -1900,11 +1880,11 @@ class NCam():
             if os.path.isdir(os.path.join(NCAM_DIR, d)) :
                 return
         msg = _('Create Standalone Directory :\n\n%(dir)s\n\nContinue?') % {'dir':NCAM_DIR}
-        if not self.mess_yesno(msg, title = _("NativeCAM CREATE")) :
+        if not mess_yesno(msg, title = _("NativeCAM CREATE")) :
             sys.exit(0)
 
     def err_exit(self, errtxt):
-        self.mess_dlg(errtxt)
+        mess_dlg(errtxt)
         sys.exit(1)
 
     def require_ini_items(self, fname, ini_instance):
@@ -1912,7 +1892,7 @@ class NCam():
 
         val = ini_instance.find('DISPLAY', 'NCAM_DIR')
         if val is None :
-            self.mess_dlg(_('Ini file <%(inifilename)s>\n'
+            mess_dlg(_('Ini file <%(inifilename)s>\n'
                         'must have entry for [DISPLAY]NCAM_DIR')
                     % {'inifilename':fname})
             NCAM_DIR = os.path.expanduser('~/nativecam')
@@ -1975,7 +1955,7 @@ class NCam():
                 print("")
 
             if not found_lib_dir :
-                    self.mess_dlg (_('\nThe required NativeCAM lib directory :\n<%(lib)s>\n\n'
+                    mess_dlg (_('\nThe required NativeCAM lib directory :\n<%(lib)s>\n\n'
                               'is not in [RS274NGC]SUBROUTINE_PATH:\n'
                               '<%(path)s>\n\nEdit ini and correct\n'
                             % {'lib':require_lib, 'path':checkPath}))
@@ -2109,7 +2089,7 @@ class NCam():
                         try :
                             shutil.copy(os.path.join(srcdir, f), dst)
                         except Exception as error :
-                            self.mess_dlg(_("Error copying file : %(f)s\nCode : %(c)s") \
+                            mess_dlg(_("Error copying file : %(f)s\nCode : %(c)s") \
                                      % {'f':f, 'c':error})
 
             # create links to examples directories
@@ -2127,7 +2107,7 @@ class NCam():
                     try :
                         os.symlink(srcdir, dst)
                     except Exception as err :
-                        self.mess_dlg(_("Error creating link : %(s)s -> %(d)s\nCode : %(c)s") \
+                        mess_dlg(_("Error creating link : %(s)s -> %(d)s\nCode : %(c)s") \
                                  % {'s':srcdir, 'd':dst, 'c':err})
 
         def move_files(dir_processed) :
@@ -3403,7 +3383,7 @@ class NCam():
             xml = etree.Element(XML_TAG)
             xml.append(f.to_xml())
         else :
-            self.mess_dlg(_("'%(source_file)s' is not a valid cfg or xml file") % {'source_file':src_file})
+            mess_dlg(_("'%(source_file)s' is not a valid cfg or xml file") % {'source_file':src_file})
             return
         self.import_xml(xml)
 
@@ -3442,12 +3422,12 @@ class NCam():
                     print('ncam filename',fname)
                     #linuxCNC.program_open(fname)
                     #else:
-                    #    self.mess_dlg(_('LinuxCNC could not change to AUTO mode. Generated NC file was not loaded.'))
+                    #    mess_dlg(_('LinuxCNC could not change to AUTO mode. Generated NC file was not loaded.'))
         except Exception as e:
             print (e)
             self.actionAutoRefresh.setChecked(False)
             if self.show_not_connected :
-                self.mess_dlg(_('LinuxCNC not running\n\nStart LinuxCNC and\nactivate Auto-refresh menu item'))
+                mess_dlg(_('LinuxCNC not running\n\nStart LinuxCNC and\nactivate Auto-refresh menu item'))
 
         #if self.focused_widget is not None :
         #    self.focused_widget.grab_focus()
@@ -3849,7 +3829,7 @@ class NCam():
                 return xml
             except Exception as detail :
                 print(_('Error in treestore_to_xml\n%(err_details)s') % {'err_details':detail})
-                self.mess_dlg(_('Error in treestore_to_xml\n%(err_details)s') % {'err_details':detail})
+                mess_dlg(_('Error in treestore_to_xml\n%(err_details)s') % {'err_details':detail})
         else :
             self.iter_selected_type = tv_select.none
             return xml
@@ -3934,7 +3914,7 @@ class NCam():
                 self.import_xml(xml)
                 self.file_changed = True
             except etree.ParseError as err :
-                self.mess_dlg(err, _("Import project"))
+                mess_dlg(err, _("Import project"))
 
     # will update with new features version and keep the previous values
     def update_features(self, xml_i):

@@ -675,7 +675,7 @@ else:
 ''')
         #f.write("if cb.get_active() :\n    open(fname, 'w').close()\n")
         os.chmod(p, 0o755)
-        self.mess_dlg(_('LinuxCNC needs to be restarted now'))
+        mess_dlg(_('LinuxCNC needs to be restarted now'))
 
 #############
 # dialogs
@@ -686,7 +686,7 @@ else:
         lic = kward.get('licence') or ''
         ver = kward.get('version') or ''
 
-        self.mess_dlg(title =  kward.get('title') or 'Help',
+        mess_dlg(title =  kward.get('title') or 'Help',
                       mess = lic, info = ver, winTitle='About')
 
     def openDialog(self, **kward):
@@ -949,7 +949,7 @@ def verify_ini(fname, ctlog, in_tab) :
 
             #dp = parser.get('DISPLAY', 'DISPLAY').lower()
             #if dp not in ['gmoccapy', 'axis', 'gscreen', 'qtdragon'] :
-            #    self.mess_dlg(_("DISPLAY can only be 'axis', 'gmoccapy' or 'gscreen'"))
+            #    mess_dlg(_("DISPLAY can only be 'axis', 'gmoccapy' or 'gscreen'"))
             #    sys.exit(-1)
 
             try :
