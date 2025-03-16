@@ -271,13 +271,13 @@
       <property name="minimumSize">
        <size>
         <width>170</width>
-        <height>2</height>
+        <height>1</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
         <width>170</width>
-        <height>2</height>
+        <height>1</height>
        </size>
       </property>
       <property name="orientation">
@@ -296,13 +296,13 @@
       <property name="minimumSize">
        <size>
         <width>170</width>
-        <height>2</height>
+        <height>1</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
         <width>170</width>
-        <height>2</height>
+        <height>1</height>
        </size>
       </property>
       <property name="orientation">
@@ -482,13 +482,13 @@
       <property name="minimumSize">
        <size>
         <width>170</width>
-        <height>2</height>
+        <height>1</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
         <width>170</width>
-        <height>2</height>
+        <height>1</height>
        </size>
       </property>
       <property name="orientation">
@@ -587,13 +587,13 @@
       <property name="minimumSize">
        <size>
         <width>170</width>
-        <height>2</height>
+        <height>1</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
         <width>170</width>
-        <height>2</height>
+        <height>1</height>
        </size>
       </property>
       <property name="orientation">
@@ -612,13 +612,13 @@
       <property name="minimumSize">
        <size>
         <width>170</width>
-        <height>2</height>
+        <height>1</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
         <width>170</width>
-        <height>2</height>
+        <height>1</height>
        </size>
       </property>
       <property name="orientation">
