@@ -336,6 +336,7 @@ class HandlerClass:
         msg = QMessageBox(self.w)
         buttonY = msg.addButton(QMessageBox.Ok)
         buttonY.setText('OK')
+        buttonY.setFocusPolicy(QtCore.Qt.NoFocus)
         msg.setIcon(QMessageBox.Information)
         msg.setWindowTitle('Sim Panel Help')
         message = 'This panel provides buttons for simulating basic plasma signals.\n'

@@ -133,6 +133,9 @@
         <height>23</height>
        </size>
       </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
+      </property>
       <property name="text">
        <string>BREAK</string>
       </property>
@@ -176,6 +179,9 @@
         <width>54</width>
         <height>23</height>
        </size>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
       </property>
       <property name="text">
        <string>FLOAT</string>
@@ -242,6 +248,9 @@
         <width>54</width>
         <height>23</height>
        </size>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
       </property>
       <property name="text">
        <string>ESTOP</string>
@@ -326,6 +335,9 @@
           <height>23</height>
          </size>
         </property>
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
         <property name="text">
          <string>?</string>
         </property>
@@ -365,6 +377,9 @@
         <width>170</width>
         <height>23</height>
        </size>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
       </property>
       <property name="text">
        <string>ARC OK</string>
@@ -448,6 +463,9 @@
         <height>23</height>
        </size>
       </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
+      </property>
       <property name="text">
        <string>OHMIC</string>
       </property>
@@ -506,6 +524,9 @@
         </property>
         <property name="text">
          <string/>
+        </property>
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
         </property>
        </widget>
       </item>
@@ -667,6 +688,9 @@
         </property>
         <property name="text">
          <string/>
+        </property>
+        <property name="focusPolicy">
+        <enum>Qt::NoFocus</enum>
         </property>
        </widget>
       </item>
