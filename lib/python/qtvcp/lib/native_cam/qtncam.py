@@ -3035,6 +3035,7 @@ class NCam():
         with open(fname, "w") as f:
             f.write(self.to_gcode())
         self.loadDisplay(fname)
+        self.textEditGCode.setText(self.to_gcode())
 
     def autorefresh_call(self, *arg) :
         print('Refresh gcode output')
