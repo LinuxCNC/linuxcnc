@@ -40,7 +40,8 @@ import tkinter as Tkinter
 import math
 
 from qtvcp.lib.native_cam.custom_widgets import Data
-from qtvcp.lib.native_cam.qt_dialogs import mess_dlg
+from qtvcp.lib.native_cam.qt_dialogs import *
+from PyQt5.QtCore import QItemSelectionModel
 
 SYS_DIR = os.path.dirname(os.path.realpath(__file__))
 
@@ -3546,7 +3547,7 @@ class NCam():
         comments = APP_COMMENTS
         copyright = APP_COPYRIGHT
         website = HOME_PAGE
-        self.helpDialog(title=title,
+        helpDialog(title=title,
                         version=version,licence=licence,
                         authors=authors,comments=comments,
                         copyright=copyright,website=website)
@@ -3906,7 +3907,7 @@ class NCam():
         title = _("Import NativeCAM projects")
         dir_ = os.path.join(NCAM_DIR, CATALOGS_DIR, self.catalog_dir, PROJECTS_DIR)
         fltr = "NativeCAM projects Files *.xml;;All Files (*);;Text Files (*.txt)"
-        fname = self.openDialog(title=title, directory=dir_, extfilter=fltr)
+        fname = openDialog(title=title, directory=dir_, extfilter=fltr)
 
         if not fname is None:
             try :
@@ -4037,7 +4038,7 @@ class NCam():
             flt_name = _("NativeCAM example projects")
             dir_ = os.path.join(NCAM_DIR, CATALOGS_DIR, self.catalog_dir, PROJECTS_DIR, EXAMPLES_DIR)
         fltr = "XML Files *.xml;;All Files (*);;Text Files (*.txt)"
-        filename = self.openDialog(title=dlg_title, directory=dir_, extfilter=fltr)
+        filename = openDialog(title=dlg_title, directory=dir_, extfilter=fltr)
         try:
             if not filename is None:
                 src_data = open(filename).read()
@@ -4061,7 +4062,7 @@ class NCam():
         flt_name = _("NativeCAM projects")
         dir_ = os.path.join(NCAM_DIR, CUSTOM_DIR)
         fltr = "{} *.cfg;;All Files (*);;Text Files (*.txt)".format(_("Config files"))
-        filename = self.openDialog(title=dlg_title, directory=dir_, extfilter=fltr)
+        filename = openDialog(title=dlg_title, directory=dir_, extfilter=fltr)
         if not filename is None:
             self.add_feature(None, filename)
 

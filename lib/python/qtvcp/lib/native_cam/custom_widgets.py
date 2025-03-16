@@ -629,8 +629,11 @@ class treeModel(QAbstractItemModel):
                 new_index = self.model().indexFromItem(curr_item)
                 # now set the (single) selection, and set current,  back to the moved item 
                 # (if you are implementing single-selection, obviously)
-                flag = QtCore.QItemSelectionModel.SelectionFlag
-                self.selectionModel().setCurrentIndex(new_index, flag.Clear | flag.SelectCurrent)
+                try:
+                    flag = QtCore.QItemSelectionModel.SelectionFlag
+                    self.selectionModel().setCurrentIndex(new_index, flag.Clear | flag.SelectCurrent)
+                except Exception as e:
+                    print(e)
 
     def addNode(self, parent, data):
             xml, tool_tip, m_visible, is_visible, toollist = data

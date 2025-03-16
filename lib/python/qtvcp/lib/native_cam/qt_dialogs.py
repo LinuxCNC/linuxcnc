@@ -1,3 +1,5 @@
+import os
+
 from PyQt5.QtWidgets import ( QMessageBox, QFileDialog, QTextEdit, QMenu)
 from PyQt5.QtCore import QUrl, Qt
 
@@ -17,7 +19,7 @@ def helpDialog(**kward):
         ver = kward.get('version') or ''
 
         mess_dlg(title =  kward.get('title') or 'Help',
-                      mess = lic, info = ver, winTitle='About')
+                      mess = lic, info = ver, winTitle='About', icon=INFORMATION)
 
 def openDialog(**kward):
 
