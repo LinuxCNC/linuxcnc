@@ -150,9 +150,10 @@ def parse(filename):
     return a, b
 
 dirmap = {'r': 'HAL_RO', 'rw': 'HAL_RW', 'in': 'HAL_IN', 'out': 'HAL_OUT', 'io': 'HAL_IO' }
-typemap = {'signed': 's32', 'unsigned': 'u32'}
-deprmap = {'s32': 'signed', 'u32': 'unsigned'}
-deprecated = ['s32', 'u32']
+
+# FIXME - either deprecate u32/s32 or alias to signed/unsigned
+typemap = {'s32': 's64', 'u32': 'u64', 'signed': 's64', 'unsigned': 'u64'}
+funcmap = {'s64': 'signed', 'u64': 'unsigned', 's32': 'signed', 'u32': 'signed'}
 
 def initialize():
     global functions, params, pins, comp_name, names, docs, variables
@@ -201,7 +202,13 @@ def notes(doc):
 
 def type2type(type):
     # When we start warning about s32/u32 this is where the warning goes
+    if type in ('u32', 's32'):
+        Warn("From LinuxCNC v2.10.0+ of LinuxCNC all int HAL pins are 64-bit"
+              " please use 'signed' and 'unsigned' in place of 's32' and 'u32'")
     return typemap.get(type, type)
+
+def type2func(type):
+    return funcmap.get(type, type)
 
 def checkarray(name, array):
     hashes = len(re.findall("#+", name))
@@ -437,7 +444,7 @@ static int comp_id;
             else: cnt = array
             print("    for(j=0; j < (%s); j++) {" % cnt, file=f)
             print("        r = hal_pin_%s_newf(%s, &(inst->%s_p[j]), comp_id," % (
-                type, dirmap[dir], to_c(name)), file=f)
+                type2func(type), dirmap[dir], to_c(name)), file=f)
             print("            \"%%s%s\", prefix, j);" % to_hal("." + name), file=f)
             print("        if(r != 0) return r;", file=f)
             if value is not None:
@@ -445,7 +452,7 @@ static int comp_id;
             print("    }", file=f)
         else:
             print("    r = hal_pin_%s_newf(%s, &(inst->%s_p), comp_id," % (
-                type, dirmap[dir], to_c(name)), file=f)
+                type2func(type), dirmap[dir], to_c(name)), file=f)
             print("        \"%%s%s\", prefix);" % to_hal("." + name), file=f)
             print("    if(r != 0) return r;", file=f)
             if value is not None:
@@ -468,7 +475,7 @@ static int comp_id;
             else: cnt = array
             print("    for(j=0; j < (%s); j++) {" % cnt, file=f)
             print("        r = hal_param_%s_newf(%s, &(inst->%s_p[j]), comp_id," % (
-                type, dirmap[dir], to_c(name)), file=f)
+                type2func(type), dirmap[dir], to_c(name)), file=f)
             print("            \"%%s%s\", prefix, j);" % to_hal("." + name), file=f)
             print("        if(r != 0) return r;", file=f)
             if value is not None:
@@ -476,7 +483,7 @@ static int comp_id;
             print("    }", file=f)
         else:
             print("    r = hal_param_%s_newf(%s, &(inst->%s_p), comp_id," % (
-                type, dirmap[dir], to_c(name)), file=f)
+                type2func(type), dirmap[dir], to_c(name)), file=f)
             print("        \"%%s%s\", prefix);" % to_hal("." + name), file=f)
             if value is not None:
                 print("    inst->%s_p = %s;" % (to_c(name), value), file=f)
