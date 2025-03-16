@@ -50,9 +50,9 @@ DEFAULT = 0
 WARNING = 1
 CRITICAL = 2
 
-class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
+class VersaProbeParent(QtWidgets.QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
-        super(VersaProbe, self).__init__(parent)
+        super(VersaProbeParent, self).__init__(parent)
         self.proc = None
         self.tool_diameter = None
         self.tool_number = None
@@ -129,7 +129,7 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
                         obj.clearFocus()
                         event.accept()
                         return True
-        return super(VersaProbe, self).eventFilter(obj, event)
+        return super(VersaProbeParent, self).eventFilter(obj, event)
 
     # keep track of tool number and diameter
     # update the probe loaded HAL pin
@@ -731,6 +731,15 @@ class HelpDialog(QtWidgets.QDialog, GeometryMixin):
         retval = self.exec_()
         LOG.debug('Value of pressed button: {}'.format(retval))
 
+# look for a custom version of Versa Probe
+module = PATH.find_custom_widget_path('versa_probe.py','VersaProbeCustom')
+if not module:
+    module = VersaProbeParent
+
+class VersaProbe(module):
+    def __init__(self, parent=None):
+        super(VersaProbe, self).__init__(parent)
+
 ####################################
 # Testing
 ####################################
@@ -740,8 +749,8 @@ if __name__ == "__main__":
     from PyQt5.QtGui import *
 
     app = QtWidgets.QApplication(sys.argv)
-    w = VersaProbe()
-    w.setObjectName('versaprobe')
+    w = VersaProbeParent()
+    w.setObjectName('versaprobeParent')
     w.show()
     sys.exit( app.exec_() )
 
