@@ -6014,9 +6014,14 @@ class HandlerClass:
             labels = ['Foreground', 'Highlight', 'LED', 'Background', 'Background Alt', 'Frames', 'Estop', 'Disabled', 'Preview']
             button = widget.objectName()
             label = labels[buttons.index(button.split('_')[1])]
-            self.PREFS.putpref(label,  color.name(), str, 'COLOR_OPTIONS')
+            self.PREFS.putpref(label, color.name(), str, 'COLOR_OPTIONS')
             self.set_basic_colors()
             self.set_color_styles()
+            self.preview_stack_changed()
+            if self.umButton and util.find_spec("PyQt5.QtWebEngineWidgets") is not None:
+                self.w.webview.page().loadFinished.connect(self.style_user_manual)
+                self.w.webview.page().setBackgroundColor(QColor(self.backColor))
+                self.w.webview.reload()
 
     def set_basic_colors(self):
         self.foreColor = self.PREFS.getpref('Foreground', '#ffee06', str, 'COLOR_OPTIONS')
