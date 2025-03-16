@@ -12,8 +12,8 @@ utype() {
 	"bit")	echo "bool" ;;
 	"s32")	echo "rtapi_s32" ;;
 	"u32")	echo "rtapi_u32" ;;
-	"s64")	echo "rtapi_s64" ;;
-	"u64")	echo "rtapi_u64" ;;
+	"signed")	echo "rtapi_s64" ;;
+	"unsigned")	echo "rtapi_u64" ;;
 	"float") echo "real_t" ;;
 	*)	echo "This_Will_Generate_An_Error" ;;
 	esac
@@ -25,8 +25,8 @@ maxval() {
 	"bit")	echo "1" ;;
 	"s32")	echo "RTAPI_INT32_MAX" ;;
 	"u32")	echo "RTAPI_UINT32_MAX" ;;
-	"s64")	echo "RTAPI_INT64_MAX" ;;
-	"u64")	echo "RTAPI_UINT64_MAX" ;;
+	"signed")	echo "RTAPI_INT64_MAX" ;;
+	"unsigned")	echo "RTAPI_UINT64_MAX" ;;
 	"float") echo "Never_Used" ;;
 	*)	echo "This_Will_Generate_An_Error" ;;
 	esac
@@ -38,8 +38,8 @@ minval() {
 	"bit")	echo "0" ;;
 	"s32")	echo "RTAPI_INT32_MIN" ;;
 	"u32")	echo "0" ;;
-	"s64")	echo "RTAPI_INT64_MIN" ;;
-	"u64")	echo "0" ;;
+	"signed")	echo "RTAPI_INT64_MIN" ;;
+	"unsigned")	echo "0" ;;
 	"float") echo "Never_Used" ;;
 	*)	echo "This_Will_Generate_An_Error" ;;
 	esac
