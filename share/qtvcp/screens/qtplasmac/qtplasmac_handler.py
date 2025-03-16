@@ -1,4 +1,4 @@
-VERSION = '008.059'
+VERSION = '008.060'
 LCNCVER = '2.10'
 DOCSVER = 'devel'
 
@@ -863,6 +863,7 @@ class HandlerClass:
         self.ohmicLedInPin = self.h.newpin('ohmic_led_in', hal.HAL_BIT, hal.HAL_IN)
         self.paramTabDisable = self.h.newpin('param_disable', hal.HAL_BIT, hal.HAL_IN)
         self.settingsTabDisable = self.h.newpin('settings_disable', hal.HAL_BIT, hal.HAL_IN)
+        self.simStyleUpdate = self.h.newpin('sim_style_update', hal.HAL_BIT, hal.HAL_OUT)
         self.plasmacStatePin = self.h.newpin('plasmac_state', hal.HAL_S32, hal.HAL_IN)
         self.plasmacStopPin = self.h.newpin('plasmac_stop', hal.HAL_S32, hal.HAL_IN)
         self.pmx485CurrentPin = self.h.newpin('pmx485_current', hal.HAL_FLOAT, hal.HAL_IN)
@@ -6022,6 +6023,7 @@ class HandlerClass:
                 self.w.webview.page().loadFinished.connect(self.style_user_manual)
                 self.w.webview.page().setBackgroundColor(QColor(self.backColor))
                 self.w.webview.reload()
+            self.simStyleUpdate.set(not self.simStyleUpdate.get())
 
     def set_basic_colors(self):
         self.foreColor = self.PREFS.getpref('Foreground', '#ffee06', str, 'COLOR_OPTIONS')

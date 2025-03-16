@@ -43,10 +43,9 @@ class HandlerClass:
                               QtCore.Qt.WindowTitleHint |
                               QtCore.Qt.WindowStaysOnTopHint)
         self.machineName = self.iniFile.find('EMC', 'MACHINE')
-        self.prefs = Access(os.path.join(self.paths.CONFIGPATH, self.machineName + '.prefs'))
-        self.styleFile = f'{paths.CONFIGPATH}/qtplasmac_sim.qss'
-        self.set_estop()
+        self.styleFile = f'{self.paths.CONFIGPATH}/qtplasmac_sim.qss'
         self.set_style()
+        self.set_estop()
 
     def initialized__(self):
         self.w.setWindowTitle('QtPlasmaC Sim')
@@ -54,14 +53,15 @@ class HandlerClass:
         appPath = os.path.realpath(os.path.dirname(sys.argv[0]))
         self.iconBase = '/usr' if appPath == '/usr/bin' else appPath.replace('/bin', '/debian/extras/usr')
         self.w.setWindowIcon(QIcon(os.path.join(self.iconBase, self.iconPath)))
+        self.arcVoltsOffsetPin = self.hal.newpin('arc_voltage_offset-f', hal.HAL_FLOAT, hal.HAL_OUT)
         self.breakPin = self.hal.newpin('sensor_breakaway', hal.HAL_BIT, hal.HAL_OUT)
         self.floatPin = self.hal.newpin('sensor_float', hal.HAL_BIT, hal.HAL_OUT)
+        self.materialPin = self.hal.newpin('material_height', hal.HAL_FLOAT, hal.HAL_IN)
         self.ohmicPin = self.hal.newpin('sensor_ohmic', hal.HAL_BIT, hal.HAL_OUT)
         self.torchPin = self.hal.newpin('torch_on', hal.HAL_BIT, hal.HAL_IN)
         self.statePin = self.hal.newpin('state', hal.HAL_S32, hal.HAL_IN)
+        self.stylePin = self.hal.newpin('style_update', hal.HAL_BIT, hal.HAL_IN)
         self.zPosPin = self.hal.newpin('z_position', hal.HAL_FLOAT, hal.HAL_IN)
-        self.materialPin = self.hal.newpin('material_height', hal.HAL_FLOAT, hal.HAL_IN)
-        self.arcVoltsOffsetPin = self.hal.newpin('arc_voltage_offset-f', hal.HAL_FLOAT, hal.HAL_OUT)
         simStepconf = False
         for sig in hal.get_info_signals():
             if sig['NAME'] == 'Zjoint-pos-fb':
@@ -72,6 +72,8 @@ class HandlerClass:
         else:
             RUN(['halcmd', 'net', 'plasmac:axis-position', 'qtplasmac_sim.z_position'])
         RUN(['halcmd', 'net', 'plasmac:state', 'qtplasmac_sim.state'])
+        RUN(['halcmd', 'net', 'qtplasmac:sim_style_update', 'qtplasmac.sim_style_update','qtplasmac_sim.style_update'])
+        self.stylePin.value_changed.connect(self.update_style)
         self.torchPin.value_changed.connect(self.torch_changed)
         self.zPosPin.value_changed.connect(lambda v: self.z_position_changed(v))
         self.statePin.value_changed.connect(lambda v: self.plasmac_state_changed(v))
@@ -112,6 +114,7 @@ class HandlerClass:
             RUN(['halcmd', 'net', 'sim:estop-1-in', 'estop_not_1.out', 'estop_or.in1'])
 
     def set_style(self):
+        self.prefs = Access(os.path.join(self.paths.CONFIGPATH, self.machineName + '.prefs'))
         self.foreColor = self.prefs.getpref('Foreground', '', str, 'COLOR_OPTIONS')
         self.fore1Color = self.prefs.getpref('Highlight', '', str, 'COLOR_OPTIONS')
         self.backColor = self.prefs.getpref('Background', '', str, 'COLOR_OPTIONS')
@@ -177,6 +180,22 @@ class HandlerClass:
                 f'\nQCheckBox::indicator:checked:pressed {{\n'
                 f'    background: {self.fore1Color} }}\n'
             )
+
+    def update_style(self):
+        self.set_style()
+        self.w.setStyleSheet('')
+        with open(self.styleFile, 'r') as set_style:
+            self.w.setStyleSheet(set_style.read())
+        estop_color = self.estopColor if hal.get_value('estop_or.in0') == 1 else self.foreColor
+        self.w.estop.setStyleSheet(f'color: {self.backColor}; background: {estop_color}; border: solid {estop_color}')
+        conditions = {
+            self.w.arc_ok: self.w.arc_ok.isChecked(),
+            self.w.sensor_brk: self.breakPin.get() == 1,
+            self.w.sensor_flt: self.floatPin.get() == 1,
+            self.w.sensor_ohm: self.ohmicPin.get() == 1 }
+        for button, condition in conditions.items():
+            if condition:
+                button.setStyleSheet(f'color: {self.backColor}; background: {self.fore1Color}')
 
     def arc_ok_clicked(self):
         if self.w.arc_ok.isChecked():
