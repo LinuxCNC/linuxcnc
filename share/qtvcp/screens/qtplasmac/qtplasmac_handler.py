@@ -1467,10 +1467,7 @@ class HandlerClass:
                 self.w[self.tpButton].setEnabled(False)
             if self.otButton and not self.w.ohmic_probe_enable.isChecked():
                 self.w[self.otButton].setEnabled(False)
-            if STATUS.is_all_homed():
-                self.set_buttons_state([self.idleHomedList], True)
-            else:
-                self.set_buttons_state([self.idleHomedList], False)
+            self.set_buttons_state([self.idleHomedList], STATUS.is_all_homed())
         else:
             self.set_buttons_state([self.idleOnList, self.idleHomedList], False)
         self.w.jog_stack.setCurrentIndex(self.JOG)
@@ -1480,6 +1477,8 @@ class HandlerClass:
         self.set_tab_jog_states(True)
         self.set_run_button_state()
         self.set_jog_button_state()
+        if self.w.preview_stack.currentIndex() != self.PREVIEW:
+            self.preview_stack_changed()
         if self.jobRunning and obj:
             if self.w.torch_enable.isChecked():
                 self.statistics_save()
@@ -2460,14 +2459,12 @@ class HandlerClass:
             self.set_buttons_state([self.machineOnList], True)
             if STATUS.is_interp_idle():
                 self.set_buttons_state([self.idleOnList], True)
-                if STATUS.is_all_homed():
-                    self.set_buttons_state([self.idleHomedList], True)
-                else:
-                    self.set_buttons_state([self.idleHomedList], False)
+                self.set_buttons_state([self.idleHomedList], STATUS.is_all_homed())
             else:
                 self.set_buttons_state([self.idleOnList, self.idleHomedList], False)
         else:
             self.set_buttons_state([self.machineOnList, self.idleOnList, self.idleHomedList], False)
+        self.preview_stack_changed()
 
     def reload_user_button_clicked(self):
         for n in range(1, 21):
@@ -3613,7 +3610,7 @@ class HandlerClass:
             text1 = _translate('HandlerClass', 'CLOSE')
             self.w.file_edit.setText(f'{text0}\n{text1}')
             self.autorepeat_keys(True)
-            buttonList = [button for button in self.idleHomedList if button != 'mdi_show']
+            buttonList = [button for button in self.idleHomedList if button != 'mdi_show' or not STATUS.is_all_homed]
             self.set_buttons_state([self.idleOnList, buttonList], False)
             self.w.jog_frame.setEnabled(False)
         elif self.w.preview_stack.currentIndex() == self.CAMERA:
@@ -3638,7 +3635,7 @@ class HandlerClass:
         elif self.w.preview_stack.currentIndex() == self.USER_MANUAL:
             self.button_active(self.umButton)
             self.autorepeat_keys(True)
-            buttonList = [button for button in self.idleHomedList if button != 'mdi_show']
+            buttonList = [button for button in self.idleHomedList if button != 'mdi_show' or not STATUS.is_all_homed]
             self.set_buttons_state([self.idleOnList, buttonList], False)
             self.w.jog_frame.setEnabled(False)
             self.w.run.setEnabled(False)
