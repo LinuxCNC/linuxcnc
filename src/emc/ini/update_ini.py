@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-THIS_VERSION = "1.1"
+THIS_VERSION = "1.2"
 
 import sys
 import os
@@ -550,6 +550,11 @@ if version < "1.1":
         'halui.spindle.override.value'          : 'halui.spindle.0.override.value'
         })
 
+if version < "1.2":
+    subs.update({
+        '(.*)spring-wheel-s32'            : '\\1spring-wheel-s',
+    })
+
 if subs == {}:
     print("""This file does not need converting, and furthermore execution
     should never have reached this spot""")
@@ -557,6 +562,8 @@ else:
     for halfile in halpaths:
         halstring = open(halfile,'r').read()
         for sub in subs:
+            print(sub)
+            print(re.match(sub, halstring))
             halstring = re.sub(sub, subs[sub], halstring, flags=re.M)
         for sub in subs2:
             halstring = re.sub(sub, subs2[sub], halstring, flags=re.M)

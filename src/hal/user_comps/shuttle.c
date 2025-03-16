@@ -102,9 +102,9 @@ int hal_comp_id;
 struct shuttle_hal {
     hal_bit_t *button[MAX_BUTTONS];
     hal_bit_t *button_not[MAX_BUTTONS];
-    hal_s32_t *counts;        // accumulated counts from the jog wheel
+    hal_s64_t *counts;        // accumulated counts from the jog wheel
     hal_float_t *spring_wheel_f;  // current position of the springy outer wheel, as a float from -1 to +1 inclusive
-    hal_s32_t *spring_wheel_s32;  // current position of the springy outer wheel, as a s32 from -7 to +7 inclusive
+    hal_s64_t *spring_wheel_s64;  // current position of the springy outer wheel, as a s64 from -7 to +7 inclusive
 };
 
 
@@ -179,7 +179,7 @@ int read_update(struct shuttle *s) {
         }
     }
 
-    *s->hal->spring_wheel_s32 = packet[0];
+    *s->hal->spring_wheel_s64 = packet[0];
     *s->hal->spring_wheel_f = packet[0] / 7.0;
 
     return 0;
@@ -260,18 +260,18 @@ struct shuttle *check_for_shuttle(char *dev_filename) {
         *s->hal->button_not[i] = 1;
     }
 
-    r = hal_pin_s32_newf(HAL_OUT, &(s->hal->counts), hal_comp_id, "%s.%d.counts", modname, num_devices);
+    r = hal_pin_signed_newf(HAL_OUT, &(s->hal->counts), hal_comp_id, "%s.%d.counts", modname, num_devices);
     if (r != 0) goto fail1;
 
     r = hal_pin_float_newf(HAL_OUT, &(s->hal->spring_wheel_f), hal_comp_id, "%s.%d.spring-wheel-f", modname, num_devices);
     if (r != 0) goto fail1;
 
-    r = hal_pin_s32_newf(HAL_OUT, &(s->hal->spring_wheel_s32), hal_comp_id, "%s.%d.spring-wheel-s32", modname, num_devices);
+    r = hal_pin_signed_newf(HAL_OUT, &(s->hal->spring_wheel_s64), hal_comp_id, "%s.%d.spring-wheel-s", modname, num_devices);
     if (r != 0) goto fail1;
 
     *s->hal->counts = 0;
     *s->hal->spring_wheel_f = 0.0;
-    *s->hal->spring_wheel_s32 = 0;
+    *s->hal->spring_wheel_s64 = 0;
 
     return s;
 

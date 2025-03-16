@@ -265,7 +265,7 @@ int Hal::newHalFloat(hal_pin_dir_t direction, hal_float_t** ptr, int componentId
     }
 }
 // ----------------------------------------------------------------------
-int Hal::newHalSigned32(hal_pin_dir_t direction, hal_s32_t** ptr, int componentId, const char* fmt, ...)
+int Hal::newHalSigned(hal_pin_dir_t direction, hal_s64_t** ptr, int componentId, const char* fmt, ...)
 {
     char    pin_name[256];
     va_list args;
@@ -275,7 +275,7 @@ int Hal::newHalSigned32(hal_pin_dir_t direction, hal_s32_t** ptr, int componentI
 
     assert(strlen(pin_name) < HAL_NAME_LEN);
 
-    *mHalCout << "hal   s32   ";
+    *mHalCout << "hal   s64   ";
     if (direction == HAL_OUT)
     {
         *mHalCout << "out ";
@@ -291,17 +291,17 @@ int Hal::newHalSigned32(hal_pin_dir_t direction, hal_s32_t** ptr, int componentI
 
     if (mIsSimulationMode)
     {
-        return newSimulatedHalPin(pin_name, (void**)ptr, sizeof(hal_s32_t));
+        return newSimulatedHalPin(pin_name, (void**)ptr, sizeof(hal_s64_t));
     }
     else
     {
-        int r = hal_pin_s32_new(pin_name, direction, ptr, componentId);
+        int r = hal_pin_signed_new(pin_name, direction, ptr, componentId);
         assert(r == 0);
         return r;
     }
 }
 // ----------------------------------------------------------------------
-int Hal::newHalUnsigned32(hal_pin_dir_t direction, hal_u32_t** ptr, int componentId, const char* fmt, ...)
+int Hal::newHalUnsigned(hal_pin_dir_t direction, hal_u64_t** ptr, int componentId, const char* fmt, ...)
 {
     char    pin_name[256];
     va_list args;
@@ -311,7 +311,7 @@ int Hal::newHalUnsigned32(hal_pin_dir_t direction, hal_u32_t** ptr, int componen
 
     assert(strlen(pin_name) < HAL_NAME_LEN);
 
-    *mHalCout << "hal   u32   ";
+    *mHalCout << "hal   u64   ";
     if (direction == HAL_OUT)
     {
         *mHalCout << "out ";
@@ -327,11 +327,11 @@ int Hal::newHalUnsigned32(hal_pin_dir_t direction, hal_u32_t** ptr, int componen
 
     if (mIsSimulationMode)
     {
-        return newSimulatedHalPin(pin_name, (void**)ptr, sizeof(hal_u32_t));
+        return newSimulatedHalPin(pin_name, (void**)ptr, sizeof(hal_u64_t));
     }
     else
     {
-        int r = hal_pin_u32_new(pin_name, direction, ptr, componentId);
+        int r = hal_pin_unsigned_new(pin_name, direction, ptr, componentId);
         assert(r == 0);
         return r;
     }
@@ -452,32 +452,32 @@ void Hal::init(const MetaButtonCodes* metaButtons, const KeyCodes& keyCodes)
     newHalBit(HAL_OUT, &(memory->out.mistStop), mHalCompId, "%s.halui.mist.off", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.mistStart), mHalCompId, "%s.halui.mist.on", mComponentPrefix);
 
-    newHalSigned32(HAL_OUT, &(memory->out.axisXJogCounts), mHalCompId, "%s.axis.x.jog-counts", mComponentPrefix);
+    newHalSigned(HAL_OUT, &(memory->out.axisXJogCounts), mHalCompId, "%s.axis.x.jog-counts", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.axisXJogEnable), mHalCompId, "%s.axis.x.jog-enable", mComponentPrefix);
     newHalFloat(HAL_OUT, &(memory->out.axisXJogScale), mHalCompId, "%s.axis.x.jog-scale", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.axisXSetVelocityMode), mHalCompId, "%s.axis.x.jog-vel-mode", mComponentPrefix);
 
-    newHalSigned32(HAL_OUT, &(memory->out.axisYJogCounts), mHalCompId, "%s.axis.y.jog-counts", mComponentPrefix);
+    newHalSigned(HAL_OUT, &(memory->out.axisYJogCounts), mHalCompId, "%s.axis.y.jog-counts", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.axisYJogEnable), mHalCompId, "%s.axis.y.jog-enable", mComponentPrefix);
     newHalFloat(HAL_OUT, &(memory->out.axisYJogScale), mHalCompId, "%s.axis.y.jog-scale", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.axisYSetVelocityMode), mHalCompId, "%s.axis.y.jog-vel-mode", mComponentPrefix);
 
-    newHalSigned32(HAL_OUT, &(memory->out.axisZJogCounts), mHalCompId, "%s.axis.z.jog-counts", mComponentPrefix);
+    newHalSigned(HAL_OUT, &(memory->out.axisZJogCounts), mHalCompId, "%s.axis.z.jog-counts", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.axisZJogEnable), mHalCompId, "%s.axis.z.jog-enable", mComponentPrefix);
     newHalFloat(HAL_OUT, &(memory->out.axisZJogScale), mHalCompId, "%s.axis.z.jog-scale", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.axisZSetVelocityMode), mHalCompId, "%s.axis.z.jog-vel-mode", mComponentPrefix);
 
-    newHalSigned32(HAL_OUT, &(memory->out.axisAJogCounts), mHalCompId, "%s.axis.a.jog-counts", mComponentPrefix);
+    newHalSigned(HAL_OUT, &(memory->out.axisAJogCounts), mHalCompId, "%s.axis.a.jog-counts", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.axisAJogEnable), mHalCompId, "%s.axis.a.jog-enable", mComponentPrefix);
     newHalFloat(HAL_OUT, &(memory->out.axisAJogScale), mHalCompId, "%s.axis.a.jog-scale", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.axisASetVelocityMode), mHalCompId, "%s.axis.a.jog-vel-mode", mComponentPrefix);
 
-    newHalSigned32(HAL_OUT, &(memory->out.axisBJogCounts), mHalCompId, "%s.axis.b.jog-counts", mComponentPrefix);
+    newHalSigned(HAL_OUT, &(memory->out.axisBJogCounts), mHalCompId, "%s.axis.b.jog-counts", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.axisBJogEnable), mHalCompId, "%s.axis.b.jog-enable", mComponentPrefix);
     newHalFloat(HAL_OUT, &(memory->out.axisBJogScale), mHalCompId, "%s.axis.b.jog-scale", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.axisBSetVelocityMode), mHalCompId, "%s.axis.b.jog-vel-mode", mComponentPrefix);
 
-    newHalSigned32(HAL_OUT, &(memory->out.axisCJogCounts), mHalCompId, "%s.axis.c.jog-counts", mComponentPrefix);
+    newHalSigned(HAL_OUT, &(memory->out.axisCJogCounts), mHalCompId, "%s.axis.c.jog-counts", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.axisCJogEnable), mHalCompId, "%s.axis.c.jog-enable", mComponentPrefix);
     newHalFloat(HAL_OUT, &(memory->out.axisCJogScale), mHalCompId, "%s.axis.c.jog-scale", mComponentPrefix);
     newHalBit(HAL_OUT, &(memory->out.axisCSetVelocityMode), mHalCompId, "%s.axis.c.jog-vel-mode", mComponentPrefix);

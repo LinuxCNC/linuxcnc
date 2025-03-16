@@ -211,7 +211,7 @@
 
 /* HAL data struct */
 typedef struct {
-    hal_s32_t 	*status;
+    hal_s64_t 	*status;
     hal_float_t	*freq_cmd;	// frequency command
     hal_float_t	*freq_out;	// actual output frequency
     hal_float_t	*curr_out_pct;	// output current percentage (base unclear)
@@ -220,8 +220,8 @@ typedef struct {
     hal_float_t	*inv_load_pct;
     hal_float_t	*load_current_pct;
     hal_float_t *max_rpm;	// calculated based on VFD max frequency setup parameter
-    hal_s32_t	*trip_code;
-    hal_s32_t	*alarm_code;
+    hal_s64_t	*trip_code;
+    hal_s64_t	*alarm_code;
     hal_bit_t	*at_speed;	// when drive freq_cmd == freq_out and running
     hal_bit_t	*is_stopped;	// when drive freq out is 0
     hal_bit_t	*estop;		// set estop bit in 0xFA00 - causes 'E trip'
@@ -235,7 +235,7 @@ typedef struct {
     hal_bit_t 	*spindle_rev;	// on when in rev and running
     hal_bit_t	*err_reset;	// reset errors when 1  - set fault reset bit in 0xFA00
     hal_bit_t	*jog_mode;	// termed 'jog-run' in manual - might be useful for spindle positioning
-    hal_s32_t	*errorcount;    // number of failed Modbus transactions - hints at logical errors
+    hal_s64_t	*errorcount;    // number of failed Modbus transactions - hints at logical errors
 
     hal_float_t	looptime;
     hal_float_t	speed_tolerance; 	
@@ -348,7 +348,7 @@ static struct option long_options[] = {
 void  windup(param_pointer p) 
 {
     if (p->haldata && *(p->haldata->errorcount)) {
-	fprintf(stderr,"%s: %d modbus errors\n",p->progname, *(p->haldata->errorcount));
+	fprintf(stderr,"%s: %ld modbus errors\n",p->progname, *(p->haldata->errorcount));
 	fprintf(stderr,"%s: last command register: 0x%.4x\n",p->progname, p->failed_reg);
 	fprintf(stderr,"%s: last error: %s\n",p->progname, modbus_strerror(p->last_errno));
     }
@@ -794,7 +794,7 @@ int hal_setup(int id, haldata_t *h, const char *name)
 {
     int status;
     PIN(hal_pin_bit_newf(HAL_IN, &(h->acc_dec_pattern), id, "%s.acceleration-pattern", name));
-    PIN(hal_pin_s32_newf(HAL_OUT, &(h->alarm_code), id, "%s.alarm-code", name));
+    PIN(hal_pin_signed_newf(HAL_OUT, &(h->alarm_code), id, "%s.alarm-code", name));
     PIN(hal_pin_bit_newf(HAL_OUT, &(h->at_speed), id, "%s.at-speed", name));
     PIN(hal_pin_float_newf(HAL_OUT, &(h->load_current_pct), id, "%s.current-load-percentage", name));
     PIN(hal_pin_bit_newf(HAL_IN, &(h->DC_brake), id, "%s.dc-brake", name));
@@ -816,10 +816,10 @@ int hal_setup(int id, haldata_t *h, const char *name)
     PIN(hal_pin_bit_newf(HAL_IN, &(h->spindle_fwd), id, "%s.spindle-fwd", name));
     PIN(hal_pin_bit_newf(HAL_IN, &(h->spindle_on), id, "%s.spindle-on", name));
     PIN(hal_pin_bit_newf(HAL_IN, &(h->spindle_rev), id, "%s.spindle-rev", name)); //JET
-    PIN(hal_pin_s32_newf(HAL_OUT, &(h->status), id, "%s.status", name));
-    PIN(hal_pin_s32_newf(HAL_OUT, &(h->trip_code), id, "%s.trip-code", name));
+    PIN(hal_pin_signed_newf(HAL_OUT, &(h->status), id, "%s.status", name));
+    PIN(hal_pin_signed_newf(HAL_OUT, &(h->trip_code), id, "%s.trip-code", name));
     PIN(hal_pin_bit_newf(HAL_IN, &(h->max_speed), id, "%s.max-speed", name));
-    PIN(hal_pin_s32_newf(HAL_OUT, &(h->errorcount), id, "%s.error-count", name));
+    PIN(hal_pin_signed_newf(HAL_OUT, &(h->errorcount), id, "%s.error-count", name));
     PIN(hal_pin_float_newf(HAL_OUT, &(h->upper_limit_hz), id, "%s.frequency-limit", name));
 
     // the following limit must be set manually from the panel since its in EEPROM

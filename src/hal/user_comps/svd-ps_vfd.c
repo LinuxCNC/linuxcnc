@@ -50,7 +50,7 @@ typedef struct {
 
     hal_bit_t	*spindle_on;
 
-    hal_u32_t *modbus_errors;
+    hal_u64_t *modbus_errors;
 } haldata_t;
 
 haldata_t *haldata;
@@ -531,7 +531,7 @@ int main(int argc, char **argv) {
     retval = hal_pin_bit_newf(HAL_IN, &(haldata->spindle_on), hal_comp_id, "%s.spindle-on", modname);
     if (retval != 0) goto out_closeHAL;
 
-    retval = hal_pin_u32_newf(HAL_OUT, &(haldata->modbus_errors), hal_comp_id, "%s.modbus-errors", modname);
+    retval = hal_pin_unsigned_newf(HAL_OUT, &(haldata->modbus_errors), hal_comp_id, "%s.modbus-errors", modname);
     if (retval != 0) goto out_closeHAL;
 
     *haldata->period = 0.1;

@@ -593,13 +593,13 @@ int hal_pin_s32_new(const char *name, hal_pin_dir_t dir,
     return hal_pin_new(name, HAL_S32, dir, (void **) data_ptr_addr, comp_id);
 }
 
-int hal_pin_u64_new(const char *name, hal_pin_dir_t dir,
+int hal_pin_unsigned_new(const char *name, hal_pin_dir_t dir,
     hal_u64_t ** data_ptr_addr, int comp_id)
 {
     return hal_pin_new(name, HAL_U64, dir, (void **) data_ptr_addr, comp_id);
 }
 
-int hal_pin_s64_new(const char *name, hal_pin_dir_t dir,
+int hal_pin_signed_new(const char *name, hal_pin_dir_t dir,
     hal_s64_t ** data_ptr_addr, int comp_id)
 {
     return hal_pin_new(name, HAL_S64, dir, (void **) data_ptr_addr, comp_id);
@@ -671,7 +671,7 @@ int hal_pin_s32_newf(hal_pin_dir_t dir,
     return ret;
 }
 
-int hal_pin_u64_newf(hal_pin_dir_t dir,
+int hal_pin_unsigned_newf(hal_pin_dir_t dir,
     hal_u64_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
 {
     va_list ap;
@@ -682,7 +682,7 @@ int hal_pin_u64_newf(hal_pin_dir_t dir,
     return ret;
 }
 
-int hal_pin_s64_newf(hal_pin_dir_t dir,
+int hal_pin_signed_newf(hal_pin_dir_t dir,
     hal_s64_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
 {
     va_list ap;
@@ -1378,12 +1378,12 @@ int hal_param_s32_new(const char *name, hal_param_dir_t dir, hal_s32_t * data_ad
     return hal_param_new(name, HAL_S32, dir, (void *) data_addr, comp_id);
 }
 
-int hal_param_u64_new(const char *name, hal_param_dir_t dir, hal_u64_t * data_addr,
+int hal_param_unsigned_new(const char *name, hal_param_dir_t dir, hal_u64_t * data_addr,
     int comp_id)
 {
     return hal_param_new(name, HAL_U64, dir, (void *) data_addr, comp_id);
 }
-int hal_param_s64_new(const char *name, hal_param_dir_t dir, hal_s64_t * data_addr,
+int hal_param_signed_new(const char *name, hal_param_dir_t dir, hal_s64_t * data_addr,
     int comp_id)
 {
     return hal_param_new(name, HAL_S64, dir, (void *) data_addr, comp_id);
@@ -1447,7 +1447,7 @@ int hal_param_s32_newf(hal_param_dir_t dir, hal_s32_t * data_addr,
     return ret;
 }
 
-int hal_param_u64_newf(hal_param_dir_t dir, hal_u64_t * data_addr,
+int hal_param_unsigned_newf(hal_param_dir_t dir, hal_u64_t * data_addr,
     int comp_id, const char *fmt, ...)
 {
     va_list ap;
@@ -1458,7 +1458,7 @@ int hal_param_u64_newf(hal_param_dir_t dir, hal_u64_t * data_addr,
     return ret;
 }
 
-int hal_param_s64_newf(hal_param_dir_t dir, hal_s64_t * data_addr,
+int hal_param_signed_newf(hal_param_dir_t dir, hal_s64_t * data_addr,
     int comp_id, const char *fmt, ...)
 {
     va_list ap;
@@ -1605,12 +1605,12 @@ int hal_param_s32_set(const char *name, signed long value)
     return hal_param_set(name, HAL_S32, &value);
 }
 
-int hal_param_u64_set(const char *name, unsigned long value)
+int hal_param_unsigned_set(const char *name, unsigned long value)
 {
     return hal_param_set(name, HAL_U64, &value);
 }
 
-int hal_param_s64_set(const char *name, signed long value)
+int hal_param_signed_set(const char *name, signed long value)
 {
     return hal_param_set(name, HAL_S64, &value);
 }

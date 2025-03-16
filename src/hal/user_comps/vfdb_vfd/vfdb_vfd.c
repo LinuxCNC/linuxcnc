@@ -112,8 +112,8 @@
 
 /* HAL data struct */
 typedef struct {
-    hal_s32_t   *error_code;
-    hal_s32_t 	*status;
+    hal_s64_t   *error_code;
+    hal_s64_t 	*status;
     hal_float_t	*freq_cmd;	// frequency command
     hal_float_t	*freq_out;	// actual output frequency
     hal_float_t	*output_volt;	// output voltage
@@ -131,7 +131,7 @@ typedef struct {
     hal_bit_t	*spindle_on;	// spindle 1=on, 0=off
     // hal_bit_t	*err_reset;	// reset errors when 1  - set fault reset bit in 0xFA00
     hal_bit_t	*jog_mode;	// termed 'jog-run' in manual - might be useful for spindle positioning
-    hal_s32_t	*errorcount;    // number of failed Modbus transactions - hints at logical errors
+    hal_s64_t	*errorcount;    // number of failed Modbus transactions - hints at logical errors
 
     hal_float_t	looptime;
     hal_float_t	speed_tolerance; 	
@@ -228,7 +228,7 @@ static struct option long_options[] = {
 void  windup(param_pointer p) 
 {
     if (p->haldata && *(p->haldata->errorcount)) {
-        fprintf(stderr,"%s: %d modbus errors\n",p->progname, *(p->haldata->errorcount));
+        fprintf(stderr,"%s: %ld modbus errors\n",p->progname, *(p->haldata->errorcount));
         fprintf(stderr,"%s: last command register: 0x%.4x\n",p->progname, p->failed_reg);
         fprintf(stderr,"%s: last error: %s\n",p->progname, modbus_strerror(p->last_errno));
     }
@@ -603,10 +603,10 @@ int hal_setup(int id, haldata_t *h, const char *name)
     PIN(hal_pin_float_newf(HAL_OUT, &(h->output_volt), id, "%s.output-voltage", name));
     PIN(hal_pin_float_newf(HAL_IN, &(h->speed_command), id, "%s.speed-command", name));
     PIN(hal_pin_bit_newf(HAL_IN, &(h->spindle_on), id, "%s.spindle-on", name));
-    PIN(hal_pin_s32_newf(HAL_OUT, &(h->error_code), id, "%s.error-code", name));
-    PIN(hal_pin_s32_newf(HAL_OUT, &(h->status), id, "%s.status", name));
+    PIN(hal_pin_signed_newf(HAL_OUT, &(h->error_code), id, "%s.error-code", name));
+    PIN(hal_pin_signed_newf(HAL_OUT, &(h->status), id, "%s.status", name));
     PIN(hal_pin_bit_newf(HAL_IN, &(h->max_speed), id, "%s.max-speed", name));
-    PIN(hal_pin_s32_newf(HAL_OUT, &(h->errorcount), id, "%s.error-count", name));
+    PIN(hal_pin_signed_newf(HAL_OUT, &(h->errorcount), id, "%s.error-count", name));
     PIN(hal_pin_float_newf(HAL_OUT, &(h->upper_limit_hz), id, "%s.frequency-limit", name));
 
     PIN(hal_param_float_newf(HAL_RW, &(h->looptime), id, "%s.loop-time", name));

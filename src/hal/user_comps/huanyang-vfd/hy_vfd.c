@@ -111,7 +111,7 @@ typedef struct {
 	hal_float_t *freq_lower_limit;		// PD011 Frequency Lower Limit
 	hal_float_t *rated_motor_voltage; 	// PD141 Rated Motor Voltage - as per motor name plate
 	hal_float_t *rated_motor_current;	// PD142 Rated Motor Current - as per motor name plate
-	hal_u32_t *motor_poles;                 // PD143 Number of motor poles - from motor name plate
+	hal_u64_t *motor_poles;                 // PD143 Number of motor poles - from motor name plate
 	hal_float_t *rated_motor_rev;		// max motor speed (at max_freq).  PD144 gets set to value corresponding to RPM at 50Hz
 	
 	hal_bit_t	*hycomm_ok;				// the last HYCOMM_OK transactions returned successfully
@@ -123,8 +123,8 @@ typedef struct {
 	hal_bit_t       *spindle_at_speed;   // (out) True when spindle is on and at commanded speed
 	hal_float_t     *spindle_at_speed_tolerance;  // (in)
 
-	hal_u32_t	*retval;
-	hal_s32_t	*errorcount;
+	hal_u64_t	*retval;
+	hal_s64_t	*errorcount;
 	hal_float_t	looptime;
 	
 	//hal_float_t	motor_nameplate_hz;		// speeds are scaled in Hz, not RPM
@@ -697,7 +697,7 @@ int main(int argc, char **argv)
 	float motor_v = 0;
 	float motor_i = 0;
 	float motor_speed = 0;
-	hal_u32_t motor_poles = 0;
+	int motor_poles = 0;
 
 	done = 0;
 
@@ -967,16 +967,16 @@ int main(int argc, char **argv)
 	if (retval!=0) goto out_closeHAL;
 	retval = hal_pin_float_newf(HAL_OUT, &(haldata->rated_motor_rev), hal_comp_id, "%s.rated-motor-rev", modname);
 	if (retval!=0) goto out_closeHAL;
-	retval = hal_pin_u32_newf(HAL_OUT, &(haldata->motor_poles), hal_comp_id, "%s.motor-poles", modname);
+	retval = hal_pin_unsigned_newf(HAL_OUT, &(haldata->motor_poles), hal_comp_id, "%s.motor-poles", modname);
 	if (retval!=0) goto out_closeHAL;
 
 	retval = hal_pin_bit_newf(HAL_OUT, &(haldata->hycomm_ok), hal_comp_id, "%s.hycomm-ok", modname); 
 	if (retval!=0) goto out_closeHAL;
 	
-	retval = hal_pin_s32_newf(HAL_OUT, &(haldata->errorcount), hal_comp_id, "%s.error-count", modname);
+	retval = hal_pin_signed_newf(HAL_OUT, &(haldata->errorcount), hal_comp_id, "%s.error-count", modname);
 	if (retval!=0) goto out_closeHAL;
 
-	retval = hal_pin_u32_newf(HAL_OUT, &(haldata->retval), hal_comp_id, "%s.retval", modname);
+	retval = hal_pin_unsigned_newf(HAL_OUT, &(haldata->retval), hal_comp_id, "%s.retval", modname);
 	if (retval!=0) goto out_closeHAL;
 
 	retval = hal_pin_float_newf(HAL_OUT, &(haldata->spindle_speed_fb), hal_comp_id, "%s.spindle-speed-fb", modname);

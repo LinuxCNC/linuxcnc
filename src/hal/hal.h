@@ -123,6 +123,8 @@
 
 */
 
+//#define Hide32
+
 #include <rtapi.h>
 RTAPI_BEGIN_DECLS
 
@@ -402,13 +404,15 @@ extern int hal_pin_bit_new(const char *name, hal_pin_dir_t dir,
     hal_bit_t ** data_ptr_addr, int comp_id);
 extern int hal_pin_float_new(const char *name, hal_pin_dir_t dir,
     hal_float_t ** data_ptr_addr, int comp_id);
+#ifndef Hide32
 extern int hal_pin_u32_new(const char *name, hal_pin_dir_t dir,
     hal_u32_t ** data_ptr_addr, int comp_id);
 extern int hal_pin_s32_new(const char *name, hal_pin_dir_t dir,
     hal_s32_t ** data_ptr_addr, int comp_id);
-extern int hal_pin_u64_new(const char *name, hal_pin_dir_t dir,
+#endif
+extern int hal_pin_unsigned_new(const char *name, hal_pin_dir_t dir,
     hal_u64_t ** data_ptr_addr, int comp_id);
-extern int hal_pin_s64_new(const char *name, hal_pin_dir_t dir,
+extern int hal_pin_signed_new(const char *name, hal_pin_dir_t dir,
     hal_s64_t ** data_ptr_addr, int comp_id);
 extern int hal_pin_port_new(const char *name, hal_pin_dir_t dir,
     hal_port_t ** data_ptr_addr, int comp_id);
@@ -426,16 +430,18 @@ extern int hal_pin_bit_newf(hal_pin_dir_t dir,
 extern int hal_pin_float_newf(hal_pin_dir_t dir,
     hal_float_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
 	__attribute__((format(printf,4,5)));
+#ifndef Hide32
 extern int hal_pin_u32_newf(hal_pin_dir_t dir,
     hal_u32_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
 	__attribute__((format(printf,4,5)));
 extern int hal_pin_s32_newf(hal_pin_dir_t dir,
     hal_s32_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
 	__attribute__((format(printf,4,5)));
-extern int hal_pin_u64_newf(hal_pin_dir_t dir,
+#endif
+extern int hal_pin_unsigned_newf(hal_pin_dir_t dir,
     hal_u64_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
 	__attribute__((format(printf,4,5)));
-extern int hal_pin_s64_newf(hal_pin_dir_t dir,
+extern int hal_pin_signed_newf(hal_pin_dir_t dir,
     hal_s64_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
 	__attribute__((format(printf,4,5)));
 extern int hal_pin_port_newf(hal_pin_dir_t dir,
@@ -566,13 +572,15 @@ extern int hal_param_bit_new(const char *name, hal_param_dir_t dir,
     hal_bit_t * data_addr, int comp_id);
 extern int hal_param_float_new(const char *name, hal_param_dir_t dir,
     hal_float_t * data_addr, int comp_id);
+#ifndef Hide32
 extern int hal_param_u32_new(const char *name, hal_param_dir_t dir,
     hal_u32_t * data_addr, int comp_id);
 extern int hal_param_s32_new(const char *name, hal_param_dir_t dir,
     hal_s32_t * data_addr, int comp_id);
-extern int hal_param_u64_new(const char *name, hal_param_dir_t dir,
+#endif
+extern int hal_param_unsigned_new(const char *name, hal_param_dir_t dir,
     hal_u64_t * data_addr, int comp_id);
-extern int hal_param_s64_new(const char *name, hal_param_dir_t dir,
+extern int hal_param_signed_new(const char *name, hal_param_dir_t dir,
     hal_s64_t * data_addr, int comp_id);
 
 /** printf_style-style versions of hal_param_XXX_new */
@@ -582,16 +590,18 @@ extern int hal_param_bit_newf(hal_param_dir_t dir,
 extern int hal_param_float_newf(hal_param_dir_t dir,
     hal_float_t * data_addr, int comp_id, const char *fmt, ...)
 	__attribute__((format(printf,4,5)));
+#ifndef Hide32
 extern int hal_param_u32_newf(hal_param_dir_t dir,
     hal_u32_t * data_addr, int comp_id, const char *fmt, ...)
 	__attribute__((format(printf,4,5)));
 extern int hal_param_s32_newf(hal_param_dir_t dir,
     hal_s32_t * data_addr, int comp_id, const char *fmt, ...)
 	__attribute__((format(printf,4,5)));
-extern int hal_param_u64_newf(hal_param_dir_t dir,
+#endif
+extern int hal_param_unsigned_newf(hal_param_dir_t dir,
     hal_u64_t * data_addr, int comp_id, const char *fmt, ...)
 	__attribute__((format(printf,4,5)));
-extern int hal_param_s64_newf(hal_param_dir_t dir,
+extern int hal_param_signed_newf(hal_param_dir_t dir,
     hal_s64_t * data_addr, int comp_id, const char *fmt, ...)
 	__attribute__((format(printf,4,5)));
 
@@ -634,10 +644,12 @@ extern int hal_param_new(const char *name, hal_type_t type, hal_param_dir_t dir,
 */
 extern int hal_param_bit_set(const char *name, int value);
 extern int hal_param_float_set(const char *name, double value);
+#ifndef Hide32
 extern int hal_param_u32_set(const char *name, unsigned long value);
 extern int hal_param_s32_set(const char *name, signed long value);
-extern int hal_param_u64_set(const char *name, unsigned long value);
-extern int hal_param_s64_set(const char *name, signed long value);
+#endif
+extern int hal_param_unsigned_set(const char *name, unsigned long value);
+extern int hal_param_signed_set(const char *name, signed long value);
 
 /** 'hal_param_alias()' assigns an alternate name, aka an alias, to
     a parameter.  Once assigned, the parameter can be referred to by
