@@ -49,7 +49,7 @@ typedef struct {
 
     hal_bit_t	*spindle_on;
 
-    hal_u32_t *modbus_errors;
+    hal_u64_t *modbus_errors;
 } haldata_t;
 
 haldata_t *haldata;
@@ -67,7 +67,7 @@ typedef struct {
     int type;
     union {
         hal_float_t *hal_pin_float;
-        hal_u32_t *hal_pin_u32;
+        hal_u64_t *hal_pin_u32; // actually 64 bits, but only used for 32 bit values
     };
 } modbus_register_t;
 
@@ -314,7 +314,7 @@ modbus_register_t *add_modbus_register_u32(modbus_t *mb, int address, const char
     reg = &modbus_register[num_modbus_registers];
     reg->type = REGISTER_U32;
 
-    r = hal_pin_u32_newf(HAL_OUT, &reg->hal_pin_u32, hal_comp_id, "%s.%s", modname, pin_name);
+    r = hal_pin_unsigned_newf(HAL_OUT, &reg->hal_pin_u32, hal_comp_id, "%s.%s", modname, pin_name);
     if (r != 0) {
         return NULL;
     }
@@ -582,7 +582,7 @@ int main(int argc, char **argv) {
     retval = hal_pin_bit_newf(HAL_IN, &(haldata->spindle_on), hal_comp_id, "%s.spindle-on", modname);
     if (retval != 0) goto out_closeHAL;
 
-    retval = hal_pin_u32_newf(HAL_OUT, &(haldata->modbus_errors), hal_comp_id, "%s.modbus-errors", modname);
+    retval = hal_pin_unsigned_newf(HAL_OUT, &(haldata->modbus_errors), hal_comp_id, "%s.modbus-errors", modname);
     if (retval != 0) goto out_closeHAL;
 
     *haldata->period = 0.1;

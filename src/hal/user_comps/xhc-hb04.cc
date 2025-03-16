@@ -117,7 +117,7 @@ typedef struct {
 	hal_bit_t *jog_enable_feedrate;
 	hal_bit_t *jog_enable_spindle;
 	hal_float_t *jog_scale;
-	hal_s32_t *jog_counts, *jog_counts_neg;
+	hal_s64_t *jog_counts, *jog_counts_neg;
 
 	hal_float_t *jog_velocity;
 	hal_float_t *jog_max_velocity;
@@ -127,7 +127,7 @@ typedef struct {
 
 	hal_bit_t *stepsize_up;
 	hal_bit_t *stepsize_down;
-	hal_s32_t *stepsize;
+	hal_s64_t *stepsize;
 	hal_bit_t *sleeping;
 	hal_bit_t *connected;
 	hal_bit_t *require_pendant;
@@ -536,7 +536,7 @@ int _hal_pin_float_newf(hal_pin_dir_t dir, hal_float_t ** data_ptr_addr, int com
     }
 }
 
-int _hal_pin_s32_newf(hal_pin_dir_t dir, hal_s32_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
+int _hal_pin_signed_newf(hal_pin_dir_t dir, hal_s64_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
 {
 	char pin_name[256];
     va_list args;
@@ -548,7 +548,7 @@ int _hal_pin_s32_newf(hal_pin_dir_t dir, hal_s32_t ** data_ptr_addr, int comp_id
     	return hal_pin_simu(pin_name, ( void**)data_ptr_addr, sizeof(*data_ptr_addr));
     }
     else {
-    	return hal_pin_s32_new(pin_name, dir, data_ptr_addr, comp_id);
+    	return hal_pin_signed_new(pin_name, dir, data_ptr_addr, comp_id);
     }
 }
 
@@ -634,7 +634,7 @@ static int hal_setup()
     r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->connected), hal_comp_id, "%s.connected", modname);
     r |= _hal_pin_bit_newf(HAL_IN,  &(xhc.hal->stepsize_up), hal_comp_id, "%s.stepsize-up", modname);
     r |= _hal_pin_bit_newf(HAL_IN,  &(xhc.hal->stepsize_down), hal_comp_id, "%s.stepsize-down", modname);
-    r |= _hal_pin_s32_newf(HAL_OUT, &(xhc.hal->stepsize), hal_comp_id, "%s.stepsize", modname);
+    r |= _hal_pin_signed_newf(HAL_OUT, &(xhc.hal->stepsize), hal_comp_id, "%s.stepsize", modname);
     r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->require_pendant), hal_comp_id, "%s.require_pendant", modname);
     r |= _hal_pin_bit_newf(HAL_IN,  &(xhc.hal->inch_icon), hal_comp_id, "%s.inch-icon", modname);
 
@@ -647,8 +647,8 @@ static int hal_setup()
     r |= _hal_pin_bit_newf(HAL_OUT, &(xhc.hal->jog_enable_spindle), hal_comp_id, "%s.jog.enable-spindle-override", modname);
 
     r |= _hal_pin_float_newf(HAL_OUT, &(xhc.hal->jog_scale), hal_comp_id, "%s.jog.scale", modname);
-    r |= _hal_pin_s32_newf(HAL_OUT, &(xhc.hal->jog_counts), hal_comp_id, "%s.jog.counts", modname);
-    r |= _hal_pin_s32_newf(HAL_OUT, &(xhc.hal->jog_counts_neg), hal_comp_id, "%s.jog.counts-neg", modname);
+    r |= _hal_pin_signed_newf(HAL_OUT, &(xhc.hal->jog_counts), hal_comp_id, "%s.jog.counts", modname);
+    r |= _hal_pin_signed_newf(HAL_OUT, &(xhc.hal->jog_counts_neg), hal_comp_id, "%s.jog.counts-neg", modname);
 
     r |= _hal_pin_float_newf(HAL_OUT, &(xhc.hal->jog_velocity), hal_comp_id, "%s.jog.velocity", modname);
     r |= _hal_pin_float_newf(HAL_IN, &(xhc.hal->jog_max_velocity), hal_comp_id, "%s.jog.max-velocity", modname);

@@ -89,8 +89,8 @@ typedef struct {
 
 /* HAL data struct */
 typedef struct {
-  hal_s32_t	*stat1;		// status words from the VFD.  Maybe split these out sometime
-  hal_s32_t	*stat2;
+  hal_s64_t	*stat1;		// status words from the VFD.  Maybe split these out sometime
+  hal_s64_t	*stat2;
   hal_float_t	*freq_cmd;	// frequency command
   hal_float_t	*freq_out;	// actual output frequency
   hal_float_t	*curr_out;	// output current
@@ -100,11 +100,11 @@ typedef struct {
   hal_float_t	*scale_freq;
   hal_float_t	*power_factor;
   hal_float_t	*load_pct;
-  hal_s32_t	*FW_Rev;
-  hal_s32_t	errorcount;
+  hal_s64_t	*FW_Rev;
+  hal_s64_t	errorcount;
   hal_float_t	looptime;
   hal_float_t	speed_tolerance;
-  hal_s32_t	retval;
+  hal_s64_t	retval;
   hal_bit_t		*at_speed;		// when drive freq_cmd == freq_out and running
   hal_bit_t		*is_stopped;	// when drive freq out is 0
   hal_float_t	*speed_command;		// speed command input
@@ -114,7 +114,7 @@ typedef struct {
   hal_bit_t	*spindle_fwd;		// direction, 0=fwd, 1=rev
   hal_bit_t *spindle_rev;		// on when in rev and running
   hal_bit_t	*err_reset;		// reset errors when 1
-  hal_s32_t ack_delay;		// number of read/writes before checking at-speed
+  hal_s64_t ack_delay;		// number of read/writes before checking at-speed
 
   hal_bit_t	old_run;		// so we can detect changes in the run state
   hal_bit_t	old_dir;
@@ -680,9 +680,9 @@ int main(int argc, char **argv)
         goto out_close;
     }
 
-    retval = hal_pin_s32_newf(HAL_OUT, &(haldata->stat1), hal_comp_id, "%s.status-1", modname);
+    retval = hal_pin_signed_newf(HAL_OUT, &(haldata->stat1), hal_comp_id, "%s.status-1", modname);
     if (retval!=0) goto out_closeHAL;
-    retval = hal_pin_s32_newf(HAL_OUT, &(haldata->stat2), hal_comp_id, "%s.status-2", modname);
+    retval = hal_pin_signed_newf(HAL_OUT, &(haldata->stat2), hal_comp_id, "%s.status-2", modname);
     if (retval!=0) goto out_closeHAL;
     retval = hal_pin_float_newf(HAL_OUT, &(haldata->freq_cmd), hal_comp_id, "%s.frequency-command", modname);
     if (retval!=0) goto out_closeHAL;
@@ -702,13 +702,13 @@ int main(int argc, char **argv)
     if (retval!=0) goto out_closeHAL;
     retval = hal_pin_float_newf(HAL_OUT, &(haldata->load_pct), hal_comp_id, "%s.load-percentage", modname);
     if (retval!=0) goto out_closeHAL;
-    retval = hal_pin_s32_newf(HAL_OUT, &(haldata->FW_Rev), hal_comp_id, "%s.firmware-revision", modname);
+    retval = hal_pin_signed_newf(HAL_OUT, &(haldata->FW_Rev), hal_comp_id, "%s.firmware-revision", modname);
     if (retval!=0) goto out_closeHAL;
-    retval = hal_param_s32_newf(HAL_RW, &(haldata->errorcount), hal_comp_id, "%s.error-count", modname);
+    retval = hal_param_signed_newf(HAL_RW, &(haldata->errorcount), hal_comp_id, "%s.error-count", modname);
     if (retval!=0) goto out_closeHAL;
     retval = hal_param_float_newf(HAL_RW, &(haldata->looptime), hal_comp_id, "%s.loop-time", modname);
     if (retval!=0) goto out_closeHAL;
-    retval = hal_param_s32_newf(HAL_RW, &(haldata->retval), hal_comp_id, "%s.retval", modname);
+    retval = hal_param_signed_newf(HAL_RW, &(haldata->retval), hal_comp_id, "%s.retval", modname);
     if (retval!=0) goto out_closeHAL;
     retval = hal_pin_bit_newf(HAL_OUT, &(haldata->at_speed), hal_comp_id, "%s.at-speed", modname);
     if (retval!=0) goto out_closeHAL;
@@ -730,7 +730,7 @@ int main(int argc, char **argv)
     if (retval!=0) goto out_closeHAL;
     retval = hal_param_float_newf(HAL_RW, &(haldata->motor_RPM), hal_comp_id, "%s.nameplate-RPM", modname);
     if (retval!=0) goto out_closeHAL;
-    retval = hal_param_s32_newf(HAL_RW, &(haldata->ack_delay), hal_comp_id, "%s.ack-delay", modname);
+    retval = hal_param_signed_newf(HAL_RW, &(haldata->ack_delay), hal_comp_id, "%s.ack-delay", modname);
     if (retval!=0) goto out_closeHAL;
     /* define run (enable) pin and isInitialized */
     retval = hal_pin_bit_newf(HAL_IN, &(haldata->ena_gs2comp), hal_comp_id, "%s.enable", modname);

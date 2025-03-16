@@ -29,15 +29,15 @@ retCode create_each_mb_tx_hal_pins(mb_tx_t *mb_tx)
     }
 
     //num_errors hal pin
-    mb_tx->num_errors = hal_malloc(sizeof(hal_u32_t *));
+    mb_tx->num_errors = hal_malloc(sizeof(hal_u64_t *));
     if (mb_tx->num_errors == NULL) {
         ERR(gbl.init_dbg, "[%d] [%s] NULL hal_malloc num_errors",
             mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name);
         return retERR;
     }
-    memset(mb_tx->num_errors, 0, sizeof(hal_u32_t *));
+    memset(mb_tx->num_errors, 0, sizeof(hal_u64_t *));
     ret = snprintf(hal_pin_name, HAL_NAME_LEN, "%s.%s.num_errors", gbl.hal_mod_name, mb_tx->hal_tx_name);
-    if (ret >= HAL_NAME_LEN || ret < 0 || 0 != hal_pin_u32_newf(HAL_OUT, mb_tx->num_errors, gbl.hal_mod_id, "%s", hal_pin_name)) {
+    if (ret >= HAL_NAME_LEN || ret < 0 || 0 != hal_pin_unsigned_newf(HAL_OUT, mb_tx->num_errors, gbl.hal_mod_id, "%s", hal_pin_name)) {
         ERR(gbl.init_dbg, "[%d] [%s] [%s] hal_pin_u32_newf failed", mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, hal_pin_name);
         return retERR;
     }
@@ -67,7 +67,7 @@ retCode create_each_mb_tx_hal_pins(mb_tx_t *mb_tx)
     case mbtx_06_WRITE_SINGLE_REGISTER:
     case mbtx_16_WRITE_MULTIPLE_REGISTERS:
         mb_tx->float_value= hal_malloc(sizeof(hal_float_t *) * mb_tx->mb_tx_nelem);
-        mb_tx->int_value  = hal_malloc(sizeof(hal_s32_t *) * mb_tx->mb_tx_nelem);
+        mb_tx->int_value  = hal_malloc(sizeof(hal_s64_t *) * mb_tx->mb_tx_nelem);
         //mb_tx->scale      = hal_malloc(sizeof(hal_float_t) * mb_tx->mb_tx_nelem);
         //mb_tx->offset     = hal_malloc(sizeof(hal_float_t) * mb_tx->mb_tx_nelem);
         //if (mb_tx->float_value == NULL || mb_tx->int_value == NULL
@@ -78,7 +78,7 @@ retCode create_each_mb_tx_hal_pins(mb_tx_t *mb_tx)
             return retERR;
         }
         memset(mb_tx->float_value,     0, sizeof(hal_float_t *) * mb_tx->mb_tx_nelem);
-        memset(mb_tx->int_value,       0, sizeof(hal_s32_t *)   * mb_tx->mb_tx_nelem);
+        memset(mb_tx->int_value,       0, sizeof(hal_s64_t *)   * mb_tx->mb_tx_nelem);
         //memset((void *) mb_tx->scale,  0, sizeof(hal_float_t)   * mb_tx->mb_tx_nelem);
         //memset((void *) mb_tx->offset, 0, sizeof(hal_float_t)   * mb_tx->mb_tx_nelem);
         break;
@@ -153,7 +153,7 @@ retCode create_each_mb_tx_hal_pins(mb_tx_t *mb_tx)
                     mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, hal_pin_name);
                 return retERR;
             }
-            if (0 != hal_pin_s32_newf(HAL_OUT, mb_tx->int_value + pin_counter, gbl.hal_mod_id,
+            if (0 != hal_pin_signed_newf(HAL_OUT, mb_tx->int_value + pin_counter, gbl.hal_mod_id,
                                       "%s.int", hal_pin_name)) {
                 ERR(gbl.init_dbg, "[%d] [%s] [%s] hal_pin_s32_newf failed",
                     mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, hal_pin_name);
@@ -191,7 +191,7 @@ retCode create_each_mb_tx_hal_pins(mb_tx_t *mb_tx)
                         mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, hal_pin_name);
                     return retERR;
                 }
-                if (0 != hal_pin_s32_newf(HAL_IN, mb_tx->int_value + pin_counter, gbl.hal_mod_id,
+                if (0 != hal_pin_signed_newf(HAL_IN, mb_tx->int_value + pin_counter, gbl.hal_mod_id,
                                         "%s.int", hal_pin_name)) {
                     ERR(gbl.init_dbg, "[%d] [%s] [%s] hal_pin_s32_newf failed",
                         mb_tx->mb_tx_fnct, mb_tx->mb_tx_fnct_name, hal_pin_name);

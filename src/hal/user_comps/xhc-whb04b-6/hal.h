@@ -192,17 +192,17 @@ public:
         hal_bit_t  * mistStart{nullptr};
 
         //! to be connected to \ref axis.x.jog-counts
-        hal_s32_t* axisXJogCounts{nullptr};
+        hal_s64_t* axisXJogCounts{nullptr};
         //! to be connected to \ref axis.y.jog-counts
-        hal_s32_t* axisYJogCounts{nullptr};
+        hal_s64_t* axisYJogCounts{nullptr};
         //! to be connected to \ref axis.z.jog-counts
-        hal_s32_t* axisZJogCounts{nullptr};
+        hal_s64_t* axisZJogCounts{nullptr};
         //! to be connected to \ref axis.a.jog-counts
-        hal_s32_t* axisAJogCounts{nullptr};
+        hal_s64_t* axisAJogCounts{nullptr};
         //! to be connected to \ref axis.b.jog-counts
-        hal_s32_t* axisBJogCounts{nullptr};
+        hal_s64_t* axisBJogCounts{nullptr};
         //! to be connected to \ref axis.c.jog-counts
-        hal_s32_t* axisCJogCounts{nullptr};
+        hal_s64_t* axisCJogCounts{nullptr};
 
         //! to be connected to \ref axis.x.jog-enable
         hal_bit_t* axisXJogEnable{nullptr};
@@ -586,9 +586,9 @@ private:
     //! \sa  newBitHalPin(hal_pin_dir_t, hal_bit_t**, int, const char*, ...)
     int newHalFloat(hal_pin_dir_t direction, hal_float_t** ptr, int componentId, const char* fmt, ...);
     //! \sa  newBitHalPin(hal_pin_dir_t, hal_bit_t**, int, const char*, ...)
-    int newHalSigned32(hal_pin_dir_t direction, hal_s32_t** ptr, int componentId, const char* fmt, ...);
+    int newHalSigned(hal_pin_dir_t direction, hal_s64_t** ptr, int componentId, const char* fmt, ...);
     //! \sa  newBitHalPin(hal_pin_dir_t, hal_bit_t**, int, const char*, ...)
-    int newHalUnsigned32(hal_pin_dir_t direction, hal_u32_t** ptr, int componentId, const char* fmt, ...);
+    int newHalUnsigned(hal_pin_dir_t direction, hal_u64_t** ptr, int componentId, const char* fmt, ...);
     //! \param direction module input or output
     //! \param ptr will point to the allocated memory
     //! \param componentId hal id
