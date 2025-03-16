@@ -4,7 +4,7 @@ import getopt
 
 from PyQt5.QtWidgets import (QMainWindow, QToolBar, QMessageBox,
         QTreeWidget, QTreeWidgetItem, QStyle, QFileDialog,
-        QTextEdit, QMenu)
+        QTextEdit, QMenu, QAbstractItemView)
 from PyQt5 import uic
 from PyQt5.QtCore import QObject, QTimer, QUrl, Qt, QSize
 from PyQt5.QtGui import QColor, QIcon, QFont, QImage
@@ -63,12 +63,25 @@ class NCamWindow(QMainWindow, NCam):
         tv.setModel(self._model)
         tv.setAlternatingRowColors(True)
         tv.clicked.connect(self.get_selected_feature)
+        tv.clicked.connect(self.adjTreeBranch)
+
+        # select items rather then rows
+        tv.setSelectionBehavior(QAbstractItemView.SelectItems)
+
+        tv.SelectionMode(QAbstractItemView.SingleSelection)
 
         # for reloads in qtvcp screens
         self.zMessanger = ZMQMessage()
 
         # initialize ncam
         self.init()
+
+    # expand or collapse current selection
+    def adjTreeBranch(self,path):
+        if self.treeView.isExpanded(self.treeView.currentIndex()):
+            self.treeView.collapse(self.treeView.currentIndex())
+        else:
+            self.treeView.expand(self.treeView.currentIndex())
 
 ############
 # Gcode Display
