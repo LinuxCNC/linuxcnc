@@ -358,6 +358,24 @@ class _PStat(object):
             LOG.verbose("bggreen<Using default widget file from:> yellow<{}>".format(default))
             return default
 
+    # search for local widget path or default to standard
+    def find_custom_widget_path(self,widfile,klass):
+        try:
+            local = os.path.join(self.CONFIGPATH, 'qtvcp/widgets', widfile)
+            LOG.verbose("Checking for custom widget file in: yellow<{}>".format(local))
+            if os.path.exists(local):
+                LOG.info("bggreen<Using LOCAL custom widget file from:> yellow<{}>".format(local))
+                import importlib
+                sys.path.insert(0,  os.path.join(self.CONFIGPATH, 'qtvcp/widgets'))
+                justname = widfile[:widfile.index('.')]
+                print(justname)
+                mod = importlib.import_module(justname, os.path.join(self.CONFIGPATH, 'qtvcp/widgets'))
+                sys.path.remove(os.path.join(self.CONFIGPATH, 'qtvcp/widgets'))
+                return getattr(mod, klass)
+        except Exception as e:
+            print('oops',e)
+            pass
+
     # search for local image paths or default to standard
     def find_image_path(self,imagefile=''):
         try:
