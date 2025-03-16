@@ -396,10 +396,10 @@ class gmoccapy(object):
         self.widgets.gremlin.set_property("view", view)
 
         # get if run from line should be used
-        rfl = self.prefs.getpref("run_from_line", "no_run", str)
+        self.run_from_line = self.prefs.getpref("run_from_line", "no_run", str)
         # and set the corresponding button active
-        self.widgets["rbtn_{0}_from_line".format(rfl)].set_active(True)
-        if rfl == "no_run":
+        self.widgets["rbtn_{0}_from_line".format(self.run_from_line)].set_active(True)
+        if self.run_from_line == "no_run":
             self.widgets.btn_from_line.set_sensitive(False)
         else:
             self.widgets.btn_from_line.set_sensitive(True)
@@ -2567,10 +2567,12 @@ class gmoccapy(object):
         if self.load_tool:
             return
 
-        widgetlist = ["ntb_jog", "btn_from_line",
+        widgetlist = ["ntb_jog",
                       "tbtn_flood", "tbtn_mist", "rbt_forward", "rbt_reverse", "rbt_stop",
                       "btn_load", "btn_edit", "tbtn_optional_blocks", "btn_reload"
         ]
+        if self.run_from_line == "run":
+            widgetlist.append("btn_from_line")
         if not self.widgets.rbt_hal_unlock.get_active() and not self.user_mode:
             widgetlist.append("tbtn_setup")
 
@@ -2618,14 +2620,15 @@ class gmoccapy(object):
         LOG.debug("RUN")
 
         widgetlist = ["rbt_manual", "rbt_mdi", "rbt_auto", "tbtn_setup", "btn_index_tool",
-                      "btn_from_line", "btn_change_tool", "btn_select_tool_by_no",
+                      "btn_change_tool", "btn_select_tool_by_no",
                       "btn_load", "btn_edit", "tbtn_optional_blocks", "rbt_reverse", "rbt_stop", "rbt_forward",
                       "btn_tool_touchoff_x", "btn_tool_touchoff_z", "btn_touch", "btn_reload"
         ]
         # in MDI it should be possible to add more commands, even if the interpreter is running
         if self.stat.task_mode != linuxcnc.MODE_MDI:
             widgetlist.append("ntb_jog")
-
+        if self.run_from_line == "run":
+            widgetlist.append("btn_from_line")
         self._sensitize_widgets(widgetlist, False)
         self.widgets.btn_run.set_sensitive(False)
         self.widgets.btn_stop.set_sensitive(True)
@@ -4604,11 +4607,12 @@ class gmoccapy(object):
     def on_rbtn_run_from_line_toggled(self, widget, data=None):
         if widget.get_active():
             if widget == self.widgets.rbtn_no_run_from_line:
-                self.prefs.putpref("run_from_line", "no_run")
+                self.run_from_line = "no_run"
                 self.widgets.btn_from_line.set_sensitive(False)
             else:  # widget == self.widgets.rbtn_run_from_line:
-                self.prefs.putpref("run_from_line", "run")
+                self.run_from_line = "run"
                 self.widgets.btn_from_line.set_sensitive(True)
+            self.prefs.putpref("run_from_line", self.run_from_line)
 
     def on_chk_use_kb_on_offset_toggled(self, widget, data=None):
         self.prefs.putpref("show_keyboard_on_offset", widget.get_active())
