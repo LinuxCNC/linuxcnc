@@ -52,23 +52,19 @@ minval() {
 #  +  = max side bound needed
 #   - = min side bound needed
 # (table: vertical=from ($1); horizontal=to ($2))
-#     | flt | u32 | s32 | u64 | s64 | bit
-# ----+-----+-----+-----+-----+-----+-----
-# flt | xxx |  +- |  +- |  +- |  +- | xxx
-# u32 | o   | xxx |  +  | o   | o   |  +
-# s32 | o   |   - | xxx |   - | o   |  +-
-# u64 | o   |  +  |  +  | xxx |  +  |  +
-# s64 | o   |  +- |  +- |   - | xxx |  +-
-# bit | o   | o   | o   | o   | o   | xxx
+#     | flt | u64 | s64 | bit
+# ----+-----+-----+-----+-----
+# flt | xxx |  +- |  +- | xxx
+# u64 | o   | xxx |  +  |  +
+# s64 | o   |   - | xxx |  +-
+# bit | o   | o   | o   | xxx
 #
 # Boolean implementation of the above table:
-#     | flt | u32 | s32 | u64 | s64 | bit
-# ----+-----+-----+-----+-----+-----+-----
-# flt | o+- |  +- |  +- |  +- |  +- | x+-
-# u32 | o   | xxx |  +  | o   | o   |  +
-# s32 | o   |   - | x+x |   - | o   |  +-
-# u64 | o   |  +  |  +  | x+x |  +  |  +
-# s64 | o   |  +- |  +- |   - | xx- |  +-
+#     | flt | u64 | s64 | bit
+# ----+-----+-----+-----+-----
+# flt | o+- |  +- |  +- | x+-
+# u64 | o   | x+x |  +  |  +
+# s64 | o   |   - | xx- |  +-
 # bit | o   | o   | o   | o   | o   | o+x
 #
 
