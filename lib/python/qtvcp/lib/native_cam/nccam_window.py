@@ -64,6 +64,7 @@ class NCamWindow(QMainWindow, NCam):
         tv.setAlternatingRowColors(True)
         tv.clicked.connect(self.get_selected_feature)
         tv.clicked.connect(self.adjTreeBranch)
+        tv.expanded.connect(self.expandCalled)
 
         # select items rather then rows
         tv.setSelectionBehavior(QAbstractItemView.SelectItems)
@@ -76,6 +77,8 @@ class NCamWindow(QMainWindow, NCam):
         # initialize ncam
         self.init()
 
+        self.actionOutputWindow.triggered.connect(lambda s :self.toggleOutputWindow(s))
+
     # expand or collapse current selection
     def adjTreeBranch(self,path):
         if self.treeView.isExpanded(self.treeView.currentIndex()):
@@ -83,6 +86,15 @@ class NCamWindow(QMainWindow, NCam):
         else:
             self.treeView.expand(self.treeView.currentIndex())
 
+    def expandCalled(self, index):
+        self.treeView.scrollTo(index,QAbstractItemView.PositionAtTop)
+
+    def toggleOutputWindow(self, state):
+        self.stackedWidget_output.setCurrentIndex(int(state))
+        if state:
+            self.actionOutputWindow.setText('Graphics')
+        else:
+            self.actionOutputWindow.setText('Gcode text')
 ############
 # Gcode Display
 ############
@@ -110,9 +122,19 @@ class NCamWindow(QMainWindow, NCam):
         self.actionShowP.setIcon(QIcon(os.path.join(current_dir, 'graphics/tool_axis_p.gif')))
         self.actionShowP.triggered.connect(lambda s :self.setDisplayView('p'))
 
-        self._displayToolbar.addAction(self.actionShowZ)
-        self.actionShowZ.setIcon(QIcon(os.path.join(current_dir, 'graphics/tool_axis_z.gif')))
-        self.actionShowZ.triggered.connect(lambda s :self.setDisplayView('z'))
+        if INFO.MACHINE_IS_LATHE:
+            self._displayToolbar.addAction(self.actionShowY)
+            self.actionShowY.setIcon(QIcon(os.path.join(current_dir, 'graphics/tool_axis_y.gif')))
+            self.actionShowY.triggered.connect(lambda s :self.setDisplayView('y'))
+
+            self._displayToolbar.addAction(self.actionShowY2)
+            self.actionShowY2.setIcon(QIcon(os.path.join(current_dir, 'graphics/tool_axis_y2.png')))
+            self.actionShowY2.triggered.connect(lambda s :self.setDisplayView('y2'))
+
+        else:
+            self._displayToolbar.addAction(self.actionShowZ)
+            self.actionShowZ.setIcon(QIcon(os.path.join(current_dir, 'graphics/tool_axis_z.gif')))
+            self.actionShowZ.triggered.connect(lambda s :self.setDisplayView('z'))
 
         self.displayLayout.setMenuBar(self._displayToolbar)
 

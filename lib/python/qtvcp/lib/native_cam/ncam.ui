@@ -38,20 +38,11 @@
       <widget class="QWidget" name="verticalLayoutWidget_2">
        <layout class="QHBoxLayout" name="horizontalLayout_2">
         <item>
-         <widget class="QTabWidget" name="tabWidget">
-          <property name="currentIndex">
-           <number>0</number>
-          </property>
-          <widget class="QWidget" name="tab">
-           <attribute name="title">
-            <string>Display</string>
-           </attribute>
+         <widget class="QStackedWidget" name="stackedWidget_output">
+          <widget class="QWidget" name="stackedWidgetPage1" native="true">
            <layout class="QVBoxLayout" name="displayLayout"/>
           </widget>
-          <widget class="QWidget" name="tab_2">
-           <attribute name="title">
-            <string>Gcode</string>
-           </attribute>
+          <widget class="QWidget" name="stackedWidgetPage2" native="true">
            <layout class="QVBoxLayout" name="verticalLayout_2">
             <item>
              <layout class="QVBoxLayout" name="verticalLayout">
@@ -290,6 +281,7 @@
    <addaction name="actionCurrent"/>
    <addaction name="actionAutoRefresh"/>
    <addaction name="actionDebugPrint"/>
+   <addaction name="actionOutputWindow"/>
   </widget>
   <widget class="QToolBar" name="nc_toolbar">
    <property name="windowTitle">
@@ -679,6 +671,24 @@
   <action name="actionShowZ">
    <property name="text">
     <string>ShowZ</string>
+   </property>
+  </action>
+  <action name="actionShowY">
+   <property name="text">
+    <string>ShowY</string>
+   </property>
+  </action>
+  <action name="actionShowY2">
+   <property name="text">
+    <string>ShowY2</string>
+   </property>
+  </action>
+  <action name="actionOutputWindow">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>OutputWindow</string>
    </property>
   </action>
  </widget>
