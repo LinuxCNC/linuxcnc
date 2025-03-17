@@ -1,4 +1,4 @@
-VERSION = '008.060'
+VERSION = '008.061'
 LCNCVER = '2.10'
 DOCSVER = 'devel'
 

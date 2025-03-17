@@ -15,6 +15,11 @@ QPushButton:checked {
     color: #16160e;
     background: #ff5500 }
 
+#move_down:pressed,
+#move_up:pressed {
+color: #16160e;
+background: #ff5500 }
+
 /****** SLIDER ************/
 QSlider::groove:horizontal {
     background: gray;
@@ -65,4 +70,3 @@ QCheckBox::indicator:pressed,
 QCheckBox::indicator:checked,
 QCheckBox::indicator:checked:pressed {
     background: #ff5500 }
-
