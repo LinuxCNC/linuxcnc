@@ -152,8 +152,8 @@ def parse(filename):
 dirmap = {'r': 'HAL_RO', 'rw': 'HAL_RW', 'in': 'HAL_IN', 'out': 'HAL_OUT', 'io': 'HAL_IO' }
 
 # FIXME - either deprecate u32/s32 or alias to signed/unsigned
-typemap = {'s32': 's32', 'u32': 'u32', 'signed': 's64', 'unsigned': 'u64'}
-funcmap = {'s64': 'signed', 'u64': 'unsigned', 's32': 's32', 'u32': 'u32'}
+typemap = {'s32': 's64', 'u32': 'u64', 'signed': 's64', 'unsigned': 'u64'}
+funcmap = {'s32': 'signed', 'u32': 'unsigned', 's64': 'signed', 'u64': 'unsigned'}
 
 def initialize():
     global functions, params, pins, comp_name, names, docs, variables
