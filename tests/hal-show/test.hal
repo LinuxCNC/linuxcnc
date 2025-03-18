@@ -67,6 +67,15 @@ loadusr -w sleep 0.1
 show pin *.in
 show sig
 
+setp conv-float-signed.0.clamp 1
+setp conv-float-unsigned.0.clamp 1
+setp conv-signed-bit.0.clamp 1
+setp conv-signed-unsigned.0.clamp 1
+setp conv-unsigned-bit.0.clamp 1
+setp conv-unsigned-signed.0.clamp 1
+
+loadusr -w sleep 0.1
+show sig
 
 
 
