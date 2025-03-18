@@ -65,28 +65,27 @@ minval() {
 # flt | o+- |  +- |  +- | x+-
 # u64 | o   | x+x |  +  |  +
 # s64 | o   |   - | xx- |  +-
-# bit | o   | o   | o   | o   | o   | o+x
+# bit | o   | o   | o   | o+x
 #
-
 # Enable (val > MAX) test
 test	"$1" = 'float' -o \
 	"$2" = 'bit' -o \
 	\( "$2" = 's32' -a "$1" != 'bit' \) -o \
-	\( "$1" = 'u64' -a "$2" != 'float' \) -o \
-	\( "$1" = 's64' -a "$2" = 'u32' \)
+	\( "$1" = 'unsigned' -a "$2" != 'float' \) -o \
+	\( "$1" = 'signed' -a "$2" = 'u32' \)
 MAXEN="s,@MAXEN@,$?,g"
 
 # Enable (val < MIN) test
 test	"$1" = 'float' -o \
-	\( "$1" = 's64' -a "$2" != 'float' \) -o \
-	\( "$1" = 's32' -a \( "$2" = 'u32' -o "$2" = 'u64' -o "$2" = 'bit' \) \)
+	\( "$1" = 'signed' -a "$2" != 'float' \) -o \
+	\( "$1" = 's32' -a \( "$2" = 'u32' -o "$2" = 'unsigned' -o "$2" = 'bit' \) \)
 MINEN="s,@MINEN@,$?,g"
 
 # Disable clamp code
 if test	"$2" = 'float' -o \
 	"$1" = 'bit' -o \
-	\( "$1" = 'u32' -a \( "$2" = 'u64' -o "$2" = 's64' \) \) -o \
-	\( "$1" = 's32' -a "$2" = 's64' \)
+	\( "$1" = 'u32' -a \( "$2" = 'unsigned' -o "$2" = 'signed' \) \) -o \
+	\( "$1" = 's32' -a "$2" = 'signed' \)
 then CC="s,@CC@,//,g"; else CC="s,@CC@,,g"; fi
 
 if test "$1" = 'float' -o "$2" = 'float'; then FP="s,@FP@,,g"; else FP="s,@FP@,nofp,g"; fi
