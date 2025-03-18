@@ -1,72 +1,155 @@
 Component Pins:
 Owner   Type  Dir                 Value  Name
-     8  bit   IN                  FALSE  conv-bit-u32.0.in <== net-conv-bit-u32.0.in
-    14  float IN                      0  conv-float-s32.0.in <== net-conv-float-s32.0.in
-    17  s32   IN                      0  conv-s32-float.0.in <== net-conv-s32-float.0.in
-    20  s64   IN                      0  conv-s64-u64.0.in <== net-conv-s64-u64.0.in
-    11  u32   IN             0x00000000  conv-u32-bit.0.in <== net-conv-u32-bit.0.in
-    23  u64   IN     0x0000000000000000  conv-u64-s64.0.in <== net-conv-u64-s64.0.in
+     8  bit   IN                  FALSE  conv-bit-signed.0.in <== net-conv-bit-signed.0.in
+    11  bit   IN                  FALSE  conv-bit-unsigned.0.in <== net-conv-bit-unsigned.0.in
+    14  float IN                      0  conv-float-signed.0.in <== net-conv-float-signed.0.in
+    17  float IN                      0  conv-float-unsigned.0.in <== net-conv-float-unsigned.0.in
+    20  s64   IN                      0  conv-signed-bit.0.in <== net-conv-signed-bit.0.in
+    23  s64   IN                      0  conv-signed-float.0.in <== net-conv-signed-float.0.in
+    26  s64   IN                      0  conv-signed-unsigned.0.in <== net-conv-signed-unsigned.0.in
+    29  u64   IN     0x0000000000000000  conv-unsigned-bit.0.in <== net-conv-unsigned-bit.0.in
+    32  u64   IN     0x0000000000000000  conv-unsigned-float.0.in <== net-conv-unsigned-float.0.in
+    35  u64   IN     0x0000000000000000  conv-unsigned-signed.0.in <== net-conv-unsigned-signed.0.in
 
 Signals:
 Type                  Value  Name     (linked to)
-bit                   FALSE  net-conv-bit-u32.0.in
-                                 ==> conv-bit-u32.0.in
-u32              0x00000000  net-conv-bit-u32.0.out
-                                 <== conv-bit-u32.0.out
-float                     0  net-conv-float-s32.0.in
-                                 ==> conv-float-s32.0.in
-s32                       0  net-conv-float-s32.0.out
-                                 <== conv-float-s32.0.out
-s32                       0  net-conv-s32-float.0.in
-                                 ==> conv-s32-float.0.in
-float                     0  net-conv-s32-float.0.out
-                                 <== conv-s32-float.0.out
-s64                       0  net-conv-s64-u64.0.in
-                                 ==> conv-s64-u64.0.in
-u64      0x0000000000000000  net-conv-s64-u64.0.out
-                                 <== conv-s64-u64.0.out
-u32              0x00000000  net-conv-u32-bit.0.in
-                                 ==> conv-u32-bit.0.in
-bit                   FALSE  net-conv-u32-bit.0.out
-                                 <== conv-u32-bit.0.out
-u64      0x0000000000000000  net-conv-u64-s64.0.in
-                                 ==> conv-u64-s64.0.in
-s64                       0  net-conv-u64-s64.0.out
-                                 <== conv-u64-s64.0.out
+bit                   FALSE  net-conv-bit-signed.0.in
+                                 ==> conv-bit-signed.0.in
+s64                       0  net-conv-bit-signed.0.out
+                                 <== conv-bit-signed.0.out
+bit                   FALSE  net-conv-bit-unsigned.0.in
+                                 ==> conv-bit-unsigned.0.in
+u64      0x0000000000000000  net-conv-bit-unsigned.0.out
+                                 <== conv-bit-unsigned.0.out
+float                     0  net-conv-float-signed.0.in
+                                 ==> conv-float-signed.0.in
+s64                       0  net-conv-float-signed.0.out
+                                 <== conv-float-signed.0.out
+float                     0  net-conv-float-unsigned.0.in
+                                 ==> conv-float-unsigned.0.in
+u64      0x0000000000000000  net-conv-float-unsigned.0.out
+                                 <== conv-float-unsigned.0.out
+s64                       0  net-conv-signed-bit.0.in
+                                 ==> conv-signed-bit.0.in
+bit                   FALSE  net-conv-signed-bit.0.out
+                                 <== conv-signed-bit.0.out
+s64                       0  net-conv-signed-float.0.in
+                                 ==> conv-signed-float.0.in
+float                     0  net-conv-signed-float.0.out
+                                 <== conv-signed-float.0.out
+s64                       0  net-conv-signed-unsigned.0.in
+                                 ==> conv-signed-unsigned.0.in
+u64      0x0000000000000000  net-conv-signed-unsigned.0.out
+                                 <== conv-signed-unsigned.0.out
+u64      0x0000000000000000  net-conv-unsigned-bit.0.in
+                                 ==> conv-unsigned-bit.0.in
+bit                   FALSE  net-conv-unsigned-bit.0.out
+                                 <== conv-unsigned-bit.0.out
+u64      0x0000000000000000  net-conv-unsigned-float.0.in
+                                 ==> conv-unsigned-float.0.in
+float                     0  net-conv-unsigned-float.0.out
+                                 <== conv-unsigned-float.0.out
+u64      0x0000000000000000  net-conv-unsigned-signed.0.in
+                                 ==> conv-unsigned-signed.0.in
+s64                       0  net-conv-unsigned-signed.0.out
+                                 <== conv-unsigned-signed.0.out
 
 Component Pins:
 Owner   Type  Dir                 Value  Name
-     8  bit   IN                   TRUE  conv-bit-u32.0.in <== net-conv-bit-u32.0.in
-    14  float IN           2.147484e+09  conv-float-s32.0.in <== net-conv-float-s32.0.in
-    17  s32   IN            -2147483648  conv-s32-float.0.in <== net-conv-s32-float.0.in
-    20  s64   IN   -9223372036854775808  conv-s64-u64.0.in <== net-conv-s64-u64.0.in
-    11  u32   IN             0xFFFFFFFF  conv-u32-bit.0.in <== net-conv-u32-bit.0.in
-    23  u64   IN     0xFFFFFFFFFFFFFFFF  conv-u64-s64.0.in <== net-conv-u64-s64.0.in
+     8  bit   IN                   TRUE  conv-bit-signed.0.in <== net-conv-bit-signed.0.in
+    11  bit   IN                   TRUE  conv-bit-unsigned.0.in <== net-conv-bit-unsigned.0.in
+    14  float IN           2.147484e+09  conv-float-signed.0.in <== net-conv-float-signed.0.in
+    17  float IN                -3.1415  conv-float-unsigned.0.in <== net-conv-float-unsigned.0.in
+    20  s64   IN                    -15  conv-signed-bit.0.in <== net-conv-signed-bit.0.in
+    23  s64   IN            -2147483648  conv-signed-float.0.in <== net-conv-signed-float.0.in
+    26  s64   IN   -9223372036854775808  conv-signed-unsigned.0.in <== net-conv-signed-unsigned.0.in
+    29  u64   IN     0x00000000FFFFFFFF  conv-unsigned-bit.0.in <== net-conv-unsigned-bit.0.in
+    32  u64   IN     0xFFFFFFFFFFFFFFFF  conv-unsigned-float.0.in <== net-conv-unsigned-float.0.in
+    35  u64   IN     0xFFFFFFFFFFFFFFFF  conv-unsigned-signed.0.in <== net-conv-unsigned-signed.0.in
 
 Signals:
 Type                  Value  Name     (linked to)
-bit                    TRUE  net-conv-bit-u32.0.in
-                                 ==> conv-bit-u32.0.in
-u32              0x00000001  net-conv-bit-u32.0.out
-                                 <== conv-bit-u32.0.out
-float          2.147484e+09  net-conv-float-s32.0.in
-                                 ==> conv-float-s32.0.in
-s32              2147483647  net-conv-float-s32.0.out
-                                 <== conv-float-s32.0.out
-s32             -2147483648  net-conv-s32-float.0.in
-                                 ==> conv-s32-float.0.in
-float         -2.147484e+09  net-conv-s32-float.0.out
-                                 <== conv-s32-float.0.out
-s64    -9223372036854775808  net-conv-s64-u64.0.in
-                                 ==> conv-s64-u64.0.in
-u64      0x8000000000000000  net-conv-s64-u64.0.out
-                                 <== conv-s64-u64.0.out
-u32              0xFFFFFFFF  net-conv-u32-bit.0.in
-                                 ==> conv-u32-bit.0.in
-bit                    TRUE  net-conv-u32-bit.0.out
-                                 <== conv-u32-bit.0.out
-u64      0xFFFFFFFFFFFFFFFF  net-conv-u64-s64.0.in
-                                 ==> conv-u64-s64.0.in
-s64                      -1  net-conv-u64-s64.0.out
-                                 <== conv-u64-s64.0.out
+bit                    TRUE  net-conv-bit-signed.0.in
+                                 ==> conv-bit-signed.0.in
+s64                       1  net-conv-bit-signed.0.out
+                                 <== conv-bit-signed.0.out
+bit                    TRUE  net-conv-bit-unsigned.0.in
+                                 ==> conv-bit-unsigned.0.in
+u64      0x0000000000000001  net-conv-bit-unsigned.0.out
+                                 <== conv-bit-unsigned.0.out
+float          2.147484e+09  net-conv-float-signed.0.in
+                                 ==> conv-float-signed.0.in
+s64              2147483647  net-conv-float-signed.0.out
+                                 <== conv-float-signed.0.out
+float               -3.1415  net-conv-float-unsigned.0.in
+                                 ==> conv-float-unsigned.0.in
+u64      0xFFFFFFFFFFFFFFFD  net-conv-float-unsigned.0.out
+                                 <== conv-float-unsigned.0.out
+s64                     -15  net-conv-signed-bit.0.in
+                                 ==> conv-signed-bit.0.in
+bit                    TRUE  net-conv-signed-bit.0.out
+                                 <== conv-signed-bit.0.out
+s64             -2147483648  net-conv-signed-float.0.in
+                                 ==> conv-signed-float.0.in
+float         -2.147484e+09  net-conv-signed-float.0.out
+                                 <== conv-signed-float.0.out
+s64    -9223372036854775808  net-conv-signed-unsigned.0.in
+                                 ==> conv-signed-unsigned.0.in
+u64      0x8000000000000000  net-conv-signed-unsigned.0.out
+                                 <== conv-signed-unsigned.0.out
+u64      0x00000000FFFFFFFF  net-conv-unsigned-bit.0.in
+                                 ==> conv-unsigned-bit.0.in
+bit                    TRUE  net-conv-unsigned-bit.0.out
+                                 <== conv-unsigned-bit.0.out
+u64      0xFFFFFFFFFFFFFFFF  net-conv-unsigned-float.0.in
+                                 ==> conv-unsigned-float.0.in
+float          1.844674e+19  net-conv-unsigned-float.0.out
+                                 <== conv-unsigned-float.0.out
+u64      0xFFFFFFFFFFFFFFFF  net-conv-unsigned-signed.0.in
+                                 ==> conv-unsigned-signed.0.in
+s64                      -1  net-conv-unsigned-signed.0.out
+                                 <== conv-unsigned-signed.0.out
+
+Signals:
+Type                  Value  Name     (linked to)
+bit                    TRUE  net-conv-bit-signed.0.in
+                                 ==> conv-bit-signed.0.in
+s64                       1  net-conv-bit-signed.0.out
+                                 <== conv-bit-signed.0.out
+bit                    TRUE  net-conv-bit-unsigned.0.in
+                                 ==> conv-bit-unsigned.0.in
+u64      0x0000000000000001  net-conv-bit-unsigned.0.out
+                                 <== conv-bit-unsigned.0.out
+float          2.147484e+09  net-conv-float-signed.0.in
+                                 ==> conv-float-signed.0.in
+s64              2147483647  net-conv-float-signed.0.out
+                                 <== conv-float-signed.0.out
+float               -3.1415  net-conv-float-unsigned.0.in
+                                 ==> conv-float-unsigned.0.in
+u64      0x0000000000000000  net-conv-float-unsigned.0.out
+                                 <== conv-float-unsigned.0.out
+s64                     -15  net-conv-signed-bit.0.in
+                                 ==> conv-signed-bit.0.in
+bit                   FALSE  net-conv-signed-bit.0.out
+                                 <== conv-signed-bit.0.out
+s64             -2147483648  net-conv-signed-float.0.in
+                                 ==> conv-signed-float.0.in
+float         -2.147484e+09  net-conv-signed-float.0.out
+                                 <== conv-signed-float.0.out
+s64    -9223372036854775808  net-conv-signed-unsigned.0.in
+                                 ==> conv-signed-unsigned.0.in
+u64      0x0000000000000000  net-conv-signed-unsigned.0.out
+                                 <== conv-signed-unsigned.0.out
+u64      0x00000000FFFFFFFF  net-conv-unsigned-bit.0.in
+                                 ==> conv-unsigned-bit.0.in
+bit                    TRUE  net-conv-unsigned-bit.0.out
+                                 <== conv-unsigned-bit.0.out
+u64      0xFFFFFFFFFFFFFFFF  net-conv-unsigned-float.0.in
+                                 ==> conv-unsigned-float.0.in
+float          1.844674e+19  net-conv-unsigned-float.0.out
+                                 <== conv-unsigned-float.0.out
+u64      0xFFFFFFFFFFFFFFFF  net-conv-unsigned-signed.0.in
+                                 ==> conv-unsigned-signed.0.in
+s64     9223372036854775807  net-conv-unsigned-signed.0.out
+                                 <== conv-unsigned-signed.0.out
 
