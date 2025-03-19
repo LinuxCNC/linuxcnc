@@ -28,6 +28,22 @@
     <property name="step-increment">1</property>
     <signal name="value-changed" handler="on_adj_height_value_changed" swapped="no"/>
   </object>
+  <object class="GtkAdjustment" id="adj_jog_box_width">
+    <property name="lower">100</property>
+    <property name="upper">600</property>
+    <property name="value">360</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
+    <signal name="value-changed" handler="on_adj_jog_box_width_value_changed" swapped="no"/>
+  </object>
+  <object class="GtkAdjustment" id="adj_jog_btn_size">
+    <property name="lower">24</property>
+    <property name="upper">64</property>
+    <property name="value">32</property>
+    <property name="step-increment">1</property>
+    <property name="page-increment">10</property>
+    <signal name="value-changed" handler="on_adj_jog_btn_size_value_changed" swapped="no"/>
+  </object>
   <object class="GtkAdjustment" id="adj_kbd_height">
     <property name="lower">150</property>
     <property name="upper">500</property>
@@ -1653,10 +1669,9 @@ uncomment selection</property>
                                                 </child>
                                                 <child>
                                                   <object class="GtkButtonBox" id="vbtb_jog_incr">
-                                                    <property name="width-request">110</property>
                                                     <property name="visible">True</property>
                                                     <property name="can-focus">False</property>
-                                                    <property name="margin-start">5</property>
+                                                    <property name="margin-start">8</property>
                                                     <property name="orientation">vertical</property>
                                                     <property name="spacing">3</property>
                                                     <property name="layout-style">expand</property>
@@ -4469,7 +4484,102 @@ clicking on the DRO</property>
                               </packing>
                             </child>
                             <child>
-                              <placeholder/>
+                              <object class="GtkFrame" id="frm_jog_settings">
+                                <property name="visible">True</property>
+                                <property name="can-focus">False</property>
+                                <property name="label-xalign">0.5</property>
+                                <child>
+                                  <!-- n-columns=2 n-rows=2 -->
+                                  <object class="GtkGrid" id="grid_jog_settings">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="margin-top">3</property>
+                                    <child>
+                                      <object class="GtkLabel" id="lbl_jog_btn_size">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="xpad">5</property>
+                                        <property name="ypad">5</property>
+                                        <property name="label" translatable="yes">Jog Button Size</property>
+                                        <property name="xalign">0</property>
+                                      </object>
+                                      <packing>
+                                        <property name="left-attach">0</property>
+                                        <property name="top-attach">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkSpinButton" id="spbtn_jog_btn_size">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">True</property>
+                                        <property name="invisible-char">●</property>
+                                        <property name="width-chars">6</property>
+                                        <property name="max-width-chars">2</property>
+                                        <property name="text" translatable="yes">40</property>
+                                        <property name="xalign">1</property>
+                                        <property name="primary-icon-activatable">False</property>
+                                        <property name="secondary-icon-activatable">False</property>
+                                        <property name="adjustment">adj_jog_btn_size</property>
+                                        <property name="climb-rate">1</property>
+                                        <property name="numeric">True</property>
+                                        <property name="value">32</property>
+                                      </object>
+                                      <packing>
+                                        <property name="left-attach">1</property>
+                                        <property name="top-attach">0</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkLabel" id="lbl_jog_box_width">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">False</property>
+                                        <property name="xpad">5</property>
+                                        <property name="ypad">5</property>
+                                        <property name="label" translatable="yes">Width Right Pane</property>
+                                        <property name="xalign">0</property>
+                                      </object>
+                                      <packing>
+                                        <property name="left-attach">0</property>
+                                        <property name="top-attach">1</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <object class="GtkSpinButton" id="spbtn_jog_box_width">
+                                        <property name="visible">True</property>
+                                        <property name="can-focus">True</property>
+                                        <property name="invisible-char">●</property>
+                                        <property name="width-chars">6</property>
+                                        <property name="max-width-chars">3</property>
+                                        <property name="text" translatable="yes">30</property>
+                                        <property name="xalign">1</property>
+                                        <property name="primary-icon-activatable">False</property>
+                                        <property name="secondary-icon-activatable">False</property>
+                                        <property name="adjustment">adj_jog_box_width</property>
+                                        <property name="climb-rate">5</property>
+                                        <property name="numeric">True</property>
+                                        <property name="value">360</property>
+                                      </object>
+                                      <packing>
+                                        <property name="left-attach">1</property>
+                                        <property name="top-attach">1</property>
+                                      </packing>
+                                    </child>
+                                  </object>
+                                </child>
+                                <child type="label">
+                                  <object class="GtkLabel" id="lbl_frm_jog_settings">
+                                    <property name="visible">True</property>
+                                    <property name="can-focus">False</property>
+                                    <property name="label" translatable="yes">&lt;b&gt;Jog Area&lt;/b&gt;</property>
+                                    <property name="use-markup">True</property>
+                                  </object>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="position">2</property>
+                              </packing>
                             </child>
                           </object>
                           <packing>

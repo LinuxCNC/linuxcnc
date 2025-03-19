@@ -647,6 +647,13 @@ class gmoccapy(object):
         # Activate the recently open tab page
         self.widgets.ntb_tool_and_code_info.set_current_page(self.prefs.getpref("info_tab_page", 0, int))
 
+        self.jog_btn_size = self.prefs.getpref("jog_btn_size", 48, int)
+        self.widgets.adj_jog_btn_size.set_value(self.jog_btn_size)
+            
+        jog_box_width = self.prefs.getpref("jog_box_width", 360, int)
+        self.widgets.adj_jog_box_width.set_value(jog_box_width)
+        self.widgets.vbx_jog.set_size_request(jog_box_width, -1)
+
 ###############################################################################
 ##                     create widgets dynamically                            ##
 ###############################################################################
@@ -1315,8 +1322,7 @@ class gmoccapy(object):
                 btn.set_property("tooltip-text", _("Press to jog axis {0}".format(axis)))
                 # Set name to assign CSS
                 self.widgets.vbx_jog_button.set_property("name", "jog_buttons")
-                btn.set_size_request(48,48)
-
+                btn.set_size_request(self.jog_btn_size, self.jog_btn_size)
                 self.jog_button_dic[name] = btn
 
     def _make_joints_button(self):
@@ -1334,7 +1340,7 @@ class gmoccapy(object):
                 btn.connect("pressed", self._on_btn_jog_pressed, name)
                 btn.connect("released", self._on_btn_jog_released, name)
                 btn.set_property("tooltip-text", _("Press to jog joint {0}".format(joint)))
-                btn.set_size_request(48,48)
+                btn.set_size_request(self.jog_btn_size, self.jog_btn_size)
 
                 self.joints_button_dic[name] = btn
 
@@ -5077,6 +5083,22 @@ class gmoccapy(object):
         self.prefs.putpref("height", value, float)
         self.height = value
         self.widgets.window1.resize(self.width, value)
+    
+    def on_adj_jog_btn_size_value_changed(self, widget, data=None):
+        if not self.initialized:
+            return
+        self.jog_btn_size = int(widget.get_value())
+        self.prefs.putpref("jog_btn_size", self.jog_btn_size, int)
+        self._make_jog_button()
+        for button in self.widgets.grid_jog_btn_axes.get_children():
+            button.set_size_request(self.jog_btn_size, self.jog_btn_size)
+        
+    def on_adj_jog_box_width_value_changed(self, widget, data=None):
+        if not self.initialized:
+            return
+        value = int(widget.get_value())
+        self.widgets.vbx_jog.set_size_request(value, -1)
+        self.prefs.putpref("jog_box_width", value, int)
 
     def on_adj_kbd_height_value_changed(self, widget, data=None):
         if not self.initialized:
