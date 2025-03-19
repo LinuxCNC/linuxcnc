@@ -146,14 +146,15 @@ class gmoccapy(object):
                 min-height: 18px;
                 padding:1px;
             }
-            /* #__jog_incr_buttons *:checked {
-                background: rgba(230,230,50,0.8);
+            /* #jog_incr_buttons *:checked {
+                 background: rgba(255,129,22,0.6);
             } */
-            #jog_incr_buttons *:active, #jog_buttons *:active {
-                background: rgba(230,230,50,0.8);
-            }
             #eb_program_label, #eb_blockheight_label {
                 background: rgba(0,0,0,1);
+            }
+            #jog_incr_buttons *{
+                padding-left: 3px;
+                padding-right: 3px;
             }
             progress, trough {
                 min-height: 5px;
@@ -805,11 +806,14 @@ class gmoccapy(object):
         lbl.show()
         return lbl
 
-    def _new_button_with_predefined_image(self, name, size, image = None, image_name = None):
-        btn = Gtk.Button()
+    def _new_button_with_predefined_image(self, name, size, image = None, image_name = None, radio_button = False):
+        if radio_button:
+            btn = Gtk.RadioButton()
+        else:
+            btn = Gtk.Button()
+            btn.set_halign(Gtk.Align.CENTER)
+            btn.set_valign(Gtk.Align.CENTER)
         btn.set_size_request(*size)
-        btn.set_halign(Gtk.Align.CENTER)
-        btn.set_valign(Gtk.Align.CENTER)
         btn.set_property("name", name)
         try:
             if image:
@@ -1157,9 +1161,14 @@ class gmoccapy(object):
         # We use the pressed signal, not the toggled, otherwise two signals will be emitted
         # One from the released button and one from the pressed button
         # we make a list of the buttons to later add the hardware pins to them
-        label = _("Continuous")
-        rbt = Gtk.RadioButton(label = label)
+        rbt = self._new_button_with_predefined_image(
+            name=_("Continuous"),
+            size=(-1,-1),
+            image=self.widgets.img_continuous,
+            radio_button=True
+        )
         rbt.set_property("name","rbt_0")
+        rbt.set_tooltip_text(_("Continuous jog"))
         rbt.connect("pressed", self._jog_increment_changed)
         self.widgets.vbtb_jog_incr.pack_start(rbt, True, True, 0)
         rbt.set_property("draw_indicator", False)
@@ -4813,6 +4822,7 @@ class gmoccapy(object):
                 # jog
                 ("img_rabbit_jog", "jog_speed_fast", 32),
                 ("img_turtle_jog", "jog_speed_slow", 32),
+                ("img_continuous", "jog_continuous", 24),
                 # fullscreen
                 ("img_fullsize_preview0_open",  "fullscreen_open",  48),
                 ("img_fullsize_preview0_close", "fullscreen_close", 48),

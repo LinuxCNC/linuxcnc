@@ -207,6 +207,10 @@
     <property name="visible">True</property>
     <property name="can-focus">False</property>
   </object>
+  <object class="GtkImage" id="img_continuous">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+  </object>
   <object class="GtkImage" id="img_coolant_off">
     <property name="visible">True</property>
     <property name="can-focus">False</property>
@@ -1425,6 +1429,7 @@ uncomment selection</property>
                                                       <object class="GtkNotebook" id="ntb_jog_JA">
                                                         <property name="visible">True</property>
                                                         <property name="can-focus">True</property>
+                                                        <property name="vexpand">True</property>
                                                         <property name="show-tabs">False</property>
                                                         <property name="show-border">False</property>
                                                         <child>
@@ -1651,8 +1656,10 @@ uncomment selection</property>
                                                     <property name="width-request">110</property>
                                                     <property name="visible">True</property>
                                                     <property name="can-focus">False</property>
+                                                    <property name="margin-start">5</property>
                                                     <property name="orientation">vertical</property>
                                                     <property name="spacing">3</property>
+                                                    <property name="layout-style">expand</property>
                                                     <child>
                                                       <placeholder/>
                                                     </child>
