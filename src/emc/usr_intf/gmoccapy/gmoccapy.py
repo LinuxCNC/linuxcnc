@@ -2374,6 +2374,7 @@ class gmoccapy(object):
             pass
         self.widgets.window1.connect("key_press_event", self.on_key_event, 1)
         self.widgets.window1.connect("key_release_event", self.on_key_event, 0)
+        self.widgets.gcode_view.connect("key-press-event", self.on_key_event_gcode_edit)
 
     # Initialize the file to load dialog, setting an title and the correct
     # folder as well as a file filter
@@ -3460,6 +3461,64 @@ class gmoccapy(object):
             LOG.info("Key {0} ({1:d}) was pressed {2} {3}".format(keyname, event.keyval, signal, self.last_key_event))
         self.last_key_event = keyname, signal
         return True
+    
+    def on_key_event_gcode_edit(self, widget, event):
+        # Check if Ctrl+Shift+/ is pressed
+        if (event.state & Gdk.ModifierType.CONTROL_MASK) and (event.state & Gdk.ModifierType.SHIFT_MASK) and \
+           (event.keyval == Gdk.KEY_slash):
+            self.toggle_comment_from_selection()
+            return True  # Stop further handling of the event
+        return False
+
+    def toggle_comment_from_selection(self):
+        if self.widgets.gcode_view.get_editable():
+            buffer = self.widgets.gcode_view.get_buffer()
+            # Get the selection bounds
+            if buffer.get_has_selection():
+                start_iter, end_iter = buffer.get_selection_bounds()
+            # no selection, just cursor placed in line
+            else:
+                cursor_mark = buffer.get_insert()  # Get the current cursor mark
+                cursor_iter = buffer.get_iter_at_mark(cursor_mark)  # Get the iterator at the cursor mark
+                line_number = cursor_iter.get_line()  # Get the current line number
+                start_iter = buffer.get_iter_at_line(line_number)  # Start of the line
+                end_iter = buffer.get_iter_at_line(line_number + 1)  # End of the line
+
+            # Get the current line text
+            line_text = buffer.get_text(start_iter, end_iter, True).strip()
+
+            # Check if the last character of the selection is a newline
+            if buffer.get_text(start_iter, end_iter, True).endswith('\n'):
+                end_iter = buffer.get_iter_at_offset(end_iter.get_offset() - 1)
+
+            # Save the selection bounds
+            start_line = start_iter.get_line()
+            end_line = end_iter.get_line()
+
+            # Iterate through each line in the selection
+            for line_number in range(start_line, end_line + 1):
+                line_start_iter = buffer.get_iter_at_line(line_number)
+                line_end_iter = buffer.get_iter_at_line(line_number + 1)
+
+                # Get the current line text
+                line_text = buffer.get_text(line_start_iter, line_end_iter, True).strip()
+
+                # Check if the line already has parentheses
+                if line_text.startswith('(') and line_text.endswith(')'):
+                    # Remove the parentheses
+                    modified_line = line_text[1:-1].strip()
+                else:
+                    # Add parentheses around the line
+                    modified_line = f"({line_text})"
+
+                # Replace the original line with the modified line
+                buffer.delete(line_start_iter, line_end_iter)
+                buffer.insert(line_start_iter, modified_line + "\n")  # Add a newline
+
+            # Restore the selection
+            new_start_iter = buffer.get_iter_at_line(start_line)
+            new_end_iter = buffer.get_iter_at_line(end_line + 1)
+            buffer.select_range(new_start_iter, new_end_iter)
 
     # Notification stuff.
     def _init_notification(self):
@@ -4832,6 +4891,7 @@ class gmoccapy(object):
                 ("img_edit_menu_keyboard",      "keyboard",         32),
                 ("img_edit_menu_keyboard_hide", "keyboard_hide",    32),
                 ("img_edit_menu_close",         "back_to_app",      48),
+                ("img_edit_comment",            "comment",          32),
                 # macro menu
                 ("img_macro_menu_calculator",       "calculator_open",       32),
                 ("img_macro_menu_keyboard",         "keyboard",         32),
@@ -5539,6 +5599,9 @@ class gmoccapy(object):
     # redo changes while in edit mode
     def on_btn_redo_clicked(self, widget, data=None):
         self.widgets.gcode_view.redo()
+        
+    def on_btn_toggle_comment_clicked(self, widget, data=None):
+        self.toggle_comment_from_selection()
 
         # if we leave the edit mode, we will have to show all widgets again
     def on_ntb_button_switch_page(self, *args):
