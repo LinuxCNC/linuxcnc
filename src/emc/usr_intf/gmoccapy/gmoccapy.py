@@ -4892,10 +4892,11 @@ class gmoccapy(object):
                 ("img_skip_optional_inactive",  "skip_optional_inactive",   32),
                 # load file buttons
                 ("img_home",            "home_folder",          32),
+                ("img_jump_to",         "user_defined_folder",  32),
                 ("img_dir_up",          "chevron_up",           32),
+                ("img_refresh_dir",      "refresh",              32),
                 ("img_sel_prev",        "chevron_left",         32),
                 ("img_sel_next",        "chevron_right",        32),
-                ("img_jump_to",         "user_defined_folder",  32),
                 ("img_select",          "select_file",          32),
                 ("img_back_file_load",  "back_to_app",          48),
                 # edit file menu
@@ -5547,6 +5548,9 @@ class gmoccapy(object):
 
     def on_btn_jump_to_clicked(self, widget, data=None):
         self.widgets.IconFileSelection1.btn_jump_to.emit("clicked")
+        
+    def on_btn_refresh_dir_clicked(self, widget, data=None):
+        self.widgets.IconFileSelection1.refresh_filelist()
 
     def on_btn_dir_up_clicked(self, widget, data=None):
         self.widgets.IconFileSelection1.btn_dir_up.emit("clicked")
