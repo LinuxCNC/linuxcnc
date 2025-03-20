@@ -2618,7 +2618,7 @@ class gmoccapy(object):
         if self.load_tool:
             return
 
-        widgetlist = ["ntb_jog", "btn_from_line", "gcode_view",
+        widgetlist = ["ntb_jog", "gcode_view",
                       "tbtn_flood", "tbtn_mist", "rbt_forward", "rbt_reverse", "rbt_stop",
                       "btn_load", "btn_edit", "tbtn_optional_blocks", "btn_reload"
         ]
@@ -2678,7 +2678,6 @@ class gmoccapy(object):
         # in MDI it should be possible to add more commands, even if the interpreter is running
         if self.stat.task_mode != linuxcnc.MODE_MDI:
             widgetlist.append("gcode_view")
-            widgetlist.append("ntb_jog")
         if self.run_from_line == "run":
             widgetlist.append("btn_from_line")
         self._sensitize_widgets(widgetlist, False)
