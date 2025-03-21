@@ -17,14 +17,14 @@ pin out bit resume;
 pin out bit run;
 
 // integer low pass filters (see ilowpass.comp)
-pin in s32 in0;
-pin in s32 in1;
-pin in s32 in2;
-pin in s32 in3;
-pin out s32 out0;
-pin out s32 out1;
-pin out s32 out2;
-pin out s32 out3;
+pin in signed in0;
+pin in signed in1;
+pin in signed in2;
+pin in signed in3;
+pin out signed out0;
+pin out signed out1;
+pin out signed out2;
+pin out signed out3;
 pin in float scale0 = 1.0;
 pin in float scale1 = 1.0;
 pin in float scale2 = 1.0;

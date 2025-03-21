@@ -18,10 +18,10 @@ pin in bit sel#[4] """\
 Together, these determine which \\fBin\\fIN\\fR value is copied to \\fBout\\fR.
 """;
 pin out float out_f;
-pin out s32 out_s """\
+pin out signed out_s """\
 Follows the value of one of the \\fBin\\fIN\\fR values according to the four \\fBsel\\fR values
 and whether use-graycode is active.
-The s32 value will be trunuated and limited to the max and min values of signed values. 
+The s64 value will be truncuated and limited to the max and min values of signed long values. 
 .RS
 .TP
 \\fBsel3=FALSE\\fR, \\fBsel2=FALSE\\fR, \\fBsel1=FALSE\\fR, \\fBsel0=FALSE\\fR
@@ -34,7 +34,7 @@ etc.
 .RE
 """;
 param r float elapsed "Current value of the internal debounce timer\n for debugging.";
-param r s32 selected "Current value of the internal selection variable after conversion\n for debugging";
+param r signed selected "Current value of the internal selection variable after conversion\n for debugging";
 pin in float in##[16] "array of selectable outputs";
 variable double delaytime;
 variable int lastnum;

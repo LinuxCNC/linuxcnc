@@ -1,2 +1,9 @@
-Test that ilowpass's output wraps around.  The magic -2147467296 is
-2147500000 - (2^32).
+Test that ilowpass's output wraps around.
+
+The numbers are no-longer round due to the limited resolution of double compared to long int.
+
+It is debatable if this test is necessary with long int HAL pins, wrap is unlikely in practice except possibly with very high gains. 
+
+
+For 32-bit ints the numbers were:
+The magic -2147467296 is 2147500000 - (2^32).

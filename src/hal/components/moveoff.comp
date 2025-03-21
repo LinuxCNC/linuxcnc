@@ -105,8 +105,8 @@ pin in float waypoint-sample-secs = 0.02 "Minimum sample interval (in seconds) f
 pin out bit warning "Set TRUE if apply-offsets is deasserted while offset-applied is TRUE.";
 pin out bit offset_applied "TRUE if one or more offsets are applied.";
 pin out bit waypoint-limit = 0 "Indicates waypoint limit reached (motion ceases), an enabling pin must be deasserted to initiate return to original position.";
-pin out s32 waypoint-ct "Waypoint count (for debugging)";
-pin out s32 waypoint-percent-used "Percent of available waypoints used";
+pin out signed waypoint-ct "Waypoint count (for debugging)";
+pin out signed waypoint-percent-used "Percent of available waypoints used";
 
 pin in  float offset-in-#[9 : personality] "Joint offset input value";
 pin in  float pos-#[9 : personality] "Joint position (typ: axis.0.motor-pos-cmd)";
@@ -125,7 +125,7 @@ pin in  float offset-max-#[9 : personality] = 1e20 "Maximum limit for applied of
 pin  in bit   dbg_waypoint_limit_test "Debug input to test with limited number of waypoints";
 
 // outputs for debugging:
-pin out s32   dbg_state "Debug output for current state of state machine";
+pin out signed   dbg_state "Debug output for current state of state machine";
 
 option personality;
 option extra_setup;

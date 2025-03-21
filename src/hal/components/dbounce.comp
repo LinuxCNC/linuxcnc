@@ -6,7 +6,7 @@ and supports \\fBcount\\fR= or \\fBnames\\fR= parameters\n
 
 pin in  bit in;
 pin out bit out;
-pin in  u32 delay = 5;
+pin in  unsigned delay = 5;
 
 variable unsigned state;
 option period no;
