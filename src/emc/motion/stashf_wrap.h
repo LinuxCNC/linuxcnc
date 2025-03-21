@@ -25,6 +25,7 @@ const char *fmt, *efmt;
     result = dbuf_get_string(o, &fmt);
     if(result < 0) return result;
 
+    // cppcheck-suppress selfAssignment
     if(*fmt) fmt = gettext(fmt);
 
     while((efmt = strchr(fmt, '%'))) {
@@ -79,6 +80,7 @@ const char *fmt, *efmt;
                     const char *s;
                     result = dbuf_get_string(o, &s);
                     if(result < 0) return SET_ERRNO(result);
+                    // cppcheck-suppress selfAssignment
                     if(*s) s = gettext(s);
                     result = PRINT(block, s);
                 }

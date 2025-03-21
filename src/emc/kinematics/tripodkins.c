@@ -263,7 +263,7 @@ int main(int argc, char *argv[])
     if (NULL == fgets(buffer, BUFFERLEN, stdin)) {
       break;
     }
-    if (1 != sscanf(buffer, "%s", cmd)) {
+    if (1 != sscanf(buffer, "%255s", cmd)) {
       continue;
     }
 
@@ -279,7 +279,7 @@ int main(int argc, char *argv[])
       continue;
     }
     if (! strcmp(cmd, "ff")) {
-      if (1 != sscanf(buffer, "%*s %d", &fflags)) {
+      if (1 != sscanf(buffer, "%*s %lu", &fflags)) {
 	printf("need forward flag\n");
       }
       continue;
@@ -308,7 +308,7 @@ int main(int argc, char *argv[])
     }
     else {			/* forward kins */
       if (flags) {
-	if (4 != sscanf(buffer, "%lf %lf %lf %d", 
+	if (4 != sscanf(buffer, "%lf %lf %lf %lu",
 			&joints[0],
 			&joints[1],
 			&joints[2],

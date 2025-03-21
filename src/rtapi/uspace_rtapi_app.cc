@@ -97,6 +97,7 @@ static void set_namef(const char *fmt, ...) {
 
     va_start(ap, fmt);
     if (vasprintf(&buf, fmt, ap) < 0) {
+        va_end(ap);
         return;
     }
     va_end(ap);
@@ -145,7 +146,7 @@ static std::map<string, void*> modules;
 static int instance_count = 0;
 static int force_exit = 0;
 
-static int do_newinst_cmd(string type, string name, string arg) {
+static int do_newinst_cmd(const string& type, const string& name, const string& arg) {
     void *module = modules["hal_lib"];
     if(!module) {
         rtapi_print_msg(RTAPI_MSG_ERR,
@@ -269,7 +270,7 @@ static int do_comp_args(void *module, vector<string> args) {
     return 0;
 }
 
-static int do_load_cmd(string name, vector<string> args) {
+static int do_load_cmd(const string& name, const vector<string>& args) {
     void *w = modules[name];
     if(w == NULL) {
         char what[LINELEN+1];
@@ -313,7 +314,7 @@ static int do_load_cmd(string name, vector<string> args) {
     }
 }
 
-static int do_unload_cmd(string name) {
+static int do_unload_cmd(const string& name) {
     void *w = modules[name];
     if(w == NULL) {
         rtapi_print_msg(RTAPI_MSG_ERR, "%s: not loaded\n", name.c_str());
@@ -373,12 +374,12 @@ static void write_number(string &buf, int num) {
     buf = buf + numbuf;
 }
 
-static void write_string(string &buf, string s) {
+static void write_string(string &buf, const string& s) {
     write_number(buf, s.size());
     buf += s;
 }
 
-static void write_strings(int fd, vector<string> strings) {
+static void write_strings(int fd, const vector<string>& strings) {
     string buf;
     write_number(buf, strings.size());
     for(unsigned int i=0; i<strings.size(); i++) {
@@ -410,7 +411,7 @@ static int handle_command(vector<string> args) {
     }
 }
 
-static int slave(int fd, vector<string> args) {
+static int slave(int fd, const vector<string>& args) {
     try {
         write_strings(fd, args);
     }
@@ -456,7 +457,7 @@ static int callback(int fd)
 
 static pthread_t main_thread{};
 
-static int master(int fd, vector<string> args) {
+static int master(int fd, const vector<string>& args) {
     main_thread = pthread_self();
     int result;
     if((result = pthread_create(&queue_thread, nullptr, &queue_function, nullptr)) != 0) {
@@ -604,9 +605,11 @@ struct rtapi_module {
 #define MODULE_OFFSET 32768
 
 rtapi_task::rtapi_task()
-    : magic{}, id{}, owner{}, stacksize{}, prio{},
+    : magic{}, id{}, owner{}, uses_fp{}, stacksize{}, prio{},
       period{}, nextstart{},
-      ratio{}, arg{}, taskcode{}
+      ratio{}, pll_correction{}, pll_correction_limit{},
+      arg{}, taskcode{}
+
 {}
 
 namespace

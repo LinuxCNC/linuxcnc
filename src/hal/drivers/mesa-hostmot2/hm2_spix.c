@@ -615,7 +615,7 @@ static int spix_setup(void)
 
 	if(!hwdriver) {
 		if(force_driver) {
-			LL_ERR("Unsupported platform: '%s' for forced driver '%s'\n", buf, hwdriver->name);
+			LL_ERR("Unsupported platform: '%s' for forced driver '%s'\n", buf, force_driver);
 		} else {
 			LL_ERR("Unsupported platform: '%s'\n", buf);
 		}
