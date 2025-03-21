@@ -30,7 +30,7 @@ chapter (docs/src/motion/switchkins.txt)
 
 """;
 
-pin out s32 dummy=0"one pin needed to satisfy halcompile requirement";
+pin out bit dummy=0 "one pin needed to satisfy halcompile requirement";
 
 license "GPL";
 author "David Mueller";

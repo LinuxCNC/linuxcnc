@@ -7,7 +7,7 @@ FIXME
 """;
 // The fpin pin is not accessible in kinematics functions.
 // Use the *_setup() function for pins and params used by kinematics.
-pin out s32 fpin=0"pin to demonstrate use of a conventional (non-kinematics) function fdemo";
+pin out signed fpin=0 "pin to demonstrate use of a conventional (non-kinematics) function fdemo";
 option period no;
 function fdemo;
 
@@ -21,8 +21,8 @@ author "David Mueller";
 
 static struct haldata {
   // Example pin pointers:
-  hal_u32_t *in;
-  hal_u32_t *out;
+  hal_u64_t *in;
+  hal_u64_t *out;
   // these should be parameters really but we want to be able to
   // change them for demonstration purposes
   hal_float_t *x_pivot;
@@ -74,8 +74,8 @@ static int xyzbca_trsrn_setup(void) {
     if (!haldata) goto error;
 
     // hal pin examples:
-    res += hal_pin_u32_newf(HAL_IN ,&(haldata->in) ,comp_id,"%s.in" ,HAL_PREFIX);
-    res += hal_pin_u32_newf(HAL_OUT,&(haldata->out),comp_id,"%s.out",HAL_PREFIX);
+    res += hal_pin_unsigned_newf(HAL_IN ,&(haldata->in) ,comp_id,"%s.in" ,HAL_PREFIX);
+    res += hal_pin_unsigned_newf(HAL_OUT,&(haldata->out),comp_id,"%s.out",HAL_PREFIX);
 
     // hal parameter examples:
     // res += hal_param_float_newf(HAL_RW, &haldata->param_rw ,comp_id,"%s.param-rw",HAL_PREFIX);

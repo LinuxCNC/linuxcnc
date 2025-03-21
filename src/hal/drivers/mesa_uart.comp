@@ -41,10 +41,10 @@ license "GPL";
 
 include <hostmot2-serial.h>;
 
-pin in u32 tx-data-##[16] "Data to be transmitted";
-pin out u32 rx-data-##[16] "Data received";
-pin in s32 tx-bytes "Number of bytes to transmit";
-pin out s32 rx-bytes "Number of Bytes received";
+pin in unsigned tx-data-##[16] "Data to be transmitted";
+pin out unsigned rx-data-##[16] "Data received";
+pin in signed tx-bytes "Number of bytes to transmit";
+pin out signed rx-bytes "Number of Bytes received";
 
 variable char *name; // UART name
 

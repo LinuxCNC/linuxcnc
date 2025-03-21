@@ -26,8 +26,8 @@ The input used is selected based on pintype:
 ^h|inputpin
 
 |0|input
-|1|input-s32
-|2|input-u32
+|1|input-signed (int)
+|2|input-unsigned (int)
 |3|input-bit
 |===
 
@@ -44,18 +44,18 @@ The method input pin selects an alternate variance calculation.
 Maintainers note: hardcoded for MAXBINNUMBER==200
 """;
 
-pin in   u32   pintype;
-pin in   float input;
-pin in   s32   input_s32;
-pin in   u32   input_u32;
+pin in   unsigned   pintype;
+pin in   float      input;
+pin in   signed     input_signed;
+pin in   unsigned   input_unsigned;
 pin in   bit   input_bit;
 
-pin in   u32   nbins    = 20; // must be < MAXBINNUMBER
+pin in   unsigned   nbins    = 20; // must be < MAXBINNUMBER
 pin in   float binsize  = 1;
 pin in   float minvalue = 0;
 
-pin in   s32   index; // use s32 to avoid 0x hex display in hal
-pin out  s32   check; // use s32 to avoid 0x hex display in hal
+pin in   signed   index; // use s64 to avoid 0x hex display in hal
+pin out  signed   check; // use s64 to avoid 0x hex display in hal
 pin in   bit   reset;
 pin in   bit   method;
 
@@ -66,12 +66,12 @@ pin out float  nextra;
 pin out float  input_min;
 pin out float  input_max;
 
-pin out u32    nsamples;
+pin out unsigned    nsamples;
 pin out float  variance;
 pin out float  mean;
 
 // user may interrogate availablebins to determine this compiled-in limit
-pin out s32 availablebins = 200; //MAXBINNUMBER
+pin out signed availablebins = 200; //MAXBINNUMBER
 
 option period no;
 function _ fp;
@@ -107,13 +107,13 @@ if (   (nbins > (unsigned)availablebins)
 input_error = 0;
 if (reset) {first = 1;}
 
-//pintype    "0:float, 1:s32, 2:u32 3:bit";
+//pintype    "0:float, 1:s64, 2:u64 3:bit";
 switch (pintype) {
-  case 0:  invalue = input;     break;
-  case 1:  invalue = input_s32; break;
-  case 2:  invalue = input_u32; break;
-  case 3:  invalue = input_bit; break;
-  default: invalue = input;     break;
+  case 0:  invalue = input;          break;
+  case 1:  invalue = input_signed;   break;
+  case 2:  invalue = input_unsigned; break;
+  case 3:  invalue = input_bit;      break;
+  default: invalue = input;          break;
 }
 
 if (  first

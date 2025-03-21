@@ -34,23 +34,23 @@ The latency pin outputs the instantaneous latency.
 Maintainers note: hardcoded for MAXBINNUMBER==1000
 """;
 
-pin in  s32 maxbinnumber = 1000;  // MAXBINNUMBER
-pin in  s32 index;  //use s32 to avoid 0x hex display in hal
+pin in  signed maxbinnumber = 1000;  // MAXBINNUMBER
+pin in  signed index;  //use s64 to avoid 0x hex display in hal
 pin in  bit reset;
-pin in  s32 nsbinsize;
+pin in  signed nsbinsize;
 
-pin out s32 check;
-pin out s32 latency;
-pin out s32 latency_max;
-pin out s32 latency_min;
-pin out s32 pbinvalue;
-pin out s32 nbinvalue;
-pin out s32 pextra;
-pin out s32 nextra;
-pin out s32 variance;
+pin out signed check;
+pin out signed latency;
+pin out signed latency_max;
+pin out signed latency_min;
+pin out signed pbinvalue;
+pin out signed nbinvalue;
+pin out signed pextra;
+pin out signed nextra;
+pin out signed variance;
 
 // user may interrogate available bins to determine this compiled-in limit
-pin out s32 availablebins = 1000; // MAXBINNUMBER
+pin out signed availablebins = 1000; // MAXBINNUMBER
 
 function _ nofp;
 variable rtapi_s64  last_timer = 0;
@@ -60,7 +60,7 @@ variable int    pbins[1001]; // MAXBINNUMBER+1
 variable int    nbins[1001]; // MAXBINNUMBER+1
 variable int    binmax = 0;
 
-variable rtapi_u32 nsamples;
+variable rtapi_u64 nsamples;
 variable rtapi_u64 sum;
 variable rtapi_u64 sq_sum;
 
@@ -69,8 +69,8 @@ author "Dewey Garrett";
 ;;
 
 rtapi_s64     now = rtapi_get_time();
-rtapi_s32   lat32 = (rtapi_s32)(now - last_timer - period);
-                //(2^31-1)*1nS = 2.147 seconds max
+rtapi_s64   lat = (now - last_timer - period);
+                //(2^64-1)*1nS = 585 years max
 
 int i;
 
@@ -98,10 +98,10 @@ if (   first
   sum = 0;
   sq_sum = 0;
 } else {
-  latency = lat32;
-  i = lat32/nsbinsize;
-  if (lat32 > latency_max) latency_max = lat32;
-  if (lat32 < latency_min) latency_min = lat32;
+  latency = lat;
+  i = lat/nsbinsize;
+  if (lat > latency_max) latency_max = lat;
+  if (lat < latency_min) latency_min = lat;
   if (i >= 0) {
      if (i > binmax) {
        pextra++;
@@ -117,15 +117,10 @@ if (   first
      }
   }
   nsamples++;
-  sum    += lat32;
-  sq_sum += lat32 * lat32;
+  sum    += lat;
+  sq_sum += lat * lat;
   if (nsamples > 1) {
-    // note: division required is: u64/u32
-    rtapi_u64 dividend;
-    rtapi_u64 divisor;
-    dividend = sq_sum - rtapi_div_u64(sum * sum,nsamples);
-    divisor  = nsamples -1;
-    variance = rtapi_div_u64(dividend,divisor);
+    variance = (sq_sum - (sum * sum / nsamples)) / (nsamples - 1);
   }
 }
 

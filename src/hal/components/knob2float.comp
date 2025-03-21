@@ -17,7 +17,7 @@
 
 component knob2float "Convert counts (probably from an encoder) to a float value";
 
-pin in s32 counts "Counts";
+pin in signed counts "Counts";
 pin in bit enable "When TRUE, output is controlled by count, when FALSE, output is fixed";
 pin in float scale "Amount of output change per count";
 pin out float out "Output value";

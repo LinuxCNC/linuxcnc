@@ -6,9 +6,9 @@ description
 An offset is computed (from one of several functions) based on an input angle
 in degrees. The angle could be a rotary coordinate value or a spindle angle.
 
-The computed offset is represented as an s32 *kcounts* output pin that is a
+The computed offset is represented as an s64 *kcounts* output pin that is a
 compatible input to external offset pins like *axis.L.eoffset-counts* where *L*
-is the coordinate letter. Scaling of the s32 *kcounts* is controlled by the
+is the coordinate letter. Scaling of the s64 *kcounts* is controlled by the
 input (*k*) -- its reciprocal value is presented on an output pin *kreciprocal*
 for connection to *axis.L.eoffset-scale*. The default value for *k* should be
 suitable for most uses.
@@ -68,25 +68,25 @@ pin  in   bit enable_in   = 0     "Enable Input";
 pin  in float radius_ref  = 1     "Radius reference (see notes)";
 pin  in float angle       = 0     "Input angle (in degrees)";
 pin  in float start_angle = 0     "Start angle (in degrees)";
-pin  in   s32 fnum        = 0     "Function selector (default 0)";
+pin  in signed fnum        = 0     "Function selector (default 0)";
 pin  in float rfraction   = 0.1   "Offset amplitude (+/- fraction of radius_ref)";
 pin  in float fmult       = 6     "Offset frequency multiplier";
-pin  in   u32 k           = 10000 "Scaling Factor (if 0, use 10000)";
+pin  in unsigned k           = 10000 "Scaling Factor (if 0, use 10000)";
 
 pin out   bit is_off      "invert is_on (for convenience)";
 
 pin out   bit enable_out  "To: axis.L.eoffset-enable";
 pin out   bit clear       "To: axis.L.eoffset-clear";
-pin out   s32 kcounts     "To: axis.L.eoffset-counts";
+pin out signed kcounts     "To: axis.L.eoffset-counts";
 pin out float kreciprocal "To: axis.L.eoffset-scale (1/k)";
 
 pin out float eoffset_dbg "offset (debug pin--use kcounts & kreciprocal)";
-pin out   u32 state_dbg   "state  (debug pin)";
+pin out unsigned state_dbg   "state  (debug pin)";
 
 //---------------------------------------------------------------------
 // per-instance items:
-variable int  run_ct   = 0;
-variable int  delay_ct = 0;
+variable long run_ct   = 0;
+variable long delay_ct = 0;
 variable int  messaged = 0;
 variable int  err_stop = 0;
 
@@ -268,7 +268,7 @@ FUNCTION(_) {
         kcounts      = 0; eoffset_dbg = 0;
         STATE        = STOPPING;
         rtapi_print_msg(RTAPI_MSG_ERR,
-             "eoffset_per_angle stopping:func%d problem\n",fnum);
+             "eoffset_per_angle stopping:func%ld problem\n",fnum);
         return;
     }
 

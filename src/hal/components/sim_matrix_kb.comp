@@ -1,6 +1,6 @@
 component sim_matrix_kb "convert HAL pin inputs to keycodes";
 
-pin out u32 out "pin that outputs the Keycode";
+pin out unsigned out "pin that outputs the Keycode";
 
 pin in bit button.c00.r##[8] "array of  inputs";
 pin in bit button.c01.r##[8] "array of  inputs";

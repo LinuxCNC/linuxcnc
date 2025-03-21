@@ -51,7 +51,7 @@ include "hal/drivers/mesa-hostmot2/hostmot2-serial.h";
 include "hal/drivers/mesa-hostmot2/hostmot2.h";
 
 
-pin out s32 rxbytes  "Number of Bytes received or negative Error code";
+pin out signed rxbytes  "Number of Bytes received or negative Error code";
 
 variable char *name; // PktUART name
 
@@ -89,7 +89,7 @@ FUNCTION(receive){
 
 	rtapi_u16 frame_sizes3[20];
 	rxbytes=hm2_pktuart_read(name, Replyd3, &num_frames, &max_frame_length, frame_sizes3);
-	rtapi_print_msg(RTAPI_MSG_INFO, "PktUART receive: got %d bytes, %d frames\n", rxbytes, num_frames);
+	rtapi_print_msg(RTAPI_MSG_INFO, "PktUART receive: got %ld bytes, %d frames\n", rxbytes, num_frames);
 
 	//Print out the actual frame sizes
 	int i;

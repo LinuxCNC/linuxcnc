@@ -56,22 +56,22 @@ pin and no fifth click followed it.""";
 
 
 // for debugging
-pin out s32 state;
+pin out signed state;
 
 
 param rw bit invert_input = FALSE
 """If FALSE (the default), clicks start with rising edges.  If TRUE,
 clicks start with falling edges.""";
 
-param rw u32 max_hold_ns  = 250000000
+param rw unsigned max_hold_ns  = 250000000
 """If the input is held down longer than this, it's not part of a
 multi-click.  (Default 250,000,000 ns, 250 ms.)""";
 
-param rw u32 max_space_ns = 250000000
+param rw unsigned max_space_ns = 250000000
 """If the input is released longer than this, it's not part of a
 multi-click.  (Default 250,000,000 ns, 250 ms.)""";
 
-param rw u32 output_hold_ns = 100000000
+param rw unsigned output_hold_ns = 100000000
 """Positive pulses on the output pins last this long.  (Default
 100,000,000 ns, 100 ms.)""";
 

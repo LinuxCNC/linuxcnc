@@ -36,7 +36,7 @@ pin in bit pin_7_out "Also called RTS (request to send); pin 4 on the 25-pin ser
 param rw bit pin_3_out_invert;
 param rw bit pin_4_out_invert;
 param rw bit pin_7_out_invert;
-param r u32 ioaddr;
+param r unsigned ioaddr;
 
 option count_function;
 option extra_setup;

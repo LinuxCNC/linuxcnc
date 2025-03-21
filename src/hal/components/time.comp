@@ -104,12 +104,12 @@ pin in bit start "Timer On";
 pin in bit pause = 0 "Pause";
 
 // Output Pins
-pin out u32 seconds "Seconds";
-pin out u32 minutes "Minutes";
-pin out u32 hours "Hours";
+pin out unsigned seconds "Seconds";
+pin out unsigned minutes "Minutes";
+pin out unsigned hours "Hours";
 
 // Global Variables
-variable double totalnsec;
+variable unsigned totalnsec;
 variable int old_start;
 
 function _;
@@ -119,13 +119,13 @@ function _;
 #include "rtapi_math.h"
 
 FUNCTION(_) {
-    rtapi_u32 totalseconds;
+    rtapi_u64 totalseconds;
     int running = start | pause;
     if(running && !old_start) totalnsec = 0;
 
     if(start && !pause){
     totalnsec = totalnsec + period;
-    totalseconds = totalnsec * 0.000000001;
+    totalseconds = totalnsec / 1000000000;
     seconds = totalseconds % 60;
 	minutes = (totalseconds / 60) % 60;
 	hours = (totalseconds / 3600);

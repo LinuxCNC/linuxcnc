@@ -48,7 +48,7 @@ coefficients to be calculated according to the current \
 pin out bit valid = 0 "When false, indicates an error occurred when calculating \
 filter coefficients (require 2>**Q**>0.5 and *f0*>sampleRate/2)";
 
-pin   in u32 type_ = 0 "Filter type determines the type of filter \
+pin   in unsigned type_ = 0 "Filter type determines the type of filter \
 coefficients calculated.  When 0, coefficients must be loaded directly \
 from the *n0,n1,n2,d1* params.  When 1, \
 a low pass filter is created specified by the *f0,Q* pins.  \

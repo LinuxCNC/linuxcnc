@@ -18,10 +18,10 @@ pin in bit sel#[4] """\
 Together, these determine which **in**__N__ value is copied to *out*.
 """;
 pin out float out_f;
-pin out s32 out_s """\
+pin out signed out_s """\
 Follows the value of one of the **in**__N__ values according to the four *sel* values
 and whether use-graycode is active.
-The s32 value will be trunuated and limited to the max and min values of signed values. 
+The s64 value will be truncuated and limited to the max and min values of signed values. 
 
 [cols="^1,^1,^1,^1,1"]
 |===
@@ -51,7 +51,7 @@ The s32 value will be trunuated and limited to the max and min values of signed 
 
 """;
 param r float elapsed "Current value of the internal debounce timer for debugging.";
-param r s32 selected "Current value of the internal selection variable after conversion for debugging";
+param r signed selected "Current value of the internal selection variable after conversion for debugging";
 pin in float in##[16] "array of selectable outputs";
 variable double delaytime;
 variable int lastnum;

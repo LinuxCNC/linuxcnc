@@ -1,7 +1,7 @@
 component sample_hold "Sample and Hold";
-pin in s32 in;
+pin in signed in;
 pin in bit hold;
-pin out s32 out;
+pin out signed out;
 option period no;
 function _ nofp;
 see_also "*tristate*(9)";

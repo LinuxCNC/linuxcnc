@@ -1,7 +1,7 @@
 component orient "Provide a PID command input for orientation mode based on current spindle position, target angle and orient mode";
 
 pin in  bit   enable      "enable angular output for orientation mode";
-pin in  s32   mode        "0: rotate - shortest move; 1: always rotate clockwise; 2: always rotate counterclockwise";
+pin in  signed   mode        "0: rotate - shortest move; 1: always rotate clockwise; 2: always rotate counterclockwise";
 pin in  float position    "spindle position input, unit 1 rev";
 pin in  float angle       "orient target position in degrees, 0 ≤ angle < 360";
 pin out float command     "target spindle position, input to PID command";

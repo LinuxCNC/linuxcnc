@@ -553,6 +553,10 @@ if version < "1.1":
 if version < "1.2":
     subs.update({
         '(.*)spring-wheel-s32'            : '\\1spring-wheel-s',
+        'abs([_-])s32'                    : 'abs\\1int',
+        'abs([_-])s64'                    : 'abs\\1int',
+        'lut5'                            : 'lut6',
+        'scaled([_-])s32([_-])sums'       : 'scaled\\1\s64\\2sums'
     })
 
 if subs == {}:

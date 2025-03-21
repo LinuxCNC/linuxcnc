@@ -37,9 +37,9 @@ Simulation Config: `configs/sim/axis/anglejog/anglejog.in`
 """;
 
 pin in  bit   enable_in "enables motion (disables alteration of angle and scale)";
-pin in  s32   counts_in "MPG (wheel) counts";
+pin in  signed   counts_in "MPG (wheel) counts";
 pin in  float angle_degrees_in "vector angle";
-pin in  s32   iscale_factor = 10000 "integer scaling factor (>1)";
+pin in  signed   iscale_factor = 10000 "integer scaling factor (>1)";
 pin in  float scale_in "magnitude units/count (mag = counts * scale)";
 pin in  float max_vel "vector max velocity magnitude";
 pin in  float max_accel "vector max acceleration magnitude";
@@ -48,8 +48,8 @@ pin in  float accel_fraction_in = 1 "acceleration fraction input";
 pin out bit   enable_out "to: axis.M.jog-enable AND axis.N.jog-enable";
 pin out float current_scale "effective scale (informational)";
 pin out float current_scale_out "to: axis.M.jog-scale AND axis.N.jog-scale";
-pin out s32   coscounts  "to: axis.M.jog-counts (cosine counts)";
-pin out s32   sincounts  "to: axis.N.jog-counts (sine   counts)";
+pin out signed   coscounts  "to: axis.M.jog-counts (cosine counts)";
+pin out signed   sincounts  "to: axis.N.jog-counts (sine   counts)";
 pin out float cos_accel_fraction "to: axis.M.jog-accel-fraction";
 pin out float sin_accel_fraction "to: axis.N.jog-accel-fraction";
 
@@ -73,14 +73,14 @@ author  "Dewey Garrett";
 FUNCTION(_) {
 static bool once = 1;
 static bool wait_for_count_change = 0;
-static int  tot_counts;
+static long int  tot_counts;
 static int  old_enable_in;
-static int  old_counts_in;
+static long int  old_counts_in;
 static int  ifactor = 0;
     double  max_dv, tiny_dp, mag_err, vel_req;
     double  mag_cmd;
-    int     delta_counts = 0;
-    int     newcounts;
+    long int     delta_counts = 0;
+    long int     newcounts;
 
     if (once) {
         current_angle_degrees = angle_degrees_in;
