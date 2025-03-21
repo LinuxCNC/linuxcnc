@@ -57,3 +57,6 @@ position.txt
 *.*-stamp
 # Ignore VSCode settings
 .vscode/settings.json
+# By NativeCAM generated files
+configs/sim/gmoccapy/ncam/*
+nc_files/M123

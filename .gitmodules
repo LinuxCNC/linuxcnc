@@ -1,0 +1,4 @@
+[submodule "lib/python/NativeCAM"]
+	path = lib/python/NativeCAM
+	url = https://github.com/freemoore/NativeCAM
+	branch = master
