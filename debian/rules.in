@@ -124,10 +124,8 @@ override_dh_compress:
 
 override_dh_fixperms:
 	dh_fixperms -X/linuxcnc_module_helper -X/rtapi_app
-	# In case that only the indep packages are built
-	if [ -x  "$(DESTDIR)/usr/lib/tcltk/linuxcnc/linuxcnc.tcl" ]; then \
-		chmod -x $(DESTDIR)/usr/lib/tcltk/linuxcnc/linuxcnc.tcl; \
-	fi
+	# FIXME: Who sets those -x flags? This is the wrong location to make lintian happy
+	find debian -name linuxcnc.tcl -o -name cbutton.tcl -o -name mdi_text.py  | xargs -r chmod -x
 	# override_dh_python3: # not executed, so we attach it to fixperms
 	DEB_HOST_ARCH=`dpkg-architecture -qDEB_HOST_ARCH` dh_python3
 

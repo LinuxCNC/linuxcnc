@@ -581,5 +581,4 @@ Copyright (C) 2018 Raoul Rubien (github.com/rubienr) Updated for
 Linuxcnc 2020 by alkabal_free.fr.
 
 This is free software; see the source for copying conditions. There is
-NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR
-PURPOSE.
+NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
