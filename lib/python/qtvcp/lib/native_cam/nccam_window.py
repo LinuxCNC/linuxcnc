@@ -111,6 +111,8 @@ class NCamWindow(QMainWindow, NCam):
             inipath = "{}/configs/sim/qtdragon/qtdragon_metric.ini".format(current_dir)
         print ('path:',inipath)
         self.graphics = Lcnc_3dGraphics(inipath=None)
+        self.graphics.messageOutput.connect(self.output_notify_message)
+
         self.setGraphicsDisplay()
 
         self.loadDisplay(self.emptypath)
@@ -137,6 +139,9 @@ class NCamWindow(QMainWindow, NCam):
             self.actionShowZ.triggered.connect(lambda s :self.setDisplayView('z'))
 
         self.displayLayout.setMenuBar(self._displayToolbar)
+
+    def output_notify_message(self, message):
+        mess_dlg(message,title = 'Preview message',icon=WARNING)
 
     def setGraphicsDisplay(self):
         # class patch to catch gcode errors - in theory
@@ -546,6 +551,7 @@ class NCamWindow(QMainWindow, NCam):
             if self.iter_next:
                 self.can_move_down = (self.iter_selected_type == tv_select.feature)
                 s = self.iter_next.meta.get_type()
+                print('can add to group?',s)
                 self.can_add_to_group = ('type="items"' in s) and \
                         (self.iter_selected_type == tv_select.feature)
             # no lower sibling
