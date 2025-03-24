@@ -10,14 +10,17 @@ halshow - Show HAL parameters, pins and signals
 
 == OPTIONS
 
---help:: (help)
---fformat _format_string_for_float_::
---iformat _format_string_for_int_::
---noprefs:: don't use preference file to save settings
+--help:: Displays the help
+
+--fformat _format_string_for_float_:: Float format string
+
+--iformat _format_string_for_int_:: Integer format string
 
 For format see https://www.tcl.tk/man/tcl8.6.11/TclCmd/format.html[]
 
-Example: "%.5f" displays a float with 5 digits right of the decimal point
+Example: "%.5f" displays a float with 5 digits right of the decimal point.
+
+--noprefs:: Don't use preference file to save settings
 
 == DESCRIPTION
 
@@ -36,6 +39,8 @@ LinuxCNC 2.9::
  - Added buttons for pin/parameter/signal manipulation.
  - Added menu entries for setting update interval, adding manually.
  - Added right-click menu for copy, set, unlink pin and remove from view.
+ - Added button to expand/collapse the tree view
+ - Added search entry
 
 == BUGS
 

@@ -13,7 +13,7 @@ halmeter - observe HAL pins, signals, and parameters
 The tool *halmeter* is used to observe HAL (Hardware Abstraction Layer) pins,
 signals, or parameters. It serves the same purpose as a multimeter does
 when working on physical systems. It is an self-contained application and
-connects independently from other GUIs to HAL.
+connects independently to HAL.
 
 == OPTIONS
 

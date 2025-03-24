@@ -30,10 +30,10 @@ The exceptions are passwords, file paths and text strings.
 The supported commands are as follows:
 
 Hello <password> <client> <version>::
-If a valid password was entered the server will respond with HELLO ACK
-_Server Name>_ _<Server Version>_ where server name and server version are
+If a valid password was entered the server will respond with "HELLO ACK
+_<Server Name>_ _<Server Version>_" where server name and server version are
 looked up from the implementation. If an invalid password or any other
-syntax error occurs then the server responds with: HELLO NAK
+syntax error occurs then the server responds with "HELLO NAK".
 
 Get:: The get command includes one of the HAL sub-commands,
 described below and zero or more additional parameters.
@@ -171,12 +171,11 @@ Set only, nets the specified net list.
 Unlinkp <pin name 1> <pin name 2>::
 Set only, unlinks the specified pins.
 
-Lock::
+Lock
 
-Unlock::
+Unlock
 
 NewSig <name> <type>::
-
 Set only, creates the signal specified by name and of type specified by
 type.
 
@@ -198,11 +197,11 @@ by thread, with the optional parameters specified by parameters.
 DelF <name>::
 Set only, deletes the function specified by name.
 
-Save::
+Save
 
-Start::
+Start
 
-Stop::
+Stop
 
 == SEE ALSO
 

@@ -31,8 +31,8 @@ graphical wizard to let you choose one.
   the screen. This mode is useful when something is not working as it
   should.
 *-r*::
-  Disable redirection of stdout and stderr to ~/linuxcnc_print.txt and
-  ~/linuxcnc_debug.txt when stdin is not a tty. Used when running
+  Disable redirection of stdout and stderr to `~/linuxcnc_print.txt` and
+  `~/linuxcnc_debug.txt` when stdin is not a tty. Used when running
   linuxcnc tests non-interactively.
 *-l*::
   Use the last-used INI file without prompting. This is often a good
@@ -105,11 +105,11 @@ Machine Controller project.
 
 == REPORTING BUGS
 
-Please report any bugs at https://github.com/LinuxCNC/.
+Please report any bugs at https://github.com/LinuxCNC/linuxcnc.
 
 == COPYRIGHT
 
-Copyright © 2003- The LinuxCNC authors.
+Copyright © 2003 The LinuxCNC authors.
 
 This is free software; see the source for copying conditions. There is
 NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR

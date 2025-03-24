@@ -22,9 +22,9 @@ be set up with a single command.
 *-i* _<INI file>_::
   If specified, the INI file is read and used to create Tcl global variable arrays.
   An array is created for each SECTION of the INI file with elements for each ITEM in the section.
-
++  
 For example, if the INI file contains:
-
++
 ----
 [SECTION_A]
 ITEM_1 = 1
@@ -33,16 +33,18 @@ ITEM_2 = 2
 [SECTION_B]
 ITEM_1 = 10
 ----
-
++
 The corresponding Tcl variables are:
-
++
 ----
 SECTION_A(ITEM_1) = 1
 SECTION_A(ITEM_2) = 2
 SECTION_B(ITEM_1) = 10
 ----
 
-*-ini* _<INI file>_ -- declining usage, use *-i* _<INI file>_::
+*-ini* _<INI file>_::
+  Declining usage, use *-i* _<INI file>_
+
 *filename*::
   If specified, the Tcl commands of *filename* are executed. If no
   filename is specified, haltcl opens an interactive session.

@@ -8,7 +8,7 @@ halrun - manipulate the LinuxCNC HAL from the command line
 
 *halrun -h*
 
-*halrun [*-I*] [_halcmd_opts_] [_filename[.hal|.tcl]_]
+*halrun* [*-I*] [_halcmd_opts_] [_filename[.hal|.tcl]_]
 
 *halrun -T* [_halcmd_opts_] [_filename[.hal|.tcl]_]
 
@@ -25,16 +25,16 @@ Abstraction Layer) from the command line. When invoked, *halrun*:
 * Tears down the realtime environment.
 
 If no filename is specified, an interactive session is started.
-The session will use *halcmd*(1) unless -T is specified in which case *haltcl*(1) will be used.
+The session will use *halcmd*(1) unless *-T* is specified in which case *haltcl*(1) will be used.
 
-If a filename is specified and neither the -I nor the -T option is included,
+If a filename is specified and neither the *-I* nor the *-T* option is included,
 the filename will be processed by the command interpreter
 corresponding to the filename extension (*halcmd* or *haltcl*).
 After processing, the realtime environment will be torn down.
 
-If a filename is specified and the -I or -T option is included,
+If a filename is specified and the *-I* or *-T* option is included,
 the file is processed by the appropriate command interpreter and then an
-interactive session is started for *halcmd* or *haltcl* according to the -I or -T option.
+interactive session is started for *halcmd* or *haltcl* according to the *-I* or *-T* option.
 
 == OPTIONS
 
