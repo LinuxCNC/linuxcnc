@@ -182,6 +182,8 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     xRotationChanged = pyqtSignal(int)
     yRotationChanged = pyqtSignal(int)
     zRotationChanged = pyqtSignal(int)
+    messageOutput = pyqtSignal(str)
+
     rotation_vectors = [(1.,0.,0.), (0., 0., 1.)]
 
     def __init__(self, parent=None,inipath = None):
@@ -440,7 +442,7 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
 
     # monkey patched function from StatCanon class
     def output_notify_message(self, message):
-        print("Preview Notify:", message)
+        self.messageOutput.emit(message)
 
     # monkey patched function from Progress class
     def emit_percent(self, percent):
