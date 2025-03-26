@@ -15,22 +15,22 @@ lcd - Stream HAL data to an LCD screen
 
 == PINS
 
-**lcd.**_NN_**.out** (u32) out*::
+**lcd.**_NN_**.out** (u32) out::
   The output byte stream is sent via this pin. One character is sent
   every thread invocation. There in no handshaking provided.
-**lcd.**_NN_**.page.**_PP._**arg.**_NN_ (float/s32/u32/bit) in*::
+**lcd.**_NN_**.page.**_PP._**arg.**_NN_ (float/s32/u32/bit) in::
   The input pins have types matched to the format string specifiers.
-**lcd.**_NN_**.page_num** (u32) in*::
+**lcd.**_NN_**.page_num** (u32) in::
   Selects the page number. Multiple layouts may be defined, and this pin
   switches between them.
-**lcd.**_NN_**.contrast** (float) in*::
+**lcd.**_NN_**.contrast** (float) in::
   Attempts to set the contrast of the LCD screen using the byte sequence
   ESC C and then a value from 0x20 to 0xBF (matching the Mesa 7I73).
   The value should be between 0 and 1.
 
 == PARAMETERS
 
-*lcd._NN_*.decimal-separator* (u32) rw*::
+**lcd.***_NN_**.decimal-separator** (u32) rw::
   Sets the decimal separator used for floating point numbers. The
   default value is 46 (0x2E) which corresponds to ".". If a comma is
   required then set this parameter to 44 (0x2C).
@@ -62,7 +62,7 @@ differently-formatted pages, which may be selected with a HAL pin.
 `\t` Inserts a tab (actually 4 spaces in the current version rather than a
 true tab).
 +
-`\`__NN__ inserts the character defined by the hexadecimal code __NN__.
+`\NN` inserts the character defined by the hexadecimal code _NN_.
 As the ',' character is used in the format string to separate LCD instances it must
 be represented by `\2C` in the format string (the decimal separator is handled differently).
 +
@@ -74,7 +74,7 @@ be represented by `\2C` in the format string (the decimal separator is handled d
   prevent the LCD display wrapping and spoiling the layout. The field
   width includes the sign character so that negative numbers will often
   have a smaller valid range than positive. Numbers that do not fit in
-  the specified width are displayed as a line of asterisks (**********).
+  the specified width are displayed as a line of asterisks (`**********`).
 +
 Each format begins with a "`%`" symbol. (For a literal `%` use "`%%`").
 Immediately after the % the following modifiers may be used:

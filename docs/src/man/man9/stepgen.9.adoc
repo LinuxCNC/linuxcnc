@@ -179,8 +179,25 @@ In the timing diagrams that follow, they are identified by the following numbers
 For step type 0, timing parameters 1 thru 4 are used. The following
 timing diagram shows the output waveforms, and what each parameter adjusts.
 
+....
+               _____         _____               _____
+    STEP  ____/     \_______/     \_____________/     \______
+              |     |       |     |             |     |
+    Time      |-(1)-|--(2)--|-(1)-|--(3)--|-(4)-|-(1)-|
+                                          |__________________
+    DIR   ________________________________/
+....
+
 For step type 1, timing parameters 1, 2, and 5 are used. The following
 timing diagram shows the output waveforms, and what each parameter adjusts.
+....
+             _____       _____
+    UP    __/     \_____/     \________________________________
+            |     |     |     |         |
+    Time    |-(1)-|-(2)-|-(1)-|---(5)---|-(1)-|-(2)-|-(1)-|
+                                        |_____|     |_____|
+    DOWN  ______________________________/     \_____/     \____
+....
 
 For step types 2 and higher, the exact pattern of the outputs depends on
 the step type (see the HAL manual for a full listing). The outputs

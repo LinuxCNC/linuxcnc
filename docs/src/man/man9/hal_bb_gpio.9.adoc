@@ -17,9 +17,11 @@ Empirically, these seem to be OR'd with whatever function is assigned to the LED
 
 === PINS
 
-**bb_gpio.userled**_N_ bit in +
+**bb_gpio.userled**_N_ bit in::
+  +
+
 **bb_gpio.userled**_N_**-invert** bit in::
-  The associated LED is lit if *userled*_N_ xor *userled*_N_-invert is TRUE.
+The associated LED is lit if **userled**_N_ xor **userled**_N_-invert is TRUE.
 
 == INPUT PINS
 
@@ -35,10 +37,12 @@ system.
 
 === PINS
 
-**bb_gpio.p**_N_**.in-**_NN_ bit out +
+**bb_gpio.p**_N_**.in-**_NN_ bit out::
+  +
+
 **bb_gpio.p**_N_**.in-**_NN_**-invert** bit in::
-  **in-**_NN_ is a snapshot of the value of the corresponding physical pin
-  XOR the value of the corresponding **in-**_NN_**-invert** pin.
+**in-**_NN_ is a snapshot of the value of the corresponding physical pin
+XOR the value of the corresponding **in-**_NN_**-invert** pin.
 
 == OUTPUT PINS
 
@@ -52,10 +56,12 @@ system.
 
 === PINS
 
-**bb_gpio.p**_N_**.out-**_NN_ bit out +
+**bb_gpio.p**_N_**.out-**_NN_ bit out::
+  +
+
 **bb_gpio.p**_N_**.out-**_NN_**-invert** bit in::
-  The corresponding physical pin is driven with the result of **in-**_NN_
-  xor **in-**_NN_**-invert**.
+The corresponding physical pin is driven with the result of **in-**_NN_
+xor **in-**_NN_**-invert**.
 
 == PARAMETERS
 

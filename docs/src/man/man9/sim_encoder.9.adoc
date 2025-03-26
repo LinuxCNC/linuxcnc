@@ -47,25 +47,25 @@ The *sim-encoder.N.* format is shown in the following descriptions.
 
 == PINS
 
-*sim-encoder.*_N_*.phase-A* bit out::
+**sim-encoder.**_N_**.phase-A** bit out::
   One of the quadrature outputs.
-*sim-encoder.*_N_*.phase-B* bit out::
+**sim-encoder.**_N_**.phase-B** bit out::
   The other quadrature output.
-*sim-encoder.*_N_*.phase-Z* bit out::
+**sim-encoder.**_N_**.phase-Z** bit out::
   The index pulse.
-*sim-encoder.*_N_*.speed* float in::
+**sim-encoder.**_N_**.speed** float in::
   The desired speed of the encoder, in user units per per second. This
   is divided by *scale*, and the result is used as the encoder speed in
   revolutions per second.
 
 == PARAMETERS
 
-*sim-encoder.*_N_*.ppr* u32 rw::
+**sim-encoder.**_N_**.ppr** u32 rw::
   The pulses per revolution of the simulated encoder. Note that this is
   pulses, not counts, per revolution (ppr). Each pulse or cycle from the
   encoder results in four counts, because every edge is counted. Default
   value is 100 ppr, or 400 counts per revolution.
-*sim-encoder.*_N_*.scale* float rw::
+**sim-encoder.**_N_**.scale** float rw::
   Scale factor for the *speed* input. The *speed* value is divided by
   *scale* to get the actual encoder speed in revolutions per second. For
   example, if *scale* is set to 60, then *speed* is in revolutions per

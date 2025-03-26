@@ -13,11 +13,11 @@ Smart-serial remote parameters can now be set in the HAL file in the normal way.
 
 == FUNCTIONS
 
-None::
+None
 
 == PINS
 
-None::
+None
 
 == USAGE
 
@@ -30,13 +30,13 @@ any realtime threads running.
 
 A typical command sequence would be:
 
-```
+....
 halrun
 loadrt hostmot2 use_serial_numbers=1 loadrt hm2_pci config="firmware=hm2/5i23/svss8_8.bit"
 show param
 loadrt setsserial cmd="set hm2_8i20.001f.nvmaxcurrent 750"
 exit
-```
+....
 
 This example uses the option to have the HAL pins and parameters labelled by the serial number of the remote.
 This is not necessary but can reduce the scope for confusion.
@@ -89,12 +89,12 @@ smart-serial remote drive and to switch smart-serial communication to a
 slower baudrate.
 
 A typical command sequence is then
-```
+....
 halrun
 loadrt hostmot2 sserial_baudrate=115200 loadrt hm2_pci config="firmware=hm2/5i23/svss8_8.bit"
 loadrt setsserial cmd="flash hm2_5i23.0.8i20.0.1 hm2/8i20/8i20T.BIN"
 exit
-```
+....
 It is not necessary (or useful) to specify a config string in a system using the 5i25 or 6i25 cards.
 
 Note that it is necessary to exit halrun and unload the realtime

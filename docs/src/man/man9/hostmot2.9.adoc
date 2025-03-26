@@ -95,58 +95,37 @@ Best to try loading it and see what the detection order is.
 
 The valid entries in the format string are:
 
-**[firmware=**__F__**]**
+* **[firmware=**__F__**]**
+* **[num_dplls=**__N__**]**
+* **[num_encoders=**__N__**]**
+* **[ssi_chan_**__N__**=**__abc%nq__**]**
+* **[biss_chan_**__N__**=**__abc%nq__**]**
+* **[fanuc_chan_**__N__**=**__abc%nq__**]**
+* **[num_inmux=**__N__**]**
+* **[num_inms=**__N__**]**
+* **[num_resolvers=**__N__**]**
+* **[num_pwmgens=**__N__**]**
+* **[num_3pwmgens=**__N__**]**
+* **[num_oneshots=**__N__**]**
+* **[num_periodms=**__N__**]**
+* **[num_rcpwmgens=**__N__**]**
+* **[num_stepgens=**__N__**]**
+* **[stepgen_width=**__N__**]**
+* **[sserial_port_0=**00000000**]**
+* **[num_bspis=**__N__**]**
+* **[num_leds=**__N__**]**
+* **[num_ssrs=**__N__**]**
+* **[num_outms=**__N__**]**
+* **[num_xy2mods=**__N__**]**
 
-**[num_dplls=**__N__**]**
-
-**[num_encoders=**__N__**]**
-
-**[ssi_chan_**__N__**=**__abc%nq__**]**
-
-**[biss_chan_**__N__**=**__abc%nq__**]**
-
-**[fanuc_chan_**__N__**=**__abc%nq__**]**
-
-**[num_inmux=**__N__**]**
-
-**[num_inms=**__N__**]**
-
-**[num_resolvers=**__N__**]**
-
-**[num_pwmgens=**__N__**]**
-
-**[num_3pwmgens=**__N__**]**
-
-**[num_oneshots=**__N__**]**
-
-**[num_periodms=**__N__**]**
-
-**[num_rcpwmgens=**__N__**]**
-
-**[num_stepgens=**__N__**]**
-
-**[stepgen_width=**__N__**]**
-
-**[sserial_port_0=**00000000**]**
-
-**[num_bspis=**__N__**]**
-
-**[num_leds=**__N__**]**
-
-**[num_ssrs=**__N__**]**
-
-**[num_outms=**__N__**]**
-
-**[num_xy2mods=**__N__**]**
-
-**[enable_raw]**
+* **[enable_raw]**
 
 
 *firmware* [optional]::
  Load the firmware specified by _F_ into the FPGA on this board.
  If no "**firmware=**_F_" string is specified, the FPGA will not be
  re-programmed but may continue to run a previously downloaded firmware.
-
++
 The requested firmware _F_ is fetched by udev, which searches for the
 firmware in the system's firmware search path, usually /lib/firmware.
 _F_ typically has the form "hm2/<BoardType>/file.bit";
@@ -155,7 +134,7 @@ The hostmot2 firmware files are supplied by the hostmot2-firmware packages,
 available from https:://linuxcnc.org[linuxcnc.org] and can normally be installed
 by entering the command "sudo apt-get install hostmot2-firmware-5i23"
 to install the support files for the 5I23 for example.
-
++
 Newer FPGA cards come pre-programmed with firmware and no "firmware="
 string should be used with these cards. To change the firmware on these
 cards the "mesaflash" utility should be used. It is perfectly valid and
@@ -1301,7 +1280,7 @@ invert-NN (bit in)::
  When invert-NN is set to 1, SSR output NN is closed when the out-NN
  pin is 0 and open when the out-NN pin is 1.
 
-== OutM Simple output module
+=== OutM Simple output module
 
 OutMs have names like
 "**hm2_**_<BoardType>_**.**_<BoardNum>_**.OutM.**_<Instance>_". _Instance_ is a
@@ -1321,7 +1300,7 @@ invert-NN (bit in)::
  When invert-NN is set to 1, OutM output NN is high when the out-NN
  pin is 0 and low when the out-NN pin is 1.
 
-== xy2mod
+=== xy2mod
 
 The xy2mod is a xy2-100 galvanometer interface. It supports 16 and 18
 bit data modes and includes parabolic interpolation to provide position

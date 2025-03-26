@@ -55,23 +55,23 @@ node of the matrix.
 
 == PINS
 
-**matrix_kb.**_N_**.col-**_CC_**-in** bit in*::
+**matrix_kb.**_N_**.col-**_CC_**-in** bit in::
   The input pin corresponding to column C.
-**matrix_kb.**_N_**.key.r**_R_**c**_C_ bit out*::
+**matrix_kb.**_N_**.key.r**_R_**c**_C_ bit out::
   The pin corresponding to the key at row R column C of the matrix.
 **matrix_kb.**_N_**.keycode** unsigned in or out, depending on mode::
   This pin should be connected to the scancode generator if hardware
   such as a 7I73 is being used. In this mode it is an input pin. In the
   internally-generated scanning mode this pin is an output, but will not
   normally be connected.
-**matrix_kb.**_N_**.row-**_RR_**-out** bit out*::
+**matrix_kb.**_N_**.row-**_RR_**-out** bit out::
   The row scan drive pins. Should be connected to external hardware pins
   connected to the keypad. The row scan drive pins.Should be connected
   to external hardware pins connected to the keypad.
 
 == PARAMETERS
 
-**matrix_kb.*_N_**.key_rollover** unsigned r/w (default 2)::
+**matrix_kb.**_N_**.key_rollover** unsigned r/w (default 2)::
   With most matrix keyboards the scancodes are only unambiguous with 1
   or 2 keys pressed. With more keys pressed phantom keystrokes can
   appear. Some keyboards are optimised to reduce this problem, and some

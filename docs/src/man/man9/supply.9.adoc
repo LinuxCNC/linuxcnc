@@ -29,7 +29,7 @@ loaded. If *numchan* is not specified, the default value is one.
 
 == FUNCTIONS
 
-*supply.*_N_*.update* (uses floating-point)::
+**supply.**_N_**.update** (uses floating-point)::
   Updates output pins for channel _N_.
 
 == PINS
@@ -44,5 +44,5 @@ loaded. If *numchan* is not specified, the default value is one.
   Analog output, equal to -1.0 times parameter **supply.**_N_**.value**.
 **supply.**_N_**.d** bit rw::
   Data source for *q* and *_q* output pins.
-*supply.**_N_**.value** bit rw::
+**supply.**_N_**.value** bit rw::
   Data source for *variable* and *_variable* output pins.

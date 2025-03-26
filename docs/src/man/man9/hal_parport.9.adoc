@@ -62,7 +62,7 @@ For each physical output pin, the driver creates a single HAL pin, for
 example: `parport.0.pin-14-out`.
 
 For each physical input pin, the driver creates two HAL pins, for
-example: `parport.0.pin-12-in`and `parport.0.pin-12-in-not`.
+example: `parport.0.pin-12-in` and `parport.0.pin-12-in-not`.
 
 The **-in **HAL pin is TRUE if the physical pin is high, and FALSE if
 the physical pin is low. The **-in-not** HAL pin is inverted and is
@@ -87,7 +87,7 @@ in the cfg="" string.
 **parport.**_p_**.pin-<n>-out-reset** (bit)::
   (only for out pins) TRUE if this pin should be reset when the .reset
   function is executed.
-**parport.**_p_**.reset-time** (u32)*::
+**parport.**_p_**.reset-time** (u32)::
   The time (in nanoseconds) between a pin is set by write and reset by
   the reset function if it is enabled.
 

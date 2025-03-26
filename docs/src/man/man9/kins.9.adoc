@@ -56,29 +56,19 @@ If the coordinates= parameter is omitted, joint numbers are assigned
 *sequentially* to every known axis letter ("xyzabcuvw").
 
 Example: loadrt *trivkins*::
-Assigns all axis letters to joint numbers in sequence:::
-
-x==joint0, y==joint1, z==joint2 a==joint3, b==joint4, c==joint5
-u==joint6, v==joint7, w==joint8
-
- +
+  Assigns all axis letters to joint numbers in sequence:
+  x==joint0, y==joint1, z==joint2 a==joint3, b==joint4, c==joint5
+  u==joint6, v==joint7, w==joint8
 
 Example: loadrt *trivkins coordinates=xyz*::
-   +
-
-Assigns: x==joint0, y==joint1, z==joint2::
-   +
+  Assigns: x==joint0, y==joint1, z==joint2
 
 Example: loadrt *trivkins coordinates=xz*::
-   +
-
-Assigns: x==joint0, z==joint1::
-   +
+  Assigns: x==joint0, z==joint1
 
 Example: loadrt *trivkins coordinates=xyzy*::
-   +
+  Assigns: x==joint0, y0==joint1, z==joint2, y1==joint3:
 
-Assigns: x==joint0, y0==joint1, z==joint2, y1==joint3::
 
 The default kinematics type is *KINEMATICS_IDENTITY*. GUIs may provide
 special features for configurations using this default kinematics type.
@@ -87,39 +77,30 @@ operations so that the distinctions between joints and axes are not
 visible to the operator. This is feasible since there is an exact
 correspondence between a joint number and its matching axis letter.
 
- +
 
 The kinematics type can be set with the *kinstype=* parameter:::
-   +
+  kinstype=**1** for KINEMATICS_IDENTITY (default if kinstype= omitted)::
+    +
+  kinstype=[**b**|**B**] for KINEMATICS_BOTH::
+    +
+  kinstype=[**f**|**F**] for KINEMATICS_FORWARD_ONLY::
+    +
+  kinstype=[**i**|**I**] for KINEMATICS_INVERSE_ONLY::
+    +
 
-kinstype=**1** for KINEMATICS_IDENTITY (default if kinstype= omitted)::
-   +
-
-kinstype=[**b**|**B**] for KINEMATICS_BOTH::
-   +
-
-kinstype=[**f**|**F**] for KINEMATICS_FORWARD_ONLY::
-   +
-
-kinstype=[**i**|**I**] for KINEMATICS_INVERSE_ONLY::
 Example: loadrt *trivkins coordinates=xyz kinstype=b*::
-
 Use kinstype=**B** (KINEMATICS_BOTH) for configurations that need to
 move joints independently (joint mode) or as coordinated (teleop)
 movements in world coordinates.
-
++
 When using the axis gui with KINEMATICS_BOTH, the '*$*' key is used to
 toggle between joint and teleop (world) modes.
-
++
 An axis letter may be used more than once (*duplicated*) to assign
 multiple joints to a single axis coordinate letter.
 
- +
-
 Example: coordinates=**xyyzw** kinstype=**B**::
-   +
-
-Assigns: x==joint0, y==joint1 *AND* joint2, z==joint3, w==joint4::
+  Assigns: x==joint0, y==joint1 *AND* joint2, z==joint3, w==joint4
 
 The above example illustrates a gantry configuration that uses
 *duplicated* coordinate letters to indicate that two joints (joint1 and
@@ -129,8 +110,7 @@ Homing configuration options are available to synchronize the final
 homing move for selected joints -- see the documentation for *Homing
 Configuration*.
 
-*NOTES* for *duplicated* coordinates:
-
+*NOTES* for *duplicated* coordinates:::
 When *duplicated* coordinate letters are used, specifying
 KINEMATICS_BOTH (kinstype=**B**) allows a gui to support jogging of each
 individual joint in *joint mode*. *Caution* is required for machines
@@ -151,16 +131,15 @@ per-coordinate jogging is available.
 
 === corexykins - CoreXY Kinematics
 
-X = 0.5*(JOINT_0 + JOINT_1)::
-   +
+X = 0.5*(JOINT_0 + JOINT_1)
 
-Y = 0.5*(JOINT_0 - JOINT_1)::
-   +
+Y = 0.5*(JOINT_0 - JOINT_1)
 
-Z = JOINT_2::
-[KINS]JOINTS= must specify 3 or more joints (maximum 9)::
+Z = JOINT_2
+
+[KINS]JOINTS= must specify 3 or more joints (maximum 9).
 If enabled by the number of [KINS]JOINTS= specified, JOINT_3,4,5,6,7,8
-correspond to coordinates A,B,C,U,V,W respectively.::
+correspond to coordinates A,B,C,U,V,W respectively.
 
 === genhexkins - Hexapod Kinematics
 
@@ -170,15 +149,15 @@ forward kinematics iteration is controlled by HAL pins. (See switchkins
 documentation for more info)
 
 **genhexkins.base.**_N_**.x**::
-
+  +
 **genhexkins.base.**_N_**.y**::
-
+  +
 **genhexkins.base.**_N_**.z**::
-
+  +
 **genhexkins.platform.**_N_**.x**::
-
+  +
 **genhexkins.platform.**_N_**.y**::
-
+  +
 **genhexkins.platform.**_N_**.z**::
   Parameters describing the __N__th joint's coordinates.
 
@@ -187,15 +166,15 @@ documentation for more info)
   Facilitates adjusting spindle position.
 
 **genhexkins.base-n.**_N_**.x**::
-
+  +
 **genhexkins.base-n.**_N_**.y**::
-
+  +
 **genhexkins.base-n.**_N_**.z**::
-
+  +
 **genhexkins.platform-n.**_N_**.x**::
-
+  +
 **genhexkins.platform-n.**_N_**.y**::
-
+  +
 **genhexkins.platform-n.**_N_**.z**::
   Parameters describing unit vectors of __N__th joint's axis. Used to
   calculate strut length correction for cardanic joints and non-captive
@@ -207,8 +186,10 @@ documentation for more info)
 
 **genhexkins.correction.**_N_::
   Current values of strut length correction for non-captive actuators
-  with cardanic joints. *genhexkins.convergence-criterion* Minimum error
-  value that ends iterations with converged solution.
+  with cardanic joints.
+  
+*genhexkins.convergence-criterion*::
+  Minimum error value that ends iterations with converged solution.
 
 *genhexkins.limit-iterations*::
   Limit of iterations, if exceeded iterations stop with no convergence.
@@ -239,9 +220,9 @@ sometimes known as "Modified DH Parameters" and this must be borne in
 mind when setting up the system. https://w.wiki/NcY
 
 **genserkins.A-**_N_::
-
+  +
 **genserkins.ALPHA-**_N_::
-
+  +
 **genserkins.D-**_N_::
   Parameters describing the __N__^th^ joint's geometry.
 
@@ -264,13 +245,13 @@ The location of base and effector joints is defined by HAL parameters.
 The forward kinematics iteration is controlled by HAL pins.
 
 **pentakins.base.**_N_**.x**::
-
+  +
 **pentakins.base.**_N_**.y**::
-
+  +
 **pentakins.base.**_N_**.z**::
-
+  +
 **pentakins.effector.**_N_**.r**::
-
+  +
 **pentakins.effector.**_N_**.z**::
   Parameters describing the __N__^th^ effector joint's radius and axial position. 
 
@@ -298,11 +279,11 @@ The forward kinematics iteration is controlled by HAL pins.
 Kinematics for a puma-style robot with 6 joints:
 
 *pumakins.A2*::
-
+  +
 *pumakins.A3*::
-
+  +
 *pumakins.D3*::
-
+  +
 *pumakins.D4*::
   Describe the geometry of the robot
 
@@ -348,9 +329,9 @@ predefined locations (the motors), giving three degrees of freedom in
 position (XYZ)
 
 *tripodkins.Bx*::
-
+  +
 *tripodkins.Cx*::
-
+  +
 *tripodkins.Cy*::
   The location of the three motors is (0,0), (Bx,0), and (Cx,Cy)
 
@@ -386,19 +367,15 @@ one-to-one relation to joint 7.
 
 Note: These kinematics may be used with the vismach 5axisgui providing
 that the joint-letter assignments agree with the default ordering
-expected by it (XYZBCW -> joints 0..5)
+expected by it (XYZBCW `->` joints 0..5)
 
 == SEE ALSO
 
-For additional information, see the Documents 'Advanced Topics':
+For additional information, see following subsections of the section 'Advanced Topics' of the LinuxCNC documentation:
 
-*Kinematics*
-
-*5-Axis Kinematics*
-
-*Switchable Kinematics*
-
-_Kinematics_ section in the LinuxCNC documentation
+- *Kinematics*
+- *5-Axis Kinematics*
+- *Switchable Kinematics*
 
 The HAL component *userkins.comp* is a template for making kinematic
 modules using the halcompile tool. The unmodified template supports an
