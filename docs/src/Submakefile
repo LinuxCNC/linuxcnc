@@ -441,8 +441,8 @@ MAN_SRCS_NOSO = $(patsubst $(DOC_DIR)/man/%,%, \
 			$(shell grep -s -L '^\.so ' $(MAN_SRCS)))
 
 PDF_MAN_ORDER := man1/linuxcnc.1 $(filter-out %/linuxcnc.1, $(filter man1/%, $(MAN_SRCS_NOSO))) \
-	man3/hal.3 $(filter-out %/undocumented.3hal %/hal.3, $(filter man3/%.3hal, $(MAN_SRCS_NOSO))) \
-	man3/undocumented.3hal man3/rtapi.3 $(filter-out %/undocumented.3rtapi %/rtapi.3, $(filter man3/%.3rtapi, $(MAN_SRCS_NOSO))) \
+	man3/hal.3hal $(filter-out %/undocumented.3hal %/hal.3hal, $(filter man3/%.3hal, $(MAN_SRCS_NOSO))) \
+	man3/undocumented.3hal man3/rtapi.3rtapi $(filter-out %/undocumented.3rtapi %/rtapi.3rtapi, $(filter man3/%.3rtapi, $(MAN_SRCS_NOSO))) \
 	man3/undocumented.3rtapi $(filter man9/%, $(MAN_SRCS_NOSO))
 
 $(DOC_DIR)/LinuxCNC_Manual_Pages.pdf: $(MAN_SRCS) objects/var-PDF_MAN_ORDER
