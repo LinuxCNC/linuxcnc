@@ -1,8 +1,14 @@
 linuxcnc (1:2.10.0~pre0) UNRELEASED; urgency=medium
 
+  [ Andy Pugh ]
   * Master branch open for new features.
 
- -- Andy Pugh <andy@bodgesoc.org>  Mon, 09 Oct 2023 10:39:03 +0100
+  [ Pushkar Kulkarni ]
+  * debian/patches: Remove the use of FORTIFY_SOURCE and
+    depend on defaults passed by dpkg-buildflags on
+    Ubuntu and Debian (LP: #2104012)
+
+ -- Pushkar Kulkarni <pushkar.kulkarni@canonical.com>  Mon, 24 Mar 2025 20:50:08 +0530
 
 linuxcnc (1:2.9.4-1) unstable; urgency=medium
 
