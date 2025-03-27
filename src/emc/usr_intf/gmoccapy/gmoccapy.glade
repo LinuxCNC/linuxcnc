@@ -603,6 +603,10 @@ uncomment selection</property>
     <property name="visible">True</property>
     <property name="can-focus">False</property>
   </object>
+  <object class="GtkImage" id="img_split_view">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+  </object>
   <object class="GtkImage" id="img_step">
     <property name="visible">True</property>
     <property name="can-focus">False</property>
@@ -7327,15 +7331,20 @@ MDI history</property>
                 <property name="can-focus">False</property>
                 <property name="homogeneous">True</property>
                 <child>
-                  <object class="GtkLabel" id="lbl_space_6">
+                  <object class="GtkToggleButton" id="tbtn_split_view">
                     <property name="width-request">90</property>
                     <property name="height-request">56</property>
                     <property name="visible">True</property>
-                    <property name="can-focus">False</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">True</property>
+                    <property name="halign">center</property>
+                    <property name="valign">center</property>
+                    <property name="image">img_split_view</property>
+                    <signal name="toggled" handler="on_tbtn_split_view_toggled" swapped="no"/>
                   </object>
                   <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
                     <property name="position">0</property>
                   </packing>
                 </child>

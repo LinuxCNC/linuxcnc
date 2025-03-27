@@ -4904,6 +4904,7 @@ class gmoccapy(object):
                 ("img_down",                    "chevron_down",     24),
                 ("img_edit-undo",               "edit_undo",        32),
                 ("img_edit-redo",               "edit_redo",        32),
+                ("img_split_view",              "split_view",       32),
                 ("img_edit_menu_reload",        "refresh",          32),
                 ("img_edit_menu_save",          "save",             32),
                 ("img_edit_menu_save_as",       "save_as",          32),
@@ -5583,11 +5584,12 @@ class gmoccapy(object):
 
     # edit a program or make a new one
     def on_btn_edit_clicked(self, widget, data=None):
-        self.widgets.ntb_button.set_current_page(_BB_EDIT)
-        self.widgets.ntb_preview.hide()
-        self.widgets.grid_DRO.hide()
-        self.widgets.vbox14.hide()
+        if not self.widgets.tbtn_split_view.get_active():
+            self.widgets.ntb_preview.hide()
+            self.widgets.vbox14.hide()
         self.widgets.vbox_jog.set_hexpand(True)
+        self.widgets.ntb_button.set_current_page(_BB_EDIT)
+        self.widgets.grid_DRO.hide()
         self.widgets.box_dro_side.hide()
         if not self.widgets.vbx_jog.get_visible():
             self.widgets.vbx_jog.set_visible(True)
@@ -5755,6 +5757,14 @@ class gmoccapy(object):
         else:
             self.widgets.tbtn_switch_mode.set_label(_("World\nmode"))
             self._set_motion_mode(1)
+            
+    def on_tbtn_split_view_toggled(self, widget, data=None):
+        if widget.get_active():
+            self.widgets.ntb_preview.show()
+            self.widgets.vbox14.show()
+        else:
+            self.widgets.ntb_preview.hide()
+            self.widgets.vbox14.hide()
 
 # =========================================================
 # Hal Pin Handling Start
