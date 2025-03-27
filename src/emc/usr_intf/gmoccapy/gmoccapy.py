@@ -165,6 +165,7 @@ class gmoccapy(object):
             #mdi_entry image.right { background: rgba(146,149,149,0.3); padding: 20px; border-radius: 3px; }
             #mdi_entry entry { border-width: 2px; margin-top: 3px; padding-right: 0px; }
             #mdi_entry entry:focus { border-width: 1px; padding-right: 1px; padding-top: 1px; padding-bottom: 1px; }
+            frame#only_top_border > border { border-left-width: 0px; border-right-width: 0px; border-bottom-width: 0px; }
          """
             
         screen = Gdk.Screen.get_default()
@@ -1812,6 +1813,7 @@ class gmoccapy(object):
         else:
             self.widgets.spc_lin_jog_vel.set_digits(2)
             self.widgets.spc_lin_jog_vel.set_property("unit", _("inch/min"))
+        self.widgets.lbl_vel_unit.set_label(self.widgets.spc_lin_jog_vel.get_property("unit"))
 
         # the size of the DRO ; self.dro_size is initialized in _get_pref_data
         self.widgets.adj_dro_size.set_value(self.dro_size)
