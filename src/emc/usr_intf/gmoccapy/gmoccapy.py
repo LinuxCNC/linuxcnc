@@ -4059,18 +4059,19 @@ class gmoccapy(object):
             return ""
         
     def on_gcode_properties(self, widget, data):
-        # print("G-code properties:", data)
-        self.widgets.lbl_gcode_size.set_text(data['size'])
-        self.widgets.lbl_gcode_g0.set_text(data['g0'])
-        self.widgets.lbl_gcode_g1.set_text(data['g1'])
-        self.widgets.lbl_gcode_run.set_text(f"{self.parse_time_string(data['run'])}")
-        # self.widgets.lbl_gcode_toollist.set_text(data['toollist'])
-        self.widgets.lbl_gcode_x.set_text(data['x'])
-        self.widgets.lbl_gcode_y.set_text(data['y'])
-        self.widgets.lbl_gcode_z.set_text(data['z'])
-        # alternative way to calculate program length
-        # self.halcomp["program.length"] = int(data['size'].split("\n")[1].split(" ")[0] )
-    
+        LOG.debug(f"G-code properties:{data}")
+        if data:
+            self.widgets.lbl_gcode_size.set_text(data['size'])
+            self.widgets.lbl_gcode_g0.set_text(data['g0'])
+            self.widgets.lbl_gcode_g1.set_text(data['g1'])
+            self.widgets.lbl_gcode_run.set_text(f"{self.parse_time_string(data['run'])}")
+            # self.widgets.lbl_gcode_toollist.set_text(data['toollist'])
+            self.widgets.lbl_gcode_x.set_text(data['x'])
+            self.widgets.lbl_gcode_y.set_text(data['y'])
+            self.widgets.lbl_gcode_z.set_text(data['z'])
+            # alternative way to calculate program length
+            # self.halcomp["program.length"] = int(data['size'].split("\n")[1].split(" ")[0] )
+        
     def on_ntb_tool_code_info_switch_page(self, widget, page, page_num):
         self.prefs.putpref("info_tab_page", page_num, int)
 
