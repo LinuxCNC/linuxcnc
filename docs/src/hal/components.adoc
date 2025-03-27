@@ -283,6 +283,7 @@ the input is a position, this means that 'position', 'velocity', and 'accelerati
 [{tab_options}]
 |===
 | link:../man/man9/bin2gray.9.html[bin2gray] |Converts a number to the gray-code representation ||
+| link:../man/man9/bitmerge.9.html[bitmerge] |Converts individual input bits into an unsigned-32 ||
 | link:../man/man9/bitslice.9.html[bitslice] |Converts an unsigned-32 input into individual bits ||
 | link:../man/man9/conv_bit_float.9.html[conv_bit_float] |Converts from bit to float         ||
 | link:../man/man9/conv_bit_s32.9.html[conv_bit_s32]     |Converts from bit to s32           ||
