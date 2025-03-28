@@ -587,8 +587,8 @@ class gmoccapy(object):
         self.no_force_homing = self.get_ini_info.get_no_force_homing()
 
         # get the values for the sliders
-        self.rabbit_jog = self.get_ini_info.get_jog_vel()
-        self.jog_rate_max = self.get_ini_info.get_max_jog_vel()
+        self.rabbit_jog = self.INI.DEFAULT_LINEAR_JOG_VEL
+        self.jog_rate_max = self.INI.MAX_LINEAR_JOG_VEL
 
         self.spindle_override_max = self.INI.MAX_SPINDLE_OVERRIDE/100
         self.spindle_override_min = self.INI.MIN_SPINDLE_OVERRIDE/100
