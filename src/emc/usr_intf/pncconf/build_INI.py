@@ -370,8 +370,6 @@ class INI:
         else:
             maxvel = max(self.d.xmaxvel, self.d.ymaxvel, self.d.zmaxvel)
         hypotvel = (self.d.xmaxvel**2 + self.d.ymaxvel**2 + self.d.zmaxvel**2) **.5
-        defvel = min(maxvel, max(.1, maxvel/10.))
-        print("DEFAULT_LINEAR_VELOCITY = %.2f" % defvel, file=file)
         print("MAX_LINEAR_VELOCITY = %.2f" % maxvel, file=file)
         if self.d.restore_joint_position:
             print("POSITION_FILE = position.txt", file=file)
