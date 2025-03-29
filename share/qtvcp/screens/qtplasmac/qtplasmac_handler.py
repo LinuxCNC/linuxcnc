@@ -433,7 +433,6 @@ class HandlerClass:
         self.ohmicLedTimer.timeout.connect(self.ohmic_led_timeout)
         self.ohmicLedTimer.setSingleShot(True)
         self.set_color_styles()
-        self.autorepeat_keys(False)
         self.vm_check()
         # set hal pins only after initialized__ has begun
         # some locales won't set pins before this phase
@@ -482,6 +481,8 @@ class HandlerClass:
         # the gcodegraphics_patch cannot apply until the gcodegraphics widget is initialized
         self.gcodegraphics_patch()
         self.startupTimer.start(250)
+        # turning off autorepeat should always be the last thing intialized__ does
+        self.autorepeat_keys(False)
 
 # called by qtvcp.py, can override qtvcp settings or qtvcp allowed user options (via INI)
     def before_loop__(self):
