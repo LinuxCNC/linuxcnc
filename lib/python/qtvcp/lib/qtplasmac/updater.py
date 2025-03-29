@@ -23,6 +23,34 @@ import os
 from shutil import copy as COPY
 
 ###########################################################################################################
+# helper function to expand ini file if #INCLUDE is used in the ini file                                  #
+###########################################################################################################
+
+
+def ini_expander(string, iniFile):
+    name, ext = os.path.splitext(iniFile)
+    if '.expanded' in ext:
+        iniFile = name
+    with open(iniFile, 'r') as inFile:
+        contents = inFile.read()
+        if not string in contents:
+            includeFiles = []
+            inFile.seek(0)
+            for line in inFile:
+                if line.startswith("#INCLUDE"):
+                    includeFile = line.split()[1].strip()
+                    includeFiles.append(includeFile)
+            for file in includeFiles:
+                path = os.path.join(os.path.dirname(iniFile), file)
+                with open(path, 'r') as inFile:
+                    content = inFile.read()
+                    if string in content:
+                        iniFile = path
+                        break
+    return iniFile
+
+
+###########################################################################################################
 # set user_m_path to include ../../nc_files/plasmac/m_files (pre V2.10-001.017 2024/01/23)                #
 ###########################################################################################################
 
@@ -38,12 +66,13 @@ def insert_user_m_path(configPath, simPath):
         return(False, True, e)
 
 
-def insert_user_m_path_iniwrite(inifile, data=None):
+def insert_user_m_path_iniwrite(iniFile, data=None):
     try:
-        tmpFile = f'{inifile}~'
-        COPY(inifile, tmpFile)
+        iniFile = ini_expander('USER_M_PATH', iniFile)
+        tmpFile = f'{iniFile}~'
+        COPY(iniFile, tmpFile)
         with open(tmpFile, 'r') as inFile:
-            with open(inifile, 'w') as outFile:
+            with open(iniFile, 'w') as outFile:
                 for line in inFile:
                     if line.startswith('USER_M_PATH'):
                         line = line.split('=')[1].strip().replace('./:', '')
@@ -135,45 +164,46 @@ def move_port(prefs):
 ###########################################################################################################
 
 
-def move_options_to_prefs_file(inifile, prefs):
+def move_options_to_prefs_file(iniFile, prefs):
     try:
+        iniFile = ini_expander(f'QTPLASMAC', iniFile)
         text = prefs.getpref('shutdown_msg_detail', '', str, 'SHUTDOWN_OPTIONS')
         prefs.putpref('Exit warning text', text, str, 'GUI_OPTIONS')
         prefs.remove_section('SHUTDOWN_OPTIONS')
         prefs.write(open(prefs.fn, 'w'))
-        data = inifile.find('QTPLASMAC', 'MODE') or None
+        data = iniFile.find('QTPLASMAC', 'MODE') or None
         if data:
             prefs.putpref('Mode', data, int, 'GUI_OPTIONS')
-        data = inifile.find('QTPLASMAC', 'ESTOP_TYPE') or None
+        data = iniFile.find('QTPLASMAC', 'ESTOP_TYPE') or None
         if data:
             prefs.putpref('Estop type', data, int, 'GUI_OPTIONS')
-        data = inifile.find('QTPLASMAC', 'DRO_POSITION') or None
+        data = iniFile.find('QTPLASMAC', 'DRO_POSITION') or None
         if data:
             prefs.putpref('DRO position', data, str, 'GUI_OPTIONS')
-        data = inifile.find('QTPLASMAC', 'FLASH_ERROR') or None
+        data = iniFile.find('QTPLASMAC', 'FLASH_ERROR') or None
         if data:
             data = True if data.lower() in ('yes', 'y', 'true', 't', '1') else False
             prefs.putpref('Flash error', data, bool, 'GUI_OPTIONS')
-        data = inifile.find('QTPLASMAC', 'HIDE_RUN') or None
+        data = iniFile.find('QTPLASMAC', 'HIDE_RUN') or None
         if data:
             data = True if data.lower() in ('yes', 'y', 'true', 't', '1') else False
             prefs.putpref('Hide run', data, bool, 'GUI_OPTIONS')
-        data = inifile.find('QTPLASMAC', 'HIDE_PAUSE') or None
+        data = iniFile.find('QTPLASMAC', 'HIDE_PAUSE') or None
         if data:
             data = True if data.lower() in ('yes', 'y', 'true', 't', '1') else False
             prefs.putpref('Hide pause', data, bool, 'GUI_OPTIONS')
-        data = inifile.find('QTPLASMAC', 'HIDE_ABORT') or None
+        data = iniFile.find('QTPLASMAC', 'HIDE_ABORT') or None
         if data:
             data = True if data.lower() in ('yes', 'y', 'true', 't', '1') else False
             prefs.putpref('Hide abort', data, bool, 'GUI_OPTIONS')
-        data = inifile.find('QTPLASMAC', 'CUSTOM_STYLE') or None
+        data = iniFile.find('QTPLASMAC', 'CUSTOM_STYLE') or None
         if data:
             prefs.putpref('Custom style', data, str, 'GUI_OPTIONS')
-        data = inifile.find('QTPLASMAC', 'AUTOREPEAT_ALL') or None
+        data = iniFile.find('QTPLASMAC', 'AUTOREPEAT_ALL') or None
         if data:
             data = True if data.lower() in ('yes', 'y', 'true', 't', '1') else False
             prefs.putpref('Autorepeat all', data, bool, 'GUI_OPTIONS')
-        data = inifile.find('QTPLASMAC', 'LASER_TOUCHOFF') or None
+        data = iniFile.find('QTPLASMAC', 'LASER_TOUCHOFF') or None
     except Exception as e:
         return(False, True, e)
     if data:
@@ -182,14 +212,14 @@ def move_options_to_prefs_file(inifile, prefs):
             return(False, True, error)
         prefs.putpref('X axis', x, float, 'LASER_OFFSET')
         prefs.putpref('Y axis', y, float, 'LASER_OFFSET')
-    data = inifile.find('QTPLASMAC', 'CAMERA_TOUCHOFF') or None
+    data = iniFile.find('QTPLASMAC', 'CAMERA_TOUCHOFF') or None
     if data:
         x, y, d, error = get_offsets(data, 'CAMERA_OFFSET')
         if error:
             return(False, True, error)
         prefs.putpref('X axis', x, float, 'CAMERA_OFFSET')
         prefs.putpref('Y axis', y, float, 'CAMERA_OFFSET')
-    data = inifile.find('QTPLASMAC', 'OFFSET_PROBING') or None
+    data = iniFile.find('QTPLASMAC', 'OFFSET_PROBING') or None
     if data:
         x, y, d, error = get_offsets(data, 'OFFSET_PROBING')
         if error:
@@ -197,24 +227,25 @@ def move_options_to_prefs_file(inifile, prefs):
         prefs.putpref('X axis', x, float, 'OFFSET_PROBING')
         prefs.putpref('Y axis', y, float, 'OFFSET_PROBING')
         prefs.putpref('Delay', d, float, 'OFFSET_PROBING')
-    data = inifile.find('QTPLASMAC', 'PM_PORT') or None
+    data = iniFile.find('QTPLASMAC', 'PM_PORT') or None
     if data:
         prefs.putpref('Port', data, str, 'POWERMAX')
     for bNum in range(1, 21):
-        bName = inifile.find('QTPLASMAC', f'BUTTON_{bNum}_NAME') or None
-        bCode = inifile.find('QTPLASMAC', f'BUTTON_{bNum}_CODE') or None
+        bName = iniFile.find('QTPLASMAC', f'BUTTON_{bNum}_NAME') or None
+        bCode = iniFile.find('QTPLASMAC', f'BUTTON_{bNum}_CODE') or None
         if bName and bCode:
             prefs.putpref(f'{bNum} Name', bName, str, 'BUTTONS')
             prefs.putpref(f'{bNum} Code', bCode, str, 'BUTTONS')
     return(False, False, '')
 
 
-def move_options_to_prefs_file_iniwrite(inifile):
+def move_options_to_prefs_file_iniwrite(iniFile):
     try:
-        tmpFile = f'{inifile}~'
-        COPY(inifile, tmpFile)
+        iniFile = ini_expander('QTPLASMAC', iniFile)
+        tmpFile = f'{iniFile}~'
+        COPY(iniFile, tmpFile)
         with open(tmpFile, 'r') as inFile:
-            with open(inifile, 'w') as outFile:
+            with open(iniFile, 'w') as outFile:
                 remove = False
                 for line in inFile:
                     if not line:
@@ -256,12 +287,13 @@ def get_offsets(data, oType):
 ###########################################################################################################
 
 
-def remove_qtplasmac_link_iniwrite(inifile):
+def remove_qtplasmac_link_iniwrite(iniFile):
     try:
-        tmpFile = f'{inifile}~'
-        COPY(inifile, tmpFile)
+        iniFile = ini_expander('FILTER', iniFile)
+        tmpFile = f'{iniFile}~'
+        COPY(iniFile, tmpFile)
         with open(tmpFile, 'r') as inFile:
-            with open(inifile, 'w') as outFile:
+            with open(iniFile, 'w') as outFile:
                 for line in inFile:
                     if line.replace(' ', '').startswith('ngc='):
                         line = 'ngc = qtplasmac_gcode\n'
@@ -284,12 +316,13 @@ def remove_qtplasmac_link_iniwrite(inifile):
 ###########################################################################################################
 
 
-def rs274ngc_startup_code_iniwrite(inifile):
+def rs274ngc_startup_code_iniwrite(iniFile):
     try:
-        tmpFile = f'{inifile}~'
-        COPY(inifile, tmpFile)
+        iniFile = ini_expander('RS274NGC', iniFile)
+        tmpFile = f'{iniFile}~'
+        COPY(iniFile, tmpFile)
         with open(tmpFile, 'r') as inFile:
-            with open(inifile, 'w') as outFile:
+            with open(iniFile, 'w') as outFile:
                 for line in inFile:
                     if line.startswith('RS274NGC_STARTUP_CODE') and ('metric' in line or 'imperial' in line):
                         units = 21 if 'metric' in line else 20
@@ -427,13 +460,14 @@ def add_component_hal_file(path, halfiles):
     return(False, False, '')
 
 
-def add_component_hal_file_iniwrite(inifile):
+def add_component_hal_file_iniwrite(iniFile):
     try:
+        iniFile = ini_expander('HALFILE', iniFile)
         written = False
-        tmpFile = f'{inifile}~'
-        COPY(inifile, tmpFile)
+        tmpFile = f'{iniFile}~'
+        COPY(iniFile, tmpFile)
         with open(tmpFile, 'r') as inFile:
-            with open(inifile, 'w') as outFile:
+            with open(iniFile, 'w') as outFile:
                 while 1:
                     line = inFile.readline()
                     if not line:
