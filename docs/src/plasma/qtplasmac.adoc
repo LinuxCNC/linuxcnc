@@ -1263,7 +1263,7 @@ The information will be displayed as followed "QtPlasmaC v__N__.__XXX__.__YYY__ 
 
 === Units Systems
 
-All settings and parameters in QtPlasmaC are required to be in the same units as specified in the INI file, being either metric or imperial.
+All settings and parameters in QtPlasmaC are required to be in the same units as specified in the _<machine_name>_.ini file, being either metric or imperial.
 
 If the user is attempting to run a G-code file that is in the "other" unit's system then all parameters including the material file parameters are still required to be in the native machines units.
 Any further conversions necessary to run the G-code file will be handled automatically by the G-code filter program.
@@ -1952,7 +1952,7 @@ where _n.n_ is the offset of the probe from the torch center in machine units fo
 
 Each of these parameters is optional and also may appear in any order. If a parameter is not detected, then the default is 0.0. There can be no space after the X or Z, lower case is permissible.
 
-When this variable appears in the INI file with either X or Y not equal to zero, then QtPlasmaC will do *all* Ohmic Probing as Offset Probing.
+When this variable appears in the _<machine_name>_.prefs file with either X or Y not equal to zero, then QtPlasmaC will do *all* Ohmic Probing as Offset Probing.
 If Offset Probing is valid then the feed rate at which the X and Y axes move to the offset position may be adjusted by the use of the *Offset Speed* parameter in the PROBING frame of the <<plasma:parameters-tab,PARAMETERS Tab>>.
 
 When a probe sequence has begun, the `plasmac.ohmic-enable` pin will be set True causing the probe to extend. When the material is detected the `plasmac.ohmic-enable` pin will be reset to false causing the probe to retract.
@@ -4633,6 +4633,17 @@ This issue does not affect any jogging using the GUI jog buttons.
 [NOTE]
 Disconnecting and reconnecting a keyboard during an active QtPlasmaC session will cause the autorepeat feature to re-enable itself automatically which may cause intermittent stopping and starting during jogging.
 The user must restart QtPlasmaC to disable the autorepeat feature again.
+
+=== NO_FORCE_HOMING
+
+QtPlasmaC does not currently adhere to the following stanza in the _<machine_name>_.ini file:
+
+[source,{ini}]
+----
+NO_FORCE_HOMING = 1
+----
+
+Regardless of this setting, QtPlasmaC requires that the machine must be homed before executing MDI commands or running programs.
 
 == Contributing Code To QtPlasmaC
 
