@@ -1,4 +1,4 @@
-VERSION = '008.061'
+VERSION = '008.062'
 LCNCVER = '2.10'
 DOCSVER = 'devel'
 
@@ -345,11 +345,13 @@ class HandlerClass:
 
 # called by qtvcp.py
     def initialized__(self):
+        head = _translate('HandlerClass', 'QtPlasmaC GUI Message')
         if '.'.join(linuxcnc.version.split('.')[:2]) != LCNCVER:
             msg0 = _translate('HandlerClass', 'LinuxCNC version should be')
             msg1 = _translate('HandlerClass', 'The detected version is')
             msg2 = _translate('HandlerClass', 'QtPlasmac is closing')
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{msg0} {LCNCVER}\n\n{msg1} {linuxcnc.version.split(".")[:2]}\n\n{msg2}')
+            msg = f'{head}:\n{msg0} {LCNCVER}\n\n{msg1} {linuxcnc.version.split(".")[:2]}\n\n{msg2}\n'
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, msg)
             quit()
         # if USER_M_PATH is not valid try to find a valid USER_M_PATH in the possible default locations
         if self.mPath != 'valid' and not self.updateIni:
@@ -363,7 +365,7 @@ class HandlerClass:
                     break
             if not mPath:
                 msg3 = _translate('HandlerClass', 'does not exist in the default locations')
-            msg = f'M190 {msg0}:\n{":".join(self.mPath)}\n\n{msg1}\n\nM190 {msg3}:\n{mPath[:-5]}\n\n{msg2}'
+            msg = f'{head}:\nM190 {msg0}:\n{":".join(self.mPath)}\n\n{msg1}\n\nM190 {msg3}:\n{mPath[:-5]}\n\n{msg2}\n'
             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, msg)
             quit()
         ucFile = os.path.join(self.PATHS.CONFIGPATH, 'qtplasmac_custom.py')
@@ -471,9 +473,11 @@ class HandlerClass:
                             restart = True
                         if update[1]:
                             msgType = linuxcnc.OPERATOR_ERROR
-            STATUS.emit('error', msgType, msgText)
+            head = _translate('HandlerClass', 'QtPlasmaC Configuration Update')
+            STATUS.emit('error', msgType, f'{head}:\n{msgText}\n')
             if restart:
-                STATUS.emit('error', linuxcnc.OPERATOR_TEXT, 'Due to configuration changes a restart is required')
+                msg = _translate('HandlerClass', 'Due to configuration changes a restart is required')
+                STATUS.emit('error', linuxcnc.OPERATOR_TEXT, f'{head}:\n{msg}\n')
                 quit()
         if not os.path.isfile(updateLog):
             with open(updateLog, 'w') as f:
@@ -5624,19 +5628,19 @@ class HandlerClass:
                     sPort.close()
                 except Exception as err:
                     if not periodic:
-                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{err}\n{msg1}')
+                        STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{err}\n{msg1}\n')
                     return False
             else:
                 if not periodic:
                     msg0 = _translate('HandlerClass', 'cannot be found')
-                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{port} {msg0}\n{msg1}')
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{port} {msg0}\n{msg1}\n')
                 return False
         except:
             if not periodic:
                 head = _translate('HandlerClass', 'Module Error')
                 msg0 = _translate('HandlerClass', 'python3-serial cannot be found')
                 msg1 = _translate('HandlerClass', 'Install python3-serial or linuxcnc-dev')
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0}\n{msg1}')
+            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, f'{head}:\n{msg0}\n{msg1}\n')
             return False
         return True
 
