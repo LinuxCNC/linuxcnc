@@ -139,7 +139,7 @@ class LcncDialog(QMessageBox, GeometryMixin):
             nblock = message.get('NONBLOCKING')
             forceOpen = message.get('NONBLOCKING')
             callback = message.get('CALLBACK') # this needs testing
-            self.showdialog(messtext, more, details, mtype, 
+            self.showdialog(messtext, more, details, mtype,
                                     icon, pin, ftext, fcolor, alert,
                                     nblock, geoname=geo,title = t, return_callback = callback,
                                     force_open = forceOpen)
@@ -198,9 +198,9 @@ class LcncDialog(QMessageBox, GeometryMixin):
 
         # convert text descriptions to actual icons
         if icon == 'QUESTION': icon = QMessageBox.Question
-        elif icon == 'INFO' or isinstance(icon,str): icon = QMessageBox.Information
         elif icon == 'WARNING': icon = QMessageBox.Warning
         elif icon == 'CRITICAL': icon = QMessageBox.Critical
+        elif icon == 'INFO' or isinstance(icon,str): icon = QMessageBox.Information
         self.setIcon(icon)
 
         self.setText('<b>%s</b>' % messagetext)
@@ -233,7 +233,7 @@ class LcncDialog(QMessageBox, GeometryMixin):
             STATUS.emit('focus-overlay-changed', True, focus_text, color)
         if play_alert:
             STATUS.emit('play-sound', play_alert)
- 
+
         if geoname is None:
             geoname = self._geoName
         self.read_preference_geometry(geoname)
@@ -431,7 +431,7 @@ class ToolDialog(LcncDialog, GeometryMixin):
             self.HAL_GCOMP_.comp.setprefix(oldname)
         else:
             LOG.warning("""Detected hal_manualtoolchange component already loaded
-   Qtvcp recommends to allow use of it's own component by not loading the original. 
+   Qtvcp recommends to allow use of it's own component by not loading the original.
    Qtvcp Integrated toolchange dialog will not show until then""")
         if self.PREFS_:
             self.play_sound = self.PREFS_.getpref('toolDialog_play_sound', True, bool, 'DIALOG_OPTIONS')
@@ -726,7 +726,7 @@ class FileDialog(QFileDialog, GeometryMixin):
             fname = None
         STATUS.emit('focus-overlay-changed', False, None, None)
         self.record_geometry()
-        if fname: 
+        if fname:
             if self.PREFS_:
                 self.PREFS_.putpref('last_saved_directory', path, str, 'BOOK_KEEPING')
                 self.PREFS_.putpref('RecentSavedPath_0', fname, str, 'BOOK_KEEPING')
@@ -1094,7 +1094,6 @@ class ToolChooserDialog(QDialog, GeometryMixin):
             STATUS.emit('general', self._message)
             self._message = None
         self.hide()
-        
 
     def _hal_init(self):
         self.set_default_geometry()
@@ -1534,7 +1533,7 @@ class EntryDialog(QDialog, GeometryMixin):
         conversion = {'x':0, 'y':1, "z":2, 'a':3, "b":4, "c":5, 'u':6, 'v':7, 'w':8}
         if overlay:
             STATUS.emit('focus-overlay-changed', True, '', self._color)
-        self.setWindowTitle(self._title);
+        self.setWindowTitle(self._title)
         if self.play_sound:
             STATUS.emit('play-sound', self.sound_type)
         self.set_geometry()
@@ -1663,7 +1662,7 @@ class KeyboardDialog(QDialog, GeometryMixin):
     def showdialog(self, preload=None, overlay=True):
         if overlay:
             STATUS.emit('focus-overlay-changed', True, '', self._color)
-        self.setWindowTitle(self._title);
+        self.setWindowTitle(self._title)
         if self.play_sound:
             STATUS.emit('play-sound', self.sound_type)
         self.set_geometry()
@@ -1674,7 +1673,7 @@ class KeyboardDialog(QDialog, GeometryMixin):
             self.edit.deselect()
         retval = self.exec_()
         answer = self.edit.text()
-        if retval:   
+        if retval:
             STATUS.emit('update-machine-log', 'keyboard Entry {}'.format(answer), 'TIME,DEBUG')
         else:
             answer = None
@@ -1788,7 +1787,7 @@ class CalculatorDialog(Calculator, GeometryMixin):
                     self.accept()
 
     def updatedialog(self, preload=None):
-        self.setWindowTitle(self._title);
+        self.setWindowTitle(self._title)
         if self.play_sound:
             STATUS.emit('play-sound', self.sound_type)
         if self._overlay:
@@ -1797,7 +1796,7 @@ class CalculatorDialog(Calculator, GeometryMixin):
             self.display.setText(str(preload))
 
     def showdialog(self, preload=None, overlay=True, cycle=False):
-        self.setWindowTitle(self._title);
+        self.setWindowTitle(self._title)
         if self.play_sound:
             STATUS.emit('play-sound', self.sound_type)
         self.set_geometry()
@@ -1968,7 +1967,7 @@ class MachineLogDialog(QDialog, GeometryMixin):
     def showdialog(self, nonblock=None):
         if nonblock is not None:
             STATUS.emit('focus-overlay-changed', True, 'Machine Log', self._color)
-        self.setWindowTitle(self._title);
+        self.setWindowTitle(self._title)
         if self.play_sound:
             STATUS.emit('play-sound', self.sound_type)
         self.set_geometry()
@@ -2039,7 +2038,7 @@ class RunFromLineDialog(QDialog, GeometryMixin):
         STATUS.connect('dialog-request', self._external_request)
 
         def homed_on_test():
-            return (STATUS.machine_is_on() 
+            return (STATUS.machine_is_on()
                     and (STATUS.is_all_homed() or INFO.NO_HOME_REQUIRED))
 
         STATUS.connect('state-off', lambda w: self.setEnabled(False))
@@ -2074,7 +2073,7 @@ class RunFromLineDialog(QDialog, GeometryMixin):
             self.label_line.setText(message)
         if not nonblock:
             STATUS.emit('focus-overlay-changed', True, 'Machine Log', self._color)
-        self.setWindowTitle(self._title);
+        self.setWindowTitle(self._title)
         if self.play_sound:
             STATUS.emit('play-sound', self.sound_type)
         self.set_geometry()
@@ -2168,7 +2167,7 @@ class AboutDialog(QDialog, GeometryMixin):
     def showdialog(self, nonblock=None):
         if nonblock is not None:
             STATUS.emit('focus-overlay-changed', True, 'Machine Log', self._color)
-        self.setWindowTitle(self._title);
+        self.setWindowTitle(self._title)
         if self.play_sound:
             STATUS.emit('play-sound', self.sound_type)
         self.set_geometry()
