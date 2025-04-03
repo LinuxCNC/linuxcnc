@@ -33,7 +33,7 @@ was pursued with success. Next up was the issue of the expensive intelligent
 motion control boards. By this time the processing power of a PC was
 considered great enough to directly take control of the motion routines.
 A quick search of available hardware resulted in the selection of a
-https://www.servotogo.com/[Servo-To-Go] interface board as the first platform
+"Servo-To-Go" interface board as the first platform
 for letting the PC directly control the motors. Software for trajectory
 planning and PID loop control was added to the existing user interface and
 RS274 interpreter. Matt successfully used this version to upgrade a couple

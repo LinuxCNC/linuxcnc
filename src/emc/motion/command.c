@@ -1675,6 +1675,11 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	        // so far like spindle stop, except opening brake
 	        emcmotStatus->spindle_status[n].brake = 0; // open brake
 
+            // https://github.com/LinuxCNC/linuxcnc/issues/3389
+            emcmotStatus->spindle_status[n].state = 0;
+            *(emcmot_hal_data->spindle[n].spindle_on) = 0;
+            // https://github.com/LinuxCNC/linuxcnc/issues/3389
+
 	        *(emcmot_hal_data->spindle[n].spindle_orient_angle) = emcmotCommand->orientation;
 	        *(emcmot_hal_data->spindle[n].spindle_orient_mode) = emcmotCommand->mode;
 	        *(emcmot_hal_data->spindle[n].spindle_locked) = 0;
