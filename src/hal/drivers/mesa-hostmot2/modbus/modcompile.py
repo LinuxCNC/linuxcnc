@@ -23,19 +23,23 @@
 import sys
 import os
 import tempfile
+import getopt
+import shutil
 
-
-def usage(exitval=0):
+def usage():
     print("""Build and install Modbus components that use the Mesa PktUART
-
 Usage:
-          modcompile device.mod  Compile and install a driver defined in
-                                 device.h
-          modcompile all         Compile and install all definition files
-                                 in this directory.
-
+  modcompile [opts] device.mod...  Compile and install a driver defined in
+                                   device.mod
+  modcompile [opts] all            Compile and install all .mod definition
+                                   files in this directory.
+Options:
+  -h|--help       This message
+  -k|--keep       Keep temporary files
+  -n|--noinstall  Don't perform the install step
+  -v|--verbose    Verbose compile
 """)
-    raise SystemExit(exitval)
+    sys.exit(2)
 
 modinc = None
 def find_modinc():
@@ -49,31 +53,70 @@ def find_modinc():
             return e
     raise SystemExit("Unable to locate Makefile.modinc")
 
-if len(sys.argv) < 2:
-    usage(0)
+def main():
+    # Get the command-line options
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "hklnv", ["help", "keep", "noinstall", "verbose"])
+    except getopt.GetoptError as err:
+        raise SystemExit(err)  # Something like "option -a not recognized"
 
-if sys.argv[1] == "all":
-    names = [f for f in os.listdir(".") if f.endswith(".mod")]
-else:
-    names = [sys.argv[1]]
+    # Check the options
+    verbose = ""
+    install = " install"
+    keep = False
+    for o, a in opts:
+        if o in ("-v", "--verbose"):
+            verbose = " V=1"
+        elif o in ("-n", "--noinstall"):
+            install = ""
+        elif o in ("-k", "--keep"):
+            keep = True
+        elif o in ("-h", "--help"):
+            usage()
+        else:
+            raise SystemExit("Unhandled option: '%s'" % o);
 
-tempdir = tempfile.mkdtemp()
-BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
-print(os.path.join(tempdir, "mesa_modbus.c"))
-os.symlink(os.path.join(BASE, "share", "linuxcnc", "mesa_modbus.c.tmpl"), os.path.join(tempdir, "mesa_modbus.c"))
-for f in names:
-    b = os.path.splitext(os.path.basename(f))[0]
-    # The module definition is #included as mesa_modbus.h
-    m = open(os.path.join(tempdir, "Makefile"), "w")
-    print("obj-m += %s.o" % b,file=m)
-    print("%s-objs:=mesa_modbus.o" % b,file=m)
-    print("include %s" % find_modinc(), file=m)
-    print("EXTRA_CFLAGS += -I%s" % tempdir, file=m)
-    print("EXTRA_CFLAGS += -DMODFILE=%s" % os.path.abspath(f), file=m)
-    print("EXTRA_CFLAGS += -D_COMP_NAME_=%s" % b, file=m)
-    m.close()
-    os.system("touch mesa_modbus.c") # Force a recompile
-    result = os.system("cd %s && make -S modules install" % tempdir)
+    if len(args) < 1:
+        raise SystemExit("Must have at least one 'file.mod' argument or 'all' for all.");
 
-    if result != 0:
-        raise SystemExit(os.WEXITSTATUS(result) or 1)
+    if len(args) > 1 and "all" in args:
+        raise SystemExit("Cannot do both 'all' modules and specific modules.");
+    if args[0] == "all":
+        args = [f for f in os.listdir(".") if f.endswith(".mod")]
+    # 'args' now contains all modules to compile
+
+    if len(args) < 1:
+        raise SystemExit("No modules found (*.mod files) to compile.");
+
+    # Create a temporary directory and copy the C template into it
+    tempdir = tempfile.mkdtemp(prefix="modcompile")
+    BASE = os.path.abspath(os.path.join(os.path.dirname(sys.argv[0]), ".."))
+    csrc = os.path.join(tempdir, "mesa_modbus.c")
+    if verbose:
+        print(csrc)
+    shutil.copy(os.path.join(BASE, "share", "linuxcnc", "mesa_modbus.c.tmpl"), csrc)
+
+    # For each module to compile...
+    for f in args:
+        modname = os.path.splitext(os.path.basename(f))[0]
+        # The module definition is #included as mesa_modbus.h
+        m = open(os.path.join(tempdir, "Makefile"), "w")
+        print("obj-m += %s.o" % modname, file=m)
+        print("%s-objs:=mesa_modbus.o" % modname, file=m)
+        print("include %s" % find_modinc(), file=m)
+        print("EXTRA_CFLAGS += -I%s" % tempdir, file=m)
+        print("EXTRA_CFLAGS += -DMODFILE=%s" % os.path.abspath(f), file=m)
+        print("EXTRA_CFLAGS += -D_COMP_NAME_=%s" % modname, file=m)
+        m.close()
+        result = os.system("cd %s && make -B -S modules %s%s" % (tempdir, install, verbose))
+        if result != 0:
+            raise SystemExit(os.WEXITSTATUS(result) or 1)
+
+    # Cleanup step
+    if keep:
+        print("Sources and build files kept in: %s" % tempdir)
+    else:
+        shutil.rmtree(tempdir)
+
+if __name__ == "__main__":
+    main()

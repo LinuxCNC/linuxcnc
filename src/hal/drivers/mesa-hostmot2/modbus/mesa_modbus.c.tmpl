@@ -38,10 +38,21 @@ MODULE_LICENSE("GPL");
 
 #define MAX_CHAN 8
 
-char error_codes[12][30]={"NULL", "Illegal Function", "Illegal Data Address",
-    "Illegal Data Value", "Server Device Failure", "Acknowledge",
-    "Server Device Busy", "Negative Acknowledge", "Memory Parity Error",
-    "Gateway Path Unavailable", "Gateway Failed to Respond", "Comm Timeout"};
+static const char *error_codes[] = {
+    "Invalid exception code 0",
+    "Illegal Function",
+    "Illegal Data Address",
+    "Illegal Data Value",
+    "Server Device Failure",
+    "Acknowledge",
+    "Server Device Busy",
+    "Negative Acknowledge",
+    "Memory Parity Error",
+    "Unknown exception code 9",
+    "Gateway Path Unavailable",
+    "Gateway Failed to Respond",
+    "Comm Timeout"
+};
 
 // This is needed by the header file
 typedef struct {
@@ -77,6 +88,17 @@ typedef struct {
 #ifndef DEBUG
 #define DEBUG 1
 #endif
+
+// Values within +/-EPSILON are considered zero
+#define EPSILON  (1e-12)
+
+// Rate is the update-hz pin frequency. There is no point in slower than once
+// every 1000 seconds or faster than 10000 times per second. The slowness of
+// the RS485/Modbus protocol prevents any real fast communication.
+// Anyway, the current implementation does not honor the frequency correctly.
+// This limit will at least prevent a divide-by-zero.
+#define RATE_MIN (1e-3)
+#define RATE_MAX (1e4)
 
 enum {
     START,
@@ -123,11 +145,11 @@ typedef struct{
     int num_pins;
     hm2_modbus_hal_t *hal;
     hm2_modbus_channel_t *chans;
-    int baudrate;
-    int parity;
-    int txdelay;
-    int rxdelay;
-    int drive_delay;
+    unsigned baudrate;
+    unsigned parity;
+    unsigned txdelay;
+    unsigned rxdelay;
+    unsigned drive_delay;
     int state;
     int index;
     int pin;
@@ -150,7 +172,6 @@ int parse_data_frame(hm2_modbus_inst_t *inst);
 int build_data_frame(hm2_modbus_inst_t *inst);
 int do_setup(hm2_modbus_inst_t *inst);
 static uint16_t RTU_CRC(rtapi_u8* buf, int len);
-static int clocklow = 0;
 
 char *ports[MAX_CHAN];
 RTAPI_MP_ARRAY_STRING(ports, MAX_CHAN, "PktUART names");
@@ -213,12 +234,12 @@ int rtapi_app_main(void){
             goto fail0;
         }
 
-        retval =  hal_param_s32_newf(HAL_RW, &(inst->hal->address), comp_id, COMP_NAME".%02i.address", i);
-        retval += hal_param_s32_newf(HAL_RW, &(inst->hal->baudrate), comp_id, COMP_NAME".%02i.baudrate", i);
-        retval += hal_param_s32_newf(HAL_RW, &(inst->hal->parity), comp_id, COMP_NAME".%02i.parity", i);
-        retval += hal_param_s32_newf(HAL_RW, &(inst->hal->txdelay), comp_id, COMP_NAME".%02i.txdelay", i);
-        retval += hal_param_s32_newf(HAL_RW, &(inst->hal->rxdelay), comp_id, COMP_NAME".%02i.rxdelay", i);
-        retval += hal_param_s32_newf(HAL_RW, &(inst->hal->drive_delay), comp_id, COMP_NAME".%02i.drive-delay", i);
+        retval =  hal_param_u32_newf(HAL_RW, &(inst->hal->address), comp_id, COMP_NAME".%02i.address", i);
+        retval += hal_param_u32_newf(HAL_RW, &(inst->hal->baudrate), comp_id, COMP_NAME".%02i.baudrate", i);
+        retval += hal_param_u32_newf(HAL_RW, &(inst->hal->parity), comp_id, COMP_NAME".%02i.parity", i);
+        retval += hal_param_u32_newf(HAL_RW, &(inst->hal->txdelay), comp_id, COMP_NAME".%02i.txdelay", i);
+        retval += hal_param_u32_newf(HAL_RW, &(inst->hal->rxdelay), comp_id, COMP_NAME".%02i.rxdelay", i);
+        retval += hal_param_u32_newf(HAL_RW, &(inst->hal->drive_delay), comp_id, COMP_NAME".%02i.drive-delay", i);
         retval += hal_param_float_newf(HAL_RW, &(inst->hal->rate), comp_id, COMP_NAME".%02i.update-hz", i);
         retval += hal_pin_bit_newf(HAL_OUT, &(inst->hal->fault), comp_id, COMP_NAME".%02i.fault", i);
         retval += hal_pin_u32_newf(HAL_OUT, &(inst->hal->last_err), comp_id, COMP_NAME".%02i.last-error", i);
@@ -258,7 +279,7 @@ int rtapi_app_main(void){
                         " for function 5, resetting\n");
                         ch->count = 1;
                     }
-                    // deliberate fall-through
+                    /* Fallthrough */
                 case 15: // write multiple coils
                     if (ch->count > 8 * MAX_MSG_LEN){
                         ch-> count = 8 * MAX_MSG_LEN;
@@ -269,7 +290,7 @@ int rtapi_app_main(void){
                         ch->count);
                     }
                     dir = HAL_IN;
-                    // deliberate fall-through
+                    /* Fallthrough */
                 case 1: // read coils
                 case 2: // read inputs
                     if (ch->count > 1){
@@ -292,7 +313,7 @@ int rtapi_app_main(void){
                         " for function %i, resetting\n", ch->func);
                         ch->count = 1;
                     }
-                    // deliberate fall-through
+                    /* Fallthrough */
                 case 16: // write multiple registers
                     if (ch->count > MAX_MSG_LEN / 2){
                         ch-> count = MAX_MSG_LEN/2;
@@ -303,7 +324,7 @@ int rtapi_app_main(void){
                         ch->count);
                     }
                     dir = HAL_IN;
-                    // deliberate fall-through
+                    /* Fallthrough */
                 case 3: // read holding registers
                 case 4: // read input registers
                     for (j = 0; j < ch->count; j++){
@@ -412,7 +433,6 @@ int rtapi_app_main(void){
 
 int do_setup(hm2_modbus_inst_t *inst){
     
-    int txmode, rxmode, filter;
     int retval;
     
     if    (inst->baudrate    == inst->hal->baudrate
@@ -483,7 +503,7 @@ void do_timeout(hm2_modbus_inst_t *inst){
 void process(void *arg, long period) {
     static long timer = 0;
     hm2_modbus_inst_t *inst = arg;
-    
+    real_t rate;
     int r;
 
     rtapi_u32 rxstatus = hm2_pktuart_get_rx_status(inst->port);
@@ -492,7 +512,8 @@ void process(void *arg, long period) {
     switch (inst->state) {
         case START:
 
-            if (inst->hal->rate > 0 && (timer -= period) > 0) break;
+            rate = inst->hal->rate;
+            if (rate >= RATE_MIN && rate <= RATE_MAX && (timer -= period) > 0) break;
 
             rtapi_print_msg(RTAPI_MSG_INFO, "START txstatus = %08X rxstatus = %08X\n", txstatus, rxstatus);
 
@@ -513,7 +534,8 @@ void process(void *arg, long period) {
             if (build_data_frame(inst)){ // if data has changed
                 r = send_modbus_pkt(inst);
                 inst->state = WAIT_FOR_SEND_BEGIN;
-                timer = 1e9 / inst->hal->rate;
+                if(rate >= RATE_MIN && rate <= RATE_MAX)
+                    timer = 1e9 / rate;
             }
 
             break;
@@ -623,7 +645,7 @@ int build_data_frame(hm2_modbus_inst_t *inst){
     hm2_modbus_channel_t *ch = &(inst->chans[inst->index]);
     hm2_modbus_hal_t hal = *inst->hal;
     rtapi_u8 acc = 0;
-    int r;
+    int r = 0;
     int p = ch->start_pin;
     int i;
 
@@ -659,8 +681,11 @@ int build_data_frame(hm2_modbus_inst_t *inst){
                 break;
             case HAL_FLOAT:
                 rtapi_print_msg(RTAPI_MSG_INFO, "671 %f %f %f \n", hal.pins[p]->f, hal.pin2[p]->f, *hal.scale[p]);
-                if (*hal.scale[p] != 0){
-                    r+= ch_append16(ch, (rtapi_u16)((hal.pins[p]->f - hal.pin2[p]->f) / *hal.scale[p])) ;
+                if (*hal.scale[p] <= -EPSILON || *hal.scale[p] >= EPSILON){
+                    r+= ch_append16(ch, (rtapi_u16)((hal.pins[p]->f - hal.pin2[p]->f) / *hal.scale[p]));
+                } else {
+                    // Prevent (near) divide-by-zero and assume scale 1.0
+                    r+= ch_append16(ch, (rtapi_u16)(hal.pins[p]->f - hal.pin2[p]->f));
                 }
                 rtapi_print_msg(RTAPI_MSG_INFO, "678\n");
                 break;
@@ -693,8 +718,11 @@ int build_data_frame(hm2_modbus_inst_t *inst){
                     r += ch_append16(ch, (rtapi_s16)hal.pins[p]->s);
                     break;
                 case HAL_FLOAT:
-                    if (*(hal.scale[p]) != 0){
+                    if (*hal.scale[p] <= -EPSILON || *hal.scale[p] >= EPSILON){
                         r+= ch_append16(ch, (rtapi_u16)((hal.pins[p]->f - hal.pin2[p]->f) / *hal.scale[p])) ;
+                    } else {
+                        // Prevent (near) divide-by-zero and assume scale 1.0
+                        r+= ch_append16(ch, (rtapi_u16)(hal.pins[p]->f - hal.pin2[p]->f));
                     }
                     break;
                 default:
@@ -719,7 +747,7 @@ int parse_data_frame(hm2_modbus_inst_t *inst){
     int b = 0;
     int p;
     int tmp;
-    rtapi_u8 bytes[MAX_MSG_LEN + 4];
+    rtapi_u8 bytes[MAX_MSG_LEN + 4] = {};
     rtapi_u16 checksum;
 
     rtapi_print_msg(RTAPI_MSG_INFO, "Return packet is ");
@@ -804,8 +832,13 @@ int parse_data_frame(hm2_modbus_inst_t *inst){
         case 143: // 15 + error bit
         case 144: // 16 + error bit
             ch->data[1] = 0xFF; // Write invalid data to force re-send
-            rtapi_print_msg(RTAPI_MSG_ERR, "Modbus error response function %i error %s\n",
-                            bytes[1] & 0x8F, error_codes[bytes[2]]);
+            if(bytes[2] < sizeof(error_codes) / sizeof(*error_codes)) {
+                rtapi_print_msg(RTAPI_MSG_ERR, "Modbus error response function %i error %s\n",
+                                bytes[1] & 0x8F, error_codes[bytes[2]]);
+            } else {
+                rtapi_print_msg(RTAPI_MSG_ERR, "Modbus error response function %i returned invalid error code %u\n",
+                                bytes[1] & 0x8F, (unsigned)bytes[2]);
+            }
             break;
         default:
             rtapi_print_msg(RTAPI_MSG_ERR, "Unknown or unsupported Modbus function code\n");
@@ -845,3 +878,4 @@ uint16_t RTU_CRC(rtapi_u8* buf, int len){
   return crc;  
 }
 
+// vim: syn=c ts=4
