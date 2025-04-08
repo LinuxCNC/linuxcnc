@@ -275,10 +275,14 @@ typedef struct {
     struct {
 
         struct {
-            hal_s32_t *rawcounts;    // raw encoder counts
-            hal_s32_t *rawlatch;     // raw encoder of latch
-            hal_s32_t *count;        // (rawcounts - zero_offset)
-            hal_s32_t *count_latch;  // (rawlatch - zero_offset)
+            hal_s32_t *rawcounts;       // raw encoder counts
+            hal_s32_t *rawlatch;        // raw encoder of latch
+            hal_s32_t *count;           // (rawcounts - zero_offset)
+            hal_s32_t *count_latch;     // (rawlatch - zero_offset)
+            hal_s64_t *rawcounts_64;    // raw encoder counts
+            hal_s64_t *rawlatch_64;     // raw encoder of latch
+            hal_s64_t *count_64;        // (rawcounts - zero_offset)
+            hal_s64_t *count_latch_64;  // (rawlatch - zero_offset)
             hal_float_t *position;
             hal_float_t *position_latch;
             hal_float_t *position_interpolated;
@@ -309,7 +313,8 @@ typedef struct {
 
     } hal;
 
-    rtapi_s32 zero_offset;  // *hal.pin.counts == (*hal.pin.rawcounts - zero_offset)
+    rtapi_s32 zero_offset;     // *hal.pin.counts == (*hal.pin.rawcounts - zero_offset)
+    rtapi_s64 zero_offset_64;  // *hal.pin.counts_64 == (*hal.pin.rawcounts_64 - zero_offset_64)
 
     rtapi_u16 prev_reg_count;  // from this and the current count in the register we compute a change-in-counts, which we add to rawcounts
 
@@ -323,6 +328,7 @@ typedef struct {
 
     // these two are the datapoint last time we moved (only valid if state == HM2_ENCODER_MOVING)
     rtapi_s32 prev_event_rawcounts;
+    rtapi_s64 prev_event_rawcounts_64;
     rtapi_u16 prev_event_reg_timestamp;
 
     rtapi_s32 tsc_num_rollovers;
