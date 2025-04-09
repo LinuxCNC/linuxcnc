@@ -362,9 +362,9 @@ rawcounts (s32 out)::
 rawcounts_64 (s64 out)::
  Total number of encoder counts since the start, not adjusted for index or reset. (64 bit)
 count_latch (s32 out)::
- Encoder count at latch event.
-counts_latch_64 (s64 out)::
- TEncoder count at latch event. (64 bit)
+ Encoder count at latch event. (index or probe)
+count_latch_64 (s64 out)::
+ Encoder count at latch event. (index or probe) (64 bit)
 input-a, input-b, input-index (bit out)::
  Real time filtered values of A,B,Index encoder signals
 quad-error-enable (bit in)::
