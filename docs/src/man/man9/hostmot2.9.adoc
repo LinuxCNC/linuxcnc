@@ -323,6 +323,8 @@ following pins and parameters:
 
 count (s32 out)::
  Number of encoder counts since the previous reset.
+count_64 (s64 out)::
+ Number of encoder counts since the previous reset (64 bit).
 position (float out)::
  Encoder position in position units (count / scale).
 position-interpolated (float out)::
@@ -350,13 +352,19 @@ probe-enable (bit in/out)::
  When this pin is set to True, the encoder count (and therefore also
  position) are latched on the the next probe active edge. At the same
  time, probe-enable is reset to zero to indicate that latch event has
- occurred.
+ occurred. (only present if supported by firmware)
 probe-invert (bit r/w)::
  If set to True, the rising edge of the probe input pin triggers the
  latch event (if probe-enable is True). If set to False, the falling
- edge triggers.
+ edge triggers. (only present if supported by firmware)
 rawcounts (s32 out)::
  Total number of encoder counts since the start, not adjusted for index or reset.
+rawcounts_64 (s64 out)::
+ Total number of encoder counts since the start, not adjusted for index or reset. (64 bit)
+count_latch (s32 out)::
+ Encoder count at latch event.
+counts_latch_64 (s64 out)::
+ TEncoder count at latch event. (64 bit)
 input-a, input-b, input-index (bit out)::
  Real time filtered values of A,B,Index encoder signals
 quad-error-enable (bit in)::
