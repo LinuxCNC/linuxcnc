@@ -202,14 +202,26 @@ void hm2_ioport_cleanup(hostmot2_t *hm2) {
 
 static int do_alias(const char *orig_base, const char *alias_base,
         const char *suffix, int (*funct)(const char *, const char *)) {
+    size_t ob = strlen(orig_base);
+    size_t ab = strlen(alias_base);
+    size_t sf = strlen(suffix);
+    if(ob + sf >= HAL_NAME_LEN) {
+        HM2_ERR_NO_LL("ioport: do_alias(): HAL name too long '%s%s' (orig_base(%zu) + suffix(%zu) >= %u\n",
+                        orig_base, suffix, ob, sf, HAL_NAME_LEN);
+        return -ENOMEM;
+    }
+    if(ab + sf >= HAL_NAME_LEN) {
+        HM2_ERR_NO_LL("ioport: do_alias(): HAL name too long '%s%s' (alias_base(%zu) + suffix(%zu) >= %u\n",
+                        alias_base, suffix, ab, sf, HAL_NAME_LEN);
+        return -ENOMEM;
+    }
     char orig_name[HAL_NAME_LEN];
     char alias_name[HAL_NAME_LEN];
-    // Take ncpy/ncat tour. Using snprintf() causes warning about possible
-    // trunctation, which in practice never happens.
-    strncpy(orig_name, orig_base, sizeof(orig_name)-1);
-    strncat(orig_name, suffix, sizeof(orig_name)-1);
-    strncpy(alias_name, alias_base, sizeof(alias_name)-1);
-    strncat(alias_name, suffix, sizeof(alias_name)-1);
+    // We know the sizes and know it fits. Using strcpy should be fine.
+    strcpy(orig_name, orig_base);
+    strcpy(orig_name + ob, suffix);
+    strcpy(alias_name, alias_base);
+    strcpy(alias_name + ab, suffix);
     return funct(orig_name, alias_name);
 }
 
