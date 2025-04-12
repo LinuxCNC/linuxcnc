@@ -15,7 +15,7 @@ QtDragon and QtDragon_hd are built with the QtVCP framework.
 It is the creative vision of forum personality Persei8.
 Much of it is based on the excellent work of others in the LinuxCNC community.
 LinuxCNC's version is adapted from Persei8's Github versions.
-It is primarily meant for 3/4 axes machines such as mills or routers.
+It is primarily meant for 3-5 axes machines such as mills or routers.
 It works well with a touchscreen and/or mouse.
 QtDragon supports multiple ways to touch off tools and probing work pieces.
 You can use LinuxCNC's external offsets capability to automatically raise the spindle during a pause.
@@ -28,15 +28,22 @@ Please forward reports to the forum or maillist.
 
 === QtDragon
 
-.QtDragon - 3 or 4 axis sample (1440x860) in silver theme
+.QtDragon - 3 to 5 axis sample (1440x860) in silver theme
 image::images/silverdragon.png["QtDragon Router",scale="25%"]
 
 QtDragon is resizable from a resolution of 1280x768 to 1680x1200.
 It will work in window mode on any monitor with higher resolution but not on monitors with lower resolution.
 
+=== QtDragon_lathe
+image::images/qtdragon_lathe.png["QtDragon Lathe",scale="25%"]
+
+QtDragon_lathe is a modified version of QtDragon more suitable for lathes. +
+It is resizable from a resolution of 1280x768 to 1680x1200. +
+It will work in window mode on any monitor with higher resolution but not on monitors with lower resolution.
+
 === QtDragon_hd
 
-.QtDragon_hd - 3 or 4 axis sample for larger monitors (1920x1056) in dark theme
+.QtDragon_hd - 3 to 5 axis sample for larger monitors (1920x1056) in dark theme
 image::images/qtdragon_hd.png["QtDragon_hd",scale="25%"]
 
 QtDragon_hd is a similar design as QtDragon but modified to utilize the extra space of modern larger monitors.
@@ -44,6 +51,10 @@ There are some small differences in layout and utility.
 
 QtDragon_hd has a resolution of 1920x1056 and is not resizeable.
 It will work in window mode on any monitor with higher resolution but not on monitors with lower resolution.
+
+=== QtDragon_hd_vertical
+
+QtDragon_hd_vertical is a vertical orientated version. It is not resizable.
 
 == Getting Started - The INI File
 
