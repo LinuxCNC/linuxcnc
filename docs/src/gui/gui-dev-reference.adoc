@@ -1,7 +1,7 @@
 :lang: en
 :toc:
 
-[[cha:qtvcp]]
+[[cha:gui-dev-reference]]
 = GUI Development Reference
 
 // Custom lang highlight
