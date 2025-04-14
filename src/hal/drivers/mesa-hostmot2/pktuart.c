@@ -532,12 +532,22 @@ int hm2_pktuart_send(char *name, const unsigned char data[], rtapi_u8 *num_frame
         r = hm2->llio->queue_write(hm2->llio, hm2->pktuart.instance[inst].tx_fifo_count_addr,
                                      &buff, sizeof(rtapi_u32));
         // Check for Send Count FIFO error
+        // XXX: We cannot do queued reads here!
+        // Doing so would trash the stack because the 'buff' variable is a
+        // local stack variable and is gone by the time the queued read is
+        // resolved. It is anybody's guess what will happen, but certainly, it
+        // will be bad.
+        // We also do not want to do non-queued reads because they would stall
+        // the thread while the queued writes above have not yet been
+        // performed. We must assume the writes will succeed and cross fingers.
+#if 0
         r = hm2->llio->queue_read(hm2->llio, hm2->pktuart.instance[inst].tx_mode_addr,
                                      &buff, sizeof(rtapi_u32));
         if ((buff >> 4) & 0x01) {
             HM2_ERR_NO_LL("%s: SCFFIFO error\n", name);
             return -HM2_PKTUART_TxSCFIFOError;
         }
+#endif
         if (r < 0){
             HM2_ERR("%s send: hm2->llio->queue_write failure\n", name);
             return -1;
