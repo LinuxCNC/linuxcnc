@@ -279,9 +279,9 @@ typedef enum {
     HAL_FLOAT = 2,
     HAL_S32 = 3,
     HAL_U32 = 4,
+    HAL_PORT = 5,
     HAL_S64 = 6,
     HAL_U64 = 7,
-    HAL_PORT = 5,
     HAL_TYPE_MAX,
 } hal_type_t;
 
