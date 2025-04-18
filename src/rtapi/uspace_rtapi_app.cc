@@ -1180,6 +1180,7 @@ unsigned char Posix::do_inb(unsigned int port)
 #ifdef HAVE_SYS_IO_H
     return inb(port);
 #else
+    (void)port;
     return 0;
 #endif
 }
@@ -1188,6 +1189,9 @@ void Posix::do_outb(unsigned char val, unsigned int port)
 {
 #ifdef HAVE_SYS_IO_H
     return outb(val, port);
+#else
+    (void)val;
+    (void)port;
 #endif
 }
 
