@@ -8,13 +8,14 @@
 # Eryk Michalak <gnu.ewm@protonmail.com>, 2023.
 # MarekP <ciupas74@gmail.com>, 2024.
 # Petter Reinholdtsen <pere-weblate@hungry.com>, 2024.
+# Camil Stevo <h8j1tavjh@mozmail.com>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: LinuxCNC\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-10-05 14:29+0200\n"
-"PO-Revision-Date: 2024-06-04 14:39+0000\n"
-"Last-Translator: Petter Reinholdtsen <pere-weblate@hungry.com>\n"
+"PO-Revision-Date: 2025-02-22 00:53+0000\n"
+"Last-Translator: Camil Stevo <h8j1tavjh@mozmail.com>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "pl/>\n"
 "Language: pl\n"
@@ -23,15 +24,14 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 5.6-dev\n"
+"X-Generator: Weblate 5.10.1-dev\n"
 
 #: src/emc/task/emctaskmain.cc:868
-#, c-format
+#, c-format, fuzzy
 msgid ""
 "command (%s) cannot be executed until the machine is out of E-stop and "
 "turned on"
-msgstr ""
-"polecenie (%s) nie może być wykonane gdy maszyna maszyna jest wyłączona"
+msgstr "polecenie (%s) nie może być wykonane gdy maszyna maszyna jest wyłączona"
 
 #: src/emc/task/emctaskmain.cc:1005
 #, c-format
@@ -157,20 +157,17 @@ msgid "H word with no G43 or G76 to use it"
 msgstr "Słowo H użyte bez G43 lub G76"
 
 #: src/emc/rs274ngc/interp_check.cc:293
-#, fuzzy
 msgid ""
 "I word with no G2, G3, G5, G5.1, G6, G6.1, G10, G33.1, G76, or G87 to use it"
-msgstr "Słowo I użyte bez G2, G3, G5, G5.1, G10, G76, lub G87"
+msgstr "Słowo I użyte bez G2, G3, G5, G5.1, G6, G6.1, G10, G33.1, G76, lub G87"
 
 #: src/emc/rs274ngc/interp_check.cc:300
-#, fuzzy
 msgid "J word with no G2, G3, G5, G5.1, G6, G6.1, G10, G76 or G87 to use it"
-msgstr "Słowo J użyte bez G2, G3, G5, G5.1, G10, G76, lub G87"
+msgstr "Słowo J użyte bez G2, G3, G5, G5.1, G6, G6.1, G10, G76 lub G87"
 
 #: src/emc/rs274ngc/interp_check.cc:305
-#, fuzzy
 msgid "K word with no G2, G3, G6.2, G33, G33.1, G76, or G87 to use it"
-msgstr "Słowo K użyte bez G2, G3, G33, G33.1, G76, lub G87"
+msgstr "Słowo K użyte bez G2, G3, G6.2, G33, G33.1, G76, lub G87"
 
 #: src/emc/rs274ngc/interp_check.cc:317
 msgid ""
@@ -1050,7 +1047,7 @@ msgid "Queue is not empty after tool change"
 msgstr "Kolejka nie jest pusta po zmianie narzędzia"
 
 #: src/emc/rs274ngc/rs274ngc_pre.cc:1852
-#, c-format
+#, c-format, fuzzy
 msgid "Unable to open parameter file: '%s'"
 msgstr "Nie można otworzyć pliku pliku z parametrami <%s>"
 
@@ -11692,7 +11689,9 @@ msgstr "Dodatnie"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid "_:"
+msgid ""
+"_:"
+""
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
