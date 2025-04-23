@@ -244,6 +244,7 @@ static int hm2_pci_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, const void *bu
 
 static int hm2_plx9030_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) {
     hm2_pci_t *board = this->private;
+    (void)board;   // otherwise ARM compile gives warning
     rtapi_u32 status, control;
 
     // set /WRITE low for data transfer, and turn on LED
@@ -287,6 +288,7 @@ fail:
 
 static int hm2_plx9030_reset(hm2_lowlevel_io_t *this) {
     hm2_pci_t *board = this->private;
+    (void)board;   // otherwise ARM compile gives warning
     rtapi_u32 status;
     rtapi_u32 control;
 
@@ -348,6 +350,7 @@ static void hm2_plx9030_fixup_LASxBRD_READY(hm2_pci_t *board) {
     for (i = 0; i < 4; i ++) {
         rtapi_u32 val;
         int addr = board->ctrl_base_addr + offsets[i];
+        (void)addr;   // otherwise ARM compile gives warning
 
         val = rtapi_inl(addr);
         if (!(val & LASxBRD_READY)) {
@@ -363,6 +366,7 @@ static void hm2_plx9030_fixup_LASxBRD_READY(hm2_pci_t *board) {
 
 static int hm2_plx9054_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) {
     hm2_pci_t *board = this->private;
+    (void)board;   // otherwise ARM compile gives warning
     unsigned i;
     rtapi_u32 status;
 
@@ -389,6 +393,9 @@ static int hm2_plx9054_reset(hm2_lowlevel_io_t *this) {
     hm2_pci_t *board = this->private;
     int i;
     rtapi_u32 status, control;
+
+    (void)board;   // otherwise ARM compile gives warning
+    (void)control;
 
     // set GPIO bits to GPIO function
     status = rtapi_inl(board->ctrl_base_addr + CTRL_STAT_OFFSET_5I22);

@@ -71,22 +71,26 @@ static int num_boards;
 //
 
 static inline void hm2_7i90_epp_addr8(rtapi_u8 addr, hm2_7i90_t *board) {
+    (void)board;
     rtapi_outb(addr, board->port.base + HM2_7I90_EPP_ADDRESS_OFFSET);
     LL_PRINT_IF(debug_epp, "selected address 0x%02X\n", addr);
 }
 
 static inline void hm2_7i90_epp_addr16(rtapi_u16 addr, hm2_7i90_t *board) {
+    (void)board;
     rtapi_outb((addr & 0x00FF), board->port.base + HM2_7I90_EPP_ADDRESS_OFFSET);
     rtapi_outb((addr >> 8),     board->port.base + HM2_7I90_EPP_ADDRESS_OFFSET);
     LL_PRINT_IF(debug_epp, "selected address 0x%04X\n", addr);
 }
 
 static inline void hm2_7i90_epp_write(int w, hm2_7i90_t *board) {
+    (void)board;
     rtapi_outb(w, board->port.base + HM2_7I90_EPP_DATA_OFFSET);
     LL_PRINT_IF(debug_epp, "wrote data 0x%02X\n", w);
 }
 
 static inline int hm2_7i90_epp_read(hm2_7i90_t *board) {
+    (void)board;
     int val;
     val = rtapi_inb(board->port.base + HM2_7I90_EPP_DATA_OFFSET);
     LL_PRINT_IF(debug_epp, "read data 0x%02X\n", val);
@@ -124,6 +128,7 @@ static inline void hm2_7i90_epp_write32(uint32_t w, hm2_7i90_t *board) {
 }
 
 static inline uint8_t hm2_7i90_epp_read_status(hm2_7i90_t *board) {
+    (void)board;
     uint8_t val;
     val = rtapi_inb(board->port.base + HM2_7I90_EPP_STATUS_OFFSET);
     LL_PRINT_IF(debug_epp, "read status 0x%02X\n", val);
@@ -131,11 +136,13 @@ static inline uint8_t hm2_7i90_epp_read_status(hm2_7i90_t *board) {
 }
 
 static inline void hm2_7i90_epp_write_status(uint8_t status_byte, hm2_7i90_t *board) {
+    (void)board;
     rtapi_outb(status_byte, board->port.base + HM2_7I90_EPP_STATUS_OFFSET);
     LL_PRINT_IF(debug_epp, "wrote status 0x%02X\n", status_byte);
 }
 
 static inline void hm2_7i90_epp_write_control(uint8_t control_byte, hm2_7i90_t *board) {
+    (void)board;
     rtapi_outb(control_byte, board->port.base + HM2_7I90_EPP_CONTROL_OFFSET);
     LL_PRINT_IF(debug_epp, "wrote control 0x%02X\n", control_byte);
 }

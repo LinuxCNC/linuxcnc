@@ -2375,6 +2375,7 @@ static void BusReset(unsigned int port_addr)
 /* tests for an EPP bus timeout, and clears it if so */
 static int ClrTimeout(unsigned int port_addr)
 {
+    (void)port_addr;
     unsigned char r;
 
     r = rtapi_inb(STATUSPORT(port_addr));
@@ -2396,6 +2397,7 @@ static int ClrTimeout(unsigned int port_addr)
 /* sets the EPP address and then reads one byte from that address */
 static unsigned short SelRead(unsigned char epp_addr, unsigned int port_addr)
 {
+    (void)epp_addr;
     unsigned char b;
     
     ClrTimeout(port_addr);
@@ -2417,6 +2419,7 @@ static unsigned short SelRead(unsigned char epp_addr, unsigned int port_addr)
    when hardware has auto-increment address cntr */
 static unsigned short ReadMore(unsigned int port_addr)
 {
+    (void)port_addr;
     unsigned char b;
     b = rtapi_inb(DATAPORT(port_addr));
     return b;
@@ -2426,6 +2429,8 @@ static unsigned short ReadMore(unsigned int port_addr)
 /* sets the EPP address and then writes one byte to that address */
 static void SelWrt(unsigned char byte, unsigned char epp_addr, unsigned int port_addr)
 {
+    (void)byte;
+    (void)epp_addr;
     ClrTimeout(port_addr);
     /* set port direction to output */
     rtapi_outb(0x04,CONTROLPORT(port_addr));
@@ -2440,6 +2445,8 @@ static void SelWrt(unsigned char byte, unsigned char epp_addr, unsigned int port
    when hardware has auto-increment address cntr */
 static void WrtMore(unsigned char byte, unsigned int port_addr)
 {
+    (void)byte;
+    (void)port_addr;
     rtapi_outb(byte,DATAPORT(port_addr));
     return;
 }
