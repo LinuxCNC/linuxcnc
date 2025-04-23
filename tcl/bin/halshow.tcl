@@ -905,17 +905,23 @@ proc watchHAL {which} {
             -fill lightgray -tag oval$i
         if {$writable == 1} {
             if {$vartype == "sig"} {
+                canvasbutton::canvasbutton $::cisp [expr $canvaswidth - 76] \
+                    [expr {$i * 20 + 4}] 24 17 "Tgl" [list hal_tgls $label] 1
                 canvasbutton::canvasbutton $::cisp [expr $canvaswidth - 48] \
                     [expr {$i * 20 + 4}] 24 17 "Set" [list hal_sets $label 1] 1
                 canvasbutton::canvasbutton $::cisp [expr $canvaswidth - 20] \
                     [expr {$i * 20 + 4}] 24 17 "Clr" [list hal_sets $label 0] 1
             } else {
+                canvasbutton::canvasbutton $::cisp [expr $canvaswidth - 76] \
+                    [expr {$i * 20 + 4}] 24 17 "Tgl" [list hal_tglp $label] 1
                 canvasbutton::canvasbutton $::cisp [expr $canvaswidth - 48] \
                     [expr {$i * 20 + 4}] 24 17 "Set" [list hal_setp $label 1] 1
                 canvasbutton::canvasbutton $::cisp [expr $canvaswidth - 20] \
                     [expr {$i * 20 + 4}] 24 17 "Clr" [list hal_setp $label 0] 1
             }
         } elseif {$writable == -1} {
+            canvasbutton::canvasbutton $::cisp [expr $canvaswidth - 76] \
+                [expr $i * 20 + 4] 24 17 "Tgl" [] 0
             canvasbutton::canvasbutton $::cisp [expr $canvaswidth - 48] \
                 [expr $i * 20 + 4] 24 17 "Set" [] 0
             canvasbutton::canvasbutton $::cisp [expr $canvaswidth - 20] \
@@ -1011,7 +1017,17 @@ proc hal_setp {label val} {
     eval hal "setp $label $val"
 }
 
+proc hal_tglp {label} {
+    set val [expr ![eval hal "getp $label"]]
+    eval hal "setp $label $val"
+}
+
 proc hal_sets {label val} {
+    eval hal "sets $label $val"
+}
+
+proc hal_tgls {label} {
+    set val [expr ![eval hal "gets $label"]]
     eval hal "sets $label $val"
 }
 
