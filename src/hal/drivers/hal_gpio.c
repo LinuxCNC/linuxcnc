@@ -165,7 +165,7 @@ int build_chips_collection(char *name, hal_gpio_bulk_t **ptr, int *count){
     struct gpiod_line *temp_line;
     
     temp_line = gpiod_line_find(name);
-    if (temp_line <= 0) {
+    if (!temp_line) {
 	    rtapi_print_msg(RTAPI_MSG_ERR, "The GPIO line %s can not be found\n", name);
 	    return -EINVAL;
     }
@@ -312,6 +312,7 @@ int rtapi_app_main(void){
 
 static void hal_gpio_read(void *arg, long period)
 {
+    (void)period;
     hal_gpio_t *gpio = arg;
     int i, c;
     for (c = 0; c < gpio->num_in_chips; c++){
@@ -325,6 +326,7 @@ static void hal_gpio_read(void *arg, long period)
 
 static void hal_gpio_write(void *arg, long period)
 {
+    (void)period;
     hal_gpio_t *gpio = arg;
     int i, c;
     for (c = 0; c < gpio->num_out_chips; c++){
