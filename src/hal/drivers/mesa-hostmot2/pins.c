@@ -662,7 +662,7 @@ const char* hm2_get_pin_secondary_hal_name(const hm2_pin_t *pin) {
         case HM2_GTAG_UART_TX:
             switch (sec_pin) {
                 case 0x1: return "tx";
-                case 0x2: return "tx-drive-enable";
+                case 0x2: return "tx-drv-en";
             }
             break;
 
@@ -674,7 +674,7 @@ const char* hm2_get_pin_secondary_hal_name(const hm2_pin_t *pin) {
         case HM2_GTAG_PKTUART_TX:
             switch (sec_pin) {
                 case 0x1: return "tx";
-                case 0x2: return "tx-drive-enable";
+                case 0x2: return "tx-drv-en";
             }
             break;
 
