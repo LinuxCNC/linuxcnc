@@ -1669,10 +1669,10 @@ const char *hm2_hz_to_mhz(rtapi_u32 freq_hz);
 void hm2_print_modules(hostmot2_t *hm2);
 
 // functions to get handles to components by name
-hm2_sserial_remote_t *hm2_get_sserial(hostmot2_t **hm2, char *name);
-int hm2_get_bspi(hostmot2_t **hm2, char *name);
-int hm2_get_uart(hostmot2_t **hm2, char *name);
-int hm2_get_pktuart(hostmot2_t **hm2, char *name);
+hm2_sserial_remote_t *hm2_get_sserial(hostmot2_t **hm2, const char *name);
+int hm2_get_bspi(hostmot2_t **hm2, const char *name);
+int hm2_get_uart(hostmot2_t **hm2, const char *name);
+int hm2_get_pktuart(hostmot2_t **hm2, const char *name);
 
 
 //
