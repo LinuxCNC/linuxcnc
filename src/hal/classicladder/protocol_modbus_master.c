@@ -256,9 +256,9 @@ int PrepPureModbusAskForCurrentReq( unsigned char * AskFrame )
 
 /* Response given here start directly with function code 
   (no IP header or Slave number) */
-char TreatPureModbusResponse( unsigned char * RespFrame, int SizeFrame )
+int TreatPureModbusResponse( unsigned char * RespFrame, int SizeFrame )
 {
-	char cError = -1;
+	int cError = -1;
 
 	if ( RespFrame[ 0 ]&MODBUS_FC_EXCEPTION_BIT )
 	{
