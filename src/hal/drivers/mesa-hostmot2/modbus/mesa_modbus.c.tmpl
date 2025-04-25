@@ -38,10 +38,21 @@ MODULE_LICENSE("GPL");
 
 #define MAX_CHAN 8
 
-char error_codes[12][30]={"NULL", "Illegal Function", "Illegal Data Address",
-    "Illegal Data Value", "Server Device Failure", "Acknowledge",
-    "Server Device Busy", "Negative Acknowledge", "Memory Parity Error",
-    "Gateway Path Unavailable", "Gateway Failed to Respond", "Comm Timeout"};
+static const char *error_codes[]={
+    "Invalid exception code 0",
+    "Illegal Function",
+    "Illegal Data Address",
+    "Illegal Data Value",
+    "Server Device Failure",
+    "Acknowledge",
+    "Server Device Busy",
+    "Negative Acknowledge",
+    "Memory Parity Error",
+    "Unknown exception code 9"
+    "Gateway Path Unavailable",
+    "Gateway Failed to Respond",
+    "Comm Timeout"
+};
 
 // This is needed by the header file
 typedef struct {
@@ -78,6 +89,17 @@ typedef struct {
 #define DEBUG 1
 #endif
 
+// Values within +/-EPSILON are considered zero
+#define EPSILON  (1e-12)
+
+// Rate is the update-hz pin frequency. There is no point in slower than once
+// every 1000 seconds or faster than 10000 times per second. The slowness of
+// the RS485/Modbus protocol prevents any real fast communication.
+// Anyway, the current implementation does not honor the frequency correctly.
+// This limit will at least prevent a divide-by-zero.
+#define RATE_MIN (1e-3)
+#define RATE_MAX (1e4)
+
 enum {
     START,
     WAIT_FOR_SEND_BEGIN,
@@ -98,12 +120,12 @@ typedef struct {
     rtapi_s64 *buff;
     hal_bit_t *fault;
     hal_u32_t *last_err;
-    hal_u32_t address;
-    hal_u32_t baudrate;
-    hal_u32_t parity;
-    hal_u32_t txdelay;
-    hal_u32_t rxdelay;
-    hal_u32_t drive_delay;
+    hal_s32_t address;
+    hal_s32_t baudrate;
+    hal_s32_t parity;
+    hal_s32_t txdelay;
+    hal_s32_t rxdelay;
+    hal_s32_t drive_delay;
     hal_float_t rate;
 } hm2_modbus_hal_t;
 
@@ -146,13 +168,12 @@ typedef struct {
 static int comp_id;
 static hm2_modbus_t *m;
 static void process(void *arg, long period);
-int parse_data_frame(hm2_modbus_inst_t *inst);
-int build_data_frame(hm2_modbus_inst_t *inst);
-int do_setup(hm2_modbus_inst_t *inst);
+static int parse_data_frame(hm2_modbus_inst_t *inst);
+static int build_data_frame(hm2_modbus_inst_t *inst);
+static int do_setup(hm2_modbus_inst_t *inst);
 static uint16_t RTU_CRC(rtapi_u8* buf, int len);
-static int clocklow = 0;
 
-char *ports[MAX_CHAN];
+static char *ports[MAX_CHAN];
 RTAPI_MP_ARRAY_STRING(ports, MAX_CHAN, "PktUART names");
 
 int rtapi_app_main(void){
@@ -258,7 +279,7 @@ int rtapi_app_main(void){
                         " for function 5, resetting\n");
                         ch->count = 1;
                     }
-                    // deliberate fall-through
+                    /* Fallthrough */
                 case 15: // write multiple coils
                     if (ch->count > 8 * MAX_MSG_LEN){
                         ch-> count = 8 * MAX_MSG_LEN;
@@ -269,7 +290,7 @@ int rtapi_app_main(void){
                         ch->count);
                     }
                     dir = HAL_IN;
-                    // deliberate fall-through
+                    /* Fallthrough */
                 case 1: // read coils
                 case 2: // read inputs
                     if (ch->count > 1){
@@ -292,7 +313,7 @@ int rtapi_app_main(void){
                         " for function %i, resetting\n", ch->func);
                         ch->count = 1;
                     }
-                    // deliberate fall-through
+                    /* Fallthrough */
                 case 16: // write multiple registers
                     if (ch->count > MAX_MSG_LEN / 2){
                         ch-> count = MAX_MSG_LEN/2;
@@ -303,7 +324,7 @@ int rtapi_app_main(void){
                         ch->count);
                     }
                     dir = HAL_IN;
-                    // deliberate fall-through
+                    /* Fallthrough */
                 case 3: // read holding registers
                 case 4: // read input registers
                     for (j = 0; j < ch->count; j++){
@@ -410,9 +431,8 @@ int rtapi_app_main(void){
 
 }
 
-int do_setup(hm2_modbus_inst_t *inst){
+static int do_setup(hm2_modbus_inst_t *inst){
     
-    int txmode, rxmode, filter;
     int retval;
     
     if    (inst->baudrate    == inst->hal->baudrate
@@ -428,10 +448,25 @@ int do_setup(hm2_modbus_inst_t *inst){
     inst->txdelay     = inst->hal->txdelay;
     inst->rxdelay     = inst->hal->rxdelay;
     inst->drive_delay = inst->hal->drive_delay;
-    
- 
-    retval  = hm2_pktuart_setup_rx(inst->port, inst->baudrate, inst->baudrate *2, inst->parity, inst->rxdelay, 1, 1);
-    retval += hm2_pktuart_setup_tx(inst->port, inst->baudrate, inst->parity, inst->txdelay, 1, 1, inst->drive_delay);
+
+    unsigned flg;
+    flg  = inst->parity != 0 ? HM2_PKTUART_CONFIG_PARITYEN : 0;
+    flg |= inst->parity == 1 ? HM2_PKTUART_CONFIG_PARITYODD : 0;
+    hm2_pktuart_config_t cfgrx = {
+        .baudrate   = inst->baudrate,
+        .filterrate = inst->baudrate * 2,
+        .drivedelay = 0,
+        .ifdelay    = inst->rxdelay,
+        .flags      = flg | HM2_PKTUART_CONFIG_RXEN | HM2_PKTUART_CONFIG_RXMASKEN
+    };
+    hm2_pktuart_config_t cfgtx = {
+        .baudrate   = inst->baudrate,
+        .filterrate = 0,
+        .drivedelay = inst->drive_delay,
+        .ifdelay    = inst->txdelay,
+        .flags      = flg | HM2_PKTUART_CONFIG_DRIVEEN | HM2_PKTUART_CONFIG_DRIVEAUTO
+    };
+    retval = hm2_pktuart_config(inst->port, &cfgrx, &cfgtx, 0);
 
     if (retval<0)
     {
@@ -442,7 +477,7 @@ int do_setup(hm2_modbus_inst_t *inst){
     return 0;
 }
 
-int send_modbus_pkt(hm2_modbus_inst_t *inst){
+static int send_modbus_pkt(hm2_modbus_inst_t *inst){
     hm2_modbus_channel_t *ch = &(inst->chans[inst->index]);
     rtapi_u16 checksum;
     rtapi_u16 fsizes[1];
@@ -463,7 +498,7 @@ int send_modbus_pkt(hm2_modbus_inst_t *inst){
     return 0;
 }
 
-void do_timeout(hm2_modbus_inst_t *inst){
+static void do_timeout(hm2_modbus_inst_t *inst){
     if (inst->state != inst->old_state){
         inst->iter = 0;
         inst->old_state = inst->state;
@@ -480,10 +515,10 @@ void do_timeout(hm2_modbus_inst_t *inst){
     rtapi_print_msg(RTAPI_MSG_INFO, "%i timeout %i\r", inst->iter, inst->state);
 }
 
-void process(void *arg, long period) {
+static void process(void *arg, long period) {
     static long timer = 0;
     hm2_modbus_inst_t *inst = arg;
-    
+    real_t rate;
     int r;
 
     rtapi_u32 rxstatus = hm2_pktuart_get_rx_status(inst->port);
@@ -492,7 +527,8 @@ void process(void *arg, long period) {
     switch (inst->state) {
         case START:
 
-            if (inst->hal->rate > 0 && (timer -= period) > 0) break;
+            rate = inst->hal->rate;
+            if (rate >= RATE_MIN && rate <= RATE_MAX && (timer -= period) > 0) break;
 
             rtapi_print_msg(RTAPI_MSG_INFO, "START txstatus = %08X rxstatus = %08X\n", txstatus, rxstatus);
 
@@ -513,7 +549,8 @@ void process(void *arg, long period) {
             if (build_data_frame(inst)){ // if data has changed
                 r = send_modbus_pkt(inst);
                 inst->state = WAIT_FOR_SEND_BEGIN;
-                timer = 1e9 / inst->hal->rate;
+                if(rate >= RATE_MIN && rate <= RATE_MAX)
+                    timer = 1e9 / rate;
             }
 
             break;
@@ -596,7 +633,7 @@ void process(void *arg, long period) {
 
 }
 
-int ch_append8(hm2_modbus_channel_t *ch, rtapi_u8 v){
+static int ch_append8(hm2_modbus_channel_t *ch, rtapi_u8 v){
     int r = 0;
     if (ch->ptr++ > MAX_MSG_LEN) return -MAX_MSG_LEN;
     if (ch->data[ch->ptr] != v) r = 1; // flag data changed
@@ -604,14 +641,14 @@ int ch_append8(hm2_modbus_channel_t *ch, rtapi_u8 v){
     return r;
 }
 
-int ch_append16(hm2_modbus_channel_t *ch, rtapi_u16 v){
+static int ch_append16(hm2_modbus_channel_t *ch, rtapi_u16 v){
     int r = 0;
     r =  ch_append8(ch, (rtapi_u8)(v >> 8));
     r += ch_append8(ch, (rtapi_u8)(v & 0xFF));
     return r;
 }
     
-int ch_init(hm2_modbus_channel_t *ch, hm2_modbus_hal_t hal){
+static int ch_init(hm2_modbus_channel_t *ch, hm2_modbus_hal_t hal){
     int r;
     ch->ptr = -1;
     r = ch_append8(ch, hal.address);
@@ -619,11 +656,11 @@ int ch_init(hm2_modbus_channel_t *ch, hm2_modbus_hal_t hal){
     return r;
 }
 
-int build_data_frame(hm2_modbus_inst_t *inst){
+static int build_data_frame(hm2_modbus_inst_t *inst){
     hm2_modbus_channel_t *ch = &(inst->chans[inst->index]);
     hm2_modbus_hal_t hal = *inst->hal;
     rtapi_u8 acc = 0;
-    int r;
+    int r = 0;
     int p = ch->start_pin;
     int i;
 
@@ -659,7 +696,7 @@ int build_data_frame(hm2_modbus_inst_t *inst){
                 break;
             case HAL_FLOAT:
                 rtapi_print_msg(RTAPI_MSG_INFO, "671 %f %f %f \n", hal.pins[p]->f, hal.pin2[p]->f, *hal.scale[p]);
-                if (*hal.scale[p] != 0){
+                if (*hal.scale[p] <= -EPSILON || *hal.scale[p] >= +EPSILON){
                     r+= ch_append16(ch, (rtapi_u16)((hal.pins[p]->f - hal.pin2[p]->f) / *hal.scale[p])) ;
                 }
                 rtapi_print_msg(RTAPI_MSG_INFO, "678\n");
@@ -693,8 +730,11 @@ int build_data_frame(hm2_modbus_inst_t *inst){
                     r += ch_append16(ch, (rtapi_s16)hal.pins[p]->s);
                     break;
                 case HAL_FLOAT:
-                    if (*(hal.scale[p]) != 0){
+                    if (*hal.scale[p] <= -EPSILON  || *hal.scale[p] >= +EPSILON){
                         r+= ch_append16(ch, (rtapi_u16)((hal.pins[p]->f - hal.pin2[p]->f) / *hal.scale[p])) ;
+                    } else {
+                        // Prevent (near) divide-by-zero and assume scale 1.0
+                        r+= ch_append16(ch, (rtapi_u16)(hal.pins[p]->f - hal.pin2[p]->f));
                     }
                     break;
                 default:
@@ -709,7 +749,7 @@ int build_data_frame(hm2_modbus_inst_t *inst){
     return r;
 }
 
-int parse_data_frame(hm2_modbus_inst_t *inst){
+static int parse_data_frame(hm2_modbus_inst_t *inst){
     hm2_modbus_channel_t *ch = &(inst->chans[inst->index]);
     hm2_modbus_hal_t hal = *inst->hal;
     rtapi_u32 *data = inst->rxdata;
@@ -719,7 +759,7 @@ int parse_data_frame(hm2_modbus_inst_t *inst){
     int b = 0;
     int p;
     int tmp;
-    rtapi_u8 bytes[MAX_MSG_LEN + 4];
+    rtapi_u8 bytes[MAX_MSG_LEN + 4] = {};
     rtapi_u16 checksum;
 
     rtapi_print_msg(RTAPI_MSG_INFO, "Return packet is ");
@@ -804,8 +844,13 @@ int parse_data_frame(hm2_modbus_inst_t *inst){
         case 143: // 15 + error bit
         case 144: // 16 + error bit
             ch->data[1] = 0xFF; // Write invalid data to force re-send
-            rtapi_print_msg(RTAPI_MSG_ERR, "Modbus error response function %i error %s\n",
-                            bytes[1] & 0x8F, error_codes[bytes[2]]);
+            if(bytes[2] < sizeof(error_codes) / sizeof(*error_codes)) {
+                rtapi_print_msg(RTAPI_MSG_ERR, "Modbus error response function %i error %s\n",
+                                bytes[1] & 0x7F, error_codes[bytes[2]]);
+            } else {
+                rtapi_print_msg(RTAPI_MSG_ERR, "Modbus error response function %i returned invalid exception code %u\n",
+                                bytes[1] & 0x7F, (unsigned)bytes[2]);
+            }
             break;
         default:
             rtapi_print_msg(RTAPI_MSG_ERR, "Unknown or unsupported Modbus function code\n");
@@ -824,7 +869,7 @@ if (m != NULL) rtapi_kfree(m);
 hal_exit(comp_id);
 }
 
-uint16_t RTU_CRC(rtapi_u8* buf, int len){
+static uint16_t RTU_CRC(rtapi_u8* buf, int len){
   uint16_t crc = 0xFFFF;
   int pos;
   int i;
@@ -845,3 +890,4 @@ uint16_t RTU_CRC(rtapi_u8* buf, int len){
   return crc;  
 }
 
+// vim: syn=c
