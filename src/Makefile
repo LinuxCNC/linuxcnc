@@ -27,7 +27,7 @@ install: install-software install-docs
 install-software: install-kernel-dep install-kernel-indep install-menu
 
 ifeq ($(origin KERNELRELEASE), undefined)
-MAKEFLAGS += --warn-undefined-variables
+#MAKEFLAGS += --warn-undefined-variables
 endif
 
 EXTRAFLAGS :=
