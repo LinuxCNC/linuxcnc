@@ -39,6 +39,7 @@ Check linuxcnc.log for debug output.
 author "Boris Skegin";
 license "GPL";
 
+include "hal/drivers/mesa-hostmot2/hostmot2-serial.h";
 include "hal/drivers/mesa-hostmot2/hostmot2.h";
 
 
@@ -167,7 +168,22 @@ EXTRA_SETUP(){ // the names parameters are passed in 'prefix'.
 	   Then we read out whatever is in the buffer, send the DISABLE STREAM
 	   datagram and only then set RXEnable bit.
 	*/
-	int retval=hm2_pktuart_setup(name, BAUDRATE , 0x0ff20,  0x007f00,1,1);
+	hm2_pktuart_config_t cfgrx = {
+		.baudrate = BAUDRATE,
+		.filterrate = 0,
+		.drivedelay = 0,
+		.ifdelay = 127,
+		.flags = HM2_PKTUART_CONFIG_FLUSH
+	};
+	hm2_pktuart_config_t cfgtx = {
+		.baudrate = BAUDRATE,
+		.filterrate = 0,
+		.drivedelay = 0,
+		.ifdelay = 255,
+		.flags = HM2_PKTUART_CONFIG_DRIVEAUTO | HM2_PKTUART_CONFIG_FLUSH
+	};
+	int retval = hm2_pktuart_config(name, &cfgrx, &cfgtx, 0);
+	// int retval=hm2_pktuart_setup(name, BAUDRATE , 0x0ff20,  0x007f00,1,1);
 	if (retval<0)
 	{
 	    rtapi_print_msg(1, "PktUART for gyro setup problem: %d\n", retval);
@@ -231,7 +247,9 @@ EXTRA_SETUP(){ // the names parameters are passed in 'prefix'.
 	}
 
 	// Now we set RxEnable bit and clear Rx/Tx registers
-	retval=hm2_pktuart_setup(name, BAUDRATE , 0x0ff20,  0x007f08,1,1);
+	cfgrx.flags |= HM2_PKTUART_CONFIG_RXEN;
+	retval = hm2_pktuart_config(name, &cfgrx, &cfgtx, 0);
+	//retval=hm2_pktuart_setup(name, BAUDRATE , 0x0ff20,  0x007f08,1,1);
 	if (retval<0)
 	{
 	 rtapi_print_msg(1, "PktUART for gyro setup problem: %d\n", retval);
