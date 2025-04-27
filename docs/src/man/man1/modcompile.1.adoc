@@ -4,17 +4,39 @@
 
 modcompile - Utility for compiling Modbus drivers
 
+== SYNOPSIS
+
+*modcompile -h*
+
+*modcompile* [*-k*] [*-n*] [*-v*] all
+
+*modcompile* [*-k*] [*-n*] [*-v*] module.mod ...
+
 == DESCRIPTION
 
-*modcompile* is used to compile modbus drivers that use the Mesa card UARTs.
+The *modcompile* utility is used to compile modbus drivers that use the PktUART
+interface of Mesa cards.
 
 See the main LinuxCNC documentation for more details.
 
 https://linuxcnc.org/docs/stable/html/drivers/mesa_modbus.html
 
+== OPTIONS
+
+*-h*, *--help*::
+  Brief help message.
+*-k*, *--keep*::
+  Keep the temporary files. The program will print a line where these are
+  located. You will be responsible for deleting them.
+*-n*, *--noinstall*::
+  Do not run the install step for the compiled module. This option is probably
+  only useful if you also use the *--keep* option.
+*-v*, *--verbose*::
+  Do a verbose build, showing all steps detailed while being performed.
+
 == SEE ALSO
 
-linuxcnc(1)*
+linuxcnc(1)
 
 Much more information about LinuxCNC and HAL is available in the
 LinuxCNC and HAL User Manuals, found at /usr/share/doc/LinuxCNC/.
