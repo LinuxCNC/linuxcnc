@@ -29,3 +29,5 @@ static const hm2_modbus_chan_descriptor_t channels[] = {
 // Create 7 scaled FP HAL pins to control holfing registers at 0x400-0x406
     {HAL_FLOAT, 16,  0x0300, 1,     "more_floats"},
 };
+
+// vim: syn=c
