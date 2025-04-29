@@ -208,8 +208,12 @@ int main(int argc, char **argv)
     PyObject *pModule, *pFunc, *pPeriodicFunc, *pClass;
     char name[] = "panelui"; 
     wchar_t *wname = Py_DecodeLocale(name, NULL);
-    Py_SetProgramName(wname);
-    Py_Initialize();
+    PyConfig config;
+    PyConfig_InitPythonConfig(&config);
+    PyConfig_SetString(&config, &config.program_name, wname);
+    Py_InitializeFromConfig(&config);
+    PyConfig_Clear(&config);
+
     PyRun_SimpleString("import pyui\n"
                      "pyui.instance = pyui.master.keyboard()\n"
                      "pyui.exit_funct = pyui.instance.exit\n"

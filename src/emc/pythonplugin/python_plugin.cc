@@ -293,9 +293,11 @@ PythonPlugin::PythonPlugin(struct _inittab *inittab) :
     abs_path(0),
     log_level(0)
 {
+  PyConfig config;
+  PyConfig_InitPythonConfig(&config);
   if (abs_path) {
     wchar_t *program = Py_DecodeLocale(abs_path, NULL);
-    Py_SetProgramName(program);
+    PyConfig_SetString(&config, &config.program_name, program);
   }
     if (inittab != NULL) {
       if (!Py_IsInitialized()) {
@@ -323,8 +325,9 @@ PythonPlugin::PythonPlugin(struct _inittab *inittab) :
         }
       }
   }
-  Py_UnbufferedStdioFlag = 1;
-  Py_Initialize();
+  config.buffered_stdio = 0;
+  Py_InitializeFromConfig(&config);
+  PyConfig_Clear(&config);
   initialize();
 }
 
@@ -392,7 +395,7 @@ int PythonPlugin::configure(const char *iniFilename,
 	log_level = atoi(inistring);
     else log_level = 0;
 
-    char pycmd[PATH_MAX];
+    char pycmd[PATH_MAX + 64];
     int n = 1;
     int lineno;
     while (NULL != (inistring = inifile.Find("PATH_PREPEND", "PYTHON",
