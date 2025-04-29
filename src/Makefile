@@ -1248,8 +1248,9 @@ modules: $(patsubst %.o,../rtlib/%.so,$(obj-m))
 ../rtlib/%.so:
 	$(ECHO) Linking $@
 	$(Q)ld -d -r -o objects/$*.tmp $^
-	$(Q)objcopy -j .rtapi_export -O binary objects/$*.tmp objects/$*.sym
-	$(Q)(echo '{ global : '; tr -s '\0' < objects/$*.sym | xargs -r0 printf '%s;\n' | grep .; echo 'local : * ; };') > objects/$*.ver
+	$(Q)objdump -w -j .rtapi_export -t objects/$*.tmp \
+	| awk 'BEGIN{print "{ global :"} /rtapi_exported_/{printf("%s;\n", substr($$6,16))} END{print "local : * ; };"}' \
+	> objects/$*.ver
 	$(Q)$(CC) -shared -Bsymbolic -Wl,--version-script,objects/$*.ver -o $@ $^ -lm $(LDFLAGS)
 	$(Q)chmod -x $@
 
