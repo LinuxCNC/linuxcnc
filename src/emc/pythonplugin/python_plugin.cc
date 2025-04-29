@@ -293,11 +293,17 @@ PythonPlugin::PythonPlugin(struct _inittab *inittab) :
     abs_path(0),
     log_level(0)
 {
+#if PY_VERSION_HEX >= 0x030800f0
   PyConfig config;
   PyConfig_InitPythonConfig(&config);
+#endif
   if (abs_path) {
     wchar_t *program = Py_DecodeLocale(abs_path, NULL);
+#if PY_VERSION_HEX >= 0x030800f0
     PyConfig_SetString(&config, &config.program_name, program);
+#else
+    Py_SetProgramName(program);
+#endif
   }
     if (inittab != NULL) {
       if (!Py_IsInitialized()) {
@@ -325,9 +331,14 @@ PythonPlugin::PythonPlugin(struct _inittab *inittab) :
         }
       }
   }
+#if PY_VERSION_HEX >= 0x030800f0
   config.buffered_stdio = 0;
   Py_InitializeFromConfig(&config);
   PyConfig_Clear(&config);
+#else
+  Py_UnbufferedStdioFlag = 1;
+  Py_Initialize();
+#endif
   initialize();
 }
 
