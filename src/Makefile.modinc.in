@@ -120,8 +120,9 @@ $(foreach mod,$(patsubst %.o,%,$(obj-m)),\
 %.so:
 	$(ECHO) Linking $@
 	$(Q)ld -d -r -o $*.tmp $^
-	$(Q)objcopy -j .rtapi_export -O binary $*.tmp $*.sym
-	$(Q)(echo '{ global : '; tr -s '\0' < $*.sym | xargs -r0 printf '%s;\n' | grep .; echo 'local : * ; };') > $*.ver
+	$(Q)objdump -w -j .rtapi_export -t $*.tmp \
+	| awk 'BEGIN{print "{ global :"} /rtapi_exported_/{printf("%s;\n", substr($$6,16))} END{print "local : * ; };"}' \
+	> $*.ver
 	$(Q)$(CC) -shared -Bsymbolic $(LDFLAGS) -Wl,--version-script,$*.ver -o $@ $^ -lm $(EXTRA_LDFLAGS)
 	$(Q)chmod -x $@
 endif
