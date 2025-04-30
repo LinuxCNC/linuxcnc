@@ -62,6 +62,7 @@ man1/mb2hal.1
 man1/mdi.1
 man1/mdro.1
 man1/melfagui.1
+man1/mesambccc.1
 man1/milltask.1
 man1/millturn.1
 man1/millturngui.1
@@ -335,6 +336,7 @@ man9/histobins.9
 man9/hm2_7i43.9
 man9/hm2_7i90.9
 man9/hm2_eth.9
+man9/hm2_modbus.9
 man9/hm2_pci.9
 man9/hm2_rpspi.9
 man9/hm2_spi.9
