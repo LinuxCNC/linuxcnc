@@ -2726,7 +2726,7 @@ auto SPINDLE_SPEED_(int s, int dir, double speed)
      //   canon.css_numerator = 0; FIXME: Do we need this?
     }
 
-    return std::move(emc_spindle_msg);
+    return emc_spindle_msg;
 }
 
 void START_SPINDLE_CLOCKWISE(int s, int wait_for_atspeed)
