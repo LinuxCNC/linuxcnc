@@ -270,9 +270,11 @@ void tooldata_format_toolline (int idx,
 #undef F_ITEM
 #undef I_ITEM
     if (tdata.comment[0]) {
-        snprintf(tmp,sizeof(tmp)," ;%s\n",tdata.comment); \
-        strncat(formatted_line,tmp,CANON_TOOL_ENTRY_LEN-1); \
-    } 
+        snprintf(tmp,sizeof(tmp)," ;%s\n",tdata.comment);
+    } else {
+        snprintf(tmp,sizeof(tmp),"\n");
+    }
+    strncat(formatted_line,tmp,CANON_TOOL_ENTRY_LEN-1);
     return;
 } // tooldata_format_toolline()
 
