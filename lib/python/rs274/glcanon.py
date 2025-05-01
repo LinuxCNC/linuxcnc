@@ -1188,20 +1188,29 @@ class GlCanonDraw:
     def draw_grid(self):
 
         view = self.get_view()
-        if view == VP: return
         rotation = math.radians(self.stat.rotation_xy % 90)
-        if rotation != 0 and view != VZ and self.get_show_relative(): return
-        permutations = [
+
+        # perspective view (code stolen from the QtPlasmac crew)
+        if view == VP:
+            def permutation(x_y_z2):
+                return x_y_z2[0], x_y_z2[1], x_y_z2[2]  # XY Z
+            def inverse_permutation(x_y_z3):
+                return x_y_z3[0], x_y_z3[1], x_y_z3[2]  # XY Z
+            self.draw_grid_permuted(rotation, permutation, inverse_permutation)
+
+        # all other views
+        else:
+            permutations = [
                 lambda x_y_z: (x_y_z[2], x_y_z[1], x_y_z[0]),  # YZ X
                 lambda x_y_z1: (x_y_z1[2], x_y_z1[0], x_y_z1[1]),  # ZX Y
                 lambda x_y_z2: (x_y_z2[0], x_y_z2[1], x_y_z2[2]),  # XY Z
-        ]
-        inverse_permutations = [
+            ]
+            inverse_permutations = [
                 lambda z_y_x: (z_y_x[2], z_y_x[1], z_y_x[0]),  # YZ X
                 lambda z_x_y: (z_x_y[1], z_x_y[2], z_x_y[0]),  # ZX Y
                 lambda x_y_z3: (x_y_z3[0], x_y_z3[1], x_y_z3[2]),  # XY Z
-        ]
-        self.draw_grid_permuted(rotation, permutations[view],
+            ]
+            self.draw_grid_permuted(rotation, permutations[view],
                 inverse_permutations[view])
 
     def all_joints_homed(self):
