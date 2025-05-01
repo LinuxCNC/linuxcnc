@@ -691,7 +691,7 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
         if STATUS.is_auto_running():
             self.highlight_line(None, line-1)
             return
-        LOG.debug('editor: got external highlight {}'.format(line))
+        LOG.verbose('editor: got external highlight {}'.format(line))
         #self.highlight_line(None, line-1)
         self.ensureLineVisible(line-1)
         #self.setSelection(line-1,0,line-1,self.lineLength(line-1)-1)
@@ -740,20 +740,20 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
 
     def select_lineup(self, w):
         line, col = self.getCursorPosition()
-        LOG.debug(line)
+        LOG.verbose(line)
         self.setCursorPosition(line-1, 0)
         self.highlight_line(None, line-1)
 
     def select_linedown(self, w):
         line, col = self.getCursorPosition()
-        LOG.debug(line)
+        LOG.verbose(line)
         self.setCursorPosition(line+1, 0)
         self.highlight_line(None, line+1)
 
     def jump_line(self, jump):
         line, col = self.getCursorPosition()
         line = line + jump
-        LOG.debug(line)
+        LOG.verbose(line)
         if line <0:
             line = 0
         elif line > self.lines()-1:
