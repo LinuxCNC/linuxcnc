@@ -1,4 +1,4 @@
-VERSION = '008.062'
+VERSION = '008.063'
 LCNCVER = '2.10'
 
 '''
@@ -482,8 +482,6 @@ class HandlerClass:
         if not os.path.isfile(updateLog):
             with open(updateLog, 'w') as f:
                 f.write(f'{time.strftime("%y-%m-%d")} Initial    V{LCNCVER}-{VERSION}\n')
-        # the gcodegraphics_patch cannot apply until the gcodegraphics widget is initialized
-        self.gcodegraphics_patch()
         self.startupTimer.start(250)
         # turning off autorepeat should always be the last thing intialized__ does
         self.autorepeat_keys(False)
@@ -498,7 +496,7 @@ class HandlerClass:
 
 #########################################################################################################################
 # CLASS PATCHING SECTION #
-# note that the gcodegraphics_patch is called after the widgets have initialized
+# note that the widget must be initialized before it can be patched (Example: gcodegraphics needs patched later)
 #########################################################################################################################
 
     # called by qtvcp.py
@@ -780,25 +778,6 @@ class HandlerClass:
                     STATUS.emit('play-sound', 'SPEAK %s ' % text)
         STATUS.emit('update-machine-log', text, 'TIME')
 
-# patched gcodegraphics functions
-    def gcodegraphics_patch(self):
-        ''' required for gcodegraphics only
-            conversational is always Z view '''
-        self.old_draw_grid = self.w.gcodegraphics.draw_grid
-        self.w.gcodegraphics.draw_grid = self.new_draw_grid
-
-    # allows grid to be drawn in P view in gcodegraphics
-    def new_draw_grid(self):
-        rotation = math.radians(STATUS.stat.rotation_xy % 90)
-        # permutation = lambda x_y_z2: (x_y_z2[0], x_y_z2[1], x_y_z2[2])  # XY Z
-
-        def permutation(x_y_z2):
-            return x_y_z2[0], x_y_z2[1], x_y_z2[2]  # XY Z
-        # inverse_permutation = lambda x_y_z3: (x_y_z3[0], x_y_z3[1], x_y_z3[2])  # XY Z
-
-        def inverse_permutation(x_y_z3):
-            return x_y_z3[0], x_y_z3[1], x_y_z3[2]  # XY Z
-        self.w.gcodegraphics.draw_grid_permuted(rotation, permutation, inverse_permutation)
 
 #########################################################################################################################
 # SPECIAL FUNCTIONS SECTION #
