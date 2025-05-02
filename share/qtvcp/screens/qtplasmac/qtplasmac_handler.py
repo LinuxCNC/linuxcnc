@@ -1,6 +1,5 @@
 VERSION = '008.062'
 LCNCVER = '2.10'
-DOCSVER = 'devel'
 
 '''
 qtplasmac_handler.py
@@ -137,6 +136,7 @@ class HandlerClass:
                 break
         self.machineName = self.iniFile.find('EMC', 'MACHINE')
         self.machineTitle = f'{self.machineName} - QtPlasmaC v{LCNCVER}-{VERSION}, powered by QtVCP and LinuxCNC'
+        self.docsVer = 'devel' if 'pre' in linuxcnc.version else LCNCVER
         self.prefsFile = os.path.join(self.PATHS.CONFIGPATH, self.machineName + '.prefs')
         self.materialFile = os.path.join(self.PATHS.CONFIGPATH, self.machineName + '_material.cfg')
         self.unitsPerMm = 1
@@ -162,7 +162,7 @@ class HandlerClass:
         if os.path.basename(self.PATHS.XML) == 'qtplasmac_9x16.ui':
             self.landscape = False
         self.upFile = os.path.join(self.PATHS.CONFIGPATH, 'user_periodic.py')
-        self.umUrl = QUrl(f'https://linuxcnc.org/docs/{DOCSVER}/html/plasma/qtplasmac.html')
+        self.umUrl = QUrl(f'https://linuxcnc.org/docs/{self.docsVer}/html/plasma/qtplasmac.html')
         KEYBIND.add_call('Key_F12', 'on_keycall_F12')
         KEYBIND.add_call('Key_F9', 'on_keycall_F9')
         KEYBIND.add_call('Key_Plus', 'on_keycall_PLUS')
