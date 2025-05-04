@@ -387,6 +387,27 @@ class App:
 
                     file.close()
 
+            # copy files for Gmoccapy remaps M6 and m61
+            if self.d.frontend == _PD._GMOCCAPY:
+                
+                # source directory
+                dirgmoccapy = os.path.join(BASE, "share", "linuxcnc", "pncconf", "gmoccapy")
+                if not os.path.exists(dirgmoccapy):
+                    dirgmoccapy = os.path.join(BASE, "src", "emc", "usr_intf", "pncconf", "gmoccapy")
+                srcmacros = os.path.join(dirgmoccapy, "macros")
+                srcpython = os.path.join(dirgmoccapy, "python")
+
+                # destination directory
+                dstmacros = os.path.join(base, "macros")
+                dstpython = os.path.join(base, "python")
+
+                # copy files
+                if not os.path.exists(dstmacros):
+                    shutil.copytree(srcmacros, dstmacros)
+                
+                if not os.path.exists(dstpython):
+                    shutil.copytree(srcpython, dstpython)
+
             if self.warning_dialog(self._p.MESS_QUIT,False):
                 Gtk.main_quit()
 
