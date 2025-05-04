@@ -416,8 +416,8 @@ def toggle_continuous_clicked(self, state):
 == Class Patch The File Manager Widget
 
 [NOTE]
-Class patching (monkey patching) is a little like _black magic_ - so use it _only if needed_.
-The Major problem is if the widget library functions are changed during development, thw function might be broken. +
+Class patching (monkey patching) is a little like _black magic_ - so use it _only as needed_.
+The Major problem is if the widget library functions are changed during development, the functions may break. +
 The File manager widget is designed to load a selected program in LinuxCNC. +
 But maybe you want to print the file name first.
 
