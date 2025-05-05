@@ -189,7 +189,6 @@ class HandlerClass:
         self.w.stackedWidget_dro.setCurrentIndex(0)
         if self.probe is not None:
             self.probe.hide()
-        self.w.btn_dimensions.setChecked(True)
         self.w.page_buttonGroup.buttonClicked.connect(self.main_tab_changed)
         self.w.selectButtonGroup.buttonClicked.connect(self.MPG_select_changed)
         self.w.filemanager_usb.showMediaDir(quiet = True)
@@ -1159,10 +1158,6 @@ class HandlerClass:
         self.add_status("{} {}".format(_translate("HandlerClass","Saving Log file to"), filename))
         with open(filename, 'w') as f:
             f.write(text)
-
-    def btn_dimensions_clicked(self, state):
-        self.w.gcodegraphics.show_extents_option = state
-        self.w.gcodegraphics.clear_live_plotter()
         
     # camview tab
     def cam_zoom_changed(self, value):

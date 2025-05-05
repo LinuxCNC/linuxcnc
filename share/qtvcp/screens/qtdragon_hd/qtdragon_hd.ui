@@ -1135,6 +1135,34 @@
                       <number>0</number>
                      </property>
                      <item>
+                      <widget class="ActionToolButton" name="actiontoolbutton_2">
+                       <property name="minimumSize">
+                        <size>
+                         <width>50</width>
+                         <height>36</height>
+                        </size>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>50</width>
+                         <height>50</height>
+                        </size>
+                       </property>
+                       <property name="text">
+                        <string>OPTN</string>
+                       </property>
+                       <property name="popupMode">
+                        <enum>QToolButton::InstantPopup</enum>
+                       </property>
+                       <property name="userViewAction" stdset="0">
+                        <bool>false</bool>
+                       </property>
+                       <property name="OptionMenuAction" stdset="0">
+                        <bool>true</bool>
+                       </property>
+                      </widget>
+                     </item>
+                     <item>
                       <widget class="ActionToolButton" name="actiontoolbutton">
                        <property name="minimumSize">
                         <size>
@@ -1152,14 +1180,17 @@
                         <string>Hold to save current view</string>
                        </property>
                        <property name="text">
-                        <string>User
-View</string>
+                        <string>USER
+VIEW</string>
                        </property>
                        <property name="checkable">
                         <bool>true</bool>
                        </property>
                        <property name="autoExclusive">
                         <bool>true</bool>
+                       </property>
+                       <property name="popupMode">
+                        <enum>QToolButton::InstantPopup</enum>
                        </property>
                        <property name="autoRaise">
                         <bool>false</bool>
@@ -1497,37 +1528,6 @@ View</string>
                        </property>
                        <property name="alt_textTemplate" stdset="0">
                         <string>%1.2f mm</string>
-                       </property>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="QPushButton" name="btn_dimensions">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="minimumSize">
-                        <size>
-                         <width>50</width>
-                         <height>40</height>
-                        </size>
-                       </property>
-                       <property name="maximumSize">
-                        <size>
-                         <width>50</width>
-                         <height>40</height>
-                        </size>
-                       </property>
-                       <property name="text">
-                        <string>D</string>
-                       </property>
-                       <property name="checkable">
-                        <bool>true</bool>
-                       </property>
-                       <property name="checked">
-                        <bool>true</bool>
                        </property>
                       </widget>
                      </item>
@@ -2033,6 +2033,13 @@ View</string>
                     </property>
                     <property name="_dtg" stdset="0">
                      <bool>false</bool>
+                    </property>
+                    <property name="grid_color" stdset="0">
+                     <color>
+                      <red>200</red>
+                      <green>137</green>
+                      <blue>138</blue>
+                     </color>
                     </property>
                     <property name="background_color" stdset="0">
                      <color>
@@ -16893,7 +16900,7 @@ ANGULAR</string>
          <number>2</number>
         </property>
         <property name="text">
-         <string>12:30:35 PM</string>
+         <string>04:31:34 AM</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -17885,22 +17892,6 @@ ANGULAR</string>
    </hints>
   </connection>
   <connection>
-   <sender>btn_dimensions</sender>
-   <signal>clicked()</signal>
-   <receiver>MainWindow</receiver>
-   <slot>btn_dimensions_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>1134</x>
-     <y>386</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>1188</x>
-     <y>-106</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>btn_home_0</sender>
    <signal>clicked()</signal>
    <receiver>MainWindow</receiver>
@@ -18082,7 +18073,7 @@ ANGULAR</string>
  </slots>
  <buttongroups>
   <buttongroup name="selectButtonGroup"/>
-  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
+  <buttongroup name="page_buttonGroup"/>
  </buttongroups>
 </ui>

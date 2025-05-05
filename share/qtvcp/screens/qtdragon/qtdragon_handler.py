@@ -189,7 +189,6 @@ class HandlerClass:
         self.w.stackedWidget.setCurrentIndex(0)
         self.w.stackedWidget_dro.setCurrentIndex(0)
         self.w.btn_spindle_pause.setEnabled(False)
-        self.w.btn_dimensions.setChecked(True)
         self.w.page_buttonGroup.buttonClicked.connect(self.main_tab_changed)
         self.w.selectButtonGroup.buttonClicked.connect(self.MPG_select_changed)
         self.w.filemanager_usb.showMediaDir(quiet = True)
