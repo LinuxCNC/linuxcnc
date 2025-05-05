@@ -694,8 +694,11 @@ class _Lcnc_Action(object):
                             'inhibit-selection-on', 'inhibit-selection-off',
                             'alpha-mode-on', 'alpha-mode-off', 'dimensions-on',
                             'dimensions-off', 'record-view', 'set-recorded-view',
-                            'set-large-dro','set-small-dro'):
+                            'set-large-dro','set-small-dro',"grid-off"):
             STATUS.emit('graphics-view-changed', view, None)
+
+    def SET_GRAPHICS_GRID_COLOR(self, color):
+        STATUS.emit('graphics-view-changed', 'GRID-COLOR', {'COLOR': color})
 
     def SET_GRAPHICS_GRID_SIZE(self, size):
         STATUS.emit('graphics-view-changed', 'GRID-SIZE', {'SIZE': size})
