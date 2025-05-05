@@ -51,11 +51,10 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
     def __init__(self, parent=None):
         super( GCodeGraphics, self).__init__(parent)
 
-        self.colors['overlay_background'] = (0.0, 0.0, 0.0)  # blue
         self._overlayColor = QColor(0, 0, 0, 0)
         self.colors['overlay_alpha'] = 0.75
         self._overlayAlpha = 0.75
-        self.colors['back'] = (0.0, 0.0, 0.75)  # blue
+        self._gridColor = QColor(0, 138, 138)
         self._backgroundColor = QColor(0, 0, 191, 150)
         self._jogColor = QColor(0, 0, 0, 0)
         self._feedColor = QColor(0, 0, 0, 0)
@@ -183,6 +182,11 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
             self.panView(args.get('X'),args.get('Y'))
         elif v == 'rotate-view':
             self.rotateView(args.get('X'),args.get('Y'))
+        elif v == 'grid-color':
+            self.setProperty('grid_color',args.get('COLOR'))
+        elif v == 'grid-off':
+            self.grid_size = 0.0
+            self.update()
         elif v == 'grid-size':
             self.grid_size = args.get('SIZE')
             self.update()
@@ -425,6 +429,16 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
     def getShowSmallOrigin(self):
         return self.show_small_origin
     _small_origin = pyqtProperty(bool, getShowSmallOrigin, setShowSmallOrigin)
+
+    def getGridColor(self):
+        return self._gridColor
+    def setGridColor(self, value):
+        self._gridColor = value
+        self.colors['grid'] = (value.redF(), value.greenF(), value.blueF())
+        self.update()
+    def resetGridColor(self):
+        self._gridColor = QColor(200, 138, 138)
+    grid_color = pyqtProperty(QColor, getGridColor, setGridColor, resetGridColor)
 
     def getOverlayColor(self):
         return self._overlayColor
