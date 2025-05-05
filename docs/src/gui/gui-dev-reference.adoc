@@ -29,7 +29,7 @@ It would be better to extend python with C/C++ modules for whatever function tha
 Currently, most screens use a combination of INI file and preference file entries to configure their functions. +
 INi text files are usually used for the common machine controller settings, while text based preference files 
 are used for more GUI related properties (such as sounds, size, colors). +
-There can be other files used for translations, stylizing and function customization. These are highly dependant 
+There can be other files used for translations, stylizing and function customization. These are highly dependent 
 on the underlying widget toolkit.
 
 === INI [DISPLAY]
@@ -146,9 +146,9 @@ MDI_COMMAND_MACRO1 = G53 G0 Z0;G53 G0 X0 Y0,Goto\nMachn\nZero
 ----
 
 === INI [FILTER]
-This sction allows setting of what files are shown in the file chooser and 
-what filter programs will preprocess it's output before sending it to linuxcnc. +
-The extensions are follows this pattern: +
+This section allows setting of what files are shown in the file chooser and 
+what filter programs will preprocess its output before sending it to linuxcnc. +
+The extensions follow this pattern: +
 PROGRAM_EXTENSION = .extension,.extension2[space]Description of extensions +
 The filter program definitions are such: +
 filter extension = program to run
