@@ -49,7 +49,7 @@ axisid = 0
 
 # Some values that need to be replaced during tuning
 replace = {
-#    f"pid.{axis}.tune-cycles": "0x40",  # Increse number of back and forth movement (default 50)
+#    f"pid.{axis}.tune-cycles": "0x40",  # Increase number of back and forth movement (default 50)
     f"pid.{axis}.tune-effort": "0.2",  # Set effort, should start low
     f"ini.{axisid}.ferror": "100",     # Extend to not trigger following error
     f"ini.{axisid}.min_ferror": "100", # Extend to not trigger following error
