@@ -715,7 +715,7 @@ function Cleanup() {
     echo "Unloading hal components" >> "$DEBUG_FILE"
     $HALCMD unload all
 
-    # Unused vaiable 'i', just a counter
+    # Unused variable 'i', just a counter
     # shellcheck disable=SC2034
     for i in $(seq 10); do
         # (the one component is the halcmd itself)
