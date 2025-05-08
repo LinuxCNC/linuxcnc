@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+        Control board: AQMD2403BLS-M
+
+        The Brushless DC motor controller as been configured to run at
+        8E1@57600. The snag is that this board will not start at that speed on
+        power up. It starts at 8E1@9600 with a risk of the first packet to be
+        discarded.
+        The board has manually been set to 57600 baud by writing the two
+        registers with values:
+        - 0x0000 to register 0x0090
+        - 0xe100 to register 0x0091
+        using the W_REGISTERS(16) function. This data is stored in non-volatile
+        memory of the board, but it is first loaded when writing 0x0001 to
+        register 0x009d, and that must be done at every boot.
+
+        The initialization will downgrade to 9600 baud (board's default) and
+        then send the config change. That will immediately change baudrate and
+        the communication is flushed using a dummy transaction.
+-->
+<mesamodbus baudrate="57600" parity="E" stopbits="1" interval="50000" suspend="true">
+  <devices> <!-- Devices on the same bus -->
+    <device address="0x01" name="bldc" />
+    <device address="0x55" name="dummy" />
+  </devices>
+  <initlist> <!-- Initialization sequences -->
+    <!-- Default baudrate for bldc board at boot -->
+    <command baudrate="9600" />
+    <!-- Flush the bus so that the receiver is in a known state. -->
+    <command device="dummy" function="W_COIL" address="0x0000" noanswer="1"><data value="0xff00" /></command>
+    <!-- Set the board to the stored higher baudrate. -->
+    <command device="bldc" function="W_REGISTER" address="0x009d" timesout="true"><data value="1" /></command>
+    <!-- Restore our real baudrate -->
+    <command baudrate="57600" />
+    <!-- Again flush the bus so that the receiver is in a known state at the new baudrate. -->
+    <command device="dummy" function="W_COIL" address="0x0000" noanswer="1"><data value="0xff00" /></command>
+  </initlist>
+  <commands> <!-- Command function sequences and HAL pin assignments -->
+    <command device="bldc" function="R_REGISTERS" address="0x0020" modbustype="U_AB" haltype="S32" scale="1">
+      <pin name="rtpwm"/>
+      <pin name="rtcurrent"/>
+      <pin name="comfreq" modbustype="S_AB"/>
+      <pin skip="1" />
+      <pin name="rtpos" modbustype="S_ABCD" scale="0"/>
+    </command>
+    <!-- Gives us the following pins:
+      - hm2_modbus.0.bldc.rtpwm            (out, s32)   (range [0..65535])
+      - hm2_modbus.0.bldc.rtpwm.offset     (in,  u64)
+      - hm2_modbus.0.bldc.rtpwm.scale      (in,  float) (must be set to 0.1)
+      - hm2_modbus.0.bldc.rtpwm.scaled     (out, float)
+      - hm2_modbus.0.bldc.rtcurrent        (out, s32)   (range [0..65535])
+      - hm2_modbus.0.bldc.rtcurrent.offset (in,  u64)
+      - hm2_modbus.0.bldc.rtcurrent.scale  (in,  float) (must be set to 0.01)
+      - hm2_modbus.0.bldc.rtcurrent.scaled (out, float)
+      - hm2_modbus.0.bldc.comfreq          (out, s32)   (range [-32768..+32767])
+      - hm2_modbus.0.bldc.comfreq.offset   (in,  s64)
+      - hm2_modbus.0.bldc.comfreq.scale    (in,  float) (must be set to 0.1)
+      - hm2_modbus.0.bldc.comfreq.scaled   (out, float)
+      - hm2_modbus.0.bldc.rtpos            (out, s32)   (range [-2147483648..+2147483647])
+
+      The start will be suspended (see top). The .scale pins will be set in
+      the hal-file. Offset pins are automatically initialized to zero.
+      Afterwards, the hal-file will enable communication.
+    -->
+  </commands>
+</mesamodbus>

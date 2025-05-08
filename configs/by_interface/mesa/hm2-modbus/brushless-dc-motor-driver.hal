@@ -1,0 +1,13 @@
+#
+# HAL file for brushless-dc-motor-driver.mbccs
+#
+# ######################################################
+# Modbus pin scaling setup
+# ######################################################
+setp hm2_modbus.0.bldc.rtpwm.scale      0.1
+setp hm2_modbus.0.bldc.rtcurrent.scale  0.01
+setp hm2_modbus.0.bldc.comfreq.scale    0.1
+
+# And come out of suspend with the right scaling factors in place
+setp hm2_modbus.0.suspend               false
+
