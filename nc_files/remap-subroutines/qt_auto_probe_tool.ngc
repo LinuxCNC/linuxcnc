@@ -32,7 +32,7 @@ o<qt_auto_probe_tool> sub
 ;        of material:" this will set and display on the Probe Settings screen the 
 ;        "Block Ht" = #<_hal[qtversaprobe.blockheight]> value in ABS coordinates.
 ;    5 - Set Coord System (G54): Use the Probe Tool and whichever probe screen is 
-;        appropriate to set the coordiate system XYZ offsets needed for your job. 
+;        appropriate to set the coordinate system XYZ offsets needed for your job. 
 ;        NOTE: Return_Option 3 uses the current local coordinate system, not just ABS coord.
 ;    6 - Prepare to Run: You may then issue a manual TnM6 command to change the tool 
 ;        before starting the job, or if the job begins with a TnM6 command before 
