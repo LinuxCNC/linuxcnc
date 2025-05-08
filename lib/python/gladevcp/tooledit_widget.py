@@ -704,7 +704,7 @@ class ToolEdit(Gtk.Box):
             pass
 
 class ExceptionMessage(Exception):
-    """ Exception to display a Message as an Eception.
+    """ Exception to display a Message as an Exception.
     Usage: raise ExceptionMessage(<message>)
     """
     def __init__(self, message):
