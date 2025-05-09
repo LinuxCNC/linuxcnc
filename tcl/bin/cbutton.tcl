@@ -51,10 +51,10 @@
  #
  # Parameters:
  #       w       Path name of the canvas
- #       x0      Canvas X co-ordinate of left edge
- #       y0      Canvas Y co-ordinate of top edge
- #       x1      Canvas X co-ordinate of right edge
- #       y1      Canvas Y co-ordinate of bottom edge
+ #       x0      Canvas X coordinate of left edge
+ #       y0      Canvas Y coordinate of top edge
+ #       x1      Canvas X coordinate of right edge
+ #       y1      Canvas Y coordinate of bottom edge
  #       text    Text to display in the button
  #       cmd     Command to execute when the button is selected.
  #

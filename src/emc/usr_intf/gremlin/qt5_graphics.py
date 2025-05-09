@@ -813,7 +813,7 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
         GL.glEnable(GL.GL_CULL_FACE)
         return
 
-    # redraws the screen aprox every 100ms
+    # redraws the screen approx every 100ms
     def paintGL(self):
         #GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
         #GL.glLoadIdentity() # reset the model-view matrix
