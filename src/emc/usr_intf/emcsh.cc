@@ -135,7 +135,7 @@
 
   emc_spindle (spindle_number) (none) | forward | reverse | increase | decrease | constant | off
   With no spindle_number defaults to spindle 0. This is a little different
-  from the default behaviour elsewhere where specifyin no spindle affects all spindles.
+  from the default behaviour elsewhere where specifying no spindle affects all spindles.
   With no arg, returns the value of the spindle state as "forward",
   "reverse", "increase", "decrease", or "off". With arg, sends the spindle
   command. Note that "increase" and "decrease" will cause a speed change in
