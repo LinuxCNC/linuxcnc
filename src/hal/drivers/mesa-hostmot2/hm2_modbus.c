@@ -2559,7 +2559,7 @@ errout:
 /*                        Main entry and exit point                        */
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - */
 
-static void cleanup()
+static void docleanup(void)
 {
 	if(comp_id >= 0)
 		hal_exit(comp_id);
@@ -2986,12 +2986,12 @@ int rtapi_app_main(void)
 	return 0;
 
 errout:
-	cleanup();
+	docleanup();
 	return retval;
 }
 
 void rtapi_app_exit(void)
 {
-	cleanup();
+	docleanup();
 }
 // vim: syn=c ts=4
