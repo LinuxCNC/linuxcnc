@@ -131,7 +131,7 @@ Note that a number of incorrect commutations will have non-zero net torque which
 
 If your motor lacks documentation it might be worth trying every pattern.
 
-.ie '\*[.T]'html' \\{\\
+.ie '\\*[.T]'html' \\{\\
 .HTML \\
 <STYLE> \\
 #pattern TD { text-align: center; padding-left: .5ex; padding-right: .5ex } \\
@@ -313,7 +313,7 @@ This can be over-ridden by the \\fBT\\fR tag. Sinusoidal commutation is signific
 To use an encoder for commutation a reference 0-degrees point must be found.
 The component uses the convention that motor zero is the point that an unloaded
 motor aligns to with a positive voltage on the A (or U) terminal and the B & C
-(or V and W) terminals connected together and to \-ve voltage. There will be
+(or V and W) terminals connected together and to -ve voltage. There will be
 two such positions on a 4-pole motor, 3 on a 6-pole and so on. They are all
 functionally equivalent as far as driving the motor is concerned.
 If the motor has Hall sensors then the motor can be started in trapezoidal
