@@ -2161,10 +2161,12 @@ static int load_mbccb(hm2_modbus_inst_t *inst, const char *fname)
 	// Done reading, now test format
 	static const rtapi_u8 signature[8] = {'M','e','s','a','M','B','0','1'};
 	if(memcmp(signature, mbccb->sig, sizeof(signature))) {
-		MSG_ERR("%s: error: Invalid signature in mbccb file: '", inst->name);
+		char buf[sizeof(mbccb->sig)+1];
 		for(unsigned i = 0; i < sizeof(mbccb->sig); i++)
-			MSG_ERR("%c", isprint(mbccb->sig[i]) ? mbccb->sig[i] : '?');
-		MSG_ERR("', expected 'MesaMB01'\n");
+			buf[i] = isprint(mbccb->sig[i]) ? mbccb->sig[i] : '?';
+		buf[sizeof(mbccb->sig)] = 0;
+		MSG_ERR("%s: error: Invalid signature in mbccb file: '%s' (expected 'MesaMB01')\n", inst->name, buf);
+		MSG_ERR("%s: error: Have you compiled the mbccs source into a binary mbccb file using mesambccc?\n", inst->name);
 		goto errout;
 	}
 
@@ -2208,7 +2210,7 @@ static int load_mbccb(hm2_modbus_inst_t *inst, const char *fname)
 		goto errout;
 	}
 
-	if(mbccb->icdelay > 0x3fc) {
+	if(mbccb->icdelay > 0xff) {
 		MSG_ERR("%s: error: Mbccb icdelay %u out of range [0..255]\n", inst->name, mbccb->icdelay);
 		goto errout;
 	}
