@@ -2480,7 +2480,7 @@ static int load_mbccb(hm2_modbus_inst_t *inst, const char *fname)
 					MSG_ERR("%s: error: Mbccb cmds %u, pin %u has invalid haltype %u\n", inst->name, c, x, xtype[x].htype);
 					goto errout;
 				}
-				if(xtype[x].htype & ~MBCCB_PINF_MASK) {
+				if(xtype[x].flags & ~MBCCB_PINF_MASK) {
 					MSG_ERR("%s: error: Mbccb cmds %u, pin %u has invalid flags 0x%02x\n", inst->name, c, x, xtype[x].flags);
 					goto errout;
 				}
