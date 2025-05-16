@@ -263,7 +263,7 @@ class TouchDoubleSpinBox(TouchSpinBox):
         self.entry.setText('{:4.3f}'.format(value))
 
     def setText(self, text):
-        self.entry.setText('{:4.3f}'.format(text))
+        self.entry.setText('{:4.3f}'.format(float(text)))
 
     def entryUpdate(self):
         print('Update:',self.entry.text())
