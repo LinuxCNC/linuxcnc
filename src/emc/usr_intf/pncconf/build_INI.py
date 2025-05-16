@@ -174,6 +174,17 @@ class INI:
                 p =.001
             print ("RS274NGC_STARTUP_CODE = G{} G40 G90 G94 G97 G64 P{}".format(unit,p), file=file)
 
+        if self.d.frontend == _PD._GMOCCAPY:
+            print("SUBROUTINE_PATH = ./macros", file=file)
+            print("REMAP=M6  modalgroup=6 prolog=change_prolog ngc=change_g43 epilog=change_epilog", file=file)
+            print("REMAP=M61  modalgroup=6 prolog=settool_prolog ngc=settool_g43 epilog=settool_epilog", file=file)
+            print(file=file)
+            print("# the Python plugins serves interpreter and task", file=file)
+            print("[PYTHON]", file=file)
+            print("PATH_PREPEND = ./python", file=file)
+            print("TOPLEVEL = ./python/toplevel.py", file=file)
+            print("LOG_LEVEL = 0", file=file)
+
         #base_period = self.d.ideal_period()
 
         print(file=file)
