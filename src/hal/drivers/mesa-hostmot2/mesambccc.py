@@ -1510,6 +1510,16 @@ def main():
             else:
                 perr("Invalid/unknown tag '{}'".format(node.tag))
 
+    # If no <initlist> tag is present, create an empty one
+    if None == initlist:
+        initlist = []
+
+    # It is an error if no <commands> tag is present or the list is empty
+    if None == commands:
+        perr("Missing <commands> tag")
+    elif len(commands) < 1:
+        perr("No <command> tags defined in <commands>")
+
     # Quit if a parse error occurred
     if errorflag:
         return 1
