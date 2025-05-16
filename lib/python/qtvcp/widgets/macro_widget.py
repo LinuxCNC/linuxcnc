@@ -140,11 +140,11 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
         hbox = QtWidgets.QHBoxLayout()
         self.runButton = QtWidgets.QPushButton("Run")
         self.runButton.pressed.connect(self.runChecked)
-        self.saveButton = QtWidgets.QPushButton("save")
+        self.saveButton = QtWidgets.QPushButton("Save")
         self.saveButton.pressed.connect(self.saveChecked)
         self.saveButton.setVisible(False)
 
-        self.loadButton = QtWidgets.QPushButton("load")
+        self.loadButton = QtWidgets.QPushButton("Load")
         self.loadButton.pressed.connect(self.loadChecked)
         self.loadButton.setVisible(False)
         self.closeButton = QtWidgets.QPushButton("Close")
@@ -433,11 +433,12 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                             option_dict={}
                             if 'MACROOPTIONS' in fourth_line:
                                 options = fourth_line.split('=')[1]
+                                options = options.lstrip(' ')
                                 o = options.split(',')
                                 for i in(o):
                                     h,g = i.split(':')
                                     option_dict['%s'%h.upper()]=g
-                                #print option_dict
+                                #print (option_dict)
 
                             # add the list then add svg info, then options
                             self[name] = [temp]
@@ -524,7 +525,8 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                         self.loadButton.setVisible(True)
                     if name == 'SAVE':
                         self.saveButton.setVisible(True)
-            except: pass
+            except Exception as e:
+                print(e)
 
         return calluser
 
