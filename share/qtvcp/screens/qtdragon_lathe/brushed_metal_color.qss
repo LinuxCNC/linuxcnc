@@ -575,5 +575,27 @@ EditorBase {
     qproperty-styleColor6: #111155;/* Axes Values */
     qproperty-styleColor7: #111155;/* Other Values */
 }
+MacroTab CustomButton{
+    width: 20px;
+    height: 40px;
+}
 
+MacroTab QPushButton {
+    width: 80px;
+    height: 40px;
+}
+
+MacroTab QLabel {
+    font: 18pt "Lato Heavy";
+}
+
+TouchSpinBox  LineEdit {
+    font: 14pt "Lato Heavy";
+}
+
+TouchSpinBox  QPushButton {
+    width: 60px;
+    height: 100px;
+}
+ 
 

@@ -511,3 +511,38 @@ Bar#hal_bar_spindle_rpm{
     qproperty-indicatorColor: #0044ff;
     qproperty-split:20;
 }
+
+NCamWindow {
+    background: lightgray;
+}
+NCamWindow QToolButton {
+background: lightgray;}
+
+ QToolBar {
+      background: lightgray;
+      spacing: 3px; /* spacing between items in the tool bar */
+  }
+
+MacroTab CustomButton{
+    width: 20px;
+    height: 40px;
+}
+
+MacroTab QPushButton {
+    width: 80px;
+    height: 40px;
+}
+
+MacroTab QLabel {
+    font: 18pt "Lato Heavy";
+}
+
+TouchSpinBox  LineEdit {
+    font: 14pt "Lato Heavy";
+}
+
+TouchSpinBox  QPushButton {
+    width: 60px;
+    height: 100px;
+}
+ 
