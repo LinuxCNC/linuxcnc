@@ -247,10 +247,21 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
 
                         # make appropriate entries:
                         # radio buttons?
-                        if name[1].lower() in('false', 'true'):
-                            self['%s%d' % (tName, n)] = QtWidgets.QRadioButton()
-                            if name[1].lower() == 'true':
-                                self['%s%d' % (tName, n)].setChecked(True)
+                        if 'false' in name[1].lower() or 'true' in name[1].lower():
+                            if 'check' in name[1].lower():
+                                self['%s%d' % (tName, n)] = QtWidgets.QCheckBox()
+                                if name[1].lower() == 'true':
+                                    self['%s%d' % (tName, n)].setChecked(True)
+                            elif 'radio' in name[1].lower():
+                                self['%s%d' % (tName, n)] = QtWidgets.QRadioButton()
+                                if name[1].lower() == 'true':
+                                    self['%s%d' % (tName, n)].setChecked(True)
+                            else:
+                                self['%s%d' % (tName, n)] = QtWidgets.QPushButton()
+                                self['%s%d' % (tName, n)].setCheckable(True)
+                                if name[1].lower() == 'true':
+                                    self['%s%d' % (tName, n)].setChecked(True)
+
                         # line edits that will pop an entry dialog:
                         else:
                             if checkIfFloat(name[1]):
@@ -550,13 +561,15 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                 # Python v3.
                 readLine = str(readLine, encoding='utf8')
             widget,data,title = readLine.split(',')
-            #print widget,data,title,name
+            #print (widget,data,bool(data),title,name)
             if name in widget:
                 # set widgets to data:
                 # Look for a radio button instance so we can convert to integers
                 # other wise we assume text
-                if isinstance(self[widget], QtWidgets.QRadioButton):
-                    self[widget].setChecked(bool(data))
+                if isinstance(self[widget], QtWidgets.QRadioButton) or \
+                    isinstance(self[widget], QtWidgets.QCheckBox) or \
+                    isinstance(self[widget], QtWidgets.QPushButton):
+                    self[widget].setChecked(int(data))
                 else:
                     self[widget].setText(str(data))
 
@@ -572,7 +585,9 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                 widgetname = '%s%d' % (name, num)
                 # Look for a radio button instance so we can convert to bool
                 # other wise we assume text
-                if isinstance(self[widgetname], QtWidgets.QRadioButton):
+                if isinstance(self[widgetname], QtWidgets.QRadioButton) or \
+                    isinstance(self[widgetname], QtWidgets.QCheckBox) or \
+                    isinstance(self[widgetname], QtWidgets.QPushButton):
                     data = str(1 * int(self[widgetname].isChecked()))
                 else:
                     data = str(self[widgetname].text())
