@@ -153,6 +153,9 @@ class _IStat(object):
         self.VALID_PROGRAM_EXTENSIONS = self.get_all_valid_extensions()
 
         self.PARAMETER_FILE = (self.INI.find("RS274NGC", "PARAMETER_FILE")) or None
+        if self.PARAMETER_FILE is None and self.LINUXCNC_IS_RUNNING:
+            log.critical('Missing PARAMETER_FILE setting in RS274NGC section')
+
         try:
             # check the INI file if UNITS are set to mm"
             # first check the global settings
