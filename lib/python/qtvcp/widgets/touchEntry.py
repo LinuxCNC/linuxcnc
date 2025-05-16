@@ -115,12 +115,16 @@ class TouchSpinBox(QWidget):
     def text(self):
         return self.entry.text()
 
+    def setText(self, text):
+        self.entry.setText(text)
+        self._value = int(text)
+
     def value(self):
-        return float(self.entry.text())
+        return int(self.entry.text())
 
     def setValue(self, value):
-        self._value = value
-        self.entry.setText(str(value))
+        self._value = int(value)
+        self.entry.setText(str(self._value))
 
     # class patch or should we call a dialog from here too?
     def callDialog(self,widget):
@@ -257,6 +261,9 @@ class TouchDoubleSpinBox(TouchSpinBox):
 
     def setValue(self, value):
         self.entry.setText('{:4.3f}'.format(value))
+
+    def setText(self, text):
+        self.entry.setText('{:4.3f}'.format(text))
 
     def entryUpdate(self):
         print('Update:',self.entry.text())
