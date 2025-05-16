@@ -1,0 +1,31 @@
+Hostmot2 Modbus using Mesa cards and PktUART
+
+These examples are based on the hm2-stepper 3-axis config. Please configure the IP address in the ini file.
+
+
+Getting started
+---------------
+You first need to flash your Mesa card with a bit-file that supports one or more PktUART interfaces. The PktUART version should be version 3 or later. Version 2 is supported, but there are known bugs in version 2 and several features are missing.
+
+You should be able to see the PktUART interfaces listed when you have flashed the PktUART bitfile.
+
+
+Wiring
+------
+Most Modbus systems are RS-485 2-wire configuration. On your Mesa card connector, you must to connect RX- to TX- (Modbus wire 'A') and RX+ to TX+ (Modbus wire 'B'). Depending your configuration, you may need to add a termination resistor (120 Ohm) if your Mesa card does not supply that option.
+
+
+Practical examples
+------------------
+There are several examples in here to get you going with the hm2_modbus driver. The examples are based on the 7i96s Ethernet board, but should be easily ported to other boards.
+
+Running the examples requires you to compile the MBCCS (Modbus Command Control Source) files into binary MBCCB (Modbus Command Control Binary) files using the mesambccc utility. See the manual page mesambccc(1) for details.
+
+Example compile:
+  $ mesambccc -o out.mbccb in.mbccs
+Add the -v flag for verbose information about settings and pins.
+
+
+Writing MBCCS files
+-------------------
+The file format is described in the mesambccc utility's manual page mesambccc(1).

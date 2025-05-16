@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+        See setup comments in:
+        - brushless-dc-motor-driver.mbccs
+        - waveshare-modbus-rtu-relay-d.mbccs
+-->
+<mesamodbus baudrate="57600" parity="E" stopbits="1" interval="50000" suspend="true">
+  <devices> <!-- Devices on the same bus -->
+    <device address="0x01" name="bldc"><description>BLDC Control board AQMD2403BLS-M</description></device>
+    <device address="0x02" name="wavebox"><description>A Waveshare "Modbus RTU Relay (D)" box</description></device>
+    <device address="0x55" name="dummy" />
+  </devices>
+  <initlist> <!-- Initialization sequences -->
+    <!-- Default baudrate for bldc board at boot -->
+    <command baudrate="9600" />
+
+    <!-- Flush the bus so that the receiver is in a known state. -->
+    <command device="dummy" function="W_COIL" address="0x0000" noanswer="1"><data value="0xff00" /></command>
+
+    <!-- Set the board to the stored higher baudrate. -->
+    <command device="bldc" function="W_REGISTER" address="0x009d" timesout="true"><data value="1" /></command>
+
+    <!-- Restore our real baudrate -->
+    <command baudrate="57600" />
+
+    <!-- Again flush the bus so that the receiver is in a known state at the new baudrate. -->
+    <!-- This will also bring the wavebox in a known state -->
+    <command device="dummy" function="W_COIL" address="0x0000" noanswer="1"><data value="0xff00" /></command>
+  </initlist>
+  <commands> <!-- Command function sequences and HAL pin assignments -->
+    <command device="bldc" function="R_REGISTERS" address="0x0020" modbustype="U_AB" haltype="S32" scale="1">
+      <pin name="rtpwm"/>
+      <pin name="rtcurrent"/>
+      <pin name="comfreq" modbustype="S_AB"/>
+      <pin skip="1" />
+      <pin name="rtpos" modbustype="S_ABCD" scale="0"/>
+    </command>
+    <!-- Gives us the following pins:
+      - hm2_modbus.0.bldc.rtpwm            (out, s32)   (range [0..65535])
+      - hm2_modbus.0.bldc.rtpwm.offset     (in,  u64)
+      - hm2_modbus.0.bldc.rtpwm.scale      (in,  float) (must be set to 0.1)
+      - hm2_modbus.0.bldc.rtpwm.scaled     (out, float)
+      - hm2_modbus.0.bldc.rtcurrent        (out, s32)   (range [0..65535])
+      - hm2_modbus.0.bldc.rtcurrent.offset (in,  u64)
+      - hm2_modbus.0.bldc.rtcurrent.scale  (in,  float) (must be set to 0.01)
+      - hm2_modbus.0.bldc.rtcurrent.scaled (out, float)
+      - hm2_modbus.0.bldc.comfreq          (out, s32)   (range [-32768..+32767])
+      - hm2_modbus.0.bldc.comfreq.offset   (in,  s64)
+      - hm2_modbus.0.bldc.comfreq.scale    (in,  float) (must be set to 0.1)
+      - hm2_modbus.0.bldc.comfreq.scaled   (out, float)
+      - hm2_modbus.0.bldc.rtpos            (out, s32)   (range [-2147483648..+2147483647])
+
+      The start will be suspended (see top). The .scale pins will be set in
+      the hal-file. Offset pins are automatically initialized to zero.
+      Afterwards, the hal-file will enable communication.
+    -->
+
+    <command device="wavebox" function="R_INPUTS" address="0x0000" count="8" name="switch" />
+    <!-- Gives us the following pins:
+        - Eight switch inputs on the box are HAL output pins
+            * hm2_modbus.0.wavebox.switch-00 (out, HAL_BIT)
+            * ...
+            * hm2_modbus.0.wavebox.switch-07 (out, HAL_BIT)
+    -->
+
+    <!--
+        Note: We write at the /end/ of the list because writing only occurs if a
+        pin changes. Doing it last in the list makes the previous commands more
+        timing stable because they are "seen" first every time when the timer
+        runs.
+        Assuming that the interval is longer than the time it takes for the
+        commands to be handled.
+    -->
+    <command device="wavebox" function="W_COILS" address="0x0000" count="8" name="relay" />
+    <!-- Gives us the following pins:
+        - Eight relay outputs on the box are HAL input pins
+            * hm2_modbus.0.wavebox.relay-00 (in, HAL_BIT)
+            * ...
+            * hm2_modbus.0.wavebox.relay-07 (in, HAL_BIT)
+    -->
+  </commands>
+</mesamodbus>

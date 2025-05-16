@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mesamodbus baudrate="38400" parity="E" interval="100000">
+  <devices>
+    <device name="rs485io" address="0x11" />
+  </devices>
+  <initlist>
+  </initlist>
+  <commands>
+    <command device="rs485io" address="0x1000" function="R_REGISTERS" modbustype="U_ABCD" haltype="HAL_U32" name="potu" count="2" />
+    <command device="rs485io" address="0x2000" function="R_REGISTERS" modbustype="S_ABCD" haltype="HAL_S32" name="pots" count="2" />
+    <command device="rs485io" address="0x3000" function="R_REGISTERS" modbustype="F_ABCD" haltype="HAL_FLOAT" name="potf" count="2" />
+    <command device="rs485io" address="0x4000" function="R_REGISTERS" modbustype="F_HGFEDCBA" haltype="HAL_FLOAT" name="potd" count="1" />
+    <command device="rs485io" address="0x0000" function="R_INPUTS" name="button" count="4" />
+    <command device="rs485io" address="0x0000" function="W_COILS" name="led" count="6" />
+  </commands>
+</mesamodbus>
