@@ -1424,6 +1424,35 @@ It is a comma separated list of keyword and data:
  *`SAVE:yes`*::
   Shows a save button.
 
+==== MacroTab Stylesheets
+
+Here are stylesheet hints for adjusting the MacroTab widget.
+
+[source,{css}]
+----
+MacroTab CustomButton{
+    width: 20px;
+    height: 40px;
+}
+
+MacroTab QPushButton {
+    width: 80px;
+    height: 40px;
+}
+
+MacroTab QLabel {
+    font: 24pt "Lato Heavy";
+}
+
+TouchSpinBox  LineEdit {
+    font: 12pt "Lato Heavy";
+}
+
+TouchSpinBox  QPushButton {
+    width: 60px;
+    height: 100px;
+}
+----
 [[sub:qtvcp:widgets:operatorvalueline]]
 === `OperatorValueLine` - Operator Value Line Entry Widget
 
