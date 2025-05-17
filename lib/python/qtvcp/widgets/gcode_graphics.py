@@ -139,6 +139,7 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         self.set_highlight_line(None)
 
     def set_view_signal(self, view, args):
+        #print(view,args)
         v = view.lower()
         if v == 'clear':
             self.clear_live_plotter()
@@ -175,9 +176,13 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         elif v == 'overlay-offsets-off':
             self.setShowOffsets(False)
         elif v == 'overlay-dro-on':
-            self.setdro(True)
+            self.setProperty('_dro',True)
         elif v == 'overlay-dro-off':
-            self.setdro(False)
+            self.setProperty('_dro',False)
+        elif v == 'dtg-on':
+            self.setProperty('_dtg',True)
+        elif v == 'dtg-off':
+            self.setProperty('_dtg',False)
         elif v == 'pan-view':
             self.panView(args.get('X'),args.get('Y'))
         elif v == 'rotate-view':
@@ -215,8 +220,10 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
         elif v == 'scroll-mode':
             m = args.get('MODE')
             self.setScrollMode(int(m))
-        else:
+        elif v in('x', 'y', 'y2', 'z', 'z2', 'p'):
             self.set_view(v)
+        else:
+            LOG.error('view signal not recognized: {}'.format(v))
 
     def load_program(self, g, fname):
         LOG.debug('load the display: {}'.format(fname))
@@ -382,10 +389,9 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
 
     # DRO
     def setdro(self, state):
-        self.enable_dro = state
-        self.update()
+        self.setEnableDRO(state)
     def getdro(self):
-        return self.enable_dro
+        return self.getEnableDRO()
     _dro = pyqtProperty(bool, getdro, setdro)
 
     # DTG
