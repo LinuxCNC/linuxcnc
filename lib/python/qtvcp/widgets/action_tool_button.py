@@ -78,6 +78,21 @@ class ActionToolButton(QToolButton, IndicatedMixIn):
             self.showDimsAct.triggered.connect(self.showDims)
             settingMenu.addAction(self.showDimsAct)
 
+            self.showDROAct = QAction( 'Show DRO', settingMenu, checkable=True)
+            self.showDROAct.setChecked(False)
+            self.showDROAct.triggered.connect(self.showDRO)
+            settingMenu.addAction(self.showDROAct)
+
+            self.showDTGAct = QAction( 'Show DTG', settingMenu, checkable=True)
+            self.showDTGAct.setChecked(False)
+            self.showDTGAct.triggered.connect(self.showDTG)
+            settingMenu.addAction(self.showDTGAct)
+
+            self.showLargeAct = QAction( 'Large Font', settingMenu, checkable=True)
+            self.showLargeAct.setChecked(False)
+            self.showLargeAct.triggered.connect(self.showLarge)
+            settingMenu.addAction(self.showLargeAct)
+
             self.setMenu(settingMenu)
 
 
@@ -126,6 +141,24 @@ class ActionToolButton(QToolButton, IndicatedMixIn):
         self._gridSize = size
         if self.showGridAct.isChecked():
             ACTION.SET_GRAPHICS_GRID_SIZE(size)
+
+    def showDRO(self, data):
+        if data:
+            ACTION.SET_GRAPHICS_VIEW('overlay-dro-on')
+        else:
+            ACTION.SET_GRAPHICS_VIEW('overlay-dro-off')
+
+    def showDTG(self, data):
+        if data:
+            ACTION.SET_GRAPHICS_VIEW('dtg-on')
+        else:
+            ACTION.SET_GRAPHICS_VIEW('dtg-off')
+
+    def showLarge(self, data):
+        if data:
+            ACTION.SET_GRAPHICS_VIEW('set-large-dro')
+        else:
+            ACTION.SET_GRAPHICS_VIEW('set-small-dro')
 
     ###################################################
     # helper functions
