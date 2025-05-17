@@ -1363,10 +1363,13 @@ This must be the _second line_ in the O-word file.
 
 It is a *comma separated list of the default values for each variable* in the O-word function.
 
-If you use the word `radiotrue` or `radiofalse` in the list, a `*radiobutton*` will be shown. +
+If you use the word `radiotrue`, `radiofalse`, `true` or `false` in the list, a `*radiobutton*` will be shown. +
 If you use the word `checktrue` or `checkfalse` in the list, a `*checkbox*` will be shown. +
-If you use the word `true` or `false` in the list, a `*Checkable Pushbutton*` will be shown. +
-If the default has a decimal, macroTab assumes ypu want a float value otherwise an integer.
+If you use the word `buttontrue` or `buttonfalse` in the list, a `*Checkable Pushbutton*` will be shown. +
+If the default has a decimal, macroTab assumes you want a float value otherwise an integer.
+
+NOTE: When using radiobuttons, only set one radiobutton as true. Radio button are used for exclusive 
+choices.
 
 .`MACROIMAGE`
 

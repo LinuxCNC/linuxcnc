@@ -246,27 +246,30 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                         l = QtWidgets.QLabel(name[0])
 
                         # make appropriate entries:
-                        # radio buttons?
+                        # radio/check/push buttons?
                         if 'false' in name[1].lower() or 'true' in name[1].lower():
                             if 'check' in name[1].lower():
                                 self['%s%d' % (tName, n)] = QtWidgets.QCheckBox()
-                                if name[1].lower() == 'true':
+                                if 'true' in name[1].lower():
                                     self['%s%d' % (tName, n)].setChecked(True)
                             elif 'radio' in name[1].lower():
                                 self['%s%d' % (tName, n)] = QtWidgets.QRadioButton()
-                                if name[1].lower() == 'true':
+                                if 'true' in name[1].lower():
                                     self['%s%d' % (tName, n)].setChecked(True)
-                            else:
+                            elif 'button' in name[1].lower():
                                 self['%s%d' % (tName, n)] = QtWidgets.QPushButton()
                                 self['%s%d' % (tName, n)].setCheckable(True)
-                                if name[1].lower() == 'true':
+                                if 'true' in name[1].lower():
+                                    self['%s%d' % (tName, n)].setChecked(True)
+                            # legacy default
+                            else:
+                                self['%s%d' % (tName, n)] = QtWidgets.QRadioButton()
+                                if 'true' in name[1].lower():
                                     self['%s%d' % (tName, n)].setChecked(True)
 
                         # line edits that will pop an entry dialog:
                         else:
                             if checkIfFloat(name[1]):
-                                #self['%s%d' % (tName, n)] = QtWidgets.QLineEdit()
-                                #self['%s%d' % (tName, n)].setText(name[1])
                                 self['%s%d' % (tName, n)] = TouchDoubleSpinBox()
                                 self['%s%d' % (tName, n)].callDialog = self.getNumbers
                                 self['%s%d' % (tName, n)].setValue(float(name[1]))
@@ -285,7 +288,6 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
 
                             self['%s%d' % (tName, n)]._label = name[0]
                             self['%s%d' % (tName, n)]._tabName = tName
-                            #self.set_style(self['%s%d' % (tName, n)])
                             self['%s%d' % (tName, n)].keyboard_type = 'numeric'
 
                         hbox2.addWidget(l)
