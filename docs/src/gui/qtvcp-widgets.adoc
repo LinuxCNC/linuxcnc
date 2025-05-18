@@ -1420,7 +1420,7 @@ If the keyword is present but the entries are missing, no images will be used.
 
 This _optional line must be the fourth_ line in the O-word file.
 
-It is a comma separated list of keyword and data, all of wgich are optional:
+It is a comma separated list of keyword and data, all of which are optional:
 
 *`LOAD:yes`*::
   Shows a load button.
