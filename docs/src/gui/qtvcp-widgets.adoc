@@ -1420,12 +1420,17 @@ If the keyword is present but the entries are missing, no images will be used.
 
 This _optional line must be the fourth_ line in the O-word file.
 
-It is a comma separated list of keyword and data:
+It is a comma separated list of keyword and data, all of wgich are optional:
 
 *`LOAD:yes`*::
   Shows a load button.
  *`SAVE:yes`*::
   Shows a save button.
+*`DEFAULT:ThisMacroData.txt`*::
+  Sets the default preselected filename when loading/saving data for this macro. +
+  It can be any valid filename but must end in '.txt'
+*`PATH:~/linuxcnc/nc_files/mySavedMacrosData`*::
+  Sets the default directory folder to preselect when loading/saving data for this macro.
 
 ==== MacroTab Stylesheets
 
