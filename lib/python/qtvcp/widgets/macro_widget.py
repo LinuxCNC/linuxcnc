@@ -630,11 +630,21 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
     # do this so the system is consistent and things like dialog
     # placement are done.
     def getFileName(self):
+        macro = self.stack.currentWidget().objectName()
+        dirct = self[macro][2].get('PATH')
+        defaultfilename = self[macro][2].get('DEFAULT')
         mess = {'NAME':self.load_dialog_code,'ID':'%s__' % self.objectName(),
             'TITLE':'Load Macro',
             'FILENAME':'%s_data.txt' % str(self.stack.currentWidget().objectName()),
             'EXTENSIONS':'Text Files (*.txt);;ALL Files (*.*)'
             }
+        if not defaultfilename is None:
+            mess['FILENAME'] = defaultfilename
+        else:
+            pass
+            #mess['FILENAME'] = '{}_data.txt'.format( str(self.stack.currentWidget().objectName()))
+        if not dirct is None:
+            mess['DIRECTORY'] = dirct
         STATUS.emit('dialog-request', mess)
 
     # request the system to pop a save path picker dialog
