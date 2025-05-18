@@ -2,7 +2,7 @@
 conversational.py
 
 Copyright (C) 2019 - 2024 Phillip A Carter
-Copyright (C) 2020 - 2024 Gregory D Carl
+Copyright (C) 2020 - 2025 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -87,18 +87,22 @@ def conv_setup(P, W):
     P.ySaved = '0.000'
     P.convBlock = [False, False]
     if not P.oldConvButton:
-        conv_shape_request(P, W, 'conv_line', True)
+        conv_shape_request(P, W, 'conv_line')
     else:
-        conv_shape_request(P, W, P.oldConvButton, True)
+        conv_shape_request(P, W, P.oldConvButton)
 
 
 def conv_new_pressed(P, W, button):
-    if button and (W.conv_save.isEnabled() or W.conv_send.isEnabled() or P.convPreviewActive):
+    if button and (W.conv_save.isEnabled() or W.conv_send.isEnabled() or P.convPreviewActive or P.oldConvButton == 'conv_block'):
         head = _translate('HandlerClass', 'Unsaved Shape')
         btn1 = _translate('HandlerClass', 'CONTINUE')
         btn2 = _translate('HandlerClass', 'CANCEL')
-        msg0 = _translate('HandlerClass', 'You have an unsaved, unsent, or active previewed shape')
-        msg1 = _translate('HandlerClass', 'If you continue it will be deleted')
+        if P.oldConvButton == 'conv_block':
+            msg0 = _translate('HandlerClass', 'A loaded file from the MAIN tab is being previewed')
+            msg1 = _translate('HandlerClass', 'If you continue it will be removed from the Conversational preview')
+        else:
+            msg0 = _translate('HandlerClass', 'You have an unsaved, unsent, or active previewed shape')
+            msg1 = _translate('HandlerClass', 'If you continue it will be deleted')
         if not P.dialog_show_yesno(QMessageBox.Warning, f'{head}', f'{msg0}\n\n{msg1}\n', f'{btn1}', f'{btn2}'):
             return
     if P.oldConvButton == 'conv_line':
@@ -124,6 +128,8 @@ def conv_new_pressed(P, W, button):
     P.validShape = False
     conv_preview_button(P, W, False)
     conv_enable_tabs(P, W)
+    if P.oldConvButton == 'conv_block':
+        conv_shape_request(P, W, 'conv_line')
 
 
 def conv_save_pressed(P, W):
@@ -152,6 +158,7 @@ def conv_save_pressed(P, W):
 
 
 def conv_settings_pressed(P, W):
+    W.conv_material.hide()
     P.color_item(P.oldConvButton, P.foreColor, 'button')
     W[P.oldConvButton].setStyleSheet(f'QPushButton {{ background: {P.backColor} }} \
                                      QPushButton:pressed {{ background: {P.backColor} }}')
@@ -193,10 +200,10 @@ def conv_block_pressed(P, W):
                 #     return
                 elif 'M3' in line or 'm3' in line:
                     break
-    conv_shape_request(P, W, W.sender().objectName(), False)
+    conv_shape_request(P, W, W.sender().objectName())
 
 
-def conv_shape_request(P, W, shape, material):
+def conv_shape_request(P, W, shape):
     if shape == 'conv_line':
         module = CONVLINE
     elif shape == 'conv_circle':
@@ -229,10 +236,10 @@ def conv_shape_request(P, W, shape, material):
         if P.convPreviewActive and not conv_active_shape(P, W):
             return
         conv_preview_button(P, W, False)
-    if material:
-        W.conv_material.show()
-    else:
+    if shape == 'conv_block':
         W.conv_material.hide()
+    else:
+        W.conv_material.show()
     # we use exception handlers here as there may be no signals connected
     try:
         W.conv_material.currentTextChanged.disconnect()

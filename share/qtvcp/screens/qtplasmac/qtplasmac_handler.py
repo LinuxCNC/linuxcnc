@@ -1,4 +1,4 @@
-VERSION = '008.063'
+VERSION = '008.064'
 LCNCVER = '2.10'
 
 '''
@@ -3184,7 +3184,7 @@ class HandlerClass:
         elif operation == 'send':
             self.CONV.conv_send_pressed(self, self.w)
         else:
-            self.CONV.conv_shape_request(self, self.w, f'conv_{operation}', True)
+            self.CONV.conv_shape_request(self, self.w, f'conv_{operation}')
 
     def set_axes_and_joints(self):
         self.coordinates = 'xyz'  # backup in case we cannot find valid coordinates
