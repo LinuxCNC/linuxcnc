@@ -661,6 +661,8 @@ class FileDialog(QFileDialog, GeometryMixin):
         self.load_dialog()
 
     def load_dialog(self, extensions = None, preselect = None, directory = None, return_path=False):
+        #print(extensions,preselect,os.path.expanduser(directory))
+
         self.setFileMode(QFileDialog.ExistingFile)
         self.setAcceptMode(QFileDialog.AcceptOpen)
 
@@ -668,14 +670,15 @@ class FileDialog(QFileDialog, GeometryMixin):
             self.setNameFilter(extensions)
         else:
             self.setNameFilter(self.INI_exts)
+        if directory:
+            self.setDirectory(os.path.expanduser(directory))
+        else:
+            self.setDirectory(self.default_path)
         if preselect:
             self.selectFile(preselect)
         else:
             self.selectFile('')
-        if directory:
-            self.setDirectory(directory)
-        else:
-            self.setDirectory(self.default_path)
+
         self.setWindowTitle('Open')
         STATUS.emit('focus-overlay-changed', True, 'Open Gcode', self._color)
         if self.play_sound:
@@ -699,19 +702,22 @@ class FileDialog(QFileDialog, GeometryMixin):
         return fname
 
     def save_dialog(self, extensions = None, preselect = None, directory = None):
+
         self.setFileMode(QFileDialog.AnyFile)
         self.setAcceptMode(QFileDialog.AcceptSave)
         self.setDefaultSuffix('ngc')
+
         if extensions:
             self.setNameFilter(extensions)
         else:
             self.setNameFilter(self.INI_exts)
+        if directory:
+            self.setDirectory(os.path.expanduser(directory))
         if preselect:
             self.selectFile(preselect)
         else:
             self.selectFile(' ')
-        if directory:
-            self.setDirectory(directory)
+
         self.setWindowTitle('Save')
         STATUS.emit('focus-overlay-changed', True, 'Save Gcode', self._color)
         if self.play_sound:
