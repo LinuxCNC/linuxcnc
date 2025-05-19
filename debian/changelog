@@ -10,6 +10,19 @@ linuxcnc (1:2.10.0~pre0) UNRELEASED; urgency=medium
 
  -- Pushkar Kulkarni <pushkar.kulkarni@canonical.com>  Mon, 24 Mar 2025 20:50:08 +0530
 
+linuxcnc (1:2.9.4-2) unstable; urgency=medium
+
+  * Team upload.
+
+  * Adding build dependency on pyqt5.qtweb{engine,kit} to avoid build
+    failures on, as kindly addressed by Adrian <Bunk>. (Closes: #1100882)
+  * Re-applied Petter's change to address usrmerge, kindly pointed out
+    by Michael <Biebl>. (Closes: #1101346, #1073692)
+  * Bumped policy to 4.7.2.
+  * Now truly added Andy to Uploaders.
+
+ -- Steffen Moeller <moeller@debian.org>  Mon, 14 Apr 2025 00:10:01 +0200
+
 linuxcnc (1:2.9.4-1) unstable; urgency=medium
 
   * Team upload.

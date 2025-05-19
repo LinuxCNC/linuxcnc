@@ -149,7 +149,7 @@ src/emc/usr_intf/axis/README usr/share/doc/@MAIN_PACKAGE_NAME@/axis
 debian/linuxcnc-uspace.metainfo.xml usr/share/metainfo
 
 debian/extras/etc /
-debian/extras/lib /
+debian/extras/lib /usr
 
 debian/extras/usr/share/icons usr/share
 

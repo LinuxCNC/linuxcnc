@@ -395,7 +395,7 @@ static int hm2_plx9054_reset(hm2_lowlevel_io_t *this) {
     control = status | DONE_ENABLE_5I22 | _PROG_ENABLE_5I22;
     rtapi_outl(control, board->ctrl_base_addr + CTRL_STAT_OFFSET_5I22);
 
-    // Turn off /PROGRAM bit and insure that DONE isn't asserted
+    // Turn off /PROGRAM bit and ensure that DONE is not asserted
     rtapi_outl(control & ~_PROGRAM_MASK_5I22, board->ctrl_base_addr + CTRL_STAT_OFFSET_5I22);
 
     status = rtapi_inl(board->ctrl_base_addr + CTRL_STAT_OFFSET_5I22);
@@ -412,7 +412,7 @@ static int hm2_plx9054_reset(hm2_lowlevel_io_t *this) {
 
     // Delay for at least 100 uS. to allow the FPGA to finish its reset
     // sequencing.  3300 reads is at least 100 us, could be as long as a
-    // few ms
+    // few ms.
     for (i = 0; i < 3300; i++) {
         status = rtapi_inl(board->ctrl_base_addr + CTRL_STAT_OFFSET);
     }
