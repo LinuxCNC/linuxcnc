@@ -1012,10 +1012,10 @@ endif
 endif
 
 obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_test.o hm2_pci.o hm2_7i43.o hm2_7i90.o setsserial.o
+obj-$(CONFIG_HOSTMOT2) += hm2_modbus.o
 ifeq ($(BUILD_SYS),uspace)
 obj-$(CONFIG_HOSTMOT2) += hm2_eth.o
 obj-$(CONFIG_HOSTMOT2) += hm2_spi.o hm2_rpspi.o hm2_spix.o
-obj-$(CONFIG_HOSTMOT2) += hm2_modbus.o
 endif
 hostmot2-objs :=			  \
     hal/drivers/mesa-hostmot2/hostmot2.o  \
