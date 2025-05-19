@@ -1012,8 +1012,10 @@ endif
 endif
 
 obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_test.o hm2_pci.o hm2_7i43.o hm2_7i90.o setsserial.o
+obj-$(CONFIG_HOSTMOT2) += hm2_modbus.o
 ifeq ($(BUILD_SYS),uspace)
-obj-$(CONFIG_HOSTMOT2) += hm2_eth.o hm2_spi.o hm2_rpspi.o hm2_spix.o
+obj-$(CONFIG_HOSTMOT2) += hm2_eth.o
+obj-$(CONFIG_HOSTMOT2) += hm2_spi.o hm2_rpspi.o hm2_spix.o
 endif
 hostmot2-objs :=			  \
     hal/drivers/mesa-hostmot2/hostmot2.o  \
@@ -1076,6 +1078,9 @@ hm2_spix-objs  :=			  \
     hal/drivers/mesa-hostmot2/spix_spidev.o \
     hal/drivers/mesa-hostmot2/llio_info.o \
     hal/drivers/mesa-hostmot2/eshellf.o \
+    $(MATHSTUB)
+hm2_modbus-objs  :=			  \
+    hal/drivers/mesa-hostmot2/hm2_modbus.o \
     $(MATHSTUB)
 hm2_test-objs :=			  \
     hal/drivers/mesa-hostmot2/hm2_test.o  \
@@ -1354,6 +1359,7 @@ endif
 ../rtlib/hm2_spi$(MODULE_EXT): $(addprefix objects/rt,$(hm2_spi-objs))
 ../rtlib/hm2_rpspi$(MODULE_EXT): $(addprefix objects/rt,$(hm2_rpspi-objs))
 ../rtlib/hm2_spix$(MODULE_EXT): $(addprefix objects/rt,$(hm2_spix-objs))
+../rtlib/hm2_modbus$(MODULE_EXT): $(addprefix objects/rt,$(hm2_modbus-objs))
 ../rtlib/hal_bb_gpio$(MODULE_EXT): $(addprefix objects/rt,$(hal_bb_gpio-objs))
 ../rtlib/hal_pi_gpio$(MODULE_EXT): $(addprefix objects/rt,$(hal_pi_gpio-objs))
 ifdef LIBGPIOD_VER
