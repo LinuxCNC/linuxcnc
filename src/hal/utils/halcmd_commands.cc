@@ -1359,16 +1359,16 @@ int do_unloadrt_cmd(char *mod_name)
 	halcmd_error("component '%s' is not loaded\n", mod_name);
 	return -1;
     }
-    /* we now have a list of components, unload them */
-    n = 0;
+    /* we now have a list of components, unload them in reverse order */
+    n -= 1;
     retval1 = 0;
-    while ( comps[n][0] != '\0' ) {
+    while ( n >= 0 ) {
         // special case: initial prefix means it is not a real comp
         if (strstr(comps[n],HAL_PSEUDO_COMP_PREFIX) == comps[n] ) {
-           n++;
+           n--;
            continue;
         }
-	retval = unloadrt_comp(comps[n++]);
+	retval = unloadrt_comp(comps[n--]);
 	/* check for fatal error */
 	if ( retval < -1 ) {
 	    return retval;
