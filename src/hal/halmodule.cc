@@ -704,6 +704,9 @@ PyTypeObject halobject_type = {
     0,                         /*tp_vectorcall*/
 #if PY_VERSION_HEX >= 0x030c00f0	// 3.12
     0,                         /*tp_watched*/
+#if PY_VERSION_HEX >= 0x030d00f0	// 3.13
+    0,                         /*tp_versions_used*/
+#endif
 #endif
 #endif
 };
@@ -866,6 +869,9 @@ PyTypeObject halpin_type = {
     0,                         /*tp_vectorcall*/
 #if PY_VERSION_HEX >= 0x030c00f0	// 3.12
     0,                         /*tp_watched*/
+#if PY_VERSION_HEX >= 0x030d00f0	// 3.13
+    0,                         /*tp_versions_used*/
+#endif
 #endif
 #endif
 };
@@ -1671,6 +1677,9 @@ PyTypeObject shm_type = {
     0,                         /*tp_vectorcall*/
 #if PY_VERSION_HEX >= 0x030c00f0	// 3.12
     0,                         /*tp_watched*/
+#if PY_VERSION_HEX >= 0x030d00f0	// 3.13
+    0,                         /*tp_versions_used*/
+#endif
 #endif
 #endif
 };
@@ -1918,6 +1927,9 @@ PyTypeObject stream_type = {
     0,                         /*tp_vectorcall*/
 #if PY_VERSION_HEX >= 0x030c00f0	// 3.12
     0,                         /*tp_watched*/
+#if PY_VERSION_HEX >= 0x030d00f0	// 3.13
+    0,                         /*tp_versions_used*/
+#endif
 #endif
 #endif
 };
