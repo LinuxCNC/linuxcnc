@@ -778,7 +778,7 @@ def handleInits(inits):
         if len(set(cmd.attrib).intersection(RATEATTRIB)) > 0:
             # Set override communication parameters
             checkAttribs(cmd.attrib, RATEATTRIB, lil)
-            cfgs = verifyConfigParams(CONFIGDEFAULT | cmd.attrib)    # Setup new config set
+            cfgs = verifyConfigParams({**CONFIGDEFAULT, **cmd.attrib})    # Setup new config set
             if None == cfgs:
                 perr("Invalid communication parameters in {}".format(lil))
                 continue
@@ -1460,7 +1460,7 @@ def main():
 
     # Merge and check the comms attributes
     global configparams
-    configparams = verifyConfigParams(configparams | root.attrib)
+    configparams = verifyConfigParams({**configparams, **root.attrib})
     if None == configparams:
         return 1
 
