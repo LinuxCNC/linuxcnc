@@ -74,14 +74,16 @@ Any other parameters than the ones above are created by the card itself
 from data in the remote firmware. They may be set in the HAL file using
 "setp" in the usual way.
 
-NOTE: Because a Smart-Serial remote can only communicate non-process
- data to the host card in setup mode, it is necessary to stop and
- re-start the smart-serial port associated with the card to alter the
- value of a parameter.
+=== NOTE
 
-NOTE: in the case of parameters beginning with "nv" (which are
- stored in non-volatile memory) the effect will not be seen until after
- the next power cycle of the drive.
+Because a Smart-Serial remote can only communicate non-process
+data to the host card in setup mode, it is necessary to stop and
+re-start the smart-serial port associated with the card to alter the
+value of a parameter.
+
+On the case of parameters beginning with "nv" (which are
+stored in non-volatile memory) the effect will not be seen until after
+the next power cycle of the drive.
 
 Unchanged values will not be re-written so it is safe to leave the
 "setp" commands in the HAL file or delete them as you see fit.
