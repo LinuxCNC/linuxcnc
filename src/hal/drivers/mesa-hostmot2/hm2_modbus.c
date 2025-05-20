@@ -761,8 +761,9 @@ static void process(void *arg, long period)
 		// Are we handling init commands?
 		if(handling_inits(inst)) {
 			// Yes, prepare and send
+			hm2_modbus_cmd_t *cc;
 retry_next_init:
-			hm2_modbus_cmd_t *cc = current_cmd(inst);
+			cc = current_cmd(inst);
 			if(0 == cc->cmd.func) {
 				// Special meta command
 				if(0 == cc->cmd.imetacmd) {			// This is a delay command
@@ -1985,8 +1986,9 @@ static ssize_t read_mbccb(const hm2_modbus_inst_t *inst, const char *fname, hm2_
 	}
 
 	// Read the entire file
+	ssize_t err;
 retry_read:
-	ssize_t err = read(fd, *pmbccb, sb.st_size);
+	err = read(fd, *pmbccb, sb.st_size);
 	if(err < 0) {
 		ssize_t rv = -errno;
 		if(errno == EINTR)
