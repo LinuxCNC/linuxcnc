@@ -130,7 +130,10 @@ class TreeItem(object):
 
     def row(self):
         if self.parentItem:
-            return self.parentItem.childItems.index(self)
+            try:
+                return self.parentItem.childItems.index(self)
+            except:
+                pass
         return 0
 
     def canMoveUp(self):

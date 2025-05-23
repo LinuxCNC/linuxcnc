@@ -2888,6 +2888,7 @@ class NCam():
         #    self.treeview.set_cursor(next_path)
 
         self.action()
+        # TODO select next feature -this one has been deleted!
         self.get_selected_feature()
 
     def action_collapse(self, *arg) :

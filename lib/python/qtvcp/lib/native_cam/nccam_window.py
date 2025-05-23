@@ -554,6 +554,7 @@ class NCamWindow(QMainWindow, NCam):
                 print('can add to group?',s)
                 self.can_add_to_group = ('type="items"' in s) and \
                         (self.iter_selected_type == tv_select.feature)
+
             # no lower sibling
             else :
                 self.can_add_to_group = False
