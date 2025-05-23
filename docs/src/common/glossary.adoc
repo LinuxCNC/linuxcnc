@@ -73,8 +73,8 @@ CNC::
     turning cranks to move a cutting tool, CNC uses a computer and motors
     to move the tool, based on a part program.
 
-Comp::
-     (((comp))) A tool used to build, compile and install LinuxCNC HAL
+Halcompile::
+     (((halcompile))) A tool used to build, compile and install LinuxCNC HAL
     components.
 
 Configuration(n)::
