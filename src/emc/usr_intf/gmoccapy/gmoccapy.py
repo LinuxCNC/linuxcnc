@@ -4009,7 +4009,8 @@ class gmoccapy(object):
         if self.stat.spindle[0]['speed'] == 0:
             speed = self.stat.settings[2]
         else:
-            speed = self.stat.spindle[0]['speed']
+            #speed = self.stat.spindle[0]['speed'] does not work in G96 mode due to a bug in the status channel
+            speed = hal.get_value("spindle.0.speed-out")
         self.widgets.active_speed_label.set_label("{0:.0f}".format(abs(speed)))
         self.widgets.lbl_spindle_act.set_text("S {0}".format(int(round(speed * self.spindle_override))))
 
@@ -4075,7 +4076,19 @@ class gmoccapy(object):
     def on_ntb_tool_code_info_switch_page(self, widget, page, page_num):
         self.prefs.putpref("info_tab_page", page_num, int)
 
-    def on_rbt_forward_clicked(self, widget, data=None):
+    # This is for handling mouse clicks on the GUI button
+    def on_rbt_reverse_released(self, widget, data=None):
+        if widget.get_active():
+            widget.set_image(self.widgets.img_spindle_reverse_on)
+            self._set_spindle("reverse")
+        else:
+            widget.set_image(self.widgets.img_spindle_reverse)
+        # Toggling the sensitive property is important here! See the commit description.
+        widget.set_sensitive(not widget.get_sensitive())
+        widget.set_sensitive(not widget.get_sensitive())
+
+    # This is for handling mouse clicks on the GUI button
+    def on_rbt_forward_released(self, widget, data=None):
         if widget.get_active():
             widget.set_image(self.widgets.img_spindle_forward_on)
             self._set_spindle("forward")
@@ -4085,10 +4098,20 @@ class gmoccapy(object):
         widget.set_sensitive(not widget.get_sensitive())
         widget.set_sensitive(not widget.get_sensitive())
 
+    # This is for handling self.widgets.rbt_forward.set_active(True)
+    def on_rbt_forward_clicked(self, widget, data=None):
+        if widget.get_active():
+            widget.set_image(self.widgets.img_spindle_forward_on)
+        else:
+            widget.set_image(self.widgets.img_spindle_forward)
+        # Toggling the sensitive property is important here! See the commit description.
+        widget.set_sensitive(not widget.get_sensitive())
+        widget.set_sensitive(not widget.get_sensitive())
+
+    # This is for handling self.widgets.rbt_reverse.set_active(True)
     def on_rbt_reverse_clicked(self, widget, data=None):
         if widget.get_active():
             widget.set_image(self.widgets.img_spindle_reverse_on)
-            self._set_spindle("reverse")
         else:
             widget.set_image(self.widgets.img_spindle_reverse)
         # Toggling the sensitive property is important here! See the commit description.
