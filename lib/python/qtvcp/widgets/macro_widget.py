@@ -38,7 +38,6 @@ LOG = logger.getLogger(__name__)
 # Set the log level for this module
 if not INFO.LINUXCNC_IS_RUNNING:
     LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
-LOG.setLevel(logger.DEBUG)
 try:
     from PyQt5 import QtSvg
 except:
@@ -236,6 +235,7 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
                     # add labels and edits
                     # self[tName][0] is the list of name text and defaults pairs
                     for n, name in enumerate(self[tName][0]):
+                        LOG.verbose('{} {}'.format(tName, name))
                         #print('int------>',self[tName])
                         # if no list of names then continue looking
                         if name[0]=='':continue
@@ -485,9 +485,11 @@ class MacroTab(QtWidgets.QWidget, _HalWidgetBase):
         for num, i in enumerate(self[name][0]):
             # check for macro that needs no data
             if i == ('', ''):break
-            # Look for a radio button instance so we can convert to integers
+            # Look for button widget instance so we can convert to integers
             # other wise we assume text
-            if isinstance(self['%s%d' % (name, num)], QtWidgets.QRadioButton):
+            if isinstance(self['%s%d' % (name, num)], QtWidgets.QRadioButton) or \
+              isinstance(self['%s%d' % (name, num)], QtWidgets.QCheckBox) or \
+              isinstance(self['%s%d' % (name, num)], QtWidgets.QPushButton):
                 data = str(1 * int(self['%s%d' % (name, num)].isChecked()))
             else:
                 data = str(self['%s%d' % (name, num)].text())
