@@ -3982,7 +3982,8 @@ class gmoccapy(object):
             text = "Vc= {0:.2f}".format(vc)
         self.widgets.lbl_vc.set_text(text)
 
-    def on_rbt_forward_clicked(self, widget, data=None):
+    # This is for handling mouse clicks on the GUI button
+    def on_rbt_forward_released(self, widget, data=None):
         if widget.get_active():
             widget.set_image(self.widgets.img_spindle_forward_on)
             self._set_spindle("forward")
@@ -3992,10 +3993,31 @@ class gmoccapy(object):
         widget.set_sensitive(not widget.get_sensitive())
         widget.set_sensitive(not widget.get_sensitive())
 
-    def on_rbt_reverse_clicked(self, widget, data=None):
+    # This is for handling mouse clicks on the GUI button
+    def on_rbt_reverse_released(self, widget, data=None):
         if widget.get_active():
             widget.set_image(self.widgets.img_spindle_reverse_on)
             self._set_spindle("reverse")
+        else:
+            widget.set_image(self.widgets.img_spindle_reverse)
+        # Toggling the sensitive property is important here! See the commit description.
+        widget.set_sensitive(not widget.get_sensitive())
+        widget.set_sensitive(not widget.get_sensitive())
+
+    # This is for handling self.widgets.rbt_forward.set_active(True)
+    def on_rbt_forward_clicked(self, widget, data=None):
+        if widget.get_active():
+            widget.set_image(self.widgets.img_spindle_forward_on)
+        else:
+            widget.set_image(self.widgets.img_spindle_forward)
+        # Toggling the sensitive property is important here! See the commit description.
+        widget.set_sensitive(not widget.get_sensitive())
+        widget.set_sensitive(not widget.get_sensitive())
+
+    # This is for handling self.widgets.rbt_reverse.set_active(True)
+    def on_rbt_reverse_clicked(self, widget, data=None):
+        if widget.get_active():
+            widget.set_image(self.widgets.img_spindle_reverse_on)
         else:
             widget.set_image(self.widgets.img_spindle_reverse)
         # Toggling the sensitive property is important here! See the commit description.
