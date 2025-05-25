@@ -306,12 +306,6 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         STATUS.emit('update-machine-log', '', 'INITIAL')
         STATUS.connect('tool-info-changed', lambda w, data: self._tool_file_info(data, TOOL.COMMENTS))
 
-        # install remote control
-        if self.add_send_zmq:
-            self.init_zmq_publish()
-        if self.add_receive_zmq:
-            self.init_zmg_subscribe()
-
     # This is called early by qt_makegui.py for access to
     # be able to pass the preference object to the widgets
     def _pref_init(self):
@@ -860,11 +854,16 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
 
     def set_send_zmg(self, data):
         self.add_send_zmq = data
+        # install remote control
+        if data:
+            self.init_zmq_publish()
     def get_send_zmg(self):
         return self.add_send_zmq
 
     def set_receive_zmg(self, data):
         self.add_receive_zmq = data
+        if data:
+            self.init_zmg_subscribe()
     def get_receive_zmg(self):
         return self.add_receive_zmq
 
