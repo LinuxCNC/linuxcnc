@@ -839,7 +839,7 @@ We assume the `ScreenOptions` widget is called `screen_options` in Qt Designer:
 ########################
 # **** INITIALIZE **** #
 ########################
-# widgets allows access to  widgets from the QtVCP files
+# 'widgets' allows access to  widgets from the QtVCP files
 # at this point the widgets and hal pins are not instantiated
 def __init__(self, halcomp,widgets,paths):
     # directly select ZMQ message sending
@@ -881,7 +881,7 @@ sock = context.socket(zmq.SUB)
 
 # Define subscription and messages with topic to accept.
 topic = "" # all topics
-sock.setsockopt(zmq.SUBSCRIBE, topic)
+sock.setsockopt_string(zmq.SUBSCRIBE, topic)
 sock.connect("tcp://127.0.0.1:5690")
 
 while True:
