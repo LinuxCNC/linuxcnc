@@ -2236,7 +2236,7 @@ class gmoccapy(object):
         self.widgets.offsetpage1.set_row_visible("1", False)
         self.widgets.offsetpage1.set_font("sans 12")
         self.widgets.offsetpage1.set_foreground_color(self._get_RGBA_color("#28D0D9"))
-        self.widgets.offsetpage1.selection_mask = ("Tool", "G5x", "Rot")
+        #self.widgets.offsetpage1.selection_mask = ("Tool", "G28", "G30")
         names = []
         default_names = self.widgets.offsetpage1.get_names()
         for system, name in default_names:
@@ -4418,7 +4418,7 @@ class gmoccapy(object):
 
     def _on_btn_set_selected_clicked(self, widget, data=None):
         system, name = self.widgets.offsetpage1.get_selected()
-        if not system:
+        if system not in ["G54", "G55", "G56", "G57", "G58", "G59", "G59.1", "G59.2", "G59.3"]:
             message = _("You did not select a system to be changed to, so nothing will be changed")
             self.dialogs.warning_dialog(self, _("Important Warning!"), message)
             return
