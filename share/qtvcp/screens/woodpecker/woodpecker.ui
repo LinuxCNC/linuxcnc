@@ -2988,19 +2988,13 @@ ROTATION</string>
                                       <verstretch>0</verstretch>
                                      </sizepolicy>
                                     </property>
-                                    <property name="frameShape">
-                                     <enum>QFrame::NoFrame</enum>
-                                    </property>
-                                    <property name="frameShadow">
-                                     <enum>QFrame::Plain</enum>
-                                    </property>
-                                    <property name="documentTitle">
+                                    <property name="documentTitle" stdset="0">
                                      <string>Machine Log</string>
                                     </property>
-                                    <property name="readOnly">
+                                    <property name="readOnly" stdset="0">
                                      <bool>true</bool>
                                     </property>
-                                    <property name="placeholderText">
+                                    <property name="placeholderText" stdset="0">
                                      <string>Machine Log</string>
                                     </property>
                                    </widget>
@@ -3032,23 +3026,17 @@ ROTATION</string>
                                       <verstretch>0</verstretch>
                                      </sizepolicy>
                                     </property>
-                                    <property name="frameShape">
-                                     <enum>QFrame::NoFrame</enum>
-                                    </property>
-                                    <property name="frameShadow">
-                                     <enum>QFrame::Plain</enum>
-                                    </property>
-                                    <property name="documentTitle">
-                                     <string>Integrator Log</string>
-                                    </property>
-                                    <property name="readOnly">
-                                     <bool>true</bool>
-                                    </property>
-                                    <property name="placeholderText">
-                                     <string>Integrator Log</string>
-                                    </property>
                                     <property name="integrator_log_option" stdset="0">
                                      <bool>true</bool>
+                                    </property>
+                                    <property name="documentTitle" stdset="0">
+                                     <string>Integrator Log</string>
+                                    </property>
+                                    <property name="readOnly" stdset="0">
+                                     <bool>true</bool>
+                                    </property>
+                                    <property name="placeholderText" stdset="0">
+                                     <string>Integrator Log</string>
                                     </property>
                                    </widget>
                                   </item>
@@ -16883,7 +16871,7 @@ WHEEL</string>
   </customwidget>
   <customwidget>
    <class>PushButton</class>
-   <extends>IndicatedPushButton</extends>
+   <extends>QPushButton</extends>
    <header>qtvcp.widgets.simple_widgets</header>
   </customwidget>
   <customwidget>
@@ -16913,7 +16901,7 @@ WHEEL</string>
   </customwidget>
   <customwidget>
    <class>MachineLog</class>
-   <extends>QTextEdit</extends>
+   <extends>QWidget</extends>
    <header>qtvcp.widgets.machine_log</header>
   </customwidget>
   <customwidget>
@@ -16929,7 +16917,7 @@ WHEEL</string>
   </customwidget>
   <customwidget>
    <class>GCodeGraphics</class>
-   <extends>QWidget</extends>
+   <extends>QOpenGLWidget</extends>
    <header>qtvcp.widgets.gcode_graphics</header>
    <container>1</container>
   </customwidget>
@@ -18073,9 +18061,9 @@ WHEEL</string>
   <slot>cmb_tool_icons_clicked()</slot>
  </slots>
  <buttongroups>
+  <buttongroup name="start_buttonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
   <buttongroup name="axis_buttonGroup"/>
-  <buttongroup name="start_buttonGroup"/>
  </buttongroups>
 </ui>
