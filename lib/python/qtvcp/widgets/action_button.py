@@ -64,6 +64,7 @@ class ActionButton(IndicatedPushButton):
         self.macro_dialog = False
         self.origin_offset_dialog = False
         self.tool_offset_dialog = False
+        self.tool_chooser_dialog = False
         self.camview_dialog = False
         self.machine_log_dialog = False
         self.jog_joint_pos = False
@@ -276,7 +277,7 @@ class ActionButton(IndicatedPushButton):
             STATUS.connect('all-homed', lambda w: self._safecheck(True))
 
         elif self.camview_dialog or self.macro_dialog or self.origin_offset_dialog or \
-                self.tool_offset_dialog:
+                self.tool_offset_dialog or self.tool_chooser_dialog:
             pass
         elif self.jog_joint_pos or self.jog_joint_neg or \
                     self.jog_selected_pos or self.jog_selected_neg:
@@ -514,6 +515,8 @@ class ActionButton(IndicatedPushButton):
             STATUS.emit('dialog-request', {'NAME':'ORIGINOFFSET', 'ID':'_%s_'% self.objectName()})
         elif self.tool_offset_dialog:
             STATUS.emit('dialog-request', {'NAME':'TOOLOFFSET', 'ID':'_%s_'% self.objectName()})
+        elif self.tool_chooser_dialog:
+            STATUS.emit('dialog-request', {'NAME':'TOOLCHOOSER', 'ID':'_%s_'% self.objectName()})
         elif self.zero_axis:
             axis = self.axis
             if axis == '':
@@ -882,7 +885,7 @@ class ActionButton(IndicatedPushButton):
                 'launch_calibration',
                  'exit', 'machine_log_dialog', 'zero_g5x', 'zero_g92', 'zero_zrot',
                  'origin_offset_dialog', 'run_from_status', 'run_from_slot',
-                 'lathe_mirror_x')
+                 'tool_chooser_dialog', 'lathe_mirror_x')
 
         for i in data:
             if not i == picked:
@@ -1015,6 +1018,15 @@ class ActionButton(IndicatedPushButton):
         return self.tool_offset_dialog
     def reset_tool_offset_dialog(self):
         self.tool_offset_dialog = False
+
+    def set_tool_chooser_dialog(self, data):
+        self.tool_chooser_dialog = data
+        if data:
+            self._toggle_properties('tool_chooser_dialog')
+    def get_tool_chooser_dialog(self):
+        return self.tool_chooser_dialog
+    def reset_tool_chooser_dialog(self):
+        self.tool_chooser_dialog = False
 
     def set_camview_dialog(self, data):
         self.camview_dialog = data
@@ -1535,6 +1547,9 @@ class ActionButton(IndicatedPushButton):
     tool_offset_dialog_action = QtCore.pyqtProperty(bool,
                                                       get_tool_offset_dialog, set_tool_offset_dialog,
                                                       reset_tool_offset_dialog)
+    tool_chooser_dialog_action = QtCore.pyqtProperty(bool,
+                                                      get_tool_chooser_dialog, set_tool_chooser_dialog,
+                                                      reset_tool_chooser_dialog)
     macro_dialog_action = QtCore.pyqtProperty(bool, get_macro_dialog, set_macro_dialog, reset_macro_dialog)
     launch_halmeter_action = QtCore.pyqtProperty(bool, get_launch_halmeter, set_launch_halmeter, reset_launch_halmeter)
     launch_status_action = QtCore.pyqtProperty(bool, get_launch_status, set_launch_status, reset_launch_status)
