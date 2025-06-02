@@ -30,7 +30,7 @@ from qtvcp import logger
 #LOCALEDIR = os.path.join(BASE, "share", "locale")
 #locale.setlocale(locale.LC_ALL, '')
 
-# Instiniate the libraries with global reference
+# Instantiate the libraries with global reference
 # STATUS gives us status messages from linuxcnc
 # INI holds ini details
 # ACTION gives commands to linuxcnc
@@ -84,30 +84,30 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
 
         # If there is a preference file object use it to load the hi/low toggle points
         if self.PREFS_:
-            self.tabledata[4][9] = self.PREFS_.getpref(self.HAL_NAME_+'-G54', 'User System 1', str, 'ORIGINOFFSET_SYSTEM_NAMES')
-            self.tabledata[5][9] = self.PREFS_.getpref(self.HAL_NAME_+'-G55', 'User System 2', str, 'ORIGINOFFSET_SYSTEM_NAMES')
-            self.tabledata[6][9] = self.PREFS_.getpref(self.HAL_NAME_+'-G56', 'User System 3', str, 'ORIGINOFFSET_SYSTEM_NAMES')
-            self.tabledata[7][9] = self.PREFS_.getpref(self.HAL_NAME_+'-G57', 'User System 4', str, 'ORIGINOFFSET_SYSTEM_NAMES')
-            self.tabledata[8][9] = self.PREFS_.getpref(self.HAL_NAME_+'-G58', 'User System 5', str, 'ORIGINOFFSET_SYSTEM_NAMES')
-            self.tabledata[9][9] = self.PREFS_.getpref(self.HAL_NAME_+'-G59', 'User System 6', str, 'ORIGINOFFSET_SYSTEM_NAMES')
-            self.tabledata[10][9] = self.PREFS_.getpref(self.HAL_NAME_+'-G59.1', 'User System 7', str, 'ORIGINOFFSET_SYSTEM_NAMES')
-            self.tabledata[11][9] = self.PREFS_.getpref(self.HAL_NAME_+'-G59.2', 'User System 8', str, 'ORIGINOFFSET_SYSTEM_NAMES')
-            self.tabledata[12][9] = self.PREFS_.getpref(self.HAL_NAME_+'-G59.3', 'User System 9', str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.tabledata[4][10] = self.PREFS_.getpref(self.HAL_NAME_+'-G54', 'User System 1', str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.tabledata[5][10] = self.PREFS_.getpref(self.HAL_NAME_+'-G55', 'User System 2', str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.tabledata[6][10] = self.PREFS_.getpref(self.HAL_NAME_+'-G56', 'User System 3', str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.tabledata[7][10] = self.PREFS_.getpref(self.HAL_NAME_+'-G57', 'User System 4', str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.tabledata[8][10] = self.PREFS_.getpref(self.HAL_NAME_+'-G58', 'User System 5', str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.tabledata[9][10] = self.PREFS_.getpref(self.HAL_NAME_+'-G59', 'User System 6', str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.tabledata[10][10] = self.PREFS_.getpref(self.HAL_NAME_+'-G59.1', 'User System 7', str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.tabledata[11][10] = self.PREFS_.getpref(self.HAL_NAME_+'-G59.2', 'User System 8', str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.tabledata[12][10] = self.PREFS_.getpref(self.HAL_NAME_+'-G59.3', 'User System 9', str, 'ORIGINOFFSET_SYSTEM_NAMES')
             self.tablemodel.layoutChanged.emit()
 
     # when qtvcp closes this gets called
     def _hal_cleanup(self):
         if self.PREFS_:
             LOG.debug('Saving {} data to file.'.format(self.HAL_NAME_))
-            self.PREFS_.putpref(self.HAL_NAME_+'-G54', self.tabledata[4][9], str, 'ORIGINOFFSET_SYSTEM_NAMES')
-            self.PREFS_.putpref(self.HAL_NAME_+'-G55', self.tabledata[5][9], str, 'ORIGINOFFSET_SYSTEM_NAMES')
-            self.PREFS_.putpref(self.HAL_NAME_+'-G56', self.tabledata[6][9], str, 'ORIGINOFFSET_SYSTEM_NAMES')
-            self.PREFS_.putpref(self.HAL_NAME_+'-G57', self.tabledata[7][9], str, 'ORIGINOFFSET_SYSTEM_NAMES')
-            self.PREFS_.putpref(self.HAL_NAME_+'-G58', self.tabledata[8][9], str, 'ORIGINOFFSET_SYSTEM_NAMES')
-            self.PREFS_.putpref(self.HAL_NAME_+'-G59', self.tabledata[9][9], str, 'ORIGINOFFSET_SYSTEM_NAMES')
-            self.PREFS_.putpref(self.HAL_NAME_+'-G59.1', self.tabledata[10][9], str, 'ORIGINOFFSET_SYSTEM_NAMES')
-            self.PREFS_.putpref(self.HAL_NAME_+'-G59.2', self.tabledata[11][9], str, 'ORIGINOFFSET_SYSTEM_NAMES')
-            self.PREFS_.putpref(self.HAL_NAME_+'-G59.3', self.tabledata[12][9], str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.PREFS_.putpref(self.HAL_NAME_+'-G54', self.tabledata[4][10], str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.PREFS_.putpref(self.HAL_NAME_+'-G55', self.tabledata[5][10], str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.PREFS_.putpref(self.HAL_NAME_+'-G56', self.tabledata[6][10], str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.PREFS_.putpref(self.HAL_NAME_+'-G57', self.tabledata[7][10], str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.PREFS_.putpref(self.HAL_NAME_+'-G58', self.tabledata[8][10], str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.PREFS_.putpref(self.HAL_NAME_+'-G59', self.tabledata[9][10], str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.PREFS_.putpref(self.HAL_NAME_+'-G59.1', self.tabledata[10][10], str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.PREFS_.putpref(self.HAL_NAME_+'-G59.2', self.tabledata[11][10], str, 'ORIGINOFFSET_SYSTEM_NAMES')
+            self.PREFS_.putpref(self.HAL_NAME_+'-G59.3', self.tabledata[12][10], str, 'ORIGINOFFSET_SYSTEM_NAMES')
 
     def _convert_system(self, w, data):
         convert = ("None", "G54", "G55", "G56", "G57", "G58", "G59", "G59.1", "G59.2", "G59.3")
@@ -121,25 +121,25 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
 
     def createTable(self):
         # create blank taple array
-        self.tabledata = [[0, 0, 1, 0, 0, 0, 0, 0, 0, 'Absolute Position'],
-                          [None, None, 2, None, None, None, None, None, None, 'Rotational Offsets'],
-                          [0, 0, 3, 0, 0, 0, 0, 0, 0, 'G92 Offsets'],
-                          [0, 0, 0, 0, 0, 0, 0, 0, 0, 'Current Tool'],
-                          [0, 0, 4, 0, 0, 0, 0, 0, 0, 'System 1'],
-                          [0, 0, 5, 0, 0, 0, 0, 0, 0, 'System 2'],
-                          [0, 0, 6, 0, 0, 0, 0, 0, 0, 'System 3'],
-                          [0, 0, 7, 0, 0, 0, 0, 0, 0, 'System 4'],
-                          [0, 0, 8, 0, 0, 0, 0, 0, 0, 'System 5'],
-                          [0, 0, 9, 0, 0, 0, 0, 0, 0, 'System 6'],
-                          [0, 0, 10, 0, 0, 0, 0, 0, 0, 'System 7'],
-                          [0, 0, 11, 0, 0, 0, 0, 0, 0, 'System 8'],
-                          [0, 0, 12, 0, 0, 0, 0, 0, 0, 'System 9']]
+        self.tabledata = [[0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 'Absolute Position'],
+                          [None, None, 2, None, None, None, None, None, None, None, 'Rotational Offsets'],
+                          [0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 'G92 Offsets'],
+                          [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Current Tool'],
+                          [0, 0, 4, 0, 0, 0, 0, 0, 0, 0, 'System 1'],
+                          [0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 'System 2'],
+                          [0, 0, 6, 0, 0, 0, 0, 0, 0, 0, 'System 3'],
+                          [0, 0, 7, 0, 0, 0, 0, 0, 0, 0, 'System 4'],
+                          [0, 0, 8, 0, 0, 0, 0, 0, 0, 0, 'System 5'],
+                          [0, 0, 9, 0, 0, 0, 0, 0, 0, 0, 'System 6'],
+                          [0, 0, 10, 0, 0, 0, 0, 0, 0, 0, 'System 7'],
+                          [0, 0, 11, 0, 0, 0, 0, 0, 0, 0, 'System 8'],
+                          [0, 0, 12, 0, 0, 0, 0, 0, 0, 0, 'System 9']]
 
         # create the view
         self.setSelectionMode(QAbstractItemView.SingleSelection)
 
         # set the table model
-        header = ['X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W', 'Name']
+        header = ['X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W', 'Rot', 'Name']
         vheader = ['ABS', 'Rot', 'G92', 'Tool', 'G54', 'G55', 'G56', 'G57', 'G58', 'G59', 'G59.1', 'G59.2', 'G59.3']
         self.tablemodel = MyTableModel(self.tabledata, header, vheader, self)
         self.setModel(self.tablemodel)
@@ -172,19 +172,21 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         # display in title bar for convenience
         self.setWindowTitle(sf)
         # row 0 is not editable (absolute position)
-        # row has limited entries (rotational)
-        # column 9 is the descriptive text column
-        if item.column() == 9:
+        # row 1 has limited entries (rotational)
+        # column 10 is the descriptive text column
+        if item.column() == 10:
             self.callTextDialog(text,item)
         elif item.row() == 1:
             if item.column() == 2:
                 self.callDialog(text,item)
+        elif item.row() in (2,3) and item.column() == 9:
+            pass
         elif item.row() > 1:
             self.callDialog(text,item)
 
     # alphanumerical
     def callTextDialog(self, text,item):
-        text = self.tablemodel.arraydata[item.row()][9]
+        text = self.tablemodel.arraydata[item.row()][10]
         system = self.tablemodel.Vheaderdata[item.row()]
         mess = {'NAME':self.text_dialog_code,'ID':'%s__' % self.objectName(),
                 'PRELOAD':text, 'TITLE':'{} System Description Entry'.format(system),
@@ -225,7 +227,7 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
 
                 newobj = self.currentIndex()
                 # if we selected the text column, move back
-                if newobj.column() == 9:
+                if newobj.column() == 10:
                     self.left()
                     newobj = self.currentIndex()
                 cellContent = newobj.data()
@@ -265,8 +267,10 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         # overwrite with motion's version of the current system offset
         # this should be more up to date
         STATUS.stat.poll()
-        temp[STATUS.stat.g5x_index-1] = STATUS.stat.g5x_offset
-
+        temp[STATUS.stat.g5x_index-1] = list(STATUS.stat.g5x_offset)
+        # inject the current rotation into the list
+        temp[STATUS.stat.g5x_index-1].append(STATUS.stat.rotation_xy)
+ 
         g54, g55, g56, g57, g58, g59, g59_1, g59_2, g59_3 = temp
         if g54 is None: return
 
@@ -284,18 +288,18 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         rot = STATUS.stat.rotation_xy
 
         if self.metric_display != INFO.MACHINE_IS_METRIC:
-            ap = INFO.convert_units_9(ap)
-            tool = INFO.convert_units_9(tool)
-            g92 = INFO.convert_units_9(g92)
-            g54 = INFO.convert_units_9(g54)
-            g55 = INFO.convert_units_9(g55)
-            g56 = INFO.convert_units_9(g56)
-            g57 = INFO.convert_units_9(g57)
-            g58 = INFO.convert_units_9(g58)
-            g59 = INFO.convert_units_9(g59)
-            g59_1 = INFO.convert_units_9(g59_1)
-            g59_2 = INFO.convert_units_9(g59_2)
-            g59_3 = INFO.convert_units_9(g59_3)
+            ap = INFO.convert_units_10(ap)
+            tool = INFO.convert_units_10(tool)
+            g92 = INFO.convert_units_10(g92)
+            g54 = INFO.convert_units_10(g54)
+            g55 = INFO.convert_units_10(g55)
+            g56 = INFO.convert_units_10(g56)
+            g57 = INFO.convert_units_10(g57)
+            g58 = INFO.convert_units_10(g58)
+            g59 = INFO.convert_units_10(g59)
+            g59_1 = INFO.convert_units_10(g59_1)
+            g59_2 = INFO.convert_units_10(g59_2)
+            g59_3 = INFO.convert_units_10(g59_3)
 
         # set the text style based on unit type
         if self.metric_display:
@@ -307,14 +311,24 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
 
         # fill each row of the liststore from the offsets arrays
         for row, i in enumerate([ap, rot, g92, tool, g54, g55, g56, g57, g58, g59, g59_1, g59_2, g59_3]):
-            for column in range(0, 9):
+            for column in range(0, 10):
+
+                # current rotational
                 if row == 1:
                     if column == 2:
                         self.tabledata[row][column] = locale.format_string(degree_tmpl, rot)
                     else:
                         self.tabledata[row][column] = " "
+
+                # rotational column not available in row 0,2,3
+                elif row in (0,2,3) and column == 9:
+                    self.tabledata[row][column] = " "
+
+                elif column == 9:
+                    self.tabledata[row][column] = locale.format_string(degree_tmpl, i[column])
                 else:
                     self.tabledata[row][column] = locale.format_string(tmpl, i[column])
+
         self.tablemodel.layoutChanged.emit()
 
     # We read the var file directly
@@ -322,15 +336,15 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
     # if anything goes wrong we set all the info to 0
     def read_file(self):
         try:
-            g54 = [0, 0, 0, 0, 0, 0, 0, 0, 0]
-            g55 = [0, 0, 0, 0, 0, 0, 0, 0, 0]
-            g56 = [0, 0, 0, 0, 0, 0, 0, 0, 0]
-            g57 = [0, 0, 0, 0, 0, 0, 0, 0, 0]
-            g58 = [0, 0, 0, 0, 0, 0, 0, 0, 0]
-            g59 = [0, 0, 0, 0, 0, 0, 0, 0, 0]
-            g59_1 = [0, 0, 0, 0, 0, 0, 0, 0, 0]
-            g59_2 = [0, 0, 0, 0, 0, 0, 0, 0, 0]
-            g59_3 = [0, 0, 0, 0, 0, 0, 0, 0, 0]
+            g54 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            g55 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            g56 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            g57 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            g58 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            g59 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            g59_1 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            g59_2 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            g59_3 = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             if self.filename is None:
                 return g54, g55, g56, g57, g58, g59, g59_1, g59_2, g59_3
             if not os.path.exists(self.filename):
@@ -342,23 +356,23 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
                 param = int(temp[0])
                 data = float(temp[1])
 
-                if 5229 >= param >= 5221:
+                if 5230 >= param >= 5221:
                     g54[param - 5221] = data
-                elif 5249 >= param >= 5241:
+                elif 5250 >= param >= 5241:
                     g55[param - 5241] = data
-                elif 5269 >= param >= 5261:
+                elif 5270 >= param >= 5261:
                     g56[param - 5261] = data
-                elif 5289 >= param >= 5281:
+                elif 5290 >= param >= 5281:
                     g57[param - 5281] = data
-                elif 5309 >= param >= 5301:
+                elif 5310 >= param >= 5301:
                     g58[param - 5301] = data
-                elif 5329 >= param >= 5321:
+                elif 5330 >= param >= 5321:
                     g59[param - 5321] = data
-                elif 5349 >= param >= 5341:
+                elif 5350 >= param >= 5341:
                     g59_1[param - 5341] = data
-                elif 5369 >= param >= 5361:
+                elif 5370 >= param >= 5361:
                     g59_2[param - 5361] = data
-                elif 5389 >= param >= 5381:
+                elif 5390 >= param >= 5381:
                     g59_3[param - 5381] = data
             return [g54, g55, g56, g57, g58, g59, g59_1, g59_2, g59_3]
         except:
@@ -370,11 +384,14 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         data = self.tabledata[row][col]
 
         if row == 0: return
+
         # Hack to not edit any rotational offset but Z axis
         if row == 1 and not col == 2: return
 
-        # dont evaluate text column
-        if col == 9 :return
+        if row in(2,3) and col == 9: return
+
+        # don't evaluate text column
+        if col == 10 :return
 
         # make sure we switch to correct units for machine and rotational, row 2, does not get converted
         try:
@@ -388,7 +405,7 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
                 ACTION.RECORD_CURRENT_MODE()
                 if row == 0:  # current Origin
                     ACTION.CALL_MDI("G10 L2 P0 %s %10.4f" % (self.axisletters[col], qualified))
-                elif row == 1:  # rotational
+                elif row == 1:  # current rotational
                     if col == 2:  # Z axis only
                         ACTION.CALL_MDI("G10 L2 P0 R %10.4f" % (qualified))
                 elif row == 2:  # G92 offset
@@ -397,6 +414,8 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
                     if not self.current_tool == 0:
                         ACTION.CALL_MDI("G10 L1 P%d %s %10.4f" % (self.current_tool, self.axisletters[col], qualified))
                         ACTION.CALL_MDI('g43')
+                elif col == 9: # rotational
+                    ACTION.CALL_MDI("G10 L2 P%d R %10.4f" % (row-3, qualified))
                 else:
                         ACTION.CALL_MDI("G10 L2 P%d %s %10.4f" % (row-3, self.axisletters[col], qualified))
 
@@ -525,11 +544,13 @@ class MyTableModel(QAbstractTableModel):
         if not index.isValid():
             return None
         # print(">>> flags() index.column() = ", index.column())
-        if index.column() == 9 and index.row() in(0, 1, 2, 3):
+        if index.column() == 10 and index.row() in(0, 1, 2, 3):
             return Qt.ItemIsEnabled
         elif index.row() == 0:
             return Qt.ItemIsEnabled
         elif index.row() == 1 and not index.column() == 2:
+            return Qt.NoItemFlags
+        elif index.row() in(2, 3) and index.column() == 9:
             return Qt.NoItemFlags
         else:
             return Qt.ItemIsEditable | Qt.ItemIsEnabled | Qt.ItemIsSelectable
@@ -542,7 +563,7 @@ class MyTableModel(QAbstractTableModel):
         LOG.debug(">>> setData() index.column() = {}".format(index.column()))
         if index.row() == 0: return False
         try:
-            if index.column() == 9:
+            if index.column() == 10:
                 v = str(value)
             else:
                 v = float(value)
