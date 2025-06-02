@@ -1042,6 +1042,7 @@ class ToolChooserDialog(QDialog, GeometryMixin):
         self._state = False
         self._request_name = 'TOOLCHOOSER'
         self._message = None
+        self._title = 'Choose Tool'
 
         self.setWindowModality(Qt.ApplicationModal)
         self.setWindowFlags(self.windowFlags() | Qt.Tool |
@@ -1110,7 +1111,6 @@ class ToolChooserDialog(QDialog, GeometryMixin):
         if message.get('NAME') == self._request_name:
             geo = message.get('GEONAME') or 'ToolChooserDialog-geometry'
             self.read_preference_geometry(geo)
-            self._title = 'Choose Tool'
 
             self.showdialog(message)
 
@@ -2215,7 +2215,7 @@ def main():
     from PyQt5.QtWidgets import QApplication
 
     app = QApplication(sys.argv)
-    widget = AboutDialog()
+    #widget = AboutDialog()
     #widget.setText('</b>This is new text<\b>')
     #widget = KeyboardDialog()
     #widget = CalculatorDialog()
@@ -2230,7 +2230,8 @@ def main():
     #widget = OriginOffsetDialog()
     #widget = FileDialog()
     #widget = ToolDialog()
-
+    widget = ToolChooserDialog(
+)
     widget.HAL_NAME_ = 'test'
     widget.PREFS_ = None
     widget._hal_init()
