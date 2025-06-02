@@ -178,11 +178,13 @@ class _IStat(object):
             self.MACHINE_IS_METRIC = True
             self.MACHINE_UNIT_CONVERSION = 1.0 / 25.4
             self.MACHINE_UNIT_CONVERSION_9 = [1.0 / 25.4] * 3 + [1] * 3 + [1.0 / 25.4] * 3
+            self.MACHINE_UNIT_CONVERSION_10 = [1.0 / 25.4] * 3 + [1] * 3 + [1.0 / 25.4] * 3 + [1]
             log.debug('Machine is METRIC based. unit Conversion constant={}'.format(self.MACHINE_UNIT_CONVERSION))
         else:
             self.MACHINE_IS_METRIC = False
             self.MACHINE_UNIT_CONVERSION = 25.4
             self.MACHINE_UNIT_CONVERSION_9 = [25.4] * 3 + [1] * 3 + [25.4] * 3
+            self.MACHINE_UNIT_CONVERSION_10 = [25.4] * 3 + [1] * 3 + [25.4] * 3 + [1]
             log.debug('Machine is IMPERIAL based. unit Conversion constant={}'.format(self.MACHINE_UNIT_CONVERSION))
 
         axes = self.INI.find("TRAJ", "COORDINATES")
@@ -733,6 +735,10 @@ class _IStat(object):
 
     def convert_units_9(self, v):
         c = self.MACHINE_UNIT_CONVERSION_9
+        return list(map(lambda x, y: x * y, v, c))
+
+    def convert_units_10(self, v):
+        c = self.MACHINE_UNIT_CONVERSION_10
         return list(map(lambda x, y: x * y, v, c))
 
     # This finds the filter program's initializing
