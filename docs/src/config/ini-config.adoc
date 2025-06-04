@@ -568,7 +568,7 @@ FEATURES & 0x20 -> OWORD_WARNONLY
 * `REMAP=M400 modalgroup=10 argspec=Pq ngc=myprocedure`
   See <<cha:remap,Remap Extending G-code>> chapter for details.
 * `ON_ABORT_COMMAND=O <on_abort> call`
-  See <<cha:remap,Remap Extending G-code>> chapter for details.
+  Specifies a subroutine to be called in the event of a program abort. If not specified 'M2' is executed by default. See <<cha:remap,Remap Extending G-code>> chapter for details.
 
 [[sub:ini:sec:emcmot]]
 === [EMCMOT] Section(((INI File,Sections,[EMCMOT] Section)))

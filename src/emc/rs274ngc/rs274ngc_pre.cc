@@ -2636,14 +2636,15 @@ int Interp::on_abort(int reason, const char *message)
     _setup.probe_flag = false;
     _setup.input_flag = false;
 
+    int status;
     if (_setup.on_abort_command == NULL) {
-	return -1;
+    status = execute("m2");
     }
-
+    else {
     char cmd[LINELEN];
-
     snprintf(cmd,sizeof(cmd), "%s [%d]",_setup.on_abort_command, reason);
-    int status = execute(cmd);
+    status = execute(cmd);
+    }
 
     ERP(status);
     return status;
