@@ -759,7 +759,7 @@ class HandlerClass:
                 N.update(O.notify_critical, title='Internal NML Text:', message=text, msgs=O.notify_max_msgs)
             elif kind == linuxcnc.NML_DISPLAY:
                 N.update(O.notify_critical, title='Internal NML Display:', message=text, msgs=O.notify_max_msgs)
-            elif kind == STATUS.TEMPARARY_MESSAGE:
+            elif kind == STATUS.TEMPORARY_MESSAGE:
                 N.update(O.notify_normal,
                          title='Operator Info:',
                          message=text,
@@ -773,7 +773,7 @@ class HandlerClass:
                     STATUS.emit('play-sound', 'SPEAK %s ' % text)
             if O.mchnMsg_speak_text:
                 if kind in (linuxcnc.OPERATOR_TEXT, linuxcnc.NML_TEXT,
-                            linuxcnc.OPERATOR_DISPLAY, STATUS.TEMPARARY_MESSAGE):
+                            linuxcnc.OPERATOR_DISPLAY, STATUS.TEMPORARY_MESSAGE):
                     STATUS.emit('play-sound', 'SPEAK %s ' % text)
         STATUS.emit('update-machine-log', text, 'TIME')
 
