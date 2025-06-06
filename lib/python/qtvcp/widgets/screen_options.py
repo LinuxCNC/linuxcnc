@@ -369,7 +369,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                 if self.desktop_notify:
                     NOTICE.update(self.notify_critical, title='Internal NML Display:', message=text, msgs=self.notify_max_msgs)
 
-            elif kind == STATUS.TEMPARARY_MESSAGE: # temporary info
+            elif kind == STATUS.TEMPORARY_MESSAGE: # temporary info
                 if self.desktop_notify:
                     NOTICE.update(self.notify_normal,
                                     title='Operator Info:',
@@ -385,7 +385,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                         STATUS.emit('play-sound', 'SPEAK %s ' % text)
                 if self.mchnMsg_speak_text:
                     if kind in (linuxcnc.OPERATOR_TEXT, linuxcnc.NML_TEXT,
-                                linuxcnc.OPERATOR_DISPLAY, STATUS.TEMPARARY_MESSAGE):
+                                linuxcnc.OPERATOR_DISPLAY, STATUS.TEMPORARY_MESSAGE):
                         STATUS.emit('play-sound', 'SPEAK %s ' % text)
 
             STATUS.emit('update-machine-log', text, 'TIME,ERROR')

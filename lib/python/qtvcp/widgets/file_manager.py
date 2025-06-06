@@ -392,7 +392,7 @@ class FileManager(QWidget, _HalWidgetBase):
         else:
             LOG.debug("Set directory view error - no such path {}".format(path))
             if not quiet:
-                STATUS.emit('error', STATUS.TEMPARARY_MESSAGE, "File Manager error - No such path: {}".format(path))
+                STATUS.emit('error', STATUS.TEMPORARY_MESSAGE, "File Manager error - No such path: {}".format(path))
 
     # retrieve selected filter (it's held as QT.userData)
     def filterChanged(self, index):

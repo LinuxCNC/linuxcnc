@@ -153,10 +153,10 @@ class _Lcnc_Action(object):
             # let calling function know we didn't release the limit override
             return False
         elif not STATUS.is_limits_override_set() and STATUS.is_hard_limits_tripped():
-            STATUS.emit('error', STATUS.TEMPARARY_MESSAGE, 'Hard Limits Are Overridden!')
+            STATUS.emit('error', STATUS.TEMPORARY_MESSAGE, 'Hard Limits Are Overridden!')
             self.cmd.override_limits()
         else:
-            STATUS.emit('error', STATUS.TEMPARARY_MESSAGE, 'Hard Limits Are Reset To Active!')
+            STATUS.emit('error', STATUS.TEMPORARY_MESSAGE, 'Hard Limits Are Reset To Active!')
             self.cmd.override_limits()
 
     def SET_MDI_MODE(self):
@@ -822,8 +822,12 @@ class _Lcnc_Action(object):
     def SET_ERROR_MESSAGE(self, msg):
         self.cmd.error_msg(msg)
 
+    # TODO remove in future
     def SET_TEMPARARY_MESSAGE(self, msg):
-        STATUS.emit('error', STATUS.TEMPARARY_MESSAGE, msg)
+        STATUS.emit('error', STATUS.TEMPORARY_MESSAGE, msg)
+
+    def SET_TEMPORARY_MESSAGE(self, msg):
+        STATUS.emit('error', STATUS.TEMPORARY_MESSAGE, msg)
 
     def TOUCHPLATE_TOUCHOFF(self, search_vel, probe_vel, max_probe,
             z_offset, retract_distance, z_safe_travel, rtn_method=None, error_rtn=None):
