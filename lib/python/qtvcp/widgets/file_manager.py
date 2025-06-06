@@ -29,7 +29,7 @@ INFO = Info()
 LOG = logger.getLogger(__name__)
 
 # Force the log level for this module
-# LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 _translate = QCoreApplication.translate
 
@@ -461,8 +461,14 @@ class FileManager(QWidget, _HalWidgetBase):
                 print(e)
         elif btn == self.delButton:
             try:
-                self.jump_delete.append(name)
-                self._jumpList.pop(name)
+                x = self.jumpButton.text()
+                if name in self._jumpList:
+                    self.jump_delete.append(name)
+                    self._jumpList.pop(name)
+                elif x in self._jumpList:
+                    self.jump_delete.append(x)
+                    self._jumpList.pop(x)
+                else: return # don't know what to do otherwise
                 self.settingMenu.clear()
                 for key in self._jumpList:
                     self.addAction(key)
