@@ -30,10 +30,6 @@ _translate = QCoreApplication.translate
 def preview(P, W, Conv):
     if P.dialogError:
         return
-    if not W.xsEntry.text():
-        W.xsEntry.setText(f'{P.xOrigin:0.3f}')
-    if not W.ysEntry.text():
-        W.ysEntry.setText(f'{P.yOrigin:0.3f}')
     origin = W.centLeft.text() == 'CENTER'
     error = BOLT.preview(Conv, P.fTmp, P.fNgc, P.fNgcBkp,
                          int(W.conv_material.currentText().split(':')[0]),

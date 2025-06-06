@@ -8,7 +8,7 @@
 
 G20 (imperial units)
 G64 P0.005 (path tolerance)
-M52 P1 (enable reverse-run)
+M52 P1 (enable adaptive feed)
 
 F#<_hal[plasmac.cut-feed-rate]> (feed rate from cut parameters)
 

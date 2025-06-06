@@ -1,7 +1,7 @@
 '''
 conversational.py
 
-Copyright (C) 2019 - 2024 Phillip A Carter
+Copyright (C) 2019 - 2025 Phillip A Carter
 Copyright (C) 2020 - 2025 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
@@ -20,6 +20,7 @@ with this program; if not, write to the Free Software Foundation, Inc
 '''
 
 import os
+import re
 from shutil import copy as COPY
 from importlib import reload
 from PyQt5.QtCore import Qt, QCoreApplication
@@ -39,18 +40,34 @@ from qtvcp.lib.qtplasmac import conv_star as CONVSTAR
 from qtvcp.lib.qtplasmac import conv_gusset as CONVGUST
 from qtvcp.lib.qtplasmac import conv_sector as CONVSECT
 from qtvcp.lib.qtplasmac import conv_block as CONVBLCK
+from rs274.glcanon import GlCanonDraw as DRAW
 
 STATUS = Status()
 ACTION = Action()
 
 _translate = QCoreApplication.translate
 
+gcodePattern = re.compile(
+        r"(;row(?P<OP>.[^X]+) *)?"
+        r"([Gg](?P<G1> *\d{1,2}) *)?"
+        r"([Gg](?P<G2> *\d{1,2}) *)?"
+        r"([Xx](?P<X> *-*\d+\.?\d*) *)?"
+        r"([Yy](?P<Y> *-*\d+\.?\d*) *)?"
+        r"([Zz](?P<Z>( *-*\d+\.?\d*)|([^;^(]*)) *)?"
+        r"([Ii](?P<I> *-*\d+\.?\d*) *)?"
+        r"([Jj](?P<J> *-*\d+\.?\d*) *)?"
+        r"([Mm](?P<M> *\d{1,3}) *)?"
+        r"([Pp](?P<P> *-*\d+\.?\d*) *)?"
+        r"([Qq](?P<Q> *-*\d+\.?\d*) *)?"
+        r"((?P<C>[;(].+) *)?"
+)
 
 def conv_setup(P, W):
     P.convSettingsChanged = False
     P.validShape = False
     P.savedSettings = {'origin': None, 'intext': None, 'in': None, 'out': None}
     P.invalidLeads = 0
+    P.isConvBlock = None
     if not P.convWidgetsLoaded or P.developmentPin.get():
         conv_widgets(P, W)
     if not ACTION.prefilter_path:
@@ -62,9 +79,11 @@ def conv_setup(P, W):
         P.convButtonState[w] = False
     if P.unitsPerMm == 1:
         P.unitCode = ['21', '0.25', 32]
+        W.conv_preview.setmetric(True)
     else:
         P.unitCode = ['20', '0.004', 1.26]
-    P.ambles = f'G{P.unitCode[0]} G64P{P.unitCode[1]} G40 G49 G80 G90 G92.1 G94 G97'
+        W.conv_preview.setmetric(False)
+    P.ambles = f'G{P.unitCode[0]}\nG64P{P.unitCode[1]}\nG40\nG49\nM52P1\nG80\nG90\nG92.1\nG94\nG97'
     CONVSET.load(P, W)
     # grid size is in inches
     W.conv_preview.grid_size = P.gridSize / P.unitsPerMm / 25.4
@@ -74,23 +93,106 @@ def conv_setup(P, W):
     W.conv_send.setEnabled(False)
     W.conv_settings.setEnabled(True)
     if ACTION.prefilter_path and P.fileOpened:
-        COPY(P.filteredBkp, P.fNgc)
-        COPY(P.filteredBkp, P.fNgcBkp)
         W.conv_preview.load(P.filteredBkp)
+        machine = W.conv_preview.gcode_properties['machine_unit_sys']
+        gcode = W.conv_preview.gcode_properties['gcode_units']
+        if machine == 'Metric' and gcode == 'in':
+                gcode_convert_units(P.filteredBkp, P.fNgcBkp, W.conv_preview, P.unitsPerMm, '20', '21', 25.4, 25.4)
+        elif machine == 'Imperial' and gcode == 'mm':
+                gcode_convert_units(P.filteredBkp, P.fNgcBkp, W.conv_preview, P.unitsPerMm, '21', '20', 1, 1/25.4)
+        with open(P.filteredBkp, 'r') as blockCheck:
+            line = blockCheck.readline()
+            if line.startswith(';conversational block V2'):
+                P.isConvBlock = 'loaded'
         W.conv_preview.set_current_view()
         conv_enable_tabs(P, W)
+        COPY(P.filteredBkp, P.fNgc)
+        COPY(P.filteredBkp, P.fNgcBkp)
     else:
+        with open(P.filteredBkp, 'w') as outNgc:
+            outNgc.write('(new conversational file)\nM2\n')
         conv_new_pressed(P, W, None)
     P.xOrigin = STATUS.get_position()[1][0]
     P.yOrigin = STATUS.get_position()[1][1]
     P.xSaved = '0.000'
     P.ySaved = '0.000'
-    P.convBlock = [False, False]
-    if not P.oldConvButton:
-        conv_shape_request(P, W, 'conv_line')
-    else:
+    if P.isConvBlock:
+        conv_shape_request(P, W, 'conv_block')
+    elif P.oldConvButton and not P.oldConvButton == 'conv_block':
         conv_shape_request(P, W, P.oldConvButton)
+    else:
+        conv_shape_request(P, W, 'conv_line')
 
+def gcode_convert_units(file, bkp, window, unitsPerMm, oldG, newG, eMult, uMult):
+    COPY(file, bkp)
+    template = ''
+    inputs = False
+    with open(bkp, 'r') as inFile:
+        with open(file, 'w') as outFile:
+            for line in inFile:
+                line = line.strip()
+                if line and line[0] != '(':
+                    if line[0] == ';':
+                        if ';conversational block V2' in line:
+                            template = ';'
+                        elif ';CONV_BLOCK TEMPLATE END' in line:
+                            template = ''
+                        # if it is a conversational block
+                        elif inputs:
+                            values = line.lstrip(';').split(', ')
+                            cSpacing = float(values[0]) * uMult
+                            rSpacing = float(values[1]) * uMult
+                            columns = int(values[2])
+                            rows    = int(values[3])
+                            # set the converted values
+                            values[0] = f"{cSpacing:0.4f}"
+                            values[1] = f"{rSpacing:0.4f}"
+                            values[4] = f"{float(values[4]) * uMult:0.4f}"
+                            values[5] = f"{float(values[5]) * uMult:0.4f}"
+                            if not float(values[11]) and not float(values[12]):
+                                # get the overall extents
+                                xMid = DRAW.extents_info(window)[0][0] * eMult - STATUS.stat.g5x_offset[0]
+                                yMid = DRAW.extents_info(window)[0][1] * eMult - STATUS.stat.g5x_offset[1]
+                                # get the midpoints of the first shape only
+                                if columns > 1:
+                                    xMid -= (columns - 1) * cSpacing / 2
+                                if rows > 1:
+                                    yMid -= (rows - 1) * rSpacing / 2
+                                values[11] = f"{xMid:0.4f}"
+                                values[12] = f"{yMid:0.4f}"
+                            else:
+                                values[11] = f"{float(values[11]) * uMult:0.4f}"
+                                values[12] = f"{float(values[12]) * uMult:0.4f}"
+                            line = f";{', '.join(values)}"
+                            inputs = False
+                        elif ';CONV_BLOCK INPUTS' in line:
+                            inputs = True
+                    line = line[1:] if template else line
+                    code = gcodePattern.match(line).groupdict()
+                    comment = code['C'].strip() if code['C'] else ''
+                    originPoint = f";row{code['OP'].strip()}" if code['OP'] else ''
+                    if originPoint:
+                        line = f"{originPoint} X{float(code['X']) * uMult:0.4f} Y{float(code['Y']) * uMult:0.4f}"
+                    if 'F[#<_hal[plasmac.cut-feed-rate]>' in line:
+                        line = f"F#<_hal[plasmac.cut-feed-rate]> {comment}"
+                    if code['G1'] == oldG:
+                        line = line.replace(code['G1'], newG)
+                    elif code['G1'] == '53' and '#<_ini[axis_z]max_limit>' in line:
+                        line = f"G53 G00 Z[#<_ini[axis_z]max_limit> - {5.00 * unitsPerMm:0.4f}] {comment}"
+                    elif code['G1'] == '64':
+                        Q = float(code['Q']) if code['Q'] else 0.0
+                        line = f"G{code['G1']} P{float(code['P']) * uMult:0.4f} Q{Q * uMult:0.4f} {comment}"
+                    if code['X']:
+                        line = line.replace(f"X{code['X']}", f"X{float(code['X']) * uMult:0.4f}")
+                    if code['Y']:
+                        line = line.replace(f"Y{code['Y']}", f"Y{float(code['Y']) * uMult:0.4f}")
+                    if code['I']:
+                        line = line.replace(f"I{code['I']}", f"I{float(code['I']) * uMult:0.4f}")
+                    if code['J']:
+                        line = line.replace(f"J{code['J']}", f"J{float(code['J']) * uMult:0.4f}")
+                    line = template + line
+                outFile.write(f"{line}\n")
+    window.load(file)
 
 def conv_new_pressed(P, W, button):
     if button and (W.conv_save.isEnabled() or W.conv_send.isEnabled() or P.convPreviewActive or P.oldConvButton == 'conv_block'):
@@ -130,7 +232,7 @@ def conv_new_pressed(P, W, button):
     conv_enable_tabs(P, W)
     if P.oldConvButton == 'conv_block':
         conv_shape_request(P, W, 'conv_line')
-
+    P.isConvBlock = None
 
 def conv_save_pressed(P, W):
     head = _translate('HandlerClass', 'Save Error')
@@ -156,7 +258,6 @@ def conv_save_pressed(P, W):
         conv_enable_tabs(P, W)
     P.vkb_show(True)
 
-
 def conv_settings_pressed(P, W):
     W.conv_material.hide()
     P.color_item(P.oldConvButton, P.foreColor, 'button')
@@ -171,7 +272,6 @@ def conv_settings_pressed(P, W):
     CONVSET.widgets(P, W, P.CONV)
     CONVSET.show(P, W)
 
-
 def conv_send_pressed(P, W):
     COPY(P.fNgcBkp, P.fNgcSent)
     W.conv_send.setEnabled(False)
@@ -179,7 +279,6 @@ def conv_send_pressed(P, W):
     conv_enable_tabs(P, W)
     P.vkb_hide()
     ACTION.OPEN_PROGRAM(P.fNgcSent)
-
 
 def conv_block_pressed(P, W):
     if not P.convSettingsChanged:
@@ -198,10 +297,9 @@ def conv_block_pressed(P, W):
                 #     msg0 = _translate('HandlerClass', 'Cannot scale a GCode NURBS block')
                 #     P.dialog_show_ok(QMessageBox.Warning, f'{head}', f'{msg0}\n\n{line}')
                 #     return
-                elif 'M3' in line or 'm3' in line:
+                elif 'M3' in line.upper() or 'M03' in line.upper():
                     break
     conv_shape_request(P, W, W.sender().objectName())
-
 
 def conv_shape_request(P, W, shape):
     if shape == 'conv_line':
@@ -238,8 +336,13 @@ def conv_shape_request(P, W, shape):
         conv_preview_button(P, W, False)
     if shape == 'conv_block':
         W.conv_material.hide()
+        if P.isConvBlock:
+            conv_shape_buttons(W, False)
+        else:
+            conv_shape_buttons(W, True)
     else:
         W.conv_material.show()
+        conv_shape_buttons(W, True)
     # we use exception handlers here as there may be no signals connected
     try:
         W.conv_material.currentTextChanged.disconnect()
@@ -277,8 +380,9 @@ def conv_shape_request(P, W, shape):
     module.widgets(P, W, P.CONV)
     P.convSettingsChanged = False
 
-
 def conv_preview_button(P, W, state):
+    if state and P.oldConvButton == 'conv_block':
+        conv_shape_buttons(W, False)
     P.convPreviewActive = state
     conv_enable_tabs(P, W)
     if state:
@@ -297,6 +401,10 @@ def conv_preview_button(P, W, state):
         if P.convWidgetsLoaded:
             W.add.setEnabled(False)
 
+def conv_shape_buttons(W, state):
+    buttons = ['line', 'circle', 'ellipse', 'triangle', 'rectangle', 'polygon', 'bolt', 'slot', 'star', 'gusset', 'sector']
+    for button in buttons:
+        W[f'conv_{button}'].setEnabled(state)
 
 def conv_active_shape(P, W):
     btn1 = _translate('HandlerClass', 'CONTINUE')
@@ -310,7 +418,6 @@ def conv_active_shape(P, W):
         conv_preview_button(P, W, False)
     return response
 
-
 def conv_button_color(P, W, button):
     if P.oldConvButton:
         P.color_item(P.oldConvButton, P.foreColor, 'button')
@@ -321,16 +428,9 @@ def conv_button_color(P, W, button):
     W[button].setStyleSheet(f'QPushButton {{ background: {P.foreColor} }} \
                             QPushButton:pressed {{ background: {P.foreColor} }}')
 
-# this doesn't seem to be used
-# def conv_enable_buttons(P, W, state):
-#    for button in ['new', 'save', 'settings', 'send']:
-#        W[f'conv_{button}')].setEnabled(state)
-
-
 def conv_restore_buttons(P, W):
     for button in P.convCommonButtons:
         W[f'conv_{button}'].setEnabled(P.convButtonState[button])
-
 
 def conv_enable_tabs(P, W):
     if W.conv_save.isEnabled() or P.convPreviewActive:
@@ -344,7 +444,6 @@ def conv_enable_tabs(P, W):
             # so we refresh the style here as a workaround
             W.gcode_editor.setStyleSheet(f'EditorBase{{ qproperty-styleColorMarginText: {P.foreColor} }}')
             W.gcode_display.setStyleSheet(f'EditorBase{{ qproperty-styleColorMarginText: {P.foreColor} }}')
-
 
 def conv_entry_changed(P, W, widget, circleType=False):
     if widget:
@@ -403,7 +502,7 @@ def conv_entry_changed(P, W, widget, circleType=False):
         cursor_position = widget.cursorPosition()
         if name in ['intEntry', 'hsEntry', 'cnEntry', 'rnEntry']:
             good = '0123456789'
-        elif name in ['xsEntry', 'ysEntry', 'aEntry', 'coEntry', 'roEntry', 'neg']:
+        elif name in ['xsEntry', 'ysEntry', 'aEntry', 'csEntry', 'rsEntry', 'neg']:
             good = '-.0123456789'
         else:
             good = '.0123456789'
@@ -429,14 +528,12 @@ def conv_entry_changed(P, W, widget, circleType=False):
     else:
         return True
 
-
 def conv_is_float(entry):
     try:
         return True, float(entry)
     except:
         reply = -1 if entry else 0
         return False, reply
-
 
 def conv_is_int(entry):
     try:
@@ -445,14 +542,13 @@ def conv_is_int(entry):
         reply = -1 if entry else 0
         return False, reply
 
-
 def conv_undo_shape(P, W):
     # setup for a reload if required
     if not P.convPreviewActive:
         head = _translate('HandlerClass', 'Reload Request')
         btn1 = _translate('HandlerClass', 'CONTINUE')
         btn2 = _translate('HandlerClass', 'CANCEL')
-        if ACTION.prefilter_path:
+        if P.fileOpened:
             name = os.path.basename(ACTION.prefilter_path)
             msg0 = _translate('HandlerClass', 'The original file will be loaded')
             msg1 = _translate('HandlerClass', 'If you continue all changes will be deleted')
@@ -463,29 +559,29 @@ def conv_undo_shape(P, W):
             msg1 = _translate('HandlerClass', 'If you continue all changes will be deleted')
             if not P.dialog_show_yesno(QMessageBox.Warning, f'{head}', f'{msg0}\n\n{msg1}\n', f'{btn1}', f'{btn2}'):
                 return(True)
-        if ACTION.prefilter_path:
-            COPY(ACTION.prefilter_path, P.fNgcBkp)
-        else:
-            with open(P.fNgcBkp, 'w') as outNgc:
-                outNgc.write('(new conversational file)\nM2\n')
         P.validShape = False
         W.preview.setEnabled(True)
         W.undo.setEnabled(False)
         W.conv_save.setEnabled(False)
         W.conv_send.setEnabled(False)
     # undo the shape
-    if os.path.exists(P.fNgcBkp):
+    if os.path.exists(P.fNgcBkp) and W.undo.text() == 'UNDO':
         COPY(P.fNgcBkp, P.fNgc)
-        W.conv_preview.load(P.fNgc)
-        W.conv_preview.set_current_view()
-        W.add.setEnabled(False)
-        if not P.validShape:
-            W.undo.setEnabled(False)
-        if not P.convBlock[1]:
-            P.convBlock[0] = False
-        conv_preview_button(P, W, False)
-        conv_enable_tabs(P, W)
-
+    elif os.path.exists(P.filteredBkp) and W.undo.text() == 'RELOAD':
+        COPY(P.filteredBkp, P.fNgc)
+        COPY(P.filteredBkp, P.fNgcBkp)
+    else:
+        return
+    W.conv_preview.load(P.fNgc)
+    W.conv_preview.set_current_view()
+    W.add.setEnabled(False)
+    if not P.validShape:
+        W.undo.setEnabled(False)
+    conv_preview_button(P, W, False)
+    conv_enable_tabs(P, W)
+    if P.isConvBlock == 'created':
+        P.isConvBlock = None
+        conv_shape_buttons(W, True)
 
 def conv_add_shape_to_file(P, W):
     COPY(P.fNgc, P.fNgcBkp)
@@ -510,7 +606,6 @@ def conv_add_shape_to_file(P, W):
     conv_preview_button(P, W, False)
     conv_enable_tabs(P, W)
 
-
 def conv_accept(P, W):
     P.validShape = True
     conv_preview_button(P, W, False)
@@ -520,7 +615,6 @@ def conv_accept(P, W):
     W.conv_save.setEnabled(True)
     W.conv_send.setEnabled(True)
     conv_enable_tabs(P, W)
-
 
 def conv_clear_widgets(P, W, settings=False):
     for i in reversed(range(W.entries.count())):
@@ -543,7 +637,7 @@ def conv_clear_widgets(P, W, settings=False):
             if isinstance(widget, QLineEdit) and \
                name not in ['liEntry', 'loEntry', 'xsEntry', 'ysEntry']:
                 widget.setText('')
-            if name in ['aEntry', 'oxEntry', 'oyEntry', 'rtEntry', 'coEntry', 'roEntry']:
+            if name in ['aEntry', 'oxEntry', 'oyEntry', 'rtEntry', 'csEntry', 'rsEntry']:
                 widget.setText('0.0')
             elif name in ['caEntry']:
                 widget.setText('360')
@@ -556,7 +650,6 @@ def conv_clear_widgets(P, W, settings=False):
         W.entries.removeWidget(widget)
         widget.setParent(None)
 
-
 def conv_auto_preview_button(P, W, button):
     if button == 'intext':
         text = 'INTERNAL' if W.intExt.text() == 'EXTERNAL' else 'EXTERNAL'
@@ -568,9 +661,8 @@ def conv_auto_preview_button(P, W, button):
         W.centLeft.setText(text)
         W.centLeft.setChecked(False)
 
-
-# create all required widgets without showing them
 def conv_widgets(P, W):
+    ''' create all required widgets without showing them '''
     # common
     W.preview = QPushButton(_translate('Conversational', 'PREVIEW'))
     W.preview.setFocusPolicy(Qt.ClickFocus)
@@ -589,9 +681,9 @@ def conv_widgets(P, W):
     W.ctLabel = QLabel(_translate('Conversational', 'CUT TYPE'))
     W.spLabel = QLabel(_translate('Conversational', 'START'))
     W.xsLabel = QLabel(_translate('Conversational', 'X ORIGIN'))
-    W.xsEntry = QLineEdit(objectName='xsEntry')
+    W.xsEntry = QLineEdit('0.000', objectName='xsEntry')
     W.ysLabel = QLabel(_translate('Conversational', 'Y ORIGIN'))
-    W.ysEntry = QLineEdit(objectName='ysEntry')
+    W.ysEntry = QLineEdit('0.000', objectName='ysEntry')
     W.overcut = QPushButton(_translate('Conversational', 'OVER CUT'))
     W.overcut.setFocusPolicy(Qt.ClickFocus)
     W.overcut.setEnabled(False)
@@ -666,13 +758,13 @@ def conv_widgets(P, W):
     W.ccLabel = QLabel(_translate('Conversational', 'COLUMNS'))
     W.cnLabel = QLabel(_translate('Conversational', 'NUMBER'))
     W.cnEntry = QLineEdit('1', objectName='cnEntry')
-    W.coEntry = QLineEdit('0.0', objectName='coEntry')
-    W.coLabel = QLabel(_translate('Conversational', 'OFFSET'))
+    W.csEntry = QLineEdit('0.0', objectName='csEntry')
+    W.csLabel = QLabel(_translate('Conversational', 'SPACING'))
     W.rrLabel = QLabel(_translate('Conversational', 'ROWS'))
     W.rnLabel = QLabel(_translate('Conversational', 'NUMBER'))
     W.rnEntry = QLineEdit('1', objectName='rnEntry')
-    W.roEntry = QLineEdit('0.0', objectName='coEntry')
-    W.roLabel = QLabel(_translate('Conversational', 'OFFSET'))
+    W.rsEntry = QLineEdit('0.0', objectName='rsEntry')
+    W.rsLabel = QLabel(_translate('Conversational', 'SPACING'))
     W.oLabel = QLabel(_translate('Conversational', 'ORIGIN'))
     W.oxLabel = QLabel(_translate('Conversational', 'X OFFSET'))
     W.oxEntry = QLineEdit('0.0', objectName='xsEntry')

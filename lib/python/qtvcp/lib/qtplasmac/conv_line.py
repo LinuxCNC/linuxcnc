@@ -91,7 +91,7 @@ def preview(P, W, Conv):
         # variable is not currently used
         del valid
         LINE.first_segment(P.fTmp, P.fNgc, P.fNgcBkp, P.preAmble,
-                           W.lType.currentText(), P.xLineStart, P.yLineStart,
+                           P.xLineStart, P.yLineStart,
                            int(W.conv_material.currentText().split(':')[0]),
                            W.conv_material.currentText().split(':')[1].strip())
     LINE.last_segment(P.fTmp, P.fNgc, P.conv_gcodeLine, P.postAmble)
@@ -298,8 +298,10 @@ def widgets(P, W, Conv):
     P.convAddSegment = 0
     P.conv_gcodeLine = ''
     P.conv_gcodeSave = ''
-    P.xLineStart = P.xLineEnd = 0.000
-    P.yLineStart = P.yLineEnd = 0.000
+    P.xLineStart = 0.000
+    P.yLineStart = 0.000
+    P.xLineEnd = 0.000
+    P.yLineEnd = 0.000
     # connections
     W.conv_material.currentTextChanged.connect(lambda: auto_preview(P, W, Conv))
     W.preview.pressed.connect(lambda: preview(P, W, Conv))
