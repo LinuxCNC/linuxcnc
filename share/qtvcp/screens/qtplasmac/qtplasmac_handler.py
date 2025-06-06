@@ -1,10 +1,10 @@
-VERSION = '008.064'
+VERSION = '008.065'
 LCNCVER = '2.10'
 
 '''
 qtplasmac_handler.py
 
-Copyright (C) 2020-2024 Phillip A Carter
+Copyright (C) 2020-2025 Phillip A Carter
 Copyright (C) 2020-2025 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
@@ -393,7 +393,6 @@ class HandlerClass:
         self.load_material_file()
         self.offset_peripherals()
         self.set_probe_offset_pins()
-        self.wcs_rotation('get')
         STATUS.connect('state-estop', lambda w: self.estop_state(True))
         STATUS.connect('state-estop-reset', lambda w: self.estop_state(False))
         STATUS.connect('state-on', lambda w: self.power_state(True))
@@ -785,7 +784,6 @@ class HandlerClass:
 
     def make_hal_pins(self):
         self.consChangePin = self.h.newpin('consumable_changing', hal.HAL_BIT, hal.HAL_IN)
-        self.convBlockLoaded = self.h.newpin('conv_block_loaded', hal.HAL_BIT, hal.HAL_IN)
         self.convTabDisable = self.h.newpin('conv_disable', hal.HAL_BIT, hal.HAL_IN)
         self.cutTypePin = self.h.newpin('cut_type', hal.HAL_S32, hal.HAL_IN)
         self.developmentPin = self.h.newpin('development', hal.HAL_BIT, hal.HAL_IN)
@@ -1411,8 +1409,6 @@ class HandlerClass:
                 self.w[self.otButton].setEnabled(False)
             if STATUS.is_all_homed():
                 self.set_buttons_state([self.idleHomedList], True)
-                if self.convBlockLoaded.get():
-                    self.wcs_rotation('set')
             else:
                 self.set_buttons_state([self.idleHomedList], False)
             if not self.firstRun:
@@ -1909,8 +1905,6 @@ class HandlerClass:
                 self.w.power.click()
 
     def run_clicked(self):
-        if self.convBlockLoaded.get():
-            self.wcs_rotation('get')
         if self.startLine and self.rflSelected:
             self.w.run.setEnabled(False)
             if self.frButton:
@@ -2027,8 +2021,6 @@ class HandlerClass:
                 hal.set_p('plasmac.cut-recovery', '0')
                 self.laserOnPin.set(0)
             self.interp_idle(None)
-            if self.convBlockLoaded.get():
-                self.wcs_rotation('set')
             log = _translate('HandlerClass', 'Cycle aborted')
             STATUS.emit('update-machine-log', log, 'TIME')
 
@@ -2649,17 +2641,6 @@ class HandlerClass:
 
     def motion_type_changed(self, value):
         if value == 0 and STATUS.is_mdi_mode():
-            ACTION.SET_MANUAL_MODE()
-
-    def wcs_rotation(self, wcs):
-        if wcs == 'get':
-            self.currentRotation = STATUS.stat.rotation_xy
-            self.currentX = STATUS.stat.g5x_offset[0]
-            self.currentY = STATUS.stat.g5x_offset[1]
-        elif wcs == 'set':
-            ACTION.CALL_MDI_WAIT(f'G10 L2 P0 X{self.currentX} Y{self.currentY} R{self.currentRotation}')
-            if self.currentRotation != STATUS.stat.rotation_xy:
-                self.w.gcodegraphics.set_current_view()
             ACTION.SET_MANUAL_MODE()
 
     def set_interlock_defaults(self):

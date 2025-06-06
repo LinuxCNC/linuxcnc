@@ -2758,6 +2758,9 @@ This can include a G-code file not created using the Conversational Shape Librar
 
 A previously saved Block G-code file may also be loaded from the <<plasma:main-tab,MAIN Tab>> and then have any of its operations edited using the Conversational Block feature.
 
+All block operations are done in the machines native units.
+If a file of a different units sytem has been opened then the copy loaded into the CONVERSATIONAL Tab will be converted to the machines native units when the CONVERSATIONAL Tab becomes active.
+
 Block operations:
 
 - Rotate
@@ -2775,7 +2778,7 @@ To create a block:
 . Press *ADD* to complete the procedure.
 . Press *SEND* to send the G-code file to LinuxCNC (QtPlasmaC) for cutting, or *SAVE* to save the G-code file.
 
-COLUMNS & ROWS:: specifies the number of duplicates of the original shape arranged in columns and rows as well as the offset distance from the original shape.
+COLUMNS & ROWS:: specifies the number of duplicates of the original shape arranged in columns and rows as well as the spacing between each shape's origin.
 ORIGIN:: offset the result from the origin coordinates.
 ANGLE:: rotate the result.
 SCALE:: scale the result.
