@@ -40,7 +40,8 @@ class Status(GStat):
     __gsignals__ = {
         'toolfile-stale': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
     }
-    TEMPARARY_MESSAGE = 255
+    TEMPARARY_MESSAGE = 255 # remove in the future
+    TEMPORARY_MESSAGE = 255
     OPERATOR_ERROR = linuxcnc.OPERATOR_ERROR
     OPERATOR_TEXT = linuxcnc.OPERATOR_TEXT
     NML_ERROR = linuxcnc.NML_ERROR
