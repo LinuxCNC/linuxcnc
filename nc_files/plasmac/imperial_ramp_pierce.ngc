@@ -9,7 +9,7 @@
  G64 P0.005 (path tolerance)
  G40 (cutter compensation: off)
  G90 (distance mode: absolute)
- M52 P1 (adaptive feed: on)
+ M52 P1 (enable adaptive feed)
  M65 P2 (enable THC)
  M65 P3 (enable torch)
  M68 E3 Q0 (velocity 100%)

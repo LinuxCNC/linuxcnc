@@ -1729,9 +1729,10 @@ G64 P0.004
 [[plasma:paused-motion]]
 === Paused Motion
 
-QtPlasmaC has the ability to allow the repositioning of the X and Y axes along the current cut path while the G-code program is paused.
+QtPlasmaC has the ability to allow the repositioning of the X and Y axes along the current cut path while the G-code program is paused, aiding in <<plasma:cut-recovery,Cut Recovery>>.
 
 In order to use this feature, LinuxCNC's Adaptive Feed Control (M52) must be turned on (P1).
+This is also a requirement for <<plasma:hole-cutting-velocity-reduction,Hole Cutting Velocity Reduction>>.
 
 To enable *Paused Motion* The preamble of the G-code must contain the following line:
 
@@ -2012,6 +2013,23 @@ If cutting a hole requires a reduced velocity, then the user would use the follo
 `M67 E3 Qnn` where `nn` is the percentage of the velocity desired.
 For example, `M67 E3 Q60` would set the velocity to 60% of the current material's *CutFeedRate*.
 
+In order to use this feature, LinuxCNC's Adaptive Feed Control (M52) must be turned on (P1).
+This is also a requirement for <<plasma:paused-motion,Paused Motion>> during <<plasma:cut-recovery,Cut Recovery>>.
+
+To enable *Hole Cutting Velocity Reduction* The preamble of the G-code must contain the following line:
+
+[source,{ngc}]
+----
+M52 P1
+----
+
+To turn off *Hole Cutting Velocity Reduction* at any point, use the following command:
+
+[source,{ngc}]
+----
+M52 P0
+----
+
 See the <<plasma:velocity_thc,Velocity Based THC>> section.
 
 .Sample code for hole cutting with reduced velocity.
@@ -2019,7 +2037,7 @@ See the <<plasma:velocity_thc,Velocity Based THC>> section.
 ----
 G21 (metric)
 G64 P0.005
-M52 P1 (allow paused motion)
+M52 P1 (enable adaptive feed)
 F#<_hal[plasmac.cut-feed-rate]> (feed rate from cut parameters)
 G0 X10 Y10
 M3 $0 S1 (start cut)
@@ -2062,7 +2080,7 @@ Sample code:
 ----
 G21 (metric)
 G64 P0.005
-M52 P1 (allow paused motion)
+M52 P1 (enable adaptive feed)
 F#<_hal[plasmac.cut-feed-rate]> (feed rate from cut parameters)
 G0 X10 Y10
 M3 $0 S1 (start cut)
@@ -2120,7 +2138,7 @@ This feature can be used in addition to setting the desired hole sensing mode vi
 ----
 G21 (metric)
 G64 P0.005
-M52 P1 (allow paused motion)
+M52 P1 (enable adaptive feed)
 F#<_hal[plasmac.cut-feed-rate]> (feed rate from cut parameters)
 #<holes> = 2 (over cut for holes)
 #<oclength> = 6.5 (optional, 6.5 mm over cut length)
@@ -2405,7 +2423,7 @@ To use the scribe from G-code:
 [source,{ngc}]
 ----
 ...
-M52 P1 (paused motion on)
+M52 P1 (enable adaptive feed)
 F#<_hal[plasmac.cut-feed-rate]>
 T1 M6 (select scribe)
 G43 H0 (apply offsets for current tool)
@@ -2659,8 +2677,10 @@ This will place each code on its own line:
 
 [source,{ngc}]
 ----
-G21\nG40\nG49\nG64p0.1\nG80\nG90\nG92.1\nG94\nG97
+G21\nG40\nG49\nM52P1\nG64p0.1\nG80\nG90\nG92.1\nG94\nG97
 ----
+
+Note that LinuxCNC does not allow multiple *P* words on the same line.
 
 Pressing the *RELOAD* button will discard any changed but unsaved settings.
 
@@ -4372,7 +4392,7 @@ M5 $0
 |Set velocity to 40% of CutFeedRate m|M67 E3 Q40
 |Cut a hole with 60% reduced speed using velocity setting m|G21 (metric) +
 G64 P0.05 +
-M52 P1 (allow paused motion) +
+M52 P1 (enable adaptive feed) +
 F#<_hal[plasmac.cut-feed-rate]> +
 G0 X10 Y10 +
 M3 $0 S1 (start cut) +
@@ -4385,7 +4405,7 @@ G0 X0 Y0 +
 M2 (end job)
 |Cut a hole with 60% reduced speed using the #<holes> command m|G21 (metric) +
 G64 P0.05 +
-M52 P1 (allow paused motion) +
+M52 P1 (enable adaptive feed) +
 \#<holes> = 1 (velocity reduction for holes) +
 F#<_hal[plasmac.cut-feed-rate]> +
 G0 X10 Y10 +
@@ -4397,7 +4417,7 @@ G0 X0 Y0 +
 M2 (end job)
 |Cut a hole with over cut using torch disable m|G21 (metric) +
 G64 P0.05 +
-M52 P1 (allow paused motion) +
+M52 P1 (enable adaptive feed) +
 F#<_hal[plasmac.cut-feed-rate]> +
 G0 X10 Y10 +
 M3 $0 S1 (start cut) +
@@ -4413,7 +4433,7 @@ G0 X0 Y0 +
 M2 (end job)
 |Cut a hole with over cut using the #<holes> command m|G21 (metric) +
 G64 P0.05 +
-M52 P1 (allow paused motion) +
+M52 P1 (enable adaptive feed) +
 \#<holes> = 2 (over cut for holes) +
 F#<_hal[plasmac.cut-feed-rate]> +
 G0 X10 Y10 +
@@ -4425,7 +4445,7 @@ G0 X0 Y0 +
 M2 (end job) +
 |Cut a hole with 6.5 mm over cut using the #<holes> command m|G21 (metric) +
 G64 P0.05 +
-M52 P1 (allow paused motion) +
+M52 P1 (enable adaptive feed) +
 \#<holes> = 2 (over cut for holes) +
 #<oclength> = 6.5 (6.5 mm over cut length) +
 F#<_hal[plasmac.cut-feed-rate]> +
@@ -4438,7 +4458,7 @@ G0 X0 Y0 +
 M2 (end job)
 |Select scribe and select torch at end of scribing m|. +
 . +
-M52 P1 (paused motion on) +
+M52 P1 (enable adaptive feed) +
 F#<_hal[plasmac.cut-feed-rate]> +
 T1 M6 (select scribe) +
 G43 H0 (apply offsets) +
