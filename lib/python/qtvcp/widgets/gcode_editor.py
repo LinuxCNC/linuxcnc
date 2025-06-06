@@ -637,7 +637,7 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
     def load_program(self, w, filename=None):
         if filename is None:
             filename = self._last_filename
-        elif 'program_clear.ngc' in filename:
+        elif 'file_clear.ngc' in filename:
             self._last_filename = None
         else:
             self._last_filename = filename
