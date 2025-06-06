@@ -30,10 +30,6 @@ _translate = QCoreApplication.translate
 def preview(P, W, Conv):
     if P.dialogError:
         return
-    if not W.xsEntry.text():
-        W.xsEntry.setText(f'{P.xOrigin:0.3f}')
-    if not W.ysEntry.text():
-        W.ysEntry.setText(f'{P.yOrigin:0.3f}')
     error = GUSSET.preview(Conv, P.fTmp, P.fNgc, P.fNgcBkp,
                            int(W.conv_material.currentText().split(':')[0]),
                            W.conv_material.currentText().split(':')[1].strip(),
@@ -183,5 +179,7 @@ def widgets(P, W, Conv):
         W.entries.addWidget(W.undo, 9, 4)
         W.entries.addWidget(W.lDesc, 10, 1, 1, 3)
         W.entries.addWidget(W.iLabel, 0, 5, 7, 3)
+    if W.aEntry.text() == '0.0':
+        W.aEntry.setText('90.0')
     W.wEntry.setFocus()
     P.convSettingsChanged = False
