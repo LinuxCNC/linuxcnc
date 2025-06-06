@@ -124,24 +124,26 @@ def preview(Conv, fTmp, fNgc, fNgcBkp,
     inWiz = open(fNgcBkp, 'r')
     # begin writing the gcode
     for line in inWiz:
-        if '(new conversational file)' in line:
-            if('\\n') in preAmble:
-                outNgc.write('(preamble)\n')
-                for l in preAmble.split('\\n'):
-                    outNgc.write(f'{l}\n')
-            else:
-                outNgc.write(f'\n{preAmble} (preamble)\n')
-            break
-        elif '(postamble)' in line:
-            break
-        elif 'm2' in line.lower() or 'm30' in line.lower():
-            continue
-        outNgc.write(line)
+        line = line.strip()
+        if line and line[0] not in ';':
+            if '(new conversational file)' in line:
+                if('\\n') in preAmble:
+                    outNgc.write('(preamble)\n')
+                    for l in preAmble.split('\\n'):
+                        outNgc.write(f'{l}\n')
+                else:
+                    outNgc.write(f'\n{preAmble} (preamble)\n')
+                break
+            elif '(postamble)' in line:
+                break
+            elif 'M2' in line.upper() or 'M02' in line.upper() or 'M30' in line.upper():
+                continue
+        outNgc.write(f"{line}\n")
     outTmp.write('\n(conversational ellipse)\n')
     outTmp.write(f';using material #{matNumber}: {matName}\n')
     outTmp.write(f'M190 P{matNumber}\n')
     outTmp.write('M66 P3 L3 Q1\n')
-    outTmp.write('f#<_hal[plasmac.cut-feed-rate]>\n')
+    outTmp.write('F#<_hal[plasmac.cut-feed-rate]>\n')
     # get the angle of the first segment
     if isExternal:
         dX = X[start - 1] - X[start]
@@ -165,23 +167,23 @@ def preview(Conv, fTmp, fNgc, fNgcBkp,
         ylcenter = Y[start] + (leadInOffset * numpy.sin(segAngle + dir[0]))
         xlStart = xlcenter + (leadInOffset * numpy.cos(segAngle + dir[1]))
         ylStart = ylcenter + (leadInOffset * numpy.sin(segAngle + dir[1]))
-        outTmp.write(f'g0 x{xlStart:.6f} y{ylStart:.6f}\n')
-        outTmp.write('m3 $0 s1\n')
-        outTmp.write(f'g3 x{X[start]:.6f} y{Y[start]:.6f} i{xlcenter - xlStart:.6f} j{ylcenter - ylStart:.6f}\n')
+        outTmp.write(f'G00 X{xlStart:.6f} Y{ylStart:.6f}\n')
+        outTmp.write('M03 $0 S1\n')
+        outTmp.write(f'G03 X{X[start]:.6f} Y{Y[start]:.6f} I{xlcenter - xlStart:.6f} J{ylcenter - ylStart:.6f}\n')
     else:
-        outTmp.write(f'g0 x{X[start]:.6f} y{Y[start]:.6f}\n')
-        outTmp.write('m3 $0 s1\n')
+        outTmp.write(f'G00 X{X[start]:.6f} Y{Y[start]:.6f}\n')
+        outTmp.write('M03 $0 S01\n')
     # write the ellipse points
     if isExternal:
         for point in range(start, -1, -1):
-            outTmp.write(f'g1 x{X[point]:.6f} y{Y[point]:.6f}\n')
+            outTmp.write(f'G01 X{X[point]:.6f} Y{Y[point]:.6f}\n')
         for point in range(points - 1, start - 1, -1):
-            outTmp.write(f'g1 x{X[point]:.6f} y{Y[point]:.6f}\n')
+            outTmp.write(f'G01 X{X[point]:.6f} Y{Y[point]:.6f}\n')
     else:
         for point in range(start, points, 1):
-            outTmp.write(f'g1 x{X[point]:.6f} y{Y[point]:.6f}\n')
+            outTmp.write(f'G01 X{X[point]:.6f} Y{Y[point]:.6f}\n')
         for point in range(0, start + 1, 1):
-            outTmp.write(f'g1 x{X[point]:.6f} y{Y[point]:.6f}\n')
+            outTmp.write(f'G01 X{X[point]:.6f} Y{Y[point]:.6f}\n')
     # leadout points if required
     if leadOutOffset:
         if isExternal:
@@ -192,20 +194,20 @@ def preview(Conv, fTmp, fNgc, fNgcBkp,
         ylcenter = Y[start] + (leadOutOffset * numpy.sin(segAngle + dir[0]))
         xlEnd = xlcenter + (leadOutOffset * numpy.cos(segAngle + dir[1]))
         ylEnd = ylcenter + (leadOutOffset * numpy.sin(segAngle + dir[1]))
-        outTmp.write(f'g3 x{xlEnd:.6f} y{ylEnd:.6f} i{xlcenter - X[start]:.6f} j{ylcenter - Y[start]:.6f}\n')
+        outTmp.write(f'G03 X{xlEnd:.6f} Y{ylEnd:.6f} I{xlcenter - X[start]:.6f} J{ylcenter - Y[start]:.6f}\n')
     # finish off and close files
-    outTmp.write('m5 $0\n')
+    outTmp.write('M05 $0\n')
     outTmp.close()
     outTmp = open(fTmp, 'r')
     for line in outTmp:
         outNgc.write(line)
     outTmp.close()
     if('\\n') in postAmble:
-        outNgc.write('(postamble)\n')
+        outNgc.write('\n(postamble)\n')
         for l in postAmble.split('\\n'):
             outNgc.write(f'{l}\n')
     else:
         outNgc.write(f'\n{postAmble} (postamble)\n')
-    outNgc.write('m2\n')
+    outNgc.write('M02\n')
     outNgc.close()
     return False

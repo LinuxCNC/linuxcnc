@@ -136,25 +136,27 @@ def preview(Conv, fTmp, fNgc, fNgcBkp,
     outNgc = open(fNgc, 'w')
     inWiz = open(fNgcBkp, 'r')
     for line in inWiz:
-        if '(new conversational file)' in line:
-            if('\\n') in preAmble:
-                outNgc.write('(preamble)\n')
-                for l in preAmble.split('\\n'):
-                    outNgc.write(f'{l}\n')
-            else:
-                outNgc.write(f'\n{preAmble} (preamble)\n')
-            break
-        elif '(postamble)' in line:
-            break
-        elif 'm2' in line.lower() or 'm30' in line.lower():
-            continue
-        outNgc.write(line)
+        line = line.strip()
+        if line and line[0] not in ';':
+            if '(new conversational file)' in line:
+                if('\\n') in preAmble:
+                    outNgc.write('(preamble)\n')
+                    for l in preAmble.split('\\n'):
+                        outNgc.write(f'{l}\n')
+                else:
+                    outNgc.write(f'\n{preAmble} (preamble)\n')
+                break
+            elif '(postamble)' in line:
+                break
+            elif 'M2' in line.upper() or 'M02' in line.upper() or 'M30' in line.upper():
+                continue
+        outNgc.write(f"{line}\n")
     for hole in range(holeNum):
         outTmp.write(f'\n(conversational bolt circle, hole #{hole + 1})\n')
         outTmp.write(f';using material #{matNumber}: {matName}\n')
         outTmp.write(f'M190 P{matNumber}\n')
         outTmp.write('M66 P3 L3 Q1\n')
-        outTmp.write('f#<_hal[plasmac.cut-feed-rate]>\n')
+        outTmp.write('F#<_hal[plasmac.cut-feed-rate]>\n')
         xhC = xC + cRadius * math.cos(hAngle * hole + angle)
         yhC = yC + cRadius * math.sin(hAngle * hole + angle)
         xS = xhC - hRadius
@@ -162,26 +164,26 @@ def preview(Conv, fTmp, fNgc, fNgcBkp,
         if sHole or invalidLeads == 2:
             xlStart = xS + leadinOffset
             ylStart = yhC
-            outTmp.write(f'g0 x{xlStart:.6f} y{ylStart:.6f}\n')
-            outTmp.write('m3 $0 s1\n')
-            outTmp.write(f'g1 x{xS:.6f} y{yS:.6f}\n')
+            outTmp.write(f'G00 x{xlStart:.6f} Y{ylStart:.6f}\n')
+            outTmp.write('M03 $0 S1\n')
+            outTmp.write(f'G01 X{xS:.6f} Y{yS:.6f}\n')
             if sHole:
-                outTmp.write(f'm67 E3 Q{smallHoleSpeed}\n')
+                outTmp.write(f'M67 E3 Q{smallHoleSpeed}\n')
         else:
             xlCentre = xS + (leadinOffset * math.cos(angle + right))
             ylCentre = yS + (leadinOffset * math.sin(angle + right))
             xlStart = xlCentre + (leadinOffset * math.cos(angle + up))
             ylStart = ylCentre + (leadinOffset * math.sin(angle + up))
-            outTmp.write(f'g0 x{xlStart:.6f} y{ylStart:.6f}\n')
-            outTmp.write('m3 $0 s1\n')
+            outTmp.write(f'G00 X{xlStart:.6f} Y{ylStart:.6f}\n')
+            outTmp.write('M03 $0 S1\n')
             if leadinLength:
-                outTmp.write(f'g3 x{xS:.6f} y{yS:.6f} i{xlCentre - xlStart:.6f} j{ylCentre - ylStart:.6f}\n')
-        outTmp.write(f'g3 x{xS:.6f} y{yS:.6f} i{hRadius:.6f}\n')
+                outTmp.write(f'G03 X{xS:.6f} Y{yS:.6f} I{xlCentre - xlStart:.6f} J{ylCentre - ylStart:.6f}\n')
+        outTmp.write(f'G03 X{xS:.6f} Y{yS:.6f} I{hRadius:.6f}\n')
         torch = True
         if sHole:
             if isOvercut:
                 torch = False
-                outTmp.write('m62 p3 (disable torch)\n')
+                outTmp.write('M62 P3 (disable torch)\n')
                 centerX = xS + hRadius
                 centerY = yS
                 cosA = math.cos(oclength / hRadius)
@@ -190,34 +192,34 @@ def preview(Conv, fTmp, fNgc, fNgcBkp,
                 sinB = (yS - centerY) / hRadius
                 endX = centerX + hRadius * ((cosB * cosA) - (sinB * sinA))
                 endY = centerY + hRadius * ((sinB * cosA) + (cosB * sinA))
-                outTmp.write(f'g3 x{endX:.6f} y{endY:.6f} i{hRadius:.6f} j{0:.6f}\n')
+                outTmp.write(f'G03 X{endX:.6f} Y{endY:.6f} I{hRadius:.6f} J{0:.6f}\n')
         else:
             if leadoutLength and not invalidLeads:
                 xlCentre = xS + (leadoutOffset * math.cos(angle + right))
                 ylCentre = yS + (leadoutOffset * math.sin(angle + right))
                 xlStart = xlCentre + (leadoutOffset * math.cos(angle + down))
                 ylStart = ylCentre + (leadoutOffset * math.sin(angle + down))
-                outTmp.write(f'g0 x{xlStart:.6f} y{ylStart:.6f}\n')
-                outTmp.write('m3 $0 s1\n')
+                outTmp.write(f'G00 X{xlStart:.6f} Y{ylStart:.6f}\n')
+                outTmp.write('M03 $0 S1\n')
                 if leadinLength:
-                    outTmp.write(f'g2 x{xS:.6f} y{yS:.6f} i{xlCentre - xlStart:.6f} j{ylCentre - ylStart:.6f}\n')
-        outTmp.write('m5 $0\n')
+                    outTmp.write(f'G02 X{xS:.6f} Y{yS:.6f} I{xlCentre - xlStart:.6f} J{ylCentre - ylStart:.6f}\n')
+        outTmp.write('M05 $0\n')
         if sHole:
             outTmp.write('M68 E3 Q0 (reset feed rate to 100%)\n')
         if not torch:
             torch = True
-            outTmp.write('m65 p3 (enable torch)\n')
+            outTmp.write('M65 P3 (enable torch)\n')
     outTmp.close()
     outTmp = open(fTmp, 'r')
     for line in outTmp:
         outNgc.write(line)
     outTmp.close()
     if('\\n') in postAmble:
-        outNgc.write('(postamble)\n')
+        outNgc.write('\n(postamble)\n')
         for l in postAmble.split('\\n'):
             outNgc.write(f'{l}\n')
     else:
         outNgc.write(f'\n{postAmble} (postamble)\n')
-    outNgc.write('m2\n')
+    outNgc.write('M02\n')
     outNgc.close()
     return False

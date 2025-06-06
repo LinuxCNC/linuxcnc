@@ -141,52 +141,54 @@ def preview(Conv, fTmp, fNgc, fNgcBkp,
     outNgc = open(fNgc, 'w')
     inWiz = open(fNgcBkp, 'r')
     for line in inWiz:
-        if '(new conversational file)' in line:
-            if('\\n') in preAmble:
-                outNgc.write('(preamble)\n')
-                for l in preAmble.split('\\n'):
-                    outNgc.write(f'{l}\n')
-            else:
-                outNgc.write(f'\n{preAmble} (preamble)\n')
-            break
-        elif '(postamble)' in line:
-            break
-        elif 'm2' in line.lower() or 'm30' in line.lower():
-            continue
-        outNgc.write(line)
+        line = line.strip()
+        if line and line[0] not in ';':
+            if '(new conversational file)' in line:
+                if('\\n') in preAmble:
+                    outNgc.write('(preamble)\n')
+                    for l in preAmble.split('\\n'):
+                        outNgc.write(f'{l}\n')
+                else:
+                    outNgc.write(f'\n{preAmble} (preamble)\n')
+                break
+            elif '(postamble)' in line:
+                break
+            elif 'M2' in line.upper() or 'M02' in line.upper() or 'M30' in line.upper():
+                continue
+        outNgc.write(f"{line}\n")
     outTmp.write('\n(conversational sector)\n')
     outTmp.write(f';using material #{matNumber}: {matName}\n')
     outTmp.write(f'M190 P{matNumber}\n')
     outTmp.write('M66 P3 L3 Q1\n')
-    outTmp.write('f#<_hal[plasmac.cut-feed-rate]>\n')
-    outTmp.write(f'g0 x{xIS:.6f} y{yIS:.6f}\n')
-    outTmp.write('m3 $0 s1\n')
+    outTmp.write('F#<_hal[plasmac.cut-feed-rate]>\n')
+    outTmp.write(f'G00 X{xIS:.6f} Y{yIS:.6f}\n')
+    outTmp.write('M03 $0 S1\n')
     if leadInOffset:
-        outTmp.write(f'g3 x{xS:.6f} y{yS:.6f} i{xIC - xIS:.6f} j{yIC - yIS:.6f}\n')
+        outTmp.write(f'G03 X{xS:.6f} Y{yS:.6f} I{xIC - xIS:.6f} J{yIC - yIS:.6f}\n')
     if isExternal:
-        outTmp.write(f'g1 x{xO:.6f} y{yO:.6f}\n')
-        outTmp.write(f'g1 x{xT:.6f} y{yT:.6f}\n')
-        outTmp.write(f'g2 x{xB:.6f} y{yB:.6f} i{xO - xT:.6f} j{yO - yT:.6f}\n')
+        outTmp.write(f'G01 X{xO:.6f} Y{yO:.6f}\n')
+        outTmp.write(f'G01 X{xT:.6f} Y{yT:.6f}\n')
+        outTmp.write(f'G02 X{xB:.6f} Y{yB:.6f} I{xO - xT:.6f} J{yO - yT:.6f}\n')
     else:
-        outTmp.write(f'g1 x{xB:.6f} y{yB:.6f}\n')
-        outTmp.write(f'g3 x{xT:.6f} y{yT:.6f} i{xO - xB:.6f} j{yO - yB:.6f}\n')
-        outTmp.write(f'g1 x{xO:.6f} y{yO:.6f}\n')
-    outTmp.write(f'g1 x{xS:.6f} y{yS:.6f}\n')
+        outTmp.write(f'G01 X{xB:.6f} Y{yB:.6f}\n')
+        outTmp.write(f'G03 X{xT:.6f} Y{yT:.6f} I{xO - xB:.6f} J{yO - yB:.6f}\n')
+        outTmp.write(f'G01 X{xO:.6f} Y{yO:.6f}\n')
+    outTmp.write(f'G01 X{xS:.6f} Y{yS:.6f}\n')
     if leadOutOffset:
-        outTmp.write(f'g3 x{xOE:.6f} y{yOE:.6f} i{xOC - xS:.6f} j{yOC - yS:.6f}\n')
-    outTmp.write('m5 $0\n')
+        outTmp.write(f'G03 X{xOE:.6f} Y{yOE:.6f} I{xOC - xS:.6f} J{yOC - yS:.6f}\n')
+    outTmp.write('M05 $0\n')
     outTmp.close()
     outTmp = open(fTmp, 'r')
     for line in outTmp:
         outNgc.write(line)
     outTmp.close()
     if('\\n') in postAmble:
-        outNgc.write('(postamble)\n')
+        outNgc.write('\n(postamble)\n')
         for l in postAmble.split('\\n'):
             outNgc.write(f'{l}\n')
     else:
         outNgc.write(f'\n{postAmble} (postamble)\n')
-    outNgc.write('m2\n')
+    outNgc.write('M02\n')
     outNgc.close()
     return False
 

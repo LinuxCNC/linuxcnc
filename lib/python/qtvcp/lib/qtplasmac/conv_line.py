@@ -91,7 +91,7 @@ def preview(P, W, Conv):
         # variable is not currently used
         del valid
         LINE.first_segment(P.fTmp, P.fNgc, P.fNgcBkp, P.preAmble,
-                           W.lType.currentText(), P.xLineStart, P.yLineStart,
+                           P.xLineStart, P.yLineStart,
                            int(W.conv_material.currentText().split(':')[0]),
                            W.conv_material.currentText().split(':')[1].strip())
     LINE.last_segment(P.fTmp, P.fNgc, P.conv_gcodeLine, P.postAmble)
