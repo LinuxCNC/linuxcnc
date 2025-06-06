@@ -675,7 +675,7 @@ class FileDialog(QFileDialog, GeometryMixin):
         else:
             self.setDirectory(self.default_path)
         if preselect:
-            self.selectFile(preselect)
+            self.selectFile(os.path.basename(preselect))
         else:
             self.selectFile('')
 
@@ -714,7 +714,7 @@ class FileDialog(QFileDialog, GeometryMixin):
         if directory:
             self.setDirectory(os.path.expanduser(directory))
         if preselect:
-            self.selectFile(preselect)
+            self.selectFile(os.path.basename(preselect))
         else:
             self.selectFile(' ')
 
