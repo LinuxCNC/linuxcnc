@@ -1,6 +1,6 @@
 :manvolnum: 3
 
-= rtapi_task_pause(3rtapi)
+= rtapi_task_pause(3)
 
 == NAME
 
@@ -52,4 +52,4 @@ An RTAPI status code.
 
 == SEE ALSO
 
-rtapi_task_new(3rtapi), rtapi_task_start(3rtapi)
+rtapi_task_new(3), rtapi_task_start(3)

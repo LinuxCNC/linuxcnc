@@ -1,6 +1,6 @@
 :manvolnum: 3
 
-= hal_param_new(3hal)
+= hal_param_new(3)
 
 == NAME
 
@@ -42,7 +42,7 @@ _comp_id_::
 _fmt, ..._::
   A printf-style format string and arguments.
 _type_::
-  The type of the parameter, as specified in *hal_type_t(3hal)*.
+  The type of the parameter, as specified in *hal_type_t(3)*.
 
 == DESCRIPTION
 
@@ -57,4 +57,4 @@ Returns a HAL status code.
 
 == SEE ALSO
 
-hal_type_t(3hal)
+hal_type_t(3)

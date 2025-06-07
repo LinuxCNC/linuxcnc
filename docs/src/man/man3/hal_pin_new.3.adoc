@@ -1,6 +1,6 @@
 :manvolnum: 3
 
-= hal_pin_new(3hal)
+= hal_pin_new(3)
 
 == NAME
 
@@ -52,7 +52,7 @@ comp_id::
 fmt,::
   printf-style format string and arguments
 type::
-  The type of the param, as specified in *hal_type_t(3hal)*.
+  The type of the param, as specified in *hal_type_t(3)*.
 
 == DESCRIPTION
 
@@ -71,4 +71,4 @@ Returns 0 on success, or a negative errno value on failure.
 
 == SEE ALSO
 
-hal_type_t(3hal), hal_link(3hal)
+hal_type_t(3), hal_link(3)
