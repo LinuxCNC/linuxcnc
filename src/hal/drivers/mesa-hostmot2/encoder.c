@@ -607,6 +607,13 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
             }
+
+          rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.no_clear_on_index", hm2->llio->name, i);
+            r = hal_pin_bit_new(name, HAL_IN, &(hm2->encoder.instance[i].hal.pin.no_clear_on_index), hm2->llio->comp_id);
+            if (r < 0) {
+                HM2_ERR("error adding pin '%s', aborting\n", name);
+                goto fail1;
+            }
  
             if (hm2->encoder.firmware_supports_probe) {
                 rtapi_snprintf(name, sizeof(name), "%s.encoder.%02d.probe-enable", hm2->llio->name, i);
@@ -718,6 +725,7 @@ int hm2_encoder_parse_md(hostmot2_t *hm2, int md_index) {
 
             *hm2->encoder.instance[i].hal.pin.reset = 0;
             *hm2->encoder.instance[i].hal.pin.index_enable = 0;
+            *hm2->encoder.instance[i].hal.pin.no_clear_on_index = 0;
 
             hm2->encoder.instance[i].hal.param.scale = 1.0;
             hm2->encoder.instance[i].hal.param.index_invert = 0;
@@ -851,7 +859,8 @@ static void hm2_encoder_instance_update_rawcounts_and_handle_index(hostmot2_t *h
     //
     // if we've told the FPGA we're looking for an index pulse:
     //     read the latch/ctrl register
-    //     if it's triggered set zero_offset to the rawcounts version of the latched count
+    //     if it's triggered  and no_clear_on_index is false, set 
+    //     zero_offset to the rawcounts version of the latched count
     //
 
     if (e->prev_control & HM2_ENCODER_LATCH_ON_INDEX) {
@@ -867,14 +876,18 @@ static void hm2_encoder_instance_update_rawcounts_and_handle_index(hostmot2_t *h
             reg_count_diff = (rtapi_s32)latched_count - (rtapi_s32)e->prev_reg_count;
             if (reg_count_diff > 32768) reg_count_diff -= 65536;
             if (reg_count_diff < -32768) reg_count_diff += 65536;
-
-            e->zero_offset = prev_rawcounts + reg_count_diff;
-            e->zero_offset_64 = prev_rawcounts_64 + (rtapi_s64)reg_count_diff;
+            if (!*(e->hal.pin.no_clear_on_index)) {
+              e->zero_offset = prev_rawcounts + reg_count_diff;
+              e->zero_offset_64 = prev_rawcounts_64 + (rtapi_s64)reg_count_diff;
+            }
+            *(e->hal.pin.rawlatch) = prev_rawcounts + reg_count_diff;
+            *(e->hal.pin.rawlatch_64) = prev_rawcounts_64 + (rtapi_s64)reg_count_diff;
             *e->hal.pin.index_enable = 0;
             // may need to update interpolated position after index event because
             // this _may_ happen without a count but its pretty ugly...
             // *e->hal.pin.count = *e->hal.pin.rawcounts - e->zero_offset;
             //*e->hal.pin.position_interpolated = *e->hal.pin.count / e->hal.param.scale;
+            
         }
     } else if(e->prev_control & HM2_ENCODER_LATCH_ON_PROBE) {
         if (hm2->encoder.firmware_supports_probe) {
@@ -941,6 +954,8 @@ static void hm2_encoder_instance_update_position(hostmot2_t *hm2, int instance) 
     if (*e->hal.pin.reset) {
         e->zero_offset = *e->hal.pin.rawcounts;
         e->zero_offset_64 = *e->hal.pin.rawcounts_64;
+        *e->hal.pin.rawlatch = e->zero_offset;
+        *e->hal.pin.rawlatch_64 =  e->zero_offset_64;
         *e->hal.pin.position_interpolated = *e->hal.pin.position; 
 
     }
