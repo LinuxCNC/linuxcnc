@@ -525,7 +525,7 @@ RTAPI_MP_LONG.3
 RTAPI_MP_STRING.3
 rtapi_mutex.3
 rtapi_outb.3
-rtapi_print.3rtap
+rtapi_print.3
 rtapi_prio.3
 rtapi_prio_highest.3
 rtapi_prio_lowest.3
@@ -540,7 +540,7 @@ rtapi_shmem_delete.3
 rtapi_shmem_getptr.3
 rtapi_shmem_new.3
 rtapi_snprintf.3
-rtapi_task_delete.3rtpi
+rtapi_task_delete.3
 rtapi_task_new.3
 rtapi_task_pause.3
 rtapi_task_resume.3
