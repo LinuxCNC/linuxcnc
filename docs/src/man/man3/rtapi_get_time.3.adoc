@@ -1,6 +1,6 @@
 :manvolnum: 3
 
-= rtapi_get_time(3rtapi)
+= rtapi_get_time(3)
 
 == NAME
 

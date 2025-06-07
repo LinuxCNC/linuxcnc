@@ -117,7 +117,7 @@ of a line) inside a single option.
 
 == SEE ALSO
 
-hal(3hal)
+hal(3)
 
 == AUTHOR
 
