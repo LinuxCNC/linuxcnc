@@ -3,12 +3,17 @@ from PyQt5.QtCore import pyqtProperty, pyqtSlot
 from qtvcp.widgets.widget_baseclass import (_HalWidgetBase)
 from qtvcp.lib.aux_program_loader import Aux_program_loader as _loader
 from qtvcp.core import Action, Status, Info
+from qtvcp import logger
 import hal
 
 AUX_PRGM = _loader()
 ACTION = Action()
 STATUS = Status()
 INFO = Info()
+LOG = logger.getLogger(__name__)
+
+# Force the log level for this module
+# LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 # LED indicator on the right corner
 class IndicatedMixIn( _HalWidgetBase):
