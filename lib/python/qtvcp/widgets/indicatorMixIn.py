@@ -20,6 +20,7 @@ class IndicatedMixIn( _HalWidgetBase):
     def __init__(self):
         super(IndicatedMixIn, self).__init__()
         self._indicator_state = False # Current State
+        self._indicator2_state = False # Current State
         # if user want to block their signals
         self._external_block_signal = False
 
@@ -35,6 +36,7 @@ class IndicatedMixIn( _HalWidgetBase):
 
         # indicator LED data
         self.draw_indicator = False # Show LED
+        self._doubleIndicator = False # show second ZED
         self._HAL_pin = False # control by HAL
         self._shape = 0 # 0 triangle, 1 circle
         self._size = .3 # triangle
@@ -50,6 +52,7 @@ class IndicatedMixIn( _HalWidgetBase):
         self._flashState = False
         # is flashing on?
         self._flashing = True
+        self._flashing2 = True
         # should flash?
         self._flashOption = False
         self._flashRate = 200
@@ -111,6 +114,10 @@ class IndicatedMixIn( _HalWidgetBase):
                 pname = self._pin_name_
             self.hal_pin_led = self.HAL_GCOMP_.newpin(pname + '-led', hal.HAL_BIT, hal.HAL_IN)
             self.hal_pin_led.value_changed.connect(lambda data: self.indicator_update(data))
+            if self._doubleIndicator:
+                self.hal_pin_led2 = self.HAL_GCOMP_.newpin(pname + '-led2', hal.HAL_BIT, hal.HAL_IN)
+                self.hal_pin_led2.value_changed.connect(lambda data: self.indicator2_update(data))
+
         elif self._ind_status:
             self._init_state_change()
         self._globalParameter = {'__builtins__' : None, 'MAIN_INSTANCE':self.QTVCP_INSTANCE_,
@@ -208,6 +215,7 @@ class IndicatedMixIn( _HalWidgetBase):
             # update indicator to button state if halpin or status won't
             if self._HAL_pin is False and self._ind_status is False:
                 self.indicator_update(state)
+                self.indicator2_update(not state)
             # if using state labels option update the labels
             if self._state_text:
                 self.setText(None)
@@ -386,6 +394,10 @@ class IndicatedMixIn( _HalWidgetBase):
         self._flashing = self._indicator_state = data
         self.update()
 
+    def indicator2_update(self, data):
+        self._flashing2 = self._indicator2_state = data
+        self.update()
+
     # override paint function to first paint the stock button
     # then our indicator paint routine
     def paintEvent(self, event):
@@ -397,16 +409,29 @@ class IndicatedMixIn( _HalWidgetBase):
     def paintIndicator(self):
             p = QtGui.QPainter(self)
 
- 
             if self._flashOption and self._flashing:
                 if self._flashState:
                     color = self._on_color
                 else:
                     color = self._off_color
-            elif self._indicator_state:
-                color = self._on_color
             else:
-                color = self._off_color
+                if self._indicator_state:
+                    color = self._on_color
+                else:
+                    color = self._off_color
+
+            # second LED
+            if self._flashOption and self._flashing2:
+                if self._flashState:
+                    color2 = self._on_color
+                else:
+                    color2 = self._off_color
+            else:
+
+                if self._indicator2_state:
+                    color2 = self._on_color
+                else:
+                    color2 = self._off_color
 
             # right triangle
             if self._shape == 0:
@@ -428,6 +453,21 @@ class IndicatedMixIn( _HalWidgetBase):
                 p.drawLine(triangle.point(1), triangle.point(2))
                 p.drawPolygon(triangle)
 
+                # second LED
+                if self._doubleIndicator:
+                    bot_right = rect.bottomRight() - QtCore.QPoint(self._right_edge_offset,self._top_edge_offset)
+
+                    gradient = QtGui.QLinearGradient(bot_right- QtCore.QPoint(size, 0), bot_right)
+                    gradient.setColorAt(0, QtCore.Qt.white)
+                    gradient.setColorAt(1, color2)
+                    p.setBrush(QtGui.QBrush(gradient))
+                    p.setPen(color2)
+
+                    triangle = QtGui.QPolygon([bot_right, bot_right - QtCore.QPoint(size, 0),
+                                           bot_right - QtCore.QPoint(0, size)])
+                    p.drawLine(triangle.point(1), triangle.point(2))
+                    p.drawPolygon(triangle)
+
             # circle
             elif self._shape == 1:
                 x = int(self.width() - self._diameter - self._right_edge_offset)
@@ -440,6 +480,18 @@ class IndicatedMixIn( _HalWidgetBase):
                 p.setPen(color)
                 p.setRenderHint(QtGui.QPainter.Antialiasing, True)
                 p.drawEllipse(x, y, self._diameter - 1, self._diameter - 1)
+
+                # second LED
+                if self._doubleIndicator:
+                    y = self.height() - self._diameter - self._top_edge_offset
+                    gradient = QtGui.QRadialGradient(x + self._diameter / 2, y + self._diameter / 2,
+                                       self._diameter * 0.4, self._diameter * 0.4, self._diameter * 0.4)
+                    gradient.setColorAt(0, QtCore.Qt.white)
+                    gradient.setColorAt(1, color2)
+                    p.setBrush(QtGui.QBrush(gradient))
+                    p.setPen(color2)
+                    p.setRenderHint(QtGui.QPainter.Antialiasing, True)
+                    p.drawEllipse(x, y, self._diameter - 1, self._diameter - 1)
 
             # top bar
             elif self._shape == 2:
@@ -491,7 +543,7 @@ class IndicatedMixIn( _HalWidgetBase):
                 else:
                     size = int(self.height() * self._size)
 
-                gradient = QtGui.QLinearGradient(top_left- QtCore.QPoint(size, 0), top_left)
+                gradient = QtGui.QLinearGradient(top_left + QtCore.QPoint(size, 0), top_left)
                 gradient.setColorAt(0, QtCore.Qt.white)
                 gradient.setColorAt(1, color)
                 p.setBrush(QtGui.QBrush(gradient))
@@ -501,6 +553,20 @@ class IndicatedMixIn( _HalWidgetBase):
                                        top_left + QtCore.QPoint(0, size)])
                 p.drawLine(triangle.point(1), triangle.point(2))
                 p.drawPolygon(triangle)
+
+                # second LED
+                if self._doubleIndicator:
+                    top_bot = rect.bottomLeft() - QtCore.QPoint(self._right_edge_offset, self._top_edge_offset)
+                    gradient = QtGui.QLinearGradient(top_bot + QtCore.QPoint(size, 0), top_bot)
+                    gradient.setColorAt(0, QtCore.Qt.white)
+                    gradient.setColorAt(1, color2)
+                    p.setBrush(QtGui.QBrush(gradient))
+                    p.setPen(color2)
+
+                    triangle = QtGui.QPolygon([top_bot, top_bot + QtCore.QPoint(size, 0),
+                                           top_bot - QtCore.QPoint(0, size)])
+                    p.drawLine(triangle.point(1), triangle.point(2))
+                    p.drawPolygon(triangle)
 
     def set_indicator(self, data):
         self.draw_indicator = data
@@ -587,6 +653,15 @@ class IndicatedMixIn( _HalWidgetBase):
         return self._size
     def reset_indicator_size(self):
         self._size = 0.3
+        self.update()
+
+    def set_doubleIndicator(self, data):
+        self._doubleIndicator = data
+        self.update()
+    def get_doubleIndicator(self):
+        return self._doubleIndicator
+    def reset_doubleIndicator(self):
+        self._doubleIndicator = True
         self.update()
 
     def set_circle_diameter(self, data):
@@ -686,6 +761,7 @@ class IndicatedMixIn( _HalWidgetBase):
 
     pin_name = QtCore.pyqtProperty(str, get_pin_name, set_pin_name, reset_pin_name)
     indicator_option = QtCore.pyqtProperty(bool, get_indicator, set_indicator, reset_indicator)
+    doubleIndicator = QtCore.pyqtProperty(bool, get_doubleIndicator, set_doubleIndicator, reset_doubleIndicator)
     indicator_HAL_pin_option = QtCore.pyqtProperty(bool, get_HAL_pin, set_HAL_pin, reset_HAL_pin)
     indicator_status_option = QtCore.pyqtProperty(bool, get_ind_status, set_ind_status, reset_ind_status)
     checked_state_text_option = QtCore.pyqtProperty(bool, get_state_text, set_state_text, reset_state_text)

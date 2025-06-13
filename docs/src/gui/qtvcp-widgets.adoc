@@ -3038,12 +3038,13 @@ This class *modifies `QPushButton` behaviour*.
 
 *`indicator_option`* _puts a 'LED' on the top of the button_.
 
-.QtVCP `PushButton`: Indicated Action Button, LED Indicator Option
-image::images/qtvcp_actionButton.png["QtVCP PushButton: Indicated Action Button, LED Indicator Option",scale="25%",align="center"]
+.QtVCP `PushButton`: IndicatedPushButton Button, LED Indicator Option
+image::images/qtvcp_indicatorButton.png["QtVCP IndicatedPushButton: Indicated Action Button, LED Indicator Option",scale="25%",align="center"]
 
 //FIXME Better document IndicatedPushButton
 // https://github.com/LinuxCNC/linuxcnc/blob/master/lib/python/qtvcp/widgets/simple_widgets.py#L317
 It can be a _triangle_, _circle_, _top bar_, or _side bar_. +
+The _triangle_ and _circle_ LEDs can display double vertical LEDs optionally each with it's own HAL pin. + 
 The _size_ and _position_ can be adjusted.
 
 It will indicate:
@@ -3055,17 +3056,18 @@ It will indicate:
 .Properties
 These properties are available to customize the indicator (not all are applicable to every LED shape):
 
+*`doubleIndicator`*:: with riangle or round LEDs add a second vertical LED.
 *`on_color`*::
 *`off_color`*::
-*`flashIndicator`*::
-*`flashRate`*::
-*`indicator_size`*::
-*`circle_diameter`*::
-*`shape_option`*::
-*`right_edge_offset`*::
-*`top_edge_offset`*::
-*`height_fraction`*::
-*`width_fraction`*::
+*`flashIndicator`*:: When the indicator is true, flash the LED on and off.
+*`flashRate`*:: Rate of the flashing
+*`indicator_size`*:: Size of triangle LED
+*`circle_diameter`*:: Diameter of round LED
+*`shape_option`*:: 0-4 LED shape type
+*`right_edge_offset`*:: Space from right edge
+*`top_edge_offset`*:: Space from top edge
+*`height_fraction`*:: Used for bar Leds
+*`width_fraction`*:: Used for bar Leds
 *`corner_radius`*:: Indicator corner radius.
 
 The LED indicator color can be defined in a _stylesheet_ with the following code added to the `.qss` file:
