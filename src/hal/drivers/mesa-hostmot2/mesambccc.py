@@ -778,7 +778,11 @@ def handleInits(inits):
         if len(set(cmd.attrib).intersection(RATEATTRIB)) > 0:
             # Set override communication parameters
             checkAttribs(cmd.attrib, RATEATTRIB, lil)
+<<<<<<< HEAD
             cfgs = verifyConfigParams(CONFIGDEFAULT | cmd.attrib)    # Setup new config set
+=======
+            cfgs = verifyConfigParams({**CONFIGDEFAULT, **cmd.attrib})    # Setup new config set
+>>>>>>> upstream/2.9
             if None == cfgs:
                 perr("Invalid communication parameters in {}".format(lil))
                 continue
@@ -1061,6 +1065,12 @@ def getHalType(tag, ers):
     if ht not in HALTYPES:
         perr("Invalid haltype '{}' in {}".format(tag.attrib['haltype'], ers))
         return None
+<<<<<<< HEAD
+=======
+    if ht in [HAL_U64, HAL_S64]:
+        perr("64-bit HAL types are not supported in 2.9 branch in {}".format(ers))
+        return None
+>>>>>>> upstream/2.9
     return HALTYPES[ht];
 
 #
@@ -1457,7 +1467,11 @@ def main():
 
     # Merge and check the comms attributes
     global configparams
+<<<<<<< HEAD
     configparams = verifyConfigParams(configparams | root.attrib)
+=======
+    configparams = verifyConfigParams({**configparams, **root.attrib})
+>>>>>>> upstream/2.9
     if None == configparams:
         return 1
 

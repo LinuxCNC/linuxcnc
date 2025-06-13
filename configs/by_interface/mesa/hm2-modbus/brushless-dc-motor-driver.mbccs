@@ -45,6 +45,7 @@
     </command>
     <!-- Gives us the following pins:
       - hm2_modbus.0.bldc.rtpwm            (out, s32)   (range [0..65535])
+<<<<<<< HEAD
       - hm2_modbus.0.bldc.rtpwm.offset     (in,  u64)
       - hm2_modbus.0.bldc.rtpwm.scale      (in,  float) (must be set to 0.1)
       - hm2_modbus.0.bldc.rtpwm.scaled     (out, float)
@@ -54,6 +55,17 @@
       - hm2_modbus.0.bldc.rtcurrent.scaled (out, float)
       - hm2_modbus.0.bldc.comfreq          (out, s32)   (range [-32768..+32767])
       - hm2_modbus.0.bldc.comfreq.offset   (in,  s64)
+=======
+      - hm2_modbus.0.bldc.rtpwm.offset     (in,  u32)
+      - hm2_modbus.0.bldc.rtpwm.scale      (in,  float) (must be set to 0.1)
+      - hm2_modbus.0.bldc.rtpwm.scaled     (out, float)
+      - hm2_modbus.0.bldc.rtcurrent        (out, s32)   (range [0..65535])
+      - hm2_modbus.0.bldc.rtcurrent.offset (in,  u32)
+      - hm2_modbus.0.bldc.rtcurrent.scale  (in,  float) (must be set to 0.01)
+      - hm2_modbus.0.bldc.rtcurrent.scaled (out, float)
+      - hm2_modbus.0.bldc.comfreq          (out, s32)   (range [-32768..+32767])
+      - hm2_modbus.0.bldc.comfreq.offset   (in,  s32)
+>>>>>>> upstream/2.9
       - hm2_modbus.0.bldc.comfreq.scale    (in,  float) (must be set to 0.1)
       - hm2_modbus.0.bldc.comfreq.scaled   (out, float)
       - hm2_modbus.0.bldc.rtpos            (out, s32)   (range [-2147483648..+2147483647])

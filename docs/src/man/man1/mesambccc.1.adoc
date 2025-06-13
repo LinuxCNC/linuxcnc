@@ -377,16 +377,25 @@ specific type using the 'haltype' attribute. Recognized are:
 * 'HAL_FLOAT'
 * 'HAL_S32'
 * 'HAL_U32'
+<<<<<<< HEAD
 * 'HAL_S64'
 * 'HAL_U64'
+=======
+>>>>>>> upstream/2.9
 
 The types are also recognized without the HAL_ prefix. Note that coil and
 binary input functions `R_COILS` (`1`), `R_INPUTS` (`2`), `W_COIL` (`5`)
 and `W_COILS` (`15`) can only map to 'HAL_BIT' and do so implicitly.
 
+<<<<<<< HEAD
 The 'HAL_BIT', 'HAL_U32' and 'HAL_U64' types always map to one single HAL pin.
 
 The 'HAL_FLOAT', 'HAL_S32' and 'HAL_S64' types can generate one single pin or
+=======
+The 'HAL_BIT' and 'HAL_U32' types always map to one single HAL pin.
+
+The 'HAL_FLOAT' and 'HAL_S32' types can generate one single pin or
+>>>>>>> upstream/2.9
 can generate multiple pins with 'offset' and 'scale'. Output pins
 with `R_REGISTERS` (`3`) and `R_INPUTREGS` (`4`) can add a 'scaled' pin to
 the set.
@@ -398,6 +407,18 @@ to 'HAL_BIT' only when using unsigned 'modbustype' where a value of zero (0)
 is _false_ and any other value is _true_ for write functions or one (1) for
 read functions.
 
+<<<<<<< HEAD
+=======
+*Note on 64-bit integer types*::
+  The 'haltype' names 'HAL_S64' and 'HAL_U64' are recognized but generate an
+  error. The integer 64-bit types are not supported in the 2.9 branch because
+  they are lacking in the API. You need a newer LinuxCNC version for full
+  64-bit support. +
+  As a consequence, 64-bit integer Modbus types can only map to 32-bit HAL
+  pins, which will reduce accuracy. A warning is emitted when you map the
+  larger 64-bit integer Modbus types to a smaller 32-bit HAL type.
+
+>>>>>>> upstream/2.9
 === <commands>
 The '<commands>' section defines one or more '<command>' tags to describe the
 Modbus function(s) to execute in a periodical way. Each '<command>' tag maps to

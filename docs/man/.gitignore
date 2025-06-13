@@ -6,11 +6,25 @@ cat1/
 cat3/
 cat9/
 
+<<<<<<< HEAD
 man1/5axisgui.1
 man1/axis-remote.1
 man1/axis.1
 man1/debuglevel.1
 man1/elbpcom.1
+=======
+man1/halstreamer.1
+man1/hy_gt_vfd.1
+man1/linuxcnc.1
+man1/mesambccc.1
+man1/mqtt-publisher.1
+man1/pi500_vfd.1
+man1/sendkeys.1
+man1/svd-ps_vfd.1
+man1/thermistor.1
+man1/wj200_vfd.1
+man1/xhc-whb04b-6.1
+>>>>>>> upstream/2.9
 man1/emccalib.1
 man1/gladevcp_demo.1
 man1/gladevcp.1
@@ -335,6 +349,7 @@ man9/gray2bin.9
 man9/hal_bb_gpio.9
 man9/hal_parport.9
 man9/histobins.9
+<<<<<<< HEAD
 man9/hm2_7i43.9
 man9/hm2_7i90.9
 man9/hm2_eth.9
@@ -342,6 +357,10 @@ man9/hm2_modbus.9
 man9/hm2_pci.9
 man9/hm2_rpspi.9
 man9/hm2_spi.9
+=======
+man9/homecomp.9
+man9/hm2_modbus.9
+>>>>>>> upstream/2.9
 man9/hm2_spix.9
 man9/homecomp.9
 man9/hostmot2.9
