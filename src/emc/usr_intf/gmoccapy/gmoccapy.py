@@ -233,6 +233,7 @@ class gmoccapy(object):
         self.height = 750     # The height of the main Window
 
         self.gcodeerror = ""   # we need this to avoid multiple messages of the same error
+        self.max_spindle_disp = 999999 # maximum display value for 'S' and 'Vc'
 
         self.file_changed = False
         self.widgets.hal_action_saveas.connect("saved-as", self.saved_as)
@@ -4005,30 +4006,33 @@ class gmoccapy(object):
             self.widgets.rbt_stop.set_active(True)
             return
 
-        # set the speed label in active code frame
-        if self.stat.spindle[0]['speed'] == 0:
-            speed = self.stat.settings[2]
+        # set the S label in active code frame
+        self.widgets.active_speed_label.set_label("{0:.0f}".format(self.stat.settings[2]))
+
+        # set the 'Spindle [rpm]' label
+        #Note: self.stat.spindle[0]['speed'] does not reflect 'spindle.0.speed-out' pins when using G96 mode (issue #3449)
+        speed = hal.get_value("spindle.0.speed-out")
+        # catch very large values eg when using G96 w/o D value
+        if speed > self.max_spindle_disp:
+            self.widgets.lbl_spindle_act.set_text("S >"+str(self.max_spindle_disp))
+        elif speed < -self.max_spindle_disp:
+            self.widgets.lbl_spindle_act.set_text("S <"+str(self.max_spindle_disp))
         else:
-            speed = self.stat.spindle[0]['speed']
-        self.widgets.active_speed_label.set_label("{0:.0f}".format(abs(speed)))
-        self.widgets.lbl_spindle_act.set_text("S {0}".format(int(round(speed * self.spindle_override))))
+            self.widgets.lbl_spindle_act.set_text("S {0}".format(int(round(speed))))
 
     def _update_vc(self):
-        if self.stat.spindle[0]['direction'] != 0:
-            if self.stat.spindle[0]['speed'] == 0:
-                speed = self.stat.settings[2]
-            else:
-                speed = self.stat.spindle[0]['speed']
-
-            if not self.lathe_mode:
-                diameter = self.halcomp["tool-diameter"]
-            else:
-                diameter = int(self.dro_dic["Combi_DRO_0"].get_position()[1] * 2)
-                speed = self.widgets.spindle_feedback_bar.value
-            vc = abs(int(speed * self.spindle_override) * diameter * 3.14 / 1000)
+        #Note: self.stat.spindle[0]['speed'] does not reflect 'spindle.0.speed-out' pins when using G96 mode (issue #3449)
+        speed = hal.get_value("spindle.0.speed-out")
+        if not self.lathe_mode:
+            diameter = self.halcomp["tool-diameter"]
         else:
-            vc = 0
-        if vc >= 100:
+            diameter = int(self.dro_dic["Combi_DRO_0"].get_position()[1] * 2)
+            speed = self.widgets.spindle_feedback_bar.value
+        vc = abs(int(speed * self.spindle_override) * diameter * 3.14 / 1000)
+        # catch very large Vc values due to very large S values eg when using G96 w/o D value
+        if vc > self.max_spindle_disp:
+            text = "Vc= >" + str(self.max_spindle_disp)
+        elif vc >= 100:
             text = "Vc= {0:d}".format(int(vc))
         elif vc >= 10:
             text = "Vc= {0:2.1f}".format(vc)
@@ -4075,7 +4079,8 @@ class gmoccapy(object):
     def on_ntb_tool_code_info_switch_page(self, widget, page, page_num):
         self.prefs.putpref("info_tab_page", page_num, int)
 
-    def on_rbt_forward_clicked(self, widget, data=None):
+    # This is for handling mouse clicks on the GUI button
+    def on_rbt_forward_released(self, widget, data=None):
         if widget.get_active():
             widget.set_image(self.widgets.img_spindle_forward_on)
             self._set_spindle("forward")
@@ -4085,10 +4090,31 @@ class gmoccapy(object):
         widget.set_sensitive(not widget.get_sensitive())
         widget.set_sensitive(not widget.get_sensitive())
 
-    def on_rbt_reverse_clicked(self, widget, data=None):
+    # This is for handling mouse clicks on the GUI button
+    def on_rbt_reverse_released(self, widget, data=None):
         if widget.get_active():
             widget.set_image(self.widgets.img_spindle_reverse_on)
             self._set_spindle("reverse")
+        else:
+            widget.set_image(self.widgets.img_spindle_reverse)
+        # Toggling the sensitive property is important here! See the commit description.
+        widget.set_sensitive(not widget.get_sensitive())
+        widget.set_sensitive(not widget.get_sensitive())
+
+    # This is for handling self.widgets.rbt_forward.set_active(True)
+    def on_rbt_forward_clicked(self, widget, data=None):
+        if widget.get_active():
+            widget.set_image(self.widgets.img_spindle_forward_on)
+        else:
+            widget.set_image(self.widgets.img_spindle_forward)
+        # Toggling the sensitive property is important here! See the commit description.
+        widget.set_sensitive(not widget.get_sensitive())
+        widget.set_sensitive(not widget.get_sensitive())
+
+    # This is for handling self.widgets.rbt_reverse.set_active(True)
+    def on_rbt_reverse_clicked(self, widget, data=None):
+        if widget.get_active():
+            widget.set_image(self.widgets.img_spindle_reverse_on)
         else:
             widget.set_image(self.widgets.img_spindle_reverse)
         # Toggling the sensitive property is important here! See the commit description.
@@ -4168,11 +4194,13 @@ class gmoccapy(object):
             # get the current spindle speed
             if not abs(self.stat.settings[2]):
                 if self.widgets.rbt_forward.get_active() or self.widgets.rbt_reverse.get_active():
-                    speed = self.stat.spindle[0]['speed']
+                    #speed = self.stat.spindle[0]['speed'] does not work when using G96 mode (issue #3449)
+                    speed = hal.get_value("spindle.0.speed-out")
                 else:
                     speed = 0
             else:
-                speed = abs(self.stat.spindle[0]['speed'])
+                #speed = abs(self.stat.spindle[0]['speed']) does not work when using G96 mode (issue #3449)
+                speed = abs(hal.get_value("spindle.0.speed-out"))
             spindle_override_in = widget_value / 100
             spindle_speed_out = speed * spindle_override_in
 

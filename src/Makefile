@@ -1081,6 +1081,9 @@ hm2_spix-objs  :=			  \
 hm2_modbus-objs  :=			  \
     hal/drivers/mesa-hostmot2/hm2_modbus.o \
     $(MATHSTUB)
+hm2_modbus-objs  :=			  \
+    hal/drivers/mesa-hostmot2/hm2_modbus.o \
+    $(MATHSTUB)
 hm2_test-objs :=			  \
     hal/drivers/mesa-hostmot2/hm2_test.o  \
     hal/drivers/mesa-hostmot2/bitfile.o   \
