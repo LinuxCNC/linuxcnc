@@ -577,6 +577,8 @@ class OffsetPage(Gtk.Box):
         for offset, name in names:
             if name == '0': # handle missing pref file entries
                 name = offset
+            elif offset == 'Tool':
+                name = 'Working Offset'
             for row in range(0, 13):
                 if offset == self.store[row][0]:
                     self.store[row][15] = name
