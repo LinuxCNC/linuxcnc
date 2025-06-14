@@ -345,9 +345,15 @@ reset (bit in)::
  not reset this pin to FALSE after resetting the count to 0, that is
  the user's job.
 index-enable (bit in/out)::
- When this pin is set to True, the count (and therefore also position)
- are reset to zero on the next Index (Phase-Z) pulse. At the same time,
- index-enable is reset to zero to indicate that the pulse has occurred.
+ When this pin is set to True, (and no-clear-on-index is false) 
+ the count (and therefore also position) are reset to zero on the next 
+ Index (Phase-Z) pulse. At the same time, index-enable is reset to zero
+  to indicate that the pulse has occurred.
+no-clear-on-index (bit in)::
+ When this pin is set to True, the count (and therefore also position) 
+ are NOT reset to zero on the next Index (Phase\-Z) pulse.
+ On an index event the latched count and position will be set to 
+ indicate the count and position where the index occured.
 probe-enable (bit in/out)::
  When this pin is set to True, the encoder count (and therefore also
  position) are latched on the the next probe active edge. At the same
