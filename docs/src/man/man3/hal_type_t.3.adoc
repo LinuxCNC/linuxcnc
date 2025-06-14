@@ -1,6 +1,6 @@
 :manvolnum: 3
 
-= hal_type_t(3hal)
+= hal_type_t(3)
 
 == NAME
 
@@ -64,4 +64,4 @@ when using uspace realtime.
 
 == SEE ALSO
 
-hal_pin_new(3hal), hal_param_new(3hal)
+hal_pin_new(3), hal_param_new(3)

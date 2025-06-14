@@ -1,6 +1,6 @@
 :manvolnum: 3
 
-= rtapi_module_param(3rtapi)
+= rtapi_module_param(3)
 
 == NAME
 
@@ -49,7 +49,7 @@ They must be used after the associated variable or function has been defined.
 == NOTES
 
 EXPORT_FUNCTION makes a symbol available for use by a subsequently loaded component.
-It is unrelated to HAL functions, which are described in hal_export_funct(3hal)
+It is unrelated to HAL functions, which are described in hal_export_funct(3)
 
 == Interpretation of license strings
 

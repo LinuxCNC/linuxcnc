@@ -1,6 +1,6 @@
 :manvolnum: 3
 
-= rtapi_get_msg_level(3rtapi)
+= rtapi_get_msg_level(3)
 
 == NAME
 
@@ -35,4 +35,4 @@ RTAPI_MSG_NONE = 0, RTAPI_MSG_ERR = 1, RTAPI_MSG_WARN = 2, RTAPI_MSG_INFO = 3, R
 
 == SEE ALSO
 
-rtapi_print_msg(3rtapi)
+rtapi_print_msg(3)

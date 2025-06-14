@@ -3226,6 +3226,7 @@
                                                             <property name="draw-indicator">False</property>
                                                             <property name="group">rbt_stop</property>
                                                             <signal name="clicked" handler="on_rbt_reverse_clicked" swapped="no"/>
+                                                            <signal name="released" handler="on_rbt_reverse_released" swapped="no"/>
                                                           </object>
                                                           <packing>
                                                             <property name="expand">True</property>
@@ -3264,6 +3265,7 @@
                                                             <property name="draw-indicator">False</property>
                                                             <property name="group">rbt_stop</property>
                                                             <signal name="clicked" handler="on_rbt_forward_clicked" swapped="no"/>
+                                                            <signal name="released" handler="on_rbt_forward_released" swapped="no"/>
                                                           </object>
                                                           <packing>
                                                             <property name="expand">False</property>

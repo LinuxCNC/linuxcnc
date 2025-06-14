@@ -1,6 +1,6 @@
 :manvolnum: 3
 
-= rtapi_region(3rtapi)
+= rtapi_region(3)
 
 == NAME
 

@@ -1,6 +1,6 @@
 :manvolnum: 3
 
-= rtapi_outb(3rtapi)
+= rtapi_outb(3)
 
 == NAME
 
@@ -41,4 +41,4 @@ Otherwise, another real-time module or the Linux kernel might attempt to access 
 
 == SEE ALSO
 
-rtapi_region(3rtapi)
+rtapi_region(3)

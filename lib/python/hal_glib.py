@@ -237,7 +237,7 @@ class _GStat(GObject.GObject):
     CRITICAL = 2
 
     TEMPARARY_MESSAGE = 255 # Remove in future when releasing 2.10
-    TEMP0RARY_MESSAGE = 255
+    TEMPORARY_MESSAGE = 255
     OPERATOR_ERROR = linuxcnc.OPERATOR_ERROR
     OPERATOR_TEXT = linuxcnc.OPERATOR_TEXT
     NML_ERROR = linuxcnc.NML_ERROR

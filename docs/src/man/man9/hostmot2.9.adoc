@@ -1116,8 +1116,8 @@ Typically, these would be written in the "comp".
 
 Pre-processing language: see https://linuxcnc.org/docs/html/hal/comp.html or man halcompile for further details.
 See mesa_7i65(9) and the source of mesa_7i65.comp for details of a typical sub-driver.
-See hm2_bspi_setup_chan(3hm2), hm2_bspi_write_chan(3hm2), hm2_tram_add_bspi_frame(3hm2), hm2_allocate_bspi_tram(3hm2),
-hm2_bspi_set_read_function(3hm2) and hm2_bspi_set_write_function(3hm2) for the exported functions.
+See hm2_bspi_setup_chan(3), hm2_bspi_write_chan(3), hm2_tram_add_bspi_frame(3), hm2_allocate_bspi_tram(3),
+hm2_bspi_set_read_function(3) and hm2_bspi_set_write_function(3) for the exported functions.
 
 The names of the available channels are printed to standard output
 during the driver loading process and take the form
@@ -1130,7 +1130,7 @@ read/write functions and a setup function to be utilised by user-written code.
 Typically this would be written in the "comp" pre-processing language:
 see https://linuxcnc.org/docs/html/hal/comp.html or man halcompile for further details.
 See mesa_uart(9) and the source of mesa_uart.comp for details of a typical sub-driver.
-See hm2_uart_setup_chan(3hm2), hm2_uart_send(3hm2), hm2_uart_read(3hm2) and hm2_uart_setup(3hm2).
+See hm2_uart_setup_chan(3), hm2_uart_send(3), hm2_uart_read(3) and hm2_uart_setup(3).
 
 The names of the available uart channels are printed to standard output
 during the driver loading process and take the form **hm2_**__<board name>__**.**__<board index>__**.uart.**__<index>__, e.g., `hm2_5i23.0.uart.0`.

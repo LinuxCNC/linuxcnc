@@ -1,6 +1,6 @@
 :manvolnum: 3
 
-= hal_add_funct_to_thread(3hal)
+= hal_add_funct_to_thread(3)
 
 == NAME
 
@@ -46,4 +46,4 @@ Call only from realtime init code, not from other realtime or non-realtime code.
 
 == SEE ALSO
 
-hal_thread_new(3hal), hal_export_funct(3hal)
+hal_thread_new(3), hal_export_funct(3)
