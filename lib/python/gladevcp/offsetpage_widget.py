@@ -575,10 +575,10 @@ class OffsetPage(Gtk.Box):
 
     def set_names(self, names):
         for offset, name in names:
+            if name == '0': # handle missing pref file entries
+                name = offset
             for row in range(0, 13):
-                if offset not in  ["G28", "G30", "G92", "G54", "G55", "G56", "G57", "G58", "G59", "G59.1", "G59.2", "G59.3"]:
-                    self.store[row][15] = " "
-                elif offset == self.store[row][0]:
+                if offset == self.store[row][0]:
                     self.store[row][15] = name
 
     def get_names(self):
