@@ -123,7 +123,7 @@ TCLPATH = os.environ['LINUXCNC_TCL_DIR']
 ALERT_ICON = "dialog_warning"
 INFO_ICON = "dialog_information"
 
-
+AXISLIST = ['offset', 'X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W', 'name']
 
 class gmoccapy(object):
     def __init__(self, argv):
@@ -2244,6 +2244,65 @@ class gmoccapy(object):
             name = self.prefs.getpref(system_name, name, str)
             names.append([system, name])
         self.widgets.offsetpage1.set_names(names)
+        for col, name in enumerate(AXISLIST):
+            if col > 9:break
+            temp = self.widgets.offsetpage1.wTree.get_object("cell_%s" % name)
+            temp.connect('editing-started', self.col_edit_started, col)
+
+
+    def col_edit_started(self, widget, filtered_path, new_text, col):
+        model, treeiter = self.widgets.offsetpage1.view2.get_selection().get_selected()
+        path = self.widgets.offsetpage1.modelfilter.get_path(treeiter)
+        (store_path,) = self.widgets.offsetpage1.modelfilter.convert_path_to_child_path(path)
+        row = store_path
+        if self.touch_button_dic["edit_offsets"].get_active():
+            offset = self.dialogs.entry_dialog(
+                        self,
+                        header=_("Enter value for offset"),
+                        label=_("Set %s %s-offset to:" % (self.widgets.offsetpage1.store[row][0], AXISLIST[col])),
+                        integer=False)
+            if offset == "ERROR":
+                LOG.debug("conversion error")
+                self.dialogs.warning_dialog(self, _("Conversion error !"),
+                                            ("Please enter only numerical values\nValues have not been applied"))
+                self.touch_button_dic["edit_offsets"].set_active(False)
+                return
+            elif offset == "CANCEL":
+                self.touch_button_dic["edit_offsets"].set_active(False)
+                return
+            print(AXISLIST[col])
+            self.widgets.offsetpage1.store[row][col] = str(offset)
+            axisnum = col - 1
+            try:
+                if self.stat.task_mode != linuxcnc.MODE_MDI:
+                    self.command.mode(linuxcnc.MODE_MDI)
+                    self.command.wait_complete()
+                if row == 0:
+                    self.command.mdi("G43.1 %s %10.4f" % (AXISLIST[col], offset))
+                elif row == 1:
+                    self.command.mdi("#%s = %10.4f" % (str(5161 + axisnum), offset))
+                elif row == 2:
+                    self.command.mdi("#%s = %10.4f" % (str(5181 + axisnum), offset))
+                elif row == 3:
+                    self.command.mdi("G92 %s %10.4f" % (AXISLIST[col], offset))
+                else:
+                    print("TRY5")
+                    pnum = row-3
+                    if not pnum == None:
+                        if col == 10:
+                            self.command.mdi("G10 L2 P%d R %10.4f" % (pnum, offset))
+                        else:
+                            self.command.mdi("G10 L2 P%d %s %10.4f"  % (pnum, AXISLIST[col], offset))
+                        print(("G10 L2 P%d %s %10.4f"  % (pnum, AXISLIST[col], offset)))
+                self.command.mode(linuxcnc.MODE_MANUAL)
+                self.command.wait_complete()
+                self.command.mode(linuxcnc.MODE_MDI)
+                self.command.wait_complete()
+            except Exception as error:
+                print(_("offsetpage widget error: MDI call error"))
+                print(error)
+            self.widgets.offsetpage1.reload_offsets()
+            self.touch_button_dic["edit_offsets"].set_active(False)
 
     # Icon file selection stuff
     def _init_IconFileSelection(self):
