@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.38.2 -->
+<!-- Generated with glade 3.40.0 -->
 <interface>
   <requires lib="gtk+" version="3.24"/>
   <object class="GtkListStore" id="liststore2">
@@ -24,6 +24,8 @@
       <column type="gchararray"/>
       <!-- column-name W -->
       <column type="gchararray"/>
+      <!-- column-name Rot -->
+      <column type="gchararray"/>
       <!-- column-name display_row -->
       <column type="gboolean"/>
       <!-- column-name editable -->
@@ -47,14 +49,15 @@
         <col id="7">0</col>
         <col id="8">0</col>
         <col id="9">0</col>
-        <col id="10">True</col>
-        <col id="11">False</col>
-        <col id="12">0</col>
-        <col id="13">black</col>
-        <col id="14" translatable="yes">Tool</col>
+        <col id="10">0</col>
+        <col id="11">True</col>
+        <col id="12">False</col>
+        <col id="13">0</col>
+        <col id="14">black</col>
+        <col id="15" translatable="yes">0</col>
       </row>
       <row>
-        <col id="0">G5x</col>
+        <col id="0">G28</col>
         <col id="1">0</col>
         <col id="2">0</col>
         <col id="3">0</col>
@@ -64,14 +67,15 @@
         <col id="7">0</col>
         <col id="8">0</col>
         <col id="9">0</col>
-        <col id="10">True</col>
-        <col id="11">False</col>
-        <col id="12">0</col>
-        <col id="13">black</col>
-        <col id="14">G5x</col>
+        <col id="10">0</col>
+        <col id="11">True</col>
+        <col id="12">False</col>
+        <col id="13">0</col>
+        <col id="14">black</col>
+        <col id="15">0</col>
       </row>
       <row>
-        <col id="0">Rot</col>
+        <col id="0">G30</col>
         <col id="1">0</col>
         <col id="2">0</col>
         <col id="3">0</col>
@@ -81,11 +85,12 @@
         <col id="7">0</col>
         <col id="8">0</col>
         <col id="9">0</col>
-        <col id="10">True</col>
-        <col id="11">False</col>
-        <col id="12">0</col>
-        <col id="13">black</col>
-        <col id="14" translatable="yes">Rotation of Z</col>
+        <col id="10">0</col>
+        <col id="11">True</col>
+        <col id="12">False</col>
+        <col id="13">0</col>
+        <col id="14">black</col>
+        <col id="15">0</col>
       </row>
       <row>
         <col id="0">G92</col>
@@ -98,11 +103,12 @@
         <col id="7">0</col>
         <col id="8">0</col>
         <col id="9">0</col>
-        <col id="10">True</col>
-        <col id="11">False</col>
-        <col id="12">0</col>
-        <col id="13">black</col>
-        <col id="14">G92</col>
+        <col id="10">0</col>
+        <col id="11">True</col>
+        <col id="12">False</col>
+        <col id="13">0</col>
+        <col id="14">black</col>
+        <col id="15">0</col>
       </row>
       <row>
         <col id="0">G54</col>
@@ -115,11 +121,12 @@
         <col id="7">0</col>
         <col id="8">0</col>
         <col id="9">0</col>
-        <col id="10">True</col>
-        <col id="11">False</col>
-        <col id="12">0</col>
-        <col id="13">black</col>
-        <col id="14">G54</col>
+        <col id="10">0</col>
+        <col id="11">True</col>
+        <col id="12">False</col>
+        <col id="13">0</col>
+        <col id="14">black</col>
+        <col id="15">0</col>
       </row>
       <row>
         <col id="0">G55</col>
@@ -132,11 +139,12 @@
         <col id="7">0</col>
         <col id="8">0</col>
         <col id="9">0</col>
-        <col id="10">True</col>
-        <col id="11">False</col>
-        <col id="12">0</col>
-        <col id="13">black</col>
-        <col id="14">G55</col>
+        <col id="10">0</col>
+        <col id="11">True</col>
+        <col id="12">False</col>
+        <col id="13">0</col>
+        <col id="14">black</col>
+        <col id="15">0</col>
       </row>
       <row>
         <col id="0">G56</col>
@@ -149,11 +157,12 @@
         <col id="7">0</col>
         <col id="8">0</col>
         <col id="9">0</col>
-        <col id="10">True</col>
-        <col id="11">False</col>
-        <col id="12">0</col>
-        <col id="13">black</col>
-        <col id="14">G56</col>
+        <col id="10">0</col>
+        <col id="11">True</col>
+        <col id="12">False</col>
+        <col id="13">0</col>
+        <col id="14">black</col>
+        <col id="15">0</col>
       </row>
       <row>
         <col id="0">G57</col>
@@ -166,11 +175,12 @@
         <col id="7">0</col>
         <col id="8">0</col>
         <col id="9">0</col>
-        <col id="10">True</col>
-        <col id="11">False</col>
-        <col id="12">0</col>
-        <col id="13">black</col>
-        <col id="14">G57</col>
+        <col id="10">0</col>
+        <col id="11">True</col>
+        <col id="12">False</col>
+        <col id="13">0</col>
+        <col id="14">black</col>
+        <col id="15">0</col>
       </row>
       <row>
         <col id="0">G58</col>
@@ -183,11 +193,12 @@
         <col id="7">0</col>
         <col id="8">0</col>
         <col id="9">0</col>
-        <col id="10">True</col>
-        <col id="11">False</col>
-        <col id="12">0</col>
-        <col id="13">black</col>
-        <col id="14">G58</col>
+        <col id="10">0</col>
+        <col id="11">True</col>
+        <col id="12">False</col>
+        <col id="13">0</col>
+        <col id="14">black</col>
+        <col id="15">0</col>
       </row>
       <row>
         <col id="0">G59</col>
@@ -200,11 +211,12 @@
         <col id="7">0</col>
         <col id="8">0</col>
         <col id="9">0</col>
-        <col id="10">True</col>
-        <col id="11">False</col>
-        <col id="12">0</col>
-        <col id="13">black</col>
-        <col id="14">G59</col>
+        <col id="10">0</col>
+        <col id="11">True</col>
+        <col id="12">False</col>
+        <col id="13">0</col>
+        <col id="14">black</col>
+        <col id="15">0</col>
       </row>
       <row>
         <col id="0">G59.1</col>
@@ -217,11 +229,12 @@
         <col id="7">0</col>
         <col id="8">0</col>
         <col id="9">0</col>
-        <col id="10">True</col>
-        <col id="11">False</col>
-        <col id="12">0</col>
-        <col id="13">black</col>
-        <col id="14">G59.1</col>
+        <col id="10">0</col>
+        <col id="11">True</col>
+        <col id="12">False</col>
+        <col id="13">0</col>
+        <col id="14">black</col>
+        <col id="15">0</col>
       </row>
       <row>
         <col id="0">G59.2</col>
@@ -234,11 +247,12 @@
         <col id="7">0</col>
         <col id="8">0</col>
         <col id="9">0</col>
-        <col id="10">True</col>
-        <col id="11">False</col>
-        <col id="12">0</col>
-        <col id="13">black</col>
-        <col id="14">G59.2</col>
+        <col id="10">0</col>
+        <col id="11">True</col>
+        <col id="12">False</col>
+        <col id="13">0</col>
+        <col id="14">black</col>
+        <col id="15">0</col>
       </row>
       <row>
         <col id="0">G59.3</col>
@@ -251,11 +265,12 @@
         <col id="7">0</col>
         <col id="8">0</col>
         <col id="9">0</col>
-        <col id="10">True</col>
-        <col id="11">False</col>
-        <col id="12">0</col>
-        <col id="13">black</col>
-        <col id="14">G59.3</col>
+        <col id="10">0</col>
+        <col id="11">True</col>
+        <col id="12">False</col>
+        <col id="13">0</col>
+        <col id="14">black</col>
+        <col id="15">0</col>
       </row>
     </data>
   </object>
@@ -292,7 +307,7 @@
                     <child>
                       <object class="GtkCellRendererText" id="cell_offset"/>
                       <attributes>
-                        <attribute name="foreground">13</attribute>
+                        <attribute name="foreground">14</attribute>
                         <attribute name="text">0</attribute>
                       </attributes>
                     </child>
@@ -304,8 +319,8 @@
                     <child>
                       <object class="GtkCellRendererText" id="cell_X"/>
                       <attributes>
-                        <attribute name="editable">11</attribute>
-                        <attribute name="foreground">13</attribute>
+                        <attribute name="editable">12</attribute>
+                        <attribute name="foreground">14</attribute>
                         <attribute name="text">1</attribute>
                       </attributes>
                     </child>
@@ -317,8 +332,8 @@
                     <child>
                       <object class="GtkCellRendererText" id="cell_Y"/>
                       <attributes>
-                        <attribute name="editable">11</attribute>
-                        <attribute name="foreground">13</attribute>
+                        <attribute name="editable">12</attribute>
+                        <attribute name="foreground">14</attribute>
                         <attribute name="text">2</attribute>
                       </attributes>
                     </child>
@@ -330,8 +345,8 @@
                     <child>
                       <object class="GtkCellRendererText" id="cell_Z"/>
                       <attributes>
-                        <attribute name="editable">11</attribute>
-                        <attribute name="foreground">13</attribute>
+                        <attribute name="editable">12</attribute>
+                        <attribute name="foreground">14</attribute>
                         <attribute name="text">3</attribute>
                       </attributes>
                     </child>
@@ -344,8 +359,8 @@
                     <child>
                       <object class="GtkCellRendererText" id="cell_A"/>
                       <attributes>
-                        <attribute name="editable">11</attribute>
-                        <attribute name="foreground">13</attribute>
+                        <attribute name="editable">12</attribute>
+                        <attribute name="foreground">14</attribute>
                         <attribute name="text">4</attribute>
                       </attributes>
                     </child>
@@ -357,8 +372,8 @@
                     <child>
                       <object class="GtkCellRendererText" id="cell_B"/>
                       <attributes>
-                        <attribute name="editable">11</attribute>
-                        <attribute name="foreground">13</attribute>
+                        <attribute name="editable">12</attribute>
+                        <attribute name="foreground">14</attribute>
                         <attribute name="text">5</attribute>
                       </attributes>
                     </child>
@@ -370,8 +385,8 @@
                     <child>
                       <object class="GtkCellRendererText" id="cell_C"/>
                       <attributes>
-                        <attribute name="editable">11</attribute>
-                        <attribute name="foreground">13</attribute>
+                        <attribute name="editable">12</attribute>
+                        <attribute name="foreground">14</attribute>
                         <attribute name="text">6</attribute>
                       </attributes>
                     </child>
@@ -383,8 +398,8 @@
                     <child>
                       <object class="GtkCellRendererText" id="cell_U"/>
                       <attributes>
-                        <attribute name="editable">11</attribute>
-                        <attribute name="foreground">13</attribute>
+                        <attribute name="editable">12</attribute>
+                        <attribute name="foreground">14</attribute>
                         <attribute name="text">7</attribute>
                       </attributes>
                     </child>
@@ -396,8 +411,8 @@
                     <child>
                       <object class="GtkCellRendererText" id="cell_V"/>
                       <attributes>
-                        <attribute name="editable">11</attribute>
-                        <attribute name="foreground">13</attribute>
+                        <attribute name="editable">12</attribute>
+                        <attribute name="foreground">14</attribute>
                         <attribute name="text">8</attribute>
                       </attributes>
                     </child>
@@ -409,22 +424,35 @@
                     <child>
                       <object class="GtkCellRendererText" id="cell_W"/>
                       <attributes>
-                        <attribute name="editable">11</attribute>
-                        <attribute name="foreground">13</attribute>
+                        <attribute name="editable">12</attribute>
+                        <attribute name="foreground">14</attribute>
                         <attribute name="text">9</attribute>
                       </attributes>
                     </child>
                   </object>
                 </child>
                 <child>
+                  <object class="GtkTreeViewColumn" id="Rot">
+                    <property name="title" translatable="yes">Rot</property>
+                    <child>
+                      <object class="GtkCellRendererText" id="cell_Rot"/>
+                      <attributes>
+                        <attribute name="editable">12</attribute>
+                        <attribute name="foreground">14</attribute>
+                        <attribute name="text">10</attribute>
+                      </attributes>
+                    </child>
+                  </object>
+                </child>
+                <child>
                   <object class="GtkTreeViewColumn" id="name">
-                    <property name="title" translatable="yes">Offset Name</property>
+                    <property name="title" translatable="yes">Comment</property>
                     <child>
                       <object class="GtkCellRendererText" id="cell_name"/>
                       <attributes>
-                        <attribute name="editable">11</attribute>
-                        <attribute name="foreground">13</attribute>
-                        <attribute name="text">14</attribute>
+                        <attribute name="editable">12</attribute>
+                        <attribute name="foreground">14</attribute>
+                        <attribute name="text">15</attribute>
                       </attributes>
                     </child>
                   </object>
