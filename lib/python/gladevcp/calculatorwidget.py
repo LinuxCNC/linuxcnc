@@ -299,11 +299,11 @@ class Calculator( Gtk.Box ):
         self.displayOperand( "+" )
 
     def displayMmInch( self, widget ):
-        self.eval_string = "("+ self.eval_string + ") / " + locale.format("%f", float(25.4))
+        self.eval_string = "("+ self.eval_string + ") / " + locale.format_string("%f", float(25.4))
         self.compute()
 
     def displayInchMm( self, widget ):
-        self.eval_string = "("+ self.eval_string + ") * " + locale.format("%f", float(25.4))
+        self.eval_string = "("+ self.eval_string + ") * " + locale.format_string("%f", float(25.4))
         self.compute()
 
     def on_ok_button_clicked ( self, widget ):
