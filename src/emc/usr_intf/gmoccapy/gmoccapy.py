@@ -209,6 +209,7 @@ class gmoccapy(object):
         self.distance = 0         # This global will hold the jog distance
         self.tool_change = False  # this is needed to get back to manual mode after a tool change
         self.load_tool = False    # We use this avoid mode switching on reloading the tool on start up of the GUI
+        self.apply_tool_changes = False    # We use this avoid mode switching on reactivation G43 during Aplly tooltable
         self.macrobuttons = []    # The list of all macros defined in the INI file
         self.fo_counts = 0        # need to calculate difference in counts to change the feed override slider
         self.so_counts = 0        # need to calculate difference in counts to change the spindle override slider
@@ -2993,6 +2994,10 @@ class gmoccapy(object):
             self.widgets.chk_ignore_limits.set_active(False)
 
     def on_hal_status_mode_manual(self, widget):
+        if self.apply_tool_changes:
+            LOG.debug("switch to Manual page is ignored, because reactivation G43 is running during Apply tooltable")
+            return
+
         LOG.debug("MANUAL Mode")
         self.widgets.rbt_manual.set_active(True)
         # if setup page is activated, we must leave here, otherwise the pages will be reset
@@ -3015,6 +3020,10 @@ class gmoccapy(object):
         self.last_key_event = None, 0
 
     def on_hal_status_mode_mdi(self, widget):
+        if self.apply_tool_changes:
+            LOG.debug("switch to MDI page is ignored, because reactivation G43 is running during Apply tooltable")
+            return
+
         LOG.debug("MDI Mode, tool_change = {0}".format(self.tool_change))
 
         # if the edit offsets button is active, we do not want to change
@@ -5454,8 +5463,31 @@ class gmoccapy(object):
         self.widgets.tooledit1.set_selected_tool(self.stat.tool_in_spindle)
 
     def on_btn_save_tool_changes_clicked(self, widget, data=None):
+        self.apply_tool_changes = True # Disable switch pages
+
         self.widgets.tooledit1.save(None)
         self.widgets.tooledit1.set_selected_tool(self.stat.tool_in_spindle)
+
+        # Reactivate G43 to update offset Z and offset Y
+        if "G43" in self.active_gcodes:
+            self.command.wait_complete()
+            self.command.mode(linuxcnc.MODE_MDI)
+            self.command.wait_complete()
+            self.command.mdi("G43")
+            self.command.wait_complete()
+            self.command.mode(linuxcnc.MODE_MANUAL)
+            self.command.wait_complete()
+        
+        # GUI update
+        self.stat.poll()    
+        toolinfo = self.widgets.tooledit1.get_toolinfo(self.stat.tool_in_spindle)
+        if toolinfo:
+            self.widgets.lbl_tool_no.set_text(str(toolinfo[1]))
+            self.widgets.lbl_tool_dia.set_text(toolinfo[12])
+            self.halcomp["tool-diameter"] = float(locale.atof(toolinfo[12]))
+            self.widgets.lbl_tool_name.set_text(toolinfo[16]) 
+
+        self.apply_tool_changes = False # Enable switch pages
 
     def on_btn_tool_touchoff_clicked(self, widget, data=None):
         if not self.widgets.tooledit1.get_selected_tool():
