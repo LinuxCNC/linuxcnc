@@ -2247,10 +2247,10 @@ class gmoccapy(object):
         for col, name in enumerate(AXISLIST):
             if col > 9:break
             temp = self.widgets.offsetpage1.wTree.get_object("cell_%s" % name)
-            temp.connect('editing-started', self.col_edit_started, col)
+            temp.connect('editing-started', self.on_offset_col_edit_started, col)
 
 
-    def col_edit_started(self, widget, filtered_path, new_text, col):
+    def on_offset_col_edit_started(self, widget, filtered_path, new_text, col):
         offsetpage = self.widgets.offsetpage1
         offsetview = offsetpage.view2
         model, treeiter = offsetview.get_selection().get_selected()
