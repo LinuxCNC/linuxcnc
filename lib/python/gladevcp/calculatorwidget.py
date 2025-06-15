@@ -152,7 +152,7 @@ class Calculator( Gtk.Box ):
     def get_value( self ):
         self.compute()
         try:
-            value = self.wTree.get_object( "displayText" ).get_text()
+            value = self.entry.get_text()
             return locale.atof( value )
         except:
             return None
@@ -200,15 +200,15 @@ class Calculator( Gtk.Box ):
                 b = b.rstrip( locale.localeconv()["decimal_point"] )
         except:
             b = "Error"
-        self.wTree.get_object( "displayText" ).set_text( b )
+        self.entry.set_text( b )
         self.eval_string = b + " " # add space to indicate that calculation was last
 
     def delete( self ):
         self.eval_string = ''
-        self.wTree.get_object( "displayText" ).set_text( "" )
+        self.entry.set_text( "" )
 
     def displayOperand( self, i ):
-        if self.wTree.get_object( "displayText" ).get_selection_bounds():
+        if self.entry.get_selection_bounds():
             self.delete()
         if "Error" in self.eval_string:
             self.eval_string = ""
@@ -217,14 +217,14 @@ class Calculator( Gtk.Box ):
         if i not in "+-*/" and self.eval_string != "":
             if self.eval_string[-1] == " ":
                 self.eval_string = ""
-        cursor_pos = self.wTree.get_object( "displayText" ).get_position()
+        cursor_pos = self.entry.get_position()
         self.eval_string = self.eval_string[:cursor_pos] + i + self.eval_string[cursor_pos:]
-        self.wTree.get_object( "displayText" ).set_text( str( self.eval_string ) )
+        self.entry.set_text( str( self.eval_string ) )
         if i == 'Pi':
             cursor_move = 2
         else:
             cursor_move = 1
-        self.wTree.get_object( "displayText" ).set_position(cursor_pos + cursor_move)
+        self.entry.set_position(cursor_pos + cursor_move)
 
     def displayText_changed( self, widget ):
         self.eval_string = widget.get_text()
@@ -237,24 +237,24 @@ class Calculator( Gtk.Box ):
         self.delete()
 
     def displayBackspace( self, widget ):
-        text = self.wTree.get_object( "displayText" ).get_text()
+        text = self.entry.get_text()
         if(text == "Error"):
             self.delete()
         else:
-            cursor_pos = self.wTree.get_object( "displayText" ).get_position()
+            cursor_pos = self.entry.get_position()
             text_left = self.eval_string[:cursor_pos]
             text_right = self.eval_string[cursor_pos:]
             if text_left[-2:] == "Pi":
-                self.wTree.get_object( "displayText" ).set_text(text_left[:-2] + text_right)
+                self.entry.set_text(text_left[:-2] + text_right)
                 cursor_move = -2
             elif text_left[-1:] == "P":
-                self.wTree.get_object( "displayText" ).set_text(text_left[:-1] + text_right[1:])
+                self.entry.set_text(text_left[:-1] + text_right[1:])
                 cursor_move = -1
             else:
-                self.wTree.get_object( "displayText" ).set_text(text_left[:-1] + text_right)
+                self.entry.set_text(text_left[:-1] + text_right)
                 cursor_move = -1
             if cursor_pos > 0:
-                self.wTree.get_object( "displayText" ).set_position(cursor_pos + cursor_move)
+                self.entry.set_position(cursor_pos + cursor_move)
 
     def displayLeftBracket( self, widget ):
         self.displayOperand( "(" )
