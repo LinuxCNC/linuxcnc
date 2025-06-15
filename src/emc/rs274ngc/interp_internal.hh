@@ -51,9 +51,6 @@ inline int round_to_int(T x) {
     return (int)std::nearbyint(x);
 }
 
-/* how far above hole bottom for rapid return, in inches */
-#define G83_RAPID_DELTA 0.010
-
 /* nested remap: a remapped code is found in the body of a subroutine
  * which is executing on behalf of another remapped code
  * example: a user G-code command executes a tool change
@@ -103,7 +100,7 @@ static inline bool equal(double a, double b)
 #define MAX_EMS  4
 
 // feed_mode
-enum FEED_MODE {
+enum class FEED_MODE {
     UNITS_PER_MINUTE=0,
     INVERSE_TIME=1,
     UNITS_PER_REVOLUTION=2
@@ -111,13 +108,14 @@ enum FEED_MODE {
 
 // cutter radius compensation mode, 0 or false means none
 // not using CANON_SIDE since interpreter handles cutter radius comp
-enum CUTTER_COMP_DIRECTION {
+enum class CUTTER_COMP {
+    OFF = 0,
     RIGHT = 1,
     LEFT = 2,
 };
 
 // spindle control modes
-enum SPINDLE_MODE {
+enum class SPINDLE_MODE {
     CONSTANT_RPM,
     CONSTANT_SURFACE
 };
@@ -206,6 +204,10 @@ enum GCodes
     G_5_1 = 51,
     G_5_2 = 52,
     G_5_3 = 53,
+    G_6	= 60,
+    G_6_1 = 61,
+    G_6_2 = 62,
+    G_6_3 = 63,
     G_7 = 70,
     G_8 = 80,
     G_10 = 100,
@@ -308,14 +310,14 @@ std::string toString(GCodes g);
 /**********************/
 
 /* distance_mode */
-enum DISTANCE_MODE
+enum class DISTANCE_MODE
 {
-    MODE_ABSOLUTE,
-    MODE_INCREMENTAL,
+    ABSOLUTE,
+    INCREMENTAL,
 };
 
 /* retract_mode for cycles */
-enum RETRACT_MODE
+enum class RETRACT_MODE
 {
     R_PLANE,
     OLD_Z,
@@ -425,83 +427,82 @@ typedef int_remap_map::iterator int_remap_iterator;
 
 struct block_struct
 {
-  block_struct ();
+  char comment[256]{};
+  double a_number{};
+  double b_number{};
+  double c_number{};
+  double d_number_float{};
+  double e_number{};
+  double f_number{};
+  int h_number{};
+  double i_number{};
+  double j_number{};
+  double k_number{};
+  int l_number{};
+  int n_number{};
+  double p_number{};
+  double q_number{};
+  double r_number{};
+  double s_number{};
+  int t_number{};
+  double u_number{};
+  double v_number{};
+  double w_number{};
+  double x_number{};
+  double y_number{};
+  double z_number{};
 
-  bool a_flag;
-  double a_number;
-  bool b_flag;
-  double b_number;
-  bool c_flag;
-  double c_number;
-  char comment[256];
-  double d_number_float;
-  bool d_flag;
-  int dollar_number;
-  bool dollar_flag;
-  bool e_flag;
-  double e_number;
-  bool f_flag;
-  double f_number;
+  int line_number{};
+  int saved_line_number{};  // value of sequence_number when a remap was encountered
+  int motion_to_be{};
+  int m_count{};
+  int m_modes[11]{};
+  int user_m{};
+  int dollar_number{};
+  int g_modes[GM_MAX_MODAL_GROUPS]{};
 
-  int g_modes[GM_MAX_MODAL_GROUPS];
+  bool a_flag{};
+  bool b_flag{};
+  bool c_flag{};
+  bool d_flag{};
+  bool e_flag{};
+  bool f_flag{};
+  bool h_flag{};
+  bool i_flag{};
+  bool j_flag{};
+  bool k_flag{};
+  bool l_flag{};
+  bool p_flag{};
+  bool q_flag{};
+  bool r_flag{};
+  bool s_flag{};
+  bool t_flag{};
+  bool u_flag{};
+  bool v_flag{};
+  bool w_flag{};
+  bool x_flag{};
+  bool y_flag{};
+  bool z_flag{};
 
-  bool h_flag;
-  int h_number;
-  bool i_flag;
-  double i_number;
-  bool j_flag;
-  double j_number;
-  bool k_flag;
-  double k_number;
-  int l_number;
-  bool l_flag;
-  int line_number;
-  int saved_line_number;  // value of sequence_number when a remap was encountered
-  int n_number;
-  int motion_to_be;
-  int m_count;
-  int m_modes[11];
-  int user_m;
-  double p_number;
-  bool p_flag;
-  double q_number;
-  bool q_flag;
-  bool r_flag;
-  double r_number;
-  bool s_flag;
-  double s_number;
-  bool t_flag;
-  int t_number;
-  bool u_flag;
-  double u_number;
-  bool v_flag;
-  double v_number;
-  bool w_flag;
-  double w_number;
-  bool x_flag;
-  double x_number;
-  bool y_flag;
-  double y_number;
-  bool z_flag;
-  double z_number;
+  bool dollar_flag{};
 
-  int radius_flag;
-  double radius;
-  int theta_flag;
-  double theta;
+  double radius{};
+  double theta{};
+  int radius_flag{};
+  int theta_flag{};
 
   // control (o-word) stuff
-  long     offset;   // start of line in file
-  int      o_type;
-  int      call_type; // oword-sub, python oword-sub, remap
-  const char    *o_name;   // !!!KL be sure to free this
-  double   params[INTERP_SUB_PARAMS];
-  int param_cnt;
+  long     offset{};   // start of line in file
+  int      o_type{};
+  int      call_type{}; // oword-sub, python oword-sub, remap
+  const char    *o_name{};   // !!!KL be sure to free this
+  double   params[INTERP_SUB_PARAMS]{};
+  int param_cnt{};
 
   // bitmap of phases already executed
   // we have some 31 or so different steps in a block. We must remember
   // which one is done when we reexecute a block after a remap.
-  std::bitset<MAX_STEPS>  breadcrumbs;
+  std::bitset<MAX_STEPS>  breadcrumbs{};
 
 #define TICKOFF(step) block->breadcrumbs[step] = 1
 #define TODO(step) (block->breadcrumbs[step] == 0)
@@ -512,9 +513,9 @@ struct block_struct
     // there might be several remapped items in a block, but at any point
     // in time there's only one executing
     // conceptually blocks[1..n] are also the 'remap frames'
-    remap_pointer executing_remap; // refers to config descriptor
-    std::set<int> remappings; // all remappings in this block (enum phases)
-    int phase; // current remap execution phase
+    remap_pointer executing_remap{}; // refers to config descriptor
+    std::set<int> remappings{}; // all remappings in this block (enum phases)
+    int phase{}; // current remap execution phase
 
     // the strategy to get the builtin behaviour of a code in a remap procedure is as follows:
     // if recursion is detected in find_remappings() (called by parse_line()), that *step* 
@@ -528,7 +529,7 @@ struct block_struct
     // referenced, which caused execution of the builtin semantics
     // reason for recording the fact: this permits an epilog to do the
     // right thing depending on whether the builtin was used or not.
-    bool builtin_used; 
+    bool builtin_used{};
 };
 
 // indicates which type of Python handler yielded, and needs reexecution
@@ -689,7 +690,7 @@ struct setup
   double current_z;             // current Z-axis position
   double cutter_comp_radius;    // current cutter compensation radius
   int cutter_comp_orientation;  // current cutter compensation tool orientation
-  int cutter_comp_side;         // current cutter compensation side
+  CUTTER_COMP cutter_comp_side;         // current cutter compensation side
   double cycle_cc;              // cc-value (normal) for canned cycles
   double cycle_i;               // i-value for canned cycles
   double cycle_j;               // j-value for canned cycles
@@ -702,7 +703,7 @@ struct setup
   int cycle_il_flag;            // il is currently valid because we're in a series of cycles
   DISTANCE_MODE distance_mode;  // absolute or incremental
   DISTANCE_MODE ijk_distance_mode;  // absolute or incremental for IJK in arcs
-  int feed_mode;                // G_93 (inverse time) or G_94 units/min
+  FEED_MODE feed_mode;                // G_93 (inverse time) or G_94 units/min
   bool feed_override;         // whether feed override is enabled
   double feed_rate;             // feed rate in current units/min
   char filename[PATH_MAX];      // name of currently open NC code file
@@ -746,7 +747,7 @@ struct setup
   int num_spindles;				// number of spindles available
   int active_spindle;			// the spindle currently used for CSS, FPR etc.
   double speed[EMCMOT_MAX_SPINDLES];// array of spindle speeds
-  SPINDLE_MODE spindle_mode[EMCMOT_MAX_SPINDLES];// CONSTANT_RPM or CONSTANT_SURFACE
+  SPINDLE_MODE spindle_mode[EMCMOT_MAX_SPINDLES];// SPINDLE_MODE::CONSTANT_RPM or SPINDLE_MODE::CONSTANT_SURFACE
   CANON_SPEED_FEED_MODE speed_feed_mode;        // independent or synched
   bool speed_override[EMCMOT_MAX_SPINDLES];        // whether speed override is enabled
   CANON_DIRECTION spindle_turning[EMCMOT_MAX_SPINDLES];  // direction spindle is turning
@@ -788,6 +789,8 @@ struct setup
   int tool_change_at_g30;
   int tool_change_quill_up;
   int tool_change_with_spindle_on;
+  double parameter_g73_peck_clearance;
+  double parameter_g83_peck_clearance;
   int a_axis_wrapped;
   int b_axis_wrapped;
   int c_axis_wrapped;

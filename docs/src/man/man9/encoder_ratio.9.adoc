@@ -1,0 +1,79 @@
+= encoder_ratio(9)
+
+== NAME
+
+encoder_ratio - an electronic gear to synchronize two axes
+
+== SYNOPSIS
+
+*loadrt encoder_ratio* [ **num_chan=**_num_ | **names=**_name1_[,_name2_...] ]
+
+== DESCRIPTION
+
+*encoder_ratio* can be used to synchronize two axes (like an "electronic gear").
+It counts encoder pulses from both axes in software, and
+produces an error value that can be used with a PID loop to make the
+slave encoder track the master encoder with a specific ratio.
+
+This module supports up to eight axis pairs. The number of pairs is set
+by the module parameter *num_chan*. Alternatively, specify *names=* and
+unique names separated by commas.
+
+The **num_chan=** and **names=** specifiers are mutually exclusive.
+If neither **num_chan=** nor **names=** are specified, the default value is one.
+
+== FUNCTIONS
+
+*encoder-ratio.sample*::
+  Read all input pins. Must be called at twice the maximum desired count rate.
+*encoder-ratio.update (uses floating-point)*::
+  Updates all output pins. May be called from a slower thread.
+
+== NAMING
+
+The names for pins and parameters are prefixed as: *encoder-ratio.N.*
+for _N_=0,1,...,_num_-1 when using **num_chan=**_num_ *nameN.* for
+**nameN=**_name1_,_name2_,... when using ***names=**_name1_,_name2_,... .
+
+The *encoder-ratio.N.* format is shown in the following descriptions.
+
+== PINS
+
+**encoder-ratio.**_N_**.master-A** bit in::
+   +
+
+**encoder-ratio.**_N_**.master-B** bit in::
+   +
+
+**encoder-ratio.**_N_**.slave-A** bit in::
+   +
+
+**encoder-ratio.**_N_**.slave-B** bit in::
+  The encoder channels of the master and slave axes.
+**encoder-ratio.**_N_**.enable** bit in::
+  When the enable pin is FALSE, the error pin simply reports the slave
+  axis position, in revolutions. As such, it would normally be connected
+  to the feedback pin of a PID block for closed loop control of the
+  slave axis. Normally the command input of the PID block is left
+  unconnected (zero), so the slave axis simply sits still. However when
+  the enable input goes TRUE, the error pin becomes the slave position
+  minus the scaled master position. The scale factor is the ratio of
+  master teeth to slave teeth. As the master moves, error becomes
+  non-zero, and the PID loop will drive the slave axis to track the master.
+**encoder-ratio.**_N_**.error** float out::
+  The error in the position of the slave (in revolutions).
+
+== PARAMETERS
+
+**encoder-ratio.**_N_**.master-ppr** unsigned rw::
+
+**encoder-ratio.**_N_**.slave-ppr** unsigned rw::
+  The number of pulses per revolution of the master and slave axes.
+**encoder-ratio.**_N_**.master-teeth** unsigned rw::
+
+**encoder-ratio.**_N_**.slave-teeth** unsigned rw::
+  The number of "teeth" on the master and slave gears.
+
+== SEE ALSO
+
+encoder(9)

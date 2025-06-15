@@ -64,7 +64,7 @@ static int pipes[NUM_PIPES][2];
 static bool is_random_toolchanger = 0;
 static char db_childname[PATH_MAX];
 
-static void handle_sigchild(int s)
+static void handle_sigchild(int /*s*/)
 {
     pid_t pid;
     int status;
@@ -89,7 +89,7 @@ static void handle_sigchild(int s)
 #endif
 }
 
-static int fork_create(int myargc,char *const myargv[])
+static int fork_create(int /*myargc*/, char *const myargv[])
 {
     // O_DIRECT:packet mode
     if (pipe2(pipes[PARENT_READ_PIPE],O_DIRECT)) {
@@ -208,7 +208,7 @@ int tooldata_db_getall() {
         int nonran_start_idx = 1;
         tooldata_add_init(nonran_start_idx);
     }
-    int ct=1;
+    //int ct=1;
     while (1) {
         char reply[CANON_TOOL_ENTRY_LEN];
         if (read_reply(reply,sizeof(reply)) <0) {
@@ -221,17 +221,16 @@ int tooldata_db_getall() {
             //fprintf(stderr,"=====<ct=%3d>%s\n",ct,reply);
             break;
         }
-        char **ttcomments = NULL; //not used with db
 
-        int foundidx = tooldata_read_entry(reply,ttcomments);
-        ct++;
+        int foundidx = tooldata_read_entry(reply);
+        //ct++;
         if (foundidx < 0) {
             fprintf(stderr,"!!!tooldata_db_getall %s\n",reply);
             return -1;
         }
     }
     // update the single-entry tbl file (typ: db_spindle.tbl)
-    tooldata_save((char*)NULL,(char**)NULL);
+    tooldata_save((char*)NULL);
     initial_getall = 0;
     return 0;
 } // tooldata_db_getall()
@@ -305,7 +304,6 @@ int tooldata_db_notify(tool_notify_t ntype,
                        CANON_TOOL_TABLE tdata)
 {
     if (!db_live) return 0;   //silently ignore
-    char **ttcomments = NULL; //not used with db
     char msg[CANON_TOOL_ENTRY_LEN +20];
     char buffer[CANON_TOOL_ENTRY_LEN] = {0};
 
@@ -319,14 +317,14 @@ int tooldata_db_notify(tool_notify_t ntype,
     case SPINDLE_LOAD: // 'l' command
          tooldata_format_toolline(pocketno,
                                   1, // ignore_zero_values
-                                  notifydata, ttcomments, buffer);
+                                  notifydata, buffer);
          snprintf(msg,sizeof(msg),"l %s\n",buffer);
          if (db_debug) {fprintf(stderr,"SPINDLE_LOAD:%s\n",msg);}
          break;
     case SPINDLE_UNLOAD: // 'u' command
          tooldata_format_toolline(pocketno,
                                   1, // ignore_zero_values
-                                  notifydata, ttcomments, buffer);
+                                  notifydata, buffer);
          snprintf(msg,sizeof(msg),"u %s\n",buffer);
          if (db_debug) {fprintf(stderr,"SPINDLE_UNLOAD:%s\n",msg);}
          break;
@@ -336,7 +334,7 @@ int tooldata_db_notify(tool_notify_t ntype,
          notifydata.pocketno = pocketno;
          tooldata_format_toolline(pocketno,
                                   0, // do not ignore_zero_values
-                                  notifydata, ttcomments, buffer);
+                                  notifydata, buffer);
          snprintf(msg,sizeof(msg),"p %s\n",buffer);
          if (db_debug) {fprintf(stderr,"PUT:   %s\n",msg);}
          break;

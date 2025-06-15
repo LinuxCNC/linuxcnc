@@ -139,6 +139,8 @@ class Combi_DRO(Gtk.Box):
         self.dtg = 0
         self.abs_pos = 0
         self.rel_pos = 0
+        self.margin_left = 5
+        self.margin_right = 5
 
         self.widgets = {}  # will hold all our widgets we need to style
 
@@ -162,7 +164,12 @@ class Combi_DRO(Gtk.Box):
         vbox_main.set_orientation(Gtk.Orientation.VERTICAL)
         eventbox.add(vbox_main)
         hbox_up = Gtk.Box(homogeneous = False, spacing = 5)
+        hbox_up.get_style_context().add_provider(self.css,Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
+        hbox_up.get_style_context().add_class('background')
         vbox_main.pack_start(hbox_up, True, True, 0)
+        vbox_main.set_margin_start(self.margin_left)
+        vbox_main.set_margin_end(self.margin_right)
+        self.widgets["hbox_up"] = hbox_up
         self.widgets["eventbox"] = eventbox
 
         lbl_axisletter = Gtk.Label(label = _AXISLETTERS[self.axis_no])
@@ -269,7 +276,10 @@ class Combi_DRO(Gtk.Box):
     # or just emit a signal to allow GUI to do what ever they want with that
     # signal- gmoccapy uses this signal to open the touch off dialog
     def _on_eventbox_clicked(self, widget, event):
-        if event.x <= self.widgets["lbl_axisletter"].get_allocation().width + self.widgets["lbl_sys_main"].get_allocation().width:
+        sensible_width = self.widgets["lbl_axisletter"].get_allocation().width \
+                      + self.widgets["lbl_sys_main"].get_allocation().width \
+                      + self.widgets["hbox_up"].get_spacing() + self.margin_left
+        if event.x <= sensible_width:
             self.emit('axis_clicked', self.widgets["lbl_axisletter"].get_text().lower())
             #self.set_style("labelcolor", "#00FF00")
         else:

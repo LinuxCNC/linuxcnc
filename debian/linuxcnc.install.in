@@ -34,8 +34,6 @@ usr/bin/hy_gt_vfd
 usr/bin/hy_vfd
 usr/bin/image-to-gcode
 usr/bin/inivar
-usr/bin/io
-usr/bin/iov2
 usr/bin/latency-histogram
 usr/bin/latency-plot
 usr/bin/latency-test
@@ -54,6 +52,7 @@ usr/bin/max5gui
 usr/bin/mb2hal
 usr/bin/mdi
 usr/bin/melfagui
+usr/bin/mesambccc
 usr/bin/milltask
 usr/bin/millturngui
 usr/bin/mitsub_vfd
@@ -74,9 +73,7 @@ usr/bin/pyngcgui
 usr/bin/pyui
 usr/bin/pyvcp
 usr/bin/pyvcp_demo
-usr/bin/qtplasmac-cfg2prefs
 usr/bin/qtplasmac-materials
-usr/bin/qtplasmac-plasmac2qt
 usr/bin/qtplasmac_gcode
 usr/bin/qtvcp
 usr/bin/rotarydelta
@@ -152,7 +149,7 @@ src/emc/usr_intf/axis/README usr/share/doc/@MAIN_PACKAGE_NAME@/axis
 debian/linuxcnc-uspace.metainfo.xml usr/share/metainfo
 
 debian/extras/etc /
-debian/extras/lib /
+debian/extras/lib /usr
 
 debian/extras/usr/share/icons usr/share
 

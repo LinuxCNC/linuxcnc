@@ -40,7 +40,7 @@ TRUE whenever exactly one of the inputs is true, so the correct value for
 connected to signals, because if any other bit is \\fBTRUE\\fR then the output
 will be \\fBFALSE\\fR.
 .PP
-.ie '\*[.T]'html' \\{\\
+.ie '\\*[.T]'html' \\{\\
 .HTML \\
 <STYLE> \\
 #weight TD { text-align: center; padding-left: .5ex; padding-right: .5ex } \\
@@ -141,6 +141,7 @@ see_also """
 """;
 license "GPL";
 author "Jeff Epler";
+option period no;
 ;;
 
 FUNCTION(_) {

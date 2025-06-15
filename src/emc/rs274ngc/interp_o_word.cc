@@ -295,7 +295,7 @@ int Interp::execute_call(setup_pointer settings,
 		plist.append(eblock->params[i]); // positional args
 	    current_frame->pystuff.impl->tupleargs = bp::tuple(plist);
 	    current_frame->pystuff.impl->kwargs = bp::dict();
-
+	    /* Fallthrough */
 	case CS_REEXEC_PYOSUB:
 	    if (settings->call_state ==  CS_REEXEC_PYOSUB)
 		CHP(read_inputs(settings));
@@ -430,6 +430,7 @@ int Interp::execute_return(setup_pointer settings, context_pointer current_frame
 		    settings->call_state = CS_REEXEC_EPILOG;
 		    eblock->call_type = CT_REMAP;
 		    CHP(status);
+		    break;
 		default:
 		    settings->call_state = CS_NORMAL;
 		    settings->sequence_number = previous_frame->sequence_number;
@@ -439,6 +440,7 @@ int Interp::execute_return(setup_pointer settings, context_pointer current_frame
 	    }
 	}
 	// fall through to normal NGC return handling 
+	/* Fallthrough */
     case CT_NGC_OWORD_SUB:
     case CT_NGC_M98_SUB:
     case CT_NONE:  // sub definition
@@ -647,7 +649,7 @@ int Interp::handler_returned( setup_pointer settings,  context_pointer active_fr
 	    settings->value_returned = 1;
 	} else 
 	    return active_frame->pystuff.impl->py_returned_int;
-
+	break;
     case RET_ERRORMSG:
 	status = INTERP_ERROR;
 	break;

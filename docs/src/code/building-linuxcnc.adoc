@@ -24,7 +24,7 @@ Any such change will see no buildbot to help, or that help is delayed,
 pending someone else's review that you do not want to wait for or you are
 the only other individual with a particular hardware to test the code.
 
-Besides the programs that control your machine that are built from the source tree, 
+Besides the programs that control your machine that are built from the source tree,
 you can also build the same PDFs and/or HTML files that you are likely to have encountered
 online on https://linuxcnc.org/documents/.
 
@@ -131,15 +131,12 @@ Preempt-RT::
 
 Non-realtime::
   LinuxCNC can also be built and run on non-realtime platforms,
-  such as a regular install of Debian or Ubuntu without any special realtime kernel.
-.  
+  such as a regular install of Debian or Ubuntu without any special realtime kernel. +
   In this mode LinuxCNC is not useful for controlling machine tools,
   but it is useful for simulating the execution of G-code and for testing the non-realtime parts of the system
-  (such as the user interfaces, and some kinds of components and device drivers).
-.  
+  (such as the user interfaces, and some kinds of components and device drivers). +
   To make use of the realtime capabilities of LinuxCNC, certain parts of LinuxCNC need to run with root privileges.
   To enable root for these parts, run this extra command after the `make` that builds LinuxCNC:
-
 -----
 $ sudo make setuid
 -----
@@ -203,7 +200,7 @@ The `make` command takes two useful optional arguments.
 
 Parallel compilation::
   `make` takes an optional argument `-j` _N_ (where _N_ is a number).
-  This enables parallel compilation with N simultaneous processes, which can significantly speed up your build.
+  This enables parallel compilation with _N_ simultaneous processes, which can significantly speed up your build.
 +
 A useful value for _N_ is the number of CPUs in your build system.
 
@@ -228,7 +225,7 @@ can be skipped. LinuxCNC is then installed as part of those packages on the
 same machines or on whatever machine of the same architecture that  the .deb
 files are copied to. LinuxCNC cannot be run until the Debian packages
 are installed on a target machine and then the executables are available
-in /usr/bin and /usr/lib just like other regular software of the sytem.
+in /usr/bin and /usr/lib just like other regular software of the system.
 
 This build mode is primarily useful when packaging the software for
 delivery to end users, and when building the software for a machine
@@ -240,15 +237,19 @@ Developers among themselves exchange only the source code, likely supported by t
 Also, when building the software for a machine that doesn't have the build environment installed,
 or that doesn't have internet access, one happily accepts a prebuilt package.
 
-Building Debian packages requires the `dpkg-buildpackage` tool the is provided by the `dpkg-dev` package.
-But when building a Debian package, is generally expected to have all scripts in place that would commonly be expected.
-This has been formally manifested as a virtual package named `build-essential`:
+Building Debian packages is performed with the `dpkg-buildpackage` tool that is
+provided by the `dpkg-dev` package. Its execution comes with a series of prerequisites
+that are detailed below:
+ * general build infrastructure shall be installed, i.e. compilers, etc.
+ * build-time dependencies are to be installed, i.e. header files for external code libraries used,
+   as described in the section <<Satisfying-Build-Dependencies,Satisfying Build Dependencies>>.
+ * file in debian folder need to be complete that describe the package
+
+Build tools have been gathered as a virtual package named `build-essential`. To install it, run:
+
 ----
 $ sudo apt-get install build-essential
 ----
-
-Building Debian packages also requires that all package-specific build dependencies are installed,
-as described in the section <<Satisfying-Build-Dependencies,Satisfying Build Dependencies>>.
 
 Once those prerequisites are met, building the Debian packages consists of two steps.
 
@@ -277,7 +278,7 @@ $ dpkg-buildpackage -b -uc
 
 [NOTE]
 ====
-`dpkg-buildpackage` needs to run from the `linuxcnc-source-dir` directory, *not* from `linuxcnc-source-dir/debian`. +
+`dpkg-buildpackage` needs to run from the root of the source tree, which you mave have named `linuxcnc-source-dir`, *not* from within `linuxcnc-source-dir/debian`. +
 `dpkg-buildpackage` takes an optional argument ``-j``_N_ (where _N_ is a number). This enables to run multiple jobs simultaneously.
 ====
 
@@ -352,7 +353,7 @@ execute (from the same directory):
 sudo apt-get build-dep .
 ----
 
-which will install all the dependencies required but available.
+which will install all the dependencies required, not yet installed, but available.
 The '.' is part of the command line, i.e. an instruction to retrieve the dependencies
 for the source tree at hand, not for dependencies of another package.
 This completes the installation of build-dependencies.
@@ -380,7 +381,7 @@ Alternatively, Debian systems provide a program called `dpkg-checkbuilddeps` tha
 parses the package meta-data and compares the packages listed as build
 dependencies against the list of installed packages, and tells you what's missing.
 Also, `dpkg-buildpackage` would inform you about what is missing, and it should be fine.
-However, it reports missing build-deps only after patches in debian/patches are applied (if any).
+However, it reports missing build-deps only after patches in the directory `debian/patches` have been automatically applied (if any).
 If you are new to Linux and git version management, a clean start may be preferable to avoid complications.
 
 The `dpkg-checkbuilddeps` (also from the dpkg-dev package that is installed as part of the build-essential dependencies) program
@@ -406,17 +407,21 @@ For a typical Debian package to build, you would run dpkg-buildpackage without a
 As introduced above, the command has two extra options passed to it.
 Like for all good Linux tools, the man page has all the details with `man dpkg-buildpackage`.
 
-`-uc`:: Do not sign the resulting binaries. You would want to sign your packages with a GPG key of yours only if you would wanted to distribute them to others. Having that option not set and then failing to sign the package would not affect the .deb file.
+`-uc`:: Do not digitally sign the resulting binaries. You would want to sign your packages with a GPG key of yours only if you would wanted to distribute them to others. Having that option not set and then failing to sign the package would not affect the .deb file.
 
-`-b`:: Only compiles the architecture-dependent packages (like the `linuxcnc` binaries and GUIs). This is very helpful to avoid compiling what is hardware-independent, which for LinuxCNC is the documentation. That documentation is available online anyway.
+`-b`:: Only compiles the architecture-dependent packages (like the `linuxcnc` binaries and GUIs).
+ This is very helpful to avoid compiling what is hardware-independent. For LinuxCNC this is the documentation, which is available online anyway.
 
 If you happen to run into difficulties while compiling, check the LinuxCNC forum online.
+
 Currently emerging is the support for the DEB_BUILD_OPTIONS environment variable.
 Set it to
 
 `nodocs`:: to skip building the documentation, preferably instead use the `-B` flag to dpkg-buildpackage.
 
-`nocheck`:: to skip self-tests of the LinuxCNC build process. This saves some time and reduces the demand for a few software packages that may not be available for your system, i.e. the xvfb in particular. You should not set this option for some extra confidence in your build to perform as expected unless running into difficulties with the dependencies.
+`nocheck`:: to skip self-tests of the LinuxCNC build process.
+  This saves some time and reduces the demand for a few software packages that may not be available for your system, i.e. the xvfb in particular.
+  You should not set this option to gain some extra confidence in your build to perform as expected unless you are running into mere technical difficulties with the test-specific software dependencies.
 
 An environment variable can be set together with the execution of the command, e.g.
 ----
@@ -428,7 +433,7 @@ would combine all the options introduced in this section.
 
 A Debian package can be recognised by its .deb extension.
 The tool installing it, `dpkg` is part of every Debian installation.
-The .deb files created by `dpkg-buildpackage` are found in the directoy above the linuxcnc-source-dir, i.e. in `..`.
+The .deb files created by `dpkg-buildpackage` are found in the directory above the linuxcnc-source-dir, i.e. in `..`.
 To see what files are provided in a package, run
 
 ----
@@ -482,5 +487,73 @@ Verify that the memory lock limit is raised using the following command:
 -----
 $ ulimit -l
 -----
+
+== Building on Gentoo
+
+Building on Gentoo is possible, but not supported.  Be sure you are
+running a desktop profile.  This project uses the Tk Widget Set, asciidoc,
+and has some other dependencies.  They should be installed as root:
+
+-----
+~ # euse -E tk imagequant
+~ # emerge -uDNa world
+~ # emerge -a dev-libs/libmodbus dev-lang/tk dev-tcltk/bwidget dev-tcltk/tclx
+~ # emerge -a dev-python/pygobject dev-python/pyopengl dev-python/numpy
+~ # emerge -a app-text/asciidoc app-shells/bash-completion
+-----
+
+You can switch back to being a normal user for most of the rest of the
+install.  As that user, create a virtual environment for pip, then install
+the pip packages:
+
+-----
+~/src $ python -m venv   --system-site-packages ~/src/venv
+~/src $ . ~/src/venv/bin/activate
+(venv) ~/src $ pip install yapps2
+(venv) ~/src $
+-----
+
+Then you can contrinue as normally:
+
+-----
+(venv) ~/src $ git clone https://github.com/LinuxCNC/linuxcnc.git
+(venv) ~/src $ cd linuxcnc
+(venv) ~/src $ cd src
+(venv) ~/src $ ./autogen.sh
+(venv) ~/src $ ./configure --enable-non-distributable=yes
+(venv) ~/src $ make
+-----
+
+There is no need to run "make suid", just make sure your user is in
+the "dialout" group.  To start linuxcnc, you must be in the Python
+Virtual Environment, and set up the linuxcnc environment:
+
+-----
+~ $ . ~/src/venv/bin/activate
+(venv) ~ $ . ~/src/linuxcnc/scripts/rip-environment
+(venv) ~ $ ~/src/linuxcnc $ scripts/linuxcnc
+-----
+
+
+== Options for checking out the git repo
+
+The <<Quick-Start,Quick Start>> instructions at the top of this
+document clone our git repo at
+https://github.com/LinuxCNC/linuxcnc.git.  This is the quickest, easiest
+way to get started.  However, there are other options to consider.
+
+=== Fork us on GitHub
+
+The LinuxCNC project git repo is at https://github.com/LinuxCNC/linuxcnc.
+GitHub is a popular git hosting service and code sharing website.
+You can easily (and at no costs) create a fork (a second instance holding a copy that you control) of the LinuxCNC git repository at GitHub.
+You can then use that fork of yours to track and publish your changes, receive comments to your changes and accept patches from the community.
+.
+
+After creating your own GitHub fork of LinuxCNC, clone it to your
+development machine and proceed with your hacking as usual.
+
+We of the LinuxCNC project hope that you will share your changes with us, so that the community can benefit from your work.
+GitHub makes this sharing very easy: after you polish your changes and push them to your GitHub fork, send us a Pull Request.
 
 // vim: set syntax=asciidoc:

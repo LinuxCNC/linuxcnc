@@ -18,6 +18,7 @@ import os
 import linuxcnc
 import hal
 import time
+import re
 
 import subprocess
 
@@ -58,6 +59,7 @@ class MDI(QLineEdit):
         STATUS.connect('error', self.error_update)
         self.returnPressed.connect(self.submit)
         self.spindleInhibit = False
+        self.g92Inhibit = False
         try:
             fp = os.path.expanduser(INFO.MDI_HISTORY_PATH)
             fp = open(fp, 'r')
@@ -117,6 +119,8 @@ class MDI(QLineEdit):
         elif text.lower().startswith('net'):
             self.net(text)
         elif self.spindleInhibit and self.inhibit_spindle_commands(text):
+            return
+        elif self.g92Inhibit and self.inhibit_g92(text):
             return
         else:
             ACTION.CALL_MDI(text+'\n')
@@ -239,16 +243,23 @@ class MDI(QLineEdit):
     def spindle_inhibit(self, state):
         self.spindleInhibit = state
 
-    # inhibit m3, m4, and m5 commands for plasma configs using the plasmac component
+    def g92_inhibit(self, state):
+        self.g92Inhibit = state
+
+    # inhibit M3, M4, and M5 commands for plasma configs using the plasmac component, allow codes like M52P1
     def inhibit_spindle_commands(self, text):
-        if 'm3' in text.lower().replace(' ',''):
-            ACTION.SET_ERROR_MESSAGE('MDI ERROR:\nM3 commands are not allowed in MDI mode\n')
+        # Match spindle control only (M3, M4, M5), allow codes like M5x
+        match = re.findall(r'M[345](?!\d)', text.upper().replace(" ", ""))
+        if match:
+            mCodes = ', '.join(match)
+            ACTION.SET_ERROR_MESSAGE(f'MDI ERROR:\n{mCodes} commands are not allowed in MDI mode\n')
             return(1)
-        elif 'm4' in text.lower().replace(' ',''):
-            ACTION.SET_ERROR_MESSAGE('MDI ERROR:\nM4 commands are not allowed in MDI mode\n')
-            return(1)
-        elif 'm5' in text.lower().replace(' ',''):
-            ACTION.SET_ERROR_MESSAGE('MDI ERROR:\nM5 commands are not allowed in MDI mode\n')
+        return(0)
+
+    # inhibit g92 offsets for plasma configs using the plasmac component
+    def inhibit_g92(self, text):
+        if 'g92' in text.lower().replace(' ','') and not 'g92.1' in text.lower().replace(' ',''):
+            ACTION.SET_ERROR_MESSAGE('MDI ERROR:\nG92 offsets are not allowed\n')
             return(1)
         return(0)
 
@@ -297,7 +308,7 @@ class MDILine(MDI):
             self.setText(text)
             self.submit()
             LOG.debug('message return:{}'.format (message))
-            STATUS.emit('update-machine-log', 'Set MDI {}'.format(text), 'TIME')
+            STATUS.emit('update-machine-log', 'Set MDI {}'.format(text), 'TIME,SUCCESS')
 
     #########################################################################
     # This is how designer can interact with our widget properties.

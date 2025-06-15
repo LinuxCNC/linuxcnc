@@ -55,6 +55,12 @@
 #include "hal.h"
 #endif // }
 
+// Only gcc/g++ supports the #pragma
+#if __GNUC__ && !defined(__clang__)
+// tpHandleBlendArc() is 2512
+  #pragma GCC diagnostic warning "-Wframe-larger-than=2600"
+#endif
+
 static emcmot_status_t *emcmotStatus;
 static emcmot_config_t *emcmotConfig;
 
@@ -76,12 +82,12 @@ void tpMotFunctions(void(  *pDioWrite)(int,char)
                    ,double(*paxis_get_acc_limit)(int)
                    )
 {
-    _DioWrite            = *pDioWrite;
-    _AioWrite            = *pAioWrite;
-    _SetRotaryUnlock     = *pSetRotaryUnlock;
-    _GetRotaryIsUnlocked = *pGetRotaryIsUnlocked;
-    _axis_get_vel_limit  = *paxis_get_vel_limit;
-    _axis_get_acc_limit  = *paxis_get_acc_limit;
+    _DioWrite            = pDioWrite;
+    _AioWrite            = pAioWrite;
+    _SetRotaryUnlock     = pSetRotaryUnlock;
+    _GetRotaryIsUnlocked = pGetRotaryIsUnlocked;
+    _axis_get_vel_limit  = paxis_get_vel_limit;
+    _axis_get_acc_limit  = paxis_get_acc_limit;
 }
 
 void tpMotData(emcmot_status_t *pstatus
@@ -397,6 +403,7 @@ error:
 
 int tpCreate(TP_STRUCT * const tp, int _queueSize,int id)
 {
+    (void)id;
     if (0 == tp) {
         return TP_ERR_FAIL;
     }
@@ -461,7 +468,7 @@ int tpClear(TP_STRUCT * const tp)
     // Clear out status ID's
     tp->nextId = 0;
     tp->execId = 0;
-    struct state_tag_t tag = {{0}};
+    struct state_tag_t tag = {};
     tp->execTag = tag;
     tp->motionType = 0;
     tp->done = 1;
@@ -627,7 +634,7 @@ int tpGetExecId(TP_STRUCT * const tp)
 struct state_tag_t tpGetExecTag(TP_STRUCT * const tp)
 {
     if (0 == tp) {
-        struct state_tag_t empty = {{0}};
+        struct state_tag_t empty = {};
         return empty;
     }
 
@@ -1637,7 +1644,7 @@ STATIC blend_type_t tpCheckBlendArcType(
 
     //If exact stop, we don't compute the arc
     if (prev_tc->term_cond != TC_TERM_COND_PARABOLIC) {
-        tp_debug_print("Wrong term cond = %u\n", prev_tc->term_cond);
+        tp_debug_print("Wrong term cond = %d\n", prev_tc->term_cond);
         return BLEND_NONE;
     }
 
@@ -1652,7 +1659,7 @@ STATIC blend_type_t tpCheckBlendArcType(
         return BLEND_NONE;
     }
 
-    tp_debug_print("Motion types: prev_tc = %u, tc = %u\n",
+    tp_debug_print("Motion types: prev_tc = %d, tc = %d\n",
             prev_tc->motion_type,tc->motion_type);
     //If not linear blends, we can't easily compute an arc
     if ((prev_tc->motion_type == TC_LINEAR) && (tc->motion_type == TC_LINEAR)) {
@@ -2370,6 +2377,11 @@ STATIC void tpDebugCycleInfo(TP_STRUCT const * const tp, TC_STRUCT const * const
     if (tc->on_final_decel) {
         rtapi_print(" on final decel\n");
     }
+#else
+    (void)tp;
+    (void)tc;
+    (void)nexttc;
+    (void)acc;
 #endif
 }
 
@@ -2524,7 +2536,7 @@ STATIC void tpUpdateRigidTapState(TP_STRUCT const * const tp,
         case RIGIDTAP_START:
             old_spindlepos = new_spindlepos;
             tc->coords.rigidtap.state = TAPPING;
-            // Deliberate fallthrough
+            /* Fallthrough */
         case TAPPING:
             tc_debug_print("TAPPING\n");
             if (tc->progress >= tc->coords.rigidtap.reversal_target) {
@@ -3400,6 +3412,7 @@ STATIC int tpHandleRegularCycle(TP_STRUCT * const tp,
  */
 int tpRunCycle(TP_STRUCT * const tp, long period)
 {
+    (void)period;
     //Pointers to current and next trajectory component
     TC_STRUCT *tc;
     TC_STRUCT *nexttc;
@@ -3606,6 +3619,7 @@ int tpActiveDepth(TP_STRUCT * const tp)
 }
 
 int tpSetAout(TP_STRUCT * const tp, unsigned char index, double start, double end) {
+    (void)end;
     if (0 == tp) {
         return TP_ERR_FAIL;
     }
@@ -3616,6 +3630,7 @@ int tpSetAout(TP_STRUCT * const tp, unsigned char index, double start, double en
 }
 
 int tpSetDout(TP_STRUCT * const tp, int index, unsigned char start, unsigned char end) {
+    (void)end;
     if (0 == tp) {
         return TP_ERR_FAIL;
     }

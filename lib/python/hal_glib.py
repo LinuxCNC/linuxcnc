@@ -197,6 +197,7 @@ class _GStat(GObject.GObject):
         'move-text-lineup': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
         'move-text-linedown': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, ()),
         'dialog-request': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
+        'dialog-update': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
         'focus-overlay-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN, GObject.TYPE_STRING,
                             GObject.TYPE_PYOBJECT)),
         'play-sound': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
@@ -206,6 +207,7 @@ class _GStat(GObject.GObject):
                                         (GObject.TYPE_STRING, GObject.TYPE_BOOLEAN)),
         'show-preference': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, ()),
         'shutdown': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, ()),
+        'status-message': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT, GObject.TYPE_PYOBJECT)),
         'error': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_INT, GObject.TYPE_STRING)),
         'general': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
         'forced-update': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, ()),
@@ -230,7 +232,12 @@ class _GStat(GObject.GObject):
              , linuxcnc.INTERP_IDLE: 'interp-idle'
              }
 
-    TEMPARARY_MESSAGE = 255
+    DEFAULT = 0
+    WARNING = 1
+    CRITICAL = 2
+
+    TEMPARARY_MESSAGE = 255 # Remove in future when releasing 2.10
+    TEMPORARY_MESSAGE = 255
     OPERATOR_ERROR = linuxcnc.OPERATOR_ERROR
     OPERATOR_TEXT = linuxcnc.OPERATOR_TEXT
     NML_ERROR = linuxcnc.NML_ERROR
@@ -485,7 +492,7 @@ class _GStat(GObject.GObject):
             # file name if call level != 0 in the merge() function above.
             # do avoid that a signal is emitted in that case, causing
             # a reload of the preview and sourceview widgets
-            if self.stat.interp_state == linuxcnc.INTERP_IDLE:
+            if self.stat.interp_state == linuxcnc.INTERP_IDLE and file_new != "":
                 self.emit('file-loaded', file_new)
 
         #ToDo : Find a way to avoid signal when the line changed due to
@@ -1067,7 +1074,8 @@ class _GStat(GObject.GObject):
         return self.stat.task_mode == linuxcnc.MODE_AUTO and self.stat.interp_state != linuxcnc.INTERP_IDLE
 
     def is_auto_paused(self):
-        return self.old['paused']
+        self.stat.poll()
+        return self.stat.paused
 
     def is_interp_running(self):
         self.stat.poll()

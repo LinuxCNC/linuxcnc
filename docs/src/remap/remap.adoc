@@ -1042,20 +1042,26 @@ This error message will be displayed in the UI, and returning INTERP_ERROR will 
 
 Note that both `(abort,` __<msg>__ `)` and returning INTERP_ERROR from an epilog will cause any ON_ABORT handler to be called as well if defined (see previous section).
 
-== Remapping other existing codes: S, M0, M1, M60
+== Remapping other existing codes:
 
 === Automatic gear selection be remapping  S (set spindle speed)
 
 A potential use for a remapped S code would be 'automatic gear selection' depending on speed.
 In the remap procedure one would test for the desired speed attainable given the current gear setting, and change gears appropriately if not.
 
-=== Adjusting the behavior of M0, M1, M60
+=== Adjusting the behavior of M0, M1
 
 A use case for remapping M0/M1 would be to customize the behavior of the existing code.
 For instance, it could be desirable to turn off the spindle, mist and flood during an M0 or M1 program pause,
 and turn these settings back on when the program is resumed.
 
 For a complete example doing just that, see `configs/sim/axis/remap/extend-builtins/`, which adapts M1 as laid out above.
+
+=== Adjusting the behavior of M7, M8, M9
+
+An example for remapping the built in behavior of M7/M8/M9 is the option to pass optional arguments like a P word for more complex coolant control (eg through tool vs external coolant flow).
+
+See `configs/sim/axis/remap/extend-builtins/`, for an example of such an extension of the built in behavior for M7,M8 and M9.
 
 == Creating new G-code cycles
 
@@ -1122,8 +1128,6 @@ The Python plugin serves both the interpreter, and `task` if so configured, and 
     Reload the 'TOPLEVEL' script if the file was changed.
     Handy for debugging but currently incurs some runtime overhead.
     Turn this off for production configurations.
-  `PYTHON_TASK =` [0|1];;
-    Start the Python task plug in. Experimental. See xxx.
 
 [[remap:executing-python-statements]]
 === Executing Python statements from the interpreter
@@ -1136,19 +1140,40 @@ Example for the MDI window:
 ;py,print(2*3)
 ----
 
-Note that the interpreter instance is available here as `self`, so you could also run:
+Note that the interpreter instance is available here as `this`, so you could also run:
 
 ----
-;py,print(self.tool_table[0].toolno)
+;py,print(this.tool_table[0].toolno)
 ----
 
-The `emcStatus` structure is accessible, too:
+Here is an approach to use an O word subroutine to read a preference file entry and add it as a Gcode parameter.
 
+[source,{ngc}]
 ----
-;py,from emctask import *
-;py,print(emcstat.io.aux.estop)
-----
+(filename myofile.ngc)
+o<myofile> sub
 
+;py,from interpreter import *
+;py,import os
+;py,from qtvcp.lib.preferences import Access
+
+; find and print the preference file path
+;py,CONFPATH = os.environ.get('CONFIG_DIR', '/dev/null')
+; adjust for your preference file name
+;py,PREFFILE = os.path.join(CONFPATH,'qtdragon.pref')
+;py,print(PREFFILE)
+
+; get an preference instance
+;py,Pref = Access(PREFFILE)
+
+; load a preference and print it
+;py,this.params['toolToLoad']=Pref.getpref('Tool to load', 0, int,'CUSTOM_FORM_ENTRIES')
+;py,print('Tool to load->:',this.params['toolToLoad'])
+
+; return the value
+o<myofile> endsub [#<toolToLoad>]
+M2
+----
 [[remap:programming-embedded-python]]
 == Programming Embedded Python in the RS274NGC Interpreter
 
@@ -1167,9 +1192,6 @@ The namespace is expected to be laid out as follows:
 `namedparams`::
   Python functions in this module extend or redefine the namespace of predefined named parameters,
   see <<remap:adding-predefined-named-parameters,adding predefined parameters>>.
-
-`task`::
-  Task-related callables are expected here.
 
 === The Interpreter as seen from Python
 
@@ -1226,7 +1248,8 @@ Python code is called from NGC in the following situations:
 
 - during normal program execution:
   * when an O-word call like `O<proc> call` is executed and the name `oword.proc` is defined and callable
-  * when a comment like `;py,<Python statement>` is executed - during execution of a remapped code: any `prolog=`, `python=` and `epilog=` handlers.
+  * when a comment like `;py,<Python statement>` is executed.
+  * during execution of a remapped code: any `prolog=`, `python=` and `epilog=` handlers.
 
 [[remap:python-o-word-procs]]
 .Calling O-word Python subroutines
@@ -1509,10 +1532,6 @@ The following modules are built in:
 `emccanon`::
   Exposes most calls of  `src/emc/task/emccanon.cc`.
 
-`emctask`::
-  Exposes the `emcStatus` class instance. See `src/emc/task/taskmodule.cc`.
-  Not present when using the `gcode` module used for user interfaces - only present in the milltask instance of the interpreter.
-
 [[remap:adding-predefined-named-parameters]]
 == Adding Predefined Named Parameters
 
@@ -1596,11 +1615,6 @@ These wrap a NGC procedure for M6 Tool Change.
 
 .Actions of +change_prolog+
 
-* The following three steps are applicable only if the `iocontrol-v2` component is used:
-** If parameter 5600 (fault indicator) is greater than zero, this indicates a Toolchanger fault, which is handled as follows:
-** if parameter 5601 (error code) is negative, this indicates a hard fault and the prolog aborts with an error message.
-** if parameter 5601 (error code) is greater equal zero, this indicates a soft fault.
-   An informational message is displayed and the prolog continues.
 * If there was no preceding T command which caused a pocket to be selected, the prolog aborts with an error message.
 * If cutter radius compensation is on, the prolog aborts with an error message.
 
@@ -1613,10 +1627,6 @@ Then, the following parameters are exported to the NGC procedure:
 .Actions of +change_epilog
 
 * The NGC procedure is expected to return a positive value, otherwise an error message containing the return value is given and the interpreter aborts.
-* If parameter 5600 (fault indicator) is greater than zero, this indicates a Toolchanger fault, which is handled as follows (`iocontrol-v2`-only):
-** If parameter 5601 (error code) is negative, this indicates a hard fault and the epilog aborts with an error message.
-** If parameter 5601 (error code) is greater equal zero, this indicates a soft fault.
-   An informational message is displayed and the epilog continues.
 * In case the NGC procedure executed the M6 command (which then refers to the built in M6 behavior), no further action is taken.
   This can be used for instance to minimally adjust the built in behavior be preceding or following it with some other statements.
 * Otherwise, the `#<selected_pocket>` parameter is extracted from the subroutine's parameter space, and used to set the interpreter's `current_pocket` variable.
@@ -1704,7 +1714,6 @@ m|EMC_DEBUG_OWORD       m|0x00002000 |traces execution of O-word subroutines
 m|EMC_DEBUG_REMAP       m|0x00004000 |traces execution of remap-related code
 m|EMC_DEBUG_PYTHON      m|0x00008000 |calls to the Python plug in
 m|EMC_DEBUG_NAMEDPARAM  m|0x00010000 |trace named parameter access
-m|EMC_DEBUG_PYTHON_TASK m|0x00040000 |trace the task Python plug in
 m|EMC_DEBUG_USER1       m|0x10000000 |user-defined - not interpreted by LinuxCNC
 m|EMC_DEBUG_USER2       m|0x20000000 |user-defined - not interpreted by LinuxCNC
 |===
@@ -1715,8 +1724,8 @@ For a current list of debug flags see 'src/emc/nml_intf/debugflags.h'.
 === Debugging Embedded Python code
 
 Debugging of embedded Python code is harder than debugging normal Python scripts, and only a limited supply of debuggers exists.
-A working open-source based solution is to use the http://www.eclipse.org[Eclipse IDE],
-and the http://www.pydev.org[PydDev] Eclipse plug in and its https://pydev.org/manual_adv_remote_debugger.html[remote debugging feature].
+A working open-source based solution is to use the https://www.eclipse.org[Eclipse IDE],
+and the https://www.pydev.org[PydDev] Eclipse plug in and its https://pydev.org/manual_adv_remote_debugger.html[remote debugging feature].
 
 To use this approach:
 
@@ -1784,11 +1793,15 @@ The current set of *existing* codes open to redefinition is:
 - M61 (Set tool number)
 - M0 (pause a running program temporarily)
 - M1 (pause a running program temporarily if the optional stop switch is on)
+- M7 (activate coolant mist)
+- M8 (activate coolant flood)
+- M9 (deactivate coolant mist and flood)
 - M60 (exchange pallet shuttles and then pause a running program temporarily)
+- M62 .. M65 (digital output control)
+- M66 (wait on input)
+- M67, M68 (analog output control)
 - S  (set spindle speed)
 - F  (set feed)
-
-Note that the use of M61 currently requires the use of `iocontrol-v2`.
 
 [[remap:unallocated-g-codes]]
 === Currently unallocated G-codes:
@@ -1983,48 +1996,6 @@ All M-codes from `M100` to `M199` are user-defined M-codes already, and should n
 
 All M-codes from `M200` to `M999` are available for remapping.
 
-=== readahead time and execution time
-
-FIXME Write missing information
-
-=== plugin/pickle hack
-
-FIXME Write missing information
-
-=== Module, methods, classes, etc reference
-
-FIXME Write missing information
-
-== Introduction: Extending Task Execution
-
-FIXME Write missing information
-
-=== Why would you want to change Task Execution?
-
-FIXME Write missing information
-
-=== A diagram: `task`, `interp`, `iocontrol`, `UI` (??)
-
-FIXME Write missing information
-
-== Models of Task execution
-
-FIXME Write missing information
-
-=== Traditional `iocontrol`/`iocontrolv2` execution
-
-FIXME Write missing information
-
-=== Redefining IO procedures
-
-FIXME Write missing information
-
-=== Execution-time Python procedures
-
-FIXME Write missing information
-
-// setup examples
-
 == A short survey of LinuxCNC program execution
 
 To understand remapping of codes it might be helpful to survey the execution of `task` and interpreter as far as it relates to remapping.
@@ -2188,15 +2159,6 @@ The interpreter's perception of the tool currently loaded for instance is access
 ;py,print(this.tool_table[0])
 ----
 
-To see fields in the global emcStatus structure, try this:
-
-----
-;py,from emctask import *
-;py,print(emcstat.io.tool.pocketPrepped)
-;py,print(emcstat.io.tool.toolInSpindle)
-;py,print(emcstat.io.tool.toolTable[0])
-----
-
 You need to have LinuxCNC started from a terminal window to see the results.
 
 === How `T`__x__ (Prepare Tool) works
@@ -2293,7 +2255,6 @@ An example Python redefinition for `M61` can be found in the `set_tool_number` f
 ==  Status
 
 . The RELOAD_ON_CHANGE feature is fairly broken. Restart after changing a Python file.
-. M61 (remapped or not) is broken in `iocontrol` and requires `iocontrol-v2` to actually work.
 
 // A short survey of LinuxCNC execution
 // Interpreter internals access - Python view

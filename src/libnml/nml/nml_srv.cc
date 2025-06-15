@@ -58,20 +58,19 @@ NML_SERVER::NML_SERVER(NML * _nml, int _set_to_master):CMS_SERVER()
 		    if (NULL != new_nml) {
 			new_local_port = new NML_SERVER_LOCAL_PORT(new_nml);
 			add_local_port(new_local_port);
+		        new_local_port->local_channel_reused = 1;
 		    }
-		    new_local_port->local_channel_reused = 1;
 		} else {
 		    new_nml = new NML(_nml, 1, -1);
 		    if (NULL != new_nml) {
 			new_local_port = new NML_SERVER_LOCAL_PORT(new_nml);
 			add_local_port(new_local_port);
+		        new_local_port->local_channel_reused = 0;
 		    }
-		    new_local_port->local_channel_reused = 0;
 		}
 	    } else {
 		rcs_print_error
 		    ("NML_SERVER:(ERROR) ProcessType was REMOTE.\n");
-		_nml = NULL;
 	    }
 	} else {
 	    rcs_print_error("NML_SERVER:(ERROR) cms was NULL.\n");
@@ -109,9 +108,9 @@ void NML_SERVER::delete_from_list()
     }
 }
 
-NML_SERVER_LOCAL_PORT::NML_SERVER_LOCAL_PORT(NML * _nml):CMS_SERVER_LOCAL_PORT((CMS
-	*)
-    NULL)
+NML_SERVER_LOCAL_PORT::NML_SERVER_LOCAL_PORT(NML * _nml)
+  : CMS_SERVER_LOCAL_PORT((CMS *)NULL),
+    batch_list_id(0)
 {
     local_channel_reused = 1;
     nml = _nml;
@@ -337,7 +336,7 @@ set_diag_info(REMOTE_SET_DIAG_INFO_REQUEST * _req)
 }
 
 REMOTE_GET_DIAG_INFO_REPLY *NML_SERVER_LOCAL_PORT::
-get_diag_info(REMOTE_GET_DIAG_INFO_REQUEST * _req)
+get_diag_info(REMOTE_GET_DIAG_INFO_REQUEST * /*_req*/)
 {
     get_diag_info_reply.cdi = cms->get_diagnostics_info();
     get_diag_info_reply.status = cms->status;
@@ -345,7 +344,7 @@ get_diag_info(REMOTE_GET_DIAG_INFO_REQUEST * _req)
 }
 
 REMOTE_GET_MSG_COUNT_REPLY *NML_SERVER_LOCAL_PORT::
-get_msg_count(REMOTE_GET_DIAG_INFO_REQUEST * _req)
+get_msg_count(REMOTE_GET_DIAG_INFO_REQUEST * /*_req*/)
 {
     return (NULL);
 }

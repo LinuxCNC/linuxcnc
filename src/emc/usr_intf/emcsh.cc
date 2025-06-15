@@ -133,16 +133,9 @@
   With no arg, returns the flood setting as "on" or "off". Otherwise,
   sends a flood on or off command.
 
-  emc_lube (none) | on | off
-  With no arg, returns the lubricant pump setting as "on" or "off".
-  Otherwise, sends a lube on or off command.
-
-  emc_lube_level
-  Returns the lubricant level sensor reading as "ok" or "low".
-
   emc_spindle (spindle_number) (none) | forward | reverse | increase | decrease | constant | off
   With no spindle_number defaults to spindle 0. This is a little different
-  from the default behaviour elsewhere where specifyin no spindle affects all spindles.
+  from the default behaviour elsewhere where specifying no spindle affects all spindles.
   With no arg, returns the value of the spindle state as "forward",
   "reverse", "increase", "decrease", or "off". With arg, sends the spindle
   command. Note that "increase" and "decrease" will cause a speed change in
@@ -343,7 +336,7 @@
         return TCL_ERROR;\
     }
 
-static void thisQuit(ClientData clientData)
+static void thisQuit(ClientData /*clientData*/)
 {
     EMC_NULL emc_null_msg;
 
@@ -376,8 +369,8 @@ static void thisQuit(ClientData clientData)
 
 /* EMC command functions */
 
-static int emc_plat(ClientData clientdata,
-		    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+static int emc_plat(ClientData /*clientdata*/,
+		    Tcl_Interp * interp, int objc, Tcl_Obj * CONST * /*objv*/)
 {
     if (objc == 1) {
 	setresult(interp,"Linux");
@@ -388,11 +381,11 @@ static int emc_plat(ClientData clientdata,
     return TCL_ERROR;
 }
 
-static int emc_ini(ClientData clientdata,
+static int emc_ini(ClientData /*clientdata*/,
 		   Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
 {
     IniFile inifile;
-    const char *inistring;
+    std::optional<const char *> inistring;
     const char *varstr, *secstr, *defaultstr;
     defaultstr = 0;
 
@@ -412,14 +405,14 @@ static int emc_ini(ClientData clientdata,
 	defaultstr = Tcl_GetStringFromObj(objv[3], 0);
     }
 
-    if (NULL == (inistring = inifile.Find(varstr, secstr))) {
+    if (!(inistring = inifile.Find(varstr, secstr))) {
 	if (defaultstr != 0) {
 	    setresult(interp,(char *) defaultstr);
 	}
 	return TCL_OK;
     }
 
-    setresult(interp,(char *) inistring);
+    setresult(interp, *inistring);
 
     // close it
     inifile.Close();
@@ -427,7 +420,7 @@ static int emc_ini(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_Debug(ClientData clientdata,
+static int emc_Debug(ClientData /*clientdata*/,
 		     Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
 {
     Tcl_Obj *debug_obj;
@@ -459,7 +452,7 @@ static int emc_Debug(ClientData clientdata,
     return TCL_ERROR;
 }
 
-static int emc_set_wait(ClientData clientdata,
+static int emc_set_wait(ClientData /*clientdata*/,
 			Tcl_Interp * interp, int objc,
 			Tcl_Obj * CONST objv[])
 {
@@ -497,7 +490,7 @@ static int emc_set_wait(ClientData clientdata,
     return TCL_ERROR;
 }
 
-static int emc_wait(ClientData clientdata,
+static int emc_wait(ClientData /*clientdata*/,
 		    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
 {
     char *objstr;
@@ -523,7 +516,7 @@ static int emc_wait(ClientData clientdata,
     return TCL_ERROR;
 }
 
-static int emc_set_timeout(ClientData clientdata,
+static int emc_set_timeout(ClientData /*clientdata*/,
 			   Tcl_Interp * interp, int objc,
 			   Tcl_Obj * CONST objv[])
 {
@@ -548,7 +541,7 @@ static int emc_set_timeout(ClientData clientdata,
     return TCL_ERROR;
 }
 
-static int emc_update(ClientData clientdata,
+static int emc_update(ClientData /*clientdata*/,
 		      Tcl_Interp * interp, int objc,
 		      Tcl_Obj * CONST objv[])
 {
@@ -576,8 +569,8 @@ static int emc_update(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_time(ClientData clientdata,
-		    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+static int emc_time(ClientData /*clientdata*/,
+		    Tcl_Interp * interp, int objc, Tcl_Obj * CONST * /*objv*/)
 {
     CHECKEMC
     if (objc == 1) {
@@ -589,8 +582,8 @@ static int emc_time(ClientData clientdata,
     return TCL_ERROR;
 }
 
-static int emc_error(ClientData clientdata,
-		     Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+static int emc_error(ClientData /*clientdata*/,
+		     Tcl_Interp * interp, int objc, Tcl_Obj * CONST * /*objv*/)
 {
 
     CHECKEMC
@@ -614,9 +607,9 @@ static int emc_error(ClientData clientdata,
     return TCL_ERROR;
 }
 
-static int emc_operator_text(ClientData clientdata,
+static int emc_operator_text(ClientData /*clientdata*/,
 			     Tcl_Interp * interp, int objc,
-			     Tcl_Obj * CONST objv[])
+			     Tcl_Obj * CONST * /*objv*/)
 {
 
     CHECKEMC
@@ -640,9 +633,9 @@ static int emc_operator_text(ClientData clientdata,
     return TCL_ERROR;
 }
 
-static int emc_operator_display(ClientData clientdata,
+static int emc_operator_display(ClientData /*clientdata*/,
 				Tcl_Interp * interp, int objc,
-				Tcl_Obj * CONST objv[])
+				Tcl_Obj * CONST * /*objv*/)
 {
 
     CHECKEMC
@@ -666,7 +659,7 @@ static int emc_operator_display(ClientData clientdata,
     return TCL_ERROR;
 }
 
-static int emc_estop(ClientData clientdata,
+static int emc_estop(ClientData /*clientdata*/,
 		     Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
 {
     char *objstr;
@@ -677,7 +670,7 @@ static int emc_estop(ClientData clientdata,
 	if (emcUpdateType == EMC_UPDATE_AUTO) {
 	    updateStatus();
 	}
-	if (emcStatus->task.state == EMC_TASK_STATE_ESTOP) {
+	if (emcStatus->task.state == EMC_TASK_STATE::ESTOP) {
 	    setresult(interp,"on");
 	} else {
 	    setresult(interp,"off");
@@ -701,7 +694,7 @@ static int emc_estop(ClientData clientdata,
     return TCL_ERROR;
 }
 
-static int emc_machine(ClientData clientdata,
+static int emc_machine(ClientData /*clientdata*/,
 		       Tcl_Interp * interp, int objc,
 		       Tcl_Obj * CONST objv[])
 {
@@ -713,7 +706,7 @@ static int emc_machine(ClientData clientdata,
 	if (emcUpdateType == EMC_UPDATE_AUTO) {
 	    updateStatus();
 	}
-	if (emcStatus->task.state == EMC_TASK_STATE_ON) {
+	if (emcStatus->task.state == EMC_TASK_STATE::ON) {
 	    setresult(interp,"on");
 	} else {
 	    setresult(interp,"off");
@@ -737,7 +730,7 @@ static int emc_machine(ClientData clientdata,
     return TCL_ERROR;
 }
 
-static int emc_mode(ClientData clientdata,
+static int emc_mode(ClientData /*clientdata*/,
 		    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
 {
     char *objstr;
@@ -749,13 +742,13 @@ static int emc_mode(ClientData clientdata,
 	    updateStatus();
 	}
 	switch (emcStatus->task.mode) {
-	case EMC_TASK_MODE_MANUAL:
+	case EMC_TASK_MODE::MANUAL:
 	    setresult(interp,"manual");
 	    break;
-	case EMC_TASK_MODE_AUTO:
+	case EMC_TASK_MODE::AUTO:
 	    setresult(interp,"auto");
 	    break;
-	case EMC_TASK_MODE_MDI:
+	case EMC_TASK_MODE::MDI:
 	    setresult(interp,"mdi");
 	    break;
 	default:
@@ -785,7 +778,7 @@ static int emc_mode(ClientData clientdata,
     return TCL_ERROR;
 }
 
-static int emc_mist(ClientData clientdata,
+static int emc_mist(ClientData /*clientdata*/,
 		    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
 {
     char *objstr;
@@ -820,7 +813,7 @@ static int emc_mist(ClientData clientdata,
     return TCL_ERROR;
 }
 
-static int emc_flood(ClientData clientdata,
+static int emc_flood(ClientData /*clientdata*/,
 		     Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
 {
     char *objstr;
@@ -854,64 +847,7 @@ static int emc_flood(ClientData clientdata,
     setresult(interp,"emc_flood: need 'on', 'off', or no args"); return TCL_ERROR;
 }
 
-static int emc_lube(ClientData clientdata,
-		    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
-{
-    char *objstr;
-
-    CHECKEMC
-    if (objc == 1) {
-	// no arg-- return status
-	if (emcUpdateType == EMC_UPDATE_AUTO) {
-	    updateStatus();
-	}
-	if (emcStatus->io.lube.on == 0) {
-	    setresult(interp,"off");
-	} else {
-	    setresult(interp,"on");
-	}
-	return TCL_OK;
-    }
-
-    if (objc == 2) {
-	objstr = Tcl_GetStringFromObj(objv[1], 0);
-	if (!strcmp(objstr, "on")) {
-	    sendLubeOn();
-	    return TCL_OK;
-	}
-	if (!strcmp(objstr, "off")) {
-	    sendLubeOff();
-	    return TCL_OK;
-	}
-    }
-
-    setresult(interp,"emc_lube: need 'on', 'off', or no args");
-    return TCL_ERROR;
-}
-
-static int emc_lube_level(ClientData clientdata,
-			  Tcl_Interp * interp, int objc,
-			  Tcl_Obj * CONST objv[])
-{
-    CHECKEMC
-    if (objc == 1) {
-	// no arg-- return status
-	if (emcUpdateType == EMC_UPDATE_AUTO) {
-	    updateStatus();
-	}
-	if (emcStatus->io.lube.level == 0) {
-	    setresult(interp,"low");
-	} else {
-	    setresult(interp,"ok");
-	}
-	return TCL_OK;
-    }
-
-    setresult(interp,"emc_lube_level: need no args");
-    return TCL_ERROR;
-}
-
-static int emc_spindle(ClientData clientdata,
+static int emc_spindle(ClientData /*clientdata*/,
 		       Tcl_Interp * interp, int objc,
 		       Tcl_Obj * CONST objv[])
 {
@@ -981,7 +917,7 @@ static int emc_spindle(ClientData clientdata,
     return TCL_ERROR;
 }
 
-static int emc_brake(ClientData clientdata,
+static int emc_brake(ClientData /*clientdata*/,
 		     Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
 {
     char *objstr = NULL;
@@ -1029,8 +965,8 @@ static int emc_brake(ClientData clientdata,
     return TCL_ERROR;
 }
 
-static int emc_tool(ClientData clientdata,
-		    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+static int emc_tool(ClientData /*clientdata*/,
+		    Tcl_Interp * interp, int objc, Tcl_Obj * CONST * /*objv*/)
 {
     Tcl_Obj *toolobj;
 
@@ -1050,7 +986,7 @@ static int emc_tool(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_tool_offset(ClientData clientdata,
+static int emc_tool_offset(ClientData /*clientdata*/,
 			   Tcl_Interp * interp, int objc,
 			   Tcl_Obj * CONST objv[])
 {
@@ -1118,7 +1054,7 @@ static int emc_tool_offset(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_load_tool_table(ClientData clientdata,
+static int emc_load_tool_table(ClientData /*clientdata*/,
 			       Tcl_Interp * interp, int objc,
 			       Tcl_Obj * CONST objv[])
 {
@@ -1136,7 +1072,7 @@ static int emc_load_tool_table(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_set_tool_offset(ClientData clientdata,
+static int emc_set_tool_offset(ClientData /*clientdata*/,
 			       Tcl_Interp * interp, int objc,
 			       Tcl_Obj * CONST objv[])
 {
@@ -1171,7 +1107,7 @@ static int emc_set_tool_offset(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_abs_cmd_pos(ClientData clientdata,
+static int emc_abs_cmd_pos(ClientData /*clientdata*/,
 			   Tcl_Interp * interp, int objc,
 			   Tcl_Obj * CONST objv[])
 {
@@ -1236,7 +1172,7 @@ static int emc_abs_cmd_pos(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_abs_act_pos(ClientData clientdata,
+static int emc_abs_act_pos(ClientData /*clientdata*/,
 			   Tcl_Interp * interp, int objc,
 			   Tcl_Obj * CONST objv[])
 {
@@ -1301,7 +1237,7 @@ static int emc_abs_act_pos(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_rel_cmd_pos(ClientData clientdata,
+static int emc_rel_cmd_pos(ClientData /*clientdata*/,
 			   Tcl_Interp * interp, int objc,
 			   Tcl_Obj * CONST objv[])
 {
@@ -1385,7 +1321,7 @@ static int emc_rel_cmd_pos(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_rel_act_pos(ClientData clientdata,
+static int emc_rel_act_pos(ClientData /*clientdata*/,
 			   Tcl_Interp * interp, int objc,
 			   Tcl_Obj * CONST objv[])
 {
@@ -1470,7 +1406,7 @@ static int emc_rel_act_pos(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_joint_pos(ClientData clientdata,
+static int emc_joint_pos(ClientData /*clientdata*/,
 			 Tcl_Interp * interp, int objc,
 			 Tcl_Obj * CONST objv[])
 {
@@ -1498,7 +1434,7 @@ static int emc_joint_pos(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_pos_offset(ClientData clientdata,
+static int emc_pos_offset(ClientData /*clientdata*/,
 			  Tcl_Interp * interp, int objc,
 			  Tcl_Obj * CONST objv[])
 {
@@ -1563,7 +1499,7 @@ static int emc_pos_offset(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_joint_limit(ClientData clientdata,
+static int emc_joint_limit(ClientData /*clientdata*/,
 			   Tcl_Interp * interp, int objc,
 			   Tcl_Obj * CONST objv[])
 {
@@ -1607,7 +1543,7 @@ static int emc_joint_limit(ClientData clientdata,
     return TCL_ERROR;
 }
 
-static int emc_joint_fault(ClientData clientdata,
+static int emc_joint_fault(ClientData /*clientdata*/,
 			   Tcl_Interp * interp, int objc,
 			   Tcl_Obj * CONST objv[])
 {
@@ -1642,7 +1578,7 @@ static int emc_joint_fault(ClientData clientdata,
     return TCL_ERROR;
 }
 
-static int emc_override_limit(ClientData clientdata,
+static int emc_override_limit(ClientData /*clientdata*/,
 			      Tcl_Interp * interp, int objc,
 			      Tcl_Obj * CONST objv[])
 {
@@ -1685,7 +1621,7 @@ static int emc_override_limit(ClientData clientdata,
     return TCL_ERROR;
 }
 
-static int emc_joint_homed(ClientData clientdata,
+static int emc_joint_homed(ClientData /*clientdata*/,
 			   Tcl_Interp * interp, int objc,
 			   Tcl_Obj * CONST objv[])
 {
@@ -1720,7 +1656,7 @@ static int emc_joint_homed(ClientData clientdata,
     return TCL_ERROR;
 }
 
-static int emc_mdi(ClientData clientdata,
+static int emc_mdi(ClientData /*clientdata*/,
 		   Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
 {
     char string[256];
@@ -1746,7 +1682,7 @@ static int emc_mdi(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_home(ClientData clientdata,
+static int emc_home(ClientData /*clientdata*/,
 		    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
 {
     int joint;
@@ -1766,7 +1702,7 @@ static int emc_home(ClientData clientdata,
     return TCL_ERROR;
 }
 
-static int emc_unhome(ClientData clientdata,
+static int emc_unhome(ClientData /*clientdata*/,
 		    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
 {
     int joint;
@@ -1786,7 +1722,7 @@ static int emc_unhome(ClientData clientdata,
     return TCL_ERROR;
 }
 
-static int emc_jog_stop(ClientData clientdata,
+static int emc_jog_stop(ClientData /*clientdata*/,
 			Tcl_Interp * interp, int objc,
 			Tcl_Obj * CONST objv[])
 {
@@ -1814,7 +1750,7 @@ static int emc_jog_stop(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_jog(ClientData clientdata,
+static int emc_jog(ClientData /*clientdata*/,
 		   Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
 {
     int joint;
@@ -1848,7 +1784,7 @@ static int emc_jog(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_jog_incr(ClientData clientdata,
+static int emc_jog_incr(ClientData /*clientdata*/,
 			Tcl_Interp * interp, int objc,
 			Tcl_Obj * CONST objv[])
 {
@@ -1887,7 +1823,7 @@ static int emc_jog_incr(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_feed_override(ClientData clientdata,
+static int emc_feed_override(ClientData /*clientdata*/,
 			     Tcl_Interp * interp, int objc,
 			     Tcl_Obj * CONST objv[])
 {
@@ -1921,7 +1857,7 @@ static int emc_feed_override(ClientData clientdata,
     return TCL_ERROR;
 }
 
-static int emc_rapid_override(ClientData clientdata,
+static int emc_rapid_override(ClientData /*clientdata*/,
 			     Tcl_Interp * interp, int objc,
 			     Tcl_Obj * CONST objv[])
 {
@@ -1955,7 +1891,7 @@ static int emc_rapid_override(ClientData clientdata,
     return TCL_ERROR;
 }
 
-static int emc_spindle_override(ClientData clientdata,
+static int emc_spindle_override(ClientData /*clientdata*/,
 			     Tcl_Interp * interp, int objc,
 			     Tcl_Obj * CONST objv[])
 {
@@ -1998,9 +1934,9 @@ static int emc_spindle_override(ClientData clientdata,
     return TCL_ERROR;
 }
 
-static int emc_task_plan_init(ClientData clientdata,
-			      Tcl_Interp * interp, int objc,
-			      Tcl_Obj * CONST objv[])
+static int emc_task_plan_init(ClientData /*clientdata*/,
+			      Tcl_Interp * interp, int /*objc*/,
+			      Tcl_Obj * CONST * /*objv*/)
 {
     CHECKEMC
     if (0 != sendTaskPlanInit()) {
@@ -2011,7 +1947,7 @@ static int emc_task_plan_init(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_open(ClientData clientdata,
+static int emc_open(ClientData /*clientdata*/,
 		    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
 {
     CHECKEMC
@@ -2028,7 +1964,7 @@ static int emc_open(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_run(ClientData clientdata,
+static int emc_run(ClientData /*clientdata*/,
 		   Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
 {
     int line;
@@ -2055,8 +1991,8 @@ static int emc_run(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_pause(ClientData clientdata,
-		     Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+static int emc_pause(ClientData /*clientdata*/,
+		     Tcl_Interp * interp, int /*objc*/, Tcl_Obj * CONST * /*objv*/)
 {
     CHECKEMC
     if (0 != sendProgramPause()) {
@@ -2067,7 +2003,7 @@ static int emc_pause(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_optional_stop(ClientData clientdata,
+static int emc_optional_stop(ClientData /*clientdata*/,
 			      Tcl_Interp * interp, int objc,
 			      Tcl_Obj * CONST objv[])
 {
@@ -2103,9 +2039,9 @@ static int emc_optional_stop(ClientData clientdata,
     return TCL_ERROR;
 }
 
-static int emc_resume(ClientData clientdata,
-		      Tcl_Interp * interp, int objc,
-		      Tcl_Obj * CONST objv[])
+static int emc_resume(ClientData /*clientdata*/,
+		      Tcl_Interp * interp, int /*objc*/,
+		      Tcl_Obj * CONST * /*objv*/)
 {
     CHECKEMC
     if (0 != sendProgramResume()) {
@@ -2116,8 +2052,8 @@ static int emc_resume(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_step(ClientData clientdata,
-		    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+static int emc_step(ClientData /*clientdata*/,
+		    Tcl_Interp * interp, int /*objc*/, Tcl_Obj * CONST * /*objv*/)
 {
     CHECKEMC
     if (0 != sendProgramStep()) {
@@ -2128,8 +2064,8 @@ static int emc_step(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_abort(ClientData clientdata,
-		     Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+static int emc_abort(ClientData /*clientdata*/,
+		     Tcl_Interp * interp, int /*objc*/, Tcl_Obj * CONST * /*objv*/)
 {
     CHECKEMC
     if (0 != sendAbort()) {
@@ -2140,9 +2076,9 @@ static int emc_abort(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_program(ClientData clientdata,
+static int emc_program(ClientData /*clientdata*/,
 		       Tcl_Interp * interp, int objc,
-		       Tcl_Obj * CONST objv[])
+		       Tcl_Obj * CONST * /*objv*/)
 {
     CHECKEMC
     if (objc != 1) {
@@ -2163,9 +2099,9 @@ static int emc_program(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_program_status(ClientData clientdata,
+static int emc_program_status(ClientData /*clientdata*/,
 			      Tcl_Interp * interp, int objc,
-			      Tcl_Obj * CONST objv[])
+			      Tcl_Obj * CONST * /*objv*/)
 {
     CHECKEMC
     if (objc != 1) {
@@ -2178,13 +2114,13 @@ static int emc_program_status(ClientData clientdata,
     }
 
     switch (emcStatus->task.interpState) {
-    case EMC_TASK_INTERP_READING:
-    case EMC_TASK_INTERP_WAITING:
+    case EMC_TASK_INTERP::READING:
+    case EMC_TASK_INTERP::WAITING:
 	setresult(interp,"running");
 	return TCL_OK;
 	break;
 
-    case EMC_TASK_INTERP_PAUSED:
+    case EMC_TASK_INTERP::PAUSED:
 	setresult(interp,"paused");
 	return TCL_OK;
 	break;
@@ -2198,9 +2134,9 @@ static int emc_program_status(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_program_line(ClientData clientdata,
+static int emc_program_line(ClientData /*clientdata*/,
 			    Tcl_Interp * interp, int objc,
-			    Tcl_Obj * CONST objv[])
+			    Tcl_Obj * CONST * /*objv*/)
 {
     Tcl_Obj *lineobj;
     int programActiveLine = 0;
@@ -2242,9 +2178,9 @@ static int emc_program_line(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_program_codes(ClientData clientdata,
+static int emc_program_codes(ClientData /*clientdata*/,
 			     Tcl_Interp * interp, int objc,
-			     Tcl_Obj * CONST objv[])
+			     Tcl_Obj * CONST * /*objv*/)
 {
     char codes_string[256];
     char string[256];
@@ -2295,7 +2231,7 @@ static int emc_program_codes(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_joint_type(ClientData clientdata,
+static int emc_joint_type(ClientData /*clientdata*/,
 			  Tcl_Interp * interp, int objc,
 			  Tcl_Obj * CONST objv[])
 {
@@ -2336,7 +2272,7 @@ static int emc_joint_type(ClientData clientdata,
     return TCL_ERROR;
 }
 
-static int emc_joint_units(ClientData clientdata,
+static int emc_joint_units(ClientData /*clientdata*/,
 			   Tcl_Interp * interp, int objc,
 			   Tcl_Obj * CONST objv[])
 {
@@ -2421,9 +2357,9 @@ static int emc_joint_units(ClientData clientdata,
     return TCL_ERROR;
 }
 
-static int emc_program_linear_units(ClientData clientdata,
+static int emc_program_linear_units(ClientData /*clientdata*/,
 				    Tcl_Interp * interp, int objc,
-				    Tcl_Obj * CONST objv[])
+				    Tcl_Obj * CONST * /*objv*/)
 {
     CHECKEMC
     if (objc != 1) {
@@ -2461,9 +2397,9 @@ static int emc_program_linear_units(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_program_angular_units(ClientData clientdata,
+static int emc_program_angular_units(ClientData /*clientdata*/,
 				     Tcl_Interp * interp, int objc,
-				     Tcl_Obj * CONST objv[])
+				     Tcl_Obj * CONST * /*objv*/)
 {
     CHECKEMC
     if (objc != 1) {
@@ -2480,9 +2416,9 @@ static int emc_program_angular_units(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_user_linear_units(ClientData clientdata,
+static int emc_user_linear_units(ClientData /*clientdata*/,
 				 Tcl_Interp * interp, int objc,
-				 Tcl_Obj * CONST objv[])
+				 Tcl_Obj * CONST * /*objv*/)
 {
     CHECKEMC
     if (objc != 1) {
@@ -2517,9 +2453,9 @@ static int emc_user_linear_units(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_user_angular_units(ClientData clientdata,
+static int emc_user_angular_units(ClientData /*clientdata*/,
 				  Tcl_Interp * interp, int objc,
-				  Tcl_Obj * CONST objv[])
+				  Tcl_Obj * CONST * /*objv*/)
 {
     CHECKEMC
     if (objc != 1) {
@@ -2554,9 +2490,9 @@ static int emc_user_angular_units(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_display_linear_units(ClientData clientdata,
+static int emc_display_linear_units(ClientData /*clientdata*/,
 				    Tcl_Interp * interp, int objc,
-				    Tcl_Obj * CONST objv[])
+				    Tcl_Obj * CONST * /*objv*/)
 {
     CHECKEMC
     if (objc != 1) {
@@ -2599,9 +2535,9 @@ static int emc_display_linear_units(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_display_angular_units(ClientData clientdata,
+static int emc_display_angular_units(ClientData /*clientdata*/,
 				     Tcl_Interp * interp, int objc,
-				     Tcl_Obj * CONST objv[])
+				     Tcl_Obj * CONST * /*objv*/)
 {
     CHECKEMC
     if (objc != 1) {
@@ -2634,7 +2570,7 @@ static int emc_display_angular_units(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_linear_unit_conversion(ClientData clientdata,
+static int emc_linear_unit_conversion(ClientData /*clientdata*/,
 				      Tcl_Interp * interp, int objc,
 				      Tcl_Obj * CONST objv[])
 {
@@ -2691,7 +2627,7 @@ static int emc_linear_unit_conversion(ClientData clientdata,
     return TCL_ERROR;
 }
 
-static int emc_angular_unit_conversion(ClientData clientdata,
+static int emc_angular_unit_conversion(ClientData /*clientdata*/,
 				       Tcl_Interp * interp, int objc,
 				       Tcl_Obj * CONST objv[])
 {
@@ -2748,31 +2684,9 @@ static int emc_angular_unit_conversion(ClientData clientdata,
     return TCL_ERROR;
 }
 
-static int emc_task_heartbeat(ClientData clientdata,
-			      Tcl_Interp * interp, int objc,
-			      Tcl_Obj * CONST objv[])
-{
-    Tcl_Obj *hbobj;
-
-    CHECKEMC
-    if (objc != 1) {
-	setresult(interp,"emc_task_heartbeat: need no args");
-	return TCL_ERROR;
-    }
-
-    if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
-    }
-
-    hbobj = Tcl_NewIntObj(emcStatus->task.heartbeat);
-
-    Tcl_SetObjResult(interp, hbobj);
-    return TCL_OK;
-}
-
-static int emc_task_command(ClientData clientdata,
+static int emc_task_command(ClientData /*clientdata*/,
 			    Tcl_Interp * interp, int objc,
-			    Tcl_Obj * CONST objv[])
+			    Tcl_Obj * CONST * /*objv*/)
 {
     Tcl_Obj *commandobj;
 
@@ -2792,9 +2706,9 @@ static int emc_task_command(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_task_command_number(ClientData clientdata,
+static int emc_task_command_number(ClientData /*clientdata*/,
 				   Tcl_Interp * interp, int objc,
-				   Tcl_Obj * CONST objv[])
+				   Tcl_Obj * CONST * /*objv*/)
 {
     Tcl_Obj *commandnumber;
 
@@ -2814,9 +2728,9 @@ static int emc_task_command_number(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_task_command_status(ClientData clientdata,
+static int emc_task_command_status(ClientData /*clientdata*/,
 				   Tcl_Interp * interp, int objc,
-				   Tcl_Obj * CONST objv[])
+				   Tcl_Obj * CONST * /*objv*/)
 {
     Tcl_Obj *commandstatus;
 
@@ -2830,37 +2744,15 @@ static int emc_task_command_status(ClientData clientdata,
 	updateStatus();
     }
 
-    commandstatus = Tcl_NewIntObj(emcStatus->task.status);
+    commandstatus = Tcl_NewIntObj((int)emcStatus->task.status);
 
     Tcl_SetObjResult(interp, commandstatus);
     return TCL_OK;
 }
 
-static int emc_io_heartbeat(ClientData clientdata,
-			    Tcl_Interp * interp, int objc,
-			    Tcl_Obj * CONST objv[])
-{
-    Tcl_Obj *hbobj;
-
-    CHECKEMC
-    if (objc != 1) {
-	setresult(interp,"emc_io_heartbeat: need no args");
-	return TCL_ERROR;
-    }
-
-    if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
-    }
-
-    hbobj = Tcl_NewIntObj(emcStatus->io.heartbeat);
-
-    Tcl_SetObjResult(interp, hbobj);
-    return TCL_OK;
-}
-
-static int emc_io_command(ClientData clientdata,
+static int emc_io_command(ClientData /*clientdata*/,
 			  Tcl_Interp * interp, int objc,
-			  Tcl_Obj * CONST objv[])
+			  Tcl_Obj * CONST * /*objv*/)
 {
     Tcl_Obj *commandobj;
 
@@ -2880,9 +2772,9 @@ static int emc_io_command(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_io_command_number(ClientData clientdata,
+static int emc_io_command_number(ClientData /*clientdata*/,
 				 Tcl_Interp * interp, int objc,
-				 Tcl_Obj * CONST objv[])
+				 Tcl_Obj * CONST * /*objv*/)
 {
     Tcl_Obj *commandnumber;
 
@@ -2902,9 +2794,9 @@ static int emc_io_command_number(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_io_command_status(ClientData clientdata,
+static int emc_io_command_status(ClientData /*clientdata*/,
 				 Tcl_Interp * interp, int objc,
-				 Tcl_Obj * CONST objv[])
+				 Tcl_Obj * CONST * /*objv*/)
 {
     Tcl_Obj *commandstatus;
 
@@ -2918,37 +2810,15 @@ static int emc_io_command_status(ClientData clientdata,
 	updateStatus();
     }
 
-    commandstatus = Tcl_NewIntObj(emcStatus->io.status);
+    commandstatus = Tcl_NewIntObj((int)emcStatus->io.status);
 
     Tcl_SetObjResult(interp, commandstatus);
     return TCL_OK;
 }
 
-static int emc_motion_heartbeat(ClientData clientdata,
-				Tcl_Interp * interp, int objc,
-				Tcl_Obj * CONST objv[])
-{
-    Tcl_Obj *hbobj;
-
-    CHECKEMC
-    if (objc != 1) {
-	setresult(interp,"emc_motion_heartbeat: need no args");
-	return TCL_ERROR;
-    }
-
-    if (emcUpdateType == EMC_UPDATE_AUTO) {
-	updateStatus();
-    }
-
-    hbobj = Tcl_NewIntObj(emcStatus->motion.heartbeat);
-
-    Tcl_SetObjResult(interp, hbobj);
-    return TCL_OK;
-}
-
-static int emc_motion_command(ClientData clientdata,
+static int emc_motion_command(ClientData /*clientdata*/,
 			      Tcl_Interp * interp, int objc,
-			      Tcl_Obj * CONST objv[])
+			      Tcl_Obj * CONST * /*objv*/)
 {
     Tcl_Obj *commandobj;
 
@@ -2968,9 +2838,9 @@ static int emc_motion_command(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_motion_command_number(ClientData clientdata,
+static int emc_motion_command_number(ClientData /*clientdata*/,
 				     Tcl_Interp * interp, int objc,
-				     Tcl_Obj * CONST objv[])
+				     Tcl_Obj * CONST * /*objv*/)
 {
     Tcl_Obj *commandnumber;
 
@@ -2990,9 +2860,9 @@ static int emc_motion_command_number(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_motion_command_status(ClientData clientdata,
+static int emc_motion_command_status(ClientData /*clientdata*/,
 				     Tcl_Interp * interp, int objc,
-				     Tcl_Obj * CONST objv[])
+				     Tcl_Obj * CONST * /*objv*/)
 {
     Tcl_Obj *commandstatus;
 
@@ -3006,13 +2876,13 @@ static int emc_motion_command_status(ClientData clientdata,
 	updateStatus();
     }
 
-    commandstatus = Tcl_NewIntObj(emcStatus->motion.status);
+    commandstatus = Tcl_NewIntObj((int)emcStatus->motion.status);
 
     Tcl_SetObjResult(interp, commandstatus);
     return TCL_OK;
 }
 
-static int emc_joint_backlash(ClientData clientdata,
+static int emc_joint_backlash(ClientData /*clientdata*/,
 			     Tcl_Interp * interp, int objc,
 			     Tcl_Obj * CONST objv[])
 {
@@ -3054,7 +2924,7 @@ static int emc_joint_backlash(ClientData clientdata,
     }
 }
 
-static int emc_joint_enable(ClientData clientdata,
+static int emc_joint_enable(ClientData /*clientdata*/,
 			   Tcl_Interp * interp, int objc,
 			   Tcl_Obj * CONST objv[])
 {
@@ -3089,12 +2959,10 @@ static int emc_joint_enable(ClientData clientdata,
 	setresult(interp,"emc_joint_enable: need 0, 1 for disable, enable");
 	return TCL_ERROR;
     }
-
-    sendJointEnable(joint, val);
     return TCL_OK;
 }
 
-static int emc_joint_load_comp(ClientData clientdata,
+static int emc_joint_load_comp(ClientData /*clientdata*/,
 			      Tcl_Interp * interp, int objc,
 			      Tcl_Obj * CONST objv[])
 {
@@ -3126,7 +2994,7 @@ static int emc_joint_load_comp(ClientData clientdata,
     return TCL_OK;
 }
 
-int emc_teleop_enable(ClientData clientdata,
+int emc_teleop_enable(ClientData /*clientdata*/,
 		      Tcl_Interp * interp, int objc,
 		      Tcl_Obj * CONST objv[])
 {
@@ -3146,13 +3014,13 @@ int emc_teleop_enable(ClientData clientdata,
 
     Tcl_SetObjResult(interp,
 		     Tcl_NewIntObj(emcStatus->motion.traj.mode ==
-				   EMC_TRAJ_MODE_TELEOP));
+				   EMC_TRAJ_MODE::TELEOP));
     return TCL_OK;
 }
 
-int emc_kinematics_type(ClientData clientdata,
-			Tcl_Interp * interp, int objc,
-			Tcl_Obj * CONST objv[])
+int emc_kinematics_type(ClientData /*clientdata*/,
+			Tcl_Interp * interp, int /*objc*/,
+			Tcl_Obj * CONST * /*objv*/)
 {
 
     if (emcUpdateType == EMC_UPDATE_AUTO) {
@@ -3165,8 +3033,8 @@ int emc_kinematics_type(ClientData clientdata,
     return TCL_OK;
 }
 
-int emc_probe_clear(ClientData clientdata,
-		    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+int emc_probe_clear(ClientData /*clientdata*/,
+		    Tcl_Interp * interp, int objc, Tcl_Obj * CONST * /*objv*/)
 {
     if (objc != 1) {
 	setresult(interp,"emc_probe_clear: needs no args");
@@ -3181,8 +3049,8 @@ int emc_probe_clear(ClientData clientdata,
     return TCL_OK;
 }
 
-int emc_probe_value(ClientData clientdata,
-		    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
+int emc_probe_value(ClientData /*clientdata*/,
+		    Tcl_Interp * interp, int objc, Tcl_Obj * CONST * /*objv*/)
 {
     if (objc != 1) {
 	setresult(interp,"emc_probe_value: needs no args");
@@ -3198,9 +3066,9 @@ int emc_probe_value(ClientData clientdata,
     return TCL_OK;
 }
 
-int emc_probe_tripped(ClientData clientdata,
+int emc_probe_tripped(ClientData /*clientdata*/,
 		      Tcl_Interp * interp, int objc,
-		      Tcl_Obj * CONST objv[])
+		      Tcl_Obj * CONST * /*objv*/)
 {
     if (objc != 1) {
 	setresult(interp,"emc_probe_tripped: needs no args");
@@ -3216,7 +3084,7 @@ int emc_probe_tripped(ClientData clientdata,
     return TCL_OK;
 }
 
-int emc_probe_move(ClientData clientdata,
+int emc_probe_move(ClientData /*clientdata*/,
 		   Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
 {
     double x, y, z;
@@ -3240,7 +3108,7 @@ int emc_probe_move(ClientData clientdata,
     return TCL_OK;
 }
 
-static int emc_probed_pos(ClientData clientdata,
+static int emc_probed_pos(ClientData /*clientdata*/,
 			  Tcl_Interp * interp, int objc,
 			  Tcl_Obj * CONST objv[])
 {
@@ -3308,7 +3176,7 @@ static int emc_probed_pos(ClientData clientdata,
 //      Pendant read routine from /dev/psaux, /dev/ttyS0, or /dev/ttyS1
 // *********************************************************************
 
-static int emc_pendant(ClientData clientdata,
+static int emc_pendant(ClientData /*clientdata*/,
 		       Tcl_Interp * interp, int objc,
 		       Tcl_Obj * CONST objv[])
 {
@@ -3335,6 +3203,7 @@ static int emc_pendant(ClientData clientdata,
 		if (strcmp(port, "/dev/psaux")) {	// For Serial mice
 		    inBytes[1] = fgetc(inFile);	// read the first Byte
 		    if (inBytes[1] != 77) {	// If first byte not "M"
+			fseek(inFile, 0, SEEK_CUR); // C standard: write-after-read needs this
 			fputc(77, inFile);	// Request data resent
 			fflush(inFile);
 			inBytes[1] = fgetc(inFile);	// and hope it is
@@ -3344,8 +3213,8 @@ static int emc_pendant(ClientData clientdata,
 		inBytes[4] = fgetc(inFile);	// Status byte
 		inBytes[2] = fgetc(inFile);	// Horizontal movement
 		inBytes[3] = fgetc(inFile);	// Vertical Movement
+	        fclose(inFile);
 	    }
-	    fclose(inFile);
 
 	    if (!strcmp(port, "/dev/psaux")) {	// For PS/2
 		inBytes[0] = (inBytes[4] & 0x01);	// Left button
@@ -3376,7 +3245,7 @@ static int emc_pendant(ClientData clientdata,
 
 // provide some of the extended Tcl builtins not available for various plats
 // "int", as in "int 3.9" which returns 3
-static int localint(ClientData clientdata,
+static int localint(ClientData /*clientdata*/,
 		    Tcl_Interp * interp, int objc, Tcl_Obj * CONST objv[])
 {
     double val;
@@ -3410,7 +3279,7 @@ static const char *one_head(int x0, int y0, int x1, int y1)
 }
 
 // "round", as in "round 3.9" which returns 4
-static int localround(ClientData clientdata,
+static int localround(ClientData /*clientdata*/,
 		      Tcl_Interp * interp, int objc,
 		      Tcl_Obj * CONST objv[])
 {
@@ -3442,9 +3311,9 @@ static int localround(ClientData clientdata,
 
 #include <X11/extensions/Xinerama.h>
 
-static int multihead(ClientData clientdata,
+static int multihead(ClientData /*clientdata*/,
 		      Tcl_Interp * interp, int objc,
-		      Tcl_Obj * CONST objv[])
+		      Tcl_Obj * CONST * /*objv*/)
 {
     if(objc > 1)
 	setresult(interp,"wrong # args: should be \"multihead\"");
@@ -3480,7 +3349,7 @@ static int multihead(ClientData clientdata,
     return TCL_OK;
 }
 
-static void sigQuit(int sig)
+static void sigQuit(int /*sig*/)
 {
     thisQuit((ClientData) 0);
 }
@@ -3504,7 +3373,7 @@ static void initMain()
     programStartLine = 0;
 }
 
-int emc_init(ClientData cd, Tcl_Interp *interp, int argc, const char **argv)
+int emc_init(ClientData /*cd*/, Tcl_Interp *interp, int argc, const char **argv)
 {
     bool quick = false;
     initMain();
@@ -3613,12 +3482,6 @@ int Linuxcnc_Init(Tcl_Interp * interp)
 
     Tcl_CreateObjCommand(interp, "emc_flood", emc_flood, (ClientData) NULL,
 			 (Tcl_CmdDeleteProc *) NULL);
-
-    Tcl_CreateObjCommand(interp, "emc_lube", emc_lube, (ClientData) NULL,
-			 (Tcl_CmdDeleteProc *) NULL);
-
-    Tcl_CreateObjCommand(interp, "emc_lube_level", emc_lube_level,
-			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_spindle", emc_spindle,
 			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
@@ -3771,8 +3634,6 @@ int Linuxcnc_Init(Tcl_Interp * interp)
 			 emc_angular_unit_conversion, (ClientData) NULL,
 			 (Tcl_CmdDeleteProc *) NULL);
 
-    Tcl_CreateObjCommand(interp, "emc_task_heartbeat", emc_task_heartbeat,
-			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_task_command", emc_task_command,
 			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
@@ -3785,9 +3646,6 @@ int Linuxcnc_Init(Tcl_Interp * interp)
 			 emc_task_command_status, (ClientData) NULL,
 			 (Tcl_CmdDeleteProc *) NULL);
 
-    Tcl_CreateObjCommand(interp, "emc_io_heartbeat", emc_io_heartbeat,
-			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
-
     Tcl_CreateObjCommand(interp, "emc_io_command", emc_io_command,
 			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);
 
@@ -3799,9 +3657,6 @@ int Linuxcnc_Init(Tcl_Interp * interp)
 			 emc_io_command_status, (ClientData) NULL,
 			 (Tcl_CmdDeleteProc *) NULL);
 
-    Tcl_CreateObjCommand(interp, "emc_motion_heartbeat",
-			 emc_motion_heartbeat, (ClientData) NULL,
-			 (Tcl_CmdDeleteProc *) NULL);
 
     Tcl_CreateObjCommand(interp, "emc_motion_command", emc_motion_command,
 			 (ClientData) NULL, (Tcl_CmdDeleteProc *) NULL);

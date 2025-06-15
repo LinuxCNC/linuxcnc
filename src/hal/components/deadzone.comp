@@ -4,6 +4,7 @@ param rw float threshold = 1.0 "The dead zone is \\fBcenter\\fR \\(+- (\\fBthres
 pin in float in;
 pin out float out;
 
+option period no;
 function _ "Update \\fBout\\fR based on \\fBin\\fR and the parameters.";
 
 license "GPL";

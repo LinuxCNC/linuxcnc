@@ -858,7 +858,7 @@ left click on the samples box.
 image::images/halscope-01.png["Realtime function not linked dialog",align="center"]
 
 This dialog is where you set the sampling rate for the oscilloscope.
-For now we want to sample once per millisecond, so click on the 989 µs
+For now we want to sample once per millisecond, so click on the 1.00 ms
 thread 'slow' and leave the multiplier at 1. We will also leave the
 record length at 4000 samples, so that we can use up to four channels
 at one time. When you select a thread and then click 'OK', the dialog
@@ -1017,8 +1017,9 @@ image::images/halscope-10.png["Sample Rate Dialog",align="center"]
 Now let's look at the step pulses.
 Halscope has 16 channels, but for this example we are using only 4 at a time.
 Before we select any more channels, we need to turn off a couple.
-Click on the channel 2 button, then click the 'Chan Off' button at the bottom of the 'Vertical' box.
-Then click on channel 3, turn if off, and do the same for channel 4.
+Clicking on a selected channel button (black border) will turn the channel off.
+So click on the channel 2 button, then click again on this button and the channel will turn off.
+Then click twice on channel 3 and do the same for channel 4.
 Even though the channels are turned off, they still remember what they
 are connected to, and in fact we will continue to use channel 3 as the trigger source.
 To add new channels, select channel 5, and choose pin `stepgen.0.dir`, then channel 6, and select `stepgen.0.step`.

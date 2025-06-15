@@ -24,11 +24,11 @@ parser Hal:
     token END: ";;"
     token PARAMDIRECTION: "rw|r"
     token PINDIRECTION: "in|out|io"
-    token TYPE: "float|bit|signed|unsigned|u32|s32|port"
+    token TYPE: "float|bit|signed|unsigned|u32|s32|u64|s64|port"
     token NAME: "[a-zA-Z_][a-zA-Z0-9_]*"
     token STARREDNAME: "[*]*[a-zA-Z_][a-zA-Z0-9_]*"
     token HALNAME: "[#a-zA-Z_][-#a-zA-Z0-9_.]*"
-    token FPNUMBER: "-?([0-9]*\.[0-9]+|[0-9]+\.?)([Ee][+-]?[0-9]+)?f?"
+    token FPNUMBER: "-?([0-9]*\\.[0-9]+|[0-9]+\\.?)([Ee][+-]?[0-9]+)?f?"
     token NUMBER: "0x[0-9a-fA-F]+|[+-]?[0-9]+"
     token STRING: "\"(\\.|[^\\\"])*\""
     token HEADER: "<.*?>"
@@ -63,9 +63,9 @@ parser Hal:
     rule Personality: {{ pp = [] }} (PersonalityPart {{ pp.append(PersonalityPart) }} )* {{ return " ".join(pp) }}
     rule PersonalityPart: NUMBER {{ return NUMBER }}
             | POP {{ return POP }}
-    rule OptSimpleArray: "\[" NUMBER "\]" {{ return int(NUMBER) }}
+    rule OptSimpleArray: "\\[" NUMBER "\\]" {{ return int(NUMBER) }}
             | {{ return 0 }}
-    rule OptArray: "\[" NUMBER OptArrayPersonality "\]" {{ return OptArrayPersonality and (int(NUMBER), OptArrayPersonality) or int(NUMBER) }}
+    rule OptArray: "\\[" NUMBER OptArrayPersonality "\\]" {{ return OptArrayPersonality and (int(NUMBER), OptArrayPersonality) or int(NUMBER) }}
             | {{ return 0 }}
     rule OptArrayPersonality: ":" Personality {{ return Personality }}
             | {{ return None }} 
@@ -142,6 +142,10 @@ def parse(filename):
     if require_license:
         if not finddoc('license'):
             raise SystemExit("%s:0: License not specified" % filename)
+
+    if not "period" in options:
+        options["period"] = 1    # Option period defaults to on
+
     return a, b
 
 dirmap = {'r': 'HAL_RO', 'rw': 'HAL_RW', 'in': 'HAL_IN', 'out': 'HAL_OUT', 'io': 'HAL_IO' }
@@ -334,24 +338,24 @@ static int comp_id;
     for name, type, array, dir, value, personality in pins:
         if array:
             if isinstance(array, tuple): array = array[0]
-            print("    hal_%s_t *%s[%s];" % (type, to_c(name), array), file=f)
+            print("    hal_%s_t *%s_p[%s];" % (type, to_c(name), array), file=f)
         else:
-            print("    hal_%s_t *%s;" % (type, to_c(name)), file=f)
+            print("    hal_%s_t *%s_p;" % (type, to_c(name)), file=f)
         names[name] = 1
 
     for name, type, array, dir, value, personality in params:
         if array:
             if isinstance(array, tuple): array = array[0]
-            print("    hal_%s_t %s[%s];" % (type, to_c(name), array), file=f)
+            print("    hal_%s_t %s_p[%s];" % (type, to_c(name), array), file=f)
         else:
-            print("    hal_%s_t %s;" % (type, to_c(name)), file=f)
+            print("    hal_%s_t %s_p;" % (type, to_c(name)), file=f)
         names[name] = 1
 
     for type, name, array, value in variables:
         if array:
-            print("    %s %s[%d];\n" % (type, name, array), file=f)
+            print("    %s %s_p[%d];\n" % (type, name, array), file=f)
         else:
-            print("    %s %s;\n" % (type, name), file=f)
+            print("    %s %s_p;\n" % (type, name), file=f)
     if has_data:
         print("    void *_data;", file=f)
 
@@ -366,7 +370,15 @@ static int comp_id;
     for name, fp in functions:
         if name in names:
             Error("Duplicate item name: %s" % name)
-        print("static void %s(struct __comp_state *__comp_inst, long period);" % to_c(name), file=f)
+        if options.get("period"):
+            print("static void %s(struct __comp_state *__comp_inst, long period);" % to_c(name), file=f)
+        else:
+            print("static void __no_period_%s(struct __comp_state *__comp_inst);" % to_c(name), file=f)
+            # Define a tail-call function that the compiler can eliminate. It
+            # hides the period parameter from the user function. Worst case it
+            # becomes a jump instruction.
+            print("static void %s(struct __comp_state *__comp_inst, long period)" % to_c(name), file=f)
+            print("{ (void)period; __no_period_%s(__comp_inst); }" % to_c(name), file=f)
         names[name] = 1
 
     print("static int __comp_get_data_size(void);", file=f)
@@ -390,6 +402,7 @@ static int comp_id;
         print("static int export(char *prefix, long extra_arg, long personality) {", file=f)
     else:
         print("static int export(char *prefix, long extra_arg) {", file=f)
+    print("    (void)extra_arg;", file=f)
     if len(functions) > 0:
         print("    char buf[HAL_NAME_LEN + 1];", file=f)
     print("    int r = 0;", file=f)
@@ -422,20 +435,20 @@ static int comp_id;
                 print("    }", file=f)
             else: cnt = array
             print("    for(j=0; j < (%s); j++) {" % cnt, file=f)
-            print("        r = hal_pin_%s_newf(%s, &(inst->%s[j]), comp_id," % (
+            print("        r = hal_pin_%s_newf(%s, &(inst->%s_p[j]), comp_id," % (
                 type, dirmap[dir], to_c(name)), file=f)
             print("            \"%%s%s\", prefix, j);" % to_hal("." + name), file=f)
             print("        if(r != 0) return r;", file=f)
             if value is not None:
-                print("    *(inst->%s[j]) = %s;" % (to_c(name), value), file=f)
+                print("    *(inst->%s_p[j]) = %s;" % (to_c(name), value), file=f)
             print("    }", file=f)
         else:
-            print("    r = hal_pin_%s_newf(%s, &(inst->%s), comp_id," % (
+            print("    r = hal_pin_%s_newf(%s, &(inst->%s_p), comp_id," % (
                 type, dirmap[dir], to_c(name)), file=f)
             print("        \"%%s%s\", prefix);" % to_hal("." + name), file=f)
             print("    if(r != 0) return r;", file=f)
             if value is not None:
-                print("    *(inst->%s) = %s;" % (to_c(name), value), file=f)
+                print("    *(inst->%s_p) = %s;" % (to_c(name), value), file=f)
         if personality:
             print("}", file=f)
 
@@ -453,19 +466,19 @@ static int comp_id;
                 print("    }", file=f)
             else: cnt = array
             print("    for(j=0; j < (%s); j++) {" % cnt, file=f)
-            print("        r = hal_param_%s_newf(%s, &(inst->%s[j]), comp_id," % (
+            print("        r = hal_param_%s_newf(%s, &(inst->%s_p[j]), comp_id," % (
                 type, dirmap[dir], to_c(name)), file=f)
             print("            \"%%s%s\", prefix, j);" % to_hal("." + name), file=f)
             print("        if(r != 0) return r;", file=f)
             if value is not None:
-                print("    inst->%s[j] = %s;" % (to_c(name), value), file=f)
+                print("    inst->%s_p[j] = %s;" % (to_c(name), value), file=f)
             print("    }", file=f)
         else:
-            print("    r = hal_param_%s_newf(%s, &(inst->%s), comp_id," % (
+            print("    r = hal_param_%s_newf(%s, &(inst->%s_p), comp_id," % (
                 type, dirmap[dir], to_c(name)), file=f)
             print("        \"%%s%s\", prefix);" % to_hal("." + name), file=f)
             if value is not None:
-                print("    inst->%s = %s;" % (to_c(name), value), file=f)
+                print("    inst->%s_p = %s;" % (to_c(name), value), file=f)
             print("    if(r != 0) return r;", file=f)
         if personality:
             print("}", file=f)
@@ -474,10 +487,10 @@ static int comp_id;
         if value is None: continue
         if array:
             print("    for(j=0; j < %s; j++) {" % array, file=f)
-            print("        inst->%s[j] = %s;" % (name, value), file=f)
+            print("        inst->%s_p[j] = %s;" % (name, value), file=f)
             print("    }", file=f)
         else:
-            print("    inst->%s = %s;" % (name, value), file=f)
+            print("    inst->%s_p = %s;" % (name, value), file=f)
 
     for name, fp in functions:
         print("    rtapi_snprintf(buf, sizeof(buf), \"%%s%s\", prefix);"\
@@ -718,36 +731,43 @@ int __comp_parse_names(int *argc, char **argv) {
     print("", file=f)
     if not options.get("no_convenience_defines"):
         print("#undef FUNCTION", file=f)
-        print("#define FUNCTION(name) static void name(struct __comp_state *__comp_inst, long period)", file=f)
+        if options.get("period"):
+            print("#define FUNCTION(name) static void name(struct __comp_state *__comp_inst, long period)", file=f)
+        else:
+            print("#define FUNCTION(name) static void __no_period_##name(struct __comp_state *__comp_inst)", file=f)
         print("#undef EXTRA_SETUP", file=f)
         print("#define EXTRA_SETUP() static int extra_setup(struct __comp_state *__comp_inst, char *prefix, long extra_arg)", file=f)
         print("#undef EXTRA_CLEANUP", file=f)
         print("#define EXTRA_CLEANUP() static void extra_cleanup(void)", file=f)
-        print("#undef fperiod", file=f)
-        print("#define fperiod (period * 1e-9)", file=f)
+        if options.get("period"):
+            print("#undef fperiod", file=f)
+            print("#define fperiod (period * 1e-9)", file=f)
         for name, type, array, dir, value, personality in pins:
             print("#undef %s" % to_c(name), file=f)
+            print("#undef %s_ptr" % to_c(name), file=f)
             if array:
+                print("#define %s_ptr(i) (__comp_inst->%s_p[i])" % (to_c(name), to_c(name)), file=f)
                 if dir == 'in':
-                    print("#define %s(i) (0+*(__comp_inst->%s[i]))" % (to_c(name), to_c(name)), file=f)
+                    print("#define %s(i) (0+*(__comp_inst->%s_p[i]))" % (to_c(name), to_c(name)), file=f)
                 else:
-                    print("#define %s(i) (*(__comp_inst->%s[i]))" % (to_c(name), to_c(name)), file=f)
+                    print("#define %s(i) (*(__comp_inst->%s_p[i]))" % (to_c(name), to_c(name)), file=f)
             else:
+                print("#define %s_ptr (__comp_inst->%s_p)" % (to_c(name), to_c(name)), file=f)
                 if dir == 'in':
-                    print("#define %s (0+*__comp_inst->%s)" % (to_c(name), to_c(name)), file=f)
+                    print("#define %s (0+*__comp_inst->%s_p)" % (to_c(name), to_c(name)), file=f)
                 else:
-                    print("#define %s (*__comp_inst->%s)" % (to_c(name), to_c(name)), file=f)
+                    print("#define %s (*__comp_inst->%s_p)" % (to_c(name), to_c(name)), file=f)
         for name, type, array, dir, value, personality in params:
             print("#undef %s" % to_c(name), file=f)
             if array:
-                print("#define %s(i) (__comp_inst->%s[i])" % (to_c(name), to_c(name)), file=f)
+                print("#define %s(i) (__comp_inst->%s_p[i])" % (to_c(name), to_c(name)), file=f)
             else:
-                print("#define %s (__comp_inst->%s)" % (to_c(name), to_c(name)), file=f)
+                print("#define %s (__comp_inst->%s_p)" % (to_c(name), to_c(name)), file=f)
 
         for type, name, array, value in variables:
             name = name.replace("*", "")
             print("#undef %s" % name, file=f)
-            print("#define %s (__comp_inst->%s)" % (name, name), file=f)
+            print("#define %s (__comp_inst->%s_p)" % (name, name), file=f)
 
         if has_data:
             print("#undef data", file=f)
@@ -1067,6 +1087,7 @@ def process(filename, mode, outfilename):
 
         if options.get("homemod"): options["singleton"] = 1
         if options.get("tpmod"):   options["singleton"] = 1
+        if options.get("no_convenience_defines"): options["period"] = 1
 
         if options.get("userinit") and not options.get("userspace"):
             print("Warning: comp '%s' sets 'userinit' without 'userspace', ignoring" % filename, file=sys.stderr)
@@ -1124,6 +1145,8 @@ Option to set maximum 'personalities' items:
 Options to add compile and link flags (only for userspace, only for .c files)
     --extra-compile-args="-I/usr/include/..."
     --extra-link-args="-l..."
+
+Do not use [sudo] for RIP installation.
 
 """ % {'name': os.path.basename(sys.argv[0]),'dflt':MAX_PERSONALITIES})
     raise SystemExit(exitval)

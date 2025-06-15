@@ -689,7 +689,6 @@ static void calc_pid(void *arg, long period)
 static int export_pid(hal_pid_t * addr, char * prefix)
 {
     int retval, msg;
-    char buf[HAL_NAME_LEN + 1];
 
     /* This function exports a lot of stuff, which results in a lot of
        logging if msg_level is at INFO or ALL. So we save the current value
@@ -963,9 +962,8 @@ static int export_pid(hal_pid_t * addr, char * prefix)
     *(addr->pTuneStart) = 0;
 #endif /* AUTO_TUNER */
     /* export function for this loop */
-    rtapi_snprintf(buf, sizeof(buf), "%s.do-pid-calcs", prefix);
     retval =
-	hal_export_funct(buf, calc_pid, addr, 1, 0, comp_id);
+	hal_export_functf(calc_pid, addr, 1, 0, comp_id, "%s.do-pid-calcs", prefix);
     if (retval != 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    NAME ": ERROR: do_pid_calcs funct export failed\n");

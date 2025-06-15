@@ -1,29 +1,12 @@
 #include <list>
 #include <tuple>
-#include <vector>
 #include <fstream>
 #include <iostream>
 #include <deque>
 #include <memory>
 #include <complex>
 
-#if __cplusplus <= 199711L
-#define override /* NOTHING */
-#endif
-
-////////////////////////////////////////////////////////////////////////////////
-// Ancient compiler workarounds
-////////////////////////////////////////////////////////////////////////////////
-
-#if __cplusplus < 201402L
-    namespace std {
-	template<typename T, typename... Args>
-	std::unique_ptr<T> make_unique(Args&&... args)
-	{
-	    return std::unique_ptr<T>(new T(std::forward<Args>(args)...));
-	}
-    }
-#endif
+#include "interp_internal.hh"
 
 constexpr std::complex<double> I(0,1);
 
@@ -38,18 +21,19 @@ std::string to_string(T &d)
 ////////////////////////////////////////////////////////////////////////////////
 class motion_base {
 public:
+    virtual ~motion_base() = default;
     virtual void straight_move(std::complex<double> end)=0;
     virtual void straight_rapid(std::complex<double> end)=0;
-    virtual void circular_move(int ccw,std::complex<double> center,
+    virtual void circular_move(bool ccw,std::complex<double> center,
 	std::complex<double> end)=0;
 };
 
 class motion_null:public motion_base {
 public:
-    void straight_move(std::complex<double> end) override  {}
-    void straight_rapid(std::complex<double> end)  override {}
-    void circular_move(int ccw,std::complex<double> center,
-	std::complex<double> end)  override {}
+    void straight_move(std::complex<double> /*end*/) override  {}
+    void straight_rapid(std::complex<double> /*end*/)  override {}
+    void circular_move(bool /*ccw*/,std::complex<double> /*center*/,
+	std::complex<double> /*end*/)  override {}
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -61,12 +45,11 @@ static constexpr double tolerance=1e-6;
 class segment {
 protected:
     std::complex<double> start, end;
-    double finish;
+    double finish{};
 public:
-    segment(double sz,double sx,double ez,double ex):start(sz,sx),end(ez,ex),
-	finish{0} {}
-    segment(std::complex<double> s, std::complex<double> e):start(s),end(e),
-	finish{0} {}
+    segment(double sz,double sx,double ez,double ex):start(sz,sx),end(ez,ex) {}
+    segment(std::complex<double> s, std::complex<double> e):start(s),end(e) {}
+    virtual ~segment() = default;
     typedef std::deque<double> intersections_t;
     virtual void intersection_z(double x, intersections_t &is)=0;
     virtual bool climb(std::complex<double>&, motion_base*)=0;
@@ -77,16 +60,16 @@ public:
     virtual void intersect(segment*)=0;
     virtual void intersect_end(round_segment *p)=0;
     virtual void intersect_end(straight_segment *p)=0;
-    virtual std::unique_ptr<segment> dup(void)=0;
-    virtual double radius(void)=0;
-    virtual bool monotonic(void) { return real(end-start)<=1e-3; }
-    virtual void do_finish(segment *prev, segment *next) {}
-    std::complex<double> &sp(void) { return start; }
-    std::complex<double> &ep(void) { return end; }
+    virtual std::unique_ptr<segment> dup()=0;
+    virtual double radius()=0;
+    virtual bool monotonic() { return real(end-start)<=1e-3; }
+    virtual void do_finish(segment * /*prev*/, segment * /*next*/) {}
+    std::complex<double> &sp() { return start; }
+    std::complex<double> &ep() { return end; }
 
-    virtual void flip_imag(void) { start=conj(start); end=conj(end); }
-    virtual void flip_real(void) { start=-conj(start); end=-conj(end); }
-    virtual void rotate(void) {
+    virtual void flip_imag() { start=conj(start); end=conj(end); }
+    virtual void flip_real() { start=-conj(start); end=-conj(end); }
+    virtual void rotate() {
 	start=-start*I;
 	end=-end*I;
     }
@@ -138,10 +121,10 @@ public:
     void intersect(segment *p) override;
     void intersect_end(round_segment *p) override;
     void intersect_end(straight_segment *p) override;
-    std::unique_ptr<segment> dup(void) {
+    std::unique_ptr<segment> dup() override {
 	return std::make_unique<straight_segment>(*this);
     }
-    double radius(void) { return abs(start-end); }
+    double radius() override { return abs(start-end); }
 };
 
 void straight_segment::intersection_z(double x, intersections_t &is)
@@ -177,7 +160,7 @@ void straight_segment::climb_only(std::complex<double> &location,
 	return; // not climbing
     intersections_t is;
     intersection_z(location.imag(),is);
-    if(!is.size())
+    if(is.empty())
 	return;
 
     location.real(is.front());
@@ -203,7 +186,7 @@ bool straight_segment::dive(std::complex<double> &location,
     }
     intersections_t is;
     intersection_z(x,is);
-    if(!is.size())
+    if(is.empty())
 	throw(std::string("x too large in straight dive"));
     std::complex<double> ep(is.front(),x);
     if(fast)
@@ -219,12 +202,12 @@ protected:
     int ccw;
     std::complex<double> center;
 public:
-    round_segment(int c, double sx, double sz,
+    round_segment(bool c, double sx, double sz,
 	double cx, double cz, double ex, double ez):
 	segment(sz,sx,ez,ex), ccw(c), center(cz,cx)
     {
     }
-    round_segment(int cc, std::complex<double> s,
+    round_segment(bool cc, std::complex<double> s,
 	std::complex<double> c, std::complex<double> e):
 	segment(s,e), ccw(cc), center(c)
     {
@@ -243,21 +226,21 @@ public:
     void intersect(segment *p) override;
     void intersect_end(round_segment *p) override;
     void intersect_end(straight_segment *p) override;
-    std::complex<double> cp(void) { return center; }
-    std::unique_ptr<segment> dup(void) {
+    std::complex<double> cp() { return center; }
+    std::unique_ptr<segment> dup() override {
 	return std::make_unique<round_segment>(*this);
     }
-    double radius(void) { return std::min(abs(start-end),abs(start-center)); }
-    void flip_imag(void) override { ccw=!ccw; start=conj(start); end=conj(end);
+    double radius() override { return std::min(abs(start-end),abs(start-center)); }
+    void flip_imag() override { ccw=!ccw; start=conj(start); end=conj(end);
 	center=conj(center); }
-    void flip_real(void) override { ccw=!ccw; start=-conj(start);
+    void flip_real() override { ccw=!ccw; start=-conj(start);
 	end=-conj(end); center=-conj(center); }
-    virtual void rotate(void) {
+    void rotate() override {
 	start=-start*I;
 	end=-end*I;
 	center=-center*I;
     }
-    virtual bool monotonic(void) {
+    bool monotonic() override {
 	if(finish!=0)
 	    return true;
 	double entry=imag(start-center);
@@ -268,7 +251,7 @@ public:
 	else
 	    return entry<=1e-3 && exit<=1e-3 && dz<=-1e-3;
     }
-    virtual void move(std::complex<double> d) { start+=d; center+=d; end+=d; }
+    void move(std::complex<double> d) override { start+=d; center+=d; end+=d; }
 private:
     bool on_segment(std::complex<double> p);
     friend class straight_segment;
@@ -336,13 +319,13 @@ bool round_segment::dive(std::complex<double> &location,
     }
     intersections_t is;
     intersection_z(x,is);
-    if(!is.size())
+    if(is.empty())
 	intersection_z(x-tolerance,is);
 
     if(ccw) { // G3
 	if(location.real()-tolerance>center.real())
 	    return 1;
-	if(!is.size() || is.back()>real(center)) {
+	if(is.empty() || is.back()>real(center)) {
 	    output->circular_move(ccw,center,end);
 	    location=end;
 	    return 0;
@@ -355,7 +338,7 @@ bool round_segment::dive(std::complex<double> &location,
     } else {
 	if(location.real()<=center.real())
 	    return 1; // we're already climbing
-	if(!is.size()) {
+	if(is.empty()) {
 	    // Curve not hit, move to the end
 	    output->circular_move(ccw,center,end);
 	    location=end;
@@ -380,7 +363,7 @@ void round_segment::climb_only(std::complex<double> &location,
 ) {
     intersections_t is;
     intersection_z(location.imag(),is);
-    if(!is.size())
+    if(is.empty())
 	return;
     if(!ccw) { // G2
 	if(is.back()>center.real())
@@ -537,7 +520,7 @@ class swapped_motion:public motion_base {
 public:
     swapped_motion(motion_base *motion):orig(motion) {
     }
-    virtual void straight_move(std::complex<double> end) override {
+    void straight_move(std::complex<double> end) override {
 	switch(swap) {
 	case 0: orig->straight_move(end); break;
 	case 1: orig->straight_move(-conj(end)); break;
@@ -549,7 +532,7 @@ public:
 	case 7: orig->straight_move(-I*end); break;
 	}
     }
-    virtual void straight_rapid(std::complex<double> end) override {
+    void straight_rapid(std::complex<double> end) override {
 	switch(swap) {
 	case 0: orig->straight_rapid(end); break;
 	case 1: orig->straight_rapid(-conj(end)); break;
@@ -561,7 +544,7 @@ public:
 	case 7: orig->straight_rapid(-I*end); break;
 	}
     }
-    virtual void circular_move(int ccw,std::complex<double> center,
+    void circular_move(bool ccw,std::complex<double> center,
 	std::complex<double> end) override
     {
 	switch(swap) {
@@ -579,9 +562,9 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 class g7x:public  std::list<std::unique_ptr<segment>> {
-    double delta;
-    std::complex<double> escape;
-    int flip_state;
+    double delta{0.5};
+    std::complex<double> escape{0.3, 0.3};
+    int flip_state{};
     std::deque<std::complex<double>> pocket_starts;
 private:
     void pocket(int cycle, std::complex<double> location, iterator p,
@@ -589,24 +572,24 @@ private:
     void add_distance(double distance);
 
     /* Rotate profile by 90 degrees */
-    void rotate(void) {
-	for(auto p=begin(); p!=end(); p++)
-	    (*p)->rotate();
+    void rotate() {
+	for(auto &p : *this)
+	    p->rotate();
 	flip_state^=4;
     }
 
     /* Change the direction of the profile to have Z and X decreasing */
-    void swap(void) {
+    void swap() {
 	double dir_x=imag(front()->ep()-back()->ep());
 	double dir_z=real(front()->ep()-back()->ep());
 	if(dir_x>0) {
-	    for(auto p=begin(); p!=end(); p++)
-		(*p)->flip_imag();
+	    for(auto &p : *this)
+		p->flip_imag();
 	    flip_state^=2;
 	}
 	if(dir_z<0) {
-	    for(auto p=begin(); p!=end(); p++)
-		(*p)->flip_real();
+	    for(auto &p : *this)
+		p->flip_real();
 	    flip_state^=1;
 	}
     }
@@ -625,34 +608,46 @@ private:
 	throw(std::string("This can't happen"));
     }
 
-    void monotonic(void) {
+    void monotonic() {
 	if(real(front()->ep()-front()->sp())>0) {
 	    front()->sp().real(real(front()->ep()));
 	}
-	for(auto p=begin(); p!=end(); p++) {
-	    if(!(*p)->monotonic())
+	for(auto &p : *this) {
+	    if(!p->monotonic())
 		throw(std::string("Not monotonic"));
 	}
     }
 
-    void do_finish(void) {
+    void do_finish() {
 	for(auto h=++begin(); h!=--end(); ) {
 	    auto p(h); --p;
 	    (*h)->do_finish((*p).get(),(*(++h)).get());
 	}
-	for(auto p=begin(); p!=end(); p++)
+	for(auto p=begin(); p!=end(); ++p)
 	    if((*p)->radius()<1e-3)
 		erase(p--);
     }
 
+    bool should_rotate_paths() {
+	g7x paths(*this);
+	paths.pop_front();
+	paths.swap();
+	for(auto &path : paths) {
+	    if(!path->monotonic())
+		return true;
+	}
+	return false;
+    }
+
 public:
-    g7x(void) : delta{0.5}, escape{0.3,0.3}, flip_state{0} {}
-    g7x(g7x const &other) {
-	delta=other.delta;
-	escape=other.escape;
-	flip_state=other.flip_state;
-	for(auto p=other.begin(); p!=other.end(); p++)
-	    emplace_back((*p)->dup());
+    g7x() = default;
+    g7x(g7x const &other)
+          : std::list<std::unique_ptr<segment>>(),
+            delta(other.delta),
+            escape(other.escape),
+            flip_state(other.flip_state) {
+	for(const auto &p : other)
+	    emplace_back(p->dup());
     }
 
     /*
@@ -663,22 +658,12 @@ public:
 	p	Number of passes to go from d to e
     */
     void do_g70(motion_base *out, double x, double z, double d, double e,
-	double p, int *cutter_comp_side
-    ) {
+	int p, CUTTER_COMP *cutter_comp_side
+    )
+    {
 	front()->sp()=std::complex<double>(z,x);
 
-	g7x path(*this);
-	path.pop_front();
-	path.swap();
-	for(auto p=path.begin(); p!=path.end(); p++) {
-	    if(!(*p)->monotonic()) {
-		path.rotate();
-		path.swap();
-		break;
-	    }
-	}
-	path.monotonic();
-	if(path.flip_state&4)
+	if(should_rotate_paths())
 	    rotate();
 	swap();
 	do_finish();
@@ -687,17 +672,17 @@ public:
 
 	for(int pass=p; pass>0; pass--) {
 	    double distance=(pass-1)*(d-e)/p+e;
-	    g7x path(*this);
-	    path.add_distance(distance);
+	    g7x paths(*this);
+	    paths.add_distance(distance);
 
 	    auto comp=*cutter_comp_side;
-	    *cutter_comp_side=0;
-	    swapped_out->straight_rapid(path.front()->sp());
+	    *cutter_comp_side=CUTTER_COMP::OFF;
+	    swapped_out->straight_rapid(paths.front()->sp());
 	    *cutter_comp_side=comp;
-	    swapped_out->straight_rapid(path.front()->ep());
-	    for(auto p=++path.begin(); p!=--path.end(); p++)
-		    (*p)->draw(swapped_out.get());
-	    path.back()->draw(swapped_out.get());
+	    swapped_out->straight_rapid(paths.front()->ep());
+	    paths.pop_front();
+	    for(const auto &path : paths)
+		path->draw(swapped_out.get());
 	}
     }
 
@@ -722,8 +707,8 @@ public:
 	monotonic();
 	add_distance(d);
 	std::complex<double> displacement(w,u);
-	for(auto p=begin(); p!=end(); p++)
-	    (*p)->move(displacement);
+	for(auto &p : *this)
+	    p->move(displacement);
 	auto swapped_out=motion(out);
 
 	delta=std::max(i,2*tolerance);
@@ -757,7 +742,7 @@ void g7x::pocket(int cycle, std::complex<double> location, iterator p,
 
     if(cycle==2) {
 	// This skips the initial roughing pass
-	for(; p!=end(); p++) {
+	for(; p!=end(); ++p) {
 	    if((*p)->dive(location,-1e9,out,p==begin()))
 		break;
 	}
@@ -772,13 +757,13 @@ void g7x::pocket(int cycle, std::complex<double> location, iterator p,
 		/* After the initial roughing pass, move along the final
 		   contour and we're done
 		*/
-		for(; p!=end(); p++)
+		for(; p!=end(); ++p)
 		    (*p)->climb_only(location,out);
 	    } else {
 		/* Move along the final contour until a pocket is found,
 		   then start cutting that pocket
 		*/
-		for(; p!=end(); p++) {
+		for(; p!=end(); ++p) {
 		    if((*p)->climb(location,out)) {
 			if(cycle==3) {
 			    if(imag(location)>imag(pocket_starts.back())
@@ -797,18 +782,24 @@ void g7x::pocket(int cycle, std::complex<double> location, iterator p,
 	    }
 	    return;
 	}
+
+        // We have added our move commands for the last path, we end the
+        // recursive function before calculating and adding intersections.
+	if (p==std::prev(end()))
+	    return;
+
 	if(std::abs(imag(location)-x)>tolerance) {
 	    /* Our x coordinate is beyond the current segment, move onto
 	       the next
 	    */
-	    p++;
+	    ++p;
 	    continue;
 	}
 
-	for(auto ip=p; ip!=end(); ip++) {
+	for(auto ip=p; ip!=end(); ++ip) {
 	    segment::intersections_t is;
 	    (*ip)->intersection_z(location.imag(),is);
-	    if(!is.size())
+	    if(is.empty())
 		continue;
 
 	    /* We can hit the diving curve, if its a circle */
@@ -861,19 +852,19 @@ void g7x::add_distance(double distance) {
     double current_distance=0;
     while(current_distance!=distance) {
 	double max_distance=1e9;
-	for(auto p=begin(); p!=end(); p++)
-	    max_distance=std::min(max_distance,(*p)->radius()/2);
+	for(auto &p : *this)
+	    max_distance=std::min(max_distance,p->radius()/2);
 	max_distance=std::min(max_distance,std::abs(distance-current_distance));
 	if(distance<0)
 	    max_distance=-max_distance;
 
-	for(auto p=begin(); p!=end(); p++) {
+	for(auto p=begin(); p!=end(); ++p) {
 	    (*p)->offset(max_distance);
 	    if((*p)->radius()<1e-3)
 		erase(p--);
 	}
 
-	for(auto p=begin(); p!=--end(); p++) {
+	for(auto p=begin(); p!=--end(); ++p) {
 	    auto n=p; ++n;
 	    if(real((*p)->ep()-(*n)->sp())>1e-2) {
 		// insert connecting arc
@@ -884,11 +875,11 @@ void g7x::add_distance(double distance) {
 		auto center=(s->ep()+e->sp())/2.0;
 		emplace(n, std::make_unique<round_segment>(
 		    distance>0,(*p)->ep(),center,(*n)->sp()));
-		p++;
+		++p;
 	    }
 	}
 
-	for(auto p=begin(); p!=--end(); p++) {
+	for(auto p=begin(); p!=--end(); ++p) {
 	    if(!(*p)->monotonic()) {
 		std::cout << "Oops " << (*p)->sp()-(*p)->ep() << std::endl;
 		auto pp=p; --pp;
@@ -907,7 +898,7 @@ void g7x::add_distance(double distance) {
 	}
 	current_distance+=max_distance;
     }
-    for(auto p=begin(); p!=--end(); p++) {
+    for(auto p=begin(); p!=--end(); ++p) {
 	auto n=p; ++n;
 	auto mid=((*p)->ep()+(*n)->sp())/2.0;
 	(*p)->ep()=(*n)->sp()=mid;
@@ -919,25 +910,15 @@ void g7x::add_distance(double distance) {
 
 #ifndef IGNORE_LINUXCNC
 ////////////////////////////////////////////////////////////////////////////////
-#include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
-#include <string.h>
-#include <ctype.h>
-#include <sys/types.h>
-#include <sys/stat.h>
+#include <cstdlib>
+#include <cmath>
+#include <cstring>
 #include <string>
-#include "rtapi_math.h"
 #include "rs274ngc.hh"
 #include "rs274ngc_return.hh"
 #include "rs274ngc_interp.hh"
 #include "interp_internal.hh"
-#include "interp_queue.hh"
-#include "interp_parameter_def.hh"
-
 #include "units.h"
-#include <iostream>
 
 class motion_machine:public motion_base {
     Interp *interp;
@@ -947,7 +928,7 @@ public:
     motion_machine(Interp *i, setup_pointer s, block_pointer b):
 	interp(i), settings(s), block(b) { }
 
-    void straight_move(std::complex<double> end) {
+    void straight_move(std::complex<double> end) override {
 	block->x_flag=1;
 	block->x_number=imag(end);
 	block->z_flag=1;
@@ -957,7 +938,7 @@ public:
 	    throw(r);
     }
 
-    void straight_rapid(std::complex<double> end)  {
+    void straight_rapid(std::complex<double> end) override  {
 	block->x_flag=1;
 	block->x_number=imag(end);
 	block->z_flag=1;
@@ -966,9 +947,9 @@ public:
 	if(r!=INTERP_OK)
 	    throw(r);
     }
-    void circular_move(int ccw,std::complex<double> center,
+    void circular_move(bool ccw,std::complex<double> center,
 	std::complex<double> end
-    ) {
+    ) override {
 	block->x_flag=1;
 	block->x_number=imag(end);
 	block->z_flag=1;
@@ -997,19 +978,19 @@ public:
     switch_settings(Interp *i,setup_pointer s):interp(i), settings(s)
     {
 	saved_distance_mode=settings->distance_mode;
-	settings->distance_mode=MODE_ABSOLUTE;
+	settings->distance_mode=DISTANCE_MODE::ABSOLUTE;
 	saved_ijk_distance_mode=settings->ijk_distance_mode;
-	settings->ijk_distance_mode=MODE_ABSOLUTE;
+	settings->ijk_distance_mode=DISTANCE_MODE::ABSOLUTE;
 	read_a=interp->_readers[(int)'a'];
 	read_c=interp->_readers[(int)'c'];
 	read_u=interp->_readers[(int)'u'];
 	read_w=interp->_readers[(int)'w'];
-	interp->_readers[(int)'a']=interp->default_readers[(int)'a'];
-	interp->_readers[(int)'c']=interp->default_readers[(int)'c'];
-	interp->_readers[(int)'u']=interp->default_readers[(int)'u'];
-	interp->_readers[(int)'w']=interp->default_readers[(int)'w'];
+	interp->_readers[(int)'a']=Interp::default_readers[(int)'a'];
+	interp->_readers[(int)'c']=Interp::default_readers[(int)'c'];
+	interp->_readers[(int)'u']=Interp::default_readers[(int)'u'];
+	interp->_readers[(int)'w']=Interp::default_readers[(int)'w'];
     }
-    ~switch_settings(void) {
+    ~switch_settings() {
 	settings->distance_mode=saved_distance_mode;
 	settings->ijk_distance_mode=saved_ijk_distance_mode;
 	interp->_readers[(int)'a']=read_a;
@@ -1017,11 +998,11 @@ public:
 	interp->_readers[(int)'u']=read_u;
 	interp->_readers[(int)'w']=read_w;
     }
-    DISTANCE_MODE ijk_distance_mode(void) { return saved_ijk_distance_mode; }
-    DISTANCE_MODE distance_mode(void) { return saved_distance_mode; }
+    DISTANCE_MODE ijk_distance_mode() { return saved_ijk_distance_mode; }
+    DISTANCE_MODE distance_mode() { return saved_distance_mode; }
 };
 
-int Interp::convert_g7x(int mode,
+int Interp::convert_g7x(int /*mode*/,
       block_pointer block,     //!< pointer to a block of RS274 instructions
       setup_pointer settings)  //!< pointer to machine settings
 {
@@ -1029,14 +1010,14 @@ int Interp::convert_g7x(int mode,
     if(!block->q_flag)
     	ERS("G7x.x  requires a Q word");
 
-    int cycle=block->g_modes[1];
+    int cycle=block->g_modes[GM_MOTION];
     int subcycle=cycle%10;
     cycle/=10;
 
-    if(settings->cutter_comp_side && cycle!=70)
+    if(settings->cutter_comp_side != CUTTER_COMP::OFF && cycle!=70)
 	ERS("G%d.%d cannot be used with cutter compensation enabled",
 	    cycle, subcycle);
-    if(settings->plane!=CANON_PLANE_XZ)
+    if(settings->plane!=CANON_PLANE::XZ)
 	ERS("G%d.%d can only be used in XZ plane (G18)",
 	    cycle, subcycle);
 
@@ -1048,7 +1029,7 @@ int Interp::convert_g7x(int mode,
     double z=settings->current_z;
     double start_x=x;
     double start_z=z;
-    if(old.distance_mode()==MODE_INCREMENTAL) {
+    if(old.distance_mode()==DISTANCE_MODE::INCREMENTAL) {
 	if(block->x_flag)
 	    x+=block->x_number;
 	if(block->z_flag)
@@ -1063,7 +1044,7 @@ int Interp::convert_g7x(int mode,
     original_block.z_number=z;
 
     auto cutter_comp=settings->cutter_comp_side;
-    settings->cutter_comp_side=0;
+    settings->cutter_comp_side=CUTTER_COMP::OFF;
     int error=convert_straight(G_0, block, settings);
     settings->cutter_comp_side=cutter_comp;
     if(error!=INTERP_OK)
@@ -1073,7 +1054,7 @@ int Interp::convert_g7x(int mode,
     std::complex<double> start(z,x);
 
     auto exit_call_level=settings->call_level;
-    CHP(read((std::string("O")+std::to_string(block->q_number)+" CALL").c_str()));
+    CHP(read((std::string("O")+std::to_string(static_cast<int>(block->q_number))+" CALL").c_str()));
     for(;;) {
 	if(block->o_name!=0)
 	    CHP(convert_control_functions(block, settings));
@@ -1093,11 +1074,11 @@ int Interp::convert_g7x(int mode,
 	std::complex<double> end(start);
 	std::complex<double> center(0,0);
 
-	if(old.distance_mode()==MODE_INCREMENTAL)
+	if(old.distance_mode()==DISTANCE_MODE::INCREMENTAL)
 	    end=0;
 
 	if(block->u_flag) {
-	    if(old.distance_mode()==MODE_INCREMENTAL)
+	    if(old.distance_mode()==DISTANCE_MODE::INCREMENTAL)
 		ERS("G7x error: Cannot use U in incremental mode (G91)");
 	    if(block->x_flag)
 		ERS("G7x error: Cannot use U and X in the same block");
@@ -1109,7 +1090,7 @@ int Interp::convert_g7x(int mode,
 	    end.imag(block->x_number);
 
 	if(block->w_flag) {
-	    if(old.distance_mode()==MODE_INCREMENTAL)
+	    if(old.distance_mode()==DISTANCE_MODE::INCREMENTAL)
 		ERS("G7x error: Cannot use W in incremental mode (G91)");
 	    if(block->z_flag)
 		ERS("G7x error: Cannot use W and Z in the same block");
@@ -1120,11 +1101,11 @@ int Interp::convert_g7x(int mode,
 	if(block->i_flag) center.imag(block->i_number);
 	if(block->k_flag) center.real(block->k_number);
 
-	if(old.distance_mode()==MODE_INCREMENTAL)
+	if(old.distance_mode()==DISTANCE_MODE::INCREMENTAL)
 	    end+=start;
 
-	if(block->g_modes[1]!=-1)
-	    settings->motion_mode=block->g_modes[1];
+	if(block->g_modes[GM_MOTION]!=-1)
+	    settings->motion_mode=block->g_modes[GM_MOTION];
 	if(start!=end) {
 	    switch(settings->motion_mode) {
 	    case 0:
@@ -1149,9 +1130,34 @@ int Interp::convert_g7x(int mode,
 		} else {
 		    if(!block->i_flag && !block->k_flag)
 			ERS("G7X error: either I or K must be present for arc");
-		    if(old.ijk_distance_mode()==MODE_INCREMENTAL)
+		    if(old.ijk_distance_mode()==DISTANCE_MODE::INCREMENTAL)
 			center+=start;
 		}
+
+        /* Verify if circular motion is valid */
+        double tpx;
+        double tpy;
+        double tpz;
+        double tAA_p;
+        double tBB_p;
+        double tCC_p;
+        double tu_p;
+        double tv_p;
+        double tw_p;
+        CHP(find_ends(block, settings, &tpx, &tpy, &tpz, &tAA_p, &tBB_p, &tCC_p, &tu_p, &tv_p, &tw_p));
+
+        if(!block->r_flag){
+            double center1, center2;
+            int turn;
+            double radius_tolerance = (settings->length_units == CANON_UNITS_INCHES) ? RADIUS_TOLERANCE_INCH : RADIUS_TOLERANCE_MM;
+            double spiral_abs_tolerance = (settings->length_units == CANON_UNITS_INCHES) ? settings->center_arc_radius_tolerance_inch : settings->center_arc_radius_tolerance_mm;
+            CHP(arc_data_ijk((settings->motion_mode==30)? G_3 : G_2, settings->plane, settings->current_z, settings->current_x, tpz, tpx,
+                             (old.ijk_distance_mode() == DISTANCE_MODE::ABSOLUTE),
+                             (block->k_flag)? block->k_number : 0.0, (block->i_flag)? block->i_number : 0.0, block->p_flag? round_to_int(block->p_number) : 1,
+                             &center1, &center2, &turn, radius_tolerance, spiral_abs_tolerance, SPIRAL_RELATIVE_TOLERANCE));
+        }
+        /*************/
+
 		path.emplace_back(std::make_unique<round_segment>(
 		    settings->motion_mode==30, start, center, end
 		));
@@ -1181,11 +1187,12 @@ int Interp::convert_g7x(int mode,
     if(path.size()<=1)
 	return INTERP_OK;
 
-    double d=0, e=0, i=1, p=1, r=0.5, u=0, w=0;
+    double d=0, e=0, i=1, r=0.5, u=0, w=0;
+    int p = 1;
     if(original_block.d_flag) d=original_block.d_number_float;
     if(original_block.e_flag) e=original_block.e_number;
     if(original_block.i_flag) i=original_block.i_number;
-    if(original_block.p_flag) p=original_block.p_number;
+    if(original_block.p_flag) p=static_cast<int>(original_block.p_number);
     if(original_block.r_flag) r=original_block.r_number;
     if(original_block.u_flag) u=original_block.u_number;
     if(original_block.w_flag) w=original_block.w_number;

@@ -1,0 +1,12 @@
+g69
+g10 l2 p0 x1300 y-200 z-1400
+m6 t3 g43 h3
+g0 x0y0z100
+
+g68.2 x50 y50 z-50 q121 i30 j15
+g53.3 x0y0z100
+
+o<square> call
+
+;g69
+M2

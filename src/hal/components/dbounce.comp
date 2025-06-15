@@ -8,7 +8,8 @@ pin in  bit in;
 pin out bit out;
 pin in  u32 delay = 5;
 
-variable int state;
+variable unsigned state;
+option period no;
 function _ nofp;
 license "GPL";
 author "Dewey Garrett";

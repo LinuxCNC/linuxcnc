@@ -24,9 +24,6 @@ PARAMETER_FILE = xyzx.var
       EMCMOT = motmod
 COMM_TIMEOUT =       1.0
 SERVO_PERIOD = 1000000
-[EMCIO]
-     EMCIO = io
-CYCLE_TIME = 0.100
 [TRAJ]
             NO_FORCE_HOMING = 1
                 COORDINATES = X Y Z X

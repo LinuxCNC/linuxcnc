@@ -1,0 +1,3 @@
+
+void PrintGtk( );
+void PrintPreviewGtk( );

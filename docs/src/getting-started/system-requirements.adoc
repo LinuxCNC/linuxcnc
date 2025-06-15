@@ -39,7 +39,7 @@ web site for details on the Live CD you're using. Older hardware may
 benefit from selecting an older version of the Live CD when available.
 
 If you plan not to rely on the distribution of readily executable programs ("binaries")
-but aim at contributing to the source tree of LinuxCNC, then there is a good chance
+and/or aim at contributing to the source tree of LinuxCNC, then there is a good chance
 you want a second computer to perform the compilation. Even though LinuxCNC and
 your developments could likely be executed at the same time with respect to disk space,
 RAM and even CPU speed, a machine that is busy will have worse latencies, so you are
@@ -64,7 +64,7 @@ uname -a
 
 If you see (as above) `-rt-` in the kernel name then you are running the
 preempt-rt kernel and should install the "uspace" version of LinuxCNC.
-You should also install uspace for "sim" configs on non-realtime kernels
+You should also install uspace for "sim" configs on non-realtime kernels.
 
 If you see `-rtai-` in the kernel name then you are running RTAI
 realtime. See below for the LinuxCNC version to install.

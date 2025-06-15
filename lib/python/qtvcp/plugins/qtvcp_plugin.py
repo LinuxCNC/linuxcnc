@@ -21,6 +21,10 @@
 # helps confirm designer is set up with right paths
 print('Qtvcp python plugin found:',__file__)
 
+from qtvcp.core import Info
+i = Info()
+i.update()
+
 # HAL only widgets
 from qtvcp.plugins.simplewidgets_plugin import *
 from qtvcp.plugins.led_plugin import LEDPlugin

@@ -21,6 +21,7 @@ see_also "\\fBselect8\\fR(9)";
 license "GPL 2+";
 author "Andy Pugh";
 
+option period no;
 function _;
 
 ;;

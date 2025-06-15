@@ -72,6 +72,8 @@ class HAL_DRO(Gtk.Label):
                     GObject.ParamFlags.READWRITE),
         'homed_color' : (Gdk.RGBA.__gtype__, 'Homed Color', 'The color of the DRO text when homed',
                     GObject.ParamFlags.READWRITE),
+        'background_color' : (Gdk.RGBA.__gtype__, 'Background Color', 'The color of the DRO background',
+                    GObject.ParamFlags.READWRITE),
     }
     __gproperties = __gproperties__
 
@@ -81,6 +83,7 @@ class HAL_DRO(Gtk.Label):
     font-family: sans;
     font-size: 26px;
     font-weight: bold;
+    background: black;
     }}
 .dro_unhomed {{color: red}}
 .dro_homed {{color: green}}
@@ -114,6 +117,7 @@ class HAL_DRO(Gtk.Label):
         self.get_style_context().add_class('dro_unhomed')
         self.unhomed_color = self.str_to_rgba('red')
         self.homed_color = self.str_to_rgba('green')
+        self.background_color = self.str_to_rgba('black')
         if self.linuxcnc:
             GStat().connect('homed', self._homed )
             GStat().connect('unhomed', self._homed )
@@ -171,6 +175,13 @@ class HAL_DRO(Gtk.Label):
             else:
                 LOG.warning(f"Invalid homed_color '{value}', " \
                              "it should be a Gdk.RGBA color")
+        elif name == "background_color":
+            if not value: value = self.background_color
+            if isinstance(value, gi.overrides.Gdk.RGBA):
+                self.set_style("background", self.rgba_to_hex(value))
+            else:
+                LOG.warning(f"Invalid background_color '{value}', " \
+                             "it should be a Gdk.RGBA color")
         if name in list(self.__gproperties.keys()):
             setattr(self, name, value)
             self.queue_draw()
@@ -187,6 +198,9 @@ class HAL_DRO(Gtk.Label):
         elif property == "weight":
             old = '-wei.*'
             new = f"-weight: {value};"
+        elif property == "background":
+            old = 'background.*'
+            new = f"background: {value};"
         elif property == "unhomed":
             old = '.dro_u.*'
             new = f".dro_unhomed {{color: {value}}}"

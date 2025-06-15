@@ -34,13 +34,15 @@
 #define rtapi_outl outl
 #define rtapi_ioperm ioperm
 #else
-#define rtapi_inb(x) (0)
-#define rtapi_inw(x) (0)
-#define rtapi_inl(x) (0)
-#define rtapi_outb(x,y) ((void)0)
-#define rtapi_outw(x,y) ((void)0)
-#define rtapi_outl(x,y) ((void)0)
-#define rtapi_ioperm(x,y,z) ((void)0)
+// The prototypes follow the x86 sys/io.h prototypes
+__attribute__((always_inline)) static inline unsigned char  rtapi_inb(unsigned short port) { (void)port; return 0; }
+__attribute__((always_inline)) static inline unsigned short rtapi_inw(unsigned short port) { (void)port; return 0; }
+__attribute__((always_inline)) static inline unsigned int   rtapi_inl(unsigned short port) { (void)port; return 0; }
+__attribute__((always_inline)) static inline void rtapi_outb(unsigned char  val, unsigned short port) { (void)port; (void)val; }
+__attribute__((always_inline)) static inline void rtapi_outw(unsigned short val, unsigned short port) { (void)port; (void)val; }
+__attribute__((always_inline)) static inline void rtapi_outl(unsigned int   val, unsigned short port) { (void)port; (void)val; }
+__attribute__((always_inline)) static inline int rtapi_ioperm(unsigned long from, unsigned long num, int turn_on)
+{ (void)from; (void)num; (void)turn_on; return 0; }
 #endif
 
 #endif

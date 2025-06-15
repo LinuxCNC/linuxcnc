@@ -1,0 +1,116 @@
+= linuxcnc(1)
+
+== NAME
+
+linuxcnc - LinuxCNC (The Enhanced Machine Controller)
+
+== SYNOPSIS
+
+*linuxcnc* [_-h_] [_-v_] [_-d_] [_-r_] [_-l_] [_-k_] [_-t <tpmodulename>
+ [parameters]_] [_-m <homemodulename> [parameters]_] [_-H <dirname>_]
+ [_INI file_]
+
+== DESCRIPTION
+
+*linuxcnc* is used to start LinuxCNC (The Enhanced Machine Controller).
+It starts the realtime system and then initializes a number of LinuxCNC
+components (IO, Motion, GUI, HAL, etc). The most important parameter is
+_INI file_, which specifies the configuration name you would like to
+run. If _INI file_ is not specified, the *linuxcnc* script presents a
+graphical wizard to let you choose one.
+
+== OPTIONS
+
+*-h*::
+  Shows the help
+*-v*::
+  Be a little bit verbose. This causes the script to print information
+  as it works.
+*-d*::
+  Print lots of debug information. All executed commands are echoed to
+  the screen. This mode is useful when something is not working as it
+  should.
+*-r*::
+  Disable redirection of stdout and stderr to `~/linuxcnc_print.txt` and
+  `~/linuxcnc_debug.txt` when stdin is not a tty. Used when running
+  linuxcnc tests non-interactively.
+*-l*::
+  Use the last-used INI file without prompting. This is often a good
+  choice for a shortcut command or startup item.
+*-k*::
+  Continue in the presence of errors in HAL files
+*-t <tpmodulename> [parameters]*::
+  Specify custom trajectory_planning_module overrides optional INI
+  setting [TRAJ]TPMOD
+*-m <homemodulename> [parameters]*::
+  Specify custom homing_module overrides optional INI setting
+  [EMCMOT]HOMEMOD
+*-H <dirname>*::
+  Search dirname for HAL files before searching INI directory and system
+  library: $HALLIB_DIR
+*<INIFILE>*::
+  The INI file is the main piece of a LinuxCNC configuration. It is not
+  the entire configuration; there are various other files that go with
+  it (NML files, HAL files, TBL files, VAR files). It is, however, the
+  most important one, because it is the file that holds the
+  configuration together. It can adjust a lot of parameters itself, but
+  it also tells *linuxcnc* which other files to load and use.
+
+There are several ways to specify which config to use:
+
+Specify the absolute path to an INI, e.g., +
+*linuxcnc* _/usr/local/linuxcnc/configs/sim/sim.ini_
+
+Specify a relative path from the current directory, e.g. +
+*linuxcnc* _configs/sim/sim.ini_
+
+Otherwise, in the case where the *INIFILE* is not specified, the
+behavior will depend on whether you configured LinuxCNC with
+*--enable-run-in-place*. If so, the LinuxCNC config chooser will search
+only the configs directory in your source tree. If not (or if you are
+using a packaged version of LinuxCNC), it may search several
+directories. The config chooser is currently set to search the path:
+
+....
+@LINUXCNC_CONFIG_PATH@
+....
+
+== EXAMPLES
+
+*linuxcnc*
+
+*linuxcnc* _configs/sim/sim.ini_
+
+*linuxcnc* _/etc/linuxcnc/sample-configs/stepper/stepper_mm.ini_
+
+== SEE ALSO
+
+*halcmd(1)*
+
+Much more information about LinuxCNC and HAL is available in the
+LinuxCNC and HAL User Manuals, found at /usr/share/doc/linuxcnc/.
+
+Web: https://www.linuxcnc.org/
+
+User forum: https://forum.linuxcnc.org/
+
+== BUGS
+
+None known at this time.
+
+== AUTHOR
+
+This man page written by Alex Joni, as part of the LinuxCNC Enhanced
+Machine Controller project.
+
+== REPORTING BUGS
+
+Please report any bugs at https://github.com/LinuxCNC/linuxcnc.
+
+== COPYRIGHT
+
+Copyright © 2003 The LinuxCNC authors.
+
+This is free software; see the source for copying conditions. There is
+NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.

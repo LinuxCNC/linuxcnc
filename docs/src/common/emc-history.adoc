@@ -33,14 +33,14 @@ was pursued with success. Next up was the issue of the expensive intelligent
 motion control boards. By this time the processing power of a PC was
 considered great enough to directly take control of the motion routines.
 A quick search of available hardware resulted in the selection of a
-http://www.servotogo.com/[Servo-To-Go] interface board as the first platform
+"Servo-To-Go" interface board as the first platform
 for letting the PC directly control the motors. Software for trajectory
 planning and PID loop control was added to the existing user interface and
 RS274 interpreter. Matt successfully used this version to upgrade a couple
 of machines with dead controls and this became the EMC system that first
 caught the attention of the outside world. Mention of EMC on the
 rec.crafts.metalworking USENET newsgroup resulted in early adopters
-like http://pico-systems.com/motion.html[Jon Elson] building systems
+like https://pico-systems.com/motion.html[Jon Elson] building systems
 to take advantage of EMC.
 
 NIST set up a mailing list for people interested in EMC. As time went on,
@@ -54,7 +54,7 @@ Ray went on to write a Tcl/Tk program that became the predominant user
 interface for EMC at the time.
 
 For NIST's perspective, see this
-http://web.archive.org/web/20120417094958/http://www.isd.mel.nist.gov/documents/shackleford/4191_05.pdf[paper]
+https://web.archive.org/web/20120417094958/https://www.isd.mel.nist.gov/documents/shackleford/4191_05.pdf[paper]
 written by William Shackleford and Frederick Proctor, describing the
 history of EMC and its transition to open source.
 

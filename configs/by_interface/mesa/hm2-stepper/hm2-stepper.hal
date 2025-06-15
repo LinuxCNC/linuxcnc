@@ -15,7 +15,7 @@
 # sudo ln -s $HOME/emc2-sandbox/src/hal/drivers/mesa-hostmot2/firmware /lib/firmware/hm2
 #
 # See also:
-# <http://www.linuxcnc.org/docs/2.9/html/man/man9/hostmot2.9.html#config%20modparam>
+# <http://www.linuxcnc.org/docs/devel/html/man/man9/hostmot2.9.html#config%20modparam>
 # and http://wiki.linuxcnc.org/cgi-bin/emcinfo.pl?HostMot2
 #
 # #####################################################################

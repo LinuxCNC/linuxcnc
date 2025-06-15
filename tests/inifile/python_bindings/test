@@ -1,0 +1,17 @@
+#!/usr/bin/python3
+
+import linuxcnc
+
+inifile = linuxcnc.ini("values.ini")
+
+missing_value = inifile.find("section1", "missing")
+value_with_space = inifile.find("section1", "key3")
+numbered_value = inifile.find("section1", "number")
+list_of_values = inifile.findall("section2", "key1")
+
+for value in list_of_values:
+    print(value)
+if missing_value is None:
+    print("Did not find missing value")
+print(value_with_space)
+print(numbered_value)

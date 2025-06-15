@@ -4,11 +4,12 @@ description
 """
 Toggle2nist can be used with a momentary push button 
 to control a device that has separate on and off inputs
-and an is-on output. 
+and an is-on output.
+A debounce delay in cycles can be set for 'in'. (default = 2)
 
-\[bu] On a rising edge on pin \\fIin\\fR when \\fIis-on\\fR is low: It sets \\fIon\\fR until \\fIis-on\\fR becomes high.
+\\[bu] On a rising edge on pin \\fIin\\fR when \\fIis-on\\fR is low: It sets \\fIon\\fR until \\fIis-on\\fR becomes high.
 
-\[bu] On a rising edge on pin \\fIin\\fR when \\fIis-on\\fR is high: It sets \\fIoff\\fR until \\fIis-on\\fR becomes low.
+\\[bu] On a rising edge on pin \\fIin\\fR when \\fIis-on\\fR is high: It sets \\fIoff\\fR until \\fIis-on\\fR becomes low.
 
 
        ┐     ┌─────xxxxxxxxxxxx┐           ┌─────xxxxxxxxxxxx┐
@@ -29,36 +30,52 @@ is-on: └─────────────────┘       �
 
 """;
 
-pin in  bit in;
-pin in  bit is_on;
-pin out bit on;
-pin out bit off;
-variable int old_in;
-variable int to_state=0;
+pin in bit in  "momentary button in";
+pin in bit is_on "current state of device";
+pin in unsigned debounce = 2 "debounce delay for 'in'-pin in cycles";
+pin out bit on "turn device on";
+pin out bit off "turn device off";
+variable int debounce_cntr;
+variable unsigned debounce_set;
+variable int state;
+
+option period no;
 function _ nofp;
 license "GPL";
-author "Anders Wallin";
+author "Anders Wallin, David Mueller";
 ;;
 FUNCTION(_)  {
-if (in!=old_in) /* a toggle has occurred */ {
-    if (is_on) {   /* turn OFF if it's on */
-        on=0;
-        off=1;
-        to_state=0;
-    }
-    else if (!is_on) { /* turn ON if it's off */
-        on=1;
-        off=0;
-        to_state=1;
-    }
-}
-else {
-/* reset pins when we see the desired state */
-    if (to_state==is_on) {
-        on=0;
-        off=0;
-    }
-}
-old_in=in;
-}
 
+    if (( debounce < 1 ) || ( debounce > 10000 )) {
+        debounce_set = 2; /* set a sane value */
+    } else {
+        debounce_set = debounce;
+    }
+
+    if (in && state == 0 )  { /* input has changed from debounced 0 -> 1 */
+        debounce_cntr++;
+        if ( debounce_cntr >= (int)debounce_set ) {
+            if (!is_on) { /* turn ON if it's off */
+                on=1;
+                off=0;
+            } else { /* turn OFF if it's on */
+                on=0;
+                off=1;
+            }
+            state = 1;
+            debounce_cntr = 0;
+        }
+    } else if (!in && state == 1) { /* input has changed from debounced 1 -> 0 */
+        debounce_cntr++;
+        if ( debounce_cntr >= (int)debounce_set ) {
+            state = 0;
+            debounce_cntr = 0;
+        }
+    } else if ((!is_on && off) || (is_on && on)) { /* reset outputs once device has switched*/
+        on = 0;
+        off = 0;
+        debounce_cntr = 0;
+    } else {
+    	debounce_cntr = 0;
+    }
+}

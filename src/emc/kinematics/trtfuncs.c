@@ -120,7 +120,7 @@ int trtKinematicsSetup(const int   comp_id,
     for (jno=0; jno<EMCMOT_MAX_JOINTS; jno++) {
         if (axis_idx_for_jno[jno] == -1) break; //fini
         rtapi_print("   Joint %d ==> Axis %c\n",
-                   jno,*("XYZABCUVW"+axis_idx_for_jno[jno]));
+                   jno,"XYZABCUVW"[axis_idx_for_jno[jno]]);
     }
 
     haldata = hal_malloc(sizeof(struct haldata));
@@ -153,6 +153,8 @@ int xyzacKinematicsForward(const double *joints,
                            const KINEMATICS_FORWARD_FLAGS * fflags,
                            KINEMATICS_INVERSE_FLAGS * iflags)
 {
+    (void)fflags;
+    (void)iflags;
     double x_rot_point = *(haldata->x_rot_point);
     double y_rot_point = *(haldata->y_rot_point);
     double z_rot_point = *(haldata->z_rot_point);
@@ -199,6 +201,8 @@ int xyzacKinematicsInverse(const EmcPose * pos,
                            const KINEMATICS_INVERSE_FLAGS * iflags,
                            KINEMATICS_FORWARD_FLAGS * fflags)
 {
+    (void)iflags;
+    (void)fflags;
     double x_rot_point = *(haldata->x_rot_point);
     double y_rot_point = *(haldata->y_rot_point);
     double z_rot_point = *(haldata->z_rot_point);
@@ -257,6 +261,8 @@ int xyzbcKinematicsForward(const double *joints,
                            const KINEMATICS_FORWARD_FLAGS * fflags,
                            KINEMATICS_INVERSE_FLAGS * iflags)
 {
+    (void)fflags;
+    (void)iflags;
     // Note: 'principal' joints are used
     double x_rot_point = *(haldata->x_rot_point);
     double y_rot_point = *(haldata->y_rot_point);
@@ -303,6 +309,8 @@ int xyzbcKinematicsInverse(const EmcPose * pos,
                            const KINEMATICS_INVERSE_FLAGS * iflags,
                            KINEMATICS_FORWARD_FLAGS * fflags)
 {
+    (void)iflags;
+    (void)fflags;
     double x_rot_point = *(haldata->x_rot_point);
     double y_rot_point = *(haldata->y_rot_point);
     double z_rot_point = *(haldata->z_rot_point);

@@ -63,7 +63,7 @@ import hal
 try:
     LINUXCNCVERSION = os.environ['LINUXCNCVERSION']
 except:
-    LINUXCNCVERSION = 'Master (2.9)'
+    LINUXCNCVERSION = 'Master (2.10)'
 
 def get_value(w):
     try:
@@ -343,28 +343,19 @@ class App:
             self.HAL.write_halfile(base)
             # qtplasmac specific
             if self.d.frontend == _PD._QTPLASMAC:
-                # copy M190 file
-                if BASE == "/usr":
-                    m190Path = os.path.join(BASE, 'share/doc/linuxcnc/examples/sample-configs/sim/qtplasmac/M190')
-                else:
-                    m190Path = os.path.join(BASE, 'configs/sim/qtplasmac/M190')
-                shutil.copy(m190Path, os.path.join(base, 'M190'))
                 # different looking tool table for qtplasmac
-
                 dest = os.path.join(base, "tool.tbl")
                 if not os.path.exists(dest):
                     file = open(dest, "w")
                     print("T0 P1 X0 Y0 ;torch", file=file)
                     print("T1 P2 X0 Y0 ;scribe", file=file)
                     file.close()
-
             # _not_ qtplasmac
             else:
                 dest = os.path.join(base, "tool.tbl")
                 print (base,'\ncopy:',dest,os.path.exists(dest))
                 if not os.path.exists(dest):
                     print('copied')
-                    # different looking tool table for qtplasmac
                     file = open(dest, "w")
                     if self.d.axes == 2:# lathe
                         if self.d.units == _PD._METRIC:
@@ -395,6 +386,27 @@ class App:
                             print("T4 P4 Z0 D2 ; 2 inch mill Sample Tool", file=file)
 
                     file.close()
+
+            # copy files for Gmoccapy remaps M6 and m61
+            if self.d.frontend == _PD._GMOCCAPY:
+                
+                # source directory
+                dirgmoccapy = os.path.join(BASE, "share", "linuxcnc", "pncconf", "gmoccapy")
+                if not os.path.exists(dirgmoccapy):
+                    dirgmoccapy = os.path.join(BASE, "src", "emc", "usr_intf", "pncconf", "gmoccapy")
+                srcmacros = os.path.join(dirgmoccapy, "macros")
+                srcpython = os.path.join(dirgmoccapy, "python")
+
+                # destination directory
+                dstmacros = os.path.join(base, "macros")
+                dstpython = os.path.join(base, "python")
+
+                # copy files
+                if not os.path.exists(dstmacros):
+                    shutil.copytree(srcmacros, dstmacros)
+                
+                if not os.path.exists(dstpython):
+                    shutil.copytree(srcpython, dstpython)
 
             if self.warning_dialog(self._p.MESS_QUIT,False):
                 Gtk.main_quit()

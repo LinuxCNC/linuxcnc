@@ -2,8 +2,8 @@
 '''
 plasmac_gcode.py
 
-Copyright (C) 2019 - 2024  Phillip A Carter
-Copyright (C) 2020 - 2024  Gregory D Carl
+Copyright (C) 2019 - 2025 Phillip A Carter
+Copyright (C) 2020 - 2024 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -27,6 +27,8 @@ import math
 import shutil
 import time
 from subprocess import run as RUN
+from shutil import copy as COPY
+import plasmac.block as CONVERT
 
 INI = linuxcnc.ini(os.environ['INI_FILE_NAME'])
 DIR = os.path.dirname(os.environ['INI_FILE_NAME'])
@@ -42,7 +44,7 @@ else:
 class Filter():
     def __init__(self, *args):
         super().__init__()
-        self.inFile = sys.argv[1]
+        self.inFile = args[0][1]
         # run-from-line files do not require processing
         if os.path.basename(self.inFile) == 'rfl.ngc':
             with open(self.inFile, 'r') as inLines:
@@ -58,13 +60,13 @@ class Filter():
         self.tmpMatNum = 1000000
         self.tmpMatNam = ''
         self.prefsFile = self.machine + '.prefs'
-        response = RUN(['halcmd', 'getp', self.cutTypePin], capture_output = True)
+        response = RUN(['halcmd', 'getp', self.cutTypePin], capture_output=True)
         self.cutType = int(response.stdout.decode())
-        response = RUN(['halcmd', 'getp', self.matNumPin], capture_output = True)
+        response = RUN(['halcmd', 'getp', self.matNumPin], capture_output=True)
         self.currentMat = int(response.stdout.decode())
-        response = RUN(['halcmd', 'getp', 'plasmac.max-offset'], capture_output = True)
+        response = RUN(['halcmd', 'getp', 'plasmac.max-offset'], capture_output=True)
         zMaxOffset = float(response.stdout.decode())
-        RUN(['halcmd', 'setp', self.convBlockPin, '0'])
+        RUN(['halcmd', 'setp', 'plasmac.tube-cut', '0'])
         self.metric = ['mm', 4]
         self.imperial = ['in', 6]
         self.units, self.fmt = self.imperial if INI.find('TRAJ', 'LINEAR_UNITS').lower() == 'inch' else self.metric
@@ -91,8 +93,8 @@ class Filter():
         self.oBurnY = 0
         self.lineNum = 0
         self.lineNumOrg = 0
-        self.distMode = 90 # absolute
-        self.arcDistMode = 91.1 # incremental
+        self.distMode = 90  # absolute
+        self.arcDistMode = 91.1  # incremental
         self.holeVelocity = 60
         self.currentMaterial = [0, False]
         self.overCut = False
@@ -104,18 +106,18 @@ class Filter():
         self.torchEnable = True
         self.pierceOnly = False
         self.scribing = False
-        self.spotting = False # cannot spot in pierce mode
-        self.scribePierce = False # cannot scribe in pierce mode
+        self.spotting = False  # cannot spot in pierce mode
+        self.scribePierce = False  # cannot scribe in pierce mode
         self.offsetG4x = False
         self.zSetup = False
         self.zBypass = False
+        self.tubeCut = False
         self.pathBlend = False
-        self.convBlock = False
-        self.filtered = False
         self.firstMove = False
         self.subList = []
+        self.pierceList = {'active': False, 'X': [], 'Y': []}
         self.codeError = False
-        self.errors  = 'The following errors will affect the process.\n'
+        self.errors = 'The following errors will affect the process.\n'
         self.errors += 'Errors must be fixed before reloading this file.\n'
         self.errorMath = []
         self.errorMissMat = []
@@ -123,6 +125,7 @@ class Filter():
         self.errorBadMat = []
         self.errorTempMat = []
         self.errorTempValid = []
+        self.errorTempParm = []
         self.errorNewMat = []
         self.errorEditMat = []
         self.errorWriteMat = []
@@ -130,17 +133,39 @@ class Filter():
         self.errorCompMat = []
         self.errorFirstMove = []
         self.errorLines = []
+        self.errorG92Offset = []
+        self.errorBlockHead = []
+        self.errorBlockFormat = []
         self.codeWarn = False
-        self.warnings  = 'The following warnings may affect the quality of the process.\n'
+        self.warnings = 'The following warnings may affect the quality of the process.\n'
         self.warnings += 'It is recommended that all warnings are fixed before running this file.\n'
         self.warnUnitsDep = []
         self.warnPierceScribe = []
+        self.warnPierceLimit = []
         self.warnMatLoad = []
         self.warnHoleDir = []
         self.warnCompTorch = []
         self.warnCompVel = []
         self.warnFeed = []
         self.warnChar = []
+       # if this is a conversational block file and it is not a current version then upgrade it
+        with open(self.inFile, 'r') as inLines:
+            line = inLines.readline().strip()
+            if line[:21] == ';conversational block':
+                if line == ';conversational block':
+                    inputs, preCode, gCode, postCode = CONVERT.convert_v1_code(self.inFile)
+                    if gCode:
+                        name, ext = os.path.splitext(self.inFile)
+                        COPY(self.inFile, f'{name}_conv_block_v1{ext}')
+                        CONVERT.write_block(self.inFile, inputs, preCode, gCode, postCode)
+                    else:
+                        self.set_code_error()
+                        self.errorBlockFormat.append(1)
+                        self.errorLines.append(1)
+                elif line[22:24] != 'V2':
+                    self.set_code_error()
+                    self.errorBlockHead.append(0)
+                    self.errorLines.append(0)
         # create a dict of material numbers and kerf widths
         self.get_materials()
         # setup for custom filtering
@@ -157,39 +182,66 @@ class Filter():
             if self.rapidLine:
                 self.gcodeList.append(self.rapidLine)
             self.gcodeList.append('M02 (END)')
+        # remove last G00 coordinates if no pierce afterwards
+        if self.pierceList['active']:
+            del self.pierceList['X'][-1:]
+            del self.pierceList['Y'][-1:]
+            self.pierceList['active'] = False
+        # write the pierce extents hal pins
+        if GUI == 'axis':
+            RUN(['halcmd', 'setp', 'axisui.x_min_pierce_extent', str(min(self.pierceList['X']) if self.pierceList['X'] else 0)])
+            RUN(['halcmd', 'setp', 'axisui.y_min_pierce_extent', str(min(self.pierceList['Y']) if self.pierceList['Y'] else 0)])
+            RUN(['halcmd', 'setp', 'axisui.x_max_pierce_extent', str(max(self.pierceList['X']) if self.pierceList['X'] else 0)])
+            RUN(['halcmd', 'setp', 'axisui.y_max_pierce_extent', str(max(self.pierceList['Y']) if self.pierceList['Y'] else 0)])
+        else:
+            RUN(['halcmd', 'setp', 'qtplasmac.x_min_pierce_extent', str(min(self.pierceList['X']) if self.pierceList['X'] else 0)])
+            RUN(['halcmd', 'setp', 'qtplasmac.y_min_pierce_extent', str(min(self.pierceList['Y']) if self.pierceList['Y'] else 0)])
+            RUN(['halcmd', 'setp', 'qtplasmac.x_max_pierce_extent', str(max(self.pierceList['X']) if self.pierceList['X'] else 0)])
+            RUN(['halcmd', 'setp', 'qtplasmac.y_max_pierce_extent', str(max(self.pierceList['Y']) if self.pierceList['Y'] else 0)])
         # error and warning notifications
-        if self.codeError or self.codeWarn: # show errors if any
+        if self.codeError or self.codeWarn:  # show errors if any
             self.write_errors()
-        else: # create empty error file if no errors
-            with open(self.errorFile, 'w') as errFile:
+        else:  # create empty error file if no errors
+            with open(self.errorFile, 'w'):
                 pass
         # write the final g-code
         self.write_gcode()
+
+
+    def log(self, text):
+        ''' helpful for debugging '''
+        with open('/tmp/qtplasmac/filter.log', 'a') as logger:
+            logger.write(f"{text}\n")
+
 
     def process_file(self):
         ''' process the file and parse any lines of code
         '''
         with open(self.inFile, 'r') as inLines:
-            if ';qtplasmac filtered G-code file' in inLines.read():
-                self.filtered = True
-            inLines.seek(0)
+            lines = inLines.readlines()
+            text = ';qtplasmac filtered G-code file\n'
+            # no need to process an already filtered file
+            if text in lines:
+                for line in lines:
+                    self.gcodeList.append(line.strip())
+                return
+        with open(self.inFile, 'r') as inLines:
             for line in inLines:
                 self.lineNum += 1
                 self.lineNumOrg += 1
+                # if conversational block header is found on any line other than #1 then it is an error
+                if ';conversational block' in line and self.lineNum > 1:
+                    self.gcodeList.append(line.strip())
+                    self.gcodeList.append('; move the line above to line #1\n')
+                    self.set_code_error()
+                    self.errorBlockHead.append(self.lineNum)
+                    self.errorLines.append(self.lineNumOrg)
+                    return
                 # allow custom processing before standard processing
                 if self.cfFile:
                     line = self.custom_pre_process(line)
                     if not line:
                         continue
-                # if original is already filtered there is no need to process again
-                if self.filtered:
-                    if not ';qtplasmac filtered G-code file' in line:
-                        self.gcodeList.append(line.rstrip())
-                    continue
-                # check if original is a conversational block
-                if line.startswith(';conversational block'):
-                    self.convBlock = True
-                    RUN(['halcmd', 'setp', self.convBlockPin, '1'])
                 # remove leading and trailing whitespace and trailing periods
                 line = line.strip().rstrip('.')
                 # if empty line then no need to process
@@ -199,6 +251,9 @@ class Filter():
                 # remove line numbers
                 if line[0] in 'nN':
                     line = self.remove_line_numbers(line)
+                # remove lines with ;qtplasmac filtered G-code file
+                if ';qtplasmac filtered G-code file' in line:
+                    continue
                 # if any obvious illegal characters then comment the line
                 if line[0] != ';' and self.illegal_character(line):
                     continue
@@ -254,8 +309,9 @@ class Filter():
                         self.lastX, self.lastY = self.set_last_coordinates(line, self.lastX, self.lastY)
                     self.gcodeList.append(line)
 
+
     def parse_code(self, data):
-        #set g and m codes to upper case
+        # set g and m codes to upper case
         data = self.set_to_upper_case(data)
         # allow custom parsing before standard code parsing
         if self.cfFile:
@@ -265,7 +321,7 @@ class Filter():
         # set the current g-code
         self.lastG = self.set_last_gcode(data, self.lastG)
         # if data starts with axis then preface with last g-code
-        if data[0] in 'XYZAB':
+        if data[0] in 'XYZABC':
             data = f'G{self.lastG} {data}'
         # add leading 0's to G & M codes < 10
         tmp = ''
@@ -279,6 +335,23 @@ class Filter():
                         tmp += '0'
             data = data[1:]
         data = tmp
+        # get all G00 coordinates
+        if (data[:3] == 'G00' and ('X' in data or 'Y' in data)):
+            pierceX = self.lastX
+            pierceY = self.lastY
+            if 'X' in data and not self.check_math(data, 'X', 'pierce'):
+                pierceX = self.get_axis_value(data, 'X')
+            if 'Y' in data and not self.check_math(data, 'Y', 'pierce'):
+                pierceY = self.get_axis_value(data, 'Y')
+            self.pierceList['X'].append(pierceX)
+            self.pierceList['Y'].append(pierceY)
+            self.pierceList['active'] = True
+        # reset G00 active flag
+        if data[:3] == 'M03' and self.pierceList['active']:
+            self.pierceList['active'] = False
+        # disallow g92 offsets in gcode
+        if 'G92' in data and 'G92.1' not in data:
+            self.set_g92_detected()
         # if incremental distance mode fix overburn coordinates
         if data[:3] in ['G00', 'G01'] and self.distMode == 91 and (self.oBurnX or self.oBurnY) and not self.spotting:
             data = self.fix_overburn_incremental_coordinates(data)
@@ -292,10 +365,10 @@ class Filter():
         if 'G40' in data or 'G41' in data or 'G42' in data:
             data = self.set_g4x_offsets(data)
         # if z motion is to be kept
-        if data.replace(' ','').startswith('#<keep-z-motion>='):
+        if data.replace(' ', '').startswith('#<keep-z-motion>='):
             self.set_keep_z_motion(data)
         # remove any existing z max moves
-        if '[#<_ini[axis_z]max_limit>' in data:# and self.zSetup:
+        if '[#<_ini[axis_z]max_limit>' in data:  # and self.zSetup:
             return(None)
         # set first movement flag
         if not self.firstMove and (('G00' in data or 'G01' in data) and ('X' in data or 'Y' in data)):
@@ -312,13 +385,13 @@ class Filter():
             if not data:
                 return(None)
         # is this a scribe
-        if data.startswith('M03 $1 S'):
+        if data.startswith('M03 $1 S') and not self.tubeCut:
             self.set_scribing()
         # is this a spot
-        if data.startswith('M03 $2 S') and not self.pierceOnly:
+        if data.startswith('M03 $2 S') and not self.pierceOnly and not self.tubeCut:
             self.spotting = True
         # test for pierce only mode
-        elif data.replace(' ','').startswith('#<pierce-only>=1') or self.cutType == 1:
+        elif data.replace(' ', '').startswith('#<pierce-only>=1') or self.cutType == 1:
             self.set_pierce_mode()
         # set overcut length
         elif data.startswith('#<oclength>'):
@@ -336,6 +409,9 @@ class Filter():
         elif data.startswith('#<h_velocity>'):
             self.set_hole_velocity(data)
             return data
+        # tube cutting
+        if data.startswith('#<tube-cut>=1'):
+            data = self.set_tube_cut(data)
         # change material
         if data[:4] == 'M190':
             self.do_material_change(data)
@@ -343,22 +419,22 @@ class Filter():
         if 'M66' in data:
             self.material_change_wait()
         # set arc modes
-        if 'G90' in data and not 'G90.' in data:
-            self.distMode = 90 # absolute distance mode
-        elif 'G91' in data and not 'G91.' in data:
-            self.distMode = 91 # incremental distance mode
+        if 'G90' in data and 'G90.' not in data:
+            self.distMode = 90  # absolute distance mode
+        elif 'G91' in data and 'G91.' not in data:
+            self.distMode = 91  # incremental distance mode
         if 'G91.1' in data:
-            self.arcDistMode = 91.1 # incremental arc distance mode
+            self.arcDistMode = 91.1  # incremental arc distance mode
         elif 'G90.1' in data:
-            self.arcDistMode = 90.1 # absolute arc distance mode
+            self.arcDistMode = 90.1  # absolute arc distance mode
         # comment out z axis motion
         if 'Z' in data \
             and data.split('Z')[1][0] in '0123456789.- [' \
-            and not '[axis_z]max_limit' in data \
-            and not self.zBypass:
+                and '[axis_z]max_limit' not in data \
+                    and not self.zBypass:
             data = self.comment_z_commands(data)
         # check the feed rate
-        if 'F' in data:
+        if 'F' in data and not self.tubeCut:
             data = self.check_f_word(data)
         # if an arc command
         if (data[:3] == 'G02' or data[:3] == 'G03'):
@@ -422,8 +498,9 @@ class Filter():
                     tmp += d.upper()
         return tmp
 
-    def get_axis_value(self, data, axis):
-        tmp1 = data.split(axis)[1].replace(' ','')
+    def get_axis_value(self, data, axis, block=False):
+        tmp1 = data.split(axis)[1].replace(' ', '')
+        # if first char is not valid return None
         if not tmp1[0].isdigit() and not tmp1[0] == '.' and not tmp1[0] == '-':
             return None
         n = 0
@@ -442,43 +519,49 @@ class Filter():
         if data[0] in 'GXY':
             if 'X' in data:
                 if self.get_axis_value(data, 'X') is not None:
-                    if self.distMode == 91: # get absolute X from incremental X position
+                    if self.distMode == 91:  # get absolute X from incremental X position
                         Xpos += self.get_axis_value(data, 'X')
-                    else: # get absolute X
+                    else:  # get absolute X
                         Xpos = self.get_axis_value(data, 'X')
             if 'Y' in data:
                 if self.get_axis_value(data, 'Y') is not None:
-                    if self.distMode == 91: # get absolute Y from incremental Y position
+                    if self.distMode == 91:  # get absolute Y from incremental Y position
                         Ypos += self.get_axis_value(data, 'Y')
-                    else: # get absolute X
+                    else:  # get absolute X
                         Ypos = self.get_axis_value(data, 'Y')
         return Xpos, Ypos
 
-    def check_math(self, data, axis):
+    def check_math(self, data, axis, code='arc'):
         ''' check if math used or explicit values
         '''
         tmp1 = data.split(axis)[1]
         if tmp1.startswith('[') or tmp1.startswith('#'):
-            self.set_code_error()
-            if self.lineNum not in self.errorMath:
-                self.errorMath.append(self.lineNum)
-                self.errorLines.append(self.lineNumOrg)
+            if code == 'pierce':
+                self.codeWarn = True
+                if self.lineNum not in self.warnPierceLimit:
+                    self.warnPierceLimit.append(self.lineNum)
+                    self.errorLines.append(self.lineNumOrg)
+            else:
+                self.set_code_error()
+                if self.lineNum not in self.errorMath:
+                    self.errorMath.append(self.lineNum)
+                    self.errorLines.append(self.lineNumOrg)
             return True
         return False
 
     def illegal_character(self, data):
         ''' if illegal characters found then comment the line
         '''
-#FIXME 1 we could probably do more here
-#FIXME 2 not even sure we should bother with this
+# FIXME 1 we could probably do more here
+# FIXME 2 not even sure we should bother with this
 #        maybe just leave it to the interpreter
         code = data.replace(' ', '')
         err = 0
         # single character code with invalid character
-        if len(code) == 1  and code not in '/;%':
+        if len(code) == 1 and code not in '/;%':
             err = 1
         # comment is missing a parenthesis
-        elif ('(' in code and code[-1] != ')') or ((code[-1] == ')' and not '(' in code)):
+        elif ('(' in code and code[-1] != ')') or ((code[-1] == ')' and '(' not in code)):
             err = 2
         # line starts with two alpha characters
         elif code[0].isalpha() and code[1].isalpha():
@@ -493,14 +576,16 @@ class Filter():
             if '(' in code:
                 code = code.split('(')[0].strip()
             # parameter is missing equals sign
-            if not '=' in code:
+            if '=' not in code:
                 err = 5
             else:
                 try:
                     # left = parameter, right = value (we don't process right side yet)
                     left, right = code.split('=')
+                    # variable is not currently used
+                    del right
                     # named parameter is missing a chevron
-                    if left[0] == '<' and not '>' in left:
+                    if left[0] == '<' and '>' not in left:
                         err = 6
                     # numbered parameter is not a number
                     elif left[0] != '<' and not left.isdigit():
@@ -509,7 +594,7 @@ class Filter():
                     # parameter has no value
                     err = 8
         if err:
-            errs= [None]
+            errs = [None]
             errs.append('single character line with invalid character')
             errs.append('comment is missing a parenthesis')
             errs.append('line starts with two alpha characters')
@@ -567,7 +652,7 @@ class Filter():
         else:
             self.offsetG4x = True
             if 'kerf_width-f]>' in data and self.unitMultiplier != 1:
-                data = data.replace('#<_hal[qtplasmac.kerf_width-f]>', \
+                data = data.replace('#<_hal[qtplasmac.kerf_width-f]>',
                                     f'[#<_hal[qtplasmac.kerf_width-f]> * {self.unitMultiplier}]')
         return(data)
 
@@ -575,7 +660,7 @@ class Filter():
         self.firstMove = True
         if not self.zSetup and not self.zBypass:
             self.lineNum += 1
-            moveTopZ  = 'G53 G0 Z[[#<_ini[axis_z]max_limit> - '
+            moveTopZ = 'G53 G00 Z[[#<_ini[axis_z]max_limit> - '
             moveTopZ += f'{self.offsetTopZ}] * {self.unitMultiplier:.3f}]'
             moveTopZ += ' (Z just below max height)'
             self.gcodeList.append(moveTopZ)
@@ -584,6 +669,11 @@ class Filter():
     def set_no_first_move(self):
         self.set_code_error()
         self.errorFirstMove.append(self.lineNum)
+        self.errorLines.append(self.lineNumOrg)
+
+    def set_g92_detected(self):
+        self.set_code_error()
+        self.errorG92Offset.append(self.lineNum)
         self.errorLines.append(self.lineNumOrg)
 
     def set_default_blending(self):
@@ -613,7 +703,7 @@ class Filter():
     def do_pierce_only(self, data):
             if 'Z' in data \
                 and data.split('Z')[1][0] in '0123456789.- [' \
-            and not '[axis_z]max_limit' in data:
+                    and '[axis_z]max_limit' not in data:
                 data = self.comment_z_commands(data)
             # Don't pierce spotting operations
             if data[:6] == 'M03 $2':
@@ -634,11 +724,50 @@ class Filter():
             if self.scribePierce:
                 if data[:6] == 'M05 $1':
                     self.firstMove = False
-                    self.scribePierce= False
+                    self.scribePierce = False
                 return None
+            # set offsets for pierce X/Y coordinates
             if data[:3] == 'G00':
+                idx, brackets, start, end = 0, 0, 0, 0
+                tmp = ''
+                for axis in 'XY':
+                    if axis in data:
+                        if GUI == 'axis':
+                            offset = f"[#<_hal[axisui.{axis.lower()}-pierce-offset]> * {self.unitMultiplier}]"
+                        else:
+                            offset = f"[#<_hal[qtplasmac.{axis.lower()}_pierce_offset-f]> * {self.unitMultiplier}]"
+                        start = data.index(axis)
+                        tmp = data[:start]
+                        idx = start + 1
+                        while data[idx] == ' ':
+                            idx += 1
+                        if data[idx] == '[':
+                            while 1:
+                                if data[idx] == '[':
+                                    brackets += 1
+                                elif data[idx] == ']':
+                                    brackets -= 1
+                                if not brackets:
+                                    end = idx
+                                    break
+                                idx += 1
+                                if idx == len(data):
+                                    break
+                            data = f"{tmp}{data[start]}[{data[start+1:end+1]} + {offset}]{data[end+1:]}"
+                        else:
+                            while 1:
+                                if data[idx] in 'XYZABC ':
+                                    if '2.3652' in data:
+                                        print(f';idx:{idx}   char:{data[idx]}')
+                                    break
+                                idx += 1
+                                if idx == len(data):
+                                    break
+                            end = idx
+                            data = f"{tmp}{data[start]}[{data[start+1:end]} + {offset}]{data[end:]}"
                 self.rapidLine = data
                 return None
+            # create the pierce only gcode
             elif data[:3] == 'M03':
                 self.pierces += 1
                 self.gcodeList.append(f'(Pierce #{self.pierces})')
@@ -649,7 +778,7 @@ class Filter():
                 self.gcodeList.append('G90\nM05 $0')
                 self.rapidLine = ''
                 return None
-            if not self.pierces or data.startswith('o') or data.startswith('#'):
+            if not self.pierces or data.startswith('O') or data.startswith('#'):
                 self.gcodeList.append(data)
             return None
 
@@ -699,7 +828,7 @@ class Filter():
 
     def check_f_word(self, data):
         begin, inFeed = data.split('F', 1)
-        inFeed = inFeed.replace(' ','')
+        inFeed = inFeed.replace(' ', '')
         # if feed rate from material file
         if inFeed.startswith('#<_hal[plasmac.cut-feed-rate]>'):
             # change feed rate if g-code file not in same units as machine units
@@ -723,6 +852,14 @@ class Filter():
             self.codeWarn = True
             self.warnFeed.append([self.lineNum, rawFeed, self.currentMaterial[0], self.materialDict[self.currentMaterial[0]][0]])
             self.errorLines.append(self.lineNumOrg)
+        return data
+
+    def set_tube_cut(self, data):
+        self.tubeCut = True
+        self.zBypass = True
+        RUN(['halcmd', 'setp', 'plasmac.tube-cut', '1'])
+        self.lineNum += 3
+        data = f'\n;tube cutting is experimental\n{data}\n'
         return data
 
     def spindle_off(self, data):
@@ -770,7 +907,6 @@ class Filter():
             self.tmpPath = '/tmp/plasmac'
             self.cutTypePin = 'axisui.cut-type'
             self.matNumPin = 'axisui.material-change-number'
-            self.convBlockPin = 'axisui.conv-block-loaded'
             self.matTmpPin = 'axisui.material-temp'
             self.matReloadPin = 'axisui.material-reload'
         else:
@@ -778,33 +914,37 @@ class Filter():
             self.tmpPath = '/tmp/qtplasmac'
             self.cutTypePin = 'qtplasmac.cut_type'
             self.matNumPin = 'qtplasmac.material_change_number'
-            self.convBlockPin = 'qtplasmac.conv_block_loaded'
             self.matTmpPin = 'qtplasmac.material_temp'
             self.matReloadPin = 'qtplasmac.material_reload'
-
 
 ##############################################################################
 # HOLES AND ARCS
 ##############################################################################
     def do_arc(self, data):
-        if self.holeEnable and not self.convBlock:
+        if self.holeEnable:
             stop = False
             # check if we can read the values correctly
-            if 'X' in data: stop = self.check_math(data, 'X')
-            if 'Y' in data and not stop: stop = self.check_math(data, 'Y')
-            if 'I' in data and not stop: stop = self.check_math(data, 'I')
-            if 'J' in data and not stop: stop = self.check_math(data, 'J')
+            if 'X' in data:
+                stop = self.check_math(data, 'X')
+            if 'Y' in data and not stop:
+                stop = self.check_math(data, 'Y')
+            if 'I' in data and not stop:
+                stop = self.check_math(data, 'I')
+            if 'J' in data and not stop:
+                stop = self.check_math(data, 'J')
             if not stop:
                 data = self.check_if_hole(data)
         return(data)
 
     def set_overcut_length(self, data):
-        if not '=' in data: return
+        if '=' not in data:
+            return
         self.ocLength = float(data.split('=')[1])
         self.customLen = True
 
     def set_hole_type(self, data):
-        if not '=' in data: return
+        if '=' not in data:
+            return
         hT = int(data.split('=')[1])
         hE = [None, True, True, True, True, False]
         aE = [None, False, False, True, True, False]
@@ -814,7 +954,8 @@ class Filter():
         self.overCut = oC[hT]
 
     def set_hole_diameter(self, data):
-        if not '=' in data: return
+        if '=' not in data:
+            return
         self.minDiameter = float(data.split('=')[1])
         self.customDia = True
         # m_diameter and i_diameter are kept for legacy purposes, they may be removed in future
@@ -824,23 +965,28 @@ class Filter():
             self.errorLines.append(self.lineNumOrg)
 
     def set_hole_velocity(self, data):
-        if not '=' in data: return
+        if '=' not in data:
+            return
         self.holeVelocity = float(data.split('=')[1])
 
     def check_if_hole(self, data):
         I, J, isHole = 0, 0, 0
-        if self.distMode == 91: # get absolute X & Y from incremental coordinates
+        if self.distMode == 91:  # get absolute X & Y from incremental coordinates
             endX = self.lastX + self.get_axis_value(data, 'X') if 'X' in data else self.lastX
             endY = self.lastY + self.get_axis_value(data, 'Y') if 'Y' in data else self.lastY
-        else: # get absolute X & Y
+        else:  # get absolute X & Y
             endX = self.get_axis_value(data, 'X') if 'X' in data else self.lastX
             endY = self.get_axis_value(data, 'Y') if 'Y' in data else self.lastY
-        if self.arcDistMode == 90.1: # convert I & J to incremental to make diameter calculations easier
-            if 'I' in data: I = self.get_axis_value(data, 'I') - self.lastX
-            if 'J' in data: J = self.get_axis_value('J') - self.lastY
-        else: # get incremental I & J
-            if 'I' in data: I = self.get_axis_value(data, 'I')
-            if 'J' in data: J = self.get_axis_value(data, 'J')
+        if self.arcDistMode == 90.1:  # convert I & J to incremental to make diameter calculations easier
+            if 'I' in data:
+                I = self.get_axis_value(data, 'I') - self.lastX
+            if 'J' in data:
+                J = self.get_axis_value('J') - self.lastY
+        else:  # get incremental I & J
+            if 'I' in data:
+                I = self.get_axis_value(data, 'I')
+            if 'J' in data:
+                J = self.get_axis_value(data, 'J')
         if self.lastX and self.lastY and self.lastX == endX and self.lastY == endY:
             isHole = True
         diameter = self.get_hole_diameter(data, I, J, isHole)
@@ -850,7 +996,6 @@ class Filter():
             self.lastX = endX
             self.lastY = endY
         return(data)
-
 
     def get_hole_diameter(self, data, I, J, isHole):
         ''' get hole diameter and set the velocity percentage
@@ -906,12 +1051,12 @@ class Filter():
         else:
             data = f'{data}\nM62 P3 (disable torch)'
             self.torchEnable = False
-        #clockwise arc
+        # clockwise arc
         if data[:3] == 'G02':
             X = centerX + radius * ((cosB * cosA) + (sinB * sinA))
             Y = centerY + radius * ((sinB * cosA) - (cosB * sinA))
             G = '02'
-        #counterclockwise arc
+        # counterclockwise arc
         else:
             X = centerX + radius * ((cosB * cosA) - (sinB * sinA))
             Y = centerY + radius * ((sinB * cosA) + (cosB * sinA))
@@ -923,9 +1068,9 @@ class Filter():
             J += self.lastY
         self.oBurnX = X - self.lastX
         self.oBurnY = Y - self.lastY
-        if self.distMode == 91: # output incremental X & Y
+        if self.distMode == 91:  # output incremental X & Y
             data = f'{data}\nG{G} X{self.oBurnX:0.{self.fmt}f} Y{self.oBurnY:0.{self.fmt}f} I{I:0.{self.fmt}f} J{J:0.{self.fmt}f} (overburn)'
-        else: # output absolute X & Y
+        else:  # output absolute X & Y
             data = f'{data}\nG{G} X{X:0.{self.fmt}f} Y{Y:0.{self.fmt}f} I{I:0.{self.fmt}f} J{J:0.{self.fmt}f} (overburn)'
         return(data)
 
@@ -952,10 +1097,10 @@ class Filter():
         else:
             return data
 
-
 ##############################################################################
 # MATERIAL HANDLING
 ##############################################################################
+
     def do_material_change(self, data):
         code = data.replace('M190', '').strip()
         # check for missing p or material
@@ -966,7 +1111,7 @@ class Filter():
             return
         # get the material number
         try:
-            num = int(code.replace('P',''))
+            num = int(code.replace('P', ''))
         except:
             num = -2
         if num < -1:
@@ -999,8 +1144,11 @@ class Filter():
         cm = 1
         ca = 15
         cv = 100
+        if self.tubeCut:
+            ph = ch = fr = 0.0
         try:
-            if 'ph=' in data and 'pd=' in data and 'ch=' in data and 'fr=' in data:
+            if ('ph=' in data and 'pd=' in data and 'ch=' in data and 'fr=' in data) or \
+               ('pd=' in data and self.tubeCut):
                 if '(o=0' in data:
                     tmpMaterial = True
                     nu = self.tmpMatNum
@@ -1057,7 +1205,7 @@ class Filter():
                             gp = float(item.split('=')[1])
                         elif 'cm=' in item:
                             cm = float(item.split('=')[1])
-                    for i in [nu,na,kw,th,ph,pd,jh,jd,ch,fr,ca,cv,pe,gp,cm]:
+                    for i in [nu, na, kw, th, ph, pd, jh, jd, ch, fr, ca, cv, pe, gp, cm]:
                         newMaterial.append(i)
                     if newMaterial[0] == 0:
                         self.set_temporary_material(newMaterial)
@@ -1071,6 +1219,10 @@ class Filter():
                     self.set_code_error()
                     self.errorEditMat.append(self.lineNum)
                     self.errorLines.append(self.lineNumOrg)
+            else:
+                self.set_code_error()
+                self.errorTempParm.append(self.lineNum)
+                self.errorLines.append(self.lineNumOrg)
         except:
             self.set_code_error()
             self.errorTempValid.append(self.lineNum)
@@ -1090,7 +1242,7 @@ class Filter():
                 self.warnMatLoad.append(self.lineNum)
                 self.errorLines.append(self.lineNumOrg)
                 break
-            response = RUN(['halcmd', 'getp', self.matTmpPin], capture_output = True)
+            response = RUN(['halcmd', 'getp', self.matTmpPin], capture_output=True)
             if not int(response.stdout.decode()):
                 break
 
@@ -1112,7 +1264,7 @@ class Filter():
                 self.write_one_material(newMaterial, outFile, self.errorWriteMat)
                 break
             if data.strip().startswith('[MATERIAL_NUMBER_'):
-                mNum = int(data.split('NUMBER_')[1].replace(']',''))
+                mNum = int(data.split('NUMBER_')[1].replace(']', ''))
                 if mNum == newMaterial[1]:
                     self.write_one_material(newMaterial, outFile, self.errorWriteMat)
             if mNum != newMaterial[1]:
@@ -1133,7 +1285,7 @@ class Filter():
                 self.warnMatLoad.append(self.lineNum)
                 self.errorLines.append(self.lineNumOrg)
                 break
-            response = RUN(['halcmd', 'getp', self.matReloadPin], capture_output = True)
+            response = RUN(['halcmd', 'getp', self.matReloadPin], capture_output=True)
             if not int(response.stdout.decode()):
                 break
 
@@ -1198,7 +1350,6 @@ class Filter():
             self.errorReadMat.append(self.lineNum)
             self.errorLines.append(self.lineNumOrg)
 
-
 ##############################################################################
 # ERROR AND WARNING MESSAGING
 ##############################################################################
@@ -1217,61 +1368,81 @@ class Filter():
         if self.codeError:
             print('M02 (end program)')
             if self.errorMath:
-                msg  = 'G02 and G03 moves require explicit values if hole sensing is enabled.\n'
+                msg = 'G02 and G03 moves require explicit values if hole sensing is enabled.\n'
                 errorText += self.message_set(self.errorMath, msg)
             if self.errorMissMat:
-                msg  = 'The Material selected is missing from the material file.\n'
+                msg = 'The Material selected is missing from the material file.\n'
                 errorText += self.message_set(self.errorMissMat, msg)
             if self.errorNoMat:
-                msg  = 'A Material was not specified after M190.\n'
+                msg = 'A Material was not specified after M190.\n'
                 errorText += self.message_set(self.errorNoMat, msg)
             if self.errorBadMat:
-                msg  = 'An invalid Material was specified after M190 P.\n'
+                msg = 'An invalid Material was specified after M190 P.\n'
                 errorText += self.message_set(self.errorBadMat, msg)
             if self.errorTempMat:
-                msg  = 'Error attempting to add a temporary material.\n'
+                msg = 'Error attempting to add a temporary material.\n'
                 errorText += self.message_set(self.errorTempMat, msg)
             if self.errorTempValid:
-                msg  = 'Invalid parameter in temporary material.\n'
+                msg = 'Invalid parameter in temporary material.\n'
                 errorText += self.message_set(self.errorTempValid, msg)
+            if self.errorTempParm:
+                msg = 'Parameter missing from temporary material.\n'
+                errorText += self.message_set(self.errorTempParm, msg)
             if self.errorNewMat:
-                msg  = 'Cannot add new material, number is in use.\n'
+                msg = 'Cannot add new material, number is in use.\n'
                 errorText += self.message_set(self.errorNewMat, msg)
             if self.errorEditMat:
-                msg  = 'Cannot add or edit material from G-Code file with invalid parameter or value.\n'
+                msg = 'Cannot add or edit material from G-Code file with invalid parameter or value.\n'
                 errorText += self.message_set(self.errorEditMat, msg)
             if self.errorWriteMat:
-                msg  = 'Error attempting to write to the material file.\n'
+                msg = 'Error attempting to write to the material file.\n'
                 errorText += self.message_set(self.errorWriteMat, msg)
             if self.errorReadMat:
-                msg  = 'Error attempting to read from the material file.\n'
+                msg = 'Error attempting to read from the material file.\n'
                 errorText += self.message_set(self.errorReadMat, msg)
             if self.errorCompMat:
-                msg  = 'Cannot validate a material change with cutter compensation active.\n'
+                msg = 'Cannot validate a material change with cutter compensation active.\n'
                 errorText += self.message_set(self.errorCompMat, msg)
             if self.errorFirstMove:
-                msg  = 'M03 command detected before movement.\n'
+                msg = 'M03 command detected before movement.\n'
                 errorText += self.message_set(self.errorFirstMove, msg)
+            if self.errorG92Offset:
+                msg = 'G92 offsets are not allowed.\n'
+                errorText += self.message_set(self.errorG92Offset, msg)
+            if self.errorBlockHead:
+                if self.errorLines[0] == 0:
+                    msg = 'Conversational block header is invalid.\n'
+                    errorText += self.message_set(self.errorBlockHead, msg)
+                else:
+                    errorText = f'Conversational block header must be line 1, it is currently line {self.errorLines[0]}:\n'
+            if self.errorBlockFormat:
+                msg = 'Conversational block code format is inconsistant with header or is invalid.\n'
+                errorText += self.message_set(self.errorBlockFormat, msg)
+                errorText = msg
         if self.codeWarn:
             if self.warnUnitsDep:
-                msg  = '<m_diameter> and #<i_diameter> are deprecated in favour of #<h_diameter>.\n'
+                msg = '<m_diameter> and #<i_diameter> are deprecated in favour of #<h_diameter>.\n'
                 msg += 'The diameter will be set in the current units of the G-Code file.\n'
                 warnText += self.message_set(self.warnUnitsDep, msg)
             if self.warnPierceScribe:
-                msg  = 'Pierce only mode is invalid while scribing.\n'
+                msg = 'Pierce only mode is invalid while scribing.\n'
                 warnText += self.message_set(self.warnPierceScribe, msg)
+            if self.warnPierceLimit:
+                msg = 'Pierce limit checks require explicit X and Y values (no math) for G00 moves.\n'
+                msg += 'Pierce points will be disregarded in G-Code limit checking.\n'
+                warnText += self.message_set(self.warnPierceLimit, msg)
             if self.warnMatLoad:
-                msg  = 'Materials were not reloaded in a timely manner.\n'
-                msg  = 'Try reloading the G-Code file.\n'
+                msg = 'Materials were not reloaded in a timely manner.\n'
+                msg = 'Try reloading the G-Code file.\n'
                 warnText += self.message_set(self.warnMatLoad, msg)
             if self.warnHoleDir:
-                msg  = 'This cut appears to be a hole, did you mean to cut it clockwise?\n'
+                msg = 'This cut appears to be a hole, did you mean to cut it clockwise?\n'
                 warnText += self.message_set(self.warnHoleDir, msg)
             if self.warnCompTorch:
-                msg  = 'Cannot enable/disable torch with G41/G42 compensation active.\n'
+                msg = 'Cannot enable/disable torch with G41/G42 compensation active.\n'
                 warnText += self.message_set(self.warnCompTorch, msg)
             if self.warnCompVel:
-                msg  = 'Cannot reduce velocity with G41/G42 compensation active.\n'
+                msg = 'Cannot reduce velocity with G41/G42 compensation active.\n'
                 warnText += self.message_set(self.warnCompVel, msg)
             if self.warnFeed:
                 for n in range(0, len(self.warnFeed)):
@@ -1280,7 +1451,7 @@ class Filter():
                     msg2 = 'feed rate of '
                     warnText += f'{msg0} {self.warnFeed[n][0]:0.0f}: F{self.warnFeed[n][1]} {msg1}_{self.warnFeed[n][2]}\'s {msg2} {self.warnFeed[n][3]:0.0f}\n'
             if self.warnChar:
-                msg  = 'Invalid characters, data has been commented out.\n'
+                msg = 'Invalid characters, data has been commented out.\n'
                 warnText += self.message_set(self.warnChar, msg)
         self.dialog.dialog_box(self, 'G-Code Errors & Warnings', errorText, warnText)
 
@@ -1310,14 +1481,14 @@ class qtGui():
         scroll = QScrollArea(dlg)
         widget = QWidget()
         vbox = QVBoxLayout()
-        labelN = QLabel(objectName = 'labelN')
-        lineE = QFrame(objectName = 'lineE')
+        labelN = QLabel(objectName='labelN')
+        lineE = QFrame(objectName='lineE')
         lineE.setFrameShape(QFrame.HLine)
-        labelE1 = QLabel(objectName = 'labelE1')
+        labelE1 = QLabel(objectName='labelE1')
         labelE2 = QLabel()
-        lineW = QFrame(objectName = 'lineW')
+        lineW = QFrame(objectName='lineW')
         lineW.setFrameShape(QFrame.HLine)
-        labelW1 = QLabel(objectName = 'labelW1')
+        labelW1 = QLabel(objectName='labelW1')
         labelW2 = QLabel()
         vbox.addWidget(labelN)
         vbox.addWidget(lineE)
@@ -1339,9 +1510,9 @@ class qtGui():
         scroll.setWidgetResizable(True)
         scroll.setWidget(widget)
         scroll.setGeometry(5, 5, 590, 250)
-        btn.move(270,260)
+        btn.move(270, 260)
         btn.clicked.connect(dlg.accept)
-        notice  = 'If the G-code editor is used to resolve the following issues, the lines with errors\n'
+        notice = 'If the G-code editor is used to resolve the following issues, the lines with errors\n'
         notice += 'will be highlighted. The data numbers may differ from what is shown below.\n\n'
         labelN.setText(notice)
         if errorText:
@@ -1384,6 +1555,9 @@ class qtGui():
                         #labelE1, #labelW1 {{font-weight:bold}}')
         dlg.exec()
 
+        # prevents linter complaints
+        return app
+
 
 class tkGui():
     def dialog_box(self, parent, title, errorText, warnText):
@@ -1401,7 +1575,7 @@ class tkGui():
         lbl = Label(text=title)
         lbl.grid(row=0, column=0, columnspan=2, sticky='EW')
         txt = Text(dlg, padx=4, pady=4)
-        txt.grid(row=1, column=0, sticky='EW', padx=[4,0])
+        txt.grid(row=1, column=0, sticky='EW', padx=[4, 0])
         sbr = Scrollbar(dlg, orient='vertical', command=txt.yview)
         sbr.grid(row=1, column=1, sticky='NS')
         txt['yscrollcommand'] = sbr.set
@@ -1417,7 +1591,7 @@ class tkGui():
             text += line
             text += 'WARNINGS:\n'
             text += warnText
-        txt.insert('end',text)
+        txt.insert('end', text)
         txt['state'] = 'disabled'
         fgColor, bgColor, tColor = None, None, None
         with open(parent.prefsFile, 'r') as inFile:

@@ -170,6 +170,9 @@ void NML::operator delete(void *nml_space)
 *  later if the constructor returned before creating the objects
 *  the pointers are intended to point at.
 ******************************************************************/
+// Cppcheck 2.10 cannot see that a function called from the constructor
+// does the initialization.
+// cppcheck-suppress uninitMemberVar
 NML::NML(NML_FORMAT_PTR f_ptr, const char *buf, const char *proc, const char *file,
     const int set_to_server, const int set_to_master)
 {
@@ -187,7 +190,6 @@ NML::NML(NML_FORMAT_PTR f_ptr, const char *buf, const char *proc, const char *fi
     else {
 	rtapi_strlcpy(cfgfilename, file, 160);
     }
-    snprintf(cfgfilename, 160, "%s", file);
 
     if (rcs_errors_printed >= max_rcs_errors_to_print
 	&& max_rcs_errors_to_print > 0 && nml_reset_errors_printed) {
@@ -414,21 +416,19 @@ NML::NML(const char *buf, const char *proc, const char *file, const int set_to_s
     cms_status = (int *) &(cms->status);
     cms_inbuffer_header_size = &(cms->header.in_buffer_size);
 
-    if (NULL != cms) {
-	char *forced_type_eq = strstr(cms->buflineupper, "FORCE_TYPE=");
-	if (forced_type_eq != NULL) {
-	    long temp = 0;
-	    temp = strtol(forced_type_eq + 11, NULL, 0);
-	    if (temp > 0) {
-		forced_type = temp;
-		fast_mode = 0;
-	    }
-	}
-	char *brpi_eq = strstr(cms->buflineupper, "BRPI=");
-	if (brpi_eq != NULL) {
-	    blocking_read_poll_interval = strtod(brpi_eq + 5, NULL);
-	}
+    char *forced_type_eq = strstr(cms->buflineupper, "FORCE_TYPE=");
+    if (forced_type_eq != NULL) {
+        long temp = 0;
+        temp = strtol(forced_type_eq + 11, NULL, 0);
+        if (temp > 0) {
+	    forced_type = temp;
+        fast_mode = 0;
+        }
     }
+    char *brpi_eq = strstr(cms->buflineupper, "BRPI=");
+    if (brpi_eq != NULL) {
+        blocking_read_poll_interval = strtod(brpi_eq + 5, NULL);
+}
 
 }
 
@@ -522,23 +522,20 @@ NML::NML(const char * buffer_line, const char * proc_line)
     }
     cms_status = (int *) &(cms->status);
     cms_inbuffer_header_size = &(cms->header.in_buffer_size);
-    if (NULL != cms) {
-	char *forced_type_eq = strstr(cms->buflineupper, "FORCE_TYPE=");
-	if (forced_type_eq != NULL) {
-	    long temp = 0;
-	    temp = strtol(forced_type_eq + 11, NULL, 0);
-	    if (temp > 0) {
-		forced_type = temp;
-		fast_mode = 0;
-	    }
-	}
-	char *brpi_eq = strstr(cms->buflineupper, "BRPI=");
-	if (brpi_eq != NULL) {
-	    blocking_read_poll_interval = strtod(brpi_eq + 5, NULL);
-	}
-	register_with_server();
+    char *forced_type_eq = strstr(cms->buflineupper, "FORCE_TYPE=");
+    if (forced_type_eq != NULL) {
+        long temp = 0;
+        temp = strtol(forced_type_eq + 11, NULL, 0);
+        if (temp > 0) {
+            forced_type = temp;
+            fast_mode = 0;
+        }
     }
-
+    char *brpi_eq = strstr(cms->buflineupper, "BRPI=");
+    if (brpi_eq != NULL) {
+        blocking_read_poll_interval = strtod(brpi_eq + 5, NULL);
+    }
+    register_with_server();
 }
 
 /***************************************************************
@@ -637,7 +634,7 @@ NML::NML(NML * nml_ptr, const int set_to_server, const int set_to_master)
     }
     if (!ignore_format_chain) {
 	format_chain = new LinkedList;
-	if ((NULL != nml_ptr->format_chain) && (NULL != format_chain)) {
+	if (NULL != nml_ptr && NULL != nml_ptr->format_chain) {
 	    LinkedList *from, *to;
 	    NML_FORMAT_PTR format_func_ptr;
 	    from = nml_ptr->format_chain;
@@ -1051,13 +1048,13 @@ NMLTYPE NML::read()
 	case CMS_READ_OLD:
 	    return (0);
 	case CMS_READ_OK:
-	    if (((NMLmsg *) cms->subdiv_data)->type <= 0 && !cms->isserver) {
+	    if (((NMLmsg *) cms->subdiv_data)->_type <= 0 && !cms->isserver) {
 		rcs_print_error
 		    ("NML: New data received but type of %d is invalid.\n",
-		    (int)((NMLmsg *) cms->subdiv_data)->type);
+		    (int)((NMLmsg *) cms->subdiv_data)->_type);
 		return -1;
 	    }
-	    return (((NMLmsg *) cms->subdiv_data)->type);
+	    return (((NMLmsg *) cms->subdiv_data)->_type);
 
 	default:
 	    set_error();
@@ -1104,13 +1101,13 @@ NMLTYPE NML::read()
 	return (0);
     case CMS_READ_OK:
 	error_type = NML_NO_ERROR;
-	if (((NMLmsg *) cms->subdiv_data)->type <= 0 && !cms->isserver) {
+	if (((NMLmsg *) cms->subdiv_data)->_type <= 0 && !cms->isserver) {
 	    rcs_print_error
 		("NML: New data received but type of %d is invalid.\n",
-		(int)((NMLmsg *) cms->subdiv_data)->type);
+		(int)((NMLmsg *) cms->subdiv_data)->_type);
 	    return -1;
 	}
-	return (((NMLmsg *) cms->subdiv_data)->type);
+	return (((NMLmsg *) cms->subdiv_data)->_type);
 
     default:
 	set_error();
@@ -1144,13 +1141,13 @@ NMLTYPE NML::blocking_read(double blocking_timeout)
 	case CMS_READ_OLD:
 	    return (0);
 	case CMS_READ_OK:
-	    if (((NMLmsg *) cms->subdiv_data)->type <= 0 && !cms->isserver) {
+	    if (((NMLmsg *) cms->subdiv_data)->_type <= 0 && !cms->isserver) {
 		rcs_print_error
 		    ("NML: New data received but type of %d is invalid.\n",
-		    (int)((NMLmsg *) cms->subdiv_data)->type);
+		    (int)((NMLmsg *) cms->subdiv_data)->_type);
 		return -1;
 	    }
-	    return (((NMLmsg *) cms->subdiv_data)->type);
+	    return (((NMLmsg *) cms->subdiv_data)->_type);
 	case CMS_TIMED_OUT:
 	    error_type = NML_NO_ERROR;
 	    return 0;
@@ -1226,13 +1223,13 @@ NMLTYPE NML::blocking_read(double blocking_timeout)
     case CMS_READ_OLD:
 	return (0);
     case CMS_READ_OK:
-	if (((NMLmsg *) cms->subdiv_data)->type <= 0 && !cms->isserver) {
+	if (((NMLmsg *) cms->subdiv_data)->_type <= 0 && !cms->isserver) {
 	    rcs_print_error
 		("NML: New data received but type of %d is invalid.\n",
-		(int)((NMLmsg *) cms->subdiv_data)->type);
+		(int)((NMLmsg *) cms->subdiv_data)->_type);
 	    return -1;
 	}
-	return (((NMLmsg *) cms->subdiv_data)->type);
+	return (((NMLmsg *) cms->subdiv_data)->_type);
     case CMS_TIMED_OUT:
 	error_type = NML_NO_ERROR;
 	return 0;
@@ -1328,13 +1325,13 @@ NMLTYPE NML::peek()
 	case CMS_READ_OLD:
 	    return (0);
 	case CMS_READ_OK:
-	    if (((NMLmsg *) cms->subdiv_data)->type <= 0 && !cms->isserver) {
+	    if (((NMLmsg *) cms->subdiv_data)->_type <= 0 && !cms->isserver) {
 		rcs_print_error
 		    ("NML: New data received but type of %d is invalid.\n",
-		    (int)((NMLmsg *) cms->subdiv_data)->type);
+		    (int)((NMLmsg *) cms->subdiv_data)->_type);
 		return -1;
 	    }
-	    return (((NMLmsg *) cms->subdiv_data)->type);
+	    return (((NMLmsg *) cms->subdiv_data)->_type);
 
 	default:
 	    set_error();
@@ -1374,13 +1371,13 @@ NMLTYPE NML::peek()
     case CMS_READ_OLD:
 	return (0);
     case CMS_READ_OK:
-	if (((NMLmsg *) cms->subdiv_data)->type <= 0 && !cms->isserver) {
+	if (((NMLmsg *) cms->subdiv_data)->_type <= 0 && !cms->isserver) {
 	    rcs_print_error
 		("NML: New data received but type of %d is invalid.\n",
-		(int)((NMLmsg *) cms->subdiv_data)->type);
+		(int)((NMLmsg *) cms->subdiv_data)->_type);
 	    return -1;
 	}
-	return (((NMLmsg *) cms->subdiv_data)->type);
+	return (((NMLmsg *) cms->subdiv_data)->_type);
 
     default:
 	set_error();
@@ -1450,7 +1447,7 @@ int NML::format_output()
 	    if (forced_type > 0) {
 		new_type = forced_type;
 	    }
-	    ((NMLmsg *) cms->subdiv_data)->type = new_type;	/* Store type 
+	    ((NMLmsg *) cms->subdiv_data)->_type = new_type;	/* Store type
 								   in
 								   message. */
 	    ((NMLmsg *) cms->subdiv_data)->size = new_size;	/* Store size 
@@ -1498,12 +1495,12 @@ int NML::format_output()
 	    cms->rewind();	/* Move to the start of the encoded buffer. */
 
 	    /* Get the type and size from the message. */
-	    new_type = ((NMLmsg *) cms->subdiv_data)->type;
+	    new_type = ((NMLmsg *) cms->subdiv_data)->_type;
 	    new_size = ((NMLmsg *) cms->subdiv_data)->size;
 
 	    if (forced_type > 0) {
 		new_type = forced_type;
-		((NMLmsg *) cms->subdiv_data)->type = forced_type;
+		((NMLmsg *) cms->subdiv_data)->_type = forced_type;
 	    }
 
 	    /* Store the type and size in the encoded buffer. */
@@ -1555,7 +1552,7 @@ int NML::format_output()
 	return (-1);
     }
     if (forced_type > 0) {
-	((NMLmsg *) cms->subdiv_data)->type = forced_type;
+	((NMLmsg *) cms->subdiv_data)->_type = forced_type;
     }
 
     return (((int) cms->status < 0) ? -1 : 0);
@@ -1612,7 +1609,7 @@ int NML::write(NMLmsg * nml_msg, int *serial_number)
 	return (-1);
     }
 
-    if ((nml_msg->size == 0 || nml_msg->type == 0) && !cms->isserver) {
+    if ((nml_msg->size == 0 || nml_msg->_type == 0) && !cms->isserver) {
 	error_type = NML_INVALID_MESSAGE_ERROR;
 	rcs_print_error("NML::write: Message size or type is zero.\n");
 	rcs_print_error
@@ -1776,7 +1773,7 @@ int NML::write_if_read(NMLmsg * nml_msg, int *serial_number)
 	return (-1);
     }
 
-    if ((nml_msg->size == 0 || nml_msg->type == 0) && !cms->isserver) {
+    if ((nml_msg->size == 0 || nml_msg->_type == 0) && !cms->isserver) {
 	error_type = NML_INVALID_MESSAGE_ERROR;
 	rcs_print_error
 	    ("NML::write_if_read: Message size or type is zero.\n");
@@ -1872,7 +1869,7 @@ int NML::format_input(NMLmsg * nml_msg)
 	cms->format_high_ptr = cms->format_low_ptr + nml_msg->size;
 	/* Handle the generic part of the message. */
 	cms->rewind();		/* Move to the start of the encoded buffer. */
-	cms->update(nml_msg->type);	/* Store message type in encoded
+	cms->update(nml_msg->_type);	/* Store message type in encoded
 					   buffer. */
 	cms->update(nml_msg->size);	/* Store message size in encoded
 					   buffer. */
@@ -1885,7 +1882,7 @@ int NML::format_input(NMLmsg * nml_msg)
 	    }
 
 	    /* Run through list of format functions. */
-	    if (-1 == run_format_chain(nml_msg->type, nml_msg)) {
+	    if (-1 == run_format_chain(nml_msg->_type, nml_msg)) {
 		rcs_print_error("NMLwrite: format error\n");
 		if (verbose_nml_error_messages) {
 		    rcs_print_error("   (Buffer = %s, Process = %s)\n",
@@ -1914,7 +1911,7 @@ int NML::format_input(NMLmsg * nml_msg)
 	cms->format_high_ptr = cms->format_low_ptr + cms->size;
 
 	/* Store the new type and size in the raw message. */
-	((NMLmsg *) cms->subdiv_data)->type = new_type;
+	((NMLmsg *) cms->subdiv_data)->_type = new_type;
 	((NMLmsg *) cms->subdiv_data)->size = new_size;
 
 	/* Check the list of format functions. */
@@ -2081,13 +2078,14 @@ NMLTYPE NML::str2msg(const char *string)
 	return (0);
     case CMS_READ_OK:
 	error_type = NML_NO_ERROR;
-	return (((NMLmsg *) cms->subdiv_data)->type);
+	return (((NMLmsg *) cms->subdiv_data)->_type);
     case CMS_TIMED_OUT:
 	error_type = NML_TIMED_OUT;
 	return -1;
     case CMS_MISC_ERROR:
     case CMS_NO_MASTER_ERROR:
 	error_type = NML_INTERNAL_CMS_ERROR;
+	/* Fallthrough */
     default:
 	return -1;
     }
@@ -2395,11 +2393,6 @@ NMLTYPE NML::peek_subdivision(int subdiv)
 	}
     }
     return peek();
-}
-
-// This constructor declared private to prevent copying.
-NML::NML(NML & nml)
-{
 }
 
 NMLTYPE NML::blocking_read_extended(double timeout, double poll_interval)

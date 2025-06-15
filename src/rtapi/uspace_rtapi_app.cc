@@ -30,7 +30,6 @@
 #include <errno.h>
 #include <dlfcn.h>
 #include <signal.h>
-#include <iostream>
 #include <vector>
 #include <string>
 #include <map>
@@ -39,7 +38,6 @@
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <errno.h>
 #ifdef HAVE_SYS_IO_H
 #include <sys/io.h>
 #endif
@@ -99,6 +97,7 @@ static void set_namef(const char *fmt, ...) {
 
     va_start(ap, fmt);
     if (vasprintf(&buf, fmt, ap) < 0) {
+        va_end(ap);
         return;
     }
     va_end(ap);
@@ -111,7 +110,7 @@ static void set_namef(const char *fmt, ...) {
 }
 
 pthread_t queue_thread;
-void *queue_function(void *arg) {
+void *queue_function(void * /*arg*/) {
     set_namef("rtapi_app:mesg");
     // note: can't use anything in this function that requires App() to exist
     // but it's OK to use functions that aren't safe for realtime (that's the
@@ -147,7 +146,7 @@ static std::map<string, void*> modules;
 static int instance_count = 0;
 static int force_exit = 0;
 
-static int do_newinst_cmd(string type, string name, string arg) {
+static int do_newinst_cmd(const string& type, const string& name, const string& arg) {
     void *module = modules["hal_lib"];
     if(!module) {
         rtapi_print_msg(RTAPI_MSG_ERR,
@@ -271,7 +270,7 @@ static int do_comp_args(void *module, vector<string> args) {
     return 0;
 }
 
-static int do_load_cmd(string name, vector<string> args) {
+static int do_load_cmd(const string& name, const vector<string>& args) {
     void *w = modules[name];
     if(w == NULL) {
         char what[LINELEN+1];
@@ -315,7 +314,7 @@ static int do_load_cmd(string name, vector<string> args) {
     }
 }
 
-static int do_unload_cmd(string name) {
+static int do_unload_cmd(const string& name) {
     void *w = modules[name];
     if(w == NULL) {
         rtapi_print_msg(RTAPI_MSG_ERR, "%s: not loaded\n", name.c_str());
@@ -348,14 +347,21 @@ static int read_number(int fd) {
 
 static string read_string(int fd) {
     int len = read_number(fd);
-    char buf[len];
-    if(read(fd, buf, len) != len) throw ReadError();
-    return string(buf, len);
+    if(len < 0)
+        throw ReadError();
+    if(!len)
+        return string();
+    string str(len, 0);
+    if(read(fd, str.data(), len) != len)
+        throw ReadError();
+    return str;
 }
 
 static vector<string> read_strings(int fd) {
     vector<string> result;
     int count = read_number(fd);
+    if(count < 0)
+        return result;
     for(int i=0; i<count; i++) {
         result.push_back(read_string(fd));
     }
@@ -368,12 +374,12 @@ static void write_number(string &buf, int num) {
     buf = buf + numbuf;
 }
 
-static void write_string(string &buf, string s) {
+static void write_string(string &buf, const string& s) {
     write_number(buf, s.size());
     buf += s;
 }
 
-static void write_strings(int fd, vector<string> strings) {
+static void write_strings(int fd, const vector<string>& strings) {
     string buf;
     write_number(buf, strings.size());
     for(unsigned int i=0; i<strings.size(); i++) {
@@ -405,7 +411,7 @@ static int handle_command(vector<string> args) {
     }
 }
 
-static int slave(int fd, vector<string> args) {
+static int slave(int fd, const vector<string>& args) {
     try {
         write_strings(fd, args);
     }
@@ -451,7 +457,7 @@ static int callback(int fd)
 
 static pthread_t main_thread{};
 
-static int master(int fd, vector<string> args) {
+static int master(int fd, const vector<string>& args) {
     main_thread = pthread_self();
     int result;
     if((result = pthread_create(&queue_thread, nullptr, &queue_function, nullptr)) != 0) {
@@ -518,9 +524,12 @@ int main(int argc, char **argv) {
         int fallback_uid = fallback_uid_str ? atoi(fallback_uid_str) : 0;
         if(fallback_uid == 0)
         {
+	    // Cppcheck cannot see EMC2_BIN_DIR when RTAPI is defined, but that
+	    // doesn't happen in uspace.
             fprintf(stderr,
                 "Refusing to run as root without fallback UID specified\n"
                 "To run under a debugger with I/O, use e.g.,\n"
+                // cppcheck-suppress unknownMacro
                 "    sudo env RTAPI_UID=`id -u` RTAPI_FIFO_PATH=$HOME/.rtapi_fifo gdb " EMC2_BIN_DIR "/rtapi_app\n");
             exit(1);
         }
@@ -596,9 +605,11 @@ struct rtapi_module {
 #define MODULE_OFFSET 32768
 
 rtapi_task::rtapi_task()
-    : magic{}, id{}, owner{}, stacksize{}, prio{},
+    : magic{}, id{}, owner{}, uses_fp{}, stacksize{}, prio{},
       period{}, nextstart{},
-      ratio{}, arg{}, taskcode{}
+      ratio{}, pll_correction{}, pll_correction_limit{},
+      arg{}, taskcode{}
+
 {}
 
 namespace
@@ -657,7 +668,7 @@ struct Posix : RtapiApp
     void do_delay(long ns);
 };
 
-static void signal_handler(int sig, siginfo_t *si, void *uctx)
+static void signal_handler(int sig, siginfo_t * /*si*/, void * /*uctx*/)
 {
     switch (sig) {
     case SIGXCPU:
@@ -706,7 +717,22 @@ static void configure_memory()
                   "mallopt(M_MMAP_MAX, -1) failed\n");
     }
 #endif
-    char *buf = static_cast<char *>(malloc(PRE_ALLOC_SIZE));
+    /*
+     * The following code seems pointless, but there is a non-observable effect
+     * in the allocation and loop.
+     *
+     * The malloc() is forced to set brk() because mmap() allocation is
+     * disabled in a call to mallopt() above. All touched pages become resident
+     * and locked in the loop because of above mlockall() call (see notes in
+     * mlockall(2)). The mallopt() trim setting prevents the brk() from being
+     * reduced after free(), effectively creating an open space for future
+     * allocations that will not generate page faults.
+     *
+     * The qualifier 'volatile' on the buffer pointer is required because newer
+     * clang would remove the malloc(), for()-loop and free() completely.
+     * Marking 'buf' volatile ensures that the code will remain in place.
+     */
+    volatile char *buf = static_cast<volatile char *>(malloc(PRE_ALLOC_SIZE));
     if (buf == NULL) {
         rtapi_print_msg(RTAPI_MSG_WARN, "malloc(PRE_ALLOC_SIZE) failed\n");
         return;
@@ -719,7 +745,7 @@ static void configure_memory()
              * memory and never given back to the system. */
             buf[i] = 0;
     }
-    free(buf);
+    free((void *)buf);
 }
 
 static int harden_rt()
@@ -935,7 +961,7 @@ rtapi_task *RtapiApp::get_task(int task_id) {
     return task;
 }
 
-void RtapiApp::unexpected_realtime_delay(rtapi_task *task, int nperiod) {
+void RtapiApp::unexpected_realtime_delay(rtapi_task *task, int /*nperiod*/) {
     static int printed = 0;
     if(!printed)
     {
@@ -1154,6 +1180,7 @@ unsigned char Posix::do_inb(unsigned int port)
 #ifdef HAVE_SYS_IO_H
     return inb(port);
 #else
+    (void)port;
     return 0;
 #endif
 }
@@ -1162,6 +1189,9 @@ void Posix::do_outb(unsigned char val, unsigned int port)
 {
 #ifdef HAVE_SYS_IO_H
     return outb(val, port);
+#else
+    (void)val;
+    (void)port;
 #endif
 }
 

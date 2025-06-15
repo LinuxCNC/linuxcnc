@@ -1,0 +1,17 @@
+# not actually load but speed - good enough for demo
+net xload joint.0.vel-cmd    qtdragon.axis-x-load
+net zload joint.1.vel-cmd    qtdragon.axis-z-load
+
+net spindle-speed-limited qtdragon.spindle-rpm
+
+loadusr -Wn sim_panel qtvcp -a -g 200x300+0+100 -o hide=groupBoxSelection -o hide=groupBoxControl -o rates=.001,.01,.1 sim_panel
+net MPG sim_panel.MPG-s qtdragon.mpg-in
+net MPG axis.x.jog-counts
+net MPG axis.y.jog-counts
+net MPG axis.z.jog-counts
+
+net mpg-rate     axis.x.jog-scale   axis.y.jog-scale   axis.z.jog-scale    sim_panel.increments
+
+net mpg-x  qtdragon.axis-select-x-axis    axis.x.jog-enable
+#net mpg-y  qtdragon.axis-select-y-axis    axis.y.jog-enable
+net mpg-z  qtdragon.axis-select-z-axis    axis.z.jog-enable

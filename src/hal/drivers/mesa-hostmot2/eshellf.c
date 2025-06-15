@@ -27,7 +27,6 @@
 
 #include <rtapi.h>
 
-
 int shell(char *command)
 {
 	char *const argv[] = {"sh", "-c", command, NULL};

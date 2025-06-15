@@ -81,7 +81,7 @@ for such compliance.
 [Weblate]: https://hosted.weblate.org/projects/linuxcnc/
 [Website]: https://linuxcnc.org/
 
-[Ｄｏｃｕｍｅｎｔａｔｉｏｎ]: http://linuxcnc.org/docs/2.9/html/
-[Ｉｎｓｔａｌｌ]: http://linuxcnc.org/docs/2.9/html/getting-started/getting-linuxcnc.html
-[Ｂｕｉｌｄ]: http://linuxcnc.org/docs/2.9/html/code/building-linuxcnc.html
+[Ｄｏｃｕｍｅｎｔａｔｉｏｎ]: http://linuxcnc.org/docs/devel/html/
+[Ｉｎｓｔａｌｌ]: http://linuxcnc.org/docs/devel/html/getting-started/getting-linuxcnc.html
+[Ｂｕｉｌｄ]: http://linuxcnc.org/docs/devel/html/code/building-linuxcnc.html
 [License]: COPYING

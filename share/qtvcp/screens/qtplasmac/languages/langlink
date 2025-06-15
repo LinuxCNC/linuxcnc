@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# creates links to the Qt translation .qm filefor the 4x3 and 9x16 GUIs
+
+if [ $# -eq 0 ]; then
+    echo -e "\nlocale is missing\n"
+    exit
+elif [ ${#1} -ne 2 ]; then
+    echo -e "\nlocale needs to be two characters\n"
+    exit
+fi
+
+
+if [ ! -f "qtplasmac_$1.qm" ]
+then
+    echo -e "\nlanguage file qtplasmac_$1.qm does not exist\n"
+    exit
+else
+    echo -e "\ncreating links to qtplasmac_$1.qn translation for qtplasmac_4x3 and qtplasmac_9x16\n"
+    mkdir -p "../../qtplasmac_4x3/languages"
+    mkdir -p "../../qtplasmac_9x16/languages"
+    ln -rs "qtplasmac_$1.qm" -t ../../qtplasmac_4x3/languages
+    ln -rs "qtplasmac_$1.qm" -t ../../qtplasmac_9x16/languages
+    mv "../../qtplasmac_4x3/languages/qtplasmac_$1.qm" ../../qtplasmac_4x3/languages/qtplasmac_4x3_sk.qm
+    mv "../../qtplasmac_9x16/languages/qtplasmac_$1.qm" ../../qtplasmac_9x16/languages/qtplasmac_9x16_sk.qm
+fi

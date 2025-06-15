@@ -11,7 +11,6 @@ import OpenGL.GL as GL
 from OpenGL import GLU
 from qtvcp.lib.qt_vismach.primitives import *
 
-
 class Window(QWidget):
 
     def __init__(self):
@@ -87,7 +86,18 @@ class GLWidget(QOpenGLWidget):
 
         self.r_back = self.g_back = self.b_back = 0
 
+        self.colors = {
+        'DEFAULT': (1.0, 1.0, 0.0),
+        'TRAVERSE': (0.30, 0.50, 0.50),
+        'FEED': (1.00, 1.00, 1.00),
+        'ARC': (1.00, 1.00, 1.00),
+        'TOOLCHANGE': (1.00, 1.00, 1.00),
+        'PROBE': (1.00, 1.00, 1.00),
+        'ROTARYINDEX': (1.00, 1.00, 1.00),
+        }
+
         self.plotdata = []
+        self.plotColor = [1.0, 0.5, 0.5]
         self.plotlen = 16000
 
         # Where we are centering.
@@ -118,6 +128,36 @@ class GLWidget(QOpenGLWidget):
         self.timer = QTimer()
         self.timer.timeout.connect(self.update)
         self.timer.start(100)
+
+    def choosePlotColor(self, data):
+        # by name
+        if isinstance(data, str):
+            if not data.upper() in self.colors:
+                return
+            color = self.colors[data.upper()]
+            self.plotColor = color
+            return
+        # by integer 0-6
+        elif isinstance(data, int):
+            for n,i in enumerate(self.colors):
+                if n == data:
+                    color = self.colors[i]
+                    self.plotColor = color
+                    return
+
+    def setColorsAttribute(self,attr, color):
+        # by string
+        if isinstance(attr.upper(), str):
+            if not attr.upper() in self.colors:
+                return
+            self.colors[attr.upper()] = color
+            return
+        # by integer 0-6
+        elif isinstance(attr, int):
+            for n,i in enumerate(self.colors):
+                if n == attr:
+                    self.colors[i] = color
+                    return
 
     def getOpenglInfo(self):
         info = """
@@ -289,8 +329,9 @@ class GLWidget(QOpenGLWidget):
         if len(self.plotdata) == self.plotlen:
             del self.plotdata[:self.plotlen // 10]
         point = [wx, wy, wz]
-        if not self.plotdata or point != self.plotdata[-1]:
-            self.plotdata.append(point)
+        # if tool position is different from last time, record plot position
+        if not self.plotdata or point != self.plotdata[-1][0]:
+            self.plotdata.append([point,self.plotColor])
 
         # now lets draw something in the tool coordinate system
         # GL.glPushMatrix()
@@ -327,10 +368,10 @@ class GLWidget(QOpenGLWidget):
         # draw backplot
         GL.glDisable(GL.GL_LIGHTING)
         GL.glLineWidth(2)
-        GL.glColor3f(1.0, 0.5, 0.5)
 
         GL.glBegin(GL.GL_LINE_STRIP)
-        for p in self.plotdata:
+        for p,c in self.plotdata:
+            GL.glColor3f(*c)
             GL.glVertex3f(*p)
         GL.glEnd()
 

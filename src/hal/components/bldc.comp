@@ -131,7 +131,7 @@ Note that a number of incorrect commutations will have non-zero net torque which
 
 If your motor lacks documentation it might be worth trying every pattern.
 
-.ie '\*[.T]'html' \\{\\
+.ie '\\*[.T]'html' \\{\\
 .HTML \\
 <STYLE> \\
 #pattern TD { text-align: center; padding-left: .5ex; padding-right: .5ex } \\
@@ -281,7 +281,7 @@ If this input is used then the rotor will need to be homed before the motor can 
 
 \\fBi\\fR Use the index of an incremental encoder as a home reference.
 
-\\fBf\\fR Use a 4-bit Gray-scale patttern to determine rotor alignment.
+\\fBf\\fR Use a 4-bit Gray-scale pattern to determine rotor alignment.
 This scheme is only used on the Fanuc "Red Cap" motors.
 This mode could be used to control one of these motors using a non-Fanuc drive.
 
@@ -313,7 +313,7 @@ This can be over-ridden by the \\fBT\\fR tag. Sinusoidal commutation is signific
 To use an encoder for commutation a reference 0-degrees point must be found.
 The component uses the convention that motor zero is the point that an unloaded
 motor aligns to with a positive voltage on the A (or U) terminal and the B & C
-(or V and W) terminals connected together and to \-ve voltage. There will be
+(or V and W) terminals connected together and to -ve voltage. There will be
 two such positions on a 4-pole motor, 3 on a 6-pole and so on. They are all
 functionally equivalent as far as driving the motor is concerned.
 If the motor has Hall sensors then the motor can be started in trapezoidal
@@ -515,7 +515,7 @@ FUNCTION(_) {
             phase_angle -= floor(phase_angle);
             
             if (! (ph & old_ph)){ hall_error = 1;}
-            if (pattern != old_pattern){hall_error = 0;}
+            if (pattern != (unsigned)old_pattern){hall_error = 0;}
 
             if (force_trap) break;
 
@@ -797,7 +797,7 @@ FUNCTION(_) {
             return;
 
         case 0x400: // Hall Output
-            for (i = 0; P[(output_pattern << 3) + i] != ph && i < 8 ; i++) {}
+            for (i = 0; P[(output_pattern << 3) + i] != ((unsigned)ph & 0xff) && i < 8 ; i++) {}
             hall1_out = (i & 0x04);
             hall2_out = (i & 0x02);
             hall3_out = (i & 0x01);
@@ -849,6 +849,7 @@ FUNCTION(_) {
 }
 
 EXTRA_SETUP(){
+    (void)prefix;
     int i;
     char c;
     for (i = 0; cfg[extra_arg][i] != 0 && i < NUM_TAG ; i++){

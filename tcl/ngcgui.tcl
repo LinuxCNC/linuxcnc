@@ -3219,7 +3219,7 @@ proc ::ngcgui::wgui {dir} {
   # this proc is useful for testing with tkcon:
   # to debug using tkcon: source this file then % ::ngcgui::wgui dirname
   # to run ngcgui in a frame, use ::ngcgui::gui hdl create frame
-  # multiple intantiations of ngcgui within the same process are not supported
+  # multiple instantiations of ngcgui within the same process are not supported
   package require Tk
   set hdl 0
   catch {unset ::ngc}

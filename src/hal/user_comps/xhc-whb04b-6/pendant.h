@@ -17,7 +17,8 @@
    02111-1307 USA.
  */
 
-#pragma once
+#ifndef __XHC_WHB04B_6_PENDANT_H
+#define __XHC_WHB04B_6_PENDANT_H
 
 // local includes
 #include "pendant-types.h"
@@ -588,8 +589,8 @@ private:
     bool         mIsLeadModeFeed = false;
     bool         mIsStepMode_5_10 = false;
 
-    float mScale;
-    float mMaxVelocity;
+    // float mScale;
+    // float mMaxVelocity;
 
     const char  * mPrefix;
     std::ostream  mDevNull{nullptr};
@@ -611,3 +612,4 @@ private:
 // ----------------------------------------------------------------------
 std::ostream& operator<<(std::ostream& os, const Pendant& data);
 }
+#endif

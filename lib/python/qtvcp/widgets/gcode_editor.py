@@ -35,7 +35,7 @@ from PyQt5.QtCore import pyqtProperty, pyqtSignal, QSize
 from PyQt5.QtGui import QFont, QFontMetrics, QColor, QIcon
 from PyQt5.QtWidgets import QWidget, QAction,\
         QVBoxLayout, QToolBar, QLineEdit, QHBoxLayout, QMessageBox, \
-        QFrame, QLabel
+        QFrame, QLabel, QStyle
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Info, Action
@@ -188,7 +188,9 @@ class EditorBase(QsciScintilla):
         "Margins":  QColor("#666769"),      # Margins
     }
 
+    # keep track of the property value
     _styleBackgroundColor = QColor("#c0c0c0")
+    _styleCursorColor = QColor("white")
     _styleMarginsBackgroundColor = QColor("#cccccc")
     _styleMarkerBackgroundColor = QColor("#a5a526")
     _styleSelectionBackgroundColor = QColor("#001111")
@@ -295,7 +297,7 @@ class EditorBase(QsciScintilla):
         fontmetrics = QFontMetrics(self.getFontMargins())
         self.setMarginWidth(0, fontmetrics.width("0" * width) + 6)
 
-    # reset margin width when number od lines change
+    # reset margin width when number of lines change
     def on_lines_changed(self):
         if len(str(self.lines())) < 3:
             self._marginWidth = '0000'
@@ -437,6 +439,14 @@ class EditorBase(QsciScintilla):
         super(EditorBase, self).setMarginsForegroundColor(value)
         self._styleColor["Margins"] = value
     styleColorMarginText = pyqtProperty(QColor, getColorMarginsForeground, setColorMarginsForeground)
+
+    # Cursor Color
+    def getColorCursor(self):
+        return self._styleCursorColor
+    def setColorCursor(self, color):
+        self._styleCursorColor = color
+        super(EditorBase, self).setCaretForegroundColor(color)
+    styleColorCursor = pyqtProperty(QColor, getColorCursor, setColorCursor)
 
     # Backgrounds
     def getColorBackground(self):
@@ -627,6 +637,8 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
     def load_program(self, w, filename=None):
         if filename is None:
             filename = self._last_filename
+        elif 'file_clear.ngc' in filename:
+            self._last_filename = None
         else:
             self._last_filename = filename
         self.load_text(filename)
@@ -655,7 +667,8 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
 
         self.load_text(INFO.MDI_HISTORY_PATH)
         self._last_filename = INFO.MDI_HISTORY_PATH
-        self.setCursorPosition(self.lines(), 0)
+        self.setCursorPosition(self.lines()-1, 0)
+        self.moveMarker(self.lines()-1)
 
     # With the auto_show__mdi option, MDI history is shown
     def load_manual(self, w):
@@ -665,11 +678,11 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
 
         if self.auto_show_manual and STATUS.is_man_mode():
             self.load_text(INFO.MACHINE_LOG_HISTORY_PATH)
-            self.setCursorPosition(self.lines(), 0)
+            self.setCursorPosition(self.lines()-1, 0)
 
     def load_preference(self, w):
         self.load_text(self.PATHS_.PREFS_FILENAME)
-        self.setCursorPosition(self.lines(), 0)
+        self.setCursorPosition(self.lines()-1, 0)
 
     # external line numbers start at 1 - convert that to start at 0
     def external_highlight_request(self, w, line):
@@ -678,7 +691,7 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
         if STATUS.is_auto_running():
             self.highlight_line(None, line-1)
             return
-        LOG.debug('editor: got external highlight {}'.format(line))
+        LOG.verbose('editor: got external highlight {}'.format(line))
         #self.highlight_line(None, line-1)
         self.ensureLineVisible(line-1)
         #self.setSelection(line-1,0,line-1,self.lineLength(line-1)-1)
@@ -686,7 +699,7 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
         self.selectAll(False)
 
     def moveMarker(self, line):
-        if STATUS.stat.file == '':
+        if STATUS.is_auto_running() and STATUS.stat.file == '':
             self.last_line = 0
             return
         self.markerDeleteHandle(self.currentHandle)
@@ -727,24 +740,24 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
 
     def select_lineup(self, w):
         line, col = self.getCursorPosition()
-        LOG.debug(line)
+        LOG.verbose(line)
         self.setCursorPosition(line-1, 0)
         self.highlight_line(None, line-1)
 
     def select_linedown(self, w):
         line, col = self.getCursorPosition()
-        LOG.debug(line)
+        LOG.verbose(line)
         self.setCursorPosition(line+1, 0)
         self.highlight_line(None, line+1)
 
     def jump_line(self, jump):
         line, col = self.getCursorPosition()
         line = line + jump
-        LOG.debug(line)
+        LOG.verbose(line)
         if line <0:
             line = 0
-        elif line > self.lines():
-            line = self.lines()
+        elif line > self.lines()-1:
+            line = self.lines()-1
         self.setCursorPosition(line, 0)
         self.highlight_line(None, line)
 
@@ -815,19 +828,22 @@ class GcodeEditor(QWidget, _HalWidgetBase):
         ################################
 
         # Create new action
-        self.newAction = QAction(QIcon.fromTheme('document-new'), 'New', self)
+        icon = self.style().standardIcon( QStyle.SP_FileIcon)
+        self.newAction = QAction(icon, 'New', self)
         self.newAction.setShortcut('Ctrl+N')
         self.newAction.setStatusTip('New document')
         self.newAction.triggered.connect(self.newCall)
 
         # Create open action
-        self.openAction = QAction(QIcon.fromTheme('document-open'), '&Open', self)
+        icon = self.style().standardIcon( QStyle.SP_DirOpenIcon)
+        self.openAction = QAction(icon, '&Open', self)
         self.openAction.setShortcut('Ctrl+O')
         self.openAction.setStatusTip('Open document')
         self.openAction.triggered.connect(self.openCall)
 
         # Create save action
-        self.saveAction = QAction(QIcon.fromTheme('document-save'), '&Save', self)
+        icon = self.style().standardIcon( QStyle.SP_DialogSaveButton)
+        self.saveAction = QAction(icon, '&Save', self)
         self.saveAction.setShortcut('Ctrl+S')
         self.saveAction.setStatusTip('Save document')
         self.saveAction.triggered.connect(self.saveCall)

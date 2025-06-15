@@ -32,6 +32,7 @@ extern "C" {
 #ifdef __cplusplus
 }
 #endif
+#include <string>
 #include <rtapi_string.h>
 #include "cms_cfg.hh"
 #include "cms.hh"		/* class CMS */
@@ -232,8 +233,10 @@ CMS::CMS(const char *bufline_in, const char *procline_in, int set_to_server)
 	return;
     }
 
-    char *bufline = strdup(bufline_in);
-    char *procline = strdup(procline_in);
+    std::string buflineString(bufline_in);   // Local copies without strdup()
+    std::string proclineString(procline_in);
+    char *bufline = buflineString.data();
+    char *procline = proclineString.data();
 
     convert2upper(buflineupper, bufline, LINELEN);
     convert2upper(proclineupper, procline, LINELEN);
@@ -279,8 +282,6 @@ CMS::CMS(const char *bufline_in, const char *procline_in, int set_to_server)
 	rcs_print_error("CMS: Error in buffer line from config file.\n");
 	rcs_print_error("%s\n", bufline);
 	status = CMS_CONFIG_ERROR;
-	free(bufline);
-	free(procline);
 	return;
     }
 
@@ -318,8 +319,6 @@ CMS::CMS(const char *bufline_in, const char *procline_in, int set_to_server)
 	rcs_print_error("CMS: Error in buffer line from config file.\n");
 	rcs_print_error("%s\n", bufline);
 	status = CMS_CONFIG_ERROR;
-	free(bufline);
-	free(procline);
 	return;
     }
 
@@ -336,8 +335,6 @@ CMS::CMS(const char *bufline_in, const char *procline_in, int set_to_server)
     } else {
 	rcs_print_error("CMS: invalid buffer type (%s)\n", buffer_type_name);
 	status = CMS_CONFIG_ERROR;
-	free(bufline);
-	free(procline);
 	return;
     }
 
@@ -346,8 +343,6 @@ CMS::CMS(const char *bufline_in, const char *procline_in, int set_to_server)
 	rcs_print_error("CMS: Error in buffer line from config file.\n");
 	rcs_print_error("%s\n", bufline);
 	status = CMS_CONFIG_ERROR;
-	free(bufline);
-	free(procline);
 	return;
     }
     for (i = 8; i < num_words && i < 32; i++) {
@@ -447,8 +442,6 @@ CMS::CMS(const char *bufline_in, const char *procline_in, int set_to_server)
 		("CMS: Error parsing process line from config file.\n");
 	    rcs_print_error("%s\n", procline);
 	    status = CMS_CONFIG_ERROR;
-	    free(bufline);
-	    free(procline);
 	    return;
 	}
     } else {
@@ -457,8 +450,6 @@ CMS::CMS(const char *bufline_in, const char *procline_in, int set_to_server)
 		("CMS: Error parsing process line from config file.\n");
 	    rcs_print_error("%s\n", procline);
 	    status = CMS_CONFIG_ERROR;
-	    free(bufline);
-	    free(procline);
 	    return;
 	}
     }
@@ -499,8 +490,6 @@ CMS::CMS(const char *bufline_in, const char *procline_in, int set_to_server)
 		("CMS: connection number(%lu) must be less than total connections (%lu).\n",
 		connection_number, total_connections);
 	    status = CMS_CONFIG_ERROR;
-	    free(bufline);
-	    free(procline);
 	    return;
 	}
     }
@@ -509,8 +498,6 @@ CMS::CMS(const char *bufline_in, const char *procline_in, int set_to_server)
 	rcs_print_error("CMS: Error in proc line from config file.\n");
 	rcs_print_error("%s\n", procline);
 	status = CMS_CONFIG_ERROR;
-	free(bufline);
-	free(procline);
 	return;
     }
 
@@ -607,8 +594,6 @@ CMS::CMS(const char *bufline_in, const char *procline_in, int set_to_server)
     if (enable_diagnostics) {
 	setup_diag_proc_info();
     }
-    free(bufline);
-    free(procline);
 }
 
 /* Function for allocating memory and initializing XDR streams, which */
@@ -652,20 +637,19 @@ void CMS::open(void)
     /* Save some memory and time if this is a PHANTOMMEM object. */
     if (!is_phantom) {
 	/* Allocate memory for the local copy of global buffer. */
-	data = malloc(size);
-	memset(data, 0, size);
-	subdiv_data = data;
-	if (force_raw) {
-	    encoded_data = data;
-	}
-	rcs_print_debug(PRINT_CMS_CONSTRUCTORS, "%p = data = calloc(%lu,1);\n",
-	    data, size);
+	data = calloc(size, 1);
 	/* Check to see if allocating memory was successful. */
 	if (data == NULL) {
 	    rcs_print_error("CMS: Can't allocate memory for local buffer.\n");
 	    status = CMS_CREATE_ERROR;
 	    return;
 	}
+	subdiv_data = data;
+	if (force_raw) {
+	    encoded_data = data;
+	}
+	rcs_print_debug(PRINT_CMS_CONSTRUCTORS, "%p = data = calloc(%lu,1);\n",
+	    data, size);
     }
     if (isserver || neutral || ((ProcessType == CMS_REMOTE_TYPE) && !force_raw)) {
 	switch (neutral_encoding_method) {
@@ -891,7 +875,7 @@ CMS::~CMS()
 
 /* This function should never be called. It exists so that classes  which */
  /* overload read, write etc don't have to bother creating it. */
-CMS_STATUS CMS::main_access(void *_local, int *serial_number)
+CMS_STATUS CMS::main_access(void *_local, int * /*serial_number*/)
 {
     rcs_print_error("CMS::main_access called by %s for %s.\n",
 	ProcessName, BufferName);
@@ -1054,7 +1038,7 @@ CMS_STATUS CMS::write_if_read(void *user_data, int *serial_number)
 // For protocols that provide No security, tell the
 // application the login was successful.
 // This method needs to be overloaded to have any security.
-int CMS::login(const char *name, const char *passwd)
+int CMS::login(const char * /*name*/, const char * /*passwd*/)
 {
     return 1;
 }
@@ -1605,11 +1589,6 @@ int CMS::set_subdivision(int _subdiv)
     current_subdivision = _subdiv;
     subdiv_data = ((char *) data) + _subdiv * (subdiv_size);
     return (0);
-}
-
-// This constructor declared private to prevent copying.
-CMS::CMS(CMS & cms)
-{
 }
 
 int

@@ -36,7 +36,7 @@ This allows you to select a previously saved configuration or create a new one.
 If you pick 'Modify a configuration' and then press 'Next' a file selection box will show.
 PnCconf preselects your last saved file.
 Choose the config you wish to edit.
-If you made any changes to the main HAL or INI files *PnCconf will over write* those files and those changes will be lost.
+If you made any changes to the main HAL or INI files *PnCconf will overwrite* those files and those changes will be lost.
 Some files will not be over written and PnCconf places a note in those files.
 It also allows you to select desktop shortcut / launcher options.
 A desktop shortcut will place a folder icon on the desktop that points to your new configuration files.

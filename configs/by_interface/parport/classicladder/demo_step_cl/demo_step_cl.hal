@@ -54,7 +54,6 @@ net emc-enable-in iocontrol.0.emc-enable-in classicladder.0.out-00
 
 # lube signals
 # lube run command from emc to CL 
-net lube iocontrol.0.lube classicladder.0.in-03
 # for ease of reading we will make a new signal lube-run
 net lube-run classicladder.0.out-01
 net lube-run parport.0.pin-01-out
@@ -63,7 +62,6 @@ net lube-run parport.0.pin-01-out
 # lube-up is the signal between the parport and cl
 net lube-up parport.0.pin-12-in
 net lube-up classicladder.0.in-04
-net lube-level iocontrol.0.lube_level classicladder.0.out-02
 
 # coolant signals
 # note that these do NOT represent proper IO signals from iocontrol

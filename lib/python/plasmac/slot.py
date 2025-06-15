@@ -1,8 +1,8 @@
 '''
 slot.py
 
-Copyright (C) 2020, 2021, 2022  Phillip A Carter
-Copyright (C) 2020, 2021, 2022  Gregory D Carl
+Copyright (C) 2020 - 2024 Phillip A Carter
+Copyright (C) 2020 - 2024 Gregory D Carl
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
@@ -29,63 +29,64 @@ for f in sys.path:
         if '/usr' in f:
             localeDir = 'usr/share/locale'
         else:
-            localeDir = os.path.join('{}'.format(f.split('/lib')[0]),'share','locale')
+            localeDir = os.path.join(f'{f.split("/lib")[0]}', 'share', 'locale')
         break
 gettext.install("linuxcnc", localedir=localeDir)
 
+
 # Conv is the upstream calling module
-def preview(Conv, fTmp, fNgc, fNgcBkp, \
-            matNumber, matName, \
-            preAmble, postAmble, \
-            leadinLength, leadoutLength, \
-            isCenter, xOffset, yOffset, \
-            kerfWidth, isExternal, \
+def preview(Conv, fTmp, fNgc, fNgcBkp,
+            matNumber, matName,
+            preAmble, postAmble,
+            leadinLength, leadoutLength,
+            isCenter, xOffset, yOffset,
+            kerfWidth, isExternal,
             length, width, angle):
     error = ''
     msg1 = _('entry is invalid')
     valid, xOffset = Conv.conv_is_float(xOffset)
     if not valid and xOffset:
         msg0 = _('X ORIGIN')
-        error += '{} {}\n\n'.format(msg0, msg1)
+        error += f'{msg0} {msg1}\n\n'
     valid, yOffset = Conv.conv_is_float(yOffset)
     if not valid and yOffset:
         msg0 = _('Y ORIGIN')
-        error += '{} {}\n\n'.format(msg0, msg1)
+        error += f'{msg0} {msg1}\n\n'
     valid, leadinLength = Conv.conv_is_float(leadinLength)
     if not valid and leadinLength:
         msg0 = _('LEAD IN')
-        error += '{} {}\n\n'.format(msg0, msg1)
+        error += f'{msg0} {msg1}\n\n'
     valid, leadoutLength = Conv.conv_is_float(leadoutLength)
     if not valid and leadoutLength:
         msg0 = _('LEAD OUT')
-        error += '{} {}\n\n'.format(msg0, msg1)
+        error += f'{msg0} {msg1}\n\n'
     valid, length = Conv.conv_is_float(length)
     if not valid and length:
         msg0 = _('LENGTH')
-        error += '{} {}\n\n'.format(msg0, msg1)
+        error += f'{msg0} {msg1}\n\n'
     valid, width = Conv.conv_is_float(width)
     if not valid and width:
         msg0 = _('WIDTH')
-        error += '{} {}\n\n'.format(msg0, msg1)
+        error += f'{msg0} {msg1}\n\n'
     valid, angle = Conv.conv_is_float(angle)
     if not valid and angle:
         msg0 = _('ANGLE')
-        error += '{} {}\n\n'.format(msg0, msg1)
+        error += f'{msg0} {msg1}\n\n'
     valid, kerfWidth = Conv.conv_is_float(kerfWidth)
     if not valid:
         msg = _('Invalid Kerf Width entry in material')
-        error += '{}\n\n'.format(msg)
+        error += f'{msg}\n\n'
     if error:
         return error
     if length == 0:
         msg = _('LENGTH cannot be zero')
-        error += '{}\n\n'.format(msg)
+        error += f'{msg}\n\n'
     if width == 0:
         msg = _('WIDTH cannot be zero')
-        error += '{}\n\n'.format(msg)
+        error += f'{msg}\n\n'
     if width > length:
         msg = _('WIDTH cannot be greater than LENGTH')
-        error += '{}\n\n'.format(msg)
+        error += f'{msg}\n\n'
     if error:
         return error
     if isExternal:
@@ -119,67 +120,69 @@ def preview(Conv, fTmp, fNgc, fNgcBkp, \
     outNgc = open(fNgc, 'w')
     inWiz = open(fNgcBkp, 'r')
     for line in inWiz:
-        if '(new conversational file)' in line:
-            if('\\n') in preAmble:
-                outNgc.write('(preamble)\n')
-                for l in preAmble.split('\\n'):
-                    outNgc.write('{}\n'.format(l))
-            else:
-                outNgc.write('\n{} (preamble)\n'.format(preAmble))
-            break
-        elif '(postamble)' in line:
-            break
-        elif 'm2' in line.lower() or 'm30' in line.lower():
-            continue
-        outNgc.write(line)
+        line = line.strip()
+        if line and line[0] not in ';':
+            if '(new conversational file)' in line:
+                if('\\n') in preAmble:
+                    outNgc.write('(preamble)\n')
+                    for l in preAmble.split('\\n'):
+                        outNgc.write(f'{l}\n')
+                else:
+                    outNgc.write(f'\n{preAmble} (preamble)\n')
+                break
+            elif '(postamble)' in line:
+                break
+            elif 'M2' in line.upper() or 'M02' in line.upper() or 'M30' in line.upper():
+                continue
+        outNgc.write(f"{line}\n")
     outTmp.write('\n(conversational slot)\n')
-    outTmp.write(';using material #{}: {}\n'.format(matNumber, matName))
-    outTmp.write('M190 P{}\n'.format(matNumber))
+    outTmp.write(f';using material #{matNumber}: {matName}\n')
+    outTmp.write(f'M190 P{matNumber}\n')
     outTmp.write('M66 P3 L3 Q1\n')
-    outTmp.write('f#<_hal[plasmac.cut-feed-rate]>\n')
+    outTmp.write('F#<_hal[plasmac.cut-feed-rate]>\n')
     if leadInOffset > 0:
         xlCentre = xS + (leadInOffset * math.cos(angle + dir[0]))
         ylCentre = yS + (leadInOffset * math.sin(angle + dir[0]))
         xlStart = xlCentre + (leadInOffset * math.cos(angle + dir[1]))
         ylStart = ylCentre + (leadInOffset * math.sin(angle + dir[1]))
-        outTmp.write('g0 x{:.6f} y{:.6f}\n'.format(xlStart, ylStart))
-        outTmp.write('m3 $0 s1\n')
-        outTmp.write('g3 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xS, yS , xlCentre - xlStart, ylCentre - ylStart))
+        outTmp.write(f'G00 X{xlStart:.6f} Y{ylStart:.6f}\n')
+        outTmp.write('M03 $0 S1\n')
+        outTmp.write(f'G03 X{xS:.6f} Y{yS:.6f} I{xlCentre - xlStart:.6f} J{ylCentre - ylStart:.6f}\n')
     else:
-        outTmp.write('g0 x{:.6f} y{:.6f}\n'.format(xS, yS))
-        outTmp.write('m3 $0 s1\n')
+        outTmp.write(f'G00 X{xS:.6f} Y{yS:.6f}\n')
+        outTmp.write('M03 $0 S1\n')
     x1 = xS + (length / 2) * math.cos(angle + dir[2])
     y1 = yS + (length / 2) * math.sin(angle + dir[2])
-    outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(x1, y1))
+    outTmp.write(f'G01 X{x1:.6f} Y{y1:.6f}\n')
     if isExternal:
         xrCentre = x1 + (radius * math.cos(angle + down))
         yrCentre = y1 + (radius * math.sin(angle + down))
         xrEnd = xrCentre + (radius * math.cos(angle + down))
         yrEnd = yrCentre + (radius * math.sin(angle + down))
-        outTmp.write('g2 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xrEnd, yrEnd, xrCentre - x1, yrCentre - y1))
+        outTmp.write(f'G02 X{xrEnd:.6f} Y{yrEnd:.6f} I{xrCentre - x1:.6f} J{yrCentre - y1:.6f}\n')
         x2 = xrEnd + length * math.cos(angle + left)
         y2 = yrEnd + length * math.sin(angle + left)
-        outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(x2, y2))
+        outTmp.write(f'G01 X{x2:.6f} Y{y2:.6f}\n')
         xrCentre = x2 + (radius * math.cos(angle + up))
         yrCentre = y2 + (radius * math.sin(angle + up))
         xrEnd = xrCentre + (radius * math.cos(angle + up))
         yrEnd = yrCentre + (radius * math.sin(angle + up))
-        outTmp.write('g2 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xrEnd, yrEnd, xrCentre - x2, yrCentre - y2))
+        outTmp.write(f'G02 X{xrEnd:.6f} Y{yrEnd:.6f} I{xrCentre - x2:.6f} J{yrCentre - y2:.6f}\n')
     else:
         xrCentre = x1 + (radius * math.cos(angle + down))
         yrCentre = y1 + (radius * math.sin(angle + down))
         xrEnd = xrCentre + (radius * math.cos(angle + down))
         yrEnd = yrCentre + (radius * math.sin(angle + down))
-        outTmp.write('g3 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xrEnd, yrEnd, xrCentre - x1, yrCentre - y1))
+        outTmp.write(f'G03 X{xrEnd:.6f} Y{yrEnd:.6f} I{xrCentre - x1:.6f} J{yrCentre - y1:.6f}\n')
         x2 = xrEnd + length * math.cos(angle + right)
         y2 = yrEnd + length * math.sin(angle + right)
-        outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(x2, y2))
+        outTmp.write(f'G01 X{x2:.6f} Y{y2:.6f}\n')
         xrCentre = x2 + (radius * math.cos(angle + up))
         yrCentre = y2 + (radius * math.sin(angle + up))
         xrEnd = xrCentre + (radius * math.cos(angle + up))
         yrEnd = yrCentre + (radius * math.sin(angle + up))
-        outTmp.write('g3 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xrEnd, yrEnd, xrCentre - x2, yrCentre - y2))
-    outTmp.write('g1 x{:.6f} y{:.6f}\n'.format(xS, yS))
+        outTmp.write(f'G03 X{xrEnd:.6f} Y{yrEnd:.6f} I{xrCentre - x2:.6f} J{yrCentre - y2:.6f}\n')
+    outTmp.write(f'G01 X{xS:.6f} Y{yS:.6f}\n')
     if leadOutOffset > 0:
         if isExternal:
             dir = [up, right]
@@ -189,19 +192,19 @@ def preview(Conv, fTmp, fNgc, fNgcBkp, \
         ylCentre = yS + (leadOutOffset * math.sin(angle + dir[0]))
         xlEnd = xlCentre + (leadOutOffset * math.cos(angle + dir[1]))
         ylEnd = ylCentre + (leadOutOffset * math.sin(angle + dir[1]))
-        outTmp.write('g3 x{:.6f} y{:.6f} i{:.6f} j{:.6f}\n'.format(xlEnd, ylEnd , xlCentre - xS, ylCentre - yS))
-    outTmp.write('m5 $0\n')
+        outTmp.write(f'G03 X{xlEnd:.6f} Y{ylEnd:.6f} I{xlCentre - xS:.6f} J{ylCentre - yS:.6f}\n')
+    outTmp.write('M05 $0\n')
     outTmp.close()
     outTmp = open(fTmp, 'r')
     for line in outTmp:
         outNgc.write(line)
     outTmp.close()
     if('\\n') in postAmble:
-        outNgc.write('(postamble)\n')
+        outNgc.write('\n(postamble)\n')
         for l in postAmble.split('\\n'):
-            outNgc.write('{}\n'.format(l))
+            outNgc.write(f'{l}\n')
     else:
-        outNgc.write('\n{} (postamble)\n'.format(postAmble))
-    outNgc.write('m2\n')
+        outNgc.write(f'\n{postAmble} (postamble)\n')
+    outNgc.write('M02\n')
     outNgc.close()
     return False

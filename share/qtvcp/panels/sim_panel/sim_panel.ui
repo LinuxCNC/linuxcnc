@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>335</width>
-    <height>592</height>
+    <height>603</height>
    </rect>
   </property>
   <property name="maximumSize">
@@ -23,7 +23,7 @@
    <bool>false</bool>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QVBoxLayout" name="verticalLayout_2" stretch="1,0,0">
+   <layout class="QVBoxLayout" name="verticalLayout_2" stretch="1,0,0,0">
     <property name="sizeConstraint">
      <enum>QLayout::SetDefaultConstraint</enum>
     </property>
@@ -53,6 +53,127 @@
       <property name="notchesVisible">
        <bool>true</bool>
       </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QGroupBox" name="groupBoxIncrement">
+      <property name="title">
+       <string>Jog Increment</string>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_3">
+       <item>
+        <widget class="QFrame" name="frame_2">
+         <property name="frameShape">
+          <enum>QFrame::WinPanel</enum>
+         </property>
+         <property name="frameShadow">
+          <enum>QFrame::Plain</enum>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <item>
+           <layout class="QGridLayout" name="gridLayout_2">
+            <item row="0" column="1">
+             <widget class="PushButton" name="increment_med">
+              <property name="focusPolicy">
+               <enum>Qt::NoFocus</enum>
+              </property>
+              <property name="text">
+               <string>Med</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="checked">
+               <bool>true</bool>
+              </property>
+              <property name="autoExclusive">
+               <bool>true</bool>
+              </property>
+              <property name="pin_name" stdset="0">
+               <string>increment-med</string>
+              </property>
+              <property name="indicator_option" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="pin_type" stdset="0">
+               <enum>PushButton::FLOAT</enum>
+              </property>
+              <property name="groupPinName" stdset="0">
+               <string>increments</string>
+              </property>
+              <property name="exclusiveHALValue" stdset="0">
+               <double>20.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="0">
+             <widget class="PushButton" name="increment_slow">
+              <property name="focusPolicy">
+               <enum>Qt::NoFocus</enum>
+              </property>
+              <property name="text">
+               <string>Slow</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="autoExclusive">
+               <bool>true</bool>
+              </property>
+              <property name="pin_name" stdset="0">
+               <string>increment-slow</string>
+              </property>
+              <property name="indicator_option" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="indicator_HAL_pin_option" stdset="0">
+               <bool>false</bool>
+              </property>
+              <property name="pin_type" stdset="0">
+               <enum>PushButton::FLOAT</enum>
+              </property>
+              <property name="exclusiveHALValue" stdset="0">
+               <double>10.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="2">
+             <widget class="PushButton" name="increment_fast">
+              <property name="focusPolicy">
+               <enum>Qt::NoFocus</enum>
+              </property>
+              <property name="text">
+               <string>Fast</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="autoExclusive">
+               <bool>true</bool>
+              </property>
+              <property name="pin_name" stdset="0">
+               <string>increment-fast</string>
+              </property>
+              <property name="indicator_option" stdset="0">
+               <bool>true</bool>
+              </property>
+              <property name="python_command_option" stdset="0">
+               <bool>false</bool>
+              </property>
+              <property name="pin_type" stdset="0">
+               <enum>PushButton::FLOAT</enum>
+              </property>
+              <property name="exclusiveHALValue" stdset="0">
+               <double>30.000000000000000</double>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </item>
     <item>
@@ -303,7 +424,7 @@ Start</string>
      <x>0</x>
      <y>0</y>
      <width>335</width>
-     <height>24</height>
+     <height>22</height>
     </rect>
    </property>
   </widget>
@@ -311,13 +432,8 @@ Start</string>
  </widget>
  <customwidgets>
   <customwidget>
-   <class>IndicatedPushButton</class>
-   <extends>QPushButton</extends>
-   <header>qtvcp.widgets.simple_widgets</header>
-  </customwidget>
-  <customwidget>
    <class>PushButton</class>
-   <extends>IndicatedPushButton</extends>
+   <extends>QPushButton</extends>
    <header>qtvcp.widgets.simple_widgets</header>
   </customwidget>
   <customwidget>

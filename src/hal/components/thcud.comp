@@ -89,6 +89,7 @@ param rw float velocity_tol "The deviation percent from planned velocity";
 // Global Variables
 variable float last_z_in;
 
+option period no;
 function _;
 
 ;;

@@ -34,7 +34,7 @@ static object forward(double j0, double j1, double j2)
 static object inverse(double x, double y, double z)
 {
     double joints[9];
-    EmcPose pos = {{x,y,z}};
+    EmcPose pos = {{x,y,z}, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
     int result = kinematics_inverse(&pos, joints);
     if(result == 0)
         return make_tuple(joints[0], joints[1], joints[2]);

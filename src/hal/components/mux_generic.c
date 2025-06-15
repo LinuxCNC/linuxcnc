@@ -168,12 +168,8 @@ int rtapi_app_main(void){
             inst->out_type = inst->in_type;
         }
 
-        retval = rtapi_snprintf(hal_name, HAL_NAME_LEN, "mux-gen.%02i", i);
-        if (retval >= HAL_NAME_LEN) {
-            goto fail0;
-        }
         if (inst->in_type == HAL_FLOAT || inst->out_type == HAL_FLOAT) {
-            retval = hal_export_funct(hal_name, write_fp, inst, 1, 0, comp_id);
+            retval = hal_export_functf(write_fp, inst, 1, 0, comp_id, "mux-gen.%02i", i);
             if (retval < 0) {
                 rtapi_print_msg(RTAPI_MSG_ERR, "mux_generic: ERROR: function export"
                         " failed\n");
@@ -182,7 +178,7 @@ int rtapi_app_main(void){
         }
         else
         {
-            retval = hal_export_funct(hal_name, write_nofp, inst, 0, 0, comp_id);
+            retval = hal_export_functf(write_nofp, inst, 0, 0, comp_id, "mux-gen.%02i", i);
             if (retval < 0) {
                 rtapi_print_msg(RTAPI_MSG_ERR, "mux_generic: ERROR: function export"
                         " failed\n");
@@ -275,7 +271,8 @@ int rtapi_app_main(void){
 
 void write_fp(void *arg, long period) {
     mux_inst_t *inst = arg;
-    int i = 0, s = 0;
+    int i = 0;
+    unsigned s = 0;
     if (inst->num_bits > 0) {
         while (i < inst->num_bits) {
             s += (*inst->sel_bit[i] != 0) << i;
@@ -295,7 +292,7 @@ void write_fp(void *arg, long period) {
     inst->selection = s;
     inst->timer = 0;
 
-    if (s >= inst->size)
+    if ((int)s >= inst->size)
         s = inst->size - 1;
 
     switch (inst->in_type * 8 + inst->out_type) {
@@ -338,7 +335,8 @@ void write_fp(void *arg, long period) {
 
 void write_nofp(void *arg, long period) {
     mux_inst_t *inst = arg;
-    int i = 0, s = 0;
+    int i = 0;
+    unsigned s = 0;
     if (inst->num_bits > 0) {
         while (i < inst->num_bits) {
             s += (*inst->sel_bit[i] != 0) << i;
@@ -358,7 +356,7 @@ void write_nofp(void *arg, long period) {
     inst->selection = s;
     inst->timer = 0;
 
-    if (s >= inst->size)
+    if ((int)s >= inst->size)
         s = inst->size - 1;
     switch (inst->in_type * 8 + inst->out_type) {
     case 011: //HAL_BIT => HAL_BIT

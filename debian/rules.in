@@ -111,17 +111,12 @@ override_dh_installdocs-indep:
 	dh_installdocs --doc-main-package=@MAIN_PACKAGE_NAME@ --package=linuxcnc-doc-en
 	mv debian/linuxcnc-doc-en/usr/share/doc/@MAIN_PACKAGE_NAME@ debian/linuxcnc-doc-en/usr/share/doc/linuxcnc
 
-	dh_installdocs --doc-main-package=@MAIN_PACKAGE_NAME@ --package=linuxcnc-doc-es
-	mv debian/linuxcnc-doc-es/usr/share/doc/@MAIN_PACKAGE_NAME@/gcode.html debian/linuxcnc-doc-es/usr/share/doc/@MAIN_PACKAGE_NAME@/gcode_es.html
-	mv debian/linuxcnc-doc-es/usr/share/doc/@MAIN_PACKAGE_NAME@ debian/linuxcnc-doc-es/usr/share/doc/linuxcnc
+# Remove files for translations created where we do not want Debian packages.
+	for l in ar es fr ru zh_CN; do \
+		$(RM) debian/tmp/usr/share/doc/linuxcnc/LinuxCNC_*_$$l.pdf; \
+	done
+	$(RM) debian/tmp/usr/share/doc/linuxcnc/*_es.adoc
 
-	dh_installdocs --doc-main-package=@MAIN_PACKAGE_NAME@ --package=linuxcnc-doc-fr
-	mv debian/linuxcnc-doc-fr/usr/share/doc/@MAIN_PACKAGE_NAME@/gcode.html debian/linuxcnc-doc-fr/usr/share/doc/@MAIN_PACKAGE_NAME@/gcode_fr.html
-	mv debian/linuxcnc-doc-fr/usr/share/doc/@MAIN_PACKAGE_NAME@ debian/linuxcnc-doc-fr/usr/share/doc/linuxcnc
-
-	dh_installdocs --doc-main-package=@MAIN_PACKAGE_NAME@ --package=linuxcnc-doc-zh-cn
-	mv debian/linuxcnc-doc-zh-cn/usr/share/doc/@MAIN_PACKAGE_NAME@/gcode.html debian/linuxcnc-doc-zh-cn/usr/share/doc/@MAIN_PACKAGE_NAME@/gcode_zh_CN.html
-	mv debian/linuxcnc-doc-zh-cn/usr/share/doc/@MAIN_PACKAGE_NAME@ debian/linuxcnc-doc-zh-cn/usr/share/doc/linuxcnc
 
 
 override_dh_compress:
@@ -130,7 +125,7 @@ override_dh_compress:
 override_dh_fixperms:
 	dh_fixperms -X/linuxcnc_module_helper -X/rtapi_app
 	# In case that only the indep packages are built
-	if [ -r  "$(DESTDIR)/usr/lib/tcltk/linuxcnc/linuxcnc.tcl" ]; then \
+	if [ -x  "$(DESTDIR)/usr/lib/tcltk/linuxcnc/linuxcnc.tcl" ]; then \
 		chmod -x $(DESTDIR)/usr/lib/tcltk/linuxcnc/linuxcnc.tcl; \
 	fi
 	# override_dh_python3: # not executed, so we attach it to fixperms

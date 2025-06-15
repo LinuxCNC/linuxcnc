@@ -1,140 +1,245 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.38.2 -->
 <interface>
-  <requires lib="gtk+" version="2.16"/>
-  <!-- interface-requires gladevcp 0.0 -->
-  <!-- interface-naming-policy project-wide -->
+  <requires lib="gtk+" version="3.0"/>
+  <requires lib="gladevcp" version="0.0"/>
   <object class="GtkWindow" id="window1">
+    <property name="can-focus">False</property>
     <child>
       <object class="GtkVBox" id="vbox1">
         <property name="visible">True</property>
+        <property name="can-focus">False</property>
         <child>
-          <object class="HAL_Table" id="enable">
+          <object class="GtkBox">
             <property name="visible">True</property>
-            <property name="n_rows">6</property>
-            <property name="n_columns">2</property>
+            <property name="can-focus">False</property>
+            <property name="orientation">vertical</property>
             <child>
-              <object class="HAL_Button" id="changed">
-                <property name="label" translatable="yes">Change complete</property>
+              <object class="GtkLabel" id="label2">
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
+                <property name="can-focus">False</property>
+                <property name="margin-bottom">8</property>
+                <property name="xpad">0</property>
+                <property name="ypad">5</property>
+                <property name="label" translatable="yes">Manual Toolchange
+    with Probing</property>
+                <attributes>
+                  <attribute name="font-desc" value="Sans Bold 12"/>
+                </attributes>
               </object>
               <packing>
-                <property name="top_attach">1</property>
-                <property name="bottom_attach">2</property>
-                <property name="x_options"></property>
-                <property name="y_options"></property>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
               </packing>
             </child>
             <child>
-              <object class="HAL_ToggleButton" id="reftool">
-                <property name="label" translatable="yes">Reference Tool</property>
+              <!-- n-columns=2 n-rows=1 -->
+              <object class="GtkGrid">
                 <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
+                <property name="can-focus">False</property>
+                <child>
+                  <object class="HAL_LED" id="change-led">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="margin-left">20</property>
+                    <property name="led-blink-rate">0</property>
+                    <property name="led-shape">2</property>
+                    <property name="off-color">black</property>
+                    <property name="on-color">orange</property>
+                    <property name="pick-color-off">#000000000000</property>
+                    <property name="pick-color-on">#c6c646460000</property>
+                    <signal name="hal-pin-changed" handler="on_led_change" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="left-attach">0</property>
+                    <property name="top-attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkLabel" id="change-text">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="margin-left">10</property>
+                    <property name="xpad">5</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">1</property>
+                    <property name="top-attach">0</property>
+                  </packing>
+                </child>
               </object>
               <packing>
-                <property name="left_attach">1</property>
-                <property name="right_attach">2</property>
-                <property name="top_attach">1</property>
-                <property name="bottom_attach">2</property>
-                <property name="x_options"></property>
-                <property name="y_options"></property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel" id="label1">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">probing:</property>
-              </object>
-              <packing>
-                <property name="top_attach">2</property>
-                <property name="bottom_attach">3</property>
-              </packing>
-            </child>
-            <child>
-              <object class="HAL_LED" id="probing-led">
-                <property name="visible">True</property>
-                <property name="pick_color_on">#1525ffff4fdc</property>
-                <property name="led_shape">2</property>
-              </object>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="right_attach">2</property>
-                <property name="top_attach">2</property>
-                <property name="bottom_attach">3</property>
-              </packing>
-            </child>
-            <child>
-              <object class="HAL_LED" id="change-led">
-                <property name="visible">True</property>
-                <property name="pick_color_on">#fffff232127d</property>
-                <property name="led_shape">2</property>
-                <signal name="hal_pin_changed" handler="on_led_change"/>
-              </object>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="right_attach">2</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel" id="change-text">
-                <property name="visible">True</property>
-              </object>
-            </child>
-            <child>
-              <object class="HAL_Button" id="probe-contact">
-                <property name="label" translatable="yes">Simulate probe 
-     contact</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-              </object>
-              <packing>
-                <property name="right_attach">2</property>
-                <property name="top_attach">3</property>
-                <property name="bottom_attach">4</property>
-                <property name="x_options"></property>
-                <property name="y_options"></property>
-              </packing>
-            </child>
-            <child>
-              <object class="HAL_Label" id="reflen">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">label</property>
-                <property name="label_pin_type">1</property>
-                <property name="text_template">Reference Z length: %f</property>
-              </object>
-              <packing>
-                <property name="right_attach">2</property>
-                <property name="top_attach">4</property>
-                <property name="bottom_attach">5</property>
-                <property name="y_padding">4</property>
-              </packing>
-            </child>
-            <child>
-              <object class="HAL_Label" id="currlen">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">label</property>
-                <property name="label_pin_type">1</property>
-                <property name="text_template">Current Z length: %f</property>
-              </object>
-              <packing>
-                <property name="right_attach">2</property>
-                <property name="top_attach">5</property>
-                <property name="bottom_attach">6</property>
-                <property name="y_padding">4</property>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
               </packing>
             </child>
           </object>
           <packing>
             <property name="expand">False</property>
-            <property name="padding">3</property>
+            <property name="fill">False</property>
             <property name="position">0</property>
           </packing>
         </child>
         <child>
-          <placeholder/>
+          <!-- n-columns=1 n-rows=3 -->
+          <object class="HAL_Table" id="enable">
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <child>
+              <!-- n-columns=1 n-rows=2 -->
+              <object class="GtkGrid">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="halign">end</property>
+                <property name="valign">center</property>
+                <property name="row-spacing">5</property>
+                <child>
+                  <object class="HAL_ToggleButton" id="reftool">
+                    <property name="label" translatable="yes">Reference Tool</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">True</property>
+                    <property name="margin-right">25</property>
+                    <property name="image-position">top</property>
+                    <property name="active">True</property>
+                    <property name="draw-indicator">True</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">0</property>
+                    <property name="top-attach">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="HAL_Button" id="changed">
+                    <property name="label" translatable="yes">Tool change complete</property>
+                    <property name="visible">True</property>
+                    <property name="can-focus">True</property>
+                    <property name="receives-default">True</property>
+                    <property name="margin-right">25</property>
+                    <property name="image-position">top</property>
+                  </object>
+                  <packing>
+                    <property name="left-attach">0</property>
+                    <property name="top-attach">1</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkFrame">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="margin-left">5</property>
+                <property name="margin-right">5</property>
+                <property name="margin-top">5</property>
+                <property name="margin-bottom">5</property>
+                <property name="label-xalign">0</property>
+                <child>
+                  <object class="GtkAlignment">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="left-padding">12</property>
+                    <child>
+                      <!-- n-columns=2 n-rows=3 -->
+                      <object class="GtkGrid">
+                        <property name="visible">True</property>
+                        <property name="can-focus">False</property>
+                        <child>
+                          <object class="HAL_LED" id="probing-led">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="margin-right">10</property>
+                            <property name="led-blink-rate">5</property>
+                            <property name="led-shape">2</property>
+                            <property name="off-color">black</property>
+                            <property name="pick-color-off"/>
+                            <property name="pick-color-on">#1525ffff4fdc</property>
+                          </object>
+                          <packing>
+                            <property name="left-attach">0</property>
+                            <property name="top-attach">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="HAL_Button" id="probe-contact">
+                            <property name="label" translatable="yes">Simulate probe contact</property>
+                            <property name="visible">True</property>
+                            <property name="can-focus">True</property>
+                            <property name="receives-default">True</property>
+                            <property name="margin-right">5</property>
+                          </object>
+                          <packing>
+                            <property name="left-attach">1</property>
+                            <property name="top-attach">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="HAL_Label" id="currlen">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="label" translatable="yes">label</property>
+                            <property name="label-pin-type">1</property>
+                            <property name="text-template">Current Z length: %f</property>
+                          </object>
+                          <packing>
+                            <property name="left-attach">1</property>
+                            <property name="top-attach">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="HAL_Label" id="reflen">
+                            <property name="visible">True</property>
+                            <property name="can-focus">False</property>
+                            <property name="label" translatable="yes">label</property>
+                            <property name="label-pin-type">1</property>
+                            <property name="text-template">Reference Z length: %f</property>
+                          </object>
+                          <packing>
+                            <property name="left-attach">1</property>
+                            <property name="top-attach">2</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child type="label">
+                  <object class="GtkLabel">
+                    <property name="visible">True</property>
+                    <property name="can-focus">False</property>
+                    <property name="xpad">10</property>
+                    <property name="ypad">3</property>
+                    <property name="label" translatable="yes">Tool probe</property>
+                  </object>
+                </child>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">1</property>
+              </packing>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="padding">3</property>
+            <property name="position">1</property>
+          </packing>
         </child>
       </object>
     </child>

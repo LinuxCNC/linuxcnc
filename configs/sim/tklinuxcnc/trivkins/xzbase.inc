@@ -49,8 +49,6 @@ CYCLE_TIME = 0.001
 
 
 [EMCIO]
-                      EMCIO = io
-                 CYCLE_TIME = 0.100
                  TOOL_TABLE = xz.tbl
        TOOL_CHANGE_POSITION = 2 0 1
 TOOL_CHANGE_WITH_SPINDLE_ON = 1

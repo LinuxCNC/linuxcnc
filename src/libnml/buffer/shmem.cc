@@ -28,6 +28,7 @@ extern "C" {
 #include <string.h>		/* strchr(), memcpy(), memset() */
 #include <stdlib.h>		/* strtod */
 #include <physmem.hh>           /* PHYSMEM_HANDLE */
+#include <math.h>
 
 #ifdef __cplusplus
 }
@@ -44,54 +45,54 @@ extern "C" {
 //#include "autokey.h"
 /* rw-rw-r-- permissions */
 #define MODE (0700)
-static double last_non_zero_x;
-static double last_x;
 
-static int not_zero(volatile double x)
+static inline bool not_zero(double x)
 {
-    last_x = x;
-    if (x < -1E-6 && last_x < -1E-6) {
-	last_non_zero_x = x;
-	return 1;
-    }
-    if (x > 1E-6 && last_x > 1E-6) {
-	last_non_zero_x = x;
-	return 1;
-    }
-    return 0;
+	return fabs(x) > 1e-6;
 }
 
 /* SHMEM Member Functions. */
 
 /* Constructor for hard coded tests. */
-SHMEM::SHMEM(const char *n, long s, int nt, key_t k, int m):CMS(s)
+SHMEM::SHMEM(const char * /*n*/, long s, int /*nt*/, key_t k, int m)
+  : CMS(s),
+    key(k),
+    bsem_key(-1),
+    second_read(0),
+    shm(NULL),
+    sem(NULL),
+    master(m),
+    sem_delay(0.00001),
+    mao{},
+    use_os_sem(1),
+    use_os_sem_only(1),
+    mutex_type(OS_SEM_MUTEX),
+    shm_addr_offset(NULL),
+    bsem(NULL),
+    autokey_table_size(0)
 {
-    /* Set pointers to null so only properly opened pointers are closed. */
-    shm = NULL;
-//  sem = NULL;
-
-    /* save constructor args */
-    master = m;
-    key = k;
-
     /* open the shared mem buffer and create mutual exclusion semaphore */
     open();
 }
 
 /* Constructor for use with cms_config. */
-SHMEM::SHMEM(const char *bufline, const char *procline, int set_to_server,
-    int set_to_master):CMS(bufline, procline, set_to_server)
+SHMEM::SHMEM(const char *bufline, const char *procline, int set_to_server, int set_to_master)
+  : CMS(bufline, procline, set_to_server),
+    bsem_key(-1),
+    second_read(0),
+    shm(NULL),
+    sem(NULL),
+    sem_delay(0.00001),
+    mao{},
+    use_os_sem(1),
+    use_os_sem_only(1),
+    mutex_type(OS_SEM_MUTEX),
+    shm_addr_offset(NULL),
+    bsem(NULL),
+    autokey_table_size(0)
 {
     /* Set pointers to null so only properly opened pointers are closed. */
-    shm = NULL;
-    sem = NULL;
-    sem_delay = 0.00001;
     char *semdelay_equation;
-    use_os_sem = 1;
-    use_os_sem_only = 1;
-    mutex_type = OS_SEM_MUTEX;
-    bsem_key = -1;
-    second_read = 0;
 
     if (status < 0) {
 	rcs_print_error("SHMEM: status = %d\n", status);
@@ -578,7 +579,7 @@ CMS_STATUS SHMEM::main_access(void *_local, int *serial_number)
 
     case CMS_READ_ACCESS:
 	if (NULL != bsem && status == CMS_READ_OLD &&
-	    (blocking_timeout > 1e-6 || blocking_timeout < -1E-6)) {
+	    not_zero(blocking_timeout)) {
 	    if (second_read > 10 && total_subdivisions <= 1) {
 		status = CMS_MISC_ERROR;
 		rcs_print_error

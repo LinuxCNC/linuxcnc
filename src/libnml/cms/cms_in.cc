@@ -1387,7 +1387,7 @@ CMS_STATUS CMS::write_raw(void *user_data, int *serial_number)
 }
 
 /* It takes several steps to perform a write operation when queuing is enabled. */
-/* 1. Read the qeuing header at the beginning of the buffer. */
+/* 1. Read the queuing header at the beginning of the buffer. */
 /* 2. Determine the amount of free space and where the next node can be placed.*/
 /* 3. Set up message header from info in the queuing header. */
 /* 4. Write the message header and message  at the tail of the queue. */
@@ -1600,7 +1600,7 @@ CMS_STATUS CMS::write_encoded()
 }
 
 /* It takes several steps to perform a write operation when queuing is enabled. */
-/* 1. Read the qeuing header at the beginning of the buffer. */
+/* 1. Read the queuing header at the beginning of the buffer. */
 /* 2. Determine the amount of free space and where the next node can be placed.*/
 /* 3. Set up message header from info in the queuing header. */
 /* 4. Write the message header and message  at the tail of the queue. */
@@ -1822,7 +1822,7 @@ CMS_STATUS CMS::write_if_read_raw(void *user_data, int *serial_number)
 }
 
 /* It takes several steps to perform a write operation when queuing is enabled. */
-/* 1. Read the qeuing header at the beginning of the buffer. */
+/* 1. Read the queuing header at the beginning of the buffer. */
 /* 2. Determine the amount of free space and where the next node can be placed.*/
 /* 3. Set up message header from info in the queuing header. */
 /* 4. Write the message header and message  at the tail of the queue. */
@@ -2044,7 +2044,7 @@ CMS_STATUS CMS::write_if_read_encoded()
 }
 
 /* It takes several steps to perform a write operation when queuing is enabled. */
-/* 1. Read the qeuing header at the beginning of the buffer. */
+/* 1. Read the queuing header at the beginning of the buffer. */
 /* 2. Determine the amount of free space and where the next node can be placed.*/
 /* 3. Set up message header from info in the queuing header. */
 /* 4. Write the message header and message  at the tail of the queue. */

@@ -3,6 +3,7 @@ pin in float in;
 pin in bit reset "When reset is asserted, 'in' is copied to the outputs";
 pin out float max_;
 pin out float min_;
+option period no;
 function _;
 license "GPL";
 author "Jeff Epler";

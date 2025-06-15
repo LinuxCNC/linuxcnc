@@ -1,0 +1,32 @@
+# switchkins pyvcp connections for:
+# xyzbca-trsrn.ini
+
+net :kinstype.is-0 <= kinstype.is-0 => pyvcp.multilabel.0.legend0
+net :kinstype.is-1 <= kinstype.is-1 => pyvcp.multilabel.0.legend1
+net :kinstype.is-2 <= kinstype.is-2 => pyvcp.multilabel.0.legend2
+
+net :vismach-clear <= pyvcp.vismach-clear => vismach.plotclear
+
+net :type0-button  <= pyvcp.type0-button  => halui.mdi-command-00
+net :type1-button  <= pyvcp.type1-button  => halui.mdi-command-01
+net :type2-button  <= pyvcp.type2-button  => halui.mdi-command-02
+
+
+net :axis-x                               => pyvcp.joint0
+net :axis-y                               => pyvcp.joint1
+net :axis-z                               => pyvcp.joint2
+net :rotary-a                             => pyvcp.joint3
+net :rotary-b                             => pyvcp.joint4
+
+net :hide-work-piece-1                    <= pyvcp.hide-work-piece-1
+net :hide-spindle-body                    <= pyvcp.hide-spindle-body
+
+net :nutation-angle                       <= pyvcp.nut-angle-f
+net :pivot-y                              <= pyvcp.y-pivot-f
+net :pivot-z                              <= pyvcp.z-pivot-f
+net :offset-x                             <= pyvcp.x-offset-f
+net :offset-y                             <= pyvcp.y-offset-f
+net :rot-axis-y                           <= tcp.y-rot-axis-f
+net :rot-axis-z                           <= tcp.z-rot-axis-f
+
+net :scale-coords                         <= pyvcp.scale-coords-f

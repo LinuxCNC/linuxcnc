@@ -159,8 +159,6 @@ extern "C" {
 	EMCMOT_JOG_ABORT,               /* abort one joint num or axis num */
 	EMCMOT_JOINT_ACTIVATE,          /* make joint active */
 	EMCMOT_JOINT_DEACTIVATE,        /* make joint inactive */
-	EMCMOT_JOINT_ENABLE_AMPLIFIER,  /* enable amp outputs */
-	EMCMOT_JOINT_DISABLE_AMPLIFIER, /* disable amp outputs */
 	EMCMOT_JOINT_HOME,              /* home a joint or all joints */
 	EMCMOT_JOINT_UNHOME,            /* unhome a joint or all joints*/
 	EMCMOT_SET_JOINT_POSITION_LIMITS, /* set the joint position +/- limits */
@@ -255,7 +253,7 @@ extern "C" {
     int probe_home_err_inhibit;  // setting to inhibit probe tripped while homeing error.
     EmcPose tool_offset;        /* TLO */
     double  orientation;    /* angle for spindle orient */
-    int state; /*spindle state*/
+    int state; /*spindle state  seems to just be 0 for off and 1 for on andypugh 2025-04-03*/
     char    direction;      /* CANON_DIRECTION flag for spindle orient */
     double  timeout;        /* of wait for spindle orient to complete */
     unsigned char wait_for_spindle_at_speed; // EMCMOT_SPINDLE_ON now carries this, for next feed move

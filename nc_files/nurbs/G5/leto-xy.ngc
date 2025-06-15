@@ -1,0 +1,33 @@
+
+; M. Piacentini, E. L. Valvo, M. Leto
+; CAD/CAM Integration for NURBS Path Interpolation on PC Based Real-Time Numerical Control
+; Figure 2
+; changed by Joachim Franek to use G5.2
+
+G17 ; Plane XY
+
+G21 G40 G54 G90 G94
+G0 Z1
+G0 X2 Y-1
+G1 Z-1 F100
+
+G5.2 P1 L3
+    X3.00 Y3.00 P1 
+    X4.33 Y8.35 P1
+    X5.00 Y10.50 P2
+    X8.44 Y17.58 P1
+    X15.32 Y16.03 P1
+    X14.05 Y9.75 P1
+    X10.03 Y9.40 P1
+    X7.87 Y12.30 P1
+    X10.56 Y15.00 P1
+    X12.45 Y14.00 P1
+    X12.03 Y13.00 P1
+G5.3
+
+G1 Z1
+G0 X-12 Y13.00
+M2
+
+
+

@@ -25,7 +25,7 @@ linuxcnc-gbp.git (in <https://github.com/LinuxCNC/linuxcnc-gbp.git>)::
   used for. In particular, the script debian/configure was already executed.
   Default uploads go to Debian unstable, aka "sid", which needs
   to be stated in the file debian/changelog. Also the version number of the
-  uploads to Debian are sligtly different, so that multiple revisions of the
+  uploads to Debian are slightly different, so that multiple revisions of the
   Debian package is possible for the same release of LinuxCNC.
 ```
 $ git branch

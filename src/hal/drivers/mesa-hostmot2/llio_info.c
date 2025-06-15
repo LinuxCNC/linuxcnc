@@ -31,13 +31,13 @@ typedef struct __info_entry_t {
 	int num_ioport_connectors;
 	int pins_per_connector;
 	const char *ioport_connector_name[ANYIO_MAX_IOPORT_CONNECTORS];
-	char **io_connector_pin_names;
+	const char **io_connector_pin_names;
 	int num_leds;
 	const char *fpga_part_number;
 	int (*hook)(hm2_lowlevel_io_t *llio, const hm2_idrom_t *idrom);
 } info_entry_t;
 
-static char *hm2_7c80_pin_names[] = {
+static const char *hm2_7c80_pin_names[] = {
 	"TB07-02/TB07-03",	/* Step/Dir/Misc 5V out */
 	"TB07-04/TB07-05",
 	"TB08-02/TB08-03",
@@ -95,7 +95,7 @@ static char *hm2_7c80_pin_names[] = {
 	"P1-25/DB25-13",
 };
 
-static char *hm2_7c81_pin_names[] = {
+static const char *hm2_7c81_pin_names[] = {
 	"P1-01/DB25-01",
 	"P1-02/DB25-14",
 	"P1-03/DB25-02",
@@ -219,16 +219,15 @@ static const info_entry_t spiboards[] = {
 
 const char *set_llio_info_spi(hm2_lowlevel_io_t *llio, const hm2_idrom_t *idrom)
 {
-	int i, j;
 	char buf[sizeof(idrom->board_name)+1];
 
 	/* In the far future, when there are too many boards, use bsearch */
 	/* With few boards, linear search is faster */
-	for(i = 0; i < NELEM(spiboards); i++) {
+	for(unsigned i = 0; i < NELEM(spiboards); i++) {
 		if(!memcmp(idrom->board_name, spiboards[i].board_name, sizeof(idrom->board_name))) {
 			llio->num_ioport_connectors = spiboards[i].num_ioport_connectors;
 			llio->pins_per_connector = spiboards[i].pins_per_connector;
-			for(j = 0; j < ANYIO_MAX_IOPORT_CONNECTORS; j++)
+			for(unsigned j = 0; j < ANYIO_MAX_IOPORT_CONNECTORS; j++)
 				llio->ioport_connector_name[j] = spiboards[i].ioport_connector_name[j];
 			llio->io_connector_pin_names = spiboards[i].io_connector_pin_names;
 			llio->num_leds = spiboards[i].num_leds;
@@ -245,7 +244,7 @@ const char *set_llio_info_spi(hm2_lowlevel_io_t *llio, const hm2_idrom_t *idrom)
 
 	memcpy(buf, idrom->board_name, sizeof(idrom->board_name));
 	buf[sizeof(idrom->board_name)] = 0;
-	for(i = 0; i < sizeof(idrom->board_name); i++) {
+	for(unsigned i = 0; i < sizeof(idrom->board_name); i++) {
 		if(!isprint(buf[i]))
 			buf[i] = '?';
 	}

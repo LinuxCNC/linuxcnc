@@ -37,7 +37,7 @@ int tool_nml_register(CANON_TOOL_TABLE *tblptr)
     return 0;
 } //tool_nml_register
 
-void tooldata_last_index_set(int idx)
+void tooldata_last_index_set(int /*idx*/)
 {
     return; //not used with nml
 } //tooldata_last_index_set()
@@ -74,8 +74,8 @@ void tooldata_reset()
 toolidx_t tooldata_get(CANON_TOOL_TABLE* pdata,int idx)
 {
     if (idx < 0 || idx >= CANON_POCKETS_MAX) {
-        fprintf(stderr,"!!!%5d PROBLEM tooldata_get(): idx=%d, maxallowed=%d\n",
-                getpid(),idx,CANON_POCKETS_MAX-1);
+        // ui programs may query for nonexistent idx values
+        // and must handle this error
         return IDX_FAIL;
     }
 

@@ -1,0 +1,26 @@
+;This is a workaround for a bug that leads to stat.gcodes and parameter[5250]
+;to get out of sync after some program aborts
+;in [RS274NGC] section of the ini add: ON_ABORT_COMMAND = o <on_abort> call
+;save this to a path specified in SUBROUTINE_PATH =
+;NOTE: we cannot run remapped codes here only custom Mcodes (ie M100..M199)
+
+o<on_abort_no_twp_reset> sub
+;Workaround for
+;https://github.com/LinuxCNC/linuxcnc/issues/2745
+;https://github.com/LinuxCNC/linuxcnc/issues/2908
+;store current offset index
+#1 = #5220
+; we must switch through at least 3 indexes
+G59.3
+G59.2
+G59.1
+; restore the index from above
+o101 if [#1 GT 6]
+(print, Code [#1-6])
+ G[59+[#1-6]/10]
+o101 else
+ G[53+#1]
+o101 endif
+;(msg, on_abort sub executed)
+o<on_abort_no_twp_reset> endsub
+m2

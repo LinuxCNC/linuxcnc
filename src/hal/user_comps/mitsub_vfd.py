@@ -20,8 +20,9 @@
 # user space component for controlling a misubishi inverter over the serial port using rs485 standard
 # specifically the A500 F500 E500 A500 D700 E700 F700 series - others may work or need adjustment
 # tested on A500 E500 and E700
-# I referenced manual 'communication option reference manual' and A500 technical manual for 500 series.
-# 'Fr-A700 F700 E700 D700 technical manual' for the 700 series
+# I referenced manual 'communication option reference manual' and 'A500 technical manual' for 500 series.
+# 'Fr-A700 F700 E700 D700 technical manual' for the 700 series,
+# see https://dl.mitsubishielectric.com/dl/fa/document/manual/inv/sh060014/sh060014engb.pdf
 #
 # The inverter must be set manually for communication ( you may have to set PR 77 to 1 to unlock PR modification )
 # must power cycle the inverter for some of these to register eg 79
@@ -87,6 +88,7 @@ class mitsubishi_serial:
             c.newpin("scale-power", hal.HAL_FLOAT, hal.HAL_IN)
             c.newpin("scale-user", hal.HAL_FLOAT, hal.HAL_IN)
             c.newpin("estop", hal.HAL_BIT, hal.HAL_IN)
+            c.newpin("reset-on-estop", hal.HAL_BIT, hal.HAL_IN)
             c.newpin("stat-bit-0", hal.HAL_BIT, hal.HAL_OUT)
             c.newpin("stat-bit-1", hal.HAL_BIT, hal.HAL_OUT)
             c.newpin("stat-bit-2", hal.HAL_BIT, hal.HAL_OUT)
@@ -232,7 +234,11 @@ class mitsubishi_serial:
                         continue
                     else:
                         # reset VFD after estop
-                        cmd = "FD";data = None
+                        if self.h[index]["reset-on-estop"]:
+                            rst = "9696"
+                        else:
+                            rst = None
+                        cmd = "FD";data = rst
                         word = self.prepare_data(cmd,data)
                         self.ser.write(word)
                         time.sleep(.05)
@@ -339,6 +345,26 @@ class mitsubishi_serial:
             return string,chr_list_out,hex_out
         return '','',''
 
+    # TODO not used - I want to check for computer time out setting
+    # so we only reset devices that can timeout. rather the using the HAL pin
+    # 7A is the address for 8 status bits ( b0 - b8 )
+    def read_test(self):
+        while self.ser.inWaiting() > 0:
+            raw = self.ser.read(1)
+        word = self.prepare_data("7A",None)
+        out = temp = ''
+        self.ser.write(word)
+        time.sleep(.05)
+        string,chr_list,chr_hex = self.poll_output()
+        print ('test read DEBUG: ',chr_list,chr_hex)
+        if chr_list != '':
+            #print string
+            try:
+                binary = "{0:#010b}".format(int(string[3:5],16))
+            except:
+                binary = '0b000000'
+
+
     def __getitem__(self, item):
         return getattr(self, item)
     def __setitem__(self, item, value):
@@ -366,10 +392,10 @@ if __name__ == "__main__":
         print('Mitsubishi VFD COMPUTER-LINK interface')
         print()
         print(' This does NOT use the MODBUS protocol.')
-        print(' This is a user space component for controlling a mitsubishi inverter over the serial port using the rs485 standard')
+        print(' This is a user space component for controlling a Mitsubishi inverter over the serial port using the rs485 standard.')
         print(' Specifically for the A500 F500 E500 A500 D700 E700 F700 series - others may work or need small adjustments.')
-        print(''' I referenced manual 'communication option reference manual' and A500 technical manual for 500 series.''')
-        print(''' Fr-A700 F700 E700 D700 technical manual' for the 700 series''')
+        print(''' I referenced manual 'communication option reference manual' and 'A500 technical manual' for 500 series.''')
+        print(''' 'FR-A700 F700 E700 D700 technical manual' for the 700 series, see https://dl.mitsubishielectric.com/dl/fa/document/manual/inv/sh060014/sh060014engb.pdf''')
         print()
         print('#################################################################################')
         print()
@@ -387,9 +413,9 @@ if __name__ == "__main__":
         print(''' PR 549 communication protocol - 0        not all VFDs has this''')
         print('''
 This driver assumes certain other VFD settings:
--That the  motor frequency status is set to show herts.
--That the status bit 3 is up to speed
--That the status bit 7 is alarm
+-That the motor frequency status is set to show hertz.
+-That the function 'up to speed' (up-to frequency) is assigned to the status bit 3.
+-That the function 'alarm' is assigned to the status bit 7.
 ''')
         print('''#################################################################################
 

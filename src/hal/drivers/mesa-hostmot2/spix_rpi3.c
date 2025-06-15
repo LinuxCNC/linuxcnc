@@ -209,7 +209,11 @@ static int spi0_transfer(const spix_port_t *sp, uint32_t *wptr, size_t txlen, in
 	rpi3_port_t *rp = (rpi3_port_t *)sp;
 	uint8_t *w8ptr = (uint8_t *)wptr;
 	uint8_t *r8ptr = (uint8_t *)wptr;	// read into write buffer
+	// Happens with cppcheck 2.13, not with 2.17. Debian 12 (2.10)
+	// cannot handle suppress-begin/suppress-end ranges
+	// cppcheck-suppress duplicateAssignExpression
 	size_t tx8len = txlen * sizeof(uint32_t);	// Bytes to send
+	// cppcheck-suppress duplicateAssignExpression
 	size_t rx8len = txlen * sizeof(uint32_t);	// Bytes to read
 	size_t u;
 	uint32_t cs;
@@ -306,7 +310,11 @@ static int spi1_transfer(const spix_port_t *sp, uint32_t *wptr, size_t txlen, in
 	rpi3_port_t *rp = (rpi3_port_t *)sp;
 	uint16_t *w16ptr = (uint16_t *)wptr;
 	uint16_t *r16ptr = (uint16_t *)wptr;
+	// Happens with cppcheck 2.13, not with 2.17. Debian 12 (2.10)
+	// cannot handle suppress-begin/suppress-end ranges
+	// cppcheck-suppress duplicateAssignExpression
 	size_t tx16len = txlen * 2;	// There are twice as many 16-bit words as there are 32-bit words
+	// cppcheck-suppress duplicateAssignExpression
 	size_t rx16len = txlen * 2;
 	size_t u;
 	unsigned pending = 0;
@@ -425,9 +433,9 @@ static int peripheral_map(uintptr_t membase, size_t memsize)
 	// the wild.
 	// Lets just say, when somebody decides to change the world, then we'll
 	// fix all this code too.
-	gpio = (bcm2835_gpio_t *)(peripheralmem + (BCM2835_GPIO_OFFSET / sizeof(*peripheralmem)));
-	spi  = (bcm2835_spi_t *)(peripheralmem + (BCM2835_SPI_OFFSET  / sizeof(*peripheralmem)));
-	aux  = (bcm2835_aux_t *)(peripheralmem + (BCM2835_AUX_OFFSET  / sizeof(*peripheralmem)));
+	gpio = (bcm2835_gpio_t *)((char *)peripheralmem + BCM2835_GPIO_OFFSET);
+	spi  = (bcm2835_spi_t  *)((char *)peripheralmem + BCM2835_SPI_OFFSET);
+	aux  = (bcm2835_aux_t  *)((char *)peripheralmem + BCM2835_AUX_OFFSET);
 
 	LL_INFO("Mapped peripherals from 0x%p (size 0x%08x) to gpio:0x%p, spi:0x%p, aux:0x%p\n",
 			(void *)membase, (uint32_t)peripheralsize, gpio, spi, aux);
@@ -462,11 +470,11 @@ static void gpio_pull(unsigned pin, uint32_t pud)
 	reg_wr(&gpio->gppud, pud);
 	waste_150_cycles();
 	if(pin <= 31) {
-		reg_wr(&gpio->gppudclk0, 1 << pin);
+		reg_wr(&gpio->gppudclk0, 1u << pin);
 		waste_150_cycles();
 		reg_wr(&gpio->gppudclk0, 0);
 	} else if(pin <= 53) {
-		reg_wr(&gpio->gppudclk1, 1 << (pin - 32));
+		reg_wr(&gpio->gppudclk1, 1u << (pin - 32));
 		waste_150_cycles();
 		reg_wr(&gpio->gppudclk1, 0);
 	}
@@ -599,7 +607,7 @@ static uint32_t read_spiclkbase(void)
 		}
 	}
 
-	if(err >= sizeof(buf)-1) {
+	if(err >= (int)sizeof(buf)-1) {
 		// There are probably too many digits in the number
 		// 250000000 (250 MHz) has 9 digits and there is a newline
 		// following the number

@@ -6,6 +6,7 @@
 <doc name="common_emc2-intro" title="Overleaf Image"/>
 <doc name="common_overleaf" title="Overleaf Text"/>
 <doc name="common_System_Requirements" title="System Requirements"/>
+<doc name="common_Hardware_Interface" title="Hardware CNC Interface"/>
 <doc name="common_Getting_EMC" title="Getting LinuxCNC"/>
 <doc name="common_Updating_EMC" title="Updating LinuxCNC"/>
 <doc name="quickstart_stepper_quickstart" title="Stepper Quickstart"/>
@@ -100,6 +101,7 @@
 <doc name="code_code-notes" title="Code Notes"/>
 <doc name="code_nml-messages" title="NML Messages"/>
 <doc name="code_style-guide" title="Style Guide"/>
+<doc name="gui_gui-dev-reference" title="GUI Development Reference"/>
 <doc name="common_Glossary" title="Glossary"/>
 <doc name="common_gpld-copyright" title="Copyright and Documentation License"/>
 

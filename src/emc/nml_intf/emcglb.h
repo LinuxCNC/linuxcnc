@@ -38,13 +38,11 @@ extern "C" {
    get these into Tk automatically */
 
     // there's also an emc_Debug function in emc/usr_intf/emcsh.cc
-    extern int emc_debug;
+    extern unsigned emc_debug;
 
     // EMC_DEBUG_* flag definitions moved to debugflags.h
 
-    extern double emc_task_cycle_time;	
-
-    extern double emc_io_cycle_time;
+    extern double emc_task_cycle_time;
 
     extern int emc_task_interp_max_len;
 

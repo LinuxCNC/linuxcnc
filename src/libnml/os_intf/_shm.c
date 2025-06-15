@@ -189,7 +189,7 @@ shm_t *rcs_shm_open(key_t key, size_t size, int oflag, /* int mode */ ...)
 	shmflg |= IPC_CREAT;
     }
 
-    shm = (shm_t *) calloc(sizeof(shm_t), 1);
+    shm = (shm_t *) calloc(1, sizeof(shm_t));
     if (NULL == shm) {
 	rcs_print_error("rcs_shm_open: calloc failed\n");
 	return NULL;

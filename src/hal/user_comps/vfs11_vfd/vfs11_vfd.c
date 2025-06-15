@@ -360,17 +360,20 @@ void  windup(param_pointer p)
 
 static void toggle_modbus_debug(int sig)
 {
+    (void)sig;
     param.modbus_debug = !param.modbus_debug;
     modbus_set_debug(param.ctx, param.modbus_debug);
 }
 
 static void toggle_debug(int sig)
 {
+    (void)sig;
     param.debug = !param.debug;
 }
 
 static void quit(int sig) 
 {
+    (void)sig;
     if (param.debug)
 	fprintf(stderr,"quit(connection_state=%d)\n",connection_state);
 
@@ -463,7 +466,7 @@ int read_ini(param_pointer p)
 		    "even",'E', 
 		    "odd", 'O', 
 		    "none", 'N',
-		    NULL) == KEYWORD_INVALID)
+		    (void *)NULL) == KEYWORD_INVALID)
 	    return -1;
 	p->parity = value;
 
@@ -472,7 +475,7 @@ int read_ini(param_pointer p)
 		    "up", MODBUS_RTU_RTS_UP,
 		    "down", MODBUS_RTU_RTS_DOWN, 
 		    "none", MODBUS_RTU_RTS_NONE,
-		    NULL) == KEYWORD_INVALID)
+		    (void *)NULL) == KEYWORD_INVALID)
 	    return -1;
 #else
 	if (iniFind(p->fp, "RTS_MODE", p->section) != NULL) {
@@ -485,14 +488,14 @@ int read_ini(param_pointer p)
 	if (findkwd(p,"SERIAL_MODE", &p->serial_mode,
 		    "rs232", MODBUS_RTU_RS232,
 		    "rs485", MODBUS_RTU_RS485,
-		    NULL) == KEYWORD_INVALID)
+		    (void *)NULL) == KEYWORD_INVALID)
 	    return -1;
 
 	if (findkwd(p, "TYPE", &p->type,
 		    "rtu", TYPE_RTU, 
 		    "tcpserver", TYPE_TCP_SERVER, 
 		    "tcpclient", TYPE_TCP_CLIENT, 
-		    NULL) == NAME_NOT_FOUND) {
+		    (void *)NULL) == NAME_NOT_FOUND) {
 	    fprintf(stderr, "%s: missing required TYPE in section %s\n", 
 		    p->progname, p->section);
 	    return -1;
@@ -506,6 +509,7 @@ int read_ini(param_pointer p)
 }
 
 void usage(int argc, char **argv) {
+    (void)argc;
     printf("Usage:  %s [options]\n", argv[0]);
     printf("This is a userspace HAL program, typically loaded using the halcmd \"loadusr\" command:\n"
 	   "    loadusr vfs11_vfd [options]\n"

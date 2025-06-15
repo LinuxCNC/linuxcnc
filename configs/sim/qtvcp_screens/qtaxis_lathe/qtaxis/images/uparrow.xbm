@@ -1,0 +1,5 @@
+/* Created with The GIMP */
+#define uparrow_width 9
+#define uparrow_height 5
+static unsigned char uparrow_bits[] = {
+   0x10, 0x00, 0x38, 0x00, 0x7c, 0x00, 0xfe, 0x00, 0xff, 0x01 };

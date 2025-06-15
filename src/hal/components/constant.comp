@@ -1,6 +1,7 @@
 component constant "Use a parameter to set the value of a pin";
 pin out float out;
 param rw float value;
+option period no;
 function _;
 license "GPL";
 author "John Kasunich";

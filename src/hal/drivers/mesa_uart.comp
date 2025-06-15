@@ -46,6 +46,7 @@ pin out s32 rx-bytes "Number of Bytes received";
 variable char *name; // UART name
 
 option extra_setup yes;
+option period no;
 
 function send;
 function receive;
@@ -85,6 +86,7 @@ FUNCTION(receive){
 }
     
 EXTRA_SETUP(){ // the names parameters are passed in 'prefix'. You just have to know that. 
+    (void)extra_arg;
     if (prefix[0] == 'm'){ // should be the 'h' of hm2_....
         rtapi_print_msg(0, "mesa_uart can not be loaded using the 'count' "
                         "parameter, see man mesa_uart for details\n");

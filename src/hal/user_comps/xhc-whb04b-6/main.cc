@@ -33,7 +33,6 @@
 // local includes
 #include "./xhc-whb04b6.h"
 
-#include <inifile.hh>
 #include "config.h"
 
 using std::endl;
@@ -51,7 +50,7 @@ static int printUsage(const char* programName, const char* deviceName, bool isEr
     {
         os = &std::cerr;
     }
-    *os << programName << " version " << PACKAGE_VERSION << " " << __DATE__ << " " << __TIME__ << endl
+    *os << programName << " version " << PACKAGE_VERSION << endl
         << endl
         << "SYNOPSIS" << endl
         << "    " << programName << " [-h | --help] | [-H] [OPTIONS] " << endl

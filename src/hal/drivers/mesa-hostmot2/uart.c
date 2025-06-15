@@ -315,17 +315,29 @@ int hm2_uart_read(char *name, unsigned char data[])
         case 1:
             r = hm2->llio->read(hm2->llio, hm2->uart.instance[inst].rx1_addr,
                                 &buff, sizeof(rtapi_u32));
+            if (r < 0) {
+                HM2_ERR("UART READ: hm2->llio->read failure %s\n", name);
+                return r;
+            }
             data[c]   = (buff & 0x000000FF);
             return c + 1;
         case 2:
             r = hm2->llio->read(hm2->llio, hm2->uart.instance[inst].rx2_addr,
                                 &buff, sizeof(rtapi_u32));
+            if (r < 0) {
+                HM2_ERR("UART READ: hm2->llio->read failure %s\n", name);
+                return r;
+            }
             data[c]   = (buff & 0x000000FF);
             data[c+1] = (buff & 0x0000FF00) >> 8;
             return c + 2;
         case 3:
             r = hm2->llio->read(hm2->llio, hm2->uart.instance[inst].rx3_addr,
                                 &buff, sizeof(rtapi_u32));
+            if (r < 0) {
+                HM2_ERR("UART READ: hm2->llio->read failure %s\n", name);
+                return r;
+            }
             data[c]   = (buff & 0x000000FF);
             data[c+1] = (buff & 0x0000FF00) >> 8;
             data[c+2] = (buff & 0x00FF0000) >> 16;
@@ -333,10 +345,6 @@ int hm2_uart_read(char *name, unsigned char data[])
         default:
             HM2_ERR("UART READ: Error in buffer parsing.\n");
             return -EINVAL;
-    }
-    if (r < 0) {
-        HM2_ERR("UART READ: hm2->llio->write failure %s\n", name);
-        return -EINVAL;
     }
 }
 
@@ -359,9 +367,11 @@ void hm2_uart_print_module(hostmot2_t *hm2){
 
 void hm2_uart_cleanup(hostmot2_t *hm2)
 {
+    (void)hm2;
 }
 
 void hm2_uart_write(hostmot2_t *hm2)
 {
+    (void)hm2;
 }
 

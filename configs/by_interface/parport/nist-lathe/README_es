@@ -1,5 +1,0 @@
-Esta es la configuración para el torno Sherline con motores de pasos, prestado generosamente por el NIST.
-
-Tiene control de velocidad del cabezal por entrada analógica, que se controla mediante PWM generado por software en un pin de puerto paralelo. Los motores se accionan con step/dir y el codificador del plato (para movimiento sincronizado/roscado) se lee por software, también en el puerto paralelo.
-
-Todo esto hace un torno completamente funcional utilizando hardware simple. Toda la potencia está en HAL; el hardware es solo una única interfaz de puerto paralelo y controladores de pasos simples.

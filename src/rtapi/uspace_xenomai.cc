@@ -1,7 +1,10 @@
 #include "config.h"
 #include "rtapi.h"
 #include "rtapi_uspace.hh"
-#include <posix/pthread.h>
+#include <pthread.h>
+#include  <errno.h>
+#include <stdio.h>
+#include <cstring>
 #include <atomic>
 #ifdef HAVE_SYS_IO_H
 #include <sys/io.h>
@@ -143,12 +146,16 @@ struct XenomaiApp : RtapiApp {
     unsigned char do_inb(unsigned int port) {
 #ifdef HAVE_SYS_IO_H
         return inb(port);
+#else
+        return 0;
 #endif
     }
 
     void do_outb(unsigned char val, unsigned int port) {
 #ifdef HAVE_SYS_IO_H
         return outb(val, port);
+#else
+        return 0;
 #endif
     }
 

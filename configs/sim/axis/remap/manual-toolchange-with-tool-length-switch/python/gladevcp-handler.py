@@ -10,11 +10,11 @@ class HandlerClass:
         '''
         if hal_led.hal_pin.get():
             if self.halcomp["number"] > 0.0:
-                self.change_text.set_label("Insert too number %d" % (int(self.halcomp["number"])))
+                self.change_text.set_label("Insert tool number %d" % (int(self.halcomp["number"])))
             else:
                 self.change_text.set_label("Remove tool")
         else:
-            self.change_text.set_label("")         
+            self.change_text.set_label("No change requested")         
 
     def __init__(self, halcomp,builder,useropts):
         self.halcomp = halcomp

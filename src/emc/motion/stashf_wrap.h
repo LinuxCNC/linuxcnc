@@ -25,13 +25,26 @@ const char *fmt, *efmt;
     result = dbuf_get_string(o, &fmt);
     if(result < 0) return result;
 
+    // cppcheck-suppress selfAssignment
     if(*fmt) fmt = gettext(fmt);
 
     while((efmt = strchr(fmt, '%'))) {
         int modifier_l;
         int code = get_code(&efmt, &modifier_l);
+	// A format should be a "few" characters long, like "+999.999lf".
+	// However, it is never sure how long they are. An artificial limit
+	// must be imposed unless we use variable length arrays (VLAs) or use
+	// dynamic memory. VLAs are not really allowed in kernel and are the
+	// reason for this comment. Using dynamic memory is slow and must be
+	// discouraged here.
+	// A limit to 63+1 characters seems fair. If the format is larger than
+	// the limit, then the print will not be right, but it doesn't crash
+	// either. The next round will skip properly because 'efmt' points to
+	// after the format.
+        char block[63 + 1];
         int fmt_len = efmt - fmt;
-        char block[fmt_len + 1];
+	if(fmt_len >= (int)sizeof(block))
+		fmt_len = sizeof(block) - 1;
         memcpy(block, fmt, fmt_len);
         block[fmt_len] = 0;
 
@@ -67,6 +80,7 @@ const char *fmt, *efmt;
                     const char *s;
                     result = dbuf_get_string(o, &s);
                     if(result < 0) return SET_ERRNO(result);
+                    // cppcheck-suppress selfAssignment
                     if(*s) s = gettext(s);
                     result = PRINT(block, s);
                 }
@@ -79,7 +93,10 @@ const char *fmt, *efmt;
     if(*fmt) {
         result = PRINT("%s", fmt);
         if(result < 0) return SET_ERRNO(result);
-        EXTRA
+        // The below expansion of 'EXTRA' makes no sense. The function is about
+        // to exit and changing anything here does not change the outcome in
+        // any way. Therefore, make it a comment.
+        // EXTRA
     }
 
     return SET_ERRNO(result);

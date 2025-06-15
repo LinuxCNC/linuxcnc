@@ -1,0 +1,72 @@
+Component Pins:
+Owner   Type  Dir                 Value  Name
+     8  bit   IN                  FALSE  conv-bit-u32.0.in <== net-conv-bit-u32.0.in
+    14  float IN                      0  conv-float-s32.0.in <== net-conv-float-s32.0.in
+    17  s32   IN                      0  conv-s32-float.0.in <== net-conv-s32-float.0.in
+    20  s64   IN                      0  conv-s64-u64.0.in <== net-conv-s64-u64.0.in
+    11  u32   IN             0x00000000  conv-u32-bit.0.in <== net-conv-u32-bit.0.in
+    23  u64   IN     0x0000000000000000  conv-u64-s64.0.in <== net-conv-u64-s64.0.in
+
+Signals:
+Type                  Value  Name     (linked to)
+bit                   FALSE  net-conv-bit-u32.0.in
+                                 ==> conv-bit-u32.0.in
+u32              0x00000000  net-conv-bit-u32.0.out
+                                 <== conv-bit-u32.0.out
+float                     0  net-conv-float-s32.0.in
+                                 ==> conv-float-s32.0.in
+s32                       0  net-conv-float-s32.0.out
+                                 <== conv-float-s32.0.out
+s32                       0  net-conv-s32-float.0.in
+                                 ==> conv-s32-float.0.in
+float                     0  net-conv-s32-float.0.out
+                                 <== conv-s32-float.0.out
+s64                       0  net-conv-s64-u64.0.in
+                                 ==> conv-s64-u64.0.in
+u64      0x0000000000000000  net-conv-s64-u64.0.out
+                                 <== conv-s64-u64.0.out
+u32              0x00000000  net-conv-u32-bit.0.in
+                                 ==> conv-u32-bit.0.in
+bit                   FALSE  net-conv-u32-bit.0.out
+                                 <== conv-u32-bit.0.out
+u64      0x0000000000000000  net-conv-u64-s64.0.in
+                                 ==> conv-u64-s64.0.in
+s64                       0  net-conv-u64-s64.0.out
+                                 <== conv-u64-s64.0.out
+
+Component Pins:
+Owner   Type  Dir                 Value  Name
+     8  bit   IN                   TRUE  conv-bit-u32.0.in <== net-conv-bit-u32.0.in
+    14  float IN           2.147484e+09  conv-float-s32.0.in <== net-conv-float-s32.0.in
+    17  s32   IN            -2147483648  conv-s32-float.0.in <== net-conv-s32-float.0.in
+    20  s64   IN   -9223372036854775808  conv-s64-u64.0.in <== net-conv-s64-u64.0.in
+    11  u32   IN             0xFFFFFFFF  conv-u32-bit.0.in <== net-conv-u32-bit.0.in
+    23  u64   IN     0xFFFFFFFFFFFFFFFF  conv-u64-s64.0.in <== net-conv-u64-s64.0.in
+
+Signals:
+Type                  Value  Name     (linked to)
+bit                    TRUE  net-conv-bit-u32.0.in
+                                 ==> conv-bit-u32.0.in
+u32              0x00000001  net-conv-bit-u32.0.out
+                                 <== conv-bit-u32.0.out
+float          2.147484e+09  net-conv-float-s32.0.in
+                                 ==> conv-float-s32.0.in
+s32              2147483647  net-conv-float-s32.0.out
+                                 <== conv-float-s32.0.out
+s32             -2147483648  net-conv-s32-float.0.in
+                                 ==> conv-s32-float.0.in
+float         -2.147484e+09  net-conv-s32-float.0.out
+                                 <== conv-s32-float.0.out
+s64    -9223372036854775808  net-conv-s64-u64.0.in
+                                 ==> conv-s64-u64.0.in
+u64      0x8000000000000000  net-conv-s64-u64.0.out
+                                 <== conv-s64-u64.0.out
+u32              0xFFFFFFFF  net-conv-u32-bit.0.in
+                                 ==> conv-u32-bit.0.in
+bit                    TRUE  net-conv-u32-bit.0.out
+                                 <== conv-u32-bit.0.out
+u64      0xFFFFFFFFFFFFFFFF  net-conv-u64-s64.0.in
+                                 ==> conv-u64-s64.0.in
+s64                      -1  net-conv-u64-s64.0.out
+                                 <== conv-u64-s64.0.out
+

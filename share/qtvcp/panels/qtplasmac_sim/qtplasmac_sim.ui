@@ -133,6 +133,9 @@
         <height>23</height>
        </size>
       </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
+      </property>
       <property name="text">
        <string>BREAK</string>
       </property>
@@ -158,6 +161,9 @@
         <height>23</height>
        </size>
       </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
+      </property>
       <property name="text">
        <string>DOWN</string>
       </property>
@@ -176,6 +182,9 @@
         <width>54</width>
         <height>23</height>
        </size>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
       </property>
       <property name="text">
        <string>FLOAT</string>
@@ -201,6 +210,9 @@
         <width>54</width>
         <height>23</height>
        </size>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
       </property>
       <property name="text">
        <string>UP</string>
@@ -243,6 +255,9 @@
         <height>23</height>
        </size>
       </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
+      </property>
       <property name="text">
        <string>ESTOP</string>
       </property>
@@ -262,13 +277,13 @@
       <property name="minimumSize">
        <size>
         <width>170</width>
-        <height>2</height>
+        <height>1</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
         <width>170</width>
-        <height>2</height>
+        <height>1</height>
        </size>
       </property>
       <property name="orientation">
@@ -287,13 +302,13 @@
       <property name="minimumSize">
        <size>
         <width>170</width>
-        <height>2</height>
+        <height>1</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
         <width>170</width>
-        <height>2</height>
+        <height>1</height>
        </size>
       </property>
       <property name="orientation">
@@ -325,6 +340,9 @@
           <width>23</width>
           <height>23</height>
          </size>
+        </property>
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
         </property>
         <property name="text">
          <string>?</string>
@@ -365,6 +383,9 @@
         <width>170</width>
         <height>23</height>
        </size>
+      </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
       </property>
       <property name="text">
        <string>ARC OK</string>
@@ -448,6 +469,9 @@
         <height>23</height>
        </size>
       </property>
+      <property name="focusPolicy">
+       <enum>Qt::NoFocus</enum>
+      </property>
       <property name="text">
        <string>OHMIC</string>
       </property>
@@ -464,13 +488,13 @@
       <property name="minimumSize">
        <size>
         <width>170</width>
-        <height>2</height>
+        <height>1</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
         <width>170</width>
-        <height>2</height>
+        <height>1</height>
        </size>
       </property>
       <property name="orientation">
@@ -506,6 +530,9 @@
         </property>
         <property name="text">
          <string/>
+        </property>
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
         </property>
        </widget>
       </item>
@@ -566,13 +593,13 @@
       <property name="minimumSize">
        <size>
         <width>170</width>
-        <height>2</height>
+        <height>1</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
         <width>170</width>
-        <height>2</height>
+        <height>1</height>
        </size>
       </property>
       <property name="orientation">
@@ -591,13 +618,13 @@
       <property name="minimumSize">
        <size>
         <width>170</width>
-        <height>2</height>
+        <height>1</height>
        </size>
       </property>
       <property name="maximumSize">
        <size>
         <width>170</width>
-        <height>2</height>
+        <height>1</height>
        </size>
       </property>
       <property name="orientation">
@@ -667,6 +694,9 @@
         </property>
         <property name="text">
          <string/>
+        </property>
+        <property name="focusPolicy">
+        <enum>Qt::NoFocus</enum>
         </property>
        </widget>
       </item>

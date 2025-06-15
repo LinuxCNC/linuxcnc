@@ -448,9 +448,11 @@ Since each loop has its own function, individual loops can be included in differ
   for a single PID loop.
 
 If you want to understand the exact algorithm used to compute the output of the PID loop, refer to
+
 - figure <<fig:pid-block-diag,PID Loop Block Diagram>>,
 - the comments at the beginning of 'emc2/src/hal/components/pid.c', and of course to
 - the code itself.
+
 The loop calculations are in the C function 'calc_pid()'.
 
 [[sec:simulated-encoder]]
@@ -488,7 +490,7 @@ When `.speed` is positive, `.phase-A` leads `.phase-B`.
 * (u32) `sim-encoder.`__<chan-num>__`.ppr` - Pulses Per Revolution.
 * (float) `sim-encoder.`__<chan-num>__`.scale` - Scale Factor for `.speed`.
   The default is 1.0, which means that `.speed` is in revolutions per second.
-  Change to 60 for RPM, to 360 for degrees per second, 6.283185 (= 2*&pi;) for radians per second, etc.
+  Change to 60 for RPM, to 360 for degrees per second, 6.283185 (= 2*π) for radians per second, etc.
 
 Note that pulses per revolution is not the same as counts per revolution.
 A pulse is a complete quadrature cycle.

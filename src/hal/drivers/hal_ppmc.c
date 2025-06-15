@@ -440,7 +440,6 @@ int rtapi_app_main(void)
     int idcode, id, ver;
     bus_data_t *bus;
     slot_data_t *slot;
-    char buf[HAL_NAME_LEN + 1];
 
     /* connect to the HAL */
     comp_id = hal_init("hal_ppmc");
@@ -732,9 +731,8 @@ int rtapi_app_main(void)
 	    continue;
 	}
 	/* export functions */
-	rtapi_snprintf(buf, sizeof(buf), "ppmc.%d.read", busnum);
-	rv1 = hal_export_funct(buf, read_all, &(bus_array[busnum]),
-	    1, 0, comp_id);
+	rv1 = hal_export_functf(read_all, &(bus_array[busnum]),
+	    1, 0, comp_id, "ppmc.%d.read", busnum);
 	if (rv1 != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"PPMC: ERROR: read funct export failed\n");
@@ -742,9 +740,8 @@ int rtapi_app_main(void)
 	    /* skip to next bus */
 	    continue;
 	}
-	rtapi_snprintf(buf, sizeof(buf), "ppmc.%d.write", busnum);
-	rv1 = hal_export_funct(buf, write_all, &(bus_array[busnum]),
-	    1, 0, comp_id);
+	rv1 = hal_export_functf(write_all, &(bus_array[busnum]),
+	    1, 0, comp_id, "ppmc.%d.write", busnum);
 	if (rv1 != 0) {
 	    rtapi_print_msg(RTAPI_MSG_ERR,
 		"PPMC: ERROR: write funct export failed\n");
@@ -893,6 +890,7 @@ static void read_all(void *arg, long period)
 
 static void write_all(void *arg, long period)
 {
+    (void)period;
     bus_data_t *bus;
     slot_data_t *slot;
     int slotnum, functnum, addr_ok;
@@ -1248,7 +1246,7 @@ static void write_encoders(slot_data_t *slot)
    value in 10MHz clock pulses. */
 static unsigned int ns2cp( hal_u32_t *pns, unsigned int min_ns )
 {
-    int ns, cp;
+    unsigned ns, cp;
 
     ns = *pns;
     if ( ns < min_ns ) ns = min_ns;
@@ -1649,7 +1647,7 @@ static rtapi_u32 block(int min, int max)
 
     mask = 0;
     for ( n = min ; n <= max ; n++ ) {
-	mask |= ( 1 << n );
+	mask |= ( 1u << n );
     }
     return mask;
 }
@@ -2298,6 +2296,7 @@ static int export_extra_dac(slot_data_t *slot, bus_data_t *bus)
 
  int export_timestamp(slot_data_t *slot, bus_data_t *bus)
 {
+    (void)bus;
     int n;
 
     /* does the board have the timestamp feature? */

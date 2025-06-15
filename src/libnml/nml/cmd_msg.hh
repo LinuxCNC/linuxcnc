@@ -30,6 +30,8 @@ class RCS_CMD_CHANNEL:public NML {
     RCS_CMD_CHANNEL(NML_FORMAT_PTR, const char *, const char *, const char *,
 	int set_to_server = 0);
      ~RCS_CMD_CHANNEL();
+    // Sub-class calls base-class
+    // cppcheck-suppress duplInheritedMember
     RCS_CMD_MSG *get_address() {
 	return ((RCS_CMD_MSG *) NML::get_address());
     };

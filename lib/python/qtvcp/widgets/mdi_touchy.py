@@ -282,7 +282,7 @@ class MDITouchy(QtWidgets.QWidget, _HalWidgetBase):
             LOG.debug('message return:{}'.format (message))
             t = self.get_text().rstrip("0123456789.-")
             self.set_text('{}{}'.format(t, num))
-            STATUS.emit('update-machine-log', 'Calculation from MDI {}:'.format(num), 'TIME')
+            STATUS.emit('update-machine-log', 'Calculation from MDI {}:'.format(num), 'TIME,DEBUG')
 
     def run_command(self):
         self.fill_out()

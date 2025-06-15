@@ -54,23 +54,23 @@ static unsigned long ns2tsc_factor;
 #define MAX_CHAN 128
 
 char *inputs[MAX_CHAN];
-RTAPI_MP_ARRAY_STRING(inputs, MAX_CHAN, "list of pins to use for input")
+RTAPI_MP_ARRAY_STRING(inputs, MAX_CHAN, "list of pins to use for input");
 char *outputs[MAX_CHAN];
-RTAPI_MP_ARRAY_STRING(outputs, MAX_CHAN, "list of pins to use for output")
+RTAPI_MP_ARRAY_STRING(outputs, MAX_CHAN, "list of pins to use for output");
 char *invert[MAX_CHAN];
-RTAPI_MP_ARRAY_STRING(invert, MAX_CHAN, "set as inverted")
+RTAPI_MP_ARRAY_STRING(invert, MAX_CHAN, "set as inverted");
 char *reset[MAX_CHAN];
-RTAPI_MP_ARRAY_STRING(reset, MAX_CHAN, "add to reset list")
+RTAPI_MP_ARRAY_STRING(reset, MAX_CHAN, "add to reset list");
 char *opendrain[MAX_CHAN];
-RTAPI_MP_ARRAY_STRING(opendrain, MAX_CHAN, "set OPEN_DRAIN flag")
+RTAPI_MP_ARRAY_STRING(opendrain, MAX_CHAN, "set OPEN_DRAIN flag");
 char *opensource[MAX_CHAN];
-RTAPI_MP_ARRAY_STRING(opensource, MAX_CHAN, "set OPEN_SOURCE flag")
+RTAPI_MP_ARRAY_STRING(opensource, MAX_CHAN, "set OPEN_SOURCE flag");
 char *biasdisable[MAX_CHAN];
-RTAPI_MP_ARRAY_STRING(biasdisable, MAX_CHAN, "set BIAS_DISABLE flag")
+RTAPI_MP_ARRAY_STRING(biasdisable, MAX_CHAN, "set BIAS_DISABLE flag");
 char *pulldown[MAX_CHAN];
-RTAPI_MP_ARRAY_STRING(pulldown, MAX_CHAN, "set BIAS_PULL_DOWN flag")
+RTAPI_MP_ARRAY_STRING(pulldown, MAX_CHAN, "set BIAS_PULL_DOWN flag");
 char *pullup[MAX_CHAN];
-RTAPI_MP_ARRAY_STRING(pullup, MAX_CHAN, "set BIAS_PULL_UP flag")
+RTAPI_MP_ARRAY_STRING(pullup, MAX_CHAN, "set BIAS_PULL_UP flag");
 
 /***********************************************************************
 *                STRUCTURES AND GLOBAL VARIABLES                       *
@@ -165,7 +165,7 @@ int build_chips_collection(char *name, hal_gpio_bulk_t **ptr, int *count){
     struct gpiod_line *temp_line;
     
     temp_line = gpiod_line_find(name);
-    if (temp_line <= 0) {
+    if (!temp_line) {
 	    rtapi_print_msg(RTAPI_MSG_ERR, "The GPIO line %s can not be found\n", name);
 	    return -EINVAL;
     }
@@ -206,7 +206,6 @@ int build_chips_collection(char *name, hal_gpio_bulk_t **ptr, int *count){
 int rtapi_app_main(void){
     int retval = 0;
     int i, c;
-    char hal_name[HAL_NAME_LEN];
     const char *line_name;
 
 #ifdef __KERNEL__
@@ -235,7 +234,7 @@ int rtapi_app_main(void){
     gpio->num_out_chips = 0;
     gpio->in_chips = NULL; // so that realloc knows that they need malloc first time throigh
     gpio->out_chips = NULL;
-    for (i = 0; inputs[i]; i++) {
+    for (i = 0; inputs[i] && strlen(inputs[i]); i++) {
 	retval = build_chips_collection(inputs[i], &gpio->in_chips, &gpio->num_in_chips);
 	if (retval < 0) goto fail0;
     }
@@ -257,7 +256,7 @@ int rtapi_app_main(void){
 	    
     }
     
-    for (i = 0; outputs[i]; i++) {
+    for (i = 0; outputs[i] && strlen(outputs[i]); i++) {
 	retval = build_chips_collection(outputs[i], &gpio->out_chips, &gpio->num_out_chips);
 	if (retval < 0) goto fail0;
     }
@@ -277,16 +276,13 @@ int rtapi_app_main(void){
 	}
     }
 
-    rtapi_snprintf(hal_name, HAL_NAME_LEN, "hal_gpio.read");
-    retval += hal_export_funct(hal_name, hal_gpio_read, gpio, 0, 0, comp_id);
-    rtapi_snprintf(hal_name, HAL_NAME_LEN, "hal_gpio.write");
-    retval += hal_export_funct(hal_name, hal_gpio_write, gpio, 0, 0, comp_id);
+    retval += hal_export_funct("hal_gpio.read", hal_gpio_read, gpio, 0, 0, comp_id);
+    retval += hal_export_funct("hal_gpio.write", hal_gpio_write, gpio, 0, 0, comp_id);
 
     if (reset_active){
 	gpio->reset_ns = hal_malloc(sizeof(hal_u32_t));
-	rtapi_snprintf(hal_name, HAL_NAME_LEN, "hal_gpio.reset");
 	retval += hal_param_u32_newf(HAL_RW, gpio->reset_ns, comp_id, "hal_gpio.reset_ns");
-	retval += hal_export_funct(hal_name, hal_gpio_reset, gpio, 0, 0, comp_id);
+	retval += hal_export_funct("hal_gpio.reset", hal_gpio_reset, gpio, 0, 0, comp_id);
     }
     if (retval < 0){
 	rtapi_print_msg(RTAPI_MSG_ERR, "hal_gpio: failed to export functions\n");
@@ -316,6 +312,7 @@ int rtapi_app_main(void){
 
 static void hal_gpio_read(void *arg, long period)
 {
+    (void)period;
     hal_gpio_t *gpio = arg;
     int i, c;
     for (c = 0; c < gpio->num_in_chips; c++){
@@ -329,6 +326,7 @@ static void hal_gpio_read(void *arg, long period)
 
 static void hal_gpio_write(void *arg, long period)
 {
+    (void)period;
     hal_gpio_t *gpio = arg;
     int i, c;
     for (c = 0; c < gpio->num_out_chips; c++){

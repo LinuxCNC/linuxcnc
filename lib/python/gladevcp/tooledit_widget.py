@@ -308,7 +308,7 @@ class ToolEdit(Gtk.Box):
                                 print(_("Tooledit widget float error"))
                         else:
                             try:
-                                array[offset]= locale.format_string("%10.4f", float(word.lstrip(i)))
+                                array[offset]= f"{float(word.lstrip(i)):10.4f}"
                             except:
                                 print(_("Tooledit widget float error"))
                         break
@@ -317,7 +317,6 @@ class ToolEdit(Gtk.Box):
             # add array line to liststore
             self.add(None,array)
 
-        # Note we have to save the float info with a decimal even if the locale uses a comma
     def save(self,widget):
         if self.toolfile == None:return
         liststore = self.model
@@ -350,9 +349,9 @@ class ToolEdit(Gtk.Box):
                     test = i.strip()
                     line = line + "%s%s "%(KEYWORDS[num],test)
                 else:
-                    test = i.lstrip() # localized floats
+                    test = i.lstrip()
                     try:
-                        line = line + "%s%s "%(KEYWORDS[num], locale.atof(test))
+                        line = line + "%s%s "%(KEYWORDS[num], float(test))
                     except ValueError:
                         raise ExceptionMessage("\n\n"+_("Error converting a float with the given localization setting. A backup file has been created: "
                                                     + self.toolfile + ".bak"))
@@ -477,7 +476,7 @@ class ToolEdit(Gtk.Box):
         # validate input for float columns
         elif col in range(3,15):
             try:
-                self.model[path][col] = locale.format("%10.4f",locale.atof(new_text))
+                self.model[path][col] = f"{float(new_text.replace(',', '.')):10.4f}"
             except:
                 pass
         # validate input for orientation: check if int and valid range
@@ -705,7 +704,7 @@ class ToolEdit(Gtk.Box):
             pass
 
 class ExceptionMessage(Exception):
-    """ Exception to display a Message as an Eception.
+    """ Exception to display a Message as an Exception.
     Usage: raise ExceptionMessage(<message>)
     """
     def __init__(self, message):

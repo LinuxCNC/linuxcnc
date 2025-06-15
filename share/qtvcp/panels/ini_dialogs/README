@@ -1,0 +1,4 @@
+This panel will load/display qtvcp styled message dialogs from the ini.
+
+it would be loaded as such:
+loadusr qtvcp --ini <PATH_TO_INI>.ini -d ini_dialogs

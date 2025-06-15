@@ -43,19 +43,14 @@ import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 from gi.repository import Gdk
+from gi.repository import GLib
 
 import signal
 # Set up the base logger
 #   We have do do this before importing other modules because on import
 #   they set up their own loggers as children of the base logger.
 from qtvcp import logger
-LOG = logger.initBaseLogger('GladeVCP', log_file=None, log_level=logger.INFO)
-
-import gladevcp.makepins
-from gladevcp.gladebuilder import GladeBuilder
-from gladevcp import xembed
-from gladevcp.core import Status
-GSTAT = Status()
+LOG = None
 
 options = [ Option( '-c', dest='component', metavar='NAME'
                   , help="Set component name to NAME. Default is basename of UI file")
@@ -66,7 +61,11 @@ Values are in pixel units, XOFFSET/YOFFSET is referenced from top left of screen
 use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just position""")
           , Option( '-H', dest='halfile', metavar='FILE'
                   , help="execute hal statements from FILE with halcmd after the component is set up and ready")
+          , Option( '-i', action='store_true', dest='info', default=False
+                  , help="Enable info output")
           , Option( '-m', dest='maximum', default=False, help="Force panel window to maxumize")
+          , Option( '-q', action='store_true', dest='quiet', default=False
+                  , help="Enable only error debug output")
           , Option( '-r', dest='gtk_rc', default="",
                     help="read custom GTK rc file to set widget style")
           , Option( '-t', dest='theme', default="", help="Set gtk theme. Default is system theme")
@@ -78,8 +77,12 @@ use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just positi
                   , help='Use FILEs as additional user defined modules with handlers')
           , Option( '-U', dest='useropts', action='append', metavar='USEROPT', default=[]
                   , help='pass USEROPTs to Python modules')
+          , Option( '-v', action='store_true', dest='verbose', default=False
+                  , help="Enable verbose debug output")
           , Option( '--always_above', action='store_true', dest='always_above_flag'
                   , help="Request the window To always be above other windows")
+          , Option( '--ini', dest='ini_path', default=""
+                  , help="ini path")
           ]
 
 signal_func = 'on_unix_signal'
@@ -88,7 +91,7 @@ gladevcp_debug = 0
 def dbg(string):
     global gladevcp_debug
     if not gladevcp_debug: return
-    print(string)
+    LOG.debug(string)
 
 def on_window_destroy(widget, data=None):
         Gtk.main_quit()
@@ -123,7 +126,7 @@ def load_handlers(usermod,halcomp,builder,useropts):
         try:
             mod = __import__(basename)
         except ImportError as msg:
-            print("module '%s' skipped - import error: %s" %(basename,msg))
+            LOG.error("module '%s' skipped - import error: %s" %(basename,msg))
             continue
         LOG.debug("module '%s' imported OK" % mod.__name__)
         try:
@@ -152,7 +155,7 @@ def load_handlers(usermod,halcomp,builder,useropts):
                         LOG.debug("Register callback '%s' in %s" % (method, object))
                         add_handler(method, f)
         except Exception as e:
-            print("gladevcp: trouble looking for handlers in '%s': %s" %(basename, e))
+            LOG.warning("gladevcp: trouble looking for handlers in '%s': %s" %(basename, e))
             traceback.print_exc()
 
     # Wrap lists in Trampoline, unwrap single functions
@@ -184,10 +187,37 @@ def main():
         parser.print_help()
         sys.exit(1)
 
+    temp = os.path.splitext(os.path.basename(args[0]))[0]
+    global LOG
+    LOG = logger.initBaseLogger('GladeVCP-'+ temp, log_file=None, log_level=logger.INFO)
+
     gladevcp_debug = debug = opts.debug
     if opts.debug:
         # Log level defaults to INFO, so set lower if in debug mode
         logger.setGlobalLevel(logger.DEBUG)
+        LOG.info('DEBUGGING logging on')
+    elif opts.info:
+        logger.setGlobalLevel(logger.INFO)
+        LOG.info('INFO logging on')
+    elif opts.quiet:
+        logger.setGlobalLevel(logger.ERROR)
+    elif opts.verbose:
+        logger.setGlobalLevel(logger.VERBOSE)
+        LOG.info('VERBOSE logging on')
+    else:
+        logger.setGlobalLevel(logger.WARNING)
+
+    from gladevcp.core import Info, Status
+    import gladevcp.makepins
+    from gladevcp.gladebuilder import GladeBuilder
+    from gladevcp import xembed
+
+    if opts.ini_path:
+        # set INI path for INI info class before widgets are loaded
+        INFO = Info(ini=opts.ini_path)
+    else:
+        INFO = Info()
+    LOG.verbose('INI path = {}'.format(opts.ini_path))
 
     xmlname = args[0]
 
@@ -199,21 +229,22 @@ def main():
     try:
         builder = Gtk.Builder()
         builder.add_from_file(xmlname)
-    except Exception as e:
+
+    except GLib.Error as e:
+        LOG.error(e.message)
         try:
             # try loading as a Gtk.builder project
-            LOG.debug("**** GLADE VCP INFO:    Not a builder project, trying to load as a lib glade project")
-            print(e)
+            LOG.info("GLADE VCP INFO: Not a builder project, trying to load as a lib glade project")
             builder = Gtk.glade.XML(xmlname)
             builder = GladeBuilder(builder)
 
         except Exception as e:
-            print("**** GLADE VCP ERROR:    With xml file: %s : %s" % (xmlname,e), file=sys.stderr)
+            LOG.error(f"GLADE VCP ERROR: With xml file: '{xmlname}': {e}")
             sys.exit(0)
 
     window = builder.get_object("window1")
     if window is None:
-        print('*** GLADE VCP ERROR:    No window named "window1" found. The toplevel windows has to be named "window1"!')
+        LOG.error('GLADE VCP ERROR: No window named "window1" found. The toplevel windows has to be named "window1"!')
         sys.exit(0)
 
     window.set_title(opts.component)
@@ -221,7 +252,7 @@ def main():
     try:
         halcomp = hal.component(opts.component)
     except:
-        print("*** GLADE VCP ERROR:    Asking for a HAL component using a name that already exists.", file=sys.stderr)
+        LOG.error("GLADE VCP ERROR: Asking for a HAL component using a name that already exists.")
         sys.exit(0)
 
     panel = gladevcp.makepins.GladePanel( halcomp, xmlname, builder, None)
@@ -275,7 +306,7 @@ def main():
             pos = j[2].partition("+")
             window.move( int(pos[0]), int(pos[2]) )
         except:
-            print("**** GLADE VCP ERROR:    With window position data", file=sys.stderr)
+            LOG.error("GLADE VCP ERROR: With window position data")
             parser.print_usage()
             sys.exit(1)
     if "x" in opts.geometry:
@@ -287,17 +318,17 @@ def main():
                 t = window_geometry.partition("x")
             window.resize( int(t[0]), int(t[2]) )
         except:
-            print("**** GLADE VCP ERROR:    With window resize data", file=sys.stderr)
+            LOG.error("GLADE VCP ERROR: With window resize data")
             parser.print_usage()
             sys.exit(1)
 
     if opts.gtk_rc:
-        LOG.debug( "**** GLADE VCP INFO: %s reading gtkrc file '%s'" %(opts.component,opts.gtk_rc))
+        LOG.debug( "GLADE VCP INFO: %s reading gtkrc file '%s'" %(opts.component,opts.gtk_rc))
         Gtk.rc_add_default_file(opts.gtk_rc)
         Gtk.rc_parse(opts.gtk_rc)
 
     if opts.theme:
-        LOG.debug("**** GLADE VCP INFO:    Switching %s to '%s' theme" %(opts.component,opts.theme))
+        LOG.debug("GLADE VCP INFO: Switching %s to '%s' theme" %(opts.component,opts.theme))
         settings = Gtk.Settings.get_default()
         settings.set_string_property("gtk-theme-name", opts.theme, "")
 
@@ -318,12 +349,13 @@ def main():
 
     # User components are set up so report that we are ready
     halcomp.ready()
+    GSTAT = Status()
     GSTAT.forced_update()
 
     # push the XWindow id number to standard out
     if opts.push_XID or opts.parent:
         w_id = window.get_property('window').get_xid()
-        print(w_id, file=sys.stdout)
+        LOG.debug(f"XID: {w_id}")
         sys.stdout.flush()
 
     if signal_func in handlers:
@@ -342,7 +374,7 @@ def main():
         Gdk.flush()
         error = Gdk.error_trap_pop()
         if error and opts.debug:
-            print("**** GLADE VCP ERROR:    X Protocol Error: %s" % str(error), file=sys.stderr)
+            LOG.error("GLADE VCP ERROR: X Protocol Error: %s" % str(error))
 
 
 if __name__ == '__main__':

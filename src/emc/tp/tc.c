@@ -41,6 +41,7 @@ double tcGetMaxTargetVel(TC_STRUCT const * const tc,
 
         case TC_SYNC_VELOCITY: //Fallthrough
             max_scale = 1.0;
+            /* Fallthrough */
         case TC_SYNC_POSITION:
             // Assume no spindle override during blend target
         default:

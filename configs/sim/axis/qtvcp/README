@@ -1,0 +1,8 @@
+Axis with embedded QtVCP panel demo
+
+
+qtvcp_tab embeds a camera image into the center tab of AXIS.
+
+qtvismach_tab embeds a openGL based machine simulation.
+
+QtVCP has many sample panels available and users can build custom panels.

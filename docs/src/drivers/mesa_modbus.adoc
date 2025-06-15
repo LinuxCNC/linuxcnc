@@ -109,8 +109,8 @@ float pin is specified then two extra HAL pins are created with the
 same name but suffixed with -scale and offset. The value from the
 modbus register will be interpreted as a sighed-16 bit number. It will
 then be multiplied by the scale value and then the offset will be
-added (ie the offset is in engineering units, and the scale converts 16
-bit register values to engineering units)
+added (i.e. the offset is in engineering units, and the scale converts 16
+bit register values to engineering units).
 
 The reverse transformation is performed when writing to the device.
 
@@ -142,8 +142,7 @@ module will create the following pins for each instance of the driver:
 
 *modname.fault* - indicates a fault with the device or comms
 
-*modname.last-error* - indicates the error code that set the fault
-output.
+*modname.last-error* - indicates the error code that set the fault output.
 
 These can be redefined at any time and will take effect the next time
 that a modbus packet is assembled.
@@ -327,8 +326,7 @@ Tx+ to Rx+ and Tx- to Rx-.
 
 Note that there are differing naming standards for Modbus pins.
 Typically Rx+ and TX+ will connect to the B- pin on the modbus device
-and Rx- and Tx- will connect to the A+ pin. (ie, +/- will appear
-reversed.
+and Rx- and Tx- will connect to the A+ pin, i.e., +/- will appear reversed.
 
 
 === Ad-hoc Modbus device access ===

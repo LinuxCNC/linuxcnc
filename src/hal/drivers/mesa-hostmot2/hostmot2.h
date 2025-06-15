@@ -133,6 +133,7 @@
 #define HM2_GTAG_SSR               (195)
 #define HM2_GTAG_SMARTSERIALB      (198) // smart-serial with 224 data bits
 #define HM2_GTAG_ONESHOT           (199) // One shot
+#define HM2_GTAG_PERIODM           (200) // Period module
 
 
 //
@@ -274,18 +275,24 @@ typedef struct {
     struct {
 
         struct {
-            hal_s32_t *rawcounts;    // raw encoder counts
-            hal_s32_t *rawlatch;     // raw encoder of latch
-            hal_s32_t *count;        // (rawcounts - zero_offset)
-            hal_s32_t *count_latch;  // (rawlatch - zero_offset)
+            hal_s32_t *rawcounts;       // raw encoder counts
+            hal_s32_t *rawlatch;        // raw encoder of latch
+            hal_s32_t *count;           // (rawcounts - zero_offset)
+            hal_s32_t *count_latch;     // (rawlatch - zero_offset)
+            hal_s64_t *rawcounts_64;    // raw encoder counts
+            hal_s64_t *rawlatch_64;     // raw encoder of latch
+            hal_s64_t *count_64;        // (rawcounts - zero_offset)
+            hal_s64_t *count_latch_64;  // (rawlatch - zero_offset)
             hal_float_t *position;
             hal_float_t *position_latch;
+            hal_float_t *position_interpolated;
             hal_float_t *velocity;
             hal_float_t *velocity_rpm;
             hal_bit_t *reset;
             hal_bit_t *index_enable;
             hal_bit_t *latch_enable;
             hal_bit_t *latch_polarity;
+            hal_bit_t *no_clear_on_index;
             hal_bit_t *quadrature_error;
             hal_bit_t *quadrature_error_enable;
             hal_bit_t *input_a;
@@ -307,7 +314,8 @@ typedef struct {
 
     } hal;
 
-    rtapi_s32 zero_offset;  // *hal.pin.counts == (*hal.pin.rawcounts - zero_offset)
+    rtapi_s32 zero_offset;     // *hal.pin.counts == (*hal.pin.rawcounts - zero_offset)
+    rtapi_s64 zero_offset_64;  // *hal.pin.counts_64 == (*hal.pin.rawcounts_64 - zero_offset_64)
 
     rtapi_u16 prev_reg_count;  // from this and the current count in the register we compute a change-in-counts, which we add to rawcounts
 
@@ -321,6 +329,7 @@ typedef struct {
 
     // these two are the datapoint last time we moved (only valid if state == HM2_ENCODER_MOVING)
     rtapi_s32 prev_event_rawcounts;
+    rtapi_s64 prev_event_rawcounts_64;
     rtapi_u16 prev_event_reg_timestamp;
 
     rtapi_s32 tsc_num_rollovers;
@@ -337,7 +346,7 @@ typedef struct {
         hal_u32_t *sample_frequency;
         hal_u32_t *skew;
         hal_s32_t *dpll_timer_num;
-	hal_bit_t *hires_timestamp;
+        hal_bit_t *hires_timestamp;
 
     } pin;
 } hm2_encoder_module_global_t;
@@ -657,6 +666,60 @@ typedef struct {
 } hm2_oneshot_t;
 
 //
+// period module
+// 
+
+
+typedef struct {
+
+    struct {
+
+        struct {
+            hal_float_t *period;
+            hal_float_t *width;
+            hal_float_t *dutycycle;
+            hal_float_t *frequency;
+            hal_float_t *filtertc;
+            hal_float_t *dutyscale;
+            hal_float_t *dutyoffset;
+            hal_float_t *minfreq;
+            hal_u32_t *averages;
+            hal_bit_t *polarity;
+            hal_bit_t *valid;
+            hal_bit_t *input;
+        } pin;
+
+    } hal;
+
+} hm2_periodm_instance_t;
+
+
+
+typedef struct {
+    int num_instances;
+    hm2_periodm_instance_t *instance;
+
+    rtapi_u32 clock_frequency;
+    rtapi_u8 version;
+
+    rtapi_u32 mode_read_addr;
+    rtapi_u32 *mode_read_reg;
+
+    rtapi_u32 mode_write_addr;
+    rtapi_u32 *mode_write_reg;
+
+    rtapi_u32 limit_addr;
+    rtapi_u32 *limit_reg;
+
+    rtapi_u32 period_addr;
+    rtapi_u32 *period_reg;
+
+    rtapi_u32 width_addr;
+    rtapi_u32 *width_reg;
+
+} hm2_periodm_t;
+
+//
 // rcpwmgen pwmgen optimized for RC servos
 // 
 
@@ -839,7 +902,13 @@ typedef struct {
 
     //scanwidth for this instance	
     rtapi_u32 scanwidth;	
-
+    
+    // mpg encoder presence this instance
+	 bool enc0_present;
+	 bool enc1_present;
+	 bool enc2_present;
+	 bool enc3_present;
+	 	
     //previous MPG counts for this instance	
     rtapi_s8 prev_enc0_count;	
     rtapi_s8 prev_enc1_count;	
@@ -1578,6 +1647,7 @@ typedef struct {
         int num_ssrs;
         int num_outms;
         int num_oneshots;
+        int num_periodms;
         char sserial_modes[4][8];
         int enable_raw;
         char *firmware;
@@ -1628,6 +1698,7 @@ typedef struct {
     hm2_ssr_t ssr;
     hm2_outm_t outm;
     hm2_oneshot_t oneshot;
+    hm2_periodm_t periodm;
 
     hm2_raw_t *raw;
 
@@ -1669,10 +1740,10 @@ const char *hm2_hz_to_mhz(rtapi_u32 freq_hz);
 void hm2_print_modules(hostmot2_t *hm2);
 
 // functions to get handles to components by name
-hm2_sserial_remote_t *hm2_get_sserial(hostmot2_t **hm2, char *name);
-int hm2_get_bspi(hostmot2_t **hm2, char *name);
-int hm2_get_uart(hostmot2_t **hm2, char *name);
-int hm2_get_pktuart(hostmot2_t **hm2, char *name);
+hm2_sserial_remote_t *hm2_get_sserial(hostmot2_t **hm2, const char *name);
+int hm2_get_bspi(hostmot2_t **hm2, const char *name);
+int hm2_get_uart(hostmot2_t **hm2, const char *name);
+int hm2_get_pktuart(hostmot2_t **hm2, const char *name);
 
 
 //
@@ -1789,6 +1860,17 @@ void hm2_oneshot_prepare_tram_write(hostmot2_t *hm2);
 void hm2_oneshot_process_tram_read(hostmot2_t *hm2);
 
 //
+// periodm functions
+//
+int hm2_periodm_parse_md(hostmot2_t *hm2, int md_index);
+void hm2_periodm_print_module(hostmot2_t *hm2);
+void hm2_periodm_cleanup(hostmot2_t *hm2);
+void hm2_periodm_write(hostmot2_t *hm2);
+void hm2_periodm_force_write(hostmot2_t *hm2);
+void hm2_periodm_prepare_tram_write(hostmot2_t *hm2);
+void hm2_periodm_process_tram_read(hostmot2_t *hm2);
+
+//
 // rcpwmgen functions
 //
 
@@ -1865,8 +1947,8 @@ int hm2_bspi_write_chan(char* name, int chan, rtapi_u32 val);
 int hm2_allocate_bspi_tram(char* name);
 int hm2_tram_add_bspi_frame(char *name, int chan, rtapi_u32 **wbuff, rtapi_u32 **rbuff);
 int hm2_bspi_setup_chan(char *name, int chan, int cs, int bits, double mhz,
-                        int delay, int cpol, int cpha, int noclear, int noecho,
-                        int samplelate);
+int delay, int cpol, int cpha, int noclear, int noecho,
+int samplelate);
 int hm2_bspi_set_read_function(char *name, int (*func)(void *subdata), void *subdata);
 int hm2_bspi_set_write_function(char *name, int (*func)(void *subdata), void *subdata);
 
@@ -1895,12 +1977,6 @@ void hm2_pktuart_write(hostmot2_t *hm2);
 void hm2_pktuart_force_write(hostmot2_t *hm2); // ?? 
 void hm2_pktuart_prepare_tram_write(hostmot2_t *hm2, long period); //??
 void hm2_pktuart_process_tram_read(hostmot2_t *hm2, long period);  //  ??
-int hm2_pktuart_setup(char *name, unsigned int bitrate, rtapi_s32 tx_mode, rtapi_s32 rx_mode, int txclear, int rxclear);
-int hm2_pktuart_setup_rx(char *name, unsigned int bitrate, unsigned int filter_hz, unsigned int parity, int frame_delay, bool rx_enable, bool rx_mask);
-int hm2_pktuart_setup_tx(char *name, unsigned int bitrate, unsigned int parity, int frame_delay, bool drive_enable, bool drive_auto, int enable_delay);
-void hm2_pktuart_reset(char *name);
-int hm2_pktuart_send(char *name,  unsigned char data[], rtapi_u8 *num_frames, rtapi_u16 frame_sizes[]);
-int hm2_pktuart_read(char *name, unsigned char data[],  rtapi_u8 *num_frames, rtapi_u16 *max_frame_length, rtapi_u16 frame_sizes[]);
 
 //
 // hm2dpll functions
@@ -2001,11 +2077,11 @@ void hm2_outm_print_module(hostmot2_t *hm2);
 // ONESHOT functions
 //
 
-int hm2_oneshot_parse_md(hostmot2_t *hm2, int md_index);
-void hm2_oneshot_cleanup(hostmot2_t *hm2);
-void hm2_oneshot_force_write(hostmot2_t *hm2);
-void hm2_oneshot_prepare_tram_write(hostmot2_t *hm2);
-void hm2_oneshot_print_module(hostmot2_t *hm2);
+//int hm2_oneshot_parse_md(hostmot2_t *hm2, int md_index);
+//void hm2_oneshot_cleanup(hostmot2_t *hm2);
+//void hm2_oneshot_force_write(hostmot2_t *hm2);
+//void hm2_oneshot_prepare_tram_write(hostmot2_t *hm2);
+//void hm2_oneshot_print_module(hostmot2_t *hm2);
 
 
 //

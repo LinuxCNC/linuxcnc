@@ -279,7 +279,10 @@ typedef enum {
     HAL_FLOAT = 2,
     HAL_S32 = 3,
     HAL_U32 = 4,
-    HAL_PORT = 5
+    HAL_PORT = 5,
+    HAL_S64 = 6,
+    HAL_U64 = 7,
+    HAL_TYPE_MAX,
 } hal_type_t;
 
 /** HAL pins have a direction attribute.  A pin may be an input to 
@@ -315,6 +318,8 @@ typedef enum {
 typedef volatile bool hal_bit_t;
 typedef volatile rtapi_u32 hal_u32_t;
 typedef volatile rtapi_s32 hal_s32_t;
+typedef volatile rtapi_u64 hal_u64_t;
+typedef volatile rtapi_s64 hal_s64_t;
 typedef volatile int hal_port_t;
 typedef double real_t __attribute__((aligned(8)));
 typedef rtapi_u64 ireal_t __attribute__((aligned(8))); // integral type as wide as real_t / hal_float_t
@@ -330,6 +335,8 @@ typedef union {
     hal_u32_t u;
     hal_float_t f;
     hal_port_t p;
+    hal_s64_t ls;
+    hal_u64_t lu;
 } hal_data_u;
 
 typedef struct {
@@ -399,6 +406,10 @@ extern int hal_pin_u32_new(const char *name, hal_pin_dir_t dir,
     hal_u32_t ** data_ptr_addr, int comp_id);
 extern int hal_pin_s32_new(const char *name, hal_pin_dir_t dir,
     hal_s32_t ** data_ptr_addr, int comp_id);
+extern int hal_pin_u64_new(const char *name, hal_pin_dir_t dir,
+    hal_u64_t ** data_ptr_addr, int comp_id);
+extern int hal_pin_s64_new(const char *name, hal_pin_dir_t dir,
+    hal_s64_t ** data_ptr_addr, int comp_id);
 extern int hal_pin_port_new(const char *name, hal_pin_dir_t dir,
     hal_port_t ** data_ptr_addr, int comp_id);
 
@@ -420,6 +431,12 @@ extern int hal_pin_u32_newf(hal_pin_dir_t dir,
 	__attribute__((format(printf,4,5)));
 extern int hal_pin_s32_newf(hal_pin_dir_t dir,
     hal_s32_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
+	__attribute__((format(printf,4,5)));
+extern int hal_pin_u64_newf(hal_pin_dir_t dir,
+    hal_u64_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
+	__attribute__((format(printf,4,5)));
+extern int hal_pin_s64_newf(hal_pin_dir_t dir,
+    hal_s64_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
 	__attribute__((format(printf,4,5)));
 extern int hal_pin_port_newf(hal_pin_dir_t dir,
     hal_port_t** data_ptr_addr, int comp_id, const char *fmt, ...)
@@ -553,6 +570,10 @@ extern int hal_param_u32_new(const char *name, hal_param_dir_t dir,
     hal_u32_t * data_addr, int comp_id);
 extern int hal_param_s32_new(const char *name, hal_param_dir_t dir,
     hal_s32_t * data_addr, int comp_id);
+extern int hal_param_u64_new(const char *name, hal_param_dir_t dir,
+    hal_u64_t * data_addr, int comp_id);
+extern int hal_param_s64_new(const char *name, hal_param_dir_t dir,
+    hal_s64_t * data_addr, int comp_id);
 
 /** printf_style-style versions of hal_param_XXX_new */
 extern int hal_param_bit_newf(hal_param_dir_t dir, 
@@ -566,6 +587,12 @@ extern int hal_param_u32_newf(hal_param_dir_t dir,
 	__attribute__((format(printf,4,5)));
 extern int hal_param_s32_newf(hal_param_dir_t dir,
     hal_s32_t * data_addr, int comp_id, const char *fmt, ...)
+	__attribute__((format(printf,4,5)));
+extern int hal_param_u64_newf(hal_param_dir_t dir,
+    hal_u64_t * data_addr, int comp_id, const char *fmt, ...)
+	__attribute__((format(printf,4,5)));
+extern int hal_param_s64_newf(hal_param_dir_t dir,
+    hal_s64_t * data_addr, int comp_id, const char *fmt, ...)
 	__attribute__((format(printf,4,5)));
 
 
@@ -609,6 +636,8 @@ extern int hal_param_bit_set(const char *name, int value);
 extern int hal_param_float_set(const char *name, double value);
 extern int hal_param_u32_set(const char *name, unsigned long value);
 extern int hal_param_s32_set(const char *name, signed long value);
+extern int hal_param_u64_set(const char *name, unsigned long value);
+extern int hal_param_s64_set(const char *name, signed long value);
 
 /** 'hal_param_alias()' assigns an alternate name, aka an alias, to
     a parameter.  Once assigned, the parameter can be referred to by
@@ -709,6 +738,14 @@ extern int hal_get_param_value_by_name(
 */
 extern int hal_export_funct(const char *name, void (*funct) (void *, long),
     void *arg, int uses_fp, int reentrant, int comp_id);
+
+/** hal_export_functf is similar to hal_export_funct except that it also does
+    printf-style formatting to compute the function name.
+    If successful, it returns 0.
+    On failure it returns a negative error code.
+*/
+extern int hal_export_functf(void (*funct) (void *, long),
+    void *arg, int uses_fp, int reentrant, int comp_id, const char *fmt, ...);
 
 /** hal_create_thread() establishes a realtime thread that will
     execute one or more HAL functions periodically.
@@ -829,7 +866,7 @@ extern int hal_set_constructor(int comp_id, constructor make);
         true: count bytes were read into dest
         false: no bytes were read into dest
  */
-extern bool hal_port_read(hal_port_t port, char* dest, unsigned count);
+extern bool hal_port_read(const hal_port_t *port, char* dest, unsigned count);
 
 
 /** hal_port_peek operates the same as hal_port_read but no bytes are consumed
@@ -839,7 +876,7 @@ extern bool hal_port_read(hal_port_t port, char* dest, unsigned count);
         true: count bytes were read into dest
         false: no bytes were read into dest
 */
-extern bool hal_port_peek(hal_port_t port, char* dest, unsigned count);
+extern bool hal_port_peek(const hal_port_t *port, char* dest, unsigned count);
 
 /** hal_port_peek_commit advances the read position in the port buffer
     by count bytes. A hal_port_peek followed by a hal_port_peek_commit
@@ -850,7 +887,7 @@ extern bool hal_port_peek(hal_port_t port, char* dest, unsigned count);
        true: count readable bytes were skipped and are no longer accessible
        false: no bytes wer skipped
 */ 
-extern bool hal_port_peek_commit(hal_port_t port, unsigned count);
+extern bool hal_port_peek_commit(const hal_port_t *port, unsigned count);
 
 /** hal_port_write writes count bytes from src into the port. 
     This function should only be called by the component that owns
@@ -860,28 +897,28 @@ extern bool hal_port_peek_commit(hal_port_t port, unsigned count);
         false: no bytes were written into dest
     
 */
-extern bool hal_port_write(hal_port_t port, const char* src, unsigned count);
+extern bool hal_port_write(const hal_port_t *port, const char* src, unsigned count);
 
 /** hal_port_readable returns the number of bytes available
     for reading from the port.
 */
-extern unsigned hal_port_readable(hal_port_t port);
+extern unsigned hal_port_readable(const hal_port_t *port);
 
 /** hal_port_writable returns the number of bytes that
     can be written into the port
 */
-extern unsigned hal_port_writable(hal_port_t port);
+extern unsigned hal_port_writable(const hal_port_t *port);
 
 /** hal_port_buffer_size returns the total number of bytes
     that a port can buffer
 */
-extern unsigned hal_port_buffer_size(hal_port_t port);
+extern unsigned hal_port_buffer_size(const hal_port_t *port);
 
 /** hal_port_clear emptys a given port of all data
     without consuming any of it.
     hal_port_clear should only be called by a reader
 */
-extern void hal_port_clear(hal_port_t port);
+extern void hal_port_clear(const hal_port_t *port);
 
 
 #ifdef ULAPI
@@ -922,7 +959,7 @@ typedef struct {
 
 #define HAL_STREAM_MAX_PINS (21)
 /** create and attach a stream */
-extern int hal_stream_create(hal_stream_t *stream, int comp, int key, int depth, const char *typestring);
+extern int hal_stream_create(hal_stream_t *stream, int comp, int key, unsigned depth, const char *typestring);
 /** detach and destroy an open stream */
 extern void hal_stream_destroy(hal_stream_t *stream);
 
@@ -939,7 +976,7 @@ extern hal_type_t hal_stream_element_type(hal_stream_t *stream, int idx);
 extern int hal_stream_read(hal_stream_t *stream, union hal_stream_data *buf, unsigned *sampleno);
 extern bool hal_stream_readable(hal_stream_t *stream);
 extern int hal_stream_depth(hal_stream_t *stream);
-extern int hal_stream_maxdepth(hal_stream_t *stream);
+extern unsigned hal_stream_maxdepth(hal_stream_t *stream);
 extern int hal_stream_num_underruns(hal_stream_t *stream);
 extern int hal_stream_num_overruns(hal_stream_t *stream);
 #ifdef ULAPI

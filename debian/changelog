@@ -1,3 +1,203 @@
+linuxcnc (1:2.10.0~pre0) UNRELEASED; urgency=medium
+
+  [ Andy Pugh ]
+  * Master branch open for new features.
+
+  [ Pushkar Kulkarni ]
+  * debian/patches: Remove the use of FORTIFY_SOURCE and
+    depend on defaults passed by dpkg-buildflags on
+    Ubuntu and Debian (LP: #2104012)
+
+ -- Pushkar Kulkarni <pushkar.kulkarni@canonical.com>  Mon, 24 Mar 2025 20:50:08 +0530
+
+linuxcnc (1:2.9.4-2) unstable; urgency=medium
+
+  * Team upload.
+
+  * Adding build dependency on pyqt5.qtweb{engine,kit} to avoid build
+    failures on, as kindly addressed by Adrian <Bunk>. (Closes: #1100882)
+  * Re-applied Petter's change to address usrmerge, kindly pointed out
+    by Michael <Biebl>. (Closes: #1101346, #1073692)
+  * Bumped policy to 4.7.2.
+  * Now truly added Andy to Uploaders.
+
+ -- Steffen Moeller <moeller@debian.org>  Mon, 14 Apr 2025 00:10:01 +0200
+
+linuxcnc (1:2.9.4-1) unstable; urgency=medium
+
+  * Team upload.
+
+  * New upstream version. (Closes: #1080668)
+  * Added Andy to Uploaders.
+  * Some Beautifications as instructed by lintian
+    - Added debian/format (quilt).
+    - Removed overrides for files no longer in archive.
+    - Used d/copyright from current master.
+
+ -- Steffen Moeller <moeller@debian.org>  Sat, 15 Mar 2025 21:05:57 +0100
+
+linuxcnc (1:2.9.4) UNRELEASED; urgency=medium
+
+  * Merge pull request #3283 from Sigma1912/patch-2
+  * Gmoccapy: fix bugs caused by GStat missing changes in interpreter mode
+  * gmoccapy: expand G-code editor in edit mode
+  * gmoccapy: revert "remember position of hbox2 (GtkPaned)"
+  * Merge pull request #3269 from hansu/gmoccapy-3-4-9
+  * gmoccapy_3_4_9: set version number and update release notes
+  * gmoccapy: ensure usage of lowercase for settings in pref file (#3181)
+  * gmoccapy: get offset names directly from offsetpage-widget
+  * offsetpage-widget: don't translate column 0
+  * gmoccapy: revert "added Gtk.Paned for upper main area"
+  * gmoccapy: fix wrong states of spindle button images after program abort
+  * Follow symlinks in config dir
+  * Merge pull request #3259 from BsAtHome/backport-debian_sid-include
+  * Necessary include for gettimeofday() in debian:sid.
+  * Merge pull request #3251 from Sigma1912/patch-1
+  * Add clearer info on ini entries containing lowercase chars
+  * Update m-code.adoc - typo exection -> execution
+  * Merge pull request #3247 from Sigma1912/patch-1
+  * gmoccapy.adoc: correct INI section name [MACROS]
+  * Disable "override limits" at the end of the jog. This fixes the issue that the override was not cleared in teleop (homed) mode Issue #2482
+  * Doc: User Defined Command, add note on exit codes != 0
+  * gmoccapy: update release notes
+  * docs: fix list in building-linuxcnc.adoc
+  * Typos in carousel.comp
+  * Merge pull request #3227 from BsAtHome/backport_2.9_3200-3202
+  * Merge pull request #3226 from BsAtHome/backport_2.9_fix-hm2_spi
+  * Backport fix hm2_spi driver. This was discovered in master and fixed in PR #3225.
+  * Backport fix superfluous NULL check to 2.9 branch (issue #3202).
+  * Backport fix invalid printf format to 2.9 branch (issue #3200).
+  * Merge pull request #3212 from BsAtHome/hm2_spix-backport-2.9
+  * Add missing include to fix checks.
+  * Backport the hm2_spix driver for Raspberry Pi 3, 4 and 5 to the 2.9 branch.
+  * qtvcp -cam align panel: fix setting x and y scaling
+  * gmoccapy: further corrections of sample INI-file regarding really used values
+  * docs: update gmoccapy docs regarding INI values
+  * halshow: fix error on right click "Set to .."
+  * docs: little typo in gstat.adoc
+  * gmoccapy: move spaces out of translatable strings
+  * Fix "Change to raw strings to fix Python SyntaxWarning" (2)
+  * Merge pull request #3179 from hansu/issue-3175
+  * Fix "Change to raw strings to fix Python SyntaxWarning"
+  * docs: gmoccapy - fix order of settings section according to actual order
+  * Merge pull request #3172 from havardAasen/fix-python-syntax-warning
+  * Fix deprecated locale.format() -> locale.format_string()
+  * Update regex
+  * Change to raw strings to fix Python SyntaxWarning
+  * docs: improve "HAL Component Generator" doc page (halcompile)
+  * Merge pull request #3158 from petterreinholdtsen/bug-debian-1080668-python3-setuptools
+  * Dropped use of depricated python3-setuptools / distutils.
+  * Merge pull request #3159 from petterreinholdtsen/2.9-upstream-ax-python
+  * Fetched latest ax_python.m4 and ax_python_devel.m4 from upstream.
+  * Revert "Remove remaining use of deprecated distutils."
+  * Revert "Distutils, fix error in previous fix"
+  * Distutils, fix error in previous fix Addresses #1080668
+  * Remove remaining use of deprecated distutils. Addresses #1080668
+  * QTVCP: Typo in error message
+  * Merge pull request #3137 from petterreinholdtsen/2.9-avoid-bashism-configure-ac
+  * Avoid bashism in configure.ac
+  * qtvcp -test_panel: remove distutils library requirement
+  * Merge pull request #3048 from hansu/gmoccapy-gcmc-config
+  * qtvcp -action_buttons: fix momentary buttons status indicator
+  * Merge pull request #3130 from hansu/gmoccapy-deprecation-warning-2
+  * gmoccapy: fix deprecation warning "Gtk.StyleContext.get_background_color is deprecated"
+  * Merge pull request #3115 from zz912/patch-30
+  * Merge pull request #3125 from hansu/gmoccapy-deprecation-warning
+  * gscreen: remove deprecated use of GtkLabel constructor
+  * gmoccapy: remove deprecated use of GtkLabel constructor
+  * Merge pull request #3118 from zz912/patch-31
+  * lathe_macros.ini - enable postgui.hal
+  * Replace non-exist toolchange.py by stdglue.py
+  * Merge pull request #3106 from LinuxCNC/andypugh/gscreen
+  * gscreen: Fix Spartan sim homing
+  * gscreen: Further tidying up to clear up runtime errors and startup verbosity
+  * gscreen: Fix broken configs - Silverdragon++ I found how to do settings when fixing gaxis
+  * gscreen: Fix broken configs - tester
+  * gscreen: Fix broken configs - gaxis
+  * gscreen: Fix broken configs - 9-axis
+  * gscreen: Fix broken configs - Spartan
+  * gscreen: Fix broken configs - Industrial
+  * gscreen: Fix broken configs
+  * docs: add note to gmoccapy keyboard shortcuts
+  * fix: eliminated printf in shell script
+  * Merge pull request #3090 from Sigma1912/2.9-fix-configs-apps-gladevcp
+  * Fix sim config: apps/gladevcp/animated-backdrop
+  * Add workaround for long keys= in mqtt-publisher This fixes #3084
+  * docs: fixed wrong unit: µm --> um
+  * Merge pull request #3099 from Sigma1912/2.9-configs-apps-xhc-hb04-2
+  * Add note about required 'XTerm' to README 'configs/apps/xhc-hb04'
+  * Update configs/apps/gladevcp/animated-backdrop/cairodraw.py
+  * Merge pull request #3083 from hansu/gtk-sourceview-4-migration
+  * configs/apps/gladevcp/animated-backdrop: partial fix
+  * configs/apps/gladevcp/by-widget/sourceview: fix 'up','down' button functionalitiy
+  * fix configs/apps/gladevcp: update to gtk3 ('sourceview' and 'animated backdrop' still not 100%))
+  * Use now GtkSourceview 4
+  * qtplasmac: fix file load after single cut
+  * Merge pull request #3076 from Sigma1912/2.9-fix-sim-config-rack-toolchange
+  * Fix glade panel and remove depricated 'Features' entries in ini
+  * qtvcp -tab_widget: fix float/int error with new libraries
+  * Merge pull request #3054 from petterreinholdtsen/2.9-build-sid
+  * Reinsert github CI test build on sid
+  * Merge pull request #3026 from hansu/2966-gmoccapy-destroys-tooltable
+  * Merge pull request #3049 from mark-v-d/2.9
+  * We need to turn cutter compensation off for the rapid to the startpoint as well.
+  * Merge pull request #3017 from petterreinholdtsen/2-9-smoe-debian_manpages
+  * gmoccapy: add sim config for gcmc support
+  * tooledit: throw exeption when locale not set
+  * tooltable: create a backup file when error occurs on saving + add exception message
+  * Adjusted handling of man pages to avoid duplicate lists.
+  * Merge pull request #3043 from petterreinholdtsen/2.9-disable-unstable-build
+  * Disabled github CI build on unstable/sid until it start working again.
+  * Merge pull request #3042 from petterreinholdtsen/2.9-new-manpage-install
+  * Merge pull request #3041 from rmu75/rs/fix-locale-restore-2.9
+  * Added new man pages to debian/linuxcnc.install.in.
+  * fix restoring of locale setting in interp
+  * Revert "docs: force monospace font in ASCII art (related to #3007)"
+  * Merge pull request #3035 from sensille/litehm2-2.9
+  * hostmot2: collect initial writes into a single packet
+  * shmen.cc: Revert a mistaken srrncmp->rtapi_srtlcpy change,
+  * Add missing mapages (#3029)
+  * docs: force monospace font in ASCII art (related to #3007)
+  * docs: fix missing line break in toggle2nist man page
+  * Merge pull request #3020 from mark-v-d/2.9
+  * Fixed bug #2939. But now new and improved. This fixes the case where the sub actually has a leadout, but it is too short.
+  * Fixed bug #2939. When fixing the case where there was no leadout move, I broke the case where the leadout was exceeding the starting point.
+  * Allow uniq_id to be used to select hal_input devices. (#3015)
+
+ -- andypugh <andy@bodgesoc.org>  Sat, 25 Jan 2025 12:20:01 +0000
+
+linuxcnc (2.9.3-2) unstable; urgency=medium
+
+  [ Petter Reinholdtsen ]
+  * Adjusted build dependencies to only require udev on Linux.
+
+  [ Sebastian Kuzminsky ]
+  * Backport gettimeofday fix for sid from 2.9 branch (Closes: #1092538).
+
+ -- Petter Reinholdtsen <pere@debian.org>  Sun, 26 Jan 2025 09:13:18 +0100
+
+linuxcnc (2.9.3-1) unstable; urgency=medium
+
+  * New upstream version 2.9.3
+  * Added d/gbp.conf documenting current branch layout.
+  * Avoid man page file conflict between linuxcnc-uspace and linuxcnc-uspace-dev
+    (Closes: #1055493).
+  * Build depend on current libgl-dev with obsolete libgl1-mesa-dev
+    as alternative.
+  * Change linuxcnc-doc-es package description from Spanish to English
+    (Closes: #1057312).
+  * Bring d/README.source and d/rules.in in line with upstream 2.9 branch.
+  * Make sure to remove docs/man/index.db in clean target for rebuildability
+    (Closes: #1045366).
+  * Moved udev rules to /usr/ for usr merge (Closes: #1073692).
+  * Use $(RM) macro where applicable.
+  * Added Andy, Steffen and myself as uploaders.
+  * Adjusted  the vcs links in d/control to the actually git repo used.
+  * Added homepage URL to appstream metadata.
+  * Updated Standards-Version from 4.6.1 to 4.7.0.
+
+ -- Petter Reinholdtsen <pere@debian.org>  Sun, 07 Jul 2024 14:09:33 +0200
+
 linuxcnc (1:2.9.3) UNRELEASED; urgency=medium
 
   * Make warning about file endings more explicit for new users. (#3013)
@@ -227,7 +427,7 @@ linuxcnc (1:2.9.3) UNRELEASED; urgency=medium
 
  -- Andy Pugh <andy@bodgesoc.org>  Sun, 07 Jul 2024 10:12:14 +0100
 
-linuxcnc (1:2.9.2) unstable; urgency=medium
+linuxcnc (1:2.9.2) UNRELEASED; urgency=medium
 
   * Add dither option to PWMGen for improved analog resolution
   * axis: Fix run-from-line - bug #2771
@@ -295,6 +495,24 @@ linuxcnc (1:2.9.2) unstable; urgency=medium
   * Update combi_dro.py
 
  -- andypugh <andy@bodgesoc.org>  Wed, 20 Dec 2023 13:19:18 +0000
+
+linuxcnc (2.9.1-1) unstable; urgency=medium
+
+  * New upstream version 2.9.1
+  * Add 7I94T, 7I97T, 7I76EU card support
+  * docs: Add manpage for emccalib
+  * Merge pull request #2684 from petterreinholdtsen/2.9-whatis-limit_axis
+  * Merge pull request #2611 from phillc54/phillc54/docs
+  * gmoccapy - deleted unused code
+  * halcompile: Accept hal pins of type "port"
+  * G71 - G72 tests
+  * G71 and G72 cycle fix. Addresses #707 and #1146
+  * Merge pull request #2675 from LinuxCNC/c-morley-patch-1
+  * Update hal_glib.py
+  * docs: minor changes to suit sim configs
+
+
+ -- Andy Pugh <andy@bodgesoc.org>  Sun, 08 Oct 2023 15:16:06 +0100
 
 linuxcnc (1:2.9.1) unstable; urgency=medium
 
@@ -550,27 +768,76 @@ linuxcnc (1:2.9.0) unstable; urgency=medium
   * xhc-hb04.tcl accept upper or lowercase keywords
   * xyzab_tdr sim config fix wrong sign in fwd kins
 
- -- andypugh <andy@bodgesoc.org>  Wed, 4 Oct 2023 12:07:00 +0100
+ -- Andy Pugh <bodgesoc@gmail.com>  Mon, 7 Nov 2022 23:31:00 +0000
 
-linuxcnc (1:2.9.0~pre1) UNRELEASED; urgency=medium
+linuxcnc (2.9.0~pre1+git20230208.f1270d6ed7-1) unstable; urgency=medium
 
-  * githelper.sh: New master glob
-  * qtplasmac: add event logging
-  * qtplasmac: update sim configs
-  * qtvcp -docs: add update versaprobe details
-  * qtdragon -docs: update versaprobe image
-  * qtvcp -versaprobe: improve help dialog layout/use
-  * qtvcp -panels: fix details of cam_align controls
-  * qtvcp -docs: cam_align controls, loading options
-  * qtvcp -axis embedded cam_align: add size and rotation increment
-  * qtvcp -cam_align panel: add ability to set rotation increment
-  * qtvcp -camview_widget: add the rotation increment display
-  * qtvcp -cam_align panel: add window size setting option
-  * docs: qtplasmac fix image, add deprication notice
-  * docs: add div2 to .gitignore
-  * Merge pull request #2119 from Roguish000/component-div2
+  * New upstream version 2.9.0~pre1+git20230208.f1270d6ed7 (Closes: #1023651).
+  * Fix motion error for some full-circle spirals.
+  * Fix issue with arc moves immediately after homing.
+  * Fix realtime thread priorities.
+  * Lots of updates to GUIs.
+  * Lots of improvements to docs and translations.
+  * Hostmot2: Add OutM support.
+  * Hostmot2: Add support for 7i96S.
+  * Hostmot2: Fix config string "num_oneshots" parsing bug.
+  * Hostmot2: BSPI and 7i65 fixes.
+  * halscope: Fix crash bug.
+  * PNCconf: Add support for 7i96S, InM, and OutM.
+  * PNCconf: Misc fixes.
+  * halcompile: Add command-line args to set compiler & linker flags.
+  * halcompile: Fix permissions of installed components.
+  * OpenGL: Don't use GLUT.
+  * OpenGL: Always use GLX, not EGL, even on Wayland.
+  * OpenGL: Work around a new bug in glBitmap().
+  * glcanon: Fix mm units.
+  * Warn on multiple tools in a single toolchanger pocket.
+  * Add div2 component.
+  * Add mqtt-publisher component.
+  * Include hal_speaker component in build.
+  * Update mb2hal.
+  * Add hal_set_unready().
+  * Add rtapi_ioperm().
+  * Add xyzab_tdr 5-axis kins & sample config.
+  * Fix some broken example configs.
+  * Fix spindle-speed in remap.
+  * Clean up handling of canterp.
+  * Update icons.
+  * Fix zombie process detection at startup.
+  * Remove unused procfs_macros.h to avoid copyright concern.
+  * Fix some lintian issues.
+  * Fix debian/copyright.
+  * Fix build on arm and hppa64.
+  * d/patches: disable the boost m4 patch, no longer needed
 
- -- andypugh <andy@bodgesoc.org>  Sun, 13 Nov 2022 17:36:52 +0000
+ -- Sebastian Kuzminsky <seb@highlab.com>  Thu, 09 Feb 2023 21:33:18 -0700
+
+linuxcnc (2.9.0~pre0+git20221105.ffb6bda926-1.2) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Updated 0010-arm-hppa.patch from upstream to handle hppa1.1 cpu and to
+    exit build earlier if libboost-python is not found.
+
+ -- Petter Reinholdtsen <pere@debian.org>  Tue, 08 Nov 2022 22:38:32 +0100
+
+linuxcnc (2.9.0~pre0+git20221105.ffb6bda926-1.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Added 0010-arm-hppa.patch from upstream to fix build failures on armv8l
+    and hppa64 CPU build daemons.
+
+ -- Petter Reinholdtsen <pere@debian.org>  Tue, 08 Nov 2022 09:55:13 +0100
+
+linuxcnc (2.9.0~pre0+git20221105.ffb6bda926-1) unstable; urgency=medium
+
+  * New upstream version 2.9.0~pre0+git20221105.ffb6bda926
+  * Fix an old hm2 encoder index bug.
+  * Fix unloading when halscope crashes.
+  * Lots of improvements to docs & translations.
+  * Improved gmoccapy GUI and QtVCP.
+  * d/changelog: remove duplicated entries
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Sat, 05 Nov 2022 20:48:00 -0600
 
 linuxcnc (2.9.0~pre0+git20221023.7a5beabae0-1) unstable; urgency=medium
 
@@ -666,6 +933,134 @@ linuxcnc (2.9.0~pre0+git20220224.3ba0951743-1) unstable; urgency=medium
   * Initial upload that was checked by FTPmasters
 
  -- Sebastian Kuzminsky <seb@highlab.com>  Fri, 25 Feb 2022 18:40:12 +0100
+
+linuxcnc (1:2.9.0~pre1) UNRELEASED; urgency=medium
+
+  * githelper.sh: New master glob
+  * qtplasmac: add event logging
+  * qtplasmac: update sim configs
+  * qtvcp -docs: add update versaprobe details
+  * qtdragon -docs: update versaprobe image
+  * qtvcp -versaprobe: improve help dialog layout/use
+  * qtvcp -panels: fix details of cam_align controls
+  * qtvcp -docs: cam_align controls, loading options
+  * qtvcp -axis embedded cam_align: add size and rotation increment
+  * qtvcp -cam_align panel: add ability to set rotation increment
+  * qtvcp -camview_widget: add the rotation increment display
+  * qtvcp -cam_align panel: add window size setting option
+  * docs: qtplasmac fix image, add deprication notice
+  * docs: add div2 to .gitignore
+  * Merge pull request #2119 from Roguish000/component-div2
+
+ -- andypugh <andy@bodgesoc.org>  Sun, 13 Nov 2022 17:36:52 +0000
+
+linuxcnc (1:2.9.0~pre1) UNRELEASED; urgency=medium
+
+  * First 2.9 pre-release preparatory to release.
+  * Bugfixes welcome, new features by negotiation
+
+ -- Andy Pugh <bodgesoc@gmail.com>  Mon, 7 Nov 2022 23:31:00 +0000
+
+linuxcnc (2.9.0~pre0+git20221023.7a5beabae0-1) unstable; urgency=medium
+
+  * New upstream version 2.9.0_pre0+git20221023.7a5beabae0
+  * Add deb package with German translated docs.
+  * Fix autopkgtest.
+  * Fix build on armhf.
+  * Fix a divide-by-zero bug in the software encoder counter component.
+  * Fix some bugs in carousel component.
+  * Fix exception handling bug in python plugin/sai.
+  * Improve AppStream metadata.
+  * Bump language standards to gnu11 & gnu++17.
+  * Add hm2 oneshot support.
+  * Lots of improvements to the docs & translations.
+  * Improvements to several GUIs.
+  * Add scaled sum component.
+  * Add anglejog component.
+  * Update debian/ files
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Sun, 23 Oct 2022 22:26:38 -0400
+
+linuxcnc (2.9.0~pre0+git20220906.02744cdef6-1) unstable; urgency=medium
+
+  * New upstream version 2.9.0~pre0+git20220906.02744cdef6
+  * Fix RPC linking (changed in glibc 2.34-1).
+  * Improve docs.
+  * QtVCP: add API function to remove keybinding.
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Tue, 06 Sep 2022 16:49:06 -0600
+
+linuxcnc (2.9.0~pre0+git20220905.b2e28a88c3-1) unstable; urgency=medium
+
+  * New upstream version 2.9.0~pre0+git20220905.b2e28a88c3
+    (Closes: #1019212).
+  * deadzone comp: fix a typo in a HAL pin name.
+  * Misc updates to QtVCP.
+  * Minor fixes to docs.
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Mon, 05 Sep 2022 17:38:14 -0600
+
+linuxcnc (2.9.0~pre0+git20220903.c8c4c539b1-1) unstable; urgency=medium
+
+  * New upstream version 2.9.0~pre0+git20220903.c8c4c539b1
+  * regenerate debian/* files using d/configure
+  * Update docs & translations.
+  * QtVCP fixes & improvements.
+  * Work around autopkgtest failure.
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Sat, 03 Sep 2022 16:29:26 -0600
+
+linuxcnc (2.9.0~pre0+git20220827.f7d1c37ffd-1) unstable; urgency=medium
+
+  * Improved translation infrastructure.
+  * Misc bug fixes and new features.
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Sat, 27 Aug 2022 17:50:53 -0600
+
+linuxcnc (2.9.0~pre0+git20220402.2500863908-4) unstable; urgency=medium
+
+  * Team upload.
+  * Fixing build-depends - also binary packages need asciidoc to build
+    (Closes: #969416).
+  * Please do not yet use this version in production environments. This
+    upload still aims technical issues to resolve for the next pre-release.
+
+ -- Steffen Moeller <meller@debian.org>  Wed, 06 Apr 2022 16:23:49 +0200
+
+linuxcnc (2.9.0~pre0+git20220402.2500863908-3) unstable; urgency=medium
+
+  * Team upload.
+  * Failed attempt to build indeps.
+
+ -- Steffen Moeller <meller@debian.org>  Wed, 06 Apr 2022 12:43:17 +0200
+
+linuxcnc (2.9.0~pre0+git20220402.2500863908-2) unstable; urgency=medium
+
+  * Team upload.
+  * Failed attempt to build indeps.
+
+ -- Steffen Moeller <meller@debian.org>  Sun, 03 Apr 2022 19:20:29 +0200
+
+linuxcnc (2.9.0~pre0+git20220402.2500863908-1) unstable; urgency=medium
+
+  * Team upload.
+  * First source-only upload to be built across architectures
+    - Update of Classic Ladder to 0.8.10
+    - Fixes for AppStream
+
+ -- Steffen Moeller <meller@debian.org>  Sun, 03 Apr 2022 16:57:36 +0200
+
+linuxcnc (2.9.0~pre0+git20220224.3ba0951743-1) unstable; urgency=medium
+
+  * Initial upload that was checked by FTPmasters
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Fri, 25 Feb 2022 18:40:12 +0100
+
+linuxcnc (1:2.9.0~pre0) UNRELEASED; urgency=medium
+
+  * Master branch open for new features.
+
+ -- Sebastian Kuzminsky <seb@highlab.com>  Fri, 12 Aug 2022 20:56:25 +0200
 
 linuxcnc (1:2.8.4) buster; urgency=medium
 

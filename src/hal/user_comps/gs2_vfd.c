@@ -162,13 +162,15 @@ static char *ratestrings[] = {"110", "300", "600", "1200", "2400", "4800", "9600
 static char *stopstrings[] = {"1", "2", NULL};
 
 static void quit(int sig) {
+    (void)sig;
     done = 1;
 }
 
 static int comm_delay = 0; // JET delay counter for at-speed
 
 int match_string(char *string, char **matches) {
-    int len, which, match;
+    size_t len;
+    int which, match;
     which=0;
     match=-1;
     if ((matches==NULL) || (string==NULL)) return -1;
@@ -401,6 +403,7 @@ int write_data(modbus_t *mb_ctx, slavedata_t *slavedata, haldata_t *haldata) {
 }
 
 void usage(int argc, char **argv) {
+    (void)argc;
     printf("Usage:  %s [options]\n", argv[0]);
     printf(
     "This is a userspace HAL program, typically loaded using the halcmd \"loadusr\" command:\n"
@@ -551,6 +554,8 @@ int main(int argc, char **argv)
                     goto out_noclose;
                 }
                 device = strdup(optarg);
+                if(!device)
+                    device  = "/dev/strdup/error_out_of_memory";
                 break;
             case 'g':
                 debug = 1;
