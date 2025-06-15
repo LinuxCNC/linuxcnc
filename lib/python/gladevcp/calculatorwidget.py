@@ -201,7 +201,7 @@ class Calculator( Gtk.Box ):
         except:
             b = "Error"
         self.entry.set_text( b )
-        self.eval_string = b + " " # add space to indicate that calculation was last
+        self.entry.set_position(len(self.eval_string))
 
     def delete( self ):
         self.eval_string = ''
