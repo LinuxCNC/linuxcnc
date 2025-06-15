@@ -4203,11 +4203,11 @@ class gmoccapy(object):
         speed = hal.get_value("spindle.0.speed-out")
         # catch very large values eg when using G96 w/o D value
         if speed > self.max_spindle_disp:
-            self.widgets.lbl_spindle_act.set_text("S >"+str(self.max_spindle_disp))
+            self.widgets.lbl_spindle_act.set_text(">"+str(self.max_spindle_disp))
         elif speed < -self.max_spindle_disp:
-            self.widgets.lbl_spindle_act.set_text("S <"+str(self.max_spindle_disp))
+            self.widgets.lbl_spindle_act.set_text("<"+str(self.max_spindle_disp))
         else:
-            self.widgets.lbl_spindle_act.set_text("S {0}".format(int(round(speed))))
+            self.widgets.lbl_spindle_act.set_text("{0}".format(int(round(speed))))
 
     def _update_vc(self):
         #Note: self.stat.spindle[0]['speed'] does not reflect 'spindle.0.speed-out' pins when using G96 mode (issue #3449)
@@ -4341,13 +4341,13 @@ class gmoccapy(object):
             rpm_out = rpm / self.stat.spindle[0]['override']
         except:
             rpm_out = 0
-        self.widgets.lbl_spindle_act.set_label("S {0}".format(int(rpm)))
+        self.widgets.lbl_spindle_act.set_label("{0}".format(int(rpm)))
 
         if command == "stop":
             # documentation of self.command.spindle()
             # linuxcnc.spindle(direction, speed, spindle=0)
             self.command.spindle(0)
-            self.widgets.lbl_spindle_act.set_label("S 0")
+            self.widgets.lbl_spindle_act.set_label("0")
         elif command == "forward":
             self.command.spindle(1, rpm_out)
         elif command == "reverse":
