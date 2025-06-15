@@ -386,9 +386,7 @@ the input is a position, this means that 'position', 'velocity', and 'accelerati
 
 === Other (Realtime)
 [{tab_options}]
-|===
 | link:../man/man9/anglejog.9.html[anglejog] |Jog two axes (or joints) at an angle ||
-| link:../man/man9/comp.9.html[comp] | Build, compile and install LinuxCNC HAL components. ||
 | link:../man/man9/classicladder.9.html[classicladder] | Realtime software PLC based on ladder logic. See <<cha:classicladder,ClassicLadder>> chapter for more information. ||
 | link:../man/man9/charge_pump.9.html[charge_pump] | Creates a square-wave for the 'charge pump' input of some controller boards. ||
 | link:../man/man9/encoder_ratio.9.html[encoder_ratio] | Electronic gear to synchronize two axes. ||
