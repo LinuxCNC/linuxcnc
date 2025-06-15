@@ -2251,14 +2251,6 @@ class gmoccapy(object):
 
 
     def col_edit_started(self, widget, filtered_path, new_text, col):
-        def cancel_editing():
-            # this is needed to get offsetview out of editing mode
-            GLib.timeout_add(50,
-                             offsetview.set_cursor,
-                             path,
-                             offsetview.get_columns()[0],
-                             True)
-
         offsetpage = self.widgets.offsetpage1
         offsetview = offsetpage.view2
         model, treeiter = offsetview.get_selection().get_selected()
@@ -2305,7 +2297,12 @@ class gmoccapy(object):
                 except:
                     print(_("offsetpage widget error: MDI call error"))
             offsetpage.reload_offsets()
-            cancel_editing()
+            # this is needed to get offsetview out of editing mode
+            GLib.timeout_add(50,
+                             offsetview.set_cursor,
+                             path,
+                             offsetview.get_columns()[0],
+                             True)
 
     # Icon file selection stuff
     def _init_IconFileSelection(self):
