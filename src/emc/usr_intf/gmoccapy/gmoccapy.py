@@ -1982,7 +1982,7 @@ class gmoccapy(object):
                                     data=model[row][col],
                                     header=_("Enter value"),
                                     label=_("Tool %s,  %s:" % (model[row][1], captations[col])),
-                                    integer=False)
+                                    integer=col in [1,2,15])
         if value == "ERROR":
             LOG.debug("conversion error")
             self.dialogs.warning_dialog(self, _("Conversion error !"),
