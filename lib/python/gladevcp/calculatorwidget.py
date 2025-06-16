@@ -87,6 +87,8 @@ class Calculator( Gtk.Box ):
         self.wTree.connect_signals( dic )
         self.entry = self.wTree.get_object( "displayText" )
         self.entry.modify_font( Pango.FontDescription( self.font ) )
+        self.wTree.get_object( "Backspace" ).set_label("\u232B")
+        self.wTree.get_object( "Pi" ).set_label("Pi")
         self.calc_box = self.wTree.get_object( "calc_box" )
         self.calc_box.set_vexpand(True)
         self.calc_box.set_hexpand(True)
