@@ -10,9 +10,9 @@ import re
 import sys
 
 man1_path = '../docs/man/man1'
-man1_files = {f for f in os.listdir(man1_path) if os.path.isfile(os.path.join(man1_path, f))}
+man1_files = {f for f in os.listdir(man1_path) if f[0] != '.' and os.path.isfile(os.path.join(man1_path, f))}
 man9_path = '../docs/man/man9'
-man9_files = {f for f in os.listdir(man9_path) if os.path.isfile(os.path.join(man9_path, f))}
+man9_files = {f for f in os.listdir(man9_path) if f[0] != '.' and os.path.isfile(os.path.join(man9_path, f))}
 man_files = man1_files.union(man9_files)
 complist_doc = set()
 miss_in_man = set()
@@ -67,7 +67,7 @@ def generate_links(filename, create_backup=True, add_descr=False):
             splitted = line.split('|')
 
             if 'link:' in splitted[1]:
-                link = re.search('(?<=link:).*(?=\[)', splitted[1]).group()
+                link = re.search('(?<=link:).*(?=\\[)', splitted[1]).group()
                 if not os.path.isfile(os.path.join('../docs/html/hal',link)):
                     print('gen_complist: Broken link:', link)
             else:
