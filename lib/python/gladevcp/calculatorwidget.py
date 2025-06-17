@@ -103,7 +103,7 @@ class Calculator( Gtk.Box ):
         self.calc_box.set_name("calc_widget")
         style_context = self.calc_box.get_style_context()
         style_context.add_provider_for_screen(screen, provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
-        css = b"#calc_widget {font-size: 20px;}"
+        css = b"#calc_widget {font-size: 15px;}"
         provider.load_from_data(css)
 
     def num_pad_only( self, value ):
