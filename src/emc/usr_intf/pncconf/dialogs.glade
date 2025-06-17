@@ -2859,7 +2859,7 @@ or discard changes and quit?</property>
                           <object class="GtkLabel" id="label356">
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
-                            <property name="label" translatable="yes">Distance to acheave max speed:</property>
+                            <property name="label" translatable="yes">Distance to achieve max speed:</property>
                             <property name="use_underline">True</property>
                             <property name="xalign">0</property>
                           </object>
