@@ -193,7 +193,9 @@ static InterpBase *pinterp;
 
 #define callmethod(o, m, f, ...) PyObject_CallMethod((o), (char*)(m), (char*)(f), ## __VA_ARGS__)
 
-static void maybe_new_line(int sequence_number=pinterp->sequence_number());
+static void maybe_new_line(int sequence_number);
+static void maybe_new_line();
+
 static void maybe_new_line(int sequence_number) {
     if(!pinterp) return;
     if(interp_error) return;
@@ -211,6 +213,11 @@ static void maybe_new_line(int sequence_number) {
     Py_DECREF(new_line_code);
     if(result == NULL) interp_error ++;
     Py_XDECREF(result);
+}
+
+static void maybe_new_line() {
+    if(!pinterp) return;
+    maybe_new_line(pinterp->sequence_number());
 }
 
 //das ist für die Vorschau
