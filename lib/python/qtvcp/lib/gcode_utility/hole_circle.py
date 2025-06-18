@@ -225,6 +225,14 @@ class Hole_Circle(QtWidgets.QWidget):
             self.valid = False
 
         try:
+            angle = (180/self.num_holes)
+            chord_length = (2 * self.radius) * math.sin(math.radians(angle))
+            self.label_chord_length.setText('{:.3f}'.format(chord_length))
+        except Exception as e:
+            print(e)
+            self.label_chord_length.setText('')
+
+        try:
             self.first = float(self.lineEdit_first.text())
             if self.first < 360.0:
                 self.lbl_first_ok.setPixmap(self.checked)
