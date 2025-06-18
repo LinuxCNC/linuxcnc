@@ -1462,7 +1462,7 @@ gives the compensation length in Z (for lathes and milling machines).
 ----
 G90 (set absolute mode)
 T1 M6 G43 (load tool 1 and tool length offsets, Z is at machine 0 and DRO shows Z1.500)
-G43.1 Z0.250 (offset current tool offset by 0.250, DRO now shows Z1.250)
+G43.1 Z0.250 (offset current tool offset by 0.250, DRO now shows Z0.250)
 M2 (end program)
 ----
 
