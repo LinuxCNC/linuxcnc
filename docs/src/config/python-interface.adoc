@@ -187,15 +187,8 @@ see <<python:reading-ini-values,ReadingINI file values>> for an example.
   pose of the current g92 offset.
 
 *gcodes*:: '(returns tuple of integers)' -
-  Active G-codes for each modal group.
-  G-code constants:
-  G_0, G_1, G_2, G_3, G_4, G_5, G_5_1, G_5_2, G_5_3, G_7, G_8, G_100, G_17,
-  G_17_1, G_18, G_18_1, G_19, G_19_1, G_20, G_21, G_28, G_28_1, G_30, G_30_1,
-  G_33, G_33_1, G_38_2, G_38_3, G_38_4, G_38_5, G_40, G_41, G_41_1, G_42, G_42_1,
-  G_43, G_43_1, G_43_2, G_49, G_50, G_51, G_53, G_54, G_55, G_56, G_57, G_58,
-  G_59, G_59_1, G_59_2, G_59_3, G_61, G_61_1, G_64, G_73, G_76, G_80, G_81, G_82,
-  G_83, G_84, G_85, G_86, G_87, G_88, G_89, G_90, G_90_1, G_91, G_91_1, G_92,
-  G_92_1, G_92_2, G_92_3, G_93, G_94, G_95, G_96, G_97, G_98, G_99
+  Active G-codes for each modal group. +
+ The integer values reflect the nominal G-code numbers multiplied by 10. (Examples: 10 = 'G1', 430 = 'G43', 923 = 'G92.3')
 
 *homed*:: '(returns tuple of integers)' -
   currently homed joints, with 0 = not homed, 1 = homed.
@@ -538,7 +531,8 @@ For each joint, the following dictionary keys are available:
   value of the spindle override enabled flag.
 
 *speed*:: '(returns float)' -
-  spindle speed value, rpm, > 0: clockwise, < 0: counterclockwise.
+  spindle speed value, rpm, > 0: clockwise, < 0: counterclockwise. +
+  With G96 active this reflects the maximum speed set by the optional G96 'D'-word or, if the 'D'-word was missing, the default values +/-1e30
 
 ==  Preparing to send commands
 
