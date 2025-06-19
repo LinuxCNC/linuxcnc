@@ -341,12 +341,8 @@ def preview(Conv, fTmp, fNgc, fNgcBkp,
         else:
             outTmp.write(f'G00 X{xS:.6f} Y{yS:.6f}\n')
             outTmp.write('M03 $0 S1\n')
-        if radius1:
-            x1 = xS + ((xLT - (radius1 - radius2)) / 2) * math.cos(angle + left)
-            y1 = yS + ((xLT - (radius1 - radius2)) / 2) * math.sin(angle + left)
-        else:
-            x1 = xS - (width / 2)
-            y1 = yS
+        x1 = xS + ((xLT - (radius1 - radius2)) / 2) * math.cos(angle + left)
+        y1 = yS + ((xLT - (radius1 - radius2)) / 2) * math.sin(angle + left)
         outTmp.write(f'G01 X{x1:.6f} Y{y1:.6f}\n')
         if radius1:
             if styleR1 == 'intRadius':
