@@ -267,18 +267,18 @@ class OriginOffsetView(QTableView, _HalWidgetBase):
         else:
             tmpl = self.imperial_text_template
 
-        degree_tmpl = "%{}.2f".format(len(locale.format(tmpl, 0)))
+        degree_tmpl = "%{}.2f".format(len(locale.format_string(tmpl, 0)))
 
         # fill each row of the liststore from the offsets arrays
         for row, i in enumerate([ap, rot, g92, tool, g54, g55, g56, g57, g58, g59, g59_1, g59_2, g59_3]):
             for column in range(0, 9):
                 if row == 1:
                     if column == 2:
-                        self.tabledata[row][column] = locale.format(degree_tmpl, rot)
+                        self.tabledata[row][column] = locale.format_string(degree_tmpl, rot)
                     else:
                         self.tabledata[row][column] = " "
                 else:
-                    self.tabledata[row][column] = locale.format(tmpl, i[column])
+                    self.tabledata[row][column] = locale.format_string(tmpl, i[column])
         self.tablemodel.layoutChanged.emit()
 
     # We read the var file directly

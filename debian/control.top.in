@@ -2,7 +2,10 @@ Source: linuxcnc
 Section: misc
 Priority: optional
 Maintainer: LinuxCNC Developers <emc-developers@lists.sourceforge.net>
-Uploaders: Jeff Epler <jepler@gmail.com>, Sebastian Kuzminsky <seb@highlab.com>
+Uploaders:
+    Jeff Epler <jepler@gmail.com>,
+    Sebastian Kuzminsky <seb@highlab.com>,
+    Andy Pugh <andy@bodgesoc.org>
 Build-Depends:
     @DEBHELPER@,
     @PYTHON_PACKAGING_DEPENDS@,
@@ -41,6 +44,7 @@ Build-Depends:
     python3,
     python3-dev,
     python3-tk,
+    python3-pyqt5.qtwebengine | python3-pyqt5.qtwebkit,
     python3-xlib,
     tcl@TCLTK_VERSION@-dev,
     tclx,
@@ -49,7 +53,7 @@ Build-Depends:
     yapps2
 Build-Depends-Indep:
     @DOC_DEPENDS@,
-Standards-Version: 4.6.1
+Standards-Version: 4.7.2
 Homepage: https://linuxcnc.org/
 Vcs-Browser: https://github.com/LinuxCNC/linuxcnc
 Vcs-Git: https://github.com/LinuxCNC/linuxcnc.git

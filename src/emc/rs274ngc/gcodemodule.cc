@@ -16,6 +16,8 @@
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+#include <sys/time.h>
+
 #include <Python.h>
 #include <structmember.h>
 
@@ -775,11 +777,7 @@ static PyObject *parse_file(PyObject *self, PyObject *args) {
         if(!RESULT_OK) goto out_error;
         result = pinterp->execute();
     }
-    if(initcode && RESULT_OK) {
-        result = pinterp->read(initcode);
-        if(!RESULT_OK) goto out_error;
-        result = pinterp->execute();
-    }
+
     while(!interp_error && RESULT_OK) {
         error_line_offset = 1;
         result = pinterp->read();

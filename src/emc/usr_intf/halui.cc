@@ -653,7 +653,7 @@ int halui_hal_init(void)
 	    if (retval < 0) return retval;
 	    retval = hal_pin_s32_newf(HAL_IN,  &(halui_data->so_counts[spindle]), comp_id, "halui.spindle.%i.override.counts", spindle);
 	    if (retval < 0) return retval;
-	    *halui_data->so_counts = 0;
+	    *halui_data->so_counts[spindle] = 0;
 	    retval = hal_pin_bit_newf(HAL_IN,  &(halui_data->so_count_enable[spindle]), comp_id, "halui.spindle.%i.override.count-enable", spindle);
 	    if (retval < 0) return retval;
 	    *halui_data->so_count_enable[spindle] = 1;

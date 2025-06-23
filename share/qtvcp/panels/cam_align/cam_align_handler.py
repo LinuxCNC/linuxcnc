@@ -91,14 +91,14 @@ class HandlerClass:
                 # X axis scale number to use
                 elif 'xscale=' in self.w.USEROPTIONS_[num]:
                     try:
-                        self.scaleX = float(self.w.USEROPTIONS_[num].strip('xscale='))
+                        self.w.camview.scaleX = float(self.w.USEROPTIONS_[num].strip('xscale='))
                     except Exception as e:
                         print('Error with cam_align X axis scale - not a number - using 1.0')
 
                 # camera Y axis scale number to use
                 elif 'yscale=' in self.w.USEROPTIONS_[num]:
                     try:
-                        self.scaleY =  float(self.w.USEROPTIONS_[num].strip('yscale='))
+                        self.w.camview.scaleY =  float(self.w.USEROPTIONS_[num].strip('yscale='))
                     except Exception as e:
                         print('Error with cam_align camera Y axis scale- not a number - using 1.0')
 

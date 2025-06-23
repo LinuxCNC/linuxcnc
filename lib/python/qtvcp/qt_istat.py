@@ -407,11 +407,11 @@ class _IStat(object):
         if len(self.USRMESS_TEXT) != len(self.USRMESS_PINNAME):
             log.warning('Invalid message configuration (missing pinname) in INI File [DISPLAY] section')
         if len(self.USRMESS_TEXT) != len(self.USRMESS_BOLDTEXT):
-            log.warning('Invalid message configuration (missing boldtext) in INI File [DISPLAY] sectioN')
+            log.warning('Invalid message configuration (missing boldtext) in INI File [DISPLAY] section')
         if len(self.USRMESS_TEXT) != len(self.USRMESS_DETAILS):
-            log.warning('Invalid message configuration (missing details) in INI File [DISPLAY] sectioN')
+            log.warning('Invalid message configuration (missing details) in INI File [DISPLAY] section')
         if len(self.USRMESS_TEXT) != len(self.USRMESS_ICON):
-            log.warning('Invalid message configuration (missing icon) in INI File [DISPLAY] sectioN')
+            log.warning('Invalid message configuration (missing icon) in INI File [DISPLAY] section')
             if self.USRMESS_ICON == []:
                 temp = 'INFO'
             else:

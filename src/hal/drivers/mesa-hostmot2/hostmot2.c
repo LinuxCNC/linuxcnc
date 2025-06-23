@@ -156,6 +156,7 @@ static void hm2_write(void *void_hm2, long period) {
     hm2_pwmgen_write(hm2);    // update pwmgen registers if needed
     hm2_oneshot_write(hm2);   // update oneshot registers if needed
     hm2_rcpwmgen_write(hm2);  // update rcpwmgen registers if needed
+    hm2_pktuart_write(hm2);   // update pktuart registers if needed
     hm2_inmux_write(hm2);     // update inmux control register if needed
     hm2_inm_write(hm2);       // update inm control register if needed
     hm2_xy2mod_write(hm2);    // update xy2mod motion registers if needed
@@ -220,7 +221,7 @@ const char *hm2_hz_to_mhz(rtapi_u32 freq_hz) {
 
 // FIXME: It would be nice if this was more generic
 EXPORT_SYMBOL_GPL(hm2_get_bspi);
-int hm2_get_bspi(hostmot2_t** hm2, char *name){
+int hm2_get_bspi(hostmot2_t** hm2, const char *name){
     struct rtapi_list_head *ptr;
     int i;
     rtapi_list_for_each(ptr, &hm2_list) {
@@ -235,7 +236,7 @@ int hm2_get_bspi(hostmot2_t** hm2, char *name){
 }
 
 EXPORT_SYMBOL_GPL(hm2_get_uart);
-int hm2_get_uart(hostmot2_t** hm2, char *name){
+int hm2_get_uart(hostmot2_t** hm2, const char *name){
     struct rtapi_list_head *ptr;
     int i;
     rtapi_list_for_each(ptr, &hm2_list) {
@@ -249,7 +250,7 @@ int hm2_get_uart(hostmot2_t** hm2, char *name){
     return -1;
 }
 EXPORT_SYMBOL_GPL(hm2_get_pktuart);
-int hm2_get_pktuart(hostmot2_t** hm2, char *name){
+int hm2_get_pktuart(hostmot2_t** hm2, const char *name){
     struct rtapi_list_head *ptr;
     int i;
     rtapi_list_for_each(ptr, &hm2_list) {
@@ -264,7 +265,7 @@ int hm2_get_pktuart(hostmot2_t** hm2, char *name){
 }
 EXPORT_SYMBOL_GPL(hm2_get_sserial);
 // returns a pointer to a remote struct
-hm2_sserial_remote_t *hm2_get_sserial(hostmot2_t** hm2, char *name){
+hm2_sserial_remote_t *hm2_get_sserial(hostmot2_t** hm2, const char *name){
    // returns inst * 64 + remote index
     struct rtapi_list_head *ptr;
     int i, j;
@@ -1141,6 +1142,7 @@ static void hm2_cleanup(hostmot2_t *hm2) {
     hm2_outm_cleanup(hm2);
     hm2_oneshot_cleanup(hm2);
     hm2_rcpwmgen_cleanup(hm2);
+    hm2_pktuart_cleanup(hm2);
 
     // free all the tram entries
     hm2_tram_cleanup(hm2);
@@ -1167,6 +1169,7 @@ void hm2_print_modules(hostmot2_t *hm2) {
     hm2_inm_print_module(hm2);
     hm2_xy2mod_print_module(hm2);
     hm2_rcpwmgen_print_module(hm2);
+    hm2_pktuart_print_module(hm2);
 }
 
 

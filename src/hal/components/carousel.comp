@@ -68,13 +68,13 @@ input needs to be set to set home. Additionally in 'counts' mode the usual index
 logic of the encoder counters is supported.
 
 With some carousel designs the carousel will not stop immediately. To allow for
-this set the \\fBlign-dc\\fR pin to a low velocity to be used for a final latching move, and
-set the\\fBdecel-time\\fR to a suitable value.
+this set the \\fBalign-dc\\fR pin to a low velocity to be used for a final latching move, and
+set the \\fBdecel-time\\fR to a suitable value.
 Once the decel-time has expired the carousel will, if it was moving forwards, reverse back on
-to the position marker, off of the arker and then bak on to the FWD edge. If moving in reverse
+to the position marker, off of the marker and then back on to the FWD edge. If moving in reverse
 it will continue off the marker and then reverse slowly on to the FWD edge.
-This algnment is only possible with a motor-vel controlled bidirectional carousel,
-Other combinations will be acepted but probably won't have the desired behaviour.
+This alignment is only possible with a motor-vel controlled bidirectional carousel,
+Other combinations will be acepted but probably will not have the desired behaviour.
 Some tuning will be needed of align-dc and decel-time to achieve reliable operation.
 
 In the unusual case that the index and pulse signals do not align it is

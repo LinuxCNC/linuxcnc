@@ -344,28 +344,6 @@ static int spi_debug = -1;
 RTAPI_MP_INT(spi_debug, "Set message level for debugging purpose [0...5] where 0=none and 5=all (default: -1; upstream defined)")
 
 /*********************************************************************/
-/*
- * Synchronized read and write to peripheral memory.
- * Ensures coherency between cores, cache and peripherals
- */
-#define rmb()	__sync_synchronize()	// Read sync (finish all reads before continuing)
-#define wmb()	__sync_synchronize()	// Write sync (finish all write before continuing)
-
-RPSPI_ALWAYS_INLINE static inline uint32_t reg_rd(const volatile void *addr)
-{
-	uint32_t val;
-	val = *(volatile uint32_t *)addr;
-	rmb();
-	return val;
-}
-
-RPSPI_ALWAYS_INLINE static inline void reg_wr(const volatile void *addr, uint32_t val)
-{
-	wmb();
-	*(volatile uint32_t *)addr = val;
-}
-
-/*********************************************************************/
 #if defined(RPSPI_DEBUG_PIN)
 /*
  * Set/Clear a GPIO pin

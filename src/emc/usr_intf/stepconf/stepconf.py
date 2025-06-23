@@ -443,9 +443,9 @@ class Data:
         self.qtplasmacpause = 0
         self.qtplasmacstop = 0
         self.qtplasmacpmx = ""
-        self.qtplasmac_bnames = ["OHMIC\TEST","PROBE\TEST","SINGLE\CUT","NORMAL\CUT","TORCH\PULSE","FRAMING", "USER\MANUAL", \
+        self.qtplasmac_bnames = ["OHMIC\\TEST","PROBE\\TEST","SINGLE\\CUT","NORMAL\\CUT","TORCH\\PULSE","FRAMING", "USER\\MANUAL",
                                  "","","","","","","","","","","","",""]
-        self.qtplasmac_bcodes = ["ohmic-test","probe-test 10","single-cut","cut-type","torch-pulse 0.5","framing", "user-manual", \
+        self.qtplasmac_bcodes = ["ohmic-test","probe-test 10","single-cut","cut-type","torch-pulse 0.5","framing", "user-manual",
                                  "","","","","","","","","","","","",""]
         self.thcadenc = 0
         self.voltsmodel = "10"

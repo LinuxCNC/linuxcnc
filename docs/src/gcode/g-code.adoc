@@ -1450,19 +1450,12 @@ G43.1 axes
   G43.1 does not cause any motion. The next time a compensated axis
   is moved, that axis's endpoint is the compensated location.
 
-////
-FIXME Use of G43.1 with I and K words ?
-To use dynamic tool length compensation in a program, use 'G43.1 I- K-',
-where 'I-' gives the compensation of tool length in X (for lathes) and 'K-'
-gives the compensation length in Z (for lathes and milling machines).
-////
-
 .G43.1 Example
 [source,{ngc}]
 ----
 G90 (set absolute mode)
 T1 M6 G43 (load tool 1 and tool length offsets, Z is at machine 0 and DRO shows Z1.500)
-G43.1 Z0.250 (offset current tool offset by 0.250, DRO now shows Z1.250)
+G43.1 Z0.250 (replace current tool offset with 0.250, DRO now shows Z0.250)
 M2 (end program)
 ----
 
@@ -1481,20 +1474,32 @@ G43.1 does not write to the tool table.
 
 [source,{ngc}]
 ----
-G43.2 H- axes-
+G43.2 H- or axes-
 ----
 
 * 'H' - tool number
 
-* 'G43.2' - applies an additional simultaneous tool offset.
+* 'G43.2 Hn' - applies an additional simultaneous tool offset to subsequent motions by adding the offset(s) of tool n.
 
-.G43.2 Example
+* 'G43.2 axes' - applies an additional simultaneous tool offset to subsequent motions by adding the value(s) of any axis words.
+
+.G43.2 Hn Example
 [source,{ngc}]
 ----
 G90 (set absolute mode)
 T1 M6 (load tool 1)
 G43 (or G43 H1 - replace all tool offsets with T1's offset)
 G43.2 H10 (also add in T10's tool offset)
+M2 (end program)
+----
+
+.G43.2 axes Example
+[source,{ngc}]
+----
+G90 (set absolute mode)
+T1 M6 (load tool 1)
+G43 (or G43 H1 - replace all tool offsets with T1's offset)
+G43.2 X0.01 Z0.02 (also add 0.01 to the x tool offset and 0.02 to the z tool offset)
 M2 (end program)
 ----
 
