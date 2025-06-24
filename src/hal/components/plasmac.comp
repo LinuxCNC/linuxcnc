@@ -5,16 +5,16 @@ description
 
 A plasma cutting table control component for use with the LinuxCNC 2.10.
 
-.I VERSION:
-.br
+=== VERSION
+
 008
 
-.I SUMMARY:
-.br
+=== SUMMARY
+
 Usage of this component is demonstrated in the QtPlasmaC example configurations included with LinuxCNC.
 
-.I DISCLAIMER:
-.br
+=== DISCLAIMER
+
 THE AUTHOR OF THIS SOFTWARE ACCEPTS ABSOLUTELY NO LIABILITY FOR ANY HARM OR LOSS RESULTING FROM ITS USE.
 
 IT IS EXTREMELY UNWISE TO RELY ON SOFTWARE ALONE FOR SAFETY.

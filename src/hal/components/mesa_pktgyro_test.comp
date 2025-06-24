@@ -9,7 +9,10 @@ not used instead.
 For simplicity we test only one PktUART instance, therefore load the component
 like this:
 
-\\fB loadrt mesa_uart names=hm2_5i25.0.pktuart.0\\fR
+[source,hal]
+----
+loadrt mesa_uart names=hm2_5i25.0.pktuart.0
+----
 
 The PktUART instance names are printed to the dmesg buffer during the Hostmot2
 setup sequence, one for each PktUART instance included in the bitfile loaded to
@@ -19,17 +22,22 @@ If you want to work with more than one PktUART instance, consult Andy Pugh's
 mesa_uart.comp
 
 In order to compile and install do:
-\\fB halcompile --install src/hal/drivers/mesa_pktgyro_test.comp\\fR
+
+  halcompile --install src/hal/drivers/mesa_pktgyro_test.comp
 
 The component exports only one function, namely receive, which needs to be added
 to a realtime thread.
 To test this component  set DEBUG=5 before and execute this HAL script:
-\\fB loadrt hostmot2\\fR
-\\fB loadrt hm2_pci\\fR
-\\fB loadrt mesa_pktgyro_test names=hm2_5i25.0.pktuart.0\\fR
-\\fB loadrt threads name1=test1 period1=10000000\\fR
-\\fB addf hm2_5i25.0.pktuart.0.receive test1\\fR
-\\fB start\\fR
+
+[source,hal]
+----
+loadrt hostmot2
+loadrt hm2_pci
+loadrt mesa_pktgyro_test names=hm2_5i25.0.pktuart.0
+loadrt threads name1=test1 period1=10000000
+addf hm2_5i25.0.pktuart.0.receive test1
+start
+----
 
 Check linuxcnc.log for debug output.
 

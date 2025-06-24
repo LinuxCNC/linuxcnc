@@ -13,7 +13,10 @@ not used instead.
 The component takes parameters in the form of a comma-separated
 list of UART instance names, for example:
 
-\\fB loadrt mesa_uart names=hm2_5i23.0.uart.0,hm2_5i23.0.uart.7\\fR
+[source,hal]
+----
+loadrt mesa_uart names=hm2_5i23.0.uart.0,hm2_5i23.0.uart.7
+----
 
 Note that no spaces are allowed in the string unless it is delimited by double 
 quotes. 

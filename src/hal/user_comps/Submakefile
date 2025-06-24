@@ -93,8 +93,10 @@ $(patsubst ./hal/user_comps/%,../include/%,$(wildcard ./hal/user_comps/*.hh)): .
 
 $(USER_COMP_MANPAGES): ../docs/man/man1/%.1: hal/user_comps/%.comp ../bin/halcompile
 	$(ECHO) Making halcompile manpage $(notdir $@)
-	@mkdir -p $(dir $@)
-	$(Q)../bin/halcompile -U --userspace --document -o $@ $<
+	@mkdir -p $(dir $@) objects/man/man1
+	$(Q)../bin/halcompile -U --userspace --document --keep-adoc=$@.adoc -o $@ $<
+	$(Q)sed -i -e's/^\.als /.\\" .als /' $@
+	$(Q)mv -f $@.adoc objects/man/man1/
 
 $(USER_COMP_SRCS): objects/%.c: %.comp ../bin/halcompile
 	$(ECHO) "Preprocessing $(notdir $<)"

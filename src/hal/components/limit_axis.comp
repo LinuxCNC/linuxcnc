@@ -1,29 +1,38 @@
 component limit_axis "Dynamic range based axis limits";
 
-description """limit_axis.c
+description """
+Limit axis to certain limits at varying inputs.
 
-Limit axis to certain limits at varying inputs
-For example on a spindle with C rotation, to avoid hitting a
-gantry when the height is above Z-10
- - Use Z axis as feedback
- - Use 2 ranges (0,-10) (-10, -40)
- - When Z is above 10, C rotation is limited to range 0
- - When Z is below 10, C rotation is limited to range 1
+For example on a spindle with C rotation, to avoid hitting a gantry when the
+height is above Z-10.
 
- Usage:
- loadrt limit_axis count=3 personality=2,3,2
- or
- loadrt limit_axis names=limit_x,limit_y,limit_z personality=2,3,2
+* Use Z axis as feedback
+* Use 2 ranges (0,-10) (-10, -40)
+* When Z is above 10, C rotation is limited to range 0
+* When Z is below 10, C rotation is limited to range 1
 
- The "personality" argument defines how many ranges are supported by each instance.
- (Note that no spaces can be used in the names= and personality= parameters)
+Usage:
 
- Caveats
- - Searches ranges from 0 to 9 and will take the first range that matches
- - Ranges are inclusive min_range <= feedback <= max_range
- - Max can not be less than minimum for any group
- - Sticky indicates, to not check other ranges if the feedback is still in the current range
- - Enable allows for a range to be turned on/off, for cases such as avoiding a tool changer, but allowing sometimes""";
+[source,hal]
+----
+loadrt limit_axis count=3 personality=2,3,2
+# or
+loadrt limit_axis names=limit_x,limit_y,limit_z personality=2,3,2
+----
+
+The *personality* argument defines how many ranges are supported by each
+instance. Note that no spaces can be used in the *names*= and *personality*=
+parameters.
+
+Caveats:
+
+* Searches ranges from 0 to 9 and will take the first range that matches
+* Ranges are inclusive *min_range* ≤ feedback ≤ *max_range*
+* Max can not be less than minimum for any group
+* *sticky* indicates, to not check other ranges if the feedback is still in the current range
+* *enable* allows for a range to be turned on/off, for cases such as avoiding a tool changer, but allowing sometimes
+
+""";
 
 author "Chad Woitas";
 license "GPL";

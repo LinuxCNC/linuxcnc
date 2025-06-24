@@ -3,60 +3,60 @@ component eoffset_per_angle "Compute External Offset Per Angle";
 description
 """
 
-An offset is computed (from one of several functions) based on
-an input angle in degrees.  The angle could be a rotary
-coordinate value or a spindle angle.
+An offset is computed (from one of several functions) based on an input angle
+in degrees. The angle could be a rotary coordinate value or a spindle angle.
 
-The computed offset is represented as an s32 \\fBkcounts\\fR output
-pin that is a compatible input to external offset pins like
-\\fBaxis.L.eoffset-counts\\fR where \\fBL\\fR is the coordinate
-letter.  Scaling of the s32 \\fBkcounts\\fR is controlled by the
-input (\\fBk\\fR) -- its reciprocal value is presented on an output pin
-(\\fBkreciprocal\\fR) for connection to \\fBaxis.L.eoffset-scale\\fR.
-The default value for \\fBk\\fR should be suitable for most uses.
+The computed offset is represented as an s32 *kcounts* output pin that is a
+compatible input to external offset pins like *axis.L.eoffset-counts* where *L*
+is the coordinate letter. Scaling of the s32 *kcounts* is controlled by the
+input (*k*) -- its reciprocal value is presented on an output pin *kreciprocal*
+for connection to *axis.L.eoffset-scale*. The default value for *k* should be
+suitable for most uses.
 
-The built-in functions use pins \\fBfmult\\fR and \\fBrfraction\\fR
-to control the output frequency (or number of polygon sides)
-and amplitude respectively.  The  \\fBrfraction\\fR pin controls
-the offset amplitude as a fraction of the \\fBradius-ref\\fR pin.
+The built-in functions use pins *fmult* and *rfraction* to control the
+output frequency (or number of polygon sides) and amplitude respectively.
+The *rfraction* pin controls the offset amplitude as a fraction of
+the *radius-ref* pin.
 
-One of the four built-in functions is specified by the \\fBfnum\\fR pin:
-  \\fB0\\fR: f0 inside  polygon  (requires \\fBfmult\\fR == nsides >= 3)
-  \\fB1\\fR: f1 outside polygon  (requires \\fBfmult\\fR == nsides >= 3)
-  \\fB2\\fR: f2 sinusoid
-  \\fB3\\fR: f3 square wave
+One of the four built-in functions is specified by the *fnum* pin:
 
-Unsupported \\fBfnum\\fR values default to use function f0.
+* 0: f0 inside  polygon  (requires *fmult* == nsides ≥ 3)
+* 1: f1 outside polygon  (requires *fmult* == nsides ≥ 3)
+* 2: f2 sinusoid
+* 3: f3 square wave
+
+Unsupported *fnum* values default to use function f0.
 """;
 
 notes """
-\\fBradius-ref\\fR:
-The computed offsets are based on the \\fBradius-ref\\fR pin
-value.  This pin may be set to a constant radius value or
-controlled by a user interface or by g code program (using
-\\fBM68\\fR and a \\fBmotion.analog-out-NN pin for instance).
+radius-ref::
+The computed offsets are based on the *radius-ref* pin value. This pin may be
+set to a constant radius value or controlled by a user interface or by g code
+program (using *M68* and a *motion.analog-out-NN* pin for instance).
 
-\\fBStopping\\fR:
-When the \\fBenable-in\\fR pin is deasserted, the offset is
-returned to zero respecting the allocated acceleration
-and velocity limits.  The allocations for coordinate \\fBL\\fR
-are typically controlled by an ini file setting:
-\\fB[AXIS_L]OFFSET_AV_RATIO\\fR.
+Stopping::
+When the *enable-in* pin is deasserted, the offset is returned to zero
+respecting the allocated acceleration and velocity limits. The allocations for
+coordinate *L* are typically controlled by an ini file setting:
 
-If unsupported parameters are supplied to a function (for instance
-a polygon with fewer than three sides), the current offset
-will be returned to zero (respecting velocity and acceleration
-constraints).  After correcting the offending parameter, the
-\\fBenable-in\\fR pin must be toggled to resume offset
+[source,ini]
+----
+[AXIS_L]
+OFFSET_AV_RATIO=...
+----
+
+If unsupported parameters are supplied to a function (for instance a polygon
+with fewer than three sides), the current offset will be returned to zero
+(respecting velocity and acceleration constraints). After correcting the
+offending parameter, the *enable-in* pin must be toggled to resume offset
 computations.
 """;
 
 examples """
 An example simulation configuration is provided at:
-\\fBconfigs/sim/axis/external_offsets/opa.ini\\fR.  A
-simulated XZC machine uses the \\fBC\\fR coordinate angle to
-offset the transverse \\fBX\\fR coordinate according to
-the selected \\fBfnum\\fR function.
+`configs/sim/axis/external_offsets/opa.ini`. +
+A simulated XZC machine uses the *C* coordinate angle to offset the
+transverse *X* coordinate according to the selected *fnum* function.
 """;
 
 //" quote char for vim highlighting

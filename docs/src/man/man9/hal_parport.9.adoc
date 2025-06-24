@@ -25,13 +25,13 @@ The hal_parport component supports up to **8** physical parallel ports.
   port(s) and whether the port(s) is/are used as an input or output
   port(s). Up to eight parallel ports are supported by the component.
 
-The **port_addr **parameter of the configuration string may be either
+The *port_addr* parameter of the configuration string may be either
 the physical base address of a parallel port or specified as the
 detected parallel port via Linux parport_pc driver. In which case, a
-**port_addr** of __0 __is the first parallel port detected on the
-system, __1__ is the next, and so on.
+*port_addr* of _0_ is the first parallel port detected on the
+system, _1_ is the next, and so on.
 
-The **type **parameter of the configuration string determines how the
+The *type* parameter of the configuration string determines how the
 I/O bits of the port are used. There are four possible options and if
 none is specified will default to out.
 
@@ -49,11 +49,11 @@ _x_:: The option allows ports with open collectorts on the control group pins to
 The pins created by the hal_parport component depends on how it is
 configured in the **cfg="" **string passed to it, see OPTIONS.
 
-**parport.**_p_**.pin-**_n_**-out** (bit):: Drives a physical output pin.
+**parport**.__p__.**pin-**__n__**-out** (bit):: Drives a physical output pin.
 
-**parport.**_p_**.pin-**_n_**-in** (bit):: Tracks a physical input pin.
+**parport**.__p__.**pin-**__n__**-in** (bit):: Tracks a physical input pin.
 
-**parport.**_p_**.pin-**_n_**-in-not** (bit):: Tracks a physical input pin, but inverted.
+**parport**.__p__.**pin-**__n__**-in-not** (bit):: Tracks a physical input pin, but inverted.
 
 For each pin created, **_p_** is the port number, and **_n_** is the
 physical pin number in the 25 pin D-shell connector.
@@ -82,26 +82,26 @@ in the cfg="" string.
 
 == PARAMETERS
 
-**parport.**_p_**.pin-<n>-out-invert** (bit)::
+**parport**.__p__.*pin-<n>-out-invert** (bit)::
   Inverts an output pin.
-**parport.**_p_**.pin-<n>-out-reset** (bit)::
+**parport**.__p__.**pin-<n>-out-reset** (bit)::
   (only for out pins) TRUE if this pin should be reset when the .reset
   function is executed.
-**parport.**_p_**.reset-time** (u32)::
+**parport**.__p__.**reset-time** (u32)::
   The time (in nanoseconds) between a pin is set by write and reset by
   the reset function if it is enabled.
 
 == FUNCTIONS
 
-*parport.**_p**.read(funct)::
+**parport**.__p__.**read** (funct)::
   Reads physical input pins of port <portnum> and updates HAL -in and -in-not pins.
 **parport.read-all** (funct)::
   Reads physical input pins of all ports and updates HAL -in and -in-not pins.
-**parport.**_p**.write** (funct)::
+**parport**.__p__.**write** (funct)::
   Reads HAL -out pins of port _p_ and updates that port's physical output pins.
 **parport.write-all** (funct)::
   Reads HAL -out pins of all ports and updates all physical output pins.
-**parport.**_p**.reset** (funct)::
+**parport**.__p__.**reset** (funct)::
   Waits until __reset-time__ has elapsed since the associated write,
   then resets pins to values indicated by __-out-reset__ and __-out-invert__ settings.
   Reset must be later in the same thread as write.

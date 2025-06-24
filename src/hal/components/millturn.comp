@@ -2,8 +2,6 @@ component millturn "Switchable kinematics for a mill-turn machine";
 
 description
 """
-.if \\n[.g] .mso www.tmac
-
 This is a switchable kinematics module using 3 cartesian linear joints (XYZ)
 and 1 angular joint (A). The module contains two kinematic models:
 

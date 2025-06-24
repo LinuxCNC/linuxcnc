@@ -4,18 +4,20 @@ description
 """
 Time
 
-When either the time.N.start or time.N.pause bits goes true the cycle
-timer resets and starts to time until time.N.start AND time.N.pause go
-false. When the time.N.pause bit goes true timing is paused until
-time.N.pause goes false. If you connect time.N.start to
-halui.program.is-running and leave time.N.pause unconnected the timer
-will reset during a pause. See the example connections below for more
+When either the *time*._N_.*start* or *time*._N_.*pause* bits goes true the
+cycle timer resets and starts to time until *time*._N_.*start* AND *time*._N_.*pause*
+go false. When the *time*._N_.*pause* bit goes true timing is paused
+until *time*._N_.*pause* goes false. If you connect *time*._N_.*start*
+to *halui*.*program*.*is-running* and leave *time*._N_.*pause* unconnected the
+timer will reset during a pause. See the example connections below for more
 information.
 
-Time returns the hours, minutes, and seconds that time.N.start is true.
+Time returns the hours, minutes, and seconds that *time*._N_.*start* is true.
 
 Sample PyVCP code to display the hours:minutes:seconds.
 
+[source,xml]
+----
 <pyvcp>
   <hbox>
   <label>
@@ -47,12 +49,15 @@ Sample PyVCP code to display the hours:minutes:seconds.
   </u32>
   </hbox>
 </pyvcp>
+----
 
-In your post-gui.hal file you might use one of the following to connect
+In your `post-gui.hal` file you might use one of the following to connect
 this timer:
  
- For a new config:
+For a new config:
  
+[source,hal]
+----
  loadrt time
  addf time.0 servo-thread
  net cycle-timer        time.0.start <= halui.program.is-running
@@ -60,13 +65,15 @@ this timer:
  net cycle-seconds pyvcp.time-seconds <= time.0.seconds
  net cycle-minutes pyvcp.time-minutes <= time.0.minutes
  net cycle-hours pyvcp.time-hours <= time.0.hours
+----
 
+Previous to this version if you wanted the timer to continue running
+during a pause instead of resetting, you had to use a HAL NOT component
+to invert the *halui*.*program*.*is-idle* pin and connect
+to *time*._N_.*start* as shown below:
 
- Previous to this version if you wanted the timer to continue running
- during a pause instead of resetting, you had to use a HAL NOT component
- to invert the halui.program.is-idle pin and connect to time.N.start as
- shown below:
-
+[source,hal]
+----
  loadrt time
  loadrt not
  addf time.0 servo-thread
@@ -76,12 +83,15 @@ this timer:
  net cycle-seconds pyvcp.time-seconds <= time.0.seconds
  net cycle-minutes pyvcp.time-minutes <= time.0.minutes
  net cycle-hours pyvcp.time-hours <= time.0.hours
- 
- For those who have this setup already, you can simply add a net connecting
- time.N.pause to halui.program.is-paused:
+----
 
+For those who have this setup already, you can simply add a net
+connecting *time*._N_.*pause* to *halui*.*program*.*is-paused*:
+
+[source,hal]
+----
  net cycle-timer-pause time.0.pause <= halui.program.is-paused
-
+----
 
 """;
  

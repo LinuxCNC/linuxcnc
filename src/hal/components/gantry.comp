@@ -52,10 +52,10 @@ function read  fp "Update position-fb and home/limit outputs based on joint valu
 function write fp "Update joint pos-cmd outputs based on position-cmd in.";
 description """
 Drives multiple physical motors (joints) from a single axis input
-.LP
+
 The `personality' value is the number of joints to control.  Two is typical, but
 up to seven is supported (a three joint setup has been tested with hardware).
-.LP
+
 All controlled joints track the commanded position (with a per-joint offset) unless in the process of homing.
 Homing is when the commanded position is moving towards the homing switches
 (as determined by the sign of search-vel)
@@ -64,7 +64,7 @@ When the system is homing and a joint home switch activates,
 the command value sent to that joint is "frozen" and the joint offset value is updated instead.
 Once all home switches are active,
 there are no more adjustments made to the offset values and all joints run in lock-step once more.
-.LP
+
 For best results, set HOME_SEARCH_VEL and HOME_LATCH_VEL to the same direction and as slow as practical.
 When a joint home switch trips, the commanded velocity will drop immediately from HOME_SEARCH_VEL to zero, with no limit on acceleration.
 """;
