@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 # -*- encoding: utf-8 -*-
 #    This is pncconf, a graphical configuration editor for LinuxCNC
 #    Chris Morley copyright 2009
@@ -3697,7 +3697,7 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                     customindex = len(humansignallist)-1
                 # for encoder pins
                 elif widgetptype == _PD.ENCA:
-                    #print"\nptype encoder"
+                    #print('\nptype encoder')
                     halsignallist = 'hal_encoder_input_names'
                     humansignallist = _PD.human_encoder_input_names
                     addsignalto = self.d.halencoderinputsignames
@@ -3709,7 +3709,7 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                         self.d._arcvpin = pin
                     elif self.d._arcvpin == pin:
                         self.d._arcvpin = None
-                    if self.d._arcvpin and self.d.frontend == _PD._QTPLASMAC:
+                    if self.d._arcvpin != None and self.d.frontend == _PD._QTPLASMAC:
                         self.p.page_set_state('thcad', True)
                     else:
                         self.p.page_set_state('thcad', False)
@@ -5636,7 +5636,10 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                         return "%s."% (make_name(boardname,halboardnum)) + "outm.00.out-%02d"% (compnum)
                     elif ptype == _PD.INM0:
                         compnum -= 100
-                        return "%s."% (make_name(boardname,halboardnum)) + "inm.00.input-%02d"% (compnum)
+                        if boardname in ("7i95t"):
+                            return "%s."% (make_name(boardname,halboardnum)) + "inmux.00.input-%02d"% (compnum)
+                        else:
+                            return "%s."% (make_name(boardname,halboardnum)) + "inm.00.input-%02d"% (compnum)
                     else:
                         compnum = int(pinnum)+(concount* num_of_pins )
                         return "%s."% (make_name(boardname,halboardnum)) + "gpio.%03d"% (compnum)
