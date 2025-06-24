@@ -115,7 +115,9 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
             lon = self.PREFS_.getpref(self.HAL_NAME_+'-user-lon', lon, float, 'SCREEN_CONTROL_LAST_SETTING')
             self.presetViewSettings(v,z,x,y,lat,lon)
 
-    # when qtvcp closes this gets called
+            self.set_preferred_view()
+
+    # when qtvcp closes, this gets called
     def _hal_cleanup(self):
         if self.PREFS_:
             v,z,x,y,lat,lon = self.getRecordedViewSettings()
@@ -126,6 +128,15 @@ class  GCodeGraphics(Lcnc_3dGraphics, _HalWidgetBase):
             self.PREFS_.putpref(self.HAL_NAME_+'-user-pany', y, float, 'SCREEN_CONTROL_LAST_SETTING')
             self.PREFS_.putpref(self.HAL_NAME_+'-user-lat', lat, float, 'SCREEN_CONTROL_LAST_SETTING')
             self.PREFS_.putpref(self.HAL_NAME_+'-user-lon', lon, float, 'SCREEN_CONTROL_LAST_SETTING')
+            self.PREFS_.putpref(self.HAL_NAME_+'-current-view', self.get_current_view(), str, 'SCREEN_CONTROL_LAST_SETTING')
+
+    def set_preferred_view(self):
+        if self.PREFS_:
+            view = self.PREFS_.getpref(self.HAL_NAME_+'-current-view', 'p', str, 'SCREEN_CONTROL_LAST_SETTING')
+            # set graphics view variable
+            self.current_view = view
+            # tell any other interested widgets that the view changed
+            STATUS.emit('graphics-view-changed', self.current_view, None)
 
     # external source asked for highlight,
     # make sure we block the propagation
