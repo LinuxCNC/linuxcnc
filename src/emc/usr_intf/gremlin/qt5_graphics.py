@@ -574,6 +574,8 @@ class Lcnc_3dGraphics(QOpenGLWidget,  glcanon.GlCanonDraw, glnav.GlNavBase):
     def get_view(self):
         view_dict = {'x':0, 'y':1, 'y2':1, 'z':2, 'z2':2, 'p':3}
         return view_dict.get(self.current_view, 3)
+    def get_current_view(self):
+        return self.current_view
     def get_geometry(self):
         temp = self.inifile.find("DISPLAY", "GEOMETRY") or 'XYZABCUVW'
         if temp:
