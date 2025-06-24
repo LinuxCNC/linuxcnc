@@ -181,6 +181,21 @@ class _GStat(GObject.GObject):
         's-code-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
         'blend-code-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT, GObject.TYPE_FLOAT)),
 
+        'gcode-group0-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'gcode-group1-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'gcode-group2-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'gcode-group3-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'gcode-group4-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'gcode-group5-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'gcode-group6-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'gcode-group7-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'gcode-group8-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'gcode-group10-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'gcode-group12-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'gcode-group13-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'gcode-group14-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+        'gcode-group15-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+
         'metric-mode-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
         'user-system-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
 
@@ -251,6 +266,22 @@ class _GStat(GObject.GObject):
     STATE_ESTOP_RESET = linuxcnc.STATE_ESTOP_RESET
     STATE_ON = linuxcnc.STATE_ON
     STATE_OFF = linuxcnc.STATE_OFF
+
+    group0 = ('G4', 'G10','G28', 'G30', 'G52', 'G53', 'G92', 'G92.1', 'G92.2', 'G92.3')
+    group1 = ('G0', 'G1', 'G2', 'G3', 'G33', 'G38.n', 'G73', 'G76', 'G80', 'G81',\
+             'G82', 'G83', 'G84', 'G85', 'G86', 'G87', 'G88', 'G89')
+    group2 = ('G17', 'G18', 'G19', 'G17.1', 'G18.1', 'G19.1')
+    group3 = ('G90', 'G91')
+    group4 = ('G90.1', 'G91.1')
+    group5 = ('G93', 'G94', 'G95')
+    group6 = ('G20', 'G21')
+    group7 = ('G40', 'G41', 'G42', 'G41.1', 'G42.1')
+    group8 = ('G43', 'G43.1', 'G49')
+    group10 = ('G98', 'G99')
+    group12 = ('G54', 'G55', 'G56', 'G57', 'G58', 'G59', 'G59.1', 'G59.2', 'G59.3')
+    group13 = ('G61', 'G61.1', 'G64')
+    group14 = ('G96', 'G97')
+    group15 = ('G7', 'G8')
 
     def __init__(self, stat = None):
         GObject.Object.__init__(self)
@@ -361,6 +392,9 @@ class _GStat(GObject.GObject):
         # extract specific G-code modes
         itime = fpm = fpr = css = rpm = metric = False
         radius = diameter = adm = idm = False
+        group0 = group1 = group3 = group4 = group5 = group6 = group7 = ''
+        group8 = group10 = group12 = group13 = group14 = group15 =''
+
         for num,i in enumerate(active_gcodes):
             if i == 'G90': adm = True
             elif i == 'G91': idm = True
@@ -372,6 +406,37 @@ class _GStat(GObject.GObject):
             elif i == 'G21': metric = True
             elif i == 'G7': diameter  = True
             elif i == 'G8': radius = True
+
+            if i in self.group0: group0 = i
+            elif i in self.group1: group1 = i
+            elif i in self.group2: group2 = i
+            elif i in self.group3: group3 = i
+            elif i in self.group4: group4 = i
+            elif i in self.group5: group5 = i
+            elif i in self.group6: group6 = i
+            elif i in self.group7: group7 = i
+            elif i in self.group8: group8 = i
+            elif i in self.group10: group10 = i
+            elif i in self.group12: group12 = i
+            elif i in self.group13: group13 = i
+            elif i in self.group14: group14 = i
+            elif i in self.group15: group15 = i
+
+        self.old['group0'] = group0
+        self.old['group1'] = group1
+        self.old['group2'] = group2
+        self.old['group3'] = group3
+        self.old['group4'] = group4
+        self.old['group5'] = group5
+        self.old['group6'] = group6
+        self.old['group7'] = group7
+        self.old['group8'] = group8
+        self.old['group10'] = group10
+        self.old['group12'] = group12
+        self.old['group13'] = group13
+        self.old['group14'] = group14
+        self.old['group15'] = group15
+
         self.old['g90'] = adm
         self.old['g91'] = idm
         self.old['itime'] = itime
@@ -709,6 +774,17 @@ class _GStat(GObject.GObject):
         diam_new = self.old['diameter']
         if diam_new != diam_old:
             self.emit('diameter-mode',diam_new)
+
+        ####################################
+        # G modal
+        ####################################
+        for g in ('group0','group1','group2','group3','group4','group5',
+                'group6','group7','group8','group10','group12','group13','group14','group15'):
+            gold = old.get(g, None)
+            gnew = self.old[g]
+            if gold != gnew:
+                self.emit('gcode-{}-changed'.format(g), gnew)
+
         ####################################
         # Mcodes
         ####################################
@@ -848,6 +924,12 @@ class _GStat(GObject.GObject):
         # G-codes
         g_code_new = self.old['g-code']
         self.emit('g-code-changed',g_code_new)
+
+        for g in ('group0','group1','group2','group3','group4','group5',
+                'group6','group7','group8','group10','group12','group13','group14','group15'):
+            gnew = self.old[g]
+            self.emit('gcode-{}-changed'.format(g), gnew)
+
         # metric units G21
         metric_new = self.old['metric']
         self.emit('metric_mode_changed',metric_new)
