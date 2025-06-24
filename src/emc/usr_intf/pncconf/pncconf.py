@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 # -*- encoding: utf-8 -*-
 #    This is pncconf, a graphical configuration editor for LinuxCNC
 #    Chris Morley copyright 2009
@@ -3697,7 +3697,7 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                     customindex = len(humansignallist)-1
                 # for encoder pins
                 elif widgetptype == _PD.ENCA:
-                    #print('\nptype encoder')
+                    #print"\nptype encoder"
                     halsignallist = 'hal_encoder_input_names'
                     humansignallist = _PD.human_encoder_input_names
                     addsignalto = self.d.halencoderinputsignames
