@@ -87,6 +87,9 @@ class Calculator( Gtk.Box ):
         self.wTree.connect_signals( dic )
         self.entry = self.wTree.get_object( "displayText" )
         self.entry.modify_font( Pango.FontDescription( self.font ) )
+        self.wTree.get_object( "Backspace" ).set_label("\u232B")
+        self.wTree.get_object( "Pi" ).set_label("\u03c0")
+        self.wTree.get_object( "Pi" ).set_name("pi-symbol")
         self.calc_box = self.wTree.get_object( "calc_box" )
         self.calc_box.set_vexpand(True)
         self.calc_box.set_hexpand(True)
@@ -101,7 +104,9 @@ class Calculator( Gtk.Box ):
         self.calc_box.set_name("calc_widget")
         style_context = self.calc_box.get_style_context()
         style_context.add_provider_for_screen(screen, provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
-        css = b"#calc_widget {font-size: 15px;}"
+        css = b"""
+        #calc_widget {font-size: 15px;}
+        #pi-symbol {font-size: 18px; font-family: sans-serif;}"""
         provider.load_from_data(css)
 
     def num_pad_only( self, value ):
