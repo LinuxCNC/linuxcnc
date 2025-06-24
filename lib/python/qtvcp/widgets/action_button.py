@@ -367,7 +367,8 @@ class ActionButton(IndicatedPushButton):
             STATUS.connect('state-on', lambda w: self._safecheck(True))
             STATUS.connect('state-off', lambda w: self._safecheck(False))
         elif self.view_change:
-            pass
+            if self.view_type.lower() in('x', 'y', 'y2', 'z', 'z2', 'p'):
+                STATUS.connect('graphics-view-changed', lambda w,v,d: self.view_check(v))
         elif self.spindle_fwd or self.spindle_rev or self.spindle_up or self.spindle_down:
             STATUS.connect('mode-manual', lambda w: self.setEnabled(True))
             STATUS.connect('mode-mdi', lambda w: self.setEnabled(False))
@@ -448,6 +449,12 @@ class ActionButton(IndicatedPushButton):
         if self._state_text:
             self.setText(None)
         self._block_signal = False
+
+    def view_check(self,data):
+        if data.lower() == self.view_type.lower():
+            self._safecheck(True)
+        else:
+            self._safecheck(False)
 
     ###################################
     # Here we do the actions
