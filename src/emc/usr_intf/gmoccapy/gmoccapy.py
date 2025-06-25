@@ -212,6 +212,7 @@ class gmoccapy(object):
         self.incr_rbt_list = []   # we use this list to add hal pin to the button later
         self.jog_increments = []  # This holds the increment values
         self.unlock = False       # this value will be set using the hal pin unlock settings
+        self.toolpage_use_calc = True   # enable/disable calculator widget to edit numeric values in the tool editor
 
         # needed to display the labels
         self.system_list = ("0", "G54", "G55", "G56", "G57", "G58", "G59", "G59.1", "G59.2", "G59.3")
@@ -1970,6 +1971,8 @@ class gmoccapy(object):
                 temp.connect('editing-started', self.on_tool_col_edit_started, col)
 
     def on_tool_col_edit_started(self, widget, filtered_path, new_text, col):
+        if not self.toolpage_use_calc:
+            return
         captations = ["toggle", "Tool#", "Pocket",
                        "X-offset", "Y-offset", "Z-offset",
                        "A-offset", "B-offset", "C-offset",
