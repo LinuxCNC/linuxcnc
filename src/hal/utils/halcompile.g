@@ -1066,24 +1066,34 @@ def document(filename, outfilebase):
 
 def make_manpage(fdir, fname):
     # Conversion to manpage format required
-    opts = ["--doctype=manpage",
-            "--destination-dir=" + fdir,
-            "-a", "mansource=LinuxCNC",
-            "-a", "manmanual=LinuxCNC Documentation" ]
     try:
         # Try asciidoctor
-        opts += ["--backend=manpage"]
-        subprocess.call(["asciidoctor"] + opts + [fname], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        args = ["asciidoctor",
+                "--doctype=manpage",
+                "--backend=manpage",
+                "--destination-dir=" + fdir,
+                "-a", "mansource=LinuxCNC",
+                "-a", "manmanual=LinuxCNC Documentation",
+                fname]
+        subprocess.call(args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
     except:
         try:
             # Alternative, try a2x
-            opts += ["--format=manpage", "--xsltproc-opts=--nonet"]
-            subprocess.call(["a2x"] + opts + [fname], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            #opts += ["--format=manpage", "--xsltproc-opts=--nonet"]
+            args = ["a2x",
+                    "--doctype=manpage",
+                    "--format=manpage",
+                    "--destination-dir=" + fdir,
+                    "--xsltproc-opts=--nonet",
+                    "-a", "mansource=LinuxCNC",
+                    "-a", "manmanual=LinuxCNC Documentation",
+                    fname]
+            subprocess.call(args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         except:
             raise SystemExit("Error: Missing asciidoctor or a2x for adoc-to-manpage conversion or use --adoc for asciidoc file only")
 
     # We should have a file with the extension removed
-    manfile = fname.removesuffix(".adoc")
+    manfile = os.path.join(fdir, os.path.basename(fname).removesuffix(".adoc"))
     if not os.access(manfile, os.R_OK):
         raise SystemExit("Error: Manpage '%s' not generated" % manfile)
     return manfile
