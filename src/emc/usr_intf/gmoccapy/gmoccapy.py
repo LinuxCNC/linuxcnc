@@ -222,7 +222,6 @@ class gmoccapy(object):
         self.incr_rbt_list = []   # we use this list to add hal pin to the button later
         self.jog_increments = []  # This holds the increment values
         self.unlock = False       # this value will be set using the hal pin unlock settings
-        self.toolpage_use_calc = True   # enable/disable calculator widget to edit numeric values in the tool editor
 
         # needed to display the labels
         self.system_list = ("0", "G54", "G55", "G56", "G57", "G58", "G59", "G59.1", "G59.2", "G59.3")
@@ -654,6 +653,10 @@ class gmoccapy(object):
         jog_box_width = self.prefs.getpref("jog_box_width", 360, int)
         self.widgets.adj_jog_box_width.set_value(jog_box_width)
         self.widgets.vbx_jog.set_size_request(jog_box_width, -1)
+        
+        # enable/disable calculator widget to edit numeric values in the tool editor
+        self.toolpage_use_calc = self.prefs.getpref("toolpage_use_calc", True, bool)
+        self.widgets.chk_tooltable_use_calc.set_active(self.toolpage_use_calc)
 
 ###############################################################################
 ##                     create widgets dynamically                            ##
@@ -5002,6 +5005,10 @@ class gmoccapy(object):
 
     def on_chk_use_kb_on_file_selection_toggled(self, widget, data=None):
         self.prefs.putpref("show_keyboard_on_file_selection", widget.get_active())
+        
+    def on_chk_toolpage_use_calc_toggled(self, widget, data=None):
+        self.toolpage_use_calc = widget.get_active()
+        self.prefs.putpref("toolpage_use_calc", self.toolpage_use_calc)
 
     def on_chk_use_kb_shortcuts_toggled(self, widget, data=None):
         self.prefs.putpref("use_keyboard_shortcuts", widget.get_active())
