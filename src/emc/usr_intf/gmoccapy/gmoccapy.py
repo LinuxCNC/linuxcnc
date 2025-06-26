@@ -222,7 +222,6 @@ class gmoccapy(object):
         self.incr_rbt_list = []   # we use this list to add hal pin to the button later
         self.jog_increments = []  # This holds the increment values
         self.unlock = False       # this value will be set using the hal pin unlock settings
-        self.toolpage_use_calc = True   # enable/disable calculator widget to edit numeric values in the tool editor
 
         # needed to display the labels
         self.system_list = ("0", "G54", "G55", "G56", "G57", "G58", "G59", "G59.1", "G59.2", "G59.3")
@@ -654,6 +653,11 @@ class gmoccapy(object):
         jog_box_width = self.prefs.getpref("jog_box_width", 360, int)
         self.widgets.adj_jog_box_width.set_value(jog_box_width)
         self.widgets.vbx_jog.set_size_request(jog_box_width, -1)
+        
+        # enable/disable calculator widget for tooltable/offsetpage
+        self.toolpage_use_calc = self.prefs.getpref("toolpage_use_calc", True, bool)
+        self.offsetpage_use_calc = self.prefs.getpref("offsetpage_use_calc", True, bool)
+        self.widgets.chk_offsetpage_use_calc.set_active(self.offsetpage_use_calc)
 
 ###############################################################################
 ##                     create widgets dynamically                            ##
@@ -2022,7 +2026,7 @@ class gmoccapy(object):
         btn_calculator.set_tooltip_text(_("Use calculator to edit numeric values"))
         btn_calculator.show_all()
         btn_calculator.set_active(self.toolpage_use_calc)
-        btn_calculator.connect("toggled", self.on_use_calculator_toggled)
+        btn_calculator.connect("toggled", self.on_toolpage_use_calc_toggled)
         buttonbox.pack_start(btn_calculator,False,False,50)
         column_cell_ids = ["toggle", "tool#1", "pos1", "x1", "y1", "z1", "a1", "b1", "c1", "u1", "v1", "w1",
                        "d1", "front1", "back1", "orient1", "cell_comments1"]
@@ -2078,8 +2082,9 @@ class gmoccapy(object):
         else:
             pass
 
-    def on_use_calculator_toggled(self,widget):
+    def on_toolpage_use_calc_toggled(self, widget):
         self.toolpage_use_calc = widget.get_active()
+        self.prefs.putpref("toolpage_use_calc", widget.get_active())
 
     def on_tool_col_edit_started(self, widget, filtered_path, new_text, col):
         if not self.toolpage_use_calc:
@@ -2400,6 +2405,8 @@ class gmoccapy(object):
 
 
     def on_offset_col_edit_started(self, widget, filtered_path, new_text, col):
+        if not self.offsetpage_use_calc:
+            return
         offsetpage = self.widgets.offsetpage1
         offsetview = offsetpage.view2
         model, treeiter = offsetview.get_selection().get_selected()
@@ -5110,6 +5117,10 @@ class gmoccapy(object):
 
     def on_chk_use_kb_on_file_selection_toggled(self, widget, data=None):
         self.prefs.putpref("show_keyboard_on_file_selection", widget.get_active())
+        
+    def on_chk_offsetpage_use_calc_toggled(self, widget, data=None):
+        self.offsetpage_use_calc = widget.get_active()
+        self.prefs.putpref("offsetpage_use_calc", self.offsetpage_use_calc)
 
     def on_chk_use_kb_shortcuts_toggled(self, widget, data=None):
         self.prefs.putpref("use_keyboard_shortcuts", widget.get_active())
