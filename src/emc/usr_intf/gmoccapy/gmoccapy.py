@@ -76,7 +76,7 @@ sys.excepthook = excepthook
 
 # constants
 #         # gmoccapy  #"
-_RELEASE = " 3.5.0"
+_RELEASE = "3.5.1"
 _INCH = 0                         # imperial units are active
 _MM = 1                           # metric units are active
 
@@ -548,7 +548,9 @@ class gmoccapy(object):
         messages =[ _("<b>3.5.0 (LinuxCNC 2.10.0): Gmoccapy does no longer automatically retain G43 after a toolchange!</b>\n"\
                     "Automatic reactivation of G43 is possible using a REMAP.\n"\
                     "Examples can be found in the Gmoccapy sim configurations."),
-                    # _("<b>3.5.1 (LinuxCNC 2.10.1): </b> Example for new feature"),
+                    _("<b>3.5.1 (LinuxCNC 2.10.0)</b>\n• The tool table and offset page uses now the calculator for entering values by default. "\
+                    "This can be changed in the settings/by a button.\n• A button to call the calculator was added in MDI and G-code edit modes."),
+                    # _("<b>3.5.2 (LinuxCNC 2.10.x): </b> Example for new feature"),
                     ]
         hide_message = self.prefs.getpref("hide_startup_messsage", 0, int)
         if hide_message < len(messages):
