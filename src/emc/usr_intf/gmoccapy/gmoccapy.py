@@ -212,6 +212,7 @@ class gmoccapy(object):
         self.incr_rbt_list = []   # we use this list to add hal pin to the button later
         self.jog_increments = []  # This holds the increment values
         self.unlock = False       # this value will be set using the hal pin unlock settings
+        self.toolpage_use_calc = True   # enable/disable calculator widget to edit numeric values in the tool editor
 
         # needed to display the labels
         self.system_list = ("0", "G54", "G55", "G56", "G57", "G58", "G59", "G59.1", "G59.2", "G59.3")
@@ -1943,7 +1944,6 @@ class gmoccapy(object):
 
     # and we load the tooltable data
     def _init_tooleditor(self):
-
        # get the path to the tool table
         tooltable = self.get_ini_info.get_toolfile()
         if not tooltable:
@@ -1953,20 +1953,58 @@ class gmoccapy(object):
             sys.exit()
         toolfile = os.path.join(CONFIGPATH, tooltable)
         self.widgets.tooledit1.set_filename(toolfile)
-
         # first we hide all the axis columns the unhide the ones we want
         self.widgets.tooledit1.set_visible("abcxyzuvwijq", False)
         for axis in self.axis_list:
             self.widgets.tooledit1.set_visible("{0}".format(axis), True)
-
         # if it's a lathe config we show lathe related columns
         if self.lathe_mode:
             self.widgets.tooledit1.set_visible("ijq", True)
             if not self.get_ini_info.get_lathe_wear_offsets():
                 # hide the wear offset tabs
                 self.widgets.tooledit1.set_lathe_display(False)
-
         self.widgets.tooledit1.hide_buttonbox(True)
+        column_cell_ids = ["toggle", "tool#1", "pos1", "x1", "y1", "z1", "a1", "b1", "c1", "u1", "v1", "w1",
+                       "d1", "front1", "back1", "orient1", "cell_comments1"]
+        for col, name in enumerate(column_cell_ids):
+            if col > 0 and col < 16:
+                temp = self.widgets.tooledit1.wTree.get_object("cell_%s" % name)
+                temp.connect('editing-started', self.on_tool_col_edit_started, col)
+
+    def on_tool_col_edit_started(self, widget, filtered_path, new_text, col):
+        if not self.toolpage_use_calc:
+            return
+        captations = ["toggle", "Tool#", "Pocket",
+                       "X-offset", "Y-offset", "Z-offset",
+                       "A-offset", "B-offset", "C-offset",
+                       "U-offset", "V-offset", "W-offset",
+                       "Diameter", "Front angle", "Back angle", "Orientation", ";1"]
+        toolpage = self.widgets.tooledit1
+        toolview = toolpage.view1
+        model, row = toolview.get_selection().get_selected()
+        value = self.dialogs.entry_dialog(self,
+                                    data=model[row][col],
+                                    header=_("Enter value"),
+                                    label=_("Tool %s,  %s:" % (model[row][1], captations[col])),
+                                    integer=col in [1,2,15])
+        if value == "ERROR":
+            LOG.debug("conversion error")
+            self.dialogs.warning_dialog(self, _("Conversion error !"),
+                                        ("Please enter only numerical values\nValues have not been applied"))
+        elif value == "CANCEL":
+            pass
+        else:
+            store = toolpage.wTree.get_object("liststore1")
+            if col in [1,2,15]:
+                store[row][col] = value
+            else:
+                store[row][col] = locale.format_string("%11.4f", value)
+        # this is needed to get offsetview out of editing mode
+        GLib.timeout_add(50,
+                     toolview.set_cursor,
+                     toolpage.model.get_path(row),
+                     toolview.get_columns()[0],
+                     True)
 
     def _init_themes(self):
         # If there are themes then add them to combo box
