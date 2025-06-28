@@ -29,7 +29,7 @@ INFO = Info()
 LOG = logger.getLogger(__name__)
 
 # Force the log level for this module
-LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+# LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 _translate = QCoreApplication.translate
 
@@ -317,7 +317,7 @@ class FileManager(QWidget, _HalWidgetBase):
     def _hal_init(self):
         if self.PREFS_:
             last_path = self.PREFS_.getpref('last_loaded_directory', self.user_path, str, 'BOOK_KEEPING')
-            LOG.debug("LAST FILE PATH: {}".format(last_path))
+            LOG.debug(f"LAST FILE PATH: {last_path}")
             if not last_path == '' and os.path.exists(last_path):
                 self.updateDirectoryView(last_path)
             else:
@@ -328,7 +328,7 @@ class FileManager(QWidget, _HalWidgetBase):
             self._jumpList.update(temp)
 
         else:
-            LOG.debug("LAST FILE PATH: {}".format(self.user_path))
+            LOG.debug(f"LAST FILE PATH: {self.user_path}")
             self.updateDirectoryView(self.user_path)
 
         # install jump paths into toolbutton menu
@@ -336,7 +336,7 @@ class FileManager(QWidget, _HalWidgetBase):
             self.addAction(i)
 
         # set recorded columns sort settings
-        self.SETTINGS_.beginGroup("FileManager-{}".format(self.objectName()))
+        self.SETTINGS_.beginGroup(f"FileManager-{self.objectName()}")
         sect = self.SETTINGS_.value('sortIndicatorSection', type = int)
         order = self.SETTINGS_.value('sortIndicatorOrder', type = int)
         self.SETTINGS_.endGroup()
@@ -358,7 +358,7 @@ class FileManager(QWidget, _HalWidgetBase):
 
         # record sorted columns
         h = self.table.horizontalHeader()
-        self.SETTINGS_.beginGroup("FileManager-{}".format(self.objectName()))
+        self.SETTINGS_.beginGroup(f"FileManager-{self.objectName()}")
         self.SETTINGS_.setValue('sortIndicatorSection', h.sortIndicatorSection())
         self.SETTINGS_.setValue('sortIndicatorOrder', h.sortIndicatorOrder())
         self.SETTINGS_.endGroup()
@@ -390,9 +390,9 @@ class FileManager(QWidget, _HalWidgetBase):
                 self.table.setRootIndex(proxy_index)
                 self.proxy_model.invalidate()
         else:
-            LOG.debug("Set directory view error - no such path {}".format(path))
+            LOG.debug(f"Set directory view error - no such path {path}")
             if not quiet:
-                STATUS.emit('error', STATUS.TEMPORARY_MESSAGE, "File Manager error - No such path: {}".format(path))
+                STATUS.emit('error', STATUS.TEMPORARY_MESSAGE, f"File Manager error - No such path: {path}")
 
     # retrieve selected filter (it's held as QT.userData)
     def filterChanged(self, index):
@@ -430,8 +430,8 @@ class FileManager(QWidget, _HalWidgetBase):
             if temp is not None:
                 self.updateDirectoryView(temp)
             else:
-                STATUS.emit('error',STATUS.OPERATOR_ERROR, 'file jumppath: {} not valid'.format(data))
-                log.debug('file jumppath: {} not valid'.format(data))
+                STATUS.emit('error',STATUS.OPERATOR_ERROR, f'file jumppath: {data} not valid')
+                LOG.debug(f'file jumppath: {data} not valid')
         else:
             self.jumpButton.setText('User')
 
@@ -446,7 +446,7 @@ class FileManager(QWidget, _HalWidgetBase):
             self.jumpButton.setToolTip('Jump to User directory.\nLong press for Options.')
             self.showUserDir()
         else:
-            self.jumpButton.setToolTip('Jump to directory:\n{}'.format(self._jumpList.get(name)))
+            self.jumpButton.setToolTip(f'Jump to directory:\n{self._jumpList.get(name)}')
             self.updateDirectoryView(self._jumpList.get(name))
 
     # add or remove a jump list path
@@ -557,7 +557,7 @@ class FileManager(QWidget, _HalWidgetBase):
         source, dest = data
         self.copyChecks(source, dest)
 
-    def copyFile(self, s, d):
+    def copyFile(self, source, dest):
         self.copyChecks(source, dest)
 
     def overwriteMessage(self, d):
@@ -570,7 +570,7 @@ class FileManager(QWidget, _HalWidgetBase):
             return False
         return True
 
-    # likely class patch candidate 
+    # likely class patch candidate
     def copyChecks(self, s, d):
         if os.path.isfile(d) or os.path.isdir(d):
             retval = self.overwriteMessage(d)
@@ -596,7 +596,7 @@ class FileManager(QWidget, _HalWidgetBase):
             STATUS.emit('status-message',mess,opt)
             return True
         except Exception as e:
-            STATUS.emit('error', STATUS.OPERATOR_ERROR, "Copy file error: {}".format(e))
+            STATUS.emit('error', STATUS.OPERATOR_ERROR, f"Copy file error: {e}")
             return False
 
     @pyqtSlot(float)
@@ -669,16 +669,16 @@ class FileManager(QWidget, _HalWidgetBase):
     # This can be class patched to do something else
     def load(self, fname=None):
         return
-        try:
-            if fname is None:
-                self._getPathActivated()
-                return
-            self.recordBookKeeping()
-            ACTION.OPEN_PROGRAM(fname)
-            STATUS.emit('update-machine-log', 'Loaded: ' + fname, 'TIME,SUCCESS')
-        except Exception as e:
-            LOG.error("Load file error: {}".format(e))
-            STATUS.emit('error', STATUS.NML_ERROR, "Load file error: {}".format(e))
+        # try:
+        #     if fname is None:
+        #         self._getPathActivated()
+        #         return
+        #     self.recordBookKeeping()
+        #     ACTION.OPEN_PROGRAM(fname)
+        #     STATUS.emit('update-machine-log', f'Loaded: {fname}', 'TIME,SUCCESS')
+        # except Exception as e:
+        #     LOG.error(f"Load file error: {e}")
+        #     STATUS.emit('error', STATUS.NML_ERROR, f"Load file error: {e}")
 
     # This can be class patched to do something else
     def recordBookKeeping(self):
