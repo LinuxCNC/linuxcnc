@@ -1,4 +1,4 @@
-VERSION = '008.066'
+VERSION = '008.067'
 LCNCVER = '2.10'
 
 '''
@@ -748,7 +748,7 @@ class HandlerClass:
             if 'on limit switch error' in text:
                 N.update(O.notify_hard_limits, title='Machine Error:', message=text, msgs=O.notify_max_msgs)
             elif kind == linuxcnc.OPERATOR_ERROR and not self.realTimeDelay:
-                N.update(O.notify_critical, title='Operator Error:', message=text, msgs=O.notify_max_msgs)
+                N.update(O.notify_critical, icon='dialog-error', title='Operator Error:', message=text, msgs=O.notify_max_msgs)
             elif kind == linuxcnc.OPERATOR_TEXT:
                 N.update(O.notify_critical, title='Operator Text:', message=text, msgs=O.notify_max_msgs)
             elif kind == linuxcnc.OPERATOR_DISPLAY:
@@ -2710,7 +2710,7 @@ class HandlerClass:
             self.w[self.ccButton].setEnabled(False)
 
     def system_notify_button_pressed(self, object, button, state):
-        if button in ['clearAll', 'close', 'lastFive'] and state:
+        if button in ['background', 'clearAll', 'close', 'lastFive'] and state:
             self.error_status(False)
 
     def error_status(self, state):
