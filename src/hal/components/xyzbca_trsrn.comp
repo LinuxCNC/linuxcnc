@@ -2,8 +2,7 @@ component xyzbca_trsrn "Switchable kinematics for 6 axis machine with a rotary t
 
 description
 """
-.if \\n[.g] .mso www.tmac
-
+FIXME
 
 """;
 // The fpin pin is not accessible in kinematics functions.

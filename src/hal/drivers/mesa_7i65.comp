@@ -3,7 +3,10 @@ component mesa_7i65 "Support for the Mesa 7i65 Octuple Servo Card";
 description """The component takes parameters in the form of a comma-separated
 list of bspi (buffered SPI) instance names, for example:
 
-\\fB loadrt mesa_7i65 bspi_chans=hm2_5i23.0.bspi.0, hm2_5i23.0.bspi.1\\fR
+[source,hal]
+----
+loadrt mesa_7i65 bspi_chans=hm2_5i23.0.bspi.0, hm2_5i23.0.bspi.1
+----
 
 The BSPI instances are printed to the dmesg buffer during the Hostmot2 setup
 sequence, one for each bspi instance included in the bitfile loaded to each

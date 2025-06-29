@@ -56,7 +56,7 @@ Component to reset IO signals.
 
 This function works like a conditional sets - it is fed with a float
 and/or bit/s32/u32 pins that are I/O, but are save the value only if
-the "trigger" pin is set. The values assigned to those signals are
+the *trigger* pin is set. The values assigned to those signals are
 passed via the input pins reset_float/s32/u32/bit.
 """;
 license "GPL";

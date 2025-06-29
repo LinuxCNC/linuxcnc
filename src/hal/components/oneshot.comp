@@ -17,11 +17,11 @@
 
 component oneshot "one-shot pulse generator";
 
-description """creates a variable-length output pulse when the input changes 
+description """creates a variable-length output pulse when the input changes
 state. This function needs to run in a thread which supports floating point
 (typically the servo thread). This means that the pulse length has to be a
-multiple of that thread period, typically 1mS. 
-For a similar function that can run in the base thread, and which offers higher 
+multiple of that thread period, typically 1ms.
+For a similar function that can run in the base thread, and which offers higher
 resolution, see "edge".""";
 
 pin in bit in "Trigger input";

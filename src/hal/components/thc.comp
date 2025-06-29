@@ -2,7 +2,8 @@ component thc "Torch Height Control";
 
 description 
 """
-Torch Height Control
+=== Torch Height Control
+
 Mesa THC > Encoder > LinuxCNC THC component
 
 The Mesa THC sends a frequency based on the voltage detected to the encoder.
@@ -12,7 +13,8 @@ parameter inside the THC component.
 The THCAD card sends a frequency at 0 volts so the scale offset parameter is
 used to zero the calculated voltage.
 
-Component Functions
+=== Component Functions
+
 If enabled and torch is on and X + Y velocity is within tolerance of set speed
 allow the THC to offset the Z axis as needed to maintain voltage.
 
@@ -24,28 +26,28 @@ pass the Z position and feed back untouched.
 
 If not enabled pass the Z position and feed back untouched.
 
-Physical Connections
-.br
+=== Physical Connections
+
 Plasma Torch Arc Voltage Signal => 6 x 487k 1% resistors => THC Arc Voltage In
-.br
+
 THC Frequency Signal => Encoder #0, pin A (Input)
-.br
+
 Plasma Torch Arc OK Signal => input pin
-.br
+
 output pin => Plasma Torch Start Arc Contacts
 
-HAL Plasma Connections
-.br
+=== HAL Plasma Connections
+
 encoder.nn.velocity => thc.encoder-vel (tip voltage)
-.br
+
 spindle.0.on => output pin (start the arc)
-.br
+
 thc.arc-ok <= motion.digital-in-00 <= input pin (arc ok signal)
 
-HAL Motion Connections
-.br
+=== HAL Motion Connections
+
 thc.requested-vel <= motion.requested-vel
-.br
+
 thc.current-vel <= motion.current-vel
 
 """;

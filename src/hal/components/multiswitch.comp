@@ -41,7 +41,7 @@ option period no;
 variable int old_up = 0;
 variable int old_down = 0;
 
-author "ArcEye schooner30@tiscali.co.uk / Andy Pugh andy@bodgesoc.org";
+author "ArcEye schooner30.AT.tiscali.co.uk / Andy Pugh andy.AT.bodgesoc.org";
 license "GPL";
 ;;
 

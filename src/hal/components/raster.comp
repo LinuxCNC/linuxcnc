@@ -20,41 +20,49 @@ pin out float previous_pixel_value = -1.0 "previously loaded pixel value";
 pin out signed current_pixel_index = -1 "currently loaded pixel index";
 pin out float fraction = 0.0;
 
-description """The raster component converts a single raster program line to laser output.
-               The position pin is slaved to the axis that the raster line maps too. 
-               The raster program must be programmed for each raster line that is to be executed.
-               The port must be programmed prior to a raster line being executed.
+description """
+The raster component converts a single raster program line to laser output.
+The position pin is slaved to the axis that the raster line maps too.
+The raster program must be programmed for each raster line that is to be executed.
+The port must be programmed prior to a raster line being executed.
 
-               A python component RasterProgrammer (lib/python/RasterProgrammer.py) is provided to ease programming of the raster component.
-               configs/sim/axis/laser shows an example of how these pieces could be integrated for a functional laser engraver config.
+A python component RasterProgrammer (`lib/python/RasterProgrammer.py`) is
+provided to ease programming of the raster component.
+An example `configs/sim/axis/laser` shows how these pieces could be integrated
+for a functional laser engraver config.
 
-               A program line format is as follows:
-               {program_offset};{bits_per_pixel};{pixels_per_unit};{number_of_ pixels};{pixel_data ....}
+A program line format is as follows:
 
-               program_offset: a float. It indicates the start position of the raster line relative to the current axis position. 
-                  A negative program_offset indicates that the raster sweeps from positive to negative
-                  A zero or positive program_offset indicates that the raster sweeps from negative to positive direction
+  {program_offset};{bits_per_pixel};{pixels_per_unit};{number_of_ pixels};{pixel_data ....}
 
-               bits_per_pixel: an integer. It indicates the precision of a pixel value and consequently the number of bytes consumed per pixel value.
-                  A bits per pixel of 4 takes 1 character (0-F) and scales out from from 0.0 to 1.0 (0 being 0 and E being 1.0). F corresponds to off or -1.0
-                  A bits per pixel of 8 takes 2 characters per pixel, 12 takes 3 characters per pixel etc...
+* *program_offset*: a float. It indicates the start position of the raster line
+  relative to the current axis position. A negative *program_offset* indicates
+  that the raster sweeps from positive to negative. A zero or positive
+  program_offset* indicates that the raster sweeps from negative to positive
+  direction.
+* *bits_per_pixel*: an integer. It indicates the precision of a pixel value and
+  consequently the number of bytes consumed per pixel value. A bits per pixel
+  of 4 takes 1 character (0-F) and scales out from from 0.0 to 1.0 (0 being 0
+  and E being 1.0). F corresponds to off or -1.0. A bits per pixel of 8 takes 2
+  characters per pixel, 12 takes 3 characters per pixel etc...
+* *pixels_per_unit*: a float that represents the size of a pixel in machine
+  units. 1 would correspond to 1 pixel per machine unit, 100 would correspond
+  to 100 pixels per machine unit.
 
-               pixels_per_unit: a float that represents the size of a pixel in machine units. 
-                   1 would correspond to 1 pixel per machine unit, 100 would correspond to 100 pixels per machine unit.
-
-               number_of_pixels: an integer that indicates the length of the raster line in pixels.
-                          The length of the rasterline in machine units would be number_of_pixels / pixels_per_unit
+* *number_of_pixels*: an integer that indicates the length of the raster line
+  in pixels. The length of the rasterline in machine units would be
+  number_of_pixels / pixels_per_unit
                
-               pixel_data: a series of hexadeicmal digits ([0-9][a-f][A-F]) the represents the pixel data.
-                       bits_per_pixel determines the resolution of a pixel and how many hexadecimal digits per pixel.
-                       pixel data characters have no delimiter between each pixel.
-                       4 bpp is one character per pixel
-                       8 bpp is 2 characters per pixel
-                       12 bpp is 3
-                       etc...
+* *pixel_data*: a series of hexadeicmal digits ([0-9][a-f][A-F]) the represents
+  the pixel data. *bits_per_pixel* determines the resolution of a pixel and how
+  many hexadecimal digits per pixel.  pixel data characters have no delimiter
+  between each pixel. +
+  4 bpp is one character per pixel +
+  8 bpp is 2 characters per pixel +
+  12 bpp is 3 +
+  etc...
+
 """;
-               
-            
 
 option period no;
 function _;

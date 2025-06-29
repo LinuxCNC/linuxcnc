@@ -1,6 +1,5 @@
 component bldc """BLDC and AC-servo control component 
-.B loadrt bldc cfg=qi6,aH\\fB""";
-// 1.3.2 (26/1/11 20:10)
+*loadrt* *bldc* *cfg*=_qi6,aH_""";
 
 pin in bit hall1 if personality & 0x01 "Hall sensor signal 1";
 pin in bit hall2 if personality & 0x01 "Hall sensor signal 2";
@@ -35,14 +34,13 @@ This is only used indicate to the bldc control component that an index has been 
 pin in bit init if (personality & 0x05) == 4
 """A rising edge on this pin starts the motor alignment sequence.
 This pin should be connected in such a way that the motors re-align any time that encoder monitoring has been interrupted.
-Typically this will only be at machine power-off.
+Typically this will only be at machine power-off. +
 The alignment process involves powering the motor phases in such a way as to put the motor in a known position.
-The encoder counts are then stored in the \\fBoffset\\fP parameter.
-The alignment process will tend to cause a following error if it is triggered while the axis is enabled, so should be set before the matching axis.N.enable pin.
-The complementary \\fBinit-done\\fP pin can be used to handle the required sequencing.
-
+The encoder counts are then stored in the *offset* parameter.
+The alignment process will tend to cause a following error if it is triggered while the axis is enabled, so should be set before the matching axis.N.enable pin. +
+The complementary *init-done* pin can be used to handle the required sequencing. +
 Both pins can be ignored if the encoder offset is known explicitly, such as is the case with an absolute encoder.
-In that case the \\fBoffset\\fP parameter can be set directly in the HAL file.""";
+In that case the *offset* parameter can be set directly in the HAL file.""";
 
 pin out bit init-done = 0 if (personality & 0x05) == 4
 "Indicates homing sequence complete.";
@@ -88,7 +86,7 @@ pin out float out
 "Current output, including the effect of the dir pin and the alignment sequence.";
 
 pin out bit out-dir
-"Direction output, high if /fBvalue/fR is negative XOR /fBrev/fR is true.";
+"Direction output, high if *value* is negative XOR *rev* is true.";
 
 pin out float out-abs
 "Absolute value of the input value";
@@ -112,147 +110,88 @@ It is used to back-calculate from commanded angle to actual phase angle.
 It is only relevant to drives which expect rotor-angle input rather than phase-angle demand. Should be 0 for most drives.""";
 
 param rw unsigned output-pattern=25 if personality & 0x400
-"""Commutation pattern to be output in Hall Signal translation mode. See the description of /fBpattern/fR for details.""";
+"""Commutation pattern to be output in Hall Signal translation mode. See the description of *pattern* for details.""";
 
 param rw unsigned pattern=25 if personality & 0x01
 """Commutation pattern to use, from 0 to 47. Default is type 25.
 Every plausible combination is included.
-The table shows the excitation pattern along the top, and the pattern code on the left hand side.
+The table below shows the excitation pattern along the top, and the pattern code on the left hand side.
 The table entries are the hall patterns in H1, H2, H3 order.
-Common patterns are:
-0 (30 degree commutation) and 26, its reverse.
-17 (120 degree).
-18 (alternate 60 degree).
-21 (300 degree, Bodine).
-22 (240 degree).
-25 (60 degree commutation).
-
-Note that a number of incorrect commutations will have non-zero net torque which might look as if they work, but don't really.
-
+Common patterns are: +
+ + 0 (30 degree commutation) and 26, its reverse. +
+ + 17 (120 degree) +
+ + 18 (alternate 60 degree) +
+ + 21 (300 degree, Bodine) +
+ + 22 (240 degree) +
+ + 25 (60 degree commutation) +
+Note that a number of incorrect commutations will have non-zero net torque which might look as if they work, but don't really. +
 If your motor lacks documentation it might be worth trying every pattern.
 
-.ie '\\*[.T]'html' \\{\\
-.HTML \\
-<STYLE> \\
-#pattern TD { text-align: center; padding-left: .5ex; padding-right: .5ex } \\
-#pattern TH { text-align: center; padding-left: .5ex; padding-right: .5ex } \\
-#pattern TD.W { text-align: right; } \\
-</STYLE> \\
-<TABLE ID="pattern" STYLE="border: 1px solid black; border-collapse: collapse"> \\
-<COL SPAN=7 STYLE="margin: .2ex"><COL SPAN=1 STYLE="border-left: 1px solid black"> \\
-<TR><TD>&nbsp;<TH COLSPAN=6 CLASS=W>Phases, Source - Sink \\
-<TR><TH CLASS=W>pat<TH CLASS=W>B-A<TH CLASS=W>C-A<TH CLASS=W>C-B<TH CLASS=W>A-B<TH CLASS=W>A-C<TH CLASS=W>B-C \\
-<TR><TH>0<TD>000<TD>001<TD>011<TD>111<TD>110<TD>100 \\
-<TR><TH>1<TD>001<TD>000<TD>010<TD>110<TD>111<TD>101 \\
-<TR><TH>2<TD>000<TD>010<TD>011<TD>111<TD>101<TD>100 \\
-<TR><TH>3<TD>001<TD>011<TD>010<TD>110<TD>100<TD>101 \\
-<TR><TH>4<TD>010<TD>011<TD>001<TD>101<TD>100<TD>110 \\
-<TR><TH>5<TD>011<TD>010<TD>000<TD>100<TD>101<TD>111 \\
-<TR><TH>6<TD>010<TD>000<TD>001<TD>101<TD>111<TD>110 \\
-<TR><TH>7<TD>011<TD>001<TD>000<TD>100<TD>110<TD>111 \\
-<TR><TH>8<TD>000<TD>001<TD>101<TD>111<TD>110<TD>010 \\
-<TR><TH>9<TD>001<TD>000<TD>100<TD>110<TD>111<TD>011 \\
-<TR><TH>10<TD>000<TD>010<TD>110<TD>111<TD>101<TD>001 \\
-<TR><TH>11<TD>001<TD>011<TD>111<TD>110<TD>100<TD>000 \\
-<TR><TH>12<TD>010<TD>011<TD>111<TD>101<TD>100<TD>000 \\
-<TR><TH>13<TD>011<TD>010<TD>110<TD>100<TD>101<TD>001 \\
-<TR><TH>14<TD>010<TD>000<TD>100<TD>101<TD>111<TD>011 \\
-<TR><TH>15<TD>011<TD>001<TD>101<TD>100<TD>110<TD>010 \\
-<TR><TH>16<TD>000<TD>100<TD>101<TD>111<TD>011<TD>010 \\
-<TR><TH>17<TD>001<TD>101<TD>100<TD>110<TD>010<TD>011 \\
-<TR><TH>18<TD>000<TD>100<TD>110<TD>111<TD>011<TD>001 \\
-<TR><TH>19<TD>001<TD>101<TD>111<TD>110<TD>010<TD>000 \\
-<TR><TH>20<TD>010<TD>110<TD>111<TD>101<TD>001<TD>000 \\
-<TR><TH>21<TD>011<TD>111<TD>110<TD>100<TD>000<TD>001 \\
-<TR><TH>22<TD>010<TD>110<TD>100<TD>101<TD>001<TD>011 \\
-<TR><TH>23<TD>011<TD>111<TD>101<TD>100<TD>000<TD>010 \\
-<TR><TH>24<TD>100<TD>101<TD>111<TD>011<TD>010<TD>000 \\
-<TR><TH>25<TD>101<TD>100<TD>110<TD>010<TD>011<TD>001 \\
-<TR><TH>26<TD>100<TD>110<TD>111<TD>011<TD>001<TD>000 \\
-<TR><TH>27<TD>101<TD>111<TD>110<TD>010<TD>000<TD>001 \\
-<TR><TH>28<TD>110<TD>111<TD>101<TD>001<TD>000<TD>010 \\
-<TR><TH>29<TD>111<TD>110<TD>100<TD>000<TD>001<TD>011 \\
-<TR><TH>30<TD>110<TD>100<TD>101<TD>001<TD>011<TD>010 \\
-<TR><TH>31<TD>111<TD>101<TD>100<TD>000<TD>010<TD>011 \\
-<TR><TH>32<TD>100<TD>101<TD>001<TD>011<TD>010<TD>110 \\
-<TR><TH>33<TD>101<TD>100<TD>000<TD>010<TD>011<TD>111 \\
-<TR><TH>34<TD>100<TD>110<TD>010<TD>011<TD>001<TD>101 \\
-<TR><TH>35<TD>101<TD>111<TD>011<TD>010<TD>000<TD>100 \\
-<TR><TH>36<TD>110<TD>111<TD>011<TD>001<TD>000<TD>100 \\
-<TR><TH>37<TD>111<TD>110<TD>010<TD>000<TD>001<TD>101 \\
-<TR><TH>38<TD>110<TD>100<TD>000<TD>001<TD>011<TD>111 \\
-<TR><TH>39<TD>111<TD>101<TD>001<TD>000<TD>010<TD>110 \\
-<TR><TH>40<TD>100<TD>000<TD>001<TD>011<TD>111<TD>110 \\
-<TR><TH>41<TD>101<TD>001<TD>000<TD>010<TD>110<TD>111 \\
-<TR><TH>42<TD>100<TD>000<TD>010<TD>011<TD>111<TD>101 \\
-<TR><TH>43<TD>101<TD>001<TD>011<TD>010<TD>110<TD>100 \\
-<TR><TH>44<TD>110<TD>010<TD>011<TD>001<TD>101<TD>100 \\
-<TR><TH>45<TD>111<TD>011<TD>010<TD>000<TD>100<TD>101 \\
-<TR><TH>46<TD>110<TD>010<TD>000<TD>001<TD>101<TD>111 \\
-<TR><TH>47<TD>111<TD>011<TD>001<TD>000<TD>100<TD>110 \\
-</TABLE>
-\\}
-.el \\{\\
+[cols="1,1,1,1,1,1,1"]
+|===
+h|
+2+^h|Phases
+2+^h|Source
+2+^h|Sink
 
-.TS
-box tab(;);
-cb s s s s s s
-cb|cb cb cb cb cb cb
-c | c  c  c  c c r.
-Phases, Source - Sink
-_
-pat;B-A;C-A;C-B;A-B;A-C;B-C
-_
-0;000;001;011;111;110;100
-1;001;000;010;110;111;101
-2;000;010;011;111;101;100
-3;001;011;010;110;100;101
-4;010;011;001;101;100;110
-5;011;010;000;100;101;111
-6;010;000;001;101;111;110
-7;011;001;000;100;110;111
-8;000;001;101;111;110;010
-9;001;000;100;110;111;011
-10;000;010;110;111;101;001
-11;001;011;111;110;100;000
-12;010;011;111;101;100;000
-13;011;010;110;100;101;001
-14;010;000;100;101;111;011
-15;011;001;101;100;110;010
-16;000;100;101;111;011;010
-17;001;101;100;110;010;011
-18;000;100;110;111;011;001
-19;001;101;111;110;010;000
-20;010;110;111;101;001;000
-21;011;111;110;100;000;001
-22;010;110;100;101;001;011
-23;011;111;101;100;000;010
-24;100;101;111;011;010;000
-25;101;100;110;010;011;001
-26;100;110;111;011;001;000
-27;101;111;110;010;000;001
-28;110;111;101;001;000;010
-29;111;110;100;000;001;011
-30;110;100;101;001;011;010
-31;111;101;100;000;010;011
-32;100;101;001;011;010;110
-33;101;100;000;010;011;111
-34;100;110;010;011;001;101
-35;101;111;011;010;000;100
-36;110;111;011;001;000;100
-37;111;110;010;000;001;101
-38;110;100;000;001;011;111
-39;111;101;001;000;010;110
-40;100;000;001;011;111;110
-41;101;001;000;010;110;111
-42;100;000;010;011;111;101
-43;101;001;011;010;110;100
-44;110;010;011;001;101;100
-45;111;011;010;000;100;101
-46;110;010;000;001;101;111
-47;111;011;001;000;100;110
-.TE
-\\}
+h|
+h|B-A
+h|C-A
+h|C-B
+h|A-B
+h|A-C
+h|B-C
+
+|0|000|001|011|111|110|100
+|1|001|000|010|110|111|101
+|2|000|010|011|111|101|100
+|3|001|011|010|110|100|101
+|4|010|011|001|101|100|110
+|5|011|010|000|100|101|111
+|6|010|000|001|101|111|110
+|7|011|001|000|100|110|111
+|8|000|001|101|111|110|010
+|9|001|000|100|110|111|011
+|10|000|010|110|111|101|001
+|11|001|011|111|110|100|000
+|12|010|011|111|101|100|000
+|13|011|010|110|100|101|001
+|14|010|000|100|101|111|011
+|15|011|001|101|100|110|010
+|16|000|100|101|111|011|010
+|17|001|101|100|110|010|011
+|18|000|100|110|111|011|001
+|19|001|101|111|110|010|000
+|20|010|110|111|101|001|000
+|21|011|111|110|100|000|001
+|22|010|110|100|101|001|011
+|23|011|111|101|100|000|010
+|24|100|101|111|011|010|000
+|25|101|100|110|010|011|001
+|26|100|110|111|011|001|000
+|27|101|111|110|010|000|001
+|28|110|111|101|001|000|010
+|29|111|110|100|000|001|011
+|30|110|100|101|001|011|010
+|31|111|101|100|000|010|011
+|32|100|101|001|011|010|110
+|33|101|100|000|010|011|111
+|34|100|110|010|011|001|101
+|35|101|111|011|010|000|100
+|36|110|111|011|001|000|100
+|37|111|110|010|000|001|101
+|38|110|100|000|001|011|111
+|39|111|101|001|000|010|110
+|40|100|000|001|011|111|110
+|41|101|001|000|010|110|111
+|42|100|000|010|011|111|101
+|43|101|001|011|010|110|100
+|44|110|010|011|001|101|100
+|45|111|011|010|000|100|101
+|46|110|010|000|001|101|111
+|47|111|011|001|000|100|110
+|===
+
 """;
 
 description """
@@ -260,56 +199,67 @@ This component is designed as an interface between the most common forms of thre
 However, there is no requirement that the motor and drive should necessarily be of inherently compatible types.
 
 Each instance of the component is defined by a group of letters describing the input and output types.
-A comma separates individual instances of the component. For example \\fBloadrt bldc cfg=qi6,aH\\fR.
+A comma separates individual instances of the component. For example *loadrt bldc cfg=qi6,aH*.
 
-.SH Tags
-Input type definitions are all lower-case.
+=== TAGS
+Input type definitions are all lower-case:
 
-\\fBn\\fR No motor feedback. This mode could be used to drive AC induction motors,
-but is also potentially useful for creating free-running motor simulators for drive testing.
+* *n*: No motor feedback. +
+This mode could be used to drive AC induction motors, but is also potentially
+useful for creating free-running motor simulators for drive testing.
 
-\\fBh\\fR Hall sensor input.
-Brushless DC motors (electronically commutated permanent magnet 3-phase motors) typically use a set of three Hall sensors to measure the angular position of the rotor.
-A lower-case \\fBh\\fR in the cfg string indicates that these should be used.
+* *h*: Hall sensor input.
+Brushless DC motors (electronically commutated permanent magnet 3-phase motors)
+typically use a set of three Hall sensors to measure the angular position of
+the rotor. +
+A lower-case *h* in the cfg string indicates that these should be used.
 
-\\fBa\\fR Absolute encoder input. (Also possibly used by some forms of Resolver conversion hardware).
-The presence of this tag over-rides all other inputs.
-Note that the component still requires to be be connected to the \\fBrawcounts\\fR encoder pin to prevent loss of commutation on index-reset.
+* *a*: Absolute encoder input (also possibly used by some forms of Resolver
+conversion hardware).
+The presence of this tag over-rides all other inputs. +
+Note that the component still requires to be be connected to the *rawcounts*
+encoder pin to prevent loss of commutation on index-reset.
 
-\\fBq\\fR Incremental (quadrature) encoder input.
-If this input is used then the rotor will need to be homed before the motor can be run.
+* *q*: Incremental (quadrature) encoder input.
+If this input is used then the rotor will need to be homed before the motor can
+be run.
 
-\\fBi\\fR Use the index of an incremental encoder as a home reference.
+* *i*: Use the index of an incremental encoder as a home reference.
 
-\\fBf\\fR Use a 4-bit Gray-scale pattern to determine rotor alignment.
-This scheme is only used on the Fanuc "Red Cap" motors.
-This mode could be used to control one of these motors using a non-Fanuc drive.
+* *f*: Use a 4-bit Gray-scale pattern to determine rotor alignment. +
+This scheme is only used on the Fanuc "Red Cap" motors. This mode could be
+used to control one of these motors using a non-Fanuc drive.
 
-Output type descriptions are all upper-case.
+Output type descriptions are all upper-case:
 
-\\fBDefaults\\fR The component will always calculate rotor angle, phase angle and the absolute value of the input \\fBvalue\\fR for interfacing with drives such as the Mesa 8I20.
-It will also default to three individual, bipolar phase output values if no other output type modifiers are used.
+Defaults: The component will always calculate rotor angle, phase angle and the
+absolute value of the input *value* for interfacing with drives such as the
+Mesa 8I20. It will also default to three individual, bipolar phase output
+values if no other output type modifiers are used.
 
-\\fBB\\fR Bit level outputs. Either 3 or 6 logic-level outputs indicating which high or low gate drivers on an external drive should be used.
+* *B*: Bit level outputs. Either 3 or 6 logic-level outputs indicating which
+high or low gate drivers on an external drive should be used.
 
-\\fB6\\fR Create 6 rather than the default 3 outputs.
-In the case of numeric value outputs these are separate positive and negative drive amplitudes.
-Both have positive magnitude.
+* *6*: Create 6 rather than the default 3 outputs. +
+In the case of numeric value outputs these are separate positive and negative
+drive amplitudes. Both have positive magnitude.
 
-\\fBH\\fR Emulated Hall sensor output.
-This mode can be used to control a drive which expects 3x Hall signals,
-or to convert between a motor with one hall pattern and a drive which expects a different one.
+* *H*: Emulated Hall sensor output.
+This mode can be used to control a drive which expects 3x Hall signals, or to
+convert between a motor with one hall pattern and a drive which expects a
+different one.
 
-\\fBF\\fR Emulated Fanuc Red Cap Gray-code encoder output.
-This mode might be used to drive a non-Fanuc motor using a Fanuc drive intended for the "Red-Cap" motors.
+* *F*: Emulated Fanuc Red Cap Gray-code encoder output.
+This mode might be used to drive a non-Fanuc motor using a Fanuc drive intended
+for the "Red-Cap" motors.
 
-\\fBT\\fR Force Trapezoidal mode.
+* *T*: Force Trapezoidal mode.
 
-.SH OPERATING MODES
+=== OPERATING MODES
 The component can control a drive in either Trapezoidal or Sinusoidal mode, but will always default to sinusoidal if the input and output modes allow it.
-This can be over-ridden by the \\fBT\\fR tag. Sinusoidal commutation is significantly smoother (trapezoidal commutation induces 13% torque ripple).
+This can be over-ridden by the *T* tag. Sinusoidal commutation is significantly smoother (trapezoidal commutation induces 13% torque ripple).
 
-.SH ROTOR HOMING.
+=== ROTOR HOMING.
 To use an encoder for commutation a reference 0-degrees point must be found.
 The component uses the convention that motor zero is the point that an unloaded
 motor aligns to with a positive voltage on the A (or U) terminal and the B & C
@@ -318,23 +268,24 @@ two such positions on a 4-pole motor, 3 on a 6-pole and so on. They are all
 functionally equivalent as far as driving the motor is concerned.
 If the motor has Hall sensors then the motor can be started in trapezoidal
 commutation mode, and will switch to sinusoidal commutation when an alignment is
-found. If the mode is \\fBqh\\fR then the first Hall state-transition will be
-used. If the mode is \\fBqhi\\fR then the encoder index will be used. This
+found. If the mode is *qh* then the first Hall state-transition will be
+used. If the mode is *qhi* then the encoder index will be used. This
 gives a more accurate homing position if the distance in encoder counts between
 motor zero and encoder index is known. To force homing to the Hall edges instead
-simply omit the \\fBi\\fR.
+simply omit the *i*.
 
 Motors without Hall sensors may be homed in synchronous/direct mode.
-The better of these options is to home to the encoder zero using the \\fBiq\\fR
-config parameter. When the \\fBinit\\fR pin goes high the motor will rotate (in
-a direction determined by the \\fBrev\\fR pin) until the encoder indicates an
+The better of these options is to home to the encoder zero using the *iq*
+config parameter. When the *init* pin goes high the motor will rotate (in
+a direction determined by the *rev* pin) until the encoder indicates an
 index-latch (the servo thread runs too slowly to rely on detecting an encoder
 index directly).
+
 If there is no encoder index or its location relative to motor zero can not be
-found, then an alternative is to use \\fImagnetic\\fR homing using the \\fBq\\fR
+found, then an alternative is to use _magnetic_ homing using the *q*
 config. In this mode the motor will go through an alignment sequence ending at
 motor zero when the init pin goes high It will then set the final position as
-motor zero. Unfortunately the motor is rather \\fIspringy\\fR in this mode and
+motor zero.  Unfortunately the motor is rather _springy_ in this mode and
 so alignment is likely to be fairly sensitive to load.
 """;
 

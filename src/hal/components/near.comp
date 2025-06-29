@@ -4,10 +4,10 @@ pin in float in2_;
 param rw float scale=1;
 param rw float difference=0;
 pin out bit out """
-\\fBout\\fR is true if \\fBin1\\fR and \\fBin2\\fR are within a factor of
-\\fBscale\\fR (i.e., for in1 positive, in1/scale <= in2 <= in1*scale), OR
-if their absolute difference is no greater than \\fBdifference\\fR (i.e.,
-|in1-in2| <= difference).  \\fBout\\fR is false otherwise.""";
+*out* is true if *in1* and *in2* are within a factor of
+*scale* (i.e., for in1 positive, in1/scale ≤ in2 ≤ in1*scale), OR
+if their absolute difference is no greater than *difference* (i.e.,
+|in1-in2| ≤ difference).  *out* is false otherwise.""";
 option period no;
 function _;
 license "GPL";

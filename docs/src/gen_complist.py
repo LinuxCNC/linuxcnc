@@ -41,17 +41,17 @@ def generate_complist(complist_path):
     gen_filename = '../docs/src/hal/components_gen.adoc'
     file2 = open(gen_filename, 'w')
     if len(miss_in_list) > 0:
-        file2.write('=== Not categorized (auto generated from man pages)\n')
-        file2.write('[{tab_options}]\n|=======================\n')
+        file2.write('\n== Not categorized (auto generated from man pages)\n')
+        file2.write('[{tab_options}]\n|===\n')
         for i in sorted(miss_in_list):
             file2.write('| ' + i + ' |||\n')
-        file2.write('|=======================\n')
+        file2.write('|===\n')
     if len(miss_in_man) > 0:
-        file2.write('\n=== Without man page or broken link (auto generated from component list)\n')
-        file2.write('[{tab_options}]\n|=======================\n')
+        file2.write('\n== Without man page or broken link (auto generated from component list)\n')
+        file2.write('[{tab_options}]\n|===\n')
         for i in sorted(miss_in_man):
             file2.write('| ' + i + ' |||\n')
-        file2.write('|=======================\n')
+        file2.write('|===\n')
     file2.close()
 
     generate_links(gen_filename, False, True)

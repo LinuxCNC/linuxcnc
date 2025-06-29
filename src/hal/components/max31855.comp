@@ -2,17 +2,19 @@ component max31855 "Support for the MAX31855 Thermocouple-to-Digital converter u
 
 description """The component requires at least 3 pins to bitbang spi protocol, for example:
 
-\\fB loadrt max31855 personality=1\\fR
+[source,hal]
+----
+loadrt max31855 personality=1
 
-\\fB setp hm2_6i25.0.gpio.023.is_output true\\fR
-\\fB setp hm2_6i25.0.gpio.024.is_output true\\fR
+setp hm2_6i25.0.gpio.023.is_output true
+setp hm2_6i25.0.gpio.024.is_output true
 
-\\fB net spi.clk.in    hm2_6i25.0.gpio.023.out     max31855.0.clk.out\\fR
-\\fB net spi.cs.in     hm2_6i25.0.gpio.024.out     max31855.0.cs.out\\fR
-\\fB net spi.data0.in  hm2_6i25.0.gpio.033.in_not  max31855.0.data.0.in\\fR
+net spi.clk.in    hm2_6i25.0.gpio.023.out     max31855.0.clk.out
+net spi.cs.in     hm2_6i25.0.gpio.024.out     max31855.0.cs.out
+net spi.data0.in  hm2_6i25.0.gpio.033.in_not  max31855.0.data.0.in
 
-\\fB addf max31855.0.bitbang-spi servo-thread \\fR
-
+addf max31855.0.bitbang-spi servo-thread
+----
 
 The MAX31855 supports a range of -270C to 1800C, however linearization data 
 is only available for the -200C to 1350C range, beyond which raw temperature is returned.

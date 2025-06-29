@@ -14,16 +14,16 @@ mux_generic - choose one from several input values
 
 == PINS
 
-**mux-gen.**_NN_**.suppress-no-input** bit in::
+**mux-gen**.__N__.**suppress-no-input** bit in::
   This suppresses changing the output if all select lines are false.
   This stops unwanted jumps in output between transitions of input but makes in00 unavailable.
-**mux-gen.**_NN_**.debounce-us* unsigned in::
+**mux-gen**.__N__.**debounce-us** unsigned in::
   sets debounce time in microseconds, e.g. 100000 = a tenth of a second.
   The selection inputs must be stable this long before the output
   changes. This helps to ignore 'noisy' switches.
-**mux-gen.**_NN_**.sel-bit-*_MM_ bit in (M=0..N)::
-**mux-gen.**_NN_**.sel-int* unsigned in::
-  Together, these determine which **in**_N_ value is copied to *output*.
+**mux-gen**.__N__.**sel-bit-**__MM__ bit in (M=0..N)::
+**mux-gen**.__N__.**sel-int** unsigned in::
+  Together, these determine which **in**__N__ value is copied to *output*.
   The bit pins are interpreted as binary bits, and the result is simply
   added on to the integer pin input. It is expected that either one or
   the other would normally be used. However, the possibility exists to
@@ -32,20 +32,20 @@ mux_generic - choose one from several input values
   component is an integer power of two. This component (unlike mux16)
   does not offer the option of decoding Gray-code, however the same
   effect can be achieved by arranging the order of the input values to suit.
-**mux-gen.**_NN_**.out-**[**bit**/**float**/**s32**/**u32**] variable-type out::
-  Follows the value of one of the *in*_N_ values according to the
+**mux-gen**.__N__.**out-**[**bit**/**float**/**s32**/**u32**] variable-type out::
+  Follows the value of one of the **in**__N__ values according to the
   selection bits and/or the selection number. Values will be
   converted/truncated according to standard C rules. This means, for
   example that a float input greater than 2147483647 will give an S32
   output of -2147483648.
-**mux-gen.**_NN_**.in-**[**bit**/**float**/**s32**/**u32**]**-**_MM_ variable-type in::
+**mux-gen**.__N__.**in-**[**bit**/**float**/**s32**/**u32**]**-**__MM__ variable-type in::
   The possible output values that are selected by the selection pins.
 
 == PARAMETERS
 
-**mux-gen.**_N_**.elapsed** float r::
+**mux-gen**.__N__.**elapsed** float r::
   Current value of the internal debounce timer for debugging.
-**mux-gen.**_N_**.selected** s32 r::
+**mux-gen**.__N__.**selected** s32 r::
   Current value of the internal selection variable after conversion for debugging.
   Possibly useful for setting up gray-code switches.
 

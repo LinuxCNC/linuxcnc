@@ -23,7 +23,7 @@ component div2 "Quotient of two floating point inputs";
 pin in  float in0 "the Dividend";
 pin in  float in1 "the Divisor";
 pin out float out "the Quotient   out = in0 / in1";
-param rw float deadband "The \\fBout\\fR will be zero if \\fBin\\fR is between -\\fBdeadband\\fR and +\\fBdeadband\\fR" ;
+param rw float deadband "The *out* will be zero if *in* is between -*deadband* and +*deadband*" ;
 
 description """
 A very simple comp to divide a floating point number

@@ -1,16 +1,19 @@
 component serport """Hardware driver for the digital I/O bits of the 8250 and 16550 serial port.
 
-.B loadrt serport io=\\fIaddr[,addr...]\\fR
-.PP
+*loadrt serport* *io*=_addr_[,_addr_...]
+
 The pin numbers refer to the 9-pin serial pinout.  Keep in mind that these ports generally use rs232 voltages, not 0/5V signals.
 
 Specify the I/O address of the serial ports using the module parameter
-\\fBio=\\fIaddr[,addr...]\\fR.  These ports must not be in use by the kernel.
+*io*=_addr_[,_addr_...]. These ports must not be in use by the kernel.
 To free up the I/O ports after bootup, install setserial and execute a command
 like:
-.RS 
+
+[source,sh]
+----
 sudo setserial /dev/ttyS0 uart none
-.RE
+----
+
 but it is best to ensure that the serial port is never used or configured by
 the Linux kernel by setting a kernel commandline parameter or not loading
 the serial kernel module if it is a modularized driver.

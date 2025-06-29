@@ -15,11 +15,8 @@ GENERATED_MANPAGES += $(patsubst ../docs/src/man/%.adoc, ../docs/man/%, $(wildca
 
 MAN_SRCS = $(sort \
 	$(wildcard $(DOC_DIR)/man/man1/*.1) \
-	$(wildcard $(DOC_DIR)/man/man3/*.3*) \
+	$(wildcard $(DOC_DIR)/man/man3/*.3) \
 	$(wildcard $(DOC_DIR)/man/man9/*.9) \
-	$(wildcard $(DOC_DIR)/man/es/man1/*.1) \
-	$(wildcard $(DOC_DIR)/man/es/man3/*.3*) \
-	$(wildcard $(DOC_DIR)/man/es/man9/*.9) \
 	$(GENERATED_MANPAGES))
 
 $(DOC_SRCDIR)/man/man1/linuxcnc.1.adoc: $(DOC_SRCDIR)/man/man1/linuxcnc.1.adoc.in config.status
@@ -171,7 +168,7 @@ DOC_SRCS_EN := \
 	Master_Integrator.adoc \
 	Master_Developer.adoc
 
-LANGUAGES := $(shell grep '\[po4a_langs\]' $(DOC_DIR)/po4a.cfg| cut -d" " -f2-)
+LANGUAGES := $(shell sed -e's/#.*//' < $(DOC_DIR)/po4a.cfg | grep '^\[po4a_langs\]' | cut -d" " -f2-)
 LANGUAGES_MATCH := $(shell echo $(LANGUAGES) | tr " " "|")
 
 
@@ -190,13 +187,19 @@ ifneq (${TIME_CMD},)
     TIME_CMD := ${TIME_CMD} -v
 endif
 
+ifeq ($(BUILD_VERBOSE),1)
+  PO4A_VERBOSE = -v
+else
+  PO4A_VERBOSE =
+endif
+
 $(DOC_DIR)/po/documentation.pot: $(addprefix $(DOC_SRCDIR)/, $(DOC_SRCS_EN))
-	cd $(DOC_DIR); ${TIME_CMD} po4a -v --msgmerge-opt='-v' --no-translations po4a.cfg
+	cd $(DOC_DIR); ${TIME_CMD} po4a $(PO4A_VERBOSE) --msgmerge-opt='-v' --no-translations po4a.cfg
 pofiles: $(DOC_DIR)/po/documentation.pot
 
 ifeq ($(BUILD_DOCS_TRANSLATED),yes)
 translateddocs: manpages $(DOC_DIR)/po/documentation.pot
-	cd $(DOC_DIR); ${TIME_CMD} po4a -v --msgmerge-opt='-v' --no-update po4a.cfg
+	cd $(DOC_DIR); ${TIME_CMD} po4a $(PO4A_VERBOSE) --msgmerge-opt='-v' --no-update po4a.cfg
 else
 translateddocs:
 endif
@@ -538,11 +541,41 @@ $(DOC_DIR)/LinuxCNC_Developer_zh_CN.pdf: $(DOC_SRCDIR)/zh_CN/Master_Developer.pd
 $(DOC_DIR)/html/man/%.html: $(DOC_DIR)/man/%
 	@echo Formatting $(notdir $<) as HTML
 	@mkdir -p $(dir $@)
-#   Attention! This is a temporary fix until Groff 1.23 is released. Should be
-#   set back to "-m man" when 1.23 is available.
-#	This fixes the formatting of subsections and appearance in the toc.
-#   It uses the local an-old.tmac instead of the one which is shipped with Groff.
-	@(cd $(DOC_DIR)/man; groff -Thtml -m an-old-fixed -M . stylesheet.9 $(patsubst $(DOC_DIR)/man/%,%,$<)) > $@
+	$(Q)if grep -q '^\.so' $<; then \
+		ln -srf ../docs/html/man/$$(awk '{print $$2}' $<).html $@; \
+	else \
+		N="$$(basename "$<").adoc"; \
+		D="$$(dirname "$<")"; \
+		S="$$(basename "$$D")"; \
+		if [ -r "$(DOC_SRCDIR)/man/$$S/$$N" ]; then \
+			F="$(DOC_SRCDIR)/man/$$S/$$N"; \
+		elif [ -r "objects/man/$$S/$$N" ]; then \
+			F="objects/man/$$S/$$N"; \
+		else \
+			echo "Error: Cannot find manpage '$<' in adoc format"; \
+			exit 1; \
+		fi; \
+		asciidoc \
+			--doctype=manpage \
+			--backend=html \
+			-a mansource=LinuxCNC \
+			-a manmanual='LinuxCNC Documentation' \
+			-f $(DOC_SRCDIR)/xhtml11.conf \
+			-f $(DOC_SRCDIR)/xhtml11-head-foot.conf \
+			-f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
+			-f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
+			-a "source_highlight_dir=$(LOC_HL_DIR)/local" \
+			-a disable-javascript \
+			-a autowidth-option \
+			-a "footer-style=none" \
+			-a linkcss \
+			-a "scriptsdir=../.." \
+			-a "stylesdir=../.." \
+			-a stylesheet=linuxcnc.css \
+			-o $@ \
+			"$$F" \
+			; \
+	fi;
 
 SA := <p><a onclick=\"return toggle('man_
 SB := ')\"><img id=\"man_
@@ -581,13 +614,17 @@ objects/index.incl: $(GENERATED_MANPAGES) objects/var-MAN_HTML_TARGETS $(DOC_SRC
 	$(call ADD_HTML_MANPAGES, rtapi, API: RTAPI,    $(filter $(DOC_DIR)/html/man/man3/rtapi%.html, $(MAN_HTML_TARGETS))) \
 	$(call ADD_HTML_MANPAGES, hm2,   API: Hostmot2, $(filter $(DOC_DIR)/html/man/man3/hm2%.html, $(MAN_HTML_TARGETS))) \
 	$(call ADD_HTML_MANPAGES, 3,     API: General,  $(filter-out $(DOC_DIR)/html/man/man3/hal%.html, $(filter-out $(DOC_DIR)/html/man/man3/rtapi%.html, $(filter-out $(DOC_DIR)/html/man/man3/hm2%.html, $(filter $(DOC_DIR)/html/man/man3/%.html, $(MAN_HTML_TARGETS)))))) \
-	# now make sure all manpages made it into the html index \
+	# now make sure all manpages made it into the html index
 	FAIL=0; \
 	for F in $$(find $(DOC_DIR)/man/man* -type f); do \
 		B=$$(basename $$F); \
 		if ! grep -q $$B $@; then \
-			echo stray manpage not added to index: $$B; \
 			FAIL=1; \
+			if ! grep -q '^\.so' $$F; then \
+				echo stray manpage not added to index: $$F; \
+			else \
+				echo manpage alias not added to index: $$F; \
+			fi; \
 		fi; \
 	done; \
 	if [ $$FAIL -ne 0 ]; then exit 1; fi
@@ -606,7 +643,7 @@ $(DOC_DIR)/html/index.html: $(DOC_SRCDIR)/index.tmpl objects/index.incl $(DOC_SR
 $(DOC_SRCDIR)/%.pdf: $(DOC_SRCDIR)/%.adoc svgs_made_from_dots .adoc-images-stamp
 	$(ECHO) Building $@
 	@rm -f $@
-	$(A2X) -L -d book -vf pdf $< || (X=$$?; rm -f $@; exit $$X)
+	$(Q)$(A2X) -L -d book -vf pdf $< || (X=$$?; rm -f $@; exit $$X)
 	@test -f $@
 
 depends/%.d: $(DOC_SRCDIR)/%.adoc $(DOC_SRCDIR)/asciideps .include-stamp
@@ -617,9 +654,9 @@ depends/%.d: $(DOC_SRCDIR)/%.adoc $(DOC_SRCDIR)/asciideps .include-stamp
 
 objects/%.links-stamp: $(DOC_SRCDIR)/%.adoc $(DOC_SRCDIR)/links.xslt
 	@mkdir -p `dirname $@`
-	asciidoc -f $(DOC_SRCDIR)/attribute-colon.conf -a "scriptdir=$(DOC_SRCDIR)/" -d book -o- -b docbook $< | xsltproc $(DOC_SRCDIR)/links.xslt - > $@.tmp || (X=$$?; rm -f $@; exit $$X)
-	sh move-if-change $@.tmp $(patsubst %-stamp,%,$@)
-	touch $@
+	$(Q)asciidoc -f $(DOC_SRCDIR)/attribute-colon.conf -a "scriptdir=$(DOC_SRCDIR)/" -d book -o- -b docbook $< | xsltproc $(DOC_SRCDIR)/links.xslt - > $@.tmp || (X=$$?; rm -f $@; exit $$X)
+	$(Q)sh move-if-change $@.tmp $(patsubst %-stamp,%,$@)
+	$(Q)touch $@
 
 objects/%.links: objects/%.links-stamp
 	@:
@@ -734,7 +771,8 @@ $(DOC_SRCDIR)/%.html: STYLES_SCRIPTS=$(shell \
 )
 
 $(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_EN_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.adoc objects/xref_en.links $(LOC_LANG_MAP)
-	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
+	$(ECHO) "Building 'en' adoc to html: " $<
+	$(Q)asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
 		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
 		 -f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
 		 -a "source_highlight_dir=$(LOC_HL_DIR)/local" \
@@ -747,7 +785,8 @@ $(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_EN_SMALL)): $(DOC_SRCDIR)/%.ht
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm -f $@; exit $$X)
 
 $(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_AR_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.adoc objects/xref_ar.links $(LOC_LANG_MAP)
-	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
+	$(ECHO) "Building 'ar' adoc to html: " $<
+	$(Q)asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
 		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
 		 -f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
 		 -a "source_highlight_dir=$(LOC_HL_DIR)/local" \
@@ -760,7 +799,8 @@ $(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_AR_SMALL)): $(DOC_SRCDIR)/%.ht
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm -f $@; exit $$X)
 
 $(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_DE_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.adoc objects/xref_de.links $(LOC_LANG_MAP)
-	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
+	$(ECHO) "Building 'de' adoc to html: " $<
+	$(Q)asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
 		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
 		 -f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
 		 -a "source_highlight_dir=$(LOC_HL_DIR)/local" \
@@ -773,7 +813,8 @@ $(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_DE_SMALL)): $(DOC_SRCDIR)/%.ht
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm -f $@; exit $$X)
 
 $(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_ES_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.adoc objects/xref_es.links $(LOC_LANG_MAP)
-	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
+	$(ECHO) "Building 'es' adoc to html: " $<
+	$(Q)asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
 		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
 		 -f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
 		 -a "source_highlight_dir=$(LOC_HL_DIR)/local" \
@@ -786,7 +827,8 @@ $(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_ES_SMALL)): $(DOC_SRCDIR)/%.ht
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm -f $@; exit $$X)
 
 $(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_FR_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.adoc objects/xref_fr.links $(LOC_LANG_MAP)
-	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
+	$(ECHO) "Building 'fr' adoc to html: " $<
+	$(Q)asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
 		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
 		 -f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
 		 -a "source_highlight_dir=$(LOC_HL_DIR)/local" \
@@ -799,7 +841,8 @@ $(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_FR_SMALL)): $(DOC_SRCDIR)/%.ht
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm -f $@; exit $$X)
 
 $(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_NB_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.adoc objects/xref_nb.links $(LOC_LANG_MAP)
-	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
+	$(ECHO) "Building 'nb' adoc to html: " $<
+	$(Q)asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
 		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
 		 -f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
 		 -a "source_highlight_dir=$(LOC_HL_DIR)/local" \
@@ -812,7 +855,8 @@ $(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_NB_SMALL)): $(DOC_SRCDIR)/%.ht
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm -f $@; exit $$X)
 
 $(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_RU_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.adoc objects/xref_ru.links $(LOC_LANG_MAP)
-	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
+	$(ECHO) "Building 'ru' adoc to html: " $<
+	$(Q)asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
 		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
 		 -f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
 		 -a "source_highlight_dir=$(LOC_HL_DIR)/local" \
@@ -825,7 +869,8 @@ $(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_RU_SMALL)): $(DOC_SRCDIR)/%.ht
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm -f $@; exit $$X)
 
 $(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_SV_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.adoc objects/xref_sv.links $(LOC_LANG_MAP)
-	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
+	$(ECHO) "Building 'sv' adoc to html: " $<
+	$(Q)asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
 		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
 		 -f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
 		 -a "source_highlight_dir=$(LOC_HL_DIR)/local" \
@@ -838,7 +883,8 @@ $(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_SV_SMALL)): $(DOC_SRCDIR)/%.ht
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm -f $@; exit $$X)
 
 $(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_TR_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.adoc objects/xref_tr.links $(LOC_LANG_MAP)
-	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
+	$(ECHO) "Building 'tr' adoc to html: " $<
+	$(Q)asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
 		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
 		 -f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
 		 -a "source_highlight_dir=$(LOC_HL_DIR)/local" \
@@ -851,7 +897,8 @@ $(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_TR_SMALL)): $(DOC_SRCDIR)/%.ht
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm -f $@; exit $$X)
 
 $(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_ZH_CN_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.adoc objects/xref_zh_CN.links $(LOC_LANG_MAP)
-	asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
+	$(ECHO) "Building 'zh_CN' adoc to html: " $<
+	$(Q)asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
 		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
 		 -a linkcss \
 		 $(STYLES_SCRIPTS) \
