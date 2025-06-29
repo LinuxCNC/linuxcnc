@@ -78,12 +78,20 @@ class INI:
         if self.d.position_feedback == 1: temp ="ACTUAL"
         else: temp = "COMMANDED"
         print("POSITION_FEEDBACK = %s"% temp, file=file)
+        print(file=file)
+        print("# Highest value that will be allowed for feed override, 1.0 = 100%", file=file)
         print("MAX_FEED_OVERRIDE = %f"% self.d.max_feed_override, file=file)
 
-        if self.d.frontend == _PD._QTDRAGON:
+        if self.d.frontend == _PD._QTDRAGON or self.d.frontend == _PD._GMOCCAPY:
             print("MAX_SPINDLE_0_OVERRIDE = %f"% self.d.max_spindle_override, file=file)
             print("MIN_SPINDLE_0_OVERRIDE = %f"% self.d.min_spindle_override, file=file)
+            print(file=file)
+            print("# Initial value for spindle speed", file=file)
+            if self.d.frontend == _PD._GMOCCAPY:
+                print("# The value will be used the first time Gmoccapy is loaded", file=file)
+                print("# # It will then be overwritten by the *.pref file", file=file)
             print("DEFAULT_SPINDLE_0_SPEED = 500", file=file)
+            print(file=file)
             print("MIN_SPINDLE_0_SPEED = 100", file=file)
             print("MAX_SPINDLE_0_SPEED = 2500", file=file)
         # qtplasmac doesn't use spindle override
@@ -91,13 +99,20 @@ class INI:
             print("MAX_SPINDLE_OVERRIDE = %f"% self.d.max_spindle_override, file=file)
             print("MIN_SPINDLE_OVERRIDE = %f"% self.d.min_spindle_override, file=file)
 
+        print(file=file)
+        print("# Introductory graphic", file=file)
         print("INTRO_GRAPHIC = linuxcnc.gif", file=file)
         print("INTRO_TIME = 5", file=file)
+        print(file=file)
+        print("# Prefix to be used", file=file)
         print("PROGRAM_PREFIX = %s" % \
                                     os.path.expanduser("~/linuxcnc/nc_files"), file=file)
+        print(file=file)
         if self.d.pyvcp:
             print("PYVCP = pyvcp-panel.xml", file=file)
+            print(file=file)
         # these are for AXIS GUI and QtPlasmaC
+        print("# list of selectable jog increments", file=file)
         if self.d.units == _PD._METRIC:
             if self.d.frontend == _PD._QTPLASMAC:
                 print("INCREMENTS = %s"% self.d.increments_metric_qtplasmac, file=file)
@@ -108,6 +123,7 @@ class INI:
                 print("INCREMENTS = %s"% self.d.increments_imperial_qtplasmac, file=file)
             else:
                 print("INCREMENTS = %s"% self.d.increments_imperial, file=file)
+        print(file=file)
         if self.d.axes == 2:
             print("LATHE = 1", file=file)
         print("POSITION_FEEDBACK = %s"% temp, file=file)
@@ -121,6 +137,8 @@ class INI:
         if self.d.frontend != _PD._QTPLASMAC:
             print("EDITOR = %s"% self.d.editor, file=file)
         print("GEOMETRY = %s"% self.d.geometry, file=file)
+        print(file=file)
+        print("# Cycle time, in milliseconds, that display will sleep between polls", file=file)
         print("CYCLE_TIME = 100", file=file)
 
         # set up MDI macro buttons

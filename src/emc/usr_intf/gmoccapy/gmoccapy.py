@@ -582,8 +582,8 @@ class gmoccapy(object):
         self.rabbit_jog = self.get_ini_info.get_jog_vel()
         self.jog_rate_max = self.get_ini_info.get_max_jog_vel()
 
-        self.spindle_override_max = self.get_ini_info.get_max_spindle_override()
-        self.spindle_override_min = self.get_ini_info.get_min_spindle_override()
+        self.spindle_override_max = self.get_ini_info.get_max_spindle_0_override()
+        self.spindle_override_min = self.get_ini_info.get_min_spindle_0_override()
         self.feed_override_max = self.get_ini_info.get_max_feed_override()
         self.dro_actual = self.get_ini_info.get_position_feedback_actual()
 
@@ -627,7 +627,7 @@ class gmoccapy(object):
 
         # if there is a INI Entry for default spindle speed, we will use that one as default
         # but if there is a setting in our preference file, that one will beet the INI entry
-        default_spindle_speed = self.get_ini_info.get_default_spindle_speed()
+        default_spindle_speed = self.get_ini_info.get_default_spindle_0_speed()
         self.spindle_start_rpm = self.prefs.getpref( 'spindle_start_rpm', default_spindle_speed, float )
 
         self.kbd_height = self.prefs.getpref("kbd_height", 250, int)
