@@ -182,10 +182,10 @@ o510 endif
 F #<_hal[qtversaprobe.probevel]>
 G38.2 Z- [#<_hal[qtversaprobe.backoffdist]> *1.2]
 
-o510 if [#5070 EQ 0]
+o511 if [#5070 EQ 0]
 G90
-o510 return [-3] ; indicate probe contact failure to epilog
-o510 endif
+o511 return [-3] ; indicate probe contact failure to epilog
+o511 endif
 
 ;switch back to absolute distance mode once probing is done
 G90
