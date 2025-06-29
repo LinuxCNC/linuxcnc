@@ -847,7 +847,8 @@ class gmoccapy(object):
 
     def _remove_button(self, dic, box):
         for child in dic:
-            box.remove(dic[child])
+            if dic[child].get_parent():
+                box.remove(dic[child])
 
     def _on_btn_next_clicked(self, widget):
         # remove all buttons from container
