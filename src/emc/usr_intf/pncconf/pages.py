@@ -631,7 +631,7 @@ class Pages:
             self.w.touchy_info.hide()
             self.page_set_state('vcp', False)
             self.page_set_state('ubuttons', True)
-            if self.d._arcvpin:
+            if self.d._arcvpin != None:
                 self.page_set_state('thcad', True)
             else:
                 self.page_set_state('thcad', False)
@@ -1296,7 +1296,7 @@ class Pages:
     def thcad_prepare(self):
         self.d.help = "help-thcad.txt"
         self.w.voltsbox.hide()
-        if self.d._arcvpin:
+        if self.d._arcvpin != None:
             self.w.voltsbox.show()
         self.w.voltsmodel.set_active(["2 (W1 down)", "2 (W1 up)", "5", "10", "300"].index(self.d.voltsmodel))
         self.w.voltsfjumper.set_active(["1", "32", "64", "128"].index(self.d.voltsfjumper))

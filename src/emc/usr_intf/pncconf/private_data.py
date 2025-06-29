@@ -1082,6 +1082,43 @@ class Private_Data:
 [S.STEPA,0],[S.STEPB,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.STEPA,1],[S.STEPB,1],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],
 [S.STEPA,2],[S.STEPB,2],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.STEPA,3],[S.STEPB,3],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],[S.GPIOI,0],],
 
+# 7i95t ####################
+    ['7i95t-Internal Data', '7i95', '7i95t_d', '7i95t', 'hm2_eth',
+        6,3, 0,0, 0,0, 0,0, 6,2, 1,2, [],0,0,0,0,0,0,0, 1, 30, 33, 200, [1, 2, 3, 4],
+        # TAB 1 TB3
+        [S.STEPA,0],[S.STEPB,0],[S.STEPA,1],[S.STEPB,1],
+        [S.STEPA,2],[S.STEPB,2],[S.STEPA,3],[S.STEPB,3],        
+        # TAB 1 TB4
+        [S.STEPA,4],[S.STEPB,4],[S.STEPA,5],[S.STEPB,5],
+        [S.RXDATA0,0],[S.TXDATA0,0],[S.TXEN0,0],[S.RXDATA1,0],[S.TXDATA1,0],[S.TXEN1,0],
+        [S.NUSED,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        
+        # TAB 2 TB1
+        [S.ENCA,0],[S.ENCB,0],[S.ENCI,0],[S.ENCA,1],[S.ENCB,1],[S.ENCI,1],
+        [S.ENCA,2],[S.ENCB,2],[S.ENCI,2],
+        # TAB 2 TB2
+        [S.ENCA,3],[S.ENCB,3],[S.ENCI,3],[S.ENCA,4],[S.ENCB,4],[S.ENCI,4],
+        [S.ENCA,5],[S.ENCB,5],[S.ENCI,5],
+        [S.NUSED,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        
+        # TAB 3 TB5
+        [S.INM0, 116],[S.INM0, 117],[S.INM0, 118],[S.INM0, 119],
+        [S.INM0, 120],[S.INM0, 121],[S.INM0, 122],[S.INM0, 123],
+        [S.SSR0, 100],[S.SSR0, 101],[S.SSR0, 102],[S.SSR0, 103],[S.SSR0, 104],[S.SSR0, 105],        
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        
+        # TAB 4 TB6
+        [S.INM0, 100],[S.INM0, 101],[S.INM0, 102],[S.INM0, 103],[S.INM0, 104],[S.INM0, 105],
+        [S.INM0, 106],[S.INM0, 107],[S.INM0, 108],[S.INM0, 109],[S.INM0, 110],[S.INM0, 111],
+        [S.INM0, 112],[S.INM0, 113],[S.INM0, 114],[S.INM0, 115],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+        [S.NUSED,0],[S.NUSED,0],[S.NUSED,0],[S.NUSED,0],
+
+        ],
+
     # 7i96 ####################
     ['7i96-Internal Data', '7i96', '7i96d', '7i96', 'hm2_eth',
         1,3, 0,0, 0,3, 0,0, 5,2, 1,1, [],0,0,0,0,0,0,0, 1, 34, 33, 200, [1, 2, 3],
@@ -1380,6 +1417,7 @@ class Private_Data:
                             ["jvlsmd41", _("JVL-SMD41 or 42"), 500, 500, 2500, 2500],
                             ["hobbycnc", _("Hobbycnc Pro Chopper"), 2000, 2000, 2000, 2000],
                             ["keling", _("Keling 4030"), 5000, 5000, 20000, 20000],
+                            ["tb6600", _("TB6600"), 5000, 5000, 20000, 20000],
                             ["dm860tv10", _("DM860T v1.0"), 5000, 5000, 5000, 5000],
                             ["dm860tv30", _("DM860T v3.0"), 5000, 5000, 5000, 5000],
                             ]
@@ -1402,6 +1440,7 @@ class Private_Data:
         '7i90':{'DRIVER':'hm2_7i90','PINS_PER_CONNECTOR':24,'TOTAL_CONNECTORS':3,'TAB_NUMS':[1,2,3],'TAB_NAMES':['P1','P2','P3']},
         '7i92':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':17,'TOTAL_CONNECTORS':2,'TAB_NUMS':[1,2],'TAB_NAMES':['P1','P2']},
         '7i93':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':24,'TOTAL_CONNECTORS':2,'TAB_NUMS':[1,2],'TAB_NAMES':['P1','P2']},
+        '7i95':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':24,'TOTAL_CONNECTORS':4,'TAB_NUMS':[1,2,3,4],'TAB_NAMES':['TB3/TB4','TB1/TB2','TB5','TB6']},
         '7i96':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':17,'TOTAL_CONNECTORS':3,'TAB_NUMS':[1,2,3],'TAB_NAMES':['TB3','TB1/TB2','P1']},
         '7i96s':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':17,'TOTAL_CONNECTORS':3,'TAB_NUMS':[1,2,3],'TAB_NAMES':['TB3','TB1/TB2','P1']},
         '7i98':{'DRIVER':'hm2_eth','PINS_PER_CONNECTOR':17,'TOTAL_CONNECTORS':3,'TAB_NUMS':[1,2,3],'TAB_NAMES':['P1','P2','P3']},
