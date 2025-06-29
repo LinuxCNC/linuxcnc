@@ -1472,9 +1472,9 @@ static int build_data_frame(hm2_modbus_inst_t *inst)
 		for(unsigned i = 0; i < cc->cmd.cpincnt; i++) {
 			// Stuff empty space with zeros.
 			// The device must allow writes at the address(es).
-			while(regpos != cc->typeptr[i].regofs) {
+			while(regpos < cc->typeptr[i].regofs) {
 				CHK_RV(ch_append16(cc, 0));
-				regpos += 2;
+				regpos++;
 			}
 			switch(cc->typeptr[i].htype) {
 			case HAL_BIT:
@@ -1546,6 +1546,7 @@ static int build_data_frame(hm2_modbus_inst_t *inst)
 				// Oops...
 				break;
 			}
+			regpos += mtypesize(cc->typeptr[i].mtype);
 			p++;
 		}
 		break;
