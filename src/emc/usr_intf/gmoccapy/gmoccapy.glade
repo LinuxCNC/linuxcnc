@@ -687,40 +687,6 @@
     <property name="visible">True</property>
     <property name="can-focus">False</property>
   </object>
-  <object class="GtkListStore" id="lst_button_mode">
-    <columns>
-      <!-- column-name button_mode -->
-      <column type="gint"/>
-      <!-- column-name button_mode_description -->
-      <column type="gchararray"/>
-    </columns>
-    <data>
-      <row>
-        <col id="0">0</col>
-        <col id="1" translatable="yes">left rotate,  middle move,  right zoom</col>
-      </row>
-      <row>
-        <col id="0">1</col>
-        <col id="1" translatable="yes">left zoom,  middle move,  right rotate</col>
-      </row>
-      <row>
-        <col id="0">2</col>
-        <col id="1" translatable="yes">left move,  middle rotate,  right zoom</col>
-      </row>
-      <row>
-        <col id="0">3</col>
-        <col id="1" translatable="yes">left zoom,  middle rotate,  right move</col>
-      </row>
-      <row>
-        <col id="0">4</col>
-        <col id="1" translatable="yes">left move,  middle zoom,  right rotate</col>
-      </row>
-      <row>
-        <col id="0">5</col>
-        <col id="1" translatable="yes">left rotate,  middle zoom,  right move</col>
-      </row>
-    </data>
-  </object>
   <object class="GtkListStore" id="lstst_icon_themes">
     <columns>
       <!-- column-name path -->
@@ -4447,20 +4413,18 @@ clicking on the DRO</property>
                                       </packing>
                                     </child>
                                     <child>
-                                      <object class="GtkComboBox" id="cmb_mouse_button_mode">
+                                      <object class="GtkComboBoxText" id="cmb_mouse_button_mode">
                                         <property name="visible">True</property>
                                         <property name="can-focus">False</property>
-                                        <property name="model">lst_button_mode</property>
-                                        <property name="active">0</property>
-                                        <property name="has-entry">True</property>
-                                        <property name="entry-text-column">1</property>
-                                        <property name="id-column">0</property>
+                                        <items>
+                                          <item id="0" translatable="yes">left rotate,  middle move,  right zoom</item>
+                                          <item id="1" translatable="yes">left zoom,  middle move,  right rotate</item>
+                                          <item id="2" translatable="yes">left move,  middle rotate,  right zoom</item>
+                                          <item id="3" translatable="yes">left zoom,  middle rotate,  right move</item>
+                                          <item id="4" translatable="yes">left move,  middle zoom,  right rotate</item>
+                                          <item id="5" translatable="yes">left rotate,  middle zoom,  right move</item>
+                                        </items>
                                         <signal name="changed" handler="on_cmb_mouse_button_mode_changed" swapped="no"/>
-                                        <child internal-child="entry">
-                                          <object class="GtkEntry">
-                                            <property name="can-focus">False</property>
-                                          </object>
-                                        </child>
                                       </object>
                                       <packing>
                                         <property name="expand">True</property>
