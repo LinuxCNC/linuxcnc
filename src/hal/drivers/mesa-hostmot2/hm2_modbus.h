@@ -25,7 +25,7 @@
 // Max one minute delay between init commands (in microseconds)
 #define MAXDELAY 60000000
 // Max chars for a name
-#define MAXPINNAME 24
+#define MAXPINNAME 32
 //
 // 16*4 byte structure
 // All values in Big-Endian

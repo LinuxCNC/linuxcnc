@@ -155,6 +155,8 @@ MBT_EFGHABCD = 0x0a
 MBT_FEHGBADC = 0x0b
 MBT_GHEFCDAB = 0x0c
 MBT_HGFEDCBA = 0x0d
+MBT_A        = 0x0e
+MBT_B        = 0x0f
 MBTBYTESIZES = [2, 2, 4, 4, 4, 4, 8, 8, 8, 8, 8, 8, 8, 8, 2, 2] # 16 entries
 
 MBT_U        = 0x00
@@ -167,9 +169,16 @@ MBT_T_MASK   = 0xf0
 def mbtOrder(mtype):
     return mtype & MBT_X_MASK
 
+def mbtOrderSize(mtype):
+    return MBTBYTESIZES[mbtOrder(mtype)]
+
 def mbtType(mtype):
     return mtype & MBT_T_MASK
 
+U_A    = MBT_U | MBT_A
+U_B    = MBT_U | MBT_B
+S_A    = MBT_S | MBT_A
+S_B    = MBT_S | MBT_B
 U_AB   = MBT_U | MBT_AB
 U_BA   = MBT_U | MBT_BA
 S_AB   = MBT_S | MBT_AB
@@ -205,7 +214,9 @@ HALNAMES = { HAL_BIT: 'HAL_BIT', HAL_FLT: 'HAL_FLOAT',
 
 # Possible values of the 'modbustype' attribute
 # [typeId, maxCount, nWords]
-MBTYPES = { 'S_AB':       [MBT_S | MBT_AB,      125, 1], 'S_BA':       [MBT_S | MBT_BA,      125, 1],
+MBTYPES = { 'S_A':        [MBT_S | MBT_A,       125, 1], 'S_B':        [MBT_S | MBT_B,       125, 1],
+            'U_A':        [MBT_U | MBT_A,       125, 1], 'U_B':        [MBT_U | MBT_B,       125, 1],
+            'S_AB':       [MBT_S | MBT_AB,      125, 1], 'S_BA':       [MBT_S | MBT_BA,      125, 1],
             'U_AB':       [MBT_U | MBT_AB,      125, 1], 'U_BA':       [MBT_U | MBT_BA,      125, 1],
             'F_AB':       [MBT_F | MBT_AB,      125, 1], 'F_BA':       [MBT_F | MBT_BA,      125, 1],
             'S_ABCD':     [MBT_S | MBT_ABCD,     62, 2], 'S_BADC':     [MBT_S | MBT_BADC,     62, 2],
@@ -228,7 +239,9 @@ MBTYPES = { 'S_AB':       [MBT_S | MBT_AB,      125, 1], 'S_BA':       [MBT_S | 
             'F_GHEFCDAB': [MBT_F | MBT_GHEFCDAB, 31, 4], 'F_HGFEDCBA': [MBT_F | MBT_HGFEDCBA, 31, 4] }
 
 # Reverse map of MBTYPES
-MBNAMES = { MBT_S | MBT_AB:       'S_AB',       MBT_S | MBT_BA:       'S_BA',
+MBNAMES = { MBT_S | MBT_A:        'S_A',        MBT_S | MBT_B:        'S_B',
+            MBT_U | MBT_A:        'U_A',        MBT_U | MBT_B:        'U_B',
+            MBT_S | MBT_AB:       'S_AB',       MBT_S | MBT_BA:       'S_BA',
             MBT_U | MBT_AB:       'U_AB',       MBT_U | MBT_BA:       'U_BA',
             MBT_F | MBT_AB:       'F_AB',       MBT_F | MBT_BA:       'F_BA',
             MBT_S | MBT_ABCD:     'S_ABCD',     MBT_S | MBT_BADC:     'S_BADC',
@@ -636,11 +649,11 @@ def calcTimeout(function, count, mtype, cfgp):
     elif function in [W_COILS]:
         n = 9 + ((count + 7) // 8) + 8
     elif function in [R_REGISTERS, R_INPUTREGS]:
-        n = 8 + 3 + count * MBTBYTESIZES[mbtOrder(mtype)]
+        n = 8 + 3 + count * mbtOrderSize(mtype)
     elif function in [W_REGISTER, W_COIL]:
         n = 8 + 8
     elif function in [W_REGISTERS]:
-        n = 9 + count * MBTBYTESIZES[mbtOrder(mtype)] + 8
+        n = 9 + count * mbtOrderSize(mtype) + 8
     else:
         sys.exit("Unknown function '{}' in calcTimeout, aborting...".format(function))
     bits = 1 + 8 + 1
@@ -841,7 +854,7 @@ def handleInits(inits):
                 break
             # Get the type of the data
             mtype = data.attrib['modbustype'].upper() if 'modbustype' in data.attrib else 'U_AB'
-            if mtype not in MBTYPES:
+            if mtype not in MBTYPES or mtype in ['U_A', 'U_B', 'S_A', 'S_B']:
                 perr("Invalid modbustype '{}' in {}".format(mtype, lil))
                 err = True
                 break
@@ -1179,7 +1192,7 @@ def handleCommands(commands):
             pwarn("Signedness mismatch between haltype={} and modbustype={} may give wrong results in {}"
                     .format(HALNAMES[defhtype], MBNAMES[defmtype[0]], lcl))
 
-        if None != defmtype and mbtOrder(defmtype[0]) >= MBT_ABCDEFGH and defhtype in [HAL_U32, HAL_S32]:
+        if None != defmtype and mbtOrderSize(defmtype[0]) == 8 and defhtype in [HAL_U32, HAL_S32]:
             pwarn("Haltype destination '{}' is smaller than Modbus source type {} in {}"
                     .format(HALNAMES[defhtype], MBNAMES[defmtype[0]], lcl))
 
@@ -1295,24 +1308,25 @@ def handleCommands(commands):
             if (pf & MBCCB_PINF_SCALE) and phtype in [HAL_U32, HAL_U64]:
                 pwarn("Unsigned hal types cannot be scaled, disabling in {}".format(lpl))
                 pf &= ~MBCCB_PINF_SCALE
-            msz = MBTBYTESIZES[mbtOrder(pmtype[0])]
+            msz = mbtOrderSize(pmtype[0])
             hsz = 4 if phtype in [HAL_U32, HAL_S32] else 8
             if ((0 == (pf & MBCCB_PINF_SCALE)) and msz >= hsz and
                        ((MBT_S == mbtType(pmtype[0]) and phtype in [HAL_U32, HAL_U64])
                      or (MBT_U == mbtType(pmtype[0]) and phtype in [HAL_S32, HAL_S64]))):
                 pwarn("Signedness mismatch between haltype={} and modbustype={} may give wrong results in {}"
                         .format(HALNAMES[phtype], MBNAMES[pmtype[0]], lpl))
-            if (mbtOrder(pmtype[0])) >= MBT_ABCDEFGH and phtype in [HAL_U32, HAL_S32]:
+            if (mbtOrderSize(pmtype[0])) == 8 and phtype in [HAL_U32, HAL_S32]:
                 pwarn("Haltype destination '{}' is smaller than Modbus source type {} in {}"
                         .format(HALNAMES[phtype], MBNAMES[pmtype[0]], lpl))
 
-            if ((mbtOrder(pmtype[0]) >= MBT_ABCD and 0 != (regofs & 1))
-                or (mbtOrder(pmtype[0]) >= MBT_ABCDEFGH and 0 != (regofs & 3))):
-                pwarn("Multi-register type '{}' not aligned to natural boundary in {}".format(MBNAMES[pmtype[0]], lpl))
+            if ((mbtOrderSize(pmtype[0]) == 4 and 0 != ((address + regofs) & 1))
+                or (mbtOrderSize(pmtype[0]) == 8 and 0 != ((address + regofs) & 3))):
+                pwarn("Multi-register type '{0}' not aligned to natural boundary (address={1}/0x{1:04x}, regoffset={2}/0x{2:02x}) in {3}"
+                        .format(MBNAMES[pmtype[0]], address, regofs, lpl))
 
             pinlist.append({'pin': pintag, 'mtype': pmtype[0], 'htype': phtype, 'flags': pf, 'regofs': regofs})
             pinlistall.append(pintag)
-            regofs += MBTBYTESIZES[mbtOrder(pmtype[0])] // 2
+            regofs += mbtOrderSize(pmtype[0]) // 2
         # endfor pin in cmd
         if err:
             continue
@@ -1355,7 +1369,7 @@ def handleCommands(commands):
                 regofs += 1
             else:
                 pinlist.append({'pin': pintag, 'mtype': defmtype[0], 'htype': defhtype, 'flags': pflags, 'regofs': regofs})
-                regofs += MBTBYTESIZES[mbtOrder(defmtype[0])] // 2
+                regofs += mbtOrderSize(defmtype[0]) // 2
             pinlistall.append(pintag)
         if err:
             continue
