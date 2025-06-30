@@ -97,6 +97,7 @@ needs to be covered. Differences are primarily byte-ordering.
 
 The byte-ordering is specified with one of the following suffixes:
 
+* `_A`, `_B`
 * `_AB`, `_BA`
 * `_ABCD`, `_BADC`, `_CDAB`, `_DCBA`
 * `_ABCDEFGH`, `_BADCFEHG`, `_CDABGHEF`, `_DCBAHGFE`,
@@ -107,6 +108,18 @@ Modbus standard byte-ordering is big-endian, which is the first in each list
 may use any of the byte-orderings necessary and required because some device
 vendors have not paid attention to the proper on-wire ordering.
 
+The orderings `_A` and `_B` are single byte values from a modbus register. A
+single byte will be taken from the register value. You cannot access successive
+bytes from the same register using these types. (You require a second component
+that de-multiplexes the HAL value(s) into individual bytes from the data stream
+using the hm2_modbus presented pin values.) +
+The ordering `_A` will use the the least significant byte (LSB), with respect
+to the default big endian order for Modbus. Ordering `_B` will use the most
+significant byte (MSB). Note that there is no floating point type when only
+using sizes of one single byte. +
+Single byte values have the additional restriction that they cannot be used as
+data values in '<initlist>/<command>/<data>'.
+
 The byte-ordering suffix is prefixed with S (signed), U (unsigned) or F (float)
 to complete the 'modbustype' attribute value. For example, a 32-bit float in
 big-endian is named `F_ABCD`. A 64-bit signed integer value in little-endian is
@@ -115,6 +128,9 @@ S_HGFEDCBA.
 The types have following ranges and will be clamped to the min/max values if
 the 'clamp' attribute is set in the '<command>':
 
+* 8-bit:
+ ** signed integer [-128..+127] (`S_A`, `S_B`)
+ ** unsigned integer [0..255] (`U_A`, `U_B`)
 * 16-bit:
  ** float16 [-65504.0..+65504.0] (`F_AB`, `F_BA`)
  ** signed integer [-32768..+32767] (`S_AB`, `S_BA`)
@@ -177,9 +193,11 @@ other setup values as attributes:
   and reply sizes. The 'timeout' value can be overridden in the '<command>'
   definitions. Default auto.
 *writeflush* [Boolean]::
-  Set to true when the _very first_ round of write commands must be flushed to
-  synchronize the internal state to the pin state. This flush happens either
-  once when the module starts or each time the module comes out of 'suspend'. +
+  Set to true when the first round of write commands must synchronize the
+  internal state to the pin state. The writes are calculated but not sent to
+  the Modbus device (i.e. flushed). This flush happens either once when the
+  module starts, each time when the module comes out of 'suspend', or
+  specifically for a command when it gets re-enabled. +
   The write flush is necessary when you need to ensure proper and correct pin
   data is present _before_ the Modbus commands start sending potentially
   harmful or invalid data because the pins have not yet been initialized to
@@ -496,6 +514,15 @@ Recognized '<commands>/<command>' attributes:
   The Modbus device to communicate with. The 'device' attribute
   references '<device>[name]'. +
   The device name '`broadcast`' will send the command to all devices on the bus.
+*disabled* [Boolean]::
+  Start the command in disabled state when set, preventing it from being
+  executed. Using the 'disabled' flag is a fine grain per command control.
+  In contrast, 'suspend' works on the entire state machine and controls
+  operation of all commands in an all-or-nothing way. A command in the disabled
+  state can be enabled by toggling the reset pin of the command. Using 'disable'
+  can be particularly useful when you need to delay one particular command
+  while others may already be run. The 'writeflush' setting is honored when
+  coming out of the disabled state. Default false.
 *function* [see link:#_modbus_functions[*MODBUS FUNCTIONS*]]::
   The attribute value is one of the supported Modbus functions.
 *haltype* [see link:#_hal_types[*HAL TYPES*]]::
