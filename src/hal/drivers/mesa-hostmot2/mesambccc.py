@@ -317,10 +317,10 @@ MESAATTRIB = [ 'baudrate', 'drivedelay', 'duplex',   'icdelay', 'interval',
                'txdelay',  'writeflush' ]
 
 # Allowed attributes in <commands>/<command>
-CMDSATTRIB = [ 'address',    'bcanswer',    'clamp',    'count',   'delay',
-               'device',     'disabled',    'function', 'haltype', 'interval',
-               'modbustype', 'name',        'noanswer', 'resend',  'scale',
-               'timeout',    'timeoutbits', 'timesout', 'writeflush' ]
+CMDSATTRIB = [ 'address',    'bcanswer',    'clamp',    'count',     'delay',
+               'device',     'disabled',    'function', 'haltype',   'interval',
+               'modbustype', 'name',        'noanswer', 'resend',    'scale',
+               'timeout',    'timeoutbits', 'timesout', 'unaligned', 'writeflush' ]
 
 # Allowed attributes in <commands>/<command>/<pin>
 PINSATTRIB = [ 'clamp', 'name', 'haltype', 'modbustype', 'scale' ]
@@ -1323,8 +1323,9 @@ def handleCommands(commands):
 
             if ((mbtOrderSize(pmtype[0]) == 4 and 0 != ((address + regofs) & 1))
                 or (mbtOrderSize(pmtype[0]) == 8 and 0 != ((address + regofs) & 3))):
-                pwarn("Multi-register type '{0}' not aligned to natural boundary (address={1}/0x{1:04x}, regoffset={2}/0x{2:02x}) in {3}"
-                        .format(MBNAMES[pmtype[0]], address, regofs, lpl))
+                if not getBoolean(cmd.attrib, 'unaligned'):
+                    pwarn("Multi-register type '{0}' not aligned to natural boundary (address={1}/0x{1:04x}, regoffset={2}/0x{2:02x}) in {3}"
+                            .format(MBNAMES[pmtype[0]], address, regofs, lpl))
 
             pinlist.append({'pin': pintag, 'mtype': pmtype[0], 'htype': phtype, 'flags': pf, 'regofs': regofs})
             pinlistall.append(pintag)

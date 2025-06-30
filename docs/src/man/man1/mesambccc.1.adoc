@@ -591,6 +591,14 @@ Recognized '<commands>/<command>' attributes:
   should be emitted when it does. This differs from 'noanswer' in that a reply
   may be expected within the timeout period but not after the timeout expires.
   This may be required for flaky devices. Default false.
+*unaligned* [Boolean]::
+  Set to true to suppress the alignment warning in multi-register reads or
+  writes where 32-bit or 64-bit values are not aligned to their natural Modbus
+  address boundaries. This is useful for devices that do not care about
+  alignment or do not use Modbus addresses in conventional ways. +
+  Setting 'unaligned' is purely a cosmetic attribute to suppress console
+  clutter when compiling the mbccs file. It has no functional effect on the
+  communication with the device. Default false.
 *writeflush* [Boolean]::
   The override the 'writeflush' value. See '<mesamodbus>[writeflush]' for
   details. Default '<mesamodbus>[writeflush]'.
