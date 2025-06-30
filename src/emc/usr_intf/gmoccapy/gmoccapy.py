@@ -1864,7 +1864,6 @@ class gmoccapy(object):
             if type(child) == Gtk.Socket:
                 if self.onboard:
                     self._kill_keyboard()
-                    child.disconnect(child.get_id())
             else:
                 child.terminate()
 
