@@ -80,12 +80,13 @@ typedef struct {
 #define MBCCB_CMDF_BCANSWER  0x0002	// Broadcasts will get an answer, ignore it
 #define MBCCB_CMDF_NOANSWER  0x0004	// Don't expect an answer
 #define MBCCB_CMDF_RESEND    0x0008	// Resend the write even if no pins are changed
-#define MBCCB_CMDF_WFLUSH    0x0010 // Don't write initial pin values but flush the output
+#define MBCCB_CMDF_WFLUSH    0x0010	// Don't write initial pin values but flush the output
+#define MBCCB_CMDF_DISABLED  0x0020	// Start this command in disabled mode and must be reset
 #define MBCCB_CMDF_PARITYEN  0x0100	// Init-only parity change
 #define MBCCB_CMDF_PARITYODD 0x0200	// Init-only parity change
 #define MBCCB_CMDF_STOPBITS2 0x0400	// Init-only stopbits change
 #define MBCCB_CMDF_INITMASK  0x0707	// sum of allowed flags in init
-#define MBCCB_CMDF_MASK      0x001f	// sum of allowed normal command flags
+#define MBCCB_CMDF_MASK      0x003f	// sum of allowed normal command flags
 
 #define MBCCB_PINF_SCALE	0x01	// Add scale/offset pins
 #define MBCCB_PINF_CLAMP	0x02	// Clamp values to fit target

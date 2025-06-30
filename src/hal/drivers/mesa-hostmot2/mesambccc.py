@@ -304,11 +304,12 @@ MBCCB_CMDF_BCANSWER = 0x0002
 MBCCB_CMDF_NOANSWER = 0x0004
 MBCCB_CMDF_RESEND   = 0x0008
 MBCCB_CMDF_WFLUSH   = 0x0010
+MBCCB_CMDF_DISABLED = 0x0020
 MBCCB_CMDF_PARITYEN = 0x0100
 MBCCB_CMDF_PARITYODD= 0x0200
 MBCCB_CMDF_STOPBITS2= 0x0400
 MBCCB_CMDF_INITMASK = 0x0707 # sum of allowed flags in init
-MBCCB_CMDF_MASK     = 0x001f # sum of allowed normal command flags
+MBCCB_CMDF_MASK     = 0x003f # sum of allowed normal command flags
 
 # Allowed attributes in <mesamodbus>
 MESAATTRIB = [ 'baudrate', 'drivedelay', 'duplex',   'icdelay', 'interval',
@@ -316,10 +317,10 @@ MESAATTRIB = [ 'baudrate', 'drivedelay', 'duplex',   'icdelay', 'interval',
                'txdelay',  'writeflush' ]
 
 # Allowed attributes in <commands>/<command>
-CMDSATTRIB = [ 'address',     'bcanswer', 'clamp',   'count',    'delay',
-               'device',      'function', 'haltype', 'interval', 'modbustype',
-               'name',        'noanswer', 'resend',  'scale',    'timeout',
-               'timeoutbits', 'timesout', 'writeflush' ]
+CMDSATTRIB = [ 'address',    'bcanswer',    'clamp',    'count',   'delay',
+               'device',     'disabled',    'function', 'haltype', 'interval',
+               'modbustype', 'name',        'noanswer', 'resend',  'scale',
+               'timeout',    'timeoutbits', 'timesout', 'writeflush' ]
 
 # Allowed attributes in <commands>/<command>/<pin>
 PINSATTRIB = [ 'clamp', 'name', 'haltype', 'modbustype', 'scale' ]
@@ -492,7 +493,7 @@ def cflagList(flags):
         return "<none>"
     l = { MBCCB_CMDF_TIMESOUT: 'timesout', MBCCB_CMDF_BCANSWER: 'bcanswer',
           MBCCB_CMDF_NOANSWER: 'noanswer', MBCCB_CMDF_RESEND:   'resend',
-          MBCCB_CMDF_WFLUSH:   'writeflush' }
+          MBCCB_CMDF_DISABLED: 'disabled', MBCCB_CMDF_WFLUSH:   'writeflush' }
     return ','.join([l[v] for v in l.keys() if flags & v])
 
 def pflagList(flags):
@@ -625,6 +626,7 @@ def parseOptFlags(dev, attrs, cflags, pflags, ers):
     cflags |= MBCCB_CMDF_BCANSWER if getBoolean(attrs, 'bcanswer') else 0
     cflags |= MBCCB_CMDF_NOANSWER if getBoolean(attrs, 'noanswer') else 0
     cflags |= MBCCB_CMDF_RESEND   if getBoolean(attrs, 'resend')   else 0
+    cflags |= MBCCB_CMDF_DISABLED if getBoolean(attrs, 'disabled') else 0
     # The default of writeflush depends on the global setting
     cflags |= MBCCB_CMDF_WFLUSH   if getBoolean(attrs, 'writeflush') else 0
     cflags &= ~MBCCB_CMDF_WFLUSH  if False == getBoolean(attrs, 'writeflush') else ~0

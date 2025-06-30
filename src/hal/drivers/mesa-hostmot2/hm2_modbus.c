@@ -202,7 +202,8 @@ typedef struct {
 } mbt_pin_hal_t;
 
 typedef struct {
-	hal_bit_t *disabled;	// Command disable
+	hal_bit_t *disable;		// Command disable input
+	hal_bit_t *disabled;	// Command disable output
 	hal_bit_t *reset;		// Reset errors and re-enable on rising edge
 	hal_u32_t *error;		// Command error counter
 	hal_u32_t *errorcode;	// Last error code
@@ -235,6 +236,7 @@ typedef struct {
 	int pinref;		// What pin to start with
 	bool disabled;	// Skipped if set
 	bool prevreset;	// To track the rising edge
+	bool prevdisable;	// To track the rising edge
 	int errors;		// Count the errors
 	int datalen;	// Number of bytes in 'data' buffer
 	rtapi_u8 data[MAX_PKT_LEN]; // PDU: 2-byte header, MAX_MSG_LEN payload, 2-byte CRC
@@ -244,6 +246,8 @@ static inline bool hastimesout(const hm2_modbus_cmd_t *cc)  { return 0 != (cc->c
 static inline bool hasbcanswer(const hm2_modbus_cmd_t *cc)  { return 0 != (cc->cmd.flags & MBCCB_CMDF_BCANSWER); }
 static inline bool hasnoanswer(const hm2_modbus_cmd_t *cc)  { return 0 != (cc->cmd.flags & MBCCB_CMDF_NOANSWER); }
 static inline bool hasresend(const hm2_modbus_cmd_t *cc)    { return 0 != (cc->cmd.flags & MBCCB_CMDF_RESEND); }
+static inline bool haswflush(const hm2_modbus_cmd_t *cc)    { return 0 != (cc->cmd.flags & MBCCB_CMDF_WFLUSH); }
+static inline bool hasdisabled(const hm2_modbus_cmd_t *cc)  { return 0 != (cc->cmd.flags & MBCCB_CMDF_DISABLED); }
 static inline bool haspinscale(const hm2_modbus_mbccb_type_t *t)  { return 0 != (t->flags & MBCCB_PINF_SCALE); }
 static inline bool haspinclamp(const hm2_modbus_mbccb_type_t *t)  { return 0 != (t->flags & MBCCB_PINF_CLAMP); }
 
@@ -463,7 +467,7 @@ static void set_error(hm2_modbus_inst_t *inst, int errcode)
 	hm2_modbus_cmd_t *cc = current_cmd(inst);
 	if(++cc->errors >= MAX_ERRORS || cc->disabled) {
 		cc->disabled = 1;
-		*(inst->hal->cmds[inst->cmdidx].disabled)  = cc->disabled;
+		*(inst->hal->cmds[inst->cmdidx].disabled)  = 1;
 		*(inst->hal->cmds[inst->cmdidx].errorcode) = errcode;
 	}
 	*(inst->hal->cmds[inst->cmdidx].error) = cc->errors;
@@ -515,6 +519,73 @@ static inline void force_resend(hm2_modbus_inst_t *inst)
 }
 
 //
+// Write flush command sets a specific command data to the current values.
+// Only Modbus write function are pre-calculated.
+//
+static void write_flush_cmd(hm2_modbus_inst_t *inst, unsigned idx)
+{
+	if(handling_inits(inst)) {	// Cannot flush init list
+		MSG_ERR("%s: error: Called write_flush_cmd() while handling inits\n", inst->name);
+		return;
+	}
+
+	if(idx >= inst->ncmds) {
+		MSG_ERR("%s: error: Command index out of range (%u >= %u) in write_flush_cmd()\n", inst->name, idx, inst->ncmds);
+		return;
+	}
+
+	hm2_modbus_cmd_t *cc = &inst->_cmds[idx];	// so this is the one we want
+	switch(cc->cmd.func) {
+	case MBCMD_W_COIL:
+	case MBCMD_W_COILS:
+	case MBCMD_W_REGISTER:
+	case MBCMD_W_REGISTERS:
+		break;	// Only write functions shall be built
+	default:
+		return;
+	}
+	// Pre build the frame, even when disabled. When the WFLUSH flag is
+	// set, then we still want timed out writes that are disabled, and
+	// re-enabled due to a reset, to adhere to the flush setting when they
+	// suddenly no longer timeout.
+	if(!haswflush(cc))	// Must have flag set
+		return;
+
+	unsigned oldidx = inst->cmdidx;	// Save the position
+	inst->cmdidx = idx;	// This sets the current command index
+
+	int r = build_data_frame(inst);
+	if(r < 0) {
+		// We cannot recover from data frames that cannot be build. They
+		// would always result in the same error.
+		if(!cc->disabled) {
+			MSG_ERR("%s: error: Build data frame failed (%d) in write_flush_cmd for command %d, disabling\n", inst->name, r, idx);
+			cc->disabled = 1;
+		}
+		set_error(inst, -r);
+	}
+	inst->cmdidx = oldidx;	// Restore position
+}
+
+//
+// Write flush sets all command data to the current values.
+//
+static void write_flush(hm2_modbus_inst_t *inst)
+{
+	// We must ensure to handle the command list and not the init list.
+	// This switcheroo sucks but we have no choice as these variables are
+	// instance global.
+	hm2_modbus_cmd_t *oldcmds = inst->cmds;
+	inst->cmds = inst->_cmds;
+
+	for(unsigned i = 0; i < inst->ncmds; i++) {
+		write_flush_cmd(inst, i);
+	}
+
+	inst->cmds = oldcmds;
+}
+
+//
 // Advance to the next command in the list
 // A switch to the normal command list is made when it is the end of initlist.
 // Return 0 on a normal switch. Return 1 when the list repeats.
@@ -549,6 +620,22 @@ static inline int next_command(hm2_modbus_inst_t *inst)
 				*(inst->hal->cmds[i].disabled)  = 0;
 				*(inst->hal->cmds[i].error)     = 0;
 				*(inst->hal->cmds[i].errorcode) = 0;
+				// Honor the writeflush flag when coming out of disable.
+				write_flush_cmd(inst, i);
+			}
+		}
+
+		// The run-time disabling of a command takes precedens over reset.
+		// Set it on the rising edge of the 'disable' pin
+		b = !!*(inst->hal->cmds[i].disable);
+		if(inst->cmds[i].prevdisable != b) {
+			inst->cmds[i].prevdisable = !inst->cmds[i].prevdisable;
+			if(inst->cmds[i].prevdisable) {
+				inst->cmds[i].disabled = 1;
+				inst->cmds[i].errors   = 0;
+				*(inst->hal->cmds[i].disabled)  = 1;
+				*(inst->hal->cmds[i].error)     = 0;
+				*(inst->hal->cmds[i].errorcode) = EAGAIN;
 			}
 		}
 	} while(inst->cmdidx < inst->ncmds && inst->cmds[inst->cmdidx].disabled);
@@ -642,45 +729,6 @@ static void do_timeout(hm2_modbus_inst_t *inst)
 }
 
 //
-// Write flush sets all command data to the current values.
-// Only Modbus write function are pre-calculated.
-//
-static void write_flush(hm2_modbus_inst_t *inst)
-{
-	unsigned oldidx = inst->cmdidx;	// Save the position
-	for(unsigned i = 0; i < inst->ncmds; i++) {
-		inst->cmdidx = i;	// This sets the current command index
-		hm2_modbus_cmd_t *cc = current_cmd(inst);	// so this is the one we want
-		switch(cc->cmd.func) {
-		case MBCMD_W_COIL:
-		case MBCMD_W_COILS:
-		case MBCMD_W_REGISTER:
-		case MBCMD_W_REGISTERS:
-			break;	// Only write functions shall be built
-		default:
-			continue;
-		}
-		// Pre build the frame, even when disabled. When the WFLUSH flag is
-		// set, then we still want timed out writes that are disabled, and
-		// re-enabled due to a reset, to adhere to the flush setting when they
-		// suddenly no longer timeout.
-		if(!(cc->cmd.flags & MBCCB_CMDF_WFLUSH))	// Must have flag set
-			continue;
-		int r = build_data_frame(inst);
-		if(r < 0) {
-			// We cannot recover from data frames that cannot be build. They
-			// would always result in the same error.
-			if(!cc->disabled) {
-				MSG_ERR("%s: error: Build data frame failed in write_flush for command %d, disabling\n", inst->name, inst->cmdidx);
-				cc->disabled = 1;
-			}
-			set_error(inst, -r);
-		}
-	}
-	inst->cmdidx = oldidx;	// Restore position
-}
-
-//
 // The main process Modbus state-machine.
 //
 // It is essentially a synchronous communication machine that:
@@ -716,29 +764,32 @@ static void process(void *arg, long period)
 	rtapi_u32 rxstatus = hm2_pktuart_get_rx_status(inst->uart);
 	rtapi_u32 txstatus = hm2_pktuart_get_tx_status(inst->uart);
 
-	if(inst->cmds == inst->_cmds) {
+	if(!handling_inits(inst)) {
 		// Only count timeout when running the command list
 		for(unsigned i = 0; i < inst->ncmds; i++) {
 			inst->cmds[i].interval -= period;	// Keep counting nanoseconds
 		}
-	}
 
-	inst->timeout  -= period;	// Current timeout count
-
-	// Re-enable all commands on rising edge of global reset pin
-	bool b = !!*(inst->hal->reset);	// Make sure its value is bool-worthy
-	if(inst->prevreset != b) {
-		inst->prevreset = !inst->prevreset;
-		if(inst->prevreset) {
-			for(unsigned i = 0; i < inst->ncmds; i++) {
-				inst->cmds[i].disabled = 0;
-				inst->cmds[i].errors = 0;
-				*(inst->hal->cmds[i].disabled)  = 0;
-				*(inst->hal->cmds[i].error)     = 0;
-				*(inst->hal->cmds[i].errorcode) = 0;
+		// Re-enable all commands on rising edge of global reset pin
+		bool b = !!*(inst->hal->reset);	// Make sure its value is bool-worthy
+		if(inst->prevreset != b) {
+			inst->prevreset = !inst->prevreset;
+			if(inst->prevreset) {
+				for(unsigned i = 0; i < inst->ncmds; i++) {
+					if(inst->cmds[i].disabled) {
+						inst->cmds[i].disabled = 0;
+						*(inst->hal->cmds[i].disabled) = 0;
+						write_flush_cmd(inst, i);
+					}
+					*(inst->hal->cmds[i].errorcode) = 0;
+					*(inst->hal->cmds[i].error)     = 0;
+					inst->cmds[i].errors = 0;
+				}
 			}
 		}
 	}
+
+	inst->timeout -= period;	// Current timeout count
 
 	switch(inst->state) {
 	case STATE_START:
@@ -2879,6 +2930,8 @@ int rtapi_app_main(void)
 #define CPTR(x)	((const char *)((x) + 1))
 		for(unsigned c = 0; c < inst->ncmds; c++) {
 			// First create command status pins
+			CHECK(hal_pin_bit_newf(HAL_IN, &(inst->hal->cmds[c].disable),
+					comp_id, "%s.command.%02d.disable", inst->name, c));
 			CHECK(hal_pin_bit_newf(HAL_OUT, &(inst->hal->cmds[c].disabled),
 					comp_id, "%s.command.%02d.disabled", inst->name, c));
 			CHECK(hal_pin_u32_newf(HAL_OUT, &(inst->hal->cmds[c].error),
@@ -2888,8 +2941,16 @@ int rtapi_app_main(void)
 			CHECK(hal_pin_bit_newf(HAL_IN, &(inst->hal->cmds[c].reset),
 					comp_id, "%s.command.%02d.reset", inst->name, c));
 
-			// Now create the pins associated with the command
 			hm2_modbus_cmd_t *cc = &inst->_cmds[c];
+
+			// If the command is disabled, set it so
+			if(hasdisabled(cc)) {
+				cc->disabled = 1;
+				*(inst->hal->cmds[c].disabled)  = 1;
+				*(inst->hal->cmds[c].errorcode) = EAGAIN;
+			}
+
+			// Now create the pins associated with the command
 			int dir = HAL_IN;
 			const rtapi_u8 *dptr = inst->dataptr + cc->cmd.cdataptr;
 			cc->pinref = p;
