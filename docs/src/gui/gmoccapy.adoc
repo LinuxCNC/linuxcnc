@@ -299,14 +299,14 @@ All you have to take care of, is that you include for every tab or side panel th
 
 * EMBED_TAB_NAME = Represents the name of the tab or side panel, it is up to you what name you use, but it must be present!
 * EMBED_TAB_LOCATION = The place where your program will be placed in the GUI, see figure <<fig:gmoccapy_emb_tab_locations,Embedded tab locations>>. Valid values are:
-** *ntb_user_tabs*            (as main tab, covering the complete screen)
+** *ntb_user_tabs*            (as main tab, covering the complete screen *(7)*)
 ** *ntb_preview*              (as tab on the preview side *(1)*)
 ** *hbox_jog*                 (will hide the jog buttons and introduce your glade file here *(2)*)
-** *box_left*                 (on the left, complete high of the screen)
-** *box_right*                (on the right, in between the normal screen and the button list)
+** *box_left*                 (on the left, complete high of the screen *(10)*)
+** *box_right*                (on the right, in between the normal screen and the button list *(11)*)
 ** *box_tool_and_code_info*   (will hide the Tool information and G-code frames and introduce your glade file here *(3)*)
-** *box_tool_info*            (will hide the Tool information frame and introduce your glade file here)
-** *box_code_info*            (will hide the G-code information frame and introduce your glade file here)
+** *box_tool_info*            (will hide the Tool information frame and introduce your glade file here *(3a)*)
+** *box_code_info*            (will hide the G-code information frame and introduce your glade file here *(3b)*)
 ** *box_vel_info*             (will hide the velocity frames and introduce your glade file *(4)*)
 ** *box_coolant_and_spindle*  (will hide the coolant and spindle frames and introduce your glade file here *(5)+(6)*)
 ** *box_cooling*              (will hide the cooling frame and introduce your glade file *(5)*)
@@ -315,7 +315,8 @@ All you have to take care of, is that you include for every tab or side panel th
 ** *box_custom_2*             (will introduce your glade file left of cooling_frame)
 ** *box_custom_3*             (will introduce your glade file left of spindle_frame)
 ** *box_custom_4*             (will introduce your glade file right of spindle_frame)
-** *box_dro_side*             (will introduce your glade file right of the DRO)
+** *box_dro_side*             (will introduce your glade file right of the DRO *(8)*)
+** *ntb_setup*                (as tab on the setup page *(9)*)
 
 [NOTE]
 See also the included sample INI files to see the differences.
