@@ -901,6 +901,8 @@ $(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_ZH_CN_SMALL)): $(DOC_SRCDIR)/%
 	$(Q)asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
 		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
 		 -a linkcss \
+		 -f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
+		 -a "source_highlight_dir=$(LOC_HL_DIR)/local" \
 		 $(STYLES_SCRIPTS) \
 	         -a "scriptdir=$(DOC_SRCDIR)/" \
 	         -a "relindir=$(shell dirname $*)" \
