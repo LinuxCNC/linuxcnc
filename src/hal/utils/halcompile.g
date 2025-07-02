@@ -875,9 +875,9 @@ def to_hal_man(s):
     s = s.replace("_", "-")
     c = comp_name.replace("_", "-")
     if options.get("singleton"):
-        s = "%s.%s" % (c, s)
+        s = "**%s**.**%s**" % (c, s)
     else:
-        s = "%s.__N__.%s" % (c, s)
+        s = "**%s**.__N__.**%s**" % (c, s)
     s = s.rstrip("-").rstrip(".")
     s = re.sub("#+", lambda m: "__" + "M" * len(m.group(0)) + "__", s)
     return s
