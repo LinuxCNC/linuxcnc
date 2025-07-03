@@ -4418,8 +4418,6 @@ clicking on the DRO</property>
                                         <property name="can-focus">False</property>
                                         <property name="active">0</property>
                                         <property name="has-entry">True</property>
-                                        <property name="entry-text-column">1</property>
-                                        <property name="id-column">0</property>
                                         <items>
                                           <item id="0" translatable="yes">left rotate,  middle move,  right zoom</item>
                                           <item id="1" translatable="yes">left zoom,  middle move,  right rotate</item>
@@ -4429,6 +4427,12 @@ clicking on the DRO</property>
                                           <item id="5" translatable="yes">left rotate,  middle zoom,  right move</item>
                                         </items>
                                         <signal name="changed" handler="on_cmb_mouse_button_mode_changed" swapped="no"/>
+                                        <child internal-child="entry">
+                                          <object class="GtkEntry">
+                                            <property name="can-focus">False</property>
+                                            <property name="editable">False</property>
+                                          </object>
+                                        </child>
                                       </object>
                                       <packing>
                                         <property name="expand">True</property>
