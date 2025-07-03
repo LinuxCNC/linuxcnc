@@ -1989,7 +1989,7 @@ class gmoccapy(object):
             if col in [1,2,15]:
                 store[row][col] = value
             else:
-                store[row][col] = locale.format_string("%11.4f", value)
+                store[row][col] = f"{value:11.4f}"
         # this is needed to get offsetview out of editing mode
         GLib.timeout_add(50,
                      toolview.set_cursor,
