@@ -894,16 +894,15 @@ class gmoccapy(object):
 
         self.widgets.hbtb_MDI.pack_start(self.macro_dic["previous_button"],True,True,0)
         self.macro_dic["previous_button"].show()
-
-        end = len(self.macro_dic) - 3 # reduced by next, previous and keyboard
-        start = end - 8
-
+        end = len(self.macro_dic) - 4 # reduced by next, previous, calculator and keyboard
+        start = end - 7
         # now put the needed widgets in the container
         for pos in range(start, end):
             name = "macro_{0}".format(pos)
             self.widgets.hbtb_MDI.pack_start(self.macro_dic[name], True, True, 0)
             self.macro_dic[name].show()
-
+        self.widgets.hbtb_MDI.pack_start(self.macro_dic["calculator"],True,True,0)
+        self.macro_dic["calculator"].show()
         self.widgets.hbtb_MDI.pack_start(self.macro_dic["keyboard"],True,True,0)
         self.macro_dic["keyboard"].show()
 
@@ -957,19 +956,17 @@ class gmoccapy(object):
     def _on_btn_previous_macro_clicked(self, widget):
         # remove all buttons from container
         self._remove_button(self.macro_dic, self.widgets.hbtb_MDI)
-
         start = 0
-        end = 8
-
+        end = 7
         # now put the needed widgets in the container
         for pos in range(start, end):
             name = "macro_{0}".format(pos)
             self.widgets.hbtb_MDI.pack_start(self.macro_dic[name], True, True, 0)
             self.macro_dic[name].show()
-
         self.widgets.hbtb_MDI.pack_start(self.macro_dic["next_button"],True,True,0)
         self.macro_dic["next_button"].show()
-
+        self.widgets.hbtb_MDI.pack_start(self.macro_dic["calculator"],True,True,0)
+        self.macro_dic["calculator"].show()
         self.widgets.hbtb_MDI.pack_start(self.macro_dic["keyboard"],True,True,0)
         self.macro_dic["keyboard"].show()
 
@@ -1327,24 +1324,18 @@ class gmoccapy(object):
     # check if macros are in the INI file and add them to MDI Button List
     def _make_macro_button(self):
         LOG.debug("Entering make macro button")
-
         macros = self.get_ini_info.get_macros()
-
         # if no macros at all are found, we receive a NONE, so we have to check:
         if not macros:
             num_macros = 0
             # no return here, otherwise we will not get filling labels
         else:
             num_macros = len(macros)
-
         LOG.debug("found {0} Macros".format(num_macros))
-
-        if num_macros > 16:
-            message = _("Found more than 16 macros, will use only the first 16.")
+        if num_macros > 14:
+            message = _("Found more than 16 macros, will use only the first 14.")
             LOG.info(message)
-
-            num_macros = 16
-
+            num_macros = 14
         btn = self._new_button_with_predefined_image(
             name="previous_button",
             size=_DEFAULT_BB_SIZE,
@@ -1354,10 +1345,8 @@ class gmoccapy(object):
         btn.set_property("tooltip-text", _("Press to display previous macro button"))
         btn.connect("clicked", self._on_btn_previous_macro_clicked)
         self.widgets.hbtb_MDI.pack_start(btn,True,True,0)
-
         for pos in range(0, num_macros):
             name = macros[pos]
-
             image = self._check_macro_for_image(name)
             if image:
                 LOG.debug("Macro {0} has image link".format(name))
@@ -1378,7 +1367,6 @@ class gmoccapy(object):
             btn.position = pos
             btn.show()
             self.widgets.hbtb_MDI.pack_start(btn, True, True, 0)
-
         btn = self._new_button_with_predefined_image(
             name="next_button",
             size=_DEFAULT_BB_SIZE,
@@ -1388,17 +1376,23 @@ class gmoccapy(object):
         btn.connect("clicked", self._on_btn_next_macro_clicked)
         btn.hide()
         self.widgets.hbtb_MDI.pack_start(btn,True,True,0)
-
         # if there is still place, we fill it with empty labels, to be sure the button will not be on different
         # places if the amount of macros change.
-        if num_macros < 9:
-            for pos in range(num_macros, 9):
+        if num_macros < 7:
+            for pos in range(num_macros, 7):
                 lbl = Gtk.Label()
                 lbl.set_property("name","lbl_space_{0}".format(pos))
                 lbl.set_text("")
                 self.widgets.hbtb_MDI.pack_start(lbl, True, True, 0)
                 lbl.show()
-
+        btn = self.widgets.btn_macro_menu_calculator = self._new_button_with_predefined_image(
+            name="calculator",
+            size=_DEFAULT_BB_SIZE,
+            image=self.widgets.img_macro_menu_calculator
+        )
+        btn.set_property("tooltip-text", _("Press to display the virtual calculator"))
+        btn.connect("clicked", self.on_btn_show_calc_clicked)
+        self.widgets.hbtb_MDI.pack_start(btn,True,True,0)
         btn = self.widgets.btn_macro_menu_toggle_keyboard = self._new_button_with_predefined_image(
             name="keyboard",
             size=_DEFAULT_BB_SIZE,
@@ -1407,16 +1401,13 @@ class gmoccapy(object):
         btn.set_property("tooltip-text", _("Press to display the virtual keyboard"))
         btn.connect("clicked", self.on_btn_show_kbd_clicked)
         self.widgets.hbtb_MDI.pack_start(btn,True,True,0)
-
         self.macro_dic = {}
-
         children = self.widgets.hbtb_MDI.get_children()
         for child in children:
             self.macro_dic[child.get_property("name")] = child
-
-        if num_macros >= 9:
+        if num_macros >= 7:
             self.macro_dic["next_button"].show()
-            for pos in range(8, num_macros):
+            for pos in range(7, num_macros):
                 self.macro_dic["macro_{0}".format(pos)].hide()
 
     def _check_macro_for_image(self, name):
@@ -2942,6 +2933,25 @@ class gmoccapy(object):
             # on incremental jogging.
             self.last_key_event = None, 0
 
+    def on_mdi_calculation_start(self, *args):
+        position = self.widgets.hal_mdihistory.entry.get_position()
+        print("position: ", position)
+        value = self.dialogs.entry_dialog(self,
+                            data=self.widgets.hal_mdihistory.entry.get_text(),
+                            header=_("Enter value"),
+                            label=_("Calculate value to insert"),
+                            integer=False)
+        if value == "ERROR":
+            LOG.debug("conversion error")
+            self.dialogs.warning_dialog(self, _("Conversion error !"),
+                                        ("Please enter only numerical values\nValues have not been applied"))
+        elif value == "CANCEL":
+            return
+        else:
+            self.widgets.hal_mdihistory.entry.insert_text(str(value), position)
+            self.widgets.hal_mdihistory.entry.set_position(position + len(str(value)))
+
+
     def on_hal_status_mode_auto(self, widget):
         LOG.debug("AUTO Mode")
         # if Auto button is not sensitive, we are not ready for AUTO commands
@@ -4383,6 +4393,58 @@ class gmoccapy(object):
         if result:
             self.widgets.hal_mdihistory.model.clear()
 
+    def on_btn_show_calc_clicked(self, widget):
+        if self.widgets.ntb_button.get_current_page() == _BB_MDI:
+            mdi_entry = self.widgets.hal_mdihistory.entry
+            bounds = mdi_entry.get_selection_bounds()
+            data = ""
+            has_selection = False
+            if bounds:
+                text = mdi_entry.get_text()
+                data = text[bounds[0]:bounds[1]]
+                has_selection = True
+            value = self.dialogs.entry_dialog(self,
+                                data=data,
+                                header=_("Enter value"),
+                                label=_("Calculate value to insert"),
+                                integer=False)
+            if value == "ERROR":
+                LOG.debug("conversion error")
+                self.dialogs.warning_dialog(self, _("Conversion error !"),
+                                            ("Please enter only numerical values\nValues have not been applied"))
+            elif value == "CANCEL":
+                return
+            else:
+                if has_selection:
+                    buffer = mdi_entry.get_buffer()
+                    buffer.delete_text(bounds[0],bounds[1]-bounds[0])
+                position = mdi_entry.get_position()
+                mdi_entry.insert_text(str(value), position)
+                mdi_entry.set_position(position + len(str(value)))
+        elif self.widgets.ntb_button.get_current_page() == _BB_EDIT:
+            data=""
+            has_selection = False
+            buffer = self.widgets.gcode_view.get_buffer()
+            if buffer.get_has_selection():
+                bounds = buffer.get_selection_bounds()
+                data = buffer.get_text(bounds[0],bounds[1],False)
+                has_selection = True
+            value = self.dialogs.entry_dialog(self,
+                                data=data,
+                                header=_("Enter value"),
+                                label=_("Calculate value to insert"),
+                                integer=False)
+            if value == "ERROR":
+                LOG.debug("conversion error")
+                self.dialogs.warning_dialog(self, _("Conversion error !"),
+                                            ("Please enter only numerical values\nValues have not been applied"))
+            elif value == "CANCEL":
+                return
+            else:
+                if has_selection:
+                    buffer.delete(bounds[0],bounds[1])
+                buffer.insert_at_cursor(str(value))
+
     def on_btn_show_kbd_clicked(self, widget):
         #print("show Keyboard clicked", self.widgets.key_box.get_children())
         #print(widget)
@@ -4758,10 +4820,12 @@ class gmoccapy(object):
                 ("img_edit_menu_save",          "save",             32),
                 ("img_edit_menu_save_as",       "save_as",          32),
                 ("img_edit_menu_new",           "new_document",     32),
+                ("img_edit_menu_calculator",    "calculator_open",       32),
                 ("img_edit_menu_keyboard",      "keyboard",         32),
                 ("img_edit_menu_keyboard_hide", "keyboard_hide",    32),
                 ("img_edit_menu_close",         "back_to_app",      48),
                 # macro menu
+                ("img_macro_menu_calculator",       "calculator_open",       32),
                 ("img_macro_menu_keyboard",         "keyboard",         32),
                 ("img_macro_menu_keyboard_hide",    "keyboard_hide",    32),
                 ("img_macro_menu_stop",             "stop",             32),
