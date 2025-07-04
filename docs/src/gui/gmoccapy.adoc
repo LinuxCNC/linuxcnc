@@ -302,7 +302,7 @@ All you have to take care of, is that you include for every tab or side panel th
 ** *ntb_user_tabs*            (as main tab, covering the complete screen *(7)*)
 ** *ntb_preview*              (as tab on the preview side *(1)*)
 ** *hbox_jog*                 (will hide the jog buttons and introduce your glade file here *(2)*)
-** *box_left*                 (on the left, complete high of the screen *(10)*)
+** *box_left*                 (on the left, complete height of the screen *(10)*)
 ** *box_right*                (on the right, in between the normal screen and the button list *(11)*)
 ** *box_tool_and_code_info*   (will hide the Tool information and G-code frames and introduce your glade file here *(3)*)
 ** *box_tool_info*            (will hide the Tool information frame and introduce your glade file here *(3a)*)
