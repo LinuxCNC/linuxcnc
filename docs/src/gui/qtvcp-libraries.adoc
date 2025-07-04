@@ -383,19 +383,23 @@ ACTION.TOUCHPLATE_TOUCHOFF(search_vel, probe_vel, max_probe,
        z_offset, retract_distance, z_safe_travel, rtn_method=None, error_rtn = None)
 ----
 
+[[cha:qtvcp:Qhal]]
+
 == Qhal
 
-A library for HAL component interactions.
+A library for HAL component/system interactions.
 
 === Attributes
 
 These are the functions that can be called on the Qhal object:
 
-*`newpin(name, pin type constant, pin direction constant)`*:: returns a new QPin object
-*`getpin(name)`*:: returns an existing named QPin object
-*`getvalue(name)`*:: returns the named pin's value, use the full component/pin name.
-*`setp(name,value)`*:: sets the named pin's value, use the full component/pin name.
-*`makeUniqueName(name)`*:: returns an unique HAL pin name string by adding '-x' (a number) to the base name
+*`setUpdateRate(cyclerate)`*:: Set cycle rate in ms
+*`newPin(name, pin type constant, pin direction constant)`*:: returns a new QPin object
+*`getPinObject(name)`*:: returns an existing named QPin object
+*`getValue(name)`*:: returns the named pin, signal, or parameter's value, use the full component.pin name.
+*`setPin(name,value)`*:: sets the named pin's value, use the full component.pin name.
+*`setSignal(name,value)`*:: sets the named signal's value, use the full component.pin name.
+*`makeUniqueName(name)`*:: returns an unique HAL pin name string by adding '-x' (a number) to the given pin name string
 *`exit()`*:: kills the component
 
 === Constants
@@ -418,13 +422,14 @@ Available object references:
 * *comp* the component object
 * *hal* the hal library object
 
+[[cha:qtvcp:QPin]]
 == QPin
 A wrapper class around HAL pins
 
 === Signals
 There are 3 Qt signals that the QPin pin can be connect to:
 
-* *value_changed* will call a named function with an argument of the current value
+* *value_changed* will call a named function with an argument of the current value (depreciated)
 * *pinValueChanged* will call a named function with arguments of the pin object and the current value
 * *isDrivenChanged* will call a named function with arguments of the pin object and current state when
  the pin is (un)connected to a driving pin
