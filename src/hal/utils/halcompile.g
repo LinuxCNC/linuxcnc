@@ -872,10 +872,13 @@ def finddocs(section=None, name=None):
 ######
 
 def to_hal_man(s):
+    fn = s
     s = s.replace("_", "-")
     c = comp_name.replace("_", "-")
     if options.get("singleton"):
         s = "**%s**.**%s**" % (c, s)
+    elif "_" == fn:
+        s = "**%s**.__N__" % (c)
     else:
         s = "**%s**.__N__.**%s**" % (c, s)
     s = s.rstrip("-").rstrip(".")
