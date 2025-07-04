@@ -352,7 +352,7 @@ will hide the chosen box.
 
 [[fig:gmoccapy_emb_tab_locations]]
 .Embedded tab locations
-image::images/gmoccapy_embedded_tabs.png[align="left"]
+image::images/gmoccapy_embedded_tabs_small.png[align="left",link="images/gmoccapy_embedded_tabs.png"]
 
 [NOTE]
 If you make any HAL connections to your custom glade panel, you need to do that in the HAL file specified in the EMBED_TAB_COMMAND line,
