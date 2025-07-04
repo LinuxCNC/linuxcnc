@@ -166,6 +166,8 @@ class _QHal(object):
         QPin.update_start(cyclerate)
 
     def newpin(self, *a, **kw):
+        return self.newPin(*a,**kw)
+    def newPin(self, *a, **kw):
         try:
             p = QPin(_hal.component.newpin(self.comp, *a, **kw))
         except ValueError as e:
@@ -189,34 +191,44 @@ class _QHal(object):
             if log.getEffectiveLevel() == logger.VERBOSE:
                 raise
             t = inspect.getframeinfo(inspect.currentframe().f_back)
-            log.error("Qhal: Error making new HAL pin: {}\n    {}\n    Line {}\n    Function: {}".
+            log.error("QHal: Error making new HAL pin: {}\n    {}\n    Line {}\n    Function: {}".
                 format(e, t[0], t[1], t[2]))
-            log.error("Qhal: {}".format(traceback.format_exc()))
+            log.error("QHal: {}".format(traceback.format_exc()))
             p = DummyPin(*a, ERROR=e)
         p.prefix = self.comp.getprefix()
         return p
 
-    def getpin(self, *a, **kw): return QPin(_hal.component.getpin(self.comp, *a, **kw))
+    def getpin(self, *a, **kw):
+        return self.getPinObject(self, *a, **kw)
+    def getPinObject(self, *a, **kw):
+        return QPin(_hal.component.getpin(self.comp, *a, **kw))
 
     def getvalue(self, name):
+        return self.getValue(self, name)
+    def getValue(self, name):
         try:
             return hal.get_value(name)
         except Exception as e:
-            raise("Qhal: Error getting value of {}\n {}".format(name, e))
+            raise("QHal: Error getting value of {}\n {}".format(name, e))
 
     def setp(self,name, value):
+        return self.setPin(self,name, value)
+    def setPin(self,name, value):
         try:
             return hal.set_p(name,value)
         except Exception as e:
-            raise("Qhal: Error setting pin {} to {}\n {}".format(name,value, e))
+            raise("QHal: Error setting pin {} to {}\n {}".format(name,value, e))
 
     def sets(self,name, value):
+        return self.setSignal(self,name, value)
+    def setSignal(self,name, value):
         try:
             return hal.set_s(name,value)
         except Exception as e:
-            raise("Qhal: Error setting signal {} to {}\n {}".format(name,value, e))
+            raise("QHal: Error setting signal {} to {}\n {}".format(name,value, e))
 
-    def exit(self, *a, **kw): return self.comp.exit(*a, **kw)
+    def exit(self, *a, **kw):
+        return self.comp.exit(*a, **kw)
 
     # find a unique HAL pin name by adding '-x' to the base name
     # x being an ever increasing number till name is unique
