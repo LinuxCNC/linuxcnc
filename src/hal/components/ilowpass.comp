@@ -15,7 +15,7 @@ desired.  Divide the **axis**.__N__.**jog-scale** values by
 
 pin in s32 in;
 
-pin out s32 out """*out* tracks *in*\**scale* through a low-pass
+pin out s32 out """*out* tracks *in* * *scale* through a low-pass
 filter of *gain* per period.""";
 
 param rw float scale = 1024 """A scale factor applied to the output
