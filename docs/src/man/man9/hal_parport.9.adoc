@@ -82,7 +82,7 @@ in the cfg="" string.
 
 == PARAMETERS
 
-**parport**.__p__.*pin-<n>-out-invert** (bit)::
+**parport**.__p__.**pin-<n>-out-invert** (bit)::
   Inverts an output pin.
 **parport**.__p__.**pin-<n>-out-reset** (bit)::
   (only for out pins) TRUE if this pin should be reset when the .reset
