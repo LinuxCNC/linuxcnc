@@ -4,7 +4,7 @@ pin in bit hold;
 pin out s32 out;
 option period no;
 function _ nofp;
-see_also "\\fBtristate\\fR(9)";
+see_also "*tristate*(9)";
 license "GPL";
 author "Stephen Wille Padnos";
 ;;

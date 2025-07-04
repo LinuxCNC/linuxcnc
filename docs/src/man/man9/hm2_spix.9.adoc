@@ -7,9 +7,8 @@ boards with SPI enabled HostMot2 firmware.
 
 == SYNOPSIS
 
-*loadrt hm2_spix*
+*loadrt hm2_spix* [arg [arg [...]]]
 
-____
 *config* [default: ""]::
   HostMot2 config strings, described in the *hostmot2*(9) manpage.
 *spiclk_rate* [default: 25000]::
@@ -53,7 +52,6 @@ ____
   Caveat Emptor: changing the message level is process-wide and all
   modules within the process will spit out messages at the requested
   level. This may cause quite some clutter in your terminal.
-____
 
 == DESCRIPTION
 

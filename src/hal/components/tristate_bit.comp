@@ -5,7 +5,7 @@ pin io bit out "Output value";
 pin in bit enable "When TRUE, copy in to out";
 
 option period no;
-function _ nofp "If \\fBenable\\fR is TRUE, copy \\fBin\\fR to \\fBout\\fR.";
+function _ nofp "If *enable* is TRUE, copy *in* to *out*.";
 license "GPL";
 author "Jeff Epler";
 ;;

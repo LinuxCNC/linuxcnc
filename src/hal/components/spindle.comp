@@ -48,7 +48,7 @@ If a spindle encoder is available it is used to tailor the acceleration and dece
 If not the spindle speed is simulated. The component allows for gearboxes with up to 16 gears.
 Each gear has individual control of speeds, acceleration, driver gain and direction.""";
 
-see_also "\\fBmotion\\fR(9)";
+see_also "*motion*(9)";
 
 pin in unsigned select-gear
 """Select a gear. Must be in the range 0 -> number of available gears -1. If you use this, do not use the select.x input pins.""";
@@ -76,55 +76,45 @@ pin out bit zero-speed "TRUE when the spindle is stationary";
 pin out bit limited """TRUE when the commanded spindle speed is >max or <min.""";
 
 notes """
-.TP
-.B The following pins are created depending the 'numgears=' parameter.
+The following pins are created depending the 'numgears=' parameter.
 One of each pin is created for each gear. If no gears are specified then one gear will be created.
-For instance if you have gears=2 on your command line, you will have two scale pins:
- \\fBspindle.\\fP\\fIN\\fB.scale.0\\fP
- \\fBspindle.\\fP\\fIN\\fB.scale.1\\fP
+For instance if you have gears=2 on your command line, you will have two scale pins: +
+*spindle*._N_.*scale*.*0* +
+*spindle*._N_.*scale*.*1*
 
-.TP
-\\fBspindle.\\fP\\fIN\\fB.scale.\\fPx float in
+*spindle*._N_.*scale*.x float in::
 Scale the output. For multiple gears you would use a different scale for each gear.
 If you need to reverse the output for some gears, use a negative scale.
 
-.TP
-\\fBspindle.\\fP\\fIN\\fB.min.\\fPx float in
+*spindle*._N_.*min*.x float in::
 Set the minimum speed allowed (in RPM).
 The limit output will be TRUE while the commanded speed is between 0 RPM and the min speed.
 
-.TP
-\\fBspindle.\\fP\\fIN\\fB.max.\\fPx float in
+*spindle*._N_.*max*.x float in::
 Set the maximum speed allowed (in RPM).
 The limit output will be TRUE while the commanded speed is above this value.
 
-.TP
-\\fBspindle.\\fP\\fIN\\fB.accel.\\fPx float in
+*spindle*._N_.*accel*.x float in::
 Set the maximum acceleration.
 If you do not have a spindle encoder this is in RPM/second.
 If you do have an encoder the output is the actual speed plus this value.
 This way the acceleration can be dependent on the spindle load.
 
-.TP
-\\fBspindle.\\fP\\fIN\\fB.decel.\\fPx float in
+*spindle*._N_.*decel*.x float in::
 Set the minimum deceleration. If you do not have a spindle encoder this is in RPM/second.
 If you do have an encoder the output is the actual speed minus this value.
 
-.TP
-\\fBspindle.\\fP\\fIN\\fB.speed-tolerance.\\fPx float in
+*spindle*._N_.*speed-tolerance*.x float in::
 Tolerance for 'at-speed' signal (in RPM).
 Actual spindle speeds within this amount of the commanded speed will cause the at-speed signal to go TRUE.
 
-.TP
-\\fBspindle.\\fP\\fIN\\fB.zero-tolerance.\\fPx float in
+*spindle*._N_.*zero-tolerance*.x float in::
 Tolerance for 'zero-speed' signal (in RPM).
 
-.TP
-\\fBspindle.\\fP\\fIN\\fB.offset.\\fPx float in
+*spindle*._N_.*offset*.x float in::
 The output command is offset by this amount (in RPM).
 
-.TP
-\\fBspindle.\\fP\\fIN\\fB.select.\\fPx bit in
+*spindle*._N_.*select*.x bit in::
 Selects this gear. If no select inputs are active, gear 0 is selected.
 If multiple select inputs are active then the highest is selected.
 """;

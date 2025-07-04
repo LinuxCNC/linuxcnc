@@ -7,7 +7,7 @@ pin in float in;
 pin in bit enable = 1 "1: out follows in, 0: out returns to 0 (always per constraints)";
 pin out float out;
 pin in bit load=0
-    """When TRUE, immediately set \\fBout\\fB to \\fBin\\fR, ignoring maxv
+    """When TRUE, immediately set *out* to *in*, ignoring maxv
 and maxa""";
 pin in float min_=-1e20;
 pin in float max_=1e20;

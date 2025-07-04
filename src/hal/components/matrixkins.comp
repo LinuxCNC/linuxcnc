@@ -22,15 +22,15 @@ The matrixkins component implements custom kinematics for 3-axis
 Cartesian machines that allows compensating minor alignment inaccuracies
 in software.
 
-\\fBKINEMATICS MODEL:\\fR
+=== KINEMATICS MODEL
 
 By default identity matrix is used, which is equal to trivial kinematics:
 
-.nf
+....
 | X_joint |   | 1 0 0 |   | X_axis |
 | Y_joint | = | 0 1 0 | * | Y_axis |
 | Z_joint |   | 0 0 1 |   | Z_axis |
-.fi
+....
 
 Adjusting the calibration matrix allows compensating out many
 mechanical issues, including:
@@ -43,16 +43,16 @@ mechanical issues, including:
 The matrix coefficients are set by parameters C_xx .. C_zz.
 For 3 axis machine, the equations become:
 
-.nf
+....
 X_joint = C_xx * X_axis + C_xy * Y_axis + C_xz * Z_axis
 Y_joint = C_yx * X_axis + C_yy * Y_axis + C_yz * Z_axis
 Z_joint = C_zx * X_axis + C_zy * Y_axis + C_zz * Z_axis
-.fi
+....
 
 If the machine has more than 3 axes, the rest are passed through
 without adjustment.
 
-\\fBCALIBRATION INSTRUCTIONS:\\fR
+=== CALIBRATION INSTRUCTIONS
 
 For a 3 axis milling machine, the following process can be used to accurately
 measure and compensate the mechanical alignment.
@@ -65,7 +65,7 @@ Tools required:
 
 Process:
 
-\\fB1. Head tramming\\fR
+==== 1. Head tramming
 
 Mechanically tram the spindle to the table surface as well as you can.
 The perpendicularity of spindle vs. table cannot be compensated in software,
@@ -74,7 +74,7 @@ and the spindle axis will act as the reference for all further steps.
 You can measure the perpendicularity by mounting the dial indicator on
 the spindle. Search for "mill tramming" online for detailed process.
 
-\\fB2. X and Y axis squaring\\fR
+==== 2. X and Y axis squaring
 
 Cut octagon out of some rigid material. It is best to cut a roughing path
 first and a thin finishing pass last, to get the best accuracy. Make the
@@ -90,14 +90,14 @@ Measure width along both diagonals.
 If the X and Y axes are square to each other, the readings should be identical.
 
 To compensate, set
-C_xy = (B^2 - A^2) / (2 * A * B)
+C_xy = (B^2^ - A^2^) / (2 * A * B)
 where A is the diagonal in X+/Y+ direction and B is the diagonal in X+/Y- direction.
 
 This adjusts Y axis direction while keeping X axis as it was.
 Alternatively you can set C_yx to adjust X axis instead.
 The choice affects alignment with respect to e.g. table slots.
 
-\\fB3. X axis squaring to spindle\\fR
+==== 3. X axis squaring to spindle
 
 Mount the dial indicator so that it rotates around the spindle axis, like in tramming measurement.
 Mark a spot on the table where the indicator touches when it is in positive X direction from spindle center.
@@ -111,7 +111,7 @@ To compensate, set
 C_zx = D / X
 where D is the new dial indicator reading, and X is the length moved along X axis.
 
-\\fB4. Y axis squaring to spindle\\fR
+==== 4. Y axis squaring to spindle
 
 Same as step 3, except move the machine in positive Y direction.
 
@@ -119,7 +119,7 @@ To compensate, set
 C_zy = D / Y
 where D is the new dial indicator reading, and Y is the length moved.
 
-\\fB5. Z axis parallelism to spindle in X direction\\fR
+==== 5. Z axis parallelism to spindle in X direction
 
 Mount straight rod to the spindle.
 Position dial indicator so that it measures horizontally against the positive X side of the rod, close to the spindle.
@@ -134,7 +134,7 @@ Set
 C_xz = - X / Z
 where X is the dial indicator difference between bottom and top and Z is the amount you raised the Z axis.
 
-\\fB6. Z axis parallelism to spindle in Y direction\\fR
+==== 6. Z axis parallelism to spindle in Y direction
 
 Same as step 5, except measure on the positive Y side of the rod.
 
@@ -142,28 +142,30 @@ Set
 C_yz = - Y / Z
 where Z is the dial indicator difference and Z is the amount you raised the Z axis.
 
-\\fBCONFIGURATION FILES:\\fR
+=== CONFIGURATION FILES
 
 Specify matrixkins in LinuxCNC INI file as:
 
-.nf
-\\fB[KINS]\\fR
-\\fBKINEMATICS=matrixkins\\fR
-.fi
+[source,hal]
+----
+[KINS]
+KINEMATICS=matrixkins
+----
 
 In your HAL configuration file, set the parameters C_xx .. C_zz:
 
-.nf
-\\fB setp matrixkins.C_xx 1 \\fR  # X axis scale
-\\fB setp matrixkins.C_xy 0 \\fR  # Skew Y axis towards X axis
-\\fB setp matrixkins.C_xz 0 \\fR  # Skew Z axis towards X axis
-\\fB setp matrixkins.C_yx 0 \\fR  # Skew X axis towards Y axis
-\\fB setp matrixkins.C_yy 1 \\fR  # Y axis scale
-\\fB setp matrixkins.C_yz 0 \\fR  # Skew Z axis towards Y axis
-\\fB setp matrixkins.C_zx 0 \\fR  # Skew X axis towards Z axis
-\\fB setp matrixkins.C_zy 0 \\fR  # Skew Y axis towards Z axis
-\\fB setp matrixkins.C_zz 1 \\fR  # Z axis scale
-.fi
+[source,hal]
+----
+setp matrixkins.C_xx 1  # X axis scale
+setp matrixkins.C_xy 0  # Skew Y axis towards X axis
+setp matrixkins.C_xz 0  # Skew Z axis towards X axis
+setp matrixkins.C_yx 0  # Skew X axis towards Y axis
+setp matrixkins.C_yy 1  # Y axis scale
+setp matrixkins.C_yz 0  # Skew Z axis towards Y axis
+setp matrixkins.C_zx 0  # Skew X axis towards Z axis
+setp matrixkins.C_zy 0  # Skew Y axis towards Z axis
+setp matrixkins.C_zz 1  # Z axis scale
+----
 
 The parameters can be modified during runtime using halcmd.
 To avoid sudden movements, it is better to turn off machine power before changes.

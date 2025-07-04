@@ -2,11 +2,12 @@ component clarke3 "Clarke (3 phase to cartesian) transform";
 description """The Clarke transform can be used to translate a vector
 quantity from a three phase system (three components 120 degrees
 apart) to a two phase Cartesian system (plus a homopolar component
-if the three phases don't sum to zero).\n.P\n\\fBclarke3\\fR implements
+if the three phases don't sum to zero). +
+*clarke3* implements
 the general case of the transform, using all three phases.  If the
-three phases are known to sum to zero, see \\fBclarke2\\fR for a
+three phases are known to sum to zero, see *clarke2* for a
 simpler version.""";
-see_also """\\fBclarke2\\fR(9) for the 'a+b+c=0' case, \\fBclarkeinv\\fR(9) for
+see_also """*clarke2*(9) for the 'a+b+c=0' case, *clarkeinv*(9) for
 the inverse transform.""";
 pin in float a;
 pin in float b;

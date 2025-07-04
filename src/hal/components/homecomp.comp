@@ -4,7 +4,7 @@ description """
 Example of a homing module buildable with halcompile.
 Demonstrates required code for #includes, function definitions, etc.
 
-If \\fBHOMING_BASE\\fR is #defined and points to a valid homing.c file,
+If *HOMING_BASE* is #defined and points to a valid `homing.c` file,
 an example of a customized homing module is built.  This module
 creates input hal pins joint.n.request-custom-homing that enable an
 alternate joint homing state machine for requested joints.  A hal output
@@ -16,28 +16,38 @@ functions to add support for custom hal pins and custom joint homing
 state machines.  A user-built module will likely replace additional
 api functions or augment them with other customizations.
 
-If \\fBHOMING_BASE\\fR Is not #defined, an  actual homing scheme is
-\\fBnot\\fR implemented but all necessary functions are included as
+If *HOMING_BASE* is not #defined, an  actual homing scheme is
+*not* implemented but all necessary functions are included as
 skeleton code.   (All joints are effectively homed at all times and
 cannot be unhomed).
 
-See the source code file: src/emc/motion/homing.c for the baseline
-implementation that includes all functions for the default \\fBhomemod\\fR
+See the source code file: `src/emc/motion/homing.c` for the baseline
+implementation that includes all functions for the default *homemod*
 module.
 
 To avoid updates that overwrite homecomp.comp, best practice is
 to rename the file and its component name (example:
-\\fBuser_homecomp.comp, user_homecomp\\fR).
+*user_homecomp.comp*, *user_homecomp*).
 
 The (renamed) component can be built and installed with
 halcompile and then substituted for the default homing module
-(\\fBhomemod\\fR) using:\n
-  $ linuxcnc \\fB-m user_homecomp\\fR someconfig.ini\n
-or by inifile setting: \\fB[EMCMOT]HOMEMOD=user_homecomp\\fR
+(*homemod*) using:
 
-\\fBNote:\\fRIf using a deb install:\n
-1) halcompile is provided by the package linuxcnc-dev\n
-2) This source file for BRANCHNAME (master,2.9,etc) is downloadable from github:\n
+  $ linuxcnc -m user_homecomp someconfig.ini
+
+or by inifile setting:
+
+
+[source,ini]
+----
+[EMCMOT]
+HOMEMOD=user_homecomp
+----
+
+*Note*: If using a deb install:
+
+1. halcompile is provided by the package linuxcnc-dev\n
+2. This source file for BRANCHNAME (master,2.9,etc) is downloadable from github:
 https://github.com/LinuxCNC/linuxcnc/blob/BRANCHNAME/src/hal/components/homecomp.comp
 """;
 
