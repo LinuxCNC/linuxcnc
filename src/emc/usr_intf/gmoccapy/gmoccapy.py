@@ -123,7 +123,7 @@ TCLPATH = os.environ['LINUXCNC_TCL_DIR']
 ALERT_ICON = "dialog_warning"
 INFO_ICON = "dialog_information"
 
-AXISLIST = ['offset', 'X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W', 'name']
+AXISLIST = ['offset', 'X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W', 'Rot', 'name']
 
 class gmoccapy(object):
     def __init__(self, argv):
@@ -2369,7 +2369,7 @@ class gmoccapy(object):
             names.append([system, name])
         self.widgets.offsetpage1.set_names(names)
         for col, name in enumerate(AXISLIST):
-            if col > 9:break
+            if col > 10:break
             temp = self.widgets.offsetpage1.wTree.get_object("cell_%s" % name)
             temp.connect('editing-started', self.on_offset_col_edit_started, col)
 
