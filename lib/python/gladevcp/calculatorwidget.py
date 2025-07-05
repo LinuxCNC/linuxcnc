@@ -170,17 +170,15 @@ class Calculator( Gtk.Box ):
 
     def compute( self ):
         qualified = ''
-        # print"string:",self.eval_string
         temp = self.eval_string.strip( " " ).replace("Pi", "math.pi")
         # this loop adds only spaces around the mentioned operators 
         for i in( '-', '+', '/', '*', 'math.pi', '(', ')' ):
             new = " %s " % i
             temp = temp.replace( i, new )
         for i in temp.split():
-#            print ( "i in compute = ", i )
             try:
+                # convert to decimal dot format
                 i = str( locale.atof( i ) )
-#                print ( "converted i in compute = ", i )
             except:
                 pass
             if i.isdigit():
@@ -194,16 +192,13 @@ class Calculator( Gtk.Box ):
                 b = str( eval( qualified ) )
         except:
             b = "Error"
-            print("Calculator widget error, string:", self.eval_string, sys.exc_info()[0])
             self.eval_string = ''
-        else  : self.eval_string = b
-        # if locale.localeconv()["decimal_point" = comma ,
-        # we have to replace the internal dot by a comma,
-        # otherwise it will be interpreted as an thousend separator
         try:
             b = locale.format_string( "%f", float( b ) ).rstrip( "0" )
             if b[-1] == locale.localeconv()["decimal_point"]:
                 b = b.rstrip( locale.localeconv()["decimal_point"] )
+            else:
+                self.eval_string = b
         except:
             b = "Error"
         self.entry.set_text( b )
