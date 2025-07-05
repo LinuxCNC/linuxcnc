@@ -10,7 +10,7 @@ import hal
 import traceback
 from PyQt5.QtCore import QObject, QTimer, pyqtSignal
 from hal_glib import GStat
-from qtvcp.qt_istat import _IStat as IStatParent
+from common.iniinfo import _IStat as IStatParent
 
 # Set up logging
 from . import logger
@@ -31,6 +31,23 @@ class Info(IStatParent):
         if not cls._instance:
             cls._instance = IStatParent.__new__(cls, *args, **kwargs)
         return cls._instance
+
+    # get filter extensions in QT format
+    def get_qt_filter_extensions(self):
+        all_extensions = []
+        try:
+            for k, v in self.PROGRAM_FILTERS:
+                k = k.replace('.', ' *.')
+                k = k.replace(',', ' ')
+                all_extensions.append((';;%s (%s)' % (v, k)))
+            all_extensions.append((';;All (*)'))
+            temp = ''
+            for i in all_extensions:
+                temp = '%s %s' % (temp, i)
+            return temp
+        except Exception as e:
+            log.warning('Qt filter Extension Parsing Error: {}\n Using Default: ALL (*)'.format(e))
+            return ('All (*)')
 
 class QPin(hal.Pin, QObject):
 
