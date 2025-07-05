@@ -38,7 +38,7 @@ GSTAT = GStat()
 INFO = Info()
 
 # Set up logging
-from qtvcp import logger
+from common import logger
 LOG = logger.getLogger(__name__)
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL, VERBOSE
 

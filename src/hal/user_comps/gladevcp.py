@@ -49,7 +49,7 @@ import signal
 # Set up the base logger
 #   We have do do this before importing other modules because on import
 #   they set up their own loggers as children of the base logger.
-from qtvcp import logger
+from common import logger
 LOG = None
 
 options = [ Option( '-c', dest='component', metavar='NAME'

@@ -10,10 +10,10 @@ import linuxcnc
 import hal
 
 # Set up logging
-from qtvcp import logger
+from common import logger
 
 LOG = logger.getLogger(__name__)
-LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+#LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 from gladevcp.core import Status, Info
 

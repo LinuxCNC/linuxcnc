@@ -10,10 +10,10 @@ import hal
 import traceback
 
 from hal_glib import GStat
-from qtvcp.qt_istat import _IStat as IStatParent
+from common.iniinfo import _IStat as IStatParent
 
 # Set up logging
-from qtvcp import logger
+from common import logger
 log = logger.getLogger(__name__)
 # log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL, VERBOSE
 
