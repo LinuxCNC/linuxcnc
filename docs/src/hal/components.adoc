@@ -19,7 +19,7 @@ man axis
 
 The one or other setup of a UNIX system may require to explicitly specify the section of the man page.
 If you do not find the man page or the name of the man page is already taken by another UNIX tool with the LinuxCNC man page residing in another section,
-then try to explicitly specify the section, as in `man _sectionno_ axis`, with _sectionno_ = 1 for non-realtime and 9 for realtime components.
+then try to explicitly specify the section, as in `man _section-no_ axis`, with _section-no_ = 1 for non-realtime and 9 for realtime components.
 
 [NOTE]
 See also the 'Man Pages' section of the link:../index.html[docs main page] or the link:../man/[directory listing].
@@ -47,7 +47,7 @@ To search in the man pages, use the UNIX tool `apropos`.
 [{tab_options}]
 |===
 | link:../man/man1/gladevcp.1.html[gladevcp]           |Virtual Control Panel for LinuxCNC based on Glade, Gtk and HAL widgets ||
-| link:../man/man1/gladevcp_demo.1.html[gladevcp_demo] |GladeVCP - used by sample configs to deonstrate Glade Virtual_demo     ||
+| link:../man/man1/gladevcp_demo.1.html[gladevcp_demo] |GladeVCP - used by sample configs to demonstrate Glade Virtual_demo     ||
 | link:../man/man1/gremlin_view.1.html[gremlin_view]   |G-code graphical preview                                               ||
 | link:../man/man1/moveoff_gui.1.html[moveoff_gui]     |GUI for the moveoff component                                          ||
 | link:../man/man1/pyui.1.html[pyui]                   |Utility for panelui                                                    ||
@@ -88,7 +88,7 @@ To search in the man pages, use the UNIX tool `apropos`.
 ==== VFD & Communication Interfaces (non-realtime)
 [{tab_options}]
 |===
-| link:../man/man1/elbpcom.1.html[elbpcom] |Communicate with Mesa ethernet cards                                                                                                   ||
+| link:../man/man1/elbpcom.1.html[elbpcom] |Communicate with Mesa Ethernet cards                                                                                                   ||
 | link:../man/man1/gs2_vfd.1.html[gs2_vfd] |HAL non-realtime component for Automation Direct GS2 VFDs                                                                              ||
 | link:../man/man1/hy_gt_vfd.1.html[hy_gt_vfd] |HAL non-realtime component for Huanyang GT-series VFDs                                                                             ||
 | link:../man/man1/hy_vfd.1.html[hy_vfd] |HAL non-realtime component for Huanyang VFDs                                                                                             ||
@@ -102,7 +102,7 @@ To search in the man pages, use the UNIX tool `apropos`.
 | link:../man/man1/svd-ps_vfd.1.html[svd-ps_vfd] |HAL non-realtime component for SVD-P(S) VFDs                                                                                     ||
 | link:../man/man1/vfdb_vfd.1.html[vfdb_vfd] |HAL non-realtime component for Delta VFD-B Variable Frequency Drives                                                                 ||
 | link:../man/man1/vfs11_vfd.1.html[vfs11_vfd] |HAL non-realtime component for Toshiba-Schneider VF-S11 Variable Frequency Drives                                                  ||
-| link:../man/man1/wj200_vfd.1.html[wj200_vfd] |Hitachi wj200 modbus driver                                                                                                        ||
+| link:../man/man1/wj200_vfd.1.html[wj200_vfd] |Hitachi wj200 Modbus driver                                                                                                        ||
 | link:../man/man1/xhc-hb04.1.html[xhc-hb04] |Non-realtime HAL component for the xhc-hb04 pendant                                                                                  ||
 | link:../man/man1/xhc-hb04-accels.1.html[xhc-hb04-accels] |Obsolete script for jogging wheel                                                                                      ||
 | link:../man/man1/xhc-whb04b-6.1.html[xhc-whb04b-6] |Non-realtime jog dial HAL component for the wireless XHC WHB04B-6 USB device                                                 ||
@@ -112,7 +112,7 @@ To search in the man pages, use the UNIX tool `apropos`.
 [{tab_options}]
 |===
 | hal_ppmc | Pico Systems <<cha:pico-drivers,driver>> for analog servo, PWM and Stepper controller ||
-| link:../man/man9/hal_bb_gpio.9.html[hal_bb_gpio] |Driver for beaglebone GPIO pins ||
+| link:../man/man9/hal_bb_gpio.9.html[hal_bb_gpio] |Driver for BeagleBone GPIO pins ||
 | link:../man/man9/hal_parport.9.html[hal_parport] |Realtime HAL component to communicate with one or more PC parallel ports ||
 | link:../man/man9/hm2_7i43.9.html[hm2_7i43] |Mesa Electronics driver for the 7I43 EPP Anything IO board with HostMot2. (See the man page for more information) ||
 | link:../man/man9/hm2_7i90.9.html[hm2_7i90] |LinuxCNC HAL driver for the Mesa Electronics 7I90 EPP Anything IO board with HostMot2 firmware ||
@@ -176,11 +176,11 @@ To search in the man pages, use the UNIX tool `apropos`.
 | link:../man/man1/linuxcnctop.1.html[linuxcnctop] |Live LinuxCNC status description||
 | link:../man/man1/rs274.1.html[rs274] |Standalone G-code interpreter||
 | link:../man/man1/schedrmt.1.html[schedrmt] |Telnet based scheduler for LinuxCNC||
-| link:../man/man1/setup_designer.1.html[setup_designer] |A script to configure the system for use of QTdesigner||
+| link:../man/man1/setup_designer.1.html[setup_designer] |A script to configure the system for use of Qt Designer||
 | link:../man/man1/teach-in.1.html[teach-in] |Jog the machine to a position, and record the state||
 | link:../man/man1/tool_mmap_read.1.html[tool_mmap_read] |A component of the tool database system (an alternative to the classic tooltable)||
 | link:../man/man1/tool_watch.1.html[tool_watch] |A component of the tool database system (an alternative to the classic tooltable)||
-| link:../man/man1/tooledit.1.html[tooledit] |Tool table editor||
+| link:../man/man1/tooledit.1.html[tooledit] |Tooltable editor||
 |===
 
 === Signal processing (Realtime)
@@ -361,7 +361,7 @@ the input is a position, this means that 'position', 'velocity', and 'accelerati
 | link:../man/man9/at_pid.9.html[at_pid] | Proportional/integral/derivative controller with auto tuning. ||
 | link:../man/man9/bldc.9.html[bldc] |BLDC and AC-servo control component ||
 | link:../man/man9/clarke2.9.html[clarke2] | Two input version of Clarke transform ||
-| link:../man/man9/clarke3.9.html[clarke3] | Clarke (3 phase to cartesian) transform ||
+| link:../man/man9/clarke3.9.html[clarke3] | Clarke (3 phase to Cartesian) transform ||
 | link:../man/man9/clarkeinv.9.html[clarkeinv] | Inverse Clarke transform ||
 | link:../man/man9/encoder.9.html[encoder] | Software counting of quadrature encoder signals, see <<sec:encoder,description>>. ||
 | link:../man/man9/pid.9.html[pid] | Proportional/integral/derivative controller, <<sec:pid,description>>. ||
@@ -373,12 +373,12 @@ the input is a position, this means that 'position', 'velocity', and 'accelerati
 === Simulation/Testing
 [{tab_options}]
 |===
-| link:../man/man9/axistest.9.html[axistest] |Used to allow testing of an axis. Used In PnCconf.||
+| link:../man/man9/axistest.9.html[axistest] |Used to allow testing of an axis. Used In PnCConf.||
 | link:../man/man1/rtapi_app.1.html[rtapi_app] |creates a simulated real time environment||
 | link:../man/man1/sim-torch.1.html[sim-torch] |A simulated plasma torch||
 | link:../man/man9/sim_axis_hardware.9.html[sim_axis_hardware] |A component to simulate home and limit switches||
 | link:../man/man9/sim_home_switch.9.html[sim_home_switch] |Home switch simulator||
-| link:../man/man9/sim_matrix_kb.9.html[sim_matrix_kb] |convert HAL pin inputs to keycodes||
+| link:../man/man9/sim_matrix_kb.9.html[sim_matrix_kb] |convert HAL pin inputs to key codes||
 | link:../man/man9/sim_parport.9.html[sim_parport] |A component to simulate the pins of the hal_parport component||
 | link:../man/man9/sim_spindle.9.html[sim_spindle] |Simulated spindle with index pulse||
 | link:../man/man1/simulate_probe.1.html[simulate_probe] |simulate a probe input||
