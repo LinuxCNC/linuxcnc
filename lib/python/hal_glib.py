@@ -1129,7 +1129,8 @@ class _GStat(GObject.GObject):
         return False
 
     def machine_is_on(self):
-        return self.old['state']  > linuxcnc.STATE_OFF
+        self.stat.poll()
+        return self.stat.task_state  > linuxcnc.STATE_OFF
 
     def estop_is_clear(self):
         self.stat.poll()
