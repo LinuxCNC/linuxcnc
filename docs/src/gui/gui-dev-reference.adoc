@@ -25,6 +25,14 @@ It is already used and integrated into linuxcnc's system requirements. +
 While C or C\++ could be used, it severely limits who can maintain and develop them. +
 It would be better to extend python with C/C++ modules for whatever function that requires it.
 
+== Localization
+Don't use the float number localization. Some localizations use a decimal points for float numbers, others use a decimal commas. Decimal points in some localizations are grammatically incorrect, but commas cause a lot of problems. It's almost impossible to rewrite the entire LinuxCNC to work with decimal commas. This resulted a mix of decimal points and decimal commas.
+It is advisable to use decimal commas acceptance in inputs. This can be implemented in Python as follows:
+[source,python]
+----
+string_to_float = string_to_float.replace(",", ".")
+----
+
 == Basic Configuration
 Currently, most screens use a combination of INI file and preference file entries to configure their functions. +
 INi text files are usually used for the common machine controller settings, while text based preference files 
