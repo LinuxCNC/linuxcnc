@@ -170,7 +170,7 @@ If not set, half of 'MAX_LINEAR_VELOCITY' will be used.
 If that value is also not given, it will default to 180.
 
 - _MAX_LINEAR_VELOCITY = 230.0_ - Sets the maximal velocity of the machine.
-This value will also be the maximum linear jog velocity.
+  This value will also be the maximum linear jog velocity.
 +
 [NOTE]
 Defaults to 600 if not set.
@@ -685,18 +685,21 @@ In a future release it will be integrated in the settings page.
 - *gmoccapy.spc_jog_vel.scale*         _(float IN)_  - A value to scale the output value (handy to change units/min to units/sec)
 - *gmoccapy.spc_jog_vel.value*         _(float OUT)_ - Value of the widget
 - *gmoccapy.spc_jog_vel.scaled-value*  _(float OUT)_ - Scaled value of the widget
+
 .FEED
 - *gmoccapy.spc_feed.increase*         _(bit IN)_    - As long as True the value of the slider will increase
 - *gmoccapy.spc_feed.decrease*         _(bit IN)_    - As long as True the value of the slider will decrease
 - *gmoccapy.spc_feed.scale*            _(float IN)_  - A value to scale the output value (handy to change units/min to units/sec)
 - *gmoccapy.spc_feed.value*            _(float OUT)_ - Value of the widget
 - *gmoccapy.spc_feed.scaled-value*     _(float OUT)_ - Scaled value of the widget
+
 .SPINDLE
 - *gmoccapy.spc_spindle.increase*      _(bit IN)_    - As long as True the value of the slider will increase
 - *gmoccapy.spc_spindle.decrease*      _(bit IN)_    - As long as True the value of the slider will decrease
 - *gmoccapy.spc_spindle.scale*         _(float IN)_  - A value to scale the output value (handy to change units/min to units/sec)
 - *gmoccapy.spc_spindle.value*         _(float OUT)_ - Value of the widget
 - *gmoccapy.spc_spindle.scaled-value*  _(float OUT)_ - Scaled value of the widget
+
 .RAPIDS
 - *gmoccapy.spc_rapid.increase*        _(bit IN)_    - As long as True the value of the slider will increase
 - *gmoccapy.spc_rapid.decrease*        _(bit IN)_    - As long as True the value of the slider will decrease

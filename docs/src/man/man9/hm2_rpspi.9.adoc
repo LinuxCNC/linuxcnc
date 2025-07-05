@@ -105,11 +105,20 @@ The SPI driver generates (very) discrete clock frequency values,
 especially in the MHz range because of a simple clock divider structure.
 The base frequency is 250 MHz and the divider for SPI0/SPI1 scales using
 discrete factors. The following list specifies the *spiclk_rate* setting
-and the discrete SPI clock frequency (250 MHz / (2n) for n > 1): - 62500
-- 62.500 MHz, - 41667 - 41.667 MHz, - 31250 - 31.250 MHz, - 25000 -
-25.000 MHz, - 20834 - 20.833 MHz, - 17858 - 17.857 MHz, - 15625 - 15.625
-MHz, - 13889 - 13.889 MHz, - 12500 - 12.500 MHz, - 11364 - 11.364 MHz, -
-10417 - 10.417 MHz, - 9616 - 9.615 MHz, - ....
+and the discrete SPI clock frequency (250 MHz / (2n) for n > 1):
+- 62500 - 62.500 MHz,
+- 41667 - 41.667 MHz,
+- 31250 - 31.250 MHz,
+- 25000 - 25.000 MHz,
+- 20834 - 20.833 MHz,
+- 17858 - 17.857 MHz,
+- 15625 - 15.625 MHz,
+- 13889 - 13.889 MHz,
+- 12500 - 12.500 MHz,
+- 11364 - 11.364 MHz,
+- 10417 - 10.417 MHz,
+- 9616 - 9.615 MHz,
+- ....
 
 The lowest selectable SPI clock frequency is 30 kHz (spiclk_rate=30) for
 SPI0 and SPI1. Theoretically, the SPI0 port could go slower, but there
