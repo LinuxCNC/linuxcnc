@@ -38,10 +38,10 @@
 
 component reset "Resets an IO signal";
 pin in  bit     trigger             "Trigger input";
-pin io  unsigned out_u32     = 0    "Unsigned 32 bit integer output value";
-pin in  unsigned reset_u32   = 0    "Unsigned 32 bit integer reset value";
-pin io  signed  out_s32      = 0    "Signed 32 bit integer output value";
-pin in  signed  reset_s32    = 0    "Signed 32 bit integer reset value";
+pin io  unsigned out_unsigned     = 0    "Unsigned 32 bit integer output value";
+pin in  unsigned reset_unsigned   = 0    "Unsigned 32 bit integer reset value";
+pin io  signed  out_signed     = 0    "Signed 32 bit integer output value";
+pin in  signed  reset_signed    = 0    "Signed 32 bit integer reset value";
 pin io  float   out_float    = 0.0  "Float output value";
 pin in  float   reset_float  = 0.0  "Float reset value";
 pin io  bit     out_bit      = false  "Bit integer output value";
