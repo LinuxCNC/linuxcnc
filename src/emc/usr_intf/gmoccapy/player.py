@@ -26,7 +26,7 @@
 import gi
 from gi.repository import GLib
 
-from qtvcp import logger
+from common import logger
 LOG = logger.getLogger(__name__)
 # Force the log level for this module
 #LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL# attempt to setup audio

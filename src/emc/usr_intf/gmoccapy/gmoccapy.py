@@ -6091,7 +6091,7 @@ if __name__ == "__main__":
     #   to ensure we get a logger with the correct hierarchy.
     #   Ex: LOG = logger.getLogger(__name__)
 
-    from qtvcp import logger
+    from common import logger
     LOG = logger.initBaseLogger('Gmoccapy', log_file=None, log_level=logger.WARNING)
 
     # we set the log level early so the imported modules get the right level
