@@ -200,15 +200,13 @@ class OffsetPage(Gtk.Box):
         else:
             tmpl = self.imperial_text_template
 
-        degree_tmpl = "%11.2f"
-
         # fill each row of the liststore from the offsets arrays
         for row, i in enumerate([tool, g28, g30, g92]):
             for column in range(0, 11):
                 if column > 8:
                     self.store[row][column + 1] = " " # Blank R column
                 else:
-                    self.store[row][column + 1] = locale.format_string(tmpl, i[column])
+                    self.store[row][column + 1] = tmpl % i[column]
             # set the current system's label's color - to make it stand out a bit
             if self.store[row][0] == self.current_system:
                 if isinstance(self.foreground_color, str):
@@ -226,7 +224,7 @@ class OffsetPage(Gtk.Box):
 
         for row, i in enumerate([g54, g55, g56, g57, g58, g59, g59_1, g59_2, g59_3]):
             for column in range(0, 10):
-                self.store[row+4][column + 1] = locale.format_string(tmpl, i[column])
+                self.store[row+4][column + 1] = tmpl % i[column]
             # set the current system's label's color - to make it stand out a bit
             if self.store[row+4][0] == self.current_system:
                 if isinstance(self.foreground_color, str):
@@ -387,7 +385,7 @@ class OffsetPage(Gtk.Box):
 
         # set the text in the table
         try:
-            self.store[row][col] = locale.format_string("%10.4f", locale.atof(new_text))
+            self.store[row][col] = "%10.4f" % locale.atof(new_text)
         except Exception as error:
             print('new_text: ', new_text, error)
             print(_("offsetpage widget error: unrecognized float input"))
