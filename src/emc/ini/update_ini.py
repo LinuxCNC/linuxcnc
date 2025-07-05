@@ -556,7 +556,17 @@ if version < "1.2":
         'abs([_-])s32'                    : 'abs\\1int',
         'abs([_-])s64'                    : 'abs\\1int',
         'lut5'                            : 'lut6',
-        'scaled([_-])s32([_-])sums'       : 'scaled\\1\s64\\2sums'
+        'scaled([_-])s32([_-])sums'       : 'scaled\\1\s64\\2sums',
+        'conv_bit_s32'                    : 'conv_bit_signed',
+        'conv_bit_u32'                    : 'conv_bit_unsigned',
+        'conv_float_s32'                  : 'conv_float_signed',
+        'conv_float_u32'                  : 'conv_float_unsigned',
+        'conv_s32_bit'                    : 'conv_signed_bit',
+        'conv_s32_float'                  : 'conv_signed_float',
+        'conv_s32_u32'                    : 'conv_signed_unsigned',
+        'conv_u32_bit'                    : 'conv_unsigned_bit',
+        'conv_u32_float'                  : 'conv_unsigned_float',
+        'conv_u32_s32'                    : 'conv_unsigned_signed'
     })
 
 if subs == {}:
