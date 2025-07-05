@@ -296,7 +296,12 @@ EXTRA_ARGS=("$@")
 RUN_IN_PLACE=@RUN_IN_PLACE@
 echo "RUN_IN_PLACE=$RUN_IN_PLACE" >> "$PRINT_FILE"
 
+if [ RUN_IN_PLACE = "yes" ]; then
+    LINUXCNC_RIP_FLAG="True"; export LINUXCNC_RIP_FLAG
+fi
+
 LINUXCNCVERSION="@EMC2VERSION@"; export LINUXCNCVERSION
+
 
 # common from here..
 INIVAR=inivar
