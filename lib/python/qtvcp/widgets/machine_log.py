@@ -220,13 +220,30 @@ class MachineLog(QWidget, _HalWidgetBase):
         self.logText.setCursorWidth(0)
 
     def getLogText(self):
-        return self.logText.toPlainText()
+        if self._machine_log_severity:
+            return self.readTableData()
+        else:
+            return self.logText.toPlainText()
 
     def clear(self):
         self.logTable.clearContents()
         self.logTable.setRowCount(0)
         self.logText.setPlainText('')
 
+    def readTableData(self):
+        data = ''
+        for row in range(self.logTable.rowCount()):
+            row_data = []
+            for col in range(self.logTable.columnCount()):
+                item = self.logTable.item(row, col).text()
+                if col == 1:
+                    # pad the severity column for ease of reading 
+                    row_data.append("{:^10}".format(item))
+                elif item != '':
+                    row_data.append(item)
+            data += ' '.join(row_data)
+            data +='\n'
+        return data
 
 ################## properties ###################
 
