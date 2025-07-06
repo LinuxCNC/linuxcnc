@@ -50,7 +50,7 @@ class MachineLog(QWidget, _HalWidgetBase):
         self._error_fg_color = QColor(255, 0, 0)
         self._error_bg_color = QColor(255,255,255)
         self._warning_fg_color = QColor(255, 255, 0)
-        self._warning_bg_color = QColor(255, 255, 255)
+        self._warning_bg_color = QColor(0, 0, 0)
         self._debug_fg_color = QColor(128, 128, 128)
         self._debug_bg_color = QColor(255, 255, 255)
         self._info_fg_color = QColor(0, 0, 0)
