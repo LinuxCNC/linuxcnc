@@ -826,12 +826,14 @@ class HandlerClass:
         self.w.btn_home_all.setText(_translate("HandlerClass","HOME\nALL"))
 
     def hard_limit_tripped(self, obj, tripped, list_of_tripped):
-        self.add_status(_translate("HandlerClass","Hard limits tripped"), CRITICAL)
-        self.w.chk_override_limits.setEnabled(tripped)
-        if not tripped:
+        if tripped:
+            self.add_status(_translate("HandlerClass","Hard limits tripped"), CRITICAL)
+            self.w.chk_override_limits.setEnabled(tripped)
+        else:
             self.w.chk_override_limits.setChecked(False)
+            self.add_status(_translate("HandlerClass","Hard Limits Clear"))
 
-    # keep check button in synch of external changes
+    # keep check button in sync of external changes
     def _check_override_limits(self,state,data):
         if 0 in data:
             self.w.chk_override_limits.setChecked(False)
@@ -1139,7 +1141,7 @@ class HandlerClass:
 
     # settings tab
     def chk_override_limits_checked(self, state):
-        # only toggle override if it's not in synch with the button
+        # only toggle override if it's not in sync with the button
         if state and not STATUS.is_limits_override_set():
             self.add_status(_translate("HandlerClass","Override limits set"), WARNING)
             ACTION.TOGGLE_LIMITS_OVERRIDE()
@@ -1527,16 +1529,19 @@ class HandlerClass:
             ACTION.JOG(joint, 0, 0, 0)
 
     def add_status(self, message, alertLevel = DEFAULT, noLog = False):
+        opt = 'TIME'
         if alertLevel==DEFAULT:
             self.set_style_default()
         elif alertLevel==WARNING:
+            opt += ',WARNING'
             self.set_style_warning()
         else:
+            opt += ',CRITICAL'
             self.set_style_critical()
         self.w.lineEdit_statusbar.setText(message)
         if noLog:
             return
-        STATUS.emit('update-machine-log', message, 'TIME')
+        STATUS.emit('update-machine-log', message, opt)
 
     def enable_auto(self, state):
         for widget in self.auto_list:
