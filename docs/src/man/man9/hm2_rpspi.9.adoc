@@ -97,7 +97,7 @@ TBD.
 == SPI CLOCK RATES
 
 The maximum SPI clock of the BCM2835-SPI driver and the 7i90 is
-documented over 32&#9239;MHz. The SPI driver can provide frequencies well
+documented over 32&#8239;MHz. The SPI driver can provide frequencies well
 beyond what is acceptable for the 7i90. A safe value to start with would
 be 12.5&#8239;MHz (spiclk_rate=12500) and then work your way up from there.
 
@@ -107,22 +107,36 @@ The base frequency is 250&#8239;MHz and the divider for SPI0/SPI1 scales using
 discrete factors. The following list specifies the *spiclk_rate* setting
 and the discrete SPI clock frequency (250&#8239;MHz / (2__n__) for _n_ > 1):
 
-[cols=">,>"]
+.spiclk_rate and corresponding SPI clock frequency
+[%header,%autowidth,cols=">,>",grid=none,frame=ends]
 |===
-| _n_ | Frequency range             |
-|   2 | 62500 - 62.500&#8239;MHz, |
-|   3 | 41667 - 41.667&#8239;MHz, |
-|   4 | 31250 - 31.250&#8239;MHz, |
-|   5 | 25000 - 25.000&#8239;MHz, |
-|   6 | 20834 - 20.833&#8239;MHz, |
-|   7 | 17858 - 17.857&#8239;MHz, |
-|   8 | 15625 - 15.625&#8239;MHz, |
-|   9 | 13889 - 13.889&#8239;MHz, |
-|  10 | 12500 - 12.500&#8239;MHz, |
-|  11 | 11364 - 11.364&#8239;MHz, |
-|  12 | 10417 - 10.417&#8239;MHz, |
-|  13 |  9616 -  9.615&#8239;MHz, |
-| 14+ | ....                      |
+^| _n_ ^| Frequency range (MHz) 
+
+|   2 | 62.500 - 62.500
+
+|   3 | 41.667 - 41.667
+
+|   4 | 31.250 - 31.250
+
+|   5 | 25.000 - 25.000
+
+|   6 | 20.834 - 20.833
+
+|   7 | 17.858 - 17.857
+
+|   8 | 15.625 - 15.625
+
+|   9 | 13.889 - 13.889
+
+|  10 | 12.500 - 12.500
+
+|  11 | 11.364 - 11.364
+
+|  12 | 10.417 - 10.417
+
+|  13 |  9.616 -  9.615
+
+| 14+ | ....
 |===
 
 The lowest selectable SPI clock frequency is 30 kHz (spiclk_rate=30) for
@@ -143,8 +157,8 @@ Writing to the 7i90 may be done faster than reading. This is especially
 important if you have "long" wires or any buffers on the SPI-bus path.
 You can set the read clock frequency to a lower value (using
 *spiclk_rate_rd*) to counter the effects of the SPI-bus round-trip
-needed for read actions. For example, you can write at 41.67&#9239;MHz and
-read at 25.00&#9239;MHz.
+needed for read actions. For example, you can write at 41.67&#8239;MHz and
+read at 25.00&#8239;MHz.
 
 It should be noted that the Rpi3 *must* have an adequate 5V power supply
 and the power should be properly decoupled right on the 40-pin I/O
