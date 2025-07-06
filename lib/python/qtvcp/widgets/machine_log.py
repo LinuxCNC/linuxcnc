@@ -126,6 +126,11 @@ class MachineLog(QWidget, _HalWidgetBase):
         return ','.join(options)
 
     def updateMachineLog(self, message, option):
+
+        if option == 'DELETE':
+                self.clear()
+                return
+
         if message:
             if option is None: option = ''
 
@@ -202,7 +207,7 @@ class MachineLog(QWidget, _HalWidgetBase):
         logText = file.readAll()
         file.close()
         if str(logText, encoding='utf8') == "":
-            self.logText.setPlainText('No Logging found. Is QtVcp in debugging or verbose mode (-i, -d or -v)?')
+            self.logText.setPlainText('No Logging found. Is QtVcp in info, debugging or verbose mode (-i, -d or -v)?')
             return
         self.logText.setPlainText(str(logText, encoding='utf8'))
         # scroll down to show last entry
