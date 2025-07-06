@@ -62,9 +62,13 @@ PAGE_NGCGUI = 1
 MACRO = True
 NO_MACRO = False
 
+# message constants
 DEFAULT = 0
 WARNING = 1
 CRITICAL = 2
+DEBUG = 3
+SUCCESS = 4
+ERROR = 5
 
 VERSION ='1.5'
 
@@ -144,6 +148,7 @@ class HandlerClass:
         STATUS.connect('override-limits-changed', lambda w, state, data: self._check_override_limits(state, data))
         STATUS.connect('graphics-gcode-properties', lambda w, d: self.update_gcode_properties(d))
         STATUS.connect('status-message', lambda w, d, o: self.add_external_status(d,o))
+        STATUS.connect('runstop-line-changed', lambda w, l :self.lastRunLine(l))
 
         txt1 = _translate("HandlerClass","Setup Tab")
         txt2 = _translate("HandlerClass","If you select a file with .html as a file ending, it will be shown here.")
@@ -882,6 +887,11 @@ class HandlerClass:
         if log:
             STATUS.emit('update-machine-log', "{}\n{}".format(title, logtext), 'TIME')
 
+    # Log the last run line (in auto mode) if stopped
+    def lastRunLine(self, line):
+        if line >0:
+            self.add_status('last running line before stoppage: {}'.format(line))
+
     #######################
     # CALLBACKS FROM FORM #
     #######################
@@ -1586,8 +1596,14 @@ class HandlerClass:
         opt = 'TIME'
         if alertLevel==DEFAULT:
             self.set_style_default()
+        elif alertLevel==SUCCESS:
+            opt += ',SUCCESS'
+            self.set_style_default()
         elif alertLevel==WARNING:
             opt += ',WARNING'
+            self.set_style_warning()
+        elif alertLevel==ERROR:
+            opt += ',ERROR'
             self.set_style_warning()
         else:
             opt += ',CRITICAL'
@@ -1607,10 +1623,13 @@ class HandlerClass:
 
     def enable_onoff(self, state):
         if state:
-            self.add_status(_translate("HandlerClass","Machine ON"))
+            self.add_status(_translate("HandlerClass","Machine ON"), SUCCESS)
         else:
-            self.add_status(_translate("HandlerClass","Machine OFF"))
-            self.w.btn_spindle_pause.setChecked(False)
+            if not STATUS.estop_is_clear():
+                self.add_status(_translate("HandlerClass","ESTOP!"), CRITICAL)
+            else:
+                self.add_status(_translate("HandlerClass","MACHINE OFF"), ERROR)
+        self.w.btn_spindle_pause.setChecked(False)
         self.h['eoffset-spindle-count'] = 0
         for widget in self.onoff_list:
             self.w[widget].setEnabled(state)
@@ -1866,7 +1885,8 @@ class HandlerClass:
 
         # if indexes don't match then request is disallowed
         # give a warning and reset the button check
-        if main_index != requestedIndex and not main_index in(TAB_CAMVIEW,TAB_GCODES,TAB_SETUP):
+        if main_index != requestedIndex and not main_index in(TAB_CAMVIEW, TAB_GCODES,
+                TAB_STATUS, TAB_SETUP):
             self.add_status(_translate("HandlerClass","Cannot switch pages while in AUTO mode"), WARNING)
             self.w.stackedWidget_mainTab.setCurrentIndex(0)
             self.w.btn_main.setChecked(True)
