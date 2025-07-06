@@ -769,6 +769,7 @@ install-kernel-indep: install-dirs
 install-kernel-indep: install-python
 install-python: install-dirs
 	$(DIR) $(DESTDIR)$(SITEPY) $(DESTDIR)$(SITEPY)/rs274
+	$(DIR) $(DESTDIR)$(SITEPY)/common
 	$(DIR) $(DESTDIR)$(SITEPY)/touchy
 	$(DIR) $(DESTDIR)$(SITEPY)/gscreen
 	$(DIR) $(DESTDIR)$(SITEPY)/qtvcp
@@ -791,6 +792,7 @@ install-python: install-dirs
 	$(DIR) $(DESTDIR)$(SITEPY)/pyui
 	$(DIR) $(DESTDIR)$(SITEPY)/plasmac
 	$(FILE) ../lib/python/*.py ../lib/python/*.so $(DESTDIR)$(SITEPY)
+	$(FILE) ../lib/python/common/*.py $(DESTDIR)$(SITEPY)/common
 	$(FILE) ../lib/python/rs274/*.py $(DESTDIR)$(SITEPY)/rs274
 	$(FILE) ../lib/python/touchy/*.py $(DESTDIR)$(SITEPY)/touchy
 	$(FILE) ../lib/python/gscreen/*.py $(DESTDIR)$(SITEPY)/gscreen
