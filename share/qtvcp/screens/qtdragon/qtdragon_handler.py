@@ -1098,10 +1098,10 @@ class HandlerClass:
 
     def btn_save_status_clicked(self):
         if self.w.stackedWidget_log.currentIndex():
-            text = self.w.integrator_log.toPlainText()
+            text = self.w.integrator_log.getLogText()
             name = 'sysLog_'
         else:
-            text = self.w.machinelog.toPlainText()
+            text = self.w.machinelog.getLogText()
             name = 'mchnLog_'
         filename = self.w.lbl_clock.text()
         filename = name + filename.replace(' ','_') + '.txt'
