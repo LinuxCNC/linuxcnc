@@ -139,6 +139,7 @@ class _GStat(GObject.GObject):
         'file-loaded': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
         'reload-display': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, ()),
         'line-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_INT,)),
+        'runstop-line-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_INT,)),
 
         'tool-in-spindle-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_INT,)),
         'tool-prep-changed': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_INT,)),
@@ -528,7 +529,15 @@ class _GStat(GObject.GObject):
         if interp_new != interp_old:
             if not interp_old or interp_old == linuxcnc.INTERP_IDLE:
                 self.emit('interp-run')
+            # if processing has stoped:
+            elif interp_new == linuxcnc.INTERP_IDLE:
+                # only in auto mode
+                if mode_old == linuxcnc.MODE_AUTO:
+                    # we stopped, emit last line number that was running
+                    self.emit('runstop-line-changed',old.get('line', None))
+            # emit interpeter state
             self.emit(self.INTERP[interp_new])
+
         # paused
         paused_old = old.get('paused', None)
         paused_new = self.old['paused']
