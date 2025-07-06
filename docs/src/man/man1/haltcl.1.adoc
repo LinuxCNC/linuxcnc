@@ -23,7 +23,7 @@ be set up with a single command.
   If specified, the INI file is read and used to create Tcl global variable arrays.
   An array is created for each SECTION of the INI file with elements for each ITEM in the section.
 +  
-For example, if the INI file contains:
+  For example, if the INI file contains:
 +
 ----
 [SECTION_A]
@@ -34,7 +34,7 @@ ITEM_2 = 2
 ITEM_1 = 10
 ----
 +
-The corresponding Tcl variables are:
+  The corresponding Tcl variables are:
 +
 ----
 SECTION_A(ITEM_1) = 1

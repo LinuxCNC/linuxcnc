@@ -2,18 +2,18 @@
 
 == NAME
 
-setup_designer - A script to configure the system for use of QTdesigner
+setup_designer - A script to configure the system for use of Qt Designer
 
 == DESCRIPTION
 
-*setup_designer* Run this script to prepare your system for custom GUI
-creatiuon using the QT toolset.
+Run the script *setup_designer* to prepare your system for custom GUI
+creation using the Qt toolset.
 
-See the QTVCP documentation for more details.
+See the QtVCP documentation for more details.
 
 == SEE ALSO
 
-linuxcnc(1)*
+linuxcnc(1)
 
 Much more information about LinuxCNC and HAL is available in the
 LinuxCNC and HAL User Manuals, found at /usr/share/doc/LinuxCNC/.
