@@ -1592,7 +1592,7 @@ class HandlerClass:
         else:
             opt += ',CRITICAL'
             self.set_style_critical()
-        self.w.lineEdit_statusbar.setText(message)
+        self.w.statusbar.setText(message)
         if noLog:
             return
         STATUS.emit('update-machine-log', message, opt)
