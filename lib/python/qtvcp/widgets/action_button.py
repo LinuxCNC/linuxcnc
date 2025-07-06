@@ -730,7 +730,7 @@ class ActionButton(IndicatedPushButton):
             if state is not None:
                 self.safecheck(state)
             if not self._python_command:
-                LOG.error('No action recognised')
+                LOG.debug('No action recognised for {}'.format(self.objectName()))
 
 
         # This is check after because action buttons can do an action plus
