@@ -231,6 +231,8 @@ class ToolEdit(Gtk.Box):
     def add(self,widget,data=[1,0,0,'0','0','0','0','0','0','0','0','0','0','0','0',0,"comment"]):
         self.model.append(data)
         self.num_of_col +=1
+        liststore = self.model
+        self.wTree.get_object("treeview1").scroll_to_cell(len(liststore)-1)
 
         # this is for adding a filename path after the tooleditor is already loaded.
     def set_filename(self,filename):
