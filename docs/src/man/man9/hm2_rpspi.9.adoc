@@ -107,34 +107,40 @@ The base frequency is 250&#8239;MHz and the divider for SPI0/SPI1 scales using
 discrete factors. The following list specifies the *spiclk_rate* setting
 and the discrete SPI clock frequency (250&#8239;MHz / (2__n__) for _n_ > 1):
 
-.spiclk_rate and corresponding SPI clock frequency
-[%header,%autowidth,cols=">,>",grid=none,frame=ends]
+:table-frame: ends
+:table-grid: none
+:table-option: header
+
+.SPI clock rate and corresponding SPI clock frequency
+[cols="1,1,1"]
 |===
-^| _n_ ^| Frequency range (MHz) 
+^| Divider
+^| spiclk_rate (kHz)
+^| actual frequency
 
-|   2 | 62.500 - 62.500
+|   2 | 62500 | 62.500&#8239;MHz
 
-|   3 | 41.667 - 41.667
+|   3 | 41667 | 41.667&#8239;MHz
 
-|   4 | 31.250 - 31.250
+|   4 | 31250 | 31.250&#8239;MHz
 
-|   5 | 25.000 - 25.000
+|   5 | 25000 | 25.000&#8239;MHz
 
-|   6 | 20.834 - 20.833
+|   6 | 20834 | 20.833&#8239;MHz
 
-|   7 | 17.858 - 17.857
+|   7 | 17858 | 17.857&#8239;MHz
 
-|   8 | 15.625 - 15.625
+|   8 | 15625 | 15.625&#8239;MHz
 
-|   9 | 13.889 - 13.889
+|   9 | 13889 | 13.889&#8239;MHz
 
-|  10 | 12.500 - 12.500
+|  10 | 12500 | 12.500&#8239;MHz
 
-|  11 | 11.364 - 11.364
+|  11 | 11364 | 11.364&#8239;MHz
 
-|  12 | 10.417 - 10.417
+|  12 | 10417 | 10.417&#8239;MHz
 
-|  13 |  9.616 -  9.615
+|  13 |  9616 |  9.615&#8239;MHz
 
 | 14+ | ....
 |===
