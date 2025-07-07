@@ -1954,13 +1954,66 @@ class gmoccapy(object):
             if not self.get_ini_info.get_lathe_wear_offsets():
                 # hide the wear offset tabs
                 self.widgets.tooledit1.set_lathe_display(False)
-        self.widgets.tooledit1.hide_buttonbox(True)
+        # Replace the button box at the bottom
+        buttonbox = self.widgets.tooledit1.wTree.get_object("buttonbox")
+        for child in buttonbox.get_children():
+            buttonbox.remove(child)
+        buttonbox.set_layout(Gtk.ButtonBoxStyle.EDGE)
+        buttonbox.set_property("homogeneous", True)
+        # Delete button
+        btn_delete = Gtk.Button()
+        btn_delete.set_size_request(56, 56)
+        btn_delete.set_image(self.widgets.img_tool_delete)
+        btn_delete.set_tooltip_text(_("Delete selected tool or tools"))
+        btn_delete.show_all()
+        btn_delete.connect("clicked", self.on_btn_delete_tool_clicked)
+        buttonbox.pack_start(btn_delete,True,True,0)
+        # Add button
+        btn_add = Gtk.Button()
+        btn_add.set_size_request(56, 56)
+        btn_add.set_image(self.widgets.img_tool_add)
+        btn_add.set_tooltip_text(_("Add a new tool to tool table"))
+        btn_add.show_all()
+        btn_add.connect("clicked", self.on_btn_add_tool_clicked)
+        buttonbox.pack_start(btn_add,True,True,0)
+        # Reload button
+        btn_reload = Gtk.Button()
+        btn_reload.set_size_request(56, 56)
+        btn_reload.set_image(self.widgets.img_tool_reload)
+        btn_reload.set_tooltip_text(_("Reload tool table from file"))
+        btn_reload.show_all()
+        btn_reload.connect("clicked", self.on_btn_reload_tooltable_clicked)
+        buttonbox.pack_start(btn_reload,True,True,0)
+        # Save button
+        btn_save = Gtk.Button()
+        btn_save.set_size_request(56, 56)
+        btn_save.set_image(self.widgets.img_tool_save)
+        btn_save.set_tooltip_text(_("Save tool table to file"))
+        btn_save.show_all()
+        btn_save.connect("clicked", self.on_btn_save_tool_changes_clicked)
+        buttonbox.pack_start(btn_save,True,True,0)
+        # Empty space in between
+        spacer = Gtk.Label()
+        spacer.show_all()
+        buttonbox.pack_start(spacer,True,True,0)
+        # Calculator button
+        btn_calculator = Gtk.ToggleButton()
+        btn_calculator.set_size_request(56, 56)
+        btn_calculator.set_image(self.widgets.img_tool_calculator)
+        btn_calculator.set_tooltip_text(_("Use calculator to edit numeric values"))
+        btn_calculator.show_all()
+        btn_calculator.set_active(self.toolpage_use_calc)
+        btn_calculator.connect("toggled", self.on_use_calculator_toggled)
+        buttonbox.pack_start(btn_calculator,False,False,50)
         column_cell_ids = ["toggle", "tool#1", "pos1", "x1", "y1", "z1", "a1", "b1", "c1", "u1", "v1", "w1",
                        "d1", "front1", "back1", "orient1", "cell_comments1"]
         for col, name in enumerate(column_cell_ids):
             if col > 0 and col < 16:
                 temp = self.widgets.tooledit1.wTree.get_object("cell_%s" % name)
                 temp.connect('editing-started', self.on_tool_col_edit_started, col)
+
+    def on_use_calculator_toggled(self,widget):
+        self.toolpage_use_calc = widget.get_active()
 
     def on_tool_col_edit_started(self, widget, filtered_path, new_text, col):
         if not self.toolpage_use_calc:
@@ -4731,6 +4784,12 @@ class gmoccapy(object):
                 ("img_tool_clear", "clear", 24),
                 ("img_tool_path", "toolpath", 24),
                 ("img_dimensions", "dimensions", 24),
+                # tooledit frame controls
+                ("img_tool_delete", "delete", 32),
+                ("img_tool_add", "add", 32),
+                ("img_tool_reload", "refresh", 32),
+                ("img_tool_save", "save", 32),
+                ("img_tool_calculator", "calculator_open", 32),
                 # coolant
                 ("img_coolant_on",  "coolant_flood_active",   48),
                 ("img_coolant_off", "coolant_flood_inactive", 48),
@@ -5224,7 +5283,7 @@ class gmoccapy(object):
         self.widgets.tooledit1.reload(None)
         self.widgets.tooledit1.set_selected_tool(self.stat.tool_in_spindle)
 
-    def on_btn_apply_tool_changes_clicked(self, widget, data=None):
+    def on_btn_save_tool_changes_clicked(self, widget, data=None):
         self.widgets.tooledit1.save(None)
         self.widgets.tooledit1.set_selected_tool(self.stat.tool_in_spindle)
 
