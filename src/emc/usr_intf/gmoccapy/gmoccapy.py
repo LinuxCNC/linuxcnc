@@ -49,6 +49,9 @@ from collections import OrderedDict # needed for proper jog button arrangement
 from time import strftime  # needed for the clock in the GUI
 #from Gtk._Gtk import main_quit
 
+# store the command line arguments passed
+args_passed = sys.argv
+
 # Throws up a dialog with debug info when an error is encountered
 def excepthook(exc_type, exc_obj, exc_tb):
     try:
@@ -126,7 +129,7 @@ INFO_ICON = "dialog_information"
 AXISLIST = ['offset', 'X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W', 'name']
 
 class gmoccapy(object):
-    def __init__(self, argv):
+    def __init__(self):
 
         # prepare for translation / internationalisation
         locale.setlocale(locale.LC_ALL, '')
@@ -175,7 +178,7 @@ class gmoccapy(object):
         self.error_channel.poll()
 
         # set INI path for INI info class before widgets are loaded
-        INFO = Info(ini=argv[2])
+        INFO = Info(ini=args_passed[2])
 
         self.builder = Gtk.Builder()
         # translation of the glade file will be done with
@@ -255,14 +258,14 @@ class gmoccapy(object):
         # check the arguments given from the command line (Ini file)
         self.user_mode = False
         self.logofile = None
-        for index, arg in enumerate(argv):
+        for index, arg in enumerate(args_passed):
             LOG.debug("{0} = {1}".format(index, arg))
             if arg == "-user_mode":
                 self.user_mode = True
                 self.widgets.tbtn_setup.set_sensitive(False)
                 LOG.debug(_("user mode selected"))
             if arg == "-logo":
-                self.logofile = str(argv[ index + 1 ])
+                self.logofile = str(args_passsed[ index + 1 ])
                 LOG.debug(_("logo entry found = {0}").format(self.logofile))
                 self.logofile = self.logofile.strip("\"\'")
                 if not os.path.isfile(self.logofile):
@@ -4079,7 +4082,7 @@ class gmoccapy(object):
         p = os.popen("tclsh {0}/bin/halshow.tcl &".format(TCLPATH))
 
     def on_btn_calibration_clicked(self, widget, data=None):
-        p = os.popen("tclsh {0}/bin/emccalib.tcl -- -ini {1} > /dev/null &".format(TCLPATH, sys.argv[2]), "w")
+        p = os.popen("tclsh {0}/bin/emccalib.tcl -- -ini {1} > /dev/null &".format(TCLPATH, args_passed[2]), "w")
 
     def on_btn_hal_meter_clicked(self, widget, data=None):
         p = os.popen("halmeter &")
@@ -6097,19 +6100,19 @@ if __name__ == "__main__":
     # we set the log level early so the imported modules get the right level
     # The order is: VERBOSE, DEBUG, INFO, WARNING, ERROR, CRITICAL.
 
-    if '-d' in sys.argv:
+    if '-d' in args_passed:
         # Log level defaults to WARNING, so set lower if in debug mode
         logger.setGlobalLevel(logger.DEBUG)
         LOG.debug('DEBUGGING logging on')
-    elif '-i' in sys.argv:
+    elif '-i' in args_passed:
         # Log level defaults to WARNING, so set lower if in info mode
         logger.setGlobalLevel(logger.INFO)
         LOG.info('INFO logging on')
-    elif '-v' in sys.argv:
+    elif '-v' in args_passed:
         # Log level defaults to WARNING, so set lowest if in verbose mode
         logger.setGlobalLevel(logger.VERBOSE)
         LOG.verbose('VERBOSE logging on')
-    elif '-q' in sys.argv:
+    elif '-q' in args_passed:
         logger.setGlobalLevel(logger.ERROR)
 
     # Some of these libraries log when imported so logging level must already be set.
@@ -6130,13 +6133,13 @@ if __name__ == "__main__":
         _AUDIO_AVAILABLE = False
 
     # instantiate gmoccapy
-    app = gmoccapy(sys.argv)
+    app = gmoccapy()
 
     # get the INI path
-    inifile = sys.argv[2]
+    inifile = args_passed[2]
 
     # find the POST_GUI HAL file path
-    LOG.debug("inifile = {0} :".format(sys.argv[2]))
+    LOG.debug("inifile = {0} :".format(inifile))
     postgui_halfile = app.get_ini_info.get_postgui_halfile()
 
     # run it depending on type
