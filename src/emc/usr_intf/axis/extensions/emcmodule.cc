@@ -389,7 +389,7 @@ static PyMemberDef Stat_members[] = {
     {(char*)"adaptive_feed_enabled", T_BOOL, O(motion.traj.adaptive_feed_enabled), READONLY},
     {(char*)"feed_hold_enabled", T_BOOL, O(motion.traj.feed_hold_enabled), READONLY},
     {(char*)"num_extrajoints", T_INT, O(motion.numExtraJoints), READONLY},
-
+    {(char*)"jog_is_active", T_BOOL, O(motion.jogging_active), READONLY},
 
 // EMC_SPINDLE_STAT motion.spindle
     // MOVED TO THE "spindle" TUPLE OF DICTS
