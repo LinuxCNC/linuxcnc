@@ -294,13 +294,21 @@ PythonPlugin::PythonPlugin(struct _inittab *inittab) :
     abs_path(0),
     log_level(0)
 {
-  PyConfig config;
-  PyConfig_InitPythonConfig(&config);
-  if (abs_path) {
-    wchar_t *program = Py_DecodeLocale(abs_path, NULL);
-    PyConfig_SetString(&config, &config.program_name, program);
-  }
+    if (!Py_IsInitialized()) {
+      PyConfig config;
+      PyConfig_InitPythonConfig(&config);
+      config.buffered_stdio = 0;
+      Py_InitializeFromConfig(&config);
+      PyConfig_Clear(&config);
+    }
     if (inittab != NULL) {
+      // XXX: This Py_IsInitialized() condition is now always false because we
+      // just initialized python if it was not initialized before. However,
+      // that should not matter for now.
+      // Doing blind initialization is improper because, for example, it kills
+      // sys.argv (needed by some applications) when we do double
+      // initialization.
+      // Cleanup of this code may be in order at a later date...
       if (!Py_IsInitialized()) {
         if (PyImport_ExtendInittab(inittab) != 0) {
           logPP(-1, "cannot extend inittab");
@@ -326,9 +334,6 @@ PythonPlugin::PythonPlugin(struct _inittab *inittab) :
         }
       }
   }
-  config.buffered_stdio = 0;
-  Py_InitializeFromConfig(&config);
-  PyConfig_Clear(&config);
   initialize();
 }
 
