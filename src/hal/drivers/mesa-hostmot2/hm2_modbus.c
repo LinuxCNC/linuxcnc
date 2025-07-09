@@ -98,6 +98,8 @@ static const char *error_codes[] = {
 #define MBT_FEHGBADC	0x0b
 #define MBT_GHEFCDAB	0x0c
 #define MBT_HGFEDCBA	0x0d
+#define MBT_A			0x0e
+#define MBT_B			0x0f
 
 #define MBT_U			0x00	// Which makes default U_AB zero
 #define MBT_S			0x10
@@ -106,10 +108,14 @@ static const char *error_codes[] = {
 #define MBT_X_MASK		0x0f
 #define MBT_T_MASK		0xf0
 
-static inline bool mtypeiscompound(unsigned mtype) { return mtype >= MBT_ABCD; }
-static inline bool mtypeisvalid(unsigned mtype)    { return (mtype & MBT_X_MASK) <= MBT_HGFEDCBA && (mtype & MBT_T_MASK) <= MBT_F; }
+static inline bool mtypeiscompound(unsigned mtype) { return mtype >= MBT_ABCD && mtype <= MBT_HGFEDCBA; }
 static inline unsigned mtypeformat(unsigned mtype) { return mtype & MBT_X_MASK; }
 static inline unsigned mtypetype(unsigned mtype)   { return mtype & MBT_T_MASK; }
+static inline bool mtypeisvalid(unsigned mtype) {
+	// excludes 8-bit floats
+	return mtypetype(mtype) <= MBT_F &&
+		!((mtypeformat(mtype) == MBT_A || mtypeformat(mtype) == MBT_B) && mtypetype(mtype) == MBT_F);
+}
 static inline unsigned mtypesize(unsigned mtype) {
 	static const rtapi_u8 s[16] = {1, 1, 2, 2, 2, 2, 4, 4, 4, 4, 4, 4, 4, 4, 1, 1};
 	return s[mtypeformat(mtype)];
@@ -196,7 +202,8 @@ typedef struct {
 } mbt_pin_hal_t;
 
 typedef struct {
-	hal_bit_t *disabled;	// Command disable
+	hal_bit_t *disable;		// Command disable input
+	hal_bit_t *disabled;	// Command disable output
 	hal_bit_t *reset;		// Reset errors and re-enable on rising edge
 	hal_u32_t *error;		// Command error counter
 	hal_u32_t *errorcode;	// Last error code
@@ -229,6 +236,7 @@ typedef struct {
 	int pinref;		// What pin to start with
 	bool disabled;	// Skipped if set
 	bool prevreset;	// To track the rising edge
+	bool prevdisable;	// To track the rising edge
 	int errors;		// Count the errors
 	int datalen;	// Number of bytes in 'data' buffer
 	rtapi_u8 data[MAX_PKT_LEN]; // PDU: 2-byte header, MAX_MSG_LEN payload, 2-byte CRC
@@ -238,6 +246,8 @@ static inline bool hastimesout(const hm2_modbus_cmd_t *cc)  { return 0 != (cc->c
 static inline bool hasbcanswer(const hm2_modbus_cmd_t *cc)  { return 0 != (cc->cmd.flags & MBCCB_CMDF_BCANSWER); }
 static inline bool hasnoanswer(const hm2_modbus_cmd_t *cc)  { return 0 != (cc->cmd.flags & MBCCB_CMDF_NOANSWER); }
 static inline bool hasresend(const hm2_modbus_cmd_t *cc)    { return 0 != (cc->cmd.flags & MBCCB_CMDF_RESEND); }
+static inline bool haswflush(const hm2_modbus_cmd_t *cc)    { return 0 != (cc->cmd.flags & MBCCB_CMDF_WFLUSH); }
+static inline bool hasdisabled(const hm2_modbus_cmd_t *cc)  { return 0 != (cc->cmd.flags & MBCCB_CMDF_DISABLED); }
 static inline bool haspinscale(const hm2_modbus_mbccb_type_t *t)  { return 0 != (t->flags & MBCCB_PINF_SCALE); }
 static inline bool haspinclamp(const hm2_modbus_mbccb_type_t *t)  { return 0 != (t->flags & MBCCB_PINF_CLAMP); }
 
@@ -457,7 +467,7 @@ static void set_error(hm2_modbus_inst_t *inst, int errcode)
 	hm2_modbus_cmd_t *cc = current_cmd(inst);
 	if(++cc->errors >= MAX_ERRORS || cc->disabled) {
 		cc->disabled = 1;
-		*(inst->hal->cmds[inst->cmdidx].disabled)  = cc->disabled;
+		*(inst->hal->cmds[inst->cmdidx].disabled)  = 1;
 		*(inst->hal->cmds[inst->cmdidx].errorcode) = errcode;
 	}
 	*(inst->hal->cmds[inst->cmdidx].error) = cc->errors;
@@ -509,6 +519,73 @@ static inline void force_resend(hm2_modbus_inst_t *inst)
 }
 
 //
+// Write flush command sets a specific command data to the current values.
+// Only Modbus write function are pre-calculated.
+//
+static void write_flush_cmd(hm2_modbus_inst_t *inst, unsigned idx)
+{
+	if(handling_inits(inst)) {	// Cannot flush init list
+		MSG_ERR("%s: error: Called write_flush_cmd() while handling inits\n", inst->name);
+		return;
+	}
+
+	if(idx >= inst->ncmds) {
+		MSG_ERR("%s: error: Command index out of range (%u >= %u) in write_flush_cmd()\n", inst->name, idx, inst->ncmds);
+		return;
+	}
+
+	hm2_modbus_cmd_t *cc = &inst->_cmds[idx];	// so this is the one we want
+	switch(cc->cmd.func) {
+	case MBCMD_W_COIL:
+	case MBCMD_W_COILS:
+	case MBCMD_W_REGISTER:
+	case MBCMD_W_REGISTERS:
+		break;	// Only write functions shall be built
+	default:
+		return;
+	}
+	// Pre build the frame, even when disabled. When the WFLUSH flag is
+	// set, then we still want timed out writes that are disabled, and
+	// re-enabled due to a reset, to adhere to the flush setting when they
+	// suddenly no longer timeout.
+	if(!haswflush(cc))	// Must have flag set
+		return;
+
+	unsigned oldidx = inst->cmdidx;	// Save the position
+	inst->cmdidx = idx;	// This sets the current command index
+
+	int r = build_data_frame(inst);
+	if(r < 0) {
+		// We cannot recover from data frames that cannot be build. They
+		// would always result in the same error.
+		if(!cc->disabled) {
+			MSG_ERR("%s: error: Build data frame failed (%d) in write_flush_cmd for command %d, disabling\n", inst->name, r, idx);
+			cc->disabled = 1;
+		}
+		set_error(inst, -r);
+	}
+	inst->cmdidx = oldidx;	// Restore position
+}
+
+//
+// Write flush sets all command data to the current values.
+//
+static void write_flush(hm2_modbus_inst_t *inst)
+{
+	// We must ensure to handle the command list and not the init list.
+	// This switcheroo sucks but we have no choice as these variables are
+	// instance global.
+	hm2_modbus_cmd_t *oldcmds = inst->cmds;
+	inst->cmds = inst->_cmds;
+
+	for(unsigned i = 0; i < inst->ncmds; i++) {
+		write_flush_cmd(inst, i);
+	}
+
+	inst->cmds = oldcmds;
+}
+
+//
 // Advance to the next command in the list
 // A switch to the normal command list is made when it is the end of initlist.
 // Return 0 on a normal switch. Return 1 when the list repeats.
@@ -543,6 +620,22 @@ static inline int next_command(hm2_modbus_inst_t *inst)
 				*(inst->hal->cmds[i].disabled)  = 0;
 				*(inst->hal->cmds[i].error)     = 0;
 				*(inst->hal->cmds[i].errorcode) = 0;
+				// Honor the writeflush flag when coming out of disable.
+				write_flush_cmd(inst, i);
+			}
+		}
+
+		// The run-time disabling of a command takes precedens over reset.
+		// Set it on the rising edge of the 'disable' pin
+		b = !!*(inst->hal->cmds[i].disable);
+		if(inst->cmds[i].prevdisable != b) {
+			inst->cmds[i].prevdisable = !inst->cmds[i].prevdisable;
+			if(inst->cmds[i].prevdisable) {
+				inst->cmds[i].disabled = 1;
+				inst->cmds[i].errors   = 0;
+				*(inst->hal->cmds[i].disabled)  = 1;
+				*(inst->hal->cmds[i].error)     = 0;
+				*(inst->hal->cmds[i].errorcode) = EAGAIN;
 			}
 		}
 	} while(inst->cmdidx < inst->ncmds && inst->cmds[inst->cmdidx].disabled);
@@ -636,45 +729,6 @@ static void do_timeout(hm2_modbus_inst_t *inst)
 }
 
 //
-// Write flush sets all command data to the current values.
-// Only Modbus write function are pre-calculated.
-//
-static void write_flush(hm2_modbus_inst_t *inst)
-{
-	unsigned oldidx = inst->cmdidx;	// Save the position
-	for(unsigned i = 0; i < inst->ncmds; i++) {
-		inst->cmdidx = i;	// This sets the current command index
-		hm2_modbus_cmd_t *cc = current_cmd(inst);	// so this is the one we want
-		switch(cc->cmd.func) {
-		case MBCMD_W_COIL:
-		case MBCMD_W_COILS:
-		case MBCMD_W_REGISTER:
-		case MBCMD_W_REGISTERS:
-			break;	// Only write functions shall be built
-		default:
-			continue;
-		}
-		// Pre build the frame, even when disabled. When the WFLUSH flag is
-		// set, then we still want timed out writes that are disabled, and
-		// re-enabled due to a reset, to adhere to the flush setting when they
-		// suddenly no longer timeout.
-		if(!(cc->cmd.flags & MBCCB_CMDF_WFLUSH))	// Must have flag set
-			continue;
-		int r = build_data_frame(inst);
-		if(r < 0) {
-			// We cannot recover from data frames that cannot be build. They
-			// would always result in the same error.
-			if(!cc->disabled) {
-				MSG_ERR("%s: error: Build data frame failed in write_flush for command %d, disabling\n", inst->name, inst->cmdidx);
-				cc->disabled = 1;
-			}
-			set_error(inst, -r);
-		}
-	}
-	inst->cmdidx = oldidx;	// Restore position
-}
-
-//
 // The main process Modbus state-machine.
 //
 // It is essentially a synchronous communication machine that:
@@ -710,29 +764,32 @@ static void process(void *arg, long period)
 	rtapi_u32 rxstatus = hm2_pktuart_get_rx_status(inst->uart);
 	rtapi_u32 txstatus = hm2_pktuart_get_tx_status(inst->uart);
 
-	if(inst->cmds == inst->_cmds) {
+	if(!handling_inits(inst)) {
 		// Only count timeout when running the command list
 		for(unsigned i = 0; i < inst->ncmds; i++) {
 			inst->cmds[i].interval -= period;	// Keep counting nanoseconds
 		}
-	}
 
-	inst->timeout  -= period;	// Current timeout count
-
-	// Re-enable all commands on rising edge of global reset pin
-	bool b = !!*(inst->hal->reset);	// Make sure its value is bool-worthy
-	if(inst->prevreset != b) {
-		inst->prevreset = !inst->prevreset;
-		if(inst->prevreset) {
-			for(unsigned i = 0; i < inst->ncmds; i++) {
-				inst->cmds[i].disabled = 0;
-				inst->cmds[i].errors = 0;
-				*(inst->hal->cmds[i].disabled)  = 0;
-				*(inst->hal->cmds[i].error)     = 0;
-				*(inst->hal->cmds[i].errorcode) = 0;
+		// Re-enable all commands on rising edge of global reset pin
+		bool b = !!*(inst->hal->reset);	// Make sure its value is bool-worthy
+		if(inst->prevreset != b) {
+			inst->prevreset = !inst->prevreset;
+			if(inst->prevreset) {
+				for(unsigned i = 0; i < inst->ncmds; i++) {
+					if(inst->cmds[i].disabled) {
+						inst->cmds[i].disabled = 0;
+						*(inst->hal->cmds[i].disabled) = 0;
+						write_flush_cmd(inst, i);
+					}
+					*(inst->hal->cmds[i].errorcode) = 0;
+					*(inst->hal->cmds[i].error)     = 0;
+					inst->cmds[i].errors = 0;
+				}
 			}
 		}
 	}
+
+	inst->timeout -= period;	// Current timeout count
 
 	switch(inst->state) {
 	case STATE_START:
@@ -1181,6 +1238,12 @@ static int map_u(hm2_modbus_cmd_t *cc, rtapi_u64 v, unsigned tidx)
 	mb_types64_u v64;
 	unsigned fmt = mtypeformat(cc->typeptr[tidx].mtype);
 	switch(fmt) {
+	case MBT_A:
+	case MBT_B:
+		if(haspinclamp(&cc->typeptr[tidx]) && v > RTAPI_UINT8_MAX) v = RTAPI_UINT8_MAX;
+		CHK_RV(ch_append16_sw(cc, (rtapi_u16)v & 0xff, fmt == MBT_B));
+		break;
+
 	case MBT_AB:
 	case MBT_BA:
 		if(haspinclamp(&cc->typeptr[tidx]) && v > RTAPI_UINT16_MAX) v = RTAPI_UINT16_MAX;
@@ -1218,6 +1281,13 @@ static int map_s(hm2_modbus_cmd_t *cc, rtapi_s64 v, unsigned tidx)
 	mb_types64_u v64;
 	unsigned fmt = mtypeformat(cc->typeptr[tidx].mtype);
 	switch(fmt) {
+	case MBT_A:
+	case MBT_B:
+		if(haspinclamp(&cc->typeptr[tidx]) && v > RTAPI_INT8_MAX) v = RTAPI_INT8_MAX;
+		if(haspinclamp(&cc->typeptr[tidx]) && v < RTAPI_INT8_MIN) v = RTAPI_INT8_MIN;
+		CHK_RV(ch_append16_sw(cc, (rtapi_u16)v & 0xff, fmt == MBT_B));
+		break;
+
 	case MBT_AB:
 	case MBT_BA:
 		if(haspinclamp(&cc->typeptr[tidx]) && v > RTAPI_INT16_MAX) v = RTAPI_INT16_MAX;
@@ -1258,6 +1328,11 @@ static int map_f(hm2_modbus_cmd_t *cc, double v, unsigned tidx)
 	rtapi_u16 w;
 	unsigned fmt = mtypeformat(cc->typeptr[tidx].mtype);
 	switch(fmt) {
+	case MBT_A:
+	case MBT_B:
+		// This should have been caught in reading the mbccb
+		return -EINVAL;
+
 	case MBT_AB:
 	case MBT_BA:
 		v64.f = v;
@@ -1383,44 +1458,44 @@ static int build_data_frame(hm2_modbus_inst_t *inst)
 		CHK_RV(ch_append16(cc, cc->cmd.caddr));
 		switch(cc->typeptr[0].htype) {
 		case HAL_BIT:
-			map_u(cc, hal->pins[p].pin->b ? 1 : 0, 0);
+			CHK_RV(map_u(cc, hal->pins[p].pin->b ? 1 : 0, 0));
 			break;
 		case HAL_U32:
 			switch(mtypetype(cc->typeptr[0].mtype)) {
-			case MBT_U: map_u(cc, hal->pins[p].pin->u, 0); break;
-			case MBT_S: map_s(cc, map_us(hal->pins[p].pin->u), 0); break;
-			case MBT_F: map_f(cc, map_uf(hal->pins[p].pin->u), 0); break;
+			case MBT_U: CHK_RV(map_u(cc, hal->pins[p].pin->u, 0)); break;
+			case MBT_S: CHK_RV(map_s(cc, map_us(hal->pins[p].pin->u), 0)); break;
+			case MBT_F: CHK_RV(map_f(cc, map_uf(hal->pins[p].pin->u), 0)); break;
 			}
 			break;
 		case HAL_S32:
 			if(!haspinscale(&cc->typeptr[0])) {
 				switch(mtypetype(cc->typeptr[0].mtype)) {
-				case MBT_U: map_u(cc, map_su(hal->pins[p].pin->s), 0); break;
-				case MBT_S: map_s(cc, hal->pins[p].pin->s, 0); break;
-				case MBT_F: map_f(cc, map_sf(hal->pins[p].pin->s), 0); break;
+				case MBT_U: CHK_RV(map_u(cc, map_su(hal->pins[p].pin->s), 0)); break;
+				case MBT_S: CHK_RV(map_s(cc, hal->pins[p].pin->s, 0)); break;
+				case MBT_F: CHK_RV(map_f(cc, map_sf(hal->pins[p].pin->s), 0)); break;
 				}
 			} else {
 				val64.f = (real_t)((rtapi_s64)hal->pins[p].pin->s - hal->pins[p].offset->s) * *(hal->pins[p].scale);
 				switch(mtypetype(cc->typeptr[0].mtype)) {
-				case MBT_U: map_u(cc, map_fu(val64.f), 0); break;
-				case MBT_S: map_s(cc, map_fs(val64.f), 0); break;
-				case MBT_F: map_f(cc, val64.f, 0); break;
+				case MBT_U: CHK_RV(map_u(cc, map_fu(val64.f), 0)); break;
+				case MBT_S: CHK_RV(map_s(cc, map_fs(val64.f), 0)); break;
+				case MBT_F: CHK_RV(map_f(cc, val64.f, 0)); break;
 				}
 			}
 			break;
 		case HAL_FLOAT:
 			if(!haspinscale(&cc->typeptr[0])) {
 				switch(mtypetype(cc->typeptr[0].mtype)) {
-				case MBT_U: map_u(cc, map_fu(hal->pins[p].pin->f), 0); break;
-				case MBT_S: map_s(cc, map_fs(hal->pins[p].pin->f), 0); break;
-				case MBT_F: map_f(cc, hal->pins[p].pin->f, 0); break;
+				case MBT_U: CHK_RV(map_u(cc, map_fu(hal->pins[p].pin->f), 0)); break;
+				case MBT_S: CHK_RV(map_s(cc, map_fs(hal->pins[p].pin->f), 0)); break;
+				case MBT_F: CHK_RV(map_f(cc, hal->pins[p].pin->f, 0)); break;
 				}
 			} else {
 				val64.f = (hal->pins[p].pin->f - hal->pins[p].offset->f) * *(hal->pins[p].scale);
 				switch(mtypetype(cc->typeptr[0].mtype)) {
-				case MBT_U: map_u(cc, map_fu(val64.f), 0); break;
-				case MBT_S: map_s(cc, map_fs(val64.f), 0); break;
-				case MBT_F: map_f(cc, val64.f, 0); break;
+				case MBT_U: CHK_RV(map_u(cc, map_fu(val64.f), 0)); break;
+				case MBT_S: CHK_RV(map_s(cc, map_fs(val64.f), 0)); break;
+				case MBT_F: CHK_RV(map_f(cc, val64.f, 0)); break;
 				}
 			}
 			break;
@@ -1450,50 +1525,50 @@ static int build_data_frame(hm2_modbus_inst_t *inst)
 		for(unsigned i = 0; i < cc->cmd.cpincnt; i++) {
 			// Stuff empty space with zeros.
 			// The device must allow writes at the address(es).
-			while(regpos != cc->typeptr[i].regofs) {
+			while(regpos < cc->typeptr[i].regofs) {
 				CHK_RV(ch_append16(cc, 0));
-				regpos += 2;
+				regpos++;
 			}
 			switch(cc->typeptr[i].htype) {
 			case HAL_BIT:
-				map_u(cc, hal->pins[p].pin->b ? 1 : 0, i);
+				CHK_RV(map_u(cc, hal->pins[p].pin->b ? 1 : 0, i));
 				break;
 			case HAL_U32:
 				switch(mtypetype(cc->typeptr[i].mtype)) {
-				case MBT_U: map_u(cc, hal->pins[p].pin->u, i); break;
-				case MBT_S: map_s(cc, map_us(hal->pins[p].pin->u), i); break;
-				case MBT_F: map_f(cc, map_uf(hal->pins[p].pin->u), i); break;
+				case MBT_U: CHK_RV(map_u(cc, hal->pins[p].pin->u, i)); break;
+				case MBT_S: CHK_RV(map_s(cc, map_us(hal->pins[p].pin->u), i)); break;
+				case MBT_F: CHK_RV(map_f(cc, map_uf(hal->pins[p].pin->u), i)); break;
 				}
 				break;
 			case HAL_S32:
 				if(!haspinscale(&cc->typeptr[i])) {
 					switch(mtypetype(cc->typeptr[i].mtype)) {
-					case MBT_U: map_u(cc, map_su(hal->pins[p].pin->s), i); break;
-					case MBT_S: map_s(cc, hal->pins[p].pin->s, i); break;
-					case MBT_F: map_f(cc, map_sf(hal->pins[p].pin->s), i); break;
+					case MBT_U: CHK_RV(map_u(cc, map_su(hal->pins[p].pin->s), i)); break;
+					case MBT_S: CHK_RV(map_s(cc, hal->pins[p].pin->s, i)); break;
+					case MBT_F: CHK_RV(map_f(cc, map_sf(hal->pins[p].pin->s), i)); break;
 					}
 				} else {
 					val64.f = (real_t)((rtapi_s64)hal->pins[p].pin->s - hal->pins[p].offset->s) * *(hal->pins[p].scale);
 					switch(mtypetype(cc->typeptr[i].mtype)) {
-					case MBT_U: map_u(cc, map_fu(val64.f), i); break;
-					case MBT_S: map_s(cc, map_fs(val64.f), i); break;
-					case MBT_F: map_f(cc, val64.f, i); break;
+					case MBT_U: CHK_RV(map_u(cc, map_fu(val64.f), i)); break;
+					case MBT_S: CHK_RV(map_s(cc, map_fs(val64.f), i)); break;
+					case MBT_F: CHK_RV(map_f(cc, val64.f, i)); break;
 					}
 				}
 				break;
 			case HAL_FLOAT:
 				if(!haspinscale(&cc->typeptr[i])) {
 					switch(mtypetype(cc->typeptr[i].mtype)) {
-					case MBT_U: map_u(cc, map_fu(hal->pins[p].pin->f), i); break;
-					case MBT_S: map_s(cc, map_fs(hal->pins[p].pin->f), i); break;
-					case MBT_F: map_f(cc, hal->pins[p].pin->f, i); break;
+					case MBT_U: CHK_RV(map_u(cc, map_fu(hal->pins[p].pin->f), i)); break;
+					case MBT_S: CHK_RV(map_s(cc, map_fs(hal->pins[p].pin->f), i)); break;
+					case MBT_F: CHK_RV(map_f(cc, hal->pins[p].pin->f, i)); break;
 					}
 				} else {
 					val64.f = (hal->pins[p].pin->f - hal->pins[p].offset->f) * *(hal->pins[p].scale);
 					switch(mtypetype(cc->typeptr[i].mtype)) {
-					case MBT_U: map_u(cc, map_fu(val64.f), i); break;
-					case MBT_S: map_s(cc, map_fs(val64.f), i); break;
-					case MBT_F: map_f(cc, val64.f, i); break;
+					case MBT_U: CHK_RV(map_u(cc, map_fu(val64.f), i)); break;
+					case MBT_S: CHK_RV(map_s(cc, map_fs(val64.f), i)); break;
+					case MBT_F: CHK_RV(map_f(cc, val64.f, i)); break;
 					}
 				}
 				break;
@@ -1501,6 +1576,7 @@ static int build_data_frame(hm2_modbus_inst_t *inst)
 				// Oops...
 				break;
 			}
+			regpos += mtypesize(cc->typeptr[i].mtype);
 			p++;
 		}
 		break;
@@ -1558,6 +1634,25 @@ static inline mb_types64_u get64(rtapi_u8 *b, unsigned mtype)
 	for(unsigned i = 0; i < 8; i++)
 		v.b[i] = b[*bs++];
 	return v;
+}
+
+static inline rtapi_u64 mask_mbtsize(unsigned mtype, rtapi_u64 v)
+{
+	switch(mtypeformat(mtype)) {
+	case MBT_A:
+	case MBT_B:
+		return v & 0xff;
+	case MBT_AB:
+	case MBT_BA:
+		return v & 0xffff;
+	case MBT_ABCD:
+	case MBT_BADC:
+	case MBT_CDAB:
+	case MBT_DCBA:
+		return v & 0xffffffff;
+	default:
+		return v;
+	}
 }
 
 static inline rtapi_u32 unmap32_uu(const hm2_modbus_cmd_t *cc, rtapi_u64 v, unsigned tidx)
@@ -1744,6 +1839,12 @@ static int parse_data_frame(hm2_modbus_inst_t *inst)
 
 			// Read bytes according to the size of the mtype
 			switch(mtypeformat(cc->typeptr[i].mtype)) {
+			case MBT_A:	// Always sign-extended
+				val64.s = (rtapi_s64)(rtapi_s8)bytes[pos+1];
+				break;
+			case MBT_B:	// Always sign-extended
+				val64.s = (rtapi_s64)(rtapi_s8)bytes[pos];
+				break;
 			case MBT_AB:	// Always sign-extended
 				val64.s = 256 * (rtapi_s64)(rtapi_s8)bytes[pos] + bytes[pos+1];
 				break;
@@ -1813,6 +1914,15 @@ static int parse_data_frame(hm2_modbus_inst_t *inst)
 			// val64.u is the unsigned value for MBT_U
 			// val64.s is the signed value for MBT_S
 			// val64.f is the (promoted) fp value for MBT_F
+
+			// If the source is unsigned and the size smaller than the HAL
+			// target, then we need to mask the high bits.
+			// The reason is that we did an unconditional sign-extension above
+			// that will interfere with unsigned values with the high-bit set
+			// that are smaller than the HAL target.
+			if(MBT_U == mtypetype(cc->typeptr[i].mtype)) {
+				val64.u = mask_mbtsize(cc->typeptr[i].mtype, val64.u);
+			}
 
 			switch(cc->typeptr[i].htype) {
 			case HAL_BIT:
@@ -2755,6 +2865,8 @@ int rtapi_app_main(void)
 #define CPTR(x)	((const char *)((x) + 1))
 		for(unsigned c = 0; c < inst->ncmds; c++) {
 			// First create command status pins
+			CHECK(hal_pin_bit_newf(HAL_IN, &(inst->hal->cmds[c].disable),
+					comp_id, "%s.command.%02d.disable", inst->name, c));
 			CHECK(hal_pin_bit_newf(HAL_OUT, &(inst->hal->cmds[c].disabled),
 					comp_id, "%s.command.%02d.disabled", inst->name, c));
 			CHECK(hal_pin_u32_newf(HAL_OUT, &(inst->hal->cmds[c].error),
@@ -2764,8 +2876,16 @@ int rtapi_app_main(void)
 			CHECK(hal_pin_bit_newf(HAL_IN, &(inst->hal->cmds[c].reset),
 					comp_id, "%s.command.%02d.reset", inst->name, c));
 
-			// Now create the pins associated with the command
 			hm2_modbus_cmd_t *cc = &inst->_cmds[c];
+
+			// If the command is disabled, set it so
+			if(hasdisabled(cc)) {
+				cc->disabled = 1;
+				*(inst->hal->cmds[c].disabled)  = 1;
+				*(inst->hal->cmds[c].errorcode) = EAGAIN;
+			}
+
+			// Now create the pins associated with the command
 			int dir = HAL_IN;
 			const rtapi_u8 *dptr = inst->dataptr + cc->cmd.cdataptr;
 			cc->pinref = p;
