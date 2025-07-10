@@ -38,7 +38,7 @@ from qtvcp.widgets.calculator import Calculator
 from qtvcp.widgets.machine_log import MachineLog
 from qtvcp.lib.notify import Notify
 from qtvcp.widgets.dialogMixin import GeometryMixin
-from qtvcp.core import Status, Action, Info, Tool
+from qtvcp.core import Status, Action, Info, Tool, Path
 from qtvcp import logger
 
 # Instantiate the libraries with global reference
@@ -52,6 +52,7 @@ STATUS = Status()
 ACTION = Action()
 INFO = Info()
 TOOL = Tool()
+PATH = Path()
 NOTICE = Notify()
 LOG = logger.getLogger(__name__)
 
@@ -2019,7 +2020,7 @@ class RunFromLineDialog(QDialog, GeometryMixin):
     def __init__(self, parent=None):
         super(RunFromLineDialog, self).__init__(parent)
         # Load the widgets UI file:
-        self.filename = os.path.join(INFO.LIB_PATH,'widgets_ui', 'runFromLine_dialog.ui')
+        self.filename = os.path.join(PATH.SHAREDIR,'widgets_ui', 'runFromLine_dialog.ui')
         try:
             self.instance = uic.loadUi(self.filename, self)
         except AttributeError as e:

@@ -46,11 +46,10 @@ from PyQt5.QtWidgets import (QDialog, QFileDialog, QMessageBox,
         QColorDialog)
 from PyQt5 import QtGui, QtCore
 
-from qtvcp.core import Info, Path
+from qtvcp.core import Path
 from qtvcp.qt_makegui import VCPWindow
 from qtvcp import logger
 LOG = logger.getLogger(__name__)
-INFO = Info()
 PATH = Path()
 WIDGETS = VCPWindow()
 
@@ -61,7 +60,7 @@ class StyleSheetEditor(QDialog):
         super(StyleSheetEditor, self).__init__(parent)
         self.setMinimumSize(600, 400)
         # Load the widgets UI file:
-        self.filename = os.path.join(INFO.LIB_PATH,'widgets_ui', 'style_dialog.ui')
+        self.filename = os.path.join(PATH.SHAREDIR,'widgets_ui', 'style_dialog.ui')
         try:
             self.instance = uic.loadUi(self.filename, self)
         except AttributeError as e:

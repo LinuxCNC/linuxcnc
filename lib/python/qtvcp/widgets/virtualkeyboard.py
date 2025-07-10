@@ -4,17 +4,17 @@ import os
 from PyQt5 import QtGui, QtWidgets, uic
 from PyQt5.QtCore import Qt, QEvent
 
-from qtvcp.core import Info
+from qtvcp.core import Info, Path
 from qtvcp import logger
 LOG = logger.getLogger(__name__)
 
-INFO = Info()
+PATH = Path()
 
 class VirtualKeyboard(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super(VirtualKeyboard, self).__init__(parent)
         # Load the widgets UI file:
-        self.filename = os.path.join(INFO.LIB_PATH,'widgets_ui', 'virtual_keyboard.ui')
+        self.filename = os.path.join(PATH.SHAREDIR,'widgets_ui', 'virtual_keyboard.ui')
         try:
             self.instance = uic.loadUi(self.filename, self)
         except AttributeError as e:

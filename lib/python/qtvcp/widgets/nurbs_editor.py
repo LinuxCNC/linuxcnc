@@ -66,7 +66,7 @@ class NurbsEditor(QDialog):
         self.bluck_update = True
 
         # Load the widgets UI file:
-        self.filename = os.path.join(INFO.LIB_PATH,'widgets_ui', 'nurbs_editor.ui')
+        self.filename = os.path.join(PATH.SHAREDIR,'widgets_ui', 'nurbs_editor.ui')
         try:
             self.instance = uic.loadUi(self.filename, self)
         except AttributeError as e:
