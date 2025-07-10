@@ -630,7 +630,7 @@ class HelpDialog(QtWidgets.QDialog, GeometryMixin):
                 file.open(QtCore.QFile.ReadOnly)
                 html = file.readAll()
                 html = str(html, encoding='utf8')
-                html = html.replace("../images/widgets/","{}/widgets/".format(INFO.IMAGE_PATH))
+                html = html.replace("../images/widgets/","{}/widgets/".format(PATH.IMAGEDIR))
                 t.setHtml(html)
                 if t.verticalScrollBar().isVisible():
                     t.verticalScrollBar().setPageStep(100)
