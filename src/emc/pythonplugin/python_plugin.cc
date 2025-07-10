@@ -333,7 +333,9 @@ PythonPlugin::PythonPlugin(struct _inittab *inittab) :
   }
 #if PY_VERSION_HEX >= 0x030800f0
   config.buffered_stdio = 0;
-  Py_InitializeFromConfig(&config);
+  if (!Py_IsInitialized()) {
+    Py_InitializeFromConfig(&config);
+  }
   PyConfig_Clear(&config);
 #else
   Py_UnbufferedStdioFlag = 1;
