@@ -327,7 +327,9 @@ PythonPlugin::PythonPlugin(struct _inittab *inittab) :
       }
   }
   config.buffered_stdio = 0;
-  Py_InitializeFromConfig(&config);
+  if (!Py_IsInitialized()) {
+    Py_InitializeFromConfig(&config);
+  }
   PyConfig_Clear(&config);
   initialize();
 }
