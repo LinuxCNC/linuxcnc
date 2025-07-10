@@ -32,8 +32,8 @@ class _IStat(object):
 
         # Are we using RIP or installed version?
         self.RIP_FLAG = bool(os.environ.get('LINUXCNC_RIP_FLAG', False))
+
         base = self.get_base()
-        self.IMAGE_PATH = self.get_image_dir(base)
         self.LIB_PATH = self.get_lib_dir(base)
 
         if not self.LINUXCNC_IS_RUNNING:
@@ -872,12 +872,6 @@ class _IStat(object):
 
         LOG.verbose('Using Linuxcnc Base directory: {}'.format(base))
         return base
-
-    def get_image_dir(self, base):
-        if base is not None:
-            return os.path.join(base, "share", "qtvcp", "images")
-        else:
-            return None
 
     def get_lib_dir(self, base):
         return os.path.join(base, "share", "qtvcp")
