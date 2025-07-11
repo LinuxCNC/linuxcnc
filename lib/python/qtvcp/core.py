@@ -9,7 +9,7 @@ import _hal
 import hal
 import traceback
 from PyQt5.QtCore import QObject, QTimer, pyqtSignal
-from hal_glib import GStat
+from common.hal_glib import GStat
 from common.iniinfo import _IStat as IStatParent
 
 # Set up logging
