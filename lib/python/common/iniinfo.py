@@ -538,7 +538,7 @@ class _IStat(object):
                 # code to check for duplicate names
                 dup = {x for x in nameList if nameList.count(x) > 1}
                 if not dup == set():
-                    LOG.error('Embedded Qtvcp panel tab: Duplicate TAB_NAMES:{} in INI.'.format(dup))
+                    LOG.error('Embedded panel tab: Duplicate TAB_NAMES:{} in INI.'.format(dup))
 
             try:
                 self.ZIPPED_TABS = list(zip(self.TAB_NAMES, self.TAB_LOCATIONS, self.TAB_CMDS))
