@@ -75,7 +75,7 @@ TARGETS += ../bin/halsampler
 
 PYSAMPLERSRCS := hal/components/panelui.c
 USERSRCS += $(PYSAMPLERSRCS)
-PYFLAGS := $(PYTHON_EXTRA_LDFLAGS) $(BOOST_PYTHON_LIB) $(PYTHON_LIBS) $(PYTHON_EXTRA_LIBS) -lrt
+PYFLAGS := $(PYTHON_EXTRA_LDFLAGS) $(BOOST_PYTHON_LIB) $(PYTHON_LIBS) $(PYTHON_EXTRA_LIBS) -lrt -Wl,-z,relro
 
 ../bin/panelui: $(call TOOBJS, $(PYSAMPLERSRCS)) ../lib/liblinuxcnchal.so.0
 	$(ECHO) Linking $(notdir $@)
