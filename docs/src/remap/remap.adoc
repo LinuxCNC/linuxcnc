@@ -688,7 +688,7 @@ Going through the <<remap:interpreter-action-on-m6,steps>>, we find:
 .. move the A, B and C indexers if applicable - *can be done in NGC*
 .. generate rapid move to the G30 position - *can be done in NGC*
 . send a CHANGE_TOOL Canon command to `task`  - *execute in Python epilog*
-. set the numberer parameters 5400-5413 according to the new tool - *execute in Python epilog*
+. set the numbered parameters 5400-5413 according to the new tool - *execute in Python epilog*
 . signal to `task` to stop calling the interpreter for readahead until tool change complete - *execute in Python epilog*
 
 So we need a prolog, and an epilog.
