@@ -22,7 +22,7 @@
 # set the text formatting for metric/imperial separately
 
 import sys, os, linuxcnc
-from hal_glib import GStat
+from gladevcp.core import Status as GStat
 datadir = os.path.abspath(os.path.dirname(__file__))
 AXISLIST = ['offset', 'X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W', 'Rot', 'name']
 # we need to know if linuxcnc isn't running when using the GLADE editor

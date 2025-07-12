@@ -28,7 +28,7 @@ from gi.repository import GObject
 from gi.repository import GLib
 
 import linuxcnc
-from hal_glib import GStat
+from gladevcp.core import Status as GStat
 
 # Set up logging
 from common import logger

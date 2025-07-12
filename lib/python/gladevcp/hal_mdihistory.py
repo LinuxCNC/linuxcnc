@@ -31,7 +31,7 @@ else:
     from .hal_actions import _EMC_ActionBase, ensure_mode
 
 import linuxcnc
-from hal_glib import GStat
+from gladevcp.core import Status as GStat
 from gladevcp.core import Info
 
 GSTAT = GStat()

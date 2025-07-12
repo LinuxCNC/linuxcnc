@@ -28,7 +28,7 @@ import getopt
 
 from .hal_widgets import _HalWidgetBase
 from .led import HAL_LED
-from hal_glib import GComponent
+from common.hal_glib import GComponent
 
 from gladevcp.gladebuilder import widget_name
 

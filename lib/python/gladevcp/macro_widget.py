@@ -24,7 +24,7 @@ from gi.repository import Gtk, Gdk
 from gi.repository import GObject
 
 import linuxcnc
-from hal_glib import GStat
+from gladevcp.core import Status as GStat
 
 if __name__ == "__main__":
     from hal_actions import _EMC_ActionBase, ensure_mode

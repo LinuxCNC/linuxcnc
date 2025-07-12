@@ -25,7 +25,7 @@ import re, string
 
 from .hal_widgets import _HalWidgetBase
 import linuxcnc
-from hal_glib import GStat
+from gladevcp.core import Status as GStat
 import hal
 
 from gladevcp.core import Info, Action
@@ -180,8 +180,7 @@ class _EMC_RadioAction(Gtk.RadioAction, _EMC_ToggleAction):
 class EMC_Stat(GStat, _EMC_ActionBase):
     __gtype_name__ = 'EMC_Stat'
     def __init__(self):
-        stat = self.linuxcnc_static.get()[1]
-        GStat.__init__(self, stat)
+        super(GStat, self).__init__()
 
     def _hal_init(self):
         pass

@@ -29,7 +29,7 @@ import os
 import sys
 import math
 import linuxcnc
-from hal_glib import GStat
+from gladevcp.core import Status as GStat
 import re
 
 # constants
