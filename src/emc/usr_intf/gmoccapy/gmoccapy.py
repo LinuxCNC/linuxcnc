@@ -34,9 +34,9 @@ from gi.repository import Gdk
 from gi.repository import GdkPixbuf
 from gi.repository import GLib
 
-import traceback           # needed to launch traceback errors
-import hal                 # base hal class to react to hal signals
-import hal_glib            # needed to make our own hal pins
+import traceback            # needed to launch traceback errors
+import hal                  # base hal class to react to hal signals
+from common import hal_glib # needed to make our own hal pins
 import sys                 # handle system calls
 import os                  # needed to get the paths and directories
 import atexit              # needed to register child's to be closed on closing the GUI
