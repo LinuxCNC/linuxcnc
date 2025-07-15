@@ -332,8 +332,8 @@ FeedRotaryButtonCodes::FeedRotaryButtonCodes() :
     percent_30(0x10, "1", "30%"),
     percent_60(0x1a, "5", "60%"),
     percent_100(0x1b, "10", "100%"),
-    lead(0x1c, "Lead", ""),  // user jasenk2 seem to need 0x9b for xhc-whb06-4 see : https://github.com/LinuxCNC/linuxcnc/pull/987
-    // solution added in this file for use both know keycodes (0x1c) + Jasenk (0x9b)
+    lead(0x1c, "Lead", ""),  // user jasenk2 seem to need 0x9b for xhc-whb06-4 see : https://github.com/LinuxCNC/linuxcnc/pull/987, zajc3w needs 0x9B for xhc-whb06-6 see: https://github.com/LinuxCNC/linuxcnc/issues/3485
+    lead9B(0x9B, "Lead", ""), //previous solution ommited line 607 and key code 0x9b was still not recognised 
     undefined(0x00, "", ""),
     codeMap{
         {percent_2.code,   &percent_2},
@@ -604,7 +604,7 @@ void FeedRotaryButton::update()
         return;
     }
 
-    if (*mKey == KeyCodes::Feed.lead)
+    if (*mKey == KeyCodes::Feed.lead || *mKey == KeyCodes::Feed.lead9B)
     {
         mStepSize    = mLeadSizeMapper.getStepSize(HandwheelLeadModeStepSize::PositionNameIndex::LEAD);
         mIsPermitted = mLeadSizeMapper.isPermitted(HandwheelLeadModeStepSize::PositionNameIndex::LEAD);
@@ -1354,7 +1354,7 @@ void Pendant::onFeedActiveEvent(const KeyCode& feed)
 // ----------------------------------------------------------------------
 void Pendant::dispatchFeedEventToHandwheel(const KeyCode& feed, bool isActive)
 {
-    if (feed.code == KeyCodes::Feed.lead.code || feed.code == 0x9b) // user jasenk2 seem to need 0x9b for xhc-whb06-4 see : https://github.com/LinuxCNC/linuxcnc/pull/987
+    if (feed.code == KeyCodes::Feed.lead.code || feed.code == KeyCodes::Feed.lead9B.code) // user jasenk2 seem to need 0x9b for xhc-whb06-4 see : https://github.com/LinuxCNC/linuxcnc/pull/987
     {
         mHandWheel.counters().enableLeadCounter(isActive);
     }
@@ -1386,7 +1386,7 @@ void Pendant::dispatchActiveFeedToHal(const KeyCode& feed, bool isActive)
     {
         mHal.setFeedValueSelected100(isActive);
     }
-    else if (feed.code == KeyCodes::Feed.lead.code || feed.code == 0x9b) // user jasenk2 seem to need 0x9b for xhc-whb06-4 see : https://github.com/LinuxCNC/linuxcnc/pull/987
+    else if (feed.code == KeyCodes::Feed.lead.code || feed.code == KeyCodes::Feed.lead9B.code) // user jasenk2 seem to need 0x9b for xhc-whb06-4 see : https://github.com/LinuxCNC/linuxcnc/pull/987
     {
         mHal.setFeedValueSelectedLead(isActive);
         mCurrentButtonsState.feedButton().setStepMode(HandwheelStepmodes::Mode::MPG);
