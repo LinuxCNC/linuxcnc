@@ -4367,8 +4367,8 @@ EXPORT_SYMBOL(hal_param_bit_new);
 EXPORT_SYMBOL(hal_param_float_new);
 EXPORT_SYMBOL(hal_param_u32_new);
 EXPORT_SYMBOL(hal_param_s32_new);
-EXPORT_SYMBOL(hal_param_u64_new);
-EXPORT_SYMBOL(hal_param_s64_new);
+EXPORT_SYMBOL(hal_param_unsigned_new);
+EXPORT_SYMBOL(hal_param_signed_new);
 EXPORT_SYMBOL(hal_param_new);
 
 EXPORT_SYMBOL(hal_param_bit_newf);

@@ -200,12 +200,10 @@ F_DCBA = MBT_F | MBT_DCBA
 
 # Possible values of the 'haltype' attribute
 HALTYPES = { 'HAL_BIT': HAL_BIT, 'HAL_FLOAT': HAL_FLT, 'HAL_FLT': HAL_FLT,
-             'HAL_S32': HAL_S32, 'HAL_U32':   HAL_U32,
-             'HAL_S64': HAL_S64, 'HAL_U64':   HAL_U64,
+             'HAL_SIGNED': HAL_S64, 'HAL_UNSIGNED':   HAL_U64,
             # Be nice, allow types without useless prefix
              'BIT':     HAL_BIT, 'FLOAT':     HAL_FLT, 'FLT':     HAL_FLT,
-             'S32':     HAL_S32, 'U32':       HAL_U32,
-             'S64':     HAL_S64, 'U64':       HAL_U64 }
+             'SIGNED':     HAL_S64, 'UNSIGNED':       HAL_U64 }
 
 # Reverse map of HALTYPES
 HALNAMES = { HAL_BIT: 'HAL_BIT', HAL_FLT: 'HAL_FLOAT',

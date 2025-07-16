@@ -119,7 +119,7 @@ bool read_float(const hal_port_t *port, hal_float_t* value) {
     return true;
 }
 
-bool read_int(const hal_port_t *port, hal_s32_t* value) {
+bool read_int(const hal_port_t *port, hal_s64_t* value) {
     char data[10];
     long val;
     int available = hal_port_readable(port);
