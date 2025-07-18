@@ -25,6 +25,16 @@ It is already used and integrated into linuxcnc's system requirements. +
 While C or C\++ could be used, it severely limits who can maintain and develop them. +
 It would be better to extend python with C/C++ modules for whatever function that requires it.
 
+== Localization of float numbers in GUIs
+Different locales use different decimal separators and thousands separators. Locale-specific
+string-to-float functions should be avoided as they may give unexpected results.
+(For example the text string "1.58" in de_DE will be converted to 158 by atof()).
+The following guidelines (based on avoiding ambiguity rather than on "correctness" in any specific locale)
+are suggested if parsing float to string and vice-versa:
+
+ * In the case of input allow either comma (,) or point(.) as a decimal separator, but reject any input that has more than one of either. Space should be accepted but not required as a thousands separator.
+ * In the case of display either use point (.) consistently or use the current localisation format consistently. The emphasis here being on "consistently".
+
 == Basic Configuration
 Currently, most screens use a combination of INI file and preference file entries to configure their functions. +
 INi text files are usually used for the common machine controller settings, while text based preference files 
