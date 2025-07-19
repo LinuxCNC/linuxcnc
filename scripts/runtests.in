@@ -175,7 +175,7 @@ run_tests () {
         exit 1;
     fi
 
-    find "$*" -name test.hal -or -name test.sh -or -name test \
+    find "$@" -name test.hal -or -name test.sh -or -name test \
 	| sort > "$TMPDIR/alltests"
 
     while read -r testname; do
