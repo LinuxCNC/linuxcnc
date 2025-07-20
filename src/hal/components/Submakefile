@@ -107,7 +107,7 @@ PYFLAGS := $(PYTHON_EXTRA_LDFLAGS) $(BOOST_PYTHON_LIB) $(PYTHON_LIBS) $(PYTHON_E
 
 ../bin/panelui: $(call TOOBJS, $(PYSAMPLERSRCS)) ../lib/liblinuxcnchal.so.0
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CC) -o $@ $^ $(PYFLAGS)
+	$(Q)$(CC) -Wl,-z,relro -o $@ $^ $(PYFLAGS)
 TARGETS += ../bin/panelui
 
 hal/components/conv_float_s32.comp: hal/components/conv.comp.in hal/components/mkconv.sh hal/components/Submakefile
