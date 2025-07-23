@@ -1,28 +1,28 @@
-/********************************************************************
- * Description: spherical_arc.c
+/**
+ * @file spherical_arc9.c
+ * 
+ * API for 9D version of "spherical arc" (an arc on the surface of a 9D sphere)
  *
- * A simple spherical linear interpolation library and related functions.
+ * @author Robert W. Ellenberg <rwe24g@gmail.com>
  *
- * Author: Robert W. Ellenberg
- * License: GPL Version 2
- * System: Linux
- *    
- * Copyright (c) 2014 All rights reserved.
+ * @copyright Copyright 2019, Robert W. Ellenberg
  *
- ********************************************************************/
+ * This source code is released for free distribution under the terms of the
+ * GNU General Public License (V2) as published by the Free Software Foundation.
+ */
 
+#include "spherical_arc9.h"
 #include "posemath.h"
-#include "spherical_arc.h"
+#include "pm_vector.h"
 #include "rtapi_math.h"
 #include "tp_enums.h"
-#include "tp_debug.h"
 
-int arcInitFromPoints(
-    SphericalArc * const arc,
-    PmCartesian const * const start,
-    PmCartesian const * const end,
-    PmCartesian const * const center,
-    PmCartesian const * const uTan,
+int arc9InitFromPoints(
+    SphericalArc9 * const arc,
+    PmVector const * const start,
+    PmVector const * const end,
+    PmVector const * const center,
+    PmVector const * const uTan,
     double prev_line_length)
 {
 #ifdef ARC_PEDANTIC
@@ -46,21 +46,14 @@ int arcInitFromPoints(
     arc->end = *end;
     arc->center = *center;
 
-    pmCartCartSub(start, center, &arc->rStart);
-    pmCartCartSub(end, center, &arc->rEnd);
+    VecVecSub(start, center, &arc->rStart);
+    VecVecSub(end, center, &arc->rEnd);
 
     // Find the radii at start and end. These are identical for a perfect spherical arc
-    double radius0, radius1;
-    pmCartMag(&arc->rStart, &radius0);
-    pmCartMag(&arc->rEnd, &radius1);
-
-    tp_debug_print("radii are %g and %g\n",
-            radius0,
-            radius1);
+    double radius0 = VecMag(&arc->rStart);
+    double radius1 = VecMag(&arc->rEnd);
 
     if (radius0 < ARC_MIN_RADIUS || radius1 < ARC_MIN_RADIUS) {
-        tp_debug_print("radius below min radius %f, aborting arc\n",
-                ARC_MIN_RADIUS);
         return TP_ERR_RADIUS_TOO_SMALL;
     }
 
@@ -68,23 +61,18 @@ int arcInitFromPoints(
     arc->radius = radius0;
 
     // Get unit vectors from center to start and center to end
-    PmCartesian u0, u1;
-    pmCartScalMult(&arc->rStart, 1.0 / radius0, &u0);
-    pmCartScalMult(&arc->rEnd, 1.0 / radius1, &u1);
+    PmVector u0, u1;
+    VecScalMult(&arc->rStart, 1.0 / radius0, &u0);
+    VecScalMult(&arc->rEnd, 1.0 / radius1, &u1);
 
     // Find arc angle
-    double dot;
-    pmCartCartDot(&u0, &u1, &dot);
+    double dot = VecVecDot(&u0, &u1);
     arc->angle = acos(dot);
-    tp_debug_print("spherical arc angle = %f\n", arc->angle);
 
     // Store spiral factor as radial difference. Archimedean spiral coef. a = spiral / angle
     arc->spiral = (radius1 - radius0 );
 
     if (arc->angle < ARC_MIN_ANGLE) {
-        tp_debug_print("angle %f below min angle %f, aborting arc\n",
-                arc->angle,
-                ARC_MIN_ANGLE);
         return TP_ERR_GEOM;
     }
 
@@ -94,9 +82,9 @@ int arcInitFromPoints(
     return TP_ERR_OK;
 }
 
-int arcPoint(SphericalArc const * const arc, double progress, PmCartesian * const out)
+int arc9Point(SphericalArc9 const * const arc, double progress, PmVector * const out)
 {
-#ifdef TP_PEDANTIC
+#ifdef ARC_PEDANTIC
     if (!arc) {return TP_ERR_MISSING_INPUT;}
     if (!out) {return TP_ERR_MISSING_OUTPUT;}
 #endif
@@ -105,29 +93,29 @@ int arcPoint(SphericalArc const * const arc, double progress, PmCartesian * cons
     double net_progress = progress - arc->line_length;
     if (net_progress <= 0.0 && arc->line_length > 0) {
         //Get position on line (not actually an angle in this case)
-        pmCartScalMult(&arc->uTan, net_progress, out);
-        pmCartCartAdd(out, &arc->start, out);
+        VecScalMult(&arc->uTan, net_progress, out);
+        VecVecAdd(out, &arc->start, out);
     } else {
         double angle_in = net_progress / arc->radius;
         double scale0 = sin(arc->angle - angle_in) / arc->Sangle;
         double scale1 = sin(angle_in) / arc->Sangle;
 
-        PmCartesian interp0,interp1;
-        pmCartScalMult(&arc->rStart, scale0, &interp0);
-        pmCartScalMult(&arc->rEnd, scale1, &interp1);
+        PmVector interp0,interp1;
+        VecScalMult(&arc->rStart, scale0, &interp0);
+        VecScalMult(&arc->rEnd, scale1, &interp1);
 
-        pmCartCartAdd(&interp0, &interp1, out);
-        pmCartCartAdd(&arc->center, out, out);
+        VecVecAdd(&interp0, &interp1, out);
+        VecVecAdd(&arc->center, out, out);
     }
     return TP_ERR_OK;
 }
 
-double arcLength(SphericalArc const * const arc)
+double arc9Length(SphericalArc9 const * const arc)
 {
     return arc->radius * arc->angle + arc->line_length;
 }
 
-int arcTangent(SphericalArc const * const arc, double const t, PmCartesian * const out)
+int arc9Tangent(SphericalArc9 const * const arc, double const t, PmVector * const out)
 {
     if (!arc || !out) {
         return TP_ERR_MISSING_INPUT;
@@ -140,15 +128,20 @@ int arcTangent(SphericalArc const * const arc, double const t, PmCartesian * con
     const double k0 = -cos( (1.0 - t) * theta);
     const double k1 = cos( t * theta);
 
-    PmCartesian dp0,dp1;
+    PmVector dp0,dp1;
 
     // Ugly sequence to build up tangent vector from components of the derivative
-    pmCartScalMult(&arc->rStart, k * k0, &dp0);
-    pmCartScalMult(&arc->rEnd, k * k1, &dp1);
-    pmCartCartAdd(&dp0, &dp1, out);
+    VecScalMult(&arc->rStart, k * k0, &dp0);
+    VecScalMult(&arc->rEnd, k * k1, &dp1);
+    VecVecAdd(&dp0, &dp1, out);
 
     // tangential vector complete, now normalize
-    pmCartUnitEq(out);
+    VecUnitEq(out);
 
     return TP_ERR_OK;
+}
+
+double arc9VLimit(const SphericalArc9 * const arc, double v_target, double v_limit_linear, double v_limit_angular)
+{
+    return VecVLimit(&arc->uTan, v_target, v_limit_linear, v_limit_angular);
 }
