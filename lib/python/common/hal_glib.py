@@ -9,6 +9,18 @@ import math
 from gi.repository import GObject
 from gi.repository import GLib
 
+# Set up logging
+from . import logger
+LOG = logger.getLogger(__name__)
+# LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL, VERBOSE
+
+try:
+    import zmq
+    import json
+except:
+    LOG.debug('Cannot import ZMQ')
+    zmq = None
+
 # constants
 JOGJOINT  = 1
 JOGTELEOP = 0
@@ -288,6 +300,16 @@ class _GStat(GObject.GObject):
         GObject.Object.__init__(self)
         self.stat = stat or linuxcnc.stat()
         self.cmd = linuxcnc.command()
+
+        self.readAddress = "tcp://127.0.0.1:5691"
+        self.writeAddress = "tcp://127.0.0.1:5690"
+        self.write_available = False
+        # if zmq is imported, create sockets
+        # for communication with a 3rd party
+        if zmq:
+            self.init_write_socket()
+            self.init_read_socket()
+
         self._status_active = False
         self.old = {}
         self.old['tool-prep-number'] = 0
@@ -313,6 +335,69 @@ class _GStat(GObject.GObject):
     # can override it to fix a seg fault
     def set_timer(self):
         GLib.timeout_add(CYCLE_TIME, self.update)
+
+    # open a zmq socket for writing out data
+    def init_write_socket(self):
+        context = zmq.Context()
+        self.write_socket = context.socket(zmq.PUB)
+        try:
+            self.write_socket.bind(self.writeAddress)
+            LOG.debug('hal_glib write socket available: {}'.format(self.writeAddress))
+            self.write_available = True
+        except:
+            LOG.debug('hal_glib write socket not available')
+            self.write_available = False
+
+    # convert and actually send out the message
+    def write_msg(self, msg,data):
+        if self.write_available == True:
+            topic = b'STATUS'
+            x = {
+                "MESSAGE": msg,
+                "ARGS": [data]
+                }
+            # convert to JSON object
+            m1 = json.dumps(x)
+            self.write_socket.send_multipart([topic, bytes((m1).encode('utf-8'))])
+
+    # open a zmq socket for reading in function calls 
+    def init_read_socket(self):
+        # ZeroMQ Context
+        context = zmq.Context()
+
+        # Define the socket using the "Context"
+        self.readSocket = context.socket(zmq.SUB)
+
+        # Define subscription and messages with topic to accept.
+        topic = "" # all topics
+        self.readSocket.setsockopt_string(zmq.SUBSCRIBE, 'STATUSREQUEST')
+        try:
+            self.readSocket.connect(self.readAddress)
+            LOG.debug('hal_glib read socket available: {}'.format(self.readAddress))
+        except Exception as e:
+            LOG.debug('hal_glib read socket error: {}'.format(e))
+            return
+        GObject.io_add_watch(self.readSocket.getsockopt(zmq.FD),
+                         GObject.IO_IN|GObject.IO_ERR|GObject.IO_HUP,
+                         self.onReadMsg, self.readSocket)
+
+    # convert message to a function name and data
+    # then call that function
+    def onReadMsg(self, queue, condition, sock):
+        while self.readSocket.getsockopt(zmq.EVENTS) & zmq.POLLIN:
+            # get raw message
+            topic, data = self.readSocket.recv_multipart()
+            # convert from json object to python object
+            y = json.loads(data)
+            function = y.get('FUNCTION')
+            data = y.get('ARGS')
+            LOG.debug('REQUESTED:{}'.format(y))
+            try:
+                self[function](data)
+            except Exception as e:
+                LOG.debug('not a valid request\n {}'.format(e))
+            #self. action(y.get('MESSAGE'),y.get('ARGS'))
+        return True
 
     def merge(self):
         self.old['command-state'] = self.stat.state
@@ -975,10 +1060,12 @@ class _GStat(GObject.GObject):
         spindle_spd_new = self.old['actual-spindle-speed']
         self.emit('actual-spindle-speed-changed', spindle_spd_new)
         self.emit('spindle-control-changed', 0, False, 0, False)
-        self.emit('jograte-changed', self.current_jog_rate)
-        self.emit('jograte-angular-changed', self.current_angular_jog_rate)
-        self.emit('jogincrement-changed', self.current_jog_distance, self.current_jog_distance_text)
-        self.emit('jogincrement-angular-changed', self.current_jog_distance_angular, self.current_jog_distance_angular_text)
+
+        self.set_jograte(self.current_jog_rate)
+        self.set_jograte_angular(self.current_angular_jog_rate)
+        self.set_jog_increments(self.current_jog_distance, self.current_jog_distance_text)
+        self.set_jog_increment_angular(self.current_jog_distance_angular, self.current_jog_distance_angular_text)
+
         tool_info_new = self.old['tool-info']
         self.emit('tool-info-changed', tool_info_new)
 
@@ -1069,6 +1156,7 @@ class _GStat(GObject.GObject):
     def set_jograte(self, upm):
         self.current_jog_rate = upm
         self.emit('jograte-changed', upm)
+        self.write_msg('jograte-changed', upm)
 
     def get_jograte(self):
         return self.current_jog_rate
@@ -1076,6 +1164,7 @@ class _GStat(GObject.GObject):
     def set_jograte_angular(self,rate):
         self.current_angular_jog_rate = rate
         self.emit('jograte-angular-changed', rate)
+        self.write_msg('jograte-angular-changed', rate)
 
     def get_jograte_angular(self):
         return self.current_angular_jog_rate
@@ -1087,22 +1176,24 @@ class _GStat(GObject.GObject):
         try:
             isinstance(float(distance), float)
         except:
-            print('error converting angular jog increment ({}) to float: staying at {}'.format(distance,self.current_jog_distance_angular))
+            LOG.warning('error converting angular jog increment ({}) to float: staying at {}'.format(distance,self.current_jog_distance_angular))
             return
         self.current_jog_distance_angular = distance
         self.current_jog_distance_text_angular = text
         self.emit('jogincrement-angular-changed', distance, text)
+        self.write_msg('jogincrements-angular-changed', (distance, text))
 
     # should be in machine units
     def set_jog_increments(self, distance, text):
         try:
             isinstance(float(distance), float)
         except:
-            print('error converting jog increment ({}) to float: staying at {}'.format(distance,self.current_jog_distance))
+            LOG.warning('error converting jog increment ({}) to float: staying at {}'.format(distance,self.current_jog_distance))
             return
         self.current_jog_distance = distance
         self.current_jog_distance_text = text
         self.emit('jogincrement-changed', distance, text)
+        self.write_msg('jogincrements-changed', (distance,text))
 
     def get_jog_increment(self):
         return self.current_jog_distance
@@ -1113,6 +1204,7 @@ class _GStat(GObject.GObject):
     def set_selected_joint(self, data):
         self.selected_joint = int(data)
         self.emit('joint-selection-changed', data)
+        self.write_msg('joint-selection-changed', data)
 
     def get_selected_joint(self):
         return self.selected_joint
@@ -1120,6 +1212,7 @@ class _GStat(GObject.GObject):
     def set_selected_axis(self, data):
         self.selected_axis = str(data)
         self.emit('axis-selection-changed', data)
+        self.write_msg('axis-selection-changed', data)
 
     def get_selected_axis(self):
         return self.selected_axis
@@ -1283,17 +1376,17 @@ class _GStat(GObject.GObject):
             return JOGJOINT
         if self.stat.motion_mode == linuxcnc.TRAJ_MODE_TELEOP:
             return JOGTELEOP
-        print("commands.py: unexpected motion_mode",self.stat.motion_mode)
+        LOG.warning("Unexpected motion_mode {}, ".format(self.stat.motion_mode))
         return JOGTELEOP
 
     def jnum_for_axisnum(self,axisnum):
         if self.stat.kinematics_type != linuxcnc.KINEMATICS_IDENTITY:
-            print("\n%s:\n  Joint jogging not supported for"
+            LOG.warning("\n%s:\n  Joint jogging not supported for"
                    "non-identity kinematics"%__file__)
             return -1 # emcJogCont() et al reject neg joint/axis no.s
         jnum = trajcoordinates.index( "xyzabcuvw"[axisnum] )
         if jnum > jointcount:
-            print("\n%s:\n  Computed joint number=%d for axisnum=%d "
+            LOG.warning("\n%s:\n  Computed joint number=%d for axisnum=%d "
                    "exceeds jointcount=%d with trajcoordinates=%s"
                    %(__file__,jnum,axisnum,jointcount,trajcoordinates))
             # Note: primary gui should protect for this misconfiguration
