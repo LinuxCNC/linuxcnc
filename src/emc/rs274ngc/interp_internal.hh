@@ -684,6 +684,8 @@ struct setup
   CANON_MOTION_MODE control_mode;       // exact path or cutting mode
     double tolerance;           // G64 blending tolerance
     double naivecam_tolerance;  // G64 naive cam tolerance
+    double tolerance_default;   // G64 P Default value, -1 to disable
+    double naivecam_tolerance_default; // G64 Q Default Value, -1 to disable 
   int current_pocket;             // carousel slot (index) number of current tool
   double current_x;             // current X-axis position
   double current_y;             // current Y-axis position

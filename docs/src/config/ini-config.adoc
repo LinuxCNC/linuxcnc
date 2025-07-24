@@ -514,6 +514,10 @@ if __name__ == "__main__":
   The first matching subroutine file found in the search is used.
   Directories are specified relative to the current directory for the INI file or as absolute paths.
   The list must contain no intervening whitespace.
+* `G64_DEFAULT_TOLERANCE =` _n_ (Default: 0)
+  Default P value for G64 if P is not called out.
+* `G64_DEFAULT_NAIVETOLERANCE =` _n_ (Default: 0)
+  Default Q value for G64 if Q is not called out.
 * `CENTER_ARC_RADIUS_TOLERANCE_INCH =` _n_ (Default: 0.00005)
 * `CENTER_ARC_RADIUS_TOLERANCE_MM =` _n_ (Default: 0.00127)
 * `USER_M_PATH = myfuncs:/tmp/mcodes:experimentalmcodes` - (((USER M PATH)))
