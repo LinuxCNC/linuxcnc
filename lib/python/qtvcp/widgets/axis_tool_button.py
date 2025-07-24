@@ -251,6 +251,8 @@ class AxisToolButton(QToolButton, IndicatedMixIn):
                 self.hal_pin_axis.set(False)
 
     def ChangeState(self, joint = None, axis = None):
+        #print(self.objectName(),'change',joint,axis,self._axis)
+        # joint mode
         if STATUS.is_joint_mode():
             if int(joint) != self._joint:
                 self._block_signal = True
@@ -258,21 +260,29 @@ class AxisToolButton(QToolButton, IndicatedMixIn):
                 self._block_signal = False
                 if self._halpin_option and self._joint != -1:
                     self.hal_pin_joint.set(False)
+            else:
+                self._block_signal = True
+                self.setChecked(True)
+                self._block_signal = False
+                if self._halpin_option and self._axis != '':
+                    self.hal_pin_joint.set(True)
+        # axis mode
         else:
-            if str(axis) != self._axis:
+            if str(axis) != self._axis and self.isChecked():
                 self._block_signal = True
                 self.setChecked(False)
                 self._block_signal = False
                 if self._halpin_option and self._axis != '':
                     self.hal_pin_joint.set(False)
+            elif str(axis) == self._axis and not self.isChecked():
+                self._block_signal = True
+                self.setChecked(True)
+                self._block_signal = False
+                if self._halpin_option and self._axis != '':
+                    self.hal_pin_joint.set(True)
 
     def modeChanged(self, mode):
         self.selectJoint()
-        return
-        if mode == STATUS.linuxcnc.TRAJ_MODE_FREE:
-            ACTION.SET_SELECTED_JOINT(self._joint)
-        else:
-            ACTION.SET_SELECTED_AXIS(self._axis)
 
     def _switch_units(self, widget, data):
         self.display_units_mm = data
@@ -301,6 +311,9 @@ class AxisToolButton(QToolButton, IndicatedMixIn):
             self.goToG53Button.setText(text)
             text = 'Go To G5x Origin in {}'.format(self._axis)
             self.goToG5xButton.setText(text)
+        else:
+             self._axis = str('')
+
     def get_axis(self):
         return self._axis
     def reset_axis(self):
