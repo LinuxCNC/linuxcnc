@@ -3709,7 +3709,8 @@ class HandlerClass:
                 self.w.jog_frame.setEnabled(state)
 
     def show_material_selector(self):
-        self.w.material_selector.showPopup()
+        if STATUS.is_interp_idle():
+            self.w.material_selector.showPopup()
 
     def autorepeat_keys(self, state):
         if not self.autorepeat_skip:
