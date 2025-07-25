@@ -241,6 +241,9 @@ class _GStat(GObject.GObject):
         'forced-update': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, ()),
         'progress': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_INT, GObject.TYPE_PYOBJECT)),
         'following-error': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE,(GObject.TYPE_PYOBJECT,)),
+        'cycle-start-request': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'cycle-pause-request': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'macro-call-request': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
         }
 
     STATES = { linuxcnc.STATE_ESTOP:       'state-estop'
@@ -1427,6 +1430,20 @@ class _GStat(GObject.GObject):
             coord[0] = x1 * math.cos(t) - y1 * math.sin(t)
             coord[1] = x1 * math.sin(t) + y1 * math.cos(t)
         return coord
+
+    #############################################
+    # called by ZMQ requests
+    #############################################
+    def request_cycle_start(self, data):
+        self.emit('cycle-start-request', data)
+
+    def request_cycle_pause(self, data):
+        self.emit('cycle-pause-request', data)
+
+    def request_macro_call(self, data):
+        self.emit('macro-call-request', data)
+
+    #############################################
 
     def shutdown(self):
         self.emit('shutdown')
