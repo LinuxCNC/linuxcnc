@@ -1633,7 +1633,7 @@ G64 <P- <Q->>
 
 * 'P' - motion blending tolerance
 * 'Q' - naive cam tolerance
-* 'G64' - best possible speed. Without P (Or a default value in <<ini-config:rs274ngc,INI[RS274]>>) means to keep the best speed
+* 'G64' - best possible speed. Without P (Or a default value in <<sub:ini:sec:rs274ngc,RS274NGC>>) means to keep the best speed
   possible, no matter how far away from the programmed point you end up.
 * 'G64 P-' - Blend between best speed and deviation tolerance
 * 'G64 P- <Q- >' blending with tolerance.
