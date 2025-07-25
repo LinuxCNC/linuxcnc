@@ -677,7 +677,7 @@ Some functions/features are only used for particular modes and are not displayed
 |===
 |Name     |Description
 |Material |The top header is clickable in this area to reveal a drop-down menu. It is used to manually select the current material cut parameters. If there are no materials in the material file, then only the default material will be displayed.
-|VEL:     |This displays the actual cut feed rate the table is moving at.
+|VEL:     |Displays the current feed rate of the table, including both rapid and cutting moves. While cutting, if a <<plasma:velocity-reduction,Velocity Reduction>> is active, this label updates to reflect the percentage of the original feed rate being used. For example, "VEL@20%:" means the table is cutting at 20% of the programmed feed rate - an 80% reduction.
 |FR:      |If "View Material" is selected on the <<plasma:settings-tab,SETTINGS Tab>>, this displays the currently selected material's Feed Rate.
 |PH:      |If "View Material" is selected on the <<plasma:settings-tab,SETTINGS Tab>>, this displays the currently selected material's Pierce Height.
 |PD:      |If "View Material" is selected on the <<plasma:settings-tab,SETTINGS Tab>>, this displays the currently selected material's Pierce Delay.
@@ -1795,7 +1795,11 @@ For more information, see <<plasma:scribe,scribe>>.
 === Velocity Reduction
 
 There is a HAL pin available named *motion.analog-out-03* that can be changed in G-code with the *M67 (Synchronized with Motion)/M68 (Immediate)* commands.
-This pin will reduce the velocity to the percentage specified in the command.
+This pin will reduce the velocity of the original feed rate to the percentage specified in the command.
+
+The "VEL:" label at the top right of the preview window will update to reflect the percentage of the original feed rate being used. For example, "VEL@20%:" means the table is cutting at 20% of the programmed feed rate - an 80% reduction.
+
+NOTE: Because of differences between the GUI and the PlasmaC component polling intervals, velocity label updates may lag (typically by up to 100 ms).
 
 It is important to thoroughly understand the difference between *Synchronized with Motion* and *Immediate*:
 

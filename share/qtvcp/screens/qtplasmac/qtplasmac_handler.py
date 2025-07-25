@@ -1,4 +1,4 @@
-VERSION = '008.067'
+VERSION = '009.068'
 LCNCVER = '2.10'
 
 '''
@@ -865,6 +865,7 @@ class HandlerClass:
         self.sensorActive = self.h.newpin('sensor_active', hal.HAL_BIT, hal.HAL_IN)
         self.tabsAlwaysEnabled = self.h.newpin('tabs_always_enabled', hal.HAL_BIT, hal.HAL_IN)
         self.thcFeedRatePin = self.h.newpin('thc_feed_rate', hal.HAL_FLOAT, hal.HAL_OUT)
+        self.velReduct = self.h.newpin('vel_reduct', hal.HAL_FLOAT, hal.HAL_IN)
         self.xOffsetPin = self.h.newpin('x_offset', hal.HAL_FLOAT, hal.HAL_IN)
         self.yOffsetPin = self.h.newpin('y_offset', hal.HAL_FLOAT, hal.HAL_IN)
         self.zHeightPin = self.h.newpin('z_height', hal.HAL_FLOAT, hal.HAL_IN)
@@ -973,6 +974,7 @@ class HandlerClass:
         CALL(['halcmd', 'net', 'plasmac:z-offset-counts', 'qtplasmac.z_offset_counts'])
         CALL(['halcmd', 'net', 'plasmac:offset-set-probe', 'plasmac.offset-set-probe', 'qtplasmac.offset_set_probe'])
         CALL(['halcmd', 'net', 'plasmac:offset-set-scribe', 'plasmac.offset-set-scribe', 'qtplasmac.offset_set_scribe'])
+        CALL(['halcmd', 'net', 'plasmac:adaptive-feed', 'qtplasmac.vel_reduct'])
 
 # *** add system hal pin changes here that may affect existing configs ***
 # *** these may be removed after auto updating is implemented          ***
@@ -3150,6 +3152,7 @@ class HandlerClass:
         self.w.webview_back.pressed.connect(self.web_back_pressed)
         self.w.webview_forward.pressed.connect(self.web_forward_pressed)
         self.w.webview_reload.pressed.connect(self.web_reload_pressed)
+        self.velReduct.value_changed.connect(lambda: self.vel_reduct())
 
     def conv_call(self, operation):
         if self.developmentPin.get():
@@ -3756,6 +3759,12 @@ class HandlerClass:
         self.w.gcodegraphics.update()
         self.w.conv_preview.update()
 
+    # called when qtplasmac.vel-reduct pin value changes, and by update_periodic every 100mS when not idle to ensure
+    # the label does not get stuck due to timing discrepancies between the GUI and the component poll rates
+    def vel_reduct(self):
+        factor = self.velReduct.get()
+        self.w.velocity_label.setText('VEL:' if factor == 1.0 else f'VEL@{factor * 100:.0f}%:')
+
 #########################################################################################################################
 # TIMER FUNCTIONS #
 #########################################################################################################################
@@ -3778,6 +3787,8 @@ class HandlerClass:
             self.firstRun = False
 
     def update_periodic(self):
+        if not STATUS.is_interp_idle():
+            self.vel_reduct()
         if self.framing and STATUS.is_interp_idle():
             self.framing = False
             ACTION.SET_MANUAL_MODE()
