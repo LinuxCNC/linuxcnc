@@ -869,6 +869,9 @@ int Interp::init()
   _setup.call_state = CS_NORMAL;
   _setup.num_spindles = 1;
 
+  _setup.tolerance_default = 0;
+  _setup.naivecam_tolerance_default = 0;
+
   // default arc radius tolerances
   // we'll try to override these from the INI file below
   _setup.center_arc_radius_tolerance_inch = CENTER_ARC_RADIUS_TOLERANCE_INCH;
@@ -891,6 +894,9 @@ int Interp::init()
           inifile.Find(&_setup.c_axis_wrapped, "WRAPPED_ROTARY", "AXIS_C");
           inifile.Find(&_setup.random_toolchanger, "RANDOM_TOOLCHANGER", "EMCIO");
           inifile.Find(&_setup.num_spindles, "SPINDLES", "TRAJ");
+
+          inifile.Find(&_setup.tolerance_default, "G64_DEFAULT_TOLERANCE", "RS274NGC");
+          inifile.Find(&_setup.naivecam_tolerance_default, "G64_DEFAULT_NAIVETOLERANCE", "RS274NGC");
 
           // First the features that default to ON
           opt = true;
