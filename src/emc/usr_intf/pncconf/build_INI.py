@@ -172,8 +172,13 @@ class INI:
             else:
                 unit = 20
                 p =.001
-            print ("RS274NGC_STARTUP_CODE = G{} G40 G90 G94 G97 G64 P{}".format(unit,p), file=file)
-
+            print("RS274NGC_STARTUP_CODE = G{} G40 G90 G94 G97 G64".format(unit), file=file)
+            print("", file=file)
+            print("# Default P value for G64 if P is not called out", file=file)
+            print("G64_DEFAULT_TOLERANCE = {}".format(p), file=file)
+            print("# Default Q value for G64 if Q is not called out", file=file)
+            print("G64_DEFAULT_NAIVETOLERANCE = 0", file=file)
+            print("", file=file)
         if self.d.frontend == _PD._GMOCCAPY:
             print("SUBROUTINE_PATH = ./macros", file=file)
             print("REMAP=M6  modalgroup=6 prolog=change_prolog ngc=change_g43 epilog=change_epilog", file=file)
