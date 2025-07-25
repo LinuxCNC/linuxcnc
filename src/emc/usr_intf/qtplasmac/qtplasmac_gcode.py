@@ -848,7 +848,7 @@ class Filter():
         matFeed = float(self.materialDict[self.currentMaterial[0]][0]) * self.unitMultiplier
         # this may need scaling ...
         diff = 1
-        if (codeFeed < matFeed - diff or codeFeed > matFeed + diff):
+        if (codeFeed < matFeed - diff or codeFeed > matFeed + diff) and matFeed != 0:
             self.codeWarn = True
             self.warnFeed.append([self.lineNum, rawFeed, self.currentMaterial[0], self.materialDict[self.currentMaterial[0]][0]])
             self.errorLines.append(self.lineNumOrg)
@@ -1448,7 +1448,7 @@ class Filter():
                 for n in range(0, len(self.warnFeed)):
                     msg0 = 'Line'
                     msg1 = 'does not match Material'
-                    msg2 = 'feed rate of '
+                    msg2 = 'feed rate of'
                     warnText += f'{msg0} {self.warnFeed[n][0]:0.0f}: F{self.warnFeed[n][1]} {msg1}_{self.warnFeed[n][2]}\'s {msg2} {self.warnFeed[n][3]:0.0f}\n'
             if self.warnChar:
                 msg = 'Invalid characters, data has been commented out.\n'
