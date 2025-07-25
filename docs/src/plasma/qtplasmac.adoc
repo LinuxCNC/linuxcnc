@@ -1809,9 +1809,7 @@ Examples:
 * `M67 E3 Q60` would set the velocity to 60% of *CutFeedRate*.
 * `M67 E3 Q100` would set the velocity to 100% of *CutFeedRate*.
 
-The minimum percentage allowed is 10%, values below this will be set to 10%.
-
-The maximum percentage allowed is 100%, values above this will be set to 100%.
+Q values that are less than or equal to 0 or greater than or equal to 100 will be set to 100.
 
 If the user intends to use this feature it would be prudent to add `M68 E3 Q0` to both the preamble and postamble of the G-code program so the machine starts and ends in a known state.
 

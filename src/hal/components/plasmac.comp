@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC 2.10.
 
 === VERSION
 
-008
+009
 
 === SUMMARY
 
@@ -628,11 +628,10 @@ FUNCTION(_) {
     ohmic_detected = ohmic_probe && ohmic_probe_enable;
 
     /* set adaptive feed reduction if no paused motion */
+    /* paused motion requires allowing negative values for reverse run */
     if(state != PAUSED_MOTION){
-        if(feed_reduction < 10 && (state == CUT_MODE_01 || state == CUT_MODE_2)){
-            adaptive_feed = 1;
-        }else if(feed_reduction < 100 && (state == CUT_MODE_01 || state == CUT_MODE_2)){
-            adaptive_feed = feed_reduction * 0.01;
+        if(state == CUT_MODE_01 || state == CUT_MODE_2){
+            adaptive_feed = (feed_reduction <= 0 || feed_reduction >= 100) ? 1:feed_reduction * 0.01;
         }else{
             adaptive_feed = 1;
         }
