@@ -12133,7 +12133,7 @@ LIFT</string>
                          <number>2</number>
                         </property>
                         <property name="axis_letter" stdset="0">
-                         <string>Z</string>
+                         <string/>
                         </property>
                         <property name="dialog_code_string" stdset="0">
                          <string>CALCULATOR</string>
@@ -14287,7 +14287,7 @@ SCROLL</string>
                          <number>1</number>
                         </property>
                         <property name="axis_letter" stdset="0">
-                         <string>Y</string>
+                         <string/>
                         </property>
                         <property name="dialog_code_string" stdset="0">
                          <string>CALCULATOR</string>
@@ -17845,7 +17845,7 @@ SCROLL</string>
              <number>2</number>
             </property>
             <property name="text">
-             <string>04:58:12 AM</string>
+             <string>03:25:03 PM</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>

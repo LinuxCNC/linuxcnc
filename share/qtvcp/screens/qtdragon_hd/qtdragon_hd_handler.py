@@ -149,6 +149,9 @@ class HandlerClass:
         STATUS.connect('graphics-gcode-properties', lambda w, d: self.update_gcode_properties(d))
         STATUS.connect('status-message', lambda w, d, o: self.add_external_status(d,o))
         STATUS.connect('runstop-line-changed', lambda w, l :self.lastRunLine(l))
+        STATUS.connect('cycle-start-request', lambda w, state :self.btn_start_clicked(state))
+        STATUS.connect('cycle-pause-request', lambda w, state: self.btn_pause_clicked(state))
+        STATUS.connect('macro-call-request', lambda w, name: self.request_macro_call(name))
 
         txt1 = _translate("HandlerClass","Setup Tab")
         txt2 = _translate("HandlerClass","If you select a file with .html as a file ending, it will be shown here.")
@@ -890,7 +893,34 @@ class HandlerClass:
     # Log the last run line (in auto mode) if stopped
     def lastRunLine(self, line):
         if line >0:
-            self.add_status('last running line before stoppage: {}'.format(line))
+            self.add_status(_translate("HandlerClass",'last running line before stoppage: {}'.format(line)))
+
+    # called from hal_glib to run macros from external event
+    def request_macro_call(self, data):
+        if not STATUS.is_mdi_mode():
+            self.add_status(_translate("HandlerClass",'Machine must be in MDI mode to run macros'), CRITICAL)
+            return
+        flag = True
+        for b in range(0,10):
+            button = self.w['macrobutton{}'.format(b)]
+            # prefer named INI MDI commands
+            key = button.property('ini_mdi_key')
+            code = INFO.get_ini_mdi_command(key)
+            if key == '' or code is None:
+                # fallback to legacy nth line
+                key = button.property('ini_mdi_number')
+                code = INFO.get_ini_mdi_command(key)
+            try:
+                if code is None: raise Exception
+                flag = False
+            except:
+                continue
+            if key == data:
+                #print('match',button.objectName())
+                text = button.text().replace('\n',' ')
+                self.add_status(_translate("HandlerClass",'Running macro: {} {}'.format(key, text)))
+                button.click()
+                break
 
     #######################
     # CALLBACKS FROM FORM #
