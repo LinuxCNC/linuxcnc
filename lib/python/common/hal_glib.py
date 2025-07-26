@@ -11,14 +11,14 @@ from gi.repository import GLib
 
 # Set up logging
 from . import logger
-LOG = logger.getLogger(__name__)
-# LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL, VERBOSE
+# log instance holder variable
+LOG = None
 
 try:
     import zmq
     import json
 except:
-    LOG.debug('Cannot import ZMQ')
+    print('Cannot import ZMQ')
     zmq = None
 
 # constants
@@ -301,6 +301,12 @@ class _GStat(GObject.GObject):
 
     def __init__(self, stat = None):
         GObject.Object.__init__(self)
+
+        global LOG
+        LOG = logger.getLogger(__name__)
+        # Force the log level for this module only
+        #LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+
         self.stat = stat or linuxcnc.stat()
         self.cmd = linuxcnc.command()
 
