@@ -6,9 +6,8 @@ import configparser
 # Set up logging
 from . import logger
 
-LOG = logger.getLogger(__name__)
-# Force the log level for this module only
-#LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+# log instance holder variable
+LOG = None
 
 class _IStat(object):
     def __init__(self, ini=None):
@@ -17,8 +16,17 @@ class _IStat(object):
             return
         self.__class__._instanceNum += 1
 
+        global LOG
+        LOG = logger.getLogger(__name__)
+        # Force the log level for this module only
+        #LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+
         inipath = os.environ.get('INI_FILE_NAME', '/dev/null')
         self.LINUXCNC_IS_RUNNING = bool(inipath != '/dev/null')
+        if not self.LINUXCNC_IS_RUNNING:
+            # Reset the log level for this module
+            # Linuxcnc isn't running so we expect INI errors
+            LOG.setLevel(logger.CRITICAL)
         self.ENVIRO_INI_PATH = inipath
 
         # if no INI was given use the one from the environment
@@ -34,11 +42,6 @@ class _IStat(object):
         self.RIP_FLAG = bool(os.environ.get('LINUXCNC_RIP_FLAG', False))
 
         self.BASE = self.get_base()
-
-        if not self.LINUXCNC_IS_RUNNING:
-            # Reset the log level for this module
-            # Linuxcnc isn't running so we expect INI errors
-            LOG.setLevel(logger.CRITICAL)
 
         self.LINUXCNC_VERSION =  self.get_linuxcnc_version()
 
