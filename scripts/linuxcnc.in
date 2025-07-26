@@ -575,6 +575,10 @@ EMCSERVER=linuxcncsvr
 GetFromIniQuiet HALUI HAL
 HALUI=$retval
 
+# 2.7.1 get halbridge info from INI
+GetFromIniQuiet HALBRIDGE HAL
+HALBRIDGE=$retval
+
 # 2.8. get display information
 GetFromIni DISPLAY DISPLAY
 EMCDISPLAY=$( (set -- $retval ; echo "$1") )
@@ -870,6 +874,12 @@ if [ -n "$HALUI" ] ; then
 	exit 1
     fi
     $HALCMD loadusr -Wn halui "$HALUI" -ini "$INIFILE"
+fi
+
+# run hal bridge program IF requested
+if [ -n "$HALBRIDGE" ] ; then
+    echo "Starting HAL User Interface program: $HALBRIDGE" >> "$PRINT_FILE"
+    $HALCMD loadusr -Wn bridge $HALBRIDGE
 fi
 
 # 4.3.6. execute HALCMD config files (if any)
