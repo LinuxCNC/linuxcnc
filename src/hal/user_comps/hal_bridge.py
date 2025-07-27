@@ -90,6 +90,13 @@ class Bridge(object):
             self[i] = QHAL.newpin('macro-cmd-{}'.format(i),QHAL.HAL_BIT, QHAL.HAL_IN)
             self[i].pinValueChanged.connect(self.runMacroChanged)
 
+        for i in self.INFO.INI_MACROS:
+            name = i.split()[0]
+            LOG.debug('{} {}'.format(name,i))
+
+            self[name] = QHAL.newpin('macro-cmd-{}'.format(name),QHAL.HAL_BIT, QHAL.HAL_IN)
+            self[name].pinValueChanged.connect(self.runMacroChanged)
+
         QHAL.setUpdateRate(100)
         h.ready()
 

@@ -406,9 +406,10 @@ class gmoccapy(object):
         self.widgets["rbt_view_{0}".format(view)].set_active(True)
         self.widgets.gremlin.set_property("view", view)
 
-        GSTAT = hal_glib.GStat()
-        GSTAT.connect("graphics-gcode-properties", self.on_gcode_properties)
-        GSTAT.connect("file-loaded", self.on_hal_status_file_loaded)
+        self.GSTAT = hal_glib.GStat()
+        self.GSTAT.connect("graphics-gcode-properties", self.on_gcode_properties)
+        self.GSTAT.connect("file-loaded", self.on_hal_status_file_loaded)
+        self.GSTAT.connect('macro-call-request', lambda w, name: self.request_macro_call(name))
 
         # get if run from line should be used
         self.run_from_line = self.prefs.getpref("run_from_line", "no_run", str)
@@ -1321,6 +1322,33 @@ class gmoccapy(object):
 
                 self.joints_button_dic[name] = btn
 
+    # call INI macro (from hal_glib message)
+    def request_macro_call(self, data):
+
+        # some error checking
+        if not self.GSTAT.is_mdi_mode():
+            message = _("You must be in MDI mode to run macros")
+            self.dialogs.warning_dialog(self, _("Important Warning!"), message)
+            return
+
+        # look thru the INI macros
+        macros = self.get_ini_info.get_macros()
+        num_macros = len(macros)
+        if num_macros > 14:
+            num_macros = 14
+        for pos in range(0, num_macros):
+            # extract just the macro name
+            name = macros[pos].split()[0]
+            if data == name:
+                # get the button instance and click it
+                button = self["button_macro_{0}".format(pos)]
+                button.emit("clicked")
+                break
+        else:
+            # didn't match a name - give a hint
+            message = _("Macro {} not found ".format(data))
+            self.dialogs.warning_dialog(self, _("Important Warning!"), message)
+
     # check if macros are in the INI file and add them to MDI Button List
     def _make_macro_button(self):
         LOG.debug("Entering make macro button")
@@ -1362,6 +1390,8 @@ class gmoccapy(object):
                 btn.set_halign(Gtk.Align.CENTER)
                 btn.set_valign(Gtk.Align.CENTER)
                 btn.set_property("name","macro_{0}".format(pos))
+            # keep a reference of the button
+            self["button_macro_{0}".format(pos)] = btn
             btn.set_property("tooltip-text", _("Press to run macro {0}".format(name)))
             btn.connect("clicked", self._on_btn_macro_pressed, name)
             btn.position = pos
@@ -6075,6 +6105,16 @@ class gmoccapy(object):
         pin = self.halcomp.newpin("blockdelete", hal.HAL_BIT, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._blockdelete)
 
+
+    ##############################
+    # required class boiler code #
+    # for subscriptable objects  #
+    ##############################
+    def __getitem__(self, item):
+        return getattr(self, item)
+
+    def __setitem__(self, item, value):
+        return setattr(self, item, value)
 
 # Hal Pin Handling End
 # =========================================================
