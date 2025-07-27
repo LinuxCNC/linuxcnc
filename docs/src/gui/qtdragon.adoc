@@ -433,13 +433,50 @@ These optional HAL commands will be run after QtDragon has loaded everything els
 You can add multiple line. Each one will be called in the order they appear. +
 Any HAL command can be used.
 
-.Sample with typical files in INI file to load modules after the GUI is available. Adjusti these to match your actual requirements.
+.Sample with typical files in INI file to load modules after the GUI is available. Adjust these to match your actual requirements.
 [source,{ini}]
 ----
 [HAL]
 POSTGUI_HALCMD = loadusr qtvcp test_probe
 POSTGUI_HALCMD = loadusr qtvcp test_led
 POSTGUI_HALCMD = loadusr halmeter
+----
+=== HAL Bridge
+Hal Bridge is similar to HALUI - it has HAL pins that communicate with QtDragon. +
+These pins could be used with HALUI to built a more frendly control panel. +
+
+- It can report/change the current selected Axis button. +
+- The jog rate/increments will be reported. +
+- There is a cycle start and pause pin - these call the code in QtDragon rather then the motion controller. +
+- If there are macros defined in the INI, there will be pins available the initiate them. +
+
+.Sample entry. remove '-d' to quiet debugging messages
+[source,{ini}]
+----
+[HAL]
+HALBRIDGE= hal_bridge -d
+----
+
+.Typical HAL pins avaialble:
+----
+Component Pins:
+Owner   Type  Dir                 Value  Name
+    38  s32   OUT                     0  base-thread.time
+    29  bit   OUT                 FALSE  bridge.axis-x-is-selected
+    29  bit   IN                  FALSE  bridge.axis-x-select
+    29  bit   OUT                 FALSE  bridge.axis-y-is-selected
+    29  bit   IN                  FALSE  bridge.axis-y-select
+    29  bit   OUT                 FALSE  bridge.axis-z-is-selected
+    29  bit   IN                  FALSE  bridge.axis-z-select
+    29  bit   IN                  FALSE  bridge.cycle-pause-in
+    29  bit   IN                  FALSE  bridge.cycle-start-in
+    29  float OUT                     0  bridge.jog-increment
+    29  float OUT                     0  bridge.jog-increment-angular
+    29  float OUT                    15  bridge.jog-rate
+    29  float OUT                   360  bridge.jog-rate-angular
+    29  s32   OUT                    -1  bridge.joint-selected
+    29  bit   IN                  FALSE  bridge.macro-cmd-MACRO0
+    29  bit   IN                  FALSE  bridge.macro-cmd-MACRO1
 ----
 
 === Builtin Sample Configurations
