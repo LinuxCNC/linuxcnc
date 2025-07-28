@@ -1,4 +1,4 @@
-VERSION = '009.068'
+VERSION = '009.069'
 LCNCVER = '2.10'
 
 '''
@@ -1988,7 +1988,7 @@ class HandlerClass:
                     log = _translate('HandlerClass', 'Run from line - here to end loaded')
                 log1 = _translate('HandlerClass', 'Start line')
                 STATUS.emit('update-machine-log', f'{log} - {log1}: {(self.startLine + 1)}', 'TIME')
-        elif not self.cut_critical_check():
+        elif self.cut_critical_toggle_check():
             self.jobRunning = True
             ACTION.RUN(0)
             log = _translate('HandlerClass', 'Cycle started')
@@ -3465,7 +3465,7 @@ class HandlerClass:
         rflT.setWindowTitle(_translate('HandlerClass', 'Run From Line'))
         run = QRadioButton(_translate('HandlerClass', 'HERE TO END'))
         cut = QRadioButton(_translate('HandlerClass', 'THIS CUTPATH'))
-        lbl = QLabel()
+        lbl = QLabel('')
         buttons = QDialogButtonBox.Ok | QDialogButtonBox.Cancel
         buttonBox = QDialogButtonBox(buttons)
         buttonBox.accepted.connect(rflT.accept)
@@ -3494,6 +3494,53 @@ class HandlerClass:
         # cancel clicked
         else:
             return {'cancel': True, 'type': 'end'}
+
+    def show_cut_critical_dialog(self, rcButtonList):
+            checkStyle = 'QCheckBox::indicator { margin-left: 8px; margin-right: 8px; }\n \
+                            QCheckBox { font-size: 11pt; }'
+            ccr = QDialog(self.w)
+            ccr.setWindowTitle(_translate('HandlerClass', 'Untoggled Cut Critical Buttons'))
+            icon = QApplication.style().standardIcon(QStyle.SP_MessageBoxWarning)
+            iconLabel = QLabel()
+            iconLabel.setPixmap(icon.pixmap(32, 32))
+            msg0 = _translate('HandlerClass', 'The following buttons have not been toggled')
+            msg1 = _translate('HandlerClass', 'Select items to be toggled when CONTINUE is clicked')
+            lbl0 = QLabel(f'\n{msg0}:\n')
+            lbl1 = QLabel('')
+            lbl2 = QLabel(f'\n{msg1}\n')
+            lbl2.setStyleSheet("padding-left: 1px;")
+            buttonBox = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+            buttonBox.accepted.connect(ccr.accept)
+            buttonBox.rejected.connect(ccr.reject)
+            buttonBox.button(QDialogButtonBox.Ok).setText(_translate('HandlerClass', 'CONTINUE'))
+            buttonBox.button(QDialogButtonBox.Ok).setIcon(QIcon())
+            buttonBox.button(QDialogButtonBox.Ok).setMinimumWidth(120)
+            buttonBox.button(QDialogButtonBox.Cancel).setText(_translate('HandlerClass', 'CANCEL'))
+            buttonBox.button(QDialogButtonBox.Cancel).setIcon(QIcon())
+            hLayout = QHBoxLayout()
+            hLayout.addWidget(iconLabel)
+            hLayout.addWidget(lbl0)
+            hLayout.addStretch()
+            vLayout = QVBoxLayout()
+            vLayout.addLayout(hLayout)
+            checkBoxes = []
+            for bText in rcButtonList:
+                checkBox = QCheckBox(bText)
+                checkBox.setStyleSheet(checkStyle)
+                vLayout.addWidget(checkBox)
+                checkBoxes.append(checkBox)
+            if len(rcButtonList) > 1:
+                toggleAll = QCheckBox(_translate('HandlerClass', 'TOGGLE ALL'))
+                toggleAll.setStyleSheet(checkStyle)
+                vLayout.addWidget(lbl1)
+                vLayout.addWidget(toggleAll)
+                toggleAll.stateChanged.connect(lambda state: [checkBox.setChecked(state == Qt.Checked) for checkBox in checkBoxes])
+            vLayout.addWidget(lbl2)
+            vLayout.addWidget(buttonBox)
+            ccr.setLayout(vLayout)
+            result = ccr.exec_()
+            checkList = [checkBox.text() for checkBox in checkBoxes if checkBox.isChecked()]
+            return result, checkList
 
     def invert_pin_state(self, halpin):
         if 'qtplasmac.ext_out_' in halpin:
@@ -3532,25 +3579,21 @@ class HandlerClass:
                     if not self.button_normal_check(button):
                         self.button_normal(button)
 
-    def cut_critical_check(self):
-        rcButtonList = []
-        # halTogglePins format is: button name, run critical flag, button text
-        for halpin in self.halTogglePins:
-            if self.halTogglePins[halpin][1] and not hal.get_value(halpin):
-                rcButtonList.append(self.halTogglePins[halpin][2].replace('\n', ' '))
-        if rcButtonList and self.w.torch_enable.isChecked():
-            head = _translate('HandlerClass', 'Run Critical Toggle')
-            btn1 = _translate('HandlerClass', 'CONTINUE')
-            btn2 = _translate('HandlerClass', 'CANCEL')
-            msg0 = _translate('HandlerClass', 'Button not toggled')
-            joined = '\n'.join(rcButtonList)
-            msg1 = f'\n{joined}'
-            if self.dialog_show_yesno(QMessageBox.Warning, f'{head}', f'\n{msg0}:\n{msg1}', f'{btn1}', f'{btn2}'):
-                return False
-            else:
-                return True
-        else:
-            return False
+    def cut_critical_toggle_check(self):
+        # self.halTogglePins format is: button name, run critical flag, button text
+        checkDict = {
+            self.halTogglePins[halpin][2].replace('\n', ' '): halpin
+            for halpin in self.halTogglePins
+            if self.halTogglePins[halpin][1] and not hal.get_value(halpin)
+        }
+        if checkDict and self.w.torch_enable.isChecked():
+            result, checked = self.show_cut_critical_dialog(list(checkDict.keys()))
+            if result:
+                for bText in checked:
+                    halpin = checkDict[bText]
+                    self.user_button_down(int(self.halTogglePins[halpin][0].replace('button_','')))
+            return result
+        return True
 
     def preview_stack_changed(self):
         if self.w.preview_stack.currentIndex() == self.PREVIEW:
@@ -4787,7 +4830,7 @@ class HandlerClass:
         self.vkb_show(True)
         result = sC.exec_()
         self.vkb_hide()
-        if not result or self.cut_critical_check():
+        if not result or not self.cut_critical_toggle_check():
             self.set_buttons_state([self.idleList, self.idleOnList, self.idleHomedList], True)
             return
         self.PREFS.putpref('X length', xLength.value(), float, 'SINGLE CUT')
@@ -4821,7 +4864,7 @@ class HandlerClass:
                 self.button_normal(self.mcButton)
             log = _translate('HandlerClass', 'Manual cut aborted')
             STATUS.emit('update-machine-log', log, 'TIME')
-        elif STATUS.machine_is_on() and STATUS.is_all_homed() and STATUS.is_interp_idle() and not self.cut_critical_check():
+        elif STATUS.machine_is_on() and STATUS.is_all_homed() and STATUS.is_interp_idle() and self.cut_critical_toggle_check():
             probeError, errMsg = self.bounds_check_probe(True)
             if probeError:
                 head = _translate('HandlerClass', 'Axis Limit Error')
