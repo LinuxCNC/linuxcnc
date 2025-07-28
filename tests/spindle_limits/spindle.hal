@@ -1,0 +1,17 @@
+# HAL file for spindle limits test
+
+# first load all the RT modules that will be needed
+# kinematics
+loadrt [KINS]KINEMATICS
+# motion controller, get name and thread periods from INI file
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=[KINS]JOINTS num_spindles=[TRAJ]SPINDLES
+
+# add motion controller functions to servo thread
+addf motion-command-handler servo-thread
+addf motion-controller servo-thread
+
+# estop loopback
+net estop-loop iocontrol.0.user-enable-out iocontrol.0.emc-enable-in
+
+
+
