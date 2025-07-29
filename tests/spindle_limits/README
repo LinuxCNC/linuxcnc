@@ -1,0 +1,10 @@
+Test that the spindle speed limits from the INI are honoured. 
+Tests three spindles, to ensure that multi=spindle is supported
+Spindle.0 has limits for MAX_FORWARD, MIN_FORWARD, MAX_REVERSE and MIN_REVERSE
+Spindle.1 has no MIN_REVERSE to test that MIN_FORWARD is applied in reverse
+Spindle.2 has no reverselimits, to test that both forwards limits are tested in reverse
+Spindle commands through bith G-code (via MDI) and Python interface are tested. 
+
+FIXME (?)
+spindle commands through halui are not tested
+spindle commands through linuxcncrsh are not tested. 
