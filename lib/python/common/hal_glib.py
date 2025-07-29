@@ -1172,6 +1172,10 @@ class _GStat(GObject.GObject):
     def get_previous_mode(self):
         return self.previous_mode
 
+    def get_inipath(self):
+        self.stat.poll()
+        return self.stat.ini_filename
+
     # linear - in machine units
     def set_jograte(self, upm):
         self.current_jog_rate = upm
