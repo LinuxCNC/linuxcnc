@@ -9,7 +9,7 @@ class ZMQMessage:
         self.context = zmq.Context()
         self.socket = self.context.socket(zmq.PUB)
         try:
-            self.socket.bind("tcp://127.0.0.1:5690")
+            self.socket.bind("tcp://127.0.0.1:5692")
         except Exception as e:
             print(e)
         self.topic = b'QtVCP'
@@ -26,8 +26,8 @@ class ZMQMessage:
         m1 = json.dumps(x)
         try:
             self.socket.send_multipart([self.topic, bytes((m1).encode('utf-8'))])
-        except:
-            pass
+        except Exception as e:
+            print(e)
 
     def addStatus(self,msg, alertLevel = 0, noLog = False):
         print('ZMQ add status:',msg)

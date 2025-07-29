@@ -156,7 +156,7 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
         self._User9Color = QtGui.QColor(100, 0, 0, 150)
         self._User10Color = QtGui.QColor(100, 0, 0, 150)
         self._zmq_sub_subscribe_name = b""
-        self._zmq_sub_socket_address = "tcp://127.0.0.1:5690"
+        self._zmq_sub_socket_address = "tcp://127.0.0.1:5692"
         self._zmq_pub_socket_address = "tcp://127.0.0.1:5690"
         self._halBaseName = ''
         self.__blurList = []
@@ -720,6 +720,8 @@ class ScreenOptions(QtWidgets.QWidget, _HalWidgetBase):
                 # get the arguments
                 arguments = y.get('ARGS')
                 LOG.debug('{} Sent ZMQ Message:{} {}'.format(topic,function,arguments))
+                if not topic == b'QtVCP':
+                    return
 
                 # call handler function with arguments
                 try:
