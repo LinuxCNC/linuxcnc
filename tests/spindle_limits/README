@@ -1,6 +1,17 @@
 Test that the spindle speed limits from the INI are honoured. 
 Tests three spindles, to ensure that multi-spindle is supported
 
+The test starts from the test.sh script which loads linuxcnc, passing it an almost-standard INI file. 
+In place of the normal GUI the INI file loads test-ui.py which does not create any GUI elements. 
+
+test-ui.py puts LinuxCNC in a condition where is can respond to MDI commands, and then proceeds to use
+both MDI and the Python command interface to set various spindle speeds and check that the HAL and status
+outputs are within the specified limits. 
+
+The test-ui script then exits, and at that point the runtests script automatically runs "checkresult". 
+"checkresult" is needed to skip automatic testing of "expected" againsts "result" which wouldn't
+work fot this test. 
+
 Spindle.0 has limits for MAX_FORWARD, MIN_FORWARD, MAX_REVERSE and MIN_REVERSE
 Spindle.1 has no MIN_REVERSE to test that MIN_FORWARD is applied in reverse
 Spindle.2 has no MIN_REVERSE or MAX_REVERSE to test that both *_FORWARD limits are applied in reverse
