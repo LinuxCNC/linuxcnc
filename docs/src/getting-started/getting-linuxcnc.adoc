@@ -53,9 +53,10 @@ migrate from Raspbian to Debian's kernel image.
 
 zsync is a download application that efficiently resumes interrupted
 downloads and efficiently transfers large files with small modifications
-(if you have an older local copy).  Use zsync if you have trouble
-downloading the image using the <<_normal_download,Normal Download>>
-method.
+(if you have an older local copy). Please note, it needs to use the http
+protocol, not https. Use zsync if your
+download of the image using the <<_normal_download,Normal Download>>
+method is frequently interrupted.
 
 .zsync in Linux
 
@@ -67,8 +68,12 @@ sudo apt-get install zsync
 . Then run this command to download the iso to your computer
 +
 ----
-zsync https://www.linuxcnc.org/iso/linuxcnc_2.9.4-amd64.hybrid.iso
+zsync http://www.linuxcnc.org/iso/linuxcnc_2.9.4-amd64.hybrid.iso
 ----
+
+Please remember to confirm the checksum of the downloaded iso
+as described below, since the authenticity of the server is not
+guaranteed with the http protocol.
 
 .zsync in Windows
 
