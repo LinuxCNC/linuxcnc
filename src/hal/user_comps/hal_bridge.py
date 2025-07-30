@@ -67,7 +67,13 @@ class Bridge(object):
         QHAL = Qhal(comp=self.comp, hal=hal)
 
         self.jogRate = QHAL.newpin("jog-rate", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.jogRateIn = QHAL.newpin("jog-rate-in", hal.HAL_FLOAT, hal.HAL_IN)
+        self.jogRateIn.pinValueChanged.connect(self.pinChanged)
+
         self.jogRateAngular = QHAL.newpin("jog-rate-angular", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.jogRateAngularIn = QHAL.newpin("jog-rate-angular-in", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.jogRateAngularIn.pinValueChanged.connect(self.pinChanged)
+
         self.jogIncrement = QHAL.newpin("jog-increment", hal.HAL_FLOAT, hal.HAL_OUT)
         self.jogIncrementAngular = QHAL.newpin("jog-increment-angular", hal.HAL_FLOAT, hal.HAL_OUT)
         self.activeJoint = QHAL.newpin('joint-selected', hal.HAL_S32, hal.HAL_OUT)
@@ -181,6 +187,14 @@ class Bridge(object):
         elif self.cycle_pause == pinObject:
             #if value:
                 self.writeMsg('request_cycle_pause', value)
+
+        # linear jog rate
+        elif self.jogRateIn == pinObject:
+                self.writeMsg('set_jograte', value)
+
+       # angular jog rate
+        elif self.jogRateAngularIn == pinObject:
+                self.writeMsg('set_jograte_angular', value)
 
         # catch all default
         else:
