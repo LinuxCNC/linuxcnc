@@ -191,11 +191,11 @@ class _Lcnc_Action(object):
             self.ensure_mode(premode)
         return 0
 
-    def CALL_INI_MDI(self, number):
+    def CALL_INI_MDI(self, data):
         try:
-            mdi = INFO.MDI_COMMAND_LIST[number]
+            mdi = INFO.get_ini_mdi_command(data)
         except:
-            msg = 'MDI_COMMAND= # {} Not found under [MDI_COMMAND_LIST] in INI file'.format(number)
+            msg = 'MDI_COMMAND= # {} Not found under [MDI_COMMAND_LIST] in INI file'.format(data)
             LOG.error(msg)
             self.SET_ERROR_MESSAGE(msg)
             return
@@ -479,6 +479,7 @@ class _Lcnc_Action(object):
         return mode
 
     def RESTORE_RECORDED_MODE(self):
+        self.cmd.wait_complete()
         self.ensure_mode(self.last_mode)
 
     def SET_SELECTED_JOINT(self, data):

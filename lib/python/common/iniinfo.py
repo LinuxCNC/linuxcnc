@@ -564,6 +564,9 @@ class _IStat(object):
         # here we separate them to two lists (legacy) and one dict
         # action_button takes it from there.
         self.MDI_COMMAND_DICT={}
+        self.MDI_COMMAND_LIST = []
+        self.MDI_COMMAND_LABEL_LIST = []
+
         # suppress error message is there is no section at all
         if self.parser.has_section('MDI_COMMAND_LIST'):
             try:
@@ -573,25 +576,31 @@ class _IStat(object):
                     # in this case order matters in the INI
                     if key == 'MDI_COMMAND':
                         LOG.warning("INI file's MDI_COMMAND_LIST is using legacy 'MDI_COMMAND =' entries")
-                        self.MDI_COMMAND_LIST = []
-                        self.MDI_COMMAND_LABEL_LIST = []
                         temp = (self.INI.findall("MDI_COMMAND_LIST", "MDI_COMMAND")) or None
                         if temp is None:
-                            self.MDI_COMMAND_LABEL_LIST.append(None)
+                            self.MDI_COMMAND_LIST.append(None)
                             self.MDI_COMMAND_LABEL_LIST.append(None)
                         else:
-                            for i in temp:
+                            for count, i in enumerate(temp):
+                                mdidatadict = {}
                                 for num,k in enumerate(i.split(',')):
                                     if num == 0:
                                         self.MDI_COMMAND_LIST.append(k)
+                                        mdidatadict['cmd'] = k
                                         if len(i.split(',')) <2:
                                             self.MDI_COMMAND_LABEL_LIST.append(None)
+                                            mdidatadict['label'] = None
                                     else:
                                         self.MDI_COMMAND_LABEL_LIST.append(k)
+                                        mdidatadict['label'] = k
+                                self.MDI_COMMAND_DICT[str(count)] = mdidatadict
+                        break
 
                     # new way: 'MDI_COMMAND_SSS = XXXX' (SSS being any string)
                     # order of commands doesn't matter in the INI
                     else:
+                        self.MDI_COMMAND_LIST.append(None)
+                        self.MDI_COMMAND_LABEL_LIST.append(None)
                         try:
                             temp = self.INI.find("MDI_COMMAND_LIST",key)
                             name = (key.replace('MDI_COMMAND_',''))
