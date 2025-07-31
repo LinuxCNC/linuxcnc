@@ -90,7 +90,7 @@ override_dh_auto_install-arch:
 override_dh_installdocs-arch:
 ifeq (,$(filter nodocs,$(DEB_BUILD_OPTIONS)))
 	# Sample configs go in `usr/share/doc/linuxcnc` (not `.../doc/@MAIN_PACKAGE_NAME@`)
-	# because that's where the  `linuxcnc` launcher script looks for them,
+	# because that's where the `linuxcnc` launcher script looks for them,
 	# and that's inconvenient to change.
 	dh_installdocs --doc-main-package=@MAIN_PACKAGE_NAME@ --package=@MAIN_PACKAGE_NAME@
 	mkdir -p debian/@MAIN_PACKAGE_NAME@/usr/share/doc/linuxcnc

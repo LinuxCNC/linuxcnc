@@ -51,7 +51,9 @@ Build-Depends:
     yapps2
 Build-Depends-Indep:
     @DOC_DEPENDS@,
-Build-Conflicts-Arch: libjpeg8-dev, libtiff4-dev
+Build-Conflicts-Arch:
+    libjpeg8-dev,
+    libtiff4-dev
 Standards-Version: 4.7.2
 Homepage: https://linuxcnc.org/
 Vcs-Browser: https://github.com/LinuxCNC/linuxcnc
