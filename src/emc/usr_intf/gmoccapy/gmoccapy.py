@@ -175,7 +175,8 @@ class gmoccapy(object):
         self.error_channel.poll()
 
         # set INI path for INI info class before widgets are loaded
-        INFO = Info(ini=argv[2])
+        self.INFO = Info(ini=argv[2])
+        self.ACTION = Action()
 
         self.builder = Gtk.Builder()
         # translation of the glade file will be done with
@@ -1324,7 +1325,17 @@ class gmoccapy(object):
 
     # call INI macro (from hal_glib message)
     def request_macro_call(self, data):
+        # if MDI command change to MDI and run
+        cmd = self.INFO.get_ini_mdi_command(data)
+        print('MDI command:',data,cmd)
+        if not cmd is None:
+            self.ACTION.RECORD_CURRENT_MODE()
+            LOG.debug("INI MDI COMMAND #: {} = {}".format(data, cmd))
+            self.ACTION.CALL_INI_MDI(data)
+            self.ACTION.RESTORE_RECORDED_MODE()
+            return
 
+        # run Macros
         # some error checking
         if not self.GSTAT.is_mdi_mode():
             message = _("You must be in MDI mode to run macros")
@@ -6154,7 +6165,7 @@ if __name__ == "__main__":
 
     # Some of these libraries log when imported so logging level must already be set.
     import gladevcp.makepins
-    from gladevcp.core import Info
+    from gladevcp.core import Info, Action
     from gladevcp.combi_dro import Combi_DRO  # we will need it to make the DRO
     from gmoccapy import widgets       # a class to handle the widgets
 
