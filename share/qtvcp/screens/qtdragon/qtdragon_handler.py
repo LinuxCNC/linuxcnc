@@ -2059,25 +2059,31 @@ class HandlerClass:
         self.add_status(mess, CRITICAL,noLog=True)
         STATUS.emit('update-machine-log', mess, None)
 
+    # called from hal_glib to run macros from external event
     def request_macro_call(self, data):
-        flag = True
+        if not STATUS.is_mdi_mode():
+            self.add_status(_translate("HandlerClass",'Machine must be in MDI mode to run macros'), CRITICAL)
+            return
+
         for b in range(0,10):
             button = self.w['macrobutton{}'.format(b)]
             # prefer named INI MDI commands
             key = button.property('ini_mdi_key')
-            if key == '' or INFO.get_ini_mdi_command(key) is None:
+            code = INFO.get_ini_mdi_command(key)
+            if key == '' or code is None:
                 # fallback to legacy nth line
                 key = button.property('ini_mdi_number')
-            try:
                 code = INFO.get_ini_mdi_command(key)
-                if code is None: raise Exception
-                flag = False
-            except:
-                print('No macro code')
-                continue
-            if key == data:
+                if code is None:
+                    continue
+            if str(key) == data:
                 #print('match',button.objectName())
-                button.click()
+                text = button.text().replace('\n',' ')
+                self.add_status(_translate("HandlerClass",'Running macro: {} {}'.format(key, text)))
+                try:
+                    button.click()
+                except Exception as e:
+                    self.add_status(_translate("HandlerClass",'Running macro: {} {}\n{}'.format(key, text, e)))
                 break
 
     #####################

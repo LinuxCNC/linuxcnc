@@ -872,7 +872,7 @@ class HandlerClass:
         if not STATUS.is_mdi_mode():
             self.add_status(_translate("HandlerClass",'Machine must be in MDI mode to run macros'), CRITICAL)
             return
-        flag = True
+
         for b in range(0,10):
             button = self.w['macrobutton{}'.format(b)]
             # prefer named INI MDI commands
@@ -882,16 +882,16 @@ class HandlerClass:
                 # fallback to legacy nth line
                 key = button.property('ini_mdi_number')
                 code = INFO.get_ini_mdi_command(key)
-            try:
-                if code is None: raise Exception
-                flag = False
-            except:
-                continue
-            if key == data:
+                if code is None:
+                    continue
+            if str(key) == data:
                 #print('match',button.objectName())
                 text = button.text().replace('\n',' ')
                 self.add_status(_translate("HandlerClass",'Running macro: {} {}'.format(key, text)))
-                button.click()
+                try:
+                    button.click()
+                except Exception as e:
+                    self.add_status(_translate("HandlerClass",'Running macro: {} {}\n{}'.format(key, text, e)))
                 break
 
     #######################
