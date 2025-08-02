@@ -3213,7 +3213,13 @@ class gmoccapy(object):
             self.diameter_mode = False
 
     def on_key_event(self, widget, event, signal):
-
+        # if the user has disabled keyboard shortcuts, we leave here
+        # in this case we do not return true, otherwise entering code in MDI history
+        # and the integrated editor will not work
+        if not self.widgets.chk_use_kb_shortcuts.get_active():
+            LOG.debug("Settings say: do not use keyboard shortcuts, abort")
+            return
+        
         # get the keyname
         keyname = Gdk.keyval_name(event.keyval)
 
@@ -3222,6 +3228,7 @@ class gmoccapy(object):
         if keyname == "F1":  # will estop the machine, but not reset estop!
             self.command.state(linuxcnc.STATE_ESTOP)
             return True
+
         if keyname == "Escape":
             self.command.abort()
             return True
@@ -3264,13 +3271,6 @@ class gmoccapy(object):
         if keyname == "Super_L" and signal:  # Left Windows
             self.notification.del_last()
             self.widgets.window1.grab_focus()
-            return
-
-        # if the user do not want to use keyboard shortcuts, we leave here
-        # in this case we do not return true, otherwise entering code in MDI history
-        # and the integrated editor will not work
-        if not self.widgets.chk_use_kb_shortcuts.get_active():
-            LOG.debug("Settings say: do not use keyboard shortcuts, abort")
             return
 
         # Only in MDI mode the RETURN key should execute a command
