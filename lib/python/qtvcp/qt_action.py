@@ -587,6 +587,7 @@ class _Lcnc_Action(object):
         return mode
 
     def RESTORE_RECORDED_MODE(self):
+        self.cmd.wait_complete()
         self.ensure_mode(self.last_mode)
 
     def SET_SELECTED_JOINT(self, data):
