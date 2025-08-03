@@ -48,14 +48,14 @@ external offset acceleration = (  r) * MAX_ACCELERATION
 
 === Per-Axis Motion HAL Pins
 
-For each  axis letter (*L* in xyzabcuvw)
+For each  axis letter (*_L_* in xyzabcuvw)
 
-. *axis.L.eoffset-enable*  Input(bit): enable
-. *axis.L.eoffset-scale*   Input(float): scale factor
-. *axis.L.eoffset-counts*  Input(s32): input to counts register
-. *axis.L.eoffset-clear*   Input(bit): clear requested offset
-. *axis.L.eoffset*         Output(float): current external offset
-. *axis.L.eoffset-request* Output(float): requested external offset
+. *axis._L_.eoffset-enable*  Input(bit): enable
+. *axis._L_.eoffset-scale*   Input(float): scale factor
+. *axis._L_.eoffset-counts*  Input(s32): input to counts register
+. *axis._L_.eoffset-clear*   Input(bit): clear requested offset
+. *axis._L_.eoffset*         Output(float): current external offset
+. *axis._L_.eoffset-request* Output(float): requested external offset
 
 === Other Motion HAL Pins
 
@@ -69,78 +69,71 @@ pins used for wheel jogging.
 
 === Offset Computation
 
-At each servo period, the 'axis.L.eoffset-counts' pin is compared to
+At each servo period, the 'axis._L_.eoffset-counts' pin is compared to
 its value in the prior period. The increase or decrease (positive
-or negative delta) of the 'axis.L.eoffset-counts' pin is multiplied
-by the current 'axis.L.eoffset-scale' pin value.  This product is
+or negative delta) of the 'axis._L_.eoffset-counts' pin is multiplied
+by the current 'axis.__L.eoffset-scale' pin value.  This product is
 accumulated in an internal register and exported to the
-'axis.L.eoffset-request' HAL pin. The accumulation register is reset
+'axis._L_.eoffset-request' HAL pin. The accumulation register is reset
 to zero at each machine-on.
 
 The requested offset value is used to plan the movement for the
-offset that is applied to the 'L' coordinate and represented
-by the 'axis.L.eoffset' HAL pin. The planned motion respects the
+offset that is applied to the '_L_' coordinate and represented
+by the 'axis._L_.eoffset' HAL pin. The planned motion respects the
 allocated velocity and acceleration constraints and may be limited
 if the net motion (offset plus teleop jogging or coordinated motion)
-reaches a soft limit for the 'L' coordinate.
+reaches a soft limit for the '_L_' coordinate.
 
-For many applications, the 'axis.L.eoffset-scale' pin is constant
-and the net 'axis.L.eoffset-request' response to
-'axis.L.eoffset-counts' is equivalent to the product of the
-accumulated value of 'axis.L.eoffset-counts' and the (constant)
-'axis.L.eoffset-scale' pin values.
+For many applications, the 'axis._L_.eoffset-scale' pin is constant
+and the net 'axis._L_.eoffset-request' response to
+'axis._L_.eoffset-counts' is equivalent to the product of the
+accumulated value of 'axis._L_.eoffset-counts' and the (constant)
+'axis._L_.eoffset-scale' pin values.
 
 === Machine-off/Machine-on
 
-When the machine is turned off, the *current position with
-external offsets is maintained* so that there is no
-unexpected motion at turn off or turn on.
+When the machine is turned off, the *current position* with
+*external offsets* is *maintained* so that there is no unexpected
+motion at turn off or turn on.
 
 At each startup (machine-on), the internal counts register for
-each HAL pin 'axis.L.eoffset-counts' is zeroed and the
-corresponding HAL output pin 'axis.L.eoffset' is reset to zero.
+each HAL pin 'axis._L_.eoffset-counts' is zeroed and the
+corresponding HAL output pin 'axis._L_.eoffset' is reset to zero.
 
-In other words, external offsets are *defined as ZERO at
-each startup* (machine-on) regardless of the value of
-the 'axis.L.eoffset-counts' pins. To avoid confusion, it is
-recommended that all 'axis.L.eoffset-counts' pins are set to
+In other words, external offsets are *defined as ZERO at each startup*
+(machine-on) regardless of the value of the 'axis._L_.eoffset-counts' pins.
+To avoid confusion, it is recommended that all 'axis._L_.eoffset-counts' pins are set to
 zero when the machine is off.
 
 === Soft Limits
 
 External axis offset movements are independently planned with
-velocity and acceleration settings specified by the
-'[AXIS_L]OFFSET_AV_RATIO'. The offsetting motion is not
-coordinated with teleop jogs nor with coordinated (G-code)
-motion. During teleop  jogging and coordinated (G-code) motion,
-axis soft limits ('[AXIS_L]MIN_LIMIT,MAX_LIMIT') restrict
-movement of the axis.
+velocity and acceleration settings specified by the '[AXIS_L]OFFSET_AV_RATIO'.
+The offsetting motion is not coordinated with teleop jogs nor with coordinated (G-code) motion.
+During teleop  jogging and coordinated (G-code) motion,
+axis soft limits ('[AXIS___L__]MIN_LIMIT,MAX_LIMIT') restrict movement of the axis.
 
 When external offsets are applied and motion reaches a soft limit
 (by external offset increases or teleop jogging or coordinated
 motion), the HAL pin 'motion.eoffset-limited' is asserted and the
-axis value is held nominally to the soft limit.  This HAL pin can
-be used by associated HAL logic to truncate additional eoffset
-counts or to stop the machine (connect to 'halui.machine.off' for
-instance). If the axis is moved within the soft limit, the
-'motion.eoffset-limited' pin is reset.
+axis value is held nominally to the soft limit.
+This HAL pin can be used by associated HAL logic to truncate additional eoffset
+counts or to stop the machine (connect to 'halui.machine.off' for instance).
+If the axis is moved within the soft limit, the 'motion.eoffset-limited' pin is reset.
 
-When operating at a soft limit during coordinated motion that
-continues to change the planned axis value, the HAL output pin
-'axis.L.eoffset' will indicate the current offset -- the
-distance needed to reach the limit instead of the computed
-offset request. This indicated value will change as the
-planned axis value changes.
+When operating at a soft limit during coordinated motion that continues to change the planned axis value,
+the HAL output pin 'axis._L_.eoffset' will indicate the current offset -- the
+distance needed to reach the limit instead of the computed offset request.
+This indicated value will change as the planned axis value changes.
 
-The HAL pin 'axis.L.eoffset-request' indicates the current
+The HAL pin 'axis._L_.eoffset-request' indicates the current
 requested offset that is the product of the internal counts
-register and the eoffset-scale. In general, the 'axis.L.eoffset'
-pin value lags the 'axis.L.eoffset-request' value since the
+register and the eoffset-scale. In general, the 'axis._L_.eoffset'
+pin value lags the 'axis._L_.eoffset-request' value since the
 external offset is subject to an acceleration limit.
 When operating at a soft limit, additional updates to the
-'axis.L.eoffset-counts' will continue to affect the requested
-external offset as reflected in the 'axis.L.eoffset-request' HAL
-pin.
+'axis._L_.eoffset-counts' will continue to affect the requested
+external offset as reflected in the 'axis._L_.eoffset-request' HAL pin.
 
 When teleop jogging with external offsets enabled *and*
 non-zero values applied, encountering a soft limit will stop
@@ -160,16 +153,15 @@ approaching soft limits.
 === Notes
 
 External offsets apply to axis coordinate letters (xyzabcuvw).
-All joints must be homed before external axis offsets are
-honored.
+All joints must be homed before external axis offsets are honored.
 
-If an 'axis.L.eoffset-enable' HAL pin is reset when its offset is
+If an 'axis._L_.eoffset-enable' HAL pin is reset when its offset is
 non-zero, the offset is maintained.  The offset may be cleared by:
 
 . a 'Machine-off/Machine on' toggle
-. reactivating the enable pin and incrementing/decrementing the 'axis.L.eoffset-counts'
+. reactivating the enable pin and incrementing/decrementing the 'axis._L_.eoffset-counts'
   HAL pin to return the offset to zero.
-. pulsing the 'axis.L.eoffset-clear' HAL pin
+. pulsing the 'axis._L_.eoffset-clear' HAL pin
 
 External-offsets are intended for use with 'small' offsets that
 are applied within the soft-limit bounds.
