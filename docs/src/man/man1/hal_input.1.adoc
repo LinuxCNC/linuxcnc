@@ -39,7 +39,7 @@ A number _N_::
 
 When several devices are identified by the same string, add "**:**_N_"
 where _N_ is the index of the desired device. For example, if *Mouse*
-matches *input3* and *input10*, then *Mouse* and *Mouse:0* select *input3*.
+matches *input3* and *input10*, then *Mouse* and *mouse:0* select *input3*.
 Specifying *mouse:1* selects input10.
 
 For devices that appear as multiple entries in /dev/input, these indices
