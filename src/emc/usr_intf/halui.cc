@@ -39,6 +39,10 @@
 #include <rtapi_string.h>
 #include "tooldata.hh"
 
+#define PY_SSIZE_T_CLEAN
+#include <Python.h>
+#include <pyconfig.h>
+
 /* Using halui: see the man page */
 
 static int axis_mask = 0;
@@ -230,8 +234,15 @@ typedef halui_str_base<PTR> halui_str;
 typedef halui_str_base<VALUE> local_halui_str;
 #pragma GCC diagnostic pop
 
+PyObject *pModule, *pFuncRead, *pFuncWrite, *pInstance, *pClass;
+PyObject *pValue;
+
 static halui_str *halui_data;
 static local_halui_str old_halui_data;
+
+static double lastjogspeed = 0;
+static double internaljogspeed = 0;
+static int lastaxis = -1;
 
 static char *mdi_commands[MDI_MAX];
 static int num_mdi_commands=0;
@@ -1675,7 +1686,101 @@ static bool jogging_selected_axis(local_halui_str &hal) {
     return (hal.ajog_plus[EMCMOT_MAX_AXIS] || hal.ajog_minus[EMCMOT_MAX_AXIS]);
 }
 
+static double write_msg_axis_get_jogspeed() {
+    double jspd = 0;
+    // check socket messages for jogspeed
+    pFuncRead = PyObject_GetAttrString(pInstance, "getJogRate");
+    if (pFuncRead && PyCallable_Check(pFuncRead)) {
+        pValue = PyObject_CallNoArgs(pFuncRead);
+        if (pValue == NULL){
+            fprintf(stderr, "Halui Bridge: getJogRate function failed: returned NULL\n");
+            jspd = 0;
+        }else{
+            if (PyFloat_Check(pValue)) {
+                jspd = PyFloat_AsDouble(pValue);
+                if (PyErr_Occurred()) {
+                    jspd = 0;
+                    // Handle conversion error
+                    PyErr_Print();
+                    // Clear the error state if needed
+                    PyErr_Clear();
+                }
+            }
+        }
+        Py_DECREF(pValue);
+    }
+    Py_DECREF(pFuncRead);
+    return jspd;
+}
 
+static void write_msg_axis_jogspeed(double speed)
+{
+        pFuncWrite = PyObject_GetAttrString(pInstance, "setJogRate");
+
+        if (pFuncWrite && PyCallable_Check(pFuncWrite)) {
+            pValue = PyObject_CallFunction(pFuncWrite, "d", speed);
+            if (pValue == NULL){
+                fprintf(stderr, "halui bridge: writeMsg function failed: returned NULL\n");
+                if (PyErr_Occurred()) PyErr_Print();
+            }else{
+                Py_DECREF(pValue);
+            }
+
+        }else{
+            if (PyErr_Occurred()) PyErr_Print();
+            fprintf(stderr, "halui Bridge: Failed python function");
+        }
+        Py_DECREF(pFuncWrite);
+}
+
+static int write_msg_get_axis_selected() {
+    int value = 0;
+    // check socket messages for jogspeed
+    pFuncRead = PyObject_GetAttrString(pInstance, "getSelectedAxis");
+    if (pFuncRead && PyCallable_Check(pFuncRead)) {
+        pValue = PyObject_CallNoArgs(pFuncRead);
+        if (pValue == NULL){
+            if (PyErr_Occurred()) PyErr_Print();
+            fprintf(stderr, "Halui Bridge: getSelectAxis function failed: returned NULL\n");
+            value = -1;
+        }else{
+            if (PyLong_Check(pValue)) {
+                value = (int) PyLong_AsLong(pValue);
+                //fprintf(stderr, "axis value %d\n",value);
+                if (PyErr_Occurred()) {
+                    value = -1;
+                    // Handle conversion error
+                    PyErr_Print();
+                    // Clear the error state if needed
+                    PyErr_Clear();
+                }
+            }
+        }
+        Py_DECREF(pValue);
+    }
+    Py_DECREF(pFuncRead);
+    return value;
+}
+
+static void write_msg_axis_changed( int axis)
+{
+        pFuncWrite = PyObject_GetAttrString(pInstance, "setSelectedAxis");
+
+        if (pFuncWrite && PyCallable_Check(pFuncWrite)) {
+            pValue = PyObject_CallFunction(pFuncWrite, "i", axis);
+            if (pValue == NULL){
+                fprintf(stderr, "halui bridge: writeMsg function failed: returned NULL\n");
+                if (PyErr_Occurred()) PyErr_Print();
+            }else{
+                Py_DECREF(pValue);
+            }
+
+        }else{
+            if (PyErr_Occurred()) PyErr_Print();
+            fprintf(stderr, "halui Bridge: Failed python function");
+        }
+        Py_DECREF(pFuncWrite);
+}
 // this function looks if any of the hal pins has changed
 // and sends appropriate messages if so
 static void check_hal_changes()
@@ -1686,13 +1791,30 @@ static void check_hal_changes()
     hal_bit_t bit;
     int js;
     hal_float_t floatt;
+    double jogspeed;
     int jjog_speed_changed;
     int ajog_speed_changed;
+    int is_any_axis_selected, deselected;
 
     local_halui_str new_halui_data_mutable;
     copy_hal_data(*halui_data, new_halui_data_mutable);
     const local_halui_str &new_halui_data = new_halui_data_mutable;
 
+        // read socket messages
+        pFuncRead = PyObject_GetAttrString(pInstance, "readMsg");
+        if (pFuncRead && PyCallable_Check(pFuncRead)) {
+            pValue = PyObject_CallFunction(pFuncRead, "O", pClass);
+            if (pValue == NULL){
+                fprintf(stderr, "Halui Bridge: readMsg function failed: returned NULL\n");
+            }
+            if (PyErr_Occurred()) PyErr_Print();
+        }else{
+            if (PyErr_Occurred()){
+                PyErr_Print();
+            }
+                fprintf(stderr, "Bridge: Failed python function");
+                exit(1);
+        }
 
     //check if machine_on pin has changed (the rest work exactly the same)
     if (check_bit_changed(new_halui_data.machine_on, old_halui_data.machine_on) != 0)
@@ -1908,11 +2030,23 @@ static void check_hal_changes()
     // re-start the jog with the new speed
     if (fabs(old_halui_data.ajog_speed - new_halui_data.ajog_speed) > 0.00001) {
         old_halui_data.ajog_speed = new_halui_data.ajog_speed;
+        internaljogspeed = new_halui_data.ajog_speed;
         ajog_speed_changed = 1;
+        write_msg_axis_jogspeed(internaljogspeed);
     } else {
         ajog_speed_changed = 0;
     }
 
+    // check socket messages for jogspeed
+    jogspeed = write_msg_axis_get_jogspeed();
+    if (fabs(jogspeed - lastjogspeed) > 0.00001) {
+        ajog_speed_changed = 1;
+        lastjogspeed = jogspeed;
+        internaljogspeed = jogspeed;
+        fprintf(stderr, "JogRate value = %f\n", jogspeed );
+    }
+
+    
     for (joint=0; joint < num_joints; joint++) {
 	if (check_bit_changed(new_halui_data.joint_home[joint], old_halui_data.joint_home[joint]) != 0)
 	    sendHome(joint);
@@ -1992,47 +2126,57 @@ static void check_hal_changes()
 	}
     }
 
+
+    // check thru axes
+    is_any_axis_selected = 0;
+    deselected = 0;
     for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num++) {
         if ( !(axis_mask & (1 << axis_num)) ) { continue; }
+
+        // axis jog -
 	bit = new_halui_data.ajog_minus[axis_num];
 	if ((bit != old_halui_data.ajog_minus[axis_num]) || (bit && ajog_speed_changed)) {
 	    if (bit != 0)
-		sendJogCont(axis_num,-new_halui_data.ajog_speed,JOGTELEOP);
+		sendJogCont(axis_num,-internaljogspeed,JOGTELEOP);
 	    else
 		sendJogStop(axis_num,JOGTELEOP);
 	    old_halui_data.ajog_minus[axis_num] = bit;
 	}
 
+        // axis jog +
 	bit = new_halui_data.ajog_plus[axis_num];
 	if ((bit != old_halui_data.ajog_plus[axis_num]) || (bit && ajog_speed_changed)) {
 	    if (bit != 0)
-		sendJogCont(axis_num,new_halui_data.ajog_speed,JOGTELEOP);
+		sendJogCont(axis_num,internaljogspeed,JOGTELEOP);
 	    else
 		sendJogStop(axis_num,JOGTELEOP);
 	    old_halui_data.ajog_plus[axis_num] = bit;
 	}
 
+        // axis jog analog
 	floatt = new_halui_data.ajog_analog[axis_num];
 	bit = (fabs(floatt) > new_halui_data.ajog_deadband);
 	if ((floatt != old_halui_data.ajog_analog[axis_num]) || (bit && ajog_speed_changed)) {
 	    if (bit)
-		sendJogCont(axis_num,(new_halui_data.ajog_speed) * (new_halui_data.ajog_analog[axis_num]),JOGTELEOP);
+		sendJogCont(axis_num,(internaljogspeed) * (new_halui_data.ajog_analog[axis_num]),JOGTELEOP);
 	    else
 		sendJogStop(axis_num,JOGTELEOP);
 	    old_halui_data.ajog_analog[axis_num] = floatt;
 	}
 
+        // axis jog + increment
 	bit = new_halui_data.ajog_increment_plus[axis_num];
 	if (bit != old_halui_data.ajog_increment_plus[axis_num]) {
 	    if (bit)
-		sendJogIncr(axis_num, new_halui_data.ajog_speed, new_halui_data.ajog_increment[axis_num],JOGTELEOP);
+		sendJogIncr(axis_num, internaljogspeed, new_halui_data.ajog_increment[axis_num],JOGTELEOP);
 	    old_halui_data.ajog_increment_plus[axis_num] = bit;
 	}
 
+        // jog a- increment
 	bit = new_halui_data.ajog_increment_minus[axis_num];
 	if (bit != old_halui_data.ajog_increment_minus[axis_num]) {
 	    if (bit)
-		sendJogIncr(axis_num, new_halui_data.ajog_speed, -(new_halui_data.ajog_increment[axis_num]),JOGTELEOP);
+		sendJogIncr(axis_num, internaljogspeed, -(new_halui_data.ajog_increment[axis_num]),JOGTELEOP);
 	    old_halui_data.ajog_increment_minus[axis_num] = bit;
 	}
 
@@ -2040,30 +2184,46 @@ static void check_hal_changes()
 	bit = new_halui_data.axis_nr_select[axis_num];
 	if (bit != old_halui_data.axis_nr_select[axis_num]) {
 	    if (bit != 0) {
+                is_any_axis_selected = 1;
 		*halui_data->axis_selected = axis_num;
+                write_msg_axis_changed(axis_num);
 		aselect_changed = axis_num; // flag that we changed the selected axis
-	    }
+	    }else{
+                deselected = 1;
+            }
 	    old_halui_data.axis_nr_select[axis_num] = bit;
-	}
+        }
+    }
+    // last axis has been deselected - no axis is selected now        
+    if (is_any_axis_selected == 0 and deselected == 1) {
+        write_msg_axis_changed(-1);
+    }
+
+    // check socket messages for axis selection change
+    int value = write_msg_get_axis_selected();
+    if (value != lastaxis){
+        aselect_changed = lastaxis = value;
     }
 
     if (aselect_changed >= 0) {
-    for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num++) {
-        if ( !(axis_mask & (1 << axis_num)) ) { continue; }
-	    if (axis_num != aselect_changed) {
-		*(halui_data->axis_is_selected[axis_num]) = 0;
+        fprintf(stderr, "halui Bridge: axis selected %d\n",aselect_changed);
+        for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num++) {
+            if ( !(axis_mask & (1 << axis_num)) ) { continue; }
+            if (axis_num != aselect_changed) {
+                *(halui_data->axis_is_selected[axis_num]) = 0;
                 if (jogging_selected_axis(old_halui_data) && !jogging_axis(old_halui_data, axis_num)) {
-                    sendJogStop(axis_num,JOGTELEOP);
+                sendJogStop(axis_num,JOGTELEOP);
                 }
             } else {
-		*(halui_data->axis_is_selected[axis_num]) = 1;
+                *(halui_data->axis_is_selected[axis_num]) = 1;
                 if (*halui_data->ajog_plus[num_axes]) {
-                    sendJogCont(axis_num, new_halui_data.ajog_speed,JOGTELEOP);
+                    fprintf(stderr, "halui: jog plus: %d\n",num_axes);
+                    sendJogCont(axis_num, internaljogspeed,JOGTELEOP);
                 } else if (*halui_data->ajog_minus[num_axes]) {
-                    sendJogCont(axis_num, -new_halui_data.ajog_speed,JOGTELEOP);
+                    sendJogCont(axis_num, -internaljogspeed,JOGTELEOP);
                 }
-	    }
-	}
+            }
+        }
     }
 
     if (check_bit_changed(new_halui_data.joint_home[num_joints], old_halui_data.joint_home[num_joints]) != 0)
@@ -2112,7 +2272,7 @@ static void check_hal_changes()
     js = new_halui_data.axis_selected;
     if ((bit != old_halui_data.ajog_minus[EMCMOT_MAX_AXIS]) || (bit && ajog_speed_changed)) {
         if (bit != 0)
-	    sendJogCont(js, -new_halui_data.ajog_speed,JOGTELEOP);
+	    sendJogCont(js, -internaljogspeed,JOGTELEOP);
 	else
 	    sendJogStop(js,JOGTELEOP);
 	old_halui_data.ajog_minus[EMCMOT_MAX_AXIS] = bit;
@@ -2122,7 +2282,7 @@ static void check_hal_changes()
     js = new_halui_data.axis_selected;
     if ((bit != old_halui_data.ajog_plus[EMCMOT_MAX_AXIS]) || (bit && ajog_speed_changed)) {
         if (bit != 0)
-	    sendJogCont(js,new_halui_data.ajog_speed,JOGTELEOP);
+	    sendJogCont(js,internaljogspeed,JOGTELEOP);
 	else
 	    sendJogStop(js,JOGTELEOP);
 	old_halui_data.ajog_plus[EMCMOT_MAX_AXIS] = bit;
@@ -2132,7 +2292,7 @@ static void check_hal_changes()
     js = new_halui_data.axis_selected;
     if (bit != old_halui_data.ajog_increment_plus[EMCMOT_MAX_AXIS]) {
 	if (bit)
-	    sendJogIncr(js, new_halui_data.ajog_speed, new_halui_data.ajog_increment[EMCMOT_MAX_AXIS],JOGTELEOP);
+	    sendJogIncr(js, internaljogspeed, new_halui_data.ajog_increment[EMCMOT_MAX_AXIS],JOGTELEOP);
 	old_halui_data.ajog_increment_plus[EMCMOT_MAX_AXIS] = bit;
     }
 
@@ -2140,7 +2300,7 @@ static void check_hal_changes()
     js = new_halui_data.axis_selected;
     if (bit != old_halui_data.ajog_increment_minus[EMCMOT_MAX_AXIS]) {
 	if (bit)
-	    sendJogIncr(js, new_halui_data.ajog_speed, -(new_halui_data.ajog_increment[EMCMOT_MAX_AXIS]),JOGTELEOP);
+	    sendJogIncr(js, internaljogspeed, -(new_halui_data.ajog_increment[EMCMOT_MAX_AXIS]),JOGTELEOP);
 	old_halui_data.ajog_increment_minus[EMCMOT_MAX_AXIS] = bit;
     }
 
@@ -2385,6 +2545,46 @@ int main(int argc, char *argv[])
     //initialize safe values
     hal_init_pins();
 
+
+    /* import the python module and get references for needed function */
+
+    PyConfig config;
+    PyConfig_InitPythonConfig(&config);
+    char name[] = "halui"; 
+    wchar_t *wname = Py_DecodeLocale(name, NULL);
+    PyConfig_SetString(&config, &config.program_name, wname);
+    Py_Initialize();
+
+    PyRun_SimpleString("print('PYTHON EMBEDDED!!')\n"
+                        );
+    pModule = PyImport_ImportModule("bridgeui.bridge");
+    if (pModule != NULL) {
+        pClass = PyObject_GetAttrString(pModule, "Bridge");
+        pInstance = PyObject_CallObject(pClass, NULL); 
+        pFuncWrite = PyObject_GetAttrString(pInstance, "update");
+
+        if (pFuncWrite && PyCallable_Check(pFuncWrite)) {
+            pValue = PyObject_CallFunction(pFuncWrite, "Olllh", pClass, 0, 0, 0, 0);
+            if (pValue == NULL){
+                fprintf(stderr, "Panelui: update function failed: returned NULL\n");
+            }
+            if (PyErr_Occurred()) PyErr_Print();
+        }else{
+            if (PyErr_Occurred()){
+                PyErr_Print();
+            }
+                fprintf(stderr, "Bridge: Failed python function");
+                exit(1);
+        Py_DECREF(pValue);
+        }
+        Py_DECREF(pFuncWrite);
+    }else{
+        PyErr_Print();
+        fprintf(stderr, "bridge: Failed to load \"%s\"\n", "pyui");
+        exit(1);
+    }
+
+
     // init NML
     if (0 != tryNml()) {
 	rcs_print_error("can't connect to emc\n");
@@ -2420,6 +2620,8 @@ int main(int argc, char *argv[])
            }
         }
         check_hal_changes(); //if anything changed send NML messages
+
+
         modify_hal_pins(); //if status changed modify HAL too
         esleep(0.02); //sleep for a while
         updateStatus();

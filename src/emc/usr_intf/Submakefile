@@ -37,5 +37,6 @@ TARGETS += ../bin/linuxcnclcd
 
 ../bin/halui: $(call TOOBJS, $(HALUISRCS)) ../lib/liblinuxcnc.a ../lib/liblinuxcncini.so.0 ../lib/libnml.so.0 ../lib/liblinuxcnchal.so.0 ../lib/libtooldata.so.0
 	$(ECHO) Linking $(notdir $@)
-	$(Q)$(CXX) $(CXXFLAGS) -o $@ $(ULFLAGS) $^ $(LDFLAGS)
+	$(Q)$(CXX) $(CXXFLAGS) -o $@ $(ULFLAGS) $^ $(LDFLAGS) $(PYTHON_LIBS) $(PYTHON_EXTRA_LIBS)
 TARGETS += ../bin/halui
+
