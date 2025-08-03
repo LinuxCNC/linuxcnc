@@ -1183,7 +1183,7 @@ It is an error if:
   due to the spindle speed
 
 [[gcode:g38]]
-== G38.n Straight Probe(((G38.n Probe)))
+== G38._n_ Straight Probe(((G38.n Probe)))
 
 [source,{ngc}]
 ----
@@ -1202,11 +1202,11 @@ You will not be able to use a probe move until your machine has been set
 up to provide a probe input signal.
 The probe input signal must be connected to 'motion.probe-input' in a .hal
 file.
-G38.n uses motion.probe-input to determine when the probe has made (or
+G38._n_ uses motion.probe-input to determine when the probe has made (or
 lost) contact.
 TRUE for probe contact closed (touching), FALSE for probe contact open.
 
-Program 'G38.n axes' to perform a straight probe operation.
+Program 'G38._n_ axes' to perform a straight probe operation.
 The axis words are optional, except that at least one of them must be
 used.
 The axis words together define the destination point that the probe will
@@ -1405,10 +1405,9 @@ G43 <H->
   a compensated axis is moved, that axis's endpoint is the compensated
   location.
 
-'G43' without an H word uses the currently loaded tool from the last
-'Tn M6'.
+'G43' without an H word uses the currently loaded tool from the last 'T__n__ M6'.
 
-'G43 Hn' uses the offset for tool n.
+'G43 H__n__' uses the offset for tool _n_.
 
 The active tool length compensation values are stored in the numbered
 parameters '5401-5409'.
@@ -1445,10 +1444,9 @@ It is an error if:
 G43.1 axes
 ----
 
-* 'G43.1 axes' - change subsequent motions by replacing the current
-  offset(s) of axes.
-  G43.1 does not cause any motion. The next time a compensated axis
-  is moved, that axis's endpoint is the compensated location.
+* 'G43.1 axes' - change subsequent motions by replacing the current offset(s) of axes.
+  G43.1 does not cause any motion. The next time a compensated axis is moved,
+  that axis's endpoint is the compensated location.
 
 .G43.1 Example
 [source,{ngc}]
@@ -1459,8 +1457,7 @@ G43.1 Z0.250 (replace current tool offset with 0.250, DRO now shows Z0.250)
 M2 (end program)
 ----
 
-* See <<gcode:g90-g91,G90>> & <<sec:select-tool,T>> & <<mcode:m6,M6>>
-  sections for more information.
+* See <<gcode:g90-g91,G90>> & <<sec:select-tool,T>> & <<mcode:m6,M6>> sections for more information.
 
 It is an error if:
 
@@ -1479,11 +1476,11 @@ G43.2 H- or axes-
 
 * 'H' - tool number
 
-* 'G43.2 Hn' - applies an additional simultaneous tool offset to subsequent motions by adding the offset(s) of tool n.
+* 'G43.2 H__n__' - applies an additional simultaneous tool offset to subsequent motions by adding the offset(s) of tool _n_.
 
 * 'G43.2 axes' - applies an additional simultaneous tool offset to subsequent motions by adding the value(s) of any axis words.
 
-.G43.2 Hn Example
+.G43.2 H__n__ Example
 [source,{ngc}]
 ----
 G90 (set absolute mode)
@@ -1509,14 +1506,12 @@ geometry offsets and which are wear offsets, or that you should have
 only one of each.
 
 Like the other G43 commands, G43.2 does not cause any motion. The next
-time a compensated axis is moved, that axis's endpoint is the compensated
-location.
+time a compensated axis is moved, that axis's endpoint is the compensated location.
 
 It is an error if:
 
 * 'H' is unspecified and no axis offsets are specified.
-* 'H' is specified and the given tool number does not exist in the tool
-  table.
+* 'H' is specified and the given tool number does not exist in the tool table.
 * 'H' is specified and axes are also specified.
 
 NOTE: G43.2 does not write to the tool table.
@@ -1849,8 +1844,7 @@ the bottom of the hole.
 The length of the dwell is specified by a 'P-' word in the G74 block.
 The feed rate 'F-' is spindle speed multiplied by distance per revolution
 (thread pitch).
-In example S100 with 1.25MM per revolution thread pitch gives a feed of
-F125.
+In example S100 with 1.25MM per revolution thread pitch gives a feed of F125.
 
 [[gcode:g76]]
 == G76 Threading Cycle(((G76 Threading Cycle)))
@@ -1945,7 +1939,7 @@ It is an error if:
 * 'E-' is greater than half the drive line length.
 
 .HAL Connections
-The pins 'spindle.N.at-speed' and the 'encoder.n.phase-Z' for the
+The pins 'spindle.N.at-speed' and the 'encoder._n_.phase-Z' for the
 spindle must be connected in your HAL file before G76 will work.
 See the <<sec:motion-pins,spindle>> pins in the Motion section for more
 information.
