@@ -72,7 +72,7 @@ pins used for wheel jogging.
 At each servo period, the 'axis._L_.eoffset-counts' pin is compared to
 its value in the prior period. The increase or decrease (positive
 or negative delta) of the 'axis._L_.eoffset-counts' pin is multiplied
-by the current 'axis.__L.eoffset-scale' pin value.  This product is
+by the current 'axis._L_.eoffset-scale' pin value.  This product is
 accumulated in an internal register and exported to the
 'axis._L_.eoffset-request' HAL pin. The accumulation register is reset
 to zero at each machine-on.
