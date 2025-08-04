@@ -684,9 +684,10 @@ int main(int argc, char* argv[]) {
                 break;
 
             case EMCMOT_SET_PROBE_ERR_INHIBIT:
-                log_print("SETUP_SET_PROBE_ERR_INHIBIT %d %d\n",
+                log_print("SETUP_SET_PROBE_ERR_INHIBIT %d %d %d\n",
                           c->probe_jog_err_inhibit,
-                          c->probe_home_err_inhibit);
+                          c->probe_home_err_inhibit,
+		    	  c->probe_decel_err_inhibit);
                 break;
 
 

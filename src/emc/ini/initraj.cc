@@ -243,9 +243,11 @@ static int loadTraj(EmcIniFile *trajInifile)
         
         int j_inhibit = 0;
         int h_inhibit = 0;
+	int d_inhibit = 0;
         trajInifile->Find(&j_inhibit, "NO_PROBE_JOG_ERROR", "TRAJ");
         trajInifile->Find(&h_inhibit, "NO_PROBE_HOME_ERROR", "TRAJ");
-        if (0 != emcSetProbeErrorInhibit(j_inhibit, h_inhibit)) {
+	trajInifile->Find(&d_inhibit, "NO_PROBE_DECEL_ERROR", "TRAJ");
+        if (0 != emcSetProbeErrorInhibit(j_inhibit, h_inhibit, d_inhibit)) {
             if (emc_debug & EMC_DEBUG_CONFIG) {
                 rcs_print("bad return value from emcSetProbeErrorInhibit\n");
             }

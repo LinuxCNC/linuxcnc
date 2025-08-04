@@ -887,6 +887,7 @@ LinuxCNC will not know your joint travel limits when using `NO_FORCE_HOMING = 1`
   The setting may be overridden from the command line using the -t option ($ linuxcnc -h).
 * `NO_PROBE_JOG_ERROR = 0` - Allow to bypass probe tripped check when you jog manually.
 * `NO_PROBE_HOME_ERROR = 0` - Allow to bypass probe tripped check when homing is in progress.
+* `NO_PROBE_DECEL_ERROR = 0` - Allow to bypass probe tripped check when probe move deceleration is in progress.
 
 
 [[sub:ini:sec:kins]]

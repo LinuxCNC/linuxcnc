@@ -723,9 +723,19 @@ static void process_probe_inputs(void)
 
         if(!GET_MOTION_INPOS_FLAG() && tpQueueDepth(&emcmotInternal->coord_tp)) {
             // running an command
-            tpAbort(&emcmotInternal->coord_tp);
-            reportError(_("Probe tripped during non-probe move."));
-	    SET_MOTION_ERROR_FLAG(1);
+            if (emcmotStatus->motionType == EMC_MOTION_TYPE_PROBING) {
+
+                // inhibit_probe_decel_error is set by [TRAJ]->NO_PROBE_DECEL_ERROR in the ini file
+                if (!emcmotConfig->inhibit_probe_decel_error) {
+                    tpAbort(&emcmotInternal->coord_tp);
+                    reportError(_("Probe tripped again during probe move deceleration phase."));
+                    SET_MOTION_ERROR_FLAG(1);
+                }
+            } else {
+                tpAbort(&emcmotInternal->coord_tp);
+                reportError(_("Probe tripped during non-probe move."));
+                SET_MOTION_ERROR_FLAG(1);
+            }
         }
 
         for(i=0; i<NO_OF_KINS_JOINTS; i++) {
