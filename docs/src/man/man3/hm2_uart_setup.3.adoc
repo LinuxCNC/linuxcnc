@@ -20,7 +20,7 @@ The names of the available UARTs are printed to standard output during the drive
 loading process and take the form: hm2___<board name>__.__<board index>__.uart.__<index>__,
 for example `hm2_5i23.0.uart.0`.
 The minimum bitrate is approximately 50 bps, and the maximum around the FPGA frequency, 48 MHz for a 5I23.
-The UART function allows different RX and TX bitrates, but that is not currently supported by this driver
+The UART function allows different RX and TX bitrates, but that is not currently supported by this driver.
 
 tx_mode is bit mask defined in the Hostmot2 regmap:
 Bit 0..3:: TXEnable delay.
