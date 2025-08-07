@@ -204,6 +204,11 @@ class pyvcp_dial(Canvas):
                 halparam = "dial." + str(pyvcp_dial.n) + ".param_pin"
                 self.halparam=halparam        
                 pycomp.newpin(halparam, HAL_FLOAT, HAL_IN)
+        self.param_pin = param_pin
+        if halparam == None:
+            halparam = "dial." + str(pyvcp_dial.n) + ".param_pin"
+        self.halparam=halparam        
+        pycomp.newpin(halparam, HAL_FLOAT, HAL_IN)
 
         pyvcp_dial.n += 1
         self.pycomp=pycomp
@@ -985,6 +990,12 @@ class pyvcp_spinbox(Spinbox):
                 halparam = "spinbox." + str(pyvcp_spinbox.n) + ".param_pin"
                 self.halparam=halparam
                 pycomp.newpin(halparam, HAL_FLOAT, HAL_IN)
+        self.param_pin = param_pin
+        if self.param_pin == 1:
+            if halparam == None:
+                halparam = "spinbox." + str(pyvcp_spinbox.n) + ".param_pin"
+            self.halparam=halparam
+            pycomp.newpin(halparam, HAL_FLOAT, HAL_IN)
 
         pyvcp_spinbox.n += 1
         
@@ -1566,6 +1577,12 @@ class pyvcp_scale(Scale):
                 halparam = "scale."+str(pyvcp_scale.n)+".param_pin"
                 self.halparam=halparam        
                 pycomp.newpin(halparam, HAL_FLOAT, HAL_IN)
+        self.param_pin = param_pin
+        if self.param_pin == 1:
+            if halparam == None:
+                halparam = "scale."+str(pyvcp_scale.n)+".param_pin"
+            self.halparam=halparam        
+            pycomp.newpin(halparam, HAL_FLOAT, HAL_IN)
 
         pyvcp_scale.n += 1       
         
