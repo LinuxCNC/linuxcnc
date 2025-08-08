@@ -18,7 +18,6 @@ try:
     import zmq
     import json
 except:
-    print('Cannot import ZMQ')
     zmq = None
 
 # constants
@@ -318,6 +317,10 @@ class _GStat(GObject.GObject):
         if zmq:
             self.init_write_socket()
             self.init_read_socket()
+        else:
+            # logging set up now - add ZMQ failed message
+            LOG.debug('ZMQ python library not imported  - Is python3-zmq installed?')
+            LOG.debug('ZMQ socket messages will not be processed')
 
         self._status_active = False
         self.old = {}
@@ -353,8 +356,8 @@ class _GStat(GObject.GObject):
             self.write_socket.bind(self.writeAddress)
             LOG.debug('hal_glib write socket available: {}'.format(self.writeAddress))
             self.write_available = True
-        except:
-            LOG.debug('hal_glib write socket not available')
+        except Exception as e:
+            LOG.debug('hal_glib write socket not available: {}'.format(e))
             self.write_available = False
 
     # convert and actually send out the message
