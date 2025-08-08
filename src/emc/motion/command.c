@@ -1888,6 +1888,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
         case EMCMOT_SET_PROBE_ERR_INHIBIT:
             emcmotConfig->inhibit_probe_jog_error = emcmotCommand->probe_jog_err_inhibit;
             emcmotConfig->inhibit_probe_home_error = emcmotCommand->probe_home_err_inhibit;
+	    emcmotConfig->inhibit_probe_decel_error = emcmotCommand->probe_decel_err_inhibit;
             break;
 
 	}			/* end of: command switch */
