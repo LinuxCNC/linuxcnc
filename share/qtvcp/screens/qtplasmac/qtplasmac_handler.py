@@ -1,4 +1,4 @@
-VERSION = '009.069'
+VERSION = '009.070'
 LCNCVER = '2.10'
 
 '''
@@ -2594,6 +2594,12 @@ class HandlerClass:
             if error:
                 return
             self.updateIni['001-017'] = mPath
+        # add M52P1 to the [CONVERSATIONAL] Preamble and Postamble
+        if any(self.PREFS.has_option('CONVERSATIONAL', option) and 'M52P1' not in self.PREFS.get('CONVERSATIONAL', option) for option in ('Preamble', 'Postamble')):
+            restart, error, text = UPDATER.add_adaptive(self.PREFS)
+            self.updateData.append([restart, error, text])
+            if error:
+                return
 
     def update_iniwrite(self):
         # this is for updates that write to the INI file

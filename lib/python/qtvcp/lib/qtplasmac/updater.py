@@ -23,6 +23,20 @@ import os
 from shutil import copy as COPY
 
 ###########################################################################################################
+# add M52P1 to the [CONVERSATIONAL] Preamble and Postamble                                                #
+###########################################################################################################
+
+
+def add_adaptive(prefs):
+    for option in ('Preamble', 'Postamble'):
+        value = prefs.getpref(option, '', str, 'CONVERSATIONAL') or ''
+        if 'M52P1' not in value:
+            prefs.putpref(option, f'{value.strip()} M52P1'.strip(), str, 'CONVERSATIONAL')
+    with open(prefs.fn, 'w') as f:
+        prefs.write(f)
+    return(False, False, 'Updated to V2.10-009.070')
+
+###########################################################################################################
 # helper function to expand ini file if #INCLUDE is used in the ini file                                  #
 ###########################################################################################################
 
