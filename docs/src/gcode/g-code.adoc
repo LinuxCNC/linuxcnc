@@ -2651,7 +2651,7 @@ rate mode does not affect `G0` (<<gcode:g0,rapid move>>) motions.
   millimeters per minute, or degrees per minute,
   depending upon what length units are being used and which axis or axes are moving.
 
-* 'G95' - is Units per Revolution Mode
+* 'G95' - is Units per Revolution Mode.
   In units per revolution mode,
   an F-word is interpreted to mean the controlled point should move a certain number of inches per revolution of the spindle,
   depending on what length units are being used and which axis or axes are moving.
