@@ -1,4 +1,4 @@
-VERSION = '009.070'
+VERSION = '009.071'
 LCNCVER = '2.10'
 
 '''
@@ -2594,9 +2594,15 @@ class HandlerClass:
             if error:
                 return
             self.updateIni['001-017'] = mPath
-        # add M52P1 to the [CONVERSATIONAL] Preamble and Postamble
+        # add M52P1 to the [CONVERSATIONAL] Preamble and Postamble (pre V2.10-009.070 2025/08/07)
         if any(self.PREFS.has_option('CONVERSATIONAL', option) and 'M52P1' not in self.PREFS.get('CONVERSATIONAL', option) for option in ('Preamble', 'Postamble')):
             restart, error, text = UPDATER.add_adaptive(self.PREFS)
+            self.updateData.append([restart, error, text])
+            if error:
+                return
+        # add newlines between codes [CONVERSATIONAL] Preamble and Postamble (pre V2.10-009.071 2025/08/09)
+        if any(self.PREFS.has_option('CONVERSATIONAL', option) and ' ' in self.PREFS.get('CONVERSATIONAL', option) for option in ('Preamble', 'Postamble')):
+            restart, error, text = UPDATER.add_newlines(self.PREFS)
             self.updateData.append([restart, error, text])
             if error:
                 return

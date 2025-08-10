@@ -23,13 +23,27 @@ import os
 from shutil import copy as COPY
 
 ###########################################################################################################
-# add M52P1 to the [CONVERSATIONAL] Preamble and Postamble                                                #
+# add newlines between codes [CONVERSATIONAL] Preamble and Postamble (pre V2.10-009.071 2025/08/09)       #
+###########################################################################################################
+
+
+def add_newlines(prefs):
+    for option in ('Preamble', 'Postamble'):
+        value = prefs.getpref(option, '', str, 'CONVERSATIONAL')
+        newlines = '\n'.join(value.strip().split())
+        prefs.putpref(option, newlines, str, 'CONVERSATIONAL')
+    with open(prefs.fn, 'w') as f:
+        prefs.write(f)
+    return(False, False, 'Updated to V2.10-009.071')
+
+###########################################################################################################
+# add M52P1 to the [CONVERSATIONAL] Preamble and Postamble (pre V2.10-009.070 2025/08/07)                 #
 ###########################################################################################################
 
 
 def add_adaptive(prefs):
     for option in ('Preamble', 'Postamble'):
-        value = prefs.getpref(option, '', str, 'CONVERSATIONAL') or ''
+        value = prefs.getpref(option, '', str, 'CONVERSATIONAL')
         if 'M52P1' not in value:
             prefs.putpref(option, f'{value.strip()} M52P1'.strip(), str, 'CONVERSATIONAL')
     with open(prefs.fn, 'w') as f:
