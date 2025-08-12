@@ -32,8 +32,7 @@ three per-port pins and three parameters.
 
 *Pins:*
 
-.sserial.port-__N__.run (bit, in)::
-  Enables the specific Smart Serial module.
+.sserial.port-__N__.run (bit, in):: Enables the specific Smart Serial module.
   Setting this pin low will disable all boards on the port and puts the
   port in a pass-through mode where device parameter setting is possible.
   It is necessary to toggle the state of this pin if there is a
@@ -42,28 +41,20 @@ three per-port pins and three parameters.
   However, toggling the pin low-to-high will re-enable a faulted drive,
   so the pin could usefully be connected to the `iocontrol.0.user-enable-out` pin.
 
-.run_state (u32, ro)::
-  Shows the state of the sserial communications state-machine.
-  This pin will generally show a value of 0x03 in normal operation,
-  0x07 in setup mode and 0x00 when the "run" pin is false.
+.run_state (u32, ro):: Shows the state of the sserial communications state-machine.
+  This pin will generally show a value of 0x03 in normal operation, 0x07 in setup mode and 0x00 when the "run" pin is false.
 
-.error-count (u32, ro)::
-  Indicates the state of the Smart Serial error handler,
-  see the parameters section for more details.
+.error-count (u32, ro):: Indicates the state of the Smart Serial error handler, see the parameters section for more details.
 
 *Parameters:*
 
-.fault-inc (u32 r/w)::
-  Any over-run or handshaking error in the
+.fault-inc (u32 r/w):: Any over-run or handshaking error in the
   SmartSerial communications will increment the .fault-count pin by the
   amount specified by this parameter. Default = 10.
 
-.fault-dec (u32 r/w)::
-  Every successful read/write cycle decrements the
-  fault counter by this amount. Default = 1.
+.fault-dec (u32 r/w):: Every successful read/write cycle decrements the fault counter by this amount. Default = 1.
 
-.fault-lim (u32 r/w)::
-  When the fault counter reaches this threshold the
+.fault-lim (u32 r/w):: When the fault counter reaches this threshold the
   Smart Serial interface on the corresponding port will be stopped and an
   error printed in dmesg. Together these three pins allow for control over
   the degree of fault- tolerance allowed in the interface. The default
@@ -71,8 +62,8 @@ three per-port pins and three parameters.
   times, then a hard error will be raised. If the increment were to be set
   to zero then no error would ever be raised, and the system would carry
   on regardless. Conversely setting decrement to zero, threshold to 1 and
-  limit to 1 means that absolutely no errors will be tolerated. (This
-  structure is copied directly from vehicle ECU practice.)
+  limit to 1 means that absolutely no errors will be tolerated.
+  (This structure is copied directly from vehicle ECU practice.)
 
 Any other parameters than the ones above are created by the card itself
 from data in the remote firmware. They may be set in the HAL file using
@@ -80,10 +71,8 @@ from data in the remote firmware. They may be set in the HAL file using
 
 [NOTE]
 ====
-Because a Smart-Serial remote can only communicate non-process
-data to the host card in setup mode, it is necessary to stop and
-re-start the smart-serial port associated with the card to alter the
-value of a parameter.
+Because a Smart-Serial remote can only communicate non-process data to the host card in setup mode,
+it is necessary to stop and re-start the smart-serial port associated with the card to alter the value of a parameter.
 ====
 
 NOTE: In the case of parameters beginning with "nv" (which are stored in non-volatile memory) the effect will not be seen until after the next power cycle of the drive.
@@ -93,9 +82,8 @@ Unchanged values will not be re-written so it is safe to leave the
 
 == DEVICES
 
-The other pins and parameters created in HAL depend on the devices
-detected. The following list of Smart Serial devices is by no means
-exhaustive.
+The other pins and parameters created in HAL depend on the devices detected.
+The following list of Smart Serial devices is by no means exhaustive.
 
 === 8I20
 
@@ -110,24 +98,24 @@ correlate in layout or number to the physical ports on the card.
 *Pins:*
 
 angle (float in)::
- The rotor angle of the motor in fractions of a full *phase* revolution.
- An angle of 0.5 indicates that the motor is half a turn / 180 degrees / π radians from the zero position.
- The zero position is taken to be the position that the motor adopts under no load with a
- positive voltage applied to the A (or U) phase and both B and C (or V and W) connected to -V or 0 V.
- A 6 pole motor will have 3 zero positions per physical rotation.
- Note that the 8I20 drive automatically adds the phase lead/lag angle, and that this pin should see the raw rotor angle.
- There is a HAL module (bldc) which handles the complexity of differing motor and drive types.
+  The rotor angle of the motor in fractions of a full *phase* revolution.
+  An angle of 0.5 indicates that the motor is half a turn / 180 degrees / π radians from the zero position.
+  The zero position is taken to be the position that the motor adopts under no load with a
+  positive voltage applied to the A (or U) phase and both B and C (or V and W) connected to -V or 0 V.
+  A 6 pole motor will have 3 zero positions per physical rotation.
+  Note that the 8I20 drive automatically adds the phase lead/lag angle, and that this pin should see the raw rotor angle.
+  There is a HAL module (bldc) which handles the complexity of differing motor and drive types.
 current (float, in)::
- The phase current command to the drive.
- This is scaled from -1 to +1 for forwards and reverse maximum currents.
- The absolute value of the current is set by the max_current parameter.
-
-bus-voltage (float, ro):: The drive bus voltage in V.
- This will tend to show 25.6 V when the drive is unpowered and the drive will not operate below about 50 V.
+  The phase current command to the drive.
+  This is scaled from -1 to +1 for forwards and reverse maximum currents.
+  The absolute value of the current is set by the max_current parameter.
+bus-voltage (float, ro)::
+  The drive bus voltage in V.
+  This will tend to show 25.6 V when the drive is unpowered and the drive will not operate below about 50 V.
 temp (float, ro):: The temperature of the driver in degrees C.
 comms (u32, ro):: The communication status of the drive. See the manual for more details.
 status and fault. (bit, ro):: The following fault/status bits are exported.
- For further details see the 8I20 manual: +
+  For further details see the 8I20 manual: +
   fault.U-current / fault.U-current-not fault.V-current
   / fault.V-current-not fault.W-current / fault.W-current-not
   fault.bus-high / fault.bus-high-not fault.bus-overv /
@@ -144,9 +132,7 @@ status and fault. (bit, ro):: The following fault/status bits are exported.
   status.pid-on / status.pid-on-not status.sw-reset / status.sw-reset-not
   status.wd-reset / status.wd-reset-not
 
-*Parameters:*::
- The following parameters are exported.
- See the PDF documentation downloadable from Mesa for further details:
+*Parameters:*:: The following parameters are exported. See the PDF documentation downloadable from Mesa for further details:
 
 hm2_5i25.0.8i20.0.1.angle-maxlim::
 hm2_5i25.0.8i20.0.1.angle-minlim::
@@ -173,11 +159,10 @@ hm2_5i25.0.8i20.0.1.swrevision::
 hm2_5i25.0.8i20.0.1.unitnumber::
 
 max_current (float, rw):: Sets the maximum drive current in Amps.
- The default value is the maximum current programmed into the drive EEPROM.
- The value must be positive, and an error will be raised if a current in excess of the
- drive maximum is requested.
-serial_number (u32, ro):: The serial number of the connected drive.
- This is also shown on the label on the drive.
+  The default value is the maximum current programmed into the drive EEPROM.
+  The value must be positive, and an error will be raised if a current in excess of the
+  drive maximum is requested.
+serial_number (u32, ro):: The serial number of the connected drive. This is also shown on the label on the drive.
 
 === 7I64
 
@@ -188,24 +173,23 @@ for example `hm2_5i23.0.7i64.1.3.output-01`.
 *Pins:*
 
 7i64.0.0.output-__NN__ (bit, in)::
- Writing a 1 or TRUE to this pin will enable output driver _NN_.
- Note that the outputs are drivers (switches) rather than voltage outputs.
- The LED adjacent to the connector on the board shows the status.
- The output can be inverted by setting a parameter.
+  Writing a 1 or TRUE to this pin will enable output driver _NN_.
+  Note that the outputs are drivers (switches) rather than voltage outputs.
+  The LED adjacent to the connector on the board shows the status.
+  The output can be inverted by setting a parameter.
 
 7i64.0.0.input-__NN__ (bit, out):: The value of input _NN_.
- Note that the inputs are isolated and both pins of each input must be connected,
- typically to signal and the ground of the signal.
- (This need not be the ground of the board.)
+  Note that the inputs are isolated and both pins of each input must be connected,
+  typically to signal and the ground of the signal.
+  (This need not be the ground of the board.)
 
 7i64.0.0.input-__NN__-not (bit, out):: An inverted copy of the corresponding input.
 7i64.0.0.analog0 & 7i64.0.0.analog1 (float, out):: The two analogue inputs (0 to 3.3 V) on the board.
 
 *Parameters:*
 
-7i64.0.0.output-__NN__-invert (bit, rw):: Setting this parameter to 1 / TRUE
- will invert the output value, such that writing 0 to `.gpio.NN.out` will
- enable the output and vice-versa.
+7i64.0.0.output-__NN__-invert (bit, rw):: Setting this parameter to 1 / TRUE will invert the output value,
+  such that writing 0 to `.gpio.NN.out` will enable the output and vice-versa.
 
 === 7I76
 
@@ -222,42 +206,32 @@ whereas the smart-serial pins are associated with the 7I76 (`hm2_5i25.0.7i76.0.0
 .7i76.0.0.spindir (bit in):: This pin provides a means to drive the spindle VFD direction terminals on the 7I76 board.
 .7i76.0.0.spinena (bit in):: This pin drives the spindle-enable terminals on the 7I76 board.
 .7i76.0.0.spinout (float in):: This controls the analogue output of the 7I76.
- This is intended as a speed control signal for a VFD.
+  This is intended as a speed control signal for a VFD.
 .7i76.0.0.output-__NN__ (bit out):: (_NN_ = 0 to 15). 16 digital outputs.
- The sense of the signal can be set via a parameter.
+  The sense of the signal can be set via a parameter.
 .7i76.0.0.input-__NN__ (bit out):: (_NN_ = 0 to 31) 32 digital inputs.
 .7i76.0.0.input-__NN__-not (bit in):: (_NN_ = 0 to 31) An inverted copy of the inputs provided for convenience.
- The two complementary pins may be connected to different signal nets.
+  The two complementary pins may be connected to different signal nets.
 
 *Parameters:*
 
 .7i76.0.0.nvbaudrate (u32 ro):: Indicates the vbaud rate. This probably should not be altered.
-
-.7i76.0.0.nvunitnumber (u32 ro)::
-  Indicates the serial number of the device and should match a sticker on the card.
+.7i76.0.0.nvunitnumber (u32 ro):: Indicates the serial number of the device and should match a sticker on the card.
   This can be useful for working out which card is which.
-
-.7i76.0.0.nvwatchdogtimeout (u32 ro)::
-  The sserial remote watchdog timeout.
+.7i76.0.0.nvwatchdogtimeout (u32 ro):: The sserial remote watchdog timeout.
   This is separate from the Anything-IO card timeout.
   This is unlikely to need to be changed.
-
 .7i76.0.0.output-__NN__-invert (bit rw):: Invert the sense of the corresponding output pin.
-
 .7i76.0.0.spindir-invert (bit rw):: Invert the senseof the spindle direction pin.
-
 .7i76.0.0.spinena-invert (bit rw):: Invert the sense of the spindle-enable pin.
-
 .7i76.0.0.spinout-maxlim (float rw):: The maximum speed request allowable
-
 .7i76.0.0.spinout-minlim (float rw):: The minimum speed request.
-
 .7i76.0.0.spinout-scalemax (float rw):: The spindle speed scaling.
   This is the speed request which would correspond to full-scale output from the spindle control pin.
   For example with a 10 V drive voltage and a 10000 RPM scalemax a value of 10,000 RPM on the spinout pin would produce 10 V output.
   However, if spinout-maxlim were set to 5000 RPM then no voltage above 5 V would be output.
-
-.7i76.0.0.swrevision (u32 ro):: The onboard firmware revision number.  Utilities (man setsserial for details) exist to update and change this firmware.
+.7i76.0.0.swrevision (u32 ro):: The onboard firmware revision number.
+  Utilities (man setsserial for details) exist to update and change this firmware.
 
 === 7I77
 
@@ -269,10 +243,10 @@ encoders and further details of them may be found in the hostmot2 manpage.
 
 .7i77.0.0.input-__NN__ (bit out):: (_NN_ = 0 to 31) 32 digital inputs.
 .7i77.0.0.input-__NN__-not (bit in):: (_NN_ = 0 to 31) An inverted copy of the inputs provided for convenience. The two complementary pins may be connected to different signal nets.
-.7i77.0.0.output-__NN__ (bit out):: (_NN_ = 0 to 15). 16 digital outputs.  The sense of the signal can be set via a parameter.
+.7i77.0.0.output-__NN__ (bit out):: (_NN_ = 0 to 15). 16 digital outputs. The sense of the signal can be set via a parameter.
 .7i77.0.0.spindir (bit in):: This pin provides a means to drive the spindle VFD direction terminals on the 7I76 board.
 .7i77.0.0.spinena (bit in):: This pin drives the spindle-enable terminals on the 7I76 board.
-.7i77.0.0.spinout (float in):: This controls the analog output of the 7I77.  This is intended as a speed control signal for a VFD.
+.7i77.0.0.spinout (float in):: This controls the analog output of the 7I77. This is intended as a speed control signal for a VFD.
 .7i77.0.1.analogena (bit in):: This pin drives the analog enable terminals on the 7I77 board.
 .7i77.0.1.analogout__N__ (float in):: (_N_ = 0 to 5) This controls the analog output of the 7I77.
 
@@ -283,8 +257,7 @@ encoders and further details of them may be found in the hostmot2 manpage.
 .7i77.0.0.spinena-invert (bit rw):: Invert the sense of the spindle-enable pin.
 .7i77.0.0.spinout-maxlim (float rw):: The maximum speed request allowable
 .7i77.0.0.spinout-minlim (float rw):: The minimum speed request.
-.7i77.0.0.spinout-scalemax (float rw)::
-  The spindle speed scaling.
+.7i77.0.0.spinout-scalemax (float rw):: The spindle speed scaling.
   This is the speed request which would correspond to full-scale output from the spindle control pin.
   For example with a 10&#8201;V drive voltage and a 10000&#8201;RPM scalemax a value of 10000&#8201;RPM on the spinout pin would produce 10&#8201;V output.
   However, if spinout-maxlim were set to 5000&#8201;RPM then no voltage above 5&#8201;V would be output.
@@ -308,25 +281,21 @@ MODE 4:: Bidirectional mode (48 bits in 48 bits out) plus 4 MPG encoder channels
 
 *Pins:*
 
-.7i69.0.0.output-__NN__ (bit in):: Digital output. Sense can be inverted with
-the corresponding Parameter.
-
+.7i69.0.0.output-__NN__ (bit in):: Digital output. Sense can be inverted with the corresponding Parameter.
 .7i69.0.0.input-__NN__ (bit out):: Digital input
-
 .7i69.0.0.input-__NN__-not (bit out):: Digital input, inverted.
 
 *Parameters:*
 
-.7i69.0.0.nvbaudrate (u32 ro):: Indicates the vbaud rate.  This probably should not be altered.
+.7i69.0.0.nvbaudrate (u32 ro):: Indicates the vbaud rate. This probably should not be altered.
 .7i69.0.0.nvunitnumber (u32 ro)::
   Indicates the serial number of the device and should match a sticker on the card.
   This can be useful for working out which card is which.
-
 .7i69.0.0.nvwatchdogtimeout (u32 ro):: The sserial remote watchdog timeout.
   This is separate from the Anything-IO card timeout.
   This is unlikely to need to be changed.
 .7i69.0.0.output-__NN__-invert (bit rw):: Invert the sense of the corresponding output pin.
-.7i69.0.0.swrevision (u32 ro):: The onboard firmware revision number.  Utilities exist to update and change this firmware.
+.7i69.0.0.swrevision (u32 ro):: The onboard firmware revision number. Utilities exist to update and change this firmware.
 
 === 7I70
 
@@ -351,16 +320,14 @@ MODE 2:: Input plus field voltage
 .7i70.0.0.analog__N__ (modes 1 and 2 only) (float out):: Analogue input values.
 .7i70.0.0.fieldvoltage (mode 2 only) (float out):: Field voltage monitoring pin.
 .7i70.0.0.input-__NN__ (bit out):: (_NN_ = 0 to 47) 48 digital inputs.
-.7i70.0.0.input-__NN__-not (bit in):: (_NN_ = 0 to 47) An inverted copy of the
-inputs provided for convenience. The two complementary pins may be
-connected to different signal nets.
+.7i70.0.0.input-__NN__-not (bit in):: (_NN_ = 0 to 47) An inverted copy of the inputs provided for convenience. The two complementary pins may be connected to different signal nets.
 
 *Parameters:*
 
-.7i70.0.0.nvbaudrate (u32 ro):: Indicates the vbaud rate.  This probably should not be altered.
-.7i70.0.0.nvunitnumber (u32 ro):: Indicates the serial number of the device and should match a sticker on the card.  This can be useful for working out which card is which.
-.7i70.0.0.nvwatchdogtimeout (u32 ro):: The sserial remote watchdog timeout.  This is separate from the Anything-IO card timeout.  This is unlikely to need to be changed.
-.7i69.0.0.swrevision (u32 ro):: The onboard firmware revision number.  Utilities exist to update and change this firmware.
+.7i70.0.0.nvbaudrate (u32 ro):: Indicates the vbaud rate. This probably should not be altered.
+.7i70.0.0.nvunitnumber (u32 ro):: Indicates the serial number of the device and should match a sticker on the card. This can be useful for working out which card is which.
+.7i70.0.0.nvwatchdogtimeout (u32 ro):: The sserial remote watchdog timeout. This is separate from the Anything-IO card timeout. This is unlikely to need to be changed.
+.7i69.0.0.swrevision (u32 ro):: The onboard firmware revision number. Utilities exist to update and change this firmware.
 
 === 7I71
 
@@ -380,18 +347,17 @@ MODE 1:: Outputs plus read back field voltage
 .7i71.0.0.fieldvoltage (mode 2 only) (float out):: Field voltage monitoring pin.
 
 .7i71.0.0.output-__NN__ (bit out):: (_NN_ = 0 to 47) 48 digital outputs.
- The sense may be inverted by the invert parameter.
-
+  The sense may be inverted by the invert parameter.
 .7i71.0.0.output-__NN__ (bit out):: (_NN_ = 0 to 47) 48 digital outputs.
- The sense may be inverted by the invert parameter.
+  The sense may be inverted by the invert parameter.
 
 *Parameters:*
 
 .7i71.0.0.output-__NN__-invert (bit rw):: Invert the sense of the corresponding output pin.
-.7i71.0.0.nvbaudrate (u32 ro):: Indicates the vbaud rate.  This probably should not be altered.
-.7i71.0.0.nvunitnumber (u32 ro):: Indicates the serial number of the device and should match a sticker on the card.  This can be useful for determining which card is which.
-.7i71.0.0.nvwatchdogtimeout (u32 ro):: The sserial remote watchdog timeout.  This is separate from the Anything-IO card timeout.  This is unlikely to need to be changed.
-.7i69.0.0.swrevision (u32 ro):: The onboard firmware revision number.  Utilities exist to update and change this firmware.
+.7i71.0.0.nvbaudrate (u32 ro):: Indicates the vbaud rate. This probably should not be altered.
+.7i71.0.0.nvunitnumber (u32 ro):: Indicates the serial number of the device and should match a sticker on the card. This can be useful for determining which card is which.
+.7i71.0.0.nvwatchdogtimeout (u32 ro):: The sserial remote watchdog timeout. This is separate from the Anything-IO card timeout. This is unlikely to need to be changed.
+.7i69.0.0.swrevision (u32 ro):: The onboard firmware revision number. Utilities exist to update and change this firmware.
 
 === 7I73
 
@@ -415,17 +381,15 @@ MODE 2:: I/O + ENCODER + ANALOG IN FAST DISPLAY
 
 *Pins:*
 
-.7i73.0.0.analogin__N__ (float out)::
-  Analogue inputs. Up to 8 channels may
-  be available dependent on software and hardware configuration modes
+.7i73.0.0.analogin__N__ (float out):: Analogue inputs.
+  Up to 8 channels may be available dependent on software and hardware configuration modes
   (see the PDF manual downloadable from https://www.mesanet.com).
 
-.7i73.0.1.display (modes 1 and 2) (u32 in)::
-  Data for LCD display.
+.7i73.0.1.display (modes 1 and 2) (u32 in):: Data for LCD display.
   This pin may be conveniently driven by the HAL "lcd" component which allows
   the formatted display of the values any number of HAL pins and textual content.
 
-.7i73.0.1.display32 (mode 2 only) (u32 in):: 4 bytes of data for LCD display.  This mode is not supported by the HAL "lcd" component.
+.7i73.0.1.display32 (mode 2 only) (u32 in):: 4 bytes of data for LCD display. This mode is not supported by the HAL "lcd" component.
 .7i73.0.1.encN (s32 out):: The position of the MPG encoder counters.
 .7i73.0.1.input-__NN__ (bit out):: Up to 24 digital inputs (dependent on config)
 .7i73.0.1.input-__NN__-not (bit out):: Inverted copy of the digital inputs
