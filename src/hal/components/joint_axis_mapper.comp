@@ -1,0 +1,97 @@
+component joint_axis_mapper """Translate from Joint to Axis""";
+
+license "GPL";
+
+pin in bit temp "Fault in";
+
+function _;
+option singleton yes;
+option rtapi_app no;
+
+;;
+
+static char *coord = "XYZABCUVWXYZABCUVW";
+RTAPI_MP_STRING(coord, "Existing Axes");
+
+int number_joints = 9;
+static int axis_counts[9];
+
+typedef struct{
+    hal_bit_t *fault_in[16];
+    hal_bit_t *fault_out[16];
+} faults_in_t;
+
+static faults_in_t *faults_in;
+char fault_letter[16];
+
+
+
+int rtapi_app_main(void) {
+    int r = 0;
+    comp_id = hal_init("joint_axis_mapper");
+    char buf[HAL_NAME_LEN + 1];
+
+    if(comp_id < 0) return comp_id;
+
+    number_joints = strlen(coord);
+    faults_in = hal_malloc(sizeof(faults_in_t));
+
+    rtapi_print_msg(RTAPI_MSG_INFO, "Joint Axis Mapper - Initializing with coords %s\n", coord);
+
+    int this_count = 0;
+    for(int i =0; i < strlen(coord); i++){
+        if(coord[i] != ' '  && coord[i] != ';'  && coord[i] != '{'  && coord[i] != '}'  && coord[i] != ',' &&
+           coord[i] != '\n' && coord[i] != '\r' && coord[i] != '\t' && coord[i] != '\"' && coord[i] != '\'') {
+            coord[this_count++] = coord[i];
+            number_joints--;
+        }
+    }
+    coord[this_count] = '\0';
+
+    this_count = 0;
+    number_joints = strlen(coord);
+
+    for(int i = 0; i < strlen(coord); i++) {
+        fault_letter[i] = coord[i];
+        this_count = 0;
+        if(coord[i] == 'X' || coord[i] == 'x'){ axis_counts[0]++; this_count = axis_counts[0];  }
+        if(coord[i] == 'Y' || coord[i] == 'y'){ axis_counts[1]++; this_count = axis_counts[1];  }
+        if(coord[i] == 'Z' || coord[i] == 'z'){ axis_counts[2]++; this_count = axis_counts[2];  }
+        if(coord[i] == 'A' || coord[i] == 'a'){ axis_counts[3]++; this_count = axis_counts[3];  }
+        if(coord[i] == 'B' || coord[i] == 'b'){ axis_counts[4]++; this_count = axis_counts[4];  }
+        if(coord[i] == 'C' || coord[i] == 'c'){ axis_counts[5]++; this_count = axis_counts[5];  }
+        if(coord[i] == 'U' || coord[i] == 'u'){ axis_counts[6]++; this_count = axis_counts[6];  }
+        if(coord[i] == 'V' || coord[i] == 'v'){ axis_counts[7]++; this_count = axis_counts[7];  }
+        if(coord[i] == 'W' || coord[i] == 'w'){ axis_counts[8]++; this_count = axis_counts[8];  }
+
+        if(this_count == 1){
+            hal_pin_bit_newf(HAL_IN,  &(faults_in->fault_in[i]),  comp_id, "jam.%c-fault", coord[i]);
+            hal_pin_bit_newf(HAL_OUT, &(faults_in->fault_out[i]), comp_id, "jam.%c-fault-latched", coord[i]);
+        }
+        else if(this_count > 1){
+            hal_pin_bit_newf(HAL_IN,  &(faults_in->fault_in[i]),  comp_id, "jam.%c%d-fault", coord[i], this_count);
+            hal_pin_bit_newf(HAL_OUT, &(faults_in->fault_out[i]), comp_id, "jam.%c%d-fault-latched", coord[i], this_count);
+        }
+        else {
+            rtapi_print_msg(RTAPI_MSG_ERR, "Joint Axis Mapper - %c axis not found in coord string\n", coord[i]);
+        }
+    }
+
+    hal_export_funct("joint_axis_mapper", (void(*))_, 0, 1, 0, comp_id);
+    hal_ready(comp_id);
+    return 0;
+}
+
+void rtapi_app_exit(void) {
+    hal_exit(comp_id);
+}
+
+
+FUNCTION(_) {
+        for(int i = 0; i < number_joints; i++) {
+            if(*faults_in->fault_in[i] && ! *faults_in->fault_out[i]){
+                rtapi_print_msg(RTAPI_MSG_ERR, "%c Axis fault detected\n", fault_letter[i]);
+            }
+            *(faults_in->fault_out[i]) = *(faults_in->fault_in[i]);
+        }
+}
