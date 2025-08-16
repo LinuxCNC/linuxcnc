@@ -1281,6 +1281,9 @@ static void sendJogStop(int ja, int jjogmode)
 
 static void sendJogCont(int ja, double speed, int jjogmode)
 {
+    // no selected axis/joint
+    if (ja < 0) { return; }
+
     EMC_JOG_CONT emc_jog_cont_msg;
 
     if (emcStatus->task.state != EMC_TASK_STATE::ON) { return; }
@@ -1631,7 +1634,7 @@ static void hal_init_pins()
     *(halui_data->ajog_speed) = 0;
 
     *(halui_data->joint_selected) = 0; // select joint 0 by default
-    *(halui_data->axis_selected) = 0; // select axis 0 by default
+    *(halui_data->axis_selected) = -1; // select no axis by default
 
     *(halui_data->fo_scale) = old_halui_data.fo_scale = 0.1; //sane default
     *(halui_data->ro_scale) = old_halui_data.ro_scale = 0.1; //sane default
@@ -1796,11 +1799,7 @@ static void check_hal_changes()
     int ajog_speed_changed;
     int is_any_axis_selected, deselected;
 
-    local_halui_str new_halui_data_mutable;
-    copy_hal_data(*halui_data, new_halui_data_mutable);
-    const local_halui_str &new_halui_data = new_halui_data_mutable;
-
-        // read socket messages
+        // get python to process socket messages
         pFuncRead = PyObject_GetAttrString(pInstance, "readMsg");
         if (pFuncRead && PyCallable_Check(pFuncRead)) {
             pValue = PyObject_CallFunction(pFuncRead, "O", pClass);
@@ -1815,6 +1814,29 @@ static void check_hal_changes()
                 fprintf(stderr, "Bridge: Failed python function");
                 exit(1);
         }
+
+    // check socket messages for current axis selection
+    int value = write_msg_get_axis_selected();
+
+    local_halui_str new_halui_data_mutable;
+
+    if (value != lastaxis) {
+        // inject socket axis selection over hal data
+        for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num++) {
+            if ( !(axis_mask & (1 << axis_num)) ) { continue; }
+
+            if (axis_num == value) {
+                *(halui_data->axis_nr_select[axis_num]) = 1;
+            }else{
+                *(halui_data->axis_nr_select[axis_num]) = 0;
+            }
+        }
+        lastaxis = value;
+    }
+
+    copy_hal_data(*halui_data, new_halui_data_mutable);
+    const local_halui_str &new_halui_data = new_halui_data_mutable;
+
 
     //check if machine_on pin has changed (the rest work exactly the same)
     if (check_bit_changed(new_halui_data.machine_on, old_halui_data.machine_on) != 0)
@@ -2184,25 +2206,20 @@ static void check_hal_changes()
 	bit = new_halui_data.axis_nr_select[axis_num];
 	if (bit != old_halui_data.axis_nr_select[axis_num]) {
 	    if (bit != 0) {
-                is_any_axis_selected = 1;
-		*halui_data->axis_selected = axis_num;
-                write_msg_axis_changed(axis_num);
-		aselect_changed = axis_num; // flag that we changed the selected axis
+            is_any_axis_selected = 1;
+            *halui_data->axis_selected = axis_num;
+            write_msg_axis_changed(axis_num);
+            aselect_changed = axis_num; // flag that we changed the selected axis
 	    }else{
                 deselected = 1;
-            }
-	    old_halui_data.axis_nr_select[axis_num] = bit;
         }
+        old_halui_data.axis_nr_select[axis_num] = bit;
+    }
     }
     // last axis has been deselected - no axis is selected now        
     if (is_any_axis_selected == 0 and deselected == 1) {
         write_msg_axis_changed(-1);
-    }
-
-    // check socket messages for axis selection change
-    int value = write_msg_get_axis_selected();
-    if (value != lastaxis){
-        aselect_changed = lastaxis = value;
+        *halui_data->axis_selected = -1;
     }
 
     if (aselect_changed >= 0) {
