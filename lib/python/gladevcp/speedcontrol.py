@@ -35,6 +35,8 @@ if __name__ == "__main__":
 else:
     from .hal_widgets import _HalSpeedControlBase
 
+from gladevcp.core import Status, Action
+
 class SpeedControl(Gtk.Box, _HalSpeedControlBase):
     '''
     The SpeedControl Widget serves as a slider with button to increment od decrease
@@ -98,6 +100,8 @@ class SpeedControl(Gtk.Box, _HalSpeedControlBase):
                 "%.1f", GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
         'do_hide_button' : ( GObject.TYPE_BOOLEAN, 'Hide the button', 'Display the button + and - to alter the values',
                     False, GObject.ParamFlags.READWRITE | GObject.ParamFlags.CONSTRUCT),
+        'type'  : ( GObject.TYPE_INT, 'Type of adjustment', 'Set to -1 for general, 0 for jograte',
+                    -1, 0, -1, GObject.ParamFlags.READWRITE|GObject.ParamFlags.CONSTRUCT),
                       }
     __gproperties = __gproperties__
 
@@ -112,6 +116,9 @@ class SpeedControl(Gtk.Box, _HalSpeedControlBase):
     def __init__(self, size = 36, value = 0, min = 0, max = 100, inc_speed = 100, unit = "", color = "#FF8116", template = "%.1f"):
         super(SpeedControl, self).__init__()
 
+        self._action = Action()
+        self._status = Status()
+
         # basic settings
         self._size = size
         self._value = value
@@ -123,6 +130,7 @@ class SpeedControl(Gtk.Box, _HalSpeedControlBase):
         self._increment = (self._max - self._min) / 100.0
         self._template = template
         self._speed = inc_speed
+        self.type_linear_jog = False
 
         self.adjustment = Gtk.Adjustment(value = self._value, lower = self._min, upper = self._max, step_increment = self._increment, page_increment = 0)
         self.adjustment.connect("value_changed", self._on_value_changed)
@@ -174,6 +182,10 @@ class SpeedControl(Gtk.Box, _HalSpeedControlBase):
         self.hal_pin_increase.connect("value-changed", self._on_plus_changed)
         self.hal_pin_decrease = self.hal.newpin(self.hal_name+".decrease", hal.HAL_BIT, hal.HAL_IN)
         self.hal_pin_decrease.connect("value-changed", self._on_minus_changed)
+
+        if self.type_linear_jog:
+            print('->>',self.type_linear_jog)
+            self._status.connect('jograte-changed', lambda w, data: self.set_value(data))
 
     # this draws our widget on the screen
     def expose(self, widget, event):
@@ -269,6 +281,9 @@ class SpeedControl(Gtk.Box, _HalSpeedControlBase):
     # we are not sync, so
     def _on_value_changed(self, widget):
         value = widget.get_value()
+        if self.type_linear_jog:
+            self._action.SET_JOG_RATE(value)
+
         if value != self._value:
             self._value = value
             self.set_value(self._value)
@@ -453,6 +468,10 @@ class SpeedControl(Gtk.Box, _HalSpeedControlBase):
                     self._template = value
                 if name == "do_hide_button":
                     self.hide_button(value)
+                if name == "type":
+                    print(name,value)
+                    if value == 0:
+                        self.type_linear_jog = True
                 self._draw_widget()
             else:
                 raise AttributeError('unknown property %s' % property.name)
