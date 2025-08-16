@@ -778,6 +778,7 @@ install-kernel-indep: install-python
 install-python: install-dirs
 	$(DIR) $(DESTDIR)$(SITEPY) $(DESTDIR)$(SITEPY)/rs274
 	$(DIR) $(DESTDIR)$(SITEPY)/mtc
+	$(DIR) $(DESTDIR)$(SITEPY)/bridgeui
 	$(DIR) $(DESTDIR)$(SITEPY)/common
 ifeq ($(BUILD_GUI),yes)
 	$(DIR) $(DESTDIR)$(SITEPY)/touchy
@@ -803,6 +804,7 @@ ifeq ($(BUILD_GUI),yes)
 	$(DIR) $(DESTDIR)$(SITEPY)/plasmac
 endif
 	$(FILE) ../lib/python/*.py ../lib/python/*.so $(DESTDIR)$(SITEPY)
+	$(FILE) ../lib/python/bridgeui/*.py $(DESTDIR)$(SITEPY)/bridgeui
 	$(FILE) ../lib/python/common/*.py $(DESTDIR)$(SITEPY)/common
 	$(FILE) ../lib/python/rs274/*.py $(DESTDIR)$(SITEPY)/rs274
 	$(FILE) ../lib/python/mtc/*.py $(DESTDIR)$(SITEPY)/mtc
