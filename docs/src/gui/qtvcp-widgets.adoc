@@ -3242,12 +3242,20 @@ Widgets for performing common machining processes.
 [[sub:qtvcp:widgets:facing]]
 === Facing
 
+image::images/qtvcp_facing.png["QtVCP Facing: Shown from QtDragon",scale="25%"]
 Slab or face a definable area with different strategies.
 
 [[sub:qtvcp:widgets:hole-circle]]
 === Hole Circle
 
+image::images/qtvcp_boltholecircle.png["QtVCP BHC: Shown from QtDragon",scale="25%"]
 Drill multiple holes on a bolt hole circle.
+
+[[sub:qtvcp:widgets:hole-enlarge]]
+=== Hole Enlarge
+
+image::images/qtvcp_holeenlarge.png["QtVCP Facing: Shown from QtDragon",scale="25%"]
+Use an end mill to enlarge a drilled hole.
 
 [[sub:qtvcp:widgets:qt-ngcgui]]
 === Qt NGCGUI
