@@ -203,6 +203,7 @@ static int axis_mask = 0;
     FIELD(hal_bit_t,home_all) /* pin for homing all joints in sequence */ \
     FIELD(hal_bit_t,abort) /* pin for aborting */ \
     ARRAY(hal_bit_t,mdi_commands,MDI_MAX) \
+    ARRAY(hal_bit_t,gui_mdi_commands,MDI_MAX) \
 \
     FIELD(hal_float_t,units_per_mm) \
 
@@ -246,6 +247,9 @@ static int lastaxis = -1;
 
 static char *mdi_commands[MDI_MAX];
 static int num_mdi_commands=0;
+
+static char *gui_mdi_commands[MDI_MAX];
+static int num_gui_mdi_commands = 0;
 static int have_home_all = 0;
 
 static int comp_id, done;				/* component ID, main while loop */
@@ -551,6 +555,65 @@ int halui_export_pin_OUT_bit(hal_bit_t **pin, const char *name)
     return 0;
 }
 
+static int py_call_get_mdi_count() {
+    int value = 0;
+    // check socket messages for jogspeed
+    pFuncRead = PyObject_GetAttrString(pInstance, "getMdiCount");
+    if (pFuncRead && PyCallable_Check(pFuncRead)) {
+        pValue = PyObject_CallNoArgs(pFuncRead);
+        if (pValue == NULL){
+            if (PyErr_Occurred()) PyErr_Print();
+            fprintf(stderr, "Halui Bridge: getMdiCountfunction failed: returned NULL\n");
+            value = -1;
+        }else{
+            if (PyLong_Check(pValue)) {
+                value = (int) PyLong_AsLong(pValue);
+                //fprintf(stderr, "axis value %d\n",value);
+                if (PyErr_Occurred()) {
+                    value = -1;
+                    // Handle conversion error
+                    PyErr_Print();
+                    // Clear the error state if needed
+                    PyErr_Clear();
+                }
+            }
+        }
+        Py_DECREF(pValue);
+    }
+    Py_DECREF(pFuncRead);
+    return value;
+}
+
+// turns a undex number into a macro name
+static char* py_call_get_mdi_name( int num) {
+        pFuncWrite = PyObject_GetAttrString(pInstance, "getMdiName");
+
+        if (pFuncWrite && PyCallable_Check(pFuncWrite)) {
+            pValue = PyObject_CallFunction(pFuncWrite, "i", num);
+
+            if (pValue != NULL) {
+                if (PyUnicode_Check(pValue)) {
+                    PyObject *pBytes = PyUnicode_AsUTF8String(pValue);
+                    char *result_string = PyBytes_AsString(pBytes);
+                    Py_XDECREF(pBytes);
+                    printf("Python function returned: %s %i\n", result_string,num);
+                    Py_DECREF(pValue);
+                    Py_DECREF(pFuncWrite);
+                    return result_string;
+                } else {
+                    fprintf(stderr, "Return value is not a string. %i\n", num);
+                }
+            } else {
+                PyErr_Print(); // Print Python error if call failed
+            }
+            Py_DECREF(pValue);
+        }else{
+            if (PyErr_Occurred()) PyErr_Print();
+            fprintf(stderr, "halui Bridge: Failed python function");
+        }
+        Py_DECREF(pFuncWrite);
+        return NULL;
+}
 
 /********************************************************************
 *
@@ -938,6 +1001,12 @@ int halui_hal_init(void)
 
     for (int n=0; n<num_mdi_commands; n++) {
         retval = hal_pin_bit_newf(HAL_IN, &(halui_data->mdi_commands[n]), comp_id, "halui.mdi-command-%02d", n);
+        if (retval < 0) return retval;
+    }
+
+    for (int n=0; n<num_gui_mdi_commands; n++) {
+        printf("MDI name returned: %s %i\n", py_call_get_mdi_name(n),n);
+        retval = hal_pin_bit_newf(HAL_IN, &(halui_data->gui_mdi_commands[n]), comp_id, "halui.mdi-command-%s", py_call_get_mdi_name(n));
         if (retval < 0) return retval;
     }
 
@@ -1575,6 +1644,13 @@ static int iniLoad(const char *filename)
         mdi_commands[num_mdi_commands++] = strdup(mc->c_str());
     }
 
+    int temp = py_call_get_mdi_count();
+    for (int n=0; n<temp; n++) {
+        printf("MDI process %i\n", n);
+        gui_mdi_commands[num_gui_mdi_commands++] = py_call_get_mdi_name(n);
+    }
+
+
     // close it
     inifile.Close();
 
@@ -1689,7 +1765,7 @@ static bool jogging_selected_axis(local_halui_str &hal) {
     return (hal.ajog_plus[EMCMOT_MAX_AXIS] || hal.ajog_minus[EMCMOT_MAX_AXIS]);
 }
 
-static double write_msg_axis_get_jogspeed() {
+static double py_call_axis_get_jogspeed() {
     double jspd = 0;
     // check socket messages for jogspeed
     pFuncRead = PyObject_GetAttrString(pInstance, "getJogRate");
@@ -1716,7 +1792,7 @@ static double write_msg_axis_get_jogspeed() {
     return jspd;
 }
 
-static void write_msg_axis_jogspeed(double speed)
+static void py_call_axis_jogspeed(double speed)
 {
         pFuncWrite = PyObject_GetAttrString(pInstance, "setJogRate");
 
@@ -1736,7 +1812,7 @@ static void write_msg_axis_jogspeed(double speed)
         Py_DECREF(pFuncWrite);
 }
 
-static int write_msg_get_axis_selected() {
+static int py_call_get_axis_selected() {
     int value = 0;
     // check socket messages for jogspeed
     pFuncRead = PyObject_GetAttrString(pInstance, "getSelectedAxis");
@@ -1765,7 +1841,7 @@ static int write_msg_get_axis_selected() {
     return value;
 }
 
-static void write_msg_axis_changed( int axis)
+static void py_call_axis_changed( int axis)
 {
         pFuncWrite = PyObject_GetAttrString(pInstance, "setSelectedAxis");
 
@@ -1784,6 +1860,27 @@ static void write_msg_axis_changed( int axis)
         }
         Py_DECREF(pFuncWrite);
 }
+
+static void py_call_request_MDI( int index)
+{
+        pFuncWrite = PyObject_GetAttrString(pInstance, "runIndexedMacro");
+
+        if (pFuncWrite && PyCallable_Check(pFuncWrite)) {
+            pValue = PyObject_CallFunction(pFuncWrite, "i", index);
+            if (pValue == NULL){
+                fprintf(stderr, "halui bridge: runIndexedMacro function failed: returned NULL\n");
+                if (PyErr_Occurred()) PyErr_Print();
+            }else{
+                Py_DECREF(pValue);
+            }
+
+        }else{
+            if (PyErr_Occurred()) PyErr_Print();
+            fprintf(stderr, "halui Bridge: Failed python function runIndexedMacro");
+        }
+        Py_DECREF(pFuncWrite);
+}
+
 // this function looks if any of the hal pins has changed
 // and sends appropriate messages if so
 static void check_hal_changes()
@@ -1816,7 +1913,7 @@ static void check_hal_changes()
         }
 
     // check socket messages for current axis selection
-    int value = write_msg_get_axis_selected();
+    int value = py_call_get_axis_selected();
 
     local_halui_str new_halui_data_mutable;
 
@@ -2054,13 +2151,13 @@ static void check_hal_changes()
         old_halui_data.ajog_speed = new_halui_data.ajog_speed;
         internaljogspeed = new_halui_data.ajog_speed;
         ajog_speed_changed = 1;
-        write_msg_axis_jogspeed(internaljogspeed);
+        py_call_axis_jogspeed(internaljogspeed);
     } else {
         ajog_speed_changed = 0;
     }
 
     // check socket messages for jogspeed
-    jogspeed = write_msg_axis_get_jogspeed();
+    jogspeed = py_call_axis_get_jogspeed();
     if (fabs(jogspeed - lastjogspeed) > 0.00001) {
         ajog_speed_changed = 1;
         lastjogspeed = jogspeed;
@@ -2208,7 +2305,7 @@ static void check_hal_changes()
 	    if (bit != 0) {
             is_any_axis_selected = 1;
             *halui_data->axis_selected = axis_num;
-            write_msg_axis_changed(axis_num);
+            py_call_axis_changed(axis_num);
             aselect_changed = axis_num; // flag that we changed the selected axis
 	    }else{
                 deselected = 1;
@@ -2218,7 +2315,7 @@ static void check_hal_changes()
     }
     // last axis has been deselected - no axis is selected now        
     if (is_any_axis_selected == 0 and deselected == 1) {
-        write_msg_axis_changed(-1);
+        py_call_axis_changed(-1);
         *halui_data->axis_selected = -1;
     }
 
@@ -2321,9 +2418,18 @@ static void check_hal_changes()
 	old_halui_data.ajog_increment_minus[EMCMOT_MAX_AXIS] = bit;
     }
 
+    // run HALUI commands
     for(int n = 0; n < num_mdi_commands; n++) {
         if (check_bit_changed(new_halui_data.mdi_commands[n], old_halui_data.mdi_commands[n]) != 0)
             sendMdiCommand(n);
+    }
+
+    // request GUI ti run MDI commands
+    for(int n = 0; n < num_gui_mdi_commands; n++) {
+        if (check_bit_changed(new_halui_data.gui_mdi_commands[n], old_halui_data.gui_mdi_commands[n]) != 0){
+            printf("GUI MDI command called index: %i\n", n);
+            py_call_request_MDI(n);
+        }
     }
 }
 
@@ -2547,6 +2653,26 @@ int main(int argc, char *argv[])
 	exit(1);
     }
 
+    /* import the python module and get references for needed function */
+
+    PyConfig config;
+    PyConfig_InitPythonConfig(&config);
+    char name[] = "halui"; 
+    wchar_t *wname = Py_DecodeLocale(name, NULL);
+    PyConfig_SetString(&config, &config.program_name, wname);
+    Py_Initialize();
+
+    PyRun_SimpleString("print('PYTHON EMBEDDED!!')\n");
+    pModule = PyImport_ImportModule("bridgeui.bridge");
+    if (pModule != NULL) {
+        pClass = PyObject_GetAttrString(pModule, "Bridge");
+        pInstance = PyObject_CallObject(pClass, NULL); 
+    }else{
+        PyErr_Print();
+        fprintf(stderr, "bridge: Failed to load \"%s\"\n", "pyui");
+        exit(1);
+    }
+
     // get configuration information
     if (0 != iniLoad(emc_inifile)) {
 	rcs_print_error("iniLoad error\n");
@@ -2563,43 +2689,6 @@ int main(int argc, char *argv[])
     hal_init_pins();
 
 
-    /* import the python module and get references for needed function */
-
-    PyConfig config;
-    PyConfig_InitPythonConfig(&config);
-    char name[] = "halui"; 
-    wchar_t *wname = Py_DecodeLocale(name, NULL);
-    PyConfig_SetString(&config, &config.program_name, wname);
-    Py_Initialize();
-
-    PyRun_SimpleString("print('PYTHON EMBEDDED!!')\n"
-                        );
-    pModule = PyImport_ImportModule("bridgeui.bridge");
-    if (pModule != NULL) {
-        pClass = PyObject_GetAttrString(pModule, "Bridge");
-        pInstance = PyObject_CallObject(pClass, NULL); 
-        pFuncWrite = PyObject_GetAttrString(pInstance, "update");
-
-        if (pFuncWrite && PyCallable_Check(pFuncWrite)) {
-            pValue = PyObject_CallFunction(pFuncWrite, "Olllh", pClass, 0, 0, 0, 0);
-            if (pValue == NULL){
-                fprintf(stderr, "Panelui: update function failed: returned NULL\n");
-            }
-            if (PyErr_Occurred()) PyErr_Print();
-        }else{
-            if (PyErr_Occurred()){
-                PyErr_Print();
-            }
-                fprintf(stderr, "Bridge: Failed python function");
-                exit(1);
-        Py_DECREF(pValue);
-        }
-        Py_DECREF(pFuncWrite);
-    }else{
-        PyErr_Print();
-        fprintf(stderr, "bridge: Failed to load \"%s\"\n", "pyui");
-        exit(1);
-    }
 
 
     // init NML
