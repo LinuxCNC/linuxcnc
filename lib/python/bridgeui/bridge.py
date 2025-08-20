@@ -8,7 +8,6 @@ import json
 import signal
 
 import hal
-from qtvcp.qt_halobjects import Qhal
 from common.iniinfo import _IStat as IStatParent
 from common import logger
 
@@ -59,7 +58,7 @@ class Bridge(object):
         signal.signal(signal.SIGTERM, self.shutdown)
         signal.signal(signal.SIGINT, self.shutdown)
 
-        self.init_hal()
+        self.init()
         if ZMQ:
             self.init_read()
             self.init_write()
@@ -72,48 +71,14 @@ class Bridge(object):
         self.writeMsg('set_selected_axis','Y')
         self.activeJoint.set(10)
 
-    def init_hal(self):
-        self.comp = h = hal.component("bridge")
-        QHAL = Qhal(comp=self.comp, hal=hal)
+    def init(self):
+        self.jogRate = 0
+        self.jogRateAngular = 0
 
-        self.jogRate = QHAL.newpin("jog-rate", hal.HAL_FLOAT, hal.HAL_OUT)
-        self.jogRateIn = QHAL.newpin("jog-rate-in", hal.HAL_FLOAT, hal.HAL_IN)
-        self.jogRateIn.pinValueChanged.connect(self.pinChanged)
+        self.jogIncrement = 0
+        self.jogIncrementAngular = 0
 
-        self.jogRateAngular = QHAL.newpin("jog-rate-angular", hal.HAL_FLOAT, hal.HAL_OUT)
-        self.jogRateAngularIn = QHAL.newpin("jog-rate-angular-in", hal.HAL_FLOAT, hal.HAL_OUT)
-        self.jogRateAngularIn.pinValueChanged.connect(self.pinChanged)
-
-        self.jogIncrement = QHAL.newpin("jog-increment", hal.HAL_FLOAT, hal.HAL_OUT)
-        self.jogIncrementAngular = QHAL.newpin("jog-increment-angular", hal.HAL_FLOAT, hal.HAL_OUT)
-        self.activeJoint = QHAL.newpin('joint-selected', hal.HAL_S32, hal.HAL_OUT)
-
-        for i in (self.INFO.AVAILABLE_AXES):
-            let = i.lower()
-            # input
-            self['axis{}Select'.format(let)] = QHAL.newpin('axis-%s-select'%let, hal.HAL_BIT, hal.HAL_IN)
-            self['axis{}Select'.format(let)].pinValueChanged.connect(self.pinChanged)
-            # output
-            self['Axis{}IsSelected'.format(let)] = QHAL.newpin('axis-%s-is-selected'%let, hal.HAL_BIT, hal.HAL_OUT)
-
-        self.cycle_start = QHAL.newpin('cycle-start-in',QHAL.HAL_BIT, QHAL.HAL_IN)
-        self.cycle_start.pinValueChanged.connect(self.pinChanged)
-        self.cycle_pause = QHAL.newpin('cycle-pause-in',QHAL.HAL_BIT, QHAL.HAL_IN)
-        self.cycle_pause.pinValueChanged.connect(self.pinChanged)
-
-        for i in self.INFO.MDI_COMMAND_DICT:
-            LOG.debug('{} {}'.format(i,self.INFO.MDI_COMMAND_DICT.get(i)))
-            self[i] = QHAL.newpin('ini-mdi-cmd-{}'.format(i),QHAL.HAL_BIT, QHAL.HAL_IN)
-            self[i].pinValueChanged.connect(self.runMacroChanged)
-
-        for i in self.INFO.INI_MACROS:
-            name = i.split()[0]
-            LOG.debug('{} {}'.format(name,i))
-            self[name] = QHAL.newpin('ini-macro-cmd-{}'.format(name),QHAL.HAL_BIT, QHAL.HAL_IN)
-            self[name].pinValueChanged.connect(self.runMacroChanged)
-
-        QHAL.setUpdateRate(100)
-        h.ready()
+        self.activeJoint = 0
 
     def init_write(self):
         context = zmq.Context()
@@ -141,19 +106,19 @@ class Bridge(object):
                 y = json.loads(data)
                 self. action(y.get('MESSAGE'),y.get('ARGS'))
 
-    # set our output HAL pins from messages from hal_glib
+    # set our variables from messages from hal_glib
     def action(self, msg, data):
         LOG.debug('{} {}'.format(msg, data))
         if msg == 'jograte-changed':
-            self.jogRate.set(float(data[0]))
+            self.jogRate = float(data[0])
         elif msg == 'jograte-angular-changed':
-            self.jogRateAngular.set(float(data[0]))
+            self.jogRateAngular = float(data[0])
         elif msg == 'jogincrements-changed':
-            self.jogIncrement.set(float(data[0][0]))
+            self.jogIncrement = float(data[0][0])
         elif msg == 'jogincrement-angular-changed':
-            self.jogIncremtAngular.set(float(data[0][0]))
+            self.jogIncremtAngular = float(data[0][0])
         elif msg == 'joint-selection-changed':
-            self.activeJoint.set(int(data[0]))
+            self.activeJoint = int(data[0])
         elif msg == 'axis-selection-changed':
             flag = 1
             for i in(self.INFO.AVAILABLE_AXES):
@@ -163,7 +128,6 @@ class Bridge(object):
                     flag = 0
                 else:
                     state = False
-                self['Axis{}IsSelected'.format(i.lower())].set(state)
                 self.axesSelected[i] = int(state)
             if flag:
                 self.currentSelectedAxis = 'None'
@@ -183,8 +147,7 @@ class Bridge(object):
     # callback from HAL input pins
     def pinChanged(self, pinObject, value):
         LOG.debug('Pin name:{} changed value to {}'.format(pinObject.text(), value))
-        #print(type(value))
-        # Axis selction change request
+        # Axis selection change request
         if 'select' in pinObject.text():
             if bool(value) == False:
                 pass
@@ -220,26 +183,41 @@ class Bridge(object):
         else:
             self.writeMsg(pinObject.text(),value)
 
-    # callback; request to run a specific macro
-    def runMacroChanged(self, pinObject, value):
-        LOG.debug('Macro Pin name:{} changed value to {}'.format(pinObject.text(), value))
-        #LOG.debug(type(value))
-        name = pinObject.text().strip('macro-cmd-')
-        if value:
-            self.writeMsg('request_macro_call', name)
 
     def shutdown(self,signum=None,stack_frame=None):
         LOG.debug('shutdown')
         global app
         app.quit()
 
+    def getMdiName(self, num):
+        if num >len(self.INFO.MDI_COMMAND_DICT)-1:
+            return 'None'
+        temp = list(self.INFO.MDI_COMMAND_DICT.keys())[num]
+        LOG.debug('{} {}'.format(num,temp))
+        return temp
+
+    def getMacroNames(self):
+        for i in self.INFO.INI_MACROS:
+            name = i.split()[0]
+            LOG.debug('{} {}'.format(name,i))
+
+    def runIndexedMacro(self, num):
+        name = self.getMdiName(num)
+        LOG.debug('Macro name:{} ,index: {}'.format(name, num))
+        if name != 'None':
+            self.writeMsg('request_macro_call', name)
+
+    def getMdiCount(self):
+        print(len(self.INFO.MDI_COMMAND_DICT))
+        return len(self.INFO.MDI_COMMAND_DICT)
+
     def getJogRate(self):
-        return self.jogRate.get()
+        return self.jogRate
     def setJogRate(self, value):
         self.writeMsg('set_jograte', value)
 
     def getJogRateAngular(self):
-        return self.jogRateAngular.get()
+        return self.jogRateAngular
     def setJogRateAngular(self, value):
         self.writeMsg('set_jograte_angular', value)
 
