@@ -78,6 +78,7 @@ class Dialogs(GObject.GObject):
         label.modify_font(Pango.FontDescription("sans 20"))
         label.set_margin_top(15)
         calc = gladevcp.Calculator()
+        calc.allow_dot_and_comma = True
         content_area = dialog.get_content_area()
         content_area.pack_start(child=label, expand=False, fill=False, padding=0)
         content_area.add(calc)
