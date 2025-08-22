@@ -33,10 +33,10 @@ VERTEX_SHADER = """
 // comment
 
 #version 330
-in vec3 vertices;
+in vec3 position;
 uniform mat4 MVP;
 void main() {
-    gl_Position = MVP * vec4(vertices, 1.0);
+    gl_Position = MVP * vec4(position, 1.0);
 }
 
 """
@@ -46,9 +46,10 @@ FRAGMENT_SHADER = """
 // comment
 
 #version 330
+varying vec3 f_color;
 out vec4 fragColor;
 void main() {
-    fragColor = vec4(1.0, 0.0, 0.0, 1.0); // Red color
+    fragColor = vec4(f_color, 1.0);
 }
 
 """
@@ -75,7 +76,6 @@ class CanonShade(GLCanon, interpret.StatMixin):
 
         interpret.StatMixin.__init__(self, stat, random)
 
-        print("CanonShade initialized")
         self.shader_type = "CanonShader"
 
     def draw_lines(self, lines, for_selection, j=0, geometry=None):
@@ -110,7 +110,6 @@ class CanonShade(GLCanon, interpret.StatMixin):
         return (c_float * len(out_list))(*out_list)
 
     def highlight(self, lineno, geometry):
-        # print("Highlighting lines with CanonShader")
         out_list = []
         if lineno < 0 or lineno >= len(self.feed):
             print(f"Invalid line number {lineno}, returning empty list.")
@@ -180,8 +179,11 @@ class CanonShaders:
         """
         Initialize OpenGL context and shaders.
         """
-        print("Initializing OpenGL context and shaders...")
+
+        # Section 1: ============== GL PREAMBLE =========================
         glEnable(GL_DEPTH_TEST)
+
+        # Section 2: ============== SHADER SETUP =========================
         vertex_shader = glCreateShader(GL_VERTEX_SHADER)
         glShaderSource(vertex_shader, VERTEX_SHADER)
         glCompileShader(vertex_shader)
@@ -200,39 +202,90 @@ class CanonShaders:
             print(f"Fragment shader compilation failed: {error}")
             return
 
-        # Create shader program
+        # Section 3: ============== SHADER PROGRAM =========================
         self.shader_program = glCreateProgram()
         glAttachShader(self.shader_program, vertex_shader)
         glAttachShader(self.shader_program, fragment_shader)
         glLinkProgram(self.shader_program)
 
         if not glGetProgramiv(self.shader_program, GL_LINK_STATUS):
-            error = glGetProgramInfoLog(self.shader_program)
+            print(glGetProgramInfoLog(self.shader_program))
             print(f"Shader program linking failed: {error}")
             return
 
+        # Clean up shaders as they're linked into program now and no longer necessary
+        glDetachShader(self.shader_program, vertex_shader)
+        glDetachShader(self.shader_program, fragment_shader)
+
+        glUseProgram(self.shader_program)
+
+        # Section 4: ============== BUFFER SETUP =========================
         self.VAO = glGenVertexArrays(1)
         glBindVertexArray(self.VAO)
 
-        # Triangle vertices
-        vertices_list = [-0.5, -0.5, 0.0, 0.5, -0.5, 0.0, 0.0, 0.5, 0.0]
-        print(f"Initial vertices: {vertices_list}")
         # Translate to OpenGL-speak
-        self.vertices = (c_float * len(vertices_list))(*vertices_list)
+        # TODO: Should we be using numpy arrays instead of ctypes?
+        self.vertices = []
 
+        # TODO Whats the best optimization, Multiple VBOs or a single VBO with offsets and indexes?
         self.VBO_FEED = glGenBuffers(1)
         self.VBO_ARC = glGenBuffers(1)
-        # glBindBuffer(GL_ARRAY_BUFFER, self.VBO_FEED)
-        # glBufferData(GL_ARRAY_BUFFER, sizeof(self.vertices), self.vertices, GL_STATIC_DRAW)
+        self.VBO_ORIGIN = glGenBuffers(1)
+        self.VBO_LIMITS = glGenBuffers(1)
+        self.VBO_BOUND_BOX = glGenBuffers(1)
 
-        # glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, None)
-        # glEnableVertexAttribArray(0)
+        self.VBO_FEED_COLORS = glGenBuffers(1)
+        self.VBO_ARC_COLORS = glGenBuffers(1)
+        self.VBO_ORIGIN_COLORS = glGenBuffers(1)
+        self.VBO_LIMITS_COLORS = glGenBuffers(1)
+        self.VBO_BOUND_BOX_COLORS = glGenBuffers(1)
 
-        # Compile!
-        self.shader = compileProgram(
-            compileShader(VERTEX_SHADER, GL_VERTEX_SHADER),
-            compileShader(FRAGMENT_SHADER, GL_FRAGMENT_SHADER),
-        )
+    def origin_render(self):
+        """
+        Render the origin axis
+        """
+
+        # Draw the triangle
+        glBindVertexArray(self.VAO)
+        glBindBuffer(GL_ARRAY_BUFFER, self.VBO_ORIGIN)
+
+        # Origin lines
+        origin_size = 1.0
+        # fmt: off
+        lines = [ 
+            0.0, 0.0, 0.0, origin_size, 0.0, 0.0,
+            0.0, 0.0, 0.0, 0.0, origin_size, 0.0,
+            0.0, 0.0, 0.0, 0.0, 0.0, origin_size,
+        ]
+        # fmt: on
+
+        self.vertices = (c_float * len(lines))(*lines)
+        # Upload vertex data to GPU
+        glBufferData(GL_ARRAY_BUFFER, len(self.vertices), self.vertices, GL_STATIC_DRAW)
+        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, None)
+        glEnableVertexAttribArray(0)
+
+        glBindBuffer(GL_ARRAY_BUFFER, self.VBO_ORIGIN_COLORS)
+        colors = [
+            1.0,
+            0.0,
+            0.0,
+            1.0,  # Red
+            0.0,
+            1.0,
+            0.0,
+            1.0,  # Green
+            0.0,
+            0.0,
+            1.0,
+            1.0,  # Blue
+        ]
+        self.o_colors = (c_float * len(colors))(*colors)
+        glBufferData(GL_ARRAY_BUFFER, len(self.o_colors), self.o_colors, GL_STATIC_DRAW)
+        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, None)
+        glEnableVertexAttribArray(1)
+
+        glDrawArrays(GL_LINES, 0, 6)
 
     def gcode_render(self):
         """
@@ -242,7 +295,6 @@ class CanonShaders:
             print("No canon set, cannot render.")
             return
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-        glUseProgram(self.shader)
 
         # Draw the triangle
         glBindVertexArray(self.VAO)
@@ -268,18 +320,10 @@ class CanonShaders:
         glEnableVertexAttribArray(0)
         glDrawArrays(GL_LINES, 0, len(self.vertices))
 
-        # position = glGetAttribLocation(self.shader, 'vertices')
-        # glBufferData(GL_ARRAY_BUFFER, sizeof(self.vertices), self.vertices, GL_STATIC_DRAW)
-        # glVertexAttribPointer(position, 3, GL_FLOAT, GL_FALSE, 0, None)
-        # glEnableVertexAttribArray(position)
-        # glDrawArrays(GL_TRIANGLES, 0, len(self.vertices) // 3)
-        # print(gcode.calc_extents(self.canon.arcfeed, self.canon.feed, self.canon.traverse))
-
     def set_canon(self, canon):
         self.canon = canon
 
     def load_preview(self, f, canon, *args):
-
         self.set_canon(canon)
         result, seq = gcode.parse(f, canon, *args)
         if result <= gcode.MIN_ERROR:
@@ -300,6 +344,7 @@ class QtShader(QtWidgets.QOpenGLWidget, CanonShaders):
         CanonShaders.__init__(self, lp=None, canon=None)
         self.filename = None
 
+        # TODO: Can we use a singular matrix stack?
         self.rotation = QtGui.QQuaternion()
         self.rotationAxis = QtGui.QVector3D(1, 1, 0)
         self.angularSpeed = 0
@@ -314,13 +359,14 @@ class QtShader(QtWidgets.QOpenGLWidget, CanonShaders):
         self.current_y = 0
 
     def init_canon(self):
-        print("Initializing CanonShade...")
         self.status.poll()
-        parrr = os.path.dirname(self.status.ini_filename) + "/" + parameter
+        inifile = linuxcnc.ini(status.ini_filename)
+        parameter = inifile.find("RS274NGC", "PARAMETER_FILE")
+        self.parrr = os.path.dirname(self.status.ini_filename) + "/" + parameter
         self.canon = CanonShade(
             colors=self.colors, geometry="XYZ", is_foam=False, lathe_view_option=False, stat=self.status, random=False
         )
-        self.canon.parameter_file = parrr
+        self.canon.parameter_file = self.parrr
 
     def initializeGL(self):
         self.init_gl()
@@ -335,13 +381,13 @@ class QtShader(QtWidgets.QOpenGLWidget, CanonShaders):
         projection.perspective(45.0, self.width() / self.height(), 0.1, 100.0)
         mvp = projection * self.matrix
         mvp_data = mvp.data()
-        glUseProgram(self.shader)
 
         # TODO: I would like to move all openGL calls to the CanonShader class
-        MatrixID = glGetUniformLocation(self.shader, "MVP")
+        MatrixID = glGetUniformLocation(self.shader_program, "MVP")
         glUniformMatrix4fv(MatrixID, 1, GL_FALSE, mvp_data)
 
         self.gcode_render()
+        self.origin_render()
 
     def load_file(self, filename):
         """
@@ -357,14 +403,13 @@ class QtShader(QtWidgets.QOpenGLWidget, CanonShaders):
         if self.canon is None:
             self.init_canon()
 
-        parrr = os.path.dirname(self.status.ini_filename) + "/" + parameter
-        self.canon.parameter_file = parrr
+        # TODO: Validate current parameter file, proper offsets for G54-G59 and check G92
+        #     Classic GlCanon seems to have some issues with G92 and G54-G59
+        self.canon.parameter_file = self.parrr
 
         print(f"Loading {self.filename} with parameters from {self.canon.parameter_file}")
         result, seq = gcode.parse(self.filename, self.canon, "G20")
-        print(self.canon.colored_lines("straight_feed", self.canon.feed, for_selection=False))
         self.vertices = self.canon.draw_lines(self.canon.traverse, for_selection=False)
-        print(self.vertices)
         if result <= gcode.MIN_ERROR:
             print(f"Extents: {self.canon.calc_extents()}")
         else:
@@ -387,8 +432,6 @@ class QtShader(QtWidgets.QOpenGLWidget, CanonShaders):
             self.current_y -= new_y * 0.005
         else:
             return
-
-        print(f"Mouse moved: {new_x}, {new_y}, total: {self.current_x}, {self.current_y}")
 
     def mouseMoveEvent(self, e):
         if e.buttons() & QtCore.Qt.LeftButton:
@@ -474,14 +517,11 @@ if __name__ == "__main__":
         "limits": (1.0, 0.0, 0.0),
     }
 
+    # FOR TESTING - Start linuxcnc with any UI. Then you can run this script to test this UI.
     # Start LCNC
     status = linuxcnc.stat()
     status.poll()
-    print(f"Ini File: {status.ini_filename}")
-    inifile = linuxcnc.ini(status.ini_filename)
-    parameter = inifile.find("RS274NGC", "PARAMETER_FILE")
-
-    # Start QT
+    # Start QT - GTK Guys y'all can go home.
     app = QtWidgets.QApplication([])
     Graphics = QtShader(colors, "XYZ", is_foam=False, lathe_view_option=False, stat=status, random=False)
     Graphics.show()
