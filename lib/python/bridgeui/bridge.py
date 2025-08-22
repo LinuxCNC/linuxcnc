@@ -144,50 +144,17 @@ class Bridge(object):
                         [bytes(topic.encode('utf-8')),
                             bytes((message).encode('utf-8'))])
 
-    # callback from HAL input pins
-    def pinChanged(self, pinObject, value):
-        LOG.debug('Pin name:{} changed value to {}'.format(pinObject.text(), value))
-        # Axis selection change request
-        if 'select' in pinObject.text():
-            if bool(value) == False:
-                pass
-                #print('Not true state')
-                return
-            for i in (self.INFO.AVAILABLE_AXES):
-                if '-{}-'.format(i.lower()) in pinObject.text():
-                    self.writeMsg('set_selected_axis', i)
-                    break
-            else:
-                if 'None' in pinObject.text():
-                    self.writeMsg('set_selected_axis', '')
-
-        # cycle start
-        elif self.cycle_start == pinObject:
-            if value:
-                self.writeMsg('request_cycle_start', value)
-
-        # cycle pause
-        elif self.cycle_pause == pinObject:
-            #if value:
-                self.writeMsg('request_cycle_pause', value)
-
-        # linear jog rate
-        elif self.jogRateIn == pinObject:
-                self.writeMsg('set_jograte', value)
-
-       # angular jog rate
-        elif self.jogRateAngularIn == pinObject:
-                self.writeMsg('set_jograte_angular', value)
-
-        # catch all default
-        else:
-            self.writeMsg(pinObject.text(),value)
-
-
     def shutdown(self,signum=None,stack_frame=None):
         LOG.debug('shutdown')
         global app
         app.quit()
+
+    def cycleStart(self):
+        # cycle start
+        self.writeMsg('request_cycle_start', True)
+
+    def cyclePause(self):
+        self.writeMsg('request_cycle_pause', True)
 
     def getMdiName(self, num):
         if num >len(self.INFO.MDI_COMMAND_DICT)-1:
