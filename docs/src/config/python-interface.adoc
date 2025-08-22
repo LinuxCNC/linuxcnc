@@ -40,7 +40,7 @@ The general pattern for `linuxcnc` usage is roughly like this:
 - Establish connections to the command, status and error NML channels as needed.
 - Poll the status channel, either periodically or as needed.
 - Before sending a command, determine from status whether it is in fact OK to do so
-  (for instance, there is no point in sending a 'Run' command if task is in the ESTOP state, or the interpreter is not idle)
+  (for instance, there is no point in sending a 'Run' command if task is in the ESTOP state, or the interpreter is not idle).
 - Send the command by using one of the `linuxcnc` command channel methods.
 
 To retrieve messages from the error channel, poll the error channel periodically, and process any messages retrieved.
