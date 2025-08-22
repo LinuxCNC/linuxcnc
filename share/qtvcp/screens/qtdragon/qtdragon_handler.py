@@ -153,7 +153,7 @@ class HandlerClass:
         STATUS.connect('status-message', lambda w, d, o: self.add_external_status(d,o))
         STATUS.connect('runstop-line-changed', lambda w, l :self.lastRunLine(l))
         STATUS.connect('cycle-start-request', lambda w, state :self.btn_start_clicked(state))
-        STATUS.connect('cycle-pause-request', lambda w, state: self.btn_pause_clicked(state))
+        STATUS.connect('cycle-pause-request', lambda w, state: self.ext_pause_toggled(state))
         STATUS.connect('macro-call-request', lambda w, name: self.request_macro_call(name))
         STATUS.connect('ok-request', lambda w, state: self.dialog_ext_control(w,1,1))
         STATUS.connect('cancel-request', lambda w, state: self.dialog_ext_control(w,1,0))
@@ -1317,6 +1317,12 @@ class HandlerClass:
         self.w.lineEdit_eoffset_count.setText(str(fval))
         if self.h['eoffset-clear'] != True:
             self.h['eoffset-spindle-count'] = int(fval)
+
+    def ext_pause_toggled(self, state):
+        if STATUS.is_auto_paused():
+            self.btn_pause_clicked(False)
+            return
+        self.btn_pause_clicked(True)
 
     def btn_pause_clicked(self, data):
 
