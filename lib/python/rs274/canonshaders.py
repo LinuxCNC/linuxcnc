@@ -302,7 +302,7 @@ class QtShader(QtWidgets.QOpenGLWidget, CanonShaders):
         self.filename = None
 
         self.rotation = QtGui.QQuaternion()
-        self.rotationAxis = QtGui.QVector3D(0, 1, 0)
+        self.rotationAxis = QtGui.QVector3D(1, 1, 0)
         self.angularSpeed = 0
         self.lastTime = time.time()
         self.timer = QtCore.QTimer()
@@ -375,18 +375,18 @@ class QtShader(QtWidgets.QOpenGLWidget, CanonShaders):
 
         if(e.button() == QtCore.Qt.LeftButton):
             self.last_mouse_position = e.pos()
+        elif(e.button() == QtCore.Qt.RightButton):
+            self.last_mouse_position = e.pos()
+            self.angularSpeed = 0.1
 
 
     def mouseReleaseEvent(self, e):
         if e.button() == QtCore.Qt.LeftButton:
             new_x = e.pos().x() - self.last_mouse_position.x()
             new_y = e.pos().y() - self.last_mouse_position.y()
-
             # TODO: Fix Scaling
-            # TODO: Fix rotation
-            # TODO: Pan while holding left mouse button
-            self.current_x += new_x * 0.001
-            self.current_y -= new_y * 0.001
+            self.current_x += new_x * 0.005
+            self.current_y -= new_y * 0.005
         else:
             return
 
@@ -399,20 +399,26 @@ class QtShader(QtWidgets.QOpenGLWidget, CanonShaders):
             self.current_x += new_x * 0.005
             self.current_y -= new_y * 0.005
             self.last_mouse_position = e.pos()
-            print(f"Mouse moved: {new_x}, {new_y}, total: {self.current_x}, {self.current_y}")
+
+        elif e.buttons() & QtCore.Qt.RightButton:
+            new_x = e.pos().x() - self.last_mouse_position.x()
+            new_y = e.pos().y() - self.last_mouse_position.y()
+
+            dist = (new_x**2 + new_y**2)**0.5
+            x_percent = new_x / dist if dist != 0 else 0
+            y_percent = new_y / dist if dist != 0 else 0
+
+            self.angularSpeed = dist * 0.1  # Adjust rotation speed based on
+
+            # TODO: Fix center of rotation.
+            self.rotationAxis = QtGui.QVector3D(-1*y_percent, x_percent, 0)  # Update rotation axis
+            self.rotation = QtGui.QQuaternion.fromAxisAndAngle(self.rotationAxis, self.angularSpeed) * self.rotation
+            self.last_mouse_position = e.pos()
+
+
 
     def timerEvent(self, arg__0):
-
-        # Decrease angular speed (friction)
-        angularSpeed = 0.99
-        # Stop rotation when speed goes below threshold
-        if angularSpeed < 0.01:
-            angularSpeed = 0.0
-        else:
-            # Update rotation
-            self.rotation = QQuaternion.fromAxisAndAngle(self.rotationAxis, self.angularSpeed) * self.rotation
-            # Request an update
-            update()
+        update()
 
 
 
