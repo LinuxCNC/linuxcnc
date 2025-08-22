@@ -25,31 +25,31 @@ import traceback
 """
 Dev Notes:
 - Chad Still does not understand why the stat mixin is needed? Seems it only populates a status object which we instatiate here?
+- The QtShader class is a bit messy, it should be a separate file, but it needs to access CanonShaders methods.
+- Should switch all matrixs to numpy arrays.
+- Need to implement color buffers.
 - Need to split this file up... but how, where, when...
 """
 
 VERTEX_SHADER = """
-
-// comment
-
 #version 330
+in vec4 color;
 in vec3 position;
 uniform mat4 MVP;
+out vec4 f_color;
 void main() {
     gl_Position = MVP * vec4(position, 1.0);
+    f_color = color;
 }
 
 """
 
 FRAGMENT_SHADER = """
-
-// comment
-
 #version 330
-varying vec3 f_color;
+varying vec4 f_color;
 out vec4 fragColor;
 void main() {
-    fragColor = vec4(f_color, 1.0);
+    fragColor = f_color;
 }
 
 """
@@ -220,8 +220,8 @@ class CanonShaders:
         glUseProgram(self.shader_program)
 
         # Section 4: ============== BUFFER SETUP =========================
-        self.VAO = glGenVertexArrays(1)
-        glBindVertexArray(self.VAO)
+        self.VAO_STATIC = glGenVertexArrays(1)
+        self.VAO_GCODE = glGenVertexArrays(1)
 
         # Translate to OpenGL-speak
         # TODO: Should we be using numpy arrays instead of ctypes?
@@ -246,8 +246,7 @@ class CanonShaders:
         """
 
         # Draw the triangle
-        glBindVertexArray(self.VAO)
-        glBindBuffer(GL_ARRAY_BUFFER, self.VBO_ORIGIN)
+        glBindVertexArray(self.VAO_STATIC)
 
         # Origin lines
         origin_size = 1.0
@@ -259,33 +258,37 @@ class CanonShaders:
         ]
         # fmt: on
 
+        # Prepare vertex data for origin axes
+        glBindBuffer(GL_ARRAY_BUFFER, self.VBO_ORIGIN)
         self.vertices = (c_float * len(lines))(*lines)
-        # Upload vertex data to GPU
-        glBufferData(GL_ARRAY_BUFFER, len(self.vertices), self.vertices, GL_STATIC_DRAW)
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, None)
-        glEnableVertexAttribArray(0)
+        glBufferData(GL_ARRAY_BUFFER, len(self.vertices) * 4, self.vertices, GL_STATIC_DRAW)
+        position_loc = glGetAttribLocation(self.shader_program, "position")
+        glVertexAttribPointer(position_loc, 3, GL_FLOAT, GL_FALSE, 0, None)
+        glEnableVertexAttribArray(position_loc)
 
-        glBindBuffer(GL_ARRAY_BUFFER, self.VBO_ORIGIN_COLORS)
+        # Prepare color data for each axis (X: red, Y: green, Z: blue)
+        # Each axis line has two vertices, so repeat color for both
         colors = [
-            1.0,
-            0.0,
-            0.0,
-            1.0,  # Red
-            0.0,
-            1.0,
-            0.0,
-            1.0,  # Green
-            0.0,
-            0.0,
-            1.0,
-            1.0,  # Blue
+            1.0, 0.0, 0.0, 1.0,  # X axis start (red)
+            1.0, 0.0, 0.0, 1.0,  # X axis end   (red)
+            0.0, 1.0, 0.0, 1.0,  # Y axis start (green)
+            0.0, 1.0, 0.0, 1.0,  # Y axis end   (green)
+            0.0, 0.0, 1.0, 1.0,  # Z axis start (blue)
+            0.0, 0.0, 1.0, 1.0,  # Z axis end   (blue)
         ]
+        glBindBuffer(GL_ARRAY_BUFFER, self.VBO_ORIGIN_COLORS)
         self.o_colors = (c_float * len(colors))(*colors)
-        glBufferData(GL_ARRAY_BUFFER, len(self.o_colors), self.o_colors, GL_STATIC_DRAW)
-        glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, None)
-        glEnableVertexAttribArray(1)
+        glBufferData(GL_ARRAY_BUFFER, len(self.o_colors) * 4, self.o_colors, GL_STATIC_DRAW)
+        color_loc = glGetAttribLocation(self.shader_program, "color")
+        glVertexAttribPointer(color_loc, 4, GL_FLOAT, GL_FALSE, 0, None)
+        glEnableVertexAttribArray(color_loc)
 
-        glDrawArrays(GL_LINES, 0, 6)
+        glDrawArrays(GL_LINES, 0, len(lines) // 3)
+
+        # Optional: Unbind VAO and buffers for safety
+        glBindBuffer(GL_ARRAY_BUFFER, 0)
+        glBindVertexArray(0)
+
 
     def gcode_render(self):
         """
@@ -296,29 +299,63 @@ class CanonShaders:
             return
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-        # Draw the triangle
-        glBindVertexArray(self.VAO)
+        # ============= Active Vertex Array Object ==============
+        glBindVertexArray(self.VAO_GCODE)
+
+        # Draw Feed Lines
         glBindBuffer(GL_ARRAY_BUFFER, self.VBO_FEED)
         self.vertices = self.canon.draw_lines(self.canon.feed, for_selection=False)
         if self.vertices is None:
             print("No vertices to render.")
             return
-        # Upload vertex data to GPU
-        glBufferData(GL_ARRAY_BUFFER, len(self.vertices) * 4, self.vertices, GL_STATIC_DRAW)
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, None)
-        glEnableVertexAttribArray(0)
-        glDrawArrays(GL_LINES, 0, len(self.vertices))
 
+        glBufferData(GL_ARRAY_BUFFER, len(self.vertices) * 4, self.vertices, GL_STATIC_DRAW)
+        position_loc = glGetAttribLocation(self.shader_program, "position")
+        glVertexAttribPointer(position_loc, 3, GL_FLOAT, GL_FALSE, 0, None)
+        glEnableVertexAttribArray(position_loc)
+
+        glBindBuffer(GL_ARRAY_BUFFER, self.VBO_FEED_COLORS)
+        f_colors = []
+        for line in self.canon.feed:
+            f_colors.extend((1, 0.6, 0, 1.00))
+            f_colors.extend((1, 0.6, 0, 1.00))
+        f_colors = (c_float * len(f_colors))(*f_colors)
+
+        glBufferData(GL_ARRAY_BUFFER, len(f_colors) * 4, f_colors, GL_STATIC_DRAW)
+        color_loc = glGetAttribLocation(self.shader_program, "color")
+        glVertexAttribPointer(color_loc, 4, GL_FLOAT, GL_FALSE, 0, None)
+        glEnableVertexAttribArray(color_loc)
+
+        glDrawArrays(GL_LINES, 0, len(self.vertices) // 3)
+
+        # Draw Arcs
         glBindBuffer(GL_ARRAY_BUFFER, self.VBO_ARC)
         self.vertices = self.canon.draw_lines(self.canon.arcfeed, for_selection=False)
         if self.vertices is None:
             print("No arc vertices to render.")
             return
-        # Upload arc vertex data to GPU
         glBufferData(GL_ARRAY_BUFFER, len(self.vertices) * 4, self.vertices, GL_STATIC_DRAW)
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, None)
-        glEnableVertexAttribArray(0)
-        glDrawArrays(GL_LINES, 0, len(self.vertices))
+        position_loc = glGetAttribLocation(self.shader_program, "position")
+        glVertexAttribPointer(position_loc, 3, GL_FLOAT, GL_FALSE, 0, None)
+        glEnableVertexAttribArray(position_loc)
+
+        glBindBuffer(GL_ARRAY_BUFFER, self.VBO_ARC_COLORS)
+        f_colors = []
+        for line in self.canon.arcfeed:
+            f_colors.extend((1, 0.6, 0, 1.00))
+            f_colors.extend((1, 0.6, 0, 1.00))
+        f_colors = (c_float * len(f_colors))(*f_colors)
+
+        glBufferData(GL_ARRAY_BUFFER, len(f_colors) * 4, f_colors, GL_STATIC_DRAW)
+        color_loc = glGetAttribLocation(self.shader_program, "color")
+        glVertexAttribPointer(color_loc, 4, GL_FLOAT, GL_FALSE, 0, None)
+        glEnableVertexAttribArray(color_loc)
+
+        glDrawArrays(GL_LINES, 0, len(self.vertices) // 3)
+
+        # Optional: Unbind VAO and buffers for safety
+        glBindBuffer(GL_ARRAY_BUFFER, 0)
+        glBindVertexArray(0)
 
     def set_canon(self, canon):
         self.canon = canon
@@ -462,59 +499,59 @@ class QtShader(QtWidgets.QOpenGLWidget, CanonShaders):
 
 if __name__ == "__main__":
     colors = {
-        "traverse": (0.30, 0.50, 0.50),
+        "traverse": (0.30, 0.50, 0.50, 1.00),
         "traverse_alpha": 1 / 3.0,
-        "traverse_xy": (0.30, 0.50, 0.50),
+        "traverse_xy": (0.30, 0.50, 0.50, 1.00),
         "traverse_alpha_xy": 1 / 3.0,
-        "traverse_uv": (0.30, 0.50, 0.50),
+        "traverse_uv": (0.30, 0.50, 0.50, 1.00),
         "traverse_alpha_uv": 1 / 3.0,
         "backplotprobing_alpha": 0.75,
-        "backplotprobing": (0.63, 0.13, 0.94),
-        "backplottraverse": (0.30, 0.50, 0.50),
-        "label_ok": (1.00, 0.51, 0.53),
+        "backplotprobing": (0.63, 0.13, 0.94, 1.00),
+        "backplottraverse": (0.30, 0.50, 0.50, 1.00),
+        "label_ok": (1.00, 0.51, 0.53, 1.00),
         "backplotjog_alpha": 0.75,
-        "tool_diffuse": (0.60, 0.60, 0.60),
-        "backplotfeed": (0.75, 0.25, 0.25),
-        "back": (0.00, 0.00, 0.00),
+        "tool_diffuse": (0.60, 0.60, 0.60, 1.00),
+        "backplotfeed": (0.75, 0.25, 0.25, 1.00),
+        "back": (0.00, 0.00, 0.00, 1.00),
         "lathetool_alpha": 0.10,
-        "axis_x": (0.20, 1.00, 0.20),
-        "cone": (1.00, 1.00, 1.00),
-        "cone_xy": (0.00, 1.00, 0.00),
-        "cone_uv": (0.00, 0.00, 1.00),
-        "axis_z": (0.20, 0.20, 1.00),
-        "label_limit": (1.00, 0.21, 0.23),
-        "backplotjog": (1.00, 1.00, 0.00),
-        "selected": (0.00, 1.00, 1.00),
-        "lathetool": (0.80, 0.80, 0.80),
-        "dwell": (1.00, 0.50, 0.50),
-        "overlay_foreground": (1.00, 1.00, 1.00),
-        "overlay_background": (0.00, 0.00, 0.00),
-        "straight_feed": (1.00, 1.00, 1.00),
+        "axis_x": (0.20, 1.00, 0.20, 1.00),
+        "cone": (1.00, 1.00, 1.00, 1.00),
+        "cone_xy": (0.00, 1.00, 0.00, 1.00),
+        "cone_uv": (0.00, 0.00, 1.00, 1.00),
+        "axis_z": (0.20, 0.20, 1.00, 1.00),
+        "label_limit": (1.00, 0.21, 0.23, 1.00),
+        "backplotjog": (1.00, 1.00, 0.00, 1.00),
+        "selected": (0.00, 1.00, 1.00, 1.00),
+        "lathetool": (0.80, 0.80, 0.80, 1.00),
+        "dwell": (1.00, 0.50, 0.50, 1.00),
+        "overlay_foreground": (1.00, 1.00, 1.00, 1.00),
+        "overlay_background": (0.00, 0.00, 0.00, 1.00),
+        "straight_feed": (1.00, 1.00, 1.00, 1.00),
         "straight_feed_alpha": 1 / 3.0,
-        "straight_feed_xy": (0.20, 1.00, 0.20),
+        "straight_feed_xy": (0.20, 1.00, 0.20, 1.00),
         "straight_feed_alpha_xy": 1 / 3.0,
-        "straight_feed_uv": (0.20, 0.20, 1.00),
+        "straight_feed_uv": (0.20, 0.20, 1.00, 1.00),
         "straight_feed_alpha_uv": 1 / 3.0,
-        "small_origin": (0.00, 1.00, 1.00),
+        "small_origin": (0.00, 1.00, 1.00, 1.00),
         "backplottoolchange_alpha": 0.25,
         "backplottraverse_alpha": 0.25,
         "overlay_alpha": 0.75,
-        "tool_ambient": (0.40, 0.40, 0.40),
+        "tool_ambient": (0.40, 0.40, 0.40, 1.00),
         "tool_alpha": 0.20,
-        "backplottoolchange": (1.00, 0.65, 0.00),
-        "backplotarc": (0.75, 0.25, 0.50),
-        "m1xx": (0.50, 0.50, 1.00),
+        "backplottoolchange": (1.00, 0.65, 0.00, 1.00),
+        "backplotarc": (0.75, 0.25, 0.50, 1.00),
+        "m1xx": (0.50, 0.50, 1.00, 1.00),
         "backplotfeed_alpha": 0.75,
         "backplotarc_alpha": 0.75,
-        "arc_feed": (1.00, 1.00, 1.00),
+        "arc_feed": (1.00, 1.00, 1.00, 1.00),
         "arc_feed_alpha": 0.5,
-        "arc_feed_xy": (0.20, 1.00, 0.20),
+        "arc_feed_xy": (0.20, 1.00, 0.20, 1.00),
         "arc_feed_alpha_xy": 1 / 3.0,
-        "arc_feed_uv": (0.20, 0.20, 1.00),
+        "arc_feed_uv": (0.20, 0.20, 1.00, 1.00),
         "arc_feed_alpha_uv": 1 / 3.0,
-        "axis_y": (1.00, 0.20, 0.20),
-        "grid": (0.15, 0.15, 0.15),
-        "limits": (1.0, 0.0, 0.0),
+        "axis_y": (1.00, 0.20, 0.20, 1.00),
+        "grid": (0.15, 0.15, 0.15, 1.00),
+        "limits": (1.0, 0.0, 0.0, 1.0),
     }
 
     # FOR TESTING - Start linuxcnc with any UI. Then you can run this script to test this UI.
