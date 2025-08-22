@@ -236,7 +236,9 @@ class CanonShaders:
         glUseProgram(self.shader_program)
 
         # Section 4: ============== BUFFER SETUP =========================
-        self.VAO_STATIC = glGenVertexArrays(1)
+        self.VAO_LIMITS = glGenVertexArrays(1)
+        self.VAO_ORIGIN = glGenVertexArrays(1)
+        self.VAO_BOUNDS = glGenVertexArrays(1)
         self.VAO_GCODE = glGenVertexArrays(1)
 
         # Translate to OpenGL-speak
@@ -262,7 +264,7 @@ class CanonShaders:
         """
 
         # Draw the triangle
-        glBindVertexArray(self.VAO_STATIC)
+        glBindVertexArray(self.VAO_ORIGIN)
 
         # Origin lines
         origin_size = 1.0
@@ -329,7 +331,8 @@ class CanonShaders:
             min_extents[0], max_extents[1], max_extents[2], # 7
         ]
         # Specify the order to draw lines between vertices (0-based indices)
-        
+
+        # TODO: There is a line from 3-4 but why?
         cube_order = [0, 1, 2, 3, # Bottom Face
                       0, 4, 5, 1, 5, # Face 1
                       6, 2, 6, 7, 3, # Face 2
@@ -375,7 +378,7 @@ class CanonShaders:
             return
 
         # Draw the triangle
-        glBindVertexArray(self.VAO_STATIC)
+        glBindVertexArray(self.VAO_BOUNDS)
 
         (
             self.min_extents,
@@ -386,15 +389,17 @@ class CanonShaders:
 
         # Set MVP matrix to fit min_extents and max_extents
         # Calculate the bounding box center and size
-        center = [
-            (self.min_extents[i] + self.max_extents[i]) / 2.0 for i in range(3)
-        ]
-        size = [
-            abs(self.max_extents[i] - self.min_extents[i]) for i in range(3)
-        ]
+        center = [(self.min_extents[i] + self.max_extents[i]) / 2.0 for i in range(3)]
+        size = [abs(self.max_extents[i] - self.min_extents[i]) for i in range(3)]
         max_size = max(size)
 
-        self.draw_cube_outline(self.min_extents, self.max_extents, self.VBO_BOUND_BOX, self.VBO_BOUND_BOX_COLORS, color=(1.0, 1.0, 1.0, 1.0))
+        self.draw_cube_outline(
+            self.min_extents,
+            self.max_extents,
+            self.VBO_BOUND_BOX,
+            self.VBO_BOUND_BOX_COLORS,
+            color=(1.0, 1.0, 1.0, 1.0),
+        )
 
     def draw_machine_limits(self):
         """
@@ -405,9 +410,11 @@ class CanonShaders:
             return
 
         # Draw the triangle
-        glBindVertexArray(self.VAO_STATIC)
+        glBindVertexArray(self.VAO_LIMITS)
 
-        self.draw_cube_outline(self.min_limits, self.max_limits, self.VBO_LIMITS, self.VBO_LIMITS_COLORS, color=(0.0, 0.0, 1.0, 1.0))
+        self.draw_cube_outline(
+            self.min_limits, self.max_limits, self.VBO_LIMITS, self.VBO_LIMITS_COLORS, color=(0.0, 0.0, 1.0, 1.0)
+        )
 
     def gcode_render(self):
         """
@@ -583,14 +590,14 @@ class QtShader(QtWidgets.QOpenGLWidget, CanonShaders):
         self.canon.parameter_file = self.parrr
 
         print(f"Loading {self.filename} with parameters from {self.canon.parameter_file}")
-        
+
         # TODO: Unit Codes
-        # TODO: This is a blocking function that blocks the UI. 
+        # TODO: This is a blocking function that blocks the UI.
         #       Would be nice to convert to a cyclic call with progress feedback.
         #       This is a problem for large files.
         #       When tried to debug gcodemodule.cc seems to block stderr and stdout.
         result, seq = gcode.parse(self.filename, self.canon, "G20")
-        if result <= gcode.MIN_ERROR:  
+        if result <= gcode.MIN_ERROR:
             pass
         else:
             print("Error parsing G-code file.")
@@ -643,7 +650,6 @@ class QtShader(QtWidgets.QOpenGLWidget, CanonShaders):
         delta = e.angleDelta().y() / 120
         self.current_scale += delta * 0.1
         self.current_scale = max(0.1, min(self.current_scale, 10.0))
-        print(f"Zoom level: {self.current_scale}")
         self.update()
 
     def timerEvent(self, arg__0):
