@@ -86,6 +86,8 @@ static int axis_mask = 0;
     FIELD(hal_bit_t,program_is_running) /* pin for notifying user that program is running */ \
     FIELD(hal_bit_t,halui_mdi_is_running) /* pin for notifying user that halui MDI commands is running */ \
     FIELD(hal_bit_t,program_is_paused) /* pin for notifying user that program is paused */ \
+    FIELD(hal_bit_t,cycle_start) /* pin for running program */ \
+    FIELD(hal_bit_t,cycle_pause) /* pin for running program */ \
     FIELD(hal_bit_t,program_run) /* pin for running program */ \
     FIELD(hal_bit_t,program_pause) /* pin for pausing program */ \
     FIELD(hal_bit_t,program_resume) /* pin for resuming program */ \
@@ -555,6 +557,36 @@ int halui_export_pin_OUT_bit(hal_bit_t **pin, const char *name)
     return 0;
 }
 
+static void py_call_cycleStart() {
+
+    // check socket messages for jogspeed
+    pFuncWrite = PyObject_GetAttrString(pInstance, "cycleStart");
+    if (pFuncRead && PyCallable_Check(pFuncWrite)) {
+        pValue = PyObject_CallNoArgs(pFuncWrite);
+        if (pValue == NULL){
+            fprintf(stderr, "Halui Bridge: cycleStart function failed: returned NULL\n");
+        }
+        Py_DECREF(pValue);
+    }
+    Py_DECREF(pFuncWrite);
+    return ;
+}
+
+static void py_call_cyclePause() {
+
+    // check socket messages for jogspeed
+    pFuncWrite = PyObject_GetAttrString(pInstance, "cyclePause");
+    if (pFuncRead && PyCallable_Check(pFuncWrite)) {
+        pValue = PyObject_CallNoArgs(pFuncWrite);
+        if (pValue == NULL){
+            fprintf(stderr, "Halui Bridge: cyclePause function failed: returned NULL\n");
+        }
+        Py_DECREF(pValue);
+    }
+    Py_DECREF(pFuncWrite);
+    return ;
+}
+
 static int py_call_get_mdi_count() {
     int value = 0;
     // check socket messages for jogspeed
@@ -845,6 +877,10 @@ int halui_hal_init(void)
     retval = halui_export_pin_IN_bit(&(halui_data->flood_on), "halui.flood.on");
     if (retval < 0) return retval;
     retval = halui_export_pin_IN_bit(&(halui_data->flood_off), "halui.flood.off");
+    if (retval < 0) return retval;
+    retval = halui_export_pin_IN_bit(&(halui_data->cycle_start), "halui.cycle.start");
+    if (retval < 0) return retval;
+    retval = halui_export_pin_IN_bit(&(halui_data->cycle_pause), "halui.cycle.pause");
     if (retval < 0) return retval;
     retval = halui_export_pin_IN_bit(&(halui_data->program_run), "halui.program.run");
     if (retval < 0) return retval;
@@ -1974,6 +2010,16 @@ static void check_hal_changes()
 
     if (check_bit_changed(new_halui_data.flood_off, old_halui_data.flood_off) != 0)
 	sendFloodOff();
+
+    if (check_bit_changed(new_halui_data.cycle_start, old_halui_data.cycle_start) != 0){
+        fprintf(stderr, "cycle-start value = %i\n", new_halui_data.cycle_start );
+        py_call_cycleStart();
+    }
+
+    if (check_bit_changed(new_halui_data.cycle_pause, old_halui_data.cycle_pause) != 0){
+        fprintf(stderr, "cycle-pause value = %i\n", new_halui_data.cycle_pause );
+        py_call_cyclePause();
+    }
 
     if (check_bit_changed(new_halui_data.program_run, old_halui_data.program_run) != 0)
 	sendProgramRun(0);
