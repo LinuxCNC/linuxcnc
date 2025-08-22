@@ -21,6 +21,7 @@ from ctypes import c_float, c_void_p
 from PyQt5 import QtCore, QtGui, QtWidgets
 
 import traceback
+from ctypes import c_uint
 
 """
 Dev Notes:
@@ -143,6 +144,21 @@ class CanonShaders:
         self.inifile = None
         if not self.sim:
             self.load_ini_settings()
+            self.min_limits = [
+                self.status.axis[0]["min_position_limit"],
+                self.status.axis[1]["min_position_limit"],
+                self.status.axis[2]["min_position_limit"],
+            ]
+            self.max_limits = [
+                self.status.axis[0]["max_position_limit"],
+                self.status.axis[1]["max_position_limit"],
+                self.status.axis[2]["max_position_limit"],
+            ]
+        else:
+            self.dro_in = "%.3f"
+            self.dro_mm = "%.3f"
+            self.max_limits = [200, 200, 200]
+            self.min_limits = [-200, -200, -200]
 
         # Load Drawing stuff ------------------------------------
         self.canon = canon
@@ -268,6 +284,8 @@ class CanonShaders:
 
         # Prepare color data for each axis (X: red, Y: green, Z: blue)
         # Each axis line has two vertices, so repeat color for both
+
+        # fmt: off
         colors = [
             1.0, 0.0, 0.0, 1.0,  # X axis start (red)
             1.0, 0.0, 0.0, 1.0,  # X axis end   (red)
@@ -276,6 +294,7 @@ class CanonShaders:
             0.0, 0.0, 1.0, 1.0,  # Z axis start (blue)
             0.0, 0.0, 1.0, 1.0,  # Z axis end   (blue)
         ]
+        # fmt: on
         glBindBuffer(GL_ARRAY_BUFFER, self.VBO_ORIGIN_COLORS)
         self.o_colors = (c_float * len(colors))(*colors)
         glBufferData(GL_ARRAY_BUFFER, len(self.o_colors) * 4, self.o_colors, GL_STATIC_DRAW)
@@ -289,6 +308,106 @@ class CanonShaders:
         glBindBuffer(GL_ARRAY_BUFFER, 0)
         glBindVertexArray(0)
 
+    def draw_cube_outline(self, min_extents, max_extents, vertex_buffer, color_buffer, color=(1.0, 1.0, 1.0, 1.0)):
+        """
+        Draw a cube using the provided minimum and maximum extents.
+        """
+
+        # TODO: You can draw a box with 6 points, can we do the same for lines?
+        # TODO: Can we only draw this onces?
+        # TODO: IBO here. 1,2,3,4,8,7,3,7,6,2,6,5,1
+        # fmt: off
+        # Define the 8 cube vertices
+        lines = [
+            min_extents[0], min_extents[1], min_extents[2], # 0
+            max_extents[0], min_extents[1], min_extents[2], # 1
+            max_extents[0], max_extents[1], min_extents[2], # 2
+            min_extents[0], max_extents[1], min_extents[2], # 3
+            min_extents[0], min_extents[1], max_extents[2], # 4
+            max_extents[0], min_extents[1], max_extents[2], # 5
+            max_extents[0], max_extents[1], max_extents[2], # 6
+            min_extents[0], max_extents[1], max_extents[2], # 7
+        ]
+        # Specify the order to draw lines between vertices (0-based indices)
+        
+        cube_order = [0, 1, 2, 3, # Bottom Face
+                      0, 4, 5, 1, 5, # Face 1
+                      6, 2, 6, 7, 3, # Face 2
+                      7, 4  # Face 3
+        ]
+        # fmt: on
+
+        # Upload vertex data
+        glBindBuffer(GL_ARRAY_BUFFER, vertex_buffer)
+        self.vertices = (c_float * len(lines))(*lines)
+        glBufferData(GL_ARRAY_BUFFER, len(self.vertices) * 4, self.vertices, GL_STATIC_DRAW)
+        position_loc = glGetAttribLocation(self.shader_program, "position")
+        glVertexAttribPointer(position_loc, 3, GL_FLOAT, GL_FALSE, 0, None)
+        glEnableVertexAttribArray(position_loc)
+
+        # Upload index data
+        self.EBO_BOUND_BOX = glGenBuffers(1)
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self.EBO_BOUND_BOX)
+        indices = (c_uint * len(cube_order))(*cube_order)
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, len(indices) * 4, indices, GL_STATIC_DRAW)
+
+        # Draw using element array buffer
+        glDrawElements(GL_LINE_STRIP, len(cube_order), GL_UNSIGNED_INT, None)
+
+        # Prepare color data for bounding box (white)
+        colors = [color] * (12)
+        colors = [item for sublist in colors for item in sublist]  # Flatten list
+        glBindBuffer(GL_ARRAY_BUFFER, color_buffer)
+        self.b_colors = (c_float * len(colors))(*colors)
+        glBufferData(GL_ARRAY_BUFFER, len(self.b_colors) * 4, self.b_colors, GL_STATIC_DRAW)
+        color_loc = glGetAttribLocation(self.shader_program, "color")
+        glVertexAttribPointer(color_loc, 4, GL_FLOAT, GL_FALSE, 0, None)
+        glEnableVertexAttribArray(color_loc)
+
+        glDrawArrays(GL_LINE_LOOP, 0, len(indices) // 3)
+
+    def draw_bounding_box(self):
+        """
+        Draw the bounding box around the G-code extents.
+        """
+        if self.canon is None:
+            print("No canon set, cannot draw bounding box.")
+            return
+
+        # Draw the triangle
+        glBindVertexArray(self.VAO_STATIC)
+
+        (
+            self.min_extents,
+            self.max_extents,
+            self.min_extents_notool,
+            self.max_extents_notool,
+        ) = gcode.calc_extents(self.canon.arcfeed, self.canon.feed, self.canon.traverse)
+
+        # Set MVP matrix to fit min_extents and max_extents
+        # Calculate the bounding box center and size
+        center = [
+            (self.min_extents[i] + self.max_extents[i]) / 2.0 for i in range(3)
+        ]
+        size = [
+            abs(self.max_extents[i] - self.min_extents[i]) for i in range(3)
+        ]
+        max_size = max(size)
+
+        self.draw_cube_outline(self.min_extents, self.max_extents, self.VBO_BOUND_BOX, self.VBO_BOUND_BOX_COLORS, color=(1.0, 1.0, 1.0, 1.0))
+
+    def draw_machine_limits(self):
+        """
+        Draw the machine limits as a cube.
+        """
+        if self.canon is None:
+            print("No canon set, cannot draw machine limits.")
+            return
+
+        # Draw the triangle
+        glBindVertexArray(self.VAO_STATIC)
+
+        self.draw_cube_outline(self.min_limits, self.max_limits, self.VBO_LIMITS, self.VBO_LIMITS_COLORS, color=(0.0, 0.0, 1.0, 1.0))
 
     def gcode_render(self):
         """
@@ -374,7 +493,17 @@ class QtShader(QtWidgets.QOpenGLWidget, CanonShaders):
     A Qt widget that uses OpenGL to render using CanonShaders.
     """
 
-    def __init__(self, colors, geometry, is_foam, lathe_view_option, stat, random, *args, **kwargs):
+    def __init__(
+        self,
+        colors,
+        geometry,
+        is_foam,
+        lathe_view_option,
+        stat,
+        random,
+        *args,
+        **kwargs,
+    ):
         QtWidgets.QOpenGLWidget.__init__(self)
         self.status = linuxcnc.stat()
         self.colors = colors
@@ -394,6 +523,7 @@ class QtShader(QtWidgets.QOpenGLWidget, CanonShaders):
         self.last_mouse_position = QtCore.QPoint()
         self.current_x = 0
         self.current_y = 0
+        self.current_scale = 1.0
 
     def init_canon(self):
         self.status.poll()
@@ -401,7 +531,12 @@ class QtShader(QtWidgets.QOpenGLWidget, CanonShaders):
         parameter = inifile.find("RS274NGC", "PARAMETER_FILE")
         self.parrr = os.path.dirname(self.status.ini_filename) + "/" + parameter
         self.canon = CanonShade(
-            colors=self.colors, geometry="XYZ", is_foam=False, lathe_view_option=False, stat=self.status, random=False
+            colors=self.colors,
+            geometry="XYZ",
+            is_foam=False,
+            lathe_view_option=False,
+            stat=self.status,
+            random=False,
         )
         self.canon.parameter_file = self.parrr
 
@@ -417,6 +552,7 @@ class QtShader(QtWidgets.QOpenGLWidget, CanonShaders):
         projection = QtGui.QMatrix4x4()
         projection.perspective(45.0, self.width() / self.height(), 0.1, 100.0)
         mvp = projection * self.matrix
+        mvp.scale(self.current_scale, self.current_scale, self.current_scale)
         mvp_data = mvp.data()
 
         # TODO: I would like to move all openGL calls to the CanonShader class
@@ -425,6 +561,8 @@ class QtShader(QtWidgets.QOpenGLWidget, CanonShaders):
 
         self.gcode_render()
         self.origin_render()
+        self.draw_bounding_box()
+        self.draw_machine_limits()
 
     def load_file(self, filename):
         """
@@ -445,10 +583,15 @@ class QtShader(QtWidgets.QOpenGLWidget, CanonShaders):
         self.canon.parameter_file = self.parrr
 
         print(f"Loading {self.filename} with parameters from {self.canon.parameter_file}")
+        
+        # TODO: Unit Codes
+        # TODO: This is a blocking function that blocks the UI. 
+        #       Would be nice to convert to a cyclic call with progress feedback.
+        #       This is a problem for large files.
+        #       When tried to debug gcodemodule.cc seems to block stderr and stdout.
         result, seq = gcode.parse(self.filename, self.canon, "G20")
-        self.vertices = self.canon.draw_lines(self.canon.traverse, for_selection=False)
-        if result <= gcode.MIN_ERROR:
-            print(f"Extents: {self.canon.calc_extents()}")
+        if result <= gcode.MIN_ERROR:  
+            pass
         else:
             print("Error parsing G-code file.")
 
@@ -492,6 +635,16 @@ class QtShader(QtWidgets.QOpenGLWidget, CanonShaders):
             self.rotationAxis = QtGui.QVector3D(-1 * y_percent, x_percent, 0)  # Update rotation axis
             self.rotation = QtGui.QQuaternion.fromAxisAndAngle(self.rotationAxis, self.angularSpeed) * self.rotation
             self.last_mouse_position = e.pos()
+
+    def wheelEvent(self, e: QtGui.QWheelEvent):
+        """
+        Handle mouse scroll events to zoom in and out.
+        """
+        delta = e.angleDelta().y() / 120
+        self.current_scale += delta * 0.1
+        self.current_scale = max(0.1, min(self.current_scale, 10.0))
+        print(f"Zoom level: {self.current_scale}")
+        self.update()
 
     def timerEvent(self, arg__0):
         update()
