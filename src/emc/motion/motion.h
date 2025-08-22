@@ -251,6 +251,7 @@ extern "C" {
                                  |2 = move until probe clears */
     int probe_jog_err_inhibit;  // setting to inhibit probe tripped while jogging error.
     int probe_home_err_inhibit;  // setting to inhibit probe tripped while homeing error.
+    int probe_decel_err_inhibit;  // setting to inhibit probe tripped while decelerating during probing error.
     EmcPose tool_offset;        /* TLO */
     double  orientation;    /* angle for spindle orient */
     int state; /*spindle state  seems to just be 0 for off and 1 for on andypugh 2025-04-03*/
@@ -724,6 +725,7 @@ Suggestion: Split this in to an Error and a Status flag register..
         double maxFeedScale;
         int inhibit_probe_jog_error;
         int inhibit_probe_home_error;
+	int inhibit_probe_decel_error;
     } emcmot_config_t;
 
 /* error structure - A ring buffer used to pass formatted printf strings to usr space */
