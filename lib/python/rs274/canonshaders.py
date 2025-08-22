@@ -72,7 +72,7 @@ class CanonShade(GLCanon, interpret.StatMixin):
         **kwargs,
     ):
         GLCanon.__init__(self, colors, geometry, is_foam)
-        
+
         interpret.StatMixin.__init__(self, stat, random)
 
         print("CanonShade initialized")
@@ -124,7 +124,6 @@ class CanonShade(GLCanon, interpret.StatMixin):
         out_list.append(line[2][2])
 
         return (c_float * len(out_list))(*out_list)
-
 
 
 class CanonShaders:
@@ -268,7 +267,7 @@ class CanonShaders:
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, None)
         glEnableVertexAttribArray(0)
         glDrawArrays(GL_LINES, 0, len(self.vertices))
-        
+
         # position = glGetAttribLocation(self.shader, 'vertices')
         # glBufferData(GL_ARRAY_BUFFER, sizeof(self.vertices), self.vertices, GL_STATIC_DRAW)
         # glVertexAttribPointer(position, 3, GL_FLOAT, GL_FALSE, 0, None)
@@ -314,14 +313,14 @@ class QtShader(QtWidgets.QOpenGLWidget, CanonShaders):
         self.current_x = 0
         self.current_y = 0
 
-
     def init_canon(self):
         print("Initializing CanonShade...")
         self.status.poll()
         parrr = os.path.dirname(self.status.ini_filename) + "/" + parameter
-        self.canon = CanonShade(colors=self.colors, geometry="XYZ", is_foam=False, lathe_view_option=False, stat=self.status, random=False)
+        self.canon = CanonShade(
+            colors=self.colors, geometry="XYZ", is_foam=False, lathe_view_option=False, stat=self.status, random=False
+        )
         self.canon.parameter_file = parrr
-
 
     def initializeGL(self):
         self.init_gl()
@@ -373,12 +372,11 @@ class QtShader(QtWidgets.QOpenGLWidget, CanonShaders):
 
     def mousePressEvent(self, e):
 
-        if(e.button() == QtCore.Qt.LeftButton):
+        if e.button() == QtCore.Qt.LeftButton:
             self.last_mouse_position = e.pos()
-        elif(e.button() == QtCore.Qt.RightButton):
+        elif e.button() == QtCore.Qt.RightButton:
             self.last_mouse_position = e.pos()
             self.angularSpeed = 0.1
-
 
     def mouseReleaseEvent(self, e):
         if e.button() == QtCore.Qt.LeftButton:
@@ -404,23 +402,19 @@ class QtShader(QtWidgets.QOpenGLWidget, CanonShaders):
             new_x = e.pos().x() - self.last_mouse_position.x()
             new_y = e.pos().y() - self.last_mouse_position.y()
 
-            dist = (new_x**2 + new_y**2)**0.5
+            dist = (new_x**2 + new_y**2) ** 0.5
             x_percent = new_x / dist if dist != 0 else 0
             y_percent = new_y / dist if dist != 0 else 0
 
             self.angularSpeed = dist * 0.1  # Adjust rotation speed based on
 
             # TODO: Fix center of rotation.
-            self.rotationAxis = QtGui.QVector3D(-1*y_percent, x_percent, 0)  # Update rotation axis
+            self.rotationAxis = QtGui.QVector3D(-1 * y_percent, x_percent, 0)  # Update rotation axis
             self.rotation = QtGui.QQuaternion.fromAxisAndAngle(self.rotationAxis, self.angularSpeed) * self.rotation
             self.last_mouse_position = e.pos()
 
-
-
     def timerEvent(self, arg__0):
         update()
-
-
 
 
 if __name__ == "__main__":
