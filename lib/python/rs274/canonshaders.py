@@ -629,8 +629,9 @@ class QtShader(QtWidgets.QOpenGLWidget, CanonShaders):
             self.last_mouse_position = e.pos()
 
         elif e.buttons() & QtCore.Qt.RightButton:
-            new_x = e.pos().x() - self.last_mouse_position.x()
-            new_y = e.pos().y() - self.last_mouse_position.y()
+            fudge = 1.5
+            new_x = (e.pos().x() - self.last_mouse_position.x()) * fudge
+            new_y = (-1*(e.pos().y() - self.last_mouse_position.y())) * fudge
 
             dist = (new_x**2 + new_y**2) ** 0.5
             x_percent = new_x / dist if dist != 0 else 0
