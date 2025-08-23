@@ -244,6 +244,8 @@ class _GStat(GObject.GObject):
         'following-error': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE,(GObject.TYPE_PYOBJECT,)),
         'cycle-start-request': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
         'cycle-pause-request': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'ok-request': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
+        'cancel-request': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_BOOLEAN,)),
         'macro-call-request': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
         }
 
@@ -1459,6 +1461,12 @@ class _GStat(GObject.GObject):
 
     def request_macro_call(self, data):
         self.emit('macro-call-request', data)
+
+    def request_ok(self, data):
+        self.emit('ok-request', data)
+
+    def request_cancel(self, data):
+        self.emit('cancel-request', data)
 
     #############################################
 
