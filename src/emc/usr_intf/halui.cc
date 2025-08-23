@@ -204,8 +204,12 @@ static int axis_mask = 0;
 \
     FIELD(hal_bit_t,home_all) /* pin for homing all joints in sequence */ \
     FIELD(hal_bit_t,abort) /* pin for aborting */ \
+\
     ARRAY(hal_bit_t,mdi_commands,MDI_MAX) \
     ARRAY(hal_bit_t,gui_mdi_commands,MDI_MAX) \
+\
+    FIELD(hal_bit_t,gui_ok) /* pin for acknowledging dialog ok */ \
+    FIELD(hal_bit_t,gui_cancel) /* pin for acknowledging dialog cancel */ \
 \
     FIELD(hal_float_t,units_per_mm) \
 
@@ -587,6 +591,34 @@ static void py_call_cyclePause() {
     return ;
 }
 
+static void py_call_ok() {
+
+    // check socket messages for gui ok message
+    pFuncWrite = PyObject_GetAttrString(pInstance, "ok");
+    if (pFuncRead && PyCallable_Check(pFuncWrite)) {
+        pValue = PyObject_CallNoArgs(pFuncWrite);
+        if (pValue == NULL){
+            fprintf(stderr, "Halui Bridge: ok function failed: returned NULL\n");
+        }
+        Py_DECREF(pValue);
+    }
+    Py_DECREF(pFuncWrite);
+    return ;
+}
+static void py_call_cancel() {
+
+    // check socket messages for gui cancel message
+    pFuncWrite = PyObject_GetAttrString(pInstance, "cancel");
+    if (pFuncRead && PyCallable_Check(pFuncWrite)) {
+        pValue = PyObject_CallNoArgs(pFuncWrite);
+        if (pValue == NULL){
+            fprintf(stderr, "Halui Bridge: cancel function failed: returned NULL\n");
+        }
+        Py_DECREF(pValue);
+    }
+    Py_DECREF(pFuncWrite);
+    return ;
+}
 static int py_call_get_mdi_count() {
     int value = 0;
     // check socket messages for jogspeed
@@ -1042,9 +1074,15 @@ int halui_hal_init(void)
 
     for (int n=0; n<num_gui_mdi_commands; n++) {
         printf("MDI name returned: %s %i\n", py_call_get_mdi_name(n),n);
-        retval = hal_pin_bit_newf(HAL_IN, &(halui_data->gui_mdi_commands[n]), comp_id, "halui.mdi-command-%s", py_call_get_mdi_name(n));
+        retval = hal_pin_bit_newf(HAL_IN, &(halui_data->gui_mdi_commands[n]), comp_id, "halui.gui.mdi-command-%s", py_call_get_mdi_name(n));
         if (retval < 0) return retval;
     }
+
+    retval = halui_export_pin_IN_bit(&(halui_data->gui_ok), "halui.gui.ok");
+    if (retval < 0) return retval;
+
+    retval = halui_export_pin_IN_bit(&(halui_data->gui_cancel), "halui.gui.cancel");
+    if (retval < 0) return retval;
 
     hal_ready(comp_id);
     return 0;
@@ -2473,9 +2511,19 @@ static void check_hal_changes()
     // request GUI ti run MDI commands
     for(int n = 0; n < num_gui_mdi_commands; n++) {
         if (check_bit_changed(new_halui_data.gui_mdi_commands[n], old_halui_data.gui_mdi_commands[n]) != 0){
-            printf("GUI MDI command called index: %i\n", n);
+            fprintf(stderr,"GUI MDI command called index: %i\n", n);
             py_call_request_MDI(n);
         }
+    }
+
+    if (check_bit_changed(new_halui_data.gui_ok, old_halui_data.gui_ok) != 0) {
+        fprintf(stderr,"GUI OK command called\n");
+        py_call_ok();
+    }
+
+    if (check_bit_changed(new_halui_data.gui_cancel, old_halui_data.gui_cancel) != 0) {
+        fprintf(stderr,"GUI CANCEL command called\n");
+        py_call_cancel();
     }
 }
 

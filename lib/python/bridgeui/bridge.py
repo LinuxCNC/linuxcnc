@@ -156,6 +156,12 @@ class Bridge(object):
     def cyclePause(self):
         self.writeMsg('request_cycle_pause', True)
 
+    def ok(self):
+        self.writeMsg('request_ok', True)
+
+    def cancel(self):
+        self.writeMsg('request_cancel', True)
+
     def getMdiName(self, num):
         if num >len(self.INFO.MDI_COMMAND_DICT)-1:
             return 'None'
