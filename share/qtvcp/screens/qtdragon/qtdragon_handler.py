@@ -155,6 +155,8 @@ class HandlerClass:
         STATUS.connect('cycle-start-request', lambda w, state :self.btn_start_clicked(state))
         STATUS.connect('cycle-pause-request', lambda w, state: self.ext_pause_toggled(state))
         STATUS.connect('macro-call-request', lambda w, name: self.request_macro_call(name))
+        STATUS.connect('ok-request', lambda w, state: self.dialog_ext_control(w,1,1))
+        STATUS.connect('cancel-request', lambda w, state: self.dialog_ext_control(w,1,0))
 
         self.swoopPath = os.path.join(paths.IMAGEDIR,'lcnc_swoop.png')
         self.swoopURL = QtCore.QUrl.fromLocalFile(self.swoopPath)
