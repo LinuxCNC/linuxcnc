@@ -82,10 +82,10 @@ class CanonInfo(GLCanon, interpret.StatMixin):
     def draw_lines(self, lines, for_selection, j=0, geometry=None):
         """
         Returns the list of lines to draw in a format suitable for OpenGL.
-        if line is 
+        if line is
         Traverse: [(line number, (start position), (end position), (tlo x, tlo y, tlo z))]
         Feed:     [(line number, (start position), (end position), feedrate, (tlo x, tlo y, tlo z))]
-        ArcFeed:  [(line number, (start position), (end position), feedrate, (tlo x, tlo y, tlo z))]   
+        ArcFeed:  [(line number, (start position), (end position), feedrate, (tlo x, tlo y, tlo z))]
         """
         out_list = []
         if len(lines) < 0:
@@ -271,7 +271,7 @@ class CanonShaders:
         self.VBO_LIMITS_COLORS = glGenBuffers(1)
         self.VBO_BOUND_BOX_COLORS = glGenBuffers(1)
 
-    def origin_render(self):
+    def origin_render(self, origin_size=1.0):
         """
         Render the origin axis
         """
@@ -279,8 +279,6 @@ class CanonShaders:
         # Draw the triangle
         glBindVertexArray(self.VAO_ORIGIN)
 
-        # Origin lines
-        origin_size = 1.0
         # fmt: off
         lines = [ 
             0.0, 0.0, 0.0, origin_size, 0.0, 0.0,
@@ -508,6 +506,29 @@ class CanonShaders:
         return result, seq
 
 
+class GraphicsOptions:
+
+    def __init__(self):
+        self.show_bounding_box = True
+        self.show_machine_limits = True
+        self.show_origin = True
+        self.show_tool = True
+        self.show_feed = True
+        self.show_traverse = True
+        self.show_arc = True
+        self.show_dwell = True
+        self.highlight_line = -1  # TODO
+
+        self.mouse_pan_button = QtCore.Qt.LeftButton
+        self.mouse_rotate_button = QtCore.Qt.RightButton
+        self.mouse_zoom_button = None  # Personal preference scroll wheel is superior
+        self.mouse_pan_sensitivity = 0.005
+        self.mouse_rotate_sensitivity = 0.1
+        self.mouse_zoom_sensitivity = 0.1
+
+        self.origin_size = 1.0
+
+
 class QtShader(QtWidgets.QOpenGLWidget, CanonShaders):
     """
     A Qt widget that uses OpenGL to render using CanonShaders.
@@ -526,6 +547,7 @@ class QtShader(QtWidgets.QOpenGLWidget, CanonShaders):
     ):
         CanonShaders.__init__(self, lp=None, canon=None)
         QtWidgets.QOpenGLWidget.__init__(self)
+        self.options = GraphicsOptions()
         self.status = linuxcnc.stat()
         self.colors = colors
         self.init_canon()
@@ -579,10 +601,21 @@ class QtShader(QtWidgets.QOpenGLWidget, CanonShaders):
         MatrixID = glGetUniformLocation(self.shader_program, "MVP")
         glUniformMatrix4fv(MatrixID, 1, GL_FALSE, mvp_data)
 
+        if self.options.show_feed is False:
+            self.canon.feed = []
+        if self.options.show_arc is False:
+            self.canon.arcfeed = []
+        if self.options.show_traverse is False:
+            self.canon.traverse = []
+        if self.options.show_dwell is False:
+            self.canon.dwells = []
         self.gcode_render()
-        self.origin_render()
-        self.draw_bounding_box()
-        self.draw_machine_limits()
+        if self.options.show_origin:
+            self.origin_render(self.options.origin_size)
+        if self.options.show_bounding_box:
+            self.draw_bounding_box()
+        if self.options.show_machine_limits:
+            self.draw_machine_limits()
 
     def load_file(self, filename):
         """
@@ -617,41 +650,41 @@ class QtShader(QtWidgets.QOpenGLWidget, CanonShaders):
 
     def mousePressEvent(self, e):
 
-        if e.button() == QtCore.Qt.LeftButton:
+        if e.button() == self.options.mouse_pan_button:
             self.last_mouse_position = e.pos()
-        elif e.button() == QtCore.Qt.RightButton:
+        elif e.button() == self.options.mouse_rotate_button:
             self.last_mouse_position = e.pos()
             self.angularSpeed = 0.1
         self.update()
 
     def mouseReleaseEvent(self, e):
-        if e.button() == QtCore.Qt.LeftButton:
+        if e.button() == self.options.mouse_pan_button:
             new_x = e.pos().x() - self.last_mouse_position.x()
             new_y = e.pos().y() - self.last_mouse_position.y()
             # TODO: Fix Scaling
-            self.current_x += new_x * 0.005
-            self.current_y -= new_y * 0.005
+            self.current_x += new_x * self.options.mouse_pan_sensitivity
+            self.current_y -= new_y * self.options.mouse_pan_sensitivity
         else:
             return
 
     def mouseMoveEvent(self, e):
-        if e.buttons() & QtCore.Qt.LeftButton:
+        if e.buttons() & self.options.mouse_pan_button:
             new_x = e.pos().x() - self.last_mouse_position.x()
             new_y = e.pos().y() - self.last_mouse_position.y()
-            self.current_x += new_x * 0.005
-            self.current_y -= new_y * 0.005
+            self.current_x += new_x * self.options.mouse_pan_sensitivity
+            self.current_y -= new_y * self.options.mouse_pan_sensitivity
             self.last_mouse_position = e.pos()
 
-        elif e.buttons() & QtCore.Qt.RightButton:
+        elif e.buttons() & self.options.mouse_rotate_button:
             fudge = 1.5
             new_x = (e.pos().x() - self.last_mouse_position.x()) * fudge
-            new_y = (-1*(e.pos().y() - self.last_mouse_position.y())) * fudge
+            new_y = (-1 * (e.pos().y() - self.last_mouse_position.y())) * fudge
 
             dist = (new_x**2 + new_y**2) ** 0.5
             x_percent = new_x / dist if dist != 0 else 0
             y_percent = new_y / dist if dist != 0 else 0
 
-            self.angularSpeed = dist * 0.1  # Adjust rotation speed based on
+            self.angularSpeed = dist * self.options.mouse_rotate_sensitivity
 
             # TODO: Fix center of rotation.
             self.rotationAxis = QtGui.QVector3D(-1 * y_percent, x_percent, 0)  # Update rotation axis
@@ -665,7 +698,7 @@ class QtShader(QtWidgets.QOpenGLWidget, CanonShaders):
         Handle mouse scroll events to zoom in and out.
         """
         delta = e.angleDelta().y() / 120
-        self.current_scale += delta * 0.1
+        self.current_scale += delta * self.options.mouse_zoom_sensitivity
         self.current_scale = max(0.1, min(self.current_scale, 10.0))
         self.update()
 
