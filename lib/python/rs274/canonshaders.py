@@ -23,6 +23,10 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 import traceback
 from ctypes import c_uint
 
+import logging
+
+LOG = logging.getLogger(__name__)
+
 """
 Dev Notes:
 - Chad Still does not understand why the stat mixin is needed? Seems it only populates a status object which we instatiate here?
@@ -89,7 +93,7 @@ class CanonInfo(GLCanon, interpret.StatMixin):
         """
         out_list = []
         if len(lines) < 0:
-            print("No lines to draw, returning empty list.")
+            LOG.info("No lines to draw, returning empty list.")
             return None
         for line in lines:
             out_list.append(line[1][0])
@@ -108,7 +112,7 @@ class CanonInfo(GLCanon, interpret.StatMixin):
         """
         out_list = []
         if len(dwells) < 0:
-            print("No dwells to draw, returning empty list.")
+            LOG.info("No dwells to draw, returning empty list.")
             return None
         for dwell in dwells:
             out_list.append(dwell[0][0])
@@ -126,7 +130,7 @@ class CanonInfo(GLCanon, interpret.StatMixin):
         """
         out_list = []
         if lineno < 0 or lineno >= len(self.feed):
-            print(f"Invalid line number {lineno}, returning empty list.")
+            LOG.info(f"Invalid line number {lineno}, returning empty list.")
             return None
         line = self.feed[lineno]
         out_list.append(line[1][0])
@@ -187,7 +191,7 @@ class CanonShaders:
             try:
                 test = temp % 1.234
             except:
-                print("Error: invalid [DISPLAY] DRO_FORMAT_IN in INI file")
+                LOG.warning("Error: invalid [DISPLAY] DRO_FORMAT_IN in INI file")
             else:
                 self.dro_in = temp
         if self.inifile.find("DISPLAY", "DRO_FORMAT_MM"):
@@ -195,7 +199,7 @@ class CanonShaders:
             try:
                 test = temp % 1.234
             except:
-                print("Error: invalid [DISPLAY] DRO_FORMAT_MM in INI file")
+                LOG.warning("Error: invalid [DISPLAY] DRO_FORMAT_MM in INI file")
             else:
                 self.dro_mm = temp
                 self.dro_in = temp
@@ -219,7 +223,8 @@ class CanonShaders:
 
         if not glGetShaderiv(vertex_shader, GL_COMPILE_STATUS):
             error = glGetShaderInfoLog(vertex_shader)
-            print(f"Vertex shader compilation failed: {error}")
+            LOG.error(f"Vertex shader compilation failed: {error}")
+            sys.exit(1)
             return
 
         fragment_shader = glCreateShader(GL_FRAGMENT_SHADER)
@@ -228,8 +233,8 @@ class CanonShaders:
 
         if not glGetShaderiv(fragment_shader, GL_COMPILE_STATUS):
             error = glGetShaderInfoLog(fragment_shader)
-            print(f"Fragment shader compilation failed: {error}")
-            return
+            LOG.error(f"Fragment shader compilation failed: {error}")
+            sys.exit(1)
 
         # Section 3: ============== SHADER PROGRAM =========================
         self.shader_program = glCreateProgram()
@@ -238,9 +243,9 @@ class CanonShaders:
         glLinkProgram(self.shader_program)
 
         if not glGetProgramiv(self.shader_program, GL_LINK_STATUS):
-            print(glGetProgramInfoLog(self.shader_program))
-            print(f"Shader program linking failed: {error}")
-            return
+            LOG.error(glGetProgramInfoLog(self.shader_program))
+            LOG.error(f"Shader program linking failed: {error}")
+            sys.exit(1)
 
         # Clean up shaders as they're linked into program now and no longer necessary
         glDetachShader(self.shader_program, vertex_shader)
@@ -385,7 +390,7 @@ class CanonShaders:
         Draw the bounding box around the G-code extents.
         """
         if self.canon is None:
-            print("No canon set, cannot draw bounding box.")
+            LOG.warning("No canon set, cannot draw bounding box.")
             return
 
         # Draw the triangle
@@ -417,7 +422,7 @@ class CanonShaders:
         Draw the machine limits as a cube.
         """
         if self.canon is None:
-            print("No canon set, cannot draw machine limits.")
+            LOG.warning("No canon set, cannot draw machine limits.")
             return
 
         # Draw the triangle
@@ -432,7 +437,7 @@ class CanonShaders:
         Render the OpenGL scene.
         """
         if self.canon is None:
-            print("No canon set, cannot render.")
+            LOG.warning("No canon set, cannot render.")
             return
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
@@ -443,10 +448,10 @@ class CanonShaders:
         glBindBuffer(GL_ARRAY_BUFFER, self.VBO_FEED)
         self.vertices = self.canon.draw_lines(self.canon.feed, for_selection=False)
         if self.vertices is None:
-            print("No vertices to render.")
+            LOG.debug("No Feeds to render.")
             return
 
-        glBufferData(GL_ARRAY_BUFFER, len(self.vertices) * 4, self.vertices, GL_STATIC_DRAW)
+        glBufferData(GL_ARRAY_BUFFER, len(self.vertices) * 4, self.vertices, GL_STREAM_DRAW)
         position_loc = glGetAttribLocation(self.shader_program, "position")
         glVertexAttribPointer(position_loc, 3, GL_FLOAT, GL_FALSE, 0, None)
         glEnableVertexAttribArray(position_loc)
@@ -458,7 +463,7 @@ class CanonShaders:
             f_colors.extend((1, 0.6, 0, 1.00))
         f_colors = (c_float * len(f_colors))(*f_colors)
 
-        glBufferData(GL_ARRAY_BUFFER, len(f_colors) * 4, f_colors, GL_STATIC_DRAW)
+        glBufferData(GL_ARRAY_BUFFER, len(f_colors) * 4, f_colors, GL_STREAM_DRAW)
         color_loc = glGetAttribLocation(self.shader_program, "color")
         glVertexAttribPointer(color_loc, 4, GL_FLOAT, GL_FALSE, 0, None)
         glEnableVertexAttribArray(color_loc)
@@ -469,9 +474,9 @@ class CanonShaders:
         glBindBuffer(GL_ARRAY_BUFFER, self.VBO_ARC)
         self.vertices = self.canon.draw_lines(self.canon.arcfeed, for_selection=False)
         if self.vertices is None:
-            print("No arc vertices to render.")
+            LOG.debug("No arc vertices to render.")
             return
-        glBufferData(GL_ARRAY_BUFFER, len(self.vertices) * 4, self.vertices, GL_STATIC_DRAW)
+        glBufferData(GL_ARRAY_BUFFER, len(self.vertices) * 4, self.vertices, GL_STREAM_DRAW)
         position_loc = glGetAttribLocation(self.shader_program, "position")
         glVertexAttribPointer(position_loc, 3, GL_FLOAT, GL_FALSE, 0, None)
         glEnableVertexAttribArray(position_loc)
@@ -483,7 +488,7 @@ class CanonShaders:
             f_colors.extend((1, 0.6, 0, 1.00))
         f_colors = (c_float * len(f_colors))(*f_colors)
 
-        glBufferData(GL_ARRAY_BUFFER, len(f_colors) * 4, f_colors, GL_STATIC_DRAW)
+        glBufferData(GL_ARRAY_BUFFER, len(f_colors) * 4, f_colors, GL_STREAM_DRAW)
         color_loc = glGetAttribLocation(self.shader_program, "color")
         glVertexAttribPointer(color_loc, 4, GL_FLOAT, GL_FALSE, 0, None)
         glEnableVertexAttribArray(color_loc)
@@ -622,7 +627,7 @@ class QtShader(QtWidgets.QOpenGLWidget, CanonShaders):
         Load a G-code file and parse it.
         """
         if not os.path.exists(filename):
-            print(f"File {filename} does not exist.")
+            LOG.warning(f"File {filename} does not exist.")
             return
 
         self.status.poll()
@@ -635,7 +640,7 @@ class QtShader(QtWidgets.QOpenGLWidget, CanonShaders):
         #     Classic GlCanon seems to have some issues with G92 and G54-G59
         self.canon.parameter_file = self.parrr
 
-        print(f"Loading {self.filename} with parameters from {self.canon.parameter_file}")
+        LOG.debug(f"Loading {self.filename} with parameters from {self.canon.parameter_file}")
 
         # TODO: Unit Codes
         # TODO: This is a blocking function that blocks the UI.
@@ -646,7 +651,7 @@ class QtShader(QtWidgets.QOpenGLWidget, CanonShaders):
         if result <= gcode.MIN_ERROR:
             pass
         else:
-            print("Error parsing G-code file.")
+            LOG.error("Error parsing G-code file.")
 
     def mousePressEvent(self, e):
 
