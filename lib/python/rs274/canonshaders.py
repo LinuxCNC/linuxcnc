@@ -56,7 +56,7 @@ void main() {
 """
 
 
-class CanonShade(GLCanon, interpret.StatMixin):
+class CanonInfo(GLCanon, interpret.StatMixin):
     """
     Implementing GLcanon in a way to use shaders pipeline.
     Instantiating interpret stat mixin to be a self contained library without needing to reimplement it.
@@ -80,7 +80,13 @@ class CanonShade(GLCanon, interpret.StatMixin):
         self.shader_type = "CanonShader"
 
     def draw_lines(self, lines, for_selection, j=0, geometry=None):
-
+        """
+        Returns the list of lines to draw in a format suitable for OpenGL.
+        if line is 
+        Traverse: [(line number, (start position), (end position), (tlo x, tlo y, tlo z))]
+        Feed:     [(line number, (start position), (end position), feedrate, (tlo x, tlo y, tlo z))]
+        ArcFeed:  [(line number, (start position), (end position), feedrate, (tlo x, tlo y, tlo z))]   
+        """
         out_list = []
         if len(lines) < 0:
             print("No lines to draw, returning empty list.")
@@ -96,7 +102,10 @@ class CanonShade(GLCanon, interpret.StatMixin):
         return (c_float * len(out_list))(*out_list)
 
     def draw_dwells(self, dwells, alpha, for_selection, j0=0):
-        # print(f"Drawing {len(dwells)} dwells with CanonShader")
+        """
+        Returns the list of dwells to draw in a format suitable for OpenGL.
+        TODO: Does this actually draw anything? like would it be better to be a point or something?
+        """
         out_list = []
         if len(dwells) < 0:
             print("No dwells to draw, returning empty list.")
@@ -111,6 +120,10 @@ class CanonShade(GLCanon, interpret.StatMixin):
         return (c_float * len(out_list))(*out_list)
 
     def highlight(self, lineno, geometry):
+        """
+        Highlight a specific line in the G-code.
+        TODO: This is not implemented in the shader yet.
+        """
         out_list = []
         if lineno < 0 or lineno >= len(self.feed):
             print(f"Invalid line number {lineno}, returning empty list.")
@@ -524,9 +537,7 @@ class QtShader(QtWidgets.QOpenGLWidget, CanonShaders):
         self.rotationAxis = QtGui.QVector3D(1, 1, 0)
         self.angularSpeed = 0
         self.lastTime = time.time()
-        self.timer = QtCore.QTimer()
-        self.timer.timeout.connect(self.update)
-        self.timer.start(16)  # Approximately 60 FPS
+
         self.setMinimumSize(800, 600)
 
         self.last_mouse_position = QtCore.QPoint()
@@ -539,7 +550,7 @@ class QtShader(QtWidgets.QOpenGLWidget, CanonShaders):
         inifile = linuxcnc.ini(status.ini_filename)
         parameter = inifile.find("RS274NGC", "PARAMETER_FILE")
         self.parrr = os.path.dirname(self.status.ini_filename) + "/" + parameter
-        self.canon = CanonShade(
+        self.canon = CanonInfo(
             colors=self.colors,
             geometry="XYZ",
             is_foam=False,
@@ -611,6 +622,7 @@ class QtShader(QtWidgets.QOpenGLWidget, CanonShaders):
         elif e.button() == QtCore.Qt.RightButton:
             self.last_mouse_position = e.pos()
             self.angularSpeed = 0.1
+        self.update()
 
     def mouseReleaseEvent(self, e):
         if e.button() == QtCore.Qt.LeftButton:
@@ -646,6 +658,8 @@ class QtShader(QtWidgets.QOpenGLWidget, CanonShaders):
             self.rotation = QtGui.QQuaternion.fromAxisAndAngle(self.rotationAxis, self.angularSpeed) * self.rotation
             self.last_mouse_position = e.pos()
 
+        self.update()
+
     def wheelEvent(self, e: QtGui.QWheelEvent):
         """
         Handle mouse scroll events to zoom in and out.
@@ -654,9 +668,6 @@ class QtShader(QtWidgets.QOpenGLWidget, CanonShaders):
         self.current_scale += delta * 0.1
         self.current_scale = max(0.1, min(self.current_scale, 10.0))
         self.update()
-
-    def timerEvent(self, arg__0):
-        update()
 
 
 if __name__ == "__main__":
