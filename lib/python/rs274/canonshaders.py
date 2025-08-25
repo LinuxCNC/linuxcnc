@@ -336,7 +336,7 @@ class CanonShaders:
         cube_order = [0, 1, 2, 3, # Bottom Face
                       0, 4, 5, 1, 5, # Face 1
                       6, 2, 6, 7, 3, # Face 2
-                      7, 4  # Face 3
+                      7, 4, 0  # Face 3
         ]
         # fmt: on
 
@@ -511,10 +511,12 @@ class QtShader(QtWidgets.QOpenGLWidget, CanonShaders):
         *args,
         **kwargs,
     ):
+        CanonShaders.__init__(self, lp=None, canon=None)
         QtWidgets.QOpenGLWidget.__init__(self)
         self.status = linuxcnc.stat()
         self.colors = colors
-        CanonShaders.__init__(self, lp=None, canon=None)
+        self.init_canon()
+
         self.filename = None
 
         # TODO: Can we use a singular matrix stack?
