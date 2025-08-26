@@ -1,4 +1,19 @@
-component joint_axis_mapper """Translate from Joint to Axis""";
+component joint_axis_mapper "Translate faults from Joint to Axis";
+
+description """
+When a joint has a Fault, is shows as Joint 0. 
+
+This is a translation layer that shows an Axis associated with a joint.
+
+
+Usage:
+loadrt joint_axis_mapper coord=[TRAJ]COORDINATES
+
+net x-fault joint.0.amp-fault-in => translate.X-fault
+
+Replacing axis letter and joint number appropriate for your machine
+
+""";
 
 license "GPL";
 
