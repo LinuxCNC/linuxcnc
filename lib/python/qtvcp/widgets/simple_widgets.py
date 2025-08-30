@@ -88,7 +88,7 @@ class LCDNumber(QtWidgets.QLCDNumber, _HalWidgetBase):
             if self._floatTemplate == '':
                 self.updateDisplay(data)
                 return
-            t = self._floatTemplate.format
+            t = lambda s: self._floatTemplate % s
             self.display(t(data))
         except:
             self.display('{:.2f}'.format(data))
