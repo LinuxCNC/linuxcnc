@@ -2,18 +2,22 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # Petter Reinholdtsen <pere-weblate@hungry.com>, 2023.
+# Максим Горпиніч <gorpinicmaksim0@gmail.com>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-10-05 14:29+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Automatically generated\n"
+"PO-Revision-Date: 2025-08-30 22:08+0000\n"
+"Last-Translator: Максим Горпиніч <gorpinicmaksim0@gmail.com>\n"
 "Language-Team: none\n"
 "Language: uk\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=3; plural=n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2;\n"
+"X-Generator: Weblate 5.13.1-dev\n"
 
 #: src/emc/task/emctaskmain.cc:868
 #, c-format
@@ -21,62 +25,71 @@ msgid ""
 "command (%s) cannot be executed until the machine is out of E-stop and "
 "turned on"
 msgstr ""
+"Команду (%s) неможливо виконати, доки машина не вийде з аварійної зупинки та "
+"не ввімкнеться"
 
 #: src/emc/task/emctaskmain.cc:1005
 #, c-format
 msgid "can't do that (%s:%d) in manual mode"
-msgstr ""
+msgstr "не можу зробити це (%s:%d) у ручному режимі"
 
 #: src/emc/task/emctaskmain.cc:1118
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter idle"
 msgstr ""
+"Неможливо зробити це (%s) в автоматичному режимі, коли інтерпретатор не "
+"працює"
 
 #: src/emc/task/emctaskmain.cc:1183
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter reading"
 msgstr ""
+"не можу зробити це (%s) в автоматичному режимі з читанням інтерпретатора"
 
 #: src/emc/task/emctaskmain.cc:1266
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter paused"
 msgstr ""
+"не можу зробити це (%s) в автоматичному режимі з призупиненим інтерпретатором"
 
 #: src/emc/task/emctaskmain.cc:1333
 #, c-format
 msgid "can't do that (%s) in auto mode with the interpreter waiting"
 msgstr ""
+"не можу зробити це (%s) в автоматичному режимі, коли інтерпретатор чекає"
 
 #: src/emc/task/emctaskmain.cc:1462
 #, c-format
 msgid "can't do that (%s:%d) in MDI mode"
-msgstr ""
+msgstr "не можу це зробити (%s:%d) у режимі MDI"
 
 #: src/emc/task/emctaskmain.cc:2093
 msgid "Can't switch mode while mode is AUTO and interpreter is not IDLE"
 msgstr ""
+"Неможливо перемкнути режим, якщо режим AUTO (АВТОМАТИЧНИЙ), а перекладач не "
+"в режимі IDLE (ОЧАЙНИЙ)"
 
 #: src/emc/task/emctaskmain.cc:2146
 msgid "failed to close file"
-msgstr ""
+msgstr "не вдалося закрити файл"
 
 #: src/emc/task/emctaskmain.cc:2212 tcl/bin/genedit.tcl:197
 #: tcl/tklinuxcnc.tcl:452
 #, c-format, tcl-format
 msgid "can't open %s"
-msgstr ""
+msgstr "не вдається відкрити %s"
 
 #: src/emc/task/emctaskmain.cc:2224
 msgid "Can't issue MDI command when not homed"
-msgstr ""
+msgstr "Неможливо виконати команду MDI, якщо вона не переведена в HomeReader"
 
 #: src/emc/task/emctaskmain.cc:2229
 msgid "Must be in MDI mode to issue MDI command"
-msgstr ""
+msgstr "Для виконання команди MDI необхідно бути в режимі MDI"
 
 #: src/emc/task/emctaskmain.cc:2311
 msgid "Can't run a program when not homed"
-msgstr ""
+msgstr "Неможливо запустити програму, якщо вона не переведена в домашній режим"
 
 #: src/emc/rs274ngc/interp_arc.cc:111 src/emc/rs274ngc/interp_arc.cc:287
 #, c-format
@@ -84,6 +97,8 @@ msgid ""
 "Zero-radius arc: start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,"
 "%c%.4f) r1=%.4f r2=%.4f"
 msgstr ""
+"Дуга з нульовим радіусом: початок=(%c%.4f,%c%.4f) центр=(%c%.4f,%c%.4f) "
+"кінець=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f"
 
 #: src/emc/rs274ngc/interp_arc.cc:122 src/emc/rs274ngc/interp_arc.cc:296
 #, c-format
@@ -92,76 +107,95 @@ msgid ""
 "center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f abs_err=%.4g "
 "rel_err=%.4f%%"
 msgstr ""
+"Радіус до кінця дуги відрізняється від радіуса до початку: "
+"start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) r1=%.4f "
+"r2=%.4f abs_err=%.4g rel_err=%.4f%%"
 
 #: src/emc/rs274ngc/interp_check.cc:89
 msgid "G4 not allowed with G2 or G3 because they both use P"
-msgstr ""
+msgstr "G4 не дозволено з G2 або G3, оскільки обидва використовують P"
 
 #: src/emc/rs274ngc/interp_check.cc:92
 msgid "Line with G10 does not have L0, L1, L10, L11, L2, or L20"
-msgstr ""
+msgstr "Лінія з G10 не має L0, L1, L10, L11, L2 або L20"
 
 #: src/emc/rs274ngc/interp_check.cc:93
 msgid "P value not an integer with G10"
-msgstr ""
+msgstr "Значення P не є цілим числом з G10"
 
 #: src/emc/rs274ngc/interp_check.cc:94
 #, c-format
 msgid "P value out of range (0-9) with G10 L%d"
-msgstr ""
+msgstr "Значення P поза діапазоном (0-9) з G10 L%d"
 
 #: src/emc/rs274ngc/interp_check.cc:95
 #, c-format
 msgid "P value out of range with G10 L%d"
-msgstr ""
+msgstr "Значення P поза діапазоном при G10 L%d"
 
 #: src/emc/rs274ngc/interp_check.cc:99
 msgid "Between G5.2 and G5.3 codes, only additional G5.2 codes are allowed."
-msgstr ""
+msgstr "Між кодами G5.2 та G5.3 дозволені лише додаткові коди G5.2."
 
 #: src/emc/rs274ngc/interp_check.cc:261
 msgid ""
 "D word with no G41, G41.1, G42, G42.1, G71, G71.1, G71.2 or G96 to use it"
 msgstr ""
+"Слово на літеру D без G41, G41.1, G42, G42.1, G71, G71.1, G71.2 або G96 для "
+"його використання"
 
 #: src/emc/rs274ngc/interp_check.cc:272
 msgid ""
 "$ (spindle selection) word with no M3, M4, M5, M19, M51, G33, G33.1, G76, "
 "G95, G96 or G97 to use it"
 msgstr ""
+"Слово $ (вибір шпинделя) без M3, M4, M5, M19, M51, G33, G33.1, G76, G95, G96 "
+"або G97 для його використання"
 
 #: src/emc/rs274ngc/interp_check.cc:279
 msgid "E word with no G70, G76, M66, M67 or M68 to use it"
 msgstr ""
+"Слово на валідній лінії без G70, G76, M66, M67 або M68 для його використання"
 
 #: src/emc/rs274ngc/interp_check.cc:284
 msgid "H word with no G43 or G76 to use it"
-msgstr ""
+msgstr "Слово на H без G43 або G76 для його використання"
 
 #: src/emc/rs274ngc/interp_check.cc:293
 msgid ""
 "I word with no G2, G3, G5, G5.1, G6, G6.1, G10, G33.1, G76, or G87 to use it"
 msgstr ""
+"Я слово без G2, G3, G5, G5.1, G6, G6.1, G10, G33.1, G76 або G87 для його "
+"використання"
 
 #: src/emc/rs274ngc/interp_check.cc:300
 msgid "J word with no G2, G3, G5, G5.1, G6, G6.1, G10, G76 or G87 to use it"
 msgstr ""
+"Слово на J без G2, G3, G5, G5.1, G6, G6.1, G10, G76 або G87 для його "
+"використання"
 
 #: src/emc/rs274ngc/interp_check.cc:305
 msgid "K word with no G2, G3, G6.2, G33, G33.1, G76, or G87 to use it"
 msgstr ""
+"Слово на літеру K без G2, G3, G6.2, G33, G33.1, G76 або G87 для його "
+"використання"
 
 #: src/emc/rs274ngc/interp_check.cc:317
 msgid ""
 "L word with no G10, cutter compensation, canned cycle, digital/analog input, "
 "M98 or NURBS code"
 msgstr ""
+"L-слово без G10, компенсація різця, стандартний цикл, цифровий/аналоговий "
+"вхід, код M98 або NURBS"
 
 #: src/emc/rs274ngc/interp_check.cc:334
 msgid ""
 "P word with no G2 G3 G4 G10 G64 G5 G5.2 G6, G6.2, G76 G82 G86 G88 G89 or M50 "
 "M51 M52 M53 M62 M63 M64 M65 M66 M98 or user M code to use it"
 msgstr ""
+"P-слово без G2 G3 G4 G10 G64 G5 G5.2 G6, G6.2, G76 G82 G86 G88 G89 або M50 "
+"M51 M52 M53 M62 M63 M64 M65 M66 M98 або M-коду користувача для його "
+"використання"
 
 #: src/emc/rs274ngc/interp_check.cc:340
 msgid "P value not an integer with M19 G2 or G3"
@@ -11279,7 +11313,8 @@ msgstr ""
 #: src/emc/usr_intf/pncconf/dialogs.glade:2106
 #: src/emc/usr_intf/pncconf/dialogs.glade:2410
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
-msgid "_:"
+msgid ""
+"_:"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
