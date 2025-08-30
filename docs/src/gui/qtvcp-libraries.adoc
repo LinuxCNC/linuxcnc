@@ -652,7 +652,7 @@ as the widgets get a reference to the `MainWindow` from the `_hal_init()` functi
 from qtvcp.qt_makegui import VCPWindow
 ----
 
-* *Instantiate `VCPWindow` module*+
+* *Instantiate `VCPWindow` module* +
   Add this Python code to your instantiate section:
 +
 [source,python]

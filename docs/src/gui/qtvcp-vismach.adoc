@@ -309,7 +309,7 @@ Either by adding the component object as the first variable and substituting the
 by substituting the full component/pinname string for a coordinate. +
 
 This example creates a _rectangular prism with opposite corners_ at the specified positions and edges parallel to the XYZ axes. +
-the Z start coordinate will be controlled by the HAL pin 'Zstart'
+The Z start coordinate will be controlled by the HAL pin 'Zstart'.
 
 [source,python]
 ----

@@ -477,13 +477,12 @@ There is a limit of 64 bits in total.
 
 The valid format characters and the pins they create are:
 
-p: (Pad)::
- Does not create any pins, used to ignore sections of the bit stream that are not required.
+p: (Pad):: Does not create any pins, used to ignore sections of the bit stream that are not required.
 
-b: (Boolean).:: (bit, out) hm2_XXXX.N.ssi.MM.<name>.
- If any bits in the designated field width are non-zero then the HAL pin will be "True".
- (bit, out) hm2_XXXX.N.ssi.MM.<name>-not. An inverted version of the above, the
- HAL pin will be "True" if all bits in the field are zero.
+b: (Boolean).:: (bit, out) hm2_XXXX.N.ssi.MM.<name>. +
+ If any bits in the designated field width are non-zero then the HAL pin will be "True". +
+ (bit, out) hm2_XXXX.N.ssi.MM.<name>-not. +
+ An inverted version of the above, the HAL pin will be "True" if all bits in the field are zero.
 
 u: (Unsigned):: (float, out) hm2_XXXX.N.ssi.MM.<name>.
  The value of the bits
@@ -492,35 +491,26 @@ u: (Unsigned):: (float, out) hm2_XXXX.N.ssi.MM.<name>.
  example if the field is 8 bits wide and the scalmax parameter was 20
  then a value of 255 would return 20, and 0 would return 0.
 
-s: (Signed):: (float, out) hm2_XXXX.N.ssi.MM.<name>.
- The value of the bits
- interpreted as a 2s complement signed number then scaled similarly to
+s: (Signed):: (float, out) hm2_XXXX.N.ssi.MM.<name>. +
+ The value of the bits interpreted as a 2s complement signed number then scaled similarly to
  the unsigned variant, except symmetrical around zero.
 
-f: (bitField):: (bit, out) hm2_XXXX.N.ssi.MM.<name>-NN.
- The value of each individual
- bit in the data field. NN starts at 00 up to the number of bits in the
- field. (bit, out) hm2_XXXX.N.ssi.MM.<name>-NN-not. An inverted version
- of the individual bit values.
+f: (bitField):: (bit, out) hm2_XXXX.N.ssi.MM.<name>-NN. +
+ The value of each individual bit in the data field.
+ NN starts at 00 up to the number of bits in the field. +
+ (bit, out) hm2_XXXX.N.ssi.MM.<name>-NN-not. +
+ An inverted version of the individual bit values.
 
-e: (Encoder):: (s32, out) hm2_XXXX.N.ssi.MM.<name>.count.
-The lower 32 bits of the
- total encoder counts. This value is reset both by the ...reset and the
- ...index-enable pins. (s32, out) hm2_XXXX.N.ssi.MM.<name>.rawcounts.
- The lower 32 bits of the total encoder counts. The pin is not affected
- by reset and index. (float, out) hm2_XXXX.N.ssi.MM.<name>.position.
- The encoder position in machine units. This is calculated from the
- full 64-bit buffers so will show a True value even after the counts
- pins have wrapped. It is zeroed by reset and index enable. (bit, IO)
- hm2_XXXX.N.ssi.MM.<name>.index-enable. When this pin is set "True" the
- module will wait until the raw encoder counts next passes through an
- integer multiple of the number of counts specified by counts-per-rev
- parameter and then it will zero the counts and position pins, and set
- the index-enable pin back to "False" as a signal to the system that
- "index" has been passed. this pin is used for spindle-synchronised
- motion and index-homing. (bit, in) (bit, out)
- hm2_XXXX.N.ssi.MM.<name>.reset. When this pin is set high the counts
- and position pins are zeroed.
+e: (Encoder):: (s32, out) hm2_XXXX.N.ssi.MM.<name>.count. +
+ The lower 32 bits of the total encoder counts. This value is reset both by the ...reset and the ...index-enable pins. +
+ (s32, out) hm2_XXXX.N.ssi.MM.<name>.rawcounts. +
+ The lower 32 bits of the total encoder counts. The pin is not affected by reset and index. +
+ (float, out) hm2_XXXX.N.ssi.MM.<name>.position. +
+ The encoder position in machine units. This is calculated from the full 64-bit buffers so will show a True value even after the counts pins have wrapped.  It is zeroed by reset and index enable. +
+ (bit, IO) hm2_XXXX.N.ssi.MM.<name>.index-enable. +
+ When this pin is set "True" the module will wait until the raw encoder counts next passes through an integer multiple of the number of counts specified by counts-per-rev parameter and then it will zero the counts and position pins, and set the index-enable pin back to "False" as a signal to the system that "index" has been passed. this pin is used for spindle-synchronised motion and index-homing. +
+ (bit, in) (bit, out) hm2_XXXX.N.ssi.MM.<name>.reset. +
+ When this pin is set high the counts and position pins are zeroed.
 h: (Split encoder, high-order bits)::
  Some encoders (Including Fanuc) place the encoder part-turn counts and
  full-turn counts in separate, non-contiguous fields. This tag defines
@@ -545,11 +535,10 @@ m: (Multi-turn)::
 Two parameters are universally created for all SSI instances
 
 hm2_XXXX.N.ssi.MM.frequency-khz (float r/w)::
- This parameter sets the SSI clock frequency. The units are kHz, so 500
- will give a clock frequency of 500,000 Hz.
+ This parameter sets the SSI clock frequency. The units are kHz, so 500 will give a clock frequency of 500,000 Hz.
 hm2_XXXX.N.ssi.timer-number-num (s32 r/w)::
- This parameter allocates the SSI module to a specific hm2dpll timer
- instance. This pin is only of use in firmwares which contain a hm2dpll
+ This parameter allocates the SSI module to a specific hm2dpll timer instance.
+ This pin is only of use in firmwares which contain a hm2dpll
  function and will default to 1 in cases where there is such a
  function, and 0 if there is not. The pin can be used to disable reads
  of the encoder, by setting to a nonexistent timer number, or to 0.

@@ -321,7 +321,8 @@ see <<python:reading-ini-values,ReadingINI file values>> for an example.
 *settings*:: '(returns tuple of floats)' -
   current interpreter settings: +
   settings[0] = sequence number, +
-  settings[1] = feed rate, settings[2] = speed, +
+  settings[1] = feed rate, +
+  settings[2] = speed, +
   settings[3] = `G64 P` blend tolerance, +
   settings[4] = `G64 Q` naive CAM tolerance.
 
