@@ -88,6 +88,10 @@ DROLabel[isHomed=false] {
     color: red;
 }
 
+UserDROLabel{
+    font: 18pt "Lato Heavy";
+}
+
 QLabel#lbl_cycle_start,
 QLabel#lbl_home_all {
     font: 10pt "Lato Heavy";
