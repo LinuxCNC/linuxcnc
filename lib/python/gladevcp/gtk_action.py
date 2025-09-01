@@ -191,14 +191,23 @@ class _Lcnc_Action(object):
             self.ensure_mode(premode)
         return 0
 
-    def CALL_INI_MDI(self, number):
+    def CALL_INI_MDI(self, key):
         try:
-            mdi = INFO.MDI_COMMAND_LIST[number]
+            # prefer named INI MDI commands
+            mdi = INFO.get_ini_mdi_command(key)
+            LOG.debug('COMMAND= {}'.format(mdi))
+            if mdi is None: raise Exception
         except:
-            msg = 'MDI_COMMAND= # {} Not found under [MDI_COMMAND_LIST] in INI file'.format(number)
-            LOG.error(msg)
-            self.SET_ERROR_MESSAGE(msg)
-            return
+            # fallback to legacy nth line
+            try:
+                mdi = INFO.MDI_COMMAND_LIST[key]
+            except:
+                msg = 'MDI_COMMAND_{} Not found under [MDI_COMMAND_LIST] in INI file'.format(key)
+                LOG.error(msg)
+                self.SET_ERROR_MESSAGE(msg)
+                return
+
+
         mdi_list = mdi.split(';')
         self.ensure_mode(linuxcnc.MODE_MDI)
         for code in (mdi_list):
