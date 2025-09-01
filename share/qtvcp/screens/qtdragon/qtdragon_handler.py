@@ -901,6 +901,7 @@ class HandlerClass:
 
     # called from hal_glib to run macros from external event
     def request_macro_call(self, data):
+        print('macro request:',data)
         if not STATUS.is_mdi_mode():
             self.add_status(_translate("HandlerClass",'Machine must be in MDI mode to run macros'), CRITICAL)
             return
@@ -925,6 +926,8 @@ class HandlerClass:
                 self.add_status(_translate("HandlerClass",'Running macro: {} {}'.format(key, text)))
                 button.click()
                 break
+        else:
+            self.add_status(_translate("HandlerClass","can't find button for macro: {}".format(data)))
 
     #######################
     # CALLBACKS FROM FORM #
@@ -2084,9 +2087,14 @@ class HandlerClass:
 
     def dialog_ext_control(self, pin, value, answer):
         if value:
+            # handler defined dialog?
             if not self._dialog_message is None:
                 name = self._dialog_message.get('NAME')
                 STATUS.emit('dialog-update',{'NAME':name,'response':answer})
+            else:
+                # tool change dialog?
+                if self.w.toolDialog_.isVisible():
+                    STATUS.emit('dialog-update',{'NAME':'TOOLCHANGE','response':answer})
 
     def log_version(self):
         if INFO.RIP_FLAG:
