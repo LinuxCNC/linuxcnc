@@ -18,7 +18,7 @@ class _IStat(object):
         global LOG
         LOG = logger.getLogger(__name__)
         # Force the log level for this module only
-        #LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+        LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
         inipath = os.environ.get('INI_FILE_NAME', '/dev/null')
         self.LINUXCNC_IS_RUNNING = bool(inipath != '/dev/null')
@@ -570,7 +570,7 @@ class _IStat(object):
         if self.INI.hassection('MDI_COMMAND_LIST'):
             try:
                 for key,value in self.INI.getvariables('MDI_COMMAND_LIST'):
-
+                    #print(f'key:{key},value:{value}')
                     # legacy way: list of repeat 'MDI_COMMAND=XXXX'
                     # in this case order matters in the INI
                     if key == 'MDI_COMMAND':
@@ -597,24 +597,51 @@ class _IStat(object):
 
                     # new way: 'MDI_COMMAND_SSS = XXXX' (SSS being any string)
                     # order of commands doesn't matter in the INI
+
+                    # here are some samples, the last three are difficult
+                    # the third is invalid
+                    # MDI_COMMAND_MACRO1 = G53 G0 Z0;G53 G0 X0 Y0,Goto\nMachn\nZero
+                    #    cmd: G53 G0 Z0;G53 G0 X0 Y0  label: Goto\nMachn\nZero
+
+                    # MDI_COMMAND_MACRO2 = (MSG, macro 2);
+                    #    cmd: (MSG, macro 2);  label:
+
+                    # MDI_COMMAND_MACRO3 = (MSG, macro 2)
+                    #    cmd: (MSG  label:  macro 2)
+
+                    # MDI_COMMAND_MACRO4 = (MSG, macro 2),test
+                    #    cmd: (MSG, macro 2)  label: test
+
                     else:
                         self.MDI_COMMAND_LIST.append(None)
                         self.MDI_COMMAND_LABEL_LIST.append(None)
                         try:
                             name = (key.replace('MDI_COMMAND_',''))
                             mdidatadict = {}
-                            for num,k in enumerate(value.split(',')):
-                                if num == 0:
-                                    mdidatadict['cmd'] = k
-                                    if len(value.split(',')) <2:
-                                        mdidatadict['label'] = None
-                                else:
-                                    mdidatadict['label'] = k
+                            #print(f'name:{name}')
+                            # find the last colon in string or 0
+                            lastCmd = value.rfind(';')
+                            #print('l ;:',lastCmd)
+                            if lastCmd == -1: lastCmd = 0
+
+                            # find the last colon in string or use the string length
+                            lastComma = value.rfind(',', lastCmd)
+                            #print('l comma:',lastComma,lastCmd)
+                            if lastComma == -1: lastComma = len(value)
+
+                            label = value[lastComma+1:]
+                            cmd = value[:lastComma]
+                            #print(value,' cmd:',cmd,' label:',label)
+
+                            mdidatadict['cmd'] = cmd
+                            mdidatadict['label'] = label
                             self.MDI_COMMAND_DICT[name] = mdidatadict
+
                         except Exception as e:
                             LOG.error('INI MDI command parse error:{}'.format(e))
             except Exception as e:
                 LOG.error('INI MDI command parse error:{}'.format(e))
+            print(self.MDI_COMMAND_DICT)
 
         ################
         # MACRO commands #
