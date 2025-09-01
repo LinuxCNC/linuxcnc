@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>313</width>
+    <height>467</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QHBoxLayout" name="horizontalLayout">
+    <item>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QGroupBox" name="groupBox">
+        <property name="title">
+         <string>Axis Selection</string>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <item>
+          <widget class="PushButton" name="pushbutton_9">
+           <property name="text">
+            <string>None</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="autoExclusive">
+            <bool>true</bool>
+           </property>
+           <property name="pin_name" stdset="0">
+            <string>axis-none</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="PushButton" name="pushbutton">
+           <property name="text">
+            <string>X</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="autoExclusive">
+            <bool>true</bool>
+           </property>
+           <property name="pin_name" stdset="0">
+            <string>axis-x</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="PushButton" name="pushbutton_2">
+           <property name="text">
+            <string>Y</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="autoExclusive">
+            <bool>true</bool>
+           </property>
+           <property name="pin_name" stdset="0">
+            <string>axis-y</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="PushButton" name="pushbutton_3">
+           <property name="text">
+            <string>Z</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="autoExclusive">
+            <bool>true</bool>
+           </property>
+           <property name="pin_name" stdset="0">
+            <string>axis-z</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="groupBox_4">
+        <property name="title">
+         <string>Axis Jog</string>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_5">
+         <item>
+          <widget class="PushButton" name="pushbutton_7">
+           <property name="text">
+            <string>+</string>
+           </property>
+           <property name="pin_name" stdset="0">
+            <string>jog-pos</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="PushButton" name="pushbutton_8">
+           <property name="text">
+            <string>-</string>
+           </property>
+           <property name="pin_name" stdset="0">
+            <string>jog-neg</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="groupBox_2">
+        <property name="title">
+         <string>jog rate</string>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="Slider" name="slider">
+           <property name="maximum">
+            <number>300</number>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="pin_name" stdset="0">
+            <string>Jog-rate</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="groupBox_3">
+        <property name="title">
+         <string>MDI Comands</string>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <item>
+          <widget class="PushButton" name="pushbutton_4">
+           <property name="text">
+            <string>0</string>
+           </property>
+           <property name="pin_name" stdset="0">
+            <string>mdi-0</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="PushButton" name="pushbutton_5">
+           <property name="text">
+            <string>1</string>
+           </property>
+           <property name="pin_name" stdset="0">
+            <string>mdi-1</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="PushButton" name="pushbutton_6">
+           <property name="text">
+            <string>2</string>
+           </property>
+           <property name="pin_name" stdset="0">
+            <string>mdi-2</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="groupBox_5">
+        <property name="title">
+         <string>Mode Comands</string>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_6">
+         <item>
+          <widget class="PushButton" name="pushbutton_10">
+           <property name="text">
+            <string>Manual</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="autoExclusive">
+            <bool>true</bool>
+           </property>
+           <property name="pin_name" stdset="0">
+            <string>manual-mode</string>
+           </property>
+           <property name="indicator_option" stdset="0">
+            <bool>true</bool>
+           </property>
+           <property name="indicator_status_option" stdset="0">
+            <bool>true</bool>
+           </property>
+           <property name="is_manual_status" stdset="0">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="PushButton" name="pushbutton_11">
+           <property name="text">
+            <string>MDI</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="autoExclusive">
+            <bool>true</bool>
+           </property>
+           <property name="pin_name" stdset="0">
+            <string>mdi-mode</string>
+           </property>
+           <property name="indicator_option" stdset="0">
+            <bool>true</bool>
+           </property>
+           <property name="indicator_status_option" stdset="0">
+            <bool>true</bool>
+           </property>
+           <property name="is_mdi_status" stdset="0">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="PushButton" name="pushbutton_12">
+           <property name="text">
+            <string>Auto</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+           <property name="autoExclusive">
+            <bool>true</bool>
+           </property>
+           <property name="pin_name" stdset="0">
+            <string>auto-mode</string>
+           </property>
+           <property name="indicator_option" stdset="0">
+            <bool>true</bool>
+           </property>
+           <property name="indicator_status_option" stdset="0">
+            <bool>true</bool>
+           </property>
+           <property name="is_auto_status" stdset="0">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="groupBox_7">
+        <property name="title">
+         <string>program control</string>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_9">
+         <item>
+          <widget class="PushButton" name="pushbutton_16">
+           <property name="text">
+            <string>start</string>
+           </property>
+           <property name="pin_name" stdset="0">
+            <string>cycle-start</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="PushButton" name="pushbutton_20">
+           <property name="text">
+            <string>pause</string>
+           </property>
+           <property name="pin_name" stdset="0">
+            <string>cycle-pause</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="PushButton" name="pushbutton_17">
+           <property name="text">
+            <string>Abort</string>
+           </property>
+           <property name="pin_name" stdset="0">
+            <string>cycle-abort</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
+       <widget class="QGroupBox" name="groupBox_8">
+        <property name="title">
+         <string>dialog control</string>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_10">
+         <item>
+          <widget class="PushButton" name="pushbutton_18">
+           <property name="text">
+            <string>ok</string>
+           </property>
+           <property name="pin_name" stdset="0">
+            <string>ok</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="PushButton" name="pushbutton_19">
+           <property name="text">
+            <string>cancel</string>
+           </property>
+           <property name="pin_name" stdset="0">
+            <string>cancel</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>313</width>
+     <height>22</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>PushButton</class>
+   <extends>QPushButton</extends>
+   <header>qtvcp.widgets.simple_widgets</header>
+  </customwidget>
+  <customwidget>
+   <class>Slider</class>
+   <extends>QSlider</extends>
+   <header>qtvcp.widgets.simple_widgets</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
