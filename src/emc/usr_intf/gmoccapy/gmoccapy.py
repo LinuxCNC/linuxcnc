@@ -419,6 +419,8 @@ class gmoccapy(object):
         self.GSTAT.connect("graphics-gcode-properties", self.on_gcode_properties)
         self.GSTAT.connect("file-loaded", self.on_hal_status_file_loaded)
         self.GSTAT.connect('macro-call-request', lambda w, name: self.request_macro_call(name))
+        self.GSTAT.connect('cycle-start-request', lambda w, state :self.request_start(state))
+        self.GSTAT.connect('cycle-pause-request', lambda w, state: self.request_pause(state))
 
         # get if run from line should be used
         self.run_from_line = self.prefs.getpref("run_from_line", "no_run", str)
@@ -1351,6 +1353,14 @@ class gmoccapy(object):
                 btn.set_size_request(self.jog_btn_size, self.jog_btn_size)
 
                 self.joints_button_dic[name] = btn
+
+    def request_start(self,data):
+        print('start')
+        self.widgets.btn_run.emit('clicked')
+
+    def request_pause(self,data):
+        print('pause')
+        self.widgets.tbtn_pause.emit('clicked')
 
     # call INI macro (from hal_glib message)
     def request_macro_call(self, data):
