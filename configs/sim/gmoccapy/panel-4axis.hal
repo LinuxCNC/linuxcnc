@@ -1,0 +1,65 @@
+net rate    halui.axis.jog-speed panel.jog-rate
+net angular-rate    halui.axis.jog-speed-angular     panel.jog-rate-angular
+
+net sx  halui.axis.x.select  panel.axis-x
+net sy  halui.axis.y.select  panel.axis-y
+net sz  halui.axis.z.select  panel.axis-z
+net sc  halui.axis.c.select  panel.axis-c
+
+net sx  axis.x.jog-enable
+net sy  axis.y.jog-enable
+net sz  axis.z.jog-enable
+net sc  axis.c.jog-enable
+net sgui  halui.mpg-select.0  panel.select-gui0
+
+net jog-p   halui.axis.selected.plus    panel.jog-pos
+net jog-m   halui.axis.selected.minus   panel.jog-neg
+
+net mpg-scale   axis.x.jog-scale    panel.mpg-scale
+net mpg-scale   axis.y.jog-scale
+net mpg-scale   axis.z.jog-scale
+net mpg-scale   axis.c.jog-scale
+
+net mpg-count     panel.mpg-wheel-s
+net mpg-count     gmoccapy.mpg-in
+net mpg-count     axis.x.jog-counts
+net mpg-count     axis.y.jog-counts
+net mpg-count     axis.z.jog-counts
+net mpg-count     axis.c.jog-counts
+
+net m0  halui.gui.mdi-command-MACRO0    panel.mdi-0
+net m1  halui.gui.mdi-command-MACRO1    panel.mdi-1
+net m2  halui.gui.mdi-command-MACRO2    panel.mdi-2
+
+net man panel.manual-mode   halui.mode.manual
+net mdi panel.mdi-mode      halui.mode.mdi
+net auto panel.auto-mode    halui.mode.auto
+
+net pause   halui.gui.cycle.start  panel.cycle-start
+net start   halui.gui.cycle.pause  panel.cycle-pause
+net abort   halui.abort            panel.cycle-abort
+
+net cancel  halui.gui.cancel panel.cancel
+net ok      halui.gui.ok     panel.ok
+
+
+net softkey0  halui.gui.softkey-0    panel.softkey-v0
+net softkey1  halui.gui.softkey-1    panel.softkey-v1
+net softkey2  halui.gui.softkey-2    panel.softkey-v2
+net softkey3  halui.gui.softkey-3    panel.softkey-v3
+net softkey4  halui.gui.softkey-4    panel.softkey-v4
+net softkey5  halui.gui.softkey-5    panel.softkey-v5
+net softkey6  halui.gui.softkey-6    panel.softkey-v6
+net softkeyh0  halui.gui.softkey-10    panel.softkey-h0
+net softkeyh1  halui.gui.softkey-11    panel.softkey-h1
+net softkeyh2  halui.gui.softkey-12    panel.softkey-h2
+net softkeyh3  halui.gui.softkey-13    panel.softkey-h3
+net softkeyh4  halui.gui.softkey-14    panel.softkey-h4
+net softkeyh5  halui.gui.softkey-15    panel.softkey-h5
+net softkeyh6  halui.gui.softkey-16    panel.softkey-h6
+net softkeyh7  halui.gui.softkey-17    panel.softkey-h7
+net softkeyh8  halui.gui.softkey-18    panel.softkey-h8
+net softkeyh9  halui.gui.softkey-19    panel.softkey-h9
+
+net exit      halui.gui.shutdown       panel.exit
+net reload    halui.gui.reload-display panel.reload
