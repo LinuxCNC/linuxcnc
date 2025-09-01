@@ -2,6 +2,6 @@
 
 set -e
 
-xvfb-run halrun do-test.hal &
+xvfb-run halrun -s do-test.hal &
 
 exit 0
