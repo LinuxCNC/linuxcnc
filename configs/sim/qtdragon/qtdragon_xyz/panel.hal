@@ -1,17 +1,19 @@
-net rate halui.axis.jog-speed panel.Jog-rate-f
+net rate    halui.axis.jog-speed panel.Jog-rate-f
 
-net sx halui.axis.x.select  panel.axis-x
-net sy halui.axis.y.select  panel.axis-y
-net sz halui.axis.z.select  panel.axis-z
+net sx  halui.axis.x.select  panel.axis-x
+net sy  halui.axis.y.select  panel.axis-y
+net sz  halui.axis.z.select  panel.axis-z
 
-net jog-p halui.axis.selected.plus
-net jog-m halui.axis.selected.minus
-net m0 halui.gui.mdi-command-MACRO0 panel.mdi-0
-net m1 halui.gui.mdi-command-MACRO1 panel.mdi-1
+net jog-p   halui.axis.selected.plus    panel.jog-pos
+net jog-m   halui.axis.selected.minus   panel.jog-neg
 
-net pause halui.cycle.start panel.cycle-start
-net start halui.cycle.pause panel.cycle-pause
+#net m0  halui.gui.mdi-command-MACRO0    panel.mdi-0
+#net m1  halui.gui.mdi-command-MACRO1    panel.mdi-1
+#net m2  halui.gui.mdi-command-0    panel.mdi-2
 
-net cancel halui.gui.cancel panel.cancel
+net pause   halui.cycle.start panel.cycle-start
+net start   halui.cycle.pause panel.cycle-pause
+
+net cancel  halui.gui.cancel panel.cancel
 net ok    halui.gui.ok     panel.ok
 
