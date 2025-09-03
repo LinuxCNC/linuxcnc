@@ -22,4 +22,3 @@ mypanel float IN 0 mypanel.spinbox-c-in
 mypanel float OUT 0 mypanel.spinbox-c-out
 mypanel float OUT 0 mypanel.spinbox.0
 mypanel float IN 0 mypanel.spinbox.2.param_pin
-
