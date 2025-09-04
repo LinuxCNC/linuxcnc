@@ -9,13 +9,14 @@
 # hyp90 <jexsp1224@gmail.com>, 2024.
 # 飞飞 <vip74120@gmail.com>, 2024.
 # Tron Lee <472734894@qq.com>, 2024.
+# Atom <superatom@sohu.com>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: LinuxCNC EMC2.8.0\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-10-05 14:29+0200\n"
-"PO-Revision-Date: 2024-11-21 20:40+0000\n"
-"Last-Translator: Tron Lee <472734894@qq.com>\n"
+"PO-Revision-Date: 2025-08-22 12:21+0000\n"
+"Last-Translator: Atom <superatom@sohu.com>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
 "linuxcnc/linuxcnc/zh_Hans/>\n"
 "Language: zh_CN\n"
@@ -23,7 +24,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.9-dev\n"
+"X-Generator: Weblate 5.13\n"
 "X-Poedit-Language: Chinese\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -4137,9 +4138,8 @@ msgstr "无法添加新部件。 已满?"
 
 #: src/hal/classicladder/manager_gtk.c:236
 #: src/hal/classicladder/manager_gtk.c:306
-#, fuzzy
 msgid "Not possible when program running..."
-msgstr "程序运行时被禁止"
+msgstr "程序运行时无法继续..."
 
 #: src/hal/classicladder/manager_gtk.c:247
 #, fuzzy
@@ -7738,12 +7738,15 @@ msgid "Insert tool %d and click continue when ready"
 msgstr "插入刀具 %d，准备好后点击继续"
 
 #: src/emc/usr_intf/axis/scripts/hal_manualtoolchange.py:76
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "\n"
 "\n"
 "Error: %s"
-msgstr "错误: "
+msgstr ""
+"\n"
+"\n"
+"错误: %s"
 
 #: src/emc/usr_intf/axis/scripts/hal_manualtoolchange.py:93
 msgid "AXIS Manual Toolchanger"
@@ -8017,9 +8020,8 @@ msgid "_Save G-code as..."
 msgstr "文件另存为.."
 
 #: share/axis/tcl/axis.tcl:80
-#, fuzzy
 msgid "G-code _properties..."
-msgstr "G-代码属性"
+msgstr "G-代码属性..."
 
 #: share/axis/tcl/axis.tcl:86
 msgid "Edit _tool data..."
@@ -10870,9 +10872,8 @@ msgid "Create a desktop _launcher to start LinuxCNC with this configuration"
 msgstr "创建桌面快捷方式以使用此配置启动LinuxCNC。"
 
 #: src/emc/usr_intf/stepconf/start.glade:105
-#, fuzzy
 msgid "Create simulated hardware configuration"
-msgstr "创建模拟硬件配置。"
+msgstr "创建虚拟硬件配置"
 
 #: src/emc/usr_intf/stepconf/start.glade:129
 #: src/emc/usr_intf/pncconf/start.glade:63
@@ -11551,6 +11552,7 @@ msgstr "反向"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
 msgid ""
 "_:"
+""
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -16245,23 +16247,20 @@ msgid "Smart Serial 7"
 msgstr "智能串口 0"
 
 #: src/emc/usr_intf/pncconf/start.glade:27
-#, fuzzy
 msgid "Create a desktop launcher to start LinuxCNC with this configuration"
-msgstr "创建桌面快捷方式以使用此配置启动LinuxCNC。"
+msgstr "为LinuxCNC 创建桌面快捷方式"
 
 #: src/emc/usr_intf/pncconf/start.glade:44
-#, fuzzy
 msgid "Create a desktop shortcut (symlink) to configuration files"
-msgstr "为配置文件创建桌面快捷方式(符号链接)。"
+msgstr "创建桌面快捷方式(符号链接)"
 
 #: src/emc/usr_intf/pncconf/start.glade:129
 msgid "Show Advanced Option Pages"
 msgstr "显示高级选项"
 
 #: src/emc/usr_intf/pncconf/start.glade:158
-#, fuzzy
 msgid "Use INI substitution for Mesa board names"
-msgstr "使用INI替换Mesa板的名称。"
+msgstr "使用INI替换Mesa控制板的名称"
 
 #: src/emc/usr_intf/pncconf/external.glade:157
 msgid "9600"
