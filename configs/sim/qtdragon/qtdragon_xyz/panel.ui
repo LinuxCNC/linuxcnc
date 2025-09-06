@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>313</width>
-    <height>467</height>
+    <width>404</width>
+    <height>560</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -126,15 +126,15 @@
         </property>
         <layout class="QHBoxLayout" name="horizontalLayout_3">
          <item>
-          <widget class="Slider" name="slider">
-           <property name="maximum">
-            <number>300</number>
-           </property>
+          <widget class="StatusSlider" name="statusslider">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
            <property name="pin_name" stdset="0">
-            <string>Jog-rate</string>
+            <string>jog-rate</string>
+           </property>
+           <property name="jograte_rate" stdset="0">
+            <bool>true</bool>
            </property>
           </widget>
          </item>
@@ -341,7 +341,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>313</width>
+     <width>404</width>
      <height>22</height>
     </rect>
    </property>
@@ -355,9 +355,9 @@
    <header>qtvcp.widgets.simple_widgets</header>
   </customwidget>
   <customwidget>
-   <class>Slider</class>
+   <class>StatusSlider</class>
    <extends>QSlider</extends>
-   <header>qtvcp.widgets.simple_widgets</header>
+   <header>qtvcp.widgets.status_slider</header>
   </customwidget>
  </customwidgets>
  <resources/>
