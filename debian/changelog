@@ -1,3 +1,104 @@
+linuxcnc (1:2.9.5) UNRELEASED; urgency=medium
+
+  * tests: save.1 test removed. It's been skipped for 19 years.
+  * Merge pull request #3529 from LinuxCNC/andypugh/tests/spindle_limits
+  * Merge pull request #3553 from Sigma1912/patch-2
+  * Merge pull request #3552 from Sigma1912/halui_fix_axis_and_mdi_command_pins
+  * halui: on startup, set the first configured axis as 'is-selected' instead of X
+  * halui: Don't create 'halui.axis.'- pins for unconfigured axes
+  * qtvcp versa probe: remember setting of auto skew/zero buttons we reopened
+  * PyVCP test: result file formatting fixes (#3551)
+  * Merge pull request #3537 from DauntlessAq/probe_error_decel_no_inhibit_2.9
+  * stepconf -fix human input names in wrong order
+  * Tests: Add a test for PyVCP - Specifically Issue #3538
+  * Merge pull request #3540 from andronick83/patch-1
+  * Added missing period to description of G95. (PR #3542)
+  * Deprecate gantry.comp
+  * Fix #3538 - "halparam" tag not working in PyVCP
+  * probe_error_decel_no_inhibit rebased for 2.9
+  * Delete tests/spindle_limits/test.ini
+  * tests: Add a test for spindle INI speed limits function
+  * Fix a race; add a test to ensure the 'result' and 'stderr' files are closed before continuing to run 'checkresult'.
+  * Fix command-line directories acceptance by correct expansion.
+  * Fix a race between setting the signal handlers and marking hal_ready().
+  * The quit_flag is volatile because it is changed in a signal and used in threads.
+  * remove buster from CI
+  * debian:  reduce Lintian Warnings. (hardening-no-relro: panelui, module_helper)
+  * Fixed word typo in remap.adoc (numberer->numbered).
+  * docs: Add back German translation link in stable branch index page.
+  * Merge pull request #3493 from BsAtHome/backport_2.9_fix-hm2_modbus
+  * Backport hm2_modbus fixes and additions from master.
+  * Merge pull request #3479 from Sigma1912/patch-1
+  * Update g-code.adoc
+  * Gladevcp: Update the .ui and .glade files in the sample configs to Gtk+3.0
+  * clarify documentation on stat 'gcodes' and (spindle)'speed' attributes
+  * Merge pull request #3460 from Sigma1912/2.9-Fix-preview-update-not-respecting-active-wcs
+  * Don't use  RS274NGC_STARTUP_CODE when updating the preview
+  * Merge pull request #3454 from Sigma1912/2.9_Fix_issue_3447
+  * Gmoccapy: Fix very large numbers for spindle speed and 'Vc' in the gui when using G96
+  * Gmoccapy: Fix 'spindle.0.speed-out' pins being reset to wrong value when using G96
+  * Merge pull request #3446 from BsAtHome/backport_2.9_hm2_modbus
+  * Python 3.7 (Debian 10) has no dictionary merge operator, use alternative syntax.
+  * Split declaration/assignment with label because it is not accepted by the compiler in Debian 10 and 11.
+  * Backport new hm2_modbus driver to 2.9 branch.
+  * Merge pull request #3425 from BsAtHome/backport_2.9_fix-deprecated
+  * Merge pull request #3388 from smoe/patch-18
+  * Merge pull request #3445 from BsAtHome/backport_2.9_fix-python-313
+  * Make 2.9 branch compile with python 3.13
+  * Merge pull request #3422 from BsAtHome/backport_2.9_fix_re-syntax-warning
+  * Merge pull request #3429 from smoe/typos_29
+  * 2.9: typos, punctuation in comments
+  * Make using PyConfig conditional on python version >= 3.8.
+  * Merge pull request #3423 from BsAtHome/backport_2.9_fix_debug-O0
+  * Merge pull request #3424 from BsAtHome/backport_2.9_fix-comment-in-comment
+  * Merge pull request #3421 from BsAtHome/backport_2.9_fix_link-version-script
+  * Fix deprecated Py_SetProgramName() and deprecated use of Py_UnbufferedStdioFlag.
+  * Fix comment in comment
+  * Remove forced -O0 optimization flag.
+  * Fix invalid escape sequence warnings from halcompile and hal components.
+  * Use objdump and awk to extract the rtapi exported symbols
+  * Merge pull request #3416 from BsAtHome/fix_2.9_ci-update
+  * Fix missing parity error definition
+  * Update CI base for 2.9 branch to Ubuntu 24.04.
+  * Backport fix of modcompile
+  * Merge pull request #3412 from BsAtHome/backport_2.9_fix_update-pktuart-v3
+  * Merge pull request #3411 from BsAtHome/backport_fix_make-noise
+  * Merge pull request #3410 from BsAtHome/backport_2.9_fix-pointer-compare
+  * Varargs export of function is not available in 2.9.
+  * Update dependencies with PktUART update. Fix crash bugs and warnings in modbus template.
+  * Update, fix and reorganize hostmot2 PktUART to support V3.
+  * Remove make terminal clutter
+  * Use pointer null compare instead of integer compare.
+  * Merge pull request #3407 from BsAtHome/backport-fix_hm2-constify
+  * Merge pull request #3405 from BsAtHome/backport-fix_test-halcompile
+  * Use const char pointers. Add missing pktuart calls. Prevent hal name overruns.
+  * Add stdio.h header for readline versions that need it.
+  * debian: updating debian-uploads' changelogs
+  * debian: Addressing usrmerge
+  * debian: Added Andy as uploader
+  * debian: Updated policy standard to 4.7.2
+  * orient: Commit 79c0966 had an un-noticed effect on the behaviour of M19 reported in issue #3389
+  * Merge pull request #3392 from Sigma1912/2.9-ServoToGo_remove-web-link-to-spamsite
+  * ServoToGo: remove old weblinks that now redirect to a spam site
+  * halui -fix spindle override using direct value.
+  * gmoccapy: fix setting to disable "run from line"
+  * halscope: set button left and right padding to 0 to allow smaller window size
+  * docs: update halscope channel off function + update images
+  * Fix missing semicolon
+  * qtdragon_hd_vert -add a sample config for vertical layout.
+  * qtvcp -qtdragon_hd_vert: add a vertical layout version
+  * Merge pull request #3339 from NTULINUX/ntulinux/2.9-fixes
+  * getting-linuxcnc.adoc: Remove spurious backslash in path to iso.
+  * .gitignore fixes
+  * Merge pull request #3330 from hansu/gmoccapy-fix-resizing
+  * gmoccapy: change text to icons of undo/redo buttons to fit window size
+  * interp_o_word.cc: Insert almost-certainly-missing "breaks" addresses #3290
+  * qtvcp -vismach gantry_5axis: fix cleanup of HAL component
+  * qtvcp -vismach millturn: fix cleanup of HAL component
+  * qtvcp -vismach_fanuc_200f- fix cleanup of HAL component
+
+ -- andypugh <andy@bodgesoc.org>  Sat, 06 Sep 2025 21:20:33 +0100
+
 linuxcnc (1:2.9.4-2) unstable; urgency=medium
 
   * Team upload.
