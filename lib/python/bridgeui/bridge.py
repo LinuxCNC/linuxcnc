@@ -97,7 +97,7 @@ class Bridge(object):
         self.readSocket.connect(self.readAddress)
 
     # callback from ZMQ read socket
-    def readMsg(self, msg):
+    def readMsg(self):
         if self.readSocket.getsockopt(zmq.EVENTS) & zmq.POLLIN:
             while self.readSocket.getsockopt(zmq.EVENTS) & zmq.POLLIN:
                 # get raw message

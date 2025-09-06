@@ -1875,9 +1875,8 @@ static void py_call_axis_jogspeed(double speed)
             if (pValue == NULL){
                 fprintf(stderr, "halui bridge: writeMsg function failed: returned NULL\n");
                 if (PyErr_Occurred()) PyErr_Print();
-            }else{
-                Py_DECREF(pValue);
             }
+            Py_DECREF(pValue);
 
         }else{
             if (PyErr_Occurred()) PyErr_Print();
@@ -1924,9 +1923,8 @@ static void py_call_axis_changed( int axis)
             if (pValue == NULL){
                 fprintf(stderr, "halui bridge: writeMsg function failed: returned NULL\n");
                 if (PyErr_Occurred()) PyErr_Print();
-            }else{
-                Py_DECREF(pValue);
             }
+            Py_DECREF(pValue);
 
         }else{
             if (PyErr_Occurred()) PyErr_Print();
@@ -1944,9 +1942,8 @@ static void py_call_request_MDI( int index)
             if (pValue == NULL){
                 fprintf(stderr, "halui bridge: runIndexedMacro function failed: returned NULL\n");
                 if (PyErr_Occurred()) PyErr_Print();
-            }else{
-                Py_DECREF(pValue);
             }
+            Py_DECREF(pValue);
 
         }else{
             if (PyErr_Occurred()) PyErr_Print();
@@ -1972,8 +1969,9 @@ static void check_hal_changes()
 
         // get python to process socket messages
         pFuncRead = PyObject_GetAttrString(pInstance, "readMsg");
+
         if (pFuncRead && PyCallable_Check(pFuncRead)) {
-            pValue = PyObject_CallFunction(pFuncRead, "O", pClass);
+            pValue = PyObject_CallNoArgs(pFuncRead);
             if (pValue == NULL){
                 fprintf(stderr, "Halui Bridge: readMsg function failed: returned NULL\n");
             }
@@ -1985,6 +1983,8 @@ static void check_hal_changes()
                 fprintf(stderr, "Bridge: Failed python function");
                 exit(1);
         }
+        Py_DECREF(pFuncRead);
+        Py_DECREF(pValue);
 
     // check socket messages for current axis selection
     int value = py_call_get_axis_selected();
@@ -2766,6 +2766,7 @@ int main(int argc, char *argv[])
         fprintf(stderr, "bridge: Failed to load \"%s\"\n", "pyui");
         exit(1);
     }
+    Py_DECREF(pClass);
 
     // get configuration information
     if (0 != iniLoad(emc_inifile)) {
