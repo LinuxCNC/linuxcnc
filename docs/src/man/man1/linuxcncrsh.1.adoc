@@ -216,7 +216,7 @@ Subcommands for *get* and *set* are:
 
 *set_timeout* _<timeout>_::
   With set, set the timeout for commands to return to <timeout> seconds.
-  Timeout is a real number. If it's <= 0.0, it means wait forever.
+  _timeout_ is a real number. If it's <= 0.0, it means wait forever.
   Default is 0.0, wait forever.
 
 *update* { none | auto }::
@@ -265,12 +265,12 @@ Subcommands for *get* and *set* are:
   "forward", "reverse", "increase", "decrease", or "off".
   With set, sets the spindle as specified. Note that "increase" and "decrease"
   will cause a speed change in the corresponding direction until a "constant" command is sent.
-  If "spindle" is omitted, spindle 0 is selected.  If -1, all spindles are selected.
+  If _<spindle>_ is omitted, spindle 0 is selected.  If -1, all spindles are selected.
 
-*brake* { on | off } {<spindle>}::
+*brake* { on | off } {_<spindle>_}::
   With get, any parameter is ignored and the current brake setting is returned.
   With set, the brake is set as specified.
-  If "spindle" is omitted, spindle 0 is selected.
+  If _<spindle>_ is omitted, spindle 0 is selected.
   If -1, all spindles are selected.
 
 *tool*::
@@ -279,8 +279,8 @@ Subcommands for *get* and *set* are:
 *tool_offset*::
   With get, returns the currently applied tool length offset.
 
-*load_tool_table* <file>::
-  With set, loads the tool table specified by <file>.
+*load_tool_table* _<file>_::
+  With set, loads the tool table specified by _<file>_.
 
 *home* {0|1|2|...} | -1::
   With set, homes the indicated joint or, if -1, homes all joints.
@@ -289,12 +289,12 @@ Subcommands for *get* and *set* are:
   With set, stop any in-progress jog on the specified joint or axis.
   If TELEOP_ENABLE is OFF, use __joint_number__.  If TELEOP_ENABLE is ON, use __axis_letter__.
 
-_jog joint_number_ | _axis_letter_ _<speed>_::
-  With set, jog the specified joint or axis at <speed>; sign of speed is direction.
+__jog joint_number__ | __axis_letter__ _<speed>_::
+  With set, jog the specified joint or axis at _<speed>_; sign of speed is direction.
   If TELEOP_ENABLE is OFF, use joint_number; If TELEOP_ENABLE is ON, use axis_letter.
 
 *jog_incr* __jog_number__ | __axis_letter__ __<speed>__ __<incr>__::
-  With set, jog the indicated joint or axis by increment <incr> at the _<speed>_;
+  With set, jog the indicated joint or axis by increment _<incr>_ at the _<speed>_;
   sign of speed is direction. If TELEOP_ENABLE is OFF, use __joint_number__.
   If TELEOP_ENABLE is ON, use __axis_letter__.
 
@@ -305,7 +305,7 @@ _jog joint_number_ | _axis_letter_ _<speed>_::
 *spindle_override* _<percent>_ {__<spindle>__}::
   With get, any parameter is ignored and the current spindle override is returned (as a percentage of commanded speed).
   With set, sets the spindle override as specified.
-  If "spindle" is omitted, spindle 0 is selected. If -1, all spindles are selected.
+  If _spindle_ is omitted, spindle 0 is selected. If -1, all spindles are selected.
 
 *abs_cmd_pos* [{0|1|...}]::
   With get, returns the specified axis' commanded position in absolute coordinates.
