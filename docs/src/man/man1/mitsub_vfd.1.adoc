@@ -15,7 +15,7 @@ connector.
 __number1__:: is the slave number that was set on the VFD. Must be two digits (Parameter 117).
 name__N__=number__N__:: can be repeated for multiple VFD's connected together.
 *--baud* _baudrate_:: is optional as it defaults to 9600, all networked vfds must be set to the same baudrate.
-*--port* _devicename_:: is optional as it defaults to `ttyS0``, a common alternative is `/dev/ttyUSB0`.
+*--port* _devicename_:: is optional as it defaults to `ttyS0`, a common alternative is `/dev/ttyUSB0`.
 
 == DESCRIPTION
 
@@ -99,7 +99,7 @@ _VFD_NAME_**.stat-bit-3** (bit, out):: Raw status bit. Configure the VFD so that
 _VFD_NAME_**.stat-bit-4** (bit, out):: Raw status bit
 _VFD_NAME_**.stat-bit-5** (bit, out):: Raw status bit
 _VFD_NAME_**.stat-bit-6** (bit, out):: Raw status bit
-_VFD_NAME_**.stat-bit-7** (bit, out):: Raw status bit. Configure the VFD so that the function 'alarm' is assigned to status bit 7 (parameter 195 for 700 series)
+_VFD_NAME_**.stat-bit-7** (bit, out):: Raw status bit. Configure the VFD so that the function 'alarm' is assigned to status bit 7 (parameter 195 for 700 series).
 
 == SAMPLE HAL
 

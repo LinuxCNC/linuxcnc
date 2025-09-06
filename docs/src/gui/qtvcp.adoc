@@ -233,7 +233,7 @@ Subclassing just means our handler file first loads the original handler file an
 This is useful for changing/adding behaviour while still retaining standard handler updates from LinuxCNC repositories.
 
 You may still need to use the handler copy dialog to copy the original handler file to decide how to patch it.
-See 'custom handler file'
+See 'custom handler file'.
 
 There should be a folder in the config folder; for screens: named '<CONFIG FOLDER>/qtvcp/screens/<SCREEN NAME>/' +
 add the handle patch file there, named like so <ORIGINAL SCREEN NAME>_handler.py, +
@@ -304,8 +304,8 @@ This file will be read and executed as Python code in the *handler file context*
 *Only local functions and local attributes* can be referenced. +
 Global libraries defined in the screen's handler file can be referenced by importing the handler file. +
 These are usually seen as all capital words with no preceding self. +
-'self' references the window class functions +
-'self.w' typically references the widgets
+'self' references the window class functions. +
+'self.w' typically references the widgets.
 
 What can be used can vary by screen and development cycle.
 

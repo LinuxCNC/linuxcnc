@@ -7,7 +7,7 @@ xyzbc-trt-gui - Vismach Virtual Machine GUI
 == DESCRIPTION
 
 *xyzbc-trt-gui* is one of the sample *Vismach* GUIs for LinuxCNC,
-simulating a 5-axis milling machine with tool-point kinematics
+simulating a 5-axis milling machine with tool-point kinematics.
 
 See the main LinuxCNC documentation for more details.
 

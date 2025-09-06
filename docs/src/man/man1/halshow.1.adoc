@@ -20,7 +20,7 @@ For format see https://www.tcl.tk/man/tcl8.6.11/TclCmd/format.html[]
 
 Example: "%.5f" displays a float with 5 digits right of the decimal point.
 
---noprefs:: Don't use preference file to save settings
+--noprefs:: Don't use preference file to save settings.
 
 == DESCRIPTION
 
@@ -39,8 +39,8 @@ LinuxCNC 2.9::
  - Added buttons for pin/parameter/signal manipulation.
  - Added menu entries for setting update interval, adding manually.
  - Added right-click menu for copy, set, unlink pin and remove from view.
- - Added button to expand/collapse the tree view
- - Added search entry
+ - Added button to expand/collapse the tree view.
+ - Added search entry.
 
 == BUGS
 

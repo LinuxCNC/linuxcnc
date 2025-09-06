@@ -409,7 +409,7 @@ Sets the _display color of the part based on a designated HAL bit pin state_. +
   `hal_comp`;; The _HAL component Object_ or None. +
     In QtVCP if you are reading _system pins_ directly, then the component argument is set to `None`. +
   `hal_pin`;; The _name of the BIT HAL IN pin_ that will change the color. +
-    if hal_comp is 'None' then this must be the full name of a system pin other wise this is the pin name excluding the component name
+    if hal_comp is 'None' then this must be the full name of a system pin other wise this is the pin name excluding the component name.
 
 === HALColorRGB
 Sets the _display color of the part based on a designated HAL U32 pin value_. +
@@ -424,7 +424,7 @@ combined as 0xXXBBGGRR +
   `hal_comp`;; The _HAL component Object_ or None. +
     In QtVCP if you are reading _system pins_ directly, then the component argument is set to `None`. +
   `hal_pin`;; The _name of the U32 HAL IN pin_ that will change the color. +
-    if hal_comp is 'None' then this must be the full name of a system pin other wise this is the pin name excluding the component name +
+    if hal_comp is 'None' then this must be the full name of a system pin other wise this is the pin name excluding the component name. +
   `alpha=`;; Sets the opacity. (0-1.0)
 
 === Heads Up Display
@@ -477,11 +477,10 @@ chuckassembly = HideCollection([chuckassembly],comp,'hide-chuck')
 chuckassembly = HideCollection([chuckassembly],None,'myvismach.hide-chuck') 
 ----
 
-=== Plot Color Based on Mtotion Type
-If you wish to plot different colors for different motions you need to add some more python code. +
+=== Plot Color Based on Motion Type
+If you wish to plot different colors for different motions you need to add some more Python code.
 
-
-add this at the top of the file:
+Add this at the top of the file:
 
 [source,python]
 ----
@@ -499,7 +498,8 @@ and this to the Window class:
         #v.setColorsAttribute('FEED',(0,1,0))
         #print(v.colors)
 ----
-You can set DEFAULT, FEED, TRAVERSE, ARC, PROBE, ROTARYINDEX, TOOLCHANGE colors with setColorsAttribute()
+
+You can set DEFAULT, FEED, TRAVERSE, ARC, PROBE, ROTARYINDEX, TOOLCHANGE colors with setColorsAttribute().
 
 === Capture
 This sets the current position in the model.
@@ -603,7 +603,7 @@ class Window(QWidget):
 
         # uncomment to change feed color
         #v.setColorsAttribute('FEED',(0,1,0))
-        #  and to see all colors printed to the terminal
+        # and to see all colors printed to the terminal
         #print(v.colors)
 
         v.model = Collection([model, world])
