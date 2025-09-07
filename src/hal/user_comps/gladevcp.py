@@ -260,6 +260,8 @@ def main():
     # at this point, any glade HL widgets and their pins are set up.
     handlers, mod, obj = load_handlers(opts.usermod,halcomp,builder,opts.useropts)
 
+    LOG.verbose('Object: {} handlers: {} mod {}'.format(obj,handlers, mod))
+
     # so widgets can call handler functions - give them refeence to the handler object
     panel.set_handler(obj)
 
