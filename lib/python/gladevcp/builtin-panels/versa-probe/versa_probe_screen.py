@@ -20,21 +20,23 @@ from gi.repository import Pango as pango
 import hal                  # base hal class to react to hal signals
 import os                   # needed to get the paths and directories
 import hal_glib             # needed to make our own hal pins
-import gtk.glade
+
 import sys                  # handle system calls
 import linuxcnc             # to get our own error system
 import gladevcp
 import time
 import math
 from linuxcnc import ini
-import ConfigParser
+import configparser
 from datetime import datetime
 from subprocess import Popen, PIPE
 
-CONFIGPATH1 = os.environ['CONFIG_DIR']
+try:
+    CONFIGPATH1 = os.environ['CONFIG_DIR'] or '.'
+except:
+    CONFIGPATH1 = '.'
 
-
-cp1 = ConfigParser.RawConfigParser
+cp1 = configparser.RawConfigParser
 class ps_preferences(cp1):
     types = {
         bool: cp1.getboolean,
@@ -71,6 +73,124 @@ class ps_preferences(cp1):
 
 
 class ProbeScreenClass:
+
+    def __init__(self, halcomp,builder,useropts):
+        try:
+            inipath = os.environ.get('INI_FILE_NAME', '/dev/null')
+            self.inifile = ini(inipath)
+        except:
+            self.inifile = None
+        if not self.inifile:
+            print("**** probe_screen GETINIINFO **** \n Error, no INI File given !!")
+            sys.exit()
+        print('gor here')
+        self.display = self.get_display() or "unknown"
+        self.command = linuxcnc.command()
+        self.stat = linuxcnc.stat()
+        self.builder = builder
+        self.prefs = ps_preferences( self.get_preference_file_path() )
+        self.textarea = builder.get_object("textview1")
+        self.e = linuxcnc.error_channel()
+        self.stat.poll()
+        self.e.poll()
+
+        self.buffer = self.textarea.get_property('buffer')
+        self.chk_set_zero = self.builder.get_object("chk_set_zero")
+        self.chk_set_zero.set_active( self.prefs.getpref( "chk_set_zero", False, bool ) )
+        self.chk_auto_rott = self.builder.get_object("chk_auto_rott")
+        self.chk_auto_rott.set_active( self.prefs.getpref( "chk_auto_rott", False, bool ) )
+        self.xpym = self.builder.get_object("xpym")
+        self.ym = self.builder.get_object("ym")
+        self.xmym = self.builder.get_object("xmym")
+        self.xp = self.builder.get_object("xp")
+        self.center = self.builder.get_object("center")
+        self.xm = self.builder.get_object("xm")
+        self.xpyp = self.builder.get_object("xpyp")
+        self.yp = self.builder.get_object("yp")
+        self.xmyp = self.builder.get_object("xmyp")
+        self.down = self.builder.get_object("down")
+        self.hole = self.builder.get_object("hole")
+        self.angle = self.builder.get_object("angle")
+
+        self.spbtn1_search_vel = self.builder.get_object("spbtn1_search_vel")
+        self.spbtn1_probe_vel = self.builder.get_object("spbtn1_probe_vel")
+        self.spbtn1_z_clearance = self.builder.get_object("spbtn1_z_clearance")
+        self.spbtn1_probe_max = self.builder.get_object("spbtn1_probe_max")
+        self.spbtn1_probe_latch = self.builder.get_object("spbtn1_probe_latch")
+        self.spbtn1_probe_diam = self.builder.get_object("spbtn1_probe_diam")
+        self.spbtn1_xy_clearance = self.builder.get_object("spbtn1_xy_clearance")
+        self.spbtn1_edge_lenght = self.builder.get_object("spbtn1_edge_lenght")
+
+        self.hal_led_set_zero = self.builder.get_object("hal_led_set_zero")
+        self.hal_led_auto_rott = self.builder.get_object("hal_led_auto_rott")
+
+        self.spbtn_offs_x = self.builder.get_object("spbtn_offs_x")
+        self.spbtn_offs_y = self.builder.get_object("spbtn_offs_y")
+        self.spbtn_offs_z = self.builder.get_object("spbtn_offs_z")
+        self.spbtn_offs_angle = self.builder.get_object("spbtn_offs_angle")
+
+        self.lb_probe_xp = self.builder.get_object("lb_probe_xp")
+        self.lb_probe_yp = self.builder.get_object("lb_probe_yp")
+        self.lb_probe_xm = self.builder.get_object("lb_probe_xm")
+        self.lb_probe_ym = self.builder.get_object("lb_probe_ym")
+        self.lb_probe_lx = self.builder.get_object("lb_probe_lx")
+        self.lb_probe_ly = self.builder.get_object("lb_probe_ly")
+        self.lb_probe_z = self.builder.get_object("lb_probe_z")
+        self.lb_probe_d = self.builder.get_object("lb_probe_d")
+        self.lb_probe_xc = self.builder.get_object("lb_probe_xc")
+        self.lb_probe_yc = self.builder.get_object("lb_probe_yc")
+        self.lb_probe_a = self.builder.get_object("lb_probe_a")
+
+
+        self.halcomp = hal.component("probe")
+        self.halcomp.newpin( "ps_searchvel", hal.HAL_FLOAT, hal.HAL_OUT )
+        self.halcomp.newpin( "ps_probevel", hal.HAL_FLOAT, hal.HAL_OUT )
+        self.halcomp.newpin( "ps_z_clearance", hal.HAL_FLOAT, hal.HAL_OUT )
+        self.halcomp.newpin( "ps_probe_max", hal.HAL_FLOAT, hal.HAL_OUT )
+        self.halcomp.newpin( "ps_probe_latch", hal.HAL_FLOAT, hal.HAL_OUT )
+        self.halcomp.newpin( "ps_probe_diam", hal.HAL_FLOAT, hal.HAL_OUT )
+        self.halcomp.newpin( "ps_xy_clearance", hal.HAL_FLOAT, hal.HAL_OUT )
+        self.halcomp.newpin( "ps_edge_lenght", hal.HAL_FLOAT, hal.HAL_OUT )
+        self.halcomp.newpin( "ps_offs_x", hal.HAL_FLOAT, hal.HAL_OUT )
+        self.halcomp.newpin( "ps_offs_y", hal.HAL_FLOAT, hal.HAL_OUT )
+        self.halcomp.newpin( "ps_offs_z", hal.HAL_FLOAT, hal.HAL_OUT )
+        self.halcomp.newpin( "ps_offs_angle", hal.HAL_FLOAT, hal.HAL_OUT )
+        self.halcomp.newpin( "set_zero", hal.HAL_BIT, hal.HAL_OUT )
+        if self.chk_set_zero.get_active():
+            self.halcomp["set_zero"] = True
+            self.hal_led_set_zero.hal_pin.set(1)
+        self.halcomp.newpin( "auto_rott", hal.HAL_BIT, hal.HAL_OUT )
+        if self.chk_auto_rott.get_active():
+            self.halcomp["auto_rott"] = True
+            self.hal_led_auto_rott.hal_pin.set(1)
+        self.halcomp.newpin( "ps_error", hal.HAL_FLOAT, hal.HAL_OUT )
+        self.spbtn1_search_vel.set_value( self.prefs.getpref( "ps_searchvel", 300.0, float ) )
+        self.spbtn1_probe_vel.set_value( self.prefs.getpref( "ps_probevel", 10.0, float ) )
+        self.spbtn1_z_clearance.set_value( self.prefs.getpref( "ps_z_clearance", 3.0, float ) )
+        self.spbtn1_probe_max.set_value( self.prefs.getpref( "ps_probe_max", 1.0, float ) )
+        self.spbtn1_probe_latch.set_value( self.prefs.getpref( "ps_probe_latch", 0.5, float ) )
+        self.spbtn1_probe_diam.set_value( self.prefs.getpref( "ps_probe_diam", 2.0, float ) )
+        self.spbtn1_xy_clearance.set_value( self.prefs.getpref( "ps_xy_clearance", 5.0, float ) )
+        self.spbtn1_edge_lenght.set_value( self.prefs.getpref( "ps_edge_lenght", 5.0, float ) )
+
+        self.spbtn_offs_x.set_value( self.prefs.getpref( "ps_offs_x", 0.0, float ) )
+        self.spbtn_offs_y.set_value( self.prefs.getpref( "ps_offs_y", 0.0, float ) )
+        self.spbtn_offs_z.set_value( self.prefs.getpref( "ps_offs_z", 0.0, float ) )
+        self.spbtn_offs_angle.set_value( self.prefs.getpref( "ps_offs_angle", 0.0, float ) )
+
+        self.halcomp["ps_searchvel"] = self.spbtn1_search_vel.get_value()
+        self.halcomp["ps_probevel"] = self.spbtn1_probe_vel.get_value()
+        self.halcomp["ps_z_clearance"] = self.spbtn1_z_clearance.get_value()
+        self.halcomp["ps_probe_max"] = self.spbtn1_probe_max.get_value()
+        self.halcomp["ps_probe_latch"] = self.spbtn1_probe_latch.get_value()
+        self.halcomp["ps_probe_diam"] = self.spbtn1_probe_diam.get_value()
+        self.halcomp["ps_xy_clearance"] = self.spbtn1_xy_clearance.get_value()
+        self.halcomp["ps_edge_lenght"] = self.spbtn1_edge_lenght.get_value()
+        self.halcomp["ps_offs_x"] = self.spbtn_offs_x.get_value()
+        self.halcomp["ps_offs_y"] = self.spbtn_offs_y.get_value()
+        self.halcomp["ps_offs_z"] = self.spbtn_offs_z.get_value()
+        self.halcomp["ps_offs_angle"] = self.spbtn_offs_angle.get_value()
+        self.halcomp["ps_error"] = 0.
 
     def get_preference_file_path(self):
         # we get the preference file, if there is none given in the INI
@@ -144,7 +264,7 @@ class ProbeScreenClass:
                 print(typus, text)
                 return -1
         else:
-            if "TRUE" in error_pin:
+            if b"TRUE" in error_pin:
                 text = "User probe error"
                 self.add_history("Error: %s" % text,"",0,0,0,0,0,0,0,0,0,0,0)
                 typus = "error"
@@ -1434,121 +1554,6 @@ class ProbeScreenClass:
             return
         self.rotate_coord_system(alfa)
 
-
-
-    def __init__(self, halcomp,builder,useropts):
-        inipath = os.environ["INI_FILE_NAME"]
-        self.inifile = ini(inipath)
-        if not self.inifile:
-            print("**** probe_screen GETINIINFO **** \n Error, no INI File given !!")
-            sys.exit()
-        self.display = self.get_display() or "unknown"
-        self.command = linuxcnc.command()
-        self.stat = linuxcnc.stat()
-        self.builder = builder
-        self.prefs = ps_preferences( self.get_preference_file_path() )
-        self.textarea = builder.get_object("textview1")
-        self.e = linuxcnc.error_channel()
-        self.stat.poll()
-        self.e.poll()
-
-        self.buffer = self.textarea.get_property('buffer')
-        self.chk_set_zero = self.builder.get_object("chk_set_zero")
-        self.chk_set_zero.set_active( self.prefs.getpref( "chk_set_zero", False, bool ) )
-        self.chk_auto_rott = self.builder.get_object("chk_auto_rott")
-        self.chk_auto_rott.set_active( self.prefs.getpref( "chk_auto_rott", False, bool ) )
-        self.xpym = self.builder.get_object("xpym")
-        self.ym = self.builder.get_object("ym")
-        self.xmym = self.builder.get_object("xmym")
-        self.xp = self.builder.get_object("xp")
-        self.center = self.builder.get_object("center")
-        self.xm = self.builder.get_object("xm")
-        self.xpyp = self.builder.get_object("xpyp")
-        self.yp = self.builder.get_object("yp")
-        self.xmyp = self.builder.get_object("xmyp")
-        self.down = self.builder.get_object("down")
-        self.hole = self.builder.get_object("hole")
-        self.angle = self.builder.get_object("angle")
-
-        self.spbtn1_search_vel = self.builder.get_object("spbtn1_search_vel")
-        self.spbtn1_probe_vel = self.builder.get_object("spbtn1_probe_vel")
-        self.spbtn1_z_clearance = self.builder.get_object("spbtn1_z_clearance")
-        self.spbtn1_probe_max = self.builder.get_object("spbtn1_probe_max")
-        self.spbtn1_probe_latch = self.builder.get_object("spbtn1_probe_latch")
-        self.spbtn1_probe_diam = self.builder.get_object("spbtn1_probe_diam")
-        self.spbtn1_xy_clearance = self.builder.get_object("spbtn1_xy_clearance")
-        self.spbtn1_edge_lenght = self.builder.get_object("spbtn1_edge_lenght")
-
-        self.hal_led_set_zero = self.builder.get_object("hal_led_set_zero")
-        self.hal_led_auto_rott = self.builder.get_object("hal_led_auto_rott")
-
-        self.spbtn_offs_x = self.builder.get_object("spbtn_offs_x")
-        self.spbtn_offs_y = self.builder.get_object("spbtn_offs_y")
-        self.spbtn_offs_z = self.builder.get_object("spbtn_offs_z")
-        self.spbtn_offs_angle = self.builder.get_object("spbtn_offs_angle")
-
-        self.lb_probe_xp = self.builder.get_object("lb_probe_xp")
-        self.lb_probe_yp = self.builder.get_object("lb_probe_yp")
-        self.lb_probe_xm = self.builder.get_object("lb_probe_xm")
-        self.lb_probe_ym = self.builder.get_object("lb_probe_ym")
-        self.lb_probe_lx = self.builder.get_object("lb_probe_lx")
-        self.lb_probe_ly = self.builder.get_object("lb_probe_ly")
-        self.lb_probe_z = self.builder.get_object("lb_probe_z")
-        self.lb_probe_d = self.builder.get_object("lb_probe_d")
-        self.lb_probe_xc = self.builder.get_object("lb_probe_xc")
-        self.lb_probe_yc = self.builder.get_object("lb_probe_yc")
-        self.lb_probe_a = self.builder.get_object("lb_probe_a")
-
-
-        self.halcomp = hal.component("probe")
-        self.halcomp.newpin( "ps_searchvel", hal.HAL_FLOAT, hal.HAL_OUT )
-        self.halcomp.newpin( "ps_probevel", hal.HAL_FLOAT, hal.HAL_OUT )
-        self.halcomp.newpin( "ps_z_clearance", hal.HAL_FLOAT, hal.HAL_OUT )
-        self.halcomp.newpin( "ps_probe_max", hal.HAL_FLOAT, hal.HAL_OUT )
-        self.halcomp.newpin( "ps_probe_latch", hal.HAL_FLOAT, hal.HAL_OUT )
-        self.halcomp.newpin( "ps_probe_diam", hal.HAL_FLOAT, hal.HAL_OUT )
-        self.halcomp.newpin( "ps_xy_clearance", hal.HAL_FLOAT, hal.HAL_OUT )
-        self.halcomp.newpin( "ps_edge_lenght", hal.HAL_FLOAT, hal.HAL_OUT )
-        self.halcomp.newpin( "ps_offs_x", hal.HAL_FLOAT, hal.HAL_OUT )
-        self.halcomp.newpin( "ps_offs_y", hal.HAL_FLOAT, hal.HAL_OUT )
-        self.halcomp.newpin( "ps_offs_z", hal.HAL_FLOAT, hal.HAL_OUT )
-        self.halcomp.newpin( "ps_offs_angle", hal.HAL_FLOAT, hal.HAL_OUT )
-        self.halcomp.newpin( "set_zero", hal.HAL_BIT, hal.HAL_OUT )
-        if self.chk_set_zero.get_active():
-            self.halcomp["set_zero"] = True
-            self.hal_led_set_zero.hal_pin.set(1)
-        self.halcomp.newpin( "auto_rott", hal.HAL_BIT, hal.HAL_OUT )
-        if self.chk_auto_rott.get_active():
-            self.halcomp["auto_rott"] = True
-            self.hal_led_auto_rott.hal_pin.set(1)
-        self.halcomp.newpin( "ps_error", hal.HAL_FLOAT, hal.HAL_OUT )
-        self.spbtn1_search_vel.set_value( self.prefs.getpref( "ps_searchvel", 300.0, float ) )
-        self.spbtn1_probe_vel.set_value( self.prefs.getpref( "ps_probevel", 10.0, float ) )
-        self.spbtn1_z_clearance.set_value( self.prefs.getpref( "ps_z_clearance", 3.0, float ) )
-        self.spbtn1_probe_max.set_value( self.prefs.getpref( "ps_probe_max", 1.0, float ) )
-        self.spbtn1_probe_latch.set_value( self.prefs.getpref( "ps_probe_latch", 0.5, float ) )
-        self.spbtn1_probe_diam.set_value( self.prefs.getpref( "ps_probe_diam", 2.0, float ) )
-        self.spbtn1_xy_clearance.set_value( self.prefs.getpref( "ps_xy_clearance", 5.0, float ) )
-        self.spbtn1_edge_lenght.set_value( self.prefs.getpref( "ps_edge_lenght", 5.0, float ) )
-
-        self.spbtn_offs_x.set_value( self.prefs.getpref( "ps_offs_x", 0.0, float ) )
-        self.spbtn_offs_y.set_value( self.prefs.getpref( "ps_offs_y", 0.0, float ) )
-        self.spbtn_offs_z.set_value( self.prefs.getpref( "ps_offs_z", 0.0, float ) )
-        self.spbtn_offs_angle.set_value( self.prefs.getpref( "ps_offs_angle", 0.0, float ) )
-
-        self.halcomp["ps_searchvel"] = self.spbtn1_search_vel.get_value()
-        self.halcomp["ps_probevel"] = self.spbtn1_probe_vel.get_value()
-        self.halcomp["ps_z_clearance"] = self.spbtn1_z_clearance.get_value()
-        self.halcomp["ps_probe_max"] = self.spbtn1_probe_max.get_value()
-        self.halcomp["ps_probe_latch"] = self.spbtn1_probe_latch.get_value()
-        self.halcomp["ps_probe_diam"] = self.spbtn1_probe_diam.get_value()
-        self.halcomp["ps_xy_clearance"] = self.spbtn1_xy_clearance.get_value()
-        self.halcomp["ps_edge_lenght"] = self.spbtn1_edge_lenght.get_value()
-        self.halcomp["ps_offs_x"] = self.spbtn_offs_x.get_value()
-        self.halcomp["ps_offs_y"] = self.spbtn_offs_y.get_value()
-        self.halcomp["ps_offs_z"] = self.spbtn_offs_z.get_value()
-        self.halcomp["ps_offs_angle"] = self.spbtn_offs_angle.get_value()
-        self.halcomp["ps_error"] = 0.
 
 def get_handlers(halcomp,builder,useropts):
     return [ProbeScreenClass(halcomp,builder,useropts)]
