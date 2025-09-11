@@ -458,7 +458,7 @@ writes at the specified interval.
     <pin name="humidity" />
     <description>Will become HAL pins:
        - (out) hm2_modbus.0.scd30.co2
-       - (out) hm2_modbus.0.scd30.temparature
+       - (out) hm2_modbus.0.scd30.temperature
        - (out) hm2_modbus.0.scd30.humidity
        Count will automatically be calculated (6 Modbus 16-bit registers).
     </description>
