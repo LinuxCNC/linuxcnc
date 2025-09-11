@@ -1335,6 +1335,126 @@ RESET</string>
                            </property>
                           </widget>
                          </item>
+                         <item>
+                          <widget class="MDILine" name="mdiline">
+                           <property name="sizePolicy">
+                            <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                             <horstretch>0</horstretch>
+                             <verstretch>0</verstretch>
+                            </sizepolicy>
+                           </property>
+                           <property name="minimumSize">
+                            <size>
+                             <width>0</width>
+                             <height>30</height>
+                            </size>
+                           </property>
+                           <property name="maximumSize">
+                            <size>
+                             <width>16777215</width>
+                             <height>32</height>
+                            </size>
+                           </property>
+                           <property name="maxLength">
+                            <number>100</number>
+                           </property>
+                           <property name="placeholderText">
+                            <string>MDI:</string>
+                           </property>
+                           <property name="soft_keyboard_option" stdset="0">
+                            <bool>false</bool>
+                           </property>
+                          </widget>
+                         </item>
+                         <item>
+                          <widget class="QWidget" name="userReferenceWidget" native="true">
+                           <layout class="QVBoxLayout" name="userReferenceLayout">
+                            <property name="spacing">
+                             <number>3</number>
+                            </property>
+                            <property name="leftMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="topMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="rightMargin">
+                             <number>0</number>
+                            </property>
+                            <property name="bottomMargin">
+                             <number>0</number>
+                            </property>
+                            <item>
+                             <layout class="QHBoxLayout" name="horizontalLayout_40">
+                              <item>
+                               <widget class="AxisPickToolButton" name="axispicktoolbutton_2">
+                                <property name="textTemplate">
+                                 <string>TEMP REF: %s</string>
+                                </property>
+                                <property name="currentAxis">
+                                 <string>X</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="UserDROLabel" name="userdro1">
+                                <property name="text">
+                                 <string>100</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QPushButton" name="pushButton_2">
+                                <property name="sizePolicy">
+                                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                                  <horstretch>0</horstretch>
+                                  <verstretch>0</verstretch>
+                                 </sizepolicy>
+                                </property>
+                                <property name="text">
+                                 <string>ZERO</string>
+                                </property>
+                               </widget>
+                              </item>
+                             </layout>
+                            </item>
+                            <item>
+                             <layout class="QHBoxLayout" name="horizontalLayout_39">
+                              <item>
+                               <widget class="AxisPickToolButton" name="axispicktoolbutton">
+                                <property name="textTemplate">
+                                 <string>TEMP REF: %s</string>
+                                </property>
+                                <property name="currentAxis">
+                                 <string>Z</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="UserDROLabel" name="userdro0">
+                                <property name="text">
+                                 <string>100</string>
+                                </property>
+                               </widget>
+                              </item>
+                              <item>
+                               <widget class="QPushButton" name="pushButton">
+                                <property name="sizePolicy">
+                                 <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+                                  <horstretch>0</horstretch>
+                                  <verstretch>0</verstretch>
+                                 </sizepolicy>
+                                </property>
+                                <property name="text">
+                                 <string>ZERO</string>
+                                </property>
+                               </widget>
+                              </item>
+                             </layout>
+                            </item>
+                           </layout>
+                          </widget>
+                         </item>
                         </layout>
                        </widget>
                        <widget class="QWidget" name="file_page">
@@ -3395,37 +3515,6 @@ PLATE</string>
                        <widget class="QWidget" name="ngcgui_page">
                         <layout class="QVBoxLayout" name="ngcGuiLeftLayout"/>
                        </widget>
-                      </widget>
-                     </item>
-                     <item>
-                      <widget class="MDILine" name="mdiline">
-                       <property name="sizePolicy">
-                        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                         <horstretch>0</horstretch>
-                         <verstretch>0</verstretch>
-                        </sizepolicy>
-                       </property>
-                       <property name="minimumSize">
-                        <size>
-                         <width>0</width>
-                         <height>30</height>
-                        </size>
-                       </property>
-                       <property name="maximumSize">
-                        <size>
-                         <width>16777215</width>
-                         <height>32</height>
-                        </size>
-                       </property>
-                       <property name="maxLength">
-                        <number>100</number>
-                       </property>
-                       <property name="placeholderText">
-                        <string>MDI:</string>
-                       </property>
-                       <property name="soft_keyboard_option" stdset="0">
-                        <bool>false</bool>
-                       </property>
                       </widget>
                      </item>
                     </layout>
@@ -17845,7 +17934,7 @@ SCROLL</string>
              <number>2</number>
             </property>
             <property name="text">
-             <string>03:25:03 PM</string>
+             <string>02:54:36 PM</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -17977,6 +18066,12 @@ SCROLL</string>
    <container>1</container>
   </customwidget>
   <customwidget>
+   <class>UserDROLabel</class>
+   <extends>QLabel</extends>
+   <header>qtvcp.widgets.user_dro_label</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
    <class>MDILine</class>
    <extends>QLineEdit</extends>
    <header>qtvcp.widgets.mdi_line</header>
@@ -18050,6 +18145,11 @@ SCROLL</string>
    <class>ActionToolButton</class>
    <extends>QToolButton</extends>
    <header>qtvcp.widgets.action_tool_button</header>
+  </customwidget>
+  <customwidget>
+   <class>AxisPickToolButton</class>
+   <extends>QToolButton</extends>
+   <header>qtvcp.widgets.axisPickTool_button</header>
   </customwidget>
   <customwidget>
    <class>VirtualKeyboard</class>
@@ -18802,6 +18902,70 @@ SCROLL</string>
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>pushButton</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>userdro0</receiver>
+   <slot>zero(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>287</x>
+     <y>421</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>119</x>
+     <y>421</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pushButton_2</sender>
+   <signal>clicked(bool)</signal>
+   <receiver>userdro1</receiver>
+   <slot>zero(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>240</x>
+     <y>394</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>163</x>
+     <y>392</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>axispicktoolbutton_2</sender>
+   <signal>AxisSelected(QString)</signal>
+   <receiver>userdro1</receiver>
+   <slot>setAxisLetter(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>19</x>
+     <y>387</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>54</x>
+     <y>390</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>axispicktoolbutton</sender>
+   <signal>AxisSelected(QString)</signal>
+   <receiver>userdro0</receiver>
+   <slot>setAxisLetter(QString)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>28</x>
+     <y>417</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>70</x>
+     <y>411</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <designerdata>
   <property name="gridDeltaX">
@@ -18885,8 +19049,8 @@ SCROLL</string>
   <slot>btn_systemtool_toggled()</slot>
  </slots>
  <buttongroups>
+  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="selectButtonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
-  <buttongroup name="page_buttonGroup"/>
  </buttongroups>
 </ui>

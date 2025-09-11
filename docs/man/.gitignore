@@ -349,6 +349,7 @@ man9/hypot.9
 man9/ilowpass.9
 man9/integ.9
 man9/invert.9
+man9/joint_axis_mapper.9
 man9/joyhandle.9
 man9/kins.9
 man9/knob2float.9

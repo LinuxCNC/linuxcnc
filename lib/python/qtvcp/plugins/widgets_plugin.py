@@ -3,6 +3,7 @@
 from PyQt5 import QtGui
 from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin
 from qtvcp.widgets.dro_widget import DROLabel
+from qtvcp.widgets.user_dro_label import UserDROLabel
 from qtvcp.widgets.mdi_line import MDILine
 from qtvcp.widgets.operator_value_line import OperatorValueLine
 from qtvcp.widgets.tool_chooser import ToolChooser
@@ -64,6 +65,48 @@ class LcncDROLabelPlugin(QPyDesignerCustomWidgetPlugin):
     def includeFile(self):
         return "qtvcp.widgets.dro_widget"
 
+####################################
+# Axis Position UserDROLabel
+####################################
+class UserDROLabelPlugin(QPyDesignerCustomWidgetPlugin):
+    def __init__(self, parent=None):
+        super(UserDROLabelPlugin, self).__init__(parent)
+        self.initialized = False
+
+    def initialize(self, formEditor):
+        if self.initialized:
+            return
+        self.initialized = True
+
+    def isInitialized(self):
+        return self.initialized
+
+    def createWidget(self, parent):
+        return UserDROLabel(parent)
+
+    def name(self):
+        return "UserDROLabel"
+
+    def group(self):
+        return "Linuxcnc - Widgets"
+
+    def icon(self):
+        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('UserDROLabel')))
+
+    def toolTip(self):
+        return "User Referenced Axis Position Display Widget"
+
+    def whatsThis(self):
+        return ""
+
+    def isContainer(self):
+        return False
+
+    def domXml(self):
+        return '<widget class="UserDROLabel" name="userdro" />\n'
+
+    def includeFile(self):
+        return "qtvcp.widgets.user_dro_label"
 
 ####################################
 # MDI edit line

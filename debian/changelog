@@ -8,6 +8,9 @@ linuxcnc (1:2.10.0~pre0) UNRELEASED; urgency=medium
     depend on defaults passed by dpkg-buildflags on
     Ubuntu and Debian (LP: #2104012)
 
+  [ Steffen Moeller ]
+  * Introducing DEB_BUILD_OPTIONS to d/rules.
+
  -- Pushkar Kulkarni <pushkar.kulkarni@canonical.com>  Mon, 24 Mar 2025 20:50:08 +0530
 
 linuxcnc (1:2.9.4-2) unstable; urgency=medium
