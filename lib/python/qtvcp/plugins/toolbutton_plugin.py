@@ -4,6 +4,7 @@ from PyQt5 import QtGui
 from PyQt5.QtDesigner import QPyDesignerCustomWidgetPlugin
 from qtvcp.widgets.system_tool_button import SystemToolButton
 from qtvcp.widgets.action_tool_button import ActionToolButton
+from qtvcp.widgets.axisPickTool_button import AxisPickToolButton
 from qtvcp.widgets.qtvcp_icons import Icon
 
 ICON = Icon()
@@ -94,3 +95,46 @@ class ActionToolButtonPlugin(QPyDesignerCustomWidgetPlugin):
 
     def includeFile(self):
         return "qtvcp.widgets.action_tool_button"
+
+####################################
+# AxisPickToolButton
+####################################
+class AxisPickToolButtonPlugin(QPyDesignerCustomWidgetPlugin):
+    def __init__(self, parent=None):
+        super(AxisPickToolButtonPlugin, self).__init__(parent)
+        self.initialized = False
+
+    def initialize(self, formEditor):
+        if self.initialized:
+            return
+        self.initialized = True
+
+    def isInitialized(self):
+        return self.initialized
+
+    def createWidget(self, parent):
+        return AxisPickToolButton(parent)
+
+    def name(self):
+        return "AxisPickToolButton"
+
+    def group(self):
+        return "Linuxcnc - Widgets"
+
+    def icon(self):
+        return QtGui.QIcon(QtGui.QPixmap(ICON.get_path('AxisPicktoolbutton')))
+
+    def toolTip(self):
+        return "Tool Button for selecting an available Axis"
+
+    def whatsThis(self):
+        return ""
+
+    def isContainer(self):
+        return False
+
+    def domXml(self):
+        return '<widget class="AxisPickToolButton" name="axispicktoolbutton" />\n'
+
+    def includeFile(self):
+        return "qtvcp.widgets.axisPickTool_button"

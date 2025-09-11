@@ -44,7 +44,7 @@
                                     <property name="height_request">70</property>
                                     <property name="visible">True</property>
                                     <property name="yalign">0</property>
-                                    <property name="pixbuf">Y+.png</property>
+                                    <property name="pixbuf">probe_icons/Y+.png</property>
                                   </object>
                                 </child>
                               </object>
@@ -71,7 +71,7 @@
                                     <property name="visible">True</property>
                                     <property name="xalign">0</property>
                                     <property name="yalign">0</property>
-                                    <property name="pixbuf">X-Y+.png</property>
+                                    <property name="pixbuf">probe_icons/X-Y+.png</property>
                                   </object>
                                 </child>
                               </object>
@@ -98,7 +98,7 @@
                                     <property name="visible">True</property>
                                     <property name="xalign">1</property>
                                     <property name="yalign">0</property>
-                                    <property name="pixbuf">X+Y+.png</property>
+                                    <property name="pixbuf">probe_icons/X+Y+.png</property>
                                   </object>
                                 </child>
                               </object>
@@ -122,7 +122,7 @@
                                     <property name="height_request">70</property>
                                     <property name="visible">True</property>
                                     <property name="xalign">1</property>
-                                    <property name="pixbuf">X+.png</property>
+                                    <property name="pixbuf">probe_icons/X+.png</property>
                                   </object>
                                 </child>
                               </object>
@@ -148,7 +148,7 @@
                                     <property name="visible">True</property>
                                     <property name="xalign">1</property>
                                     <property name="yalign">1</property>
-                                    <property name="pixbuf">X+Y-.png</property>
+                                    <property name="pixbuf">probe_icons/X+Y-.png</property>
                                   </object>
                                 </child>
                               </object>
@@ -169,7 +169,7 @@
                                     <property name="height_request">70</property>
                                     <property name="visible">True</property>
                                     <property name="yalign">1</property>
-                                    <property name="pixbuf">Y-.png</property>
+                                    <property name="pixbuf">probe_icons/Y-.png</property>
                                   </object>
                                 </child>
                               </object>
@@ -195,7 +195,7 @@
                                     <property name="visible">True</property>
                                     <property name="xalign">0</property>
                                     <property name="yalign">1</property>
-                                    <property name="pixbuf">X-Y-.png</property>
+                                    <property name="pixbuf">probe_icons/X-Y-.png</property>
                                   </object>
                                 </child>
                               </object>
@@ -219,7 +219,7 @@
                                     <property name="height_request">70</property>
                                     <property name="visible">True</property>
                                     <property name="xalign">0</property>
-                                    <property name="pixbuf">X-.png</property>
+                                    <property name="pixbuf">probe_icons/X-.png</property>
                                   </object>
                                 </child>
                               </object>
@@ -242,7 +242,7 @@
                                     <property name="width_request">78</property>
                                     <property name="height_request">70</property>
                                     <property name="visible">True</property>
-                                    <property name="pixbuf">xy_center.png</property>
+                                    <property name="pixbuf">probe_icons/xy_center.png</property>
                                   </object>
                                 </child>
                               </object>
@@ -298,7 +298,7 @@
                                 <property name="visible">True</property>
                                 <property name="tooltip_text" translatable="yes">Search Velocity</property>
                                 <property name="xalign">0.80000001192092896</property>
-                                <property name="pixbuf">search_vel.png</property>
+                                <property name="pixbuf">probe_icons/search_vel.png</property>
                               </object>
                             </child>
                             <child>
@@ -328,7 +328,7 @@
                                 <property name="visible">True</property>
                                 <property name="tooltip_text" translatable="yes">Probe Velocity</property>
                                 <property name="xalign">0.80000001192092896</property>
-                                <property name="pixbuf">probe_vel.png</property>
+                                <property name="pixbuf">probe_icons/probe_vel.png</property>
                               </object>
                               <packing>
                                 <property name="top_attach">1</property>
@@ -341,7 +341,7 @@
                                 <property name="visible">True</property>
                                 <property name="tooltip_text" translatable="yes">Max probe  distance</property>
                                 <property name="xalign">0.60000002384185791</property>
-                                <property name="pixbuf">max_probe.png</property>
+                                <property name="pixbuf">probe_icons/max_probe.png</property>
                               </object>
                               <packing>
                                 <property name="top_attach">2</property>
@@ -354,7 +354,7 @@
                                 <property name="visible">True</property>
                                 <property name="tooltip_text" translatable="yes">Probe diameter</property>
                                 <property name="xalign">0.60000002384185791</property>
-                                <property name="pixbuf">probe_diam.png</property>
+                                <property name="pixbuf">probe_icons/probe_diam.png</property>
                               </object>
                               <packing>
                                 <property name="top_attach">4</property>
@@ -367,7 +367,7 @@
                                 <property name="visible">True</property>
                                 <property name="tooltip_text" translatable="yes">XY clearance</property>
                                 <property name="xalign">0.69999998807907104</property>
-                                <property name="pixbuf">XYclearance.png</property>
+                                <property name="pixbuf">probe_icons/XYclearance.png</property>
                               </object>
                               <packing>
                                 <property name="top_attach">5</property>
@@ -380,7 +380,7 @@
                                 <property name="visible">True</property>
                                 <property name="tooltip_text" translatable="yes">Edge length</property>
                                 <property name="xalign">0.69999998807907104</property>
-                                <property name="pixbuf">edge_length.png</property>
+                                <property name="pixbuf">probe_icons/edge_length.png</property>
                               </object>
                               <packing>
                                 <property name="top_attach">6</property>
@@ -503,7 +503,7 @@
                                 <property name="visible">True</property>
                                 <property name="tooltip_text" translatable="yes">Latch distance</property>
                                 <property name="xalign">0.60000002384185791</property>
-                                <property name="pixbuf">latch_dist.png</property>
+                                <property name="pixbuf">probe_icons/latch_dist.png</property>
                               </object>
                               <packing>
                                 <property name="top_attach">3</property>
@@ -538,7 +538,7 @@
                                 <property name="visible">True</property>
                                 <property name="tooltip_text" translatable="yes">Z clearance</property>
                                 <property name="xalign">0.69999998807907104</property>
-                                <property name="pixbuf">Zclearance.png</property>
+                                <property name="pixbuf">probe_icons/Zclearance.png</property>
                               </object>
                               <packing>
                                 <property name="top_attach">7</property>
@@ -627,7 +627,7 @@
                                         <property name="visible">True</property>
                                         <property name="xalign">1</property>
                                         <property name="yalign">1</property>
-                                        <property name="pixbuf">inX+Y-.png</property>
+                                        <property name="pixbuf">probe_icons/inX+Y-.png</property>
                                       </object>
                                     </child>
                                   </object>
@@ -654,7 +654,7 @@
                                         <property name="height_request">70</property>
                                         <property name="visible">True</property>
                                         <property name="yalign">1</property>
-                                        <property name="pixbuf">inY-.png</property>
+                                        <property name="pixbuf">probe_icons/inY-.png</property>
                                       </object>
                                     </child>
                                   </object>
@@ -683,7 +683,7 @@
                                         <property name="visible">True</property>
                                         <property name="xalign">0</property>
                                         <property name="yalign">1</property>
-                                        <property name="pixbuf">inX-Y-.png</property>
+                                        <property name="pixbuf">probe_icons/inX-Y-.png</property>
                                       </object>
                                     </child>
                                   </object>
@@ -708,7 +708,7 @@
                                         <property name="height_request">70</property>
                                         <property name="visible">True</property>
                                         <property name="xalign">0</property>
-                                        <property name="pixbuf">inX-.png</property>
+                                        <property name="pixbuf">probe_icons/inX-.png</property>
                                       </object>
                                     </child>
                                   </object>
@@ -731,7 +731,7 @@
                                         <property name="width_request">78</property>
                                         <property name="height_request">70</property>
                                         <property name="visible">True</property>
-                                        <property name="pixbuf">inHole.png</property>
+                                        <property name="pixbuf">probe_icons/inHole.png</property>
                                       </object>
                                     </child>
                                   </object>
@@ -758,7 +758,7 @@
                                         <property name="height_request">70</property>
                                         <property name="visible">True</property>
                                         <property name="xalign">1</property>
-                                        <property name="pixbuf">inX+.png</property>
+                                        <property name="pixbuf">probe_icons/inX+.png</property>
                                       </object>
                                     </child>
                                   </object>
@@ -787,7 +787,7 @@
                                         <property name="visible">True</property>
                                         <property name="xalign">1</property>
                                         <property name="yalign">0</property>
-                                        <property name="pixbuf">inX+Y+.png</property>
+                                        <property name="pixbuf">probe_icons/inX+Y+.png</property>
                                       </object>
                                     </child>
                                   </object>
@@ -812,7 +812,7 @@
                                         <property name="height_request">70</property>
                                         <property name="visible">True</property>
                                         <property name="yalign">0</property>
-                                        <property name="pixbuf">inY+.png</property>
+                                        <property name="pixbuf">probe_icons/inY+.png</property>
                                       </object>
                                     </child>
                                   </object>
@@ -839,7 +839,7 @@
                                         <property name="visible">True</property>
                                         <property name="xalign">0</property>
                                         <property name="yalign">0</property>
-                                        <property name="pixbuf">inX-Y+.png</property>
+                                        <property name="pixbuf">probe_icons/inX-Y+.png</property>
                                       </object>
                                     </child>
                                   </object>
@@ -910,7 +910,7 @@
                                 <child>
                                   <object class="GtkImage" id="image24">
                                     <property name="visible">True</property>
-                                    <property name="pixbuf">angleX+.png</property>
+                                    <property name="pixbuf">probe_icons/angleX+.png</property>
                                   </object>
                                 </child>
                               </object>
@@ -931,7 +931,7 @@
                                 <child>
                                   <object class="GtkImage" id="image40">
                                     <property name="visible">True</property>
-                                    <property name="pixbuf">angleY+.png</property>
+                                    <property name="pixbuf">probe_icons/angleY+.png</property>
                                   </object>
                                 </child>
                               </object>
@@ -954,7 +954,7 @@
                                 <child>
                                   <object class="GtkImage" id="image41">
                                     <property name="visible">True</property>
-                                    <property name="pixbuf">angleX-.png</property>
+                                    <property name="pixbuf">probe_icons/angleX-.png</property>
                                   </object>
                                 </child>
                               </object>
@@ -979,7 +979,7 @@
                                 <child>
                                   <object class="GtkImage" id="image42">
                                     <property name="visible">True</property>
-                                    <property name="pixbuf">angleY-.png</property>
+                                    <property name="pixbuf">probe_icons/angleY-.png</property>
                                   </object>
                                 </child>
                               </object>
@@ -1101,7 +1101,7 @@
                                     <child>
                                       <object class="GtkImage" id="image11">
                                         <property name="visible">True</property>
-                                        <property name="pixbuf">X0.png</property>
+                                        <property name="pixbuf">probe_icons/X0.png</property>
                                       </object>
                                     </child>
                                   </object>
@@ -1126,7 +1126,7 @@
                                     <child>
                                       <object class="GtkImage" id="image17">
                                         <property name="visible">True</property>
-                                        <property name="pixbuf">Y0.png</property>
+                                        <property name="pixbuf">probe_icons/Y0.png</property>
                                       </object>
                                     </child>
                                   </object>
@@ -1151,7 +1151,7 @@
                                     <child>
                                       <object class="GtkImage" id="image23">
                                         <property name="visible">True</property>
-                                        <property name="pixbuf">Z0.png</property>
+                                        <property name="pixbuf">probe_icons/Z0.png</property>
                                       </object>
                                     </child>
                                   </object>
@@ -1273,7 +1273,7 @@
                                     <child>
                                       <object class="GtkImage" id="image43">
                                         <property name="visible">True</property>
-                                        <property name="pixbuf">rott.png</property>
+                                        <property name="pixbuf">probe_icons/rott.png</property>
                                       </object>
                                     </child>
                                   </object>
@@ -1330,7 +1330,7 @@
                                 <property name="visible">True</property>
                                 <property name="tooltip_text" translatable="yes">Probe X- pos.</property>
                                 <property name="xalign">0</property>
-                                <property name="pixbuf">probe_xm.png</property>
+                                <property name="pixbuf">probe_icons/probe_xm.png</property>
                               </object>
                               <packing>
                                 <property name="x_options">GTK_SHRINK</property>
@@ -1341,7 +1341,7 @@
                                 <property name="visible">True</property>
                                 <property name="tooltip_text" translatable="yes">Probe Y- pos.</property>
                                 <property name="xalign">0</property>
-                                <property name="pixbuf">probe_ym.png</property>
+                                <property name="pixbuf">probe_icons/probe_ym.png</property>
                               </object>
                               <packing>
                                 <property name="left_attach">2</property>
@@ -1354,7 +1354,7 @@
                                 <property name="visible">True</property>
                                 <property name="tooltip_text" translatable="yes">Probe Z pos.</property>
                                 <property name="xalign">0</property>
-                                <property name="pixbuf">probe_z.png</property>
+                                <property name="pixbuf">probe_icons/probe_z.png</property>
                               </object>
                               <packing>
                                 <property name="left_attach">4</property>
@@ -1472,7 +1472,7 @@
                                 <property name="visible">True</property>
                                 <property name="tooltip_text" translatable="yes">Diameter</property>
                                 <property name="xalign">0</property>
-                                <property name="pixbuf">probe_d.png</property>
+                                <property name="pixbuf">probe_icons/probe_d.png</property>
                               </object>
                               <packing>
                                 <property name="left_attach">4</property>
@@ -1508,7 +1508,7 @@
                                 <property name="visible">True</property>
                                 <property name="tooltip_text" translatable="yes">Center  X pos.</property>
                                 <property name="xalign">0</property>
-                                <property name="pixbuf">probe_center_x.png</property>
+                                <property name="pixbuf">probe_icons/probe_center_x.png</property>
                               </object>
                               <packing>
                                 <property name="top_attach">1</property>
@@ -1521,7 +1521,7 @@
                                 <property name="visible">True</property>
                                 <property name="tooltip_text" translatable="yes">Center Y pos.</property>
                                 <property name="xalign">0</property>
-                                <property name="pixbuf">probe_center_y.png</property>
+                                <property name="pixbuf">probe_icons/probe_center_y.png</property>
                               </object>
                               <packing>
                                 <property name="left_attach">2</property>
@@ -1536,7 +1536,7 @@
                                 <property name="visible">True</property>
                                 <property name="tooltip_text" translatable="yes">Angle of rotation</property>
                                 <property name="xalign">0</property>
-                                <property name="pixbuf">probe_a.png</property>
+                                <property name="pixbuf">probe_icons/probe_a.png</property>
                               </object>
                               <packing>
                                 <property name="left_attach">4</property>
@@ -1570,7 +1570,7 @@
                                 <property name="visible">True</property>
                                 <property name="tooltip_text" translatable="yes">Probe X+ pos.</property>
                                 <property name="xalign">0</property>
-                                <property name="pixbuf">probe_xp.png</property>
+                                <property name="pixbuf">probe_icons/probe_xp.png</property>
                               </object>
                               <packing>
                                 <property name="top_attach">2</property>
@@ -1604,7 +1604,7 @@
                                 <property name="visible">True</property>
                                 <property name="tooltip_text" translatable="yes">Probe Y+ pos.</property>
                                 <property name="xalign">0</property>
-                                <property name="pixbuf">probe_yp.png</property>
+                                <property name="pixbuf">probe_icons/probe_yp.png</property>
                               </object>
                               <packing>
                                 <property name="left_attach">2</property>
@@ -1640,7 +1640,7 @@
                                 <property name="visible">True</property>
                                 <property name="tooltip_text" translatable="yes">Distance from X+ to X-</property>
                                 <property name="xalign">0</property>
-                                <property name="pixbuf">probe_lx.png</property>
+                                <property name="pixbuf">probe_icons/probe_lx.png</property>
                               </object>
                               <packing>
                                 <property name="top_attach">3</property>
@@ -1653,7 +1653,7 @@
                                 <property name="visible">True</property>
                                 <property name="tooltip_text" translatable="yes">Distance from Y+ to Y-</property>
                                 <property name="xalign">0</property>
-                                <property name="pixbuf">probe_ly.png</property>
+                                <property name="pixbuf">probe_icons/probe_ly.png</property>
                               </object>
                               <packing>
                                 <property name="left_attach">2</property>
@@ -1718,7 +1718,7 @@
                                 <child>
                                   <object class="GtkImage" id="image12">
                                     <property name="visible">True</property>
-                                    <property name="pixbuf">down.png</property>
+                                    <property name="pixbuf">probe_icons/down.png</property>
                                   </object>
                                 </child>
                               </object>

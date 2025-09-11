@@ -1924,6 +1924,12 @@ class HandlerClass:
             self.w.frame_top_left.show()
             self.w.frm_backplot.show()
 
+
+        if main_index == TAB_MAIN and mode =='':
+            self.w.userReferenceWidget.show()
+        else:
+            self.w.userReferenceWidget.hide()
+
         # adjust window splitter size as per saved adjustments
 
         name = 'splitterSettings-{}{}'.format(tabId,mode)
