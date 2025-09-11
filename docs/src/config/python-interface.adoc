@@ -278,6 +278,9 @@ see <<python:reading-ini-values,ReadingINI file values>> for an example.
 *paused*:: '(returns boolean)' -
   `motion paused` flag.
 
+*stepping*:: '(returns boolean)' -
+  `motion stepping` flag.
+
 *pocket_prepped*:: '(returns integer)' -
   A Tx command completed, and this pocket is prepared. -1 if no
   prepared pocket.
