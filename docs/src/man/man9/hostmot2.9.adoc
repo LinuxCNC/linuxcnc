@@ -353,7 +353,7 @@ no-clear-on-index (bit in)::
  When this pin is set to True, the count (and therefore also position) 
  are NOT reset to zero on the next Index (Phase\-Z) pulse.
  On an index event the latched count and position will be set to 
- indicate the count and position where the index occured.
+ indicate the count and position where the index occurred.
 probe-enable (bit in/out)::
  When this pin is set to True, the encoder count (and therefore also
  position) are latched on the the next probe active edge. At the same
