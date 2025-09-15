@@ -131,7 +131,7 @@ firmware in the system's firmware search path, usually /lib/firmware.
 _F_ typically has the form "hm2/<BoardType>/file.bit";
 a typical value for _F_ might be "hm2/5i20/SVST8_4.BIT".
 The hostmot2 firmware files are supplied by the hostmot2-firmware packages,
-available from https:://linuxcnc.org[linuxcnc.org] and can normally be installed
+available from https://linuxcnc.org[linuxcnc.org] and can normally be installed
 by entering the command "sudo apt-get install hostmot2-firmware-5i23"
 to install the support files for the 5I23 for example.
 +
@@ -358,11 +358,11 @@ probe-enable (bit in/out)::
  When this pin is set to True, the encoder count (and therefore also
  position) are latched on the the next probe active edge. At the same
  time, probe-enable is reset to zero to indicate that latch event has
- occurred. (only present if supported by firmware)
+ occurred (only present if supported by firmware).
 probe-invert (bit r/w)::
  If set to True, the rising edge of the probe input pin triggers the
  latch event (if probe-enable is True). If set to False, the falling
- edge triggers. (only present if supported by firmware)
+ edge triggers (only present if supported by firmware).
 rawcounts (s32 out)::
  Total number of encoder counts since the start, not adjusted for index or reset.
 rawcounts_64 (s64 out)::
@@ -393,7 +393,7 @@ hm2_XXXX.N.encoder.muxed-skew (float in)::
  is 3* cable length in feet +20).
 hm2_XXXX.N.encoder.hires-timestamp (bit in)::
  When this pin is True the encoder timestamp counter frequency is
- ca. 10 MHz when False the timestamp counter frequency is ca. 2&#8201;MHz.
+ ca. 10&#8201;MHz when False the timestamp counter frequency is ca. 2&#8201;MHz.
  This should be set True for frequency counting applications to improve the resolution.
  It should be set False when servo thread periods longer than 1&#8201;ms are used.
 
@@ -419,10 +419,9 @@ filter (bit r/w)::
  If set to True (the default), the quadrature counter needs 15 sample
  clocks to register a change on any of the three input lines (any pulse
  shorter than this is rejected as noise). If set to False, the
- quadrature counter needs only 3 clocks to register a change. The
- default encoder sample clock runs at approximately 25 to 33 MHz but
- can be changed globally with the sample-frequency or
- muxed-sample-frequency pin.
+ quadrature counter needs only 3 clocks to register a change.
+ The default encoder sample clock runs at approximately 25 to 33&#8201;MHz but
+ can be changed globally with the sample-frequency or muxed-sample-frequency pin.
 vel-timeout (float r/w)::
  When the encoder is moving slower than one pulse for each time that
  the driver reads the count from the FPGA (in the hm2_read() function), the velocity is harder to estimate.
@@ -453,12 +452,12 @@ Doing so generally reduces following errors.
 One pin is created for each SSI instance regardless of data format:
 
 hm2_XXXX.__NN__.ssi.__MM__.data-incomplete (bit, in)::
-This pin will be set "True" if the module was still transferring data when the value was read.
-When this problem exists there will also be a limited number of error messages printed to the UI.
-This pin should be used to monitor whether the problem has been addressed by config changes.
-Solutions to the problem depend on whether
-* the encoder read is being triggered by the hm2dpll phase-locked-loop timer (described above)
-*  or by the trigger-encoders function (described below).
+ This pin will be set "True" if the module was still transferring data when the value was read.
+ When this problem exists there will also be a limited number of error messages printed to the UI.
+ This pin should be used to monitor whether the problem has been addressed by config changes.
+ Solutions to the problem depend on whether
+ * the encoder read is being triggered by the hm2dpll phase-locked-loop timer (described above)
+ * or by the trigger-encoders function (described below).
 
 The names of the pins created by the SSI module will depend entirely on
 the format string for each channel specified in the loadrt command line.
