@@ -87,7 +87,7 @@ as the 'L number', and so on for any other letter.
 |<<gcode:g43.1,G43.1>>             |Dynamic Tool Length Offset
 |<<gcode:g43.2,G43.2>>             |Apply additional Tool Length Offset
 |<<gcode:g49,G49>>                 |Cancel Tool Length Offset
-|<<gcode:g52,G52>>                 |Local Coordinate System Offset
+|<<gcode:,>>                 |Local Coordinate System Offset
 |<<gcode:g53,G53>>                 |Move in Machine Coordinates
 |<<gcode:g54-g59.3,G54-G59.3>>     |Select Coordinate System (1 - 9)
 |<<gcode:g61,G61>>                 |Exact Path Mode
@@ -800,9 +800,9 @@ Important Concepts:
   system.
 * When a rotation is in effect jogging an axis will only move that axis
   in a positive or negative direction and not along the rotated axis.
-* If a 'G52' local offset or 'G92' origin offset was in effect before
+* If a '' local offset or 'G92' origin offset was in effect before
   'G10 L2', it will continue to be in effect afterwards.
-* When programming a coordinate system with R, any 'G52' or 'G92' will
+* When programming a coordinate system with R, any '' or 'G92' will
   be applied *after* the rotation.
 * The coordinate system whose origin is set by a 'G10' command may be
   active or inactive at the time the 'G10' is executed.
@@ -852,7 +852,7 @@ G10 L10 P- axes <R- I- J- Q->
 
 G10 L10 changes the tool table entry for tool P so that if the tool
 offset is reloaded, with the machine in its current position and with
-the current G5x and G52/G92 offsets active, the current coordinates for
+the current G5x and /G92 offsets active, the current coordinates for
 the given axes will become the given values. The axes that are not
 specified in the G10 L10 command will not be changed. This could be
 useful with a probe move as described in the <<gcode:g38,G38>> section.
@@ -894,7 +894,7 @@ G10 L11 is just like G10 L10 except that instead of setting the entry
 according to the current offsets, it is set so that the current
 coordinates would become the given value if the new tool offset
 is reloaded and the machine is placed in the G59.3 coordinate
-system without any G52/G92 offset active.
+system without any /G92 offset active.
 
 This allows the user to set the G59.3 coordinate system according to a
 fixed point on the machine, and then use that fixture to measure tools
@@ -1541,7 +1541,7 @@ G52 axes
 G52 is used in a part program as a temporary "local coordinate system
 offset" within the workpiece coordinate system. For more information about
 `G92` and `G52` and how they interact see the 
-<<cha:coordinate-systems#local-and-global-offsets,Local and Global Offsets>>
+<<cha:coordinate-system#g52-and-g92-offsets,Local and Global Offsets>>
 section.
 
 [[gcode:g53]]
