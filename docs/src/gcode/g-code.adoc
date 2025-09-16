@@ -1541,7 +1541,7 @@ G52 axes
 G52 is used in a part program as a temporary "local coordinate system
 offset" within the workpiece coordinate system. For more information about
 `G92` and `G52` and how they interact see the 
-<<cha:coordinate-system#g52-and-g92-offsets,Local and Global Offsets>>
+<<sec:g52-and-g92-offsets,Local and Global Offsets>>
 section.
 
 [[gcode:g53]]
