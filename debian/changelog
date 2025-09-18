@@ -1106,7 +1106,7 @@ linuxcnc (1:2.8.3) buster; urgency=low
   * Merge pull request #1641 from JTrantow/2.8
   * Change EDITOR = geany. Restore more generous dirhold and dirsetup
       timing.
-  * Updated the gantry example 
+  * Updated the gantry example
   * linuxcncrsh: check for errors when creating listening socket
   * gscreen -fix error related to keyboard jogging and limit switch
   * getting-linuxcnc.txt list alternate keyserver
