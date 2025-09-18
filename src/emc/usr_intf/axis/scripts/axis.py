@@ -1690,10 +1690,6 @@ class _prompt_float:
         st = 0
         ok = 1
 
-        if "#" in v:
-            ok = 0
-            self.w.set("Variables may not be used here")
-
         if ok:
             for ch in v:
                 if ch == "[": st += 1
