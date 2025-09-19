@@ -490,7 +490,7 @@ class _GStat(GObject.GObject):
         # extract specific G-code modes
         itime = fpm = fpr = css = rpm = metric = False
         radius = diameter = adm = idm = False
-        group0 = group1 = group3 = group4 = group5 = group6 = group7 = ''
+        group0 = group1 = group2 = group3 = group4 = group5 = group6 = group7 = ''
         group8 = group10 = group12 = group13 = group14 = group15 =''
 
         for num,i in enumerate(active_gcodes):
