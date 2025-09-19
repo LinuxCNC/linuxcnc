@@ -327,7 +327,7 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
             canon.parameter_file = temp_parameter
 
             unitcode = "G%d" % (20 + (s.linear_units == 1))
-            initcode = self.inifile.find("RS274NGC", "RS274NGC_STARTUP_CODE") or ""
+            initcode = ""
             result, seq = self.load_preview(filename, canon, unitcode, initcode)
             if result > gcode.MIN_ERROR:
                 self.report_gcode_error(result, seq, filename)
