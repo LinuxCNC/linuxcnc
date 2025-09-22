@@ -1,3 +1,12 @@
+linuxcnc (1:2.9.6) UNRELEASED; urgency=medium
+
+  * qtvcp -Qt5_graphics: issue 2753; preview wrongly uses INI startup code
+  * Merge pull request #3567 from Sigma1912/2_9-Correct_bad_fix_for_2753
+  * Gremlin: Don't use  RS274NGC_STARTUP_CODE when updating the preview
+  * Docs: Address G52 Circular Link #3565
+
+ -- andypugh <andy@bodgesoc.org>  Mon, 22 Sep 2025 22:55:20 +0100
+
 linuxcnc (1:2.9.5) UNRELEASED; urgency=medium
 
   * tests: save.1 test removed. It's been skipped for 19 years.
