@@ -1,25 +1,27 @@
 component joint_axis_mapper "Translate faults from Joint to Axis";
 
 description """
-When a joint has a Fault, is shows as Joint 0. 
+By default 'joint.n.amp-fault-in' triggers an error message 'Joint n amplifier fault'.
 
-This is a translation layer that shows an Axis associated with a joint.
+This component is a translation layer that shows an additional message
+'{L} Axis fault detected', with {L} being the axis letter associated with the faulted joint.
 
 
-Usage:
-loadrt joint_axis_mapper coord=[TRAJ]COORDINATES
+Usage example:
+loadrt joint_axis_mapper coord=xyz
+addf   joint_axis_mapper servo-thread
 
-net x-fault joint.0.amp-fault-in => translate.X-fault
-
-Replacing axis letter and joint number appropriate for your machine
-
+net x-fault joint.0.faulted => jam.x-fault
+net y-fault joint.1.faulted => jam.y-fault
+net z-fault joint.2.faulted => jam.z-fault
 """;
 
 license "GPL";
 
-pin in bit temp "Fault in";
+pin out bit dummy "halcompile requires at least one halpin";
 
 function _;
+option period no;
 option singleton yes;
 option rtapi_app no;
 
@@ -39,13 +41,8 @@ typedef struct{
 static faults_in_t *faults_in;
 char fault_letter[16];
 
-
-
 int rtapi_app_main(void) {
-    int r = 0;
     comp_id = hal_init("joint_axis_mapper");
-    char buf[HAL_NAME_LEN + 1];
-
     if(comp_id < 0) return comp_id;
 
     number_joints = strlen(coord);
@@ -54,7 +51,7 @@ int rtapi_app_main(void) {
     rtapi_print_msg(RTAPI_MSG_INFO, "Joint Axis Mapper - Initializing with coords %s\n", coord);
 
     int this_count = 0;
-    for(int i =0; i < strlen(coord); i++){
+    for(unsigned i =0; i < strlen(coord); i++){
         if(coord[i] != ' '  && coord[i] != ';'  && coord[i] != '{'  && coord[i] != '}'  && coord[i] != ',' &&
            coord[i] != '\n' && coord[i] != '\r' && coord[i] != '\t' && coord[i] != '\"' && coord[i] != '\'') {
             coord[this_count++] = coord[i];
@@ -66,7 +63,7 @@ int rtapi_app_main(void) {
     this_count = 0;
     number_joints = strlen(coord);
 
-    for(int i = 0; i < strlen(coord); i++) {
+    for(unsigned i = 0; i < strlen(coord); i++) {
         fault_letter[i] = coord[i];
         this_count = 0;
         if(coord[i] == 'X' || coord[i] == 'x'){ axis_counts[0]++; this_count = axis_counts[0];  }
@@ -92,7 +89,7 @@ int rtapi_app_main(void) {
         }
     }
 
-    hal_export_funct("joint_axis_mapper", (void(*))_, 0, 1, 0, comp_id);
+    export("joint_axis_mapper", 0);
     hal_ready(comp_id);
     return 0;
 }
@@ -103,10 +100,11 @@ void rtapi_app_exit(void) {
 
 
 FUNCTION(_) {
-        for(int i = 0; i < number_joints; i++) {
-            if(*faults_in->fault_in[i] && ! *faults_in->fault_out[i]){
-                rtapi_print_msg(RTAPI_MSG_ERR, "%c Axis fault detected\n", fault_letter[i]);
-            }
-            *(faults_in->fault_out[i]) = *(faults_in->fault_in[i]);
+    dummy=0; // if we don't use at least one halpin in FUNCTION we get a compiler warning
+    for(int i = 0; i < number_joints; i++) {
+        if(*faults_in->fault_in[i] && ! *faults_in->fault_out[i]){
+            rtapi_print_msg(RTAPI_MSG_ERR, "%c Axis fault detected\n", fault_letter[i]);
         }
+        *(faults_in->fault_out[i]) = *(faults_in->fault_in[i]);
+    }
 }
