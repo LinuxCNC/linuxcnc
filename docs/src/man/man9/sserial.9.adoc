@@ -311,7 +311,7 @@ and the 7I70 during real time process data exchanges. For high speed
 applications, choosing the correct mode can reduced the data transfer
 sizes, resulting in higher maximum update rates.
 
-MODE 0:: Input mode (48 bits input data only
+MODE 0:: Input mode (48 bits input data only)
 MODE 1:: Input plus analog mode (48 bits input data plus 6 channels of analog data)
 MODE 2:: Input plus field voltage
 
