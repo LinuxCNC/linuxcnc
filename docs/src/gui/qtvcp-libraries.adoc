@@ -996,7 +996,7 @@ Requires no user intervention.
   * *okdialog* - _requiring the user to click OK to close the dialog_. +
 OK messages have _two HAL pins_:
   ** One HAL pin to launch the dialog, and
-  ** One to signify it's waiting for response.
+  ** one to signify it is waiting for a response.
   * *yesnodialog* - _requiring the user to select yes or no buttons to close the dialog_. +
 Yes/No messages have _three HAL pins_:
   ** One to show the dialog,
@@ -1089,7 +1089,7 @@ Requires no user intervention.
   * *okdialog* - _requiring the user to click OK to close the dialog_. +
 OK messages use _two HAL pins_:
   ** One HAL pin to launch the dialog, and
-  ** One to signify it's waiting for response.
+  ** one to signify it's waiting for response.
   * *yesnodialog* - _requiring the user to select yes or no buttons to close the dialog_. +
 Yes/No messages use _three HAL pins_:
   ** One to show the dialog,

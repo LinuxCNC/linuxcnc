@@ -166,12 +166,12 @@ filter extension = program to run
 [source,{ini}]
 ----
 [FILTER]
-# Controls what programs are shown in the file manager
+# Controls what programs are shown in the file manager:
 PROGRAM_EXTENSION = .ngc,.nc,.tap G-Code File (*.ngc,*.nc,*.tap)
 PROGRAM_EXTENSION = .png,.gif,.jpg Greyscale Depth Image
 PROGRAM_EXTENSION = .py Python Script
 
-# specifies what special 'filter' programs runs based on program ending
+# Maps data/source code file extensions to a special 'filter' program for the display/execution:
 png = image-to-gcode
 gif = image-to-gcode
 jpg = image-to-gcode

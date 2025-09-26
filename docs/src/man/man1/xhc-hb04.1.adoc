@@ -269,17 +269,21 @@ a number of INI file settings. The script uses an additional HAL
 component (xhc_hb04_util) to provide common functionality and includes
 support for a standard method for the start-pause button.
 
-The settings available include: 1) specify button-cfg-file for standard
-layout1 or layout2 2) select axes (up to 4 axes from set of x y z a b c
-u v w) 3) implement per-axis filtering coefficients 4) implement
-per-axis acceleration for mpg jogging 5) implement per-axis scale
-settings 6) select normal or velocity based jog modes 7) select stepsize
-sequence 8) option to initialize pin for inch or mm display icon 9)
-option to require pendant on startup
+The settings available include:
+ * Specify button-cfg-file for standard layout1 or layout2,
+ * select axes (up to 4 axes from set of x y z a b c u v w),
+ * implement per-axis filtering coefficients,
+ * implement per-axis acceleration for mpg jogging,
+ * implement per-axis scale settings,
+ * select normal or velocity based jog modes,
+ * select stepsize sequence,
+ * option to initialize pin for inch or mm display icon,
+ * option to require pendant on startup.
 
-The sim configs illustrate button connections that: 1) connect pendant
-stepsize-up button to the step input pin. 2) connect buttons to halui.*
-pins 3) connect buttons to motion.* pins
+The sim configs illustrate button connections that:
+ * Connect pendant stepsize-up button to the step input pin,
+ * connect buttons to halui.* pins,
+ * connect buttons to motion.* pins.
 
 Another script is included to monitor the pendant and report loss of USB connectivity.
 See the README and .txt files in the above directory for usage.
@@ -294,9 +298,9 @@ included in README file in the directory named above.
 Use halcmd to display the pins and signals used by the xhc-hb04.tcl script:
 
 ....
-  halcmd show pin xhc-hb04       (show all xhc-hb04 pins)
-  halcmd show pin pendant_util   (show all pendant_util pins)
-  halcmd show sig pendant:       (show all pendant signals)
+halcmd show pin xhc-hb04       (show all xhc-hb04 pins)
+halcmd show pin pendant_util   (show all pendant_util pins)
+halcmd show sig pendant:       (show all pendant signals)
 ....
 
 == AUTHOR

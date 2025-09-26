@@ -655,11 +655,11 @@ To connect encoders, the following pins are exported:
 - *gmoccapy.jog.jog-velocity.count-enable*          _(bit IN)_ - Must be True, to enable counts
 - *gmoccapy.feed.feed-override.counts*              _(s32 IN)_ - feed override
 - *gmoccapy.feed.feed-override.count-enable*        _(bit IN)_ - Must be True, to enable counts
-- *gmoccapy.feed.reset-feed-override*               _(bit IN)_ - reset the feed override to *0%
+- *gmoccapy.feed.reset-feed-override*               _(bit IN)_ - reset the feed override to 0%
 - *gmoccapy.spindle.spindle-override.counts*        _(s32 IN)_ - spindle override
 - *gmoccapy.spindle.spindle-override.count-enable*  _(bit IN)_ - Must be True, to enable counts
-- *gmoccapy.spindle.reset-spindle-override*         _(bit IN)_ - reset the spindle override to *0%
-- *gmoccapy.rapid.rapid-override.counts*            _(s32 IN)_ - Maximal Velocity of the *chine
+- *gmoccapy.spindle.reset-spindle-override*         _(bit IN)_ - reset the spindle override to 0%
+- *gmoccapy.rapid.rapid-override.counts*            _(s32 IN)_ - Maximal velocity of the machine
 - *gmoccapy.rapid.rapid-override.count-enable*      _(bit IN)_ - Must be True, to enable counts
 
 To connect potentiometers, use the following pins:

@@ -754,13 +754,11 @@ running 'in-place', this can be done by using 'scripts/rip-environment'.
 [[sec:axis-lathe-mode]]
 == Using AXIS in Lathe Mode(((AXIS:Lathe Mode)))
 
-By including the line 'LATHE = 1'
-in the [DISPLAY] section of the INI file, AXIS selects lathe mode. The
-'Y' axis is not shown in coordinate readouts, the view is changed to
-show the Z axis extending to the right and the X axis extending towards
-the bottom of the screen, and several controls (such as those for
-preset views) are removed.  The coordinate readouts for X are replaced
-with diameter and radius.
+By including the line 'LATHE = 1' in the [DISPLAY] section of the INI file, AXIS selects lathe mode.
+The 'Y' axis is not shown in coordinate readouts, the view is changed
+to show the Z axis extending to the right and the X axis extending towards
+the bottom of the screen, and several controls (such as those for preset views) are removed.
+The coordinate readouts for X are replaced with diameter and radius.
 
 .AXIS Lathe Mode
 image::images/axis-lathe.png["AXIS Lathe Mode",align="center"]
