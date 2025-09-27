@@ -503,10 +503,10 @@ AxisToolButton{
 
 /** GCode Display **/
 EditorBase {
-    qproperty-styleColorBackground: #c0c0c0;
-    qproperty-styleColorMarginBackground: #666666;
-    qproperty-styleColorMarginText: #ffffff;
-    qproperty-styleColorMarkerBackground: #9f9f9f;
+    qproperty-styleColorBackground: #404040;
+    qproperty-styleColorMarginBackground: #000000;
+    qproperty-styleColorMarginText: #ccddcc;
+    qproperty-styleColorMarkerBackground: #000055;
     qproperty-styleColorSelectionBackground: #006aff;
     qproperty-styleColorSelectionText: #ffffff;
     qproperty-styleFont: "DejaVu Sans Mono,12,-1,5,50,0,0,0,1,0"; /* default */
@@ -516,19 +516,20 @@ EditorBase {
     qproperty-styleFont3: "DejaVu Sans Mono,12,-1,5,90,0,0,0,1,0";
     qproperty-styleFont4: "DejaVu Sans Mono,12,-1,5,90,0,0,0,1,0";
     qproperty-styleFont5: "DejaVu Sans Mono,12,-1,5,90,0,0,0,1,0";
-    qproperty-styleFont6: "DejaVu Sans Mono,12,-1,5,70,0,0,0,1,0";
-    qproperty-styleFont7: "DejaVu Sans Mono,12,-1,5,70,0,0,0,1,0";
-    qproperty-styleFontMargin: "DejaVu Sans Mono,10,-1,5,50,0,0,0,1,0";
-    qproperty-styleColor0: #efefef;/* default */
-    qproperty-styleColor1: #444444;/* LineNo & Comments */
-    qproperty-styleColor2: blue;/* Gcodes */
-    qproperty-styleColor3: #006412;/* Mcodes #007615; */
-    qproperty-styleColor4: #ad00ff;/* Axes */
-    qproperty-styleColor5: red;/* Other (feed, spindle, radius, etc) */
-    qproperty-styleColor6: #111155;/* Axes Values */
-    qproperty-styleColor7: #111155;/* Other Values */
-    qproperty-styleColorCursor: red
+    qproperty-styleFont6: "DejaVu Sans Mono,12,-1,5,90,0,0,0,1,0";
+    qproperty-styleFont7: "DejaVu Sans Mono,12,-1,5,90,0,0,0,1,0";
+    qproperty-styleFontMargin: "DejaVu Sans Mono,8,-1,5,50,1,0,0,1,0";    
+    qproperty-styleColor0: #ffffff;		/* default */
+    qproperty-styleColor1: white; 		/* LineNo & Comments */
+    qproperty-styleColor2: #0099ff; 	/* Gcodes */     
+    qproperty-styleColor3: lightgreen;	/* Mcodes */
+    qproperty-styleColor4: yellow;		/* Axes */
+    qproperty-styleColor5: #ff0000;	/* Other (feed, spindle, radius, etc) */
+    qproperty-styleColor6: #aaaadf;	/* Axes Values */
+    qproperty-styleColor7: #cd6197;	/* Other Values */
 }
+
+
 
 GcodeEditor QToolButton {
     min-width: 35;
@@ -543,4 +544,33 @@ GcodeEditor QLineEdit {
 }
 
 
+MacroTab QPushButton {
+    width: 80px;
+    height: 35px;
+font: 12pt "Lato Heavy";
+}
+
+MacroTab QLabel {
+    font: 14pt "Lato Heavy";
+}
+
+TouchSpinBox  LineEdit {
+    font: 14pt "Lato Heavy";
+    max-width: 60px;
+}
+
+TouchSpinBox  QPushButton {
+    width: 60px;
+    height: 100px;
+}
+
+MacroTab QCheckBox::indicator {
+    width: 25px;
+    height: 25px;
+}
+
+MacroTab QRadioButton::indicator {
+    width: 22px;
+    height: 22px;
+}
 
