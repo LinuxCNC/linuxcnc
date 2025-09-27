@@ -1,0 +1,53 @@
+net rate    halui.axis.jog-speed panel.jog-rate
+
+net sx  halui.axis.x.select  panel.axis-x
+net sx  axis.x.jog-enable
+net sy  halui.axis.y.select  panel.axis-y
+net sy  axis.y.jog-enable
+net sz  halui.axis.z.select  panel.axis-z
+net sz  axis.z.jog-enable
+net sgui  halui.gui.mpg-select.0  panel.select-gui0
+
+net mpg-scale   axis.x.jog-scale    panel.mpg-scale
+net mpg-scale   axis.y.jog-scale
+net mpg-scale   axis.z.jog-scale
+
+net mpg-count     panel.mpg-wheel-s
+net mpg-count     axisui.mpg-in
+net mpg-count     axis.x.jog-counts
+net mpg-count     axis.y.jog-counts
+net mpg-count     axis.z.jog-counts
+
+net jog-p   halui.axis.selected.plus    panel.jog-pos
+net jog-m   halui.axis.selected.minus   panel.jog-neg
+
+net m0  halui.gui.mdi-command-MACRO0    panel.mdi-0
+net m1  halui.gui.mdi-command-MACRO1    panel.mdi-1
+net m2  halui.gui.mdi-command-MACRO3    panel.mdi-2
+
+net man     panel.manual-mode   halui.mode.manual
+net mdi     panel.mdi-mode      halui.mode.mdi
+net auto    panel.auto-mode     halui.mode.auto
+
+net pause   halui.gui.cycle.start  panel.cycle-start
+net start   halui.gui.cycle.pause  panel.cycle-pause
+net abort   halui.abort            panel.cycle-abort
+
+net cancel  halui.gui.cancel panel.cancel
+net ok      halui.gui.ok     panel.ok
+
+net softkey0  halui.gui.softkey-00    panel.softkey-0
+net softkey1  halui.gui.softkey-01    panel.softkey-1
+net softkey2  halui.gui.softkey-02    panel.softkey-2
+net softkey3  halui.gui.softkey-03    panel.softkey-3
+net softkey4  halui.gui.softkey-04    panel.softkey-4
+net softkey5  halui.gui.softkey-05    panel.softkey-5
+net softkey6  halui.gui.softkey-06    panel.softkey-6
+net softkey7  halui.gui.softkey-07    panel.softkey-7
+net softkey8  halui.gui.softkey-08    panel.softkey-8
+net softkey9  halui.gui.softkey-09    panel.softkey-9
+net softkey10 halui.gui.softkey-10    panel.softkey-10
+net softkey11 halui.gui.softkey-11    panel.softkey-11
+
+net exit      halui.gui.shutdown     panel.exit
+net reload    halui.gui.reload-display panel.reload
