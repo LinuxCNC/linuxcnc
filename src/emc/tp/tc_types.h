@@ -9,15 +9,22 @@
 * System: Linux
 *    
 * Copyright (c) 2004 All rights reserved.
+*
+* Last change:
 ********************************************************************/
 #ifndef TC_TYPES_H
 #define TC_TYPES_H
 
-#include "spherical_arc.h"
+#include "spherical_arc9.h"
 #include "posemath.h"
 #include "emcpos.h"
 #include "emcmotcfg.h"
 #include "state_tag.h"
+#include "motion_types.h"
+#include "pm_circle9.h"
+#include "pm_line9.h"
+
+typedef unsigned long long tc_unique_id_t;
 
 #define BLEND_DIST_FRACTION 0.5
 /* values for endFlag */
@@ -32,7 +39,8 @@ typedef enum {
     TC_LINEAR = 1,
     TC_CIRCULAR = 2,
     TC_RIGIDTAP = 3,
-    TC_SPHERICAL = 4
+    TC_SPHERICAL = 4,
+    TC_DWELL = 5
 } tc_motion_type_t;
 
 typedef enum {
@@ -46,53 +54,25 @@ typedef enum {
     TC_DIR_REVERSE
 } tc_direction_t;
 
-#define TC_GET_PROGRESS 0
-#define TC_GET_STARTPOINT 1
-#define TC_GET_ENDPOINT 2
+typedef enum {
+    TC_OPTIM_UNTOUCHED,
+    TC_OPTIM_AT_MAX,
+} TCOptimizationLevel;
 
-#define TC_OPTIM_UNTOUCHED 0
-#define TC_OPTIM_AT_MAX 1
-
-#define TC_ACCEL_TRAPZ 0
-#define TC_ACCEL_RAMP 1
-
-/**
- * Spiral arc length approximation by quadratic fit.
- */
-typedef struct {
-    double b0;                  /* 2nd order coefficient */
-    double b1;                  /* 1st order coefficient */
-    double total_planar_length; /* total arc length in plane */
-    int spiral_in;              /* flag indicating spiral is inward,
-                                   rather than outward */
-} SpiralArcLengthFit;
-
+typedef enum {
+    TC_ACCEL_TRAPZ,
+    TC_ACCEL_RAMP,
+} TCAccelMode;
 
 /* structure for individual trajectory elements */
 
 typedef struct {
-    PmCartLine xyz;
-    PmCartLine abc;
-    PmCartLine uvw;
-} PmLine9;
-
-typedef struct {
-    PmCircle xyz;
-    PmCartLine abc;
-    PmCartLine uvw;
-    SpiralArcLengthFit fit;
-} PmCircle9;
-
-typedef struct {
-    SphericalArc xyz;
-    PmCartesian abc;
-    PmCartesian uvw;
-} Arc9;
-
-typedef enum {
-    RIGIDTAP_START,
-    TAPPING, REVERSING, RETRACTION, FINAL_REVERSAL, FINAL_PLACEMENT
-} RIGIDTAP_STATE;
+    PmVector dwell_pos;
+    double dwell_time_req; // Pre-calculated, fixed dwell time
+    double delta_rpm_req; // Use to compute a dwell based on the spindle acceleration at run-time
+    double dwell_time; // actual dwell time (determined at run-time when dwell starts)
+    double remaining_time;
+} TPDwell;
 
 typedef unsigned long long iomask_t; // 64 bits on both x86 and x86_64
 
@@ -104,17 +84,36 @@ typedef struct {
     double aios[EMCMOT_MAX_AIO];
 } syncdio_t;
 
+
 typedef struct {
-    PmCartLine xyz;             // original, but elongated, move down
-    PmCartLine aux_xyz;         // this will be generated on the fly, for the other
-                            // two moves: retraction, final placement
+    double position; //!< Reference position for displacement calculations
+    double direction; //!< Direction of "positive" spindle motion (as -1, 1, or 0)
+} spindle_origin_t;
+
+typedef struct {
+    PmCartLine nominal_xyz;     // nominal tapping motion from start to end)
+    PmCartLine actual_xyz;         // this will be generated on the fly, for the actual rigid tapping motion
     PmCartesian abc;
     PmCartesian uvw;
     double reversal_target;
     double reversal_scale;
-    double spindlerevs_at_reversal;
-    RIGIDTAP_STATE state;
+    double tap_uu_per_rev;
+    double retract_uu_per_rev;
+    rigid_tap_state_t state;
 } PmRigidTap;
+
+typedef enum {
+    INDEX_NONE=-1,
+    INDEX_X_AXIS=0,
+    INDEX_Y_AXIS,
+    INDEX_Z_AXIS,
+    INDEX_A_AXIS,
+    INDEX_B_AXIS,
+    INDEX_C_AXIS,
+    INDEX_U_AXIS,
+    INDEX_V_AXIS,
+    INDEX_W_AXIS,
+} IndexRotaryAxis;
 
 typedef struct {
     double cycle_time;
@@ -126,51 +125,54 @@ typedef struct {
     //Velocity
     double reqvel;          // vel requested by F word, calc'd by task
     double target_vel;      // velocity to actually track, limited by other factors
-    double maxvel;          // max possible vel (feed override stops here)
+    double maxvel_geom;     // max possible vel from segment geometry (feed override stops here)
     double currentvel;      // keep track of current step (vel * cycle_time)
     double finalvel;        // velocity to aim for at end of segment
     double term_vel;        // actual velocity at termination of segment
+    int use_kink;
     double kink_vel;        // Temporary way to store our calculation of maximum velocity we can handle if this segment is declared tangent with the next
     double kink_accel_reduce_prev; // How much to reduce the allowed tangential acceleration to account for the extra acceleration at an approximate tangent intersection.
     double kink_accel_reduce; // How much to reduce the allowed tangential acceleration to account for the extra acceleration at an approximate tangent intersection.
+    double parabolic_equiv_vel; // Estimated equivalent velocity for a parabolic blend with the next segment
+
+    double v_limit_linear_ratio;
+    double v_limit_angular_ratio;
 
     //Acceleration
     double maxaccel;        // accel calc'd by task
     double acc_ratio_tan;// ratio between normal and tangential accel
+    double acc_normal_max;         // Max acceleration allowed in normal direction (worst-case for the whole curve)
     
     int id;                 // segment's serial number
-    struct state_tag_t tag; // state tag corresponding to running motion
+    tc_unique_id_t unique_id;  //!< "Unique" identifier for a motion command that's not related to source line
+    struct state_tag_t tag; /* state tag corresponding to running motion */
 
     union {                 // describes the segment's start and end positions
         PmLine9 line;
         PmCircle9 circle;
         PmRigidTap rigidtap;
-        Arc9 arc;
+        SphericalArc9 arc;
+        TPDwell dwell;
     } coords;
 
-    int motion_type;       // TC_LINEAR (coords.line) or
+    tc_motion_type_t motion_type;       // TC_LINEAR (coords.line) or
                             // TC_CIRCULAR (coords.circle) or
                             // TC_RIGIDTAP (coords.rigidtap)
     int active;            // this motion is being executed
     int canon_motion_type;  // this motion is due to which canon function?
-    int term_cond;          // gcode requests continuous feed at the end of
+    tc_term_cond_t term_cond;          // gcode requests continuous feed at the end of
                             // this segment (g64 mode)
 
-    int blending_next;      // segment is being blended into following segment
-    double blend_vel;       // velocity below which we should start blending
     double tolerance;       // during the blend at the end of this move,
                             // stay within this distance from the path.
-    int synchronized;       // spindle sync state
+    tc_spindle_sync_t synchronized;       // spindle sync state
     double uu_per_rev;      // for sync, user units per rev (e.g. 0.0625 for 16tpi)
-    double vel_at_blend_start;
-    int sync_accel;         // we're accelerating up to sync with the spindle
     unsigned char enables;  // Feed scale, etc, enable bits for this move
     int atspeed;           // wait for the spindle to be at-speed before starting this move
     syncdio_t syncdio;      // synched DIO's for this move. what to turn on/off
-    int indexer_jnum;  // which joint to unlock (for a locking indexer) to make this move, -1 for none
-    int optimization_state;             // At peak velocity during blends)
+    IndexRotaryAxis indexrotary;        // which rotary axis to unlock to make this move, -1 for none
+    TCOptimizationLevel optimization_state;             // At peak velocity during blends)
     int on_final_decel;
-    int blend_prev;
     int accel_mode;
     int splitting;          // the segment is less than 1 cycle time
                             // away from the end.
@@ -180,8 +182,6 @@ typedef struct {
                             * speed) */
     int finalized;
 
-    // Temporary status flags (reset each cycle)
-    int is_blending;
 } TC_STRUCT;
 
 #endif				/* TC_TYPES_H */
