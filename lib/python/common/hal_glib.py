@@ -352,6 +352,11 @@ class _GStat(GObject.GObject):
     def set_timer(self):
         GLib.timeout_add(CYCLE_TIME, self.update)
 
+    # used to run the Gobject mainloop once
+    # allows a GUI that is not GLib based to update the mainloop
+    def run_iteration(self):
+        GLib.MainContext.default().iteration (True)
+
     # open a zmq socket for writing out data
     def init_write_socket(self):
         context = zmq.Context()
@@ -362,6 +367,7 @@ class _GStat(GObject.GObject):
             self.write_available = True
         except Exception as e:
             LOG.debug('hal_glib write socket not available: {}'.format(e))
+            LOG.debug('hal_glib write socket not available\n {}'.format(e))
             self.write_available = False
 
     # convert and actually send out the message
