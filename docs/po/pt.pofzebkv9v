@@ -1,0 +1,3365 @@
+# SOME DESCRIPTIVE TITLE
+# Copyright (C) YEAR Free Software Foundation, Inc.
+# This file is distributed under the same license as the PACKAGE package.
+# Páulo Magrini <pmagrini@gmail.com>, 2022.
+# ssantos <ssantos@web.de>, 2022.
+# TecnoLAZ <luispaulodias89@gmail.com>, 2024.
+# Américo Monteiro <a_monteiro@gmx.com>, 2025.
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
+"POT-Creation-Date: 2025-07-11 21:45+0100\n"
+"PO-Revision-Date: 2025-09-25 10:46+0000\n"
+"Last-Translator: Américo Monteiro <a_monteiro@gmx.com>\n"
+"Language-Team: none\n"
+"Language: pt\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=n > 1;\n"
+"X-Generator: Weblate 5.14-dev\n"
+
+#.  vim: set syntax=asciidoc:
+#. type: Attribute :lang:
+#: src/Master_Developer.adoc:1 src/Master_Documentation.adoc:1
+#: src/Master_Getting_Started.adoc:1 src/Master_Integrator.adoc:1
+#: help/rtfaults.adoc:1 help/tklinuxcnc.adoc:1 src/code/adding-configs.adoc:1
+#: src/code/building-linuxcnc.adoc:1 src/code/code-notes.adoc:1
+#: src/code/contributing-to-linuxcnc.adoc:1 src/code/nml-messages.adoc:1
+#: src/code/rs274.adoc:1 src/code/style-guide.adoc:1
+#: src/gui/gui-dev-reference.adoc:1 src/common/emc-history.adoc:1
+#: src/common/glossary.adoc:1 src/common/gpld-copyright.adoc:1
+#: src/common/linux-faq.adoc:1 src/common/overleaf.adoc:1
+#: src/config/core-components.adoc:1 src/config/ini-config.adoc:1
+#: src/config/ini-homing.adoc:1 src/config/integrator-concepts.adoc:1
+#: src/config/lathe-config.adoc:1 src/config/moveoff.adoc:1
+#: src/config/pncconf.adoc:1 src/config/python-hal-interface.adoc:1
+#: src/config/python-interface.adoc:1 src/config/stepconf.adoc:1
+#: src/config/stepper.adoc:1 src/config/stepper-diagnostics.adoc:1
+#: src/config/stepper-quickstart.adoc:1 src/drivers/ax5214h.adoc:1
+#: src/drivers/gm.adoc:1 src/drivers/gs2.adoc:1 src/drivers/hostmot2.adoc:1
+#: src/drivers/hal_gpio.adoc:1 src/drivers/mb2hal.adoc:1
+#: src/drivers/mitsub-vfd.adoc:1 src/drivers/motenc.adoc:1
+#: src/drivers/opto22.adoc:1 src/drivers/pico-ppmc.adoc:1
+#: src/drivers/pluto-p.adoc:1 src/drivers/pmx485.adoc:1
+#: src/drivers/servo-to-go.adoc:1 src/drivers/shuttle.adoc:1
+#: src/drivers/vfs11.adoc:1 src/examples/gcode.adoc:1
+#: src/examples/gs2-example.adoc:1 src/examples/mpg.adoc:1
+#: src/examples/pci-parallel-port.adoc:1 src/examples/spindle.adoc:1
+#: src/gcode/coordinates.adoc:1 src/gcode/g-code.adoc:1
+#: src/gcode/machining-center.adoc:1 src/gcode/m-code.adoc:1
+#: src/gcode/o-code.adoc:1 src/gcode/other-code.adoc:1
+#: src/gcode/overview.adoc:1 src/gcode/rs274ngc.adoc:1
+#: src/gcode/tool-compensation.adoc:1 src/getting-started/about-linuxcnc.adoc:1
+#: src/getting-started/getting-linuxcnc.adoc:1
+#: src/getting-started/running-linuxcnc.adoc:1
+#: src/getting-started/system-requirements.adoc:1
+#: src/getting-started/hardware-interface.adoc:1
+#: src/getting-started/updating-linuxcnc.adoc:1 src/gui/axis.adoc:1
+#: src/gui/filter-programs.adoc:1 src/gui/gladevcp.adoc:1
+#: src/gui/gladevcp-libraries.adoc:1 src/gui/gmoccapy.adoc:1
+#: src/gui/gscreen.adoc:1 src/gui/gstat.adoc:1 src/gui/halui.adoc:1
+#: src/gui/image-to-gcode.adoc:1 src/gui/mdro.adoc:1 src/gui/ngcgui.adoc:1
+#: src/gui/panelui.adoc:1 src/gui/pyvcp.adoc:1 src/gui/pyvcp-examples.adoc:1
+#: src/gui/qtdragon.adoc:1 src/gui/qtvcp.adoc:1
+#: src/gui/qtvcp-code-snippets.adoc:1 src/gui/qtvcp-custom-widgets.adoc:1
+#: src/gui/qtvcp-development.adoc:1 src/gui/qtvcp-libraries.adoc:1
+#: src/gui/qtvcp-vcp-panels.adoc:1 src/gui/qtvcp-vismach.adoc:1
+#: src/gui/qtvcp-widgets.adoc:1 src/gui/tklinuxcnc.adoc:1
+#: src/gui/tooledit.adoc:1 src/gui/touchy.adoc:1 src/gui/vismach.adoc:1
+#: src/hal/basic-hal.adoc:1 src/hal/canonical-devices.adoc:1
+#: src/hal/comp.adoc:1 src/hal/components.adoc:1 src/hal/general-ref.adoc:1
+#: src/hal/hal-examples.adoc:1 src/hal/halmodule.adoc:1 src/hal/halshow.adoc:1
+#: src/hal/haltcl.adoc:1 src/hal/halui-examples.adoc:1 src/hal/intro.adoc:1
+#: src/hal/parallel-port.adoc:1 src/hal/rtcomps.adoc:1 src/hal/tools.adoc:1
+#: src/hal/tutorial.adoc:1 src/hal/twopass.adoc:1
+#: src/install/latency-test.adoc:1 src/integrator/steppers.adoc:1
+#: src/integrator/stepper-timing.adoc:1 src/integrator/wiring.adoc:1
+#: src/ladder/classic-ladder.adoc:1 src/ladder/ladder-examples.adoc:1
+#: src/ladder/ladder-intro.adoc:1 src/lathe/lathe-user.adoc:1
+#: src/motion/5-axis-kinematics.adoc:1 src/motion/dh-parameters.adoc:1
+#: src/motion/external-offsets.adoc:1 src/motion/kinematics.adoc:1
+#: src/motion/pid-theory.adoc:1 src/motion/switchkins.adoc:1
+#: src/motion/tweaking-steppers.adoc:1 src/plasma/plasma-cnc-primer.adoc:1
+#: src/plasma/qtplasmac.adoc:1 src/remap/remap.adoc:1
+#: src/source-highlight/hal-demo.adoc:1 src/source-highlight/ini-demo.adoc:1
+#: src/source-highlight/ngc-demo.adoc:1 src/tooldatabase/tooldatabase.adoc:1
+#: src/user/starting-linuxcnc.adoc:1 src/user/user-concepts.adoc:1
+#: src/user/user-foreword.adoc:1 src/user/user-intro.adoc:1 README.adoc:1
+#: INSTALL.adoc:1
+msgid "en"
+msgstr "pt"
+
+#. type: Title =
+#: src/Master_Developer.adoc:6
+#, no-wrap
+msgid "Developer Manual V{lversion}"
+msgstr "Manual do Desenvolvedor V{lversion}"
+
+#. type: Title ==
+#: src/Master_Developer.adoc:8 src/code/building-linuxcnc.adoc:6
+#: src/code/contributing-to-linuxcnc.adoc:12
+#: src/config/python-interface.adoc:18 src/config/stepconf.adoc:7
+#: src/config/stepper.adoc:13 src/drivers/hostmot2.adoc:13
+#: src/drivers/mb2hal.adoc:13 src/gcode/coordinates.adoc:13
+#: src/gui/axis.adoc:13 src/gui/filter-programs.adoc:6 src/gui/gmoccapy.adoc:15
+#: src/gui/gscreen.adoc:13 src/gui/halui.adoc:14 src/gui/mdro.adoc:13
+#: src/gui/panelui.adoc:11 src/gui/pyvcp.adoc:13 src/gui/qtdragon.adoc:12
+#: src/gui/qtvcp-vismach.adoc:12 src/gui/tklinuxcnc.adoc:14
+#: src/hal/canonical-devices.adoc:7 src/hal/comp.adoc:13
+#: src/hal/tutorial.adoc:7 src/ladder/ladder-intro.adoc:37
+#: src/motion/5-axis-kinematics.adoc:17 src/motion/kinematics.adoc:7
+#: src/motion/switchkins.adoc:13 src/plasma/qtplasmac.adoc:24
+#: src/user/user-intro.adoc:7
+#, no-wrap
+msgid "Introduction"
+msgstr "Introdução"
+
+#. type: Target for macro image
+#: src/Master_Developer.adoc:10 src/Master_Getting_Started.adoc:12
+#, no-wrap
+msgid "common/images/emc2-intro.png"
+msgstr "common/images/emc2-intro.png"
+
+#. type: Title =
+#: src/Master_Documentation.adoc:6
+#, no-wrap
+msgid "LinuxCNC V{lversion}"
+msgstr "LinuxCNC V{lversion}"
+
+#. type: Title =
+#: src/Master_Documentation.adoc:10
+#, no-wrap
+msgid "Getting Started & Configuration"
+msgstr "Iniciação & Configuração"
+
+#. type: Title =
+#: src/Master_Documentation.adoc:13
+#, no-wrap
+msgid "Getting Started with LinuxCNC"
+msgstr "Iniciar com LinuxCNC"
+
+#. type: Title =
+#: src/Master_Documentation.adoc:30
+#, no-wrap
+msgid "General User Information"
+msgstr "Informações Gerais de utilizador"
+
+#. type: Title =
+#: src/Master_Documentation.adoc:49
+#, no-wrap
+msgid "Configuration Wizards"
+msgstr "Magos de Configuração"
+
+#. type: Title ===
+#: src/Master_Documentation.adoc:58 src/config/ini-homing.adoc:109
+#: src/drivers/hostmot2.adoc:712
+#, no-wrap
+msgid "Configuration"
+msgstr "Configuração"
+
+#. type: Title =
+#: src/Master_Documentation.adoc:82
+#, no-wrap
+msgid "HAL (Hardware Abstraction Layer)"
+msgstr "HAL (Camada de Abstração de Hardware)"
+
+#. type: Title ===
+#: src/Master_Documentation.adoc:117 src/hal/components.adoc:87
+#, no-wrap
+msgid "Hardware Drivers"
+msgstr "Drivers de Hardware"
+
+#. type: Title =
+#: src/Master_Documentation.adoc:156
+#, no-wrap
+msgid "Hardware Examples"
+msgstr "Exemplos de Hardware"
+
+#. type: Title =
+#: src/Master_Documentation.adoc:170
+#, no-wrap
+msgid "ClassicLadder"
+msgstr "Ladder Classico"
+
+#. type: Title =
+#: src/Master_Documentation.adoc:181
+#, no-wrap
+msgid "Advanced Topics"
+msgstr "Tópicos Avançados"
+
+#. type: Title ===
+#: src/Master_Documentation.adoc:206 src/index.tmpl:277 src/code/rs274.adoc:15
+#: src/drivers/hal_pi_gpio.adoc:13 src/drivers/hal_gpio.adoc:14
+#: src/drivers/mb2hal.adoc:34 src/gui/qtvcp-libraries.adoc:26
+#: src/gui/qtvcp-libraries.adoc:194 src/gui/qtvcp-libraries.adoc:246
+#: src/gui/qtvcp-libraries.adoc:608 src/gui/qtvcp-libraries.adoc:641
+#: src/gui/qtvcp-libraries.adoc:739 src/gui/qtvcp-libraries.adoc:773
+#: src/gui/qtvcp-libraries.adoc:1213 src/gui/qtvcp-libraries.adoc:1328
+#: src/gui/qtvcp-libraries.adoc:1514 src/gui/qtvcp-vcp-panels.adoc:192
+#: src/motion/external-offsets.adoc:65 src/motion/switchkins.adoc:135
+#: src/tooldatabase/tooldatabase.adoc:80
+#, no-wrap
+msgid "Usage"
+msgstr "Utilização"
+
+#. type: Title ==
+#: src/Master_Documentation.adoc:209 src/code/code-notes.adoc:774
+#: src/user/user-intro.adoc:154
+#, no-wrap
+msgid "User Interfaces"
+msgstr "Interfaces de Utilizador"
+
+#. type: Title =
+#: src/Master_Documentation.adoc:232
+#, no-wrap
+msgid "G-code Programming"
+msgstr "Programação G-Code"
+
+#. type: Title ==
+#: src/Master_Documentation.adoc:259 src/user/user-intro.adoc:161
+#, no-wrap
+msgid "Virtual Control Panels"
+msgstr "Painéis de Controle Virtuais"
+
+#. type: Title =
+#: src/Master_Documentation.adoc:288
+#, no-wrap
+msgid "User Interface Programming"
+msgstr "Programação da Interface do Utilizador"
+
+#. type: Title =
+#: src/Master_Documentation.adoc:303
+#, no-wrap
+msgid "Glossary, Copyright & History"
+msgstr "Glossário, Direitos Autorais e História"
+
+#. type: Title =
+#: src/Master_Documentation.adoc:306
+#, no-wrap
+msgid "Overleaf"
+msgstr "No verso"
+
+#. type: Title =
+#: src/Master_Documentation.adoc:313
+#, no-wrap
+msgid "Copyright"
+msgstr "Copyright"
+
+#. type: Title =
+#: src/Master_Documentation.adoc:319
+#, no-wrap
+msgid "LinuxCNC History"
+msgstr "História do LinuxCNC"
+
+#. type: Title =
+#: src/Master_Getting_Started.adoc:6
+#, no-wrap
+msgid "Getting Started V{lversion}"
+msgstr "Começar V{lversion}"
+
+#. type: Plain text
+#: src/Master_Getting_Started.adoc:9
+msgid "The LinuxCNC Team"
+msgstr "A equipa LinuxCNC"
+
+#. type: Title =
+#: src/Master_Integrator.adoc:6
+#, no-wrap
+msgid "Integrator Information V{lversion}"
+msgstr "Informações do Integrador V{lversion}"
+
+#. type: TH
+#: src/index.tmpl:6 src/common/glossary.adoc:178 man/man1/pi500_vfd.1:10
+#: man/man1/thermistor.1:10 man/man1/wj200_vfd.1:10 man/man9/abs.9:10
+#: man/man9/abs_s32.9:10 man/man9/and2.9:10 man/man9/axistest.9:10
+#: man/man9/bin2gray.9:10 man/man9/biquad.9:10 man/man9/bitslice.9:10
+#: man/man9/bitwise.9:10 man/man9/bldc.9:10 man/man9/blend.9:10
+#: man/man9/carousel.9:10 man/man9/charge_pump.9:10 man/man9/clarke2.9:10
+#: man/man9/clarke3.9:10 man/man9/clarkeinv.9:10 man/man9/comp.9:10
+#: man/man9/constant.9:10 man/man9/conv_bit_float.9:10
+#: man/man9/conv_bit_s32.9:10 man/man9/conv_bit_u32.9:10
+#: man/man9/conv_float_s32.9:10 man/man9/conv_float_u32.9:10
+#: man/man9/conv_s32_bit.9:10 man/man9/conv_s32_float.9:10
+#: man/man9/conv_s32_u32.9:10 man/man9/conv_u32_bit.9:10
+#: man/man9/conv_u32_float.9:10 man/man9/conv_u32_s32.9:10
+#: man/man9/corexy_by_hal.9:10 man/man9/dbounce.9:10 man/man9/ddt.9:10
+#: man/man9/deadzone.9:10 man/man9/demux.9:10 man/man9/differential.9:10
+#: man/man9/edge.9:10 man/man9/eoffset_per_angle.9:10 man/man9/estop_latch.9:10
+#: man/man9/feedcomp.9:10 man/man9/filter_kalman.9:10 man/man9/flipflop.9:10
+#: man/man9/gantry.9:10 man/man9/gearchange.9:10 man/man9/gray2bin.9:10
+#: man/man9/histobins.9:10 man/man9/hypot.9:10 man/man9/ilowpass.9:10
+#: man/man9/integ.9:10 man/man9/invert.9:10 man/man9/joyhandle.9:10
+#: man/man9/knob2float.9:10 man/man9/latencybins.9:10 man/man9/limit1.9:10
+#: man/man9/limit2.9:10 man/man9/limit3.9:10 man/man9/lincurve.9:10
+#: man/man9/logic.9:10 man/man9/lowpass.9:10 man/man9/lut5.9:10
+#: man/man9/maj3.9:10 man/man9/match8.9:10 man/man9/matrix_kb.9:10
+#: man/man9/max31855.9:10 man/man9/mesa_7i65.9:10
+#: man/man9/mesa_pktgyro_test.9:10 man/man9/message.9:10 man/man9/millturn.9:10
+#: man/man9/minmax.9:10 man/man9/moveoff.9:10 man/man9/mult2.9:10
+#: man/man9/multiclick.9:10 man/man9/multiswitch.9:10 man/man9/mux16.9:10
+#: man/man9/mux2.9:10 man/man9/mux4.9:10 man/man9/mux8.9:10
+#: man/man9/mux_generic.9:10 man/man9/near.9:10 man/man9/not.9:10
+#: man/man9/offset.9:10 man/man9/ohmic.9:10 man/man9/oneshot.9:10
+#: man/man9/or2.9:10 man/man9/orient.9:10 man/man9/pid.9:10
+#: man/man9/plasmac.9:10 man/man9/pwmgen.9:10 man/man9/sample_hold.9:10
+#: man/man9/scale.9:10 man/man9/select8.9:10 man/man9/serport.9:10
+#: man/man9/sim_axis_hardware.9:10 man/man9/sim_encoder.9:10
+#: man/man9/sim_home_switch.9:10 man/man9/sim_matrix_kb.9:10
+#: man/man9/sim_parport.9:10 man/man9/simple_tp.9:10 man/man9/sim_spindle.9:10
+#: man/man9/sphereprobe.9:10 man/man9/spindle.9:10
+#: man/man9/spindle_monitor.9:10 man/man9/steptest.9:10 man/man9/sum2.9:10
+#: man/man9/thc.9:10 man/man9/thcud.9:10 man/man9/threadtest.9:10
+#: man/man9/time.9:10 man/man9/timedelay.9:10 man/man9/timedelta.9:10
+#: man/man9/toggle2nist.9:10 man/man9/toggle.9:10 man/man9/tristate_bit.9:10
+#: man/man9/tristate_float.9:10 man/man9/updown.9:10 man/man9/userkins.9:10
+#: man/man9/wcomp.9:10 man/man9/xhc_hb04_util.9:10 man/man9/xor2.9:10
+#, no-wrap
+msgid "LinuxCNC"
+msgstr "LinuxCNC"
+
+#. type: Content of: <html><head><script>
+#: src/index.tmpl:9
+msgid "//"
+msgstr "//"
+
+#. type: CDATA
+#: src/index.tmpl:9
+#, no-wrap
+msgid ""
+"var sections = [['sec0', 'sec1', 'sec2', 'sec3', 'sec4', 'sec5', 'sec6',\n"
+"   'sec7', 'sec8', 'sec9', 'sec10','sec11','sec12','sec13', 'sec14', 'sec15'],\n"
+"   ['man_1', 'man_9','man_hal', 'man_rtapi', 'man_hm2', 'man_3']];\n"
+"\n"
+"function storeOK() { // Check for HTML5 Local Storage\n"
+"  try {\n"
+"    return 'localStorage' in window && window['localStorage'] !== null;\n"
+"  } catch (e) {\n"
+"    return false;\n"
+"  }\n"
+"}\n"
+"\n"
+"function toggle(sec){\n"
+"  var e = document.getElementById(sec);\n"
+"  var i = document.getElementById(sec + '_image');\n"
+"  if(!e)return true;\n"
+"  if(e.style.display==\"none\"){\n"
+"    e.style.display=\"block\"\n"
+"    i.src = 'minus.png';\n"
+"    i.alt = '-';\n"
+"    if (storeOK()){localStorage.setItem(sec, \"block\");}\n"
+"  }\n"
+"  else {\n"
+"    e.style.display=\"none\"\n"
+"    i.src = 'plus.png';\n"
+"    if (storeOK()){localStorage.setItem(sec, \"none\");}\n"
+"  }\n"
+"  return false;\n"
+"}\n"
+"\n"
+"function toggle_section(a){\n"
+"  if (a.id.substring(0,3) === \"doc\"){var s = 0;}\n"
+"  if (a.id.substring(0,3) === \"man\"){var s = 1;}\n"
+"  if (a.value.substring(0,6) === \"Expand\"){\n"
+"    for (var i in sections[s]){\n"
+"      document.getElementById(sections[s][i]).style.display = 'block';\n"
+"      document.getElementById(sections[s][i] + '_image').src = 'minus.png';\n"
+"      document.getElementById(sections[s][i] + '_image').alt = '-';\n"
+"      if (storeOK()){localStorage.setItem(sections[s][i], \"block\");}\n"
+"    }\n"
+"  }\n"
+"  else{\n"
+"    for (var i in sections[s]){\n"
+"      document.getElementById(sections[s][i]).style.display = 'none';\n"
+"      document.getElementById(sections[s][i] + '_image').src = 'plus.png';\n"
+"      document.getElementById(sections[s][i] + '_image').alt = '+';\n"
+"      if (storeOK()){localStorage.setItem(sections[s][i], \"none\");}\n"
+"    }\n"
+"  }\n"
+"}\n"
+"\n"
+"function setup_page(){\n"
+"  for (var s in sections){\n"
+"    for (var i in sections[s]){\n"
+"      if (localStorage.getItem(sections[s][i]) != null){\n"
+"        if (localStorage.getItem(sections[s][i]) === \"block\"){\n"
+"          document.getElementById(sections[s][i]).style.display = 'block';\n"
+"          document.getElementById(sections[s][i] + '_image').src = 'minus.png';\n"
+"          document.getElementById(sections[s][i] + '_image').alt = '-';\n"
+"        }\n"
+"        else{\n"
+"          document.getElementById(sections[s][i]).style.display = 'none';\n"
+"          document.getElementById(sections[s][i] + '_image').src = 'plus.png';\n"
+"          document.getElementById(sections[s][i] + '_image').alt = '+';\n"
+"        }\n"
+"      }\n"
+"      else{\n"
+"        document.getElementById(sections[s][i]).style.display = 'none';\n"
+"        document.getElementById(sections[s][i] + '_image').src = 'plus.png';\n"
+"        document.getElementById(sections[s][i] + '_image').alt = '+';\n"
+"      }\n"
+"    }\n"
+"  }\n"
+"}\n"
+"//"
+msgstr ""
+"var sections = [['sec0', 'sec1', 'sec2', 'sec3', 'sec4', 'sec5', 'sec6',\n"
+"   'sec7', 'sec8', 'sec9', 'sec10','sec11','sec12','sec13', 'sec14', "
+"'sec15'],\n"
+"   ['man_1', 'man_9','man_hal', 'man_rtapi', 'man_hm2', 'man_3']];\n"
+"\n"
+"function storeOK() { // Check for HTML5 Local Storage\n"
+"  try {\n"
+"    return 'localStorage' in window && window['localStorage'] !== null;\n"
+"  } catch (e) {\n"
+"    return false;\n"
+"  }\n"
+"}\n"
+"\n"
+"function toggle(sec){\n"
+"  var e = document.getElementById(sec);\n"
+"  var i = document.getElementById(sec + '_image');\n"
+"  if(!e)return true;\n"
+"  if(e.style.display==\"none\"){\n"
+"    e.style.display=\"block\"\n"
+"    i.src = 'minus.png';\n"
+"    i.alt = '-';\n"
+"    if (storeOK()){localStorage.setItem(sec, \"block\");}\n"
+"  }\n"
+"  else {\n"
+"    e.style.display=\"none\"\n"
+"    i.src = 'plus.png';\n"
+"    if (storeOK()){localStorage.setItem(sec, \"none\");}\n"
+"  }\n"
+"  return false;\n"
+"}\n"
+"\n"
+"function toggle_section(a){\n"
+"  if (a.id.substring(0,3) === \"doc\"){var s = 0;}\n"
+"  if (a.id.substring(0,3) === \"man\"){var s = 1;}\n"
+"  if (a.value.substring(0,6) === \"Expand\"){\n"
+"    for (var i in sections[s]){\n"
+"      document.getElementById(sections[s][i]).style.display = 'block';\n"
+"      document.getElementById(sections[s][i] + '_image').src = 'minus.png';\n"
+"      document.getElementById(sections[s][i] + '_image').alt = '-';\n"
+"      if (storeOK()){localStorage.setItem(sections[s][i], \"block\");}\n"
+"    }\n"
+"  }\n"
+"  else{\n"
+"    for (var i in sections[s]){\n"
+"      document.getElementById(sections[s][i]).style.display = 'none';\n"
+"      document.getElementById(sections[s][i] + '_image').src = 'plus.png';\n"
+"      document.getElementById(sections[s][i] + '_image').alt = '+';\n"
+"      if (storeOK()){localStorage.setItem(sections[s][i], \"none\");}\n"
+"    }\n"
+"  }\n"
+"}\n"
+"\n"
+"function setup_page(){\n"
+"  for (var s in sections){\n"
+"    for (var i in sections[s]){\n"
+"      if (localStorage.getItem(sections[s][i]) != null){\n"
+"        if (localStorage.getItem(sections[s][i]) === \"block\"){\n"
+"          document.getElementById(sections[s][i]).style.display = 'block';\n"
+"          document.getElementById(sections[s][i] + '_image').src = "
+"'minus.png';\n"
+"          document.getElementById(sections[s][i] + '_image').alt = '-';\n"
+"        }\n"
+"        else{\n"
+"          document.getElementById(sections[s][i]).style.display = 'none';\n"
+"          document.getElementById(sections[s][i] + '_image').src = "
+"'plus.png';\n"
+"          document.getElementById(sections[s][i] + '_image').alt = '+';\n"
+"        }\n"
+"      }\n"
+"      else{\n"
+"        document.getElementById(sections[s][i]).style.display = 'none';\n"
+"        document.getElementById(sections[s][i] + '_image').src = 'plus.png';"
+"\n"
+"        document.getElementById(sections[s][i] + '_image').alt = '+';\n"
+"      }\n"
+"    }\n"
+"  }\n"
+"}\n"
+"//"
+
+#. type: Attribute 'alt' of: <html><body><div><img>
+#: src/index.tmpl:93
+msgid "LinuxCNC Logo"
+msgstr "Logo do LinuxCNC"
+
+#. type: Content of: <html><body>
+#: src/index.tmpl:96
+msgid "@TRANSLATIONS@"
+msgstr "@TRANSLATIONS@"
+
+#.  <a href="ta/">
+#. Tamil</a> 
+#. type: Content of: <html><body><p>
+#: src/index.tmpl:97
+msgid ""
+"Translations: <a href=\"ar/\">Arabic</a> <a href=\"de/\">Deutsch</a> <a "
+"href=\"es/\">Espa&ntilde;ol</a> <a href=\"fr/\">Français</a> <a href=\"nb/"
+"\">Norsk bokm&aring;l</a> <a href=\"ru/\">Russian</a> <a href=\"sv/"
+"\">Svensk</a> <a href=\"zh_CN/\">中文</a>"
+msgstr ""
+"Traduções: <a href=\"ar/\">Arabic</a> <a href=\"de/\">Deutsch</a> <a href="
+"\"es/\">Espa&ntilde;ol</a> <a href=\"fr/\">Français</a> <a href=\"nb/\""
+">Norsk bokm&aring;l</a> <a href=\"ru/\">Russian</a> <a href=\"sv/\">Svensk</"
+"a> <a href=\"zh_CN/\">中文</a>"
+
+#.  <h3 align="center">
+#. LinuxCNC version <strong>@VERSION@</strong></h3>
+#. <h2>Documentation</h2> 
+#. type: Content of: <html><body>
+#: src/index.tmpl:108
+msgid "@ENDTRANSLATIONS@"
+msgstr "@ENDTRANSLATIONS@"
+
+#. type: Content of: <html><body><h2>
+#: src/index.tmpl:112
+msgid "LinuxCNC version <strong>@VERSION@</strong> Documentation"
+msgstr "Documentação LinuxCNC versão <strong>@VERSION@</strong>"
+
+#. type: Content of: <html><body><div><p>
+#: src/index.tmpl:115
+msgid ""
+"<a href=\"https://linuxcnc.org\">LinuxCNC Home Page</a> &bull; <a "
+"href=\"https://wiki.linuxcnc.org/cgi-bin/wiki.pl\">Wiki</a> &bull; <a "
+"href=\"https://forum.linuxcnc.org\">Forum</a> &bull; <a href=\"https://"
+"github.com/LinuxCNC/linuxcnc\">Source</a> &bull; <a href=\"gcode.html\">G-"
+"Code Quick Reference</a>"
+msgstr ""
+"<a href=\"https://linuxcnc.org\">Página Oficial LinuxCNC</a> &bull; <a href="
+"\"https://wiki.linuxcnc.org/cgi-bin/wiki.pl\">Wiki</a> &bull; <a href="
+"\"https://forum.linuxcnc.org\">Forum</a> &bull; <a href="
+"\"https://github.com/LinuxCNC/linuxcnc\">Fonte</a> &bull; <a href="
+"\"gcode.html\">Referência Rápida a G-Code</a>"
+
+#. type: Content of: <html><body><p>
+#: src/index.tmpl:121
+msgid ""
+"<input type=\"button\" value=\"Expand Documents\" id=\"docExpand\" "
+"onclick=\"return toggle_section(this);\"/> <input type=\"button\" "
+"value=\"Collapse Documents\" id=\"docCollapse\" onclick=\"return "
+"toggle_section(this);\"/>"
+msgstr ""
+
+#. type: Content of: <html><body><h3>
+#: src/index.tmpl:124
+msgid "Getting Started &amp; Configuration"
+msgstr "Começar e Configuração"
+
+#. type: Content of: <html><body><p><a>
+#: src/index.tmpl:126
+msgid "<a onclick=\"return toggle('sec0')\">"
+msgstr ""
+
+#. type: Table
+#: src/index.tmpl:126 src/index.tmpl:140 src/index.tmpl:154 src/index.tmpl:163
+#: src/index.tmpl:180 src/index.tmpl:202 src/index.tmpl:227 src/index.tmpl:238
+#: src/index.tmpl:250 src/index.tmpl:267 src/index.tmpl:279 src/index.tmpl:295
+#: src/index.tmpl:315 src/index.tmpl:334 src/index.tmpl:347 src/index.tmpl:365
+#: src/man/man3/hal_type_t.3.adoc:31 src/man/man9/counter.9.adoc:47
+#: src/man/man9/counter.9.adoc:50 src/man/man9/counter.9.adoc:53
+#: src/man/man9/counter.9.adoc:56 src/man/man9/encoder.9.adoc:122
+#: src/man/man9/encoder.9.adoc:125 src/man/man9/encoder.9.adoc:128
+#: src/man/man9/encoder.9.adoc:131 src/man/man9/encoder_ratio.9.adoc:44
+#: src/man/man9/encoder_ratio.9.adoc:47 src/man/man9/encoder_ratio.9.adoc:50
+#: src/man/man9/hal_bb_gpio.9.adoc:22 src/man/man9/hal_bb_gpio.9.adoc:42
+#: src/man/man9/hal_bb_gpio.9.adoc:61 src/man/man9/kins.9.adoc:153
+#: src/man/man9/kins.9.adoc:155 src/man/man9/kins.9.adoc:157
+#: src/man/man9/kins.9.adoc:159 src/man/man9/kins.9.adoc:161
+#: src/man/man9/kins.9.adoc:170 src/man/man9/kins.9.adoc:172
+#: src/man/man9/kins.9.adoc:174 src/man/man9/kins.9.adoc:176
+#: src/man/man9/kins.9.adoc:178 src/man/man9/kins.9.adoc:224
+#: src/man/man9/kins.9.adoc:226 src/man/man9/kins.9.adoc:249
+#: src/man/man9/kins.9.adoc:251 src/man/man9/kins.9.adoc:253
+#: src/man/man9/kins.9.adoc:255 src/man/man9/kins.9.adoc:283
+#: src/man/man9/kins.9.adoc:285 src/man/man9/kins.9.adoc:287
+#: src/man/man9/kins.9.adoc:333 src/man/man9/kins.9.adoc:335
+#: src/man/man9/motion.9.adoc:220 src/man/man9/motion.9.adoc:323
+#: src/man/man9/motion.9.adoc:421 src/man/man9/motion.9.adoc:515
+#: src/man/man9/opto_ac5.9.adoc:40 src/plasma/qtplasmac.adoc:693
+#: src/plasma/qtplasmac.adoc:761
+#, no-wrap
+msgid "+"
+msgstr ""
+
+#. type: Content of: <html><body><p>
+#: src/index.tmpl:127
+msgid "Getting Started with LinuxCNC</a>"
+msgstr "Começar com LinuxCNC</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:130
+msgid "<a href=\"getting-started/about-linuxcnc.html\">About LinuxCNC</a>"
+msgstr "<a href=\"getting-started/about-linuxcnc.html\">Acerca do LinuxCNC</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:131
+msgid ""
+"<a href=\"getting-started/system-requirements.html\">Computer System "
+"Requirements</a>"
+msgstr ""
+"<a href=\"getting-started/system-requirements.html\">Requirimentos do "
+"Sistema do Computador</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:132
+msgid ""
+"<a href=\"getting-started/hardware-interface.html\">Hardware Interface / "
+"Supported Hardware</a>"
+msgstr ""
+"<a href=\"getting-started/hardware-interface.html\">Interface de Hardware / "
+"Hardware Suportado</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:133
+msgid "<a href=\"getting-started/getting-linuxcnc.html\">Getting LinuxCNC</a>"
+msgstr "<a href=\"getting-started/getting-linuxcnc.html\">Obter o LinuxCNC</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:134
+msgid "<a href=\"getting-started/running-linuxcnc.html\">Running LinuxCNC</a>"
+msgstr "<a href=\"getting-started/running-linuxcnc.html\">Correr o LinuxCNC</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:135
+msgid ""
+"<a href=\"getting-started/updating-linuxcnc.html\">Updating LinuxCNC</a>"
+msgstr ""
+"<a href=\"getting-started/updating-linuxcnc.html\">Atualizar o LinuxCNC</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:136
+msgid "<a href=\"common/linux-faq.html\">Linux FAQ</a>"
+msgstr "<a href=\"common/linux-faq.html\">Perguntas Frequentes do Linux</a>"
+
+#. type: Content of: <html><body><p><a>
+#: src/index.tmpl:140
+msgid "<a onclick=\"return toggle('sec2')\">"
+msgstr ""
+
+#. type: Content of: <html><body><p>
+#: src/index.tmpl:141
+msgid "General User Information</a>"
+msgstr "Informação de Utilizador Geral</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:144
+msgid "<a href=\"user/user-foreword.html\">User Foreword</a>"
+msgstr "<a href=\"user/user-foreword.html\">Prefácio de Utilizador</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:145
+msgid "<a href=\"user/user-intro.html\">LinuxCNC User Introduction</a>"
+msgstr "<a href=\"user/user-intro.html\">Introdução de Utilizador LinuxCNC</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:146
+msgid "<a href=\"user/user-concepts.html\">Important User Concepts</a>"
+msgstr ""
+"<a href=\"user/user-concepts.html\">Conceitos de Utilizador Importantes</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:147
+msgid "<a href=\"user/starting-linuxcnc.html\">Starting LinuxCNC</a>"
+msgstr "<a href=\"user/starting-linuxcnc.html\">Iniciar o LinuxCNC</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:148
+msgid "<a href=\"gcode/machining-center.html\">CNC Machine Overview</a>"
+msgstr "<a href=\"gcode/machining-center.html\">Visão Geral de Máquina CNC</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:149
+msgid "<a href=\"lathe/lathe-user.html\">Lathe User Information</a>"
+msgstr "<a href=\"lathe/lathe-user.html\">Informação de Utilizador do Lathe</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:150
+msgid "<a href=\"plasma/plasma-cnc-primer.html\">Plasma CNC Primer</a>"
+msgstr "<a href=\"plasma/plasma-cnc-primer.html\">Primário CNC Plasma</a>"
+
+#. type: Content of: <html><body><p><a>
+#: src/index.tmpl:154
+msgid "<a onclick=\"return toggle('sec1')\">"
+msgstr ""
+
+#. type: Content of: <html><body><p>
+#: src/index.tmpl:155
+msgid "Configuration Wizards</a>"
+msgstr "Magos de Configuração</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:158
+msgid ""
+"<a href=\"config/stepconf.html\" class=\"tooltips\">StepConf, Parallel Port "
+"Stepper Configurator</a>"
+msgstr ""
+"<a href=\"config/stepconf.html\" class=\"tooltips\">StepConf, Configurador "
+"de Stepper de Porta Paralela</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:159
+msgid ""
+"<a href=\"config/pncconf.html\" class=\"tooltips\">PnCconf, Mesa Hardware "
+"Configurator</a>"
+msgstr ""
+"<a href=\"config/pncconf.html\" class=\"tooltips\">PnCconf, Configurador de "
+"Hardware Mesa</a>"
+
+#. type: Content of: <html><body><p><a>
+#: src/index.tmpl:163
+msgid "<a onclick=\"return toggle('sec5')\">"
+msgstr ""
+
+#. type: Content of: <html><body><p>
+#: src/index.tmpl:164
+msgid "Configuration</a>"
+msgstr "Configuração</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:167
+msgid "<a href=\"config/integrator-concepts.html\">Integrator Concepts</a>"
+msgstr "<a href=\"config/integrator-concepts.html\">Conceitos de Integrador</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:168
+msgid "<a href=\"install/latency-test.html\">Latency Test</a>"
+msgstr "<a href=\"install/latency-test.html\">Teste de Latência</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:169
+msgid "<a href=\"motion/tweaking-steppers.html\">Stepper Tuning</a>"
+msgstr "<a href=\"motion/tweaking-steppers.html\">Afinação do Stepper</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:170
+msgid "<a href=\"config/ini-config.html\">INI Configuration</a>"
+msgstr "<a href=\"config/ini-config.html\">Configuração de INI</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:171
+msgid "<a href=\"config/ini-homing.html\">Homing Configuration</a>"
+msgstr "<a href=\"config/ini-homing.html\">Configuração de Homing</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:172
+msgid "<a href=\"config/lathe-config.html\">Lathe Configuration</a>"
+msgstr "<a href=\"config/lathe-config.html\">Configuração de Lathe</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:173
+msgid "<a href=\"config/stepper-quickstart.html\">Stepper Quick Start</a>"
+msgstr ""
+"<a href=\"config/stepper-quickstart.html\">Arranque Rápido do Stepper</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:174
+msgid "<a href=\"config/stepper.html\">Stepper Configuration</a>"
+msgstr "<a href=\"config/stepper.html\">Configuração de Stepper</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:175
+msgid "<a href=\"config/stepper-diagnostics.html\">Stepper Diagnostics</a>"
+msgstr "<a href=\"config/stepper-diagnostics.html\">Diagnóstico ao Stepper</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:176
+msgid "<a href=\"gui/filter-programs.html\">Filter Programs</a>"
+msgstr "<a href=\"gui/filter-programs.html\">Programas Filtro</a>"
+
+#. type: Content of: <html><body><p><a>
+#: src/index.tmpl:180
+msgid "<a onclick=\"return toggle('sec11')\">"
+msgstr ""
+
+#. type: Content of: <html><body><p>
+#: src/index.tmpl:181
+msgid "HAL (Hardware Abstraction Layer)</a>"
+msgstr "HAL (Camada de Abstração de Hardware)</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:184
+msgid "<a href=\"hal/intro.html\">HAL Introduction</a>"
+msgstr "<a href=\"hal/intro.html\">Introdução ao HAL</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:185
+msgid "<a href=\"hal/basic-hal.html\">HAL Basics</a>"
+msgstr "<a href=\"hal/basic-hal.html\">Básicos do HAL</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:186
+msgid "<a href=\"hal/twopass.html\">HAL Twopass</a>"
+msgstr "<a href=\"hal/twopass.html\">Duplo passo do HAL</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:187
+msgid "<a href=\"hal/tutorial.html\">HAL Tutorial</a>"
+msgstr "<a href=\"hal/tutorial.html\">Tutorial do HAL</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:188
+msgid "<a href=\"hal/hal-examples.html\">HAL Examples</a>"
+msgstr "<a href=\"hal/hal-examples.html\">Exemplos do HAL</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:189
+msgid "<a href=\"config/core-components.html\">HAL Core Components</a>"
+msgstr ""
+"<a href=\"config/core-components.html\">Componentes de Núcleo do HAL</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:190
+msgid "<a href=\"hal/components.html\">HAL Component List</a>"
+msgstr "<a href=\"hal/components.html\">Lista de Componentes do HAL</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:191
+msgid "<a href=\"hal/rtcomps.html\">HAL Component Descriptions</a>"
+msgstr "<a href=\"hal/rtcomps.html\">Descrições de Componentes do HAL</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:192
+msgid "<a href=\"hal/comp.html\">HAL Component Generator</a>"
+msgstr "<a href=\"hal/comp.html\">Gerador de Componentes do HAL</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:193
+msgid "<a href=\"hal/haltcl.html\">HAL TCL Files</a>"
+msgstr "<a href=\"hal/haltcl.html\">Ficheiros TCL do HAL</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:194
+msgid ""
+"<a href=\"gui/halui.html\" class=\"tooltips\">HALUI, Hardware Abstract Layer "
+"User Interface</a>"
+msgstr ""
+"<a href=\"gui/halui.html\" class=\"tooltips\">HALUI, Interface de Utilizador "
+"da Camada Abstrata de Hardware</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:195
+msgid "<a href=\"hal/halui-examples.html\">HALUI Examples</a>"
+msgstr "<a href=\"hal/halui-examples.html\">Exemplos de HALUI</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:196
+msgid ""
+"<a href=\"hal/halmodule.html\">Creating Non-Realtime Python Components</a>"
+msgstr ""
+"<a href=\"hal/halmodule.html\">Criando Componentes Python Não-Tempo-real</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:197
+msgid "<a href=\"hal/canonical-devices.html\">Canonical Device Interfaces</a>"
+msgstr ""
+"<a href=\"hal/canonical-devices.html\">Interfaces de Dispositivo Canônico</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:198
+msgid "<a href=\"hal/tools.html\">HAL Tools</a>"
+msgstr "<a href=\"hal/tools.html\">Ferramentas do HAL</a>"
+
+#. type: Content of: <html><body><p><a>
+#: src/index.tmpl:202
+msgid "<a onclick=\"return toggle('sec8')\">"
+msgstr ""
+
+#. type: Content of: <html><body><p>
+#: src/index.tmpl:203
+msgid "Hardware Drivers</a>"
+msgstr "Controladores de Hardware</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:206
+msgid "<a href=\"hal/parallel-port.html\">Parallel Port Driver</a>"
+msgstr "<a href=\"hal/parallel-port.html\">Driver de Porta Paralela</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:207
+msgid "<a href=\"drivers/ax5214h.html\">AX5214H Driver</a>"
+msgstr "<a href=\"drivers/ax5214h.html\">Driver de AX5214H</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:208
+msgid "<a href=\"drivers/gm.html\">General Mechatronics GM6-PCI Driver</a>"
+msgstr "<a href=\"drivers/gm.html\">Driver de General Mechatronics GM6-PCI</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:209
+msgid "<a href=\"drivers/gs2.html\">GS2 Driver</a>"
+msgstr "<a href=\"drivers/gs2.html\">Driver de GS2 </a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:210
+msgid ""
+"<a href=\"drivers/hal_gpio.html\">Generic GPIO Driver using libgpiod</a>"
+msgstr ""
+"<a href=\"drivers/hal_gpio.html\">Driver Genérica GPIO usando libgpiod</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:211
+msgid "<a href=\"drivers/hal_pi_gpio.html\">Raspberry Pi GPIO Driver</a>"
+msgstr "<a href=\"drivers/hal_pi_gpio.html\">Driver de Raspberry Pi GPIO</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:212
+msgid "<a href=\"drivers/hostmot2.html\">Mesa HostMot2 Driver</a>"
+msgstr "<a href=\"drivers/hostmot2.html\">Driver Mesa HostMot2</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:213
+msgid "<a href=\"drivers/mb2hal.html\">Modbus to HAL Driver</a>"
+msgstr "<a href=\"drivers/mb2hal.html\">Driver Modbus para HAL</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:214
+msgid ""
+"<a href=\"drivers/mesa_modbus.html\">Modbus framework for Mesa cards</a>"
+msgstr ""
+"<a href=\"drivers/mesa_modbus.html\">Infraestrutura Modbus para cartões "
+"Mesa</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:215
+msgid "<a href=\"drivers/mitsub-vfd.html\">Mitsubishi VFD Driver</a>"
+msgstr "<a href=\"drivers/mitsub-vfd.html\">Driver Mitsubishi VFD</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:216
+msgid "<a href=\"drivers/motenc.html\">Motenc Driver</a>"
+msgstr "<a href=\"drivers/motenc.html\">Driver Motenc</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:217
+msgid "<a href=\"drivers/opto22.html\">Opto22 Driver</a>"
+msgstr "<a href=\"drivers/opto22.html\">Driver Opto22</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:218
+msgid "<a href=\"drivers/pico-ppmc.html\">Pico Drivers</a>"
+msgstr "<a href=\"drivers/pico-ppmc.html\">Drivers Pico</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:219
+msgid "<a href=\"drivers/pluto-p.html\">Pluto P Driver</a>"
+msgstr "<a href=\"drivers/pluto-p.html\">Driver Pluto P</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:220
+msgid "<a href=\"drivers/pmx485.html\">Powermax Modbus Driver</a>"
+msgstr "<a href=\"drivers/pmx485.html\">Driver Powermax Modbus</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:221
+msgid "<a href=\"drivers/servo-to-go.html\">Servo To Go Driver</a>"
+msgstr "<a href=\"drivers/servo-to-go.html\">Driver Servo To Go</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:222
+msgid ""
+"<a href=\"drivers/shuttle.html\">ShuttleXpress and ShuttlePRO Driver</a>"
+msgstr "<a href=\"drivers/shuttle.html\">Driver ShuttleXpress e ShuttlePRO</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:223
+msgid "<a href=\"drivers/vfs11.html\">VFS11 Driver</a>"
+msgstr "<a href=\"drivers/vfs11.html\">Driver VFS11</a>"
+
+#. type: Content of: <html><body><p><a>
+#: src/index.tmpl:227
+msgid "<a onclick=\"return toggle('sec10')\">"
+msgstr ""
+
+#. type: Content of: <html><body><p>
+#: src/index.tmpl:228
+msgid "Hardware Examples</a>"
+msgstr "Exemplos de Hardware</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:231
+msgid ""
+"<a href=\"examples/pci-parallel-port.html\">PCI Parallel Port Example</a>"
+msgstr ""
+"<a href=\"examples/pci-parallel-port.html\">Exemplo de Porta Paralela PCI</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:232
+msgid "<a href=\"examples/spindle.html\">Spindle Control Example</a>"
+msgstr "<a href=\"examples/spindle.html\">Exemplo de Controle de Spindle</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:233
+msgid "<a href=\"examples/mpg.html\">MPG Example</a>"
+msgstr "<a href=\"examples/mpg.html\">Exemplo MPG</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:234
+msgid "<a href=\"examples/gs2-example.html\">GS2 Example</a>"
+msgstr "<a href=\"examples/gs2-example.html\">Exemplo GS2</a>"
+
+#. type: Content of: <html><body><p><a>
+#: src/index.tmpl:238
+msgid "<a onclick=\"return toggle('sec9')\">"
+msgstr ""
+
+#. type: Content of: <html><body><p>
+#: src/index.tmpl:239
+msgid "ClassicLadder</a>"
+msgstr "ClassicLadder</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:243
+msgid ""
+"ClassicLadder is a software PLC (Programmable Logic Controller) built into "
+"LinuxCNC."
+msgstr ""
+"ClassicLadder é um software PLC (Controlador de Lógica Programável) "
+"compilado no LinuxCNC."
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:244
+msgid "<a href=\"ladder/ladder-intro.html\">ClassicLadder Introduction</a>"
+msgstr "<a href=\"ladder/ladder-intro.html\">Introdução ao ClassicLadder</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:245
+msgid "<a href=\"ladder/classic-ladder.html\">ClassicLadder Programming</a>"
+msgstr "<a href=\"ladder/classic-ladder.html\">Programação ClassicLadder</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:246
+msgid "<a href=\"ladder/ladder-examples.html\">ClassicLadder Examples</a>"
+msgstr "<a href=\"ladder/ladder-examples.html\">Exemplos de ClassicLadder</a>"
+
+#. type: Content of: <html><body><p><a>
+#: src/index.tmpl:250
+msgid "<a onclick=\"return toggle('sec12')\">"
+msgstr ""
+
+#. type: Content of: <html><body><p>
+#: src/index.tmpl:251
+msgid "Advanced Topics</a>"
+msgstr "Tópicos Avançados</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:254
+msgid "<a href=\"motion/kinematics.html\">Kinematics</a>"
+msgstr "<a href=\"motion/kinematics.html\">Cinemáticas</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:255
+msgid "<a href=\"motion/dh-parameters.html\">DH Parameters</a>"
+msgstr "<a href=\"motion/dh-parameters.html\">Parâmetros de DH</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:256
+msgid "<a href=\"motion/5-axis-kinematics.html\">5-Axis-Kinematics</a>"
+msgstr "<a href=\"motion/5-axis-kinematics.html\">Cinemáticas-5-Eixos</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:257
+msgid "<a href=\"motion/switchkins.html\">Switchable Kinematics</a>"
+msgstr "<a href=\"motion/switchkins.html\">Cinemáticas Comutáveis</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:258
+msgid "<a href=\"motion/pid-theory.html\">PID theory</a>"
+msgstr "<a href=\"motion/pid-theory.html\">Teoria de PID</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:259
+msgid "<a href=\"remap/remap.html\">Remap: Extending LinuxCNC</a>"
+msgstr "<a href=\"remap/remap.html\">Remapear: Estendendo LinuxCNC</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:260
+msgid "<a href=\"config/moveoff.html\">Moveoff Component</a>"
+msgstr "<a href=\"config/moveoff.html\">Componente Moveoff</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:261
+msgid "<a href=\"code/rs274.html\">Stand Alone Interpreter</a>"
+msgstr "<a href=\"code/rs274.html\">Interpretador Isolado</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:262
+msgid "<a href=\"motion/external-offsets.html\">External Offsets</a>"
+msgstr "<a href=\"motion/external-offsets.html\">Desvios Externos</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:263
+msgid "<a href=\"tooldatabase/tooldatabase.html\">Tool Database Interface</a>"
+msgstr ""
+"<a href=\"tooldatabase/tooldatabase.html\">Interface Ferramenta de Base de "
+"Dados</a>"
+
+#. type: Content of: <html><body><p><a>
+#: src/index.tmpl:267
+msgid "<a onclick=\"return toggle('sec13')\">"
+msgstr ""
+
+#. type: Content of: <html><body><p>
+#: src/index.tmpl:268
+msgid "Integrator Information</a>"
+msgstr "Informação do Integrador</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:271
+msgid "<a href=\"integrator/steppers.html\">Stepper Information</a>"
+msgstr "<a href=\"integrator/steppers.html\">Informação do Stepper</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:272
+msgid "<a href=\"integrator/stepper-timing.html\">Stepper Drive Timing</a>"
+msgstr ""
+"<a href=\"integrator/stepper-timing.html\">Tempos de Drive do Stepper</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:273
+msgid "<a href=\"integrator/wiring.html\">Best Wiring Practices</a>"
+msgstr "<a href=\"integrator/wiring.html\">Melhores Práticas</a>"
+
+#. type: Content of: <html><body><p><a>
+#: src/index.tmpl:279
+msgid "<a onclick=\"return toggle('sec3')\">"
+msgstr ""
+
+#. type: Content of: <html><body><p>
+#: src/index.tmpl:280
+msgid "User Interfaces</a>"
+msgstr "Interfaces de Utilizador</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:283
+msgid "<a href=\"gui/axis.html\">AXIS, Keyboard GUI</a>"
+msgstr "<a href=\"gui/axis.html\">EIXOS, GUI de Teclado</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:284
+msgid "<a href=\"gui/gmoccapy.html\">GMOCCAPY, Touchscreen GUI</a>"
+msgstr "<a href=\"gui/gmoccapy.html\">GMOCCAPY, GUI de Ecrã de Toque</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:285
+msgid "<a href=\"gui/touchy.html\">Touchy, Touchscreen GUI</a>"
+msgstr "<a href=\"gui/touchy.html\">Touchy, GUI de Ecrã de Toque</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:286
+msgid "<a href=\"gui/gscreen.html\">Gscreen, Customizable Touchscreen GUI</a>"
+msgstr ""
+"<a href=\"gui/gscreen.html\">Gscreen, GUI de Ecrã de Toque Personalizável</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:287
+msgid "<a href=\"gui/qtdragon.html\">QtDragon, Customizable Qt based GUI</a>"
+msgstr ""
+"<a href=\"gui/qtdragon.html\">QtDragon, GUI baseada em Qt Personalizável</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:288
+msgid "<a href=\"gui/ngcgui.html\">NGCGUI, Subroutine GUI</a>"
+msgstr "<a href=\"gui/ngcgui.html\">NGCGUI, GUI de Sub-rotinas</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:289
+msgid "<a href=\"gui/tklinuxcnc.html\">TkLinuxCNC, (no opengl) GUI</a>"
+msgstr "<a href=\"gui/tklinuxcnc.html\">TkLinuxCNC, GUI (sem opengl)</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:290
+msgid ""
+"<a href=\"plasma/qtplasmac.html\">QtPlasmaC, A Complete Plasma Cutting "
+"Configuration</a>"
+msgstr ""
+"<a href=\"plasma/qtplasmac.html\">QtPlasmaC, Uma Configuração de Corte de "
+"Plasma Completa</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:291
+msgid ""
+"<a href=\"gui/mdro.html\">MDRO, A Display for Digital Read Out scales</a>"
+msgstr ""
+"<a href=\"gui/mdro.html\">MDRO, Um Mostrador para escalas de Leitura "
+"Digital</a>"
+
+#. type: Content of: <html><body><p><a>
+#: src/index.tmpl:295
+msgid "<a onclick=\"return toggle('sec4')\">"
+msgstr ""
+
+#. type: Content of: <html><body><p>
+#: src/index.tmpl:296
+msgid "G-code Programming</a>"
+msgstr "Programação G-code</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:299
+msgid "<a href=\"gcode/coordinates.html\">Coordinate System</a>"
+msgstr "<a href=\"gcode/coordinates.html\">Coordenar Sistema</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:300
+msgid "<a href=\"gcode/tool-compensation.html\">Tool Compensation</a>"
+msgstr "<a href=\"gcode/tool-compensation.html\">Ferramenta de Compensação</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:301
+msgid "<a href=\"gui/tooledit.html\">Tool Table Editor</a>"
+msgstr "<a href=\"gui/tooledit.html\">Ferramenta Editor de Tabela</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:302
+msgid "<a href=\"gcode/overview.html\">G-code Overview</a>"
+msgstr "<a href=\"gcode/overview.html\">Visão Geral do G-code</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:303
+msgid "<a href=\"gcode/g-code.html\">G-codes</a>"
+msgstr "<a href=\"gcode/g-code.html\">Códigos-G</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:304
+msgid "<a href=\"gcode/m-code.html\">M-codes</a>"
+msgstr "<a href=\"gcode/m-code.html\">Códigos-M</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:305
+msgid "<a href=\"gcode/o-code.html\">O-codes</a>"
+msgstr "<a href=\"gcode/o-code.html\">Códigos-O</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:306
+msgid "<a href=\"gcode/other-code.html\">Other Codes</a>"
+msgstr "<a href=\"gcode/other-code.html\">Outros Códigos</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:307
+msgid "<a href=\"examples/gcode.html\">G-code Examples</a>"
+msgstr "<a href=\"examples/gcode.html\">Exemplos de G-code</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:308
+msgid "<a href=\"gui/image-to-gcode.html\">Image to G-code</a>"
+msgstr "<a href=\"gui/image-to-gcode.html\">Imagem para G-code</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:309
+msgid "<a href=\"gcode/rs274ngc.html\">RS274/NGC Differences</a>"
+msgstr "<a href=\"gcode/rs274ngc.html\">Diferenças RS274/NGC</a>"
+
+#. type: Content of: <html><body><h3>
+#: src/index.tmpl:313
+msgid "Customization &amp; Development"
+msgstr "Personalização e Desenvolvimento"
+
+#. type: Content of: <html><body><p><a>
+#: src/index.tmpl:315
+msgid "<a onclick=\"return toggle('sec6')\">"
+msgstr ""
+
+#. type: Content of: <html><body><p>
+#: src/index.tmpl:316
+msgid "Virtual Control Panels</a>"
+msgstr "Painéis de Controle Virtuais</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:319
+msgid "<a href=\"gui/pyvcp.html\">Python Virtual Control Panel (PyVCP)</a>"
+msgstr ""
+"<a href=\"gui/pyvcp.html\">Painel de Controle Virtual de Python (PyVCP)</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:320
+msgid "<a href=\"gui/pyvcp-examples.html\">PyVCP Examples</a>"
+msgstr "<a href=\"gui/pyvcp-examples.html\">Exemplos de PyVCP</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:321
+msgid ""
+"<a href=\"gui/gladevcp.html\">Glade Virtual Control Panel (GladeVCP)</a>"
+msgstr ""
+"<a href=\"gui/gladevcp.html\">Painel de Controle Virtual de Glade "
+"(GladeVCP)</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:322
+msgid "<a href=\"gui/gladevcp-libraries.html\">GladeVCP Libraries</a>"
+msgstr "<a href=\"gui/gladevcp-libraries.html\">Bibliotecas de GladeVCP</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:323
+msgid "<a href=\"gui/qtvcp.html\">QtVCP</a>"
+msgstr "<a href=\"gui/qtvcp.html\">QtVCP</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:324
+msgid "<a href=\"gui/qtvcp-vcp-panels.html\">QtVCP -VCP Panels</a>"
+msgstr "<a href=\"gui/qtvcp-vcp-panels.html\">Painéis -VCP de QtVCP</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:325
+msgid "<a href=\"gui/qtvcp-widgets.html\">QtVCP -widgets</a>"
+msgstr "<a href=\"gui/qtvcp-widgets.html\">QtVCP -widgets</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:326
+msgid "<a href=\"gui/qtvcp-libraries.html\">QtVCP -libraries</a>"
+msgstr "<a href=\"gui/qtvcp-libraries.html\">QtVCP -bibliotecas</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:327
+msgid "<a href=\"gui/qtvcp-vismach.html\">QtVCP -Vismach</a>"
+msgstr "<a href=\"gui/qtvcp-vismach.html\">QtVCP -Vismach</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:328
+msgid "<a href=\"gui/qtvcp-custom-widgets.html\">QtVCP -Custom Widgets</a>"
+msgstr ""
+"<a href=\"gui/qtvcp-custom-widgets.html\">QtVCP -Widgets Personalizadas</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:329
+msgid "<a href=\"gui/qtvcp-code-snippets.html\">QtVCP -Code Snippets</a>"
+msgstr "<a href=\"gui/qtvcp-code-snippets.html\">QtVCP -Trechos de Código</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:330
+msgid "<a href=\"gui/qtvcp-development.html\">QtVCP -Development</a>"
+msgstr "<a href=\"gui/qtvcp-development.html\">QtVCP -Desenvolvimento</a>"
+
+#. type: Content of: <html><body><p><a>
+#: src/index.tmpl:334
+msgid "<a onclick=\"return toggle('sec7')\">"
+msgstr ""
+
+#. type: Content of: <html><body><p>
+#: src/index.tmpl:335
+msgid "User Interface Programming</a>"
+msgstr "Programação da Interface de Utilizador</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:338
+msgid "<a href=\"gui/panelui.html\">Panelui</a>"
+msgstr "<a href=\"gui/panelui.html\">Panelui</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:339
+msgid "<a href=\"config/python-interface.html\">LinuxCNC Python Module</a>"
+msgstr "<a href=\"config/python-interface.html\">Módulo Python do LinuxCNC</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:340
+msgid "<a href=\"config/python-hal-interface.html\">HAL Python Module</a>"
+msgstr "<a href=\"config/python-hal-interface.html\">Módulo Python do HAL</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:341
+msgid "<a href=\"gui/gstat.html\">GStat Python Module</a>"
+msgstr "<a href=\"gui/gstat.html\">Módulo Python do GStat</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:342
+msgid "<a href=\"gui/vismach.html\">Vismach Virtual Machines</a>"
+msgstr "<a href=\"gui/vismach.html\">Máquinas Virtuais Vismach</a>"
+
+#. type: Content of: <html><body><p><a>
+#: src/index.tmpl:347
+msgid "<a onclick=\"return toggle('sec14')\">"
+msgstr ""
+
+#. type: Content of: <html><body><p>
+#: src/index.tmpl:348
+msgid "Developer Information</a>"
+msgstr "Informação de Desenvolvedor</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:351
+msgid "<a href=\"hal/general-ref.html\">General Reference</a>"
+msgstr "<a href=\"hal/general-ref.html\">Referência Geral</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:352
+msgid "<a href=\"code/code-notes.html\">Code Notes</a>"
+msgstr "<a href=\"code/code-notes.html\">Notas de Código</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:353
+msgid "<a href=\"code/nml-messages.html\">NML Messages</a>"
+msgstr "<a href=\"code/nml-messages.html\">Mensagens NML</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:354
+msgid "<a href=\"code/style-guide.html\">Style Guide</a>"
+msgstr "<a href=\"code/style-guide.html\">Guia de Estilo</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:355
+msgid "<a href=\"gui/gui-dev-reference.html\">GUI Development Reference</a>"
+msgstr ""
+"<a href=\"gui/gui-dev-reference.html\">Referência de Desenvolvimento de "
+"GUI</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:356
+msgid "<a href=\"code/adding-configs.html\">Adding Configs for Selection</a>"
+msgstr ""
+"<a href=\"code/adding-configs.html\">Adicionar Configurações para Seleção</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:357
+msgid ""
+"<a href=\"code/contributing-to-linuxcnc.html\">Contributing to LinuxCNC</a>"
+msgstr ""
+"<a href=\"code/contributing-to-linuxcnc.html\">Contribuir para o LinuxCNC</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:358
+msgid "<a href=\"code/writing-tests.html\">Writing tests for LinuxCNC</a>"
+msgstr "<a href=\"code/writing-tests.html\">Escrever testes para o LinuxCNC</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:359
+msgid "<a href=\"code/building-linuxcnc.html\">Building LinuxCNC</a>"
+msgstr "<a href=\"code/building-linuxcnc.html\">Compilar o LinuxCNC</a>"
+
+#. type: Content of: <html><body><h3>
+#: src/index.tmpl:363
+msgid "General Information"
+msgstr "Informação Geral"
+
+#. type: Content of: <html><body><p><a>
+#: src/index.tmpl:365
+msgid "<a onclick=\"return toggle('sec15')\">"
+msgstr ""
+
+#. type: Content of: <html><body><p>
+#: src/index.tmpl:366
+msgid "Glossary, Copyright, History &amp; Overview</a>"
+msgstr "Glossário, Copyright, História &amp; Visão Geral</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:369
+msgid "<a href=\"common/overleaf.html\">LinuxCNC Document Overview</a>"
+msgstr "<a href=\"common/overleaf.html\">Visão Geral de Documento LinuxCNC</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:370
+msgid "<a href=\"common/emc-history.html\">LinuxCNC History</a>"
+msgstr "<a href=\"common/emc-history.html\">História do LinuxCNC</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:371
+msgid "<a href=\"common/glossary.html\">Glossary</a>"
+msgstr "<a href=\"common/glossary.html\">Glossário</a>"
+
+#. type: Content of: <html><body><div><ul><li>
+#: src/index.tmpl:372
+msgid ""
+"<a href=\"common/gpld-copyright.html\">Copyright &amp; Documentation "
+"License</a>"
+msgstr ""
+"<a href=\"common/gpld-copyright.html\">Copyright &amp; Documentação de "
+"Licença</a>"
+
+#. type: Title ==
+#: src/index.tmpl:376 src/common/linux-faq.adoc:73
+#, no-wrap
+msgid "Man Pages"
+msgstr "Manuais"
+
+#. type: Content of: <html><body><div><p>
+#: src/index.tmpl:378
+msgid ""
+"For more information about man pages see the <a href=\"common/linux-faq."
+"html#faq:man-pages\">Linux FAQ</a>"
+msgstr ""
+"Para mais informação acerca de manuais veja <a href="
+"\"common/linux-faq.html#faq:man-pages\">FAQ de Linux</a>"
+
+#. type: Content of: <html><body><p>
+#: src/index.tmpl:380
+msgid ""
+"<input type=\"button\" value=\"Expand Man Pages\" onclick=\"return "
+"toggle_section(this);\" id=\"manExpand\"/> <input type=\"button\" "
+"value=\"Collapse Man Pages\" onclick=\"return toggle_section(this);\" "
+"id=\"manCollapse\"/>"
+msgstr ""
+
+#. type: Title =
+#: help/rtfaults.adoc:3
+#, no-wrap
+msgid "RT Faults"
+msgstr "Falhas RT"
+
+#. type: Plain text
+#: help/rtfaults.adoc:6
+msgid "Finding line number information for faults in realtime components"
+msgstr ""
+"Encontrar informação de número de linha para falhas em componentes em tempo "
+"real"
+
+#. type: Plain text
+#: help/rtfaults.adoc:9
+msgid ""
+"Get a version of LinuxCNC which prints the faulting instruction address "
+"(that includes this version of LinuxCNC)"
+msgstr ""
+"Obter uma versão do LinuxCNC que escreve os endereços de instrução em falta ("
+"isso inclui esta versão do LinuxCNC)"
+
+#. type: Plain text
+#: help/rtfaults.adoc:13
+#, no-wrap
+msgid ""
+"Include debugging info in your modules.\n"
+"For built-in modules, below the definition of EXTRA_CFLAGS in Makefile, add:"
+msgstr ""
+"Inclui informação de depuração nos seus módulos.\n"
+"Para módulos embutidos, a baixo da definição de EXTRA_CFLAGS no Makefile, "
+"adicione:"
+
+#. type: Plain text
+#: help/rtfaults.adoc:15
+#, no-wrap
+msgid "EXTRA_CFLAGS += -g\n"
+msgstr ""
+
+#. type: Plain text
+#: help/rtfaults.adoc:17
+msgid "For standalone modules, add the same line just above the line:"
+msgstr "Para módulos autônomos, adicione a mesma linha mesmo por cima da linha:"
+
+#. type: Plain text
+#: help/rtfaults.adoc:19
+#, no-wrap
+msgid "  ifeq ($(BUILDSYS),kbuild)\n"
+msgstr ""
+
+#. type: Plain text
+#: help/rtfaults.adoc:21
+msgid "and (re)build the component"
+msgstr "e (re)compile o componente"
+
+#. type: Plain text
+#: help/rtfaults.adoc:25
+#, no-wrap
+msgid ""
+"Run hal until the following fault occurs: *DO NOT EXIT THE HAL SESSION YET*.\n"
+"You must find the start of the module (step 5) first."
+msgstr ""
+"Corra o hal até que a seguinte falha ocorra: *NÃO TERMINE AINDA A SESSÃO DO "
+"HAL*.\n"
+"Você tem de encontrar o inicio do módulo primeiro (passo 5)."
+
+#. type: Plain text
+#: help/rtfaults.adoc:27
+msgid "Note the ip (instruction pointer) address in dmesg, e.g.:"
+msgstr "Anote o endereço ip (ponteiro de instrução) no dmesg, ex.:"
+
+#. type: Plain text
+#: help/rtfaults.adoc:30
+#, no-wrap
+msgid ""
+"RTAPI: Task 1[c2800000]: Fault with vec=14, signo=11 ip=c93dc01a.\n"
+"^^^^^^^^\n"
+msgstr ""
+
+#. type: Plain text
+#: help/rtfaults.adoc:32
+msgid "Find the module which contains the offending IP."
+msgstr "Encontre o módulo que contém o IP ofensivo."
+
+#. type: Plain text
+#: help/rtfaults.adoc:37
+#, no-wrap
+msgid ""
+"$ cat /proc/modules\n"
+"motmod 142230 0 - Live 0xc93df000\n"
+"fault 1626 1 motmod, Live 0xc93dc000\n"
+"hal_lib 30517 2 motmod,fault, Live 0xc93d5000\n"
+msgstr ""
+
+#. type: Plain text
+#: help/rtfaults.adoc:39
+msgid "Now you can exit hal/emc2."
+msgstr "Agora pode terminar o hal/emc2."
+
+#. type: Plain text
+#: help/rtfaults.adoc:43
+#, no-wrap
+msgid ""
+"Subtract the start of the module from the faulting ip (in this case, 0x1a)\n"
+"Among other ways to do this, you can use the shell:"
+msgstr ""
+"Subtraia o arranque do módulo do ip em falha (neste caso 0x1a)\n"
+"Entre outras maneiras de fazer isto, você pode usar a shell:"
+
+#. type: Plain text
+#: help/rtfaults.adoc:46
+#, no-wrap
+msgid ""
+"$ printf \"0x%x\\n\" $((0xc93dc01a-0xc93dc000))\n"
+"0x1a\n"
+msgstr ""
+
+#. type: Plain text
+#: help/rtfaults.adoc:48
+msgid "Use addr2line to find out the source code line:"
+msgstr "Use addr2line para descobrir a linha do código fonte:"
+
+#. type: Plain text
+#: help/rtfaults.adoc:51
+#, no-wrap
+msgid ""
+"$ addr2line -e emc2-dev/src/fault.ko 0x1a\n"
+"/usr/src/linux-headers-2.6.32-122-rtai/hal/components/fault.comp:9\n"
+msgstr ""
+
+#. type: Plain text
+#: help/rtfaults.adoc:54
+msgid ""
+"Ignore how the directory name is wrong and see whether this has helped you "
+"localize the problem:"
+msgstr ""
+"Ignore como o nome de directório está errado e veja se isto o ajudou a "
+"localizar o problema:"
+
+#. type: Plain text
+#: help/rtfaults.adoc:56
+#, no-wrap
+msgid "  fault.comp:9          *(int*)0 = 0;\n"
+msgstr ""
+
+#. type: Plain text
+#: help/rtfaults.adoc:58
+msgid "Yup! Looks like it has."
+msgstr "Sim! Parece que sim."
+
+#. type: Plain text
+#: help/rtfaults.adoc:63
+msgid ""
+"Note that even if you do not prefix the address argument to addr2line with "
+"0x, it is interpreted as a hex number, and you'll get the wrong line-number "
+"information if passing a decimal number. Thus take care to always use hex "
+"addresses with addr2line."
+msgstr ""
+"Note que mesmo que prefixe o argumento de endereço para addr2line com 0x, é "
+"interpretado como um número hexadecimal, e você vai obter informação do "
+"número de linha errada se passar um número decimal. Assim tenha o cuidado de "
+"usar sempre endereços hexadecimais com o addr2line."
+
+#. type: Labeled list
+#: help/tklinuxcnc.adoc:4 src/config/pncconf.adoc:130
+#: src/user/user-intro.adoc:132
+#, no-wrap
+msgid "TkLinuxCNC"
+msgstr "TkLinuxCNC"
+
+#. type: Title ==
+#: help/tklinuxcnc.adoc:12
+#, no-wrap
+msgid "Menus"
+msgstr "Menus"
+
+#. type: Labeled list
+#: help/tklinuxcnc.adoc:14
+#, no-wrap
+msgid "*File -> Run...*"
+msgstr "*Ficheiro -> Correr...*"
+
+#. type: Plain text
+#: help/tklinuxcnc.adoc:17
+#, no-wrap
+msgid ""
+"Prompts for an NC program to run.\n"
+"You need to be in Auto mode, or you'll get an error."
+msgstr ""
+"Pede um programa NC para correr.\n"
+"Você precisa de estar em modo Auto, ou irá obter um erro."
+
+#. type: Labeled list
+#: help/tklinuxcnc.adoc:18
+#, no-wrap
+msgid "*File -> Reset*"
+msgstr "*Ficheiro -> Reiniciar*"
+
+#. type: Plain text
+#: help/tklinuxcnc.adoc:21
+#, no-wrap
+msgid ""
+"Resets the interpreter.\n"
+"The modal G- and M-codes are set to their defaults."
+msgstr ""
+"Reinicia o interpretador.\n"
+"O modal G- e M-codes são definidos para as suas predefinições."
+
+#. type: Labeled list
+#: help/tklinuxcnc.adoc:22
+#, no-wrap
+msgid "*File -> Quit*"
+msgstr "*Ficheiro -> Terminar*"
+
+#. type: Plain text
+#: help/tklinuxcnc.adoc:25
+#, no-wrap
+msgid ""
+"Quits the Tkemc graphical application.\n"
+"The controller will also shut down."
+msgstr ""
+"Termina a aplicação gráfica Tkemc.\n"
+"O controlador é também encerrado."
+
+#. type: Labeled list
+#: help/tklinuxcnc.adoc:26
+#, no-wrap
+msgid "*View -> Tools*"
+msgstr "*Ver -> Ferramentas*"
+
+#. type: Plain text
+#: help/tklinuxcnc.adoc:33
+#, no-wrap
+msgid ""
+"Shows the tool table.\n"
+"You can edit the table.\n"
+"Selecting the 'Done' button will save the table and reload it into the controller.\n"
+"Note that Tab and Return affect the text, so you have to click the 'Done' button with the mouse."
+msgstr ""
+"Mostra a tabela de ferramentas.\n"
+"Você pode editar a tabela.\n"
+"Selecionar o botão 'Feito' irá salvar a tabela e recarrega-la no controlador."
+"\n"
+"Note que as teclas Tab e Enter afetam o texto, assim você tem de clicar no "
+"botão 'Feito' com o rato."
+
+#. type: Labeled list
+#: help/tklinuxcnc.adoc:34
+#, no-wrap
+msgid "*View -> Offsets and Variables*"
+msgstr "*Ver -> Desvios e Variáveis*"
+
+#. type: Plain text
+#: help/tklinuxcnc.adoc:42
+#, no-wrap
+msgid ""
+"Shows the interpreter parameters, which hold the work offsets and user variables.\n"
+"You can edit the file.\n"
+"Selecting the Done button will save the file and reload it into the controller.\n"
+"Note that Tab and Return affect the text, so you have to click the Done button with the mouse."
+msgstr ""
+"Mostra os parâmetros do interpretador, que contêm os desvios de trabalho e "
+"variáveis do utilizador.\n"
+"Você pode editar o ficheiro.\n"
+"Selecionar o botão Feito irá salvar o ficheiro e recarrega-lo no controlador."
+"\n"
+"Note que as teclas Tab e Enter afetam o texto, assim você tem de clicar no "
+"botão Feito com o rato."
+
+#. type: Labeled list
+#: help/tklinuxcnc.adoc:43
+#, no-wrap
+msgid "*Settings -> Relative Display, Actual Display*"
+msgstr "*Definições -> Mostrador Relativo, Mostrador Atual*"
+
+#. type: Plain text
+#: help/tklinuxcnc.adoc:47
+#, no-wrap
+msgid ""
+"Sets the display to show positions as relative to the current work offset, or in absolute machine coordinates.\n"
+"In relative display mode, the work offsets are shown also."
+msgstr ""
+"Define o ecrã para mostrar posições como relativas ao desvio de trabalho "
+"atual, ou em coordenadas de máquina absolutas.\n"
+"No modo de ecrã relativo, são também mostrados os desvios de trabalho."
+
+#. type: Labeled list
+#: help/tklinuxcnc.adoc:48
+#, no-wrap
+msgid "*Settings -> Actual Position, Commanded Position*"
+msgstr "*Definições -> Posição Atual, Posição Comandada*"
+
+#. type: Plain text
+#: help/tklinuxcnc.adoc:52
+msgid ""
+"Sets the display to show either the actual position of the axes, as reported "
+"by their feedback, or the commanded position, which is where the controller "
+"is commanding them to go."
+msgstr ""
+"Define o ecrã para mostrar ou a posição atual dos machados, como reportado "
+"pelo seu retorno, ou a posição comandada, que é onde o controlador está a "
+"comanda-las para irem."
+
+#. type: Labeled list
+#: help/tklinuxcnc.adoc:53
+#, no-wrap
+msgid "*Help -> Help...*"
+msgstr "*Ajuda -> Ajuda...*"
+
+#. type: Plain text
+#: help/tklinuxcnc.adoc:55
+msgid "Brings up this help window."
+msgstr "Abre esta janela de ajuda."
+
+#. type: Labeled list
+#: help/tklinuxcnc.adoc:56
+#, no-wrap
+msgid "*Help -> About...*"
+msgstr "*Ajuda -> Acerca de...*"
+
+#. type: Plain text
+#: help/tklinuxcnc.adoc:58
+msgid "Brings up a credits window."
+msgstr "Abre uma janela de créditos."
+
+#. type: Title ==
+#: help/tklinuxcnc.adoc:59
+#, no-wrap
+msgid "Status Command Buttons"
+msgstr "Botões de Comando de Estatuto"
+
+#. type: Plain text
+#: help/tklinuxcnc.adoc:65
+msgid ""
+"The buttons in the next two rows are labeled according to the current EMC "
+"status. Click on them to pop up menus that send commands to the EMC. The "
+"labels on these buttons will change to reflect the new status."
+msgstr ""
+"Os botões nas duas linhas seguintes são etiquetados e acordo com o estatuto "
+"EMC atual. Clique neles para abrir menus que enviam comandos para o EMC. As "
+"etiquetas nestes botões irão alterar para refletir o novo estatuto."
+
+#. type: Labeled list
+#: help/tklinuxcnc.adoc:66
+#, no-wrap
+msgid "*ON/ESTOP - RESET/ESTOP*"
+msgstr "*ON/ESTOP - RESET/ESTOP*"
+
+#. type: Plain text
+#: help/tklinuxcnc.adoc:75
+#, no-wrap
+msgid ""
+"Changes the power state of the machine.\n"
+"At startup the machine is in ESTOP. Selecting Estop Reset will enable the estop circuitry, but the servos will not yet be enabled. Selecting Machine On will enable the servos. Selecting Machine Off will disable the servos. Selecting Estop at any time will return the machine to the initial estopped state. Function keys F1 and F2 will toggle the states of the estop and servo systems, respectively. The Function Keys are listed completely below."
+msgstr ""
+"Muda o estado de energia da máquina.\n"
+"No arranque a máquina está em ESTOP. Selecionar Reiniciar Estop irá activar "
+"os circuitos estop, mas os servos ainda não estarão activos. Selecionar "
+"Máquina Ligada irá activar os servos. Selecionar Máquina Desligada irá "
+"desativar os servos. Selecionar Estop a qualquer altura irá retornar a "
+"máquina ao seu estado inicial de estop. As teclas de função F1 e F2 irão "
+"comutar os estados dos sistemas estop e servo respetivamente. As Teclas e "
+"Função estão listadas em baixo completamente."
+
+#. type: Plain text
+#: help/tklinuxcnc.adoc:81
+msgid ""
+"*SAFETY NOTE:* ESTOP will put the machine into the estopped state, but "
+"should not be relied on for this action in the event of an emergency.  "
+"Always use the hardware estop to assure physical disabling of the machine."
+msgstr ""
+"*NOTA DE SEGURANÇA:* ESTOP irá pôr a máquina no estado \"estopped\", mas não "
+"se deve confiar nesta ação no evento de uma emergência.  Use sempre o estop "
+"de hardware para assegurar a desativação física da máquina."
+
+#. type: Labeled list
+#: help/tklinuxcnc.adoc:82
+#, no-wrap
+msgid "*MANUAL / AUTO / MDI*"
+msgstr "*MANUAL / AUTO / MDI*"
+
+#. type: Plain text
+#: help/tklinuxcnc.adoc:84
+msgid "Changes the execution mode of the machine. +"
+msgstr "Muda o modo de execução da máquina. +"
+
+#. type: Labeled list
+#: help/tklinuxcnc.adoc:84
+#, no-wrap
+msgid "*Manual mode*"
+msgstr "*Modo Manual*"
+
+#. type: Plain text
+#: help/tklinuxcnc.adoc:88
+#, no-wrap
+msgid ""
+"Allows the operator to jog and home the axes, and control\n"
+"the coolant and spindle. +\n"
+"Function key F3 puts the controller into Manual mode.\n"
+msgstr ""
+"Permite ao operador deslocar e iniciar posição dos machados, e controlar\n"
+"o refrigerante e o fuso. +\n"
+"A tecla de função F3 põe o controlador em modo Manual.\n"
+
+#. type: Labeled list
+#: help/tklinuxcnc.adoc:88
+#, no-wrap
+msgid "*Auto mode*"
+msgstr "*Modo Auto*"
+
+#. type: Plain text
+#: help/tklinuxcnc.adoc:92
+#, no-wrap
+msgid ""
+"Allows the operator to load programs into the machine, run\n"
+"them, and pause/step/resume them. +\n"
+"F4 puts the controller into Auto mode.\n"
+msgstr ""
+"Permite ao operador carregar programas na máquina, corrê-los,\n"
+"e fazer-lhes pausa/passo/retomar. +\n"
+"F4 põe o controlador em modo Auto.\n"
+
+#. type: Labeled list
+#: help/tklinuxcnc.adoc:92
+#, no-wrap
+msgid "*Manual Data Input (MDI)*"
+msgstr "*Introdução de Dados Manual (MDI)*"
+
+#. type: Plain text
+#: help/tklinuxcnc.adoc:95
+#, no-wrap
+msgid ""
+"Mode allows the operator to type in blocks of NC code interactively. +\n"
+"F5 puts the controller into MDI mode.\n"
+msgstr ""
+"Modo que permite ao operador escrever blocos de código NC interativamente. +"
+"\n"
+"F5 põe o controlador em modo MDI.\n"
+
+#. type: Labeled list
+#: help/tklinuxcnc.adoc:96
+#, no-wrap
+msgid "*MIST ON/OFF, FLOOD ON/OFF*"
+msgstr "*NÉVOA ON/OFF, INUNDAR ON/OFF*"
+
+#. type: Plain text
+#: help/tklinuxcnc.adoc:101
+#, no-wrap
+msgid ""
+"Turns mist or flood coolant on or off.\n"
+"Function key F7 toggles the state of the mist coolant.\n"
+"Function key F8 toggles the state of the flood coolant.\n"
+"These buttons and function keys only work in Manual mode."
+msgstr ""
+"Liga e desliga o refrigerante de névoa ou inundação.\n"
+"Tecla de função F7 comuta o estado do refrigerante de névoa.\n"
+"Tecla de função F8 comuta e estado do refrigerante de inundação.\n"
+"Estes botões e teclas de função apenas funcionam em modo Manual."
+
+#. type: Labeled list
+#: help/tklinuxcnc.adoc:102
+#, no-wrap
+msgid "*SPINDLE FORWARD/REVERSE/OFF*"
+msgstr "*FUSO FRENTE/REVERSO/OFF*"
+
+#. type: Plain text
+#: help/tklinuxcnc.adoc:108
+#, no-wrap
+msgid ""
+"Turns the spindle on forward, reverse,or off. Function key F9 turns the spindle on forward if it's off, or off if it's on.\n"
+"F10 turns the spindle on reverse if it's off, or off it it's on.\n"
+"These buttons and function keys only work in Manual mode."
+msgstr ""
+"Gira o fuso para a frente, e reverso, ou pára-o. A tecla de função F9 gira o "
+"fuso para a frente se estiver desligado, ou desliga se estiver ligado.\n"
+"F10 gira o fuso em reverso se estiver desligado, ou desliga se estiver "
+"ligado.\n"
+"Estes botões e teclas de função apenas funcionam em modo Manual."
+
+#. type: Plain text
+#: help/tklinuxcnc.adoc:116
+#, no-wrap
+msgid ""
+"The speed of the spindle can be decreased or increased using the < and > buttons to the left and right of the spindle control button, respectively.\n"
+"F11 and F12, while pressed, decrease or increase the spindle speed, respectively, until they are released.\n"
+"These buttons and function keys work in Manual, Auto, or MDI mode.\n"
+"They are not active when the spindle is off."
+msgstr ""
+"A rotação do fuso pode ser aumentada ou diminuída usando os botões < e > à "
+"esquerda e direta do botão de controle do fuso, respetivamente.\n"
+"F11 e F12, enquanto pressionada, diminui ou aumenta a velocidade do fuso, "
+"respetivamente, até ser solta.\n"
+"Estes botões e teclas de função funcionam nos modos Manual, Auto, ou MDI.\n"
+"Eles não estão activos quando o fuso está desligado."
+
+#. type: Labeled list
+#: help/tklinuxcnc.adoc:117
+#, no-wrap
+msgid "*BRAKE ON/OFF*"
+msgstr "*TRAVÃO ON/OFF*"
+
+#. type: Plain text
+#: help/tklinuxcnc.adoc:122
+#, no-wrap
+msgid ""
+"Puts the spindle brake on, or releases it.\n"
+"This can be used to manually operate the spindle brake for maintenance or tramming operations.\n"
+"The 'B' and 'b' key, in Manual mode,"
+msgstr ""
+"Activa o travão do fuso, ou liberta-o.\n"
+"Isto pode ser usado para operar manualmente o travão do fuso para manutenção "
+"ou operações de alinhamento.\n"
+"A tecla 'B' e 'b', em modo Manual,"
+
+#. type: Labeled list
+#: help/tklinuxcnc.adoc:123
+#, no-wrap
+msgid "*ABORT*"
+msgstr "*ABORTAR*"
+
+#. type: Plain text
+#: help/tklinuxcnc.adoc:128
+#, no-wrap
+msgid ""
+"Stops all motion and any program that is running.\n"
+"The Escape key accomplishes the same result.\n"
+"Use ABORT or the Escape key to stop machine motions while testing programs."
+msgstr ""
+"Pára todo o movimento e qualquer programa que esteja a correr.\n"
+"A tecla Escape produz o mesmo resultado.\n"
+"Use ABORT ou a tecla Escape para parar os movimentos da máquina enquanto "
+"testa programas."
+
+#. type: Plain text
+#: help/tklinuxcnc.adoc:130
+msgid "ABORT will not affect the estop state of the machine."
+msgstr "ABORTAR não irá afetar o estado estop da máquina."
+
+#. type: Title ==
+#: help/tklinuxcnc.adoc:131
+#, no-wrap
+msgid "Tool and Tool Offset"
+msgstr "Ferramenta e Desvio da Ferramenta"
+
+#. type: Plain text
+#: help/tklinuxcnc.adoc:137
+msgid ""
+"At the left, below the command buttons, is a display of the currently loaded "
+"tool and the tool offset, if any. A value of 0 for the Tool means that no "
+"tool is in the spindle. The offset is non-zero if a tool length offset is "
+"active."
+msgstr ""
+"À esquerda, abaixo dos botões de comando, está um mostrador da ferramenta "
+"carregada atualmente e o desvio da ferramenta, se existir. Um valor de 0 "
+"para a Ferramenta significa que nenhuma ferramenta está no fuso. Os desvio é "
+"não-zero se estiver ativo um desvio de comprimento da ferramenta."
+
+#. type: Title ==
+#: help/tklinuxcnc.adoc:138
+#, no-wrap
+msgid "Position Display Options and Work Offsets"
+msgstr "Opções de Posição do Mostrador e Desvios de Trabalho"
+
+#. type: Plain text
+#: help/tklinuxcnc.adoc:149
+msgid ""
+"At the right, below the command buttons, is a display showing how to "
+"interpret the position numbers. There are two sources of position feedback, "
+"either Commanded or Actual. Commanded numbers are what the motion system "
+"asks for, and is not necessarily what the machine axes positions are (servo "
+"lag may mean they are different). Actual numbers reflect the current "
+"position of the axes. Normally, actual numbers are what you want. In some "
+"cases, for example running a program in simulation with the axes inhibited "
+"or disconnected, commanded numbers are what you want."
+msgstr ""
+"À direita, abaixo dos botões de comando, está um mostrador que mostra como "
+"interpretar os números de posição. Existem duas fontes de retorno de "
+"posição, seja Comandado ou Atual. Números Comandados são o que o sistema de "
+"movimento pede, e não necessariamente as posições reais dos machados da "
+"máquina (atraso no servo pode significar que sejam diferentes) Números "
+"Atuais refletem a posição atual dos machados. Normalmente, os números atuais "
+"são o que você quer. Em alguns casos, por exemplo ao correr um programa em "
+"simulação com os machados inibidos ou desligados, os números comandados são "
+"o que você quer ver."
+
+#. type: Plain text
+#: help/tklinuxcnc.adoc:155
+msgid ""
+"Position numbers can also be Absolute or Relative. Absolute numbers are not "
+"affected by any work offsets in a program. They are relative to the machine "
+"home position. Relative numbers include any work offset. If Relative numbers "
+"are selected, the applicable Work Offsets are shown."
+msgstr ""
+"Números de posição também podem ser Absolutos ou Relativos Os números "
+"Absolutos não são afetados por nenhuns desvios de trabalho num programa. "
+"Eles são relativos à posição inicial da máquina. Números Relativos incluem "
+"qualquer desvio de trabalho. Se forem selecionados números Relativos, os "
+"Desvios de Trabalho aplicados são mostrados."
+
+#. type: Plain text
+#: help/tklinuxcnc.adoc:159
+msgid ""
+"To change these settings, use the '@' key for Commanded/Actual, and the '#' "
+"key for Absolute/Relative. The default values can be set in the INI file, e."
+"g.,"
+msgstr ""
+"Para mudar estas definições, use a tecla '@' para Comandado/Atual, e a tecla "
+"'#' para Absoluto/Relativo. OS valores predefinidos podem se definidos no "
+"ficheiro INI, ex.,"
+
+#. type: delimited block -
+#: help/tklinuxcnc.adoc:165
+#, no-wrap
+msgid ""
+"[DISPLAY]\n"
+"POSITION_OFFSET =   RELATIVE\n"
+"POSITION_FEEDBACK = ACTUAL\n"
+msgstr ""
+"[DISPLAY]\n"
+"POSITION_OFFSET =   RELATIVE\n"
+"POSITION_FEEDBACK = ACTUAL\n"
+
+#. type: Plain text
+#: help/tklinuxcnc.adoc:168 src/common/linux-faq.adoc:190
+#: src/getting-started/getting-linuxcnc.adoc:90
+msgid "or"
+msgstr "ou"
+
+#. type: delimited block -
+#: help/tklinuxcnc.adoc:174
+#, no-wrap
+msgid ""
+"[DISPLAY]\n"
+"POSITION_OFFSET =   ABSOLUTE\n"
+"POSITION_FEEDBACK = COMMANDED\n"
+msgstr ""
+"[DISPLAY]\n"
+"POSITION_OFFSET =   ABSOLUTE\n"
+"POSITION_FEEDBACK = COMMANDED\n"
+
+#. type: Title ==
+#: help/tklinuxcnc.adoc:176
+#, no-wrap
+msgid "Axis Positions"
+msgstr "Posições dos Eixos"
+
+#. type: Plain text
+#: help/tklinuxcnc.adoc:181
+msgid ""
+"Axis positions are displayed in a large font in the middle of the display. "
+"The values are interpreted in units, commanded/actual, and absolute/"
+"relative, as described above."
+msgstr ""
+"As posições dos eixos são mostradas em letra grande no meio do ecrã. Os "
+"valores são interpretados em unidades, comandada/atual,e absoluto/relativo, "
+"como descrito em cima."
+
+#. type: Plain text
+#: help/tklinuxcnc.adoc:186
+msgid ""
+"The color of the numbers shows the state of each axis. Yellow numbers mean "
+"the axis has not yet been homed. Green numbers mean the axis has been homed "
+"and is within limits. Red numbers mean the axis is at a soft or hard limit."
+msgstr ""
+"A cor dos números mostra o estado de cada eixo. Números amarelos significa "
+"que o eixo ainda não chegou à posição inicial. Números verdes significa que "
+"o eixo chegou à posição inicial e está dentro dos limites. Números vermelhos "
+"significa que o eixo está num limite de software ou mecânico."
+
+#. type: Title ==
+#: help/tklinuxcnc.adoc:187
+#, no-wrap
+msgid "Axis Command Buttons"
+msgstr "Botões de Comando de Eixos"
+
+#. type: Plain text
+#: help/tklinuxcnc.adoc:193
+msgid ""
+"Below the axis position numbers is a row of command buttons that affect axis "
+"motion. The Axis Speed setting, displayed in units/minute, can be changed by "
+"clicking and holding the < or > buttons until the desired setting is reached."
+msgstr ""
+"Abaixo dos números de posição de eixo está uma linha de botões de comando "
+"que afetam o movimento do eixo. A definição Velocidade do Eixo, mostrada em "
+"unidades/minuto, pode ser alterada ao clicar e manter os botões < ou > até "
+"que a definição desejada seja alcançada."
+
+#. type: Plain text
+#: help/tklinuxcnc.adoc:198
+msgid ""
+"The Increment button shows the current value of the jog increment, or "
+"\"continuous\" for continuous jogging. Clicking on this button brings up a "
+"menu that changes the jog increment or selects continuous jogging."
+msgstr ""
+"O botão de Incremento mostra o valor atual do incremento de deslocação, ou "
+"\"contínuo\" para deslocação contínua. Clicar neste botão abre um menu que "
+"muda o incremento de deslocação ou seleciona deslocação contínua."
+
+#. type: Plain text
+#: help/tklinuxcnc.adoc:202
+msgid ""
+"The Axis Motion buttons jog an axis in the negative direction using the \"-"
+"\" button, positive direction using the \"+\" button, or home the axis using "
+"the \"home\" button."
+msgstr ""
+"Os botões Movimento de Eixo deslocam um eixo na direção negativa usando o "
+"botão \"-\", direção positiva usando o botão \"+\", ou leva o eixo para "
+"posição inicial usando o botão \"Inicio de Posição\"."
+
+#. type: Plain text
+#: help/tklinuxcnc.adoc:206
+msgid ""
+"The Feed Override value in percent is displayed, and can be changed by "
+"clicking and holding the < or > buttons until the desired setting is reached."
+msgstr ""
+"O valor Sobreposição de Alimentação é mostrado, e pode ser modificado ao "
+"clicar e manter os botões < ou > até que a definição desejada seja alcançada."
+
+#. type: Title ==
+#: help/tklinuxcnc.adoc:207
+#, no-wrap
+msgid "Manual Data Input (MDI) Box"
+msgstr "Caixa de Introdução de Dados Manual (MDI)"
+
+#. type: Plain text
+#: help/tklinuxcnc.adoc:216
+msgid ""
+"Below the axis command buttons is an input box labeled \"MDI:\" that is "
+"active when the machine is in manual data input (MDI) mode. You can type NC "
+"code statements into this box, and hit Enter to send the command. Note that "
+"many of the function and alphanumeric accelerator keys don't work as "
+"accelerator keys, so that they can be used to compose MDI statements. Keys "
+"F1-F5 (estop state and Manual/Auto/MDI mode), and F11-F12 (spindle speed "
+"control) do work; others do not."
+msgstr ""
+"Abaixo dos botões de comando do eixo há uma caixa de introdução etiquetada "
+"\"MDI:\" que está activa quando a máquina em modo de entrada de dados manual "
+"(MDI). Você pode escrever declarações de código NC nesta caixa, e carregar "
+"em Enter para enviar o comando. Note que muitas das teclas de função e "
+"aceleradores alfanuméricos não funcionam como teclas de acelerador , assim "
+"podem ser usadas para compôr declarações MDI. As teclas F1-F5 (estado estop "
+"e modo Manual/Auto/MDI), e F11-F12 (controle de velocidade do fuso) "
+"funcionam; as outras não."
+
+#. type: Plain text
+#: help/tklinuxcnc.adoc:223
+msgid ""
+"Below the MDI box is a display of the current modal settings for G, M, F, "
+"and S codes. These are only valid when in MDI mode. In Auto mode, they hold "
+"the modal values up to the point where the interpreter has read, usually far "
+"ahead of the executing line in the program. They do, however, always show "
+"the modal groups that are applicable when you next enter an MDI line."
+msgstr ""
+"Abaixo da caixa MDI está um mostrador das definições modal atuais para "
+"códigos G, M, F, e S. Estes estão apenas disponíveis quando em modo MDI. Em "
+"modo Auto, eles detêm os valores modal até ao ponto onde o interpretador "
+"leu, geralmente bem mais à frente da linha de execução do programa. No "
+"entanto, eles mostram sempre os grupos modal que são aplicáveis quando você "
+"insere uma linha MDI."
+
+#. type: Title ==
+#: help/tklinuxcnc.adoc:224
+#, no-wrap
+msgid "Program Display"
+msgstr "Mostrador de Programa"
+
+#. type: Plain text
+#: help/tklinuxcnc.adoc:232
+msgid ""
+"At the bottom of the main screen is a label showing the current program, or "
+"the last program loaded. Below this is a row of command buttons to Open, "
+"Run, Pause, Resume, or Step the program. The Open button is identical to the "
+"File->Open... menu at the top, as is the 'o' or 'O' accelerator. The run, "
+"pause, resume, and step accelerators are 'r', 'p', 's', and 'a', "
+"respectively, lower or upper case."
+msgstr ""
+"No fundo do ecrã principal está uma etiqueta que mostra o programa atual, ou "
+"o último programa carregado. Abaixo disto está uma linha com botões de "
+"comando para Abrir, Correr, Pausar, Retomar, ou avançar um Passo no "
+"programa. O botão de Abrir é idêntico ao menu Ficheiro->Abrir... no topo, "
+"assim como o acelerador 'o' ou 'O'. Os aceleradores de correr, pausar, "
+"retomar, e passo são 'r', 'p', 's', e 'a', respetivamente, em minúsculas ou "
+"maiúsculas."
+
+#. type: Plain text
+#: help/tklinuxcnc.adoc:236
+msgid ""
+"The window at the bottom shows a few lines of text of the currently loaded "
+"program. The display window is moved through the program so that the "
+"currently executing line is always at the top."
+msgstr ""
+"A janela no fundo mostra algumas linhas de texto do programa actual "
+"carregado. A janela de mostrador é movida pelo programa para que a linha "
+"actual em execução fique sempre no topo."
+
+#. type: Title ==
+#: help/tklinuxcnc.adoc:237
+#, no-wrap
+msgid "Function and Accelerator Keys"
+msgstr "Teclas e Função e Aceleração"
+
+#. type: delimited block -
+#: help/tklinuxcnc.adoc:273
+#, no-wrap
+msgid ""
+"Escape  abort motion                        <-|\n"
+"F1      toggle estop/estop reset state        |\n"
+"F2      toggle machine off/machine on state   |- work in MDI mode also\n"
+"F3      Manual mode                           |\n"
+"F4      Auto mode                             |\n"
+"F5      MDI mode                            <-|\n"
+"F6      reset interpreter\n"
+"F7      toggle mist on/mist off\n"
+"F8      toggle flood on/flood off\n"
+"F9      toggle spindle forward/off\n"
+"F10     toggle spindle reverse/off\n"
+"F11     decrease spindle speed              <-|- work in MDI mode also\n"
+"F12     increase spindle speed              <-|\n"
+"x       select X axis\n"
+"y       select Y axis\n"
+"z       select Z axis\n"
+"Left, Right Arrow  jog X axis\n"
+"Up, Down Arrow     jog Y axis\n"
+"Page Up, Down      jog Z axis\n"
+"Home    home selected axis\n"
+"<, >    decrement or increment axis speed\n"
+"c/C     select continuous jogging\n"
+"i/I     select incremental jog, and toggle through increments\n"
+"1-9,0   set feed override to 10%-90%, 0 is 100%\n"
+"@       toggle commanded/actual position display\n"
+"#       toggle absolute/relative position display\n"
+"o/O     open a program\n"
+"r/R     run an opened program\n"
+"p/P     pause an executing program\n"
+"s/S     resume a paused program\n"
+"a/A     step one line in a paused program\n"
+"b       take spindle brake off\n"
+"Alt-b   put spindle brake on\n"
+msgstr ""
+"Escape  aborta movimento                        <-|\n"
+"F1      comuta estado estop/estop reset        |\n"
+"F2      comuta estado de máquina desligada/ligada   |- também funciona em "
+"modo MDI\n"
+"F3      Modo manual                           |\n"
+"F4      Modo auto                            |\n"
+"F5      Modo MDI                            <-|\n"
+"F6      reinicia o interpretador\n"
+"F7      comuta névoa ligada/desligada\n"
+"F8      comuta inundar ligado/esligado\n"
+"F9      comuta fuso avançar/desligado\n"
+"F10     comuta fuso reverter/desligado\n"
+"F11     abranda velocidade do fuso              <-|- também funciona em modo "
+"MDI\n"
+"F12     aumenta velocidade do fuso              <-|\n"
+"x       seleciona eixo X\n"
+"y       seleciona eixo Y\n"
+"z       seleciona eixo Z\n"
+"Seta Esquerda, Direita  move eixo X\n"
+"Seta Cima, Baixo     move eixo Y\n"
+"Page Up, Down      move eixo Z\n"
+"Home    posição inicial do eixo selecionado\n"
+"<, >    reduz ou aumenta velocidade do eixo\n"
+"c/C     seleciona movimento contínuo\n"
+"i/I     seleciona movimento incremental, e comuta entre incrementos\n"
+"1-9,0   define sobreposição de alimentação para 10%-90%, 0 é 100%\n"
+"@       comuta mostrador de posição comandada/atual\n"
+"#       comuta mostrador de posição absoluta/relativa\n"
+"o/O     abre um programa\n"
+"r/R     corre um programa aberto\n"
+"p/P     pausa um programa em execução\n"
+"s/S     retoma um programa em pausa\n"
+"a/A     passo de uma linha em programa em pausa\n"
+"b       destrava o fuso\n"
+"Alt-b   trava o fuso\n"
+
+#. type: Plain text
+#: help/tklinuxcnc.adoc:278
+msgid ""
+"Note that MDI mode disables most of the keys, since they are valid symbols "
+"that can be typed in. F1-F5 work in MDI, as do the spindle speed change keys "
+"F11 and F12."
+msgstr ""
+"Note que o modo MDI desativa a maioria das teclas, pois elas são símbolos "
+"válidos que podem ser escritos, F1-F5 funcionam em MDI, assim como as teclas "
+"de mudança de velocidade do fuso F11 e F12."
+
+#. type: Title ==
+#: help/tklinuxcnc.adoc:279
+#, no-wrap
+msgid "The RS-274-NGC Interpreter"
+msgstr "O interpretador RS-274-NGC"
+
+#. type: Plain text
+#: help/tklinuxcnc.adoc:285
+msgid ""
+"The EMC runs a dialect of RS-274 \"G-codes\" that originated from Allen-"
+"Bradley as part of their work for the National Center for Manufacturing "
+"Sciences (NCMS) on the Next Generation Controller (NGC)  project. The "
+"dialect is similar to the Fanuc series of CNCs."
+msgstr ""
+"O EMC corre um dialeto de \"códigos-G\" RS-274 que originaram de Allen-"
+"Bradley como parte do seu trabalho para o National Center for Manufacturing "
+"Sciences (NCMS) no projeto Next Generation Controller (NGC). O dialeto é "
+"semelhante às séries Fanuc dos CNCs."
+
+#. type: Labeled list
+#: help/tklinuxcnc.adoc:286 src/remap/remap.adoc:262
+#, no-wrap
+msgid "G-codes"
+msgstr "Códigos-G"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:289 help/tklinuxcnc.adoc:339 src/gcode/g-code.adoc:60
+#: src/gcode/g-code.adoc:1233 html/gcode.html:53 src/gcode/m-code.adoc:15
+#: src/plasma/qtplasmac.adoc:1191 src/plasma/qtplasmac.adoc:4309
+#, no-wrap
+msgid "Code"
+msgstr "Código"
+
+#. [grid=none,frame=ends]
+#. type: Table
+#: help/tklinuxcnc.adoc:290 help/tklinuxcnc.adoc:340 src/drivers/mb2hal.adoc:55
+#: src/drivers/mb2hal.adoc:80 src/drivers/pmx485.adoc:45
+#: src/drivers/shuttle.adoc:7 src/gcode/g-code.adoc:61 html/gcode.html:53
+#: src/gcode/m-code.adoc:16 src/gui/gmoccapy.adoc:1572 src/hal/tools.adoc:229
+#: src/plasma/qtplasmac.adoc:98 src/plasma/qtplasmac.adoc:124
+#: src/plasma/qtplasmac.adoc:679 src/plasma/qtplasmac.adoc:704
+#: src/plasma/qtplasmac.adoc:741 src/plasma/qtplasmac.adoc:759
+#: src/plasma/qtplasmac.adoc:773 src/plasma/qtplasmac.adoc:812
+#: src/plasma/qtplasmac.adoc:822 src/plasma/qtplasmac.adoc:837
+#: src/plasma/qtplasmac.adoc:857 src/plasma/qtplasmac.adoc:874
+#: src/plasma/qtplasmac.adoc:890 src/plasma/qtplasmac.adoc:957
+#: src/plasma/qtplasmac.adoc:979 src/plasma/qtplasmac.adoc:996
+#: src/plasma/qtplasmac.adoc:1007 src/plasma/qtplasmac.adoc:1017
+#: src/plasma/qtplasmac.adoc:1027 src/plasma/qtplasmac.adoc:1036
+#: src/plasma/qtplasmac.adoc:1047 src/plasma/qtplasmac.adoc:1084
+#: src/plasma/qtplasmac.adoc:1148 src/plasma/qtplasmac.adoc:1492
+#: src/plasma/qtplasmac.adoc:1505 src/plasma/qtplasmac.adoc:1519
+#: src/plasma/qtplasmac.adoc:1770 src/plasma/qtplasmac.adoc:2359
+#: src/plasma/qtplasmac.adoc:2624 src/plasma/qtplasmac.adoc:3961
+#: src/plasma/qtplasmac.adoc:4078 src/plasma/qtplasmac.adoc:4308
+#: src/plasma/qtplasmac.adoc:4382
+#, no-wrap
+msgid "Description"
+msgstr "Descrição"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:290
+#, no-wrap
+msgid "G00 X Y Z"
+msgstr "G00 X Y Z"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:291
+#, no-wrap
+msgid "rapid feed"
+msgstr "alimentação rápida"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:291
+#, no-wrap
+msgid "G01 X Y Z"
+msgstr "G01 X Y Z"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:292
+#, no-wrap
+msgid "linear feed, e.g., G01 X10 Y20 Z30 F60 for 60 ipm"
+msgstr "alimentação linear, ex., G01 X10 Y20 Z30 F60 para 60 ipm"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:292
+#, no-wrap
+msgid "G02 X Y Z I J"
+msgstr "G02 X Y Z I J"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:293
+#, no-wrap
+msgid "clockwise circular feed (helical with Z)"
+msgstr "alimentação circular no sentido do relógio (helicoidal com Z)"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:293
+#, no-wrap
+msgid "G03 X Y Z I J"
+msgstr "G03 X Y Z I J"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:294
+#, no-wrap
+msgid "counterclockwise circular feed (helical with Z)"
+msgstr "alimentação circular no sentido contrário do relógio (helicoidal com Z)"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:294
+#, no-wrap
+msgid "G04 P<#>"
+msgstr "G04 P<#>"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:295
+#, no-wrap
+msgid "dwell # of seconds"
+msgstr "permanência # de segundos"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:295
+#, no-wrap
+msgid "G10 L2 P<#> X Y Z"
+msgstr "G10 L2 P<#> X Y Z"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:296
+#, no-wrap
+msgid "set coordinates for system #1-9, 1 = G54, 9 = G59.3"
+msgstr "define coordenadas para sistema #1-9, 1 = G54, 9 = G59.3"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:296 src/gcode/overview.adoc:493
+#: src/remap/remap.adoc:1840
+#, no-wrap
+msgid "G17"
+msgstr "G17"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:297
+#, no-wrap
+msgid "XY plane circular interpolation"
+msgstr "Interpolação circular de plano XY"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:297 src/gcode/overview.adoc:494
+#: src/remap/remap.adoc:1841
+#, no-wrap
+msgid "G18"
+msgstr "G18"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:298
+#, no-wrap
+msgid "ZX plane circular interpolation"
+msgstr "Interpolação circular de plano ZX"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:298 src/gcode/overview.adoc:495
+#: src/remap/remap.adoc:1842
+#, no-wrap
+msgid "G19"
+msgstr "G19"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:299
+#, no-wrap
+msgid "YZ plane circular interpolation"
+msgstr "Interpolação circular de plano YZ"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:299 src/remap/remap.adoc:1849
+#, no-wrap
+msgid "G20"
+msgstr "G20"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:300
+#, no-wrap
+msgid "English units (inches)"
+msgstr "unidades Inglesas (polegadas)"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:300 src/remap/remap.adoc:1850
+#, no-wrap
+msgid "G21"
+msgstr "G21"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:301
+#, no-wrap
+msgid "metric units (millimeters)"
+msgstr "unidades métricas (milímetros)"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:301 src/code/code-notes.adoc:1282
+#: src/gcode/overview.adoc:506 src/remap/remap.adoc:1881
+#: src/remap/remap.adoc:1890
+#, no-wrap
+msgid "G40"
+msgstr "G40"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:302
+#, no-wrap
+msgid "cancel cutter compensation"
+msgstr "cancela compensação do cortador"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:302
+#, no-wrap
+msgid "G41 D<#>"
+msgstr "G41 D<#>"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:303
+#, no-wrap
+msgid "cutter compensation for tool <#>, tool on left"
+msgstr "compensação de corte para ferramenta <#>, ferramenta na esquerda"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:303
+#, no-wrap
+msgid "G42 D<#>"
+msgstr "G42 D<#>"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:304
+#, no-wrap
+msgid "cutter compensation for tool <#>, tool on right"
+msgstr "compensação de corte para ferramenta <#>, ferramenta na direita"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:304
+#, no-wrap
+msgid "G43 H<#>"
+msgstr "G43 H<#>"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:305
+#, no-wrap
+msgid "use tool length offset for tool #, 0 = no offset"
+msgstr ""
+"usa desvio de comprimento de ferramenta para ferramenta #, 0 = nenhum desvio"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:305
+#, no-wrap
+msgid "G49"
+msgstr "G49"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:306
+#, no-wrap
+msgid "cancel tool length offset"
+msgstr "cancela desvio de comprimento de ferramenta"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:306 src/remap/remap.adoc:1900
+#, no-wrap
+msgid "G53"
+msgstr "G53"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:307
+#, no-wrap
+msgid "turn any coordinate offsets off for this block"
+msgstr "desliga quaisquer desvios de coordenada para este bloco"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:307 src/gcode/coordinates.adoc:162
+#: src/gcode/g-code.adoc:776 src/gcode/g-code.adoc:1595
+#: src/gcode/overview.adoc:528 src/remap/remap.adoc:1901
+#, no-wrap
+msgid "G54"
+msgstr "G54"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:308
+#, no-wrap
+msgid "use coordinate offsets for system #1, from G10 L2 P1"
+msgstr "usa desvios de coordenação para sistema #1, de G10 L2 P1"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:308 src/gcode/coordinates.adoc:162
+#: src/gcode/g-code.adoc:777 src/gcode/g-code.adoc:1596
+#: src/gcode/overview.adoc:529 src/remap/remap.adoc:1902
+#, no-wrap
+msgid "G55"
+msgstr "G55"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:309
+#, no-wrap
+msgid "\"\" for system #2, from G10 L2 P2"
+msgstr "\"\" para sistema #2, de G10 L2 P2"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:309 src/gcode/coordinates.adoc:162
+#: src/gcode/g-code.adoc:778 src/gcode/g-code.adoc:1597
+#: src/gcode/overview.adoc:530 src/remap/remap.adoc:1903
+#, no-wrap
+msgid "G56"
+msgstr "G56"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:310
+#, no-wrap
+msgid "\"\" for system #3, from G10 L2 P3"
+msgstr "\"\" para sistema #3, de G10 L2 P3"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:310 src/gcode/coordinates.adoc:162
+#: src/gcode/g-code.adoc:779 src/gcode/g-code.adoc:1598
+#: src/gcode/overview.adoc:531 src/remap/remap.adoc:1904
+#, no-wrap
+msgid "G57"
+msgstr "G57"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:311
+#, no-wrap
+msgid "\"\" for system #4, from G10 L2 P4"
+msgstr "\"\" para sistema #4, de G10 L2 P4"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:311 src/gcode/coordinates.adoc:162
+#: src/gcode/g-code.adoc:780 src/gcode/g-code.adoc:1599
+#: src/gcode/overview.adoc:532 src/remap/remap.adoc:1905
+#, no-wrap
+msgid "G58"
+msgstr "G58"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:312
+#, no-wrap
+msgid "\"\" for system #5, from G10 L2 P5"
+msgstr "\"\" para sistema #5, de G10 L2 P5"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:312 src/gcode/coordinates.adoc:162
+#: src/gcode/g-code.adoc:781 src/gcode/g-code.adoc:1600
+#: src/gcode/overview.adoc:533 src/remap/remap.adoc:1906
+#, no-wrap
+msgid "G59"
+msgstr "G59"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:313
+#, no-wrap
+msgid "\"\" for system #6, from G10 L2 P6"
+msgstr "\"\" para sistema #6, de G10 L2 P6"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:313 src/gcode/coordinates.adoc:162
+#: src/gcode/g-code.adoc:782 src/gcode/g-code.adoc:1601
+#: src/gcode/overview.adoc:534 src/remap/remap.adoc:1906
+#, no-wrap
+msgid "G59.1"
+msgstr "G59.1"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:314
+#, no-wrap
+msgid "\"\" for system #7, G10 L2 P7"
+msgstr "\"\" para sistema #7, G10 L2 P7"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:314 src/gcode/coordinates.adoc:162
+#: src/gcode/g-code.adoc:783 src/gcode/g-code.adoc:1602
+#: src/gcode/overview.adoc:535 src/remap/remap.adoc:1906
+#, no-wrap
+msgid "G59.2"
+msgstr "G59.2"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:315
+#, no-wrap
+msgid "\"\" for system #8, G10 L2 P8"
+msgstr "\"\" para sistema #8, G10 L2 P8"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:315 src/gcode/coordinates.adoc:162
+#: src/gcode/g-code.adoc:784 src/gcode/g-code.adoc:1603
+#: src/gcode/overview.adoc:536 src/remap/remap.adoc:1906
+#, no-wrap
+msgid "G59.3"
+msgstr "G59.3"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:316
+#, no-wrap
+msgid "\"\" for system #9, G10 L2 P9"
+msgstr "\"\" para sistema #9, G10 L2 P9"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:316 src/remap/remap.adoc:1914
+#, no-wrap
+msgid "G61"
+msgstr "G61"
+
+#. type: Labeled list
+#: help/tklinuxcnc.adoc:317 src/gcode/machining-center.adoc:257
+#, no-wrap
+msgid "exact stop mode"
+msgstr "modo de paragem exata"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:317 src/remap/remap.adoc:1917
+#, no-wrap
+msgid "G64"
+msgstr "G64"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:318
+#, no-wrap
+msgid "cutting mode"
+msgstr "modo de cortar"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:318 src/gcode/overview.adoc:475
+#: src/remap/remap.adoc:1935
+#, no-wrap
+msgid "G76"
+msgstr "G76"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:319
+#, no-wrap
+msgid "threading canned cycle"
+msgstr "ciclo concentrado de roscagem"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:319 src/gcode/overview.adoc:476
+#: src/remap/remap.adoc:1945
+#, no-wrap
+msgid "G80"
+msgstr "G80"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:320
+#, no-wrap
+msgid "cancel fixed (canned) cycle"
+msgstr "cancelar ciclo (concentrado) fixo"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:320 src/gcode/overview.adoc:477
+#: src/remap/remap.adoc:1946
+#, no-wrap
+msgid "G81"
+msgstr "G81"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:321
+#, no-wrap
+msgid "drilling cycle, no dwell, rapid out"
+msgstr "ciclo de perfuração, sem permanência, saída rápida"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:321 src/gcode/overview.adoc:478
+#: src/remap/remap.adoc:1947
+#, no-wrap
+msgid "G82"
+msgstr "G82"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:322
+#, no-wrap
+msgid "drilling cycle, dwell, rapid out"
+msgstr "ciclo de perfuração, com permanência, saída rápida"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:322 src/gcode/overview.adoc:479
+#: src/remap/remap.adoc:1948
+#, no-wrap
+msgid "G83"
+msgstr "G83"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:323
+#, no-wrap
+msgid "deep hole peck drilling cycle"
+msgstr "ciclo de perfuração de bico de buraco fundo"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:323 src/gcode/overview.adoc:480
+#: src/remap/remap.adoc:1949
+#, no-wrap
+msgid "G84"
+msgstr "G84"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:324
+#, no-wrap
+msgid "tapping cycle"
+msgstr "ciclo de batimentos"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:324 src/gcode/overview.adoc:481
+#: src/remap/remap.adoc:1950
+#, no-wrap
+msgid "G85"
+msgstr "G85"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:325
+#, no-wrap
+msgid "boring cycle, no dwell, feed out"
+msgstr "ciclo de alargamento, sem permanência, alimentação fora"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:325 src/gcode/overview.adoc:482
+#: src/remap/remap.adoc:1951
+#, no-wrap
+msgid "G86"
+msgstr "G86"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:326
+#, no-wrap
+msgid "boring cycle, spindle stop, rapid out"
+msgstr "ciclo de alargamento, parar fuso, saída rápida"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:326 src/gcode/overview.adoc:483
+#: src/remap/remap.adoc:1952
+#, no-wrap
+msgid "G87"
+msgstr "G87"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:327
+#, no-wrap
+msgid "back boring cycle"
+msgstr "ciclo de alargamento traseiro"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:327 src/gcode/overview.adoc:484
+#: src/remap/remap.adoc:1953
+#, no-wrap
+msgid "G88"
+msgstr "G88"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:328
+#, no-wrap
+msgid "boring cycle, spindle stop, manual out"
+msgstr "ciclo de alargamento, parar fuso, saída manual"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:328 src/gcode/overview.adoc:485
+#: src/remap/remap.adoc:1954
+#, no-wrap
+msgid "G89"
+msgstr "G89"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:329
+#, no-wrap
+msgid "boring cycle, with dwell, feed out"
+msgstr "ciclo de alargamento, com permanência, alimentação fora"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:329 src/gcode/g-code.adoc:2525
+#: src/remap/remap.adoc:1961
+#, no-wrap
+msgid "G90"
+msgstr "G90"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:330
+#, no-wrap
+msgid "non-incremental programming (the usual)"
+msgstr "programação não-incremental (o normal)"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:330 src/remap/remap.adoc:1962
+#, no-wrap
+msgid "G91"
+msgstr "G91"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:331
+#, no-wrap
+msgid "incremental programming"
+msgstr "programação incremental"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:331 src/gcode/g-code.adoc:2636
+#: src/remap/remap.adoc:1964
+#, no-wrap
+msgid "G93"
+msgstr "G93"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:332
+#, no-wrap
+msgid "inverse time feed mode"
+msgstr "modo de alimentação de tempo inverso"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:332 src/gcode/g-code.adoc:2636
+#: src/remap/remap.adoc:1965
+#, no-wrap
+msgid "G94"
+msgstr "G94"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:333
+#, no-wrap
+msgid "feed per minute mode (the usual)"
+msgstr "modo de alimentação por minuto (o normal)"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:333
+#, no-wrap
+msgid "G98,G99"
+msgstr "G98,G99"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:334
+#, no-wrap
+msgid "set canned cycle return level"
+msgstr "define nível de retorno de ciclo concentrado"
+
+#. type: Labeled list
+#: help/tklinuxcnc.adoc:336 src/remap/remap.adoc:265
+#, no-wrap
+msgid "M-codes"
+msgstr "códigos-M"
+
+#. type: Index entry
+#: help/tklinuxcnc.adoc:340 src/gcode/m-code.adoc:42
+#, no-wrap
+msgid "M0"
+msgstr "M0"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:341
+#, no-wrap
+msgid "optional program stop"
+msgstr "parar programa opcional"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:341
+#, no-wrap
+msgid "M1"
+msgstr "M1"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:342
+#, no-wrap
+msgid "program stop"
+msgstr "parar o programa"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:342
+#, no-wrap
+msgid "M2"
+msgstr "M2"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:343
+#, no-wrap
+msgid "program end"
+msgstr "terminar programa"
+
+#. type: Index entry
+#: help/tklinuxcnc.adoc:343 src/gcode/m-code.adoc:97
+#, no-wrap
+msgid "M3"
+msgstr "M3"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:344
+#, no-wrap
+msgid "turn spindle clockwise, e.g., S1000 M3 for 1000 rpm"
+msgstr "roda fuso no sentido do relógio, ex. S1000 M3 para 1000 rpm"
+
+#. type: Index entry
+#: help/tklinuxcnc.adoc:344 src/gcode/m-code.adoc:97
+#, no-wrap
+msgid "M4"
+msgstr "M4"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:345
+#, no-wrap
+msgid "turn spindle counterclockwise"
+msgstr "roda fuso ao contrário do relógio"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:345
+#, no-wrap
+msgid "M5"
+msgstr "M5"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:346
+#, no-wrap
+msgid "turn spindle off"
+msgstr "desliga fuso"
+
+#. type: Title ====
+#: help/tklinuxcnc.adoc:346 src/code/code-notes.adoc:1198
+#, no-wrap
+msgid "M6"
+msgstr "M6"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:347
+#, no-wrap
+msgid "tool change, e.g., T1 M6 for tool 1"
+msgstr "mudança de ferramenta, ex., T1 M6 para ferramenta 1"
+
+#. type: Index entry
+#: help/tklinuxcnc.adoc:347 src/gcode/m-code.adoc:194
+#, no-wrap
+msgid "M7"
+msgstr "M7"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:348
+#, no-wrap
+msgid "mist coolant on"
+msgstr "névoa refrigerante ligada"
+
+#. type: Index entry
+#: help/tklinuxcnc.adoc:348 src/gcode/m-code.adoc:194
+#, no-wrap
+msgid "M8"
+msgstr "M8"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:349
+#, no-wrap
+msgid "flood coolant on"
+msgstr "inundação de refrigerante ligada"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:349
+#, no-wrap
+msgid "M9"
+msgstr "M9"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:350
+#, no-wrap
+msgid "all coolant off"
+msgstr "todo o refrigerante desligado"
+
+#. type: Index entry
+#: help/tklinuxcnc.adoc:350 src/gcode/m-code.adoc:256
+#, no-wrap
+msgid "M48"
+msgstr "M48"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:351
+#, no-wrap
+msgid "disable override control for M50-51 switches"
+msgstr "desactiva controle de sobreposição para interruptores M50-51"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:351
+#, no-wrap
+msgid "M49"
+msgstr "M49"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:352
+#, no-wrap
+msgid "enable override control for M50-51 switches"
+msgstr "activa controle de sobreposição para interruptores M50-51"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:352
+#, no-wrap
+msgid "M50"
+msgstr "M50"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:353
+#, no-wrap
+msgid "enable/disable feed override"
+msgstr "activa/desactiva sobreposição de alimentação"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:353
+#, no-wrap
+msgid "M51"
+msgstr "M51"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:354
+#, no-wrap
+msgid "enable/disable spindle speed override"
+msgstr "activa/desactiva sobreposição de velocidade do fuso"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:354
+#, no-wrap
+msgid "M52"
+msgstr "M52"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:355
+#, no-wrap
+msgid "enable/disable adaptive feed override"
+msgstr "activa/desactiva sobreposição de alimentação adaptativa"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:355
+#, no-wrap
+msgid "M53"
+msgstr "M53"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:356
+#, no-wrap
+msgid "enable/disable feed hold"
+msgstr "activa/desactiva segurar alimentação"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:356
+#, no-wrap
+msgid "M62"
+msgstr "M62"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:357
+#, no-wrap
+msgid ".."
+msgstr ".."
+
+#. type: Table
+#: help/tklinuxcnc.adoc:358
+#, no-wrap
+msgid "digital IO control"
+msgstr "controle IO digital"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:358
+#, no-wrap
+msgid "M65"
+msgstr "M65"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:359
+#, no-wrap
+msgid "M100..M199"
+msgstr "M100..M199"
+
+#. type: Table
+#: help/tklinuxcnc.adoc:360
+#, no-wrap
+msgid "user defined commands"
+msgstr "comandos definidos pelo utilizador"
+
+#. type: Plain text
+#: help/tklinuxcnc.adoc:363
+msgid "(check the user manual for details)."
+msgstr "(veja o manual de utilizador para detalhes)."
+
+#. type: Title ==
+#: help/tklinuxcnc.adoc:364
+#, no-wrap
+msgid "Frequently Asked Questions (FAQ)"
+msgstr "Perguntas Frequentes (FAQ)"
+
+#. type: Labeled list
+#: help/tklinuxcnc.adoc:367
+#, no-wrap
+msgid "The axes don't move when I try to jog them"
+msgstr "Os machados não se movem quanto Eu tento desloca-los"
+
+#. type: Plain text
+#: help/tklinuxcnc.adoc:369
+msgid "Make sure you're out of estop, in Manual mode."
+msgstr "Certifique que está fora de estop, em modo Manual."
+
+#. type: Labeled list
+#: help/tklinuxcnc.adoc:370
+#, no-wrap
+msgid "Software limits don't work. I can jog past a soft limit."
+msgstr ""
+"Limites de software não funcionam. Consigo mover para lá do limite de "
+"software."
+
+#. type: Plain text
+#: help/tklinuxcnc.adoc:373
+msgid ""
+"Software limits only work when an axis has been homed, since otherwise the "
+"machine doesn't know where the limits really are."
+msgstr ""
+"Os limites de software só funcionam quando o eixo foi levado à posição "
+"inicial, pois caso contrário a máquina não sabe onde os limites estão "
+"realmente."
+
+#. type: Labeled list
+#: help/tklinuxcnc.adoc:374
+#, no-wrap
+msgid "Why doesn't the mouse or return key work?"
+msgstr "Porque é que o rato ou a tecla Enter não funciona?"
+
+#. type: Plain text
+#: help/tklinuxcnc.adoc:377
+msgid ""
+"Sometimes the cursor needs to be in the part of the window with the text in "
+"it. Move the cursor to a different region and try it."
+msgstr ""
+"Por vezes o cursor precisa de estar na parte da janela com tem o texto. Mova "
+"o cursor para uma região diferente e tente de novo."
+
+#. type: Labeled list
+#: help/tklinuxcnc.adoc:378
+#, no-wrap
+msgid "Why are the modal G- and M-codes not correct in Auto mode?"
+msgstr "Porque é que os modal códigos-D e -M não estão corretos em modo Auto?"
+
+#. type: Plain text
+#: help/tklinuxcnc.adoc:381
+msgid ""
+"The modes that will be active when you enter MDI mode are shown. These are "
+"read ahead of actual program execution."
+msgstr ""
+"São mostrados os modos que estarão activos quando entrar em modo MDI. Estes "
+"são lidos à frente da execução atual do programa."
+
+#. type: Labeled list
+#: help/tklinuxcnc.adoc:382
+#, no-wrap
+msgid "How can I change the fonts/colors/sizes in the Tkemc display?"
+msgstr "Como posso mudar as letras/cores/tamanhos do mostrador Tkemc?"
+
+#. type: Plain text
+#: help/tklinuxcnc.adoc:386
+msgid ""
+"The \"Tkemc\" file in the emc/ directory contains the X resources used by "
+"the program. Almost nothing is hard coded in the program itself. You can "
+"change any of these values and see the effects."
+msgstr ""
+"O ficheiro \"Tkemc\" no directório emc/ contém os recursos X usados pelo "
+"programa. Quase nada está codificado no próprio programa. Você pode mudar "
+"qualquer um destes valores e ver os efeitos."
+
+#. type: Title =
+#: src/code/adding-configs.adoc:3
+#, no-wrap
+msgid "Adding Configuration Selection Items"
+msgstr "Adicionar Itens de Seleção de Configuração"
+
+#. type: Plain text
+#: src/code/adding-configs.adoc:6
+msgid ""
+"Example Configurations can be added to the Configuration Selector by two "
+"methods:"
+msgstr ""
+"Configurações Exemplo podem ser adicionadas ao Seletor de Configuração por "
+"dois métodos:"
+
+#. type: Plain text
+#: src/code/adding-configs.adoc:9
+msgid ""
+"Auxiliary applications -- Applications installed independently with a deb "
+"package can place configuration subdirectories in a specified system "
+"directory.  The directory name is specified using the shell linuxcnc_var "
+"script:"
+msgstr ""
+"Aplicações auxiliares -- Aplicações instaladas independentemente com um "
+"pacote deb podem colocar sub-directórios de configuração num directório de "
+"sistema especificado.  O nome do directório é especificado usando o script "
+"de shell linuxcnc_var:"
+
+#. type: delimited block -
+#: src/code/adding-configs.adoc:13
+#, no-wrap
+msgid ""
+"$ linuxcnc_var LINUXCNC_AUX_EXAMPLES\n"
+"/usr/share/linuxcnc/aux_examples\n"
+msgstr ""
+"$ linuxcnc_var LINUXCNC_AUX_EXAMPLES\n"
+"/usr/share/linuxcnc/aux_examples\n"
+
