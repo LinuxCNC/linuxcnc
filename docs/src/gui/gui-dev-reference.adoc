@@ -12,18 +12,17 @@
 :css: {basebackend@docbook:'':css}
 
 This document attempts to be a 'best practices' reference for general use screen development. +
-While it's possible to program just about anything to work with linuxcnc, using common frame work,
- language and configuration requirements allows easier transition between screens and more developers 
-to maintain them. +
+While it is possible to program just about anything to work with LinuxCNC, using a common frame work,
+language and configuration requirements allows easier transition between screens and more developers to maintain them. +
 That said, nothing in this document is written in stone.
 
 == Language
-Python is currently the preferred language of linuxcnc's screen code. +
+Python is currently the preferred language of LinuxCNC's screen code. +
 Python has a low entry bar for new users to modify the screens to suit them. +
-Python has a rich array of documentation, tutorials and libraries to pull from. + 
-It is already used and integrated into linuxcnc's system requirements. +
+Python has a rich array of documentation, tutorials and libraries to pull from. +
+It is already used and integrated into LinuxCNC's system requirements. +
 While C or C\++ could be used, it severely limits who can maintain and develop them. +
-It would be better to extend python with C/C++ modules for whatever function that requires it.
+It would be better to extend Python with C/C++ modules for whatever function that requires it.
 
 == Localization of float numbers in GUIs
 Different locales use different decimal separators and thousands separators. Locale-specific
@@ -37,16 +36,16 @@ are suggested if parsing float to string and vice-versa:
 
 == Basic Configuration
 Currently, most screens use a combination of INI file and preference file entries to configure their functions. +
-INi text files are usually used for the common machine controller settings, while text based preference files 
+INI text files are usually used for the common machine controller settings, while text based preference files
 are used for more GUI related properties (such as sounds, size, colors). +
-There can be other files used for translations, stylizing and function customization. These are highly dependent 
+There can be other files used for translations, stylizing and function customization. These are highly dependent
 on the underlying widget toolkit.
 
 === INI [DISPLAY]
 The *[DISPLAY]* section of the INI is for specifying screen related settings. +
 
 ==== Display
-The most important of is specifying the name of the screen that the linuxcnc script will use to load. +
+The most important of is specifying the name of the screen that the LinuxCNC script will use to load. +
 The screen program usually recognizes switches such as to set full screen. +
 Title is for the window title and icon is used for iconizing the window.
 
@@ -93,7 +92,7 @@ ANGULAR_INCREMENTS = continuous, .5, 1, 45, 90, 360
 ----
 
 ==== Machine Type Hint
-The screen often needs to be adjusted based on machine type. Lathes have different controls and display DROs 
+The screen often needs to be adjusted based on machine type. Lathes have different controls and display DROs
 differently. Foam machine display the plot differently. +
 The old way to do this was adding switches LATHE = 1, FOAM = 1 etc
 
@@ -124,15 +123,15 @@ DEFAULT_LINEAR_VELOCITY =
 MIN_LINEAR_VELOCITY =
 MAX_LINEAR_VELOCITY =
 
-DEFAULT_ANGULAR_VELOCITY = 
-MIN_ANGULAR_VELOCITY = 
-MAX_ANGULAR_VELOCITY = 
+DEFAULT_ANGULAR_VELOCITY =
+MIN_ANGULAR_VELOCITY =
+MAX_ANGULAR_VELOCITY =
 ----
 
 ==== Spindle Manual Controls
 Manual controls for spindle control could be, (or a combinations of) buttons, sliders or dials +
 You can set limits that are less then the what the machine controller can utilize by setting these entries. +
-If your screen is capable of running multiple spindles, then should accept entries higher then the shown '_0_'
+If your screen is capable of running multiple spindles, then should accept entries higher then the shown '_0_'.
 
 [source,{ini}]
 ----
@@ -156,8 +155,8 @@ MDI_COMMAND_MACRO1 = G53 G0 Z0;G53 G0 X0 Y0,Goto\nMachn\nZero
 ----
 
 === INI [FILTER]
-This section allows setting of what files are shown in the file chooser and 
-what filter programs will preprocess its output before sending it to linuxcnc. +
+This section allows setting of what files are shown in the file chooser and
+what filter programs will preprocess its output before sending it to LinuxCNC. +
 The extensions follow this pattern: +
 PROGRAM_EXTENSION = .extension,.extension2[space]Description of extensions +
 The filter program definitions are such: +
@@ -179,7 +178,7 @@ py = python3
 ----
 
 === INI [HAL]
-Most screens will need some HAL pins. They need to be connected after the screen creates them.+
+Most screens will need some HAL pins. They need to be connected after the screen creates them.
 
 ==== Postgui Halfile
 These files should be run one after another in order, after all the GUI HAL pins have been made.
@@ -204,8 +203,8 @@ POSTGUI_HALCMD = loadusr halmeter
 == Extended Configuration
 
 === Embedding GUI Elements
-Allowing users to build small panels independently, that can be embedded into the main screen 
-is a common and very useful customization. Some screens allow embedding of 3rd party foreign programs, 
+Allowing users to build small panels independently, that can be embedded into the main screen
+is a common and very useful customization. Some screens allow embedding of 3rd party foreign programs,
 others only the native widget toolkit based panels. +
 Usually these are embedded in tabs or side panel widgets. +
 This is how to describe the optional title, loading command and location widget name: +
@@ -233,7 +232,7 @@ MESSAGE_ICON = INFO
 ----
 
 This style gives multiple messages defined by a number. +
-This example shows 3 possible messages based around a VFD error nuumber.
+This example shows 3 possible messages based around a VFD error number.
 
 [source,{ini}]
 ----

@@ -457,7 +457,7 @@ Allows one to *adjust a HAL pin value using a sliding pointer*.
 
 [[sub:qtvcp:widgets:tabwidget]]
 === `TabWidget` - Tab Widget
-This widget allows the tab height to be adjusted with stylesheets
+This widget allows the tab height to be adjusted with stylesheets.
 
 The `TabWidget` properties can be defined in a _stylesheet_ with the following code added to the `.qss` file. +
 `name_of_tab` being the widget name defined in Qt Designer's editor. +
@@ -719,22 +719,22 @@ usually this is selected from the screenOptions widget.
 *`halpin_option`*::
   Will set a HAL pin true when the axis is selected.
 *`joint_number`*::
-  Should be set to the appropriate joint number
+  Should be set to the appropriate joint number.
 *`axis_letter`*::
-  Should be set to the appropriate axis letter
+  Should be set to the appropriate axis letter.
 
 These are the click-and-hold menu properties: +
 
 *`showLast`*::
-  show the 'Set to last' action
+  Show the 'Set to last' action.
 *`showDivide`*::
-  show the 'Divide by 2' action
+  Show the 'Divide by 2' action.
 *`showGotoOrigin`*::
-  show the 'Go to G53/G5x origin' action
+  Show the 'Go to G53/G5x origin' action.
 *`showZeroOrigin`*::
-  show the 'Zero Origin' action
+  Show the 'Zero Origin' action.
 *`showSetOrigin`*::
-  show the 'Set Origin' action
+  Show the 'Set Origin' action.
 *`dialog_code_string`*::
   Sets which dialog will pop up with numerical entry,
   i.e. 'ENTRY' or 'CALCULATOR' to call a typing only entry dialog or a touch/typing calculator type entry dialog.
@@ -811,15 +811,15 @@ You can also click on the label and see a list of actions. +
 These are the click-on-menu options:
 
 *`showLast`*::
-  show the 'Set to last' action
+  Show the 'Set to last' action.
 *`showDivide`*::
-  show the 'Divide by 2' action
+  Show the 'Divide by 2' action.
 *`showGotoOrigin`*::
-  show the 'Go to G53/G5x origin' action
+  Show the 'Go to G53/G5x origin' action.
 *`showZeroOrigin`*::
-  show the 'Zero Origin' action
+  Show the 'Zero Origin' action.
 *`showSetOrigin`*::
-  show the 'Set Origin' action
+  Show the 'Set Origin' action.
 *`dialogName`*::
   Sets which dialog window will pop up with numerical entry, i.e. ENTRY or CALCULATOR.
 

@@ -328,11 +328,9 @@ count_64 (s64 out)::
 position (float out)::
  Encoder position in position units (count / scale).
 position-interpolated (float out)::
- Encoder interpolated position in position units (count / scale). Only
- valid when velocity is approximately constant and the time between
- counts is less than the velocity timeout parameter value. Do not use
- for position control. Useful for spindle synchronized moves with low
- resolution encoders.
+ Encoder interpolated position in position units (count / scale).
+ Only valid when velocity is approximately constant and the time between counts is less than the velocity timeout parameter value.
+ Do not use for position control. Useful for spindle synchronized moves with low resolution encoders.
 position-latched (float out)::
  Encoder latched position in position units (count / scale).
 velocity (float out)::
@@ -340,29 +338,22 @@ velocity (float out)::
 velocity-rpm (float out)::
  Estimated encoder velocity in position units per minute.
 reset (bit in)::
- When this pin is True, the count and position pins are set to 0 (the
- value of the velocity pin is not affected by this). The driver does
- not reset this pin to FALSE after resetting the count to 0, that is
- the user's job.
+ When this pin is True, the count and position pins are set to 0 (the value of the velocity pin is not affected by this).
+ The driver does not reset this pin to FALSE after resetting the count to 0, that is the user's job.
 index-enable (bit in/out)::
  When this pin is set to True, (and no-clear-on-index is false) 
- the count (and therefore also position) are reset to zero on the next 
- Index (Phase-Z) pulse. At the same time, index-enable is reset to zero
-  to indicate that the pulse has occurred.
+ the count (and therefore also position) are reset to zero on the next Index (Phase-Z) pulse.
+ At the same time, index-enable is reset to zero to indicate that the pulse has occurred.
 no-clear-on-index (bit in)::
- When this pin is set to True, the count (and therefore also position) 
- are NOT reset to zero on the next Index (Phase\-Z) pulse.
- On an index event the latched count and position will be set to 
- indicate the count and position where the index occurred.
+ When this pin is set to True, the count (and therefore also position) are NOT reset to zero on the next Index (Phase\-Z) pulse.
+ On an index event the latched count and position will be set to indicate the count and position where the index occured.
 probe-enable (bit in/out)::
- When this pin is set to True, the encoder count (and therefore also
- position) are latched on the the next probe active edge. At the same
- time, probe-enable is reset to zero to indicate that latch event has
- occurred (only present if supported by firmware).
+ When this pin is set to True, the encoder count (and therefore also position) are latched on the the next probe active edge.
+ At the same time, probe-enable is reset to zero to indicate that latch event has occurred.
+ (only present if supported by firmware)
 probe-invert (bit r/w)::
- If set to True, the rising edge of the probe input pin triggers the
- latch event (if probe-enable is True). If set to False, the falling
- edge triggers (only present if supported by firmware).
+ If set to True, the rising edge of the probe input pin triggers the latch event (if probe-enable is True).
+ If set to False, the falling edge triggers. (only present if supported by firmware)
 rawcounts (s32 out)::
  Total number of encoder counts since the start, not adjusted for index or reset.
 rawcounts_64 (s64 out)::
@@ -374,8 +365,8 @@ count_latch_64 (s64 out)::
 input-a, input-b, input-index (bit out)::
  Real time filtered values of A,B,Index encoder signals
 quad-error-enable (bit in)::
- When this pin is True quadrature error reporting is enabled. When
- False, existing quadrature errors are cleared and error reporting is disabled.
+ When this pin is True quadrature error reporting is enabled.
+ When False, existing quadrature errors are cleared and error reporting is disabled.
 quad-error (bit out)::
  This bit indicates that a quadrature sequence error has been detected.
  It can only be set if the corresponding quad-error-enable bit is True.
@@ -388,12 +379,11 @@ hm2_XXXX.N.encoder.muxed-sample-frequency (u32 in)::
  This also sets the encoder multiplexing frequency.
 hm2_XXXX.N.encoder.muxed-skew (float in)::
  This sets the muxed encoder sample time delay (in ns) from the multiplex signal.
- Setting this properly can increase the usable
- multiplex frequency and compensate for cable delays (suggested value
- is 3* cable length in feet +20).
+ Setting this properly can increase the usable multiplex frequency and compensate for cable delays
+ (suggested value is 3* cable length in feet +20).
 hm2_XXXX.N.encoder.hires-timestamp (bit in)::
- When this pin is True the encoder timestamp counter frequency is
- ca. 10&#8201;MHz when False the timestamp counter frequency is ca. 2&#8201;MHz.
+ When this pin is True the encoder timestamp counter frequency is ca. 10 MHz.
+ When False the timestamp counter frequency is ca. 2&#8201;MHz.
  This should be set True for frequency counting applications to improve the resolution.
  It should be set False when servo thread periods longer than 1&#8201;ms are used.
 
@@ -477,13 +467,12 @@ There is a limit of 64 bits in total.
 
 The valid format characters and the pins they create are:
 
-p: (Pad)::
- Does not create any pins, used to ignore sections of the bit stream that are not required.
+p: (Pad):: Does not create any pins, used to ignore sections of the bit stream that are not required.
 
-b: (Boolean).:: (bit, out) hm2_XXXX.N.ssi.MM.<name>.
- If any bits in the designated field width are non-zero then the HAL pin will be "True".
- (bit, out) hm2_XXXX.N.ssi.MM.<name>-not. An inverted version of the above, the
- HAL pin will be "True" if all bits in the field are zero.
+b: (Boolean).:: (bit, out) hm2_XXXX.N.ssi.MM.<name>. +
+ If any bits in the designated field width are non-zero then the HAL pin will be "True". +
+ (bit, out) hm2_XXXX.N.ssi.MM.<name>-not. +
+ An inverted version of the above, the HAL pin will be "True" if all bits in the field are zero.
 
 u: (Unsigned):: (float, out) hm2_XXXX.N.ssi.MM.<name>.
  The value of the bits
@@ -492,64 +481,50 @@ u: (Unsigned):: (float, out) hm2_XXXX.N.ssi.MM.<name>.
  example if the field is 8 bits wide and the scalmax parameter was 20
  then a value of 255 would return 20, and 0 would return 0.
 
-s: (Signed):: (float, out) hm2_XXXX.N.ssi.MM.<name>.
- The value of the bits
- interpreted as a 2s complement signed number then scaled similarly to
+s: (Signed):: (float, out) hm2_XXXX.N.ssi.MM.<name>. +
+ The value of the bits interpreted as a 2s complement signed number then scaled similarly to
  the unsigned variant, except symmetrical around zero.
 
-f: (bitField):: (bit, out) hm2_XXXX.N.ssi.MM.<name>-NN.
- The value of each individual
- bit in the data field. NN starts at 00 up to the number of bits in the
- field. (bit, out) hm2_XXXX.N.ssi.MM.<name>-NN-not. An inverted version
- of the individual bit values.
+f: (bitField):: (bit, out) hm2_XXXX.N.ssi.MM.<name>-NN. +
+ The value of each individual bit in the data field.
+ NN starts at 00 up to the number of bits in the field. +
+ (bit, out) hm2_XXXX.N.ssi.MM.<name>-NN-not. +
+ An inverted version of the individual bit values.
 
-e: (Encoder):: (s32, out) hm2_XXXX.N.ssi.MM.<name>.count.
-The lower 32 bits of the
- total encoder counts. This value is reset both by the ...reset and the
- ...index-enable pins. (s32, out) hm2_XXXX.N.ssi.MM.<name>.rawcounts.
- The lower 32 bits of the total encoder counts. The pin is not affected
- by reset and index. (float, out) hm2_XXXX.N.ssi.MM.<name>.position.
- The encoder position in machine units. This is calculated from the
- full 64-bit buffers so will show a True value even after the counts
- pins have wrapped. It is zeroed by reset and index enable. (bit, IO)
- hm2_XXXX.N.ssi.MM.<name>.index-enable. When this pin is set "True" the
- module will wait until the raw encoder counts next passes through an
- integer multiple of the number of counts specified by counts-per-rev
- parameter and then it will zero the counts and position pins, and set
- the index-enable pin back to "False" as a signal to the system that
- "index" has been passed. this pin is used for spindle-synchronised
- motion and index-homing. (bit, in) (bit, out)
- hm2_XXXX.N.ssi.MM.<name>.reset. When this pin is set high the counts
- and position pins are zeroed.
+e: (Encoder):: (s32, out) hm2_XXXX.N.ssi.MM.<name>.count. +
+ The lower 32 bits of the total encoder counts. This value is reset both by the ...reset and the ...index-enable pins. +
+ (s32, out) hm2_XXXX.N.ssi.MM.<name>.rawcounts. +
+ The lower 32 bits of the total encoder counts. The pin is not affected by reset and index. +
+ (float, out) hm2_XXXX.N.ssi.MM.<name>.position. +
+ The encoder position in machine units. This is calculated from the full 64-bit buffers so will show a True value even after the counts pins have wrapped.  It is zeroed by reset and index enable. +
+ (bit, IO) hm2_XXXX.N.ssi.MM.<name>.index-enable. +
+ When this pin is set "True" the module will wait until the raw encoder counts next passes through an integer multiple of the number of counts specified by counts-per-rev parameter and then it will zero the counts and position pins, and set the index-enable pin back to "False" as a signal to the system that "index" has been passed. this pin is used for spindle-synchronised motion and index-homing. +
+ (bit, in) (bit, out) hm2_XXXX.N.ssi.MM.<name>.reset. +
+ When this pin is set high the counts and position pins are zeroed.
 h: (Split encoder, high-order bits)::
- Some encoders (Including Fanuc) place the encoder part-turn counts and
- full-turn counts in separate, non-contiguous fields. This tag defines
- the high-order bits of such an encoder module. There can be only one h
- and one l tag per channel, the behaviour with multiple such channels
- will be undefined.
+ Some encoders (Including Fanuc) place the encoder part-turn counts and full-turn counts in separate, non-contiguous fields.
+ This tag defines the high-order bits of such an encoder module.
+ There can be only one h and one l tag per channel, the behaviour with multiple such channels will be undefined.
 l: (Split encoder, low-order bits)::
  Low order bits (see "h")
 g: (Gray-code):: This is a modifier that indicates that the following format string is gray-code encoded.
  This is only valid for encoders (e, h l) and unsigned (u) data types.
 m: (Multi-turn)::
- This is a modifier that indicates that the following
- format string is a multi-turn encoder. This is only valid for encoders
- (e, h l). A jump in encoder position of more than half the full scale
- is interpreted as a full turn and the counts are wrapped. With a
- multi-turn encoder this is only likely to be a data glitch and will
- lead to a permanent offset. This flag endures that such encoders will
- never wrap.
+ This is a modifier that indicates that the following format string is a multi-turn encoder.
+ This is only valid for encoders (e, h l).
+ A jump in encoder position of more than half the full scale is interpreted as a full turn and the counts are wrapped.
+ With a multi-turn encoder this is only likely to be a data glitch and will lead to a permanent offset.
+ This flag endures that such encoders will never wrap.
 
 *Parameters*
 
 Two parameters are universally created for all SSI instances
 
 hm2_XXXX.N.ssi.MM.frequency-khz (float r/w)::
- This parameter sets the SSI clock frequency. The units are kHz, so 500
- will give a clock frequency of 500,000 Hz.
+ This parameter sets the SSI clock frequency. The units are kHz, so 500 will give a clock frequency of 500,000 Hz.
 hm2_XXXX.N.ssi.timer-number-num (s32 r/w)::
- This parameter allocates the SSI module to a specific hm2dpll timer
- instance. This pin is only of use in firmwares which contain a hm2dpll
+ This parameter allocates the SSI module to a specific hm2dpll timer instance.
+ This pin is only of use in firmwares which contain a hm2dpll
  function and will default to 1 in cases where there is such a
  function, and 0 if there is not. The pin can be used to disable reads
  of the encoder, by setting to a nonexistent timer number, or to 0.
@@ -641,9 +616,8 @@ velocity-rpm (float, out)::
 count (s32, out)::
  This pins outputs a simulated encoder count at 2^24^ counts per rev (16777216 counts).
 rawcounts (s32, out)::
- This is identical to the counts pin, except it is not reset by the
- "index" or "reset" pins. This is the pin which would be linked to the
- bldc HAL component if the resolver was being used to commutate a motor.
+ This is identical to the counts pin, except it is not reset by the "index" or "reset" pins.
+ This is the pin which would be linked to the bldc HAL component if the resolver was being used to commutate a motor.
 reset (bit, in)::
  Resets the position and counts pins to zero immediately.
 joint-pos-fb (bit, in)::
@@ -659,13 +633,11 @@ joint-pos-fb (bit, in)::
  This feature will only work properly if the machine is initially homed to "index"
  and if the axis home positions are exactly zero.
 index-enable (bit, in/out)::
- When this pin is set high the position and counts pins will be reset
- the next time the resolver passes through the zero position. At the
- same time the pin is driven low to indicate to connected modules that
- the index has been seen, and that the counters have been reset.
+ When this pin is set high the position and counts pins will be reset the next time the resolver passes through the zero position.
+ At the same time the pin is driven low to indicate to connected modules that the index has been seen, and that the counters have been reset.
 error (bit, out)::
- Indicates an error in the particular channel. If this value is "True"
- then the reported position and velocity are invalid.
+ Indicates an error in the particular channel.
+ If this value is "True" then the reported position and velocity are invalid.
 
 *Parameters:*
 
@@ -684,14 +656,12 @@ index-divisor (default 1) (u32, read/write)::
  It is not appropriate to use this parameter for index-homing of axis drives.
 
 excitation-khz (float, read/write)::
- This pin sets the excitation frequency for the resolver. This pin is
- module-level rather than instance-level as all resolvers share the
- same excitation frequency. Valid values are 10 (ca. 10 kHz), 5 (ca. 5 kHz)
- and 2.5 (ca. 2.5 kHz). The actual frequency depends on the FPGA
- frequency, and they correspond to CLOCK_LOW/5000, CLOCK_LOW/10000 and
- CLOCK_LOW/20000 respectively. The parameter will be set to the closest
- available of the three frequencies. A value of -1 (the default)
- indicates that the current setting should be retained.
+ This pin sets the excitation frequency for the resolver.
+ This pin is module-level rather than instance-level as all resolvers share the same excitation frequency.
+ Valid values are 10 (ca. 10 kHz), 5 (ca. 5 kHz) and 2.5 (ca. 2.5 kHz).
+ The actual frequency depends on the FPGA frequency, and they correspond to CLOCK_LOW/5000, CLOCK_LOW/10000 and CLOCK_LOW/20000 respectively.
+ The parameter will be set to the closest available of the three frequencies.
+ A value of -1 (the default) indicates that the current setting should be retained.
 
 use-position-file (bit, read/write)::
  In conjunction with *joint-pos-fb* (qv) emulate absolute encoders.

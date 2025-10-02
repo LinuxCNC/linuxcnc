@@ -4109,8 +4109,8 @@ Therefore, the length of the wiggle and the feed rate need to be considered in c
 
 For example:
 
-* A feed rate of 1080 mm/min (18 mm/s)
-* A wiggle movement of 4 mm for 3 oscillations
+* A feed rate of 1080 mm/min (18 mm/s).
+* A wiggle movement of 4 mm for 3 oscillations.
 
 This means that the length of the wiggle is 4 x 3 = 12 mm. At the 18 mm/s feed rate, the pierce delay needs to be approx 0.7 seconds to support the wiggle distance at pierce height.
 
@@ -4266,7 +4266,7 @@ $ ./langlink xx
 ----
 
 [NOTE]
-this command is a script which creates a link in both qtplasmac_4x3/languages and qtplasmac_9x16/languages to the above .qm file and then renames the link to match the GUI name.
+This command is a script which creates a link in both qtplasmac_4x3/languages and qtplasmac_9x16/languages to the above .qm file and then renames the link to match the GUI name.
 
 QtPlasmaC will be translated to the language of the current locale on the next start so long as a .qm file exists in that language.
 

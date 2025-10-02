@@ -12,7 +12,7 @@ halrmt - remote-control interface for LinuxCNC
 
 --port _port_:: Waits for socket connections (telnet) on specified
 socket, without port specification it uses default port 5006.
-(note: linuxcncrsh uses 5007 as default)
+(Note: linuxcncrsh uses 5007 as default.)
 --name _server_name_:: Sets the server name to specified name for Hello.
 --connectpw _password_:: Sets the connection password to 'password'. Default: EMC.
 --enablepw _password_:: Sets the enable password to _password_. Default EMCTOO.

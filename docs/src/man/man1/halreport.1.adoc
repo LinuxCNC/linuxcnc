@@ -12,7 +12,7 @@ halreport - creates a report on the status of the HAL
 
 *halreport*
 
-. Supports components made by halcompile and numerous legacy components
+. Supports components made by halcompile and numerous legacy components.
 . Known unhandled components:
 at_pid:: naming conflicts with pid, seldom used
 boss_plc:: no manpage or docs (any users?)

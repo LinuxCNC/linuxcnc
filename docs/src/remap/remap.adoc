@@ -1146,7 +1146,7 @@ Note that the interpreter instance is available here as `this`, so you could als
 ;py,print(this.tool_table[0].toolno)
 ----
 
-Here is an approach to use an O word subroutine to read a preference file entry and add it as a Gcode parameter.
+Here is an approach to use an O-word subroutine to read a preference file entry and add it as a G-code parameter.
 
 [source,{ngc}]
 ----

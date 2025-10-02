@@ -311,15 +311,15 @@ requirements.
 
 === External offset considerations 
 
-External offsets (set to an axis (_L_) via axis.L.eoffset-request) are preserved during 
-kinematics switches. When an offset is active on an axis before the switch
-(visible in axis.L.eoffset), the trajectory planner maintains that same 
-offset after the switch, similar to how it maintains the commanded 
-position from a G-code. This ensures consistent machine behavior regardless
-of the active kinematics.
+External offsets (set to an axis (_L_) via axis._L_.eoffset-request)
+are preserved during kinematics switches. When an offset is active on
+an axis before the switch (visible in axis._L_.eoffset), the trajectory
+planner maintains that same offset after the switch, similar to how it
+maintains the commanded position from a G-code. This ensures consistent
+machine behavior regardless of the active kinematics.
 
 If maintaining the offset will be an issue due to axis limit changes or other concerns,
-be sure to clear and possibly disable the eoffset before making a kinematics switch
+be sure to clear and possibly disable the eoffset before making a kinematics switch.
 
 == Simulation configs
 
