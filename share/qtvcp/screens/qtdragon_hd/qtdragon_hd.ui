@@ -6440,6 +6440,34 @@ LOG</string>
                    <property name="autoExclusive">
                     <bool>false</bool>
                    </property>
+                   <property name="indicator_option" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="indicator_status_option" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="on_color" stdset="0">
+                    <color>
+                     <red>85</red>
+                     <green>255</green>
+                     <blue>0</blue>
+                    </color>
+                   </property>
+                   <property name="shape_option" stdset="0">
+                    <number>1</number>
+                   </property>
+                   <property name="flashIndicator" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="right_edge_offset" stdset="0">
+                    <number>4</number>
+                   </property>
+                   <property name="top_edge_offset" stdset="0">
+                    <number>5</number>
+                   </property>
+                   <property name="is_mdi_finished_status" stdset="0">
+                    <bool>true</bool>
+                   </property>
                    <property name="view_change_action" stdset="0">
                     <bool>false</bool>
                    </property>
@@ -6534,6 +6562,34 @@ LOG</string>
                    <property name="autoExclusive">
                     <bool>false</bool>
                    </property>
+                   <property name="indicator_option" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="indicator_status_option" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="on_color" stdset="0">
+                    <color>
+                     <red>85</red>
+                     <green>255</green>
+                     <blue>0</blue>
+                    </color>
+                   </property>
+                   <property name="shape_option" stdset="0">
+                    <number>1</number>
+                   </property>
+                   <property name="flashIndicator" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="right_edge_offset" stdset="0">
+                    <number>4</number>
+                   </property>
+                   <property name="top_edge_offset" stdset="0">
+                    <number>5</number>
+                   </property>
+                   <property name="is_mdi_finished_status" stdset="0">
+                    <bool>true</bool>
+                   </property>
                    <property name="view_change_action" stdset="0">
                     <bool>false</bool>
                    </property>
@@ -6624,6 +6680,34 @@ LOG</string>
                    </property>
                    <property name="autoExclusive">
                     <bool>false</bool>
+                   </property>
+                   <property name="indicator_option" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="indicator_status_option" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="on_color" stdset="0">
+                    <color>
+                     <red>85</red>
+                     <green>255</green>
+                     <blue>0</blue>
+                    </color>
+                   </property>
+                   <property name="shape_option" stdset="0">
+                    <number>1</number>
+                   </property>
+                   <property name="flashIndicator" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="right_edge_offset" stdset="0">
+                    <number>4</number>
+                   </property>
+                   <property name="top_edge_offset" stdset="0">
+                    <number>5</number>
+                   </property>
+                   <property name="is_mdi_finished_status" stdset="0">
+                    <bool>true</bool>
                    </property>
                    <property name="view_change_action" stdset="0">
                     <bool>false</bool>
@@ -6716,6 +6800,34 @@ LOG</string>
                    <property name="autoExclusive">
                     <bool>false</bool>
                    </property>
+                   <property name="indicator_option" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="indicator_status_option" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="on_color" stdset="0">
+                    <color>
+                     <red>85</red>
+                     <green>255</green>
+                     <blue>0</blue>
+                    </color>
+                   </property>
+                   <property name="shape_option" stdset="0">
+                    <number>1</number>
+                   </property>
+                   <property name="flashIndicator" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="right_edge_offset" stdset="0">
+                    <number>4</number>
+                   </property>
+                   <property name="top_edge_offset" stdset="0">
+                    <number>5</number>
+                   </property>
+                   <property name="is_mdi_finished_status" stdset="0">
+                    <bool>true</bool>
+                   </property>
                    <property name="view_change_action" stdset="0">
                     <bool>false</bool>
                    </property>
@@ -6807,6 +6919,34 @@ LOG</string>
                    <property name="autoExclusive">
                     <bool>false</bool>
                    </property>
+                   <property name="indicator_option" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="indicator_status_option" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="on_color" stdset="0">
+                    <color>
+                     <red>85</red>
+                     <green>255</green>
+                     <blue>0</blue>
+                    </color>
+                   </property>
+                   <property name="shape_option" stdset="0">
+                    <number>1</number>
+                   </property>
+                   <property name="flashIndicator" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="right_edge_offset" stdset="0">
+                    <number>4</number>
+                   </property>
+                   <property name="top_edge_offset" stdset="0">
+                    <number>5</number>
+                   </property>
+                   <property name="is_mdi_finished_status" stdset="0">
+                    <bool>true</bool>
+                   </property>
                    <property name="view_change_action" stdset="0">
                     <bool>false</bool>
                    </property>
@@ -6896,6 +7036,37 @@ LOG</string>
                     <bool>false</bool>
                    </property>
                    <property name="autoExclusive">
+                    <bool>false</bool>
+                   </property>
+                   <property name="indicator_option" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="indicator_status_option" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="on_color" stdset="0">
+                    <color>
+                     <red>85</red>
+                     <green>255</green>
+                     <blue>0</blue>
+                    </color>
+                   </property>
+                   <property name="shape_option" stdset="0">
+                    <number>1</number>
+                   </property>
+                   <property name="flashIndicator" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="right_edge_offset" stdset="0">
+                    <number>4</number>
+                   </property>
+                   <property name="top_edge_offset" stdset="0">
+                    <number>5</number>
+                   </property>
+                   <property name="is_mdi_finished_status" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="is_homed_status" stdset="0">
                     <bool>false</bool>
                    </property>
                    <property name="view_change_action" stdset="0">
@@ -6995,6 +7166,34 @@ LOG</string>
                    <property name="autoRepeatInterval">
                     <number>100</number>
                    </property>
+                   <property name="indicator_option" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="indicator_status_option" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="on_color" stdset="0">
+                    <color>
+                     <red>85</red>
+                     <green>255</green>
+                     <blue>0</blue>
+                    </color>
+                   </property>
+                   <property name="shape_option" stdset="0">
+                    <number>1</number>
+                   </property>
+                   <property name="flashIndicator" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="right_edge_offset" stdset="0">
+                    <number>4</number>
+                   </property>
+                   <property name="top_edge_offset" stdset="0">
+                    <number>5</number>
+                   </property>
+                   <property name="is_mdi_finished_status" stdset="0">
+                    <bool>true</bool>
+                   </property>
                    <property name="view_change_action" stdset="0">
                     <bool>false</bool>
                    </property>
@@ -7092,6 +7291,34 @@ LOG</string>
                    <property name="autoRepeatInterval">
                     <number>100</number>
                    </property>
+                   <property name="indicator_option" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="indicator_status_option" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="on_color" stdset="0">
+                    <color>
+                     <red>85</red>
+                     <green>255</green>
+                     <blue>0</blue>
+                    </color>
+                   </property>
+                   <property name="shape_option" stdset="0">
+                    <number>1</number>
+                   </property>
+                   <property name="flashIndicator" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="right_edge_offset" stdset="0">
+                    <number>4</number>
+                   </property>
+                   <property name="top_edge_offset" stdset="0">
+                    <number>5</number>
+                   </property>
+                   <property name="is_mdi_finished_status" stdset="0">
+                    <bool>true</bool>
+                   </property>
                    <property name="view_change_action" stdset="0">
                     <bool>false</bool>
                    </property>
@@ -7183,6 +7410,34 @@ LOG</string>
                    <property name="checkable">
                     <bool>false</bool>
                    </property>
+                   <property name="indicator_option" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="indicator_status_option" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="on_color" stdset="0">
+                    <color>
+                     <red>85</red>
+                     <green>255</green>
+                     <blue>0</blue>
+                    </color>
+                   </property>
+                   <property name="shape_option" stdset="0">
+                    <number>1</number>
+                   </property>
+                   <property name="flashIndicator" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="right_edge_offset" stdset="0">
+                    <number>4</number>
+                   </property>
+                   <property name="top_edge_offset" stdset="0">
+                    <number>5</number>
+                   </property>
+                   <property name="is_mdi_finished_status" stdset="0">
+                    <bool>true</bool>
+                   </property>
                    <property name="view_change_action" stdset="0">
                     <bool>false</bool>
                    </property>
@@ -7273,6 +7528,34 @@ LOG</string>
                    </property>
                    <property name="checkable">
                     <bool>false</bool>
+                   </property>
+                   <property name="indicator_option" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="indicator_status_option" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="on_color" stdset="0">
+                    <color>
+                     <red>85</red>
+                     <green>255</green>
+                     <blue>0</blue>
+                    </color>
+                   </property>
+                   <property name="shape_option" stdset="0">
+                    <number>1</number>
+                   </property>
+                   <property name="flashIndicator" stdset="0">
+                    <bool>true</bool>
+                   </property>
+                   <property name="right_edge_offset" stdset="0">
+                    <number>4</number>
+                   </property>
+                   <property name="top_edge_offset" stdset="0">
+                    <number>4</number>
+                   </property>
+                   <property name="is_mdi_finished_status" stdset="0">
+                    <bool>true</bool>
                    </property>
                    <property name="view_change_action" stdset="0">
                     <bool>false</bool>
@@ -16900,7 +17183,7 @@ ANGULAR</string>
          <number>2</number>
         </property>
         <property name="text">
-         <string>04:31:34 AM</string>
+         <string>10:10:46 PM</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -18072,8 +18355,8 @@ ANGULAR</string>
   <slot>btn_systemtool_toggled()</slot>
  </slots>
  <buttongroups>
+  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="selectButtonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
-  <buttongroup name="page_buttonGroup"/>
  </buttongroups>
 </ui>
