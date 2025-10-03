@@ -1,5 +1,7 @@
 import os, time
 from PyQt5 import QtCore, QtWidgets, QtGui
+from PyQt5.QtWidgets import QAction, QMenu
+from PyQt5.QtGui import QIcon
 from PyQt5.QtCore import QCoreApplication
 from qtvcp.widgets.gcode_editor import GcodeEditor as GCODE
 from qtvcp.widgets.gcode_graphics import GCodeGraphics as GRAPHICS
@@ -238,24 +240,7 @@ class HandlerClass:
 
         self.w.setWindowFlags(QtCore.Qt.FramelessWindowHint)
 
-        # Show assigned macrobuttons define in INI under [MDI_COMMAND_LIST]
-        flag = True
-        for b in range(0,10):
-            button = self.w['macrobutton{}'.format(b)]
-            # prefer named INI MDI commands
-            key = button.property('ini_mdi_key')
-            if key == '' or INFO.get_ini_mdi_command(key) is None:
-                # fallback to legacy nth line
-                key = button.property('ini_mdi_number')
-            try:
-                code = INFO.get_ini_mdi_command(key)
-                if code is None: raise Exception
-                flag = False
-            except:
-                button.hide()
-        # no buttons hide frame
-        if flag:
-            self.w.frame_macro_buttons.hide()
+        self.configureMacroButtons()
 
         self.log_version()
 
@@ -2056,6 +2041,66 @@ class HandlerClass:
                  t)
         self.add_status(mess, CRITICAL,noLog=True)
         STATUS.emit('update-machine-log', mess, None)
+
+    # show/hide macro buttons depending on the INI definitions
+    def configureMacroButtons(self):
+        # Show assigned macrobuttons define in INI under [MDI_COMMAND_LIST]
+        flag = True
+        for b in range(0,10):
+            button = self.w['macrobutton{}'.format(b)]
+            # prefer named INI MDI commands
+            key = button.property('ini_mdi_key')
+            if key == '' or INFO.get_ini_mdi_command(key) is None:
+                # fallback to legacy nth line
+                key = button.property('ini_mdi_number')
+            try:
+                code = INFO.get_ini_mdi_command(key)
+                if code is None: raise Exception
+                flag = False
+            except:
+                button.hide()
+        # no buttons hide frame
+        if flag:
+            self.w.frame_macro_buttons.hide()
+        # if there are more then 10 add a menu to the last button for selection
+        if len(INFO.MDI_COMMAND_DICT)>10:
+            button.setText('MORE\nMACROS')
+            button.setProperty('ini_mdi_command_action', False)
+            button.setProperty('no_action', True)
+            button.setToolTip('')
+            SettingMenu = QMenu(button)
+            button.setMenu(SettingMenu)
+            for i in range(0,len(INFO.MDI_COMMAND_DICT)-10):
+                try:
+                    name = 'MACRO{}'.format(i+10)
+                    label = INFO.MDI_COMMAND_DICT[name]['label']
+                except:
+                    label = INFO.MDI_COMMAND_LABEL_LIST[i+10]
+
+                action = QAction(QIcon.fromTheme('application-exit'), label.replace("\\n"," "), button)
+                action.triggered.connect(lambda s, i=i, b=button : self.midiAction(b, i+10))
+                # tooltips don't work on Qmenu items unless in toolbar
+                #tooltiplabel = 'INI MDI CMD {}:\n'.format(name)
+                #tooltiplabel += INFO.get_ini_mdi_command(key).replace(';', '\n')
+                #action.setToolTip(tooltiplabel)
+
+                SettingMenu.addAction(action)
+
+    # use the button to run macros selected from the buttons menu
+    def midiAction(self, button, num):
+        name = 'MACRO{}'.format(num)
+        try:
+            code = INFO.MDI_COMMAND_DICT[name]['cmd']
+            button.setProperty('ini_mdi_key', name)
+        except:
+            code = INFO.MDI_COMMAND_LIST[num]
+            button.setProperty('ini_mdi_key', '')
+            button.setProperty('ini_mdi_number', num)
+            print('number',num,button.ini_mdi_num)
+        button.setProperty('ini_mdi_command_action', True)
+
+        button.pressed.emit()
+        button.setProperty('ini_mdi_command_action', False)
 
     #####################
     # KEY BINDING CALLS #
