@@ -40,7 +40,7 @@ AUX_PRGM = Aux_program_loader()
 LOG = logger.getLogger(__name__)
 
 # Force the log level for this module
-# LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 class ActionButton(IndicatedPushButton):
     def __init__(self, parent=None):
@@ -48,6 +48,7 @@ class ActionButton(IndicatedPushButton):
         self._block_signal = False
         self._designer_block_signal = False
         self._designer_running = False
+        self._no_action = False
         self.estop = False
         self.machine_on = False
         self.home = False
@@ -432,6 +433,8 @@ class ActionButton(IndicatedPushButton):
             STATUS.connect('all-homed', lambda w: self.setEnabled(True))
             STATUS.connect('interp-idle', lambda w: self.setEnabled(homed_on_test()))
             STATUS.connect('interp-run', lambda w: self.setEnabled(False))
+        elif self._no_action:
+            pass
 
         # connect a signal and callback function to the button
         if self.isCheckable():
@@ -462,7 +465,9 @@ class ActionButton(IndicatedPushButton):
     def action(self, state=None):
         # don't do anything if the signal is blocked
         if self._block_signal: return
-        if self.estop:
+        if self._no_action:
+            pass
+        elif self.estop:
             if self.isCheckable():
                 if STATUS.estop_is_clear():
                     ACTION.SET_ESTOP_STATE(STATUS.STATE_ESTOP)
@@ -897,13 +902,22 @@ class ActionButton(IndicatedPushButton):
                 'launch_calibration',
                  'exit', 'machine_log_dialog', 'zero_g5x', 'zero_g92', 'zero_zrot',
                  'origin_offset_dialog', 'run_from_status', 'run_from_slot',
-                 'tool_chooser_dialog', 'lathe_mirror_x')
+                 'tool_chooser_dialog', 'lathe_mirror_x', 'no')
 
         for i in data:
             if not i == picked:
                 self[i+'_action'] = False
 
     # BOOL VARIABLES----------------------
+    def set_no_action(self, data):
+        self._no_action = data
+        if data:
+            self._toggle_properties('no')
+    def get_no_action(self):
+        return self._no_action
+    def reset_no_action(self):
+        self._no_action = False
+
     def set_estop(self, data):
         self.estop = data
         if data:
@@ -1539,6 +1553,7 @@ class ActionButton(IndicatedPushButton):
 
     # designer will show these properties in this order:
     # BOOL
+    no_action = QtCore.pyqtProperty(bool, get_no_action, set_no_action, reset_no_action)
     estop_action = QtCore.pyqtProperty(bool, get_estop, set_estop, reset_estop)
     machine_on_action = QtCore.pyqtProperty(bool, get_machine_on, set_machine_on, reset_machine_on)
     auto_action = QtCore.pyqtProperty(bool, get_auto, set_auto, reset_auto)
