@@ -115,10 +115,10 @@ class GcodeLexer(QsciLexerCustom):
 
         re_tokens = {
             1: r"(?:[N]\d+|\(.*?\)|;.*)",                                       # LineNo and Comment
-            2: r"[G]\d{1,2}\.\d|[G]\d{1,2}",                                    # Gcode
-            3: r"[M]\d{1,3}",                                                   # Mcode
-            4: r"[XYZABCUVW]{1}(?:[+-]?[\d\.\s]+|\#\<.*\>|\[.*\]|\#\d+)",       # Axis
-            5: r"[EFHIJKDQLRPST$]{1}(?:[+-]?[\d\.]+|\#\<.*\>|\[.*\]|\#\d+)",    # Other (feed,rpm,radius,etc)
+            2: r"[G]\s*\d{1,2}\.\d\s|[G]\s*\d{1,2}",                            # Gcode
+            3: r"[M]\s*\d{1,3}",                                                # Mcode
+            4: r"[XYZABCUVW]{1}(?:[+-]?[\d\.\s\][+-]+|\#\<.*\>|\[.*\]|\#\d+)",  # Axis
+            5: r"[EFHIJKDQLRPST$]{1}(?:[+-]?[\d\.\s]+|\#\<.*\>|\[.*\]|\#\d+)",  # Other (feed,rpm,radius,etc)
             0: r"\s+|\w+|\W",                                                   # Default (fallback)
         }
 
@@ -1216,3 +1216,4 @@ N98765 G0 Z30"""
         w.label.setText('<b>Edit mode title label</b>')
     w.show()
     sys.exit( app.exec_() )
+
