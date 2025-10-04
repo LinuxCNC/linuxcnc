@@ -24,6 +24,9 @@ class IndicatedMixIn( _HalWidgetBase):
         # if user want to block their signals
         self._external_block_signal = False
 
+        # flags
+        self._watch_command_flag = False
+
         # changing text data
         self._state_text = False # use text
         self._true_string = 'True'
@@ -259,6 +262,7 @@ class IndicatedMixIn( _HalWidgetBase):
             STATUS.connect('interp-run', lambda w: self._flip_state(False))
         elif self._is_mdi_command_finished:
             STATUS.connect('interp-idle', lambda w: self._flip_state(False))
+            STATUS.connect('current-command', lambda w,s: self.update_command_running(s))
         elif self._is_paused:
             STATUS.connect('program-pause-changed', lambda w, data: self._flip_state(data))
         elif self._is_flood:
@@ -400,6 +404,17 @@ class IndicatedMixIn( _HalWidgetBase):
     def indicator2_update(self, data):
         self._flashing2 = self._indicator2_state = data
         self.update()
+
+    # set the indicator that the MDI command is running
+    # or not
+    def update_command_running(self, code):
+        if self._watch_command_flag:
+            if not code =='':
+                self._flip_state(True)
+        if code =='':
+            self._flip_state(False)
+            self._watch_command_flag = False
+
 
     # override paint function to first paint the stock button
     # then our indicator paint routine

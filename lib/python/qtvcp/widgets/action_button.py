@@ -703,14 +703,11 @@ class ActionButton(IndicatedPushButton):
             self.command_text = str(self.command_text)
             LOG.debug("MDI STRING COMMAND: {}".format(self.command_text))
             ACTION.CALL_MDI(self.command_text)
+
         elif self.ini_mdi_command:
             # we prefer named INI MDI commands:
             if not self.ini_mdi_keystring == '' and \
                     not INFO.get_ini_mdi_command(self.ini_mdi_keystring) is None:
-                # set the indicator that the MDI command is running
-                # if the indicator option is turned on
-                if self._is_mdi_command_finished:
-                    self._flip_state(True)
                 LOG.debug("INI MDI COMMAND #: {}".format(self.ini_mdi_keystring))
                 ACTION.CALL_INI_MDI(self.ini_mdi_keystring)
 
@@ -719,6 +716,12 @@ class ActionButton(IndicatedPushButton):
                     not INFO.get_ini_mdi_command(self.ini_mdi_num) is None:
                 LOG.debug("INI MDI COMMAND #: {}".format(self.ini_mdi_num))
                 ACTION.CALL_INI_MDI(self.ini_mdi_num)
+
+            # set the indicator that the MDI command is running
+            # if the indicator option is turned on and a command is started running
+            if not STATUS.get_current_command() == '':
+                if self._is_mdi_command_finished:
+                    self._watch_command_flag = True
 
         elif self.dro_absolute:
             STATUS.emit('dro-reference-change-request', 0)
