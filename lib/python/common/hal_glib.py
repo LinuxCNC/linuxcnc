@@ -166,6 +166,8 @@ class _GStat(GObject.GObject):
         'current-position': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,GObject.TYPE_PYOBJECT,
                             GObject.TYPE_PYOBJECT, GObject.TYPE_PYOBJECT,)),
         'current-z-rotation': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
+        'current-command': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+
         'requested-spindle-speed-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
         'actual-spindle-speed-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
         'spindle-override-changed': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_FLOAT,)),
@@ -569,6 +571,7 @@ class _GStat(GObject.GObject):
         self.old['s-code'] = settings[2]
         self.old['blend-tolerance-code'] = settings[3]
         self.old['nativecam-tolerance-code'] = settings[4]
+        self.old['current-command'] = self.stat.command
 
     def update(self):
         try:
@@ -928,6 +931,11 @@ class _GStat(GObject.GObject):
         if blend_code_new != blend_code_old or \
            blend_code_new != blend_code_old:
                 self.emit('blend-code-changed',blend_code_new, cam_code_new)
+
+        code_old = old.get('current-command',None)
+        code_new = self.old['current-command']
+        if code_new != code_old:
+            self.emit('current-command',code_new)
 
         # AND DONE... Return true to continue timeout
         self.emit('periodic')
@@ -1459,6 +1467,10 @@ class _GStat(GObject.GObject):
 
     def get_linuxcnc_version(self):
         return linuxcnc.version
+
+    def get_current_command(self):
+        self.stat.poll()
+        return self.stat.command
 
     def __getitem__(self, item):
         return getattr(self, item)
