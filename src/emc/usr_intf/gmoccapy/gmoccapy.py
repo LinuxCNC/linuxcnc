@@ -5858,6 +5858,38 @@ class gmoccapy(object):
         LOG.debug("Received a signal from pin {0} with state = {1}".format(pin.name, pin.get()))
         self.command.set_optional_stop(pin.get())
 
+    def _program_start(self, pin):
+        LOG.debug("Received a signal from pin {0} with state = {1}".format(pin.name, pin.get()))
+        if not self.widgets.ntb_button.get_current_page() == _BB_AUTO:
+            return
+        button = self.builder.get_object("btn_run")
+        if button.get_sensitive() and pin.get():
+            self.on_btn_run_clicked(None)
+
+    def _program_stop(self, pin):
+        LOG.debug("Received a signal from pin {0} with state = {1}".format(pin.name, pin.get()))
+        if not self.widgets.ntb_button.get_current_page() == _BB_AUTO:
+            return
+        button = self.builder.get_object("btn_stop")
+        if button.get_sensitive() and pin.get():
+            self.on_btn_stop_clicked(None)
+
+    def _program_pause(self, pin):
+        LOG.debug("Received a signal from pin {0} with state = {1}".format(pin.name, pin.get()))
+        if not self.widgets.ntb_button.get_current_page() == _BB_AUTO:
+            return
+        button = self.builder.get_object("tbtn_pause")
+        if button.get_sensitive() and pin.get() and not button.get_active():
+            self.command.auto(linuxcnc.AUTO_PAUSE)
+
+    def _program_resume(self, pin):
+        LOG.debug("Received a signal from pin {0} with state = {1}".format(pin.name, pin.get()))
+        if not self.widgets.ntb_button.get_current_page() == _BB_AUTO:
+            return
+        button = self.builder.get_object("btn_stop")
+        if button.get_sensitive() and pin.get():
+            self.command.auto(linuxcnc.AUTO_RESUME)
+
 # =========================================================
 # The actions of the buttons
     def _button_pin_changed(self, pin):
@@ -6074,6 +6106,16 @@ class gmoccapy(object):
         hal_glib.GPin(pin).connect("value_changed", self._optional_blocks)
         pin = self.halcomp.newpin("blockdelete", hal.HAL_BIT, hal.HAL_IN)
         hal_glib.GPin(pin).connect("value_changed", self._blockdelete)
+
+        # make pins to be used instead of halui pins
+        pin = self.halcomp.newpin("program.start", hal.HAL_BIT, hal.HAL_IN)
+        hal_glib.GPin(pin).connect("value_changed", self._program_start)
+        pin = self.halcomp.newpin("program.stop", hal.HAL_BIT, hal.HAL_IN)
+        hal_glib.GPin(pin).connect("value_changed", self._program_stop)
+        pin = self.halcomp.newpin("program.pause", hal.HAL_BIT, hal.HAL_IN)
+        hal_glib.GPin(pin).connect("value_changed", self._program_pause)
+        pin = self.halcomp.newpin("program.resume", hal.HAL_BIT, hal.HAL_IN)
+        hal_glib.GPin(pin).connect("value_changed", self._program_resume)
 
 
 # Hal Pin Handling End
