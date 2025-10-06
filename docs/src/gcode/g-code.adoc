@@ -1657,14 +1657,44 @@ G64 <P- <Q->>
   and use the value of P-.
   Set Q to zero to disable the 'Naive CAM Detector'.
 
-.G64 P- Example Line
+It is a good idea to include a path control specification in the preamble of each G-code file.
+
+.G64 P- Q- Example Line
 [source,{ngc}]
 ----
-G64 P0.015 (set path following to be within 0.015 of the actual path)
+G64 P0.015 Q0.015 (set path following to be within 0.015 of the actual path)
 ----
 
-It is a good idea to include a path control specification in the preamble
-of each G-code file.
+The P- and Q- values ​​are chosen small. Usually smaller than the machine accuracy or the accuracy of commonly manufactured parts. Below are examples with extreme P- and Q- values ​​to understand the G64 function.
+
+.G64 Without values
+[source,{ngc}]
+----
+G64 (set without P- and Q- values)
+----
+
+.G64 Rectangle
+image::images/G64_Rectangle.png["G64 Rectangle",align="center"]
+
+.G64 With big Q- value
+[source,{ngc}]
+----
+G64 P0.015 Q6
+----
+
+.G64 Rectangle with radius before milling
+image::images/G64_Rectangle_with_radius.png["G64 Rectangle with radius before milling",align="center"]
+
+.G64 Rectangle with radius after milling
+image::images/G64_Rectangle_with_radius_q6.png["G64 Rectangle with radius after milling",align="center"]
+
+[source,{ngc}]
+----
+G64 P0.015 Q2
+----
+
+.G64 Heart
+image::images/G64_Heart_Q2.png["G64 Heart",align="center"]
 
 [[gcode:g70]]
 == G70 Lathe finishing cycle(((G70 Lathe finishing cycle)))
