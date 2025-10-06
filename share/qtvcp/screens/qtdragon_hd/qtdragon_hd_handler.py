@@ -2062,9 +2062,10 @@ class HandlerClass:
         # no buttons hide frame
         if flag:
             self.w.frame_macro_buttons.hide()
+
         # if there are more then 10 add a menu to the last button for selection
         if len(INFO.MDI_COMMAND_DICT)>10:
-            button.setText('MORE\nMACROS')
+            button.setText(_translate("HandlerClass",'MORE\nMACROS')
             button.setProperty('ini_mdi_command_action', False)
             button.setProperty('no_action', True)
             button.setToolTip('')
