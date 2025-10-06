@@ -34,6 +34,7 @@ if __name__ != '__main__':  # This avoids segfault when testing directly in pyth
     STATUS = Status()
     INFO = Info()
 LOG = logger.getLogger(__name__)
+#LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 # Suppress cryptic messages when checking for useable ports
 os.environ["OPENCV_LOG_LEVEL"]="FATAL"
@@ -326,6 +327,7 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
             try:
                 self.video = WebcamVideoStream(src=self._camNum)
                 if not self.video.isOpened():
+
                     p = self.video.list_ports()[1]
                     self.text = 'Error with video {}\nAvailable ports:\n{}'.format(self._camNum, p)
                 else:
@@ -450,7 +452,6 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
 
 class WebcamVideoStream:
     def __init__(self, src=0, api=DEFAULT_API):
-
         # initialize the video camera stream and read the first frame
         # from the stream
         self.stream = self.openStream(src, api)
@@ -463,6 +464,10 @@ class WebcamVideoStream:
             # try again with a hopefully functioning port
             if plist != []:
                 self.stream = self.openStream(plist[0], api)
+
+        width = int(self.stream.get(CV.CAP_PROP_FRAME_WIDTH))
+        height = int(self.stream.get(CV.CAP_PROP_FRAME_HEIGHT))
+        LOG.debug(f"Current camera resolution: {width}x{height}")
 
         # initialize the variable used to indicate if the thread should
         # be stopped
