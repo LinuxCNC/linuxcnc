@@ -213,7 +213,7 @@
                                                   <object class="GtkTable" id="table26">
                                                     <property name="visible">True</property>
                                                     <property name="can-focus">False</property>
-                                                    <property name="n-rows">2</property>
+                                                    <property name="n-rows">3</property>
                                                     <property name="n-columns">5</property>
                                                     <child>
                                                       <object class="GtkCheckButton" id="pyvcpsize">
@@ -345,6 +345,24 @@
                                                       <packing>
                                                         <property name="left-attach">4</property>
                                                         <property name="right-attach">5</property>
+                                                      </packing>
+                                                    </child>
+                                                    <child>
+                                                      <object class="GtkAlignment">
+                                                        <property name="visible">True</property>
+                                                        <property name="can-focus">False</property>
+                                                        <child>
+                                                          <object class="GtkLabel">
+                                                            <property name="visible">True</property>
+                                                            <property name="can-focus">False</property>
+                                                            <property name="label" translatable="yes">                                                                                                                                 </property>
+                                                          </object>
+                                                        </child>
+                                                      </object>
+                                                      <packing>
+                                                        <property name="right-attach">5</property>
+                                                        <property name="top-attach">2</property>
+                                                        <property name="bottom-attach">3</property>
                                                       </packing>
                                                     </child>
                                                   </object>
@@ -580,22 +598,14 @@ panel</property>
                                                     <property name="n-rows">7</property>
                                                     <property name="n-columns">5</property>
                                                     <child>
-                                                      <placeholder/>
-                                                    </child>
-                                                    <child>
-                                                      <placeholder/>
-                                                    </child>
-                                                    <child>
-                                                      <placeholder/>
-                                                    </child>
-                                                    <child>
                                                       <object class="GtkSpinButton" id="gladevcpheight">
                                                         <property name="visible">True</property>
                                                         <property name="can-focus">True</property>
                                                         <property name="invisible-char">●</property>
+                                                        <property name="width-chars">4</property>
                                                         <property name="primary-icon-activatable">False</property>
                                                         <property name="secondary-icon-activatable">False</property>
-                                                        <property name="adjustment">pyvcp_width_adjustment</property>
+                                                        <property name="adjustment">gladevcp_height_adjustment</property>
                                                       </object>
                                                       <packing>
                                                         <property name="left-attach">4</property>
@@ -617,10 +627,13 @@ panel</property>
                                                       <object class="GtkSpinButton" id="gladevcpwidth">
                                                         <property name="visible">True</property>
                                                         <property name="can-focus">True</property>
+                                                        <property name="max-length">4</property>
                                                         <property name="invisible-char">●</property>
+                                                        <property name="width-chars">4</property>
                                                         <property name="primary-icon-activatable">False</property>
                                                         <property name="secondary-icon-activatable">False</property>
-                                                        <property name="adjustment">pyvcp_width_adjustment</property>
+                                                        <property name="input-purpose">digits</property>
+                                                        <property name="adjustment">gladevcp_width_adjustment</property>
                                                       </object>
                                                       <packing>
                                                         <property name="left-attach">2</property>
@@ -632,8 +645,10 @@ panel</property>
                                                         <property name="visible">True</property>
                                                         <property name="can-focus">True</property>
                                                         <property name="invisible-char">●</property>
+                                                        <property name="width-chars">4</property>
                                                         <property name="primary-icon-activatable">False</property>
                                                         <property name="secondary-icon-activatable">False</property>
+                                                        <property name="adjustment">gladevcp_pos_y_adjustment</property>
                                                       </object>
                                                       <packing>
                                                         <property name="left-attach">4</property>
@@ -671,8 +686,10 @@ panel</property>
                                                         <property name="visible">True</property>
                                                         <property name="can-focus">True</property>
                                                         <property name="invisible-char">●</property>
+                                                        <property name="width-chars">4</property>
                                                         <property name="primary-icon-activatable">False</property>
                                                         <property name="secondary-icon-activatable">False</property>
+                                                        <property name="adjustment">gladevcp_pos_x_adjustment</property>
                                                       </object>
                                                       <packing>
                                                         <property name="left-attach">2</property>
@@ -814,6 +831,19 @@ panel</property>
                                                       <packing>
                                                         <property name="top-attach">3</property>
                                                         <property name="bottom-attach">4</property>
+                                                      </packing>
+                                                    </child>
+                                                    <child>
+                                                      <object class="GtkLabel">
+                                                        <property name="visible">True</property>
+                                                        <property name="can-focus">False</property>
+                                                        <property name="label" translatable="yes">                                                                                                   </property>
+                                                      </object>
+                                                      <packing>
+                                                        <property name="left-attach">2</property>
+                                                        <property name="right-attach">5</property>
+                                                        <property name="top-attach">2</property>
+                                                        <property name="bottom-attach">3</property>
                                                       </packing>
                                                     </child>
                                                   </object>
