@@ -339,6 +339,8 @@ class HandlerClass:
         self.cam_xscale_changed(self.w.PREFS_.getpref('Camview xscale', 100, int, 'CUSTOM_FORM_ENTRIES'))
         self.cam_yscale_changed(self.w.PREFS_.getpref('Camview yscale', 100, int, 'CUSTOM_FORM_ENTRIES'))
         self.w.camview._camNum = self.w.PREFS_.getpref('Camview cam number', 0, int, 'CUSTOM_FORM_ENTRIES')
+        self.w.camview.setAPI(self.w.PREFS_.getpref('Camview cam api', 'ANY', str, 'CUSTOM_FORM_ENTRIES'))
+        self.w.camview.setResolution(self.w.PREFS_.getpref('Camview cam resolution', 'DEFAULT', str, 'CUSTOM_FORM_ENTRIES'))
 
     def closing_cleanup__(self):
         if not self.w.PREFS_: return

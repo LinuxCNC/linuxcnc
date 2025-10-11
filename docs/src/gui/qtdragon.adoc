@@ -1409,17 +1409,26 @@ QtDragon_hd will also show a smaller graphics display window.
 If the recognized webcam is connected, this tab will display the video image overlaid with a cross-hair, circle and degree readout.
 This can be adjusted to suit a part feature for such things as touchoff.
 The underlying library uses openCV Python module to connect to the webcam. +
-To adjust the X or Y size aspect ratio, or camera number, look in the preference file for: +
+To adjust the X or Y size aspect ratio (in percent), camera port number,
+API backend, or requested resolution look in the preference file for: +
 
 ----
 [CUSTOM_FORM_ENTRIES]
 Camview xscale = 100
 Camview yscale = 100
 Camview cam number = 0
+Camview cam api = V4L2
+Camview cam resolution = 1280,720
 ----
 
-These are in percent, usually the range will be 100 - 200 in one axis. +
+Scales are in percent, usually the range will be 100 - 200 in one axis. +
 Negating these scales can be used to flip the image in X, Y or both axes. +
+API comes from openCV, the available backends will be listed if -V debugging is used.
+Set to 'ANY' for opencv to choose. +
+Set resolution to DEFAULT for opencv to choose. the available resolutions 
+will be listed if -V debugging is used. +
+
+[NOTE]
 The preference file can only be edited when QtDragon is not running.
 
 === G-codes Tab

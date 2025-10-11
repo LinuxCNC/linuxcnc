@@ -402,6 +402,8 @@ class HandlerClass:
         self.cam_xscale_changed(self.w.PREFS_.getpref('Camview xscale', 100, int, 'CUSTOM_FORM_ENTRIES'))
         self.cam_yscale_changed(self.w.PREFS_.getpref('Camview yscale', 100, int, 'CUSTOM_FORM_ENTRIES'))
         self.w.camview._camNum = self.w.PREFS_.getpref('Camview cam number', 0, int, 'CUSTOM_FORM_ENTRIES')
+        self.w.camview.setAPI(self.w.PREFS_.getpref('Camview cam api', 'ANY', str, 'CUSTOM_FORM_ENTRIES'))
+        self.w.camview.setResolution(self.w.PREFS_.getpref('Camview cam resolution', 'DEFAULT', str, 'CUSTOM_FORM_ENTRIES'))
 
     def closing_cleanup__(self):
         if not self.w.PREFS_: return
@@ -437,6 +439,8 @@ class HandlerClass:
         self.w.PREFS_.putpref('Camview xscale', self.cam_xscale_percent(), int, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Camview yscale', self.cam_yscale_percent(), int, 'CUSTOM_FORM_ENTRIES')
         self.w.PREFS_.putpref('Camview cam number', self.w.camview._camNum, int, 'CUSTOM_FORM_ENTRIES')
+        self.w.PREFS_.putpref('Camview cam api', self.w.camview.getAPIName(), str, 'CUSTOM_FORM_ENTRIES')
+        self.w.PREFS_.putpref('Camview cam resolution', self.w.camview.resolution, int, 'CUSTOM_FORM_ENTRIES')
 
     def init_widgets(self):
         self.adjust_stacked_widgets(TAB_MAIN)
