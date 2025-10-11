@@ -34,7 +34,7 @@ if __name__ != '__main__':  # This avoids segfault when testing directly in pyth
     STATUS = Status()
     INFO = Info()
 LOG = logger.getLogger(__name__)
-#LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+#LOG.setLevel(logger.VERBOSE) # One of VERBOSE, DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 # Suppress cryptic messages when checking for useable ports
 os.environ["OPENCV_LOG_LEVEL"]="FATAL"
@@ -62,6 +62,8 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         self.grabbed = None
         self.frame = None
         self._camNum = 0
+        self.api = CV.CAP_ANY
+        self.resolution=None
         self.diameter = 20
         self.rotation = 0
         self.rotationIncrement = .5
@@ -83,7 +85,6 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         else:
             self.text = 'Missing\npython-opencv\nLibrary'
         self.pix = None
-        self.stopped = False
         self.degree = str("\N{DEGREE SIGN}")
 
         # trap so can run script directly to test
@@ -104,7 +105,7 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
             STATUS.connect('periodic', self.nextFrameSlot)
 
     ##################################
-    # no button scroll = circle dismater
+    # no button scroll = circle diameter
     # left button scroll = zoom
     # right button scroll = cross hair rotation
     ##################################
@@ -324,16 +325,18 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
 
     def showEvent(self, event):
         if LIB_GOOD:
+          if self.video is None:
             try:
-                self.video = WebcamVideoStream(src=self._camNum)
+                self.video = WebcamVideoStream(src=self._camNum, api=self.api, res = self.resolution )
                 if not self.video.isOpened():
-
-                    p = self.video.list_ports()[1]
+                    p = self.video.list_ports(api=self.api)[1]
                     self.text = 'Error with video {}\nAvailable ports:\n{}'.format(self._camNum, p)
                 else:
                     self.video.start()
             except Exception as e:
                 LOG.error('Video capture error: {}'.format(e))
+          else:
+            self.video.start()
 
     def hideEvent(self, event):
         if LIB_GOOD:
@@ -425,6 +428,47 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         filepath = '{}/camImage.png'.format(self.user_path)
         self.video.writeFrame(filepath)
 
+    # if data is a string or int, search for name/int in library and use it.
+    def setAPI(self, data):
+        camera_backends = CV.videoio_registry.getCameraBackends()
+
+        if isinstance(data,str):
+            # should we use any backend option?
+            if data in ('','ANY','DEFAULT'):
+                self.api = 0
+                return
+            # is it a string of a number? 
+            if data.isdigit():
+                if int(data) in camera_backends:
+                    self.api = int(data)
+                else:
+                    LOG.warning(f'Backend {data} not found.')
+                return
+            # ok it's a name
+            for backend in camera_backends:
+                if CV.videoio_registry.getBackendName(backend) == data:
+                    self.api = backend
+                    break
+            else:
+                LOG.warning(f'Backend {data} not found.')
+
+        elif isinstance(data,int):
+            if data in camera_backends:
+                self.api = data
+            else:
+                LOG.warning(f'Backend {data} not found.')
+
+    # returns the api backend name from backend int
+    def getAPIName(self, num):
+        return CV.videoio_registry.getBackendName(self.api)
+
+    # sets the resolution tuple (width,height) from a string 'width,height'
+    def setResolution(self, data):
+        if isinstance(data,str):
+            if not data in('','DEFAULT'):
+                data = tuple(int(x) for x in data.split(','))
+                self.resolution = data
+
     #########################################################################
     # This is how designer can interact with our widget properties.
     # designer will show the pyqtProperty properties in the editor
@@ -451,23 +495,39 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
     camera_number = QtCore.pyqtProperty(int, get_camnum, set_camnum, reset_camnum)
 
 class WebcamVideoStream:
-    def __init__(self, src=0, api=DEFAULT_API):
+    def __init__(self, src=0, api=CV.CAP_ANY, res=None):
+        self.possible_resolutions = []
         # initialize the video camera stream and read the first frame
         # from the stream
-        self.stream = self.openStream(src, api)
+
+        flag = True
+        camera_backends = CV.videoio_registry.getCameraBackends()
+        for backend in camera_backends:
+            if backend == api: flag = False
+            LOG.verbose('Available backend library:{}'.format(CV.videoio_registry.getBackendName(backend)))
+        if flag and api != CV.CAP_ANY:
+            LOG.error('OpenCV backend library {} not available'.format(CV.videoio_registry.getBackendName(api)))
+
+        LOG.debug("Using {} backend".format(CV.videoio_registry.getBackendName(api)))
+
+        self.stream = self.openStream(src, api, res)
 
         if not (self.stream.isOpened()):
+            self.stream.release()
             LOG.error('Could not open video device {}'.format(src))
-            plist = self.list_ports()[1]
+
+            # get a list of ports
+            plist = self.list_ports(api)[1]
             if src not in plist:
                 LOG.error('port number {}, is not a working port- trying: {}'.format(src,plist[0]))
             # try again with a hopefully functioning port
             if plist != []:
-                self.stream = self.openStream(plist[0], api)
+                self.stream = self.openStream(plist[0], api, res)
+
 
         width = int(self.stream.get(CV.CAP_PROP_FRAME_WIDTH))
         height = int(self.stream.get(CV.CAP_PROP_FRAME_HEIGHT))
-        LOG.debug(f"Current camera resolution: {width}x{height}")
+        LOG.info(f"Current camera resolution: {width}x{height}")
 
         # initialize the variable used to indicate if the thread should
         # be stopped
@@ -481,19 +541,71 @@ class WebcamVideoStream:
         except:
             return False
 
-    def openStream(self, src, api):
+    def openStream(self, src, api, res=None):
         # initialize the video camera stream and read the first frame
         # from the stream
         try:
             stream = CV.VideoCapture(src, api)
-        except:
+        except Exception as e:
+            log.debug(e)
             # try using an older function signature
             stream = CV.VideoCapture(src)
+
+        # seems only val2 is successful changing resolutions
+        if not api == CV.CAP_ANY:
+            w,h = self.getBestResolution(stream)
+            # look for requested resolution
+            if not res is None and res in self.possible_resolutions:
+                w,h=res
+            stream.set(CV.CAP_PROP_FRAME_WIDTH, w)
+            stream.set(CV.CAP_PROP_FRAME_HEIGHT, h)
+
+        # last ditch - sometimes the default resolution can not be changed
+        # if the height is 0 - failed, so just try default
+        actual_height = int(stream.get(CV.CAP_PROP_FRAME_HEIGHT))
+        if actual_height == 0:
+            stream.release()
+            stream = CV.VideoCapture(src, api)
+
         return stream
+
+    def getBestResolution(self, stream):
+        resolutions_to_test = [
+        (320, 240), (640, 480), (800, 600), (1024, 768),
+        (1280, 720), (1920, 1080)
+        ]
+        start_width = int(stream.get(CV.CAP_PROP_FRAME_WIDTH))
+        start_height = int(stream.get(CV.CAP_PROP_FRAME_HEIGHT))
+
+        for width, height in resolutions_to_test:
+            stream.set(CV.CAP_PROP_FRAME_WIDTH, width)
+            stream.set(CV.CAP_PROP_FRAME_HEIGHT, height)
+            actual_width = int(stream.get(CV.CAP_PROP_FRAME_WIDTH))
+            actual_height = int(stream.get(CV.CAP_PROP_FRAME_HEIGHT))
+
+            if actual_width == width and actual_height == height:
+                if not (actual_width,actual_height) in self.possible_resolutions:
+                    self.possible_resolutions.append((actual_width,actual_height))
+            elif actual_width !=0 and actual_height !=0:
+                self.possible_resolutions.append((actual_width,actual_height))
+            else:
+                LOG.verbose(f"Resolution {width}x{height} is NOT supported (actual: {actual_width}x{actual_height}).")
+
+        LOG.verbose("All possible resolutions found:")
+        for res in self.possible_resolutions:
+            LOG.verbose(res)
+        try:
+            best = self.possible_resolutions[len(self.possible_resolutions)-1]
+            LOG.debug('Best resolution:{}'.format(best))
+        except:
+            return (start_width,start_height)
+        return best
 
     def start(self):
         # start the thread to read frames from the video stream
+        self.stopped = False
         Thread.start_new_thread(self._update, ())
+
         return self
 
     def _update(self):
@@ -501,7 +613,6 @@ class WebcamVideoStream:
         while True:
             # if the thread indicator variable is set, stop the thread
             if self.stopped:
-                self.stream.release()
                 return
             # otherwise, read the next frame from the stream
             (self.grabbed, self.frame) = self.stream.read()
@@ -519,7 +630,7 @@ class WebcamVideoStream:
         CV.imwrite(filepath, self.frame)
         print('saved camview image to: {}'.format(filepath))
 
-    def list_ports(self):
+    def list_ports(self,api):
         """
         Test the ports and returns a tuple with the available ports and the ones that are working.
         """
@@ -528,7 +639,7 @@ class WebcamVideoStream:
         working_ports = []
         available_ports = []
         while len(non_working_ports) < 6: # if there are more than 5 non working ports stop the testing.
-            camera = CV.VideoCapture(dev_port)
+            camera = CV.VideoCapture(dev_port, api)
             if not camera.isOpened():
                 non_working_ports.append(dev_port)
                 LOG.debug("Port %s is not working." %dev_port)
@@ -537,12 +648,13 @@ class WebcamVideoStream:
                 w = camera.get(3)
                 h = camera.get(4)
                 if is_reading:
-                    LOG.debug("Port %s is working and reads images (%s x %s)" %(dev_port,h,w))
+                    LOG.debug("Port %s is working and reads images (%s x %s)" %(dev_port,w,h))
                     working_ports.append(dev_port)
                 else:
-                    LOG.debug("Port %s for camera ( %s x %s) is present but does not read." %(dev_port,h,w))
+                    LOG.debug("Port %s for camera ( %s x %s) is present but does not read." %(dev_port,w,h))
                     available_ports.append(dev_port)
             dev_port +=1
+        camera.release()
         return available_ports,working_ports,non_working_ports
 
 class CamAngle(CamView):

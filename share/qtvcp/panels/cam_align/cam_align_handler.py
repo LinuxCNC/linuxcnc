@@ -102,6 +102,18 @@ class HandlerClass:
                     except Exception as e:
                         print('Error with cam_align camera Y axis scale- not a number - using 1.0')
 
+                elif 'api=' in self.w.USEROPTIONS_[num]:
+                    try:
+                        self.w.camview.setAPI(str(self.w.USEROPTIONS_[num].strip('api=')))
+                    except Exception as e:
+                        LOG.warning(f'Error with cam_align camera api name selection - {e} - using ANY')
+
+                elif 'res=' in self.w.USEROPTIONS_[num]:
+                    try:
+                        self.w.camview.setResolution(self.w.USEROPTIONS_[num].strip('res='))
+                    except Exception as e:
+                        LOG.warning(f'Error with cam_align camera resolution selection - {e} - using Default')
+
                 # camera number to use
                 elif 'camnumber=' in self.w.USEROPTIONS_[num]:
                     try:
