@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>313</width>
-    <height>467</height>
+    <width>404</width>
+    <height>537</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -195,7 +195,7 @@
             <bool>true</bool>
            </property>
            <property name="autoExclusive">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
            <property name="pin_name" stdset="0">
             <string>manual-mode</string>
@@ -220,7 +220,7 @@
             <bool>true</bool>
            </property>
            <property name="autoExclusive">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
            <property name="pin_name" stdset="0">
             <string>mdi-mode</string>
@@ -242,7 +242,7 @@
             <string>Auto</string>
            </property>
            <property name="checkable">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
            <property name="autoExclusive">
             <bool>true</bool>
@@ -341,7 +341,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>313</width>
+     <width>404</width>
      <height>22</height>
     </rect>
    </property>
