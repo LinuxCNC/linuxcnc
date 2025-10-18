@@ -393,7 +393,7 @@ class GetIniInfo:
 
     def get_macros(self):
         # lets look in the INI file, if there are any entries
-        macros = self.inifile.findall("DISPLAY", "MACRO")
+        macros = self.inifile.findall("MACROS", "MACRO")
         # If there are no entries we will return False
         if not macros:
             return False
