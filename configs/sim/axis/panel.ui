@@ -192,7 +192,7 @@
             <string>Manual</string>
            </property>
            <property name="checkable">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
            <property name="autoExclusive">
             <bool>true</bool>
@@ -217,7 +217,7 @@
             <string>MDI</string>
            </property>
            <property name="checkable">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
            <property name="autoExclusive">
             <bool>true</bool>
@@ -242,7 +242,7 @@
             <string>Auto</string>
            </property>
            <property name="checkable">
-            <bool>true</bool>
+            <bool>false</bool>
            </property>
            <property name="autoExclusive">
             <bool>true</bool>
