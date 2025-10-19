@@ -169,6 +169,26 @@
     <property name="upper">100</property>
     <property name="step-increment">1</property>
   </object>
+   <object class="GtkAdjustment" id="gmcpy_height_adjust">
+    <property name="upper">3920</property>
+    <property name="lower">750</property>
+    <property name="value">750</property>
+    <property name="step-increment">50</property>
+  </object>
+  <object class="GtkAdjustment" id="gmcpy_width_adjust">
+    <property name="upper">3920</property>
+    <property name="lower">1000</property>
+    <property name="value">1000</property>
+    <property name="step-increment">50</property>
+  </object>
+  <object class="GtkAdjustment" id="gmcpy_xpos_adjust">
+    <property name="upper">1000</property>
+    <property name="step-increment">10</property>
+  </object>
+  <object class="GtkAdjustment" id="gmcpy_ypos_adjust">
+    <property name="upper">1000</property>
+    <property name="step-increment">10</property>
+  </object> 
   <object class="GtkVBox" id="screen">
     <property name="visible">True</property>
     <property name="can-focus">False</property>
@@ -492,9 +512,11 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkVSeparator" id="vseparator8">
+                                  <object class="GtkBox" id="vseparator8">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
+                                    <property name="orientation">vertical</property>
+                                    <property name="width-request">10</property>
                                   </object>
                                   <packing>
                                     <property name="left-attach">3</property>
@@ -988,9 +1010,11 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkVSeparator" id="vseparator7">
+                                  <object class="GtkBox" id="vseparator7">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
+                                    <property name="orientation">vertical</property>
+                                    <property name="width-request">10</property>
                                   </object>
                                   <packing>
                                     <property name="left-attach">3</property>
@@ -1810,9 +1834,11 @@
                                   <placeholder/>
                                 </child>
                                 <child>
-                                  <object class="GtkVSeparator" id="vseparator23">
+                                  <object class="GtkBox" id="vseparator23">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
+                                    <property name="orientation">vertical</property>
+                                    <property name="width-request">10</property>
                                   </object>
                                   <packing>
                                     <property name="left-attach">2</property>
@@ -2783,7 +2809,8 @@
                                         <property name="invisible-char">●</property>
                                         <property name="primary-icon-activatable">False</property>
                                         <property name="secondary-icon-activatable">False</property>
-                                        <property name="adjustment">touchy_height_adjust</property>
+                                        <property name="adjustment">gmcpy_height_adjust</property>
+                                        <property name="width-request">140</property>
                                       </object>
                                       <packing>
                                         <property name="left-attach">4</property>
@@ -2808,7 +2835,8 @@
                                         <property name="invisible-char">●</property>
                                         <property name="primary-icon-activatable">False</property>
                                         <property name="secondary-icon-activatable">False</property>
-                                        <property name="adjustment">touchy_width_adjust</property>
+                                        <property name="adjustment">gmcpy_width_adjust</property>
+                                        <property name="width-request">140</property>
                                       </object>
                                       <packing>
                                         <property name="left-attach">2</property>
@@ -2822,7 +2850,8 @@
                                         <property name="invisible-char">●</property>
                                         <property name="primary-icon-activatable">False</property>
                                         <property name="secondary-icon-activatable">False</property>
-                                        <property name="adjustment">touchy_ypos_adjust</property>
+                                        <property name="adjustment">gmcpy_ypos_adjust</property>
+                                        <property name="width-request">140</property>
                                       </object>
                                       <packing>
                                         <property name="left-attach">4</property>
@@ -2862,7 +2891,8 @@
                                         <property name="invisible-char">●</property>
                                         <property name="primary-icon-activatable">False</property>
                                         <property name="secondary-icon-activatable">False</property>
-                                        <property name="adjustment">touchy_xpos_adjust</property>
+                                        <property name="adjustment">gmcpy_xpos_adjust</property>
+                                        <property name="width-request">140</property>
                                       </object>
                                       <packing>
                                         <property name="left-attach">2</property>
@@ -3007,9 +3037,11 @@
                                   <placeholder/>
                                 </child>
                                 <child>
-                                  <object class="GtkVSeparator" id="vseparator1">
+                                  <object class="GtkBox" id="vseparator1">
                                     <property name="visible">True</property>
                                     <property name="can-focus">False</property>
+                                    <property name="orientation">vertical</property>
+                                    <property name="width-request">10</property>
                                   </object>
                                   <packing>
                                     <property name="left-attach">2</property>
