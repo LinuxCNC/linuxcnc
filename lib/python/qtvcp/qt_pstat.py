@@ -63,7 +63,8 @@ class _PStat(object):
             # catch all
             if BASE is None:
                 BASE = '/usr'
-                LOG.debug('Linuxcnc Home directory found in environmental variable: {}'.format(BASE))
+
+            LOG.debug('Linuxcnc Home directory found in environmental variable: {}'.format(BASE))
 
             # share directory moves when using RIP vrs installed
             self.SHAREDIR = os.path.join(BASE,"share", "qtvcp")
