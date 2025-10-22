@@ -1,3 +1,11 @@
+linuxcnc (1:2.9.7) bookworm; urgency=low
+
+  * Revert 7d9ee66  to address #3583 - halui functions stop working in 2.9.5/6
+  * Merge pull request #3512 from Sigma1912/patch-1
+  * Gmoccapy: Fix arrow key up/down bug in tooleditor
+
+ -- andypugh <andy@bodgesoc.org>  Wed, 22 Oct 2025 23:43:13 +0100
+
 linuxcnc (1:2.9.6) UNRELEASED; urgency=medium
 
   * qtvcp -Qt5_graphics: issue 2753; preview wrongly uses INI startup code
