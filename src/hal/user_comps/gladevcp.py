@@ -211,6 +211,7 @@ def main():
     import gladevcp.makepins
     from gladevcp.gladebuilder import GladeBuilder
     from gladevcp import xembed
+    from gladevcp.gladevcppath import search
 
     if opts.ini_path:
         # set INI path for INI info class before widgets are loaded
@@ -219,7 +220,13 @@ def main():
         INFO = Info()
     LOG.verbose('INI path = {}'.format(opts.ini_path))
 
-    xmlname = args[0]
+    # search for alternate locations glade file locations
+    # if no extension given
+    if os.path.splitext(args[0])[1] == '':
+        LOG.info(f'looking for a builtin panel: {args[0]}')
+        xmlname = search(args[0], 1)
+    else:
+        xmlname = args[0]
 
     #if there was no component name specified use the xml file name
     if opts.component is None:
@@ -257,10 +264,21 @@ def main():
 
     panel = gladevcp.makepins.GladePanel( halcomp, xmlname, builder, None)
 
+    # search for alternate locations py file locations
+    # if no extension given; maybe this is a builtin panel request
+    if os.path.splitext(args[0])[1] == '':
+       opts.usermod = [search(args[0],2)]
+
+    LOG.verbose(f"usermode-> {opts.usermod}")
+    LOG.verbose(f"halcomp-> {halcomp}")
+    LOG.verbose(f"builder-> {builder}")
+    LOG.verbose(f"useropts-> {opts.useropts}")
+
     # at this point, any glade HL widgets and their pins are set up.
     handlers, mod, obj = load_handlers(opts.usermod,halcomp,builder,opts.useropts)
 
-    LOG.verbose('Object: {} handlers: {} mod {}'.format(obj,handlers, mod))
+    LOG.verbose('Object: {}'.format(obj))
+    LOG.verbose('mod {}'.format( mod))
 
     # so widgets can call handler functions - give them refeence to the handler object
     panel.set_handler(obj)
