@@ -1965,6 +1965,47 @@ class gmoccapy(object):
                 temp = self.widgets.tooledit1.wTree.get_object("cell_%s" % name)
                 temp.connect('editing-started', self.on_tool_col_edit_started, col)
 
+    def on_tree_navigate_key_press(self, treeview, event, filter):
+        keyname = Gdk.keyval_name(event.keyval)
+        path, col = treeview.get_cursor()
+        columns = [c for c in treeview.get_columns()]
+        colnum = columns.index(col)
+        focuschild = treeview.get_focus_child()
+        if filter == 'wear':
+            store_path = self.wear_filter.convert_path_to_child_path(path)
+            path = store_path
+        elif filter == 'tool':
+            store_path = self.tool_filter.convert_path_to_child_path(path)
+            path = store_path
+        if keyname == 'Tab':
+            cont = True
+            cont2 = True
+            i = 0
+            while cont:
+                print("column ", colnum)
+                i += 1
+                if colnum + i < len(columns):
+                    if columns[colnum + i].props.visible:
+                        renderer = columns[colnum + i].get_cells()
+                        if renderer[0].props.editable:
+                            next_column = columns[colnum + i]
+                            cont = False
+                else:
+                    i = 1
+                    while cont2:
+                        renderer = columns[i].get_cells()
+                        if renderer[0].props.editable:
+                            next_column = columns[i]
+                            cont2 = False
+                        else:
+                            i += 1
+                    cont = False
+            GLib.timeout_add(50,
+                             treeview.set_cursor,
+                             path, next_column, True)
+        else:
+            pass
+
     def on_tool_col_edit_started(self, widget, filtered_path, new_text, col):
         if not self.toolpage_use_calc:
             return
@@ -3222,7 +3263,7 @@ class gmoccapy(object):
         if not self.widgets.chk_use_kb_shortcuts.get_active():
             LOG.debug("Settings say: do not use keyboard shortcuts, abort")
             return
-        
+
         # get the keyname
         keyname = Gdk.keyval_name(event.keyval)
 
