@@ -3,15 +3,14 @@ linuxcnc (1:2.10.0~pre0) UNRELEASED; urgency=medium
   [ Andy Pugh ]
   * Master branch open for new features.
 
-  [ Pushkar Kulkarni ]
-  * debian/patches: Remove the use of FORTIFY_SOURCE and
-    depend on defaults passed by dpkg-buildflags on
-    Ubuntu and Debian (LP: #2104012)
+linuxcnc (1:2.9.6) UNRELEASED; urgency=medium
 
-  [ Steffen Moeller ]
-  * Introducing DEB_BUILD_OPTIONS to d/rules.
+  * qtvcp -Qt5_graphics: issue 2753; preview wrongly uses INI startup code
+  * Merge pull request #3567 from Sigma1912/2_9-Correct_bad_fix_for_2753
+  * Gremlin: Don't use  RS274NGC_STARTUP_CODE when updating the preview
+  * Docs: Address G52 Circular Link #3565
 
- -- Pushkar Kulkarni <pushkar.kulkarni@canonical.com>  Mon, 24 Mar 2025 20:50:08 +0530
+ -- andypugh <andy@bodgesoc.org>  Mon, 22 Sep 2025 22:55:20 +0100
 
 linuxcnc (1:2.9.5) UNRELEASED; urgency=medium
 

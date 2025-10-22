@@ -1948,6 +1948,9 @@ class gmoccapy(object):
         self.widgets.tooledit1.set_visible("abcxyzuvwijq", False)
         for axis in self.axis_list:
             self.widgets.tooledit1.set_visible("{0}".format(axis), True)
+        # disconnect the key_press handler in the widget
+        tv = self.widgets.tooledit1.wTree.get_object("treeview1")
+        tv.disconnect_by_func(self.widgets.tooledit1.on_tree_navigate_key_press)
         # if it's a lathe config we show lathe related columns
         if self.lathe_mode:
             self.widgets.tooledit1.set_visible("ijq", True)
