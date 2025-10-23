@@ -16,10 +16,9 @@
 
 function githelper() {
     if [ -z "$1" ]; then
-        GIT_BRANCH=$(git branch | egrep '^\*' | cut -d ' ' -f 2)
-        if [ "$GIT_BRANCH" = "(no" ]; then
-            echo "'git branch' says we're not on a branch, pass one in as an argument" > /dev/null 1>&2
-            return
+        GIT_BRANCH=$(git symbolic-ref -q --short HEAD 2>/dev/null)
+        if [ -z "$GIT_BRANCH" ]; then
+            GIT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
         fi
     else
         GIT_BRANCH="$1"
@@ -27,7 +26,8 @@ function githelper() {
 
     case $GIT_BRANCH in
         master)
-            GIT_TAG_GLOB="v2.10.*"
+            MM=$(git show HEAD:VERSION | sed -E 's/^([0-9]+)\.([0-9]+).*/\1.\2/')
+            GIT_TAG_GLOB="v${MM}.*"
             DEB_COMPONENT="master"
             ;;
         # release branches have names matching "number.number", which is awkward to express as a glob
