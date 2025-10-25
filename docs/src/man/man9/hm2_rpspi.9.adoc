@@ -166,12 +166,12 @@ You can set the read clock frequency to a lower value (using *spiclk_rate_rd*)
 to counter the effects of the SPI-bus round-trip needed for read actions.
 For example, you can write at 41.67&#8239;MHz and read at 25.00&#8239;MHz.
 
-It should be noted that the Rpi3 *must* have an adequate 5V power supply
+It should be noted that the RPi3 *must* have an adequate 5V power supply
 and the power should be properly decoupled right on the 40-pin I/O header.
 At high speeds and noise on the supply, there is the possibility of noise
 throwing off the SoC's PLL(s), resulting in strange behaviour.
 
-For optimal performance on the Rpi3, you must disable the "ondemand" CPU
+For optimal performance on the RPi3, you must disable the "ondemand" CPU
 frequency governor. You may add the following to your /etc/rc.local file:
 
 ```

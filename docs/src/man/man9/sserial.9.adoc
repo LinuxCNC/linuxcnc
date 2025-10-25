@@ -288,12 +288,8 @@ MODE 4:: Bidirectional mode (48 bits in 48 bits out) plus 4 MPG encoder channels
 *Parameters:*
 
 .7i69.0.0.nvbaudrate (u32 ro):: Indicates the vbaud rate. This probably should not be altered.
-.7i69.0.0.nvunitnumber (u32 ro)::
-  Indicates the serial number of the device and should match a sticker on the card.
-  This can be useful for working out which card is which.
-.7i69.0.0.nvwatchdogtimeout (u32 ro):: The sserial remote watchdog timeout.
-  This is separate from the Anything-IO card timeout.
-  This is unlikely to need to be changed.
+.7i69.0.0.nvunitnumber (u32 ro):: Indicates the serial number of the device and should match a sticker on the card.  This can be useful for working out which card is which.
+.7i69.0.0.nvwatchdogtimeout (u32 ro):: The sserial remote watchdog timeout.  This is separate from the Anything-IO card timeout.  This is unlikely to need to be changed.
 .7i69.0.0.output-__NN__-invert (bit rw):: Invert the sense of the corresponding output pin.
 .7i69.0.0.swrevision (u32 ro):: The onboard firmware revision number. Utilities exist to update and change this firmware.
 
