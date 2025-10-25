@@ -1,14 +1,36 @@
-.PHONY: docs docclean checkref checkref_en checkref_ar checkref_de checkref_es checkref_fr checkref_nb checkref_ru checkref_sv checkref_ta checkref_tr checkref_zh_CN
+.PHONY: docs docclean checkref checkref_en checkref_ar checkref_de checkref_es checkref_fr checkref_nb checkref_ru checkref_sv checkref_ta checkref_tr checkref_ua checkref_zh_CN
 .PHONY: pdfdocs htmldocs install-doc install-doc-pdf install-doc-html
 
 # To make linuxcnc-checklink widely available
 export PATH:=$(BASEPWD)/../scripts:$(PATH)
 
+# Optional helper to convert to uppercase for variable names like $(DOC_TARGETS_HTML_SV)
+# GNU make doesn’t have built-in uppercase, so define one:
+uc = $(shell echo $(1) | tr '[:lower:]' '[:upper:]')
+
+# Pure-make uppercasing (no shell). Underscores/digits are unchanged.
+toUC = $(strip \
+  $(subst a,A,$(subst b,B,$(subst c,C,$(subst d,D,$(subst e,E,$(subst f,F, \
+  $(subst g,G,$(subst h,H,$(subst i,I,$(subst j,J,$(subst k,K,$(subst l,L, \
+  $(subst m,M,$(subst n,N,$(subst o,O,$(subst p,P,$(subst q,Q,$(subst r,R, \
+  $(subst s,S,$(subst t,T,$(subst u,U,$(subst v,V,$(subst w,W,$(subst x,X, \
+  $(subst y,Y,$(subst z,Z,$(1))))))))))))))))))))))))))))
+
+
+ECHO ?= /usr/bin/echo
+
+SRCDIR=../src
 DOC_DIR=../docs
 DOC_SRCDIR=../docs/src
 
 LOC_HL_DIR=../docs/src/source-highlight
 LOC_LANG_MAP=$(LOC_HL_DIR)/local/lang.map
+
+# The following line determines for the Makefile what languages should be addressed.
+# Edit the file po4a.cfg in this source tree to adjust.
+LANGUAGES := $(strip $(shell sed -e's/#.*//' < $(DOC_DIR)/po4a.cfg | grep '^\[po4a_langs\]' | cut -d" " -f2-))
+LANGUAGES_MATCH := $(shell echo $(LANGUAGES) | tr " " "|")
+
 
 GENERATED_MANPAGES += ../docs/man/man1/linuxcnc.1
 GENERATED_MANPAGES += $(patsubst ../docs/src/man/%.adoc, ../docs/man/%, $(wildcard ../docs/src/man/*/*.adoc))
@@ -19,17 +41,22 @@ MAN_SRCS = $(sort \
 	$(wildcard $(DOC_DIR)/man/man9/*.9) \
 	$(GENERATED_MANPAGES))
 
-$(DOC_SRCDIR)/man/man1/linuxcnc.1.adoc: $(DOC_SRCDIR)/man/man1/linuxcnc.1.adoc.in config.status
-	./config.status --file=$@:$<
+$(DOC_SRCDIR)/man/man1/linuxcnc.1.adoc: $(DOC_SRCDIR)/man/man1/linuxcnc.1.adoc.in $(SRCDIR)/config.status
+	$(SRCDIR)/config.status --file=$@:$<
 
 ../docs/man/man1/linuxcnc.1: $(DOC_SRCDIR)/man/man1/linuxcnc.1.adoc
+
+info::
+	@echo "I: Expecting the following languages: $(LANGUAGES)"
+	echo $(DOC_SRCS_UA)
 
 ifneq ($(MANDB),)
 docs: $(DOC_DIR)/man/index.db
 $(DOC_DIR)/man/index.db: $(MAN_SRCS)
-	@echo "Updating 'whatis' database"
+	@$(ECHO) "Updating 'whatis' database"
 	$(Q)$(MANDB) $(DOC_DIR)/man
 endif
+
 
 ifeq ($(BUILD_DOCS),yes)
 DOC_SRCS_EN := \
@@ -168,8 +195,24 @@ DOC_SRCS_EN := \
 	Master_Integrator.adoc \
 	Master_Developer.adoc
 
-LANGUAGES := $(shell sed -e's/#.*//' < $(DOC_DIR)/po4a.cfg | grep '^\[po4a_langs\]' | cut -d" " -f2-)
-LANGUAGES_MATCH := $(shell echo $(LANGUAGES) | tr " " "|")
+# Map two-letter codes to human-readable language names
+# (this can later be extended to handle zh_CN, zh_TW, etc.)
+define lang_name
+$(if $(filter $1,ar),arabic,\
+$(if $(filter $1,de),german,\
+$(if $(filter $1,en),english,\
+$(if $(filter $1,es),spanish,\
+$(if $(filter $1,fr),french,\
+$(if $(filter $1,nb),norwegian,\
+$(if $(filter $1,ru),russian,\
+$(if $(filter $1,sv),swedish,\
+$(if $(filter $1,ta),tamil,\
+$(if $(filter $1,tr),turkish,\
+$(if $(filter $1,ua),ukranian,\
+$(if $(filter $1,zh_CN),chinese,\
+unknown))))))))))))
+endef
+
 
 
 GENERATED_TRANSLATED = $(foreach l, $(LANGUAGES), \
@@ -206,67 +249,28 @@ endif
 docs: translateddocs
 
 postatus::
-	@echo "info: Documentation POT and PO file status"
+	@$(ECHO) "info: Documentation POT and PO file status"
 	@cd $(DOC_DIR)/..; for p in docs/po/*.pot docs/po/*.po; do \
 	    echo -n "$$p ";  msgfmt --statistics -o /dev/null $$p; \
 	done
 
-DOC_SRCS_AR = $(subst $(DOC_SRCDIR)/,, \
-	$(wildcard $(DOC_SRCDIR)/ar/*.adoc) \
-	$(wildcard $(DOC_SRCDIR)/ar/*/*.adoc))
+# Automatically define DOC_SRCS_<lang> for each language
+$(foreach L,$(LANGUAGES),\
+  $(eval DOC_SRCS_$(call toUC,$(L)) := \
+    $$(subst $$(DOC_SRCDIR)/,, \
+      $$(wildcard $$(DOC_SRCDIR)/$(L)/*.adoc) \
+      $$(wildcard $$(DOC_SRCDIR)/$(L)/*/*.adoc))))
 
-DOC_SRCS_DE = $(subst $(DOC_SRCDIR)/,, \
-	$(wildcard $(DOC_SRCDIR)/de/*.adoc) \
-	$(wildcard $(DOC_SRCDIR)/de/*/*.adoc))
+# Define combined DOC_SRCS from all languages
+# DOC_SRCS_EN is manually defined at the very beginning of the file
+DOC_SRCS := $(DOC_SRCS_EN) $(foreach L,$(LANGUAGES),$(DOC_SRCS_$(call toUC,$L)))
 
-DOC_SRCS_ES = $(subst $(DOC_SRCDIR)/,, \
-	$(wildcard $(DOC_SRCDIR)/es/*.adoc) \
-	$(wildcard $(DOC_SRCDIR)/es/*/*.adoc))
-
-DOC_SRCS_FR = $(subst $(DOC_SRCDIR)/,, \
-	$(wildcard $(DOC_SRCDIR)/fr/*.adoc) \
-	$(wildcard $(DOC_SRCDIR)/fr/*/*.adoc))
-
-DOC_SRCS_NB = $(subst $(DOC_SRCDIR)/,, \
-	$(wildcard $(DOC_SRCDIR)/nb/*.adoc) \
-	$(wildcard $(DOC_SRCDIR)/nb/*/*.adoc))
-
-DOC_SRCS_RU = $(subst $(DOC_SRCDIR)/,, \
-	$(wildcard $(DOC_SRCDIR)/ru/*.adoc) \
-	$(wildcard $(DOC_SRCDIR)/ru/*/*.adoc))
-
-DOC_SRCS_SV = $(subst $(DOC_SRCDIR)/,, \
-	$(wildcard $(DOC_SRCDIR)/sv/*.adoc) \
-	$(wildcard $(DOC_SRCDIR)/sv/*/*.adoc))
-
-DOC_SRCS_TA = $(subst $(DOC_SRCDIR)/,, \
-	$(wildcard $(DOC_SRCDIR)/ta/*.adoc) \
-	$(wildcard $(DOC_SRCDIR)/ta/*/*.adoc))
-
-DOC_SRCS_TR = $(subst $(DOC_SRCDIR)/,, \
-	$(wildcard $(DOC_SRCDIR)/tr/*.adoc) \
-	$(wildcard $(DOC_SRCDIR)/tr/*/*.adoc))
-
-DOC_SRCS_ZH_CN = $(subst $(DOC_SRCDIR)/,, \
-	$(wildcard $(DOC_SRCDIR)/zh_CN/*.adoc) \
-	$(wildcard $(DOC_SRCDIR)/zh_CN/*/*.adoc))
-
-DOC_SRCS = $(DOC_SRCS_EN) $(DOC_SRCS_AR) $(DOC_SRCS_DE) $(DOC_SRCS_ES) $(DOC_SRCS_FR) $(DOC_SRCS_NB) $(DOC_SRCS_RU) $(DOC_SRCS_SV) $(DOC_SRCS_TA) $(DOC_SRCS_TR) $(DOC_SRCS_ZH_CN)
-
-DOC_SRCS_EN_SMALL = $(filter-out Master_%,$(DOC_SRCS_EN))
-DOC_SRCS_AR_SMALL = $(filter-out Master_%,$(DOC_SRCS_AR))
-DOC_SRCS_DE_SMALL = $(filter-out Master_%,$(DOC_SRCS_DE))
-DOC_SRCS_ES_SMALL = $(filter-out Master_%,$(DOC_SRCS_ES))
-DOC_SRCS_FR_SMALL = $(filter-out Master_%,$(DOC_SRCS_FR))
-DOC_SRCS_NB_SMALL = $(filter-out Master_%,$(DOC_SRCS_NB))
-DOC_SRCS_RU_SMALL = $(filter-out Master_%,$(DOC_SRCS_RU))
-DOC_SRCS_SV_SMALL = $(filter-out Master_%,$(DOC_SRCS_SV))
-DOC_SRCS_TA_SMALL = $(filter-out Master_%,$(DOC_SRCS_TA))
-DOC_SRCS_TR_SMALL = $(filter-out Master_%,$(DOC_SRCS_TR))
-DOC_SRCS_ZH_CN_SMALL = $(filter-out Master_%,$(DOC_SRCS_ZH_CN))
+$(foreach L,en $(LANGUAGES),\
+  $(eval DOC_SRCS_$(call toUC,$(L))_SMALL := \
+    $(filter-out Master_%,$(DOC_SRCS_$(call toUC,$(L))))))
 
 DOC_SRCS_HTML = $(patsubst %.adoc, %.html, $(foreach p, $(DOC_SRCS), $(if $(findstring Master_, $(p)),, $p)))
-DOC_TARGETS_HTML = $(addprefix $(DOC_DIR)/html/,$(DOC_SRCS_HTML)) #$(subst /,_,$(DOC_SRCS_HTML)))
+DOC_TARGETS_HTML = $(addprefix $(DOC_DIR)/html/,$(DOC_SRCS_HTML)) #$(subst /,_,$(DOC_SRCS_HTML))
 DOC_TARGETS_XML = $(patsubst $(DOC_DIR)/html/%.html, objects/%.xml, $(DOC_TARGETS_HTML))
 
 DOC_TARGETS_XML_AR = $(foreach p, $(DOC_TARGETS_XML), $(if $(findstring /ar/, $(p)), $p))
@@ -278,8 +282,11 @@ DOC_TARGETS_XML_RU = $(foreach p, $(DOC_TARGETS_XML), $(if $(findstring /ru/, $(
 DOC_TARGETS_XML_SV = $(foreach p, $(DOC_TARGETS_XML), $(if $(findstring /sv/, $(p)), $p))
 DOC_TARGETS_XML_TA = $(foreach p, $(DOC_TARGETS_XML), $(if $(findstring /ta/, $(p)), $p))
 DOC_TARGETS_XML_TR = $(foreach p, $(DOC_TARGETS_XML), $(if $(findstring /tr/, $(p)), $p))
+DOC_TARGETS_XML_UA = $(foreach p, $(DOC_TARGETS_XML), $(if $(findstring /ua/, $(p)), $p))
 DOC_TARGETS_XML_ZH_CN = $(foreach p, $(DOC_TARGETS_XML), $(if $(findstring /zh_CN/, $(p)), $p))
-DOC_TARGETS_XML_EN = $(filter-out $(DOC_TARGETS_XML_AR), $(filter-out $(DOC_TARGETS_XML_DE), $(filter-out $(DOC_TARGETS_XML_ES), $(filter-out $(DOC_TARGETS_XML_FR), $(filter-out $(DOC_TARGETS_XML_NB), $(filter-out $(DOC_TARGETS_XML_RU), $(filter-out $(DOC_TARGETS_XML_SV), $(filter-out $(DOC_TARGETS_XML_TR), $(filter-out $(DOC_TARGETS_XML_ZH_CN), $(DOC_TARGETS_XML))))))))))
+
+DOC_TARGETS_XML_EN = $(filter-out $(DOC_TARGETS_XML_AR), $(filter-out $(DOC_TARGETS_XML_DE), $(filter-out $(DOC_TARGETS_XML_ES), $(filter-out $(DOC_TARGETS_XML_FR), $(filter-out $(DOC_TARGETS_XML_NB), $(filter-out $(DOC_TARGETS_XML_RU), $(filter-out $(DOC_TARGETS_XML_SV), $(filter-out $(DOC_TARGETS_XML_TR), $(filter-out $(DOC_TARGETS_XML_UA), $(filter-out $(DOC_TARGETS_XML_ZH_CN), $(DOC_TARGETS_XML)))))))))))
+
 DOC_TARGETS_HTML_AR = $(foreach p, $(DOC_TARGETS_HTML), $(if $(findstring /ar/, $(p)), $p))
 DOC_TARGETS_HTML_DE = $(foreach p, $(DOC_TARGETS_HTML), $(if $(findstring /de/, $(p)), $p))
 DOC_TARGETS_HTML_ES = $(foreach p, $(DOC_TARGETS_HTML), $(if $(findstring /es/, $(p)), $p))
@@ -289,8 +296,9 @@ DOC_TARGETS_HTML_RU = $(foreach p, $(DOC_TARGETS_HTML), $(if $(findstring /ru/, 
 DOC_TARGETS_HTML_SV = $(foreach p, $(DOC_TARGETS_HTML), $(if $(findstring /sv/, $(p)), $p))
 DOC_TARGETS_HTML_TA = $(foreach p, $(DOC_TARGETS_HTML), $(if $(findstring /ta/, $(p)), $p))
 DOC_TARGETS_HTML_TR = $(foreach p, $(DOC_TARGETS_HTML), $(if $(findstring /tr/, $(p)), $p))
+DOC_TARGETS_HTML_UA = $(foreach p, $(DOC_TARGETS_HTML), $(if $(findstring /ua/, $(p)), $p))
 DOC_TARGETS_HTML_ZH_CN = $(foreach p, $(DOC_TARGETS_HTML), $(if $(findstring /zh_CN/, $(p)), $p))
-DOC_TARGETS_HTML_EN = $(filter-out $(DOC_TARGETS_HTML_AR), $(filter-out $(DOC_TARGETS_HTML_DE), $(filter-out $(DOC_TARGETS_HTML_ES), $(filter-out $(DOC_TARGETS_HTML_FR), $(filter-out $(DOC_TARGETS_HTML_NB), $(filter-out $(DOC_TARGETS_HTML_RU), $(filter-out $(DOC_TARGETS_HTML_SV), $(filter-out $(DOC_TARGETS_HTML_TA), $(filter-out $(DOC_TARGETS_HTML_TR), $(filter-out $(DOC_TARGETS_HTML_ZH_CN), $(DOC_TARGETS_HTML)))))))))))
+DOC_TARGETS_HTML_EN = $(filter-out $(DOC_TARGETS_HTML_AR), $(filter-out $(DOC_TARGETS_HTML_DE), $(filter-out $(DOC_TARGETS_HTML_ES), $(filter-out $(DOC_TARGETS_HTML_FR), $(filter-out $(DOC_TARGETS_HTML_NB), $(filter-out $(DOC_TARGETS_HTML_RU), $(filter-out $(DOC_TARGETS_HTML_SV), $(filter-out $(DOC_TARGETS_HTML_TA), $(filter-out $(DOC_TARGETS_HTML_TR), $(filter-out $(DOC_TARGETS_HTML_UA), $(filter-out $(DOC_TARGETS_HTML_ZH_CN), $(DOC_TARGETS_HTML))))))))))))
 
 MAN_HTML_TARGETS = $(patsubst $(DOC_DIR)/man/%, $(DOC_DIR)/html/man/%.html, $(MAN_SRCS))
 
@@ -335,11 +343,22 @@ PDF_TARGETS_TR = $(addprefix $(DOC_DIR)/, $(subst tr/,, \
 	$(patsubst %.adoc,%_tr.pdf, \
 	$(subst Master_,LinuxCNC_, $(filter tr/Master_%,$(DOC_SRCS_TR))))))
 
+PDF_TARGETS_UA = $(addprefix $(DOC_DIR)/, $(subst ua/,, \
+	$(patsubst %.adoc,%_ua.pdf, \
+	$(subst Master_,LinuxCNC_, $(filter ua/Master_%,$(DOC_SRCS_UA))))))
+
 PDF_TARGETS_ZH_CN = $(addprefix $(DOC_DIR)/, $(subst zh_CN/,, \
 	$(patsubst %.adoc,%_zh_CN.pdf, \
 	$(subst Master_,LinuxCNC_, $(filter zh_CN/Master_%,$(DOC_SRCS_ZH_CN))))))
 
-PDF_TARGETS = $(PDF_TARGETS_EN) $(PDF_TARGETS_AR) $(PDF_TARGETS_DE) $(PDF_TARGETS_ES) $(PDF_TARGETS_FR) $(PDF_TARGETS_NB) $(PDF_TARGETS_RU) $(PDF_TARGETS_SV) $(PDF_TARGETS_TA) $(PDF_TARGETS_TR)
+PDF_TARGETS = $(PDF_TARGETS_EN) $(PDF_TARGETS_AR) $(PDF_TARGETS_DE) $(PDF_TARGETS_ES) $(PDF_TARGETS_FR) $(PDF_TARGETS_NB) $(PDF_TARGETS_RU) $(PDF_TARGETS_SV) $(PDF_TARGETS_TA) $(PDF_TARGETS_TR) $(PDF_TARGETS_UA)
+# Do not add $(PDF_TARGETS_ZH_CN) to the line above, it is added below - only for XETEX
+# FIXME: Since we are no longer supporting stretch, this may need to be revisited
+
+info::
+	@$(ECHO) PDF_TARGETS_UA: $(PDF_TARGETS_UA)
+	@$(ECHO) PDF_TARGETS: $(PDF_TARGETS)
+
 
 # Chinese PDFs only build with xetex, which is missing in stretch
 SHELL=/bin/bash
@@ -419,40 +438,20 @@ gen_complist: $(DOC_SRCDIR)/gen_complist.py $(DOC_SRCDIR)/hal/components.adoc $(
 	mkdir -p $(DOC_DIR)/html/hal
 	python3 $(DOC_SRCDIR)/gen_complist.py $(DOC_SRCDIR)/hal/components.adoc
 
-checkref: checkref_en checkref_ar checkref_de checkref_es checkref_fr checkref_nb checkref_ru checkref_sv checkref_ta checkref_tr checkref_zh_CN
+
+CHECKREF_TARGETS := checkref_en $(foreach L,$(LANGUAGES),checkref_$(L))
+
+#checkref: checkref_en checkref_ar checkref_de checkref_es checkref_fr checkref_nb checkref_ru checkref_sv checkref_ta checkref_tr checkref_ua checkref_zh_CN
+checkref: $(CHECKREF_TARGETS)
 
 checkref_en: $(DOC_TARGETS_HTML_EN) $(DOC_DIR)/html/index.html $(DOC_DIR)/html/gcode.html .htmldoc-stamp
-	@$(DOC_SRCDIR)/checkref English $^
+	$(DOC_SRCDIR)/checkref English $^
 
-checkref_ar: $(DOC_TARGETS_HTML_AR) $(DOC_DIR)/html/ar/gcode.html .htmldoc-stamp
-	@$(DOC_SRCDIR)/checkref Arabic $^
+# Pattern rule for all languages
+checkref_%: $$(DOC_TARGETS_HTML_$$(call uc,$$*)) \
+             $$(DOC_DIR)/html/%/gcode.html .htmldoc-stamp
+	$(DOC_SRCDIR)/checkref $(call lang_name,$*) $$^
 
-checkref_de: $(DOC_TARGETS_HTML_DE) $(DOC_DIR)/html/de/gcode.html .htmldoc-stamp
-	@$(DOC_SRCDIR)/checkref German $^
-
-checkref_es: $(DOC_TARGETS_HTML_ES) $(DOC_DIR)/html/es/gcode.html .htmldoc-stamp
-	@$(DOC_SRCDIR)/checkref Spanish $^
-
-checkref_fr: $(DOC_TARGETS_HTML_FR) $(DOC_DIR)/html/fr/gcode.html .htmldoc-stamp
-	@$(DOC_SRCDIR)/checkref French $^
-
-checkref_nb: $(DOC_TARGETS_HTML_NB) $(DOC_DIR)/html/nb/gcode.html .htmldoc-stamp
-	@$(DOC_SRCDIR)/checkref Norwegian $^
-
-checkref_ru: $(DOC_TARGETS_HTML_RU) $(DOC_DIR)/html/ru/gcode.html .htmldoc-stamp
-	@$(DOC_SRCDIR)/checkref Russian $^
-
-checkref_sv: $(DOC_TARGETS_HTML_SV) $(DOC_DIR)/html/sv/gcode.html .htmldoc-stamp
-	@$(DOC_SRCDIR)/checkref Swedish $^
-
-checkref_ta: $(DOC_TARGETS_HTML_TA) $(DOC_DIR)/html/ta/gcode.html .htmldoc-stamp
-	@$(DOC_SRCDIR)/checkref Tamil $^
-
-checkref_tr: $(DOC_TARGETS_HTML_TR) $(DOC_DIR)/html/tr/gcode.html .htmldoc-stamp
-	@$(DOC_SRCDIR)/checkref Turkish $^
-
-checkref_zh_CN: $(DOC_TARGETS_HTML_ZH_CN) $(DOC_DIR)/html/zh_CN/gcode.html .htmldoc-stamp
-	@$(DOC_SRCDIR)/checkref Chinese $^
 
 MAN_SRCS_NOSO = $(patsubst $(DOC_DIR)/man/%,%, \
 			$(shell grep -s -L '^\.so ' $(MAN_SRCS)))
@@ -464,104 +463,49 @@ PDF_MAN_ORDER := man1/linuxcnc.1 $(filter-out %/linuxcnc.1, $(filter man1/%, $(M
 	$(filter man9/%, $(MAN_SRCS_NOSO))
 
 $(DOC_DIR)/LinuxCNC_Manual_Pages.pdf: $(MAN_SRCS) objects/var-PDF_MAN_ORDER
-	@echo Formatting manual pages as PDF
+	@$(ECHO) Formatting manual pages as PDF
 	(cd $(DOC_DIR)/man; groff -t -rC1 -rD1 -Tps -man $(PDF_MAN_ORDER)) \
 		| ps2pdf - $@
 
+
+PDF_TARGETS_LinuxCNC_Getting_Started := $(DOC_DIR)/LinuxCNC_Getting_Started.pdf $(foreach L,$(LANGUAGES),$(DOC_DIR)/LinuxCNC_Getting_Started_$(L).pdf)
+
 $(DOC_DIR)/LinuxCNC_Getting_Started.pdf: $(DOC_SRCDIR)/Master_Getting_Started.pdf
 	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Getting_Started_ar.pdf: $(DOC_SRCDIR)/ar/Master_Getting_Started.pdf
+
+$(DOC_DIR)/LinuxCNC_Getting_Started_%.pdf: $(DOC_SRCDIR)/%/Master_Getting_Started.pdf
 	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Getting_Started_de.pdf: $(DOC_SRCDIR)/de/Master_Getting_Started.pdf
-	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Getting_Started_es.pdf: $(DOC_SRCDIR)/es/Master_Getting_Started.pdf
-	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Getting_Started_fr.pdf: $(DOC_SRCDIR)/fr/Master_Getting_Started.pdf
-	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Getting_Started_nb.pdf: $(DOC_SRCDIR)/nb/Master_Getting_Started.pdf
-	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Getting_Started_ru.pdf: $(DOC_SRCDIR)/ru/Master_Getting_Started.pdf
-	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Getting_Started_sv.pdf: $(DOC_SRCDIR)/sv/Master_Getting_Started.pdf
-	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Getting_Started_ta.pdf: $(DOC_SRCDIR)/ta/Master_Getting_Started.pdf
-	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Getting_Started_tr.pdf: $(DOC_SRCDIR)/tr/Master_Getting_Started.pdf
-	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Getting_Started_zh_CN.pdf: $(DOC_SRCDIR)/zh_CN/Master_Getting_Started.pdf
-	@ln -f $< $@
+
+
+PDF_TARGETS_LinuxCNC_Documentation := $(DOC_DIR)/LinuxCNC_Documentation.pdf $(foreach L,$(LANGUAGES),$(DOC_DIR)/LinuxCNC_Documentation_$(L).pdf)
 
 $(DOC_DIR)/LinuxCNC_Documentation.pdf: $(DOC_SRCDIR)/Master_Documentation.pdf
 	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Documentation_ar.pdf: $(DOC_SRCDIR)/ar/Master_Documentation.pdf
+
+$(DOC_DIR)/LinuxCNC_Documentation_%.pdf: $(DOC_SRCDIR)/%/Master_Documentation.pdf
 	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Documentation_de.pdf: $(DOC_SRCDIR)/de/Master_Documentation.pdf
-	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Documentation_es.pdf: $(DOC_SRCDIR)/es/Master_Documentation.pdf
-	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Documentation_fr.pdf: $(DOC_SRCDIR)/fr/Master_Documentation.pdf
-	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Documentation_nb.pdf: $(DOC_SRCDIR)/nb/Master_Documentation.pdf
-	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Documentation_ru.pdf: $(DOC_SRCDIR)/ru/Master_Documentation.pdf
-	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Documentation_sv.pdf: $(DOC_SRCDIR)/sv/Master_Documentation.pdf
-	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Documentation_ta.pdf: $(DOC_SRCDIR)/ta/Master_Documentation.pdf
-	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Documentation_tr.pdf: $(DOC_SRCDIR)/tr/Master_Documentation.pdf
-	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Documentation_zh_CN.pdf: $(DOC_SRCDIR)/zh_CN/Master_Documentation.pdf
-	@ln -f $< $@
+
+
+PDF_TARGETS_LinuxCNC_Integrator := $(DOC_DIR)/LinuxCNC_Integrator.pdf $(foreach L,$(LANGUAGES),$(DOC_DIR)/LinuxCNC_Integrator_$(L).pdf)
 
 $(DOC_DIR)/LinuxCNC_Integrator.pdf: $(DOC_SRCDIR)/Master_Integrator.pdf
 	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Integrator_ar.pdf: $(DOC_SRCDIR)/ar/Master_Integrator.pdf
+
+$(DOC_DIR)/LinuxCNC_Integrator_%.pdf: $(DOC_SRCDIR)/%/Master_Integrator.pdf
 	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Integrator_de.pdf: $(DOC_SRCDIR)/de/Master_Integrator.pdf
-	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Integrator_es.pdf: $(DOC_SRCDIR)/es/Master_Integrator.pdf
-	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Integrator_fr.pdf: $(DOC_SRCDIR)/fr/Master_Integrator.pdf
-	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Integrator_nb.pdf: $(DOC_SRCDIR)/nb/Master_Integrator.pdf
-	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Integrator_ru.pdf: $(DOC_SRCDIR)/ru/Master_Integrator.pdf
-	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Integrator_sv.pdf: $(DOC_SRCDIR)/sv/Master_Integrator.pdf
-	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Integrator_ta.pdf: $(DOC_SRCDIR)/ta/Master_Integrator.pdf
-	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Integrator_tr.pdf: $(DOC_SRCDIR)/tr/Master_Integrator.pdf
-	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Integrator_zh_CN.pdf: $(DOC_SRCDIR)/zh_CN/Master_Integrator.pdf
-	@ln -f $< $@
+
+
+PDF_TARGETS_LinuxCNC_Developer := $(DOC_DIR)/LinuxCNC_Developer.pdf $(foreach L,$(LANGUAGES),$(DOC_DIR)/LinuxCNC_Developer_$(L).pdf)
 
 $(DOC_DIR)/LinuxCNC_Developer.pdf: $(DOC_SRCDIR)/Master_Developer.pdf
 	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Developer_ar.pdf: $(DOC_SRCDIR)/ar/Master_Developer.pdf
-	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Developer_de.pdf: $(DOC_SRCDIR)/de/Master_Developer.pdf
-	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Developer_es.pdf: $(DOC_SRCDIR)/es/Master_Developer.pdf
-	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Developer_fr.pdf: $(DOC_SRCDIR)/fr/Master_Developer.pdf
-	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Developer_nb.pdf: $(DOC_SRCDIR)/nb/Master_Developer.pdf
-	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Developer_ru.pdf: $(DOC_SRCDIR)/ru/Master_Developer.pdf
-	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Developer_sv.pdf: $(DOC_SRCDIR)/sv/Master_Developer.pdf
-	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Developer_ta.pdf: $(DOC_SRCDIR)/ta/Master_Developer.pdf
-	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Developer_tr.pdf: $(DOC_SRCDIR)/tr/Master_Developer.pdf
-	@ln -f $< $@
-$(DOC_DIR)/LinuxCNC_Developer_zh_CN.pdf: $(DOC_SRCDIR)/zh_CN/Master_Developer.pdf
+
+$(DOC_DIR)/LinuxCNC_Developer_%.pdf: $(DOC_SRCDIR)/%/Master_Developer.pdf
 	@ln -f $< $@
 
+
 $(DOC_DIR)/html/man/%.html: $(DOC_DIR)/man/%
-	@echo Formatting $(notdir $<) as HTML
+	@$(ECHO) Formatting $(notdir $<) as HTML
 	@mkdir -p $(dir $@)
 	$(Q)if grep -q '^\.so' $<; then \
 		ln -srf ../docs/html/man/$$(awk '{print $$2}' $<).html $@; \
@@ -715,6 +659,9 @@ objects/xref_ta.links: $(patsubst %.adoc,objects/%.links,$(DOC_SRCS_TA_SMALL))
 	$(PYTHON) $(DOC_SRCDIR)/links_db_gen.py objects/ $^ > $@
 
 objects/xref_tr.links: $(patsubst %.adoc,objects/%.links,$(DOC_SRCS_TR_SMALL))
+	$(PYTHON) $(DOC_SRCDIR)/links_db_gen.py objects/ $^ > $@
+
+objects/xref_ua.links: $(patsubst %.adoc,objects/%.links,$(DOC_SRCS_UA_SMALL))
 	$(PYTHON) $(DOC_SRCDIR)/links_db_gen.py objects/ $^ > $@
 
 objects/xref_zh_CN.links: $(patsubst %.adoc,objects/%.links,$(DOC_SRCS_ZH_CN_SMALL))
@@ -935,6 +882,20 @@ $(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_TR_SMALL)): $(DOC_SRCDIR)/%.ht
 		 -a stylesheet=linuxcnc.css \
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm -f $@; exit $$X)
 
+$(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_UA_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.adoc objects/xref_ua.links $(LOC_LANG_MAP)
+	$(ECHO) "Building 'ua' adoc to html: " $<
+	$(Q)asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
+		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
+		 -f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
+		 -a "source_highlight_dir=$(LOC_HL_DIR)/local" \
+		 -a linkcss \
+		 $(STYLES_SCRIPTS) \
+	         -a "scriptdir=$(DOC_SRCDIR)/" \
+	         -a "relindir=$(shell dirname $*)" \
+	         -a "linksfile=objects/xref_ua.links" \
+		 -a stylesheet=linuxcnc.css \
+		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm -f $@; exit $$X)
+
 $(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_ZH_CN_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.adoc objects/xref_zh_CN.links $(LOC_LANG_MAP)
 	$(ECHO) "Building 'zh_CN' adoc to html: " $<
 	$(Q)asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
@@ -949,45 +910,19 @@ $(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_ZH_CN_SMALL)): $(DOC_SRCDIR)/%
 		 -a stylesheet=linuxcnc.css \
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm -f $@; exit $$X)
 
-$(DOC_DIR)/html/ar/xref.html: objects/xref_ar.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
-	$(ECHO) Converting $< to HTML
-	@xsltproc --stringparam docname "xref_ar" --stringparam language arabic --path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
 
-$(DOC_DIR)/html/de/xref.html: objects/xref_de.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
-	$(ECHO) Converting $< to HTML
-	@xsltproc --stringparam docname "xref_de" --stringparam language german --path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
+# Conversion to HTML
+# Define common prerequisites
+COMMON_DEPS_CONVERSION := $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
 
-$(DOC_DIR)/html/es/xref.html: objects/xref_es.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
-	$(ECHO) Converting $< to HTML
-	@xsltproc --stringparam docname "xref_es" --stringparam language spanish --path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
+# Declare all final HTML targets
+HTML_TARGETS := $(foreach L,$(LANGUAGES),$(DOC_DIR)/html/$(L)/xref.html)
 
-$(DOC_DIR)/html/fr/xref.html: objects/xref_fr.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/fr/docs.xml $(DOC_SRCDIR)/terms.xml
-	$(ECHO) Converting $< to HTML
-	@xsltproc --stringparam docname "xref_fr" --stringparam language french --path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
-
-$(DOC_DIR)/html/nb/xref.html: objects/xref_nb.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
-	$(ECHO) Converting $< to HTML
-	@xsltproc --stringparam docname "xref_nb" --stringparam language norwegian --path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
-
-$(DOC_DIR)/html/ru/xref.html: objects/xref_ru.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
-	$(ECHO) Converting $< to HTML
-	@xsltproc --stringparam docname "xref_ru" --stringparam language russian --path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
-
-$(DOC_DIR)/html/sv/xref.html: objects/xref_sv.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
-	$(ECHO) Converting $< to HTML
-	@xsltproc --stringparam docname "xref_sv" --stringparam language swedish --path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
-
-$(DOC_DIR)/html/ta/xref.html: objects/xref_ta.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
-	$(ECHO) Converting $< to HTML
-	@xsltproc --stringparam docname "xref_ta" --stringparam language tamil --path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
-
-$(DOC_DIR)/html/tr/xref.html: objects/xref_tr.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
-	$(ECHO) Converting $< to HTML
-	@xsltproc --stringparam docname "xref_tr" --stringparam language turkish --path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
-
-$(DOC_DIR)/html/zh_CN/xref.html: objects/xref_zh_CN.xml $(DOC_SRCDIR)/xref.xsl $(DOC_SRCDIR)/docs.xml $(DOC_SRCDIR)/terms.xml
-	$(ECHO) Converting $< to HTML
-	@xsltproc --stringparam docname "xref_zh_CN" --stringparam language chinese --path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
+$(DOC_DIR)/html/%/xref.html: objects/xref_%.xml $(COMMMON_DEPS_CONVERSION)
+	@$(ECHO) Converting $< to HTML
+	xsltproc --stringparam docname "xref_$*" \
+		--stringparam language $(call lang_name,$*) \
+		--path objects -o $@ $(DOC_SRCDIR)/xref.xsl $<
 
 default: docs
 
