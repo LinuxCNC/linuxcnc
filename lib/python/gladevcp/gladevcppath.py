@@ -19,14 +19,14 @@ def search(filename, postfix):
         LOG.debug(f'RIP environmental variable flag: {RIP_FLAG}')
 
         if RIP_FLAG:
-            HOMEBATH = os.environ.get('EMC2_HOME', None)
+            HOMEPATH = os.environ.get('EMC2_HOME', None)
         else:
-            HOMEBATH = os.environ.get('LINUXCNC_HOME', None)
+            HOMEPATH = os.environ.get('LINUXCNC_HOME', None)
             # fallback until the RIP_FLAG is common
-            if HOMEBATH is None:
-               HOMEBATH = os.environ.get('EMC2_HOME', None)
+            if HOMEPATH is None:
+               HOMEPATH = os.environ.get('EMC2_HOME', None)
 
-        LOG.debug('Linuxcnc Home directory found in environmental variable: {}'.format(HOMEBATH))
+        LOG.debug('Linuxcnc Home directory found in environmental variable: {}'.format(HOMEPATH))
 
         PANELDIR = os.path.join(here,'builtin-panels')
         BASENAME = os.path.splitext(os.path.basename(filename))[0]
