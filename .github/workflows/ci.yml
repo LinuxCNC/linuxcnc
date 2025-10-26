@@ -125,6 +125,25 @@ jobs:
         # our build system to determine the version from tags
         fetch-depth: 0
 
+    - name: Add linuxcnc.org deb archive
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        case "${{matrix.image}}" in
+            debian:sid|debian:bookworm|debian:trixie)
+                exit 0
+                ;;
+            *)
+                ;;
+        esac
+        set -e
+        set -x
+        eatmydata apt-get --yes --quiet install --no-install-recommends gpg software-properties-common
+        eatmydata gpg --homedir="${PWD}/gnupg" --output /etc/apt/trusted.gpg.d/linuxcnc-deb-archive.gpg --export 3CB9FD148F374FEF
+        DIST=$(echo ${{matrix.image}} | cut -d : -f 2)
+        eatmydata add-apt-repository "deb http://linuxcnc.org $DIST base"
+        eatmydata apt-get --quiet update
+
     - name: Build architecture-specific Debian packages
       env:
         DEBEMAIL: emc-developers@lists.sourceforge.net
@@ -278,6 +297,27 @@ jobs:
         name: linuxcnc-${{ steps.meta.outputs.dist }}-${{ steps.meta.outputs.arch }}
         path: artifacts/${{ steps.meta.outputs.dist }}/${{ steps.meta.outputs.arch }}
         if-no-files-found: error
+
+
+  cppcheck:
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+        fetch-depth: 0
+    - name: Perform Source Code checks that were successful in the past
+      continue-on-error: true
+      run: |
+        set -x
+        git fetch --recurse-submodules=no https://github.com/linuxcnc/linuxcnc refs/tags/*:refs/tags/*
+        sudo apt-get -y install cppcheck shellcheck
+        scripts/cppcheck.sh
+    - name: Shellcheck
+      continue-on-error: true
+      run: |
+        scripts/shellcheck.sh
+
 
   release:
     name: Release packages
