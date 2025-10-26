@@ -368,10 +368,10 @@ class Filter():
         if data.replace(' ', '').startswith('#<keep-z-motion>='):
             self.set_keep_z_motion(data)
         # remove any existing z max moves
-        if '[#<_ini[axis_z]max_limit>' in data:  # and self.zSetup:
+        if '[#<_ini[axis_z]max_limit>' in data and not self.zBypass:  # and self.zSetup:
             return(None)
         # set first movement flag
-        if not self.firstMove and (('G00' in data or 'G01' in data) and ('X' in data or 'Y' in data)):
+        if not self.firstMove and not self.zBypass and (('G00' in data or 'G01' in data) and ('X' in data or 'Y' in data)):
             self.set_first_move()
         # is there an m3 before motion started
         if not self.firstMove and 'M03' in data:

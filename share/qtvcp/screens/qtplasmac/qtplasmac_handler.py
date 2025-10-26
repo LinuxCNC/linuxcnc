@@ -1,4 +1,4 @@
-VERSION = '009.071'
+VERSION = '009.072'
 LCNCVER = '2.10'
 
 '''
