@@ -502,10 +502,14 @@ and this to the Window class:
 You can set DEFAULT, FEED, TRAVERSE, ARC, PROBE, ROTARYINDEX, TOOLCHANGE colors with setColorsAttribute()
 
 === Capture
-This sets the current position in the model.
-
-*`part = Capture()`*
-
+** `tooltip = Capture()` +
+  Think of this as an invisible part that needs to be attached to the
+  tooltip to track the position and orientation of the tool coordinate system.
+  It is actually a transformation matrix that is constantly updated as the
+  model moves.
+** `work = Capture()` +
+  Same as above but attached to the work table to track the work coordinate
+  system.
 
 === main
 This is the command that makes it all happen, creates the display, etc. if invoked directly from Python. +
@@ -513,7 +517,8 @@ Usually this file is imported by QtVCP and the `window()` object is instantiated
 
 *`main(model, tooltip, work, size=10, hud=myhud, rotation_vectors=None, lat=0, lon=0)`*::
   `_model_`;; Should be a collection that contains all the machine parts.
-  `_tooltip_` and `_work_`;; Need to be created by `Capture()` to visualize their motion in the backplot.
+  `_tooltip_` and `_work_`;; Need to be created by `Capture()` to draw the backplot which is basically the tooltip
+   position drawn in the work coordinate system.
     See `mill_xyz.py` for an example of how to connect the tool tip to a tool and the tool to the model.
   `_size_`;; Sets the extent of the volume visualized in the initial view.
   `_hud_`;; refers to a head-up display.
