@@ -10,6 +10,9 @@ on:
   check_suite:
     types: [rerequested]
 
+permissions:
+  contents: read #  to fetch code (actions/checkout)
+
 jobs:
 
   rip-and-test:
@@ -29,6 +32,7 @@ jobs:
         set -x
         sudo apt-get install -y eatmydata
         eatmydata ./scripts/travis-install-build-deps.sh
+        sudo eatmydata apt --quiet --yes upgrade
         cd src
         eatmydata ./autogen.sh
         eatmydata ./configure --with-realtime=uspace --disable-check-runtime-deps
@@ -54,6 +58,7 @@ jobs:
         sudo apt-get install -y eatmydata
         eatmydata ./scripts/travis-install-build-deps.sh
         sudo eatmydata apt-get install -y clang
+        sudo eatmydata apt --quiet --yes upgrade
         cd src
         eatmydata ./autogen.sh
         CC=clang CXX=clang++ eatmydata ./configure --with-realtime=uspace --disable-check-runtime-deps
@@ -77,6 +82,7 @@ jobs:
       run: |
         ./scripts/travis-install-build-deps.sh
         sudo apt-get install -y eatmydata
+        sudo eatmydata apt --quiet --yes upgrade
         cd src
         eatmydata ./autogen.sh
         eatmydata ./configure --with-realtime=uspace --disable-check-runtime-deps --enable-build-documentation=html
@@ -108,7 +114,8 @@ jobs:
         set -e
         set -x
         apt-get --quiet update
-        apt-get --yes --quiet install eatmydata
+        apt-get --yes --quiet install eatmydata curl
+        eatmydata apt --quiet --yes upgrade
         # Install stuff needed to check out the linuxcnc repo and turn it into a debian source package.
         eatmydata apt-get --yes --quiet install --no-install-suggests git lsb-release python3 devscripts
 
@@ -192,7 +199,7 @@ jobs:
 
 
   package-indep:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         image: ["debian:bullseye", "debian:bookworm", "debian:trixie", "debian:sid"]
@@ -214,7 +221,8 @@ jobs:
         set -e
         set -x
         apt-get --quiet update
-        apt-get --yes --quiet install eatmydata
+        apt-get --yes --quiet install eatmydata curl
+        eatmydata apt --quiet --yes upgrade
         # Install stuff needed to check out the linuxcnc repo and turn it into a debian source package.
         eatmydata apt-get --yes --quiet install --no-install-suggests git lsb-release python3 devscripts
 
