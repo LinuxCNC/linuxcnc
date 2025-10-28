@@ -1,6 +1,8 @@
 .PHONY: docs docclean checkref checkref_en checkref_ar checkref_de checkref_es checkref_fr checkref_nb checkref_ru checkref_sv checkref_ta checkref_tr checkref_ua checkref_zh_CN
 .PHONY: pdfdocs htmldocs install-doc install-doc-pdf install-doc-html
 
+SHELL=/bin/bash
+
 # To make linuxcnc-checklink widely available
 export PATH:=$(BASEPWD)/../scripts:$(PATH)
 
@@ -196,7 +198,7 @@ DOC_SRCS_EN := \
 	Master_Developer.adoc
 
 # Map two-letter codes to human-readable language names
-# (this can later be extended to handle zh_CN, zh_TW, etc.)
+# (this can extended on demand to handle zh_TW, etc.)
 define lang_name
 $(if $(filter $1,ar),arabic,\
 $(if $(filter $1,de),german,\
@@ -212,8 +214,6 @@ $(if $(filter $1,ua),ukranian,\
 $(if $(filter $1,zh_CN),chinese,\
 unknown))))))))))))
 endef
-
-
 
 GENERATED_TRANSLATED = $(foreach l, $(LANGUAGES), \
 	$(DOC_SRCDIR)/$(l) \
@@ -352,24 +352,18 @@ PDF_TARGETS_ZH_CN = $(addprefix $(DOC_DIR)/, $(subst zh_CN/,, \
 	$(subst Master_,LinuxCNC_, $(filter zh_CN/Master_%,$(DOC_SRCS_ZH_CN))))))
 
 PDF_TARGETS = $(PDF_TARGETS_EN) $(PDF_TARGETS_AR) $(PDF_TARGETS_DE) $(PDF_TARGETS_ES) $(PDF_TARGETS_FR) $(PDF_TARGETS_NB) $(PDF_TARGETS_RU) $(PDF_TARGETS_SV) $(PDF_TARGETS_TA) $(PDF_TARGETS_TR) $(PDF_TARGETS_UA)
-# Do not add $(PDF_TARGETS_ZH_CN) to the line above, it is added below - only for XETEX
-# FIXME: Since we are no longer supporting stretch, this may need to be revisited
+# Do not add $(PDF_TARGETS_ZH_CN) to the line above, it is added below - only if xetex is available
+
+# Chinese PDFs only build with xetex - optional build-dependency on texlive-xetex
+ifneq (, $(shell command -v xetex))
+PDF_TARGETS += $(PDF_TARGETS_ZH_CN)
+DBLATEX_OPTS=--backend xetex
+endif
 
 info::
 	@$(ECHO) PDF_TARGETS_UA: $(PDF_TARGETS_UA)
 	@$(ECHO) PDF_TARGETS: $(PDF_TARGETS)
 
-
-# Chinese PDFs only build with xetex, which is missing in stretch
-SHELL=/bin/bash
-ifneq (, $(shell command -v xetex))
-USING_XETEX = true
-endif
-ifdef USING_XETEX
-PDF_TARGETS += $(PDF_TARGETS_ZH_CN)
-DBLATEX_OPTS=--backend xetex
-else
-endif
 
 # It's better to keep the above on separate lines for troubleshooting by swapping
 
