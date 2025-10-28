@@ -103,6 +103,7 @@ class Data:
         self._re_editmode = False
         self._customfirmwarefilename = "~/Desktop/custom_firmware/firmware.py"
         self.advanced_option = False
+        self._dont_show_again = False
         self._substitution_list=[]
 
         # basic machine data
@@ -979,6 +980,12 @@ If you have a REALLY large config that you wish to convert to this newer version
         n2.setAttribute('type', 'bool')
         n2.setAttribute('name', "show_advanced_pages")
         n2.setAttribute('value', str("%s"% self.advanced_option))
+
+        n2 = d2.createElement("property")
+        e2.appendChild(n2)
+        n2.setAttribute("type", "bool")
+        n2.setAttribute("name", "dont_show_again")
+        n2.setAttribute("value", str("%s"% self._dont_show_again))
 
         n2 = d2.createElement('property')
         e2.appendChild(n2)

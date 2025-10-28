@@ -246,6 +246,8 @@ class App:
                         self.widgets.useinisubstitution.set_active(eval(text))
                     elif name == "show_advanced_pages":
                         show_pages = eval(text)
+                    elif name == "dont_show_again":
+                        self.d._dont_show_again = eval(text)
                     elif name == "machinename":
                         self.d._lastconfigname = text
                     elif name == "chooselastconfig":
@@ -676,12 +678,34 @@ class App:
                 self._p.MESA_BOARDNAMES.append(folder)
         else:
             #TODO what if there are no external firmware is this enough?
-            self.warning_dialog(_("""Some older cards require firmware.
+
+            if not self.d._dont_show_again:
+                dialog = Gtk.MessageDialog(
+                    parent=self.widgets.window1,
+                    modal=True,
+                    destroy_with_parent=True,
+                    message_type=Gtk.MessageType.WARNING,
+                    buttons=Gtk.ButtonsType.OK,
+                    text=_("""Some older cards require firmware.
 You have no hostmot2 firmware downloaded in folder:
 %s
 PNCconf will use It's internal firmware data samples so you can continue.
 You could also try the discovery option if your card is connected and doesn't require firmware to be loaded at run time.
-Discovery option requires the advanced options checked on this page."""%self._p.FIRMDIR),True)
+Discovery option requires the advanced options checked on this page."""%self._p.FIRMDIR))
+
+                checkbox = Gtk.CheckButton.new_with_label(_("Don't show this again"))
+                checkbox.set_halign(Gtk.Align.START)
+
+                dialog.get_content_area().pack_end(checkbox, False, False, 0)
+                checkbox.show_all()
+
+                dialog.show_all()
+                dialog.run()
+                dialog.destroy()
+
+                if checkbox.get_active():
+                    self.d._dont_show_again = True
+
         for firmware in self._p.MESA_INTERNAL_FIRMWAREDATA:
             if 'internal' in firmware[0].lower():
                 if firmware[0] in self._p.MESA_BOARDNAMES:
