@@ -18,7 +18,7 @@ This chapter covers important user concepts that should be understood before att
 [[sub:trajectory-planning]]
 === Trajectory Planning(((Trajectory Planning,TP)))
 
-Trajectory planning, in general, is the means by which LinuxCNC follows the path specified by your G-code program, while still operating within the limits of your machinery.
+Trajectory planning, in general, is the means by which LinuxCNC follows the path specified by your G-code program while still operating within the limits of your machinery.
 
 A G-code program can never be fully obeyed.
 For example, imagine you specify as a single-line program the following move:
@@ -30,7 +30,7 @@ G1 X1 F10 (G1 is linear move, X1 is the destination, F10 is the speed)
 
 In reality, the whole move can't be made at F10, since the machine must accelerate from a stop, move toward X=1, and then decelerate to stop again.
 Sometimes part of the move is done at F10, but for many moves, especially short ones, the specified feed rate is never reached at all.
-Having short moves in your G-code can cause your machine to slow down and speed up for the longer moves if the 'naive cam detector' is not employed with G64 P__n__.
+Having short moves in your G-code can cause your machine to slow down and speed up for the longer moves if the 'naive cam detector' is not employed with G64 P__n__ (the G64 Pn G-code command initiates constant velocity mode and specifies a blend tolerance for corner rounding on a CNC machine).
 
 The basic acceleration and deceleration described above is not complex and there is no compromise to be made.
 In the INI file the specified machine constraints, such as maximum axis velocity and axis acceleration, must be obeyed by the trajectory planner.
@@ -40,7 +40,7 @@ For more information on the Trajectory Planner INI options see the <<sub:ini:sec
 [[sub:path-following]]
 === Path Following(((Trajectory Planning:Path Following)))
 
-A less straightforward problem is that of path following.
+The path following problem is less straightforward than the trajectory planning problem.
 When you program a corner in G-code, the trajectory planner can do several things,
 all of which are right in some cases:
 
@@ -66,22 +66,22 @@ The trajectory control commands are as follows:
   The path will be followed exactly but complete feed stops can be destructive for the part or tool, depending on the specifics of the machining.
 
 `G64`:: (Blend Without Tolerance Mode) `G64` is the default setting when you start LinuxCNC.
-  G64 is just blending and the naive cam detector is not enabled.
-  G64 and G64 P0 tell the planner to sacrifice path following accuracy in order to keep the feed rate up.
-  This is necessary for some types of material or tooling where exact stops are harmful,
+  `G64` is just blending and the naive cam detector is not enabled.
+  `G64` and `G64 P0` tell the planner to sacrifice path following accuracy in order to keep the feed rate up.
+  This is necessary for some types of material or tooling where exact stops are harmful
   and can work great as long as the programmer is careful to keep in mind
   that the tool's path will be somewhat more curvy than the program specifies.
-  When using G0 (rapid) moves with G64 use caution on clearance moves and allow enough distance to clear obstacles based on the acceleration
+  When using `G0` (rapid) moves with `G64` use caution on clearance moves and allow enough distance to clear obstacles based on the acceleration
   capabilities of your machine.
 
 `G64 P- Q-`:: (Blend With Tolerance Mode) This enables the 'naive cam detector' and enables blending with a tolerance.
-  If you program G64 P0.05, you tell the planner that you want continuous feed,
+  If you program `G64 P0.05`, you tell the planner that you want continuous feed,
   but at programmed corners you want it to slow down enough so that the tool path can stay within 0.05 user units of the programmed path.
   The exact amount of slowdown depends on the geometry of the programmed corner and the machine constraints,
   but the only thing the programmer needs to worry about is the tolerance.
   This gives the programmer complete control over the path following compromise.
   The blend tolerance can be changed throughout the program as necessary.
-  Beware that a specification of G64 P0 has the same effect as G64 alone (above),
+  Beware that a specification of `G64 P0` has the same effect as `G64` alone (above),
   which is necessary for backward compatibility for old G-code programs.
   See the <<gcode:g64,G64 section>> of the G-code chapter.
 

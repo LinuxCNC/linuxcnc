@@ -16,11 +16,11 @@ constants are located in src/emc/usr_intf/axis/extensions/emcmodule.cc
 ////
 
 == Introduction
-User interfaces control LinuxCNC activity by sending NML messages to the LinuxCNC task controller,
-and monitor results by observing the LinuxCNC status structure, as well as the error reporting channel.
+User interfaces control LinuxCNC activity by sending NML messages to the LinuxCNC task controller
+and monitor results by observing the LinuxCNC status structure as well as the error reporting channel.
 
-Programmatic access to NML is through a C++ API;
-however, the most important parts of the NML interface to LinuxCNC
+Programmatic access to NML is through a C++ API.
+However, the most important parts of the NML interface to LinuxCNC
 are also available to Python programs through the `linuxcnc` module.
 
 Beyond the NML interface to the command, status and error channels, the `linuxcnc` module also contains:
