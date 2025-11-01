@@ -7,7 +7,6 @@ loadrt encoder num_chan=2
 loadrt pid num_chan=2
 loadrt pwmgen output_type=1,1
 loadrt ddt count=4
-loadrt constant count=1
 
 # define the order of execution for RT code
 addf parport.0.read            base-thread
@@ -20,7 +19,6 @@ addf motion-command-handler    servo-thread
 addf motion-controller         servo-thread
 addf pid.0.do-pid-calcs        servo-thread
 addf pid.1.do-pid-calcs        servo-thread
-addf constant.0                servo-thread
 addf pwmgen.update             servo-thread
 addf ddt.0                     servo-thread
 addf ddt.1                     servo-thread
