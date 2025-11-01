@@ -92,7 +92,7 @@ Microsoft makes buggy programs.
 
 LOCAL variable names should be short, and to the point. If you have
 some random integer loop counter, it should probably be called 'i'.
-Calling it 'loop_counter' is non-productive, if there is no chance of
+Calling it 'loop_counter' is non-productive if there is no chance of
 it being misunderstood. Similarly, 'tmp' can be just about any type of
 variable that is used to hold a temporary value.
 
@@ -152,14 +152,14 @@ indicate a change has been made and needs testing.
 == Shell Scripts & Makefiles
 
 Not everyone has the same tools and packages installed. Some people
-use vi, others emacs - A few even avoid having either package
+use vi, others emacs - a few even avoid having either package
 installed, preferring a lightweight text editor such as nano or the one
 built in to Midnight Commander.
 
-gawk versus mawk - Again, not everyone will have gawk installed, mawk
+gawk versus mawk: not everyone will have gawk installed. Mawk
 is nearly a tenth of the size and yet conforms to the POSIX AWK
 standard. If some obscure gawk specific command is needed that mawk
-does not provide, than the script will break for some users. The same
+does not provide, then the script will break for some users. The same
 would apply to mawk. In short, use the generic awk invocation in
 preference to gawk or mawk.
 
