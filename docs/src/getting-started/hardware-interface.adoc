@@ -45,7 +45,7 @@ __Disadvantages:__
 
 
 == Parallel Port FPGA Communication
-Realtime (time critical) tasks such as step generation are done in hardware (not on the computer)
+Realtime (time critical) tasks such as step generation are done in hardware (not on the computer).
 
 === Mesa via Parallel Port
 Mesa use Field-programmable gate array (FPGA) interfaced via parallel port - e.g. 7i43
@@ -60,7 +60,7 @@ https://pico-systems.com/univstep.html
 === Mesa Ethernet
 Mesa cards with a Field-programmable gate array (FPGA), interfaced to LinuxCNC computer via Ethernet. Time critical (realtime) tasks are performed on the FPGA card.
 
-Multiple ethernet interface FPGA cards are available, with many expansion cards
+Multiple ethernet interface FPGA cards are available as well as many expansion cards.
 
 Website: https://mesanet.com/    Store: https://store.mesanet.com/
 

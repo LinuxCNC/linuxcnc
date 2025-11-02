@@ -27,7 +27,7 @@ when invoking `src/configure`, and run "make" from `src`.
 
 == Notes about drawings
 
-Many of the documents include drawings. Most of them originally
+Many of the documents include drawings. Most of them were originally
 created using the non-free Windows app EasyCAD and then exported to .eps
 files and included in the the docs. The original 'source' files
 (EasyCad .FC7 format) were not usable on a free system.  To fix this
@@ -59,7 +59,7 @@ Because the original EPS files with filled lines and circles, wide lines,
 and dashed lines look so much nicer, they will remain in Git and should
 probably be used for the documents, however if they become inaccurate
 because of changes in the software, we will have to edit the DXF files,
-generate PostScript, and use the less pretty, but factually correct
+generate PostScript, and use the less pretty but factually correct
 images.
 
 Since QCAD itself is a GUI application, the DXF to PostScript conversion
@@ -144,7 +144,7 @@ the LinuxCNC community.
 == Provide translated documentation
 
 The complete set of documents are translated using gettext PO files
-using the https://po4a.alioth.debian.org/[po4a]po4a system.  If you
+using the https://po4a.alioth.debian.org/[po4a] system.  If you
 want to contribute a translation, please use the
 link:https://hosted.weblate.org/projects/linuxcnc/[web based
 translation editor Weblate].  Registered Weblate users can translate
