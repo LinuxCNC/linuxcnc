@@ -33,15 +33,15 @@ and moreover brings its own set of support issues.
 While it is conceivable that certain patches might make their way into the main LinuxCNC distribution,
 the result of this approach is a hodge-podge of special-case solutions.
 
-A good example for this deficiency is tool change support in LinuxCNC:
-While random tool changers are well supported, it is next to impossible to reasonably define a configuration for a manual-tool change machine
+A good example for this deficiency is tool change support in LinuxCNC.
+While random tool changers are supported well, it is next to impossible to reasonably define a configuration for a manual-tool change machine
 with, for example, an automatic tool length offset switch being visited after a tool change, and offsets set accordingly.
 Also, while a patch for a very specific rack tool changer exists, it has not found its way back into the main code base.
 
-However, many of these things may be fixed by using an O-word procedure instead of a built in code -
-whenever the - insufficient - built in code is to be executed, call the O-word procedure instead.
-While possible, it is cumbersome - it requires source-editing of NGC programs,
-replacing all calls to the deficient code by a an O-word procedure call.
+However, many of these things may be fixed by using an O-word procedure instead of built-in code.
+Whenever the insufficient built-in code is to be executed, call the O-word procedure instead.
+While possible, this approach is cumbersome - it requires source-editing of NGC programs,
+replacing all calls to the deficient code by an O-word procedure call.
 
 In its simplest form, a remapped code isn't much more than a spontaneous call to an O-word procedure.
 This happens behind the scenes - the procedure is visible at the configuration level, but not at the NGC program level.
