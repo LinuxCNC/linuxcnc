@@ -335,7 +335,7 @@ If the machine is equipped with a float switch, then the user will need to set t
 . Measure the distance between the material and the tip of the torch while the torch is waiting at *Pierce Height*.
 . If the measurement is greater than the *Pierce Height* of the currently selected material, then reduce the "Float Travel" in the *CONFIGURATION* section of the *PARAMETERS* tab by the difference between the measured value and the specified value. If the measurement is less than *Pierce Height* of the currently selected material, then increase the "Float Travel" in the *CONFIGURATION* section of the *PARAMETERS* tab by the difference between the specified value and the measured value.
 . After the adjustments to the "Float Travel" have been made, repeat the process from #4 above until the measured distance between the material and the torch tip matches the *Pierce Height* of the currently selected material.
-. If the table has a laser or camera for sheet alignment, a scribe, or uses offset probing then the required offsets need to be applied by following the procedure described in <<peripheral-offsets,Peripheral Offsets>>.
+. If the table has a laser or camera for sheet alignment, a scribe, or uses offset probing then the required offsets need to be applied by following the procedure described in <<peripheral-offsets,Peripheral Offsets>>. The LASER and/or CAMERA buttons will not be visible until the user has set the appropriate offset(s) and they are recorded in the _<machine_name>_.prefs file.
 . CONGRATULATIONS! The user should now have a working QtPlasmaC Configuration.
 
 [NOTE]
@@ -889,8 +889,8 @@ Cut type will be set to NORMAL CUT.
 |Name |Description
 |HOME ALL |This button will home all of the axes in the order set by HOME_SEQUENCE in the _<machine_name>_.ini file.
 |WCS G54 |This drop-down button will change the current work offset.
-|CAMERA |This button will display a CAMVIEW panel on top of the PREVIEW WINDOW and will allow the user to set an origin with or without rotation. See the <<plasma:camera,CAMERA section>> for detailed instructions.
-|LASER |This button will allow the user to use a laser to set an origin with or without rotation. See the <<plasma:laser,LASER section>> for detailed instructions.
+|CAMERA |This button will display a CAMVIEW panel on top of the PREVIEW WINDOW and will allow the user to set an origin with or without rotation. See the <<plasma:camera,CAMERA section>> for detailed instructions. This button will not be visible until a CAMERA offset is set in the _<machine_name>_.prefs file.
+|LASER |This button will allow the user to use a laser to set an origin with or without rotation. See the <<plasma:laser,LASER section>> for detailed instructions. This button will not be visible until a LASER offset is set in the _<machine_name>_.prefs file.
 |X0 Y0 |This button will set the current position to X0 Y0.
 |HOME [AXIS] |This button will home the corresponding axis.
 |0 [AXIS] |This drop-down button will display the following options: +
@@ -1602,7 +1602,7 @@ If the user selects ~/linuxcnc/configs/__<machine_name>___material.cfg and the f
 [[plasma:laser]]
 === LASER
 
-QtPlasmaC has the ability to use a laser to set the origin with or without rotation compensation. Rotation compensation can be used to align the work offset to a sheet of material with edge(s) that are not parallel to the machine's X/Y axes. The LASER button will be enabled after the machine is homed.
+QtPlasmaC has the ability to use a laser to set the origin with or without rotation compensation. Rotation compensation can be used to align the work offset to a sheet of material with edge(s) that are not parallel to the machine's X/Y axes. The LASER button will be enabled after the machine is homed. This button will not be visible until a LASER offset is set in the _<machine_name>_.prefs file.
 
 To use this feature, the user must set the laser's offset from the torch center by following the procedure described in <<peripheral-offsets,Peripheral Offsets>>.
 
@@ -1662,7 +1662,7 @@ If an alignment laser has been set up then it is possible to use the laser durin
 
 image::images/qtplasmac_camview.png[width=800,align="center"]
 
-QtPlasmaC has the ability to use a USB camera to set the origin with or without rotation compensation. Rotation compensation can be used to align the work offset to a sheet of material with edge(s) that are not parallel to the machine's X/Y axes. The CAMERA button will be enabled after the machine is homed.
+QtPlasmaC has the ability to use a USB camera to set the origin with or without rotation compensation. Rotation compensation can be used to align the work offset to a sheet of material with edge(s) that are not parallel to the machine's X/Y axes. The CAMERA button will be enabled after the machine is homed. This button will not be visible until a CAMERA offset is set in the _<machine_name>_.prefs file.
 
 To use this feature, the user must set the camera's offset from the torch center by following the procedure described in <<peripheral-offsets,Peripheral Offsets>>.
 
