@@ -57,3 +57,9 @@ position.txt
 *.*-stamp
 # Ignore VSCode settings
 .vscode/settings.json
+
+# Nix build outputs
+result
+result-*
+.direnv/
+.envrc
