@@ -11,9 +11,17 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
+# 
+# Modified by zz912:
+# - added gdk library
+# - renamed files: ****.ngc => gtk_probe_****.ngc
+
 
 import gi
+gi.require_version('Gtk', '3.0')
+gi.require_version('Gdk', '3.0')
 from gi.repository import Gtk as gtk
+from gi.repository import Gdk as gdk
 from gi.repository import GObject as gobject
 from gi.repository import Pango as pango
 
@@ -197,7 +205,7 @@ class ProbeScreenClass:
         if not temp:
             machinename = self.inifile.find("EMC", "MACHINE")
             if not machinename:
-                temp = os.path.join(CONFIGPATH1, "probe_screen.pref")
+                temp = os.path.join(CONFIGPATH1, "gtk_verser_probe.pref")
             else:
                 machinename = machinename.replace(" ", "_")
                 temp = os.path.join(CONFIGPATH1, "%s.pref" % machinename)
@@ -648,8 +656,8 @@ class ProbeScreenClass:
     def on_down_released(self, gtkbutton, data = None):
         self.command.mode( linuxcnc.MODE_MDI )
         self.command.wait_complete()
-        # Start down.ngc
-        if self.ocode ("O<down> call") == -1:
+        # Start gtk_probe_down.ngc
+        if self.ocode ("O<gtk_probe_down> call") == -1:
             return
         a=self.probed_position_with_offsets()
         self.lb_probe_z.set_text( "%.4f" % float(a[2]) )
@@ -667,8 +675,8 @@ class ProbeScreenClass:
             return
         if self.z_clearance_down() == -1:
             return
-       # Start xplus.ngc
-        if self.ocode ("O<xplus> call") == -1:
+       # Start gtk_probe_xplus.ngc
+        if self.ocode ("O<gtk_probe_xplus> call") == -1:
             return
         a=self.probed_position_with_offsets()
         xres=float(a[0]+0.5*self.spbtn1_probe_diam.get_value())
@@ -696,8 +704,8 @@ class ProbeScreenClass:
             return
         if self.z_clearance_down() == -1:
             return
-        # Start yplus.ngc
-        if self.ocode ("O<yplus> call") == -1:
+        # Start gtk_probe_yplus.ngc
+        if self.ocode ("O<gtk_probe_yplus> call") == -1:
             return
         a=self.probed_position_with_offsets()
         yres=float(a[1])+0.5*self.spbtn1_probe_diam.get_value()
@@ -725,8 +733,8 @@ class ProbeScreenClass:
             return
         if self.z_clearance_down() == -1:
             return
-        # Start xminus.ngc
-        if self.ocode ("O<xminus> call") == -1:
+        # Start gtk_probe_xminus.ngc
+        if self.ocode ("O<gtk_probe_xminus> call") == -1:
             return
         a=self.probed_position_with_offsets()
         xres=float(a[0]-0.5*self.spbtn1_probe_diam.get_value())
@@ -754,8 +762,8 @@ class ProbeScreenClass:
             return
         if self.z_clearance_down() == -1:
             return
-        # Start yminus.ngc
-        if self.ocode ("O<yminus> call") == -1:
+        # Start gtk_probe_yminus.ngc
+        if self.ocode ("O<gtk_probe_yminus> call") == -1:
             return
         a=self.probed_position_with_offsets()
         yres=float(a[1])-0.5*self.spbtn1_probe_diam.get_value()
@@ -785,8 +793,8 @@ class ProbeScreenClass:
             return
         if self.z_clearance_down() == -1:
             return
-        # Start xplus.ngc
-        if self.ocode ("O<xplus> call") == -1:
+        # Start gtk_probe_xplus.ngc
+        if self.ocode ("O<gtk_probe_xplus> call") == -1:
             return
         # show X result
         a=self.probed_position_with_offsets()
@@ -806,8 +814,8 @@ class ProbeScreenClass:
             return
         if self.z_clearance_down() == -1:
             return
-        # Start yplus.ngc
-        if self.ocode ("O<yplus> call") == -1:
+        # Start gtk_probe_yplus.ngc
+        if self.ocode ("O<gtk_probe_yplus> call") == -1:
             return
         # show Y result
         a=self.probed_position_with_offsets()
@@ -836,8 +844,8 @@ class ProbeScreenClass:
             return
         if self.z_clearance_down() == -1:
             return
-        # Start xplus.ngc
-        if self.ocode ("O<xplus> call") == -1:
+        # Start gtk_probe_xplus.ngc
+        if self.ocode ("O<gtk_probe_xplus> call") == -1:
             return
         # show X result
         a=self.probed_position_with_offsets()
@@ -857,8 +865,8 @@ class ProbeScreenClass:
             return
         if self.z_clearance_down() == -1:
             return
-        # Start yminus.ngc
-        if self.ocode ("O<yminus> call") == -1:
+        # Start gtk_probe_yminus.ngc
+        if self.ocode ("O<gtk_probe_yminus> call") == -1:
             return
         # show Y result
         a=self.probed_position_with_offsets()
@@ -886,8 +894,8 @@ class ProbeScreenClass:
             return
         if self.z_clearance_down() == -1:
             return
-        # Start xminus.ngc
-        if self.ocode ("O<xminus> call") == -1:
+        # Start gtk_probe_xminus.ngc
+        if self.ocode ("O<gtk_probe_xminus> call") == -1:
             return
         # show X result
         a=self.probed_position_with_offsets()
@@ -907,8 +915,8 @@ class ProbeScreenClass:
             return
         if self.z_clearance_down() == -1:
             return
-        # Start yplus.ngc
-        if self.ocode ("O<yplus> call") == -1:
+        # Start gtk_probe_yplus.ngc
+        if self.ocode ("O<gtk_probe_yplus> call") == -1:
             return
         # show Y result
         a=self.probed_position_with_offsets()
@@ -937,8 +945,8 @@ class ProbeScreenClass:
             return
         if self.z_clearance_down() == -1:
             return
-        # Start xminus.ngc
-        if self.ocode ("O<xminus> call") == -1:
+        # Start gtk_probe_xminus.ngc
+        if self.ocode ("O<gtk_probe_xminus> call") == -1:
             return
         # show X result
         a=self.probed_position_with_offsets()
@@ -958,8 +966,8 @@ class ProbeScreenClass:
             return
         if self.z_clearance_down() == -1:
             return
-        # Start yminus.ngc
-        if self.ocode ("O<yminus> call") == -1:
+        # Start gtk_probe_yminus.ngc
+        if self.ocode ("O<gtk_probe_yminus> call") == -1:
             return
         # show Y result
         a=self.probed_position_with_offsets()
@@ -988,8 +996,8 @@ class ProbeScreenClass:
             return
         if self.z_clearance_down() == -1:
             return
-        # Start xplus.ngc
-        if self.ocode ("O<xplus> call") == -1:
+        # Start gtk_probe_xplus.ngc
+        if self.ocode ("O<gtk_probe_xplus> call") == -1:
             return
         # show X result
         a=self.probed_position_with_offsets()
@@ -1008,9 +1016,9 @@ class ProbeScreenClass:
             return
         if self.z_clearance_down() == -1:
             return
-        # Start xminus.ngc
 
-        if self.ocode ("O<xminus> call") == -1:
+        # Start gtk_probe_xminus.ngc
+        if self.ocode ("O<gtk_probe_xminus> call") == -1:
             return
         # show X result
         a=self.probed_position_with_offsets()
@@ -1039,8 +1047,8 @@ class ProbeScreenClass:
             return
         if self.z_clearance_down() == -1:
             return
-        # Start yplus.ngc
-        if self.ocode ("O<yplus> call") == -1:
+        # Start gtk_probe_yplus.ngc
+        if self.ocode ("O<gtk_probe_yplus> call") == -1:
             return
         # show Y result
         a=self.probed_position_with_offsets()
@@ -1059,8 +1067,8 @@ class ProbeScreenClass:
             return
         if self.z_clearance_down() == -1:
             return
-        # Start xminus.ngc
-        if self.ocode ("O<yminus> call") == -1:
+        # Start gtk_probe_xminus.ngc
+        if self.ocode ("O<gtk_probe_yminus> call") == -1:
             return
         # show Y result
         a=self.probed_position_with_offsets()
@@ -1100,8 +1108,8 @@ class ProbeScreenClass:
             return
         if self.z_clearance_down() == -1:
             return
-        # Start xplus.ngc
-        if self.ocode ("O<xplus> call") == -1:
+        # Start gtk_probe_xplus.ngc
+        if self.ocode ("O<gtk_probe_xplus> call") == -1:
             return
         # show X result
         a=self.probed_position_with_offsets()
@@ -1116,8 +1124,8 @@ class ProbeScreenClass:
         G90""" % (tmpxy,tmpxy)
         if self.gcode(s) == -1:
             return
-        # Start yplus.ngc
-        if self.ocode ("O<yplus> call") == -1:
+        # Start gtk_probe_yplus.ngc
+        if self.ocode ("O<gtk_probe_yplus> call") == -1:
             return
         # show Y result
         a=self.probed_position_with_offsets()
@@ -1146,8 +1154,8 @@ class ProbeScreenClass:
             return
         if self.z_clearance_down() == -1:
             return
-        # Start xplus.ngc
-        if self.ocode ("O<xplus> call") == -1:
+        # Start gtk_probe_xplus.ngc
+        if self.ocode ("O<gtk_probe_xplus> call") == -1:
             return
         # show X result
         a=self.probed_position_with_offsets()
@@ -1162,8 +1170,8 @@ class ProbeScreenClass:
         G90""" % (tmpxy,tmpxy)
         if self.gcode(s) == -1:
             return
-        # Start yminus.ngc
-        if self.ocode ("O<yminus> call") == -1:
+        # Start gtk_probe_yminus.ngc
+        if self.ocode ("O<gtk_probe_yminus> call") == -1:
             return
         # show Y result
         a=self.probed_position_with_offsets()
@@ -1192,8 +1200,8 @@ class ProbeScreenClass:
             return
         if self.z_clearance_down() == -1:
             return
-        # Start xminus.ngc
-        if self.ocode ("O<xminus> call") == -1:
+        # Start gtk_probe_xminus.ngc
+        if self.ocode ("O<gtk_probe_xminus> call") == -1:
             return
         # show X result
         a=self.probed_position_with_offsets()
@@ -1208,8 +1216,8 @@ class ProbeScreenClass:
         G90""" % (tmpxy,tmpxy)
         if self.gcode(s) == -1:
             return
-        # Start yplus.ngc
-        if self.ocode ("O<yplus> call") == -1:
+        # Start gtk_probe_yplus.ngc
+        if self.ocode ("O<gtk_probe_yplus> call") == -1:
             return
 
         # show Y result
@@ -1239,8 +1247,8 @@ class ProbeScreenClass:
             return
         if self.z_clearance_down() == -1:
             return
-        # Start xminus.ngc
-        if self.ocode ("O<xminus> call") == -1:
+        # Start gtk_probe_xminus.ngc
+        if self.ocode ("O<gtk_probe_xminus> call") == -1:
             return
         # show X result
         a=self.probed_position_with_offsets()
@@ -1255,8 +1263,8 @@ class ProbeScreenClass:
         G90""" % (tmpxy,tmpxy)
         if self.gcode(s) == -1:
             return
-        # Start yminus.ngc
-        if self.ocode ("O<yminus> call") == -1:
+        # Start gtk_probe_yminus.ngc
+        if self.ocode ("O<gtk_probe_yminus> call") == -1:
             return
         # show Y result
         a=self.probed_position_with_offsets()
@@ -1286,8 +1294,8 @@ class ProbeScreenClass:
         G90""" % (tmpx)
         if self.gcode(s) == -1:
             return
-        # Start xminus.ngc
-        if self.ocode ("O<xminus> call") == -1:
+        # Start gtk_probe_xminus.ngc
+        if self.ocode ("O<gtk_probe_xminus> call") == -1:
             return
         # show X result
         a=self.probed_position_with_offsets()
@@ -1301,8 +1309,8 @@ class ProbeScreenClass:
         G90""" % (tmpx)
         if self.gcode(s) == -1:
             return
-        # Start xplus.ngc
-        if self.ocode ("O<xplus> call") == -1:
+        # Start gtk_probe_xplus.ngc
+        if self.ocode ("O<gtk_probe_xplus> call") == -1:
             return
         # show X result
         a=self.probed_position_with_offsets()
@@ -1324,8 +1332,8 @@ class ProbeScreenClass:
         G90""" % (tmpy)
         if self.gcode(s) == -1:
             return
-        # Start yminus.ngc
-        if self.ocode ("O<yminus> call") == -1:
+        # Start gtk_probe_yminus.ngc
+        if self.ocode ("O<gtk_probe_yminus> call") == -1:
             return
         # show Y result
         a=self.probed_position_with_offsets()
@@ -1339,8 +1347,8 @@ class ProbeScreenClass:
         G90""" % (tmpy)
         if self.gcode(s) == -1:
             return
-        # Start yplus.ngc
-        if self.ocode ("O<yplus> call") == -1:
+        # Start gtk_probe_yplus.ngc
+        if self.ocode ("O<gtk_probe_yplus> call") == -1:
             return
         # show Y result
         a=self.probed_position_with_offsets()
@@ -1381,8 +1389,8 @@ class ProbeScreenClass:
             return
         if self.z_clearance_down() == -1:
             return
-        # Start yplus.ngc
-        if self.ocode ("O<yplus> call") == -1:
+        # Start gtk_probe_yplus.ngc
+        if self.ocode ("O<gtk_probe_yplus> call") == -1:
             return
         # show Y result
         a=self.probed_position_with_offsets()
@@ -1395,8 +1403,8 @@ class ProbeScreenClass:
         G90""" % (self.spbtn1_edge_lenght.get_value())
         if self.gcode(s) == -1:
             return
-        # Start yplus.ngc
-        if self.ocode ("O<yplus> call") == -1:
+        # Start gtk_probe_yplus.ngc
+        if self.ocode ("O<gtk_probe_yplus> call") == -1:
             return
         # show Y result
         a=self.probed_position_with_offsets()
@@ -1428,8 +1436,8 @@ class ProbeScreenClass:
             return
         if self.z_clearance_down() == -1:
             return
-        # Start yminus.ngc
-        if self.ocode ("O<yminus> call") == -1:
+        # Start gtk_probe_yminus.ngc
+        if self.ocode ("O<gtk_probe_yminus> call") == -1:
             return
         # show Y result
         a=self.probed_position_with_offsets()
@@ -1442,8 +1450,8 @@ class ProbeScreenClass:
         G90""" % (self.spbtn1_edge_lenght.get_value())
         if self.gcode(s) == -1:
             return
-        # Start yminus.ngc
-        if self.ocode ("O<yminus> call") == -1:
+        # Start gtk_probe_yminus.ngc
+        if self.ocode ("O<gtk_probe_yminus> call") == -1:
             return
         # show Y result
         a=self.probed_position_with_offsets()
@@ -1474,8 +1482,8 @@ class ProbeScreenClass:
             return
         if self.z_clearance_down() == -1:
             return
-        # Start xplus.ngc
-        if self.ocode ("O<xplus> call") == -1:
+        # Start gtk_probe_xplus.ngc
+        if self.ocode ("O<gtk_probe_xplus> call") == -1:
             return
         # show X result
         a=self.probed_position_with_offsets()
@@ -1488,8 +1496,8 @@ class ProbeScreenClass:
         G90""" % (self.spbtn1_edge_lenght.get_value())
         if self.gcode(s) == -1:
             return
-        # Start xplus.ngc
-        if self.ocode ("O<xplus> call") == -1:
+        # Start gtk_probe_xplus.ngc
+        if self.ocode ("O<gtk_probe_xplus> call") == -1:
             return
         # show X result
         a=self.probed_position_with_offsets()
@@ -1520,8 +1528,8 @@ class ProbeScreenClass:
             return
         if self.z_clearance_down() == -1:
             return
-        # Start xminus.ngc
-        if self.ocode ("O<xminus> call") == -1:
+        # Start gtk_probe_xminus.ngc
+        if self.ocode ("O<gtk_probe_xminus> call") == -1:
             return
         # show X result
         a=self.probed_position_with_offsets()
@@ -1534,8 +1542,8 @@ class ProbeScreenClass:
         G90""" % (self.spbtn1_edge_lenght.get_value())
         if self.gcode(s) == -1:
             return
-        # Start xminus.ngc
-        if self.ocode ("O<xminus> call") == -1:
+        # Start gtk_probe_xminus.ngc
+        if self.ocode ("O<gtk_probe_xminus> call") == -1:
             return
         # show X result
         a=self.probed_position_with_offsets()
