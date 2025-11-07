@@ -1,3 +1,29 @@
+ver 3.5.1 -- LinuxCNC 2.10.0-pre0
+ - Add setting to disable calculator in toolpage
+ - Style velocity/spindle info box (remove S-prefix, add units)
+ - Add button "refresh dir" in open file page
+ - Add setting for jog button size + right pane width
+ - Add icon for continuous jog, change alignment of jog increment button box
+ - MDI-entry: bigger enter button (with CSS)
+ - G-code editor:
+    - Add button to show preview beside editor (split view)
+    - Add comment/uncomment button for G-code + keybinding
+    - Re-arrange search and replace bar
+
+ - Add button to call calculator in mdi and gcode edit modes (#3496, thanks @Sigma1912)
+ - Fix several warnings. Thanks @Sigma1912
+ - Improvements to the calculator widget (#3473, thanks @Sigma1912)
+ - Use calculator widget to edit numeric values in tooltable (#3472, thanks @Sigma1912)
+ - Use calculator widget to edit offset values in offsetpage (#3457, thanks @Sigma1912)
+ - Improvements to the offsetpage widget. Especially add column for rotation in offsets G54..G59.3 (#3457, thanks @Sigma1912)
+ - Fix issues #3447 and #982 (#3454, thanks @Sigma1912)
+    - Fix the display of very large numbers for spindle speed and 'Vc' in the gui when using G96
+    - Fix 'spindle.0.speed-out' pins being reset to wrong values when using G96
+    - Fix wrong spindle speed set when using M1 with optional stop enabled
+    - The 'Spindle [rpm]' value will now track hal pin 'spindle.0.speed-out'
+    - The 'S' value in the 'G-Code' frame now tracks 'self.stat.settings[2]'
+ - Fix external_load function -wrong function name - makes external loading of files possible again (Thanks @CMorley)
+
 ver 3.5.0 -- LinuxCNC 2.10.0-pre0
  - Add startup message to show new features/important hints
  - Add LinuxCNC version to window title
