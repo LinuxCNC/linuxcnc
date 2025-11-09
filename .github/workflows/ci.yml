@@ -180,7 +180,7 @@ jobs:
         DIST=$(echo ${{ matrix.image }} | cut -d : -f 2)
         OUTDIR="artifacts/${DIST}/${ARCH}"
         mkdir -p "$OUTDIR"
-        cp -v ../*.deb ../*.changes ../*.buildinfo "$OUTDIR" || true
+        cp -v $(find .. -maxdepth 1 -type f | LC_ALL=C sort) "$OUTDIR" || true
         (cd "$OUTDIR" && sha256sum * > SHA256SUMS.txt)
         echo "DIST=$DIST" >> "$GITHUB_ENV"
         echo "ARCH=$ARCH" >> "$GITHUB_ENV"
@@ -265,7 +265,7 @@ jobs:
         eatmydata scripts/get-version-from-git | sed -re 's/^v(.*)$/\1/' >| VERSION; cat VERSION
         eatmydata git diff
         eatmydata apt-get --yes --quiet build-dep --indep-only .
-        eatmydata debuild -us -uc --build=all
+        eatmydata debuild -us -uc --build=source,all
     - name: Test install debian packages
       env:
         DEBIAN_FRONTEND: noninteractive
@@ -281,7 +281,7 @@ jobs:
         ARCH=all
         OUTDIR="artifacts/${DIST}/${ARCH}"
         mkdir -p "$OUTDIR"
-        cp -v ../*.deb ../*.changes ../*.buildinfo "$OUTDIR" || true
+        cp -v $(find .. -maxdepth 1 -type f | LC_ALL=C sort) "$OUTDIR" || true
         (cd "$OUTDIR" && sha256sum * > SHA256SUMS.txt)
         echo "DIST=$DIST" >> "$GITHUB_ENV"
         echo "ARCH=$ARCH" >> "$GITHUB_ENV"
@@ -346,30 +346,16 @@ jobs:
           dist=${dist%-*}
           arch=${name##*-}
           echo "Processing artifact: $name (dist=$dist arch=$arch)"
-          # Copy .deb files with distro suffix (arch is already in Debian filename)
-          for f in "$d"/*.deb; do
+          # Copy built files into distro and arch specific directory
+          mkdir "upload/${dist}-${arch}/"
+          # sort file list for stable output
+          for f in $(find "$d" -maxdepth 1 -type f | LC_ALL=C sort); do
             [ -f "$f" ] || continue
-            base=$(basename "$f")
-            base_no_ext="${base%.deb}"
-            dest="upload/${base_no_ext}_${dist}.deb"
-            echo "  + $base -> $(basename "$dest")"
-            cp "$f" "$dest"
+            cp "$f" "upload/${dist}-${arch}"
           done
+          echo "Preview of SHA256SUMS.txt:" && sed -n '1,200p' "upload/${dist}-${arch}/SHA256SUMS.txt" | sed 's/^/  /'
+          echo "Upload dir contents:" && ls -l "upload/${dist}-${arch}" | sed 's/^/  /'
         done
-
-        echo "Upload dir contents:" && ls -l upload | sed 's/^/  /'
-        # Single combined checksums file for all assets, deterministic order
-        if ls upload/*.deb >/dev/null 2>&1; then
-          (
-            cd upload
-            : > SHA256SUMS.txt
-            # sort file list for stable output
-            for f in $(ls -1 *.deb | LC_ALL=C sort); do
-              sha256sum "$f" >> SHA256SUMS.txt
-            done
-            echo "Preview of SHA256SUMS.txt:" && sed -n '1,200p' SHA256SUMS.txt | sed 's/^/  /'
-          )
-        fi
     - name: Create GitHub Release and upload assets
       uses: softprops/action-gh-release@v2
       with:
