@@ -8,7 +8,7 @@
 # Дмитрий <krdima352@gmail.com>, 2022.
 # Nikita Shubin <nikita.shubin@maquefel.me>, 2022.
 # ekam230 <ekamyshov@yandex.ru>, 2022.
-# Ilya Koubatkin <ilya@kubatkin.ru>, 2023, 2024.
+# Ilya Koubatkin <ilya@kubatkin.ru>, 2023, 2024, 2025.
 # xXx <xxx_xxx_xxxxxxxxx@mail.ru>, 2023.
 # Petter Reinholdtsen <pere-weblate@hungry.com>, 2023.
 msgid ""
@@ -16,7 +16,7 @@ msgstr ""
 "Project-Id-Version: emc 2.2.8\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-10-05 14:29+0200\n"
-"PO-Revision-Date: 2024-10-06 13:48+0000\n"
+"PO-Revision-Date: 2025-09-05 12:11+0000\n"
 "Last-Translator: Ilya Koubatkin <ilya@kubatkin.ru>\n"
 "Language-Team: Russian <https://hosted.weblate.org/projects/linuxcnc/"
 "linuxcnc/ru/>\n"
@@ -26,7 +26,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
 "n%10<=4 && (n%100<10 || n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 5.8-dev\n"
+"X-Generator: Weblate 5.13.1-rc\n"
 
 #: src/emc/task/emctaskmain.cc:868
 #, c-format
@@ -11748,6 +11748,7 @@ msgstr "Обратное"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
 msgid ""
 "_:"
+""
 msgstr "пусто"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249

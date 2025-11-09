@@ -2,7 +2,7 @@
 # Hans U. <hansunzner@gmail.com>, 2022.
 # Michael Stellmacher <michaelst78@gmail.com>, 2022.
 # mk00002 <codo1983@gmail.com>, 2022, 2024.
-# Hans Unzner <hansunzner@gmail.com>, 2022, 2024.
+# Hans Unzner <hansunzner@gmail.com>, 2022, 2024, 2025.
 # Ettore Atalan <atalanttore@googlemail.com>, 2023.
 # Petter Reinholdtsen <pere-weblate@hungry.com>, 2024.
 # thereisno anderson <thereisnoanderson@users.noreply.hosted.weblate.org>, 2024.
@@ -11,8 +11,8 @@ msgstr ""
 "Project-Id-Version: de\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-10-05 14:29+0200\n"
-"PO-Revision-Date: 2024-11-21 20:40+0000\n"
-"Last-Translator: Hans Unzner <hansunzner@gmail.com>\n"
+"PO-Revision-Date: 2025-09-05 12:12+0000\n"
+"Last-Translator: Anonymous <noreply@weblate.org>\n"
 "Language-Team: German <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "de/>\n"
 "Language: de\n"
@@ -20,7 +20,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.9-dev\n"
+"X-Generator: Weblate 5.13.1-rc\n"
 
 #: src/emc/task/emctaskmain.cc:868
 #, c-format
@@ -2181,6 +2181,7 @@ msgid "Realtime component not loaded"
 msgstr "Echtzeicht-Komponente nicht geladen"
 
 #: src/hal/utils/scope_horiz.c:477
+#, fuzzy
 msgid ""
 "HALSCOPE uses a realtime component called scope_rt'\n"
 "to sample signals for display.  It is not currently loaded\n"
@@ -11882,6 +11883,7 @@ msgstr "Entgegengesetzt"
 #: src/emc/usr_intf/pncconf/dialogs.glade:2499
 msgid ""
 "_:"
+""
 msgstr "_:"
 
 #: src/emc/usr_intf/stepconf/axisx.glade:249
@@ -12520,8 +12522,8 @@ msgid ""
 "component changes' button'"
 msgstr ""
 "Sie müssen die Seite mesa0 konfigurieren.\n"
-" Wählen Sie den Platinentyp, die Firmware, die Anzahl der Komponenten und "
-"drücken Sie auf den button \"Änderungen der Komponenten akzeptieren\""
+" Wählen Sie den Karten-Typ, die Firmware, die Anzahl der Komponenten und "
+"drücken Sie auf  \"Änderungen der Komponenten akzeptieren\""
 
 #: src/emc/usr_intf/pncconf/pages.py:1032
 msgid ""
@@ -12529,7 +12531,7 @@ msgid ""
 "please press 'Accept component changes' button'"
 msgstr ""
 "Das ausgewählte Mesa0-Board unterscheidet sich von dem aktuell angezeigten.\n"
-"Bitte klicken Sie auf den button \"Änderungen der Komponenten akzeptieren\""
+"Bitte klicken Sie auf \"Änderungen der Komponenten akzeptieren\""
 
 #: src/emc/usr_intf/pncconf/pages.py:1081
 msgid ""
@@ -12538,16 +12540,16 @@ msgid ""
 "component changes' button'"
 msgstr ""
 "Sie müssen die Seite mesa1 konfigurieren.\n"
-" Wählen Sie den Platinentyp, die Firmware, die Anzahl der Komponenten und "
-"drücken Sie auf den button \"Änderungen der Komponenten akzeptieren\""
+" Wählen Sie den Karten-Typ, die Firmware, die Anzahl der Komponenten und "
+"drücken Sie auf \"Änderungen der Komponenten akzeptieren\""
 
 #: src/emc/usr_intf/pncconf/pages.py:1084
 msgid ""
 "The chosen Mesa1 board is different from the current displayed.\n"
 "please press 'Accept component changes' button'"
 msgstr ""
-"Das ausgewählte Mesa1-Board unterscheidet sich von dem aktuell angezeigten.\n"
-"Bitte klicken Sie auf den button \"Änderungen der Komponenten akzeptieren\""
+"Die ausgewählte Mesa1-Karte unterscheidet sich von der aktuell angezeigten.\n"
+"Bitte klicken Sie auf \"Änderungen der Komponenten akzeptieren\""
 
 #: src/emc/usr_intf/pncconf/pages.py:1515
 msgid "You need to designate an E-stop input pin for this ladder program."
@@ -15349,7 +15351,7 @@ msgid ""
 "Accept  components\n"
 "          Changes"
 msgstr ""
-"Komponentenänderungen\n"
+"Änderungen\n"
 "anwenden"
 
 #: src/emc/usr_intf/pncconf/mesa0.glade:407
