@@ -9,13 +9,14 @@
 # MarekP <ciupas74@gmail.com>, 2024.
 # Petter Reinholdtsen <pere-weblate@hungry.com>, 2024.
 # Camil Stevo <h8j1tavjh@mozmail.com>, 2025.
+# Stean <stean@poczta.onet.pl>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: LinuxCNC\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-10-05 14:29+0200\n"
-"PO-Revision-Date: 2025-02-22 00:53+0000\n"
-"Last-Translator: Camil Stevo <h8j1tavjh@mozmail.com>\n"
+"PO-Revision-Date: 2025-06-19 12:17+0000\n"
+"Last-Translator: Stean <stean@poczta.onet.pl>\n"
 "Language-Team: Polish <https://hosted.weblate.org/projects/linuxcnc/linuxcnc/"
 "pl/>\n"
 "Language: pl\n"
@@ -24,7 +25,7 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=(n==1 ? 0 : n%10>=2 && n%10<=4 && (n%100<10 "
 "|| n%100>=20) ? 1 : 2);\n"
-"X-Generator: Weblate 5.10.1-dev\n"
+"X-Generator: Weblate 5.12.1\n"
 
 #: src/emc/task/emctaskmain.cc:868
 #, c-format, fuzzy
@@ -1929,9 +1930,8 @@ msgid "_Cancel"
 msgstr "Anuluj"
 
 #: src/hal/utils/scope.c:479
-#, fuzzy
 msgid "_Open"
-msgstr "Otwórz..."
+msgstr "_Otwórz"
 
 #: src/hal/utils/scope.c:499
 #, fuzzy
@@ -1952,9 +1952,8 @@ msgid "_Save Configuration..."
 msgstr "Zapisz konfiguracje..."
 
 #: src/hal/utils/scope.c:548
-#, fuzzy
 msgid "O_pen Log File"
-msgstr "Otwórz _plik z danymi..."
+msgstr "Otwórz plik z danymi"
 
 #: src/hal/utils/scope.c:555
 #, fuzzy
@@ -2621,7 +2620,7 @@ msgstr ""
 
 #: src/emc/motion/command.c:786 src/emc/motion/command.c:933
 msgid "Can't jog any joints while homing."
-msgstr "Nie można poruszać żadnym napędem podczas bazowania"
+msgstr "Nie można poruszać żadnym napędem podczas bazowania."
 
 #: src/emc/motion/command.c:854
 msgid "Can't jog any joint while homing."
@@ -3253,9 +3252,8 @@ msgid "Save"
 msgstr "Zapisz"
 
 #: src/hal/classicladder/classicladder_gtk.c:1074
-#, fuzzy
 msgid "Save As"
-msgstr "Zapisz jako..."
+msgstr "Zapisz jako"
 
 #: src/hal/classicladder/classicladder_gtk.c:1079 tcl/tklinuxcnc.tcl:761
 msgid "Reset"
@@ -3941,9 +3939,8 @@ msgid "DO_MANY_TRANSITIONS:nbr clicks=2!!!, TypeBak=%d, TypeNow=%d\n"
 msgstr ""
 
 #: src/hal/classicladder/editproperties_gtk.c:237
-#, fuzzy
 msgid "Properties"
-msgstr "Właściwości..."
+msgstr "Właściwości"
 
 #: src/hal/classicladder/editproperties_gtk.c:289 tcl/bin/halshow.tcl:734
 #: lib/python/gladevcp/tooledit_gtk.glade:345
@@ -4166,9 +4163,8 @@ msgid "Not possible when program running..."
 msgstr ""
 
 #: src/hal/classicladder/manager_gtk.c:247
-#, fuzzy
 msgid "Add a new section..."
-msgstr "A Kieruek"
+msgstr "Dodaj nową sekcję..."
 
 #: src/hal/classicladder/manager_gtk.c:278
 msgid "Modify current section"
@@ -4299,9 +4295,9 @@ msgid "Set RTS=%d\n"
 msgstr ""
 
 #: src/hal/classicladder/serial_linux.c:193
-#, fuzzy, c-format
+#, c-format
 msgid "Serial writing...\n"
-msgstr "Filtrowanie..."
+msgstr "Filtrowanie"
 
 #: src/hal/classicladder/serial_linux.c:196
 #, c-format
@@ -4319,9 +4315,9 @@ msgid "select() for serial reading...\n"
 msgstr ""
 
 #: src/hal/classicladder/serial_linux.c:242
-#, fuzzy, c-format
+#, c-format
 msgid "Serial reading...\n"
-msgstr "Filtrowanie..."
+msgstr "Filtrowanie...\n"
 
 #: src/hal/classicladder/serial_linux.c:245
 #, c-format
@@ -5574,7 +5570,7 @@ msgstr "Manualny"
 #: tcl/tklinuxcnc.tcl:857 tcl/tklinuxcnc.tcl:2094
 #: src/emc/usr_intf/touchy/touchy.glade:1264
 msgid "MDI"
-msgstr ""
+msgstr "MDI"
 
 #: tcl/tklinuxcnc.tcl:864
 msgid "Mist on"
@@ -5702,7 +5698,7 @@ msgstr ""
 
 #: tcl/tklinuxcnc.tcl:1498
 msgid "MDI:"
-msgstr ""
+msgstr "MDI:"
 
 #: tcl/tklinuxcnc.tcl:1520
 msgid "Program: "
@@ -5997,7 +5993,7 @@ msgstr ""
 #: tcl/ngcgui.tcl:1280 tcl/ngcgui.tcl:2414 tcl/ngcgui.tcl:2437
 #: tcl/ngcgui.tcl:2467
 msgid "Create Feature"
-msgstr ""
+msgstr "Utwórz funkcję"
 
 #: tcl/ngcgui.tcl:1286 tcl/ngcgui.tcl:3079
 msgid "MakeFile"
@@ -6005,7 +6001,7 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:1287 tcl/ngcgui.tcl:3076
 msgid "Finalize"
-msgstr ""
+msgstr "Zatwierdź"
 
 #: tcl/ngcgui.tcl:1304
 msgid "Reread"
@@ -6033,7 +6029,7 @@ msgstr "Plik procedury"
 
 #: tcl/ngcgui.tcl:1558
 msgid "Positional Parameters"
-msgstr "Parametry pozycyjne"
+msgstr "Parametry"
 
 #: tcl/ngcgui.tcl:1707
 msgid "No Subfile specified"
@@ -6057,7 +6053,7 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:1855
 msgid "Finalize all Tabs?"
-msgstr ""
+msgstr "Zatwierdzić wszystkie zakładki?"
 
 #: tcl/ngcgui.tcl:1855
 msgid "Order"
@@ -6081,7 +6077,7 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:1876
 msgid "File saving enabled -- Finalize to save"
-msgstr ""
+msgstr "Zapisywanie plików włączone -- Zatwierdź, aby zapisać"
 
 #: tcl/ngcgui.tcl:1892
 msgid "Require .ngc suffix for filename"
@@ -6121,7 +6117,7 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:2010
 msgid "Positional parameters for"
-msgstr ""
+msgstr "Parametry dla"
 
 #: tcl/ngcgui.tcl:2018
 msgid "expanded file"
@@ -6133,7 +6129,7 @@ msgstr "Wywołaj plik procedury"
 
 #: tcl/ngcgui.tcl:2415
 msgid "Enter parms for 1st feature"
-msgstr ""
+msgstr "Parametry dla 1 funkcji"
 
 #: tcl/ngcgui.tcl:2422
 msgid "New Outfile"
@@ -6145,7 +6141,7 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:2440 tcl/ngcgui.tcl:2473
 msgid "Enter parms for feature "
-msgstr ""
+msgstr "Parametry dla funkcji"
 
 #: tcl/ngcgui.tcl:2460
 msgid "feature"
@@ -6153,11 +6149,11 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:2465
 msgid "Create Next"
-msgstr ""
+msgstr "Utwórz nową"
 
 #: tcl/ngcgui.tcl:2470
 msgid "Created feature "
-msgstr ""
+msgstr "Utworzona funkcja"
 
 #: tcl/ngcgui.tcl:2494
 msgid "option"
@@ -6241,7 +6237,7 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:2595
 msgid "Finalize Canceled"
-msgstr ""
+msgstr "Przerwano zatwierdzanie"
 
 #: tcl/ngcgui.tcl:2732 tcl/ngcgui.tcl:2888 tcl/tooledit.tcl:936
 msgid "Dismiss"
@@ -6249,7 +6245,7 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:2737
 msgid "ngcgui Error"
-msgstr ""
+msgstr "błąd ngcgui"
 
 #: tcl/ngcgui.tcl:2760
 msgid "Declining support for tk send bug in ngcgui"
@@ -6293,11 +6289,11 @@ msgstr ""
 
 #: tcl/ngcgui.tcl:3008
 msgid "Create feature"
-msgstr ""
+msgstr "Utwórz funkcję"
 
 #: tcl/ngcgui.tcl:3009
 msgid "Finalize (AUTO send is"
-msgstr ""
+msgstr "Zatwierdzanie (wysłanie do trybu AUTO"
 
 #: tcl/ngcgui.tcl:3010
 msgid "Show key bindings"
@@ -6389,7 +6385,7 @@ msgstr "nowy"
 
 #: tcl/ngcgui.tcl:3443
 msgid "Open a new Subfile"
-msgstr ""
+msgstr "Otwórz dodatkowy plik"
 
 #: tcl/ngcgui.tcl:3589
 msgid "remove"
@@ -6397,7 +6393,7 @@ msgstr "usuń"
 
 #: tcl/ngcgui.tcl:3611 tcl/ngcgui.tcl:3617
 msgid "move"
-msgstr ""
+msgstr "przesuń"
 
 #: tcl/ngcgui.tcl:3725 src/emc/usr_intf/pncconf/pncconf.py:4144
 #: src/emc/usr_intf/pncconf/pncconf.py:4250
@@ -8066,9 +8062,8 @@ msgid "_Save G-code as..."
 msgstr "Zapi_sz G-kod jako..."
 
 #: share/axis/tcl/axis.tcl:80
-#, fuzzy
 msgid "G-code _properties..."
-msgstr "Właściwości G-kodu"
+msgstr "Właściwości G-kodu..."
 
 #: share/axis/tcl/axis.tcl:86
 #, fuzzy
@@ -8436,7 +8431,7 @@ msgstr "Ręczna kontrola [F3]"
 
 #: share/axis/tcl/axis.tcl:821
 msgid "MDI [F5]"
-msgstr ""
+msgstr "MDI [F5]"
 
 #: share/axis/tcl/axis.tcl:835 share/axis/tcl/axis.tcl:1923
 #: share/axis/tcl/axis.tcl:2110
@@ -10280,7 +10275,7 @@ msgid ""
 msgstr ""
 "OK aby zamienić istniejący program PLC?\n"
 "Isteniejący Custom.clp zostanie nazwany custom_backup.clp.\n"
-"Wszystkie pliki nazwane -custom_backup.clp- zostaną utracone."
+"Wszystkie pliki nazwane -custom_backup.clp- zostaną utracone"
 
 #: src/emc/usr_intf/stepconf/stepconf.py:269
 #: src/emc/usr_intf/pncconf/pages.py:1542
@@ -10307,13 +10302,12 @@ msgstr ""
 "Równoległego dla tego programu."
 
 #: src/emc/usr_intf/stepconf/stepconf.py:271
-#, fuzzy
 msgid ""
 "OK to replace existing custom pyvcp panel file ?\n"
 "Existing custompanel.xml will be renamed custompanel_backup.xml.\n"
 "Any existing file named custompanel_backup.xml will be lost. "
 msgstr ""
-"OK aby zamienić istniejący program PLC?\n"
+"OK aby zamienić istniejący program PLC ?\n"
 "Isteniejący Custom.clp zostanie nazwany custom_backup.clp.\n"
 "Wszystkie pliki nazwane -custom_backup.clp- zostaną utracone."
 
@@ -10833,7 +10827,6 @@ msgid "Back"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/main_page.glade:642
-#, fuzzy
 msgid ""
 "This program creates configuration files (INI and HAL) for \"step and "
 "direction\" milling machines and lathes connected to the PC parallel port.\n"
@@ -10842,6 +10835,7 @@ msgid ""
 msgstr ""
 "Ten program tworzy pliki konfiguracyjne (.ini i .hal) dla frezarek i tokarek "
 "typu \"krok i kierunek\" podłączonych do portu szeregowego PC.\n"
+"\n"
 "Stepconf wymaga rozdzielczości minimum 800x600.\n"
 "Możesz zwinąć zakładki 'Ustawienia Czasów Sterownika' i \n"
 "'Ustawienia portu szeregowego'"
@@ -10964,7 +10958,7 @@ msgstr "Maksymalne odchylenie okresu bazowego:"
 #: src/emc/usr_intf/stepconf/start.glade:10
 #: src/emc/usr_intf/pncconf/start.glade:111
 msgid "Create a new configuration"
-msgstr ""
+msgstr "Utwórz nową konfigurację"
 
 #: src/emc/usr_intf/stepconf/start.glade:30
 #: src/emc/usr_intf/pncconf/start.glade:82
@@ -10981,14 +10975,12 @@ msgid "Import a Mach file"
 msgstr ""
 
 #: src/emc/usr_intf/stepconf/start.glade:73
-#, fuzzy
 msgid "Create a desktop _shortcut (symlink) to configuration files"
-msgstr "Utwórz na pulpicie dowiązanie (symlink) do plików konfiguracyjnych."
+msgstr "Utwórz na pulpicie skrót (symlink) do plików konfiguracyjnych"
 
 #: src/emc/usr_intf/stepconf/start.glade:89
-#, fuzzy
 msgid "Create a desktop _launcher to start LinuxCNC with this configuration"
-msgstr "Utwórz na pulpicie skrót do uruchomienia LinuxCNC z tą konfiguracją."
+msgstr "Utwórz na pulpicie skrót do uruchomienia LinuxCNC z tą konfiguracją"
 
 #: src/emc/usr_intf/stepconf/start.glade:105
 #, fuzzy
@@ -12067,15 +12059,15 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/pncconf.py:1932
-#, fuzzy
 msgid ""
 "OK to replace existing custom pyvcp panel?\n"
 "Existing pyvcp-panel.xml will be renamed and added to 'backups' folder\n"
 "Clicking 'existing custom program' will avoid this warning. "
 msgstr ""
-"OK aby zamienić istniejący program PLC?\n"
-"Isteniejący Custom.clp zostanie nazwany custom_backup.clp.\n"
-"Wszystkie pliki nazwane -custom_backup.clp- zostaną utracone."
+"OK aby zamienić istniejący pyvcp panel?\n"
+"Isteniejący pyvcp-panel.xml zostanie zmieniona nazwa i dodany do folderu "
+"'backups'.\n"
+"Wybierz 'existing custom program' aby uniknąć tego ostrzeżenia."
 
 #: src/emc/usr_intf/pncconf/pncconf.py:3769
 #: src/emc/usr_intf/pncconf/private_data.py:555
@@ -12312,7 +12304,6 @@ msgstr ""
 "Równoległego dla tego programu."
 
 #: src/emc/usr_intf/pncconf/pages.py:1536
-#, fuzzy
 msgid ""
 "OK to replace existing custom ladder program?\n"
 "Existing Custom.clp will be renamed custom_backup.clp.\n"
@@ -12321,7 +12312,7 @@ msgid ""
 msgstr ""
 "OK aby zamienić istniejący program PLC?\n"
 "Isteniejący Custom.clp zostanie nazwany custom_backup.clp.\n"
-"Wszystkie pliki nazwane -custom_backup.clp- zostaną utracone."
+"Wszystkie pliki nazwane -custom_backup.clp- zostaną utracone"
 
 #: src/emc/usr_intf/pncconf/build_INI.py:17
 #: src/emc/usr_intf/pncconf/build_HAL.py:53
@@ -12547,9 +12538,8 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:903
 #: src/emc/usr_intf/pncconf/build_HAL.py:955
-#, fuzzy
 msgid "# _DO NOT_ include your HAL commands here."
-msgstr "# Tutaj dodaj swoje polecenia HAL"
+msgstr "# Nie dodawaj tutaj swoich poleceń HAL."
 
 #: src/emc/usr_intf/pncconf/build_HAL.py:904
 msgid "# Put custom HAL commands in custom_gvcp.hal"
@@ -16383,14 +16373,12 @@ msgid "Smart Serial 7"
 msgstr ""
 
 #: src/emc/usr_intf/pncconf/start.glade:27
-#, fuzzy
 msgid "Create a desktop launcher to start LinuxCNC with this configuration"
-msgstr "Utwórz na pulpicie skrót do uruchomienia LinuxCNC z tą konfiguracją."
+msgstr "Utwórz na pulpicie skrót do uruchomienia LinuxCNC z tą konfiguracją"
 
 #: src/emc/usr_intf/pncconf/start.glade:44
-#, fuzzy
 msgid "Create a desktop shortcut (symlink) to configuration files"
-msgstr "Utwórz na pulpicie dowiązanie (symlink) do plików konfiguracyjnych."
+msgstr "Utwórz na pulpicie skrót (symlink) do plików konfiguracyjnych"
 
 #: src/emc/usr_intf/pncconf/start.glade:129
 #, fuzzy
@@ -16900,7 +16888,7 @@ msgstr ""
 
 #: src/emc/usr_intf/pncconf/base.glade:676
 msgid "Require homing before MDI / Running"
-msgstr ""
+msgstr "Wymagane bazowanie przed użyciem MDI"
 
 #: src/emc/usr_intf/pncconf/base.glade:688
 #, fuzzy
@@ -18622,9 +18610,8 @@ msgid "Manual Mode"
 msgstr "Manualny"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:328
-#, fuzzy
 msgid "MDI Mode"
-msgstr "tryb"
+msgstr "tryb MDI"
 
 #: src/emc/usr_intf/gscreen/gscreen.py:328
 #, fuzzy
@@ -19544,9 +19531,8 @@ msgid "Halscope"
 msgstr "Oscy_loskop HAL"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2925
-#, fuzzy
 msgid "Tooleditor"
-msgstr "Edytor Tabeli Narzędzi..."
+msgstr "Edytor Tabeli Narzędzi"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2945
 #, fuzzy
