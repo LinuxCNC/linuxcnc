@@ -5,20 +5,21 @@
 #
 # Toni Laiho <apelegeos@gmail.com>, 2022.
 # Ricky Tigg <ricky.tigg@gmail.com>, 2024, 2025.
+# Hans Unzner <hansunzner@gmail.com>, 2025.
 msgid ""
 msgstr ""
 "Project-Id-Version: EMC2 2.5.0-pre2\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-10-05 14:29+0200\n"
-"PO-Revision-Date: 2025-01-16 13:00+0000\n"
-"Last-Translator: Ricky Tigg <ricky.tigg@gmail.com>\n"
+"PO-Revision-Date: 2025-03-13 21:14+0000\n"
+"Last-Translator: Hans Unzner <hansunzner@gmail.com>\n"
 "Language-Team: none\n"
 "Language: fi\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n != 1;\n"
-"X-Generator: Weblate 5.10-dev\n"
+"X-Generator: Weblate 5.11-dev\n"
 
 #: src/emc/task/emctaskmain.cc:868
 #, c-format
@@ -2366,30 +2367,30 @@ msgstr ""
 
 #: src/emc/motion/control.c:709
 msgid "G38.4 move finished without breaking contact."
-msgstr "G38.4-liike valmis, kosketus ei katkennut"
+msgstr "G38.4-liike valmis, kosketus ei katkennut."
 
 #: src/emc/motion/control.c:712
 msgid "G38.2 move finished without making contact."
-msgstr "G38.2-liike valmis, ei kosketusta"
+msgstr "G38.2-liike valmis, ei kosketusta."
 
 #: src/emc/motion/control.c:725
 #, fuzzy
 msgid "Probe tripped during non-probe move."
-msgstr "Mittapää kosketti ajettaessa mittaukseen liittymätöntä MDI-käskyä"
+msgstr "Mittapää kosketti ajettaessa mittaukseen liittymätöntä MDI-käskyä."
 
 #: src/emc/motion/control.c:764
+#, fuzzy
 msgid "Probe tripped during homing motion."
-msgstr "Mittapään kosketus ajettaessa kotiasemaan"
+msgstr "Mittapään kosketus ajettaessa kotiasemaan."
 
 #: src/emc/motion/control.c:768
-#, fuzzy
 msgid "Probe tripped during a joint jog."
-msgstr "Mittapään kosketus käsiajolla"
+msgstr "Mittapään kosketus käsiajolla."
 
 #: src/emc/motion/control.c:771
 #, fuzzy
 msgid "Probe tripped during a coordinate jog."
-msgstr "Mittapään kosketus käsiajolla"
+msgstr "Mittapään kosketus käsiajolla."
 
 #: src/emc/motion/control.c:787
 msgid "motion stopped by enable input"
@@ -2458,22 +2459,22 @@ msgstr "Käsiajo ei onnistu, niveltä %d ei ole"
 #: src/emc/motion/command.c:130
 #, c-format
 msgid "Can't jog joint %d further past max hard limit."
-msgstr "Niveltä %d ei voi ajaa maksimirajan yli"
+msgstr "Niveltä %d ei voi ajaa maksimirajan yli."
 
 #: src/emc/motion/command.c:135
 #, c-format
 msgid "Can't jog joint %d further past min hard limit."
-msgstr "Niveltä %d ei voi ajaa minimirajan yli"
+msgstr "Niveltä %d ei voi ajaa minimirajan yli."
 
 #: src/emc/motion/command.c:141
 #, c-format
 msgid "Can't jog joint %d further past max soft limit."
-msgstr "Niveltä %d ei voi ajaa ohjelmallisen maksimirajan yli"
+msgstr "Niveltä %d ei voi ajaa ohjelmallisen maksimirajan yli."
 
 #: src/emc/motion/command.c:146
 #, c-format
 msgid "Can't jog joint %d further past min soft limit."
-msgstr "Niveltä %d ei voi ajaa ohjelmallisen minimirajan yli"
+msgstr "Niveltä %d ei voi ajaa ohjelmallisen minimirajan yli."
 
 #: src/emc/motion/command.c:216 src/emc/motion/command.c:221
 #, c-format
@@ -2526,7 +2527,7 @@ msgstr ""
 
 #: src/emc/motion/command.c:786 src/emc/motion/command.c:933
 msgid "Can't jog any joints while homing."
-msgstr "Niveliä ei voi käsiajaa, koska kone on ajamassa kotiasemaan"
+msgstr "Niveliä ei voi käsiajaa, koska kone on ajamassa kotiasemaan."
 
 #: src/emc/motion/command.c:854
 msgid "Can't jog any joint while homing."
@@ -2839,7 +2840,7 @@ msgstr ""
 #: src/emc/motion/homing.c:578
 #, c-format
 msgid "Cannot unhome invalid joint %d (max %d)\n"
-msgstr "Virheellistä liitosta %d ei voi poistaa kodista (enintään %d)"
+msgstr "Virheellistä liitosta %d ei voi poistaa kodista (enintään %d)\n"
 
 #: src/emc/motion/homing.c:585
 #, c-format
@@ -2857,9 +2858,9 @@ msgid "Cannot unhome while moving, joint %d\n"
 msgstr ""
 
 #: src/emc/motion/homing.c:603
-#, fuzzy, c-format
+#, c-format, fuzzy
 msgid "Cannot unhome inactive joint %d\n"
-msgstr "Käsiajo ei onnistu, niveltä %d ei ole"
+msgstr "Käsiajo ei onnistu, niveltä %d ei ole\n"
 
 #: src/emc/motion/homing.c:759
 #, c-format
@@ -18738,11 +18739,12 @@ msgid ""
 msgstr ""
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2577
-#, fuzzy
 msgid ""
 "Diameter\n"
 "Mode"
-msgstr "Hal-mittari"
+msgstr ""
+"Hal-\n"
+"mittari"
 
 #: src/emc/usr_intf/gscreen/gscreen.glade:2590
 #: src/emc/usr_intf/gscreen/gscreen.glade:3202
