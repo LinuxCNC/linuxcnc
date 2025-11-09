@@ -1,0 +1,10 @@
+Document: linuxcnc-doc-ua
+Title: LinuxCNC Documentation Ukrainian
+Section: Science/Engineering
+
+Format: PDF
+Files:
+ /usr/share/doc/linuxcnc/LinuxCNC_Developer_ua.pdf
+ /usr/share/doc/linuxcnc/LinuxCNC_Documentation_ua.pdf
+ /usr/share/doc/linuxcnc/LinuxCNC_Getting_Started_ua.pdf
+ /usr/share/doc/linuxcnc/LinuxCNC_Integrator_ua.pdf

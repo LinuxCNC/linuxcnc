@@ -3,6 +3,8 @@ linuxcnc (1:2.10.0~pre0) UNRELEASED; urgency=medium
   [ Andy Pugh ]
   * Master branch open for new features.
 
+ -- andypugh <andy@bodgesoc.org>  Mon, 22 Sep 2025 22:55:20 +0100
+
 linuxcnc (1:2.9.6) UNRELEASED; urgency=medium
 
   * qtvcp -Qt5_graphics: issue 2753; preview wrongly uses INI startup code
