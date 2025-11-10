@@ -67,3 +67,9 @@ def search(filename, postfix):
                 LOG.info(f"No {name} file found.")
         return XML
 
+def find_panel_dirs():
+    here = os.path.dirname(os.path.realpath(__file__))
+    PANELDIR = os.path.join(here,'builtin-panels')
+    dirs = next(os.walk(PANELDIR))[1]
+    return dirs
+
