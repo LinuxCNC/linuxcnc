@@ -1416,7 +1416,7 @@ class Filter():
                 else:
                     errorText = f'Conversational block header must be line 1, it is currently line {self.errorLines[0]}:\n'
             if self.errorBlockFormat:
-                msg = 'Conversational block code format is inconsistant with header or is invalid.\n'
+                msg = 'Conversational block code format is inconsistent with header or is invalid.\n'
                 errorText += self.message_set(self.errorBlockFormat, msg)
                 errorText = msg
         if self.codeWarn:
