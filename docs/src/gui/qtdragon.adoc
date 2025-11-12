@@ -1425,8 +1425,8 @@ Scales are in percent, usually the range will be 100 - 200 in one axis. +
 Negating these scales can be used to flip the image in X, Y or both axes. +
 API comes from openCV, the available backends will be listed if -V debugging is used.
 Set to 'ANY' for opencv to choose. +
-Set resolution to DEFAULT for opencv to choose. the available resolutions 
-will be listed if -V debugging is used. +
+Set resolution to DEFAULT for opencv to choose.
+Available resolutions will be listed if -V debugging is used.
 
 [NOTE]
 The preference file can only be edited when QtDragon is not running.
