@@ -28,8 +28,7 @@ The limits for the following items are compile-time settings:
   *motion.digital-in-00* whereas **names_din=**_homed-x,homed-y_ will
   create the HAL pins `motion.din-homed-x` and `motion.din-homed-y`.
 
-*num_aio*:: Maximum number of analog IO pins is set by
-*EMCMOT_MAX_AIO*.
+*num_aio*:: Maximum number of analog IO pins is set by *EMCMOT_MAX_AIO*.
   Minimum is 1, if *num_aio* is not specified, it defaults to *DEFAULT_AIO*.
 
 *names_aout*:: A comma-separated list of names for analog output pins.
@@ -287,23 +286,19 @@ Note: feed-inhibit applies to G-code commands -- not jogs.
 **axis.**_L_**.eoffset-scale** IN FLOAT::
   Scale for external offset.
 **axis.**_L_**.jog-accel-fraction** IN FLOAT::
-  Sets acceleration for wheel jogging to a fraction of the INI
-  max_acceleration for the axis. Values greater than 1 or less than zero
-  are ignored.
+  Sets acceleration for wheel jogging to a fraction of the INI max_acceleration for the axis.
+  Values greater than 1 or less than zero are ignored.
 **axis.**_L_**.jog-counts** IN S32::
   Connect to the "counts" pin of an external encoder to use a physical jog wheel.
 **axis.**_L_**.jog-enable** IN BIT::
   When TRUE (and in manual mode), any change to "jog-counts" will result in motion.
   When false, "jog-counts" is ignored.
 **axis.**_L_**.jog-scale** IN FLOAT::
-  Sets the distance moved for each count on "jog-counts", in machine
-  units.
+  Sets the distance moved for each count on "jog-counts", in machine units.
 **axis.**_L_**.jog-vel-mode** IN BIT::
   When FALSE (the default), the jogwheel operates in position mode.
-  The axis will move exactly jog-scale units for each count, regardless of
-  how long that might take. When TRUE, the wheel operates in velocity
-  mode - motion stops when the wheel stops, even if that means the
-  commanded motion is not completed.
+  The axis will move exactly jog-scale units for each count, regardless of how long that might take.
+  When TRUE, the wheel operates in velocity mode - motion stops when the wheel stops, even if that means the commanded motion is not completed.
 **axis.**_L_**.kb-jog-active** OUT BIT::
   (free planner axis jogging active (keyboard or halui))
 **axis.**_L_**.pos-cmd** OUT FLOAT::
@@ -377,16 +372,14 @@ Note: Pins marked *(DEBUG)* serve as debugging aids and are subject to change or
 **joint.**_N_**.jog-counts** IN S32::
   Connect to the "counts" pin of an external encoder to use a physical jog wheel.
 **joint.**_N_**.jog-enable** IN BIT::
-  When TRUE (and in manual mode), any change to "jog-counts" will result
-  in motion. When false, "jog-counts" is ignored.
+  When TRUE (and in manual mode), any change to "jog-counts" will result in motion.
+  When false, "jog-counts" is ignored.
 **joint.**_N_**.jog-scale** IN FLOAT::
   Sets the distance moved for each count on "jog-counts", in machine units.
 **joint.**_N_**.jog-vel-mode** IN BIT::
   When FALSE (the default), the jogwheel operates in position mode.
-  The joint will move exactly jog-scale units for each count, regardless of
-  how long that might take. When TRUE, the wheel operates in velocity
-  mode - motion stops when the wheel stops, even if that means the
-  commanded motion is not completed.
+  The joint will move exactly jog-scale units for each count, regardless of how long that might take.
+  When TRUE, the wheel operates in velocity mode - motion stops when the wheel stops, even if that means the commanded motion is not completed.
 **joint.**_N_**.kb-jog-active** OUT BIT *(DEBUG)*::
   (free planner joint jogging active (keyboard or halui))
 **joint.**_N_**.motor-offset** OUT FLOAT *(DEBUG)*::
@@ -409,8 +402,7 @@ Note: Pins marked *(DEBUG)* serve as debugging aids and are subject to change or
 **joint.**_N_**.pos-hard-limit** OUT BIT *(DEBUG)*::
   The positive hard limit for the joint.
 **joint.**_N_**.pos-lim-sw-in** IN BIT::
-  Should be driven TRUE if the positive limit switch for this joint is
-  tripped.
+  Should be driven TRUE if the positive limit switch for this joint is tripped.
 **joint.**_N_**.unlock** OUT BIT::
   TRUE if the axis is a locked joint (typically a rotary) and a move is
   commanded (see JOINT UNLOCK PINS).

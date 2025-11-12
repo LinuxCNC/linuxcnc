@@ -658,7 +658,7 @@ index-divisor (default 1) (u32, read/write)::
 excitation-khz (float, read/write)::
  This pin sets the excitation frequency for the resolver.
  This pin is module-level rather than instance-level as all resolvers share the same excitation frequency.
- Valid values are 10 (ca. 10 kHz), 5 (ca. 5 kHz) and 2.5 (ca. 2.5 kHz).
+ Valid values are 10 (ca. 10&#8201;kHz), 5 (ca. 5&#8201;kHz) and 2.5 (ca. 2.5&#8201;kHz).
  The actual frequency depends on the FPGA frequency, and they correspond to CLOCK_LOW/5000, CLOCK_LOW/10000 and CLOCK_LOW/20000 respectively.
  The parameter will be set to the closest available of the three frequencies.
  A value of -1 (the default) indicates that the current setting should be retained.
