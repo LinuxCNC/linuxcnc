@@ -124,10 +124,10 @@ ifeq (,$(filter nodocs,$(DEB_BUILD_OPTIONS)))
 	mv debian/linuxcnc-doc-en/usr/share/doc/@MAIN_PACKAGE_NAME@ debian/linuxcnc-doc-en/usr/share/doc/linuxcnc
 
 # Remove files for translations created where we do not want Debian packages.
-	for l in ar es fr ru zh_CN; do \
-		$(RM) debian/tmp/usr/share/doc/linuxcnc/LinuxCNC_*_$$l.pdf; \
+	for l in ar es fr ru uk zh_CN; do \
+		$(RM) -f debian/tmp/usr/share/doc/linuxcnc/LinuxCNC_*_$$l.pdf; \
 	done
-	$(RM) debian/tmp/usr/share/doc/linuxcnc/*_es.adoc
+	$(RM) -f debian/tmp/usr/share/doc/linuxcnc/*_es.adoc
 else
 	# Avoiding error message because of examples
 	$(RM) -fr debian/tmp/usr/share/doc/

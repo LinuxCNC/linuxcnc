@@ -1,4 +1,4 @@
-.PHONY: docs docclean checkref checkref_en checkref_ar checkref_de checkref_es checkref_fr checkref_nb checkref_ru checkref_sv checkref_ta checkref_tr checkref_ua checkref_zh_CN
+.PHONY: docs docclean checkref checkref_en checkref_ar checkref_de checkref_es checkref_fr checkref_nb checkref_ru checkref_sv checkref_ta checkref_tr checkref_uk checkref_zh_CN
 .PHONY: pdfdocs htmldocs install-doc install-doc-pdf install-doc-html
 
 SHELL=/bin/bash
@@ -33,7 +33,6 @@ LOC_LANG_MAP=$(LOC_HL_DIR)/local/lang.map
 LANGUAGES := $(strip $(shell sed -e's/#.*//' < $(DOC_DIR)/po4a.cfg | grep '^\[po4a_langs\]' | cut -d" " -f2-))
 LANGUAGES_MATCH := $(shell echo $(LANGUAGES) | tr " " "|")
 
-
 GENERATED_MANPAGES += ../docs/man/man1/linuxcnc.1
 GENERATED_MANPAGES += $(patsubst ../docs/src/man/%.adoc, ../docs/man/%, $(wildcard ../docs/src/man/*/*.adoc))
 
@@ -50,7 +49,7 @@ $(DOC_SRCDIR)/man/man1/linuxcnc.1.adoc: $(DOC_SRCDIR)/man/man1/linuxcnc.1.adoc.i
 
 info::
 	@echo "I: Expecting the following languages: $(LANGUAGES)"
-	echo $(DOC_SRCS_UA)
+	echo $(DOC_SRCS_UK)
 
 ifneq ($(MANDB),)
 docs: $(DOC_DIR)/man/index.db
@@ -210,7 +209,7 @@ $(if $(filter $1,ru),russian,\
 $(if $(filter $1,sv),swedish,\
 $(if $(filter $1,ta),tamil,\
 $(if $(filter $1,tr),turkish,\
-$(if $(filter $1,ua),ukranian,\
+$(if $(filter $1,uk),ukranian,\
 $(if $(filter $1,zh_CN),chinese,\
 unknown))))))))))))
 endef
@@ -282,10 +281,10 @@ DOC_TARGETS_XML_RU = $(foreach p, $(DOC_TARGETS_XML), $(if $(findstring /ru/, $(
 DOC_TARGETS_XML_SV = $(foreach p, $(DOC_TARGETS_XML), $(if $(findstring /sv/, $(p)), $p))
 DOC_TARGETS_XML_TA = $(foreach p, $(DOC_TARGETS_XML), $(if $(findstring /ta/, $(p)), $p))
 DOC_TARGETS_XML_TR = $(foreach p, $(DOC_TARGETS_XML), $(if $(findstring /tr/, $(p)), $p))
-DOC_TARGETS_XML_UA = $(foreach p, $(DOC_TARGETS_XML), $(if $(findstring /ua/, $(p)), $p))
+DOC_TARGETS_XML_UK = $(foreach p, $(DOC_TARGETS_XML), $(if $(findstring /uk/, $(p)), $p))
 DOC_TARGETS_XML_ZH_CN = $(foreach p, $(DOC_TARGETS_XML), $(if $(findstring /zh_CN/, $(p)), $p))
 
-DOC_TARGETS_XML_EN = $(filter-out $(DOC_TARGETS_XML_AR), $(filter-out $(DOC_TARGETS_XML_DE), $(filter-out $(DOC_TARGETS_XML_ES), $(filter-out $(DOC_TARGETS_XML_FR), $(filter-out $(DOC_TARGETS_XML_NB), $(filter-out $(DOC_TARGETS_XML_RU), $(filter-out $(DOC_TARGETS_XML_SV), $(filter-out $(DOC_TARGETS_XML_TR), $(filter-out $(DOC_TARGETS_XML_UA), $(filter-out $(DOC_TARGETS_XML_ZH_CN), $(DOC_TARGETS_XML)))))))))))
+DOC_TARGETS_XML_EN = $(filter-out $(DOC_TARGETS_XML_AR), $(filter-out $(DOC_TARGETS_XML_DE), $(filter-out $(DOC_TARGETS_XML_ES), $(filter-out $(DOC_TARGETS_XML_FR), $(filter-out $(DOC_TARGETS_XML_NB), $(filter-out $(DOC_TARGETS_XML_RU), $(filter-out $(DOC_TARGETS_XML_SV), $(filter-out $(DOC_TARGETS_XML_TR), $(filter-out $(DOC_TARGETS_XML_UK), $(filter-out $(DOC_TARGETS_XML_ZH_CN), $(DOC_TARGETS_XML)))))))))))
 
 DOC_TARGETS_HTML_AR = $(foreach p, $(DOC_TARGETS_HTML), $(if $(findstring /ar/, $(p)), $p))
 DOC_TARGETS_HTML_DE = $(foreach p, $(DOC_TARGETS_HTML), $(if $(findstring /de/, $(p)), $p))
@@ -296,9 +295,9 @@ DOC_TARGETS_HTML_RU = $(foreach p, $(DOC_TARGETS_HTML), $(if $(findstring /ru/, 
 DOC_TARGETS_HTML_SV = $(foreach p, $(DOC_TARGETS_HTML), $(if $(findstring /sv/, $(p)), $p))
 DOC_TARGETS_HTML_TA = $(foreach p, $(DOC_TARGETS_HTML), $(if $(findstring /ta/, $(p)), $p))
 DOC_TARGETS_HTML_TR = $(foreach p, $(DOC_TARGETS_HTML), $(if $(findstring /tr/, $(p)), $p))
-DOC_TARGETS_HTML_UA = $(foreach p, $(DOC_TARGETS_HTML), $(if $(findstring /ua/, $(p)), $p))
+DOC_TARGETS_HTML_UK = $(foreach p, $(DOC_TARGETS_HTML), $(if $(findstring /uk/, $(p)), $p))
 DOC_TARGETS_HTML_ZH_CN = $(foreach p, $(DOC_TARGETS_HTML), $(if $(findstring /zh_CN/, $(p)), $p))
-DOC_TARGETS_HTML_EN = $(filter-out $(DOC_TARGETS_HTML_AR), $(filter-out $(DOC_TARGETS_HTML_DE), $(filter-out $(DOC_TARGETS_HTML_ES), $(filter-out $(DOC_TARGETS_HTML_FR), $(filter-out $(DOC_TARGETS_HTML_NB), $(filter-out $(DOC_TARGETS_HTML_RU), $(filter-out $(DOC_TARGETS_HTML_SV), $(filter-out $(DOC_TARGETS_HTML_TA), $(filter-out $(DOC_TARGETS_HTML_TR), $(filter-out $(DOC_TARGETS_HTML_UA), $(filter-out $(DOC_TARGETS_HTML_ZH_CN), $(DOC_TARGETS_HTML))))))))))))
+DOC_TARGETS_HTML_EN = $(filter-out $(DOC_TARGETS_HTML_AR), $(filter-out $(DOC_TARGETS_HTML_DE), $(filter-out $(DOC_TARGETS_HTML_ES), $(filter-out $(DOC_TARGETS_HTML_FR), $(filter-out $(DOC_TARGETS_HTML_NB), $(filter-out $(DOC_TARGETS_HTML_RU), $(filter-out $(DOC_TARGETS_HTML_SV), $(filter-out $(DOC_TARGETS_HTML_TA), $(filter-out $(DOC_TARGETS_HTML_TR), $(filter-out $(DOC_TARGETS_HTML_UK), $(filter-out $(DOC_TARGETS_HTML_ZH_CN), $(DOC_TARGETS_HTML))))))))))))
 
 MAN_HTML_TARGETS = $(patsubst $(DOC_DIR)/man/%, $(DOC_DIR)/html/man/%.html, $(MAN_SRCS))
 
@@ -343,15 +342,15 @@ PDF_TARGETS_TR = $(addprefix $(DOC_DIR)/, $(subst tr/,, \
 	$(patsubst %.adoc,%_tr.pdf, \
 	$(subst Master_,LinuxCNC_, $(filter tr/Master_%,$(DOC_SRCS_TR))))))
 
-PDF_TARGETS_UA = $(addprefix $(DOC_DIR)/, $(subst ua/,, \
-	$(patsubst %.adoc,%_ua.pdf, \
-	$(subst Master_,LinuxCNC_, $(filter ua/Master_%,$(DOC_SRCS_UA))))))
+PDF_TARGETS_UK = $(addprefix $(DOC_DIR)/, $(subst uk/,, \
+	$(patsubst %.adoc,%_uk.pdf, \
+	$(subst Master_,LinuxCNC_, $(filter uk/Master_%,$(DOC_SRCS_UK))))))
 
 PDF_TARGETS_ZH_CN = $(addprefix $(DOC_DIR)/, $(subst zh_CN/,, \
 	$(patsubst %.adoc,%_zh_CN.pdf, \
 	$(subst Master_,LinuxCNC_, $(filter zh_CN/Master_%,$(DOC_SRCS_ZH_CN))))))
 
-PDF_TARGETS = $(PDF_TARGETS_EN) $(PDF_TARGETS_AR) $(PDF_TARGETS_DE) $(PDF_TARGETS_ES) $(PDF_TARGETS_FR) $(PDF_TARGETS_NB) $(PDF_TARGETS_RU) $(PDF_TARGETS_SV) $(PDF_TARGETS_TA) $(PDF_TARGETS_TR) $(PDF_TARGETS_UA)
+PDF_TARGETS = $(PDF_TARGETS_EN) $(PDF_TARGETS_AR) $(PDF_TARGETS_DE) $(PDF_TARGETS_ES) $(PDF_TARGETS_FR) $(PDF_TARGETS_NB) $(PDF_TARGETS_RU) $(PDF_TARGETS_SV) $(PDF_TARGETS_TA) $(PDF_TARGETS_TR) $(PDF_TARGETS_UK)
 # Do not add $(PDF_TARGETS_ZH_CN) to the line above, it is added below - only if xetex is available
 
 # Chinese PDFs only build with xetex - optional build-dependency on texlive-xetex
@@ -361,7 +360,7 @@ DBLATEX_OPTS=--backend xetex
 endif
 
 info::
-	@$(ECHO) PDF_TARGETS_UA: $(PDF_TARGETS_UA)
+	@$(ECHO) PDF_TARGETS_UK: $(PDF_TARGETS_UK)
 	@$(ECHO) PDF_TARGETS: $(PDF_TARGETS)
 
 
@@ -435,7 +434,7 @@ gen_complist: $(DOC_SRCDIR)/gen_complist.py $(DOC_SRCDIR)/hal/components.adoc $(
 
 CHECKREF_TARGETS := checkref_en $(foreach L,$(LANGUAGES),checkref_$(L))
 
-#checkref: checkref_en checkref_ar checkref_de checkref_es checkref_fr checkref_nb checkref_ru checkref_sv checkref_ta checkref_tr checkref_ua checkref_zh_CN
+#checkref: checkref_en checkref_ar checkref_de checkref_es checkref_fr checkref_nb checkref_ru checkref_sv checkref_ta checkref_tr checkref_uk checkref_zh_CN
 checkref: $(CHECKREF_TARGETS)
 
 checkref_en: $(DOC_TARGETS_HTML_EN) $(DOC_DIR)/html/index.html $(DOC_DIR)/html/gcode.html .htmldoc-stamp
@@ -655,7 +654,7 @@ objects/xref_ta.links: $(patsubst %.adoc,objects/%.links,$(DOC_SRCS_TA_SMALL))
 objects/xref_tr.links: $(patsubst %.adoc,objects/%.links,$(DOC_SRCS_TR_SMALL))
 	$(PYTHON) $(DOC_SRCDIR)/links_db_gen.py objects/ $^ > $@
 
-objects/xref_ua.links: $(patsubst %.adoc,objects/%.links,$(DOC_SRCS_UA_SMALL))
+objects/xref_uk.links: $(patsubst %.adoc,objects/%.links,$(DOC_SRCS_UK_SMALL))
 	$(PYTHON) $(DOC_SRCDIR)/links_db_gen.py objects/ $^ > $@
 
 objects/xref_zh_CN.links: $(patsubst %.adoc,objects/%.links,$(DOC_SRCS_ZH_CN_SMALL))
@@ -876,8 +875,8 @@ $(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_TR_SMALL)): $(DOC_SRCDIR)/%.ht
 		 -a stylesheet=linuxcnc.css \
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm -f $@; exit $$X)
 
-$(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_UA_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.adoc objects/xref_ua.links $(LOC_LANG_MAP)
-	$(ECHO) "Building 'ua' adoc to html: " $<
+$(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_UK_SMALL)): $(DOC_SRCDIR)/%.html: $(DOC_SRCDIR)/%.adoc objects/xref_uk.links $(LOC_LANG_MAP)
+	$(ECHO) "Building 'uk' adoc to html: " $<
 	$(Q)asciidoc -f $(DOC_SRCDIR)/xhtml11.conf \
 		 -f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf \
 		 -f $(LOC_HL_DIR)/emc-langs-source-highlight.conf \
@@ -886,7 +885,7 @@ $(patsubst %.adoc,$(DOC_SRCDIR)/%.html,$(DOC_SRCS_UA_SMALL)): $(DOC_SRCDIR)/%.ht
 		 $(STYLES_SCRIPTS) \
 	         -a "scriptdir=$(DOC_SRCDIR)/" \
 	         -a "relindir=$(shell dirname $*)" \
-	         -a "linksfile=objects/xref_ua.links" \
+	         -a "linksfile=objects/xref_uk.links" \
 		 -a stylesheet=linuxcnc.css \
 		 -d book -a toc -a numbered -b xhtml11 $< || (X=$$?; rm -f $@; exit $$X)
 
