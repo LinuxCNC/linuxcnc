@@ -2,7 +2,9 @@
 :toc:
 
 [[cha:hal-examples]]
-= HAL Examples(((HAL Examples)))
+= HAL Examples
+
+(((HAL Examples)))
 
 // Custom lang highlight
 // must come after the doc title, to work around a bug in asciidoc 8.6.6
@@ -156,7 +158,8 @@ The following figure shows the result when the X axis is moving at 15 IPM in the
 Notice that we can get the absolute value from either the `abs.0.out` pin or the `X-IPM` signal.
 
 [[cap:hal-velocity-example]]
-.HAL: Velocity Example(((HAL:Velocity example)))
+.HAL: Velocity Example
+(((HAL:Velocity example)))
 image::images/velocity-01.png["HAL: Velocity Example",align="center"]
 
 == Soft Start Details

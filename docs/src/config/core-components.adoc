@@ -2,7 +2,7 @@
 :toc:
 
 [[cha:core-components]]
-= Core Components(((Core components)))
+= Core Components
 
 // Custom lang highlight
 // must come after the doc title, to work around a bug in asciidoc 8.6.6
@@ -10,11 +10,13 @@
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
+(((Core components)))
 See also the man pages 'motion(9)'.
 
 [[sec:motion]]
-== Motion (((Motion)))
+== Motion
 
+(((Motion)))
 These pins and parameters are created by the realtime 'motmod' module.
 
 This module provides a HAL interface for LinuxCNC's motion planner.
@@ -93,8 +95,9 @@ unlock_joints_mask=0x38 selects joints 3,4,5
 ----
 
 [[sec:motion-pins]]
-=== Pins(((motion:HAL pins)))
+=== Pins
 
+(((motion:HAL pins)))
 These pins, parameters, and functions are created by the realtime 'motmod' module.
 
 * 'motion.adaptive-feed' - (float, in) When adaptive feed is enabled with 'M52 P1' , the
@@ -193,8 +196,9 @@ Motion will produce the following pins:
 The __N__ (integer between 0 and 7) substitutes the spindle number.
 
 [[sec:spindle-pins]]
-=== Pins(((spindle (HAL pins))))
+=== Pins
 
+(((spindle (HAL pins))))
 * 'spindle.__N__.at-speed' - (bit, in)
   Motion will pause until this pin is TRUE, under the following conditions:
 ** before the first feed move after each spindle start or speed change;
@@ -301,8 +305,9 @@ iocontrol - accepts non-realtime I/O commands via NML, interacts with HAL.
 
 iocontrol's HAL pins are turned on and off in non-realtime context.  If you have strict timing requirements or simply need more I/O, consider using the realtime synchronized I/O provided by <<sec:motion,motion>> instead.
 
-=== Pins (((iocontrol (HAL pins))))
+=== Pins
 
+(((iocontrol (HAL pins))))
 * 'iocontrol.0.coolant-flood' (bit, out) TRUE when flood coolant is requested.
 * 'iocontrol.0.coolant-mist' (bit, out) TRUE when mist coolant is requested.
 * 'iocontrol.0.emc-enable-in' (bit, in) Should be driven FALSE when an external E-Stop condition exists.
@@ -319,8 +324,9 @@ iocontrol's HAL pins are turned on and off in non-realtime context.  If you have
 
 A number of INI settings are made available as HAL input pins.
 
-=== Pins (((INI settings (HAL pins))))
+=== Pins
 
+(((INI settings (HAL pins))))
 _N_ refers to a joint number, _L_ refers to an axis letter.
 
 * 'ini.__N__.ferror' - (float, in) [JOINT_N]FERROR

@@ -2,13 +2,15 @@
 :toc:
 
 [[cha:axis-gui]]
-= AXIS GUI(((AXIS GUI)))
+= AXIS GUI
 
 // Custom lang highlight
 // must come after the doc title, to work around a bug in asciidoc 8.6.6
 :ini: {basebackend@docbook:'':ini}
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
+
+(((AXIS GUI)))
 
 == Introduction
 
@@ -182,7 +184,7 @@ Do not use 'Run From Selected Line' if your G-code program contains subroutines.
 * 'Unhoming' - Unhome one or all axes.
 * 'Zero Coordinate System' - Set all offsets to zero in the coordinate system chosen.
 //[[sub:axis:tool-touch-off]]
-* Tool Touch Off(((AXIS, Tool Touch Off)))
+* Tool Touch Off (((AXIS, Tool Touch Off)))
 ** 'Tool touch off to workpiece' - When performing Touch Off, the value
    entered is relative to the current workpiece ('G5x') coordinate system,
    as modified by the axis offset ('G92').  When the Touch Off is complete,
@@ -360,7 +362,8 @@ To move the program so it's within the machine's travel in this case,
 jog to the left and Touch Off X again.
 
 [[fig:soft-limits]]
-.Soft Limits(((Soft Limits)))
+.Soft Limits
+(((Soft Limits)))
 image::images/axis-outofrange.png["Soft Limits",align="center"]
 
 .Tool Cone
@@ -706,8 +709,9 @@ and include checking whether AXIS is running ('--ping'), loading a file by name,
 file ('--reload'), and making AXIS exit ('--quit').
 
 [[sec:manual-tool-change]]
-== Manual Tool Change(((AXIS:Manual Tool Change)))
+== Manual Tool Change
 
+(((AXIS:Manual Tool Change)))
 LinuxCNC includes a non-realtime HAL component called 'hal_manualtoolchange',
 which shows a window prompt telling you what tool is expected when a 'M6' command is issued.
 After the OK button is pressed, execution of the program will continue.
@@ -734,8 +738,9 @@ program a G1 with no move after the T<n>.
 image::images/manual-tool-change.png["Manual Toolchange Window",align="center"]
 
 [[sec:axis-python-modules]]
-== Python modules(((AXIS:Python Modules)))
+== Python modules
 
+(((AXIS:Python Modules)))
 AXIS includes several Python modules which may be useful to others. For more
 information on one of these modules, use 'pydoc <module name>' or read the
 source code. These modules include:
@@ -752,8 +757,9 @@ installed version of LinuxCNC, this should happen automatically. When
 running 'in-place', this can be done by using 'scripts/rip-environment'.
 
 [[sec:axis-lathe-mode]]
-== Using AXIS in Lathe Mode(((AXIS:Lathe Mode)))
+== Using AXIS in Lathe Mode
 
+(((AXIS:Lathe Mode)))
 By including the line 'LATHE = 1' in the [DISPLAY] section of the INI file, AXIS selects lathe mode.
 The 'Y' axis is not shown in coordinate readouts, the view is changed
 to show the Z axis extending to the right and the X axis extending towards
@@ -887,8 +893,9 @@ this causes the built-in options to be created at the option level 'widgetDefaul
 so that X Resources (which are level 'userDefault') can override them.
 
 [[sub:axis-jogwheel]]
-=== Jogwheel(((AXIS:Jogwheel)))
+=== Jogwheel
 
+(((AXIS:Jogwheel)))
 To improve the interaction of AXIS with a physical jogwheel, the current
 active axis selected in the GUI is also reported on a 'HAL pin' with a
 name like 'axisui.jog.x'.
@@ -900,8 +907,9 @@ declared with: [HAL]POSTGUI_HALFILE. What differs from [HAL]HALFILE,
 which can only be used once.
 
 [[sub:axis-axisrc]]
-=== ~/.axisrc(((AXIS:.axisrc)))
+=== ~/.axisrc
 
+(((AXIS:.axisrc)))
 If it exists, the contents of `~/.axisrc` are executed as Python source code
 just before the AXIS GUI is displayed.
 //FIXME: Unclear - does AXIS write to .axisrc?
@@ -959,8 +967,9 @@ Useful values include `EDITOR=gedit` and `EDITOR=gnome-terminal -e vim`.
 For more information, see the <<sub:ini:sec:display,Display Section>>
 of the INI Configuration Chapter.
 
-=== Virtual Control Panel(((AXIS: Virtual Control Panel)))
+=== Virtual Control Panel
 
+(((AXIS: Virtual Control Panel)))
 AXIS can display a custom virtual control panel in either the right
 side column or the bottom row.
 Additionally one or more panels may be displayed as embedded tabs.
@@ -968,8 +977,9 @@ You can program buttons, indicators, data displays and more.
 For more information, see the <<cha:pyvcp,PyVCP>> and the <<cha:glade-vcp,GladeVCP>> chapters.
 
 [[axis:preview-control]]
-=== Preview Control(((AXIS: Preview Control)))
+=== Preview Control
 
+(((AXIS: Preview Control)))
 Special comments can be inserted into the G-code file to control how
 the preview of AXIS behaves. In the case where you want to limit the
 drawing of the preview use these special comments. Anything between the
@@ -1008,8 +1018,9 @@ Ordinarily, only the commanded position of an axis is used to set this offset, m
 Touch off sends a 'G10 L20' command to the MDI to set the new offset value.  The value applied is normally just the value entered into the dialog box. When this feature is enabled, it will either add or subtract the current position value from the value entered in the dialog, depending on how it is configured.
 
 [[sec:axis-axisui-pins]]
-== Axisui(((AXIS: axisui pins)))
+== Axisui
 
+(((AXIS: axisui pins)))
 To improve the interaction of AXIS with physical jog wheels, the axis
 currently selected in the GUI is also reported on a pin with a name
 like 'axisui.jog.x'. One of these pins is 'TRUE' at one time, and the rest are

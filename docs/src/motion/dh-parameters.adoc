@@ -2,7 +2,9 @@
 :toc:
 
 [[cha:dh-parameters]]
-= Setting up "modified" Denavit-Hartenberg (DH) parameters for 'genserkins'(((DH parameters Examples)))
+= Setting up "modified" Denavit-Hartenberg (DH) parameters for 'genserkins'
+
+(((DH parameters Examples)))
 
 == Prelude
 

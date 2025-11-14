@@ -2,7 +2,7 @@
 :toc:
 
 [[cha:tool-compensation]]
-= Tool Compensation(((Tool Compensation)))
+= Tool Compensation
 
 // Custom lang highlight
 // must come after the doc title, to work around a bug in asciidoc 8.6.6
@@ -10,9 +10,12 @@
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
-[[sec:touch-off]]
-== Touch Off(((Touch Off)))
+(((Tool Compensation)))
 
+[[sec:touch-off]]
+== Touch Off
+
+(((Touch Off)))
 Using the Touch Off Screen in the AXIS interface you can update the tool table automatically.
 
 Typical steps for updating the tool table:
@@ -42,8 +45,9 @@ The G10 L1/L10/L11 commands can be used to set tool table offsets:
 This is only a brief presentation, refer to the reference guide of the G-code for more detailed explanations.
 
 [[sec:tool-table]]
-== Tool Table(((Tool Table)))
+== Tool Table
 
+(((Tool Table)))
 The 'Tool Table' is a text file that contains information about each tool.
 The file is located in the same directory as your configuration and is called 'tool.tbl' by default.
 A file name may be specified with the INI file [EMCIO]TOOL_TABLE setting.
@@ -56,8 +60,9 @@ The <<cha:tooledit-gui,Tool Editor>> or a text editor can be used to edit the to
 If you use a text editor make sure you reload the tool table in the GUI.
 
 [[sub:tool-table-format]]
-=== Tool Table Format(((Tool Table Format)))
+=== Tool Table Format
 
+(((Tool Table Format)))
 .Tool Table Format
 [width="100%",options="header"]
 |===
@@ -139,8 +144,9 @@ This column is for the benefit of human readers only. The comment must be preced
 Earlier versions of LinuxCNC had two different tool table formats for mills and lathes, but since the 2.4.x release, one tool table format is used for all machines.
 
 [[sub:tool-io]]
-=== Tool IO(((Tool IO)))
+=== Tool IO
 
+(((Tool IO)))
 The non-realtime program *iocontrol* is conventionally
 used for tool changer management (and other io functions for enabling
 LinuxCNC and the control of coolant hardware).  The HAL pins used for
@@ -197,8 +203,9 @@ An M61Q__n__ (_n_!=0) command does not change the *iocontrol.0.tool-from-pocket*
 An M61Q0 (_n_==0) command sets *iocontrol.0.tool-from-pocket* to 0.
 
 [[sub:tool-changers]]
-=== Tool Changers(((Tool Changers)))
+=== Tool Changers
 
+(((Tool Changers)))
 LinuxCNC supports three types of tool changers: 'manual', 'random location' and 'non-random or fixed location'.
 Information about configuring a LinuxCNC tool changer is in the <<sub:ini:sec:emcio,EMCIO Section>> of the INI chapter.
 
@@ -232,7 +239,9 @@ When a tool is changed LinuxCNC rewrites the pocket number to keep track of wher
 T can be any number but P must be a number that makes sense for the machine.
 
 
-== Tool Length Compensation(((Tool Length Compensation)))
+== Tool Length Compensation
+
+(((Tool Length Compensation)))
 The tool length compensations are given as positive numbers in the tool table.
 A tool compensation is programmed using G43 H_n_, where _n_ is the index number of the desired tool in the tool table.
 It is intended that all entries in the tool table are positive.
@@ -265,8 +274,9 @@ image:images/length1.png[]
 With this program, in most cases, the machine will apply the offset in the form of a ramp during the movement in xyz following the word G43.
 
 [[sec:cutter-radius-compensation]]
-== Cutter Radius Compensation(((Cutter Radius Compensation)))
+== Cutter Radius Compensation
 
+(((Cutter Radius Compensation)))
 Cutter Compensation allows the programmer to program the tool path without knowing the exact tool diameter.
 The only caveat is the programmer must program the lead in move to be at least as long as the largest tool radius that might be used.
 

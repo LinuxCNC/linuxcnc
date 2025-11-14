@@ -56,8 +56,8 @@ G-code programs in a directory called `$HOME/linuxcnc`, and having the
 git repo there too is confusing.
 
 Issues and pull requests (abbreviated PRs) are welcome on GitHub:
-https://github.com/LinuxCNC/linuxcnc/issues
-https://github.com/LinuxCNC/linuxcnc/pulls
+. https://github.com/LinuxCNC/linuxcnc/issues
+. https://github.com/LinuxCNC/linuxcnc/pulls
 
 === Use of Git in the LinuxCNC project
 
