@@ -984,6 +984,7 @@ class EMC_TRAJ_STAT:public EMC_TRAJ_STAT_MSG {
     bool queueFull;		// non-zero means can't accept another motion
     int id;			// id of the currently executing motion
     bool paused;			// non-zero means motion paused
+    bool stepping;    // non-zero means motion stepping single block
     double scale;		// velocity scale factor
     double rapid_scale;		// rapid scale factor
     //double spindle_scale;	// moved to EMC_SPINDLE_STAT
