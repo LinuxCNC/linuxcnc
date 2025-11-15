@@ -22,7 +22,7 @@ programs and libraries, and the source text for the documentation.
 
 The two main ways that project developers communicate with each other are:
 
-* Via IRC, at irc://irc.libera.chat/%23linuxcnc-devel[#linuxcnc-devel]
+* Via IRC, at irc://irc.libera.chat/#linuxcnc-devel[#linuxcnc-devel]
   on https://libera.chat/[Libera.chat].
 * Via email, on the https://lists.sourceforge.net/lists/listinfo/emc-developers[developers' mailing list]
 

@@ -1680,7 +1680,6 @@ Change the G-code text display colors/fonts:
 
 [source,{ini}]
 ----
-}
 EditorBase{
 background:black;
 qproperty-styleColorCursor:white;

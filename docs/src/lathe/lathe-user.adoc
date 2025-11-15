@@ -74,16 +74,14 @@ image::images/tool-positions_en.svg["Lathe Tool Orientations",align="center"]
 In AXIS the following figures show what the Tool Positions look like, as entered in the tool table.
 
 [[fig:Outil-Positions-1-2-3-4]]
-.Tool Positions 1, 2, 3 & 4
-(((Tool Positions 1, 2, 3 & 4)))
+.Tool Positions 1, 2, 3 & 4(((Tool Positions 1, 2, 3 & 4)))
 image:images/tool-pos-1_en.svg["Tool Position 1"]
 image:images/tool-pos-2_en.svg["Tool Position 2"]
 image:images/tool-pos-3_en.svg["Tool Position 3"]
 image:images/tool-pos-4_en.svg["Tool Position 4"]
 
 [[fig:Outil-Positions-5-6-7-8]]
-.Tool Positions 5, 6, 7 & 8
-(((Tool Positions 5, 6, 7 & 8)))
+.Tool Positions 5, 6, 7 & 8(((Tool Positions 5, 6, 7 & 8)))
 image:images/tool-pos-5_en.svg["Tool Position 5"]
 image:images/tool-pos-6_en.svg["Tool Position 6"]
 image:images/tool-pos-7_en.svg["Tool Position 7"]

@@ -184,7 +184,7 @@ Do not use 'Run From Selected Line' if your G-code program contains subroutines.
 * 'Unhoming' - Unhome one or all axes.
 * 'Zero Coordinate System' - Set all offsets to zero in the coordinate system chosen.
 //[[sub:axis:tool-touch-off]]
-* Tool Touch Off (((AXIS, Tool Touch Off)))
+* Tool Touch Off(((AXIS, Tool Touch Off)))
 ** 'Tool touch off to workpiece' - When performing Touch Off, the value
    entered is relative to the current workpiece ('G5x') coordinate system,
    as modified by the axis offset ('G92').  When the Touch Off is complete,
@@ -362,8 +362,7 @@ To move the program so it's within the machine's travel in this case,
 jog to the left and Touch Off X again.
 
 [[fig:soft-limits]]
-.Soft Limits
-(((Soft Limits)))
+.Soft Limits(((Soft Limits)))
 image::images/axis-outofrange.png["Soft Limits",align="center"]
 
 .Tool Cone
