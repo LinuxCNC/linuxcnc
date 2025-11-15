@@ -803,7 +803,7 @@ You can also click on the label and see a list of actions. +
 *`always_display_radius`*::
   Toggles display option
 *`display_as_per_m7m8`*::
-  Toggles display option. Will follow the current M7/8 mode
+  Toggles display option. Will follow the current M7/8 mode.
 *`follow_reference_changes`*::
   Toggles display option. Will follow the STATUS message reference mode,
   i.e. you can use Action buttons to set how it is currently displayed.
@@ -1428,7 +1428,7 @@ It is a comma separated list of keyword and data, all of which are optional:
   Shows a save button.
 *`DEFAULT:ThisMacroData.txt`*::
   Sets the default preselected filename when loading/saving data for this macro. +
-  It can be any valid filename but must end in '.txt'
+  It can be any valid filename but must end in '.txt'.
 *`PATH:~/linuxcnc/nc_files/mySavedMacrosData`*::
   Sets the default directory folder to preselect when loading/saving data for this macro.
 
