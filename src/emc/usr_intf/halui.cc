@@ -100,7 +100,7 @@ static int axis_mask = 0;
     FIELD(hal_bit_t,program_bd_off) /* pin for setting block delete off */ \
     FIELD(hal_bit_t,program_bd_is_on) /* status pin that block delete is on */ \
 \
-    FIELD(hal_u32_t,tool_number) /* pin for current selected tool */ \
+    FIELD(hal_s32_t,tool_number) /* pin for current selected tool */ \
     FIELD(hal_float_t,tool_length_offset_x) /* current applied x tool-length-offset */ \
     FIELD(hal_float_t,tool_length_offset_y) /* current applied y tool-length-offset */ \
     FIELD(hal_float_t,tool_length_offset_z) /* current applied z tool-length-offset */ \
@@ -135,8 +135,8 @@ static int axis_mask = 0;
     ARRAY(hal_bit_t,joint_on_hard_max_limit,EMCMOT_MAX_JOINTS+1) /* status pin that the joint is on the hardware max limit */ \
     ARRAY(hal_bit_t,joint_override_limits,EMCMOT_MAX_JOINTS+1) /* status pin that the joint is on the hardware max limit */ \
     ARRAY(hal_bit_t,joint_has_fault,EMCMOT_MAX_JOINTS+1) /* status pin that the joint has a fault */ \
-    FIELD(hal_u32_t,joint_selected) /* status pin for the joint selected */ \
-    FIELD(hal_u32_t,axis_selected) /* status pin for the axis selected */ \
+    FIELD(hal_s32_t,joint_selected) /* status pin for the joint selected */ \
+    FIELD(hal_s32_t,axis_selected) /* status pin for the axis selected */ \
 \
     ARRAY(hal_bit_t,joint_nr_select,EMCMOT_MAX_JOINTS) /* nr. of pins to select a joint */ \
     ARRAY(hal_bit_t,axis_nr_select,EMCMOT_MAX_AXIS) /* nr. of pins to select a axis */ \
@@ -855,11 +855,11 @@ int halui_hal_init(void)
     if (retval < 0) return retval;
     retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->ro_value), comp_id, "halui.rapid-override.value");
     if (retval < 0) return retval;
-    retval = hal_pin_u32_newf(HAL_OUT, &(halui_data->joint_selected), comp_id, "halui.joint.selected");
+    retval = hal_pin_s32_newf(HAL_OUT, &(halui_data->joint_selected), comp_id, "halui.joint.selected");
     if (retval < 0) return retval;
-    retval = hal_pin_u32_newf(HAL_OUT, &(halui_data->axis_selected), comp_id, "halui.axis.selected");
+    retval = hal_pin_s32_newf(HAL_OUT, &(halui_data->axis_selected), comp_id, "halui.axis.selected");
     if (retval < 0) return retval;
-    retval = hal_pin_u32_newf(HAL_OUT, &(halui_data->tool_number), comp_id, "halui.tool.number");
+    retval = hal_pin_s32_newf(HAL_OUT, &(halui_data->tool_number), comp_id, "halui.tool.number");
     if (retval < 0) return retval;
     retval =  hal_pin_float_newf(HAL_OUT, &(halui_data->tool_length_offset_x), comp_id, "halui.tool.length_offset.x");
     if (retval < 0) return retval;
