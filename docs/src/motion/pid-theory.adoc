@@ -2,7 +2,9 @@
 :toc:
 
 [[cha:pid-tuning]]
-= PID Tuning(((PID Tuning)))
+= PID Tuning
+
+(((PID Tuning)))
 
 == PID Controller
 

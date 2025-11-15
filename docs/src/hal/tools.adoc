@@ -2,13 +2,15 @@
 :toc:
 
 [[cha:hal-tools]]
-= HAL Tools(((HAL Tools)))
+= HAL Tools
 
 // Custom lang highlight
 // must come after the doc title, to work around a bug in asciidoc 8.6.6
 :ini: {basebackend@docbook:'':ini}
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
+
+(((HAL Tools)))
 
 [[sec:halcmd]]
 == Halcmd
@@ -34,8 +36,9 @@ The <<cha:hal-tutorial,HAL Tutorial>> has a number of examples of halcmd
 usage, and is a good tutorial for `halcmd`.
 
 [[sec:halmeter]]
-== Halmeter(((Halmeter)))
+== Halmeter
 
+(((Halmeter)))
 Halmeter is a 'voltmeter' for the HAL.
 It lets you look at a pin, signal, or parameter, and displays the current value of that item.
 It is pretty simple to use.

@@ -2,7 +2,9 @@
 :toc:
 
 [[cha:hal-examples]]
-= HAL Examples(((HAL Examples)))
+= HAL Examples
+
+(((HAL Examples)))
 
 // Custom lang highlight
 // must come after the doc title, to work around a bug in asciidoc 8.6.6

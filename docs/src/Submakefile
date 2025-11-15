@@ -379,6 +379,7 @@ A2X = a2x --xsltproc-opts "--nonet \
 			   --stringparam toc.max.depth 2 \
 			   --stringparam generate.section.toc.level 2 \
 			   --stringparam generate.toc 'book toc,title chapter toc'" \
+	  --keep-artifacts \
 	  -a "scriptdir=$(DOC_SRCDIR)/" \
 	  --asciidoc-opts="-f $(DOC_SRCDIR)/docbook.conf" \
 	  --asciidoc-opts="-f $(DOC_SRCDIR)/asciidoc-dont-replace-arrows.conf" \

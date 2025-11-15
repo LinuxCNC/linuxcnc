@@ -2,7 +2,9 @@
 :tab_options: cols="15s,85,0,0", frame="none", grid="none"
 
 [[cha:hal-components]]
-= HAL Component List((("HAL Component List")))
+= HAL Component List
+
+((("HAL Component List")))
 
 == Components
 

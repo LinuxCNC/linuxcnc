@@ -2,7 +2,7 @@
 :toc:
 
 [[cha:lathe-user-information]]
-= Lathe User Information(((Lathe User Information)))
+= Lathe User Information
 
 // Custom lang highlight
 // must come after the doc title, to work around a bug in asciidoc 8.6.6
@@ -10,6 +10,7 @@
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
+(((Lathe User Information)))
 This chapter will provide information specific to lathes.
 
 == Lathe Mode
@@ -44,8 +45,9 @@ RS274NGC_STARTUP_CODE = G18 G20 G90
 If your using GMOCCAPY then see the <<gmoccapy:lathe-section,the GMOCCAPY Lathe>> section.
 
 [[sec:lathe-tool-table]]
-== Lathe Tool Table(((Lathe Tool Table)))
+== Lathe Tool Table
 
+(((Lathe Tool Table)))
 The "Tool Table" is a text file that contains information about each tool.
 The file is located in the same directory as your configuration and is called "tool.tbl" by default.
 The tools might be in a tool changer or just changed manually.
@@ -59,8 +61,9 @@ Just ignore the parts of the tool table that don't pertain to your machine, or w
 For more information on the specifics of the tool table format, see the <<sec:tool-table,Tool Table>> Section.
 
 [[sec:lathe-tool-orientation]]
-== Lathe Tool Orientation(((Lathe Tool Orientation)))
+== Lathe Tool Orientation
 
+(((Lathe Tool Orientation)))
 The following figure shows the lathe tool orientations with the center line angle of each orientation and info on FRONTANGLE and BACKANGLE.
 
 The FRONTANGLE and BACKANGLE are clockwise starting at a line parallel to Z+.

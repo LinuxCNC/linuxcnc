@@ -2,7 +2,7 @@
 :toc:
 
 [[cha:halshow]]
-= Halshow(((Halshow)))
+= Halshow
 
 // Custom lang highlight
 // must come after the doc title, to work around a bug in asciidoc 8.6.6
@@ -10,6 +10,7 @@
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
+(((Halshow)))
 The script `halshow` can help you find your way around a running HAL.
 It displays chosen HAL values and updates them continuously.
 
@@ -139,7 +140,8 @@ You can also add all sub-items of this node by selecting that in the right click
 The following figure shows this canvas with several pins.
 
 [[fig:halshow-watch-tab-1]]
-.Halshow: Watch Tab(((Halshow: Watch Tab)))
+.Halshow: Watch Tab
+(((Halshow: Watch Tab)))
 image::images/halshow-watch-tab-1.png["Halshow Watch Tab",align="center"]
 
 _Watch_ displays bit type (binary) values using colored circles representing LEDs.
