@@ -138,7 +138,7 @@ You can select between the two options in the functions that take these entries:
   `hal_comp`;; The _HAL component Object_ or None. +
     In QtVCP if you are reading _system pins_ directly, then the component argument is set to `None`. +
   `hal_pin`;; The _name of the BIT HAL IN pin_ that will change the color. +
-    if hal_comp is 'None' then this must be the full name of a system pin otherwise this is the pin name excluding the component name
+    If hal_comp is 'None' then this must be the full name of a system pin otherwise this is the pin name excluding the component name.
 
 [[sec:qtvcp:vismach:parts]]
 == Creating Parts
@@ -474,7 +474,7 @@ comp.newpin("hide-chuck", hal.HAL_BIT, hal.HAL_IN)
 # <snip make a machine with an A axis chuck assembly>
 chuckassembly = HideCollection([chuckassembly],comp,'hide-chuck')
 # also can be used like this
-chuckassembly = HideCollection([chuckassembly],None,'myvismach.hide-chuck') 
+chuckassembly = HideCollection([chuckassembly],None,'myvismach.hide-chuck')
 ----
 
 === Plot Color Based on Motion Type
@@ -492,11 +492,11 @@ and this to the Window class:
 
 [source,python]
 ----
-        STATUS.connect('motion-type-changed', lambda w, data: v.choosePlotColor(data))
+STATUS.connect('motion-type-changed', lambda w, data: v.choosePlotColor(data))
 
-        # uncomment to change feed color and to see all colors printed to the terminal
-        #v.setColorsAttribute('FEED',(0,1,0))
-        #print(v.colors)
+# uncomment to change feed color and to see all colors printed to the terminal
+#v.setColorsAttribute('FEED',(0,1,0))
+#print(v.colors)
 ----
 
 You can set DEFAULT, FEED, TRAVERSE, ARC, PROBE, ROTARYINDEX, TOOLCHANGE colors with setColorsAttribute().
