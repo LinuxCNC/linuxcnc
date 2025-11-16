@@ -247,7 +247,7 @@ A tool compensation is programmed using G43 H_n_, where _n_ is the index number 
 It is intended that all entries in the tool table are positive.
 The value of H is checked, it must be a non-negative integer when read. The interpreter behaves as follows:
 
-1. If G43 H_n_ is programmed, a call to the function `USE_TOOL_LENGTH_OFFSET(`__length__`)` is made (where _length_ is the length difference, read from the tool table, of the indexed tool _n_),
+1. If G43 H__n__ is programmed, a call to the function `USE_TOOL_LENGTH_OFFSET(`__length__`)` is made (where _length_ is the length difference, read from the tool table, of the indexed tool _n_),
    tool_length_offset is repositioned in the machine settings model and the value of current_z in the model is adjusted.
    Note that _n_ does not have to be the same as the slot number of the tool currently in the spindle.
 
