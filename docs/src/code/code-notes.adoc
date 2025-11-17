@@ -745,7 +745,7 @@ nearly identical for every parameter.
 
 == Backlash and Screw Error Compensation
 
- + FIXME Backlash and Screw Error Compensation
+FIXME Backlash and Screw Error Compensation
 
 == Task controller (EMCTASK)
 
@@ -773,7 +773,7 @@ iocontrol main loop process:
 
 == User Interfaces
 
-  FIXME User Interfaces
+FIXME User Interfaces
 
 == libnml Introduction
 
@@ -1000,13 +1000,13 @@ unclear from the NIST documents. Only INF and positive values are
 mentioned. However, buried in the source code of rcslib, it is apparent
 that the following applies:
 
-timeout > 0 Blocking access until the timeout interval is reached or
+timeout > 0:: Blocking access until the timeout interval is reached or
 access to the buffer is available.
 
-timeout = 0 Access to the buffer is only possible if no other process
+timeout = 0:: Access to the buffer is only possible if no other process
 is reading or writing at the time.
 
-timeout < 0 or INF Access is blocked until the buffer is available.
+timeout < 0 or INF:: Access is blocked until the buffer is available.
 
 == NML base class
 
@@ -1095,7 +1095,7 @@ example is called EMC_IO_GENERIC (inherits EMC_IO_CMD_MSG (inherits
 RCS_CMD_MSG)))
 
 . add the definition of the EMC_IO_GENERIC class to emc2/src/emc/nml_intf/emc.hh
-. add the type define: #define EMC_IO_GENERIC_TYPE ((NMLTYPE) 1605) +
+. add the type define: #define EMC_IO_GENERIC_TYPE \((NMLTYPE) 1605) +
 .. (I chose 1605, because it was available) to emc2/src/emc/nml_intf/emc.hh
 . add case EMC_IO_GENERIC_TYPE to emcFormat in emc2/src/emc/nml_intf/emc.cc
 . add case EMC_IO_GENERIC_TYPE to emc_symbol_lookup in emc2/src/emc/nml_intf/emc.cc

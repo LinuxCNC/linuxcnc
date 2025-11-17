@@ -937,13 +937,14 @@ It is an error if:
 == Modal Groups
 
 (((Modal Groups)))
- commands are arranged in sets called 'modal groups', and only
-one member of a modal group may be in force at any given time. In
-general, a modal group contains commands for which it is logically
+Commands are arranged in sets called 'modal groups', and only
+one member of a modal group may be in force at any given time.
+In general, a modal group contains commands for which it is logically
 impossible for two members to be in effect at the same time - like
-measure in inches vs. measure in millimeters. A machining center may be
-in many modes at the same time, with one mode from each modal group
-being in effect. The modal groups are shown in the following Table.
+measure in inches versus measure in millimeters.
+A machining center may be in many modes at the same time,
+with one mode from each modal group being in effect.
+The modal groups are shown in the following Table.
 
 [[cap:modal-groups]]
 .G-code Modal Groups(((Modal Groups: G-codes)))
@@ -1222,6 +1223,7 @@ position of each item on the line, but by the following list:
 == G-code Best Practices
 
 (((G-code Best Practices)))
+
 .Use an appropriate decimal precision
 Use at least 3 digits after the decimal when milling in millimeters,
 and at least 4 digits after the decimal when milling in inches.
