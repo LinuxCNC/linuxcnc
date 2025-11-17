@@ -294,6 +294,7 @@ class Data:
 
         # Gmoccapy
         self.gmcpytheme = "Follow System Theme"
+        self.gmcpy_probescreen = False
 
         # Touchy only
         self.touchysize = [False,0,0]
@@ -328,6 +329,12 @@ class Data:
         self.voltszerof = 100.0
         self.voltsfullf = 999.
         self.voltsrdiv = 20
+
+        # Debounce signal
+        self.debounce_probe = True
+        self.debounce_cycle_probe = 5
+        self.debounce_estop = True
+        self.debounce_cycle_estop = 5        
 
         # LinuxCNC assorted defaults and options
         self.toolchangeprompt = True
