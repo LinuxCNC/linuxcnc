@@ -357,9 +357,11 @@ sudo ./linuxcnc-install.sh
 ----
 sudo apt-get update
 ----
-. Install the new realtime kernel, RTAI and the rtai version of linuxcnc.
+. Remove the existing uspace version of LinuxCNC and install the new realtime kernel, RTAI and the rtai version of linuxcnc.
 +
 ----
+sudo apt-get purge linuxcnc-uspace
+sudo apt-get purge linuxcnc-doc*
 sudo apt-get install linuxcnc
 ----
 Reboot the machine, ensuring that the system boots from the new 5.4.258-rtai
