@@ -72,6 +72,14 @@ class INI:
                     print("EMBED_TAB_LOCATION = ntb_user_tabs", file=file)
                 print("EMBED_TAB_COMMAND = gladevcp -c gladevcp %s -H gvcp_call_list.hal -x {XID} gvcp-panel.ui"%(theme), file=file)
 
+        if self.d.frontend == _PD._GMOCCAPY:
+            if self.d.gmcpy_probescreen:
+                print(file=file)
+                print("EMBED_TAB_NAME = Probe", file=file)
+                print("EMBED_TAB_LOCATION = ntb_preview", file=file)
+                print("EMBED_TAB_COMMAND = gladevcp -x {XID} gtk_little_probe", file=file)
+                print(file=file)
+
         if self.d.position_offset == 1: temp ="RELATIVE"
         else: temp = "MACHINE"
         print("POSITION_OFFSET = %s"% temp, file=file)
@@ -131,6 +139,15 @@ class INI:
             print("MDI_COMMAND = G53 G0 Z0;G53 G0 X0 Y0", file=file)
 
         print(file=file)
+
+        # this is needed for module embeded tab gtk_little_probe
+        if self.d.frontend == _PD._GMOCCAPY:
+            if self.d.gmcpy_probescreen:
+                print(file=file)
+                print("[TOOLSENSOR]", file=file)
+                print("RAPID_SPEED = 600", file=file)
+                print(file=file)
+
         print("[FILTER]", file=file)
         # qtplasmac has a different filter section
         if self.d.frontend == _PD._QTPLASMAC:
@@ -182,7 +199,26 @@ class INI:
             print("G64_DEFAULT_NAIVETOLERANCE = {}".format(q), file=file)
             print("", file=file)
         if self.d.frontend == _PD._GMOCCAPY:
-            print("SUBROUTINE_PATH = ./macros", file=file)
+            self.subrutinepath = "./macros:"
+            if self.d.gmcpy_probescreen:
+                # subrutine path for module embeded tab gtk_little_probe - package install
+                probepath = "/usr/share/linuxcnc/nc_files/probe/gtk_probe/"
+                if os.path.isdir(probepath):
+                    self.subrutinepath = self.subrutinepath + probepath + ":"
+                    print("Directory for probe files exist:", probepath)
+                else:
+                    print("Directory for probe files does not exist:", probepath)
+                # subrutine path for module embeded tab gtk_little_probe - RIP install
+                script_dir = os.path.dirname(__file__)
+                rel = "../../../nc_files/probe/gtk_probe/"
+                probepath = os.path.normpath(os.path.join(script_dir, rel))
+                if os.path.isdir(probepath):
+                    self.subrutinepath = self.subrutinepath + probepath + ":"
+                    print("Directory for probe files does exist:", probepath)
+                else:
+                    print("Directory for probe files does not exist:", probepath)
+            self.subrutinepath = self.subrutinepath.rstrip(":")
+            print("SUBROUTINE_PATH = %s"% self.subrutinepath, file=file)
             print("REMAP=M6  modalgroup=6 prolog=change_prolog ngc=change_g43 epilog=change_epilog", file=file)
             print("REMAP=M61  modalgroup=6 prolog=settool_prolog ngc=settool_g43 epilog=settool_epilog", file=file)
             print(file=file)
