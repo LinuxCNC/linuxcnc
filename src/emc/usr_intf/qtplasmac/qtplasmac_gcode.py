@@ -1192,7 +1192,7 @@ class Filter():
                         elif 'jh=' in item:
                             jh = float(item.split('=')[1])
                             if self.unitMultiplier != 1:
-                                jh = ph / self.unitMultiplier
+                                jh = jh / self.unitMultiplier
                         elif 'jd=' in item:
                             jd = float(item.split('=')[1])
                         elif 'ca=' in item:
@@ -1286,7 +1286,8 @@ class Filter():
                 self.errorLines.append(self.lineNumOrg)
                 break
             response = RUN(['halcmd', 'getp', self.matReloadPin], capture_output=True)
-            if not int(response.stdout.decode()):
+            raw = response.stdout.decode().strip().upper()
+            if raw in ['0', 'FALSE']:
                 break
 
     def write_one_material(self, mat, file, err):
