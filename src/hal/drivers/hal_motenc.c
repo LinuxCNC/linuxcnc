@@ -25,6 +25,7 @@
  *
  *   Pins:
  *	s32	motenc.<boardId>.enc-<channel>-count
+*	s64	motenc.<boardId>.enc-<channel>-count64
  *	float	motenc.<boardId>.enc-<channel>-position
  *	bit	motenc.<boardId>.enc-<channel>-index
  *	bit	motenc.<boardId>.enc-<channel>-index-enable
@@ -124,9 +125,10 @@
 
 #include <linux/pci.h>
 
-#include <rtapi.h>			// RTAPI realtime OS API.
-#include <rtapi_app.h>			// RTAPI realtime module decls.
-#include <hal.h>			// HAL public API decls.
+#include "rtapi.h"			// RTAPI realtime OS API.
+#include "rtapi_app.h"			// RTAPI realtime module decls.
+#include "rtapi_stdint.h"		// rtapi_s32 etc
+#include "hal.h"			// HAL public API decls.
 #include "motenc.h"			// Hardware dependent defines.
 
 // Module information.
@@ -146,6 +148,7 @@ MODULE_LICENSE("GPL");
 
 typedef struct {
     // Pins.
+    hal_s64_t				*pCount64;
     hal_s32_t				*pCount;	// Captured binary count value.
     hal_float_t				*pPosition;	// Scaled position (floating point).
     hal_bit_t				*pIndex;	// Current state of index.
@@ -161,6 +164,7 @@ typedef struct {
     // Private data.
     double				oldScale;	// Stored scale value.
     double				scaleRecip;	// Reciprocal value used for scaling.
+    rtapi_s32 				pCount_old;	// Previous counts, for bit width extending
 } EncoderPinsParams;
 
 typedef struct {
@@ -494,6 +498,10 @@ Device_ExportEncoderPinsParametersFunctions(Device *this, int componentId, int b
 	  componentId, "motenc.%d.enc-%02d-count", boardId, channel)) != 0)
 	    break;
 
+	if((halError = hal_pin_s64_newf(HAL_OUT, &(this->encoder[channel].pCount64),
+	  componentId, "motenc.%d.enc-%02d-count64", boardId, channel)) != 0)
+	    break;
+
 	if((halError = hal_pin_float_newf(HAL_OUT, &(this->encoder[channel].pPosition),
 	  componentId, "motenc.%d.enc-%02d-position", boardId, channel)) != 0)
 	    break;
@@ -517,6 +525,8 @@ Device_ExportEncoderPinsParametersFunctions(Device *this, int componentId, int b
 
 	// Init encoder.
 	*(this->encoder[channel].pCount) = 0;
+	*(this->encoder[channel].pCount64) = 0;
+	this->encoder[channel].pCount_old = 0;
 	*(this->encoder[channel].pPosition) = 0.0;
 	*(this->encoder[channel].pIndex) = 0;
 	*(this->encoder[channel].pIndexEnable) = 0;
@@ -794,6 +804,9 @@ Device_EncoderRead(void *arg, long period)
 
 	    // Read encoder counts.
 	    *(pEncoder->pCount) = pCard->fpga[i].encoderCount[j];
+	    // Extend counts to 64 bits
+	    *(pEncoder->pCount64) += *(pEncoder->pCount) - pEncoder->pCount_old;
+	    pEncoder->pCount_old = *(pEncoder->pCount);
 
 	    // Check for change in scale value.
 	    if ( pEncoder->scale != pEncoder->oldScale ) {
@@ -811,7 +824,7 @@ Device_EncoderRead(void *arg, long period)
 	    }
 
 	    // Scale count to make floating point position.
-	    *(pEncoder->pPosition) = *(pEncoder->pCount) * pEncoder->scaleRecip;
+	    *(pEncoder->pPosition) = *(pEncoder->pCount64) * pEncoder->scaleRecip;
 	}
     }
 }

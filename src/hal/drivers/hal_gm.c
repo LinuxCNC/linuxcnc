@@ -1,9 +1,10 @@
 #include <rtapi_pci.h>
 #include <rtapi_io.h>
 
-#include <rtapi.h>		// RTAPI realtime OS API
-#include <rtapi_app.h>		// RTAPI realtime module decls
-#include <hal.h>		// HAL public API decls
+#include "rtapi.h"		// RTAPI realtime OS API
+#include "rtapi_app.h"		// RTAPI realtime module decls
+#include "rtapi_stdint.h"	// portable ints
+#include "hal.h"		// HAL public API decls
 #include "gm.h"			// Hardware dependent defines
 #include <rtapi_math.h>
 
@@ -16,9 +17,11 @@ typedef struct { //encoder_t
     // Pins
 	hal_bit_t			*reset;
 	hal_s32_t			*counts;
+	hal_s64_t			*counts64;
 	hal_float_t			*position;
 	hal_float_t			*velocity;
 	hal_s32_t			*rawcounts;
+	hal_s64_t			*rawcounts64;
 	hal_bit_t			*index_enable;
     
     // Parameters
@@ -30,11 +33,11 @@ typedef struct { //encoder_t
 	hal_float_t			min_speed_estimate;
 
     // Private data
-	hal_s32_t			raw_offset;
-	hal_s32_t			index_offset;
-	hal_s32_t			last_index_latch;
+	rtapi_s64			index_offset;
+	rtapi_s64			last_index_latch;
 	hal_bit_t			first_index;
 	hal_bit_t			module_exist;
+	rtapi_s32			old_counts;
 } encoder_t;
 
 typedef struct { //switches_t
@@ -239,19 +242,19 @@ typedef struct { //stepgen_t
 	hal_float_t		*position_cmd;
 	hal_float_t		*velocity_cmd;
 	hal_float_t		*position_fb;
-	hal_s32_t		*count_fb;	
+	hal_s64_t		*count_fb;
 	hal_bit_t		*enable;
 	
     // Parameters
 	hal_u32_t		step_type; //0: StepDir, 1: UpDown, 2: Quadrature
-	hal_bit_t		control_type; //0: position, 1: velocity	
+	hal_bit_t		control_type; //0: position, 1: velocity
 	hal_u32_t		steplen;
 	hal_u32_t		stepspace;
 	hal_u32_t		dirdelay;
 	hal_float_t		maxaccel;
 	hal_float_t		maxvel;
 	hal_bit_t		polarity_A;
-	hal_bit_t		polarity_B;	
+	hal_bit_t		polarity_B;
 	hal_float_t		position_scale;
 	
     //Saved Parameters
@@ -259,7 +262,7 @@ typedef struct { //stepgen_t
 	hal_u32_t		curr_stepspace;
 	hal_u32_t		curr_dirdelay;
 	hal_float_t		curr_maxaccel;
-	hal_float_t		curr_maxvel;	
+	hal_float_t		curr_maxvel;
 	hal_float_t		curr_position_scale;
 	
     // Private data
@@ -623,9 +626,11 @@ ExportEncoder(void *arg, int comp_id, int version)
 	      //Export Pins
 		if(error == 0) error = hal_pin_bit_newf(HAL_IN, &(device->encoder[i].reset), comp_id, "gm.%1d.encoder.%1d.reset", boardId, i);
 		if(error == 0) error = hal_pin_s32_newf(HAL_OUT, &(device->encoder[i].counts), comp_id, "gm.%1d.encoder.%1d.counts", boardId, i);
+		if(error == 0) error = hal_pin_s64_newf(HAL_OUT, &(device->encoder[i].counts64), comp_id, "gm.%1d.encoder.%1d.counts64", boardId, i);
 		if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->encoder[i].position), comp_id, "gm.%1d.encoder.%1d.position", boardId, i);
 		if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->encoder[i].velocity), comp_id, "gm.%1d.encoder.%1d.velocity", boardId, i);
 		if(error == 0) error = hal_pin_s32_newf(HAL_OUT, &(device->encoder[i].rawcounts), comp_id, "gm.%1d.encoder.%1d.rawcounts", boardId, i);
+		if(error == 0) error = hal_pin_s64_newf(HAL_OUT, &(device->encoder[i].rawcounts64), comp_id, "gm.%1d.encoder.%1d.rawcounts", boardId, i);
 		if(error == 0) error = hal_pin_bit_newf(HAL_IO, &(device->encoder[i].index_enable), comp_id, "gm.%1d.encoder.%1d.index-enable", boardId, i);
 			
 	      //Export Parameters
@@ -637,7 +642,7 @@ ExportEncoder(void *arg, int comp_id, int version)
 		if(error == 0) error = hal_param_float_newf(HAL_RW, &(device->encoder[i].min_speed_estimate), comp_id, "gm.%1d.encoder.%1d.min-speed-estimate", boardId, i);
 		
 	      //Init parameters
-		device->encoder[i].raw_offset = pCard->ENC_counter[i];
+		device->encoder[i].old_counts = pCard->ENC_counter[i];
 		device->encoder[i].index_offset = 0;
 		device->encoder[i].last_index_latch = pCard->ENC_index_latch[i];
 		device->encoder[i].first_index = 1;
@@ -679,7 +684,7 @@ ExportStepgen(void *arg, int comp_id, int version)
 		if(error == 0) error = hal_pin_float_newf(HAL_IN, &(device->stepgen[i].position_cmd), comp_id, "gm.%1d.stepgen.%1d.position-cmd", boardId, i);
 		if(error == 0) error = hal_pin_float_newf(HAL_OUT, &(device->stepgen[i].position_fb), comp_id, "gm.%1d.stepgen.%1d.position-fb", boardId, i);
 		if(error == 0) error = hal_pin_float_newf(HAL_IN, &(device->stepgen[i].velocity_cmd), comp_id, "gm.%1d.stepgen.%1d.velocity-cmd", boardId, i);
-		if(error == 0) error = hal_pin_s32_newf(HAL_OUT, &(device->stepgen[i].count_fb), comp_id, "gm.%1d.stepgen.%1d.count-fb", boardId, i);		
+		if(error == 0) error = hal_pin_s64_newf(HAL_OUT, &(device->stepgen[i].count_fb), comp_id, "gm.%1d.stepgen.%1d.count-fb", boardId, i);
 		if(error == 0) error = hal_pin_bit_newf(HAL_IN, &(device->stepgen[i].enable), comp_id, "gm.%1d.stepgen.%1d.enable", boardId, i);
 
 		//Export Parameters.
@@ -1472,7 +1477,7 @@ encoder(void *arg, long period)
     card	*pCard = device->pCard;
 
     int		i;
-	hal_s32_t	temp1 = 0, temp2;
+	rtapi_s32	temp1 = 0, temp2, delta_counts;
 	hal_float_t	vel;
 
 	//Update parameters
@@ -1529,12 +1534,15 @@ encoder(void *arg, long period)
 		  }
 		}
 		device->encoder[i].last_index_latch = temp2;
-		
-		*(device->encoder[i].rawcounts) =  temp1 - device->encoder[i].raw_offset;
+		delta_counts = temp1 - device->encoder[i].old_counts;
+		device->encoder[i].old_counts = temp1;
+		*(device->encoder[i].rawcounts) += delta_counts;
+		*(device->encoder[i].rawcounts64) += delta_counts;
 		*(device->encoder[i].counts) = *(device->encoder[i].rawcounts) - device->encoder[i].index_offset;
+		*(device->encoder[i].counts64) = *(device->encoder[i].rawcounts64) - device->encoder[i].index_offset;
 		
 		if((device->encoder[i].position_scale < 0.000001) && (device->encoder[i].position_scale > -0.000001))  device->encoder[i].position_scale = 1; //Don't like to divide by 0
-		*(device->encoder[i].position) = (hal_float_t) *(device->encoder[i].counts) / device->encoder[i].position_scale;
+		*(device->encoder[i].position) = (hal_float_t) *(device->encoder[i].counts64) / device->encoder[i].position_scale;
 		
 		vel = (hal_float_t) pCard->ENC_period[i];
 		if(vel == 0) vel = 1;

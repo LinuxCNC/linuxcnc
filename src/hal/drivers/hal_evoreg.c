@@ -103,7 +103,7 @@ typedef struct {
 	hal_bit_t *digital_in[47];    /* ptrs for digital input pins 0 - 45 */
         hal_bit_t *digital_out[25];    /* ptrs for digital output pins 0 - 20 */
         __u16 raw_counts_old[3];
-        __s32 counts[3];
+        __s64 counts[3];
         hal_float_t pos_scale;         /*! \todo scale for position command FIXME should be one per axis */
 } evoreg_t;
 
@@ -293,7 +293,7 @@ static void update_port(void *arg, long period)
     writew((*(port->dac_out[1])/10 * 0x7fff), (char *)port->io_base + 0x80);
     writew((*(port->dac_out[2])/10 * 0x7fff), (char *)port->io_base + 0xa0);
 
-/* Read Encoders, improve the 16bit hardware counters to 32bit and scale the values */
+/* Read Encoders, improve the 16bit hardware counters to 64bit and scale the values */
     raw_counts[0] = (__u16) readw(port->io_base);
     raw_counts[1] = (__u16) readw((char *)port->io_base + 0x08 );
     raw_counts[2] = (__u16) readw((char *)port->io_base + 0x10 );
