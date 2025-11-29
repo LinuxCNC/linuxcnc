@@ -1,4 +1,4 @@
-VERSION = '009.073'
+VERSION = '009.074'
 LCNCVER = '2.10'
 
 '''
@@ -750,9 +750,9 @@ class HandlerClass:
             elif kind == linuxcnc.OPERATOR_ERROR and not self.realTimeDelay:
                 N.update(O.notify_critical, icon='dialog-error', title='Operator Error:', message=text, msgs=O.notify_max_msgs)
             elif kind == linuxcnc.OPERATOR_TEXT:
-                N.update(O.notify_critical, title='Operator Text:', message=text, msgs=O.notify_max_msgs)
+                N.update(O.notify_critical, icon='dialog-information', title='Operator Text:', message=text, msgs=O.notify_max_msgs)
             elif kind == linuxcnc.OPERATOR_DISPLAY:
-                N.update(O.notify_critical, title='Operator Display:', message=text, msgs=O.notify_max_msgs)
+                N.update(O.notify_critical, icon='dialog-messages', title='Operator Display:', message=text, msgs=O.notify_max_msgs)
             elif kind == linuxcnc.NML_ERROR:
                 N.update(O.notify_critical, title='Internal NML Error:', message=text, msgs=O.notify_max_msgs)
             elif kind == linuxcnc.NML_TEXT:
