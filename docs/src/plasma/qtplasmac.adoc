@@ -2351,7 +2351,7 @@ image::images/qtplasmac_rfl_options.png[width=200,align="center"]
 
 ==== HERE TO END
 
-*HERE TO END* will run from the beginning of the selected line to the end of the G-code file with the option of adding a lead-in.
+*HERE TO END* will run from the beginning of the selected line to the end of the G-code file. The user will be presented with the option of adding a lead-in if the selected line falls within an "active" cutting operation (between an M3 and M5).
 
 image::images/qtplasmac_rfl_here_to_end.png[width=350,align="center"]
 
@@ -2388,6 +2388,9 @@ Click this button to run the selected cutpath.
 . Click the background of the preview window - this method will cancel a selection of either a cut line in the preview window, or a G-code line in the G-code window.
 . Click the text of the first line of the G-code program in the G-code display - this method will cancel a selection of either a cut line in the preview window, or a G-code line in the G-code window.
 . Clicking *RELOAD* in the G-code window header - this method will cancel the Run From Line process if LOAD was clicked on the Run From Line dialog box and "rfl.ngc" is displayed as the loaded file name in the G-code window header. This will return the user to the originally loaded file.
+
+[NOTE]
+Although Run From Line allows the user to begin execution at any line, not every possible scenario can be fully tested. Most testing has focused on recovering typical cutting operations. Therefore when recovering outside of cutting operations, users should select a starting line that provides the GUI with the most context about the operation. For example, when restarting a spotting operation, choose the G0 line before the M3 command rather than the M3 itself or the G1 X0.000001 move in the middle of the spotting operation.
 
 [[plasma:scribe]]
 === Scribe
@@ -3718,7 +3721,7 @@ By following the above procedure, the offsets are available for use immediately 
 === Keep Z Motion
 
 By default, QtPlasmaC will remove all Z motion from a loaded G-code file and add an initial Z movement to bring the torch near the top of travel at the beginning of the file.
-If the user wishes to use their table with a marker, a drag knife, diamond scribe, etc. mounted in the torch holder,
+If the user wishes to use their table with a marker, drag knife, diamond scribe, etc. mounted in the torch holder,
 QtPlasmaC has the ability to retain the Z movements when executing a program by adding the following command in a G-code file:
 
 [source,{ngc}]
@@ -3726,8 +3729,13 @@ QtPlasmaC has the ability to retain the Z movements when executing a program by 
 #<keep-z-motion> = 1
 ----
 
-Omitting this command, or setting this value to anything but 1 will cause QtPlasmaC to revert to the default behavior of stripping all Z motion from a loaded G-code file
-and making an initial Z movement to bring the torch near the top of travel at the beginning of the file.
+This can be used two different ways:
+. In a G-code file with no M3 (cutting, scribing, or spotting) commands. In this case, #<keep-z-motion> = 1 can be placed anywhere before the first Z movement and all subsequent Z motion will be retained. The G-code filter will not add any initial Z movements.
+. In a G-code file that also contains subsequent spotting and/or cutting operations. In this case, the marking portion of the file that contains Z movements needs to preceed the spotting and/or cutting operations, and the marking section needs to have #<keep-z-motion> = 1 at the beginning and #<keep-z-motion> = 0 at the end. In this case, the G-code filter will automatically add an initial Z movement for the first M3 command after #<keep-z-motion> = 0.
+
+In either case, M3 commands are not supported while #<keep-z-motion> is active.
+
+Omitting #<keep-z-motion>, or setting #<keep-z-motion> to anything but 1 will cause QtPlasmaC the default behavior of stripping all Z motion from a loaded G-code file and adding an initial Z movement to bring the torch near the top of travel before the first M3 command.
 
 [[plasma:ext-hal-pin]]
 === External HAL Pins

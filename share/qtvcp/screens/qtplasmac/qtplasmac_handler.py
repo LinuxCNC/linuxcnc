@@ -1,4 +1,4 @@
-VERSION = '009.074'
+VERSION = '009.075'
 LCNCVER = '2.10'
 
 '''
@@ -1927,12 +1927,26 @@ class HandlerClass:
             if self.runType['type'] == 'cut':
                 count = 0
                 start = 0
+                start_found = False
+                in_keep_z_motion = False
                 with open(self.lastLoadedProgram, 'r') as inFile:
                     for line in inFile:
-                        if line[:3] == 'G00':
-                            start = count
-                        if line[:3] == 'M05' and count > self.startLine:
-                            break
+                        stripped = line.replace(' ', '')
+                        # track keep-z-motion state
+                        if '#<keep-z-motion>=1' in stripped:
+                            in_keep_z_motion = True
+                        elif '#<keep-z-motion>=0' in stripped:
+                            in_keep_z_motion = False
+                        # find start: last G00 XY before or first G00 XY after startLine
+                        if line[:3] == 'G00' and 'G53' not in line and ('X' in line or 'Y' in line):
+                            if count <= self.startLine or not start_found:
+                                start = count
+                                start_found = (count >= self.startLine)
+                        # find end: after both startLine and start
+                        if count > max(self.startLine, start):
+                            if (in_keep_z_motion and (('G53' in line and 'G00' in line and 'Z' in line) or '#<keep-z-motion>=0' in stripped)) or \
+                            (not in_keep_z_motion and line[:3] == 'M05'):
+                                break
                         count += 1
                 lastLine = count
                 self.startLine = start
@@ -1954,8 +1968,14 @@ class HandlerClass:
                 self.clear_rfl()
                 self.set_run_button_state()
             else:
-                # fake user input for this cutpath
-                if self.runType['type'] == 'cut':
+                # are we in a cutting operation (needs leadin dialog)
+                is_cutting = (data['codes']['spindle']['line'] and
+                              'M03' in data['codes']['spindle']['line'] and
+                              '$0' in data['codes']['spindle']['line'] and not
+                              data.get('keep_z_motion_active', False))
+                # skip leadin dialog for "this cutpath" or non-cutting operations
+                if self.runType['type'] == 'cut' or not is_cutting:
+                    # fake user input
                     userInput = {'cancel': False, 'do': False, 'length': 0, 'angle': 0}
                 # get user input
                 else:
