@@ -6,10 +6,10 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: gmoccapy_fr\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-10-05 14:29+0200\n"
-"PO-Revision-Date: 2024-01-28 03:22+0000\n"
-"Last-Translator: Axel BRUA <axel.brua.19@gmail.com>\n"
+"PO-Revision-Date: 2025-11-29 23:09+0000\n"
+"Last-Translator: \"S-G.\" <grimaitres@gmail.com>\n"
 "Language-Team: French <https://hosted.weblate.org/projects/linuxcnc/gmocappy/"
 "fr/>\n"
 "Language: fr\n"
@@ -17,12 +17,12 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.4-dev\n"
+"X-Generator: Weblate 5.15-dev\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:255
 msgid "user mode selected"
-msgstr ""
+msgstr "mode utilisateur sélectionné"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:258
 #, python-brace-format
