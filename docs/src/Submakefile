@@ -127,6 +127,7 @@ DOC_SRCS_EN := \
 	gui/axis.adoc \
 	gui/filter-programs.adoc \
 	gui/gladevcp.adoc \
+	gui/gladevcp-panels.adoc \
 	gui/gladevcp-libraries.adoc \
 	gui/gmoccapy.adoc \
 	gui/gscreen.adoc \
