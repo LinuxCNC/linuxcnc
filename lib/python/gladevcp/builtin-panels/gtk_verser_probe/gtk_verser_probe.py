@@ -100,6 +100,8 @@ class ProbeScreenClass:
         self.textarea = builder.get_object("textview1")
         self.e = linuxcnc.error_channel()
 
+        self.timeout = 600 # waiting for the MDI command to complete in seconds
+
         self.buffer = self.textarea.get_property('buffer')
         self.chk_set_zero = self.builder.get_object("chk_set_zero")
         self.chk_set_zero.set_active( self.prefs.getpref( "chk_set_zero", False, bool ) )
@@ -542,20 +544,36 @@ class ProbeScreenClass:
             if "G1" in l :
                 l+= " F#<_ini[TOOLSENSOR]RAPID_SPEED>"
             self.command.mdi( l )
-            self.command.wait_complete()
+            result = self.command.wait_complete(self.timeout)
+            if result == -1:
+                text = 'Command G-code timed out: ({} seconds)'.format(self.timeout)
+                self.add_history("Error: %s" % text,"",0,0,0,0,0,0,0,0,0,0,0)
+                return -1
             if self.error_poll() == -1:
                 return -1
         return 0
 
     def ocode(self,s, data = None):
-        self.command.mdi(s)
+        self.command.mdi( s )
         self.stat.poll()
         while self.stat.exec_state == 7 or self.stat.exec_state == 3 :
             if self.error_poll() == -1:
                 return -1
-            self.command.wait_complete()
+
+            result = self.command.wait_complete(self.timeout)
+            if result == -1:
+                text = 'Command O-code timed out: ({} seconds)'.format(self.timeout)
+                self.add_history("Error: %s" % text,"",0,0,0,0,0,0,0,0,0,0,0)
+                return -1
+
             self.stat.poll()
-        self.command.wait_complete()
+
+        result = self.command.wait_complete(self.timeout)
+        if result == -1:
+            text = 'Command O-code timed out: ({} seconds)'.format(self.timeout)
+            self.add_history("Error: %s" % text,"",0,0,0,0,0,0,0,0,0,0,0)
+            return -1
+
         if self.error_poll() == -1:
             return -1
         return 0
