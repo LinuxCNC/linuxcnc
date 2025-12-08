@@ -532,7 +532,7 @@ class Pages:
 
         # gmoccapy
         self.w.gmcpy_probescreen.set_active(self.d.gmcpy_probescreen)
-
+        self.w.gmcpy_mesascreen.set_active(self.d.gmcpy_mesascreen)
 
     def screen_finish(self):
         # Sanity checks
@@ -596,7 +596,7 @@ class Pages:
 
         # set the gmoccapy variables
         self.d.gmcpy_probescreen = self.w.gmcpy_probescreen.get_active()
-
+        self.d.gmcpy_mesascreen = self.w.gmcpy_mesascreen.get_active()
 
     # callbacks
     def on_loadladder_clicked(self, *args):self.t.load_ladder(self)

@@ -295,6 +295,7 @@ class Data:
         # Gmoccapy
         self.gmcpytheme = "Follow System Theme"
         self.gmcpy_probescreen = False
+        self.gmcpy_mesascreen = True
 
         # Touchy only
         self.touchysize = [False,0,0]
