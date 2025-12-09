@@ -61,7 +61,7 @@ TIP: Defaults are not converted when using metric so make sure they are sane val
 Computer Response Time::
 
 The servo period sets the heart beat of the system.
-Latency refers to the amount of time the computer can be longer than that period.
+Latency describes the difference between the time that the system is scheduled to perform and action and the time that it actually does perform the action.
 Just like a railroad, LinuxCNC requires everything on a very tight and consistent timeline or bad things happen.
 LinuxCNC requires and uses a 'real-time' operating system, which just means it has a low-latency (lateness) response time.
 When LinuxCNC requires and is performing calculations, it cannot be interrupted by lower priority requests (such as user input to screen buttons or drawing etc).
