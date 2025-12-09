@@ -180,6 +180,11 @@ void Usb::setDoReconnect(bool doReconnect)
     this->mDoReconnect = doReconnect;
 }
 // ----------------------------------------------------------------------
+void Usb::setUsbProductId(uint16_t usbProductId)
+{
+    this->usbProductId = usbProductId;
+}
+// ----------------------------------------------------------------------
 Usb::Usb(const char* name, OnUsbInputPackageListener& onDataReceivedCallback, Hal& hal) :
     sleepState(),
     inputPackageBuffer(),
