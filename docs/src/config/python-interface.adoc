@@ -564,9 +564,12 @@ def ok_for_mdi():
 
 if ok_for_mdi():
     c.mode(linuxcnc.MODE_MDI)
-    c.wait_complete() # wait until mode switch executed
+    c.wait_complete() # wait until mode switch executed (or default timeout of 5s occurs!)
     c.mdi("G0 X10 Y20 Z30")
 ----
+
+[WARNING]
+Read important information on 'wait_complete()' in the `linuxcnc.command methods' section below.
 
 ==  Sending commands through `linuxcnc.command`
 
@@ -803,10 +806,13 @@ c.spindle.(linuxcnc.SPINDLE_OFF, 0)
   Unhome a given joint.
 
 `wait_complete([float])`::
-  Wait for completion of the last command sent.
-  If timeout in seconds not specified, default is 5 seconds.
-  Return -1 if timed out, return `RCS_DONE` or `RCS_ERROR` according to command execution status.
-
+  Wait for completion of the last command.
+   Takes an optional timeout value in seconds. +
+   Timeout defaults to 5 seconds if omitted. +
+   Returns -1 if timed out. +
+   Returns `RCS_DONE` or `RCS_ERROR` according to command execution status. +
+   Note that python execution will be blocked until this function returns.
+   
 == Reading the error channel
 
 To handle error messages, connect to the error channel and periodically poll() it.
