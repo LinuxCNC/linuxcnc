@@ -72,9 +72,14 @@ class INI:
                     print("EMBED_TAB_LOCATION = ntb_user_tabs", file=file)
                 print("EMBED_TAB_COMMAND = gladevcp -c gladevcp %s -H gvcp_call_list.hal -x {XID} gvcp-panel.ui"%(theme), file=file)
 
+        print(file=file)
         if self.d.frontend == _PD._GMOCCAPY:
-            if self.d.gmcpy_probescreen:
+            if self.d.gmcpy_mesascreen:
+                print("EMBED_TAB_NAME = Mesa PC", file=file)
+                print("EMBED_TAB_LOCATION = ntb_setup", file=file)
+                print("EMBED_TAB_COMMAND = gladevcp -x {XID} gtk_mesa_tests", file=file)
                 print(file=file)
+            if self.d.gmcpy_probescreen:
                 print("EMBED_TAB_NAME = Probe", file=file)
                 print("EMBED_TAB_LOCATION = ntb_preview", file=file)
                 print("EMBED_TAB_COMMAND = gladevcp -x {XID} gtk_little_probe", file=file)
