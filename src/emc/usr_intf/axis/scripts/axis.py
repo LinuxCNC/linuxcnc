@@ -1952,6 +1952,11 @@ def all_homed():
     return isHomed
 
 def go_home(num):
+    s.poll()
+    for j in range(s.joints):
+        if s.joint[j]["homing"]:
+            print(_("Homing not possible until current homing process is finished."))
+            return
     set_motion_teleop(0)
     c.home(num)
     c.wait_complete()
