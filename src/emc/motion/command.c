@@ -1363,7 +1363,10 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	                   joint_num);
                 return;
 	    }
-
+	    if ( get_homing_is_active() ) {
+	        reportError("Homing not possible until current homing process is finished.\n");
+	        return;
+	    }
 	    if (!GET_MOTION_ENABLE_FLAG()) {
 		break;
 	    }

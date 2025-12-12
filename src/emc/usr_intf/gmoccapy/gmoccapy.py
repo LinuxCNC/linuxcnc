@@ -4016,6 +4016,11 @@ class gmoccapy(object):
     def _on_btn_home_clicked(self, widget):
         # home axis or joint?
         LOG.debug("on button home clicked = {0}".format(widget.get_property("name")))
+        self.stat.poll()
+        for j in range(self.stat.joints):
+            if self.stat.joint[j]["homing"]:
+                self._show_error((13, _("Homing not possible until current homing process is finished.")))
+                return
         if "axis" in widget.get_property("name"):
             value = widget.get_property("name")[-1]
             # now get the joint from directory by the value
