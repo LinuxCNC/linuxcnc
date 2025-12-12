@@ -142,9 +142,10 @@ res += run_and_abort('G61.1 redo',   1.5, 5.0, 611, None, None)
 # Z=2:  path blending, 0.5" blend tolerance:  X up to 4.5"
 res += run_and_abort('G64P0.5',      2.0, 4.5, 640,  0.5,  0.0, 'G64P0.5Q0')
 res += run_and_abort('G64P0.5 redo', 2.5, 4.5, 640,  0.5,  0.0)
-# Z=3:  path blending, best possible speed:  X up to 3.725"
-res += run_and_abort('G64',          3.0, 3.7, 640,  0.0,  0.0, 'G64')
-res += run_and_abort('G64 redo',     3.5, 3.7, 640,  0.0,  0.0)
+# Z=3:  path blending, best possible speed:  X up to ~3.95"
+# (changed from 3.7 after fixing G64 P tolerance calculation in blendmath.c)
+res += run_and_abort('G64',          3.0, 3.9, 640,  0.0,  0.0, 'G64')
+res += run_and_abort('G64 redo',     3.5, 3.9, 640,  0.0,  0.0)
 # Z=4:  path blending, 6" naive cam tolerance:  X always 0" (zig-zags collapse)
 res += run_and_abort('G64P0Q6',      4.0, 0.0, 640,  0.0,  6.0, 'G64Q6')
 res += run_and_abort('G64P0Q6 redo', 4.5, 0.0, 640,  0.0,  6.0)

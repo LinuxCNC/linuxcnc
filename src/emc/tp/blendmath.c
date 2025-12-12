@@ -1133,11 +1133,14 @@ int blendCalculateNormals3(BlendGeom3 * const geom)
 int blendComputeParameters(BlendParameters * const param)
 {
 
-    // Find maximum distance h from arc center to intersection point
-    double h_tol = param->tolerance / (1.0 - sin(param->theta));
+    // Find maximum distance h from arc center to intersection point.
+    // The tolerance specifies max deviation from programmed path, which occurs
+    // at the arc tangent points (distance d_tol from corner along lines).
+    // Since d_tol = h * cos(theta), we need h = tolerance / cos(theta).
+    double h_tol = param->tolerance / cos(param->theta);
 
-    // Find maximum distance along lines allowed by tolerance
-    double d_tol = cos(param->theta) * h_tol;
+    // Distance along lines from corner to arc tangent points equals tolerance
+    double d_tol = cos(param->theta) * h_tol;  // = tolerance
     tp_debug_print(" d_tol = %f\n", d_tol);
 
     // Find minimum distance by blend length constraints

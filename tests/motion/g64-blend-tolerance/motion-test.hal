@@ -1,0 +1,9 @@
+# Sample X and Y positions for tolerance checking
+
+loadrt sampler depth=10000 cfg=ff
+
+addf sampler.0 servo-thread
+
+net Xpos => sampler.0.pin.0
+net Ypos => sampler.0.pin.1
+

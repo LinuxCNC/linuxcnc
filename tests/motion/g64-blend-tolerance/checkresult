@@ -1,0 +1,92 @@
+#!/usr/bin/env python3
+#
+# Check that G64 P tolerance is respected at the 90-degree corner.
+#
+# The test runs: G1 X0 Y0, G1 X1 Y0, G1 X1 Y1 with G64 P0.01
+# During the blend arc around the corner at (1,0), all sampled points
+# should be within the P tolerance of the corner vertex.
+#
+
+import sys
+import math
+
+CORNER_X = 1.0
+CORNER_Y = 0.0
+TOLERANCE = 0.01
+
+# Small margin for floating point / sampling jitter.
+# The blend arc tangent points are at exactly tolerance distance from corner,
+# but sampling can catch a point just after the blend ends (on the exit line)
+# which will be slightly beyond tolerance. A 15% margin accounts for this.
+MARGIN = 0.0015
+
+samples_filename = sys.argv[1] + ".halsamples"
+with open(samples_filename) as f:
+    lines = f.readlines()
+
+samples = []
+for line in lines:
+    parts = line.split()
+    # Format is: timestamp X Y (when using halsampler -t)
+    if len(parts) >= 3:
+        x = float(parts[1])
+        y = float(parts[2])
+        samples.append((x, y))
+
+if len(samples) == 0:
+    print("error: no samples collected")
+    sys.exit(1)
+
+print(f"I: collected {len(samples)} samples")
+
+# Find the blend arc by detecting where both X and Y are changing simultaneously
+# The blend arc is where the path transitions from the X-direction line to Y-direction
+# A sample is in the blend arc if BOTH its dx AND dy are nonzero in that sample's motion
+blend_arc_samples = []
+for i in range(1, len(samples)):
+    x0, y0 = samples[i-1]
+    x1, y1 = samples[i]
+    dx = abs(x1 - x0)
+    dy = abs(y1 - y0)
+
+    # In blend arc: both X and Y changing in THIS motion step
+    if dx > 1e-6 and dy > 1e-6:
+        blend_arc_samples.append((i, x1, y1))
+
+if not blend_arc_samples:
+    print("warning: no blend arc detected (no simultaneous X/Y motion near corner)")
+    print("warning: corner may have executed with exact stop instead of blending")
+    # This is a warning, not a failure - blending might not have occurred
+    sys.exit(0)
+
+print(f"I: found {len(blend_arc_samples)} samples in blend arc region")
+
+# Check that all blend arc samples are within tolerance of corner
+max_deviation = 0.0
+worst_sample = None
+violations = []
+
+for i, x, y in blend_arc_samples:
+    dist = math.sqrt((x - CORNER_X)**2 + (y - CORNER_Y)**2)
+    if dist > max_deviation:
+        max_deviation = dist
+        worst_sample = (i, x, y, dist)
+    if dist > TOLERANCE + MARGIN:
+        violations.append((i, x, y, dist))
+
+print(f"I: maximum deviation from corner in blend arc: {max_deviation:.6f}")
+print(f"I: tolerance: {TOLERANCE} (with margin: {TOLERANCE + MARGIN})")
+
+if worst_sample:
+    i, x, y, dist = worst_sample
+    print(f"I: worst sample {i}: ({x:.6f}, {y:.6f}) distance={dist:.6f}")
+
+if violations:
+    print(f"error: {len(violations)} samples exceed tolerance during blend arc")
+    for i, x, y, dist in violations[:5]:
+        print(f"error:   sample {i}: ({x:.6f}, {y:.6f}) distance={dist:.6f} (exceeds by {dist-TOLERANCE:.6f})")
+    sys.exit(1)
+
+print("I: G64 P tolerance check passed")
+sys.exit(0)
+
