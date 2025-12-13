@@ -45,7 +45,7 @@ class Bridge(object):
 
         self.currentSelectedAxis = 'None'
         self.axesSelected = {'X':0,'Y':0,'Z':0,'A':0,'B':0,'C':0,
-                                'U':0,'V':0,'W':0}
+                                'U':0,'V':0,'W':0,'MPG0':0}
         self.readAddress = readAddress
         self.writeAddress = writeAddress
         LOG.debug('read port: {}'.format(readAddress))
@@ -108,7 +108,7 @@ class Bridge(object):
 
     # set our variables from messages from hal_glib
     def action(self, msg, data):
-        LOG.debug('{} {}'.format(msg, data))
+        LOG.debug('{} -> {} -> {}'.format(msg, data, data[0]))
         if msg == 'jograte-changed':
             self.jogRate = float(data[0])
         elif msg == 'jograte-angular-changed':
@@ -120,7 +120,14 @@ class Bridge(object):
         elif msg == 'joint-selection-changed':
             self.activeJoint = int(data[0])
         elif msg == 'axis-selection-changed':
+            print ('pre axis state', self.axesSelected,self.currentSelectedAxis)
             flag = 1
+            if data[0] == 'MPG0':
+                self.currentSelectedAxis = data[0]
+                flag = 0
+                self.axesSelected['MPG0'] = True
+            else:
+               self.axesSelected['MPG0'] = False
             for i in(self.INFO.AVAILABLE_AXES):
                 if data[0] == i:
                     state = True
@@ -129,9 +136,10 @@ class Bridge(object):
                 else:
                     state = False
                 self.axesSelected[i] = int(state)
+
             if flag:
                 self.currentSelectedAxis = 'None'
-            #print ('axis state', self.axesSelected)
+            print ('axis state', self.axesSelected,self.currentSelectedAxis)
 
     # send msg to hal_glib
     def writeMsg(self, msg, data):
@@ -198,18 +206,25 @@ class Bridge(object):
         name = self.currentSelectedAxis
         if name == 'None':
             index = -1
+        elif name =='MPG0':
+            index = 100
         else:
             index = 'XYZABCUVW'.index(name)
         return index 
     def setSelectedAxis(self, value):
         if value < 0:
             letter = 'None'
+        elif value == 100:
+            letter = 'MPG0'
         else:
             letter ='XYZABCUVW'[value]
         self.writeMsg('set_selected_axis', letter)
 
     def isAxisSelected(self, index):
-        letter = 'XYZABCUVW'[index]
+        if index == 100:
+            letter = 'MPG0'
+        else:
+            letter = 'XYZABCUVW'[index]
         return int(self.axesSelected[letter])
 
     def __getitem__(self, item):

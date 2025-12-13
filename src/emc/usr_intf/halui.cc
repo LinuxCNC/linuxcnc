@@ -140,6 +140,7 @@ static int axis_mask = 0;
 \
     ARRAY(hal_bit_t,joint_nr_select,EMCMOT_MAX_JOINTS) /* nr. of pins to select a joint */ \
     ARRAY(hal_bit_t,axis_nr_select,EMCMOT_MAX_AXIS) /* nr. of pins to select a axis */ \
+    FIELD(hal_bit_t,mpg_select0)\
 \
     ARRAY(hal_bit_t,joint_is_selected,EMCMOT_MAX_JOINTS) /* nr. of status pins for joint selected */ \
     ARRAY(hal_bit_t,axis_is_selected,EMCMOT_MAX_AXIS) /* nr. of status pins for axis selected */ \
@@ -1032,6 +1033,9 @@ int halui_hal_init(void)
         if (retval < 0) return retval;
     }
 
+    retval = halui_export_pin_IN_bit(&(halui_data->mpg_select0), "halui.mpg-select.0");
+    if (retval < 0) return retval;
+
     retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->joint_home[num_joints]), comp_id, "halui.joint.selected.home");
     if (retval < 0) return retval;
     retval =  hal_pin_bit_newf(HAL_IN, &(halui_data->joint_unhome[num_joints]), comp_id, "halui.joint.selected.unhome");
@@ -1759,6 +1763,7 @@ static void hal_init_pins()
     for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num++) {
         if ( !(axis_mask & (1 << axis_num)) ) { continue; }
         *(halui_data->axis_nr_select[axis_num]) = old_halui_data.axis_nr_select[axis_num] = 0;
+	*(halui_data->mpg_select0) = old_halui_data.mpg_select0 = 0;
 	*(halui_data->ajog_minus[axis_num]) = old_halui_data.ajog_minus[axis_num] = 0;
 	*(halui_data->ajog_plus[axis_num]) = old_halui_data.ajog_plus[axis_num] = 0;
 	*(halui_data->ajog_analog[axis_num]) = old_halui_data.ajog_analog[axis_num] = 0;
@@ -2001,6 +2006,11 @@ static void check_hal_changes()
             }else{
                 *(halui_data->axis_nr_select[axis_num]) = 0;
             }
+        }
+        if (value == 100) {
+            *(halui_data->mpg_select0) = 1;
+        }else{
+            *(halui_data->mpg_select0) = 0;
         }
         lastaxis = value;
     }
@@ -2334,6 +2344,7 @@ static void check_hal_changes()
     is_any_axis_selected = 0;
     deselected = 0;
     for (axis_num = 0; axis_num < EMCMOT_MAX_AXIS; axis_num++) {
+
         if ( !(axis_mask & (1 << axis_num)) ) { continue; }
 
         // axis jog -
@@ -2397,7 +2408,22 @@ static void check_hal_changes()
         old_halui_data.axis_nr_select[axis_num] = bit;
     }
     }
-    // last axis has been deselected - no axis is selected now        
+
+    // is MPG0 selected?
+    bit = new_halui_data.mpg_select0;
+    if (bit != old_halui_data.mpg_select0) {
+	    if (bit != 0) {
+            is_any_axis_selected = 1;
+            py_call_axis_changed(100);
+            *halui_data->axis_selected = 100;
+	    }else{
+                deselected = 1;
+        }
+        old_halui_data.mpg_select0 = bit;
+    }
+
+
+    // last axis has been deselected - no axis is selected now
     if (is_any_axis_selected == 0 and deselected == 1) {
         py_call_axis_changed(-1);
         *halui_data->axis_selected = -1;
