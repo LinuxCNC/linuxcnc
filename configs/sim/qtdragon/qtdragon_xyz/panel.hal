@@ -1,8 +1,21 @@
 net rate    halui.axis.jog-speed panel.jog-rate
 
 net sx  halui.axis.x.select  panel.axis-x
+net sx  axis.x.jog-enable
 net sy  halui.axis.y.select  panel.axis-y
+net sy  axis.y.jog-enable
 net sz  halui.axis.z.select  panel.axis-z
+net sz  axis.z.jog-enable
+
+net mpg-scale   axis.x.jog-scale    panel.mpg-scale
+net mpg-scale   axis.y.jog-scale
+net mpg-scale   axis.z.jog-scale
+
+net mpg-count     panel.mpg-wheel-s
+net mpg-count     qtdragon.mpg-in
+net mpg-count     axis.x.jog-counts
+net mpg-count     axis.y.jog-counts
+net mpg-count     axis.z.jog-counts
 
 net jog-p   halui.axis.selected.plus    panel.jog-pos
 net jog-m   halui.axis.selected.minus   panel.jog-neg
