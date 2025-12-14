@@ -95,6 +95,7 @@ class _VCPWindow(QtWidgets.QMainWindow):
         self.originalCloseEvent_ = self.closeEvent
         self._halWidgetList = []
         self._VCPWindowList = []
+        self._DialogList = []
         self.settings = QtCore.QSettings('QtVcp', path.BASENAME)
         log.info('Qsettings file path: yellow<{}>'.format(self.settings.fileName()))
         # make an instance with embedded variables so they
@@ -106,6 +107,12 @@ class _VCPWindow(QtWidgets.QMainWindow):
 
     def getRegisteredHalWidgetList(self):
         return self._halWidgetList
+
+    def registerDialog(self, widget):
+        self._DialogList.append(widget)
+
+    def getRegisteredDialogList(self):
+        return self._DialogList
 
     # These catch events if using a plain VCP panel and there is no handler file
     def keyPressEvent(self, e):
