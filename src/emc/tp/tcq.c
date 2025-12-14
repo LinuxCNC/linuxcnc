@@ -45,14 +45,18 @@ static inline int tcqCheck(TC_QUEUE_STRUCT const * const tcq)
  */
 int tcqCreate(TC_QUEUE_STRUCT * const tcq, int _size, TC_STRUCT * const tcSpace)
 {
-    if (!tcq || !tcSpace || _size < 1) {
-        return -1;
-    }
+    if (_size <= 0 || 0 == tcq) {
+	return -1;
+    } else {
 	tcq->queue = tcSpace;
-	tcq->size = _size;
+    tcq->size = _size;
     tcqInit(tcq);
 
+	if (0 == tcq->queue) {
+	    return -1;
+	}
 	return 0;
+    }
 }
 
 /*! tcqDelete() function
@@ -97,7 +101,6 @@ int tcqInit(TC_QUEUE_STRUCT * const tcq)
     tcq->_len = 0;
     tcq->start = tcq->end = 0;
     tcq->rend = 0;
-    tcq->_rlen = 0;
     tcq->allFull = 0;
 
     return 0;
@@ -166,7 +169,7 @@ int tcqPopBack(TC_QUEUE_STRUCT * const tcq)
     return 0;
 }
 
-#define TCQ_REVERSE_MARGIN 200
+#define TCQ_REVERSE_MARGIN 100
 
 int tcqPop(TC_QUEUE_STRUCT * const tcq)
 {
@@ -230,20 +233,19 @@ int tcqRemove(TC_QUEUE_STRUCT * const tcq, int n)
     return 0;
 }
 
-
 /**
  * Step backward into the reverse history.
  */
 int tcqBackStep(TC_QUEUE_STRUCT * const tcq)
 {
-
     if (tcqCheck(tcq)) {
         return -1;
     }
 
     // start == end means that queue is empty
 
-    if ( tcq->start == tcq->rend) {	
+    int rempty = (tcq->start == tcq->rend);
+    if ( rempty && !tcq->allFull) {	
         return -1;
     }
     /* update start ptr and reset allFull flag and len */
