@@ -795,7 +795,7 @@ class HandlerClass:
             self.touchoff('touchplate')
         elif sensor_code and name == 'MESSAGE' and rtn is True:
             self.touchoff('sensor')
-        elif wait_code and name == 'MESSAGE':
+        elif wait_code and name == 'MESSAGE' and rtn is True:
             self.lowerSpindle()
         elif unhome_code and name == 'MESSAGE' and rtn is True:
             ACTION.SET_MACHINE_UNHOMED(-1)
@@ -2253,6 +2253,11 @@ class HandlerClass:
                     name = i.getIdName()
                     STATUS.emit('dialog-update',{'NAME':name,'response':answer})
                     return
+
+            # fallback
+            for w in QtWidgets.QApplication.topLevelWidgets():
+                if isinstance(w, QtWidgets.QDialog) and not w.isHidden():
+                    LOG.verbose(f'Found unregistered dialog {w.objectName()}')
 
     def log_version(self):
         if INFO.RIP_FLAG:
