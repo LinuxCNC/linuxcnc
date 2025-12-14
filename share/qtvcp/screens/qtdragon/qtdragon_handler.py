@@ -769,7 +769,7 @@ class HandlerClass:
             self.touchoff('touchplate')
         elif sensor_code and name == 'MESSAGE' and rtn is True:
             self.touchoff('sensor')
-        elif wait_code and name == 'MESSAGE':
+        elif wait_code and name == 'MESSAGE' and rtn is True:
             self.lowerSpindle()
         elif unhome_code and name == 'MESSAGE' and rtn is True:
             ACTION.SET_MACHINE_UNHOMED(-1)
@@ -2090,14 +2090,14 @@ class HandlerClass:
 
     def dialog_ext_control(self, pin, value, answer):
         if value:
-            # handler defined dialog?
-            if not self._dialog_message is None:
-                name = self._dialog_message.get('NAME')
-                STATUS.emit('dialog-update',{'NAME':name,'response':answer})
-            else:
-                # tool change dialog?
-                if self.w.toolDialog_.isVisible():
-                    STATUS.emit('dialog-update',{'NAME':'TOOLCHANGE','response':answer})
+            # search the registered dialogs for a match
+            dlist = self.w.getRegisteredDialogList()
+            for i in (dlist):
+                if i.isVisible():
+                    print('Found dialog',i.objectName())
+                    name = i.getIdName()
+                    STATUS.emit('dialog-update',{'NAME':name,'response':answer})
+                    return
 
     def log_version(self):
         if INFO.RIP_FLAG:
