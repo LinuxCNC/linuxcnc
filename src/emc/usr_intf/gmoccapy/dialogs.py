@@ -36,10 +36,19 @@ class Dialogs(GObject.GObject):
 
     __gsignals__ = {
                 'play_sound': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
+                'system-dialog-result': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_INT,))
                }
 
-    def __init__(self):
+    def __init__(self, caller):
         GObject.GObject.__init__(self)
+        self.sys_dialog = self.system_dialog(caller)
+
+    def dialog_ext_control(self, answer):
+        if self.sys_dialog.get_visible():
+            if answer:
+                self.sys_dialog.response(Gtk.ResponseType.ACCEPT)
+            else:
+                self.sys_dialog.response(Gtk.ResponseType.CANCEL)
 
     # This dialog is for unlocking the system tab
     # The unlock code number is defined at the top of the page
@@ -47,9 +56,12 @@ class Dialogs(GObject.GObject):
         dialog = Gtk.Dialog(_("Enter System Unlock Code"),
                    caller.widgets.window1,
                    Gtk.DialogFlags.DESTROY_WITH_PARENT)
+        dialog.set_modal(True)
         label = Gtk.Label(_("Enter System Unlock Code"))
         label.modify_font(Pango.FontDescription("sans 20"))
         calc = gladevcp.Calculator()
+        dialog._calc = calc
+        dialog._caller = caller
         dialog.vbox.pack_start(label, False, False, 0)
         dialog.vbox.add(calc)
         calc.set_value("")
@@ -57,18 +69,32 @@ class Dialogs(GObject.GObject):
         calc.set_editable(True)
         calc.integer_entry_only(True)
         calc.num_pad_only(True)
-        calc.entry.connect("activate", lambda w : dialog.emit("response", Gtk.ResponseType.ACCEPT))
+        calc.entry.connect("activate", lambda w : self.on_system_response(dialog,Gtk.ResponseType.ACCEPT))
         dialog.parse_geometry("360x400")
         dialog.set_decorated(True)
-        dialog.show_all()
+        dialog.connect("response", self.on_system_response)
+        return dialog
+
+    def show_system_dialog(self):
+        self.sys_dialog._calc.set_value("")
+        self.sys_dialog.show_all()
         self.emit("play_sound", "alert")
-        response = dialog.run()
-        code = calc.get_value()
-        dialog.destroy()
-        if response == Gtk.ResponseType.ACCEPT:
-            if code == int(caller.unlock_code):
-                return True
-        return False
+
+    def on_system_response(self, dialog, result):
+        code = dialog._calc.get_value()
+        print('Code:',code)
+        rtn = -1
+        if result == Gtk.ResponseType.ACCEPT:
+            if code == int(dialog._caller.unlock_code):
+                print('Yes')
+                rtn = 1
+            else:
+                print('No')
+                rtn = 0
+        else:
+            print('Cancelled')
+        self.emit('system-dialog-result',rtn)
+        dialog.hide()
 
     def entry_dialog(self, caller, data = None, header = _("Enter value") , label = _("Enter the value to set"), integer = False):
         dialog = Gtk.Dialog(header,
