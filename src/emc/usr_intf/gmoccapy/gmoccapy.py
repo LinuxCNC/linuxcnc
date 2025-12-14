@@ -258,8 +258,9 @@ class gmoccapy(object):
         self.icon_theme.append_search_path(ICON_THEME_DIR)
         self.icon_theme.append_search_path(USER_ICON_THEME_DIR)
 
-        self.dialogs = dialogs.Dialogs()
+        self.dialogs = dialogs.Dialogs(caller = self)
         self.dialogs.connect("play_sound", self._on_play_sound)
+        self.dialogs.connect('system-dialog-result', self.system_dialog_return)
 
         # check the arguments given from the command line (Ini file)
         self.user_mode = False
@@ -421,6 +422,8 @@ class gmoccapy(object):
         self.GSTAT.connect('macro-call-request', lambda w, name: self.request_macro_call(name))
         self.GSTAT.connect('cycle-start-request', lambda w, state :self.request_start(state))
         self.GSTAT.connect('cycle-pause-request', lambda w, state: self.request_pause(state))
+        self.GSTAT.connect('ok-request', lambda w, state: self.dialogs.dialog_ext_control(1))
+        self.GSTAT.connect('cancel-request', lambda w, state: self.dialogs.dialog_ext_control(0))
 
         # get if run from line should be used
         self.run_from_line = self.prefs.getpref("run_from_line", "no_run", str)
@@ -4199,8 +4202,9 @@ class gmoccapy(object):
                 code = True
             # else we ask for the code using the system.dialog
             if self.widgets.rbt_use_unlock.get_active():
-                if self.dialogs.system_dialog(self):
-                    code = True
+                self.dialogs.show_system_dialog()
+                # we will wait for response
+                return
             # Lets see if the user has the right to enter settings
             if code:
                 self.widgets.ntb_main.set_current_page(1)
@@ -4252,6 +4256,25 @@ class gmoccapy(object):
                 self.command.wait_complete()
 
             widget.set_image(self.widgets.img_settings)
+
+    # return code from system dialog
+    def system_dialog_return(self,widget,result):
+            print(widget,result)
+            # Lets see if the user has the right to enter settings
+            if result == 1:
+                self.widgets.ntb_main.set_current_page(1)
+                self.widgets.ntb_setup.set_current_page(0)
+                self.widgets.ntb_button.set_current_page(_BB_SETUP)
+                #widget.set_image(self.widgets.img_settings_on)
+            elif result == 0:
+                if self.widgets.rbt_hal_unlock.get_active():
+                    message = _("Hal Pin is low, Access denied")
+                else:
+                    message = _("wrong code entered, Access denied")
+                self.dialogs.warning_dialog(self, _("Just to warn you"), message)
+                self.widgets.tbtn_setup.set_active(False)
+                #widget.set_image(self.widgets.img_settings)
+
 
     # Show or hide the user tabs
     def on_tbtn_user_tabs_toggled(self, widget, data=None):
