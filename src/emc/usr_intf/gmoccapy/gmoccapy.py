@@ -3175,13 +3175,16 @@ class gmoccapy(object):
         Gtk.main_quit()
 
     def on_focus_out(self, widget, data=None):
+        LOG.debug("focus-out-event")
         self.stat.poll()
         if self.stat.enabled and self.stat.task_mode == linuxcnc.MODE_MANUAL and self.stat.current_vel > 0:
             # cancel any joints jogging
             JOGMODE = self._get_jog_mode()
             for jnum in range(self.stat.joints):
-                self.command.jog(linuxcnc.JOG_STOP, JOGMODE, jnum)
-            LOG.debug("Stopped jogging on focus-out-event")
+                # don't cancel if the joint is homing
+                if not self.stat.joint[jnum]["homing"]:
+                    self.command.jog(linuxcnc.JOG_STOP, JOGMODE, jnum)
+                    LOG.debug("Stopped jogging for joint %d on focus-out-event" % (jnum))
 
     # What to do if a macro button has been pushed
     def _on_btn_macro_pressed( self, widget = None, data = None ):
