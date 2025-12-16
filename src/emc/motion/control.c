@@ -866,6 +866,15 @@ static void set_operating_mode(void)
     emcmot_joint_t *joint;
     double positions[EMCMOT_MAX_JOINTS];
 
+    /* joints set to volatile are unhomed when task state switches to OFF or ESTOP
+       in this case we need to switch to 'free' mode */
+    if (!get_allhomed() && (GET_MOTION_TELEOP_FLAG() || GET_MOTION_COORD_FLAG()) ) {
+        emcmotInternal->teleoperating = 0;
+        SET_MOTION_TELEOP_FLAG(0);
+        emcmotInternal->coordinating = 0;
+        SET_MOTION_COORD_FLAG(0);
+    }
+
     /* check for disabling */
     if (!emcmotInternal->enabling && GET_MOTION_ENABLE_FLAG()) {
 	/* clear out the motion emcmotInternal->coord_tp and interpolators */
