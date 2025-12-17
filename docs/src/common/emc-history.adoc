@@ -2,8 +2,9 @@
 :toc:
 
 [[cha:linuxcnc-history]]
-= Origin(((History)))
+= Origin
 
+(((History)))
 EMC (the Enhanced Machine Controller) was created by
 https://www.nist.gov/index.html[NIST] , the National Institute of Standards
 and Technology, which is an agency of the Commerce Department of the United

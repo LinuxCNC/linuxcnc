@@ -39,7 +39,7 @@ This section describes some methods for downloading the Live/Install image.
 Software for LinuxCNC to download is presented on the project's
 https://linuxcnc.org/downloads/[Downloads page].
 Most users will aim for the disk image for Intel/AMD PCs, the URL
-will resemble https://www.linuxcnc.org/iso/linuxcnc_2.9.4-amd64.hybrid.iso.
+will resemble https://www.linuxcnc.org/iso/linuxcnc_2.9.7-amd64.hybrid.iso.
 
 For the Raspberry Pi, multiple images are provided to address
 differences between the RPi4 and RPi5.
@@ -82,13 +82,13 @@ https://www.assembla.com/spaces/zsync-windows/documents .
 . After downloading, verify the checksum of the image to ensure integrity.
 
 ----
-md5sum linuxcnc-2.9.4-amd64.iso
+md5sum linuxcnc-2.9.7-amd64.iso
 ----
 
 or
 
 ----
-sha256sum linuxcnc-2.9.4-amd64.iso
+sha256sum linuxcnc-2.9.7-amd64.iso
 ----
 . Then compare to these checksums
 
@@ -131,14 +131,14 @@ It looks more complicated but seems to be more compatible with various BIOSes.
 . Connect a USB storage device (for example a flash drive or thumb
   drive type device).
 . Determine the device file corresponding to the USB flash drive.
-  This information can be found in the output of `dmesg` after
-  connecting the device.  `/proc/partitions` may also be helpful.
+  This information can be found in the output of `sudo dmesg` after
+  connecting the device.  `cat /proc/partitions` may also be helpful.
 . Use the `dd` command to write the image to your USB storage device.
   For example, if your storage device showed up as `/dev/sde`,
   then use this command:
 +
 -----
-dd if=linuxcnc_2.9.4-amd64.hybrid.iso of=/dev/sde
+dd if=linuxcnc_2.9.7-amd64.hybrid.iso of=/dev/sde bs=4k status=progress
 -----
 
 === Command line - MacOS
@@ -160,7 +160,7 @@ diskutil unmountDisk /dev/diskN
   has an added "r" at the begining
 +
 -----
-sudo dd if=linuxcnc_2.9.4-amd64.hybrid.iso of=/dev/rdiskN bs=1m
+sudo dd if=linuxcnc_2.9.7-amd64.hybrid.iso of=/dev/rdiskN bs=1m
 -----
 . Note that this may take a long time to complete and there will be no
   feedback during the process.
@@ -223,8 +223,9 @@ using the RTAI realtime kernel which will often give better latency.
 
 To install LinuxCNC from the Live CD select 'Install (Graphical)' at bootup.
 
-== Updates to LinuxCNC (((Updates to LinuxCNC)))
+== Updates to LinuxCNC
 
+(((Updates to LinuxCNC)))
 With the normal install the Update Manager will notify you of updates
 to LinuxCNC when you go on line and allow you to easily upgrade with no
 Linux knowledge needed.

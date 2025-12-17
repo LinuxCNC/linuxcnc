@@ -2,7 +2,7 @@
 :toc:
 
 [[cha:updating-linuxcnc]]
-= Updating LinuxCNC(((Updating LinuxCNC)))
+= Updating LinuxCNC
 
 // Custom lang highlight
 // must come after the doc title, to work around a bug in asciidoc 8.6.6

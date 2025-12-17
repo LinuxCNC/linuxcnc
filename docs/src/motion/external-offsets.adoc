@@ -2,7 +2,7 @@
 :toc:
 
 [[cha:external-offsets]]
-= External Axis Offsets(((externaloffsets)))
+= External Axis Offsets
 
 // Custom lang highlight
 // must come after the doc title, to work around a bug in asciidoc 8.6.6
@@ -10,6 +10,7 @@
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
+(((Offsets,external)))
 External axis offsets are supported during teleop (world) jogs
 and coordinated (G-code) motion.  External axis offsets are
 enabled on a per-axis basis by INI file settings and controlled
