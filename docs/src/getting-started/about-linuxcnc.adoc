@@ -2,10 +2,11 @@
 :toc:
 
 [[cha:about-linuxcnc]]
-= About LinuxCNC(((About LinuxCNC)))
+= About LinuxCNC
 
 == The Software
 
+(((About LinuxCNC)))
 * LinuxCNC (the Enhanced Machine Control) is a software system for computer
   control of machine tools such as milling machines and lathes, robots
   such as puma and scara and other computer controlled machines up to 9 axes.
@@ -48,10 +49,11 @@ LinuxCNC is available as ready-to-use packages for the Ubuntu and Debian
 distributions.
 
 [[sec:getting-help]]
-== Getting Help(((Getting Help)))
+== Getting Help
 
 === IRC
 
+(((Getting Help)))
 IRC stands for Internet Relay Chat.
 It is a live connection to other LinuxCNC users.
 The LinuxCNC IRC channel is #linuxcnc on libera.chat.

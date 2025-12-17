@@ -2,10 +2,11 @@
 :toc:
 
 [[cha:hal-tutorial]]
-= HAL Tutorial(((HAL Tutorial)))
+= HAL Tutorial
 
 == Introduction
 
+(((HAL Tutorial)))
 Configuration moves from theory to device -- HAL device that is.
 For those who have had just a bit of computer programming,
 this section is the 'Hello World' of the HAL.
@@ -15,8 +16,9 @@ It is a command line or text file tool for configuration and tuning.
 The following examples illustrate its setup and operation.
 
 [[haltut-halcmd]]
-== Halcmd(((Halcmd Tutorial)))
+== Halcmd
 
+(((Halcmd Tutorial)))
 `halcmd` is a command line tool for manipulating HAL. A more complete man
 page exists for halcmd and installed together with LinuxCNC, from source
 or from a package. If LinuxCNC has been compiled as _run-in-place_, the
@@ -419,8 +421,9 @@ halrun -U
 ----
 
 [[sec:tutorial-halmeter]]
-== Halmeter(((Halmeter,Tutorial Halmeter)))
+== Halmeter
 
+(((Halmeter,Tutorial Halmeter)))
 You can build very complex HAL systems without ever using a graphical
 interface. However there is something satisfying about seeing the
 result of your work. The first and simplest GUI tool for the HAL is
@@ -522,8 +525,9 @@ time, you can just start more halmeters. The halmeter window was
 intentionally made very small so you could have a lot of them on the
 screen at once.
 
-== Stepgen Example(((stepgen Example)))
+== Stepgen Example
 
+(((stepgen Example)))
 Up till now we have only loaded one HAL component. But the whole idea
 behind the HAL is to allow you to load and connect a number of simple
 components to make up a complex system. The next example will use two
@@ -831,8 +835,9 @@ see how to bring those internal signals out to run motors in the real
 world, but first we want to look at them and see what is happening.
 
 [[sec:tutorial-halscope]]
-== Halscope(((Tutorial Halscope)))
+== Halscope
 
+(((Tutorial Halscope)))
 The previous example generates some very interesting signals. But much
 of what happens is far too fast to see with halmeter. To take a closer
 look at what is going on inside the HAL, we want an oscilloscope.

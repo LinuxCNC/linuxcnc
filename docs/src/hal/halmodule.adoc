@@ -2,8 +2,9 @@
 :toc:
 
 [[cha:halmodule]]
-= Creating Non-realtime Python Components(((Creating Non-realtime Python Components)))
+= Creating Non-realtime Python Components
 
+(((Creating Non-realtime Python Components)))
 This section explains principles behind the implementation of HAL components with the Python programming language.
 
 == Basic usage example

@@ -2,10 +2,11 @@
 :toc:
 
 [[cha:dh-parameters]]
-= Setting up "modified" Denavit-Hartenberg (DH) parameters for 'genserkins'(((DH parameters Examples)))
+= Setting up "modified" Denavit-Hartenberg (DH) parameters for 'genserkins'
 
 == Prelude
 
+(((DH parameters Examples)))
 LinuxCNC supports a number of kinematics modules including one that
 supports a generalized set of serial kinematics commonly specified via
 Denavit-Hartenberg parameters.
