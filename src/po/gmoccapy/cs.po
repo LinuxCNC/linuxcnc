@@ -10,7 +10,7 @@ msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-10-05 14:29+0200\n"
-"PO-Revision-Date: 2025-11-29 23:09+0000\n"
+"PO-Revision-Date: 2025-12-13 13:00+0000\n"
 "Last-Translator: Zdenek Z <zz912@seznam.cz>\n"
 "Language-Team: \n"
 "Language: cs\n"
@@ -1462,7 +1462,7 @@ msgstr "Použití klávesových zkratek"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:177
 msgid "<b>Keyboard shortcuts</b>"
-msgstr "<b>Klávesové </b>"
+msgstr "<b>Klávesové zkratky</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:178
 msgid ""
