@@ -576,7 +576,7 @@ become_master:
         gettimeofday(&t0, NULL);
         gettimeofday(&t1, NULL);
         for(int i=0; i < 3 || (t1.tv_sec < 3 + t0.tv_sec) ; i++) {
-            result = connect(fd, (sockaddr*)&addr, sizeof(addr));
+            result = connect(fd, (sockaddr*)&addr, len+sizeof(addr.sun_family)+1);
             if(result == 0) break;
             if(i==0) srand48(t0.tv_sec ^ t0.tv_usec);
             usleep(lrand48() % 100000);
