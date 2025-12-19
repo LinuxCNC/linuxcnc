@@ -514,7 +514,8 @@ static int
 get_fifo_path(char *buf, size_t bufsize) {
     const char *s = get_fifo_path();
     if(!s) return -1;
-    snprintf(buf, bufsize, "%s", s);
+	*buf=0;
+    snprintf(buf+1, bufsize-1, "%s", s);
     return 0;
 }
 
@@ -564,7 +565,6 @@ become_master:
         if(result != 0) { perror("listen"); exit(1); }
         setsid(); // create a new session if we can...
         result = master(fd, args);
-        unlink(get_fifo_path());
         return result;
     } else if(errno == EADDRINUSE) {
         struct timeval t0, t1;
@@ -578,7 +578,6 @@ become_master:
             gettimeofday(&t1, NULL);
         }
         if(result < 0 && errno == ECONNREFUSED) {
-            unlink(get_fifo_path());
             fprintf(stderr, "Waited 3 seconds for master.  giving up.\n");
             close(fd);
             goto become_master;
