@@ -512,10 +512,11 @@ get_fifo_path() {
 
 static int
 get_fifo_path(char *buf, size_t bufsize) {
+	int len;
     const char *s = get_fifo_path();
     if(!s) return -1;
-    snprintf(buf, bufsize, "%s", s);
-    return 0;
+    len=snprintf(buf+1, bufsize-1, "%s", s);
+    return len;
 }
 
 int main(int argc, char **argv) {
@@ -548,37 +549,40 @@ int main(int argc, char **argv) {
     for(int i=1; i<argc; i++) { args.push_back(string(argv[i])); }
 
 become_master:
+    int len=0;
     int fd = socket(PF_UNIX, SOCK_STREAM, 0);
     if(fd == -1) { perror("socket"); exit(1); }
 
     int enable = 1;
     setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(enable));
     struct sockaddr_un addr;
+	memset(&addr, 0x0, sizeof(addr));
     addr.sun_family = AF_UNIX;
-    if(get_fifo_path(addr.sun_path, sizeof(addr.sun_path)) < 0)
+    if((len=get_fifo_path(addr.sun_path, sizeof(addr.sun_path))) < 0)
        exit(1);
-    int result = ::bind(fd, (sockaddr*)&addr, sizeof(addr));
+	
+	// plus one because we use the abstract namespace, it will show up in
+	// /proc/net/unix prefixed with an @
+    int result = ::bind(fd, (sockaddr*)&addr, len+sizeof(addr.sun_family)+1); 
 
     if(result == 0) {
         int result = listen(fd, 10);
         if(result != 0) { perror("listen"); exit(1); }
         setsid(); // create a new session if we can...
         result = master(fd, args);
-        unlink(get_fifo_path());
         return result;
     } else if(errno == EADDRINUSE) {
         struct timeval t0, t1;
         gettimeofday(&t0, NULL);
         gettimeofday(&t1, NULL);
         for(int i=0; i < 3 || (t1.tv_sec < 3 + t0.tv_sec) ; i++) {
-            result = connect(fd, (sockaddr*)&addr, sizeof(addr));
+            result = connect(fd, (sockaddr*)&addr, len+sizeof(addr.sun_family)+1);
             if(result == 0) break;
             if(i==0) srand48(t0.tv_sec ^ t0.tv_usec);
             usleep(lrand48() % 100000);
             gettimeofday(&t1, NULL);
         }
         if(result < 0 && errno == ECONNREFUSED) {
-            unlink(get_fifo_path());
             fprintf(stderr, "Waited 3 seconds for master.  giving up.\n");
             close(fd);
             goto become_master;
