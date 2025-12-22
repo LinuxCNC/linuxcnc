@@ -2652,7 +2652,7 @@ ORIGIN</string>
                         </widget>
                        </item>
                        <item>
-                        <widget class="ActionButton" name="power">
+                        <widget class="QPushButton" name="power">
                          <property name="sizePolicy">
                           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
                            <horstretch>0</horstretch>
@@ -2693,50 +2693,6 @@ ORIGIN</string>
                           </size>
                          </property>
                          <property name="checkable">
-                          <bool>true</bool>
-                         </property>
-                         <property name="indicator_option" stdset="0">
-                          <bool>false</bool>
-                         </property>
-                         <property name="indicator_HAL_pin_option" stdset="0">
-                          <bool>false</bool>
-                         </property>
-                         <property name="indicator_status_option" stdset="0">
-                          <bool>false</bool>
-                         </property>
-                         <property name="checked_state_text_option" stdset="0">
-                          <bool>false</bool>
-                         </property>
-                         <property name="on_color" stdset="0">
-                          <color>
-                           <red>255</red>
-                           <green>0</green>
-                           <blue>0</blue>
-                          </color>
-                         </property>
-                         <property name="off_color" stdset="0">
-                          <color>
-                           <red>0</red>
-                           <green>0</green>
-                           <blue>0</blue>
-                          </color>
-                         </property>
-                         <property name="indicator_size" stdset="0">
-                          <double>0.200000000000000</double>
-                         </property>
-                         <property name="true_state_string" stdset="0">
-                          <string/>
-                         </property>
-                         <property name="false_state_string" stdset="0">
-                          <string/>
-                         </property>
-                         <property name="is_estopped_status" stdset="0">
-                          <bool>false</bool>
-                         </property>
-                         <property name="is_on_status" stdset="0">
-                          <bool>true</bool>
-                         </property>
-                         <property name="machine_on_action" stdset="0">
                           <bool>true</bool>
                          </property>
                         </widget>
