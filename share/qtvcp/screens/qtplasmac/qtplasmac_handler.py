@@ -5327,6 +5327,7 @@ class HandlerClass:
 
     def load_material_file(self, keepTemp=False):
         self.getMaterialBusy = True
+        self.MATS = Access(self.materialFile)
         # don't remove temporary materials unless required
         if keepTemp:
             pop = [key for key in self.materialDict if key < 1000000]
