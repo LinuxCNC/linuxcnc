@@ -1420,7 +1420,9 @@ class HandlerClass:
             self.w.power.setChecked(False)
             self.set_buttons_state([self.machineOnList, self.idleOnList, self.idleHomedList], False)
             if self.ptButton and hal.get_value('plasmac.probe-test'):
-                self.probe_test(False)
+                self.probe_test_stop()
+                log = _translate('HandlerClass', 'Probe test aborted due to GUI power off')
+                STATUS.emit('update-machine-log', log, 'TIME')
             if not self.firstRun:
                 log = _translate('HandlerClass', 'GUI power off')
                 STATUS.emit('update-machine-log', log, 'TIME')
@@ -4715,7 +4717,9 @@ class HandlerClass:
 
     def probe_test_error(self, state):
         if state:
-            self.probe_test(False)
+            self.probe_test_stop()
+            log = _translate('HandlerClass', 'Probe test error detected')
+            STATUS.emit('update-machine-log', log, 'TIME')
 
     def ext_torch_pulse(self, state):
         if self.tpButton and self.w[self.tpButton].isEnabled():
