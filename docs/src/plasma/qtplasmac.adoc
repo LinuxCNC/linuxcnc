@@ -188,7 +188,7 @@ To reiterate, in this case QtPlasmaC will treat the float switch as a breakaway 
 [[plasma:z-settings]]
 === Recommended Settings:
 
-Refer to the <<plasma:initial-setup,Heights Diagram>> diagram for a visual representation of the terms below.
+Refer to the <<plasma:initial-setup,Heights Diagrams>> for a visual representation of the terms below.
 
 * *[AXIS_Z] MIN_LIMIT* should be just below top of the slats with allowances for float_switch_travel and over travel tolerance.
   For example, if the user's float switch takes 4 mm (0.157") to activate then set the Z minimum to 5 mm (0.2")
@@ -305,9 +305,15 @@ For a run in place installation enter the following command in a terminal window
 [[plasma:initial-setup]]
 === Initial Setup
 
-The following heights diagram will help the user visualize the different heights involved in plasma cutting and how they are measured:
+The following heights diagrams will help the user visualize the different heights involved in plasma cutting and how they are measured. There are two different scenarios based on if the user chooses to use **Probe Height** only, or if the user chooses to user **Slat Height** AND **Material Thickness**.
 
-image::images/qtplasmac_heights_diagram.png[width=800,align="center"]
+.*Probe Height Only*
+
+image::images/qtplasmac_heights_diagram_probe_height.png[width=800,align="center"]
+
+.*Slat Height and Material Thickness*
+
+image::images/qtplasmac_heights_diagram_slat_and_material_height.png[width=800,align="center"]
 
 Click on the <<plasma:parameters-tab,Parameters Tab>> to view the *CONFIGURATION* section which shows the user settable parameters.
 It is necessary to ensure every one of these settings is tailored to the machine.
@@ -975,13 +981,14 @@ To further clarify, to have a valid Arc OK, the arc voltage must fall between th
 [cols="4,16",options="header"]
 //[frame=ends,grid=none]
 |===
-|Name         |Description
-|Float Travel |This sets the amount of travel the float switch moves before completing the float switch circuit. This distance can be measured by using the Probe Test button, and the method described in <<plasma:initial-setup,Initial Setup>>.
-|Probe Speed  |This sets the speed at which the torch will probe to find the material after it moves to the Probe Height.
-|Probe Height |This sets the height above the Z axis minimum limit that Probe Speed begins. Refer to the <<plasma:initial-setup,Heights Diagram>> diagram for a visual representation.
-|Ohmic Offset |This sets the distance above the material the torch will should go after a successful ohmic probe. It is mainly used to compensate for high probing speeds.
+|Name          |Description
+|Float Travel  |This sets the amount of travel the float switch moves before completing the float switch circuit. This distance can be measured by using the Probe Test button, and the method described in <<plasma:initial-setup,Initial Setup>>.
+|Probe Speed   |This sets the speed at which the torch will probe to find the material after it moves to the Probe Height.
+|Probe Height  |This sets the height above the Z axis minimum limit that Probe Speed begins. If set to zero, then the torch will move at Probe Speed from the current position. This may be adventageous when using Slat Height and Material Thickness as the machine will default to Probe Height if either Slat Height or Material Thickness are zero. Refer to the <<plasma:initial-setup,Heights Diagrams>> for a visual representation.
+|Slat Height   |This sets the height of the slats, measured up from Z axis minimum limit. This must be used in conjunction with Material Thickness. If either Slat Height or Material Thickness are zero then the machine will default to Probe Height. Refer to the <<plasma:initial-setup,Heights Diagrams>> for a visual representation.
+|Ohmic Offset  |This sets the distance above the material the torch will should go after a successful ohmic probe. It is mainly used to compensate for high probing speeds.
 |Ohmic Retries |This sets the number of times QtPlasmaC will retry a failed ohmic probe before falling back to the float switch for material detection.
-|Skip IHS     |This sets the distance threshold used to determine if an Initial Height Sense (probe) can be skipped for the current cut, see <<plasma:ihs-skip,IHS Skip>>.
+|Skip IHS      |This sets the distance threshold used to determine if an Initial Height Sense (probe) can be skipped for the current cut, see <<plasma:ihs-skip,IHS Skip>>.
 |Offset Speed  |This sets the speed at which the probe will move to the offset position in the X axis and Y axis.
 |===
 
@@ -994,8 +1001,8 @@ If the amount of time between the torch contacting the material and when the tor
 |===
 |Name |Description
 |Safe Height |This sets the height above the material that the torch will retract to before executing rapid moves. +
-If set to zero, then Z axis maximum height will be used for the safe height.
-Refer to the <<plasma:initial-setup,Heights Diagram>> diagram for a visual representation.
+If set to zero, then Max Offset (plasmac.max-offset) will be used for the safe height. This defaults to 5mm (0.197").
+Refer to the <<plasma:initial-setup,Heights Diagrams>> for a visual representation.
 |===
 
 [[plasma:scribe-config]]
@@ -1082,20 +1089,22 @@ The **RELOAD** button will reload all the parameters from the _<machine_name>_.p
 |===
 |Name |Description
 |Material |The top drop-down menu is used to manually select the current material cut parameters. If there are no materials in the material file, then only the default material will be displayed.
+|Thickness |This sets the thickness for the currently selected material. This must be used in conjunction with Slat Height. If either Slat Height or Material Thickness are zero then the machine will default to Probe Height.
+Refer to the <<plasma:initial-setup,Heights Diagrams>> for a visual representation.
 |Kerf Width |This sets the kerf width for the currently selected material.
-Refer to the <<plasma:initial-setup,Heights Diagram>> diagram for a visual representation.
+Refer to the <<plasma:initial-setup,Heights Diagrams>> for a visual representation.
 |Pierce Height |This sets the pierce height for the currently selected material.
-Refer to the <<plasma:initial-setup,Heights Diagram>> diagram for a visual representation.
+Refer to the <<plasma:initial-setup,Heights Diagrams>> for a visual representation.
 |Pierce Delay |This sets the pierce delay (in seconds) for the currently selected material.
 |Cut Height |This sets the cut height for the currently selected material.
-Refer to the <<plasma:initial-setup,Heights Diagram>> diagram for a visual representation.
+Refer to the <<plasma:initial-setup,Heights Diagrams>> for a visual representation.
 |Cut Feed Rate |This sets the cut feed rate for the currently selected material.
 |Cut Amps |This sets the cut amperage for the currently selected material. +
 This is a visual indicator to the operator only, unless PowerMax communications are being used.
 |Cut Volts |This sets the cut voltage for the currently selected material.
 |Puddle Height |Expressed as a percentage of Pierce Height, this sets the Puddle Jump height for the currently selected material. +
 Typically used for thicker materials, Puddle Jump allows the torch to have an intermediate step between Pierce Height and Cut Height. +
-If set, the torch will proceed from Pierce Height to P-Jump Height for a period of time (P-Jump Delay) before proceeding to Cut Height to effectively "jump" over the molten puddle. Refer to the <<plasma:initial-setup,Heights Diagram>> diagram for a visual representation.
+If set, the torch will proceed from Pierce Height to P-Jump Height for a period of time (P-Jump Delay) before proceeding to Cut Height to effectively "jump" over the molten puddle. Refer to the <<plasma:initial-setup,Heights Diagrams>> for a visual representation.
 |Puddle Delay |This sets the amount of time (in seconds) the torch will stay at the P-Jump Height before proceeding to Cut Height.
 |Pause At End |This sets the amount of time (in seconds) the torch will stay on at the end of the cut before proceeding with the M5 command to turn off and raise the torch. For more information see <<plasma:pause-at-end,Pause At End Of Cut>>.
 |Gas Pressure |This sets the gas pressure for the currently selected material. +
@@ -1516,6 +1525,7 @@ Optional parameters are:
 [width="90%",cols="1,7",options="header"]
 |===
 |Name |Description
+|mt |Sets the material thickness.
 |kw |Sets the kerf width.
 |th |Sets the THC status (0=disabled, 1=enabled).
 |ca |Sets the cut amps.
@@ -1527,11 +1537,18 @@ Optional parameters are:
 |jd |Sets the puddle jump delay.
 |===
 
-A complete example:
+A complete example (metric):
 
 [source,{ngc}]
 ----
-(o=0, nu=2, na=5mm Mild Steel 40A, ph=3.1, pd=0.1, ch=0.75, fr=3000, kw=0.5, th=1, ca=45, cv=110, pe=0.1, gp=5, cm=1, jh=0, jd=0)
+(o=0, nu=2, na=5mm Mild Steel 40A, ph=3.1, pd=0.1, ch=0.75, fr=3000, mt=5, kw=0.5, th=1, ca=40, cv=110, pe=0.1, gp=5, cm=1, jh=0, jd=0)
+----
+
+A complete example (imperial):
+
+[source,{ngc}]
+----
+(o=0, nu=2, na=0.197" Mild Steel 40A, ph=0.122, pd=0.1, ch=0.029, fr=118, mt=0.197, kw=0.020, th=1, ca=40, cv=110, pe=0.1, gp=72, cm=1, jh=0, jd=0)
 ----
 
 If a temporary material has been specified in a G-code file then the material change line (M190...) and wait for change line (M66...) will be added by the G-code filter and are not required in the G-code file.
