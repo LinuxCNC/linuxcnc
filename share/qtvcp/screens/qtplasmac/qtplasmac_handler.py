@@ -1,4 +1,4 @@
-VERSION = '009.075'
+VERSION = '010.076'
 LCNCVER = '2.10'
 
 '''
@@ -904,6 +904,7 @@ class HandlerClass:
         CALL(['halcmd', 'net', 'plasmac:ohmic-probe-offset', 'qtplasmac.ohmic_probe_offset-f', 'plasmac.ohmic-probe-offset'])
         CALL(['halcmd', 'net', 'plasmac:ohmic-max-attempts', 'qtplasmac.ohmic_max_attempts-s', 'plasmac.ohmic-max-attempts'])
         CALL(['halcmd', 'net', 'plasmac:skip-ihs-distance', 'qtplasmac.skip_ihs_distance-f', 'plasmac.skip-ihs-distance'])
+        CALL(['halcmd', 'net', 'plasmac:slat-height', 'qtplasmac.slat_height-f', 'plasmac.slat-height'])
         CALL(['halcmd', 'net', 'plasmac:offset-feed-rate', 'qtplasmac.offset_feed_rate-f', 'plasmac.offset-feed-rate'])
         # safety parameters
         CALL(['halcmd', 'net', 'plasmac:safe-height', 'qtplasmac.safe_height-f', 'plasmac.safe-height'])
@@ -925,6 +926,7 @@ class HandlerClass:
         CALL(['halcmd', 'net', 'plasmac:pierce-height', 'qtplasmac.pierce_height-f', 'plasmac.pierce-height'])
         CALL(['halcmd', 'net', 'plasmac:puddle-jump-delay', 'qtplasmac.puddle_jump_delay-f', 'plasmac.puddle-jump-delay'])
         CALL(['halcmd', 'net', 'plasmac:puddle-jump-height', 'qtplasmac.puddle_jump_height-f', 'plasmac.puddle-jump-height'])
+        CALL(['halcmd', 'net', 'plasmac:material-thickness', 'qtplasmac.material_thickness-f', 'plasmac.material-thickness'])
         # monitor
         CALL(['halcmd', 'net', 'plasmac:arc_ok_out', 'plasmac.arc-ok-out', 'qtplasmac.led_arc_ok'])
         CALL(['halcmd', 'net', 'plasmac:arc_voltage_out', 'plasmac.arc-voltage-out', 'qtplasmac.arc_voltage'])
@@ -2877,6 +2879,7 @@ class HandlerClass:
         self.PREFS.putpref('Pid I Gain', self.w.pid_i_gain.value(), float, 'PLASMA_PARAMETERS')
         self.PREFS.putpref('Probe Feed Rate', self.w.probe_feed_rate.value(), float, 'PLASMA_PARAMETERS')
         self.PREFS.putpref('Probe Start Height', self.w.probe_start_height.value(), float, 'PLASMA_PARAMETERS')
+        self.PREFS.putpref('Slat Height', self.w.slat_height.value(), float, 'PLASMA_PARAMETERS')
         self.PREFS.putpref('Arc Restart Delay', self.w.arc_restart_delay.value(), float, 'PLASMA_PARAMETERS')
         self.PREFS.putpref('Safe Height', self.w.safe_height.value(), float, 'PLASMA_PARAMETERS')
         self.PREFS.putpref('Scribe Arming Delay', self.w.scribe_arm_delay.value(), float, 'PLASMA_PARAMETERS')
@@ -2910,6 +2913,7 @@ class HandlerClass:
         self.w.pid_i_gain.setValue(self.PREFS.getpref('Pid I Gain', 0.0, float, 'PLASMA_PARAMETERS'))
         self.w.probe_feed_rate.setValue(self.PREFS.getpref('Probe Feed Rate', round(300.0 * self.unitsPerMm, 0), float, 'PLASMA_PARAMETERS'))
         self.w.probe_start_height.setValue(self.PREFS.getpref('Probe Start Height', round(25.0 * self.unitsPerMm, 0), float, 'PLASMA_PARAMETERS'))
+        self.w.slat_height.setValue(self.PREFS.getpref('Slat Height', 0.0, float, 'PLASMA_PARAMETERS'))
         self.w.arc_restart_delay.setValue(self.PREFS.getpref('Arc Restart Delay', 1.0, float, 'PLASMA_PARAMETERS'))
         self.w.safe_height.setValue(self.PREFS.getpref('Safe Height', round(25.0 * self.unitsPerMm, 0), float, 'PLASMA_PARAMETERS'))
         self.w.setup_feed_rate.setValue(self.PREFS.getpref('Setup Feed Rate', self.thcFeedRate * 0.8, float, 'PLASMA_PARAMETERS'))
@@ -3264,14 +3268,14 @@ class HandlerClass:
             self.w.setup_feed_rate.setRange(4.0, int(self.thcFeedRate))
             self.w.setup_feed_rate.setDecimals(1)
             self.w.setup_feed_rate.setSingleStep(0.1)
-            self.w.safe_height.setRange(0.75, int(self.maxHeight))
-            self.w.safe_height.setDecimals(2)
+            self.w.safe_height.setRange(0, int(self.maxHeight))
+            self.w.safe_height.setDecimals(3)
             self.w.safe_height.setSingleStep(0.01)
             self.w.probe_feed_rate.setRange(4.0, int(self.thcFeedRate))
             self.w.probe_feed_rate.setDecimals(1)
             self.w.probe_feed_rate.setSingleStep(0.1)
-            self.w.probe_start_height.setRange(0.1, int(self.maxHeight))
-            self.w.probe_start_height.setDecimals(2)
+            self.w.probe_start_height.setRange(0, int(self.maxHeight))
+            self.w.probe_start_height.setDecimals(3)
             self.w.probe_start_height.setSingleStep(0.01)
             self.w.offset_feed_rate.setRange(4.0, int(self.offsetFeedRate))
             self.w.offset_feed_rate.setDecimals(1)
@@ -3300,18 +3304,26 @@ class HandlerClass:
             self.w.pierce_height.setRange(0.0, 1.0)
             self.w.pierce_height.setDecimals(3)
             self.w.pierce_height.setSingleStep(0.001)
-            self.w.x_pierce_offset.setDecimals(2)
+            self.w.x_pierce_offset.setDecimals(3)
             self.w.x_pierce_offset.setRange(-0.2, 0.2)
             self.w.x_pierce_offset.setSingleStep(0.01)
-            self.w.y_pierce_offset.setDecimals(2)
+            self.w.y_pierce_offset.setDecimals(3)
             self.w.y_pierce_offset.setRange(-0.2, 0.2)
             self.w.y_pierce_offset.setSingleStep(0.01)
+            self.w.material_thickness.setRange(0.0, int(self.maxHeight))
+            self.w.material_thickness.setDecimals(3)
+            self.w.material_thickness.setSingleStep(0.001)
+            self.w.slat_height.setRange(0.0, int(self.maxHeight))
+            self.w.slat_height.setDecimals(3)
+            self.w.slat_height.setSingleStep(0.001)
         else:
             self.w.setup_feed_rate.setMaximum(int(self.thcFeedRate))
             self.w.safe_height.setMaximum(int(self.maxHeight))
             self.w.probe_feed_rate.setMaximum(int(self.thcFeedRate))
             self.w.probe_start_height.setMaximum(int(self.maxHeight))
             self.w.offset_feed_rate.setMaximum(int(self.offsetFeedRate))
+            self.w.material_thickness.setMaximum(int(self.maxHeight))
+            self.w.slat_height.setMaximum(int(self.maxHeight))
 
     def set_probe_offset_pins(self):
         hal.set_p('plasmac.offset-probe-x', f'{self.probeOffsetX}')
@@ -3772,6 +3784,7 @@ class HandlerClass:
             self.w.cut_mode_label.setEnabled(state)
             self.w.cut_volts.setEnabled(state)
             self.w.gas_pressure.setEnabled(state)
+            self.w.material_thickness.setEnabled(state)
             self.w.kerf_width.setEnabled(state)
             self.w.pause_at_end.setEnabled(state)
             self.w.pierce_delay.setEnabled(state)
@@ -5209,7 +5222,7 @@ class HandlerClass:
 
     def material_temp_pin_changed(self, halpin):
         if halpin:
-            mat = [halpin, f'Temporary {halpin}', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            mat = [halpin, f'Temporary {halpin}', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             with open(self.tmpMaterialGcode, 'r') as f_in:
                 for line in f_in:
                     if line.startswith('NAME'):
@@ -5238,6 +5251,8 @@ class HandlerClass:
                         mat[12] = float(line.split('=')[1].strip())
                     elif line.startswith('CUT_MODE'):
                         mat[13] = float(line.split('=')[1].strip())
+                    elif line.startswith('THICKNESS'):
+                        mat[14] = float(line.split('=')[1].strip())
             self.write_materials_to_dict(mat)
             if halpin not in self.materialList:
                 self.materialList.append(halpin)
@@ -5284,6 +5299,7 @@ class HandlerClass:
         self.w.pause_at_end.setValue(self.materialDict[matNum][10])
         self.w.gas_pressure.setValue(self.materialDict[matNum][11])
         self.w.cut_mode.setValue(self.materialDict[matNum][12])
+        self.w.material_thickness.setValue(self.materialDict[matNum][13])
         self.materialChangeNumberPin.set(matNum)
 
     def save_material_file(self, matNum, index):
@@ -5301,6 +5317,7 @@ class HandlerClass:
         mat.append(self.w.pause_at_end.value())
         mat.append(self.w.gas_pressure.value())
         mat.append(self.w.cut_mode.value())
+        mat.append(self.w.material_thickness.value())
         self.write_one_material(mat)
         self.materialUpdate = True
         self.load_material_file(True)
@@ -5323,6 +5340,7 @@ class HandlerClass:
         mat.append(self.w.pause_at_end.value())
         mat.append(self.w.gas_pressure.value())
         mat.append(self.w.cut_mode.value())
+        mat.append(self.w.material_thickness.value())
         self.write_materials_to_dict(mat)
 
     def load_material_file(self, keepTemp=False):
@@ -5339,9 +5357,9 @@ class HandlerClass:
         # create a basic default material if no materials exist
         if not self.MATS.sections():
             if self.units == 'mm':
-                mat = [0, 'Basic default Material', 1, 3, .1, 0, 0, 1, 1000, 45, 100, 0, 0, 1]
+                mat = [0, 'Basic default Material', 1, 3, .1, 0, 0, 1, 1000, 45, 100, 0, 0, 1, 0]
             else:
-                mat = [0, 'Basic default Material', .04, .12, .1, 0, 0, .04, 40, 45, 100, 0, 0, 1]
+                mat = [0, 'Basic default Material', .04, .12, .1, 0, 0, .04, 40, 45, 100, 0, 0, 1, 0]
             self.write_one_material(mat)
         head = _translate('HandlerClass', 'Materials Error')
         # read all the materials into the materials dict
@@ -5396,6 +5414,7 @@ class HandlerClass:
         mat.append(self.MATS.getpref('PAUSE_AT_END', 0.0, float, section))
         mat.append(self.MATS.getpref('GAS_PRESSURE', 0.0, float, section))
         mat.append(self.MATS.getpref('CUT_MODE', 1.0, float, section))
+        mat.append(self.MATS.getpref('THICKNESS', 0.0, float, section))
         return mat
 
     def write_one_material(self, mat):
@@ -5413,6 +5432,7 @@ class HandlerClass:
         self.MATS.putpref('PAUSE_AT_END', mat[11], float, section)
         self.MATS.putpref('GAS_PRESSURE', mat[12], float, section)
         self.MATS.putpref('CUT_MODE', mat[13], float, section)
+        self.MATS.putpref('THICKNESS', mat[14], float, section)
 
     def set_default_material(self):
         self.getMaterialBusy = True

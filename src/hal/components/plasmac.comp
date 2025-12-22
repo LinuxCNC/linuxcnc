@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC 2.10.
 
 === VERSION
 
-009
+010
 
 === SUMMARY
 
@@ -77,7 +77,8 @@ pin in  s32     laser_x_offset              "alignment laser x axis offset (scal
 pin in  s32     laser_y_offset              "alignment laser y axis offset (scaled units)";
 pin in  float   lowpass_frequency           "lowpass cutoff frequency for arc voltage output";
 pin in  bit     machine_is_on               "machine is on signal";
-pin in  s32     max_offset = 5              "maximum height offset";
+pin in  float   material_thickness          "material thickness (machine units)";
+pin in  s32     max_offset = 5              "maximum height offset (mm)";
 pin in  bit     mesh_arc_ok = FALSE         "Do not require arc ok for mesh mode.";
 pin in  bit     mesh_enable                 "enable mesh cutting mode";
 pin in  s32     mode                        "operating mode";
@@ -127,6 +128,7 @@ pin in  float   scribe_on_delay             "delay from scribe on to motion begi
 pin in  bit     scribe_start                "start a new scribe, connect to spindle.1.on";
 pin in  float   setup_feed_rate             "feed rate for moves to pierce and cut heights (machine units per minute)";
 pin in  float   skip_ihs_distance           "skip IHS if less than this distance from last cut";
+pin in  float   slat_height                 "slat height (machine units)";
 pin in  bit     spotting_start              "start a new spot, connect to spindle.2.on";
 pin in  float   spotting_threshold          "threshold voltage to start spotting delay";
 pin in  float   spotting_time               "torch off delay after spotting threshold reached";
@@ -1042,7 +1044,9 @@ FUNCTION(_) {
                                 }
                             }else if (!program_is_paused && !program_pause){
                                 if(!first_cut_finished){
-                                    if(probe_start_height){
+                                    if(material_thickness && slat_height){
+                                        probe_start_target = z_offset_counts - ((axis_z_position - axis_z_min_limit - material_thickness - slat_height) / offset_scale);
+                                    }else if(probe_start_height){
                                         probe_start_target = z_offset_counts - ((axis_z_position - axis_z_min_limit - probe_start_height) / offset_scale);
                                     }else{
                                         probe_start_target = z_offset_counts;
@@ -1362,9 +1366,9 @@ FUNCTION(_) {
                     }
                     if(safe_height == 0){
                         safe_target = offset_max;
-                            axis_x_start = axis_x_position;
-                            axis_y_start = axis_y_position;
-                            state = ZERO_HEIGHT;
+                        axis_x_start = axis_x_position;
+                        axis_y_start = axis_y_position;
+                        state = ZERO_HEIGHT;
                     }else if(safe_min > offset_max && !probe_testing){
                         safe_target = offset_max;
                         rtapi_print_msg(RTAPI_MSG_ERR, "material is too high for safe traverse.\n"
