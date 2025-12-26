@@ -1523,6 +1523,9 @@
                             <height>16777215</height>
                            </size>
                           </property>
+                          <property name="focusPolicy">
+                           <enum>Qt::NoFocus</enum>
+                          </property>
                           <property name="text">
                            <string>SELECT</string>
                           </property>
@@ -1556,6 +1559,9 @@
                             <width>16777215</width>
                             <height>16777215</height>
                            </size>
+                          </property>
+                          <property name="focusPolicy">
+                           <enum>Qt::NoFocus</enum>
                           </property>
                           <property name="text">
                            <string>NEXT</string>
@@ -1594,6 +1600,9 @@
                             <height>16777215</height>
                            </size>
                           </property>
+                          <property name="focusPolicy">
+                           <enum>Qt::NoFocus</enum>
+                          </property>
                           <property name="text">
                            <string>PREV</string>
                           </property>
@@ -1624,6 +1633,9 @@
                             <width>40</width>
                             <height>40</height>
                            </size>
+                          </property>
+                          <property name="focusPolicy">
+                           <enum>Qt::NoFocus</enum>
                           </property>
                           <property name="text">
                            <string>CANCEL</string>
@@ -1841,6 +1853,9 @@
                                <height>40</height>
                               </size>
                              </property>
+                             <property name="focusPolicy">
+                              <enum>Qt::NoFocus</enum>
+                             </property>
                              <property name="text">
                               <string>MARK
 EDGE</string>
@@ -1879,6 +1894,9 @@ EDGE</string>
                                <width>60</width>
                                <height>40</height>
                               </size>
+                             </property>
+                             <property name="focusPolicy">
+                              <enum>Qt::NoFocus</enum>
                              </property>
                              <property name="text">
                               <string>GOTO
@@ -1919,6 +1937,9 @@ ORIGIN</string>
                                <height>40</height>
                               </size>
                              </property>
+                             <property name="focusPolicy">
+                              <enum>Qt::NoFocus</enum>
+                             </property>
                              <property name="text">
                               <string>ZOOM
 +</string>
@@ -1944,6 +1965,9 @@ ORIGIN</string>
                                <width>60</width>
                                <height>40</height>
                               </size>
+                             </property>
+                             <property name="focusPolicy">
+                              <enum>Qt::NoFocus</enum>
                              </property>
                              <property name="text">
                               <string>ZOOM
@@ -1990,6 +2014,9 @@ ORIGIN</string>
                                <height>40</height>
                               </size>
                              </property>
+                             <property name="focusPolicy">
+                              <enum>Qt::NoFocus</enum>
+                             </property>
                              <property name="text">
                               <string>DIA
 +</string>
@@ -2015,6 +2042,9 @@ ORIGIN</string>
                                <width>60</width>
                                <height>40</height>
                               </size>
+                             </property>
+                             <property name="focusPolicy">
+                              <enum>Qt::NoFocus</enum>
                              </property>
                              <property name="text">
                               <string>DIA
@@ -2070,7 +2100,11 @@ ORIGIN</string>
                    <number>0</number>
                   </property>
                   <item>
-                   <widget class="OriginOffsetView" name="originoffsetview"/>
+                   <widget class="OriginOffsetView" name="originoffsetview">
+                    <property name="focusPolicy">
+                     <enum>Qt::NoFocus</enum>
+                    </property>
+                   </widget>
                   </item>
                  </layout>
                 </widget>
@@ -2159,6 +2193,9 @@ ORIGIN</string>
                             <height>16</height>
                            </size>
                           </property>
+                          <property name="focusPolicy">
+                           <enum>Qt::NoFocus</enum>
+                          </property>
                           <property name="text">
                            <string>BACK</string>
                           </property>
@@ -2178,6 +2215,9 @@ ORIGIN</string>
                             <height>16</height>
                            </size>
                           </property>
+                          <property name="focusPolicy">
+                           <enum>Qt::NoFocus</enum>
+                          </property>
                           <property name="text">
                            <string>RELOAD USER MANUAL</string>
                           </property>
@@ -2196,6 +2236,9 @@ ORIGIN</string>
                             <width>16777215</width>
                             <height>16</height>
                            </size>
+                          </property>
+                          <property name="focusPolicy">
+                           <enum>Qt::NoFocus</enum>
                           </property>
                           <property name="text">
                            <string>FORWARD</string>
@@ -5147,6 +5190,9 @@ HOME ALL</string>
                                  </property>
                                  <item>
                                   <widget class="GcodeDisplay" name="gcode_display">
+                                   <property name="focusPolicy">
+                                    <enum>Qt::NoFocus</enum>
+                                   </property>
                                    <property name="frameShape">
                                     <enum>QFrame::NoFrame</enum>
                                    </property>
@@ -6097,6 +6143,9 @@ HOME ALL</string>
                                         <height>40</height>
                                        </size>
                                       </property>
+                                      <property name="focusPolicy">
+                                       <enum>Qt::NoFocus</enum>
+                                      </property>
                                       <property name="text">
                                        <string>REV</string>
                                       </property>
@@ -6151,6 +6200,9 @@ HOME ALL</string>
                                         <height>40</height>
                                        </size>
                                       </property>
+                                      <property name="focusPolicy">
+                                       <enum>Qt::NoFocus</enum>
+                                      </property>
                                       <property name="text">
                                        <string>CANCEL
 MOVE</string>
@@ -6180,6 +6232,9 @@ MOVE</string>
                                      <horstretch>0</horstretch>
                                      <verstretch>0</verstretch>
                                     </sizepolicy>
+                                   </property>
+                                   <property name="focusPolicy">
+                                    <enum>Qt::NoFocus</enum>
                                    </property>
                                    <property name="maximum">
                                     <number>100</number>
@@ -6267,6 +6322,9 @@ MOVE</string>
                                         <width>40</width>
                                         <height>40</height>
                                        </size>
+                                      </property>
+                                      <property name="focusPolicy">
+                                       <enum>Qt::NoFocus</enum>
                                       </property>
                                       <property name="layoutDirection">
                                        <enum>Qt::LeftToRight</enum>
@@ -6370,6 +6428,9 @@ MOVE</string>
                                      <height>40</height>
                                     </size>
                                    </property>
+                                   <property name="focusPolicy">
+                                    <enum>Qt::NoFocus</enum>
+                                   </property>
                                    <property name="text">
                                     <string/>
                                    </property>
@@ -6401,6 +6462,9 @@ MOVE</string>
                                      <height>40</height>
                                     </size>
                                    </property>
+                                   <property name="focusPolicy">
+                                    <enum>Qt::NoFocus</enum>
+                                   </property>
                                    <property name="text">
                                     <string/>
                                    </property>
@@ -6431,6 +6495,9 @@ MOVE</string>
                                      <width>40</width>
                                      <height>40</height>
                                     </size>
+                                   </property>
+                                   <property name="focusPolicy">
+                                    <enum>Qt::NoFocus</enum>
                                    </property>
                                    <property name="layoutDirection">
                                     <enum>Qt::LeftToRight</enum>
@@ -6466,6 +6533,9 @@ MOVE</string>
                                      <height>40</height>
                                     </size>
                                    </property>
+                                   <property name="focusPolicy">
+                                    <enum>Qt::NoFocus</enum>
+                                   </property>
                                    <property name="text">
                                     <string/>
                                    </property>
@@ -6496,6 +6566,9 @@ MOVE</string>
                                      <width>40</width>
                                      <height>40</height>
                                     </size>
+                                   </property>
+                                   <property name="focusPolicy">
+                                    <enum>Qt::NoFocus</enum>
                                    </property>
                                    <property name="text">
                                     <string/>
@@ -6528,6 +6601,9 @@ MOVE</string>
                                      <height>40</height>
                                     </size>
                                    </property>
+                                   <property name="focusPolicy">
+                                    <enum>Qt::NoFocus</enum>
+                                   </property>
                                    <property name="text">
                                     <string/>
                                    </property>
@@ -6559,6 +6635,9 @@ MOVE</string>
                                      <height>40</height>
                                     </size>
                                    </property>
+                                   <property name="focusPolicy">
+                                    <enum>Qt::NoFocus</enum>
+                                   </property>
                                    <property name="text">
                                     <string/>
                                    </property>
@@ -6589,6 +6668,9 @@ MOVE</string>
                                      <width>40</width>
                                      <height>40</height>
                                     </size>
+                                   </property>
+                                   <property name="focusPolicy">
+                                    <enum>Qt::NoFocus</enum>
                                    </property>
                                    <property name="text">
                                     <string/>
@@ -11900,6 +11982,9 @@ MOVE</string>
                                <property name="alignment">
                                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
                                </property>
+                               <property name="buttonSymbols">
+                                <enum>QAbstractSpinBox::PlusMinus</enum>
+                               </property>
                                <property name="accelerated">
                                 <bool>true</bool>
                                </property>
@@ -12053,6 +12138,9 @@ MOVE</string>
                                </property>
                                <property name="alignment">
                                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                               </property>
+                               <property name="buttonSymbols">
+                                <enum>QAbstractSpinBox::PlusMinus</enum>
                                </property>
                                <property name="decimals">
                                 <number>0</number>
@@ -19053,6 +19141,7 @@ CONFIG</string>
   <tabstop>puddle_jump_delay</tabstop>
   <tabstop>pause_at_end</tabstop>
   <tabstop>cut_mode</tabstop>
+  <tabstop>material_thickness</tabstop>
   <tabstop>kerf_width</tabstop>
   <tabstop>pierce_height</tabstop>
   <tabstop>pierce_delay</tabstop>
@@ -19071,6 +19160,7 @@ CONFIG</string>
   <tabstop>float_switch_travel</tabstop>
   <tabstop>probe_feed_rate</tabstop>
   <tabstop>probe_start_height</tabstop>
+  <tabstop>slat_height</tabstop>
   <tabstop>ohmic_probe_offset</tabstop>
   <tabstop>ohmic_max_attempts</tabstop>
   <tabstop>skip_ihs_distance</tabstop>
