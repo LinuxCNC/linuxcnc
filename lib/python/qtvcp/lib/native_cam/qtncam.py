@@ -1554,7 +1554,7 @@ class NCam():
                 "Edit to add in DISPLAY section\n\n"
                 "PROGRAM_PREFIX = abs or relative path to scripts directory\n"
                 "i.e. PROGRAM_PREFIX = ./scripts or ~/ncam/scripts")
-            self,err_exit(msg)
+            self.err_exit(msg)
         else :
             if ':' in val :
                 val = val.split(':')[0]
