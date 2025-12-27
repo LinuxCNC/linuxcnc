@@ -36,19 +36,20 @@ class Dialogs(GObject.GObject):
 
     __gsignals__ = {
                 'play_sound': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_STRING,)),
-                'system-dialog-result': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_INT,))
+                'system-dialog-result': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_INT,)),
+                'warning-dialog-result': (GObject.SignalFlags.RUN_FIRST , GObject.TYPE_NONE, (GObject.TYPE_INT, GObject.TYPE_STRING))
                }
 
     def __init__(self, caller):
         GObject.GObject.__init__(self)
         self.sys_dialog = self.system_dialog(caller)
+        self.warn_dialog = self.warning_dialog(caller)
 
     def dialog_ext_control(self, answer):
         if self.sys_dialog.get_visible():
-            if answer:
-                self.sys_dialog.response(Gtk.ResponseType.ACCEPT)
-            else:
-                self.sys_dialog.response(Gtk.ResponseType.CANCEL)
+                self.sys_dialog.response(answer)
+        elif self.warn_dialog.get_visible():
+                self.warn_dialog.response(answer)
 
     # This dialog is for unlocking the system tab
     # The unlock code number is defined at the top of the page
@@ -134,7 +135,7 @@ class Dialogs(GObject.GObject):
         return "CANCEL"
 
     # display warning dialog
-    def warning_dialog(self, caller, message, secondary = None, title = _("Operator Message"),\
+    def warning_dialog(self, caller, message = '', secondary = None, title = _("Operator Message"),\
         sound = True, confirm_pin = 'warning-confirm', active_pin = None):
         dialog = Gtk.MessageDialog(caller.widgets.window1,
                                    Gtk.DialogFlags.DESTROY_WITH_PARENT,
@@ -149,11 +150,10 @@ class Dialogs(GObject.GObject):
         box.add(ok_button)
         dialog.action_area.add(box)
         dialog.set_border_width(5)
-        dialog.show_all()
         if sound:
             self.emit("play_sound", "alert")
         dialog.set_title(title)
-
+        dialog.context = []
         def periodic():
             if caller.halcomp[confirm_pin]:
                 dialog.response(Gtk.ResponseType.OK)
@@ -164,10 +164,26 @@ class Dialogs(GObject.GObject):
                     return False
             return True
         GLib.timeout_add(100, periodic)
+        dialog.connect("response", self.on_warning_response)
+        return dialog
 
-        response = dialog.run()
-        dialog.destroy()
-        return response == Gtk.ResponseType.OK
+    def show_warning_dialog(self, title, message, context=None, sound=True,\
+                         confirm_pin = 'warning-confirm', active_pin = None):
+        print(message,context)
+        self.warn_dialog.context.append(context)
+        self.warn_dialog.set_title(title)
+        self.warn_dialog.format_secondary_text(message)
+        self.warn_dialog.set_markup(message)
+        self.warn_dialog.show_all()
+        if sound:
+            self.emit("play_sound", "alert")
+        print(self.warn_dialog.context)
+
+    def on_warning_response(self, dialog, rtn):
+        context = dialog.context.pop()
+        print(context)
+        self.emit('warning-dialog-result', rtn, context)
+        dialog.hide()
 
     def yesno_dialog(self, caller, message, title = _("Operator Message")):
         dialog = Gtk.MessageDialog(caller.widgets.window1,
