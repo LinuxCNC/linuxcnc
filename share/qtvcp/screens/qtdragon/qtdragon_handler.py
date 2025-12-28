@@ -1924,6 +1924,12 @@ class HandlerClass:
             except Exception as e:
                 print(e)
 
+        # if you click the current tab again, hide/show the lower page to
+        # expand the upper page.
+        if currentIndex == requestedIndex and not mode_change:
+            self.w.lower_widget.setVisible(not self.w.lower_widget.isVisible())
+
+
     # set axis 4/5 dro widgets to the proper axis
     # TODO do this with all the axes for more flexibility
     def initiate_axis_dro(self, num, axis):
