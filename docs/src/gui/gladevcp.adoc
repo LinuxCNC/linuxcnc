@@ -2,7 +2,7 @@
 :toc:
 
 [[cha:glade-vcp]]
-= GladeVCP: Glade Virtual Control Panel(((GladeVCP: Glade Virtual Control Panel)))
+= GladeVCP: Glade Virtual Control Panel
 
 // TODO:
 // - manual-example.ui layout - really bad
@@ -20,6 +20,7 @@
 
 == What is GladeVCP?
 
+(((GladeVCP: Glade Virtual Control Panel)))
 GladeVCP is a LinuxCNC component which adds the ability to add a new user interface panel to LinuxCNC user interfaces like:
 
 * AXIS

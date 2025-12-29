@@ -18,6 +18,7 @@ use image:: for equation png files -- no latexmath
 
 == Introduction
 
+(((5-Axis Kinematics)))
 Coordinated multi-axis CNC machine tools controlled with LinuxCNC, require a special kinematics component for each type of machine. This chapter describes some of the most popular 5-axis machine configurations and then develops the forward (from work to joint coordinates) and inverse (from joint to work) transformations in a general mathematical process for two types of machine.
 
 The kinematics components are given as well as vismach simulation models to demonstrate their behaviour on a computer screen. Examples of HAL file data are also given.

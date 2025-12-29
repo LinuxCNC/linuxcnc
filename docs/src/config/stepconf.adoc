@@ -2,10 +2,11 @@
 :toc:
 
 [[cha:stepconf-wizard]]
-= Stepper Configuration Wizard(((Stepper Configuration Wizard)))
+= Stepper Configuration Wizard
 
 == Introduction
 
+(((Stepper Configuration Wizard)))
 LinuxCNC is capable of controlling a wide range of machinery
 using many different hardware interfaces.
 
@@ -106,8 +107,9 @@ The LinuxCNC Configuration Selector has configs for Sherline already configured.
   based on the driver characteristics entered and latency test result.
 
 [[sub:latency-test]]
-== Latency Test(((Latency Test)))
+== Latency Test
 
+(((Latency Test)))
 While the test is running, you should 'abuse' the computer. Move
 windows around on the screen. Surf the web. Copy some large files
 around on the disk. Play some music. Run an OpenGL program such as
@@ -192,7 +194,9 @@ You may select in or out to maximizes the number of input/output pins that are a
 You may specify the address as a hexadecimal (often 0x378) or as linux's default port number (probably 1).
 
 [[sec:Axis-Configuration]]
-== Axis Configuration(((Axis Configuration)))
+== Axis Configuration
+
+(((Axis, Configuration)))
 
 .Axis Configuration Screen
 image::images/stepconf-axis-x_en.png["Axis X Configuration Page",align="center"]
@@ -247,8 +251,9 @@ is required. If your driver has a charge pump you will have to bypass it.
 Test this axis does not react to limit switch inputs. Use with caution.
 
 [[sub:finding-maximum-velocity]]
-=== Finding Maximum Velocity(((Finding Maximum Velocity)))
+=== Finding Maximum Velocity
 
+(((Finding Maximum Velocity)))
 Begin with a low Acceleration
 // comment out latexmath until a fix is found for the html docs
 // (e.g., latexmath:[ 2 in/s^2 ] or latexmath:[ 50 mm/s^2 ])
@@ -291,8 +296,9 @@ Once you have found a speed at which the axis does not stall or lose steps
 during this testing procedure, reduce it by 10% and use that as the axis 'Maximum Velocity'.
 
 [[sub:finding-maximum-acceleration]]
-=== Finding Maximum Acceleration(((Finding Maximum Acceleration)))
+=== Finding Maximum Acceleration
 
+(((Finding Maximum Acceleration)))
 With the Maximum Velocity you found in the previous step,
 enter the acceleration value to test.
 Using the same procedure as above,
@@ -310,8 +316,9 @@ image::images/stepconf-spindle_en.png["Spindle Configuration Page",align="center
 
 This page only appears when 'Spindle PWM' is chosen in the 'Parallel Port Pinout' page for one of the outputs.
 
-=== Spindle Speed Control(((Spindle Speed Control)))
+=== Spindle Speed Control
 
+(((Spindle Speed Control)))
 If 'Spindle PWM' appears on the pinout, the following information should be entered:
 
 * 'PWM Rate' - The 'carrier frequency' of the PWM signal to the spindle. Enter
@@ -322,8 +329,9 @@ If 'Spindle PWM' appears on the pinout, the following information should be ente
   values are not known, they can be determined. For more information see
   <<sub:determining-spindle-calibration,Determining Spindle Calibration>>.
 
-=== Spindle-synchronized motion(((Spindle-synchronized motion)))
+=== Spindle-synchronized motion
 
+(((Spindle-synchronized motion)))
 When the appropriate signals from a spindle encoder are connected to
 LinuxCNC via HAL, LinuxCNC supports lathe threading.
 These signals are:
@@ -350,8 +358,9 @@ on the pinout, the following information should be entered:
   of 'BASE_PERIOD' is required.
 
 [[sub:determining-spindle-calibration]]
-=== Determining Spindle Calibration(((Determining Spindle Calibration)))
+=== Determining Spindle Calibration
 
+(((Determining Spindle Calibration)))
 Enter the following values in the Spindle Configuration page:
 
 [width="80%",cols="^,^,^,^"]
@@ -397,8 +406,9 @@ image::images/stepconf-options_en.png["Advanced Options Configuration",align="ce
   pause and prompt you to change the tool when 'M6' is encountered. This feature
   is usually only useful if you have presettable tools.
 
-== Complete Machine Configuration(((Complete Machine Configuration)))
+== Complete Machine Configuration
 
+(((Complete Machine Configuration)))
 Click 'Apply' to write the configuration files.
 Later, you can re-run this program and tweak the settings you entered before.
 
@@ -448,8 +458,9 @@ A machine can be operated without limit switches. In this case, only
 the soft limits stop the machine from reaching the hard stop.
 Soft limits only operate after the machine has been homed.
 
-=== Operating without Home Switches(((Operating without Home Switches)))
+=== Operating without Home Switches
 
+(((Operating without Home Switches)))
 A machine can be operated without home switches.
 If the machine has limit switches, but no home switches,
 it is best to use a limit switch as the home switch
