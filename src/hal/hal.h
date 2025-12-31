@@ -20,6 +20,7 @@
 ********************************************************************/
 /* testing */
 
+
 /** This file, 'hal.h', defines the API and data structures used by
     the HAL.  This file is included in both realtime and non-realtime
     HAL components.  HAL uses the RTPAI real time interface, and the
