@@ -18216,7 +18216,7 @@ SCROLL</string>
              <number>2</number>
             </property>
             <property name="text">
-             <string>12:37:48 PM</string>
+             <string>08:15:31 PM</string>
             </property>
             <property name="alignment">
              <set>Qt::AlignCenter</set>
@@ -19237,6 +19237,22 @@ SCROLL</string>
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>virtualkeyboard</sender>
+   <signal>hideKeyboard()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>hideVirtualKeyboard()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>791</x>
+     <y>516</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>785</x>
+     <y>-81</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <designerdata>
   <property name="gridDeltaX">
@@ -19318,10 +19334,11 @@ SCROLL</string>
   <slot>btn_pause_clicked()</slot>
   <slot>btn_stop_clicked()</slot>
   <slot>btn_systemtool_toggled()</slot>
+  <slot>hideVirtualKeyboard()</slot>
  </slots>
  <buttongroups>
   <buttongroup name="mode_buttonGroup"/>
-  <buttongroup name="selectButtonGroup"/>
   <buttongroup name="page_buttonGroup"/>
+  <buttongroup name="selectButtonGroup"/>
  </buttongroups>
 </ui>

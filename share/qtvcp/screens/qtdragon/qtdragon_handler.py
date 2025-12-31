@@ -904,14 +904,15 @@ class HandlerClass:
             pass
         # if you select the tab showing, force the DRO to show
         elif index == self.w.stackedWidget_mainTab.currentIndex():
-            self.w.stackedWidget_dro.setCurrentIndex(0)
-
             if index == TAB_MAIN and STATUS.is_auto_mode():
                 self._maintab_cycle +=1
         if index is None: return
 
         # adjust the stack widgets depending on modes
         self.adjust_stacked_widgets(index)
+
+    def hideVirtualKeyboard(self):
+        self.w.stackedWidget_dro.setCurrentIndex(0)
 
     # gcode frame
     def cmb_gcode_history_clicked(self):
