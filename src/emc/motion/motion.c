@@ -217,7 +217,7 @@ static void emc_message_handler(msg_level_t level, const char *fmt, va_list ap)
     va_copy(apc, ap);
     // cppcheck-suppress va_list_usedBeforeStarted
     if(level == RTAPI_MSG_ERR) emcmotErrorPutfv(emcmotError, fmt, apc);
-    if(old_handler) old_handler(level, fmt, ap);
+    else if(old_handler) old_handler(level, fmt, ap);
     // cppcheck-suppress va_list_usedBeforeStarted
     va_end(apc);
 }
