@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC 2.10.
 
 === VERSION
 
-010
+011
 
 === SUMMARY
 
@@ -34,7 +34,6 @@ pin in  s32     arc_max_starts              "maximum attempts at starting the ar
 pin in  float   arc_voltage_in              "arc voltage input [mode 0 & mode 1] see Notes above";
 pin in  float   arc_voltage_offset          "offset to set arc voltage to 0 at 0 volts";
 pin in  float   arc_voltage_scale           "scale to convert arc_voltage input to actual volts";
-pin in  bit     thc_auto                    "enable automatic thc activation";
 pin in  float   axis_x_max_limit            "axis x maximum limit, connect to ini.x.max-limit";
 pin in  float   axis_x_min_limit            "axis x minimum limit, connect to ini.x.min-limit";
 pin in  float   axis_x_position             "current x axis position, connect to axis.x.pos-cmd";
@@ -59,6 +58,7 @@ pin in  bit     dry_run                     "perform a dry run without probing";
 pin in  bit     external_estop              "external E-stop input";
 pin in  float   feed_override               "feed override value from GUI (connect to halui.feed-override.value)";
 pin in  float   feed_reduction              "reduce adaptive feed to this percentage (connect to motion.analog-out-03)";
+pin in  float   feed_upm                    "requested feed_rate, connect to motion.feed-upm to use as the default (G-code units per minute)";
 pin in  bit     float_switch                "float switch input (can also act as breakaway if it actuates when torch breaks away)";
 pin in  float   float_switch_travel         "float switch travel (machine units)";
 pin in  float   gcode_scale = 1             "current G-code scale";
@@ -68,9 +68,6 @@ pin in  bit     homed                       "machine is homed";
 pin in  bit     ignore_arc_ok_0             "Do not require arc ok for start or cutting.";
 pin in  bit     ignore_arc_ok_1             "Do not require arc ok for start or cutting.";
 pin in  float   kerf_width                  "placeholder for better G-code portability between GUIs";
-pin in  bit     override_jog                "override jog inhibit";
-pin in  bit     offset_set_probe            "deploy probe for setting offsets";
-pin in  bit     offset_set_scribe           "deploy scribe for setting offsets";
 pin in  bit     laser_mode                  "laser mode for fiber lasers";
 pin in  s32     laser_recovery_start        "start laser offset for cut recovery";
 pin in  s32     laser_x_offset              "alignment laser x axis offset (scaled units)";
@@ -90,26 +87,29 @@ pin in  float   offset_feed_rate            "probe offset velocity (machine unit
 pin in  float   offset_probe_delay          "wait for probe to deploy (seconds)";
 pin in  float   offset_probe_x              "X axis offset for offset probe (machine units)";
 pin in  float   offset_probe_y              "Y axis offset for offset probe (machine units)";
-pin in  bit     offsets_active              "offsets are active, connect to motion.eoffsets-active";
-pin in  s32     ohmic_sense_on_delay = 3    "debounce cycles for ohmic sense on";
-pin in  s32     ohmic_sense_off_delay = 3   "debounce cycles for ohmic sense off";
-pin in  bit     ohmic_sense_in              "ohmic sense relay input";
+pin in  bit     offset_set_probe            "deploy probe for setting offsets";
+pin in  bit     offset_set_scribe           "deploy scribe for setting offsets";
+pin in  bit     offsets_active              "offsets are active, connect to motion.eoffset-active";
 pin in  s32     ohmic_max_attempts          "maximum ohmic probe attempts before fallback to float switch";
 pin in  bit     ohmic_probe                 "ohmic probe input, from ohmic-sense-out or external component/pin";
 pin in  bit     ohmic_probe_enable          "enable ohmic probe";
 pin in  float   ohmic_probe_offset          "Z axis offset for ohmic probe (machine units)";
+pin in  s32     ohmic_sense_on_delay = 3    "debounce cycles for ohmic sense on";
+pin in  s32     ohmic_sense_off_delay = 3   "debounce cycles for ohmic sense off";
+pin in  bit     ohmic_sense_in              "ohmic sense relay input";
 pin in  bit     ohmic_test                  "test for shorted torch";
 pin in  s32     ok_sample_counts = 10       "arc_ok number of valid samples required [mode 0]";
 pin in  float   ok_sample_threshold = 10    "arc_ok maximum arc voltage deviation allowed [mode 0]";
+pin in  bit     override_jog                "override jog inhibit";
 pin in  float   pause_at_end                "time to pause at end of cut";
 pin in  float   paused_motion_speed         "multiplier for speed of motion when paused, from -1 to 1";
 pin in  float   pid_d_gain                  "derivative gain input [mode 0 & mode 1]";
 pin in  float   pid_i_gain                  "integral gain input [mode 0 & mode 1]";
 pin in  float   pid_p_gain                  "proportional gain input [mode 0 & mode 1]";
 pin in  float   pierce_delay                "time required to pierce stock (seconds)";
+pin in  float   pierce_height               "pierce height (machine units)";
 pin in  float   probe_feed_rate             "probe down velocity (machine units per minute)";
 pin in  s32     probe_final_speed = 1       "final probe speed (steps per servo period)";
-pin in  float   pierce_height               "pierce height (machine units)";
 pin in  float   probe_start_height          "probe starting height";
 pin in  bit     probe_test                  "probe test only";
 pin in  bit     program_is_idle             "program is idle, connect to halui.program.is-idle";
@@ -119,7 +119,6 @@ pin in  float   puddle_jump_delay           "Delay move from pierce height to cu
 pin in  float   puddle_jump_height          "Puddle jump height (percentage of pierce height), leave disconnected if not required.";
 /* requested_velocity is deprecated in favour of feed_upm, the pin is kept so as not to break existing configs */
 pin in  float   requested_velocity          "deprecated";
-pin in  float   feed_upm                    "requested feed_rate, connect to motion.feed-upm to use as the default (G-code units per minute)";
 pin in  s32     resolution = 100            "multiplier for resolution of the offset counts";
 pin in  float   restart_delay               "time from arc failure till next restart attempt";
 pin in  float   safe_height                 "requested safe traverse height (machine units)";
@@ -132,6 +131,7 @@ pin in  float   slat_height                 "slat height (machine units)";
 pin in  bit     spotting_start              "start a new spot, connect to spindle.2.on";
 pin in  float   spotting_threshold          "threshold voltage to start spotting delay";
 pin in  float   spotting_time               "torch off delay after spotting threshold reached";
+pin in  bit     thc_auto                    "enable automatic thc activation";
 pin in  float   thc_delay                   "delay from cut feed rate reached to THC activate (seconds) [non auto THC]";
 pin in  bit     thc_disable                 "thc disable";
 pin in  bit     thc_enable                  "enable/disable thc and set the IHS skip type";
@@ -147,25 +147,25 @@ pin in  bit     tube_cut                    "set the current job as tube cutting
 pin in  float   units_per_mm                "for scale calcs, connect to halui.machine.units-per-mm";
 pin in  bit     use_auto_volts              "use calculated voltage for thc baseline";
 pin in  bit     voidlock_enable             "enable voidlock [mode 0 & mode 1]";
-pin in  s32     voidlock_on_cycles = 2      "number of sampling cycles to activate voidlock ";
 pin in  s32     voidlock_off_cycles = 10    "number of sampling cycles to deactivate voidlock";
+pin in  s32     voidlock_on_cycles = 2      "number of sampling cycles to activate voidlock ";
 pin in  s32     voidlock_slope = 500        "voidlock slope in volts per second";
 pin in  s32     x_offset                    "offset to apply to axis x for consumable change and cut recovery (scaled units)";
 pin in  float   x_offset_current            "current x axis offset, connect to axis.x.eoffset";
 pin in  float   xy_feed_rate                "feed-rate for consumable change";
 pin in  s32     y_offset                    "offset to apply to axis y for consumable change and cut recovery (scaled units)";
-pin in  float   y_offset_current            "current z axis offset, connect to axis.y.eoffset";
+pin in  float   y_offset_current            "current y axis offset, connect to axis.y.eoffset";
 pin in  float   z_offset_current            "current z axis offset, connect to axis.z.eoffset";
 pin in  float   zero_window = 0.1           "sets window that voltage fluctuations show as zero (-0.1 to 0.1 at default value)";
-// Pierce user control pins
-pin in  unsigned  pierce_type = 0           "allows motion to progress during pierce. 0=No movement, 1=Wiggle, 2=Ramp";
+// Pierce type user control pins
+pin in  s32     pierce_type = 0             "allows motion to progress during pierce. 0=No movement, 1=Wiggle, 2=Ramp";
 pin in  float   pierce_motion_delay = 0     "delay starting motion during pierce delay period. This is a % of Pierce Delay. Only used when pierce-with-motion is True.";
 pin in  float   cut_height_delay = 0        "at the end of transition to end-pierce-height how long to pause before transition to cut height.";
-pin in  float   pierce_end_height = 0       "The height at end of piercing (in machine units). Can be different to Cut Height. Default 0 means not used. i.e. no change in height.";
-pin in  float   gouge_speed = 0             "Ramp starting speed for gouge. In machine units/min.";
-pin in  float   gouge_speed_distance = 0    "Distance gouge will run in machine units. Gouge plus creep distance should not be longer than any lead in.";
-pin in  float   creep_speed = 0             "Ramp creep or intermediate speed. Comes after gouge and is before cut speed. In machine units/min.";
-pin in  float   creep_speed_distance = 0    "Distance creep will run in machine units. Gouge plus creep distance should not be longer than any lead in.";
+pin in  float   pierce_end_height = 0       "height at end of piercing (in machine units). Can be different to Cut Height. Default 0 means not used. i.e. no change in height.";
+pin in  float   gouge_speed = 0             "ramp starting speed for gouge. In machine units/min.";
+pin in  float   gouge_speed_distance = 0    "distance gouge will run in machine units. Gouge plus creep distance should not be longer than any lead in.";
+pin in  float   creep_speed = 0             "ramp creep or intermediate speed. Comes after gouge and is before cut speed. In machine units/min.";
+pin in  float   creep_speed_distance = 0    "distance creep will run in machine units. Gouge plus creep distance should not be longer than any lead in.";
 
 /* OUTPUT PINS */
 pin out float   adaptive_feed               "for reverse-run, connect to motion.adaptive-feed";
@@ -173,6 +173,7 @@ pin out bit     arc_ok_out                  "arc ok output";
 pin out float   arc_voltage_out             "arc voltage output [mode 0 & mode 1]";
 pin out bit     consumable_changing         "consumables are being changed";
 pin out bit     cornerlock_is_locked        "corner locked indicator";
+pin out float   current_feed_rate           "current feed rate per minute (for auto-thc)";
 pin out float   cut_length                  "length of current cut job";
 pin out bit     cut_recovering              "recovering from cut error";
 pin out float   cut_time                    "cut time of current job";
@@ -196,6 +197,7 @@ pin out bit     program_resume              "resume the currently paused program
 pin out bit     program_run                 "run the currently loaded program, connect to halui.program.run";
 pin out bit     program_stop                "stop current program, connect to halui.program.stop";
 pin out float   rapid_time                  "rapid motion time of current job";
+pin out float   requested_feed_rate         "requested feed rate (for auto-thc)";
 pin out float   run_time                    "run time of current job";
 pin out bit     safe_height_is_limited      "safe height is limited indicator";
 pin out bit     sensor_active               "one of float, ohmic, or breakaway is detected";
@@ -216,11 +218,6 @@ pin out s32     z_offset_counts             "z offset for height control, connec
 pin out bit     z_offset_enable             "enable z offsets, connect to axis.z.eoffset-enable";
 pin out float   z_relative                  "distance of Z from last probed height";
 
-// temp for auto-thc testing
-// check when we at "at speed"
-pin out float   current_feed_rate           "current feed rate per minute";
-pin out float   requested_feed_rate         "requested feed rate";
-
 /* VARIABLES */
 variable double angle_x_y;                  /* angle for x/y velocity calcs in radians*/
 variable float  arc_fail_timer;             /* arc failure timer */
@@ -229,7 +226,6 @@ variable int    arc_starts;                 /* number of attempts to start torch
 variable float  arc_valid_timer;            /* timer to wait for valid arc_voltage_in */
 variable float  arc_voltage_raw;            /* filtered arc voltage to be scaled */
 variable int    arc_voltage_buffer_index;   /* arc voltage sampler write index */
-variable int    ok_sampler_samples;         /* required number of arc ok samples [mode0] */
 variable bool   auto_cut;                   /* auto cut mode is active */
 variable float  axis_x_finish;              /* axis x position at end of cut */
 variable float  axis_x_start;               /* axis x position at start of cut */
@@ -263,6 +259,7 @@ variable int    offset_velocity;            /* velocity for probe offset moves *
 variable int    ohmic_attempts;             /* current ohmic probe attempts */
 variable bool   ohmic_detected;             /* true if ohmic probe detected */
 variable int    ohmic_sense_counts;         /* ohmic sense debounce counter */
+variable int    ok_sampler_samples;         /* required number of arc ok samples [mode0] */
 variable int    old_resolution;             /* previous resolution value */
 variable int    op_x_start;                 /* x offset when offset probing started */
 variable int    op_x_target;                /* target offset for x probe offset */
@@ -290,9 +287,6 @@ variable int    puddle_jump_percent;        /* puddle jump height as percentage 
 variable int    puddle_jump_target;         /* puddle jump height target offset */
 variable float  puddle_jump_timer;          /* puddle jump delay timer */
 variable float  recovery_velocity;          /* cut recovery step velocity */
-// temp for auto-thc testing
-// created a out pin @ L204 to check when we at "at speed"
-//variable float  requested_feed_rate;        /* requested feed rate */
 variable int    res;                        /* resolution of offset move*/
 variable float  restart_timer;              /* time between torch on attempts*/
 variable int    safe_alarm;                 /* warn if safe_available falls below this value during a cut */
@@ -300,18 +294,18 @@ variable int    safe_available;             /* available safe height */
 variable int    safe_min;                   /* minimum safe height allowed */
 variable int    safe_preferred;             /* preferred safe height offset */
 variable int    safe_target;                /* safe height target offset */
-variable int    setup_velocity;             /* velocity for setup moves */
 variable float  scribe_arm_timer;           /* scribe timer from arm to on*/
 variable float  scribe_on_timer;            /* scribe timer from on to motion*/
 variable bool   scribe_pause;               /* scribe pause flag */
+variable int    setup_velocity;             /* velocity for setup moves */
 variable bool   spotting;                   /* spotting flag */
 variable float  spotting_timer;             /* spotting timer */
 variable int    state_old = -1;             /* old state */
 variable int    statistics_reset;           /* statistics are reset */
-//temp for testing forum post #210558
+//temp changed to a pin for testing forum post #210558
 //variable int    target_samples = 6;         /* number of samples for setting target_volts */
 variable float  target_total;               /* total voltage of samples for setting target_volts */
-//temp for testing forum post #210558
+//temp changed to a pin for testing forum post #210558
 //variable float  target_volts;               /* target voltage for thc, set by arc voltage at cut height */
 variable bool   thc_activated;              /* thc was activated */
 variable float  thc_activated_timer;        /* timer to reset thc_activated - end of cut is detected from userspace :( */
@@ -330,17 +324,17 @@ variable int    y_velocity;                 /* velocity for y motion for consuma
 variable int    z_max;                      /* max height for testing against pierce height*/
 variable int    z_pierce;                   /* pierce height for testing against max height*/
 variable int    zero_target;                /* zero height target offset */
-// Pierce user control pins
-variable float  pierce_motion_delay_timer;  /* delay starting motion during pierce delay period. Only used whrn pierce-type is 2. Is calced from a % of Pierce Delay*/
-variable float  cut_height_delay_timer;     /* at the end of transition to end-perice-height how long to pause before transition to cut height*/
-variable float  total_pierce_state_delay;   /* Total of pierce delay and cut motion delay */
-variable int    pierce_end_target;          /* Target pierce height at end of pierce motion. Usually less than the starting pierce height */
-variable float  gouge_speed_dist_travelled; /* Sum of distance traveled during gouge stage */
-variable float  gouge_speed_scale;          /* scale of gouge speed in proportion to standard cut feed rate */
+// Pierce type user control variables
 variable float  creep_speed_dist_travelled; /* Sum of distance traveled during creep stage */
 variable float  creep_speed_scale;          /* scale of creep speed in proportion to standard cut feed rate */
+variable float  cut_height_delay_timer;     /* at the end of transition to end-perice-height how long to pause before transition to cut height*/
+variable float  gouge_speed_dist_travelled; /* Sum of distance traveled during gouge stage */
+variable float  gouge_speed_scale;          /* scale of gouge speed in proportion to standard cut feed rate */
+variable int    pierce_end_target;          /* Target pierce height at end of pierce motion. Usually less than the starting pierce height */
+variable float  pierce_motion_delay_timer;  /* delay starting motion during pierce delay period. Only used when pierce-type is 2. Is calced from a % of Pierce Delay*/
 variable float  pierce_old_x;               /* tracking the last x location during pierce */
 variable float  pierce_old_y;               /* tracking the last y location during pierce */
+variable float  total_pierce_state_delay;   /* Total of pierce delay and cut motion delay */
 
 // temp for testing forum post #210558
 // https://forum.linuxcnc.org/plasmac/42690-is-this-qtplasmac-expected-behaviour-cycle-start-and-jog-disabled?start=0#210558
@@ -418,7 +412,7 @@ typedef enum{OFF,
              ON,
              RESET,
              RESETTING,
-         } laser_recovery_state_t;
+            } laser_recovery_state_t;
 
 state_t state = IDLE;
 stop_type_t stop_type = NONE;
@@ -572,8 +566,7 @@ FUNCTION(_) {
         z_height = axis_z_position - axis_z_min_limit;
     }
 
-// temp for auto-thc testing
-//  check when we at "at speed"
+//  check when we at "at speed" (used by auto-thc)
     current_feed_rate = current_velocity * 60;
 
     /* convert feed rates to velocity */
@@ -1438,7 +1431,7 @@ FUNCTION(_) {
                             }else if(!torch_enable){
                                 pierce_timer = pierce_delay + cut_height_delay;
                                 state = PIERCE_DELAY;
-                                pierce_motion_delay_timer = (pierce_motion_delay/100) * pierce_delay;
+                                pierce_motion_delay_timer = (pierce_motion_delay / 100) * pierce_delay;
                                 cut_height_delay_timer = cut_height_delay;
                                 gouge_speed_dist_travelled = 0;
                                 creep_speed_dist_travelled = 0;
@@ -1534,7 +1527,7 @@ FUNCTION(_) {
                 }else if((arc_ok_out || ignore_arc_ok_0 || ignore_arc_ok_1) && tool != SPOTTING){
                         pierce_timer = pierce_delay + cut_height_delay;
                         state = PIERCE_DELAY;
-                        pierce_motion_delay_timer = (pierce_motion_delay/100) * pierce_delay;
+                        pierce_motion_delay_timer = (pierce_motion_delay / 100) * pierce_delay;
                         cut_height_delay_timer = cut_height_delay;
                         gouge_speed_dist_travelled = 0;
                         creep_speed_dist_travelled = 0;
@@ -1548,7 +1541,7 @@ FUNCTION(_) {
                 /* wait for arc to pierce stock */
                 feed_hold = TRUE;       // base assumption is no motion
                 if(pierce_type != 0){   // Test pierce type. 0=Normal, 1=Wiggle, 2=Ramp
-                    rtapi_print_msg(RTAPI_MSG_DBG,"PIERCE_DELAY - pierce_type >0\n");
+                    rtapi_print_msg(RTAPI_MSG_DBG,"PIERCE_DELAY - pierce_type > 0\n");
                     feed_hold = FALSE;  // We have motion for non normal pierce (wiggle and ramp)
                     if(pierce_type == 2){
                         /* for ramp we map have no motion for a period at the start before commencing a moving pierce and loweing height
