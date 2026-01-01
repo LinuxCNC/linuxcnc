@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC 2.10.
 
 === VERSION
 
-011
+012
 
 === SUMMARY
 
@@ -442,7 +442,7 @@ float read_arc_voltage_buffer(int caller, int size, int index, float target, flo
         }
         sum += arc_voltage_buffer[index];
         if(index == 0){
-            index = BUFFERSIZE;
+            index = BUFFERSIZE - 1;
         }else{
             index--;
         }
@@ -824,7 +824,7 @@ FUNCTION(_) {
         torch_time += fperiod;
         /* add the current arc voltage to the arc voltage buffer */
         arc_voltage_buffer[arc_voltage_buffer_index] = arc_voltage_out;
-        if (arc_voltage_buffer_index == BUFFERSIZE) {
+        if (arc_voltage_buffer_index == BUFFERSIZE - 1) {
             arc_voltage_buffer_index = 0;
         }else{
             arc_voltage_buffer_index++;
@@ -845,13 +845,13 @@ FUNCTION(_) {
             if(!arc_ok_out){
                 if(arc_voltage_out >= arc_ok_low &&
                    arc_voltage_out <= arc_ok_high &&
-                    !read_arc_voltage_buffer(READ_OK, ok_sampler_samples, arc_voltage_buffer_index - 1, arc_voltage_out, ok_sample_threshold)){
+                    !read_arc_voltage_buffer(READ_OK, ok_sampler_samples, (arc_voltage_buffer_index == 0) ? BUFFERSIZE - 1 : arc_voltage_buffer_index - 1, arc_voltage_out, ok_sample_threshold)){
                 arc_ok_out = TRUE;
                 arc_lost_timer = arc_lost_delay;
                 }
             /* stable voltages required to maintain arc_ok */
             }else if((arc_voltage_out < arc_ok_low || arc_voltage_out > arc_ok_high) &&
-                    read_arc_voltage_buffer(READ_OK, ok_sampler_samples, arc_voltage_buffer_index - 1, target_volts, ok_sample_threshold) >= ok_sampler_samples){
+                    read_arc_voltage_buffer(READ_OK, ok_sampler_samples, (arc_voltage_buffer_index == 0) ? BUFFERSIZE - 1 : arc_voltage_buffer_index - 1, target_volts, ok_sample_threshold) >= ok_sampler_samples){
                 if(arc_lost_timer <= 0){
                     arc_ok_out = FALSE;
                 }else{
@@ -1727,7 +1727,7 @@ FUNCTION(_) {
                         if((current_velocity * 60 > requested_feed_rate * 0.999) || laser_mode){
                             if(thc_auto && use_auto_volts){
                                 /* test the arc voltage buffer for a stable voltage */
-                                double target = read_arc_voltage_buffer(READ_THC, thc_sampler_samples, arc_voltage_buffer_index - 1, arc_voltage_out, thc_sample_threshold);
+                                double target = read_arc_voltage_buffer(READ_THC, thc_sampler_samples, (arc_voltage_buffer_index == 0) ? BUFFERSIZE - 1 : arc_voltage_buffer_index - 1, arc_voltage_out, thc_sample_threshold);
                                 if(target){
 // should we use average voltage or current voltage???
 //                                    target_volts = arc_voltage_out; // current voltage
