@@ -89,7 +89,7 @@ EXTRA_CFLAGS += -Wframe-larger-than=2560
 
 ifeq ($(BUILDSYS),kbuild)
 modules:
-	$(MAKE) KBUILD_EXTRA_SYMBOLS=$(RTLIBDIR)/Module.symvers -C $(KERNELDIR) SUBDIRS=`pwd` CC=$(CC) V=0 modules
+	$(MAKE) KBUILD_EXTRA_SYMBOLS=$(RTLIBDIR)/Module.symvers -C $(KERNELDIR) M=$(PWD) CC=$(CC) V=0 modules
 
 clean:
 	rm *.ko *.mod.c *.o

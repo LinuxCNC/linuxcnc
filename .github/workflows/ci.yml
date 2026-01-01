@@ -153,7 +153,7 @@ jobs:
         set -e
         set -x
         eatmydata git config --global --add safe.directory "${PWD}"
-        eatmydata debian/configure
+        eatmydata debian/configure uspace
         eatmydata debian/update-dch-from-git
         eatmydata scripts/get-version-from-git | sed -re 's/^v(.*)$/\1/' >| VERSION; cat VERSION
         eatmydata git diff
@@ -260,7 +260,7 @@ jobs:
         set -e
         set -x
         eatmydata git config --global --add safe.directory "${PWD}"
-        eatmydata debian/configure
+        eatmydata debian/configure uspace
         eatmydata debian/update-dch-from-git
         eatmydata scripts/get-version-from-git | sed -re 's/^v(.*)$/\1/' >| VERSION; cat VERSION
         eatmydata git diff

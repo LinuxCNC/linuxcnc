@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Exec=/usr/bin/see /usr/share/doc/linuxcnc/LinuxCNC_Documentation_es.pdf
+Icon=/usr/share/icons/hicolor/scalable/apps/linuxcnc-es.svg
+X-GNOME-DocPath=
+Terminal=false
+Name=User Manual - ES
+Comment=LinuxCNC Documentation
+StartupNotify=false
+Categories=Science;X-CNC-DOC;
+Keywords=cnc;linuxcnc;
