@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC 2.10.
 
 === VERSION
 
-012
+013
 
 === SUMMARY
 
@@ -73,7 +73,7 @@ pin in  s32     laser_recovery_start        "start laser offset for cut recovery
 pin in  s32     laser_x_offset              "alignment laser x axis offset (scaled units)";
 pin in  s32     laser_y_offset              "alignment laser y axis offset (scaled units)";
 pin in  float   lowpass_frequency           "lowpass cutoff frequency for arc voltage output";
-pin in  bit     machine_is_on               "machine is on signal";
+pin in  bit     machine_is_on               "machine is on signal, connect to halui.machine.is-on";
 pin in  float   material_thickness          "material thickness (machine units)";
 pin in  s32     max_offset = 5              "maximum height offset (mm)";
 pin in  bit     mesh_arc_ok = FALSE         "Do not require arc ok for mesh mode.";
@@ -942,6 +942,10 @@ FUNCTION(_) {
 //                if(!offsets_active && program_is_idle){
 //                    z_offset_enable = FALSE;
 //                }
+                if (mode == 2 && program_is_idle){
+                    led_down = move_down;
+                    led_up = move_up;
+                }
                 if(probe_inhibit && !float_switch && !breakaway && !ohmic_detected){
                     probe_inhibit = FALSE;
                 }else if(!probe_inhibit){
