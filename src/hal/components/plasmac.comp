@@ -7,7 +7,7 @@ A plasma cutting table control component for use with the LinuxCNC 2.10.
 
 === VERSION
 
-013
+014
 
 === SUMMARY
 
@@ -772,9 +772,9 @@ FUNCTION(_) {
         stop_type = PAUSE;
         probe_required = TRUE;
         rtapi_print_msg(RTAPI_MSG_ERR,"arc voltage fell below safe level while THC active\n"
-                                      "target voltage = %f\n"
+                                      "target voltage = %.2f\n"
                                       "low cut volts = %d\n"
-                                      "arc voltage = %f\n"
+                                      "arc voltage = %.2f\n"
                                       "program is paused.\n", target_volts, low_cut_volts, arc_voltage_out);
         probe_inhibit = TRUE;
         state = MAX_HEIGHT;
@@ -1922,7 +1922,7 @@ FUNCTION(_) {
                                 led_down = TRUE;
                             }
                         }else if(move_up && !cornerlock_is_locked){
-                            if(z_offset_counts + thc_velocity + safe_min >= offset_max){
+                            if(z_offset_counts + thc_velocity >= offset_max){
                                 torch_on = FALSE;
                                 stop_type = PAUSE;
                                 program_pause = TRUE;
