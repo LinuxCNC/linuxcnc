@@ -1502,7 +1502,7 @@ class GlCanonDraw:
                                        g.max_extents[Z] - g.min_extents[Z],
                                        2 ) * self.cone_basesize
                     else:
-                        cone_scale = 1
+                        cone_scale = self.cone_basesize
                     if self.is_lathe():
                         glRotatef(90, 0, 1, 0)
                         # if Rotation = 180 - back tool
