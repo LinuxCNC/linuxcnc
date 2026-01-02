@@ -15,6 +15,7 @@
 #include "emcpose.h"
 #include "rtapi_math.h"
 #include "motion.h"
+#include "mot_priv.h"
 #include "tp.h"
 #include "tc.h"
 #include "motion_types.h"

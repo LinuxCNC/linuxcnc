@@ -18,7 +18,6 @@
 #include "tc_types.h"
 #include "tp_types.h"
 #include "tcq.h"
-#include "mot_priv.h"
 
 // functions not used by motmod:
 int tpAddCurrentPos(TP_STRUCT * const tp, EmcPose const * const disp);
