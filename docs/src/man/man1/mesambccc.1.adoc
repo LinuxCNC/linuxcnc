@@ -674,7 +674,7 @@ Recognized '<commands>/<command>/<pin>' attributes:
 *linuxcnc*(1),
 *hm2_modbus*(9).
 
-https://linuxcnc.org/docs/stable/html/drivers/mesa_modbus.html
+https://linuxcnc.org/docs/devel/html/drivers/mesa_modbus.html
 
 == AUTHOR
 
