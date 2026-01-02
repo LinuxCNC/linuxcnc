@@ -517,6 +517,7 @@ class GlCanonDraw:
         self.foam_w_height = 1.5
         self.foam_z_height = 0
         self.hide_icons = False
+        self.disable_cone_scaling = False
 
         try:
             system_memory_bytes = os.sysconf('SC_PAGE_SIZE') * os.sysconf('SC_PHYS_PAGES')
@@ -564,6 +565,8 @@ class GlCanonDraw:
                 temp = self.inifile.find("DISPLAY", "GRAPHICAL_MAX_FILE_SIZE")
                 if not temp is None:
                     self.max_file_size = int(temp) * 1024 * 1024
+
+                self.disable_cone_scaling = bool(self.inifile.find("DISPLAY", "DISABLE_CONE_SCALING"))
 
         except:
             # Probably started in an editor so no INI
@@ -640,7 +643,7 @@ class GlCanonDraw:
         if self.get_show_rapids():
             glCallList(self.dlist('select_rapids', gen=self.make_selection_list))
         glCallList(self.dlist('select_norapids', gen=self.make_selection_list))
-        
+
         try:
             buffer = glRenderMode(GL_RENDER)
         except:
@@ -1494,7 +1497,7 @@ class GlCanonDraw:
 
                 current_tool = self.get_current_tool()
                 if current_tool is None or current_tool.diameter == 0:
-                    if self.canon:
+                    if self.canon and not self.disable_cone_scaling:
                         g = self.canon
 
                         cone_scale = max(g.max_extents[X] - g.min_extents[X],
