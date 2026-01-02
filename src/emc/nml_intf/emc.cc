@@ -1066,6 +1066,7 @@ void EMC_TRAJ_LINEAR_MOVE::update(CMS * cms)
     cms->update(type);
     cms->update(vel);
     cms->update(ini_maxvel);
+    cms->update(ini_maxjerk);
     cms->update(acc);
     cms->update(feed_mode);
     cms->update(indexer_jnum);
@@ -1089,6 +1090,7 @@ void EMC_TRAJ_CIRCULAR_MOVE::update(CMS * cms)
     cms->update(type);
     cms->update(vel);
     cms->update(ini_maxvel);
+    cms->update(ini_maxjerk);
     cms->update(acc);
     cms->update(feed_mode);
 }
@@ -2047,6 +2049,7 @@ void EMC_TRAJ_PROBE::update(CMS * cms)
     cms->update(type);
     cms->update(vel);
     cms->update(ini_maxvel);
+    cms->update(ini_maxjerk);
     cms->update(acc);
     cms->update(probe_type);
 }
@@ -2079,6 +2082,7 @@ void EMC_TRAJ_RIGID_TAP::update(CMS * cms)
     EmcPose_update(cms, &pos);
     cms->update(vel);
     cms->update(ini_maxvel);
+    cms->update(ini_maxjerk);
     cms->update(acc);
     cms->update(scale);
 }

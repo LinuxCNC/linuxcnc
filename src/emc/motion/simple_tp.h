@@ -30,10 +30,56 @@ extern "C" {
 	double pos_cmd;		/* position command */
 	double max_vel;		/* velocity limit */
 	double max_acc;		/* acceleration limit */
+    double max_jerk;    /* jerk limit */
 	int enable;		/* if zero, motion stops ASAP */
 	double curr_pos;	/* current position */
 	double curr_vel;	/* current velocity */
 	int active;		/* non-zero if motion in progress */
+
+    double curr_acc;        /* current acceleration */
+    double curr_jerk;       /* current acceleration */
+    double last_move_length;       /* current acceleration */
+
+    double last_pos_cmd;
+
+    int use_trapezoid;
+    double curr_max_vel;
+    int total_n;
+    int curr_n;
+    int n0;
+    int n1;
+    int n2;
+    int n3;
+    int n4;
+    int n5;
+    int n6;
+    int fix_verr;
+    double verr;
+    double vc;
+    double ve;
+    double vm;
+    double jm;
+    double j2;
+    double j4;
+    double v1;
+    double v2;
+    double v3;
+    
+    double v5;
+    double v6;
+    double v7;
+
+    double a1;
+    double a2;
+    double a3;
+    
+    double a5;
+    double a6;
+    double a7;
+
+    double prograss;
+
+    int status;
     } simple_tp_t;
 
 /* I could write a bunch of functions to read and write the first four
@@ -52,7 +98,8 @@ extern "C" {
 */
 
 extern void simple_tp_update(simple_tp_t *tp, double period);
-
+extern void simple_tp_update_normal(simple_tp_t *tp, double period);
+extern void simple_scurve_tp_update(simple_tp_t *tp, double period);
 
 #ifdef __cplusplus
 }

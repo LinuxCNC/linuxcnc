@@ -57,6 +57,9 @@ static ptr_inihal_data *the_inihal_data;
 #define SHOW_CHANGE(NAME) \
     fprintf(stderr,"Changed: "#NAME" %g-->%g\n",old_inihal_data.NAME, \
                                                 new_inihal_data.NAME);
+#define SHOW_CHANGE_INT(NAME) \
+    fprintf(stderr,"Changed: "#NAME" %d-->%d\n",old_inihal_data.NAME, \
+                                                new_inihal_data.NAME);
 #define SHOW_CHANGE_ARC_BLEND() \
     fprintf(stderr,"Changed: blend_enable:          %d-->%d\n"\
                    "         blend_fallback_enable: %d-->%d\n"\
@@ -156,6 +159,7 @@ int ini_hal_init(int numjoints)
         MAKE_FLOAT_PIN_IDX(joint_max_limit,max_limit,HAL_IN,idx);
         MAKE_FLOAT_PIN_IDX(joint_max_velocity,max_velocity,HAL_IN,idx);
         MAKE_FLOAT_PIN_IDX(joint_max_acceleration,max_acceleration,HAL_IN,idx);
+        MAKE_FLOAT_PIN_IDX(joint_jerk,jerk,HAL_IN,idx);
         MAKE_FLOAT_PIN_IDX(joint_home,home,HAL_IN,idx);
         MAKE_FLOAT_PIN_IDX(joint_home_offset,home_offset,HAL_IN,idx);
         MAKE_S32_PIN_IDX(  joint_home_sequence,home_sequence,HAL_IN,idx);
@@ -166,12 +170,16 @@ int ini_hal_init(int numjoints)
         MAKE_FLOAT_PIN_LETTER(axis_max_limit,max_limit,HAL_IN,idx,letter);
         MAKE_FLOAT_PIN_LETTER(axis_max_velocity,max_velocity,HAL_IN,idx,letter);
         MAKE_FLOAT_PIN_LETTER(axis_max_acceleration,max_acceleration,HAL_IN,idx,letter);
+        MAKE_FLOAT_PIN_LETTER(axis_jerk,jerk,HAL_IN,idx,letter);
     }
 
     MAKE_FLOAT_PIN(traj_default_velocity,HAL_IN);
     MAKE_FLOAT_PIN(traj_max_velocity,HAL_IN);
     MAKE_FLOAT_PIN(traj_default_acceleration,HAL_IN);
     MAKE_FLOAT_PIN(traj_max_acceleration,HAL_IN);
+    MAKE_FLOAT_PIN(traj_default_jerk,HAL_IN);
+    MAKE_FLOAT_PIN(traj_max_jerk,HAL_IN);
+    MAKE_S32_PIN(traj_planner_type,HAL_IN);
 
     MAKE_BIT_PIN(traj_arc_blend_enable,HAL_IN);
     MAKE_BIT_PIN(traj_arc_blend_fallback_enable,HAL_IN);
@@ -190,6 +198,9 @@ int ini_hal_init_pins(int numjoints)
     INIT_PIN(traj_max_velocity);
     INIT_PIN(traj_default_acceleration);
     INIT_PIN(traj_max_acceleration);
+    INIT_PIN(traj_default_jerk);
+    INIT_PIN(traj_max_jerk);
+    INIT_PIN(traj_planner_type);
 
     INIT_PIN(traj_arc_blend_enable);
     INIT_PIN(traj_arc_blend_fallback_enable);
@@ -206,6 +217,7 @@ int ini_hal_init_pins(int numjoints)
         INIT_PIN(joint_max_limit[idx]);
         INIT_PIN(joint_max_velocity[idx]);
         INIT_PIN(joint_max_acceleration[idx]);
+        INIT_PIN(joint_jerk[idx]);
         INIT_PIN(joint_home[idx]);
         INIT_PIN(joint_home_offset[idx]);
         INIT_PIN(joint_home_sequence[idx]);
@@ -215,6 +227,7 @@ int ini_hal_init_pins(int numjoints)
         INIT_PIN(axis_max_limit[idx]);
         INIT_PIN(axis_max_velocity[idx]);
         INIT_PIN(axis_max_acceleration[idx]);
+        INIT_PIN(axis_jerk[idx]);
     }
 
     return 0;
@@ -270,6 +283,36 @@ int check_ini_hal_items(int numjoints)
             }
         }
     }
+
+    if (CHANGED(traj_max_jerk)) {
+        if (debug) SHOW_CHANGE(traj_max_jerk)
+        UPDATE(traj_max_jerk);
+        if (0 != emcTrajSetMaxJerk(NEW(traj_max_jerk))) {
+            if (emc_debug & EMC_DEBUG_CONFIG) {
+                rcs_print("check_ini_hal_items:bad return value from emcTrajSetMaxJerk\n");
+            }
+        }
+    }
+    
+    if (CHANGED(traj_planner_type)) {
+        if (debug) SHOW_CHANGE_INT(traj_planner_type)
+        UPDATE(traj_planner_type);
+        if (0 != emcTrajPlannerType(NEW(traj_planner_type))) {
+            if (emc_debug & EMC_DEBUG_CONFIG) {
+                rcs_print("check_ini_hal_items:bad return value from emcTrajPlannerType\n");
+            }
+        }
+    }
+
+    if (CHANGED(traj_default_jerk)) {
+        if (debug) SHOW_CHANGE(traj_default_jerk)
+        UPDATE(traj_default_jerk);
+        if (0 != emcTrajSetJerk(NEW(traj_default_jerk))) {
+            if (emc_debug & EMC_DEBUG_CONFIG) {
+                rcs_print("check_ini_hal_items:bad return value from emcTrajSetJerk\n");
+            }
+        }
+    } 
 
     if (   CHANGED(traj_arc_blend_enable)
         || CHANGED(traj_arc_blend_fallback_enable)
@@ -341,6 +384,15 @@ int check_ini_hal_items(int numjoints)
             if (0 != emcJointSetMaxAcceleration(idx, NEW(joint_max_acceleration[idx]))) {
                 if (emc_debug & EMC_DEBUG_CONFIG) {
                     rcs_print_error("check_ini_hal_items:bad return from emcJointSetMaxAcceleration\n");
+                }
+            }
+        }
+        if (CHANGED_IDX(joint_jerk,idx) ) {
+            if (debug) SHOW_CHANGE_IDX(joint_jerk,idx);
+            UPDATE_IDX(joint_jerk,idx);
+            if (0 != emcJointSetMaxJerk(idx, NEW(joint_jerk[idx]))) {
+                if (emc_debug & EMC_DEBUG_CONFIG) {
+                    rcs_print_error("check_ini_hal_items:bad return from emcJointSetMaxJerk\n");
                 }
             }
         }
@@ -423,6 +475,15 @@ int check_ini_hal_items(int numjoints)
                   (    ext_offset_a_or_v_ratio[idx]) * NEW(axis_max_acceleration[idx]))) {
                 if (emc_debug & EMC_DEBUG_CONFIG) {
                     rcs_print_error("check_ini_hal_items:bad return from emcAxisSetMaxAcceleration\n");
+                }
+            }
+        }
+        if (CHANGED_IDX(axis_jerk,idx) ) {
+            if (debug) SHOW_CHANGE_IDX(axis_jerk,idx);
+            UPDATE_IDX(axis_jerk,idx);
+            if (0 != emcAxisSetMaxJerk(idx,NEW(axis_jerk[idx]))) {
+                if (emc_debug & EMC_DEBUG_CONFIG) {
+                    rcs_print_error("check_ini_hal_items:bad return from emcAxisSetMaxJerk\n");
                 }
             }
         }

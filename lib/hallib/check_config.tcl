@@ -13,8 +13,11 @@ set ::mandatory_items {KINS KINEMATICS
 # Ref: src/emc/nml_intf/emccfg.h,src/emc/ini/inijoint.cc,src/emc/iniaxis.cc:
 set ::DEFAULT_AXIS_MAX_VELOCITY      1.0
 set ::DEFAULT_AXIS_MAX_ACCELERATION  1.0
+set ::DEFAULT_AXIS_MAX_JERK          0.0
 set ::DEFAULT_JOINT_MAX_VELOCITY     1.0
 set ::DEFAULT_JOINT_MAX_ACCELERATION 1.0
+set ::DEFAULT_JOINT_MAX_JERK         0.0
+set ::DEFAULT_TRAJ_PLANNER_TYPE      0
 
 # Ref: src/emc/ini/iniaxis.cc:
 set ::DEFAULT_AXIS_MIN_LIMIT -1e99

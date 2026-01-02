@@ -529,6 +529,10 @@ int main(int argc, char* argv[]) {
                 axis_set_locking_joint(c->axis, c->joint);
                 break;
 
+            case EMCMOT_SET_AXIS_JERK_LIMIT:
+                log_print("SET_AXIS_JERK_LIMIT axis=%d, jerk=%.6g\n", c->axis, c->jerk);
+                break;
+
             case EMCMOT_SET_JOINT_BACKLASH:
                 log_print("SET_JOINT_BACKLASH joint=%d, backlash=%.6g\n", c->joint, c->backlash);
                 break;
@@ -569,6 +573,14 @@ int main(int argc, char* argv[]) {
                 log_print("SET_ACC acc=%.6g\n", c->acc);
                 break;
 
+            case EMCMOT_SET_JERK:
+                log_print("SET_JERK jerk=%.6g\n", c->jerk);
+                break;
+
+            case EMCMOT_SET_PLANNER_TYPE:
+                log_print("SET_PLANNER_TYPE planner_type=%d\n", c->planner_type);
+                break;
+
             case EMCMOT_SET_TERM_COND:
                 log_print("SET_TERM_COND termCond=%d, tolerance=%.6g\n", c->termCond, c->tolerance);
                 break;
@@ -599,6 +611,10 @@ int main(int argc, char* argv[]) {
                     c->search_vel, c->latch_vel, c->flags,
                     c->home_sequence, c->volatile_home
                 );
+                break;
+
+            case EMCMOT_SET_JOINT_JERK_LIMIT:
+                log_print("SET_JOINT_JERK_LIMIT joint=%d, jerk=%.6g\n", c->joint, c->jerk);
                 break;
 
             case EMCMOT_UPDATE_JOINT_HOMING_PARAMS:
