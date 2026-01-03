@@ -83,13 +83,6 @@ to another.
 extern "C" {
 #endif
 
-    typedef struct _EMC_TELEOP_DATA {
-	EmcPose currentVel;
-	EmcPose currentAccel;
-	EmcPose desiredVel;
-	EmcPose desiredAccel;
-    } EMC_TELEOP_DATA;
-
 /* This enum lists all the possible commands */
 
     typedef enum {
