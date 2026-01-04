@@ -311,7 +311,7 @@ class gmoccapy(object):
         self._init_user_messages()
 
         # set the title of the window, to show the release
-        self.widgets.window1.set_title("gmoccapy for LinuxCNC {0}".format(_RELEASE))
+        self.widgets.window1.set_title("gmoccapy {} for LinuxCNC {}".format(_RELEASE, linuxcnc.version))
         self.widgets.lbl_version.set_label("<b>gmoccapy\n{0}</b>".format(_RELEASE))
 
         panel = gladevcp.makepins.GladePanel(self.halcomp, XMLNAME, self.builder, None)
