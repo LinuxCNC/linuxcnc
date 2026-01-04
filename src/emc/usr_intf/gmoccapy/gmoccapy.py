@@ -1985,10 +1985,11 @@ class gmoccapy(object):
         btn_save.set_label("")
         btn_save.set_image(self.widgets.img_tool_save)
         btn_save.set_always_show_image(True)
-        # Empty space in between
-        spacer = Gtk.Label()
-        spacer.show_all()
-        buttonbox.pack_start(spacer,True,True,0)
+        # Create a label for current tool in spindle
+        lbl_tool = Gtk.Label()
+        self.widgets.tooledit1.lbl_tool = lbl_tool
+        lbl_tool.show_all()
+        buttonbox.pack_start(lbl_tool,True,True,0)
         # Calculator button
         btn_calculator = Gtk.ToggleButton()
         btn_calculator.set_size_request(56, 56)
@@ -2004,6 +2005,12 @@ class gmoccapy(object):
             if col > 0 and col < 16:
                 temp = self.widgets.tooledit1.wTree.get_object("cell_%s" % name)
                 temp.connect('editing-started', self.on_tool_col_edit_started, col)
+        # override 'tooledit_widget' method 'set_selected_tool'
+        self.widgets.tooledit1.set_selected_tool = self.set_selected_tool
+
+    def set_selected_tool(self, toolnumber):
+        lbl_tool_text = "Tool loaded: " + str(toolnumber)
+        self.widgets.tooledit1.lbl_tool.set_text(lbl_tool_text)
 
     def on_tree_navigate_key_press(self, treeview, event, filter):
         keyname = Gdk.keyval_name(event.keyval)
@@ -5409,7 +5416,7 @@ class gmoccapy(object):
             
     # set tool with M61 Q? or with T? M6
     def on_btn_selected_tool_clicked(self, widget, data=None):
-        tool = self.widgets.tooledit1.get_selected_tool()
+        tool = self.widgets.tooledit1.get_selected_row()
         if tool == None:
             message = _("you selected no or more than one tool, the tool selection must be unique")
             self.dialogs.warning_dialog(self, _("Important Warning!"), message)

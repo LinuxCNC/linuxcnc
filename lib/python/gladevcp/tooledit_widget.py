@@ -196,7 +196,7 @@ class ToolEdit(Gtk.Box):
         for path in pathlist:
             liststore.remove(liststore.get_iter(path))
 
-        # return the selected tool number
+        # return tool numbers of all rows with checked checkboxes
     def get_selected_tool(self):
         liststore  = self.model
         def match_value_cb(model, path, iter, pathlist):
@@ -210,6 +210,15 @@ class ToolEdit(Gtk.Box):
             return None
         else:
             return(liststore.get_value(liststore.get_iter(pathlist[0]),1))
+
+        # return tool number of the highlighted (ie selected) row
+    def get_selected_row(self):
+        model, iter = self.view1.get_selection().get_selected()
+        if iter:
+            tool = model.get_value(iter, 1)
+            return tool
+        else:
+            return None
 
     def set_selected_tool(self,toolnumber):
         try:
