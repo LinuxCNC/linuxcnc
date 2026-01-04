@@ -40,7 +40,7 @@ This section describes some methods for downloading the Live/Install image.
 Software for LinuxCNC to download is presented on the project's
 https://linuxcnc.org/downloads/[Downloads page].
 Most users will aim for the disk image for Intel/AMD PCs, the URL
-will resemble https://www.linuxcnc.org/iso/linuxcnc_2.9.7-amd64.hybrid.iso.
+will resemble https://www.linuxcnc.org/iso/linuxcnc_2.9.8-amd64.hybrid.iso.
 
 For the Raspberry Pi, multiple images are provided to address
 differences between the RPi4 and RPi5.
@@ -68,7 +68,7 @@ sudo apt-get install zsync
 . Then run this command to download the iso to your computer
 +
 ----
-zsync http://www.linuxcnc.org/iso/linuxcnc_2.9.4-amd64.hybrid.iso
+zsync https://www.linuxcnc.org/iso/linuxcnc_2.9.8-amd64.hybrid.iso
 ----
 
 Please remember to confirm the checksum of the downloaded iso
@@ -88,20 +88,20 @@ https://www.assembla.com/spaces/zsync-windows/documents .
 . After downloading, verify the checksum of the image to ensure integrity.
 
 ----
-md5sum linuxcnc-2.9.7-amd64.iso
+md5sum linuxcnc-2.9.8-amd64.iso
 ----
 
 or
 
 ----
-sha256sum linuxcnc-2.9.7-amd64.iso
+sha256sum linuxcnc-2.9.8-amd64.iso
 ----
 . Then compare to these checksums
 
 -----
 amd64 (PC)
-md5sum: 1815aceaac0e7861747aa34d61846e79
-sha256sum: 08b3f59233e47c91cf1c9a85c41df48542c97b134efefa7446d3060c9a3e644b
+md5sum: 71925c8e618b728e255eaf77870960df
+sha256sum: 241e496a97b7a57d2832c35fcacb352e113e38914104476cafd1960ab9d6dc14
 arm64 (Pi)
 md5sum: 4547e8a72433efb033f0a5cf166a5cd2
 sha256sum: ff3ba9b8dfb93baf1e2232746655f8521a606bc0fab91bffc04ba74cc3be6bf0
@@ -109,7 +109,7 @@ sha256sum: ff3ba9b8dfb93baf1e2232746655f8521a606bc0fab91bffc04ba74cc3be6bf0
 
 .Verify md5sum on Windows or Mac
 
-Windows and Mac OS X do not come with an md5sum program, but there are
+Windows does not come with an md5sum program, but there are
 alternatives.  More information can be found at:
 https://help.ubuntu.com/community/HowToMD5SUM[How To MD5SUM]
 
@@ -121,8 +121,9 @@ used to boot a computer.  The image is too large to fit on a CD.
 
 === Raspberry Pi Image
 
-The Raspberry Pi image is a complete SD card image and should be written
-to an SD card with the https://www.raspberrypi.com/software/[Raspberry Pi Imager App].
+The Raspbery Pi image is a complete SD card image and should be
+written to an SD card with the [Raspberry Pi Imager App](https://www.raspberrypi.com/software/).
+Note that the imager app can open the .zip file directly, no need to expand.
 
 === AMD-64 (x86-64, PC) Image using GUI tools
 
@@ -144,7 +145,7 @@ It looks more complicated but seems to be more compatible with various BIOSes.
   then use this command:
 +
 -----
-dd if=linuxcnc_2.9.7-amd64.hybrid.iso of=/dev/sde bs=4k status=progress
+dd if=linuxcnc_2.9.8-amd64.hybrid.iso of=/dev/sde bs=4k status=progress
 -----
 
 === Command line - MacOS
@@ -164,10 +165,8 @@ diskutil unmountDisk /dev/diskN
   Note that the disk name has an added "r" at the beginning.
 +
 -----
-sudo dd if=linuxcnc_2.9.7-amd64.hybrid.iso of=/dev/rdiskN bs=1m
+sudo dd if=linuxcnc_2.9.8-amd64.hybrid.iso of=/dev/rdiskN bs=1m status=progress
 -----
-. Note that this may take a long time to complete and there will be no
-  feedback during the process.
 
 .Writing the image to a DVD in Linux
 
@@ -256,12 +255,12 @@ In addition, for experienced users who are familiar with Debian system administr
 
 [options="header"]
 |===
+| Debian Trixie   | amd64 & arm64 | preempt-rt | linuxcnc-uspace | machine control & simulation
+| Debian Troxie   | amd64         | RTAI       | linuxcnc        | machine control
 | Distribution    | Architecture  | Kernel     | Package name    | Typical use
 | Debian Bookworm | amd64 & arm64 | preempt-rt | linuxcnc-uspace | machine control & simulation
 | Debian Bookworm | amd64         | RTAI       | linuxcnc        | machine control
 | Debian Bullseye | amd64         | preempt-rt | linuxcnc-uspace | machine control & simulation
-| Debian Buster   | amd64 & arm64 | preempt-rt | linuxcnc-uspace | machine control & simulation
-| Debian Buster   | amd64         | RTAI       | linuxcnc        | machine control
 | Any             | Any           | Stock      | linuxcnc-uspace | simulation ONLY
 |===
 
@@ -279,16 +278,17 @@ Synaptic Package manager or with apt-get at the command-line.
 The RTAI kernels are available for download from the linuxcnc.org debian archive.
 The apt source is:
 
-* Debian Bookworm: `deb https://linuxcnc.org bookworm base`
-* Debian Bullseye: `deb https://linuxcnc.org bullseye base`
-* Debian Buster: `deb https://linuxcnc.org buster base`
+* Debian Trixie: `deb http://linuxcnc.org trixie base`
+* Debian Bookworm: `deb http://linuxcnc.org bookworm base`
+* Debian Bullseye: `deb http://linuxcnc.org bullseye base`
+* Debian Buster: `deb http://linuxcnc.org buster base`
 
 LinuxCNC and the RTAI kernel are now only available for 64-bit OSes but
 there are very few surviving systems that can not run a 64-bit OS.
 
-=== Installing on Debian Bookworm (with Preempt-RT kernel)
+=== Installing on Debian Trixie (with Preempt-RT kernel)
 
-. Install Debian Bookworm (Debian 12), amd64 version.
+. Install Debian Trixie (Debian 13), amd64 version.
   You can download the installer here:
   https://www.debian.org/distrib/
 
@@ -308,8 +308,8 @@ sudo apt-get dist-upgrade
 ----
 +
 NOTE: It is possible to download a version of LinuxCNC directly from Debian
-but this will install an old pre-release version, and is not recommended
-at this time.
+(currently version 2.9.4) but a more up-to-date version (2.9.8) can
+be installed from the LinuxCNC repository. 
 
 . Install the Preempt-RT kernel and modules
 +
@@ -351,11 +351,10 @@ sudo ./linuxcnc-install.sh
 ----
 
 [[cha:Installing-RTAI]]
-
-=== Installing on Debian Bookworm (with experimental RTAI kernel)
+=== Installing on Debian Trixie (with experimental RTAI kernel)
 
 . This kernel and LinuxCNC version can be installed on top of the Live DVD
-  install, or alternatively on a fresh Install of Debian Bookworm 64-bit
+  install, or alternatively on a fresh Install of Debian Trixie 64-bit
   as described above.
 . You can add the LinuxCNC archive signing key and repository information
   by downloading and running the installer script as described above.
