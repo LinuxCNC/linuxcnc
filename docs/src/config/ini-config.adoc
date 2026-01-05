@@ -234,7 +234,7 @@ GMOCCAPY can be used both ways and offers also many connections for hardware con
 Descriptions of the interfaces are in the Interfaces section of the User Manual.
 
 * `DISPLAY = axis` - The file name of the executable providing the user interface to use.
-  Prominent valid options are (all in lower case): `axis`, `touchy`, `gmoccapy`, `gscreen`, `tklinuxcnc`, `qtvcp`, `qtvcp-qtdragon` or `qtvcp-qtplasmac`.
+  Prominent valid options are (all in lower case): `axis`, `touchy`, `gmoccapy`, `gscreen`, `tklinuxcnc`, `qtvcp`, `qtvcp qtdragon` or `qtvcp qtplasmac`.
 * `POSITION_OFFSET = RELATIVE` - The coordinate system (`RELATIVE` or `MACHINE`) to show on the DRO when the user interface starts.
   The RELATIVE coordinate system reflects the G92 and G5__x__ coordinate offsets currently in effect.
 * `POSITION_FEEDBACK = COMMANDED` - The coordinate value (`COMMANDED` or `ACTUAL`) to show on the DRO when the user interface starts.
@@ -250,7 +250,8 @@ Descriptions of the interfaces are in the Interfaces section of the User Manual.
   The example above will display only one decimal digit.
   Formatting follows Python practice: https://docs.python.org/2/library/string.html#format-specification-mini-language .
   An error will be raised if the format can not accept a floating-point value.
-* `CONE_BASESIZE = .25` - Override the default cone/tool base size of .5 in the graphics display.
+* `CONE_BASESIZE = .25` - Override the default cone/tool base size of .5 in the graphics display. Valid values are between 0.025 and 2.0.
+* `DISABLE_CONE_SCALING = TRUE` - Any non-empty value (including "0") will override the default behavior of scaling the cone/tool size using the extents of the currently loaded G-code program in the graphics display.
 * `MAX_FEED_OVERRIDE = 1.2` - The maximum feed override the user may select.
   1.2 means 120% of the programmed feed rate.
 * `MIN_SPINDLE_OVERRIDE = 0.5` - The minimum spindle override the user may select.
@@ -288,7 +289,7 @@ Descriptions of the interfaces are in the Interfaces section of the User Manual.
   An under powered CPU may see improvement with a longer setting.
   Usually the default is fine.
 * `PREVIEW_TIMEOUT = 5` - Timeout (in seconds) for loading graphical preview of G-code. Currently AXIS only.
-* `HOMING_PROMPT = TRUE` - Show prompt message with homing request, when the Power On button is pressed in AXIS GUI. Pressing the "Ok" button in prompt message is equivalent to pressing the "Home All" button(or the Ctrl-HOME key).
+* `HOMING_PROMPT = TRUE` - Any non-empty value (including "0") will enable showing a prompt message with homing request, when the Power On button is pressed in AXIS GUI. Pressing the "Ok" button in prompt message is equivalent to pressing the "Home All" button(or the Ctrl-HOME key).
 * `FOAM_W = 1.5` sets the foam W height.
 * `FOAM_Z = 0` sets the foam Z height.
 * `GRAPHICAL_MAX_FILE_SIZE = 20` largest size (in mega bytes) that will be displayed graphically.

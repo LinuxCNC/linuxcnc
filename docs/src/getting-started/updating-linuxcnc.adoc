@@ -10,8 +10,8 @@
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
-Updating LinuxCNC to a new minor release (i.e. to a new version in
-the same stable series, for example from 2.9.1 to 2.9.2) is an
+Updating LinuxCNC to a new minor release (ie to a new version in
+the same stable series, for example from 2.9.7 to 2.9.8) is an
 automatic process if your PC is connected to the internet. You will
 see an update prompt after a minor release along with other software
 updates. If you don't have an internet connection to your PC see
@@ -30,11 +30,11 @@ If you do not have an old version of LinuxCNC to upgrade, then you're
 best off making a fresh install of the new version as described in the
 section <<cha:getting-linuxcnc,Getting LinuxCNC>>.
 
-Furthermore, if you are running Ubuntu Precise or Debian Wheezy it is
+Furthermore, if you are running Ubuntu Precise, Debian Wheezy or Debian Buster it is
 well worth considering making a backup of the "linuxcnc" directory on
 removable media and performing a
 <<cha:getting-linuxcnc,clean install of a newer OS and LinuxCNC version>>
-as these releases were EOL in 2017 and 2018 respectively.
+as these releases were EOL in 2017, 2018 and 2022 respectively.
 If you are running on Ubuntu Lucid then you will have to do this, as
 Lucid is no longer supported by LinuxCNC (it was EOL in 2013).
 
@@ -48,11 +48,11 @@ Open a <<faq:terminal,terminal>> then type `lsb_release -ic` to find this inform
 ----
 lsb_release -ic
 Distributor ID: Debian
-Codename:       Buster
+Codename:       Trixie
 ----
 
-You should be running on Debian Buster, Bullseye or Bookworm or Ubuntu 20.04 "Focal Fossa" or newer.
-LinuxCNC 2.9.y will not run on older distributions than these.
+You should be running on Debian Bullseye, Bookworm or Trixie or Ubuntu 20.04 "Focal Fossa" or newer.
+LinuxCNC 2.9.y will not run on older distributions than these. 
 
 You will also need to check which realtime kernel is being used:
 
@@ -93,11 +93,11 @@ RTAI packages are available for Bookworm and Buster but not currently for Bullse
 [cols="3,5",options="header"]
 |===
 | OS / Realtime Version      | Repository
-| Debian Buster - preempt   m| deb https://linuxcnc.org buster base 2.9-uspace
-| Debian Buster - RTAI      m| deb https://linuxcnc.org buster base 2.9-rt
 | Debian Bullseye - preempt m| deb https://linuxcnc.org bullseye base 2.9-uspace
 | Debian Bookworm - preempt m| deb https://linuxcnc.org bookworm base 2.9-uspace
 | Debian Bookworm - RTAI    m| deb https://linuxcnc.org bookworm base 2.9-rt
+| Debian Trixie - preempt   m| deb https://linuxcnc.org trixie base 2.9-uspace
+| Debian Trixie - RTAI      m| deb https://linuxcnc.org trixie base 2.9-rt
 |===
 
 .Figure with a screenshot of the repository configuration of the synaptic package manager.
@@ -114,7 +114,7 @@ next we need to install it.
 
 The process again differs depending on your platform.
 
-==== Debian Buster, Bullseye and Bookworm
+==== Debian Bullseye, Bookworm and Trixie
 
 Debian uses the Synaptic Package Manager.
 
@@ -147,24 +147,24 @@ Open a <<faq:terminal,terminal>> and type in 'lsb_release -ic' to find the relea
 ----
 > lsb_release -ic
 Distributor ID: Debian
-Codename:       bullseye
+Codename:       trixie
 ----
 
 Pick the OS from the list then pick the major version you want like
-2.9-rt for RTAI or 2.9-rtpreempt or 2.9-uspace for preempt-rt.
+2.9-rt for RTAI or 2.9-uspace for preempt-rt.
 
-Next pick the type of computer you have: binary-amd64 for any 64-bit x86,
-binary-i386 for 32 bit, binary-armhf (32bit) or binary-arm64 (64bit) for Raspberry Pi.
+Next pick the type of computer you have: binary-amd64 for 64-bit PC or
+binary-arm64 (64bit) for Raspberry Pi.
 
 Next pick the version you want from the bottom of the list like
-'linuxcnc-uspace_2.9.2_amd64.deb' (choose the latest by date).
+'linuxcnc-uspace_2.9.8_amd64.deb' (choose the latest by date).
 Download the deb and copy it to your home directory. You can rename the
 file to something a bit shorter with the file manager like
-'linuxcnc_2.9.2.deb' then open a terminal and install it with the
+'linuxcnc_2.9.8.deb' then open a terminal and install it with the
 package manager with this command:
 
 ----
-sudo dpkg -i linuxcnc_2.9.2.deb
+sudo dpkg -i linuxcnc_2.9.8.deb
 ----
 
 
@@ -199,9 +199,74 @@ know that the module has moved from `/usr/lib/libcanterp.so` to
 correspondingly needs to change from `libcanterp.so` to `canterp.so`.
 
 
+=== Spindle limits in the INI
 
-== Updating Configuration Files (for 2.10.y)
+It is now possible to add settings to the [SPINDLE] section of the INI file
+
+MAX_FORWARD_VELOCITY = 20000 The maximum spindle speed (in rpm)
+
+MIN_FORWARD_VELOCITY = 3000 The minimum spindle speed (in rpm)
+
+MAX_REVERSE_VELOCITY = 20000 This setting will default to
+MAX_FORWARD_VELOCITY if omitted.
+
+MIN_REVERSE_VELOCITY = 3000` This setting is equivalent to
+MIN_FORWARD_VELOCITY but for reverse spindle rotation. It will default
+to the MIN_FORWARD_VELOCITY if omitted.
+
+INCREMENT = 200 Sets the step size for spindle speed increment /
+decrement commands. This can have a different value for each spindle.
+This setting is effective with AXIS and Touchy but note that some
+control screens may handle things differently.
+
+HOME_SEARCH_VELOCITY = 100 - Accepted but currently does nothing
+
+HOME_SEQUENCE = 0 - Accepted but currently does nothing
+
+
+== Updating Configuration Files for 2.10.y
 
 Touchy: the Touchy MACRO entries should now be placed in a [MACROS]
 section of the INI rather than in the [TOUCHY] section. This is part of
 a process of commonising the INI setting between GUIs. 
+
+
+== New HAL components
+
+=== Non-Realtime
+mdro
+mqtt-publisher
+pi500_vfd
+pmx485-test
+qtplasmac-cfg2prefs
+qtplasmac-materials
+qtplasmac-plasmac2qt
+qtplasmac-setup
+sim-torch
+svd-ps_vfd
+
+=== Realtime
+anglejog
+div2
+enum
+filter_kalman
+flipflop
+homecomp
+limit_axis
+mesa_uart
+millturn
+scaled_s32_sums
+tof
+ton
+
+== New Drivers
+
+A framework for controlling ModBus devices using the serial ports on
+many Mesa cards has been introduced.
+http://linuxcnc.org/docs/2.9/html/drivers/mesa_modbus.html
+
+A new GPIO driver for any GPIO which is supported by the gpiod library
+is now included:
+http://linuxcnc.org/docs/2.9/html/drivers/hal_gpio.html
+
+

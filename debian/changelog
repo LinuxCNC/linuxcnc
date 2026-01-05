@@ -4,6 +4,23 @@ linuxcnc (1:2.10.0~pre0) UNRELEASED; urgency=medium
   * Master branch open for new features.
 
  -- andypugh <andy@bodgesoc.org>  Mon, 22 Sep 2025 22:55:20 +0100
+ 
+linuxcnc (1:2.9.8) UNRELEASED; urgency=medium
+
+  * backport #3516 to fix #3679
+  * Only initialize python if not yet initialized.
+  * hal_gpio: Adapt to use libgpiod3 or libgpiod2 according to what is installed
+  * Merge pull request #3671 from smoe/docs_image_handling
+  * core-components.adoc remove duplicate descriptions
+  * Merge pull request #3642 from LinuxCNC/2.9_#2460
+  * Update LinuxCNC RTAI Install instructions
+  * Merge pull request #3555 from smoe/lintian_warnings
+  * Merge pull request #3588 from f355/2.9
+  * [ci] publish releases with artifacts
+  * debian: Addressed lintian warnings
+  * axis.py: restore mdi queuing provision       #2460 
+
+ -- andypugh <andy@bodgesoc.org>  Wed, 31 Dec 2025 19:39:48 +0000
 
 linuxcnc (1:2.9.7) bookworm; urgency=low
 

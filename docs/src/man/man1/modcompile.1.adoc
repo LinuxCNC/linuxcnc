@@ -19,7 +19,7 @@ interface of Mesa cards.
 
 See the main LinuxCNC documentation for more details.
 
-https://linuxcnc.org/docs/stable/html/drivers/mesa_modbus.html
+https://linuxcnc.org/docs/devel/html/drivers/mesa_modbus.html
 
 == OPTIONS
 
