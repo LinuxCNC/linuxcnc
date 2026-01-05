@@ -859,6 +859,13 @@ Finally, no amount of tweaking will speed up a tool path with lots of small, tig
 * `MAX_LINEAR_VELOCITY = 5.0` - (((MAX VELOCITY))) The maximum velocity for any axis or coordinated move, in 'machine units' per second.
   The value shown equals 300 units per minute.
 * `MAX_LINEAR_ACCELERATION = 20.0` - (((MAX ACCELERATION))) The maximum acceleration for any axis or coordinated axis move, in 'machine units' per second per second.
+* `PLANNER_TYPE = 0` - (((PLANNER TYPE))) Selects the trajectory planner type: 0 = trapezoidal (default), 1 = S-curve with jerk limiting.
+  S-curve planning is only active when `PLANNER_TYPE = 1` AND `MAX_LINEAR_JERK > 0`.
+* `MAX_LINEAR_JERK = 0.0` - (((MAX JERK))) The maximum jerk (rate of change of acceleration) for coordinated moves, in 'machine units' per second cubed.
+  When set to 0 (default), jerk limiting is disabled.
+  When greater than 0 and `PLANNER_TYPE = 1`, enables S-curve trajectory planning.
+* `DEFAULT_LINEAR_JERK = 0.0` - The default jerk value for coordinated moves, in 'machine units' per second cubed.
+  When set to 0, `MAX_LINEAR_JERK` is used.
 * `POSITION_FILE =` _position.txt_ - If set to a non-empty value, the joint positions are stored between runs in this file.
   This allows the machine to start with the same coordinates it had on shutdown.
   This assumes there was no movement of the machine while powered off.
@@ -912,6 +919,9 @@ The _<letter>_ specifies one of: X Y Z A B C U V W
   GUI's may handle things differently.
 * `MAX_VELOCITY = 1.2` - Maximum velocity for this axis in <<sub:ini:sec:traj,machine units>> per second.
 * `MAX_ACCELERATION = 20.0` - Maximum acceleration for this axis in machine units per second squared.
+* `MAX_JERK = 0.0` - Maximum jerk for this axis in machine units per second cubed.
+  Used when S-curve trajectory planning is enabled.
+  When set to 0 (default), no per-axis jerk limiting is applied.
 * `MIN_LIMIT = -1000` - (((MIN LIMIT))) The minimum limit (soft limit) for axis motion, in machine units.
   When this limit is exceeded, the controller aborts axis motion.
   The axis must be homed before `MIN_LIMIT` is in force.
@@ -984,6 +994,9 @@ For more information on kinematics modules see the manpage 'kins' (on the UNIX t
   e.g., `[TRAJ]LINEAR_UNITS` if the `TYPE` of this joint is `LINEAR`, `[TRAJ]ANGULAR_UNITS` if the `TYPE` of this joint is `ANGULAR`.
 * `MAX_VELOCITY = 1.2` - Maximum velocity for this joint in <<sub:ini:sec:traj,machine units>> per second.
 * `MAX_ACCELERATION = 20.0` - Maximum acceleration for this joint in machine units per second squared.
+* `MAX_JERK = 0.0` - Maximum jerk for this joint in machine units per second cubed.
+  Used when S-curve trajectory planning is enabled.
+  When set to 0 (default), no per-joint jerk limiting is applied.
 * `BACKLASH = 0.0000` - (((Backlash))) Backlash in machine units.
   Backlash compensation value can be used to make up for small deficiencies in the hardware used to drive an joint.
   If backlash is added to an joint and you are using steppers the `STEPGEN_MAXACCEL` must be increased to 1.5 to 2 times the `MAX_ACCELERATION` for the joint.
