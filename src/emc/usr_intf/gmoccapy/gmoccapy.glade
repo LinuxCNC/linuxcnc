@@ -2156,6 +2156,7 @@ uncomment selection</property>
                                                         <property name="can-focus">False</property>
                                                         <property name="margin-start">5</property>
                                                         <property name="margin-end">5</property>
+                                                        <property name="hexpand">True</property>
                                                         <property name="row-spacing">3</property>
                                                         <property name="row-homogeneous">True</property>
                                                         <child>
@@ -2163,6 +2164,7 @@ uncomment selection</property>
                                                             <property name="visible">True</property>
                                                             <property name="can-focus">False</property>
                                                             <property name="halign">start</property>
+                                                            <property name="hexpand">True</property>
                                                             <property name="label" translatable="yes">Tool no.</property>
                                                             <property name="width-chars">8</property>
                                                             <attributes>
@@ -2197,6 +2199,7 @@ uncomment selection</property>
                                                             <property name="visible">True</property>
                                                             <property name="can-focus">False</property>
                                                             <property name="halign">start</property>
+                                                            <property name="hexpand">True</property>
                                                             <property name="label" translatable="yes">Diameter</property>
                                                             <property name="width-chars">8</property>
                                                           </object>
@@ -2228,6 +2231,7 @@ uncomment selection</property>
                                                             <property name="visible">True</property>
                                                             <property name="can-focus">False</property>
                                                             <property name="halign">start</property>
+                                                            <property name="hexpand">True</property>
                                                             <property name="label" translatable="yes">offset z</property>
                                                             <property name="width-chars">8</property>
                                                           </object>
@@ -2259,6 +2263,7 @@ uncomment selection</property>
                                                             <property name="visible">True</property>
                                                             <property name="can-focus">False</property>
                                                             <property name="halign">start</property>
+                                                            <property name="hexpand">True</property>
                                                             <property name="label" translatable="yes">offset x</property>
                                                             <property name="width-chars">8</property>
                                                           </object>
@@ -2289,7 +2294,7 @@ uncomment selection</property>
                                                           <object class="GtkLabel" id="lbl_vc">
                                                             <property name="visible">True</property>
                                                             <property name="can-focus">False</property>
-                                                            <property name="halign">center</property>
+                                                            <property name="hexpand">True</property>
                                                             <property name="label">Vc= 0.00</property>
                                                             <property name="justify">center</property>
                                                           </object>
