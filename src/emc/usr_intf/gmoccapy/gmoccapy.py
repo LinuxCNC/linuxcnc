@@ -2630,7 +2630,7 @@ class gmoccapy(object):
 
     # every 1 second this gets called
     def _periodic_1s(self):
-        if self.GSTAT.is_auto_running:
+        if self.GSTAT.is_auto_running() and not self.GSTAT.is_auto_paused():
             self.elapsed_time_run += 1
             self._update_progressbar_text()
         return True
