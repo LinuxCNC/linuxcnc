@@ -406,9 +406,9 @@ class gmoccapy(object):
         self.widgets["rbt_view_{0}".format(view)].set_active(True)
         self.widgets.gremlin.set_property("view", view)
 
-        GSTAT = hal_glib.GStat()
-        GSTAT.connect("graphics-gcode-properties", self.on_gcode_properties)
-        GSTAT.connect("file-loaded", self.on_hal_status_file_loaded)
+        self.GSTAT = hal_glib.GStat()
+        self.GSTAT.connect("graphics-gcode-properties", self.on_gcode_properties)
+        self.GSTAT.connect("file-loaded", self.on_hal_status_file_loaded)
 
         # get if run from line should be used
         self.run_from_line = self.prefs.getpref("run_from_line", "no_run", str)
@@ -2630,7 +2630,7 @@ class gmoccapy(object):
 
     # every 1 second this gets called
     def _periodic_1s(self):
-        if hal.get_value('halui.program.is-running'):
+        if self.GSTAT.is_auto_running:
             self.elapsed_time_run += 1
             self._update_progressbar_text()
         return True
