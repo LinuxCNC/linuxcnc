@@ -1376,7 +1376,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    break;
 
 	case EMCMOT_JOINT_UNHOME:
-            /* unhome the specified joint, or all joints if -1 */
+            /* unhome the specified joint, or all joints if -1, or volatile joints if -2 */
             rtapi_print_msg(RTAPI_MSG_DBG, "JOINT_UNHOME");
             rtapi_print_msg(RTAPI_MSG_DBG, " %d", joint_num);
 
@@ -1386,8 +1386,22 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
                 return;
             }
 
-            //Negative joint_num specifies unhome_method (-1,-2)
-            set_unhomed(joint_num,emcmotStatus->motion_state);
+            // For configs that require homing and have joints configured as VOLATILE_HOME
+            // 'get_allhomed()' will change from TRUE to FALSE. If that happens we need to
+            // switch motion mode to 'free'.
+            if ( get_allhomed() && (joint_num == -2) ) {
+                set_unhomed(joint_num,emcmotStatus->motion_state);
+                if (!get_allhomed()) {
+                    emcmotInternal->teleoperating = 0;
+                    SET_MOTION_TELEOP_FLAG(0);
+                    emcmotInternal->coordinating = 0;
+                    SET_MOTION_COORD_FLAG(0);
+                }
+            }
+            else {
+                set_unhomed(joint_num,emcmotStatus->motion_state);
+            }
+
             break;
 
 	case EMCMOT_CLEAR_PROBE_FLAGS:
