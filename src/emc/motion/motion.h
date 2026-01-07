@@ -122,6 +122,8 @@ extern "C" {
 	EMCMOT_SET_VEL,		/* set the velocity for subsequent moves */
 	EMCMOT_SET_VEL_LIMIT,	/* set the max vel for all moves (tooltip) */
 	EMCMOT_SET_ACC,		/* set the max accel for moves (tooltip) */
+	EMCMOT_SET_JERK,	/* set the max jerk for moves (tooltip) */
+	EMCMOT_SET_PLANNER_TYPE,	/* set planner type (0=trapezoidal, 1=S-curve) */
 	EMCMOT_SET_TERM_COND,	/* set termination condition (stop, blend) */
 	EMCMOT_SET_NUM_JOINTS,	/* set the number of joints */
 	EMCMOT_SET_NUM_SPINDLES, /* set the number of spindles */
@@ -161,6 +163,7 @@ extern "C" {
 	EMCMOT_SET_JOINT_VEL_LIMIT,     /* set the max joint vel */
 	EMCMOT_SET_JOINT_ACC_LIMIT,     /* set the max joint accel */
 	EMCMOT_SET_JOINT_HOMING_PARAMS, /* sets joint homing parameters */
+	EMCMOT_SET_JOINT_JERK_LIMIT,        /* set the max joint jerk */
 	EMCMOT_UPDATE_JOINT_HOMING_PARAMS, /* updates some joint homing parameters */
 	EMCMOT_SET_JOINT_MOTOR_OFFSET,  /* set the offset between joint and motor */
 	EMCMOT_SET_JOINT_COMP,          /* set a compensation triplet for a joint (nominal, forw., rev.) */
@@ -169,6 +172,7 @@ extern "C" {
         EMCMOT_SET_AXIS_VEL_LIMIT,      /* set the max axis vel */
         EMCMOT_SET_AXIS_ACC_LIMIT,      /* set the max axis acc */
         EMCMOT_SET_AXIS_LOCKING_JOINT,  /* set the axis locking joint */
+	    EMCMOT_SET_AXIS_JERK_LIMIT,         /* set the max axis jerk */
 
         EMCMOT_SET_SPINDLE_PARAMS, /* One command to set all spindle params */
 
@@ -214,6 +218,9 @@ extern "C" {
         int motion_type;        /* this move is because of traverse, feed, arc, or toolchange */
         double spindlesync;     /* user units per spindle revolution, 0 = no sync */
 	double acc;		/* max acceleration */
+	double jerk;			/* jerk for traj */
+    double ini_maxjerk;
+    int planner_type;	/* planner type: 0 = trapezoidal, 1 = S-curve */
 	double backlash;	/* amount of backlash */
 	int id;			/* id for motion */
 	int termCond;		/* termination condition */
@@ -435,6 +442,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double min_jog_limit;
 	double vel_limit;	/* upper limit of joint speed */
 	double acc_limit;	/* upper limit of joint accel */
+	double jerk_limit;	/* upper limit of joint jerk */
 	double min_ferror;	/* zero speed following error limit */
 	double max_ferror;	/* max speed following error limit */
 	double backlash;	/* amount of backlash */
@@ -449,6 +457,7 @@ Suggestion: Split this in to an Error and a Status flag register..
 	double pos_cmd;		/* commanded joint position */
 	double vel_cmd;		/* commanded joint velocity */
 	double acc_cmd;		/* commanded joint acceleration */
+	double jerk_cmd;	/* comanded joint jerk */
 	double backlash_corr;	/* correction for backlash */
 	double backlash_filt;	/* filtered backlash correction */
 	double backlash_vel;	/* backlash velocity variable */
@@ -630,6 +639,8 @@ Suggestion: Split this in to an Error and a Status flag register..
 	/* static status-- only changes upon input commands, e.g., config */
 	double vel;		/* scalar max vel */
 	double acc;		/* scalar max accel */
+	double jerk;		/* jerk for traj */
+    int planner_type;	/* planner type: 0 = trapezoidal, 1 = S-curve */
 
 	int motionType;
 	double distance_to_go;  /* in this move */

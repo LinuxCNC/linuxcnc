@@ -369,6 +369,7 @@ SRCHEADERS := \
     emc/motion/motion.h \
     emc/motion/homing.h \
     emc/motion/simple_tp.h \
+	emc/motion/sp_scurve.h \
     emc/motion/state_tag.h \
     emc/motion/usrmotintf.h \
     emc/motion/axis.h \
@@ -1229,6 +1230,7 @@ motmod-objs += emc/motion/simple_tp.o
 motmod-objs += emc/motion/emcmotutil.o
 motmod-objs += emc/motion/stashf.o
 motmod-objs += emc/motion/dbuf.o
+motmod-objs += emc/tp/sp_scurve.o
 
 obj-m += homemod.o
 homemod-objs := emc/motion/homemod.o
@@ -1243,6 +1245,7 @@ tpmod-objs += emc/tp/spherical_arc.o
 tpmod-objs += emc/tp/blendmath.o
 tpmod-objs += emc/nml_intf/emcpose.o
 tpmod-objs += libnml/posemath/_posemath.o
+tpmod-objs += emc/tp/sp_scurve.o
 tpmod-objs += libnml/posemath/sincos.o $(MATHSTUB)
 
 TORTOBJS = $(foreach file,$($(patsubst %.o,%,$(1))-objs), objects/rt$(file))

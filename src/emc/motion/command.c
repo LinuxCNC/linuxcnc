@@ -258,14 +258,14 @@ STATIC int inRange(EmcPose pos, int id, char *move_type)
 	}
 	if (joint_pos[joint_num] > joint->max_pos_limit) {
             in_range = 0;
-	    reportError(_("%s move on line %d would exceed joint %d's positive limit"),
-			move_type, id, joint_num);
+	    reportError(_("%s move on line %d would exceed joint %d's positive limit max:[%f]"),
+			move_type, id, joint_num, joint->max_pos_limit);
         }
 
         if (joint_pos[joint_num] < joint->min_pos_limit) {
 	    in_range = 0;
-	    reportError(_("%s move on line %d would exceed joint %d's negative limit"),
-			move_type, id, joint_num);
+	    reportError(_("%s move on line %d would exceed joint %d's negative limit min:[%f]"),
+			move_type, id, joint_num, joint->min_pos_limit);
 	}
     }
     return in_range;
@@ -811,6 +811,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	        } else {
 		    joint->free_tp.pos_cmd = joint->min_jog_limit;
 	        }
+			joint->free_tp.status = 0;
 	        /* set velocity of jog */
 	        joint->free_tp.max_vel = fabs(emcmotCommand->vel);
 	        /* use max joint accel */
@@ -888,6 +889,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	        }
 	        /* set target position */
 	        joint->free_tp.pos_cmd = tmp1;
+			joint->free_tp.status = 0;
 	        /* set velocity of jog */
 	        joint->free_tp.max_vel = fabs(emcmotCommand->vel);
 	        /* use max joint accel */
@@ -1032,6 +1034,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 					emcmotCommand->vel,
 					emcmotCommand->ini_maxvel,
 					emcmotCommand->acc,
+					emcmotCommand->ini_maxjerk, 
 					emcmotStatus->enables_new,
 					issue_atspeed,
 					emcmotCommand->turn,
@@ -1091,7 +1094,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
                             emcmotCommand->center, emcmotCommand->normal,
                             emcmotCommand->turn, emcmotCommand->motion_type,
                             emcmotCommand->vel, emcmotCommand->ini_maxvel,
-                            emcmotCommand->acc, emcmotStatus->enables_new,
+                            emcmotCommand->acc, emcmotCommand->ini_maxjerk, emcmotStatus->enables_new,
 			    issue_atspeed, emcmotCommand->tag);
         if (res_addcircle < 0) {
             reportError(_("can't add circular move at line %d, error code %d"),
@@ -1160,6 +1163,18 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    joint->acc_limit = emcmotCommand->acc;
 	    break;
 
+	case EMCMOT_SET_JOINT_JERK_LIMIT:
+		/* set joint max jerk */
+		/* can do it at any time */
+		rtapi_print_msg(RTAPI_MSG_DBG, "SET_JOINT_JERK_LIMIT");
+		rtapi_print_msg(RTAPI_MSG_DBG, " j(%d) jerk(%f)", joint_num, emcmotCommand->jerk);
+		emcmot_config_change();
+		if (joint == 0) {
+		break;
+		}
+		joint->jerk_limit = emcmotCommand->jerk;
+		break;
+
 	case EMCMOT_SET_ACC:
 	    /* set the max acceleration */
 	    /* can do it at any time */
@@ -1167,7 +1182,21 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 	    emcmotStatus->acc = emcmotCommand->acc;
 	    tpSetAmax(&emcmotInternal->coord_tp, emcmotStatus->acc);
 	    break;
+ 
+	case EMCMOT_SET_JERK:
+		/* set the traj jerk for jogging */
+		/* can do it at any time */
+		rtapi_print_msg(RTAPI_MSG_DBG, "SET_JERK, jerk(%f)", emcmotCommand->jerk);
+		emcmotStatus->jerk = emcmotCommand->jerk;
+		break;
 
+	case EMCMOT_SET_PLANNER_TYPE:
+		/* set the type of planner: 0 = trapezoidal, 1 = S-curve */
+		/* can do it at any time */
+		rtapi_print_msg(RTAPI_MSG_DBG, "SET_PLANNER_TYPE, type(%d)", emcmotCommand->planner_type);
+		emcmotStatus->planner_type = emcmotCommand->planner_type;
+		break;
+				
 	case EMCMOT_PAUSE:
 	    /* pause the motion */
 	    /* can happen at any time */
@@ -1445,6 +1474,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
 				emcmotCommand->vel,
 				emcmotCommand->ini_maxvel,
 				emcmotCommand->acc,
+				emcmotCommand->ini_maxjerk,
 				emcmotStatus->enables_new,
 				0,
 				-1,
@@ -1495,6 +1525,7 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
                                     emcmotCommand->vel,
                                     emcmotCommand->ini_maxvel,
                                     emcmotCommand->acc,
+									emcmotCommand->ini_maxjerk,
                                     emcmotStatus->enables_new,
                                     emcmotCommand->scale,
                                     emcmotCommand->tag);
@@ -1861,6 +1892,18 @@ void emcmotCommandHandler_locked(void *arg, long servo_period)
             axis_set_acc_limit(emcmotCommand->axis, emcmotCommand->acc);
             axis_set_ext_offset_acc_limit(emcmotCommand->axis, emcmotCommand->ext_offset_acc);
             break;
+
+		case EMCMOT_SET_AXIS_JERK_LIMIT:
+			/* set the max axis jerk */
+			/* can be done at any time */
+			rtapi_print_msg(RTAPI_MSG_DBG, "SET_AXIS_JERK_LIMITS");
+			rtapi_print_msg(RTAPI_MSG_DBG, " %d jerk(%f)", emcmotCommand->axis, emcmotCommand->jerk);
+			emcmot_config_change();
+			if ((emcmotCommand->axis < 0) || (emcmotCommand->axis >= EMCMOT_MAX_AXIS)) {
+			break;
+			}
+			axis_set_jerk_limit(emcmotCommand->axis, emcmotCommand->jerk);
+			break;
 
         case EMCMOT_SET_AXIS_LOCKING_JOINT:
 	    rtapi_print_msg(RTAPI_MSG_DBG, "SET_AXIS_ACC_LOCKING_JOINT");

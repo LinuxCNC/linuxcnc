@@ -50,15 +50,16 @@ int tpAddRigidTap(TP_STRUCT * const tp,
         double vel,
         double ini_maxvel,
         double acc,
+        double ini_maxjerk,
         unsigned char enables,
         double scale,
         struct state_tag_t tag);
 int tpAddLine(TP_STRUCT * const tp, EmcPose end, int canon_motion_type,
-	      double vel, double ini_maxvel, double acc, unsigned char enables,
+	      double vel, double ini_maxvel, double acc, double ini_maxjerk, unsigned char enables,
 	      char atspeed, int indexrotary, struct state_tag_t tag);
 int tpAddCircle(TP_STRUCT * const tp, EmcPose end, PmCartesian center,
 		PmCartesian normal, int turn, int canon_motion_type, double vel,
-		double ini_maxvel, double acc, unsigned char enables,
+		double ini_maxvel, double acc, double ini_maxjerk, unsigned char enables,
 		char atspeed, struct state_tag_t tag);
 int tpGetPos(TP_STRUCT const  * const tp, EmcPose * const pos);
 int tpIsDone(TP_STRUCT * const tp);

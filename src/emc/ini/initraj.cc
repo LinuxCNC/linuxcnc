@@ -89,6 +89,8 @@ static int loadTraj(EmcIniFile *trajInifile)
     EmcAngularUnits angularUnits;
     double vel;
     double acc;
+    double jerk;
+    int planner_type;
 
     trajInifile->EnableExceptions(EmcIniFile::ERR_CONVERSION);
 
@@ -200,6 +202,36 @@ static int loadTraj(EmcIniFile *trajInifile)
             return -1;
         }
         old_inihal_data.traj_max_acceleration = acc;
+
+        // has to set MAX_* before DEFAULT_*
+        jerk = 0; 
+        trajInifile->Find(&jerk, "MAX_LINEAR_JERK", "TRAJ");
+        if (0 != emcTrajSetMaxJerk(jerk)) {
+            if (emc_debug & EMC_DEBUG_CONFIG) {
+                rcs_print("bad return value from emcTrajSetMaxJerk\n");
+            }
+            return -1;
+        }
+        old_inihal_data.traj_max_jerk = jerk;
+                
+        jerk = 0; 
+        trajInifile->Find(&jerk, "DEFAULT_LINEAR_JERK", "TRAJ");
+        if (0 != emcTrajSetJerk(jerk)) {
+            if (emc_debug & EMC_DEBUG_CONFIG) {
+                rcs_print("bad return value from emcTrajSetJerk\n");
+            }
+            return -1;
+        }
+        old_inihal_data.traj_default_jerk = jerk;
+        planner_type = 0;  // Default: 0 = trapezoidal, 1 = S-curve
+        trajInifile->Find(&planner_type, "PLANNER_TYPE", "TRAJ");
+        if (0 != emcTrajPlannerType(planner_type)) {
+            if (emc_debug & EMC_DEBUG_CONFIG) {
+                rcs_print("bad return value from emcTrajPlannerType\n");
+            }
+            return -1;
+        }
+        old_inihal_data.traj_planner_type = planner_type;
 
         int arcBlendEnable = 1;
         int arcBlendFallbackEnable = 0;

@@ -654,11 +654,13 @@ int tcInit(TC_STRUCT * const tc,
 int tcSetupMotion(TC_STRUCT * const tc,
         double vel,
         double ini_maxvel,
-        double acc)
+        double acc,
+        double ini_maxjerk)
 {
     //FIXME assumes that state is already set up in TC_STRUCT, which depends on external order of function calls.
 
     tc->maxaccel = acc;
+    tc->maxjerk = ini_maxjerk;
 
     tc->maxvel = ini_maxvel;
 
