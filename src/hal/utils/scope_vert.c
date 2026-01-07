@@ -1085,11 +1085,11 @@ void channel_changed(void)
     vert = &(ctrl_usr->vert);
     /* add a name to apply CSS for highlighted channel */
     if (last_channel != vert->selected) {
-        if (last_channel) {
-            gtk_widget_set_name(chan_buttons[last_channel-1],"");
+        if ((last_channel >= 1) && (last_channel <= 16)) {
+            gtk_widget_set_name(chan_buttons[last_channel - 1], "");
         }
-        if (vert->selected) {
-            gtk_widget_set_name(chan_buttons[vert->selected-1],"selected");
+        if ((vert->selected >= 1) && (vert->selected <= 16)) {
+            gtk_widget_set_name(chan_buttons[vert->selected - 1], "selected");
         }
         last_channel = vert->selected;
     }
