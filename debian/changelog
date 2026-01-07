@@ -1,10 +1,13 @@
-linuxcnc (1:2.10.0~pre0) UNRELEASED; urgency=medium
+linuxcnc (1:2.10.0~pre1) UNRELEASED; urgency=medium
 
   [ Andy Pugh ]
   * Master branch open for new features.
 
- -- andypugh <andy@bodgesoc.org>  Mon, 22 Sep 2025 22:55:20 +0100
- 
+  [ andypugh ]
+  * Add a finite-jerk trajectory planner
+
+ -- andypugh <andy@bodgesoc.org>  Wed, 07 Jan 2026 22:15:18 +0000
+
 linuxcnc (1:2.9.8) UNRELEASED; urgency=medium
 
   * backport #3516 to fix #3679
