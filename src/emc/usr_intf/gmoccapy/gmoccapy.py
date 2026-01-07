@@ -47,7 +47,7 @@ import locale              # for setting the language of the GUI
 import gettext             # to extract the strings to be translated
 from collections import OrderedDict # needed for proper jog button arrangement
 from time import strftime  # needed for the clock in the GUI
-#from Gtk._Gtk import main_quit
+from gladevcp.core import Status
 
 # Throws up a dialog with debug info when an error is encountered
 def excepthook(exc_type, exc_obj, exc_tb):
@@ -410,7 +410,7 @@ class gmoccapy(object):
         self.widgets["rbt_view_{0}".format(view)].set_active(True)
         self.widgets.gremlin.set_property("view", view)
 
-        self.GSTAT = hal_glib.GStat()
+        self.GSTAT = Status()
         self.GSTAT.connect("graphics-gcode-properties", self.on_gcode_properties)
         self.GSTAT.connect("file-loaded", self.on_hal_status_file_loaded)
 
