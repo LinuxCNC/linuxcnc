@@ -649,17 +649,16 @@ class gmoccapy(object):
         # Activate the recently open tab page
         self.widgets.ntb_tool_and_code_info.set_current_page(self.prefs.getpref("info_tab_page", 0, int))
 
+
         self.jog_btn_size = self.prefs.getpref("jog_btn_size", 48, int)
         self.widgets.adj_jog_btn_size.set_value(self.jog_btn_size)
-            
+
         jog_box_width = self.prefs.getpref("jog_box_width", 360, int)
         self.widgets.adj_jog_box_width.set_value(jog_box_width)
         self.widgets.vbx_jog.set_size_request(jog_box_width, -1)
-        
-        # enable/disable calculator widget for tooltable/offsetpage
-        self.toolpage_use_calc = self.prefs.getpref("toolpage_use_calc", True, bool)
-        self.offsetpage_use_calc = self.prefs.getpref("offsetpage_use_calc", True, bool)
-        self.widgets.chk_offsetpage_use_calc.set_active(self.offsetpage_use_calc)
+
+        # calculator use in offset pages
+        self.offsetpages_use_calc = self.prefs.getpref("offsetpages_use_calc", False, bool)
 
 ###############################################################################
 ##                     create widgets dynamically                            ##
@@ -898,12 +897,10 @@ class gmoccapy(object):
 
     def _on_btn_next_touch_clicked(self, widget):
         self._remove_button(self.touch_button_dic, self.widgets.hbtb_touch_off)
-
-        self.widgets.hbtb_touch_off.pack_start(self.touch_button_dic["edit_offsets"],True,True,0)
         self.widgets.hbtb_touch_off.pack_start(self.touch_button_dic["previous_button"],True,True,0)
         self.touch_button_dic["previous_button"].show()
 
-        start = len(self.axis_list) - 5
+        start = len(self.axis_list) - 8
         end = len(self.axis_list)
 
         # now put the needed widgets in the container
@@ -912,7 +909,7 @@ class gmoccapy(object):
             self.touch_button_dic[name].show()
             self.widgets.hbtb_touch_off.pack_start(self.touch_button_dic[name], True, True, 0)
 
-        self._put_set_active_and_back()
+        self._put_back()
 
     def _on_btn_next_macro_clicked(self, widget):
         # remove all buttons from container
@@ -956,12 +953,10 @@ class gmoccapy(object):
     def _on_btn_previous_touch_clicked(self, widget):
         self._remove_button(self.touch_button_dic, self.widgets.hbtb_touch_off)
 
-        self.widgets.hbtb_touch_off.pack_start(self.touch_button_dic["edit_offsets"],True,True,0)
-
         if self.tool_measure_OK:
-            end = 4
+            end = 7
         else:
-            end = 5
+            end = 8
 
         start = 0
         # now put the needed widgets in the container
@@ -976,8 +971,7 @@ class gmoccapy(object):
         if self.tool_measure_OK:
             self.widgets.hbtb_touch_off.pack_start(self.touch_button_dic["block_height"],True,True,0)
 
-        self.widgets.hbtb_touch_off.pack_start(self.touch_button_dic["zero_offsets"],True,True,0)
-        self._put_set_active_and_back()
+        self._put_back()
 
     def _on_btn_previous_macro_clicked(self, widget):
         # remove all buttons from container
@@ -996,9 +990,7 @@ class gmoccapy(object):
         self.widgets.hbtb_MDI.pack_start(self.macro_dic["keyboard"],True,True,0)
         self.macro_dic["keyboard"].show()
 
-    def _put_set_active_and_back(self):
-        self.widgets.hbtb_touch_off.pack_start(self.touch_button_dic["zero_offsets"], True, True, 0)
-        self.widgets.hbtb_touch_off.pack_start(self.touch_button_dic["set_active"], True, True, 0)
+    def _put_back(self):
         self.widgets.hbtb_touch_off.pack_start(self.touch_button_dic["touch_back"], True, True, 0)
 
     def _put_unref_and_back(self):
@@ -1010,29 +1002,12 @@ class gmoccapy(object):
 
         dic = self.axis_list
         num_elements = len(dic)
-        end = 7
+        end = 8
 
         if self.tool_measure_OK:
-            # we will have 3 buttons on the right side
             end -= 1
 
-        lbl = Gtk.Label.new(_("edit\noffsets"))
-        lbl.set_visible(True)
-        lbl.set_justify(Gtk.Justification.CENTER)
-        btn = Gtk.ToggleButton.new()
-        btn.set_size_request(*_DEFAULT_BB_SIZE)
-        btn.set_halign(Gtk.Align.CENTER)
-        btn.set_valign(Gtk.Align.CENTER)
-        btn.add(lbl)
-        btn.connect("toggled", self.on_tbtn_edit_offsets_toggled)
-        btn.set_property("tooltip-text", _("Press to edit the offsets"))
-        btn.set_property("name", "edit_offsets")
-        # TODO: Use CSS for this if still needed
-        # btn.override_background_color(Gtk.StateFlags.ACTIVE, Gdk.RGBA(1.0, 1.0, 0.0, 1.0))
-        self.widgets.hbtb_touch_off.pack_start(btn,True,True,0)
-        btn.show()
-
-        if num_elements > 6:
+        if num_elements > 8:
             # show the previous arrow to switch visible touch button)
             btn = self._new_button_with_predefined_image(
                 name="previous_button",
@@ -1058,7 +1033,7 @@ class gmoccapy(object):
 
             self.widgets.hbtb_touch_off.pack_start(btn,True,True,0)
 
-            if pos > end - 2:
+            if pos > end:
                 btn.hide()
 
         if num_elements > (end - 1):
@@ -1081,17 +1056,6 @@ class gmoccapy(object):
             self.widgets.hbtb_touch_off.pack_start(lbl,True,True,0)
             lbl.show()
 
-        btn = self.widgets.offsetpage1.wTree.get_object("zero_g92_button")
-        btn.set_size_request(*_DEFAULT_BB_SIZE)
-        btn.set_halign(Gtk.Align.CENTER)
-        btn.set_valign(Gtk.Align.CENTER)
-        self.widgets.offsetpage1.buttonbox.remove(btn)
-        btn.connect("clicked", self.on_btn_zero_g92_clicked)
-        btn.set_property("tooltip-text", _("Press to reset all G92 offsets"))
-        btn.set_property("name", "zero_offsets")
-        self.widgets.hbtb_touch_off.pack_start(btn,True,True,0)
-        btn.show()
-
         if self.tool_measure_OK:
             btn = Gtk.Button.new_with_label(_(" Block\nHeight"))
             btn.set_size_request(*_DEFAULT_BB_SIZE)
@@ -1102,20 +1066,6 @@ class gmoccapy(object):
             btn.set_property("name", "block_height")
             self.widgets.hbtb_touch_off.pack_start(btn,True,True,0)
             btn.show()
-
-        lbl = Gtk.Label.new(_("set\nselected"))
-        lbl.set_visible(True)
-        lbl.set_justify(Gtk.Justification.CENTER)
-        btn = Gtk.Button.new()
-        btn.set_size_request(*_DEFAULT_BB_SIZE)
-        btn.set_halign(Gtk.Align.CENTER)
-        btn.set_valign(Gtk.Align.CENTER)
-        btn.add(lbl)
-        btn.connect("clicked", self._on_btn_set_selected_clicked)
-        btn.set_property("tooltip-text", _("Press to set the selected coordinate system to be the active one"))
-        btn.set_property("name", "set_active")
-        self.widgets.hbtb_touch_off.pack_start(btn,True,True,0)
-        btn.show()
 
         btn = self._new_button_with_predefined_image(
             name="touch_back",
@@ -2027,8 +1977,11 @@ class gmoccapy(object):
         btn_calculator.set_image(self.widgets.img_tool_calculator)
         btn_calculator.set_tooltip_text(_("Use calculator to edit numeric values"))
         btn_calculator.show_all()
-        btn_calculator.set_active(self.toolpage_use_calc)
-        btn_calculator.connect("toggled", self.on_toolpage_use_calc_toggled)
+
+        btn_calculator.set_active(self.offsetpages_use_calc)
+        btn_calculator.connect("toggled", self.on_use_calculator_toggled)
+        self.widgets.tooledit1.btn_calculator = btn_calculator
+
         buttonbox.pack_start(btn_calculator,False,False,50)
         column_cell_ids = ["toggle", "tool#1", "pos1", "x1", "y1", "z1", "a1", "b1", "c1", "u1", "v1", "w1",
                        "d1", "front1", "back1", "orient1", "cell_comments1"]
@@ -2084,12 +2037,12 @@ class gmoccapy(object):
         else:
             pass
 
-    def on_toolpage_use_calc_toggled(self, widget):
-        self.toolpage_use_calc = widget.get_active()
-        self.prefs.putpref("toolpage_use_calc", widget.get_active())
+    def on_use_calculator_toggled(self,widget):
+        self.offsetpages_use_calc = widget.get_active()
+        self.prefs.putpref("offsetpages_use_calc", self.offsetpages_use_calc)
 
     def on_tool_col_edit_started(self, widget, filtered_path, new_text, col):
-        if not self.toolpage_use_calc:
+        if not self.offsetpages_use_calc:
             return
         captations = ["toggle", "Tool#", "Pocket",
                        "X-offset", "Y-offset", "Z-offset",
@@ -2388,7 +2341,64 @@ class gmoccapy(object):
         else:
             self.widgets.offsetpage1.set_to_inch()
             self.widgets.offsetpage1.machine_units_mm = _INCH
-        self.widgets.offsetpage1.hide_buttonbox(True)
+
+        # Modify the button box at the bottom
+        buttonbox = self.widgets.offsetpage1.wTree.get_object("buttonbox")
+        buttonbox.set_layout(Gtk.ButtonBoxStyle.EDGE)
+        buttonbox.set_property("homogeneous", True)
+        for child in buttonbox.get_children():
+            buttonbox.remove(child)
+        # create new edit button
+        lbl = Gtk.Label.new(_("Edit\nOffsets"))
+        lbl.set_visible(True)
+        lbl.set_justify(Gtk.Justification.CENTER)
+        btn_edit_offsets = Gtk.ToggleButton()
+        btn_edit_offsets.set_size_request(56, 56)
+        btn_edit_offsets.add(lbl)
+        btn_edit_offsets.set_property("tooltip-text", _("Press to set the selected coordinate system to be the active one"))
+        btn_edit_offsets.show_all()
+        btn_edit_offsets.connect("clicked", self._on_btn_edit_offsets_clicked)
+        self.widgets.offsetpage1.btn_edit_offsets = btn_edit_offsets
+        buttonbox.pack_start(btn_edit_offsets,True,True,0)
+        # create new Zero-G92
+        lbl = Gtk.Label.new(_("Zero\nG92/G52"))
+        lbl.set_visible(True)
+        lbl.set_justify(Gtk.Justification.CENTER)
+        btn_zero_g92 = Gtk.Button()
+        btn_zero_g92.set_size_request(56, 56)
+        btn_zero_g92.add(lbl)
+        btn_zero_g92.set_property("tooltip-text", _("Press to reset all G92 offsets"))
+        btn_zero_g92.show_all()
+        btn_zero_g92.connect("clicked", self.on_btn_zero_g92_clicked)
+        self.widgets.offsetpage1.btn_zero_g92 = btn_zero_g92
+        buttonbox.pack_start(btn_zero_g92,True,True,0)
+        # create new button to set selected offset system
+        lbl = Gtk.Label.new(_("Set\nSelected"))
+        lbl.set_visible(True)
+        lbl.set_justify(Gtk.Justification.CENTER)
+        btn_set_selected = Gtk.Button()
+        btn_set_selected.set_size_request(56, 56)
+        btn_set_selected.add(lbl)
+        btn_set_selected.set_property("tooltip-text", _("Press to set the selected coordinate system to be the active one"))
+        btn_set_selected.show_all()
+        btn_set_selected.connect("clicked", self._on_btn_set_selected_clicked)
+        self.widgets.offsetpage1.btn_set_selected = btn_set_selected
+        buttonbox.pack_start(btn_set_selected,True,True,0)
+        # Create a label as a space holder
+        spacer = Gtk.Label()
+        spacer.show_all()
+        buttonbox.pack_start(spacer,True,True,0)
+        # Calculator button
+        btn_calculator = Gtk.ToggleButton()
+        btn_calculator.set_size_request(56, 56)
+        btn_calculator.set_image(self.widgets.img_offset_calculator)
+        btn_calculator.set_tooltip_text(_("Use calculator to edit numeric values"))
+        btn_calculator.show_all()
+        btn_calculator.set_active(self.offsetpages_use_calc)
+        btn_calculator.connect("toggled", self.on_use_calculator_toggled)
+        self.widgets.offsetpage1.btn_calculator = btn_calculator
+        buttonbox.pack_start(btn_calculator,False,False,50)
+
         self.widgets.offsetpage1.set_row_visible("1", False)
         self.widgets.offsetpage1.set_font("sans 12")
         self.widgets.offsetpage1.set_foreground_color(self._get_RGBA_color("#28D0D9"))
@@ -2407,7 +2417,7 @@ class gmoccapy(object):
 
 
     def on_offset_col_edit_started(self, widget, filtered_path, new_text, col):
-        if not self.offsetpage_use_calc:
+        if not self.offsetpages_use_calc:
             return
         offsetpage = self.widgets.offsetpage1
         offsetview = offsetpage.view2
@@ -2415,7 +2425,7 @@ class gmoccapy(object):
         path = offsetpage.modelfilter.get_path(treeiter)
         (store_path,) = offsetpage.modelfilter.convert_path_to_child_path(path)
         row = store_path
-        if self.touch_button_dic["edit_offsets"].get_active():
+        if self.widgets.offsetpage1.btn_edit_offsets.get_active():
             offset = self.dialogs.entry_dialog(self,
                                         data=offsetpage.store[row][col],
                                         header=_("Enter value for offset"),
@@ -2571,6 +2581,7 @@ class gmoccapy(object):
             return
         if state:
             page.show()
+            self.widgets.offsetpage1.btn_calculator.set_active(self.offsetpages_use_calc)
             self.widgets.ntb_preview.set_property("show-tabs", state)
             self.widgets.ntb_preview.set_current_page(1)
             self.widgets.offsetpage1.mark_active((self.system_list[self.stat.g5x_index]).lower())
@@ -2582,8 +2593,7 @@ class gmoccapy(object):
                 system_name = "system_name_{0}".format(system).lower()
                 self.prefs.putpref(system_name, name)
             page.hide()
-
-            self.touch_button_dic["edit_offsets"].set_active(False)
+            self.widgets.offsetpage1.btn_edit_offsets.set_active(False)
             self.widgets.ntb_preview.set_current_page(0)
             self.widgets.ntb_info.set_current_page(0)
             if self.widgets.ntb_preview.get_n_pages() <= 4:  # else user tabs are available
@@ -2595,6 +2605,7 @@ class gmoccapy(object):
             return
         if state:
             page.show()
+            self.widgets.tooledit1.btn_calculator.set_active(self.offsetpages_use_calc)
             self.widgets.ntb_preview.set_property("show-tabs", not state)
             self.widgets.vbx_jog.hide()
             self.widgets.ntb_preview.set_current_page(2)
@@ -3019,7 +3030,7 @@ class gmoccapy(object):
 
         # if the edit offsets button is active, we do not want to change
         # pages, as the user may want to edit several axis values
-        if self.touch_button_dic["edit_offsets"].get_active():
+        if self.widgets.offsetpage1.btn_edit_offsets.get_active():
             return
 
         # self.tool_change is set only if the tool change was commanded
@@ -3224,7 +3235,7 @@ class gmoccapy(object):
             # move and resize the window
             self.widgets.window1.move(self.xpos, self.ypos)
             self.widgets.window1.resize(self.width, self.height)
-            
+        
         # keyboard size
         self.widgets.chk_kbd_set_height.set_active(self.kbd_set_height)
         self.widgets.chk_kbd_set_width.set_active(self.kbd_set_width)
@@ -3232,9 +3243,6 @@ class gmoccapy(object):
         self.widgets.adj_kbd_width.set_value(self.kbd_width)
         self._update_kbd_height(self.kbd_set_height)
         self._update_kbd_width(self.kbd_set_width)
-
-        # set initial state of widgets
-        self.touch_button_dic["set_active"].set_sensitive(False)
 
         # set up the hal pin status of tool measurement
         # could not be done prior to this, as the hal pin are not created before
@@ -3488,13 +3496,13 @@ class gmoccapy(object):
         # tooledit page is active, so keys must go through
         if self.widgets.ntb_preview.get_current_page() == 2:
             return
-            
+        
         if (self.widgets.ntb_preview.get_current_page() == 4 and
             keyname in ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
             'comma', 'period', 'BackSpace', 'Return']):
             #user Tab, pass numbers through
             return False
-            
+        
 
         # take care of different key handling for lathe operation
         if self.lathe_mode:
@@ -3976,10 +3984,10 @@ class gmoccapy(object):
             self.widgets.lbl_tool_offset_x.set_text("{0:.4f}".format(self.halcomp["tooloffset-x"]))
 
     def on_offsetpage1_selection_changed(self, widget, system, name):
-        if system not in self.system_list[1:] or self.touch_button_dic["edit_offsets"].get_active():
-            self.touch_button_dic["set_active"].set_sensitive(False)
+        if system not in self.system_list[1:] or self.widgets.offsetpage1.btn_edit_offsets.get_active():
+            self.widgets.offsetpage1.btn_set_selected.set_sensitive(False)
         else:
-            self.touch_button_dic["set_active"].set_sensitive(True)
+            self.widgets.offsetpage1.btn_set_selected.set_sensitive(True)
 
     def on_adj_x_pos_popup_value_changed(self, widget, data=None):
         if not self.initialized:
@@ -4739,7 +4747,7 @@ class gmoccapy(object):
         # if no system is selected, set the "set active" button not sensitive
         system, name = self.widgets.offsetpage1.get_selected()
         if not system:
-            self.touch_button_dic["set_active"].set_sensitive(False)
+            self.widgets.offsetpage1.btn_set_selected.set_sensitive(False)
 
         if not state:  # we must switch back to manual mode, otherwise jogging is not possible
             self.command.mode(linuxcnc.MODE_MANUAL)
@@ -4797,6 +4805,12 @@ class gmoccapy(object):
             self.command.mode(linuxcnc.MODE_MANUAL)
             self.command.wait_complete()
             self.prefs.putpref("offset_axis_{0}".format(axis), offset, float)
+
+    def _on_btn_edit_offsets_clicked(self, widget, data=None):
+        state = self.widgets.offsetpage1.btn_edit_offsets.get_active()
+        self.widgets.offsetpage1.btn_zero_g92.set_sensitive(not state)
+        self.widgets.offsetpage1.btn_set_selected.set_sensitive(not state)
+        self.widgets.offsetpage1.set_editing(widget)
 
     def _on_btn_set_selected_clicked(self, widget, data=None):
         system, name = self.widgets.offsetpage1.get_selected()
@@ -4932,6 +4946,8 @@ class gmoccapy(object):
                 ("img_tool_reload", "refresh", 32),
                 ("img_tool_save", "save", 32),
                 ("img_tool_calculator", "calculator_open", 32),
+                # offsetpage frame controls
+                ("img_offset_calculator", "calculator_open", 32),
                 # coolant
                 ("img_coolant_on",  "coolant_flood_active",   48),
                 ("img_coolant_off", "coolant_flood_inactive", 48),
@@ -5534,7 +5550,7 @@ class gmoccapy(object):
             # Next two lines fix issue #3129 caused by GStat missing changes in interpreter mode
             command = "G4 P{0}".format(self.get_ini_info.get_cycle_time()/1000)
             self.command.mdi(command)
-            
+        
     # set tool with M61 Q? or with T? M6
     def on_btn_selected_tool_clicked(self, widget, data=None):
         tool = self.widgets.tooledit1.get_selected_row()
@@ -5722,7 +5738,7 @@ class gmoccapy(object):
             self.widgets.ntb_info.set_current_page(1)
         else:
             self.widgets.ntb_info.hide()
-            
+        
         self.widgets.grid_search.show()
         self.widgets.progressbar_pgm.hide()
         self.gcodeerror = ""
