@@ -268,29 +268,6 @@ class GetIniInfo:
             LOG.warning("No MIN_ANGULAR_VELOCITY entry found in [DISPLAY] of INI file. Using default value of 0.1 degree / min.")
         return temp
 
-    def get_default_spindle_speed(self):
-        # check for default spindle speed settings
-        temp = self.inifile.getreal("DISPLAY", "DEFAULT_SPINDLE_SPEED")
-        if not temp:
-            temp = 300.0
-            LOG.warning("No DEFAULT_SPINDLE_SPEED entry found in [DISPLAY] of INI file")
-        return temp
-
-    def get_max_spindle_override(self):
-        # check for override settings
-        temp = self.inifile.getreal("DISPLAY", "MAX_SPINDLE_OVERRIDE")
-        if not temp:
-            temp = 1.0
-            LOG.warning("No MAX_SPINDLE_OVERRIDE entry found in [DISPLAY] of INI file")
-        return temp
-
-    def get_min_spindle_override(self):
-        temp = self.inifile.getreal("DISPLAY", "MIN_SPINDLE_OVERRIDE")
-        if not temp:
-            temp = 0.1
-            LOG.warning("No MIN_SPINDLE_OVERRIDE entry found in [DISPLAY] of INI file")
-        return temp
-
     def get_max_feed_override(self):
         temp = self.inifile.getreal("DISPLAY", "MAX_FEED_OVERRIDE")
         if not temp:
