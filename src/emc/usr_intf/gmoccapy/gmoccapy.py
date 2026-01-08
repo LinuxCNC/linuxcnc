@@ -1778,9 +1778,9 @@ class gmoccapy(object):
         if not "a" in self.axis_list and not "b" in self.axis_list and not "c" in self.axis_list:
             self.widgets.spc_ang_jog_vel.hide()
         else:
-            self.widgets.spc_ang_jog_vel.set_property("min", self.get_ini_info.get_min_ang_jog_vel())
-            self.widgets.spc_ang_jog_vel.set_property("max", self.get_ini_info.get_max_ang_jog_vel())
-            self.widgets.spc_ang_jog_vel.set_value(self.get_ini_info.get_default_ang_jog_vel())
+            self.widgets.spc_ang_jog_vel.set_property("min", self.INI.MIN_ANGULAR_JOG_VEL)
+            self.widgets.spc_ang_jog_vel.set_property("max", self.INI.MAX_ANGULAR_JOG_VEL)
+            self.widgets.spc_ang_jog_vel.set_value(self.INI.DEFAULT_ANGULAR_JOG_VEL)
             
         font = self.prefs.getpref("gcodeview_font", "monospace 10", str)
         font_desc = Pango.FontDescription.from_string(font)
