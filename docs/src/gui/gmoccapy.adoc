@@ -110,9 +110,11 @@ So let us take a closer look at the INI file and what you need to include to use
 DISPLAY = gmoccapy
 PREFERENCE_FILE_PATH = gmoccapy_preferences
 MAX_FEED_OVERRIDE = 1.5
-MAX_SPINDLE_OVERRIDE = 1.2
-MIN_SPINDLE_OVERRIDE = 0.5
-DEFAULT_SPINDLE_SPEED = 500
+MIN_SPINDLE_0_OVERRIDE = 0.5
+MAX_SPINDLE_0_OVERRIDE = 1.2
+DEFAULT_SPINDLE_0_SPEED = 500
+MIN_SPINDLE_0_SPEED     = 0
+MAX_SPINDLE_0_SPEED     = 3000
 LATHE = 1
 BACK_TOOL_LATHE = 1
 PROGRAM_PREFIX = ../../nc_files/
@@ -135,10 +137,10 @@ If you only want to use one file for several machines, you need to include `PREF
 [NOTE]
 If no value is given, it will be set to 1.0.
 
-- _MIN_SPINDLE_OVERRIDE = 0.5_ and _MAX_SPINDLE_OVERRIDE = 1.2_ - Will allow you to change the spindle override within a limit from 50% to 120%.
+- _MIN_SPINDLE_0_OVERRIDE = 0.5_ and _MAX_SPINDLE_0_OVERRIDE = 1.2_ - Will allow you to change the spindle override within a limit from 80% to 120%.
 +
 [NOTE]
-If no values are given, MIN will be set to 0.1 and MAX to 1.0.
+If no values are given, MIN will be set to 0.5 and MAX to 1.0.
 
 - _LATHE = 1_ - Set the screen layout to control a lathe.
 - _BACK_TOOL_LATHE = 1_ - Is optional and will switch the X axis in a way you need for a back tool lathe.
@@ -154,7 +156,14 @@ See also the <<gmoccapy:lathe-section,Lathe Specific Section>>.
 If not specified, GMOCCAPY will look in the following order for NGC files:
 First `linuxcnc/nc_files` and then the users home directory.
 
-- _DEFAULT_SPINDLE_SPEED_ - Start value for <<gmoccapy-settings-spindle,"Starting RPM">> if value not present in preferences file or file is not present. Will have no effect with valid preferences file.
+- _DEFAULT_SPINDLE_0_SPEED_ - Sets the rpm to be used if the spindle is started and no S value has been set. Defaults to 200.
+- _MIN_SPINDLE_0_SPEED_ - Sets the lower limit of the spindle bar shown in the spindle frame on the main screen. Defaults to 100.
+- _MAX_SPINDLE_0_SPEED_ - Sets the upper limit of the spindle bar shown in the spindle frame on the main screen. Defaults to 2500.
+
+[NOTE]
+It is no error giving values that didn't match the minimum and maximum speed of the spindle.
+If you set _Spindle bar max_ to 2000 and your spindle makes 4000 RPM, only the bar level will be wrong on higher speeds than 2000 RPM.
+
 
 - _MIN_ANGULAR_VELOCITY_ - Sets the minimal jog velocity of the machine for rotary axes.
 - _MAX_ANGULAR_VELOCITY_ - Sets the maximal jog velocity of the machine for rotary axes.
@@ -500,9 +509,10 @@ DISPLAY = gmoccapy <log_level_param>
 using these parameters:
 ----
 Log level   <log_level_param>
+VERBOSE     -v
 DEBUG       -d
 INFO        -i
-VERBOSE     -v
+WARNING     -w
 ERROR       -q
 ----
 
@@ -1298,25 +1308,6 @@ By default all scales are set using the calculation:
 (MAX - MIN)/100
 ----
 
-[[gmoccapy-settings-spindle]]
-.Spindle
-* _Starting RPM_ - Sets the rpm to be used if the spindle is started and no S value has been set.
-+
-[NOTE]
-This value will be presetted according to your settings in `[DISPLAY] DEFAULT_SPINDLE_SPEED` of your INI file.
-If you change the settings on the settings page, that value will be default from that moment, your INI file will not be modified.
-
-* _Spindle bar min_ and _Spindle bar max_ - Sets the limits of the spindle bar shown in the INFO frame on the main screen.
-+
-====
-Default values are: +
-MIN = 0 +
-MAX = 6000
-====
-+
-[NOTE]
-It is no error giving wrong values.
-If you give a maximum of 2000 and your spindle makes 4000 RPM, only the bar level will be wrong on higher speeds than 2000 RPM.
 
 .Unlock options
 

@@ -111,24 +111,6 @@
     <property name="value">100</property>
     <property name="step-increment">1</property>
   </object>
-  <object class="GtkAdjustment" id="adj_spindle_bar_max">
-    <property name="upper">100000</property>
-    <property name="value">6000</property>
-    <property name="step-increment">50</property>
-    <signal name="value-changed" handler="on_adj_spindle_bar_max_value_changed" swapped="no"/>
-  </object>
-  <object class="GtkAdjustment" id="adj_spindle_bar_min">
-    <property name="upper">20000</property>
-    <property name="step-increment">50</property>
-    <signal name="value-changed" handler="on_adj_spindle_bar_min_value_changed" swapped="no"/>
-  </object>
-  <object class="GtkAdjustment" id="adj_start_spindle_RPM">
-    <property name="lower">50</property>
-    <property name="upper">20000</property>
-    <property name="value">300</property>
-    <property name="step-increment">25</property>
-    <signal name="value-changed" handler="on_adj_start_spindle_RPM_value_changed" swapped="no"/>
-  </object>
   <object class="GtkAdjustment" id="adj_turtle_jog_factor">
     <property name="lower">1</property>
     <property name="upper">100</property>
@@ -5342,137 +5324,6 @@ to test your settings.</property>
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkFrame" id="frm_spindle_settings">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="label-xalign">0.5</property>
-                                <child>
-                                  <!-- n-columns=2 n-rows=3 -->
-                                  <object class="GtkGrid" id="grid_spindle">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="margin-start">6</property>
-                                    <property name="margin-end">6</property>
-                                    <property name="margin-top">5</property>
-                                    <property name="margin-bottom">5</property>
-                                    <property name="hexpand">False</property>
-                                    <property name="row-spacing">2</property>
-                                    <property name="column-spacing">3</property>
-                                    <child>
-                                      <object class="GtkLabel" id="lbl_start_rpm">
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">False</property>
-                                        <property name="hexpand">True</property>
-                                        <property name="label" translatable="yes">Starting RPM</property>
-                                        <property name="xalign">0</property>
-                                      </object>
-                                      <packing>
-                                        <property name="left-attach">0</property>
-                                        <property name="top-attach">0</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkLabel" id="lbl_spindle_min_rpm">
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">False</property>
-                                        <property name="hexpand">True</property>
-                                        <property name="label" translatable="yes">Spindle bar min</property>
-                                        <property name="xalign">0</property>
-                                      </object>
-                                      <packing>
-                                        <property name="left-attach">0</property>
-                                        <property name="top-attach">1</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkLabel" id="lbl_spindle_max_rpm">
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">False</property>
-                                        <property name="hexpand">True</property>
-                                        <property name="label" translatable="yes">Spindle bar max</property>
-                                        <property name="xalign">0</property>
-                                      </object>
-                                      <packing>
-                                        <property name="left-attach">0</property>
-                                        <property name="top-attach">2</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkSpinButton" id="sbtn_spindle_start_rpm">
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">True</property>
-                                        <property name="invisible-char">●</property>
-                                        <property name="activates-default">True</property>
-                                        <property name="xalign">1</property>
-                                        <property name="shadow-type">etched-in</property>
-                                        <property name="primary-icon-activatable">False</property>
-                                        <property name="secondary-icon-activatable">False</property>
-                                        <property name="adjustment">adj_start_spindle_RPM</property>
-                                        <property name="climb-rate">1</property>
-                                        <property name="numeric">True</property>
-                                      </object>
-                                      <packing>
-                                        <property name="left-attach">1</property>
-                                        <property name="top-attach">0</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkSpinButton" id="sbtn_spindle_bar_min">
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">True</property>
-                                        <property name="invisible-char">●</property>
-                                        <property name="activates-default">True</property>
-                                        <property name="xalign">1</property>
-                                        <property name="shadow-type">etched-in</property>
-                                        <property name="primary-icon-activatable">False</property>
-                                        <property name="secondary-icon-activatable">False</property>
-                                        <property name="adjustment">adj_spindle_bar_min</property>
-                                        <property name="climb-rate">1</property>
-                                        <property name="numeric">True</property>
-                                      </object>
-                                      <packing>
-                                        <property name="left-attach">1</property>
-                                        <property name="top-attach">1</property>
-                                      </packing>
-                                    </child>
-                                    <child>
-                                      <object class="GtkSpinButton" id="sbtn_spindle_bar_max">
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">True</property>
-                                        <property name="invisible-char">●</property>
-                                        <property name="activates-default">True</property>
-                                        <property name="width-chars">7</property>
-                                        <property name="xalign">1</property>
-                                        <property name="shadow-type">etched-in</property>
-                                        <property name="primary-icon-activatable">False</property>
-                                        <property name="secondary-icon-activatable">False</property>
-                                        <property name="adjustment">adj_spindle_bar_max</property>
-                                        <property name="climb-rate">1</property>
-                                        <property name="numeric">True</property>
-                                      </object>
-                                      <packing>
-                                        <property name="left-attach">1</property>
-                                        <property name="top-attach">2</property>
-                                      </packing>
-                                    </child>
-                                  </object>
-                                </child>
-                                <child type="label">
-                                  <object class="GtkLabel" id="lbl_frm_spindle">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="label" translatable="yes">&lt;b&gt;Spindle&lt;/b&gt;</property>
-                                    <property name="use-markup">True</property>
-                                  </object>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
-                                <property name="position">1</property>
-                              </packing>
-                            </child>
-                            <child>
                               <object class="GtkFrame" id="frm_unlock">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
@@ -5551,7 +5402,7 @@ to test your settings.</property>
                               <packing>
                                 <property name="expand">False</property>
                                 <property name="fill">False</property>
-                                <property name="position">2</property>
+                                <property name="position">1</property>
                               </packing>
                             </child>
                             <child>
@@ -5643,8 +5494,11 @@ to test your settings.</property>
                               <packing>
                                 <property name="expand">False</property>
                                 <property name="fill">False</property>
-                                <property name="position">3</property>
+                                <property name="position">2</property>
                               </packing>
+                            </child>
+                            <child>
+                              <placeholder/>
                             </child>
                             <child>
                               <placeholder/>
