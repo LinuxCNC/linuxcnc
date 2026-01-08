@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Generated with glade 3.40.0 -->
 <interface>
-  <requires lib="gtk+" version="3.0"/>
+  <requires lib="gtk+" version="3.16"/>
   <requires lib="gladevcp" version="0.0"/>
   <object class="GtkAction" id="action1"/>
   <object class="GtkAdjustment" id="ad_probe_vel">
@@ -1436,7 +1436,7 @@
                     <property name="pixbuf">probe_icons_1024x768/probe_xm.png</property>
                   </object>
                   <packing>
-                    <property name="x-options">GTK_SHRINK</property>
+                    <property name="x-options"/>
                   </packing>
                 </child>
                 <child>
@@ -1474,7 +1474,8 @@
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="tooltip-text" translatable="yes">Probe Y- pos.</property>
-                    <property name="width-chars">18</property>
+                    <property name="width-chars">8</property>
+                    <property name="xalign">1</property>
                     <attributes>
                       <attribute name="weight" value="bold"/>
                       <attribute name="stretch" value="ultra-condensed"/>
@@ -1494,7 +1495,8 @@
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="tooltip-text" translatable="yes">Probe Z pos.</property>
-                    <property name="width-chars">18</property>
+                    <property name="width-chars">8</property>
+                    <property name="xalign">1</property>
                     <attributes>
                       <attribute name="weight" value="bold"/>
                       <attribute name="stretch" value="ultra-condensed"/>
@@ -1516,7 +1518,8 @@
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="tooltip-text" translatable="yes">Center  X pos.</property>
-                    <property name="width-chars">18</property>
+                    <property name="width-chars">8</property>
+                    <property name="xalign">1</property>
                     <attributes>
                       <attribute name="weight" value="bold"/>
                       <attribute name="stretch" value="ultra-condensed"/>
@@ -1538,7 +1541,8 @@
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="tooltip-text" translatable="yes">Center Y pos.</property>
-                    <property name="width-chars">18</property>
+                    <property name="width-chars">8</property>
+                    <property name="xalign">1</property>
                     <attributes>
                       <attribute name="weight" value="bold"/>
                       <attribute name="stretch" value="ultra-condensed"/>
@@ -1560,7 +1564,9 @@
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="tooltip-text" translatable="yes">Angle of rotation</property>
-                    <property name="width-chars">18</property>
+                    <property name="hexpand">True</property>
+                    <property name="width-chars">8</property>
+                    <property name="xalign">1</property>
                     <attributes>
                       <attribute name="weight" value="bold"/>
                       <attribute name="stretch" value="ultra-condensed"/>
@@ -1598,7 +1604,8 @@
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="tooltip-text" translatable="yes">Diameter</property>
-                    <property name="width-chars">18</property>
+                    <property name="width-chars">8</property>
+                    <property name="xalign">1</property>
                     <attributes>
                       <attribute name="weight" value="bold"/>
                       <attribute name="stretch" value="ultra-condensed"/>
@@ -1666,7 +1673,8 @@
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="tooltip-text" translatable="yes">Probe X- pos.</property>
-                    <property name="width-chars">18</property>
+                    <property name="width-chars">8</property>
+                    <property name="xalign">1</property>
                     <attributes>
                       <attribute name="weight" value="bold"/>
                       <attribute name="stretch" value="ultra-condensed"/>
@@ -1700,7 +1708,8 @@
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="tooltip-text" translatable="yes">Probe X+ pos.</property>
-                    <property name="width-chars">18</property>
+                    <property name="width-chars">8</property>
+                    <property name="xalign">1</property>
                     <attributes>
                       <attribute name="weight" value="bold"/>
                       <attribute name="stretch" value="ultra-condensed"/>
@@ -1738,7 +1747,8 @@
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="tooltip-text" translatable="yes">Probe Y+ pos.</property>
-                    <property name="width-chars">18</property>
+                    <property name="width-chars">8</property>
+                    <property name="xalign">1</property>
                     <attributes>
                       <attribute name="weight" value="bold"/>
                       <attribute name="stretch" value="ultra-condensed"/>
@@ -1790,7 +1800,9 @@
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="tooltip-text" translatable="yes">Distance from X+ to X-</property>
-                    <property name="width-chars">18</property>
+                    <property name="hexpand">True</property>
+                    <property name="width-chars">8</property>
+                    <property name="xalign">1</property>
                     <attributes>
                       <attribute name="weight" value="bold"/>
                       <attribute name="stretch" value="ultra-condensed"/>
@@ -1812,7 +1824,9 @@
                     <property name="visible">True</property>
                     <property name="can-focus">False</property>
                     <property name="tooltip-text" translatable="yes">Distance from Y+ to Y-</property>
-                    <property name="width-chars">18</property>
+                    <property name="hexpand">True</property>
+                    <property name="width-chars">8</property>
+                    <property name="xalign">1</property>
                     <attributes>
                       <attribute name="weight" value="bold"/>
                       <attribute name="stretch" value="ultra-condensed"/>
@@ -1837,6 +1851,7 @@
                     <property name="can-focus">True</property>
                     <property name="receives-default">True</property>
                     <property name="tooltip-text" translatable="yes">Probe Down </property>
+                    <property name="halign">end</property>
                     <property name="use-underline">True</property>
                     <signal name="released" handler="on_down_released" swapped="no"/>
                     <child>
@@ -1850,7 +1865,7 @@
                   <packing>
                     <property name="left-attach">4</property>
                     <property name="right-attach">6</property>
-                    <property name="x-options">GTK_SHRINK</property>
+                    <property name="x-options">GTK_FILL</property>
                     <property name="y-options">GTK_FILL</property>
                   </packing>
                 </child>
