@@ -595,7 +595,7 @@ class gmoccapy(object):
 
         self.spindle_override_max = self.INI.MAX_SPINDLE_OVERRIDE/100
         self.spindle_override_min = self.INI.MIN_SPINDLE_OVERRIDE/100
-        self.feed_override_max = self.get_ini_info.get_max_feed_override()
+        self.feed_override_max = self.INI.MAX_FEED_OVERRIDE/100
         self.dro_actual = self.get_ini_info.get_position_feedback_actual()
 
     def _get_pref_data(self):
