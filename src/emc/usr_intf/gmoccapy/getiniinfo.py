@@ -268,13 +268,6 @@ class GetIniInfo:
             LOG.warning("No MIN_ANGULAR_VELOCITY entry found in [DISPLAY] of INI file. Using default value of 0.1 degree / min.")
         return temp
 
-    def get_max_feed_override(self):
-        temp = self.inifile.getreal("DISPLAY", "MAX_FEED_OVERRIDE")
-        if not temp:
-            temp = 1.0
-            LOG.warning("No MAX_FEED_OVERRIDE entry found in [DISPLAY] of INI file")
-        return temp
-
     def get_embedded_tabs(self):
         # Check INI file for embed commands
         # NAME is used as the tab label if a notebook is used
