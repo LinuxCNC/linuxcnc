@@ -254,30 +254,6 @@ class GetIniInfo:
             LOG.warning("No MAX_LINEAR_VELOCITY entry found in [TRAJ] of INI file. Using default value of 600 units / min.")
         return float(temp) * 60
 
-    def get_default_ang_jog_vel(self):
-        # get default angular jog velocity
-        temp = self.inifile.find("DISPLAY", "DEFAULT_ANGULAR_VELOCITY")
-        if not temp:
-            temp = 360.0
-            LOG.warning("No DEFAULT_ANGULAR_VELOCITY entry found in [DISPLAY] of INI file. Using default value of 360 degree / min.")
-        return float(temp)
-
-    def get_max_ang_jog_vel(self):
-        # get max angular velocity
-        temp = self.inifile.find("DISPLAY", "MAX_ANGULAR_VELOCITY")
-        if not temp:
-            temp = 3600.0
-            LOG.warning("No MAX_ANGULAR_VELOCITY entry found in [DISPLAY] of INI file. Using default value of 3600 degree / min.")
-        return float(temp)
-
-    def get_min_ang_jog_vel(self):
-        # get min angular velocity
-        temp = self.inifile.find("DISPLAY", "MIN_ANGULAR_VELOCITY")
-        if not temp:
-            temp = 0.1
-            LOG.warning("No MIN_ANGULAR_VELOCITY entry found in [DISPLAY] of INI file. Using default value of 0.1 degree / min.")
-        return float(temp)
-
     def get_embedded_tabs(self):
         # Check INI file for embed commands
         # NAME is used as the tab label if a notebook is used
