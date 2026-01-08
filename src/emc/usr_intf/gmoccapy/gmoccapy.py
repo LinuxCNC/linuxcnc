@@ -373,8 +373,6 @@ class gmoccapy(object):
         self.widgets["ntb_button"].show()
 
         # the velocity settings
-        self.widgets.adj_spindle_bar_min.set_value(self.min_spindle_rev)
-        self.widgets.adj_spindle_bar_max.set_value(self.max_spindle_rev)
         self.widgets.spindle_feedback_bar.set_property("min", float(self.min_spindle_rev))
         self.widgets.spindle_feedback_bar.set_property("max", float(self.max_spindle_rev))
 
@@ -468,7 +466,6 @@ class gmoccapy(object):
 
         self.widgets.chk_toggle_readout.set_active(self.toggle_readout)
 
-        self.widgets.adj_start_spindle_RPM.set_value(self.spindle_start_rpm)
         self.widgets.gcode_view.set_editable(False)
         self.widgets.ntb_user_tabs.remove_page(0)
 
@@ -626,8 +623,9 @@ class gmoccapy(object):
         self.scale_rapid_override = self.prefs.getpref("scale_rapid_override", 1, float)
 
         # the velocity settings
-        self.min_spindle_rev = self.prefs.getpref("spindle_bar_min", 0.0, float)
-        self.max_spindle_rev = self.prefs.getpref("spindle_bar_max", 6000.0, float)
+        self.spindle_start_rpm = self.INI.DEFAULT_SPINDLE_0_SPEED
+        self.min_spindle_rev = self.INI.MIN_SPINDLE_0_SPEED
+        self.max_spindle_rev = self.INI.MAX_SPINDLE_0_SPEED
 
         self.turtle_jog_factor = self.prefs.getpref('turtle_jog_factor', 20, int)
         self.hide_turtle_jog_button = self.prefs.getpref("hide_turtle_jog_button", False, bool)
@@ -636,10 +634,7 @@ class gmoccapy(object):
 
         self.toggle_readout = self.prefs.getpref("toggle_readout", True, bool)
 
-        # if there is a INI Entry for default spindle speed, we will use that one as default
-        # but if there is a setting in our preference file, that one will beet the INI entry
-        default_spindle_speed = self.INI.DEFAULT_SPINDLE_0_SPEED
-        self.spindle_start_rpm = self.prefs.getpref( 'spindle_start_rpm', default_spindle_speed, float )
+        self.spindle_start_rpm = self.INI.DEFAULT_SPINDLE_0_SPEED
 
         self.kbd_height = self.prefs.getpref("kbd_height", 250, int)
         self.kbd_width = self.prefs.getpref("kbd_width", 880, int)
@@ -4519,20 +4514,6 @@ class gmoccapy(object):
             self.command.spindleoverride(spindle_override_command)
         except:
             pass
-
-    def on_adj_start_spindle_RPM_value_changed(self, widget, data=None):
-        self.spindle_start_rpm = widget.get_value()
-        self.prefs.putpref("spindle_start_rpm", self.spindle_start_rpm, float)
-
-    def on_adj_spindle_bar_min_value_changed(self, widget, data=None):
-        self.min_spindle_rev = widget.get_value()
-        self.prefs.putpref("spindle_bar_min", self.min_spindle_rev, float)
-        self.widgets.spindle_feedback_bar.set_property("min", self.min_spindle_rev)
-
-    def on_adj_spindle_bar_max_value_changed(self, widget, data=None):
-        self.max_spindle_rev = widget.get_value()
-        self.prefs.putpref("spindle_bar_max", self.max_spindle_rev, float)
-        self.widgets.spindle_feedback_bar.set_property("max", self.max_spindle_rev)
 
 # =========================================================
 # Coolant an mist coolant button
