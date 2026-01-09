@@ -1921,7 +1921,7 @@ class gmoccapy(object):
                     self.widgets[widget].hide()
 
             if "box_vel_info" in tab_locations:
-                widgetlist = ["vbx_overrides", "frm_rapid_override", "frm_feed_override"]
+                widgetlist = ["frm_vel_info"]
                 for widget in widgetlist:
                     self.widgets[widget].hide()
 
