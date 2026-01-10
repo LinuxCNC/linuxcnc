@@ -12,6 +12,7 @@ linuxcnc (1:2.9.8) UNRELEASED; urgency=medium
   * [ci] publish releases with artifacts
   * debian: Addressed lintian warnings
   * axis.py: restore mdi queuing provision       #2460 
+  * debian/rules: Preserve dpkg-buildflags (Closes: #1124874)
 
  -- andypugh <andy@bodgesoc.org>  Wed, 31 Dec 2025 19:39:48 +0000
 
