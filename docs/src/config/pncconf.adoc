@@ -51,41 +51,26 @@ You can also launch it from the main menu by using the Configuration Selector 'L
 image::images/pncconf-basic.png["PnCconf Basic machine information"]
 
 Machine Basics::
-If you use a name with spaces PnCconf will replace the spaces with underscore
-(as a loose rule Linux doesn't like spaces in names)
-Pick an axis configuration - this selects what type of machine you are building and what axes are available.
-The Machine units selector allows data entry of metric or imperial units in the following pages.
+If you use a name with spaces PnCconf will replace the spaces with underscores
+(as a loose rule Linux doesn't like spaces in names).
+Picking an axis configuration selects what type of machine you are building and what axes are available.
+The "Machine units" selector allows data entry of metric or imperial units in later steps in the configuration process.
 
 TIP: Defaults are not converted when using metric so make sure they are sane values!
 
 Computer Response Time::
 
 The servo period sets the heart beat of the system.
-Latency refers to the amount of time the computer can be longer then that period.
-Just like a railroad, LinuxCNC requires everything on a very tight and consistent time line or bad things happen.
-LinuxCNC requires and uses a 'real time' operating system, which just means it has a low latency ( lateness ) response time
-when LinuxCNC requires its calculations and when doing LinuxCNCs calculations it cannot be interrupted by lower priority requests (such as user input to screen buttons or drawing etc).
+Latency describes the difference between the time that the system is scheduled to perform and action and the time that it actually does perform the action.
+Just like a railroad, LinuxCNC requires everything on a very tight and consistent timeline or bad things happen.
+LinuxCNC requires and uses a 'real-time' operating system, which just means it has a low-latency (lateness) response time.
+When LinuxCNC requires and is performing calculations, it cannot be interrupted by lower priority requests (such as user input to screen buttons or drawing etc).
 
-Testing the latency is very important and a key thing to check early.
-Luckily by using the Mesa card to do the work that requires the fastest response time (encoder counting and PWM generation) we can endure a lot more latency then if we used the parallel port for these things.
-The standard test in LinuxCNC is checking the BASE period latency (even though we are not using a base period).
-If you press the 'test base period jitter' button, this launches the latency test window ( you can also load this directly from the applications/cnc panel ).
-The test mentions to run it for a few minutes but the longer the better.
-Consider 15 minutes a bare minimum and overnight even better.
-At this time use the computer to load things, use the net, use USB etc we want to know the worst case latency and to find out if any particular activity hurts our latency.
-We need to look at base period jitter.
-Anything under 20000 is excellent - you could even do fast software stepping with the machine 20000 - 50000 is still good for software stepping and fine for us.
-50000 - 100000 is really not that great but could still be used with hardware cards doing the fast response stuff.
-So anything under 100000 is usable to us.
-If the latency is disappointing or you get a bad hiccup periodically you may still be able to improve it.
-
-TIP: There is a user compiled list of equipment and the latency obtained on the LinuxCNC wiki: https://wiki.linuxcnc.org/cgi-bin/wiki.pl?Latency-Test
-Please consider adding your info to the list.
-Also on that page are links to info about fixing some latency problems.
+Testing the latency is crucial and a key thing to check before proceeding further. Please follow the directions on the <<sub:install:sec:latency-test,Latency Test>> page before proceeding further.
 
 Now we are happy with the latency and must pick a servo period.
 In most cases a servo period of 1000000 ns is fine (that gives a 1 kHz servo calculation rate - 1000 calculations a second).
-If you are building a closed loop servo system that controls torque (current) rather then velocity (voltage) a faster rate would be better - something like 200000 (5 kHz calculation rate).
+If you are building a closed loop servo system that controls torque (current) rather than velocity (voltage) a faster rate would be better - something like 200000 (5 kHz calculation rate).
 The problem with lowering the servo rate is that it leaves less time available for the computer to do other things besides LinuxCNC's calculations.
 Typically the display (GUI) becomes less responsive.
 You must decide on a balance. Keep in mind that if you tune your closed loop servo system then change the servo period you probably will need to tune them again.
