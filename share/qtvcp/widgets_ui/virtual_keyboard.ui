@@ -119,8 +119,46 @@
          <property name="spacing">
           <number>2</number>
          </property>
-         <item row="5" column="5">
-          <widget class="QPushButton" name="btn_b">
+         <item row="1" column="3">
+          <widget class="QPushButton" name="btn_3">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>#
+3</string>
+           </property>
+           <property name="fcode" stdset="0">
+            <string>F3</string>
+           </property>
+           <property name="upper" stdset="0">
+            <string>pound</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">numbers_buttonGroup</string>
+           </attribute>
+          </widget>
+         </item>
+         <item row="5" column="10">
+          <widget class="QPushButton" name="btn_slash">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
@@ -143,15 +181,206 @@
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string>b</string>
+            <string>?
+/</string>
+           </property>
+           <property name="upper" stdset="0">
+            <string>question</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">special_buttonGroup</string>
+           </attribute>
+          </widget>
+         </item>
+         <item row="4" column="12">
+          <widget class="QPushButton" name="btn_backslash">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>50</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>|
+\</string>
+           </property>
+           <property name="upper" stdset="0">
+            <string>pipe</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">special_buttonGroup</string>
+           </attribute>
+          </widget>
+         </item>
+         <item row="1" column="6">
+          <widget class="QPushButton" name="btn_6">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>^
+6</string>
+           </property>
+           <property name="fcode" stdset="0">
+            <string>F6</string>
+           </property>
+           <property name="upper" stdset="0">
+            <string>carat</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">numbers_buttonGroup</string>
+           </attribute>
+          </widget>
+         </item>
+         <item row="3" column="11">
+          <widget class="QPushButton" name="btn_left_bracket">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>50</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>{
+[</string>
+           </property>
+           <property name="upper" stdset="0">
+            <string>leftbrace</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">special_buttonGroup</string>
+           </attribute>
+          </widget>
+         </item>
+         <item row="6" column="2">
+          <widget class="QPushButton" name="btn_function">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>50</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>FN</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="11">
+          <widget class="QPushButton" name="btn_apostrophe">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>50</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>&quot;
+'</string>
+           </property>
+           <property name="upper" stdset="0">
+            <string>doublequote</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">special_buttonGroup</string>
+           </attribute>
+          </widget>
+         </item>
+         <item row="4" column="5">
+          <widget class="QPushButton" name="btn_g">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>g</string>
            </property>
            <attribute name="buttonGroup">
             <string notr="true">letters_buttonGroup</string>
            </attribute>
           </widget>
          </item>
-         <item row="5" column="4">
-          <widget class="QPushButton" name="btn_v">
+         <item row="1" column="12">
+          <widget class="QPushButton" name="btn_equal">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
@@ -160,7 +389,7 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>50</width>
+             <width>0</width>
              <height>50</height>
             </size>
            </property>
@@ -174,15 +403,91 @@
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string>v</string>
+            <string>+
+=</string>
+           </property>
+           <property name="upper" stdset="0">
+            <string>plus</string>
+           </property>
+           <property name="fcode" stdset="0">
+            <string>F12</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">special_buttonGroup</string>
+           </attribute>
+          </widget>
+         </item>
+         <item row="1" column="10">
+          <widget class="QPushButton" name="btn_0">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>)
+0</string>
+           </property>
+           <property name="fcode" stdset="0">
+            <string>F10</string>
+           </property>
+           <property name="upper" stdset="0">
+            <string>rightparenth</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">numbers_buttonGroup</string>
+           </attribute>
+          </widget>
+         </item>
+         <item row="4" column="1">
+          <widget class="QPushButton" name="btn_a">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>a</string>
            </property>
            <attribute name="buttonGroup">
             <string notr="true">letters_buttonGroup</string>
            </attribute>
           </widget>
          </item>
-         <item row="5" column="3">
-          <widget class="QPushButton" name="btn_c">
+         <item row="4" column="2">
+          <widget class="QPushButton" name="btn_s">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
@@ -191,7 +496,7 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>50</width>
+             <width>0</width>
              <height>50</height>
             </size>
            </property>
@@ -205,15 +510,15 @@
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string>c</string>
+            <string>s</string>
            </property>
            <attribute name="buttonGroup">
             <string notr="true">letters_buttonGroup</string>
            </attribute>
           </widget>
          </item>
-         <item row="5" column="7">
-          <widget class="QPushButton" name="btn_m">
+         <item row="6" column="6" colspan="3">
+          <widget class="QPushButton" name="btn_space">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
@@ -236,7 +541,139 @@
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string>m</string>
+            <string>SPACE</string>
+           </property>
+           <property name="upper" stdset="0">
+            <string>space</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">special_buttonGroup</string>
+           </attribute>
+          </widget>
+         </item>
+         <item row="4" column="4">
+          <widget class="QPushButton" name="btn_f">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>f</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">letters_buttonGroup</string>
+           </attribute>
+          </widget>
+         </item>
+         <item row="1" column="11">
+          <widget class="QPushButton" name="btn_minus">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>_
+-</string>
+           </property>
+           <property name="upper" stdset="0">
+            <string>underscore</string>
+           </property>
+           <property name="fcode" stdset="0">
+            <string>F11</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">special_buttonGroup</string>
+           </attribute>
+          </widget>
+         </item>
+         <item row="3" column="12">
+          <widget class="QPushButton" name="btn_right_bracket">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>50</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>}
+]</string>
+           </property>
+           <property name="upper" stdset="0">
+            <string>rightbrace</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">special_buttonGroup</string>
+           </attribute>
+          </widget>
+         </item>
+         <item row="3" column="5">
+          <widget class="QPushButton" name="btn_t">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>t</string>
            </property>
            <attribute name="buttonGroup">
             <string notr="true">letters_buttonGroup</string>
@@ -274,6 +711,75 @@
            </attribute>
           </widget>
          </item>
+         <item row="1" column="8">
+          <widget class="QPushButton" name="btn_8">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>*
+8</string>
+           </property>
+           <property name="fcode" stdset="0">
+            <string>F8</string>
+           </property>
+           <property name="upper" stdset="0">
+            <string>asterisk</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">numbers_buttonGroup</string>
+           </attribute>
+          </widget>
+         </item>
+         <item row="5" column="11" colspan="2">
+          <widget class="QPushButton" name="btn_back">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>BKSP</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">control_buttonGroup</string>
+           </attribute>
+          </widget>
+         </item>
          <item row="5" column="1">
           <widget class="QPushButton" name="btn_z">
            <property name="sizePolicy">
@@ -299,6 +805,165 @@
            </property>
            <property name="text">
             <string>z</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">letters_buttonGroup</string>
+           </attribute>
+          </widget>
+         </item>
+         <item row="4" column="7">
+          <widget class="QPushButton" name="btn_j">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>j</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">letters_buttonGroup</string>
+           </attribute>
+          </widget>
+         </item>
+         <item row="6" column="3">
+          <widget class="QPushButton" name="btn_shift">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>50</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>SHIFT</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="4" column="10">
+          <widget class="QPushButton" name="btn_semicolon">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>;
+;</string>
+           </property>
+           <property name="upper" stdset="0">
+            <string>colon</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">special_buttonGroup</string>
+           </attribute>
+          </widget>
+         </item>
+         <item row="4" column="3">
+          <widget class="QPushButton" name="btn_d">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>d</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">letters_buttonGroup</string>
+           </attribute>
+          </widget>
+         </item>
+         <item row="3" column="2">
+          <widget class="QPushButton" name="btn_w">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>w</string>
            </property>
            <attribute name="buttonGroup">
             <string notr="true">letters_buttonGroup</string>
@@ -343,8 +1008,8 @@
            </attribute>
           </widget>
          </item>
-         <item row="1" column="6">
-          <widget class="QPushButton" name="btn_6">
+         <item row="3" column="10">
+          <widget class="QPushButton" name="btn_p">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
@@ -367,22 +1032,15 @@
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string>^
-6</string>
-           </property>
-           <property name="fcode" stdset="0">
-            <string>F6</string>
-           </property>
-           <property name="upper" stdset="0">
-            <string>carat</string>
+            <string>p</string>
            </property>
            <attribute name="buttonGroup">
-            <string notr="true">numbers_buttonGroup</string>
+            <string notr="true">letters_buttonGroup</string>
            </attribute>
           </widget>
          </item>
-         <item row="1" column="3">
-          <widget class="QPushButton" name="btn_3">
+         <item row="5" column="3">
+          <widget class="QPushButton" name="btn_c">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
@@ -391,7 +1049,7 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>0</width>
+             <width>50</width>
              <height>50</height>
             </size>
            </property>
@@ -405,22 +1063,15 @@
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string>#
-3</string>
-           </property>
-           <property name="fcode" stdset="0">
-            <string>F3</string>
-           </property>
-           <property name="upper" stdset="0">
-            <string>pound</string>
+            <string>c</string>
            </property>
            <attribute name="buttonGroup">
-            <string notr="true">numbers_buttonGroup</string>
+            <string notr="true">letters_buttonGroup</string>
            </attribute>
           </widget>
          </item>
-         <item row="1" column="4">
-          <widget class="QPushButton" name="btn_4">
+         <item row="6" column="4">
+          <widget class="QPushButton" name="btn_ctrl">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
@@ -429,7 +1080,7 @@
            </property>
            <property name="minimumSize">
             <size>
-             <width>0</width>
+             <width>50</width>
              <height>50</height>
             </size>
            </property>
@@ -443,22 +1094,15 @@
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string>$
-4</string>
+            <string>CTRL</string>
            </property>
-           <property name="fcode" stdset="0">
-            <string>F4</string>
+           <property name="checkable">
+            <bool>true</bool>
            </property>
-           <property name="upper" stdset="0">
-            <string>dollar</string>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">numbers_buttonGroup</string>
-           </attribute>
           </widget>
          </item>
-         <item row="1" column="2">
-          <widget class="QPushButton" name="btn_2">
+         <item row="3" column="3">
+          <widget class="QPushButton" name="btn_e">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
@@ -481,17 +1125,10 @@
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string>@
-2</string>
-           </property>
-           <property name="fcode" stdset="0">
-            <string>F2</string>
-           </property>
-           <property name="upper" stdset="0">
-            <string>at</string>
+            <string>e</string>
            </property>
            <attribute name="buttonGroup">
-            <string notr="true">numbers_buttonGroup</string>
+            <string notr="true">letters_buttonGroup</string>
            </attribute>
           </widget>
          </item>
@@ -533,6 +1170,37 @@
            </attribute>
           </widget>
          </item>
+         <item row="4" column="6">
+          <widget class="QPushButton" name="btn_h">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>h</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">letters_buttonGroup</string>
+           </attribute>
+          </widget>
+         </item>
          <item row="1" column="5">
           <widget class="QPushButton" name="btn_5">
            <property name="sizePolicy">
@@ -568,6 +1236,525 @@
            </property>
            <attribute name="buttonGroup">
             <string notr="true">numbers_buttonGroup</string>
+           </attribute>
+          </widget>
+         </item>
+         <item row="5" column="2">
+          <widget class="QPushButton" name="btn_x">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>50</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>x</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">letters_buttonGroup</string>
+           </attribute>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <widget class="QPushButton" name="btn_2">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>@
+2</string>
+           </property>
+           <property name="fcode" stdset="0">
+            <string>F2</string>
+           </property>
+           <property name="upper" stdset="0">
+            <string>at</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">numbers_buttonGroup</string>
+           </attribute>
+          </widget>
+         </item>
+         <item row="4" column="8">
+          <widget class="QPushButton" name="btn_k">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>k</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">letters_buttonGroup</string>
+           </attribute>
+          </widget>
+         </item>
+         <item row="3" column="6">
+          <widget class="QPushButton" name="btn_y">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>y</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">letters_buttonGroup</string>
+           </attribute>
+          </widget>
+         </item>
+         <item row="5" column="9">
+          <widget class="QPushButton" name="btn_period">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>50</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>&gt;
+.</string>
+           </property>
+           <property name="upper" stdset="0">
+            <string>greater</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">special_buttonGroup</string>
+           </attribute>
+          </widget>
+         </item>
+         <item row="4" column="9">
+          <widget class="QPushButton" name="btn_l">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>l</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">letters_buttonGroup</string>
+           </attribute>
+          </widget>
+         </item>
+         <item row="1" column="4">
+          <widget class="QPushButton" name="btn_4">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>$
+4</string>
+           </property>
+           <property name="fcode" stdset="0">
+            <string>F4</string>
+           </property>
+           <property name="upper" stdset="0">
+            <string>dollar</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">numbers_buttonGroup</string>
+           </attribute>
+          </widget>
+         </item>
+         <item row="5" column="5">
+          <widget class="QPushButton" name="btn_b">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>50</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>b</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">letters_buttonGroup</string>
+           </attribute>
+          </widget>
+         </item>
+         <item row="5" column="7">
+          <widget class="QPushButton" name="btn_m">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>50</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>m</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">letters_buttonGroup</string>
+           </attribute>
+          </widget>
+         </item>
+         <item row="3" column="1">
+          <widget class="QPushButton" name="btn_q">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>q</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">letters_buttonGroup</string>
+           </attribute>
+          </widget>
+         </item>
+         <item row="5" column="4">
+          <widget class="QPushButton" name="btn_v">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>50</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>v</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">letters_buttonGroup</string>
+           </attribute>
+          </widget>
+         </item>
+         <item row="3" column="7">
+          <widget class="QPushButton" name="btn_u">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>u</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">letters_buttonGroup</string>
+           </attribute>
+          </widget>
+         </item>
+         <item row="3" column="8">
+          <widget class="QPushButton" name="btn_i">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>i</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">letters_buttonGroup</string>
+           </attribute>
+          </widget>
+         </item>
+         <item row="3" column="9">
+          <widget class="QPushButton" name="btn_o">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>o</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">letters_buttonGroup</string>
+           </attribute>
+          </widget>
+         </item>
+         <item row="6" column="1">
+          <widget class="QPushButton" name="btn_caplock">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>50</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>CAPS
+LOCK</string>
+           </property>
+           <property name="checkable">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item row="5" column="8">
+          <widget class="QPushButton" name="btn_comma">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>50</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>&lt;
+,</string>
+           </property>
+           <property name="upper" stdset="0">
+            <string>less</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">special_buttonGroup</string>
            </attribute>
           </widget>
          </item>
@@ -609,84 +1796,8 @@
            </attribute>
           </widget>
          </item>
-         <item row="1" column="8">
-          <widget class="QPushButton" name="btn_8">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="text">
-            <string>*
-8</string>
-           </property>
-           <property name="fcode" stdset="0">
-            <string>F8</string>
-           </property>
-           <property name="upper" stdset="0">
-            <string>asterisk</string>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">numbers_buttonGroup</string>
-           </attribute>
-          </widget>
-         </item>
-         <item row="1" column="10">
-          <widget class="QPushButton" name="btn_0">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="text">
-            <string>)
-0</string>
-           </property>
-           <property name="fcode" stdset="0">
-            <string>F10</string>
-           </property>
-           <property name="upper" stdset="0">
-            <string>rightparenth</string>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">numbers_buttonGroup</string>
-           </attribute>
-          </widget>
-         </item>
-         <item row="5" column="10">
-          <widget class="QPushButton" name="btn_slash">
+         <item row="6" column="5">
+          <widget class="QPushButton" name="btn_alt">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
@@ -709,302 +1820,11 @@
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string>?
-/</string>
+            <string>ALT</string>
            </property>
-           <property name="upper" stdset="0">
-            <string>question</string>
+           <property name="checkable">
+            <bool>true</bool>
            </property>
-           <attribute name="buttonGroup">
-            <string notr="true">special_buttonGroup</string>
-           </attribute>
-          </widget>
-         </item>
-         <item row="5" column="9">
-          <widget class="QPushButton" name="btn_period">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>50</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="text">
-            <string>&gt;
-.</string>
-           </property>
-           <property name="upper" stdset="0">
-            <string>greater</string>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">special_buttonGroup</string>
-           </attribute>
-          </widget>
-         </item>
-         <item row="5" column="8">
-          <widget class="QPushButton" name="btn_comma">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>50</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="text">
-            <string>&lt;
-,</string>
-           </property>
-           <property name="upper" stdset="0">
-            <string>less</string>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">special_buttonGroup</string>
-           </attribute>
-          </widget>
-         </item>
-         <item row="5" column="2">
-          <widget class="QPushButton" name="btn_x">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>50</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="text">
-            <string>x</string>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">letters_buttonGroup</string>
-           </attribute>
-          </widget>
-         </item>
-         <item row="3" column="10">
-          <widget class="QPushButton" name="btn_p">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="text">
-            <string>p</string>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">letters_buttonGroup</string>
-           </attribute>
-          </widget>
-         </item>
-         <item row="3" column="9">
-          <widget class="QPushButton" name="btn_o">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="text">
-            <string>o</string>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">letters_buttonGroup</string>
-           </attribute>
-          </widget>
-         </item>
-         <item row="3" column="8">
-          <widget class="QPushButton" name="btn_i">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="text">
-            <string>i</string>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">letters_buttonGroup</string>
-           </attribute>
-          </widget>
-         </item>
-         <item row="3" column="7">
-          <widget class="QPushButton" name="btn_u">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="text">
-            <string>u</string>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">letters_buttonGroup</string>
-           </attribute>
-          </widget>
-         </item>
-         <item row="3" column="6">
-          <widget class="QPushButton" name="btn_y">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="text">
-            <string>y</string>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">letters_buttonGroup</string>
-           </attribute>
-          </widget>
-         </item>
-         <item row="3" column="5">
-          <widget class="QPushButton" name="btn_t">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="text">
-            <string>t</string>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">letters_buttonGroup</string>
-           </attribute>
           </widget>
          </item>
          <item row="3" column="4">
@@ -1038,415 +1858,8 @@
            </attribute>
           </widget>
          </item>
-         <item row="3" column="3">
-          <widget class="QPushButton" name="btn_e">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="text">
-            <string>e</string>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">letters_buttonGroup</string>
-           </attribute>
-          </widget>
-         </item>
-         <item row="3" column="2">
-          <widget class="QPushButton" name="btn_w">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="text">
-            <string>w</string>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">letters_buttonGroup</string>
-           </attribute>
-          </widget>
-         </item>
-         <item row="3" column="1">
-          <widget class="QPushButton" name="btn_q">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="text">
-            <string>q</string>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">letters_buttonGroup</string>
-           </attribute>
-          </widget>
-         </item>
-         <item row="4" column="10">
-          <widget class="QPushButton" name="btn_semicolon">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="text">
-            <string>;
-;</string>
-           </property>
-           <property name="upper" stdset="0">
-            <string>colon</string>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">special_buttonGroup</string>
-           </attribute>
-          </widget>
-         </item>
-         <item row="4" column="9">
-          <widget class="QPushButton" name="btn_l">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="text">
-            <string>l</string>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">letters_buttonGroup</string>
-           </attribute>
-          </widget>
-         </item>
-         <item row="4" column="8">
-          <widget class="QPushButton" name="btn_k">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="text">
-            <string>k</string>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">letters_buttonGroup</string>
-           </attribute>
-          </widget>
-         </item>
-         <item row="4" column="7">
-          <widget class="QPushButton" name="btn_j">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="text">
-            <string>j</string>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">letters_buttonGroup</string>
-           </attribute>
-          </widget>
-         </item>
-         <item row="4" column="6">
-          <widget class="QPushButton" name="btn_h">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="text">
-            <string>h</string>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">letters_buttonGroup</string>
-           </attribute>
-          </widget>
-         </item>
-         <item row="4" column="5">
-          <widget class="QPushButton" name="btn_g">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="text">
-            <string>g</string>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">letters_buttonGroup</string>
-           </attribute>
-          </widget>
-         </item>
-         <item row="4" column="4">
-          <widget class="QPushButton" name="btn_f">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="text">
-            <string>f</string>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">letters_buttonGroup</string>
-           </attribute>
-          </widget>
-         </item>
-         <item row="4" column="3">
-          <widget class="QPushButton" name="btn_d">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="text">
-            <string>d</string>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">letters_buttonGroup</string>
-           </attribute>
-          </widget>
-         </item>
-         <item row="4" column="2">
-          <widget class="QPushButton" name="btn_s">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="text">
-            <string>s</string>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">letters_buttonGroup</string>
-           </attribute>
-          </widget>
-         </item>
-         <item row="4" column="1">
-          <widget class="QPushButton" name="btn_a">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="text">
-            <string>a</string>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">letters_buttonGroup</string>
-           </attribute>
-          </widget>
-         </item>
-         <item row="6" column="1">
-          <widget class="QPushButton" name="btn_caplock">
+         <item row="6" column="12">
+          <widget class="QPushButton" name="btn_hide">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
@@ -1469,12 +1882,39 @@
             <enum>Qt::NoFocus</enum>
            </property>
            <property name="text">
-            <string>CAPS
-LOCK</string>
+            <string>HIDE</string>
            </property>
-           <property name="checkable">
-            <bool>true</bool>
+          </widget>
+         </item>
+         <item row="6" column="11">
+          <widget class="QPushButton" name="btn_delete">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
            </property>
+           <property name="minimumSize">
+            <size>
+             <width>50</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="focusPolicy">
+            <enum>Qt::NoFocus</enum>
+           </property>
+           <property name="text">
+            <string>DEL</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">control_buttonGroup</string>
+           </attribute>
           </widget>
          </item>
          <item row="6" column="9" colspan="2">
@@ -1502,418 +1942,6 @@ LOCK</string>
            </property>
            <property name="text">
             <string>ENTER</string>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">control_buttonGroup</string>
-           </attribute>
-          </widget>
-         </item>
-         <item row="6" column="6" colspan="3">
-          <widget class="QPushButton" name="btn_space">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>50</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="text">
-            <string>SPACE</string>
-           </property>
-           <property name="upper" stdset="0">
-            <string>space</string>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">special_buttonGroup</string>
-           </attribute>
-          </widget>
-         </item>
-         <item row="6" column="5">
-          <widget class="QPushButton" name="btn_alt">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>50</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="text">
-            <string>ALT</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="4">
-          <widget class="QPushButton" name="btn_ctrl">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>50</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="text">
-            <string>CTRL</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="6" column="3">
-          <widget class="QPushButton" name="btn_shift">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>50</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="text">
-            <string>SHIFT</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="11">
-          <widget class="QPushButton" name="btn_minus">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="text">
-            <string>_
--</string>
-           </property>
-           <property name="upper" stdset="0">
-            <string>underscore</string>
-           </property>
-           <property name="fcode" stdset="0">
-            <string>F11</string>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">special_buttonGroup</string>
-           </attribute>
-          </widget>
-         </item>
-         <item row="6" column="2">
-          <widget class="QPushButton" name="btn_function">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>50</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>16777215</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="text">
-            <string>FN</string>
-           </property>
-           <property name="checkable">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="12">
-          <widget class="QPushButton" name="btn_equal">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="text">
-            <string>+
-=</string>
-           </property>
-           <property name="upper" stdset="0">
-            <string>plus</string>
-           </property>
-           <property name="fcode" stdset="0">
-            <string>F12</string>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">special_buttonGroup</string>
-           </attribute>
-          </widget>
-         </item>
-         <item row="3" column="11">
-          <widget class="QPushButton" name="btn_left_bracket">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>50</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="text">
-            <string>{
-[</string>
-           </property>
-           <property name="upper" stdset="0">
-            <string>leftbrace</string>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">special_buttonGroup</string>
-           </attribute>
-          </widget>
-         </item>
-         <item row="3" column="12">
-          <widget class="QPushButton" name="btn_right_bracket">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>50</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="text">
-            <string>}
-]</string>
-           </property>
-           <property name="upper" stdset="0">
-            <string>rightbrace</string>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">special_buttonGroup</string>
-           </attribute>
-          </widget>
-         </item>
-         <item row="4" column="11">
-          <widget class="QPushButton" name="btn_apostrophe">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>50</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="text">
-            <string>&quot;
-'</string>
-           </property>
-           <property name="upper" stdset="0">
-            <string>doublequote</string>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">special_buttonGroup</string>
-           </attribute>
-          </widget>
-         </item>
-         <item row="4" column="12">
-          <widget class="QPushButton" name="btn_backslash">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>50</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="text">
-            <string>|
-\</string>
-           </property>
-           <property name="upper" stdset="0">
-            <string>pipe</string>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">special_buttonGroup</string>
-           </attribute>
-          </widget>
-         </item>
-         <item row="5" column="11" colspan="2">
-          <widget class="QPushButton" name="btn_back">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="text">
-            <string>BKSP</string>
-           </property>
-           <attribute name="buttonGroup">
-            <string notr="true">control_buttonGroup</string>
-           </attribute>
-          </widget>
-         </item>
-         <item row="6" column="11" colspan="2">
-          <widget class="QPushButton" name="btn_delete">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>50</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>16777215</width>
-             <height>50</height>
-            </size>
-           </property>
-           <property name="focusPolicy">
-            <enum>Qt::NoFocus</enum>
-           </property>
-           <property name="text">
-            <string>DEL</string>
            </property>
            <attribute name="buttonGroup">
             <string notr="true">control_buttonGroup</string>
@@ -1971,8 +1999,7 @@ LOCK</string>
   <slot>function_clicked()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="special_buttonGroup"/>
-  <buttongroup name="letters_buttonGroup">
+  <buttongroup name="numbers_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>
@@ -1982,7 +2009,8 @@ LOCK</string>
     <bool>false</bool>
    </property>
   </buttongroup>
-  <buttongroup name="numbers_buttonGroup">
+  <buttongroup name="special_buttonGroup"/>
+  <buttongroup name="letters_buttonGroup">
    <property name="exclusive">
     <bool>false</bool>
    </property>

@@ -8,9 +8,9 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-10-05 14:29+0200\n"
-"PO-Revision-Date: 2024-04-23 22:27+0000\n"
+"PO-Revision-Date: 2025-12-13 13:00+0000\n"
 "Last-Translator: Zdenek Z <zz912@seznam.cz>\n"
 "Language-Team: \n"
 "Language: cs\n"
@@ -18,7 +18,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=3; plural=((n==1) ? 0 : (n>=2 && n<=4) ? 1 : 2);\n"
-"X-Generator: Weblate 5.5-dev\n"
+"X-Generator: Weblate 5.15-dev\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:255
 msgid "user mode selected"
@@ -96,7 +96,7 @@ msgstr "návrat do hlavní záložky"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:807
 #, python-brace-format
 msgid "could not resolve the image path '{0}' given for button '{1}'"
-msgstr ""
+msgstr "není možné najít cestu '{0}' pro obrázek na tlačítku '{1}'"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:962
 #, fuzzy
@@ -542,6 +542,11 @@ msgid ""
 "\n"
 " not in the tool table!"
 msgstr ""
+"Nástroj\n"
+"\n"
+"# {0:d}\n"
+"\n"
+"není v tabulce nástrojů!"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4921
 msgid "Manual Tool change"
@@ -596,11 +601,11 @@ msgstr "váš výběr byl resetován na nástroj upnutý ve vřeteni"
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4975
 msgid ""
 "Tool touch off is not possible with cutter radius compensation switched on!\n"
-msgstr ""
+msgstr "Změření korekce nástroje není možné se zapnutými korekcemi!\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4976
 msgid "Please emit an G40 before tool touch off."
-msgstr ""
+msgstr "Před měřením korekce nástroje prosím aktivujte G-kód G40."
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:4985
 msgid "Real big error!"
@@ -668,7 +673,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:5552
 msgid "Axis jogging is only allowed in world mode, but you are in joint mode!"
-msgstr ""
+msgstr "Axis jog je povolen jen ve world módu, ale ty jsi v joint módu!"
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:47
 #: src/emc/usr_intf/gmoccapy/dialogs.py:50
@@ -691,15 +696,15 @@ msgstr "Zpráva pro operátora"
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:154
 msgid "_Yes"
-msgstr ""
+msgstr "_Ano"
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:155
 msgid "_No"
-msgstr ""
+msgstr "_Ne"
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:181
 msgid "_Ok"
-msgstr ""
+msgstr "_Ok"
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:218
 #: src/emc/usr_intf/gmoccapy/dialogs.py:220
@@ -708,7 +713,7 @@ msgstr "Restartovat vstup"
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:232
 msgid "_Up     "
-msgstr ""
+msgstr "_Nahoru"
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:234
 #, fuzzy
@@ -717,7 +722,7 @@ msgstr "Dolů"
 
 #: src/emc/usr_intf/gmoccapy/dialogs.py:236
 msgid "_Jump to"
-msgstr ""
+msgstr "_Skoč na"
 
 #: src/emc/usr_intf/gmoccapy/getiniinfo.py:108
 #, fuzzy, python-brace-format
@@ -776,7 +781,7 @@ msgstr "levé rotace, prostřední přiblížení, pravé pohyb"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:8
 msgid "default"
-msgstr ""
+msgstr "výchozí"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:9
 msgid "No Program loaded"
@@ -866,7 +871,7 @@ msgstr "<b>Jog - Manuální mód</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:30
 msgid "Shows the code to execute"
-msgstr ""
+msgstr "Ukázání kódu ke spuštění"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:31
 msgid "Undo"
@@ -944,11 +949,11 @@ msgstr "Průměr"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:49
 msgid "offset z"
-msgstr "Odsazení z"
+msgstr "Korekce Z"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:50
 msgid "offset x"
-msgstr "Odsazení x"
+msgstr "Korekce X"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:52
 msgid "<b>Tool information</b>"
@@ -1037,7 +1042,7 @@ msgstr "Výška"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:74
 msgid "hide title bar"
-msgstr ""
+msgstr "skrýt horní lištu"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:75
 msgid "hide cursor"
@@ -1169,7 +1174,7 @@ msgstr "X-pozice horní levý roh obrazovky"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:104
 msgid "Max. messages"
-msgstr ""
+msgstr "Max. počet zpráv"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:105
 msgid "Font"
@@ -1217,7 +1222,7 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:116
 msgid "<b>gmoccapy messages</b>"
-msgstr ""
+msgstr "<b>Zprávy</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:117
 #, fuzzy
@@ -1239,7 +1244,7 @@ msgstr "Zvuk varování"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:121
 msgid "Enable sound"
-msgstr ""
+msgstr "Povolit zvuky"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:122
 #, fuzzy
@@ -1457,7 +1462,7 @@ msgstr "Použití klávesových zkratek"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:177
 msgid "<b>Keyboard shortcuts</b>"
-msgstr "<b>Klávesové </b>"
+msgstr "<b>Klávesové zkratky</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:178
 msgid ""
@@ -1551,6 +1556,8 @@ msgid ""
 "Switch motion mode between Joint and World mode\n"
 "F12 or $ key does the same"
 msgstr ""
+"Přepnout mezi Joint a World módem\n"
+"klávesy F12 nebo $ dělají to samé"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:201
 msgid "make the preview as large as possible"

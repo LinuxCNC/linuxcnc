@@ -2,7 +2,7 @@
 :toc:
 
 [[cha:glade-vcp]]
-= GladeVCP: Glade Virtual Control Panel(((GladeVCP: Glade Virtual Control Panel)))
+= GladeVCP: Glade Virtual Control Panel
 
 // TODO:
 // - manual-example.ui layout - really bad
@@ -20,6 +20,7 @@
 
 == What is GladeVCP?
 
+(((GladeVCP: Glade Virtual Control Panel)))
 GladeVCP is a LinuxCNC component which adds the ability to add a new user interface panel to LinuxCNC user interfaces like:
 
 * AXIS
@@ -358,46 +359,65 @@ Note the following differences to the AXIS tab setup:
 - There is no 'POSTGUI_HALFILE=' INI option, but passing the HAL command file on the 'EMBED_TAB_COMMAND=' line is ok.
 - The 'halcmd loaduser -Wn ...' incantation is not needed.
 
+=== Loading Builtin Panels
+There are builtin panels available on the system, you load them in a slightly different way. +
+You do not add any filename extension to the panel name. +
+If the panel requires a user file (-u option) it will automatically be loaded. +
+Builtin panel names can be shown by running the gladevcp command alone in a terminal.
+
+Loading the builtin verser probe panel:
+
+----
+gladevcp gtk_verser_probe
+----
+
+Embedding is the same, no filename extension, but other options are fine:
+
+[source,{ini}]
+----
+[DISPLAY]
+# add GladeVCP panel as a tab next to Preview/DRO:
+EMBED_TAB_NAME=GladeVCP demo
+EMBED_TAB_COMMAND=halcmd loadusr -Wn gladevcp gladevcp -c gladevcp -x {XID} gtk_verser_probe
+----
+
 == GladeVCP command line options
 
-See also `man gladevcp`. These are the GladeVCP command line options:
+These are the GladeVCP command line options: +
+(See also `man gladevcp`.) +
+If you enter gladevcp in a terminal this is what you will see: +
 
 ----
 Usage: gladevcp [options] myfile.ui
+usage: gladevcp [options] built_in_panel_name
 
 Options:
+  -h, --help      show this help message and exit
+  -c NAME         Set component name to NAME. Default is basename of UI file
+  -d              Enable debug output
+  -g GEOMETRY     Set geometry WIDTHxHEIGHT+XOFFSET+YOFFSET. Values are in
+                  pixel units, XOFFSET/YOFFSET is referenced from top left of
+                  screen use -g WIDTHxHEIGHT for just setting size or -g
+                  +XOFFSET+YOFFSET for just position
+  -H FILE         execute hal statements from FILE with halcmd after the
+                  component is set up and ready
+  -i              Enable info output
+  -m MAXIMUM      Force panel window to maxumize
+  -q              Enable only error debug output
+  -r GTK_RC       read custom GTK rc file to set widget style
+  -t THEME        Set gtk theme. Default is system theme
+  -x XID          Reparent gladevcp into an existing window XID instead of
+                  creating a new top level window
+  --xid           reparent window into a plug add push the plug xid number to
+                  standardout
+  -u FILE         Use FILEs as additional user defined modules with handlers
+  -U USEROPT      pass USEROPTs to Python modules
+  -v              Enable verbose debug output
+  --always_above  Request the window To always be above other windows
+  --ini=INI_PATH  ini path
 
--h, --help::
-    Show this help message and exit.
-
--c NAME::
-    Set component name to NAME. Default is base name of UI file.
-
--d::
-    Enable debug output
-
--g GEOMETRY::
-    Set geometry WIDTHxHEIGHT+XOFFSET+YOFFSET. Values are in pixel units, XOFFSET/YOFFSET is referenced from top left of screen.
-    Use -g WIDTHxHEIGHT for just setting size or -g +XOFFSET+YOFFSET for just position
-
--H FILE::
-    Execute HAL statements from FILE with halcmd after the component is set up and ready
-
--m MAXIMUM::
-    Force panel window to maximize.
-    Together with the -g geometry option one can move the panel to a second monitor and force it to use all of the screen
-
--t THEME::
-    Set gtk theme. Default is system theme. Different panels can have different themes.
-
--x XID::
-    Re-parent GladeVCP into an existing window XID instead of creating a new top level window
-
--u FILE::
-    Use File's as additional user defined modules with handlers
-
--U USEROPT::
-    pass USEROPTs to Python modules
+[GladeVCP-][CRITICAL]  Available built-in VCP Panels: (gladevcp:205)
+['gtk_verser_probe', 'gtk_little_probe']
 ----
 
 == Understanding the GladeVCP startup process

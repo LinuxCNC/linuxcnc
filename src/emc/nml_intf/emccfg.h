@@ -39,17 +39,48 @@ extern const char * DEFAULT_EMC_NMLFILE;
 /* default traverse rate, in user units per second */
 #define DEFAULT_TRAJ_MAX_VELOCITY 10.0
 
+/* default trajectory jerk for feed moves, in user units per second^3
+ * Set to 0.0 to disable S-curve acceleration (use trapezoidal profile)
+ * When enabled (>0), produces smoother motion with reduced vibration
+ */
+#define DEFAULT_TRAJ_DEFAULT_JERK 0.0
+
+/* default maximum trajectory jerk, in user units per second^3
+ * Set to 0.0 to disable S-curve acceleration (use trapezoidal profile)
+ */
+#define DEFAULT_TRAJ_MAX_JERK 0.0
+
+/* default trajectory planner type
+ * 0 = Trapezoidal acceleration profile (traditional)
+ * 1 = S-curve acceleration profile (smoother, requires MAX_JERK > 0)
+ */
+#define DEFAULT_TRAJ_PLANNER_TYPE 0
+
 /* default joint velocity, in user units per second */
 #define DEFAULT_JOINT_MAX_VELOCITY 1.0
 
 /* default joint acceleration, in user units per second per second */
 #define DEFAULT_JOINT_MAX_ACCELERATION 1.0
 
+/* default joint jerk, in user units per second per second per second
+ * Set to 0.0 to disable S-curve acceleration (use trapezoidal profile)
+ * When enabled (>0), produces smoother motion with reduced vibration
+ * Typical values: 100-10000 depending on machine rigidity and axis inertia
+ */
+#define DEFAULT_JOINT_MAX_JERK 0.0
+
 /* default axis velocity, in user units per second */
 #define DEFAULT_AXIS_MAX_VELOCITY 1.0
 
 /* default axis acceleration, in user units per second per second */
 #define DEFAULT_AXIS_MAX_ACCELERATION 1.0
+
+/* default axis jerk, in user units per second per second per second
+ * Set to 0.0 to disable S-curve acceleration (use trapezoidal profile)
+ * When enabled (>0), produces smoother motion with reduced vibration
+ * Typical values: 100-10000 depending on machine rigidity and axis inertia
+ */
+#define DEFAULT_AXIS_MAX_JERK 0.0
 
 #ifdef __cplusplus
 }				/* matches extern "C" at top */

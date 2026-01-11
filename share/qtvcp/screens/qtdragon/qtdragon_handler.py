@@ -904,14 +904,15 @@ class HandlerClass:
             pass
         # if you select the tab showing, force the DRO to show
         elif index == self.w.stackedWidget_mainTab.currentIndex():
-            self.w.stackedWidget_dro.setCurrentIndex(0)
-
             if index == TAB_MAIN and STATUS.is_auto_mode():
                 self._maintab_cycle +=1
         if index is None: return
 
         # adjust the stack widgets depending on modes
         self.adjust_stacked_widgets(index)
+
+    def hideVirtualKeyboard(self):
+        self.w.stackedWidget_dro.setCurrentIndex(0)
 
     # gcode frame
     def cmb_gcode_history_clicked(self):
@@ -1551,6 +1552,12 @@ class HandlerClass:
                 rate = rate * 2
             ACTION.JOG(joint, direction, rate, distance)
         else:
+            # incremental jogging?
+            if joint in (3,4,5,'A','B','C'): # angualar axis
+                if STATUS.get_jog_increment_angular() != 0: return
+            elif STATUS.get_jog_increment() != 0: return
+
+            # otherwise stop jogging when key released
             ACTION.JOG(joint, 0, 0, 0)
 
     def add_status(self, message, alertLevel = DEFAULT, noLog = False):
@@ -1923,6 +1930,12 @@ class HandlerClass:
                 self.w.splitter_h.restoreState(QtCore.QByteArray(splitterSetting))
             except Exception as e:
                 print(e)
+
+        # if you click the current tab again, hide/show the lower page to
+        # expand the upper page.
+        if currentIndex == requestedIndex and not mode_change:
+            self.w.lower_widget.setVisible(not self.w.lower_widget.isVisible())
+
 
     # set axis 4/5 dro widgets to the proper axis
     # TODO do this with all the axes for more flexibility

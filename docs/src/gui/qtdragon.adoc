@@ -3,7 +3,7 @@
 :toclevels: 3
 
 [[cha:qtdragon-gui]]
-= QtDragon GUI(((QtDragon)))
+= QtDragon GUI
 
 :ini: {basebackend@docbook:'':ini}
 :hal: {basebackend@docbook:'':hal}
@@ -11,6 +11,7 @@
 
 == Introduction
 
+(((QtDragon)))
 QtDragon and QtDragon_hd are built with the QtVCP framework.
 It is the creative vision of forum personality Persei8.
 Much of it is based on the excellent work of others in the LinuxCNC community.
@@ -443,14 +444,14 @@ POSTGUI_HALCMD = loadusr halmeter
 ----
 === HAL Bridge
 Hal Bridge is similar to HALUI - it has HAL pins that communicate with QtDragon. +
-These pins could be used with HALUI to built a more frendly control panel. +
+These pins could be used with HALUI to built a more friendly control panel. +
 
 - It can report/change the current selected Axis button. +
 - The jog rate/increments will be reported. +
 - There is a cycle start and pause pin - these call the code in QtDragon rather then the motion controller. +
-- If there are macros defined in the INI, there will be pins available the initiate them. +
+- If there are macros defined in the INI, there will be pins available to initiate them. +
 
-.Sample entry. remove '-d' to quiet debugging messages
+.Sample entry. Remove '-d' to quiet debugging messages.
 [source,{ini}]
 ----
 [HAL]
@@ -511,8 +512,8 @@ To enable the keyboard, check the Use Virtual Keyboard checkbox in the Settings 
 Clicking on any input field, such as probe parameters or tool table entries, will show the keyboard.
 To hide the keyboard, do one of the following:
 
+- press the 'HIDE' button on the virtual keyboard.
 - click the MAIN page button
-- The currently selected page button.
 - go into AUTO mode
 
 It should be noted that keyboard jogging is disabled when using the virtual keyboard.
@@ -1349,9 +1350,10 @@ which then sets the X and Y offsets to the values indicated by the LASER OFFSET 
 == Tabs Description
 
 Tabs allow the user to select the most appropriate info/control on the top three panels.
-If the on screen keyboard is showing and the user wishes to hide it but keep the current tab, they can do that by pressing the current show tab.
+If the on screen keyboard is showing and the user wishes to hide it but keep the current tab, they can do that by pressing the 'HIDE' button on the virtual keyboard.
 In QtDragon, there is a splitter handle between the G-code text display and the G-code graphical display.
 One can use this to split the size between the two areas. This can be set differently in each tab and in each mode.
+The positions will be remembered.
 
 === Main tab
 
@@ -1425,8 +1427,8 @@ Scales are in percent, usually the range will be 100 - 200 in one axis. +
 Negating these scales can be used to flip the image in X, Y or both axes. +
 API comes from openCV, the available backends will be listed if -V debugging is used.
 Set to 'ANY' for opencv to choose. +
-Set resolution to DEFAULT for opencv to choose. the available resolutions 
-will be listed if -V debugging is used. +
+Set resolution to DEFAULT for opencv to choose.
+Available resolutions will be listed if -V debugging is used.
 
 [NOTE]
 The preference file can only be edited when QtDragon is not running.
@@ -1680,7 +1682,6 @@ Change the G-code text display colors/fonts:
 
 [source,{ini}]
 ----
-}
 EditorBase{
 background:black;
 qproperty-styleColorCursor:white;

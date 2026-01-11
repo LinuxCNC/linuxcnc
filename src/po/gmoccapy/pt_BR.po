@@ -6,17 +6,17 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"Report-Msgid-Bugs-To: \n"
+"Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-10-05 14:29+0200\n"
-"PO-Revision-Date: 2024-10-27 01:33+0000\n"
-"Last-Translator: Th3 Void <chmodxxzrxx@gmail.com>\n"
+"PO-Revision-Date: 2025-07-03 11:03+0000\n"
+"Last-Translator: Antonio marcos ribas <eletromania509@gmail.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: pt_BR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=n > 1;\n"
-"X-Generator: Weblate 5.8.2-dev\n"
+"X-Generator: Weblate 5.13-dev\n"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.py:255
 msgid "user mode selected"
@@ -1219,11 +1219,11 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:116
 msgid "<b>gmoccapy messages</b>"
-msgstr ""
+msgstr "mensagens gmoccapy"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:117
 msgid "Theme"
-msgstr ""
+msgstr "Tema"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:118
 msgid "Icon Theme"
@@ -1231,39 +1231,39 @@ msgstr ""
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:119
 msgid "Alert Audio"
-msgstr ""
+msgstr "Áudio de alerta"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:120
 msgid "Warning Audio"
-msgstr ""
+msgstr "Áudio de aviso"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:121
 msgid "Enable sound"
-msgstr ""
+msgstr "Ativar som"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:122
 msgid "G-code Theme"
-msgstr ""
+msgstr "Tema G-code"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:123
 msgid "<b>Themes and sound</b>"
-msgstr ""
+msgstr "<b>Temas e som</b>"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:124
 msgid "Appearance"
-msgstr ""
+msgstr "Aparência"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:125
 msgid "Scale jog velocity"
-msgstr ""
+msgstr "Escala velocidade de jog "
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:126
 msgid "Scale rapid override"
-msgstr ""
+msgstr "Substituição rápida de escala"
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:127
 msgid "Scale feed override"
-msgstr ""
+msgstr "Escala substituição de alimentação "
 
 #: src/emc/usr_intf/gmoccapy/gmoccapy.glade.h:128
 msgid "Scale spindle override"

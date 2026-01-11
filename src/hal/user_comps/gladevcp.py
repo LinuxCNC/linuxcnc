@@ -46,6 +46,13 @@ from gi.repository import Gdk
 from gi.repository import GLib
 
 import signal
+
+from gladevcp.core import Info, Status
+import gladevcp.makepins
+from gladevcp.gladebuilder import GladeBuilder
+from gladevcp import xembed
+from gladevcp.gladevcppath import search, find_panel_dirs
+
 # Set up the base logger
 #   We have do do this before importing other modules because on import
 #   they set up their own loggers as children of the base logger.
@@ -177,19 +184,27 @@ def main():
     global gladevcp_debug
     (progdir, progname) = os.path.split(sys.argv[0])
 
-    usage = "usage: %prog [options] myfile.ui"
+    usage = "usage: %prog [options] myfile.ui\nOr\nusage: %prog [options] built_in_panel_name"
     parser = OptionParser(usage=usage)
     parser.disable_interspersed_args()
     parser.add_options(options)
 
     (opts, args) = parser.parse_args()
-    if not args:
-        parser.print_help()
-        sys.exit(1)
 
-    temp = os.path.splitext(os.path.basename(args[0]))[0]
+    if args:
+        temp = os.path.splitext(os.path.basename(args[0]))[0]
+    else:
+        temp = ''
+
     global LOG
     LOG = logger.initBaseLogger('GladeVCP-'+ temp, log_file=None, log_level=logger.INFO)
+
+    if not args:
+        parser.print_help()
+        print("")
+        LOG.critical('Available built-in VCP Panels:')
+        print(find_panel_dirs())
+        sys.exit(1)
 
     gladevcp_debug = debug = opts.debug
     if opts.debug:
@@ -206,12 +221,6 @@ def main():
         LOG.info('VERBOSE logging on')
     else:
         logger.setGlobalLevel(logger.WARNING)
-
-    from gladevcp.core import Info, Status
-    import gladevcp.makepins
-    from gladevcp.gladebuilder import GladeBuilder
-    from gladevcp import xembed
-    from gladevcp.gladevcppath import search
 
     if opts.ini_path:
         # set INI path for INI info class before widgets are loaded

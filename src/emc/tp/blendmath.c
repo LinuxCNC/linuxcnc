@@ -19,6 +19,14 @@
 #include "spherical_arc.h"
 #include "blendmath.h"
 #include "tp_debug.h"
+#include "motion.h"
+#include "sp_scurve.h"
+
+extern emcmot_status_t *emcmotStatus;
+
+#ifndef GET_TRAJ_PLANNER_TYPE
+#define GET_TRAJ_PLANNER_TYPE() (emcmotStatus->planner_type)
+#endif
 
 /** @section utilityfuncs Utility functions */
 
@@ -1147,8 +1155,13 @@ int blendComputeParameters(BlendParameters * const param)
     double R_geom = tan(param->theta) * d_geom;
 
     // Find maximum velocity allowed by accel and radius
-    double v_normal = pmSqrt(param->a_n_max * R_geom);
-    tp_debug_print("v_normal = %f\n", v_normal);
+    double v_normal;
+    
+    if(GET_TRAJ_PLANNER_TYPE() == 1){
+        v_normal = findSCurveVPeak(param->a_n_max, emcmotStatus->jerk, R_geom);
+    }else{
+    v_normal = pmSqrt(param->a_n_max * R_geom);
+    }
 
     param->v_plan = fmin(v_normal, param->v_goal);
 

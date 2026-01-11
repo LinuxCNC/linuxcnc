@@ -2,11 +2,14 @@
 :toc:
 
 [[cha:hal-general-reference]]
-= HAL General Reference(((HAL General Reference)))
+= HAL General Reference
+
+(((HAL General Reference)))
 
 [[sec:hal-gr:names]]
-== HAL Entity Names(((HAL Entity Names)))
+== HAL Entity Names
 
+(((HAL Entity Names)))
 All HAL entities are accessible and manipulable by their names, so documenting the names of pins, signals, parameters, etc., is very important.
 Names in HAL have a maximum length of 41 characters (as defined by HAL_NAME_LEN in hal.h).
 Many names will be presented in the general form, with formatted text _<like-this>_ representing fields of various values.
@@ -21,8 +24,9 @@ Typical pins definitions look like these examples:
 Occasionally, an abbreviated version of the name may be used, for example the second pin above could be simply called with _.output_ when it can be done without causing confusion.
 
 [[sec:hal-gr:naming-conventions]]
-== HAL General Naming Conventions(((HAL General Naming Conventions)))
+== HAL General Naming Conventions
 
+(((HAL General Naming Conventions)))
 Consistent naming conventions would make HAL much easier to use.
 For example, if every encoder driver provided the same set of pins and named them the same way, then it would be easy to change from one type of encoder driver to another.
 Unfortunately, like many open-source projects, HAL is a combination of things that were designed, and things that simply evolved.
@@ -44,7 +48,9 @@ To do that, all HAL components should follow these rules:
 - Use only lowercase letters and numbers in names.
 
 [[sec:hal-gr:hardware-drivers-naming]]
-== Hardware Driver Naming Conventions(((HAL Hardware Driver Naming Conventions)))
+== Hardware Driver Naming Conventions
+
+(((HAL Hardware Driver Naming Conventions)))
 
 [NOTE]
 ====
@@ -53,8 +59,9 @@ This chapter is really a guide for future developments.
 ====
 
 [[sub:hal-gr:hw-drv:pin-parameter-names]]
-=== Pins/Parameters names(((HAL Hardware Driver Pins/Parameters Names)))
+=== Pins/Parameters names
 
+(((HAL Hardware Driver Pins/Parameters Names)))
 Hardware drivers should use five fields (on three levels) to make up a pin or parameter name, as follows:
 
 ----
@@ -118,8 +125,9 @@ stg.0.din.03.in:: The state of the fourth digital input on the first Servo-to-Go
 ppmc.0.pwm.00-03.frequency:: The carrier frequency used for PWM channels 0 through 3 on the first Pico Systems ppmc board.
 
 [[sub:hal-gr:hw-drv:functions-names]]
-=== Function Names(((HAL Hardware Driver Function Names)))
+=== Function Names
 
+(((HAL Hardware Driver Function Names)))
 Hardware drivers usually only have two kinds of HAL functions, ones that read the hardware and update HAL pins, and ones that write to the hardware using data from HAL pins.
 They should be named as follows:
 

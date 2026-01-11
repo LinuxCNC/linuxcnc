@@ -1818,7 +1818,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	emcTrajLinearMoveMsg = (EMC_TRAJ_LINEAR_MOVE *) cmd;
         retval = emcTrajLinearMove(emcTrajLinearMoveMsg->end,
                                    emcTrajLinearMoveMsg->type, emcTrajLinearMoveMsg->vel,
-                                   emcTrajLinearMoveMsg->ini_maxvel, emcTrajLinearMoveMsg->acc,
+                                   emcTrajLinearMoveMsg->ini_maxvel, emcTrajLinearMoveMsg->acc, emcTrajLinearMoveMsg->ini_maxjerk,
                                    emcTrajLinearMoveMsg->indexer_jnum);
 	break;
 
@@ -1830,7 +1830,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
                 emcTrajCircularMoveMsg->turn, emcTrajCircularMoveMsg->type,
                 emcTrajCircularMoveMsg->vel,
                 emcTrajCircularMoveMsg->ini_maxvel,
-                emcTrajCircularMoveMsg->acc);
+                emcTrajCircularMoveMsg->acc, emcTrajCircularMoveMsg->ini_maxjerk);
 	break;
 
     case EMC_TRAJ_PAUSE_TYPE:
@@ -1897,6 +1897,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	    ((EMC_TRAJ_PROBE *) cmd)->vel,
             ((EMC_TRAJ_PROBE *) cmd)->ini_maxvel,  
 	    ((EMC_TRAJ_PROBE *) cmd)->acc,
+		((EMC_TRAJ_PROBE *) cmd)->ini_maxjerk,
             ((EMC_TRAJ_PROBE *) cmd)->probe_type);
 	break;
 
@@ -1926,6 +1927,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	        ((EMC_TRAJ_RIGID_TAP *) cmd)->vel,
         	((EMC_TRAJ_RIGID_TAP *) cmd)->ini_maxvel,  
 		((EMC_TRAJ_RIGID_TAP *) cmd)->acc,
+		((EMC_TRAJ_RIGID_TAP *) cmd)->ini_maxjerk,
 		((EMC_TRAJ_RIGID_TAP *) cmd)->scale);
 	break;
 

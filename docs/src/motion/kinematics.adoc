@@ -2,7 +2,9 @@
 :toc:
 
 [[cha:kinematics]]
-= Kinematics(((kinematics)))
+= Kinematics
+
+(((kinematics)))
 
 == Introduction
 

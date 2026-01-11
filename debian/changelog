@@ -1,7 +1,38 @@
-linuxcnc (1:2.10.0~pre0) UNRELEASED; urgency=medium
+linuxcnc (1:2.10.0~pre1) UNRELEASED; urgency=medium
 
   [ Andy Pugh ]
   * Master branch open for new features.
+
+  [ andypugh ]
+  * Add a finite-jerk trajectory planner
+
+ -- andypugh <andy@bodgesoc.org>  Wed, 07 Jan 2026 22:15:18 +0000
+
+linuxcnc (1:2.9.8) UNRELEASED; urgency=medium
+
+  * backport #3516 to fix #3679
+  * Only initialize python if not yet initialized.
+  * hal_gpio: Adapt to use libgpiod3 or libgpiod2 according to what is installed
+  * Merge pull request #3671 from smoe/docs_image_handling
+  * core-components.adoc remove duplicate descriptions
+  * Merge pull request #3642 from LinuxCNC/2.9_#2460
+  * Update LinuxCNC RTAI Install instructions
+  * Merge pull request #3555 from smoe/lintian_warnings
+  * Merge pull request #3588 from f355/2.9
+  * [ci] publish releases with artifacts
+  * debian: Addressed lintian warnings
+  * axis.py: restore mdi queuing provision       #2460 
+
+ -- andypugh <andy@bodgesoc.org>  Wed, 31 Dec 2025 19:39:48 +0000
+
+linuxcnc (1:2.9.7) bookworm; urgency=low
+
+  * [ci] publish releases with artifacts - GitHub now builds release debs
+  * Revert 7d9ee66  to address #3583 - halui functions stop working in 2.9.5/6
+  * Merge pull request #3512 from Sigma1912/patch-1
+  * Gmoccapy: Fix arrow key up/down bug in tooleditor
+
+ -- andypugh <andy@bodgesoc.org>  Wed, 22 Oct 2025 23:43:13 +0100
 
 linuxcnc (1:2.9.6) UNRELEASED; urgency=medium
 

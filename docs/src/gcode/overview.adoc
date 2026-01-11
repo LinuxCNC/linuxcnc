@@ -81,8 +81,9 @@ outside a comment may be in upper or lower case without changing the
 meaning of a line.
 
 [[sub:block-delete]]
-=== '/': Block Delete((('/' Block Delete)))
+=== '/': Block Delete
 
+((('/' Block Delete)))
 The optional block delete character the slash '/' when placed first on a line
 can be used by some user interfaces to skip lines of code when needed. In Axis
 the key combination Alt-m-/ toggles block delete on and off. When block delete
@@ -93,8 +94,9 @@ In AXIS, it is also possible to enable block delete with the following icon:
 .AXIS Block Delete Icon
 image:../gui/images/tool_blockdelete.png[]
 
-=== Optional Line Number(((Optional Line Number)))
+=== Optional Line Number
 
+(((Optional Line Number)))
 A line number is the letter N followed by an unsigned integer,
 optionally followed by a period and another unsigned integer. For
 example, 'N1234' and 'N56.78' are valid line numbers. They may be
@@ -107,8 +109,9 @@ NOTE: Line numbers are not recommended. See <<gcode:best-practices,Best Practice
 
 === Words, Parameters, Subroutines, Comments
 
-==== Words(((Words)))
+==== Words
 
+(((Words)))
 A word is a letter other than N or O ("o") followed by a real value.
 
 Words may begin with any of the letters shown in the following Table.
@@ -147,27 +150,32 @@ The table includes N and O for completeness, even though, as defined above, line
 |Z | Z axis of machine
 |===
 
-==== Parameters(((Parameters)))
+==== Parameters
 
+(((Parameters)))
 Parameters are identified with a "#" symbol in front of them. See <<sec:overview-parameters,Parameters Section>> below.
 
-==== Subroutine Codes(((Subroutine Codes)))
+==== Subroutine Codes
 
+(((Subroutine Codes)))
 Also called 'o-codes' these provide program flow control (such as if-else logic and callable subroutines) and are covered fully at the page on <<cha:o-codes,o-Codes>> and also below in <<sub:subroutine-parameters,Subroutine Codes and Parameters>>.
 
 NOTE: o-codes are sometimes also called o-words.
 
-==== Comments(((Comments)))
+==== Comments
 
+(((Comments)))
 Comments can be embedded in a line using parentheses () or for the remainder of a line using a semi-colon. There are also 'active' comments like MSG, DEBUG, etc. See the <<gcode:comments,section on comments>>.
 
-=== End of Line Marker(((End of Line Marker)))
+=== End of Line Marker
 
+(((End of Line Marker)))
 This is any combination of carriage return or line feed.
 
 [[gcode:numbers]]
-== Numbers(((Numbers)))
+== Numbers
 
+(((Numbers)))
 The following rules are used for (explicit) numbers. In these rules a
 digit is a single character between 0 and 9.
 
@@ -198,8 +206,9 @@ which is intended to represent an integer is considered close enough if
 it is within 0.0001 of an integer value.
 
 [[sec:overview-parameters]]
-== Parameters(((Parameters)))
+== Parameters
 
+(((Parameters)))
 The RS274/NGC language supports 'parameters' - what in other
 programming languages would be called 'variables'. There are several
 types of parameter of different purpose and appearance, each described
@@ -259,8 +268,9 @@ Intended Use::
 * <<sub:system-parameters,system parameters>> - used to determine the current running version. They are read-only.
 
 [[sub:numbered-parameters]]
-=== Numbered Parameters(((Numbered Parameters)))
+=== Numbered Parameters
 
+(((Numbered Parameters)))
 A numbered parameter is the pound character '#' followed by an
 integer between 1 and (currently) 5602 footnote:[The RS274/NGC interpreter
 maintains an array of numbered parameters. Its size is defined by the
@@ -382,8 +392,9 @@ is written.
 |===
 
 [[sub:subroutine-parameters]]
-=== Subroutine Codes and Parameters(((Subroutine Codes and Parameters)))
+=== Subroutine Codes and Parameters
 
+(((Subroutine Codes and Parameters)))
 Subroutine codes, or o-codes (sometimes also called o-words), provide for  logic and flow control in NGC programs (as in if-else logic). They are called Subroutine codes because they can also form called subroutines (as in sub-endsub).
 
 See the chapter on <<cha:o-codes,o-Codes>>.
@@ -393,8 +404,9 @@ NOTE: If o-codes are used to form subroutines, then o-codes can also call those 
 NOTE: While both lower and upper case o- are valid, best practice is using lower case "o-" because it disambiguates 0 (zero) and O (capital o).
 
 [[gcode:named-parameters]]
-=== Named Parameters(((Named Parameters)))
+=== Named Parameters
 
+(((Named Parameters)))
 Named parameters work like numbered parameters but are easier to read.
 All parameter names are converted to lower case and have spaces and
 tabs removed, so '#<param>' and '#<P a R am >' refer to the same
@@ -445,8 +457,9 @@ ends, and have these  values when the program is run again.
 The <<gcode:functions,'EXISTS' function>> tests whether a given named parameter exists.
 
 [[gcode:predefined-named-parameters]]
-=== Predefined Named Parameters(((Predefined Named Parameters)))
+=== Predefined Named Parameters
 
+(((Predefined Named Parameters)))
 The following global read only named parameters are available to
 access internal state of the interpreter and machine state. They can
 be used in arbitrary expressions, for instance to control flow of the
@@ -541,8 +554,9 @@ can be added easily without changes to the source code.
 * '#<_retract_old_z>' - Return 1 if G99 is on, else 0.
 
 [[sub:system-parameters]]
-=== System Parameters(((System Parameters)))
+=== System Parameters
 
+(((System Parameters)))
 * '#<_spindle_rpm_mode>' - Return 1 if spindle rpm mode (G97) is on, else 0.
 * '#<_spindle_css_mode>' - Return 1 if constant surface speed mode (G96) is on, else 0.
 * '#<_ijk_absolute_mode>' - Return 1 if Absolute Arc distance mode (G90.1) is on, else 0.
@@ -594,8 +608,9 @@ can be added easily without changes to the source code.
   to the remap level. For debugging.
 
 [[gcode:ini-hal-params]]
-== HAL pins and INI values(((HAL pins and INI values)))
+== HAL pins and INI values
 
+(((HAL pins and INI values)))
 If enabled in the <<sub:ini:sec:rs274ngc, INI file>> G-code has access
 to the values of INI file entries and HAL pins.
 
@@ -670,8 +685,9 @@ non-mnemonic namespace and is unnecessarily cumbersome just as a
 UI/Interpreter communications mechanism.
 
 [[gcode:expressions]]
-== Expressions(((Expressions)))
+== Expressions
 
+(((Expressions)))
 An expression is a set of characters starting with a left bracket '['
 and ending with a balancing right bracket ']' . In between the brackets
 are numbers, parameter values, mathematical
@@ -681,8 +697,9 @@ is read, before anything on the line is executed. An example of an
 expression is '[1 + acos[0] - [#3 ** [4.0/2]]]'.
 
 [[gcode:binary-operators]]
-== Binary Operators(((Binary Operators)))
+== Binary Operators
 
+(((Binary Operators)))
 Binary operators only appear inside expressions. There are four basic
 mathematical operations: addition ('+'), subtraction ('-'),
 multiplication ('\*'), and division ('/'). There are three logical
@@ -729,8 +746,9 @@ their absolute difference is less than 1e-6 (this value is defined as
 'TOLERANCE_EQUAL' in src/emc/rs274ngc/interp_internal.hh).
 
 [[gcode:functions]]
-== Functions(((Functions)))(((Unary operations)))
+== Functions
 
+(((Functions)))(((Unary operations)))
 The available functions are shown in following table. Arguments to unary
 operations which take angle measures ('COS', 'SIN', and 'TAN' ) are in
 degrees. Values returned by unary operations which return angle measures
@@ -850,8 +868,9 @@ axis words or canceling motion.
 For example, G4 (dwell) is non-modal.
 
 [[gcode:polar-coordinates]]
-== Polar Coordinates(((Polar Coordinates)))
+== Polar Coordinates
 
+(((Polar Coordinates)))
 Polar Coordinates can be used to specify the XY coordinate of a move.
 The @n is the distance and ^n is the angle. The advantage of this is
 for things like bolt hole circles which can be done very simply by
@@ -915,15 +934,17 @@ It is an error if:
 * A mix of Polar and X or Y words are used
 
 [[gcode:modal-groups]]
-== Modal Groups(((Modal Groups)))
+== Modal Groups
 
-Modal commands are arranged in sets called 'modal groups', and only
-one member of a modal group may be in force at any given time. In
-general, a modal group contains commands for which it is logically
+(((Modal Groups)))
+Commands are arranged in sets called 'modal groups', and only
+one member of a modal group may be in force at any given time.
+In general, a modal group contains commands for which it is logically
 impossible for two members to be in effect at the same time - like
-measure in inches vs. measure in millimeters. A machining center may be
-in many modes at the same time, with one mode from each modal group
-being in effect. The modal groups are shown in the following Table.
+measure in inches versus measure in millimeters.
+A machining center may be in many modes at the same time,
+with one mode from each modal group being in effect.
+The modal groups are shown in the following Table.
 
 [[cap:modal-groups]]
 .G-code Modal Groups(((Modal Groups: G-codes)))
@@ -984,8 +1005,9 @@ It is an error to include any unrelated words on a line with 'O-' flow
 control.
 
 [[gcode:comments]]
-== Comments(((Comments)))
+== Comments
 
+(((Comments)))
 Comments are purely informative and have no influence on machine behaviour.
 
 Comments can be added to lines of G-code to help clear up the
@@ -1022,8 +1044,9 @@ NOTE: Inline comments on O-codes should not be used see the O-code
 <<ocode:comments,comments>> section for more information.
 
 [[gcode:messages]]
-== Messages(((Messages)))
+== Messages
 
+(((Messages)))
 * '(MSG,)' - displays message if 'MSG' appears after the left parenthesis
   and before any other printing characters. Variants of 'MSG' which include
   white space and lower case characters are allowed. The rest of the
@@ -1037,8 +1060,9 @@ NOTE: Inline comments on O-codes should not be used see the O-code
 ----
 
 [[gcode:probe-logging]]
-== Probe Logging(((Probe Logging)))
+== Probe Logging
 
+(((Probe Logging)))
 * '(PROBEOPEN filename.txt)' - will open filename.txt and store the 9-number
   coordinate consisting of XYZABCUVW of each successful straight probe in it.
 * '(PROBECLOSE)' - will close the open probelog file.
@@ -1046,8 +1070,9 @@ NOTE: Inline comments on O-codes should not be used see the O-code
 For more information on probing see the <<gcode:g38,G38>> section.
 
 [[gcode:logging]]
-== Logging(((Logging)))
+== Logging
 
+(((Logging)))
 * '(LOGOPEN,filename.txt)' - opens the named log file. If the file already
   exists, it is truncated.
 * '(LOGAPPEND,filename)' - opens the named log file. If the file already
@@ -1059,26 +1084,30 @@ For more information on probing see the <<gcode:g38,G38>> section.
 Examples of logging are in 'nc_files/examples/smartprobe.ngc' and in
 'nc_files/ngcgui_lib/rectange_probe.ngc' sample G-code files.
 
-== Abort Messages(((Abort Messages)))
+== Abort Messages
 
+(((Abort Messages)))
 * '(ABORT,)' - displays a message like '(MSG,)' with the addition of special
   handling for comment parameters as described below and of aborting the current running process.
 
 [[gcode:debug]]
-== Debug Messages(((Debug Messages)))
+== Debug Messages
 
+(((Debug Messages)))
 * '(DEBUG,)' - displays a message like '(MSG,)' with the addition of special
   handling for comment parameters as described below.
 
 [[gcode:print]]
-== Print Messages(((Print Messages)))
+== Print Messages
 
+(((Print Messages)))
 * '(PRINT,)' - messages are output to 'stderr' with special handling for
   comment parameters as described below.
 
 [[gcode:comment-parameters]]
-== Comment Parameters(((Comment Parameters)))
+== Comment Parameters
 
+(((Comment Parameters)))
 In the DEBUG, PRINT and LOG comments, the values of parameters in the
 message are expanded.
 
@@ -1118,8 +1147,9 @@ If the formatting string is created with the wrong pattern it will be
 printed as characters.
 
 [[gcode:file-requirements]]
-== File Requirements(((File Requirements)))
+== File Requirements
 
+(((File Requirements)))
 A G-code file must contain one or more lines of G-code and be terminated
 with a <<mcode:m2-m30,Program End>>. Any G-code past the program end
 is not evaluated.
@@ -1141,8 +1171,9 @@ The file must be created with a text editor like Gedit and not a word
 processor like Open Office Word Processor.
 
 [[gcode:file-size]]
-== File Size(((File Size)))
+== File Size
 
+(((File Size)))
 The interpreter and task are carefully written so that the only limit
 on part program size is disk capacity. The TkLinuxCNC and Axis interface
 both load the program text to display it to the user, though, so RAM
@@ -1153,8 +1184,9 @@ part programs. In Axis sections of the preview can be turned off using
 <<axis:preview-control,preview control>> comments.
 
 [[gcode:order-of-execution]]
-== G-code Order of Execution(((G-code Order of Execution)))
+== G-code Order of Execution
 
+(((G-code Order of Execution)))
 The order of execution of items on a line is defined not by the
 position of each item on the line, but by the following list:
 
@@ -1188,7 +1220,9 @@ position of each item on the line, but by the following list:
 * Stop (M0, M1, M2, M30, M60).
 
 [[gcode:best-practices]]
-== G-code Best Practices(((G-code Best Practices)))
+== G-code Best Practices
+
+(((G-code Best Practices)))
 
 .Use an appropriate decimal precision
 Use at least 3 digits after the decimal when milling in millimeters,

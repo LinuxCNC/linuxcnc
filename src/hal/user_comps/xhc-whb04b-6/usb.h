@@ -281,6 +281,7 @@ public:
     ~Usb();
     uint16_t getUsbVendorId() const;
     uint16_t getUsbProductId() const;
+    void setUsbProductId(uint16_t usbProductId);
     bool isDeviceOpen() const;
     libusb_context** getContextReference();
     libusb_context* getContext();
@@ -308,7 +309,7 @@ public:
 
 private:
     const uint16_t usbVendorId{0x10ce};
-    const uint16_t usbProductId{0xeb93};
+    uint16_t usbProductId{0xeb93};
     libusb_context      * context{nullptr};
     libusb_device_handle* deviceHandle{nullptr};
     bool                mDoReconnect{false};

@@ -75,6 +75,7 @@
 <doc name="hal_pyvcp" title="Python Virtual Control Panels (pyVCP)"/>
 <doc name="hal_pyvcp-examples" title="pyVCP Examples"/>
 <doc name="gui_gladevcp" title="Glade Virtual Control Panel"/>
+<doc name="gui_gladevcp-panels" title="Glade Builtin Control Panel"/>
 <doc name="gui_gscreen" title="Gscreen"/>
 <doc name="gui_qtvcp" title="QTvcp"/>
 <doc name="gui_qtvcp-vcp-panels" title="QTvcp VCP Panels"/>

@@ -2,7 +2,7 @@
 :toc:
 
 [[cha:basic-hal-reference]]
-= HAL Basics(((HAL Basics)))
+= HAL Basics
 
 // Custom lang highlight
 // must come after the doc title, to work around a bug in asciidoc 8.6.6
@@ -10,11 +10,13 @@
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
+(((HAL Basics)))
 This document provides a reference to the basics of HAL.
 
 [[sec:hal-commands]]
-== HAL Commands(((HAL Commands)))
+== HAL Commands
 
+(((HAL Commands)))
 More detailed information can be found in the man page for halcmd: run 'man halcmd' in a terminal window.
 
 To see the HAL configuration and check the status of pins and parameters use the HAL Configuration window on the Machine menu in AXIS.
@@ -24,8 +26,9 @@ To watch a pin status open the Watch tab and click on each pin you wish to watch
 image::images/HAL_Configuration.png["The HAL Configuration Window",align="center"]
 
 [[sub:hal-loart]]
-=== loadrt(((HAL loadrt,loadrt)))
+=== loadrt
 
+(((HAL loadrt,loadrt)))
 The command `loadrt` loads a real time HAL component.
 Real time component functions need to be added to a thread to be updated at the rate of the thread.
 You cannot load a non-realtime component into the realtime space.
@@ -38,8 +41,9 @@ loadrt mux4 count=1
 ----
 
 [[sub:hal-addf]]
-=== addf(((HAL addf,addf)))
+=== addf
 
+(((HAL addf,addf)))
 The `addf` command adds a function to a real-time thread.
 If the StepConf wizard was used to create the configuration, two threads have been created (``base-thread`` and ``servo-thread``).
 
@@ -94,8 +98,9 @@ addf mux4.0 servo-thread
 If the component requires a floating point thread that is usually the slower servo-thread.
 
 [[sub:hal-loadusr]]
-=== loadusr(((HAL loadusr,loadusr)))
+=== loadusr
 
+(((HAL loadusr,loadusr)))
 The command `loadusr` loads a non-realtime HAL component.
 Non-realtime programs are their own separate processes, which optionally talk to other HAL components via pins and parameters.
 You cannot load realtime components into non-realtime space.
@@ -124,8 +129,9 @@ loadusr -Wn spindle gs2_vfd -n spindle
 In English it means 'loadusr wait for name spindle component gs2_vfd name spindle'.
 
 [[sub:hal-net]]
-=== net(((HAL net,net)))
+=== net
 
+(((HAL net,net)))
 The command `net` creates a 'connection' between a signal and one or more pins.
 If the signal does not exist net creates the new signal.
 This replaces the need to use the command newsig.
@@ -176,8 +182,9 @@ net xStep => parport.0.pin-06-out
 An I/O pin like encoder._N_.index-enable can be read or set as allowed by the component.
 
 [[sub:hal-setp]]
-=== setp(((HAL setp,setp)))
+=== setp
 
+(((HAL setp,setp)))
 The command `setp` sets the value of a pin or parameter.
 The valid values will depend on the type of the pin or parameter.
 It is an error if the data types do not match.
@@ -194,8 +201,9 @@ setp parport.0.pin-08-out TRUE
 ----
 
 [[sub:hal-sets]]
-=== sets(((HAL sets,sets)))
+=== sets
 
+(((HAL sets,sets)))
 The command `sets` sets the value of a signal.
 
 .Syntax and Examples of `sets`
@@ -213,8 +221,9 @@ It is an error if:
 * If value is not the correct type for the signal
 
 [[sub:hal-inlinkp]]
-=== unlinkp(((HAL unlinkp,unlinkp)))
+=== unlinkp
 
+(((HAL unlinkp,unlinkp)))
 The command `unlinkp` unlinks a pin from the connected signal.
 If no signal was connected to the pin prior running the command, nothing happens.
 The `unlinkp` command is useful for trouble shooting.
@@ -274,18 +283,22 @@ newsig Xstep bit
 More information can be found in the HAL manual or the man pages for `halrun`.
 
 [[sec:hal-data]]
-== HAL Data(((HAL Data)))
+== HAL Data
+
+(((HAL Data)))
 
 [[sub:hal-bit]]
-=== Bit(((HAL Bit,bit)))
+=== Bit
 
+(((HAL Bit,bit)))
 A bit value is an on or off.
 
 - bit values = true or 1 and false or 0 (True, TRUE, true are all valid)
 
 [[sub:hal-float]]
-=== Float(((HAL Float,float)))
+=== Float
 
+(((HAL Float,float)))
 A 'float' is a floating point number.
 In other words the decimal point can move as needed.
 
@@ -296,37 +309,42 @@ For more information on floating point numbers see:
 https://en.wikipedia.org/wiki/Floating_point[https://en.wikipedia.org/wiki/Floating_point]
 
 [[sub:hal-s32]]
-=== s32(((HAL s32,s32)))
+=== s32
 
+(((HAL s32,s32)))
 An 's32' number is a whole number that can have a negative or positive value.
 
 - s32 values = integer numbers from -2147483648 to 2147483647
 
 [[sub:hal-u32]]
-=== u32(((HAL u32,u32)))
+=== u32
 
+(((HAL u32,u32)))
 A 'u32' number is a whole number that is positive only.
 
 - u32 values = integer numbers from 0 to 4294967295
 
 [[sub:hal-s64]]
-=== s64(((HAL s64,s64)))
+=== s64
 
+(((HAL s64,s64)))
 An 's64' number is a whole number that can have a negative or positive value.
 
 - s64 values = integer numbers from -9,223,372,036,854,775,808 to
   +9,223,372,036,854,775,807
 
 [[sub:hal-u64]]
-=== u64(((HAL u64,u64)))
+=== u64
 
+(((HAL u64,u64)))
 A 'u64' number is a whole number that is positive only.
 
 - u64 values = integer numbers from 0 to 18,446,744,073,709,551,615
 
 [[sec:hal-files]]
-== HAL Files(((HAL Files)))
+== HAL Files
 
+(((HAL Files)))
 If you used the Stepper Config Wizard to generate your config you will have up to three HAL files in your config directory.
 
 - 'my-mill.hal' (if your config is named 'my-mill') This file is loaded first and should not be changed if you used the Stepper Config Wizard.
@@ -337,8 +355,9 @@ If you used the Stepper Config Wizard to generate your config you will have up t
   Any HAL commands that use PyVCP widgets need to be placed here.
 
 [[sec:hal-parameters]]
-== HAL Parameter(((HAL Parameters)))
+== HAL Parameter
 
+(((HAL Parameters)))
 Two parameters are automatically added to each HAL component when it is created.
 These parameters allow you to scope the execution time of a component.
 
@@ -349,8 +368,9 @@ These parameters allow you to scope the execution time of a component.
 `tmax` is a read/write parameter so the user can set it to 0 to get rid of the first time initialization on the function's execution time.
 
 [[sec:hal-logic-components]]
-== Basic Logic Components(((HAL Logic Components)))
+== Basic Logic Components
 
+(((HAL Logic Components)))
 HAL contains several real time logic components.
 Logic components follow a 'Truth Table' that states what the output is for any given input.
 Typically these are bit manipulators and follow electrical logic gate truth tables.
@@ -358,8 +378,9 @@ Typically these are bit manipulators and follow electrical logic gate truth tabl
 For further components see <<sec:hal-components,HAL Components List>> or the man pages.
 
 [[sub:hal-and2]]
-=== and2(((HAL and2,and2)))
+=== and2
 
+(((HAL and2,and2)))
 The `and2` component is a two input and-gate.
 The truth table below shows the output based on each combination of input.
 
@@ -391,8 +412,9 @@ and2.N.out (bit, out)
 |===
 
 [[sub:hal-not]]
-=== not(((HAL not,not)))
+=== not
 
+(((HAL not,not)))
 The `not` component is a bit inverter.
 
 .Syntax
@@ -421,8 +443,9 @@ not.n.out (bit, out)
 |===
 
 [[sub:hal-or2]]
-=== or2(((HAL or2,or2)))
+=== or2
 
+(((HAL or2,or2)))
 The `or2` component is a two input or-gate.
 
 .Syntax
@@ -453,8 +476,9 @@ or2.n.out (bit, out)
 |===
 
 [[sub:hal-xor2]]
-=== xor2(((HAL xor2,xor2)))
+=== xor2
 
+(((HAL xor2,xor2)))
 The `xor2` component is a two input xor (exclusive or)-gate.
 
 .Syntax
@@ -485,8 +509,9 @@ xor2.n.out (bit, out)
 |===
 
 [[sec:hal-logic-examples]]
-== Logic Examples(((HAL Logic Examples)))
+== Logic Examples
 
+(((HAL Logic Examples)))
 .Example using `and2`
 [source,{hal}]
 ----
@@ -504,11 +529,14 @@ Last we connect the `and2` out bit to the parallel port `pin-14`.
 So following the truth table for `and2` if pin 11 and pin 12 are on then the output pin 14 will be on.
 
 [[sec:hal-conversion-components]]
-== Conversion Components(((HAL Conversion Components)))
+== Conversion Components
+
+(((HAL Conversion Components)))
 
 [[sub:hal-weighted-sum]]
-=== weighted_sum(((HAL weighted_sum,weighted_sum)))
+=== weighted_sum
 
+(((HAL weighted_sum,weighted_sum)))
 The weighted sum converts a group of bits into an integer.
 The conversion is the sum of the 'weights' of the bits present plus any offset.
 It's similar to 'binary coded decimal' but with more options.

@@ -17867,7 +17867,7 @@ SCROLL</string>
          <number>2</number>
         </property>
         <property name="text">
-         <string>10:05:54 PM</string>
+         <string>08:18:19 PM</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>
@@ -18165,8 +18165,8 @@ SCROLL</string>
    <slot>btn_clear_status_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>837</x>
-     <y>173</y>
+     <x>97</x>
+     <y>117</y>
     </hint>
     <hint type="destinationlabel">
      <x>1039</x>
@@ -18181,8 +18181,8 @@ SCROLL</string>
    <slot>btn_save_status_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>837</x>
-     <y>229</y>
+     <x>97</x>
+     <y>117</y>
     </hint>
     <hint type="destinationlabel">
      <x>1098</x>
@@ -18373,8 +18373,8 @@ SCROLL</string>
    <slot>btn_home_all_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>709</x>
-     <y>1550</y>
+     <x>708</x>
+     <y>1545</y>
     </hint>
     <hint type="destinationlabel">
      <x>993</x>
@@ -18390,7 +18390,7 @@ SCROLL</string>
    <hints>
     <hint type="sourcelabel">
      <x>486</x>
-     <y>1019</y>
+     <y>1013</y>
     </hint>
     <hint type="destinationlabel">
      <x>1606</x>
@@ -18405,8 +18405,8 @@ SCROLL</string>
    <slot>btn_start_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>468</x>
-     <y>1141</y>
+     <x>632</x>
+     <y>1135</y>
     </hint>
     <hint type="destinationlabel">
      <x>-77</x>
@@ -18438,7 +18438,7 @@ SCROLL</string>
    <hints>
     <hint type="sourcelabel">
      <x>958</x>
-     <y>1606</y>
+     <y>1603</y>
     </hint>
     <hint type="destinationlabel">
      <x>1204</x>
@@ -18454,7 +18454,7 @@ SCROLL</string>
    <hints>
     <hint type="sourcelabel">
      <x>958</x>
-     <y>1550</y>
+     <y>1547</y>
     </hint>
     <hint type="destinationlabel">
      <x>1246</x>
@@ -18566,7 +18566,7 @@ SCROLL</string>
    <hints>
     <hint type="sourcelabel">
      <x>778</x>
-     <y>1550</y>
+     <y>1547</y>
     </hint>
     <hint type="destinationlabel">
      <x>1160</x>
@@ -18582,7 +18582,7 @@ SCROLL</string>
    <hints>
     <hint type="sourcelabel">
      <x>1004</x>
-     <y>1550</y>
+     <y>1547</y>
     </hint>
     <hint type="destinationlabel">
      <x>1306</x>
@@ -18597,8 +18597,8 @@ SCROLL</string>
    <slot>btn_stop_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>622</x>
-     <y>1195</y>
+     <x>632</x>
+     <y>1189</y>
     </hint>
     <hint type="destinationlabel">
      <x>-86</x>
@@ -18677,8 +18677,8 @@ SCROLL</string>
    <slot>btn_reload_file_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>452</x>
-     <y>1248</y>
+     <x>526</x>
+     <y>1242</y>
     </hint>
     <hint type="destinationlabel">
      <x>-4</x>
@@ -18693,8 +18693,8 @@ SCROLL</string>
    <slot>btn_enable_comp_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>622</x>
-     <y>1408</y>
+     <x>632</x>
+     <y>1402</y>
     </hint>
     <hint type="destinationlabel">
      <x>-1</x>
@@ -18709,8 +18709,8 @@ SCROLL</string>
    <slot>btn_home_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>709</x>
-     <y>1605</y>
+     <x>708</x>
+     <y>1600</y>
     </hint>
     <hint type="destinationlabel">
      <x>1060</x>
@@ -18805,8 +18805,8 @@ SCROLL</string>
    <slot>btn_pause_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>469</x>
-     <y>1195</y>
+     <x>526</x>
+     <y>1189</y>
     </hint>
     <hint type="destinationlabel">
      <x>-80</x>
@@ -18821,8 +18821,8 @@ SCROLL</string>
    <slot>btn_systemtool_toggled()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>481</x>
-     <y>1550</y>
+     <x>522</x>
+     <y>1545</y>
     </hint>
     <hint type="destinationlabel">
      <x>834</x>
@@ -18885,8 +18885,8 @@ SCROLL</string>
    <slot>slow_button_clicked()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>1056</x>
-     <y>1019</y>
+     <x>1036</x>
+     <y>1013</y>
     </hint>
     <hint type="destinationlabel">
      <x>1674</x>
@@ -18907,6 +18907,22 @@ SCROLL</string>
     <hint type="destinationlabel">
      <x>539</x>
      <y>959</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>virtualkeyboard</sender>
+   <signal>hideKeyboard()</signal>
+   <receiver>MainWindow</receiver>
+   <slot>hideVirtualKeyboard()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>563</x>
+     <y>1667</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>588</x>
+     <y>1959</y>
     </hint>
    </hints>
   </connection>
@@ -18993,10 +19009,11 @@ SCROLL</string>
   <slot>btn_gcode_zoomin_clicked()</slot>
   <slot>btn_pause_clicked()</slot>
   <slot>btn_systemtool_toggled()</slot>
+  <slot>hideVirtualKeyboard()</slot>
  </slots>
  <buttongroups>
+  <buttongroup name="mode_buttonGroup"/>
   <buttongroup name="page_buttonGroup"/>
   <buttongroup name="selectButtonGroup"/>
-  <buttongroup name="mode_buttonGroup"/>
  </buttongroups>
 </ui>

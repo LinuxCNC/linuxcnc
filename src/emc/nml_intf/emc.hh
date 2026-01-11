@@ -290,6 +290,9 @@ extern int emcAxisSetLockingJoint(int axis,int joint);
 
 extern int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes);
 
+extern int emcAxisSetMaxJerk(int axis,double jerk);
+extern int emcAxisHasMaxJerk(int axis);
+extern double emcAxisGetMaxJerk(int axis);
 // implementation functions for EMC_JOINT types
 
 extern int emcJointSetType(int joint, unsigned char jointType);
@@ -325,6 +328,7 @@ extern int emcJogAbs(int nr, double pos, double vel, int jjogmode);
 
 extern int emcJointUpdate(EMC_JOINT_STAT stat[], int numJoints);
 
+extern int emcJointSetMaxJerk(int joint, double jerk);
 
 // implementation functions for EMC_SPINDLE types
 
@@ -366,20 +370,23 @@ extern int emcTrajStep();
 extern int emcTrajResume();
 extern int emcTrajDelay(double delay);
 extern int emcTrajLinearMove(const EmcPose& end, int type, double vel,
-                             double ini_maxvel, double acc, int indexer_jnum);
+                             double ini_maxvel, double acc, double ini_maxjerk, int indexer_jnum);
 extern int emcTrajCircularMove(const EmcPose& end, const PM_CARTESIAN& center, const PM_CARTESIAN&
-        normal, int turn, int type, double vel, double ini_maxvel, double acc);
+        normal, int turn, int type, double vel, double ini_maxvel, double acc, double ini_maxjerk);
 extern int emcTrajSetTermCond(int cond, double tolerance);
 extern int emcTrajSetSpindleSync(int spindle, double feed_per_revolution, bool wait_for_index);
 extern int emcTrajSetOffset(const EmcPose& tool_offset);
 extern int emcTrajSetHome(const EmcPose& home);
 extern int emcTrajClearProbeTrippedFlag();
 extern int emcTrajProbe(const EmcPose& pos, int type, double vel,
-                        double ini_maxvel, double acc, unsigned char probe_type);
-extern int emcTrajRigidTap(const EmcPose& pos, double vel, double ini_maxvel, double acc, double scale);
+                        double ini_maxvel, double acc, double ini_maxjerk, unsigned char probe_type);
+extern int emcTrajRigidTap(const EmcPose& pos, double vel, double ini_maxvel, double acc, double ini_maxjerk, double scale);
 
 extern int emcTrajUpdate(EMC_TRAJ_STAT * stat);
 
+extern int emcTrajSetJerk(double jerk);
+extern int emcTrajSetMaxJerk(double jerk);
+extern int emcTrajPlannerType(int type);
 // implementation functions for EMC_MOTION aggregate types
 
 extern int emcMotionInit();

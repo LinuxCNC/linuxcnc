@@ -68,7 +68,7 @@ class Filter():
         zMaxOffset = float(response.stdout.decode())
         RUN(['halcmd', 'setp', 'plasmac.tube-cut', '0'])
         self.metric = ['mm', 4]
-        self.imperial = ['in', 6]
+        self.imperial = ['in', 5]
         self.units, self.fmt = self.imperial if INI.find('TRAJ', 'LINEAR_UNITS').lower() == 'inch' else self.metric
         if self.units == 'mm':
             self.minDiameter = 32
@@ -661,7 +661,7 @@ class Filter():
         if not self.zSetup and not self.zBypass:
             self.lineNum += 1
             moveTopZ = 'G53 G00 Z[[#<_ini[axis_z]max_limit> - '
-            moveTopZ += f'{self.offsetTopZ}] * {self.unitMultiplier:.3f}]'
+            moveTopZ += f'{self.offsetTopZ:0.{self.fmt}f}] * {self.unitMultiplier:0.{self.fmt}f}]'
             moveTopZ += ' (Z just below max height)'
             self.gcodeList.append(moveTopZ)
             self.zSetup = True
@@ -1019,7 +1019,7 @@ class Filter():
             elif not self.holeActive:
                 if diameter <= self.minDiameter:
                     self.lineNum += 1
-                    self.gcodeList.append(f'M67 E3 Q{self.holeVelocity} (arc diameter:{diameter:0.3f}, velocity:{self.holeVelocity}%)')
+                    self.gcodeList.append(f'M67 E3 Q{self.holeVelocity} (arc diameter:{diameter:0.{self.fmt}f}, velocity:{self.holeVelocity}%)')
                 self.holeActive = True
             if data[:3] == 'G02' and isHole:
                 self.codeWarn = True
@@ -1079,20 +1079,20 @@ class Filter():
         if 'X' in data and 'Y' in data:
             x = self.get_axis_value(data, 'X')
             if x is not None:
-                newData += f'X{x - self.oBurnX:0.4f}'
+                newData += f'X{x - self.oBurnX:0.{self.fmt}f}'
             y = self.get_axis_value(data, 'Y')
             if y is not None:
-                newData += f'Y{y - self.oBurnY:0.4f}'
+                newData += f'Y{y - self.oBurnY:0.{self.fmt}f}'
             return newData
         elif 'X' in data:
             x = self.get_axis_value(data, 'X')
             if x is not None:
-                newData += f'X{x - self.oBurnX:0.4f} Y{self.oBurnY:0.4f}'
+                newData += f'X{x - self.oBurnX:0.{self.fmt}f} Y{self.oBurnY:0.{self.fmt}f}'
             return newData
         elif 'Y' in data:
             y = self.get_axis_value(data, 'Y')
             if y is not None:
-                newData += f'X{self.oBurnX:0.4f} Y{y - self.oBurnY:0.4f}'
+                newData += f'X{self.oBurnX:0.{self.fmt}f} Y{y - self.oBurnY:0.{self.fmt}f}'
             return newData
         else:
             return data
@@ -1140,7 +1140,7 @@ class Filter():
         tmpMaterial = False
         newMaterial = []
         th = 0
-        kw = jh = jd = pe = gp = 0.0
+        kw = jh = jd = pe = gp = mt = 0.0
         cm = 1
         ca = 15
         cv = 100
@@ -1192,7 +1192,7 @@ class Filter():
                         elif 'jh=' in item:
                             jh = float(item.split('=')[1])
                             if self.unitMultiplier != 1:
-                                jh = ph / self.unitMultiplier
+                                jh = jh / self.unitMultiplier
                         elif 'jd=' in item:
                             jd = float(item.split('=')[1])
                         elif 'ca=' in item:
@@ -1205,7 +1205,11 @@ class Filter():
                             gp = float(item.split('=')[1])
                         elif 'cm=' in item:
                             cm = float(item.split('=')[1])
-                    for i in [nu, na, kw, th, ph, pd, jh, jd, ch, fr, ca, cv, pe, gp, cm]:
+                        elif 'mt=' in item:
+                            mt = float(item.split('=')[1])
+                            if self.unitMultiplier != 1:
+                                mt = mt / self.unitMultiplier
+                    for i in [nu, na, kw, th, ph, pd, jh, jd, ch, fr, ca, cv, pe, gp, cm, mt]:
                         newMaterial.append(i)
                     if newMaterial[0] == 0:
                         self.set_temporary_material(newMaterial)
@@ -1286,7 +1290,8 @@ class Filter():
                 self.errorLines.append(self.lineNumOrg)
                 break
             response = RUN(['halcmd', 'getp', self.matReloadPin], capture_output=True)
-            if not int(response.stdout.decode()):
+            raw = response.stdout.decode().strip().upper()
+            if raw in ['0', 'FALSE']:
                 break
 
     def write_one_material(self, mat, file, err):
@@ -1306,6 +1311,7 @@ class Filter():
             file.write(f'PAUSE_AT_END       = {mat[13]}\n')
             file.write(f'GAS_PRESSURE       = {mat[14]}\n')
             file.write(f'CUT_MODE           = {mat[15]}\n')
+            file.write(f'THICKNESS          = {mat[16]}\n')
             file.write('\n')
         except:
             self.set_code_error()
@@ -1416,7 +1422,7 @@ class Filter():
                 else:
                     errorText = f'Conversational block header must be line 1, it is currently line {self.errorLines[0]}:\n'
             if self.errorBlockFormat:
-                msg = 'Conversational block code format is inconsistant with header or is invalid.\n'
+                msg = 'Conversational block code format is inconsistent with header or is invalid.\n'
                 errorText += self.message_set(self.errorBlockFormat, msg)
                 errorText = msg
         if self.codeWarn:

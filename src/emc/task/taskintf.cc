@@ -412,6 +412,29 @@ int emcJointSetMaxAcceleration(int joint, double acc)
     }
     return retval;
 }
+ 
+int emcJointSetMaxJerk(int joint, double jerk)
+{
+    CATCH_NAN(isnan(jerk));
+
+    if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
+	return 0;
+    }
+    if (jerk < 0.0) {
+	jerk = 0.0;
+    }
+    JointConfig[joint].MaxJerk = jerk;
+    emcmotCommand.command = EMCMOT_SET_JOINT_JERK_LIMIT;
+    emcmotCommand.joint = joint;
+    emcmotCommand.jerk = jerk;
+    
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
+
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%d, %.4f) returned %d\n", __FUNCTION__, joint, jerk, retval);
+    }
+    return retval;
+}
 
 /*! functions involving cartesian Axes (X,Y,Z,A,B,C,U,V,W) */
     
@@ -513,6 +536,30 @@ int emcAxisSetMaxAcceleration(int axis, double acc,double ext_offset_acc)
     return retval;
 }
 
+int emcAxisSetMaxJerk(int axis, double jerk)
+{
+
+    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
+        return 0;
+    }
+    if (jerk < 0.0) {
+        jerk = 0.0;
+    }
+
+    if(jerk > 0) AxisConfig[axis].haveMaxJerk = 1;
+    AxisConfig[axis].MaxJerk = jerk;
+
+    emcmotCommand.command = EMCMOT_SET_AXIS_JERK_LIMIT;
+    emcmotCommand.axis = axis;
+    emcmotCommand.jerk = jerk;
+    return usrmotWriteEmcmotCommand(&emcmotCommand);
+
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%d, %.4f)\n", __FUNCTION__, axis, jerk);
+    }
+    return 0;
+}
+
 int emcAxisSetLockingJoint(int axis, int joint)
 {
 
@@ -551,6 +598,22 @@ double emcAxisGetMaxAcceleration(int axis)
     }
 
     return AxisConfig[axis].MaxAccel;
+}
+
+int emcAxisHasMaxJerk(int axis)
+{
+    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
+        return 0;
+    }
+    return AxisConfig[axis].haveMaxJerk;
+}
+
+double emcAxisGetMaxJerk(int axis)
+{
+    if (axis < 0 || axis >= EMCMOT_MAX_AXIS) {
+        return 0;
+    }
+    return AxisConfig[axis].MaxJerk;
 }
 
 int emcAxisUpdate(EMC_AXIS_STAT stat[], int axis_mask)
@@ -631,6 +694,7 @@ int emcAxisInit(int axis)
 	}
     }
     AxisConfig[axis].Inited = 1;
+    AxisConfig[axis].haveMaxJerk = 0;
     if (0 != iniAxis(axis, emc_inifile)) {
 	retval = -1;
     }
@@ -1091,6 +1155,38 @@ int emcTrajSetAcceleration(double acc)
     return retval;
 }
 
+int emcTrajSetJerk(double jerk)
+{
+    if (jerk < 0.0) {
+	jerk = 0.0;
+    } else if (jerk > TrajConfig.MaxJerk) {
+	jerk = TrajConfig.MaxJerk;
+    }
+
+    emcmotCommand.command = EMCMOT_SET_JERK;
+    emcmotCommand.jerk = jerk;
+
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
+
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%.4f) returned %d\n", __FUNCTION__, jerk, retval);
+    }
+    return retval;
+}
+
+int emcTrajPlannerType(int type)
+{
+    emcmotCommand.command = EMCMOT_SET_PLANNER_TYPE;
+    emcmotCommand.planner_type = type;
+
+    int retval = usrmotWriteEmcmotCommand(&emcmotCommand);
+
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%d) returned %d\n", __FUNCTION__, type, retval);
+    }
+    return retval;
+}
+
 /*
   emcmot has no limits on max velocity, acceleration so we'll save them
   here and apply them in the functions above
@@ -1124,6 +1220,20 @@ int emcTrajSetMaxAcceleration(double acc)
 
     if (emc_debug & EMC_DEBUG_CONFIG) {
         rcs_print("%s(%.4g)\n", __FUNCTION__, acc);
+    }
+    return 0;
+}
+
+int emcTrajSetMaxJerk(double jerk)
+{
+    if (jerk < 0.0) {
+	jerk = 0.0;
+    }
+
+    TrajConfig.MaxJerk = jerk;
+
+    if (emc_debug & EMC_DEBUG_CONFIG) {
+        rcs_print("%s(%.4f)\n", __FUNCTION__, jerk);
     }
     return 0;
 }
@@ -1377,7 +1487,7 @@ int emcTrajSetTermCond(int cond, double tolerance)
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcTrajLinearMove(const EmcPose& end, int type, double vel, double ini_maxvel, double acc,
+int emcTrajLinearMove(const EmcPose& end, int type, double vel, double ini_maxvel, double acc, double ini_maxjerk, 
                       int indexer_jnum)
 {
 #ifdef ISNAN_TRAP
@@ -1399,13 +1509,14 @@ int emcTrajLinearMove(const EmcPose& end, int type, double vel, double ini_maxve
     emcmotCommand.vel = vel;
     emcmotCommand.ini_maxvel = ini_maxvel;
     emcmotCommand.acc = acc;
+    emcmotCommand.ini_maxjerk = ini_maxjerk;
     emcmotCommand.turn = indexer_jnum;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
 int emcTrajCircularMove(const EmcPose& end, const PM_CARTESIAN& center,
-			const PM_CARTESIAN& normal, int turn, int type, double vel, double ini_maxvel, double acc)
+			const PM_CARTESIAN& normal, int turn, int type, double vel, double ini_maxvel, double acc, double ini_maxjerk)
 {
 #ifdef ISNAN_TRAP
     if (std::isnan(end.tran.x) || std::isnan(end.tran.y) || std::isnan(end.tran.z) ||
@@ -1438,6 +1549,7 @@ int emcTrajCircularMove(const EmcPose& end, const PM_CARTESIAN& center,
     emcmotCommand.vel = vel;
     emcmotCommand.ini_maxvel = ini_maxvel;
     emcmotCommand.acc = acc;
+    emcmotCommand.ini_maxjerk = ini_maxjerk;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
@@ -1449,7 +1561,7 @@ int emcTrajClearProbeTrippedFlag()
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcTrajProbe(const EmcPose& pos, int type, double vel, double ini_maxvel, double acc, unsigned char probe_type)
+int emcTrajProbe(const EmcPose& pos, int type, double vel, double ini_maxvel, double acc, double ini_maxjerk, unsigned char probe_type)
 {
 #ifdef ISNAN_TRAP
     if (std::isnan(pos.tran.x) || std::isnan(pos.tran.y) || std::isnan(pos.tran.z) ||
@@ -1468,12 +1580,13 @@ int emcTrajProbe(const EmcPose& pos, int type, double vel, double ini_maxvel, do
     emcmotCommand.vel = vel;
     emcmotCommand.ini_maxvel = ini_maxvel;
     emcmotCommand.acc = acc;
+    emcmotCommand.ini_maxjerk = ini_maxjerk;
     emcmotCommand.probe_type = probe_type;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
 }
 
-int emcTrajRigidTap(const EmcPose& pos, double vel, double ini_maxvel, double acc, double scale)
+int emcTrajRigidTap(const EmcPose& pos, double vel, double ini_maxvel, double acc, double ini_maxjerk, double scale)
 {
 #ifdef ISNAN_TRAP
     if (std::isnan(pos.tran.x) || std::isnan(pos.tran.y) || std::isnan(pos.tran.z)) {
@@ -1489,6 +1602,7 @@ int emcTrajRigidTap(const EmcPose& pos, double vel, double ini_maxvel, double ac
     emcmotCommand.vel = vel;
     emcmotCommand.ini_maxvel = ini_maxvel;
     emcmotCommand.acc = acc;
+    emcmotCommand.ini_maxjerk = ini_maxjerk;
     emcmotCommand.scale = scale;
 
     return usrmotWriteEmcmotCommand(&emcmotCommand);
