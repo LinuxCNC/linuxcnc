@@ -88,6 +88,7 @@ class OffsetPage(Gtk.Box):
         self.status = linuxcnc.stat()
         self.cmd = linuxcnc.command()
         self.hash_check = None
+        self.use_localization = False # Set to True for float value conversion using locale settings (not recommended)
         self.display_units_mm = 0 # imperial
         self.machine_units_mm = 0 # imperial
         self.program_units = 0 # imperial
@@ -378,17 +379,26 @@ class OffsetPage(Gtk.Box):
         if col == 11:
             self.store[row][15] = new_text
             return
+        # for all other columns we expect a float value
+        else:
+            try:
+                if self.use_localization:
+                    # using locale settings can lead to issues but we make it optional for backwards compatibility
+                    new_float = float(locale.atof(new_text))
+                else:
+                    # this is the preferred way, allowing dot or comma as decimal symbol
+                    new_float = float(new_text.replace(',', '.'))
+            except Exception as error:
+                print('new_text: ', new_text, error)
+                print(_("offsetpage widget error: unrecognized float input"))
+                return
 
         # ignore entries to the Rot column in non-wcs rows
         if self.store[row][0] not in ["G54", "G55", "G56", "G57", "G58", "G59", "G59.1", "G59.2", "G59.3"] and col == 10:
             return
 
         # set the text in the table
-        try:
-            self.store[row][col] = "%10.4f" % locale.atof(new_text)
-        except Exception as error:
-            print('new_text: ', new_text, error)
-            print(_("offsetpage widget error: unrecognized float input"))
+        self.store[row][col] = f"{new_float:10.4f}"
         # make sure we switch to correct units for machine and rotational, row 2, does not get converted
         try:
             if not self.display_units_mm == self.program_units and not row == 2:
@@ -396,9 +406,9 @@ class OffsetPage(Gtk.Box):
                     convert = 25.4
                 else:
                     convert = 1.0 / 25.4
-                qualified = float(locale.atof(new_text)) * convert
+                qualified = new_float * convert
             else:
-                qualified = float(locale.atof(new_text))
+                qualified = new_float
         except:
             print('error')
         # now update linuxcnc to the change
