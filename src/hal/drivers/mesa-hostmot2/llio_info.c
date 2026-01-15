@@ -26,7 +26,7 @@
 #include "llio_info.h"
 
 typedef struct __info_entry_t {
-	char board_name[8];
+	char board_name[8] __attribute__ ((nonstring));
 	const char *base_name;
 	int num_ioport_connectors;
 	int pins_per_connector;

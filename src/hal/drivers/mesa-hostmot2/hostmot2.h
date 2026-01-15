@@ -145,7 +145,7 @@ typedef struct {
     rtapi_u32 idrom_type;
     rtapi_u32 offset_to_modules;
     rtapi_u32 offset_to_pin_desc;
-    rtapi_u8 board_name[8];  // ascii string, but not NULL terminated!
+    rtapi_u8 board_name[8] __attribute__ ((nonstring));  // ASCII string, but not NULL terminated!
     rtapi_u32 fpga_size;
     rtapi_u32 fpga_pins;
     rtapi_u32 io_ports;
