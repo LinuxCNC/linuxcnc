@@ -24,17 +24,21 @@ In a terminal type `gladevcp` to see a list.
 === GTK Verser Probe
 A GTK based version of the third party Verser probe.
 
+
 image::images/gtk_verser_probe.png["GTK Verser Probe",align="center"]
 
-This is old version from 2015. This older version has **less functionality**, but it **takes up less space on the screen**, which can be useful on smaller displays.
+This is a version from 2015 by Serguei Glavatski which has **less functionality** than the current, but it **takes up less space on the screen** (no DRO e.g.). 
+This can be useful on smaller displays.
 
-**Actual version and manual:**
+**For Reference - The Current Version**
+
+The documentation and source code of the current version can be found here:
 
  *  https://vers.ge/en/blog/useful-articles/probe-screen-v28
  *  https://github.com/verser-git/probe_screen_v2.9
 
 
-**Modification INI file for embedded panel in Gmoccapy:**
+**Modification of the INI file to use as embedded panel in Gmoccapy**
 ```ini
 [DISPLAY]
 DISPLAY = gmoccapy
@@ -53,7 +57,7 @@ SUBROUTINE_PATH = ./macros:/usr/share/linuxcnc/nc_files/gtk_probe/
 # SUBROUTINE_PATH = ./macros:~/linuxcnc/nc_files/probe/gtk_probe/
 ```
 
-**Example using dbounce with Mesa card in HAL file:**
+**Example using dbounce with a Mesa card (HAL file)**
 ```hal
 # ---probe signal---
 loadrt dbounce names=dbounce.probe
@@ -65,16 +69,15 @@ net probe-in  motion.probe-input  <=  dbounce.probe.out
 ```
 
 ---
-=== GTK little Probe
-A GTK based version of the third party Verser probe in a tabbed layout for smaller displays.
+=== GTK Little Probe
+A GTK based version of the third party Verser probe, modified for a tabbed layout for smaller displays.
 
 image::images/gtk_little_probe.png["GTK little Probe",align="center"]
 
-This is modification of Probe Screen application by Serguei Glavatski (c) 2015
-This modification moved the icons from one window to containers with switchable vertical tabs. The goal of this modification is to minimize the window.
+This is a modification of the 2015 version of GTK Verser Probe. It moves the elements from one window to containers with switchable vertical tabs. The goal was to reduce the window size.
 
 
-**Modification INI file for embedded panel in Gmoccapy:**
+**Modification of the INI file to use as embedded panel in Gmoccapy**
 ```ini
 [DISPLAY]
 DISPLAY = gmoccapy
@@ -95,7 +98,7 @@ SUBROUTINE_PATH = ./macros:/usr/share/linuxcnc/nc_files/probe/gtk_probe/
 Use only one Probe Screen by Serguei Glavatski in one LCNC configuration.
 
 
-**Example using dbounce with Mesa card in HAL file:**
+**Example using dbounce with Mesa card (HAL file)**
 ```hal
 # ---probe signal---
 loadrt dbounce names=dbounce.probe
