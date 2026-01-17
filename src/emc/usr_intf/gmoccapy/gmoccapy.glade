@@ -762,6 +762,10 @@ uncomment selection</property>
     <property name="visible">True</property>
     <property name="can-focus">False</property>
   </object>
+  <object class="GtkImage" id="img_offset_calculator">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+  </object>
   <object class="GtkListStore" id="lstst_icon_themes">
     <columns>
       <!-- column-name path -->
