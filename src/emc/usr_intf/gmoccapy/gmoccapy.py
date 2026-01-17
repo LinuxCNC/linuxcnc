@@ -6338,21 +6338,21 @@ if __name__ == "__main__":
     from common import logger
     LOG = logger.initBaseLogger('Gmoccapy', log_file=None, log_level=logger.WARNING)
 
-    # we set the log level early so the imported modules get the right level
+    # We set the log level early so the imported modules get the right level.
     # The order is: VERBOSE, DEBUG, INFO, WARNING, ERROR, CRITICAL.
+    # The log level defaults to WARNING.
 
-    if '-d' in sys.argv:
-        # Log level defaults to WARNING, so set lower if in debug mode
+    if '-v' in sys.argv:
+        logger.setGlobalLevel(logger.VERBOSE)
+        LOG.info('VERBOSE logging on')
+    elif '-d' in sys.argv:
         logger.setGlobalLevel(logger.DEBUG)
-        LOG.debug('DEBUGGING logging on')
+        LOG.info('DEBUGGING logging on')
     elif '-i' in sys.argv:
-        # Log level defaults to WARNING, so set lower if in info mode
         logger.setGlobalLevel(logger.INFO)
         LOG.info('INFO logging on')
-    elif '-v' in sys.argv:
-        # Log level defaults to WARNING, so set lowest if in verbose mode
-        logger.setGlobalLevel(logger.VERBOSE)
-        LOG.verbose('VERBOSE logging on')
+    elif '-w' in sys.argv:
+        logger.setGlobalLevel(logger.WARNING)
     elif '-q' in sys.argv:
         logger.setGlobalLevel(logger.ERROR)
 
