@@ -1767,7 +1767,9 @@ STATIC int tpComputeOptimalVelocity(TP_STRUCT const * const tp, TC_STRUCT * cons
     double vs_back = pmSqrt(pmSq(tc->finalvel) + 2.0 * acc_this * tc->target);
     if(GET_TRAJ_PLANNER_TYPE() == 1){
         double vs_back2;
-        if(findSCurveVSpeedWithEndSpeed(tc->target * 2.0 , tc->finalvel, acc_this, emcmotStatus->jerk, &vs_back2) == 1)
+        // Use clamped jerk to match execution phase behavior
+        double maxjerk = fmin(tc->maxjerk, emcmotStatus->jerk);
+        if(findSCurveVSpeedWithEndSpeed(tc->target * 2.0 , tc->finalvel, acc_this, maxjerk, &vs_back2) == 1)
             vs_back = vs_back2;
     }
     // Find the reachable velocity of prev1_tc, moving forwards in time
