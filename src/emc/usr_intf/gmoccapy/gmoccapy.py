@@ -2046,7 +2046,10 @@ class gmoccapy(object):
         self.widgets.tooledit1.set_selected_tool = self.set_selected_tool
 
     def set_selected_tool(self, toolnumber):
-        lbl_tool_text = "Tool loaded: " + str(toolnumber)
+        lbl_tool_text = ""
+        # When using touch keyboard we display the current tool in the tooltable frame
+        if self.widgets.chk_use_kb_on_tooledit.get_active():
+            lbl_tool_text = "Tool loaded: " + str(toolnumber)
         self.widgets.tooledit1.lbl_tool.set_text(lbl_tool_text)
 
     def on_tree_navigate_key_press(self, treeview, event, filter):
