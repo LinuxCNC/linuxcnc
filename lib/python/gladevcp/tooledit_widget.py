@@ -206,10 +206,16 @@ class ToolEdit(Gtk.Box):
         pathlist = []
         liststore.foreach(match_value_cb, pathlist)
         # foreach works in a depth first fashion
-        if len(pathlist) != 1:
+        if len(pathlist) == 0:
             return None
-        else:
+        elif len(pathlist) == 1:
             return(liststore.get_value(liststore.get_iter(pathlist[0]),1))
+        else:
+            selected_tools = []
+            for path in pathlist:
+                tool = (liststore.get_value(liststore.get_iter(path[0]),1))
+                selected_tools.append(tool)
+            return selected_tools
 
         # return tool number of the highlighted (ie selected) row
     def get_selected_row(self):
