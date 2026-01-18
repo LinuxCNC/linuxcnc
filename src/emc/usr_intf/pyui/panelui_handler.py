@@ -1,7 +1,10 @@
 import hal
+
+
 # standard handler call - This will always be required
 def get_handlers(linuxcnc_stat, linucnc_cmd, commands, master):
-     return [HandlerClass(linuxcnc_stat, linucnc_cmd, commands, master)]
+    return [HandlerClass(linuxcnc_stat, linucnc_cmd, commands, master)]
+
 
 # Also required - handler class
 class HandlerClass:
@@ -23,14 +26,14 @@ class HandlerClass:
     # depending on what was given in the configuration file.
     def hello_world(self, wname, m):
         # print to terminal so we know it worked
-        print('\nHello world\n')
+        print("\nHello world\n")
         # print the argument(s)
         print(m)
         # Print the calling widgets internal metadata (from config file)
         print(wname.metadata)
         # call a mdi command to print a msg in linuxcnc
         # parent commands expect a widget_instance - None is substituted
-        self.parent.mdi(None,'(MSG, Hello Linuxcnc World!)')
+        self.parent.mdi(None, "(MSG, Hello Linuxcnc World!)")
 
     def cycle_mode(self, wname, m):
         if self.current_mode == 0:
@@ -47,5 +50,6 @@ class HandlerClass:
     # Boiler code, often required
     def __getitem__(self, item):
         return getattr(self, item)
+
     def __setitem__(self, item, value):
         return setattr(self, item, value)

@@ -11,24 +11,25 @@
 # GNU General Public License for more details.
 
 
-
 import os, configparser
 
 cp = configparser.RawConfigParser
-cp.optionxform=str
+cp.optionxform = str
+
+
 class preferences(cp):
     types = {
         bool: cp.getboolean,
         float: cp.getfloat,
         int: cp.getint,
         str: cp.get,
-        repr: lambda self,section,option: eval(cp.get(self,section,option)),
+        repr: lambda self, section, option: eval(cp.get(self, section, option)),
     }
 
-    def __init__(self,path=None):
+    def __init__(self, path=None):
         cp.__init__(self)
         if not path:
-            path="~/.gscreen_preferences"
+            path = "~/.gscreen_preferences"
         self.fn = os.path.expanduser(path)
         self.read(self.fn)
 
@@ -37,16 +38,16 @@ class preferences(cp):
         try:
             o = m(self, section, option)
         except Exception as detail:
-            print (detail)
+            print(detail)
             try:
                 self.set(section, option, default)
             except configparser.NoSectionError:
-                print ('Adding section %s'%section)
+                print("Adding section %s" % section)
                 # Create non-existent section
                 self.add_section(section)
                 self.set(section, option, default)
             self.write(open(self.fn, "w"))
-            if type in(bool,float,int):
+            if type in (bool, float, int):
                 o = type(default)
             else:
                 o = default
@@ -56,7 +57,7 @@ class preferences(cp):
         try:
             self.set(section, option, type(value))
         except ConfigParser.NoSectionError:
-            print ('Adding section %s'%section)
+            print("Adding section %s" % section)
             # Create non-existent section
             self.add_section(section)
             self.set(section, option, type(value))

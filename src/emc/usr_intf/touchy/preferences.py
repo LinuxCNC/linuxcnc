@@ -11,12 +11,13 @@
 # GNU General Public License for more details.
 
 
-
 import os
 import sys
 
 import configparser
+
 cp = configparser.RawConfigParser
+
 
 class preferences(cp):
     types = {
@@ -24,7 +25,7 @@ class preferences(cp):
         float: cp.getfloat,
         int: cp.getint,
         str: cp.get,
-        repr: lambda self,section,option: eval(cp.get(self,section,option)),
+        repr: lambda self, section, option: eval(cp.get(self, section, option)),
     }
 
     def __init__(self):

@@ -1,21 +1,21 @@
 #!/usr/bin/env python3
 
 """
-    This file contains helper methods for icon theme related stuff.
+This file contains helper methods for icon theme related stuff.
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 """
 import os
@@ -39,7 +39,9 @@ def find_valid_icon_themes(search_paths):
 
 def find_handler_id_by_signal(obj, signal_name):
     signal_id, detail = GObject.signal_parse_name(signal_name, obj, True)
-    return GObject.signal_handler_find(obj, GObject.SignalMatchType.ID, signal_id, detail, None, None, None)
+    return GObject.signal_handler_find(
+        obj, GObject.SignalMatchType.ID, signal_id, detail, None, None, None
+    )
 
 
 def load_symbolic_from_icon_theme(icon_theme, icon_name, size, style=None):
@@ -58,7 +60,11 @@ def load_symbolic_from_icon_theme(icon_theme, icon_name, size, style=None):
     :return: GdkPixbuf.Pixbuf
     :raises: ValueError: if icon lookup fails (usually if the theme does not contain a icon with this name)
     """
-    lookup_flags = Gtk.IconLookupFlags.USE_BUILTIN | Gtk.IconLookupFlags.FORCE_SYMBOLIC | Gtk.IconLookupFlags.FORCE_SIZE
+    lookup_flags = (
+        Gtk.IconLookupFlags.USE_BUILTIN
+        | Gtk.IconLookupFlags.FORCE_SYMBOLIC
+        | Gtk.IconLookupFlags.FORCE_SIZE
+    )
     icon_info = icon_theme.lookup_icon(icon_name, size, lookup_flags)
     if icon_info is None:
         raise ValueError(f"Lookup icon '{icon_name}' failed")
@@ -70,7 +76,9 @@ def load_symbolic_from_icon_theme(icon_theme, icon_name, size, style=None):
         __, warning_color = style.lookup_color("warning_color")
         __, error_color = style.lookup_color("error_color")
 
-        pixbuf, _ = icon_info.load_symbolic(fg, success_color, warning_color, error_color)
+        pixbuf, _ = icon_info.load_symbolic(
+            fg, success_color, warning_color, error_color
+        )
     else:
         pixbuf = icon_info.load_icon()
 

@@ -24,13 +24,14 @@ import hal
 import math
 import sys
 
-pivot_len = 250 # to agree with default in 5axiskins.c
-za =  50
+pivot_len = 250  # to agree with default in 5axiskins.c
+za = 50
 zb = 100
 
 for setting in sys.argv[1:]:
     print(setting)
     exec(setting)
+
 
 # give endpoint Z values and radii
 # resulting cylinder is on the Z axis
@@ -40,9 +41,11 @@ class HalToolCylinder(CylinderZ):
         self.comp = comp
 
     def coords(self):
-        r = 20 # default if hal pin not set
-        if (c.tool_diam > 0): r=c.tool_diam/2
+        r = 20  # default if hal pin not set
+        if c.tool_diam > 0:
+            r = c.tool_diam / 2
         return -self.comp.tool_length, r, 0, r
+
 
 c = hal.component("5axisgui")
 c.newpin("jx", hal.HAL_FLOAT, hal.HAL_IN)
@@ -57,68 +60,78 @@ c["pivot_len"] = pivot_len
 c.ready()
 
 tooltip = Capture()
-tool = Collection([HalTranslate([tooltip], c, "tool_length", 0,0,-1),
-                   HalToolCylinder(c),
-                   CylinderZ(pivot_len-(zb+za), 100, 0.0, 50),
-                   Box(-100,-100,pivot_len-(zb+za),
-                        100, 100,pivot_len-zb),
-                   Box( -50,  25,pivot_len-zb,
-                         50, 100,pivot_len)
-                   ])
+tool = Collection(
+    [
+        HalTranslate([tooltip], c, "tool_length", 0, 0, -1),
+        HalToolCylinder(c),
+        CylinderZ(pivot_len - (zb + za), 100, 0.0, 50),
+        Box(-100, -100, pivot_len - (zb + za), 100, 100, pivot_len - zb),
+        Box(-50, 25, pivot_len - zb, 50, 100, pivot_len),
+    ]
+)
 
 tool = Translate([tool], 0, 0, -pivot_len)
 
-tool = Collection([tool,
-                   CylinderY(-100,75, -10,75),
-                   CylinderY(-50,60,50,60),
-                   ])
+tool = Collection(
+    [
+        tool,
+        CylinderY(-100, 75, -10, 75),
+        CylinderY(-50, 60, 50, 60),
+    ]
+)
 
 
-tool = HalRotate([tool],c,"jb",1,0,-1,0)
+tool = HalRotate([tool], c, "jb", 1, 0, -1, 0)
 
-wrist = Collection([tool,
-                    CylinderY(100,75, 10,75),
-                    Box(-50,-100,0, 50,-25,100),
-                    Box(-100,-100,100, 100,100,150),
-                    CylinderZ(150,75, 200, 75)
-                    ])
+wrist = Collection(
+    [
+        tool,
+        CylinderY(100, 75, 10, 75),
+        Box(-50, -100, 0, 50, -25, 100),
+        Box(-100, -100, 100, 100, 100, 150),
+        CylinderZ(150, 75, 200, 75),
+    ]
+)
 
-wrist = HalRotate([wrist],c,"jc",1,0,0,1)
+wrist = HalRotate([wrist], c, "jc", 1, 0, 0, 1)
 
-ram = Collection([wrist,
-                  Box(-100,-100,200, 100,100,900),
-                  ])
+ram = Collection(
+    [
+        wrist,
+        Box(-100, -100, 200, 100, 100, 900),
+    ]
+)
 
-ram = Translate([ram], 0,0,150)
+ram = Translate([ram], 0, 0, 150)
 
-ram = HalTranslate([ram],c,"jz",0,0,1)
+ram = HalTranslate([ram], c, "jz", 0, 0, 1)
 
-ram = Collection([ram,
-                  Box(-100,100,350, 100,200,550)
-                  ])
-    
-ram = HalTranslate([ram],c,"jx",1,0,0)
+ram = Collection([ram, Box(-100, 100, 350, 100, 200, 550)])
 
-ram = Collection([ram,
-                  Box(-800,200,350, 800,400,550),
-                  Box(-1000,200,-900, -800,400,550),
-                  Box(800,200,-900,  1000,400,550)
-                  ])
+ram = HalTranslate([ram], c, "jx", 1, 0, 0)
 
-ram = HalTranslate([ram],c,"jy",0,1,0)
+ram = Collection(
+    [
+        ram,
+        Box(-800, 200, 350, 800, 400, 550),
+        Box(-1000, 200, -900, -800, 400, 550),
+        Box(800, 200, -900, 1000, 400, 550),
+    ]
+)
 
-ram = Collection([ram,
-                   Box(-1000,1000,-1000,  -800, -1000,-900),
-                   Box(800,1000,-1000, 1000,-1000,-900)
-                   ])
+ram = HalTranslate([ram], c, "jy", 0, 1, 0)
+
+ram = Collection(
+    [
+        ram,
+        Box(-1000, 1000, -1000, -800, -1000, -900),
+        Box(800, 1000, -1000, 1000, -1000, -900),
+    ]
+)
 
 work = Capture()
-table = Collection([
-        work,
-        Box(-500,-500,-400, 500,500,-450)
-        ])
+table = Collection([work, Box(-500, -500, -400, 500, 500, -450)])
 
 model = Collection([ram, table])
 
-main(model, tooltip, work, size=1500,lat=-65, lon=45)
-
+main(model, tooltip, work, size=1500, lat=-65, lon=45)

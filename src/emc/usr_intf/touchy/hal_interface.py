@@ -11,8 +11,8 @@
 # GNU General Public License for more details.
 
 
-
 import hal
+
 
 class hal_interface:
     def __init__(self, gui, emc_control, mdi_control, emc):
@@ -90,7 +90,7 @@ class hal_interface:
         self.jogaxis(0)
 
     def wheel(self):
-        counts = self.c["wheel-counts"]/4
+        counts = self.c["wheel-counts"] / 4
         ret = counts - self.counts
         self.counts = counts
         return ret
@@ -115,98 +115,120 @@ class hal_interface:
     def periodic(self, mdi_mode):
         # edge detection
         xp = self.c["jog.continuous.x.positive"]
-        if xp ^ self.xp: self.emc_control.continuous_jog(0, xp)
+        if xp ^ self.xp:
+            self.emc_control.continuous_jog(0, xp)
         self.xp = xp
 
         xn = self.c["jog.continuous.x.negative"]
-        if xn ^ self.xn: self.emc_control.continuous_jog(0, -xn)
+        if xn ^ self.xn:
+            self.emc_control.continuous_jog(0, -xn)
         self.xn = xn
 
         yp = self.c["jog.continuous.y.positive"]
-        if yp ^ self.yp: self.emc_control.continuous_jog(1, yp)
+        if yp ^ self.yp:
+            self.emc_control.continuous_jog(1, yp)
         self.yp = yp
 
         yn = self.c["jog.continuous.y.negative"]
-        if yn ^ self.yn: self.emc_control.continuous_jog(1, -yn)
+        if yn ^ self.yn:
+            self.emc_control.continuous_jog(1, -yn)
         self.yn = yn
 
         zp = self.c["jog.continuous.z.positive"]
-        if zp ^ self.zp: self.emc_control.continuous_jog(2, zp)
+        if zp ^ self.zp:
+            self.emc_control.continuous_jog(2, zp)
         self.zp = zp
 
         zn = self.c["jog.continuous.z.negative"]
-        if zn ^ self.zn: self.emc_control.continuous_jog(2, -zn)
+        if zn ^ self.zn:
+            self.emc_control.continuous_jog(2, -zn)
         self.zn = zn
 
         ap = self.c["jog.continuous.a.positive"]
-        if ap ^ self.ap: self.emc_control.continuous_jog(3, ap)
+        if ap ^ self.ap:
+            self.emc_control.continuous_jog(3, ap)
         self.ap = ap
 
         an = self.c["jog.continuous.a.negative"]
-        if an ^ self.an: self.emc_control.continuous_jog(3, -an)
+        if an ^ self.an:
+            self.emc_control.continuous_jog(3, -an)
         self.an = an
 
         bp = self.c["jog.continuous.b.positive"]
-        if bp ^ self.bp: self.emc_control.continuous_jog(4, bp)
+        if bp ^ self.bp:
+            self.emc_control.continuous_jog(4, bp)
         self.bp = bp
 
         bn = self.c["jog.continuous.b.negative"]
-        if bn ^ self.bn: self.emc_control.continuous_jog(4, -bn)
+        if bn ^ self.bn:
+            self.emc_control.continuous_jog(4, -bn)
         self.bn = bn
 
         cp = self.c["jog.continuous.c.positive"]
-        if cp ^ self.cp: self.emc_control.continuous_jog(5, cp)
+        if cp ^ self.cp:
+            self.emc_control.continuous_jog(5, cp)
         self.cp = cp
 
         cn = self.c["jog.continuous.c.negative"]
-        if cn ^ self.cn: self.emc_control.continuous_jog(5, -cn)
+        if cn ^ self.cn:
+            self.emc_control.continuous_jog(5, -cn)
         self.cn = cn
 
         up = self.c["jog.continuous.u.positive"]
-        if up ^ self.up: self.emc_control.continuous_jog(6, up)
+        if up ^ self.up:
+            self.emc_control.continuous_jog(6, up)
         self.up = up
 
         un = self.c["jog.continuous.u.negative"]
-        if un ^ self.un: self.emc_control.continuous_jog(6, -un)
+        if un ^ self.un:
+            self.emc_control.continuous_jog(6, -un)
         self.un = un
 
         vp = self.c["jog.continuous.v.positive"]
-        if vp ^ self.vp: self.emc_control.continuous_jog(7, vp)
+        if vp ^ self.vp:
+            self.emc_control.continuous_jog(7, vp)
         self.vp = vp
 
         vn = self.c["jog.continuous.v.negative"]
-        if vn ^ self.vn: self.emc_control.continuous_jog(7, -vn)
+        if vn ^ self.vn:
+            self.emc_control.continuous_jog(7, -vn)
         self.vn = vn
 
         wp = self.c["jog.continuous.w.positive"]
-        if wp ^ self.wp: self.emc_control.continuous_jog(8, wp)
+        if wp ^ self.wp:
+            self.emc_control.continuous_jog(8, wp)
         self.wp = wp
 
         wn = self.c["jog.continuous.w.negative"]
-        if wn ^ self.wn: self.emc_control.continuous_jog(8, -wn)
+        if wn ^ self.wn:
+            self.emc_control.continuous_jog(8, -wn)
         self.wn = wn
 
         quillup = self.c["quill-up"]
-        if quillup and not self.quillup: 
+        if quillup and not self.quillup:
             self.emc_control.quill_up()
         self.quillup = quillup
 
         singleblock = self.c["single-block"]
-        if singleblock ^ self.singleblock: self.emc_control.single_block(singleblock)
+        if singleblock ^ self.singleblock:
+            self.emc_control.single_block(singleblock)
         self.singleblock = singleblock
 
         cyclestart = self.c["cycle-start"]
         if cyclestart and not self.cyclestart:
-            if self.gui.wheel == "jogging": self.gui.wheel = "mv"
+            if self.gui.wheel == "jogging":
+                self.gui.wheel = "mv"
             self.gui.jogsettings_activate(0)
             if mdi_mode:
-                if not self.singleblock: self.mdi_control.ok(0)
+                if not self.singleblock:
+                    self.mdi_control.ok(0)
             else:
                 self.emc_control.cycle_start()
         self.cyclestart = cyclestart
 
         abort = self.c["abort"]
-        if abort and not self.abort: self.emc_control.abort()
+        if abort and not self.abort:
+            self.emc_control.abort()
         self.abort = abort
 
         self.emc_stat.poll()
@@ -216,7 +238,10 @@ class hal_interface:
             # blink
             self.c["status-indicator"] = not self.c["status-indicator"]
         else:
-            if self.emc_stat.queue > 0 or self.emc_stat.interp_state != self.emc.INTERP_IDLE:
+            if (
+                self.emc_stat.queue > 0
+                or self.emc_stat.interp_state != self.emc.INTERP_IDLE
+            ):
                 # something is running
                 self.c["status-indicator"] = 1
             else:

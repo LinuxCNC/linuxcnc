@@ -19,15 +19,16 @@
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
 
-
 import sys
 import os
 import tempfile
 import getopt
 import shutil
 
+
 def usage():
-    print("""Build and install Modbus components that use the Mesa PktUART
+    print(
+        """Build and install Modbus components that use the Mesa PktUART
 Usage:
   modcompile [opts] device.mod...  Compile and install a driver defined in
                                    device.mod
@@ -38,25 +39,33 @@ Options:
   -k|--keep       Keep temporary files
   -n|--noinstall  Don't perform the install step
   -v|--verbose    Verbose compile
-""")
+"""
+    )
     sys.exit(2)
 
+
 modinc = None
+
+
 def find_modinc():
     global modinc
-    if modinc: return modinc
+    if modinc:
+        return modinc
     d = os.path.abspath(os.path.dirname(os.path.dirname(sys.argv[0])))
-    for e in ['src', 'etc/linuxcnc', '/etc/linuxcnc', 'share/linuxcnc']:
-        e = os.path.join(d, e, 'Makefile.modinc')
+    for e in ["src", "etc/linuxcnc", "/etc/linuxcnc", "share/linuxcnc"]:
+        e = os.path.join(d, e, "Makefile.modinc")
         if os.path.exists(e):
             modinc = e
             return e
     raise SystemExit("Unable to locate Makefile.modinc")
 
+
 def main():
     # Get the command-line options
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "hklnv", ["help", "keep", "noinstall", "verbose"])
+        opts, args = getopt.getopt(
+            sys.argv[1:], "hklnv", ["help", "keep", "noinstall", "verbose"]
+        )
     except getopt.GetoptError as err:
         raise SystemExit(err)  # Something like "option -a not recognized"
 
@@ -74,19 +83,19 @@ def main():
         elif o in ("-h", "--help"):
             usage()
         else:
-            raise SystemExit("Unhandled option: '%s'" % o);
+            raise SystemExit("Unhandled option: '%s'" % o)
 
     if len(args) < 1:
-        raise SystemExit("Must have at least one 'file.mod' argument or 'all' for all.");
+        raise SystemExit("Must have at least one 'file.mod' argument or 'all' for all.")
 
     if len(args) > 1 and "all" in args:
-        raise SystemExit("Cannot do both 'all' modules and specific modules.");
+        raise SystemExit("Cannot do both 'all' modules and specific modules.")
     if args[0] == "all":
         args = [f for f in os.listdir(".") if f.endswith(".mod")]
     # 'args' now contains all modules to compile
 
     if len(args) < 1:
-        raise SystemExit("No modules found (*.mod files) to compile.");
+        raise SystemExit("No modules found (*.mod files) to compile.")
 
     # Create a temporary directory and copy the C template into it
     tempdir = tempfile.mkdtemp(prefix="modcompile")
@@ -108,7 +117,9 @@ def main():
         print("EXTRA_CFLAGS += -DMODFILE=%s" % os.path.abspath(f), file=m)
         print("EXTRA_CFLAGS += -D_COMP_NAME_=%s" % modname, file=m)
         m.close()
-        result = os.system("cd %s && make -B -S modules %s%s" % (tempdir, install, verbose))
+        result = os.system(
+            "cd %s && make -B -S modules %s%s" % (tempdir, install, verbose)
+        )
         if result != 0:
             raise SystemExit(os.WEXITSTATUS(result) or 1)
 
@@ -117,6 +128,7 @@ def main():
         print("Sources and build files kept in: %s" % tempdir)
     else:
         shutil.rmtree(tempdir)
+
 
 if __name__ == "__main__":
     main()

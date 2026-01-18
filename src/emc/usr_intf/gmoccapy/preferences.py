@@ -11,10 +11,11 @@
 # GNU General Public License for more details.
 
 
-
 import os, configparser
 
 cp = configparser.RawConfigParser
+
+
 class preferences(cp):
     types = {
         bool: cp.getboolean,
@@ -24,14 +25,14 @@ class preferences(cp):
         repr: lambda self, section, option: eval(cp.get(self, section, option)),
     }
 
-    def __init__(self, path = None):
+    def __init__(self, path=None):
         cp.__init__(self)
         if not path:
             path = "~/.gmoccapy_preferences"
         self.fn = os.path.expanduser(path)
         self.read(self.fn)
 
-    def getpref(self, option, default = False, type = bool):
+    def getpref(self, option, default=False, type=bool):
         m = self.types.get(type)
         try:
             o = m(self, "DEFAULT", option)
@@ -39,12 +40,12 @@ class preferences(cp):
             print(detail)
             self.set("DEFAULT", option, default)
             self.write(open(self.fn, "w"))
-            if type in(bool, float, int):
+            if type in (bool, float, int):
                 o = type(default)
             else:
                 o = default
         return o
 
-    def putpref(self, option, value, type = str):
+    def putpref(self, option, value, type=str):
         self.set("DEFAULT", option, type(value))
         self.write(open(self.fn, "w"))

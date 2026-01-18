@@ -2,18 +2,19 @@
 
 # based on earlier work by Rolf Redford, Nov 2018
 
-#import libraries
+# import libraries
 from vismach import *
 import hal
 import math
 import sys
 
-#----------------------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------
 # Starting and defining
 
 # used for diameter for versions less than 2.8.
 # it gives us way to access variable values from vismach script.
 import linuxcnc
+
 s = linuxcnc.stat()
 s.poll()
 
@@ -41,9 +42,10 @@ c.ready()
 
 # Used for tool cylinder
 # it will be updated in shape and length by function below.
-#toolshape = CylinderZ(0)
+# toolshape = CylinderZ(0)
 toolshape = TriangleXZ(0)
-toolshape = Color([1, 1, 0, 1],[toolshape])
+toolshape = Color([1, 1, 0, 1], [toolshape])
+
 
 # we use a triangle for the tool
 # since we need to visualize a lathe tool here
@@ -55,21 +57,22 @@ class HalToolTriangle(TriangleXZ):
         # specifically tool cylinder in this case.
         TriangleXZ.__init__(self, *args)
         self.comp = c
+
     def coords(self):
-        #print(self.comp["tooldiameter"])
+        # print(self.comp["tooldiameter"])
         leng = s.tool_table[s.tool_in_spindle].zoffset
         x1 = leng
         z1 = -self.comp["tool-x-offset"]
-        x2 = 1#self.comp["tool-x-offset"]+10
-        z2 = -leng/2
-        x3 = 2#self.comp["tooldiameter"]
+        x2 = 1  # self.comp["tool-x-offset"]+10
+        z2 = -leng / 2
+        x3 = 2  # self.comp["tooldiameter"]
         z3 = 0
-        if self.comp["millkins"] :
+        if self.comp["millkins"]:
             x1 = 0
             z1 = -leng
-            x2 = -2 #-self.comp["tooldiameter"]/2-0.01
+            x2 = -2  # -self.comp["tooldiameter"]/2-0.01
             z2 = 0
-            x3 = 2 #self.comp["tooldiameter"]/2+0.01
+            x3 = 2  # self.comp["tooldiameter"]/2+0.01
             z3 = 0
         return (x1, z1, x2, z2, x3, z3, 0, 1)
 
@@ -82,11 +85,12 @@ class HalToolCylinder(CylinderZ):
         # specifically tool cylinder in this case.
         CylinderZ.__init__(self, *args)
         self.comp = c
+
     def coords(self):
-        #print(self.comp["millkins"])
-        if self.comp["millkins"] :
-            rad = ( self.comp["tooldiameter"] )
-            rad = rad / 2 # change to rad
+        # print(self.comp["millkins"])
+        if self.comp["millkins"]:
+            rad = self.comp["tooldiameter"]
+            rad = rad / 2  # change to rad
             rad2 = rad
         else:
             rad = self.comp["tool-x-offset"]
@@ -98,80 +102,79 @@ class HalToolCylinder(CylinderZ):
         leng = s.tool_table[s.tool_in_spindle].zoffset
         # Update tool length when g43h(toolnumber) is called, otherwise stays at 0 or previous size.
         # commented out as I prefer machine to show actual tool size right away.
-        #leng = self.comp["toollength"]
+        # leng = self.comp["toollength"]
         return (-leng, rad, 0, rad2)
 
 
-
-#----------------------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------
 # Starting with fixed frame
 
 # start creating base itself, floor and column for z. box is centered on 0,0,0
 base = BoxCentered(200, 560, 20)
 # translate it so top of base is at zero
-base = Translate([base], 0,0,-10)
+base = Translate([base], 0, 0, -10)
 
 # column, attached to base on side.
 # Box() accepts extents
 # ie -100 to 100 is 200 wide, and rightmost is at -100 on coord.
 #        Box(x rightmost, y futherest, z lowest, x leftmost, y nearest, z highest)
-column = Box(        -60,        -260,        0,         60,      -200,       400)
+column = Box(-60, -260, 0, 60, -200, 400)
 
 # add block on top
 # not really needed, but I like how it looks with it.
 # bare column looks little bit strange for some reason.
-top = Box(-80,-280,400, 80,-160,440)
+top = Box(-80, -280, 400, 80, -160, 440)
 
 # now fuse it into "frame"
 frame = Collection([base, column, top])
 # color it grayish
-frame = Color([.8,.8,.8,1],[frame])
+frame = Color([0.8, 0.8, 0.8, 1], [frame])
 
 
-#----------------------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------
 # Moving parts section
 
 # Start with X, Y then finally Z with tool and spindle.
 
 # X table addition
-xbase = BoxCentered(1000,200,30)
+xbase = BoxCentered(1000, 200, 30)
 # let's color it blue
-xbase = Color([0,0,1,1], [xbase])
+xbase = Color([0, 0, 1, 1], [xbase])
 # Move table so top is at zero for now,
 # so work (default 0,0,0) is on top of table.
-xbase = Translate([xbase], 0,0, -15)
+xbase = Translate([xbase], 0, 0, -15)
 
 # A-axis/spindle assembly creation
 abase = BoxCentered(200, 100, 140)
 # colorize it green so we can see it separate from frame.
-abase = Color([0,1,0,1], [abase])
+abase = Color([0, 1, 0, 1], [abase])
 # translate the base so it sits on the left side of the table
-abase = Translate([abase],400,0,50)
+abase = Translate([abase], 400, 0, 50)
 # attach base to table
-xspindleassembly1 = Collection([xbase, abase ])
+xspindleassembly1 = Collection([xbase, abase])
 # create chuck
-chuck = CylinderX(0,30,-10,30)
+chuck = CylinderX(0, 30, -10, 30)
 # color it red, as in danger!
-chuck = Color([1,0,0,1], [chuck])
+chuck = Color([1, 0, 0, 1], [chuck])
 # create chuck clamp1
 chuck_clamp1 = BoxCentered(30, 30, 10)
 # translate
-chuck_clamp1 = Translate([chuck_clamp1],0,-20,0)
+chuck_clamp1 = Translate([chuck_clamp1], 0, -20, 0)
 # create chuck clamp2
 chuck_clamp2 = BoxCentered(30, 30, 10)
 # translate
-chuck_clamp2 = Translate([chuck_clamp2],0,-20,0)
-chuck_clamp2 = Rotate([chuck_clamp2],120,1,0,0)
+chuck_clamp2 = Translate([chuck_clamp2], 0, -20, 0)
+chuck_clamp2 = Rotate([chuck_clamp2], 120, 1, 0, 0)
 # create chuck clamp3
 chuck_clamp3 = BoxCentered(30, 30, 10)
 # translate
-chuck_clamp3 = Translate([chuck_clamp3],0,-20,0)
-chuck_clamp3 = Rotate([chuck_clamp3],-120,1,0,0)
+chuck_clamp3 = Translate([chuck_clamp3], 0, -20, 0)
+chuck_clamp3 = Rotate([chuck_clamp3], -120, 1, 0, 0)
 # attach chuck clamps to chuck
 chuckassembly = Collection([chuck, chuck_clamp1, chuck_clamp2, chuck_clamp3])
-chuckassembly = HalRotate([chuckassembly],c,"jointA",1,-1,0,0)
+chuckassembly = HalRotate([chuckassembly], c, "jointA", 1, -1, 0, 0)
 # translate the base so it sits on the left side of the table
-chuckassembly = Translate([chuckassembly],300,0,80)
+chuckassembly = Translate([chuckassembly], 300, 0, 80)
 # attach spinle nose to spindle block
 xspindleassembly = Collection([xspindleassembly1, chuckassembly])
 
@@ -186,7 +189,7 @@ xassembly = Collection([xspindleassembly, work])
 # work is now defined and grouped, and default at 0,0,0, or
 # currently on top of x part table.
 # so we move table group upwards, taking work with it.
-xassembly = Translate([xassembly], 0,0, 35)
+xassembly = Translate([xassembly], 0, 0, 35)
 
 # Must define part motion before it becomes part of collection.
 # Must have arguments, object itself, c (defined above), then finally scale from the pin to x y z.
@@ -198,7 +201,7 @@ xassembly = HalTranslate([xassembly], c, "jointX", 1, 0, 0)
 # Y assembly creation
 ybase = BoxCentered(200, 200, 10)
 # colorize it green so we can see it separate from frame.
-ybase = Color([0,1,0,1], [ybase])
+ybase = Color([0, 1, 0, 1], [ybase])
 # don't define translation for this one, as y also moves X table.
 # translating this would move itself alone. You want it to move X parts also.
 
@@ -209,15 +212,15 @@ yassembly = Collection([ybase, xassembly])
 yassembly = HalTranslate([yassembly], c, "jointY", 0, 1, 0)
 # Now that translate is locked with part,
 # move it upwards so its on frame base.
-yassembly = Translate([yassembly], 0,0,5)
+yassembly = Translate([yassembly], 0, 0, 5)
 
 # spindle head
 # define small cylinder where tool will be attached to.
 # It is shallow, basically exposed end of "cat30" toolholder.
 # let's pretend machine uses cat30.
-cat30 = CylinderZ(0, 30, 20, 40) # cone wider top smaller bottom
+cat30 = CylinderZ(0, 30, 20, 40)  # cone wider top smaller bottom
 # color it red, as in danger, tool!
-cat30 = Color([1,0,0,1], [cat30])
+cat30 = Color([1, 0, 0, 1], [cat30])
 
 # Define tool and grab such model information from linuxcnc
 # tooltip is initially in vismach "world" 0,0,0.
@@ -232,8 +235,8 @@ tooltip = Capture()
 tool1 = HalTranslate([tooltip], c, "tool-x-offset", 1, 0, 0)
 tool2 = HalTranslate([tool1], c, "toollength", 0, 0, -1)
 
-#tool = Collection([tool2,HalToolCylinder(toolshape)])
-tool = Collection([tool2,HalToolTriangle(toolshape)])
+# tool = Collection([tool2,HalToolCylinder(toolshape)])
+tool = Collection([tool2, HalToolTriangle(toolshape)])
 
 
 # Since tool is defined, lets attach it to cat30
@@ -243,18 +246,18 @@ toolassembly = Collection([cat30, tool])
 # and tool will "move" with it now.
 # BUT we need to build rest of head in such way that TOP of head is defined as Z zero.
 # Move it so it attaches to bottom of spindle body.
-toolassembly = Translate([toolassembly],0,0,-120)
+toolassembly = Translate([toolassembly], 0, 0, -120)
 
 # Start building Z assembly head, including spindle and support
 # top is at zero as I want top to be defined as Z home top.
-spindle = CylinderZ(-100, 60, 0, 60) # top is at zero
+spindle = CylinderZ(-100, 60, 0, 60)  # top is at zero
 # define rest of head using Box
 zbody = Box(-30, -200, 0, 30, 0, -100)
 
 # fuse into z assembly
 zframe = Collection([zbody, spindle])
 # color it yellow
-zframe = Color([1,1,0,1], [zframe])
+zframe = Color([1, 1, 0, 1], [zframe])
 
 # Now that all parts are created, let's group it and finally make Z motion
 zassembly = Collection([zframe, toolassembly])
@@ -262,9 +265,9 @@ zassembly = Collection([zframe, toolassembly])
 zassembly = HalTranslate([zassembly], c, "jointZ", 0, 0, 1)
 # Now that motion is defined,
 # we can now move it to Z home position.
-zassembly = Translate([zassembly], 0,0, 400)
+zassembly = Translate([zassembly], 0, 0, 400)
 
-#----------------------------------------------------------------------------------------------------------------------------------
+# ----------------------------------------------------------------------------------------------------------------------------------
 # Getting it all together and finishing model
 
 # Assembly everything into single model.
@@ -279,19 +282,3 @@ model = Collection([frame, yassembly, zassembly])
 # size of screen (bigger means more zoomed out to show more of machine)
 # last 2 is where view point source is.
 main(model, tooltip, work, 600, lat=-75, lon=170)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -1,42 +1,44 @@
 #!/usr/bin/env python3
 
-'''
-    This class is used to handle sound messages from gmoccapy,
-    it is just a copy of a class from gscreen and has been slightly modified
+"""
+This class is used to handle sound messages from gmoccapy,
+it is just a copy of a class from gscreen and has been slightly modified
 
-    Copyright 2014 Norbert Schechner
-    nieson@web.de
-    original Author = Chris Morley
+Copyright 2014 Norbert Schechner
+nieson@web.de
+original Author = Chris Morley
 
-    This program is free software; you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation; either version 2 of the License, or
-    (at your option) any later version.
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2 of the License, or
+(at your option) any later version.
 
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program; if not, write to the Free Software
-    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-'''
+"""
 import gi
 from gi.repository import GLib
 
 from common import logger
+
 LOG = logger.getLogger(__name__)
 # Force the log level for this module
-#LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL# attempt to setup audio
+# LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL# attempt to setup audio
 
 try:
-    gi.require_version('Gst', '1.0')
+    gi.require_version("Gst", "1.0")
     from gi.repository import Gst
 except:
     LOG.warning("Gst module missing, - is package python3-gst installed?")
     raise Exception("module missing")
+
 
 # the player class does the work of playing the audio hints
 # http://pygstdocs.berlios.de/pygst-tutorial/introduction.html
@@ -70,5 +72,5 @@ class Player:
             # Error occurred, print and stop
             self.player.set_state(Gst.State.NULL)
             err, debug = message.parse_error()
-            print ("Error: %s" % err, debug)
+            print("Error: %s" % err, debug)
             self.loop.quit()

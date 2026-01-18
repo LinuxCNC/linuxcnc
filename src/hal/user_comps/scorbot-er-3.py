@@ -36,8 +36,10 @@ import serial
 import time
 import math
 
+
 def serial_write(data):
     serial.write(data)
+
 
 def serial_read(num_bytes):
     if not hasattr(serial_read, "warned"):
@@ -52,20 +54,20 @@ def serial_read(num_bytes):
     return data
 
 
-port = '/dev/ttyS0'
+port = "/dev/ttyS0"
 serial = serial.serial_for_url(
     port,
     9600,
-    bytesize = serial.EIGHTBITS,
-    parity = serial.PARITY_NONE,
-    stopbits = serial.STOPBITS_TWO,
-    rtscts = False,
-    xonxoff = False,
-    timeout = 1
+    bytesize=serial.EIGHTBITS,
+    parity=serial.PARITY_NONE,
+    stopbits=serial.STOPBITS_TWO,
+    rtscts=False,
+    xonxoff=False,
+    timeout=1,
 )
 
 # disable "interrupts" from the Scorbot ER-3
-serial_write('X')
+serial_write("X")
 
 
 h = hal.component("scorbot-er-3")
@@ -76,20 +78,20 @@ old_motor_pos_cmd = [None] * 8
 old_counts = [None] * 8
 old_motor_max_vel = [None] * 8
 for joint in range(0, 8):
-    h.newpin('joint%d.limit-sw' % joint, hal.HAL_BIT, hal.HAL_OUT)
-    h.newpin('joint%d.motor-pos-cmd' % joint, hal.HAL_FLOAT, hal.HAL_IN)
-    h.newpin('joint%d.scale' % joint, hal.HAL_FLOAT, hal.HAL_IN)
-    h.newpin('joint%d.motor-max-vel' % joint, hal.HAL_S32, hal.HAL_IN)
+    h.newpin("joint%d.limit-sw" % joint, hal.HAL_BIT, hal.HAL_OUT)
+    h.newpin("joint%d.motor-pos-cmd" % joint, hal.HAL_FLOAT, hal.HAL_IN)
+    h.newpin("joint%d.scale" % joint, hal.HAL_FLOAT, hal.HAL_IN)
+    h.newpin("joint%d.motor-max-vel" % joint, hal.HAL_S32, hal.HAL_IN)
 
-    h['joint%d.motor-pos-cmd' % joint] = 0.0
+    h["joint%d.motor-pos-cmd" % joint] = 0.0
     old_motor_pos_cmd[joint] = 0.0
 
-    h['joint%d.scale' % joint] = 1.0
+    h["joint%d.scale" % joint] = 1.0
 
     old_counts[joint] = 0
 
-    h['joint%d.motor-max-vel' % joint] = 9  # fastest speed
-    old_motor_max_vel[joint] = 0 # force an update right away
+    h["joint%d.motor-max-vel" % joint] = 9  # fastest speed
+    old_motor_max_vel[joint] = 0  # force an update right away
 
 h.ready()
 
@@ -101,29 +103,30 @@ while True:
         # this component/driver gets input in the form of position (angular) and scale
         # position = counts / scale
         # counts = position * scale
-        if not math.isnan(h['joint%d.motor-pos-cmd' % joint]):
-            new_counts = int(h['joint%d.motor-pos-cmd' % joint] * h['joint%d.scale' % joint])
+        if not math.isnan(h["joint%d.motor-pos-cmd" % joint]):
+            new_counts = int(
+                h["joint%d.motor-pos-cmd" % joint] * h["joint%d.scale" % joint]
+            )
         else:
             new_counts = old_counts[joint]
 
         if new_counts != old_counts[joint]:
             delta = new_counts - old_counts[joint]
 
-            serial_write('%dm%d\n\r' % (joint+1, delta))
-            old_motor_pos_cmd[joint] = h['joint%d.motor-pos-cmd' % joint]
+            serial_write("%dm%d\n\r" % (joint + 1, delta))
+            old_motor_pos_cmd[joint] = h["joint%d.motor-pos-cmd" % joint]
             old_counts[joint] = new_counts
 
-        if h['joint%d.motor-max-vel' % joint] != old_motor_max_vel[joint]:
-            serial_write('%dv%d\n' % (joint+1, h['joint%d.motor-max-vel' % joint]))
-            old_motor_max_vel[joint] = h['joint%d.motor-max-vel' % joint]
+        if h["joint%d.motor-max-vel" % joint] != old_motor_max_vel[joint]:
+            serial_write("%dv%d\n" % (joint + 1, h["joint%d.motor-max-vel" % joint]))
+            old_motor_max_vel[joint] = h["joint%d.motor-max-vel" % joint]
 
-        serial_write('%dl' % (joint+1))
+        serial_write("%dl" % (joint + 1))
 
     data = serial_read(8)
     for joint in range(0, 8):
-        l = data[joint:joint+1]
+        l = data[joint : joint + 1]
         if l != None:
-            h['joint%d.limit-sw' % joint] = bool(int(l))
+            h["joint%d.limit-sw" % joint] = bool(int(l))
 
     time.sleep(0.001)
-

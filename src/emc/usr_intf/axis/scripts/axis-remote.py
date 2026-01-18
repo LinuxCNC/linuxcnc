@@ -31,37 +31,40 @@ import _thread
 UNSPECIFIED, OPEN, RELOAD, PING, CLEAR, MDI, QUIT = list(range(7))
 mode = UNSPECIFIED
 
+
 def usage(exitval=0):
     print(__doc__)
     raise SystemExit(exitval)
 
+
 try:
-    opts, args = getopt.getopt(sys.argv[1:], "h?prqcm",
-                        ['help','ping', 'reload', 'quit', 'clear', 'mdi'])
+    opts, args = getopt.getopt(
+        sys.argv[1:], "h?prqcm", ["help", "ping", "reload", "quit", "clear", "mdi"]
+    )
 except getopt.GetoptError as detail:
     print(detail)
     usage(99)
 
 for o, a in opts:
-    if o in ('-h', '-?', '--help'):
+    if o in ("-h", "-?", "--help"):
         usage(0)
-    elif o in ('-c', '--clear'):
+    elif o in ("-c", "--clear"):
         if mode != UNSPECIFIED:
             usage(99)
         mode = CLEAR
-    elif o in ('-p', '--ping'):
+    elif o in ("-p", "--ping"):
         if mode != UNSPECIFIED:
             usage(99)
         mode = PING
-    elif o in ('-r', '--reload'):
+    elif o in ("-r", "--reload"):
         if mode != UNSPECIFIED:
             usage(99)
         mode = RELOAD
-    elif o in ('-q', '--quit'):
+    elif o in ("-q", "--quit"):
         if mode != UNSPECIFIED:
             usage(99)
         mode = QUIT
-    elif o in ('-m', '--mdi'):
+    elif o in ("-m", "--mdi"):
         if mode != UNSPECIFIED:
             usage(99)
         mode = MDI
@@ -78,7 +81,8 @@ else:
     if len(args) != 0:
         usage(99)
 
-t = tkinter.Tk(); t.wm_withdraw()
+t = tkinter.Tk()
+t.wm_withdraw()
 
 msg = ""
 try:
@@ -90,15 +94,17 @@ try:
     # cmds below are checked for suitability by axis remote() function
     #      return "" if ok
     elif mode == OPEN:
-        msg = t.tk.call("send", "axis", ("remote","open_file_name", os.path.abspath(args[0])))
+        msg = t.tk.call(
+            "send", "axis", ("remote", "open_file_name", os.path.abspath(args[0]))
+        )
     elif mode == MDI:
-        msg = t.tk.call("send", "axis", ("remote","send_mdi_command", args[0]))
+        msg = t.tk.call("send", "axis", ("remote", "send_mdi_command", args[0]))
     elif mode == RELOAD:
-        msg = t.tk.call("send", "axis", ("remote","reload_file"))
+        msg = t.tk.call("send", "axis", ("remote", "reload_file"))
     elif mode == CLEAR:
-        msg = t.tk.call("send", "axis", ("remote","clear_live_plot"))
+        msg = t.tk.call("send", "axis", ("remote", "clear_live_plot"))
     elif mode == QUIT:
-        msg = t.tk.call("send", "axis", ("remote","destroy"))
+        msg = t.tk.call("send", "axis", ("remote", "destroy"))
 except tkinter.TclError as detail:
     raise SystemExit(detail)
 

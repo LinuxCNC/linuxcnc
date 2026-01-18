@@ -19,6 +19,8 @@
 #    along with this program; if not, write to the Free Software
 #    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+# fmt: off
+
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
@@ -5722,3 +5724,5 @@ if __name__ == "__main__":
     # catch control c
     signal.signal(signal.SIGINT, lambda *args: Gtk.main_quit())
     Gtk.main()
+
+# fmt: on

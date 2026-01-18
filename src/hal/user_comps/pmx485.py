@@ -1,4 +1,4 @@
-'''
+"""
 pmx485.py
 
 Copyright (C) 2019 - 2024 Phillip A Carter
@@ -19,91 +19,93 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License along
 with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-'''
+"""
 
 import sys
 import hal
 import serial
 import time
 
-address      = '01'
-regRead      = '04'
-regWrite     = '06'
-rCurrent     = '2094'
-rCurrentMax  = '209A'
-rCurrentMin  = '2099'
-rFault       = '2098'
-rMode        = '2093'
-rPressure    = '2096'
-rPressureMax = '209D'
-rPressureMin = '209C'
-rArcTimeLow  = '209E'
-rArcTimeHigh = '209F'
-validRead    = '0402'
-started      = False
-errorCount   = 0
+address = "01"
+regRead = "04"
+regWrite = "06"
+rCurrent = "2094"
+rCurrentMax = "209A"
+rCurrentMin = "2099"
+rFault = "2098"
+rMode = "2093"
+rPressure = "2096"
+rPressureMax = "209D"
+rPressureMin = "209C"
+rArcTimeLow = "209E"
+rArcTimeHigh = "209F"
+validRead = "0402"
+started = False
+errorCount = 0
 
 # create pmx485 component
 try:
-    pmx485 = hal.component('pmx485')
-    pmx485.newpin('mode_set', hal.HAL_FLOAT, hal.HAL_IN)      #set cutting mode
-    pmx485.newpin('current_set', hal.HAL_FLOAT, hal.HAL_IN)   #set cutting current
-    pmx485.newpin('pressure_set', hal.HAL_FLOAT, hal.HAL_IN)  #set gas pressure
-    pmx485.newpin('enable', hal.HAL_BIT, hal.HAL_IN)          #enabler
-    pmx485.newpin('mode', hal.HAL_FLOAT, hal.HAL_OUT)         #cut mode feedback
-    pmx485.newpin('current', hal.HAL_FLOAT, hal.HAL_OUT)      #cutting current feedback
-    pmx485.newpin('pressure', hal.HAL_FLOAT, hal.HAL_OUT)     #gas pressure feedback
-    pmx485.newpin('fault', hal.HAL_FLOAT, hal.HAL_OUT)        #fault code
-    pmx485.newpin('status', hal.HAL_BIT, hal.HAL_OUT)         #connection status out
-    pmx485.newpin('current_min', hal.HAL_FLOAT, hal.HAL_OUT)  #minimum allowed current
-    pmx485.newpin('current_max', hal.HAL_FLOAT, hal.HAL_OUT)  #maximum allowed current
-    pmx485.newpin('pressure_min', hal.HAL_FLOAT, hal.HAL_OUT) #minimum allowed gas pressure
-    pmx485.newpin('pressure_max', hal.HAL_FLOAT, hal.HAL_OUT) #maximum allowed gas pressure
-    pmx485.newpin('arcTime', hal.HAL_FLOAT, hal.HAL_OUT)      #arc on time feedback
+    pmx485 = hal.component("pmx485")
+    pmx485.newpin("mode_set", hal.HAL_FLOAT, hal.HAL_IN)  # set cutting mode
+    pmx485.newpin("current_set", hal.HAL_FLOAT, hal.HAL_IN)  # set cutting current
+    pmx485.newpin("pressure_set", hal.HAL_FLOAT, hal.HAL_IN)  # set gas pressure
+    pmx485.newpin("enable", hal.HAL_BIT, hal.HAL_IN)  # enabler
+    pmx485.newpin("mode", hal.HAL_FLOAT, hal.HAL_OUT)  # cut mode feedback
+    pmx485.newpin("current", hal.HAL_FLOAT, hal.HAL_OUT)  # cutting current feedback
+    pmx485.newpin("pressure", hal.HAL_FLOAT, hal.HAL_OUT)  # gas pressure feedback
+    pmx485.newpin("fault", hal.HAL_FLOAT, hal.HAL_OUT)  # fault code
+    pmx485.newpin("status", hal.HAL_BIT, hal.HAL_OUT)  # connection status out
+    pmx485.newpin("current_min", hal.HAL_FLOAT, hal.HAL_OUT)  # minimum allowed current
+    pmx485.newpin("current_max", hal.HAL_FLOAT, hal.HAL_OUT)  # maximum allowed current
+    pmx485.newpin(
+        "pressure_min", hal.HAL_FLOAT, hal.HAL_OUT
+    )  # minimum allowed gas pressure
+    pmx485.newpin(
+        "pressure_max", hal.HAL_FLOAT, hal.HAL_OUT
+    )  # maximum allowed gas pressure
+    pmx485.newpin("arcTime", hal.HAL_FLOAT, hal.HAL_OUT)  # arc on time feedback
     pmx485.ready()
 except:
-    print('\nERROR: pmx485 component could not be initialized\n')
-    raise(SystemExit)
+    print("\nERROR: pmx485 component could not be initialized\n")
+    raise (SystemExit)
 
 enabled = pmx485.enable
 
 # connection setup
 comPort = sys.argv[1]
 try:
-    comms = serial.Serial(comPort,
-                          baudrate = 19200,
-                          bytesize = 8,
-                          parity = 'E',
-                          stopbits = 1,
-                          timeout = 0.1
-                         )
+    comms = serial.Serial(
+        comPort, baudrate=19200, bytesize=8, parity="E", stopbits=1, timeout=0.1
+    )
 except:
-    print(f'\nERROR: Could not open {comPort} for Powermax communications\n')
+    print(f"\nERROR: Could not open {comPort} for Powermax communications\n")
     raise SystemExit
+
 
 # get the checksum
 def get_lrc(data):
     try:
         lrc = 0
         for i in range(0, len(data), 2):
-            a, b = data[i:i+2]
+            a, b = data[i : i + 2]
             try:
                 lrc = (lrc + int(a + b, 16)) & 255
             except:
-                return '00'
-        lrc = (f'{(((lrc ^ 255) + 1) & 255):02X}').upper()
+                return "00"
+        lrc = (f"{(((lrc ^ 255) + 1) & 255):02X}").upper()
         return lrc
     except:
         return 0
 
+
 # write data to register
 def write_register(reg, value):
     try:
-        data = f'{address}{regWrite}{reg}{value}'
+        data = f"{address}{regWrite}{reg}{value}"
         if len(data) == 12:
             lrc = get_lrc(data)
-            packet = f':{data}{lrc}\r\n'
-            reply = ''
+            packet = f":{data}{lrc}\r\n"
+            reply = ""
             comms.write(packet.encode())
             reply = comms.readline().decode()
             if reply:
@@ -113,18 +115,19 @@ def write_register(reg, value):
     except:
         return 0
 
+
 # read data from register
 def read_register(reg):
     try:
-        data = f'{address}{regRead}{reg}0001'
+        data = f"{address}{regRead}{reg}0001"
         if len(data) == 12:
             lrc = get_lrc(data)
-            packet = f':{data}{lrc}\r\n'
-            reply = ''
+            packet = f":{data}{lrc}\r\n"
+            reply = ""
             comms.write(packet.encode())
             reply = comms.readline().decode()
             if reply:
-                if len(reply) == 15 and reply[:7] == f':{address}{validRead}':
+                if len(reply) == 15 and reply[:7] == f":{address}{validRead}":
                     lrc = get_lrc(reply[1:11])
                     if lrc == reply[11:13]:
                         return reply[7:11]
@@ -132,24 +135,27 @@ def read_register(reg):
     except:
         return 0
 
+
 # set machine to local mode
 def close_machine():
-    write_register(rMode, f'{0:04X}')
-    write_register(rCurrent, f'{0:04X}')
-    write_register(rPressure, f'{0:04X}')
+    write_register(rMode, f"{0:04X}")
+    write_register(rCurrent, f"{0:04X}")
+    write_register(rPressure, f"{0:04X}")
+
 
 # set machine to remote mode
 def open_machine():
     # set mode
-    mode = write_register(rMode, f'{int(pmx485.mode_set):04X}')
+    mode = write_register(rMode, f"{int(pmx485.mode_set):04X}")
     # set current
-    current = write_register(rCurrent, f'{int(pmx485.current_set * 64.0):04X}')
+    current = write_register(rCurrent, f"{int(pmx485.current_set * 64.0):04X}")
     # set pressure
-    pressure = write_register(rPressure, f'{int(pmx485.pressure_set * 128.0):04X}')
+    pressure = write_register(rPressure, f"{int(pmx485.pressure_set * 128.0):04X}")
     if mode and current and pressure:
         return True
     else:
         return False
+
 
 # get settings limits
 def get_limits():
@@ -174,8 +180,9 @@ def get_limits():
     else:
         return False
 
+
 # main loop
-while hal.component_exists('motmod'):
+while hal.component_exists("motmod"):
     try:
         # only run not enabled code once, saves memory usage
         if enabled != pmx485.enable:
@@ -198,7 +205,7 @@ while hal.component_exists('motmod'):
             else:
                 # set mode
                 if pmx485.mode_set != pmx485.mode:
-                    mode = write_register(rMode, f'{int(pmx485.mode_set):04X}')
+                    mode = write_register(rMode, f"{int(pmx485.mode_set):04X}")
                     if mode:
                         pmx485.mode = pmx485.mode_set
                         get_limits()
@@ -209,7 +216,9 @@ while hal.component_exists('motmod'):
                         pmx485.mode = int(mode, 16)
                 # set current
                 if pmx485.current_set != round(pmx485.current, 1):
-                    current = write_register(rCurrent, f'{int(pmx485.current_set * 64):04X}')
+                    current = write_register(
+                        rCurrent, f"{int(pmx485.current_set * 64):04X}"
+                    )
                     if current:
                         pmx485.current = pmx485.current_set
                 # get current
@@ -219,7 +228,9 @@ while hal.component_exists('motmod'):
                         pmx485.current = round(int(current, 16) / 64.0, 1)
                 # set pressure
                 if pmx485.pressure_set != round(pmx485.pressure, 1):
-                    pressure = write_register(rPressure, f'{int(pmx485.pressure_set * 128):04X}')
+                    pressure = write_register(
+                        rPressure, f"{int(pmx485.pressure_set * 128):04X}"
+                    )
                     if pressure:
                         pmx485.pressure = pmx485.pressure_set
                 # get pressure
@@ -237,11 +248,18 @@ while hal.component_exists('motmod'):
                 if arcTimeLow and arcTimeHigh:
                     pmx485.arcTime = int((arcTimeHigh + arcTimeLow), 16)
                 # set status
-                if mode and current and pressure and fault and arcTimeLow and arcTimeHigh:
+                if (
+                    mode
+                    and current
+                    and pressure
+                    and fault
+                    and arcTimeLow
+                    and arcTimeHigh
+                ):
                     pmx485.status = True
                     errorCount = 0
                 else:
-                    errorCount +=1
+                    errorCount += 1
                     if errorCount > 3:
                         errorCount = 0
                         enabled = False
@@ -254,7 +272,7 @@ while hal.component_exists('motmod'):
             time.sleep(0.1)
     except:
         if enabled:
-            print('Unknown error in pmx485 communications')
+            print("Unknown error in pmx485 communications")
         if started:
             if not comms.isOpen():
                 comms.open()

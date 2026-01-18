@@ -14,18 +14,21 @@ from common.iniinfo import _IStat as IStatParent
 from common import logger
 
 # LOG is for running code logging
-LOG = logger.initBaseLogger('HAL bridge', log_file=None,
-             log_level=logger.WARNING, logToFile=False)
+LOG = logger.initBaseLogger(
+    "HAL bridge", log_file=None, log_level=logger.WARNING, logToFile=False
+)
 
 # Force the log level for this module
-#LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+# LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 try:
     import zmq
+
     ZMQ = True
 except:
-    LOG.critical('ZMQ python library problem  - Is python3-zmq installed?')
+    LOG.critical("ZMQ python library problem  - Is python3-zmq installed?")
     ZMQ = False
+
 
 class Info(IStatParent):
     _instance = None
@@ -36,19 +39,21 @@ class Info(IStatParent):
             cls._instance = IStatParent.__new__(cls, *args, **kwargs)
         return cls._instance
 
+
 # Instantiate the library with global reference
 
 
 class Bridge(object):
-    def __init__(self, readAddress = "tcp://127.0.0.1:5690",
-                     writeAddress = "tcp://127.0.0.1:5691"):
+    def __init__(
+        self, readAddress="tcp://127.0.0.1:5690", writeAddress="tcp://127.0.0.1:5691"
+    ):
         super(Bridge, self).__init__()
         self.INFO = Info()
 
         self.readAddress = readAddress
         self.writeAddress = writeAddress
-        LOG.debug('read port: {}'.format(readAddress))
-        LOG.debug('write port: {}'.format(writeAddress))
+        LOG.debug("read port: {}".format(readAddress))
+        LOG.debug("write port: {}".format(writeAddress))
 
         self.readTopic = ""
         self.writeTopic = "STATUSREQUEST"
@@ -70,36 +75,48 @@ class Bridge(object):
         self.jogRateIn = QHAL.newpin("jog-rate-in", hal.HAL_FLOAT, hal.HAL_IN)
         self.jogRateIn.pinValueChanged.connect(self.pinChanged)
 
-        self.jogRateAngular = QHAL.newpin("jog-rate-angular", hal.HAL_FLOAT, hal.HAL_OUT)
-        self.jogRateAngularIn = QHAL.newpin("jog-rate-angular-in", hal.HAL_FLOAT, hal.HAL_OUT)
+        self.jogRateAngular = QHAL.newpin(
+            "jog-rate-angular", hal.HAL_FLOAT, hal.HAL_OUT
+        )
+        self.jogRateAngularIn = QHAL.newpin(
+            "jog-rate-angular-in", hal.HAL_FLOAT, hal.HAL_OUT
+        )
         self.jogRateAngularIn.pinValueChanged.connect(self.pinChanged)
 
         self.jogIncrement = QHAL.newpin("jog-increment", hal.HAL_FLOAT, hal.HAL_OUT)
-        self.jogIncrementAngular = QHAL.newpin("jog-increment-angular", hal.HAL_FLOAT, hal.HAL_OUT)
-        self.activeJoint = QHAL.newpin('joint-selected', hal.HAL_S32, hal.HAL_OUT)
+        self.jogIncrementAngular = QHAL.newpin(
+            "jog-increment-angular", hal.HAL_FLOAT, hal.HAL_OUT
+        )
+        self.activeJoint = QHAL.newpin("joint-selected", hal.HAL_S32, hal.HAL_OUT)
 
-        for i in (self.INFO.AVAILABLE_AXES):
+        for i in self.INFO.AVAILABLE_AXES:
             let = i.lower()
             # input
-            self['axis{}Select'.format(let)] = QHAL.newpin('axis-%s-select'%let, hal.HAL_BIT, hal.HAL_IN)
-            self['axis{}Select'.format(let)].pinValueChanged.connect(self.pinChanged)
+            self["axis{}Select".format(let)] = QHAL.newpin(
+                "axis-%s-select" % let, hal.HAL_BIT, hal.HAL_IN
+            )
+            self["axis{}Select".format(let)].pinValueChanged.connect(self.pinChanged)
             # output
-            self['Axis{}IsSelected'.format(let)] = QHAL.newpin('axis-%s-is-selected'%let, hal.HAL_BIT, hal.HAL_OUT)
+            self["Axis{}IsSelected".format(let)] = QHAL.newpin(
+                "axis-%s-is-selected" % let, hal.HAL_BIT, hal.HAL_OUT
+            )
 
-        self.cycle_start = QHAL.newpin('cycle-start-in',QHAL.HAL_BIT, QHAL.HAL_IN)
+        self.cycle_start = QHAL.newpin("cycle-start-in", QHAL.HAL_BIT, QHAL.HAL_IN)
         self.cycle_start.pinValueChanged.connect(self.pinChanged)
-        self.cycle_pause = QHAL.newpin('cycle-pause-in',QHAL.HAL_BIT, QHAL.HAL_IN)
+        self.cycle_pause = QHAL.newpin("cycle-pause-in", QHAL.HAL_BIT, QHAL.HAL_IN)
         self.cycle_pause.pinValueChanged.connect(self.pinChanged)
 
         for i in self.INFO.MDI_COMMAND_DICT:
-            LOG.debug('{} {}'.format(i,self.INFO.MDI_COMMAND_DICT.get(i)))
-            self[i] = QHAL.newpin('ini-mdi-cmd-{}'.format(i),QHAL.HAL_BIT, QHAL.HAL_IN)
+            LOG.debug("{} {}".format(i, self.INFO.MDI_COMMAND_DICT.get(i)))
+            self[i] = QHAL.newpin("ini-mdi-cmd-{}".format(i), QHAL.HAL_BIT, QHAL.HAL_IN)
             self[i].pinValueChanged.connect(self.runMacroChanged)
 
         for i in self.INFO.INI_MACROS:
             name = i.split()[0]
-            LOG.debug('{} {}'.format(name,i))
-            self[name] = QHAL.newpin('ini-macro-cmd-{}'.format(name),QHAL.HAL_BIT, QHAL.HAL_IN)
+            LOG.debug("{} {}".format(name, i))
+            self[name] = QHAL.newpin(
+                "ini-macro-cmd-{}".format(name), QHAL.HAL_BIT, QHAL.HAL_IN
+            )
             self[name].pinValueChanged.connect(self.runMacroChanged)
 
         QHAL.setUpdateRate(100)
@@ -121,8 +138,8 @@ class Bridge(object):
         self.readSocket.setsockopt_string(zmq.SUBSCRIBE, self.readTopic)
         self.readSocket.connect(self.readAddress)
         self.readNotify = QtCore.QSocketNotifier(
-                                    self.readSocket.getsockopt(zmq.FD),
-                                    QtCore.QSocketNotifier.Read, None)
+            self.readSocket.getsockopt(zmq.FD), QtCore.QSocketNotifier.Read, None
+        )
         self.readNotify.activated.connect(self.onReadMsg)
 
     # callback from ZMQ read socket
@@ -133,107 +150,111 @@ class Bridge(object):
                 topic, data = self.readSocket.recv_multipart()
                 # convert from json object to python object
                 y = json.loads(data)
-                self. action(y.get('MESSAGE'),y.get('ARGS'))
+                self.action(y.get("MESSAGE"), y.get("ARGS"))
 
     # set our output HAL pins from messages from hal_glib
     def action(self, msg, data):
-        LOG.debug('{} {}'.format(msg, data))
-        if msg == 'jograte-changed':
+        LOG.debug("{} {}".format(msg, data))
+        if msg == "jograte-changed":
             self.jogRate.set(float(data[0]))
-        if msg == 'jograte-angular-changed':
+        if msg == "jograte-angular-changed":
             self.jogRateAngular.set(float(data[0]))
-        elif msg == 'jogincrements-changed':
+        elif msg == "jogincrements-changed":
             self.jogIncrement.set(float(data[0][0]))
-        elif msg == 'jogincrement-angular-changed':
+        elif msg == "jogincrement-angular-changed":
             self.jogIncremtAngular.set(float(data[0][0]))
-        elif msg == 'joint-selection-changed':
+        elif msg == "joint-selection-changed":
             self.activeJoint.set(int(data[0]))
-        elif msg == 'axis-selection-changed':
-            for i in(self.INFO.AVAILABLE_AXES):
+        elif msg == "axis-selection-changed":
+            for i in self.INFO.AVAILABLE_AXES:
                 if data[0] == i:
                     state = True
                 else:
                     state = False
-                self['Axis{}IsSelected'.format(i.lower())].set(state)
+                self["Axis{}IsSelected".format(i.lower())].set(state)
 
     # send msg to hal_glib
     def writeMsg(self, msg, data):
         if ZMQ:
             topic = self.writeTopic
-            message = json.dumps({'FUNCTION':msg,'ARGS':data})
-            LOG.debug('Sending ZMQ Message:{} {}'.format(topic, message))
+            message = json.dumps({"FUNCTION": msg, "ARGS": data})
+            LOG.debug("Sending ZMQ Message:{} {}".format(topic, message))
             self.writeSocket.send_multipart(
-                        [bytes(topic.encode('utf-8')),
-                            bytes((message).encode('utf-8'))])
+                [bytes(topic.encode("utf-8")), bytes((message).encode("utf-8"))]
+            )
 
     # callback from HAL input pins
     def pinChanged(self, pinObject, value):
-        LOG.debug('Pin name:{} changed value to {}'.format(pinObject.text(), value))
-        #print(type(value))
+        LOG.debug("Pin name:{} changed value to {}".format(pinObject.text(), value))
+        # print(type(value))
         # Axis selction change request
-        if 'select' in pinObject.text():
+        if "select" in pinObject.text():
             if bool(value) == False:
                 pass
-                #print('Not true state')
+                # print('Not true state')
                 return
-            for i in (self.INFO.AVAILABLE_AXES):
-                if '-{}-'.format(i.lower()) in pinObject.text():
-                    self.writeMsg('set_selected_axis', i)
+            for i in self.INFO.AVAILABLE_AXES:
+                if "-{}-".format(i.lower()) in pinObject.text():
+                    self.writeMsg("set_selected_axis", i)
                     break
             else:
-                if 'None' in pinObject.text():
-                    self.writeMsg('set_selected_axis', '')
+                if "None" in pinObject.text():
+                    self.writeMsg("set_selected_axis", "")
 
         # cycle start
         elif self.cycle_start == pinObject:
             if value:
-                self.writeMsg('request_cycle_start', value)
+                self.writeMsg("request_cycle_start", value)
 
         # cycle pause
         elif self.cycle_pause == pinObject:
-            #if value:
-                self.writeMsg('request_cycle_pause', value)
+            # if value:
+            self.writeMsg("request_cycle_pause", value)
 
         # linear jog rate
         elif self.jogRateIn == pinObject:
-                self.writeMsg('set_jograte', value)
+            self.writeMsg("set_jograte", value)
 
-       # angular jog rate
+        # angular jog rate
         elif self.jogRateAngularIn == pinObject:
-                self.writeMsg('set_jograte_angular', value)
+            self.writeMsg("set_jograte_angular", value)
 
         # catch all default
         else:
-            self.writeMsg(pinObject.text(),value)
+            self.writeMsg(pinObject.text(), value)
 
     # callback; request to run a specific macro
     def runMacroChanged(self, pinObject, value):
-        LOG.debug('Macro Pin name:{} changed value to {}'.format(pinObject.text(), value))
-        #LOG.debug(type(value))
-        name = pinObject.text().strip('macro-cmd-')
+        LOG.debug(
+            "Macro Pin name:{} changed value to {}".format(pinObject.text(), value)
+        )
+        # LOG.debug(type(value))
+        name = pinObject.text().strip("macro-cmd-")
         if value:
-            self.writeMsg('request_macro_call', name)
+            self.writeMsg("request_macro_call", name)
 
-    def shutdown(self,signum=None,stack_frame=None):
-        LOG.debug('shutdown')
+    def shutdown(self, signum=None, stack_frame=None):
+        LOG.debug("shutdown")
         global app
         app.quit()
 
     def __getitem__(self, item):
         return getattr(self, item)
+
     def __setitem__(self, item, value):
         return setattr(self, item, value)
+
 
 if __name__ == "__main__":
     import sys
     import getopt
     from PyQt5.QtWidgets import QApplication
 
-    letters = 'dh' # the : means an argument needs to be passed after the letter
-    keywords = ['readport=', 'writeport=' ] # the = means that a value is expected after 
+    letters = "dh"  # the : means an argument needs to be passed after the letter
+    keywords = ["readport=", "writeport="]  # the = means that a value is expected after
     # the keyword
 
-    opts, extraparam = getopt.getopt(sys.argv[1:],letters,keywords) 
+    opts, extraparam = getopt.getopt(sys.argv[1:], letters, keywords)
     # starts at the second element of argv since the first one is the script name
     # extraparms are extra arguments passed after all option/keywords are assigned
     # opts is a list containing the pair "option"/"value"
@@ -241,19 +262,19 @@ if __name__ == "__main__":
     readport = "tcp://127.0.0.1:5690"
     writeport = "tcp://127.0.0.1:5691"
 
-    for o,p in opts:
-        if o in ['-d']:
+    for o, p in opts:
+        if o in ["-d"]:
             LOG.setLevel(logger.DEBUG)
-        elif o in ['--readport']:
+        elif o in ["--readport"]:
             readport = p
-        elif o in ['--writeport']:
+        elif o in ["--writeport"]:
             writeport = p
-        elif o in ['-h','--help']:
-            print('HAL bridge: GUI to HAL interface using ZMQ')
+        elif o in ["-h", "--help"]:
+            print("HAL bridge: GUI to HAL interface using ZMQ")
             print('option "-d" = debug print mode')
             print('option "--readport=" read socket address')
             print('option "--writeport=" write socket address')
-            print('example: hal_bridge -d --readport=tcp://127.0.0.1:5692')
+            print("example: hal_bridge -d --readport=tcp://127.0.0.1:5692")
 
     app = QApplication(sys.argv)
     test = Bridge(readport, writeport)

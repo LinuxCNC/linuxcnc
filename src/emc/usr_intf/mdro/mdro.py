@@ -24,18 +24,19 @@ import hal
 
 root = tk.Tk()
 
+
 # Linux cnc interface
-class lc():
+class lc:
     def __init__(self):
         try:
             self.s = linuxcnc.stat()
             self.s.poll()
             self.c = linuxcnc.command()
             self.h = hal.component("mdro")
-            self.pins = ["axis."+str(p) for p in range(params["naxes"])]
+            self.pins = ["axis." + str(p) for p in range(params["naxes"])]
             for pin in self.pins:
                 self.h.newpin(pin, hal.HAL_FLOAT, hal.HAL_IN)
-            self.indexes = ["index-enable."+str(p) for p in range(params["naxes"])]
+            self.indexes = ["index-enable." + str(p) for p in range(params["naxes"])]
             for pin in self.indexes:
                 self.h.newpin(pin, hal.HAL_BIT, hal.HAL_IO)
             self.h.ready()
@@ -64,8 +65,9 @@ class lc():
             print(pin_name, "= 1")
         self.h[pin_name] = 1
 
+
 # One of these for each DRO row
-class axis_row_gui():
+class axis_row_gui:
     def __init__(self, frame, row, text, entry_callback, index_callback):
         px = 10
         self.row = row
@@ -78,10 +80,18 @@ class axis_row_gui():
         self.value.set(self.cur_format.format(0.0))
         self.entry_callback = entry_callback
         self.index_callback = index_callback
-        self.title = tk.Label(frame, justify=tk.RIGHT, anchor=tk.E, text=text, font=params["font1"])
+        self.title = tk.Label(
+            frame, justify=tk.RIGHT, anchor=tk.E, text=text, font=params["font1"]
+        )
         self.title.grid(row=row, column=0, columnspan=1, sticky=tk.W)
-        self.vlabel = tk.Label(frame, width=10, justify=tk.RIGHT, anchor=tk.E,
-                            textvariable=self.value, font=params["font1"])
+        self.vlabel = tk.Label(
+            frame,
+            width=10,
+            justify=tk.RIGHT,
+            anchor=tk.E,
+            textvariable=self.value,
+            font=params["font1"],
+        )
         self.vlabel.grid(row=row, column=1, columnspan=1, sticky=tk.W)
         self.zero = tk.Button(frame, text="0", font=params["font2"])
         self.zero.bind("<ButtonRelease-1>", lambda event: self.zero_up(event))
@@ -89,7 +99,9 @@ class axis_row_gui():
         self.half = tk.Button(frame, text="1/2", font=params["font2"])
         self.half.bind("<ButtonRelease-1>", lambda event: self.half_up(event))
         self.half.grid(row=row, column=3, columnspan=1, padx=px, sticky=tk.W)
-        self.entry = tk.Entry(frame, width=10, justify=tk.RIGHT, font=params["font1"], bg='light gray')
+        self.entry = tk.Entry(
+            frame, width=10, justify=tk.RIGHT, font=params["font1"], bg="light gray"
+        )
         self.entry.bind("<Return>", lambda event: self.enter_hit())
         self.entry.bind("<ButtonPress-1>", lambda event: self.enter_clicked())
         self.entry.grid(row=row, column=4, columnspan=1, sticky=tk.W, padx=px)
@@ -104,7 +116,7 @@ class axis_row_gui():
         try:
             v = float(self.entry.get())
         except:
-            print('\a')
+            print("\a")
             return
         self.entry_callback(self.row, v)
         self.entry.delete(0, tk.END)
@@ -122,7 +134,7 @@ class axis_row_gui():
     def half_up(self, event):
         if params["verbose"]:
             print("half_up")
-        self.entry_callback(self.row, float(self.value.get())/2.0)
+        self.entry_callback(self.row, float(self.value.get()) / 2.0)
 
     def index_up(self, event):
         if params["verbose"]:
@@ -133,13 +145,13 @@ class axis_row_gui():
         self.value.set(self.cur_format.format(v))
 
     def kp_entry(self, key):
-        if key == 'E':
+        if key == "E":
             self.enter_hit()
             return
-        if key == 'C':
+        if key == "C":
             self.entry.delete(0, tk.END)
             return
-        if key == '<':
+        if key == "<":
             s = self.entry.get()
             self.entry.delete(0, tk.END)
             self.entry.insert(tk.END, s[:-1])
@@ -164,23 +176,33 @@ class axis_row_gui():
         else:
             self.cur_format = params["mm_format"]
 
+
 # The keypad
-class keypad_gui():
+class keypad_gui:
     def __init__(self, frame, callback):
         self.kp_var = tk.StringVar()
         self.callback = callback
-        rows = ((('7','7'),('8','8'),('9','9')),
-                (('4','4'),('5','5'),('6','6')),
-                (('1','1'),('2','2'),('3','3')),
-                (('0','0'),('.','.'),('-','-')),
-                (('C','C'),('\u232B','<'),('\u23CE','E')))
+        rows = (
+            (("7", "7"), ("8", "8"), ("9", "9")),
+            (("4", "4"), ("5", "5"), ("6", "6")),
+            (("1", "1"), ("2", "2"), ("3", "3")),
+            (("0", "0"), (".", "."), ("-", "-")),
+            (("C", "C"), ("\u232b", "<"), ("\u23ce", "E")),
+        )
         px = 5
         for row, values in enumerate(rows):
             for col, e in enumerate(values):
                 t, v = e
-                rb = tk.Radiobutton(frame, text=t, variable=self.kp_var, value=v, width=4,
-                                 indicatoron=0, command=lambda: self.kp_hit(),
-                                 font=params["font1"])
+                rb = tk.Radiobutton(
+                    frame,
+                    text=t,
+                    variable=self.kp_var,
+                    value=v,
+                    width=4,
+                    indicatoron=0,
+                    command=lambda: self.kp_hit(),
+                    font=params["font1"],
+                )
                 rb.grid(row=row, column=col, padx=px)
 
     def kp_hit(self):
@@ -190,26 +212,34 @@ class keypad_gui():
         self.callback(key)
         self.kp_var.set("")
 
-class coord_systems():
+
+class coord_systems:
     def __init__(self, frame, callback):
         self.callback = callback
         self.rb_var = tk.IntVar()
         self.rb_var.set(1)
         if not params["preload"] is None:
-            self.coord_sys = ['MCS', 'G54', 'G55', 'G56', 'G57']
+            self.coord_sys = ["MCS", "G54", "G55", "G56", "G57"]
         else:
-            self.coord_sys = ['MCS', 'CS1', 'CS2', 'CS3', 'CS4']
+            self.coord_sys = ["MCS", "CS1", "CS2", "CS3", "CS4"]
         self.coords = []
         for i in range(len(self.coord_sys)):
-            self.coords.append([0.0]*params["naxes"])
+            self.coords.append([0.0] * params["naxes"])
         if not params["preload"] is None:
             self.preload_cs()
         self.cur_idx = 1
         self.cur_sys = self.coords[self.cur_idx]
         for row, cs in enumerate(self.coord_sys):
-            rb = tk.Radiobutton(frame, text=cs, variable=self.rb_var, value=row, width=6,
-                     indicatoron=0, command=lambda: self.rb_hit(),
-                     font=params["font1"])
+            rb = tk.Radiobutton(
+                frame,
+                text=cs,
+                variable=self.rb_var,
+                value=row,
+                width=6,
+                indicatoron=0,
+                command=lambda: self.rb_hit(),
+                font=params["font1"],
+            )
             rb.grid(row=row, column=0, columnspan=1, padx=5)
         self.last_units_factor = 1.0
 
@@ -236,10 +266,10 @@ class coord_systems():
         if not os.path.isfile(params["preload"]):
             print("mdro: Could not find", params["preload"])
             exit(1)
-        number_to_load = (len(self.coord_sys) - 1)*20
+        number_to_load = (len(self.coord_sys) - 1) * 20
         max_idx = 5221 + number_to_load
         self.vc = [0.0] * number_to_load
-        with open(params["preload"], 'r') as f:
+        with open(params["preload"], "r") as f:
             for line in f:
                 line = line.strip()
                 fields = line.split()
@@ -261,7 +291,8 @@ class coord_systems():
             for j, a in enumerate(params["axes"]):
                 self.coords[i][j] = -(self.vc[(i - 1) * 20 + axis_idx[a]])
 
-class main_gui():
+
+class main_gui:
     def __init__(self, lcnc):
         self.lcnc = lcnc
 
@@ -277,15 +308,17 @@ class main_gui():
             self.disp_inch.set(2)
         else:
             self.disp_inch.set(0)
-        self.mm_adj = [1.0, 1.0/25.4, 25.4, 1.0]
+        self.mm_adj = [1.0, 1.0 / 25.4, 25.4, 1.0]
         self.units_factor = 1.0
 
         for row, name in enumerate(params["axes"]):
-            self.axis_row[row] = axis_row_gui(self.dro_frame, row, name,
-                                              self.entry_callback,
-                                              self.index_callback)
+            self.axis_row[row] = axis_row_gui(
+                self.dro_frame, row, name, self.entry_callback, self.index_callback
+            )
             self.axis_row[row].enable_entry()
-        self.dro_frame.grid(row=0, column=0, columnspan=2, padx=px, pady=py, sticky=tk.NW)
+        self.dro_frame.grid(
+            row=0, column=0, columnspan=2, padx=px, pady=py, sticky=tk.NW
+        )
 
         self.keypad_frame = tk.Frame(root)
         self.keypad = keypad_gui(self.keypad_frame, self.keypad_callback)
@@ -296,15 +329,23 @@ class main_gui():
         self.coord_frame.grid(row=1, column=1, padx=px, pady=py, sticky=tk.N)
 
         self.inch_frame = tk.Frame(root)
-        self.inches = tk.Radiobutton(self.inch_frame, text="inch",
-                                     variable=self.disp_inch, value=0,
-                                     command=lambda: self.units_hit(),
-                                     font=params["font1"])
+        self.inches = tk.Radiobutton(
+            self.inch_frame,
+            text="inch",
+            variable=self.disp_inch,
+            value=0,
+            command=lambda: self.units_hit(),
+            font=params["font1"],
+        )
         self.inches.grid(row=0, column=0)
-        self.inches = tk.Radiobutton(self.inch_frame, text="mm",
-                                     variable=self.disp_inch, value=2,
-                                     command=lambda: self.units_hit(),
-                                     font=params["font1"])
+        self.inches = tk.Radiobutton(
+            self.inch_frame,
+            text="mm",
+            variable=self.disp_inch,
+            value=2,
+            command=lambda: self.units_hit(),
+            font=params["font1"],
+        )
         self.inches.grid(row=0, column=1)
         self.inch_frame.grid(row=2, column=0, padx=px, pady=py, sticky=tk.NW)
 
@@ -326,8 +367,8 @@ class main_gui():
         if value is None:
             # just a click
             if not self.last_row is None:
-                self.axis_row[self.last_row].entry.config(bg='light gray')
-            self.axis_row[row].entry.config(bg='white')
+                self.axis_row[self.last_row].entry.config(bg="light gray")
+            self.axis_row[row].entry.config(bg="white")
             self.last_row = row
             return
         # Enter
@@ -338,7 +379,7 @@ class main_gui():
             pin = pins[row] * self.units_factor
             self.coords.cur_sys[row] = value - pin
         if not self.last_row is None:
-            self.axis_row[self.last_row].entry.config(bg='light gray')
+            self.axis_row[self.last_row].entry.config(bg="light gray")
         self.last_row = None
 
     def coord_callback(self, coord_sys_idx):
@@ -379,6 +420,7 @@ class main_gui():
             else:
                 self.axis_row[i].disable_index()
 
+
 def run_postgui():
     # Run the postgui HAL files if called from DISPLAY section of INI file
     if params["ini"] is None or params["inifile"] is None:
@@ -399,10 +441,12 @@ def run_postgui():
             print("Error processing halfile:", f, "mdro exiting")
             exit(1)
 
+
 def call_polls():
     global gui
     gui.poll()
-    root.after(100, call_polls);
+    root.after(100, call_polls)
+
 
 def get_params(args):
     params = dict()
@@ -421,7 +465,7 @@ def get_params(args):
         ["GEOMETRY", args.axes, "axes"],
         ["MDRO_VAR_FILE", args.load_cs, "preload"],
         ["POINT_SIZE", args.point_size, "point_size"],
-        ["MM", args.mm, "mm"]
+        ["MM", args.mm, "mm"],
     ]
     if params["ini"] is None:
         for d, a, p in options:
@@ -454,19 +498,28 @@ def get_params(args):
 
     return params
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--verbose', '-v', action='count', default=0,
-                    help='print debug info')
-    parser.add_argument('--point_size', '-p', dest='point_size', type=int,
-                    default=20, help='font point size, default: 20')
-    parser.add_argument('--mm', '-m', action='store_const', const=1, default=0,
-                    help='dro values in mm')
-    parser.add_argument("--load_cs", "-l", type=str,
-                    help="load g5x coordinate system")
+    parser.add_argument(
+        "--verbose", "-v", action="count", default=0, help="print debug info"
+    )
+    parser.add_argument(
+        "--point_size",
+        "-p",
+        dest="point_size",
+        type=int,
+        default=20,
+        help="font point size, default: 20",
+    )
+    parser.add_argument(
+        "--mm", "-m", action="store_const", const=1, default=0, help="dro values in mm"
+    )
+    parser.add_argument("--load_cs", "-l", type=str, help="load g5x coordinate system")
     parser.add_argument("--ini", "-ini", type=str, help="INI file name")
-    parser.add_argument("axes", nargs='?', type=str, default='XYZ',
-                    help="Axes (example: XYZ)")
+    parser.add_argument(
+        "axes", nargs="?", type=str, default="XYZ", help="Axes (example: XYZ)"
+    )
 
     args = parser.parse_args()
     params = get_params(args)
@@ -478,5 +531,5 @@ if __name__ == '__main__':
     if params["is_display"]:
         run_postgui()
 
-    root.after(20, call_polls);
+    root.after(20, call_polls)
     root.mainloop()
