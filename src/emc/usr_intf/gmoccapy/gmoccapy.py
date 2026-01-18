@@ -1999,6 +1999,7 @@ class gmoccapy(object):
         btn_delete.set_image(self.widgets.img_tool_delete)
         btn_delete.set_tooltip_text(_("Delete selected tools"))
         btn_delete.set_always_show_image(True)
+        btn_delete.disconnect_by_func(self.widgets.tooledit1.delete)
         btn_delete.connect("clicked",self.on_btn_delete_tool_clicked)
         # Add button
         btn_add = self.widgets.tooledit1.wTree.get_object("add")
@@ -5443,15 +5444,15 @@ class gmoccapy(object):
             self.halcomp['toolchange-changed'] = False
 
     def on_btn_delete_tool_clicked(self, widget, data=None):
-        act_tool = self.stat.tool_in_spindle
-        if act_tool == self.widgets.tooledit1.get_selected_tool():
+        selected_tools = self.widgets.tooledit1.get_selected_tool()
+        if not isinstance(selected_tools, list):
+            selected_tools = [selected_tools]
+        if self.stat.tool_in_spindle in selected_tools:
             message = _("You are trying to delete the tool mounted in the spindle\n")
             message += _("This is not allowed, please change tool prior to delete it")
             self.dialogs.warning_dialog(self, _("Warning Tool can not be deleted!"), message)
             return
-
-        self.widgets.tooledit1.delete(None)
-        self.widgets.tooledit1.set_selected_tool(act_tool)
+        self.widgets.tooledit1.delete(widget)
 
     def on_btn_reload_tooltable_clicked(self, widget, data=None):
         self.widgets.tooledit1.reload(None)
