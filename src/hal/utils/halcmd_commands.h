@@ -60,7 +60,7 @@ extern int do_lock_cmd(char *command);
 extern int do_unlock_cmd(char *command);
 extern int do_linkpp_cmd(char *first_pin_name, char *second_pin_name);
 extern int do_newsig_cmd(char *name, char *type);
-#if 0  /* newinst deferred to version 2.2 */
+#if 0 /* newinst deferred to version 2.2 */
 extern int do_newinst_cmd(char *comp_name, char *inst_name);
 #endif
 extern int do_net_cmd(char *signame, char *pins[]);

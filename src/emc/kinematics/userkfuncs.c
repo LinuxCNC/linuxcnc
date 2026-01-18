@@ -33,24 +33,26 @@ static struct udata {
 } *udata;
 
 //**********************************************************************
-int userkKinematicsSetup(const int   comp_id,
-                         const char* coordinates,
-                         kparms*     kp)
+int userkKinematicsSetup(const int comp_id, const char *coordinates, kparms *kp)
 {
-    int res=0;
+    int res = 0;
     rtapi_print("\nuserkKinematicsSetup:\n"
-                  "   %s <%s> max_joints=%d allow_duplicates=%d\n\n",
-                __FILE__,coordinates,
-                kp->max_joints,kp->allow_duplicates);
+                "   %s <%s> max_joints=%d allow_duplicates=%d\n\n",
+                __FILE__,
+                coordinates,
+                kp->max_joints,
+                kp->allow_duplicates);
 
 
     udata = hal_malloc(sizeof(struct udata));
-    if (!udata) goto error;
+    if (!udata)
+        goto error;
 
     // HAL_IO used to allow resetting demo pins:
     res += hal_pin_s32_new("userk.fct", HAL_IO, &(udata->fct), comp_id);
     res += hal_pin_s32_new("userk.ict", HAL_IO, &(udata->ict), comp_id);
-    if (res) goto error;
+    if (res)
+        goto error;
 
     userk_inited = 1;
     return 0; // 0 ==> OK
@@ -60,24 +62,23 @@ error:
 }
 
 int userkKinematicsForward(const double *joint,
-                           struct EmcPose * world,
-                           const KINEMATICS_FORWARD_FLAGS * fflags,
-                           KINEMATICS_INVERSE_FLAGS * iflags)
+                           struct EmcPose *world,
+                           const KINEMATICS_FORWARD_FLAGS *fflags,
+                           KINEMATICS_INVERSE_FLAGS *iflags)
 {
     if (!userk_inited) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-             "userkKinematics: not initialized\n");
+        rtapi_print_msg(RTAPI_MSG_ERR, "userkKinematics: not initialized\n");
         return -1;
     }
     (*udata->fct)++;
-    return identityKinematicsForward(joint,world,fflags,iflags);
+    return identityKinematicsForward(joint, world, fflags, iflags);
 }
 
-int userkKinematicsInverse(const EmcPose * pos,
+int userkKinematicsInverse(const EmcPose *pos,
                            double *joint,
-                           const KINEMATICS_INVERSE_FLAGS * iflags,
-                           KINEMATICS_FORWARD_FLAGS * fflags)
+                           const KINEMATICS_INVERSE_FLAGS *iflags,
+                           KINEMATICS_FORWARD_FLAGS *fflags)
 {
     (*udata->ict)++;
-    return identityKinematicsInverse(pos,joint,iflags,fflags);
+    return identityKinematicsInverse(pos, joint, iflags, fflags);
 }

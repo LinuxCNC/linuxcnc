@@ -25,7 +25,8 @@
  * Returns the name of the board that can be used as a base name for
  * hm2_register().
  */
-const char *set_llio_info_spi(hm2_lowlevel_io_t *llio, const hm2_idrom_t *idrom);
+const char *set_llio_info_spi(hm2_lowlevel_io_t *llio,
+                              const hm2_idrom_t *idrom);
 
 #endif
 /* vim: ts=4

@@ -48,16 +48,16 @@
 
 typedef struct {
     /* general data */
-    gchar *thread_name;		/* name of thread that does sampling */
-    long thread_period_ns;	/* period of thread in nano-secs */
-    long sample_period_ns;	/* sample period in nano-secs */
-    double sample_period;	/* sample period as a double */
-    double disp_scale;		/* display scale (sec/div) */
-    int zoom_setting;		/* setting of zoom slider (1-9) */
-    double pos_setting;		/* setting of position slider (0.0-1.0) */
+    gchar *thread_name;    /* name of thread that does sampling */
+    long thread_period_ns; /* period of thread in nano-secs */
+    long sample_period_ns; /* sample period in nano-secs */
+    double sample_period;  /* sample period as a double */
+    double disp_scale;     /* display scale (sec/div) */
+    int zoom_setting;      /* setting of zoom slider (1-9) */
+    double pos_setting;    /* setting of position slider (0.0-1.0) */
     long x0;
-    int width;			/* width in pixels */
-    int height;			/* height in pixels */
+    int width;  /* width in pixels */
+    int height; /* height in pixels */
     /* widgets for main window */
     GtkWidget *disp_area;
     cairo_t *disp_context;
@@ -83,19 +83,19 @@ typedef struct {
 /* it lives in user space (as part of the master control struct) */
 
 typedef struct {
-    int data_source_type;	/* 0 = pin, 1 = signal, 2 = param,
+    int data_source_type; /* 0 = pin, 1 = signal, 2 = param,
 				   -1 = no source assigned */
-    int data_source;		/* points to pin/param/signal struct */
-    char *name;			/* name of pin/sig/parameter */
-    hal_type_t data_type;	/* data type */
-    int data_len;		/* data length */
-    double vert_offset;		/* offset to be applied */
-    int ac_offset;              /* TRUE if the signal should be AC-coupled */
-    int scale_index;		/* scaling (slider setting) */
-    int max_index;		/* limits of scale slider */
+    int data_source;      /* points to pin/param/signal struct */
+    char *name;           /* name of pin/sig/parameter */
+    hal_type_t data_type; /* data type */
+    int data_len;         /* data length */
+    double vert_offset;   /* offset to be applied */
+    int ac_offset;        /* TRUE if the signal should be AC-coupled */
+    int scale_index;      /* scaling (slider setting) */
+    int max_index;        /* limits of scale slider */
     int min_index;
-    double scale;		/* scaling (units/div) */
-    double position;		/* vertical pos (0.0-1.0) */
+    double scale;    /* scaling (units/div) */
+    double position; /* vertical pos (0.0-1.0) */
 } scope_chan_t;
 
 /* this struct holds control data related to vertical control */
@@ -103,11 +103,11 @@ typedef struct {
 
 typedef struct {
     /* general data */
-    int chan_enabled[16];	/* chans user wants to display */
-    int data_offset[16];	/* offset within sample, -1 if no data */
-    int selected;		/* channel user has selected */
-    int listnum;                /* 0 = pin, 1 = signal, 2 = parameter */
-    int chan_num;               /* channel number (1 - 16) */
+    int chan_enabled[16]; /* chans user wants to display */
+    int data_offset[16];  /* offset within sample, -1 if no data */
+    int selected;         /* channel user has selected */
+    int listnum;          /* 0 = pin, 1 = signal, 2 = parameter */
+    int chan_num;         /* channel number (1 - 16) */
     /* widgets for chan sel window */
     GtkWidget *chan_sel_buttons[16];
     /* widgets for chan info window */
@@ -127,8 +127,8 @@ typedef struct {
     GtkWidget *offset_entry;
     GtkWidget *offset_ac;
     /* widgets for source selection dialog */
-    GtkWidget *lists[3];	/* lists for pins, signals, and params */
-    GtkWidget *notebook;        /* pointer to the notebook */
+    GtkWidget *lists[3]; /* lists for pins, signals, and params */
+    GtkWidget *notebook; /* pointer to the notebook */
 } scope_vert_t;
 
 /* this struct holds control data related to triggering */
@@ -136,8 +136,8 @@ typedef struct {
 
 typedef struct {
     /* general data */
-    double position;		/* horiz position of trigger (0.0-1.0) */
-    double level;		/* setting of level slider (0.0-1.0) */
+    double position; /* horiz position of trigger (0.0-1.0) */
+    double level;    /* setting of level slider (0.0-1.0) */
     /* widgets for trigger mode window */
     GtkWidget *normal_button;
     GtkWidget *auto_button;
@@ -155,21 +155,20 @@ typedef struct {
 } scope_trig_t;
 
 
-
 /* this struct holds control data related to the display */
 /* it lives in user space (as part of the master control struct) */
 
 typedef struct {
     /* general data */
-    int width;                  /* width in pixels */
-    int height;                 /* height in pixels */
-    double pixels_per_sample;	/* horizontal scaling */
-    double horiz_offset;		/* offset in pixels */
-    int start_sample;		/* first displayable sample */
-    int end_sample;		/* last displayable sample */
+    int width;                /* width in pixels */
+    int height;               /* height in pixels */
+    double pixels_per_sample; /* horizontal scaling */
+    double horiz_offset;      /* offset in pixels */
+    int start_sample;         /* first displayable sample */
+    int end_sample;           /* last displayable sample */
     /* widgets */
-    GtkWidget *drawing;		/* drawing area for display */
-    GtkTooltip *tip;		/* drawing area for display */
+    GtkWidget *drawing; /* drawing area for display */
+    GtkTooltip *tip;    /* drawing area for display */
     /* drawing objects (GDK) */
     GdkRGBA color_bg;           /* background color */
     GdkRGBA color_grid;         /* the grid color */
@@ -188,13 +187,13 @@ typedef enum { STOP = 0, NORMAL, SINGLE, ROLL } scope_run_mode_t;
 
 typedef struct {
     /* general data */
-    scope_data_t *buffer;	/* ptr to shmem buffer (user mapping) */
-    scope_data_t *disp_buf;	/* ptr to user buffer for display */
-    int samples;		/* number of samples in display buffer */
-    int display_refresh_timer;	/* flag for display refresh */
-    scope_run_mode_t run_mode;	/* current run mode */
-    scope_run_mode_t old_run_mode;	/* run mode to restore*/
-    int pending_restart;        /* nonzero if run mode to be restored */
+    scope_data_t *buffer;          /* ptr to shmem buffer (user mapping) */
+    scope_data_t *disp_buf;        /* ptr to user buffer for display */
+    int samples;                   /* number of samples in display buffer */
+    int display_refresh_timer;     /* flag for display refresh */
+    scope_run_mode_t run_mode;     /* current run mode */
+    scope_run_mode_t old_run_mode; /* run mode to restore*/
+    int pending_restart;           /* nonzero if run mode to be restored */
     /* top level windows */
     GtkWidget *main_win;
     GtkWidget *horiz_info_win;
@@ -212,19 +211,19 @@ typedef struct {
     GtkWidget *rm_roll_button;
     GtkWidget *rm_stop_button;
     /* subsection control data */
-    scope_chan_t chan[16];	/* channel specific data */
-    scope_horiz_t horiz;	/* horizontal control data */
-    scope_vert_t vert;		/* vertical control data */
-    scope_trig_t trig;		/* triggering data */
-    scope_disp_t disp;		/* display data */
+    scope_chan_t chan[16]; /* channel specific data */
+    scope_horiz_t horiz;   /* horizontal control data */
+    scope_vert_t vert;     /* vertical control data */
+    scope_trig_t trig;     /* triggering data */
+    scope_disp_t disp;     /* display data */
 } scope_usr_control_t;
 
 /***********************************************************************
 *                              GLOBALS                                 *
 ************************************************************************/
 
-extern scope_usr_control_t *ctrl_usr;	/* main user control structure */
-extern scope_shm_control_t *ctrl_shm;	/* shared mem control struct */
+extern scope_usr_control_t *ctrl_usr; /* main user control structure */
+extern scope_shm_control_t *ctrl_shm; /* shared mem control struct */
 
 /***********************************************************************
 *                          FUNCTIONS                                   *
@@ -250,12 +249,12 @@ void redraw_window(void);
 
 void format_signal_value(char *buf, int buflen, double value);
 
-int read_config_file (char *filename);
-void write_config_file (char *filename);
+int read_config_file(char *filename);
+void write_config_file(char *filename);
 void write_horiz_config(FILE *fp);
 void write_vert_config(FILE *fp);
 void write_trig_config(FILE *fp);
-void write_log_file (char *filename);
+void write_log_file(char *filename);
 
 /* the following functions set various parameters, they are normally
    called by the GUI, but can also be called by code reading a file

@@ -44,19 +44,19 @@
 #include <ctype.h>
 #include <string.h>
 
-#include "rtapi.h"		// RTAPI realtime OS API
+#include "rtapi.h" // RTAPI realtime OS API
 #include <rtapi_mutex.h>
-#include <rtapi_string.h>	// rtapi_strlcpy()
-#include "hal.h"		// HAL public API decls
-#include "../hal_priv.h"	// private HAL decls
+#include <rtapi_string.h> // rtapi_strlcpy()
+#include "hal.h"          // HAL public API decls
+#include "../hal_priv.h"  // private HAL decls
 
 #include <gtk/gtk.h>
 
-#include "miscgtk.h"		// generic GTK stuff
-#include "scope_usr.h"		// scope related declarations
+#include "miscgtk.h"   // generic GTK stuff
+#include "scope_usr.h" // scope related declarations
 #include <rtapi_string.h>
 
-#define BUFLEN 80		// length for sprintf buffers
+#define BUFLEN 80 // length for sprintf buffers
 
 /***********************************************************************
 *                  GLOBAL VARIABLES DECLARATIONS                       *
@@ -65,10 +65,7 @@
 #define VERT_POS_RESOLUTION 100.0
 
 /* Columns in the TreeView */
-enum TREEVIEW_COLUMN {
-    LIST_ITEM,
-    NUM_COLS
-};
+enum TREEVIEW_COLUMN { LIST_ITEM, NUM_COLS };
 
 /* The channel select buttons sometimes need to be toggled by
    the code rather than the user, without causing any action.
@@ -92,16 +89,18 @@ static void init_vert_info_window(void);
 
 static gboolean dialog_select_source(int chan_num);
 static void selection_changed(GtkTreeSelection *selection, char *name);
-static void selection_made(GtkTreeView *treeview, GtkTreePath *path,
-        GtkTreeViewColumn *col, GtkWidget *dialog);
-static void change_source_button(GtkWidget * widget, gpointer gdata);
-static void offset_button(GtkWidget * widget, gpointer gdata);
+static void selection_made(GtkTreeView *treeview,
+                           GtkTreePath *path,
+                           GtkTreeViewColumn *col,
+                           GtkWidget *dialog);
+static void change_source_button(GtkWidget *widget, gpointer gdata);
+static void offset_button(GtkWidget *widget, gpointer gdata);
 static gboolean dialog_set_offset(int chan_num);
-static void scale_changed(GtkAdjustment * adj, gpointer gdata);
-static void offset_changed(GtkEditable * editable, struct offset_data *);
+static void scale_changed(GtkAdjustment *adj, gpointer gdata);
+static void offset_changed(GtkEditable *editable, struct offset_data *);
 static void offset_activated(GtkEntry *entry, GtkWidget *dialog);
-static void pos_changed(GtkAdjustment * adj, gpointer gdata);
-static void chan_sel_button(GtkWidget * widget, gpointer gdata);
+static void pos_changed(GtkAdjustment *adj, gpointer gdata);
+static void chan_sel_button(GtkWidget *widget, gpointer gdata);
 
 /* helper functions */
 static void write_chan_config(FILE *fp, scope_chan_t *chan);
@@ -122,8 +121,8 @@ void init_vert(void)
     invalidate_all_channels();
     /* init non-zero members of the channel structures */
     for (n = 1; n <= 16; n++) {
-	chan = &(ctrl_usr->chan[n - 1]);
-	chan->position = 0.5;
+        chan = &(ctrl_usr->chan[n - 1]);
+        chan->position = 0.5;
     }
     /* set up the windows */
     init_chan_sel_window();
@@ -136,41 +135,42 @@ int set_active_channel(int chan_num)
     int n, count;
     scope_vert_t *vert;
     scope_chan_t *chan;
-    if (( chan_num < 1 ) || ( chan_num > 16 )) {
-	return -1;
+    if ((chan_num < 1) || (chan_num > 16)) {
+        return -1;
     }
     vert = &(ctrl_usr->vert);
     chan = &(ctrl_usr->chan[chan_num - 1]);
 
-    if (vert->chan_enabled[chan_num - 1] == 0 ) {
-	/* channel is disabled, want to enable it */
-	if (ctrl_shm->state != IDLE) {
-	    /* acquisition in progress, must restart it */
+    if (vert->chan_enabled[chan_num - 1] == 0) {
+        /* channel is disabled, want to enable it */
+        if (ctrl_shm->state != IDLE) {
+            /* acquisition in progress, must restart it */
             prepare_scope_restart();
-	}
-	count = 0;
-	for (n = 0; n < 16; n++) {
-	    if (vert->chan_enabled[n]) {
-		count++;
-	    }
-	}
-	if (count >= ctrl_shm->sample_len) {
-	    /* max number of channels already enabled */
-	    return -2;
-	}
-	if (chan->name == NULL) {
-	    /* no signal source */
-	    return -3;
-	}
-	/* "push" the button in to indicate enabled channel */
-	ignore_click = 1;
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(vert->chan_sel_buttons[chan_num-1]), TRUE);
-	vert->chan_enabled[chan_num - 1] = 1;
+        }
+        count = 0;
+        for (n = 0; n < 16; n++) {
+            if (vert->chan_enabled[n]) {
+                count++;
+            }
+        }
+        if (count >= ctrl_shm->sample_len) {
+            /* max number of channels already enabled */
+            return -2;
+        }
+        if (chan->name == NULL) {
+            /* no signal source */
+            return -3;
+        }
+        /* "push" the button in to indicate enabled channel */
+        ignore_click = 1;
+        gtk_toggle_button_set_active(
+            GTK_TOGGLE_BUTTON(vert->chan_sel_buttons[chan_num - 1]), TRUE);
+        vert->chan_enabled[chan_num - 1] = 1;
     }
     if (vert->selected != chan_num) {
-	/* make chan_num the selected channel */
-	vert->selected = chan_num;
-	channel_changed();
+        /* make chan_num the selected channel */
+        vert->selected = chan_num;
+        channel_changed();
     }
     return 0;
 }
@@ -181,31 +181,31 @@ int set_channel_off(int chan_num)
     int n;
 
     if ((chan_num < 1) || (chan_num > 16)) {
-	return -1;
+        return -1;
     }
     vert = &(ctrl_usr->vert);
-    if ( vert->chan_enabled[chan_num - 1] == 0 ) {
-	/* channel is already off, nothing to do */
-	return -1;
+    if (vert->chan_enabled[chan_num - 1] == 0) {
+        /* channel is already off, nothing to do */
+        return -1;
     }
     vert->chan_enabled[chan_num - 1] = 0;
     /* force the button to pop out */
     ignore_click = 1;
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(vert->
-	    chan_sel_buttons[chan_num - 1]), FALSE);
-    if ( chan_num == vert->selected ) {
-	/* channel was selected, pick new selected channel */
-	n = 0;
-	vert->selected = 0;
-	do {
-	    chan_num++;
-	    if (chan_num > 16) {
-		chan_num = 1;
-	    }
-	    if (vert->chan_enabled[chan_num - 1] != 0) {
-		vert->selected = chan_num;
-	    }
-	} while ((++n < 16) && (vert->selected == 0));
+    gtk_toggle_button_set_active(
+        GTK_TOGGLE_BUTTON(vert->chan_sel_buttons[chan_num - 1]), FALSE);
+    if (chan_num == vert->selected) {
+        /* channel was selected, pick new selected channel */
+        n = 0;
+        vert->selected = 0;
+        do {
+            chan_num++;
+            if (chan_num > 16) {
+                chan_num = 1;
+            }
+            if (vert->chan_enabled[chan_num - 1] != 0) {
+                vert->selected = chan_num;
+            }
+        } while ((++n < 16) && (vert->selected == 0));
     }
     channel_changed();
     return 0;
@@ -223,65 +223,65 @@ int set_channel_source(int chan_num, int type, char *name)
     chan = &(ctrl_usr->chan[chan_num - 1]);
     /* locate the selected item in the HAL */
     if (type == 0) {
-	/* search the pin list */
-	pin = halpr_find_pin_by_name(name);
-	if (pin == NULL) {
-	    /* pin not found */
-	    return -1;
-	}
-	chan->data_source_type = 0;
-	chan->data_source = SHMOFF(pin);
-	chan->data_type = pin->type;
-	chan->name = pin->name;
+        /* search the pin list */
+        pin = halpr_find_pin_by_name(name);
+        if (pin == NULL) {
+            /* pin not found */
+            return -1;
+        }
+        chan->data_source_type = 0;
+        chan->data_source = SHMOFF(pin);
+        chan->data_type = pin->type;
+        chan->name = pin->name;
     } else if (type == 1) {
-	/* search the signal list */
-	sig = halpr_find_sig_by_name(name);
-	if (sig == NULL) {
-	    /* signal not found */
-	    return -1;
-	}
-	chan->data_source_type = 1;
-	chan->data_source = SHMOFF(sig);
-	chan->data_type = sig->type;
-	chan->name = sig->name;
+        /* search the signal list */
+        sig = halpr_find_sig_by_name(name);
+        if (sig == NULL) {
+            /* signal not found */
+            return -1;
+        }
+        chan->data_source_type = 1;
+        chan->data_source = SHMOFF(sig);
+        chan->data_type = sig->type;
+        chan->name = sig->name;
     } else if (type == 2) {
-	/* search the parameter list */
-	param = halpr_find_param_by_name(name);
-	if (param == NULL) {
-	    /* parameter not found */
-	    return -1;
-	}
-	chan->data_source_type = 2;
-	chan->data_source = SHMOFF(param);
-	chan->data_type = param->type;
-	chan->name = param->name;
+        /* search the parameter list */
+        param = halpr_find_param_by_name(name);
+        if (param == NULL) {
+            /* parameter not found */
+            return -1;
+        }
+        chan->data_source_type = 2;
+        chan->data_source = SHMOFF(param);
+        chan->data_type = param->type;
+        chan->name = param->name;
     }
     switch (chan->data_type) {
     case HAL_BIT:
-	chan->data_len = sizeof(hal_bit_t);
-	chan->min_index = -2;
-	chan->max_index = 2;
-	break;
+        chan->data_len = sizeof(hal_bit_t);
+        chan->min_index = -2;
+        chan->max_index = 2;
+        break;
     case HAL_FLOAT:
-	chan->data_len = sizeof(hal_float_t);
-	chan->min_index = -36;
-	chan->max_index = 36;
-	break;
+        chan->data_len = sizeof(hal_float_t);
+        chan->min_index = -36;
+        chan->max_index = 36;
+        break;
     case HAL_S32:
-	chan->data_len = sizeof(hal_s32_t);
-	chan->min_index = -2;
-	chan->max_index = 30;
-	break;
+        chan->data_len = sizeof(hal_s32_t);
+        chan->min_index = -2;
+        chan->max_index = 30;
+        break;
     case HAL_U32:
-	chan->data_len = sizeof(hal_u32_t);
-	chan->min_index = -2;
-	chan->max_index = 30;
-	break;
+        chan->data_len = sizeof(hal_u32_t);
+        chan->min_index = -2;
+        chan->max_index = 30;
+        break;
     default:
-	/* Shouldn't get here, but just in case... */
-	chan->data_len = 0;
-	chan->min_index = -1;
-	chan->max_index = 1;
+        /* Shouldn't get here, but just in case... */
+        chan->data_len = 0;
+        chan->min_index = -1;
+        chan->max_index = 1;
     }
     /* invalidate any data in the buffer for this channel */
     vert->data_offset[chan_num - 1] = -1;
@@ -304,12 +304,12 @@ int set_vert_scale(int setting)
     vert = &(ctrl_usr->vert);
     chan_num = vert->selected;
     if ((chan_num < 1) || (chan_num > 16)) {
-	return -1;
+        return -1;
     }
     chan = &(ctrl_usr->chan[chan_num - 1]);
     if ((setting > chan->max_index) || (setting < chan->min_index)) {
-	/* value out of range for this data type */
-	return -1;
+        /* value out of range for this data type */
+        return -1;
     }
     /* save new index */
     chan->scale_index = setting;
@@ -321,34 +321,25 @@ int set_vert_scale(int setting)
     scale = 1.0;
     index = chan->scale_index;
     while (index >= 3) {
-	scale *= 10.0;
-	index -= 3;
+        scale *= 10.0;
+        index -= 3;
     }
     while (index <= -3) {
-	scale *= 0.1;
-	index += 3;
+        scale *= 0.1;
+        index += 3;
     }
     switch (index) {
-    case 2:
-	scale *= 5.0;
-	break;
-    case 1:
-	scale *= 2.0;
-	break;
-    case -1:
-	scale *= 0.5;
-	break;
-    case -2:
-	scale *= 0.2;
-	break;
-    default:
-	break;
+    case 2: scale *= 5.0; break;
+    case 1: scale *= 2.0; break;
+    case -1: scale *= 0.5; break;
+    case -2: scale *= 0.2; break;
+    default: break;
     }
     chan->scale = scale;
     format_scale_value(buf, BUFLEN - 1, scale);
     gtk_label_set_text_if(vert->scale_label, buf);
     if (chan_num == ctrl_shm->trig_chan) {
-	refresh_trigger();
+        refresh_trigger();
     }
     request_display_refresh(1);
     return 0;
@@ -362,14 +353,14 @@ int set_vert_pos(double setting)
     GtkAdjustment *adj;
 
     /* range check setting */
-    if (( setting < 0.0 ) || ( setting > 1.0 )) {
-	return -1;
+    if ((setting < 0.0) || (setting > 1.0)) {
+        return -1;
     }
     /* point to data */
     vert = &(ctrl_usr->vert);
     chan_num = vert->selected;
     if ((chan_num < 1) || (chan_num > 16)) {
-	return -1;
+        return -1;
     }
     chan = &(ctrl_usr->chan[chan_num - 1]);
     chan->position = setting;
@@ -378,7 +369,7 @@ int set_vert_pos(double setting)
     gtk_adjustment_set_value(adj, chan->position * VERT_POS_RESOLUTION);
     /* refresh other stuff */
     if (chan_num == ctrl_shm->trig_chan) {
-	refresh_trigger();
+        refresh_trigger();
     }
     request_display_refresh(1);
     return 0;
@@ -395,7 +386,7 @@ int set_vert_offset(double setting, int ac_coupled)
     vert = &(ctrl_usr->vert);
     chan_num = vert->selected;
     if ((chan_num < 1) || (chan_num > 16)) {
-	return -1;
+        return -1;
     }
     chan = &(ctrl_usr->chan[chan_num - 1]);
     /* set the new offset */
@@ -403,9 +394,9 @@ int set_vert_offset(double setting, int ac_coupled)
     chan->ac_offset = ac_coupled;
     /* update the offset display */
     if (chan->data_type == HAL_BIT) {
-	snprintf(buf1, BUFLEN, "----");
+        snprintf(buf1, BUFLEN, "----");
     } else {
-        if(chan->ac_offset) {
+        if (chan->ac_offset) {
             snprintf(buf1, BUFLEN, "(AC)");
         } else {
             format_signal_value(buf1, BUFLEN, chan->vert_offset);
@@ -415,7 +406,7 @@ int set_vert_offset(double setting, int ac_coupled)
     gtk_label_set_text_if(vert->offset_label, buf2);
     /* refresh other stuff */
     if (chan_num == ctrl_shm->trig_chan) {
-	refresh_trigger();
+        refresh_trigger();
     }
     request_display_refresh(1);
     return 0;
@@ -428,41 +419,41 @@ void format_signal_value(char *buf, int buflen, double value)
     char sign, symbols[] = "pnum KMGT";
 
     if (value < 0) {
-	value = -value;
-	sign = '-';
+        value = -value;
+        sign = '-';
     } else {
-	sign = '+';
+        sign = '+';
     }
     if (value <= 1.0e-24) {
-	/* pretty damn small, call it zero */
-	snprintf(buf, buflen, "0.000");
-	return;
+        /* pretty damn small, call it zero */
+        snprintf(buf, buflen, "0.000");
+        return;
     }
     if (value <= 1.0e-12) {
-	/* less than pico units, use scientific notation */
-	snprintf(buf, buflen, "%c%10.3e", sign, value);
-	return;
+        /* less than pico units, use scientific notation */
+        snprintf(buf, buflen, "%c%10.3e", sign, value);
+        return;
     }
     if (value >= 1.0e+12) {
-	/* greater than tera-units, use scientific notation */
-	snprintf(buf, buflen, "%c%10.3e", sign, value);
-	return;
+        /* greater than tera-units, use scientific notation */
+        snprintf(buf, buflen, "%c%10.3e", sign, value);
+        return;
     }
     units = &(symbols[4]);
     while (value < 1.0) {
-	value *= 1000.0;
-	units--;
+        value *= 1000.0;
+        units--;
     }
     while (value >= 1000.0) {
-	value /= 1000.0;
-	units++;
+        value /= 1000.0;
+        units++;
     }
     decimals = 3;
     if (value >= 9.999) {
-	decimals--;
+        decimals--;
     }
     if (value >= 99.99) {
-	decimals--;
+        decimals--;
     }
     snprintf(buf, buflen, "%c%0.*f%c", sign, decimals, value, *units);
 }
@@ -475,43 +466,43 @@ void write_vert_config(FILE *fp)
 
     vert = &(ctrl_usr->vert);
     /* first write disabled channels */
-    for ( n = 1 ; n <= 16 ; n++ ) {
-	if ( vert->chan_enabled[n-1] != 0 ) {
-	    // channel enabled, do it later
-	    continue;
-	}
-	chan = &(ctrl_usr->chan[n-1]);
-	if ( chan->name == NULL ) {
-	    // no source for this channel, skip it
-	    continue;
-	}
-	fprintf(fp, "CHAN %d\n", n);
-	write_chan_config(fp, chan);
-	fprintf(fp, "CHOFF\n");
+    for (n = 1; n <= 16; n++) {
+        if (vert->chan_enabled[n - 1] != 0) {
+            // channel enabled, do it later
+            continue;
+        }
+        chan = &(ctrl_usr->chan[n - 1]);
+        if (chan->name == NULL) {
+            // no source for this channel, skip it
+            continue;
+        }
+        fprintf(fp, "CHAN %d\n", n);
+        write_chan_config(fp, chan);
+        fprintf(fp, "CHOFF\n");
     }
     /* next write enabled channels */
-    for ( n = 1 ; n <= 16 ; n++ ) {
-	if ( vert->chan_enabled[n-1] == 0 ) {
-	    // channel disabled, skip it
-	    continue;
-	}
-	if ( vert->selected == n ) {
-	    // channel selected, do it last
-	    continue;
-	}
-	chan = &(ctrl_usr->chan[n-1]);
-	if ( chan->name == NULL ) {
-	    // no source for this channel, skip it
-	    continue;
-	}
-	fprintf(fp, "CHAN %d\n", n);
-	write_chan_config(fp, chan);
+    for (n = 1; n <= 16; n++) {
+        if (vert->chan_enabled[n - 1] == 0) {
+            // channel disabled, skip it
+            continue;
+        }
+        if (vert->selected == n) {
+            // channel selected, do it last
+            continue;
+        }
+        chan = &(ctrl_usr->chan[n - 1]);
+        if (chan->name == NULL) {
+            // no source for this channel, skip it
+            continue;
+        }
+        fprintf(fp, "CHAN %d\n", n);
+        write_chan_config(fp, chan);
     }
     /* write selected channel last */
     if ((vert->selected < 1) || (vert->selected > 16)) {
-	return;
+        return;
     }
-    chan = &(ctrl_usr->chan[vert->selected-1]);
+    chan = &(ctrl_usr->chan[vert->selected - 1]);
     fprintf(fp, "CHAN %d\n", vert->selected);
     write_chan_config(fp, chan);
 }
@@ -538,12 +529,12 @@ static void init_chan_sel_window(void)
 
         style_with_css(button, n);
         /* put it in the window */
-        gtk_box_pack_start(GTK_BOX(ctrl_usr->chan_sel_win), button, TRUE,
-            TRUE, 0);
+        gtk_box_pack_start(
+            GTK_BOX(ctrl_usr->chan_sel_win), button, TRUE, TRUE, 0);
         gtk_widget_show(button);
         /* hook a callback function to it */
-        g_signal_connect(button, "clicked",
-            G_CALLBACK(chan_sel_button), (gpointer) n + 1);
+        g_signal_connect(
+            button, "clicked", G_CALLBACK(chan_sel_button), (gpointer)n + 1);
         /* save the button pointer */
         vert->chan_sel_buttons[n] = button;
     }
@@ -552,39 +543,45 @@ static void init_chan_sel_window(void)
 static void init_chan_info_window(void)
 {
     scope_vert_t *vert;
-    char dummyname[HAL_NAME_LEN+1];
+    char dummyname[HAL_NAME_LEN + 1];
     int n;
 
     vert = &(ctrl_usr->vert);
 
     vert->chan_num_label =
-	gtk_label_new_in_box("--", ctrl_usr->chan_info_win, FALSE, FALSE, 5);
+        gtk_label_new_in_box("--", ctrl_usr->chan_info_win, FALSE, FALSE, 5);
     gtk_label_size_to_fit(GTK_LABEL(vert->chan_num_label), "99");
     gtk_vseparator_new_in_box(ctrl_usr->chan_info_win, 3);
 
     /* a button to change the source */
     vert->source_name_button = gtk_button_new_with_label("------");
     gtk_box_pack_start(GTK_BOX(ctrl_usr->chan_info_win),
-	vert->source_name_button, FALSE, FALSE, 3);
+                       vert->source_name_button,
+                       FALSE,
+                       FALSE,
+                       3);
 
-    vert->source_name_label = gtk_bin_get_child(GTK_BIN(vert->source_name_button));
-    gtk_label_set_justify(GTK_LABEL(vert->source_name_label),
-	GTK_JUSTIFY_LEFT);
+    vert->source_name_label =
+        gtk_bin_get_child(GTK_BIN(vert->source_name_button));
+    gtk_label_set_justify(GTK_LABEL(vert->source_name_label), GTK_JUSTIFY_LEFT);
     /* longest source name we ever need to display */
-    for ( n = 0 ; n < HAL_NAME_LEN ; n++) dummyname[n] = 'x';
+    for (n = 0; n < HAL_NAME_LEN; n++)
+        dummyname[n] = 'x';
     dummyname[n] = '\0';
     gtk_label_size_to_fit(GTK_LABEL(vert->source_name_label), dummyname);
     /* activate the source selection dialog if button is clicked */
-    g_signal_connect(vert->source_name_button, "clicked",
-	G_CALLBACK(change_source_button), NULL);
+    g_signal_connect(vert->source_name_button,
+                     "clicked",
+                     G_CALLBACK(change_source_button),
+                     NULL);
     gtk_widget_show(vert->source_name_button);
 
 
-    vert->readout_label = gtk_label_new_in_box("",
-		    ctrl_usr->chan_info_win, FALSE, FALSE, 0);
+    vert->readout_label =
+        gtk_label_new_in_box("", ctrl_usr->chan_info_win, FALSE, FALSE, 0);
     gtk_label_set_justify(GTK_LABEL(vert->readout_label), GTK_JUSTIFY_LEFT);
     gtk_label_size_to_fit(GTK_LABEL(vert->readout_label),
-		    "f(99999.9999) = 99999.9999 (ddt 99999.9999)");
+                          "f(99999.9999) = 99999.9999 (ddt 99999.9999)");
 }
 
 static void init_vert_info_window(void)
@@ -596,65 +593,62 @@ static void init_vert_info_window(void)
 
     /* box for the two sliders */
     hbox =
-	gtk_hbox_new_in_box(TRUE, 0, 0, ctrl_usr->vert_info_win, TRUE, TRUE,
-	0);
+        gtk_hbox_new_in_box(TRUE, 0, 0, ctrl_usr->vert_info_win, TRUE, TRUE, 0);
     /* box for the scale slider */
     vbox = gtk_vbox_new_in_box(FALSE, 0, 0, hbox, TRUE, TRUE, 0);
     gtk_label_new_in_box(_("Gain"), vbox, FALSE, FALSE, 0);
     vert->scale_adj = gtk_adjustment_new(0, -5, 5, 1, 1, 0);
-    vert->scale_slider = gtk_scale_new(
-            GTK_ORIENTATION_VERTICAL, GTK_ADJUSTMENT(vert->scale_adj));
+    vert->scale_slider = gtk_scale_new(GTK_ORIENTATION_VERTICAL,
+                                       GTK_ADJUSTMENT(vert->scale_adj));
     gtk_scale_set_digits(GTK_SCALE(vert->scale_slider), 0);
     gtk_scale_set_draw_value(GTK_SCALE(vert->scale_slider), FALSE);
     gtk_box_pack_start(GTK_BOX(vbox), vert->scale_slider, TRUE, TRUE, 0);
     /* connect the slider to a function that re-calcs vertical scale */
-    g_signal_connect(vert->scale_adj, "value_changed",
-	G_CALLBACK(scale_changed), NULL);
+    g_signal_connect(
+        vert->scale_adj, "value_changed", G_CALLBACK(scale_changed), NULL);
     gtk_widget_show(vert->scale_slider);
     /* box for the position slider */
     vbox = gtk_vbox_new_in_box(FALSE, 0, 0, hbox, TRUE, TRUE, 0);
     gtk_label_new_in_box(_("Pos"), vbox, FALSE, FALSE, 0);
-    vert->pos_adj =
-	gtk_adjustment_new(VERT_POS_RESOLUTION / 2, 0, VERT_POS_RESOLUTION, 1,
-	1, 0);
-    vert->pos_slider = gtk_scale_new(
-            GTK_ORIENTATION_VERTICAL, GTK_ADJUSTMENT(vert->pos_adj));
+    vert->pos_adj = gtk_adjustment_new(
+        VERT_POS_RESOLUTION / 2, 0, VERT_POS_RESOLUTION, 1, 1, 0);
+    vert->pos_slider =
+        gtk_scale_new(GTK_ORIENTATION_VERTICAL, GTK_ADJUSTMENT(vert->pos_adj));
     gtk_scale_set_digits(GTK_SCALE(vert->pos_slider), 0);
     gtk_scale_set_draw_value(GTK_SCALE(vert->pos_slider), FALSE);
     gtk_box_pack_start(GTK_BOX(vbox), vert->pos_slider, TRUE, TRUE, 0);
     /* connect the slider to a function that re-calcs vertical pos */
-    g_signal_connect(vert->pos_adj, "value_changed",
-	G_CALLBACK(pos_changed), NULL);
+    g_signal_connect(
+        vert->pos_adj, "value_changed", G_CALLBACK(pos_changed), NULL);
     gtk_widget_show(vert->pos_slider);
     /* Scale display */
     gtk_hseparator_new_in_box(ctrl_usr->vert_info_win, 3);
     gtk_label_new_in_box(_("Scale"), ctrl_usr->vert_info_win, FALSE, FALSE, 0);
-    vert->scale_label =
-	gtk_label_new_in_box(" ---- ", ctrl_usr->vert_info_win, FALSE, FALSE,
-	0);
+    vert->scale_label = gtk_label_new_in_box(
+        " ---- ", ctrl_usr->vert_info_win, FALSE, FALSE, 0);
     /* Offset control */
     vert->offset_button = gtk_button_new_with_label(_("Offset\n----"));
     vert->offset_label = gtk_bin_get_child(GTK_BIN(vert->offset_button));
-    gtk_box_pack_start(GTK_BOX(ctrl_usr->vert_info_win),
-	vert->offset_button, FALSE, FALSE, 0);
-    g_signal_connect(vert->offset_button, "clicked",
-	G_CALLBACK(offset_button), NULL);
+    gtk_box_pack_start(
+        GTK_BOX(ctrl_usr->vert_info_win), vert->offset_button, FALSE, FALSE, 0);
+    g_signal_connect(
+        vert->offset_button, "clicked", G_CALLBACK(offset_button), NULL);
     gtk_widget_show(vert->offset_button);
 }
 
-static void scale_changed(GtkAdjustment * adj, gpointer gdata)
+static void scale_changed(GtkAdjustment *adj, gpointer gdata)
 {
     (void)gdata;
     set_vert_scale(gtk_adjustment_get_value(adj));
 }
 
-static void pos_changed(GtkAdjustment * adj, gpointer gdata)
+static void pos_changed(GtkAdjustment *adj, gpointer gdata)
 {
     (void)gdata;
     set_vert_pos(gtk_adjustment_get_value(adj) / VERT_POS_RESOLUTION);
 }
 
-static void offset_button(GtkWidget * widget, gpointer gdata)
+static void offset_button(GtkWidget *widget, gpointer gdata)
 {
     (void)widget;
     (void)gdata;
@@ -665,19 +659,19 @@ static void offset_button(GtkWidget * widget, gpointer gdata)
     vert = &(ctrl_usr->vert);
     chan_num = vert->selected;
     if ((chan_num < 1) || (chan_num > 16)) {
-	return;
+        return;
     }
     chan = &(ctrl_usr->chan[chan_num - 1]);
     if (chan->data_type == HAL_BIT) {
-	/* no offset for bits */
-	return;
+        /* no offset for bits */
+        return;
     }
     if (dialog_set_offset(chan_num)) {
-	if (chan_num == ctrl_shm->trig_chan) {
-	    refresh_trigger();
-	}
-	channel_changed();
-	request_display_refresh(1);
+        if (chan_num == ctrl_shm->trig_chan) {
+            refresh_trigger();
+        }
+        channel_changed();
+        request_display_refresh(1);
     }
 }
 
@@ -695,14 +689,20 @@ static gboolean dialog_set_offset(int chan_num)
 
     vert = &(ctrl_usr->vert);
     chan = &(ctrl_usr->chan[chan_num - 1]);
-    snprintf(msg, BUFLEN - 1, _("Set the vertical offset\n"
-	"for channel %d."), chan_num);
+    snprintf(msg,
+             BUFLEN - 1,
+             _("Set the vertical offset\n"
+               "for channel %d."),
+             chan_num);
 
     /* create dialog window, disable resizing and place it in center of screen */
     dialog = gtk_dialog_new_with_buttons(_("Set Offset"),
-                                         NULL, GTK_DIALOG_MODAL,
-                                         _("_OK"), GTK_RESPONSE_OK,
-                                         _("_Cancel"), GTK_RESPONSE_CANCEL,
+                                         NULL,
+                                         GTK_DIALOG_MODAL,
+                                         _("_OK"),
+                                         GTK_RESPONSE_OK,
+                                         _("_Cancel"),
+                                         GTK_RESPONSE_CANCEL,
                                          NULL);
     gtk_window_set_position(GTK_WINDOW(dialog), GTK_WIN_POS_CENTER);
     gtk_window_set_resizable(GTK_WINDOW(dialog), FALSE);
@@ -712,38 +712,45 @@ static gboolean dialog_set_offset(int chan_num)
     label = gtk_label_new(msg);
     gtk_widget_set_margin_start(label, 15);
     gtk_widget_set_margin_end(label, 15);
-    gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
-            label, FALSE, FALSE, 5);
+    gtk_box_pack_start(
+        GTK_BOX(GTK_CONTAINER(content_area)), label, FALSE, FALSE, 5);
 
     gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
-            gtk_separator_new(GTK_ORIENTATION_HORIZONTAL), FALSE, FALSE, 0);
+                       gtk_separator_new(GTK_ORIENTATION_HORIZONTAL),
+                       FALSE,
+                       FALSE,
+                       0);
 
     vert->offset_ac = gtk_check_button_new_with_label(_("AC Coupled"));
-    gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
-            vert->offset_ac, FALSE, TRUE, 0);
+    gtk_box_pack_start(
+        GTK_BOX(GTK_CONTAINER(content_area)), vert->offset_ac, FALSE, TRUE, 0);
 
     vert->offset_entry = gtk_entry_new();
     gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
-            vert->offset_entry, FALSE, TRUE, 0);
+                       vert->offset_entry,
+                       FALSE,
+                       TRUE,
+                       0);
 
     /* update elements */
     snprintf(data.buf, BUFLEN, "%f", chan->vert_offset);
     gtk_entry_set_text(GTK_ENTRY(vert->offset_entry), data.buf);
-    gtk_entry_set_max_length(GTK_ENTRY(vert->offset_entry), BUFLEN-1);
+    gtk_entry_set_max_length(GTK_ENTRY(vert->offset_entry), BUFLEN - 1);
     /* point at first char */
     gtk_editable_set_position(GTK_EDITABLE(vert->offset_entry), 0);
     /* select all chars, so if the user types the original value goes away */
-    gtk_editable_select_region(GTK_EDITABLE(vert->offset_entry), 0, strlen(data.buf));
+    gtk_editable_select_region(
+        GTK_EDITABLE(vert->offset_entry), 0, strlen(data.buf));
     /* make it active so user doesn't have to click on it */
     gtk_widget_grab_focus(GTK_WIDGET(vert->offset_entry));
 
     /* signals */
-    g_signal_connect(vert->offset_ac, "toggled",
-	G_CALLBACK(offset_changed), &data);
-    g_signal_connect(vert->offset_entry, "changed",
-	G_CALLBACK(offset_changed), &data);
-    g_signal_connect(vert->offset_entry, "activate",
-	G_CALLBACK(offset_activated), dialog);
+    g_signal_connect(
+        vert->offset_ac, "toggled", G_CALLBACK(offset_changed), &data);
+    g_signal_connect(
+        vert->offset_entry, "changed", G_CALLBACK(offset_changed), &data);
+    g_signal_connect(
+        vert->offset_entry, "activate", G_CALLBACK(offset_activated), dialog);
     gtk_widget_show_all(dialog);
 
     retval = gtk_dialog_run(GTK_DIALOG(dialog));
@@ -759,14 +766,14 @@ static gboolean dialog_set_offset(int chan_num)
     return FALSE;
 }
 
-static void offset_changed(GtkEditable * editable, struct offset_data *data)
+static void offset_changed(GtkEditable *editable, struct offset_data *data)
 {
     (void)editable;
     const char *text;
 
     /* maybe user hit "ac coupled" button" */
-    data->ac_coupled =
-      gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ctrl_usr->vert.offset_ac));
+    data->ac_coupled = gtk_toggle_button_get_active(
+        GTK_TOGGLE_BUTTON(ctrl_usr->vert.offset_ac));
     gtk_widget_set_sensitive(ctrl_usr->vert.offset_entry, !data->ac_coupled);
 
     /* maybe user typed something, save it in the buffer */
@@ -785,7 +792,7 @@ static void offset_activated(GtkEntry *entry, GtkWidget *dialog)
 }
 
 
-static void chan_sel_button(GtkWidget * widget, gpointer gdata)
+static void chan_sel_button(GtkWidget *widget, gpointer gdata)
 {
     long chan_num;
     int n, count;
@@ -794,14 +801,14 @@ static void chan_sel_button(GtkWidget * widget, gpointer gdata)
     GtkWidget *dialog;
 
     vert = &(ctrl_usr->vert);
-    chan_num = (long) gdata;
+    chan_num = (long)gdata;
     chan = &(ctrl_usr->chan[chan_num - 1]);
 
     if (ignore_click) {
         ignore_click = 0;
         return;
     }
-    if (vert->chan_enabled[chan_num - 1] == 0 ) {
+    if (vert->chan_enabled[chan_num - 1] == 0) {
         /* channel is disabled, want to enable it */
 
         if (ctrl_shm->state != IDLE) {
@@ -811,7 +818,7 @@ static void chan_sel_button(GtkWidget * widget, gpointer gdata)
         count = 0;
         for (n = 0; n < 16; n++) {
             if (vert->chan_enabled[n]) {
-            count++;
+                count++;
             }
         }
         if (count >= ctrl_shm->sample_len) {
@@ -825,10 +832,10 @@ static void chan_sel_button(GtkWidget * widget, gpointer gdata)
                                             GTK_BUTTONS_CLOSE,
                                             _("Too many channels"));
             gtk_message_dialog_format_secondary_text(
-                    GTK_MESSAGE_DIALOG(dialog),
-                    _("You cannot add another channel.\n\n"
-                    "Either turn off one or more channels, or shorten\n"
-                    "the record length to allow for more channels"));
+                GTK_MESSAGE_DIALOG(dialog),
+                _("You cannot add another channel.\n\n"
+                  "Either turn off one or more channels, or shorten\n"
+                  "the record length to allow for more channels"));
             gtk_dialog_run(GTK_DIALOG(dialog));
             gtk_widget_destroy(dialog);
             return;
@@ -863,7 +870,7 @@ static void chan_sel_button(GtkWidget * widget, gpointer gdata)
     }
 }
 
-static void change_source_button(GtkWidget * widget, gpointer gdata)
+static void change_source_button(GtkWidget *widget, gpointer gdata)
 {
     (void)widget;
     (void)gdata;
@@ -871,7 +878,7 @@ static void change_source_button(GtkWidget * widget, gpointer gdata)
 
     chan_num = ctrl_usr->vert.selected;
     if ((chan_num < 1) || (chan_num > 16)) {
-	return;
+        return;
     }
     if (ctrl_shm->state != IDLE) {
         /* acquisition in progress, must restart it */
@@ -882,8 +889,10 @@ static void change_source_button(GtkWidget * widget, gpointer gdata)
     channel_changed();
 }
 
-static void change_page(GtkNotebook *notebook, GtkWidget *page,
-                        guint page_num, gpointer user_data)
+static void change_page(GtkNotebook *notebook,
+                        GtkWidget *page,
+                        guint page_num,
+                        gpointer user_data)
 {
     (void)notebook;
     (void)page;
@@ -925,9 +934,12 @@ static gboolean dialog_select_source(int chan_num)
 
     /* create dialog window, disable resizing, set title, size and position */
     dialog = gtk_dialog_new_with_buttons(title,
-                                         NULL, GTK_DIALOG_MODAL,
-                                         _("_OK"), GTK_RESPONSE_ACCEPT,
-                                         _("_Cancel"), GTK_RESPONSE_CANCEL,
+                                         NULL,
+                                         GTK_DIALOG_MODAL,
+                                         _("_OK"),
+                                         GTK_RESPONSE_ACCEPT,
+                                         _("_Cancel"),
+                                         GTK_RESPONSE_CANCEL,
                                          NULL);
     gtk_widget_set_size_request(GTK_WIDGET(dialog), -1, 400);
     gtk_window_set_resizable(GTK_WINDOW(dialog), FALSE);
@@ -940,8 +952,8 @@ static gboolean dialog_select_source(int chan_num)
     * add the notebook to the window
     */
     vert->notebook = gtk_notebook_new();
-    gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)), vert->notebook,
-            TRUE, TRUE, 0);
+    gtk_box_pack_start(
+        GTK_BOX(GTK_CONTAINER(content_area)), vert->notebook, TRUE, TRUE, 0);
 
     /* text for tab labels */
     tab_label_text[0] = _("Pins");
@@ -953,29 +965,35 @@ static gboolean dialog_select_source(int chan_num)
         /* Create a scrolled window to display the list */
         scrolled_window = gtk_scrolled_window_new(NULL, NULL);
         gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),
-                GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
+                                       GTK_POLICY_AUTOMATIC,
+                                       GTK_POLICY_ALWAYS);
 
         /* create and set tabs in notebook */
         label = gtk_label_new_with_mnemonic(tab_label_text[n]);
         gtk_widget_set_size_request(label, 70, -1);
-        gtk_notebook_append_page(GTK_NOTEBOOK(vert->notebook), scrolled_window, label);
+        gtk_notebook_append_page(
+            GTK_NOTEBOOK(vert->notebook), scrolled_window, label);
 
         /* create a list to hold the data */
         vert->lists[n] = gtk_tree_view_new();
-        gtk_tree_view_set_headers_visible(
-                GTK_TREE_VIEW(vert->lists[n]), FALSE);
+        gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(vert->lists[n]), FALSE);
         init_list(vert->lists[n], &tab_label_text[n], NUM_COLS);
         gtk_container_add(GTK_CONTAINER(scrolled_window), vert->lists[n]);
 
-        g_signal_connect(vert->lists[n], "row-activated",
-            G_CALLBACK(selection_made), dialog);
-        g_signal_connect(gtk_tree_view_get_selection(GTK_TREE_VIEW(vert->lists[n])),
-                         "changed", G_CALLBACK(selection_changed), signal_name);
+        g_signal_connect(vert->lists[n],
+                         "row-activated",
+                         G_CALLBACK(selection_made),
+                         dialog);
+        g_signal_connect(
+            gtk_tree_view_get_selection(GTK_TREE_VIEW(vert->lists[n])),
+            "changed",
+            G_CALLBACK(selection_changed),
+            signal_name);
     }
 
     /* signals */
-    g_signal_connect(vert->notebook, "switch-page",
-            G_CALLBACK(change_page), vert);
+    g_signal_connect(
+        vert->notebook, "switch-page", G_CALLBACK(change_page), vert);
 
     /* populate the pin, signal, and parameter lists */
     rtapi_mutex_get(&(hal_data->mutex));
@@ -1065,8 +1083,10 @@ static void selection_changed(GtkTreeSelection *selection, char *name)
 }
 
 /* User has double-clicked or hit 'enter' on a row in the list. */
-static void selection_made(GtkTreeView *treeview, GtkTreePath *path,
-                           GtkTreeViewColumn *col, GtkWidget *dialog)
+static void selection_made(GtkTreeView *treeview,
+                           GtkTreePath *path,
+                           GtkTreeViewColumn *col,
+                           GtkWidget *dialog)
 {
     (void)treeview;
     (void)path;
@@ -1121,9 +1141,9 @@ void channel_changed(void)
     gtk_label_set_text_if(vert->source_name_label, name);
     /* update the offset display */
     if (chan->data_type == HAL_BIT) {
-	    snprintf(buf1, BUFLEN, "----");
+        snprintf(buf1, BUFLEN, "----");
     } else {
-        if(chan->ac_offset) {
+        if (chan->ac_offset) {
             snprintf(buf1, BUFLEN, "(AC)");
         } else {
             format_signal_value(buf1, BUFLEN, chan->vert_offset);
@@ -1140,45 +1160,45 @@ void format_scale_value(char *buf, int buflen, double value)
     char symbols[] = "pnum KMGT";
 
     if (value < 0.9e-12) {
-	/* less than pico units, shouldn't happen */
-	snprintf(buf, buflen, "tiny");
-	return;
+        /* less than pico units, shouldn't happen */
+        snprintf(buf, buflen, "tiny");
+        return;
     }
     if (value > 1.1e+12) {
-	/* greater than tera-units, shouldn't happen */
-	snprintf(buf, buflen, "huge");
-	return;
+        /* greater than tera-units, shouldn't happen */
+        snprintf(buf, buflen, "huge");
+        return;
     }
     units = &(symbols[4]);
     while (value < 1.0) {
-	value *= 1000.0;
-	units--;
+        value *= 1000.0;
+        units--;
     }
     while (value >= 999.99) {
-	value *= 0.001;
-	units++;
+        value *= 0.001;
+        units++;
     }
     snprintf(buf, buflen, "%0.0f%c/div", value, *units);
 }
 
 static void write_chan_config(FILE *fp, scope_chan_t *chan)
 {
-    if ( chan->data_source_type == 0 ) {
-	// pin
-	fprintf(fp, "PIN %s\n", chan->name);
-    } else if ( chan->data_source_type == 1 ) {
-	// signal
-	fprintf(fp, "SIG %s\n", chan->name);
-    } else if ( chan->data_source_type == 2 ) {
-	// pin
-	fprintf(fp, "PARAM %s\n", chan->name);
+    if (chan->data_source_type == 0) {
+        // pin
+        fprintf(fp, "PIN %s\n", chan->name);
+    } else if (chan->data_source_type == 1) {
+        // signal
+        fprintf(fp, "SIG %s\n", chan->name);
+    } else if (chan->data_source_type == 2) {
+        // pin
+        fprintf(fp, "PARAM %s\n", chan->name);
     } else {
-	// not configured
-	return;
+        // not configured
+        return;
     }
     fprintf(fp, "VSCALE %d\n", chan->scale_index);
     fprintf(fp, "VPOS %f\n", chan->position);
-    if(chan->ac_offset) {
+    if (chan->ac_offset) {
         fprintf(fp, "VAC %e\n", chan->vert_offset);
     } else {
         fprintf(fp, "VOFF %e\n", chan->vert_offset);
@@ -1194,25 +1214,30 @@ static void style_with_css(GtkWidget *widget, int color_index)
     GtkCssProvider *provider;
 
     char buf[310];
-    snprintf(buf, sizeof(buf), "* {margin: 1px; border-style:solid; border-width: 2px;}\n"
-                               "#selected {border-color: black; font-weight: bold;}\n"
-                               "*:checked, *:active {background: rgb(%d,%d,%d);}\n"
-                               "*:hover {background: rgba(%d,%d,%d,0.3);}\n"
-                               "*:hover#selected {background: rgba(%d,%d,%d,0.6);}\n"
-                               "button {padding-left: 0; padding-right: 0;}",
-                               normal_colors[color_index][0],normal_colors[color_index][1],
-                               normal_colors[color_index][2],
-                               normal_colors[color_index][0],normal_colors[color_index][1],
-                               normal_colors[color_index][2],
-                               normal_colors[color_index][0],normal_colors[color_index][1],
-                               normal_colors[color_index][2]);
+    snprintf(buf,
+             sizeof(buf),
+             "* {margin: 1px; border-style:solid; border-width: 2px;}\n"
+             "#selected {border-color: black; font-weight: bold;}\n"
+             "*:checked, *:active {background: rgb(%d,%d,%d);}\n"
+             "*:hover {background: rgba(%d,%d,%d,0.3);}\n"
+             "*:hover#selected {background: rgba(%d,%d,%d,0.6);}\n"
+             "button {padding-left: 0; padding-right: 0;}",
+             normal_colors[color_index][0],
+             normal_colors[color_index][1],
+             normal_colors[color_index][2],
+             normal_colors[color_index][0],
+             normal_colors[color_index][1],
+             normal_colors[color_index][2],
+             normal_colors[color_index][0],
+             normal_colors[color_index][1],
+             normal_colors[color_index][2]);
 
-    provider = gtk_css_provider_new ();
+    provider = gtk_css_provider_new();
     context = gtk_widget_get_style_context(widget);
-    gtk_style_context_add_provider(context, GTK_STYLE_PROVIDER(provider),
-            GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+    gtk_style_context_add_provider(context,
+                                   GTK_STYLE_PROVIDER(provider),
+                                   GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
     gtk_css_provider_load_from_data(provider, buf, -1, NULL);
 
     g_object_unref(provider);
 }
-

@@ -20,17 +20,19 @@
 #endif
 
 const char *fmt, *efmt;
-    int result;
+int result;
 
-    result = dbuf_get_string(o, &fmt);
-    if(result < 0) return result;
+result = dbuf_get_string(o, &fmt);
+if (result < 0)
+    return result;
 
-    // cppcheck-suppress selfAssignment
-    if(*fmt) fmt = gettext(fmt);
+// cppcheck-suppress selfAssignment
+if (*fmt)
+    fmt = gettext(fmt);
 
-    while((efmt = strchr(fmt, '%'))) {
-        int modifier_l;
-        int code = get_code(&efmt, &modifier_l);
+while ((efmt = strchr(fmt, '%'))) {
+    int modifier_l;
+    int code = get_code(&efmt, &modifier_l);
     // 'block' holds all literal text preceding the next '%' conversion
     // specifier. This may include multiple lines of diagnostic text and
     // is not limited to the conversion format itself.
@@ -42,64 +44,76 @@ const char *fmt, *efmt;
     // than the limit, then the print will be truncated, but it doesn't crash
     // either. The next round will skip properly because 'efmt' points to
     // after the format.
-        char block[255 + 1];
-        int fmt_len = efmt - fmt;
-	if(fmt_len >= (int)sizeof(block))
-		fmt_len = sizeof(block) - 1;
-        memcpy(block, fmt, fmt_len);
-        block[fmt_len] = 0;
+    char block[255 + 1];
+    int fmt_len = efmt - fmt;
+    if (fmt_len >= (int)sizeof(block))
+        fmt_len = sizeof(block) - 1;
+    memcpy(block, fmt, fmt_len);
+    block[fmt_len] = 0;
 
-        switch(code) {
-            case '%':
-                result = PRINT("%s", block);
-                break;
-            case 'c': case 'd': case 'i': case 'x': case 'u': case 'X':
-                if(modifier_l)
-            case 'p':
-                {
-                    long l;
-                    result = dbuf_get_long(o, &l);
-                    if(result < 0) return SET_ERRNO(result);
-                    result = PRINT(block, l);
-                } else {
-                    int i;
-                    result = dbuf_get_int(o, &i);
-                    if(result < 0) return SET_ERRNO(result);
-                    result = PRINT(block, i);
-                }
-                break;
-            case 'e': case 'E': case 'f': case 'F': case 'g': case 'G':
-                {
-                    double d;
-                    result = dbuf_get_double(o, &d);
-                    if(result < 0) return SET_ERRNO(result);
-                    result = PRINT(block, d);
-                }
-                break;
-            case 's':
-                {
-                    const char *s;
-                    result = dbuf_get_string(o, &s);
-                    if(result < 0) return SET_ERRNO(result);
-                    // cppcheck-suppress selfAssignment
-                    if(*s) s = gettext(s);
-                    result = PRINT(block, s);
-                }
-                break;
+    switch (code) {
+    case '%': result = PRINT("%s", block); break;
+    case 'c':
+    case 'd':
+    case 'i':
+    case 'x':
+    case 'u':
+    case 'X':
+        if (modifier_l)
+        case 'p': {
+            long l;
+            result = dbuf_get_long(o, &l);
+            if (result < 0)
+                return SET_ERRNO(result);
+            result = PRINT(block, l);
         }
-        if(result < 0) return SET_ERRNO(result);
-        EXTRA
-        fmt = efmt;
+            else
+            {
+                int i;
+                result = dbuf_get_int(o, &i);
+                if (result < 0)
+                    return SET_ERRNO(result);
+                result = PRINT(block, i);
+            }
+        break;
+    case 'e':
+    case 'E':
+    case 'f':
+    case 'F':
+    case 'g':
+    case 'G': {
+        double d;
+        result = dbuf_get_double(o, &d);
+        if (result < 0)
+            return SET_ERRNO(result);
+        result = PRINT(block, d);
+    } break;
+    case 's': {
+        const char *s;
+        result = dbuf_get_string(o, &s);
+        if (result < 0)
+            return SET_ERRNO(result);
+        // cppcheck-suppress selfAssignment
+        if (*s)
+            s = gettext(s);
+        result = PRINT(block, s);
+    } break;
     }
-    if(*fmt) {
-        result = PRINT("%s", fmt);
-        if(result < 0) return SET_ERRNO(result);
-        // The below expansion of 'EXTRA' makes no sense. The function is about
-        // to exit and changing anything here does not change the outcome in
-        // any way. Therefore, make it a comment.
-        // EXTRA
-    }
+    if (result < 0)
+        return SET_ERRNO(result);
+    EXTRA
+    fmt = efmt;
+}
+if (*fmt) {
+    result = PRINT("%s", fmt);
+    if (result < 0)
+        return SET_ERRNO(result);
+    // The below expansion of 'EXTRA' makes no sense. The function is about
+    // to exit and changing anything here does not change the outcome in
+    // any way. Therefore, make it a comment.
+    // EXTRA
+}
 
-    return SET_ERRNO(result);
+return SET_ERRNO(result);
 #undef PRINT
 #undef EXTRA

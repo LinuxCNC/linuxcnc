@@ -13,9 +13,8 @@
 //    You should have received a copy of the GNU General Public License
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-void SaveSeqElementProperties( void );
+void SaveSeqElementProperties(void);
 void ModifyCurrentSeqPage(void);
 void CancelSeqPageEdited(void);
 void ApplySeqPageEdited(void);
-void EditElementInSeqPage(double x,double y);
-
+void EditElementInSeqPage(double x, double y);

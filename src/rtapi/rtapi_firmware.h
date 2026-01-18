@@ -44,7 +44,8 @@ struct rtapi_firmware {
 };
 
 extern int rtapi_request_firmware(const struct rtapi_firmware **fw,
-    const char *name, struct rtapi_device *device);
+                                  const char *name,
+                                  struct rtapi_device *device);
 
 extern void rtapi_release_firmware(const struct rtapi_firmware *fw);
 

@@ -41,10 +41,7 @@ typedef enum {
     TC_SYNC_POSITION
 } tc_spindle_sync_t;
 
-typedef enum {
-    TC_DIR_FORWARD = 0,
-    TC_DIR_REVERSE
-} tc_direction_t;
+typedef enum { TC_DIR_FORWARD = 0, TC_DIR_REVERSE } tc_direction_t;
 
 #define TC_GET_PROGRESS 0
 #define TC_GET_STARTPOINT 1
@@ -91,7 +88,11 @@ typedef struct {
 
 typedef enum {
     RIGIDTAP_START,
-    TAPPING, REVERSING, RETRACTION, FINAL_REVERSAL, FINAL_PLACEMENT
+    TAPPING,
+    REVERSING,
+    RETRACTION,
+    FINAL_REVERSAL,
+    FINAL_PLACEMENT
 } RIGIDTAP_STATE;
 
 typedef unsigned long long iomask_t; // 64 bits on both x86 and x86_64
@@ -105,9 +106,9 @@ typedef struct {
 } syncdio_t;
 
 typedef struct {
-    PmCartLine xyz;             // original, but elongated, move down
-    PmCartLine aux_xyz;         // this will be generated on the fly, for the other
-                            // two moves: retraction, final placement
+    PmCartLine xyz;     // original, but elongated, move down
+    PmCartLine aux_xyz; // this will be generated on the fly, for the other
+                        // two moves: retraction, final placement
     PmCartesian abc;
     PmCartesian uvw;
     double reversal_target;
@@ -119,37 +120,40 @@ typedef struct {
 typedef struct {
     double cycle_time;
     //Position stuff
-    double target;          // actual segment length
-    double progress;        // where are we in the segment?  0..target
+    double target;   // actual segment length
+    double progress; // where are we in the segment?  0..target
     double nominal_length;
 
     //Velocity
-    double reqvel;          // vel requested by F word, calc'd by task
-    double target_vel;      // velocity to actually track, limited by other factors
-    double maxvel;          // max possible vel (feed override stops here)
-    double currentvel;      // keep track of current step (vel * cycle_time)
-    double finalvel;        // velocity to aim for at end of segment
-    double term_vel;        // actual velocity at termination of segment
-    double kink_vel;        // Temporary way to store our calculation of maximum velocity we can handle if this segment is declared tangent with the next
-    double kink_accel_reduce_prev; // How much to reduce the allowed tangential acceleration to account for the extra acceleration at an approximate tangent intersection.
-    double kink_accel_reduce; // How much to reduce the allowed tangential acceleration to account for the extra acceleration at an approximate tangent intersection.
+    double reqvel;     // vel requested by F word, calc'd by task
+    double target_vel; // velocity to actually track, limited by other factors
+    double maxvel;     // max possible vel (feed override stops here)
+    double currentvel; // keep track of current step (vel * cycle_time)
+    double finalvel;   // velocity to aim for at end of segment
+    double term_vel;   // actual velocity at termination of segment
+    double
+        kink_vel; // Temporary way to store our calculation of maximum velocity we can handle if this segment is declared tangent with the next
+    double
+        kink_accel_reduce_prev; // How much to reduce the allowed tangential acceleration to account for the extra acceleration at an approximate tangent intersection.
+    double
+        kink_accel_reduce; // How much to reduce the allowed tangential acceleration to account for the extra acceleration at an approximate tangent intersection.
 
     //Acceleration
-    double maxaccel;        // accel calc'd by task
-    double acc_ratio_tan;// ratio between normal and tangential accel
+    double maxaccel;      // accel calc'd by task
+    double acc_ratio_tan; // ratio between normal and tangential accel
 
     //S-curve jerk limiting
-    double maxjerk;         // max jerk for S-curve motion
-    double currentacc;      // current acceleration for S-curve planning
-    double initialvel;      // initial velocity when segment activated
-    int accel_phase;        // current phase of S-curve acceleration
-    double elapsed_time;    // time elapsed since segment activation
+    double maxjerk;          // max jerk for S-curve motion
+    double currentacc;       // current acceleration for S-curve planning
+    double initialvel;       // initial velocity when segment activated
+    int accel_phase;         // current phase of S-curve acceleration
+    double elapsed_time;     // time elapsed since segment activation
     double last_move_length; // length of last move step for S-curve
 
     int id;                 // segment's serial number
     struct state_tag_t tag; // state tag corresponding to running motion
 
-    union {                 // describes the segment's start and end positions
+    union { // describes the segment's start and end positions
         PmLine9 line;
         PmCircle9 circle;
         PmRigidTap rigidtap;
@@ -157,33 +161,33 @@ typedef struct {
     } coords;
 
     int motion_type;       // TC_LINEAR (coords.line) or
-                            // TC_CIRCULAR (coords.circle) or
-                            // TC_RIGIDTAP (coords.rigidtap)
+                           // TC_CIRCULAR (coords.circle) or
+                           // TC_RIGIDTAP (coords.rigidtap)
     int active;            // this motion is being executed
-    int canon_motion_type;  // this motion is due to which canon function?
-    int term_cond;          // gcode requests continuous feed at the end of
-                            // this segment (g64 mode)
+    int canon_motion_type; // this motion is due to which canon function?
+    int term_cond;         // gcode requests continuous feed at the end of
+                           // this segment (g64 mode)
 
-    int blending_next;      // segment is being blended into following segment
-    double blend_vel;       // velocity below which we should start blending
-    double tolerance;       // during the blend at the end of this move,
-                            // stay within this distance from the path.
-    int synchronized;       // spindle sync state
-    double uu_per_rev;      // for sync, user units per rev (e.g. 0.0625 for 16tpi)
+    int blending_next; // segment is being blended into following segment
+    double blend_vel;  // velocity below which we should start blending
+    double tolerance;  // during the blend at the end of this move,
+                       // stay within this distance from the path.
+    int synchronized;  // spindle sync state
+    double uu_per_rev; // for sync, user units per rev (e.g. 0.0625 for 16tpi)
     double vel_at_blend_start;
-    int sync_accel;         // we're accelerating up to sync with the spindle
-    unsigned char enables;  // Feed scale, etc, enable bits for this move
-    int atspeed;           // wait for the spindle to be at-speed before starting this move
-    syncdio_t syncdio;      // synched DIO's for this move. what to turn on/off
-    int indexer_jnum;  // which joint to unlock (for a locking indexer) to make this move, -1 for none
-    int optimization_state;             // At peak velocity during blends)
+    int sync_accel;        // we're accelerating up to sync with the spindle
+    unsigned char enables; // Feed scale, etc, enable bits for this move
+    int atspeed; // wait for the spindle to be at-speed before starting this move
+    syncdio_t syncdio; // synched DIO's for this move. what to turn on/off
+    int indexer_jnum; // which joint to unlock (for a locking indexer) to make this move, -1 for none
+    int optimization_state; // At peak velocity during blends)
     int on_final_decel;
     int blend_prev;
     int accel_mode;
-    int splitting;          // the segment is less than 1 cycle time
-                            // away from the end.
-    int remove;             // Flag to remove the segment from the queue
-    int active_depth;       /* Active depth (i.e. how many segments
+    int splitting;    // the segment is less than 1 cycle time
+                      // away from the end.
+    int remove;       // Flag to remove the segment from the queue
+    int active_depth; /* Active depth (i.e. how many segments
                             * after this will it take to slow to zero
                             * speed) */
     int finalized;
@@ -192,4 +196,4 @@ typedef struct {
     int is_blending;
 } TC_STRUCT;
 
-#endif				/* TC_TYPES_H */
+#endif /* TC_TYPES_H */

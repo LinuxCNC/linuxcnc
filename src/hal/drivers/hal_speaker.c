@@ -61,11 +61,11 @@
     information, go to www.linuxcnc.org.
 */
 
-#include "config.h"     /* environment flags */
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_app.h"		/* RTAPI realtime module decls */
+#include "config.h"    /* environment flags */
+#include "rtapi.h"     /* RTAPI realtime OS API */
+#include "rtapi_app.h" /* RTAPI realtime module decls */
 #include "rtapi_io.h"
-#include "hal.h"		/* HAL public API decls */
+#include "hal.h" /* HAL public API decls */
 
 /* If FASTIO is defined, uses outb() and inb() from <asm.io>,
    instead of rtapi_outb() and rtapi_inb() - the <asm.io> ones
@@ -106,8 +106,8 @@ typedef struct {
 static speaker_t *port_data_array;
 
 /* other globals */
-static int comp_id;		/* component ID */
-static int num_ports;		/* number of ports configured */
+static int comp_id;   /* component ID */
+static int num_ports; /* number of ports configured */
 
 /**************************************************************
 * REALTIME PORT WRITE FUNCTION                                *
@@ -123,15 +123,16 @@ static void write_port(void *arg, long period)
     int i;
     speaker_t *port;
     port = arg;
-    
-    for(i=0; i<8; i++) {
-        if(*(port->signals[i])) v = v | (1<<i);
+
+    for (i = 0; i < 8; i++) {
+        if (*(port->signals[i]))
+            v = v | (1 << i);
     }
 
     /* write it to the hardware */
     oldval = rtapi_inb(SPEAKER_PORT) & 0xfc;
 
-    if(v != port->last) {
+    if (v != port->last) {
         rtapi_outb(oldval | 2, SPEAKER_PORT);
     } else {
         rtapi_outb(oldval, SPEAKER_PORT);
@@ -155,37 +156,40 @@ int rtapi_app_main(void)
     /* STEP 1: initialise the driver */
     comp_id = hal_init("hal_speaker");
     if (comp_id < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "SPEAKER: ERROR: hal_init() failed\n");
-	return -1;
+        rtapi_print_msg(RTAPI_MSG_ERR, "SPEAKER: ERROR: hal_init() failed\n");
+        return -1;
     }
 
 #if !defined(RTAPI_RTAI)
     /* STEP 1.1: get access to port, only needed in uspace builds */
     if (rtapi_ioperm(SPEAKER_PORT, 1, 1) < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "SPEAKER: ERROR: ioperm() failed\n");
-	hal_exit(comp_id);
-	return -1;
+        rtapi_print_msg(RTAPI_MSG_ERR, "SPEAKER: ERROR: ioperm() failed\n");
+        hal_exit(comp_id);
+        return -1;
     }
 #endif /* RTAPI_RTAI */
 
     /* STEP 2: allocate shared memory for skeleton data */
     port_data_array = hal_malloc(num_ports * sizeof(speaker_t));
     if (port_data_array == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "SPEAKER: ERROR: hal_malloc() failed\n");
-	hal_exit(comp_id);
-	return -1;
+        rtapi_print_msg(RTAPI_MSG_ERR, "SPEAKER: ERROR: hal_malloc() failed\n");
+        hal_exit(comp_id);
+        return -1;
     }
 
     /* STEP 3: export the pin(s) */
-    for(i = 0; i < 8; i++) {
-        retval = hal_pin_bit_newf(HAL_IN, &(port_data_array->signals[i]),
-				  comp_id, "speaker.%d.pin-%02d-out", n, i);
+    for (i = 0; i < 8; i++) {
+        retval = hal_pin_bit_newf(HAL_IN,
+                                  &(port_data_array->signals[i]),
+                                  comp_id,
+                                  "speaker.%d.pin-%02d-out",
+                                  n,
+                                  i);
         if (retval < 0) {
-            rtapi_print_msg(RTAPI_MSG_ERR,
-                "SPEAKER: ERROR: port %d var export failed with err=%i\n", n,
+            rtapi_print_msg(
+                RTAPI_MSG_ERR,
+                "SPEAKER: ERROR: port %d var export failed with err=%i\n",
+                n,
                 retval);
             hal_exit(comp_id);
             return -1;
@@ -193,18 +197,23 @@ int rtapi_app_main(void)
     }
 
     /* STEP 4: export write function */
-    retval =
-	hal_export_functf(write_port, &(port_data_array[n]), 0, 0,
-	comp_id, "speaker.%d.write", n);
+    retval = hal_export_functf(write_port,
+                               &(port_data_array[n]),
+                               0,
+                               0,
+                               comp_id,
+                               "speaker.%d.write",
+                               n);
     if (retval < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "SPEAKER: ERROR: port %d write funct export failed\n", n);
-	hal_exit(comp_id);
-	return -1;
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "SPEAKER: ERROR: port %d write funct export failed\n",
+                        n);
+        hal_exit(comp_id);
+        return -1;
     }
 
-    rtapi_print_msg(RTAPI_MSG_INFO,
-	"SPEAKER: installed driver for %d ports\n", num_ports);
+    rtapi_print_msg(
+        RTAPI_MSG_INFO, "SPEAKER: installed driver for %d ports\n", num_ports);
     hal_ready(comp_id);
     return 0;
 }
@@ -213,5 +222,3 @@ void rtapi_app_exit(void)
 {
     hal_exit(comp_id);
 }
-
-

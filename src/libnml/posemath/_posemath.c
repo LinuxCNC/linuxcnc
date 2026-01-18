@@ -23,7 +23,7 @@
 #endif
 
 #ifdef PM_PRINT_ERROR
-#define PM_DEBUG		/* have to have debug with printing */
+#define PM_DEBUG /* have to have debug with printing */
 #include <stdio.h>
 #include <stdarg.h>
 #endif
@@ -55,45 +55,38 @@ void pmPerror(const char *s)
 
     switch (pmErrno) {
     case 0:
-	/* no error */
-	return;
+        /* no error */
+        return;
 
-    case PM_ERR:
-	pmErrnoString = "unspecified error";
-	break;
+    case PM_ERR: pmErrnoString = "unspecified error"; break;
 
-    case PM_IMPL_ERR:
-	pmErrnoString = "not implemented";
-	break;
+    case PM_IMPL_ERR: pmErrnoString = "not implemented"; break;
 
-    case PM_NORM_ERR:
-	pmErrnoString = "expected normalized value";
-	break;
+    case PM_NORM_ERR: pmErrnoString = "expected normalized value"; break;
 
-    case PM_DIV_ERR:
-	pmErrnoString = "divide by zero";
-	break;
+    case PM_DIV_ERR: pmErrnoString = "divide by zero"; break;
 
-    default:
-	pmErrnoString = "unassigned error";
-	break;
+    default: pmErrnoString = "unassigned error"; break;
     }
 
     if (s != 0 && s[0] != 0) {
-	fprintf(stderr, "%s: %s\n", s, pmErrnoString);
+        fprintf(stderr, "%s: %s\n", s, pmErrnoString);
     } else {
-	fprintf(stderr, "%s\n", pmErrnoString);
+        fprintf(stderr, "%s\n", pmErrnoString);
     }
 }
 
 #endif /* PM_PRINT_ERROR */
 
 /* fuzz checker */
-#define IS_FUZZ(a,fuzz) (fabs(a) < (fuzz))
+#define IS_FUZZ(a, fuzz) (fabs(a) < (fuzz))
 
 /* Pose Math Basis Functions */
 
-int pmClose(double a, double b, double eps) { return ((fabs((a) - (b)) < (eps)) ? 1 : 0); }
+int pmClose(double a, double b, double eps)
+{
+    return ((fabs((a) - (b)) < (eps)) ? 1 : 0);
+}
 
 /* Scalar functions */
 
@@ -101,12 +94,12 @@ double pmSqrt(double x)
 {
     if (x > 0.0) {
         pmErrno = PM_OK;
-	return sqrt(x);
+        return sqrt(x);
     }
 
     if (x > SQRT_FUZZ) {
         pmErrno = PM_OK;
-	return 0.0;
+        return 0.0;
     }
 #ifdef PM_PRINT_ERROR
     pmPrintError("sqrt of large negative number\n");
@@ -118,7 +111,7 @@ double pmSqrt(double x)
 
 /* Translation rep conversion functions */
 
-int pmCartSphConvert(PmCartesian const * const v, PmSpherical * const s)
+int pmCartSphConvert(PmCartesian const *const v, PmSpherical *const s)
 {
     double _r;
 
@@ -130,7 +123,7 @@ int pmCartSphConvert(PmCartesian const * const v, PmSpherical * const s)
     return pmErrno = PM_OK;
 }
 
-int pmCartCylConvert(PmCartesian const * const v, PmCylindrical * const c)
+int pmCartCylConvert(PmCartesian const *const v, PmCylindrical *const c)
 {
     c->theta = atan2(v->y, v->x);
     c->r = pmSqrt(pmSq(v->x) + pmSq(v->y));
@@ -139,7 +132,7 @@ int pmCartCylConvert(PmCartesian const * const v, PmCylindrical * const c)
     return pmErrno = PM_OK;
 }
 
-int pmSphCartConvert(PmSpherical const * const s, PmCartesian * const v)
+int pmSphCartConvert(PmSpherical const *const s, PmCartesian *const v)
 {
     double _r;
 
@@ -151,7 +144,7 @@ int pmSphCartConvert(PmSpherical const * const s, PmCartesian * const v)
     return pmErrno = PM_OK;
 }
 
-int pmSphCylConvert(PmSpherical const * const s, PmCylindrical * const c)
+int pmSphCylConvert(PmSpherical const *const s, PmCylindrical *const c)
 {
     c->theta = s->theta;
     c->r = s->r * cos(s->phi);
@@ -160,7 +153,7 @@ int pmSphCylConvert(PmSpherical const * const s, PmCylindrical * const c)
     return pmErrno = PM_OK;
 }
 
-int pmCylCartConvert(PmCylindrical const * const c, PmCartesian * const v)
+int pmCylCartConvert(PmCylindrical const *const c, PmCartesian *const v)
 {
     v->x = c->r * cos(c->theta);
     v->y = c->r * sin(c->theta);
@@ -169,7 +162,7 @@ int pmCylCartConvert(PmCylindrical const * const c, PmCartesian * const v)
     return pmErrno = PM_OK;
 }
 
-int pmCylSphConvert(PmCylindrical const * const c, PmSpherical * const s)
+int pmCylSphConvert(PmCylindrical const *const c, PmSpherical *const s)
 {
     s->theta = c->theta;
     s->r = pmSqrt(pmSq(c->r) + pmSq(c->z));
@@ -180,7 +173,7 @@ int pmCylSphConvert(PmCylindrical const * const c, PmSpherical * const s)
 
 /* Rotation rep conversion functions */
 
-int pmAxisAngleQuatConvert(PmAxis axis, double a, PmQuaternion * const q)
+int pmAxisAngleQuatConvert(PmAxis axis, double a, PmQuaternion *const q)
 {
     double sh;
 
@@ -189,41 +182,41 @@ int pmAxisAngleQuatConvert(PmAxis axis, double a, PmQuaternion * const q)
 
     switch (axis) {
     case PM_X:
-	q->x = sh;
-	q->y = 0.0;
-	q->z = 0.0;
-	break;
+        q->x = sh;
+        q->y = 0.0;
+        q->z = 0.0;
+        break;
 
     case PM_Y:
-	q->x = 0.0;
-	q->y = sh;
-	q->z = 0.0;
-	break;
+        q->x = 0.0;
+        q->y = sh;
+        q->z = 0.0;
+        break;
 
     case PM_Z:
-	q->x = 0.0;
-	q->y = 0.0;
-	q->z = sh;
-	break;
+        q->x = 0.0;
+        q->y = 0.0;
+        q->z = sh;
+        break;
 
     default:
 #ifdef PM_PRINT_ERROR
-	pmPrintError("error: bad axis in pmAxisAngleQuatConvert\n");
+        pmPrintError("error: bad axis in pmAxisAngleQuatConvert\n");
 #endif
-	return pmErrno = PM_ERR;
+        return pmErrno = PM_ERR;
     }
 
     if (q->s < 0.0) {
-	q->s *= -1.0;
-	q->x *= -1.0;
-	q->y *= -1.0;
-	q->z *= -1.0;
+        q->s *= -1.0;
+        q->x *= -1.0;
+        q->y *= -1.0;
+        q->z *= -1.0;
     }
 
     return pmErrno = PM_OK;
 }
 
-int pmRotQuatConvert(PmRotationVector const * const r, PmQuaternion * const q)
+int pmRotQuatConvert(PmRotationVector const *const r, PmQuaternion *const q)
 {
     double sh;
 
@@ -233,53 +226,53 @@ int pmRotQuatConvert(PmRotationVector const * const r, PmQuaternion * const q)
     PmRotationVector r_raw = *r;
     if (0 != pmRotNorm(&r_raw, r)) {
 #ifdef PM_PRINT_ERROR
-	pmPrintError
-	    ("error: pmRotQuatConvert rotation vector not normalized\n");
+        pmPrintError(
+            "error: pmRotQuatConvert rotation vector not normalized\n");
 #endif
-	return pmErrno = PM_NORM_ERR;
+        return pmErrno = PM_NORM_ERR;
     }
 #endif
 
     if (pmClose(r->s, 0.0, QS_FUZZ)) {
-	q->s = 1.0;
-	q->x = q->y = q->z = 0.0;
+        q->s = 1.0;
+        q->x = q->y = q->z = 0.0;
 
-	return pmErrno = PM_OK;
+        return pmErrno = PM_OK;
     }
 
     pm_sincos(r->s / 2.0, &sh, &(q->s));
 
     if (q->s >= 0.0) {
-	q->x = r->x * sh;
-	q->y = r->y * sh;
-	q->z = r->z * sh;
+        q->x = r->x * sh;
+        q->y = r->y * sh;
+        q->z = r->z * sh;
     } else {
-	q->s *= -1;
-	q->x = -r->x * sh;
-	q->y = -r->y * sh;
-	q->z = -r->z * sh;
+        q->s *= -1;
+        q->x = -r->x * sh;
+        q->y = -r->y * sh;
+        q->z = -r->z * sh;
     }
 
     return pmErrno = PM_OK;
 }
 
-int pmRotMatConvert(PmRotationVector const * const r, PmRotationMatrix * const m)
+int pmRotMatConvert(PmRotationVector const *const r, PmRotationMatrix *const m)
 {
     double s, c, omc;
 
 #ifdef PM_DEBUG
     if (!pmRotIsNorm(r)) {
 #ifdef PM_PRINT_ERROR
-	pmPrintError("Bad vector in pmRotMatConvert\n");
+        pmPrintError("Bad vector in pmRotMatConvert\n");
 #endif
-	return pmErrno = PM_NORM_ERR;
+        return pmErrno = PM_NORM_ERR;
     }
 #endif
 
     pm_sincos(r->s, &s, &c);
 
     /* from space book */
-    m->x.x = c + pmSq(r->x) * (omc = 1 - c);	/* omc = One Minus Cos */
+    m->x.x = c + pmSq(r->x) * (omc = 1 - c); /* omc = One Minus Cos */
     m->y.x = -r->z * s + r->x * r->y * omc;
     m->z.x = r->y * s + r->x * r->z * omc;
 
@@ -294,7 +287,7 @@ int pmRotMatConvert(PmRotationVector const * const r, PmRotationMatrix * const m
     return pmErrno = PM_OK;
 }
 
-int pmRotZyzConvert(PmRotationVector const * const r, PmEulerZyz * const zyz)
+int pmRotZyzConvert(PmRotationVector const *const r, PmEulerZyz *const zyz)
 {
     (void)r;
     (void)zyz;
@@ -308,7 +301,7 @@ int pmRotZyzConvert(PmRotationVector const * const r, PmEulerZyz * const zyz)
 #endif
 }
 
-int pmRotZyxConvert(PmRotationVector const * const r, PmEulerZyx * const zyx)
+int pmRotZyxConvert(PmRotationVector const *const r, PmEulerZyx *const zyx)
 {
     PmRotationMatrix m;
     int r1, r2;
@@ -319,7 +312,7 @@ int pmRotZyxConvert(PmRotationVector const * const r, PmEulerZyx * const zyx)
     return pmErrno = (r1 || r2) ? PM_NORM_ERR : PM_OK;
 }
 
-int pmRotRpyConvert(PmRotationVector const * const r, PmRpy * const rpy)
+int pmRotRpyConvert(PmRotationVector const *const r, PmRpy *const rpy)
 {
     PmQuaternion q;
     int r1, r2;
@@ -332,50 +325,51 @@ int pmRotRpyConvert(PmRotationVector const * const r, PmRpy * const rpy)
     return (r1 || r2) ? pmErrno : PM_OK;
 }
 
-int pmQuatRotConvert(PmQuaternion const * const q, PmRotationVector * const r)
+int pmQuatRotConvert(PmQuaternion const *const q, PmRotationVector *const r)
 {
     double sh;
 
 #ifdef PM_DEBUG
     if (!pmQuatIsNorm(q)) {
 #ifdef PM_PRINT_ERROR
-	pmPrintError("Bad quaternion in pmQuatRotConvert\n");
+        pmPrintError("Bad quaternion in pmQuatRotConvert\n");
 #endif
-	return pmErrno = PM_NORM_ERR;
+        return pmErrno = PM_NORM_ERR;
     }
 #endif
     if (r == 0) {
 #ifdef PM_PRINT_ERROR
-	pmPrintError("pmQuatRotConvert: null pointer passed as rotation vector\n");
+        pmPrintError(
+            "pmQuatRotConvert: null pointer passed as rotation vector\n");
 #endif
-	return pmErrno = PM_ERR;
+        return pmErrno = PM_ERR;
     }
 
     sh = pmSqrt(pmSq(q->x) + pmSq(q->y) + pmSq(q->z));
 
     if (sh > QSIN_FUZZ) {
-	r->s = 2.0 * atan2(sh, q->s);
-	r->x = q->x / sh;
-	r->y = q->y / sh;
-	r->z = q->z / sh;
+        r->s = 2.0 * atan2(sh, q->s);
+        r->x = q->x / sh;
+        r->y = q->y / sh;
+        r->z = q->z / sh;
     } else {
-	r->s = 0.0;
-	r->x = 0.0;
-	r->y = 0.0;
-	r->z = 0.0;
+        r->s = 0.0;
+        r->x = 0.0;
+        r->y = 0.0;
+        r->z = 0.0;
     }
 
     return pmErrno = PM_OK;
 }
 
-int pmQuatMatConvert(PmQuaternion const * const q, PmRotationMatrix * const m)
+int pmQuatMatConvert(PmQuaternion const *const q, PmRotationMatrix *const m)
 {
 #ifdef PM_DEBUG
     if (!pmQuatIsNorm(q)) {
 #ifdef PM_PRINT_ERROR
-	pmPrintError("Bad quaternion in pmQuatMatConvert\n");
+        pmPrintError("Bad quaternion in pmQuatMatConvert\n");
 #endif
-	return pmErrno = PM_NORM_ERR;
+        return pmErrno = PM_NORM_ERR;
     }
 #endif
 
@@ -395,7 +389,7 @@ int pmQuatMatConvert(PmQuaternion const * const q, PmRotationMatrix * const m)
     return pmErrno = PM_OK;
 }
 
-int pmQuatZyzConvert(PmQuaternion const * const q, PmEulerZyz * const zyz)
+int pmQuatZyzConvert(PmQuaternion const *const q, PmEulerZyz *const zyz)
 {
     PmRotationMatrix m;
     int r1, r2;
@@ -407,7 +401,7 @@ int pmQuatZyzConvert(PmQuaternion const * const q, PmEulerZyz * const zyz)
     return pmErrno = (r1 || r2) ? PM_NORM_ERR : PM_OK;
 }
 
-int pmQuatZyxConvert(PmQuaternion const * const q, PmEulerZyx * const zyx)
+int pmQuatZyxConvert(PmQuaternion const *const q, PmEulerZyx *const zyx)
 {
     PmRotationMatrix m;
     int r1, r2;
@@ -419,7 +413,7 @@ int pmQuatZyxConvert(PmQuaternion const * const q, PmEulerZyx * const zyx)
     return pmErrno = (r1 || r2) ? PM_NORM_ERR : PM_OK;
 }
 
-int pmQuatRpyConvert(PmQuaternion const * const q, PmRpy * const rpy)
+int pmQuatRpyConvert(PmQuaternion const *const q, PmRpy *const rpy)
 {
     PmRotationMatrix m;
     int r1, r2;
@@ -431,7 +425,7 @@ int pmQuatRpyConvert(PmQuaternion const * const q, PmRpy * const rpy)
     return pmErrno = (r1 || r2) ? PM_NORM_ERR : PM_OK;
 }
 
-int pmMatRotConvert(PmRotationMatrix const * const m, PmRotationVector * const r)
+int pmMatRotConvert(PmRotationMatrix const *const m, PmRotationVector *const r)
 {
     PmQuaternion q;
     int r1, r2;
@@ -443,7 +437,7 @@ int pmMatRotConvert(PmRotationMatrix const * const m, PmRotationVector * const r
     return pmErrno = (r1 || r2) ? PM_NORM_ERR : PM_OK;
 }
 
-int pmMatQuatConvert(PmRotationMatrix const * const m, PmQuaternion * const q)
+int pmMatQuatConvert(PmRotationMatrix const *const m, PmQuaternion *const q)
 {
     /* 
        from Stephe's "space" book e1 = (c32 - c23) / 4*e4 e2 = (c13 - c31) /
@@ -467,113 +461,113 @@ int pmMatQuatConvert(PmRotationMatrix const * const m, PmQuaternion * const q)
 #ifdef PM_DEBUG
     if (!pmMatIsNorm(m)) {
 #ifdef PM_PRINT_ERROR
-	pmPrintError("Bad matrix in pmMatQuatConvert\n");
+        pmPrintError("Bad matrix in pmMatQuatConvert\n");
 #endif
-	return pmErrno = PM_NORM_ERR;
+        return pmErrno = PM_NORM_ERR;
     }
 #endif
 
     q->s = 0.5 * pmSqrt(1.0 + m->x.x + m->y.y + m->z.z);
 
     if (fabs(q->s) > QS_FUZZ) {
-	q->x = (m->y.z - m->z.y) / (a = 4 * q->s);
-	q->y = (m->z.x - m->x.z) / a;
-	q->z = (m->x.y - m->y.x) / a;
+        q->x = (m->y.z - m->z.y) / (a = 4 * q->s);
+        q->y = (m->z.x - m->x.z) / a;
+        q->z = (m->x.y - m->y.x) / a;
     } else {
-	q->s = 0;
-	q->x = pmSqrt(1.0 + m->x.x - m->y.y - m->z.z) / 2.0;
-	q->y = pmSqrt(1.0 + m->y.y - m->x.x - m->z.z) / 2.0;
-	q->z = pmSqrt(1.0 + m->z.z - m->y.y - m->x.x) / 2.0;
+        q->s = 0;
+        q->x = pmSqrt(1.0 + m->x.x - m->y.y - m->z.z) / 2.0;
+        q->y = pmSqrt(1.0 + m->y.y - m->x.x - m->z.z) / 2.0;
+        q->z = pmSqrt(1.0 + m->z.z - m->y.y - m->x.x) / 2.0;
 
-	if (q->x > q->y && q->x > q->z) {
-	    if (m->x.y < 0.0) {
-		q->y *= -1;
-	    }
-	    if (m->x.z < 0.0) {
-		q->z *= -1;
-	    }
-	} else if (q->y > q->z) {
-	    if (m->x.y < 0.0) {
-		q->x *= -1;
-	    }
-	    if (m->y.z < 0.0) {
-		q->z *= -1;
-	    }
-	} else {
-	    if (m->x.z < 0.0) {
-		q->x *= -1;
-	    }
-	    if (m->y.z < 0.0) {
-		q->y *= -1;
-	    }
-	}
+        if (q->x > q->y && q->x > q->z) {
+            if (m->x.y < 0.0) {
+                q->y *= -1;
+            }
+            if (m->x.z < 0.0) {
+                q->z *= -1;
+            }
+        } else if (q->y > q->z) {
+            if (m->x.y < 0.0) {
+                q->x *= -1;
+            }
+            if (m->y.z < 0.0) {
+                q->z *= -1;
+            }
+        } else {
+            if (m->x.z < 0.0) {
+                q->x *= -1;
+            }
+            if (m->y.z < 0.0) {
+                q->y *= -1;
+            }
+        }
     }
 
     pmErrno = PM_OK;
     return pmQuatNorm(q, q);
 }
 
-int pmMatZyzConvert(PmRotationMatrix const * const m, PmEulerZyz * const zyz)
+int pmMatZyzConvert(PmRotationMatrix const *const m, PmEulerZyz *const zyz)
 {
     zyz->y = atan2(pmSqrt(pmSq(m->x.z) + pmSq(m->y.z)), m->z.z);
 
     if (fabs(zyz->y) < ZYZ_Y_FUZZ) {
-	zyz->z = 0.0;
-	zyz->y = 0.0;		/* force Y to 0 */
-	zyz->zp = atan2(-m->y.x, m->x.x);
+        zyz->z = 0.0;
+        zyz->y = 0.0; /* force Y to 0 */
+        zyz->zp = atan2(-m->y.x, m->x.x);
     } else if (fabs(zyz->y - PM_PI) < ZYZ_Y_FUZZ) {
-	zyz->z = 0.0;
-	zyz->y = PM_PI;		/* force Y to 180 */
-	zyz->zp = atan2(m->y.x, -m->x.x);
+        zyz->z = 0.0;
+        zyz->y = PM_PI; /* force Y to 180 */
+        zyz->zp = atan2(m->y.x, -m->x.x);
     } else {
-	zyz->z = atan2(m->z.y, m->z.x);
-	zyz->zp = atan2(m->y.z, -m->x.z);
+        zyz->z = atan2(m->z.y, m->z.x);
+        zyz->zp = atan2(m->y.z, -m->x.z);
     }
 
     return pmErrno = PM_OK;
 }
 
-int pmMatZyxConvert(PmRotationMatrix const * const m, PmEulerZyx * const zyx)
+int pmMatZyxConvert(PmRotationMatrix const *const m, PmEulerZyx *const zyx)
 {
     zyx->y = atan2(-m->x.z, pmSqrt(pmSq(m->x.x) + pmSq(m->x.y)));
 
     if (fabs(zyx->y - PM_PI_2) < ZYX_Y_FUZZ) {
-	zyx->z = 0.0;
-	zyx->y = PM_PI_2;	/* force it */
-	zyx->x = atan2(m->y.x, m->y.y);
+        zyx->z = 0.0;
+        zyx->y = PM_PI_2; /* force it */
+        zyx->x = atan2(m->y.x, m->y.y);
     } else if (fabs(zyx->y + PM_PI_2) < ZYX_Y_FUZZ) {
-	zyx->z = 0.0;
-	zyx->y = -PM_PI_2;	/* force it */
-	zyx->x = -atan2(m->y.z, m->y.y);
+        zyx->z = 0.0;
+        zyx->y = -PM_PI_2; /* force it */
+        zyx->x = -atan2(m->y.z, m->y.y);
     } else {
-	zyx->z = atan2(m->x.y, m->x.x);
-	zyx->x = atan2(m->y.z, m->z.z);
+        zyx->z = atan2(m->x.y, m->x.x);
+        zyx->x = atan2(m->y.z, m->z.z);
     }
 
     return pmErrno = PM_OK;
 }
 
-int pmMatRpyConvert(PmRotationMatrix const * const m, PmRpy * const rpy)
+int pmMatRpyConvert(PmRotationMatrix const *const m, PmRpy *const rpy)
 {
     rpy->p = atan2(-m->x.z, pmSqrt(pmSq(m->x.x) + pmSq(m->x.y)));
 
     if (fabs(rpy->p - PM_PI_2) < RPY_P_FUZZ) {
-	rpy->r = atan2(m->y.x, m->y.y);
-	rpy->p = PM_PI_2;	/* force it */
-	rpy->y = 0.0;
+        rpy->r = atan2(m->y.x, m->y.y);
+        rpy->p = PM_PI_2; /* force it */
+        rpy->y = 0.0;
     } else if (fabs(rpy->p + PM_PI_2) < RPY_P_FUZZ) {
-	rpy->r = -atan2(m->y.x, m->y.y);
-	rpy->p = -PM_PI_2;	/* force it */
-	rpy->y = 0.0;
+        rpy->r = -atan2(m->y.x, m->y.y);
+        rpy->p = -PM_PI_2; /* force it */
+        rpy->y = 0.0;
     } else {
-	rpy->r = atan2(m->y.z, m->z.z);
-	rpy->y = atan2(m->x.y, m->x.x);
+        rpy->r = atan2(m->y.z, m->z.z);
+        rpy->y = atan2(m->x.y, m->x.x);
     }
 
     return pmErrno = PM_OK;
 }
 
-int pmZyzRotConvert(PmEulerZyz const * const zyz, PmRotationVector * const r)
+int pmZyzRotConvert(PmEulerZyz const *const zyz, PmRotationVector *const r)
 {
     (void)zyz;
     (void)r;
@@ -583,7 +577,7 @@ int pmZyzRotConvert(PmEulerZyz const * const zyz, PmRotationVector * const r)
     return pmErrno = PM_IMPL_ERR;
 }
 
-int pmZyzQuatConvert(PmEulerZyz const * const zyz, PmQuaternion * const q)
+int pmZyzQuatConvert(PmEulerZyz const *const zyz, PmQuaternion *const q)
 {
     PmRotationMatrix m;
     int r1, r2;
@@ -595,7 +589,7 @@ int pmZyzQuatConvert(PmEulerZyz const * const zyz, PmQuaternion * const q)
     return pmErrno = (r1 || r2) ? PM_NORM_ERR : PM_OK;
 }
 
-int pmZyzMatConvert(PmEulerZyz  const * const zyz, PmRotationMatrix * const m)
+int pmZyzMatConvert(PmEulerZyz const *const zyz, PmRotationMatrix *const m)
 {
     double sa, sb, sg;
     double ca, cb, cg;
@@ -623,7 +617,7 @@ int pmZyzMatConvert(PmEulerZyz  const * const zyz, PmRotationMatrix * const m)
     return pmErrno = PM_OK;
 }
 
-int pmZyzRpyConvert(PmEulerZyz  const * const zyz, PmRpy * const rpy)
+int pmZyzRpyConvert(PmEulerZyz const *const zyz, PmRpy *const rpy)
 {
     (void)zyz;
     (void)rpy;
@@ -633,7 +627,7 @@ int pmZyzRpyConvert(PmEulerZyz  const * const zyz, PmRpy * const rpy)
     return pmErrno = PM_IMPL_ERR;
 }
 
-int pmZyxRotConvert(PmEulerZyx  const * const zyx, PmRotationVector * const r)
+int pmZyxRotConvert(PmEulerZyx const *const zyx, PmRotationVector *const r)
 {
     PmRotationMatrix m;
     int r1, r2;
@@ -645,7 +639,7 @@ int pmZyxRotConvert(PmEulerZyx  const * const zyx, PmRotationVector * const r)
     return pmErrno = (r1 || r2) ? PM_NORM_ERR : PM_OK;
 }
 
-int pmZyxQuatConvert(PmEulerZyx  const * const zyx, PmQuaternion * const q)
+int pmZyxQuatConvert(PmEulerZyx const *const zyx, PmQuaternion *const q)
 {
     PmRotationMatrix m;
     int r1, r2;
@@ -657,7 +651,7 @@ int pmZyxQuatConvert(PmEulerZyx  const * const zyx, PmQuaternion * const q)
     return pmErrno = (r1 || r2) ? PM_NORM_ERR : PM_OK;
 }
 
-int pmZyxMatConvert(PmEulerZyx  const * const zyx, PmRotationMatrix * const m)
+int pmZyxMatConvert(PmEulerZyx const *const zyx, PmRotationMatrix *const m)
 {
     double sa, sb, sg;
     double ca, cb, cg;
@@ -685,7 +679,7 @@ int pmZyxMatConvert(PmEulerZyx  const * const zyx, PmRotationMatrix * const m)
     return pmErrno = PM_OK;
 }
 
-int pmZyxZyzConvert(PmEulerZyx  const * const zyx, PmEulerZyz * const zyz)
+int pmZyxZyzConvert(PmEulerZyx const *const zyx, PmEulerZyz *const zyz)
 {
     (void)zyx;
     (void)zyz;
@@ -695,7 +689,7 @@ int pmZyxZyzConvert(PmEulerZyx  const * const zyx, PmEulerZyz * const zyz)
     return pmErrno = PM_IMPL_ERR;
 }
 
-int pmZyxRpyConvert(PmEulerZyx  const * const zyx, PmRpy * const rpy)
+int pmZyxRpyConvert(PmEulerZyx const *const zyx, PmRpy *const rpy)
 {
     (void)zyx;
     (void)rpy;
@@ -705,7 +699,7 @@ int pmZyxRpyConvert(PmEulerZyx  const * const zyx, PmRpy * const rpy)
     return pmErrno = PM_IMPL_ERR;
 }
 
-int pmRpyRotConvert(PmRpy  const * const rpy, PmRotationVector * const r)
+int pmRpyRotConvert(PmRpy const *const rpy, PmRotationVector *const r)
 {
     PmQuaternion q;
     int r1, r2;
@@ -719,7 +713,7 @@ int pmRpyRotConvert(PmRpy  const * const rpy, PmRotationVector * const r)
     return (r1 || r2) ? pmErrno : PM_OK;
 }
 
-int pmRpyQuatConvert(PmRpy  const * const rpy, PmQuaternion * const q)
+int pmRpyQuatConvert(PmRpy const *const rpy, PmQuaternion *const q)
 {
     PmRotationMatrix m;
     int r1, r2;
@@ -731,7 +725,7 @@ int pmRpyQuatConvert(PmRpy  const * const rpy, PmQuaternion * const q)
     return pmErrno = (r1 || r2) ? PM_NORM_ERR : PM_OK;
 }
 
-int pmRpyMatConvert(PmRpy  const * const rpy, PmRotationMatrix * const m)
+int pmRpyMatConvert(PmRpy const *const rpy, PmRotationMatrix *const m)
 {
     double sa, sb, sg;
     double ca, cb, cg;
@@ -759,7 +753,7 @@ int pmRpyMatConvert(PmRpy  const * const rpy, PmRotationMatrix * const m)
     return pmErrno = PM_OK;
 }
 
-int pmRpyZyzConvert(PmRpy  const * const rpy, PmEulerZyz * const zyz)
+int pmRpyZyzConvert(PmRpy const *const rpy, PmEulerZyz *const zyz)
 {
     (void)rpy;
     (void)zyz;
@@ -769,7 +763,7 @@ int pmRpyZyzConvert(PmRpy  const * const rpy, PmEulerZyz * const zyz)
     return pmErrno = PM_IMPL_ERR;
 }
 
-int pmRpyZyxConvert(PmRpy  const * const rpy, PmEulerZyx * const zyx)
+int pmRpyZyxConvert(PmRpy const *const rpy, PmEulerZyx *const zyx)
 {
     (void)rpy;
     (void)zyx;
@@ -779,7 +773,7 @@ int pmRpyZyxConvert(PmRpy  const * const rpy, PmEulerZyx * const zyx)
     return pmErrno = PM_IMPL_ERR;
 }
 
-int pmPoseHomConvert(PmPose const * const p, PmHomogeneous * const h)
+int pmPoseHomConvert(PmPose const *const p, PmHomogeneous *const h)
 {
     int r1;
 
@@ -789,7 +783,7 @@ int pmPoseHomConvert(PmPose const * const p, PmHomogeneous * const h)
     return pmErrno = r1;
 }
 
-int pmHomPoseConvert(PmHomogeneous const * const h, PmPose * const p)
+int pmHomPoseConvert(PmHomogeneous const *const h, PmPose *const p)
 {
     int r1;
 
@@ -801,25 +795,28 @@ int pmHomPoseConvert(PmHomogeneous const * const h, PmPose * const p)
 
 /* PmCartesian functions */
 
-int pmCartCartCompare(PmCartesian const * const v1, PmCartesian const * const v2)
+int pmCartCartCompare(PmCartesian const *const v1, PmCartesian const *const v2)
 {
-    if (fabs(v1->x - v2->x) >= V_FUZZ ||
-	fabs(v1->y - v2->y) >= V_FUZZ || fabs(v1->z - v2->z) >= V_FUZZ) {
-	return 0;
+    if (fabs(v1->x - v2->x) >= V_FUZZ || fabs(v1->y - v2->y) >= V_FUZZ ||
+        fabs(v1->z - v2->z) >= V_FUZZ) {
+        return 0;
     }
 
     return 1;
 }
 
-int pmCartCartDot(PmCartesian const * const v1, PmCartesian const * const v2, double *d)
+int pmCartCartDot(PmCartesian const *const v1,
+                  PmCartesian const *const v2,
+                  double *d)
 {
     *d = v1->x * v2->x + v1->y * v2->y + v1->z * v2->z;
 
     return pmErrno = PM_OK;
 }
 
-int pmCartCartMult(PmCartesian const * const v1, PmCartesian const * const v2,
-        PmCartesian * const out)
+int pmCartCartMult(PmCartesian const *const v1,
+                   PmCartesian const *const v2,
+                   PmCartesian *const out)
 {
     out->x = v1->x * v2->x;
     out->y = v1->y * v2->y;
@@ -828,14 +825,15 @@ int pmCartCartMult(PmCartesian const * const v1, PmCartesian const * const v2,
     return pmErrno = PM_OK;
 }
 
-int pmCartCartDiv(PmCartesian const * const v1, PmCartesian const * const v2,
-        PmCartesian * const out)
+int pmCartCartDiv(PmCartesian const *const v1,
+                  PmCartesian const *const v2,
+                  PmCartesian *const out)
 {
-    if (0.0==v2->x || 0.0==v2->y || 0.0==v2->z) {
+    if (0.0 == v2->x || 0.0 == v2->y || 0.0 == v2->z) {
 #ifdef PM_PRINT_ERROR
         pmPrintError(&"Divide by 0 in pmCartCartDiv\n");
 #endif
-	out->x = out->y = out->z = 0.0;
+        out->x = out->y = out->z = 0.0;
         return pmErrno = PM_DIV_ERR;
     }
     out->x = v1->x / v2->x;
@@ -845,8 +843,9 @@ int pmCartCartDiv(PmCartesian const * const v1, PmCartesian const * const v2,
     return pmErrno = PM_OK;
 }
 
-int pmCartCartCross(PmCartesian const * const v1, PmCartesian const * const v2,
-        PmCartesian * const vout)
+int pmCartCartCross(PmCartesian const *const v1,
+                    PmCartesian const *const v2,
+                    PmCartesian *const vout)
 {
     if (vout == v1 || vout == v2) {
         return pmErrno = PM_IMPL_ERR;
@@ -858,14 +857,14 @@ int pmCartCartCross(PmCartesian const * const v1, PmCartesian const * const v2,
     return pmErrno = PM_OK;
 }
 
-int pmCartInfNorm(PmCartesian const * v, double * out)
+int pmCartInfNorm(PmCartesian const *v, double *out)
 {
-    *out = fmax(fabs(v->x),fmax(fabs(v->y),fabs(v->z)));
+    *out = fmax(fabs(v->x), fmax(fabs(v->y), fabs(v->z)));
 
     return pmErrno = PM_OK;
 }
 
-int pmCartMag(PmCartesian const * const v, double *d)
+int pmCartMag(PmCartesian const *const v, double *d)
 {
     *d = pmSqrt(pmSq(v->x) + pmSq(v->y) + pmSq(v->z));
 
@@ -873,23 +872,26 @@ int pmCartMag(PmCartesian const * const v, double *d)
 }
 
 /** Find square of magnitude of a vector (useful for some calculations to save a sqrt).*/
-int pmCartMagSq(PmCartesian const * const v, double *d)
+int pmCartMagSq(PmCartesian const *const v, double *d)
 {
     *d = pmSq(v->x) + pmSq(v->y) + pmSq(v->z);
 
     return pmErrno = PM_OK;
 }
 
-int pmCartCartDisp(PmCartesian const * const v1, PmCartesian const * const v2,
-        double *d)
+int pmCartCartDisp(PmCartesian const *const v1,
+                   PmCartesian const *const v2,
+                   double *d)
 {
-    *d = pmSqrt(pmSq(v2->x - v1->x) + pmSq(v2->y - v1->y) + pmSq(v2->z - v1->z));
+    *d =
+        pmSqrt(pmSq(v2->x - v1->x) + pmSq(v2->y - v1->y) + pmSq(v2->z - v1->z));
 
     return pmErrno = PM_OK;
 }
 
-int pmCartCartAdd(PmCartesian const * const v1, PmCartesian const * const v2,
-        PmCartesian * const vout)
+int pmCartCartAdd(PmCartesian const *const v1,
+                  PmCartesian const *const v2,
+                  PmCartesian *const vout)
 {
     vout->x = v1->x + v2->x;
     vout->y = v1->y + v2->y;
@@ -898,8 +900,9 @@ int pmCartCartAdd(PmCartesian const * const v1, PmCartesian const * const v2,
     return pmErrno = PM_OK;
 }
 
-int pmCartCartSub(PmCartesian const * const v1, PmCartesian const * const v2,
-        PmCartesian * const vout)
+int pmCartCartSub(PmCartesian const *const v1,
+                  PmCartesian const *const v2,
+                  PmCartesian *const vout)
 {
     vout->x = v1->x - v2->x;
     vout->y = v1->y - v2->y;
@@ -908,7 +911,9 @@ int pmCartCartSub(PmCartesian const * const v1, PmCartesian const * const v2,
     return pmErrno = PM_OK;
 }
 
-int pmCartScalMult(PmCartesian const * const v1, double d, PmCartesian * const vout)
+int pmCartScalMult(PmCartesian const *const v1,
+                   double d,
+                   PmCartesian *const vout)
 {
     if (v1 != vout) {
         *vout = *v1;
@@ -917,7 +922,9 @@ int pmCartScalMult(PmCartesian const * const v1, double d, PmCartesian * const v
     return pmCartScalMultEq(vout, d);
 }
 
-int pmCartScalDiv(PmCartesian const * const v1, double d, PmCartesian * const vout)
+int pmCartScalDiv(PmCartesian const *const v1,
+                  double d,
+                  PmCartesian *const vout)
 {
     if (v1 != vout) {
         *vout = *v1;
@@ -926,7 +933,7 @@ int pmCartScalDiv(PmCartesian const * const v1, double d, PmCartesian * const vo
     return pmCartScalDivEq(vout, d);
 }
 
-int pmCartNeg(PmCartesian const * const v1, PmCartesian * const vout)
+int pmCartNeg(PmCartesian const *const v1, PmCartesian *const vout)
 {
     if (v1 != vout) {
         *vout = *v1;
@@ -935,7 +942,7 @@ int pmCartNeg(PmCartesian const * const v1, PmCartesian * const vout)
     return pmCartNegEq(vout);
 }
 
-int pmCartNegEq(PmCartesian * const v1)
+int pmCartNegEq(PmCartesian *const v1)
 {
     v1->x = -v1->x;
     v1->y = -v1->y;
@@ -944,7 +951,7 @@ int pmCartNegEq(PmCartesian * const v1)
     return pmErrno = PM_OK;
 }
 
-int pmCartInv(PmCartesian const * const v1, PmCartesian * const vout)
+int pmCartInv(PmCartesian const *const v1, PmCartesian *const vout)
 {
     if (v1 != vout) {
         *vout = *v1;
@@ -953,10 +960,10 @@ int pmCartInv(PmCartesian const * const v1, PmCartesian * const vout)
     return pmCartInvEq(vout);
 }
 
-int pmCartInvEq(PmCartesian * const v)
+int pmCartInvEq(PmCartesian *const v)
 {
     double size_sq;
-    pmCartMagSq(v,&size_sq);
+    pmCartMagSq(v, &size_sq);
 
     if (size_sq == 0.0) {
 #ifdef PM_PRINT_ERROR
@@ -974,7 +981,7 @@ int pmCartInvEq(PmCartesian * const v)
 
 // This used to be called pmCartNorm.
 
-int pmCartUnit(PmCartesian const * const v, PmCartesian * const vout)
+int pmCartUnit(PmCartesian const *const v, PmCartesian *const vout)
 {
     if (vout != v) {
         *vout = *v;
@@ -982,7 +989,7 @@ int pmCartUnit(PmCartesian const * const v, PmCartesian * const vout)
     return pmCartUnitEq(vout);
 }
 
-int pmCartAbs(PmCartesian const * const v, PmCartesian * const vout)
+int pmCartAbs(PmCartesian const *const v, PmCartesian *const vout)
 {
 
     vout->x = fabs(v->x);
@@ -994,7 +1001,7 @@ int pmCartAbs(PmCartesian const * const v, PmCartesian * const vout)
 
 /* Compound assign operator equivalent functions. These are to prevent issues with passing the same variable as both input (const) and output */
 
-int pmCartCartAddEq(PmCartesian * const v, PmCartesian const * const v_add)
+int pmCartCartAddEq(PmCartesian *const v, PmCartesian const *const v_add)
 {
     v->x += v_add->x;
     v->y += v_add->y;
@@ -1003,7 +1010,7 @@ int pmCartCartAddEq(PmCartesian * const v, PmCartesian const * const v_add)
     return pmErrno = PM_OK;
 }
 
-int pmCartCartSubEq(PmCartesian * const v, PmCartesian const * const v_sub)
+int pmCartCartSubEq(PmCartesian *const v, PmCartesian const *const v_sub)
 {
     v->x -= v_sub->x;
     v->y -= v_sub->y;
@@ -1012,7 +1019,7 @@ int pmCartCartSubEq(PmCartesian * const v, PmCartesian const * const v_sub)
     return pmErrno = PM_OK;
 }
 
-int pmCartScalMultEq(PmCartesian * const v, double d)
+int pmCartScalMultEq(PmCartesian *const v, double d)
 {
 
     v->x *= d;
@@ -1022,7 +1029,7 @@ int pmCartScalMultEq(PmCartesian * const v, double d)
     return pmErrno = PM_OK;
 }
 
-int pmCartScalDivEq(PmCartesian * const v, double d)
+int pmCartScalDivEq(PmCartesian *const v, double d)
 {
 
     if (d == 0.0) {
@@ -1039,7 +1046,7 @@ int pmCartScalDivEq(PmCartesian * const v, double d)
     return pmErrno = PM_OK;
 }
 
-int pmCartUnitEq(PmCartesian * const v)
+int pmCartUnitEq(PmCartesian *const v)
 {
     double size = pmSqrt(pmSq(v->x) + pmSq(v->y) + pmSq(v->z));
 
@@ -1073,28 +1080,32 @@ int pmCartNorm(PmCartesian const * const v, PmCartesian * const vout)
 }
 #endif
 
-int pmCartIsNorm(PmCartesian const * const v)
+int pmCartIsNorm(PmCartesian const *const v)
 {
     return pmSqrt(pmSq(v->x) + pmSq(v->y) + pmSq(v->z)) - 1.0 < UNIT_VEC_FUZZ;
 }
 
-int pmCartCartProj(PmCartesian const * const v1, PmCartesian const * const v2, PmCartesian * const vout)
+int pmCartCartProj(PmCartesian const *const v1,
+                   PmCartesian const *const v2,
+                   PmCartesian *const vout)
 {
     int r1, r2;
-    int r3=1;
+    int r3 = 1;
     double d12;
     double d22;
-    
+
     r1 = pmCartCartDot(v1, v2, &d12);
     r2 = pmCartCartDot(v2, v2, &d22);
-    if (!(r1 || r2)){
-        r3 = pmCartScalMult(v2, d12/d22, vout);
+    if (!(r1 || r2)) {
+        r3 = pmCartScalMult(v2, d12 / d22, vout);
     }
 
     return pmErrno = (r1 || r2 || r3) ? PM_NORM_ERR : PM_OK;
 }
 
-int pmCartPlaneProj(PmCartesian const * const v, PmCartesian const * const normal, PmCartesian * const vout)
+int pmCartPlaneProj(PmCartesian const *const v,
+                    PmCartesian const *const normal,
+                    PmCartesian *const vout)
 {
     int r1, r2;
     PmCartesian par;
@@ -1107,17 +1118,19 @@ int pmCartPlaneProj(PmCartesian const * const v, PmCartesian const * const norma
 
 /* angle-axis functions */
 
-int pmQuatAxisAngleMult(PmQuaternion const * const q, PmAxis axis, double angle,
-    PmQuaternion * const pq)
+int pmQuatAxisAngleMult(PmQuaternion const *const q,
+                        PmAxis axis,
+                        double angle,
+                        PmQuaternion *const pq)
 {
     double sh, ch;
 
 #ifdef PM_DEBUG
     if (!pmQuatIsNorm(q)) {
 #ifdef PM_PRINT_ERROR
-	pmPrintError("error: non-unit quaternion in pmQuatAxisAngleMult\n");
+        pmPrintError("error: non-unit quaternion in pmQuatAxisAngleMult\n");
 #endif
-	return pmErrno = PM_ERR;
+        return pmErrno = PM_ERR;
     }
 #endif
 
@@ -1126,38 +1139,38 @@ int pmQuatAxisAngleMult(PmQuaternion const * const q, PmAxis axis, double angle,
 
     switch (axis) {
     case PM_X:
-	pq->s = ch * q->s - sh * q->x;
-	pq->x = ch * q->x + sh * q->s;
-	pq->y = ch * q->y + sh * q->z;
-	pq->z = ch * q->z - sh * q->y;
-	break;
+        pq->s = ch * q->s - sh * q->x;
+        pq->x = ch * q->x + sh * q->s;
+        pq->y = ch * q->y + sh * q->z;
+        pq->z = ch * q->z - sh * q->y;
+        break;
 
     case PM_Y:
-	pq->s = ch * q->s - sh * q->y;
-	pq->x = ch * q->x - sh * q->z;
-	pq->y = ch * q->y + sh * q->s;
-	pq->z = ch * q->z + sh * q->x;
-	break;
+        pq->s = ch * q->s - sh * q->y;
+        pq->x = ch * q->x - sh * q->z;
+        pq->y = ch * q->y + sh * q->s;
+        pq->z = ch * q->z + sh * q->x;
+        break;
 
     case PM_Z:
-	pq->s = ch * q->s - sh * q->z;
-	pq->x = ch * q->x + sh * q->y;
-	pq->y = ch * q->y - sh * q->x;
-	pq->z = ch * q->z + sh * q->s;
-	break;
+        pq->s = ch * q->s - sh * q->z;
+        pq->x = ch * q->x + sh * q->y;
+        pq->y = ch * q->y - sh * q->x;
+        pq->z = ch * q->z + sh * q->s;
+        break;
 
     default:
 #ifdef PM_PRINT_ERROR
-	pmPrintError("error: bad axis in pmQuatAxisAngleMult\n");
+        pmPrintError("error: bad axis in pmQuatAxisAngleMult\n");
 #endif
-	return pmErrno = PM_ERR;
+        return pmErrno = PM_ERR;
     }
 
     if (pq->s < 0.0) {
-	pq->s *= -1.0;
-	pq->x *= -1.0;
-	pq->y *= -1.0;
-	pq->z *= -1.0;
+        pq->s *= -1.0;
+        pq->x *= -1.0;
+        pq->y *= -1.0;
+        pq->z *= -1.0;
     }
 
     return 0;
@@ -1165,7 +1178,9 @@ int pmQuatAxisAngleMult(PmQuaternion const * const q, PmAxis axis, double angle,
 
 /* PmRotationVector functions */
 
-int pmRotScalMult(PmRotationVector const * const r, double s, PmRotationVector * const rout)
+int pmRotScalMult(PmRotationVector const *const r,
+                  double s,
+                  PmRotationVector *const rout)
 {
     rout->s = r->s * s;
     rout->x = r->x;
@@ -1175,19 +1190,21 @@ int pmRotScalMult(PmRotationVector const * const r, double s, PmRotationVector *
     return pmErrno = PM_OK;
 }
 
-int pmRotScalDiv(PmRotationVector const * const r, double s, PmRotationVector * const rout)
+int pmRotScalDiv(PmRotationVector const *const r,
+                 double s,
+                 PmRotationVector *const rout)
 {
     if (s == 0.0) {
 #ifdef PM_PRINT_ERROR
-	pmPrintError("Divide by zero in pmRotScalDiv\n");
+        pmPrintError("Divide by zero in pmRotScalDiv\n");
 #endif
 
-	rout->s = DBL_MAX;
-	rout->x = r->x;
-	rout->y = r->y;
-	rout->z = r->z;
+        rout->s = DBL_MAX;
+        rout->x = r->x;
+        rout->y = r->y;
+        rout->z = r->z;
 
-	return pmErrno = PM_NORM_ERR;
+        return pmErrno = PM_NORM_ERR;
     }
 
     rout->s = r->s / s;
@@ -1198,43 +1215,43 @@ int pmRotScalDiv(PmRotationVector const * const r, double s, PmRotationVector * 
     return pmErrno = PM_OK;
 }
 
-int pmRotIsNorm(PmRotationVector const * const r)
+int pmRotIsNorm(PmRotationVector const *const r)
 {
     if (fabs(r->s) < RS_FUZZ ||
-	fabs(pmSqrt(pmSq(r->x) + pmSq(r->y) + pmSq(r->z))) - 1.0 < UNIT_VEC_FUZZ)
-    {
-	return 1;
+        fabs(pmSqrt(pmSq(r->x) + pmSq(r->y) + pmSq(r->z))) - 1.0 <
+            UNIT_VEC_FUZZ) {
+        return 1;
     }
 
     return 0;
 }
 
-int pmRotNorm(PmRotationVector const * const r, PmRotationVector * const rout)
+int pmRotNorm(PmRotationVector const *const r, PmRotationVector *const rout)
 {
     double size;
 
     size = pmSqrt(pmSq(r->x) + pmSq(r->y) + pmSq(r->z));
 
     if (fabs(r->s) < RS_FUZZ) {
-	rout->s = 0.0;
-	rout->x = 0.0;
-	rout->y = 0.0;
-	rout->z = 0.0;
+        rout->s = 0.0;
+        rout->x = 0.0;
+        rout->y = 0.0;
+        rout->z = 0.0;
 
-	return pmErrno = PM_OK;
+        return pmErrno = PM_OK;
     }
 
     if (size == 0.0) {
 #ifdef PM_PRINT_ERROR
-	pmPrintError("error: pmRotNorm size is zero\n");
+        pmPrintError("error: pmRotNorm size is zero\n");
 #endif
 
-	rout->s = 0.0;
-	rout->x = 0.0;
-	rout->y = 0.0;
-	rout->z = 0.0;
+        rout->s = 0.0;
+        rout->x = 0.0;
+        rout->y = 0.0;
+        rout->z = 0.0;
 
-	return pmErrno = PM_NORM_ERR;
+        return pmErrno = PM_NORM_ERR;
     }
 
     rout->s = r->s;
@@ -1247,7 +1264,7 @@ int pmRotNorm(PmRotationVector const * const r, PmRotationVector * const rout)
 
 /* PmRotationMatrix functions */
 
-int pmMatNorm(PmRotationMatrix const * const m, PmRotationMatrix * const mout)
+int pmMatNorm(PmRotationMatrix const *const m, PmRotationMatrix *const mout)
 {
     /*! \todo FIXME */
     *mout = *m;
@@ -1258,16 +1275,17 @@ int pmMatNorm(PmRotationMatrix const * const m, PmRotationMatrix * const mout)
     return pmErrno = PM_IMPL_ERR;
 }
 
-int pmMatIsNorm(PmRotationMatrix const * const m)
+int pmMatIsNorm(PmRotationMatrix const *const m)
 {
     PmCartesian u;
 
     pmCartCartCross(&m->x, &m->y, &u);
 
-    return (pmCartIsNorm(&m->x) && pmCartIsNorm(&m->y) && pmCartIsNorm(&m->z) && pmCartCartCompare(&u, &m->z));
+    return (pmCartIsNorm(&m->x) && pmCartIsNorm(&m->y) && pmCartIsNorm(&m->z) &&
+            pmCartCartCompare(&u, &m->z));
 }
 
-int pmMatInv(PmRotationMatrix const * const m, PmRotationMatrix * const mout)
+int pmMatInv(PmRotationMatrix const *const m, PmRotationMatrix *const mout)
 {
     /* inverse of a rotation matrix is the transpose */
 
@@ -1286,7 +1304,9 @@ int pmMatInv(PmRotationMatrix const * const m, PmRotationMatrix * const mout)
     return pmErrno = PM_OK;
 }
 
-int pmMatCartMult(PmRotationMatrix const * const m, PmCartesian const * const v, PmCartesian * const vout)
+int pmMatCartMult(PmRotationMatrix const *const m,
+                  PmCartesian const *const v,
+                  PmCartesian *const vout)
 {
     vout->x = m->x.x * v->x + m->y.x * v->y + m->z.x * v->z;
     vout->y = m->x.y * v->x + m->y.y * v->y + m->z.y * v->z;
@@ -1295,8 +1315,9 @@ int pmMatCartMult(PmRotationMatrix const * const m, PmCartesian const * const v,
     return pmErrno = PM_OK;
 }
 
-int pmMatMatMult(PmRotationMatrix const * const m1, PmRotationMatrix const * const m2,
-    PmRotationMatrix * const mout)
+int pmMatMatMult(PmRotationMatrix const *const m1,
+                 PmRotationMatrix const *const m2,
+                 PmRotationMatrix *const mout)
 {
     mout->x.x = m1->x.x * m2->x.x + m1->y.x * m2->x.y + m1->z.x * m2->x.z;
     mout->x.y = m1->x.y * m2->x.x + m1->y.y * m2->x.y + m1->z.y * m2->x.z;
@@ -1315,40 +1336,39 @@ int pmMatMatMult(PmRotationMatrix const * const m1, PmRotationMatrix const * con
 
 /* PmQuaternion functions */
 
-int pmQuatQuatCompare(PmQuaternion const * const q1, PmQuaternion const * const q2)
+int pmQuatQuatCompare(PmQuaternion const *const q1,
+                      PmQuaternion const *const q2)
 {
 #ifdef PM_DEBUG
     if (!pmQuatIsNorm(q1) || !pmQuatIsNorm(q2)) {
 #ifdef PM_PRINT_ERROR
-	pmPrintError("Bad quaternion in pmQuatQuatCompare\n");
+        pmPrintError("Bad quaternion in pmQuatQuatCompare\n");
 #endif
-	return pmErrno = PM_NORM_ERR;
+        return pmErrno = PM_NORM_ERR;
     }
 #endif
 
-    if (fabs(q1->s - q2->s) < Q_FUZZ &&
-	fabs(q1->x - q2->x) < Q_FUZZ &&
-	fabs(q1->y - q2->y) < Q_FUZZ && fabs(q1->z - q2->z) < Q_FUZZ) {
-	return 1;
+    if (fabs(q1->s - q2->s) < Q_FUZZ && fabs(q1->x - q2->x) < Q_FUZZ &&
+        fabs(q1->y - q2->y) < Q_FUZZ && fabs(q1->z - q2->z) < Q_FUZZ) {
+        return 1;
     }
 
     /* note (0, x, y, z) = (0, -x, -y, -z) */
-    if (fabs(q1->s) >= QS_FUZZ ||
-	fabs(q1->x + q2->x) >= Q_FUZZ ||
-	fabs(q1->y + q2->y) >= Q_FUZZ || fabs(q1->z + q2->z) >= Q_FUZZ) {
-	return 0;
+    if (fabs(q1->s) >= QS_FUZZ || fabs(q1->x + q2->x) >= Q_FUZZ ||
+        fabs(q1->y + q2->y) >= Q_FUZZ || fabs(q1->z + q2->z) >= Q_FUZZ) {
+        return 0;
     }
 
     return 1;
 }
 
-int pmQuatMag(PmQuaternion const * const q, double *d)
+int pmQuatMag(PmQuaternion const *const q, double *d)
 {
     PmRotationVector r;
     int r1;
 
     if (0 == d) {
-	return pmErrno = PM_ERR;
+        return pmErrno = PM_ERR;
     }
 
     r1 = pmQuatRotConvert(q, &r);
@@ -1357,43 +1377,43 @@ int pmQuatMag(PmQuaternion const * const q, double *d)
     return pmErrno = r1;
 }
 
-int pmQuatNorm(PmQuaternion const * const q1, PmQuaternion * const qout)
+int pmQuatNorm(PmQuaternion const *const q1, PmQuaternion *const qout)
 {
     double size = pmSqrt(pmSq(q1->s) + pmSq(q1->x) + pmSq(q1->y) + pmSq(q1->z));
 
     if (size == 0.0) {
 #ifdef PM_PRINT_ERROR
-	pmPrintError("Bad quaternion in pmQuatNorm\n");
+        pmPrintError("Bad quaternion in pmQuatNorm\n");
 #endif
-	qout->s = 1;
-	qout->x = 0;
-	qout->y = 0;
-	qout->z = 0;
+        qout->s = 1;
+        qout->x = 0;
+        qout->y = 0;
+        qout->z = 0;
 
-	return pmErrno = PM_NORM_ERR;
+        return pmErrno = PM_NORM_ERR;
     }
 
     if (q1->s >= 0.0) {
-	qout->s = q1->s / size;
-	qout->x = q1->x / size;
-	qout->y = q1->y / size;
-	qout->z = q1->z / size;
+        qout->s = q1->s / size;
+        qout->x = q1->x / size;
+        qout->y = q1->y / size;
+        qout->z = q1->z / size;
 
-	return pmErrno = PM_OK;
+        return pmErrno = PM_OK;
     } else {
-	qout->s = -q1->s / size;
-	qout->x = -q1->x / size;
-	qout->y = -q1->y / size;
-	qout->z = -q1->z / size;
+        qout->s = -q1->s / size;
+        qout->x = -q1->x / size;
+        qout->y = -q1->y / size;
+        qout->z = -q1->z / size;
 
-	return pmErrno = PM_OK;
+        return pmErrno = PM_OK;
     }
 }
 
-int pmQuatInv(PmQuaternion const * const q1, PmQuaternion * const qout)
+int pmQuatInv(PmQuaternion const *const q1, PmQuaternion *const qout)
 {
     if (qout == 0) {
-	return pmErrno = PM_ERR;
+        return pmErrno = PM_ERR;
     }
 
     qout->s = q1->s;
@@ -1404,22 +1424,24 @@ int pmQuatInv(PmQuaternion const * const q1, PmQuaternion * const qout)
 #ifdef PM_DEBUG
     if (!pmQuatIsNorm(q1)) {
 #ifdef PM_PRINT_ERROR
-	pmPrintError("Bad quaternion in pmQuatInv\n");
+        pmPrintError("Bad quaternion in pmQuatInv\n");
 #endif
-	return pmErrno = PM_NORM_ERR;
+        return pmErrno = PM_NORM_ERR;
     }
 #endif
 
     return pmErrno = PM_OK;
 }
 
-int pmQuatIsNorm(PmQuaternion const * const q1)
+int pmQuatIsNorm(PmQuaternion const *const q1)
 {
     return (fabs(pmSq(q1->s) + pmSq(q1->x) + pmSq(q1->y) + pmSq(q1->z) - 1.0) <
-	UNIT_QUAT_FUZZ);
+            UNIT_QUAT_FUZZ);
 }
 
-int pmQuatScalMult(PmQuaternion const * const q, double s, PmQuaternion * const qout)
+int pmQuatScalMult(PmQuaternion const *const q,
+                   double s,
+                   PmQuaternion *const qout)
 {
     /*! \todo FIXME-- need a native version; this goes through a rotation vector */
     PmRotationVector r;
@@ -1432,7 +1454,9 @@ int pmQuatScalMult(PmQuaternion const * const q, double s, PmQuaternion * const 
     return pmErrno = (r1 || r2 || r3) ? PM_NORM_ERR : PM_OK;
 }
 
-int pmQuatScalDiv(PmQuaternion const * const q, double s, PmQuaternion * const qout)
+int pmQuatScalDiv(PmQuaternion const *const q,
+                  double s,
+                  PmQuaternion *const qout)
 {
     /*! \todo FIXME-- need a native version; this goes through a rotation vector */
     PmRotationVector r;
@@ -1445,38 +1469,45 @@ int pmQuatScalDiv(PmQuaternion const * const q, double s, PmQuaternion * const q
     return pmErrno = (r1 || r2 || r3) ? PM_NORM_ERR : PM_OK;
 }
 
-int pmQuatQuatMult(PmQuaternion const * const q1, PmQuaternion const * const q2, PmQuaternion * const qout)
+int pmQuatQuatMult(PmQuaternion const *const q1,
+                   PmQuaternion const *const q2,
+                   PmQuaternion *const qout)
 {
     if (qout == 0) {
-	return pmErrno = PM_ERR;
+        return pmErrno = PM_ERR;
     }
 
     qout->s = q1->s * q2->s - q1->x * q2->x - q1->y * q2->y - q1->z * q2->z;
 
     if (qout->s >= 0.0) {
-	qout->x = q1->s * q2->x + q1->x * q2->s + q1->y * q2->z - q1->z * q2->y;
-	qout->y = q1->s * q2->y - q1->x * q2->z + q1->y * q2->s + q1->z * q2->x;
-	qout->z = q1->s * q2->z + q1->x * q2->y - q1->y * q2->x + q1->z * q2->s;
+        qout->x = q1->s * q2->x + q1->x * q2->s + q1->y * q2->z - q1->z * q2->y;
+        qout->y = q1->s * q2->y - q1->x * q2->z + q1->y * q2->s + q1->z * q2->x;
+        qout->z = q1->s * q2->z + q1->x * q2->y - q1->y * q2->x + q1->z * q2->s;
     } else {
-	qout->s *= -1;
-	qout->x = -q1->s * q2->x - q1->x * q2->s - q1->y * q2->z + q1->z * q2->y;
-	qout->y = -q1->s * q2->y + q1->x * q2->z - q1->y * q2->s - q1->z * q2->x;
-	qout->z = -q1->s * q2->z - q1->x * q2->y + q1->y * q2->x - q1->z * q2->s;
+        qout->s *= -1;
+        qout->x =
+            -q1->s * q2->x - q1->x * q2->s - q1->y * q2->z + q1->z * q2->y;
+        qout->y =
+            -q1->s * q2->y + q1->x * q2->z - q1->y * q2->s - q1->z * q2->x;
+        qout->z =
+            -q1->s * q2->z - q1->x * q2->y + q1->y * q2->x - q1->z * q2->s;
     }
 
 #ifdef PM_DEBUG
     if (!pmQuatIsNorm(q1) || !pmQuatIsNorm(q2)) {
 #ifdef PM_PRINT_ERROR
-	pmPrintError("Bad quaternion in pmQuatQuatMult\n");
+        pmPrintError("Bad quaternion in pmQuatQuatMult\n");
 #endif
-	return pmErrno = PM_NORM_ERR;
+        return pmErrno = PM_NORM_ERR;
     }
 #endif
 
     return pmErrno = PM_OK;
 }
 
-int pmQuatCartMult(PmQuaternion const * const q1, PmCartesian const * const v2, PmCartesian * const vout)
+int pmQuatCartMult(PmQuaternion const *const q1,
+                   PmCartesian const *const v2,
+                   PmCartesian *const vout)
 {
     PmCartesian c;
 
@@ -1491,9 +1522,9 @@ int pmQuatCartMult(PmQuaternion const * const q1, PmCartesian const * const v2, 
 #ifdef PM_DEBUG
     if (!pmQuatIsNorm(q1)) {
 #ifdef PM_PRINT_ERROR
-	pmPrintError(&"Bad quaternion in pmQuatCartMult\n");
+        pmPrintError(&"Bad quaternion in pmQuatCartMult\n");
 #endif
-	return pmErrno = PM_NORM_ERR;
+        return pmErrno = PM_NORM_ERR;
     }
 #endif
 
@@ -1502,27 +1533,28 @@ int pmQuatCartMult(PmQuaternion const * const q1, PmCartesian const * const v2, 
 
 /* PmPose functions*/
 
-int pmPosePoseCompare(PmPose const * const p1, PmPose const * const p2)
+int pmPosePoseCompare(PmPose const *const p1, PmPose const *const p2)
 {
 #ifdef PM_DEBUG
     if (!pmQuatIsNorm(&p1->rot) || !pmQuatIsNorm(&p2->rot)) {
 #ifdef PM_PRINT_ERROR
-	pmPrintError("Bad quaternion in pmPosePoseCompare\n");
+        pmPrintError("Bad quaternion in pmPosePoseCompare\n");
 #endif
     }
 #endif
 
-    return pmQuatQuatCompare(&p1->rot, &p2->rot) && pmCartCartCompare(&p1->tran, &p2->tran);
+    return pmQuatQuatCompare(&p1->rot, &p2->rot) &&
+           pmCartCartCompare(&p1->tran, &p2->tran);
 }
 
-int pmPoseInv(PmPose const * const p1, PmPose * const p2)
+int pmPoseInv(PmPose const *const p1, PmPose *const p2)
 {
     int r1, r2;
 
 #ifdef PM_DEBUG
     if (!pmQuatIsNorm(&p1->rot)) {
 #ifdef PM_PRINT_ERROR
-	pmPrintError("Bad quaternion in pmPoseInv\n");
+        pmPrintError("Bad quaternion in pmPoseInv\n");
 #endif
     }
 #endif
@@ -1537,16 +1569,18 @@ int pmPoseInv(PmPose const * const p1, PmPose * const p2)
     return pmErrno = (r1 || r2) ? PM_NORM_ERR : PM_OK;
 }
 
-int pmPoseCartMult(PmPose const * const p1, PmCartesian const * const v2, PmCartesian * const vout)
+int pmPoseCartMult(PmPose const *const p1,
+                   PmCartesian const *const v2,
+                   PmCartesian *const vout)
 {
     int r1, r2;
 
 #ifdef PM_DEBUG
     if (!pmQuatIsNorm(&p1->rot)) {
 #ifdef PM_PRINT_ERROR
-	pmPrintError(&"Bad quaternion in pmPoseCartMult\n");
+        pmPrintError(&"Bad quaternion in pmPoseCartMult\n");
 #endif
-	return pmErrno = PM_NORM_ERR;
+        return pmErrno = PM_NORM_ERR;
     }
 #endif
 
@@ -1556,16 +1590,18 @@ int pmPoseCartMult(PmPose const * const p1, PmCartesian const * const v2, PmCart
     return pmErrno = (r1 || r2) ? PM_NORM_ERR : PM_OK;
 }
 
-int pmPosePoseMult(PmPose const * const p1, PmPose const * const p2, PmPose * const pout)
+int pmPosePoseMult(PmPose const *const p1,
+                   PmPose const *const p2,
+                   PmPose *const pout)
 {
     int r1, r2, r3;
 
 #ifdef PM_DEBUG
     if (!pmQuatIsNorm(&p1->rot) || !pmQuatIsNorm(&p2->rot)) {
 #ifdef PM_PRINT_ERROR
-	pmPrintError("Bad quaternion in pmPosePoseMult\n");
+        pmPrintError("Bad quaternion in pmPosePoseMult\n");
 #endif
-	return pmErrno = PM_NORM_ERR;
+        return pmErrno = PM_NORM_ERR;
     }
 #endif
 
@@ -1578,14 +1614,14 @@ int pmPosePoseMult(PmPose const * const p1, PmPose const * const p2, PmPose * co
 
 /* homogeneous transform functions */
 
-int pmHomInv(PmHomogeneous const * const h1, PmHomogeneous * const h2)
+int pmHomInv(PmHomogeneous const *const h1, PmHomogeneous *const h2)
 {
     int r1, r2;
 
 #ifdef PM_DEBUG
     if (!pmMatIsNorm(&h1->rot)) {
 #ifdef PM_PRINT_ERROR
-	pmPrintError("Bad rotation matrix in pmHomInv\n");
+        pmPrintError("Bad rotation matrix in pmHomInv\n");
 #endif
     }
 #endif
@@ -1602,7 +1638,9 @@ int pmHomInv(PmHomogeneous const * const h1, PmHomogeneous * const h2)
 
 /* line functions */
 
-int pmLineInit(PmLine * const line, PmPose const * const start, PmPose const * const end)
+int pmLineInit(PmLine *const line,
+               PmPose const *const start,
+               PmPose const *const end)
 {
     int r1, r2, r3, r4, r5;
     r1 = r2 = r3 = r4 = r5 = PM_OK;
@@ -1661,29 +1699,29 @@ int pmLineInit(PmLine * const line, PmPose const * const start, PmPose const * c
     return pmErrno = (r1 || r2 || r3 || r4 || r5) ? PM_NORM_ERR : PM_OK;
 }
 
-int pmLinePoint(PmLine const * const line, double len, PmPose * const point)
+int pmLinePoint(PmLine const *const line, double len, PmPose *const point)
 {
     int r1, r2, r3, r4;
     r1 = r2 = r3 = r4 = PM_OK;
 
     if (line->tmag_zero) {
-	point->tran = line->end.tran;
+        point->tran = line->end.tran;
     } else {
-	/* return start + len * uVec */
-	r1 = pmCartScalMult(&line->uVec, len, &point->tran);
-	r2 = pmCartCartAdd(&line->start.tran, &point->tran, &point->tran);
+        /* return start + len * uVec */
+        r1 = pmCartScalMult(&line->uVec, len, &point->tran);
+        r2 = pmCartCartAdd(&line->start.tran, &point->tran, &point->tran);
     }
 
     if (line->rmag_zero) {
-	point->rot = line->end.rot;
+        point->rot = line->end.rot;
     } else {
-	if (line->tmag_zero) {
-	    r3 = pmQuatScalMult(&line->qVec, len, &point->rot);
-	} else {
-	    r3 = pmQuatScalMult(&line->qVec, len * line->rmag / line->tmag,
-		&point->rot);
-	}
-	r4 = pmQuatQuatMult(&line->start.rot, &point->rot, &point->rot);
+        if (line->tmag_zero) {
+            r3 = pmQuatScalMult(&line->qVec, len, &point->rot);
+        } else {
+            r3 = pmQuatScalMult(
+                &line->qVec, len * line->rmag / line->tmag, &point->rot);
+        }
+        r4 = pmQuatQuatMult(&line->start.rot, &point->rot, &point->rot);
     }
 
     return pmErrno = (r1 || r2 || r3 || r4) ? PM_NORM_ERR : PM_OK;
@@ -1692,7 +1730,9 @@ int pmLinePoint(PmLine const * const line, double len, PmPose * const point)
 
 /* pure cartesian line functions */
 
-int pmCartLineInit(PmCartLine * const line, PmCartesian const * const start, PmCartesian const * const end)
+int pmCartLineInit(PmCartLine *const line,
+                   PmCartesian const *const start,
+                   PmCartesian const *const end)
 {
     int r1 = PM_OK, r2 = PM_OK;
 
@@ -1710,7 +1750,7 @@ int pmCartLineInit(PmCartLine * const line, PmCartesian const * const start, PmC
 
     pmCartMag(&line->uVec, &line->tmag);
     // NOTE: use the same criteria for "zero" length vectors as used by canon
-    double max_xyz=0.0;
+    double max_xyz = 0.0;
     pmCartInfNorm(&line->uVec, &max_xyz);
 
     if (IS_FUZZ(max_xyz, CART_FUZZ)) {
@@ -1727,7 +1767,9 @@ int pmCartLineInit(PmCartLine * const line, PmCartesian const * const start, PmC
     return pmErrno = (r1 || r2) ? PM_NORM_ERR : PM_OK;
 }
 
-int pmCartLinePoint(PmCartLine const * const line, double len, PmCartesian * const point)
+int pmCartLinePoint(PmCartLine const *const line,
+                    double len,
+                    PmCartesian *const point)
 {
     int r1 = PM_OK, r2 = PM_OK;
 
@@ -1743,7 +1785,7 @@ int pmCartLinePoint(PmCartLine const * const line, double len, PmCartesian * con
 }
 
 
-int pmCartLineStretch(PmCartLine * const line, double new_len, int from_end)
+int pmCartLineStretch(PmCartLine *const line, double new_len, int from_end)
 {
     int r1 = PM_OK, r2 = PM_OK;
 
@@ -1781,9 +1823,12 @@ int pmCartLineStretch(PmCartLine * const line, double new_len, int from_end)
   to be in the plane defined by the normal vector. If this is not true, then
   it will be made true by moving the center vector onto the plane.
   */
-int pmCircleInit(PmCircle * const circle,
-        PmCartesian const * const start, PmCartesian const * const end,
-        PmCartesian const * const center, PmCartesian const * const normal, int turn)
+int pmCircleInit(PmCircle *const circle,
+                 PmCartesian const *const start,
+                 PmCartesian const *const end,
+                 PmCartesian const *const center,
+                 PmCartesian const *const normal,
+                 int turn)
 {
     double dot;
     PmCartesian rEnd;
@@ -1874,7 +1919,7 @@ int pmCircleInit(PmCircle * const circle,
     pmCartPlaneProj(start, normal, &p1);
     pmCartPlaneProj(end, normal, &p2);
     pmCartCartDisp(&p1, &p2, &d);
-    if (d < CART_FUZZ){
+    if (d < CART_FUZZ) {
         circle->angle = PM_2_PI;
     }
 
@@ -1884,7 +1929,8 @@ int pmCircleInit(PmCircle * const circle,
     }
 
     /* FIXME: some code has an unguarded division by circle->angle */
-    if (circle->angle == 0) circle->angle += CIRCLE_FUZZ / 2;
+    if (circle->angle == 0)
+        circle->angle += CIRCLE_FUZZ / 2;
 
     //Default to invalid
 /* if 0'ed out while not debugging*/
@@ -1928,7 +1974,9 @@ int pmCircleInit(PmCircle * const circle,
   the circle. If the circle is a helix or spiral or combination, the
   point will include interpolation off the actual circle.
   */
-int pmCirclePoint(PmCircle const * const circle, double angle, PmCartesian * const point)
+int pmCirclePoint(PmCircle const *const circle,
+                  double angle,
+                  PmCartesian *const point)
 {
     PmCartesian par, perp;
     double scale;
@@ -1936,10 +1984,9 @@ int pmCirclePoint(PmCircle const * const circle, double angle, PmCartesian * con
 #ifdef PM_DEBUG
     if (0 == circle || 0 == point) {
 #ifdef PM_PRINT_ERROR
-	pmPrintError
-	    ("error: pmCirclePoint circle or point pointer is null\n");
+        pmPrintError("error: pmCirclePoint circle or point pointer is null\n");
 #endif
-	return pmErrno = PM_ERR;
+        return pmErrno = PM_ERR;
     }
 #endif
 
@@ -1953,9 +2000,9 @@ int pmCirclePoint(PmCircle const * const circle, double angle, PmCartesian * con
     /* get scale for spiral, helix interpolation */
     if (circle->angle == 0.0) {
 #ifdef PM_PRINT_ERROR
-	pmPrintError("error: pmCirclePoint angle is zero\n");
+        pmPrintError("error: pmCirclePoint angle is zero\n");
 #endif
-	return pmErrno = PM_DIV_ERR;
+        return pmErrno = PM_DIV_ERR;
     }
     scale = angle / circle->angle;
 
@@ -1974,7 +2021,7 @@ int pmCirclePoint(PmCircle const * const circle, double angle, PmCartesian * con
     return pmErrno = PM_OK;
 }
 
-int pmCircleStretch(PmCircle * const circ, double new_angle, int from_end)
+int pmCircleStretch(PmCircle *const circ, double new_angle, int from_end)
 {
     if (!circ || new_angle <= DOUBLE_FUZZ) {
         return pmErrno = PM_ERR;
@@ -1982,7 +2029,7 @@ int pmCircleStretch(PmCircle * const circ, double new_angle, int from_end)
 
     double mag = 0;
     pmCartMagSq(&circ->rHelix, &mag);
-    if ( mag > 1e-6 ) {
+    if (mag > 1e-6) {
         //Can't handle helices
         return pmErrno = PM_ERR;
     }
@@ -1995,7 +2042,7 @@ int pmCircleStretch(PmCircle * const circ, double new_angle, int from_end)
         pmCartCartSub(&new_start, &circ->center, &circ->rTan);
         pmCartCartCross(&circ->normal, &circ->rTan, &circ->rPerp);
         pmCartMag(&circ->rTan, &circ->radius);
-    } 
+    }
     //Reduce the spiral proportionally
     circ->spiral *= (new_angle / circ->angle);
     // Easy to grow / shrink from start

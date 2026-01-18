@@ -30,7 +30,8 @@
 
 #include "hal/drivers/mesa-hostmot2/hostmot2.h"
 
-int hm2_led_parse_md(hostmot2_t *hm2, int md_index) {
+int hm2_led_parse_md(hostmot2_t *hm2, int md_index)
+{
 
     hm2_module_descriptor_t *md = &hm2->md[md_index];
     int r;
@@ -46,15 +47,16 @@ int hm2_led_parse_md(hostmot2_t *hm2, int md_index) {
 
 
     // LEDs were enumerated during llio setup
-    
-    if (hm2->llio->num_leds == 0 || hm2->config.num_leds == 0) return 0;
+
+    if (hm2->llio->num_leds == 0 || hm2->config.num_leds == 0)
+        return 0;
 
     if (hm2->config.num_leds > hm2->llio->num_leds) {
         hm2->config.num_leds = hm2->llio->num_leds;
-        HM2_ERR( "There are only %d LEDs on this board type, defaulting to %d\n",
-                hm2->llio->num_leds, hm2->config.num_leds );
-    }
-    else if (hm2->config.num_leds == -1) {
+        HM2_ERR("There are only %d LEDs on this board type, defaulting to %d\n",
+                hm2->llio->num_leds,
+                hm2->config.num_leds);
+    } else if (hm2->config.num_leds == -1) {
         hm2->config.num_leds = hm2->llio->num_leds;
     }
 
@@ -64,13 +66,15 @@ int hm2_led_parse_md(hostmot2_t *hm2, int md_index) {
 
 
     // allocate the module-global HAL shared memory
-    hm2->led.instance = (hm2_led_instance_t *)hal_malloc(hm2->config.num_leds * sizeof(hm2_led_instance_t));
+    hm2->led.instance = (hm2_led_instance_t *)hal_malloc(
+        hm2->config.num_leds * sizeof(hm2_led_instance_t));
     if (hm2->led.instance == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
         goto fail0;
     }
-    hm2->led.led_reg = (rtapi_u32 *)rtapi_kmalloc( sizeof(rtapi_u32), RTAPI_GFP_KERNEL);
+    hm2->led.led_reg =
+        (rtapi_u32 *)rtapi_kmalloc(sizeof(rtapi_u32), RTAPI_GFP_KERNEL);
     if (hm2->led.led_reg == NULL) {
         HM2_ERR("out of memory!\n");
         r = -ENOMEM;
@@ -78,17 +82,19 @@ int hm2_led_parse_md(hostmot2_t *hm2, int md_index) {
     }
 
     hm2->led.led_addr = md->base_address;
-    
+
     // force an update to make sure initial LED states match hal pin
     hm2->led.written_buff = 666;
 
     // export to HAL
     {
         int i;
-        char name[HAL_NAME_LEN+1];
-        for (i = 0 ; i < hm2->config.num_leds ; i++) {
-            rtapi_snprintf(name, sizeof(name), "%s.led.CR%02d", hm2->llio->name, i + 1 );
-            r = hal_pin_bit_new(name, HAL_IN, &(hm2->led.instance[i].led), hm2->llio->comp_id);
+        char name[HAL_NAME_LEN + 1];
+        for (i = 0; i < hm2->config.num_leds; i++) {
+            rtapi_snprintf(
+                name, sizeof(name), "%s.led.CR%02d", hm2->llio->name, i + 1);
+            r = hal_pin_bit_new(
+                name, HAL_IN, &(hm2->led.instance[i].led), hm2->llio->comp_id);
             if (r < 0) {
                 HM2_ERR("error adding pin '%s', aborting\n", name);
                 goto fail1;
@@ -102,15 +108,15 @@ int hm2_led_parse_md(hostmot2_t *hm2, int md_index) {
 
     fail0:
         return r;
-
     }
 }
 
-void hm2_led_write(hostmot2_t *hm2) {
+void hm2_led_write(hostmot2_t *hm2)
+{
     rtapi_u32 regval = 0;
     int i;
 
-    for (i = 0 ; i < hm2->config.num_leds; i++ ) {
+    for (i = 0; i < hm2->config.num_leds; i++) {
         if (*hm2->led.instance[i].led) {
             regval |= 1 << (31 - i);
         }
@@ -119,13 +125,15 @@ void hm2_led_write(hostmot2_t *hm2) {
     if (regval != hm2->led.written_buff) {
         *hm2->led.led_reg = regval;
         hm2->led.written_buff = regval;
-        hm2->llio->write(hm2->llio, hm2->led.led_addr, hm2->led.led_reg, sizeof(rtapi_u32));
+        hm2->llio->write(
+            hm2->llio, hm2->led.led_addr, hm2->led.led_reg, sizeof(rtapi_u32));
     }
 }
 
-void hm2_led_cleanup(hostmot2_t *hm2) {
+void hm2_led_cleanup(hostmot2_t *hm2)
+{
     if (hm2->led.led_reg != NULL) {
-	rtapi_kfree(hm2->led.led_reg);
-	hm2->led.led_reg = NULL;
+        rtapi_kfree(hm2->led.led_reg);
+        hm2->led.led_reg = NULL;
     }
 }

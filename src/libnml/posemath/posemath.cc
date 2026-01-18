@@ -17,7 +17,7 @@
 #include "posemath.h"
 
 #ifdef PM_PRINT_ERROR
-#define PM_DEBUG		// need debug with printing
+#define PM_DEBUG // need debug with printing
 #endif
 
 // place to reference arrays when bounds are exceeded
@@ -54,29 +54,28 @@ PM_CARTESIAN::PM_CARTESIAN(PM_CONST PM_SPHERICAL PM_REF s)
     toCart(cart, this);
 }
 
-double &PM_CARTESIAN::operator [] (int n) {
+double &PM_CARTESIAN::operator[](int n)
+{
     switch (n) {
-    case 0:
-	return x;
-    case 1:
-	return y;
-    case 2:
-	return z;
-    default:
-	return noElement;	// need to return a double &
+    case 0: return x;
+    case 1: return y;
+    case 2: return z;
+    default: return noElement; // need to return a double &
     }
 }
 
-PM_CARTESIAN & PM_CARTESIAN::operator -= (const PM_CARTESIAN &o) {
-    x-=o.x;
-    y-=o.y;
-    z-=o.z;
+PM_CARTESIAN &PM_CARTESIAN::operator-=(const PM_CARTESIAN &o)
+{
+    x -= o.x;
+    y -= o.y;
+    z -= o.z;
     return *this;
 }
-PM_CARTESIAN & PM_CARTESIAN::operator += (const PM_CARTESIAN &o) {
-    x+=o.x;
-    y+=o.y;
-    z+=o.z;
+PM_CARTESIAN &PM_CARTESIAN::operator+=(const PM_CARTESIAN &o)
+{
+    x += o.x;
+    y += o.y;
+    z += o.z;
     return *this;
 }
 /*
@@ -93,26 +92,25 @@ const PM_CARTESIAN PM_CARTESIAN::operator-(const PM_CARTESIAN &o) const {
 }
 */
 
-PM_CARTESIAN & PM_CARTESIAN::operator *= (double o)
+PM_CARTESIAN &PM_CARTESIAN::operator*=(double o)
 {
-    x*=o;
-    y*=o;
-    z*=o;
+    x *= o;
+    y *= o;
+    z *= o;
     return *this;
-
 }
 
-PM_CARTESIAN & PM_CARTESIAN::operator /= (double o)
+PM_CARTESIAN &PM_CARTESIAN::operator/=(double o)
 {
-    x/=o;
-    y/=o;
-    z/=o;
+    x /= o;
+    y /= o;
+    z /= o;
     return *this;
 }
 
 
 #ifdef INCLUDE_POSEMATH_COPY_CONSTRUCTORS
-PM_CARTESIAN::PM_CARTESIAN(PM_CCONST PM_CARTESIAN & v)
+PM_CARTESIAN::PM_CARTESIAN(PM_CCONST PM_CARTESIAN &v)
 {
     x = v.x;
     y = v.y;
@@ -149,21 +147,18 @@ PM_SPHERICAL::PM_SPHERICAL(PM_CONST PM_CYLINDRICAL PM_REF c)
     toSph(sph, this);
 }
 
-double &PM_SPHERICAL::operator [] (int n) {
+double &PM_SPHERICAL::operator[](int n)
+{
     switch (n) {
-    case 0:
-	return theta;
-    case 1:
-	return phi;
-    case 2:
-	return r;
-    default:
-	return noElement;	// need to return a double &
+    case 0: return theta;
+    case 1: return phi;
+    case 2: return r;
+    default: return noElement; // need to return a double &
     }
 }
 
 #ifdef INCLUDE_POSEMATH_COPY_CONSTRUCTORS
-PM_SPHERICAL::PM_SPHERICAL(PM_CCONST PM_SPHERICAL & s)
+PM_SPHERICAL::PM_SPHERICAL(PM_CCONST PM_SPHERICAL &s)
 {
     theta = s.theta;
     phi = s.phi;
@@ -199,21 +194,18 @@ PM_CYLINDRICAL::PM_CYLINDRICAL(PM_CONST PM_SPHERICAL PM_REF s)
     toCyl(cyl, this);
 }
 
-double &PM_CYLINDRICAL::operator [] (int n) {
+double &PM_CYLINDRICAL::operator[](int n)
+{
     switch (n) {
-    case 0:
-	return theta;
-    case 1:
-	return r;
-    case 2:
-	return z;
-    default:
-	return noElement;	// need to return a double &
+    case 0: return theta;
+    case 1: return r;
+    case 2: return z;
+    default: return noElement; // need to return a double &
     }
 }
 
 #ifdef INCLUDE_POSEMATH_COPY_CONSTRUCTORS
-PM_CYLINDRICAL::PM_CYLINDRICAL(PM_CCONST PM_CYLINDRICAL & c)
+PM_CYLINDRICAL::PM_CYLINDRICAL(PM_CCONST PM_CYLINDRICAL &c)
 {
     theta = c.theta;
     r = c.r;
@@ -222,8 +214,10 @@ PM_CYLINDRICAL::PM_CYLINDRICAL(PM_CCONST PM_CYLINDRICAL & c)
 #endif
 // PM_ROTATION_VECTOR
 
-PM_ROTATION_VECTOR::PM_ROTATION_VECTOR(double _s, double _x,
-    double _y, double _z)
+PM_ROTATION_VECTOR::PM_ROTATION_VECTOR(double _s,
+                                       double _x,
+                                       double _y,
+                                       double _z)
 {
     PmRotationVector rv;
 
@@ -246,23 +240,19 @@ PM_ROTATION_VECTOR::PM_ROTATION_VECTOR(PM_CONST PM_QUATERNION PM_REF q)
     toRot(rv, this);
 }
 
-double &PM_ROTATION_VECTOR::operator [] (int n) {
+double &PM_ROTATION_VECTOR::operator[](int n)
+{
     switch (n) {
-    case 0:
-	return s;
-    case 1:
-	return x;
-    case 2:
-	return y;
-    case 3:
-	return z;
-    default:
-	return noElement;	// need to return a double &
+    case 0: return s;
+    case 1: return x;
+    case 2: return y;
+    case 3: return z;
+    default: return noElement; // need to return a double &
     }
 }
 
 #ifdef INCLUDE_POSEMATH_COPY_CONSTRUCTORS
-PM_ROTATION_VECTOR::PM_ROTATION_VECTOR(PM_CCONST PM_ROTATION_VECTOR & r)
+PM_ROTATION_VECTOR::PM_ROTATION_VECTOR(PM_CCONST PM_ROTATION_VECTOR &r)
 {
     s = r.s;
     x = r.x;
@@ -274,8 +264,15 @@ PM_ROTATION_VECTOR::PM_ROTATION_VECTOR(PM_CCONST PM_ROTATION_VECTOR & r)
 
 // ctors/dtors
 
-PM_ROTATION_MATRIX::PM_ROTATION_MATRIX(double xx, double xy, double xz,
-    double yx, double yy, double yz, double zx, double zy, double zz)
+PM_ROTATION_MATRIX::PM_ROTATION_MATRIX(double xx,
+                                       double xy,
+                                       double xz,
+                                       double yx,
+                                       double yy,
+                                       double yz,
+                                       double zx,
+                                       double zy,
+                                       double zz)
 {
     x.x = xx;
     x.y = xy;
@@ -292,7 +289,9 @@ PM_ROTATION_MATRIX::PM_ROTATION_MATRIX(double xx, double xy, double xz,
     /*! \todo FIXME-- need a matrix orthonormalization function pmMatNorm() */
 }
 
-PM_ROTATION_MATRIX::PM_ROTATION_MATRIX(const PM_CARTESIAN& _x, const PM_CARTESIAN& _y, const PM_CARTESIAN& _z)
+PM_ROTATION_MATRIX::PM_ROTATION_MATRIX(const PM_CARTESIAN &_x,
+                                       const PM_CARTESIAN &_y,
+                                       const PM_CARTESIAN &_z)
     : x(_x), y(_y), z(_z)
 {
 }
@@ -349,24 +348,22 @@ PM_ROTATION_MATRIX::PM_ROTATION_MATRIX(PM_CONST PM_EULER_ZYX PM_REF zyx)
 
 // operators
 
-PM_CARTESIAN & PM_ROTATION_MATRIX::operator [](int n) {
+PM_CARTESIAN &PM_ROTATION_MATRIX::operator[](int n)
+{
     switch (n) {
-    case 0:
-	return x;
-    case 1:
-	return y;
-    case 2:
-	return z;
+    case 0: return x;
+    case 1: return y;
+    case 2: return z;
     default:
-	if (0 == noCart) {
-	    noCart = new PM_CARTESIAN(0.0, 0.0, 0.0);
-	}
-	return (*noCart);	// need to return a PM_CARTESIAN &
+        if (0 == noCart) {
+            noCart = new PM_CARTESIAN(0.0, 0.0, 0.0);
+        }
+        return (*noCart); // need to return a PM_CARTESIAN &
     }
 }
 
 #ifdef INCLUDE_POSEMATH_COPY_CONSTRUCTORS
-PM_ROTATION_MATRIX::PM_ROTATION_MATRIX(PM_CCONST PM_ROTATION_MATRIX & m)
+PM_ROTATION_MATRIX::PM_ROTATION_MATRIX(PM_CCONST PM_ROTATION_MATRIX &m)
     : x(m.x), y(m.y), z(m.z)
 {
 }
@@ -444,7 +441,7 @@ PM_QUATERNION::PM_QUATERNION(PM_AXIS _axis, double _angle)
 {
     PmQuaternion quat;
 
-    pmAxisAngleQuatConvert((PmAxis) _axis, _angle, &quat);
+    pmAxisAngleQuatConvert((PmAxis)_axis, _angle, &quat);
     toQuat(quat, this);
 }
 
@@ -453,26 +450,22 @@ void PM_QUATERNION::axisAngleMult(PM_AXIS _axis, double _angle)
     PmQuaternion quat;
 
     toQuat((*this), &quat);
-    pmQuatAxisAngleMult(&quat, (PmAxis) _axis, _angle, &quat);
+    pmQuatAxisAngleMult(&quat, (PmAxis)_axis, _angle, &quat);
     toQuat(quat, this);
 }
 
-double &PM_QUATERNION::operator [] (int n) {
+double &PM_QUATERNION::operator[](int n)
+{
     switch (n) {
-    case 0:
-	return s;
-    case 1:
-	return x;
-    case 2:
-	return y;
-    case 3:
-	return z;
-    default:
-	return noElement;	// need to return a double &
+    case 0: return s;
+    case 1: return x;
+    case 2: return y;
+    case 3: return z;
+    default: return noElement; // need to return a double &
     }
 }
 #ifdef INCLUDE_POSEMATH_COPY_CONSTRUCTORS
-PM_QUATERNION::PM_QUATERNION(PM_CCONST PM_QUATERNION & q)
+PM_QUATERNION::PM_QUATERNION(PM_CCONST PM_QUATERNION &q)
 {
     s = q.s;
     x = q.x;
@@ -510,21 +503,18 @@ PM_EULER_ZYZ::PM_EULER_ZYZ(PM_CONST PM_ROTATION_MATRIX PM_REF m)
     toEulerZyz(zyz, this);
 }
 
-double &PM_EULER_ZYZ::operator [] (int n) {
+double &PM_EULER_ZYZ::operator[](int n)
+{
     switch (n) {
-    case 0:
-	return z;
-    case 1:
-	return y;
-    case 2:
-	return zp;
-    default:
-	return noElement;	// need to return a double &
+    case 0: return z;
+    case 1: return y;
+    case 2: return zp;
+    default: return noElement; // need to return a double &
     }
 }
 
 #ifdef INCLUDE_POSEMATH_COPY_CONSTRUCTORS
-PM_EULER_ZYZ::PM_EULER_ZYZ(PM_CCONST PM_EULER_ZYZ & zyz)
+PM_EULER_ZYZ::PM_EULER_ZYZ(PM_CCONST PM_EULER_ZYZ &zyz)
 {
     z = zyz.z;
     y = zyz.y;
@@ -561,21 +551,18 @@ PM_EULER_ZYX::PM_EULER_ZYX(PM_CONST PM_ROTATION_MATRIX PM_REF m)
     toEulerZyx(zyx, this);
 }
 
-double &PM_EULER_ZYX::operator [] (int n) {
+double &PM_EULER_ZYX::operator[](int n)
+{
     switch (n) {
-    case 0:
-	return z;
-    case 1:
-	return y;
-    case 2:
-	return x;
-    default:
-	return noElement;	// need to return a double &
+    case 0: return z;
+    case 1: return y;
+    case 2: return x;
+    default: return noElement; // need to return a double &
     }
 }
 
 #ifdef INCLUDE_POSEMATH_COPY_CONSTRUCTORS
-PM_EULER_ZYX::PM_EULER_ZYX(PM_CCONST PM_EULER_ZYX & zyx)
+PM_EULER_ZYX::PM_EULER_ZYX(PM_CCONST PM_EULER_ZYX &zyx)
 {
     z = zyx.z;
     y = zyx.y;
@@ -585,7 +572,7 @@ PM_EULER_ZYX::PM_EULER_ZYX(PM_CCONST PM_EULER_ZYX & zyx)
 // PM_RPY class
 
 #ifdef INCLUDE_POSEMATH_COPY_CONSTRUCTORS
-PM_RPY::PM_RPY(PM_CCONST PM_RPY & rpy)
+PM_RPY::PM_RPY(PM_CCONST PM_RPY &rpy)
 {
     r = rpy.r;
     p = rpy.p;
@@ -620,22 +607,19 @@ PM_RPY::PM_RPY(PM_CONST PM_ROTATION_MATRIX PM_REF m)
     toRpy(rpy, this);
 }
 
-double &PM_RPY::operator [] (int n) {
+double &PM_RPY::operator[](int n)
+{
     switch (n) {
-    case 0:
-	return r;
-    case 1:
-	return p;
-    case 2:
-	return y;
-    default:
-	return noElement;	// need to return a double &
+    case 0: return r;
+    case 1: return p;
+    case 2: return y;
+    default: return noElement; // need to return a double &
     }
 }
 
 // PM_POSE class
 
-PM_POSE::PM_POSE(const PM_CARTESIAN& v, const PM_QUATERNION& q)
+PM_POSE::PM_POSE(const PM_CARTESIAN &v, const PM_QUATERNION &q)
 {
     tran.x = v.x;
     tran.y = v.y;
@@ -646,8 +630,8 @@ PM_POSE::PM_POSE(const PM_CARTESIAN& v, const PM_QUATERNION& q)
     rot.z = q.z;
 }
 
-PM_POSE::PM_POSE(double x, double y, double z,
-    double s, double sx, double sy, double sz)
+PM_POSE::PM_POSE(
+    double x, double y, double z, double s, double sx, double sy, double sz)
 {
     tran.x = x;
     tran.y = y;
@@ -668,36 +652,27 @@ PM_POSE::PM_POSE(PM_CONST PM_HOMOGENEOUS PM_REF h)
     toPose(pose, this);
 }
 
-double &PM_POSE::operator [] (int n) {
+double &PM_POSE::operator[](int n)
+{
     switch (n) {
-    case 0:
-	return tran.x;
-    case 1:
-	return tran.y;
-    case 2:
-	return tran.z;
-    case 3:
-	return rot.s;
-    case 4:
-	return rot.x;
-    case 5:
-	return rot.y;
-    case 6:
-	return rot.z;
-    default:
-	return noElement;	// need to return a double &
+    case 0: return tran.x;
+    case 1: return tran.y;
+    case 2: return tran.z;
+    case 3: return rot.s;
+    case 4: return rot.x;
+    case 5: return rot.y;
+    case 6: return rot.z;
+    default: return noElement; // need to return a double &
     }
 }
 
 #ifdef INCLUDE_POSEMATH_COPY_CONSTRUCTORS
-PM_POSE::PM_POSE(PM_CCONST PM_POSE & p)
-    : tran(p.tran), rot(p.rot)
-{
-}
+PM_POSE::PM_POSE(PM_CCONST PM_POSE &p) : tran(p.tran), rot(p.rot) {}
 #endif
 // PM_HOMOGENEOUS class
 
-PM_HOMOGENEOUS::PM_HOMOGENEOUS(const PM_CARTESIAN& v, const PM_ROTATION_MATRIX&	 m)
+PM_HOMOGENEOUS::PM_HOMOGENEOUS(const PM_CARTESIAN &v,
+                               const PM_ROTATION_MATRIX &m)
     : tran(v), rot(m)
 {
 }
@@ -712,33 +687,26 @@ PM_HOMOGENEOUS::PM_HOMOGENEOUS(PM_CONST PM_POSE PM_REF p)
     toHom(hom, this);
 }
 
-PM_CARTESIAN & PM_HOMOGENEOUS::operator [](int n) {
+PM_CARTESIAN &PM_HOMOGENEOUS::operator[](int n)
+{
     // if it is a rotation vector, stuff 0 as default bottom
     // if it is a translation vector, stuff 1 as default bottom
 
     switch (n) {
-    case 0:
-	noElement = 0.0;
-	return rot.x;
-    case 1:
-	noElement = 0.0;
-	return rot.y;
-    case 2:
-	noElement = 0.0;
-	return rot.z;
-    case 3:
-	noElement = 1.0;
-	return tran;
+    case 0: noElement = 0.0; return rot.x;
+    case 1: noElement = 0.0; return rot.y;
+    case 2: noElement = 0.0; return rot.z;
+    case 3: noElement = 1.0; return tran;
     default:
-	if (0 == noCart) {
-	    noCart = new PM_CARTESIAN(0.0, 0.0, 0.0);
-	}
-	return (*noCart);	// need to return a PM_CARTESIAN &
+        if (0 == noCart) {
+            noCart = new PM_CARTESIAN(0.0, 0.0, 0.0);
+        }
+        return (*noCart); // need to return a PM_CARTESIAN &
     }
 }
 
 #ifdef INCLUDE_POSEMATH_COPY_CONSTRUCTORS
-PM_HOMOGENEOUS::PM_HOMOGENEOUS(PM_CCONST PM_HOMOGENEOUS & h)
+PM_HOMOGENEOUS::PM_HOMOGENEOUS(PM_CCONST PM_HOMOGENEOUS &h)
     : tran(h.tran), rot(h.rot)
 {
 }
@@ -747,13 +715,13 @@ PM_HOMOGENEOUS::PM_HOMOGENEOUS(PM_CCONST PM_HOMOGENEOUS & h)
 // PM_LINE class
 
 #ifdef INCLUDE_POSEMATH_COPY_CONSTRUCTORS
-PM_LINE::PM_LINE(PM_CCONST PM_LINE & l)
+PM_LINE::PM_LINE(PM_CCONST PM_LINE &l)
     : start(l.start), end(l.end), uVec(l.uVec)
 {
 }
 #endif
 
-int PM_LINE::init(const PM_POSE& start, const PM_POSE& end)
+int PM_LINE::init(const PM_POSE &start, const PM_POSE &end)
 {
     PmLine _line;
     PmPose _start, _end;
@@ -769,7 +737,7 @@ int PM_LINE::init(const PM_POSE& start, const PM_POSE& end)
     return retval;
 }
 
-int PM_LINE::point(double len, PM_POSE * point)
+int PM_LINE::point(double len, PM_POSE *point)
 {
     PmLine _line;
     PmPose _point;
@@ -787,16 +755,18 @@ int PM_LINE::point(double len, PM_POSE * point)
 // PM_CIRCLE class
 
 #ifdef INCLUDE_POSEMATH_COPY_CONSTRUCTORS
-PM_CIRCLE::PM_CIRCLE(PM_CCONST PM_CIRCLE & c)
-    : center(c.center), normal(c.normal),
-      rTan(c.rTan), rPerp(c.rPerp), rHelix(c.rHelix),
-      radius(c.radius), angle(c.angle), spiral(c.spiral)
+PM_CIRCLE::PM_CIRCLE(PM_CCONST PM_CIRCLE &c)
+    : center(c.center), normal(c.normal), rTan(c.rTan), rPerp(c.rPerp),
+      rHelix(c.rHelix), radius(c.radius), angle(c.angle), spiral(c.spiral)
 {
 }
 #endif
 
-int PM_CIRCLE::init(const PM_POSE& start, const PM_POSE& end,
-    const PM_CARTESIAN& center, const PM_CARTESIAN& normal, int turn)
+int PM_CIRCLE::init(const PM_POSE &start,
+                    const PM_POSE &end,
+                    const PM_CARTESIAN &center,
+                    const PM_CARTESIAN &normal,
+                    int turn)
 {
     PmCircle _circle;
     PmPose _start, _end;
@@ -808,14 +778,15 @@ int PM_CIRCLE::init(const PM_POSE& start, const PM_POSE& end,
     toCart(center, &_center);
     toCart(normal, &_normal);
 
-    retval = pmCircleInit(&_circle, &_start.tran, &_end.tran, &_center, &_normal, turn);
+    retval = pmCircleInit(
+        &_circle, &_start.tran, &_end.tran, &_center, &_normal, turn);
 
     toCircle(_circle, this);
 
     return retval;
 }
 
-int PM_CIRCLE::point(double angle, PM_POSE * point)
+int PM_CIRCLE::point(double angle, PM_POSE *point)
 {
     PmCircle _circle;
     PmPose _point;
@@ -941,7 +912,7 @@ PM_ROTATION_MATRIX norm(PM_ROTATION_MATRIX m)
 
 // isNorm
 
-int isNorm(const PM_CARTESIAN& v)
+int isNorm(const PM_CARTESIAN &v)
 {
     PmCartesian _v;
 
@@ -950,7 +921,7 @@ int isNorm(const PM_CARTESIAN& v)
     return pmCartIsNorm(&_v);
 }
 
-int isNorm(const PM_QUATERNION& q)
+int isNorm(const PM_QUATERNION &q)
 {
     PmQuaternion _q;
 
@@ -959,7 +930,7 @@ int isNorm(const PM_QUATERNION& q)
     return pmQuatIsNorm(&_q);
 }
 
-int isNorm(const PM_ROTATION_VECTOR& r)
+int isNorm(const PM_ROTATION_VECTOR &r)
 {
     PmRotationVector _r;
 
@@ -968,7 +939,7 @@ int isNorm(const PM_ROTATION_VECTOR& r)
     return pmRotIsNorm(&_r);
 }
 
-int isNorm(const PM_ROTATION_MATRIX& m)
+int isNorm(const PM_ROTATION_MATRIX &m)
 {
     PmRotationMatrix _m;
 
@@ -1097,12 +1068,12 @@ PM_CARTESIAN proj(const PM_CARTESIAN &v1, PM_CARTESIAN &v2)
 
 // overloaded arithmetic operators
 
-PM_CARTESIAN operator +(const PM_CARTESIAN &v)
+PM_CARTESIAN operator+(const PM_CARTESIAN &v)
 {
     return v;
 }
 
-PM_CARTESIAN operator -(const PM_CARTESIAN &v)
+PM_CARTESIAN operator-(const PM_CARTESIAN &v)
 {
     PM_CARTESIAN ret;
 
@@ -1113,12 +1084,12 @@ PM_CARTESIAN operator -(const PM_CARTESIAN &v)
     return ret;
 }
 
-PM_QUATERNION operator +(const PM_QUATERNION &q)
+PM_QUATERNION operator+(const PM_QUATERNION &q)
 {
     return q;
 }
 
-PM_QUATERNION operator -(const PM_QUATERNION &q)
+PM_QUATERNION operator-(const PM_QUATERNION &q)
 {
     PM_QUATERNION ret;
     PmQuaternion _q;
@@ -1132,12 +1103,12 @@ PM_QUATERNION operator -(const PM_QUATERNION &q)
     return ret;
 }
 
-PM_POSE operator +(const PM_POSE &p)
+PM_POSE operator+(const PM_POSE &p)
 {
     return p;
 }
 
-PM_POSE operator -(const PM_POSE &p)
+PM_POSE operator-(const PM_POSE &p)
 {
     PM_POSE ret;
     PmPose _p;
@@ -1151,7 +1122,7 @@ PM_POSE operator -(const PM_POSE &p)
     return ret;
 }
 
-int operator ==(const PM_CARTESIAN &v1, const PM_CARTESIAN &v2)
+int operator==(const PM_CARTESIAN &v1, const PM_CARTESIAN &v2)
 {
     PmCartesian _v1, _v2;
 
@@ -1161,7 +1132,7 @@ int operator ==(const PM_CARTESIAN &v1, const PM_CARTESIAN &v2)
     return pmCartCartCompare(&_v1, &_v2);
 }
 
-int operator ==(const PM_QUATERNION &q1, PM_QUATERNION &q2)
+int operator==(const PM_QUATERNION &q1, PM_QUATERNION &q2)
 {
     PmQuaternion _q1, _q2;
 
@@ -1171,7 +1142,7 @@ int operator ==(const PM_QUATERNION &q1, PM_QUATERNION &q2)
     return pmQuatQuatCompare(&_q1, &_q2);
 }
 
-int operator ==(const PM_POSE &p1, const PM_POSE &p2)
+int operator==(const PM_POSE &p1, const PM_POSE &p2)
 {
     PmPose _p1, _p2;
 
@@ -1181,7 +1152,7 @@ int operator ==(const PM_POSE &p1, const PM_POSE &p2)
     return pmPosePoseCompare(&_p1, &_p2);
 }
 
-int operator !=(const PM_CARTESIAN &v1, const PM_CARTESIAN &v2)
+int operator!=(const PM_CARTESIAN &v1, const PM_CARTESIAN &v2)
 {
     PmCartesian _v1, _v2;
 
@@ -1191,7 +1162,7 @@ int operator !=(const PM_CARTESIAN &v1, const PM_CARTESIAN &v2)
     return !pmCartCartCompare(&_v1, &_v2);
 }
 
-int operator !=(const PM_QUATERNION &q1, const PM_QUATERNION &q2)
+int operator!=(const PM_QUATERNION &q1, const PM_QUATERNION &q2)
 {
     PmQuaternion _q1, _q2;
 
@@ -1201,7 +1172,7 @@ int operator !=(const PM_QUATERNION &q1, const PM_QUATERNION &q2)
     return !pmQuatQuatCompare(&_q1, &_q2);
 }
 
-int operator !=(const PM_POSE &p1, const PM_POSE &p2)
+int operator!=(const PM_POSE &p1, const PM_POSE &p2)
 {
     PmPose _p1, _p2;
 
@@ -1211,41 +1182,41 @@ int operator !=(const PM_POSE &p1, const PM_POSE &p2)
     return !pmPosePoseCompare(&_p1, &_p2);
 }
 
-PM_CARTESIAN operator +(PM_CARTESIAN v1, const PM_CARTESIAN &v2)
+PM_CARTESIAN operator+(PM_CARTESIAN v1, const PM_CARTESIAN &v2)
 {
     v1 += v2;
     return v1;
 }
 
-PM_CARTESIAN operator -(PM_CARTESIAN v1, const PM_CARTESIAN &v2)
+PM_CARTESIAN operator-(PM_CARTESIAN v1, const PM_CARTESIAN &v2)
 {
     v1 -= v2;
     return v1;
 }
 
-PM_CARTESIAN operator *(PM_CARTESIAN v, double s)
+PM_CARTESIAN operator*(PM_CARTESIAN v, double s)
 {
     v *= s;
     return v;
 }
 
-PM_CARTESIAN operator *(double s, PM_CARTESIAN v)
+PM_CARTESIAN operator*(double s, PM_CARTESIAN v)
 {
     v *= s;
     return v;
 }
 
-PM_CARTESIAN operator /(const PM_CARTESIAN &v, double s)
+PM_CARTESIAN operator/(const PM_CARTESIAN &v, double s)
 {
     PM_CARTESIAN ret;
 
 #ifdef PM_DEBUG
     if (s == 0.0) {
 #ifdef PM_PRINT_ERROR
-	pmPrintError("PM_CARTESIAN::operator / : divide by 0\n");
+        pmPrintError("PM_CARTESIAN::operator / : divide by 0\n");
 #endif
-	pmErrno = PM_DIV_ERR;
-	return ret;
+        pmErrno = PM_DIV_ERR;
+        return ret;
     }
 #endif
 
@@ -1256,7 +1227,7 @@ PM_CARTESIAN operator /(const PM_CARTESIAN &v, double s)
     return ret;
 }
 
-PM_QUATERNION operator *(double s, const PM_QUATERNION &q)
+PM_QUATERNION operator*(double s, const PM_QUATERNION &q)
 {
     PM_QUATERNION qout;
     PmQuaternion _q;
@@ -1270,7 +1241,7 @@ PM_QUATERNION operator *(double s, const PM_QUATERNION &q)
     return qout;
 }
 
-PM_QUATERNION operator *(const PM_QUATERNION &q, double s)
+PM_QUATERNION operator*(const PM_QUATERNION &q, double s)
 {
     PM_QUATERNION qout;
     PmQuaternion _q;
@@ -1284,7 +1255,7 @@ PM_QUATERNION operator *(const PM_QUATERNION &q, double s)
     return qout;
 }
 
-PM_QUATERNION operator /(const PM_QUATERNION &q, double s)
+PM_QUATERNION operator/(const PM_QUATERNION &q, double s)
 {
     PM_QUATERNION qout;
     PmQuaternion _q;
@@ -1294,9 +1265,9 @@ PM_QUATERNION operator /(const PM_QUATERNION &q, double s)
 #ifdef PM_DEBUG
     if (s == 0.0) {
 #ifdef PM_PRINT_ERROR
-	pmPrintError("Divide by 0 in operator /\n");
+        pmPrintError("Divide by 0 in operator /\n");
 #endif
-	pmErrno = PM_NORM_ERR;
+        pmErrno = PM_NORM_ERR;
 
 /*! \todo Another #if 0 */
 #if 0
@@ -1307,22 +1278,21 @@ PM_QUATERNION operator /(const PM_QUATERNION &q, double s)
 	    PM_QUATERNION((double) 0, (double) 0, (double) 0, (double) 0);
 #else
 
-	PmQuaternion quat;
+        PmQuaternion quat;
 
-	quat.s = 0;
-	quat.x = 0;
-	quat.y = 0;
-	quat.z = 0;
+        quat.s = 0;
+        quat.x = 0;
+        quat.y = 0;
+        quat.z = 0;
 
-	pmQuatNorm(&quat, &quat);
+        pmQuatNorm(&quat, &quat);
 
-	qout.s = quat.s;
-	qout.x = quat.x;
-	qout.y = quat.y;
-	qout.z = quat.z;
-	return qout;
+        qout.s = quat.s;
+        qout.x = quat.x;
+        qout.y = quat.y;
+        qout.z = quat.z;
+        return qout;
 #endif
-
     }
 #endif
 
@@ -1333,7 +1303,7 @@ PM_QUATERNION operator /(const PM_QUATERNION &q, double s)
     return qout;
 }
 
-PM_CARTESIAN operator *(const PM_QUATERNION &q, const PM_CARTESIAN &v)
+PM_CARTESIAN operator*(const PM_QUATERNION &q, const PM_CARTESIAN &v)
 {
     PM_CARTESIAN vout;
     PmQuaternion _q;
@@ -1349,7 +1319,7 @@ PM_CARTESIAN operator *(const PM_QUATERNION &q, const PM_CARTESIAN &v)
     return vout;
 }
 
-PM_QUATERNION operator *(const PM_QUATERNION &q1, const PM_QUATERNION &q2)
+PM_QUATERNION operator*(const PM_QUATERNION &q1, const PM_QUATERNION &q2)
 {
     PM_QUATERNION ret;
     PmQuaternion _q1, _q2;
@@ -1364,7 +1334,8 @@ PM_QUATERNION operator *(const PM_QUATERNION &q1, const PM_QUATERNION &q2)
     return ret;
 }
 
-PM_ROTATION_MATRIX operator *(const PM_ROTATION_MATRIX &m1, const PM_ROTATION_MATRIX &m2)
+PM_ROTATION_MATRIX
+operator*(const PM_ROTATION_MATRIX & m1, const PM_ROTATION_MATRIX & m2)
 {
     PM_ROTATION_MATRIX ret;
     PmRotationMatrix _m1, _m2;
@@ -1379,7 +1350,7 @@ PM_ROTATION_MATRIX operator *(const PM_ROTATION_MATRIX &m1, const PM_ROTATION_MA
     return ret;
 }
 
-PM_POSE operator *(const PM_POSE &p1, const PM_POSE &p2)
+PM_POSE operator*(const PM_POSE &p1, const PM_POSE &p2)
 {
     PM_POSE ret;
     PmPose _p1, _p2;
@@ -1394,7 +1365,7 @@ PM_POSE operator *(const PM_POSE &p1, const PM_POSE &p2)
     return ret;
 }
 
-PM_CARTESIAN operator *(const PM_POSE &p, const PM_CARTESIAN &v)
+PM_CARTESIAN operator*(const PM_POSE &p, const PM_CARTESIAN &v)
 {
     PM_CARTESIAN ret;
     PmPose _p;

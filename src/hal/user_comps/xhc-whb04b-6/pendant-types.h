@@ -29,25 +29,23 @@
 // forward declarations
 
 
-namespace XhcWhb04b6 {
+namespace XhcWhb04b6
+{
 // ----------------------------------------------------------------------
 class HandwheelStepmodes
 {
-public:
-    enum class Mode : uint8_t
-    {
-        CON     = 0,
-        STEP    = 1,
-        MPG     = 2,
+  public:
+    enum class Mode : uint8_t {
+        CON = 0,
+        STEP = 1,
+        MPG = 2,
     };
 };
 // ----------------------------------------------------------------------
 class HandWheelCounters
 {
-public:
-
-    enum class CounterNameToIndex : uint8_t
-    {
+  public:
+    enum class CounterNameToIndex : uint8_t {
         AXIS_X,
         AXIS_Y,
         AXIS_Z,
@@ -74,16 +72,17 @@ public:
     bool isLeadCounterActive() const;
     void enableLeadCounter(bool isEnabled);
 
-protected:
-    bool               mIsLeadCounterActive{false};
-    CounterNameToIndex mActiveAxisCounter{HandWheelCounters::CounterNameToIndex::UNDEFINED};
-    int32_t            mCounters[static_cast<typename std::underlying_type<CounterNameToIndex>::type>(CounterNameToIndex::UNDEFINED)]{
-        0
-    };
+  protected:
+    bool mIsLeadCounterActive{false};
+    CounterNameToIndex mActiveAxisCounter{
+        HandWheelCounters::CounterNameToIndex::UNDEFINED};
+    int32_t mCounters
+        [static_cast<typename std::underlying_type<CounterNameToIndex>::type>(
+            CounterNameToIndex::UNDEFINED)]{0};
 
-private:
+  private:
 };
 
-std::ostream& operator<<(std::ostream& os, const HandWheelCounters& data);
-}
+std::ostream &operator<<(std::ostream &os, const HandWheelCounters &data);
+} // namespace XhcWhb04b6
 #endif

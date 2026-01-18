@@ -47,6 +47,5 @@ enum rtapi_gfp_e {
 typedef unsigned long rtapi_gfp_t;
 
 
-
 #endif
 #endif

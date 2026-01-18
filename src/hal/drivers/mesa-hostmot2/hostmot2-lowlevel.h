@@ -34,28 +34,37 @@
 //       The others all use rtapi_print_msg()
 //
 
-#define LL_PRINT(fmt, args...)    rtapi_print(HM2_LLIO_NAME ": " fmt, ## args);
-#define THIS_PRINT(fmt, args...)  rtapi_print("%s: " fmt, this->name, ## args);
+#define LL_PRINT(fmt, args...) rtapi_print(HM2_LLIO_NAME ": " fmt, ##args);
+#define THIS_PRINT(fmt, args...) rtapi_print("%s: " fmt, this->name, ##args);
 
-#define LL_PRINT_IF(enable, fmt, args...)  if (enable) { rtapi_print(HM2_LLIO_NAME ": " fmt, ## args); }
+#define LL_PRINT_IF(enable, fmt, args...)                                      \
+    if (enable) {                                                              \
+        rtapi_print(HM2_LLIO_NAME ": " fmt, ##args);                           \
+    }
 
-#define LL_ERR(fmt, args...)   rtapi_print_msg(RTAPI_MSG_ERR,  HM2_LLIO_NAME ": " fmt, ## args);
-#define LL_WARN(fmt, args...)  rtapi_print_msg(RTAPI_MSG_WARN, HM2_LLIO_NAME ": " fmt, ## args);
-#define LL_INFO(fmt, args...)  rtapi_print_msg(RTAPI_MSG_INFO, HM2_LLIO_NAME ": " fmt, ## args);
-#define LL_DBG(fmt, args...)   rtapi_print_msg(RTAPI_MSG_DBG,  HM2_LLIO_NAME ": " fmt, ## args);
+#define LL_ERR(fmt, args...)                                                   \
+    rtapi_print_msg(RTAPI_MSG_ERR, HM2_LLIO_NAME ": " fmt, ##args);
+#define LL_WARN(fmt, args...)                                                  \
+    rtapi_print_msg(RTAPI_MSG_WARN, HM2_LLIO_NAME ": " fmt, ##args);
+#define LL_INFO(fmt, args...)                                                  \
+    rtapi_print_msg(RTAPI_MSG_INFO, HM2_LLIO_NAME ": " fmt, ##args);
+#define LL_DBG(fmt, args...)                                                   \
+    rtapi_print_msg(RTAPI_MSG_DBG, HM2_LLIO_NAME ": " fmt, ##args);
 
-#define THIS_ERR(fmt, args...)   rtapi_print_msg(RTAPI_MSG_ERR,  "%s: " fmt, this->name, ## args);
-#define THIS_WARN(fmt, args...)  rtapi_print_msg(RTAPI_MSG_WARN, "%s: " fmt, this->name, ## args);
-#define THIS_INFO(fmt, args...)  rtapi_print_msg(RTAPI_MSG_INFO, "%s: " fmt, this->name, ## args);
-#define THIS_DBG(fmt, args...)   rtapi_print_msg(RTAPI_MSG_DBG,  "%s: " fmt, this->name, ## args);
+#define THIS_ERR(fmt, args...)                                                 \
+    rtapi_print_msg(RTAPI_MSG_ERR, "%s: " fmt, this->name, ##args);
+#define THIS_WARN(fmt, args...)                                                \
+    rtapi_print_msg(RTAPI_MSG_WARN, "%s: " fmt, this->name, ##args);
+#define THIS_INFO(fmt, args...)                                                \
+    rtapi_print_msg(RTAPI_MSG_INFO, "%s: " fmt, this->name, ##args);
+#define THIS_DBG(fmt, args...)                                                 \
+    rtapi_print_msg(RTAPI_MSG_DBG, "%s: " fmt, this->name, ##args);
 
 
 #define ANYIO_MAX_IOPORT_CONNECTORS (8)
 
 
-
-
-// 
+//
 // this struct holds an abstract "low-level I/O" driver
 //
 
@@ -63,14 +72,20 @@ typedef struct hm2_lowlevel_io_struct hm2_lowlevel_io_t;
 
 // FIXME: this is really a lowlevel io *instance*, or maybe a "board"
 struct hm2_lowlevel_io_struct {
-    char name[HAL_NAME_LEN+1];
+    char name[HAL_NAME_LEN + 1];
     int comp_id;
 
     // these two are required
     // on success these two return TRUE (not zero)
     // on failure they return FALSE (0) and set *self->io_error (below) to TRUE
-    int (*read)(hm2_lowlevel_io_t *self, rtapi_u32 addr, void *buffer, int size);
-    int (*write)(hm2_lowlevel_io_t *self, rtapi_u32 addr, const void *buffer, int size);
+    int (*read)(hm2_lowlevel_io_t *self,
+                rtapi_u32 addr,
+                void *buffer,
+                int size);
+    int (*write)(hm2_lowlevel_io_t *self,
+                 rtapi_u32 addr,
+                 const void *buffer,
+                 int size);
 
     // these two are optional
     int (*program_fpga)(hm2_lowlevel_io_t *self, const bitfile_t *bitfile);
@@ -94,7 +109,10 @@ struct hm2_lowlevel_io_struct {
     //   * queue_read and send_queued_reads, in which case send_queued_reads must also
     //     receive and process the reads
     //   * all three
-    int (*queue_read)(hm2_lowlevel_io_t *self, rtapi_u32 addr, void *buffer, int size);
+    int (*queue_read)(hm2_lowlevel_io_t *self,
+                      rtapi_u32 addr,
+                      void *buffer,
+                      int size);
     int (*send_queued_reads)(hm2_lowlevel_io_t *self);
     int (*receive_queued_reads)(hm2_lowlevel_io_t *self);
 
@@ -103,25 +121,28 @@ struct hm2_lowlevel_io_struct {
     //   * actually performing the writes
     // these routines are optional; the llio may either provide both of them, or neither
     // (in which case a dummy implementation of ->queue_write delegates to ->write)
-    int (*queue_write)(hm2_lowlevel_io_t *self, rtapi_u32 addr, const void *buffer, int size);
+    int (*queue_write)(hm2_lowlevel_io_t *self,
+                       rtapi_u32 addr,
+                       const void *buffer,
+                       int size);
     int (*send_queued_writes)(hm2_lowlevel_io_t *self);
 
     // setting this to one will enqueue all following writes into a single packet. When set
     // set back to 0, the packet is set.
     int (*set_force_enqueue)(hm2_lowlevel_io_t *self, int do_enqueue);
 
-    // 
+    //
     // This is a HAL parameter allocated and added to HAL by hostmot2.
-    // 
+    //
     // * The llio driver sets it whenever it detects an I/O error.
-    // 
+    //
     // * The hostmot2 driver checks it and stops calling the llio driver if
     //   it's true.
-    // 
+    //
     // * Users can clear it (by poking the HAL parameter), which makes the
     //   hostmot2 driver call into llio to reset the hardware and start
     //   driving it again.
-    // 
+    //
     hal_bit_t *io_error;
 
     // this gets set to TRUE by .read-request and cleared by .read, in order
@@ -166,13 +187,11 @@ struct hm2_lowlevel_io_struct {
     // if TRUE, the hostmot2 driver will also export read_gpio() and write_gpio()
     int threadsafe;
 
-    void *private;  // for the low-level driver to hang their struct on
+    void *private; // for the low-level driver to hang their struct on
 };
 
 
-
-
-// 
+//
 // HostMot2 functions for the low-level I/O drivers to call
 //
 
@@ -181,4 +200,3 @@ void hm2_unregister(hm2_lowlevel_io_t *llio);
 
 
 #endif //  HOSTMOT2_LOWLEVEL_H
-

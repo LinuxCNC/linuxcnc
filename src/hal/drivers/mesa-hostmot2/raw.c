@@ -28,9 +28,8 @@
 #include "hal/drivers/mesa-hostmot2/hostmot2.h"
 
 
-
-
-int hm2_raw_setup(hostmot2_t *hm2) {
+int hm2_raw_setup(hostmot2_t *hm2)
+{
     int r;
     char name[HAL_NAME_LEN + 1];
 
@@ -48,49 +47,55 @@ int hm2_raw_setup(hostmot2_t *hm2) {
     }
 
     rtapi_snprintf(name, sizeof(name), "%s.raw.read_address", hm2->llio->name);
-    r = hal_pin_u32_new(name, HAL_IN, &(hm2->raw->hal.pin.read_address), hm2->llio->comp_id);
+    r = hal_pin_u32_new(
+        name, HAL_IN, &(hm2->raw->hal.pin.read_address), hm2->llio->comp_id);
     if (r < 0) {
         HM2_ERR("error adding pin '%s', aborting\n", name);
         return -EINVAL;
     }
 
     rtapi_snprintf(name, sizeof(name), "%s.raw.read_data", hm2->llio->name);
-    r = hal_pin_u32_new(name, HAL_OUT, &(hm2->raw->hal.pin.read_data), hm2->llio->comp_id);
+    r = hal_pin_u32_new(
+        name, HAL_OUT, &(hm2->raw->hal.pin.read_data), hm2->llio->comp_id);
     if (r < 0) {
         HM2_ERR("error adding pin '%s', aborting\n", name);
         return -EINVAL;
     }
 
     rtapi_snprintf(name, sizeof(name), "%s.raw.write_address", hm2->llio->name);
-    r = hal_pin_u32_new(name, HAL_IN, &(hm2->raw->hal.pin.write_address), hm2->llio->comp_id);
+    r = hal_pin_u32_new(
+        name, HAL_IN, &(hm2->raw->hal.pin.write_address), hm2->llio->comp_id);
     if (r < 0) {
         HM2_ERR("error adding pin '%s', aborting\n", name);
         return -EINVAL;
     }
 
     rtapi_snprintf(name, sizeof(name), "%s.raw.write_data", hm2->llio->name);
-    r = hal_pin_u32_new(name, HAL_IN, &(hm2->raw->hal.pin.write_data), hm2->llio->comp_id);
+    r = hal_pin_u32_new(
+        name, HAL_IN, &(hm2->raw->hal.pin.write_data), hm2->llio->comp_id);
     if (r < 0) {
         HM2_ERR("error adding pin '%s', aborting\n", name);
         return -EINVAL;
     }
 
     rtapi_snprintf(name, sizeof(name), "%s.raw.write_strobe", hm2->llio->name);
-    r = hal_pin_bit_new(name, HAL_IN, &(hm2->raw->hal.pin.write_strobe), hm2->llio->comp_id);
+    r = hal_pin_bit_new(
+        name, HAL_IN, &(hm2->raw->hal.pin.write_strobe), hm2->llio->comp_id);
     if (r < 0) {
         HM2_ERR("error adding pin '%s', aborting\n", name);
         return -EINVAL;
     }
 
     rtapi_snprintf(name, sizeof(name), "%s.raw.dump_state", hm2->llio->name);
-    r = hal_pin_bit_new(name, HAL_IO, &(hm2->raw->hal.pin.dump_state), hm2->llio->comp_id);
+    r = hal_pin_bit_new(
+        name, HAL_IO, &(hm2->raw->hal.pin.dump_state), hm2->llio->comp_id);
     if (r < 0) {
         HM2_ERR("error adding pin '%s', aborting\n", name);
         return -EINVAL;
     }
 
     // init hal objects
-    *(hm2->raw->hal.pin.read_address)  = 0;
+    *(hm2->raw->hal.pin.read_address) = 0;
     *(hm2->raw->hal.pin.read_data) = 0;
 
     *(hm2->raw->hal.pin.write_address) = 0;
@@ -103,17 +108,15 @@ int hm2_raw_setup(hostmot2_t *hm2) {
 }
 
 
+void hm2_raw_queue_read(hostmot2_t *hm2)
+{
+    if (hm2->config.enable_raw == 0)
+        return;
 
-
-void hm2_raw_queue_read(hostmot2_t *hm2) {
-    if (hm2->config.enable_raw == 0) return;
-
-    hm2->llio->queue_read(
-        hm2->llio,
-        *hm2->raw->hal.pin.read_address & 0xffff,
-        (void *)hm2->raw->hal.pin.read_data,
-        sizeof(rtapi_u32)
-    );
+    hm2->llio->queue_read(hm2->llio,
+                          *hm2->raw->hal.pin.read_address & 0xffff,
+                          (void *)hm2->raw->hal.pin.read_data,
+                          sizeof(rtapi_u32));
 
     if (*hm2->raw->hal.pin.dump_state != 0) {
         hm2_print_modules(hm2);
@@ -122,19 +125,17 @@ void hm2_raw_queue_read(hostmot2_t *hm2) {
 }
 
 
+void hm2_raw_write(hostmot2_t *hm2)
+{
+    if (hm2->config.enable_raw == 0)
+        return;
+    if (*hm2->raw->hal.pin.write_strobe == 0)
+        return;
 
-
-void hm2_raw_write(hostmot2_t *hm2) {
-    if (hm2->config.enable_raw == 0) return;
-    if (*hm2->raw->hal.pin.write_strobe == 0) return;
-
-    hm2->llio->write(
-        hm2->llio,
-        *hm2->raw->hal.pin.write_address & 0xffff,
-        (void *)hm2->raw->hal.pin.write_data,
-        sizeof(rtapi_u32)
-    );
+    hm2->llio->write(hm2->llio,
+                     *hm2->raw->hal.pin.write_address & 0xffff,
+                     (void *)hm2->raw->hal.pin.write_data,
+                     sizeof(rtapi_u32));
 
     *hm2->raw->hal.pin.write_strobe = 0;
 }
-

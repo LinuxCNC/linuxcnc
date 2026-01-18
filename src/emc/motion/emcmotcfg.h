@@ -14,7 +14,8 @@
 #define EMCMOTCFG_H
 
 /* default name of EMCMOT INI file */
-#define DEFAULT_EMCMOT_INIFILE "emc.ini"	/* same as for EMC-- we're in 
+#define DEFAULT_EMCMOT_INIFILE                                                 \
+    "emc.ini" /* same as for EMC-- we're in 
 						   touch */
 
 /* number of joints supported
@@ -39,8 +40,8 @@
 #error A 64 bit bitmask is used in the planner.  Don't increase these until that's fixed.
 #endif
 
-#define EMCMOT_ERROR_NUM 32	/* how many errors we can queue */
-#define EMCMOT_ERROR_LEN 1024	/* how long error string can be */
+#define EMCMOT_ERROR_NUM 32   /* how many errors we can queue */
+#define EMCMOT_ERROR_LEN 1024 /* how long error string can be */
 
 /*
   Shared memory keys for simulated motion process. No base address

@@ -33,11 +33,11 @@
 #ifndef GENSERKINS_H
 #define GENSERKINS_H
 
-#include "gomath.h"                /* go_pose */
-#include "hal.h"                /* HAL data types */
+#include "gomath.h" /* go_pose */
+#include "hal.h"    /* HAL data types */
 
-#include "gotypes.h"                /* go_result, go_integer */
-#include "gomath.h"                /* go_pose */
+#include "gotypes.h" /* go_result, go_integer */
+#include "gomath.h"  /* go_pose */
 #include "kinematics.h"
 /*!
   The maximum number of joints supported by the general serial
@@ -75,45 +75,43 @@
 #define DEFAULT_D6 0
 
 typedef struct {
-  go_link links[GENSER_MAX_JOINTS]; /*!< The link description of the device. */
-  int link_num;                /*!< How many are actually present. */
-  hal_u32_t iterations;        /*!< How many iterations were actually used to compute the inverse kinematics. */
+    go_link
+        links[GENSER_MAX_JOINTS]; /*!< The link description of the device. */
+    int link_num;                 /*!< How many are actually present. */
+    hal_u32_t
+        iterations; /*!< How many iterations were actually used to compute the inverse kinematics. */
 } genser_struct;
 
 extern int genser_kin_size(void);
 
 extern int genser_kin_init(void);
 
-extern const char * genser_kin_get_name(void);
+extern const char *genser_kin_get_name(void);
 
-extern int genser_kin_num_joints(void * kins);
+extern int genser_kin_num_joints(void *kins);
 
-extern int genser_kin_fwd(void * kins,
-                                const go_real *joint,
-                                go_pose * world);
+extern int genser_kin_fwd(void *kins, const go_real *joint, go_pose *world);
 
-extern int genser_kin_inv(void * kins,
-                                const go_pose * world,
-                                go_real *joint);
+extern int genser_kin_inv(void *kins, const go_pose *world, go_real *joint);
 
-extern int genser_kin_set_parameters(void * kins, go_link * params, int num);
+extern int genser_kin_set_parameters(void *kins, go_link *params, int num);
 
-extern int genser_kin_get_parameters(void * kins, go_link * params, int num);
+extern int genser_kin_get_parameters(void *kins, go_link *params, int num);
 
-extern int genser_kin_jac_inv(void * kins,
-                                    const go_pose * pos,
-                                    const go_screw * vel,
-                                    const go_real * joints,
-                                    go_real * jointvels);
+extern int genser_kin_jac_inv(void *kins,
+                              const go_pose *pos,
+                              const go_screw *vel,
+                              const go_real *joints,
+                              go_real *jointvels);
 
 
-extern int genser_kin_jac_fwd(void * kins,
-                                    const go_real * joints,
-                                    const go_real * jointvels,
-                                    const go_pose * pos,
-                                    go_screw * vel);
+extern int genser_kin_jac_fwd(void *kins,
+                              const go_real *joints,
+                              const go_real *jointvels,
+                              const go_pose *pos,
+                              go_screw *vel);
 
-extern int genser_kin_fwd_interations(genser_struct * genser);
+extern int genser_kin_fwd_interations(genser_struct *genser);
 
 
 /*
@@ -124,7 +122,7 @@ extern int genser_kin_fwd_interations(genser_struct * genser);
 
 /*! Returns the number of iterations used during the last call to the
   inverse kinematics functions */
-extern int genser_kin_inv_iterations(genser_struct * genser);
+extern int genser_kin_inv_iterations(genser_struct *genser);
 
 /*! Sets the maximum number of iterations to use in future calls to
   the inverse kinematics functions, after which an error will be
@@ -135,26 +133,25 @@ extern int genser_kin_inv_set_max_iterations(int i);
  compute inverse kinematics functions */
 extern int genser_kin_inv_get_max_iterations(void);
 
-extern int compute_jfwd(go_link * link_params,
+extern int compute_jfwd(go_link *link_params,
                         int link_number,
-                        go_matrix * Jfwd,
-                        go_pose * T_L_0);
+                        go_matrix *Jfwd,
+                        go_pose *T_L_0);
 
-extern int compute_jinv(go_matrix * Jfwd,
-                        go_matrix * Jinv);
+extern int compute_jinv(go_matrix *Jfwd, go_matrix *Jinv);
 
 extern int genserKinematicsForward(const double *joint,
-                                   EmcPose * world,
-                                   const KINEMATICS_FORWARD_FLAGS * fflags,
-                                   KINEMATICS_INVERSE_FLAGS * iflags);
+                                   EmcPose *world,
+                                   const KINEMATICS_FORWARD_FLAGS *fflags,
+                                   KINEMATICS_INVERSE_FLAGS *iflags);
 
-extern int genserKinematicsInverse(const EmcPose * world,
+extern int genserKinematicsInverse(const EmcPose *world,
                                    double *joints,
-                                   const KINEMATICS_INVERSE_FLAGS * iflags,
-                                   KINEMATICS_FORWARD_FLAGS * fflags);
+                                   const KINEMATICS_INVERSE_FLAGS *iflags,
+                                   KINEMATICS_FORWARD_FLAGS *fflags);
 
-extern int genserKinematicsSetup(const  int   comp_id,
-                                 const  char* coordinates,
-                                 kparms*      ksetup_parms);
+extern int genserKinematicsSetup(const int comp_id,
+                                 const char *coordinates,
+                                 kparms *ksetup_parms);
 
 #endif

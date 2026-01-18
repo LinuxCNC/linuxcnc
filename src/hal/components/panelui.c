@@ -85,8 +85,8 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#include "rtapi.h"      /* RTAPI realtime OS API */
-#include "hal.h"                /* HAL public API decls */
+#include "rtapi.h" /* RTAPI realtime OS API */
+#include "hal.h"   /* HAL public API decls */
 #include "streamer.h"
 
 /***********************************************************************
@@ -97,11 +97,11 @@
 *                         GLOBAL VARIABLES                             *
 ************************************************************************/
 
-int comp_id = -1;   /* -1 means hal_init() not called yet */
+int comp_id = -1; /* -1 means hal_init() not called yet */
 int shmem_id = -1;
-int exitval = 1;    /* program return code - 1 means error */
-int ignore_sig = 0; /* used to flag critical regions */
-char comp_name[HAL_NAME_LEN+1]; /* name for this instance of psnelui */
+int exitval = 1;                  /* program return code - 1 means error */
+int ignore_sig = 0;               /* used to flag critical regions */
+char comp_name[HAL_NAME_LEN + 1]; /* name for this instance of psnelui */
 int dbg = 0;
 int vdbg = 0;
 int keydown = 0xC0;
@@ -111,17 +111,17 @@ int rowshift;
 int ncols = 8;
 int nrows = 8;
 int rollover = 2; //maximum number of simultaneous keys presses recognised
-int s = 0; //key press state argument to pass to python
-int r; //row argument passed to python
-int c; //column argument passed to python
-int num_keys; //count of the number of keys currently pressed
-long int raw; //the raw data passed from shared memory realtime component 
+int s = 0;        //key press state argument to pass to python
+int r;            //row argument passed to python
+int c;            //column argument passed to python
+int num_keys;     //count of the number of keys currently pressed
+long int raw;     //the raw data passed from shared memory realtime component
 long int keycode; // calculated from raw by masking keyup and keydown codes
 long int start_time;
 long int last_heartbeat;
 long int heartbeat_difference;
 struct timespec gettime_now;
-PyObject *pExit,*pValue;
+PyObject *pExit, *pValue;
 /***********************************************************************
 *                            MAIN PROGRAM                              *
 ************************************************************************/
@@ -131,8 +131,8 @@ static sig_atomic_t stop;
 static void quit(int sig)
 {
     (void)sig;
-    if ( ignore_sig ) {
-    return;
+    if (ignore_sig) {
+        return;
     }
     stop = 1;
 }
@@ -143,7 +143,7 @@ int main(int argc, char **argv)
 {
     int n, channel, tag;
     long int samples;
-    unsigned this_sample, last_sample=0;
+    unsigned this_sample, last_sample = 0;
     char *cp, *cp2;
     hal_stream_t stream;
 
@@ -151,79 +151,74 @@ int main(int argc, char **argv)
     exitval = 1;
     channel = 0;
     tag = 0;
-    samples = -1;  /* -1 means run forever */
+    samples = -1; /* -1 means run forever */
     /* FIXME - if I wasn't so lazy I'd learn how to use getopt() here */
-    for ( n = 1 ; n < argc ; n++ ) {
-    cp = argv[n];
-    if ( *cp != '-' ) {
-        break;
-    }
-    switch ( *(++cp) ) {
-    case 'c':
-        if (( *(++cp) == '\0' ) && ( ++n < argc )) { 
+    for (n = 1; n < argc; n++) {
         cp = argv[n];
+        if (*cp != '-') {
+            break;
         }
-        channel = strtol(cp, &cp2, 10);
-        if (( *cp2 ) || ( channel < 0 ) || ( channel >= MAX_SAMPLERS )) {
-        fprintf(stderr,"ERROR: invalid channel number '%s'\n", cp );
-        exit(1);
+        switch (*(++cp)) {
+        case 'c':
+            if ((*(++cp) == '\0') && (++n < argc)) {
+                cp = argv[n];
+            }
+            channel = strtol(cp, &cp2, 10);
+            if ((*cp2) || (channel < 0) || (channel >= MAX_SAMPLERS)) {
+                fprintf(stderr, "ERROR: invalid channel number '%s'\n", cp);
+                exit(1);
+            }
+            break;
+        case 'n':
+            if ((*(++cp) == '\0') && (++n < argc)) {
+                cp = argv[n];
+            }
+            samples = strtol(cp, &cp2, 10);
+            if ((*cp2) || (samples < 0)) {
+                fprintf(stderr, "ERROR: invalid sample count '%s'\n", cp);
+                exit(1);
+            }
+            break;
+        case 't': tag = 1; break;
+        case 'd': dbg = 1; break;
+        case 'v': vdbg = 1; break;
+        default:
+            fprintf(stderr, "ERROR: unknown option '%s'\n", cp);
+            exit(1);
+            break;
         }
-        break;
-    case 'n':
-        if (( *(++cp) == '\0' ) && ( ++n < argc )) { 
-        cp = argv[n];
-        }
-        samples = strtol(cp, &cp2, 10);
-        if (( *cp2 ) || ( samples < 0 )) {
-        fprintf(stderr, "ERROR: invalid sample count '%s'\n", cp );
-        exit(1);
-        }
-        break;
-    case 't':
-        tag = 1;
-        break;
-    case 'd':
-        dbg = 1;
-        break;
-    case 'v':
-        vdbg = 1;
-        break;
-    default:
-        fprintf(stderr,"ERROR: unknown option '%s'\n", cp );
-        exit(1);
-        break;
     }
-    }
-    if(n < argc) {
-    int fd;
-    if(argc > n+1) {
-        fprintf(stderr, "ERROR: At most one filename may be specified\n");
-        exit(1);
-    }
-    // make stdout be the named file
-    fd = open(argv[n], O_WRONLY | O_CREAT, 0666);
-    close(1);
-    dup2(fd, 1);
+    if (n < argc) {
+        int fd;
+        if (argc > n + 1) {
+            fprintf(stderr, "ERROR: At most one filename may be specified\n");
+            exit(1);
+        }
+        // make stdout be the named file
+        fd = open(argv[n], O_WRONLY | O_CREAT, 0666);
+        close(1);
+        dup2(fd, 1);
     }
 
     /* import the python module and get references for needed function */
     PyObject *pModule, *pFunc, *pPeriodicFunc, *pClass;
     PyConfig config;
     PyConfig_InitPythonConfig(&config);
-    char name[] = "panelui"; 
+    char name[] = "panelui";
     wchar_t *wname = Py_DecodeLocale(name, NULL);
     PyConfig_SetString(&config, &config.program_name, wname);
     Py_Initialize();
-    PyRun_SimpleString("import pyui\n"
-                     "pyui.instance = pyui.master.keyboard()\n"
-                     "pyui.exit_funct = pyui.instance.exit\n"
-                     "pyui.update_funct =  pyui.master.keyboard.update\n"
-                     "pyui.periodic_funct =  pyui.master.keyboard.periodic\n");
-    if (vdbg == 1){
+    PyRun_SimpleString(
+        "import pyui\n"
+        "pyui.instance = pyui.master.keyboard()\n"
+        "pyui.exit_funct = pyui.instance.exit\n"
+        "pyui.update_funct =  pyui.master.keyboard.update\n"
+        "pyui.periodic_funct =  pyui.master.keyboard.periodic\n");
+    if (vdbg == 1) {
         PyRun_SimpleString("pyui.instance.build(2)\n");
-    }else if (dbg == 1){
+    } else if (dbg == 1) {
         PyRun_SimpleString("pyui.instance.build(1)\n");
-    }else{
+    } else {
         PyRun_SimpleString("pyui.instance.build(0)\n");
     }
     pModule = PyImport_ImportModule("pyui");
@@ -233,8 +228,10 @@ int main(int argc, char **argv)
         pPeriodicFunc = PyObject_GetAttrString(pModule, "periodic_funct");
         pClass = PyObject_GetAttrString(pModule, "instance");
         pExit = PyObject_GetAttrString(pModule, "exit_funct");
-        if (pFunc == NULL){
-            fprintf(stderr, "Panelui: Failed to find update function in python section\n");
+        if (pFunc == NULL) {
+            fprintf(
+                stderr,
+                "Panelui: Failed to find update function in python section\n");
             exit(1);
         }
         /* pFunc is a new reference */
@@ -242,26 +239,26 @@ int main(int argc, char **argv)
         /* class instance, raw read code, row, column, state */
         if (pFunc && PyCallable_Check(pFunc)) {
             pValue = PyObject_CallFunction(pFunc, "Olllh", pClass, 0, 0, 0, 0);
-            if (pValue == NULL){
-                fprintf(stderr, "Panelui: update function failed: returned NULL\n");
+            if (pValue == NULL) {
+                fprintf(stderr,
+                        "Panelui: update function failed: returned NULL\n");
             }
-        }else{
-            if (PyErr_Occurred()){
+        } else {
+            if (PyErr_Occurred()) {
                 PyErr_Print();
             }
-                fprintf(stderr, "Panelui: Failed python function");
-                exit(1);
+            fprintf(stderr, "Panelui: Failed python function");
+            exit(1);
         }
-    }else {
+    } else {
         PyErr_Print();
         fprintf(stderr, "Panelui: Failed to load \"%s\"\n", "pyui");
         exit(1);
     }
 
     /* rowshoft is calculated from number of columns*/
-    for (rowshift = 1; ncols > (1 << rowshift); rowshift++);
-
-
+    for (rowshift = 1; ncols > (1 << rowshift); rowshift++)
+        ;
 
 
     /* register signal handlers - if the process is killed
@@ -278,11 +275,12 @@ int main(int argc, char **argv)
     ignore_sig = 0;
     /* check result */
     if (comp_id < 0) {
-        fprintf(stderr, "ERROR: hal_init() failed: %d\n", comp_id );
+        fprintf(stderr, "ERROR: hal_init() failed: %d\n", comp_id);
         goto out;
     }
     hal_ready(comp_id);
-    int res = hal_stream_attach(&stream, comp_id, SAMPLER_SHMEM_KEY+channel, "u");
+    int res =
+        hal_stream_attach(&stream, comp_id, SAMPLER_SHMEM_KEY + channel, "u");
     if (res < 0) {
         errno = -res;
         perror("hal_stream_attach");
@@ -294,10 +292,11 @@ int main(int argc, char **argv)
     ************************************************************************/
     clock_gettime(CLOCK_REALTIME, &gettime_now);
     last_heartbeat = gettime_now.tv_nsec;
-    while ( samples != 0 ) {
+    while (samples != 0) {
         union hal_stream_data buf[1];
         hal_stream_wait_readable(&stream, &stop);
-        if(stop) break;
+        if (stop)
+            break;
         int res = hal_stream_read(&stream, buf, &this_sample);
         if (res < 0) {
             errno = -res;
@@ -305,12 +304,12 @@ int main(int argc, char **argv)
             goto out;
         }
         ++last_sample;
-        if ( this_sample != last_sample ) {
-            printf ( "overrun\n");
+        if (this_sample != last_sample) {
+            printf("overrun\n");
             last_sample = this_sample;
         }
-        if ( tag ) {
-            printf ( "%u ", this_sample-1 );
+        if (tag) {
+            printf("%u ", this_sample - 1);
         }
         /* get raw value, mask keyup and keydown codes */
         /* compute row and column */
@@ -320,46 +319,52 @@ int main(int argc, char **argv)
         c = keycode & ~(0xFFFFFFFF << rowshift);
         //printf ( "raw= %lu row= %d col = %d\n", (unsigned long)buf[n].u,r,c);
         /* error checking of row and columns */
-        if  (r < 0 
-            || c < 0
-            || r >= nrows 
-            || c >= ncols){
-             goto skip;
+        if (r < 0 || c < 0 || r >= nrows || c >= ncols) {
+            goto skip;
         }
         /* skip 'no change' key code */
-        if (raw == nochange) goto skip;
+        if (raw == nochange)
+            goto skip;
         /* KEY_DOWN: skip if too many keys down,
         add to rollover count and set state: True */
-        if ((raw & keydown) == keydown){
-            if (num_keys >= rollover) goto skip;
+        if ((raw & keydown) == keydown) {
+            if (num_keys >= rollover)
+                goto skip;
             num_keys++;
             s = 1;
-        /* KEY_UP: subtract a key from rollover count and set state: False */
-        }else if ((raw & keyup) == keyup){
-            if (num_keys > 0) num_keys--;
+            /* KEY_UP: subtract a key from rollover count and set state: False */
+        } else if ((raw & keyup) == keyup) {
+            if (num_keys > 0)
+                num_keys--;
             s = 0;
-        /* zero is the only other valid keycode: it means all keys up*/
-        }else if (raw  != 0) goto skip;
+            /* zero is the only other valid keycode: it means all keys up*/
+        } else if (raw != 0)
+            goto skip;
         //printf ( "output raw:%ld row: %ld col %ld state %d \n", raw, r, c, s );
         /* call python function with: class raw, row, and column arguments */
-        pValue = PyObject_CallFunction(pFunc, "Olllh",pClass, raw, r, c, s);
-        if (PyErr_Occurred()) PyErr_Print();
-        if (pValue == NULL){
-            fprintf(stderr, "Panelui's python update function failed: returned NULL\n");
+        pValue = PyObject_CallFunction(pFunc, "Olllh", pClass, raw, r, c, s);
+        if (PyErr_Occurred())
+            PyErr_Print();
+        if (pValue == NULL) {
+            fprintf(stderr,
+                    "Panelui's python update function failed: returned NULL\n");
         }
-skip:
-        if ( samples > 0 ) samples--;
+    skip:
+        if (samples > 0)
+            samples--;
         //do python periodic function every 100 ms
         clock_gettime(CLOCK_REALTIME, &gettime_now);
-        heartbeat_difference = gettime_now.tv_nsec - last_heartbeat;//Get nS value
+        heartbeat_difference =
+            gettime_now.tv_nsec - last_heartbeat; //Get nS value
         if (heartbeat_difference < 0)
-            heartbeat_difference += 1000000000;//(Rolls over every 1 second)
-        if (heartbeat_difference > 100000000){//<<< Heartbeat every 100mS
+            heartbeat_difference += 1000000000; //(Rolls over every 1 second)
+        if (heartbeat_difference > 100000000) { //<<< Heartbeat every 100mS
             last_heartbeat += 100000000;
-            if (last_heartbeat > 1000000000)//(Rolls over every 1 second)
+            if (last_heartbeat > 1000000000) //(Rolls over every 1 second)
                 last_heartbeat -= 1000000000;
-            pValue = PyObject_CallFunction(pPeriodicFunc, "O",pClass);
-            if (PyErr_Occurred()) PyErr_Print();
+            pValue = PyObject_CallFunction(pPeriodicFunc, "O", pClass);
+            if (PyErr_Occurred())
+                PyErr_Print();
         }
     }
     /* run was successful */
@@ -368,7 +373,7 @@ skip:
 out:
     ignore_sig = 1;
     hal_stream_detach(&stream);
-    if ( comp_id >= 0 ) {
+    if (comp_id >= 0) {
         hal_exit(comp_id);
     }
     PyRun_SimpleString("print ('''Exiting panelui's python module ''')");

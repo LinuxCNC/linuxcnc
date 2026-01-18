@@ -31,9 +31,9 @@
 #include <linux/kernel.h>
 #include <linux/module.h>
 #include <linux/version.h>
-#include <math.h>		/* sin(), cos(), isnan() etc. */
-#include <float.h>		/* DBL_MAX */
-#include <errno.h>		/* errno, EDOM */
+#include <math.h>  /* sin(), cos(), isnan() etc. */
+#include <float.h> /* DBL_MAX */
+#include <errno.h> /* errno, EDOM */
 #include "sincos.h"
 
 /*
@@ -104,42 +104,41 @@ int n;
 
 int isnan(double d)
 {
-  int e;
-  unsigned char * c = (unsigned char *) &d;
+    int e;
+    unsigned char *c = (unsigned char *)&d;
 
-  e = (int) (c[7] & 0x7F);
-  e <<= 4;
-  e += (int) ((c[6] & 0xF0) >> 4);
+    e = (int)(c[7] & 0x7F);
+    e <<= 4;
+    e += (int)((c[6] & 0xF0) >> 4);
 
-  return (e == 2047) && (c[0] || c[1] || c[2] || c[3] || 
-			 c[4] || c[5] || (c[6] & 0x0F));
+    return (e == 2047) &&
+           (c[0] || c[1] || c[2] || c[3] || c[4] || c[5] || (c[6] & 0x0F));
 }
 
 int math_test(void)
 {
-  double v, u;
-  a = 1.00039276;
-  b = 1.9999 * a;
-  c = a / 2;
+    double v, u;
+    a = 1.00039276;
+    b = 1.9999 * a;
+    c = a / 2;
 
-  /* force a domain error, EDOM, and check that we got it */
-  x = acos(b);
-  if (isnan(x)) x = 0.0;
+    /* force a domain error, EDOM, and check that we got it */
+    x = acos(b);
+    if (isnan(x))
+        x = 0.0;
 
-  /* force a range error, ERANGE, and check that we got it */
-  x = pow(DBL_MAX, b);
-  if (isnan(x)) x = 0.0;
+    /* force a range error, ERANGE, and check that we got it */
+    x = pow(DBL_MAX, b);
+    if (isnan(x))
+        x = 0.0;
 
-  /* do some legit math */
-  x = sin(a) + cos(a) + tan(a) + 
-      asin(c) + acos(c) + atan2(a, b) +
-      sinh(a) + cosh(a) + tanh(a) + 
-      exp(a) + log(a) + log10(a) + 
-      pow(a, b) + sqrt(a) + ceil(a) + 
-      floor(a) + fabs(a) + ldexp(a, b);
+    /* do some legit math */
+    x = sin(a) + cos(a) + tan(a) + asin(c) + acos(c) + atan2(a, b) + sinh(a) +
+        cosh(a) + tanh(a) + exp(a) + log(a) + log10(a) + pow(a, b) + sqrt(a) +
+        ceil(a) + floor(a) + fabs(a) + ldexp(a, b);
 
-  /* Test the sincos func */
-  pm_sincos(x, &v, &u);
+    /* Test the sincos func */
+    pm_sincos(x, &v, &u);
 
-  return 0;
+    return 0;
 }

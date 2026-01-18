@@ -23,17 +23,18 @@
 #include "modal_state.hh"
 #include <string.h>
 
-StateTag::StateTag(): flags(0)
+StateTag::StateTag() : flags(0)
 {
-    memset(fields,-1,sizeof(fields));
+    memset(fields, -1, sizeof(fields));
     packed_flags = 0;
-    memset(fields_float,-1,sizeof(fields_float));
+    memset(fields_float, -1, sizeof(fields_float));
     memset(filename, 0, sizeof(filename));
 }
 
-StateTag::StateTag(struct state_tag_t const & basetag):
-    state_tag_t(basetag), flags(basetag.packed_flags)
-{}
+StateTag::StateTag(struct state_tag_t const &basetag)
+    : state_tag_t(basetag), flags(basetag.packed_flags)
+{
+}
 
 /**
  * Return true if the tag is a valid state, and false if not
@@ -50,7 +51,7 @@ int StateTag::is_valid(void) const
         return false;
     }
 
-    if (fields[GM_FIELD_PLANE] < 170 ) {
+    if (fields[GM_FIELD_PLANE] < 170) {
         return false;
     }
 
@@ -63,8 +64,7 @@ int StateTag::is_valid(void) const
  */
 state_tag_t StateTag::get_state_tag() const
 {
-    state_tag_t out = static_cast<state_tag_t> (*this);
+    state_tag_t out = static_cast<state_tag_t>(*this);
     out.packed_flags = flags.to_ulong();
     return out;
 }
-

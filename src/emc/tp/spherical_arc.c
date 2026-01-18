@@ -18,14 +18,15 @@
 
 #include "tp_debug.h"
 
-int arcInitFromPoints(SphericalArc * const arc, PmCartesian const * const start,
-        PmCartesian const * const end,
-        PmCartesian const * const center)
+int arcInitFromPoints(SphericalArc *const arc,
+                      PmCartesian const *const start,
+                      PmCartesian const *const end,
+                      PmCartesian const *const center)
 {
 #ifdef ARC_PEDANTIC
     if (!P0 || !P1 || !center)
         return TP_ERR_MISSING_INPUT;
-    
+
     if (!arc)
         return TP_ERR_MISSING_OUTPUT;
 #endif
@@ -43,13 +44,11 @@ int arcInitFromPoints(SphericalArc * const arc, PmCartesian const * const start,
     pmCartMag(&arc->rStart, &radius0);
     pmCartMag(&arc->rEnd, &radius1);
 
-    tp_debug_print("radii are %g and %g\n",
-            radius0,
-            radius1);
+    tp_debug_print("radii are %g and %g\n", radius0, radius1);
 
     if (radius0 < ARC_MIN_RADIUS || radius1 < ARC_MIN_RADIUS) {
         tp_debug_print("radius below min radius %f, aborting arc\n",
-                ARC_MIN_RADIUS);
+                       ARC_MIN_RADIUS);
         return TP_ERR_RADIUS_TOO_SMALL;
     }
 
@@ -68,12 +67,12 @@ int arcInitFromPoints(SphericalArc * const arc, PmCartesian const * const start,
     tp_debug_print("spherical arc angle = %f\n", arc->angle);
 
     // Store spiral factor as radial difference. Archimedean spiral coef. a = spiral / angle
-    arc->spiral = (radius1 - radius0 );
+    arc->spiral = (radius1 - radius0);
 
     if (arc->angle < ARC_MIN_ANGLE) {
         tp_debug_print("angle %f below min angle %f, aborting arc\n",
-                arc->angle,
-                ARC_MIN_ANGLE);
+                       arc->angle,
+                       ARC_MIN_ANGLE);
         return TP_ERR_GEOM;
     }
 
@@ -83,24 +82,29 @@ int arcInitFromPoints(SphericalArc * const arc, PmCartesian const * const start,
     return TP_ERR_OK;
 }
 
-int arcPoint(SphericalArc const * const arc, double progress, PmCartesian * const out)
+int arcPoint(SphericalArc const *const arc,
+             double progress,
+             PmCartesian *const out)
 {
     //TODO pedantic
 
     //Convert progress to actual progress around the arc
     double net_progress = progress - arc->line_length;
     if (net_progress <= 0.0 && arc->line_length > 0) {
-        tc_debug_print("net_progress = %f, line_length = %f\n", net_progress, arc->line_length);
+        tc_debug_print("net_progress = %f, line_length = %f\n",
+                       net_progress,
+                       arc->line_length);
         //Get position on line (not actually an angle in this case)
         pmCartScalMult(&arc->uTan, net_progress, out);
         pmCartCartAdd(out, &arc->start, out);
     } else {
         double angle_in = net_progress / arc->radius;
-        tc_debug_print("angle_in = %f, angle_total = %f\n", angle_in, arc->angle);
+        tc_debug_print(
+            "angle_in = %f, angle_total = %f\n", angle_in, arc->angle);
         double scale0 = sin(arc->angle - angle_in) / arc->Sangle;
         double scale1 = sin(angle_in) / arc->Sangle;
 
-        PmCartesian interp0,interp1;
+        PmCartesian interp0, interp1;
         pmCartScalMult(&arc->rStart, scale0, &interp0);
         pmCartScalMult(&arc->rEnd, scale1, &interp1);
 
@@ -110,22 +114,29 @@ int arcPoint(SphericalArc const * const arc, double progress, PmCartesian * cons
     return TP_ERR_OK;
 }
 
-int arcLength(SphericalArc const * const arc, double * const length)
+int arcLength(SphericalArc const *const arc, double *const length)
 {
     *length = arc->radius * arc->angle + arc->line_length;
     tp_debug_print("arc length = %g\n", *length);
     return TP_ERR_OK;
 }
 
-int arcFromLines(SphericalArc * const arc, PmCartLine const * const line1,
-        PmCartLine const * const line2, double radius,
-        double blend_dist, double center_dist, PmCartesian * const start, PmCartesian * const end, int consume) {
+int arcFromLines(SphericalArc *const arc,
+                 PmCartLine const *const line1,
+                 PmCartLine const *const line2,
+                 double radius,
+                 double blend_dist,
+                 double center_dist,
+                 PmCartesian *const start,
+                 PmCartesian *const end,
+                 int consume)
+{
     (void)radius;
 
     PmCartesian center, normal, binormal;
 
     // Pointer to middle point of line segment pair
-    PmCartesian const * const middle = &line1->end;
+    PmCartesian const *const middle = &line1->end;
     //TODO assert line1 end = line2 start?
 
     //Calculate the normal direction of the arc from the difference
@@ -161,8 +172,10 @@ int arcFromLines(SphericalArc * const arc, PmCartLine const * const line1,
     return arcInitFromPoints(arc, start, end, &center);
 }
 
-int arcConvexTest(PmCartesian const * const center,
-        PmCartesian const * const P, PmCartesian const * const uVec, int reverse_dir)
+int arcConvexTest(PmCartesian const *const center,
+                  PmCartesian const *const P,
+                  PmCartesian const *const uVec,
+                  int reverse_dir)
 {
     //Check if an arc-line intersection is concave or convex
     double dot;
@@ -170,12 +183,15 @@ int arcConvexTest(PmCartesian const * const center,
     pmCartCartSub(P, center, &diff);
     pmCartCartDot(&diff, uVec, &dot);
 
-    tp_debug_print("convex test: dot = %f, reverse_dir = %d\n", dot, reverse_dir);
+    tp_debug_print(
+        "convex test: dot = %f, reverse_dir = %d\n", dot, reverse_dir);
     int convex = (reverse_dir != 0) ^ (dot < 0);
     return convex;
 }
 
-int arcTangent(SphericalArc const * const arc, PmCartesian * const tan, int at_end)
+int arcTangent(SphericalArc const *const arc,
+               PmCartesian *const tan,
+               int at_end)
 {
     PmCartesian r_perp;
     PmCartesian r_tan;

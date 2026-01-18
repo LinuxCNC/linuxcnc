@@ -20,11 +20,17 @@
 #define FROM_EXT_ANG(ext) ((ext) / GET_EXTERNAL_ANGLE_UNITS())
 
 /* macros for converting internal (mm/deg) units to program units */
-#define TO_PROG_LEN(mm) ((mm) / (_setup.length_units == CANON_UNITS_INCHES ? 25.4 : _setup.length_units == CANON_UNITS_CM ? 10.0 : 1.0))
+#define TO_PROG_LEN(mm)                                                        \
+    ((mm) / (_setup.length_units == CANON_UNITS_INCHES ? 25.4                  \
+             : _setup.length_units == CANON_UNITS_CM   ? 10.0                  \
+                                                       : 1.0))
 #define TO_PROG_ANG(deg) (deg)
 
 /* macros for converting program units to internal (mm/deg) units */
-#define FROM_PROG_LEN(prog) ((prog) * (_setup.length_units == CANON_UNITS_INCHES ? 25.4 : _setup.length_units == CANON_UNITS_CM ? 10.0 : 1.0))
+#define FROM_PROG_LEN(prog)                                                    \
+    ((prog) * (_setup.length_units == CANON_UNITS_INCHES ? 25.4                \
+               : _setup.length_units == CANON_UNITS_CM   ? 10.0                \
+                                                         : 1.0))
 #define FROM_PROG_ANG(prog) (prog)
 
 /* macros for converting between user units (INI file) and program units (G-code) */
@@ -33,5 +39,3 @@
 
 #define USER_TO_PROGRAM_ANG(u) (TO_PROG_ANG(FROM_EXT_ANG(u)))
 #define PROGRAM_TO_USER_ANG(p) (TO_EXT_ANG(FROM_PROG_ANG(p)))
-
-

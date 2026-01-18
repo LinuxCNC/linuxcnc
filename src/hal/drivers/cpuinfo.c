@@ -38,28 +38,30 @@ int get_rpi_revision(void)
     if ((fp = fopen("/sys/firmware/devicetree/base/model", "r")) == NULL)
         return -1;
 
-    r = fgets(buffer, sizeof(buffer) , fp);
+    r = fgets(buffer, sizeof(buffer), fp);
     fclose(fp);
 
-    if (!r) return -1;
-    
+    if (!r)
+        return -1;
+
     rtapi_print_msg(RTAPI_MSG_INFO, "%s found\n", buffer);
-    
-    if (strncmp(buffer, "Raspberry",9) != 0)
+
+    if (strncmp(buffer, "Raspberry", 9) != 0)
         return -1;
 
     if ((fp = fopen("/proc/cpuinfo", "r")) == NULL)
         return -1;
 
-    while(!feof(fp)) {
-        if (fgets(buffer, sizeof(buffer) , fp)){
+    while (!feof(fp)) {
+        if (fgets(buffer, sizeof(buffer), fp)) {
             sscanf(buffer, "Revision  : %x", &revision);
         }
     }
     fclose(fp);
 
-    if ( ! (revision & 0x800000)){ // old-style revision code
-        if ((revision & 0xFF) <= 3) return 1;
+    if (!(revision & 0x800000)) { // old-style revision code
+        if ((revision & 0xFF) <= 3)
+            return 1;
         return 2;
     } else {
         return ((revision >> 4) & 0xFF);

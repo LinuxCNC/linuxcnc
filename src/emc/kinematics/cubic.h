@@ -40,23 +40,24 @@ typedef struct {
     CUBIC_COEFF coeff;
 } CUBIC_STRUCT;
 
-extern int cubicInit(CUBIC_STRUCT * ci);
-extern int cubicSetSegmentTime(CUBIC_STRUCT * ci, double time);
-extern double cubicGetSegmentTime(CUBIC_STRUCT * ci);
-extern int cubicSetInterpolationRate(CUBIC_STRUCT * ci, int rate);
-extern int cubicGetInterpolationRate(CUBIC_STRUCT * ci);
-extern int cubicAddPoint(CUBIC_STRUCT * ci, double point);
-extern int cubicOffset(CUBIC_STRUCT * ci, double offset);
-extern double cubicGetInterpolationIncrement(CUBIC_STRUCT * ci);
-extern CUBIC_COEFF cubicGetCubicCoeff(CUBIC_STRUCT * ci);
-extern int cubicFilled(CUBIC_STRUCT * ci);
-extern double cubicInterpolate(CUBIC_STRUCT * ci, double *x,	/* same as
+extern int cubicInit(CUBIC_STRUCT *ci);
+extern int cubicSetSegmentTime(CUBIC_STRUCT *ci, double time);
+extern double cubicGetSegmentTime(CUBIC_STRUCT *ci);
+extern int cubicSetInterpolationRate(CUBIC_STRUCT *ci, int rate);
+extern int cubicGetInterpolationRate(CUBIC_STRUCT *ci);
+extern int cubicAddPoint(CUBIC_STRUCT *ci, double point);
+extern int cubicOffset(CUBIC_STRUCT *ci, double offset);
+extern double cubicGetInterpolationIncrement(CUBIC_STRUCT *ci);
+extern CUBIC_COEFF cubicGetCubicCoeff(CUBIC_STRUCT *ci);
+extern int cubicFilled(CUBIC_STRUCT *ci);
+extern double cubicInterpolate(CUBIC_STRUCT *ci,
+                               double *x,  /* same as
 								   return val 
 								 */
-			       double *v,	/* velocity */
-			       double *a,	/* accel */
-			       double *j);	/* jerk */
-extern int cubicNeedNextPoint(CUBIC_STRUCT * ci);
-extern int cubicDrain(CUBIC_STRUCT * ci);
+                               double *v,  /* velocity */
+                               double *a,  /* accel */
+                               double *j); /* jerk */
+extern int cubicNeedNextPoint(CUBIC_STRUCT *ci);
+extern int cubicDrain(CUBIC_STRUCT *ci);
 
-#endif				/* CUBIC_H */
+#endif /* CUBIC_H */

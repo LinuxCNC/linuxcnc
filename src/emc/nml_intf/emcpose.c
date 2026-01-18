@@ -18,26 +18,29 @@
 
 //#define EMCPOSE_PEDANTIC
 
-void emcPoseZero(EmcPose * const pos) {
+void emcPoseZero(EmcPose *const pos)
+{
 #ifdef EMCPOSE_PEDANTIC
-    if(!pos) {
+    if (!pos) {
         return EMCPOSE_ERR_INPUT_MISSING;
     }
 #endif
 
-    pos->tran.x = 0.0;               
-    pos->tran.y = 0.0;               
-    pos->tran.z = 0.0;               
-    pos->a = 0.0;                    
-    pos->b = 0.0;                    
-    pos->c = 0.0;                    
-    pos->u = 0.0;                    
-    pos->v = 0.0;                    
+    pos->tran.x = 0.0;
+    pos->tran.y = 0.0;
+    pos->tran.z = 0.0;
+    pos->a = 0.0;
+    pos->b = 0.0;
+    pos->c = 0.0;
+    pos->u = 0.0;
+    pos->v = 0.0;
     pos->w = 0.0;
 }
 
 
-int emcPoseAdd(EmcPose const * const p1, EmcPose const * const p2, EmcPose * const out)
+int emcPoseAdd(EmcPose const *const p1,
+               EmcPose const *const p2,
+               EmcPose *const out)
 {
 #ifdef EMCPOSE_PEDANTIC
     if (!p1 || !p2) {
@@ -55,7 +58,9 @@ int emcPoseAdd(EmcPose const * const p1, EmcPose const * const p2, EmcPose * con
     return EMCPOSE_ERR_OK;
 }
 
-int emcPoseSub(EmcPose const * const p1, EmcPose const * const p2, EmcPose * const out)
+int emcPoseSub(EmcPose const *const p1,
+               EmcPose const *const p2,
+               EmcPose *const out)
 {
 #ifdef EMCPOSE_PEDANTIC
     if (!p1 || !p2) {
@@ -71,27 +76,28 @@ int emcPoseSub(EmcPose const * const p1, EmcPose const * const p2, EmcPose * con
     out->v = p1->v - p2->v;
     out->w = p1->w - p2->w;
     return EMCPOSE_ERR_OK;
-
 }
 
-int emcPoseSelfAdd(EmcPose * const self, EmcPose const * const p2)
+int emcPoseSelfAdd(EmcPose *const self, EmcPose const *const p2)
 {
     return emcPoseAdd(self, p2, self);
 }
 
-int emcPoseSelfSub(EmcPose * const self, EmcPose const * const p2)
+int emcPoseSelfSub(EmcPose *const self, EmcPose const *const p2)
 {
     return emcPoseSub(self, p2, self);
 }
 
-int emcPoseToPmCartesian(EmcPose const * const pose,
-        PmCartesian * const xyz, PmCartesian * const abc, PmCartesian * const uvw)
+int emcPoseToPmCartesian(EmcPose const *const pose,
+                         PmCartesian *const xyz,
+                         PmCartesian *const abc,
+                         PmCartesian *const uvw)
 {
 
 #ifdef EMCPOSE_PEDANTIC
     if (!pose) {
         return EMCPOSE_ERR_INPUT_MISSING;
-    } 
+    }
     if (!xyz | !abc || !uvw) {
         return EMCPOSE_ERR_OUTPUT_MISSING;
     }
@@ -115,8 +121,10 @@ int emcPoseToPmCartesian(EmcPose const * const pose,
 /**
  * Collect PmCartesian elements into 9D EmcPose structure.
  */
-int pmCartesianToEmcPose(PmCartesian const * const xyz,
-        PmCartesian const * const abc, PmCartesian const * const uvw, EmcPose * const pose)
+int pmCartesianToEmcPose(PmCartesian const *const xyz,
+                         PmCartesian const *const abc,
+                         PmCartesian const *const uvw,
+                         EmcPose *const pose)
 {
 #ifdef EMCPOSE_PEDANTIC
     if (!pose) {
@@ -124,7 +132,7 @@ int pmCartesianToEmcPose(PmCartesian const * const xyz,
     }
     if (!xyz || !abc || !uvw) {
         return EMCPOSE_ERR_INPUT_MISSING;
-   }
+    }
 #endif
     //Direct copy of translation struct for xyz
     pose->tran = *xyz;
@@ -140,7 +148,7 @@ int pmCartesianToEmcPose(PmCartesian const * const xyz,
 }
 
 
-int emcPoseSetXYZ(PmCartesian const * const xyz, EmcPose * const pose)
+int emcPoseSetXYZ(PmCartesian const *const xyz, EmcPose *const pose)
 {
 #ifdef EMCPOSE_PEDANTIC
     if (!pose) {
@@ -148,7 +156,7 @@ int emcPoseSetXYZ(PmCartesian const * const xyz, EmcPose * const pose)
     }
     if (!xyz) {
         return EMCPOSE_ERR_INPUT_MISSING;
-   }
+    }
 #endif
 
     pose->tran.x = xyz->x;
@@ -158,7 +166,7 @@ int emcPoseSetXYZ(PmCartesian const * const xyz, EmcPose * const pose)
 }
 
 
-int emcPoseSetABC(PmCartesian const * const abc, EmcPose * const pose)
+int emcPoseSetABC(PmCartesian const *const abc, EmcPose *const pose)
 {
 #ifdef EMCPOSE_PEDANTIC
     if (!pose) {
@@ -166,7 +174,7 @@ int emcPoseSetABC(PmCartesian const * const abc, EmcPose * const pose)
     }
     if (!abc) {
         return EMCPOSE_ERR_INPUT_MISSING;
-   }
+    }
 #endif
 
     pose->a = abc->x;
@@ -176,7 +184,7 @@ int emcPoseSetABC(PmCartesian const * const abc, EmcPose * const pose)
 }
 
 
-int emcPoseSetUVW(PmCartesian const * const uvw, EmcPose * const pose)
+int emcPoseSetUVW(PmCartesian const *const uvw, EmcPose *const pose)
 {
 #ifdef EMCPOSE_PEDANTIC
     if (!pose) {
@@ -184,7 +192,7 @@ int emcPoseSetUVW(PmCartesian const * const uvw, EmcPose * const pose)
     }
     if (!uvw) {
         return EMCPOSE_ERR_INPUT_MISSING;
-   }
+    }
 #endif
 
     pose->u = uvw->x;
@@ -195,7 +203,7 @@ int emcPoseSetUVW(PmCartesian const * const uvw, EmcPose * const pose)
 }
 
 
-int emcPoseGetXYZ(EmcPose const * const pose, PmCartesian * const xyz)
+int emcPoseGetXYZ(EmcPose const *const pose, PmCartesian *const xyz)
 {
 #ifdef EMCPOSE_PEDANTIC
     if (!pose) {
@@ -203,7 +211,7 @@ int emcPoseGetXYZ(EmcPose const * const pose, PmCartesian * const xyz)
     }
     if (!xyz) {
         return EMCPOSE_ERR_INPUT_MISSING;
-   }
+    }
 #endif
 
     xyz->x = pose->tran.x;
@@ -213,7 +221,7 @@ int emcPoseGetXYZ(EmcPose const * const pose, PmCartesian * const xyz)
 }
 
 
-int emcPoseGetABC(EmcPose const * const pose, PmCartesian * const abc)
+int emcPoseGetABC(EmcPose const *const pose, PmCartesian *const abc)
 {
 #ifdef EMCPOSE_PEDANTIC
     if (!pose) {
@@ -221,7 +229,7 @@ int emcPoseGetABC(EmcPose const * const pose, PmCartesian * const abc)
     }
     if (!abc) {
         return EMCPOSE_ERR_INPUT_MISSING;
-   }
+    }
 #endif
 
     abc->x = pose->a;
@@ -231,7 +239,7 @@ int emcPoseGetABC(EmcPose const * const pose, PmCartesian * const abc)
 }
 
 
-int emcPoseGetUVW(EmcPose const * const pose, PmCartesian * const uvw)
+int emcPoseGetUVW(EmcPose const *const pose, PmCartesian *const uvw)
 {
 #ifdef EMCPOSE_PEDANTIC
     if (!pose) {
@@ -239,7 +247,7 @@ int emcPoseGetUVW(EmcPose const * const pose, PmCartesian * const uvw)
     }
     if (!uvw) {
         return EMCPOSE_ERR_INPUT_MISSING;
-   }
+    }
 #endif
 
     uvw->x = pose->u;
@@ -253,7 +261,8 @@ int emcPoseGetUVW(EmcPose const * const pose, PmCartesian * const uvw)
 /**
  * Find the magnitude of an EmcPose position, treating it like a single vector.
  */
-int emcPoseMagnitude(EmcPose const * const pose, double * const out) {
+int emcPoseMagnitude(EmcPose const *const pose, double *const out)
+{
 
 #ifdef EMCPOSE_PEDANTIC
     if (!pose) {
@@ -284,19 +293,12 @@ int emcPoseMagnitude(EmcPose const * const pose, double * const out) {
 /**
  * Return true for a numerically valid pose, or false for an invalid pose (or null pointer).
  */
-int emcPoseValid(EmcPose const * const pose)
+int emcPoseValid(EmcPose const *const pose)
 {
 
-    if (!pose || 
-            isnan(pose->tran.x) ||
-            isnan(pose->tran.y) ||
-            isnan(pose->tran.z) ||
-            isnan(pose->a) ||
-            isnan(pose->b) ||
-            isnan(pose->c) ||
-            isnan(pose->u) ||
-            isnan(pose->v) ||
-            isnan(pose->w)) {
+    if (!pose || isnan(pose->tran.x) || isnan(pose->tran.y) ||
+        isnan(pose->tran.z) || isnan(pose->a) || isnan(pose->b) ||
+        isnan(pose->c) || isnan(pose->u) || isnan(pose->v) || isnan(pose->w)) {
         return 0;
     } else {
         return 1;

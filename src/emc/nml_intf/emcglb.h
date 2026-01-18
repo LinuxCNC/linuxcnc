@@ -15,21 +15,21 @@
 #ifndef EMCGLB_H
 #define EMCGLB_H
 
-#include "linuxcnc.h"           /* LINELEN */
-#include "math.h"		/* M_PI */
-#include "emcmotcfg.h"          /* EMCMOT_MAX_DIO */
+#include "linuxcnc.h"  /* LINELEN */
+#include "math.h"      /* M_PI */
+#include "emcmotcfg.h" /* EMCMOT_MAX_DIO */
 #include "debugflags.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-    extern char emc_inifile[LINELEN];
+extern char emc_inifile[LINELEN];
 
-    extern char emc_nmlfile[LINELEN];
+extern char emc_nmlfile[LINELEN];
 
 #define DEFAULT_RS274NGC_STARTUP_CODE ""
-    extern char rs274ngc_startup_code[LINELEN];
+extern char rs274ngc_startup_code[LINELEN];
 
 /* debug bitflags */
 /* Note: these may be hard-code referenced by the GUI (e.g., emcdebug.tcl).
@@ -37,27 +37,27 @@ extern "C" {
    the GUI scripts that use these. Unfortunately there's no easy way to
    get these into Tk automatically */
 
-    // there's also an emc_Debug function in emc/usr_intf/emcsh.cc
-    extern unsigned emc_debug;
+// there's also an emc_Debug function in emc/usr_intf/emcsh.cc
+extern unsigned emc_debug;
 
-    // EMC_DEBUG_* flag definitions moved to debugflags.h
+// EMC_DEBUG_* flag definitions moved to debugflags.h
 
-    extern double emc_task_cycle_time;
+extern double emc_task_cycle_time;
 
-    extern int emc_task_interp_max_len;
+extern int emc_task_interp_max_len;
 
-    extern struct EmcPose tool_change_position;
-    extern unsigned char have_tool_change_position;
+extern struct EmcPose tool_change_position;
+extern unsigned char have_tool_change_position;
 
 
 /*just used to keep track of unnecessary debug printing. */
-    extern int taskplanopen;
+extern int taskplanopen;
 
-    extern int emcGetArgs(int argc, char *argv[]);
+extern int emcGetArgs(int argc, char *argv[]);
 
 typedef struct JointConfig_t {
     int Inited;
-    unsigned char Type;   // non-zero means joint called init
+    unsigned char Type; // non-zero means joint called init
     double Units;
     double MaxVel;
     double MaxAccel;
@@ -89,7 +89,7 @@ typedef struct SpindleConfig_t {
 } SpindleConfig_t;
 
 typedef struct TrajConfig_t {
-    int Inited;	// non-zero means traj called init
+    int Inited; // non-zero means traj called init
     int Joints;
     int Spindles;
     double MaxJerk;
@@ -102,6 +102,6 @@ typedef struct TrajConfig_t {
 } TrajConfig_t;
 
 #ifdef __cplusplus
-}				/* matches extern "C" at top */
+} /* matches extern "C" at top */
 #endif
-#endif				/* EMCGLB_H */
+#endif /* EMCGLB_H */

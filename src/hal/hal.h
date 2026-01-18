@@ -126,7 +126,7 @@
 #include <rtapi.h>
 RTAPI_BEGIN_DECLS
 
-#if ( !defined RTAPI ) && ( !defined ULAPI )
+#if (!defined RTAPI) && (!defined ULAPI)
 #error HAL needs RTAPI/ULAPI, check makefile and flags
 #endif
 
@@ -136,21 +136,21 @@ RTAPI_BEGIN_DECLS
 
 #include <rtapi_errno.h>
 
-#define HAL_NAME_LEN     47	/* length for pin, signal, etc, names */
+#define HAL_NAME_LEN 47 /* length for pin, signal, etc, names */
 
 /** These locking codes define the state of HAL locking, are used by most functions */
 /** The functions locked will return a -EPERM error message **/
 
-#define HAL_LOCK_NONE     0     /* no locking done, any command is permitted */
-#define HAL_LOCK_LOAD     1     /* loading rt components is not permitted */
-#define HAL_LOCK_CONFIG   2     /* locking of link and addf related commands */
-#define HAL_LOCK_PARAMS   4     /* locking of parameter set commands */
-#define HAL_LOCK_RUN      8     /* locking of start/stop of HAL threads */
+#define HAL_LOCK_NONE 0   /* no locking done, any command is permitted */
+#define HAL_LOCK_LOAD 1   /* loading rt components is not permitted */
+#define HAL_LOCK_CONFIG 2 /* locking of link and addf related commands */
+#define HAL_LOCK_PARAMS 4 /* locking of parameter set commands */
+#define HAL_LOCK_RUN 8    /* locking of start/stop of HAL threads */
 
 /* locks required for the 'tune' command */
 #define HAL_LOCK_TUNE (HAL_LOCK_LOAD | HAL_LOCK_CONFIG)
 
-#define HAL_LOCK_ALL      255   /* locks every action */
+#define HAL_LOCK_ALL 255 /* locks every action */
 
 /***********************************************************************
 *                   GENERAL PURPOSE FUNCTIONS                          *
@@ -235,7 +235,7 @@ extern int hal_unready(int comp_id);
 /** hal_comp_name() returns the name of the given component, or NULL
     if comp_id is not a loaded component
 */
-extern char* hal_comp_name(int comp_id);
+extern char *hal_comp_name(int comp_id);
 
 /** The HAL maintains lists of variables, functions, and so on in
     a central database, located in shared memory so all components
@@ -322,10 +322,11 @@ typedef volatile rtapi_u64 hal_u64_t;
 typedef volatile rtapi_s64 hal_s64_t;
 typedef volatile int hal_port_t;
 typedef double real_t __attribute__((aligned(8)));
-typedef rtapi_u64 ireal_t __attribute__((aligned(8))); // integral type as wide as real_t / hal_float_t
+typedef rtapi_u64 ireal_t __attribute__((
+    aligned(8))); // integral type as wide as real_t / hal_float_t
 
 #define hal_float_t volatile real_t
-       
+
 /** HAL "data union" structure
  ** This structure may hold any type of hal data
 */
@@ -340,9 +341,11 @@ typedef union {
 } hal_data_u;
 
 typedef struct {
-    volatile unsigned int read;  //offset into buff that outgoing data gets read from
-    volatile unsigned int write; //offset into buff that incoming data gets written to
-    unsigned int size;           //size of allocated buffer
+    volatile unsigned int
+        read; //offset into buff that outgoing data gets read from
+    volatile unsigned int
+        write;         //offset into buff that incoming data gets written to
+    unsigned int size; //size of allocated buffer
     char buff[];
 } hal_port_shm_t;
 
@@ -398,20 +401,34 @@ extern unsigned char hal_get_lock(void);
     If successful, the hal_pin_xxx_new() functions return 0.
     On failure they return a negative error code.
 */
-extern int hal_pin_bit_new(const char *name, hal_pin_dir_t dir,
-    hal_bit_t ** data_ptr_addr, int comp_id);
-extern int hal_pin_float_new(const char *name, hal_pin_dir_t dir,
-    hal_float_t ** data_ptr_addr, int comp_id);
-extern int hal_pin_u32_new(const char *name, hal_pin_dir_t dir,
-    hal_u32_t ** data_ptr_addr, int comp_id);
-extern int hal_pin_s32_new(const char *name, hal_pin_dir_t dir,
-    hal_s32_t ** data_ptr_addr, int comp_id);
-extern int hal_pin_u64_new(const char *name, hal_pin_dir_t dir,
-    hal_u64_t ** data_ptr_addr, int comp_id);
-extern int hal_pin_s64_new(const char *name, hal_pin_dir_t dir,
-    hal_s64_t ** data_ptr_addr, int comp_id);
-extern int hal_pin_port_new(const char *name, hal_pin_dir_t dir,
-    hal_port_t ** data_ptr_addr, int comp_id);
+extern int hal_pin_bit_new(const char *name,
+                           hal_pin_dir_t dir,
+                           hal_bit_t **data_ptr_addr,
+                           int comp_id);
+extern int hal_pin_float_new(const char *name,
+                             hal_pin_dir_t dir,
+                             hal_float_t **data_ptr_addr,
+                             int comp_id);
+extern int hal_pin_u32_new(const char *name,
+                           hal_pin_dir_t dir,
+                           hal_u32_t **data_ptr_addr,
+                           int comp_id);
+extern int hal_pin_s32_new(const char *name,
+                           hal_pin_dir_t dir,
+                           hal_s32_t **data_ptr_addr,
+                           int comp_id);
+extern int hal_pin_u64_new(const char *name,
+                           hal_pin_dir_t dir,
+                           hal_u64_t **data_ptr_addr,
+                           int comp_id);
+extern int hal_pin_s64_new(const char *name,
+                           hal_pin_dir_t dir,
+                           hal_s64_t **data_ptr_addr,
+                           int comp_id);
+extern int hal_pin_port_new(const char *name,
+                            hal_pin_dir_t dir,
+                            hal_port_t **data_ptr_addr,
+                            int comp_id);
 
 
 /** The hal_pin_XXX_newf family of functions are similar to
@@ -421,26 +438,40 @@ extern int hal_pin_port_new(const char *name, hal_pin_dir_t dir,
     On failure they return a negative error code.
 */
 extern int hal_pin_bit_newf(hal_pin_dir_t dir,
-    hal_bit_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
-	__attribute__((format(printf,4,5)));
+                            hal_bit_t **data_ptr_addr,
+                            int comp_id,
+                            const char *fmt,
+                            ...) __attribute__((format(printf, 4, 5)));
 extern int hal_pin_float_newf(hal_pin_dir_t dir,
-    hal_float_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
-	__attribute__((format(printf,4,5)));
+                              hal_float_t **data_ptr_addr,
+                              int comp_id,
+                              const char *fmt,
+                              ...) __attribute__((format(printf, 4, 5)));
 extern int hal_pin_u32_newf(hal_pin_dir_t dir,
-    hal_u32_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
-	__attribute__((format(printf,4,5)));
+                            hal_u32_t **data_ptr_addr,
+                            int comp_id,
+                            const char *fmt,
+                            ...) __attribute__((format(printf, 4, 5)));
 extern int hal_pin_s32_newf(hal_pin_dir_t dir,
-    hal_s32_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
-	__attribute__((format(printf,4,5)));
+                            hal_s32_t **data_ptr_addr,
+                            int comp_id,
+                            const char *fmt,
+                            ...) __attribute__((format(printf, 4, 5)));
 extern int hal_pin_u64_newf(hal_pin_dir_t dir,
-    hal_u64_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
-	__attribute__((format(printf,4,5)));
+                            hal_u64_t **data_ptr_addr,
+                            int comp_id,
+                            const char *fmt,
+                            ...) __attribute__((format(printf, 4, 5)));
 extern int hal_pin_s64_newf(hal_pin_dir_t dir,
-    hal_s64_t ** data_ptr_addr, int comp_id, const char *fmt, ...)
-	__attribute__((format(printf,4,5)));
+                            hal_s64_t **data_ptr_addr,
+                            int comp_id,
+                            const char *fmt,
+                            ...) __attribute__((format(printf, 4, 5)));
 extern int hal_pin_port_newf(hal_pin_dir_t dir,
-    hal_port_t** data_ptr_addr, int comp_id, const char *fmt, ...)
-	__attribute__((format(printf,4,5)));
+                             hal_port_t **data_ptr_addr,
+                             int comp_id,
+                             const char *fmt,
+                             ...) __attribute__((format(printf, 4, 5)));
 
 
 /** 'hal_pin_new()' creates a new 'pin' object.  It is a generic
@@ -458,8 +489,11 @@ extern int hal_pin_port_newf(hal_pin_dir_t dir,
     If successful, hal_pin_new() returns 0.  On failure
     it returns a negative error code.
 */
-extern int hal_pin_new(const char *name, hal_type_t type, hal_pin_dir_t dir,
-    void **data_ptr_addr, int comp_id);
+extern int hal_pin_new(const char *name,
+                       hal_type_t type,
+                       hal_pin_dir_t dir,
+                       void **data_ptr_addr,
+                       int comp_id);
 
 /** There is no 'hal_pin_delete()' function.  Once a component has
     created a pin, that pin remains as long as the component exists.
@@ -562,38 +596,62 @@ extern int hal_unlink(const char *pin_name);
     If successful, the hal_param_xxx_new() functions return 0.
     On failure they return a negative error code.
 */
-extern int hal_param_bit_new(const char *name, hal_param_dir_t dir,
-    hal_bit_t * data_addr, int comp_id);
-extern int hal_param_float_new(const char *name, hal_param_dir_t dir,
-    hal_float_t * data_addr, int comp_id);
-extern int hal_param_u32_new(const char *name, hal_param_dir_t dir,
-    hal_u32_t * data_addr, int comp_id);
-extern int hal_param_s32_new(const char *name, hal_param_dir_t dir,
-    hal_s32_t * data_addr, int comp_id);
-extern int hal_param_u64_new(const char *name, hal_param_dir_t dir,
-    hal_u64_t * data_addr, int comp_id);
-extern int hal_param_s64_new(const char *name, hal_param_dir_t dir,
-    hal_s64_t * data_addr, int comp_id);
+extern int hal_param_bit_new(const char *name,
+                             hal_param_dir_t dir,
+                             hal_bit_t *data_addr,
+                             int comp_id);
+extern int hal_param_float_new(const char *name,
+                               hal_param_dir_t dir,
+                               hal_float_t *data_addr,
+                               int comp_id);
+extern int hal_param_u32_new(const char *name,
+                             hal_param_dir_t dir,
+                             hal_u32_t *data_addr,
+                             int comp_id);
+extern int hal_param_s32_new(const char *name,
+                             hal_param_dir_t dir,
+                             hal_s32_t *data_addr,
+                             int comp_id);
+extern int hal_param_u64_new(const char *name,
+                             hal_param_dir_t dir,
+                             hal_u64_t *data_addr,
+                             int comp_id);
+extern int hal_param_s64_new(const char *name,
+                             hal_param_dir_t dir,
+                             hal_s64_t *data_addr,
+                             int comp_id);
 
 /** printf_style-style versions of hal_param_XXX_new */
-extern int hal_param_bit_newf(hal_param_dir_t dir, 
-    hal_bit_t * data_addr, int comp_id, const char *fmt, ...)
-	__attribute__((format(printf,4,5)));
+extern int hal_param_bit_newf(hal_param_dir_t dir,
+                              hal_bit_t *data_addr,
+                              int comp_id,
+                              const char *fmt,
+                              ...) __attribute__((format(printf, 4, 5)));
 extern int hal_param_float_newf(hal_param_dir_t dir,
-    hal_float_t * data_addr, int comp_id, const char *fmt, ...)
-	__attribute__((format(printf,4,5)));
+                                hal_float_t *data_addr,
+                                int comp_id,
+                                const char *fmt,
+                                ...) __attribute__((format(printf, 4, 5)));
 extern int hal_param_u32_newf(hal_param_dir_t dir,
-    hal_u32_t * data_addr, int comp_id, const char *fmt, ...)
-	__attribute__((format(printf,4,5)));
+                              hal_u32_t *data_addr,
+                              int comp_id,
+                              const char *fmt,
+                              ...) __attribute__((format(printf, 4, 5)));
 extern int hal_param_s32_newf(hal_param_dir_t dir,
-    hal_s32_t * data_addr, int comp_id, const char *fmt, ...)
-	__attribute__((format(printf,4,5)));
+                              hal_s32_t *data_addr,
+                              int comp_id,
+                              const char *fmt,
+                              ...) __attribute__((format(printf, 4, 5)));
 extern int hal_param_u64_newf(hal_param_dir_t dir,
-    hal_u64_t * data_addr, int comp_id, const char *fmt, ...)
-	__attribute__((format(printf,4,5)));
+                              hal_u64_t *data_addr,
+                              int comp_id,
+                              const char *fmt,
+                              ...) __attribute__((format(printf, 4, 5)));
 extern int hal_param_s64_newf(hal_param_dir_t dir,
-    hal_s64_t * data_addr, int comp_id, const char *fmt, ...)
-	__attribute__((format(printf,4,5)));
+                              hal_s64_t *data_addr,
+                              int comp_id,
+                              const char *fmt,
+                              ...) __attribute__((format(printf, 4, 5)));
 
 
 /** 'hal_param_new()' creates a new 'parameter' object.  It is a generic
@@ -615,8 +673,11 @@ extern int hal_param_s64_newf(hal_param_dir_t dir,
     If successful, hal_param_new() returns 0.  On failure
     it returns a negative error code.
 */
-extern int hal_param_new(const char *name, hal_type_t type, hal_param_dir_t dir,
-    void *data_addr, int comp_id);
+extern int hal_param_new(const char *name,
+                         hal_type_t type,
+                         hal_param_dir_t dir,
+                         void *data_addr,
+                         int comp_id);
 
 /** There is no 'hal_param_delete()' function.  Once a component has
     created a parameter, that parameter remains as long as the
@@ -675,8 +736,10 @@ extern int hal_param_set(const char *name, hal_type_t type, void *value_addr);
  * value will be true if a signal is connected.
  */
 
-extern int hal_get_pin_value_by_name(
-    const char *name, hal_type_t *type, hal_data_u **data, bool *connected);
+extern int hal_get_pin_value_by_name(const char *name,
+                                     hal_type_t *type,
+                                     hal_data_u **data,
+                                     bool *connected);
 
 /** 'hal_get_signal_value_by_name()' returns the value of any arbitrary HAL
  * signal by signal name.
@@ -686,8 +749,10 @@ extern int hal_get_pin_value_by_name(
  * value will be true if the signal has writers.
  */
 
-extern int hal_get_signal_value_by_name(
-    const char *name, hal_type_t *type, hal_data_u **data, bool *has_writers);
+extern int hal_get_signal_value_by_name(const char *name,
+                                        hal_type_t *type,
+                                        hal_data_u **data,
+                                        bool *has_writers);
 
 /** 'hal_get_param_value_by_name()' returns the value of any arbitrary HAL
  * parameter by parameter name.
@@ -696,8 +761,9 @@ extern int hal_get_signal_value_by_name(
  * returns 0 if successful, or -1 on error.
  */
 
-extern int hal_get_param_value_by_name(
-    const char *name, hal_type_t *type, hal_data_u **data);
+extern int hal_get_param_value_by_name(const char *name,
+                                       hal_type_t *type,
+                                       hal_data_u **data);
 
 /***********************************************************************
 *                   EXECUTION RELATED FUNCTIONS                        *
@@ -736,16 +802,25 @@ extern int hal_get_param_value_by_name(
     Call only from realtime init code, not from user space or
     realtime code.
 */
-extern int hal_export_funct(const char *name, void (*funct) (void *, long),
-    void *arg, int uses_fp, int reentrant, int comp_id);
+extern int hal_export_funct(const char *name,
+                            void (*funct)(void *, long),
+                            void *arg,
+                            int uses_fp,
+                            int reentrant,
+                            int comp_id);
 
 /** hal_export_functf is similar to hal_export_funct except that it also does
     printf-style formatting to compute the function name.
     If successful, it returns 0.
     On failure it returns a negative error code.
 */
-extern int hal_export_functf(void (*funct) (void *, long),
-    void *arg, int uses_fp, int reentrant, int comp_id, const char *fmt, ...);
+extern int hal_export_functf(void (*funct)(void *, long),
+                             void *arg,
+                             int uses_fp,
+                             int reentrant,
+                             int comp_id,
+                             const char *fmt,
+                             ...);
 
 /** hal_create_thread() establishes a realtime thread that will
     execute one or more HAL functions periodically.
@@ -768,8 +843,8 @@ extern int hal_export_functf(void (*funct) (void *, long),
     above.  Call only from realtime init code, not from user
     space or realtime code.
 */
-extern int hal_create_thread(const char *name, unsigned long period_nsec,
-    int uses_fp);
+extern int
+hal_create_thread(const char *name, unsigned long period_nsec, int uses_fp);
 
 /** hal_thread_delete() deletes a realtime thread.
     'name' is the name of the thread, which must have been created
@@ -804,8 +879,9 @@ extern int hal_thread_delete(const char *name);
     only from within user space or init code, not from
     realtime code.
 */
-extern int hal_add_funct_to_thread(const char *funct_name, const char *thread_name,
-    int position);
+extern int hal_add_funct_to_thread(const char *funct_name,
+                                   const char *thread_name,
+                                   int position);
 
 /** hal_del_funct_from_thread() removes a function from a thread.
     'funct_name' is the name of the function, as specified in
@@ -816,7 +892,8 @@ extern int hal_add_funct_to_thread(const char *funct_name, const char *thread_na
     only from within user space or init code, not from
     realtime code.
 */
-extern int hal_del_funct_from_thread(const char *funct_name, const char *thread_name);
+extern int hal_del_funct_from_thread(const char *funct_name,
+                                     const char *thread_name);
 
 /** hal_start_threads() starts all threads that have been created.
     This is the point at which realtime functions start being called.
@@ -838,12 +915,11 @@ extern int hal_stop_threads(void);
     instance of its component.  Return value is >=0 for success,
     <0 for error.
 */
-typedef int(*constructor)(char *prefix, char *arg);
+typedef int (*constructor)(char *prefix, char *arg);
 
 /** hal_set_constructor() sets the constructor function for this component
 */
 extern int hal_set_constructor(int comp_id, constructor make);
-
 
 
 /******************************************************************************
@@ -866,7 +942,7 @@ extern int hal_set_constructor(int comp_id, constructor make);
         true: count bytes were read into dest
         false: no bytes were read into dest
  */
-extern bool hal_port_read(const hal_port_t *port, char* dest, unsigned count);
+extern bool hal_port_read(const hal_port_t *port, char *dest, unsigned count);
 
 
 /** hal_port_peek operates the same as hal_port_read but no bytes are consumed
@@ -876,7 +952,7 @@ extern bool hal_port_read(const hal_port_t *port, char* dest, unsigned count);
         true: count bytes were read into dest
         false: no bytes were read into dest
 */
-extern bool hal_port_peek(const hal_port_t *port, char* dest, unsigned count);
+extern bool hal_port_peek(const hal_port_t *port, char *dest, unsigned count);
 
 /** hal_port_peek_commit advances the read position in the port buffer
     by count bytes. A hal_port_peek followed by a hal_port_peek_commit
@@ -886,7 +962,7 @@ extern bool hal_port_peek(const hal_port_t *port, char* dest, unsigned count);
     returns:
        true: count readable bytes were skipped and are no longer accessible
        false: no bytes wer skipped
-*/ 
+*/
 extern bool hal_port_peek_commit(const hal_port_t *port, unsigned count);
 
 /** hal_port_write writes count bytes from src into the port. 
@@ -897,7 +973,8 @@ extern bool hal_port_peek_commit(const hal_port_t *port, unsigned count);
         false: no bytes were written into dest
     
 */
-extern bool hal_port_write(const hal_port_t *port, const char* src, unsigned count);
+extern bool
+hal_port_write(const hal_port_t *port, const char *src, unsigned count);
 
 /** hal_port_readable returns the number of bytes available
     for reading from the port.
@@ -925,17 +1002,15 @@ extern void hal_port_clear(const hal_port_t *port);
 /** hal_port_wait_readable spin waits on a port until it has at least 
     count bytes available for reading, or *stop > 0
  */
-extern void hal_port_wait_readable(hal_port_t** port, unsigned count, sig_atomic_t* stop);
+extern void
+hal_port_wait_readable(hal_port_t **port, unsigned count, sig_atomic_t *stop);
 
 /** hal_port_wait_writable spin waits on a port until it has at least
     count bytes available for writing or *stop > 0
  */
-extern void hal_port_wait_writable(hal_port_t** port, unsigned count, sig_atomic_t* stop);
+extern void
+hal_port_wait_writable(hal_port_t **port, unsigned count, sig_atomic_t *stop);
 #endif
-
-
-
-
 
 
 union hal_stream_data {
@@ -959,12 +1034,19 @@ typedef struct {
 
 #define HAL_STREAM_MAX_PINS (21)
 /** create and attach a stream */
-extern int hal_stream_create(hal_stream_t *stream, int comp, int key, unsigned depth, const char *typestring);
+extern int hal_stream_create(hal_stream_t *stream,
+                             int comp,
+                             int key,
+                             unsigned depth,
+                             const char *typestring);
 /** detach and destroy an open stream */
 extern void hal_stream_destroy(hal_stream_t *stream);
 
 /** attach to an existing stream */
-extern int hal_stream_attach(hal_stream_t *stream, int comp, int key, const char *typestring);
+extern int hal_stream_attach(hal_stream_t *stream,
+                             int comp,
+                             int key,
+                             const char *typestring);
 /** detach from an open stream */
 extern int hal_stream_detach(hal_stream_t *stream);
 
@@ -973,7 +1055,9 @@ extern int hal_stream_element_count(hal_stream_t *stream);
 extern hal_type_t hal_stream_element_type(hal_stream_t *stream, int idx);
 
 // only one reader and one writer is allowed.
-extern int hal_stream_read(hal_stream_t *stream, union hal_stream_data *buf, unsigned *sampleno);
+extern int hal_stream_read(hal_stream_t *stream,
+                           union hal_stream_data *buf,
+                           unsigned *sampleno);
 extern bool hal_stream_readable(hal_stream_t *stream);
 extern int hal_stream_depth(hal_stream_t *stream);
 extern unsigned hal_stream_maxdepth(hal_stream_t *stream);

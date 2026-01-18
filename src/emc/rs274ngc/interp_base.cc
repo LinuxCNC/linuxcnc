@@ -23,40 +23,56 @@
 
 InterpBase::~InterpBase() {}
 
-InterpBase *interp_from_shlib(const char *shlib) {
-    void * interp_lib;
+InterpBase *interp_from_shlib(const char *shlib)
+{
+    void *interp_lib;
     char relative_interp[PATH_MAX];
-    char const * interp_path;
+    char const *interp_path;
 
     dlopen(NULL, RTLD_GLOBAL);
 
-    if (shlib[0] ==  '/') {
+    if (shlib[0] == '/') {
         // The passed-in .so name is an absolute path, use it directly.
         interp_path = shlib;
     } else {
         // The passed-in .so name is a relative path or just a bare
         // filename, look for it in `${EMC2_HOME}/lib/linuxcnc`.
-        snprintf(relative_interp, sizeof(relative_interp), "%s/%s", EMC2_HOME "/lib/linuxcnc", shlib);
+        snprintf(relative_interp,
+                 sizeof(relative_interp),
+                 "%s/%s",
+                 EMC2_HOME "/lib/linuxcnc",
+                 shlib);
         interp_path = relative_interp;
     }
 
     interp_lib = dlopen(interp_path, RTLD_NOW);
-    if(!interp_lib) {
-        fprintf(stderr, "emcTaskInit: could not open interpreter '%s': %s\n", interp_path, dlerror());
+    if (!interp_lib) {
+        fprintf(stderr,
+                "emcTaskInit: could not open interpreter '%s': %s\n",
+                interp_path,
+                dlerror());
         return 0;
     }
-    fprintf(stderr, "emcTaskInit: using custom interpreter '%s'\n", interp_path);
+    fprintf(
+        stderr, "emcTaskInit: using custom interpreter '%s'\n", interp_path);
 
-    typedef InterpBase* (*Constructor)();
+    typedef InterpBase *(*Constructor)();
     Constructor constructor = (Constructor)dlsym(interp_lib, "makeInterp");
-    if(!constructor) {
-	fprintf(stderr, "emcTaskInit: could not get symbol makeInterp from interpreter '%s': %s\n", shlib, dlerror());
-	return 0;
+    if (!constructor) {
+        fprintf(stderr,
+                "emcTaskInit: could not get symbol makeInterp from interpreter "
+                "'%s': %s\n",
+                shlib,
+                dlerror());
+        return 0;
     }
     InterpBase *pinterp = constructor();
-    if(!pinterp) {
-	fprintf(stderr, "emcTaskInit: makeInterp() returned NULL from interpreter '%s'\n", shlib);
-	return 0;
+    if (!pinterp) {
+        fprintf(
+            stderr,
+            "emcTaskInit: makeInterp() returned NULL from interpreter '%s'\n",
+            shlib);
+        return 0;
     }
     return pinterp;
 }

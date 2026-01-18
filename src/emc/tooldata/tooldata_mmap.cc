@@ -26,22 +26,23 @@
 #include "rtapi_mutex.h"
 #include "tooldata.hh"
 
-#define UNEXPECTED_MSG fprintf(stderr,"UNEXPECTED %s %d\n",__FILE__,__LINE__);
+#define UNEXPECTED_MSG                                                         \
+    fprintf(stderr, "UNEXPECTED %s %d\n", __FILE__, __LINE__);
 
 #define TOOL_MMAP_FILENAME ".tool.mmap"
-#define TOOL_MMAP_MODE     0600
-#define TOOL_MMAP_CREATOR_OPEN_FLAGS  O_RDWR | O_CREAT | O_TRUNC
-#define TOOL_MMAP_USER_OPEN_FLAGS     O_RDWR
+#define TOOL_MMAP_MODE 0600
+#define TOOL_MMAP_CREATOR_OPEN_FLAGS O_RDWR | O_CREAT | O_TRUNC
+#define TOOL_MMAP_USER_OPEN_FLAGS O_RDWR
 
-static int           creator_fd;
-static char          filename[LINELEN] = {};
-static char*         tool_mmap_base = 0;
+static int creator_fd;
+static char filename[LINELEN] = {};
+static char *tool_mmap_base = 0;
 static EMC_TOOL_STAT const *toolstat;
 
 typedef struct {
-    rtapi_mutex_t   mutex;
-    unsigned int    last_index;
-    int             is_random_toolchanger;
+    rtapi_mutex_t mutex;
+    unsigned int last_index;
+    int is_random_toolchanger;
 } tooldata_header_t;
 
 /* mmap region:
@@ -53,53 +54,64 @@ typedef struct {
 #define TOOL_MMAP_HEADER_OFFSET 0
 #define TOOL_MMAP_HEADER_SIZE sizeof(tooldata_header_t)
 
-#define TOOL_MMAP_SIZE    TOOL_MMAP_HEADER_SIZE + \
-                          CANON_POCKETS_MAX * sizeof(struct CANON_TOOL_TABLE)
+#define TOOL_MMAP_SIZE                                                         \
+    TOOL_MMAP_HEADER_SIZE + CANON_POCKETS_MAX * sizeof(struct CANON_TOOL_TABLE)
 
-#define TOOL_MMAP_STRIDE  sizeof(CANON_TOOL_TABLE)
+#define TOOL_MMAP_STRIDE sizeof(CANON_TOOL_TABLE)
 //---------------------------------------------------------------------
-#define HPTR()    (tooldata_header_t*)( tool_mmap_base \
-                                      + TOOL_MMAP_HEADER_OFFSET)
+#define HPTR() (tooldata_header_t *)(tool_mmap_base + TOOL_MMAP_HEADER_OFFSET)
 
-#define TPTR(idx) (CANON_TOOL_TABLE*)( tool_mmap_base \
-                                     + TOOL_MMAP_HEADER_OFFSET \
-                                     + TOOL_MMAP_HEADER_SIZE \
-                                     + idx * TOOL_MMAP_STRIDE)
+#define TPTR(idx)                                                              \
+    (CANON_TOOL_TABLE *)(tool_mmap_base + TOOL_MMAP_HEADER_OFFSET +            \
+                         TOOL_MMAP_HEADER_SIZE + idx * TOOL_MMAP_STRIDE)
 //---------------------------------------------------------------------
 /* Note: emccfg.h defaults (seconds)
 **       DEFAULT_EMC_TASK_CYCLE_TIME 0.100 (.001 common)
 **       DEFAULT_EMC_IO_CYCLE_TIME   0.100
 */
 
-static char* tool_mmap_fname(void) {
-    if (*filename) {return filename;}
-    char* hdir = secure_getenv("HOME");
-    if (!hdir) { hdir = (char *) EMC2_TMP_DIR; }
-    snprintf(filename,sizeof(filename),"%s/%s",hdir,TOOL_MMAP_FILENAME);
-    return(filename);
+static char *tool_mmap_fname(void)
+{
+    if (*filename) {
+        return filename;
+    }
+    char *hdir = secure_getenv("HOME");
+    if (!hdir) {
+        hdir = (char *)EMC2_TMP_DIR;
+    }
+    snprintf(filename, sizeof(filename), "%s/%s", hdir, TOOL_MMAP_FILENAME);
+    return (filename);
 }
 
 static int tool_mmap_mutex_get()
 {
     tooldata_header_t *hptr = HPTR();
-    useconds_t waited_us  =      0;
-    useconds_t delta_us   =    100;
-    useconds_t maxwait_us = 10*1e6; //10seconds
+    useconds_t waited_us = 0;
+    useconds_t delta_us = 100;
+    useconds_t maxwait_us = 10 * 1e6; //10seconds
     bool try_failed = 0;
-    while ( rtapi_mutex_try(&(hptr->mutex)) ) { //true==failed
-        usleep(delta_us); waited_us += delta_us;
+    while (rtapi_mutex_try(&(hptr->mutex))) { //true==failed
+        usleep(delta_us);
+        waited_us += delta_us;
         // fprintf(stderr,"!!!%5d tool_mmap_mutex_get(): waited_us=%d\n"
         //        ,getpid(),waited_us);
-        if (waited_us > maxwait_us) break;
+        if (waited_us > maxwait_us)
+            break;
     }
     if (waited_us > maxwait_us) {
         UNEXPECTED_MSG;
-        fprintf(stderr,"tool_mmap_mutex_get:waited_us=%d delta_us=%d maxwait_us=%d\n\n",
-                waited_us,delta_us,maxwait_us);
+        fprintf(
+            stderr,
+            "tool_mmap_mutex_get:waited_us=%d delta_us=%d maxwait_us=%d\n\n",
+            waited_us,
+            delta_us,
+            maxwait_us);
         rtapi_mutex_give(&(hptr->mutex)); // continue without mutex
         try_failed = 1;
     }
-    if (try_failed) {return -1;}
+    if (try_failed) {
+        return -1;
+    }
 
     return 0;
 } // tool_mmap_mutex_get()
@@ -122,17 +134,17 @@ bool tool_mmap_is_random_toolchanger(void)
 
 //typ creator: emc/ioControl.cc, sai/driver.cc
 //    (first applicable process started in linuxcnc script)
-int tool_mmap_creator(EMC_TOOL_STAT const * ptr,int random_toolchanger)
+int tool_mmap_creator(EMC_TOOL_STAT const *ptr, int random_toolchanger)
 {
-    static int inited=0;
+    static int inited = 0;
 
     if (inited) {
-        fprintf(stderr,"Error: tool_mmap_creator already called BYE\n");
+        fprintf(stderr, "Error: tool_mmap_creator already called BYE\n");
         exit(EXIT_FAILURE);
     }
     toolstat = ptr; //note NULL for sai
-    creator_fd = open(tool_mmap_fname(),
-                     TOOL_MMAP_CREATOR_OPEN_FLAGS,TOOL_MMAP_MODE);
+    creator_fd =
+        open(tool_mmap_fname(), TOOL_MMAP_CREATOR_OPEN_FLAGS, TOOL_MMAP_MODE);
     if (!creator_fd) {
         perror("tool_mmap_creator(): file open fail");
         exit(EXIT_FAILURE);
@@ -147,8 +159,8 @@ int tool_mmap_creator(EMC_TOOL_STAT const * ptr,int random_toolchanger)
         perror("tool_mmap_creator(): file tail write fail");
         exit(EXIT_FAILURE);
     }
-    tool_mmap_base = (char*)mmap(0, TOOL_MMAP_SIZE, PROT_READ | PROT_WRITE,
-                                 MAP_SHARED, creator_fd, 0);
+    tool_mmap_base = (char *)mmap(
+        0, TOOL_MMAP_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, creator_fd, 0);
     if (tool_mmap_base == MAP_FAILED) {
         close(creator_fd);
         perror("tool_mmap_creator(): mmap fail");
@@ -160,14 +172,14 @@ int tool_mmap_creator(EMC_TOOL_STAT const * ptr,int random_toolchanger)
     hptr->last_index = 0;
 
     inited = 1;
-    tool_mmap_mutex_give(); return 0;
+    tool_mmap_mutex_give();
+    return 0;
 } // tool_mmap_creator();
 
 //typ: milltask, guis (emcmodule,emcsh,...), halui
 int tool_mmap_user()
 {
-    int fd = open(tool_mmap_fname(),
-                  TOOL_MMAP_USER_OPEN_FLAGS, TOOL_MMAP_MODE);
+    int fd = open(tool_mmap_fname(), TOOL_MMAP_USER_OPEN_FLAGS, TOOL_MMAP_MODE);
 
     if (fd < 0) {
         /*
@@ -178,12 +190,12 @@ int tool_mmap_user()
         ** continue execution if no mmap file is open.
         ** So print message and return fail indicator.
         */
-        fprintf(stderr,"tool_mmap_user(): tool mmap not available\n");
-        tool_mmap_base = (char*)0;
-        return(-1);
+        fprintf(stderr, "tool_mmap_user(): tool mmap not available\n");
+        tool_mmap_base = (char *)0;
+        return (-1);
     }
-    tool_mmap_base = (char*)mmap(0, TOOL_MMAP_SIZE, PROT_READ|PROT_WRITE,
-                                 MAP_SHARED, fd, 0);
+    tool_mmap_base = (char *)mmap(
+        0, TOOL_MMAP_SIZE, PROT_READ | PROT_WRITE, MAP_SHARED, fd, 0);
 
     if (tool_mmap_base == MAP_FAILED) {
         close(fd);
@@ -195,7 +207,9 @@ int tool_mmap_user()
 
 void tool_mmap_close()
 {
-    if (!tool_mmap_base) { return; }
+    if (!tool_mmap_base) {
+        return;
+    }
     // flush mmapped file to filesystem
     if (msync(tool_mmap_base, TOOL_MMAP_SIZE, MS_SYNC) == -1) {
         perror("tool_mmap_close(): msync fail");
@@ -205,23 +219,24 @@ void tool_mmap_close()
         perror("tool_mmap_close(): munmapfail");
         exit(EXIT_FAILURE);
     }
-    if( unlink(tool_mmap_fname() )) {
+    if (unlink(tool_mmap_fname())) {
         perror("tool_mmap_close(): unlink fail");
     }
     close(creator_fd);
 } //tool_mmap_close()
 
-void tooldata_last_index_set(int idx)  //force last_index
+void tooldata_last_index_set(int idx) //force last_index
 {
     tool_mmap_mutex_get();
     tooldata_header_t *hptr = HPTR();
     if (idx < 0 || idx >= CANON_POCKETS_MAX) {
         UNEXPECTED_MSG;
         idx = 0;
-        fprintf(stderr,"!!!continuing using idx=%d\n",idx);
+        fprintf(stderr, "!!!continuing using idx=%d\n", idx);
     }
     hptr->last_index = idx;
-    tool_mmap_mutex_give(); return;
+    tool_mmap_mutex_give();
+    return;
 } //tooldata_last_index_set()
 
 int tooldata_last_index_get(void)
@@ -229,32 +244,36 @@ int tooldata_last_index_get(void)
     tool_mmap_mutex_get();
     tooldata_header_t *hptr = HPTR();
     if (tool_mmap_base) {
-        tool_mmap_mutex_give(); return hptr->last_index;
+        tool_mmap_mutex_give();
+        return hptr->last_index;
     } else {
-        tool_mmap_mutex_give(); return -1;
+        tool_mmap_mutex_give();
+        return -1;
     }
 } // tooldata_last_index_get()
 
-toolidx_t tooldata_put(struct CANON_TOOL_TABLE tdata,int idx)
+toolidx_t tooldata_put(struct CANON_TOOL_TABLE tdata, int idx)
 {
     toolidx_t ret;
     if (!tool_mmap_base) {
-        fprintf(stderr,"%5d tooldata_put() no tool_mmap_base\n",getpid());
+        fprintf(stderr, "%5d tooldata_put() no tool_mmap_base\n", getpid());
         return IDX_FAIL;
     }
 
-    if (idx < 0 ||idx >= CANON_POCKETS_MAX) {
+    if (idx < 0 || idx >= CANON_POCKETS_MAX) {
         UNEXPECTED_MSG;
         return IDX_FAIL;
     }
     if (tool_mmap_mutex_get()) {
-        fprintf(stderr,"!!!%5d PROBLEM: tooldata_put(): mutex get fail\n",getpid());
-        fprintf(stderr,"!!!continuing without mutex\n");
+        fprintf(stderr,
+                "!!!%5d PROBLEM: tooldata_put(): mutex get fail\n",
+                getpid());
+        fprintf(stderr, "!!!continuing without mutex\n");
         return IDX_FAIL;
     }
 
     tooldata_header_t *hptr = HPTR();
-    if (idx > (int)(hptr->last_index) ) {  // extend known indices
+    if (idx > (int)(hptr->last_index)) { // extend known indices
         hptr->last_index = idx;
         ret = IDX_NEW;
     } else {
@@ -263,10 +282,11 @@ toolidx_t tooldata_put(struct CANON_TOOL_TABLE tdata,int idx)
     CANON_TOOL_TABLE *tptr = TPTR(idx);
     *tptr = tdata;
 
-    if (idx==0 && toolstat) { //note sai does not use toolTableCurrent
-       *(struct CANON_TOOL_TABLE*)(&toolstat->toolTableCurrent) = tdata;
+    if (idx == 0 && toolstat) { //note sai does not use toolTableCurrent
+        *(struct CANON_TOOL_TABLE *)(&toolstat->toolTableCurrent) = tdata;
     }
-    tool_mmap_mutex_give(); return ret;
+    tool_mmap_mutex_give();
+    return ret;
 } // tooldata_put()
 
 void tooldata_reset()
@@ -278,13 +298,14 @@ void tooldata_reset()
         CANON_TOOL_TABLE *tptr = TPTR(idx);
         *tptr = initdata;
     }
-    tool_mmap_mutex_give(); return;
+    tool_mmap_mutex_give();
+    return;
 } // tooldata_reset()
 
-toolidx_t tooldata_get(CANON_TOOL_TABLE* pdata, int idx)
+toolidx_t tooldata_get(CANON_TOOL_TABLE *pdata, int idx)
 {
     if (!tool_mmap_base) {
-        fprintf(stderr,"%5d tooldata_get() not mmapped BYE\n", getpid() );
+        fprintf(stderr, "%5d tooldata_get() not mmapped BYE\n", getpid());
         exit(EXIT_FAILURE);
     }
     if (idx < 0 || idx >= CANON_POCKETS_MAX) {
@@ -295,11 +316,12 @@ toolidx_t tooldata_get(CANON_TOOL_TABLE* pdata, int idx)
 
     if (tool_mmap_mutex_get()) {
         UNEXPECTED_MSG;
-        fprintf(stderr,"!!!continuing without mutex\n");
+        fprintf(stderr, "!!!continuing without mutex\n");
     }
     *pdata = *TPTR(idx);
 
-    tool_mmap_mutex_give(); return IDX_OK;
+    tool_mmap_mutex_give();
+    return IDX_OK;
 } // tooldata_get()
 
 int tooldata_find_index_for_tool(int toolno)
@@ -308,10 +330,14 @@ int tooldata_find_index_for_tool(int toolno)
     tool_mmap_mutex_get();
     int idx;
 
-    if (toolno == -1) {tool_mmap_mutex_give(); return -1;}
+    if (toolno == -1) {
+        tool_mmap_mutex_give();
+        return -1;
+    }
 
     if (!hptr->is_random_toolchanger && toolno == 0) {
-        tool_mmap_mutex_give(); return 0;
+        tool_mmap_mutex_give();
+        return 0;
     }
 
     int foundidx = -1;
@@ -319,7 +345,8 @@ int tooldata_find_index_for_tool(int toolno)
         CANON_TOOL_TABLE *tptr = TPTR(idx);
         if (tptr->toolno == toolno) {
             foundidx = idx;
-            if (foundidx==0) continue;
+            if (foundidx == 0)
+                continue;
             break;
         }
     }

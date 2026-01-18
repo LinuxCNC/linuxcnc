@@ -50,17 +50,18 @@
 // Link 0 connects the origin to J1 (shoulder)
 // These dimensions come off a drawing I got from Intelitek.
 #define L0_HORIZONTAL_DISTANCE 16
-#define L0_VERTICAL_DISTANCE   140
+#define L0_VERTICAL_DISTANCE 140
 
-#define L1_LENGTH 221  // Link 1 connects J1 (shoulder) to J2 (elbow)
-#define L2_LENGTH 221  // Link 2 connects J2 (shoulder) to the wrist
+#define L1_LENGTH 221 // Link 1 connects J1 (shoulder) to J2 (elbow)
+#define L2_LENGTH 221 // Link 2 connects J2 (shoulder) to the wrist
 
 
 // Compute the cartesian coordinates of J1, given the J0 angle (and the
 // fixed, known link L0 between J0 and J1).
-static void compute_j1_cartesian_location(double j0, EmcPose *j1_cart) {
+static void compute_j1_cartesian_location(double j0, EmcPose *j1_cart)
+{
     j1_cart->tran.x = L0_HORIZONTAL_DISTANCE * cos(TO_RAD * j0);
-    j1_cart->tran.y =  L0_HORIZONTAL_DISTANCE * sin(TO_RAD * j0);
+    j1_cart->tran.y = L0_HORIZONTAL_DISTANCE * sin(TO_RAD * j0);
     j1_cart->tran.z = L0_VERTICAL_DISTANCE;
     j1_cart->a = 0;
     j1_cart->b = 0;
@@ -73,17 +74,19 @@ static void compute_j1_cartesian_location(double j0, EmcPose *j1_cart) {
 
 // Forward kinematics takes the joint positions and computes the cartesian
 // coordinates of the controlled point.
-int kinematicsForward(
-    const double *joints,
-    EmcPose *pose,
-    const KINEMATICS_FORWARD_FLAGS *fflags,
-    KINEMATICS_INVERSE_FLAGS *iflags
-) {
+int kinematicsForward(const double *joints,
+                      EmcPose *pose,
+                      const KINEMATICS_FORWARD_FLAGS *fflags,
+                      KINEMATICS_INVERSE_FLAGS *iflags)
+{
     (void)fflags;
     (void)iflags;
-    EmcPose j1_vector;  // the vector from j0 ("base") to joint 1 ("shoulder", end of link 0)
-    EmcPose j2_vector;  // the vector from j1 ("shoulder") to  joint 2 ("elbow", end of link 1)
-    EmcPose j3_vector;  // the vector from j2 ("elbow") to joint 3 ("wrist", end of link 2)
+    EmcPose
+        j1_vector; // the vector from j0 ("base") to joint 1 ("shoulder", end of link 0)
+    EmcPose
+        j2_vector; // the vector from j1 ("shoulder") to  joint 2 ("elbow", end of link 1)
+    EmcPose
+        j3_vector; // the vector from j2 ("elbow") to joint 3 ("wrist", end of link 2)
 
     double r;
 
@@ -94,7 +97,7 @@ int kinematicsForward(
     // Link 1 connects j1 (shoulder) to j2 (elbow).
     r = L1_LENGTH * cos(TO_RAD * joints[1]);
     j2_vector.tran.x = r * cos(TO_RAD * joints[0]);
-    j2_vector.tran.y =  r * sin(TO_RAD * joints[0]);
+    j2_vector.tran.y = r * sin(TO_RAD * joints[0]);
     j2_vector.tran.z = L1_LENGTH * sin(TO_RAD * joints[1]);
     // rtapi_print("fwd: j2=(%f, %f, %f)\n", j2_vector.tran.x, j2_vector.tran.y, j2_vector.tran.z);
 
@@ -102,7 +105,7 @@ int kinematicsForward(
     // J3 is the controlled point.
     r = L2_LENGTH * cos(TO_RAD * joints[2]);
     j3_vector.tran.x = r * cos(TO_RAD * joints[0]);
-    j3_vector.tran.y =  r * sin(TO_RAD * joints[0]);
+    j3_vector.tran.y = r * sin(TO_RAD * joints[0]);
     j3_vector.tran.z = L2_LENGTH * sin(TO_RAD * joints[2]);
     // rtapi_print("fwd: j3=(%f, %f, %f)\n", j3_vector.tran.x, j3_vector.tran.y, j3_vector.tran.z);
 
@@ -132,18 +135,18 @@ int kinematicsForward(
 // is the horizontal distance (ie, in the XY plane) of the controlled
 // point from J0.
 //
-int kinematicsInverse(
-    const EmcPose *pose,
-    double *joints,
-    const KINEMATICS_INVERSE_FLAGS *iflags,
-    KINEMATICS_FORWARD_FLAGS *fflags
-) {
+int kinematicsInverse(const EmcPose *pose,
+                      double *joints,
+                      const KINEMATICS_INVERSE_FLAGS *iflags,
+                      KINEMATICS_FORWARD_FLAGS *fflags)
+{
     (void)iflags;
     (void)fflags;
     // EmcPose j1_cart;
     double distance_to_cp, distance_to_center;
-    double r_j1, z_j1;   // (r_j1, z_j1) is the location of J1 in the RZ plane
-    double r_cp, z_cp;   // (r_cp, z_cp) is the location of the controlled point in the RZ plane
+    double r_j1, z_j1; // (r_j1, z_j1) is the location of J1 in the RZ plane
+    double r_cp,
+        z_cp; // (r_cp, z_cp) is the location of the controlled point in the RZ plane
     double angle_to_cp;
     double j1_angle;
 
@@ -178,7 +181,7 @@ int kinematicsInverse(
     // (r_cp, z_cp) is the location of J3 (the controlled point), again in
     // the plane defined by the angle of J0, with the origin of the
     // machine.
-    r_cp = sqrt(pow(pose->tran.x, 2) +  pow(pose->tran.y, 2));
+    r_cp = sqrt(pow(pose->tran.x, 2) + pow(pose->tran.y, 2));
     z_cp = pose->tran.z;
     // rtapi_print("inv: r_cp=%f, z_cp=%f (controlled point)\n", r_cp, z_cp);
 
@@ -292,7 +295,8 @@ int kinematicsInverse(
 }
 
 
-KINEMATICS_TYPE kinematicsType(void) {
+KINEMATICS_TYPE kinematicsType(void)
+{
     return KINEMATICS_BOTH;
 }
 
@@ -309,7 +313,8 @@ MODULE_LICENSE("GPL");
 
 static int comp_id;
 
-int rtapi_app_main(void) {
+int rtapi_app_main(void)
+{
     comp_id = hal_init("scorbot-kins");
     if (comp_id < 0) {
         return comp_id;
@@ -318,7 +323,7 @@ int rtapi_app_main(void) {
     return 0;
 }
 
-void rtapi_app_exit(void) {
+void rtapi_app_exit(void)
+{
     hal_exit(comp_id);
 }
-

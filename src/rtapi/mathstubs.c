@@ -28,7 +28,7 @@
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 */
 
-#include <linux/types.h>	/* u_int16_t */
+#include <linux/types.h> /* u_int16_t */
 #include "rtapi_math.h"
 
 int stderr;
@@ -38,8 +38,8 @@ int fputs(const char *str)
     return 0;
 }
 
-unsigned int fwrite(const void *ptr, unsigned int size, unsigned int nobj,
-    void *stream)
+unsigned int
+fwrite(const void *ptr, unsigned int size, unsigned int nobj, void *stream)
 {
     return nobj;
 }
@@ -51,8 +51,10 @@ int *__errno_location(void)
     return &errno;
 }
 
-void __assert_fail(const char *s, const char *file, unsigned int line,
-    const char *function)
+void __assert_fail(const char *s,
+                   const char *file,
+                   unsigned int line,
+                   const char *function)
 {
     return;
 }
@@ -60,7 +62,7 @@ void __assert_fail(const char *s, const char *file, unsigned int line,
 #ifndef isnan
 int isnan(double x)
 {
-/* Return zero if x is a real number. */
+    /* Return zero if x is a real number. */
     int a;
     /* According to notes, a floating point number consists of 8 bytes.
        Expressed as a 64 bit No. the sign will be B63. If bits 52-62 equal
@@ -68,7 +70,7 @@ int isnan(double x)
        equal 0x7FF and bits 0-61 are zero, the number is infinite. An infinite
        number will still cause errors so it should be safe to flag it as a
        NaN. */
-    u_int16_t *c = (u_int16_t *) & x;
+    u_int16_t *c = (u_int16_t *)&x;
     a = c[3] & 0x7FF0;
     return (a == 0x7FF0);
 }
@@ -76,10 +78,10 @@ int isnan(double x)
 
 #ifndef __isnan
 int __isnan(double x)
-{				/* There must be a better way of doing this ! 
+{ /* There must be a better way of doing this ! 
 				 */
     int a;
-    u_int16_t *c = (u_int16_t *) & x;
+    u_int16_t *c = (u_int16_t *)&x;
     a = c[3] & 0x7FF0;
     return (a == 0x7FF0);
 }

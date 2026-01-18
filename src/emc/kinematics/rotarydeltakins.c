@@ -22,8 +22,7 @@
 
 #include "rotarydeltakins-common.h"
 
-struct haldata
-{
+struct haldata {
     hal_float_t *pfr;
     hal_float_t *tl;
     hal_float_t *sl;
@@ -32,19 +31,22 @@ struct haldata
 
 int comp_id;
 
-int kinematicsForward(const double * joints,
-                      EmcPose * pos,
-                      const KINEMATICS_FORWARD_FLAGS * fflags,
-                      KINEMATICS_INVERSE_FLAGS * iflags) {
+int kinematicsForward(const double *joints,
+                      EmcPose *pos,
+                      const KINEMATICS_FORWARD_FLAGS *fflags,
+                      KINEMATICS_INVERSE_FLAGS *iflags)
+{
     (void)fflags;
     (void)iflags;
     set_geometry(*haldata->pfr, *haldata->tl, *haldata->sl, *haldata->fr);
     return kinematics_forward(joints, pos);
 }
 
-int kinematicsInverse(const EmcPose *pos, double *joints,
-        const KINEMATICS_INVERSE_FLAGS *iflags,
-        KINEMATICS_FORWARD_FLAGS *fflags) {
+int kinematicsInverse(const EmcPose *pos,
+                      double *joints,
+                      const KINEMATICS_INVERSE_FLAGS *iflags,
+                      KINEMATICS_FORWARD_FLAGS *fflags)
+{
     (void)iflags;
     (void)fflags;
     set_geometry(*haldata->pfr, *haldata->tl, *haldata->sl, *haldata->fr);
@@ -61,37 +63,35 @@ int rtapi_app_main(void)
     int retval = 0;
 
     comp_id = hal_init("rotarydeltakins");
-    if(comp_id < 0) retval = comp_id;
+    if (comp_id < 0)
+        retval = comp_id;
 
-    if(retval == 0)
-    {
+    if (retval == 0) {
         haldata = hal_malloc(sizeof(struct haldata));
         retval = !haldata;
     }
 
-    if(retval == 0)
-        retval = hal_pin_float_newf(HAL_IN, &haldata->pfr, comp_id,
-                "rotarydeltakins.platformradius");
-    if(retval == 0)
-        retval = hal_pin_float_newf(HAL_IN, &haldata->tl, comp_id,
-                "rotarydeltakins.thighlength");
-    if(retval == 0)
-        retval = hal_pin_float_newf(HAL_IN, &haldata->sl, comp_id,
-                "rotarydeltakins.shinlength");
-    if(retval == 0)
-        retval = hal_pin_float_newf(HAL_IN, &haldata->fr, comp_id,
-                "rotarydeltakins.footradius");
+    if (retval == 0)
+        retval = hal_pin_float_newf(
+            HAL_IN, &haldata->pfr, comp_id, "rotarydeltakins.platformradius");
+    if (retval == 0)
+        retval = hal_pin_float_newf(
+            HAL_IN, &haldata->tl, comp_id, "rotarydeltakins.thighlength");
+    if (retval == 0)
+        retval = hal_pin_float_newf(
+            HAL_IN, &haldata->sl, comp_id, "rotarydeltakins.shinlength");
+    if (retval == 0)
+        retval = hal_pin_float_newf(
+            HAL_IN, &haldata->fr, comp_id, "rotarydeltakins.footradius");
 
-    if(retval == 0)
-    {
+    if (retval == 0) {
         *haldata->pfr = RDELTA_PFR;
         *haldata->tl = RDELTA_TL;
         *haldata->sl = RDELTA_SL;
         *haldata->fr = RDELTA_FR;
     }
 
-    if(retval == 0)
-    {
+    if (retval == 0) {
         hal_ready(comp_id);
     }
 

@@ -35,26 +35,46 @@
 static int comp_id;
 
 #ifdef MODULE_INFO
-MODULE_INFO(linuxcnc, "component:hm2_7i90:LinuxCNC HAL driver for the Mesa Electronics 7i90 EPP Anything IO board with HostMot2 firmware.");
+MODULE_INFO(
+    linuxcnc,
+    "component:hm2_7i90:LinuxCNC HAL driver for the Mesa Electronics 7i90 EPP "
+    "Anything IO board with HostMot2 firmware.");
 MODULE_INFO(linuxcnc, "license:GPL");
 #endif // MODULE_INFO
 
 MODULE_LICENSE("GPL");
 
-static int ioaddr[HM2_7I90_MAX_BOARDS] = { 0, [1 ... (HM2_7I90_MAX_BOARDS-1)] = -1 };
-RTAPI_MP_ARRAY_INT(ioaddr, HM2_7I90_MAX_BOARDS, "base address of the parallel port(s) (see hm2_7i90(9) manpage)");
+static int ioaddr[HM2_7I90_MAX_BOARDS] = {
+    0, [1 ...(HM2_7I90_MAX_BOARDS - 1)] = -1};
+RTAPI_MP_ARRAY_INT(
+    ioaddr,
+    HM2_7I90_MAX_BOARDS,
+    "base address of the parallel port(s) (see hm2_7i90(9) manpage)");
 
-static int ioaddr_hi[HM2_7I90_MAX_BOARDS] = { [0 ... (HM2_7I90_MAX_BOARDS-1)] = 0 };
-RTAPI_MP_ARRAY_INT(ioaddr_hi, HM2_7I90_MAX_BOARDS, "secondary address of the parallel port(s) (see hm2_7i90(9) manpage)");
+static int ioaddr_hi[HM2_7I90_MAX_BOARDS] = {[0 ...(HM2_7I90_MAX_BOARDS - 1)] =
+                                                 0};
+RTAPI_MP_ARRAY_INT(
+    ioaddr_hi,
+    HM2_7I90_MAX_BOARDS,
+    "secondary address of the parallel port(s) (see hm2_7i90(9) manpage)");
 
-static int epp_wide[HM2_7I90_MAX_BOARDS] = { [0 ... (HM2_7I90_MAX_BOARDS-1)] = 1 };
-RTAPI_MP_ARRAY_INT(epp_wide, HM2_7I90_MAX_BOARDS, "set to 0 to disable wide EPP mode (see (hm2_7i90(9) manpage)");
+static int epp_wide[HM2_7I90_MAX_BOARDS] = {[0 ...(HM2_7I90_MAX_BOARDS - 1)] =
+                                                1};
+RTAPI_MP_ARRAY_INT(
+    epp_wide,
+    HM2_7I90_MAX_BOARDS,
+    "set to 0 to disable wide EPP mode (see (hm2_7i90(9) manpage)");
 
 int debug_epp = 0;
-RTAPI_MP_INT(debug_epp, "Developer/debug use only!  Enable debug logging of most EPP\ntransfers.");
+RTAPI_MP_INT(
+    debug_epp,
+    "Developer/debug use only!  Enable debug logging of most EPP\ntransfers.");
 
 static char *config[HM2_7I90_MAX_BOARDS];
-RTAPI_MP_ARRAY_STRING(config, HM2_7I90_MAX_BOARDS, "config string(s) for the 7i90 board(s) (see hostmot2(9) manpage)");
+RTAPI_MP_ARRAY_STRING(
+    config,
+    HM2_7I90_MAX_BOARDS,
+    "config string(s) for the 7i90 board(s) (see hostmot2(9) manpage)");
 
 //
 // this data structure keeps track of all the 7i90 boards found
@@ -64,36 +84,39 @@ static hm2_7i90_t board[HM2_7I90_MAX_BOARDS];
 static int num_boards;
 
 
-
-
 //
 // EPP I/O code
 //
 
-static inline void hm2_7i90_epp_addr8(rtapi_u8 addr, hm2_7i90_t *board) {
+static inline void hm2_7i90_epp_addr8(rtapi_u8 addr, hm2_7i90_t *board)
+{
     rtapi_outb(addr, board->port.base + HM2_7I90_EPP_ADDRESS_OFFSET);
     LL_PRINT_IF(debug_epp, "selected address 0x%02X\n", addr);
 }
 
-static inline void hm2_7i90_epp_addr16(rtapi_u16 addr, hm2_7i90_t *board) {
+static inline void hm2_7i90_epp_addr16(rtapi_u16 addr, hm2_7i90_t *board)
+{
     rtapi_outb((addr & 0x00FF), board->port.base + HM2_7I90_EPP_ADDRESS_OFFSET);
-    rtapi_outb((addr >> 8),     board->port.base + HM2_7I90_EPP_ADDRESS_OFFSET);
+    rtapi_outb((addr >> 8), board->port.base + HM2_7I90_EPP_ADDRESS_OFFSET);
     LL_PRINT_IF(debug_epp, "selected address 0x%04X\n", addr);
 }
 
-static inline void hm2_7i90_epp_write(int w, hm2_7i90_t *board) {
+static inline void hm2_7i90_epp_write(int w, hm2_7i90_t *board)
+{
     rtapi_outb(w, board->port.base + HM2_7I90_EPP_DATA_OFFSET);
     LL_PRINT_IF(debug_epp, "wrote data 0x%02X\n", w);
 }
 
-static inline int hm2_7i90_epp_read(hm2_7i90_t *board) {
+static inline int hm2_7i90_epp_read(hm2_7i90_t *board)
+{
     int val;
     val = rtapi_inb(board->port.base + HM2_7I90_EPP_DATA_OFFSET);
     LL_PRINT_IF(debug_epp, "read data 0x%02X\n", val);
     return val;
 }
 
-static inline rtapi_u32 hm2_7i90_epp_read32(hm2_7i90_t *board) {
+static inline rtapi_u32 hm2_7i90_epp_read32(hm2_7i90_t *board)
+{
     uint32_t data;
 
     if (board->epp_wide) {
@@ -105,47 +128,55 @@ static inline rtapi_u32 hm2_7i90_epp_read32(hm2_7i90_t *board) {
         b = hm2_7i90_epp_read(board);
         c = hm2_7i90_epp_read(board);
         d = hm2_7i90_epp_read(board);
-        data = a + (b<<8) + (c<<16) + (d<<24);
+        data = a + (b << 8) + (c << 16) + (d << 24);
     }
 
     return data;
 }
 
-static inline void hm2_7i90_epp_write32(uint32_t w, hm2_7i90_t *board) {
+static inline void hm2_7i90_epp_write32(uint32_t w, hm2_7i90_t *board)
+{
     if (board->epp_wide) {
         rtapi_outl(w, board->port.base + HM2_7I90_EPP_DATA_OFFSET);
         LL_PRINT_IF(debug_epp, "wrote data 0x%08X\n", w);
     } else {
         hm2_7i90_epp_write((w) & 0xFF, board);
-        hm2_7i90_epp_write((w >>  8) & 0xFF, board);
+        hm2_7i90_epp_write((w >> 8) & 0xFF, board);
         hm2_7i90_epp_write((w >> 16) & 0xFF, board);
         hm2_7i90_epp_write((w >> 24) & 0xFF, board);
     }
 }
 
-static inline uint8_t hm2_7i90_epp_read_status(hm2_7i90_t *board) {
+static inline uint8_t hm2_7i90_epp_read_status(hm2_7i90_t *board)
+{
     uint8_t val;
     val = rtapi_inb(board->port.base + HM2_7I90_EPP_STATUS_OFFSET);
     LL_PRINT_IF(debug_epp, "read status 0x%02X\n", val);
     return val;
 }
 
-static inline void hm2_7i90_epp_write_status(uint8_t status_byte, hm2_7i90_t *board) {
+static inline void hm2_7i90_epp_write_status(uint8_t status_byte,
+                                             hm2_7i90_t *board)
+{
     rtapi_outb(status_byte, board->port.base + HM2_7I90_EPP_STATUS_OFFSET);
     LL_PRINT_IF(debug_epp, "wrote status 0x%02X\n", status_byte);
 }
 
-static inline void hm2_7i90_epp_write_control(uint8_t control_byte, hm2_7i90_t *board) {
+static inline void hm2_7i90_epp_write_control(uint8_t control_byte,
+                                              hm2_7i90_t *board)
+{
     rtapi_outb(control_byte, board->port.base + HM2_7I90_EPP_CONTROL_OFFSET);
     LL_PRINT_IF(debug_epp, "wrote control 0x%02X\n", control_byte);
 }
 
 // returns TRUE if there's a timeout
-static inline int hm2_7i90_epp_check_for_timeout(hm2_7i90_t *board) {
+static inline int hm2_7i90_epp_check_for_timeout(hm2_7i90_t *board)
+{
     return (hm2_7i90_epp_read_status(board) & 0x01);
 }
 
-static int hm2_7i90_epp_clear_timeout(hm2_7i90_t *board) {
+static int hm2_7i90_epp_clear_timeout(hm2_7i90_t *board)
+{
     uint8_t status;
 
     if (!hm2_7i90_epp_check_for_timeout(board)) {
@@ -158,14 +189,14 @@ static int hm2_7i90_epp_clear_timeout(hm2_7i90_t *board) {
     // read in the actual status register
     status = hm2_7i90_epp_read_status(board);
 
-    hm2_7i90_epp_write_status(status | 0x01, board);  // Some reset by writing 1
-    hm2_7i90_epp_write_status(status & 0xFE, board);  // Others by writing 0
+    hm2_7i90_epp_write_status(status | 0x01, board); // Some reset by writing 1
+    hm2_7i90_epp_write_status(status & 0xFE, board); // Others by writing 0
 
     if (hm2_7i90_epp_check_for_timeout(board)) {
         LL_PRINT("failed to clear EPP Timeout!\n");
-        return 0;  // fail
+        return 0; // fail
     }
-    return 1;  // success
+    return 1; // success
 }
 
 
@@ -174,7 +205,8 @@ static int hm2_7i90_epp_clear_timeout(hm2_7i90_t *board) {
 //
 
 // FIXME: this is bogus
-static void hm2_7i90_nanosleep(unsigned long int nanoseconds) {
+static void hm2_7i90_nanosleep(unsigned long int nanoseconds)
+{
     long unsigned int max_ns_delay;
 
     max_ns_delay = rtapi_delay_max();
@@ -188,13 +220,15 @@ static void hm2_7i90_nanosleep(unsigned long int nanoseconds) {
 }
 
 
-
-
 //
 // these are the low-level i/o functions exported to the hostmot2 driver
 //
 
-int hm2_7i90_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, int size) {
+int hm2_7i90_read(hm2_lowlevel_io_t *this,
+                  rtapi_u32 addr,
+                  void *buffer,
+                  int size)
+{
     int bytes_remaining = size;
     hm2_7i90_t *board = this->private;
     char *cptr = buffer;
@@ -202,30 +236,34 @@ int hm2_7i90_read(hm2_lowlevel_io_t *this, rtapi_u32 addr, void *buffer, int siz
     hm2_7i90_epp_addr16(addr | HM2_7I90_ADDR_AUTOINCREMENT, board);
 
     for (; bytes_remaining > 3; bytes_remaining -= 4) {
-        *((rtapi_u32*)cptr) = hm2_7i90_epp_read32(board);
+        *((rtapi_u32 *)cptr) = hm2_7i90_epp_read32(board);
         cptr += 4;
     }
 
-    for ( ; bytes_remaining > 0; bytes_remaining --) {
-        *((rtapi_u8*)cptr) = hm2_7i90_epp_read(board);
+    for (; bytes_remaining > 0; bytes_remaining--) {
+        *((rtapi_u8 *)cptr) = hm2_7i90_epp_read(board);
         cptr++;
     }
 
     if (hm2_7i90_epp_check_for_timeout(board)) {
-        THIS_PRINT("EPP timeout on data cycle of read(addr=0x%04x, size=%d)\n", addr, size);
+        THIS_PRINT("EPP timeout on data cycle of read(addr=0x%04x, size=%d)\n",
+                   addr,
+                   size);
         (*this->io_error) = 1;
         this->needs_reset = 1;
         hm2_7i90_epp_clear_timeout(board);
-        return 0;  // fail
+        return 0; // fail
     }
 
-    return 1;  // success
+    return 1; // success
 }
 
 
-
-
-int hm2_7i90_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, const void *buffer, int size) {
+int hm2_7i90_write(hm2_lowlevel_io_t *this,
+                   rtapi_u32 addr,
+                   const void *buffer,
+                   int size)
+{
     int bytes_remaining = size;
     hm2_7i90_t *board = this->private;
     const char *cptr = buffer;
@@ -233,17 +271,19 @@ int hm2_7i90_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, const void *buffer, 
     hm2_7i90_epp_addr16(addr | HM2_7I90_ADDR_AUTOINCREMENT, board);
 
     for (; bytes_remaining > 3; bytes_remaining -= 4) {
-        hm2_7i90_epp_write32(*((rtapi_u32*)cptr), board);
+        hm2_7i90_epp_write32(*((rtapi_u32 *)cptr), board);
         cptr += 4;
     }
 
-    for ( ; bytes_remaining > 0; bytes_remaining --) {
-        hm2_7i90_epp_write(*((rtapi_u8*)cptr), board);
+    for (; bytes_remaining > 0; bytes_remaining--) {
+        hm2_7i90_epp_write(*((rtapi_u8 *)cptr), board);
         cptr++;
     }
 
     if (hm2_7i90_epp_check_for_timeout(board)) {
-        THIS_PRINT("EPP timeout on data cycle of write(addr=0x%04x, size=%d)\n", addr, size);
+        THIS_PRINT("EPP timeout on data cycle of write(addr=0x%04x, size=%d)\n",
+                   addr,
+                   size);
         (*this->io_error) = 1;
         this->needs_reset = 1;
         hm2_7i90_epp_clear_timeout(board);
@@ -254,10 +294,10 @@ int hm2_7i90_write(hm2_lowlevel_io_t *this, rtapi_u32 addr, const void *buffer, 
 }
 
 
-
-
-int hm2_7i90_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) {
-    int orig_debug_epp = debug_epp;  // we turn off EPP debugging for this part...
+int hm2_7i90_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile)
+{
+    int orig_debug_epp =
+        debug_epp; // we turn off EPP debugging for this part...
     hm2_7i90_t *board = this->private;
     int64_t start_time, end_time;
     const rtapi_u8 *firmware = bitfile->e.data;
@@ -273,7 +313,7 @@ int hm2_7i90_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) {
     // select the CPLD's data address
     hm2_7i90_epp_addr8(0, board);
 
-    for (unsigned i = 0; i < bitfile->e.size; i ++, firmware ++) {
+    for (unsigned i = 0; i < bitfile->e.size; i++, firmware++) {
         hm2_7i90_epp_write(bitfile_reverse_bits(*firmware), board);
     }
 
@@ -298,11 +338,12 @@ int hm2_7i90_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) {
         duration_ns = (uint32_t)(end_time - start_time);
 
         if (duration_ns != 0) {
-            THIS_INFO(
-                "%zu bytes of firmware sent (%u KB/s)\n",
-                bitfile->e.size,
-                (uint32_t)(((double)bitfile->e.size / ((double)duration_ns / (double)(1000 * 1000 * 1000))) / 1024)
-            );
+            THIS_INFO("%zu bytes of firmware sent (%u KB/s)\n",
+                      bitfile->e.size,
+                      (uint32_t)(((double)bitfile->e.size /
+                                  ((double)duration_ns /
+                                   (double)(1000 * 1000 * 1000))) /
+                                 1024));
         }
     }
 
@@ -311,10 +352,9 @@ int hm2_7i90_program_fpga(hm2_lowlevel_io_t *this, const bitfile_t *bitfile) {
 }
 
 
-
-
 // return 0 if the board has been reset, -errno if not
-int hm2_7i90_reset(hm2_lowlevel_io_t *this) {
+int hm2_7i90_reset(hm2_lowlevel_io_t *this)
+{
     hm2_7i90_t *board = this->private;
     uint8_t byte;
 
@@ -357,19 +397,18 @@ int hm2_7i90_reset(hm2_lowlevel_io_t *this) {
 }
 
 
-
-
 //
 // setup and cleanup code
 //
 
 
-static void hm2_7i90_cleanup(void) {
+static void hm2_7i90_cleanup(void)
+{
     int i;
 
     // NOTE: hal_malloc() doesn't have a matching free
 
-    for (i = 0; i < num_boards; i ++) {
+    for (i = 0; i < num_boards; i++) {
         hm2_lowlevel_io_t *this = &board[i].llio;
         THIS_PRINT("releasing board\n");
         hm2_unregister(this);
@@ -378,17 +417,20 @@ static void hm2_7i90_cleanup(void) {
 }
 
 
-static int hm2_7i90_setup(void) {
+static int hm2_7i90_setup(void)
+{
     int i;
 
-    LL_PRINT("loading HostMot2 Mesa 7i90 driver version %s\n", HM2_7I90_VERSION);
+    LL_PRINT("loading HostMot2 Mesa 7i90 driver version %s\n",
+             HM2_7I90_VERSION);
 
     // zero the board structs
     memset(board, 0, HM2_7I90_MAX_BOARDS * sizeof(hm2_7i90_t));
     num_boards = 0;
 
-    for (i = 0; i < HM2_7I90_MAX_BOARDS; i ++) {
-        if (ioaddr[i] < 0) break;
+    for (i = 0; i < HM2_7I90_MAX_BOARDS; i++) {
+        if (ioaddr[i] < 0)
+            break;
 
         hm2_lowlevel_io_t *this;
         int r;
@@ -399,14 +441,17 @@ static int hm2_7i90_setup(void) {
         // claim the I/O regions for the parport
         //
 
-        r = hal_parport_get(comp_id, &board[i].port,
-                ioaddr[i], ioaddr_hi[i], PARPORT_MODE_EPP);
-        if(r < 0)
+        r = hal_parport_get(
+            comp_id, &board[i].port, ioaddr[i], ioaddr_hi[i], PARPORT_MODE_EPP);
+        if (r < 0)
             return r;
 
         // set up the parport for EPP
-        if(board[i].port.base_hi) {
-            rtapi_outb(0x94, board[i].port.base_hi + HM2_7I90_ECP_CONTROL_HIGH_OFFSET); // select EPP mode in ECR
+        if (board[i].port.base_hi) {
+            rtapi_outb(
+                0x94,
+                board[i].port.base_hi +
+                    HM2_7I90_ECP_CONTROL_HIGH_OFFSET); // select EPP mode in ECR
         }
 
         //
@@ -414,10 +459,15 @@ static int hm2_7i90_setup(void) {
         //
 
         // select the device and tell it to make itself ready for io
-        hm2_7i90_epp_write_control(0x04, &board[i]);  // set control lines and input mode
+        hm2_7i90_epp_write_control(
+            0x04, &board[i]); // set control lines and input mode
         hm2_7i90_epp_clear_timeout(&board[i]);
 
-        rtapi_snprintf(board[i].llio.name, sizeof(board[i].llio.name), "%s.%d", HM2_LLIO_NAME, i);
+        rtapi_snprintf(board[i].llio.name,
+                       sizeof(board[i].llio.name),
+                       "%s.%d",
+                       HM2_LLIO_NAME,
+                       i);
         board[i].llio.comp_id = comp_id;
 
         board[i].llio.read = hm2_7i90_read;
@@ -436,8 +486,6 @@ static int hm2_7i90_setup(void) {
         this = &board[i].llio;
 
 
-
-
         //  select CPLD data register
         hm2_7i90_epp_addr8(0, &board[i]);
 
@@ -453,7 +501,8 @@ static int hm2_7i90_setup(void) {
         if (r != 0) {
             hal_parport_release(&board[i].port);
             THIS_ERR(
-                "board at (ioaddr=0x%04X, ioaddr_hi=0x%04X, epp_wide %s) not found!\n",
+                "board at (ioaddr=0x%04X, ioaddr_hi=0x%04X, epp_wide %s) not "
+                "found!\n",
                 board[i].port.base,
                 board[i].port.base_hi,
                 (board[i].epp_wide ? "ON" : "OFF"));
@@ -464,21 +513,22 @@ static int hm2_7i90_setup(void) {
             "board at (ioaddr=0x%04X, ioaddr_hi=0x%04X, epp_wide %s) found\n",
             board[i].port.base,
             board[i].port.base_hi,
-            (board[i].epp_wide ? "ON" : "OFF")
-        );
+            (board[i].epp_wide ? "ON" : "OFF"));
 
-        num_boards ++;
+        num_boards++;
     }
 
     return 0;
 }
 
 
-int rtapi_app_main(void) {
+int rtapi_app_main(void)
+{
     int r = 0;
 
     comp_id = hal_init(HM2_LLIO_NAME);
-    if (comp_id < 0) return comp_id;
+    if (comp_id < 0)
+        return comp_id;
 
     r = hm2_7i90_setup();
     if (r) {
@@ -492,9 +542,9 @@ int rtapi_app_main(void) {
 }
 
 
-void rtapi_app_exit(void) {
+void rtapi_app_exit(void)
+{
     hm2_7i90_cleanup();
     hal_exit(comp_id);
     LL_PRINT("driver unloaded\n");
 }
-

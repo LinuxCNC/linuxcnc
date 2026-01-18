@@ -13,30 +13,30 @@
 * Copyright (c) 2004 All rights reserved.
 ********************************************************************/
 
-#include "emc/linuxcnc.h"     	/* LINELEN definition */
-#include <stdlib.h>		/* exit() */
+#include "emc/linuxcnc.h" /* LINELEN definition */
+#include <stdlib.h>       /* exit() */
 #include <sys/stat.h>
-#include <string.h>		/* memcpy() */
-#include <float.h>		/* DBL_MIN */
-#include "motion.h"		/* emcmot_status_t,CMD */
-#include "motion_struct.h"      /* emcmot_struct_t */
-#include "emcmotcfg.h"		/* EMCMOT_ERROR_NUM,LEN */
-#include "emcmotglb.h"		/* SHMEM_KEY */
-#include "usrmotintf.h"		/* these decls */
+#include <string.h>        /* memcpy() */
+#include <float.h>         /* DBL_MIN */
+#include "motion.h"        /* emcmot_status_t,CMD */
+#include "motion_struct.h" /* emcmot_struct_t */
+#include "emcmotcfg.h"     /* EMCMOT_ERROR_NUM,LEN */
+#include "emcmotglb.h"     /* SHMEM_KEY */
+#include "usrmotintf.h"    /* these decls */
 #include "_timer.h"
 #include "rcs_print.hh"
 
 #include "inifile.hh"
 
-#define READ_TIMEOUT_SEC 0	/* seconds for timeout */
-#define READ_TIMEOUT_USEC 100000	/* microseconds for timeout */
+#define READ_TIMEOUT_SEC 0       /* seconds for timeout */
+#define READ_TIMEOUT_USEC 100000 /* microseconds for timeout */
 
 #include "rtapi.h"
 
 #include "dbuf.h"
 #include "stashf.h"
 
-static int inited = 0;		/* flag if inited */
+static int inited = 0; /* flag if inited */
 
 static emcmot_command_t *emcmotCommand = 0;
 static emcmot_status_t *emcmotStatus = 0;
@@ -49,12 +49,12 @@ static emcmot_struct_t *emcmotStruct = 0;
    from named INI file */
 int usrmotIniLoad(const char *filename)
 {
-    IniFile inifile(IniFile::ERR_CONVERSION);   // Enable exception.
+    IniFile inifile(IniFile::ERR_CONVERSION); // Enable exception.
 
     /* open it */
     if (!inifile.Open(filename)) {
-	rtapi_print("can't find emcmot INI file %s\n", filename);
-	return -1;
+        rtapi_print("can't find emcmot INI file %s\n", filename);
+        return -1;
     }
 
     try {
@@ -62,24 +62,24 @@ int usrmotIniLoad(const char *filename)
         inifile.Find(&EMCMOT_COMM_TIMEOUT, "COMM_TIMEOUT", "EMCMOT");
     }
 
-    catch(IniFile::Exception &e){
+    catch (IniFile::Exception &e) {
         e.Print();
-	return -1;
+        return -1;
     }
 
     return 0;
 }
 
 /* writes command from c */
-int usrmotWriteEmcmotCommand(emcmot_command_t * c)
+int usrmotWriteEmcmotCommand(emcmot_command_t *c)
 {
     emcmot_status_t s;
     static int commandNum = 0;
     double end;
 
     if (!MOTION_ID_VALID(c->id)) {
-        rcs_print("USRMOT: ERROR: invalid motion id: %d\n",c->id);
-	return EMCMOT_COMM_INVALID_MOTION_ID;
+        rcs_print("USRMOT: ERROR: invalid motion id: %d\n", c->id);
+        return EMCMOT_COMM_INVALID_MOTION_ID;
     }
 
     c->commandNum = ++commandNum;
@@ -87,7 +87,7 @@ int usrmotWriteEmcmotCommand(emcmot_command_t * c)
     /* check for mapped mem still around */
     if (0 == emcmotCommand) {
         rcs_print("USRMOT: ERROR: can't connect to shared memory\n");
-	return EMCMOT_COMM_ERROR_CONNECT;
+        return EMCMOT_COMM_ERROR_CONNECT;
     }
 
     /* copy entire command structure to shared memory */
@@ -100,94 +100,100 @@ int usrmotWriteEmcmotCommand(emcmot_command_t * c)
     end = etime() + EMCMOT_COMM_TIMEOUT;
     /* now check to see if it got it */
     while (etime() < end) {
-	/* update status */
-	if (( usrmotReadEmcmotStatus(&s) == 0 ) && ( s.commandNumEcho == commandNum )) {
-	    /* now check emcmot status flag */
-	    if (s.commandStatus == EMCMOT_COMMAND_OK) {
-		return EMCMOT_COMM_OK;
-	    } else {
+        /* update status */
+        if ((usrmotReadEmcmotStatus(&s) == 0) &&
+            (s.commandNumEcho == commandNum)) {
+            /* now check emcmot status flag */
+            if (s.commandStatus == EMCMOT_COMMAND_OK) {
+                return EMCMOT_COMM_OK;
+            } else {
                 rcs_print("USRMOT: ERROR: invalid command\n");
-		return EMCMOT_COMM_ERROR_COMMAND;
-	    }
-	}
-	esleep(25e-6);
+                return EMCMOT_COMM_ERROR_COMMAND;
+            }
+        }
+        esleep(25e-6);
     }
-    rcs_print("USRMOT: ERROR: command %u timeout (seq: %d)\n", c->command, commandNum);
+    rcs_print("USRMOT: ERROR: command %u timeout (seq: %d)\n",
+              c->command,
+              commandNum);
     return EMCMOT_COMM_ERROR_TIMEOUT;
 }
 
 /* copies status to s */
-int usrmotReadEmcmotStatus(emcmot_status_t * s)
+int usrmotReadEmcmotStatus(emcmot_status_t *s)
 {
     int split_read_count;
 
     /* check for shmem still around */
     if (0 == emcmotStatus) {
-	return EMCMOT_COMM_ERROR_CONNECT;
+        return EMCMOT_COMM_ERROR_CONNECT;
     }
     split_read_count = 0;
     do {
-	if(split_read_count > 0) esleep(1e-6);	// Don't busy-loop and give time to process
-	/* copy status struct from shmem to local memory */
-	memcpy(s, emcmotStatus, sizeof(emcmot_status_t));
-	/* got it, now check head-tail matche */
-	if (s->head == s->tail) {
-	    /* head and tail match, done */
-	    return EMCMOT_COMM_OK;
-	}
-	/* inc counter and try again, max three times */
-    } while ( ++split_read_count < 3 );
+        if (split_read_count > 0)
+            esleep(1e-6); // Don't busy-loop and give time to process
+        /* copy status struct from shmem to local memory */
+        memcpy(s, emcmotStatus, sizeof(emcmot_status_t));
+        /* got it, now check head-tail matche */
+        if (s->head == s->tail) {
+            /* head and tail match, done */
+            return EMCMOT_COMM_OK;
+        }
+        /* inc counter and try again, max three times */
+    } while (++split_read_count < 3);
     /* A timeout is harmless. It will be tried again, soon enough */
     /* rcs_print("%s: Split read timeout\n", __FUNCTION__); */
     return EMCMOT_COMM_SPLIT_READ_TIMEOUT;
 }
 
 /* copies config to s */
-int usrmotReadEmcmotConfig(emcmot_config_t * s)
+int usrmotReadEmcmotConfig(emcmot_config_t *s)
 {
     int split_read_count;
 
     /* check for shmem still around */
     if (0 == emcmotConfig) {
-	return EMCMOT_COMM_ERROR_CONNECT;
+        return EMCMOT_COMM_ERROR_CONNECT;
     }
     split_read_count = 0;
     do {
-	if(split_read_count > 0) esleep(1e-6);	// Don't busy-loop and give time to process
-	/* copy config struct from shmem to local memory */
-	memcpy(s, emcmotConfig, sizeof(emcmot_config_t));
-	/* got it, now check head-tail matches */
-	if (s->head == s->tail) {
-	    /* head and tail match, done */
-	    return EMCMOT_COMM_OK;
-	}
-	/* inc counter and try again, max three times */
-    } while ( ++split_read_count < 3 );
+        if (split_read_count > 0)
+            esleep(1e-6); // Don't busy-loop and give time to process
+        /* copy config struct from shmem to local memory */
+        memcpy(s, emcmotConfig, sizeof(emcmot_config_t));
+        /* got it, now check head-tail matches */
+        if (s->head == s->tail) {
+            /* head and tail match, done */
+            return EMCMOT_COMM_OK;
+        }
+        /* inc counter and try again, max three times */
+    } while (++split_read_count < 3);
     rcs_print("%s: Split read timeout\n", __FUNCTION__);
     return EMCMOT_COMM_SPLIT_READ_TIMEOUT;
 }
 
 /* copies internal to s */
-int usrmotReadEmcmotInternal(emcmot_internal_t * s)
+int usrmotReadEmcmotInternal(emcmot_internal_t *s)
 {
     int split_read_count;
 
     /* check for shmem still around */
     if (0 == emcmotInternal) {
-	return EMCMOT_COMM_ERROR_CONNECT;
+        return EMCMOT_COMM_ERROR_CONNECT;
     }
     split_read_count = 0;
     do {
-	if(split_read_count > 0) esleep(1e-6);	// Don't busy-loop and give time to process
-	/* copy debug struct from shmem to local memory */
-	memcpy(s, emcmotInternal, sizeof(emcmot_internal_t));
-	/* got it, now check head-tail matches */
-	if (s->head == s->tail) {
-	    /* head and tail match, done */
-	    return EMCMOT_COMM_OK;
-	}
-	/* inc counter and try again, max three times */
-    } while ( ++split_read_count < 3 );
+        if (split_read_count > 0)
+            esleep(1e-6); // Don't busy-loop and give time to process
+        /* copy debug struct from shmem to local memory */
+        memcpy(s, emcmotInternal, sizeof(emcmot_internal_t));
+        /* got it, now check head-tail matches */
+        if (s->head == s->tail) {
+            /* head and tail match, done */
+            return EMCMOT_COMM_OK;
+        }
+        /* inc counter and try again, max three times */
+    } while (++split_read_count < 3);
     rcs_print("%s: Split read timeout\n", __FUNCTION__);
     return EMCMOT_COMM_SPLIT_READ_TIMEOUT;
 }
@@ -197,7 +203,7 @@ int usrmotReadEmcmotError(char *e)
 {
     /* check to see if ptr still around */
     if (emcmotError == 0) {
-	return -1;
+        return -1;
     }
 
     char data[EMCMOT_ERROR_LEN];
@@ -206,13 +212,15 @@ int usrmotReadEmcmotError(char *e)
 
     /* returns 0 if something, -1 if not */
     int result = emcmotErrorGet(emcmotError, data);
-    if(result < 0) return result;
+    if (result < 0)
+        return result;
 
     struct dbuf_iter di;
     dbuf_iter_init(&di, &d);
 
-    result =  snprintdbuf(e, EMCMOT_ERROR_LEN, &di);
-    if(result < 0) return result;
+    result = snprintdbuf(e, EMCMOT_ERROR_LEN, &di);
+    if (result < 0)
+        return result;
     return 0;
 }
 
@@ -222,7 +230,7 @@ int usrmotReadEmcmotError(char *e)
  converts short int to 0-1 style string, in s. Assumes a short is 2 bytes.
 */
 /*! \todo Another #if 0 */
-#if 0				/*! \todo FIXME - don't know if this is still needed
+#if 0 /*! \todo FIXME - don't know if this is still needed
 				 */
 
 static int htostr(char *s, unsigned short h)
@@ -239,15 +247,21 @@ static int htostr(char *s, unsigned short h)
 }
 #endif
 
-void printEmcPose(EmcPose * pose)
+void printEmcPose(EmcPose *pose)
 {
     printf("x=%f\ty=%f\tz=%f\tu=%f\tv=%f\tw=%f\ta=%f\tb=%f\tc=%f",
-           pose->tran.x, pose->tran.y, pose->tran.z,
-           pose->u, pose->v, pose->w,
-           pose->a, pose->b, pose->c);
+           pose->tran.x,
+           pose->tran.y,
+           pose->tran.z,
+           pose->u,
+           pose->v,
+           pose->w,
+           pose->a,
+           pose->b,
+           pose->c);
 }
 
-void printTPstruct(TP_STRUCT * tp)
+void printTPstruct(TP_STRUCT *tp)
 {
     printf("queueSize=%d\n", tp->queueSize);
     printf("cycleTime=%f\n", tp->cycleTime);
@@ -274,19 +288,19 @@ void printTPstruct(TP_STRUCT * tp)
 
 void usrmotPrintEmcmotConfig(emcmot_config_t c, int which)
 {
-//    int t;
-//    char m[32];
+    //    int t;
+    //    char m[32];
 
     switch (which) {
     case 0:
-	printf("debug level   \t%d\n", c.debug);
-	printf("traj time:    \t%f\n", c.trajCycleTime);
-	printf("servo time:   \t%f\n", c.servoCycleTime);
-	printf("interp rate:  \t%d\n", c.interpolationRate);
-	printf("v limit:      \t%f\n", c.limitVel);
-	printf("axis vlimit:  \t");
+        printf("debug level   \t%d\n", c.debug);
+        printf("traj time:    \t%f\n", c.trajCycleTime);
+        printf("servo time:   \t%f\n", c.servoCycleTime);
+        printf("interp rate:  \t%d\n", c.interpolationRate);
+        printf("v limit:      \t%f\n", c.limitVel);
+        printf("axis vlimit:  \t");
 /*! \todo Another #if 0 */
-#if 0				/*! \todo FIXME - waiting for new structs */
+#if 0 /*! \todo FIXME - waiting for new structs */
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("%f ", c.axisLimitVel[t]);
 	}
@@ -297,11 +311,11 @@ void usrmotPrintEmcmotConfig(emcmot_config_t c, int which)
 	}
 	printf("\n");
 #endif
-	printf("\n");
-	break;
+        printf("\n");
+        break;
 
     case 1:
-	printf("pid stuff is obsolete\n");
+        printf("pid stuff is obsolete\n");
 /*! \todo Another #if 0 */
 #if 0
 	printf
@@ -315,11 +329,11 @@ void usrmotPrintEmcmotConfig(emcmot_config_t c, int which)
 	}
 	printf("\n");
 #endif
-	break;
+        break;
 
     case 3:
 /*! \todo Another #if 0 */
-#if 0				/*! \todo FIXME - waiting for new structs */
+#if 0 /*! \todo FIXME - waiting for new structs */
 	printf("pos limits:   ");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
 	    printf("\t%f", c.maxLimit[t]);
@@ -348,31 +362,30 @@ void usrmotPrintEmcmotConfig(emcmot_config_t c, int which)
 	}
 	printf("\n");
 #endif
-	break;
+        break;
 
-    default:
-	break;
+    default: break;
     }
-
 }
 
 /* status printing function */
 void usrmotPrintEmcmotStatus(emcmot_status_t *s, int which)
 {
-//    int t;
-//    char m[32];
+    //    int t;
+    //    char m[32];
 
     switch (which) {
     case 0:
-	printf("mode:         \t%s\n",
-	    s->motionFlag & EMCMOT_MOTION_TELEOP_BIT ? "teleop" :
-	    (s->motionFlag & EMCMOT_MOTION_COORD_BIT ? "coord" : "free")
-	    );
-	printf("cmd:          \t%d\n", s->commandEcho);
-	printf("cmd num:      \t%d\n", s->commandNumEcho);
-	printf("heartbeat:    \t%u\n", s->heartbeat);
+        printf(
+            "mode:         \t%s\n",
+            s->motionFlag & EMCMOT_MOTION_TELEOP_BIT
+                ? "teleop"
+                : (s->motionFlag & EMCMOT_MOTION_COORD_BIT ? "coord" : "free"));
+        printf("cmd:          \t%d\n", s->commandEcho);
+        printf("cmd num:      \t%d\n", s->commandNumEcho);
+        printf("heartbeat:    \t%u\n", s->heartbeat);
 /*! \todo Another #if 0 */
-#if 0				/*! \todo FIXME - change to work with joint
+#if 0 /*! \todo FIXME - change to work with joint
 				   structures */
 	printf("axes enabled: \t");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
@@ -380,17 +393,23 @@ void usrmotPrintEmcmotStatus(emcmot_status_t *s, int which)
 	}
 	printf("\n");
 #endif
-	printf("cmd pos:      \t%f\t%f\t%f\t%f\t%f\t%f\n",
-	    s->carte_pos_cmd.tran.x, s->carte_pos_cmd.tran.y,
-	    s->carte_pos_cmd.tran.z, s->carte_pos_cmd.a, s->carte_pos_cmd.b,
-	    s->carte_pos_cmd.c);
-	printf("act pos:      \t%f\t%f\t%f\t%f\t%f\t%f\n",
-	    s->carte_pos_fb.tran.x, s->carte_pos_fb.tran.y,
-	    s->carte_pos_fb.tran.z, s->carte_pos_fb.a, s->carte_pos_fb.b,
-	    s->carte_pos_fb.c);
-	printf("joint data:\n");
+        printf("cmd pos:      \t%f\t%f\t%f\t%f\t%f\t%f\n",
+               s->carte_pos_cmd.tran.x,
+               s->carte_pos_cmd.tran.y,
+               s->carte_pos_cmd.tran.z,
+               s->carte_pos_cmd.a,
+               s->carte_pos_cmd.b,
+               s->carte_pos_cmd.c);
+        printf("act pos:      \t%f\t%f\t%f\t%f\t%f\t%f\n",
+               s->carte_pos_fb.tran.x,
+               s->carte_pos_fb.tran.y,
+               s->carte_pos_fb.tran.z,
+               s->carte_pos_fb.a,
+               s->carte_pos_fb.b,
+               s->carte_pos_fb.c);
+        printf("joint data:\n");
 /*! \todo Another #if 0 */
-#if 0				/*! \todo FIXME - change to work with joint
+#if 0 /*! \todo FIXME - change to work with joint
 				   structures */
 	printf(" cmd: ");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
@@ -423,15 +442,15 @@ void usrmotPrintEmcmotStatus(emcmot_status_t *s, int which)
 	}
 	printf("\n");
 #endif
-	printf("velocity:     \t%f\n", s->vel);
-	printf("accel:        \t%f\n", s->acc);
-	printf("id:           \t%d\n", s->id);
-	printf("depth:        \t%d\n", s->depth);
-	printf("active depth: \t%d\n", s->activeDepth);
-	printf("inpos:        \t%d\n",
-	    s->motionFlag & EMCMOT_MOTION_INPOS_BIT ? 1 : 0);
+        printf("velocity:     \t%f\n", s->vel);
+        printf("accel:        \t%f\n", s->acc);
+        printf("id:           \t%d\n", s->id);
+        printf("depth:        \t%d\n", s->depth);
+        printf("active depth: \t%d\n", s->activeDepth);
+        printf("inpos:        \t%d\n",
+               s->motionFlag & EMCMOT_MOTION_INPOS_BIT ? 1 : 0);
 /*! \todo Another #if 0 */
-#if 0				/*! \todo FIXME - change to work with joint
+#if 0 /*! \todo FIXME - change to work with joint
 				   structures */
 	printf("homing:       \t");
 	for (t = 0; t < EMCMOT_MAX_JOINTS; t++) {
@@ -439,19 +458,22 @@ void usrmotPrintEmcmotStatus(emcmot_status_t *s, int which)
 	}
 	printf("\n");
 #endif
-	printf("enabled:     \t%s\n",
-	    s->motionFlag & EMCMOT_MOTION_ENABLE_BIT ? "ENABLED" : "DISABLED");
-	printf("probe value: %d\n", s->probeVal);
-	printf("probe Tripped: %d\n", s->probeTripped);
-	printf("probing: %d\n", s->probing);
-	printf("probed pos:      \t%f\t%f\t%f\n",
-	    s->probedPos.tran.x, s->probedPos.tran.y, s->probedPos.tran.z);
-	break;
+        printf("enabled:     \t%s\n",
+               s->motionFlag & EMCMOT_MOTION_ENABLE_BIT ? "ENABLED"
+                                                        : "DISABLED");
+        printf("probe value: %d\n", s->probeVal);
+        printf("probe Tripped: %d\n", s->probeTripped);
+        printf("probing: %d\n", s->probing);
+        printf("probed pos:      \t%f\t%f\t%f\n",
+               s->probedPos.tran.x,
+               s->probedPos.tran.y,
+               s->probedPos.tran.z);
+        break;
 
     case 2:
-	/* print motion and axis flags */
+        /* print motion and axis flags */
 /*! \todo Another #if 0 */
-#if 0				/*! \todo FIXME - change to work with joint
+#if 0 /*! \todo FIXME - change to work with joint
 				   structures */
 	htostr(m, s->motionFlag);
 	printf("motion:   %s\n", m);
@@ -518,13 +540,13 @@ void usrmotPrintEmcmotStatus(emcmot_status_t *s, int which)
 	    printf("%d\t", ((s->axisFlag[t] & EMCMOT_JOINT_FAULT_BIT) != 0));
 	}
 #endif
-	printf("fault\n");
-	printf("\npolarity: ");
-	printf("limit override mask: %08x\n", s->overrideLimitMask);
-	break;
+        printf("fault\n");
+        printf("\npolarity: ");
+        printf("limit override mask: %08x\n", s->overrideLimitMask);
+        break;
 
     case 4:
-	printf("scales handled in HAL now!\n");
+        printf("scales handled in HAL now!\n");
 /*! \todo Another #if 0 */
 #if 0
 	printf("output scales: ");
@@ -549,10 +571,9 @@ void usrmotPrintEmcmotStatus(emcmot_status_t *s, int which)
 
 	printf("\n");
 #endif
-	break;
+        break;
 
-    default:
-	break;
+    default: break;
     }
 }
 
@@ -565,25 +586,23 @@ int usrmotInit(const char *modname)
 
     module_id = rtapi_init(modname);
     if (module_id < 0) {
-	fprintf(stderr,
-	    "usrmotintf: ERROR: rtapi init failed\n");
-	return -1;
+        fprintf(stderr, "usrmotintf: ERROR: rtapi init failed\n");
+        return -1;
     }
     /* get shared memory block from RTAPI */
     shmem_id = rtapi_shmem_new(SHMEM_KEY, module_id, sizeof(emcmot_struct_t));
     if (shmem_id < 0) {
-	fprintf(stderr,
-	    "usrmotintf: ERROR: could not open shared memory\n");
-	rtapi_exit(module_id);
-	return -1;
+        fprintf(stderr, "usrmotintf: ERROR: could not open shared memory\n");
+        rtapi_exit(module_id);
+        return -1;
     }
     /* get address of shared memory area */
-    retval = rtapi_shmem_getptr(shmem_id, (void **) &emcmotStruct);
+    retval = rtapi_shmem_getptr(shmem_id, (void **)&emcmotStruct);
     if (retval < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "usrmotintf: ERROR: could not access shared memory\n");
-	rtapi_exit(module_id);
-	return -1;
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "usrmotintf: ERROR: could not access shared memory\n");
+        rtapi_exit(module_id);
+        return -1;
     }
     /* got it */
     emcmotCommand = &(emcmotStruct->command);
@@ -600,8 +619,8 @@ int usrmotInit(const char *modname)
 int usrmotExit(void)
 {
     if (NULL != emcmotStruct) {
-	rtapi_shmem_delete(shmem_id, module_id);
-	rtapi_exit(module_id);
+        rtapi_shmem_delete(shmem_id, module_id);
+        rtapi_exit(module_id);
     }
 
     emcmotStruct = 0;
@@ -636,42 +655,42 @@ int usrmotLoadComp(int joint, const char *file, int type)
 
     /* check joint range */
     if (joint < 0 || joint >= EMCMOT_MAX_JOINTS) {
-	fprintf(stderr, "joint out of range for compensation\n");
-	return -1;
+        fprintf(stderr, "joint out of range for compensation\n");
+        return -1;
     }
 
     /* open input comp file */
     if (NULL == (fp = fopen(file, "r"))) {
-	fprintf(stderr, "can't open compensation file %s\n", file);
-	return -1;
+        fprintf(stderr, "can't open compensation file %s\n", file);
+        return -1;
     }
 
     while (!feof(fp)) {
-	if (NULL == fgets(buffer, LINELEN, fp)) {
-	    break;
-	}
-	if (3 != sscanf(buffer, "%lf %lf %lf", &nom, &fwd, &rev)) {
-	    break;
-	} else {
-	    // got a triplet
-	    if (type == 0) {
-		/* expecting nominal-forward-reverse triplets, e.g.,
+        if (NULL == fgets(buffer, LINELEN, fp)) {
+            break;
+        }
+        if (3 != sscanf(buffer, "%lf %lf %lf", &nom, &fwd, &rev)) {
+            break;
+        } else {
+            // got a triplet
+            if (type == 0) {
+                /* expecting nominal-forward-reverse triplets, e.g.,
 		    0.000000 0.000000 -0.001279
 		    0.100000 0.098742  0.051632
 		    0.200000 0.171529  0.194216 */
-    		emcmotCommand.comp_nominal = nom;
-    		emcmotCommand.comp_forward = nom - fwd; //convert to diffs
-    		emcmotCommand.comp_reverse = nom - rev; //convert to diffs
-	    } else {
-		/* expecting nominal-forw_trim-rev_trim triplets */
-    		emcmotCommand.comp_nominal = nom;
-    		emcmotCommand.comp_forward = fwd;
-    		emcmotCommand.comp_reverse = rev;
-	    }
-	    emcmotCommand.joint = joint;
-	    emcmotCommand.command = EMCMOT_SET_JOINT_COMP;
-	    ret |= usrmotWriteEmcmotCommand(&emcmotCommand);
-	}
+                emcmotCommand.comp_nominal = nom;
+                emcmotCommand.comp_forward = nom - fwd; //convert to diffs
+                emcmotCommand.comp_reverse = nom - rev; //convert to diffs
+            } else {
+                /* expecting nominal-forw_trim-rev_trim triplets */
+                emcmotCommand.comp_nominal = nom;
+                emcmotCommand.comp_forward = fwd;
+                emcmotCommand.comp_reverse = rev;
+            }
+            emcmotCommand.joint = joint;
+            emcmotCommand.command = EMCMOT_SET_JOINT_COMP;
+            ret |= usrmotWriteEmcmotCommand(&emcmotCommand);
+        }
     }
     fclose(fp);
 
@@ -681,10 +700,10 @@ int usrmotLoadComp(int joint, const char *file, int type)
 
 int usrmotPrintComp(int /*joint*/)
 {
-/* FIXME-AJ: comp isn't in shmem atm
+    /* FIXME-AJ: comp isn't in shmem atm
   it's in the joint struct, which is only in shmem when STRUCTS_IN_SHM is defined,
   currently only usrmot uses usrmotPrintComp - might go away */
-return -1;
+    return -1;
 /* currently disabled */
 #if 0
     int t;

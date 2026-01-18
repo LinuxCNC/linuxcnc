@@ -21,43 +21,51 @@
 /* Register access modifiers */
 #if !defined(__I) && !defined(__O) && !defined(__IO)
 #ifdef __cplusplus
-#define __I  volatile		/* read only permission */
+#define __I volatile /* read only permission */
 #else
-#define __I  volatile const	/* read only permission */
+#define __I volatile const /* read only permission */
 #endif
-#define __O	 volatile		/* write only permission */
-#define __IO volatile		/* read/write permission */
+#define __O volatile  /* write only permission */
+#define __IO volatile /* read/write permission */
 #else
 #error "Possible define collision for __I, __O and __IO"
 #endif
 
 /* Forced inline expansion */
-#define HWREGACCESS_ALWAYS_INLINE	__attribute__((always_inline))
+#define HWREGACCESS_ALWAYS_INLINE __attribute__((always_inline))
 
 /*
  * Synchronisation primitives
  * - rmb(): Read memory barrier
  * - wmb(): Write memory barrier
  */
-HWREGACCESS_ALWAYS_INLINE static inline void rmb(void) { __sync_synchronize(); }
-HWREGACCESS_ALWAYS_INLINE static inline void wmb(void) { __sync_synchronize(); }
+HWREGACCESS_ALWAYS_INLINE static inline void rmb(void)
+{
+    __sync_synchronize();
+}
+HWREGACCESS_ALWAYS_INLINE static inline void wmb(void)
+{
+    __sync_synchronize();
+}
 
 /*
  * Synchronized read and write to peripheral memory.
  * Ensures coherency between cores, cache and peripherals
  */
-HWREGACCESS_ALWAYS_INLINE static inline uint32_t reg_rd(const volatile void *addr)
+HWREGACCESS_ALWAYS_INLINE static inline uint32_t
+reg_rd(const volatile void *addr)
 {
-	uint32_t val;
-	val = *(volatile uint32_t *)addr;
-	rmb();
-	return val;
+    uint32_t val;
+    val = *(volatile uint32_t *)addr;
+    rmb();
+    return val;
 }
 
-HWREGACCESS_ALWAYS_INLINE static inline void reg_wr(const volatile void *addr, uint32_t val)
+HWREGACCESS_ALWAYS_INLINE static inline void reg_wr(const volatile void *addr,
+                                                    uint32_t val)
 {
-	wmb();
-	*(volatile uint32_t *)addr = val;
+    wmb();
+    *(volatile uint32_t *)addr = val;
 }
 
 /*
@@ -65,16 +73,18 @@ HWREGACCESS_ALWAYS_INLINE static inline void reg_wr(const volatile void *addr, u
  * reads and writes. For example, PCIe transactions may possibly be pipe-lined
  * with multiple subsequent raw read/write calls.
  */
-HWREGACCESS_ALWAYS_INLINE static inline uint32_t reg_rd_raw(const volatile void *addr)
+HWREGACCESS_ALWAYS_INLINE static inline uint32_t
+reg_rd_raw(const volatile void *addr)
 {
-	uint32_t val;
-	val = *(volatile uint32_t *)addr;
-	return val;
+    uint32_t val;
+    val = *(volatile uint32_t *)addr;
+    return val;
 }
 
-HWREGACCESS_ALWAYS_INLINE static inline void reg_wr_raw(const volatile void *addr, uint32_t val)
+HWREGACCESS_ALWAYS_INLINE static inline void
+reg_wr_raw(const volatile void *addr, uint32_t val)
 {
-	*(volatile uint32_t *)addr = val;
+    *(volatile uint32_t *)addr = val;
 }
 
 #endif

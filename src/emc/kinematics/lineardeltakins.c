@@ -21,26 +21,28 @@
 
 #include "lineardeltakins-common.h"
 
-struct haldata
-{
+struct haldata {
     hal_float_t *r, *l;
 } *haldata;
 
 int comp_id;
 
-int kinematicsForward(const double * joints,
-                      EmcPose * pos,
-                      const KINEMATICS_FORWARD_FLAGS * fflags,
-                      KINEMATICS_INVERSE_FLAGS * iflags) {
+int kinematicsForward(const double *joints,
+                      EmcPose *pos,
+                      const KINEMATICS_FORWARD_FLAGS *fflags,
+                      KINEMATICS_INVERSE_FLAGS *iflags)
+{
     (void)fflags;
     (void)iflags;
     set_geometry(*haldata->r, *haldata->l);
     return kinematics_forward(joints, pos);
 }
 
-int kinematicsInverse(const EmcPose *pos, double *joints,
-        const KINEMATICS_INVERSE_FLAGS *iflags,
-        KINEMATICS_FORWARD_FLAGS *fflags) {
+int kinematicsInverse(const EmcPose *pos,
+                      double *joints,
+                      const KINEMATICS_INVERSE_FLAGS *iflags,
+                      KINEMATICS_FORWARD_FLAGS *fflags)
+{
     (void)iflags;
     (void)fflags;
     set_geometry(*haldata->r, *haldata->l);
@@ -57,29 +59,27 @@ int rtapi_app_main(void)
     int retval = 0;
 
     comp_id = hal_init("lineardeltakins");
-    if(comp_id < 0) retval = comp_id;
+    if (comp_id < 0)
+        retval = comp_id;
 
-    if(retval == 0)
-    {
+    if (retval == 0) {
         haldata = hal_malloc(sizeof(struct haldata));
         retval = !haldata;
     }
 
-    if(retval == 0)
-        retval = hal_pin_float_newf(HAL_IN, &haldata->r, comp_id,
-                "lineardeltakins.R");
-    if(retval == 0)
-        retval = hal_pin_float_newf(HAL_IN, &haldata->l, comp_id,
-                "lineardeltakins.L");
+    if (retval == 0)
+        retval = hal_pin_float_newf(
+            HAL_IN, &haldata->r, comp_id, "lineardeltakins.R");
+    if (retval == 0)
+        retval = hal_pin_float_newf(
+            HAL_IN, &haldata->l, comp_id, "lineardeltakins.L");
 
-    if(retval == 0)
-    {
+    if (retval == 0) {
         *haldata->r = DELTA_RADIUS;
         *haldata->l = DELTA_DIAGONAL_ROD;
     }
 
-    if(retval == 0)
-    {
+    if (retval == 0) {
         hal_ready(comp_id);
     }
 

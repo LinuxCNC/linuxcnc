@@ -71,28 +71,27 @@ struct scara_data {
 #define D6 (*(haldata->d6))
 
 /* joint[0], joint[1] and joint[3] are in degrees and joint[2] is in length units */
-static
-int scaraKinematicsForward(const double * joint,
-                      EmcPose * world,
-                      const KINEMATICS_FORWARD_FLAGS * fflags,
-                      KINEMATICS_INVERSE_FLAGS * iflags)
+static int scaraKinematicsForward(const double *joint,
+                                  EmcPose *world,
+                                  const KINEMATICS_FORWARD_FLAGS *fflags,
+                                  KINEMATICS_INVERSE_FLAGS *iflags)
 {
     (void)fflags;
     double a0, a1, a3;
     double x, y, z, c;
 
-/* convert joint angles to radians for sin() and cos() */
+    /* convert joint angles to radians for sin() and cos() */
 
-    a0 = joint[0] * ( PM_PI / 180 );
-    a1 = joint[1] * ( PM_PI / 180 );
-    a3 = joint[3] * ( PM_PI / 180 );
-/* convert angles into world coords */
+    a0 = joint[0] * (PM_PI / 180);
+    a1 = joint[1] * (PM_PI / 180);
+    a3 = joint[3] * (PM_PI / 180);
+    /* convert angles into world coords */
 
     a1 = a1 + a0;
     a3 = a3 + a1;
 
-    x = D2*cos(a0) + D4*cos(a1) + D6*cos(a3);
-    y = D2*sin(a0) + D4*sin(a1) + D6*sin(a3);
+    x = D2 * cos(a0) + D4 * cos(a1) + D6 * cos(a3);
+    y = D2 * sin(a0) + D4 * sin(a1) + D6 * sin(a3);
     z = D1 + D3 - joint[2] - D5;
     c = a3;
 
@@ -111,10 +110,10 @@ int scaraKinematicsForward(const double * joint,
     return (0);
 } //scaraKinematicsForward()
 
-static int scaraKinematicsInverse(const EmcPose * world,
-                                  double * joint,
-                                  const KINEMATICS_INVERSE_FLAGS * iflags,
-                                  KINEMATICS_FORWARD_FLAGS * fflags)
+static int scaraKinematicsInverse(const EmcPose *world,
+                                  double *joint,
+                                  const KINEMATICS_INVERSE_FLAGS *iflags,
+                                  KINEMATICS_FORWARD_FLAGS *fflags)
 {
     double a3;
     double q0, q1;
@@ -127,19 +126,21 @@ static int scaraKinematicsInverse(const EmcPose * world,
     c = world->c;
 
     /* convert degrees to radians */
-    a3 = c * ( PM_PI / 180 );
+    a3 = c * (PM_PI / 180);
 
     /* center of end effector (correct for D6) */
-    xt = x - D6*cos(a3);
-    yt = y - D6*sin(a3);
+    xt = x - D6 * cos(a3);
+    yt = y - D6 * sin(a3);
 
     /* horizontal distance (squared) from end effector centerline
         to main column centerline */
-    rsq = xt*xt + yt*yt;
+    rsq = xt * xt + yt * yt;
     /* joint 1 angle needed to make arm length match sqrt(rsq) */
-    cc = (rsq - D2*D2 - D4*D4) / (2*D2*D4);
-    if(cc < -1) cc = -1;
-    if(cc > 1) cc = 1;
+    cc = (rsq - D2 * D2 - D4 * D4) / (2 * D2 * D4);
+    if (cc < -1)
+        cc = -1;
+    if (cc > 1)
+        cc = 1;
     q1 = acos(cc);
 
     if (*iflags)
@@ -149,8 +150,8 @@ static int scaraKinematicsInverse(const EmcPose * world,
     q0 = atan2(yt, xt);
 
     /* end effector coords in inner arm coord system */
-    xt = D2 + D4*cos(q1);
-    yt = D4*sin(q1);
+    xt = D2 + D4 * cos(q1);
+    yt = D4 * sin(q1);
 
     /* inner arm angle */
     q0 = q0 - atan2(yt, xt);
@@ -162,7 +163,7 @@ static int scaraKinematicsInverse(const EmcPose * world,
     joint[0] = q0;
     joint[1] = q1;
     joint[2] = D1 + D3 - D5 - z;
-    joint[3] = c - ( q0 + q1);
+    joint[3] = c - (q0 + q1);
     joint[4] = world->a;
     joint[5] = world->b;
 
@@ -173,28 +174,36 @@ static int scaraKinematicsInverse(const EmcPose * world,
 
 #define DEFAULT_D1 490
 #define DEFAULT_D2 340
-#define DEFAULT_D3  50
+#define DEFAULT_D3 50
 #define DEFAULT_D4 250
-#define DEFAULT_D5  50
-#define DEFAULT_D6  50
+#define DEFAULT_D5 50
+#define DEFAULT_D6 50
 
-static int scaraKinematicsSetup(const  int   comp_id,
-                                const  char* coordinates,
-                                kparms*      kp)
+static int
+scaraKinematicsSetup(const int comp_id, const char *coordinates, kparms *kp)
 {
     (void)coordinates;
-    int res=0;
+    int res = 0;
 
     haldata = hal_malloc(sizeof(*haldata));
-    if (!haldata) goto error;
+    if (!haldata)
+        goto error;
 
-    res += hal_pin_float_newf(HAL_IN, &(haldata->d1), comp_id,"%s.D1",kp->halprefix);
-    res += hal_pin_float_newf(HAL_IN, &(haldata->d2), comp_id,"%s.D2",kp->halprefix);
-    res += hal_pin_float_newf(HAL_IN, &(haldata->d3), comp_id,"%s.D3",kp->halprefix);
-    res += hal_pin_float_newf(HAL_IN, &(haldata->d4), comp_id,"%s.D4",kp->halprefix);
-    res += hal_pin_float_newf(HAL_IN, &(haldata->d5), comp_id,"%s.D5",kp->halprefix);
-    res += hal_pin_float_newf(HAL_IN, &(haldata->d6), comp_id,"%s.D6",kp->halprefix);
-    if (res) { goto error; }
+    res += hal_pin_float_newf(
+        HAL_IN, &(haldata->d1), comp_id, "%s.D1", kp->halprefix);
+    res += hal_pin_float_newf(
+        HAL_IN, &(haldata->d2), comp_id, "%s.D2", kp->halprefix);
+    res += hal_pin_float_newf(
+        HAL_IN, &(haldata->d3), comp_id, "%s.D3", kp->halprefix);
+    res += hal_pin_float_newf(
+        HAL_IN, &(haldata->d4), comp_id, "%s.D4", kp->halprefix);
+    res += hal_pin_float_newf(
+        HAL_IN, &(haldata->d5), comp_id, "%s.D5", kp->halprefix);
+    res += hal_pin_float_newf(
+        HAL_IN, &(haldata->d6), comp_id, "%s.D6", kp->halprefix);
+    if (res) {
+        goto error;
+    }
 
     D1 = DEFAULT_D1;
     D2 = DEFAULT_D2;
@@ -209,19 +218,24 @@ error:
     return -1;
 } // scaraKinematicsSetup()
 
-int switchkinsSetup(kparms* kp,
-                    KS* kset0, KS* kset1, KS* kset2,
-                    KF* kfwd0, KF* kfwd1, KF* kfwd2,
-                    KI* kinv0, KI* kinv1, KI* kinv2
-                   )
+int switchkinsSetup(kparms *kp,
+                    KS *kset0,
+                    KS *kset1,
+                    KS *kset2,
+                    KF *kfwd0,
+                    KF *kfwd1,
+                    KF *kfwd2,
+                    KI *kinv0,
+                    KI *kinv1,
+                    KI *kinv2)
 {
-    kp->kinsname    = "scarakins"; // !!! must agree with filename
-    kp->halprefix   = "scarakins"; // hal pin names
+    kp->kinsname = "scarakins";          // !!! must agree with filename
+    kp->halprefix = "scarakins";         // hal pin names
     kp->required_coordinates = "xyzabc"; // ab are scaragui table tilts
-    kp->allow_duplicates     = 0;
+    kp->allow_duplicates = 0;
     kp->max_joints = strlen(kp->required_coordinates);
 
-    rtapi_print("\n!!! switchkins-type 0 is %s\n",kp->kinsname);
+    rtapi_print("\n!!! switchkins-type 0 is %s\n", kp->kinsname);
     *kset0 = scaraKinematicsSetup;
     *kfwd0 = scaraKinematicsForward;
     *kinv0 = scaraKinematicsInverse;

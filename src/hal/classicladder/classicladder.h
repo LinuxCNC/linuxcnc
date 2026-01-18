@@ -58,44 +58,48 @@
 #define NBR_VARS_WORDS_SYSTEM 20
 
 typedef struct plc_sizeinfo_s {
-	int	nbr_rungs;
-	int	nbr_bits;
-	int	nbr_words;
+    int nbr_rungs;
+    int nbr_bits;
+    int nbr_words;
 #ifdef OLD_TIMERS_MONOS_SUPPORT
-	int	nbr_timers;
-	int	nbr_monostables;
+    int nbr_timers;
+    int nbr_monostables;
 #endif
-	int	nbr_counters;
-	int	nbr_timers_iec;
-	int	nbr_phys_inputs;
-	int	nbr_phys_outputs;
-	int	nbr_arithm_expr;
-	int	nbr_sections;
-	int nbr_symbols;
-	int	nbr_phys_words_inputs;
-	int	nbr_phys_words_outputs;
-        int     nbr_phys_float_inputs;
-        int     nbr_phys_float_outputs;
-        int     nbr_error_bits;
-}plc_sizeinfo_s;
+    int nbr_counters;
+    int nbr_timers_iec;
+    int nbr_phys_inputs;
+    int nbr_phys_outputs;
+    int nbr_arithm_expr;
+    int nbr_sections;
+    int nbr_symbols;
+    int nbr_phys_words_inputs;
+    int nbr_phys_words_outputs;
+    int nbr_phys_float_inputs;
+    int nbr_phys_float_outputs;
+    int nbr_error_bits;
+} plc_sizeinfo_s;
 
-#define NBR_RUNGS 	       InfosGene->GeneralParams.SizesInfos.nbr_rungs
-#define NBR_BITS 	       InfosGene->GeneralParams.SizesInfos.nbr_bits
-#define NBR_WORDS	       InfosGene->GeneralParams.SizesInfos.nbr_words
-#define NBR_TIMERS 	       InfosGene->GeneralParams.SizesInfos.nbr_timers
-#define NBR_MONOSTABLES        InfosGene->GeneralParams.SizesInfos.nbr_monostables
-#define NBR_COUNTERS	       InfosGene->GeneralParams.SizesInfos.nbr_counters
-#define NBR_TIMERS_IEC 	       InfosGene->GeneralParams.SizesInfos.nbr_timers_iec
-#define NBR_PHYS_INPUTS        InfosGene->GeneralParams.SizesInfos.nbr_phys_inputs
-#define NBR_PHYS_OUTPUTS       InfosGene->GeneralParams.SizesInfos.nbr_phys_outputs
-#define NBR_ARITHM_EXPR        InfosGene->GeneralParams.SizesInfos.nbr_arithm_expr
-#define NBR_SECTIONS 	       InfosGene->GeneralParams.SizesInfos.nbr_sections
-#define NBR_SYMBOLS	       InfosGene->GeneralParams.SizesInfos.nbr_symbols
-#define NBR_PHYS_WORDS_INPUTS  InfosGene->GeneralParams.SizesInfos.nbr_phys_words_inputs
-#define NBR_PHYS_WORDS_OUTPUTS InfosGene->GeneralParams.SizesInfos.nbr_phys_words_outputs
-#define NBR_PHYS_FLOAT_INPUTS  InfosGene->GeneralParams.SizesInfos.nbr_phys_float_inputs
-#define NBR_PHYS_FLOAT_OUTPUTS InfosGene->GeneralParams.SizesInfos.nbr_phys_float_outputs
-#define NBR_ERROR_BITS 	       InfosGene->GeneralParams.SizesInfos.nbr_error_bits
+#define NBR_RUNGS InfosGene->GeneralParams.SizesInfos.nbr_rungs
+#define NBR_BITS InfosGene->GeneralParams.SizesInfos.nbr_bits
+#define NBR_WORDS InfosGene->GeneralParams.SizesInfos.nbr_words
+#define NBR_TIMERS InfosGene->GeneralParams.SizesInfos.nbr_timers
+#define NBR_MONOSTABLES InfosGene->GeneralParams.SizesInfos.nbr_monostables
+#define NBR_COUNTERS InfosGene->GeneralParams.SizesInfos.nbr_counters
+#define NBR_TIMERS_IEC InfosGene->GeneralParams.SizesInfos.nbr_timers_iec
+#define NBR_PHYS_INPUTS InfosGene->GeneralParams.SizesInfos.nbr_phys_inputs
+#define NBR_PHYS_OUTPUTS InfosGene->GeneralParams.SizesInfos.nbr_phys_outputs
+#define NBR_ARITHM_EXPR InfosGene->GeneralParams.SizesInfos.nbr_arithm_expr
+#define NBR_SECTIONS InfosGene->GeneralParams.SizesInfos.nbr_sections
+#define NBR_SYMBOLS InfosGene->GeneralParams.SizesInfos.nbr_symbols
+#define NBR_PHYS_WORDS_INPUTS                                                  \
+    InfosGene->GeneralParams.SizesInfos.nbr_phys_words_inputs
+#define NBR_PHYS_WORDS_OUTPUTS                                                 \
+    InfosGene->GeneralParams.SizesInfos.nbr_phys_words_outputs
+#define NBR_PHYS_FLOAT_INPUTS                                                  \
+    InfosGene->GeneralParams.SizesInfos.nbr_phys_float_inputs
+#define NBR_PHYS_FLOAT_OUTPUTS                                                 \
+    InfosGene->GeneralParams.SizesInfos.nbr_phys_float_outputs
+#define NBR_ERROR_BITS InfosGene->GeneralParams.SizesInfos.nbr_error_bits
 
 #define ARITHM_EXPR_SIZE 50
 
@@ -133,8 +137,9 @@ typedef struct plc_sizeinfo_s {
 #define THICK_LINE_ELE_ACTIVATED 3
 
 /* convenient calcs used many time... */
-#define TOTAL_PX_RUNG_HEIGHT ( InfosGene->HeaderLabelCommentHeight + InfosGene->BlockHeight*RUNG_HEIGHT )
-#define TOTAL_PX_RUNG_WIDTH ( InfosGene->BlockWidth*RUNG_WIDTH )
+#define TOTAL_PX_RUNG_HEIGHT                                                   \
+    (InfosGene->HeaderLabelCommentHeight + InfosGene->BlockHeight * RUNG_HEIGHT)
+#define TOTAL_PX_RUNG_WIDTH (InfosGene->BlockWidth * RUNG_WIDTH)
 
 /* elements in the rungs */
 #define ELE_FREE 0
@@ -184,7 +189,7 @@ typedef struct plc_sizeinfo_s {
 #define VAR_PHYS_OUTPUT 60
 #define VAR_SYSTEM 70
 #define VAR_ERROR_BIT 75
-#define VAR_ARE_WORD 199    /* after it, all vars are no more booleans */
+#define VAR_ARE_WORD 199 /* after it, all vars are no more booleans */
 /* integers */
 #define VAR_MEM_WORD 200
 #define VAR_STEP_TIME 220
@@ -202,7 +207,7 @@ typedef struct plc_sizeinfo_s {
 #define VAR_PHYS_FLOAT_INPUT 300
 #define VAR_PHYS_FLOAT_OUTPUT 310
 
-#define TEST_VAR_IS_A_BOOL( type, offset ) (type<VAR_ARE_WORD)
+#define TEST_VAR_IS_A_BOOL(type, offset) (type < VAR_ARE_WORD)
 #define VAR_DEFAULT_TYPE VAR_MEM_BIT
 #define BASE_MINS 0
 #define BASE_SECS 1
@@ -218,189 +223,179 @@ typedef struct plc_sizeinfo_s {
 //#define VAR_ATTRIBUTE_SEP ','
 #define VAR_ATTRIBUTE_SEP '.'
 
-typedef struct StrElement
-{
-	short int Type;
-	char ConnectedWithTop;
-	int VarType;
-	int VarNum;     /* or NumRung (for jump), NumTimer, NumMonostable,... */
-	int IndexedVarType;
-	int IndexedVarNum;
-	
-	char DynamicInput;
-	char DynamicState;
-	char DynamicVarBak; /* used for rising/falling edges */
-	char DynamicOutput;
-}StrElement;
+typedef struct StrElement {
+    short int Type;
+    char ConnectedWithTop;
+    int VarType;
+    int VarNum; /* or NumRung (for jump), NumTimer, NumMonostable,... */
+    int IndexedVarType;
+    int IndexedVarNum;
+
+    char DynamicInput;
+    char DynamicState;
+    char DynamicVarBak; /* used for rising/falling edges */
+    char DynamicOutput;
+} StrElement;
 
 #define LGT_LABEL 10
 #define LGT_COMMENT 30
-typedef struct StrRung
-{
-	int Used;
-	int PrevRung;
-	int NextRung;
-	char Label[LGT_LABEL];
-	char Comment[LGT_COMMENT];
-	StrElement Element[RUNG_WIDTH][RUNG_HEIGHT];
-}StrRung;
+typedef struct StrRung {
+    int Used;
+    int PrevRung;
+    int NextRung;
+    char Label[LGT_LABEL];
+    char Comment[LGT_COMMENT];
+    StrElement Element[RUNG_WIDTH][RUNG_HEIGHT];
+} StrRung;
 
 #ifdef OLD_TIMERS_MONOS_SUPPORT
-typedef struct StrTimer
-{
-	int Preset;
-	int Value;
-	int Base;
-	char DisplayFormat[10];
-	char InputEnable;
-	char InputControl;
-	char OutputDone;
-	char OutputRunning;
-}StrTimer;
-typedef struct StrMonostable
-{
-	int Preset;
-	int Value;
-	int Base;
-	char DisplayFormat[10];
-	char Input;
-	char InputBak;
-	char OutputRunning;
-}StrMonostable;
+typedef struct StrTimer {
+    int Preset;
+    int Value;
+    int Base;
+    char DisplayFormat[10];
+    char InputEnable;
+    char InputControl;
+    char OutputDone;
+    char OutputRunning;
+} StrTimer;
+typedef struct StrMonostable {
+    int Preset;
+    int Value;
+    int Base;
+    char DisplayFormat[10];
+    char Input;
+    char InputBak;
+    char OutputRunning;
+} StrMonostable;
 #endif
 
-typedef struct StrCounter
-{
-	int Preset;
-	int Value;
-	int ValueBak;
-	char InputReset;
-	char InputPreset;
-	char InputCountUp;
-	char InputCountUpBak;
-	char InputCountDown;
-	char InputCountDownBak;
-	char OutputDone;
-	char OutputEmpty;
-	char OutputFull;
-}StrCounter;
+typedef struct StrCounter {
+    int Preset;
+    int Value;
+    int ValueBak;
+    char InputReset;
+    char InputPreset;
+    char InputCountUp;
+    char InputCountUpBak;
+    char InputCountDown;
+    char InputCountDownBak;
+    char OutputDone;
+    char OutputEmpty;
+    char OutputFull;
+} StrCounter;
 
-typedef struct StrTimerIEC
-{
-	int Preset; /* value in number of base units */
-	int Value; /* value in number of base units */
-	int Base;
-	char TimerMode;
-	char DisplayFormat[10];
-	char Input;
-	char InputBak;
-	char Output;
-	char TimerStarted;
-	int ValueToReachOneBaseUnit;
-}StrTimerIEC;
+typedef struct StrTimerIEC {
+    int Preset; /* value in number of base units */
+    int Value;  /* value in number of base units */
+    int Base;
+    char TimerMode;
+    char DisplayFormat[10];
+    char Input;
+    char InputBak;
+    char Output;
+    char TimerStarted;
+    int ValueToReachOneBaseUnit;
+} StrTimerIEC;
 
-typedef struct StrArithmExpr
-{
-	char Expr[ARITHM_EXPR_SIZE];
-}StrArithmExpr;
+typedef struct StrArithmExpr {
+    char Expr[ARITHM_EXPR_SIZE];
+} StrArithmExpr;
 
-#define DEVICE_TYPE_NONE -1 //added in 0.9.4 because now we can have DEVICE_TYPE_DIRECT_CONFIG and FirstClassicLadderIO at -1 !!!
-#define DEVICE_TYPE_DIRECT_ACCESS 0	/* use inb( ) and outb( ) calls to read/write local inputs/outputs */
-#define DEVICE_TYPE_COMEDI 100	/* /dev/comedi0 and following */
+#define DEVICE_TYPE_NONE                                                       \
+    -1 //added in 0.9.4 because now we can have DEVICE_TYPE_DIRECT_CONFIG and FirstClassicLadderIO at -1 !!!
+#define DEVICE_TYPE_DIRECT_ACCESS                                              \
+    0 /* use inb( ) and outb( ) calls to read/write local inputs/outputs */
+#define DEVICE_TYPE_COMEDI 100 /* /dev/comedi0 and following */
 
-typedef struct StrIOConf
-{
-	int FirstClassicLadderIO;	/* -1 : not used */
-	int DeviceType;		/* a comedi device or type direct I/O access */
-	int SubDevOrAdr;	/* comedi sub-device or I/O port address */
-	int FirstChannel;
-	int NbrConsecutivesChannels;
-	int FlagInverted;
-}StrIOConf;
+typedef struct StrIOConf {
+    int FirstClassicLadderIO; /* -1 : not used */
+    int DeviceType;           /* a comedi device or type direct I/O access */
+    int SubDevOrAdr;          /* comedi sub-device or I/O port address */
+    int FirstChannel;
+    int NbrConsecutivesChannels;
+    int FlagInverted;
+} StrIOConf;
 
-typedef struct StrGeneralParams
-{
-	plc_sizeinfo_s SizesInfos;
-	int PeriodicRefreshMilliSecs;
-}StrGeneralParams;
+typedef struct StrGeneralParams {
+    plc_sizeinfo_s SizesInfos;
+    int PeriodicRefreshMilliSecs;
+} StrGeneralParams;
 
-typedef struct StrInfosGene
-{
-	int FirstRung;
-	int CurrentRung;
-	int LastRung;
-	int LadderState;
-	int HideGuiState;
-	int UnderCalculationPleaseWait;
-	int LadderStoppedToRunBack;
-	char CmdRefreshVarsBits;
-	
-	int BlockWidth;
-	int BlockHeight;
-	int PageWidth;
-	int PageHeight;
-	int TopRungDisplayed;
-	int OffsetHiddenTopRungDisplayed;
-	int OffsetCurrentRungDisplayed;
-	int HScrollValue;
-	int VScrollValue;
-	int HeaderLabelCommentHeight;
-	
-	/* how time for the last scan of the rungs in ns (if calc on RTLinux side) */
-	int DurationOfLastScan;
-	
-	int CurrentSection;
+typedef struct StrInfosGene {
+    int FirstRung;
+    int CurrentRung;
+    int LastRung;
+    int LadderState;
+    int HideGuiState;
+    int UnderCalculationPleaseWait;
+    int LadderStoppedToRunBack;
+    char CmdRefreshVarsBits;
 
-	StrGeneralParams GeneralParams;
-	StrIOConf InputsConf[ NBR_INPUTS_CONF ];
-	StrIOConf OutputsConf[ NBR_OUTPUTS_CONF ];
+    int BlockWidth;
+    int BlockHeight;
+    int PageWidth;
+    int PageHeight;
+    int TopRungDisplayed;
+    int OffsetHiddenTopRungDisplayed;
+    int OffsetCurrentRungDisplayed;
+    int HScrollValue;
+    int VScrollValue;
+    int HeaderLabelCommentHeight;
 
-	char AskConfirmationToQuit;
-	char HasBeenModifiedForExitCode;
-	char HardwareErrMsgToDisplay[ 100 ];
-	char DisplaySymbols;
-        char CurrentProjectFileName[ 400 ];
-	char AskToConfHard;
+    /* how time for the last scan of the rungs in ns (if calc on RTLinux side) */
+    int DurationOfLastScan;
 
-	//XXX log functionality not implemented.
-	//char LogContentModified;
-	//char DefaultLogListModified;
-}StrInfosGene;
+    int CurrentSection;
+
+    StrGeneralParams GeneralParams;
+    StrIOConf InputsConf[NBR_INPUTS_CONF];
+    StrIOConf OutputsConf[NBR_OUTPUTS_CONF];
+
+    char AskConfirmationToQuit;
+    char HasBeenModifiedForExitCode;
+    char HardwareErrMsgToDisplay[100];
+    char DisplaySymbols;
+    char CurrentProjectFileName[400];
+    char AskToConfHard;
+
+    //XXX log functionality not implemented.
+    //char LogContentModified;
+    //char DefaultLogListModified;
+} StrInfosGene;
 
 /* Different states of Ladder */
 #define STATE_LOADING 0
 #define STATE_STOP 1
 #define STATE_RUN 2
 
-typedef struct StrEditRung
-{
-	StrRung Rung;
-	char ModeEdit;
-	int NumRung;
-	char DoBeforeFinalCopy;
-	short int NumElementSelectedInToolBar;
-	StrElement * ElementUnderEdit;
-	int CurrentElementPosiX;
-	int CurrentElementPosiY;
-	int CurrentElementSizeX;
-	int CurrentElementSizeY;
-	/* used to see size of element type selected, or selected zone for copy function */
-	int GhostZonePosiX;
-	int GhostZonePosiY;
-	int GhostZoneSizeX;
-	int GhostZoneSizeY;
-}StrEditRung;
+typedef struct StrEditRung {
+    StrRung Rung;
+    char ModeEdit;
+    int NumRung;
+    char DoBeforeFinalCopy;
+    short int NumElementSelectedInToolBar;
+    StrElement *ElementUnderEdit;
+    int CurrentElementPosiX;
+    int CurrentElementPosiY;
+    int CurrentElementSizeX;
+    int CurrentElementSizeY;
+    /* used to see size of element type selected, or selected zone for copy function */
+    int GhostZonePosiX;
+    int GhostZonePosiY;
+    int GhostZoneSizeX;
+    int GhostZoneSizeY;
+} StrEditRung;
 
 #define NBR_PARAMS_PER_OBJ 4
 
 #define NBR_TIMEBASES 3
-typedef struct StrDatasForBases
-{
-	int Id;
-	int ValueInMS;
-	char * DisplayFormat;
-	char * ParamSelect;
-}StrDatasForBase;
+typedef struct StrDatasForBases {
+    int Id;
+    int ValueInMS;
+    char *DisplayFormat;
+    char *ParamSelect;
+} StrDatasForBase;
 
 #define NBR_TIMERSMODES 3
 
@@ -408,29 +403,27 @@ typedef struct StrDatasForBases
 #define SECTION_IN_SEQUENTIAL 1
 
 #define LGT_SECTION_NAME 20
-typedef struct StrSection
-{
-	char Used;
-	char Name[ LGT_SECTION_NAME ];
-	int Language; /* SECTION_IN_ */
-	/* -1 if not a sub-routine, else sub-routine number used for the calls */
-	int SubRoutineNumber;
-	/* if section is in Ladder */
-	int FirstRung;
-	int LastRung;
-	/* if section is in Sequential */
-	int SequentialPage;
-}StrSection;
+typedef struct StrSection {
+    char Used;
+    char Name[LGT_SECTION_NAME];
+    int Language; /* SECTION_IN_ */
+    /* -1 if not a sub-routine, else sub-routine number used for the calls */
+    int SubRoutineNumber;
+    /* if section is in Ladder */
+    int FirstRung;
+    int LastRung;
+    /* if section is in Sequential */
+    int SequentialPage;
+} StrSection;
 
 #define LGT_VAR_NAME 10
 #define LGT_SYMBOL_STRING 10
 #define LGT_SYMBOL_COMMENT 50
-typedef struct StrSymbol
-{
-	char VarName[ LGT_VAR_NAME ];
-	char Symbol[ LGT_SYMBOL_STRING ];
-	char Comment[ LGT_SYMBOL_COMMENT ];
-}StrSymbol;
+typedef struct StrSymbol {
+    char VarName[LGT_VAR_NAME];
+    char Symbol[LGT_SYMBOL_STRING];
+    char Comment[LGT_SYMBOL_COMMENT];
+} StrSymbol;
 
 #define CREATE_FILE_SELECTION_TO_LOAD_PROJECT 0
 #define CREATE_FILE_SELECTION_TO_SAVE_PROJECT 1
@@ -474,35 +467,38 @@ typedef struct StrConfigEventLog
 
 #ifdef SEQUENTIAL_SUPPORT
 #include "sequential.h"
-#define SIZE_VAR_ARRAY (NBR_BITS+NBR_PHYS_INPUTS+NBR_PHYS_OUTPUTS+NBR_STEPS+NBR_ERROR_BITS)
-#define SIZE_VAR_WORD_ARRAY (NBR_WORDS+NBR_STEPS)
-#define SIZE_VAR_FLOAT_ARRAY (NBR_PHYS_FLOAT_INPUTS+NBR_PHYS_FLOAT_OUTPUTS)
+#define SIZE_VAR_ARRAY                                                         \
+    (NBR_BITS + NBR_PHYS_INPUTS + NBR_PHYS_OUTPUTS + NBR_STEPS + NBR_ERROR_BITS)
+#define SIZE_VAR_WORD_ARRAY (NBR_WORDS + NBR_STEPS)
+#define SIZE_VAR_FLOAT_ARRAY (NBR_PHYS_FLOAT_INPUTS + NBR_PHYS_FLOAT_OUTPUTS)
 #else
-#define SIZE_VAR_ARRAY (NBR_BITS+NBR_PHYS_INPUTS+NBR_PHYS_OUTPUTS+NBR_ERROR_BITS)
-#define SIZE_VAR_WORD_ARRAY (NBR_WORDS+NBR_PHYS_WORDS_INPUTS+NBR_PHYS_WORDS_OUTPUTS)
-#define SIZE_VAR_FLOAT_ARRAY (NBR_PHYS_FLOAT_INPUTS+NBR_PHYS_FLOAT_OUTPUTS)
+#define SIZE_VAR_ARRAY                                                         \
+    (NBR_BITS + NBR_PHYS_INPUTS + NBR_PHYS_OUTPUTS + NBR_ERROR_BITS)
+#define SIZE_VAR_WORD_ARRAY                                                    \
+    (NBR_WORDS + NBR_PHYS_WORDS_INPUTS + NBR_PHYS_WORDS_OUTPUTS)
+#define SIZE_VAR_FLOAT_ARRAY (NBR_PHYS_FLOAT_INPUTS + NBR_PHYS_FLOAT_OUTPUTS)
 #endif
 
-void ClassicLadderEndOfAppli( void );
-void DoPauseMilliSecs( int Time );
-void DoFlipFlopRunStop( void );
-void StopRunIfRunning( void );
-void RunBackIfStopped( void );
+void ClassicLadderEndOfAppli(void);
+void DoPauseMilliSecs(int Time);
+void DoFlipFlopRunStop(void);
+void StopRunIfRunning(void);
+void RunBackIfStopped(void);
 
-void ClassicLadder_InitAllDatas( void );
-int ClassicLadder_AllocAll( void );
-void ClassicLadder_FreeAll( char CleanAndRemoveTmpDir );
+void ClassicLadder_InitAllDatas(void);
+int ClassicLadder_AllocAll(void);
+void ClassicLadder_FreeAll(char CleanAndRemoveTmpDir);
 
-void UpdateSizesOfConvVarNameTable( void );
+void UpdateSizesOfConvVarNameTable(void);
 
 #ifdef __RTL__
 #include <rtl_printf.h>
 #define debug_printf rtl_printf
 #endif
 
-#if defined( RTAPI )
+#if defined(RTAPI)
 #define debug_printf rtapi_print
-#elif !defined (MODULE)
+#elif !defined(MODULE)
 #define debug_printf printf
 #endif
 

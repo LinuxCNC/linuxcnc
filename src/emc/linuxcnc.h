@@ -22,6 +22,6 @@
 
 /* Imperial/Metric conversion */
 #define MM_PER_INCH 25.4
-#define INCH_PER_MM (1.0/MM_PER_INCH)
+#define INCH_PER_MM (1.0 / MM_PER_INCH)
 
 #endif /* LINUXCNC_H */

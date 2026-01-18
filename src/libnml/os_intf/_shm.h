@@ -18,8 +18,8 @@
 #ifndef _SHAREDMEM_H
 #define _SHAREDMEM_H
 
-#include <sys/types.h>		/* key_t */
-#include <stddef.h>		/* size_t */
+#include <sys/types.h> /* key_t */
+#include <stddef.h>    /* size_t */
 
 #ifndef KEY_T_DEFINED
 #define KEY_T_DEFINED
@@ -39,11 +39,13 @@ typedef struct {
 #ifdef __cplusplus
 extern "C" {
 #endif
-    extern shm_t *rcs_shm_open(key_t key, size_t size, int oflag,
-	/* int mode */ ...);
-    extern int rcs_shm_close(shm_t * shm);
-    extern int rcs_shm_delete(shm_t * shm);
-    extern int rcs_shm_nattch(shm_t * shm);
+extern shm_t *rcs_shm_open(key_t key,
+                           size_t size,
+                           int oflag,
+                           /* int mode */...);
+extern int rcs_shm_close(shm_t *shm);
+extern int rcs_shm_delete(shm_t *shm);
+extern int rcs_shm_nattch(shm_t *shm);
 
 #ifdef __cplusplus
 }

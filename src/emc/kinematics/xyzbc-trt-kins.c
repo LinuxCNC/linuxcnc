@@ -16,19 +16,24 @@
 #include "rtapi_string.h"
 #include "rtapi.h"
 
-int switchkinsSetup(kparms* kp,
-                    KS* kset0, KS* kset1, KS* kset2,
-                    KF* kfwd0, KF* kfwd1, KF* kfwd2,
-                    KI* kinv0, KI* kinv1, KI* kinv2
-                   )
+int switchkinsSetup(kparms *kp,
+                    KS *kset0,
+                    KS *kset1,
+                    KS *kset2,
+                    KF *kfwd0,
+                    KF *kfwd1,
+                    KF *kfwd2,
+                    KI *kinv0,
+                    KI *kinv1,
+                    KI *kinv2)
 {
-    kp->kinsname    = "xyzbc-trt-kins"; // !!! must agree with filename
-    kp->halprefix   = "xyzbc-trt-kins"; // hal pin names
+    kp->kinsname = "xyzbc-trt-kins";  // !!! must agree with filename
+    kp->halprefix = "xyzbc-trt-kins"; // hal pin names
     kp->required_coordinates = "xyzbc";
-    kp->allow_duplicates     = 1;
-    kp->max_joints           = EMCMOT_MAX_JOINTS;
+    kp->allow_duplicates = 1;
+    kp->max_joints = EMCMOT_MAX_JOINTS;
 
-    if (kp->sparm && strstr(kp->sparm,"identityfirst")) {
+    if (kp->sparm && strstr(kp->sparm, "identityfirst")) {
         rtapi_print("\n!!! switchkins-type 0 is IDENTITY\n");
         *kset0 = identityKinematicsSetup;
         *kfwd0 = identityKinematicsForward;
@@ -38,7 +43,7 @@ int switchkinsSetup(kparms* kp,
         *kfwd1 = xyzbcKinematicsForward;
         *kinv1 = xyzbcKinematicsInverse;
     } else {
-        rtapi_print("\n!!! switchkins-type 0 is %s\n",kp->kinsname);
+        rtapi_print("\n!!! switchkins-type 0 is %s\n", kp->kinsname);
         *kset0 = trtKinematicsSetup; // trt: xyzac,xyzbc
         *kfwd0 = xyzbcKinematicsForward;
         *kinv0 = xyzbcKinematicsInverse;

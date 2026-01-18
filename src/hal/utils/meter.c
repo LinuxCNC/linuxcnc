@@ -57,13 +57,13 @@
 #include <ctype.h>
 #include <string.h>
 
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "hal.h"		/* HAL public API decls */
-#include "../hal_priv.h"	/* private HAL decls */
+#include "rtapi.h"       /* RTAPI realtime OS API */
+#include "hal.h"         /* HAL public API decls */
+#include "../hal_priv.h" /* private HAL decls */
 #include <rtapi_mutex.h>
 
 #include <gtk/gtk.h>
-#include "miscgtk.h"		/* generic GTK stuff */
+#include "miscgtk.h" /* generic GTK stuff */
 #include <rtapi_string.h>
 
 /***********************************************************************
@@ -77,22 +77,22 @@
 #define PROBE_NAME_LEN 63
 
 typedef struct {
-    int listnum;		/* 0 = pin, 1 = signal, 2 = parameter */
-    char *pickname;		/* name from list, not validated */
-    hal_pin_t *pin;		/* metadata (if it's a pin) */
-    hal_sig_t *sig;		/* metadata (if it's a signal) */
-    hal_param_t *param;		/* metadata (if it's a parameter) */
-    GtkWidget *window;		/* selection dialog window */
-    GtkWidget *notebook;	/* pointer to the notebook */
-    GtkWidget *lists[3];	/* lists for pins, sigs, and params */
-    char probe_name[PROBE_NAME_LEN + 1];	/* name of this probe */
+    int listnum;         /* 0 = pin, 1 = signal, 2 = parameter */
+    char *pickname;      /* name from list, not validated */
+    hal_pin_t *pin;      /* metadata (if it's a pin) */
+    hal_sig_t *sig;      /* metadata (if it's a signal) */
+    hal_param_t *param;  /* metadata (if it's a parameter) */
+    GtkWidget *window;   /* selection dialog window */
+    GtkWidget *notebook; /* pointer to the notebook */
+    GtkWidget *lists[3]; /* lists for pins, sigs, and params */
+    char probe_name[PROBE_NAME_LEN + 1]; /* name of this probe */
 } probe_t;
 
 typedef struct {
-    probe_t *probe;		/* probe that locates the data */
-    GtkWidget *value_label;	/* label object to display value */
-    GtkWidget *name_label;	/* label object to display name */
-    GtkWidget *button_select;	/* invokes the select dialog */
+    probe_t *probe;           /* probe that locates the data */
+    GtkWidget *value_label;   /* label object to display value */
+    GtkWidget *name_label;    /* label object to display name */
+    GtkWidget *button_select; /* invokes the select dialog */
 } meter_t;
 
 /***********************************************************************
@@ -100,12 +100,9 @@ typedef struct {
 ************************************************************************/
 
 /* Columns in the TreeView */
-enum TREEVIEW_COLUMN {
-    LIST_ITEM,
-    NUM_COLS
-};
+enum TREEVIEW_COLUMN { LIST_ITEM, NUM_COLS };
 
-int comp_id;			/* HAL component ID */
+int comp_id; /* HAL component ID */
 
 GtkWidget *main_window;
 int small;
@@ -128,35 +125,38 @@ static probe_t *probe_new(char *probe_name);
     the selection dialog for a probe.  'data' must be a pointer to
     a probe_t structure that was allocated by 'probe_new'.
 */
-static void popup_probe_window(GtkWidget * widget, gpointer data);
+static void popup_probe_window(GtkWidget *widget, gpointer data);
 
 static void quit(int sig);
 static void exit_from_hal(void);
 static int refresh_value(gpointer data);
 static char *data_value(int type, void *valptr);
 
-static void create_probe_window(probe_t * probe);
-static void apply_selection(GtkWidget * widget, gpointer data);
-static void page_switched(GtkNotebook *notebook, GtkWidget *page,
-                          guint page_num, gpointer user_data);
+static void create_probe_window(probe_t *probe);
+static void apply_selection(GtkWidget *widget, gpointer data);
+static void page_switched(GtkNotebook *notebook,
+                          GtkWidget *page,
+                          guint page_num,
+                          gpointer user_data);
 static void on_changed(GtkWidget *widget, gpointer data);
 
 /***********************************************************************
 *                        MAIN() FUNCTION                               *
 ************************************************************************/
 
-int main(int argc, gchar * argv[])
+int main(int argc, gchar *argv[])
 {
     GtkWidget *vbox, *hbox;
     GtkWidget *button_select, *button_exit;
     char buf[30];
-    int initial_type = 0, n, i, height, geometryflag = 0, xposition = 0, yposition = 0, width = 270;
-    char *initial_name = NULL , *win_name;
+    int initial_type = 0, n, i, height, geometryflag = 0, xposition = 0,
+        yposition = 0, width = 270;
+    char *initial_name = NULL, *win_name;
     meter_t *meter;
 
     bindtextdomain("linuxcnc", EMC2_PO_DIR);
-    setlocale(LC_MESSAGES,"");
-    setlocale(LC_CTYPE,"");
+    setlocale(LC_MESSAGES, "");
+    setlocale(LC_CTYPE, "");
     textdomain("linuxcnc");
 
     /* process and remove any GTK specific command line args */
@@ -165,58 +165,61 @@ int main(int argc, gchar * argv[])
     /* process my own command line args (if any) here */
     small = 0;
     n = 1;
-    while ( argc > n ) {  
-        if ( strcmp (argv[n], "-g") == 0 ) {
+    while (argc > n) {
+        if (strcmp(argv[n], "-g") == 0) {
             /* This sets up the variables for initial position of window*/
             /* The last check is for the optional width request*/
-	        geometryflag = 1;
-	        n++;
-            xposition =  atoi(argv[n]);
+            geometryflag = 1;
             n++;
-            yposition =  atoi(argv[n]);
+            xposition = atoi(argv[n]);
             n++;
-            if ( argc > n ){
-                rtapi_strxcpy(buf,argv[n]);
-                for (i=0; i< (int)strlen(argv[n]); i++) {
-                    if (isdigit(buf[i]) == 0) { break; } 
+            yposition = atoi(argv[n]);
+            n++;
+            if (argc > n) {
+                rtapi_strxcpy(buf, argv[n]);
+                for (i = 0; i < (int)strlen(argv[n]); i++) {
+                    if (isdigit(buf[i]) == 0) {
+                        break;
+                    }
                 }
-                if ((int)strlen(argv[n]) == i){
-                    width =  atoi(argv[n]);
+                if ((int)strlen(argv[n]) == i) {
+                    width = atoi(argv[n]);
                     n++;
                 }
-            } 
-	    }
-        if ((argc > n) && ( strcmp (argv[n], "-s") == 0 )) {
-	        small = 1;
-	        n++;
+            }
+        }
+        if ((argc > n) && (strcmp(argv[n], "-s") == 0)) {
+            small = 1;
+            n++;
         }
         if (argc > n) {
-	        /* check for user specified initial probe point */
-	            if (strncmp(argv[n], "pin", 3) == 0) {
-	                /* initial probe is a pin */
-	                initial_type = 0;
-	            } else if (strncmp(argv[n], "sig", 3) == 0) {
-	                /* initial probe is a signal */
-	                initial_type = 1;
-	            } else if (strncmp(argv[n], "par", 3) == 0) {
-	                /* initial probe is a parameter */
-	                initial_type = 2;
-	            } else {
-	                printf(_("ERROR: '%s' is not a valid probe type\n"), argv[n]);
-	                return -1;
-	            }
-	            n++;
-	            if ( argc > n ) {
-	                initial_name = argv[n];
-                    n++;
-	            } else {
-	                printf(_("ERROR: no pin/signal/parameter name\n"));
-	                return -1;
-	            }	
-        }     
+            /* check for user specified initial probe point */
+            if (strncmp(argv[n], "pin", 3) == 0) {
+                /* initial probe is a pin */
+                initial_type = 0;
+            } else if (strncmp(argv[n], "sig", 3) == 0) {
+                /* initial probe is a signal */
+                initial_type = 1;
+            } else if (strncmp(argv[n], "par", 3) == 0) {
+                /* initial probe is a parameter */
+                initial_type = 2;
+            } else {
+                printf(_("ERROR: '%s' is not a valid probe type\n"), argv[n]);
+                return -1;
+            }
+            n++;
+            if (argc > n) {
+                initial_name = argv[n];
+                n++;
+            } else {
+                printf(_("ERROR: no pin/signal/parameter name\n"));
+                return -1;
+            }
+        }
     }
     if ((initial_name == NULL) && (small == 1)) {
-        printf(_("ERROR: -s option requires a probe type and a pin/signal/parameter name\n"));
+        printf(_("ERROR: -s option requires a probe type and a "
+                 "pin/signal/parameter name\n"));
         return -1;
     }
 
@@ -225,7 +228,7 @@ int main(int argc, gchar * argv[])
     /* connect to the HAL */
     comp_id = hal_init(buf);
     if (comp_id < 0) {
-	return -1;
+        return -1;
     }
     hal_ready(comp_id);
     /* register an exit function to disconnect from the HAL */
@@ -235,24 +238,23 @@ int main(int argc, gchar * argv[])
     signal(SIGTERM, quit);
 
     /* ideally this wouldn't be fixed size in pixels */
-    if ( small ) {
-	height = 22;
-	win_name = initial_name;
+    if (small) {
+        height = 22;
+        win_name = initial_name;
     } else {
-	height = 80;
-	win_name = _("Hal Meter");
+        height = 80;
+        win_name = _("Hal Meter");
     }
 
     /* create main window, set it's size, title, and lock the size */
     main_window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_widget_set_size_request(GTK_WIDGET(main_window), width, height);
     gtk_window_set_resizable(GTK_WINDOW(main_window), FALSE);
-    gtk_window_set_keep_above(GTK_WINDOW(main_window),TRUE);
+    gtk_window_set_keep_above(GTK_WINDOW(main_window), TRUE);
     gtk_window_set_title(GTK_WINDOW(main_window), win_name);
 
     /* this makes the application exit when the window is closed */
-    g_signal_connect(main_window, "destroy",
-            G_CALLBACK(gtk_main_quit), NULL);
+    g_signal_connect(main_window, "destroy", G_CALLBACK(gtk_main_quit), NULL);
 
     /* a vbox to hold the displayed value and the pin/sig/param name */
     vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 3);
@@ -262,49 +264,51 @@ int main(int argc, gchar * argv[])
     /* create a meter object */
     meter = meter_new();
     if (meter == NULL) {
-    printf("null meter\n");
-	exit(-1);
+        printf("null meter\n");
+        exit(-1);
     }
 
     /* set up for initial probe, if any */
     if (initial_name != NULL) {
-	meter->probe->pickname = initial_name;
-	meter->probe->listnum = initial_type;
-	apply_selection(NULL, meter->probe);
+        meter->probe->pickname = initial_name;
+        meter->probe->listnum = initial_type;
+        apply_selection(NULL, meter->probe);
     }
 
     /* add the meter's value label to the vbox */
     gtk_box_pack_start(GTK_BOX(vbox), meter->value_label, TRUE, TRUE, 0);
 
     /* add the meter's name label to the vbox */
-    if ( !small ) {
-	gtk_box_pack_start(GTK_BOX(vbox), meter->name_label, TRUE, TRUE, 0);
+    if (!small) {
+        gtk_box_pack_start(GTK_BOX(vbox), meter->name_label, TRUE, TRUE, 0);
     }
 
     /* arrange for periodic refresh of the value */
     g_timeout_add(100, refresh_value, meter);
 
     /* an hbox to hold the select and exit buttons */
-    if ( !small ) {
-	hbox = gtk_hbox_new_in_box(FALSE, 0, 0, vbox, FALSE, TRUE, 0);
+    if (!small) {
+        hbox = gtk_hbox_new_in_box(FALSE, 0, 0, vbox, FALSE, TRUE, 0);
 
-	/* create the buttons and add them to the hbox */
-	button_select = gtk_button_new_with_mnemonic(_("_Select"));
-	button_exit = gtk_button_new_with_mnemonic(_("E_xit"));
+        /* create the buttons and add them to the hbox */
+        button_select = gtk_button_new_with_mnemonic(_("_Select"));
+        button_exit = gtk_button_new_with_mnemonic(_("E_xit"));
 
-	gtk_box_pack_start(GTK_BOX(hbox), button_select, TRUE, TRUE, 4);
-	gtk_box_pack_start(GTK_BOX(hbox), button_exit, TRUE, TRUE, 4);
+        gtk_box_pack_start(GTK_BOX(hbox), button_select, TRUE, TRUE, 4);
+        gtk_box_pack_start(GTK_BOX(hbox), button_exit, TRUE, TRUE, 4);
 
         /* make the application exit when the 'exit' button is clicked */
-        g_signal_connect(button_exit, "clicked",
-                G_CALLBACK(gtk_main_quit), NULL);
+        g_signal_connect(
+            button_exit, "clicked", G_CALLBACK(gtk_main_quit), NULL);
 
         /* activate selection window when the 'select' button is clicked */
-        g_signal_connect(button_select, "clicked",
-                G_CALLBACK(popup_probe_window), meter->probe);
+        g_signal_connect(button_select,
+                         "clicked",
+                         G_CALLBACK(popup_probe_window),
+                         meter->probe);
 
-	/* save reference to select button */
-	meter->button_select = button_select;
+        /* save reference to select button */
+        meter->button_select = button_select;
     }
 
     /* The interface is now set up so we show the window and
@@ -312,7 +316,7 @@ int main(int argc, gchar * argv[])
     gtk_widget_show_all(main_window);
     /* If the -g option was invoked: set position */
     if (geometryflag == 1) {
-        gtk_window_move(GTK_WINDOW(main_window),xposition,yposition);
+        gtk_window_move(GTK_WINDOW(main_window), xposition, yposition);
     }
     gtk_main();
 
@@ -330,13 +334,13 @@ static meter_t *meter_new(void)
     /* allocate a meter object for the display */
     new = malloc(sizeof(meter_t));
     if (new == NULL) {
-	return NULL;
+        return NULL;
     }
     /* define a probe for the display item */
     new->probe = probe_new(_("Select Item to Probe"));
     if (new->probe == NULL) {
-	free(new);
-	return NULL;
+        free(new);
+        return NULL;
     }
     /* create a label widget to hold the value */
     new->value_label = gtk_label_new("----");
@@ -345,12 +349,11 @@ static meter_t *meter_new(void)
     gtk_label_set_line_wrap(GTK_LABEL(new->value_label), FALSE);
 
     /* create a label widget to hold the name */
-    if ( !small ) {
-	new->name_label = gtk_label_new("------");
-	/* center justify text, no wordwrap */
-	gtk_label_set_justify(GTK_LABEL(new->name_label),
-	    GTK_JUSTIFY_CENTER);
-	gtk_label_set_line_wrap(GTK_LABEL(new->name_label), FALSE);
+    if (!small) {
+        new->name_label = gtk_label_new("------");
+        /* center justify text, no wordwrap */
+        gtk_label_set_justify(GTK_LABEL(new->name_label), GTK_JUSTIFY_CENTER);
+        gtk_label_set_line_wrap(GTK_LABEL(new->name_label), FALSE);
     }
     return new;
 }
@@ -360,13 +363,13 @@ probe_t *probe_new(char *probe_name)
     probe_t *new;
 
     if (probe_name == NULL) {
-	/* no name specified, fake it */
-	probe_name = _("Select Item to Probe");
+        /* no name specified, fake it */
+        probe_name = _("Select Item to Probe");
     }
     /* allocate a new probe structure */
     new = malloc(sizeof(probe_t));
     if (new == NULL) {
-	return NULL;
+        return NULL;
     }
     /* init the fields */
     new->pickname = NULL;
@@ -382,7 +385,7 @@ probe_t *probe_new(char *probe_name)
     return new;
 }
 
-void popup_probe_window(GtkWidget * widget, gpointer data)
+void popup_probe_window(GtkWidget *widget, gpointer data)
 {
     (void)widget;
     probe_t *probe;
@@ -395,7 +398,7 @@ void popup_probe_window(GtkWidget * widget, gpointer data)
 
 
     /* get a pointer to the probe data structure */
-    probe = (probe_t *) data;
+    probe = (probe_t *)data;
 
     /* create window if needed */
     if (probe->window == NULL) {
@@ -497,61 +500,60 @@ static int refresh_value(gpointer data)
     hal_sig_t *sig;
     static int first = 1;
 
-    meter = (meter_t *) data;
+    meter = (meter_t *)data;
     probe = meter->probe;
 
-    if ( first ) {
-	first = 0;
-	if ( probe->pickname == NULL ) {
-	    g_signal_emit_by_name(meter->button_select, "clicked");
-	}
+    if (first) {
+        first = 0;
+        if (probe->pickname == NULL) {
+            g_signal_emit_by_name(meter->button_select, "clicked");
+        }
     }
 
     rtapi_mutex_get(&(hal_data->mutex));
     if (probe->pin != NULL) {
-	if (probe->pin->name[0] == '\0') {
-	    /* pin has been deleted, can't display it any more */
-	    probe->pin = NULL;
-	    rtapi_mutex_give(&(hal_data->mutex));
-	    return 1;
-	}
-	name_str = probe->pin->name;
-	if (probe->pin->signal == 0) {
-	    /* pin is unlinked, get data from dummysig */
-	    value_str = data_value(probe->pin->type, &(probe->pin->dummysig));
-	} else {
-	    /* pin is linked to a signal */
-	    sig = SHMPTR(probe->pin->signal);
-	    value_str = data_value(probe->pin->type, SHMPTR(sig->data_ptr));
-	}
+        if (probe->pin->name[0] == '\0') {
+            /* pin has been deleted, can't display it any more */
+            probe->pin = NULL;
+            rtapi_mutex_give(&(hal_data->mutex));
+            return 1;
+        }
+        name_str = probe->pin->name;
+        if (probe->pin->signal == 0) {
+            /* pin is unlinked, get data from dummysig */
+            value_str = data_value(probe->pin->type, &(probe->pin->dummysig));
+        } else {
+            /* pin is linked to a signal */
+            sig = SHMPTR(probe->pin->signal);
+            value_str = data_value(probe->pin->type, SHMPTR(sig->data_ptr));
+        }
     } else if (probe->sig != NULL) {
-	if (probe->sig->name[0] == '\0') {
-	    /* signal has been deleted, can't display it any more */
-	    probe->sig = NULL;
-	    rtapi_mutex_give(&(hal_data->mutex));
-	    return 1;
-	}
-	name_str = probe->sig->name;
-	value_str =
-	    data_value(probe->sig->type, SHMPTR(probe->sig->data_ptr));
+        if (probe->sig->name[0] == '\0') {
+            /* signal has been deleted, can't display it any more */
+            probe->sig = NULL;
+            rtapi_mutex_give(&(hal_data->mutex));
+            return 1;
+        }
+        name_str = probe->sig->name;
+        value_str = data_value(probe->sig->type, SHMPTR(probe->sig->data_ptr));
     } else if (probe->param != NULL) {
-	if (probe->param->name[0] == '\0') {
-	    /* parameter has been deleted, can't display it any more */
-	    probe->param = NULL;
-	    rtapi_mutex_give(&(hal_data->mutex));
-	    return 1;
-	}
-	name_str = probe->param->name;
-	value_str =
-	    data_value(probe->param->type, SHMPTR(probe->param->data_ptr));
+        if (probe->param->name[0] == '\0') {
+            /* parameter has been deleted, can't display it any more */
+            probe->param = NULL;
+            rtapi_mutex_give(&(hal_data->mutex));
+            return 1;
+        }
+        name_str = probe->param->name;
+        value_str =
+            data_value(probe->param->type, SHMPTR(probe->param->data_ptr));
     } else {
-	name_str = "-----";
-	value_str = "---";
+        name_str = "-----";
+        value_str = "---";
     }
     rtapi_mutex_give(&(hal_data->mutex));
     gtk_label_set_text(GTK_LABEL(meter->value_label), value_str);
     if (!small) {
-	gtk_label_set_text(GTK_LABEL(meter->name_label), name_str);
+        gtk_label_set_text(GTK_LABEL(meter->name_label), name_str);
     }
     return 1;
 }
@@ -564,32 +566,35 @@ static char *data_value(int type, void *valptr)
 
     switch (type) {
     case HAL_BIT:
-	if (*((char *) valptr) == 0)
-	    value_str = "FALSE";
-	else
-	    value_str = "TRUE";
-	break;
+        if (*((char *)valptr) == 0)
+            value_str = "FALSE";
+        else
+            value_str = "TRUE";
+        break;
     case HAL_FLOAT:
-	snprintf(buf, 14, "%.7g", (double)*((hal_float_t *) valptr));
-	value_str = buf;
-	break;
+        snprintf(buf, 14, "%.7g", (double)*((hal_float_t *)valptr));
+        value_str = buf;
+        break;
     case HAL_S32:
-	snprintf(buf, 24, "%10ld", (long)*((hal_s32_t *) valptr));
-	value_str = buf;
-	break;
+        snprintf(buf, 24, "%10ld", (long)*((hal_s32_t *)valptr));
+        value_str = buf;
+        break;
     case HAL_U32:
-	snprintf(buf, 24, "%10lu (0x%08lX)", (unsigned long)*((hal_u32_t *) valptr),
-	    *((unsigned long *) valptr));
-	value_str = buf;
-	break;
+        snprintf(buf,
+                 24,
+                 "%10lu (0x%08lX)",
+                 (unsigned long)*((hal_u32_t *)valptr),
+                 *((unsigned long *)valptr));
+        value_str = buf;
+        break;
     default:
-	/* Shouldn't get here, but just in case... */
-	value_str = "";
+        /* Shouldn't get here, but just in case... */
+        value_str = "";
     }
     return value_str;
 }
 
-static void create_probe_window(probe_t * probe)
+static void create_probe_window(probe_t *probe)
 {
     GtkWidget *vbox, *hbox;
     GtkWidget *label;
@@ -624,26 +629,29 @@ static void create_probe_window(probe_t * probe)
         /* Create a scrolled window to display the list */
         scrolled_window = gtk_scrolled_window_new(NULL, NULL);
         gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(scrolled_window),
-            GTK_POLICY_AUTOMATIC, GTK_POLICY_ALWAYS);
+                                       GTK_POLICY_AUTOMATIC,
+                                       GTK_POLICY_ALWAYS);
 
         /* create and set tabs in notebook */
         label = gtk_label_new_with_mnemonic(tab_label_text[n]);
         gtk_widget_set_size_request(label, 70, -1);
-        gtk_notebook_append_page(GTK_NOTEBOOK(probe->notebook), scrolled_window, label);
+        gtk_notebook_append_page(
+            GTK_NOTEBOOK(probe->notebook), scrolled_window, label);
 
         /* create and initialize the list to hold the data */
         probe->lists[n] = gtk_tree_view_new();
-        gtk_tree_view_set_headers_visible(
-                GTK_TREE_VIEW(probe->lists[n]), FALSE);
+        gtk_tree_view_set_headers_visible(GTK_TREE_VIEW(probe->lists[n]),
+                                          FALSE);
         init_list(probe->lists[n], &tab_label_text[n], NUM_COLS);
         selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(probe->lists[n]));
         gtk_container_add(GTK_CONTAINER(scrolled_window), probe->lists[n]);
 
         /* signals related to the lists */
-        g_signal_connect_swapped(probe->lists[n], "row-activated",
-                G_CALLBACK(gtk_widget_destroy), probe->window);
-        g_signal_connect(selection, "changed",
-                G_CALLBACK(on_changed), probe);
+        g_signal_connect_swapped(probe->lists[n],
+                                 "row-activated",
+                                 G_CALLBACK(gtk_widget_destroy),
+                                 probe->window);
+        g_signal_connect(selection, "changed", G_CALLBACK(on_changed), probe);
     }
 
     /* create a box and a close button */
@@ -652,53 +660,57 @@ static void create_probe_window(probe_t * probe)
     gtk_box_pack_start(GTK_BOX(hbox), button_close, TRUE, TRUE, 4);
 
     /* signals */
-    g_signal_connect(probe->notebook, "switch-page",
-            G_CALLBACK(page_switched), probe);
-    g_signal_connect_swapped(button_close, "clicked",
-            G_CALLBACK(gtk_widget_destroy), probe->window);
-    g_signal_connect(probe->window, "destroy",
-            G_CALLBACK(gtk_widget_destroyed), &(probe->window));
+    g_signal_connect(
+        probe->notebook, "switch-page", G_CALLBACK(page_switched), probe);
+    g_signal_connect_swapped(
+        button_close, "clicked", G_CALLBACK(gtk_widget_destroy), probe->window);
+    g_signal_connect(probe->window,
+                     "destroy",
+                     G_CALLBACK(gtk_widget_destroyed),
+                     &(probe->window));
 }
 
-static void apply_selection(GtkWidget * widget, gpointer data)
+static void apply_selection(GtkWidget *widget, gpointer data)
 {
     (void)widget;
     probe_t *probe;
 
     /* get a pointer to the probe data structure */
-    probe = (probe_t *) data;
+    probe = (probe_t *)data;
     /* discard info about previous item */
     probe->pin = NULL;
     probe->sig = NULL;
     probe->param = NULL;
     if (probe->pickname == NULL) {
-	/* not a valid selection */
-	/* should pop up a message or something here, instead we ignore it */
-	return;
+        /* not a valid selection */
+        /* should pop up a message or something here, instead we ignore it */
+        return;
     }
     if (probe->listnum == 0) {
-	/* search the pin list */
-	probe->pin = halpr_find_pin_by_name(probe->pickname);
+        /* search the pin list */
+        probe->pin = halpr_find_pin_by_name(probe->pickname);
     } else if (probe->listnum == 1) {
-	/* search the signal list */
-	probe->sig = halpr_find_sig_by_name(probe->pickname);
+        /* search the signal list */
+        probe->sig = halpr_find_sig_by_name(probe->pickname);
     } else if (probe->listnum == 2) {
-	/* search the parameter list */
-	probe->param = halpr_find_param_by_name(probe->pickname);
+        /* search the parameter list */
+        probe->param = halpr_find_param_by_name(probe->pickname);
     }
     /* at this point, the probe structure contain a pointer to the item we
        wish to display, or all three are NULL if the item doesn't exist */
 }
 
 /* Keeps track of which tab was last used. */
-static void page_switched(GtkNotebook *notebook, GtkWidget *page,
-                          guint page_num, gpointer user_data)
+static void page_switched(GtkNotebook *notebook,
+                          GtkWidget *page,
+                          guint page_num,
+                          gpointer user_data)
 {
     (void)notebook;
     (void)page;
     probe_t *probe;
-    probe = (probe_t *) user_data;
-    probe->listnum=page_num;
+    probe = (probe_t *)user_data;
+    probe->listnum = page_num;
 }
 
 /*
@@ -707,15 +719,16 @@ static void page_switched(GtkNotebook *notebook, GtkWidget *page,
  *
  * Calls the function apply_selection to update the label in the main window.
  */
-static void on_changed(GtkWidget *widget,  gpointer data)
+static void on_changed(GtkWidget *widget, gpointer data)
 {
     probe_t *probe;
-    probe = (probe_t *) data;
+    probe = (probe_t *)data;
 
     GtkTreeIter iter;
     GtkTreeModel *model;
 
-    if (gtk_tree_selection_get_selected(GTK_TREE_SELECTION(widget), &model, &iter)) {
+    if (gtk_tree_selection_get_selected(
+            GTK_TREE_SELECTION(widget), &model, &iter)) {
         gtk_tree_model_get(model, &iter, LIST_ITEM, &(probe->pickname), -1);
         apply_selection(GTK_WIDGET(probe->window), probe);
     }

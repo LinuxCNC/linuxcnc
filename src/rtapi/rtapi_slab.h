@@ -31,7 +31,7 @@
 
 #define rtapi_kfree free
 #define rtapi_kmalloc(sz, flags) malloc((sz))
-#define rtapi_kzalloc(sz, flags) calloc(1,(sz))
+#define rtapi_kzalloc(sz, flags) calloc(1, (sz))
 #define rtapi_krealloc(p, sz, flags) realloc((p), (sz))
 
 #endif

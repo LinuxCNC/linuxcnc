@@ -27,30 +27,30 @@ extern "C" {
    too many globals - put in emcmotXXX structs instead, perhaps?
 */
 
-    extern char EMCMOT_INIFILE[EMCMOT_INIFILE_LEN];
+extern char EMCMOT_INIFILE[EMCMOT_INIFILE_LEN];
 
-    extern unsigned int SHMEM_KEY;
+extern unsigned int SHMEM_KEY;
 
-    extern double EMCMOT_COMM_TIMEOUT;	/* seconds until timeout */
+extern double EMCMOT_COMM_TIMEOUT; /* seconds until timeout */
 
-    extern int num_axes;
+extern int num_axes;
 
-    extern double VELOCITY;
-    extern double ACCELERATION;
+extern double VELOCITY;
+extern double ACCELERATION;
 
-    extern double MAX_LIMIT;
-    extern double MIN_LIMIT;
+extern double MAX_LIMIT;
+extern double MIN_LIMIT;
 
-    extern double MAX_OUTPUT;
-    extern double MIN_OUTPUT;
+extern double MAX_OUTPUT;
+extern double MIN_OUTPUT;
 
-    extern int TC_QUEUE_SIZE;
+extern int TC_QUEUE_SIZE;
 
-    extern double MAX_FERROR;
-    extern double BACKLASH;
+extern double MAX_FERROR;
+extern double BACKLASH;
 
 
 #ifdef __cplusplus
-}				/* matches extern "C" at top */
+} /* matches extern "C" at top */
 #endif
-#endif				/* EMCMOTGLB_H */
+#endif /* EMCMOTGLB_H */

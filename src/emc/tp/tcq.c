@@ -21,10 +21,9 @@
 #include <stddef.h>
 
 /** Return 0 if queue is valid, -1 if not */
-static inline int tcqCheck(TC_QUEUE_STRUCT const * const tcq)
+static inline int tcqCheck(TC_QUEUE_STRUCT const *const tcq)
 {
-    if ((0 == tcq) || (0 == tcq->queue))
-    {
+    if ((0 == tcq) || (0 == tcq->queue)) {
         return -1;
     }
     return 0;
@@ -43,16 +42,16 @@ static inline int tcqCheck(TC_QUEUE_STRUCT const * const tcq)
  *
  * @return	 int	   returns success or failure
  */
-int tcqCreate(TC_QUEUE_STRUCT * const tcq, int _size, TC_STRUCT * const tcSpace)
+int tcqCreate(TC_QUEUE_STRUCT *const tcq, int _size, TC_STRUCT *const tcSpace)
 {
     if (!tcq || !tcSpace || _size < 1) {
         return -1;
     }
-	tcq->queue = tcSpace;
-	tcq->size = _size;
+    tcq->queue = tcSpace;
+    tcq->size = _size;
     tcqInit(tcq);
 
-	return 0;
+    return 0;
 }
 
 /*! tcqDelete() function
@@ -68,7 +67,7 @@ int tcqCreate(TC_QUEUE_STRUCT * const tcq, int _size, TC_STRUCT * const tcSpace)
  *
  * @return	 int	   returns success
  */
-int tcqDelete(TC_QUEUE_STRUCT * const tcq)
+int tcqDelete(TC_QUEUE_STRUCT *const tcq)
 {
     if (!tcqCheck(tcq)) {
         /* free(tcq->queue); */
@@ -90,9 +89,10 @@ int tcqDelete(TC_QUEUE_STRUCT * const tcq)
  *
  * @return	 int	   returns success or failure (if no tcq found)
  */
-int tcqInit(TC_QUEUE_STRUCT * const tcq)
+int tcqInit(TC_QUEUE_STRUCT *const tcq)
 {
-    if (tcqCheck(tcq)) return -1;
+    if (tcqCheck(tcq))
+        return -1;
 
     tcq->_len = 0;
     tcq->start = tcq->end = 0;
@@ -115,14 +115,15 @@ int tcqInit(TC_QUEUE_STRUCT * const tcq)
  *
  * @return	 int	   returns success or failure
  */
-int tcqPut(TC_QUEUE_STRUCT * const tcq, TC_STRUCT const * const tc)
+int tcqPut(TC_QUEUE_STRUCT *const tcq, TC_STRUCT const *const tc)
 {
     /* check for initialized */
-    if (tcqCheck(tcq)) return -1;
+    if (tcqCheck(tcq))
+        return -1;
 
     /* check for allFull, so we don't overflow the queue */
     if (tcq->allFull) {
-	    return -1;
+        return -1;
     }
 
     /* add it */
@@ -134,7 +135,7 @@ int tcqPut(TC_QUEUE_STRUCT * const tcq, TC_STRUCT const * const tc)
 
     /* set allFull flag if we're really full */
     if (tcq->end == tcq->start) {
-	tcq->allFull = 1;
+        tcq->allFull = 1;
     }
 
     return 0;
@@ -149,10 +150,11 @@ int tcqPut(TC_QUEUE_STRUCT * const tcq, TC_STRUCT const * const tc)
  *
  * @return	 int	   returns success or failure
  */
-int tcqPopBack(TC_QUEUE_STRUCT * const tcq)
+int tcqPopBack(TC_QUEUE_STRUCT *const tcq)
 {
     /* check for initialized */
-    if (tcqCheck(tcq)) return -1;
+    if (tcqCheck(tcq))
+        return -1;
 
     /* Too short to pop! */
     if (tcq->_len < 1) {
@@ -168,14 +170,14 @@ int tcqPopBack(TC_QUEUE_STRUCT * const tcq)
 
 #define TCQ_REVERSE_MARGIN 200
 
-int tcqPop(TC_QUEUE_STRUCT * const tcq)
+int tcqPop(TC_QUEUE_STRUCT *const tcq)
 {
 
     if (tcqCheck(tcq)) {
         return -1;
     }
 
-    if (tcq->_len < 1 && !tcq->allFull) {	
+    if (tcq->_len < 1 && !tcq->allFull) {
         return -1;
     }
 
@@ -210,16 +212,16 @@ int tcqPop(TC_QUEUE_STRUCT * const tcq)
  *
  * @return	 int	   returns success or failure
  */
-int tcqRemove(TC_QUEUE_STRUCT * const tcq, int n)
+int tcqRemove(TC_QUEUE_STRUCT *const tcq, int n)
 {
 
     if (n <= 0) {
-	    return 0;		/* okay to remove 0 or fewer */
+        return 0; /* okay to remove 0 or fewer */
     }
 
     if (tcqCheck(tcq) || ((tcq->start == tcq->end) && !tcq->allFull) ||
-            (n > tcq->_len)) {	/* too many requested */
-	    return -1;
+        (n > tcq->_len)) { /* too many requested */
+        return -1;
     }
 
     /* update start ptr and reset allFull flag and len */
@@ -234,7 +236,7 @@ int tcqRemove(TC_QUEUE_STRUCT * const tcq, int n)
 /**
  * Step backward into the reverse history.
  */
-int tcqBackStep(TC_QUEUE_STRUCT * const tcq)
+int tcqBackStep(TC_QUEUE_STRUCT *const tcq)
 {
 
     if (tcqCheck(tcq)) {
@@ -243,7 +245,7 @@ int tcqBackStep(TC_QUEUE_STRUCT * const tcq)
 
     // start == end means that queue is empty
 
-    if ( tcq->start == tcq->rend) {	
+    if (tcq->start == tcq->rend) {
         return -1;
     }
     /* update start ptr and reset allFull flag and len */
@@ -264,9 +266,10 @@ int tcqBackStep(TC_QUEUE_STRUCT * const tcq)
  *
  * @return	 int	   returns number of elements
  */
-int tcqLen(TC_QUEUE_STRUCT const * const tcq)
+int tcqLen(TC_QUEUE_STRUCT const *const tcq)
 {
-    if (tcqCheck(tcq)) return -1;
+    if (tcqCheck(tcq))
+        return -1;
 
     return tcq->_len;
 }
@@ -281,9 +284,10 @@ int tcqLen(TC_QUEUE_STRUCT const * const tcq)
  *
  * @return	 TC_STRUCT returns the TC elements
  */
-TC_STRUCT * tcqItem(TC_QUEUE_STRUCT const * const tcq, int n)
+TC_STRUCT *tcqItem(TC_QUEUE_STRUCT const *const tcq, int n)
 {
-    if (tcqCheck(tcq) || (n < 0) || (n >= tcq->_len)) return NULL;
+    if (tcqCheck(tcq) || (n < 0) || (n >= tcq->_len))
+        return NULL;
 
     return &(tcq->queue[(tcq->start + n) % tcq->size]);
 }
@@ -292,7 +296,7 @@ TC_STRUCT * tcqItem(TC_QUEUE_STRUCT const * const tcq, int n)
  * \def TC_QUEUE_MARGIN
  * sets up a margin at the end of the queue, to reduce effects of race conditions
  */
-#define TC_QUEUE_MARGIN (TCQ_REVERSE_MARGIN+20)
+#define TC_QUEUE_MARGIN (TCQ_REVERSE_MARGIN + 20)
 
 /*! tcqFull() function
  *
@@ -305,10 +309,10 @@ TC_STRUCT * tcqItem(TC_QUEUE_STRUCT const * const tcq, int n)
  *
  * @return	 int       returns status (0==not full, 1==full)
  */
-int tcqFull(TC_QUEUE_STRUCT const * const tcq)
+int tcqFull(TC_QUEUE_STRUCT const *const tcq)
 {
     if (tcqCheck(tcq)) {
-	   return 1;		/* null queue is full, for safety */
+        return 1; /* null queue is full, for safety */
     }
 
     /* call the queue full if the length is into the margin, so reduce the
@@ -316,13 +320,13 @@ int tcqFull(TC_QUEUE_STRUCT const * const tcq)
        full status immediately and send another motion */
 
     if (tcq->size <= TC_QUEUE_MARGIN) {
-	/* no margin available, so full means really all full */
-	    return tcq->allFull;
+        /* no margin available, so full means really all full */
+        return tcq->allFull;
     }
 
     if (tcq->_len >= tcq->size - TC_QUEUE_MARGIN) {
-	/* we're into the margin, so call it full */
-	    return 1;
+        /* we're into the margin, so call it full */
+        return 1;
     }
 
     /* we're not into the margin */
@@ -338,7 +342,7 @@ int tcqFull(TC_QUEUE_STRUCT const * const tcq)
  *
  * @return	 TC_STRUCT returns the TC element
  */
-TC_STRUCT *tcqLast(TC_QUEUE_STRUCT const * const tcq)
+TC_STRUCT *tcqLast(TC_QUEUE_STRUCT const *const tcq)
 {
     if (tcqCheck(tcq)) {
         return NULL;
@@ -347,8 +351,6 @@ TC_STRUCT *tcqLast(TC_QUEUE_STRUCT const * const tcq)
         return NULL;
     }
     //Fix for negative modulus error
-    int n = tcq->end-1 + tcq->size;
+    int n = tcq->end - 1 + tcq->size;
     return &(tcq->queue[n % tcq->size]);
-
 }
-

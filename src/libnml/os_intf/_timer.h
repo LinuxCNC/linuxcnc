@@ -23,14 +23,14 @@
 extern "C" {
 #endif
 /* clock tick resolution, in seconds */
-    extern double clk_tck(void);
+extern double clk_tck(void);
 /* number of seconds from standard epoch, to clock tick resolution */
-    extern double etime(void);
+extern double etime(void);
 /* sleeps # of seconds, to clock tick resolution */
-    extern void esleep(double secs);
-    void start_timer_server(int priority, int sem_id);
-    void kill_timer_server(void);
-    extern void print_etime(void);
+extern void esleep(double secs);
+void start_timer_server(int priority, int sem_id);
+void kill_timer_server(void);
+extern void print_etime(void);
 
 #ifdef __cplusplus
 }

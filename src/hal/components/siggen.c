@@ -69,9 +69,9 @@
     information, go to www.linuxcnc.org.
 */
 
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_app.h"		/* RTAPI realtime module decls */
-#include "hal.h"		/* HAL public API decls */
+#include "rtapi.h"     /* RTAPI realtime OS API */
+#include "rtapi_app.h" /* RTAPI realtime module decls */
+#include "hal.h"       /* HAL public API decls */
 #include <float.h>
 #include <rtapi_math.h>
 #include <rtapi_string.h>
@@ -80,13 +80,15 @@
 MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("Signal Generator Component for EMC HAL");
 MODULE_LICENSE("GPL");
-static int num_chan;	/* number of channels */
+static int num_chan; /* number of channels */
 static int default_num_chan = 1;
 static int howmany;
 RTAPI_MP_INT(num_chan, "number of channels");
 
 #define MAX_CHAN 16
-static char *names[MAX_CHAN] = {0,};
+static char *names[MAX_CHAN] = {
+    0,
+};
 RTAPI_MP_ARRAY_STRING(names, MAX_CHAN, "names of siggen");
 
 /***********************************************************************
@@ -97,30 +99,30 @@ RTAPI_MP_ARRAY_STRING(names, MAX_CHAN, "names of siggen");
 */
 
 typedef struct {
-    hal_float_t *square;	/* pin: output */
-    hal_float_t *sawtooth;	/* pin: output */
-    hal_float_t *triangle;	/* pin: output */
-    hal_float_t *sine;		/* pin: output */
-    hal_float_t *cosine;	/* pin: output */
-    hal_bit_t *clock;		/* pin: output */
-    hal_float_t *frequency;	/* pin: frequency */
-    hal_float_t *amplitude;	/* pin: amplitude */
-    hal_float_t *offset;	/* pin: offset */
-    hal_bit_t *reset;		/* pin: reset */
-    double index;		/* position within output cycle */
+    hal_float_t *square;    /* pin: output */
+    hal_float_t *sawtooth;  /* pin: output */
+    hal_float_t *triangle;  /* pin: output */
+    hal_float_t *sine;      /* pin: output */
+    hal_float_t *cosine;    /* pin: output */
+    hal_bit_t *clock;       /* pin: output */
+    hal_float_t *frequency; /* pin: frequency */
+    hal_float_t *amplitude; /* pin: amplitude */
+    hal_float_t *offset;    /* pin: offset */
+    hal_bit_t *reset;       /* pin: reset */
+    double index;           /* position within output cycle */
 } hal_siggen_t;
 
 /* pointer to array of siggen_t structs in shared memory, 1 per gen */
 static hal_siggen_t *siggen_array;
 
 /* other globals */
-static int comp_id;		/* component ID */
+static int comp_id; /* component ID */
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
 ************************************************************************/
 
-static int export_siggen(int num, hal_siggen_t * addr,char* prefix);
+static int export_siggen(int num, hal_siggen_t *addr, char *prefix);
 static void calc_siggen(void *arg, long period);
 
 /***********************************************************************
@@ -132,18 +134,20 @@ int rtapi_app_main(void)
 {
     int n, retval, i;
 
-    if(num_chan && names[0]) {
-        rtapi_print_msg(RTAPI_MSG_ERR,"num_chan= and names= are mutually exclusive\n");
+    if (num_chan && names[0]) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "num_chan= and names= are mutually exclusive\n");
         return -EINVAL;
     }
-    if(!num_chan && !names[0]) num_chan = default_num_chan;
+    if (!num_chan && !names[0])
+        num_chan = default_num_chan;
 
-    if(num_chan) {
+    if (num_chan) {
         howmany = num_chan;
     } else {
         howmany = 0;
         for (i = 0; i < MAX_CHAN; i++) {
-            if ( (names[i] == NULL) || (*names[i] == 0) ){
+            if ((names[i] == NULL) || (*names[i] == 0)) {
                 break;
             }
             howmany = i + 1;
@@ -152,45 +156,46 @@ int rtapi_app_main(void)
 
     /* test for number of channels */
     if ((howmany <= 0) || (howmany > MAX_CHAN)) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "SIGGEN: ERROR: invalid number of channels: %d\n", howmany);
-	return -1;
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "SIGGEN: ERROR: invalid number of channels: %d\n",
+                        howmany);
+        return -1;
     }
     /* have good config info, connect to the HAL */
     comp_id = hal_init("siggen");
     if (comp_id < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "SIGGEN: ERROR: hal_init() failed\n");
-	return -1;
+        rtapi_print_msg(RTAPI_MSG_ERR, "SIGGEN: ERROR: hal_init() failed\n");
+        return -1;
     }
     /* allocate shared memory for siggen data */
     siggen_array = hal_malloc(howmany * sizeof(hal_siggen_t));
     if (siggen_array == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "SIGGEN: ERROR: hal_malloc() failed\n");
-	hal_exit(comp_id);
-	return -1;
+        rtapi_print_msg(RTAPI_MSG_ERR, "SIGGEN: ERROR: hal_malloc() failed\n");
+        hal_exit(comp_id);
+        return -1;
     }
     /* export variables and functions for each siggen */
     i = 0; // for names= items
     for (n = 0; n < howmany; n++) {
-	/* export everything for this loop */
-        if(num_chan) {
+        /* export everything for this loop */
+        if (num_chan) {
             char buf[HAL_NAME_LEN + 1];
             rtapi_snprintf(buf, sizeof(buf), "siggen.%d", n);
-	    retval = export_siggen(n, &(siggen_array[n]),buf);
+            retval = export_siggen(n, &(siggen_array[n]), buf);
         } else {
-	    retval = export_siggen(n, &(siggen_array[n]),names[i++]);
+            retval = export_siggen(n, &(siggen_array[n]), names[i++]);
         }
 
-	if (retval != 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"SIGGEN: ERROR: siggen %d var export failed\n", n);
-	    hal_exit(comp_id);
-	    return -1;
-	}
+        if (retval != 0) {
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                            "SIGGEN: ERROR: siggen %d var export failed\n",
+                            n);
+            hal_exit(comp_id);
+            return -1;
+        }
     }
-    rtapi_print_msg(RTAPI_MSG_INFO,
-	"SIGGEN: installed %d signal generators\n", howmany);
+    rtapi_print_msg(
+        RTAPI_MSG_INFO, "SIGGEN: installed %d signal generators\n", howmany);
     hal_ready(comp_id);
     return 0;
 }
@@ -217,29 +222,29 @@ static void calc_siggen(void *arg, long period)
     /* calculate how much of an output cycle that has passed */
     tmp2 = *(siggen->frequency) * tmp1;
     /* limit frequency to comply with Nyquist limit */
-    if ( tmp2 > 0.5 ) {
-	*(siggen->frequency) = 0.5 / tmp1;
-	tmp2 = 0.5;
+    if (tmp2 > 0.5) {
+        *(siggen->frequency) = 0.5 / tmp1;
+        tmp2 = 0.5;
     }
     /* index ramps from 0.0 to 0.99999 for each output cycle */
-    if ( *(siggen->reset) ) {
-	siggen->index  = 0.5;
+    if (*(siggen->reset)) {
+        siggen->index = 0.5;
     } else {
-	siggen->index += tmp2;
+        siggen->index += tmp2;
     }
     /* wrap index if it is >= 1.0 */
-    if ( siggen->index >= 1.0 ) {
-	siggen->index -= 1.0;
+    if (siggen->index >= 1.0) {
+        siggen->index -= 1.0;
     }
 
     /* generate the square wave and clock output */
     /* tmp1 steps from -1.0 to +1.0 when index passes 0.5 */
-    if ( siggen->index > 0.5 ) {
-	tmp1 = 1.0;
-	*(siggen->clock) = 1;
+    if (siggen->index > 0.5) {
+        tmp1 = 1.0;
+        *(siggen->clock) = 1;
     } else {
-	tmp1 = -1.0;
-	*(siggen->clock) = 0;
+        tmp1 = -1.0;
+        *(siggen->clock) = 0;
     }
     /* apply scaling and offset, and write to output */
     *(siggen->square) = (tmp1 * *(siggen->amplitude)) + *(siggen->offset);
@@ -274,60 +279,60 @@ static void calc_siggen(void *arg, long period)
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
 
-static int export_siggen(int num, hal_siggen_t * addr,char* prefix)
+static int export_siggen(int num, hal_siggen_t *addr, char *prefix)
 {
     int retval;
 
     /* export pins */
-    retval = hal_pin_float_newf(HAL_OUT, &(addr->square), comp_id,
-				"%s.square", prefix);
+    retval = hal_pin_float_newf(
+        HAL_OUT, &(addr->square), comp_id, "%s.square", prefix);
     if (retval != 0) {
-	return retval;
+        return retval;
     }
-    retval = hal_pin_float_newf(HAL_OUT, &(addr->sawtooth), comp_id,
-				"%s.sawtooth", prefix);
+    retval = hal_pin_float_newf(
+        HAL_OUT, &(addr->sawtooth), comp_id, "%s.sawtooth", prefix);
     if (retval != 0) {
-	return retval;
+        return retval;
     }
-    retval = hal_pin_float_newf(HAL_OUT, &(addr->triangle), comp_id,
-				"%s.triangle", prefix);
+    retval = hal_pin_float_newf(
+        HAL_OUT, &(addr->triangle), comp_id, "%s.triangle", prefix);
     if (retval != 0) {
-	return retval;
+        return retval;
     }
-    retval = hal_pin_float_newf(HAL_OUT, &(addr->sine), comp_id,
-				"%s.sine", prefix);
+    retval =
+        hal_pin_float_newf(HAL_OUT, &(addr->sine), comp_id, "%s.sine", prefix);
     if (retval != 0) {
-	return retval;
+        return retval;
     }
-    retval = hal_pin_float_newf(HAL_OUT, &(addr->cosine), comp_id,
-				"%s.cosine", prefix);
+    retval = hal_pin_float_newf(
+        HAL_OUT, &(addr->cosine), comp_id, "%s.cosine", prefix);
     if (retval != 0) {
-	return retval;
+        return retval;
     }
-    retval = hal_pin_bit_newf(HAL_OUT, &(addr->clock), comp_id,
-				"%s.clock", prefix);
+    retval =
+        hal_pin_bit_newf(HAL_OUT, &(addr->clock), comp_id, "%s.clock", prefix);
     if (retval != 0) {
-	return retval;
+        return retval;
     }
-    retval = hal_pin_float_newf(HAL_IN, &(addr->frequency), comp_id,
-				"%s.frequency", prefix);
+    retval = hal_pin_float_newf(
+        HAL_IN, &(addr->frequency), comp_id, "%s.frequency", prefix);
     if (retval != 0) {
-	return retval;
+        return retval;
     }
-    retval = hal_pin_float_newf(HAL_IN, &(addr->amplitude), comp_id,
-				"%s.amplitude", prefix);
+    retval = hal_pin_float_newf(
+        HAL_IN, &(addr->amplitude), comp_id, "%s.amplitude", prefix);
     if (retval != 0) {
-	return retval;
+        return retval;
     }
-    retval = hal_pin_float_newf(HAL_IN, &(addr->offset), comp_id,
-				"%s.offset", prefix);
+    retval = hal_pin_float_newf(
+        HAL_IN, &(addr->offset), comp_id, "%s.offset", prefix);
     if (retval != 0) {
-	return retval;
+        return retval;
     }
-    retval = hal_pin_bit_newf(HAL_IN, &(addr->reset), comp_id,
-				"%s.reset", prefix);
+    retval =
+        hal_pin_bit_newf(HAL_IN, &(addr->reset), comp_id, "%s.reset", prefix);
     if (retval != 0) {
-	return retval;
+        return retval;
     }
     /* init all structure members */
     *(addr->square) = 0.0;
@@ -341,14 +346,13 @@ static int export_siggen(int num, hal_siggen_t * addr,char* prefix)
     *(addr->offset) = 0.0;
     addr->index = 0.0;
     /* export function for this loop */
-    retval =
-	hal_export_functf(calc_siggen, &(siggen_array[num]), 1, 0,
-	comp_id, "%s.update", prefix);
+    retval = hal_export_functf(
+        calc_siggen, &(siggen_array[num]), 1, 0, comp_id, "%s.update", prefix);
     if (retval != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "SIGGEN: ERROR: update funct export failed\n");
-	hal_exit(comp_id);
-	return -1;
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "SIGGEN: ERROR: update funct export failed\n");
+        hal_exit(comp_id);
+        return -1;
     }
     return 0;
 }

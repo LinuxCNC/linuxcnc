@@ -43,37 +43,58 @@
     a box.  It simply calls other GTK functions that do the real work.
     Normally it would take 4-5 lines of code to do the same thing.
 */
-GtkWidget *gtk_label_new_in_box(const gchar * text, GtkWidget * box,
-    gboolean expand, gboolean fill, guint padding);
+GtkWidget *gtk_label_new_in_box(const gchar *text,
+                                GtkWidget *box,
+                                gboolean expand,
+                                gboolean fill,
+                                guint padding);
 
 /** more convenience functions - vertical and horizontal separators
     These functions set expand and fill to FALSE - if you don't like
     that, do it yourself.
 */
-void gtk_vseparator_new_in_box(GtkWidget * box, guint padding);
-void gtk_hseparator_new_in_box(GtkWidget * box, guint padding);
+void gtk_vseparator_new_in_box(GtkWidget *box, guint padding);
+void gtk_hseparator_new_in_box(GtkWidget *box, guint padding);
 
 /** convenience functions for nesting boxes.  homogeneous and spacing
     apply to the new box, expand, fill, and padding apply to the box
     it is going into
 */
-GtkWidget *gtk_vbox_new_in_box(gboolean homogeneous, guint spacing,
-    guint border, GtkWidget * box, gboolean expand, gboolean fill,
-    guint padding);
-GtkWidget *gtk_hbox_new_in_box(gboolean homogeneous, guint spacing,
-    guint border, GtkWidget * box, gboolean expand, gboolean fill,
-    guint padding);
+GtkWidget *gtk_vbox_new_in_box(gboolean homogeneous,
+                               guint spacing,
+                               guint border,
+                               GtkWidget *box,
+                               gboolean expand,
+                               gboolean fill,
+                               guint padding);
+GtkWidget *gtk_hbox_new_in_box(gboolean homogeneous,
+                               guint spacing,
+                               guint border,
+                               GtkWidget *box,
+                               gboolean expand,
+                               gboolean fill,
+                               guint padding);
 
 /** convenience functions for nesting boxes.  the new box is placed
     in a frame, which is in turn placed in the parent box.  'name'
     is the name displayed by the frame
 */
-GtkWidget *gtk_vbox_framed_new_in_box(const gchar * name, gboolean homogeneous,
-    guint spacing, guint border, GtkWidget * box, gboolean expand,
-    gboolean fill, guint padding);
-GtkWidget *gtk_hbox_framed_new_in_box(const gchar * name, gboolean homogeneous,
-    guint spacing, guint border, GtkWidget * box, gboolean expand,
-    gboolean fill, guint padding);
+GtkWidget *gtk_vbox_framed_new_in_box(const gchar *name,
+                                      gboolean homogeneous,
+                                      guint spacing,
+                                      guint border,
+                                      GtkWidget *box,
+                                      gboolean expand,
+                                      gboolean fill,
+                                      guint padding);
+GtkWidget *gtk_hbox_framed_new_in_box(const gchar *name,
+                                      gboolean homogeneous,
+                                      guint spacing,
+                                      guint border,
+                                      GtkWidget *box,
+                                      gboolean expand,
+                                      gboolean fill,
+                                      guint padding);
 
 /** yet another convenience function - this one works exactly like
     'gtk_label_set_text() except that if 'label' is null it returns
@@ -81,13 +102,13 @@ GtkWidget *gtk_hbox_framed_new_in_box(const gchar * name, gboolean homogeneous,
     or may not be valid, for instance if they are part of a dialog
     that might not be active.
 */
-void gtk_label_set_text_if(GtkWidget * label, const gchar * text);
+void gtk_label_set_text_if(GtkWidget *label, const gchar *text);
 
 /** gtk_label_size_to_fit() sets the size of the label to fit the
     the string "str".  It is useful when you want the size of a
     label to remain constant, even if it's contents change.
 */
-void gtk_label_size_to_fit(GtkLabel * label, const gchar * str);
+void gtk_label_size_to_fit(GtkLabel *label, const gchar *str);
 
 /* Initialize a TreeView. */
 void init_list(GtkWidget *list, char *titles[], const int num_cols);

@@ -30,4 +30,3 @@ typedef struct {
 
     hm2_lowlevel_io_t llio;
 } hm2_test_t;
-

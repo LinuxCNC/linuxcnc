@@ -34,7 +34,7 @@ https://www.mail-archive.com/emc-developers@lists.sourceforge.net/msg15285.html
 #if __GNUC__ && !defined(__clang__)
 // genserKinematicsInverse() is 5104 with buster amd64 gcc 8.3.0-6
 //#pragma GCC diagnostic error   "-Wframe-larger-than=6000"
-  #pragma GCC diagnostic warning "-Wframe-larger-than=6000"
+#pragma GCC diagnostic warning "-Wframe-larger-than=6000"
 #endif
 
 #include "rtapi.h"
@@ -44,23 +44,28 @@ https://www.mail-archive.com/emc-developers@lists.sourceforge.net/msg15285.html
 #include "switchkins.h"
 
 //-7 is system defined -3 ok, -4 ok, -5 ok,-6 ok (mm system)
-#undef  GO_REAL_EPSILON
+#undef GO_REAL_EPSILON
 #define GO_REAL_EPSILON (1e-6)
 
 //*********************************************************************
 
 
-int switchkinsSetup(kparms* kp,
-                    KS* kset0, KS* kset1, KS* kset2,
-                    KF* kfwd0, KF* kfwd1, KF* kfwd2,
-                    KI* kinv0, KI* kinv1, KI* kinv2
-                   )
+int switchkinsSetup(kparms *kp,
+                    KS *kset0,
+                    KS *kset1,
+                    KS *kset2,
+                    KF *kfwd0,
+                    KF *kfwd1,
+                    KF *kfwd2,
+                    KI *kinv0,
+                    KI *kinv1,
+                    KI *kinv2)
 {
-    kp->kinsname    = "genserkins"; // !!! must agree with filename
-    kp->halprefix   = "genserkins"; // hal pin names
+    kp->kinsname = "genserkins";            // !!! must agree with filename
+    kp->halprefix = "genserkins";           // hal pin names
     kp->required_coordinates = "xyzabcuvw"; // u,v,w are joints 6,7,8
-    kp->max_joints  = strlen(kp->required_coordinates);
-    kp->allow_duplicates  = 0;
+    kp->max_joints = strlen(kp->required_coordinates);
+    kp->allow_duplicates = 0;
 
     *kset0 = genserKinematicsSetup;
     *kfwd0 = genserKinematicsForward;

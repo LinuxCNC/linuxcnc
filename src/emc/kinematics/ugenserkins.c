@@ -23,7 +23,7 @@ static double timestamp()
     if (0 != gettimeofday(&tp, NULL)) {
         return 0.0;
     }
-    return ((double) tp.tv_sec) + ((double) tp.tv_usec) / 1000000.0;
+    return ((double)tp.tv_sec) + ((double)tp.tv_usec) / 1000000.0;
 }
 
 int main(int argc, char *argv[])
@@ -32,11 +32,17 @@ int main(int argc, char *argv[])
     char buffer[BUFFERLEN];
     int inverse = 1;
     int jacobian = 0;
-    EmcPose pos = { {0.0, 0.0, 0.0}, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-    EmcPose vel = { {0.0, 0.0, 0.0}, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }; // will need this for
-                                                      // jacobian
-    double joints[6] = { 0.0 };
-    double jointvels[6] = { 0.0 };
+    EmcPose pos = {
+        {0.0, 0.0, 0.0},
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+    };
+    EmcPose vel = {
+        {0.0, 0.0, 0.0},
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+    }; // will need this for
+    // jacobian
+    double joints[6] = {0.0};
+    double jointvels[6] = {0.0};
     KINEMATICS_INVERSE_FLAGS iflags = 0;
     KINEMATICS_FORWARD_FLAGS fflags = 0;
     int t;
@@ -48,7 +54,8 @@ int main(int argc, char *argv[])
     kp.allow_duplicates = 0;
 
     comp_id = hal_init("usergenserkins");
-    if (genserKinematicsSetup(comp_id,"XYZABC",&kp)) printf("unexpected\n");
+    if (genserKinematicsSetup(comp_id, "XYZABC", &kp))
+        printf("unexpected\n");
 
     genser_kin_init();
 
@@ -105,29 +112,55 @@ int main(int argc, char *argv[])
                     hal_exit(comp_id);
                     return 0;
                 }
-            } while (6 != sscanf(buffer, "%lf %lf %lf %lf %lf %lf",
-                    &pos.tran.x, &pos.tran.y, &pos.tran.z, &pos.a, &pos.b, &pos.c));
+            } while (6 != sscanf(buffer,
+                                 "%lf %lf %lf %lf %lf %lf",
+                                 &pos.tran.x,
+                                 &pos.tran.y,
+                                 &pos.tran.z,
+                                 &pos.a,
+                                 &pos.b,
+                                 &pos.c));
         }
 
         start = timestamp();
         if (inverse) {
-fprintf(stderr,"%stest pos.b\n",__FILE__);
-joints[4]=90;
-pos.tran.x=  19.2;
-pos.tran.y=   5.5;
-pos.tran.z=   9.4;
-pos.a     =  92.88;
-pos.b     = -90;
-pos.c     =  87.12;
-fprintf(stderr,"gki0:P %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f\n",
-pos.tran.x,pos.tran.y,pos.tran.z,pos.a,pos.b,pos.c);
-fprintf(stderr,"gki1:J %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f\n",
-joints[0],joints[1],joints[2],joints[3],joints[4],joints[5]);
+            fprintf(stderr, "%stest pos.b\n", __FILE__);
+            joints[4] = 90;
+            pos.tran.x = 19.2;
+            pos.tran.y = 5.5;
+            pos.tran.z = 9.4;
+            pos.a = 92.88;
+            pos.b = -90;
+            pos.c = 87.12;
+            fprintf(stderr,
+                    "gki0:P %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f\n",
+                    pos.tran.x,
+                    pos.tran.y,
+                    pos.tran.z,
+                    pos.a,
+                    pos.b,
+                    pos.c);
+            fprintf(stderr,
+                    "gki1:J %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f\n",
+                    joints[0],
+                    joints[1],
+                    joints[2],
+                    joints[3],
+                    joints[4],
+                    joints[5]);
             retval = genserKinematicsInverse(&pos, joints, &iflags, &fflags);
-fprintf(stderr,"gki2:J %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f\n",
-joints[0],joints[1],joints[2],joints[3],joints[4],joints[5]);
+            fprintf(stderr,
+                    "gki2:J %6.2f %6.2f %6.2f %6.2f %6.2f %6.2f\n",
+                    joints[0],
+                    joints[1],
+                    joints[2],
+                    joints[3],
+                    joints[4],
+                    joints[5]);
             if (0 != retval) {
-                printf("inv kins error %d <%s>\n", retval,go_result_to_string(retval));
+                printf("inv kins error %d <%s>\n",
+                       retval,
+                       go_result_to_string(retval));
             }
         } else {
             retval = genserKinematicsForward(joints, &pos, &fflags, &iflags);
@@ -139,9 +172,19 @@ joints[0],joints[1],joints[2],joints[3],joints[4],joints[5]);
 
         printf("calculation time: %f secs\n", (end - start));
         printf("Joints:  0=%8.3f 1=%8.3f 2=%8.3f 3=%8.3f 4=%8.3f 5=%8.3f\n",
-               joints[0],joints[1],joints[2], joints[3],joints[4],joints[5]);
+               joints[0],
+               joints[1],
+               joints[2],
+               joints[3],
+               joints[4],
+               joints[5]);
         printf("Inverse: x=%8.3f y=%8.3f z=%8.3f a=%8.3f b=%8.3f z=%8.3f\n",
-               pos.tran.x,pos.tran.y,pos.tran.z,pos.a,pos.b,pos.c);
+               pos.tran.x,
+               pos.tran.y,
+               pos.tran.z,
+               pos.a,
+               pos.b,
+               pos.c);
         hal_exit(comp_id);
         return 0;
     }
@@ -185,51 +228,84 @@ joints[0],joints[1],joints[2],joints[3],joints[4],joints[5]);
 
         if (inverse) {
             if (jacobian) {
-                if (12 != sscanf(buffer,
-                        "%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",
-                        &pos.tran.x, &pos.tran.y, &pos.tran.z, &pos.a, &pos.b,
-                        &pos.c, &vel.tran.x, &vel.tran.y, &vel.tran.z, &vel.a,
-                        &vel.b, &vel.c)) {
+                if (12 !=
+                    sscanf(buffer,
+                           "%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",
+                           &pos.tran.x,
+                           &pos.tran.y,
+                           &pos.tran.z,
+                           &pos.a,
+                           &pos.b,
+                           &pos.c,
+                           &vel.tran.x,
+                           &vel.tran.y,
+                           &vel.tran.z,
+                           &vel.a,
+                           &vel.b,
+                           &vel.c)) {
                     printf("?\n");
                 } else {
-//FIXME-AJ
-//disabled for now  retval = jacobianInverse(&pos, &vel, joints, jointvels);
+                    //FIXME-AJ
+                    //disabled for now  retval = jacobianInverse(&pos, &vel, joints, jointvels);
                     printf("%f %f %f %f %f %f\n",
-                        jointvels[0],
-                        jointvels[1],
-                        jointvels[2],
-                        jointvels[3], jointvels[4], jointvels[5]);
+                           jointvels[0],
+                           jointvels[1],
+                           jointvels[2],
+                           jointvels[3],
+                           jointvels[4],
+                           jointvels[5]);
                     if (0 != retval) {
                         printf("inv Jacobian error %d\n", retval);
                     } else {
-//FIXME-AJ
-//disabled for now      retval = jacobianForward(joints, jointvels, &pos, &vel);
+                        //FIXME-AJ
+                        //disabled for now      retval = jacobianForward(joints, jointvels, &pos, &vel);
                         printf("%f %f %f %f %f %f\n",
-                            vel.tran.x,
-                            vel.tran.y, vel.tran.z, vel.a, vel.b, vel.c);
+                               vel.tran.x,
+                               vel.tran.y,
+                               vel.tran.z,
+                               vel.a,
+                               vel.b,
+                               vel.c);
                         if (0 != retval) {
                             printf("fwd kins error %d\n", retval);
                         }
                     }
                 }
             } else {
-                if (6 != sscanf(buffer, "%lf %lf %lf %lf %lf %lf",
-                        &pos.tran.x,
-                        &pos.tran.y, &pos.tran.z, &pos.a, &pos.b, &pos.c)) {
+                if (6 != sscanf(buffer,
+                                "%lf %lf %lf %lf %lf %lf",
+                                &pos.tran.x,
+                                &pos.tran.y,
+                                &pos.tran.z,
+                                &pos.a,
+                                &pos.b,
+                                &pos.c)) {
                     printf("?\n");
                 } else {
-fprintf(stderr,"gki1:\n");
+                    fprintf(stderr, "gki1:\n");
                     retval =
                         genserKinematicsInverse(&pos, joints, &iflags, &fflags);
-                    printf("%f %f %f %f %f %f\n", joints[0], joints[1],
-                        joints[2], joints[3], joints[4], joints[5]);
+                    printf("%f %f %f %f %f %f\n",
+                           joints[0],
+                           joints[1],
+                           joints[2],
+                           joints[3],
+                           joints[4],
+                           joints[5]);
                     if (0 != retval) {
-                        printf("inv kins error %d <%s>\n", retval,go_result_to_string(retval));
+                        printf("inv kins error %d <%s>\n",
+                               retval,
+                               go_result_to_string(retval));
                     } else {
-                        retval =
-                            genserKinematicsForward(joints, &pos, &fflags, &iflags);
-                        printf("%f %f %f %f %f %f\n", pos.tran.x, pos.tran.y,
-                            pos.tran.z, pos.a, pos.b, pos.c);
+                        retval = genserKinematicsForward(
+                            joints, &pos, &fflags, &iflags);
+                        printf("%f %f %f %f %f %f\n",
+                               pos.tran.x,
+                               pos.tran.y,
+                               pos.tran.z,
+                               pos.a,
+                               pos.b,
+                               pos.c);
                         if (0 != retval) {
                             printf("fwd kins error %d\n", retval);
                         }
@@ -238,50 +314,87 @@ fprintf(stderr,"gki1:\n");
             }
         } else {
             if (jacobian) {
-                if (12 != sscanf(buffer,
-                        "%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",
-                        &joints[0], &joints[1], &joints[2], &joints[3],
-                        &joints[4], &joints[5], &jointvels[0], &jointvels[1],
-                        &jointvels[2], &jointvels[3], &jointvels[4],
-                        &jointvels[5])) {
+                if (12 !=
+                    sscanf(buffer,
+                           "%lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf %lf",
+                           &joints[0],
+                           &joints[1],
+                           &joints[2],
+                           &joints[3],
+                           &joints[4],
+                           &joints[5],
+                           &jointvels[0],
+                           &jointvels[1],
+                           &jointvels[2],
+                           &jointvels[3],
+                           &jointvels[4],
+                           &jointvels[5])) {
                     printf("?\n");
                 } else {
-//FIXME-AJ
-//disabled for now  retval = jacobianForward(joints, jointvels, &pos, &vel);
+                    //FIXME-AJ
+                    //disabled for now  retval = jacobianForward(joints, jointvels, &pos, &vel);
                     printf("%f %f %f %f %f %f\n",
-                        vel.tran.x,
-                        vel.tran.y, vel.tran.z, vel.a, vel.b, vel.c);
+                           vel.tran.x,
+                           vel.tran.y,
+                           vel.tran.z,
+                           vel.a,
+                           vel.b,
+                           vel.c);
                     if (0 != retval) {
                         printf("fwd kins error %d\n", retval);
                     } else {
-//FIXME-AJ
-//disabled for now      retval = jacobianInverse(&pos, &vel, joints, jointvels);
+                        //FIXME-AJ
+                        //disabled for now      retval = jacobianInverse(&pos, &vel, joints, jointvels);
                         printf("%f %f %f %f %f %f\n",
-                            jointvels[0],
-                            jointvels[1],
-                            jointvels[2],
-                            jointvels[3], jointvels[4], jointvels[5]);
+                               jointvels[0],
+                               jointvels[1],
+                               jointvels[2],
+                               jointvels[3],
+                               jointvels[4],
+                               jointvels[5]);
                         if (0 != retval) {
-                            printf("inv kins error %d <%s>\n", retval,go_result_to_string(retval));
+                            printf("inv kins error %d <%s>\n",
+                                   retval,
+                                   go_result_to_string(retval));
                         }
                     }
                 }
             } else {
-                if (6 != sscanf(buffer, "%lf %lf %lf %lf %lf %lf",
-                        &joints[0], &joints[1], &joints[2], &joints[3], &joints[4], &joints[5])) {
+                if (6 != sscanf(buffer,
+                                "%lf %lf %lf %lf %lf %lf",
+                                &joints[0],
+                                &joints[1],
+                                &joints[2],
+                                &joints[3],
+                                &joints[4],
+                                &joints[5])) {
                     printf("?\n");
                 } else {
-                    retval = genserKinematicsForward(joints, &pos, &fflags, &iflags);
+                    retval =
+                        genserKinematicsForward(joints, &pos, &fflags, &iflags);
                     printf("xyzabc: %f %f %f %f %f %f\n",
-                          pos.tran.x, pos.tran.y, pos.tran.z, pos.a, pos.b, pos.c);
+                           pos.tran.x,
+                           pos.tran.y,
+                           pos.tran.z,
+                           pos.a,
+                           pos.b,
+                           pos.c);
                     if (0 != retval) {
                         printf("fwd kins error %d\n", retval);
                     } else {
-                        retval = genserKinematicsInverse(&pos, joints, &iflags, &fflags);
+                        retval = genserKinematicsInverse(
+                            &pos, joints, &iflags, &fflags);
                         printf("j0--j5: %f %f %f %f %f %f\n",
-                              joints[0], joints[1], joints[2], joints[3], joints[4], joints[5]);
+                               joints[0],
+                               joints[1],
+                               joints[2],
+                               joints[3],
+                               joints[4],
+                               joints[5]);
                         if (0 != retval) {
-                            printf("inv kins error %d <%s>\n", retval,go_result_to_string(retval));
+                            printf("inv kins error %d <%s>\n",
+                                   retval,
+                                   go_result_to_string(retval));
                         }
                     }
                 }

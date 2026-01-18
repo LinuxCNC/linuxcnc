@@ -26,18 +26,18 @@ typedef void rcs_sem_t;
 extern "C" {
 #endif
 
-    int rcs_sem_destroy(rcs_sem_t * sem);
-    rcs_sem_t *rcs_sem_open(key_t, int oflag, /* int mode, */ ...);
-    int rcs_sem_close(rcs_sem_t * sem);
-    int rcs_sem_unlink(const char *name);
-    int rcs_sem_wait(rcs_sem_t * sem, double timeout);
-    int rcs_sem_trywait(rcs_sem_t * sem);
-    int rcs_sem_flush(rcs_sem_t * sem);
-    int rcs_sem_post(rcs_sem_t * sem);
-    int rcs_sem_clear(rcs_sem_t * sem);
+int rcs_sem_destroy(rcs_sem_t *sem);
+rcs_sem_t *rcs_sem_open(key_t, int oflag, /* int mode, */...);
+int rcs_sem_close(rcs_sem_t *sem);
+int rcs_sem_unlink(const char *name);
+int rcs_sem_wait(rcs_sem_t *sem, double timeout);
+int rcs_sem_trywait(rcs_sem_t *sem);
+int rcs_sem_flush(rcs_sem_t *sem);
+int rcs_sem_post(rcs_sem_t *sem);
+int rcs_sem_clear(rcs_sem_t *sem);
 
 /* additions */
-    rcs_sem_t *rcs_sem_create(key_t id, int mode, int state);
+rcs_sem_t *rcs_sem_create(key_t id, int mode, int state);
 #ifdef __cplusplus
 }
 #endif

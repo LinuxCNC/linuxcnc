@@ -23,9 +23,9 @@
 extern "C" {
 #endif
 
-#include <stddef.h>		/* size_t */
+#include <stddef.h> /* size_t */
 
-    int sendn(int fd, const void *vptr, int n, int flags, double timeout);
+int sendn(int fd, const void *vptr, int n, int flags, double timeout);
 
 #ifdef __cplusplus
 };

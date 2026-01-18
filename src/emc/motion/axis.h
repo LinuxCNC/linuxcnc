@@ -13,8 +13,12 @@ void axis_init_all(void);
 void axis_initialize_external_offsets(void);
 int axis_init_hal_io(int mot_comp_id);
 
-void axis_handle_jogwheels(bool motion_teleop_flag, bool motion_enable_flag, bool homing_is_active);
-bool axis_plan_external_offsets(double servo_period, bool motion_enable_flag, bool all_homed);
+void axis_handle_jogwheels(bool motion_teleop_flag,
+                           bool motion_enable_flag,
+                           bool homing_is_active);
+bool axis_plan_external_offsets(double servo_period,
+                                bool motion_enable_flag,
+                                bool all_homed);
 void axis_check_constraints(double pos[], int failing_axes[]);
 
 void axis_jog_cont(int axis_num, double vel, long servo_period);

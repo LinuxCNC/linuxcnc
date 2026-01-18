@@ -87,10 +87,10 @@
     information, go to www.linuxcnc.org.
 */
 
-#include "rtapi_ctype.h"	/* isspace() */
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_app.h"		/* RTAPI realtime module decls */
-#include "hal.h"		/* HAL public API decls */
+#include "rtapi_ctype.h" /* isspace() */
+#include "rtapi.h"       /* RTAPI realtime OS API */
+#include "rtapi_app.h"   /* RTAPI realtime module decls */
+#include "hal.h"         /* HAL public API decls */
 
 /* If FASTIO is defined, uses outb() and inb() from <asm.io>,
    instead of rtapi_outb() and rtapi_inb() - the <asm.io> ones
@@ -108,7 +108,7 @@
 MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("Axiom AX5214H Driver for HAL");
 MODULE_LICENSE("GPL");
-static char *cfg = "";	/* config string, default no boards */
+static char *cfg = ""; /* config string, default no boards */
 RTAPI_MP_STRING(cfg, "config string");
 
 /***********************************************************************
@@ -120,20 +120,20 @@ RTAPI_MP_STRING(cfg, "config string");
 */
 
 typedef struct {
-    hal_bit_t *data;		/* basic pin for input or output */
+    hal_bit_t *data; /* basic pin for input or output */
     union {
-	hal_bit_t *not;		/* pin for inverted data (input only) */
-	hal_bit_t invert;	/* param for inversion (output only) */
-	} io;
+        hal_bit_t *not;   /* pin for inverted data (input only) */
+        hal_bit_t invert; /* param for inversion (output only) */
+    } io;
 } io_pin_t;
 
 
 typedef struct {
-    unsigned short base_addr;	/* base I/O address (0x220, etc.) */
-    unsigned char dir_bits;	/* LSB is port 1A, MSB is port 2CH, */
-				/*   1 means output, 0 means input */
-    unsigned char port1config;	/* config register value for port 1 */
-    unsigned char port2config;	/* config register value for port 1 */
+    unsigned short base_addr; /* base I/O address (0x220, etc.) */
+    unsigned char dir_bits;   /* LSB is port 1A, MSB is port 2CH, */
+    /*   1 means output, 0 means input */
+    unsigned char port1config; /* config register value for port 1 */
+    unsigned char port2config; /* config register value for port 1 */
     io_pin_t port_1A[8];
     io_pin_t port_1B[8];
     io_pin_t port_1CL[4];
@@ -148,8 +148,8 @@ typedef struct {
 static board_t *board_array;
 
 /* other globals */
-static int comp_id;		/* component ID */
-static int num_boards;		/* number of ports configured */
+static int comp_id;    /* component ID */
+static int num_boards; /* number of ports configured */
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
@@ -173,8 +173,9 @@ static int pins_and_params(char *argv[]);
 
 static unsigned short parse_board_addr(char *cp);
 
-static int export_board(int boardnum, board_t * board);
-static int export_port(int boardnum, int pin_num, io_pin_t *pin, int num_pins, int dir);
+static int export_board(int boardnum, board_t *board);
+static int
+export_port(int boardnum, int pin_num, io_pin_t *pin, int num_pins, int dir);
 static int export_input_pin(int boardnum, int pinnum, io_pin_t *pin);
 static int export_output_pin(int boardnum, int pinnum, io_pin_t *pin);
 
@@ -185,7 +186,7 @@ static int export_output_pin(int boardnum, int pinnum, io_pin_t *pin);
 
 #define MAX_BOARDS 8
 
-#define MAX_TOK ((MAX_BOARDS*2)+3)
+#define MAX_TOK ((MAX_BOARDS * 2) + 3)
 
 int rtapi_app_main(void)
 {
@@ -195,8 +196,8 @@ int rtapi_app_main(void)
 
     /* test for config string */
     if ((cfg == 0) || (cfg[0] == '\0')) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "AX5214H: ERROR: no config string\n");
-	return -1;
+        rtapi_print_msg(RTAPI_MSG_ERR, "AX5214H: ERROR: no config string\n");
+        return -1;
     }
     /* as a RT module, we don't get a nice argc/argv command line, we only
        get a single string... so we need to tokenize it ourselves */
@@ -206,55 +207,65 @@ int rtapi_app_main(void)
        a better way to handle insmod time config data */
     cp = cfg;
     for (n = 0; n < MAX_TOK; n++) {
-	/* strip leading whitespace or token separators */
-	while ((*cp != '\0') && ( isspace(*cp) || ( *cp == '_') ))
-	    cp++;
-	/* mark beginning of token */
-	argv[n] = cp;
-	/* find end of token */
-	while ((*cp != '\0') && !( isspace(*cp) || ( *cp == '_') ))
-	    cp++;
-	/* mark end of this token, prepare to search for next one */
-	if (*cp != '\0') {
-	    *cp = '\0';
-	    cp++;
-	}
+        /* strip leading whitespace or token separators */
+        while ((*cp != '\0') && (isspace(*cp) || (*cp == '_')))
+            cp++;
+        /* mark beginning of token */
+        argv[n] = cp;
+        /* find end of token */
+        while ((*cp != '\0') && !(isspace(*cp) || (*cp == '_')))
+            cp++;
+        /* mark end of this token, prepare to search for next one */
+        if (*cp != '\0') {
+            *cp = '\0';
+            cp++;
+        }
     }
     for (n = 0; n < MAX_TOK; n++) {
-	/* is token empty? */
-	if (argv[n][0] == '\0') {
-	    /* yes - make pointer NULL */
-	    argv[n] = NULL;
-	}
+        /* is token empty? */
+        if (argv[n][0] == '\0') {
+            /* yes - make pointer NULL */
+            argv[n] = NULL;
+        }
     }
     /* parse "command line", set up pins and parameters */
     retval = pins_and_params(argv);
     if (retval != 0) {
-	return retval;
+        return retval;
     }
     /* export functions for each board */
     for (n = 0; n < num_boards; n++) {
-	/* export read function */
-	retval = hal_export_functf(read_board, &(board_array[n]),
-	    0, 0, comp_id, "ax5214h.%d.read", n);
-	if (retval != 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"AX5214H: ERROR: port %d read funct export failed\n", n);
-	    hal_exit(comp_id);
-	    return -1;
-	}
-	/* export write function */
-	retval = hal_export_functf(write_board, &(board_array[n]),
-	    0, 0, comp_id, "ax5214h.%d.write", n);
-	if (retval != 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"AX5214H: ERROR: port %d write funct export failed\n", n);
-	    hal_exit(comp_id);
-	    return -1;
-	}
+        /* export read function */
+        retval = hal_export_functf(
+            read_board, &(board_array[n]), 0, 0, comp_id, "ax5214h.%d.read", n);
+        if (retval != 0) {
+            rtapi_print_msg(
+                RTAPI_MSG_ERR,
+                "AX5214H: ERROR: port %d read funct export failed\n",
+                n);
+            hal_exit(comp_id);
+            return -1;
+        }
+        /* export write function */
+        retval = hal_export_functf(write_board,
+                                   &(board_array[n]),
+                                   0,
+                                   0,
+                                   comp_id,
+                                   "ax5214h.%d.write",
+                                   n);
+        if (retval != 0) {
+            rtapi_print_msg(
+                RTAPI_MSG_ERR,
+                "AX5214H: ERROR: port %d write funct export failed\n",
+                n);
+            hal_exit(comp_id);
+            return -1;
+        }
     }
     rtapi_print_msg(RTAPI_MSG_INFO,
-	"AX5214H: installed driver for %d boards\n", num_boards);
+                    "AX5214H: installed driver for %d boards\n",
+                    num_boards);
     hal_ready(comp_id);
     return 0;
 }
@@ -263,18 +274,18 @@ void rtapi_app_exit(void)
 {
     int n;
     board_t *board;
-    
-    for ( n = 0 ; n < num_boards ; n++ ) {
-	board = &(board_array[n]);
-	/* reset all outputs to high/off */
-	outb(0xff, board->base_addr+0);
-	outb(0xff, board->base_addr+1);
-	outb(0xff, board->base_addr+2);
-	outb(0xff, board->base_addr+3);
-	outb(0xff, board->base_addr+4);
-	outb(0xff, board->base_addr+5);
-	outb(0xff, board->base_addr+6);
-	outb(0xff, board->base_addr+7);
+
+    for (n = 0; n < num_boards; n++) {
+        board = &(board_array[n]);
+        /* reset all outputs to high/off */
+        outb(0xff, board->base_addr + 0);
+        outb(0xff, board->base_addr + 1);
+        outb(0xff, board->base_addr + 2);
+        outb(0xff, board->base_addr + 3);
+        outb(0xff, board->base_addr + 4);
+        outb(0xff, board->base_addr + 5);
+        outb(0xff, board->base_addr + 6);
+        outb(0xff, board->base_addr + 7);
     }
     hal_exit(comp_id);
 }
@@ -292,62 +303,62 @@ static void split_input(unsigned char data, io_pin_t *dest, int num)
 
     /* splits a byte into 'num' HAL pins (and their NOTs) */
     mask = 0x01;
-    for (b = 0 ; b < num ; b++ ) {
-	if ( data & mask ) {
-	    /* input high, which means FALSE (active low) */
-	    *(dest->data) = 0;
-	    *(dest->io.not) = 1;
-	} else {
-	    /* input low, which means TRUE */
-	    *(dest->data) = 1;
-	    *(dest->io.not) = 0;
-	}
-	mask <<= 1;
-	dest++;
+    for (b = 0; b < num; b++) {
+        if (data & mask) {
+            /* input high, which means FALSE (active low) */
+            *(dest->data) = 0;
+            *(dest->io.not) = 1;
+        } else {
+            /* input low, which means TRUE */
+            *(dest->data) = 1;
+            *(dest->io.not) = 0;
+        }
+        mask <<= 1;
+        dest++;
     }
-}    
+}
 
 static void read_board(void *arg, long period)
 {
     board_t *board;
     unsigned char indata;
-    
+
     board = arg;
-    if ( (board->dir_bits & 0x01) == 0 ) {
-	indata = rtapi_inb(board->base_addr+0);
-	split_input(indata, &(board->port_1A[0]), 8);
+    if ((board->dir_bits & 0x01) == 0) {
+        indata = rtapi_inb(board->base_addr + 0);
+        split_input(indata, &(board->port_1A[0]), 8);
     }
-    if ( (board->dir_bits & 0x02) == 0 ) {
-	indata = rtapi_inb(board->base_addr+1);
-	split_input(indata, &(board->port_1B[0]), 8);
+    if ((board->dir_bits & 0x02) == 0) {
+        indata = rtapi_inb(board->base_addr + 1);
+        split_input(indata, &(board->port_1B[0]), 8);
     }
-    if ( (board->dir_bits & 0x0A) != 0x0A ) {
-	indata = rtapi_inb(board->base_addr+2);
-	if ( (board->dir_bits & 0x04) == 0 ) {
-	    split_input(indata, &(board->port_1CL[0]), 4);
-	}
-	indata >>= 4;
-	if ( (board->dir_bits & 0x08) == 0 ) {
-	    split_input(indata, &(board->port_1CH[0]), 4);
-	}
+    if ((board->dir_bits & 0x0A) != 0x0A) {
+        indata = rtapi_inb(board->base_addr + 2);
+        if ((board->dir_bits & 0x04) == 0) {
+            split_input(indata, &(board->port_1CL[0]), 4);
+        }
+        indata >>= 4;
+        if ((board->dir_bits & 0x08) == 0) {
+            split_input(indata, &(board->port_1CH[0]), 4);
+        }
     }
-    if ( (board->dir_bits & 0x10) == 0 ) {
-	indata = rtapi_inb(board->base_addr+4);
-	split_input(indata, &(board->port_2A[0]), 8);
+    if ((board->dir_bits & 0x10) == 0) {
+        indata = rtapi_inb(board->base_addr + 4);
+        split_input(indata, &(board->port_2A[0]), 8);
     }
-    if ( (board->dir_bits & 0x20) == 0 ) {
-	indata = rtapi_inb(board->base_addr+5);
-	split_input(indata, &(board->port_2B[0]), 8);
+    if ((board->dir_bits & 0x20) == 0) {
+        indata = rtapi_inb(board->base_addr + 5);
+        split_input(indata, &(board->port_2B[0]), 8);
     }
-    if ( (board->dir_bits & 0xA0) != 0xA0 ) {
-	indata = rtapi_inb(board->base_addr+6);
-	if ( (board->dir_bits & 0x40) == 0 ) {
-	    split_input(indata, &(board->port_2CL[0]), 4);
-	}
-	indata >>= 4;
-	if ( (board->dir_bits & 0x80) == 0 ) {
-	    split_input(indata, &(board->port_2CH[0]), 4);
-	}
+    if ((board->dir_bits & 0xA0) != 0xA0) {
+        indata = rtapi_inb(board->base_addr + 6);
+        if ((board->dir_bits & 0x40) == 0) {
+            split_input(indata, &(board->port_2CL[0]), 4);
+        }
+        indata >>= 4;
+        if ((board->dir_bits & 0x80) == 0) {
+            split_input(indata, &(board->port_2CH[0]), 4);
+        }
     }
 }
 
@@ -360,18 +371,18 @@ unsigned char build_output(io_pin_t *src, int num)
     mask = 0x01;
     /* assemble output byte for data port from 'num' source variables */
     for (b = 0; b < num; b++) {
-	/* get the data, add to output byte */
-	if ( *(src->data) ) {
-	    if ( !(src->io.invert) ) {
-		data |= mask;
-	    }
-	} else {
-	    if ( (src->io.invert) ) {
-		data |= mask;
-	    }
-	}
-	mask <<= 1;
-	src++;
+        /* get the data, add to output byte */
+        if (*(src->data)) {
+            if (!(src->io.invert)) {
+                data |= mask;
+            }
+        } else {
+            if ((src->io.invert)) {
+                data |= mask;
+            }
+        }
+        mask <<= 1;
+        src++;
     }
     return data;
 }
@@ -382,45 +393,45 @@ static void write_board(void *arg, long period)
     unsigned char outdata, tmp;
 
     board = arg;
-    if ( (board->dir_bits & 0x01) == 0x01 ) {
-	outdata = build_output(&(board->port_1A[0]), 8);
-	rtapi_outb(~outdata, board->base_addr+0);
+    if ((board->dir_bits & 0x01) == 0x01) {
+        outdata = build_output(&(board->port_1A[0]), 8);
+        rtapi_outb(~outdata, board->base_addr + 0);
     }
-    if ( (board->dir_bits & 0x02) == 0x02 ) {
-	outdata = build_output(&(board->port_1B[0]), 8);
-	rtapi_outb(~outdata, board->base_addr+1);
+    if ((board->dir_bits & 0x02) == 0x02) {
+        outdata = build_output(&(board->port_1B[0]), 8);
+        rtapi_outb(~outdata, board->base_addr + 1);
     }
-    if ( (board->dir_bits & 0x0A) != 0x00 ) {
-	outdata = 0;
-	if ( (board->dir_bits & 0x04) == 0x04 ) {
-	    tmp = build_output(&(board->port_1CL[0]), 4);
-	    outdata = tmp;
-	}
-	if ( (board->dir_bits & 0x08) == 0x08 ) {
-	    tmp = build_output(&(board->port_1CH[0]), 4);
-	    outdata = outdata | (tmp << 4);
-	}
-	rtapi_outb(~outdata, board->base_addr+2);
+    if ((board->dir_bits & 0x0A) != 0x00) {
+        outdata = 0;
+        if ((board->dir_bits & 0x04) == 0x04) {
+            tmp = build_output(&(board->port_1CL[0]), 4);
+            outdata = tmp;
+        }
+        if ((board->dir_bits & 0x08) == 0x08) {
+            tmp = build_output(&(board->port_1CH[0]), 4);
+            outdata = outdata | (tmp << 4);
+        }
+        rtapi_outb(~outdata, board->base_addr + 2);
     }
-    if ( (board->dir_bits & 0x10) == 0x10 ) {
-	outdata = build_output(&(board->port_2A[0]), 8);
-	rtapi_outb(~outdata, board->base_addr+4);
+    if ((board->dir_bits & 0x10) == 0x10) {
+        outdata = build_output(&(board->port_2A[0]), 8);
+        rtapi_outb(~outdata, board->base_addr + 4);
     }
-    if ( (board->dir_bits & 0x20) == 0x20 ) {
-	outdata = build_output(&(board->port_2B[0]), 8);
-	rtapi_outb(~outdata, board->base_addr+5);
+    if ((board->dir_bits & 0x20) == 0x20) {
+        outdata = build_output(&(board->port_2B[0]), 8);
+        rtapi_outb(~outdata, board->base_addr + 5);
     }
-    if ( (board->dir_bits & 0xA0) != 0x00 ) {
-	outdata = 0;
-	if ( (board->dir_bits & 0x40) == 0x40 ) {
-	    tmp = build_output(&(board->port_2CL[0]), 4);
-	    outdata = tmp;
-	}
-	if ( (board->dir_bits & 0x80) == 0x80 ) {
-	    tmp = build_output(&(board->port_2CH[0]), 4);
-	    outdata = outdata | (tmp << 4);
-	}
-	rtapi_outb(~outdata, board->base_addr+6);
+    if ((board->dir_bits & 0xA0) != 0x00) {
+        outdata = 0;
+        if ((board->dir_bits & 0x40) == 0x40) {
+            tmp = build_output(&(board->port_2CL[0]), 4);
+            outdata = tmp;
+        }
+        if ((board->dir_bits & 0x80) == 0x80) {
+            tmp = build_output(&(board->port_2CH[0]), 4);
+            outdata = outdata | (tmp << 4);
+        }
+        rtapi_outb(~outdata, board->base_addr + 6);
     }
 }
 
@@ -436,80 +447,86 @@ static int pins_and_params(char *argv[])
 
     /* clear port_addr and dir_bits arrays */
     for (n = 0; n < MAX_BOARDS; n++) {
-	board_addr[n] = 0;
-	dir_bits[n] = 0;
+        board_addr[n] = 0;
+        dir_bits[n] = 0;
     }
     /* parse config string, results in port_addr[] and data_dir[] arrays */
     num_boards = 0;
     n = 0;
     while ((num_boards < MAX_BOARDS) && (argv[n] != 0)) {
-	board_addr[num_boards] = parse_board_addr(argv[n]);
-	if (board_addr[num_boards] == 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"AX5124H: ERROR: bad port address '%s'\n", argv[n]);
-	    return -1;
-	}
-	n++;
-	if (argv[n] == 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"AX5124H: ERROR: no config info for port %s\n", argv[n-1]);
-	    return -1;
-	}
-	/* should be a string of 8 'I" or "O" characters */
-	dir_bits[num_boards] = 0;
-	mask = 0x01;
-	for ( m = 0 ; m < 8 ; m++ ) {
-	    /* test character and set/clear bit */
-	    if ((argv[n][m] == 'i') || (argv[n][m] == 'I')) {
-		/* input, set mask bit to zero */
-		dir_bits[num_boards] &= ~mask;
-	    } else if ((argv[n][m] == 'o') || (argv[n][m] == 'O')) {
-		/* output, set mask bit to one */
-		dir_bits[num_boards] |= mask;
-	    } else {
-		rtapi_print_msg(RTAPI_MSG_ERR,
-		"AX5124H: ERROR: bad config info for port %s: '%s'\n", argv[n-1], argv[n]);
-		return -1;
-	    }
-	    /* shift mask for next but */
-	    mask <<= 1;
-	}
-	n++;
-	num_boards++;
+        board_addr[num_boards] = parse_board_addr(argv[n]);
+        if (board_addr[num_boards] == 0) {
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                            "AX5124H: ERROR: bad port address '%s'\n",
+                            argv[n]);
+            return -1;
+        }
+        n++;
+        if (argv[n] == 0) {
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                            "AX5124H: ERROR: no config info for port %s\n",
+                            argv[n - 1]);
+            return -1;
+        }
+        /* should be a string of 8 'I" or "O" characters */
+        dir_bits[num_boards] = 0;
+        mask = 0x01;
+        for (m = 0; m < 8; m++) {
+            /* test character and set/clear bit */
+            if ((argv[n][m] == 'i') || (argv[n][m] == 'I')) {
+                /* input, set mask bit to zero */
+                dir_bits[num_boards] &= ~mask;
+            } else if ((argv[n][m] == 'o') || (argv[n][m] == 'O')) {
+                /* output, set mask bit to one */
+                dir_bits[num_boards] |= mask;
+            } else {
+                rtapi_print_msg(
+                    RTAPI_MSG_ERR,
+                    "AX5124H: ERROR: bad config info for port %s: '%s'\n",
+                    argv[n - 1],
+                    argv[n]);
+                return -1;
+            }
+            /* shift mask for next but */
+            mask <<= 1;
+        }
+        n++;
+        num_boards++;
     }
     /* OK, now we've parsed everything */
     if (num_boards == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "AX5214H: ERROR: no ports configured\n");
-	return -1;
+        rtapi_print_msg(RTAPI_MSG_ERR, "AX5214H: ERROR: no ports configured\n");
+        return -1;
     }
     /* have good config info, connect to the HAL */
     comp_id = hal_init("hal_ax5214h");
     if (comp_id < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "AX5214H: ERROR: hal_init() failed\n");
-	return -1;
+        rtapi_print_msg(RTAPI_MSG_ERR, "AX5214H: ERROR: hal_init() failed\n");
+        return -1;
     }
     /* allocate shared memory for board data */
     board_array = hal_malloc(num_boards * sizeof(board_t));
     if (board_array == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "AX5214H: ERROR: hal_malloc() failed\n");
-	hal_exit(comp_id);
-	return -1;
+        rtapi_print_msg(RTAPI_MSG_ERR, "AX5214H: ERROR: hal_malloc() failed\n");
+        hal_exit(comp_id);
+        return -1;
     }
     /* export all the pins and params for each board */
     for (n = 0; n < num_boards; n++) {
-	/* config addr and direction */
-	board_array[n].base_addr = board_addr[n];
-	board_array[n].dir_bits = dir_bits[n];
-	/* export all vars */
-	retval = export_board(n, &(board_array[n]));
-	if (retval != 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"AX5214H: ERROR: board %d (%04X) var export failed\n", n, board_addr[n]);
-	    hal_exit(comp_id);
-	    return -1;
-	}
+        /* config addr and direction */
+        board_array[n].base_addr = board_addr[n];
+        board_array[n].dir_bits = dir_bits[n];
+        /* export all vars */
+        retval = export_board(n, &(board_array[n]));
+        if (retval != 0) {
+            rtapi_print_msg(
+                RTAPI_MSG_ERR,
+                "AX5214H: ERROR: board %d (%04X) var export failed\n",
+                n,
+                board_addr[n]);
+            hal_exit(comp_id);
+            return -1;
+        }
     }
     return 0;
 }
@@ -522,34 +539,34 @@ static unsigned short parse_board_addr(char *cp)
     result = 0;
     /* test for leading '0x' */
     if (cp[0] == '0') {
-	if ((cp[1] == 'X') || (cp[1] == 'x')) {
-	    /* leading '0x', skip it */
-	    cp += 2;
-	}
+        if ((cp[1] == 'X') || (cp[1] == 'x')) {
+            /* leading '0x', skip it */
+            cp += 2;
+        }
     }
     /* ok, now parse digits */
     while (*cp != '\0') {
-	/* if char is a hex digit, add it to result */
-	if ((*cp >= '0') && (*cp <= '9')) {
-	    result <<= 4;
-	    result += *cp - '0';
-	} else if ((*cp >= 'A') && (*cp <= 'F')) {
-	    result <<= 4;
-	    result += (*cp - 'A') + 10;
-	} else if ((*cp >= 'a') && (*cp <= 'f')) {
-	    result <<= 4;
-	    result += (*cp - 'a') + 10;
-	} else {
-	    /* not a valid hex digit */
-	    return 0;
-	}
-	/* next char */
-	cp++;
+        /* if char is a hex digit, add it to result */
+        if ((*cp >= '0') && (*cp <= '9')) {
+            result <<= 4;
+            result += *cp - '0';
+        } else if ((*cp >= 'A') && (*cp <= 'F')) {
+            result <<= 4;
+            result += (*cp - 'A') + 10;
+        } else if ((*cp >= 'a') && (*cp <= 'f')) {
+            result <<= 4;
+            result += (*cp - 'a') + 10;
+        } else {
+            /* not a valid hex digit */
+            return 0;
+        }
+        /* next char */
+        cp++;
     }
     return result;
 }
 
-static int export_board(int boardnum, board_t * board)
+static int export_board(int boardnum, board_t *board)
 {
     int retval, msg, dir;
     unsigned char config;
@@ -564,77 +581,78 @@ static int export_board(int boardnum, board_t * board)
     retval = 0;
     config = 0x80;
     dir = board->dir_bits & 0x01;
-    retval += export_port ( boardnum, 0, &(board->port_1A[0]), 8, dir );
-    if ( dir == 0 ) {
-	config |= 0x10;
+    retval += export_port(boardnum, 0, &(board->port_1A[0]), 8, dir);
+    if (dir == 0) {
+        config |= 0x10;
     }
     dir = board->dir_bits & 0x02;
-    retval += export_port ( boardnum, 8, &(board->port_1B[0]), 8, dir );
-    if ( dir == 0 ) {
-	config |= 0x02;
+    retval += export_port(boardnum, 8, &(board->port_1B[0]), 8, dir);
+    if (dir == 0) {
+        config |= 0x02;
     }
     dir = board->dir_bits & 0x04;
-    retval += export_port ( boardnum, 16, &(board->port_1CL[0]), 4, dir );
-    if ( dir == 0 ) {
-	config |= 0x01;
+    retval += export_port(boardnum, 16, &(board->port_1CL[0]), 4, dir);
+    if (dir == 0) {
+        config |= 0x01;
     }
     dir = board->dir_bits & 0x08;
-    retval += export_port ( boardnum, 20, &(board->port_1CH[0]), 4, dir );
-    if ( dir == 0 ) {
-	config |= 0x08;
+    retval += export_port(boardnum, 20, &(board->port_1CH[0]), 4, dir);
+    if (dir == 0) {
+        config |= 0x08;
     }
     board->port1config = config;
     config = 0x80;
-    
+
     dir = board->dir_bits & 0x10;
-    retval += export_port ( boardnum, 24, &(board->port_2A[0]), 8, dir );
-    if ( dir == 0 ) {
-	config |= 0x10;
+    retval += export_port(boardnum, 24, &(board->port_2A[0]), 8, dir);
+    if (dir == 0) {
+        config |= 0x10;
     }
     dir = board->dir_bits & 0x20;
-    retval += export_port ( boardnum, 32, &(board->port_2B[0]), 8, dir );
-    if ( dir == 0 ) {
-	config |= 0x02;
+    retval += export_port(boardnum, 32, &(board->port_2B[0]), 8, dir);
+    if (dir == 0) {
+        config |= 0x02;
     }
     dir = board->dir_bits & 0x40;
-    retval += export_port ( boardnum, 40, &(board->port_2CL[0]), 4, dir );
-    if ( dir == 0 ) {
-	config |= 0x01;
+    retval += export_port(boardnum, 40, &(board->port_2CL[0]), 4, dir);
+    if (dir == 0) {
+        config |= 0x01;
     }
     dir = board->dir_bits & 0x80;
-    retval += export_port ( boardnum, 44, &(board->port_2CH[0]), 4, dir );
-    if ( dir == 0 ) {
-	config |= 0x08;
+    retval += export_port(boardnum, 44, &(board->port_2CH[0]), 4, dir);
+    if (dir == 0) {
+        config |= 0x08;
     }
     board->port2config = config;
     /* initialize hardware - all outputs high 
         (since outputs are active low) */
-    outb(board->port1config, board->base_addr+3);
-    outb(0xff, board->base_addr+0);
-    outb(0xff, board->base_addr+1);
-    outb(0xff, board->base_addr+2);
-    outb(board->port2config, board->base_addr+7);
-    outb(0xff, board->base_addr+4);
-    outb(0xff, board->base_addr+5);
-    outb(0xff, board->base_addr+6);
+    outb(board->port1config, board->base_addr + 3);
+    outb(0xff, board->base_addr + 0);
+    outb(0xff, board->base_addr + 1);
+    outb(0xff, board->base_addr + 2);
+    outb(board->port2config, board->base_addr + 7);
+    outb(0xff, board->base_addr + 4);
+    outb(0xff, board->base_addr + 5);
+    outb(0xff, board->base_addr + 6);
     /* restore saved message level */
     rtapi_set_msg_level(msg);
     return retval;
 }
 
-static int export_port(int boardnum, int pin_num, io_pin_t *pin, int num_pins, int dir)
+static int
+export_port(int boardnum, int pin_num, io_pin_t *pin, int num_pins, int dir)
 {
     int n, retval;
 
     retval = 0;
-    for ( n = 0 ; n < num_pins ; n++ ) {
-	if ( dir == 0 ) {
-	    retval += export_input_pin(boardnum, pin_num, pin );
-	} else {
-	    retval += export_output_pin(boardnum, pin_num, pin );
-	}
-	pin_num++;
-	pin++;
+    for (n = 0; n < num_pins; n++) {
+        if (dir == 0) {
+            retval += export_input_pin(boardnum, pin_num, pin);
+        } else {
+            retval += export_output_pin(boardnum, pin_num, pin);
+        }
+        pin_num++;
+        pin++;
     }
     return retval;
 }
@@ -644,14 +662,18 @@ static int export_input_pin(int boardnum, int pinnum, io_pin_t *pin)
     int retval;
 
     /* export read only HAL pin for input data */
-    retval = hal_pin_bit_newf(HAL_OUT, &(pin->data), comp_id,
-			      "ax5214h.%d.in-%02d", boardnum, pinnum);
+    retval = hal_pin_bit_newf(
+        HAL_OUT, &(pin->data), comp_id, "ax5214h.%d.in-%02d", boardnum, pinnum);
     if (retval != 0) {
-	return retval;
+        return retval;
     }
     /* export additional pin for inverted input data */
-    retval = hal_pin_bit_newf(HAL_OUT, &(pin->io.not), comp_id,
-			      "ax5214h.%d.in-%02d-not", boardnum, pinnum);
+    retval = hal_pin_bit_newf(HAL_OUT,
+                              &(pin->io.not),
+                              comp_id,
+                              "ax5214h.%d.in-%02d-not",
+                              boardnum,
+                              pinnum);
     /* initialize HAL pins */
     *(pin->data) = 0;
     *(pin->io.not) = 1;
@@ -663,14 +685,18 @@ static int export_output_pin(int boardnum, int pinnum, io_pin_t *pin)
     int retval;
 
     /* export read only HAL pin for output data */
-    retval = hal_pin_bit_newf(HAL_IN, &(pin->data), comp_id,
-			      "ax5214h.%d.out-%02d", boardnum, pinnum);
+    retval = hal_pin_bit_newf(
+        HAL_IN, &(pin->data), comp_id, "ax5214h.%d.out-%02d", boardnum, pinnum);
     if (retval != 0) {
-	return retval;
+        return retval;
     }
     /* export parameter for polarity */
-    retval = hal_param_bit_newf(HAL_RW, &(pin->io.invert), comp_id,
-				"ax5214h.%d.out-%02d-invert", boardnum, pinnum);
+    retval = hal_param_bit_newf(HAL_RW,
+                                &(pin->io.invert),
+                                comp_id,
+                                "ax5214h.%d.out-%02d-invert",
+                                boardnum,
+                                pinnum);
     /* initialize HAL pin and param */
     *(pin->data) = 0;
     pin->io.invert = 0;

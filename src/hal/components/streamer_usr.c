@@ -65,8 +65,8 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "hal.h"                /* HAL public API decls */
+#include "rtapi.h" /* RTAPI realtime OS API */
+#include "hal.h"   /* HAL public API decls */
 #include "streamer.h"
 
 /***********************************************************************
@@ -77,11 +77,11 @@
 *                         GLOBAL VARIABLES                             *
 ************************************************************************/
 
-int comp_id = -1;	/* -1 means hal_init() not called yet */
-int exitval = 1;	/* program return code - 1 means error */
-int ignore_sig = 0;	/* used to flag critical regions */
-int linenumber=0;	/* used to print linenumber on errors */
-char comp_name[HAL_NAME_LEN+1];	/* name for this instance of streamer */
+int comp_id = -1;                 /* -1 means hal_init() not called yet */
+int exitval = 1;                  /* program return code - 1 means error */
+int ignore_sig = 0;               /* used to flag critical regions */
+int linenumber = 0;               /* used to print linenumber on errors */
+char comp_name[HAL_NAME_LEN + 1]; /* name for this instance of streamer */
 
 /***********************************************************************
 *                            MAIN PROGRAM                              *
@@ -92,8 +92,8 @@ static sig_atomic_t stop;
 static void quit(int sig)
 {
     (void)sig;
-    if ( ignore_sig ) {
-	return;
+    if (ignore_sig) {
+        return;
     }
     stop = 1;
 }
@@ -102,47 +102,47 @@ static void quit(int sig)
 
 int main(int argc, char **argv)
 {
-    int n, channel, line=0;
+    int n, channel, line = 0;
     char *cp, *cp2;
     hal_stream_t stream;
     char buf[BUF_SIZE];
-	const char *errmsg;
+    const char *errmsg;
 
     /* set return code to "fail", clear it later if all goes well */
     exitval = 1;
     channel = 0;
-    for ( n = 1 ; n < argc ; n++ ) {
-	cp = argv[n];
-	if ( *cp != '-' ) {
-	    break;
-	}
-	switch ( *(++cp) ) {
-	case 'c':
-	    if (( *(++cp) == '\0' ) && ( ++n < argc )) { 
-		cp = argv[n];
-	    }
-	    channel = strtol(cp, &cp2, 10);
-	    if (( *cp2 ) || ( channel < 0 ) || ( channel >= MAX_STREAMERS )) {
-		fprintf(stderr,"ERROR: invalid channel number '%s'\n", cp );
-		exit(1);
-	    }
-	    break;
-	default:
-	    fprintf(stderr,"ERROR: unknown option '%s'\n", cp );
-	    exit(1);
-	    break;
-	}
+    for (n = 1; n < argc; n++) {
+        cp = argv[n];
+        if (*cp != '-') {
+            break;
+        }
+        switch (*(++cp)) {
+        case 'c':
+            if ((*(++cp) == '\0') && (++n < argc)) {
+                cp = argv[n];
+            }
+            channel = strtol(cp, &cp2, 10);
+            if ((*cp2) || (channel < 0) || (channel >= MAX_STREAMERS)) {
+                fprintf(stderr, "ERROR: invalid channel number '%s'\n", cp);
+                exit(1);
+            }
+            break;
+        default:
+            fprintf(stderr, "ERROR: unknown option '%s'\n", cp);
+            exit(1);
+            break;
+        }
     }
-    if(n < argc) {
-	int fd;
-	if(argc > n+1) {
-	    fprintf(stderr, "ERROR: At most one filename may be specified\n");
-	    exit(1);
-	}
-	// make stdin be the named file
-	fd = open(argv[n], O_RDONLY);
-	close(0);
-	dup2(fd, 0);
+    if (n < argc) {
+        int fd;
+        if (argc > n + 1) {
+            fprintf(stderr, "ERROR: At most one filename may be specified\n");
+            exit(1);
+        }
+        // make stdin be the named file
+        fd = open(argv[n], O_RDONLY);
+        close(0);
+        dup2(fd, 0);
     }
     /* register signal handlers - if the process is killed
        we need to call hal_exit() to free the shared memory */
@@ -158,91 +158,91 @@ int main(int argc, char **argv)
     ignore_sig = 0;
     /* check result */
     if (comp_id < 0) {
-	fprintf(stderr, "ERROR: hal_init() failed: %d\n", comp_id );
-	goto out;
+        fprintf(stderr, "ERROR: hal_init() failed: %d\n", comp_id);
+        goto out;
     }
     hal_ready(comp_id);
     /* open shmem for user/RT comms (stream) */
-    int r = hal_stream_attach(&stream, comp_id, STREAMER_SHMEM_KEY+channel, 0);
-    if ( r < 0 ) {
-	errno = -r;
-	perror("hal_stream_attach");
-	goto out;
+    int r =
+        hal_stream_attach(&stream, comp_id, STREAMER_SHMEM_KEY + channel, 0);
+    if (r < 0) {
+        errno = -r;
+        perror("hal_stream_attach");
+        goto out;
     }
     int num_pins = hal_stream_element_count(&stream);
-    while ( fgets(buf, BUF_SIZE, stdin) ) {
-	/* skip comment lines */
-	if ( buf[0] == '#' ) {
-	    line++;
-	    continue;
-	}
-	cp = buf;
-	errmsg = NULL;
-	union hal_stream_data data[num_pins];
-	for ( n = 0 ; n < num_pins ; n++ ) {
+    while (fgets(buf, BUF_SIZE, stdin)) {
+        /* skip comment lines */
+        if (buf[0] == '#') {
+            line++;
+            continue;
+        }
+        cp = buf;
+        errmsg = NULL;
+        union hal_stream_data data[num_pins];
+        for (n = 0; n < num_pins; n++) {
             union hal_stream_data *dptr = &data[n];
-	    /* strip leading whitespace */
-	    while ( isspace(*cp) ) {
-		cp++;
-	    }
-	    switch ( hal_stream_element_type(&stream, n) ) {
-	    case HAL_FLOAT:
-		dptr->f = strtod(cp, &cp2);
-		break;
-	    case HAL_BIT:
-		if ( *cp == '0' ) {
-		    dptr->b = 0;
-		    cp2 = cp + 1;
-		} else if ( *cp == '1' ) {
-		    dptr->b = 1;
-		    cp2 = cp + 1;
-		} else {
-		    errmsg = "bit value not 0 or 1";
-		    cp2 = cp;
-		}
-		break;
-	    case HAL_U32:
-		dptr->u = strtoul(cp, &cp2, 10);
-		break;
-	    case HAL_S32:
-		dptr->s = strtol(cp, &cp2, 10);
-		break;
-	    default:
-		/* better not happen */
-		goto out;
-	    }
-	    if ( errmsg == NULL ) {
-		/* no error yet, check for other possibilities */
-		/* whitespace separates fields, and there is a newline
+            /* strip leading whitespace */
+            while (isspace(*cp)) {
+                cp++;
+            }
+            switch (hal_stream_element_type(&stream, n)) {
+            case HAL_FLOAT: dptr->f = strtod(cp, &cp2); break;
+            case HAL_BIT:
+                if (*cp == '0') {
+                    dptr->b = 0;
+                    cp2 = cp + 1;
+                } else if (*cp == '1') {
+                    dptr->b = 1;
+                    cp2 = cp + 1;
+                } else {
+                    errmsg = "bit value not 0 or 1";
+                    cp2 = cp;
+                }
+                break;
+            case HAL_U32: dptr->u = strtoul(cp, &cp2, 10); break;
+            case HAL_S32: dptr->s = strtol(cp, &cp2, 10); break;
+            default:
+                /* better not happen */
+                goto out;
+            }
+            if (errmsg == NULL) {
+                /* no error yet, check for other possibilities */
+                /* whitespace separates fields, and there is a newline
 		   at the end... so if there is not space or newline at
 		   the end of a field, something is wrong. */
-		if ( *cp2 == '\0' ) {
-		    errmsg = "premature end of line";
-		} else if ( ! isspace(*cp2) ) {
-		    errmsg = "bad character";
-		}
-	    }
-	    /* test for any error */
-	    if ( errmsg != NULL ) {
-		/* abort loop on error */
-		break;
-	    }
-	    /* advance pointers for next field */
-	    dptr++;
-	    cp = cp2;
-	}
-	if ( errmsg != NULL ) {
-	    /* print message */
-	    fprintf (stderr, "line %d, field %d: %s, skipping the line\n", line, n, errmsg );
-	    /** TODO - decide whether to skip this line and continue, or 
+                if (*cp2 == '\0') {
+                    errmsg = "premature end of line";
+                } else if (!isspace(*cp2)) {
+                    errmsg = "bad character";
+                }
+            }
+            /* test for any error */
+            if (errmsg != NULL) {
+                /* abort loop on error */
+                break;
+            }
+            /* advance pointers for next field */
+            dptr++;
+            cp = cp2;
+        }
+        if (errmsg != NULL) {
+            /* print message */
+            fprintf(stderr,
+                    "line %d, field %d: %s, skipping the line\n",
+                    line,
+                    n,
+                    errmsg);
+            /** TODO - decide whether to skip this line and continue, or 
 		abort the program.  Right now it skips the line. */
-	} else {
-	    /* good data, keep it */
+        } else {
+            /* good data, keep it */
             hal_stream_wait_writable(&stream, &stop);
-	    if(stop) break;
-	    hal_stream_write(&stream, data);
-	}
-	line++;
+            if (stop)
+                break;
+            hal_stream_write(&stream, data);
+        }
+        line++;
     }
     /* run was successful */
     exitval = 0;
@@ -250,8 +250,8 @@ int main(int argc, char **argv)
 out:
     ignore_sig = 1;
     hal_stream_detach(&stream);
-    if ( comp_id >= 0 ) {
-	hal_exit(comp_id);
+    if (comp_id >= 0) {
+        hal_exit(comp_id);
     }
     return exitval;
 }

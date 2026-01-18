@@ -50,11 +50,11 @@ This just calls either execute_binary1 or execute_binary2.
 
 int Interp::execute_binary(double *left, int operation, double *right)
 {
-  if (operation < AND2)
-    CHP(execute_binary1(left, operation, right));
-  else
-    CHP(execute_binary2(left, operation, right));
-  return INTERP_OK;
+    if (operation < AND2)
+        CHP(execute_binary1(left, operation, right));
+    else
+        CHP(execute_binary2(left, operation, right));
+    return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -78,33 +78,30 @@ This executes the operations: DIVIDED_BY, MODULO, POWER, TIMES.
 
 */
 
-int Interp::execute_binary1(double *left,        //!< pointer to the left operand    
-                           int operation,       //!< integer code for the operation 
-                           double *right)       //!< pointer to the right operand   
+int Interp::execute_binary1(double *left,  //!< pointer to the left operand
+                            int operation, //!< integer code for the operation
+                            double *right) //!< pointer to the right operand
 {
-  switch (operation) {
-  case DIVIDED_BY:
-    CHKS((*right == 0.0), NCE_ATTEMPT_TO_DIVIDE_BY_ZERO);
-    *left = (*left / *right);
-    break;
-  case MODULO:                 /* always calculates a positive answer */
-    *left = fmod(*left, *right);
-    if (*left < 0.0) {
-      *left = (*left + fabs(*right));
+    switch (operation) {
+    case DIVIDED_BY:
+        CHKS((*right == 0.0), NCE_ATTEMPT_TO_DIVIDE_BY_ZERO);
+        *left = (*left / *right);
+        break;
+    case MODULO: /* always calculates a positive answer */
+        *left = fmod(*left, *right);
+        if (*left < 0.0) {
+            *left = (*left + fabs(*right));
+        }
+        break;
+    case POWER:
+        CHKS(((*left < 0.0) && (floor(*right) != *right)),
+             NCE_ATTEMPT_TO_RAISE_NEGATIVE_TO_NON_INTEGER_POWER);
+        *left = pow(*left, *right);
+        break;
+    case TIMES: *left = (*left * *right); break;
+    default: ERS(NCE_BUG_UNKNOWN_OPERATION);
     }
-    break;
-  case POWER:
-    CHKS(((*left < 0.0) && (floor(*right) != *right)),
-        NCE_ATTEMPT_TO_RAISE_NEGATIVE_TO_NON_INTEGER_POWER);
-    *left = pow(*left, *right);
-    break;
-  case TIMES:
-    *left = (*left * *right);
-    break;
-  default:
-    ERS(NCE_BUG_UNKNOWN_OPERATION);
-  }
-  return INTERP_OK;
+    return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -131,56 +128,47 @@ false.
 
 */
 
-int Interp::execute_binary2(double *left,        //!< pointer to the left operand    
-                           int operation,       //!< integer code for the operation 
-                           double *right)       //!< pointer to the right operand   
+int Interp::execute_binary2(double *left,  //!< pointer to the left operand
+                            int operation, //!< integer code for the operation
+                            double *right) //!< pointer to the right operand
 {
-  double diff;
-  switch (operation) {
-  case AND2:
-    *left = ((*left == 0.0) || (*right == 0.0)) ? 0.0 : 1.0;
-    break;
-  case EXCLUSIVE_OR:
-    *left = (((*left == 0.0) && (*right != 0.0))
-             || ((*left != 0.0) && (*right == 0.0))) ? 1.0 : 0.0;
-    break;
-  case MINUS:
-    *left = (*left - *right);
-    break;
-  case NON_EXCLUSIVE_OR:
-    *left = ((*left != 0.0) || (*right != 0.0)) ? 1.0 : 0.0;
-    break;
-  case PLUS:
-    *left = (*left + *right);
-    break;
+    double diff;
+    switch (operation) {
+    case AND2: *left = ((*left == 0.0) || (*right == 0.0)) ? 0.0 : 1.0; break;
+    case EXCLUSIVE_OR:
+        *left = (((*left == 0.0) && (*right != 0.0)) ||
+                 ((*left != 0.0) && (*right == 0.0)))
+                    ? 1.0
+                    : 0.0;
+        break;
+    case MINUS: *left = (*left - *right); break;
+    case NON_EXCLUSIVE_OR:
+        *left = ((*left != 0.0) || (*right != 0.0)) ? 1.0 : 0.0;
+        break;
+    case PLUS: *left = (*left + *right); break;
 
-  case LT:
-      *left = (*left < *right) ? 1.0 : 0.0;
-      break;
-  case EQ:
-      diff = fabs(*left - *right);
-      *left = (diff < TOLERANCE_EQUAL) ? 1.0 : 0.0;
-      break;
-  case NE:
-      diff = fabs(*left - *right);
-      *left = (diff >= TOLERANCE_EQUAL) ? 1.0 : 0.0;
-      break;
-  case LE:
-      diff = fabs(*left - *right);
-      *left = ((diff < TOLERANCE_EQUAL) || (*left <= *right)) ? 1.0 : 0.0;
-      break;
-  case GE:
-      diff = fabs(*left - *right);
-      *left = ((diff < TOLERANCE_EQUAL) || (*left >= *right)) ? 1.0 : 0.0;
-      break;
-  case GT:
-      *left = (*left > *right) ? 1.0 : 0.0;
-      break;
+    case LT: *left = (*left < *right) ? 1.0 : 0.0; break;
+    case EQ:
+        diff = fabs(*left - *right);
+        *left = (diff < TOLERANCE_EQUAL) ? 1.0 : 0.0;
+        break;
+    case NE:
+        diff = fabs(*left - *right);
+        *left = (diff >= TOLERANCE_EQUAL) ? 1.0 : 0.0;
+        break;
+    case LE:
+        diff = fabs(*left - *right);
+        *left = ((diff < TOLERANCE_EQUAL) || (*left <= *right)) ? 1.0 : 0.0;
+        break;
+    case GE:
+        diff = fabs(*left - *right);
+        *left = ((diff < TOLERANCE_EQUAL) || (*left >= *right)) ? 1.0 : 0.0;
+        break;
+    case GT: *left = (*left > *right) ? 1.0 : 0.0; break;
 
-  default:
-    ERS(NCE_BUG_UNKNOWN_OPERATION);
-  }
-  return INTERP_OK;
+    default: ERS(NCE_BUG_UNKNOWN_OPERATION);
+    }
+    return INTERP_OK;
 }
 
 
@@ -233,101 +221,112 @@ error message.
 
 */
 
-int Interp::execute_block(block_pointer block,   //!< pointer to a block of RS274/NGC instructions
-			  setup_pointer settings) //!< pointer to machine settings
+int Interp::execute_block(
+    block_pointer block,    //!< pointer to a block of RS274/NGC instructions
+    setup_pointer settings) //!< pointer to machine settings
 {
-  int status = INTERP_EXIT;
+    int status = INTERP_EXIT;
 
-  block->line_number = settings->sequence_number;
-  if ((block->comment[0] != 0) && ONCE(STEP_COMMENT)) {
-    status = convert_comment(block->comment);
-    CHP(status);
-  }
-  if ((block->g_modes[GM_SPINDLE_MODE] != -1) && ONCE(STEP_SPINDLE_MODE)) {
-	  settings->active_spindle = 0; //must be single-spindle, default to 0
-	  if (block->dollar_flag){
-		  CHKS((block->dollar_number < 0 || block->dollar_number >= settings->num_spindles),
-				  (_("Invalid spindle ($) number in Spindle Mode command")));
-		  settings->active_spindle = (int)block->dollar_number;
-	  }
-      status = convert_spindle_mode(settings->active_spindle, block, settings);
-      CHP(status);
-  }
-  if ((block->g_modes[GM_FEED_MODE] != -1) && ONCE(STEP_FEED_MODE)) {
-	  settings->active_spindle = 0; //must be single-spindle, default to 0
-	  if (block->dollar_flag){
-		  CHKS((block->dollar_number < 0 || block->dollar_number >= settings->num_spindles),
-				  (_("Invalid spindle ($) number in Spindle Feed command")));
-		  settings->active_spindle = (int)block->dollar_number;
-	  }
-      status = convert_feed_mode(block->g_modes[GM_FEED_MODE], settings);
-      CHP(status);
-
-  }
-  if (block->f_flag){
-      if ((settings->feed_mode != FEED_MODE::INVERSE_TIME) && ONCE(STEP_SET_FEED_RATE))  {
-	  if (STEP_REMAPPED_IN_BLOCK(block, STEP_SET_FEED_RATE)) {
-	      return (convert_remapped_code(block, settings, STEP_SET_FEED_RATE, 'F'));
-	  } else {
-	      status = convert_feed_rate(block, settings);
-	      CHP(status);
-	  }
-      }
-      /* INVERSE_TIME is handled elsewhere */
-  }
-  if ((block->s_flag) && ONCE(STEP_SET_SPINDLE_SPEED)){
-    if (STEP_REMAPPED_IN_BLOCK(block, STEP_SET_SPINDLE_SPEED)) {
-        return (convert_remapped_code(block,settings,STEP_SET_SPINDLE_SPEED,'S'));
-    } else {
-        if (block->dollar_flag){
-            CHKS((block->dollar_number < -1 || block->dollar_number >= settings->num_spindles),
-                (_("Invalid spindle ($) number in Spindle speed command")));
-            if (block->dollar_number == -1 ){
-                for (int i = 0; i < settings->num_spindles; status = convert_speed(i++, block, settings));
-            } else {
-                status = convert_speed(block->dollar_number, block, settings);
-            }
-        } else {
-            status = convert_speed(0, block, settings);
+    block->line_number = settings->sequence_number;
+    if ((block->comment[0] != 0) && ONCE(STEP_COMMENT)) {
+        status = convert_comment(block->comment);
+        CHP(status);
+    }
+    if ((block->g_modes[GM_SPINDLE_MODE] != -1) && ONCE(STEP_SPINDLE_MODE)) {
+        settings->active_spindle = 0; //must be single-spindle, default to 0
+        if (block->dollar_flag) {
+            CHKS((block->dollar_number < 0 ||
+                  block->dollar_number >= settings->num_spindles),
+                 (_("Invalid spindle ($) number in Spindle Mode command")));
+            settings->active_spindle = (int)block->dollar_number;
         }
-    CHP(status);
+        status =
+            convert_spindle_mode(settings->active_spindle, block, settings);
+        CHP(status);
     }
-  }
-  if ((block->t_flag) && ONCE(STEP_PREPARE)) {
-      if (STEP_REMAPPED_IN_BLOCK(block, STEP_PREPARE)) {
-	  return (convert_remapped_code(block,settings,STEP_PREPARE,'T'));
-      } else {
-	  CHP(convert_tool_select(block, settings));
-      }
-  }
-  CHP(convert_m(block, settings));
-  CHP(convert_g(block, settings));
-  /* convert m0, m1, m2, m30, m60, or (when main program loops disabled) m99 */
-  if ((block->m_modes[4] != -1) && ONCE(STEP_MGROUP4)) {
-      if (STEP_REMAPPED_IN_BLOCK(block, STEP_MGROUP4)) {
-	  status = convert_remapped_code(block,settings,STEP_MGROUP4,'M',block->m_modes[4]);
-      } else {
-	  status = convert_stop(block, settings);
-      }
-    if (status == INTERP_EXIT) {
-	return(INTERP_EXIT);
+    if ((block->g_modes[GM_FEED_MODE] != -1) && ONCE(STEP_FEED_MODE)) {
+        settings->active_spindle = 0; //must be single-spindle, default to 0
+        if (block->dollar_flag) {
+            CHKS((block->dollar_number < 0 ||
+                  block->dollar_number >= settings->num_spindles),
+                 (_("Invalid spindle ($) number in Spindle Feed command")));
+            settings->active_spindle = (int)block->dollar_number;
+        }
+        status = convert_feed_mode(block->g_modes[GM_FEED_MODE], settings);
+        CHP(status);
     }
-    else if (status != INTERP_OK) {
-	ERP(status);
+    if (block->f_flag) {
+        if ((settings->feed_mode != FEED_MODE::INVERSE_TIME) &&
+            ONCE(STEP_SET_FEED_RATE)) {
+            if (STEP_REMAPPED_IN_BLOCK(block, STEP_SET_FEED_RATE)) {
+                return (convert_remapped_code(
+                    block, settings, STEP_SET_FEED_RATE, 'F'));
+            } else {
+                status = convert_feed_rate(block, settings);
+                CHP(status);
+            }
+        }
+        /* INVERSE_TIME is handled elsewhere */
     }
-  }
-  if (settings->probe_flag)
-      return (INTERP_EXECUTE_FINISH);
+    if ((block->s_flag) && ONCE(STEP_SET_SPINDLE_SPEED)) {
+        if (STEP_REMAPPED_IN_BLOCK(block, STEP_SET_SPINDLE_SPEED)) {
+            return (convert_remapped_code(
+                block, settings, STEP_SET_SPINDLE_SPEED, 'S'));
+        } else {
+            if (block->dollar_flag) {
+                CHKS(
+                    (block->dollar_number < -1 ||
+                     block->dollar_number >= settings->num_spindles),
+                    (_("Invalid spindle ($) number in Spindle speed command")));
+                if (block->dollar_number == -1) {
+                    for (int i = 0; i < settings->num_spindles;
+                         status = convert_speed(i++, block, settings))
+                        ;
+                } else {
+                    status =
+                        convert_speed(block->dollar_number, block, settings);
+                }
+            } else {
+                status = convert_speed(0, block, settings);
+            }
+            CHP(status);
+        }
+    }
+    if ((block->t_flag) && ONCE(STEP_PREPARE)) {
+        if (STEP_REMAPPED_IN_BLOCK(block, STEP_PREPARE)) {
+            return (convert_remapped_code(block, settings, STEP_PREPARE, 'T'));
+        } else {
+            CHP(convert_tool_select(block, settings));
+        }
+    }
+    CHP(convert_m(block, settings));
+    CHP(convert_g(block, settings));
+    /* convert m0, m1, m2, m30, m60, or (when main program loops disabled) m99 */
+    if ((block->m_modes[4] != -1) && ONCE(STEP_MGROUP4)) {
+        if (STEP_REMAPPED_IN_BLOCK(block, STEP_MGROUP4)) {
+            status = convert_remapped_code(
+                block, settings, STEP_MGROUP4, 'M', block->m_modes[4]);
+        } else {
+            status = convert_stop(block, settings);
+        }
+        if (status == INTERP_EXIT) {
+            return (INTERP_EXIT);
+        } else if (status != INTERP_OK) {
+            ERP(status);
+        }
+    }
+    if (settings->probe_flag)
+        return (INTERP_EXECUTE_FINISH);
 
-  if (settings->input_flag)
-      return (INTERP_EXECUTE_FINISH);
+    if (settings->input_flag)
+        return (INTERP_EXECUTE_FINISH);
 
-  if (settings->toolchange_flag)
-      return (INTERP_EXECUTE_FINISH);
+    if (settings->toolchange_flag)
+        return (INTERP_EXECUTE_FINISH);
 
-  // All changes to settings are complete
-  write_canon_state_tag(block, settings);
-  return INTERP_OK;
+    // All changes to settings are complete
+    write_canon_state_tag(block, settings);
+    return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -360,63 +359,49 @@ All angle measures in the input or output are in degrees.
 
 */
 
-int Interp::execute_unary(double *double_ptr,    //!< pointer to the operand         
-                         int operation) //!< integer code for the operation 
+int Interp::execute_unary(double *double_ptr, //!< pointer to the operand
+                          int operation) //!< integer code for the operation
 {
-  switch (operation) {
-  case ABS:
-    if (*double_ptr < 0.0)
-      *double_ptr = (-1.0 * *double_ptr);
-    break;
-  case ACOS:
-    CHKS(((*double_ptr < -1.0) || (*double_ptr > 1.0)),
-        NCE_ARGUMENT_TO_ACOS_OUT_OF_RANGE);
-    *double_ptr = acos(*double_ptr);
-    *double_ptr = ((*double_ptr * 180.0) / M_PIl);
-    break;
-  case ASIN:
-    CHKS(((*double_ptr < -1.0) || (*double_ptr > 1.0)),
-        NCE_ARGUMENT_TO_ASIN_OUT_OF_RANGE);
-    *double_ptr = asin(*double_ptr);
-    *double_ptr = ((*double_ptr * 180.0) / M_PIl);
-    break;
-  case COS:
-    *double_ptr = cos((*double_ptr * M_PIl) / 180.0);
-    break;
-  case EXISTS:
-    // do nothing here
-    // result for the EXISTS function is set by Interp:read_unary()
-    break;
-  case EXP:
-    *double_ptr = exp(*double_ptr);
-    break;
-  case FIX:
-    *double_ptr = floor(*double_ptr);
-    break;
-  case FUP:
-    *double_ptr = ceil(*double_ptr);
-    break;
-  case LN:
-    CHKS((*double_ptr <= 0.0), NCE_ZERO_OR_NEGATIVE_ARGUMENT_TO_LN);
-    *double_ptr = log(*double_ptr);
-    break;
-  case ROUND:
-    *double_ptr = (double)
-      ((int) (*double_ptr + ((*double_ptr < 0.0) ? -0.5 : 0.5)));
-    break;
-  case SIN:
-    *double_ptr = sin((*double_ptr * M_PIl) / 180.0);
-    break;
-  case SQRT:
-    CHKS((*double_ptr < 0.0), NCE_NEGATIVE_ARGUMENT_TO_SQRT);
-    *double_ptr = sqrt(*double_ptr);
-    break;
-  case TAN:
-    *double_ptr = tan((*double_ptr * M_PIl) / 180.0);
-    break;
-  default:
-    ERS(NCE_BUG_UNKNOWN_OPERATION);
-  }
-  return INTERP_OK;
+    switch (operation) {
+    case ABS:
+        if (*double_ptr < 0.0)
+            *double_ptr = (-1.0 * *double_ptr);
+        break;
+    case ACOS:
+        CHKS(((*double_ptr < -1.0) || (*double_ptr > 1.0)),
+             NCE_ARGUMENT_TO_ACOS_OUT_OF_RANGE);
+        *double_ptr = acos(*double_ptr);
+        *double_ptr = ((*double_ptr * 180.0) / M_PIl);
+        break;
+    case ASIN:
+        CHKS(((*double_ptr < -1.0) || (*double_ptr > 1.0)),
+             NCE_ARGUMENT_TO_ASIN_OUT_OF_RANGE);
+        *double_ptr = asin(*double_ptr);
+        *double_ptr = ((*double_ptr * 180.0) / M_PIl);
+        break;
+    case COS: *double_ptr = cos((*double_ptr * M_PIl) / 180.0); break;
+    case EXISTS:
+        // do nothing here
+        // result for the EXISTS function is set by Interp:read_unary()
+        break;
+    case EXP: *double_ptr = exp(*double_ptr); break;
+    case FIX: *double_ptr = floor(*double_ptr); break;
+    case FUP: *double_ptr = ceil(*double_ptr); break;
+    case LN:
+        CHKS((*double_ptr <= 0.0), NCE_ZERO_OR_NEGATIVE_ARGUMENT_TO_LN);
+        *double_ptr = log(*double_ptr);
+        break;
+    case ROUND:
+        *double_ptr =
+            (double)((int)(*double_ptr + ((*double_ptr < 0.0) ? -0.5 : 0.5)));
+        break;
+    case SIN: *double_ptr = sin((*double_ptr * M_PIl) / 180.0); break;
+    case SQRT:
+        CHKS((*double_ptr < 0.0), NCE_NEGATIVE_ARGUMENT_TO_SQRT);
+        *double_ptr = sqrt(*double_ptr);
+        break;
+    case TAN: *double_ptr = tan((*double_ptr * M_PIl) / 180.0); break;
+    default: ERS(NCE_BUG_UNKNOWN_OPERATION);
+    }
+    return INTERP_OK;
 }
-

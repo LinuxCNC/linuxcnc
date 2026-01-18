@@ -59,13 +59,14 @@ static double shinlength;
 static double footradius;
 
 #ifndef sq
-#define sq(a) ((a)*(a))
+#define sq(a) ((a) * (a))
 #endif
 #ifndef D2R
-#define D2R(d) ((d)*M_PI/180.)
+#define D2R(d) ((d) * M_PI / 180.)
 #endif
 
-static void set_geometry(double pfr, double tl, double sl, double fr) {
+static void set_geometry(double pfr, double tl, double sl, double fr)
+{
     platformradius = pfr;
     thighlength = tl;
     shinlength = sl;
@@ -73,17 +74,10 @@ static void set_geometry(double pfr, double tl, double sl, double fr) {
 }
 
 // Given three hip joint angles, find the controlled point
-static int kinematics_forward(const double *joints, EmcPose *pos) {
-    double
-        j0 = joints[0],
-        j1 = joints[1],
-        j2 = joints[2],
-        y1, z1, // x1 is 0
-        x2, y2, z2, x3, y3, z3,
-        a1, b1, a2, b2,
-        w1, w2, w3,
-        denom,
-        a, b, c, d;
+static int kinematics_forward(const double *joints, EmcPose *pos)
+{
+    double j0 = joints[0], j1 = joints[1], j2 = joints[2], y1, z1, // x1 is 0
+        x2, y2, z2, x3, y3, z3, a1, b1, a2, b2, w1, w2, w3, denom, a, b, c, d;
 
     j0 = D2R(j0);
     j1 = D2R(j1);
@@ -100,14 +94,14 @@ static int kinematics_forward(const double *joints, EmcPose *pos) {
     x3 = -y3 * sqrt(3);
     z3 = -thighlength * sin(j2);
 
-    denom = x3 * (y2 - y1)  - x2 * (y3 - y1);
+    denom = x3 * (y2 - y1) - x2 * (y3 - y1);
 
     w1 = sq(y1) + sq(z1);
     w2 = sq(x2) + sq(y2) + sq(z2);
     w3 = sq(x3) + sq(y3) + sq(z3);
 
-    a1 = (z2-z1) * (y3-y1) - (z3-z1) * (y2-y1);
-    b1 = -((w2-w1) * (y3-y1) - (w3-w1) * (y2-y1)) / 2.0;
+    a1 = (z2 - z1) * (y3 - y1) - (z3 - z1) * (y2 - y1);
+    b1 = -((w2 - w1) * (y3 - y1) - (w3 - w1) * (y2 - y1)) / 2.0;
 
     a2 = -(z2 - z1) * x3 + (z3 - z1) * x2;
     b2 = ((w2 - w1) * x3 - (w3 - w1) * x2) / 2.0;
@@ -115,11 +109,12 @@ static int kinematics_forward(const double *joints, EmcPose *pos) {
     // a*z^2 + b*z + c = 0
     a = sq(a1) + sq(a2) + sq(denom);
     b = 2 * (a1 * b1 + a2 * (b2 - y1 * denom) - z1 * sq(denom));
-    c = (b2 - y1 * denom) * (b2 - y1 * denom) +
-        sq(b1) + sq(denom) * (sq(z1) - sq(shinlength));
+    c = (b2 - y1 * denom) * (b2 - y1 * denom) + sq(b1) +
+        sq(denom) * (sq(z1) - sq(shinlength));
 
     d = sq(b) - 4 * a * c;
-    if (d < 0) return -1;
+    if (d < 0)
+        return -1;
 
     pos->tran.z = (-b - sqrt(d)) / (2 * a);
     pos->tran.x = (a1 * pos->tran.z + b1) / denom;
@@ -138,43 +133,54 @@ static int kinematics_forward(const double *joints, EmcPose *pos) {
 
 // Given controlled point, find joint zero's angle
 // (J0 is the easy one in the ZY plane)
-static int inverse_j0(double x, double y, double z, double *theta) {
+static int inverse_j0(double x, double y, double z, double *theta)
+{
     double a, b, d, knee_y, knee_z;
 
-    a = 0.5 * (sq(x) + sq(y - footradius) + sq(z) + sq(thighlength) -
-               sq(shinlength) - sq(platformradius)) / z;
+    a = 0.5 *
+        (sq(x) + sq(y - footradius) + sq(z) + sq(thighlength) - sq(shinlength) -
+         sq(platformradius)) /
+        z;
     b = (footradius - platformradius - y) / z;
 
     d = sq(thighlength) * (sq(b) + 1) - sq(a - b * platformradius);
-    if (d < 0) return -1;
+    if (d < 0)
+        return -1;
 
-    knee_y = (platformradius + a*b + sqrt(d)) / (sq(b) + 1);
+    knee_y = (platformradius + a * b + sqrt(d)) / (sq(b) + 1);
     knee_z = b * knee_y - a;
 
     *theta = atan2(knee_z, knee_y - platformradius);
-    *theta *= 180.0/M_PI;
+    *theta *= 180.0 / M_PI;
     return 0;
 }
 
-static void rotate(double *x, double *y, double theta) {
+static void rotate(double *x, double *y, double theta)
+{
     double xx, yy;
     xx = *x, yy = *y;
     *x = xx * cos(theta) - yy * sin(theta);
     *y = xx * sin(theta) + yy * cos(theta);
 }
 
-static int kinematics_inverse(const EmcPose *pos, double *joints) {
+static int kinematics_inverse(const EmcPose *pos, double *joints)
+{
     double xr, yr;
-    if(inverse_j0(pos->tran.x, pos->tran.y, pos->tran.z, &joints[0])) return -1;
+    if (inverse_j0(pos->tran.x, pos->tran.y, pos->tran.z, &joints[0]))
+        return -1;
 
     // now use symmetry property to get the other two just as easily...
-    xr = pos->tran.x; yr = pos->tran.y;
-    rotate(&xr, &yr, -2*M_PI/3);
-    if(inverse_j0(xr, yr, pos->tran.z, &joints[1])) return -1;
+    xr = pos->tran.x;
+    yr = pos->tran.y;
+    rotate(&xr, &yr, -2 * M_PI / 3);
+    if (inverse_j0(xr, yr, pos->tran.z, &joints[1]))
+        return -1;
 
-    xr = pos->tran.x; yr = pos->tran.y;
-    rotate(&xr, &yr, 2*M_PI/3);
-    if(inverse_j0(xr, yr, pos->tran.z, &joints[2])) return -1;
+    xr = pos->tran.x;
+    yr = pos->tran.y;
+    rotate(&xr, &yr, 2 * M_PI / 3);
+    if (inverse_j0(xr, yr, pos->tran.z, &joints[2]))
+        return -1;
 
     joints[3] = pos->a;
     joints[4] = pos->b;

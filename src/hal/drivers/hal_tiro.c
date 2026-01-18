@@ -57,9 +57,9 @@
     information, go to www.linuxcnc.org.
 */
 
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_app.h"		/* RTAPI realtime module decls */
-#include "hal.h"		/* HAL public API decls */
+#include "rtapi.h"     /* RTAPI realtime OS API */
+#include "rtapi_app.h" /* RTAPI realtime module decls */
+#include "hal.h"       /* HAL public API decls */
 
 #define FASTIO
 
@@ -73,9 +73,9 @@
 MODULE_AUTHOR("Alex Joni");
 MODULE_DESCRIPTION("Driver for Tiro-PC104 board for EMC HAL");
 MODULE_LICENSE("GPL");
-static int base = 0x300;	/* board base address */
+static int base = 0x300; /* board base address */
 RTAPI_MP_INT(base, "board base address");
-static int num_chan = 4;	/* number of channels - default = 4 */
+static int num_chan = 4; /* number of channels - default = 4 */
 RTAPI_MP_INT(num_chan, "number of channels");
 
 /***********************************************************************
@@ -85,25 +85,25 @@ RTAPI_MP_INT(num_chan, "number of channels");
 /* this structure contains the runtime data for a single counter */
 
 typedef struct {
-    hal_s32_t *count;		/* captured binary count value */
-    hal_float_t *pos;		/* scaled position (floating point) */
-    hal_float_t pos_scale;	/* parameter: scaling factor for pos */
+    hal_s32_t *count;      /* captured binary count value */
+    hal_float_t *pos;      /* scaled position (floating point) */
+    hal_float_t pos_scale; /* parameter: scaling factor for pos */
 } counter_t;
 
 /* pointer to array of counter_t structs in shmem, 1 per counter */
 static counter_t *counter_array;
 
 /* other globals */
-static int comp_id;								/* component ID */
+static int comp_id; /* component ID */
 
-#define DATA(x) (base + (2 * x))  	/* Address of Data register */
-#define CTRL(x) (base + (2 * x) + 1) 	/* Address of Control register */
+#define DATA(x) (base + (2 * x))     /* Address of Data register */
+#define CTRL(x) (base + (2 * x) + 1) /* Address of Control register */
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
 ************************************************************************/
 
-static int export_counter(int num, counter_t * addr);
+static int export_counter(int num, counter_t *addr);
 static void capture(void *arg, long period);
 static int LS7166Init(int ch);
 static long LS7166Read(int i);
@@ -120,53 +120,53 @@ int rtapi_app_main(void)
 
     /* test for number of channels */
     if ((num_chan <= 0) || (num_chan > MAX_CHAN)) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "TIRO: ERROR: invalid num_chan: %d\n", num_chan);
-	return -1;
+        rtapi_print_msg(
+            RTAPI_MSG_ERR, "TIRO: ERROR: invalid num_chan: %d\n", num_chan);
+        return -1;
     }
     /* have good config info, connect to the HAL */
     comp_id = hal_init("hal_tiro");
     if (comp_id < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "TIRO: ERROR: hal_init() failed\n");
-	return -1;
+        rtapi_print_msg(RTAPI_MSG_ERR, "TIRO: ERROR: hal_init() failed\n");
+        return -1;
     }
     /* allocate shared memory for counter data */
     counter_array = hal_malloc(num_chan * sizeof(counter_t));
     if (counter_array == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "TIRO: ERROR: hal_malloc() failed\n");
-	hal_exit(comp_id);
-	return -1;
+        rtapi_print_msg(RTAPI_MSG_ERR, "TIRO: ERROR: hal_malloc() failed\n");
+        hal_exit(comp_id);
+        return -1;
     }
     /* export all the variables for each counter */
     for (n = 0; n < num_chan; n++) {
-		/* export all vars */
-		retval = export_counter(n, &(counter_array[n]));
-		if (retval != 0) {
-			rtapi_print_msg(RTAPI_MSG_ERR,
-			"TIRO: ERROR: counter %d var export failed\n", n + 1);
-			hal_exit(comp_id);
-			return -1;
-		}
-		/* init counter */
-		*(counter_array[n].count) = 0;
-		*(counter_array[n].pos) = 0.0;
-		counter_array[n].pos_scale = 1.0;
-		
-		/* init counter chip */		
-		LS7166Init(n);
+        /* export all vars */
+        retval = export_counter(n, &(counter_array[n]));
+        if (retval != 0) {
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                            "TIRO: ERROR: counter %d var export failed\n",
+                            n + 1);
+            hal_exit(comp_id);
+            return -1;
+        }
+        /* init counter */
+        *(counter_array[n].count) = 0;
+        *(counter_array[n].pos) = 0.0;
+        counter_array[n].pos_scale = 1.0;
+
+        /* init counter chip */
+        LS7166Init(n);
     }
     /* export functions */
-    retval = hal_export_funct("tiro.capture-position", capture,
-	counter_array, 1, 0, comp_id);
+    retval = hal_export_funct(
+        "tiro.capture-position", capture, counter_array, 1, 0, comp_id);
     if (retval != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "TIRO: ERROR: capture funct export failed\n");
-	hal_exit(comp_id);
-	return -1;
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "TIRO: ERROR: capture funct export failed\n");
+        hal_exit(comp_id);
+        return -1;
     }
-    rtapi_print_msg(RTAPI_MSG_INFO,
-	"TIRO: installed %d encoder counters\n", num_chan);
+    rtapi_print_msg(
+        RTAPI_MSG_INFO, "TIRO: installed %d encoder counters\n", num_chan);
     hal_ready(comp_id);
     return 0;
 }
@@ -188,12 +188,12 @@ static void capture(void *arg, long period)
     cntr = arg;
     for (n = 0; n < num_chan; n++) {
 
-	/* capture raw counts to latches */
-	*(cntr->count) = LS7166Read(n);
-	/* scale count to make floating point position */
-	*(cntr->pos) = *(cntr->count) * cntr->pos_scale;
-	/* move on to next channel */
-	cntr++;
+        /* capture raw counts to latches */
+        *(cntr->count) = LS7166Read(n);
+        /* scale count to make floating point position */
+        *(cntr->pos) = *(cntr->count) * cntr->pos_scale;
+        /* move on to next channel */
+        cntr++;
     }
     /* done */
 }
@@ -208,10 +208,10 @@ static void capture(void *arg, long period)
 
 int LS7166Init(int ch)
 {
-	rtapi_outb(CTRL(ch), 0x49);
-	rtapi_outb(CTRL(ch), 0xC3);
-	rtapi_outb(CTRL(ch), 0x80);
-	return 0;
+    rtapi_outb(CTRL(ch), 0x49);
+    rtapi_outb(CTRL(ch), 0xC3);
+    rtapi_outb(CTRL(ch), 0x80);
+    return 0;
 }
 
 
@@ -220,29 +220,33 @@ int LS7166Init(int ch)
 */
 long LS7166Read(int i)
 {
-  union pos_tag {
-    long l;
-    struct byte_tag { char b0; char b1; char b2; char b3;} byte;
-  } pos;
+    union pos_tag {
+        long l;
+        struct byte_tag {
+            char b0;
+            char b1;
+            char b2;
+            char b3;
+        } byte;
+    } pos;
 
-  rtapi_outb(CTRL(i), 0x03);
-  pos.byte.b0=rtapi_inb(DATA(i));
-  pos.byte.b1=rtapi_inb(DATA(i));
-  pos.byte.b2=rtapi_inb(DATA(i));
-  if (pos.byte.b2 < 0) {
-    pos.byte.b3 = -1;
-  }
-  else {
-    pos.byte.b3 = 0;
-  }
-  return pos.l;
+    rtapi_outb(CTRL(i), 0x03);
+    pos.byte.b0 = rtapi_inb(DATA(i));
+    pos.byte.b1 = rtapi_inb(DATA(i));
+    pos.byte.b2 = rtapi_inb(DATA(i));
+    if (pos.byte.b2 < 0) {
+        pos.byte.b3 = -1;
+    } else {
+        pos.byte.b3 = 0;
+    }
+    return pos.l;
 }
 
 /***********************************************************************
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
 
-static int export_counter(int num, counter_t * addr)
+static int export_counter(int num, counter_t *addr)
 {
     int retval, msg;
 
@@ -254,22 +258,22 @@ static int export_counter(int num, counter_t * addr)
     rtapi_set_msg_level(RTAPI_MSG_WARN);
 
     /* export pin for counts captured by update() */
-    retval = hal_pin_s32_newf(HAL_OUT, &(addr->count), comp_id,
-			      "tiro.%d.counts", num);
+    retval = hal_pin_s32_newf(
+        HAL_OUT, &(addr->count), comp_id, "tiro.%d.counts", num);
     if (retval != 0) {
-	return retval;
+        return retval;
     }
     /* export pin for scaled position captured by update() */
-    retval = hal_pin_float_newf(HAL_OUT, &(addr->pos), comp_id,
-				"tiro.%d.position", num);
+    retval = hal_pin_float_newf(
+        HAL_OUT, &(addr->pos), comp_id, "tiro.%d.position", num);
     if (retval != 0) {
-	return retval;
+        return retval;
     }
     /* export parameter for scaling */
-    retval = hal_param_float_newf(HAL_RW, &(addr->pos_scale), comp_id,
-				  "tiro.%d.position-scale", num);
+    retval = hal_param_float_newf(
+        HAL_RW, &(addr->pos_scale), comp_id, "tiro.%d.position-scale", num);
     if (retval != 0) {
-	return retval;
+        return retval;
     }
     /* restore saved message level */
     rtapi_set_msg_level(msg);

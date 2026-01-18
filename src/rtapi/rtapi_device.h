@@ -39,13 +39,13 @@ RTAPI_BEGIN_DECLS
 
 #define RTAPI_DEVICE_NAME_LEN 47
 struct rtapi_device {
-    char    name[RTAPI_DEVICE_NAME_LEN + 1];
-    void    (*release)(struct rtapi_device *dev);
+    char name[RTAPI_DEVICE_NAME_LEN + 1];
+    void (*release)(struct rtapi_device *dev);
 };
 
 static __inline__ int
 rtapi_dev_set_name(struct rtapi_device *dev, const char *name, ...)
-    __attribute__((format(printf,2,3)));
+    __attribute__((format(printf, 2, 3)));
 static __inline__ int
 rtapi_dev_set_name(struct rtapi_device *dev, const char *name, ...)
 {
@@ -57,8 +57,15 @@ rtapi_dev_set_name(struct rtapi_device *dev, const char *name, ...)
 }
 
 
-static __inline__ int rtapi_device_register(struct rtapi_device *dev) { (void)dev; return 0;}
-static __inline__ void rtapi_device_unregister(struct rtapi_device *dev) { dev->release(dev); };
+static __inline__ int rtapi_device_register(struct rtapi_device *dev)
+{
+    (void)dev;
+    return 0;
+}
+static __inline__ void rtapi_device_unregister(struct rtapi_device *dev)
+{
+    dev->release(dev);
+};
 
 RTAPI_END_DECLS
 

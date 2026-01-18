@@ -21,9 +21,9 @@
 #include "rs274ngc.hh"
 #include "rs274ngc_interp.hh"
 #include "rs274ngc_return.hh"
-#include "inifile.hh"		// INIFILE
-#include "canon.hh"		// _parameter_file_name
-#include "config.h"		// LINELEN
+#include "inifile.hh" // INIFILE
+#include "canon.hh"   // _parameter_file_name
+#include "config.h"   // LINELEN
 #include <stdio.h>    /* gets, etc. */
 #include <stdlib.h>   /* exit       */
 #include <string.h>   /* strcpy     */
@@ -46,21 +46,21 @@ const char *prompt = "READ => ";
 const char *histfile = "~/.rs274";
 #define RS274_HISTORY "RS274_HISTORY"
 
-#define active_settings  interp_new.active_settings
-#define active_g_codes   interp_new.active_g_codes
-#define active_m_codes   interp_new.active_m_codes
-#define error_text	 interp_new.error_text
-#define interp_execute	 interp_new.execute
-#define file_name	 interp_new.file_name
-#define interp_init	 interp_new.init
-#define stack_name	 interp_new.stack_name
-#define line_text	 interp_new.line_text
-#define line_length	 interp_new.line_length
-#define sequence_number  interp_new.sequence_number
-#define interp_close     interp_new.close
-#define interp_exit      interp_new.exit
-#define interp_open      interp_new.open
-#define interp_read	 interp_new.read
+#define active_settings interp_new.active_settings
+#define active_g_codes interp_new.active_g_codes
+#define active_m_codes interp_new.active_m_codes
+#define error_text interp_new.error_text
+#define interp_execute interp_new.execute
+#define file_name interp_new.file_name
+#define interp_init interp_new.init
+#define stack_name interp_new.stack_name
+#define line_text interp_new.line_text
+#define line_length interp_new.line_length
+#define sequence_number interp_new.sequence_number
+#define interp_close interp_new.close
+#define interp_exit interp_new.exit
+#define interp_open interp_new.open
+#define interp_read interp_new.read
 #define interp_load_tool_table interp_new.load_tool_table
 #define interp_set_loglevel interp_new.set_loglevel
 #define interp_task_init interp_new.task_init
@@ -101,51 +101,51 @@ message.
 
 */
 
-void report_error( /* ARGUMENTS                            */
- int error_code,   /* the code number of the error message */
- int print_stack)  /* print stack if ON, otherwise not     */
+void report_error(                 /* ARGUMENTS                            */
+                  int error_code,  /* the code number of the error message */
+                  int print_stack) /* print stack if ON, otherwise not     */
 {
-  char interp_error_text_buf[LINELEN];
-  int k;
+    char interp_error_text_buf[LINELEN];
+    int k;
 
-  error_text(error_code, interp_error_text_buf, 5); /* for coverage of code */
-  error_text(error_code, interp_error_text_buf, LINELEN);
-  fprintf(stderr, "%s\n",
-          ((interp_error_text_buf[0] == 0) ? "Unknown error, bad error code" : interp_error_text_buf));
-  line_text(interp_error_text_buf, LINELEN);
-  fprintf(stderr, "%s\n", interp_error_text_buf);
-  if (print_stack == ON)
-    {
-      for (k = 0; ; k++)
-        {
-          stack_name(k, interp_error_text_buf, LINELEN);
-          if (interp_error_text_buf[0] != 0)
-            fprintf(stderr, "%s\n", interp_error_text_buf);
-          else
-            break;
+    error_text(error_code, interp_error_text_buf, 5); /* for coverage of code */
+    error_text(error_code, interp_error_text_buf, LINELEN);
+    fprintf(stderr,
+            "%s\n",
+            ((interp_error_text_buf[0] == 0) ? "Unknown error, bad error code"
+                                             : interp_error_text_buf));
+    line_text(interp_error_text_buf, LINELEN);
+    fprintf(stderr, "%s\n", interp_error_text_buf);
+    if (print_stack == ON) {
+        for (k = 0;; k++) {
+            stack_name(k, interp_error_text_buf, LINELEN);
+            if (interp_error_text_buf[0] != 0)
+                fprintf(stderr, "%s\n", interp_error_text_buf);
+            else
+                break;
         }
     }
 }
 
 
-void initialize_readline ()
+void initialize_readline()
 {
     wordexp_t p;
     const char *s;
 
     /* Allow conditional parsing of the ~/.inputrc file. */
     rl_readline_name = "rs274";
- 
+
     if ((s = getenv(RS274_HISTORY)))
-	histfile = s;
-    // tilde-expand 
-    if (wordexp(histfile, &p, WRDE_SHOWERR|WRDE_UNDEF )) {
-	perror("wordexp");
+        histfile = s;
+    // tilde-expand
+    if (wordexp(histfile, &p, WRDE_SHOWERR | WRDE_UNDEF)) {
+        perror("wordexp");
     } else {
-	histfile = strdup(p.we_wordv[0]);
+        histfile = strdup(p.we_wordv[0]);
     }
     if (histfile)
-	read_history(histfile);
+        read_history(histfile);
 }
 
 /***********************************************************************/
@@ -173,40 +173,39 @@ To exit, the user must enter "quit" (followed by a carriage return).
 
 */
 
-int interpret_from_keyboard(  /* ARGUMENTS                 */
-			    int block_delete,            /* switch which is ON or OFF */
-			    int print_stack)             /* option which is ON or OFF */
+int interpret_from_keyboard(                  /* ARGUMENTS                 */
+                            int block_delete, /* switch which is ON or OFF */
+                            int print_stack)  /* option which is ON or OFF */
 {
     char *line;
     int status;
 
-    initialize_readline ();
-      
-    for(; ;)
-	{
-	    line = readline ( prompt);
-	    if (!line || strcmp (line, "quit") == 0) {
-		if (histfile)
-		    write_history(histfile);
-		return 0;
-	    }
-	    if (*line)
-		add_history(line);
-	    status = interp_read(line);
-	    if ((status == INTERP_EXECUTE_FINISH) && (block_delete == ON));
-	    else if (status == INTERP_ENDFILE);
-	    else if ((status != INTERP_EXECUTE_FINISH) &&
-		     (status != INTERP_OK))
-		report_error(status, print_stack);
-	    else
-		{
-		    status = interp_execute();
-		    if ((status == INTERP_EXIT) ||
-			(status == INTERP_EXECUTE_FINISH));
-		    else if (status != INTERP_OK)
-			report_error(status, print_stack);
-		}
-	}
+    initialize_readline();
+
+    for (;;) {
+        line = readline(prompt);
+        if (!line || strcmp(line, "quit") == 0) {
+            if (histfile)
+                write_history(histfile);
+            return 0;
+        }
+        if (*line)
+            add_history(line);
+        status = interp_read(line);
+        if ((status == INTERP_EXECUTE_FINISH) && (block_delete == ON))
+            ;
+        else if (status == INTERP_ENDFILE)
+            ;
+        else if ((status != INTERP_EXECUTE_FINISH) && (status != INTERP_OK))
+            report_error(status, print_stack);
+        else {
+            status = interp_execute();
+            if ((status == INTERP_EXIT) || (status == INTERP_EXECUTE_FINISH))
+                ;
+            else if (status != INTERP_OK)
+                report_error(status, print_stack);
+        }
+    }
 }
 
 /*********************************************************************/
@@ -242,70 +241,60 @@ If the do_next argument is 2, an error stops interpretation.
 
 */
 
-int interpret_from_file( /* ARGUMENTS                  */
- int do_next,            /* what to do if error        */
- int block_delete,       /* switch which is ON or OFF  */
- int print_stack)        /* option which is ON or OFF  */
+int interpret_from_file(                  /* ARGUMENTS                  */
+                        int do_next,      /* what to do if error        */
+                        int block_delete, /* switch which is ON or OFF  */
+                        int print_stack)  /* option which is ON or OFF  */
 {
-  int status=0;
-  char line[LINELEN];
+    int status = 0;
+    char line[LINELEN];
 
-  SET_BLOCK_DELETE(block_delete);
+    SET_BLOCK_DELETE(block_delete);
 
-  for(; ;)
-    {
-      status = interp_read();
-      if ((status == INTERP_EXECUTE_FINISH) && (block_delete == ON))
-        continue;
-      else if (status == INTERP_ENDFILE)
-        break;
-      if ((status != INTERP_OK) &&    // should not be EXIT
-          (status != INTERP_EXECUTE_FINISH))
-        {
-          report_error(status, print_stack);
-          if (do_next == 2) /* 2 means stop */
-            {
-              status = 1;
-              break;
-            }
-          else if (do_next == 1) /* 1 means MDI */
-            {
-              fprintf(stderr, "starting MDI\n");
-              interpret_from_keyboard(block_delete, print_stack);
-              fprintf(stderr, "continue program? y/n =>");
-              if (!fgets(line, LINELEN, stdin) || line[0] != 'y')
-                {
-                  status = 1;
-                  break;
-                }
-              else
-                continue;
-            }
-          else /* if do_next == 0 -- 0 means continue */
+    for (;;) {
+        status = interp_read();
+        if ((status == INTERP_EXECUTE_FINISH) && (block_delete == ON))
             continue;
-        }
-      status = interp_execute();
-      if ((status != INTERP_OK) &&
-          (status != INTERP_EXIT) &&
-          (status != INTERP_EXECUTE_FINISH))
-        {
-          report_error(status, print_stack);
-          status = 1;
-          if (do_next == 1) /* 1 means MDI */
-            {
-              fprintf(stderr, "starting MDI\n");
-              interpret_from_keyboard(block_delete, print_stack);
-              fprintf(stderr, "continue program? y/n =>");
-              if (!fgets(line, LINELEN, stdin) || line[0] != 'y')
-                break;
-            }
-          else if (do_next == 2) /* 2 means stop */
+        else if (status == INTERP_ENDFILE)
             break;
+        if ((status != INTERP_OK) && // should not be EXIT
+            (status != INTERP_EXECUTE_FINISH)) {
+            report_error(status, print_stack);
+            if (do_next == 2) /* 2 means stop */
+            {
+                status = 1;
+                break;
+            } else if (do_next == 1) /* 1 means MDI */
+            {
+                fprintf(stderr, "starting MDI\n");
+                interpret_from_keyboard(block_delete, print_stack);
+                fprintf(stderr, "continue program? y/n =>");
+                if (!fgets(line, LINELEN, stdin) || line[0] != 'y') {
+                    status = 1;
+                    break;
+                } else
+                    continue;
+            } else /* if do_next == 0 -- 0 means continue */
+                continue;
         }
-      else if (status == INTERP_EXIT)
-        return 0;
+        status = interp_execute();
+        if ((status != INTERP_OK) && (status != INTERP_EXIT) &&
+            (status != INTERP_EXECUTE_FINISH)) {
+            report_error(status, print_stack);
+            status = 1;
+            if (do_next == 1) /* 1 means MDI */
+            {
+                fprintf(stderr, "starting MDI\n");
+                interpret_from_keyboard(block_delete, print_stack);
+                fprintf(stderr, "continue program? y/n =>");
+                if (!fgets(line, LINELEN, stdin) || line[0] != 'y')
+                    break;
+            } else if (do_next == 2) /* 2 means stop */
+                break;
+        } else if (status == INTERP_EXIT)
+            return 0;
     }
-  return ((status == 1) ? 1 : 0);
+    return ((status == 1) ? 1 : 0);
 }
 
 /************************************************************************/
@@ -324,21 +313,22 @@ Side Effects:
 Called By: main
 */
 
-int read_tool_file(  /* ARGUMENTS         */
- const char * tool_file_name)   /* name of tool file */
+int read_tool_file(                            /* ARGUMENTS         */
+                   const char *tool_file_name) /* name of tool file */
 {
-  char buffer[1000];
+    char buffer[1000];
 
-  if (tool_file_name[0] == 0) /* ask for name if given name is empty string */
+    if (tool_file_name[0] == 0) /* ask for name if given name is empty string */
     {
-      fprintf(stderr, "name of tool file => ");
-      if(!fgets(buffer, 1000, stdin)) return 1;
-      buffer[strlen(buffer) - 1] = 0;
-      tool_file_name = buffer;
+        fprintf(stderr, "name of tool file => ");
+        if (!fgets(buffer, 1000, stdin))
+            return 1;
+        buffer[strlen(buffer) - 1] = 0;
+        tool_file_name = buffer;
     }
 
-  // no toolTable[] param used
-  return tooldata_load(tool_file_name);
+    // no toolTable[] param used
+    return tooldata_load(tool_file_name);
 }
 
 /************************************************************************/
@@ -358,22 +348,21 @@ Called By: main
 
 */
 
-int designate_parameter_file(char * parameter_file_name)
+int designate_parameter_file(char *parameter_file_name)
 {
-  FILE * test_port;
+    FILE *test_port;
 
-  fprintf(stderr, "name of parameter file => ");
-  if(!fgets(parameter_file_name, PARAMETER_FILE_NAME_LENGTH, stdin))
-    return 1;
-  parameter_file_name[strlen(parameter_file_name) - 1] = 0;
-  test_port = fopen(parameter_file_name, "r");
-  if (test_port == NULL)
-    {
-      fprintf(stderr, "Cannot open %s\n", parameter_file_name);
-      return 1;
+    fprintf(stderr, "name of parameter file => ");
+    if (!fgets(parameter_file_name, PARAMETER_FILE_NAME_LENGTH, stdin))
+        return 1;
+    parameter_file_name[strlen(parameter_file_name) - 1] = 0;
+    test_port = fopen(parameter_file_name, "r");
+    if (test_port == NULL) {
+        fprintf(stderr, "Cannot open %s\n", parameter_file_name);
+        return 1;
     }
-  fclose(test_port);
-  return 0;
+    fclose(test_port);
+    return 0;
 }
 
 /************************************************************************/
@@ -411,56 +400,45 @@ the user can choose any of two behaviors in case of an error (1) continue,
 
 */
 
-int adjust_error_handling(
- int args,
- int * print_stack,
- int * do_next)
+int adjust_error_handling(int args, int *print_stack, int *do_next)
 {
-  char buffer[80];
-  int choice;
+    char buffer[80];
+    int choice;
 
-  for(;;)
-    {
-      fprintf(stderr, "enter a number:\n");
-      fprintf(stderr, "1 = done with error handling\n");
-      fprintf(stderr, "2 = %sprint stack on error\n",
-              ((*print_stack == ON) ? "do not " : ""));
-      if (args == 3)
-        {
-          if (*do_next == 0) /* 0 means continue */
-            fprintf(stderr,
-                    "3 = stop on error (do not continue)\n");
-          else /* if do_next == 2 -- 2 means stopping on error */
-            fprintf(stderr,
-                    "3 = continue on error (do not stop)\n");
+    for (;;) {
+        fprintf(stderr, "enter a number:\n");
+        fprintf(stderr, "1 = done with error handling\n");
+        fprintf(stderr,
+                "2 = %sprint stack on error\n",
+                ((*print_stack == ON) ? "do not " : ""));
+        if (args == 3) {
+            if (*do_next == 0) /* 0 means continue */
+                fprintf(stderr, "3 = stop on error (do not continue)\n");
+            else /* if do_next == 2 -- 2 means stopping on error */
+                fprintf(stderr, "3 = continue on error (do not stop)\n");
+        } else if (args == 2) {
+            if (*do_next == 0) /* 0 means continue */
+                fprintf(stderr, "3 = mdi on error (do not continue or stop)\n");
+            else if (*do_next == 1) /* 1 means MDI */
+                fprintf(stderr, "3 = stop on error (do not mdi or continue)\n");
+            else /* if do_next == 2 -- 2 means stopping on error */
+                fprintf(stderr, "3 = continue on error (do not stop or mdi)\n");
         }
-      else if (args == 2)
-        {
-          if (*do_next == 0) /* 0 means continue */
-            fprintf(stderr,
-                    "3 = mdi on error (do not continue or stop)\n");
-          else if (*do_next == 1) /* 1 means MDI */
-            fprintf(stderr,
-                    "3 = stop on error (do not mdi or continue)\n");
-          else /* if do_next == 2 -- 2 means stopping on error */
-            fprintf(stderr,
-                    "3 = continue on error (do not stop or mdi)\n");
-        }
-      fprintf(stderr, "enter choice => ");
-      if (!fgets(buffer, 80, stdin))
-        break;
-      if (sscanf(buffer, "%d", &choice) != 1)
-        continue;
-      if (choice == 1)
-        break;
-      else if (choice == 2)
-        *print_stack = ((*print_stack == OFF) ? ON : OFF);
-      else if ((choice == 3) && (args == 3))
-        *do_next = ((*do_next == 0) ? 2 : 0);
-      else if ((choice == 3) && (args == 2))
-        *do_next = ((*do_next == 2) ? 0 : (*do_next + 1));
+        fprintf(stderr, "enter choice => ");
+        if (!fgets(buffer, 80, stdin))
+            break;
+        if (sscanf(buffer, "%d", &choice) != 1)
+            continue;
+        if (choice == 1)
+            break;
+        else if (choice == 2)
+            *print_stack = ((*print_stack == OFF) ? ON : OFF);
+        else if ((choice == 3) && (args == 3))
+            *do_next = ((*do_next == 0) ? 2 : 0);
+        else if ((choice == 3) && (args == 2))
+            *do_next = ((*do_next == 2) ? 0 : (*do_next + 1));
     }
-  return 0;
+    return 0;
 }
 
 /************************************************************************/
@@ -534,201 +512,199 @@ redirected and the user does not see them.
 */
 int _task = 0; // control preview behaviour when remapping
 
-int main (int argc, char ** argv)
+int main(int argc, char **argv)
 {
-  int status;
-  int choice;
-  int do_next; /* 0=continue, 1=mdi, 2=stop */
-  int block_delete;
-  char buffer[80];
-  int tool_flag;
-  int gees[ACTIVE_G_CODES];
-  int ems[ACTIVE_M_CODES];
-  double sets[ACTIVE_SETTINGS];
-  char default_name[] = "/etc/emc2/sample-configs/sim/sim.var";
-  int print_stack;
-  int go_flag;
-  char *inifile = NULL;
-  int log_level = -1;
-  std::string interp;
+    int status;
+    int choice;
+    int do_next; /* 0=continue, 1=mdi, 2=stop */
+    int block_delete;
+    char buffer[80];
+    int tool_flag;
+    int gees[ACTIVE_G_CODES];
+    int ems[ACTIVE_M_CODES];
+    double sets[ACTIVE_SETTINGS];
+    char default_name[] = "/etc/emc2/sample-configs/sim/sim.var";
+    int print_stack;
+    int go_flag;
+    char *inifile = NULL;
+    int log_level = -1;
+    std::string interp;
 
-  setvbuf(stdout, NULL, _IONBF, 0);
-  setvbuf(stderr, NULL, _IONBF, 0);
+    setvbuf(stdout, NULL, _IONBF, 0);
+    setvbuf(stderr, NULL, _IONBF, 0);
 
-  do_next = 2;  /* 2=stop */
-  block_delete = OFF;
-  print_stack = OFF;
-  tool_flag = 0;
-  SET_PARAMETER_FILE_NAME(default_name);
-  go_flag = 0;
+    do_next = 2; /* 2=stop */
+    block_delete = OFF;
+    print_stack = OFF;
+    tool_flag = 0;
+    SET_PARAMETER_FILE_NAME(default_name);
+    go_flag = 0;
 
 #ifdef TOOL_NML //{
-  tool_nml_register((CANON_TOOL_TABLE*)& _sai._tools);
-#else //}{
-  const int random_toolchanger = 0;
-  tool_mmap_creator((EMC_TOOL_STAT*)NULL,random_toolchanger);
-  /* Notes:
+    tool_nml_register((CANON_TOOL_TABLE *)&_sai._tools);
+#else  //}{
+    const int random_toolchanger = 0;
+    tool_mmap_creator((EMC_TOOL_STAT *)NULL, random_toolchanger);
+    /* Notes:
   **   1) sai does not use toolInSpindle,pocketPrepped
   **   2) sai does not distinguish changer type
   */
 #endif //}
 
-  while(1) {
-      int c = getopt(argc, argv, "p:t:v:bsn:gi:l:T");
-      if(c == -1) break;
+    while (1) {
+        int c = getopt(argc, argv, "p:t:v:bsn:gi:l:T");
+        if (c == -1)
+            break;
 
-      switch(c) {
-          case 'p': interp = optarg; break;
-          case 't': read_tool_file(optarg); tool_flag=1; break;
-          case 'v': SET_PARAMETER_FILE_NAME(optarg); break;
-          case 'b': block_delete = (block_delete == OFF) ? ON : OFF; break;
-          case 's': print_stack = (print_stack == OFF) ? ON : OFF; break;
-          case 'n': do_next = atoi(optarg); break;
-          case 'l': log_level = atoi(optarg); break;
-          case 'g': go_flag = !go_flag; break;
-          case 'i': inifile = optarg; break;
-          case 'T': _task = 1; break;
-          case '?': default: goto usage;
-      }
-  }
-
-  if (argc - optind > 3)
-    {
-usage:
-      fprintf(stderr,
-            "Usage: %s [-p interp.so] [-t tool.tbl] [-v var-file.var] [-n 0|1|2]\n"
-            "          [-b] [-s] [-g] [input file [output file]]\n"
-            "\n"
-            "    -p: Specify the pluggable interpreter to use\n"
-            "    -t: Specify the .tbl (tool table) file to use\n"
-            "    -v: Specify the .var (parameter) file to use\n"
-            "    -n: Specify the continue mode:\n"
-            "           0: continue\n"
-            "           1: enter MDI mode\n"
-            "           2: stop (default)\n"
-            "    -b: Toggle the 'block delete' flag (default: OFF)\n"
-            "    -s: Toggle the 'print stack' flag (default: OFF)\n"
-            "    -g: Toggle the 'go (batch mode)' flag (default: OFF)\n"
-            "    -i: specify the INI file (default: no INI file)\n"
-            "    -T: call task_init()\n"
-            "    -l: specify the log_level (default: -1)\n"
-            , argv[0]);
-      exit(1);
+        switch (c) {
+        case 'p': interp = optarg; break;
+        case 't':
+            read_tool_file(optarg);
+            tool_flag = 1;
+            break;
+        case 'v': SET_PARAMETER_FILE_NAME(optarg); break;
+        case 'b': block_delete = (block_delete == OFF) ? ON : OFF; break;
+        case 's': print_stack = (print_stack == OFF) ? ON : OFF; break;
+        case 'n': do_next = atoi(optarg); break;
+        case 'l': log_level = atoi(optarg); break;
+        case 'g': go_flag = !go_flag; break;
+        case 'i': inifile = optarg; break;
+        case 'T': _task = 1; break;
+        case '?':
+        default: goto usage;
+        }
     }
 
-  if(!interp.empty()) {
-    pinterp = interp_from_shlib(interp.c_str());
-  }
-  if(!pinterp) pinterp = new Interp;
-
-  for(; !go_flag ;)
-    {
-      fprintf(stderr, "enter a number:\n");
-      fprintf(stderr, "1 = start interpreting\n");
-      fprintf(stderr, "2 = choose parameter file ...\n");
-      fprintf(stderr, "3 = read tool file ...\n");
-      fprintf(stderr, "4 = turn block delete switch %s\n",
-              ((block_delete == OFF) ? "ON" : "OFF"));
-      fprintf(stderr, "5 = adjust error handling...\n");
-      fprintf(stderr, "enter choice => ");
-      if (!fgets(buffer, 80, stdin))
-        break;
-      if (sscanf(buffer, "%d", &choice) != 1)
-        continue;
-      if (choice == 1)
-        break;
-      else if (choice == 2)
-        {
-          if (designate_parameter_file(_parameter_file_name) != 0)
-            exit(1);
-        }
-      else if (choice == 3)
-        {
-          if (read_tool_file("") != 0)
-            exit(1);
-          tool_flag = 1;
-        }
-      else if (choice == 4)
-        block_delete = ((block_delete == OFF) ? ON : OFF);
-      else if (choice == 5)
-        adjust_error_handling(argc, &print_stack, &do_next);
-    }
-  fprintf(stderr, "executing\n");
-  if (tool_flag == 0)
-    {
-      if (read_tool_file(EMC2_DEFAULT_TOOLTABLE) != 0)
+    if (argc - optind > 3) {
+    usage:
+        fprintf(stderr,
+                "Usage: %s [-p interp.so] [-t tool.tbl] [-v var-file.var] [-n "
+                "0|1|2]\n"
+                "          [-b] [-s] [-g] [input file [output file]]\n"
+                "\n"
+                "    -p: Specify the pluggable interpreter to use\n"
+                "    -t: Specify the .tbl (tool table) file to use\n"
+                "    -v: Specify the .var (parameter) file to use\n"
+                "    -n: Specify the continue mode:\n"
+                "           0: continue\n"
+                "           1: enter MDI mode\n"
+                "           2: stop (default)\n"
+                "    -b: Toggle the 'block delete' flag (default: OFF)\n"
+                "    -s: Toggle the 'print stack' flag (default: OFF)\n"
+                "    -g: Toggle the 'go (batch mode)' flag (default: OFF)\n"
+                "    -i: specify the INI file (default: no INI file)\n"
+                "    -T: call task_init()\n"
+                "    -l: specify the log_level (default: -1)\n",
+                argv[0]);
         exit(1);
     }
 
-  // Skip past arguments used up by getopt() */
-  argc = argc - optind + 1;
-  argv = argv + optind - 1;
+    if (!interp.empty()) {
+        pinterp = interp_from_shlib(interp.c_str());
+    }
+    if (!pinterp)
+        pinterp = new Interp;
 
-  if (argc == 3)
-    {
-      _outfile = fopen(argv[2], "w");
-      if (_outfile == NULL)
-        {
-          fprintf(stderr, "could not open output file %s\n", argv[2]);
-          exit(1);
+    for (; !go_flag;) {
+        fprintf(stderr, "enter a number:\n");
+        fprintf(stderr, "1 = start interpreting\n");
+        fprintf(stderr, "2 = choose parameter file ...\n");
+        fprintf(stderr, "3 = read tool file ...\n");
+        fprintf(stderr,
+                "4 = turn block delete switch %s\n",
+                ((block_delete == OFF) ? "ON" : "OFF"));
+        fprintf(stderr, "5 = adjust error handling...\n");
+        fprintf(stderr, "enter choice => ");
+        if (!fgets(buffer, 80, stdin))
+            break;
+        if (sscanf(buffer, "%d", &choice) != 1)
+            continue;
+        if (choice == 1)
+            break;
+        else if (choice == 2) {
+            if (designate_parameter_file(_parameter_file_name) != 0)
+                exit(1);
+        } else if (choice == 3) {
+            if (read_tool_file("") != 0)
+                exit(1);
+            tool_flag = 1;
+        } else if (choice == 4)
+            block_delete = ((block_delete == OFF) ? ON : OFF);
+        else if (choice == 5)
+            adjust_error_handling(argc, &print_stack, &do_next);
+    }
+    fprintf(stderr, "executing\n");
+    if (tool_flag == 0) {
+        if (read_tool_file(EMC2_DEFAULT_TOOLTABLE) != 0)
+            exit(1);
+    }
+
+    // Skip past arguments used up by getopt() */
+    argc = argc - optind + 1;
+    argv = argv + optind - 1;
+
+    if (argc == 3) {
+        _outfile = fopen(argv[2], "w");
+        if (_outfile == NULL) {
+            fprintf(stderr, "could not open output file %s\n", argv[2]);
+            exit(1);
         }
     }
-  _sai._external_length_units =  0.03937007874016;
-  if (inifile!= 0) {
-      std::optional<const char*> inistring;
-      IniFile ini;
-      // open it
-      if (ini.Open(inifile) == false) {
-	    fprintf(stderr, "could not open supplied INI file %s\n", inifile);
+    _sai._external_length_units = 0.03937007874016;
+    if (inifile != 0) {
+        std::optional<const char *> inistring;
+        IniFile ini;
+        // open it
+        if (ini.Open(inifile) == false) {
+            fprintf(stderr, "could not open supplied INI file %s\n", inifile);
+            exit(1);
+        }
+
+        if ((inistring = ini.Find("LINEAR_UNITS", "TRAJ"))) {
+            if (!strcmp(*inistring, "mm")) {
+                _sai._external_length_units = 1.0;
+            }
+        }
+        setenv("INI_FILE_NAME", inifile, 1);
+    } else
+        unsetenv("INI_FILE_NAME");
+
+    if ((status = interp_init()) != INTERP_OK) {
+        report_error(status, print_stack);
         exit(1);
-      }
-
-      if ((inistring = ini.Find("LINEAR_UNITS", "TRAJ"))) {
-          if (!strcmp(*inistring, "mm")) {
-             _sai._external_length_units = 1.0;
-          }
-      }
-      setenv("INI_FILE_NAME",inifile,1);
-  } else
-      unsetenv("INI_FILE_NAME");
-
-  if ((status = interp_init()) != INTERP_OK)
-    {
-      report_error(status, print_stack);
-      exit(1);
     }
 
-  if (log_level != -1)
-      interp_set_loglevel(log_level);
+    if (log_level != -1)
+        interp_set_loglevel(log_level);
 
 
-  if (argc == 1)
-    status = interpret_from_keyboard(block_delete, print_stack);
-  else /* if (argc == 2 or argc == 3) */
+    if (argc == 1)
+        status = interpret_from_keyboard(block_delete, print_stack);
+    else /* if (argc == 2 or argc == 3) */
     {
-      status = interp_open(argv[1]);
-      if (status != INTERP_OK) /* do not need to close since not open */
+        status = interp_open(argv[1]);
+        if (status != INTERP_OK) /* do not need to close since not open */
         {
-          report_error(status, print_stack);
-          exit(1);
+            report_error(status, print_stack);
+            exit(1);
         }
-      status = interpret_from_file(do_next, block_delete, print_stack);
-      file_name(buffer, 5);  /* called to exercise the function */
-      file_name(buffer, 79); /* called to exercise the function */
-      interp_close();
+        status = interpret_from_file(do_next, block_delete, print_stack);
+        file_name(buffer, 5);  /* called to exercise the function */
+        file_name(buffer, 79); /* called to exercise the function */
+        interp_close();
     }
-  line_length();         /* called to exercise the function */
-  sequence_number();     /* called to exercise the function */
-  active_g_codes(gees);  /* called to exercise the function */
-  active_m_codes(ems);   /* called to exercise the function */
-  active_settings(sets); /* called to exercise the function */
-  interp_exit(); /* saves parameters */
-  exit(status);
+    line_length();         /* called to exercise the function */
+    sequence_number();     /* called to exercise the function */
+    active_g_codes(gees);  /* called to exercise the function */
+    active_m_codes(ems);   /* called to exercise the function */
+    active_settings(sets); /* called to exercise the function */
+    interp_exit();         /* saves parameters */
+    exit(status);
 }
 
 /***********************************************************************/
 
-int  emcOperatorError(const char *fmt, ...)
+int emcOperatorError(const char *fmt, ...)
 {
     va_list ap;
     va_start(ap, fmt);

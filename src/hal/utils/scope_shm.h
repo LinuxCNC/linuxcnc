@@ -41,27 +41,27 @@
 *                         TYPEDEFS AND DEFINES                         *
 ************************************************************************/
 
-#define SCOPE_SHM_KEY  0x130CF406
+#define SCOPE_SHM_KEY 0x130CF406
 #define SCOPE_NUM_SAMPLES_DEFAULT 16000
 
 typedef enum {
-    IDLE = 0,			/* waiting for run command */
-    INIT,			/* run command received */
-    PRE_TRIG,			/* acquiring pre-trigger data */
-    TRIG_WAIT,			/* waiting for trigger */
-    POST_TRIG,			/* acquiring post-trigger data */
-    DONE,			/* data acquisition complete */
-    RESET			/* data acquisition interrupted */
+    IDLE = 0,  /* waiting for run command */
+    INIT,      /* run command received */
+    PRE_TRIG,  /* acquiring pre-trigger data */
+    TRIG_WAIT, /* waiting for trigger */
+    POST_TRIG, /* acquiring post-trigger data */
+    DONE,      /* data acquisition complete */
+    RESET      /* data acquisition interrupted */
 } scope_state_t;
 
 /* this struct holds a single value - one sample of one channel */
 
 typedef union {
-    unsigned char d_u8;		/* variable for bit */
-    rtapi_u32 d_u32;		/* variable for u32 */
-    rtapi_s32 d_s32;		/* variable for s32 */
-    real_t d_real;		/* variable for float */
-    ireal_t d_ireal;		/* intlike variable for float */
+    unsigned char d_u8; /* variable for bit */
+    rtapi_u32 d_u32;    /* variable for u32 */
+    rtapi_s32 d_s32;    /* variable for s32 */
+    real_t d_real;      /* variable for float */
+    ireal_t d_ireal;    /* intlike variable for float */
 } scope_data_t;
 
 /** This struct holds control data needed by both realtime and GUI code.
@@ -71,26 +71,26 @@ typedef union {
 */
 
 typedef struct {
-    unsigned long shm_size;	/* Actual size of SHM area */
-    int buf_len;		/* I length of buffer */
-    int watchdog;		/* RU rt sets to zero, user incs */
-    char thread_name[HAL_NAME_LEN + 1];	/* U thread used for sampling */
-    int mult;			/* U sample period multiplier */
-    int rec_len;		/* U total samples in record */
-    int sample_len;		/* U max channels in each sample */
-    int pre_trig;		/* U number of samples before trigger */
-    int trig_chan;		/* U trigger channel number */
-    scope_data_t trig_level;	/* U trigger level */
-    int trig_edge;		/* U 0 = falling edge, 1 = rising edge */
-    int force_trig;		/* RU U sets non-zero to force trigger */
-    int auto_trig;		/* U enables auto triggering */
-    int start;			/* R first sample in record */
-    int curr;			/* R next sample to be acquired */
-    int samples;		/* R number of valid samples */
-    scope_state_t state;	/* RU current state */
-    int data_offset[16];	/* U data addr in shmem for each channel */
-    hal_type_t data_type[16];	/* U data type for each channel */
-    char data_len[16];		/* U data size, 0 if not to be acquired */
+    unsigned long shm_size;             /* Actual size of SHM area */
+    int buf_len;                        /* I length of buffer */
+    int watchdog;                       /* RU rt sets to zero, user incs */
+    char thread_name[HAL_NAME_LEN + 1]; /* U thread used for sampling */
+    int mult;                           /* U sample period multiplier */
+    int rec_len;                        /* U total samples in record */
+    int sample_len;                     /* U max channels in each sample */
+    int pre_trig;                       /* U number of samples before trigger */
+    int trig_chan;                      /* U trigger channel number */
+    scope_data_t trig_level;            /* U trigger level */
+    int trig_edge;            /* U 0 = falling edge, 1 = rising edge */
+    int force_trig;           /* RU U sets non-zero to force trigger */
+    int auto_trig;            /* U enables auto triggering */
+    int start;                /* R first sample in record */
+    int curr;                 /* R next sample to be acquired */
+    int samples;              /* R number of valid samples */
+    scope_state_t state;      /* RU current state */
+    int data_offset[16];      /* U data addr in shmem for each channel */
+    hal_type_t data_type[16]; /* U data type for each channel */
+    char data_len[16];        /* U data size, 0 if not to be acquired */
 } scope_shm_control_t;
 
 #endif /* HALSC_SHM_H */

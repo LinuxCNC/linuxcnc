@@ -17,17 +17,17 @@
 ********************************************************************/
 
 
-#include "kinematics.h"		/* these decls */
+#include "kinematics.h" /* these decls */
 #include "posemath.h"
 #include "hal.h"
 #include "rtapi.h"
 #include "rtapi_math.h"
 
-#define d2r(d) ((d)*PM_PI/180.0)
-#define r2d(r) ((r)*180.0/PM_PI)
+#define d2r(d) ((d) * PM_PI / 180.0)
+#define r2d(r) ((r) * 180.0 / PM_PI)
 
 #ifndef hypot
-#define hypot(a,b) (sqrt((a)*(a)+(b)*(b)))
+#define hypot(a, b) (sqrt((a) * (a) + (b) * (b)))
 #endif
 
 struct haldata {
@@ -36,9 +36,9 @@ struct haldata {
 } *haldata;
 
 int kinematicsForward(const double *joints,
-		      EmcPose * pos,
-		      const KINEMATICS_FORWARD_FLAGS * fflags,
-		      KINEMATICS_INVERSE_FLAGS * iflags)
+                      EmcPose *pos,
+                      const KINEMATICS_FORWARD_FLAGS *fflags,
+                      KINEMATICS_INVERSE_FLAGS *iflags)
 {
     (void)fflags;
     (void)iflags;
@@ -46,9 +46,11 @@ int kinematicsForward(const double *joints,
     const real_t con = *(haldata->conventional_directions) ? 1.0 : -1.0;
 
     // B correction
-    const double zb = (*(haldata->pivot_length) + joints[8]) * cos(d2r(joints[4]));
-    const double xb = (*(haldata->pivot_length) + joints[8]) * sin(d2r(joints[4]));
-        
+    const double zb =
+        (*(haldata->pivot_length) + joints[8]) * cos(d2r(joints[4]));
+    const double xb =
+        (*(haldata->pivot_length) + joints[8]) * sin(d2r(joints[4]));
+
     // C correction
     const double xyr = hypot(joints[0], joints[1]);
     const double xytheta = atan2(joints[1], joints[0]) + d2r(joints[5]);
@@ -73,10 +75,10 @@ int kinematicsForward(const double *joints,
     return 0;
 }
 
-int kinematicsInverse(const EmcPose * pos,
-		      double *joints,
-		      const KINEMATICS_INVERSE_FLAGS * iflags,
-		      KINEMATICS_FORWARD_FLAGS * fflags)
+int kinematicsInverse(const EmcPose *pos,
+                      double *joints,
+                      const KINEMATICS_INVERSE_FLAGS *iflags,
+                      KINEMATICS_FORWARD_FLAGS *fflags)
 {
     (void)iflags;
     (void)fflags;
@@ -86,7 +88,7 @@ int kinematicsInverse(const EmcPose * pos,
     // B correction
     const double zb = (*(haldata->pivot_length) + pos->w) * cos(d2r(pos->b));
     const double xb = (*(haldata->pivot_length) + pos->w) * sin(d2r(pos->b));
-        
+
     // C correction
     const double xyr = hypot(pos->tran.x, pos->tran.y);
     const double xytheta = atan2(pos->tran.y, pos->tran.x) - d2r(pos->c);
@@ -116,8 +118,8 @@ KINEMATICS_TYPE kinematicsType()
     return KINEMATICS_BOTH;
 }
 
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_app.h"		/* RTAPI realtime module decls */
+#include "rtapi.h"     /* RTAPI realtime OS API */
+#include "rtapi_app.h" /* RTAPI realtime module decls */
 
 KINS_NOT_SWITCHABLE
 EXPORT_SYMBOL(kinematicsType);
@@ -126,18 +128,25 @@ EXPORT_SYMBOL(kinematicsForward);
 MODULE_LICENSE("GPL");
 
 int comp_id;
-int rtapi_app_main(void) {
+int rtapi_app_main(void)
+{
     int result;
     comp_id = hal_init("maxkins");
-    if(comp_id < 0) return comp_id;
+    if (comp_id < 0)
+        return comp_id;
 
     haldata = hal_malloc(sizeof(struct haldata));
 
-    result = hal_pin_float_new("maxkins.pivot-length", HAL_IO, &(haldata->pivot_length), comp_id);
+    result = hal_pin_float_new(
+        "maxkins.pivot-length", HAL_IO, &(haldata->pivot_length), comp_id);
 
-    result += hal_pin_bit_new("maxkins.conventional-directions", HAL_IN, &(haldata->conventional_directions), comp_id);
+    result += hal_pin_bit_new("maxkins.conventional-directions",
+                              HAL_IN,
+                              &(haldata->conventional_directions),
+                              comp_id);
 
-    if(result < 0) goto error;
+    if (result < 0)
+        goto error;
 
     *(haldata->pivot_length) = 0.666;
     *(haldata->conventional_directions) = 0; // default is unconventional
@@ -149,4 +158,7 @@ error:
     return result;
 }
 
-void rtapi_app_exit(void) { hal_exit(comp_id); }
+void rtapi_app_exit(void)
+{
+    hal_exit(comp_id);
+}

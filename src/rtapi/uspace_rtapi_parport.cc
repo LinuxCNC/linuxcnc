@@ -36,22 +36,27 @@ typedef std::map<unsigned short, portinfo> ParportMap;
 
 static ParportMap parports;
 
-static void map_parports() {
-    for(int i=0; i<16; i++) {
-        const char path_template[] = "/proc/sys/dev/parport/parport%d/base-addr";
-        char path[sizeof(path_template)]; // noting that we stop before 100, so it'll fit
+static void map_parports()
+{
+    for (int i = 0; i < 16; i++) {
+        const char path_template[] =
+            "/proc/sys/dev/parport/parport%d/base-addr";
+        char path[sizeof(
+            path_template)]; // noting that we stop before 100, so it'll fit
         snprintf(path, sizeof(path), path_template, i);
 
         FILE *f = fopen(path, "r");
-        if(!f) {
-            if(errno != ENOENT)
-                rtapi_print_msg(RTAPI_MSG_ERR, "fopen(%s): %s\n", path, strerror(errno));
+        if (!f) {
+            if (errno != ENOENT)
+                rtapi_print_msg(
+                    RTAPI_MSG_ERR, "fopen(%s): %s\n", path, strerror(errno));
             continue;
         }
         struct portinfo pi;
         pi.port_id = i;
-        if(fscanf(f, "%hu %hu", &pi.base, &pi.base_hi) != 2) {
-            rtapi_print_msg(RTAPI_MSG_ERR, "Failed to parse base-addr for port #%d\n", i);
+        if (fscanf(f, "%hu %hu", &pi.base, &pi.base_hi) != 2) {
+            rtapi_print_msg(
+                RTAPI_MSG_ERR, "Failed to parse base-addr for port #%d\n", i);
             fclose(f);
             continue;
         }
@@ -62,20 +67,30 @@ static void map_parports() {
     }
 }
 
-int rtapi_parport_get(const char * /*mod_name*/, rtapi_parport_t *port, unsigned short base, unsigned short base_hi, unsigned int modes) {
+int rtapi_parport_get(const char * /*mod_name*/,
+                      rtapi_parport_t *port,
+                      unsigned short base,
+                      unsigned short base_hi,
+                      unsigned int modes)
+{
     WITH_ROOT;
 
     memset(port, 0, sizeof(*port));
     port->fd = -1;
 
-    if(parports.empty()) map_parports();
+    if (parports.empty())
+        map_parports();
     ParportMap::iterator pi = parports.find(base);
-    if(pi == parports.end()) {
-        if(base < 16){
-            rtapi_print_msg(RTAPI_MSG_ERR, "Linux parallel port %d not found\n", base);
-            return -ENOENT;}
-        rtapi_print_msg(RTAPI_MSG_ERR, "No parport registered at 0x%x. "
-                    "This is not always an error. Continuing.\n", base);
+    if (pi == parports.end()) {
+        if (base < 16) {
+            rtapi_print_msg(
+                RTAPI_MSG_ERR, "Linux parallel port %d not found\n", base);
+            return -ENOENT;
+        }
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "No parport registered at 0x%x. "
+                        "This is not always an error. Continuing.\n",
+                        base);
         port->base = base;
         port->base_hi = base_hi;
         return 0;
@@ -85,16 +100,21 @@ int rtapi_parport_get(const char * /*mod_name*/, rtapi_parport_t *port, unsigned
         const char port_template[] = "/dev/parport%d";
 
         char port_path[sizeof(port_template)];
-        snprintf(port_path, sizeof(port_path), port_template, pi->second.port_id);
+        snprintf(
+            port_path, sizeof(port_path), port_template, pi->second.port_id);
         port->fd = open(port_path, O_RDWR);
 
-        if(port->fd < 0) {
-            rtapi_print_msg(RTAPI_MSG_ERR, "open(%s): %s\n", port_path, strerror(errno));
+        if (port->fd < 0) {
+            rtapi_print_msg(
+                RTAPI_MSG_ERR, "open(%s): %s\n", port_path, strerror(errno));
             return -errno;
         }
 
-        if(ioctl(port->fd, PPCLAIM) < 0) {
-            rtapi_print_msg(RTAPI_MSG_ERR, "ioctl(%s, PPCLAIM): %s\n", port_path, strerror(errno));
+        if (ioctl(port->fd, PPCLAIM) < 0) {
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                            "ioctl(%s, PPCLAIM): %s\n",
+                            port_path,
+                            strerror(errno));
             close(port->fd);
             port->fd = -1;
             return -errno;
@@ -102,23 +122,27 @@ int rtapi_parport_get(const char * /*mod_name*/, rtapi_parport_t *port, unsigned
 
         int ppmodes = ~0;
 
-        if(ioctl(port->fd, PPGETMODES, &modes) < 0) {
-            rtapi_print_msg(RTAPI_MSG_WARN, "ioctl(%s, PPGETMODES): %s\n", port_path, strerror(errno));
+        if (ioctl(port->fd, PPGETMODES, &modes) < 0) {
+            rtapi_print_msg(RTAPI_MSG_WARN,
+                            "ioctl(%s, PPGETMODES): %s\n",
+                            port_path,
+                            strerror(errno));
         }
 
-        if((modes & ppmodes) != modes)
-        {
-            rtapi_print_msg(RTAPI_MSG_WARN,
+        if ((modes & ppmodes) != modes) {
+            rtapi_print_msg(
+                RTAPI_MSG_WARN,
                 "PARPORT: linux parport %s does not support mode %x.\n"
                 "PARPORT: continuing anyway.\n",
-                port_path, modes);
+                port_path,
+                modes);
         }
-
     }
     return 0;
 }
 
-void rtapi_parport_release(rtapi_parport_t *port) {
+void rtapi_parport_release(rtapi_parport_t *port)
+{
     close(port->fd);
     port->fd = -1;
 }

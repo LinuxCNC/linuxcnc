@@ -15,9 +15,10 @@
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #ifndef _EDIT_GTK_H
 #define _EDIT_GTK_H
-void EditorButtonsAccordingSectionType( );
+void EditorButtonsAccordingSectionType();
 void ButtonCancelCurrentRung();
-void OpenEditWindow( GtkAction * ActionOpen, gboolean OpenIt );
-void SelectAnElementInToolBar( int iNumToolbar, int iNumElementSelectedWithPopup );
+void OpenEditWindow(GtkAction *ActionOpen, gboolean OpenIt);
+void SelectAnElementInToolBar(int iNumToolbar,
+                              int iNumElementSelectedWithPopup);
 void EditorInitGtk();
 #endif

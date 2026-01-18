@@ -35,15 +35,26 @@ enum memory_order {
     memory_order_seq_cst
 };
 
-#define atomic_store(obj, desired) atomic_store_explicit((obj), (desired), memory_order_seq_cst)
+#define atomic_store(obj, desired)                                             \
+    atomic_store_explicit((obj), (desired), memory_order_seq_cst)
 #define atomic_load(obj) atomic_load_explicit((obj), memory_order_seq_cst)
 
 // note that in this implementation, only one level of synchronization is supported, equivalent to memory_order_seq_cst
-#define atomic_store_explicit(obj, desired, order) \
-    ({ (void)order; __sync_synchronize(); *(obj) = (desired); (void)0; })
+#define atomic_store_explicit(obj, desired, order)                             \
+    ({                                                                         \
+        (void)order;                                                           \
+        __sync_synchronize();                                                  \
+        *(obj) = (desired);                                                    \
+        (void)0;                                                               \
+    })
 
-#define atomic_load_explicit(obj, order) \
-    ({ (void)order; __typeof__(*(obj)) v = *(obj); __sync_synchronize(); v; })
+#define atomic_load_explicit(obj, order)                                       \
+    ({                                                                         \
+        (void)order;                                                           \
+        __typeof__(*(obj)) v = *(obj);                                         \
+        __sync_synchronize();                                                  \
+        v;                                                                     \
+    })
 
 #endif
 

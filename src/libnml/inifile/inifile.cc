@@ -13,9 +13,9 @@
  * Last change: 
  *****************************************************************************/
 
-#include <stdio.h>              /* FILE *, fopen(), fclose(), NULL */
+#include <stdio.h> /* FILE *, fopen(), fclose(), NULL */
 #include <stdlib.h>
-#include <string.h>             /* strstr() */
+#include <string.h> /* strstr() */
 #include <fcntl.h>
 
 
@@ -27,7 +27,7 @@ constexpr int MAX_EXTEND_LINES = 20;
 
 IniFile::IniFile(int _errMask, FILE *_fp) : fp(_fp), errMask(_errMask)
 {
-    if(fp)
+    if (fp)
         LockFile();
 }
 
@@ -36,120 +36,125 @@ IniFile::IniFile(int _errMask, FILE *_fp) : fp(_fp), errMask(_errMask)
    and the new one opened.
 
    @return true on success, false on failure */
-bool
-IniFile::Open(const char *file)
+bool IniFile::Open(const char *file)
 {
-    char                        path[LINELEN] = "";
+    char path[LINELEN] = "";
 
-    if(IsOpen()) Close();
+    if (IsOpen())
+        Close();
 
     TildeExpansion(file, path, sizeof(path));
 
-    if((fp = fopen(path, "r")) == NULL)
-        return(false);
+    if ((fp = fopen(path, "r")) == NULL)
+        return (false);
 
     owned = true;
 
-    if(!LockFile())
-        return(false);
+    if (!LockFile())
+        return (false);
 
-    return(true);
+    return (true);
 }
 
 
 /*! Closes the file descriptor..
 
    @return true on success, false on failure */
-bool
-IniFile::Close()
+bool IniFile::Close()
 {
-    int                         rVal = 0;
+    int rVal = 0;
 
-    if(fp != NULL){
+    if (fp != NULL) {
         lock.l_type = F_UNLCK;
         fcntl(fileno(fp), F_SETLKW, &lock);
 
-        if(owned)
+        if (owned)
             rVal = fclose(fp);
 
         fp = NULL;
     }
 
-    return(rVal == 0);
+    return (rVal == 0);
 }
 
 
-IniFile::ErrorCode
-IniFile::Find(int *result, StrIntPair *pPair,
-     const char *tag, const char *section, int num, int *lineno)
+IniFile::ErrorCode IniFile::Find(int *result,
+                                 StrIntPair *pPair,
+                                 const char *tag,
+                                 const char *section,
+                                 int num,
+                                 int *lineno)
 {
     auto pStr = Find(tag, section, num);
-    if(!pStr){
+    if (!pStr) {
         // We really need an ErrorCode return from Find() and should be passing
         // in a buffer. Just pick a suitable ErrorCode for now.
-	if (lineno)
-	    *lineno = 0;
-        return(ERR_TAG_NOT_FOUND);
+        if (lineno)
+            *lineno = 0;
+        return (ERR_TAG_NOT_FOUND);
     }
 
     int tmp;
-    if(sscanf(*pStr, "%i", &tmp) == 1){
+    if (sscanf(*pStr, "%i", &tmp) == 1) {
         *result = tmp;
-	if (lineno)
-	    *lineno = lineNo;
-        return(ERR_NONE);
+        if (lineno)
+            *lineno = lineNo;
+        return (ERR_NONE);
     }
 
-    while(pPair->pStr != NULL){
-        if(strcasecmp(*pStr, pPair->pStr) == 0){
+    while (pPair->pStr != NULL) {
+        if (strcasecmp(*pStr, pPair->pStr) == 0) {
             *result = pPair->value;
-	    if (lineno)
-		*lineno = lineNo;
-            return(ERR_NONE);
+            if (lineno)
+                *lineno = lineNo;
+            return (ERR_NONE);
         }
         pPair++;
     }
 
     ThrowException(ERR_CONVERSION);
-    return(ERR_CONVERSION);
+    return (ERR_CONVERSION);
 }
 
 
-IniFile::ErrorCode
-IniFile::Find(double *result, StrDoublePair *pPair,
-     const char *tag, const char *section, int num, int *lineno)
+IniFile::ErrorCode IniFile::Find(double *result,
+                                 StrDoublePair *pPair,
+                                 const char *tag,
+                                 const char *section,
+                                 int num,
+                                 int *lineno)
 {
     auto pStr = Find(tag, section, num);
-    if(!pStr){
+    if (!pStr) {
         // We really need an ErrorCode return from Find() and should be passing
         // in a buffer. Just pick a suitable ErrorCode for now.
-	if (lineno)
-	    *lineno = 0;
-        return(ERR_TAG_NOT_FOUND);
+        if (lineno)
+            *lineno = 0;
+        return (ERR_TAG_NOT_FOUND);
     }
 
     double tmp;
-    if(sscanf(*pStr, "%lf", &tmp) == 1){
-	if (lineno)
-	    *lineno = lineNo;
+    if (sscanf(*pStr, "%lf", &tmp) == 1) {
+        if (lineno)
+            *lineno = lineNo;
         *result = tmp;
-	if (lineno)
-	    *lineno = lineNo;
-        return(ERR_NONE);
+        if (lineno)
+            *lineno = lineNo;
+        return (ERR_NONE);
     }
 
-    while(pPair->pStr != NULL){
-        if(strcasecmp(*pStr, pPair->pStr) == 0){
+    while (pPair->pStr != NULL) {
+        if (strcasecmp(*pStr, pPair->pStr) == 0) {
             *result = pPair->value;
-	    if (lineno)
-		*lineno = lineNo;
-            return(ERR_NONE);
+            if (lineno)
+                *lineno = lineNo;
+            return (ERR_NONE);
         }
         pPair++;
     }
 
     ThrowException(ERR_CONVERSION);
-    return(ERR_CONVERSION);
+    return (ERR_CONVERSION);
 }
 
 
@@ -163,17 +168,17 @@ IniFile::Find(double *result, StrDoublePair *pPair,
 
    @return pointer to the variable after the '=' delimiter, or @c NULL if not
            found */
-std::optional<const char*>
+std::optional<const char *>
 IniFile::Find(const char *_tag, const char *_section, int _num, int *lineno)
 {
     // WTF, return a pointer to the middle of a local buffer?
     // FIX: this is totally non-reentrant.
-    static char                 line[LINELEN + 2] = "";        /* 1 for newline, 1 for NULL */
+    static char line[LINELEN + 2] = ""; /* 1 for newline, 1 for NULL */
 
-    char  eline [(LINELEN + 2) * (MAX_EXTEND_LINES + 1)];
-    char* elineptr;
-    char* elinenext = eline;
-    int   extend_ct = 0;
+    char eline[(LINELEN + 2) * (MAX_EXTEND_LINES + 1)];
+    char *elineptr;
+    char *elinenext = eline;
+    int extend_ct = 0;
 
     if (!_tag) {
         fprintf(stderr, "IniFile: error: Tag is not provided\n");
@@ -187,7 +192,7 @@ IniFile::Find(const char *_tag, const char *_section, int _num, int *lineno)
     num = _num;
 
     /* check valid file */
-    if(!CheckIfOpen())
+    if (!CheckIfOpen())
         return std::nullopt;
 
     /* start from beginning */
@@ -217,22 +222,24 @@ IniFile::Find(const char *_tag, const char *_section, int _num, int *lineno)
             lineNo++;
 
             /* strip off newline */
-            int newLinePos = static_cast<int>(strlen(line)) - 1; /* newline is on back from 0 */
+            int newLinePos = static_cast<int>(strlen(line)) -
+                             1; /* newline is on back from 0 */
             if (newLinePos < 0) {
                 newLinePos = 0;
             }
             if (line[newLinePos] == '\n') {
-                line[newLinePos] = 0;        /* make the newline 0 */
+                line[newLinePos] = 0; /* make the newline 0 */
             }
 
-            const char* nonWhite = SkipWhite(line);
+            const char *nonWhite = SkipWhite(line);
             if (!nonWhite) {
                 /* blank line-- skip */
                 continue;
             }
 
             /* not a blank line, and nonwhite is first char */
-            if (strncmp(bracketSection, nonWhite, strlen(bracketSection)) != 0){
+            if (strncmp(bracketSection, nonWhite, strlen(bracketSection)) !=
+                0) {
                 /* not on this line */
                 continue;
             }
@@ -259,49 +266,52 @@ IniFile::Find(const char *_tag, const char *_section, int _num, int *lineno)
         lineNo++;
 
         /* strip off newline */
-        int newLinePos = static_cast<int>(strlen(line)) - 1; /* newline is on back from 0 */
+        int newLinePos =
+            static_cast<int>(strlen(line)) - 1; /* newline is on back from 0 */
         if (newLinePos < 0) {
             newLinePos = 0;
         }
         if (line[newLinePos] == '\n') {
-            line[newLinePos] = 0;        /* make the newline 0 */
+            line[newLinePos] = 0; /* make the newline 0 */
         }
         // honor backslash (\) as line-end escape
-        if (newLinePos > 0 && line[newLinePos-1] == '\\') {
-           newLinePos = newLinePos-1;
-           line[newLinePos] = 0;
-           if (!extend_ct) {
-               elineptr = eline; //first time
-               strncpy(elineptr,line,newLinePos);
-               elinenext = elineptr + newLinePos;
-           } else {
-               strncpy(elinenext,line,newLinePos);
-               elinenext = elinenext + newLinePos;
-           }
-           *elinenext = 0;
-           extend_ct++;
-           if (extend_ct > MAX_EXTEND_LINES) {
-              fprintf(stderr,
-                 "INIFILE lineno=%u:Too many backslash line extends (limit=%d)\n",
-                 lineNo, MAX_EXTEND_LINES);
-              ThrowException(ERR_OVER_EXTENDED);
-              return std::nullopt;
-           }
-           continue; // get next line to extend
+        if (newLinePos > 0 && line[newLinePos - 1] == '\\') {
+            newLinePos = newLinePos - 1;
+            line[newLinePos] = 0;
+            if (!extend_ct) {
+                elineptr = eline; //first time
+                strncpy(elineptr, line, newLinePos);
+                elinenext = elineptr + newLinePos;
+            } else {
+                strncpy(elinenext, line, newLinePos);
+                elinenext = elinenext + newLinePos;
+            }
+            *elinenext = 0;
+            extend_ct++;
+            if (extend_ct > MAX_EXTEND_LINES) {
+                fprintf(stderr,
+                        "INIFILE lineno=%u:Too many backslash line extends "
+                        "(limit=%d)\n",
+                        lineNo,
+                        MAX_EXTEND_LINES);
+                ThrowException(ERR_OVER_EXTENDED);
+                return std::nullopt;
+            }
+            continue; // get next line to extend
         } else {
             if (extend_ct) {
-               strncpy(elinenext,line,newLinePos);
-               elinenext = elinenext + newLinePos;
-               *elinenext = 0;
+                strncpy(elinenext, line, newLinePos);
+                elinenext = elinenext + newLinePos;
+                *elinenext = 0;
             }
         }
         if (!extend_ct) {
-           elineptr = line;
+            elineptr = line;
         }
         extend_ct = 0;
 
         /* skip leading whitespace */
-        char* nonWhite = SkipWhite(elineptr);
+        char *nonWhite = SkipWhite(elineptr);
         if (!nonWhite) {
             /* blank line-- skip */
             continue;
@@ -323,28 +333,28 @@ IniFile::Find(const char *_tag, const char *_section, int _num, int *lineno)
         /* it matches the first part of the string-- if whitespace or = is
            next char then call it a match */
         const char tagEnd = nonWhite[tagLength];
-        if (tagEnd == ' ' || tagEnd == '\r' || tagEnd == '\t'
-            || tagEnd == '\n' || tagEnd == '=') {
+        if (tagEnd == ' ' || tagEnd == '\r' || tagEnd == '\t' ||
+            tagEnd == '\n' || tagEnd == '=') {
             /* it matches-- return string after =, or NULL */
             if (--_num > 0) {
                 /* Not looking for this one, so skip it... */
                 continue;
             }
             nonWhite += tagLength;
-            char* valueString = AfterEqual(nonWhite);
+            char *valueString = AfterEqual(nonWhite);
             /* Eliminate white space at the end of a line also. */
             if (!valueString) {
                 ThrowException(ERR_TAG_NOT_FOUND);
                 return std::nullopt;
             }
-            char* endValueString = valueString + strlen(valueString) - 1;
-            while (*endValueString == ' ' || *endValueString == '\t'
-                   || *endValueString == '\r') {
+            char *endValueString = valueString + strlen(valueString) - 1;
+            while (*endValueString == ' ' || *endValueString == '\t' ||
+                   *endValueString == '\r') {
                 *endValueString = 0;
                 endValueString--;
             }
-	    if (lineno)
-		*lineno = lineNo;
+            if (lineno)
+                *lineno = lineNo;
             return valueString;
         }
         /* else continue */
@@ -358,69 +368,75 @@ IniFile::ErrorCode
 IniFile::Find(std::string *s, const char *_tag, const char *_section, int _num)
 {
     auto tmp = Find(_tag, _section, _num);
-    if(!tmp)
+    if (!tmp)
         return ERR_TAG_NOT_FOUND; // can't distinguish errors, ugh
 
-     *s = *tmp;
+    *s = *tmp;
 
-    return(ERR_NONE);
+    return (ERR_NONE);
 }
 
-std::optional<const char*>
-IniFile::FindString(char *dest, size_t n, const char *_tag, const char *_section, int _num, int *lineno)
+std::optional<const char *> IniFile::FindString(char *dest,
+                                                size_t n,
+                                                const char *_tag,
+                                                const char *_section,
+                                                int _num,
+                                                int *lineno)
 {
     auto res = Find(_tag, _section, _num, lineno);
-    if(!res)
+    if (!res)
         return std::nullopt;
     int r = snprintf(dest, n, "%s", *res);
-    if(r < 0 || (size_t)r >= n) {
+    if (r < 0 || (size_t)r >= n) {
         ThrowException(ERR_CONVERSION);
         return std::nullopt;
     }
     return dest;
 }
 
-std::optional<const char*>
-IniFile::FindPath(char *dest, size_t n, const char *_tag, const char *_section, int _num, int *lineno)
+std::optional<const char *> IniFile::FindPath(char *dest,
+                                              size_t n,
+                                              const char *_tag,
+                                              const char *_section,
+                                              int _num,
+                                              int *lineno)
 {
     auto res = Find(_tag, _section, _num, lineno);
-    if(!res)
+    if (!res)
         return std::nullopt;
-    if(TildeExpansion(*res, dest, n)) {
+    if (TildeExpansion(*res, dest, n)) {
         return std::nullopt;
     }
     return dest;
 }
 
-bool
-IniFile::CheckIfOpen()
+bool IniFile::CheckIfOpen()
 {
-    if(IsOpen())
-        return(true);
+    if (IsOpen())
+        return (true);
 
     ThrowException(ERR_NOT_OPEN);
 
-    return(false);
+    return (false);
 }
 
 
-bool
-IniFile::LockFile()
+bool IniFile::LockFile()
 {
     lock.l_type = F_RDLCK;
     lock.l_whence = SEEK_SET;
     lock.l_start = 0;
     lock.l_len = 0;
 
-    if(fcntl(fileno(fp), F_SETLK, &lock) == -1){
-        if(owned)
+    if (fcntl(fileno(fp), F_SETLK, &lock) == -1) {
+        if (owned)
             fclose(fp);
 
         fp = NULL;
-        return(false);
+        return (false);
     }
 
-    return(true);
+    return (true);
 }
 
 
@@ -436,23 +452,23 @@ IniFile::ErrorCode
 IniFile::TildeExpansion(const char *file, char *path, size_t size)
 {
     int res = snprintf(path, size, "%s", file);
-    if(res < 0 || (size_t)res >= size)
+    if (res < 0 || (size_t)res >= size)
         return ERR_CONVERSION;
 
     if (strlen(file) < 2 || !(file[0] == '~' && file[1] == '/')) {
-	/* no tilde expansion required, or unsupported
+        /* no tilde expansion required, or unsupported
            tilde expansion type requested */
-	return ERR_NONE;
+        return ERR_NONE;
     }
 
     const char *home = getenv("HOME");
     if (!home) {
         ThrowException(ERR_CONVERSION);
-	return ERR_CONVERSION;
+        return ERR_CONVERSION;
     }
 
     res = snprintf(path, size, "%s%s", home, file + 1);
-    if(res < 0 || (size_t)res >= size) {
+    if (res < 0 || (size_t)res >= size) {
         ThrowException(ERR_CONVERSION);
         return ERR_CONVERSION;
     }
@@ -460,10 +476,9 @@ IniFile::TildeExpansion(const char *file, char *path, size_t size)
     return ERR_NONE;
 }
 
-void
-IniFile::ThrowException(ErrorCode errCode)
+void IniFile::ThrowException(ErrorCode errCode)
 {
-    if(errCode & errMask){
+    if (errCode & errMask) {
         exception.errCode = errCode;
         exception.tag = tag;
         exception.section = section;
@@ -492,12 +507,16 @@ bool IniFile::HasInvalidLineEnding(const char *line)
             char c = line[1];
             if (c == '\n' || c == '\0') {
                 if (!lineEndingReported) {
-                    fprintf(stderr, "IniFile: warning: File contains DOS-style line endings.\n");
+                    fprintf(stderr,
+                            "IniFile: warning: File contains DOS-style line "
+                            "endings.\n");
                     lineEndingReported = true;
                 }
                 continue;
             }
-            fprintf(stderr, "IniFile: error: File contains ambiguous carriage returns\n");
+            fprintf(
+                stderr,
+                "IniFile: error: File contains ambiguous carriage returns\n");
             return true;
         }
     }
@@ -512,8 +531,7 @@ bool IniFile::HasInvalidLineEnding(const char *line)
    @return NULL or pointer to first non-white char after the delimiter
 
    Called By: find() and section() only. */
-char*
-IniFile::AfterEqual(char *string)
+char *IniFile::AfterEqual(char *string)
 {
     while (*string != '\0' && *string != '=')
         ++string;
@@ -523,7 +541,8 @@ IniFile::AfterEqual(char *string)
             ++string;
             if (*string == '\0')
                 return nullptr;
-        } while (*string == ' ' || *string == '\t' || *string == '\r' || *string == '\n');
+        } while (*string == ' ' || *string == '\t' || *string == '\r' ||
+                 *string == '\n');
         return string;
     }
     return nullptr;
@@ -537,87 +556,74 @@ IniFile::AfterEqual(char *string)
    @return NULL if not found or a valid pointer.
 
    Called By: find() and section() only. */
-char*
-IniFile::SkipWhite(char *string)
+char *IniFile::SkipWhite(char *string)
 {
-  while (*string != ';' && *string != '#' && *string != '\0') {
-    if (*string != ' ' && *string != '\t' && *string != '\r' && *string != '\n') {
-      return string;
+    while (*string != ';' && *string != '#' && *string != '\0') {
+        if (*string != ' ' && *string != '\t' && *string != '\r' &&
+            *string != '\n') {
+            return string;
+        }
+        string++;
     }
-    string++;
-  }
-  return nullptr;
+    return nullptr;
 }
 
 
-void
-IniFile::Exception::Print(FILE *fp)
+void IniFile::Exception::Print(FILE *fp)
 {
-    const char                  *msg;
+    const char *msg;
 
-    switch(errCode){
-    case ERR_NONE:
-        msg = "ERR_NONE";
-        break;
+    switch (errCode) {
+    case ERR_NONE: msg = "ERR_NONE"; break;
 
-    case ERR_NOT_OPEN:
-        msg = "ERR_NOT_OPEN";
-        break;
+    case ERR_NOT_OPEN: msg = "ERR_NOT_OPEN"; break;
 
-    case ERR_SECTION_NOT_FOUND:
-        msg = "ERR_SECTION_NOT_FOUND";
-        break;
+    case ERR_SECTION_NOT_FOUND: msg = "ERR_SECTION_NOT_FOUND"; break;
 
-    case ERR_TAG_NOT_FOUND:
-        msg = "ERR_TAG_NOT_FOUND";
-        break;
+    case ERR_TAG_NOT_FOUND: msg = "ERR_TAG_NOT_FOUND"; break;
 
-    case ERR_CONVERSION:
-        msg = "ERR_CONVERSION";
-        break;
+    case ERR_CONVERSION: msg = "ERR_CONVERSION"; break;
 
-    case ERR_LIMITS:
-        msg = "ERR_LIMITS";
-        break;
+    case ERR_LIMITS: msg = "ERR_LIMITS"; break;
 
-    case ERR_OVER_EXTENDED:
-        msg = "ERR_OVER_EXTENDED";
-        break;
+    case ERR_OVER_EXTENDED: msg = "ERR_OVER_EXTENDED"; break;
 
-    default:
-        msg = "UNKNOWN";
+    default: msg = "UNKNOWN";
     }
 
-    fprintf(fp, "INIFILE: %s, section=%s, tag=%s, num=%d, lineNo=%u\n",
-            msg, section, tag, num, lineNo);
+    fprintf(fp,
+            "INIFILE: %s, section=%s, tag=%s, num=%d, lineNo=%u\n",
+            msg,
+            section,
+            tag,
+            num,
+            lineNo);
 }
 
 
-extern "C" const char *
-iniFind(FILE *fp, const char *tag, const char *section)
+extern "C" const char *iniFind(FILE *fp, const char *tag, const char *section)
 {
-    IniFile                     f(false, fp);
+    IniFile f(false, fp);
 
-    return(f.Find(tag, section).value_or(nullptr));
+    return (f.Find(tag, section).value_or(nullptr));
 }
 
 extern "C" int
 iniFindInt(FILE *fp, const char *tag, const char *section, int *result)
 {
     IniFile f(false, fp);
-    return(f.Find(result, tag, section));
+    return (f.Find(result, tag, section));
 }
 
 extern "C" int
 iniFindDouble(FILE *fp, const char *tag, const char *section, double *result)
 {
     IniFile f(false, fp);
-    return(f.Find(result, tag, section));
+    return (f.Find(result, tag, section));
 }
 
-extern "C" int
-TildeExpansion(const char *file, char *path, size_t size)
+extern "C" int TildeExpansion(const char *file, char *path, size_t size)
 {
-  static IniFile f;
-  return !f.TildeExpansion(file, path, size);
+    static IniFile f;
+    return !f.TildeExpansion(file, path, size);
 }

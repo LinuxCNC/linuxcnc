@@ -30,7 +30,7 @@ EXPORT_SYMBOL(kinematicsForward);
 MODULE_LICENSE("GPL");
 
 #ifndef hypot
-#define hypot(a,b) (sqrt((a)*(a)+(b)*(b)))
+#define hypot(a, b) (sqrt((a) * (a) + (b) * (b)))
 #endif
 
 struct haldata {
@@ -40,17 +40,17 @@ struct haldata {
 } *haldata;
 
 int kinematicsForward(const double *joints,
-                      EmcPose * pos,
-                      const KINEMATICS_FORWARD_FLAGS * fflags,
-                      KINEMATICS_INVERSE_FLAGS * iflags)
+                      EmcPose *pos,
+                      const KINEMATICS_FORWARD_FLAGS *fflags,
+                      KINEMATICS_INVERSE_FLAGS *iflags)
 {
     (void)fflags;
     (void)iflags;
-    double radius,z,theta;
+    double radius, z, theta;
 
     radius = joints[0];
-    z      = joints[1];
-    theta  = TO_RAD * joints[2];
+    z = joints[1];
+    theta = TO_RAD * joints[2];
 
     pos->tran.x = radius * cos(theta);
     pos->tran.y = radius * sin(theta);
@@ -65,41 +65,49 @@ int kinematicsForward(const double *joints,
     return 0;
 }
 
-int kinematicsInverse(const EmcPose * pos,
+int kinematicsInverse(const EmcPose *pos,
                       double *joints,
-                      const KINEMATICS_INVERSE_FLAGS * iflags,
-                      KINEMATICS_FORWARD_FLAGS * fflags)
+                      const KINEMATICS_INVERSE_FLAGS *iflags,
+                      KINEMATICS_FORWARD_FLAGS *fflags)
 {
     (void)iflags;
     (void)fflags;
-// There is a potential problem when accumulating bigtheta -- loss of
-// precision based on size of mantissa -- but in practice, it is probably ok
+    // There is a potential problem when accumulating bigtheta -- loss of
+    // precision based on size of mantissa -- but in practice, it is probably ok
 
     static int oldquad;
     static int revolutions;
 
-    double     theta,bigtheta;
-    int        nowquad = 0;
-    double     x = pos->tran.x;
-    double     y = pos->tran.y;
-    double     z = pos->tran.z;
+    double theta, bigtheta;
+    int nowquad = 0;
+    double x = pos->tran.x;
+    double y = pos->tran.y;
+    double z = pos->tran.z;
 
-    if      (x >= 0 && y >= 0) nowquad = 1;
-    else if (x <  0 && y >= 0) nowquad = 2;
-    else if (x <  0 && y <  0) nowquad = 3;
-    else if (x >= 0 && y <  0) nowquad = 4;
+    if (x >= 0 && y >= 0)
+        nowquad = 1;
+    else if (x < 0 && y >= 0)
+        nowquad = 2;
+    else if (x < 0 && y < 0)
+        nowquad = 3;
+    else if (x >= 0 && y < 0)
+        nowquad = 4;
 
-    if (oldquad == 2 && nowquad == 3) {revolutions += 1;}
-    if (oldquad == 3 && nowquad == 2) {revolutions -= 1;}
+    if (oldquad == 2 && nowquad == 3) {
+        revolutions += 1;
+    }
+    if (oldquad == 3 && nowquad == 2) {
+        revolutions -= 1;
+    }
 
-    theta     = atan2(y,x);
-    bigtheta  = theta + PM_2_PI * revolutions;
+    theta = atan2(y, x);
+    bigtheta = theta + PM_2_PI * revolutions;
 
     *(haldata->revolutions) = revolutions;
     *(haldata->theta_degrees) = theta * TO_DEG;
     *(haldata->bigtheta_degrees) = bigtheta * TO_DEG;
 
-    joints[0] = hypot(x,y);
+    joints[0] = hypot(x, y);
     joints[1] = z;
     joints[2] = TO_DEG * bigtheta;
     joints[3] = 0;
@@ -120,21 +128,35 @@ KINEMATICS_TYPE kinematicsType()
 
 static int comp_id;
 
-void rtapi_app_exit(void) { hal_exit(comp_id); }
+void rtapi_app_exit(void)
+{
+    hal_exit(comp_id);
+}
 
-int rtapi_app_main(void) {
+int rtapi_app_main(void)
+{
     int ans;
     comp_id = hal_init("rosekins");
-    if(comp_id < 0) return comp_id;
+    if (comp_id < 0)
+        return comp_id;
 
     haldata = hal_malloc(sizeof(struct haldata));
 
-    if((ans = hal_pin_float_new("rosekins.revolutions",
-              HAL_OUT, &(haldata->revolutions), comp_id)) < 0) goto error;
-    if((ans = hal_pin_float_new("rosekins.theta_degrees",
-              HAL_OUT, &(haldata->theta_degrees), comp_id)) < 0) goto error;
-    if((ans = hal_pin_float_new("rosekins.bigtheta_degrees",
-              HAL_OUT, &(haldata->bigtheta_degrees), comp_id)) < 0) goto error;
+    if ((ans = hal_pin_float_new("rosekins.revolutions",
+                                 HAL_OUT,
+                                 &(haldata->revolutions),
+                                 comp_id)) < 0)
+        goto error;
+    if ((ans = hal_pin_float_new("rosekins.theta_degrees",
+                                 HAL_OUT,
+                                 &(haldata->theta_degrees),
+                                 comp_id)) < 0)
+        goto error;
+    if ((ans = hal_pin_float_new("rosekins.bigtheta_degrees",
+                                 HAL_OUT,
+                                 &(haldata->bigtheta_degrees),
+                                 comp_id)) < 0)
+        goto error;
 
     hal_ready(comp_id);
     return 0;

@@ -79,7 +79,7 @@ double findKinkAccel(double kink_angle, double v_plan, double cycle_time)
  */
 double fsign(double f)
 {
-    if (f>0) {
+    if (f > 0) {
         return 1.0;
     } else if (f < 0) {
         return -1.0;
@@ -96,8 +96,9 @@ static inline double negate(double f, int neg)
 }
 
 /** Clip the input at the specified minimum (in place). */
-int clip_min(double * const x, double min) {
-    if ( *x < min ) {
+int clip_min(double *const x, double min)
+{
+    if (*x < min) {
         *x = min;
         return 1;
     }
@@ -106,8 +107,9 @@ int clip_min(double * const x, double min) {
 
 
 /** Clip the input at the specified maximum (in place). */
-int clip_max(double * const x, double max) {
-    if ( *x > max ) {
+int clip_max(double *const x, double max)
+{
+    if (*x > max) {
         *x = max;
         return 1;
     }
@@ -117,14 +119,13 @@ int clip_max(double * const x, double max) {
 /**
  * Saturate a value x to be within +/- max.
  */
-double saturate(double x, double max) {
-    if ( x > max ) {
+double saturate(double x, double max)
+{
+    if (x > max) {
         return max;
-    }
-    else if ( x < (-max) ) {
+    } else if (x < (-max)) {
         return -max;
-    }
-    else {
+    } else {
         return x;
     }
 }
@@ -132,14 +133,13 @@ double saturate(double x, double max) {
 /**
  * Saturate a value x to be within max and min.
  */
-double bisaturate(double x, double max, double min) {
-    if ( x > max ) {
+double bisaturate(double x, double max, double min)
+{
+    if (x > max) {
         return max;
-    }
-    else if ( x < min ) {
+    } else if (x < min) {
         return min;
-    }
-    else {
+    } else {
         return x;
     }
 }
@@ -148,26 +148,25 @@ double bisaturate(double x, double max, double min) {
 /**
  * Apply bounds to a value x.
  */
-inline double bound(double x, double max, double min) {
-    if ( x > max ) {
+inline double bound(double x, double max, double min)
+{
+    if (x > max) {
         return max;
-    }
-    else if ( x < (min) ) {
+    } else if (x < (min)) {
         return min;
-    }
-    else {
+    } else {
         return x;
     }
 }
 
 
 /** In-place saturation function */
-int sat_inplace(double * const x, double max) {
-    if ( *x > max ) {
+int sat_inplace(double *const x, double max)
+{
+    if (*x > max) {
         *x = max;
         return 1;
-    }
-    else if ( *x < -max ) {
+    } else if (*x < -max) {
         *x = -max;
         return -1;
     }
@@ -205,25 +204,25 @@ static int pmCirclePrint(PmCircle const * const circ) {
  * the distance between the base point and this new center.
  *
  */
-static inline int findSpiralApproximation(PmCircle const * const circ,
-        PmCartesian const * const base_pt,
-        PmCartesian const * const u_tan,
-        PmCartesian * const center_out,
-        double * const radius_out)
+static inline int findSpiralApproximation(PmCircle const *const circ,
+                                          PmCartesian const *const base_pt,
+                                          PmCartesian const *const u_tan,
+                                          PmCartesian *const center_out,
+                                          double *const radius_out)
 {
     double dr = circ->spiral / circ->angle;
 
     /*tp_debug_print("In findSpiralApproximation\n");*/
     /*tp_debug_print(" dr = %f\n",dr);*/
     /*tp_debug_print(" utan = %f %f %f\n",*/
-            /*u_tan->x,*/
-            /*u_tan->y,*/
-            /*u_tan->z);*/
+    /*u_tan->x,*/
+    /*u_tan->y,*/
+    /*u_tan->z);*/
     pmCartScalMult(u_tan, dr, center_out);
     /*tp_debug_print(" circcenter = %f %f %f\n",*/
-            /*circ->center.x,*/
-            /*circ->center.y,*/
-            /*circ->center.z);*/
+    /*circ->center.x,*/
+    /*circ->center.y,*/
+    /*circ->center.z);*/
     pmCartCartAddEq(center_out, &circ->center);
 
     PmCartesian r_adjust;
@@ -231,9 +230,9 @@ static inline int findSpiralApproximation(PmCircle const * const circ,
     pmCartMag(&r_adjust, radius_out);
 
     tp_debug_print(" adjusted center = %f %f %f\n",
-            center_out->x,
-            center_out->y,
-            center_out->z);
+                   center_out->x,
+                   center_out->y,
+                   center_out->z);
 
     tp_debug_print(" adjusted radius = %f\n", *radius_out);
 
@@ -249,9 +248,9 @@ static inline int findSpiralApproximation(PmCircle const * const circ,
  * @param center actual center of circle (not spiral approximated center)
  * @return trim angle
  */
-static inline double findTrimAngle(PmCartesian const * const P,
-        PmCartesian const * const arc_center,
-        PmCartesian const * const center)
+static inline double findTrimAngle(PmCartesian const *const P,
+                                   PmCartesian const *const arc_center,
+                                   PmCartesian const *const center)
 {
     //Define vectors relative to circle center
     PmCartesian u_P;
@@ -264,8 +263,8 @@ static inline double findTrimAngle(PmCartesian const * const P,
 
     double dot;
     pmCartCartDot(&u_arccenter, &u_P, &dot);
-    double dphi = acos(saturate(dot,1.0));
-    tp_debug_print(" dphi = %g\n",dphi);
+    double dphi = acos(saturate(dot, 1.0));
+    tp_debug_print(" dphi = %g\n", dphi);
     return dphi;
 }
 
@@ -273,7 +272,12 @@ static inline double findTrimAngle(PmCartesian const * const P,
 /**
  * Verify that a blend arc is tangent to a circular arc.
  */
-int checkTangentAngle(PmCircle const * const circ, SphericalArc const * const arc, BlendGeom3 const * const geom, BlendParameters const * const param, double cycle_time, int at_end)
+int checkTangentAngle(PmCircle const *const circ,
+                      SphericalArc const *const arc,
+                      BlendGeom3 const *const geom,
+                      BlendParameters const *const param,
+                      double cycle_time,
+                      int at_end)
 {
     (void)geom;
     // Debug Information to diagnose tangent issues
@@ -291,30 +295,20 @@ int checkTangentAngle(PmCircle const * const circ, SphericalArc const * const ar
     // Find angle between tangent unit vectors
     double dot;
     pmCartCartDot(&u_circ, &u_arc, &dot);
-    double blend_angle = acos(saturate(dot,1.0));
+    double blend_angle = acos(saturate(dot, 1.0));
 
     // Check against the maximum allowed tangent angle for the given velocity and acceleration
-    double angle_max = findMaxTangentAngle(param->v_plan, param->a_max, cycle_time);
+    double angle_max =
+        findMaxTangentAngle(param->v_plan, param->a_max, cycle_time);
 
-    tp_debug_print("tangent angle = %f, max = %f\n",
-            blend_angle,
-            angle_max);
+    tp_debug_print("tangent angle = %f, max = %f\n", blend_angle, angle_max);
 
-    tp_debug_print("circ_tan = [%g %g %g]\n",
-            u_circ.x,
-            u_circ.y,
-            u_circ.z);
-    tp_debug_print("arc_tan = [%g %g %g]\n",
-            u_arc.x,
-            u_arc.y,
-            u_arc.z);
+    tp_debug_print("circ_tan = [%g %g %g]\n", u_circ.x, u_circ.y, u_circ.z);
+    tp_debug_print("arc_tan = [%g %g %g]\n", u_arc.x, u_arc.y, u_arc.z);
 
     PmCartesian diff;
-    pmCartCartSub(&u_arc,&u_circ,&diff);
-    tp_debug_print("diff = [%g %g %g]\n",
-            diff.x,
-            diff.y,
-            diff.z);
+    pmCartCartSub(&u_arc, &u_circ, &diff);
+    tp_debug_print("diff = [%g %g %g]\n", diff.x, diff.y, diff.z);
 
     if (blend_angle > angle_max) {
         tp_debug_print("angle too large\n");
@@ -331,8 +325,8 @@ int checkTangentAngle(PmCircle const * const circ, SphericalArc const * const ar
  * accurate for angles larger than about 10 deg. This function is meant for
  * small tolerances!
  */
-int pmCartCartParallel(PmCartesian const * const u1,
-                       PmCartesian const * const u2,
+int pmCartCartParallel(PmCartesian const *const u1,
+                       PmCartesian const *const u2,
                        double tol)
 {
     double d_diff;
@@ -355,8 +349,8 @@ int pmCartCartParallel(PmCartesian const * const u1,
  * accurate for angles larger than about 10 deg. This function is meant for
  * small tolerances!
  */
-int pmCartCartAntiParallel(PmCartesian const * const u1,
-                           PmCartesian const * const u2,
+int pmCartCartAntiParallel(PmCartesian const *const u1,
+                           PmCartesian const *const u2,
                            double tol)
 {
     double d_sum;
@@ -384,10 +378,11 @@ int pmCartCartAntiParallel(PmCartesian const * const u1,
  * @param u2 input unit vector 2
  * @pre BOTH u1 and u2 must be unit vectors or calculation may be skewed.
  */
-int pmUnitCartsColinear(PmCartesian const * const u1,
-        PmCartesian const * const u2)
+int pmUnitCartsColinear(PmCartesian const *const u1,
+                        PmCartesian const *const u2)
 {
-    return pmCartCartParallel(u1, u2, TP_ANGLE_EPSILON_SQ) || pmCartCartAntiParallel(u1, u2, TP_ANGLE_EPSILON_SQ);
+    return pmCartCartParallel(u1, u2, TP_ANGLE_EPSILON_SQ) ||
+           pmCartCartAntiParallel(u1, u2, TP_ANGLE_EPSILON_SQ);
 }
 
 
@@ -398,33 +393,36 @@ int pmUnitCartsColinear(PmCartesian const * const u1,
  * direction, then the intersection angle is PI/2. This is based on the
  * simple_tp formulation for tolerances.
  */
-int findIntersectionAngle(PmCartesian const * const u1,
-        PmCartesian const * const u2, double * const theta)
+int findIntersectionAngle(PmCartesian const *const u1,
+                          PmCartesian const *const u2,
+                          double *const theta)
 {
     double dot;
     pmCartCartDot(u1, u2, &dot);
 
     if (dot > 1.0 || dot < -1.0) {
-        tp_debug_print("dot product %.16g outside domain of acos! u1 = %.16g %.16g %.16g, u2 = %.16g %.16g %.16g\n",
-                dot,
-                u1->x,
-                u1->y,
-                u1->z,
-                u2->x,
-                u2->y,
-                u2->z);
-        sat_inplace(&dot,1.0);
+        tp_debug_print(
+            "dot product %.16g outside domain of acos! u1 = %.16g %.16g %.16g, "
+            "u2 = %.16g %.16g %.16g\n",
+            dot,
+            u1->x,
+            u1->y,
+            u1->z,
+            u2->x,
+            u2->y,
+            u2->z);
+        sat_inplace(&dot, 1.0);
     }
 
-    *theta = acos(-dot)/2.0;
+    *theta = acos(-dot) / 2.0;
     return TP_ERR_OK;
 }
 
 
 /** Calculate the minimum of the three values in a PmCartesian. */
-double pmCartMin(PmCartesian const * const in)
+double pmCartMin(PmCartesian const *const in)
 {
-    return fmin(fmin(in->x,in->y),in->z);
+    return fmin(fmin(in->x, in->y), in->z);
 }
 
 
@@ -437,10 +435,11 @@ double pmCartMin(PmCartesian const * const in)
  * @param diameter diameter of inscribed circle on cross section.
  *
  */
-int calculateInscribedDiameter(PmCartesian const * const normal,
-        PmCartesian const * const bounds, double * const diameter)
+int calculateInscribedDiameter(PmCartesian const *const normal,
+                               PmCartesian const *const bounds,
+                               double *const diameter)
 {
-    if (!normal ) {
+    if (!normal) {
         return TP_ERR_MISSING_INPUT;
     }
 
@@ -449,18 +448,18 @@ int calculateInscribedDiameter(PmCartesian const * const normal,
     double mag_err = fabs(1.0 - n_mag);
     if (mag_err > pmSqrt(TP_POS_EPSILON)) {
         /*rtapi_print_msg(RTAPI_MSG_ERR,"normal vector <%.12g,%.12f,%.12f> has magnitude error = %e\n",*/
-                /*normal->x,*/
-                /*normal->y,*/
-                /*normal->z,*/
-                /*mag_err);*/
+        /*normal->x,*/
+        /*normal->y,*/
+        /*normal->z,*/
+        /*mag_err);*/
         return TP_ERR_FAIL;
     }
 
-    PmCartesian planar_x,planar_y,planar_z;
+    PmCartesian planar_x, planar_y, planar_z;
 
     //Find perpendicular component of unit directions
     // FIXME Assumes normal is unit length
-    
+
     /* This section projects the X / Y / Z unit vectors onto the plane
      * containing the motions. The operation is done "backwards" here due to a
      * quirk with posemath. 
@@ -479,16 +478,16 @@ int calculateInscribedDiameter(PmCartesian const * const normal,
     pmCartAbs(&planar_z, &planar_z);
 
     // Crude way to prevent divide-by-zero-error
-    planar_x.x = fmax(planar_x.x,TP_POS_EPSILON);
-    planar_y.y = fmax(planar_y.y,TP_POS_EPSILON);
-    planar_z.z = fmax(planar_z.z,TP_POS_EPSILON);
+    planar_x.x = fmax(planar_x.x, TP_POS_EPSILON);
+    planar_y.y = fmax(planar_y.y, TP_POS_EPSILON);
+    planar_z.z = fmax(planar_z.z, TP_POS_EPSILON);
 
     double x_scale, y_scale, z_scale;
     pmCartMag(&planar_x, &x_scale);
     pmCartMag(&planar_y, &y_scale);
     pmCartMag(&planar_z, &z_scale);
 
-    double x_extent=0, y_extent=0, z_extent=0;
+    double x_extent = 0, y_extent = 0, z_extent = 0;
     if (bounds->x != 0) {
         x_extent = bounds->x / x_scale;
     }
@@ -500,7 +499,7 @@ int calculateInscribedDiameter(PmCartesian const * const normal,
     }
 
     // Find the highest value to start from
-    *diameter = fmax(fmax(x_extent, y_extent),z_extent);
+    *diameter = fmax(fmax(x_extent, y_extent), z_extent);
 
     // Only for active axes, find the minimum extent
     if (bounds->x != 0) {
@@ -517,33 +516,32 @@ int calculateInscribedDiameter(PmCartesian const * const normal,
 }
 
 
-
-int findAccelScale(PmCartesian const * const acc,
-        PmCartesian const * const bounds,
-        PmCartesian * const scale)
+int findAccelScale(PmCartesian const *const acc,
+                   PmCartesian const *const bounds,
+                   PmCartesian *const scale)
 {
-    if (!acc || !bounds ) {
+    if (!acc || !bounds) {
         return TP_ERR_MISSING_INPUT;
     }
 
-    if (!scale ) {
+    if (!scale) {
         return TP_ERR_MISSING_OUTPUT;
     }
 
     // Find the scale of acceleration vs. machine accel bounds
     if (bounds->x != 0) {
-    scale->x = fabs(acc->x / bounds->x);
+        scale->x = fabs(acc->x / bounds->x);
     } else {
         scale->x = 0;
     }
     if (bounds->y != 0) {
-    scale->y = fabs(acc->y / bounds->y);
+        scale->y = fabs(acc->y / bounds->y);
     } else {
         scale->y = 0;
     }
 
     if (bounds->z != 0) {
-    scale->z = fabs(acc->z / bounds->z);
+        scale->z = fabs(acc->z / bounds->z);
     } else {
         scale->z = 0;
     }
@@ -552,23 +550,25 @@ int findAccelScale(PmCartesian const * const acc,
 }
 
 
-
-
 /** Find real roots of a quadratic equation in standard form. */
-int quadraticFormula(double A, double B, double C, double * const root0,
-        double * const root1)
+int quadraticFormula(
+    double A, double B, double C, double *const root0, double *const root1)
 {
     double disc = pmSq(B) - 4.0 * A * C;
     if (disc < 0) {
-        tp_debug_print("discriminant %.12g < 0, A=%.12g, B=%.12g,C=%.12g\n", disc, A, B, C);
+        tp_debug_print("discriminant %.12g < 0, A=%.12g, B=%.12g,C=%.12g\n",
+                       disc,
+                       A,
+                       B,
+                       C);
         return TP_ERR_FAIL;
     }
     double t1 = pmSqrt(disc);
     if (root0) {
-        *root0 = ( -B + t1) / (2.0 * A);
+        *root0 = (-B + t1) / (2.0 * A);
     }
     if (root1) {
-        *root1 = ( -B - t1) / (2.0 * A);
+        *root1 = (-B - t1) / (2.0 * A);
     }
     return TP_ERR_OK;
 }
@@ -587,9 +587,9 @@ int quadraticFormula(double A, double B, double C, double * const root0,
  * @param prev_tc first linear move to blend
  * @param tc second linear move to blend
  */
-int blendGeom3Init(BlendGeom3 * const geom,
-        TC_STRUCT const * const prev_tc,
-        TC_STRUCT const * const tc)
+int blendGeom3Init(BlendGeom3 *const geom,
+                   TC_STRUCT const *const prev_tc,
+                   TC_STRUCT const *const tc)
 {
     geom->v_max1 = prev_tc->maxvel;
     geom->v_max2 = tc->maxvel;
@@ -604,33 +604,28 @@ int blendGeom3Init(BlendGeom3 * const geom,
 
     int res_intersect = tcGetIntersectionPoint(prev_tc, tc, &geom->P);
 
-    tp_debug_print("Intersection point P = %f %f %f\n",
-            geom->P.x,
-            geom->P.y,
-            geom->P.z);
+    tp_debug_print(
+        "Intersection point P = %f %f %f\n", geom->P.x, geom->P.y, geom->P.z);
 
     // Find angle between tangent vectors
-    int res_angle = findIntersectionAngle(&geom->u_tan1,
-            &geom->u_tan2,
-            &geom->theta_tan);
+    int res_angle =
+        findIntersectionAngle(&geom->u_tan1, &geom->u_tan2, &geom->theta_tan);
 
     // Test for intersection angle errors
-    if(PM_PI / 2.0 - geom->theta_tan < TP_ANGLE_EPSILON) {
-        tp_debug_print("Intersection angle too close to pi/2, can't compute normal\n");
+    if (PM_PI / 2.0 - geom->theta_tan < TP_ANGLE_EPSILON) {
+        tp_debug_print(
+            "Intersection angle too close to pi/2, can't compute normal\n");
         return TP_ERR_TOLERANCE;
     }
 
-    if(geom->theta_tan < TP_ANGLE_EPSILON) {
+    if (geom->theta_tan < TP_ANGLE_EPSILON) {
         tp_debug_print("Intersection angle too small for arc fit\n");
         return TP_ERR_TOLERANCE;
     }
 
     blendCalculateNormals3(geom);
 
-    return res_u1 |
-        res_u2 |
-        res_intersect |
-        res_angle;
+    return res_u1 | res_u2 | res_intersect | res_angle;
 }
 
 
@@ -643,13 +638,13 @@ int blendGeom3Init(BlendGeom3 * const geom,
  * @param vel_bound maximum X, Y, Z machine velocity
  * @param maxFeedScale maximum allowed feed override (set in INI)
  */
-int blendParamKinematics(BlendGeom3 * const geom,
-        BlendParameters * const param,
-        TC_STRUCT const * const prev_tc,
-        TC_STRUCT const * const tc,
-        PmCartesian const * const acc_bound,
-        PmCartesian const * const vel_bound,
-        double maxFeedScale)
+int blendParamKinematics(BlendGeom3 *const geom,
+                         BlendParameters *const param,
+                         TC_STRUCT const *const prev_tc,
+                         TC_STRUCT const *const tc,
+                         PmCartesian const *const acc_bound,
+                         PmCartesian const *const vel_bound,
+                         double maxFeedScale)
 {
 
     // KLUDGE: common operations, but not exactly kinematics
@@ -659,12 +654,12 @@ int blendParamKinematics(BlendGeom3 * const geom,
     tcFindBlendTolerance(prev_tc, tc, &param->tolerance, &nominal_tolerance);
 
     // Calculate max acceleration based on plane containing lines
-    int res_dia = calculateInscribedDiameter(&geom->binormal, acc_bound, &param->a_max);
+    int res_dia =
+        calculateInscribedDiameter(&geom->binormal, acc_bound, &param->a_max);
 
     // Store max normal acceleration
     param->a_n_max = param->a_max * BLEND_ACC_RATIO_NORMAL;
-    tp_debug_print("a_max = %f, a_n_max = %f\n", param->a_max,
-            param->a_n_max);
+    tp_debug_print("a_max = %f, a_n_max = %f\n", param->a_max, param->a_n_max);
 
     // Find the nominal velocity for the blend segment with no overrides
     double v_req_prev = tcGetMaxTargetVel(prev_tc, 1.0);
@@ -674,12 +669,13 @@ int blendParamKinematics(BlendGeom3 * const geom,
 
     // Find the worst-case velocity we should reach for either segment
     param->v_goal = fmax(tcGetMaxTargetVel(prev_tc, maxFeedScale),
-            tcGetMaxTargetVel(tc, maxFeedScale));
+                         tcGetMaxTargetVel(tc, maxFeedScale));
 
     // Calculate the maximum planar velocity
     double v_planar_max = 0;
     //FIXME sloppy handling of return value
-    res_dia |= calculateInscribedDiameter(&geom->binormal, vel_bound, &v_planar_max);
+    res_dia |=
+        calculateInscribedDiameter(&geom->binormal, vel_bound, &v_planar_max);
     tp_debug_print("v_planar_max = %f\n", v_planar_max);
 
     // Clip the angle at a reasonable value (less than 90 deg), to prevent div by zero
@@ -718,7 +714,8 @@ int blendParamKinematics(BlendGeom3 * const geom,
     tp_debug_print("v_max = %f\n", v_max);
     param->v_goal = fmin(param->v_goal, v_max);
 
-    tp_debug_print("v_goal = %f, max scale = %f\n", param->v_goal, maxFeedScale);
+    tp_debug_print(
+        "v_goal = %f, max scale = %f\n", param->v_goal, maxFeedScale);
 
     return res_dia;
 }
@@ -737,12 +734,13 @@ int blendParamKinematics(BlendGeom3 * const geom,
  * @param vel_bound maximum X, Y, Z machine velocity
  * @param maxFeedScale maximum allowed feed override (set in INI)
  */
-int blendInit3FromLineArc(BlendGeom3 * const geom, BlendParameters * const param,
-        TC_STRUCT const * const prev_tc,
-        TC_STRUCT const * const tc,
-        PmCartesian const * const acc_bound,
-        PmCartesian const * const vel_bound,
-        double maxFeedScale)
+int blendInit3FromLineArc(BlendGeom3 *const geom,
+                          BlendParameters *const param,
+                          TC_STRUCT const *const prev_tc,
+                          TC_STRUCT const *const tc,
+                          PmCartesian const *const acc_bound,
+                          PmCartesian const *const vel_bound,
+                          double maxFeedScale)
 {
 
     if (tc->motion_type != TC_CIRCULAR || prev_tc->motion_type != TC_LINEAR) {
@@ -756,14 +754,14 @@ int blendInit3FromLineArc(BlendGeom3 * const geom, BlendParameters * const param
 
     //Fit spiral approximation
     findSpiralApproximation(&tc->coords.circle.xyz,
-            &geom->P,
-            &geom->u_tan2,
-            &geom->center2,
-            &geom->radius2);
+                            &geom->P,
+                            &geom->u_tan2,
+                            &geom->center2,
+                            &geom->radius2);
     // Handle convexity
-    param->convex2 = arcConvexTest(&geom->center2, &geom->P, &geom->u_tan1, true);
-    tp_debug_print("circ2 convex: %d\n",
-            param->convex2);
+    param->convex2 =
+        arcConvexTest(&geom->center2, &geom->P, &geom->u_tan1, true);
+    tp_debug_print("circ2 convex: %d\n", param->convex2);
 
     //Identify max angle for first arc by blend limits
     // TODO better name?
@@ -774,15 +772,15 @@ int blendInit3FromLineArc(BlendGeom3 * const geom, BlendParameters * const param
 
     if (param->convex2) {
         PmCartesian blend_point;
-        pmCirclePoint(&tc->coords.circle.xyz,
-                param->phi2_max / 2.0,
-                &blend_point);
+        pmCirclePoint(
+            &tc->coords.circle.xyz, param->phi2_max / 2.0, &blend_point);
         //Create new unit vector based on secant line
         // Direction is away from P (at start of segment)
-        pmCartCartSub(&blend_point, &geom->P,  &geom->u2);
+        pmCartCartSub(&blend_point, &geom->P, &geom->u2);
         pmCartUnitEq(&geom->u2);
         //Reduce theta proportionally to the angle between the secant and the normal
-        param->theta = fmin(param->theta, geom->theta_tan - param->phi2_max / 4.0);
+        param->theta =
+            fmin(param->theta, geom->theta_tan - param->phi2_max / 4.0);
     }
 
     tp_debug_print("phi2_max = %f\n", param->phi2_max);
@@ -792,9 +790,8 @@ int blendInit3FromLineArc(BlendGeom3 * const geom, BlendParameters * const param
     // FIXME make this an INI setting?
     const double theta_min = PM_PI / 6.0;
     if (param->theta < theta_min) {
-        tp_debug_print("theta = %f < min %f, aborting arc...\n",
-                param->theta,
-                theta_min);
+        tp_debug_print(
+            "theta = %f < min %f, aborting arc...\n", param->theta, theta_min);
     }
 
     tp_debug_print("theta = %f\n", param->theta);
@@ -805,7 +802,7 @@ int blendInit3FromLineArc(BlendGeom3 * const geom, BlendParameters * const param
 
     if (param->convex2) {
         //use half of the length of the chord
-        param->L2 = sin(param->phi2_max/4.0) * geom->radius2;
+        param->L2 = sin(param->phi2_max / 4.0) * geom->radius2;
     } else {
         param->L2 = param->phi2_max * geom->radius2;
     }
@@ -813,23 +810,19 @@ int blendInit3FromLineArc(BlendGeom3 * const geom, BlendParameters * const param
     tp_debug_print("L1 = %f, L2 = %f\n", param->L1, param->L2);
 
     // Setup common parameters
-    int res_kin = blendParamKinematics(geom,
-            param,
-            prev_tc,
-            tc,
-            acc_bound,
-            vel_bound,
-            maxFeedScale);
+    int res_kin = blendParamKinematics(
+        geom, param, prev_tc, tc, acc_bound, vel_bound, maxFeedScale);
 
     return res_kin;
 }
 
-int blendInit3FromArcLine(BlendGeom3 * const geom, BlendParameters * const param,
-        TC_STRUCT const * const prev_tc,
-        TC_STRUCT const * const tc,
-        PmCartesian const * const acc_bound,
-        PmCartesian const * const vel_bound,
-        double maxFeedScale)
+int blendInit3FromArcLine(BlendGeom3 *const geom,
+                          BlendParameters *const param,
+                          TC_STRUCT const *const prev_tc,
+                          TC_STRUCT const *const tc,
+                          PmCartesian const *const acc_bound,
+                          PmCartesian const *const vel_bound,
+                          double maxFeedScale)
 {
 
     if (tc->motion_type != TC_LINEAR || prev_tc->motion_type != TC_CIRCULAR) {
@@ -842,35 +835,37 @@ int blendInit3FromArcLine(BlendGeom3 * const geom, BlendParameters * const param
     }
 
     findSpiralApproximation(&prev_tc->coords.circle.xyz,
-            &geom->P,
-            &geom->u_tan1,
-            &geom->center1,
-            &geom->radius1);
+                            &geom->P,
+                            &geom->u_tan1,
+                            &geom->center1,
+                            &geom->radius1);
 
-    param->convex1 = arcConvexTest(&geom->center1, &geom->P, &geom->u_tan2, false);
-    tp_debug_print("circ1 convex: %d\n",
-            param->convex1);
+    param->convex1 =
+        arcConvexTest(&geom->center1, &geom->P, &geom->u_tan2, false);
+    tp_debug_print("circ1 convex: %d\n", param->convex1);
 
     //Identify max angle for first arc by blend limits
     // TODO better name?
     double blend_angle_1 = param->convex1 ? geom->theta_tan : PM_PI / 2.0;
 
-    param->phi1_max = fmin(prev_tc->coords.circle.xyz.angle * 2.0 / 3.0, blend_angle_1);
+    param->phi1_max =
+        fmin(prev_tc->coords.circle.xyz.angle * 2.0 / 3.0, blend_angle_1);
     param->theta = geom->theta_tan;
 
     // Build the correct unit vector for the linear approximation
     if (param->convex1) {
         PmCartesian blend_point;
         pmCirclePoint(&prev_tc->coords.circle.xyz,
-                prev_tc->coords.circle.xyz.angle - param->phi1_max / 2.0 ,
-                &blend_point);
+                      prev_tc->coords.circle.xyz.angle - param->phi1_max / 2.0,
+                      &blend_point);
         //Create new unit vector based on secant line
         // Direction is toward P (at end of segment)
         pmCartCartSub(&geom->P, &blend_point, &geom->u1);
         pmCartUnitEq(&geom->u1);
 
         //Reduce theta proportionally to the angle between the secant and the normal
-        param->theta = fmin(param->theta, geom->theta_tan - param->phi1_max / 4.0);
+        param->theta =
+            fmin(param->theta, geom->theta_tan - param->phi1_max / 4.0);
     }
 
     blendGeom3Print(geom);
@@ -880,9 +875,8 @@ int blendInit3FromArcLine(BlendGeom3 * const geom, BlendParameters * const param
     // FIXME make this an INI setting?
     const double theta_min = PM_PI / 6.0;
     if (param->theta < theta_min) {
-        tp_debug_print("theta = %f < min %f, aborting arc...\n",
-                param->theta,
-                theta_min);
+        tp_debug_print(
+            "theta = %f < min %f, aborting arc...\n", param->theta, theta_min);
     }
 
     tp_debug_print("theta = %f\n", param->theta);
@@ -893,18 +887,13 @@ int blendInit3FromArcLine(BlendGeom3 * const geom, BlendParameters * const param
 
     if (param->convex1) {
         //use half of the length of the chord
-        param->L1 = sin(param->phi1_max/4.0) * geom->radius1;
+        param->L1 = sin(param->phi1_max / 4.0) * geom->radius1;
     }
     tp_debug_print("L1 = %f, L2 = %f\n", param->L1, param->L2);
 
     // Setup common parameters
-    int res_kin = blendParamKinematics(geom,
-            param,
-            prev_tc,
-            tc,
-            acc_bound,
-            vel_bound,
-            maxFeedScale);
+    int res_kin = blendParamKinematics(
+        geom, param, prev_tc, tc, acc_bound, vel_bound, maxFeedScale);
 
     return res_kin;
 }
@@ -924,12 +913,13 @@ int blendInit3FromArcLine(BlendGeom3 * const geom, BlendParameters * const param
  * @param vel_bound maximum X, Y, Z machine velocity
  * @param maxFeedScale maximum allowed feed override (set in INI)
  */
-int blendInit3FromArcArc(BlendGeom3 * const geom, BlendParameters * const param,
-        TC_STRUCT const * const prev_tc,
-        TC_STRUCT const * const tc,
-        PmCartesian const * const acc_bound,
-        PmCartesian const * const vel_bound,
-        double maxFeedScale)
+int blendInit3FromArcArc(BlendGeom3 *const geom,
+                         BlendParameters *const param,
+                         TC_STRUCT const *const prev_tc,
+                         TC_STRUCT const *const tc,
+                         PmCartesian const *const acc_bound,
+                         PmCartesian const *const vel_bound,
+                         double maxFeedScale)
 {
     if (tc->motion_type != TC_CIRCULAR || prev_tc->motion_type != TC_CIRCULAR) {
         return TP_ERR_FAIL;
@@ -941,16 +931,16 @@ int blendInit3FromArcArc(BlendGeom3 * const geom, BlendParameters * const param,
     }
 
     findSpiralApproximation(&prev_tc->coords.circle.xyz,
-            &geom->P,
-            &geom->u_tan1,
-            &geom->center1,
-            &geom->radius1);
+                            &geom->P,
+                            &geom->u_tan1,
+                            &geom->center1,
+                            &geom->radius1);
 
     findSpiralApproximation(&tc->coords.circle.xyz,
-            &geom->P,
-            &geom->u_tan2,
-            &geom->center2,
-            &geom->radius2);
+                            &geom->P,
+                            &geom->u_tan2,
+                            &geom->center2,
+                            &geom->radius2);
 
 
     //Do normal calculation here since we need this information for accel / vel limits
@@ -958,23 +948,23 @@ int blendInit3FromArcArc(BlendGeom3 * const geom, BlendParameters * const param,
 
     // Get intersection point from circle start
     pmCirclePoint(&tc->coords.circle.xyz, 0.0, &geom->P);
-    tp_debug_print("Intersection point P = %f %f %f\n",
-            geom->P.x,
-            geom->P.y,
-            geom->P.z);
+    tp_debug_print(
+        "Intersection point P = %f %f %f\n", geom->P.x, geom->P.y, geom->P.z);
 
-    param->convex1 = arcConvexTest(&geom->center1, &geom->P, &geom->u_tan2, false);
-    param->convex2 = arcConvexTest(&geom->center2, &geom->P, &geom->u_tan1, true);
-    tp_debug_print("circ1 convex: %d, circ2 convex: %d\n",
-            param->convex1,
-            param->convex2);
+    param->convex1 =
+        arcConvexTest(&geom->center1, &geom->P, &geom->u_tan2, false);
+    param->convex2 =
+        arcConvexTest(&geom->center2, &geom->P, &geom->u_tan1, true);
+    tp_debug_print(
+        "circ1 convex: %d, circ2 convex: %d\n", param->convex1, param->convex2);
 
     //Identify max angle for first arc by blend limits
     // TODO better name?
     double blend_angle_1 = param->convex1 ? geom->theta_tan : PM_PI / 2.0;
     double blend_angle_2 = param->convex2 ? geom->theta_tan : PM_PI / 2.0;
 
-    param->phi1_max = fmin(prev_tc->coords.circle.xyz.angle * 2.0 / 3.0, blend_angle_1);
+    param->phi1_max =
+        fmin(prev_tc->coords.circle.xyz.angle * 2.0 / 3.0, blend_angle_1);
     param->phi2_max = fmin(tc->coords.circle.xyz.angle / 3.0, blend_angle_2);
 
     param->theta = geom->theta_tan;
@@ -983,30 +973,30 @@ int blendInit3FromArcArc(BlendGeom3 * const geom, BlendParameters * const param,
     if (param->convex1) {
         PmCartesian blend_point;
         pmCirclePoint(&prev_tc->coords.circle.xyz,
-                prev_tc->coords.circle.xyz.angle - param->phi1_max / 2.0,
-                &blend_point);
+                      prev_tc->coords.circle.xyz.angle - param->phi1_max / 2.0,
+                      &blend_point);
         //Create new unit vector based on secant line
         // Direction is toward P (at end of segment)
         pmCartCartSub(&geom->P, &blend_point, &geom->u1);
         pmCartUnitEq(&geom->u1);
 
         //Reduce theta proportionally to the angle between the secant and the normal
-        param->theta = fmin(param->theta, geom->theta_tan - param->phi1_max / 4.0);
-
+        param->theta =
+            fmin(param->theta, geom->theta_tan - param->phi1_max / 4.0);
     }
 
     if (param->convex2) {
         PmCartesian blend_point;
-        pmCirclePoint(&tc->coords.circle.xyz,
-                param->phi2_max / 2.0,
-                &blend_point);
+        pmCirclePoint(
+            &tc->coords.circle.xyz, param->phi2_max / 2.0, &blend_point);
         //Create new unit vector based on secant line
         // Direction is away from P (at start of segment)
-        pmCartCartSub(&blend_point, &geom->P,  &geom->u2);
+        pmCartCartSub(&blend_point, &geom->P, &geom->u2);
         pmCartUnitEq(&geom->u2);
 
         //Reduce theta proportionally to the angle between the secant and the normal
-        param->theta = fmin(param->theta, geom->theta_tan - param->phi2_max / 4.0);
+        param->theta =
+            fmin(param->theta, geom->theta_tan - param->phi2_max / 4.0);
     }
     blendGeom3Print(geom);
 
@@ -1015,9 +1005,8 @@ int blendInit3FromArcArc(BlendGeom3 * const geom, BlendParameters * const param,
     // FIXME make this an INI setting?
     const double theta_min = PM_PI / 12.0;
     if (param->theta < theta_min) {
-        tp_debug_print("theta = %f < min %f, aborting arc...\n",
-                param->theta,
-                theta_min);
+        tp_debug_print(
+            "theta = %f < min %f, aborting arc...\n", param->theta, theta_min);
         return TP_ERR_FAIL;
     }
 
@@ -1030,24 +1019,19 @@ int blendInit3FromArcArc(BlendGeom3 * const geom, BlendParameters * const param,
 
     if (param->convex1) {
         //use half of the length of the chord
-        param->L1 = sin(param->phi1_max/4.0) * geom->radius1;
+        param->L1 = sin(param->phi1_max / 4.0) * geom->radius1;
     }
     if (param->convex2) {
         //use half of the length of the chord
-        param->L2 = sin(param->phi2_max/4.0) * geom->radius2;
+        param->L2 = sin(param->phi2_max / 4.0) * geom->radius2;
     }
     tp_debug_print("L1 = %f, L2 = %f\n", param->L1, param->L2);
-    tp_debug_print("phi1_max = %f\n",param->phi1_max);
-    tp_debug_print("phi2_max = %f\n",param->phi2_max);
+    tp_debug_print("phi1_max = %f\n", param->phi1_max);
+    tp_debug_print("phi2_max = %f\n", param->phi2_max);
 
     // Setup common parameters
-    int res_kin = blendParamKinematics(geom,
-            param,
-            prev_tc,
-            tc,
-            acc_bound,
-            vel_bound,
-            maxFeedScale);
+    int res_kin = blendParamKinematics(
+        geom, param, prev_tc, tc, acc_bound, vel_bound, maxFeedScale);
 
     return res_kin;
 }
@@ -1063,12 +1047,13 @@ int blendInit3FromArcArc(BlendGeom3 * const geom, BlendParameters * const param,
  * @param vel_bound maximum X, Y, Z machine velocity
  * @param maxFeedScale maximum allowed feed override (set in INI)
  */
-int blendInit3FromLineLine(BlendGeom3 * const geom, BlendParameters * const param,
-        TC_STRUCT const * const prev_tc,
-        TC_STRUCT const * const tc,
-        PmCartesian const * const acc_bound,
-        PmCartesian const * const vel_bound,
-        double maxFeedScale)
+int blendInit3FromLineLine(BlendGeom3 *const geom,
+                           BlendParameters *const param,
+                           TC_STRUCT const *const prev_tc,
+                           TC_STRUCT const *const tc,
+                           PmCartesian const *const acc_bound,
+                           PmCartesian const *const vel_bound,
+                           double maxFeedScale)
 {
 
     if (tc->motion_type != TC_LINEAR || prev_tc->motion_type != TC_LINEAR) {
@@ -1089,20 +1074,17 @@ int blendInit3FromLineLine(BlendGeom3 * const geom, BlendParameters * const para
     blendGeom3Print(geom);
 
     //Nominal length restriction prevents gobbling too much of parabolic blends
-    param->L1 = fmin(prev_tc->target, prev_tc->nominal_length * BLEND_DIST_FRACTION);
+    param->L1 =
+        fmin(prev_tc->target, prev_tc->nominal_length * BLEND_DIST_FRACTION);
     param->L2 = tc->target * BLEND_DIST_FRACTION;
     tp_debug_print("prev. nominal length = %f, next nominal_length = %f\n",
-            prev_tc->nominal_length, tc->nominal_length);
+                   prev_tc->nominal_length,
+                   tc->nominal_length);
     tp_debug_print("L1 = %f, L2 = %f\n", param->L1, param->L2);
 
     // Setup common parameters
-    int res_kin = blendParamKinematics(geom,
-            param,
-            prev_tc,
-            tc,
-            acc_bound,
-            vel_bound,
-            maxFeedScale);
+    int res_kin = blendParamKinematics(
+        geom, param, prev_tc, tc, acc_bound, vel_bound, maxFeedScale);
 
     return res_kin;
 }
@@ -1111,24 +1093,25 @@ int blendInit3FromLineLine(BlendGeom3 * const geom, BlendParameters * const para
 /**
  * Calculate plane normal and binormal based on unit direction vectors.
  */
-int blendCalculateNormals3(BlendGeom3 * const geom)
+int blendCalculateNormals3(BlendGeom3 *const geom)
 {
 
-    int err_cross = pmCartCartCross(&geom->u_tan1,
-            &geom->u_tan2,
-            &geom->binormal);
+    int err_cross =
+        pmCartCartCross(&geom->u_tan1, &geom->u_tan2, &geom->binormal);
     int err_unit_b = pmCartUnitEq(&geom->binormal);
 
-    tp_debug_print("binormal = [%f %f %f]\n", geom->binormal.x,
-            geom->binormal.y,
-            geom->binormal.z);
+    tp_debug_print("binormal = [%f %f %f]\n",
+                   geom->binormal.x,
+                   geom->binormal.y,
+                   geom->binormal.z);
 
     pmCartCartSub(&geom->u_tan2, &geom->u_tan1, &geom->normal);
     int err_unit_n = pmCartUnitEq(&geom->normal);
 
-    tp_debug_print("normal = [%f %f %f]\n", geom->normal.x,
-            geom->normal.y,
-            geom->normal.z);
+    tp_debug_print("normal = [%f %f %f]\n",
+                   geom->normal.x,
+                   geom->normal.y,
+                   geom->normal.z);
     return (err_cross || err_unit_b || err_unit_n);
 }
 
@@ -1138,7 +1121,7 @@ int blendCalculateNormals3(BlendGeom3 * const geom)
  * parameters are later used to create the actual arc geometry in other
  * functions.
  */
-int blendComputeParameters(BlendParameters * const param)
+int blendComputeParameters(BlendParameters *const param)
 {
 
     // Find maximum distance h from arc center to intersection point
@@ -1156,11 +1139,11 @@ int blendComputeParameters(BlendParameters * const param)
 
     // Find maximum velocity allowed by accel and radius
     double v_normal;
-    
-    if(GET_TRAJ_PLANNER_TYPE() == 1){
+
+    if (GET_TRAJ_PLANNER_TYPE() == 1) {
         v_normal = findSCurveVPeak(param->a_n_max, emcmotStatus->jerk, R_geom);
-    }else{
-    v_normal = pmSqrt(param->a_n_max * R_geom);
+    } else {
+        v_normal = pmSqrt(param->a_n_max * R_geom);
     }
 
     param->v_plan = fmin(v_normal, param->v_goal);
@@ -1174,10 +1157,11 @@ int blendComputeParameters(BlendParameters * const param)
      * to calculate an equivalent blend radius.
      * */
     double a_parabolic = param->a_max * 0.5;
-    double v_triangle = pmSqrt(2.0 * a_parabolic  * d_geom);
+    double v_triangle = pmSqrt(2.0 * a_parabolic * d_geom);
     double t_blend = fmin(v_triangle, param->v_plan) / (a_parabolic);
     double s_blend = t_blend * param->v_plan;
-    double R_blend = fmin(s_blend / param->phi, R_geom);   //Clamp by limiting radius
+    double R_blend =
+        fmin(s_blend / param->phi, R_geom); //Clamp by limiting radius
 
     param->R_plan = fmax(pmSq(param->v_plan) / param->a_n_max, R_blend);
     param->d_plan = param->R_plan / tan(param->theta);
@@ -1215,9 +1199,10 @@ int blendComputeParameters(BlendParameters * const param)
 
 
 /** Check if the previous line segment will be consumed based on the blend arc parameters. */
-int blendCheckConsume(BlendParameters * const param,
-        BlendPoints3 const * const points,
-        TC_STRUCT const * const prev_tc, int gap_cycles)
+int blendCheckConsume(BlendParameters *const param,
+                      BlendPoints3 const *const points,
+                      TC_STRUCT const *const prev_tc,
+                      int gap_cycles)
 {
     //Initialize values
     param->consume = 0;
@@ -1235,10 +1220,10 @@ int blendCheckConsume(BlendParameters * const param,
     double prev_seg_time = L_prev / param->v_plan;
 
     bool can_consume = tcCanConsume(prev_tc);
-    param->consume = (prev_seg_time < gap_cycles * prev_tc->cycle_time && can_consume);
+    param->consume =
+        (prev_seg_time < gap_cycles * prev_tc->cycle_time && can_consume);
     if (param->consume) {
-        tp_debug_print("consuming prev line, L_prev = %g\n",
-                L_prev);
+        tp_debug_print("consuming prev line, L_prev = %g\n", L_prev);
         param->line_length = L_prev;
     }
     return 0;
@@ -1250,8 +1235,9 @@ int blendCheckConsume(BlendParameters * const param,
  * Once blend parameters are computed, the three arc points are calculated
  * here.
  */
-int blendFindPoints3(BlendPoints3 * const points, BlendGeom3 const * const geom,
-        BlendParameters const * const param)
+int blendFindPoints3(BlendPoints3 *const points,
+                     BlendGeom3 const *const geom,
+                     BlendParameters const *const param)
 {
     // Find center of blend arc along normal vector
     double center_dist = param->R_plan / sin(param->theta);
@@ -1260,27 +1246,27 @@ int blendFindPoints3(BlendPoints3 * const points, BlendGeom3 const * const geom,
     pmCartScalMult(&geom->normal, center_dist, &points->arc_center);
     pmCartCartAddEq(&points->arc_center, &geom->P);
     tp_debug_print("arc_center = %f %f %f\n",
-            points->arc_center.x,
-            points->arc_center.y,
-            points->arc_center.z);
+                   points->arc_center.x,
+                   points->arc_center.y,
+                   points->arc_center.z);
 
     // Start point is d_plan away from intersection P in the
     // negative direction of u1
     pmCartScalMult(&geom->u1, -param->d_plan, &points->arc_start);
     pmCartCartAddEq(&points->arc_start, &geom->P);
     tp_debug_print("arc_start = %f %f %f\n",
-            points->arc_start.x,
-            points->arc_start.y,
-            points->arc_start.z);
+                   points->arc_start.x,
+                   points->arc_start.y,
+                   points->arc_start.z);
 
     // End point is d_plan away from intersection P in the
     // positive direction of u1
     pmCartScalMult(&geom->u2, param->d_plan, &points->arc_end);
     pmCartCartAddEq(&points->arc_end, &geom->P);
     tp_debug_print("arc_end = %f %f %f\n",
-            points->arc_end.x,
-            points->arc_end.y,
-            points->arc_end.z);
+                   points->arc_end.x,
+                   points->arc_end.y,
+                   points->arc_end.z);
 
     //For line case, just copy over d_plan since it's the same
     points->trim1 = param->d_plan;
@@ -1293,9 +1279,12 @@ int blendFindPoints3(BlendPoints3 * const points, BlendGeom3 const * const geom,
 /**
  * Take results of line blend calculation and project onto circular arc and line
  */
-int blendLineArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * const points_in,
-        BlendParameters * const param, BlendGeom3 const * const geom,
-        PmCartLine const * const line1, PmCircle const * const circ2)
+int blendLineArcPostProcess(BlendPoints3 *const points,
+                            BlendPoints3 const *const points_in,
+                            BlendParameters *const param,
+                            BlendGeom3 const *const geom,
+                            PmCartLine const *const line1,
+                            PmCircle const *const circ2)
 {
     (void)points_in;
     (void)line1;
@@ -1310,35 +1299,29 @@ int blendLineArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * co
     pmCartCartCross(&geom->binormal, &geom->u1, &n1);
     pmCartUnitEq(&n1);
 
-    tp_debug_print("n1 = %f %f %f\n",
-            n1.x,
-            n1.y,
-            n1.z);
+    tp_debug_print("n1 = %f %f %f\n", n1.x, n1.y, n1.z);
 
     PmCartesian r_PC2;
     pmCartCartSub(&geom->center2, &geom->P, &r_PC2);
 
-    double c2_u,c2_n; //Components of C2-P on u1 and n1
+    double c2_u, c2_n; //Components of C2-P on u1 and n1
     pmCartCartDot(&r_PC2, &geom->u1, &c2_u);
     pmCartCartDot(&r_PC2, &n1, &c2_n);
 
-    tp_debug_print("c2_u = %f, c2_n = %f\n",
-            c2_u,
-            c2_n);
+    tp_debug_print("c2_u = %f, c2_n = %f\n", c2_u, c2_n);
 
     double d_L; // badly named distance along line to intersection
     double A = 1;
     double B = 2.0 * c2_u;
     double C = pmSq(c2_u) - pmSq(d2) + pmSq(param->R_plan - c2_n);
-    double root0,root1;
+    double root0, root1;
     int res_dist = quadraticFormula(A, B, C, &root0, &root1);
     if (res_dist) {
         return TP_ERR_FAIL;
     }
 
-    tp_debug_print("root0 = %f, root1 = %f\n", root0,
-            root1);
-    d_L = fmin(fabs(root0),fabs(root1));
+    tp_debug_print("root0 = %f, root1 = %f\n", root0, root1);
+    d_L = fmin(fabs(root0), fabs(root1));
     if (d_L < 0) {
         tp_debug_print("d_L can't be < 0, aborting...\n");
         return TP_ERR_FAIL;
@@ -1354,9 +1337,9 @@ int blendLineArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * co
     pmCartCartAdd(&C_u, &C_n, &r_PC);
     pmCartCartAdd(&geom->P, &r_PC, &points->arc_center);
     tp_debug_print("arc center = %f %f %f\n",
-            points->arc_center.x,
-            points->arc_center.y,
-            points->arc_center.z);
+                   points->arc_center.x,
+                   points->arc_center.y,
+                   points->arc_center.z);
 
     //Verify tolerances
     double h;
@@ -1364,19 +1347,20 @@ int blendLineArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * co
     tp_debug_print("center_dist = %f\n", h);
 
     double T_final = h - param->R_plan;
-    tp_debug_print("T_final = %f\n",T_final);
+    tp_debug_print("T_final = %f\n", T_final);
     if (T_final > param->tolerance) {
-        tp_debug_print("Projected circle T (%f) exceeds tolerance %f, aborting blend arc\n",
-                T_final,
-                param->tolerance);
+        tp_debug_print(
+            "Projected circle T (%f) exceeds tolerance %f, aborting blend "
+            "arc\n",
+            T_final,
+            param->tolerance);
         return TP_ERR_FAIL;
     }
 
     points->trim1 = d_L;
 
-    points->trim2 = findTrimAngle(&geom->P,
-            &points->arc_center,
-            &geom->center2);
+    points->trim2 =
+        findTrimAngle(&geom->P, &points->arc_center, &geom->center2);
 
     return TP_ERR_OK;
 }
@@ -1385,12 +1369,12 @@ int blendLineArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * co
 /**
  * Take results of line blend calculation and project onto circular arc and line
  */
-int blendArcLinePostProcess(BlendPoints3 * const points,
-        BlendPoints3 const * const points_in,
-        BlendParameters * const param,
-        BlendGeom3 const * const geom,
-        PmCircle const * const circ1,
-        PmCartLine const * const line2)
+int blendArcLinePostProcess(BlendPoints3 *const points,
+                            BlendPoints3 const *const points_in,
+                            BlendParameters *const param,
+                            BlendGeom3 const *const geom,
+                            PmCircle const *const circ1,
+                            PmCartLine const *const line2)
 {
     (void)points_in;
     (void)circ1;
@@ -1405,10 +1389,7 @@ int blendArcLinePostProcess(BlendPoints3 * const points,
     pmCartCartCross(&geom->binormal, &geom->u2, &n2);
     pmCartUnitEq(&n2);
 
-    tp_debug_print("n2 = %f %f %f\n",
-            n2.x,
-            n2.y,
-            n2.z);
+    tp_debug_print("n2 = %f %f %f\n", n2.x, n2.y, n2.z);
 
     PmCartesian r_PC1;
     pmCartCartSub(&geom->center1, &geom->P, &r_PC1);
@@ -1420,15 +1401,14 @@ int blendArcLinePostProcess(BlendPoints3 * const points,
     double A = 1;
     double B = 2.0 * c1_u;
     double C = pmSq(c1_u) - pmSq(d1) + pmSq(param->R_plan - c1_n);
-    double root0,root1;
+    double root0, root1;
     int res_dist = quadraticFormula(A, B, C, &root0, &root1);
     if (res_dist) {
         return TP_ERR_FAIL;
     }
 
-    tp_debug_print("root0 = %f, root1 = %f\n", root0,
-            root1);
-    d_L = fmin(fabs(root0),fabs(root1));
+    tp_debug_print("root0 = %f, root1 = %f\n", root0, root1);
+    d_L = fmin(fabs(root0), fabs(root1));
     if (d_L < 0) {
         tp_debug_print("d_L can't be < 0, aborting...\n");
         return TP_ERR_FAIL;
@@ -1444,9 +1424,9 @@ int blendArcLinePostProcess(BlendPoints3 * const points,
     pmCartCartAdd(&C_u, &C_n, &r_PC);
     pmCartCartAdd(&geom->P, &r_PC, &points->arc_center);
     tp_debug_print("arc center = %f %f %f\n",
-            points->arc_center.x,
-            points->arc_center.y,
-            points->arc_center.z);
+                   points->arc_center.x,
+                   points->arc_center.y,
+                   points->arc_center.z);
 
     //Verify tolerances
     double h;
@@ -1455,16 +1435,17 @@ int blendArcLinePostProcess(BlendPoints3 * const points,
 
     double T_final = h - param->R_plan;
     if (T_final > param->tolerance) {
-        tp_debug_print("Projected circle T (%f) exceeds tolerance %f, aborting blend arc\n",
-                T_final,
-                param->tolerance);
+        tp_debug_print(
+            "Projected circle T (%f) exceeds tolerance %f, aborting blend "
+            "arc\n",
+            T_final,
+            param->tolerance);
         return TP_ERR_FAIL;
     }
-    tp_debug_print("T_final = %f\n",T_final);
+    tp_debug_print("T_final = %f\n", T_final);
 
-    points->trim1 = findTrimAngle(&geom->P,
-            &points->arc_center,
-            &geom->center1);
+    points->trim1 =
+        findTrimAngle(&geom->P, &points->arc_center, &geom->center1);
 
     points->trim2 = d_L;
 
@@ -1478,9 +1459,12 @@ int blendArcLinePostProcess(BlendPoints3 * const points,
  * circle. Given the solved radius and tolerance, this function updates the
  * points structure with the exact trim angles for each segment.
  */
-int blendArcArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * const points_in,
-        BlendParameters * const param, BlendGeom3 const * const geom,
-        PmCircle const * const circ1, PmCircle const * const circ2)
+int blendArcArcPostProcess(BlendPoints3 *const points,
+                           BlendPoints3 const *const points_in,
+                           BlendParameters *const param,
+                           BlendGeom3 const *const geom,
+                           PmCircle const *const circ1,
+                           PmCircle const *const circ2)
 {
     (void)points_in;
     (void)circ1;
@@ -1501,10 +1485,10 @@ int blendArcArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * con
 
     // Compute the new center location
 
-    double Cx = (-pmSq(d1) + pmSq(d2)-pmSq(c2x)) / (-2.0 * c2x);
+    double Cx = (-pmSq(d1) + pmSq(d2) - pmSq(c2x)) / (-2.0 * c2x);
     double Cy = pmSqrt(pmSq(d1) - pmSq(Cx));
 
-    tp_debug_print("Cx = %f, Cy = %f\n",Cx,Cy);
+    tp_debug_print("Cx = %f, Cy = %f\n", Cx, Cy);
 
     // Find the basis vector uc from center1 to center2
     PmCartesian uc;
@@ -1542,18 +1526,17 @@ int blendArcArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * con
     // Get "test vectors, relative distance from solution center to P
     PmCartesian test1, test2;
     pmCartCartAdd(&r_PC1, &c_x, &test1);
-    test2=test1;
+    test2 = test1;
 
     //Add and subtract c_y component to get equivalent of two Y solutions
     pmCartCartAddEq(&test1, &c_y);
     pmCartCartSubEq(&test2, &c_y);
 
-    double mag1,mag2;
+    double mag1, mag2;
     pmCartMag(&test1, &mag1);
     pmCartMag(&test2, &mag2);
 
-    if (mag2 < mag1)
-    {
+    if (mag2 < mag1) {
         //negative solution is closer
         pmCartNegEq(&c_y);
     }
@@ -1563,9 +1546,9 @@ int blendArcArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * con
     pmCartCartAdd(&c_x, &c_y, &r_C1C);
     pmCartCartAdd(&geom->center1, &r_C1C, &points->arc_center);
     tp_debug_print("arc center = %f %f %f\n",
-            points->arc_center.x,
-            points->arc_center.y,
-            points->arc_center.z);
+                   points->arc_center.x,
+                   points->arc_center.y,
+                   points->arc_center.z);
 
     //Find components of center position wrt circle 2 center.
     PmCartesian r_C2C;
@@ -1581,23 +1564,21 @@ int blendArcArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * con
 
     double T_final = h - param->R_plan;
     if (T_final > param->tolerance) {
-        tp_debug_print("Projected circle T (%f) exceeds tolerance %f, aborting blend arc\n",
-                T_final,
-                param->tolerance);
+        tp_debug_print(
+            "Projected circle T (%f) exceeds tolerance %f, aborting blend "
+            "arc\n",
+            T_final,
+            param->tolerance);
         return TP_ERR_FAIL;
     }
-    tp_debug_print("T_final = %f\n",T_final);
+    tp_debug_print("T_final = %f\n", T_final);
 
-    points->trim1 = findTrimAngle(&geom->P,
-            &points->arc_center,
-            &geom->center1);
-    points->trim2 = findTrimAngle(&geom->P,
-            &points->arc_center,
-            &geom->center2);
+    points->trim1 =
+        findTrimAngle(&geom->P, &points->arc_center, &geom->center1);
+    points->trim2 =
+        findTrimAngle(&geom->P, &points->arc_center, &geom->center2);
 
-    tp_debug_print("trim1 = %f, trim2 = %f\n",
-            points->trim1,
-            points->trim2);
+    tp_debug_print("trim1 = %f, trim2 = %f\n", points->trim1, points->trim2);
 
     return TP_ERR_OK;
 }
@@ -1606,8 +1587,10 @@ int blendArcArcPostProcess(BlendPoints3 * const points, BlendPoints3 const * con
 /**
  * Setup the spherical arc struct based on the blend arc data.
  */
-int arcFromBlendPoints3(SphericalArc * const arc, BlendPoints3 const * const points,
-        BlendGeom3 const * const geom, BlendParameters const * const param)
+int arcFromBlendPoints3(SphericalArc *const arc,
+                        BlendPoints3 const *const points,
+                        BlendGeom3 const *const geom,
+                        BlendParameters const *const param)
 {
     // If we consume the previous line, the remaining line length gets added here
     arc->uTan = geom->u_tan1;
@@ -1615,56 +1598,48 @@ int arcFromBlendPoints3(SphericalArc * const arc, BlendPoints3 const * const poi
     arc->binormal = geom->binormal;
 
     // Create the arc from the processed points
-    return arcInitFromPoints(arc, &points->arc_start,
-            &points->arc_end, &points->arc_center);
+    return arcInitFromPoints(
+        arc, &points->arc_start, &points->arc_end, &points->arc_center);
 }
 
-int blendGeom3Print(BlendGeom3 const * const geom)
+int blendGeom3Print(BlendGeom3 const *const geom)
 {
     (void)geom;
-    tp_debug_print("u1 = %f %f %f\n",
-            geom->u1.x,
-            geom->u1.y,
-            geom->u1.z);
+    tp_debug_print("u1 = %f %f %f\n", geom->u1.x, geom->u1.y, geom->u1.z);
 
-    tp_debug_print("u2 = %f %f %f\n",
-            geom->u2.x,
-            geom->u2.y,
-            geom->u2.z);
+    tp_debug_print("u2 = %f %f %f\n", geom->u2.x, geom->u2.y, geom->u2.z);
     return 0;
 }
 
-int blendPoints3Print(BlendPoints3 const * const points)
+int blendPoints3Print(BlendPoints3 const *const points)
 {
     (void)points;
     tp_debug_print("arc_start = %f %f %f\n",
-            points->arc_start.x,
-            points->arc_start.y,
-            points->arc_start.z);
+                   points->arc_start.x,
+                   points->arc_start.y,
+                   points->arc_start.z);
 
     tp_debug_print("arc_center = %f %f %f\n",
-            points->arc_center.x,
-            points->arc_center.y,
-            points->arc_center.z);
+                   points->arc_center.x,
+                   points->arc_center.y,
+                   points->arc_center.z);
 
     tp_debug_print("arc_end = %f %f %f\n",
-            points->arc_end.x,
-            points->arc_end.y,
-            points->arc_end.z);
+                   points->arc_end.x,
+                   points->arc_end.y,
+                   points->arc_end.z);
 
     return 0;
-
 }
 
-double pmCartAbsMax(PmCartesian const * const v)
+double pmCartAbsMax(PmCartesian const *const v)
 {
-    return fmax(fmax(fabs(v->x),fabs(v->y)),fabs(v->z));
+    return fmax(fmax(fabs(v->x), fabs(v->y)), fabs(v->z));
 }
 
 
-PmCircleLimits pmCircleActualMaxVel(PmCircle const * circle,
-        double v_max,
-        double a_max)
+PmCircleLimits
+pmCircleActualMaxVel(PmCircle const *circle, double v_max, double a_max)
 {
     double a_n_max_cutoff = BLEND_ACC_RATIO_NORMAL * a_max;
 
@@ -1692,10 +1667,7 @@ PmCircleLimits pmCircleActualMaxVel(PmCircle const * circle,
     tp_debug_json_double(acc_ratio_tan);
     tp_debug_json_end();
 
-    PmCircleLimits limits = {
-        v_max_actual,
-        acc_ratio_tan
-    };
+    PmCircleLimits limits = {v_max_actual, acc_ratio_tan};
 
     return limits;
 }
@@ -1707,10 +1679,10 @@ PmCircleLimits pmCircleActualMaxVel(PmCircle const * circle,
  * Intermediate function to find the angle for a parameter from 0..1 along the
  * spiral arc.
  */
-static int pmCircleAngleFromParam(PmCircle const * const circle,
-        SpiralArcLengthFit const * const fit,
-        double t,
-        double * const angle)
+static int pmCircleAngleFromParam(PmCircle const *const circle,
+                                  SpiralArcLengthFit const *const fit,
+                                  double t,
+                                  double *const angle)
 {
     if (fit->spiral_in) {
         t = 1.0 - t;
@@ -1724,9 +1696,11 @@ static int pmCircleAngleFromParam(PmCircle const * const circle,
     double B = fit->b1;
     double C = -s_in;
 
-    double disc = pmSq(B) - 4.0 * A * C ;
+    double disc = pmSq(B) - 4.0 * A * C;
     if (disc < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "discriminant %f is negative in angle calculation\n",disc);
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "discriminant %f is negative in angle calculation\n",
+                        disc);
         return TP_ERR_FAIL;
     }
 
@@ -1745,7 +1719,7 @@ static int pmCircleAngleFromParam(PmCircle const * const circle,
      * http://people.csail.mit.edu/bkph/articles/Quadratics.pdf
      */
 
-    double angle_out = (2.0 * C) / ( -B - pmSqrt(disc));
+    double angle_out = (2.0 * C) / (-B - pmSqrt(disc));
 
     if (fit->spiral_in) {
         // Spiral fit assumes that we're spiraling out, so
@@ -1758,14 +1732,15 @@ static int pmCircleAngleFromParam(PmCircle const * const circle,
 }
 
 
-static void printSpiralArcLengthFit(SpiralArcLengthFit const * const fit)
+static void printSpiralArcLengthFit(SpiralArcLengthFit const *const fit)
 {
     (void)fit;
-    tp_debug_print("Spiral fit: b0 = %.12f, b1 = %.12f, length = %.12f, spiral_in = %d\n",
-            fit->b0,
-            fit->b1,
-            fit->total_planar_length,
-            fit->spiral_in);
+    tp_debug_print(
+        "Spiral fit: b0 = %.12f, b1 = %.12f, length = %.12f, spiral_in = %d\n",
+        fit->b0,
+        fit->b1,
+        fit->total_planar_length,
+        fit->spiral_in);
 }
 
 /**
@@ -1786,8 +1761,8 @@ static void printSpiralArcLengthFit(SpiralArcLengthFit const * const fit)
  * means the true speed along the curve will be the same or slower than the
  * nominal speed.
  */
-int findSpiralArcLengthFit(PmCircle const * const circle,
-        SpiralArcLengthFit * const fit)
+int findSpiralArcLengthFit(PmCircle const *const circle,
+                           SpiralArcLengthFit *const fit)
 {
     // Additional data for arc length approximation
     double spiral_coef = circle->spiral / circle->angle;
@@ -1796,27 +1771,30 @@ int findSpiralArcLengthFit(PmCircle const * const circle,
     if (fsign(circle->spiral) < 0.0) {
         // Treat as positive spiral, parameterized in opposite
         // direction
-        spiral_coef*=-1.0;
+        spiral_coef *= -1.0;
         // Treat final radius as starting radius for fit, so we add the
         // negative spiral term to get the minimum radius
         //
-        min_radius+=circle->spiral;
+        min_radius += circle->spiral;
         fit->spiral_in = true;
     } else {
         fit->spiral_in = false;
     }
-    tp_debug_print("radius = %.12f, angle = %.12f\n", min_radius, circle->angle);
+    tp_debug_print(
+        "radius = %.12f, angle = %.12f\n", min_radius, circle->angle);
     tp_debug_print("spiral_coef = %.12f\n", spiral_coef);
 
 
     //Compute the slope of the arc length vs. angle curve at the start and end of the segment
     double slope_start = pmSqrt(pmSq(min_radius) + pmSq(spiral_coef));
-    double slope_end = pmSqrt(pmSq(min_radius + spiral_coef * circle->angle) + pmSq(spiral_coef));
+    double slope_end = pmSqrt(pmSq(min_radius + spiral_coef * circle->angle) +
+                              pmSq(spiral_coef));
 
     fit->b0 = (slope_end - slope_start) / (2.0 * circle->angle);
     fit->b1 = slope_start;
 
-    fit->total_planar_length = fit->b0 * pmSq(circle->angle) + fit->b1 * circle->angle;
+    fit->total_planar_length =
+        fit->b0 * pmSq(circle->angle) + fit->b1 * circle->angle;
     printSpiralArcLengthFit(fit);
 
     // Check against start and end angle
@@ -1824,18 +1802,18 @@ int findSpiralArcLengthFit(PmCircle const * const circle,
     int res_angle = pmCircleAngleFromParam(circle, fit, 1.0, &angle_end_chk);
     if (res_angle != TP_ERR_OK) {
         //TODO better error message
-        rtapi_print_msg(RTAPI_MSG_ERR,
-                "Spiral fit failed\n");
+        rtapi_print_msg(RTAPI_MSG_ERR, "Spiral fit failed\n");
         return TP_ERR_FAIL;
     }
 
     // Check fit against angle
     double fit_err = angle_end_chk - circle->angle;
     if (fabs(fit_err) > TP_ANGLE_EPSILON) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-                "Spiral fit angle difference is %e, maximum allowed is %e\n",
-                fit_err,
-                TP_ANGLE_EPSILON);
+        rtapi_print_msg(
+            RTAPI_MSG_ERR,
+            "Spiral fit angle difference is %e, maximum allowed is %e\n",
+            fit_err,
+            TP_ANGLE_EPSILON);
         return TP_ERR_FAIL;
     }
 
@@ -1847,10 +1825,10 @@ int findSpiralArcLengthFit(PmCircle const * const circle,
  * Compute the angle around a circular segment from the total progress along
  * the curve.
  */
-int pmCircleAngleFromProgress(PmCircle const * const circle,
-        SpiralArcLengthFit const * const fit,
-        double progress,
-        double * const angle)
+int pmCircleAngleFromProgress(PmCircle const *const circle,
+                              SpiralArcLengthFit const *const fit,
+                              double progress,
+                              double *const angle)
 {
     double h2;
     pmCartMagSq(&circle->rHelix, &h2);
@@ -1866,7 +1844,7 @@ int pmCircleAngleFromProgress(PmCircle const * const circle,
  * The radius of curvature of a spiral is larger than the circle of the same
  * radius.
  */
-double pmCircleEffectiveMinRadius(PmCircle const * circle)
+double pmCircleEffectiveMinRadius(PmCircle const *circle)
 {
     double dr = circle->spiral / circle->angle;
     double h2;
@@ -1874,7 +1852,7 @@ double pmCircleEffectiveMinRadius(PmCircle const * circle)
 
     // Exact representation of spiral arc length flattened into
     double n_inner = pmSq(dr) + pmSq(circle->radius);
-    double den = n_inner+pmSq(dr);
+    double den = n_inner + pmSq(dr);
     double num = pmSqrt(n_inner * n_inner * n_inner);
     double r_spiral = num / den;
 
@@ -1883,4 +1861,3 @@ double pmCircleEffectiveMinRadius(PmCircle const * circle)
 
     return effective_radius;
 }
-

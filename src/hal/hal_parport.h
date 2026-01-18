@@ -20,8 +20,8 @@
 #include <rtapi_parport.h>
 
 #define hal_parport_t rtapi_parport_t
-#define hal_parport_get(comp_id, port, base, base_hi, modes) \
-     rtapi_parport_get(hal_comp_name(comp_id), port, base, base_hi, modes)
+#define hal_parport_get(comp_id, port, base, base_hi, modes)                   \
+    rtapi_parport_get(hal_comp_name(comp_id), port, base, base_hi, modes)
 #define hal_parport_release rtapi_parport_release
 
 #endif

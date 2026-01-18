@@ -34,311 +34,283 @@
 #endif
 #include "manager.h"
 
-void InitSections( void )
+void InitSections(void)
 {
-	StrSection * pSection;
-	int NumSec;
-	for ( NumSec=0; NumSec<NBR_SECTIONS; NumSec++ )
-	{
-		pSection = &SectionArray[ NumSec ];
-		pSection->Used = FALSE;
-		rtapi_strxcpy( pSection->Name, "" );
-		pSection->Language = SECTION_IN_LADDER;
-		pSection->SubRoutineNumber = -1;
-		pSection->FirstRung = 0;
-		pSection->LastRung = 0;
-		pSection->SequentialPage = 0;
-	}
+    StrSection *pSection;
+    int NumSec;
+    for (NumSec = 0; NumSec < NBR_SECTIONS; NumSec++) {
+        pSection = &SectionArray[NumSec];
+        pSection->Used = FALSE;
+        rtapi_strxcpy(pSection->Name, "");
+        pSection->Language = SECTION_IN_LADDER;
+        pSection->SubRoutineNumber = -1;
+        pSection->FirstRung = 0;
+        pSection->LastRung = 0;
+        pSection->SequentialPage = 0;
+    }
 
-	// We directly create one section in ladder...
-	// at least for compatibility with our old progs !
-	// The rung associated is defined in InitRungs() of calc.c
-	pSection = &SectionArray[ 0 ];
-	pSection->Used = TRUE;
-	rtapi_strxcpy( pSection->Name, "Prog1" );
-	pSection->Language = SECTION_IN_LADDER;
-	pSection->SubRoutineNumber = -1;
-	pSection->FirstRung = 0;
-	pSection->LastRung = 0;
-	pSection->SequentialPage = 0;
+    // We directly create one section in ladder...
+    // at least for compatibility with our old progs !
+    // The rung associated is defined in InitRungs() of calc.c
+    pSection = &SectionArray[0];
+    pSection->Used = TRUE;
+    rtapi_strxcpy(pSection->Name, "Prog1");
+    pSection->Language = SECTION_IN_LADDER;
+    pSection->SubRoutineNumber = -1;
+    pSection->FirstRung = 0;
+    pSection->LastRung = 0;
+    pSection->SequentialPage = 0;
 }
 
-int SearchSubRoutineWithItsNumber( int SubRoutineNbrToFind )
+int SearchSubRoutineWithItsNumber(int SubRoutineNbrToFind)
 {
-	StrSection * pSection;
-	int NumSec;
-	int Found = FALSE;
-	NumSec = 0;
-	do
-	{
-		pSection = &SectionArray[ NumSec ];
-		if ( pSection->Used )
-		{
-			if ( pSection->SubRoutineNumber==SubRoutineNbrToFind )
-				Found = TRUE;
-			else
-				NumSec++;
-		}
-		else
-		{
-			NumSec++;
-		}
-	}
-	while( NumSec<NBR_SECTIONS && !Found );
-	if ( Found )
-		return NumSec;
-	else
-		return -1;
+    StrSection *pSection;
+    int NumSec;
+    int Found = FALSE;
+    NumSec = 0;
+    do {
+        pSection = &SectionArray[NumSec];
+        if (pSection->Used) {
+            if (pSection->SubRoutineNumber == SubRoutineNbrToFind)
+                Found = TRUE;
+            else
+                NumSec++;
+        } else {
+            NumSec++;
+        }
+    } while (NumSec < NBR_SECTIONS && !Found);
+    if (Found)
+        return NumSec;
+    else
+        return -1;
 }
 
 
 /* All the following stuff is not used for real-time working and embedded version... */
-#if !defined( __RTL__ ) && defined( GTK_INTERFACE )
-int SearchSectionWithName( char * SectionNameToFind )
+#if !defined(__RTL__) && defined(GTK_INTERFACE)
+int SearchSectionWithName(char *SectionNameToFind)
 {
-	StrSection * pSection;
-	int NumSec;
-	int Found = FALSE;
-	NumSec = 0;
-	do
-	{
-		pSection = &SectionArray[ NumSec ];
-		if ( pSection->Used )
-		{
-			if ( strcmp( pSection->Name, SectionNameToFind )==0 )
-				Found = TRUE;
-			else
-				NumSec++;
-		}
-		else
-		{
-			NumSec++;
-		}
-	}
-	while( NumSec<NBR_SECTIONS && !Found );
-	if ( Found )
-		return NumSec;
-	else
-		return -1;
+    StrSection *pSection;
+    int NumSec;
+    int Found = FALSE;
+    NumSec = 0;
+    do {
+        pSection = &SectionArray[NumSec];
+        if (pSection->Used) {
+            if (strcmp(pSection->Name, SectionNameToFind) == 0)
+                Found = TRUE;
+            else
+                NumSec++;
+        } else {
+            NumSec++;
+        }
+    } while (NumSec < NBR_SECTIONS && !Found);
+    if (Found)
+        return NumSec;
+    else
+        return -1;
 }
 
-void SetSectionSelected( int NumSec /*char * SectionName*/ )
+void SetSectionSelected(int NumSec /*char * SectionName*/)
 {
-	StrSection * pSection;
-//	int NumSec = SearchSectionWithName( SectionName );
-//	if ( NumSec>=0 )
-	{
-		pSection = &SectionArray[ NumSec ];
-		InfosGene->FirstRung = pSection->FirstRung;
-		InfosGene->LastRung = pSection->LastRung;
-		InfosGene->CurrentRung = InfosGene->FirstRung;
+    StrSection *pSection;
+    //	int NumSec = SearchSectionWithName( SectionName );
+    //	if ( NumSec>=0 )
+    {
+        pSection = &SectionArray[NumSec];
+        InfosGene->FirstRung = pSection->FirstRung;
+        InfosGene->LastRung = pSection->LastRung;
+        InfosGene->CurrentRung = InfosGene->FirstRung;
 
-		InfosGene->CurrentSection = NumSec;
-		
-// added in v0.9.7
-		InfosGene->TopRungDisplayed = InfosGene->FirstRung;
-	}
+        InfosGene->CurrentSection = NumSec;
+
+        // added in v0.9.7
+        InfosGene->TopRungDisplayed = InfosGene->FirstRung;
+    }
 }
 
-int AddSection( char * NewSectionName, int TypeLanguageSection, int SubRoutineNbr )
+int AddSection(char *NewSectionName, int TypeLanguageSection, int SubRoutineNbr)
 {
-	StrSection * pSection;
-	int NumSec;
-	int FreeFound = FALSE;
-	// Search a free available section
-	NumSec = 0;
-	do
-	{
-		pSection = &SectionArray[ NumSec ];
-		if ( !pSection->Used )
-			FreeFound = TRUE;
-		else
-			NumSec++;
-	}
-	while( NumSec<NBR_SECTIONS && !FreeFound );
-	if ( FreeFound )
-	{
-		int NumFreeRung;
-		rtapi_strxcpy( pSection->Name, NewSectionName );
-		pSection->Language = TypeLanguageSection;
-		pSection->FirstRung = 0;
-		pSection->LastRung = 0;
-		pSection->SequentialPage = 0;
-		if ( TypeLanguageSection==SECTION_IN_LADDER )
-		{
-			pSection->SubRoutineNumber = SubRoutineNbr;
-			NumFreeRung = FindFreeRung( );
-			if ( NumFreeRung>=0 )
-			{
-				pSection->Used = TRUE;
-				pSection->FirstRung = NumFreeRung;
-				pSection->LastRung = NumFreeRung;
-				InitBufferRungEdited( &RungArray[ NumFreeRung ] );
-			}
-			else
-			{
-				FreeFound = FALSE;
-			}
-		}
+    StrSection *pSection;
+    int NumSec;
+    int FreeFound = FALSE;
+    // Search a free available section
+    NumSec = 0;
+    do {
+        pSection = &SectionArray[NumSec];
+        if (!pSection->Used)
+            FreeFound = TRUE;
+        else
+            NumSec++;
+    } while (NumSec < NBR_SECTIONS && !FreeFound);
+    if (FreeFound) {
+        int NumFreeRung;
+        rtapi_strxcpy(pSection->Name, NewSectionName);
+        pSection->Language = TypeLanguageSection;
+        pSection->FirstRung = 0;
+        pSection->LastRung = 0;
+        pSection->SequentialPage = 0;
+        if (TypeLanguageSection == SECTION_IN_LADDER) {
+            pSection->SubRoutineNumber = SubRoutineNbr;
+            NumFreeRung = FindFreeRung();
+            if (NumFreeRung >= 0) {
+                pSection->Used = TRUE;
+                pSection->FirstRung = NumFreeRung;
+                pSection->LastRung = NumFreeRung;
+                InitBufferRungEdited(&RungArray[NumFreeRung]);
+            } else {
+                FreeFound = FALSE;
+            }
+        }
 #ifdef SEQUENTIAL_SUPPORT
-		if ( TypeLanguageSection==SECTION_IN_SEQUENTIAL )
-		{
-			int NumFreePage;
-			NumFreePage = FindFreeSequentialPage( );
-			if ( NumFreePage>=0 )
-			{
-				pSection->Used = TRUE;
-				pSection->SequentialPage = NumFreePage;
-			}
-			else
-			{
-				FreeFound = FALSE;
-			}
-		}
+        if (TypeLanguageSection == SECTION_IN_SEQUENTIAL) {
+            int NumFreePage;
+            NumFreePage = FindFreeSequentialPage();
+            if (NumFreePage >= 0) {
+                pSection->Used = TRUE;
+                pSection->SequentialPage = NumFreePage;
+            } else {
+                FreeFound = FALSE;
+            }
+        }
 #endif
-		InfosGene->AskConfirmationToQuit = TRUE;
-		InfosGene->HasBeenModifiedForExitCode = TRUE;
-	}
-	return FreeFound;
+        InfosGene->AskConfirmationToQuit = TRUE;
+        InfosGene->HasBeenModifiedForExitCode = TRUE;
+    }
+    return FreeFound;
 }
-void ModifySectionProperties( int NumSec /*char * OriginalSectionName*/, char * NewSectionName )
+void ModifySectionProperties(int NumSec /*char * OriginalSectionName*/,
+                             char *NewSectionName)
 {
-	StrSection * pSection;
-//	int NumSec = SearchSectionWithName( OriginalSectionName );
-//	if ( NumSec>=0 )
-	{
-		pSection = &SectionArray[ NumSec ];
-		rtapi_strxcpy( pSection->Name, NewSectionName );
-	}
-}
-
-int NbrSectionsDefined( void )
-{
-	int NumSec;
-	int NbrSectionsDefined = 0;
-	for ( NumSec=0; NumSec<NBR_SECTIONS; NumSec++ )
-	{
-		StrSection * pSection = &SectionArray[ NumSec ];
-		if ( pSection->Used )
-			NbrSectionsDefined++;
-	}
-	return NbrSectionsDefined;
+    StrSection *pSection;
+    //	int NumSec = SearchSectionWithName( OriginalSectionName );
+    //	if ( NumSec>=0 )
+    {
+        pSection = &SectionArray[NumSec];
+        rtapi_strxcpy(pSection->Name, NewSectionName);
+    }
 }
 
-int VerifyIfSectionNameAlreadyExist( char * Name )
+int NbrSectionsDefined(void)
 {
-	int NumSec;
-	if ( Name[0]=='\0' )
-		return TRUE;
-	NumSec = SearchSectionWithName( Name );
-	return( NumSec>=0?TRUE:FALSE );
+    int NumSec;
+    int NbrSectionsDefined = 0;
+    for (NumSec = 0; NumSec < NBR_SECTIONS; NumSec++) {
+        StrSection *pSection = &SectionArray[NumSec];
+        if (pSection->Used)
+            NbrSectionsDefined++;
+    }
+    return NbrSectionsDefined;
 }
 
-int VerifyIfSubRoutineNumberExist( int SubRoutineNbr )
+int VerifyIfSectionNameAlreadyExist(char *Name)
 {
-	int NumSec;
-	NumSec = SearchSubRoutineWithItsNumber( SubRoutineNbr );
-	return( NumSec>=0?TRUE:FALSE );
+    int NumSec;
+    if (Name[0] == '\0')
+        return TRUE;
+    NumSec = SearchSectionWithName(Name);
+    return (NumSec >= 0 ? TRUE : FALSE);
 }
 
-void DelSection( int NumSec /*char * SectionNameToErase*/ )
+int VerifyIfSubRoutineNumberExist(int SubRoutineNbr)
 {
-	StrSection * pSection;
-//	int NumSec;
-//	NumSec = SearchSectionWithName( SectionNameToErase );
-//	if ( NumSec>=0 )
-	{
-		pSection = &SectionArray[ NumSec ];
-		pSection->Used = FALSE;
-		// free the rungs used in this section
-		if ( pSection->Language==SECTION_IN_LADDER )
-		{
-			int ScanRung = InfosGene->FirstRung;
-			while ( ScanRung!=InfosGene->LastRung )
-			{
-				RungArray[ ScanRung ].Used = FALSE;
-				ScanRung = RungArray[ ScanRung ].NextRung;
-			}
-			RungArray[ InfosGene->LastRung ].Used = FALSE;
-		}
-		InfosGene->AskConfirmationToQuit = TRUE;
-		InfosGene->HasBeenModifiedForExitCode = TRUE;
-	}
+    int NumSec;
+    NumSec = SearchSubRoutineWithItsNumber(SubRoutineNbr);
+    return (NumSec >= 0 ? TRUE : FALSE);
 }
 
-int GetPrevNextSection( int RefSectionNbr, char NextSearch )
+void DelSection(int NumSec /*char * SectionNameToErase*/)
 {
-	int ScanSect = RefSectionNbr;
-//printf("Search sect base = %d\n", ScanSect );
-	int ScanFound = -1;
-	do
-	{
-		ScanSect = ScanSect + ( NextSearch?1:-1 );
-//printf("Search sect %d\n", ScanSect );
-		if ( SectionArray[ ScanSect ].Used )
-			ScanFound = ScanSect;
-	}
-	while( ( NextSearch && ScanSect<NBR_SECTIONS-1 ) && ( !NextSearch && ScanSect>0 ) );
-	return ScanFound;
+    StrSection *pSection;
+    //	int NumSec;
+    //	NumSec = SearchSectionWithName( SectionNameToErase );
+    //	if ( NumSec>=0 )
+    {
+        pSection = &SectionArray[NumSec];
+        pSection->Used = FALSE;
+        // free the rungs used in this section
+        if (pSection->Language == SECTION_IN_LADDER) {
+            int ScanRung = InfosGene->FirstRung;
+            while (ScanRung != InfosGene->LastRung) {
+                RungArray[ScanRung].Used = FALSE;
+                ScanRung = RungArray[ScanRung].NextRung;
+            }
+            RungArray[InfosGene->LastRung].Used = FALSE;
+        }
+        InfosGene->AskConfirmationToQuit = TRUE;
+        InfosGene->HasBeenModifiedForExitCode = TRUE;
+    }
 }
 
-void SwapSections( int SectionNbr1, int SectionNbr2 /*char * SectionName1, char * SectionName2*/ )
+int GetPrevNextSection(int RefSectionNbr, char NextSearch)
 {
-	StrSection * pSection1;
-	StrSection * pSection2;
-	StrSection SectionTemp;
-	StrSection * pSectionTemp = &SectionTemp;
-//	int NumSec1;
-//	int NumSec2;
-//	NumSec1 = SearchSectionWithName( SectionName1 );
-//	NumSec2 = SearchSectionWithName( SectionName2 );
-//	if ( NumSec1>=0 && NumSec2>=0 )
-	{
-		pSection1 = &SectionArray[ SectionNbr1 /*NumSec1*/ ];
-		pSection2 = &SectionArray[ SectionNbr2 /*NumSec2*/ ];
+    int ScanSect = RefSectionNbr;
+    //printf("Search sect base = %d\n", ScanSect );
+    int ScanFound = -1;
+    do {
+        ScanSect = ScanSect + (NextSearch ? 1 : -1);
+        //printf("Search sect %d\n", ScanSect );
+        if (SectionArray[ScanSect].Used)
+            ScanFound = ScanSect;
+    } while ((NextSearch && ScanSect < NBR_SECTIONS - 1) &&
+             (!NextSearch && ScanSect > 0));
+    return ScanFound;
+}
 
-		memcpy( pSectionTemp, pSection1, sizeof(StrSection) );
-		memcpy( pSection1, pSection2, sizeof(StrSection) );
-		memcpy( pSection2, pSectionTemp, sizeof(StrSection) );
-		
-		InfosGene->AskConfirmationToQuit = TRUE;
-		InfosGene->HasBeenModifiedForExitCode = TRUE;
-	}
+void SwapSections(int SectionNbr1,
+                  int SectionNbr2 /*char * SectionName1, char * SectionName2*/
+)
+{
+    StrSection *pSection1;
+    StrSection *pSection2;
+    StrSection SectionTemp;
+    StrSection *pSectionTemp = &SectionTemp;
+    //	int NumSec1;
+    //	int NumSec2;
+    //	NumSec1 = SearchSectionWithName( SectionName1 );
+    //	NumSec2 = SearchSectionWithName( SectionName2 );
+    //	if ( NumSec1>=0 && NumSec2>=0 )
+    {
+        pSection1 = &SectionArray[SectionNbr1 /*NumSec1*/];
+        pSection2 = &SectionArray[SectionNbr2 /*NumSec2*/];
+
+        memcpy(pSectionTemp, pSection1, sizeof(StrSection));
+        memcpy(pSection1, pSection2, sizeof(StrSection));
+        memcpy(pSection2, pSectionTemp, sizeof(StrSection));
+
+        InfosGene->AskConfirmationToQuit = TRUE;
+        InfosGene->HasBeenModifiedForExitCode = TRUE;
+    }
 }
 
 #ifdef SEQUENTIAL_SUPPORT
-int FindFreeSequentialPage( void )
+int FindFreeSequentialPage(void)
 {
-	int FreePage = -1;
-	// to mark the pages used
-	char PageUsed[ NBR_SEQUENTIAL_PAGES ];
-	int ScanPage;
-	int ScanSection;
-	StrSection * pSection;
-	for ( ScanPage=0; ScanPage<NBR_SEQUENTIAL_PAGES; ScanPage++ )
-		PageUsed[ ScanPage ] = FALSE;
-	// scan each section and mark the pages used
-	for ( ScanSection=0; ScanSection<NBR_SECTIONS; ScanSection++ )
-	{
-		pSection = &SectionArray[ ScanSection ];
-		if ( pSection->Used )
-		{
-			if ( pSection->Language==SECTION_IN_SEQUENTIAL )
-				PageUsed[ pSection->SequentialPage ] = TRUE;
-		}
-	}
-	// find the first free page
-	ScanPage = 0;
-	do
-	{
-		if ( !PageUsed[ ScanPage ] )
-			FreePage = ScanPage;
-		ScanPage++;
-	}
-	while( ScanPage<NBR_SEQUENTIAL_PAGES && FreePage==-1 );
-	return FreePage;
+    int FreePage = -1;
+    // to mark the pages used
+    char PageUsed[NBR_SEQUENTIAL_PAGES];
+    int ScanPage;
+    int ScanSection;
+    StrSection *pSection;
+    for (ScanPage = 0; ScanPage < NBR_SEQUENTIAL_PAGES; ScanPage++)
+        PageUsed[ScanPage] = FALSE;
+    // scan each section and mark the pages used
+    for (ScanSection = 0; ScanSection < NBR_SECTIONS; ScanSection++) {
+        pSection = &SectionArray[ScanSection];
+        if (pSection->Used) {
+            if (pSection->Language == SECTION_IN_SEQUENTIAL)
+                PageUsed[pSection->SequentialPage] = TRUE;
+        }
+    }
+    // find the first free page
+    ScanPage = 0;
+    do {
+        if (!PageUsed[ScanPage])
+            FreePage = ScanPage;
+        ScanPage++;
+    } while (ScanPage < NBR_SEQUENTIAL_PAGES && FreePage == -1);
+    return FreePage;
 }
 #endif
 
 #endif
-

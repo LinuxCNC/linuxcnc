@@ -41,12 +41,12 @@
 #include <ctype.h>
 #include <string.h>
 
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "hal.h"		/* HAL public API decls */
+#include "rtapi.h" /* RTAPI realtime OS API */
+#include "hal.h"   /* HAL public API decls */
 
 #include <gtk/gtk.h>
-#include "miscgtk.h"		/* generic GTK stuff */
-#include "scope_usr.h"		/* scope related declarations */
+#include "miscgtk.h"   /* generic GTK stuff */
+#include "scope_usr.h" /* scope related declarations */
 
 /***********************************************************************
 *                         DOCUMENTATION                                *
@@ -88,23 +88,18 @@
 *                         TYPEDEFS AND DEFINES                         *
 ************************************************************************/
 
-typedef enum {
-  INT,
-  FLOAT,
-  STRING
-} arg_type_t;
+typedef enum { INT, FLOAT, STRING } arg_type_t;
 
 typedef struct {
-  const char* name;
-  arg_type_t arg_type;
-  char * (*handler)(void *arg);
+    const char *name;
+    arg_type_t arg_type;
+    char *(*handler)(void *arg);
 } cmd_lut_entry_t;
 
 
 /***********************************************************************
 *                         GLOBAL VARIABLES                             *
 ************************************************************************/
-
 
 
 /***********************************************************************
@@ -118,55 +113,54 @@ static int parse_command(char *in);
    used here allows only one arg per command) and returns NULL if
    the command succeeded, or an error message if it failed.
 */
-static char *dummy_cmd(void * arg);
-static char *thread_cmd(void * arg);
-static char *maxchan_cmd(void * arg);
-static char *hzoom_cmd(void * arg);
-static char *hpos_cmd(void * arg);
-static char *hmult_cmd(void * arg);
-static char *chan_cmd(void * arg);
-static char *choff_cmd(void * arg);
-static char *pin_cmd(void * arg);
-static char *sig_cmd(void * arg);
-static char *param_cmd(void * arg);
-static char *vscale_cmd(void * arg);
-static char *vpos_cmd(void * arg);
-static char *voff_cmd(void * arg);
-static char *voff_ac_cmd(void * arg);
-static char *tsource_cmd(void * arg);
-static char *tlevel_cmd(void * arg);
-static char *tpos_cmd(void * arg);
-static char *tpolar_cmd(void * arg);
-static char *tmode_cmd(void * arg);
-static char *rmode_cmd(void * arg);
+static char *dummy_cmd(void *arg);
+static char *thread_cmd(void *arg);
+static char *maxchan_cmd(void *arg);
+static char *hzoom_cmd(void *arg);
+static char *hpos_cmd(void *arg);
+static char *hmult_cmd(void *arg);
+static char *chan_cmd(void *arg);
+static char *choff_cmd(void *arg);
+static char *pin_cmd(void *arg);
+static char *sig_cmd(void *arg);
+static char *param_cmd(void *arg);
+static char *vscale_cmd(void *arg);
+static char *vpos_cmd(void *arg);
+static char *voff_cmd(void *arg);
+static char *voff_ac_cmd(void *arg);
+static char *tsource_cmd(void *arg);
+static char *tlevel_cmd(void *arg);
+static char *tpos_cmd(void *arg);
+static char *tpolar_cmd(void *arg);
+static char *tmode_cmd(void *arg);
+static char *rmode_cmd(void *arg);
 
 /***********************************************************************
 *                         LOCAL VARIABLES                              *
 ************************************************************************/
 
-static const cmd_lut_entry_t cmd_lut[25] =
-{
-  { "thread",	STRING,	thread_cmd },
-  { "maxchan",	INT,	maxchan_cmd },
-  { "hmult",	INT,	hmult_cmd },
-  { "hzoom",	INT,	hzoom_cmd },
-  { "hpos",	FLOAT,	hpos_cmd },
-  { "chan",	INT,	chan_cmd },
-  { "choff",	INT,	choff_cmd },
-  { "pin",	STRING,	pin_cmd },
-  { "sig",	STRING,	sig_cmd },
-  { "param",	STRING,	param_cmd },
-  { "vscale",	INT,	vscale_cmd },
-  { "vpos",	FLOAT,	vpos_cmd },
-  { "vac",	FLOAT,	voff_ac_cmd },
-  { "voff",	FLOAT,	voff_cmd },
-  { "tsource",	INT,	tsource_cmd },
-  { "tlevel",	FLOAT,	tlevel_cmd },
-  { "tpos",	FLOAT,	tpos_cmd },
-  { "tpolar",	INT,	tpolar_cmd },
-  { "tmode",	INT,	tmode_cmd },
-  { "rmode",	INT,	rmode_cmd },
-  { "", 0, dummy_cmd }
+static const cmd_lut_entry_t cmd_lut[25] = {
+    {"thread",  STRING, thread_cmd },
+    {"maxchan", INT,    maxchan_cmd},
+    {"hmult",   INT,    hmult_cmd  },
+    {"hzoom",   INT,    hzoom_cmd  },
+    {"hpos",    FLOAT,  hpos_cmd   },
+    {"chan",    INT,    chan_cmd   },
+    {"choff",   INT,    choff_cmd  },
+    {"pin",     STRING, pin_cmd    },
+    {"sig",     STRING, sig_cmd    },
+    {"param",   STRING, param_cmd  },
+    {"vscale",  INT,    vscale_cmd },
+    {"vpos",    FLOAT,  vpos_cmd   },
+    {"vac",     FLOAT,  voff_ac_cmd},
+    {"voff",    FLOAT,  voff_cmd   },
+    {"tsource", INT,    tsource_cmd},
+    {"tlevel",  FLOAT,  tlevel_cmd },
+    {"tpos",    FLOAT,  tpos_cmd   },
+    {"tpolar",  INT,    tpolar_cmd },
+    {"tmode",   INT,    tmode_cmd  },
+    {"rmode",   INT,    rmode_cmd  },
+    {"",        0,      dummy_cmd  }
 };
 
 static int deferred_channel;
@@ -175,7 +169,7 @@ static int deferred_channel;
 *                        PUBLIC FUNCTION CODE                          *
 ************************************************************************/
 
-int read_config_file (char *filename)
+int read_config_file(char *filename)
 {
     FILE *fp;
     char cmd_buf[100];
@@ -184,54 +178,61 @@ int read_config_file (char *filename)
 
     deferred_channel = 0;
     fp = fopen(filename, "r");
-    if ( fp == NULL ) {
-	fprintf(stderr, "halscope: config file '%s' could not be opened\n", filename );
-	return -1;
+    if (fp == NULL) {
+        fprintf(stderr,
+                "halscope: config file '%s' could not be opened\n",
+                filename);
+        return -1;
     }
     retval = 0;
-    while ( fgets(cmd_buf, 99, fp) != NULL ) {
-	/* remove trailing newline if present */
-	cp = cmd_buf;
-	while (( *cp != '\n' ) && ( *cp != '\r' ) && ( *cp != '\0' )) {
-	    cp++;
-	}
-	*cp = '\0';
-	/* parse and execute the command */
-	retval += parse_command(cmd_buf);
+    while (fgets(cmd_buf, 99, fp) != NULL) {
+        /* remove trailing newline if present */
+        cp = cmd_buf;
+        while ((*cp != '\n') && (*cp != '\r') && (*cp != '\0')) {
+            cp++;
+        }
+        *cp = '\0';
+        /* parse and execute the command */
+        retval += parse_command(cmd_buf);
     }
     fclose(fp);
-    if ( retval < 0 ) {
-	fprintf(stderr, "halscope: config file '%s' caused %d warnings\n", filename, -retval );
-	return -1;
+    if (retval < 0) {
+        fprintf(stderr,
+                "halscope: config file '%s' caused %d warnings\n",
+                filename,
+                -retval);
+        return -1;
     }
     return 0;
 }
 
 
-void write_config_file (char *filename)
+void write_config_file(char *filename)
 {
     FILE *fp;
 
     fp = fopen(filename, "w");
-    if ( fp == NULL ) {
-	fprintf(stderr, "halscope: config file '%s' could not be created\n", filename );
-	return;
+    if (fp == NULL) {
+        fprintf(stderr,
+                "halscope: config file '%s' could not be created\n",
+                filename);
+        return;
     }
     write_horiz_config(fp);
     write_vert_config(fp);
     write_trig_config(fp);
     /* write run mode */
-    if (ctrl_usr->run_mode == NORMAL ) {
-	fprintf(fp, "RMODE 1\n" );
-    } else if ( ctrl_usr->run_mode == SINGLE ) {
-	fprintf(fp, "RMODE 2\n" );
+    if (ctrl_usr->run_mode == NORMAL) {
+        fprintf(fp, "RMODE 1\n");
+    } else if (ctrl_usr->run_mode == SINGLE) {
+        fprintf(fp, "RMODE 2\n");
 #if 0 /* FIXME - role mode not implemented yet */
     } else if ( ctrl_usr->run_mode == ROLL ) {
 	fprintf(fp, "RMODE 3\n" );
 #endif
     } else {
-	/* stop mode */
-	fprintf(fp, "RMODE 0\n" );
+        /* stop mode */
+        fprintf(fp, "RMODE 0\n");
     }
     fclose(fp);
 }
@@ -253,7 +254,8 @@ void write_log_file(char *filename)
 
     fp = fopen(filename, "w");
     if (fp == NULL) {
-        fprintf(stderr, "ERROR: log file '%s' could not be created\n", filename);
+        fprintf(
+            stderr, "ERROR: log file '%s' could not be created\n", filename);
         return;
     }
 
@@ -321,7 +323,8 @@ void write_log_file(char *filename)
             if (chan_num < chan_active - 1) {
                 fprintf(fp, ";");
             }
-            if ((chan_num == chan_active - 1) || (chan_num == 15 && chan_active == 16)) {
+            if ((chan_num == chan_active - 1) ||
+                (chan_num == 15 && chan_active == 16)) {
                 fprintf(fp, "\n");
             }
             /* point to next sample */
@@ -338,30 +341,22 @@ void write_log_file(char *filename)
 /* format the data and print it */
 static void write_sample(FILE *fp, scope_data_t *dptr, hal_type_t type)
 {
-	double data_value;
-	switch (type) {
-		case HAL_BIT:
-			if (dptr->d_u8) {
-			data_value = 1.0;
-			} else {
-			data_value = 0.0;
-			};
-			break;
-		case HAL_FLOAT:
-			data_value = dptr->d_real;
-			break;
-		case HAL_S32:
-			data_value = dptr->d_s32;
-			break;
-		case HAL_U32:
-			data_value = dptr->d_u32;
-			break;
-		default:
-			data_value = 0.0;
-			break;
-		}
-	/* actually write the data to disk */
-	fprintf(fp, "%.14f", data_value);
+    double data_value;
+    switch (type) {
+    case HAL_BIT:
+        if (dptr->d_u8) {
+            data_value = 1.0;
+        } else {
+            data_value = 0.0;
+        };
+        break;
+    case HAL_FLOAT: data_value = dptr->d_real; break;
+    case HAL_S32: data_value = dptr->d_s32; break;
+    case HAL_U32: data_value = dptr->d_u32; break;
+    default: data_value = 0.0; break;
+    }
+    /* actually write the data to disk */
+    fprintf(fp, "%.14f", data_value);
 }
 
 
@@ -380,127 +375,125 @@ static int parse_command(char *in)
 
     n = -1;
     do {
-	cp1 = in;
-	cp2 = cmd_lut[++n].name;
-	/* skip all matching chars */
-	while (( *cp2 != '\0') && (tolower(*cp1) == *cp2 )) {
-	    cp1++;
-	    cp2++;
-	}
-    } while ( *cp2 != '\0' );
+        cp1 = in;
+        cp2 = cmd_lut[++n].name;
+        /* skip all matching chars */
+        while ((*cp2 != '\0') && (tolower(*cp1) == *cp2)) {
+            cp1++;
+            cp2++;
+        }
+    } while (*cp2 != '\0');
     /* either a match, or zero length name (last entry) */
-    if ( cp1 == in ) {
-	/* zero length name, last entry, no match */
-	if ( *in != '#' ) {
-	    /* not a comment, must be a mistake */
-	    fprintf (stderr, "halscope: unknown config command: '%s'\n", in );
-	    return -1;
-	}
+    if (cp1 == in) {
+        /* zero length name, last entry, no match */
+        if (*in != '#') {
+            /* not a comment, must be a mistake */
+            fprintf(stderr, "halscope: unknown config command: '%s'\n", in);
+            return -1;
+        }
     }
-    switch ( cmd_lut[n].arg_type ) {
+    switch (cmd_lut[n].arg_type) {
     case STRING:
-	while ( isspace(*cp1) ) {
-	    cp1++;
-	}
-	arg_string = cp1;
-	/* find and replace newline at end */
-	while (( *cp1 != '\n' ) && ( *cp1 != '\r' ) && ( *cp1 != '\0')) {
-	    cp1++;
-	}
-	*cp1 = '\0';
-	/* call command handler, it returns NULL on success,
+        while (isspace(*cp1)) {
+            cp1++;
+        }
+        arg_string = cp1;
+        /* find and replace newline at end */
+        while ((*cp1 != '\n') && (*cp1 != '\r') && (*cp1 != '\0')) {
+            cp1++;
+        }
+        *cp1 = '\0';
+        /* call command handler, it returns NULL on success,
 	   or an error message on failure */
-	rv = cmd_lut[n].handler(arg_string);
-	break;
+        rv = cmd_lut[n].handler(arg_string);
+        break;
     case FLOAT:
-	arg_float = strtod(cp1, &cp1);
-	rv = cmd_lut[n].handler(&arg_float);
-	break;
+        arg_float = strtod(cp1, &cp1);
+        rv = cmd_lut[n].handler(&arg_float);
+        break;
     case INT:
-	arg_int = strtol(cp1, &cp1, 10);
-	rv = cmd_lut[n].handler(&arg_int);
-	break;
-    default:
-	return -1;
-	break;
+        arg_int = strtol(cp1, &cp1, 10);
+        rv = cmd_lut[n].handler(&arg_int);
+        break;
+    default: return -1; break;
     }
     /* commands return NULL on success, an error msg on fail */
-    if ( rv != NULL ) {
-	fprintf(stderr, "halscope: %s: '%s'\n", rv, in );
-	return -1;
+    if (rv != NULL) {
+        fprintf(stderr, "halscope: %s: '%s'\n", rv, in);
+        return -1;
     }
     return 0;
 }
 
-static char *dummy_cmd(void * arg)
+static char *dummy_cmd(void *arg)
 {
     (void)arg;
     return "command not implemented";
 }
 
-static char *thread_cmd(void * arg)
+static char *thread_cmd(void *arg)
 {
     char *name;
     int rv;
 
     name = (char *)(arg);
     rv = set_sample_thread(name);
-    if ( rv < 0 ) {
-	return "could not find thread";
+    if (rv < 0) {
+        return "could not find thread";
     }
     return NULL;
 }
 
-static char *maxchan_cmd(void * arg)
+static char *maxchan_cmd(void *arg)
 {
     int *argp, rv;
 
     argp = (int *)(arg);
     rv = set_rec_len(*argp);
-    if ( rv < 0 ) {
-	return "could not set record length";
+    if (rv < 0) {
+        return "could not set record length";
     }
     return NULL;
 }
 
-static char *hzoom_cmd(void * arg)
+static char *hzoom_cmd(void *arg)
 {
     int *argp, rv;
 
     argp = (int *)(arg);
     rv = set_horiz_zoom(*argp);
-    if ( rv < 0 ) {
-	return "could not set horizontal zoom";
+    if (rv < 0) {
+        return "could not set horizontal zoom";
     }
     return NULL;
 }
 
-static char *hpos_cmd(void * arg)
+static char *hpos_cmd(void *arg)
 {
     double *argp;
     int rv;
 
     argp = (double *)(arg);
     rv = set_horiz_pos(*argp);
-    if ( rv < 0 ) {
-	return "could not set horizontal position";
+    if (rv < 0) {
+        return "could not set horizontal position";
     }
     return NULL;
 }
 
-static char *hmult_cmd(void * arg)
+static char *hmult_cmd(void *arg)
 {
     int *argp, rv;
 
     argp = (int *)(arg);
     rv = set_horiz_mult(*argp);
-    if ( rv < 0 ) {
-	return "could not set horizontal multiplier";
+    if (rv < 0) {
+        return "could not set horizontal multiplier";
     }
     return NULL;
 }
 
-static char *chan_cmd(void * arg)
+static char *chan_cmd(void *arg)
 {
     int *argp, chan_num, rv;
 
@@ -510,30 +503,27 @@ static char *chan_cmd(void * arg)
     rv = set_active_channel(chan_num);
     switch (rv) {
     case 0:
-	// successful return
-	return NULL;
-    case -1:
-	return "illegal channel number";
-    case -2:
-	return "too many active channels";
+        // successful return
+        return NULL;
+    case -1: return "illegal channel number";
+    case -2: return "too many active channels";
     case -3:
-	// no source for channel, OK as long as we get
-	// a subsequent command that specifies a source
-	deferred_channel = chan_num;
-	return NULL;
-    default:
-	return "unknown result";
+        // no source for channel, OK as long as we get
+        // a subsequent command that specifies a source
+        deferred_channel = chan_num;
+        return NULL;
+    default: return "unknown result";
     }
 }
 
-static char *choff_cmd(void * arg)
+static char *choff_cmd(void *arg)
 {
     (void)arg;
     int chan_num;
 
-    if ( deferred_channel != 0 ) {
-	deferred_channel = 0;
-	return NULL;
+    if (deferred_channel != 0) {
+        deferred_channel = 0;
+        return NULL;
     }
     chan_num = ctrl_usr->vert.selected;
     set_channel_off(chan_num);
@@ -544,167 +534,166 @@ static char *chan_src_cmd(int src_type, char *src_name)
 {
     int chan_num, rv;
 
-    if ( deferred_channel == 0 ) {
-	// changing currently active channel
-	chan_num = ctrl_usr->vert.selected;
-	rv = set_channel_source(chan_num, src_type, src_name);
+    if (deferred_channel == 0) {
+        // changing currently active channel
+        chan_num = ctrl_usr->vert.selected;
+        rv = set_channel_source(chan_num, src_type, src_name);
     } else {
-	// setting source for previously empty channel
-	chan_num = deferred_channel;
-	rv = set_channel_source(chan_num, src_type, src_name);
-	if ( rv == 0 ) {
-	    // got a source now, select the channel
-	    return chan_cmd(&chan_num);
-	}
+        // setting source for previously empty channel
+        chan_num = deferred_channel;
+        rv = set_channel_source(chan_num, src_type, src_name);
+        if (rv == 0) {
+            // got a source now, select the channel
+            return chan_cmd(&chan_num);
+        }
     }
-    if ( rv < 0 ) {
-	return "object not found";
+    if (rv < 0) {
+        return "object not found";
     }
     return NULL;
 }
 
 
-static char *pin_cmd(void * arg)
+static char *pin_cmd(void *arg)
 {
     return chan_src_cmd(0, (char *)(arg));
 }
 
-static char *sig_cmd(void * arg)
+static char *sig_cmd(void *arg)
 {
     return chan_src_cmd(1, (char *)(arg));
 }
 
-static char *param_cmd(void * arg)
+static char *param_cmd(void *arg)
 {
     return chan_src_cmd(2, (char *)(arg));
 }
 
-static char *vscale_cmd(void * arg)
+static char *vscale_cmd(void *arg)
 {
     int *argp, rv;
 
     argp = (int *)(arg);
     rv = set_vert_scale(*argp);
-    if ( rv < 0 ) {
-	return "could not set vertical scale";
+    if (rv < 0) {
+        return "could not set vertical scale";
     }
     return NULL;
 }
 
-static char *vpos_cmd(void * arg)
+static char *vpos_cmd(void *arg)
 {
     double *argp;
     int rv;
 
     argp = (double *)(arg);
     rv = set_vert_pos(*argp);
-    if ( rv < 0 ) {
-	return "could not set vertical position";
+    if (rv < 0) {
+        return "could not set vertical position";
     }
     return NULL;
 }
 
-static char *voff_cmd(void * arg)
+static char *voff_cmd(void *arg)
 {
     double *argp;
     int rv;
 
     argp = (double *)(arg);
     rv = set_vert_offset(*argp, 0);
-    if ( rv < 0 ) {
-	return "could not set vertical offset";
+    if (rv < 0) {
+        return "could not set vertical offset";
     }
     return NULL;
 }
 
 
-static char *voff_ac_cmd(void * arg)
+static char *voff_ac_cmd(void *arg)
 {
     double *argp;
     int rv;
 
     argp = (double *)(arg);
     rv = set_vert_offset(*argp, 1);
-    if ( rv < 0 ) {
-	return "could not set vertical offset";
+    if (rv < 0) {
+        return "could not set vertical offset";
     }
     return NULL;
 }
 
-static char *tsource_cmd(void * arg)
+static char *tsource_cmd(void *arg)
 {
     int *argp, rv;
 
     argp = (int *)(arg);
     rv = set_trigger_source(*argp);
-    if ( rv < 0 ) {
-	return "could not set trigger source";
+    if (rv < 0) {
+        return "could not set trigger source";
     }
     return NULL;
 }
 
-static char *tlevel_cmd(void * arg)
+static char *tlevel_cmd(void *arg)
 {
     double *argp;
     int rv;
 
     argp = (double *)(arg);
     rv = set_trigger_level(*argp);
-    if ( rv < 0 ) {
-	return "could not set trigger level";
+    if (rv < 0) {
+        return "could not set trigger level";
     }
     return NULL;
 }
 
-static char *tpos_cmd(void * arg)
+static char *tpos_cmd(void *arg)
 {
     double *argp;
     int rv;
 
     argp = (double *)(arg);
     rv = set_trigger_pos(*argp);
-    if ( rv < 0 ) {
-	return "could not set trigger position";
+    if (rv < 0) {
+        return "could not set trigger position";
     }
     return NULL;
 }
 
-static char *tpolar_cmd(void * arg)
+static char *tpolar_cmd(void *arg)
 {
     int *argp;
     int rv;
 
     argp = (int *)(arg);
     rv = set_trigger_polarity(*argp);
-    if ( rv < 0 ) {
-	return "could not set trigger polarity";
+    if (rv < 0) {
+        return "could not set trigger polarity";
     }
     return NULL;
 }
 
-static char *tmode_cmd(void * arg)
+static char *tmode_cmd(void *arg)
 {
     int *argp;
     int rv;
 
     argp = (int *)(arg);
     rv = set_trigger_mode(*argp);
-    if ( rv < 0 ) {
-	return "could not set trigger mode";
+    if (rv < 0) {
+        return "could not set trigger mode";
     }
     return NULL;
 }
 
-static char *rmode_cmd(void * arg)
+static char *rmode_cmd(void *arg)
 {
     int *argp;
     int rv;
 
     argp = (int *)(arg);
     rv = set_run_mode(*argp);
-    if ( rv < 0 ) {
-	return "could not set run mode";
+    if (rv < 0) {
+        return "could not set run mode";
     }
     return NULL;
 }
-

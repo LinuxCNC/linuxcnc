@@ -53,7 +53,7 @@
 #define VENDOR 0x10b5
 #define DEVICE 0x9050
 
-#define MAX_CHANS  4
+#define MAX_CHANS 4
 #define MAX_IO_PORTS 17
 #define PINS_PER_PORT 8
 
@@ -67,22 +67,22 @@
 /* Structures used by the PCI card */
 struct encoder {
     u16 Counter[4];
-    u8 Status;		// 0x08
-    u8 dummy;		// dummy space
-    u16 Reset;		// 0x0a
-    u8 reserved[3];	// dummy space 0x0c - 0x0f
-    u16 Interrupt;	// 0x10
-    u16 DAC;		// 0x12
-    u16 DIO;		// 0x14
-    };
+    u8 Status;      // 0x08
+    u8 dummy;       // dummy space
+    u16 Reset;      // 0x0a
+    u8 reserved[3]; // dummy space 0x0c - 0x0f
+    u16 Interrupt;  // 0x10
+    u16 DAC;        // 0x12
+    u16 DIO;        // 0x14
+};
 
 struct timer {
     u8 reserved[0x2c];
-    u8 ctc0;		// 8254 Counter 0
-    u8 ctc1;		// 8254 Counter 1
-    u8 ctc2;		// 8254 Counter 2
-    u8 control;		// 8254 command register
-    };
+    u8 ctc0;    // 8254 Counter 0
+    u8 ctc1;    // 8254 Counter 1
+    u8 ctc2;    // 8254 Counter 2
+    u8 control; // 8254 command register
+};
 
 struct dac {
     u8 reserved1[0x13f]; // dummy space
@@ -91,29 +91,29 @@ struct dac {
     u16 mode;
     u16 update;
     u16 reset;
-    u8 dummy[0x2a];	// dummy space
-    u8 DIO[0x10];	// Digital IO channels
-    u16 config0;	// Direction configs for channels 00-63
-    u16 config1;	// Direction configs for channels 64-127
+    u8 dummy[0x2a]; // dummy space
+    u8 DIO[0x10];   // Digital IO channels
+    u16 config0;    // Direction configs for channels 00-63
+    u16 config1;    // Direction configs for channels 64-127
     u16 status;
-    };
+};
 
 /* IndustryPack mappings - Need to check IF u8 or u16, also check boundary address*/
 struct ip {
-    u8 ID[0x40];	// IndustryPack ID - The first (12*2) addresses used for ID info
-			// consult P20 of vip-4encdac.pdf for more info.
-    u16 IP_int;		// Interrupt status
-    u8 reserved[0x3e];	// dummy space
-    u16 IO[0x30];	// IndustryPack IO - Only need the first 0x30 address.
-			// Again, consult manual - Might it be better to use another struct here ??
-			// and also for the ID stuff....
-    };
+    u8 ID
+        [0x40]; // IndustryPack ID - The first (12*2) addresses used for ID info
+                // consult P20 of vip-4encdac.pdf for more info.
+    u16 IP_int; // Interrupt status
+    u8 reserved[0x3e]; // dummy space
+    u16 IO[0x30];      // IndustryPack IO - Only need the first 0x30 address.
+    // Again, consult manual - Might it be better to use another struct here ??
+    // and also for the ID stuff....
+};
 
-typedef union
-{
-  signed long int	Long;
-  signed short int	Word[2];
+typedef union {
+    signed long int Long;
+    signed short int Word[2];
 } Longword;
-    
+
 
 #endif

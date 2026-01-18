@@ -48,32 +48,32 @@
     information, go to www.linuxcnc.org.
 */
 
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_app.h"		/* RTAPI realtime module decls */
-#include "hal.h"		/* HAL public API decls */
+#include "rtapi.h"     /* RTAPI realtime OS API */
+#include "rtapi_app.h" /* RTAPI realtime module decls */
+#include "hal.h"       /* HAL public API decls */
 #include "rtapi_string.h"
 
 /* module information */
 MODULE_AUTHOR("John Kasunich");
 MODULE_DESCRIPTION("Thread Module for HAL");
 MODULE_LICENSE("GPL");
-static char *name1 = "thread1";	/* name of thread */
+static char *name1 = "thread1"; /* name of thread */
 RTAPI_MP_STRING(name1, "name of thread 1");
-static int fp1 = 1;		/* use floating point? default = yes */
+static int fp1 = 1; /* use floating point? default = yes */
 RTAPI_MP_INT(fp1, "thread1 uses floating point");
-static long period1 = 1000000;	/* thread period - default = 1ms thread */
-RTAPI_MP_LONG(period1,  "thread1 period (nsecs)");
-static char *name2 = NULL;	/* name of thread */
+static long period1 = 1000000; /* thread period - default = 1ms thread */
+RTAPI_MP_LONG(period1, "thread1 period (nsecs)");
+static char *name2 = NULL; /* name of thread */
 RTAPI_MP_STRING(name2, "name of thread 2");
-static int fp2 = 1;		/* use floating point? default = yes */
+static int fp2 = 1; /* use floating point? default = yes */
 RTAPI_MP_INT(fp2, "thread2 uses floating point");
-static long period2 = 0;	/* thread period - default = no thread */
+static long period2 = 0; /* thread period - default = no thread */
 RTAPI_MP_LONG(period2, "thread2 period (nsecs)");
-static char *name3 = NULL;	/* name of thread */
+static char *name3 = NULL; /* name of thread */
 RTAPI_MP_STRING(name3, "name of thread 3");
-static int fp3 = 1;		/* use floating point? default = yes */
+static int fp3 = 1; /* use floating point? default = yes */
 RTAPI_MP_INT(fp3, "thread3 uses floating point");
-static long period3 = 0;	/* thread period - default = no thread */
+static long period3 = 0; /* thread period - default = no thread */
 RTAPI_MP_LONG(period3, "thread3 period (nsecs)");
 
 /***********************************************************************
@@ -81,7 +81,7 @@ RTAPI_MP_LONG(period3, "thread3 period (nsecs)");
 ************************************************************************/
 
 /* other globals */
-static int comp_id;		/* component ID */
+static int comp_id; /* component ID */
 static int thread1_id;
 static int thread2_id;
 static int thread3_id;
@@ -101,48 +101,57 @@ int rtapi_app_main(void)
     /* have good config info, connect to the HAL */
     comp_id = hal_init("threads");
     if (comp_id < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "THREADS: ERROR: hal_init() failed\n");
-	return -1;
+        rtapi_print_msg(RTAPI_MSG_ERR, "THREADS: ERROR: hal_init() failed\n");
+        return -1;
     }
     /* was 'period' specified in the insmod command? */
     if ((period1 > 0) && (name1 != NULL) && (*name1 != '\0')) {
-	/* create a thread */
-	thread1_id = hal_create_thread(name1, period1, fp1);
-	if (thread1_id < 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"THREADS: ERROR: could not create thread '%s'\n", name1);
-	    hal_exit(comp_id);
-	    return -1;
-	} else {
-	    rtapi_print_msg(RTAPI_MSG_INFO, "THREADS: created %ld uS thread\n", period1 / 1000);
-	}
+        /* create a thread */
+        thread1_id = hal_create_thread(name1, period1, fp1);
+        if (thread1_id < 0) {
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                            "THREADS: ERROR: could not create thread '%s'\n",
+                            name1);
+            hal_exit(comp_id);
+            return -1;
+        } else {
+            rtapi_print_msg(RTAPI_MSG_INFO,
+                            "THREADS: created %ld uS thread\n",
+                            period1 / 1000);
+        }
     }
     if ((period2 > 0) && (name2 != NULL) && (*name2 != '\0')) {
-	/* create a thread */
-	thread2_id = hal_create_thread(name2, period2, fp2);
-	if (thread2_id < 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"THREADS: ERROR: could not create thread '%s'\n", name2);
-        hal_exit(thread1_id);
-	    hal_exit(comp_id);
-	    return -1;
-	} else {
-	    rtapi_print_msg(RTAPI_MSG_INFO, "THREADS: created %ld uS thread\n", period2 / 1000);
-	}
+        /* create a thread */
+        thread2_id = hal_create_thread(name2, period2, fp2);
+        if (thread2_id < 0) {
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                            "THREADS: ERROR: could not create thread '%s'\n",
+                            name2);
+            hal_exit(thread1_id);
+            hal_exit(comp_id);
+            return -1;
+        } else {
+            rtapi_print_msg(RTAPI_MSG_INFO,
+                            "THREADS: created %ld uS thread\n",
+                            period2 / 1000);
+        }
     }
     if ((period3 > 0) && (name3 != NULL) && (*name3 != '\0')) {
-	/* create a thread */
-	thread3_id = hal_create_thread(name3, period3, fp3);
-	if (thread3_id < 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"THREADS: ERROR: could not create thread '%s'\n", name3);
-        hal_exit(thread1_id);
-        hal_exit(thread2_id);
-	    hal_exit(comp_id);
-	    return -1;
-	} else {
-	    rtapi_print_msg(RTAPI_MSG_INFO, "THREADS: created %ld uS thread\n", period3 / 1000);
-	}
+        /* create a thread */
+        thread3_id = hal_create_thread(name3, period3, fp3);
+        if (thread3_id < 0) {
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                            "THREADS: ERROR: could not create thread '%s'\n",
+                            name3);
+            hal_exit(thread1_id);
+            hal_exit(thread2_id);
+            hal_exit(comp_id);
+            return -1;
+        } else {
+            rtapi_print_msg(RTAPI_MSG_INFO,
+                            "THREADS: created %ld uS thread\n",
+                            period3 / 1000);
+        }
     }
     hal_ready(comp_id);
     return 0;
@@ -150,10 +159,16 @@ int rtapi_app_main(void)
 
 void rtapi_app_exit(void)
 {
-    rtapi_print_msg(RTAPI_MSG_INFO, "THREADS: hal_exit %i %i %i", thread1_id, thread2_id, thread3_id);
-    if (thread1_id) hal_exit(thread1_id);
-    if (thread2_id) hal_exit(thread2_id);
-    if (thread3_id) hal_exit(thread3_id);
+    rtapi_print_msg(RTAPI_MSG_INFO,
+                    "THREADS: hal_exit %i %i %i",
+                    thread1_id,
+                    thread2_id,
+                    thread3_id);
+    if (thread1_id)
+        hal_exit(thread1_id);
+    if (thread2_id)
+        hal_exit(thread2_id);
+    if (thread3_id)
+        hal_exit(thread3_id);
     hal_exit(comp_id);
 }
-

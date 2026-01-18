@@ -45,36 +45,40 @@
 RTAPI_BEGIN_DECLS
 
 struct rtapi_pci_device_id {
-    rtapi_u32 vendor, device;           /* Vendor and device ID or PCI_ANY_ID*/
-    rtapi_u32 subvendor, subdevice;     /* Subsystem ID's or PCI_ANY_ID */
-    rtapi_u32 rtapi_class, class_mask;        /* (class,subclass,prog-if) triplet */
+    rtapi_u32 vendor, device;          /* Vendor and device ID or PCI_ANY_ID*/
+    rtapi_u32 subvendor, subdevice;    /* Subsystem ID's or PCI_ANY_ID */
+    rtapi_u32 rtapi_class, class_mask; /* (class,subclass,prog-if) triplet */
 };
 
 struct rtapi_pci_resource {
-    intptr_t        start;         /* Details read from device/resource file */
-    intptr_t        end;
-    unsigned long   flags;
-    void            *mmio;          /* The mmap address (if mapped) */
+    intptr_t start; /* Details read from device/resource file */
+    intptr_t end;
+    unsigned long flags;
+    void *mmio; /* The mmap address (if mapped) */
 };
 
 struct rtapi_pci_dev {
-    char            dev_name[32];   /* Device name (0000:03:00.0) */
-    char            sys_path[256];  /* Path to device (/sys/device/... */
-    unsigned short  vendor;
-    unsigned short  device;
-    unsigned short  subsystem_vendor;
-    unsigned short  subsystem_device;
-    unsigned int    rtapi_class;          /* 3 bytes: (base,sub,prog-if) */
-    struct rtapi_pci_resource
-                    resource[6];    /* Device BARs */
-    void *driver_data;              /* Data private to the driver */
+    char dev_name[32];  /* Device name (0000:03:00.0) */
+    char sys_path[256]; /* Path to device (/sys/device/... */
+    unsigned short vendor;
+    unsigned short device;
+    unsigned short subsystem_vendor;
+    unsigned short subsystem_device;
+    unsigned int rtapi_class;              /* 3 bytes: (base,sub,prog-if) */
+    struct rtapi_pci_resource resource[6]; /* Device BARs */
+    void *driver_data;                     /* Data private to the driver */
 };
 
 struct rtapi_pci_driver {
     char *name;
-    const struct rtapi_pci_device_id *id_table;   /* must be non-NULL for probe to be called */
-    int  (*probe)  (struct rtapi_pci_dev *dev, const struct rtapi_pci_device_id *id);   /* New device inserted */
-    void (*remove) (struct rtapi_pci_dev *dev);   /* Device removed (NULL if not a hot-plug capable driver) */
+    const struct rtapi_pci_device_id
+        *id_table; /* must be non-NULL for probe to be called */
+    int (*probe)(
+        struct rtapi_pci_dev *dev,
+        const struct rtapi_pci_device_id *id); /* New device inserted */
+    void (*remove)(
+        struct rtapi_pci_dev
+            *dev); /* Device removed (NULL if not a hot-plug capable driver) */
     void *private_data; /* Data private to rtapi_pci */
 };
 
@@ -91,15 +95,17 @@ void rtapi_pci_unregister_driver(struct rtapi_pci_driver *driver);
 int rtapi_pci_enable_device(struct rtapi_pci_dev *dev);
 int rtapi_pci_disable_device(struct rtapi_pci_dev *dev);
 
-#define rtapi_pci_resource_start(dev, bar)    ((dev)->resource[(bar)].start)
-#define rtapi_pci_resource_end(dev, bar)      ((dev)->resource[(bar)].end)
-#define rtapi_pci_resource_flags(dev, bar)    ((dev)->resource[(bar)].flags)
-#define rtapi_pci_resource_len(dev,bar) \
-        ((rtapi_pci_resource_start((dev), (bar)) == 0 &&      \
-          rtapi_pci_resource_end((dev), (bar)) ==             \
-          rtapi_pci_resource_start((dev), (bar))) ? 0 :       \
-                                                        \
-         (rtapi_pci_resource_end((dev), (bar)) -              \
+#define rtapi_pci_resource_start(dev, bar) ((dev)->resource[(bar)].start)
+#define rtapi_pci_resource_end(dev, bar) ((dev)->resource[(bar)].end)
+#define rtapi_pci_resource_flags(dev, bar) ((dev)->resource[(bar)].flags)
+#define rtapi_pci_resource_len(dev, bar)                                       \
+    ((rtapi_pci_resource_start((dev), (bar)) == 0 &&                           \
+      rtapi_pci_resource_end((dev), (bar)) ==                                  \
+          rtapi_pci_resource_start((dev), (bar)))                              \
+         ? 0                                                                   \
+         :                                                                     \
+                                                                               \
+         (rtapi_pci_resource_end((dev), (bar)) -                               \
           rtapi_pci_resource_start((dev), (bar)) + 1))
 
 static inline void rtapi_pci_set_drvdata(struct rtapi_pci_dev *pdev, void *data)

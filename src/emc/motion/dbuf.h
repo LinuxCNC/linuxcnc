@@ -42,7 +42,9 @@ void dbuf_iter_delete(struct dbuf_iter *di);
 void dbuf_iter_init(struct dbuf_iter *di, struct dbuf *d);
 
 int dbuf_put_byte(struct dbuf_iter *di, unsigned char data);
-int dbuf_put_bytes(struct dbuf_iter *di, const unsigned char *data, unsigned sz);
+int dbuf_put_bytes(struct dbuf_iter *di,
+                   const unsigned char *data,
+                   unsigned sz);
 int dbuf_put_int(struct dbuf_iter *di, int i);
 int dbuf_put_long(struct dbuf_iter *di, long i);
 int dbuf_put_float(struct dbuf_iter *di, float i);

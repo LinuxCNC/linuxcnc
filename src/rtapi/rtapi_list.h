@@ -24,8 +24,8 @@
 #ifdef __KERNEL__
 #include <linux/list.h>
 #define rtapi_list_head list_head
-#define rtapi_list_for_each(pos,head) list_for_each(pos,head)
-#define rtapi_list_entry(ptr,type,member) list_entry(ptr,type,member)
+#define rtapi_list_for_each(pos, head) list_for_each(pos, head)
+#define rtapi_list_entry(ptr, type, member) list_entry(ptr, type, member)
 #define rtapi_list_add list_add
 #define rtapi_list_add_tail list_add_tail
 #define rtapi_list_del list_del
@@ -37,54 +37,59 @@
 RTAPI_BEGIN_DECLS
 
 struct rtapi_list_head {
-        struct rtapi_list_head *next, *prev;
+    struct rtapi_list_head *next, *prev;
 };
 
-#define rtapi_list_for_each(pos, head) \
-        for (pos = (head)->next; pos != (head); pos = pos->next)
-#define rtapi_container_of(ptr, type, member) ({                      \
-        const typeof( ((type *)0)->member ) *__mptr = (ptr);    \
-        (type *)( (char *)__mptr - offsetof(type,member) );})
-#define rtapi_list_entry(ptr, type, member) \
-         rtapi_container_of(ptr, type, member)
+#define rtapi_list_for_each(pos, head)                                         \
+    for (pos = (head)->next; pos != (head); pos = pos->next)
+#define rtapi_container_of(ptr, type, member)                                  \
+    ({                                                                         \
+        const typeof(((type *)0)->member) *__mptr = (ptr);                     \
+        (type *)((char *)__mptr - offsetof(type, member));                     \
+    })
+#define rtapi_list_entry(ptr, type, member)                                    \
+    rtapi_container_of(ptr, type, member)
 
 static inline void rtapi__list_add(struct rtapi_list_head *new_,
-                              struct rtapi_list_head *prev,
-                              struct rtapi_list_head *next)
+                                   struct rtapi_list_head *prev,
+                                   struct rtapi_list_head *next)
 {
-        next->prev = new_;
-        new_->next = next;
-        new_->prev = prev;
-        prev->next = new_;
+    next->prev = new_;
+    new_->next = next;
+    new_->prev = prev;
+    prev->next = new_;
 }
 
-static inline void rtapi__list_del(struct rtapi_list_head * prev, struct rtapi_list_head * next)
+static inline void rtapi__list_del(struct rtapi_list_head *prev,
+                                   struct rtapi_list_head *next)
 {
-        next->prev = prev;
-        prev->next = next;
+    next->prev = prev;
+    prev->next = next;
 }
 
-static inline void rtapi_list_add(struct rtapi_list_head *new_, struct rtapi_list_head *head)
+static inline void rtapi_list_add(struct rtapi_list_head *new_,
+                                  struct rtapi_list_head *head)
 {
-        rtapi__list_add(new_, head, head->next);
+    rtapi__list_add(new_, head, head->next);
 }
 
-static inline void rtapi_list_add_tail(struct rtapi_list_head *new_, struct rtapi_list_head *head)
+static inline void rtapi_list_add_tail(struct rtapi_list_head *new_,
+                                       struct rtapi_list_head *head)
 {
-        rtapi__list_add(new_, head->prev, head);
+    rtapi__list_add(new_, head->prev, head);
 }
 
 static inline void rtapi_list_del(struct rtapi_list_head *entry)
 {
-        rtapi__list_del(entry->prev, entry->next);
-        entry->next = 0;
-        entry->prev = 0;
+    rtapi__list_del(entry->prev, entry->next);
+    entry->next = 0;
+    entry->prev = 0;
 }
 
 static inline void RTAPI_INIT_LIST_HEAD(struct rtapi_list_head *list)
 {
-        list->next = list;
-        list->prev = list;
+    list->next = list;
+    list->prev = list;
 }
 
 RTAPI_END_DECLS

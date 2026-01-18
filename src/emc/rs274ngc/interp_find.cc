@@ -65,25 +65,25 @@ case).
 
 */
 
-double Interp::find_arc_length(double x1,        //!< X-coordinate of start point       
-                              double y1,        //!< Y-coordinate of start point       
-                              double z1,        //!< Z-coordinate of start point       
-                              double center_x,  //!< X-coordinate of arc center        
-                              double center_y,  //!< Y-coordinate of arc center        
-                              int turn, //!< no. of full or partial circles CCW
-                              double x2,        //!< X-coordinate of end point         
-                              double y2,        //!< Y-coordinate of end point         
-                              double z2)        //!< Z-coordinate of end point         
+double Interp::find_arc_length(double x1,       //!< X-coordinate of start point
+                               double y1,       //!< Y-coordinate of start point
+                               double z1,       //!< Z-coordinate of start point
+                               double center_x, //!< X-coordinate of arc center
+                               double center_y, //!< Y-coordinate of arc center
+                               int turn, //!< no. of full or partial circles CCW
+                               double x2, //!< X-coordinate of end point
+                               double y2, //!< Y-coordinate of end point
+                               double z2) //!< Z-coordinate of end point
 {
-  double radius;
-  double theta;                 /* amount of turn of arc in radians */
+    double radius;
+    double theta; /* amount of turn of arc in radians */
 
-  radius = hypot((center_x - x1), (center_y - y1));
-  theta = find_turn(x1, y1, center_x, center_y, turn, x2, y2);
-  if (z2 == z1)
-    return (radius * fabs(theta));
-  else
-    return hypot((radius * theta), (z2 - z1));
+    radius = hypot((center_x - x1), (center_y - y1));
+    theta = find_turn(x1, y1, center_x, center_y, turn, x2, y2);
+    if (z2 == z1)
+        return (radius * fabs(theta));
+    else
+        return hypot((radius * theta), (z2 - z1));
 }
 
 
@@ -93,20 +93,27 @@ double Interp::find_arc_length(double x1,        //!< X-coordinate of start poin
    of the axis are considered equivalent and we just need to find the
    nearest one. */
 
-int Interp::unwrap_rotary(double *r, double sign_of, double commanded, double current, char axis) {
+int Interp::unwrap_rotary(
+    double *r, double sign_of, double commanded, double current, char axis)
+{
     double result;
     int neg = copysign(1.0, sign_of) < 0.0;
-    CHKS((sign_of <= -360.0 || sign_of >= 360.0), (_("Invalid absolute position %5.2f for wrapped rotary axis %c")), sign_of, axis);
-    
-    double d = floor(current/360.0);
-    result = fabs(commanded) + (d*360.0);
-    if(!neg && result < current) result += 360.0;
-    if(neg && result > current) result -= 360.0;
+    CHKS((sign_of <= -360.0 || sign_of >= 360.0),
+         (_("Invalid absolute position %5.2f for wrapped rotary axis %c")),
+         sign_of,
+         axis);
+
+    double d = floor(current / 360.0);
+    result = fabs(commanded) + (d * 360.0);
+    if (!neg && result < current)
+        result += 360.0;
+    if (neg && result > current)
+        result -= 360.0;
     *r = result;
 
     return INTERP_OK;
 }
-    
+
 
 /****************************************************************************/
 
@@ -151,15 +158,18 @@ radius compensation is in progress, or (2) the actual current position.
 */
 
 
-int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS274/NGC instructions
-                      setup_pointer s,    //!< pointer to machine settings                 
-                      double *px,        //!< pointer to end_x                            
-                      double *py,        //!< pointer to end_y                            
-                      double *pz,        //!< pointer to end_z                            
-                      double *AA_p,      //!< pointer to end_a                      
-                      double *BB_p,      //!< pointer to end_b                      
-                      double *CC_p,      //!< pointer to end_c                      
-                      double *u_p, double *v_p, double *w_p)
+int Interp::find_ends(
+    block_pointer block, //!< pointer to a block of RS274/NGC instructions
+    setup_pointer s,     //!< pointer to machine settings
+    double *px,          //!< pointer to end_x
+    double *py,          //!< pointer to end_y
+    double *pz,          //!< pointer to end_z
+    double *AA_p,        //!< pointer to end_a
+    double *BB_p,        //!< pointer to end_b
+    double *CC_p,        //!< pointer to end_c
+    double *u_p,
+    double *v_p,
+    double *w_p)
 {
     bool middle;
     CUTTER_COMP comp;
@@ -167,23 +177,25 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
     middle = !s->cutter_comp_firstmove;
     comp = s->cutter_comp_side;
 
-    if (block->g_modes[GM_MODAL_0] == G_53) {      /* distance mode is absolute in this case */
+    if (block->g_modes[GM_MODAL_0] ==
+        G_53) { /* distance mode is absolute in this case */
 #ifdef DEBUG_EMC
         COMMENT("interpreter: offsets temporarily suspended");
 #endif
-        CHKS((block->radius_flag || block->theta_flag), _("Cannot use polar coordinates with G53"));
+        CHKS((block->radius_flag || block->theta_flag),
+             _("Cannot use polar coordinates with G53"));
 
         double cx = s->current_x + s->axis_offset_x;
         double cy = s->current_y + s->axis_offset_y;
         rotate(&cx, &cy, s->rotation_xy);
 
-        if(block->x_flag) {
+        if (block->x_flag) {
             *px = block->x_number - s->origin_offset_x - s->tool_offset.tran.x;
         } else {
             *px = cx;
         }
 
-        if(block->y_flag) {
+        if (block->y_flag) {
             *py = block->y_number - s->origin_offset_y - s->tool_offset.tran.y;
         } else {
             *py = cy;
@@ -193,110 +205,141 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
         *px -= s->axis_offset_x;
         *py -= s->axis_offset_y;
 
-        if(block->z_flag) {
-            *pz = block->z_number - s->origin_offset_z - s->axis_offset_z - s->tool_offset.tran.z;
+        if (block->z_flag) {
+            *pz = block->z_number - s->origin_offset_z - s->axis_offset_z -
+                  s->tool_offset.tran.z;
         } else {
             *pz = s->current_z;
         }
 
-        if(block->a_flag) {
-            if(s->a_axis_wrapped) {
-                CHP(unwrap_rotary(AA_p, block->a_number, 
-                                  block->a_number - s->AA_origin_offset - s->AA_axis_offset - s->tool_offset.a,
-                                  s->AA_current, 'A'));
+        if (block->a_flag) {
+            if (s->a_axis_wrapped) {
+                CHP(unwrap_rotary(AA_p,
+                                  block->a_number,
+                                  block->a_number - s->AA_origin_offset -
+                                      s->AA_axis_offset - s->tool_offset.a,
+                                  s->AA_current,
+                                  'A'));
             } else {
-                *AA_p = block->a_number - s->AA_origin_offset - s->AA_axis_offset;
+                *AA_p =
+                    block->a_number - s->AA_origin_offset - s->AA_axis_offset;
             }
         } else {
             *AA_p = s->AA_current;
         }
 
-        if(block->b_flag) {
-            if(s->b_axis_wrapped) {
-                CHP(unwrap_rotary(BB_p, block->b_number, 
-                                  block->b_number - s->BB_origin_offset - s->BB_axis_offset - s->tool_offset.b,
-                                  s->BB_current, 'B'));
+        if (block->b_flag) {
+            if (s->b_axis_wrapped) {
+                CHP(unwrap_rotary(BB_p,
+                                  block->b_number,
+                                  block->b_number - s->BB_origin_offset -
+                                      s->BB_axis_offset - s->tool_offset.b,
+                                  s->BB_current,
+                                  'B'));
             } else {
-                *BB_p = block->b_number - s->BB_origin_offset - s->BB_axis_offset;
+                *BB_p =
+                    block->b_number - s->BB_origin_offset - s->BB_axis_offset;
             }
         } else {
             *BB_p = s->BB_current;
         }
 
-        if(block->c_flag) {
-            if(s->c_axis_wrapped) {
-                CHP(unwrap_rotary(CC_p, block->c_number, 
-                                  block->c_number - s->CC_origin_offset - s->CC_axis_offset - s->tool_offset.c,
-                                  s->CC_current, 'C'));
+        if (block->c_flag) {
+            if (s->c_axis_wrapped) {
+                CHP(unwrap_rotary(CC_p,
+                                  block->c_number,
+                                  block->c_number - s->CC_origin_offset -
+                                      s->CC_axis_offset - s->tool_offset.c,
+                                  s->CC_current,
+                                  'C'));
             } else {
-                *CC_p = block->c_number - s->CC_origin_offset - s->CC_axis_offset;
+                *CC_p =
+                    block->c_number - s->CC_origin_offset - s->CC_axis_offset;
             }
         } else {
             *CC_p = s->CC_current;
         }
 
-        if(block->u_flag) {
-            *u_p = block->u_number - s->u_origin_offset - s->u_axis_offset - s->tool_offset.u;
+        if (block->u_flag) {
+            *u_p = block->u_number - s->u_origin_offset - s->u_axis_offset -
+                   s->tool_offset.u;
         } else {
             *u_p = s->u_current;
         }
 
-        if(block->v_flag) {
-            *v_p = block->v_number - s->v_origin_offset - s->v_axis_offset - s->tool_offset.v;
+        if (block->v_flag) {
+            *v_p = block->v_number - s->v_origin_offset - s->v_axis_offset -
+                   s->tool_offset.v;
         } else {
             *v_p = s->v_current;
         }
 
-        if(block->w_flag) {
-            *w_p = block->w_number - s->w_origin_offset - s->w_axis_offset - s->tool_offset.w;
+        if (block->w_flag) {
+            *w_p = block->w_number - s->w_origin_offset - s->w_axis_offset -
+                   s->tool_offset.w;
         } else {
             *w_p = s->w_current;
         }
     } else if (s->distance_mode == DISTANCE_MODE::ABSOLUTE) {
 
-        if(block->x_flag) {
+        if (block->x_flag) {
             *px = block->x_number;
         } else {
             // both cutter comp planes affect X ...
-            *px = (comp != CUTTER_COMP::OFF && middle) ? s->program_x : s->current_x;
+            *px = (comp != CUTTER_COMP::OFF && middle) ? s->program_x
+                                                       : s->current_x;
         }
 
-        if(block->y_flag) {
+        if (block->y_flag) {
             *py = block->y_number;
         } else {
             // but only XY affects Y ...
-            *py = (comp != CUTTER_COMP::OFF && middle && s->plane == CANON_PLANE::XY) ? s->program_y : s->current_y;
+            *py = (comp != CUTTER_COMP::OFF && middle &&
+                   s->plane == CANON_PLANE::XY)
+                      ? s->program_y
+                      : s->current_y;
         }
 
-        if(block->radius_flag && block->theta_flag) {
-            CHKS((block->x_flag || block->y_flag), _("Cannot specify X or Y words with polar coordinate"));
+        if (block->radius_flag && block->theta_flag) {
+            CHKS((block->x_flag || block->y_flag),
+                 _("Cannot specify X or Y words with polar coordinate"));
             *px = block->radius * cos(D2R(block->theta));
             *py = block->radius * sin(D2R(block->theta));
-        } else if(block->radius_flag) {
+        } else if (block->radius_flag) {
             double theta;
-            CHKS((block->x_flag || block->y_flag), _("Cannot specify X or Y words with polar coordinate"));
-            CHKS((*py == 0 && *px == 0), _("Must specify angle in polar coordinate if at the origin"));
+            CHKS((block->x_flag || block->y_flag),
+                 _("Cannot specify X or Y words with polar coordinate"));
+            CHKS((*py == 0 && *px == 0),
+                 _("Must specify angle in polar coordinate if at the origin"));
             theta = atan2(*py, *px);
             *px = block->radius * cos(theta);
             *py = block->radius * sin(theta);
-        } else  if(block->theta_flag) {
+        } else if (block->theta_flag) {
             double radius;
-            CHKS((block->x_flag || block->y_flag), _("Cannot specify X or Y words with polar coordinate"));
+            CHKS((block->x_flag || block->y_flag),
+                 _("Cannot specify X or Y words with polar coordinate"));
             radius = hypot(*py, *px);
             *px = radius * cos(D2R(block->theta));
             *py = radius * sin(D2R(block->theta));
         }
 
-        if(block->z_flag) {
+        if (block->z_flag) {
             *pz = block->z_number;
         } else {
             // and only XZ affects Z.
-            *pz = (comp != CUTTER_COMP::OFF && middle && s->plane == CANON_PLANE::XZ) ? s->program_z : s->current_z;
+            *pz = (comp != CUTTER_COMP::OFF && middle &&
+                   s->plane == CANON_PLANE::XZ)
+                      ? s->program_z
+                      : s->current_z;
         }
 
-        if(block->a_flag) {
-            if(s->a_axis_wrapped) {
-                CHP(unwrap_rotary(AA_p, block->a_number, block->a_number, s->AA_current, 'A'));
+        if (block->a_flag) {
+            if (s->a_axis_wrapped) {
+                CHP(unwrap_rotary(AA_p,
+                                  block->a_number,
+                                  block->a_number,
+                                  s->AA_current,
+                                  'A'));
             } else {
                 *AA_p = block->a_number;
             }
@@ -304,9 +347,13 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
             *AA_p = s->AA_current;
         }
 
-        if(block->b_flag) {
-            if(s->b_axis_wrapped) {
-                CHP(unwrap_rotary(BB_p, block->b_number, block->b_number, s->BB_current, 'B'));
+        if (block->b_flag) {
+            if (s->b_axis_wrapped) {
+                CHP(unwrap_rotary(BB_p,
+                                  block->b_number,
+                                  block->b_number,
+                                  s->BB_current,
+                                  'B'));
             } else {
                 *BB_p = block->b_number;
             }
@@ -314,9 +361,13 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
             *BB_p = s->BB_current;
         }
 
-        if(block->c_flag) {
-            if(s->c_axis_wrapped) {
-                CHP(unwrap_rotary(CC_p, block->c_number, block->c_number, s->CC_current, 'C'));
+        if (block->c_flag) {
+            if (s->c_axis_wrapped) {
+                CHP(unwrap_rotary(CC_p,
+                                  block->c_number,
+                                  block->c_number,
+                                  s->CC_current,
+                                  'C'));
             } else {
                 *CC_p = block->c_number;
             }
@@ -328,30 +379,42 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
         *v_p = (block->v_flag) ? block->v_number : s->v_current;
         *w_p = (block->w_flag) ? block->w_number : s->w_current;
 
-    } else {                      /* mode is DISTANCE_MODE::INCREMENTAL */
+    } else { /* mode is DISTANCE_MODE::INCREMENTAL */
 
         // both cutter comp planes affect X ...
-        *px = (comp != CUTTER_COMP::OFF && middle) ? s->program_x: s->current_x;
-        if(block->x_flag) *px += block->x_number;
+        *px =
+            (comp != CUTTER_COMP::OFF && middle) ? s->program_x : s->current_x;
+        if (block->x_flag)
+            *px += block->x_number;
 
         // but only XY affects Y ...
-        *py = (comp != CUTTER_COMP::OFF && middle && s->plane == CANON_PLANE::XY) ? s->program_y: s->current_y;
-        if(block->y_flag) *py += block->y_number;
+        *py =
+            (comp != CUTTER_COMP::OFF && middle && s->plane == CANON_PLANE::XY)
+                ? s->program_y
+                : s->current_y;
+        if (block->y_flag)
+            *py += block->y_number;
 
-        if(block->radius_flag) {
+        if (block->radius_flag) {
             double radius, theta;
-            CHKS((block->x_flag || block->y_flag), _("Cannot specify X or Y words with polar coordinate"));
-            CHKS((*py == 0 && *px == 0), _("Incremental motion with polar coordinates is indeterminate when at the origin"));
+            CHKS((block->x_flag || block->y_flag),
+                 _("Cannot specify X or Y words with polar coordinate"));
+            CHKS((*py == 0 && *px == 0),
+                 _("Incremental motion with polar coordinates is indeterminate "
+                   "when at the origin"));
             theta = atan2(*py, *px);
             radius = hypot(*py, *px) + block->radius;
             *px = radius * cos(theta);
             *py = radius * sin(theta);
         }
 
-        if(block->theta_flag) {
+        if (block->theta_flag) {
             double radius, theta;
-            CHKS((block->x_flag || block->y_flag), _("Cannot specify X or Y words with polar coordinate"));
-            CHKS((*py == 0 && *px == 0), _("G91 motion with polar coordinates is indeterminate when at the origin"));
+            CHKS((block->x_flag || block->y_flag),
+                 _("Cannot specify X or Y words with polar coordinate"));
+            CHKS((*py == 0 && *px == 0),
+                 _("G91 motion with polar coordinates is indeterminate when at "
+                   "the origin"));
             theta = atan2(*py, *px) + D2R(block->theta);
             radius = hypot(*py, *px);
             *px = radius * cos(theta);
@@ -359,26 +422,36 @@ int Interp::find_ends(block_pointer block,       //!< pointer to a block of RS27
         }
 
         // and only XZ affects Z.
-        *pz = (comp != CUTTER_COMP::OFF && middle && s->plane == CANON_PLANE::XZ) ? s->program_z: s->current_z;
-        if(block->z_flag) *pz += block->z_number;
+        *pz =
+            (comp != CUTTER_COMP::OFF && middle && s->plane == CANON_PLANE::XZ)
+                ? s->program_z
+                : s->current_z;
+        if (block->z_flag)
+            *pz += block->z_number;
 
         *AA_p = s->AA_current;
-        if(block->a_flag) *AA_p += block->a_number;
+        if (block->a_flag)
+            *AA_p += block->a_number;
 
         *BB_p = s->BB_current;
-        if(block->b_flag) *BB_p += block->b_number;
+        if (block->b_flag)
+            *BB_p += block->b_number;
 
         *CC_p = s->CC_current;
-        if(block->c_flag) *CC_p += block->c_number;
+        if (block->c_flag)
+            *CC_p += block->c_number;
 
         *u_p = s->u_current;
-        if(block->u_flag) *u_p += block->u_number;
+        if (block->u_flag)
+            *u_p += block->u_number;
 
         *v_p = s->v_current;
-        if(block->v_flag) *v_p += block->v_number;
+        if (block->v_flag)
+            *v_p += block->v_number;
 
         *w_p = s->w_current;
-        if(block->w_flag) *w_p += block->w_number;
+        if (block->w_flag)
+            *w_p += block->w_number;
     }
     return INTERP_OK;
 }
@@ -405,69 +478,94 @@ Don't confuse this with the inverse operation.
 
 */
 
-int Interp::find_relative(double x1,     //!< absolute x position        
-                          double y1,     //!< absolute y position        
-                          double z1,     //!< absolute z position        
-                          double AA_1,   //!< absolute a position         
-                          double BB_1,   //!< absolute b position         
-                          double CC_1,   //!< absolute c position         
-                          double u_1,
-                          double v_1,
-                          double w_1,
-                          double *x2,    //!< pointer to relative x      
-                          double *y2,    //!< pointer to relative y      
-                          double *z2,    //!< pointer to relative z      
-                          double *AA_2,  //!< pointer to relative a       
-                          double *BB_2,  //!< pointer to relative b       
-                          double *CC_2,  //!< pointer to relative c       
-                          double *u_2,
-                          double *v_2,
-                          double *w_2,
-                          setup_pointer settings)        //!< pointer to machine settings
+int Interp::find_relative(
+    double x1,   //!< absolute x position
+    double y1,   //!< absolute y position
+    double z1,   //!< absolute z position
+    double AA_1, //!< absolute a position
+    double BB_1, //!< absolute b position
+    double CC_1, //!< absolute c position
+    double u_1,
+    double v_1,
+    double w_1,
+    double *x2,   //!< pointer to relative x
+    double *y2,   //!< pointer to relative y
+    double *z2,   //!< pointer to relative z
+    double *AA_2, //!< pointer to relative a
+    double *BB_2, //!< pointer to relative b
+    double *CC_2, //!< pointer to relative c
+    double *u_2,
+    double *v_2,
+    double *w_2,
+    setup_pointer settings) //!< pointer to machine settings
 {
-  *x2 = x1 - settings->origin_offset_x -  settings->tool_offset.tran.x;
-  *y2 = y1 - settings->origin_offset_y -  settings->tool_offset.tran.y;
-  rotate(x2, y2, -settings->rotation_xy);
-  *x2 -= settings->axis_offset_x;
-  *y2 -= settings->axis_offset_y;
-  *z2 = z1 - settings->origin_offset_z - settings->axis_offset_z - settings->tool_offset.tran.z;
+    *x2 = x1 - settings->origin_offset_x - settings->tool_offset.tran.x;
+    *y2 = y1 - settings->origin_offset_y - settings->tool_offset.tran.y;
+    rotate(x2, y2, -settings->rotation_xy);
+    *x2 -= settings->axis_offset_x;
+    *y2 -= settings->axis_offset_y;
+    *z2 = z1 - settings->origin_offset_z - settings->axis_offset_z -
+          settings->tool_offset.tran.z;
 
-  if(settings->a_axis_wrapped) {
-      CHP(unwrap_rotary(AA_2, AA_1,
-                        AA_1 - settings->AA_origin_offset - settings->AA_axis_offset - settings->tool_offset.a,
-                        settings->AA_current, 'A'));
-  } else {
-      *AA_2 = AA_1 - settings->AA_origin_offset - settings->AA_axis_offset;
-  }
+    if (settings->a_axis_wrapped) {
+        CHP(unwrap_rotary(AA_2,
+                          AA_1,
+                          AA_1 - settings->AA_origin_offset -
+                              settings->AA_axis_offset -
+                              settings->tool_offset.a,
+                          settings->AA_current,
+                          'A'));
+    } else {
+        *AA_2 = AA_1 - settings->AA_origin_offset - settings->AA_axis_offset;
+    }
 
-  if(settings->b_axis_wrapped) {
-      CHP(unwrap_rotary(BB_2, BB_1,
-                        BB_1 - settings->BB_origin_offset - settings->BB_axis_offset - settings->tool_offset.b,
-                        settings->BB_current, 'B'));
-  } else {
-      *BB_2 = BB_1 - settings->BB_origin_offset - settings->BB_axis_offset;
-  }
+    if (settings->b_axis_wrapped) {
+        CHP(unwrap_rotary(BB_2,
+                          BB_1,
+                          BB_1 - settings->BB_origin_offset -
+                              settings->BB_axis_offset -
+                              settings->tool_offset.b,
+                          settings->BB_current,
+                          'B'));
+    } else {
+        *BB_2 = BB_1 - settings->BB_origin_offset - settings->BB_axis_offset;
+    }
 
-  if(settings->c_axis_wrapped) {
-      CHP(unwrap_rotary(CC_2, CC_1,
-                        CC_1 - settings->CC_origin_offset - settings->CC_axis_offset - settings->tool_offset.c,
-                        settings->CC_current, 'C'));
-  } else {
-      *CC_2 = CC_1 - settings->CC_origin_offset - settings->CC_axis_offset;
-  }
+    if (settings->c_axis_wrapped) {
+        CHP(unwrap_rotary(CC_2,
+                          CC_1,
+                          CC_1 - settings->CC_origin_offset -
+                              settings->CC_axis_offset -
+                              settings->tool_offset.c,
+                          settings->CC_current,
+                          'C'));
+    } else {
+        *CC_2 = CC_1 - settings->CC_origin_offset - settings->CC_axis_offset;
+    }
 
-  *u_2 = u_1 - settings->u_origin_offset - settings->u_axis_offset - settings->tool_offset.u;
-  *v_2 = v_1 - settings->v_origin_offset - settings->v_axis_offset - settings->tool_offset.v;
-  *w_2 = w_1 - settings->w_origin_offset - settings->w_axis_offset - settings->tool_offset.w;
-  return INTERP_OK;
+    *u_2 = u_1 - settings->u_origin_offset - settings->u_axis_offset -
+           settings->tool_offset.u;
+    *v_2 = v_1 - settings->v_origin_offset - settings->v_axis_offset -
+           settings->tool_offset.v;
+    *w_2 = w_1 - settings->w_origin_offset - settings->w_axis_offset -
+           settings->tool_offset.w;
+    return INTERP_OK;
 }
 
 // find what the current coordinates would be if we were in a different system
 
-int Interp::find_current_in_system(setup_pointer s, int system,
-                                   double *x, double *y, double *z,
-                                   double *a, double *b, double *c,
-                                   double *u, double *v, double *w) {
+int Interp::find_current_in_system(setup_pointer s,
+                                   int system,
+                                   double *x,
+                                   double *y,
+                                   double *z,
+                                   double *a,
+                                   double *b,
+                                   double *c,
+                                   double *u,
+                                   double *v,
+                                   double *w)
+{
     double *p = s->parameters;
 
     *x = s->current_x;
@@ -533,10 +631,18 @@ int Interp::find_current_in_system(setup_pointer s, int system,
 // find what the current coordinates would be if we were in a different system,
 // if TLO were unapplied
 
-int Interp::find_current_in_system_without_tlo(setup_pointer s, int system,
-                                   double *x, double *y, double *z,
-                                   double *a, double *b, double *c,
-                                   double *u, double *v, double *w) {
+int Interp::find_current_in_system_without_tlo(setup_pointer s,
+                                               int system,
+                                               double *x,
+                                               double *y,
+                                               double *z,
+                                               double *a,
+                                               double *b,
+                                               double *c,
+                                               double *u,
+                                               double *v,
+                                               double *w)
+{
     double *p = s->parameters;
 
     *x = s->current_x;
@@ -641,33 +747,37 @@ which is what is desired.
 
 */
 
-double Interp::find_straight_length(double x2,   //!< X-coordinate of end point   
-                                    double y2,   //!< Y-coordinate of end point   
-                                    double z2,   //!< Z-coordinate of end point   
-                                    double AA_2, //!< A-coordinate of end point    
-                                    double BB_2, //!< B-coordinate of end point    
-                                    double CC_2, //!< C-coordinate of end point    
-                                    double u_2,
-                                    double v_2,
-                                    double w_2,
-                                    double x1,   //!< X-coordinate of start point 
-                                    double y1,   //!< Y-coordinate of start point 
-                                    double z1,    //!< Z-coordinate of start point 
-                                    double AA_1,        //!< A-coordinate of start point  
-                                    double BB_1,        //!< B-coordinate of start point  
-                                    double CC_1,        //!< C-coordinate of start point  
-                                    double u_1,
-                                    double v_1,
-                                    double w_1
-  )
+double
+Interp::find_straight_length(double x2,   //!< X-coordinate of end point
+                             double y2,   //!< Y-coordinate of end point
+                             double z2,   //!< Z-coordinate of end point
+                             double AA_2, //!< A-coordinate of end point
+                             double BB_2, //!< B-coordinate of end point
+                             double CC_2, //!< C-coordinate of end point
+                             double u_2,
+                             double v_2,
+                             double w_2,
+                             double x1,   //!< X-coordinate of start point
+                             double y1,   //!< Y-coordinate of start point
+                             double z1,   //!< Z-coordinate of start point
+                             double AA_1, //!< A-coordinate of start point
+                             double BB_1, //!< B-coordinate of start point
+                             double CC_1, //!< C-coordinate of start point
+                             double u_1,
+                             double v_1,
+                             double w_1)
 {
 #define tiny 1e-7
-    if ( (fabs(x1-x2) > tiny) || (fabs(y1-y2) > tiny) || (fabs(z1-z2) > tiny) )
+    if ((fabs(x1 - x2) > tiny) || (fabs(y1 - y2) > tiny) ||
+        (fabs(z1 - z2) > tiny))
         return sqrt(pow((x2 - x1), 2) + pow((y2 - y1), 2) + pow((z2 - z1), 2));
-    else if ( (fabs(u_1-u_2) > tiny) || (fabs(v_1-v_2) > tiny) || (fabs(w_1-w_2) > tiny) )
-        return sqrt(pow((u_2 - u_1), 2) + pow((v_2 - v_1), 2) + pow((w_2 - w_1), 2));
+    else if ((fabs(u_1 - u_2) > tiny) || (fabs(v_1 - v_2) > tiny) ||
+             (fabs(w_1 - w_2) > tiny))
+        return sqrt(pow((u_2 - u_1), 2) + pow((v_2 - v_1), 2) +
+                    pow((w_2 - w_1), 2));
     else
-        return sqrt(pow((AA_2 - AA_1), 2) + pow((BB_2 - BB_1), 2) + pow((CC_2 - CC_1), 2));
+        return sqrt(pow((AA_2 - AA_1), 2) + pow((BB_2 - BB_1), 2) +
+                    pow((CC_2 - CC_1), 2));
 }
 
 /****************************************************************************/
@@ -684,75 +794,78 @@ All angles are in radians.
 
 */
 
-double Interp::find_turn(double x1,      //!< X-coordinate of start point       
-                        double y1,      //!< Y-coordinate of start point       
-                        double center_x,        //!< X-coordinate of arc center        
-                        double center_y,        //!< Y-coordinate of arc center        
-                        int turn,       //!< no. of full or partial circles CCW
-                        double x2,      //!< X-coordinate of end point         
-                        double y2)      //!< Y-coordinate of end point         
+double Interp::find_turn(double x1,       //!< X-coordinate of start point
+                         double y1,       //!< Y-coordinate of start point
+                         double center_x, //!< X-coordinate of arc center
+                         double center_y, //!< Y-coordinate of arc center
+                         int turn,  //!< no. of full or partial circles CCW
+                         double x2, //!< X-coordinate of end point
+                         double y2) //!< Y-coordinate of end point
 {
-  double alpha;                 /* angle of first radius */
-  double beta;                  /* angle of second radius */
-  double theta;                 /* amount of turn of arc CCW - negative if CW */
+    double alpha; /* angle of first radius */
+    double beta;  /* angle of second radius */
+    double theta; /* amount of turn of arc CCW - negative if CW */
 
-  if (turn == 0)
-    return 0.0;
-  alpha = atan2((y1 - center_y), (x1 - center_x));
-  beta = atan2((y2 - center_y), (x2 - center_x));
-  if (turn > 0) {
-    if (beta <= alpha)
-      beta = (beta + (2 * M_PIl));
-    theta = ((beta - alpha) + ((turn - 1) * (2 * M_PIl)));
-  } else {                      /* turn < 0 */
+    if (turn == 0)
+        return 0.0;
+    alpha = atan2((y1 - center_y), (x1 - center_x));
+    beta = atan2((y2 - center_y), (x2 - center_x));
+    if (turn > 0) {
+        if (beta <= alpha)
+            beta = (beta + (2 * M_PIl));
+        theta = ((beta - alpha) + ((turn - 1) * (2 * M_PIl)));
+    } else { /* turn < 0 */
 
-    if (alpha <= beta)
-      alpha = (alpha + (2 * M_PIl));
-    theta = ((beta - alpha) + ((turn + 1) * (2 * M_PIl)));
-  }
-  return (theta);
+        if (alpha <= beta)
+            alpha = (alpha + (2 * M_PIl));
+        theta = ((beta - alpha) + ((turn + 1) * (2 * M_PIl)));
+    }
+    return (theta);
 }
 
 int Interp::find_tool_index(setup_pointer settings, int toolno, int *index)
 {
 
 #ifdef TOOL_NML //{
-    if(!settings->random_toolchanger && toolno == 0) {
+    if (!settings->random_toolchanger && toolno == 0) {
         *index = 0;
         return INTERP_OK;
     }
-#else //}{
+#else  //}{
     (void)settings;
     // special case is included in tooldata_find_index_for_tool()
 #endif //}
 
     *index = tooldata_find_index_for_tool(toolno);
 
-    CHKS((*index == -1), (_("Requested tool %d not found in the tool table")), toolno);
+    CHKS((*index == -1),
+         (_("Requested tool %d not found in the tool table")),
+         toolno);
     return INTERP_OK;
 }
 
 int Interp::find_tool_pocket(setup_pointer settings, int toolno, int *pocket)
 {
 #ifdef TOOL_NML //{
-    if(!settings->random_toolchanger && toolno == 0) {
+    if (!settings->random_toolchanger && toolno == 0) {
         *pocket = 0;
         return INTERP_OK;
     }
-#else //}{
+#else  //}{
     (void)settings;
     // special case is included in tooldata_find_index_for_tool()
 #endif //}
     int idx = tooldata_find_index_for_tool(toolno);
     *pocket = 0; //not found
-    CHKS((idx == -1), (_("Requested tool %d not found in the tool table")), toolno);
+    CHKS((idx == -1),
+         (_("Requested tool %d not found in the tool table")),
+         toolno);
 
     CANON_TOOL_TABLE tdata = tooldata_entry_init();
-    if (tooldata_get(&tdata,idx) != IDX_OK) {
-        fprintf(stderr,"UNEXPECTED idx %s %d\n",__FILE__,__LINE__);
+    if (tooldata_get(&tdata, idx) != IDX_OK) {
+        fprintf(stderr, "UNEXPECTED idx %s %d\n", __FILE__, __LINE__);
     }
     *pocket = tdata.pocketno;
 
     return INTERP_OK;
 }
-

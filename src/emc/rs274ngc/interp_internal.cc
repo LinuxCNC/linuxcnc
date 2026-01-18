@@ -21,7 +21,7 @@
 #include <sys/stat.h>
 #include "rs274ngc.hh"
 #include "rs274ngc_return.hh"
-#include "interp_internal.hh"	// interpreter private definitions
+#include "interp_internal.hh" // interpreter private definitions
 #include "rs274ngc_interp.hh"
 #include <string.h>
 
@@ -67,7 +67,7 @@ The KT and NGC manuals say nothing about case or spaces and tabs.
 
 */
 
-int Interp::close_and_downcase(char *line)       //!< string: one line of NC code
+int Interp::close_and_downcase(char *line) //!< string: one line of NC code
 {
     int m;
     int n;
@@ -75,31 +75,34 @@ int Interp::close_and_downcase(char *line)       //!< string: one line of NC cod
     char item;
     comment = semicomment = 0;
     for (n = 0, m = 0; (item = line[m]) != '\0'; m++) {
-	if ((item == ';') && !comment)
-	    semicomment = 1;
+        if ((item == ';') && !comment)
+            semicomment = 1;
 
-	if (semicomment) {
-	    line[n++] = item; // pass literally
-	     continue;
-	}
-	if (comment) {
-	    line[n++] = item;
-	    if (item == ')') {
-		comment = 0;
-	    } else if (item == '(')
-		ERS(NCE_NESTED_COMMENT_FOUND);
-	} else if ((item == ' ') || (item == '\t') || (item == '\r'));
-	/* don't copy blank or tab or CR */
-	else if (item == '\n') {    /* don't copy newline            *//* but check null follows        */
-	    CHKS((line[m + 1] != 0), NCE_NULL_MISSING_AFTER_NEWLINE);
-	} else if ((64 < item) && (item < 91)) {    /* downcase upper case letters */
-	    line[n++] = (32 + item);
-	} else if ((item == '(') && !semicomment) {   /* (comment is starting */
-	    comment = 1;
-	    line[n++] = item;
-	} else {
-	    line[n++] = item;         /* copy anything else */
-	}
+        if (semicomment) {
+            line[n++] = item; // pass literally
+            continue;
+        }
+        if (comment) {
+            line[n++] = item;
+            if (item == ')') {
+                comment = 0;
+            } else if (item == '(')
+                ERS(NCE_NESTED_COMMENT_FOUND);
+        } else if ((item == ' ') || (item == '\t') || (item == '\r'))
+            ;
+        /* don't copy blank or tab or CR */
+        else if (item == '\n') {
+            /* don't copy newline            */ /* but check null follows        */
+            CHKS((line[m + 1] != 0), NCE_NULL_MISSING_AFTER_NEWLINE);
+        } else if ((64 < item) &&
+                   (item < 91)) { /* downcase upper case letters */
+            line[n++] = (32 + item);
+        } else if ((item == '(') && !semicomment) { /* (comment is starting */
+            comment = 1;
+            line[n++] = item;
+        } else {
+            line[n++] = item; /* copy anything else */
+        }
     }
     CHKS((comment), NCE_UNCLOSED_COMMENT_FOUND);
     line[n] = 0;
@@ -144,78 +147,84 @@ This also make the checks described above.
 
 */
 
-int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be checked
-                         setup_pointer settings)        //!< pointer to machine settings
+int Interp::enhance_block(
+    block_pointer block,    //!< pointer to a block to be checked
+    setup_pointer settings) //!< pointer to machine settings
 {
-  int axis_flag;
-  int ijk_flag;
-  int polar_flag;
-  int mode_zero_covets_axes;
-  int mode0;
-  int mode1;
+    int axis_flag;
+    int ijk_flag;
+    int polar_flag;
+    int mode_zero_covets_axes;
+    int mode0;
+    int mode1;
 
-  if(block->radius_flag || block->theta_flag) {
-      // someday, tediously add polar support for other planes here:
-      CHKS((!_readers[(int)'x'] || !_readers[(int)'y']), _("Cannot use polar coordinate on a machine lacking X or Y axes"));
-      CHKS(((settings->plane != CANON_PLANE::XY)), _("Cannot use polar coordinate except in G17 plane"));
-      CHKS(((block->x_flag)), _("Cannot specify both polar coordinate and X word"));
-      CHKS(((block->y_flag)), _("Cannot specify both polar coordinate and Y word"));
-  }
+    if (block->radius_flag || block->theta_flag) {
+        // someday, tediously add polar support for other planes here:
+        CHKS((!_readers[(int)'x'] || !_readers[(int)'y']),
+             _("Cannot use polar coordinate on a machine lacking X or Y axes"));
+        CHKS(((settings->plane != CANON_PLANE::XY)),
+             _("Cannot use polar coordinate except in G17 plane"));
+        CHKS(((block->x_flag)),
+             _("Cannot specify both polar coordinate and X word"));
+        CHKS(((block->y_flag)),
+             _("Cannot specify both polar coordinate and Y word"));
+    }
 
-  axis_flag = ((block->x_flag) || (block->y_flag) ||
-               (block->z_flag) || (block->a_flag) ||
-               (block->b_flag) || (block->c_flag) ||
-               (block->u_flag) || (block->v_flag) ||
-               (block->w_flag));
-  polar_flag = (block->radius_flag) || (block->theta_flag);
-  ijk_flag = ((block->i_flag) || (block->j_flag) ||
-              (block->k_flag));
-  mode0 = block->g_modes[GM_MODAL_0];
-  mode1 = block->g_modes[GM_MOTION];
-  mode_zero_covets_axes =
-    ((mode0 == G_10) || (mode0 == G_28) || (mode0 == G_30)
-     || (mode0 == G_52) || (mode0 == G_92));
+    axis_flag = ((block->x_flag) || (block->y_flag) || (block->z_flag) ||
+                 (block->a_flag) || (block->b_flag) || (block->c_flag) ||
+                 (block->u_flag) || (block->v_flag) || (block->w_flag));
+    polar_flag = (block->radius_flag) || (block->theta_flag);
+    ijk_flag = ((block->i_flag) || (block->j_flag) || (block->k_flag));
+    mode0 = block->g_modes[GM_MODAL_0];
+    mode1 = block->g_modes[GM_MOTION];
+    mode_zero_covets_axes =
+        ((mode0 == G_10) || (mode0 == G_28) || (mode0 == G_30) ||
+         (mode0 == G_52) || (mode0 == G_92));
 
-  if (mode1 != -1) {
-    if (mode1 == G_80) {
-      CHKS(((polar_flag || axis_flag) && (!mode_zero_covets_axes)),
-          NCE_CANNOT_USE_AXIS_VALUES_WITH_G80);
-      CHKS((polar_flag && mode0 == G_92), _("Polar coordinates can only be used for motion"));
-      CHKS(((!axis_flag) && (mode0 == G_52 || mode0 == G_92)),
-	   NCE_ALL_AXES_MISSING_WITH_G52_OR_G92);
-    } else {
-      CHKS(mode_zero_covets_axes, NCE_CANNOT_USE_TWO_G_CODES_THAT_BOTH_USE_AXIS_VALUES);
-      CHKS(((!axis_flag && !polar_flag) &&
-            mode1 != G_0 && mode1 != G_1 &&
-            mode1 != G_2 && mode1 != G_3 && 
-            mode1 != G_5_2 &&
-            mode1 != G_6_2 &&
-            mode1 != G_70 &&
-            mode1 != G_71 && mode1 != G_71_1 && mode1 != G_71_2 &&
-            mode1 != G_72 && mode1 != G_72_1 && mode1 != G_72_2 &&
+    if (mode1 != -1) {
+        if (mode1 == G_80) {
+            CHKS(((polar_flag || axis_flag) && (!mode_zero_covets_axes)),
+                 NCE_CANNOT_USE_AXIS_VALUES_WITH_G80);
+            CHKS((polar_flag && mode0 == G_92),
+                 _("Polar coordinates can only be used for motion"));
+            CHKS(((!axis_flag) && (mode0 == G_52 || mode0 == G_92)),
+                 NCE_ALL_AXES_MISSING_WITH_G52_OR_G92);
+        } else {
+            CHKS(mode_zero_covets_axes,
+                 NCE_CANNOT_USE_TWO_G_CODES_THAT_BOTH_USE_AXIS_VALUES);
+            CHKS(((!axis_flag && !polar_flag) && mode1 != G_0 && mode1 != G_1 &&
+                  mode1 != G_2 && mode1 != G_3 && mode1 != G_5_2 &&
+                  mode1 != G_6_2 && mode1 != G_70 && mode1 != G_71 &&
+                  mode1 != G_71_1 && mode1 != G_71_2 && mode1 != G_72 &&
+                  mode1 != G_72_1 && mode1 != G_72_2 &&
                   !is_user_defined_g_code(mode1)),
-          NCE_ALL_AXES_MISSING_WITH_MOTION_CODE);
+                 NCE_ALL_AXES_MISSING_WITH_MOTION_CODE);
+        }
+        block->motion_to_be = mode1;
+    } else if (
+        mode_zero_covets_axes) { /* other 3 can get by without axes but not G92 */
+        CHKS((polar_flag && mode0 == G_92),
+             _("Polar coordinates can only be used for motion"));
+        CHKS(((!axis_flag) && (block->g_modes[GM_MODAL_0] == G_52 ||
+                               block->g_modes[GM_MODAL_0] == G_92)),
+             NCE_ALL_AXES_MISSING_WITH_G52_OR_G92);
+    } else if (axis_flag || polar_flag) {
+        CHKS(((settings->motion_mode == -1) ||
+              (settings->motion_mode == G_80)) &&
+                 (block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43_1) &&
+                 (block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43_2),
+             NCE_CANNOT_USE_AXIS_VALUES_WITHOUT_A_G_CODE_THAT_USES_THEM);
+        if (block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43_1) {
+            block->motion_to_be = settings->motion_mode;
+        }
+    } else if (!axis_flag && !polar_flag && ijk_flag &&
+               (settings->motion_mode == G_2 || settings->motion_mode == G_3)) {
+        // this is a block like simply "i1" which should be accepted if we're in arc mode
+        block->motion_to_be = settings->motion_mode;
     }
-    block->motion_to_be = mode1;
-  } else if (mode_zero_covets_axes) {   /* other 3 can get by without axes but not G92 */
-    CHKS((polar_flag && mode0 == G_92), _("Polar coordinates can only be used for motion"));
-    CHKS(((!axis_flag) &&
-	  (block->g_modes[GM_MODAL_0] == G_52 || block->g_modes[GM_MODAL_0] == G_92)),
-	 NCE_ALL_AXES_MISSING_WITH_G52_OR_G92);
-  } else if (axis_flag || polar_flag) {
-    CHKS(((settings->motion_mode == -1)
-         || (settings->motion_mode == G_80)) && (block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43_1)
-         && (block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43_2),
-        NCE_CANNOT_USE_AXIS_VALUES_WITHOUT_A_G_CODE_THAT_USES_THEM);
-    if (block->g_modes[GM_TOOL_LENGTH_OFFSET] != G_43_1) {
-       block->motion_to_be = settings->motion_mode;
-    }
-  } else if (!axis_flag && !polar_flag && ijk_flag && (settings->motion_mode == G_2 || settings->motion_mode == G_3)) {
-    // this is a block like simply "i1" which should be accepted if we're in arc mode
-      block->motion_to_be = settings->motion_mode;
-  }
-  CHKS((polar_flag && block->motion_to_be == -1), _("Polar coordinates can only be used for motion"));
-  return INTERP_OK;
+    CHKS((polar_flag && block->motion_to_be == -1),
+         _("Polar coordinates can only be used for motion"));
+    return INTERP_OK;
 }
 
 
@@ -257,63 +266,64 @@ The rules for the indicators for slots whose values may be read are:
 
 */
 
-int Interp::init_block(block_pointer block)      //!< pointer to a block to be initialized or reset
+int Interp::init_block(
+    block_pointer block) //!< pointer to a block to be initialized or reset
 {
-  int n;
-  block->breadcrumbs = 0; // clear execution trail
-  block->executing_remap = NULL;
-  block->param_cnt = 0;
-  block->remappings.clear();
-  block->builtin_used = false;
+    int n;
+    block->breadcrumbs = 0; // clear execution trail
+    block->executing_remap = NULL;
+    block->param_cnt = 0;
+    block->remappings.clear();
+    block->builtin_used = false;
 
-  block->a_flag = false;
-  block->b_flag = false;
-  block->c_flag = false;
-  block->comment[0] = 0;
-  block->d_flag = false;
-  block->dollar_flag = false;
-  block->e_flag = false;
-  block->f_flag = false;
-  for (n = 0; n < GM_MAX_MODAL_GROUPS; n++) {
-    block->g_modes[n] = -1;
-  }
-  block->h_flag = false;
-  block->h_number = -1;
-  block->i_flag = false;
-  block->j_flag = false;
-  block->k_flag = false;
-  block->l_number = -1;
-  block->l_flag = false;
-  block->line_number = -1;
-  block->n_number = -1;
-  block->motion_to_be = -1;
-  block->m_count = 0;
-  for (n = 0; n < 11; n++) {
-    block->m_modes[n] = -1;
-  }
-  block->user_m = 0;
-  block->p_number = -1.0;
-  block->p_flag = false;
-  block->q_flag = false;
-  block->q_number = -1.0;
-  block->r_flag = false;
-  block->s_flag = false;
-  block->t_flag = false;
-  block->u_flag = false;
-  block->v_flag = false;
-  block->w_flag = false;
-  block->x_flag = false;
-  block->y_flag = false;
-  block->z_flag = false;
+    block->a_flag = false;
+    block->b_flag = false;
+    block->c_flag = false;
+    block->comment[0] = 0;
+    block->d_flag = false;
+    block->dollar_flag = false;
+    block->e_flag = false;
+    block->f_flag = false;
+    for (n = 0; n < GM_MAX_MODAL_GROUPS; n++) {
+        block->g_modes[n] = -1;
+    }
+    block->h_flag = false;
+    block->h_number = -1;
+    block->i_flag = false;
+    block->j_flag = false;
+    block->k_flag = false;
+    block->l_number = -1;
+    block->l_flag = false;
+    block->line_number = -1;
+    block->n_number = -1;
+    block->motion_to_be = -1;
+    block->m_count = 0;
+    for (n = 0; n < 11; n++) {
+        block->m_modes[n] = -1;
+    }
+    block->user_m = 0;
+    block->p_number = -1.0;
+    block->p_flag = false;
+    block->q_flag = false;
+    block->q_number = -1.0;
+    block->r_flag = false;
+    block->s_flag = false;
+    block->t_flag = false;
+    block->u_flag = false;
+    block->v_flag = false;
+    block->w_flag = false;
+    block->x_flag = false;
+    block->y_flag = false;
+    block->z_flag = false;
 
-  block->theta_flag = false;
-  block->radius_flag = false;
+    block->theta_flag = false;
+    block->radius_flag = false;
 
-  block->o_type = O_none;
-  block->o_name = 0;
-  block->call_type = -1;
+    block->o_type = O_none;
+    block->o_name = 0;
+    block->call_type = -1;
 
-  return INTERP_OK;
+    return INTERP_OK;
 }
 
 
@@ -338,21 +348,21 @@ Called by:  Interp::read
 
 */
 
-int Interp::parse_line(char *line,       //!< array holding a line of RS274 code
-                      block_pointer block,      //!< pointer to a block to be filled
-                      setup_pointer settings)   //!< pointer to machine settings
+int Interp::parse_line(char *line, //!< array holding a line of RS274 code
+                       block_pointer block, //!< pointer to a block to be filled
+                       setup_pointer settings) //!< pointer to machine settings
 {
-  CHP(init_block(block));
-  CHP(read_items(block, line, settings->parameters));
+    CHP(init_block(block));
+    CHP(read_items(block, line, settings->parameters));
 
-  if(settings->skipping_o == 0)
-  {
-    CHP(enhance_block(block, settings));
-    CHP(check_items(block, settings));
-    int n = find_remappings(block,settings);
-    if (n) logRemap("parse_line: found %d remappings",n);
-  }
-  return INTERP_OK;
+    if (settings->skipping_o == 0) {
+        CHP(enhance_block(block, settings));
+        CHP(check_items(block, settings));
+        int n = find_remappings(block, settings);
+        if (n)
+            logRemap("parse_line: found %d remappings", n);
+    }
+    return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -372,57 +382,49 @@ To add additional levels of operator precedence, edit this function.
 
 int Interp::precedence(int an_operator)
 {
-  switch(an_operator)
-    {
-      case RIGHT_BRACKET:
-	return 1;
+    switch (an_operator) {
+    case RIGHT_BRACKET: return 1;
 
-      case AND2:
-      case EXCLUSIVE_OR:
-      case NON_EXCLUSIVE_OR:
-	return 2;
+    case AND2:
+    case EXCLUSIVE_OR:
+    case NON_EXCLUSIVE_OR: return 2;
 
-      case LT:
-      case EQ:
-      case NE:
-      case LE:
-      case GE:
-      case GT:
-	return 3;
+    case LT:
+    case EQ:
+    case NE:
+    case LE:
+    case GE:
+    case GT: return 3;
 
-      case MINUS:
-      case PLUS:
-	return 4;
+    case MINUS:
+    case PLUS: return 4;
 
-      case NO_OPERATION:
-      case DIVIDED_BY:
-      case MODULO:
-      case TIMES:
-	return 5;
+    case NO_OPERATION:
+    case DIVIDED_BY:
+    case MODULO:
+    case TIMES: return 5;
 
-      case POWER:
-	return 6;
+    case POWER: return 6;
     }
-  // should never happen
-  return 0;
+    // should never happen
+    return 0;
 }
 
 
 int Interp::refresh_actual_position(setup_pointer settings)
 {
-  settings->current_x = GET_EXTERNAL_POSITION_X();
-  settings->current_y = GET_EXTERNAL_POSITION_Y();
-  settings->current_z = GET_EXTERNAL_POSITION_Z();
-  settings->AA_current = GET_EXTERNAL_POSITION_A();
-  settings->BB_current = GET_EXTERNAL_POSITION_B();
-  settings->CC_current = GET_EXTERNAL_POSITION_C();
-  settings->u_current = GET_EXTERNAL_POSITION_U();
-  settings->v_current = GET_EXTERNAL_POSITION_V();
-  settings->w_current = GET_EXTERNAL_POSITION_W();
+    settings->current_x = GET_EXTERNAL_POSITION_X();
+    settings->current_y = GET_EXTERNAL_POSITION_Y();
+    settings->current_z = GET_EXTERNAL_POSITION_Z();
+    settings->AA_current = GET_EXTERNAL_POSITION_A();
+    settings->BB_current = GET_EXTERNAL_POSITION_B();
+    settings->CC_current = GET_EXTERNAL_POSITION_C();
+    settings->u_current = GET_EXTERNAL_POSITION_U();
+    settings->v_current = GET_EXTERNAL_POSITION_V();
+    settings->w_current = GET_EXTERNAL_POSITION_W();
 
-  return INTERP_OK;
+    return INTERP_OK;
 }
-
 
 
 /****************************************************************************/
@@ -439,56 +441,62 @@ Called by:  Interp::read
 
 */
 
-int Interp::set_probe_data(setup_pointer settings)       //!< pointer to machine settings
+int Interp::set_probe_data(
+    setup_pointer settings) //!< pointer to machine settings
 {
-  double a, b, c;
-  refresh_actual_position(settings);
-  settings->parameters[5061] = GET_EXTERNAL_PROBE_POSITION_X();
-  settings->parameters[5062] = GET_EXTERNAL_PROBE_POSITION_Y();
-  settings->parameters[5063] = GET_EXTERNAL_PROBE_POSITION_Z();
+    double a, b, c;
+    refresh_actual_position(settings);
+    settings->parameters[5061] = GET_EXTERNAL_PROBE_POSITION_X();
+    settings->parameters[5062] = GET_EXTERNAL_PROBE_POSITION_Y();
+    settings->parameters[5063] = GET_EXTERNAL_PROBE_POSITION_Z();
 
-  a = GET_EXTERNAL_PROBE_POSITION_A();
-  if(settings->a_axis_wrapped) {
-      a = fmod(a, 360.0);
-      if(a<0) a += 360.0;
-  }
-  settings->parameters[5064] = a;
+    a = GET_EXTERNAL_PROBE_POSITION_A();
+    if (settings->a_axis_wrapped) {
+        a = fmod(a, 360.0);
+        if (a < 0)
+            a += 360.0;
+    }
+    settings->parameters[5064] = a;
 
-  b = GET_EXTERNAL_PROBE_POSITION_B();
-  if(settings->b_axis_wrapped) {
-      b = fmod(b, 360.0);
-      if(b<0) b += 360.0;
-  }
-  settings->parameters[5065] = b;
+    b = GET_EXTERNAL_PROBE_POSITION_B();
+    if (settings->b_axis_wrapped) {
+        b = fmod(b, 360.0);
+        if (b < 0)
+            b += 360.0;
+    }
+    settings->parameters[5065] = b;
 
-  c = GET_EXTERNAL_PROBE_POSITION_C();
-  if(settings->c_axis_wrapped) {
-      c = fmod(c, 360.0);
-      if(c<0) c += 360.0;
-  }
-  settings->parameters[5066] = c;
+    c = GET_EXTERNAL_PROBE_POSITION_C();
+    if (settings->c_axis_wrapped) {
+        c = fmod(c, 360.0);
+        if (c < 0)
+            c += 360.0;
+    }
+    settings->parameters[5066] = c;
 
-  settings->parameters[5067] = GET_EXTERNAL_PROBE_POSITION_U();
-  settings->parameters[5068] = GET_EXTERNAL_PROBE_POSITION_V();
-  settings->parameters[5069] = GET_EXTERNAL_PROBE_POSITION_W();
-  settings->parameters[5070] = (double) GET_EXTERNAL_PROBE_TRIPPED_VALUE();
+    settings->parameters[5067] = GET_EXTERNAL_PROBE_POSITION_U();
+    settings->parameters[5068] = GET_EXTERNAL_PROBE_POSITION_V();
+    settings->parameters[5069] = GET_EXTERNAL_PROBE_POSITION_W();
+    settings->parameters[5070] = (double)GET_EXTERNAL_PROBE_TRIPPED_VALUE();
 
-  // was an undocumented feature?: settings->parameters[5067] = GET_EXTERNAL_PROBE_VALUE();
-  return INTERP_OK;
+    // was an undocumented feature?: settings->parameters[5067] = GET_EXTERNAL_PROBE_VALUE();
+    return INTERP_OK;
 }
 
-int Interp::call_level(void) { return _setup.call_level; }
+int Interp::call_level(void)
+{
+    return _setup.call_level;
+}
 
 std::string toString(GCodes g)
 {
-    char buf[15]={};
-    int dec_value = g%10;
-    if (dec_value)
-    {
+    char buf[15] = {};
+    int dec_value = g % 10;
+    if (dec_value) {
         // Has a decimal
-        snprintf(buf, sizeof(buf), "G%d.%d", g/10, dec_value);
+        snprintf(buf, sizeof(buf), "G%d.%d", g / 10, dec_value);
     } else {
-        snprintf(buf, sizeof(buf), "G%d", g/10);
+        snprintf(buf, sizeof(buf), "G%d", g / 10);
     }
     return buf;
 }

@@ -56,21 +56,18 @@
 #include <sys/stat.h>
 
 #ifdef NO_LIBUDEV
-int rtapi_pci_register_driver(struct rtapi_pci_driver *driver) {
+int rtapi_pci_register_driver(struct rtapi_pci_driver *driver)
+{
     return -ENODEV;
 }
-void rtapi_pci_unregister_driver(struct rtapi_pci_driver *driver)
-{
-}
+void rtapi_pci_unregister_driver(struct rtapi_pci_driver *driver) {}
 
 void rtapi__iomem *rtapi_pci_ioremap_bar(struct rtapi_pci_dev *dev, int bar)
 {
     return NULL;
 }
 
-void rtapi_iounmap(volatile void rtapi__iomem *addr)
-{
-}
+void rtapi_iounmap(volatile void rtapi__iomem *addr) {}
 
 int rtapi_pci_enable_device(struct rtapi_pci_dev *dev)
 {
@@ -84,13 +81,16 @@ int rtapi_pci_disble_device(struct rtapi_pci_dev *dev)
 
 #else
 #include <libudev.h>
-typedef std::vector<rtapi_pci_dev*> DeviceVector;
+typedef std::vector<rtapi_pci_dev *> DeviceVector;
 
-DeviceVector &DEVICES(rtapi_pci_driver *driver) {
-    return *reinterpret_cast<DeviceVector*>(driver->private_data);
+DeviceVector &DEVICES(rtapi_pci_driver *driver)
+{
+    return *reinterpret_cast<DeviceVector *>(driver->private_data);
 }
 
-static int check_device_id(struct udev_device *udev_dev, struct rtapi_pci_device_id *dev_id, struct rtapi_pci_driver *driver)
+static int check_device_id(struct udev_device *udev_dev,
+                           struct rtapi_pci_device_id *dev_id,
+                           struct rtapi_pci_driver *driver)
 {
     ssize_t res;
     const char *pval;
@@ -98,28 +98,32 @@ static int check_device_id(struct udev_device *udev_dev, struct rtapi_pci_device
 
     /* Read the ID values into the dev_id structure */
 
-    pval = udev_device_get_property_value (udev_dev, "PCI_ID");
+    pval = udev_device_get_property_value(udev_dev, "PCI_ID");
     res = sscanf(pval, "%X:%X", &dev_id->vendor, &dev_id->device);
     if (res != 2) {
-        rtapi_print_msg(RTAPI_MSG_ERR,
-            "Unable to parse vendor:device from '%s'\n", pval);
+        rtapi_print_msg(
+            RTAPI_MSG_ERR, "Unable to parse vendor:device from '%s'\n", pval);
         return -1;
     }
 
-    pval = udev_device_get_property_value (udev_dev, "PCI_SUBSYS_ID");
+    pval = udev_device_get_property_value(udev_dev, "PCI_SUBSYS_ID");
     res = sscanf(pval, "%X:%X", &dev_id->subvendor, &dev_id->subdevice);
     if (res != 2) {
         rtapi_print_msg(RTAPI_MSG_ERR,
-            "Unable to parse subvendor:subdevice from '%s'\n", pval);
+                        "Unable to parse subvendor:subdevice from '%s'\n",
+                        pval);
         return -1;
     }
 
-    rtapi_print_msg(RTAPI_MSG_DBG,"PCI_ID: %04X:%04X %04X:%04X\n",
-        dev_id->vendor, dev_id->device,
-        dev_id->subvendor, dev_id->subdevice);
+    rtapi_print_msg(RTAPI_MSG_DBG,
+                    "PCI_ID: %04X:%04X %04X:%04X\n",
+                    dev_id->vendor,
+                    dev_id->device,
+                    dev_id->subvendor,
+                    dev_id->subdevice);
 
     /* Compare values with list of valid IDs from driver struct */
-    for (i=0; driver->id_table[i].vendor != 0; i++) {
+    for (i = 0; driver->id_table[i].vendor != 0; i++) {
         if (dev_id->vendor != driver->id_table[i].vendor)
             continue;
         if (dev_id->device != driver->id_table[i].device)
@@ -139,7 +143,7 @@ static int check_device_id(struct udev_device *udev_dev, struct rtapi_pci_device
 
 int rtapi_pci_register_driver(struct rtapi_pci_driver *driver)
 {
-    driver->private_data = reinterpret_cast<void*>(new DeviceVector);
+    driver->private_data = reinterpret_cast<void *>(new DeviceVector);
     WITH_ROOT;
     struct udev *udev;
     struct udev_enumerate *enumerate;
@@ -154,7 +158,7 @@ int rtapi_pci_register_driver(struct rtapi_pci_driver *driver)
     /* Create the udev object */
     udev = udev_new();
     if (!udev) {
-        rtapi_print_msg(RTAPI_MSG_ERR,"Can't create udev\n");
+        rtapi_print_msg(RTAPI_MSG_ERR, "Can't create udev\n");
         return -1;
     }
 
@@ -163,20 +167,22 @@ int rtapi_pci_register_driver(struct rtapi_pci_driver *driver)
     int err = udev_enumerate_add_match_subsystem(enumerate, "pci");
     if (err != 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
-            "Failed to register subsystem match: pci\n");
+                        "Failed to register subsystem match: pci\n");
         goto error;
     }
 
-    for (int i=0; driver->id_table[i].vendor; i++) {
-        snprintf(buf, sizeof(buf), "%04X:%04X",
-            driver->id_table[i].vendor,
-            driver->id_table[i].device);
+    for (int i = 0; driver->id_table[i].vendor; i++) {
+        snprintf(buf,
+                 sizeof(buf),
+                 "%04X:%04X",
+                 driver->id_table[i].vendor,
+                 driver->id_table[i].device);
 
         err = udev_enumerate_add_match_property(enumerate, "PCI_ID", buf);
         if (err) {
             rtapi_print_msg(RTAPI_MSG_ERR,
-                "Failed to register property match: PCI_ID=%s\n",
-                buf);
+                            "Failed to register property match: PCI_ID=%s\n",
+                            buf);
             goto error;
         }
     }
@@ -184,7 +190,8 @@ int rtapi_pci_register_driver(struct rtapi_pci_driver *driver)
     udev_enumerate_scan_devices(enumerate);
     devices = udev_enumerate_get_list_entry(enumerate);
 
-    udev_list_entry_foreach(dev_list_entry, devices) {
+    udev_list_entry_foreach(dev_list_entry, devices)
+    {
         const char *name;
 
         /* Get the filename of the /sys entry for the device
@@ -212,28 +219,29 @@ int rtapi_pci_register_driver(struct rtapi_pci_driver *driver)
 
         /* Initialize device structure */
         strncpy(dev->dev_name,
-            udev_device_get_property_value (udev_dev, "PCI_SLOT_NAME"),
-            sizeof(dev->dev_name) - 1);
+                udev_device_get_property_value(udev_dev, "PCI_SLOT_NAME"),
+                sizeof(dev->dev_name) - 1);
 
-        strncpy(dev->sys_path, name,
-            sizeof(dev->sys_path) - 1);
+        strncpy(dev->sys_path, name, sizeof(dev->sys_path) - 1);
 
-        dev->vendor             = dev_id.vendor;
-        dev->device             = dev_id.device;
-        dev->subsystem_vendor   = dev_id.subvendor;
-        dev->subsystem_device   = dev_id.subdevice;
-        dev->driver_data        = NULL;
+        dev->vendor = dev_id.vendor;
+        dev->device = dev_id.device;
+        dev->subsystem_vendor = dev_id.subvendor;
+        dev->subsystem_device = dev_id.subdevice;
+        dev->driver_data = NULL;
 
         udev_device_unref(udev_dev);
 
-        rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI_PCI: DeviceID: %04X %04X %04X %04X\n",
-            dev->vendor,
-            dev->device,
-            dev->subsystem_vendor,
-            dev->subsystem_device );
+        rtapi_print_msg(RTAPI_MSG_DBG,
+                        "RTAPI_PCI: DeviceID: %04X %04X %04X %04X\n",
+                        dev->vendor,
+                        dev->device,
+                        dev->subsystem_vendor,
+                        dev->subsystem_device);
 
         /* Call module init code */
-        rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI_PCI: Calling driver probe function\n");
+        rtapi_print_msg(RTAPI_MSG_DBG,
+                        "RTAPI_PCI: Calling driver probe function\n");
         res = driver->probe(dev, &dev_id);
         if (res != 0) {
             delete dev;
@@ -249,7 +257,7 @@ int rtapi_pci_register_driver(struct rtapi_pci_driver *driver)
     udev_unref(udev);
     return 0;
 
-    error:
+error:
     udev_enumerate_unref(enumerate);
     udev_unref(udev);
     return -1;
@@ -257,11 +265,11 @@ int rtapi_pci_register_driver(struct rtapi_pci_driver *driver)
 
 void rtapi_pci_unregister_driver(struct rtapi_pci_driver *driver)
 {
-    if (!driver) return;
+    if (!driver)
+        return;
 
     WITH_ROOT;
-    for(auto dev : DEVICES(driver))
-    {
+    for (auto dev : DEVICES(driver)) {
         driver->remove(dev);
         delete dev;
     }
@@ -269,7 +277,7 @@ void rtapi_pci_unregister_driver(struct rtapi_pci_driver *driver)
     driver->private_data = 0;
 }
 
-typedef std::map<void rtapi__iomem*, size_t> IoMap;
+typedef std::map<void rtapi__iomem *, size_t> IoMap;
 IoMap iomaps;
 
 void rtapi__iomem *rtapi_pci_ioremap_bar(struct rtapi_pci_dev *dev, int bar)
@@ -285,13 +293,17 @@ void rtapi__iomem *rtapi_pci_ioremap_bar(struct rtapi_pci_dev *dev, int bar)
         return NULL;
     }
 
-    size_t ret = snprintf(path, sizeof(path), "%s/resource%i", dev->sys_path, bar);
-    if (ret >= sizeof(path)) return NULL;
+    size_t ret =
+        snprintf(path, sizeof(path), "%s/resource%i", dev->sys_path, bar);
+    if (ret >= sizeof(path))
+        return NULL;
     /* Open the resource node */
     int fd = open(path, O_RDWR | O_SYNC);
     if (fd < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "Could not open resource \"%s\". (%s)\n",
-            path, strerror(errno));
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "Could not open resource \"%s\". (%s)\n",
+                        path,
+                        strerror(errno));
         return NULL;
     }
 
@@ -300,8 +312,11 @@ void rtapi__iomem *rtapi_pci_ioremap_bar(struct rtapi_pci_dev *dev, int bar)
     close(fd);
 
     if (mmio == NULL || mmio == MAP_FAILED) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "Failed to remap MMIO %d of PCI device %s: %s\n",
-            bar, dev->dev_name, strerror(errno));
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "Failed to remap MMIO %d of PCI device %s: %s\n",
+                        bar,
+                        dev->dev_name,
+                        strerror(errno));
         return NULL;
     }
 
@@ -314,23 +329,29 @@ void rtapi_iounmap(volatile void rtapi__iomem *addr)
 {
     rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI_PCI: Unmap BAR\n");
 
-    if (!addr) return;
+    if (!addr)
+        return;
 
-    IoMap::iterator it = iomaps.find(const_cast<void*>(addr));
-    if(it == iomaps.end()) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "IO-unmap: Did not find PCI mapping %p", addr);
+    IoMap::iterator it = iomaps.find(const_cast<void *>(addr));
+    if (it == iomaps.end()) {
+        rtapi_print_msg(
+            RTAPI_MSG_ERR, "IO-unmap: Did not find PCI mapping %p", addr);
         return;
     }
 
     munmap(it->first, it->second);
-    rtapi_print_msg(RTAPI_MSG_ERR, "RTAPI_PCI: Unmapped %zd bytes at %p\n", it->second, addr);
+    rtapi_print_msg(RTAPI_MSG_ERR,
+                    "RTAPI_PCI: Unmapped %zd bytes at %p\n",
+                    it->second,
+                    addr);
     iomaps.erase(it);
 }
 
-char *get_sys_enable_path(const rtapi_pci_dev *dev, char *path, size_t npath) {
+char *get_sys_enable_path(const rtapi_pci_dev *dev, char *path, size_t npath)
+{
     snprintf(path, npath, "%s/enable", dev->sys_path);
     // kernel 3.12 renamed this file to "enabled"... doh
-    if(access(path, F_OK) < 0)
+    if (access(path, F_OK) < 0)
         snprintf(path, npath, "%s/enabled", dev->sys_path);
     return path;
 }
@@ -340,17 +361,19 @@ int rtapi_pci_enable_device(struct rtapi_pci_dev *dev)
     WITH_ROOT;
     FILE *stream;
     char path[256];
-    int i,r;
+    int i, r;
     unsigned long long L1, L2, L3;
 
-    rtapi_print_msg(RTAPI_MSG_DBG, "RTAPI_PCI: Enabling Device %s\n", dev->dev_name);
+    rtapi_print_msg(
+        RTAPI_MSG_DBG, "RTAPI_PCI: Enabling Device %s\n", dev->dev_name);
 
     /* Enable the device */
     stream = fopen(get_sys_enable_path(dev, path, sizeof(path)), "w");
     if (stream == NULL) {
         rtapi_print_msg(RTAPI_MSG_ERR,
                         "Failed to open \"%s\" (%s)\n",
-                        path, strerror(errno));
+                        path,
+                        strerror(errno));
         return -1;
     }
     fprintf(stream, "1");
@@ -358,31 +381,35 @@ int rtapi_pci_enable_device(struct rtapi_pci_dev *dev)
 
     /* Open the resource file... */
     size_t ret = snprintf(path, sizeof(path), "%s/resource", dev->sys_path);
-    if (ret >= sizeof(path)) return -1;
+    if (ret >= sizeof(path))
+        return -1;
     stream = fopen(path, "r");
     if (stream == NULL) {
         rtapi_print_msg(RTAPI_MSG_ERR,
                         "Failed to open \"%s\" (%s)\n",
-                        path, strerror(errno));
+                        path,
+                        strerror(errno));
         return -1;
     }
 
     /* ...and read in the data */
-    for (i=0; i < 6; i++) {
-        r=fscanf(stream, "%Lx %Lx %Lx", &L1, &L2, &L3);
+    for (i = 0; i < 6; i++) {
+        r = fscanf(stream, "%Lx %Lx %Lx", &L1, &L2, &L3);
         if (r != 3) {
-            rtapi_print_msg(RTAPI_MSG_ERR,"Failed to parse \"%s\"\n", path);
+            rtapi_print_msg(RTAPI_MSG_ERR, "Failed to parse \"%s\"\n", path);
             fclose(stream);
             return -1;
         }
         dev->resource[i].start = L1;
-        dev->resource[i].end   = L2;
-        dev->resource[i].flags = (unsigned long) L3;
+        dev->resource[i].end = L2;
+        dev->resource[i].flags = (unsigned long)L3;
 
-        rtapi_print_msg(RTAPI_MSG_DBG,"Resource %d: %p %p %08lx\n", i,
-            (void*)dev->resource[i].start,
-            (void*)dev->resource[i].end,
-            dev->resource[i].flags);
+        rtapi_print_msg(RTAPI_MSG_DBG,
+                        "Resource %d: %p %p %08lx\n",
+                        i,
+                        (void *)dev->resource[i].start,
+                        (void *)dev->resource[i].end,
+                        dev->resource[i].flags);
     }
 
     fclose(stream);
@@ -403,14 +430,16 @@ int rtapi_pci_disable_device(struct rtapi_pci_dev *dev)
     if (stream == NULL) {
         rtapi_print_msg(RTAPI_MSG_ERR,
                         "Failed to open \"%s\" (%s)\n",
-                        path, strerror(errno));
+                        path,
+                        strerror(errno));
         return -1;
     }
     r = fprintf(stream, "0");
     if (r != 1)
         rtapi_print_msg(RTAPI_MSG_ERR,
-            "Failed to disable device \"%s\" (%s)\n",
-            dev->dev_name, strerror(errno));
+                        "Failed to disable device \"%s\" (%s)\n",
+                        dev->dev_name,
+                        strerror(errno));
     else
         r = 0;
 
@@ -420,7 +449,10 @@ int rtapi_pci_disable_device(struct rtapi_pci_dev *dev)
 }
 #endif
 
-int rtapi_request_firmware(const struct rtapi_firmware **fw, const char *name, struct rtapi_device *device) {
+int rtapi_request_firmware(const struct rtapi_firmware **fw,
+                           const char *name,
+                           struct rtapi_device *device)
+{
     struct rtapi_firmware *lfw;
     struct utsname sysinfo;
     const char *basepath = "/lib/firmware";
@@ -440,7 +472,8 @@ int rtapi_request_firmware(const struct rtapi_firmware **fw, const char *name, s
     /* Try to open the kernel-specific file */
     r = uname(&sysinfo);
     if (r >= 0) {
-        snprintf(path, sizeof(path), "/%s/%s/%s", basepath, sysinfo.release, name);
+        snprintf(
+            path, sizeof(path), "/%s/%s/%s", basepath, sysinfo.release, name);
         fd = open(path, O_RDONLY);
     }
 
@@ -453,27 +486,31 @@ int rtapi_request_firmware(const struct rtapi_firmware **fw, const char *name, s
 
     /* If we don't have a valid file descriptor by here, it's an error */
     if (fd < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "Could not locate firmware \"%s\". (%s)\n",
-                        path, strerror(errno));
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "Could not locate firmware \"%s\". (%s)\n",
+                        path,
+                        strerror(errno));
         delete lfw;
         return -ENOENT;
     }
 
     /* We've found and opened the file, now let's get the size */
-    if (stat(path, &st) < 0)
-    {
-        rtapi_print_msg(RTAPI_MSG_ERR, "Could not determine size of file \"%s\". (%s)\n",
-                        path, strerror(errno));
+    if (stat(path, &st) < 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "Could not determine size of file \"%s\". (%s)\n",
+                        path,
+                        strerror(errno));
         delete lfw;
         return -1;
     }
 
     lfw->size = st.st_size;
-    lfw->data = reinterpret_cast<const rtapi_u8*>(mmap(NULL, lfw->size, PROT_READ, MAP_PRIVATE, fd, 0));
+    lfw->data = reinterpret_cast<const rtapi_u8 *>(
+        mmap(NULL, lfw->size, PROT_READ, MAP_PRIVATE, fd, 0));
 
     if (lfw->data == NULL || lfw->data == MAP_FAILED) {
         if (lfw->data == NULL)
-            munmap((void*)lfw->data, lfw->size);
+            munmap((void *)lfw->data, lfw->size);
         rtapi_print_msg(RTAPI_MSG_ERR, "Failed to mmap file %s\n", path);
         delete lfw;
         return -1;
@@ -483,8 +520,9 @@ int rtapi_request_firmware(const struct rtapi_firmware **fw, const char *name, s
     return 0;
 }
 
-void rtapi_release_firmware(const struct rtapi_firmware *fw) {
-    munmap((void*)fw->data, fw->size);
+void rtapi_release_firmware(const struct rtapi_firmware *fw)
+{
+    munmap((void *)fw->data, fw->size);
     delete fw;
 }
 

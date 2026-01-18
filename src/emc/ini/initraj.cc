@@ -11,18 +11,18 @@
 * Copyright (c) 2004 All rights reserved.
 ********************************************************************/
 
-#include <stdio.h>		// NULL
-#include <stdlib.h>		// atol()
-#include <string.h>		// strlen()
-#include <ctype.h>		// isspace()
+#include <stdio.h>  // NULL
+#include <stdlib.h> // atol()
+#include <string.h> // strlen()
+#include <ctype.h>  // isspace()
 
 #include "emc.hh"
-#include "emcpos.h"             // EmcPose
+#include "emcpos.h" // EmcPose
 #include "rcs_print.hh"
-#include "posemath.h"		// PM_POSE, PM_RPY
+#include "posemath.h" // PM_POSE, PM_RPY
 #include "emcIniFile.hh"
-#include "initraj.hh"		// these decls
-#include "emcglb.h"		/*! \todo TRAVERSE_RATE (FIXME) */
+#include "initraj.hh" // these decls
+#include "emcglb.h"   /*! \todo TRAVERSE_RATE (FIXME) */
 #include "inihal.hh"
 #include <rtapi_string.h>
 
@@ -43,19 +43,19 @@ static int loadKins(EmcIniFile *trajInifile)
     trajInifile->EnableExceptions(EmcIniFile::ERR_CONVERSION);
 
     try {
-	int joints = 0;
-	trajInifile->Find(&joints, "JOINTS", "KINS");
+        int joints = 0;
+        trajInifile->Find(&joints, "JOINTS", "KINS");
 
         if (0 != emcTrajSetJoints(joints)) {
             return -1;
         }
     }
-   
+
     catch (EmcIniFile::Exception &e) {
         e.Print();
         return -1;
     }
-    
+
     return 0;
 }
 
@@ -94,12 +94,12 @@ static int loadTraj(EmcIniFile *trajInifile)
 
     trajInifile->EnableExceptions(EmcIniFile::ERR_CONVERSION);
 
-    try{
-		int spindles = 1;
-		trajInifile->Find(&spindles, "SPINDLES", "TRAJ");
-		if (0 != emcTrajSetSpindles(spindles)) {
-			return -1;
-		}
+    try {
+        int spindles = 1;
+        trajInifile->Find(&spindles, "SPINDLES", "TRAJ");
+        if (0 != emcTrajSetSpindles(spindles)) {
+            return -1;
+        }
     }
 
     catch (EmcIniFile::Exception &e) {
@@ -107,40 +107,40 @@ static int loadTraj(EmcIniFile *trajInifile)
         return -1;
     }
 
-    try{
-	int axismask = 0;
-	const char *coord = trajInifile->Find("COORDINATES", "TRAJ");
-	if(coord) {
-	    if(strchr(coord, 'x') || strchr(coord, 'X')) {
-	         axismask |= 1;
+    try {
+        int axismask = 0;
+        const char *coord = trajInifile->Find("COORDINATES", "TRAJ");
+        if (coord) {
+            if (strchr(coord, 'x') || strchr(coord, 'X')) {
+                axismask |= 1;
             }
-	    if(strchr(coord, 'y') || strchr(coord, 'Y')) {
-	         axismask |= 2;
+            if (strchr(coord, 'y') || strchr(coord, 'Y')) {
+                axismask |= 2;
             }
-	    if(strchr(coord, 'z') || strchr(coord, 'Z')) {
-	         axismask |= 4;
+            if (strchr(coord, 'z') || strchr(coord, 'Z')) {
+                axismask |= 4;
             }
-	    if(strchr(coord, 'a') || strchr(coord, 'A')) {
-	         axismask |= 8;
+            if (strchr(coord, 'a') || strchr(coord, 'A')) {
+                axismask |= 8;
             }
-	    if(strchr(coord, 'b') || strchr(coord, 'B')) {
-	         axismask |= 16;
+            if (strchr(coord, 'b') || strchr(coord, 'B')) {
+                axismask |= 16;
             }
-	    if(strchr(coord, 'c') || strchr(coord, 'C')) {
-	         axismask |= 32;
+            if (strchr(coord, 'c') || strchr(coord, 'C')) {
+                axismask |= 32;
             }
-	    if(strchr(coord, 'u') || strchr(coord, 'U')) {
-	         axismask |= 64;
+            if (strchr(coord, 'u') || strchr(coord, 'U')) {
+                axismask |= 64;
             }
-	    if(strchr(coord, 'v') || strchr(coord, 'V')) {
-	         axismask |= 128;
+            if (strchr(coord, 'v') || strchr(coord, 'V')) {
+                axismask |= 128;
             }
-	    if(strchr(coord, 'w') || strchr(coord, 'W')) {
-	         axismask |= 256;
+            if (strchr(coord, 'w') || strchr(coord, 'W')) {
+                axismask |= 256;
             }
-	} else {
-	    axismask = 1 | 2 | 4;		// default: XYZ machine
-	}
+        } else {
+            axismask = 1 | 2 | 4; // default: XYZ machine
+        }
         if (0 != emcTrajSetAxes(axismask)) {
             if (emc_debug & EMC_DEBUG_CONFIG) {
                 rcs_print("bad return value from emcTrajSetAxes\n");
@@ -204,7 +204,7 @@ static int loadTraj(EmcIniFile *trajInifile)
         old_inihal_data.traj_max_acceleration = acc;
 
         // has to set MAX_* before DEFAULT_*
-        jerk = 0; 
+        jerk = 0;
         trajInifile->Find(&jerk, "MAX_LINEAR_JERK", "TRAJ");
         if (0 != emcTrajSetMaxJerk(jerk)) {
             if (emc_debug & EMC_DEBUG_CONFIG) {
@@ -213,8 +213,8 @@ static int loadTraj(EmcIniFile *trajInifile)
             return -1;
         }
         old_inihal_data.traj_max_jerk = jerk;
-                
-        jerk = 0; 
+
+        jerk = 0;
         trajInifile->Find(&jerk, "DEFAULT_LINEAR_JERK", "TRAJ");
         if (0 != emcTrajSetJerk(jerk)) {
             if (emc_debug & EMC_DEBUG_CONFIG) {
@@ -223,7 +223,7 @@ static int loadTraj(EmcIniFile *trajInifile)
             return -1;
         }
         old_inihal_data.traj_default_jerk = jerk;
-        planner_type = 0;  // Default: 0 = trapezoidal, 1 = S-curve
+        planner_type = 0; // Default: 0 = trapezoidal, 1 = S-curve
         trajInifile->Find(&planner_type, "PLANNER_TYPE", "TRAJ");
         if (0 != emcTrajPlannerType(planner_type)) {
             if (emc_debug & EMC_DEBUG_CONFIG) {
@@ -241,26 +241,34 @@ static int loadTraj(EmcIniFile *trajInifile)
         double arcBlendTangentKinkRatio = 0.1;
 
         trajInifile->Find(&arcBlendEnable, "ARC_BLEND_ENABLE", "TRAJ");
-        trajInifile->Find(&arcBlendFallbackEnable, "ARC_BLEND_FALLBACK_ENABLE", "TRAJ");
-        trajInifile->Find(&arcBlendOptDepth, "ARC_BLEND_OPTIMIZATION_DEPTH", "TRAJ");
+        trajInifile->Find(
+            &arcBlendFallbackEnable, "ARC_BLEND_FALLBACK_ENABLE", "TRAJ");
+        trajInifile->Find(
+            &arcBlendOptDepth, "ARC_BLEND_OPTIMIZATION_DEPTH", "TRAJ");
         trajInifile->Find(&arcBlendGapCycles, "ARC_BLEND_GAP_CYCLES", "TRAJ");
         trajInifile->Find(&arcBlendRampFreq, "ARC_BLEND_RAMP_FREQ", "TRAJ");
-        trajInifile->Find(&arcBlendTangentKinkRatio, "ARC_BLEND_KINK_RATIO", "TRAJ");
+        trajInifile->Find(
+            &arcBlendTangentKinkRatio, "ARC_BLEND_KINK_RATIO", "TRAJ");
 
-        if (0 != emcSetupArcBlends(arcBlendEnable, arcBlendFallbackEnable,
-                    arcBlendOptDepth, arcBlendGapCycles, arcBlendRampFreq, arcBlendTangentKinkRatio)) {
+        if (0 != emcSetupArcBlends(arcBlendEnable,
+                                   arcBlendFallbackEnable,
+                                   arcBlendOptDepth,
+                                   arcBlendGapCycles,
+                                   arcBlendRampFreq,
+                                   arcBlendTangentKinkRatio)) {
             if (emc_debug & EMC_DEBUG_CONFIG) {
                 rcs_print("bad return value from emcSetupArcBlends\n");
             }
             return -1;
-        } 
+        }
 
         old_inihal_data.traj_arc_blend_enable = arcBlendEnable;
         old_inihal_data.traj_arc_blend_fallback_enable = arcBlendFallbackEnable;
         old_inihal_data.traj_arc_blend_optimization_depth = arcBlendOptDepth;
         old_inihal_data.traj_arc_blend_gap_cycles = arcBlendGapCycles;
         old_inihal_data.traj_arc_blend_ramp_freq = arcBlendRampFreq;
-        old_inihal_data.traj_arc_blend_tangent_kink_ratio = arcBlendTangentKinkRatio;
+        old_inihal_data.traj_arc_blend_tangent_kink_ratio =
+            arcBlendTangentKinkRatio;
         //TODO update inihal
 
         double maxFeedScale = 1.0;
@@ -271,8 +279,8 @@ static int loadTraj(EmcIniFile *trajInifile)
                 rcs_print("bad return value from emcSetMaxFeedOverride\n");
             }
             return -1;
-        } 
-        
+        }
+
         int j_inhibit = 0;
         int h_inhibit = 0;
         trajInifile->Find(&j_inhibit, "NO_PROBE_JOG_ERROR", "TRAJ");
@@ -289,14 +297,17 @@ static int loadTraj(EmcIniFile *trajInifile)
         e.Print();
         return -1;
     }
-    try{
+    try {
         const char *inistring;
-        unsigned char coordinateMark[6] = { 1, 1, 1, 0, 0, 0 };
+        unsigned char coordinateMark[6] = {1, 1, 1, 0, 0, 0};
         int t;
         int len;
         char homes[LINELEN];
         char home[LINELEN];
-        EmcPose homePose = { {0.0, 0.0, 0.0}, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+        EmcPose homePose = {
+            {0.0, 0.0, 0.0},
+            0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+        };
         double d;
         if (NULL != (inistring = trajInifile->Find("HOME", "TRAJ"))) {
             // [TRAJ]HOME is important for genhexkins.c kinetmaticsForward()
@@ -309,7 +320,7 @@ static int loadTraj(EmcIniFile *trajInifile)
             len = 0;
             for (t = 0; t < 6; t++) {
                 if (!coordinateMark[t]) {
-                    continue;    // position t at index of next non-zero mark
+                    continue; // position t at index of next non-zero mark
                 }
                 // there is a mark, so read the string for a value
                 if (1 == sscanf(&homes[len], "%254s", home) &&
@@ -327,7 +338,7 @@ static int loadTraj(EmcIniFile *trajInifile)
                         homePose.b = d;
                     else if (t == 5)
                         homePose.c = d;
-/*
+                    /*
  * The following have no effect. The loop only counts [0..5].
                     else if (t == 6)
                         homePose.u = d;
@@ -340,19 +351,20 @@ static int loadTraj(EmcIniFile *trajInifile)
                     // position string ptr past this value
                     len += strlen(home);
                     // and at start of next value
-                    while ((len < LINELEN) && (homes[len] == ' ' || homes[len] == '\t')) {
+                    while ((len < LINELEN) &&
+                           (homes[len] == ' ' || homes[len] == '\t')) {
                         len++;
                     }
                     if (len >= LINELEN) {
-                        break;    // out of for loop
+                        break; // out of for loop
                     }
                 } else {
                     // badly formatted entry
                     rcs_print("invalid INI file value for [TRAJ] HOME: %s\n",
-                          inistring);
-                        return -1;
+                              inistring);
+                    return -1;
                 }
-            }  // end of for-loop on coordinateMark[]
+            } // end of for-loop on coordinateMark[]
         }
         if (0 != emcTrajSetHome(homePose)) {
             if (emc_debug & EMC_DEBUG_CONFIG) {
@@ -360,7 +372,7 @@ static int loadTraj(EmcIniFile *trajInifile)
             }
             return -1;
         }
-     } //try
+    } //try
 
     catch (EmcIniFile::Exception &e) {
         e.Print();
@@ -379,15 +391,15 @@ int iniTraj(const char *filename)
     EmcIniFile trajInifile;
 
     if (trajInifile.Open(filename) == false) {
-	return -1;
+        return -1;
     }
     // load trajectory values
     if (0 != loadKins(&trajInifile)) {
-	return -1;
+        return -1;
     }
     // load trajectory values
     if (0 != loadTraj(&trajInifile)) {
-	return -1;
+        return -1;
     }
 
     return 0;

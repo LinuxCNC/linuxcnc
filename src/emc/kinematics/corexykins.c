@@ -17,31 +17,31 @@ static struct data {
     hal_s32_t joints[EMCMOT_MAX_JOINTS];
 } *data;
 
-int kinematicsForward(const double *joints
-                     ,EmcPose *pos
-                     ,const KINEMATICS_FORWARD_FLAGS *fflags
-                     ,KINEMATICS_INVERSE_FLAGS *iflags
-                     ) {
+int kinematicsForward(const double *joints,
+                      EmcPose *pos,
+                      const KINEMATICS_FORWARD_FLAGS *fflags,
+                      KINEMATICS_INVERSE_FLAGS *iflags)
+{
     (void)fflags;
     (void)iflags;
     pos->tran.x = 0.5 * (joints[0] + joints[1]);
     pos->tran.y = 0.5 * (joints[0] - joints[1]);
     pos->tran.z = joints[2];
-    pos->a      = joints[3];
-    pos->b      = joints[4];
-    pos->c      = joints[5];
-    pos->u      = joints[6];
-    pos->v      = joints[7];
-    pos->w      = joints[8];
+    pos->a = joints[3];
+    pos->b = joints[4];
+    pos->c = joints[5];
+    pos->u = joints[6];
+    pos->v = joints[7];
+    pos->w = joints[8];
 
     return 0;
 }
 
-int kinematicsInverse(const EmcPose *pos
-                     ,double *joints
-                     ,const KINEMATICS_INVERSE_FLAGS *iflags
-                     ,KINEMATICS_FORWARD_FLAGS *fflags
-                     ) {
+int kinematicsInverse(const EmcPose *pos,
+                      double *joints,
+                      const KINEMATICS_INVERSE_FLAGS *iflags,
+                      KINEMATICS_FORWARD_FLAGS *fflags)
+{
     (void)iflags;
     (void)fflags;
     joints[0] = pos->tran.x + pos->tran.y;
@@ -57,17 +57,20 @@ int kinematicsInverse(const EmcPose *pos
     return 0;
 }
 
-int kinematicsHome(EmcPose *world
-                  ,double *joint
-                  ,KINEMATICS_FORWARD_FLAGS *fflags
-                  ,KINEMATICS_INVERSE_FLAGS *iflags
-                  ) {
+int kinematicsHome(EmcPose *world,
+                   double *joint,
+                   KINEMATICS_FORWARD_FLAGS *fflags,
+                   KINEMATICS_INVERSE_FLAGS *iflags)
+{
     *fflags = 0;
     *iflags = 0;
     return kinematicsForward(joint, world, fflags, iflags);
 }
 
-KINEMATICS_TYPE kinematicsType() { return KINEMATICS_BOTH; }
+KINEMATICS_TYPE kinematicsType()
+{
+    return KINEMATICS_BOTH;
+}
 
 KINS_NOT_SWITCHABLE
 EXPORT_SYMBOL(kinematicsType);
@@ -76,9 +79,11 @@ EXPORT_SYMBOL(kinematicsInverse);
 MODULE_LICENSE("GPL");
 
 static int comp_id;
-int rtapi_app_main(void) {
+int rtapi_app_main(void)
+{
     comp_id = hal_init("corexykins");
-    if(comp_id < 0) return comp_id;
+    if (comp_id < 0)
+        return comp_id;
 
     data = hal_malloc(sizeof(struct data));
 
@@ -86,4 +91,7 @@ int rtapi_app_main(void) {
     return 0;
 }
 
-void rtapi_app_exit(void) { hal_exit(comp_id); }
+void rtapi_app_exit(void)
+{
+    hal_exit(comp_id);
+}

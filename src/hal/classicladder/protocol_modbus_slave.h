@@ -14,8 +14,9 @@
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-int ModbusRequestToRespond( unsigned char * Question, int LgtQuestion, unsigned char * Response );
-int GetMobdusSlaveNbrVars( unsigned char FunctCode );
-void SetVarFromModbusSlave( unsigned char FunctCode, int ModbusNum, int Value );
-int GetVarForModbusSlave( unsigned char FunctCode, int ModbusNum );
-
+int ModbusRequestToRespond(unsigned char *Question,
+                           int LgtQuestion,
+                           unsigned char *Response);
+int GetMobdusSlaveNbrVars(unsigned char FunctCode);
+void SetVarFromModbusSlave(unsigned char FunctCode, int ModbusNum, int Value);
+int GetVarForModbusSlave(unsigned char FunctCode, int ModbusNum);

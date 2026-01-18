@@ -62,7 +62,7 @@
   completely. So, the inverse flags are ignored.
  */
 
-#include "kinematics.h"             /* these decls */
+#include "kinematics.h" /* these decls */
 #include "rtapi_math.h"
 
 /* ident tag */
@@ -81,7 +81,7 @@ struct haldata {
 #define Cx (*(haldata->cx))
 #define Cy (*(haldata->cy))
 
-#define sq(x) ((x)*(x))
+#define sq(x) ((x) * (x))
 
 /*
   forward kinematics takes three strut lengths and computes Dx, Dy, and Dz
@@ -123,10 +123,10 @@ struct haldata {
   solutions. Positive means the tripod is above the xy plane, negative
   means below.
 */
-int kinematicsForward(const double * joints,
-                      EmcPose * pos,
-                      const KINEMATICS_FORWARD_FLAGS * fflags,
-                      KINEMATICS_INVERSE_FLAGS * iflags)
+int kinematicsForward(const double *joints,
+                      EmcPose *pos,
+                      const KINEMATICS_FORWARD_FLAGS *fflags,
+                      KINEMATICS_INVERSE_FLAGS *iflags)
 {
     (void)iflags;
 #define AD (joints[0])
@@ -135,42 +135,42 @@ int kinematicsForward(const double * joints,
 #define Dx (pos->tran.x)
 #define Dy (pos->tran.y)
 #define Dz (pos->tran.z)
-  double P, Q, R;
-  double s, t, u;
+    double P, Q, R;
+    double s, t, u;
 
-  P = sq(AD);
-  Q = sq(BD) - sq(Bx);
-  R = sq(CD) - sq(Cx) - sq(Cy);
-  s = -2.0 * Bx;
-  t = -2.0 * Cx;
-  u = -2.0 * Cy;
+    P = sq(AD);
+    Q = sq(BD) - sq(Bx);
+    R = sq(CD) - sq(Cx) - sq(Cy);
+    s = -2.0 * Bx;
+    t = -2.0 * Cx;
+    u = -2.0 * Cy;
 
-  if (s == 0.0) {
-    /* points A and B coincident. Fix Bx, #defined up top. */
-    return -1;
-  }
-  Dx = (Q - P) / s;
+    if (s == 0.0) {
+        /* points A and B coincident. Fix Bx, #defined up top. */
+        return -1;
+    }
+    Dx = (Q - P) / s;
 
-  if (u == 0.0) {
-    /* points A B C are colinear. Fix Cy, #defined up top. */
-    return -1;
-  }
-  Dy = (R - Q - (t - s) * Dx) / u;
-  Dz = P - sq(Dx) - sq(Dy);
-  if (Dz < 0.0) {
-    /* triangle inequality violated */
-    return -1;
-  }
-  Dz = sqrt(Dz);
-  if (*fflags) {
-    Dz = -Dz;
-  }
+    if (u == 0.0) {
+        /* points A B C are colinear. Fix Cy, #defined up top. */
+        return -1;
+    }
+    Dy = (R - Q - (t - s) * Dx) / u;
+    Dz = P - sq(Dx) - sq(Dy);
+    if (Dz < 0.0) {
+        /* triangle inequality violated */
+        return -1;
+    }
+    Dz = sqrt(Dz);
+    if (*fflags) {
+        Dz = -Dz;
+    }
 
-  pos->a = 0.0;
-  pos->b = 0.0;
-  pos->c = 0.0;
+    pos->a = 0.0;
+    pos->b = 0.0;
+    pos->c = 0.0;
 
-  return 0;
+    return 0;
 
 #undef AD
 #undef BD
@@ -180,10 +180,10 @@ int kinematicsForward(const double * joints,
 #undef Dz
 }
 
-int kinematicsInverse(const EmcPose * pos,
-                      double * joints,
-                      const KINEMATICS_INVERSE_FLAGS * iflags,
-                      KINEMATICS_FORWARD_FLAGS * fflags)
+int kinematicsInverse(const EmcPose *pos,
+                      double *joints,
+                      const KINEMATICS_INVERSE_FLAGS *iflags,
+                      KINEMATICS_FORWARD_FLAGS *fflags)
 {
     (void)iflags;
 #define AD (joints[0])
@@ -193,16 +193,16 @@ int kinematicsInverse(const EmcPose * pos,
 #define Dy (pos->tran.y)
 #define Dz (pos->tran.z)
 
-  AD = sqrt(sq(Dx) + sq(Dy) + sq(Dz));
-  BD = sqrt(sq(Dx - Bx) + sq(Dy) + sq(Dz));
-  CD = sqrt(sq(Dx - Cx) + sq(Dy - Cy) + sq(Dz));
+    AD = sqrt(sq(Dx) + sq(Dy) + sq(Dz));
+    BD = sqrt(sq(Dx - Bx) + sq(Dy) + sq(Dz));
+    CD = sqrt(sq(Dx - Cx) + sq(Dy - Cy) + sq(Dz));
 
-  *fflags = 0;
-  if (Dz < 0.0) {
-    *fflags = 1;
-  }
+    *fflags = 0;
+    if (Dz < 0.0) {
+        *fflags = 1;
+    }
 
-  return 0;
+    return 0;
 
 #undef AD
 #undef BD
@@ -214,7 +214,7 @@ int kinematicsInverse(const EmcPose * pos,
 
 KINEMATICS_TYPE kinematicsType()
 {
-  return KINEMATICS_BOTH;
+    return KINEMATICS_BOTH;
 }
 
 #ifdef MAIN
@@ -232,122 +232,116 @@ int main(int argc, char *argv[])
 #ifndef BUFFERLEN
 #define BUFFERLEN 256
 #endif
-  char buffer[BUFFERLEN];
-  char cmd[BUFFERLEN];
-  EmcPose pos, vel;
-  double joints[3]={0.0,0.0,0.0}, jointvels[3]={0.0,0.0,0.0};
-  char inverse;
-  char flags;
-  KINEMATICS_FORWARD_FLAGS fflags;
+    char buffer[BUFFERLEN];
+    char cmd[BUFFERLEN];
+    EmcPose pos, vel;
+    double joints[3] = {0.0, 0.0, 0.0}, jointvels[3] = {0.0, 0.0, 0.0};
+    char inverse;
+    char flags;
+    KINEMATICS_FORWARD_FLAGS fflags;
 
-  inverse = 0;			/* forwards, by default */
-  flags = 0;			/* didn't provide flags */
-  fflags = 0;			/* above xy plane, by default */
-  if (argc != 4 ||
-      1 != sscanf(argv[1], "%lf", &Bx) ||
-      1 != sscanf(argv[2], "%lf", &Cx) ||
-      1 != sscanf(argv[3], "%lf", &Cy)) {
-    fprintf(stderr, "syntax: %s Bx Cx Cy\n", argv[0]);
-    return 1;
-  }
-
-  while (! feof(stdin)) {
-    if (inverse) {
-	printf("inv> ");
-    }
-    else {
-	printf("fwd> ");
-    }
-    fflush(stdout);
-
-    if (NULL == fgets(buffer, BUFFERLEN, stdin)) {
-      break;
-    }
-    if (1 != sscanf(buffer, "%255s", cmd)) {
-      continue;
+    inverse = 0; /* forwards, by default */
+    flags = 0;   /* didn't provide flags */
+    fflags = 0;  /* above xy plane, by default */
+    if (argc != 4 || 1 != sscanf(argv[1], "%lf", &Bx) ||
+        1 != sscanf(argv[2], "%lf", &Cx) || 1 != sscanf(argv[3], "%lf", &Cy)) {
+        fprintf(stderr, "syntax: %s Bx Cx Cy\n", argv[0]);
+        return 1;
     }
 
-    if (! strcmp(cmd, "quit")) {
-      break;
-    }
-    if (! strcmp(cmd, "i")) {
-      inverse = 1;
-      continue;
-    }
-    if (! strcmp(cmd, "f")) {
-      inverse = 0;
-      continue;
-    }
-    if (! strcmp(cmd, "ff")) {
-      if (1 != sscanf(buffer, "%*s %lu", &fflags)) {
-	printf("need forward flag\n");
-      }
-      continue;
-    }
+    while (!feof(stdin)) {
+        if (inverse) {
+            printf("inv> ");
+        } else {
+            printf("fwd> ");
+        }
+        fflush(stdout);
 
-    if (inverse) {		/* inverse kins */
-      if (3 != sscanf(buffer, "%lf %lf %lf", 
-		      &pos.tran.x,
-		      &pos.tran.y,
-		      &pos.tran.z)) {
-	printf("need X Y Z\n");
-	continue;
-      }
-      if (0 != kinematicsInverse(&pos, joints, NULL, &fflags)) {
-	printf("inverse kin error\n");
-      }
-      else {
-	printf("%f\t%f\t%f\n", joints[0], joints[1], joints[2]);
-	if (0 != kinematicsForward(joints, &pos, &fflags, NULL)) {
-	  printf("forward kin error\n");
-	}
-	else {
-	  printf("%f\t%f\t%f\n", pos.tran.x, pos.tran.y, pos.tran.z);
-	}
-      }
-    }
-    else {			/* forward kins */
-      if (flags) {
-	if (4 != sscanf(buffer, "%lf %lf %lf %lu",
-			&joints[0],
-			&joints[1],
-			&joints[2],
-			&fflags)) {
-	  printf("need 3 strut values and flag\n");
-	  continue;
-	}
-      }
-      else {
-	if (3 != sscanf(buffer, "%lf %lf %lf", 
-			&joints[0],
-			&joints[1],
-			&joints[2])) {
-	  printf("need 3 strut values\n");
-	  continue;
-	}
-      }
-      if (0 != kinematicsForward(joints, &pos, &fflags, NULL)) {
-	printf("forward kin error\n");
-      }
-      else {
-	printf("%f\t%f\t%f\n", pos.tran.x, pos.tran.y, pos.tran.z);
-	if (0 != kinematicsInverse(&pos, joints, NULL, &fflags)) {
-	  printf("inverse kin error\n");
-	}
-	else {
-	  printf("%f\t%f\t%f\n", joints[0], joints[1], joints[2]);
-	}
-      }
-    }
-  } /* end while (! feof(stdin)) */
+        if (NULL == fgets(buffer, BUFFERLEN, stdin)) {
+            break;
+        }
+        if (1 != sscanf(buffer, "%255s", cmd)) {
+            continue;
+        }
 
-  return 0;
+        if (!strcmp(cmd, "quit")) {
+            break;
+        }
+        if (!strcmp(cmd, "i")) {
+            inverse = 1;
+            continue;
+        }
+        if (!strcmp(cmd, "f")) {
+            inverse = 0;
+            continue;
+        }
+        if (!strcmp(cmd, "ff")) {
+            if (1 != sscanf(buffer, "%*s %lu", &fflags)) {
+                printf("need forward flag\n");
+            }
+            continue;
+        }
+
+        if (inverse) { /* inverse kins */
+            if (3 != sscanf(buffer,
+                            "%lf %lf %lf",
+                            &pos.tran.x,
+                            &pos.tran.y,
+                            &pos.tran.z)) {
+                printf("need X Y Z\n");
+                continue;
+            }
+            if (0 != kinematicsInverse(&pos, joints, NULL, &fflags)) {
+                printf("inverse kin error\n");
+            } else {
+                printf("%f\t%f\t%f\n", joints[0], joints[1], joints[2]);
+                if (0 != kinematicsForward(joints, &pos, &fflags, NULL)) {
+                    printf("forward kin error\n");
+                } else {
+                    printf("%f\t%f\t%f\n", pos.tran.x, pos.tran.y, pos.tran.z);
+                }
+            }
+        } else { /* forward kins */
+            if (flags) {
+                if (4 != sscanf(buffer,
+                                "%lf %lf %lf %lu",
+                                &joints[0],
+                                &joints[1],
+                                &joints[2],
+                                &fflags)) {
+                    printf("need 3 strut values and flag\n");
+                    continue;
+                }
+            } else {
+                if (3 != sscanf(buffer,
+                                "%lf %lf %lf",
+                                &joints[0],
+                                &joints[1],
+                                &joints[2])) {
+                    printf("need 3 strut values\n");
+                    continue;
+                }
+            }
+            if (0 != kinematicsForward(joints, &pos, &fflags, NULL)) {
+                printf("forward kin error\n");
+            } else {
+                printf("%f\t%f\t%f\n", pos.tran.x, pos.tran.y, pos.tran.z);
+                if (0 != kinematicsInverse(&pos, joints, NULL, &fflags)) {
+                    printf("inverse kin error\n");
+                } else {
+                    printf("%f\t%f\t%f\n", joints[0], joints[1], joints[2]);
+                }
+            }
+        }
+    } /* end while (! feof(stdin)) */
+
+    return 0;
 }
 
 #endif /* MAIN */
 
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_app.h"		/* RTAPI realtime module decls */
+#include "rtapi.h"     /* RTAPI realtime OS API */
+#include "rtapi_app.h" /* RTAPI realtime module decls */
 #include "hal.h"
 
 KINS_NOT_SWITCHABLE
@@ -358,20 +352,28 @@ EXPORT_SYMBOL(kinematicsInverse);
 MODULE_LICENSE("GPL");
 
 
-
 int comp_id;
-int rtapi_app_main(void) {
+int rtapi_app_main(void)
+{
     int res = 0;
 
     comp_id = hal_init("tripodkins");
-    if(comp_id < 0) return comp_id;
+    if (comp_id < 0)
+        return comp_id;
 
     haldata = hal_malloc(sizeof(struct haldata));
-    if(!haldata) goto error;
+    if (!haldata)
+        goto error;
 
-    if((res = hal_pin_float_new("tripodkins.Bx", HAL_IO, &(haldata->bx), comp_id)) < 0) goto error;
-    if((res = hal_pin_float_new("tripodkins.Cx", HAL_IO, &(haldata->cx), comp_id)) < 0) goto error;
-    if((res = hal_pin_float_new("tripodkins.Cy", HAL_IO, &(haldata->cy), comp_id)) < 0) goto error;
+    if ((res = hal_pin_float_new(
+             "tripodkins.Bx", HAL_IO, &(haldata->bx), comp_id)) < 0)
+        goto error;
+    if ((res = hal_pin_float_new(
+             "tripodkins.Cx", HAL_IO, &(haldata->cx), comp_id)) < 0)
+        goto error;
+    if ((res = hal_pin_float_new(
+             "tripodkins.Cy", HAL_IO, &(haldata->cy), comp_id)) < 0)
+        goto error;
 
     Bx = Cx = Cy = 1.0;
     hal_ready(comp_id);
@@ -382,4 +384,7 @@ error:
     return res;
 }
 
-void rtapi_app_exit(void) { hal_exit(comp_id); }
+void rtapi_app_exit(void)
+{
+    hal_exit(comp_id);
+}

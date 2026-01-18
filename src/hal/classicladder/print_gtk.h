@@ -1,3 +1,3 @@
 
-void PrintGtk( );
-void PrintPreviewGtk( );
+void PrintGtk();
+void PrintPreviewGtk();

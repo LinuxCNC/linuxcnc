@@ -17,24 +17,30 @@
  */
 // keep linker happy so TaskMod can be resolved
 
-#include "rcs.hh"		// NML classes, nmlErrorFormat()
-#include "emc.hh"		// EMC NML
+#include "rcs.hh" // NML classes, nmlErrorFormat()
+#include "emc.hh" // EMC NML
 #include "emc_nml.hh"
 #include "rs274ngc.hh"
 #include "rs274ngc_interp.hh"
 
 EMC_STAT *emcStatus = new EMC_STAT;
 
-int emcOperatorDisplay(char const*, ...) {return 0;};
+int emcOperatorDisplay(char const *, ...)
+{
+    return 0;
+};
 
-int emcOperatorText(char const*, ...) {return 0;}
+int emcOperatorText(char const *, ...)
+{
+    return 0;
+}
 
 // int emcOperatorError(char const*, ...) {return 0;}
 
 
 int emcAbortCleanup(EMC_ABORT reason, const char *message)
 {
-    printf("on_abort: [%d] %s\n", (int)reason,message);
+    printf("on_abort: [%d] %s\n", (int)reason, message);
     return 0;
 }
 

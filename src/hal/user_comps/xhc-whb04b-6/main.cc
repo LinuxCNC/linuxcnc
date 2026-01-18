@@ -41,13 +41,14 @@ using std::endl;
 
 // globals
 //! link object for signal handler
-XhcWhb04b6::XhcWhb04b6Component* WhbComponent{nullptr};
+XhcWhb04b6::XhcWhb04b6Component *WhbComponent{nullptr};
 // ----------------------------------------------------------------------
-static int printUsage(const char* programName, const char* deviceName, bool isError = false)
+static int printUsage(const char *programName,
+                      const char *deviceName,
+                      bool isError = false)
 {
-    std::ostream* os = &std::cout;
-    if (isError)
-    {
+    std::ostream *os = &std::cout;
+    if (isError) {
         os = &std::cerr;
     }
     *os << programName << " version " << PACKAGE_VERSION << endl
@@ -56,32 +57,41 @@ static int printUsage(const char* programName, const char* deviceName, bool isEr
         << "    " << programName << " [-h | --help] | [-H] [OPTIONS] " << endl
         << endl
         << "NAME" << endl
-        << "    " << programName << " - jog dial HAL component for the " << deviceName << " device" << endl
+        << "    " << programName << " - jog dial HAL component for the "
+        << deviceName << " device" << endl
         << endl
         << "DESCRIPTION" << endl
-        << "    " << programName << " is a HAL component that receives events from the " << deviceName << " device "
+        << "    " << programName
+        << " is a HAL component that receives events from the " << deviceName
+        << " device "
         << "and exposes them to HAL via HAL pins." << endl
         << endl
         << "OPTIONS" << endl
         << " -h, --help" << endl
-        << "    Prints the synopsis and the most commonly used commands." << endl
+        << "    Prints the synopsis and the most commonly used commands."
+        << endl
         << endl
         << " -H " << endl
-        << "    Run " << programName << " in HAL-mode instead of interactive mode. When in HAL mode "
-        << "commands from device will be exposed to HAL's shred memory. Interactive mode is useful for "
+        << "    Run " << programName
+        << " in HAL-mode instead of interactive mode. When in HAL mode "
+        << "commands from device will be exposed to HAL's shred memory. "
+           "Interactive mode is useful for "
         << "testing device connectivity and debugging." << endl
         << endl
         << " -t" << endl
-        << "    Wait with timeout for USB device then proceed, exit otherwise. Without -t the timeout is "
+        << "    Wait with timeout for USB device then proceed, exit otherwise. "
+           "Without -t the timeout is "
         << "implicitly infinite." << endl
 
         << " -s, \n"
         << "    Lead in Spindle mode: "
-        << "Lead + jogwheel changes the spindle override speed. Each tick will increase/decrease the spindle override.\n"
+        << "Lead + jogwheel changes the spindle override speed. Each tick will "
+           "increase/decrease the spindle override.\n"
         << "\n"
         << " -f, \n"
         << "    MPG in Feed mode: "
-        << "MPG + jogwheel changes the feed override. Each tick will increment/decrement the feed override.\n"
+        << "MPG + jogwheel changes the feed override. Each tick will "
+           "increment/decrement the feed override.\n"
         << "\n"
         << " -B, \n"
         << "    Big Step mode: "
@@ -89,55 +99,74 @@ static int printUsage(const char* programName, const char* deviceName, bool isEr
         << "\n"
 
         << " -u, -U" << endl
-        << "    Show received data from device. With -U received and transmitted data will be printed. "
+        << "    Show received data from device. With -U received and "
+           "transmitted data will be printed. "
         << "Output is prefixed with \"usb\"." << endl
         << " -p." << endl
-        << "    Show received data from device. With -U received and transmitted data will be printed. "
+        << "    Show received data from device. With -U received and "
+           "transmitted data will be printed. "
         << "Output is prefixed with \"usb\"." << endl
         << endl
         << " -p" << endl
-        << "    Show HAL pins and HAL related messages. Output is prefixed with \"hal\"." << endl
+        << "    Show HAL pins and HAL related messages. Output is prefixed "
+           "with \"hal\"."
+        << endl
         << endl
         << " -e" << endl
-        << "    Show captured events such as button pressed/released, jog dial, axis rotary button, and "
-            "feed rotary button event. Output is prefixed with \"event\"." << endl
+        << "    Show captured events such as button pressed/released, jog "
+           "dial, axis rotary button, and "
+           "feed rotary button event. Output is prefixed with \"event\"."
+        << endl
         << endl
         << " -a" << endl
-        << "    Enable all logging facilities without explicitly specifying each." << endl
+        << "    Enable all logging facilities without explicitly specifying "
+           "each."
+        << endl
         //! this feature must be removed when checksum check is implemented
         << endl
         << " -c" << endl
-        << "    Enable checksum output which is necessary for debugging the checksum generator function. Do not rely "
-            "on this feature since it will be removed once the generator is implemented." << endl
+        << "    Enable checksum output which is necessary for debugging the "
+           "checksum generator function. Do not rely "
+           "on this feature since it will be removed once the generator is "
+           "implemented."
+        << endl
         << endl
         << " -n " << endl
-        << "    Force being silent and not printing any output except of errors. This will also inhibit messages "
-            "prefixed with \"init\"." << endl
+        << "    Force being silent and not printing any output except of "
+           "errors. This will also inhibit messages "
+           "prefixed with \"init\"."
+        << endl
         << endl
         << " -P " << endl
-        << "    Device ProductId in hex (defaults to 0xeb93 if omitted)." << endl
+        << "    Device ProductId in hex (defaults to 0xeb93 if omitted)."
+        << endl
         << endl
         << "EXAMPLES" << endl
         << programName << " -ue" << endl
-        << "    Prints incoming USB data transfer and generated key pressed/released events." << endl
+        << "    Prints incoming USB data transfer and generated key "
+           "pressed/released events."
+        << endl
         << endl
         << programName << " -ue -P 0xeb91" << endl
-        << "    Same as above but for a device with a product id 'eb91'." << endl
+        << "    Same as above but for a device with a product id 'eb91'."
+        << endl
         << endl
         << programName << " -p" << endl
-        << "    Prints hal pin names and events distributed to HAL memory." << endl
+        << "    Prints hal pin names and events distributed to HAL memory."
+        << endl
         << endl
         << programName << " -Ha" << endl
         << "    Start in HAL mode and avoid output, except of errors." << endl
         << endl
         << "AUTHORS" << endl
-        << "    This component was started by Raoul Rubien (github.com/rubienr) based on predecessor "
-            "device's component xhc-hb04.cc. https://github.com/machinekit/machinekit/graphs/contributors "
-            "gives you a more complete list of contributors."
+        << "    This component was started by Raoul Rubien "
+           "(github.com/rubienr) based on predecessor "
+           "device's component xhc-hb04.cc. "
+           "https://github.com/machinekit/machinekit/graphs/contributors "
+           "gives you a more complete list of contributors."
         << endl;
 
-    if (isError)
-    {
+    if (isError) {
         return EXIT_FAILURE;
     }
     return EXIT_SUCCESS;
@@ -146,8 +175,7 @@ static int printUsage(const char* programName, const char* deviceName, bool isEr
 //! called on program termination requested
 static void quit(int signal)
 {
-    if (WhbComponent != nullptr)
-    {
+    if (WhbComponent != nullptr) {
         WhbComponent->requestTermination(signal);
     }
 }
@@ -159,80 +187,65 @@ void registerSignalHandler()
     signal(SIGTERM, quit);
 }
 // ----------------------------------------------------------------------
-bool parseFloat(const char* str, float& out)
+bool parseFloat(const char *str, float &out)
 {
     std::istringstream iss(str);
-    if (!(iss >> out))
-    {
+    if (!(iss >> out)) {
         std::cerr << "no valid value specified: " << str << endl;
         return false;
     }
     return true;
 }
 // ----------------------------------------------------------------------
-int main(int argc, char** argv)
+int main(int argc, char **argv)
 {
     WhbComponent = new XhcWhb04b6::XhcWhb04b6Component();
 
-    const char* optargs = "phaeHuctsfBnUP:v:";
-    for (int opt = getopt(argc, argv, optargs); opt != -1; opt = getopt(argc, argv, optargs))
-    {
-        switch (opt)
-        {
-            case 'H':
-                WhbComponent->setSimulationMode(false);
-                break;
-            case 't':
-                WhbComponent->setWaitWithTimeout(3);
-                break;
-            case 'e':
-                WhbComponent->enableVerbosePendant(true);
-                WhbComponent->setEnableVerboseKeyEvents(true);
-                break;
-            case 'u':
-                WhbComponent->enableVerboseInit(true);
-                WhbComponent->enableVerboseRx(true);
-                break;
-            case 'U':
-                WhbComponent->enableVerboseInit(true);
-                WhbComponent->enableVerboseRx(true);
-                WhbComponent->enableVerboseTx(true);
-                break;
-            case 'p':
-                WhbComponent->enableVerboseInit(true);
-                WhbComponent->enableVerboseHal(true);
-                break;
-            case 'a':
-                WhbComponent->enableVerboseInit(true);
-                WhbComponent->enableVerbosePendant(true);
-                WhbComponent->setEnableVerboseKeyEvents(true);
-                WhbComponent->enableVerboseRx(true);
-                WhbComponent->enableVerboseTx(true);
-                WhbComponent->enableVerboseHal(true);
-                break;
-            case 'c':
-                WhbComponent->enableCrcDebugging(true);
-                break;
-            case 's':
-                WhbComponent->setLeadModeSpindle(true);
-                break;
-            case 'f':
-                WhbComponent->setLeadModeFeed(true);
-                break;
-            case 'B':
-                WhbComponent->setStepMode_5_10(true);
-                break;
-            case 'n':
-                break;
-            case 'h':
-                return printUsage(basename(argv[0]), WhbComponent->getName());
-                break;
-            case 'P':
-                 WhbComponent->setUsbProductId(std::stoi(optarg, 0, 16));
-                break;
-            default:
-                return printUsage(basename(argv[0]), WhbComponent->getName(), true);
-                break;
+    const char *optargs = "phaeHuctsfBnUP:v:";
+    for (int opt = getopt(argc, argv, optargs); opt != -1;
+         opt = getopt(argc, argv, optargs)) {
+        switch (opt) {
+        case 'H': WhbComponent->setSimulationMode(false); break;
+        case 't': WhbComponent->setWaitWithTimeout(3); break;
+        case 'e':
+            WhbComponent->enableVerbosePendant(true);
+            WhbComponent->setEnableVerboseKeyEvents(true);
+            break;
+        case 'u':
+            WhbComponent->enableVerboseInit(true);
+            WhbComponent->enableVerboseRx(true);
+            break;
+        case 'U':
+            WhbComponent->enableVerboseInit(true);
+            WhbComponent->enableVerboseRx(true);
+            WhbComponent->enableVerboseTx(true);
+            break;
+        case 'p':
+            WhbComponent->enableVerboseInit(true);
+            WhbComponent->enableVerboseHal(true);
+            break;
+        case 'a':
+            WhbComponent->enableVerboseInit(true);
+            WhbComponent->enableVerbosePendant(true);
+            WhbComponent->setEnableVerboseKeyEvents(true);
+            WhbComponent->enableVerboseRx(true);
+            WhbComponent->enableVerboseTx(true);
+            WhbComponent->enableVerboseHal(true);
+            break;
+        case 'c': WhbComponent->enableCrcDebugging(true); break;
+        case 's': WhbComponent->setLeadModeSpindle(true); break;
+        case 'f': WhbComponent->setLeadModeFeed(true); break;
+        case 'B': WhbComponent->setStepMode_5_10(true); break;
+        case 'n': break;
+        case 'h':
+            return printUsage(basename(argv[0]), WhbComponent->getName());
+            break;
+        case 'P':
+            WhbComponent->setUsbProductId(std::stoi(optarg, 0, 16));
+            break;
+        default:
+            return printUsage(basename(argv[0]), WhbComponent->getName(), true);
+            break;
         }
     }
 
@@ -241,9 +254,8 @@ int main(int argc, char** argv)
     WhbComponent->run();
 
     //! hotfix for https://github.com/machinekit/machinekit/issues/1266
-    if (WhbComponent->isSimulationModeEnabled())
-    {
-//        google::protobuf::ShutdownProtobufLibrary();
+    if (WhbComponent->isSimulationModeEnabled()) {
+        //        google::protobuf::ShutdownProtobufLibrary();
     }
 
     delete (WhbComponent);

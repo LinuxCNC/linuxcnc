@@ -20,50 +20,51 @@
 
 #include "stat_msg.hh"
 
-#include <string.h>		// memset()
+#include <string.h> // memset()
 
-RCS_STAT_MSG::RCS_STAT_MSG(NMLTYPE t, size_t sz):NMLmsg(t, sz)
+RCS_STAT_MSG::RCS_STAT_MSG(NMLTYPE t, size_t sz) : NMLmsg(t, sz)
 {
-// just avoiding an inline function.
+    // just avoiding an inline function.
     command_type = -1;
     echo_serial_number = -1;
     status = RCS_STATUS::UNINITIALIZED;
     _state = -1;
 }
 
-int RCS_STAT_MSG_format(NMLTYPE t, void *buf, CMS * cms)
+int RCS_STAT_MSG_format(NMLTYPE t, void *buf, CMS *cms)
 {
-    cms->update(((RCS_STAT_MSG *) buf)->command_type);
-    cms->update(((RCS_STAT_MSG *) buf)->echo_serial_number);
-    cms->update(((RCS_STAT_MSG *) buf)->status_int);
-    cms->update(((RCS_STAT_MSG *) buf)->_state);
+    cms->update(((RCS_STAT_MSG *)buf)->command_type);
+    cms->update(((RCS_STAT_MSG *)buf)->echo_serial_number);
+    cms->update(((RCS_STAT_MSG *)buf)->status_int);
+    cms->update(((RCS_STAT_MSG *)buf)->_state);
 
     switch (t) {
     case RCS_GENERIC_STATUS_TYPE:
-	((RCS_GENERIC_STATUS *) buf)->update(cms);
-	return (1);
+        ((RCS_GENERIC_STATUS *)buf)->update(cms);
+        return (1);
 
-    default:
-	return (0);
+    default: return (0);
     }
     return (0);
 }
 
-RCS_GENERIC_STATUS::RCS_GENERIC_STATUS():
-RCS_STAT_MSG(RCS_GENERIC_STATUS_TYPE, sizeof(RCS_GENERIC_STATUS))
+RCS_GENERIC_STATUS::RCS_GENERIC_STATUS()
+    : RCS_STAT_MSG(RCS_GENERIC_STATUS_TYPE, sizeof(RCS_GENERIC_STATUS))
 {
-// Just avoiding an inline function.
+    // Just avoiding an inline function.
 }
 
-void
-  RCS_GENERIC_STATUS::update(CMS *)
+void RCS_GENERIC_STATUS::update(CMS *)
 {
-// Just avoiding an inline function.
+    // Just avoiding an inline function.
 }
 
-RCS_STAT_CHANNEL::RCS_STAT_CHANNEL(NML_FORMAT_PTR f_ptr, const char *name,
-    const char *process, const char *file,
-    int set_to_server):NML(name, process, file, set_to_server)
+RCS_STAT_CHANNEL::RCS_STAT_CHANNEL(NML_FORMAT_PTR f_ptr,
+                                   const char *name,
+                                   const char *process,
+                                   const char *file,
+                                   int set_to_server)
+    : NML(name, process, file, set_to_server)
 {
     format_chain = new LinkedList;
     prefix_format_chain(f_ptr);

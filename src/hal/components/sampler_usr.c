@@ -70,8 +70,8 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "hal.h"                /* HAL public API decls */
+#include "rtapi.h" /* RTAPI realtime OS API */
+#include "hal.h"   /* HAL public API decls */
 #include "streamer.h"
 
 /***********************************************************************
@@ -82,11 +82,11 @@
 *                         GLOBAL VARIABLES                             *
 ************************************************************************/
 
-int comp_id = -1;	/* -1 means hal_init() not called yet */
+int comp_id = -1; /* -1 means hal_init() not called yet */
 int shmem_id = -1;
-int exitval = 1;	/* program return code - 1 means error */
-int ignore_sig = 0;	/* used to flag critical regions */
-char comp_name[HAL_NAME_LEN+1];	/* name for this instance of sampler */
+int exitval = 1;                  /* program return code - 1 means error */
+int ignore_sig = 0;               /* used to flag critical regions */
+char comp_name[HAL_NAME_LEN + 1]; /* name for this instance of sampler */
 
 /***********************************************************************
 *                            MAIN PROGRAM                              *
@@ -97,8 +97,8 @@ static sig_atomic_t stop;
 static void quit(int sig)
 {
     (void)sig;
-    if ( ignore_sig ) {
-	return;
+    if (ignore_sig) {
+        return;
     }
     stop = 1;
 }
@@ -109,7 +109,7 @@ int main(int argc, char **argv)
 {
     int n, channel, tag;
     long int samples;
-    unsigned this_sample, last_sample=0;
+    unsigned this_sample, last_sample = 0;
     char *cp, *cp2;
     hal_stream_t stream;
 
@@ -117,53 +117,51 @@ int main(int argc, char **argv)
     exitval = 1;
     channel = 0;
     tag = 0;
-    samples = -1;  /* -1 means run forever */
+    samples = -1; /* -1 means run forever */
     /* FIXME - if I wasn't so lazy I'd learn how to use getopt() here */
-    for ( n = 1 ; n < argc ; n++ ) {
-	cp = argv[n];
-	if ( *cp != '-' ) {
-	    break;
-	}
-	switch ( *(++cp) ) {
-	case 'c':
-	    if (( *(++cp) == '\0' ) && ( ++n < argc )) { 
-		cp = argv[n];
-	    }
-	    channel = strtol(cp, &cp2, 10);
-	    if (( *cp2 ) || ( channel < 0 ) || ( channel >= MAX_SAMPLERS )) {
-		fprintf(stderr,"ERROR: invalid channel number '%s'\n", cp );
-		exit(1);
-	    }
-	    break;
-	case 'n':
-	    if (( *(++cp) == '\0' ) && ( ++n < argc )) { 
-		cp = argv[n];
-	    }
-	    samples = strtol(cp, &cp2, 10);
-	    if (( *cp2 ) || ( samples < 0 )) {
-		fprintf(stderr, "ERROR: invalid sample count '%s'\n", cp );
-		exit(1);
-	    }
-	    break;
-	case 't':
-	    tag = 1;
-	    break;
-	default:
-	    fprintf(stderr,"ERROR: unknown option '%s'\n", cp );
-	    exit(1);
-	    break;
-	}
+    for (n = 1; n < argc; n++) {
+        cp = argv[n];
+        if (*cp != '-') {
+            break;
+        }
+        switch (*(++cp)) {
+        case 'c':
+            if ((*(++cp) == '\0') && (++n < argc)) {
+                cp = argv[n];
+            }
+            channel = strtol(cp, &cp2, 10);
+            if ((*cp2) || (channel < 0) || (channel >= MAX_SAMPLERS)) {
+                fprintf(stderr, "ERROR: invalid channel number '%s'\n", cp);
+                exit(1);
+            }
+            break;
+        case 'n':
+            if ((*(++cp) == '\0') && (++n < argc)) {
+                cp = argv[n];
+            }
+            samples = strtol(cp, &cp2, 10);
+            if ((*cp2) || (samples < 0)) {
+                fprintf(stderr, "ERROR: invalid sample count '%s'\n", cp);
+                exit(1);
+            }
+            break;
+        case 't': tag = 1; break;
+        default:
+            fprintf(stderr, "ERROR: unknown option '%s'\n", cp);
+            exit(1);
+            break;
+        }
     }
-    if(n < argc) {
-	int fd;
-	if(argc > n+1) {
-	    fprintf(stderr, "ERROR: At most one filename may be specified\n");
-	    exit(1);
-	}
-	// make stdout be the named file
-	fd = open(argv[n], O_WRONLY | O_CREAT | O_TRUNC, 0666);
-	close(1);
-	dup2(fd, 1);
+    if (n < argc) {
+        int fd;
+        if (argc > n + 1) {
+            fprintf(stderr, "ERROR: At most one filename may be specified\n");
+            exit(1);
+        }
+        // make stdout be the named file
+        fd = open(argv[n], O_WRONLY | O_CREAT | O_TRUNC, 0666);
+        close(1);
+        dup2(fd, 1);
     }
     /* register signal handlers - if the process is killed
        we need to call hal_exit() to free the shared memory */
@@ -179,62 +177,58 @@ int main(int argc, char **argv)
     ignore_sig = 0;
     /* check result */
     if (comp_id < 0) {
-	fprintf(stderr, "ERROR: hal_init() failed: %d\n", comp_id );
-	goto out;
+        fprintf(stderr, "ERROR: hal_init() failed: %d\n", comp_id);
+        goto out;
     }
     hal_ready(comp_id);
-    int res = hal_stream_attach(&stream, comp_id, SAMPLER_SHMEM_KEY+channel, 0);
+    int res =
+        hal_stream_attach(&stream, comp_id, SAMPLER_SHMEM_KEY + channel, 0);
     if (res < 0) {
-	errno = -res;
-	perror("hal_stream_attach");
-	goto out;
+        errno = -res;
+        perror("hal_stream_attach");
+        goto out;
     }
     int num_pins = hal_stream_element_count(&stream);
-    while ( samples != 0 ) {
-	union hal_stream_data buf[num_pins];
-	hal_stream_wait_readable(&stream, &stop);
-	if(stop) break;
-	int res = hal_stream_read(&stream, buf, &this_sample);
-	if (res < 0) {
-	    errno = -res;
-	    perror("hal_stream_read");
-	    goto out;
-	}
-	++last_sample;
-	if ( this_sample != last_sample ) {
-	    printf ( "overrun\n");
-	    last_sample = this_sample;
-	}
-	if ( tag ) {
-	    printf ( "%u ", this_sample-1 );
-	}
-	for ( n = 0 ; n < num_pins; n++ ) {
-	    switch ( hal_stream_element_type(&stream, n) ) {
-	    case HAL_FLOAT:
-		printf ( "%f ", buf[n].f);
-		break;
-	    case HAL_BIT:
-		if ( buf[n].b ) {
-		    printf ( "1 " );
-		} else {
-		    printf ( "0 " );
-		}
-		break;
-	    case HAL_U32:
-		printf ( "%lu ", (unsigned long)buf[n].u);
-		break;
-	    case HAL_S32:
-		printf ( "%ld ", (long)buf[n].s);
-		break;
-	    default:
-		/* better not happen */
-		goto out;
-	    }
-	}
-	printf ( "\n" );
-	if ( samples > 0 ) {
-	    samples--;
-	}
+    while (samples != 0) {
+        union hal_stream_data buf[num_pins];
+        hal_stream_wait_readable(&stream, &stop);
+        if (stop)
+            break;
+        int res = hal_stream_read(&stream, buf, &this_sample);
+        if (res < 0) {
+            errno = -res;
+            perror("hal_stream_read");
+            goto out;
+        }
+        ++last_sample;
+        if (this_sample != last_sample) {
+            printf("overrun\n");
+            last_sample = this_sample;
+        }
+        if (tag) {
+            printf("%u ", this_sample - 1);
+        }
+        for (n = 0; n < num_pins; n++) {
+            switch (hal_stream_element_type(&stream, n)) {
+            case HAL_FLOAT: printf("%f ", buf[n].f); break;
+            case HAL_BIT:
+                if (buf[n].b) {
+                    printf("1 ");
+                } else {
+                    printf("0 ");
+                }
+                break;
+            case HAL_U32: printf("%lu ", (unsigned long)buf[n].u); break;
+            case HAL_S32: printf("%ld ", (long)buf[n].s); break;
+            default:
+                /* better not happen */
+                goto out;
+            }
+        }
+        printf("\n");
+        if (samples > 0) {
+            samples--;
+        }
     }
     /* run was successful */
     exitval = 0;
@@ -242,8 +236,8 @@ int main(int argc, char **argv)
 out:
     ignore_sig = 1;
     hal_stream_detach(&stream);
-    if ( comp_id >= 0 ) {
-	hal_exit(comp_id);
+    if (comp_id >= 0) {
+        hal_exit(comp_id);
     }
     return exitval;
 }

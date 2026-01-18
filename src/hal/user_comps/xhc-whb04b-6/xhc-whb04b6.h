@@ -1,4 +1,4 @@
- /*
+/*
    Copyright (C) 2018 Raoul Rubien (github.com/rubienr) Updated for Linuxcnc 2020 by alkabal_free.fr
 
    This program is free software; you can redistribute it and/or
@@ -29,28 +29,28 @@
 #include "./pendant.h"
 
 
-namespace XhcWhb04b6 {
+namespace XhcWhb04b6
+{
 
 // forward declarations
 // ----------------------------------------------------------------------
 //! The XHC WHB04B-6 user space component for Linuxcnc.
-class XhcWhb04b6Component :
-    public OnUsbInputPackageListener
+class XhcWhb04b6Component : public OnUsbInputPackageListener
 {
-public:
+  public:
     XhcWhb04b6Component();
     virtual ~XhcWhb04b6Component();
     void process();
     void teardownUsb();
-    void setUsbContext(libusb_context* context);
-    libusb_device_handle* getUsbDeviceHandle();
-    libusb_context* getUsbContext();
+    void setUsbContext(libusb_context *context);
+    libusb_device_handle *getUsbDeviceHandle();
+    libusb_context *getUsbContext();
     //! \return the name as specified to \ref XhcWhb04b6Component
-    const char* getName() const;
+    const char *getName() const;
     //! \return the name as specified to \ref Hal
-    const char* getHalName() const;
+    const char *getHalName() const;
     //! callback method received by \ref Usb when a \ref libusb_transfer is received
-    void onInputDataReceived(const UsbInPackage& inPackage) override;
+    void onInputDataReceived(const UsbInPackage &inPackage) override;
     void initWhb();
     void initHal();
     void teardownHal();
@@ -70,46 +70,51 @@ public:
     void enableVerboseInit(bool enable);
     void enableCrcDebugging(bool enable);
     void setWaitWithTimeout(uint8_t waitSecs = 3);
-    void printCrcDebug(const UsbInPackage& inPackage, const UsbOutPackageData& outPackageBuffer) const;
+    void printCrcDebug(const UsbInPackage &inPackage,
+                       const UsbOutPackageData &outPackageBuffer) const;
     void setLeadModeSpindle(bool enable);
     void setLeadModeFeed(bool enable);
     void setStepMode_5_10(bool enable);
     void setUsbProductId(uint16_t usbProductId);
 
-private:
-    const char* mName;
-    Hal                   mHal;
-    const KeyCodes        mKeyCodes;
+  private:
+    const char *mName;
+    Hal mHal;
+    const KeyCodes mKeyCodes;
     const MetaButtonCodes mMetaButtons[32];
-    Usb                   mUsb;
-    bool                  mIsRunning{false};
-    bool                  mIsSimulationMode{false};
-    std::ostream          mDevNull{nullptr};
-    std::ostream             * mTxCout;
-    std::ostream             * mRxCout;
-    std::ostream             * mKeyEventCout;
-    std::ostream             * mHalInitCout;
-    std::ostream             * mInitCout;
-    OnUsbInputPackageListener& packageReceivedEventReceiver;
-    bool    mIsCrcDebuggingEnabled{false};
+    Usb mUsb;
+    bool mIsRunning{false};
+    bool mIsSimulationMode{false};
+    std::ostream mDevNull{nullptr};
+    std::ostream *mTxCout;
+    std::ostream *mRxCout;
+    std::ostream *mKeyEventCout;
+    std::ostream *mHalInitCout;
+    std::ostream *mInitCout;
+    OnUsbInputPackageListener &packageReceivedEventReceiver;
+    bool mIsCrcDebuggingEnabled{false};
     Pendant mPendant;
 
     //! prints human readable output of the push buttons state
-    void printPushButtonText(uint8_t keyCode, uint8_t modifierCode, std::ostream& out);
+    void printPushButtonText(uint8_t keyCode,
+                             uint8_t modifierCode,
+                             std::ostream &out);
     //! prints human readable output of the push buttons state to \ref verboseRxOut stream
     void printPushButtonText(uint8_t keyCode, uint8_t modifierCode);
     //! prints human readable output of the push buttons state to \p out
-    void printRotaryButtonText(const KeyCode* keyCodesBase, uint8_t keyCode, std::ostream& out);
+    void printRotaryButtonText(const KeyCode *keyCodesBase,
+                               uint8_t keyCode,
+                               std::ostream &out);
     //! prints human readable output of the rotary button text to \ref verboseRxOut stream
-    void printRotaryButtonText(const KeyCode* keyCodesBase, uint8_t keyCode);
+    void printRotaryButtonText(const KeyCode *keyCodesBase, uint8_t keyCode);
     //! prints human readable output of the rotary button text to \p out
-    void printInputData(const UsbInPackage& inPackage, std::ostream& out);
+    void printInputData(const UsbInPackage &inPackage, std::ostream &out);
     //! prints human readable output of the input package to \ref verboseRxOut stream
-    void printInputData(const UsbInPackage& inPackage);
+    void printInputData(const UsbInPackage &inPackage);
     //! prints human readable output of the input package to \p out
-    void printHexdump(const UsbInPackage& inPackage, std::ostream& out);
+    void printHexdump(const UsbInPackage &inPackage, std::ostream &out);
     //! prints a hexdump of the input package to \ref verboseRxOut stream
-    void printHexdump(const UsbInPackage& inPackage);
+    void printHexdump(const UsbInPackage &inPackage);
 };
-}
+} // namespace XhcWhb04b6
 #endif

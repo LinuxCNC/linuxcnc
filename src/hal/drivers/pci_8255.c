@@ -21,14 +21,21 @@
 #define MAX 16
 
 MODULE_LICENSE("GPL");
-int io[MAX] = {0,};
-int dir[MAX] = {0,};
+int io[MAX] = {
+    0,
+};
+int dir[MAX] = {
+    0,
+};
 RTAPI_MP_ARRAY_INT(io, MAX, "I/O addresses of 8255s");
 RTAPI_MP_ARRAY_INT(dir, MAX, "I/O direction of 8255s");
 
 static int comp_id;
 
-union inv { hal_bit_t *not_; hal_bit_t invert; };
+union inv {
+    hal_bit_t *not_;
+    hal_bit_t invert;
+};
 
 struct port {
     hal_bit_t *a[8];
@@ -58,20 +65,23 @@ static void extra_cleanup(void);
 
 #include <asm/io.h>
 #define SHIFT 4
-static inline void pci_8255_outb(int value, hal_u32_t base, int offset) { 
+static inline void pci_8255_outb(int value, hal_u32_t base, int offset)
+{
     // int *mem = (int*) base;
-    outb(value, base + SHIFT*offset);
+    outb(value, base + SHIFT * offset);
     // mem[offset] = value;
 }
 
-static inline int pci_8255_inb(hal_u32_t base, int offset) {
-    return inb(base + SHIFT*offset);
+static inline int pci_8255_inb(hal_u32_t base, int offset)
+{
+    return inb(base + SHIFT * offset);
     // int *mem = (int*) base;
     // return mem[offset];
 }
 
 
-static int export(char *prefix, struct port *inst, int ioaddr, int dir) {
+static int export(char *prefix, struct port *inst, int ioaddr, int dir)
+{
     int r = 0;
     int i;
     hal_pin_dir_t direction;
@@ -80,66 +90,123 @@ static int export(char *prefix, struct port *inst, int ioaddr, int dir) {
     inst->dir_ = dir;
     inst->ioaddr = ioaddr;
 
-    if(inst->dir_ & 8) direction = HAL_OUT; else direction = HAL_IN;
-    for(i=0; i<8; i++) {
-        r = hal_pin_bit_newf(direction, &(inst->a[i]), comp_id,
-            "%s.a%d", prefix, i);
-        if(r != 0) return r;
-        if(direction == HAL_OUT) {
-            r = hal_pin_bit_newf(direction, &(inst->ai[i].not_), comp_id,
-                "%s.a%d-not", prefix, i);
+    if (inst->dir_ & 8)
+        direction = HAL_OUT;
+    else
+        direction = HAL_IN;
+    for (i = 0; i < 8; i++) {
+        r = hal_pin_bit_newf(
+            direction, &(inst->a[i]), comp_id, "%s.a%d", prefix, i);
+        if (r != 0)
+            return r;
+        if (direction == HAL_OUT) {
+            r = hal_pin_bit_newf(direction,
+                                 &(inst->ai[i].not_),
+                                 comp_id,
+                                 "%s.a%d-not",
+                                 prefix,
+                                 i);
         } else {
-            r = hal_param_bit_newf(HAL_RW, &(inst->ai[i].invert), comp_id,
-                    "%s.a%d-invert", prefix, i);
+            r = hal_param_bit_newf(HAL_RW,
+                                   &(inst->ai[i].invert),
+                                   comp_id,
+                                   "%s.a%d-invert",
+                                   prefix,
+                                   i);
         }
-        if(r != 0) return r;
+        if (r != 0)
+            return r;
     }
-    if(inst->dir_ & 2) direction = HAL_OUT; else direction = HAL_IN;
-    for(i=0; i<8; i++) {
-        r = hal_pin_bit_newf(direction, &(inst->b[i]), comp_id,
-            "%s.b%d", prefix, i);
-        if(r != 0) return r;
-        if(direction == HAL_OUT) {
-            r = hal_pin_bit_newf(direction, &(inst->bi[i].not_), comp_id,
-                "%s.b%d-not", prefix, i);
+    if (inst->dir_ & 2)
+        direction = HAL_OUT;
+    else
+        direction = HAL_IN;
+    for (i = 0; i < 8; i++) {
+        r = hal_pin_bit_newf(
+            direction, &(inst->b[i]), comp_id, "%s.b%d", prefix, i);
+        if (r != 0)
+            return r;
+        if (direction == HAL_OUT) {
+            r = hal_pin_bit_newf(direction,
+                                 &(inst->bi[i].not_),
+                                 comp_id,
+                                 "%s.b%d-not",
+                                 prefix,
+                                 i);
         } else {
-            r = hal_param_bit_newf(HAL_RW, &(inst->bi[i].invert), comp_id,
-                    "%s.b%d-invert", prefix, i);
+            r = hal_param_bit_newf(HAL_RW,
+                                   &(inst->bi[i].invert),
+                                   comp_id,
+                                   "%s.b%d-invert",
+                                   prefix,
+                                   i);
         }
-        if(r != 0) return r;
+        if (r != 0)
+            return r;
     }
-    for(i=0; i<8; i++) {
-        if(i < 4) {
-            if(inst->dir_ & 1) direction = HAL_OUT;
-            else direction = HAL_IN;
-        } else { 
-            if(inst->dir_ & 4) direction = HAL_OUT;
-            else direction = HAL_IN;
-        }
-        r = hal_pin_bit_newf(direction, &(inst->c[i]), comp_id,
-            "%s.c%d", prefix, i);
-        if(r != 0) return r;
-        if(direction == HAL_OUT) {
-            r = hal_pin_bit_newf(direction, &(inst->ci[i].not_), comp_id,
-                "%s.c%d-not", prefix, i);
+    for (i = 0; i < 8; i++) {
+        if (i < 4) {
+            if (inst->dir_ & 1)
+                direction = HAL_OUT;
+            else
+                direction = HAL_IN;
         } else {
-            r = hal_param_bit_newf(HAL_RW, &(inst->ci[i].invert), comp_id,
-                    "%s.c%d-invert", prefix, i);
+            if (inst->dir_ & 4)
+                direction = HAL_OUT;
+            else
+                direction = HAL_IN;
         }
-        if(r != 0) return r;
+        r = hal_pin_bit_newf(
+            direction, &(inst->c[i]), comp_id, "%s.c%d", prefix, i);
+        if (r != 0)
+            return r;
+        if (direction == HAL_OUT) {
+            r = hal_pin_bit_newf(direction,
+                                 &(inst->ci[i].not_),
+                                 comp_id,
+                                 "%s.c%d-not",
+                                 prefix,
+                                 i);
+        } else {
+            r = hal_param_bit_newf(HAL_RW,
+                                   &(inst->ci[i].invert),
+                                   comp_id,
+                                   "%s.c%d-invert",
+                                   prefix,
+                                   i);
+        }
+        if (r != 0)
+            return r;
     }
-    r = hal_param_u32_newf(HAL_RO, &(inst->dir_), comp_id,
-        "%s.dir", prefix);
-    if(r != 0) return r;
-    r = hal_export_functf((void(*)(void *inst, long))read, inst, 0, 0, comp_id, "%s.read", prefix);
-    if(r != 0) return r;
-    r = hal_export_functf((void(*)(void *inst, long))write, inst, 0, 0, comp_id, "%s.write", prefix);
-    if(r != 0) return r;
+    r = hal_param_u32_newf(HAL_RO, &(inst->dir_), comp_id, "%s.dir", prefix);
+    if (r != 0)
+        return r;
+    r = hal_export_functf((void (*)(void *inst, long))read,
+                          inst,
+                          0,
+                          0,
+                          comp_id,
+                          "%s.read",
+                          prefix);
+    if (r != 0)
+        return r;
+    r = hal_export_functf((void (*)(void *inst, long))write,
+                          inst,
+                          0,
+                          0,
+                          comp_id,
+                          "%s.write",
+                          prefix);
+    if (r != 0)
+        return r;
 
-    rtapi_print_msg(RTAPI_MSG_DBG, "registering %s ... %x %x\n", prefix,
-	(dir&3) | ((dir & 0xc) << 1) | 0x80, ioaddr);
+    rtapi_print_msg(RTAPI_MSG_DBG,
+                    "registering %s ... %x %x\n",
+                    prefix,
+                    (dir & 3) | ((dir & 0xc) << 1) | 0x80,
+                    ioaddr);
 
-    pci_8255_outb((dir&3) | ((dir & 0xc) << 1) | 0x80, ioaddr, 3);
+    pci_8255_outb((dir & 3) | ((dir & 0xc) << 1) | 0x80, ioaddr, 3);
 
     return 0;
 }
@@ -147,75 +214,105 @@ static int export(char *prefix, struct port *inst, int ioaddr, int dir) {
 static struct state *inst = 0;
 static int count = 0;
 
-static void write_relay(struct state *inst, long period) {
+static void write_relay(struct state *inst, long period)
+{
     int val = (!*inst->relay) ^ (!inst->relay_invert);
     // relay is active low
-    if(val) {
-	pci_8255_outb(0, inst->ioaddr, 3);
+    if (val) {
+        pci_8255_outb(0, inst->ioaddr, 3);
     } else {
-	pci_8255_outb(0x10, inst->ioaddr, 3);
+        pci_8255_outb(0x10, inst->ioaddr, 3);
     }
 }
 
-static void write_all(struct state *inst, long period) {
+static void write_all(struct state *inst, long period)
+{
     int i;
-    for(i=0; i<count; i++) {
-	write_relay(&inst[i], period);
-	write(&inst[i].ports[0], period);
-	write(&inst[i].ports[1], period);
-	write(&inst[i].ports[2], period);
+    for (i = 0; i < count; i++) {
+        write_relay(&inst[i], period);
+        write(&inst[i].ports[0], period);
+        write(&inst[i].ports[1], period);
+        write(&inst[i].ports[2], period);
     }
 }
 
-static void read_all(struct state *inst, long period) {
+static void read_all(struct state *inst, long period)
+{
     int i;
-    for(i=0; i<count; i++) {
-	read(&inst[i].ports[0], period);
-	read(&inst[i].ports[1], period);
-	read(&inst[i].ports[2], period);
+    for (i = 0; i < count; i++) {
+        read(&inst[i].ports[0], period);
+        read(&inst[i].ports[1], period);
+        read(&inst[i].ports[2], period);
     }
 }
 
 static int get_count(void);
-int rtapi_app_main(void) {
+int rtapi_app_main(void)
+{
     int r = 0;
     int i, j;
     char buf[HAL_NAME_LEN + 1];
 
     count = get_count();
     comp_id = hal_init("pci_8255");
-    if(comp_id < 0) return comp_id;
+    if (comp_id < 0)
+        return comp_id;
     inst = hal_malloc(count * sizeof(struct state));
-    if(!inst) goto out_error;
+    if (!inst)
+        goto out_error;
 
-    for(i=0; i<count; i++) {
-	// PIB reset low, 15 cycle operation
-	pci_8255_outb(0x30, io[i], 0);
-	// relay off (active-high), cs low
-	pci_8255_outb(0x10, io[i]+3, 0);
-	// relay, CS# as outputs
-	pci_8255_outb(0x11, io[i]+2, 0);
+    for (i = 0; i < count; i++) {
+        // PIB reset low, 15 cycle operation
+        pci_8255_outb(0x30, io[i], 0);
+        // relay off (active-high), cs low
+        pci_8255_outb(0x10, io[i] + 3, 0);
+        // relay, CS# as outputs
+        pci_8255_outb(0x11, io[i] + 2, 0);
 
-	for(j=0; j<3; j++) {
-	    rtapi_snprintf(buf, sizeof(buf), "pci8255.%d.%d", i, j);
-	    r = export(buf, &inst[i].ports[j],
-		    io[i] + 0xc0 + 16*j, (dir[i] >> (4*j)) & 0xf);
-	    if(r != 0) goto out_error;
-	}
-	hal_pin_bit_newf(HAL_IN, &(inst[i].relay), comp_id, "pci8255.%d.relay", i);
-	hal_param_bit_newf(HAL_RW, &(inst[i].relay_invert), comp_id, 
-		    "pci8255.%d.relay-invert", i);
-	r = hal_export_functf((void(*)(void *inst, long))write_relay, &inst[i], 0, 0, comp_id, "pci8255.%d.write-relay", i);
-	r = hal_param_u32_newf(HAL_RO, &(inst->ioaddr), comp_id,
-	    "pci8255.%d.io-addr", i);
-	inst->ioaddr = io[i];
-	if(r != 0) return r;
+        for (j = 0; j < 3; j++) {
+            rtapi_snprintf(buf, sizeof(buf), "pci8255.%d.%d", i, j);
+            r = export(buf,
+                       &inst[i].ports[j],
+                       io[i] + 0xc0 + 16 * j,
+                       (dir[i] >> (4 * j)) & 0xf);
+            if (r != 0)
+                goto out_error;
+        }
+        hal_pin_bit_newf(
+            HAL_IN, &(inst[i].relay), comp_id, "pci8255.%d.relay", i);
+        hal_param_bit_newf(HAL_RW,
+                           &(inst[i].relay_invert),
+                           comp_id,
+                           "pci8255.%d.relay-invert",
+                           i);
+        r = hal_export_functf((void (*)(void *inst, long))write_relay,
+                              &inst[i],
+                              0,
+                              0,
+                              comp_id,
+                              "pci8255.%d.write-relay",
+                              i);
+        r = hal_param_u32_newf(
+            HAL_RO, &(inst->ioaddr), comp_id, "pci8255.%d.io-addr", i);
+        inst->ioaddr = io[i];
+        if (r != 0)
+            return r;
     }
-    r = hal_export_funct("pci8255.read-all", (void(*)(void *inst, long))read_all, inst, 0, 0, comp_id);
-    r = hal_export_funct("pci8255.write-all", (void(*)(void *inst, long))write_all, inst, 0, 0, comp_id);
+    r = hal_export_funct("pci8255.read-all",
+                         (void (*)(void *inst, long))read_all,
+                         inst,
+                         0,
+                         0,
+                         comp_id);
+    r = hal_export_funct("pci8255.write-all",
+                         (void (*)(void *inst, long))write_all,
+                         inst,
+                         0,
+                         0,
+                         comp_id);
 out_error:
-    if(r) {
-	extra_cleanup();
+    if (r) {
+        extra_cleanup();
         hal_exit(comp_id);
     } else {
         hal_ready(comp_id);
@@ -223,7 +320,8 @@ out_error:
     return r;
 }
 
-void rtapi_app_exit(void) {
+void rtapi_app_exit(void)
+{
     extra_cleanup();
     hal_exit(comp_id);
 }
@@ -245,9 +343,11 @@ void rtapi_app_exit(void) {
 
 #include "rtapi_errno.h"
 
-int get_count(void) {
+int get_count(void)
+{
     int i = 0;
-    for(i=0; i<MAX && io[i]; i++) { /* Nothing */ }
+    for (i = 0; i < MAX && io[i]; i++) { /* Nothing */
+    }
     return i;
 }
 
@@ -274,7 +374,8 @@ static int extra_setup(void) {
 }
 #endif
 
-static void extra_cleanup(void) {
+static void extra_cleanup(void)
+{
 #if 0
     int i;
     for(i=0; i < MAX && io[i]; i++) {
@@ -285,98 +386,110 @@ static void extra_cleanup(void) {
 #endif
 }
 
-static void write(struct port *inst, long period) {
+static void write(struct port *inst, long period)
+{
     int p = dir_;
-    static int first=1;
+    static int first = 1;
 
     int i;
-    if((p & 5) == 0) {
+    if ((p & 5) == 0) {
         int byte = 0;
-        for(i=0; i<8; i++) {
+        for (i = 0; i < 8; i++) {
             int t = (c(i) != 0) ^ (ci_invert(i) != 0);
-            if(t) byte |= 1 << i;
+            if (t)
+                byte |= 1 << i;
         }
         pci_8255_outb(byte, ioaddr, 2);
-	if(first) rtapi_print_msg(RTAPI_MSG_DBG, "write: 2a %02x\n", byte);
-    } else if((p & 5) == 4) {
+        if (first)
+            rtapi_print_msg(RTAPI_MSG_DBG, "write: 2a %02x\n", byte);
+    } else if ((p & 5) == 4) {
         int byte = 0;
-        for(i=0; i<4; i++) {
+        for (i = 0; i < 4; i++) {
             int t = (c(i) != 0) ^ (ci_invert(i) != 0);
-            if(t) byte |= 1 << i;
+            if (t)
+                byte |= 1 << i;
         }
         pci_8255_outb(byte, ioaddr, 2);
-	if(first) rtapi_print_msg(RTAPI_MSG_DBG, "write: 2b %02x\n", byte);
-    } else if((p & 5) == 1) {
+        if (first)
+            rtapi_print_msg(RTAPI_MSG_DBG, "write: 2b %02x\n", byte);
+    } else if ((p & 5) == 1) {
         int byte = 0;
-        for(i=4; i<8; i++) {
+        for (i = 4; i < 8; i++) {
             int t = (c(i) != 0) ^ (ci_invert(i) != 0);
-            if(t) byte |= 1 << i;
+            if (t)
+                byte |= 1 << i;
         }
         pci_8255_outb(byte, ioaddr, 2);
-	if(first) rtapi_print_msg(RTAPI_MSG_DBG, "write: 2c %02x\n", byte);
+        if (first)
+            rtapi_print_msg(RTAPI_MSG_DBG, "write: 2c %02x\n", byte);
     }
 
-    if((p & 2) == 0) {
+    if ((p & 2) == 0) {
         int byte = 0;
-        for(i=0; i<8; i++) {
+        for (i = 0; i < 8; i++) {
             int t = (b(i) != 0) ^ (bi_invert(i) != 0);
-            if(t) byte |= 1 << i;
+            if (t)
+                byte |= 1 << i;
         }
         pci_8255_outb(byte, ioaddr, 1);
-	if(first) rtapi_print_msg(RTAPI_MSG_DBG, "write: 1 %02x\n", byte);
+        if (first)
+            rtapi_print_msg(RTAPI_MSG_DBG, "write: 1 %02x\n", byte);
     }
 
-    if((p & 8) == 0) {
+    if ((p & 8) == 0) {
         int byte = 0;
-        for(i=0; i<8; i++) {
+        for (i = 0; i < 8; i++) {
             int t = (a(i) != 0) ^ (ai_invert(i) != 0);
-            if(t) byte |= 1 << i;
+            if (t)
+                byte |= 1 << i;
         }
         pci_8255_outb(byte, ioaddr, 0);
-	if(first) rtapi_print_msg(RTAPI_MSG_DBG, "write: 0 %02x\n", byte);
+        if (first)
+            rtapi_print_msg(RTAPI_MSG_DBG, "write: 0 %02x\n", byte);
     }
     first = 0;
 }
 
-static void read(struct port *inst, long period) {
+static void read(struct port *inst, long period)
+{
     int p = dir_;
     int i;
-    if((p & 5) == 5) {
+    if ((p & 5) == 5) {
         int byte = pci_8255_inb(ioaddr, 2);
-        for(i=0; i<8; i++) {
-            int t = (byte & (1<<i)) != 0;
+        for (i = 0; i < 8; i++) {
+            int t = (byte & (1 << i)) != 0;
             c(i) = t;
             ci_not(i) = !t;
         }
-    } else if((p & 5) == 4) {
+    } else if ((p & 5) == 4) {
         int byte = pci_8255_inb(ioaddr, 2);
-        for(i=4; i<8; i++) {
-            int t = (byte & (1<<i)) != 0;
+        for (i = 4; i < 8; i++) {
+            int t = (byte & (1 << i)) != 0;
             c(i) = t;
             ci_not(i) = !t;
         }
-    } else if((p & 5) == 1) {
+    } else if ((p & 5) == 1) {
         int byte = pci_8255_inb(ioaddr, 2);
-        for(i=0; i<4; i++) {
-            int t = (byte & (1<<i)) != 0;
+        for (i = 0; i < 4; i++) {
+            int t = (byte & (1 << i)) != 0;
             c(i) = t;
             ci_not(i) = !t;
         }
     }
 
-    if(p & 2) {
+    if (p & 2) {
         int byte = pci_8255_inb(ioaddr, 1);
-        for(i=0; i<8; i++) {
-            int t = (byte & (1<<i)) != 0;
+        for (i = 0; i < 8; i++) {
+            int t = (byte & (1 << i)) != 0;
             b(i) = t;
             bi_not(i) = !t;
         }
     }
 
-    if(p & 8) {
+    if (p & 8) {
         int byte = pci_8255_inb(ioaddr, 0);
-        for(i=0; i<8; i++) {
-            int t = (byte & (1<<i)) != 0;
+        for (i = 0; i < 8; i++) {
+            int t = (byte & (1 << i)) != 0;
             a(i) = t;
             ai_not(i) = !t;
         }

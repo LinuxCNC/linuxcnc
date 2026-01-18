@@ -17,29 +17,33 @@
 #include <emc/usr_intf/axis/extensions/togl.c>
 static int first_time = 1;
 
-static Tcl_Interp *get_interpreter(PyObject *tkapp) {
+static Tcl_Interp *get_interpreter(PyObject *tkapp)
+{
     PyObject *interpaddrobj = PyObject_CallMethod(tkapp, "interpaddr", NULL);
-    if(interpaddrobj == NULL) { return NULL; }
+    if (interpaddrobj == NULL) {
+        return NULL;
+    }
     void *interpaddr = PyLong_AsVoidPtr(interpaddrobj);
     Py_DECREF(interpaddrobj);
-    if(interpaddr == (void*)-1) { return NULL; }
-    return (Tcl_Interp*)interpaddr;
+    if (interpaddr == (void *)-1) {
+        return NULL;
+    }
+    return (Tcl_Interp *)interpaddr;
 }
 
-PyObject *install(PyObject *s, PyObject *arg) {
+PyObject *install(PyObject *s, PyObject *arg)
+{
     (void)s;
     Tcl_Interp *trp = get_interpreter(arg);
-    if(!trp) {
+    if (!trp) {
         PyErr_SetString(PyExc_TypeError, "get_interpreter() returned NULL");
         return NULL;
     }
-    if (Tcl_InitStubs(trp, "8.1", 0) == NULL) 
-    {
+    if (Tcl_InitStubs(trp, "8.1", 0) == NULL) {
         PyErr_SetString(PyExc_RuntimeError, "Tcl_InitStubs returned NULL");
         return NULL;
     }
-    if (Tk_InitStubs(trp, "8.1", 0) == NULL) 
-    {
+    if (Tk_InitStubs(trp, "8.1", 0) == NULL) {
         PyErr_SetString(PyExc_RuntimeError, "Tk_InitStubs returned NULL");
         return NULL;
     }
@@ -48,14 +52,19 @@ PyObject *install(PyObject *s, PyObject *arg) {
         return Py_None;
     }
     if (Tcl_PkgProvide(trp, "Togl", TOGL_VERSION) != TCL_OK) {
-        PyErr_Format(PyExc_RuntimeError, "Tcl_PkgProvide failed: %s", Tcl_GetStringResult(trp));
+        PyErr_Format(PyExc_RuntimeError,
+                     "Tcl_PkgProvide failed: %s",
+                     Tcl_GetStringResult(trp));
         return NULL;
     }
 
-    Tcl_CreateCommand(trp, "togl", (Tcl_CmdProc *)Togl_Cmd,
-                      (ClientData) Tk_MainWindow(trp), NULL);
+    Tcl_CreateCommand(trp,
+                      "togl",
+                      (Tcl_CmdProc *)Togl_Cmd,
+                      (ClientData)Tk_MainWindow(trp),
+                      NULL);
 
-    if(first_time) {
+    if (first_time) {
         Tcl_InitHashTable(&CommandTable, TCL_STRING_KEYS);
         first_time = 0;
     }
@@ -65,20 +74,22 @@ PyObject *install(PyObject *s, PyObject *arg) {
 }
 
 PyMethodDef togl_methods[] = {
-    {"install", (PyCFunction)install, METH_O, "install togl in a tkinter application"},
+    {"install",
+     (PyCFunction)install,
+     METH_O, "install togl in a tkinter application"},
     {}
 };
 
 static struct PyModuleDef togl_moduledef = {
-    PyModuleDef_HEAD_INIT, /* m_base */
-    "_togl",               /* m_name */
+    PyModuleDef_HEAD_INIT,        /* m_base */
+    "_togl",                      /* m_name */
     "togl extension for Tkinter", /* m_doc */
-    -1,                    /* m_size */
-    togl_methods,          /* m_methods */
-    NULL,                  /* m_slots */
-    NULL,                  /* m_traverse */
-    NULL,                  /* m_clear */
-    NULL,                  /* m_free */
+    -1,                           /* m_size */
+    togl_methods,                 /* m_methods */
+    NULL,                         /* m_slots */
+    NULL,                         /* m_traverse */
+    NULL,                         /* m_clear */
+    NULL,                         /* m_free */
 };
 
 PyMODINIT_FUNC PyInit__togl(void);

@@ -46,19 +46,19 @@
 /* this is the master kernel space control structure */
 
 typedef struct {
-    scope_data_t *buffer;	/* ptr to buffer (kernel mapping) */
-    int mult_cntr;		/* used to divide by 'mult' */
-    int auto_timer;		/* delay timer for auto triggering */
-    char data_len[16];		/* data size for each channel */
-    void *data_addr[16];	/* pointers to data for each channel */
-    hal_type_t data_type[16];	/* data type for each channel */
+    scope_data_t *buffer;     /* ptr to buffer (kernel mapping) */
+    int mult_cntr;            /* used to divide by 'mult' */
+    int auto_timer;           /* delay timer for auto triggering */
+    char data_len[16];        /* data size for each channel */
+    void *data_addr[16];      /* pointers to data for each channel */
+    hal_type_t data_type[16]; /* data type for each channel */
 } scope_rt_control_t;
 
 /***********************************************************************
 *                              GLOBALS                                 *
 ************************************************************************/
 
-extern scope_rt_control_t *ctrl_rt;	/* main RT control structure */
-extern scope_shm_control_t *ctrl_shm;	/* shared mem control struct */
+extern scope_rt_control_t *ctrl_rt;   /* main RT control structure */
+extern scope_shm_control_t *ctrl_shm; /* shared mem control struct */
 
 #endif /* HALSC_RT_H */

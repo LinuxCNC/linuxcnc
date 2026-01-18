@@ -20,7 +20,7 @@
 #ifndef GO_TYPES_H
 #define GO_TYPES_H
 
-#include <float.h>		/* DBL_MAX, FLOAT_MAX */
+#include <float.h> /* DBL_MAX, FLOAT_MAX */
 
 /*!
   GO_RESULT symbols run through a small range of values, on the
@@ -28,49 +28,47 @@
   detection of error conditions, e.g., if (result) { handle error }
 */
 enum {
-  GO_RESULT_OK = 0,
-  GO_RESULT_IGNORED,		/* action can't be done, ignored */
-  GO_RESULT_BAD_ARGS,		/* arguments bad, e.g., null pointer */
-  GO_RESULT_RANGE_ERROR,	/* supplied range value out of bounds */
-  GO_RESULT_DOMAIN_ERROR,	/* resulting domain out of bounds */
-  GO_RESULT_ERROR,		/* action can't be done, a problem */
-  GO_RESULT_IMPL_ERROR,		/* function not implemented */
-  GO_RESULT_NORM_ERROR,		/* a value is expected to be normalized */
-  GO_RESULT_DIV_ERROR,		/* divide by zero */
-  GO_RESULT_SINGULAR,		/* a matrix is singular */
-  GO_RESULT_NO_SPACE,		/* no space for append operation */
-  GO_RESULT_EMPTY,		/* data structure is empty */
-  GO_RESULT_BUG			/* a bug in Go, e.g., unknown case */
+    GO_RESULT_OK = 0,
+    GO_RESULT_IGNORED,      /* action can't be done, ignored */
+    GO_RESULT_BAD_ARGS,     /* arguments bad, e.g., null pointer */
+    GO_RESULT_RANGE_ERROR,  /* supplied range value out of bounds */
+    GO_RESULT_DOMAIN_ERROR, /* resulting domain out of bounds */
+    GO_RESULT_ERROR,        /* action can't be done, a problem */
+    GO_RESULT_IMPL_ERROR,   /* function not implemented */
+    GO_RESULT_NORM_ERROR,   /* a value is expected to be normalized */
+    GO_RESULT_DIV_ERROR,    /* divide by zero */
+    GO_RESULT_SINGULAR,     /* a matrix is singular */
+    GO_RESULT_NO_SPACE,     /* no space for append operation */
+    GO_RESULT_EMPTY,        /* data structure is empty */
+    GO_RESULT_BUG           /* a bug in Go, e.g., unknown case */
 };
 
-#define go_result_to_string(r)				\
-(r) == GO_RESULT_OK ? "Ok" :				\
-(r) == GO_RESULT_IGNORED ? "Ignored" :			\
-(r) == GO_RESULT_BAD_ARGS ? "Bad Args" :		\
-(r) == GO_RESULT_RANGE_ERROR ? "Range Error" :		\
-(r) == GO_RESULT_DOMAIN_ERROR ? "Domain Error" :	\
-(r) == GO_RESULT_ERROR ? "General Error" :		\
-(r) == GO_RESULT_IMPL_ERROR ? "Implementation Error" :	\
-(r) == GO_RESULT_NORM_ERROR ? "Norm Error" :		\
-(r) == GO_RESULT_DIV_ERROR ? "Div Error" :		\
-(r) == GO_RESULT_SINGULAR ? "Singular" :		\
-(r) == GO_RESULT_NO_SPACE ? "No Space" :		\
-(r) == GO_RESULT_EMPTY ? "Empty" :			\
-(r) == GO_RESULT_BUG ? "Bug" : "?"
+#define go_result_to_string(r)                                                 \
+    (r) == GO_RESULT_OK             ? "Ok"                                     \
+    : (r) == GO_RESULT_IGNORED      ? "Ignored"                                \
+    : (r) == GO_RESULT_BAD_ARGS     ? "Bad Args"                               \
+    : (r) == GO_RESULT_RANGE_ERROR  ? "Range Error"                            \
+    : (r) == GO_RESULT_DOMAIN_ERROR ? "Domain Error"                           \
+    : (r) == GO_RESULT_ERROR        ? "General Error"                          \
+    : (r) == GO_RESULT_IMPL_ERROR   ? "Implementation Error"                   \
+    : (r) == GO_RESULT_NORM_ERROR   ? "Norm Error"                             \
+    : (r) == GO_RESULT_DIV_ERROR    ? "Div Error"                              \
+    : (r) == GO_RESULT_SINGULAR     ? "Singular"                               \
+    : (r) == GO_RESULT_NO_SPACE     ? "No Space"                               \
+    : (r) == GO_RESULT_EMPTY        ? "Empty"                                  \
+    : (r) == GO_RESULT_BUG          ? "Bug"                                    \
+                                    : "?"
 
 /*!
   Joints are characterized by the quantities they affect, such as
   length for linear joints and angle for rotary joints.
 */
-enum {
-  GO_QUANTITY_NONE = 0,
-  GO_QUANTITY_LENGTH,
-  GO_QUANTITY_ANGLE
-};
+enum { GO_QUANTITY_NONE = 0, GO_QUANTITY_LENGTH, GO_QUANTITY_ANGLE };
 
-#define go_quantity_to_string(q)		\
-(q) == GO_QUANTITY_LENGTH ? "Length" :		\
-(q) == GO_QUANTITY_ANGLE ? "Angle" : "None"
+#define go_quantity_to_string(q)                                               \
+    (q) == GO_QUANTITY_LENGTH  ? "Length"                                      \
+    : (q) == GO_QUANTITY_ANGLE ? "Angle"                                       \
+                               : "None"
 
 /* go_real: float, long double, default double; GO_INF is defined as
  the associated max value from float.h */

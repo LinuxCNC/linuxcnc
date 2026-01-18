@@ -20,25 +20,25 @@
 #define SIMPLE_TP_H
 
 // stopping criterion:
-#define TINY_DP(max_acc,period) (max_acc*period*period*0.001)
+#define TINY_DP(max_acc, period) (max_acc * period * period * 0.001)
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-    typedef struct simple_tp_t {
-	double pos_cmd;		/* position command */
-	double max_vel;		/* velocity limit */
-	double max_acc;		/* acceleration limit */
-    double max_jerk;    /* jerk limit */
-	int enable;		/* if zero, motion stops ASAP */
-	double curr_pos;	/* current position */
-	double curr_vel;	/* current velocity */
-	int active;		/* non-zero if motion in progress */
+typedef struct simple_tp_t {
+    double pos_cmd;  /* position command */
+    double max_vel;  /* velocity limit */
+    double max_acc;  /* acceleration limit */
+    double max_jerk; /* jerk limit */
+    int enable;      /* if zero, motion stops ASAP */
+    double curr_pos; /* current position */
+    double curr_vel; /* current velocity */
+    int active;      /* non-zero if motion in progress */
 
-    double curr_acc;        /* current acceleration */
-    double curr_jerk;       /* current acceleration */
-    double last_move_length;       /* current acceleration */
+    double curr_acc;         /* current acceleration */
+    double curr_jerk;        /* current acceleration */
+    double last_move_length; /* current acceleration */
 
     double last_pos_cmd;
 
@@ -64,7 +64,7 @@ extern "C" {
     double v1;
     double v2;
     double v3;
-    
+
     double v5;
     double v6;
     double v7;
@@ -72,7 +72,7 @@ extern "C" {
     double a1;
     double a2;
     double a3;
-    
+
     double a5;
     double a6;
     double a7;
@@ -80,7 +80,7 @@ extern "C" {
     double prograss;
 
     int status;
-    } simple_tp_t;
+} simple_tp_t;
 
 /* I could write a bunch of functions to read and write the first four
    structure members, and to read the last three, but that seems silly.
@@ -104,4 +104,4 @@ extern void simple_scurve_tp_update(simple_tp_t *tp, double period);
 #ifdef __cplusplus
 }
 #endif
-#endif	/* SIMPLE_TP_H */
+#endif /* SIMPLE_TP_H */

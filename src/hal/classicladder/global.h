@@ -29,31 +29,31 @@
 #include "protocol_modbus_master.h"
 #endif
 
-extern StrRung * RungArray;
-extern TYPE_FOR_BOOL_VAR * VarArray;
+extern StrRung *RungArray;
+extern TYPE_FOR_BOOL_VAR *VarArray;
 //extern unsigned char * LogVarArray;
-extern int * VarWordArray;
-extern double * VarFloatArray;
+extern int *VarWordArray;
+extern double *VarFloatArray;
 #ifdef OLD_TIMERS_MONOS_SUPPORT
-extern StrTimer * TimerArray;
-extern StrMonostable * MonostableArray;
+extern StrTimer *TimerArray;
+extern StrMonostable *MonostableArray;
 #endif
-extern StrCounter * CounterArray;
-extern StrTimerIEC * NewTimerArray;
-extern StrArithmExpr * ArithmExpr;
-extern StrInfosGene * InfosGene;
-extern StrSection * SectionArray;
+extern StrCounter *CounterArray;
+extern StrTimerIEC *NewTimerArray;
+extern StrArithmExpr *ArithmExpr;
+extern StrInfosGene *InfosGene;
+extern StrSection *SectionArray;
 #ifdef SEQUENTIAL_SUPPORT
 extern StrSequential *Sequential;
 extern StrSequential EditSeqDatas;
 #endif
-extern StrSymbol * SymbolArray;
+extern StrSymbol *SymbolArray;
 
 extern StrEditRung EditDatas;
-extern StrArithmExpr * EditArithmExpr;
+extern StrArithmExpr *EditArithmExpr;
 
 extern StrDatasForBase CorresDatasForBase[3];
-extern char * TimersModesStrings[ NBR_TIMERSMODES ];
+extern char *TimersModesStrings[NBR_TIMERSMODES];
 
 #ifdef __GTK_H__
 extern GtkWidget *MainSectionWindow;
@@ -64,21 +64,19 @@ extern int PrintRightMarginPosiX;
 extern int PrintRightMarginWidth;
 #endif
 
-extern char TmpDirectory[ 400 ];
+extern char TmpDirectory[400];
 
 extern StrGeneralParams GeneralParamsMirror;
 
 #ifdef MODBUS_IO_MASTER
-extern StrModbusMasterReq ModbusMasterReq[ NBR_MODBUS_MASTER_REQ ];
+extern StrModbusMasterReq ModbusMasterReq[NBR_MODBUS_MASTER_REQ];
 extern StrModbusConfig ModbusConfig;
 #endif
 
-extern char * ErrorMessageVarParser;
+extern char *ErrorMessageVarParser;
 
 //XXX log functionality not implemented.
 //extern StrLog Log;
-//extern StrConfigEventLog ConfigEventLog[ NBR_CONFIG_EVENTS_LOG ]; 
+//extern StrConfigEventLog ConfigEventLog[ NBR_CONFIG_EVENTS_LOG ];
 //extern unsigned char ListCurrentDefType[ NBR_CURRENT_DEFS_MAX ];
 //extern int ListCurrentDefParam[ NBR_CURRENT_DEFS_MAX ];
-
-

@@ -46,27 +46,24 @@ information, go to www.linuxcnc.org.
 
 #include <linux/types.h>
 
-enum upci_region_type {
-	UPCI_REG_MEM,
-	UPCI_REG_IO
-};
+enum upci_region_type { UPCI_REG_MEM, UPCI_REG_IO };
 
 /* this struct is used to pass around info about a PCI device */
 struct upci_dev_info {
-	__u16 vendor_id;
-	__u16 device_id;
-	__u16 ss_vendor_id;
-	__u16 ss_device_id;
-	__u16 instance;
-	__u16 bus;
-	__u8 dev;
-	__u8 func;
-	int irq;
-	enum upci_region_type region_type[6];
-	__u32 base_addr[6];
-	__u32 size[6];
-	__u32 rom_base_addr;
-	__u32 rom_size;
+    __u16 vendor_id;
+    __u16 device_id;
+    __u16 ss_vendor_id;
+    __u16 ss_device_id;
+    __u16 instance;
+    __u16 bus;
+    __u8 dev;
+    __u8 func;
+    int irq;
+    enum upci_region_type region_type[6];
+    __u32 base_addr[6];
+    __u32 size[6];
+    __u32 rom_base_addr;
+    __u32 rom_size;
 };
 
 /* 'upci_reset' closes all open regions and clears the device list.  It

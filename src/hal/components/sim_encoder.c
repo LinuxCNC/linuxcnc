@@ -58,10 +58,10 @@
     information, go to www.linuxcnc.org.
 */
 
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_app.h"		/* RTAPI realtime module decls */
+#include "rtapi.h"     /* RTAPI realtime OS API */
+#include "rtapi_app.h" /* RTAPI realtime module decls */
 #include "rtapi_string.h"
-#include "hal.h"		/* HAL public API decls */
+#include "hal.h" /* HAL public API decls */
 
 #define MAX_CHAN 8
 
@@ -73,7 +73,9 @@ static int num_chan;
 static int default_num_chan = 1;
 RTAPI_MP_INT(num_chan, "number of 'sim_encoders'");
 static int howmany;
-static char *names[MAX_CHAN] = {0,};
+static char *names[MAX_CHAN] = {
+    0,
+};
 RTAPI_MP_ARRAY_STRING(names, MAX_CHAN, "names of sim_encoder");
 
 /***********************************************************************
@@ -86,37 +88,37 @@ RTAPI_MP_ARRAY_STRING(names, MAX_CHAN, "names of sim_encoder");
 */
 
 typedef struct {
-    signed long addval;		/* frequency generator add value */
-    unsigned long accum;	/* frequency generator accumulator */
-    signed char state;		/* current quadrature state */
-    long cycle;			/* current cycle */
-    hal_bit_t *phaseA;		/* pins for output signals */
-    hal_bit_t *phaseB;		/* pins for output signals */
-    hal_bit_t *phaseZ;		/* pins for output signals */
-    hal_u32_t *ppr;		/* pin: pulses per revolution */
-    hal_float_t *scale;		/* pin: pulses per revolution */
-    hal_float_t *speed;		/* pin: speed in revs/second */
-    hal_s32_t *rawcounts;       /* pin: raw counts */
-    double old_scale;		/* internal, used to detect changes */
-    double scale_mult;		/* internal, reciprocal of scale */
+    signed long addval;   /* frequency generator add value */
+    unsigned long accum;  /* frequency generator accumulator */
+    signed char state;    /* current quadrature state */
+    long cycle;           /* current cycle */
+    hal_bit_t *phaseA;    /* pins for output signals */
+    hal_bit_t *phaseB;    /* pins for output signals */
+    hal_bit_t *phaseZ;    /* pins for output signals */
+    hal_u32_t *ppr;       /* pin: pulses per revolution */
+    hal_float_t *scale;   /* pin: pulses per revolution */
+    hal_float_t *speed;   /* pin: speed in revs/second */
+    hal_s32_t *rawcounts; /* pin: raw counts */
+    double old_scale;     /* internal, used to detect changes */
+    double scale_mult;    /* internal, reciprocal of scale */
 } sim_enc_t;
 
 /* ptr to array of sim_enc_t structs in shared memory, 1 per channel */
 static sim_enc_t *sim_enc_array;
 
 /* other globals */
-static int comp_id;		/* component ID */
-static long periodns;		/* makepulses function period in nanosec */
-static long old_periodns;	/* used to detect changes in periodns */
-static double periodfp;		/* makepulses function period in seconds */
-static double freqscale;	/* conv. factor from Hz to addval counts */
-static double maxf;		/* max frequency in Hz */
+static int comp_id;       /* component ID */
+static long periodns;     /* makepulses function period in nanosec */
+static long old_periodns; /* used to detect changes in periodns */
+static double periodfp;   /* makepulses function period in seconds */
+static double freqscale;  /* conv. factor from Hz to addval counts */
+static double maxf;       /* max frequency in Hz */
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
 ************************************************************************/
 
-static int export_sim_enc(sim_enc_t * addr, char *prefix);
+static int export_sim_enc(sim_enc_t *addr, char *prefix);
 static void make_pulses(void *arg, long period);
 static void update_speed(void *arg, long period);
 
@@ -128,18 +130,20 @@ int rtapi_app_main(void)
 {
     int n, retval, i;
 
-    if(num_chan && names[0]) {
-        rtapi_print_msg(RTAPI_MSG_ERR,"num_chan= and names= are mutually exclusive\n");
+    if (num_chan && names[0]) {
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "num_chan= and names= are mutually exclusive\n");
         return -EINVAL;
     }
-    if(!num_chan && !names[0]) num_chan = default_num_chan;
+    if (!num_chan && !names[0])
+        num_chan = default_num_chan;
 
-    if(num_chan) {
+    if (num_chan) {
         howmany = num_chan;
     } else {
         howmany = 0;
         for (i = 0; i < MAX_CHAN; i++) {
-            if ( (names[i] == NULL) || (*names[i] == 0) ){
+            if ((names[i] == NULL) || (*names[i] == 0)) {
                 break;
             }
             howmany = i + 1;
@@ -147,9 +151,10 @@ int rtapi_app_main(void)
     }
 
     if ((howmany <= 0) || (howmany > MAX_CHAN)) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "SIM_ENCODER: ERROR: invalid number of channels %d\n", howmany);
-	return -1;
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "SIM_ENCODER: ERROR: invalid number of channels %d\n",
+                        howmany);
+        return -1;
     }
     /* periodns will be set to the proper value when 'make_pulses()' 
        runs for the first time.  We load a default value here to avoid
@@ -164,56 +169,61 @@ int rtapi_app_main(void)
     /* have good config info, connect to the HAL */
     comp_id = hal_init("sim_encoder");
     if (comp_id < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR, "SIM_ENCODER: ERROR: hal_init() failed\n");
-	return -1;
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "SIM_ENCODER: ERROR: hal_init() failed\n");
+        return -1;
     }
     /* allocate shared memory for encoder data */
     sim_enc_array = hal_malloc(howmany * sizeof(sim_enc_t));
     if (sim_enc_array == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "SIM_ENCODER: ERROR: hal_malloc() failed\n");
-	hal_exit(comp_id);
-	return -1;
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "SIM_ENCODER: ERROR: hal_malloc() failed\n");
+        hal_exit(comp_id);
+        return -1;
     }
     /* export all the variables for each simulated encoder */
     i = 0; //for names= items
     for (n = 0; n < howmany; n++) {
-	/* export all vars */
+        /* export all vars */
 
-        if(num_chan) {
+        if (num_chan) {
             char buf[HAL_NAME_LEN + 1];
             rtapi_snprintf(buf, sizeof(buf), "sim-encoder.%d", n);
-	    retval = export_sim_enc(&(sim_enc_array[n]),buf);
+            retval = export_sim_enc(&(sim_enc_array[n]), buf);
         } else {
-	    retval = export_sim_enc(&(sim_enc_array[n]),names[i++]);
+            retval = export_sim_enc(&(sim_enc_array[n]), names[i++]);
         }
 
-	if (retval != 0) {
-	    rtapi_print_msg(RTAPI_MSG_ERR,
-		"SIM_ENCODER: ERROR: 'encoder' %d var export failed\n", n);
-	    hal_exit(comp_id);
-	    return -1;
-	}
+        if (retval != 0) {
+            rtapi_print_msg(
+                RTAPI_MSG_ERR,
+                "SIM_ENCODER: ERROR: 'encoder' %d var export failed\n",
+                n);
+            hal_exit(comp_id);
+            return -1;
+        }
     }
     /* export functions */
-    retval = hal_export_funct("sim-encoder.make-pulses", make_pulses,
-	sim_enc_array, 0, 0, comp_id);
+    retval = hal_export_funct(
+        "sim-encoder.make-pulses", make_pulses, sim_enc_array, 0, 0, comp_id);
     if (retval != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "SIM_ENCODER: ERROR: makepulses funct export failed\n");
-	hal_exit(comp_id);
-	return -1;
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "SIM_ENCODER: ERROR: makepulses funct export failed\n");
+        hal_exit(comp_id);
+        return -1;
     }
-    retval = hal_export_funct("sim-encoder.update-speed", update_speed,
-	sim_enc_array, 1, 0, comp_id);
+    retval = hal_export_funct(
+        "sim-encoder.update-speed", update_speed, sim_enc_array, 1, 0, comp_id);
     if (retval != 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "SIM_ENCODER: ERROR: speed update funct export failed\n");
-	hal_exit(comp_id);
-	return -1;
+        rtapi_print_msg(
+            RTAPI_MSG_ERR,
+            "SIM_ENCODER: ERROR: speed update funct export failed\n");
+        hal_exit(comp_id);
+        return -1;
     }
     rtapi_print_msg(RTAPI_MSG_INFO,
-	"SIM_ENCODER: installed %d simulated encoders\n", howmany);
+                    "SIM_ENCODER: installed %d simulated encoders\n",
+                    howmany);
     hal_ready(comp_id);
     return 0;
 }
@@ -246,71 +256,71 @@ static void make_pulses(void *arg, long period)
     /* point to sim_enc data structures */
     sim_enc = arg;
     for (n = 0; n < howmany; n++) {
-	/* get current value of bit 31 */
-	overunder = sim_enc->accum >> 31;
-	/* update the accumulator */
-	sim_enc->accum += sim_enc->addval;
-	/* test for overflow/underflow (change in bit 31) */
-	overunder ^= sim_enc->accum >> 31;
-	if ( overunder ) {
-	    /* time to update outputs */
-	    /* get direction bit, 1 if negative, 0 if positive */
-	    dir = sim_enc->addval >> 31;
-	    if ( dir ) {
-		(*sim_enc->rawcounts) --;
-		/* negative rotation, decrement state, detect underflow */
-		if (--(sim_enc->state) < 0) {
-		    /* state underflow, roll over */
-		    sim_enc->state = 3;
-		    /* decrement cycle, detect underflow */
-		    if (--(sim_enc->cycle) < 0) {
-			/* cycle underflow, roll over */
-			sim_enc->cycle += *(sim_enc->ppr);
-		    }
-		}
-	    } else {
-		(*sim_enc->rawcounts) ++;
-		/* positive rotation, increment state, detect overflow */
-		if (++(sim_enc->state) > 3) {
-		    /* state overflow, roll over */
-		    sim_enc->state = 0;
-		    /* increment cycle, detect overflow */
-		    if (++(sim_enc->cycle) >= *(sim_enc->ppr)) {
-			/* cycle overflow, roll over */
-			sim_enc->cycle -= *(sim_enc->ppr);
-		    }
-		}
-	    }
-	}
-	/* generate outputs */
-	switch (sim_enc->state) {
-	case 0:
-	    *(sim_enc->phaseA) = 1;
-	    *(sim_enc->phaseB) = 0;
-	    break;
-	case 1:
-	    *(sim_enc->phaseA) = 1;
-	    *(sim_enc->phaseB) = 1;
-	    break;
-	case 2:
-	    *(sim_enc->phaseA) = 0;
-	    *(sim_enc->phaseB) = 1;
-	    break;
-	case 3:
-	    *(sim_enc->phaseA) = 0;
-	    *(sim_enc->phaseB) = 0;
-	    break;
-	default:
-	    /* illegal state, reset to legal one */
-	    sim_enc->state = 0;
-	}
-	if ((sim_enc->state == 0) && (sim_enc->cycle == 0)) {
-	    *(sim_enc->phaseZ) = 1;
-	} else {
-	    *(sim_enc->phaseZ) = 0;
-	}
-	/* move on to next 'encoder' */
-	sim_enc++;
+        /* get current value of bit 31 */
+        overunder = sim_enc->accum >> 31;
+        /* update the accumulator */
+        sim_enc->accum += sim_enc->addval;
+        /* test for overflow/underflow (change in bit 31) */
+        overunder ^= sim_enc->accum >> 31;
+        if (overunder) {
+            /* time to update outputs */
+            /* get direction bit, 1 if negative, 0 if positive */
+            dir = sim_enc->addval >> 31;
+            if (dir) {
+                (*sim_enc->rawcounts)--;
+                /* negative rotation, decrement state, detect underflow */
+                if (--(sim_enc->state) < 0) {
+                    /* state underflow, roll over */
+                    sim_enc->state = 3;
+                    /* decrement cycle, detect underflow */
+                    if (--(sim_enc->cycle) < 0) {
+                        /* cycle underflow, roll over */
+                        sim_enc->cycle += *(sim_enc->ppr);
+                    }
+                }
+            } else {
+                (*sim_enc->rawcounts)++;
+                /* positive rotation, increment state, detect overflow */
+                if (++(sim_enc->state) > 3) {
+                    /* state overflow, roll over */
+                    sim_enc->state = 0;
+                    /* increment cycle, detect overflow */
+                    if (++(sim_enc->cycle) >= *(sim_enc->ppr)) {
+                        /* cycle overflow, roll over */
+                        sim_enc->cycle -= *(sim_enc->ppr);
+                    }
+                }
+            }
+        }
+        /* generate outputs */
+        switch (sim_enc->state) {
+        case 0:
+            *(sim_enc->phaseA) = 1;
+            *(sim_enc->phaseB) = 0;
+            break;
+        case 1:
+            *(sim_enc->phaseA) = 1;
+            *(sim_enc->phaseB) = 1;
+            break;
+        case 2:
+            *(sim_enc->phaseA) = 0;
+            *(sim_enc->phaseB) = 1;
+            break;
+        case 3:
+            *(sim_enc->phaseA) = 0;
+            *(sim_enc->phaseB) = 0;
+            break;
+        default:
+            /* illegal state, reset to legal one */
+            sim_enc->state = 0;
+        }
+        if ((sim_enc->state == 0) && (sim_enc->cycle == 0)) {
+            *(sim_enc->phaseZ) = 1;
+        } else {
+            *(sim_enc->phaseZ) = 0;
+        }
+        /* move on to next 'encoder' */
+        sim_enc++;
     }
     /* done */
 }
@@ -327,40 +337,40 @@ static void update_speed(void *arg, long period)
        constants are based on the period of the much faster 'make_pulses()'
        thread. */
     if (periodns != old_periodns) {
-	/* recompute various constants that depend on periodns */
-	periodfp = periodns * 0.000000001;
-	maxf = 1.0 / periodfp;
-	freqscale = ((1L << 30) * 2.0) / maxf;
-	old_periodns = periodns;
+        /* recompute various constants that depend on periodns */
+        periodfp = periodns * 0.000000001;
+        maxf = 1.0 / periodfp;
+        freqscale = ((1L << 30) * 2.0) / maxf;
+        old_periodns = periodns;
     }
     /* update the 'encoders' */
     sim_enc = arg;
     for (n = 0; n < howmany; n++) {
-	/* check for change in scale value */
-	if ( *(sim_enc->scale) != sim_enc->old_scale ) {
-	    /* save new scale to detect future changes */
-	    sim_enc->old_scale = *(sim_enc->scale);
-	    /* scale value has changed, test and update it */
-	    if ((*(sim_enc->scale) < 1e-20) && (*(sim_enc->scale) > -1e-20)) {
-		/* value too small, divide by zero is a bad thing */
-		*(sim_enc->scale) = 1.0;
-	    }
-	    /* we actually want the reciprocal */
-	    sim_enc->scale_mult = 1.0 / *(sim_enc->scale);
-	}
-	/* convert speed command (user units) to revs/sec */
-	rev_sec = *(sim_enc->speed) * sim_enc->scale_mult;
-	/* convert speed command (revs per sec) to counts/sec */
-	freq = rev_sec * (*(sim_enc->ppr)) * 4.0;
-	/* limit the commanded frequency */
-	if (freq > maxf) {
-	    freq = maxf;
-	} else if (freq < -maxf) {
-	    freq = -maxf;
-	}
-	/* calculate new addval */
-	sim_enc->addval = freq * freqscale;
-	sim_enc++;
+        /* check for change in scale value */
+        if (*(sim_enc->scale) != sim_enc->old_scale) {
+            /* save new scale to detect future changes */
+            sim_enc->old_scale = *(sim_enc->scale);
+            /* scale value has changed, test and update it */
+            if ((*(sim_enc->scale) < 1e-20) && (*(sim_enc->scale) > -1e-20)) {
+                /* value too small, divide by zero is a bad thing */
+                *(sim_enc->scale) = 1.0;
+            }
+            /* we actually want the reciprocal */
+            sim_enc->scale_mult = 1.0 / *(sim_enc->scale);
+        }
+        /* convert speed command (user units) to revs/sec */
+        rev_sec = *(sim_enc->speed) * sim_enc->scale_mult;
+        /* convert speed command (revs per sec) to counts/sec */
+        freq = rev_sec * (*(sim_enc->ppr)) * 4.0;
+        /* limit the commanded frequency */
+        if (freq > maxf) {
+            freq = maxf;
+        } else if (freq < -maxf) {
+            freq = -maxf;
+        }
+        /* calculate new addval */
+        sim_enc->addval = freq * freqscale;
+        sim_enc++;
     }
     /* done */
 }
@@ -369,7 +379,7 @@ static void update_speed(void *arg, long period)
 *                   LOCAL FUNCTION DEFINITIONS                         *
 ************************************************************************/
 
-static int export_sim_enc(sim_enc_t * addr, char *prefix)
+static int export_sim_enc(sim_enc_t *addr, char *prefix)
 {
     int retval, msg;
 
@@ -380,44 +390,43 @@ static int export_sim_enc(sim_enc_t * addr, char *prefix)
     msg = rtapi_get_msg_level();
     rtapi_set_msg_level(RTAPI_MSG_WARN);
     /* export param variable for pulses per rev */
-    retval = hal_pin_u32_newf(HAL_IO, &(addr->ppr), comp_id,
-			      "%s.ppr", prefix);
+    retval = hal_pin_u32_newf(HAL_IO, &(addr->ppr), comp_id, "%s.ppr", prefix);
     if (retval != 0) {
-	return retval;
+        return retval;
     }
     /* export param variable for scaling */
-    retval = hal_pin_float_newf(HAL_IO, &(addr->scale), comp_id,
-				"%s.scale", prefix);
+    retval =
+        hal_pin_float_newf(HAL_IO, &(addr->scale), comp_id, "%s.scale", prefix);
     if (retval != 0) {
-	return retval;
+        return retval;
     }
     /* export pin for speed command */
-    retval = hal_pin_float_newf(HAL_IN, &(addr->speed), comp_id,
-				"%s.speed", prefix);
+    retval =
+        hal_pin_float_newf(HAL_IN, &(addr->speed), comp_id, "%s.speed", prefix);
     if (retval != 0) {
-	return retval;
+        return retval;
     }
     /* export pins for output phases */
-    retval = hal_pin_bit_newf(HAL_OUT, &(addr->phaseA), comp_id,
-			      "%s.phase-A", prefix);
+    retval = hal_pin_bit_newf(
+        HAL_OUT, &(addr->phaseA), comp_id, "%s.phase-A", prefix);
     if (retval != 0) {
-	return retval;
+        return retval;
     }
-    retval = hal_pin_bit_newf(HAL_OUT, &(addr->phaseB), comp_id,
-			      "%s.phase-B", prefix);
+    retval = hal_pin_bit_newf(
+        HAL_OUT, &(addr->phaseB), comp_id, "%s.phase-B", prefix);
     if (retval != 0) {
-	return retval;
+        return retval;
     }
-    retval = hal_pin_bit_newf(HAL_OUT, &(addr->phaseZ), comp_id,
-			      "%s.phase-Z", prefix);
+    retval = hal_pin_bit_newf(
+        HAL_OUT, &(addr->phaseZ), comp_id, "%s.phase-Z", prefix);
     if (retval != 0) {
-	return retval;
+        return retval;
     }
     /* export pin for rawcounts */
-    retval = hal_pin_s32_newf(HAL_IN, &(addr->rawcounts), comp_id,
-			      "%s.rawcounts", prefix);
+    retval = hal_pin_s32_newf(
+        HAL_IN, &(addr->rawcounts), comp_id, "%s.rawcounts", prefix);
     if (retval != 0) {
-	return retval;
+        return retval;
     }
     /* init parameters */
     *(addr->ppr) = 100;

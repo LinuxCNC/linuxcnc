@@ -33,11 +33,11 @@
 
 
 #if defined(__KERNEL__)
-#include <linux/sched.h>	/* for blocking when needed */
+#include <linux/sched.h> /* for blocking when needed */
 #else
-#include <sched.h>		/* for blocking when needed */
+#include <sched.h> /* for blocking when needed */
 #endif
-#include "rtapi_bitops.h"	/* atomic bit ops for lightweight mutex */
+#include "rtapi_bitops.h" /* atomic bit ops for lightweight mutex */
 
 typedef unsigned long rtapi_mutex_t;
 
@@ -49,9 +49,10 @@ typedef unsigned long rtapi_mutex_t;
  * will be released.
  * @param mutex Pointer to the @c mutex.
  */
-    static __inline__ void rtapi_mutex_give(unsigned long *mutex) {
-	test_and_clear_bit(0, mutex);
-    }
+static __inline__ void rtapi_mutex_give(unsigned long *mutex)
+{
+    test_and_clear_bit(0, mutex);
+}
 /**
  * @brief Non-blocking attempt to get the mutex.
  *
@@ -64,9 +65,10 @@ typedef unsigned long rtapi_mutex_t;
  *         available. Otherwise, it returns a nonzero value indicating that
  *         someone else has the mutex.
  */
-    static __inline__ int rtapi_mutex_try(unsigned long *mutex) {
-	return test_and_set_bit(0, mutex);
-    }
+static __inline__ int rtapi_mutex_try(unsigned long *mutex)
+{
+    return test_and_set_bit(0, mutex);
+}
 
 /**
  * @brief Blocking attempt to gGet the mutex.
@@ -76,15 +78,16 @@ typedef unsigned long rtapi_mutex_t;
  * @param mutex Pointer to the @c mutex.
  * @note Can not be used in realtime code.
  */
-    static __inline__ void rtapi_mutex_get(unsigned long *mutex) {
-	while (test_and_set_bit(0, mutex)) {
+static __inline__ void rtapi_mutex_get(unsigned long *mutex)
+{
+    while (test_and_set_bit(0, mutex)) {
 #if defined(__KERNEL__)
-	    schedule();
+        schedule();
 #else
-	    sched_yield();
+        sched_yield();
 #endif
-	}
     }
+}
 
 
 #endif

@@ -29,34 +29,37 @@
 
 int shell(char *command)
 {
-	char *const argv[] = {"sh", "-c", command, NULL};
-	pid_t pid;
-	int res = rtapi_spawn_as_root(&pid, "/bin/sh", NULL, NULL, argv, environ);
-	if(res < 0)
-		perror("rtapi_spawn_as_root");
-	int status;
-	waitpid(pid, &status, 0);
-	if(WIFEXITED(status))
-		return WEXITSTATUS(status);
-	else if(WIFSTOPPED(status))
-		return WTERMSIG(status)+128;
-	return status;
+    char *const argv[] = {"sh", "-c", command, NULL};
+    pid_t pid;
+    int res = rtapi_spawn_as_root(&pid, "/bin/sh", NULL, NULL, argv, environ);
+    if (res < 0)
+        perror("rtapi_spawn_as_root");
+    int status;
+    waitpid(pid, &status, 0);
+    if (WIFEXITED(status))
+        return WEXITSTATUS(status);
+    else if (WIFSTOPPED(status))
+        return WTERMSIG(status) + 128;
+    return status;
 }
 
 int eshellf(const char *errpfx, const char *fmt, ...)
 {
-	char commandbuf[1024];
-	va_list ap;
-	va_start(ap, fmt);
-	vsnprintf(commandbuf, sizeof(commandbuf), fmt, ap);
-	va_end(ap);
+    char commandbuf[1024];
+    va_list ap;
+    va_start(ap, fmt);
+    vsnprintf(commandbuf, sizeof(commandbuf), fmt, ap);
+    va_end(ap);
 
-	int res = shell(commandbuf);
-	if(res == EXIT_SUCCESS)
-		return 0;
+    int res = shell(commandbuf);
+    if (res == EXIT_SUCCESS)
+        return 0;
 
-	rtapi_print_msg(RTAPI_MSG_ERR, "%s: ERROR: Failed to execute '%s'\n", errpfx ? errpfx : "eshellf()", commandbuf);
-	return -EINVAL;
+    rtapi_print_msg(RTAPI_MSG_ERR,
+                    "%s: ERROR: Failed to execute '%s'\n",
+                    errpfx ? errpfx : "eshellf()",
+                    commandbuf);
+    return -EINVAL;
 }
 
 /* vim: ts=4

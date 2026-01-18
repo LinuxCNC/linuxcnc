@@ -25,7 +25,7 @@ static object forward(double j0, double j1, double j2)
     double joints[9] = {j0, j1, j2};
     EmcPose pos;
     int result = kinematics_forward(joints, &pos);
-    if(result == 0)
+    if (result == 0)
         return make_tuple(pos.tran.x, pos.tran.y, pos.tran.z);
     return object();
 }
@@ -33,9 +33,12 @@ static object forward(double j0, double j1, double j2)
 static object inverse(double x, double y, double z)
 {
     double joints[9];
-    EmcPose pos = {{x,y,z}, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+    EmcPose pos = {
+        {x, y, z},
+        0.0, 0.0, 0.0, 0.0, 0.0, 0.0
+    };
     int result = kinematics_inverse(&pos, joints);
-    if(result == 0)
+    if (result == 0)
         return make_tuple(joints[0], joints[1], joints[2]);
     return object();
 }

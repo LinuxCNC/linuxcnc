@@ -13,7 +13,7 @@
 #ifndef TP_DEBUG_H
 #define TP_DEBUG_H
 
-#include "rtapi.h"  /* printing functions */
+#include "rtapi.h" /* printing functions */
 
 /** TP debug stuff */
 #ifdef TP_DEBUG
@@ -28,7 +28,8 @@
 #endif
 
 // Verbose but effective wrappers for building faux-JSON debug output for a function
-#define tp_debug_json_double(varname_) tp_debug_print("%s: %g, ", #varname_, varname_)
+#define tp_debug_json_double(varname_)                                         \
+    tp_debug_print("%s: %g, ", #varname_, varname_)
 #define tp_debug_json_start(fname_) tp_debug_print("%s: {", #fname_)
 #define tp_debug_json_end() tp_debug_print("}\n")
 
@@ -43,7 +44,7 @@
 #ifdef TC_DEBUG
 #define tc_debug_print(...) rtapi_print(__VA_ARGS__)
 #else
-#define tc_debug_print(...) 
+#define tc_debug_print(...)
 #endif
 
 /** TP position data output to debug acceleration spikes */

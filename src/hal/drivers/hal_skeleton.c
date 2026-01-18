@@ -75,10 +75,10 @@
     information, go to www.linuxcnc.org.
 */
 
-#include "rtapi.h"		/* RTAPI realtime OS API */
-#include "rtapi_app.h"		/* RTAPI realtime module decls */
+#include "rtapi.h"     /* RTAPI realtime OS API */
+#include "rtapi_app.h" /* RTAPI realtime module decls */
 
-#include "hal.h"		/* HAL public API decls */
+#include "hal.h" /* HAL public API decls */
 
 /* If FASTIO is defined, uses outb() and inb() from <asm.io>,
    instead of rtapi_outb() and rtapi_inb() - the <asm.io> ones
@@ -109,15 +109,15 @@ RTAPI_MP_STRING(cfg, "config string"); */
 */
 
 typedef struct {
-    hal_u32_t *data_out;		/* ptrs for output */
+    hal_u32_t *data_out; /* ptrs for output */
 } skeleton_t;
 
 /* pointer to array of skeleton_t structs in shared memory, 1 per port */
 static skeleton_t *port_data_array;
 
 /* other globals */
-static int comp_id;		/* component ID */
-static int num_ports;		/* number of ports configured */
+static int comp_id;   /* component ID */
+static int num_ports; /* number of ports configured */
 
 /***********************************************************************
 *                  LOCAL FUNCTION DECLARATIONS                         *
@@ -133,7 +133,7 @@ static void write_port(void *arg, long period);
 
 #define MAX_PORTS 8
 
-#define MAX_TOK ((MAX_PORTS*2)+3)
+#define MAX_TOK ((MAX_PORTS * 2) + 3)
 
 int rtapi_app_main(void)
 {
@@ -146,43 +146,54 @@ int rtapi_app_main(void)
     /* STEP 1: initialise the driver */
     comp_id = hal_init("hal_skeleton");
     if (comp_id < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "SKELETON: ERROR: hal_init() failed\n");
-	return -1;
+        rtapi_print_msg(RTAPI_MSG_ERR, "SKELETON: ERROR: hal_init() failed\n");
+        return -1;
     }
 
     /* STEP 2: allocate shared memory for skeleton data */
     port_data_array = hal_malloc(num_ports * sizeof(skeleton_t));
     if (port_data_array == 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "SKELETON: ERROR: hal_malloc() failed\n");
-	hal_exit(comp_id);
-	return -1;
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "SKELETON: ERROR: hal_malloc() failed\n");
+        hal_exit(comp_id);
+        return -1;
     }
 
     /* STEP 3: export the pin(s) */
-    retval = hal_pin_u32_newf(HAL_IN, &(port_data_array->data_out),
-			     comp_id, "skeleton.%d.pin-%02d-out", n, 1);
+    retval = hal_pin_u32_newf(HAL_IN,
+                              &(port_data_array->data_out),
+                              comp_id,
+                              "skeleton.%d.pin-%02d-out",
+                              n,
+                              1);
     if (retval < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "SKELETON: ERROR: port %d var export failed with err=%i\n", n,
-	    retval);
-	hal_exit(comp_id);
-	return -1;
+        rtapi_print_msg(
+            RTAPI_MSG_ERR,
+            "SKELETON: ERROR: port %d var export failed with err=%i\n",
+            n,
+            retval);
+        hal_exit(comp_id);
+        return -1;
     }
 
     /* STEP 4: export write function */
-    retval = hal_export_functf(write_port, &(port_data_array[n]), 0, 0,
-	comp_id, "skeleton.%d.write", n);
+    retval = hal_export_functf(write_port,
+                               &(port_data_array[n]),
+                               0,
+                               0,
+                               comp_id,
+                               "skeleton.%d.write",
+                               n);
     if (retval < 0) {
-	rtapi_print_msg(RTAPI_MSG_ERR,
-	    "SKELETON: ERROR: port %d write funct export failed\n", n);
-	hal_exit(comp_id);
-	return -1;
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "SKELETON: ERROR: port %d write funct export failed\n",
+                        n);
+        hal_exit(comp_id);
+        return -1;
     }
 
-    rtapi_print_msg(RTAPI_MSG_INFO,
-	"SKELETON: installed driver for %d ports\n", num_ports);
+    rtapi_print_msg(
+        RTAPI_MSG_INFO, "SKELETON: installed driver for %d ports\n", num_ports);
     hal_ready(comp_id);
     return 0;
 }

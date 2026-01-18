@@ -40,49 +40,74 @@ static void call_gdb(int sig, int start_gdb_in_window)
     FILE *f;
     char tmp_gdbrc[PATH_MAX];
 
-    snprintf(tmp_gdbrc, sizeof(tmp_gdbrc), EMC2_TMP_DIR "/gdbrc.%d",getpid());
+    snprintf(tmp_gdbrc, sizeof(tmp_gdbrc), EMC2_TMP_DIR "/gdbrc.%d", getpid());
 
-    if ((f = fopen(tmp_gdbrc,"w")) == NULL) {
-	perror(tmp_gdbrc);
-	abort();
+    if ((f = fopen(tmp_gdbrc, "w")) == NULL) {
+        perror(tmp_gdbrc);
+        abort();
     }
-    fprintf(f,"set tcp auto-retry on\nset tcp connect-timeout 3600\n"
-	    "file %s\ntarget remote :%d\n", progname, port);
+    fprintf(f,
+            "set tcp auto-retry on\nset tcp connect-timeout 3600\n"
+            "file %s\ntarget remote :%d\n",
+            progname,
+            port);
 
     // this should be configurable
-    fprintf(f,start_gdb_in_window ? "backtrace\n" :
-	    "backtrace full\ninfo source\nquit\n");
+    fprintf(f,
+            start_gdb_in_window ? "backtrace\n"
+                                : "backtrace full\ninfo source\nquit\n");
     fclose(f);
     char cmd[PATH_MAX];
     if (start_gdb_in_window) {
-	snprintf(cmd, sizeof(cmd), "gnome-terminal --title 'GDB - %s backtrace' -x gdb -x %s",
-		progname, tmp_gdbrc);
-	fprintf(stderr, "signal_handler: got signal %d, starting debugger window (pid %d)\n",sig, getpid());
+        snprintf(cmd,
+                 sizeof(cmd),
+                 "gnome-terminal --title 'GDB - %s backtrace' -x gdb -x %s",
+                 progname,
+                 tmp_gdbrc);
+        fprintf(stderr,
+                "signal_handler: got signal %d, starting debugger window (pid "
+                "%d)\n",
+                sig,
+                getpid());
 
     } else {
-	snprintf(cmd, sizeof(cmd), "gdb --batch -x %s > %sbacktrace.%d &",
-		tmp_gdbrc, dir_prefix, getpid());
-	fprintf(stderr, "signal_handler: got signal %d, generating backtrace in %sbacktrace.%d\n",sig,  dir_prefix, getpid());
+        snprintf(cmd,
+                 sizeof(cmd),
+                 "gdb --batch -x %s > %sbacktrace.%d &",
+                 tmp_gdbrc,
+                 dir_prefix,
+                 getpid());
+        fprintf(stderr,
+                "signal_handler: got signal %d, generating backtrace in "
+                "%sbacktrace.%d\n",
+                sig,
+                dir_prefix,
+                getpid());
     }
     int rc = system(cmd);
     if (rc == -1) {
-	perror(cmd);
+        perror(cmd);
     } else if (rc) {
-	fprintf(stderr,"system(%s) returned %d", cmd,  rc);
+        fprintf(stderr, "system(%s) returned %d", cmd, rc);
     }
-    snprintf(cmd, sizeof(cmd),"%s --once --attach :%d %d &", gdbserver, port, getpid());
+    snprintf(cmd,
+             sizeof(cmd),
+             "%s --once --attach :%d %d &",
+             gdbserver,
+             port,
+             getpid());
     rc = system(cmd);
     if (rc == -1) {
-	perror(cmd);
+        perror(cmd);
     } else if (rc) {
-	fprintf(stderr,"system(%s) returned %d", cmd,  rc);
+        fprintf(stderr, "system(%s) returned %d", cmd, rc);
     }
     // gdb needs a bit of time to connect and do its thing
     sleep(3);
     unlink(tmp_gdbrc);
     fprintf(stderr, "signal_handler: sig %d -  done\n", sig);
     if (sig == SIGSEGV)
-	exit(0);
+        exit(0);
 }
 
 
@@ -104,43 +129,47 @@ void setup_signal_handlers()
     char exe[PATH_MAX];
 
     // determine pathname of running program for gdb
-    snprintf(path, sizeof(path),"/proc/%d/exe", getpid());
+    snprintf(path, sizeof(path), "/proc/%d/exe", getpid());
     if (readlink(path, exe, sizeof(exe)) < 0) {
-	fprintf(stderr, "signal_handler: can\'t readlink(%s): %s\n",path,strerror(errno));
-	return;
+        fprintf(stderr,
+                "signal_handler: can\'t readlink(%s): %s\n",
+                path,
+                strerror(errno));
+        return;
     }
     progname = strdup(exe);
 
-    sigemptyset( &gdb_action.sa_mask );
+    sigemptyset(&gdb_action.sa_mask);
     gdb_action.sa_handler = gdb_in_window;
-    gdb_action.sa_flags   = 0;
+    gdb_action.sa_flags = 0;
 
-    sigemptyset( &backtrace_action.sa_mask );
+    sigemptyset(&backtrace_action.sa_mask);
     backtrace_action.sa_handler = gdb_backtrace;
-    backtrace_action.sa_flags   = 0;
+    backtrace_action.sa_flags = 0;
 
     // trap into gdb in new window on SEGV, USR1
-    sigaction( SIGSEGV, &gdb_action, (struct sigaction *) NULL );
-    sigaction( SIGUSR1, &gdb_action, (struct sigaction *) NULL );
+    sigaction(SIGSEGV, &gdb_action, (struct sigaction *)NULL);
+    sigaction(SIGUSR1, &gdb_action, (struct sigaction *)NULL);
 
     // generate a backtrace on USR2 signal
-    sigaction( SIGUSR2,  &backtrace_action, (struct sigaction *) NULL );
+    sigaction(SIGUSR2, &backtrace_action, (struct sigaction *)NULL);
 }
 
 
 #ifdef TEST
 
-int main(int argc, const char *argv[]) {
+int main(int argc, const char *argv[])
+{
 
 
     signal_handlers();
 
-    sleep(10);  // during which a SIGUSR2 will generate a backtrace
+    sleep(10); // during which a SIGUSR2 will generate a backtrace
 
     void *foo = 0;
     // Fully intentional
     // cppcheck-suppress nullPointer
-    memset(foo,0,47); // this segfault would warp us into the gdb window
+    memset(foo, 0, 47); // this segfault would warp us into the gdb window
 
     return 0;
 }

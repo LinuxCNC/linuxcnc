@@ -12,30 +12,33 @@
 MODULE_LICENSE("GPL");
 
 #define TPMOD_DEBUG
-#undef  TPMOD_DEBUG
+#undef TPMOD_DEBUG
 
 // provision for testing use of module parameters:
 static char *tp_parms;
-RTAPI_MP_STRING(tp_parms,"Example tp parms");
+RTAPI_MP_STRING(tp_parms, "Example tp parms");
 
 static int tpmod_id;
 int rtapi_app_main(void)
 {
 #ifdef TPMOD_DEBUG
     if (tp_parms) {
-        rtapi_print("%s:%s: tp_parms=%s\n",__FILE__,__FUNCTION__,tp_parms);
+        rtapi_print("%s:%s: tp_parms=%s\n", __FILE__, __FUNCTION__, tp_parms);
     }
 #endif
 
-    char* emsg;
+    char *emsg;
     tpmod_id = hal_init("tpmod"); // dlopen(".../tpmod.so")
-    if (tpmod_id < 0) {emsg="hal_init()"; goto error;}
+    if (tpmod_id < 0) {
+        emsg = "hal_init()";
+        goto error;
+    }
 
     hal_ready(tpmod_id);
     return 0;
 
 error:
-    rtapi_print_msg(RTAPI_MSG_ERR,"\ntpmod FAIL:<%s>\n",emsg);
+    rtapi_print_msg(RTAPI_MSG_ERR, "\ntpmod FAIL:<%s>\n", emsg);
     hal_exit(tpmod_id);
     return -1;
 }

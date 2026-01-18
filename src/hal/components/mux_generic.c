@@ -61,20 +61,23 @@ static void write_nofp(void *arg, long period);
 char *config[MAX_CHAN];
 RTAPI_MP_ARRAY_STRING(config, MAX_CHAN, "mux specifiers inNUMout");
 
-int rtapi_app_main(void){
+int rtapi_app_main(void)
+{
     int retval;
     int i, f;
     char hal_name[HAL_NAME_LEN];
     char *types[5] = {"invalid", "bit", "float", "s32", "u32"};
     if (!config[0]) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "The mux_generic component requires at least"
-                " one valid format string\n");
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "The mux_generic component requires at least"
+                        " one valid format string\n");
         return -EINVAL;
     }
 
     comp_id = hal_init("mux_generic");
     if (comp_id < 0) {
-        rtapi_print_msg(RTAPI_MSG_ERR, "mux_generic: ERROR: hal_init() failed\n");
+        rtapi_print_msg(RTAPI_MSG_ERR,
+                        "mux_generic: ERROR: hal_init() failed\n");
         return -1;
     }
 
@@ -82,13 +85,14 @@ int rtapi_app_main(void){
     mux = hal_malloc(sizeof(mux_t));
     if (mux == 0) {
         rtapi_print_msg(RTAPI_MSG_ERR,
-                "mux_generic component: Out of Memory\n");
+                        "mux_generic component: Out of Memory\n");
         hal_exit(comp_id);
         return -1;
     }
 
     // Count the instances.
-    for (mux->num_insts = 0; config[mux->num_insts];mux->num_insts++) {}
+    for (mux->num_insts = 0; config[mux->num_insts]; mux->num_insts++) {
+    }
     mux->insts = hal_malloc(mux->num_insts * sizeof(mux_inst_t));
     // Parse the config string
     for (i = 0; i < mux->num_insts; i++) {
@@ -112,76 +116,71 @@ int rtapi_app_main(void){
             case '8':
             case '9':
                 inst->size = (inst->size * 10) + (c - '0');
-                if (inst->size > MAX_SIZE) inst->size = MAX_SIZE;
+                if (inst->size > MAX_SIZE)
+                    inst->size = MAX_SIZE;
                 break;
             case 'b':
-            case 'B':
-                type = HAL_BIT;
-                break;
+            case 'B': type = HAL_BIT; break;
             case 'f':
-            case 'F':
-                type = HAL_FLOAT;
-                break;
+            case 'F': type = HAL_FLOAT; break;
             case 's':
-            case 'S':
-                type = HAL_S32;
-                break;
+            case 'S': type = HAL_S32; break;
             case 'u':
-            case 'U':
-                type = HAL_U32;
-                break;
+            case 'U': type = HAL_U32; break;
             default:
-                rtapi_print_msg(RTAPI_MSG_ERR, "mux_generic: invalid character in "
-                        "fmt string\n");
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                                "mux_generic: invalid character in "
+                                "fmt string\n");
                 goto fail0;
             }
             if (type) {
                 if (inst->in_type == -1) {
                     inst->in_type = type;
-                }
-                else if (inst->out_type == -1) {
+                } else if (inst->out_type == -1) {
                     inst->out_type = type;
-                }
-                else
-                {
-                    rtapi_print_msg(RTAPI_MSG_ERR, "mux_generic: too many type "
-                            "specifiers in fmt string\n");
+                } else {
+                    rtapi_print_msg(RTAPI_MSG_ERR,
+                                    "mux_generic: too many type "
+                                    "specifiers in fmt string\n");
                     goto fail0;
                 }
             }
         }
         if (inst->size < 1) {
-            rtapi_print_msg(RTAPI_MSG_ERR, "mux_generic: No entry count given\n");
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                            "mux_generic: No entry count given\n");
             goto fail0;
-        }
-        else if (inst->size < 2) {
-            rtapi_print_msg(RTAPI_MSG_ERR, "mux_generic: A one-element mux makes "
-                    "no sense\n");
+        } else if (inst->size < 2) {
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                            "mux_generic: A one-element mux makes "
+                            "no sense\n");
             goto fail0;
         }
         if (inst->in_type == -1) {
-            rtapi_print_msg(RTAPI_MSG_ERR, "mux_generic: No type specifiers in "
-                    "fmt string\n");
+            rtapi_print_msg(RTAPI_MSG_ERR,
+                            "mux_generic: No type specifiers in "
+                            "fmt string\n");
             goto fail0;
-        }
-        else if (inst->out_type == -1) {
+        } else if (inst->out_type == -1) {
             inst->out_type = inst->in_type;
         }
 
         if (inst->in_type == HAL_FLOAT || inst->out_type == HAL_FLOAT) {
-            retval = hal_export_functf(write_fp, inst, 1, 0, comp_id, "mux-gen.%02i", i);
+            retval = hal_export_functf(
+                write_fp, inst, 1, 0, comp_id, "mux-gen.%02i", i);
             if (retval < 0) {
-                rtapi_print_msg(RTAPI_MSG_ERR, "mux_generic: ERROR: function export"
-                        " failed\n");
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                                "mux_generic: ERROR: function export"
+                                " failed\n");
                 goto fail0;
             }
-        }
-        else
-        {
-            retval = hal_export_functf(write_nofp, inst, 0, 0, comp_id, "mux-gen.%02i", i);
+        } else {
+            retval = hal_export_functf(
+                write_nofp, inst, 0, 0, comp_id, "mux-gen.%02i", i);
             if (retval < 0) {
-                rtapi_print_msg(RTAPI_MSG_ERR, "mux_generic: ERROR: function export"
-                        " failed\n");
+                rtapi_print_msg(RTAPI_MSG_ERR,
+                                "mux_generic: ERROR: function export"
+                                " failed\n");
                 goto fail0;
             }
         }
@@ -190,86 +189,106 @@ int rtapi_app_main(void){
 
         // if the mux size is a power of 2 then create the bit inputs
         s = inst->size;
-        for(inst->num_bits = 1; (!((s >>= 1) & 1)); inst->num_bits++);
-        if (s !=1){
+        for (inst->num_bits = 1; (!((s >>= 1) & 1)); inst->num_bits++)
+            ;
+        if (s != 1) {
             inst->num_bits = 0;
         } else { //make the bit pins
-            inst->sel_bit = hal_malloc(inst->num_bits * sizeof(hal_bit_t*));
+            inst->sel_bit = hal_malloc(inst->num_bits * sizeof(hal_bit_t *));
             for (p = 0; p < inst->num_bits; p++) {
-                retval = hal_pin_bit_newf(HAL_IN, &inst->sel_bit[p], comp_id,
-                        "mux-gen.%02i.sel-bit-%02i", i, p);
+                retval = hal_pin_bit_newf(HAL_IN,
+                                          &inst->sel_bit[p],
+                                          comp_id,
+                                          "mux-gen.%02i.sel-bit-%02i",
+                                          i,
+                                          p);
                 if (retval != 0) {
                     goto fail0;
                 }
             }
         }
 
-        retval = hal_pin_u32_newf(HAL_IN, &(inst->sel_int), comp_id,
-                "mux-gen.%02i.sel-int", i);
+        retval = hal_pin_u32_newf(
+            HAL_IN, &(inst->sel_int), comp_id, "mux-gen.%02i.sel-int", i);
         if (retval != 0) {
             goto fail0;
         }
 
-        inst->inputs = hal_malloc(inst->size * sizeof(hal_data_u*));
+        inst->inputs = hal_malloc(inst->size * sizeof(hal_data_u *));
         for (p = 0; p < inst->size; p++) {
-            retval = rtapi_snprintf(hal_name, HAL_NAME_LEN,
-                    "mux-gen.%02i.in-%s-%02i", i, types[inst->in_type], p);
+            retval = rtapi_snprintf(hal_name,
+                                    HAL_NAME_LEN,
+                                    "mux-gen.%02i.in-%s-%02i",
+                                    i,
+                                    types[inst->in_type],
+                                    p);
             if (retval >= HAL_NAME_LEN) {
                 goto fail0;
             }
-            retval = hal_pin_new(hal_name, inst->in_type, HAL_IN,
-                    (void**)&(inst->inputs[p]), comp_id);
+            retval = hal_pin_new(hal_name,
+                                 inst->in_type,
+                                 HAL_IN,
+                                 (void **)&(inst->inputs[p]),
+                                 comp_id);
             if (retval != 0) {
                 goto fail0;
             }
         }
 
         // Behaviour-modifiers
-        retval = hal_pin_bit_newf(HAL_IN, &inst->suppress, comp_id,
-                "mux-gen.%02i.suppress-no-input", i);
+        retval = hal_pin_bit_newf(HAL_IN,
+                                  &inst->suppress,
+                                  comp_id,
+                                  "mux-gen.%02i.suppress-no-input",
+                                  i);
         if (retval != 0) {
             goto fail0;
         }
-        retval = hal_pin_u32_newf(HAL_IN, &inst->debounce, comp_id,
-                "mux-gen.%02i.debounce-us", i);
+        retval = hal_pin_u32_newf(
+            HAL_IN, &inst->debounce, comp_id, "mux-gen.%02i.debounce-us", i);
         if (retval != 0) {
             goto fail0;
         }
-        retval = hal_param_u32_newf(HAL_RO, &inst->timer, comp_id,
-                "mux-gen.%02i.elapsed", i);
+        retval = hal_param_u32_newf(
+            HAL_RO, &inst->timer, comp_id, "mux-gen.%02i.elapsed", i);
         if (retval != 0) {
             goto fail0;
         }
-        retval = hal_param_u32_newf(HAL_RO, &inst->selection, comp_id,
-                "mux-gen.%02i.selected", i);
+        retval = hal_param_u32_newf(
+            HAL_RO, &inst->selection, comp_id, "mux-gen.%02i.selected", i);
         if (retval != 0) {
             goto fail0;
         }
 
         //output pins
-        retval = rtapi_snprintf(hal_name, HAL_NAME_LEN,
-                "mux-gen.%02i.out-%s", i, types[inst->out_type]);
+        retval = rtapi_snprintf(hal_name,
+                                HAL_NAME_LEN,
+                                "mux-gen.%02i.out-%s",
+                                i,
+                                types[inst->out_type]);
         if (retval >= HAL_NAME_LEN) {
             goto fail0;
         }
-        retval = hal_pin_new(hal_name, inst->out_type, HAL_OUT,
-                (void**)&(inst->output), comp_id);
+        retval = hal_pin_new(hal_name,
+                             inst->out_type,
+                             HAL_OUT,
+                             (void **)&(inst->output),
+                             comp_id);
         if (retval != 0) {
             goto fail0;
         }
-
     }
 
     hal_ready(comp_id);
     return 0;
 
-    fail0:
+fail0:
     hal_exit(comp_id);
     return -1;
-
 }
 
-void write_fp(void *arg, long period) {
+void write_fp(void *arg, long period)
+{
     mux_inst_t *inst = arg;
     int i = 0;
     unsigned s = 0;
@@ -296,12 +315,12 @@ void write_fp(void *arg, long period) {
         s = inst->size - 1;
 
     switch (inst->in_type * 8 + inst->out_type) {
-    case 012: //HAL_BIT => HAL_FLOAT
+    case 012:                                             //HAL_BIT => HAL_FLOAT
         inst->output->f = inst->inputs[s]->b ? 1.0 : 0.0; //
         break;
     case 021: //HAL_FLOAT => HAL_BIT
         inst->output->b =
-                (inst->inputs[s]->f > EPS || inst->inputs[s]->f < -EPS) ? 1 : 0;
+            (inst->inputs[s]->f > EPS || inst->inputs[s]->f < -EPS) ? 1 : 0;
         break;
     case 022: //HAL_FLOAT => HAL_FLOAT
         inst->output->f = inst->inputs[s]->f;
@@ -328,12 +347,13 @@ void write_fp(void *arg, long period) {
         inst->output->f = inst->inputs[s]->s;
         break;
     case 042: //HAL_U32 => HAL_FLOAT
-        inst->output->f = (unsigned int) inst->inputs[s]->u;
+        inst->output->f = (unsigned int)inst->inputs[s]->u;
         break;
     }
 }
 
-void write_nofp(void *arg, long period) {
+void write_nofp(void *arg, long period)
+{
     mux_inst_t *inst = arg;
     int i = 0;
     unsigned s = 0;
@@ -381,9 +401,9 @@ void write_nofp(void *arg, long period) {
         inst->output->b = inst->inputs[s]->u == 0 ? 0 : 1;
         break;
     case 043: //HAL_U32 => HAL_S32
-        inst->output->s =
-                ((unsigned int) inst->inputs[s]->u > MAX_S32) ?
-                        MAX_S32 : inst->inputs[s]->u;
+        inst->output->s = ((unsigned int)inst->inputs[s]->u > MAX_S32)
+                              ? MAX_S32
+                              : inst->inputs[s]->u;
         break;
     case 044: //HAL_U32 => HAL_U32
         inst->output->u = inst->inputs[s]->u;
@@ -391,7 +411,8 @@ void write_nofp(void *arg, long period) {
     }
 }
 
-void rtapi_app_exit(void){
-//everything is hal_malloc-ed which saves a lot of cleanup here
-hal_exit(comp_id);
+void rtapi_app_exit(void)
+{
+    //everything is hal_malloc-ed which saves a lot of cleanup here
+    hal_exit(comp_id);
 }

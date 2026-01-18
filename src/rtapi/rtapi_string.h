@@ -21,11 +21,12 @@
 #ifdef __cplusplus
 #include <assert.h>
 #include <type_traits>
-#define rtapi_static_assert(a,b) static_assert(a,b)
+#define rtapi_static_assert(a, b) static_assert(a, b)
 #define rtapi_is_array(x) (std::is_array<decltype(x)>::value)
 #else
-#define rtapi_static_assert(a,b) _Static_assert(a,b)
-#define rtapi_is_array(x) (!__builtin_types_compatible_p(__typeof__((x)), __typeof__(&(x)[0])))
+#define rtapi_static_assert(a, b) _Static_assert(a, b)
+#define rtapi_is_array(x)                                                      \
+    (!__builtin_types_compatible_p(__typeof__((x)), __typeof__(&(x)[0])))
 #endif
 
 #ifdef MODULE
@@ -36,34 +37,40 @@
 #include <linux/version.h>
 #define rtapi_argv_split argv_split
 #define rtapi_argv_free argv_free
-#define rtapi_kstrdup(a,b) kstrdup(a,b)
+#define rtapi_kstrdup(a, b) kstrdup(a, b)
 #else
 #include <string.h>
 #include <rtapi_gfp.h>
 RTAPI_BEGIN_DECLS
 extern char **rtapi_argv_split(rtapi_gfp_t, const char *argstr, int *argc);
 extern void rtapi_argv_free(char **argv);
-#define rtapi_kstrdup(a,b) strdup(a)
+#define rtapi_kstrdup(a, b) strdup(a)
 RTAPI_END_DECLS
 #endif
 RTAPI_BEGIN_DECLS
-static inline size_t rtapi_strlcpy(char *dst, const char *src, size_t size) {
+static inline size_t rtapi_strlcpy(char *dst, const char *src, size_t size)
+{
     return rtapi_snprintf(dst, size, "%s", src);
 }
-#define rtapi_strxcpy(dst, src) ({ \
-    rtapi_static_assert(rtapi_is_array(dst), "dst must be non-const array"); \
-    rtapi_strlcpy(dst, src, sizeof(dst)); \
-})
+#define rtapi_strxcpy(dst, src)                                                \
+    ({                                                                         \
+        rtapi_static_assert(rtapi_is_array(dst),                               \
+                            "dst must be non-const array");                    \
+        rtapi_strlcpy(dst, src, sizeof(dst));                                  \
+    })
 
-static inline size_t rtapi_strlcat(char *dst, const char *src, size_t size) {
+static inline size_t rtapi_strlcat(char *dst, const char *src, size_t size)
+{
     size_t l = strlen(dst);
-    return rtapi_snprintf(dst+l, size-l, "%s", src);
+    return rtapi_snprintf(dst + l, size - l, "%s", src);
 }
 
-#define rtapi_strxcat(dst, src) ({ \
-    rtapi_static_assert(rtapi_is_array(dst), "dst must be non-const array"); \
-    rtapi_strlcat(dst, src, sizeof(dst)); \
-})
+#define rtapi_strxcat(dst, src)                                                \
+    ({                                                                         \
+        rtapi_static_assert(rtapi_is_array(dst),                               \
+                            "dst must be non-const array");                    \
+        rtapi_strlcat(dst, src, sizeof(dst));                                  \
+    })
 RTAPI_END_DECLS
 
 #endif

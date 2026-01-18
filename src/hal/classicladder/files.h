@@ -26,41 +26,44 @@
 #endif
 
 
-
 char *cl_fgets(char *s, int size, FILE *stream);
-void LoadAllRungs_V1(char * BaseName,StrRung * Rungs,int * TheFirst,int * TheLast,int * TheCurrent);
-void LoadAllRungs(char * BaseName,StrRung * Rungs);
-void SaveAllRungs(char * BaseName);
-char * ConvRawLineOfNumbers(char * RawLine,char NbrParams,int * ValuesFnd);
+void LoadAllRungs_V1(char *BaseName,
+                     StrRung *Rungs,
+                     int *TheFirst,
+                     int *TheLast,
+                     int *TheCurrent);
+void LoadAllRungs(char *BaseName, StrRung *Rungs);
+void SaveAllRungs(char *BaseName);
+char *ConvRawLineOfNumbers(char *RawLine, char NbrParams, int *ValuesFnd);
 int ConvBaseInMilliSecsToId(int NbrMilliSecs);
 #ifdef OLD_TIMERS_MONOS_SUPPORT
-char LoadTimersParams(char * FileName,StrTimer * BufTimers);
-char SaveTimersParams(char * FileName,StrTimer * BufTimers);
-char LoadMonostablesParams(char * FileName,StrMonostable * BufMonostables);
-char SaveMonostablesParams(char * FileName,StrMonostable * BufMonostables);
+char LoadTimersParams(char *FileName, StrTimer *BufTimers);
+char SaveTimersParams(char *FileName, StrTimer *BufTimers);
+char LoadMonostablesParams(char *FileName, StrMonostable *BufMonostables);
+char SaveMonostablesParams(char *FileName, StrMonostable *BufMonostables);
 #endif
-char LoadCountersParams(char * FileName);
-char SaveCountersParams(char * FileName);
-char LoadNewTimersParams(char * FileName);
-char SaveNewTimersParams(char * FileName);
-void DumpRung(StrRung * TheRung);
-char LoadArithmeticExpr(char * FileName);
-char SaveArithmeticExpr(char * FileName);
-char LoadSectionsParams(char * FileName);
-char SaveSectionsParams(char * FileName);
-char LoadIOConfParams(char * FileName);
-char SaveIOConfParams(char * FileName);
-char LoadModbusIOConfParams(char * FileName);
-char SaveModbusIOConfParams(char * FileName);
-char LoadSymbols(char * FileName);
-char SaveSymbols(char * FileName);
-char LoadGeneralParameters(char * FileName);
-char SaveGeneralParameters(char * FileName);
+char LoadCountersParams(char *FileName);
+char SaveCountersParams(char *FileName);
+char LoadNewTimersParams(char *FileName);
+char SaveNewTimersParams(char *FileName);
+void DumpRung(StrRung *TheRung);
+char LoadArithmeticExpr(char *FileName);
+char SaveArithmeticExpr(char *FileName);
+char LoadSectionsParams(char *FileName);
+char SaveSectionsParams(char *FileName);
+char LoadIOConfParams(char *FileName);
+char SaveIOConfParams(char *FileName);
+char LoadModbusIOConfParams(char *FileName);
+char SaveModbusIOConfParams(char *FileName);
+char LoadSymbols(char *FileName);
+char SaveSymbols(char *FileName);
+char LoadGeneralParameters(char *FileName);
+char SaveGeneralParameters(char *FileName);
 ////XXX Function not used in LinuxCNC
 //char LoadConfigEventsLog(char * FileName);
 //char SaveConfigEventsLog(char * FileName);
 
-void LoadAllLadderDatas(char * DatasDirectory);
-void SaveAllLadderDatas(char * DatasDirectory);
+void LoadAllLadderDatas(char *DatasDirectory);
+void SaveAllLadderDatas(char *DatasDirectory);
 
-void CleanTmpLadderDirectory( char DestroyDir );
+void CleanTmpLadderDirectory(char DestroyDir);

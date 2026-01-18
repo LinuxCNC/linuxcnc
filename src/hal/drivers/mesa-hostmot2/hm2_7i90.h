@@ -24,26 +24,23 @@
 #include "hal_parport.h"
 
 
-
 //
 // EPP stuff
 //
 
-#define HM2_7I90_EPP_STATUS_OFFSET   (1)
-#define HM2_7I90_EPP_CONTROL_OFFSET  (2)
-#define HM2_7I90_EPP_ADDRESS_OFFSET  (3)
-#define HM2_7I90_EPP_DATA_OFFSET     (4)
+#define HM2_7I90_EPP_STATUS_OFFSET (1)
+#define HM2_7I90_EPP_CONTROL_OFFSET (2)
+#define HM2_7I90_EPP_ADDRESS_OFFSET (3)
+#define HM2_7I90_EPP_DATA_OFFSET (4)
 
-#define HM2_7I90_ECP_CONFIG_A_HIGH_OFFSET  (0)
-#define HM2_7I90_ECP_CONFIG_B_HIGH_OFFSET  (1)
-#define HM2_7I90_ECP_CONTROL_HIGH_OFFSET   (2)
+#define HM2_7I90_ECP_CONFIG_A_HIGH_OFFSET (0)
+#define HM2_7I90_ECP_CONFIG_B_HIGH_OFFSET (1)
+#define HM2_7I90_ECP_CONTROL_HIGH_OFFSET (2)
 
 
 #define HM2_7I90_ADDR_AUTOINCREMENT (0x8000)
 
 #define HM2_7I90_MAX_BOARDS (4)
-
-
 
 
 //
@@ -56,4 +53,3 @@ typedef struct {
 
     hm2_lowlevel_io_t llio;
 } hm2_7i90_t;
-

@@ -36,20 +36,20 @@
  */
 char *rtapi_kstrndup(const char *s, size_t max, rtapi_gfp_t gfp)
 {
-	(void)gfp;
-	size_t len;
-	char *buf;
+    (void)gfp;
+    size_t len;
+    char *buf;
 
-	if (!s)
-		return NULL;
+    if (!s)
+        return NULL;
 
-	len = strnlen(s, max);
-	buf = rtapi_kmalloc(len+1, gfp);
-	if (buf) {
-		memcpy(buf, s, len);
-		buf[len] = '\0';
-	}
-	return buf;
+    len = strnlen(s, max);
+    buf = rtapi_kmalloc(len + 1, gfp);
+    if (buf) {
+        memcpy(buf, s, len);
+        buf[len] = '\0';
+    }
+    return buf;
 }
 
 
@@ -59,33 +59,33 @@ char *rtapi_kstrndup(const char *s, size_t max, rtapi_gfp_t gfp)
 
 static const char *skip_sep(const char *cp)
 {
-	while (*cp && isspace(*cp))
-		cp++;
+    while (*cp && isspace(*cp))
+        cp++;
 
-	return cp;
+    return cp;
 }
 
 static const char *skip_arg(const char *cp)
 {
-	while (*cp && !isspace(*cp))
-		cp++;
+    while (*cp && !isspace(*cp))
+        cp++;
 
-	return cp;
+    return cp;
 }
 
 static int count_argc(const char *str)
 {
-	int count = 0;
+    int count = 0;
 
-	while (*str) {
-		str = skip_sep(str);
-		if (*str) {
-			count++;
-			str = skip_arg(str);
-		}
-	}
+    while (*str) {
+        str = skip_sep(str);
+        if (*str) {
+            count++;
+            str = skip_arg(str);
+        }
+    }
 
-	return count;
+    return count;
 }
 
 /**
@@ -96,11 +96,11 @@ static int count_argc(const char *str)
  */
 void rtapi_argv_free(char **argv)
 {
-	char **p;
-	for (p = argv; *p; p++)
-		rtapi_kfree(*p);
+    char **p;
+    for (p = argv; *p; p++)
+        rtapi_kfree(*p);
 
-	rtapi_kfree(argv);
+    rtapi_kfree(argv);
 }
 
 /**
@@ -118,41 +118,41 @@ void rtapi_argv_free(char **argv)
  */
 char **rtapi_argv_split(rtapi_gfp_t gfp, const char *str, int *argcp)
 {
-	int argc = count_argc(str);
-	char **argv = rtapi_kzalloc(sizeof(*argv) * (argc+1), gfp);
-	char **argvp;
+    int argc = count_argc(str);
+    char **argv = rtapi_kzalloc(sizeof(*argv) * (argc + 1), gfp);
+    char **argvp;
 
-	if (argv == NULL)
-		goto out;
+    if (argv == NULL)
+        goto out;
 
-	if (argcp)
-		*argcp = argc;
+    if (argcp)
+        *argcp = argc;
 
-	argvp = argv;
+    argvp = argv;
 
-	while (*str) {
-		str = skip_sep(str);
+    while (*str) {
+        str = skip_sep(str);
 
-		if (*str) {
-			const char *p = str;
-			char *t;
+        if (*str) {
+            const char *p = str;
+            char *t;
 
-			str = skip_arg(str);
+            str = skip_arg(str);
 
-			t = rtapi_kstrndup(p, str-p, gfp);
-			if (t == NULL)
-				goto fail;
-			*argvp++ = t;
-		}
-	}
-	*argvp = NULL;
+            t = rtapi_kstrndup(p, str - p, gfp);
+            if (t == NULL)
+                goto fail;
+            *argvp++ = t;
+        }
+    }
+    *argvp = NULL;
 
-  out:
-	return argv;
+out:
+    return argv;
 
-  fail:
-	rtapi_argv_free(argv);
-	return NULL;
+fail:
+    rtapi_argv_free(argv);
+    return NULL;
 }
 
 EXPORT_SYMBOL(rtapi_kstrndup);

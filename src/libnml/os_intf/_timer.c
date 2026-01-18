@@ -15,15 +15,15 @@
 * Last change: 
 ********************************************************************/
 
-#include "rcs_print.hh"		/* rcs_print_error */
+#include "rcs_print.hh" /* rcs_print_error */
 
-#include <stdio.h>		/* NULL */
-#include <errno.h>		/* errno */
-#include <string.h>		/* strerror() */
+#include <stdio.h>  /* NULL */
+#include <errno.h>  /* errno */
+#include <string.h> /* strerror() */
 
-#include <errno.h>		/* EINTR */
-#include <unistd.h>		/* select(), sysconf(), _SC_CLK_TCK */
-#include <sys/time.h>		/* struct timeval, gettimeofday(), struct
+#include <errno.h>    /* EINTR */
+#include <unistd.h>   /* select(), sysconf(), _SC_CLK_TCK */
+#include <sys/time.h> /* struct timeval, gettimeofday(), struct
 				   itimerval, setitimer(), ITIMER_REAL */
 #include <sched.h>
 
@@ -32,7 +32,7 @@
 /* number of seconds in a system clock tick */
 double clk_tck()
 {
-    return 1.0 / (double) sysconf(_SC_CLK_TCK);
+    return 1.0 / (double)sysconf(_SC_CLK_TCK);
 }
 
 /*
@@ -50,11 +50,11 @@ double etime()
     double retval;
 
     if (0 != gettimeofday(&tp, NULL)) {
-	rcs_print_error("etime: can't get time\n");
-	return 0.0;
+        rcs_print_error("etime: can't get time\n");
+        return 0.0;
     }
 
-    retval = ((double) tp.tv_sec) + ((double) tp.tv_usec) / 1000000.0;
+    retval = ((double)tp.tv_sec) + ((double)tp.tv_usec) / 1000000.0;
     return retval;
 }
 
@@ -65,32 +65,31 @@ void esleep(double seconds_to_sleep)
 {
     struct timeval tval;
     static double clk_tck_val = 0;
-    double total = seconds_to_sleep;	/* total sleep asked for */
-    double started = etime();	/* time when called */
+    double total = seconds_to_sleep; /* total sleep asked for */
+    double started = etime();        /* time when called */
     double left = total;
     if (seconds_to_sleep <= 0.0)
-	return;
+        return;
     if (clk_tck_val <= 0) {
-	clk_tck_val = clk_tck();
+        clk_tck_val = clk_tck();
     }
     do {
-	if (left < clk_tck_val && esleep_use_yield) {
-	    sched_yield();
-	} else {
-	    tval.tv_sec = (long) left;	/* double->long truncates, ANSI */
-	    tval.tv_usec = (long) ((left - (double) tval.tv_sec) * 1000000.0);
-	    if (tval.tv_sec == 0 && tval.tv_usec == 0) {
-		tval.tv_usec = 1;
-	    }
-	    if (select(0, NULL, NULL, NULL, &tval) < 0) {
-		if (errno != EINTR) {
-		    break;
-		}
-	    }
-	}
-	left = total - etime() + started;
-    }
-    while (left > 0 && (left > clk_tck_val && esleep_use_yield));
+        if (left < clk_tck_val && esleep_use_yield) {
+            sched_yield();
+        } else {
+            tval.tv_sec = (long)left; /* double->long truncates, ANSI */
+            tval.tv_usec = (long)((left - (double)tval.tv_sec) * 1000000.0);
+            if (tval.tv_sec == 0 && tval.tv_usec == 0) {
+                tval.tv_usec = 1;
+            }
+            if (select(0, NULL, NULL, NULL, &tval) < 0) {
+                if (errno != EINTR) {
+                    break;
+                }
+            }
+        }
+        left = total - etime() + started;
+    } while (left > 0 && (left > clk_tck_val && esleep_use_yield));
     return;
 }
 

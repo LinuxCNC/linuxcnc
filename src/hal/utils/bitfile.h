@@ -123,7 +123,10 @@ int bitfile_write(struct bitfile *bf, char *fname);
    can be dynamic memory, static memory, or anything else.  Returns zero on
    success, or -1 on error.
 */
-int bitfile_add_chunk(struct bitfile *bf, char tag, int len, unsigned char *data);
+int bitfile_add_chunk(struct bitfile *bf,
+                      char tag,
+                      int len,
+                      unsigned char *data);
 
 
 /* 'bitfile_find_chunk` searches a caller supplied struct bitfile for a

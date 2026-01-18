@@ -18,9 +18,16 @@
 
 static double noElement = 0.0;
 
-CANON_POSITION::CANON_POSITION(double _x, double _y, double _z,
-        double _a, double _b, double _c,
-        double _u, double _v, double _w) {
+CANON_POSITION::CANON_POSITION(double _x,
+                               double _y,
+                               double _z,
+                               double _a,
+                               double _b,
+                               double _c,
+                               double _u,
+                               double _v,
+                               double _w)
+{
     this->x = _x;
     this->y = _y;
     this->z = _z;
@@ -32,7 +39,8 @@ CANON_POSITION::CANON_POSITION(double _x, double _y, double _z,
     this->w = _w;
 }
 
-CANON_POSITION::CANON_POSITION(const EmcPose &_pos) {
+CANON_POSITION::CANON_POSITION(const EmcPose &_pos)
+{
     this->x = _pos.tran.x;
     this->y = _pos.tran.y;
     this->z = _pos.tran.z;
@@ -44,23 +52,16 @@ CANON_POSITION::CANON_POSITION(const EmcPose &_pos) {
     this->w = _pos.w;
 }
 
-CANON_POSITION::CANON_POSITION(PM_CARTESIAN const &xyz) :
-    a(0.0),
-    b(0.0),
-    c(0.0),
-    u(0.0),
-    v(0.0),
-    w(0.0)
+CANON_POSITION::CANON_POSITION(PM_CARTESIAN const &xyz)
+    : a(0.0), b(0.0), c(0.0), u(0.0), v(0.0), w(0.0)
 {
     this->x = xyz.x;
     this->y = xyz.y;
     this->z = xyz.z;
 }
 
-CANON_POSITION::CANON_POSITION(PM_CARTESIAN const &xyz, PM_CARTESIAN const &abc) :
-    u(0.0),
-    v(0.0),
-    w(0.0)
+CANON_POSITION::CANON_POSITION(PM_CARTESIAN const &xyz, PM_CARTESIAN const &abc)
+    : u(0.0), v(0.0), w(0.0)
 {
     this->x = xyz.x;
     this->y = xyz.y;
@@ -70,29 +71,20 @@ CANON_POSITION::CANON_POSITION(PM_CARTESIAN const &xyz, PM_CARTESIAN const &abc)
     this->c = abc.z;
 }
 
-bool CANON_POSITION::operator==(const CANON_POSITION &o) const {
-    return(this->x == o.x &&
-            this->y == o.y &&
-            this->z == o.z &&
-            this->a == o.a &&
-            this->b == o.b &&
-            this->c == o.c &&
-            this->u == o.u &&
-            this->v == o.v &&
-            this->w == o.w);
+bool CANON_POSITION::operator==(const CANON_POSITION &o) const
+{
+    return (this->x == o.x && this->y == o.y && this->z == o.z &&
+            this->a == o.a && this->b == o.b && this->c == o.c &&
+            this->u == o.u && this->v == o.v && this->w == o.w);
 }
-bool CANON_POSITION::operator!=(const CANON_POSITION &o) const {
-    return(this->x != o.x ||
-            this->y != o.y ||
-            this->z != o.z ||
-            this->a != o.a ||
-            this->b != o.b ||
-            this->c != o.c ||
-            this->u != o.u ||
-            this->v != o.v ||
-            this->w != o.w);
+bool CANON_POSITION::operator!=(const CANON_POSITION &o) const
+{
+    return (this->x != o.x || this->y != o.y || this->z != o.z ||
+            this->a != o.a || this->b != o.b || this->c != o.c ||
+            this->u != o.u || this->v != o.v || this->w != o.w);
 }
-CANON_POSITION & CANON_POSITION::operator+=(const CANON_POSITION &o) {
+CANON_POSITION &CANON_POSITION::operator+=(const CANON_POSITION &o)
+{
     this->x += o.x;
     this->y += o.y;
     this->z += o.z;
@@ -104,7 +96,8 @@ CANON_POSITION & CANON_POSITION::operator+=(const CANON_POSITION &o) {
     this->w += o.w;
     return *this;
 }
-CANON_POSITION & CANON_POSITION::operator+=(const EmcPose &o) {
+CANON_POSITION &CANON_POSITION::operator+=(const EmcPose &o)
+{
     this->x += o.tran.x;
     this->y += o.tran.y;
     this->z += o.tran.z;
@@ -117,18 +110,21 @@ CANON_POSITION & CANON_POSITION::operator+=(const EmcPose &o) {
     return *this;
 }
 
-const CANON_POSITION CANON_POSITION::operator+(const CANON_POSITION &o) const {
+const CANON_POSITION CANON_POSITION::operator+(const CANON_POSITION &o) const
+{
     CANON_POSITION result = *this;
     result += o;
     return result;
 }
 
-const CANON_POSITION CANON_POSITION::operator+(const EmcPose &o) const {
+const CANON_POSITION CANON_POSITION::operator+(const EmcPose &o) const
+{
     CANON_POSITION result = *this;
     result += o;
     return result;
 }
-CANON_POSITION & CANON_POSITION::operator-=(const CANON_POSITION &o) {
+CANON_POSITION &CANON_POSITION::operator-=(const CANON_POSITION &o)
+{
     this->x -= o.x;
     this->y -= o.y;
     this->z -= o.z;
@@ -141,7 +137,8 @@ CANON_POSITION & CANON_POSITION::operator-=(const CANON_POSITION &o) {
     return *this;
 }
 
-CANON_POSITION & CANON_POSITION::operator-=(const EmcPose &o) {
+CANON_POSITION &CANON_POSITION::operator-=(const EmcPose &o)
+{
     this->x -= o.tran.x;
     this->y -= o.tran.y;
     this->z -= o.tran.z;
@@ -154,18 +151,21 @@ CANON_POSITION & CANON_POSITION::operator-=(const EmcPose &o) {
     return *this;
 }
 
-const CANON_POSITION CANON_POSITION::operator-(const CANON_POSITION &o) const {
+const CANON_POSITION CANON_POSITION::operator-(const CANON_POSITION &o) const
+{
     CANON_POSITION result = *this;
     result -= o;
     return result;
 }
-const CANON_POSITION CANON_POSITION::operator-(const EmcPose &o) const {
+const CANON_POSITION CANON_POSITION::operator-(const EmcPose &o) const
+{
     CANON_POSITION result = *this;
     result -= o;
     return result;
 }
 
-double CANON_POSITION::max() const{
+double CANON_POSITION::max() const
+{
     double res = x;
     res = fmax(res, this->y);
     res = fmax(res, this->z);
@@ -178,7 +178,8 @@ double CANON_POSITION::max() const{
     return res;
 }
 
-const CANON_POSITION CANON_POSITION::abs() const{
+const CANON_POSITION CANON_POSITION::abs() const
+{
     CANON_POSITION result;
     result.x = fabs(this->x);
     result.y = fabs(this->y);
@@ -192,13 +193,15 @@ const CANON_POSITION CANON_POSITION::abs() const{
     return result;
 }
 
-const CANON_POSITION CANON_POSITION::absdiff(const CANON_POSITION &o) const {
+const CANON_POSITION CANON_POSITION::absdiff(const CANON_POSITION &o) const
+{
     CANON_POSITION result = *this;
     result -= o;
     return result.abs();
 }
 
-const EmcPose CANON_POSITION::toEmcPose() const {
+const EmcPose CANON_POSITION::toEmcPose() const
+{
     EmcPose out;
     out.tran.x = this->x;
     out.tran.y = this->y;
@@ -212,13 +215,12 @@ const EmcPose CANON_POSITION::toEmcPose() const {
     return out;
 }
 
-const PM_CARTESIAN CANON_POSITION::xyz() const {
-    return PM_CARTESIAN(this->x,
-            this->y,
-            this->z);
+const PM_CARTESIAN CANON_POSITION::xyz() const
+{
+    return PM_CARTESIAN(this->x, this->y, this->z);
 }
 
-void CANON_POSITION::set_xyz(const PM_CARTESIAN & xyz)
+void CANON_POSITION::set_xyz(const PM_CARTESIAN &xyz)
 {
     this->x = xyz.x;
     this->y = xyz.y;
@@ -226,53 +228,42 @@ void CANON_POSITION::set_xyz(const PM_CARTESIAN & xyz)
 }
 
 
-const PM_CARTESIAN CANON_POSITION::abc() const {
-    return PM_CARTESIAN(this->a,
-            this->b,
-            this->c);
+const PM_CARTESIAN CANON_POSITION::abc() const
+{
+    return PM_CARTESIAN(this->a, this->b, this->c);
 }
 
-const PM_CARTESIAN CANON_POSITION::uvw() const {
-    return PM_CARTESIAN(this->u,
-            this->v,
-            this->w);
+const PM_CARTESIAN CANON_POSITION::uvw() const
+{
+    return PM_CARTESIAN(this->u, this->v, this->w);
 }
 
-void CANON_POSITION::print() const {
+void CANON_POSITION::print() const
+{
     printf("x %g y %g z %g a %g b %g c %g u %g v %g w %g ",
-            this->x,
-            this->y,
-            this->z,
-            this->a,
-            this->b,
-            this->c,
-            this->u,
-            this->v,
-            this->w);
+           this->x,
+           this->y,
+           this->z,
+           this->a,
+           this->b,
+           this->c,
+           this->u,
+           this->v,
+           this->w);
 }
 
-double &CANON_POSITION::operator[](int ind){
+double &CANON_POSITION::operator[](int ind)
+{
     switch (ind) {
-        case 0:
-            return x;
-        case 1:
-            return y;
-        case 2:
-            return z;
-        case 3:
-            return a;
-        case 4:
-            return b;
-        case 5:
-            return c;
-        case 6:
-            return u;
-        case 7:
-            return v;
-        case 8:
-            return w;
-        default:
-            printf("noelement!\n");
-            return noElement;
+    case 0: return x;
+    case 1: return y;
+    case 2: return z;
+    case 3: return a;
+    case 4: return b;
+    case 5: return c;
+    case 6: return u;
+    case 7: return v;
+    case 8: return w;
+    default: printf("noelement!\n"); return noElement;
     }
 }

@@ -31,8 +31,9 @@
 
 #define _(s) gettext(s)
 
-char Interp::arc_axis1(CANON_PLANE plane) {
-    switch(plane) {
+char Interp::arc_axis1(CANON_PLANE plane)
+{
+    switch (plane) {
     case CANON_PLANE::XY: return 'X';
     case CANON_PLANE::XZ: return 'Z';
     case CANON_PLANE::YZ: return 'Y';
@@ -40,8 +41,9 @@ char Interp::arc_axis1(CANON_PLANE plane) {
     }
 }
 
-char Interp::arc_axis2(CANON_PLANE plane) {
-    switch(plane) {
+char Interp::arc_axis2(CANON_PLANE plane)
+{
+    switch (plane) {
     case CANON_PLANE::XY: return 'Y';
     case CANON_PLANE::XZ: return 'X';
     case CANON_PLANE::YZ: return 'Z';
@@ -75,70 +77,97 @@ tool radius from the arc.
 
 */
 
-int Interp::arc_data_comp_ijk(int move,  //!<either G_2 (cw arc) or G_3 (ccw arc)
-                             CANON_PLANE plane, //!<active plane
-                             CUTTER_COMP side,  //!<either RIGHT or LEFT
-                             double tool_radius,        //!<radius of the tool
-                             double current_x,  //!<first coordinate of current point
-                             double current_y,  //!<second coordinate of current point
-                             double end_x,      //!<first coordinate of arc end point
-                             double end_y,      //!<second coordinate of arc end point
-                             int ij_absolute,   //!<how to interpret i/j numbers
-                             double i_number,   //!<first coordinate of center (abs or incr)
-                             double j_number,   //!<second coordinate of center (abs or incr)
-                             int p_number,
-                             double *center_x,  //!<pointer to first coordinate of center of arc
-                             double *center_y,  //!<pointer to second coordinate of center of arc
-                             int *turn, //!<pointer to number of full or partial circles CCW
-                             double radius_tolerance, //!<minimum radius tolerance
-                             double spiral_abs_tolerance,  //!<tolerance of start and end radius difference
-                             double spiral_rel_tolerance)
+int Interp::arc_data_comp_ijk(
+    int move,           //!<either G_2 (cw arc) or G_3 (ccw arc)
+    CANON_PLANE plane,  //!<active plane
+    CUTTER_COMP side,   //!<either RIGHT or LEFT
+    double tool_radius, //!<radius of the tool
+    double current_x,   //!<first coordinate of current point
+    double current_y,   //!<second coordinate of current point
+    double end_x,       //!<first coordinate of arc end point
+    double end_y,       //!<second coordinate of arc end point
+    int ij_absolute,    //!<how to interpret i/j numbers
+    double i_number,    //!<first coordinate of center (abs or incr)
+    double j_number,    //!<second coordinate of center (abs or incr)
+    int p_number,
+    double *center_x, //!<pointer to first coordinate of center of arc
+    double *center_y, //!<pointer to second coordinate of center of arc
+    int *turn,        //!<pointer to number of full or partial circles CCW
+    double radius_tolerance, //!<minimum radius tolerance
+    double
+        spiral_abs_tolerance, //!<tolerance of start and end radius difference
+    double spiral_rel_tolerance)
 {
-  double arc_radius;
-  double radius2;
-  char a = arc_axis1(plane), b = arc_axis2(plane);
+    double arc_radius;
+    double radius2;
+    char a = arc_axis1(plane), b = arc_axis2(plane);
 
-  if ( ij_absolute ) {
-    *center_x = (i_number);
-    *center_y = (j_number);
-  } else {
-    *center_x = (current_x + i_number);
-    *center_y = (current_y + j_number);
-  }
-  arc_radius = hypot((*center_x - current_x), (*center_y - current_y));
-  radius2 = hypot((*center_x - end_x), (*center_y - end_y));
-  CHKS(((arc_radius < radius_tolerance) || (radius2 < radius_tolerance)),
-          _("Zero-radius arc: "
-       "start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f"),
-       a, current_x, b, current_y,
-       a, *center_x, b, *center_y,
-       a, end_x, b, end_y, arc_radius, radius2);
+    if (ij_absolute) {
+        *center_x = (i_number);
+        *center_y = (j_number);
+    } else {
+        *center_x = (current_x + i_number);
+        *center_y = (current_y + j_number);
+    }
+    arc_radius = hypot((*center_x - current_x), (*center_y - current_y));
+    radius2 = hypot((*center_x - end_x), (*center_y - end_y));
+    CHKS(((arc_radius < radius_tolerance) || (radius2 < radius_tolerance)),
+         _("Zero-radius arc: "
+           "start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) "
+           "r1=%.4f r2=%.4f"),
+         a,
+         current_x,
+         b,
+         current_y,
+         a,
+         *center_x,
+         b,
+         *center_y,
+         a,
+         end_x,
+         b,
+         end_y,
+         arc_radius,
+         radius2);
 
-  double abs_err = fabs(arc_radius - radius2);
-  double rel_err = abs_err / std::max(arc_radius, radius2);
+    double abs_err = fabs(arc_radius - radius2);
+    double rel_err = abs_err / std::max(arc_radius, radius2);
 
-  CHKS((abs_err > spiral_abs_tolerance * 100.0) ||
-          (rel_err > spiral_rel_tolerance && abs_err > spiral_abs_tolerance),
-      _("Radius to end of arc differs from radius to start: "
-       "start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) "
-       "r1=%.4f r2=%.4f abs_err=%.4g rel_err=%.4f%%"),
-       a, current_x, b, current_y, 
-       a, *center_x, b, *center_y, 
-       a, end_x, b, end_y, arc_radius, radius2,
-       abs_err, rel_err*100);
+    CHKS((abs_err > spiral_abs_tolerance * 100.0) ||
+             (rel_err > spiral_rel_tolerance && abs_err > spiral_abs_tolerance),
+         _("Radius to end of arc differs from radius to start: "
+           "start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) "
+           "r1=%.4f r2=%.4f abs_err=%.4g rel_err=%.4f%%"),
+         a,
+         current_x,
+         b,
+         current_y,
+         a,
+         *center_x,
+         b,
+         *center_y,
+         a,
+         end_x,
+         b,
+         end_y,
+         arc_radius,
+         radius2,
+         abs_err,
+         rel_err * 100);
 
-  CHKS(((arc_radius <= tool_radius) && (((side == CUTTER_COMP::LEFT) && (move == G_3)) ||
-                                       ((side == CUTTER_COMP::RIGHT) && (move == G_2)))),
-      NCE_TOOL_RADIUS_NOT_LESS_THAN_ARC_RADIUS_WITH_COMP);
+    CHKS(((arc_radius <= tool_radius) &&
+          (((side == CUTTER_COMP::LEFT) && (move == G_3)) ||
+           ((side == CUTTER_COMP::RIGHT) && (move == G_2)))),
+         NCE_TOOL_RADIUS_NOT_LESS_THAN_ARC_RADIUS_WITH_COMP);
 
-  /* This catches an arc too small for the tool, also */
-  if (move == G_2)
-    *turn = -1 * p_number;
-  else if (move == G_3)
-    *turn = 1 * p_number;
-  else
-    ERS(NCE_BUG_CODE_NOT_G2_OR_G3);
-  return INTERP_OK;
+    /* This catches an arc too small for the tool, also */
+    if (move == G_2)
+        *turn = -1 * p_number;
+    else if (move == G_3)
+        *turn = 1 * p_number;
+    else
+        ERS(NCE_BUG_CODE_NOT_G2_OR_G3);
+    return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -198,31 +227,42 @@ the pin is inside or outside the hoop.
 
 */
 
-int Interp::arc_data_comp_r(int move,    //!< either G_2 (cw arc) or G_3 (ccw arc)
-                           CANON_PLANE plane,
-                           CUTTER_COMP side,    //!< either RIGHT or LEFT
-                           double tool_radius,  //!< radius of the tool
-                           double current_x,    //!< first coordinate of current point
-                           double current_y,    //!< second coordinate of current point
-                           double end_x,        //!< first coordinate of arc end point
-                           double end_y,        //!< second coordinate of arc end point
-                           double big_radius,   //!< radius of arc
-                           int p_number,
-                           double *center_x,    //!< pointer to first coordinate of center of arc
-                           double *center_y,    //!< pointer to second coordinate of center of arc
-                           int *turn,           //!< pointer to number of full or partial circles CCW
-                           double tolerance)    //!< tolerance of differing radii
+int Interp::arc_data_comp_r(
+    int move, //!< either G_2 (cw arc) or G_3 (ccw arc)
+    CANON_PLANE plane,
+    CUTTER_COMP side,   //!< either RIGHT or LEFT
+    double tool_radius, //!< radius of the tool
+    double current_x,   //!< first coordinate of current point
+    double current_y,   //!< second coordinate of current point
+    double end_x,       //!< first coordinate of arc end point
+    double end_y,       //!< second coordinate of arc end point
+    double big_radius,  //!< radius of arc
+    int p_number,
+    double *center_x, //!< pointer to first coordinate of center of arc
+    double *center_y, //!< pointer to second coordinate of center of arc
+    int *turn,        //!< pointer to number of full or partial circles CCW
+    double tolerance) //!< tolerance of differing radii
 {
-  double abs_radius;            // absolute value of big_radius
+    double abs_radius; // absolute value of big_radius
 
-  abs_radius = fabs(big_radius);
-  CHKS(((abs_radius <= tool_radius) && (((side == CUTTER_COMP::LEFT) && (move == G_3)) ||
-                                       ((side == CUTTER_COMP::RIGHT) && (move == G_2)))),
-      NCE_TOOL_RADIUS_NOT_LESS_THAN_ARC_RADIUS_WITH_COMP);
+    abs_radius = fabs(big_radius);
+    CHKS(((abs_radius <= tool_radius) &&
+          (((side == CUTTER_COMP::LEFT) && (move == G_3)) ||
+           ((side == CUTTER_COMP::RIGHT) && (move == G_2)))),
+         NCE_TOOL_RADIUS_NOT_LESS_THAN_ARC_RADIUS_WITH_COMP);
 
-  return arc_data_r(move, plane, current_x, current_y, end_x, end_y, big_radius, p_number,
-             center_x, center_y, turn, tolerance);
-
+    return arc_data_r(move,
+                      plane,
+                      current_x,
+                      current_y,
+                      end_x,
+                      end_y,
+                      big_radius,
+                      p_number,
+                      center_x,
+                      center_y,
+                      turn,
+                      tolerance);
 }
 
 /****************************************************************************/
@@ -254,60 +294,87 @@ are handled similarly.
 
 */
 
-int Interp::arc_data_ijk(int move,       //!< either G_2 (cw arc) or G_3 (ccw arc)
-                        CANON_PLANE plane,
-                        double current_x,       //!< first coordinate of current point
-                        double current_y,       //!< second coordinate of current point
-                        double end_x,   //!< first coordinate of arc end point
-                        double end_y,   //!< second coordinate of arc end point
-                        int ij_absolute,        //!<how to interpret i/j numbers
-                        double i_number,        //!<first coordinate of center (abs or incr)
-                        double j_number,        //!<second coordinate of center (abs or incr)
-                        int p_number,
-                        double *center_x,       //!< pointer to first coordinate of center of arc
-                        double *center_y,       //!< pointer to second coordinate of center of arc
-                        int *turn,      //!< pointer to no. of full or partial circles CCW
-                        double radius_tolerance, //!<minimum radius tolerance
-                        double spiral_abs_tolerance,  //!<tolerance of start and end radius difference
-                        double spiral_rel_tolerance)
+int Interp::arc_data_ijk(
+    int move, //!< either G_2 (cw arc) or G_3 (ccw arc)
+    CANON_PLANE plane,
+    double current_x, //!< first coordinate of current point
+    double current_y, //!< second coordinate of current point
+    double end_x,     //!< first coordinate of arc end point
+    double end_y,     //!< second coordinate of arc end point
+    int ij_absolute,  //!<how to interpret i/j numbers
+    double i_number,  //!<first coordinate of center (abs or incr)
+    double j_number,  //!<second coordinate of center (abs or incr)
+    int p_number,
+    double *center_x,        //!< pointer to first coordinate of center of arc
+    double *center_y,        //!< pointer to second coordinate of center of arc
+    int *turn,               //!< pointer to no. of full or partial circles CCW
+    double radius_tolerance, //!<minimum radius tolerance
+    double
+        spiral_abs_tolerance, //!<tolerance of start and end radius difference
+    double spiral_rel_tolerance)
 {
-  double radius;                /* radius to current point */
-  double radius2;               /* radius to end point     */
-  char a = arc_axis1(plane), b = arc_axis2(plane);
+    double radius;  /* radius to current point */
+    double radius2; /* radius to end point     */
+    char a = arc_axis1(plane), b = arc_axis2(plane);
 
-  if ( ij_absolute ) {
-    *center_x = (i_number);
-    *center_y = (j_number);
-  } else {
-    *center_x = (current_x + i_number);
-    *center_y = (current_y + j_number);
-  }
-  radius = hypot((*center_x - current_x), (*center_y - current_y));
-  radius2 = hypot((*center_x - end_x), (*center_y - end_y));
-  CHKS(((radius < radius_tolerance) || (radius2 < radius_tolerance)),_("Zero-radius arc: "
-       "start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) r1=%.4f r2=%.4f"),
-       a, current_x, b, current_y,
-       a, *center_x, b, *center_y,
-       a, end_x, b, end_y, radius, radius2);
-  double abs_err = fabs(radius - radius2);
-  double rel_err = abs_err / std::max(radius, radius2);
-  CHKS((abs_err > spiral_abs_tolerance * 100.0) ||
-          (rel_err > spiral_rel_tolerance && abs_err > spiral_abs_tolerance),
-      _("Radius to end of arc differs from radius to start: "
-       "start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) "
-       "r1=%.4f r2=%.4f abs_err=%.4g rel_err=%.4f%%"),
-       a, current_x, b, current_y, 
-       a, *center_x, b, *center_y, 
-       a, end_x, b, end_y, radius, radius2,
-       abs_err, rel_err*100);
+    if (ij_absolute) {
+        *center_x = (i_number);
+        *center_y = (j_number);
+    } else {
+        *center_x = (current_x + i_number);
+        *center_y = (current_y + j_number);
+    }
+    radius = hypot((*center_x - current_x), (*center_y - current_y));
+    radius2 = hypot((*center_x - end_x), (*center_y - end_y));
+    CHKS(((radius < radius_tolerance) || (radius2 < radius_tolerance)),
+         _("Zero-radius arc: "
+           "start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) "
+           "r1=%.4f r2=%.4f"),
+         a,
+         current_x,
+         b,
+         current_y,
+         a,
+         *center_x,
+         b,
+         *center_y,
+         a,
+         end_x,
+         b,
+         end_y,
+         radius,
+         radius2);
+    double abs_err = fabs(radius - radius2);
+    double rel_err = abs_err / std::max(radius, radius2);
+    CHKS((abs_err > spiral_abs_tolerance * 100.0) ||
+             (rel_err > spiral_rel_tolerance && abs_err > spiral_abs_tolerance),
+         _("Radius to end of arc differs from radius to start: "
+           "start=(%c%.4f,%c%.4f) center=(%c%.4f,%c%.4f) end=(%c%.4f,%c%.4f) "
+           "r1=%.4f r2=%.4f abs_err=%.4g rel_err=%.4f%%"),
+         a,
+         current_x,
+         b,
+         current_y,
+         a,
+         *center_x,
+         b,
+         *center_y,
+         a,
+         end_x,
+         b,
+         end_y,
+         radius,
+         radius2,
+         abs_err,
+         rel_err * 100);
 
-  if (move == G_2)
-    *turn = -1 * p_number;
-  else if (move == G_3)
-    *turn = 1 * p_number;
-  else
-    ERS(NCE_BUG_CODE_NOT_G2_OR_G3);
-  return INTERP_OK;
+    if (move == G_2)
+        *turn = -1 * p_number;
+    else if (move == G_3)
+        *turn = 1 * p_number;
+    else
+        ERS(NCE_BUG_CODE_NOT_G2_OR_G3);
+    return INTERP_OK;
 }
 
 /****************************************************************************/
@@ -346,48 +413,49 @@ of the arc lies on a line through M perpendicular to L.
 
 */
 
-int Interp::arc_data_r(int move, //!< either G_2 (cw arc) or G_3 (ccw arc)
-                      CANON_PLANE /*plane*/,
-                      double current_x, //!< first coordinate of current point
-                      double current_y, //!< second coordinate of current point
-                      double end_x,     //!< first coordinate of arc end point
-                      double end_y,     //!< second coordinate of arc end point
-                      double radius,    //!< radius of arc
-                      int p_number,
-                      double *center_x, //!< pointer to first coordinate of center of arc
-                      double *center_y, //!< pointer to second coordinate of center of arc
-                      int *turn,        //!< pointer to number of full or partial circles CCW
-                      double tolerance) //!< tolerance of differing radii
+int Interp::arc_data_r(
+    int move, //!< either G_2 (cw arc) or G_3 (ccw arc)
+    CANON_PLANE /*plane*/,
+    double current_x, //!< first coordinate of current point
+    double current_y, //!< second coordinate of current point
+    double end_x,     //!< first coordinate of arc end point
+    double end_y,     //!< second coordinate of arc end point
+    double radius,    //!< radius of arc
+    int p_number,
+    double *center_x, //!< pointer to first coordinate of center of arc
+    double *center_y, //!< pointer to second coordinate of center of arc
+    int *turn,        //!< pointer to number of full or partial circles CCW
+    double tolerance) //!< tolerance of differing radii
 {
-  double abs_radius;            /* absolute value of given radius */
-  double half_length;           /* distance from M to end point   */
-  double mid_x;                 /* first coordinate of M          */
-  double mid_y;                 /* second coordinate of M         */
-  double offset;                /* distance from M to center      */
-  double theta;                 /* angle of line from M to center */
-  double turn2;                 /* absolute value of half of turn */
+    double abs_radius;  /* absolute value of given radius */
+    double half_length; /* distance from M to end point   */
+    double mid_x;       /* first coordinate of M          */
+    double mid_y;       /* second coordinate of M         */
+    double offset;      /* distance from M to center      */
+    double theta;       /* angle of line from M to center */
+    double turn2;       /* absolute value of half of turn */
 
-  CHKS(((end_x == current_x) && (end_y == current_y)),
-      NCE_CURRENT_POINT_SAME_AS_END_POINT_OF_ARC);
-  abs_radius = fabs(radius);
-  mid_x = (end_x + current_x) / 2.0;
-  mid_y = (end_y + current_y) / 2.0;
-  half_length = hypot((mid_x - end_x), (mid_y - end_y));
-  CHKS(((half_length - abs_radius) > tolerance),
-      NCE_ARC_RADIUS_TOO_SMALL_TO_REACH_END_POINT);
-  if ((half_length / abs_radius) > (1 - TINY))
-    half_length = abs_radius;   /* allow a small error for semicircle */
-  /* check needed before calling asin   */
-  if (((move == G_2) && (radius > 0)) || ((move == G_3) && (radius < 0)))
-    theta = atan2((end_y - current_y), (end_x - current_x)) - M_PI_2l;
-  else
-    theta = atan2((end_y - current_y), (end_x - current_x)) + M_PI_2l;
+    CHKS(((end_x == current_x) && (end_y == current_y)),
+         NCE_CURRENT_POINT_SAME_AS_END_POINT_OF_ARC);
+    abs_radius = fabs(radius);
+    mid_x = (end_x + current_x) / 2.0;
+    mid_y = (end_y + current_y) / 2.0;
+    half_length = hypot((mid_x - end_x), (mid_y - end_y));
+    CHKS(((half_length - abs_radius) > tolerance),
+         NCE_ARC_RADIUS_TOO_SMALL_TO_REACH_END_POINT);
+    if ((half_length / abs_radius) > (1 - TINY))
+        half_length = abs_radius; /* allow a small error for semicircle */
+    /* check needed before calling asin   */
+    if (((move == G_2) && (radius > 0)) || ((move == G_3) && (radius < 0)))
+        theta = atan2((end_y - current_y), (end_x - current_x)) - M_PI_2l;
+    else
+        theta = atan2((end_y - current_y), (end_x - current_x)) + M_PI_2l;
 
-  turn2 = asin(half_length / abs_radius);
-  offset = abs_radius * cos(turn2);
-  *center_x = mid_x + (offset * cos(theta));
-  *center_y = mid_y + (offset * sin(theta));
-  *turn = (move == G_2) ? -1 * p_number : 1 * p_number;
+    turn2 = asin(half_length / abs_radius);
+    offset = abs_radius * cos(turn2);
+    *center_x = mid_x + (offset * cos(theta));
+    *center_y = mid_y + (offset * sin(theta));
+    *turn = (move == G_2) ? -1 * p_number : 1 * p_number;
 
-  return INTERP_OK;
+    return INTERP_OK;
 }

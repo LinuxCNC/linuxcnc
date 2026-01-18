@@ -13,10 +13,10 @@
 * Last change: 
 ********************************************************************/
 
-#include "cms.hh"		// class CMS
-#include "posemath.h"		// POSEMATH classes
+#include "cms.hh"     // class CMS
+#include "posemath.h" // POSEMATH classes
 // translation types
-CMS_STATUS CMS::update(PM_CARTESIAN & Cart)
+CMS_STATUS CMS::update(PM_CARTESIAN &Cart)
 {
     update(Cart.x);
     update(Cart.y);
@@ -24,16 +24,16 @@ CMS_STATUS CMS::update(PM_CARTESIAN & Cart)
     return (status);
 }
 
-CMS_STATUS CMS::update(PM_CARTESIAN * x, int n)
+CMS_STATUS CMS::update(PM_CARTESIAN *x, int n)
 {
     int i;
     for (i = 0; i < n; i++) {
-	update(x[i]);
+        update(x[i]);
     }
     return (status);
 }
 
-CMS_STATUS CMS::update(PM_SPHERICAL & Sph)
+CMS_STATUS CMS::update(PM_SPHERICAL &Sph)
 {
     update(Sph.theta);
     update(Sph.phi);
@@ -41,16 +41,16 @@ CMS_STATUS CMS::update(PM_SPHERICAL & Sph)
     return (status);
 }
 
-CMS_STATUS CMS::update(PM_SPHERICAL * x, int n)
+CMS_STATUS CMS::update(PM_SPHERICAL *x, int n)
 {
     int i;
     for (i = 0; i < n; i++) {
-	update(x[i]);
+        update(x[i]);
     }
     return (status);
 }
 
-CMS_STATUS CMS::update(PM_CYLINDRICAL & Cyl)
+CMS_STATUS CMS::update(PM_CYLINDRICAL &Cyl)
 {
     update(Cyl.theta);
     update(Cyl.r);
@@ -58,17 +58,17 @@ CMS_STATUS CMS::update(PM_CYLINDRICAL & Cyl)
     return (status);
 }
 
-CMS_STATUS CMS::update(PM_CYLINDRICAL * x, int n)
+CMS_STATUS CMS::update(PM_CYLINDRICAL *x, int n)
 {
     int i;
     for (i = 0; i < n; i++) {
-	update(x[i]);
+        update(x[i]);
     }
     return (status);
 }
 
-  // rotation types
-CMS_STATUS CMS::update(PM_ROTATION_VECTOR & Rot)
+// rotation types
+CMS_STATUS CMS::update(PM_ROTATION_VECTOR &Rot)
 {
     update(Rot.s);
     update(Rot.x);
@@ -77,16 +77,16 @@ CMS_STATUS CMS::update(PM_ROTATION_VECTOR & Rot)
     return (status);
 }
 
-CMS_STATUS CMS::update(PM_ROTATION_VECTOR * x, int n)
+CMS_STATUS CMS::update(PM_ROTATION_VECTOR *x, int n)
 {
     int i;
     for (i = 0; i < n; i++) {
-	update(x[i]);
+        update(x[i]);
     }
     return (status);
 }
 
-CMS_STATUS CMS::update(PM_ROTATION_MATRIX & Mat)
+CMS_STATUS CMS::update(PM_ROTATION_MATRIX &Mat)
 {
     update(Mat.x);
     update(Mat.y);
@@ -94,16 +94,16 @@ CMS_STATUS CMS::update(PM_ROTATION_MATRIX & Mat)
     return (status);
 }
 
-CMS_STATUS CMS::update(PM_ROTATION_MATRIX * x, int n)
+CMS_STATUS CMS::update(PM_ROTATION_MATRIX *x, int n)
 {
     int i;
     for (i = 0; i < n; i++) {
-	update(x[i]);
+        update(x[i]);
     }
     return (status);
 }
 
-CMS_STATUS CMS::update(PM_QUATERNION & Quat)
+CMS_STATUS CMS::update(PM_QUATERNION &Quat)
 {
     update(Quat.s);
     update(Quat.x);
@@ -112,16 +112,16 @@ CMS_STATUS CMS::update(PM_QUATERNION & Quat)
     return (status);
 }
 
-CMS_STATUS CMS::update(PM_QUATERNION * x, int n)
+CMS_STATUS CMS::update(PM_QUATERNION *x, int n)
 {
     int i;
     for (i = 0; i < n; i++) {
-	update(x[i]);
+        update(x[i]);
     }
     return (status);
 }
 
-CMS_STATUS CMS::update(PM_EULER_ZYZ & Zyz)
+CMS_STATUS CMS::update(PM_EULER_ZYZ &Zyz)
 {
     update(Zyz.z);
     update(Zyz.y);
@@ -129,16 +129,16 @@ CMS_STATUS CMS::update(PM_EULER_ZYZ & Zyz)
     return (status);
 }
 
-CMS_STATUS CMS::update(PM_EULER_ZYZ * x, int n)
+CMS_STATUS CMS::update(PM_EULER_ZYZ *x, int n)
 {
     int i;
     for (i = 0; i < n; i++) {
-	update(x[i]);
+        update(x[i]);
     }
     return (status);
 }
 
-CMS_STATUS CMS::update(PM_EULER_ZYX & Zyx)
+CMS_STATUS CMS::update(PM_EULER_ZYX &Zyx)
 {
     update(Zyx.z);
     update(Zyx.y);
@@ -146,16 +146,16 @@ CMS_STATUS CMS::update(PM_EULER_ZYX & Zyx)
     return (status);
 }
 
-CMS_STATUS CMS::update(PM_EULER_ZYX * x, int n)
+CMS_STATUS CMS::update(PM_EULER_ZYX *x, int n)
 {
     int i;
     for (i = 0; i < n; i++) {
-	update(x[i]);
+        update(x[i]);
     }
     return (status);
 }
 
-CMS_STATUS CMS::update(PM_RPY & Rpy)
+CMS_STATUS CMS::update(PM_RPY &Rpy)
 {
     update(Rpy.r);
     update(Rpy.p);
@@ -163,44 +163,44 @@ CMS_STATUS CMS::update(PM_RPY & Rpy)
     return (status);
 }
 
-CMS_STATUS CMS::update(PM_RPY * x, int n)
+CMS_STATUS CMS::update(PM_RPY *x, int n)
 {
     int i;
     for (i = 0; i < n; i++) {
-	update(x[i]);
+        update(x[i]);
     }
     return (status);
 }
 
-  // pose types
-CMS_STATUS CMS::update(PM_POSE & Pose)
+// pose types
+CMS_STATUS CMS::update(PM_POSE &Pose)
 {
     update(Pose.tran);
     update(Pose.rot);
     return (status);
 }
 
-CMS_STATUS CMS::update(PM_POSE * x, int n)
+CMS_STATUS CMS::update(PM_POSE *x, int n)
 {
     int i;
     for (i = 0; i < n; i++) {
-	update(x[i]);
+        update(x[i]);
     }
     return (status);
 }
 
-CMS_STATUS CMS::update(PM_HOMOGENEOUS & Hom)
+CMS_STATUS CMS::update(PM_HOMOGENEOUS &Hom)
 {
     update(Hom.tran);
     update(Hom.rot);
     return (status);
 }
 
-CMS_STATUS CMS::update(PM_HOMOGENEOUS * x, int n)
+CMS_STATUS CMS::update(PM_HOMOGENEOUS *x, int n)
 {
     int i;
     for (i = 0; i < n; i++) {
-	update(x[i]);
+        update(x[i]);
     }
     return (status);
 }

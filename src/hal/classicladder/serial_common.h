@@ -14,11 +14,10 @@
 //    along with this program; if not, write to the Free Software
 //    Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
-char SerialOpen( );
-void SerialClose( );
-char SerialPortIsOpened( void );
-void SerialSend( char *Buff, int BuffLength );
-void SerialSetResponseSize( int Size, int TimeOutResp );
-int SerialReceive( char * Buff, int MaxBuffLength );
-void SerialPurge( void );
-
+char SerialOpen();
+void SerialClose();
+char SerialPortIsOpened(void);
+void SerialSend(char *Buff, int BuffLength);
+void SerialSetResponseSize(int Size, int TimeOutResp);
+int SerialReceive(char *Buff, int MaxBuffLength);
+void SerialPurge(void);
