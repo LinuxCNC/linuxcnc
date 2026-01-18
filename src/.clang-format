@@ -1,6 +1,6 @@
 BasedOnStyle: LLVM
 #AccessModifierOffset: -4
-AlignAfterOpenBracket: BlockIndent
+AlignAfterOpenBracket: true
 AlignArrayOfStructures: Left
 #AlignConsecutiveAssignments: None
 #AlignConsecutiveBitFields: AcrossComments
@@ -37,7 +37,7 @@ BinPackParameters: false
 #    IndentBraces: false
 #    SplitEmptyFunction: false
 #    SplitEmptyRecord: true
-#BreakBeforeBraces: Custom
+BreakBeforeBraces: Linux
 BreakBeforeBinaryOperators: None
 #BreakBeforeTernaryOperators: true
 #BreakConstructorInitializers: BeforeComma
@@ -72,7 +72,7 @@ SortIncludes: Never
 #SpacesBeforeTrailingComments: 2
 #SpacesInAngles: false
 #SpacesInCStyleCastParentheses: false
-#SpacesInContainerLiterals: false
+SpacesInContainerLiterals: true
 #SpacesInParentheses: false
 #SpacesInSquareBrackets: false
 TabWidth: 4
