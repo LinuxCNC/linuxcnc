@@ -2607,6 +2607,7 @@ class gmoccapy(object):
             self.widgets.ntb_preview.set_property("show-tabs", not state)
             self.widgets.vbx_jog.hide()
             self.widgets.ntb_preview.set_current_page(2)
+            self.widgets.tooledit1.reload(None)
             self.widgets.tooledit1.set_selected_tool(self.stat.tool_in_spindle)
             if self.widgets.chk_use_kb_on_tooledit.get_active():
                 self.widgets.ntb_info.set_current_page(1)
