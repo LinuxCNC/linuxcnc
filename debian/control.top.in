@@ -22,7 +22,6 @@ Build-Depends:
     automake,
     bwidget (>= 1.7),
     desktop-file-utils,
-    gettext,
     intltool,
     libboost-python-dev,
     libepoxy-dev,

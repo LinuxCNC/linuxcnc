@@ -22,7 +22,7 @@ Usage:
 
   Extra options:
 
-    no-docs|nodocs
+    no-docs|nodocs|nodoc|no-doc
         Skip building documentation.
         Debian packaging will not know about documentation to exist at all.
         If configured regularly but with the intent not to build the docs,
@@ -32,7 +32,7 @@ Usage:
         Accepted for compatibility, but now ignored.
 
     -h|--help|help
-	Show this help.
+        Show this help.
 EOF
 }
 
@@ -56,12 +56,12 @@ ENABLE_BUILD_DOCUMENTATION=--enable-build-documentation=pdf
 
 while test $# -ne 0; do
     case "$1" in
-    sim|uspace|noauto) echo "$1 is accepted for compatibility, but ignored";;
+    sim|uspace|noauto) echo "I: Argument $1 is accepted for compatibility, but ignored";;
     help|-h|--help) usage; exit 0 ;;
-    no-docs|nodocs) unset ENABLE_BUILD_DOCUMENTATION ;;
+    no-docs|nodocs|nodoc|no-doc) unset ENABLE_BUILD_DOCUMENTATION ;;
     *)  echo 1>&2 "Unknown option: $1"
         echo 1>&2
-	usage
+        usage
         exit 99 ;;
     esac
     shift
@@ -88,14 +88,14 @@ if [ -n "$ENABLE_BUILD_DOCUMENTATION" ]; then
     
 
     case $DISTRIB_NAME in
-	Debian-9)
-	    ;; # No xetex in Debian 9 Stretch
-	*)
-	    # Not quite sure which packages is needed for xetex, but
-	    # texlive-xetex seem like a safe choice.  Need xetex to be
-	    # able to build Chinese PDF.
-	    DOC_DEPENDS="$DOC_DEPENDS,\n    texlive-xetex"
-	    ;;
+        Debian-9)
+            ;; # No xetex in Debian 9 Stretch
+        *)
+            # Not quite sure which packages is needed for xetex, but
+            # texlive-xetex seem like a safe choice.  Need xetex to be
+            # able to build Chinese PDF.
+            DOC_DEPENDS="$DOC_DEPENDS,\n    texlive-xetex"
+            ;;
     esac
 else
     DOC_DEPENDS=''
@@ -123,9 +123,9 @@ case $DISTRIB_NAME in
     Debian-10|Debian-10.*|Raspbian-10|Raspbian-10.*)
         ;;
     *)
-        echo "unknown distribution: $DISTRIB_NAME"
-        echo "detected dependencies may be incomplete or wrong"
-        echo "please consider fixing it and submitting a pull request"
+        echo "W: Unknown distribution: '$DISTRIB_NAME'."
+        echo "   Detected dependencies may be incomplete or wrong."
+        echo "   Please consider fixing it and submitting a pull request."
         ;;
 esac
 
@@ -221,3 +221,39 @@ else
     echo "   Building of documentation is disabled."
 fi
 echo "   The DEB_BUILD_OPTIONS environment variable also works with dpkg-buildpackage."
+
+if command -v dpkg-checkbuilddeps > /dev/null; then
+
+    a=""
+    if [ -n "$ENABLE_BUILD_DOCUMENTATION" ]; then
+        a=$(cd .. && dpkg-checkbuilddeps 2>&1 || true)
+        if [ -n "$a" ]; then
+            echo "W: To successfully build all of LinuxCNC, install the following build dependencies are mising:"
+        else
+            echo "I: All build dependencies available for complete builds including the documentation."
+        fi
+    else
+        a=$(cd .. && dpkg-checkbuilddeps -B 2>&1 || true)
+        if [ -n "$a" ]; then
+            echo "W: To successfully build the architecture-dependent parts of LinuxCNC, the following build dependencies are mising:"
+        else
+            echo "I: No dependencies missing while not building the documentation."
+        fi
+    fi
+    if [ -n "$a" ]; then
+        # The common part once missing packages have been identified
+        echo -n "    "; echo "$a" | cut -f4 -d:
+        echo "   The missing packages are auto-installed by"
+        echo "     sudo apt build-dep ."
+    fi
+else
+    echo "W: Tool to check build-dependenices not found"
+    echo "   You may want to install it as follows:"
+    echo "     sudo apt install dpkg-dev"
+    echo "   and directly execute it like this:"
+    echo "     dpkg-checkbuilddeps"
+    echo "   or just execute"
+    echo "     sudo apt build-dep ."
+fi
+
+# vim: ts=4
