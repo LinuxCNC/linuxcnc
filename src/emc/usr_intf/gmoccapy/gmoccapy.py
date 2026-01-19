@@ -1997,24 +1997,30 @@ class gmoccapy(object):
         btn_delete.set_size_request(56, 56)
         btn_delete.set_label("")
         btn_delete.set_image(self.widgets.img_tool_delete)
+        btn_delete.set_tooltip_text(_("Delete selected tools"))
         btn_delete.set_always_show_image(True)
+        btn_delete.disconnect_by_func(self.widgets.tooledit1.delete)
+        btn_delete.connect("clicked",self.on_btn_delete_tool_clicked)
         # Add button
         btn_add = self.widgets.tooledit1.wTree.get_object("add")
         btn_add.set_size_request(56, 56)
         btn_add.set_label("")
         btn_add.set_image(self.widgets.img_tool_add)
+        btn_add.set_tooltip_text(_("Add new tool"))
         btn_add.set_always_show_image(True)
         # Reload button
         btn_reload = self.widgets.tooledit1.wTree.get_object("reload")
         btn_reload.set_size_request(56, 56)
         btn_reload.set_label("")
         btn_reload.set_image(self.widgets.img_tool_reload)
+        btn_reload.set_tooltip_text(_("Reload tool table from file"))
         btn_reload.set_always_show_image(True)
         # Save button
         btn_save = self.widgets.tooledit1.wTree.get_object("apply")
         btn_save.set_size_request(56, 56)
         btn_save.set_label("")
         btn_save.set_image(self.widgets.img_tool_save)
+        btn_save.set_tooltip_text(_("Save tool table to file"))
         btn_save.set_always_show_image(True)
         # Create a label for current tool in spindle
         lbl_tool = Gtk.Label()
@@ -2040,7 +2046,10 @@ class gmoccapy(object):
         self.widgets.tooledit1.set_selected_tool = self.set_selected_tool
 
     def set_selected_tool(self, toolnumber):
-        lbl_tool_text = "Tool loaded: " + str(toolnumber)
+        lbl_tool_text = ""
+        # When using touch keyboard we display the current tool in the tooltable frame
+        if self.widgets.chk_use_kb_on_tooledit.get_active():
+            lbl_tool_text = "Tool loaded: " + str(toolnumber)
         self.widgets.tooledit1.lbl_tool.set_text(lbl_tool_text)
 
     def on_tree_navigate_key_press(self, treeview, event, filter):
@@ -2598,6 +2607,7 @@ class gmoccapy(object):
             self.widgets.ntb_preview.set_property("show-tabs", not state)
             self.widgets.vbx_jog.hide()
             self.widgets.ntb_preview.set_current_page(2)
+            self.widgets.tooledit1.reload(None)
             self.widgets.tooledit1.set_selected_tool(self.stat.tool_in_spindle)
             if self.widgets.chk_use_kb_on_tooledit.get_active():
                 self.widgets.ntb_info.set_current_page(1)
@@ -5436,26 +5446,15 @@ class gmoccapy(object):
             self.halcomp['toolchange-changed'] = False
 
     def on_btn_delete_tool_clicked(self, widget, data=None):
-        act_tool = self.stat.tool_in_spindle
-        if act_tool == self.widgets.tooledit1.get_selected_tool():
+        selected_tools = self.widgets.tooledit1.get_selected_tool()
+        if not isinstance(selected_tools, list):
+            selected_tools = [selected_tools]
+        if self.stat.tool_in_spindle in selected_tools:
             message = _("You are trying to delete the tool mounted in the spindle\n")
             message += _("This is not allowed, please change tool prior to delete it")
             self.dialogs.warning_dialog(self, _("Warning Tool can not be deleted!"), message)
             return
-
-        self.widgets.tooledit1.delete(None)
-        self.widgets.tooledit1.set_selected_tool(act_tool)
-
-    def on_btn_add_tool_clicked(self, widget, data=None):
-        self.widgets.tooledit1.add(None)
-
-    def on_btn_reload_tooltable_clicked(self, widget, data=None):
-        self.widgets.tooledit1.reload(None)
-        self.widgets.tooledit1.set_selected_tool(self.stat.tool_in_spindle)
-
-    def on_btn_save_tool_changes_clicked(self, widget, data=None):
-        self.widgets.tooledit1.save(None)
-        self.widgets.tooledit1.set_selected_tool(self.stat.tool_in_spindle)
+        self.widgets.tooledit1.delete(widget)
 
     def on_btn_tool_touchoff_clicked(self, widget, data=None):
         if not self.widgets.tooledit1.get_selected_tool():
