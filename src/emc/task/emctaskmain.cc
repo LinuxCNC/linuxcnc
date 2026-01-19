@@ -1174,6 +1174,7 @@ static int emcTaskPlan(void)
 		    break;
 
 		case EMC_TASK_PLAN_STEP_TYPE:
+			emcStatus->motion.traj.stepping = 1;
 		    stepping = 1;	// set stepping mode in case it's not
 		    steppingWait = 0;	// clear the wait
 		    break;
@@ -1249,6 +1250,7 @@ static int emcTaskPlan(void)
 		    break;
 
 		case EMC_TASK_PLAN_STEP_TYPE:
+			emcStatus->motion.traj.stepping = 1;
 		    stepping = 1;
 		    steppingWait = 0;
 		    if (emcStatus->motion.traj.paused &&
@@ -1324,6 +1326,7 @@ static int emcTaskPlan(void)
 		    break;
 
 		case EMC_TASK_PLAN_STEP_TYPE:
+			emcStatus->motion.traj.stepping = 1;
 		    stepping = 1;	// set stepping mode in case it's not
 		    steppingWait = 0;	// clear the wait
 		    break;
@@ -2125,6 +2128,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 		// clear out the interpreter state
 		emcStatus->task.interpState = EMC_TASK_INTERP::IDLE;
 		emcStatus->task.execState = EMC_TASK_EXEC::DONE;
+		emcStatus->motion.traj.stepping = 0;
 		stepping = 0;
 		steppingWait = 0;
 
@@ -2219,6 +2223,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	break;
 
     case EMC_TASK_PLAN_EXECUTE_TYPE:
+	emcStatus->motion.traj.stepping = 0;
 	stepping = 0;
 	steppingWait = 0;
 	execute_msg = (EMC_TASK_PLAN_EXECUTE *) cmd;
@@ -2314,6 +2319,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
             retval = -1;
             break;
         }
+	emcStatus->motion.traj.stepping = 0;
 	stepping = 0;
 	steppingWait = 0;
 	if (!taskplanopen && emcStatus->task.file[0] != 0) {
@@ -2362,6 +2368,7 @@ static int emcTaskIssueCommand(NMLmsg * cmd)
 	emcTrajResume();
 	emcStatus->task.interpState = interpResumeState;
 	emcStatus->task.task_paused = 0;
+	emcStatus->motion.traj.stepping = 0;
 	stepping = 0;
 	steppingWait = 0;
 	retval = 0;
@@ -2592,6 +2599,7 @@ static int emcTaskExecute(void)
 	// clear out the interpreter state
 	emcStatus->task.interpState = EMC_TASK_INTERP::IDLE;
 	emcStatus->task.execState = EMC_TASK_EXEC::DONE;
+	emcStatus->motion.traj.stepping = 0;
 	stepping = 0;
 	steppingWait = 0;
 
@@ -3499,6 +3507,7 @@ int main(int argc, char *argv[])
 	    // clear out the interpreter state
 	    emcStatus->task.interpState = EMC_TASK_INTERP::IDLE;
 	    emcStatus->task.execState = EMC_TASK_EXEC::DONE;
+		emcStatus->motion.traj.stepping = 0;
 	    stepping = 0;
 	    steppingWait = 0;
 
