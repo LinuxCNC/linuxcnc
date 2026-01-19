@@ -2054,6 +2054,10 @@ static PyObject *pydraw_lines(PyObject * /*s*/, PyObject *o) {
             if(!first) glEnd();
             return NULL;
         }
+
+        // Suppress cppcheck false positive:
+        // 'first' == 1 when 'pl' is undefined and therefore not a problem.
+        // cppcheck-suppress uninitvar
         if(first || memcmp(p1, pl, sizeof(p1))
                 || (for_selection && n != nl)) {
             if(!first) glEnd();

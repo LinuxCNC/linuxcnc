@@ -114,6 +114,8 @@ int load_nml_config_file(const char *file)
     if (strlen(file) >= 80) {
         rcs_print_error("cms_config: file name too long\n");
         loading_config_file = 0;
+	delete info->lines_list; // info is a struct
+	delete info;
         return -1;
     }
     rtapi_strlcpy(info->file_name, file, 80);
@@ -122,6 +124,7 @@ int load_nml_config_file(const char *file)
     if (fp == NULL) {
 	rcs_print_error("cms_config: can't open '%s'. Error = %d -- %s\n",
 	    file, errno, strerror(errno));
+	delete info->lines_list; // info is a struct
 	delete info;
 	loading_config_file = 0;
 	return -1;
