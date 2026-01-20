@@ -53,14 +53,14 @@ num initial calculation value
 */
 double solute( double a, double b, double c, double d, double num){
   double x ,x0 ,f ,f1;
-  int cnt = 0;
+  //int cnt = 0;
   x = num;
   do{
     x0 = x;
     f = (( a*x0 + b )*x0 + c )*x0 + d;
     f1 = ( 3*a*x0 + 2*b )*x0 + c;
     x = x0 - f / f1;
-    cnt++;
+    //cnt++;
   } while ( fabs( x - x0 ) > 1e-6 );
 
   //printf( "the value is %.14f \r\n", x );
