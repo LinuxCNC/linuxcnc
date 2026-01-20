@@ -930,8 +930,8 @@ int Interp::init()
               _setup.c_indexer_jnum = atol(*inistring);
           }
           inifile.Find(&_setup.orient_offset, "ORIENT_OFFSET", "RS274NGC");
-          inifile.Find(&_setup.parameter_g73_peck_clearance, "PARAMETER_G73_PECK_CLEARANCE", "RS274NGC");
-          inifile.Find(&_setup.parameter_g83_peck_clearance, "PARAMETER_G83_PECK_CLEARANCE", "RS274NGC");
+          inifile.Find(&_setup.parameter_g73_peck_clearance, "G73_PECK_CLEARANCE", "RS274NGC");
+          inifile.Find(&_setup.parameter_g83_peck_clearance, "G83_PECK_CLEARANCE", "RS274NGC");
 
           inifile.Find(&_setup.debugmask, "DEBUG", "EMC");
 
