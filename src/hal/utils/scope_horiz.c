@@ -86,7 +86,6 @@ static void deactivate_sample_thread(void);
 static void mult_changed(GtkAdjustment * adj, gpointer gdata);
 static void zoom_changed(GtkAdjustment * adj, gpointer gdata);
 static void pos_changed(GtkAdjustment * adj, gpointer gdata);
-static void rec_len_button(GtkWidget * widget, gpointer gdata);
 
 static void calc_horiz_scaling(void);
 
@@ -113,6 +112,10 @@ void init_horiz(void)
 {
     /* stop sampling */
     ctrl_shm->state = IDLE;
+    /* always use 16 channels - initialize sample_len and rec_len
+       so sampling works without opening the acquire dialog */
+    ctrl_shm->sample_len = 16;
+    ctrl_shm->rec_len = ctrl_shm->buf_len / 16;
     /* init non-zero members of the horizontal structure */
     /* set up the window */
     init_horiz_window();
@@ -310,10 +313,15 @@ void refresh_state_info(void)
 void write_horiz_config(FILE *fp)
 {
     scope_horiz_t *horiz;
+    int samples_to_save;
 
     horiz = &(ctrl_usr->horiz);
+    /* SAMPLES must be first - it's read early before scope_rt loads */
+    /* save requested_samples if set, otherwise current buf_len */
+    samples_to_save = (horiz->requested_samples > 0) ?
+	horiz->requested_samples : ctrl_shm->buf_len;
+    fprintf(fp, "SAMPLES %d\n", samples_to_save);
     fprintf(fp, "THREAD %s\n", horiz->thread_name);
-    fprintf(fp, "MAXCHAN %d\n", ctrl_shm->sample_len);
     fprintf(fp, "HMULT %d\n", ctrl_shm->mult);
     fprintf(fp, "HZOOM %d\n", horiz->zoom_setting);
     fprintf(fp, "HPOS %e\n", horiz->pos_setting);
@@ -340,33 +348,11 @@ int set_sample_thread(char *name)
 
 int set_rec_len(int setting)
 {
-    int count, n;
-
-    switch ( setting ) {
-    case 1:
-    case 2:
-    case 4:
-    case 8:
-    case 16:
-	/* acceptable value */
-	break;
-    default:
-	/* bad value */
-	return -1;
-    }
-    /* count enabled channels */
-    count = 0;
-    for (n = 0; n < 16; n++) {
-	if (ctrl_usr->vert.chan_enabled[n]) {
-	    count++;
-	}
-    }
-    if (count > setting) {
-	/* too many channels already enabled */
-	return -1;
-    }
-    ctrl_shm->sample_len = setting;
-    ctrl_shm->rec_len = ctrl_shm->buf_len / ctrl_shm->sample_len;
+    /* This function is kept for backwards compatibility */
+    /* We now always use 16 channels, setting is ignored */
+    (void)setting;
+    ctrl_shm->sample_len = 16;
+    ctrl_shm->rec_len = ctrl_shm->buf_len / 16;
     calc_horiz_scaling();
     refresh_horiz_info();
     return 0;
@@ -507,7 +493,6 @@ static void dialog_realtime_not_linked(void)
     GtkWidget *hbox, *label;
     GtkWidget *content_area;
     GtkWidget *dialog;
-    GtkWidget *buttons[5];
     GtkWidget *scrolled_window;
     GtkTreeSelection *selection;
 
@@ -653,65 +638,31 @@ static void dialog_realtime_not_linked(void)
     gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
             gtk_separator_new(GTK_ORIENTATION_HORIZONTAL), FALSE, FALSE , 0);
 
-    /* box for record length buttons */
-    label = gtk_label_new(_("Record Length"));
+    /* Samples setting - all 16 channels always available */
+    hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 5);
+    gtk_box_set_homogeneous(GTK_BOX(hbox), TRUE);
+    gtk_label_new_in_box(_("Samples (16 channels):"), hbox, FALSE, FALSE, 0);
+    /* initialize requested_samples from current if not set */
+    if (horiz->requested_samples <= 0) {
+	horiz->requested_samples = ctrl_shm->buf_len;
+    }
+    horiz->samples_adj = gtk_adjustment_new(horiz->requested_samples,
+	SCOPE_NUM_SAMPLES_MIN, SCOPE_NUM_SAMPLES_MAX, 1000, 10000, 0);
+    horiz->samples_spinbutton =
+	gtk_spin_button_new(GTK_ADJUSTMENT(horiz->samples_adj), 1000, 0);
+    gtk_box_pack_start(GTK_BOX(hbox), horiz->samples_spinbutton, FALSE, TRUE, 0);
     gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
-            label, TRUE, TRUE, 0);
+            hbox, FALSE, TRUE, 0);
+    /* show current record length info */
+    snprintf(buf, BUFLEN, _("Current: %d samples (%d per channel)"),
+	ctrl_shm->buf_len, ctrl_shm->buf_len / 16);
+    label = gtk_label_new(buf);
+    gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
+            label, FALSE, TRUE, 0);
 
-    /* now define the radio buttons */
-    snprintf(buf, BUFLEN, _("%5d samples (1 channel)"), ctrl_shm->buf_len);
-    buttons[0] = gtk_radio_button_new_with_label(NULL, buf);
-    snprintf(buf, BUFLEN, _("%5d samples (2 channels)"), ctrl_shm->buf_len / 2);
-    buttons[1] =
-	gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(buttons
-	    [0]), buf);
-    snprintf(buf, BUFLEN, _("%5d samples (4 channels)"), ctrl_shm->buf_len / 4);
-    buttons[2] =
-	gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(buttons
-	    [0]), buf);
-    snprintf(buf, BUFLEN, _("%5d samples (8 channels)"), ctrl_shm->buf_len / 8);
-    buttons[3] =
-	gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(buttons
-	    [0]), buf);
-    snprintf(buf, BUFLEN, _("%5d samples (16 channels)"),
-	ctrl_shm->buf_len / 16);
-    buttons[4] =
-	gtk_radio_button_new_with_label_from_widget(GTK_RADIO_BUTTON(buttons
-	    [0]), buf);
-    /* now put them into the box and make visible */
-    for (n = 0; n < 5; n++) {
-        gtk_box_pack_start(GTK_BOX(GTK_CONTAINER(content_area)),
-                buttons[n], FALSE, FALSE, 0);
-    }
-    /* determine which button should be pressed by default */
-    if (ctrl_shm->sample_len == 1) {
-	n = 0;
-    } else if (ctrl_shm->sample_len == 2) {
-	n = 1;
-    } else if (ctrl_shm->sample_len == 4) {
-	n = 2;
-    } else if (ctrl_shm->sample_len == 8) {
-	n = 3;
-    } else if (ctrl_shm->sample_len == 16) {
-	n = 4;
-    } else {
-	n = 2;
-	ctrl_shm->sample_len = 4;
-	ctrl_shm->rec_len = ctrl_shm->buf_len / ctrl_shm->sample_len;
-    }
-    /* set the default button */
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(buttons[n]), TRUE);
-    /* set up callbacks for the buttons */
-    g_signal_connect(buttons[0], "clicked",
-	G_CALLBACK(rec_len_button), (gpointer) 1);
-    g_signal_connect(buttons[1], "clicked",
-	G_CALLBACK(rec_len_button), (gpointer) 2);
-    g_signal_connect(buttons[2], "clicked",
-	G_CALLBACK(rec_len_button), (gpointer) 4);
-    g_signal_connect(buttons[3], "clicked",
-	G_CALLBACK(rec_len_button), (gpointer) 8);
-    g_signal_connect(buttons[4], "clicked",
-	G_CALLBACK(rec_len_button), (gpointer) 16);
+    /* always use 16 channels */
+    ctrl_shm->sample_len = 16;
+    ctrl_shm->rec_len = ctrl_shm->buf_len / 16;
 
     /* was a thread previously used? */
     if (sel_row > -1) {
@@ -721,6 +672,31 @@ static void dialog_realtime_not_linked(void)
     gtk_widget_show_all(dialog);
 
     retval = gtk_dialog_run(GTK_DIALOG(dialog));
+
+    /* save requested samples before destroying dialog */
+    if (retval == GTK_RESPONSE_OK) {
+	int new_samples = gtk_spin_button_get_value_as_int(
+	    GTK_SPIN_BUTTON(horiz->samples_spinbutton));
+	horiz->requested_samples = new_samples;
+	if (new_samples != ctrl_shm->buf_len) {
+	    /* samples changed, show restart message */
+	    GtkWidget *info_dialog = gtk_message_dialog_new(
+		GTK_WINDOW(ctrl_usr->main_win),
+		GTK_DIALOG_MODAL,
+		GTK_MESSAGE_INFO,
+		GTK_BUTTONS_OK,
+		_("Sample count changed"));
+	    gtk_message_dialog_format_secondary_text(
+		GTK_MESSAGE_DIALOG(info_dialog),
+		_("The new sample count (%d) will take effect\n"
+		"the next time halscope is started.\n\n"
+		"The setting has been saved to the configuration file."),
+		new_samples);
+	    gtk_dialog_run(GTK_DIALOG(info_dialog));
+	    gtk_widget_destroy(info_dialog);
+	}
+    }
+
     gtk_widget_destroy(dialog);
 
     /* these items no longer exist - NULL them */
@@ -730,6 +706,8 @@ static void dialog_realtime_not_linked(void)
     horiz->sample_period_label = NULL;
     horiz->mult_adj = NULL;
     horiz->mult_spinbutton = NULL;
+    horiz->samples_adj = NULL;
+    horiz->samples_spinbutton = NULL;
 
     /* we get here when the user hits OK or Quit */
     if (retval == GTK_RESPONSE_CLOSE) {
@@ -963,32 +941,6 @@ static void pos_changed(GtkAdjustment * adj, gpointer gdata)
     set_horiz_pos(gtk_adjustment_get_value(adj) / 1000.0);
 }
 
-static void rec_len_button(GtkWidget * widget, gpointer gdata)
-{
-    int retval;
-    GtkWidget *dialog;
-
-    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)) != TRUE) {
-	/* not pressed, ignore it */
-	return;
-    }
-    retval = set_rec_len((long)gdata);
-    if (retval < 0) {
-	/* too many channels already enabled */
-        dialog = gtk_message_dialog_new(GTK_WINDOW(ctrl_usr->main_win),
-                                        GTK_DIALOG_MODAL,
-                                        GTK_MESSAGE_INFO,
-                                        GTK_BUTTONS_OK,
-                                        _("Not enough channels"));
-        gtk_message_dialog_format_secondary_text(
-                GTK_MESSAGE_DIALOG(dialog),
-                _("This record length cannot handle the channels\n"
-                "that are currently enabled.  Pick a shorter\n"
-                "record length that supports more channels."));
-        gtk_dialog_run(GTK_DIALOG(dialog));
-        gtk_widget_destroy(dialog);
-    }
-}
 
 static void calc_horiz_scaling(void)
 {

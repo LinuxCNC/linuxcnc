@@ -89,6 +89,19 @@ int rtapi_app_main(void)
 	rtapi_print_msg(RTAPI_MSG_ERR, "SCOPE: ERROR: hal_init() failed\n");
 	return -1;
     }
+    /* sanity check num_samples */
+    if (num_samples < SCOPE_NUM_SAMPLES_MIN) {
+	rtapi_print_msg(RTAPI_MSG_WARN,
+	    "SCOPE_RT: num_samples %ld too small, using %d\n",
+	    num_samples, SCOPE_NUM_SAMPLES_MIN);
+	num_samples = SCOPE_NUM_SAMPLES_MIN;
+    }
+    if (num_samples > SCOPE_NUM_SAMPLES_MAX) {
+	rtapi_print_msg(RTAPI_MSG_WARN,
+	    "SCOPE_RT: num_samples %ld too large, using %d\n",
+	    num_samples, SCOPE_NUM_SAMPLES_MAX);
+	num_samples = SCOPE_NUM_SAMPLES_MAX;
+    }
     /* connect to scope shared memory block */
     skip = (sizeof(scope_shm_control_t) + 3) & ~3;
     shm_size = skip + num_samples * sizeof(scope_data_t);

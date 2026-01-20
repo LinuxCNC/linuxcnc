@@ -99,6 +99,28 @@ static void exit_on_signal(int signum) {
     exit_from_hal();
     exit(1);
 }
+
+/* Read just the SAMPLES value from config file before loading scope_rt */
+static int read_samples_from_config(const char *filename)
+{
+    FILE *fp;
+    char buf[100];
+    int samples = 0;
+
+    fp = fopen(filename, "r");
+    if (fp == NULL) {
+	return 0;  /* file doesn't exist, use default */
+    }
+    while (fgets(buf, sizeof(buf), fp) != NULL) {
+	if (strncasecmp(buf, "SAMPLES ", 8) == 0) {
+	    samples = atoi(buf + 8);
+	    break;
+	}
+    }
+    fclose(fp);
+    return samples;
+}
+
 /***********************************************************************
 *                        MAIN() FUNCTION                               *
 ************************************************************************/
@@ -141,9 +163,30 @@ int main(int argc, gchar * argv[])
             break;
         }
     }
-    if(argc > optind) num_samples = atoi(argv[argc-1]);
+    /* first try to read samples from config file */
+    num_samples = read_samples_from_config(ifilename);
+    /* command line num_samples overrides config file, but only if it's a valid number */
+    if(argc > optind) {
+	int cmdline_samples = atoi(argv[optind]);
+	if(cmdline_samples > 0) {
+	    num_samples = cmdline_samples;
+	}
+    }
+    /* apply defaults and bounds */
     if(num_samples <= 0)
 	num_samples = SCOPE_NUM_SAMPLES_DEFAULT;
+    if(num_samples < SCOPE_NUM_SAMPLES_MIN) {
+	rtapi_print_msg(RTAPI_MSG_WARN,
+	    "SCOPE: num_samples %d too small, using %d\n",
+	    num_samples, SCOPE_NUM_SAMPLES_MIN);
+	num_samples = SCOPE_NUM_SAMPLES_MIN;
+    }
+    if(num_samples > SCOPE_NUM_SAMPLES_MAX) {
+	rtapi_print_msg(RTAPI_MSG_WARN,
+	    "SCOPE: num_samples %d too large, using %d\n",
+	    num_samples, SCOPE_NUM_SAMPLES_MAX);
+	num_samples = SCOPE_NUM_SAMPLES_MAX;
+    }
 
     /* connect to the HAL */
     comp_id = hal_init("halscope");
@@ -161,6 +204,10 @@ int main(int argc, gchar * argv[])
 	    hal_exit(comp_id);
 	    exit(1);
 	}
+    } else {
+	/* scope_rt already loaded - we'll check if sample count matches later */
+	rtapi_print_msg(RTAPI_MSG_DBG,
+	    "SCOPE: scope_rt already loaded, requested %d samples\n", num_samples);
     }
     /* set up a shared memory region for the scope data */
     shm_id = rtapi_shmem_new(SCOPE_SHM_KEY, comp_id, sizeof(scope_shm_control_t));
@@ -190,6 +237,16 @@ int main(int argc, gchar * argv[])
     /* init control structure */
     ctrl_usr = &ctrl_struct;
     init_usr_control_struct(shm_base);
+
+    /* check if loaded scope_rt has different sample count than requested */
+    if (ctrl_shm->buf_len != num_samples) {
+	rtapi_print_msg(RTAPI_MSG_WARN,
+	    "SCOPE: scope_rt was loaded with %d samples, but config requested %d.\n"
+	    "To change sample count, unload scope_rt first or restart LinuxCNC.\n",
+	    ctrl_shm->buf_len, num_samples);
+    }
+    /* store requested samples for saving to config */
+    ctrl_usr->horiz.requested_samples = num_samples;
 
     /* init watchdog */
     ctrl_shm->watchdog = 10;
@@ -626,9 +683,9 @@ static void define_scope_windows(void)
 {
     GtkWidget *vbox, *hbox, *vboxtop, *vboxbottom, *vboxleft, *vboxright, *hboxright;
 
-    /* create main window, set its minimum size and title */
+    /* create main window, set its default size and title */
     ctrl_usr->main_win = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    gtk_widget_set_size_request(GTK_WIDGET(ctrl_usr->main_win), 650, 400);
+    gtk_window_set_default_size(GTK_WINDOW(ctrl_usr->main_win), 1050, 550);
     gtk_window_set_title(GTK_WINDOW(ctrl_usr->main_win), _("HAL Oscilloscope"));
 
     /* top level - big vbox, menu above, everything else below */

@@ -144,8 +144,11 @@ static char *rmode_cmd(void * arg);
 *                         LOCAL VARIABLES                              *
 ************************************************************************/
 
-static const cmd_lut_entry_t cmd_lut[25] =
+static char *samples_cmd(void * arg);
+
+static const cmd_lut_entry_t cmd_lut[26] =
 {
+  { "samples",	INT,	samples_cmd },
   { "thread",	STRING,	thread_cmd },
   { "maxchan",	INT,	maxchan_cmd },
   { "hmult",	INT,	hmult_cmd },
@@ -453,13 +456,19 @@ static char *thread_cmd(void * arg)
 
 static char *maxchan_cmd(void * arg)
 {
-    int *argp, rv;
+    /* maxchan is now ignored - we always use 16 channels */
+    /* kept for backwards compatibility with old config files */
+    (void)arg;
+    return NULL;
+}
 
+static char *samples_cmd(void * arg)
+{
+    int *argp;
+    /* SAMPLES is handled early in main() before scope_rt is loaded */
+    /* Here we just store it in requested_samples so it gets saved back */
     argp = (int *)(arg);
-    rv = set_rec_len(*argp);
-    if ( rv < 0 ) {
-	return "could not set record length";
-    }
+    ctrl_usr->horiz.requested_samples = *argp;
     return NULL;
 }
 

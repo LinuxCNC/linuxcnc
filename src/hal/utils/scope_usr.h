@@ -77,6 +77,9 @@ typedef struct {
     GtkWidget *sample_period_label;
     GtkAdjustment *mult_adj;
     GtkWidget *mult_spinbutton;
+    GtkAdjustment *samples_adj;
+    GtkWidget *samples_spinbutton;
+    int requested_samples;	/* samples requested for next restart */
 } scope_horiz_t;
 
 /* this struct holds control data related to a single channel */
