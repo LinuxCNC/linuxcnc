@@ -2052,8 +2052,15 @@ class gmoccapy(object):
                     temp.connect('editing-started', self.on_tool_col_edit_started, col)
                 temp.connect('edited', self.on_tool_col_edited)
         self.widgets.tooledit1.edited = False
-        # override 'tooledit_widget' method 'set_selected_tool'
+        # override 'tooledit_widget' method 'set_selected_tool' so we can set the label text
         self.widgets.tooledit1.set_selected_tool = self.set_selected_tool
+        # override 'tooledit_widget' method 'toolfile_stale' so we can also update toolinfo
+        self.widgets.tooledit1.toolfile_stale = self.toolfile_stale
+
+    def toolfile_stale(self):
+        self._update_toolinfo(self.widgets.tooledit1.toolinfo_num)
+        self.widgets.tooledit1.reload(None)
+        self.widgets.tooledit1.set_selected_tool(self.widgets.tooledit1.toolinfo_num)
 
     def set_selected_tool(self, toolnumber):
         lbl_tool_text = "Tool loaded: " + str(toolnumber)
