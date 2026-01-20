@@ -20,7 +20,7 @@
 //
 // Register map:
 //
-// OutM: Simple output module to allow renumbering pins and simplyfying hal setup
+// OutM: Simple output module to allow renumbering pins and simplifying hal setup
 // both have debounce filtering with an option of long or
 // short time on a per input basis. Up to 4 MPG encoder counters are provided
 //
@@ -89,7 +89,7 @@ int hm2_outm_parse_md(hostmot2_t *hm2, int md_index) {
     {
         int inst;
         for (inst = 0; inst < hm2->outm.num_instances; inst ++) {
-            int out;
+            unsigned out;
             for (
                 out = 0;
                 out < sizeof(hm2->outm.instance[0].hal.pin.out)/sizeof(hm2->outm.instance[0].hal.pin.out[0]);

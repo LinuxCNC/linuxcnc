@@ -109,12 +109,14 @@ static char *stopstrings[] = {"1", "2", NULL};
 
 
 static void quit(int sig) {
+    (void)sig;
     done = 1;
 }
 
 
 int match_string(char *string, char **matches) {
-    int len, which, match;
+    size_t len;
+    int which, match;
     which=0;
     match=-1;
     if ((matches==NULL) || (string==NULL)) return -1;
@@ -131,6 +133,7 @@ int match_string(char *string, char **matches) {
 
 
 void usage(int argc, char **argv) {
+    (void)argc;
     printf("Usage:  %s [ARGUMENTS]\n", argv[0]);
     printf(
         "\n"

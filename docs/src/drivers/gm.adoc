@@ -406,7 +406,7 @@ Currently GM produced power amplifiers has upper level driver which export pins 
 They receive position reference and provide encoder feedback via CAN bus.
 
 The frames are standard (11 bit) ID frames, with 4 byte data length.
-The BAUD rate is 1 Mbit/s.
+The baud rate is 1 Mbit/s.
 The position command IDs for axis 0..5 are 0x10..0x15.
 The position feedback IDs for axis 0..5 are 0x20..0x25.
 

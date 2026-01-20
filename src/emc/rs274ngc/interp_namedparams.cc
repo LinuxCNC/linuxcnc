@@ -153,7 +153,7 @@ int Interp::read_named_parameter(
 				 char *line,   //!< string: line of RS274/NGC code being processed
 				 int *counter, //!< pointer to a counter for position on the line
 				 double *double_ptr,   //!< pointer to double to be read
-				 double *parameters,   //!< array of system parameters
+				 double * /*parameters*/,   //!< array of system parameters
 				 bool check_exists)    //!< test for existence, not value
 {
     static char name[] = "read_named_parameter";
@@ -217,8 +217,7 @@ int Interp::fetch_ini_param( const char *nameBuf, int *status, double *value)
 
 	char capName[LINELEN];
 
-	strncpy(capName, nameBuf, n);
-	capName[n] = '\0';
+	snprintf(capName, LINELEN, "%s", nameBuf);
 	for (char *p = capName; *p != 0; p++)
 	    *p = toupper(*p);
 	capName[closeBracket] = '\0';
@@ -842,7 +841,7 @@ int Interp::init_named_parameters()
   init_readonly_param("_line", NP_LINE, PA_USE_LOOKUP);
 
   // any of G1 G2 G3 G5.2 G73 G80 G82 G83 G86 G87 G88 G89
-  // value is number after 'G' mutiplied by 10 (10,20,30,52..)
+  // value is number after 'G' multiplied by 10 (10,20,30,52..)
 
   init_readonly_param("_motion_mode", NP_MOTION_MODE, PA_USE_LOOKUP);
 
@@ -965,7 +964,7 @@ double Interp::inicheck()
 {
     IniFile inifile;
     const char *filename;
-    const char *inistring;
+    std::optional<const char*> inistring;
     double result = -1.0;
 
 	if ((filename = getenv("INI_FILE_NAME")) == NULL) {
@@ -977,8 +976,8 @@ double Interp::inicheck()
 	    return -1.0;
     }
 
-    if (NULL != (inistring = inifile.Find("LINEAR_UNITS", "TRAJ"))) {
-        if (!strcmp(inistring, "inch")) {
+    if ((inistring = inifile.Find("LINEAR_UNITS", "TRAJ"))) {
+        if (!strcmp(*inistring, "inch")) {
              result = 0.0;
         } else {
             result = 1.0;

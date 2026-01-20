@@ -10,10 +10,10 @@ import linuxcnc
 import hal
 
 # Set up logging
-from qtvcp import logger
+from common import logger
 
 LOG = logger.getLogger(__name__)
-LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
+#LOG.setLevel(logger.DEBUG) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
 from gladevcp.core import Status, Info
 
@@ -133,10 +133,10 @@ class _Lcnc_Action(object):
             # let calling function know we didn't release the limit override
             return False
         elif not STATUS.is_limits_override_set() and STATUS.is_hard_limits_tripped():
-            STATUS.emit('error', STATUS.TEMPARARY_MESSAGE, 'Hard Limits Are Overridden!')
+            STATUS.emit('error', STATUS.TEMPORARY_MESSAGE, 'Hard Limits Are Overridden!')
             self.cmd.override_limits()
         else:
-            STATUS.emit('error', STATUS.TEMPARARY_MESSAGE, 'Hard Limits Are Reset To Active!')
+            STATUS.emit('error', STATUS.TEMPORARY_MESSAGE, 'Hard Limits Are Reset To Active!')
             self.cmd.override_limits()
 
     def SET_MDI_MODE(self):

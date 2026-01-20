@@ -1,0 +1,12 @@
+o<extend_m7> sub
+o2 if [#<_task> EQ 1]
+ o1 if [EXISTS [#<P>]]
+  (DEBUG,M7 P-word passed: #<P>)
+ o1 else
+  (DEBUG,M7 No P-word passed)
+ o1 endif
+ m7 (call built-in m7)
+ (DEBUG, extend_m7 done)
+o2 endif
+o<extend_m7> endsub
+m2

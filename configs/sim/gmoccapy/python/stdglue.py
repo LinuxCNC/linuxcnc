@@ -47,6 +47,58 @@ if debug:
             emccanon.MESSAGE( "no pydevd module found" )
             pass
 
+
+# REMAP=M61  modalgroup=6 prolog=settool_prolog ngc=settool epilog=settool_epilog
+# exposed parameters: #<tool> #<pocket>
+
+def settool_prolog(self,**words):
+    try:
+        c = self.blocks[self.remap_level]
+        if not c.q_flag:
+            self.set_errormsg("M61 requires a Q parameter") 
+            return INTERP_ERROR
+        tool = int(c.q_number)
+        if tool < -TOLERANCE_EQUAL: # 'less than 0 within interp's precision'
+            self.set_errormsg("M61: Q value < 0") 
+            return INTERP_ERROR
+        (status,pocket) = self.find_tool_pocket(tool)
+        if status != INTERP_OK:
+            self.set_errormsg("M61 failed: requested tool %d not in table" % (tool))
+            return status
+        self.params["tool"] = tool
+        self.params["pocket"] = pocket
+        return INTERP_OK
+    except Exception as e:
+        self.set_errormsg("M61/settool_prolog: %s)" % (e))
+        return INTERP_ERROR
+
+def settool_epilog(self,**words):
+    try:
+        if not self.value_returned:
+            r = self.blocks[self.remap_level].executing_remap
+            self.set_errormsg("the %s remap procedure %s did not return a value"
+                             % (r.name,r.remap_ngc if r.remap_ngc else r.remap_py))
+            return INTERP_ERROR
+
+        if self.blocks[self.remap_level].builtin_used:
+            #print "---------- M61 builtin recursion, nothing to do"
+            return INTERP_OK
+        else:
+            if self.return_value > 0.0:
+                self.current_tool = int(self.params["tool"])
+                self.current_pocket = int(self.params["pocket"])
+                emccanon.CHANGE_TOOL_NUMBER(self.current_pocket)
+                # cause a sync()
+                self.tool_change_flag = True
+                self.set_tool_parameters()
+            else:
+                self.set_errormsg("M61 aborted (return code %.1f)" % (self.return_value))
+                return INTERP_ERROR
+    except Exception as e:
+        self.set_errormsg("M61/settool_epilog: %s)" % (e))
+        return INTERP_ERROR
+
+
 # REMAP=M6  modalgroup=6 prolog=change_prolog ngc=change epilog=change_epilog
 # exposed parameters:
 #    #<tool_in_spindle>
@@ -56,13 +108,6 @@ if debug:
 
 def change_prolog(self, **words):
     try:
-        # this is relevant only when using iocontrol-v2.
-        if self.params[5600] > 0.0:
-            if self.params[5601] < 0.0:
-                self.set_errormsg("Toolchanger hard fault %d" % (int(self.params[5601])))
-                return INTERP_ERROR
-            print("change_prolog: Toolchanger soft fault %d" % int(self.params[5601]))
-
         if self.selected_pocket < 0:
             self.set_errormsg("M6: no tool prepared")
             return INTERP_ERROR

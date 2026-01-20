@@ -4,7 +4,7 @@ description """
 Example of a homing module buildable with halcompile.
 Demonstrates required code for #includes, function definitions, etc.
 
-If \\fBHOMING_BASE\\fR is #defined and points to a valid homing.c file,
+If *HOMING_BASE* is #defined and points to a valid `homing.c` file,
 an example of a customized homing module is built.  This module
 creates input hal pins joint.n.request-custom-homing that enable an
 alternate joint homing state machine for requested joints.  A hal output
@@ -16,28 +16,38 @@ functions to add support for custom hal pins and custom joint homing
 state machines.  A user-built module will likely replace additional
 api functions or augment them with other customizations.
 
-If \\fBHOMING_BASE\\fR Is not #defined, an  actual homing scheme is
-\\fBnot\\fR implemented but all necessary functions are included as
+If *HOMING_BASE* is not #defined, an  actual homing scheme is
+*not* implemented but all necessary functions are included as
 skeleton code.   (All joints are effectively homed at all times and
 cannot be unhomed).
 
-See the source code file: src/emc/motion/homing.c for the baseline
-implementation that includes all functions for the default \\fBhomemod\\fR
+See the source code file: `src/emc/motion/homing.c` for the baseline
+implementation that includes all functions for the default *homemod*
 module.
 
 To avoid updates that overwrite homecomp.comp, best practice is
 to rename the file and its component name (example:
-\\fBuser_homecomp.comp, user_homecomp\\fR).
+*user_homecomp.comp*, *user_homecomp*).
 
 The (renamed) component can be built and installed with
 halcompile and then substituted for the default homing module
-(\\fBhomemod\\fR) using:\n
-  $ linuxcnc \\fB-m user_homecomp\\fR someconfig.ini\n
-or by inifile setting: \\fB[EMCMOT]HOMEMOD=user_homecomp\\fR
+(*homemod*) using:
 
-\\fBNote:\\fRIf using a deb install:\n
-1) halcompile is provided by the package linuxcnc-dev\n
-2) This source file for BRANCHNAME (master,2.9,etc) is downloadable from github:\n
+  $ linuxcnc -m user_homecomp someconfig.ini
+
+or by inifile setting:
+
+
+[source,ini]
+----
+[EMCMOT]
+HOMEMOD=user_homecomp
+----
+
+*Note*: If using a deb install:
+
+1. halcompile is provided by the package linuxcnc-dev\n
+2. This source file for BRANCHNAME (master,2.9,etc) is downloadable from github:
 https://github.com/LinuxCNC/linuxcnc/blob/BRANCHNAME/src/hal/components/homecomp.comp
 """;
 
@@ -68,6 +78,9 @@ RTAPI_MP_STRING(home_parms,"Example home parms");
 
 // EXTRA_SETUP is executed before rtapi_app_main()
 EXTRA_SETUP() {
+    (void)__comp_inst;
+    (void)prefix;
+    (void)extra_arg;
     if (!home_parms) {home_parms = "no_home_parms";}
     rtapi_print("@@@%s:%s: home_parms=%s\n",__FILE__,__FUNCTION__,home_parms);
 #ifndef HOMING_BASE
@@ -378,31 +391,37 @@ static int makepins(int id,int njoints)
 void homeMotFunctions(void(*pSetRotaryUnlock)(int,int)
                      ,int (*pGetRotaryIsUnlocked)(int)
                      )
-{ return; }
+{
+    (void)pSetRotaryUnlock;
+    (void)pGetRotaryIsUnlocked;
+    return;
+}
 
 int  homing_init(int id,
                  double servo_period,
                  int n_joints,
                  int n_extrajoints,
                  emcmot_joint_t* pjoints) {
+     (void)servo_period;
+     (void)n_extrajoints;
      joints = pjoints;
      return makepins(id,n_joints);
 }
 bool do_homing(void)                                 {return 1;}
 bool get_allhomed()                                  {return 1;}
-bool get_homed(int jno)                              {return 1;}
-bool get_home_is_idle(int jno)                       {return 1;}
-bool get_home_is_synchronized(int jno)               {return 0;}
-bool get_home_needs_unlock_first(int jno)            {return 0;}
-int  get_home_sequence(int jno)                      {return 0;}
-bool get_homing(int jno)                             {return 0;}
-bool get_homing_at_index_search_wait(int jno)        {return 0;}
+bool get_homed(int jno)                              { (void)jno; return 1;}
+bool get_home_is_idle(int jno)                       { (void)jno; return 1;}
+bool get_home_is_synchronized(int jno)               { (void)jno; return 0;}
+bool get_home_needs_unlock_first(int jno)            { (void)jno; return 0;}
+int  get_home_sequence(int jno)                      { (void)jno; return 0;}
+bool get_homing(int jno)                             { (void)jno; return 0;}
+bool get_homing_at_index_search_wait(int jno)        { (void)jno; return 0;}
 bool get_homing_is_active()                          {return 0;}
-bool get_index_enable(int jno)                       {return 0;}
-void read_homing_in_pins(int njoints)                {return;}
-void do_home_joint(int jno)                          {return;}
-void set_unhomed(int jno,motion_state_t motstate)    {return;}
-void do_cancel_homing(int jno)                       {return;}
+bool get_index_enable(int jno)                       { (void)jno; return 0;}
+void read_homing_in_pins(int njoints)                { (void)njoints; return;}
+void do_home_joint(int jno)                          { (void)jno; return;}
+void set_unhomed(int jno,motion_state_t motstate)    { (void)jno; (void)motstate; return;}
+void do_cancel_homing(int jno)                       { (void)jno; return;}
 void set_joint_homing_params(int    jno,
                              double offset,
                              double home,
@@ -412,13 +431,32 @@ void set_joint_homing_params(int    jno,
                              int    home_flags,
                              int    home_sequence,
                              bool   volatile_home
-                             )                       {return;}
+                             )
+{
+    (void)jno;
+    (void)offset;
+    (void)home;
+    (void)home_final_vel;
+    (void)home_search_vel;
+    (void)home_latch_vel;
+    (void)home_flags;
+    (void)home_sequence;
+    (void)volatile_home;
+    return;
+}
 void update_joint_homing_params (int    jno,
                                  double offset,
                                  double home,
                                  int    home_sequence
-                                )                    {return;}
-void write_homing_out_pins(int njoints)              {return;}
+                                )
+{
+    (void)jno;
+    (void)offset;
+    (void)home;
+    (void)home_sequence;
+    return;
+}
+void write_homing_out_pins(int njoints)              { (void)njoints; return;}
 #endif  // } end SKELETON example minimal api implementation
 //=====================================================================
 

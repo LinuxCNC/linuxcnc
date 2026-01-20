@@ -154,7 +154,10 @@ class CMS_SERVER {
     void run(int setup_CC_signal_handler = 1);
     int spawn();
     void kill_server();
-      CMS_SERVER();
+    CMS_SERVER();
+    // Don't copy or assign
+    CMS_SERVER(const CMS_SERVER&) = delete;
+    CMS_SERVER& operator=(const CMS_SERVER&) = delete;
     void add_local_port(CMS_SERVER_LOCAL_PORT *);
     void delete_all_local_ports();
     virtual void delete_from_list();

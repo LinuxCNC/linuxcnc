@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Qtvcp versa probe
+#
 #
 # Copyright (c) 2018  Chris Morley <chrisinnanaimo@hotmail.com>
 #
@@ -31,15 +31,11 @@ ACTION = Action()
 INFO = Info()
 LOG = logger.getLogger(__name__)
 
-current_dir =  os.path.dirname(__file__)
-SUBPROGRAM = os.path.abspath(os.path.join(current_dir, 'versa_probe_subprog.py'))
-HELP = os.path.join(INFO.LIB_PATH,'widgets_ui', 'versa_usage.html')
-
 class RunFromLineDialog(QtWidgets.QDialog, _HalWidgetBase):
     def __init__(self, parent=None):
         super(RunFromLineDialog, self).__init__(parent)
         # Load the widgets UI file:
-        self.filename = os.path.join(INFO.LIB_PATH,'widgets_ui', 'runFromLine_dialog.ui')
+        self.filename = os.path.join(PATH.SHAREDIR,'widgets_ui', 'runFromLine_dialog.ui')
         try:
             self.instance = uic.loadUi(self.filename, self)
         except AttributeError as e:

@@ -36,23 +36,23 @@
 component biquad "Biquad IIR filter";
 
 description """Biquad IIR filter. Implements the following transfer function:
-H(z) = (n0 + n1z-1 + n2z-2) / (1+ d1z-1 + d2z-2)""";
+H(z) = (n~0~ + n~1~z^-1^ + n~2~z^-2^) / (1 + d~1~z^-1^ + d~2~z^-2^)""";
 
 pin in float in "Filter input.";
 pin out float out "Filter output.";
-pin in bit enable = 0 "Filter enable. When false, the \\fBin\\fR pin \
-is passed to the \\fBout\\fR pin without any filtering.  \
-A \\fBtransition from false to true\\fR causes filter \
+pin in bit enable = 0 "Filter enable. When false, the *in* pin \
+is passed to the *out* pin without any filtering.  \
+A *transition from false to true* causes filter \
 coefficients to be calculated according to the current \
-\\fBtype\\fR and the describing pin and parameter settings";
+*type* and the describing pin and parameter settings";
 pin out bit valid = 0 "When false, indicates an error occurred when calculating \
-filter coefficients (require 2>\\fBQ\\fR>0.5 and \\fBf0\\fR>sampleRate/2)";
+filter coefficients (require 2>**Q**>0.5 and *f0*>sampleRate/2)";
 
 pin   in u32 type_ = 0 "Filter type determines the type of filter \
 coefficients calculated.  When 0, coefficients must be loaded directly \
-from the \\fBn0,n1,n2,d1\\fR params.  When 1, \
-a low pass filter is created specified by the \\fBf0,Q\\fR pins.  \
-When 2, a notch filter is created specified by the \\fBf0,Q\\fR pins.";
+from the *n0,n1,n2,d1* params.  When 1, \
+a low pass filter is created specified by the *f0,Q* pins.  \
+When 2, a notch filter is created specified by the *f0,Q* pins.";
 pin   in float f0 = 250.0 "The corner frequency of the filter.";
 pin   in float Q = 0.7071 "The Q of the filter.";
 
@@ -98,6 +98,8 @@ typedef struct {
 
 EXTRA_SETUP()
 {
+    (void)prefix;
+    (void)extra_arg;
     data.lastEnable = 0;
 
     return(0);

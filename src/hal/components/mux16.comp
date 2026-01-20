@@ -10,31 +10,48 @@ This stops unwanted jumps in output between transitions of input.
 but make in00 unavailable.
 """;
 pin in float debounce_time"""\
-sets debouce time in seconds.  eg. .10 = a tenth of a second
+sets debounce time in seconds.  eg. .10 = a tenth of a second
 input must be stable this long before outputs changes. This
 helps to ignore 'noisy' switches.
 """;
 pin in bit sel#[4] """\
-Together, these determine which \\fBin\\fIN\\fR value is copied to \\fBout\\fR.
+Together, these determine which **in**__N__ value is copied to *out*.
 """;
 pin out float out_f;
 pin out s32 out_s """\
-Follows the value of one of the \\fBin\\fIN\\fR values according to the four \\fBsel\\fR values
+Follows the value of one of the **in**__N__ values according to the four *sel* values
 and whether use-graycode is active.
 The s32 value will be trunuated and limited to the max and min values of signed values. 
-.RS
-.TP
-\\fBsel3=FALSE\\fR, \\fBsel2=FALSE\\fR, \\fBsel1=FALSE\\fR, \\fBsel0=FALSE\\fR
-\\fBout\\fR follows \\fBin0\\fR
-.TP
-\\fBsel3=FALSE\\fR, \\fBsel2=FALSE\\fR, \\fBsel1=FALSE\\fR, \\fBsel0=TRUE\\fR
-\\fBout\\fR follows \\fBin1\\fR
-.TP
-etc.
-.RE
+
+[cols="^1,^1,^1,^1,1"]
+|===
+^h|sel3
+^h|sel2
+^h|sel1
+^h|sel0
+^h|out follows
+
+|0|0|0|0|*in00*
+|0|0|0|1|*in01*
+|0|0|1|0|*in02*
+|0|0|1|1|*in03*
+|0|1|0|0|*in04*
+|0|1|0|1|*in05*
+|0|1|1|0|*in06*
+|0|1|1|1|*in07*
+|1|0|0|0|*in08*
+|1|0|0|1|*in09*
+|1|0|1|0|*in10*
+|1|0|1|1|*in11*
+|1|1|0|0|*in12*
+|1|1|0|1|*in13*
+|1|1|1|0|*in14*
+|1|1|1|1|*in15*
+|===
+
 """;
-param r float elapsed "Current value of the internal debounce timer\n for debugging.";
-param r s32 selected "Current value of the internal selection variable after conversion\n for debugging";
+param r float elapsed "Current value of the internal debounce timer for debugging.";
+param r s32 selected "Current value of the internal selection variable after conversion for debugging";
 pin in float in##[16] "array of selectable outputs";
 variable double delaytime;
 variable int lastnum;
@@ -42,6 +59,7 @@ variable int running;
 function _;
 license "GPL";
 author "Chris S Morley";
+see_also "mux2(9), mux4(9), mux8(9), mux_generic(9).";
 ;;
 FUNCTION(_) {
     int i,num = 0;

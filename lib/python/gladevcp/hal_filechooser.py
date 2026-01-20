@@ -25,7 +25,7 @@ from gi.repository import GObject as gobject
 
 from .hal_widgets import _HalWidgetBase
 import linuxcnc
-from hal_glib import GStat
+from gladevcp.core import Status as GStat
 
 _ = lambda x: x
 
@@ -72,7 +72,7 @@ class FilterProgram:
 
     def finish(self):
         # .. might be something left on stderr
-        for line in self.p.stderr:
+        for line in self.p.stderr.read().decode():
             m = progress_re.match(line)
             if not m:
                 self.stderr_text.append(line)

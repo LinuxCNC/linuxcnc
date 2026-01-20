@@ -17,40 +17,43 @@ pass the Z position and feed back untouched.
 If not enabled pass the Z position and feed back untouched.
 
 Typical Physical Connections using a Parallel Port
-.br
+
 Parallel Pin 12 <= THC controller Plasma Up
-.br
+
 Parallel Pin 13 <= THC controller Plasma Down
-.br
+
 Parallel Pin 15  <= Plasma Torch Arc Ok Signal
-.br
+
 Parallel Pin 16 => Plasma Torch Start Arc Contacts
 
 HAL Plasma Connections
-.br
+
 net torch-up thcud.torch-up <= parport.0.pin-12-in
-.br
+
 net torch-down thcud.torch-down <= parport.0.pin-13-in
-.br
+
 net torch-on spindle.0.on => parport.0.pin-16-out (start the arc)
-.br
+
 net arc-ok thcud.arc-ok <= motion.digital-in-00 <= parport.0.pin-15-in (arc ok signal)
 
 HAL Motion Connections
-.br
+
 net requested-vel thcud.requested-vel <= motion.requested-vel
-.br
+
 net current-vel thcud.current-vel <= motion.current-vel
 
 PyVCP Connections
 In the XML file you need something like:
 
-  <pyvcp>
-  <checkbutton>
-    <text>"THC Enable"</text>
-    <halpin>"thc-enable"</halpin>
-  </checkbutton>
-  </pyvcp>
+[source,xml]
+----
+<pyvcp>
+<checkbutton>
+  <text>"THC Enable"</text>
+  <halpin>"thc-enable"</halpin>
+</checkbutton>
+</pyvcp>
+----
 
 Connect the PyVCP pins in the postgui.hal file like this:
 
@@ -81,15 +84,15 @@ pin out float z_fb_out "Z Position Feedback to Axis";
 pin out float cur_offset "The Current Offset";
 pin out bit vel_status "When the THC thinks we are at requested speed";
 pin out bit removing_offset "Pin for testing";
+pin in float correction_vel "The Velocity to move Z to correct";
 
 // Parameters
 param rw float velocity_tol "The deviation percent from planned velocity";
-param rw float correction_vel "The Velocity to move Z to correct";
 
 // Global Variables
-variable float offset;
 variable float last_z_in;
 
+option period no;
 function _;
 
 ;;
@@ -104,39 +107,39 @@ FUNCTION(_) {
         
         if(torch_on && arc_ok && vel_status){ // allow correction
             if(torch_down){
-                offset -= correction_vel;
+                cur_offset -= correction_vel;
             }
             if(torch_up){
-                offset += correction_vel;
+                cur_offset += correction_vel;
             }    
             last_z_in = 0;
         }
         if(!torch_on){ // remove any offset
             float z_diff;
             z_diff = z_pos_in - last_z_in;
-            if(z_diff > 0 && offset != 0){ // torch is moving up
+            if(z_diff > 0 && cur_offset != 0){ // torch is moving up
                 removing_offset = 1;
-                if(offset > 0){ // positive offset
-                    if(offset > z_diff){ // remove some
-                        offset -= z_diff;
+                if(cur_offset > 0){ // positive offset
+                    if(cur_offset > z_diff){ // remove some
+                        cur_offset -= z_diff;
                     }
-                    else {offset = 0;}
+                    else {cur_offset = 0;}
                 }
-                if(offset < 0){ // negative offset
-                    if(offset < z_diff){ // remove some
-                        offset += z_diff;
+                if(cur_offset < 0){ // negative offset
+                    if(cur_offset < z_diff){ // remove some
+                        cur_offset += z_diff;
                     }
-                    else {offset = 0;}
+                    else {cur_offset = 0;}
                 }
             }
             else {removing_offset = 0;}
             last_z_in = z_pos_in;
         }
-        z_pos_out = z_pos_in + offset;
+        z_pos_out = z_pos_in + cur_offset;
         z_fb_out = z_pos_in; // keep axis motor position fb from being confused
     }
     if(!enable){
-        z_pos_out = z_pos_in;
+        z_pos_out = z_pos_in + cur_offset;
         z_fb_out = z_pos_in; // keep axis motor position fb from being confused
     }
 }

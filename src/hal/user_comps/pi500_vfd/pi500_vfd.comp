@@ -134,7 +134,7 @@ bool pi500_getStatus(modbus_t* ctx, pi500_status* status)
 void print_modbus_error(struct __comp_state *__comp_inst, const char* msg)
 {
 	fprintf(stderr, 
-		"Error: pi500_vfd slave(%d): %s - Modbus error (%d) -  %s\n",
+		"Error: pi500_vfd slave(%u): %s - Modbus error (%d) -  %s\n",
 		mbslaveaddr,
 		msg,
 		errno,

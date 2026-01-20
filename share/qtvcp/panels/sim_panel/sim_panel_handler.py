@@ -42,9 +42,7 @@ class HandlerClass:
     # the HAL pins are built but HAL is not set ready
     def initialized__(self):
         self.w.setFocusPolicy(Qt.NoFocus)
-        print(self.w.parent())
         for widget in self.w.children():
-            print(widget)
             try:
                 widget.setFocusPolicy(QtCore.Qt.NoFocus)
             except:
@@ -61,19 +59,30 @@ class HandlerClass:
                         arg = strg.split(',')
                         self.w.resize(int(arg[0]),int(arg[1]))
                     except Exception as e:
-                        print('Error with sim_panel size setting:',self.w.USEROPTIONS_[num])
+                        print('Error with sim_panel size setting:',self.w.USEROPTIONS_[num],e)
+
                 elif 'hide=' in self.w.USEROPTIONS_[num]:
                     try:
                         strg = self.w.USEROPTIONS_[num].strip('hide=')
                         arg = strg.split(',')
                         for i in arg:
-                            print (i)
+                            #print (i)
                             try:
                                 self.w[i].hide()
                             except:
                                 pass
                     except Exception as e:
-                        print('Error with sim_panel size setting:',self.w.USEROPTIONS_[num])
+                        print('Error with sim_panel size setting:',self.w.USEROPTIONS_[num],e)
+
+                elif 'rates=' in self.w.USEROPTIONS_[num]:
+                    try:
+                        strg = self.w.USEROPTIONS_[num].strip('rates=')
+                        arg = strg.split(',')
+                        if len(arg) == 3:
+                            for num,i in enumerate(['increment_slow','increment_med','increment_fast']):
+                                self.w[i].setProperty('exclusiveHALValue',float(arg[num]))
+                    except Exception as e:
+                        print('Error with sim_panel rate setting:',self.w.USEROPTIONS_[num],e)
 
     ########################
     # callbacks from STATUS #

@@ -129,8 +129,9 @@ When the machine moves, it leaves a trail called the backplot. You can
 start the backplot window by selecting View→Backplot.
 
 [[cap:tklinuxcnc-interpreter]]
-=== TkLinuxCNC Interpreter / Automatic Program Control(((TkLinuxCNC Interpreter)))
+=== TkLinuxCNC Interpreter / Automatic Program Control
 
+(((TkLinuxCNC Interpreter)))
 image::images/tkemc-interp.png["TkLinuxCNC Interpreter / program control",align="center"]
 
 .Control Buttons
@@ -184,7 +185,8 @@ color).
 .TkLinuxCNC Override Limits & Jogging increments example
 image::images/tkemc-override-limits.png["TkLinuxCNC Override Limits and Jogging increments example",align="center"]
 
-.The Spindle group(((spindle)))
+.The Spindle group
+(((spindle)))
 The button on the first row selects the direction for the spindle to
 rotate: Counterclockwise, Stopped, Clockwise. The buttons next to it
 allow the user to increase or decrease the rotation speed. The button
@@ -192,7 +194,8 @@ on the second row allows the spindle brake to be engaged or released.
 Depending on your machine configuration, not all the items in this
 group may have an effect.
 
-.The Coolant group(((Coolant)))
+.The Coolant group
+(((Coolant)))
 The two buttons allow the 'Mist' and 'Flood' coolants to be turned on
 and off. Depending on your machine configuration, not all the items in
 this group may appear.

@@ -1,32 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Generated with glade 3.38.2 -->
+<!-- Generated with glade 3.40.0 -->
 <interface>
   <requires lib="gtk+" version="3.24"/>
-  <object class="GtkImage" id="backspace">
-    <property name="visible">True</property>
-    <property name="can-focus">False</property>
-    <property name="icon-name">go-previous</property>
-  </object>
   <object class="GtkImage" id="cancel">
     <property name="visible">True</property>
     <property name="can-focus">False</property>
     <property name="icon-name">gtk-cancel</property>
-  </object>
-  <object class="GtkImage" id="clr">
-    <property name="visible">True</property>
-    <property name="can-focus">False</property>
-    <property name="icon-name">gtk-clear</property>
+    <property name="icon_size">3</property>
   </object>
   <object class="GtkImage" id="ok">
     <property name="visible">True</property>
     <property name="can-focus">False</property>
     <property name="icon-name">gtk-ok</property>
-  </object>
-  <object class="GtkImage" id="pi">
-    <property name="height-request">48</property>
-    <property name="visible">True</property>
-    <property name="can-focus">False</property>
-    <property name="pixbuf">pi.png</property>
+    <property name="icon_size">3</property>
   </object>
   <object class="GtkWindow" id="window_calculator">
     <property name="can-focus">False</property>
@@ -85,7 +71,6 @@
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
-                <property name="image">clr</property>
                 <signal name="clicked" handler="on_CLR_clicked" swapped="no"/>
               </object>
               <packing>
@@ -108,10 +93,10 @@
             </child>
             <child>
               <object class="GtkButton" id="Pi">
+                <property name="label" translatable="yes">Pi</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
-                <property name="image">pi</property>
                 <signal name="clicked" handler="on_Pi_clicked" swapped="no"/>
               </object>
               <packing>
@@ -281,7 +266,6 @@
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
-                <property name="image">backspace</property>
                 <signal name="clicked" handler="on_Backspace_clicked" swapped="no"/>
               </object>
               <packing>
@@ -317,7 +301,6 @@
             </child>
             <child>
               <object class="GtkButton" id="cancel_button">
-                <property name="label" translatable="yes">_Cancel_</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
@@ -332,7 +315,6 @@
             </child>
             <child>
               <object class="GtkButton" id="ok_button">
-                <property name="label" translatable="yes">_Ok</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>

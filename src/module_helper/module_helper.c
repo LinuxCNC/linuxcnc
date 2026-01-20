@@ -208,7 +208,7 @@ int main(int argc, char **argv) {
     }
 
     res = snprintf(buf, sizeof(buf), "/usr/realtime-%s/modules", u.release);
-    if(res < 0 || res >= sizeof(buf))
+    if(res < 0 || res >= (int)sizeof(buf))
     {
         perror("snprintf");
         return 1;

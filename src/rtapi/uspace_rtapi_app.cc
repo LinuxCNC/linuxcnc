@@ -30,7 +30,6 @@
 #include <errno.h>
 #include <dlfcn.h>
 #include <signal.h>
-#include <iostream>
 #include <vector>
 #include <string>
 #include <map>
@@ -39,7 +38,6 @@
 #include <time.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <errno.h>
 #ifdef HAVE_SYS_IO_H
 #include <sys/io.h>
 #endif
@@ -99,6 +97,7 @@ static void set_namef(const char *fmt, ...) {
 
     va_start(ap, fmt);
     if (vasprintf(&buf, fmt, ap) < 0) {
+        va_end(ap);
         return;
     }
     va_end(ap);
@@ -111,7 +110,7 @@ static void set_namef(const char *fmt, ...) {
 }
 
 pthread_t queue_thread;
-void *queue_function(void *arg) {
+void *queue_function(void * /*arg*/) {
     set_namef("rtapi_app:mesg");
     // note: can't use anything in this function that requires App() to exist
     // but it's OK to use functions that aren't safe for realtime (that's the
@@ -147,7 +146,7 @@ static std::map<string, void*> modules;
 static int instance_count = 0;
 static int force_exit = 0;
 
-static int do_newinst_cmd(string type, string name, string arg) {
+static int do_newinst_cmd(const string& type, const string& name, const string& arg) {
     void *module = modules["hal_lib"];
     if(!module) {
         rtapi_print_msg(RTAPI_MSG_ERR,
@@ -271,7 +270,7 @@ static int do_comp_args(void *module, vector<string> args) {
     return 0;
 }
 
-static int do_load_cmd(string name, vector<string> args) {
+static int do_load_cmd(const string& name, const vector<string>& args) {
     void *w = modules[name];
     if(w == NULL) {
         char what[LINELEN+1];
@@ -315,7 +314,7 @@ static int do_load_cmd(string name, vector<string> args) {
     }
 }
 
-static int do_unload_cmd(string name) {
+static int do_unload_cmd(const string& name) {
     void *w = modules[name];
     if(w == NULL) {
         rtapi_print_msg(RTAPI_MSG_ERR, "%s: not loaded\n", name.c_str());
@@ -348,14 +347,21 @@ static int read_number(int fd) {
 
 static string read_string(int fd) {
     int len = read_number(fd);
-    char buf[len];
-    if(read(fd, buf, len) != len) throw ReadError();
-    return string(buf, len);
+    if(len < 0)
+        throw ReadError();
+    if(!len)
+        return string();
+    string str(len, 0);
+    if(read(fd, str.data(), len) != len)
+        throw ReadError();
+    return str;
 }
 
 static vector<string> read_strings(int fd) {
     vector<string> result;
     int count = read_number(fd);
+    if(count < 0)
+        return result;
     for(int i=0; i<count; i++) {
         result.push_back(read_string(fd));
     }
@@ -368,12 +374,12 @@ static void write_number(string &buf, int num) {
     buf = buf + numbuf;
 }
 
-static void write_string(string &buf, string s) {
+static void write_string(string &buf, const string& s) {
     write_number(buf, s.size());
     buf += s;
 }
 
-static void write_strings(int fd, vector<string> strings) {
+static void write_strings(int fd, const vector<string>& strings) {
     string buf;
     write_number(buf, strings.size());
     for(unsigned int i=0; i<strings.size(); i++) {
@@ -405,7 +411,7 @@ static int handle_command(vector<string> args) {
     }
 }
 
-static int slave(int fd, vector<string> args) {
+static int slave(int fd, const vector<string>& args) {
     try {
         write_strings(fd, args);
     }
@@ -451,16 +457,17 @@ static int callback(int fd)
 
 static pthread_t main_thread{};
 
-static int master(int fd, vector<string> args) {
+static int master(int fd, const vector<string>& args) {
     main_thread = pthread_self();
-    if(pthread_create(&queue_thread, nullptr, &queue_function, nullptr) < 0) {
+    int result;
+    if((result = pthread_create(&queue_thread, nullptr, &queue_function, nullptr)) != 0) {
+        errno = result;
         perror("pthread_create (queue function)");
         return -1;
     }
     do_load_cmd("hal_lib", vector<string>());
     instance_count = 0;
     App(); // force rtapi_app to be created
-    int result=0;
     if(args.size()) {
         result = handle_command(args);
         if(result != 0) goto out;
@@ -505,10 +512,11 @@ get_fifo_path() {
 
 static int
 get_fifo_path(char *buf, size_t bufsize) {
+	int len;
     const char *s = get_fifo_path();
     if(!s) return -1;
-    snprintf(buf, bufsize, "%s", s);
-    return 0;
+    len=snprintf(buf+1, bufsize-1, "%s", s);
+    return len;
 }
 
 int main(int argc, char **argv) {
@@ -517,9 +525,12 @@ int main(int argc, char **argv) {
         int fallback_uid = fallback_uid_str ? atoi(fallback_uid_str) : 0;
         if(fallback_uid == 0)
         {
+	    // Cppcheck cannot see EMC2_BIN_DIR when RTAPI is defined, but that
+	    // doesn't happen in uspace.
             fprintf(stderr,
                 "Refusing to run as root without fallback UID specified\n"
                 "To run under a debugger with I/O, use e.g.,\n"
+                // cppcheck-suppress unknownMacro
                 "    sudo env RTAPI_UID=`id -u` RTAPI_FIFO_PATH=$HOME/.rtapi_fifo gdb " EMC2_BIN_DIR "/rtapi_app\n");
             exit(1);
         }
@@ -538,37 +549,40 @@ int main(int argc, char **argv) {
     for(int i=1; i<argc; i++) { args.push_back(string(argv[i])); }
 
 become_master:
+    int len=0;
     int fd = socket(PF_UNIX, SOCK_STREAM, 0);
     if(fd == -1) { perror("socket"); exit(1); }
 
     int enable = 1;
     setsockopt(fd, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(enable));
     struct sockaddr_un addr;
+	memset(&addr, 0x0, sizeof(addr));
     addr.sun_family = AF_UNIX;
-    if(get_fifo_path(addr.sun_path, sizeof(addr.sun_path)) < 0)
+    if((len=get_fifo_path(addr.sun_path, sizeof(addr.sun_path))) < 0)
        exit(1);
-    int result = ::bind(fd, (sockaddr*)&addr, sizeof(addr));
+	
+	// plus one because we use the abstract namespace, it will show up in
+	// /proc/net/unix prefixed with an @
+    int result = ::bind(fd, (sockaddr*)&addr, len+sizeof(addr.sun_family)+1); 
 
     if(result == 0) {
         int result = listen(fd, 10);
         if(result != 0) { perror("listen"); exit(1); }
         setsid(); // create a new session if we can...
         result = master(fd, args);
-        unlink(get_fifo_path());
         return result;
     } else if(errno == EADDRINUSE) {
         struct timeval t0, t1;
         gettimeofday(&t0, NULL);
         gettimeofday(&t1, NULL);
         for(int i=0; i < 3 || (t1.tv_sec < 3 + t0.tv_sec) ; i++) {
-            result = connect(fd, (sockaddr*)&addr, sizeof(addr));
+            result = connect(fd, (sockaddr*)&addr, len+sizeof(addr.sun_family)+1);
             if(result == 0) break;
             if(i==0) srand48(t0.tv_sec ^ t0.tv_usec);
             usleep(lrand48() % 100000);
             gettimeofday(&t1, NULL);
         }
         if(result < 0 && errno == ECONNREFUSED) {
-            unlink(get_fifo_path());
             fprintf(stderr, "Waited 3 seconds for master.  giving up.\n");
             close(fd);
             goto become_master;
@@ -595,9 +609,11 @@ struct rtapi_module {
 #define MODULE_OFFSET 32768
 
 rtapi_task::rtapi_task()
-    : magic{}, id{}, owner{}, stacksize{}, prio{},
+    : magic{}, id{}, owner{}, uses_fp{}, stacksize{}, prio{},
       period{}, nextstart{},
-      ratio{}, arg{}, taskcode{}
+      ratio{}, pll_correction{}, pll_correction_limit{},
+      arg{}, taskcode{}
+
 {}
 
 namespace
@@ -656,7 +672,7 @@ struct Posix : RtapiApp
     void do_delay(long ns);
 };
 
-static void signal_handler(int sig, siginfo_t *si, void *uctx)
+static void signal_handler(int sig, siginfo_t * /*si*/, void * /*uctx*/)
 {
     switch (sig) {
     case SIGXCPU:
@@ -705,7 +721,22 @@ static void configure_memory()
                   "mallopt(M_MMAP_MAX, -1) failed\n");
     }
 #endif
-    char *buf = static_cast<char *>(malloc(PRE_ALLOC_SIZE));
+    /*
+     * The following code seems pointless, but there is a non-observable effect
+     * in the allocation and loop.
+     *
+     * The malloc() is forced to set brk() because mmap() allocation is
+     * disabled in a call to mallopt() above. All touched pages become resident
+     * and locked in the loop because of above mlockall() call (see notes in
+     * mlockall(2)). The mallopt() trim setting prevents the brk() from being
+     * reduced after free(), effectively creating an open space for future
+     * allocations that will not generate page faults.
+     *
+     * The qualifier 'volatile' on the buffer pointer is required because newer
+     * clang would remove the malloc(), for()-loop and free() completely.
+     * Marking 'buf' volatile ensures that the code will remain in place.
+     */
+    volatile char *buf = static_cast<volatile char *>(malloc(PRE_ALLOC_SIZE));
     if (buf == NULL) {
         rtapi_print_msg(RTAPI_MSG_WARN, "malloc(PRE_ALLOC_SIZE) failed\n");
         return;
@@ -718,7 +749,7 @@ static void configure_memory()
              * memory and never given back to the system. */
             buf[i] = 0;
     }
-    free(buf);
+    free((void *)buf);
 }
 
 static int harden_rt()
@@ -934,7 +965,7 @@ rtapi_task *RtapiApp::get_task(int task_id) {
     return task;
 }
 
-void RtapiApp::unexpected_realtime_delay(rtapi_task *task, int nperiod) {
+void RtapiApp::unexpected_realtime_delay(rtapi_task *task, int /*nperiod*/) {
     static int printed = 0;
     if(!printed)
     {
@@ -1028,16 +1059,17 @@ int Posix::task_start(int task_id, unsigned long int period_nsec)
   int nprocs = sysconf( _SC_NPROCESSORS_ONLN );
 
   pthread_attr_t attr;
-  if(pthread_attr_init(&attr) < 0)
-      return -errno;
-  if(pthread_attr_setstacksize(&attr, task->stacksize) < 0)
-      return -errno;
-  if(pthread_attr_setschedpolicy(&attr, policy) < 0)
-      return -errno;
-  if(pthread_attr_setschedparam(&attr, &param) < 0)
-      return -errno;
-  if(pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED) < 0)
-      return -errno;
+  int ret;
+  if((ret = pthread_attr_init(&attr)) != 0)
+      return -ret;
+  if((ret = pthread_attr_setstacksize(&attr, task->stacksize)) != 0)
+      return -ret;
+  if((ret = pthread_attr_setschedpolicy(&attr, policy)) != 0)
+      return -ret;
+  if((ret = pthread_attr_setschedparam(&attr, &param)) != 0)
+      return -ret;
+  if((ret = pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED)) != 0)
+      return -ret;
   if(nprocs > 1) {
       const static int rt_cpu_number = find_rt_cpu_number();
       if(rt_cpu_number != -1) {
@@ -1048,12 +1080,12 @@ int Posix::task_start(int task_id, unsigned long int period_nsec)
 #endif
           CPU_ZERO(&cpuset);
           CPU_SET(rt_cpu_number, &cpuset);
-          if(pthread_attr_setaffinity_np(&attr, sizeof(cpuset), &cpuset) < 0)
-               return -errno;
+          if((ret = pthread_attr_setaffinity_np(&attr, sizeof(cpuset), &cpuset)) != 0)
+               return -ret;
       }
   }
-  if(pthread_create(&task->thr, &attr, &wrapper, reinterpret_cast<void*>(task)) < 0)
-      return -errno;
+  if((ret = pthread_create(&task->thr, &attr, &wrapper, reinterpret_cast<void*>(task))) != 0)
+      return -ret;
 
   return 0;
 }
@@ -1152,6 +1184,7 @@ unsigned char Posix::do_inb(unsigned int port)
 #ifdef HAVE_SYS_IO_H
     return inb(port);
 #else
+    (void)port;
     return 0;
 #endif
 }
@@ -1160,6 +1193,9 @@ void Posix::do_outb(unsigned char val, unsigned int port)
 {
 #ifdef HAVE_SYS_IO_H
     return outb(val, port);
+#else
+    (void)val;
+    (void)port;
 #endif
 }
 
@@ -1215,7 +1251,12 @@ int rtapi_task_delete(int id) {
 
 int rtapi_task_start(int task_id, unsigned long period_nsec)
 {
-    return App().task_start(task_id, period_nsec);
+    int ret = App().task_start(task_id, period_nsec);
+    if(ret != 0) {
+        errno = -ret;
+        perror("rtapi_task_start()");
+    }
+    return ret;
 }
 
 int rtapi_task_pause(int task_id)

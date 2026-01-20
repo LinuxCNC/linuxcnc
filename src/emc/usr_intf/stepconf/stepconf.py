@@ -167,6 +167,8 @@ class Private_Data:
                             ["jvlsmd41", _("JVL-SMD41 or 42"), 500, 500, 2500, 2500],
                             ["hobbycnc", _("Hobbycnc Pro Chopper"), 2000, 2000, 2000, 2000],
                             ["keling", _("Keling 4030"), 5000, 5000, 20000, 20000],
+                            ["dm860tv10", _("DM860T v1.0"), 5000, 5000, 5000, 5000],
+                            ["dm860tv30", _("DM860T v3.0"), 5000, 5000, 5000, 5000],
                             ]
 
         (   self.XSTEP, self.XDIR, self.YSTEP, self.YDIR,
@@ -231,25 +233,25 @@ class Private_Data:
             _("Home X"), _("Home Y"), _("Home Z"), _("Home A"), _("Home U"), _("Home V"),
             _("Home Tandem X"), _("Home Tandem Y"),
             _("Minimum Limit + Home X"), _("Minimum Limit + Home Y"),
-            _("Minimum Limit + Home Tandem X"), _("Minimum Limit + Home Tandem Y"),
             _("Minimum Limit + Home Z"), _("Minimum Limit + Home A"),
             _("Minimum Limit + Home U"), _("Minimum Limit + Home V"),
+            _("Minimum Limit + Home Tandem X"), _("Minimum Limit + Home Tandem Y"),
             _("Maximum Limit + Home X"), _("Maximum Limit + Home Y"),
-            _("Maximum Limit + Home Tandem X"), _("Maximum Limit + Home Tandem Y"),
             _("Maximum Limit + Home Z"), _("Maximum Limit + Home A"),
             _("Maximum Limit + Home U"), _("Maximum Limit + Home V"),
+            _("Maximum Limit + Home Tandem X"), _("Maximum Limit + Home Tandem Y"),
             _("Both Limit + Home X"), _("Both Limit + Home Y"),
             _("Both Limit + Home Z"), _("Both Limit + Home A"),
             _("Both Limit + Home U"), _("Both Limit + Home V"),
             _("Both Limit + Home Tandem X"), _("Both Limit + Home Tandem Y"),
             _("Minimum Limit X"), _("Minimum Limit Y"),
-            _("Minimum Limit Tandem X"), _("Minimum Limit Tandem Y"),
             _("Minimum Limit Z"), _("Minimum Limit A"),
             _("Minimum Limit U"), _("Minimum Limit V"),
+            _("Minimum Limit Tandem X"), _("Minimum Limit Tandem Y"),
             _("Maximum Limit X"), _("Maximum Limit Y"),
-            _("Maximum Limit Tandem X"), _("Maximum Limit Tandem Y"),
             _("Maximum Limit Z"), _("Maximum Limit A"),
             _("Maximum Limit U"), _("Maximum Limit V"),
+            _("Maximum Limit Tandem X"), _("Maximum Limit Tandem Y"),
             _("Both Limit X"), _("Both Limit Y"),
             _("Both Limit Z"), _("Both Limit A"),
             _("Both Limit U"), _("Both Limit V"),
@@ -443,9 +445,10 @@ class Data:
         self.qtplasmacpause = 0
         self.qtplasmacstop = 0
         self.qtplasmacpmx = ""
-        self.qtplasmac_bnames = ["OHMIC\TEST","PROBE\TEST","SINGLE\CUT","NORMAL\CUT","TORCH\PULSE","FRAMING", "USER\MANUAL", \
+        self.qtplasmacbase = BASE
+        self.qtplasmac_bnames = ["OHMIC\\TEST","PROBE\\TEST","SINGLE\\CUT","NORMAL\\CUT","TORCH\\PULSE","FRAMING", "USER\\MANUAL",
                                  "","","","","","","","","","","","",""]
-        self.qtplasmac_bcodes = ["ohmic-test","probe-test 10","single-cut","cut-type","torch-pulse 0.5","framing", "user-manual", \
+        self.qtplasmac_bcodes = ["ohmic-test","probe-test 10","single-cut","cut-type","torch-pulse 0.5","framing", "user-manual",
                                  "","","","","","","","","","","","",""]
         self.thcadenc = 0
         self.voltsmodel = "10"
@@ -864,12 +867,6 @@ class StepconfApp:
         self.HAL.write_halfile(base)
         # qtplasmac specific
         if self.d.select_qtplasmac:
-            # copy M190 file
-            if BASE == "/usr":
-                m190Path = os.path.join(BASE, 'share/doc/linuxcnc/examples/sample-configs/sim/qtplasmac/M190')
-            else:
-                m190Path = os.path.join(BASE, 'configs/sim/qtplasmac/M190')
-            shutil.copy(m190Path, os.path.join(base, 'M190'))
             # different tool table for qtplasmac
             filename = os.path.join(base, "tool.tbl")
             file = open(filename, "w")

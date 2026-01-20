@@ -511,7 +511,7 @@ def spath_from_inifile(fname):
         return []
     ini = linuxcnc.ini(fname)
     homedir = os.path.dirname(os.path.realpath(fname))
-    # http://www.linuxcnc.org/docs/devel/html/config/ini_config.html
+    # http://www.linuxcnc.org/docs/2.9/html/config/ini_config.html
     l = []
     p = ini.find('DISPLAY','PROGRAM_PREFIX')
     if p:
@@ -2204,9 +2204,9 @@ class ControlPanel():
 
         xcmd.append(m.sub_file)
         print("xcmd=",xcmd)
-        e_message = ".*Runtime message\(\): *(.*)"
-        e_warning = ".*Runtime warning\(\): *(.*)"
-        e_error   = ".*Runtime error\(\): *(.*)"
+        e_message = r".*Runtime message\(\): *(.*)"
+        e_warning = r".*Runtime warning\(\): *(.*)"
+        e_error   = r".*Runtime error\(\): *(.*)"
 
         s = subprocess.Popen(xcmd
                              ,stdout=subprocess.PIPE

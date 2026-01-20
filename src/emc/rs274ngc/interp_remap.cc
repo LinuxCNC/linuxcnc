@@ -32,20 +32,56 @@ namespace bp = boost::python;
 #include "interp_internal.hh"
 #include <rtapi_string.h>
 
+#include <string>
+#include <string_view>
 
 
-bool Interp::has_user_mcode(setup_pointer settings,block_pointer block)
+bool Interp::is_m_code_remappable(int m_code)
 {
-    unsigned i;
-    for(i = 0; i < sizeof(block->m_modes)/sizeof(int); i++) {
-	if (block->m_modes[i] == -1)
-	    continue;
-	if (M_REMAPPABLE(block->m_modes[i]) &&
-	    settings->m_remapped[block->m_modes[i]])
+    // this is overdue for a bitset
+    return ((m_code > 199 && m_code < 1000) ||
+            (m_code > 0 && m_code < 100 && ems[m_code] == -1) ||
+            m_code == 0 ||
+            m_code == 1 ||
+            m_code == 6 ||
+            m_code == 7 ||
+            m_code == 8 ||
+            m_code == 9 ||
+            m_code == 60 ||
+            m_code == 61 ||
+            m_code == 62 ||
+            m_code == 63 ||
+            m_code == 64 ||
+            m_code == 65 ||
+            m_code == 66 ||
+            m_code == 67 ||
+            m_code == 68);
+}
+
+bool Interp::is_any_m_code_remapped(block_pointer block, setup_pointer settings)
+{
+    for (const int m_mode : block->m_modes) {
+	if (m_mode == -1)
+            continue;
+        if (is_m_code_remappable(m_mode) && settings->m_remapped[m_mode])
 	    return true;
     }
     return false;
 }
+
+bool Interp::is_user_defined_m_code(block_pointer block, setup_pointer settings, int m_group)
+{
+    const int m_code = block->m_modes[m_group];
+    if (m_code < 0) return false;
+
+    return (is_m_code_remappable(m_code) && settings->m_remapped[m_code]);
+}
+
+bool Interp::is_g_code_remappable(int g_code)
+{ return g_code > 0 && g_code < 1000 && gees[g_code] == -1; }
+
+bool Interp::is_user_defined_g_code(int g_code)
+{ return is_g_code_remappable(g_code) && _setup.g_remapped[g_code]; }
 
 bool Interp::remap_in_progress(const char *code)
 {
@@ -63,7 +99,7 @@ bool Interp::remap_in_progress(const char *code)
 }
 
 
-int Interp::convert_remapped_code(block_pointer block,
+int Interp::convert_remapped_code(block_pointer /*block*/,
 				  setup_pointer settings,
 				  int phase,
 				  char letter,
@@ -127,7 +163,7 @@ int Interp::convert_remapped_code(block_pointer block,
     if (remap->argspec && (strchr(remap->argspec, '@') != NULL)) {
     	// append a positional argument list instead of local variables
     	// if user specified '@'
-	// named local params are dealt with in execute_call() when 
+	// named local params are dealt with in execute_call() when
 	// the new call frame is fully established
     	CHP(add_parameters(settings, cblock, &cmd[strlen(cmd)]));
     }
@@ -140,7 +176,7 @@ int Interp::convert_remapped_code(block_pointer block,
     // good to go, pass to o-word call handling mechanism
     status = read(cmd);
     block_pointer eblock = &EXECUTING_BLOCK(*settings);
-    eblock->call_type = CT_REMAP; 
+    eblock->call_type = CT_REMAP;
     CHKS(status != INTERP_OK,
 	 "convert_remapped_code: initial read returned %s",
 	 interp_status(status));
@@ -180,14 +216,13 @@ int Interp::add_parameters(setup_pointer settings,
 			   block_pointer cblock,
 			   char *posarglist)
 {
-    const char *s,*argspec, *code;
+    const char *code;
     block_pointer block;
-    char missing[30],optional[30],required[30];
-    char *m = missing;
-    char *o = optional;
-    char *r = required;
-    char msg[LINELEN], tail[LINELEN];
+    std::string missing, optional, required;
+    std::string msg;
+    std::string tail;
     bool errored = false;
+    bool interp_error = false;
     remap_pointer rptr = cblock->executing_remap;
     context_pointer active_frame = &settings->sub_context[settings->call_level];
 
@@ -199,66 +234,82 @@ int Interp::add_parameters(setup_pointer settings,
     // if any Python handlers are present, create a kwargs dict
     bool pydict = rptr->remap_py || rptr->prolog_func || rptr->epilog_func;
 
-    std::fill(missing, std::end(missing), 0);
-    std::fill(optional, std::end(optional), 0);
-    std::fill(required, std::end(required), 0);
-    std::fill(msg, std::end(msg), 0);
-    std::fill(tail, std::end(tail), 0);
+    //argspec = rptr->argspec;
+    CHKS((rptr->argspec == NULL),"BUG: add_parameters: argspec = NULL");
 
-    s = argspec = rptr->argspec;
-    CHKS((argspec == NULL),"BUG: add_parameters: argspec = NULL");
-
-    while (*s) {
-	if (isupper(*s) && !strchr(required,*s)) *r++ = tolower(*s);
-	if (islower(*s) && !strchr(optional,*s)) *o++ = *s;
-	if (strchr(">^Nn",*s) && !strchr(required,*s)) *r++ = *s;
-	s++;
+    std::string_view argspec = rptr->argspec;
+    for (auto s : argspec) {
+        if (isupper(s) && required.find_first_of(s) == std::string::npos) {
+            required += tolower(s);
+        }
+        if (islower(s) && optional.find_first_of(s) == std::string::npos) {
+            optional += s;
+        }
+        if ((s == '>' || s == '^' || s == 'N' || s == 'n')
+            && required.find_first_of(s) == std::string::npos) {
+            required += s;
+        }
     }
     block = &CONTROLLING_BLOCK((*settings));
 
     logNP("add_parameters code=%s argspec=%s call_level=%d r=%s o=%s pydict=%d\n",
-	    code,argspec,settings->call_level,required,optional,pydict);
+          code,
+          argspec.data(),
+          settings->call_level,
+          required.c_str(),
+          optional.c_str(),
+          pydict);
 
-#define STORE(name,value)						\
-    if (pydict) {							\
-	try {								\
-	    active_frame->pystuff.impl->kwargs[name] = value;		\
-        }								\
-        catch (const bp::error_already_set&) {					\
-	    PyErr_Print();						\
-	    PyErr_Clear();						\
-	    ERS("add_parameters: can\'t add '%s' to args",name);		\
-	}								\
-    }									\
-    if (posarglist) {							\
-	char actual[LINELEN];						\
-	snprintf(actual, sizeof(actual),"[%.4lf]", value);		\
-	strcat(posarglist, actual);					\
-	cblock->param_cnt++;						\
-    } else {								\
-	add_named_param(name,0);					\
-	store_named_param(settings,name,value,0);			\
-    }
+    auto STORE
+    {
+        [&](const char* name, double value) -> void {
+            if (pydict) {
+                try {
+                    active_frame->pystuff.impl->kwargs[name] = value;
+                }
+                catch (const bp::error_already_set&) {
+                    PyErr_Print();
+                    PyErr_Clear();
+                    ERM("add parameters: can't add '%s' to args", name);
+                    interp_error = true;
+                    return;
+                }
+            }
+            if (posarglist) {
+                char actual[LINELEN];
+                snprintf(actual, sizeof(actual), "[%.4lf]", value);
+                strcat(posarglist, actual);
+                cblock->param_cnt++;
+            }
+            else {
+                add_named_param(name, 0);
+                store_named_param(settings, name, value, 0);
+            }
+        }
+    };
 
+    auto PARAM
+    {
+        [&](char spec, const char* name, bool flag, double value) -> void {
+            if (flag) {
+                if (required.find_first_of(spec) != std::string::npos
+                    || optional.find_first_of(spec) != std::string::npos) {
+                    STORE(name, value);
+                }
+            }
+            else {
+                if (required.find_first_of(spec) != std::string::npos) {
+                    missing += spec;
+                    errored = true;
+                }
+            }
+        }
+    };
 
-#define PARAM(spec,name,flag,value) 	                    	\
-    if ((flag)) { /* present */	                    	        \
-	/* required or optional */ 	                    	\
-	if (strchr(required,spec) || strchr(optional,spec)) {	\
-	    STORE(name,value);					\
-	}							\
-    } else {							\
-	if (strchr(required,spec)) { /* missing */		\
-	    *m++ = spec;					\
-	    errored = true;					\
-	}							\
-    }
-
-    s =  rptr->argspec;
     // step through argspec in order so positional args are built
     // in the correct order
-    while (*s) {
-	switch (tolower(*s)) {
+    for (auto s: argspec) {
+	switch (tolower(s)) {
 	case 'a' : PARAM('a',"a",block->a_flag,block->a_number); break;
 	case 'b' : PARAM('b',"b",block->b_flag,block->b_number); break;
 	case 'c' : PARAM('c',"c",block->c_flag,block->c_number); break;
@@ -284,49 +335,51 @@ int Interp::add_parameters(setup_pointer settings,
 	case '-' : break; // ignore - backwards compatibility
 	default: ;
 	}
-	s++;
+        if (interp_error)
+            return INTERP_ERROR;
     }
 
-    s = missing;
-    if (*s) {
-	rtapi_strxcat(tail," missing: ");
+    if (!missing.empty()) {
+        tail = " missing: ";
+        errored = true;
     }
-    while (*s) {
-	errored = true;
-	char c  = toupper(*s);
-	strncat(tail,&c,1);
-	if (*(s+1)) rtapi_strxcat(tail,",");
-	s++;
+    bool first = true;
+    for (auto s : missing) {
+        if (first) first = false;
+        else tail += ',';
+        tail += toupper(s);
     }
     // special cases:
     // N...add line number
-    if (strchr(required,'n') || strchr(required,'N')) {
-	STORE("n",(double) cblock->saved_line_number);
+    if (required.find_first_of('n') != std::string::npos || required.find_first_of('N') != std::string::npos) {
+        STORE("n", cblock->saved_line_number);
     }
 
     // >...require positive feed
-    if (strchr(required,'>')) {
-	if (settings->feed_rate > 0.0) {
-	    STORE("f",settings->feed_rate);
-	} else {
-	    rtapi_strxcat(tail,"F>0,");
-	    errored = true;
-	}
+    if (required.find_first_of('>') != std::string::npos) {
+        if (settings->feed_rate > 0.0) {
+            STORE("f", settings->feed_rate);
+        }
+        else {
+            tail += "F>0,";
+            errored = true;
+        }
     }
+
     // ^...require positive speed
-    //FIXME: How do we decide which spindle they want to use? (andypugh 17/7/16)
-    if (strchr(required,'^')) {
-	if (settings->speed[0] > 0.0) {
-	    STORE("s",settings->speed[0]);
-	} else {
-	    rtapi_strxcat(tail,"S>0,");
-	    errored = true;
-	}
+    // FIXME: How do we decide which spindle they want to use? (andypugh 17/7/16)
+    if (required.find_first_of('^') != std::string::npos) {
+        if (settings->speed[0] > 0.0) {
+            STORE("s", settings->speed[0]);
+        }
+        else {
+            tail += "S>0,";
+            errored = true;
+        }
     }
 
     if (errored) {
-	ERS("user-defined %s:%s",
-	    code, tail);
+        ERS("user-defined %s:%s", code, tail.c_str());
     }
     return INTERP_OK;
 }

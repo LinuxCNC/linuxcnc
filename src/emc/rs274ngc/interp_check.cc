@@ -235,11 +235,11 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
   motion = block->motion_to_be;
 
   // bypass ALL checks, argspec takes care of that
-  if (IS_USER_GCODE(motion)) {
+  if (is_user_defined_g_code(motion)) {
       return INTERP_OK;
   }
   // bypass ALL checks, argspec takes care of that
-  if (has_user_mcode(&(_setup),block)) {
+  if (is_any_m_code_remapped(block, &(_setup))) {
       return INTERP_OK;
     }
   if (block->a_flag) {
@@ -263,7 +263,9 @@ int Interp::check_other_codes(block_pointer block)       //!< pointer to a block
 
   if (block->dollar_flag) {
       CHKS(((motion != G_76) && (motion != G_33) && (motion != G_33_1) &&
-      (motion != G_95) && (motion != G_96) && (motion != G_97) &&
+      (block->g_modes[GM_FEED_MODE] != G_95) &&
+      (block->g_modes[GM_SPINDLE_MODE] != G_96) &&
+      (block->g_modes[GM_SPINDLE_MODE] != G_97) &&
       (block->m_modes[7] != 3) && (block->m_modes[7] != 4) &&
       (block->m_modes[7] != 5) && (block->m_modes[7] != 19) &&
       (block->m_modes[9] != 51) && (! block->s_flag)),

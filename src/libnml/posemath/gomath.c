@@ -2577,7 +2577,7 @@ int go_poGO_RESULT_plane_distance(const go_cart * point, const go_plane * plane,
 
 int go_plane_evaluate(const go_plane * plane, go_real u, go_real v, go_cart * point)
 {
-  go_cart v1, v2;		/* othogonal vectors in plane */
+  go_cart v1, v2;		/* orthogonal vectors in plane */
   go_cart p;			/* point in plane closest to origin */
 
   if (GO_RESULT_OK != go_cart_normal(&plane->normal, &v1)) return GO_RESULT_ERROR;

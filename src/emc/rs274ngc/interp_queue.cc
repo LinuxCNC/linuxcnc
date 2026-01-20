@@ -340,7 +340,7 @@ int enqueue_STRAIGHT_TRAVERSE(setup_pointer settings, int l,
     return 0;
 }
 
-void enqueue_ARC_FEED(setup_pointer settings, int l, 
+void enqueue_ARC_FEED(setup_pointer /*settings*/, int l,
                       double original_turns,
                       double end1, double end2, double center1, double center2,
                       int turn,
@@ -385,16 +385,6 @@ void enqueue_M_USER_COMMAND (int index, double p_number, double q_number) {
                         index,p_number,q_number);
     qc().push_back(q);
 }
-
-void enqueue_START_CHANGE (void) {
-    queued_canon q;
-    q.type = QSTART_CHANGE;
-    if(debug_qc) printf("enqueue START_CHANGE\n");
-    qc().push_back(q);
-}
-
-
-
 
 void qc_scale(double scale) {
     
@@ -547,11 +537,6 @@ void dequeue_canons(setup_pointer settings) {
                                                     q.data.mcommand.q_number);
             }
             break;
-	case QSTART_CHANGE:
-            if(debug_qc) printf("issuing start_change\n");
-            START_CHANGE();
-            free(q.data.comment.comment);
-            break;
         case QORIENT_SPINDLE:
             if(debug_qc) printf("issuing orient spindle\n");
             ORIENT_SPINDLE(q.data.set_spindle_speed.spindle,
@@ -665,7 +650,7 @@ int Interp::move_endpoint_and_flush(setup_pointer settings, double x, double y) 
                 break;
             default:
                 ERS(_("BUG: Unsupported plane [%d] in cutter compensation"),
-			settings->plane);
+			static_cast<int>(settings->plane));
             }
 
             dot = x1 * x2 + y1 * y2;

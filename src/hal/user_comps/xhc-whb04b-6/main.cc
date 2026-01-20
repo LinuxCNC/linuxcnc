@@ -33,7 +33,6 @@
 // local includes
 #include "./xhc-whb04b6.h"
 
-#include <inifile.hh>
 #include "config.h"
 
 using std::endl;
@@ -51,7 +50,7 @@ static int printUsage(const char* programName, const char* deviceName, bool isEr
     {
         os = &std::cerr;
     }
-    *os << programName << " version " << PACKAGE_VERSION << " " << __DATE__ << " " << __TIME__ << endl
+    *os << programName << " version " << PACKAGE_VERSION << endl
         << endl
         << "SYNOPSIS" << endl
         << "    " << programName << " [-h | --help] | [-H] [OPTIONS] " << endl
@@ -115,9 +114,15 @@ static int printUsage(const char* programName, const char* deviceName, bool isEr
         << "    Force being silent and not printing any output except of errors. This will also inhibit messages "
             "prefixed with \"init\"." << endl
         << endl
+        << " -P " << endl
+        << "    Device ProductId in hex (defaults to 0xeb93 if omitted)." << endl
+        << endl
         << "EXAMPLES" << endl
         << programName << " -ue" << endl
         << "    Prints incoming USB data transfer and generated key pressed/released events." << endl
+        << endl
+        << programName << " -ue -P 0xeb91" << endl
+        << "    Same as above but for a device with a product id 'eb91'." << endl
         << endl
         << programName << " -p" << endl
         << "    Prints hal pin names and events distributed to HAL memory." << endl
@@ -169,7 +174,7 @@ int main(int argc, char** argv)
 {
     WhbComponent = new XhcWhb04b6::XhcWhb04b6Component();
 
-    const char* optargs = "phaeHuctsfBnU:v:";
+    const char* optargs = "phaeHuctsfBnUP:v:";
     for (int opt = getopt(argc, argv, optargs); opt != -1; opt = getopt(argc, argv, optargs))
     {
         switch (opt)
@@ -221,6 +226,9 @@ int main(int argc, char** argv)
                 break;
             case 'h':
                 return printUsage(basename(argv[0]), WhbComponent->getName());
+                break;
+            case 'P':
+                 WhbComponent->setUsbProductId(std::stoi(optarg, 0, 16));
                 break;
             default:
                 return printUsage(basename(argv[0]), WhbComponent->getName(), true);

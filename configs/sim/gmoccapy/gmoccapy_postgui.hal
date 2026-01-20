@@ -1,5 +1,5 @@
 ###################################################################
-#        moccapy_postgui.hal file from Norbert Schechner          #
+#        gmoccapy_postgui.hal file from Norbert Schechner          #
 ###################################################################
 
 loadrt abs names=abs_spindle_feedback
@@ -16,7 +16,7 @@ unlinkp iocontrol.0.tool-changed
 unlinkp iocontrol.0.tool-prep-number
 
 #net tool-change      gmoccapy.toolchange-change   <=  iocontrol.0.tool-change 
-#net tool-changed     gmoccapy.toolchange-changed  <=  iocontrol.0.tool-changed
+#net tool-changed     gmoccapy.toolchange-changed  =>  iocontrol.0.tool-changed
 #net tool-prep-number gmoccapy.toolchange-number   <=  iocontrol.0.tool-prep-number
 
 net tool-change-loop  iocontrol.0.tool-change      =>  iocontrol.0.tool-changed

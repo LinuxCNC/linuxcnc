@@ -72,6 +72,19 @@ class INI:
                     print("EMBED_TAB_LOCATION = ntb_user_tabs", file=file)
                 print("EMBED_TAB_COMMAND = gladevcp -c gladevcp %s -H gvcp_call_list.hal -x {XID} gvcp-panel.ui"%(theme), file=file)
 
+        print(file=file)
+        if self.d.frontend == _PD._GMOCCAPY:
+            if self.d.gmcpy_mesascreen:
+                print("EMBED_TAB_NAME = Mesa PC", file=file)
+                print("EMBED_TAB_LOCATION = ntb_setup", file=file)
+                print("EMBED_TAB_COMMAND = gladevcp -x {XID} gtk_mesa_tests", file=file)
+                print(file=file)
+            if self.d.gmcpy_probescreen:
+                print("EMBED_TAB_NAME = Probe", file=file)
+                print("EMBED_TAB_LOCATION = ntb_preview", file=file)
+                print("EMBED_TAB_COMMAND = gladevcp -x {XID} gtk_little_probe", file=file)
+                print(file=file)
+
         if self.d.position_offset == 1: temp ="RELATIVE"
         else: temp = "MACHINE"
         print("POSITION_OFFSET = %s"% temp, file=file)
@@ -131,6 +144,15 @@ class INI:
             print("MDI_COMMAND = G53 G0 Z0;G53 G0 X0 Y0", file=file)
 
         print(file=file)
+
+        # this is needed for module embeded tab gtk_little_probe
+        if self.d.frontend == _PD._GMOCCAPY:
+            if self.d.gmcpy_probescreen:
+                print(file=file)
+                print("[TOOLSENSOR]", file=file)
+                print("RAPID_SPEED = 600", file=file)
+                print(file=file)
+
         print("[FILTER]", file=file)
         # qtplasmac has a different filter section
         if self.d.frontend == _PD._QTPLASMAC:
@@ -157,18 +179,59 @@ class INI:
         # qtplasmac has extra rs274ngc variables
         if self.d.frontend == _PD._QTPLASMAC:
             code = 21 if self.d.units == _PD._METRIC else 20
+            if '/usr' in self.d.qtplasmacbase:
+                mPath = '/usr/share/doc/linuxcnc/examples/nc_files/plasmac/m_files'
+            else:
+                mPath = os.path.realpath(os.path.join(self.d.qtplasmacbase, 'nc_files/plasmac/m_files'))
             print("RS274NGC_STARTUP_CODE = G{} G40 G49 G80 G90 G92.1 G94 G97 M52P1".format(code), file=file)
             print("SUBROUTINE_PATH = ./:../../nc_files", file=file)
-            print("USER_M_PATH = ./:../../nc_files", file=file)
+            print(f"USER_M_PATH = ./:{mPath}", file=file)
             print("", file=file)
         else:
             if self.d.units == _PD._METRIC:
                 unit = 21
                 p = .025
+                q = .025
             else:
                 unit = 20
-                p =.001
-            print ("RS274NGC_STARTUP_CODE = G{} G40 G90 G94 G97 G64 P{}".format(unit,p), file=file)
+                p = .001
+                q = .001
+            print("RS274NGC_STARTUP_CODE = G{} G40 G90 G94 G97 G64".format(unit), file=file)
+            print("", file=file)
+            print("# Default P value for G64 if P is not called out", file=file)
+            print("G64_DEFAULT_TOLERANCE = {}".format(p), file=file)
+            print("# Default Q value for G64 if Q is not called out", file=file)
+            print("G64_DEFAULT_NAIVETOLERANCE = {}".format(q), file=file)
+            print("", file=file)
+        if self.d.frontend == _PD._GMOCCAPY:
+            self.subrutinepath = "./macros:"
+            if self.d.gmcpy_probescreen:
+                # subrutine path for module embeded tab gtk_little_probe - package install
+                probepath = "/usr/share/linuxcnc/nc_files/probe/gtk_probe/"
+                if os.path.isdir(probepath):
+                    self.subrutinepath = self.subrutinepath + probepath + ":"
+                    print("Directory for probe files exist:", probepath)
+                else:
+                    print("Directory for probe files does not exist:", probepath)
+                # subrutine path for module embeded tab gtk_little_probe - RIP install
+                script_dir = os.path.dirname(__file__)
+                rel = "../../../nc_files/probe/gtk_probe/"
+                probepath = os.path.normpath(os.path.join(script_dir, rel))
+                if os.path.isdir(probepath):
+                    self.subrutinepath = self.subrutinepath + probepath + ":"
+                    print("Directory for probe files does exist:", probepath)
+                else:
+                    print("Directory for probe files does not exist:", probepath)
+            self.subrutinepath = self.subrutinepath.rstrip(":")
+            print("SUBROUTINE_PATH = %s"% self.subrutinepath, file=file)
+            print("REMAP=M6  modalgroup=6 prolog=change_prolog ngc=change_g43 epilog=change_epilog", file=file)
+            print("REMAP=M61  modalgroup=6 prolog=settool_prolog ngc=settool_g43 epilog=settool_epilog", file=file)
+            print(file=file)
+            print("# the Python plugins serves interpreter and task", file=file)
+            print("[PYTHON]", file=file)
+            print("PATH_PREPEND = ./python", file=file)
+            print("TOPLEVEL = ./python/toplevel.py", file=file)
+            print("LOG_LEVEL = 0", file=file)
 
         #base_period = self.d.ideal_period()
 
@@ -220,6 +283,9 @@ class INI:
                 print("POSTGUI_HALFILE = qtvcp_postgui.hal", file=file)
             elif self.d.frontend == _PD._GMOCCAPY:
                 print("POSTGUI_HALFILE = gmoccapy_postgui.hal", file=file)
+        # qtplasmac always has a postgui hal fil
+        if self.d.frontend == _PD._QTPLASMAC:
+            print("POSTGUI_HALFILE = qtplasmac_postgui.hal", file=file)
         print("POSTGUI_HALFILE = custom_postgui.hal", file=file)
         print("SHUTDOWN = shutdown.hal", file=file)
         print(file=file)
@@ -313,8 +379,6 @@ class INI:
             print("NO_FORCE_HOMING = 1", file=file)
         print(file=file)
         print("[EMCIO]", file=file)
-        print("EMCIO = io", file=file)
-        print("CYCLE_TIME = 0.100", file=file)
         print("TOOL_TABLE = tool.tbl", file=file)
         # qtplasmac doesn't require these
         if self.d.frontend != _PD._QTPLASMAC:
@@ -335,8 +399,8 @@ class INI:
         ##############################################################
         # self.d.axes:
         # 0 = xyz
-        # 1 = xz
-        # 2 = xyza
+        # 1 = xyza
+        # 2 = xz
         # todo: simplify hardcoding for trivkins sequential joint no.s
 
         jnum = 0
@@ -530,7 +594,8 @@ class INI:
 
         # if  user doesn't request manual individual homing, add the sequence number:
         if not self.d.individual_homing:
-            seqnum = int(get("homesequence"))
+            # start home sequences at 1 because tandem axes cannot be 0
+            seqnum = int(get("homesequence")) + 1
             # if a tandem joint we wish to finish the home sequence together
             if tandemflag: wait ='-'
             else: wait = ''

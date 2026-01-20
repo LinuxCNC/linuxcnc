@@ -206,6 +206,7 @@ static void handle_kinematicsSwitch(void);
   */
 void emcmotController(void *arg, long period)
 {
+    (void)arg;
     static int do_once = 1;
     if (do_once) {
         pcmd_p[0] = &(emcmotStatus->carte_pos_cmd.tran.x);
@@ -236,7 +237,7 @@ void emcmotController(void *arg, long period)
     /* calculate servo period as a double - period is in integer nsec */
     servo_period = period * 0.000000001;
 
-    if(period != last_period) {
+    if(period != (long)last_period) {
         emcmotSetCycleTime(period);
         last_period = period;
     }
@@ -340,6 +341,7 @@ static void handle_kinematicsSwitch(void) {
                ,anum,beforePose[anum],*pcmd_p[anum],*pcmd_p[anum]-beforePose[anum]);
     }
 #endif
+    axis_apply_ext_offsets_to_carte_pos(-1, pcmd_p);
     tpSetPos(&emcmotInternal->coord_tp, &emcmotStatus->carte_pos_cmd);
 } //handle_kinematicsSwitch()
 
@@ -380,11 +382,11 @@ static void process_inputs(void)
     if ( enables & AF_ENABLED ) {
         /* read and clamp adaptive feed HAL pin */
         double adaptive_feed_in = *emcmot_hal_data->adaptive_feed;
-        // Clip range to +/- 1.0
-        if ( adaptive_feed_in > 1.0 ) {
-            adaptive_feed_in = 1.0;
-        } else if (adaptive_feed_in < -1.0) {
-            adaptive_feed_in = -1.0;
+        // Clip range to +/- MAX_FEED_OVERRIDE from the [DISPLAY] section of the ini file
+        if (adaptive_feed_in > emcmotConfig->maxFeedScale) {
+            adaptive_feed_in = emcmotConfig->maxFeedScale;
+        } else if (adaptive_feed_in < -emcmotConfig->maxFeedScale) {
+            adaptive_feed_in = -emcmotConfig->maxFeedScale;
         }
         // Handle case of negative adaptive feed
         // Actual scale factor is always positive by default
@@ -716,51 +718,63 @@ static void process_probe_inputs(void)
     } else if (!old_probeVal && emcmotStatus->probeVal) {
         // not probing, but we have a rising edge on the probe.
         // this could be expensive if we don't stop.
-        int i;
-        int aborted = 0;
 
         if(!GET_MOTION_INPOS_FLAG() && tpQueueDepth(&emcmotInternal->coord_tp)) {
             // running an command
-            tpAbort(&emcmotInternal->coord_tp);
-            reportError(_("Probe tripped during non-probe move."));
-	    SET_MOTION_ERROR_FLAG(1);
-        }
+            if (emcmotStatus->motionType != EMC_MOTION_TYPE_PROBING) {
+                tpAbort(&emcmotInternal->coord_tp);
+                reportError(_("Probe tripped during non-probe move."));
+                SET_MOTION_ERROR_FLAG(1);
+            }
+        } else {
+            // not running a command
+            int i;
+            int aborted = 0;
 
-        for(i=0; i<NO_OF_KINS_JOINTS; i++) {
-            emcmot_joint_t *joint = &joints[i];
+            for(i=0; i<NO_OF_KINS_JOINTS; i++) {
+                emcmot_joint_t *joint = &joints[i];
 
-            if (!GET_JOINT_ACTIVE_FLAG(joint)) {
-                /* if joint is not active, skip it */
-                continue;
+                if (!GET_JOINT_ACTIVE_FLAG(joint)) {
+                    /* if joint is not active, skip it */
+                    continue;
+                }
+
+                // inhibit_probe_home_error is set by [TRAJ]->NO_PROBE_HOME_ERROR in the ini file
+                if (!emcmotConfig->inhibit_probe_home_error) {
+                    // abort any homing
+                    if(get_homing(i)) {
+                        do_cancel_homing(i);
+                        aborted=1;
+                    }
+                }
+
+                // inhibit_probe_jog_error is set by [TRAJ]->NO_PROBE_JOG_ERROR in the ini file
+                if (!emcmotConfig->inhibit_probe_jog_error) {
+                    // abort any joint jogs
+                    if(joint->free_tp.enable == 1) {
+                        joint->free_tp.enable = 0;
+                        // since homing uses free_tp, this protection of aborted
+                        // is needed so the user gets the correct error.
+                        if(!aborted) aborted=2;
+                    }
+                }
+            }
+            if (!emcmotConfig->inhibit_probe_jog_error) {
+                if (axis_jog_abort_all(1)) {
+                    aborted = 3;
+                }
             }
 
-            // abort any homing
-            if(get_homing(i)) {
-                do_cancel_homing(i);
-                aborted=1;
+            if(aborted == 1) {
+                reportError(_("Probe tripped during homing motion."));
             }
 
-            // abort any joint jogs
-            if(joint->free_tp.enable == 1) {
-                joint->free_tp.enable = 0;
-                // since homing uses free_tp, this protection of aborted
-                // is needed so the user gets the correct error.
-                if(!aborted) aborted=2;
+            if(aborted == 2) {
+                reportError(_("Probe tripped during a joint jog."));
             }
-        }
-        if (axis_jog_abort_all(1)) {
-            aborted = 3;
-        }
-
-        if(aborted == 1) {
-            reportError(_("Probe tripped during homing motion."));
-        }
-
-        if(aborted == 2) {
-            reportError(_("Probe tripped during a joint jog."));
-        }
-        if(aborted == 3) {
-            reportError(_("Probe tripped during a coordinate jog."));
+            if(aborted == 3) {
+                reportError(_("Probe tripped during a coordinate jog."));
+            }
         }
     }
     old_probeVal = emcmotStatus->probeVal;
@@ -862,6 +876,7 @@ static void set_operating_mode(void)
 	    /* disable free mode planner */
 	    joint->free_tp.enable = 0;
 	    joint->free_tp.curr_vel = 0.0;
+        joint->free_tp.curr_acc = 0.0;
 	    /* drain coord mode interpolators */
 	    cubicDrain(&(joint->cubic));
 	    if (GET_JOINT_ACTIVE_FLAG(joint)) {
@@ -1147,6 +1162,7 @@ static void handle_jjogwheels(void)
         joint->free_tp.pos_cmd = pos;
         joint->free_tp.max_vel = joint->vel_limit;
         joint->free_tp.max_acc = jaccel_limit;
+        joint->free_tp.max_jerk = joint->jerk_limit;
 	/* lock out other jog sources */
 	joint->wheel_jjog_active = 1;
         /* and let it go */
@@ -1206,6 +1222,8 @@ static void get_pos_cmds(long period)
 
 	    if(joint->acc_limit > emcmotStatus->acc)
 		joint->acc_limit = emcmotStatus->acc;
+        if(joint->jerk_limit > emcmotStatus->jerk)
+        joint->jerk_limit = emcmotStatus->jerk;
 	    /* compute joint velocity limit */
             if (   (emcmotStatus->motion_state != EMCMOT_MOTION_FREE)
                 && get_home_is_idle(joint_num) ) {
@@ -1238,8 +1256,10 @@ static void get_pos_cmds(long period)
             } else {
                 joint->free_tp.max_acc = joint->acc_limit;
             }
+            joint->free_tp.max_jerk = joint->jerk_limit;
             simple_tp_update(&(joint->free_tp), servo_period );
             /* copy free TP output to pos_cmd and coarse_pos */
+            joint->jerk_cmd = joint->free_tp.curr_jerk;
             joint->pos_cmd = joint->free_tp.curr_pos;
             joint->vel_cmd = joint->free_tp.curr_vel;
             //no acceleration output form simple_tp, but the pin will
@@ -1374,7 +1394,7 @@ static void get_pos_cmds(long period)
 	    /* point to joint struct */
 	    joint = &joints[joint_num];
 	    /* interpolate to get new position and velocity */
-	    joint->pos_cmd = cubicInterpolate(&(joint->cubic), 0, &(joint->vel_cmd), &(joint->acc_cmd), 0);
+		joint->pos_cmd = cubicInterpolate(&(joint->cubic), 0, &(joint->vel_cmd), &(joint->acc_cmd),  &(joint->jerk_cmd));
 	}
 	/* report motion status */
 	SET_MOTION_INPOS_FLAG(0);
@@ -1390,6 +1410,13 @@ static void get_pos_cmds(long period)
         }
 
         axis_sync_carte_pos_to_teleop_tp(+1, pcmd_p); // teleop
+
+	if ( axis_jog_is_active() ) {
+	    /* is any limit disabled for this move? */
+	    if ( emcmotStatus->overrideLimitMask ) {
+		emcmotInternal->overriding = 1;
+	    }
+	}
 
 	/* the next position then gets run through the inverse kins,
 	    to compute the next positions of the joints */
@@ -1417,7 +1444,7 @@ static void get_pos_cmds(long period)
 		       this cycle so it doesn't really matter */
 		cubicAddPoint(&(joint->cubic), joint->coarse_pos);
 		/* interpolate to get new position and velocity */
-		joint->pos_cmd = cubicInterpolate(&(joint->cubic), 0, &(joint->vel_cmd), &(joint->acc_cmd), 0);
+		joint->pos_cmd = cubicInterpolate(&(joint->cubic), 0, &(joint->vel_cmd), &(joint->acc_cmd),  &(joint->jerk_cmd));
 	    }
 	}
 	else
@@ -1431,7 +1458,14 @@ static void get_pos_cmds(long period)
 
 	/* END OF OUTPUT KINS */
 
+	/* if overriding is true and the jog is complete, the limits should be re-enabled */
+	if ( ( emcmotInternal->overriding ) && ( !axis_jog_is_active() ) ) {
+	    emcmotStatus->overrideLimitMask = 0;
+	    emcmotInternal->overriding = 0;
+	}
+
 	/* end of teleop mode */
+
 	break;
 
     case EMCMOT_MOTION_DISABLED:
@@ -1463,6 +1497,11 @@ static void get_pos_cmds(long period)
     for (joint_num = 0; joint_num < ALL_JOINTS; joint_num++) {
 	/* point to joint data */
 	joint = &joints[joint_num];
+	
+	/* Zero values */
+	joint_limit[joint_num][0] = 0;
+	joint_limit[joint_num][1] = 0;
+	
 	/* skip inactive or unhomed axes */
 	if ((!GET_JOINT_ACTIVE_FLAG(joint)) || (!get_homed(joint_num))) {
 	    continue;
@@ -1898,7 +1937,7 @@ static void output_to_hal(void)
 	*(emcmot_hal_data->spindle[spindle_num].spindle_speed_out_abs) = fabs(speed);
 	*(emcmot_hal_data->spindle[spindle_num].spindle_speed_out_rps_abs) = fabs(speed / 60);
 	*(emcmot_hal_data->spindle[spindle_num].spindle_on) = 
-        ((emcmotStatus->spindle_status[spindle_num].state * speed) !=0) ? 1 : 0;
+        ((emcmotStatus->spindle_status[spindle_num].state) !=0) ? 1 : 0;
 	*(emcmot_hal_data->spindle[spindle_num].spindle_forward) = (speed > 0) ? 1 : 0;
 	*(emcmot_hal_data->spindle[spindle_num].spindle_reverse) = (speed < 0) ? 1 : 0;
 	*(emcmot_hal_data->spindle[spindle_num].spindle_brake) =
@@ -1994,6 +2033,7 @@ static void output_to_hal(void)
 	*(joint_data->coarse_pos_cmd) = joint->coarse_pos;
 	*(joint_data->joint_vel_cmd) = joint->vel_cmd;
 	*(joint_data->joint_acc_cmd) = joint->acc_cmd;
+    *(joint_data->joint_jerk_cmd) = joint->jerk_cmd;
 	*(joint_data->backlash_corr) = joint->backlash_corr;
 	*(joint_data->backlash_filt) = joint->backlash_filt;
 	*(joint_data->backlash_vel) = joint->backlash_vel;

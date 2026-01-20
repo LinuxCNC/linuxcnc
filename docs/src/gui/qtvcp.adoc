@@ -45,10 +45,10 @@ image::images/qtvcp-cam-align.png["Qtscreen x1mill",align="center"]
 image::images/test_panel.png["Test Panel",align="center"]
 
 [[sec:qtvcp-overview]]
-== Overview(((QtVCP Overview)))
+== Overview
 
-_Two files are used, individually or in combination_, to
-add customizations:
+(((QtVCP Overview)))
+_Two files are used, individually or in combination_, to add customizations:
 
 * A *UI file* that is a _XML_ file made with _Qt Designer_ graphical editor.
 * A *handler file* which is a _Python_ code text file.
@@ -69,11 +69,9 @@ QtVCP uses the *PyQt5 toolkit's widgets* for LinuxCNC integration.
 
 *Widget* is the _general name for user interface objects_ such as buttons and labels in PyQt5.
 
-You are free to use any available *default widgets* in the Qt Designer
-editor.
+You are free to use any available *default widgets* in the Qt Designer editor.
 
-There are also *special widgets* made for LinuxCNC that make integration
-easier. +
+There are also *special widgets* made for LinuxCNC that make integration easier. +
 These are split in three heading on the left side of the editor:
 
 //TODO Add links to sections of QtVCP Widgets chapter
@@ -84,13 +82,11 @@ These are split in three heading on the left side of the editor:
 You are free to mix them in any way on your panel.
 
 A very important widget for CNC control is the *`ScreenOptions` widget*:
-it does not add anything visually to the screen but, allows important
-details to be selected rather then be coded in the handler file.
+It does not add anything visually to the screen but, allows important details to be selected rather then be coded in the handler file.
 
 === INI Settings
 
-If you are using QtVCP to make a CNC motion control screen (rather then a HAL based panel), in the INI file,
-in the `[DISPLAY]` section, add a line with the following pattern:
+If you are using QtVCP to make a CNC motion control screen (rather then a HAL based panel), in the INI file, in the `[DISPLAY]` section, add a line with the following pattern:
 
 [source,{ini}]
 ----
@@ -232,36 +228,90 @@ State_LED #name_of_led{
   }
 ----
 
+==== Handler Patching - Subclassing Builtin Screens
+We can have QtVCP load a subclassed version of the standard handler file. In that file we can manipulate the original functions or add new ones. +
+Subclassing just means our handler file first loads the original handler file and adds our new code on top of it - effectively a patch of changes. +
+This is useful for changing/adding behaviour while still retaining standard handler updates from LinuxCNC repositories.
+
+You may still need to use the handler copy dialog to copy the original handler file to decide how to patch it.
+See 'custom handler file'.
+
+There should be a folder in the config folder; for screens: named '<CONFIG FOLDER>/qtvcp/screens/<SCREEN NAME>/' +
+add the handle patch file there, named like so <ORIGINAL SCREEN NAME>_handler.py, +
+e.g., for QtDragon the file would be called 'qtdragon_handler.py'.
+
+Here is a sample to add X axis jog pins to a screen like QtDragon:
+
+[source,python]
+----
+import sys
+import importlib
+from qtvcp.core import Path, Qhal, Action
+PATH = Path()
+QHAL = Qhal()
+ACTION = Action()
+
+# get reference to original handler file so we can subclass it
+sys.path.insert(0, PATH.SCREENDIR)
+module = "{}.{}_handler".format(PATH.BASEPATH,PATH.BASEPATH)
+mod = importlib.import_module(module, PATH.SCREENDIR)
+sys.path.remove(PATH.SCREENDIR)
+HandlerClass = mod.HandlerClass
+
+# return our subclassed handler object to QtVCP
+def get_handlers(halcomp, widgets, paths):
+    return [UserHandlerClass(halcomp, widgets, paths)]
+
+# sub class HandlerClass which was imported above
+class UserHandlerClass(HandlerClass):
+    # add a terminal message so we know this got loaded
+    print('\nCustom subclassed handler patch loaded.\n')
+
+    def init_pins(self):
+        # call original handler init_pins function
+        super().init_pins()
+
+        # add jog pins X axis
+        pin = QHAL.newpin("jog.axis.jog-x-plus", QHAL.HAL_BIT, QHAL.HAL_IN)
+        pin.value_changed.connect(lambda s: self.kb_jog(s, 0, 1, fast = False, linear = True))
+
+        pin = QHAL.newpin("jog.axis.jog-x-minus", QHAL.HAL_BIT, QHAL.HAL_IN)
+        pin.value_changed.connect(lambda s: self.kb_jog(s, 0, -1, fast = False, linear = True))
+----
+
 ==== Minor Python Code Changes
+
 Another Python file can be used to *add commands* to the screen, after the handler file is parsed.
-This can be useful for minor changes while still honouring standard handler updates from linuxcnc repositoies.
+This can be useful for minor changes while still honouring standard handler updates from LinuxCNC repositories.
+
+[NOTE]
+Handler patching is a better way to add changes - instance patching is black magic voodoo - this is here for legacy reasons.
 
 In the _INI file_ under the `[DISPLAY]` heading add *`USER_COMMAND_FILE = _PATH_`* +
-
 _PATH_ can be any valid path.
-It can use `~` for home directory or `WORKINGDIRECTORY` or `CONFIGDIRECTORY` to represent QtVCP's idea of those directories, e.g.:
+It can use `~` for home directory or `WORKINGFOLDER` or `CONFIGFOLDER` to represent QtVCP's idea of those directories, e.g.:
 
 [source,{ini}]
 ----
 [DISPLAY]
-USER_COMMAND_FILE = CONFIGDIRECTORY/<screen_name_added_commands>
+USER_COMMAND_FILE = CONFIGFOLDER/<screen_name_added_commands>
 ----
 
 If no entry is found in the _INI_, QtVCP will look in the *default path*.
-The default path is in the configuration directory as a hidden file using the screen basename and rc, e.g., *`CONFIGDIRECTORY/.<screen_name>rc`*.
+The default path is in the configuration directory as a hidden file using the screen basename and rc, e.g., *`CONFIGURATION DIRECTORY/.<screen_name>rc`*.
 
 This file will be read and executed as Python code in the *handler file context*.
 
 *Only local functions and local attributes* can be referenced. +
-Global libraries defined in the screen's handler file can be referenced but must be preceded with 'self.' +
+Global libraries defined in the screen's handler file can be referenced by importing the handler file. +
 These are usually seen as all capital words with no preceding self. +
-'self' references the window class +
-'self.w' typically references the widgets
+'self' references the window class functions. +
+'self.w' typically references the widgets.
 
 What can be used can vary by screen and development cycle.
 
 .A simple example
-Reference the main window to change the title (Won't show if using INI entries for title change)
+Reference the main window to change the title (won't show if using INI entries for title change).
 
 [source,python]
 ----
@@ -269,66 +319,84 @@ self.w.setWindowTitle('My Title Test')
 ----
 
 .An advanced instance patching example
-This could work with the Qtdragon screen's handler file. +
+This could work with the QtDragon screen's handler file. +
 Here we show how to add new functions and override existing ones.
 
 [source,python]
 ----
-# needed to instance patch
+# Needed to instance patch.
 # reference: https://ruivieira.dev/python-monkey-patching-for-readability.html
 import types
 
-# import the handlerfile to get reference to it's libraries
+# import the handlerfile to get reference to its libraries.
 # use <screenname>_handler
 import qtdragon_handler as hdlr
 
 # This is actually an unbounded function with 'obj' as a parameter.
-# You call this function without the usual preceding 'self.'
+# You call this function without the usual preceding 'self.'.
 # This is because will will not be patching it into the original handler class instance
-# It will only be called from code in this file
+# It will only be called from code in this file.
 def test_function(obj):
     print(dir(obj))
 
 # This is a new function we will added to the existing handler class instance.
-# Notice it calls the unbounded function with 'self' as an parameter
-# 'self' is the only global reference available. It references the window instance
+# Notice it calls the unbounded function with 'self' as an parameter 'self' is the only global reference available.
+# It references the window instance.
 def on_keycall_F10(self,event,state,shift,cntrl):
     if state:
         print ('F10')
         test_function(self)
 
-# This will be used to override an existing function in the existing handler class instance
-# note we also call a copy of the original function too
-# this shows how to extend an existing function to do extra functions
+# This will be used to override an existing function in the existing handler class instance.
+# Note, we also call a copy of the original function too.
+# This shows how to extend an existing function to do extra functions.
 def on_keycall_F11(self,event,state,shift,cntrl):
     if state:
         self.on_keycall_F11_super(event,state,shift,cntrl)
         print ('Hello')
 
-# We are referencing the KEYBIND library that was instantiated in the 
-# original handler class instance by adding 'hdlr.' to it (from the imp).
-# This function tells KEYBIND to call 'on_keycall_F10' when F10 is pressed
+# We are referencing the KEYBIND library that was instantiated in the original handler class instance
+# by adding 'hdlr.' to it (from the imp).
+# This function tells KEYBIND to call 'on_keycall_F10' when F10 is pressed.
 hdlr.KEYBIND.add_call('Key_F10','on_keycall_F10')
 
-# Here we are instance patching the original handler file to add a new
-# function that calls our new function (of the same name)
-# defined in this file
+# Here we are instance patching the original handler file to add a new function
+# that calls our new function (of the same name) defined in this file.
 self.on_keycall_F10 = types.MethodType(on_keycall_F10, self)
 
-# Here we are defining a copy of the original 'on_keycall_F11' function
-# so we can call it later. we can use any valid, unused function name.
+# Here we are defining a copy of the original 'on_keycall_F11' function,
+# so we can call it later. We can use any valid, unused function name.
 # We need to do this before overriding the original function.
 self.on_keycall_F11_super = self.on_keycall_F11
 
-# Here we are instance patching the original handler file to override
-# an existing function to point to our new function (of the same name) 
-# defined in this file
+# Here we are instance patching the original handler file to override an existing function
+# to point to our new function (of the same name) defined in this file.
 self.on_keycall_F11 = types.MethodType(on_keycall_F11, self)
+
+
+# add a new pin to the screen:
+
+# pin callback to print the state
+def new_pin_changed(data):
+    print(data)
+
+# Special function that gets called before the HAL component is set ready.
+# Here we used the function to add a bit input pin with a callback.
+def after_override__(self):
+    try:
+        pin = hdlr.QHAL.newpin("new_pin", hdlr.QHAL.HAL_BIT, hdlr.QHAL.HAL_IN)
+        pin.value_changed.connect(new_pin_changed)
+    except Exception as e:
+        print(e)
+
+# Here we are instance patching the original handler file to add a new function
+# that calls our new function (of the same name) defined in this file.
+self.after_override__ = types.MethodType(after_override__, self)
 
 ----
 
 ==== Full Creative Control with custom handler/ui files
-If you wish to *modify a stock screen* with full control, _copy it's UI
+If you wish to *modify a stock screen* with full control, _copy its UI
 and handler file to your configuration folder_.
 
 There is a QtVCP panel to help with this:
@@ -336,12 +404,12 @@ There is a QtVCP panel to help with this:
 * Open a terminal and run the following command:
 +
 ----
-qtvcp copy_dialog
+qtvcp copy
 ----
 
 * Select the screen and destination folder in the dialog
 * If you wish to *name your screen* differently than the builtin screen's default name, change the _basename_ in the edit box.
-* There should be a folder in the config folder; for screens: named '<CONFIG FOLDER>/qtvcp/screens/' for panels:  named '<CONFIG FOLDER>/qtvcp/panels/' add the folders if ther are missing and copy your folder/files in it.
+* There should be a folder in the config folder; for screens: named '<CONFIG FOLDER>/qtvcp/screens/' for panels:  named '<CONFIG FOLDER>/qtvcp/panels/' add the folders if they are missing and copy your folder/files in it.
 * Validate to copy all the files
 * Delete the files you don't wish to modify so that the original files will be used.
 
@@ -529,7 +597,7 @@ Pick _'Main Window'_ and press the _'Create'_ button. +
 A _`MainWindow` widget_ is displayed.
 
 We are going to make this window a specific non resizeable size:
- 
+
 .Set `MainWindow` Minimum and Maximum Size
 * Grab the corner of the window and resize to an appropriate size, say 1000x600. +
 * Right click on the window and click set _minimum size_.
@@ -722,7 +790,7 @@ class HandlerClass:
                     QtCore.Qt.Key_F3,QtCore.Qt.Key_F5,QtCore.Qt.Key_F5):
 
             # search for the top widget of whatever widget received the event
-            # then check if it's one we want the keypress events to go to
+            # then check if it is one we want the keypress events to go to
             flag = False
             receiver2 = receiver
             while receiver2 is not None and not flag:
@@ -779,7 +847,7 @@ class HandlerClass:
     #####################
 
     # keyboard jogging from key binding calls
-    # double the rate if fast is true 
+    # double the rate if fast is true
     def kb_jog(self, state, joint, direction, fast = False, linear = True):
         if not STATUS.is_man_mode() or not STATUS.machine_is_on():
             return
@@ -903,6 +971,14 @@ The variables `halcomp`, `widgets` and `paths` give access to QtVCP's HAL compon
 There are several _special functions_ that QtVCP looks for in the handler file.
 If QtVCP finds these it will call them, if not it will silently ignore them.
 
+*`class_patch__(self):`*::
+  _Class patching_, also known as _monkey patching_, allows to *override function calls in an imported module*. +
+  Class patching must be done _before the module is instantiated_, and it _modifies all instances_ made after that. +
+  An example might be patching button calls from the G-code editor to call functions in the handler file instead. +
+  Class patching function redefined here, will be called with the HandlerClass instance as 'self' rather than the patched class instance.
+  This can make access to the patched class function/variables more difficult. +
+  When class patching outside of the HandlerClass class, the function call will use the patched class instance as 'self'. 
+
 *`initialized__(self):`*::
   This function is _called after the widgets and HAL pins are built_. +
   You can manipulate the widgets and HAL pins or add more HAL pins here. +
@@ -911,13 +987,17 @@ If QtVCP finds these it will call them, if not it will silently ignore them.
   * styles applied to widgets,
   * status of LinuxCNC connected to functions.
   * keybindings would be added.
-*`class_patch__(self):`*::
-  _Class patching_, also known as _monkey patching_, allows to *override function calls in an imported module*. +
-  Class patching must be done _before the module is instantiated_, and it _modifies all instances_ made after that. +
-  An example might be patching button calls from the G-code editor to call functions in the handler file instead. +
+
+*`pre_hal_init__(self):`*::
+  This function is called before the HAL-ified widgets have their hal_init_ function called. +
+  Some property changes need to be done before HAL_init is called on the widget.
+
+*`after_override__(self):`*::
+  This function is called after the optional override file is loaded but +
+  before the optional HAL file is loaded or HAL component is set ready.
 
 *`processed_key_event__(self,receiver,event,is_pressed,key,code,shift,cntrl):`*::
-  This function is called to facilitate _keyboard jogging_ etc. +
+  This function is called to facilitate _keyboard jogging_, etc. +
   By using the _`keybinding` library_ this can be used to easily add functions bound to keypresses.
 
 *`keypress_event__(self,receiver, event):`*::

@@ -63,7 +63,7 @@ import hal
 try:
     LINUXCNCVERSION = os.environ['LINUXCNCVERSION']
 except:
-    LINUXCNCVERSION = 'Master (2.9)'
+    LINUXCNCVERSION = 'Master (2.10)'
 
 def get_value(w):
     try:
@@ -246,6 +246,8 @@ class App:
                         self.widgets.useinisubstitution.set_active(eval(text))
                     elif name == "show_advanced_pages":
                         show_pages = eval(text)
+                    elif name == "dont_show_again":
+                        self.d._dont_show_again = eval(text)
                     elif name == "machinename":
                         self.d._lastconfigname = text
                     elif name == "chooselastconfig":
@@ -272,6 +274,13 @@ class App:
         self.widgets.createsymlink.set_active(link)
         self.widgets.createshortcut.set_active(short)
         self.widgets.advancedconfig.set_active(show_pages)
+
+        # setup stylesheet for widget coloring
+        # we use this later to highlight missing axis and encoder info
+        self.css_provider = Gtk.CssProvider()
+        context = Gtk.StyleContext()
+        screen = Gdk.Screen.get_default()
+        context.add_provider_for_screen(screen, self.css_provider, Gtk.STYLE_PROVIDER_PRIORITY_APPLICATION)
 
         tempfile = os.path.join(self._p.DISTDIR, "configurable_options/ladder/TEMP.clp")
         if os.path.exists(tempfile):
@@ -329,73 +338,123 @@ class App:
 
     def buid_config(self):
         base = self.build_base()
-        self.d.save(base)
-        #self.write_readme(base)
-        self.INI.write_inifile(base)
-        self.HAL.write_halfile(base)
-        # qtplasmac specific
-        if self.d.frontend == _PD._QTPLASMAC:
-            # copy M190 file
-            if BASE == "/usr":
-                m190Path = os.path.join(BASE, 'share/doc/linuxcnc/examples/sample-configs/sim/qtplasmac/M190')
-            else:
-                m190Path = os.path.join(BASE, 'configs/sim/qtplasmac/M190')
-            shutil.copy(m190Path, os.path.join(base, 'M190'))
-            # different looking tool table for qtplasmac
-
-            dest = os.path.join(base, "tool.tbl")
-            if not os.path.exists(dest):
-                file = open(dest, "w")
-                print("T0 P1 X0 Y0 ;torch", file=file)
-                print("T1 P2 X0 Y0 ;scribe", file=file)
-                file.close()
-
-        # _not_ qtplasmac
-        else:
-            dest = os.path.join(base, "tool.tbl")
-            print (base,'\ncopy:',dest,os.path.exists(dest))
-            if not os.path.exists(dest):
-                print('copied')
+        if self.validate_database():
+            self.d.save(base)
+            #self.write_readme(base)
+            self.INI.write_inifile(base)
+            self.HAL.write_halfile(base)
+            # qtplasmac specific
+            if self.d.frontend == _PD._QTPLASMAC:
                 # different looking tool table for qtplasmac
-                file = open(dest, "w")
-                if self.d.axes == 2:# lathe
-                    if self.d.units == _PD._METRIC:
-                        print("T1 P1 D3 Z+3 I+95.000000 J+155.000000 Q1 ; Sample Tool", file=file)
-                        print("T2 P2 D3 I+85.000000 J+25.000000 Q2 ; Sample Tool", file=file)
-                        print("T3 P3 D3 I+275.000000 J+335.000000 Q3 ; Sample Tool", file=file)
-                        print("T4 P4 D3 I+265.000000 J+205.000000 Q4 ; Sample Tool", file=file)
+                dest = os.path.join(base, "tool.tbl")
+                if not os.path.exists(dest):
+                    file = open(dest, "w")
+                    print("T0 P1 X0 Y0 ;torch", file=file)
+                    print("T1 P2 X0 Y0 ;scribe", file=file)
+                    file.close()
+            # _not_ qtplasmac
+            else:
+                dest = os.path.join(base, "tool.tbl")
+                print (base,'\ncopy:',dest,os.path.exists(dest))
+                if not os.path.exists(dest):
+                    print('copied')
+                    file = open(dest, "w")
+                    if self.d.axes == 2:# lathe
+                        if self.d.units == _PD._METRIC:
+                            print("T1 P1 D3 Z+3 I+95.000000 J+155.000000 Q1 ; Sample Tool", file=file)
+                            print("T2 P2 D3 I+85.000000 J+25.000000 Q2 ; Sample Tool", file=file)
+                            print("T3 P3 D3 I+275.000000 J+335.000000 Q3 ; Sample Tool", file=file)
+                            print("T4 P4 D3 I+265.000000 J+205.000000 Q4 ; Sample Tool", file=file)
+                        else:
+                            print("T1 P1 D0.100000 Z+0.100000 I+95.000000 J+155.000000 Q1 ; Sample Tool", file=file)
+                            print("T2 P2 D0.100000 I+85.000000 J+25.000000 Q2 ; Sample Tool", file=file)
+                            print("T3 P3 D0.100000 I+275.000000 J+335.000000 Q3 ; Sample Tool", file=file)
+                            print("T4 P4 D0.100000 I+265.000000 J+205.000000 Q4 ; Sample Tool", file=file)
+                            print("T5 P5 D0.100000 I+210.000000 J+150.000000 Q5 ; Sample Tool", file=file)
+                            print("T6 P6 D0.100000 X+0.500000 Z+0.500000 I+120.000000 J+60.000000 Q6 ; Sample Tool", file=file)
+                            print("T7 P7 D0.100000 I-30.000000 J+30.000000 Q7 ; Sample Tool", file=file)
+                            print("T8 P8 D0.100000 I+240.000000 J+300.000000 Q8 ; Sample Tool", file=file)
                     else:
-                        print("T1 P1 D0.100000 Z+0.100000 I+95.000000 J+155.000000 Q1 ; Sample Tool", file=file)
-                        print("T2 P2 D0.100000 I+85.000000 J+25.000000 Q2 ; Sample Tool", file=file)
-                        print("T3 P3 D0.100000 I+275.000000 J+335.000000 Q3 ; Sample Tool", file=file)
-                        print("T4 P4 D0.100000 I+265.000000 J+205.000000 Q4 ; Sample Tool", file=file)
-                        print("T5 P5 D0.100000 I+210.000000 J+150.000000 Q5 ; Sample Tool", file=file)
-                        print("T6 P6 D0.100000 X+0.500000 Z+0.500000 I+120.000000 J+60.000000 Q6 ; Sample Tool", file=file)
-                        print("T7 P7 D0.100000 I-30.000000 J+30.000000 Q7 ; Sample Tool", file=file)
-                        print("T8 P8 D0.100000 I+240.000000 J+300.000000 Q8 ; Sample Tool", file=file)
-                else:
-                    if self.d.units == _PD._METRIC:
-                        print("T1 P1 Z0.511 D3 ;3mm end mill Sample Tool", file=file)
-                        print("T2 P4 Z0.1 D1.5 ;1.5mm  end mill Sample Tool", file=file)
-                        print("T3 P3 Z1.273 D5 ;5mm tap drill Sample Tool", file=file)
-                        print("T4 P2 Z10 D16 ;16 mm Sample Tool", file=file)
-                        print("T5 P5 Z25 D25 ;25mm er Sample Tool", file=file)
-                    else:
-                        print("T1 P1 Z0.511 D0.125 ;1/8 end mill Sample Tool", file=file)
-                        print("T2 P2 Z0.1 D0.0625 ;1/16 end mill Sample Tool", file=file)
-                        print("T3 P3 Z1.273 D0.201 ;#7 tap drill Sample Tool", file=file)
-                        print("T4 P4 Z0 D2 ; 2 inch mill Sample Tool", file=file)
+                        if self.d.units == _PD._METRIC:
+                            print("T1 P1 Z0.511 D3 ;3mm end mill Sample Tool", file=file)
+                            print("T2 P4 Z0.1 D1.5 ;1.5mm  end mill Sample Tool", file=file)
+                            print("T3 P3 Z1.273 D5 ;5mm tap drill Sample Tool", file=file)
+                            print("T4 P2 Z10 D16 ;16 mm Sample Tool", file=file)
+                            print("T5 P5 Z25 D25 ;25mm er Sample Tool", file=file)
+                        else:
+                            print("T1 P1 Z0.511 D0.125 ;1/8 end mill Sample Tool", file=file)
+                            print("T2 P2 Z0.1 D0.0625 ;1/16 end mill Sample Tool", file=file)
+                            print("T3 P3 Z1.273 D0.201 ;#7 tap drill Sample Tool", file=file)
+                            print("T4 P4 Z0 D2 ; 2 inch mill Sample Tool", file=file)
 
-                file.close()
+                    file.close()
 
-        if self.warning_dialog(self._p.MESS_QUIT,False):
-            Gtk.main_quit()
+            # copy files for Gmoccapy remaps M6 and m61
+            if self.d.frontend == _PD._GMOCCAPY:
+                
+                # source directory
+                dirgmoccapy = os.path.join(BASE, "share", "linuxcnc", "pncconf", "gmoccapy")
+                if not os.path.exists(dirgmoccapy):
+                    dirgmoccapy = os.path.join(BASE, "src", "emc", "usr_intf", "pncconf", "gmoccapy")
+                srcmacros = os.path.join(dirgmoccapy, "macros")
+                srcpython = os.path.join(dirgmoccapy, "python")
+
+                # destination directory
+                dstmacros = os.path.join(base, "macros")
+                dstpython = os.path.join(base, "python")
+
+                # copy files
+                if not os.path.exists(dstmacros):
+                    shutil.copytree(srcmacros, dstmacros)
+                
+                if not os.path.exists(dstpython):
+                    shutil.copytree(srcpython, dstpython)
+
+            if self.warning_dialog(self._p.MESS_QUIT,False):
+                Gtk.main_quit()
 
     def save(self):
         base = self.build_base()
         self.d.save(base)
 
 # helper functions
+
+    def validate_database(self):
+        ''' validate various parameters before writing data '''
+        changes = ''
+        # validate home_sequences
+        changed = False
+        seq = []
+        if self.d.axes == 0: myAxes = 'xyz'
+        elif self.d.axes == 1: myAxes = 'xyza'
+        elif self.d.axes == 2: myAxes = 'xz'
+        for axis in myAxes: seq.append(self.d[axis + "homesequence"])
+        mini = min(seq)
+        if mini != 0: # first home sequence must be 0
+            for n in range(len(seq)):
+                seq[n] -= mini
+            changed = True
+        order = list(set(seq)) # used sequence numbers must be consecutive
+        if len(order) > 1:
+            for n in range(1, len(order)):
+                if order[n] > order[n-1] + 1:
+                    for s in range(len(seq)):
+                        if seq[s] == order[n]:
+                            seq[s] = order[n-1] + 1
+                    order[n] = order[n-1] + 1
+                    changed = True
+        if changed:
+            for n in range(len(seq)):
+                if seq[n] != self.d[myAxes[n] + "homesequence"]:
+                    change = f'{myAxes[n]} axis home sequence changed from {self.d[myAxes[n] + "homesequence"]+1} to {seq[n]+1}'
+                    changes += change + '\n'
+                self.widgets[myAxes[n] + "homesequence"].set_active(seq[n])
+                self.d[myAxes[n] + "homesequence"] = seq[n]
+
+        if changes:
+            self.warning_dialog(changes, True)
+            return False
+        return True
 
     def get_discovery_meta(self):
         self.widgets.boarddiscoverydialog.set_title(_("Discovery metadata update"))
@@ -619,12 +678,34 @@ class App:
                 self._p.MESA_BOARDNAMES.append(folder)
         else:
             #TODO what if there are no external firmware is this enough?
-            self.warning_dialog(_("""Some older cards require firmware.
+
+            if not self.d._dont_show_again:
+                dialog = Gtk.MessageDialog(
+                    parent=self.widgets.window1,
+                    modal=True,
+                    destroy_with_parent=True,
+                    message_type=Gtk.MessageType.WARNING,
+                    buttons=Gtk.ButtonsType.OK,
+                    text=_("""Some older cards require firmware.
 You have no hostmot2 firmware downloaded in folder:
 %s
 PNCconf will use It's internal firmware data samples so you can continue.
 You could also try the discovery option if your card is connected and doesn't require firmware to be loaded at run time.
-Discovery option requires the advanced options checked on this page."""%self._p.FIRMDIR),True)
+Discovery option requires the advanced options checked on this page."""%self._p.FIRMDIR))
+
+                checkbox = Gtk.CheckButton.new_with_label(_("Don't show this again"))
+                checkbox.set_halign(Gtk.Align.START)
+
+                dialog.get_content_area().pack_end(checkbox, False, False, 0)
+                checkbox.show_all()
+
+                dialog.show_all()
+                dialog.run()
+                dialog.destroy()
+
+                if checkbox.get_active():
+                    self.d._dont_show_again = True
+
         for firmware in self._p.MESA_INTERNAL_FIRMWAREDATA:
             if 'internal' in firmware[0].lower():
                 if firmware[0] in self._p.MESA_BOARDNAMES:
@@ -1852,7 +1933,7 @@ Discovery option requires the advanced options checked on this page."""%self._p.
                 self.widgets[key].set_active(False)
             else:
                 self.widgets[key].set_active(True)
-                self.widgets[key+"button"].set_color(gdk.color_parse(data))
+                self.widgets[key+"button"].set_color(Gdk.color_parse(data))
         self.widgets.touchyforcemax.set_active(bool(prefs.getpref('window_force_max')))
 
     def set_touchy_preference(self, value, default, type):
@@ -2229,7 +2310,6 @@ Clicking 'existing custom program' will avoid this warning. "),False):
             d = self._p.MESA_FIRMWAREDATA[search]
             if not d[self._p._BOARDTITLE] == title:continue
             temp.append(d[self._p._FIRMWARE])
-        temp.sort()
         for i in temp:
             #print(i)
             model.append_text(i)
@@ -3039,7 +3119,7 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                         self.widgets[ptype].set_sensitive(0)
                         self.widgets[p].set_model(self.d._notusedsignaltree)
                         self.widgets[p].set_active(0)
-                        return 'ERROR: more then maximium channels'
+                        return 'ERROR: more then maximum channels'
 
                     #print("**** INFO: SMART SERIAL ENCODER:",firmptype," compnum = ",compnum," channel = ",channelnum)
                     #print("sserial channel:%d"% numofsserialchannels)
@@ -3653,7 +3733,7 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                         self.d._arcvpin = pin
                     elif self.d._arcvpin == pin:
                         self.d._arcvpin = None
-                    if self.d._arcvpin and self.d.frontend == _PD._QTPLASMAC:
+                    if self.d._arcvpin != None and self.d.frontend == _PD._QTPLASMAC:
                         self.p.page_set_state('thcad', True)
                     else:
                         self.p.page_set_state('thcad', False)
@@ -4312,7 +4392,7 @@ Clicking 'existing custom program' will avoid this warning. "),False):
             w[axis+"homesearchvel"].set_text("%d" % (d[axis+"homesearchvel"]*60))
             w[axis+"homelatchvel"].set_text("%d" % (d[axis+"homelatchvel"]*60))
             w[axis+"homefinalvel"].set_text("%d" % (d[axis+"homefinalvel"]*60))
-            w[axis+"homesequence"].set_text("%d" % abs(d[axis+"homesequence"]))
+            set_active("homesequence")
             set_active("searchdir")
             set_active("latchdir")
             set_active("usehomeindex")
@@ -4503,7 +4583,7 @@ Clicking 'existing custom program' will avoid this warning. "),False):
             d[axis + "homesearchvel"] = (get_value(w[axis + "homesearchvel"])/60)
             d[axis + "homelatchvel"] = (get_value(w[axis + "homelatchvel"])/60)
             d[axis + "homefinalvel"] = (get_value(w[axis + "homefinalvel"])/60)
-            d[axis+"homesequence"] = (abs(get_value(w[axis+"homesequence"])))
+            get_active("homesequence")
             get_active("searchdir")
             get_active("latchdir")
             get_active("usehomeindex")
@@ -4861,16 +4941,22 @@ Clicking 'existing custom program' will avoid this warning. "),False):
         if self.findsignal(axis+"-encoder-a"): encoder = True
         if self.findsignal(axis+"-resolver"): resolver = True
         if self.findsignal(axis+"-pot-outpot"): pot = True
+        css = ""
         if encoder or resolver:
             if self.widgets[axis+"encoderscale"].get_value() < 1:
-                self.widgets[axis+"encoderscale"].override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA.from_color(Gdk.color_parse('red')))
+                css += f'#{axis}encoderscale'
                 dbg('encoder resolver scale bad %f'%self.widgets[axis+"encoderscale"].get_value())
                 bad = True
         if stepdrive:
             if self.widgets[axis+"stepscale"].get_value() < 1:
-                self.widgets[axis+"stepscale"].override_background_color(Gtk.StateFlags.NORMAL, Gdk.RGBA.from_color(Gdk.color_parse('red')))
+                if css:
+                    css += ", "
+                css += f'#{axis}stepscale'
                 dbg('step scale bad')
                 bad = True
+        if css:
+            css += '{background-color: red}'
+            self.css_provider.load_from_data(css.encode())
         if not (encoder or resolver) and not stepdrive and not axis == "s":
             dbg('encoder %s resolver %s stepper %s axis %s'%(encoder,resolver,stepdrive,axis))
             bad = True
@@ -4887,8 +4973,8 @@ Clicking 'existing custom program' will avoid this warning. "),False):
             self.widgets[axis + "axistest"].set_sensitive(0)
         else:
             dbg('motor %s_encoder sanity check - good'%axis)
-            self.widgets[axis+"encoderscale"].override_background_color(Gtk.StateFlags.NORMAL, self.origbg)
-            self.widgets[axis+"stepscale"].override_background_color(Gtk.StateFlags.NORMAL, self.origbg)
+            css = f'#{axis}stepscale, #{axis}encoderscale {{background-color: @theme_bg_color;}}'
+            self.css_provider.load_from_data(css.encode())
             self.p.set_buttons_sensitive(1,1)
             self.widgets[axis + "axistune"].set_sensitive(1)
             self.widgets[axis + "axistest"].set_sensitive(1)
@@ -5212,9 +5298,9 @@ Clicking 'existing custom program' will avoid this warning. "),False):
             elif not "5i25" in board1 and not '7i90' in board1:
                 firmstring1 = "firmware=hm2/%s/%s.BIT " % (directory1, firm1)
 
-            # TODO fix this hardcoded hack: only one serialport
-            ssconfig0 = ssconfig1 = resolver0 = resolver1 = temp = ""
-            if self.d.mesa0_numof_sserialports:
+            ssport0 = ssport1 = resolver0 = resolver1 = ""
+            for p in range(0, self.d.mesa0_numof_sserialports):
+                temp = ""
                 for i in range(1,_PD._NUM_CHANNELS+1):
                     if i <= self.d.mesa0_numof_sserialchannels:
                         # m number in the name signifies the required sserial mode
@@ -5225,19 +5311,22 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                         else: temp = temp + "0" # default case
                     else:
                         temp = temp + "x"
-                ssconfig0 = " sserial_port_0=%s"% temp
-            if self.d.number_mesa == 2 and self.d.mesa1_numof_sserialports:
-                for i in range(1,_PD._NUM_CHANNELS+1):
-                    if i <= self.d.mesa1_numof_sserialchannels:
-                        # m number in the name signifies the required sserial mode
-                        for j in ("123456789"):
-                            if ("m"+j) in self.d["mesa1sserial0_%dsubboard"% (i-1)]:
-                                temp = temp + j
-                                break
-                        else: temp = temp + "0" # default case
-                    else:
-                        temp = temp + "x"
-                ssconfig1 = " sserial_port_0=%s"% temp
+                ssport0 += " sserial_port_{}={}".format(p, temp)
+
+            if self.d.number_mesa == 2:
+                for p in range(0, self.d.mesa01numof_sserialports):
+                    for i in range(1,_PD._NUM_CHANNELS+1):
+                        if i <= self.d.mesa1_numof_sserialchannels:
+                            # m number in the name signifies the required sserial mode
+                            for j in ("123456789"):
+                                if ("m"+j) in self.d["mesa1sserial0_%dsubboard"% (i-1)]:
+                                    temp = temp + j
+                                    break
+                            else: temp = temp + "0" # default case
+                        else:
+                            temp = temp + "x"
+                ssport1 += " sserial_port_{}={}".format(p, temp)
+
             if self.d.mesa0_numof_resolvers:
                 resolver0 = " num_resolvers=%d"% self.d.mesa0_numof_resolvers
             if self.d.mesa1_numof_resolvers:
@@ -5251,25 +5340,25 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                 load_cmnds.append( """loadrt%s%s%s config="%snum_encoders=%d num_pwmgens=%d%s num_stepgens=%d%s%s" """ % (
                     driver0, board0_ip, mesa0_ioaddr,
                     firmstring0, self.d.mesa0_numof_encodergens, self.d.mesa0_numof_pwmgens, mesa0_3pwm, self.d.mesa0_numof_stepgens,
-                    ssconfig0, resolver0))
+                    ssport0, resolver0))
             elif self.d.number_mesa == 2 and (driver0 == driver1):
                 loadstring  = """loadrt%s%s%s%s%s config="%snum_encoders=%d num_pwmgens=%d%s num_stepgens=%d%s%s,""" % (
                     driver0, board0_ip, board1_ip, mesa0_ioaddr, mesa1_ioaddr,
                     firmstring0, self.d.mesa0_numof_encodergens, self.d.mesa0_numof_pwmgens, mesa0_3pwm, self.d.mesa0_numof_stepgens,
-                    ssconfig0, resolver0)
+                    ssport0, resolver0)
                 loadstring += """ %snum_encoders=%d num_pwmgens=%d%s num_stepgens=%d%s%s" """ % (
                     firmstring1, self.d.mesa1_numof_encodergens, self.d.mesa1_numof_pwmgens, mesa1_3pwm, self.d.mesa1_numof_stepgens,
-                    ssconfig1, resolver1)
+                    ssport1, resolver1)
                 load_cmnds.append(loadstring)
             elif self.d.number_mesa == 2:
                 load_cmnds.append( """loadrt%s%s%s config="%snum_encoders=%d num_pwmgens=%d%s num_stepgens=%d%s%s" """ % (
                     driver0, board0_ip, mesa0_ioaddr,
                     firmstring0, self.d.mesa0_numof_encodergens, self.d.mesa0_numof_pwmgens, mesa0_3pwm, self.d.mesa0_numof_stepgens,
-                    ssconfig0, resolver0 ))
+                    ssport0, resolver0 ))
                 load_cmnds.append( """loadrt%s%s%s config="%snum_encoders=%d num_pwmgens=%d%s num_stepgens=%d%s%s" """ % (
                     driver1, board1_ip, mesa1_ioaddr,
                     firmstring1, self.d.mesa1_numof_encodergens, self.d.mesa1_numof_pwmgens, mesa1_3pwm, self.d.mesa1_numof_stepgens,
-                    ssconfig1, resolver1 ))
+                    ssport1, resolver1 ))
             for boardnum in range(0,int(self.d.number_mesa)):
                 if boardnum == 1 and (board0 == board1):
                     halnum = 1
@@ -5571,7 +5660,10 @@ Clicking 'existing custom program' will avoid this warning. "),False):
                         return "%s."% (make_name(boardname,halboardnum)) + "outm.00.out-%02d"% (compnum)
                     elif ptype == _PD.INM0:
                         compnum -= 100
-                        return "%s."% (make_name(boardname,halboardnum)) + "inm.00.input-%02d"% (compnum)
+                        if boardname in ("7i95t"):
+                            return "%s."% (make_name(boardname,halboardnum)) + "inmux.00.input-%02d"% (compnum)
+                        else:
+                            return "%s."% (make_name(boardname,halboardnum)) + "inm.00.input-%02d"% (compnum)
                     else:
                         compnum = int(pinnum)+(concount* num_of_pins )
                         return "%s."% (make_name(boardname,halboardnum)) + "gpio.%03d"% (compnum)

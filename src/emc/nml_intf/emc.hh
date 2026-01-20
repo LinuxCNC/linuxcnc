@@ -31,7 +31,6 @@ class EMC_TOOL_STAT;
 class EMC_AUX_STAT;
 class EMC_SPINDLE_STAT;
 class EMC_COOLANT_STAT;
-class EMC_LUBE_STAT;
 class EMC_IO_STAT;
 class EMC_STAT;
 class CMS;
@@ -64,7 +63,6 @@ struct PM_CARTESIAN;
 #define EMC_JOINT_SET_FERROR_TYPE                     ((NMLTYPE) 111)
 #define EMC_JOINT_SET_HOMING_PARAMS_TYPE              ((NMLTYPE) 112)
 #define EMC_JOINT_SET_MIN_FERROR_TYPE                 ((NMLTYPE) 115)
-#define EMC_JOINT_SET_MAX_VELOCITY_TYPE               ((NMLTYPE) 116)
 #define EMC_JOINT_HALT_TYPE                           ((NMLTYPE) 119)
 #define EMC_JOINT_HOME_TYPE                           ((NMLTYPE) 123)
 #define EMC_JOG_CONT_TYPE                             ((NMLTYPE) 124)
@@ -86,25 +84,15 @@ struct PM_CARTESIAN;
 #define EMC_TRAJ_TERM_COND_EXACT 1
 #define EMC_TRAJ_TERM_COND_BLEND 2
 
-#define EMC_TRAJ_SET_AXES_TYPE                       ((NMLTYPE) 201)
-#define EMC_TRAJ_SET_UNITS_TYPE                      ((NMLTYPE) 202)
-#define EMC_TRAJ_SET_CYCLE_TIME_TYPE                 ((NMLTYPE) 203)
 #define EMC_TRAJ_SET_MODE_TYPE                       ((NMLTYPE) 204)
 #define EMC_TRAJ_SET_VELOCITY_TYPE                   ((NMLTYPE) 205)
 #define EMC_TRAJ_SET_ACCELERATION_TYPE               ((NMLTYPE) 206)
 #define EMC_TRAJ_SET_MAX_VELOCITY_TYPE               ((NMLTYPE) 207)
-#define EMC_TRAJ_SET_MAX_ACCELERATION_TYPE           ((NMLTYPE) 208)
 #define EMC_TRAJ_SET_SCALE_TYPE                      ((NMLTYPE) 209)
 #define EMC_TRAJ_SET_RAPID_SCALE_TYPE                ((NMLTYPE) 238)
-#define EMC_TRAJ_SET_MOTION_ID_TYPE                  ((NMLTYPE) 210)
 
-#define EMC_TRAJ_INIT_TYPE                           ((NMLTYPE) 211)
-#define EMC_TRAJ_HALT_TYPE                           ((NMLTYPE) 212)
-#define EMC_TRAJ_ENABLE_TYPE                         ((NMLTYPE) 213)
-#define EMC_TRAJ_DISABLE_TYPE                        ((NMLTYPE) 214)
 #define EMC_TRAJ_ABORT_TYPE                          ((NMLTYPE) 215)
 #define EMC_TRAJ_PAUSE_TYPE                          ((NMLTYPE) 216)
-#define EMC_TRAJ_STEP_TYPE                           ((NMLTYPE) 217)
 #define EMC_TRAJ_RESUME_TYPE                         ((NMLTYPE) 218)
 #define EMC_TRAJ_DELAY_TYPE                          ((NMLTYPE) 219)
 #define EMC_TRAJ_LINEAR_MOVE_TYPE                    ((NMLTYPE) 220)
@@ -159,7 +147,6 @@ struct PM_CARTESIAN;
 
 // EMC_TOOL type declarations
 
-#define EMC_TOOL_INIT_TYPE                           ((NMLTYPE) 1101)
 #define EMC_TOOL_HALT_TYPE                           ((NMLTYPE) 1102)
 #define EMC_TOOL_ABORT_TYPE                          ((NMLTYPE) 1103)
 #define EMC_TOOL_PREPARE_TYPE                        ((NMLTYPE) 1104)
@@ -168,17 +155,10 @@ struct PM_CARTESIAN;
 #define EMC_TOOL_LOAD_TOOL_TABLE_TYPE                ((NMLTYPE) 1107)
 #define EMC_TOOL_SET_OFFSET_TYPE                     ((NMLTYPE) 1108)
 #define EMC_TOOL_SET_NUMBER_TYPE                     ((NMLTYPE) 1109)
-// the following message is sent to io at the very start of an M6
-// even before emccanon issues the move to toolchange position
-#define EMC_TOOL_START_CHANGE_TYPE                   ((NMLTYPE) 1110)
 
-#define EMC_EXEC_PLUGIN_CALL_TYPE                   ((NMLTYPE) 1112)
-#define EMC_IO_PLUGIN_CALL_TYPE                   ((NMLTYPE) 1113)
 #define EMC_TOOL_STAT_TYPE                           ((NMLTYPE) 1199)
 
 // EMC_AUX type declarations
-#define EMC_AUX_ESTOP_ON_TYPE                         ((NMLTYPE) 1206)
-#define EMC_AUX_ESTOP_OFF_TYPE                        ((NMLTYPE) 1207)
 #define EMC_AUX_INPUT_WAIT_TYPE                       ((NMLTYPE) 1209)
 
 #define EMC_AUX_STAT_TYPE                             ((NMLTYPE) 1299)
@@ -204,11 +184,6 @@ struct PM_CARTESIAN;
 #define EMC_COOLANT_FLOOD_OFF_TYPE                   ((NMLTYPE) 1407)
 
 #define EMC_COOLANT_STAT_TYPE                        ((NMLTYPE) 1499)
-
-// EMC_LUBE type declarations
-#define EMC_LUBE_ON_TYPE                             ((NMLTYPE) 1504)
-#define EMC_LUBE_OFF_TYPE                            ((NMLTYPE) 1505)
-#define EMC_LUBE_STAT_TYPE                           ((NMLTYPE) 1599)
 
 #define EMC_IO_STAT_TYPE                             ((NMLTYPE) 1699)
 
@@ -258,18 +233,18 @@ enum class EMC_TRAJ_MODE {
 };
 
 // types for emcIoAbort() reasons
-enum EMC_IO_ABORT_REASON_ENUM {
-	EMC_ABORT_TASK_EXEC_ERROR = 1,
-	EMC_ABORT_AUX_ESTOP = 2,
-	EMC_ABORT_MOTION_OR_IO_RCS_ERROR = 3,
-	EMC_ABORT_TASK_STATE_OFF = 4,
-	EMC_ABORT_TASK_STATE_ESTOP_RESET = 5,
-	EMC_ABORT_TASK_STATE_ESTOP = 6,
-	EMC_ABORT_TASK_STATE_NOT_ON = 7,
-	EMC_ABORT_TASK_ABORT = 8,
-	EMC_ABORT_INTERPRETER_ERROR = 9,	// interpreter failed during readahead
-	EMC_ABORT_INTERPRETER_ERROR_MDI = 10,	// interpreter failed during MDI execution
-	EMC_ABORT_USER = 100  // user-defined abort codes start here
+enum class EMC_ABORT {
+	TASK_EXEC_ERROR = 1,
+	AUX_ESTOP = 2,
+	MOTION_OR_IO_RCS_ERROR = 3,
+	TASK_STATE_OFF = 4,
+	TASK_STATE_ESTOP_RESET = 5,
+	TASK_STATE_ESTOP = 6,
+	TASK_STATE_NOT_ON = 7,
+	TASK_ABORT = 8,
+	INTERPRETER_ERROR = 9,	// interpreter failed during readahead
+	INTERPRETER_ERROR_MDI = 10,	// interpreter failed during MDI execution
+	USER = 100  // user-defined abort codes start here
 };
 // --------------
 // EMC VOCABULARY
@@ -295,13 +270,13 @@ extern char **Argv;
 // intended to be implemented in main() file, by writing to NML buffer
 
 // print an error
-extern int emcOperatorError(int id, const char *fmt, ...) __attribute__((format(printf,2,3)));
+extern int emcOperatorError(const char *fmt, ...) __attribute__((format(printf,1,2)));
 
 // print general text
-extern int emcOperatorText(int id, const char *fmt, ...) __attribute__((format(printf,2,3)));
+extern int emcOperatorText(const char *fmt, ...) __attribute__((format(printf,1,2)));
 
 // print note to operator
-extern int emcOperatorDisplay(int id, const char *fmt, ...) __attribute__((format(printf,2,3)));
+extern int emcOperatorDisplay(const char *fmt, ...) __attribute__((format(printf,1,2)));
 
 // implementation functions for EMC_AXIS types
 
@@ -315,6 +290,9 @@ extern int emcAxisSetLockingJoint(int axis,int joint);
 
 extern int emcAxisUpdate(EMC_AXIS_STAT stat[], int numAxes);
 
+extern int emcAxisSetMaxJerk(int axis,double jerk);
+extern int emcAxisHasMaxJerk(int axis);
+extern double emcAxisGetMaxJerk(int axis);
 // implementation functions for EMC_JOINT types
 
 extern int emcJointSetType(int joint, unsigned char jointType);
@@ -350,6 +328,7 @@ extern int emcJogAbs(int nr, double pos, double vel, int jjogmode);
 
 extern int emcJointUpdate(EMC_JOINT_STAT stat[], int numJoints);
 
+extern int emcJointSetMaxJerk(int joint, double jerk);
 
 // implementation functions for EMC_SPINDLE types
 
@@ -390,21 +369,24 @@ extern int emcTrajForward();
 extern int emcTrajStep();
 extern int emcTrajResume();
 extern int emcTrajDelay(double delay);
-extern int emcTrajLinearMove(EmcPose end, int type, double vel,
-                             double ini_maxvel, double acc, int indexer_jnum);
-extern int emcTrajCircularMove(EmcPose end, PM_CARTESIAN center, PM_CARTESIAN
-        normal, int turn, int type, double vel, double ini_maxvel, double acc);
+extern int emcTrajLinearMove(const EmcPose& end, int type, double vel,
+                             double ini_maxvel, double acc, double ini_maxjerk, int indexer_jnum);
+extern int emcTrajCircularMove(const EmcPose& end, const PM_CARTESIAN& center, const PM_CARTESIAN&
+        normal, int turn, int type, double vel, double ini_maxvel, double acc, double ini_maxjerk);
 extern int emcTrajSetTermCond(int cond, double tolerance);
 extern int emcTrajSetSpindleSync(int spindle, double feed_per_revolution, bool wait_for_index);
-extern int emcTrajSetOffset(EmcPose tool_offset);
-extern int emcTrajSetHome(EmcPose home);
+extern int emcTrajSetOffset(const EmcPose& tool_offset);
+extern int emcTrajSetHome(const EmcPose& home);
 extern int emcTrajClearProbeTrippedFlag();
-extern int emcTrajProbe(EmcPose pos, int type, double vel, 
-                        double ini_maxvel, double acc, unsigned char probe_type);
-extern int emcTrajRigidTap(EmcPose pos, double vel, double ini_maxvel, double acc, double scale);
+extern int emcTrajProbe(const EmcPose& pos, int type, double vel,
+                        double ini_maxvel, double acc, double ini_maxjerk, unsigned char probe_type);
+extern int emcTrajRigidTap(const EmcPose& pos, double vel, double ini_maxvel, double acc, double ini_maxjerk, double scale);
 
 extern int emcTrajUpdate(EMC_TRAJ_STAT * stat);
 
+extern int emcTrajSetJerk(double jerk);
+extern int emcTrajSetMaxJerk(double jerk);
+extern int emcTrajPlannerType(int type);
 // implementation functions for EMC_MOTION aggregate types
 
 extern int emcMotionInit();
@@ -418,9 +400,7 @@ extern int emcMotionSetDout(unsigned char index, unsigned char start,
 
 extern int emcMotionUpdate(EMC_MOTION_STAT * stat);
 
-extern int emcAbortCleanup(int reason,const char *message = "");
-
-int setup_inihal(void);
+extern int emcAbortCleanup(EMC_ABORT reason,const char *message = "");
 
 // implementation functions for EMC_TOOL types
 
@@ -428,10 +408,9 @@ extern int emcToolPrepare(int tool);
 extern int emcToolLoad();
 extern int emcToolUnload();
 extern int emcToolLoadToolTable(const char *file);
-extern int emcToolSetOffset(int pocket, int toolno, EmcPose offset, double diameter,
+extern int emcToolSetOffset(int pocket, int toolno, const EmcPose& offset, double diameter,
                             double frontangle, double backangle, int orientation);
 extern int emcToolSetNumber(int number);
-extern int emcToolStartChange();
 
 // implementation functions for EMC_AUX types
 
@@ -460,19 +439,10 @@ extern int emcCoolantMistOff();
 extern int emcCoolantFloodOn();
 extern int emcCoolantFloodOff();
 
-// implementation functions for EMC_LUBE types
-
-extern int emcLubeOn();
-extern int emcLubeOff();
-
 // implementation functions for EMC_IO types
 
 extern int emcIoInit();
-extern int emcIoHalt();
-extern int emcIoAbort(int reason);
-extern int emcIoSetDebug(int debug);
-
-extern int emcIoUpdate(EMC_IO_STAT * stat);
+extern int emcIoAbort(EMC_ABORT reason);
 
 // implementation functions for EMC aggregate types
 
@@ -507,7 +477,7 @@ enum EmcJointType {
  * Set the units conversion factor.
  * @see EMC_JOINT_SET_INPUT_SCALE
  */
-typedef double                  EmcLinearUnits;
-typedef double                  EmcAngularUnits;
+using EmcLinearUnits = double;
+using EmcAngularUnits = double;
 
 #endif				// #ifndef EMC_HH

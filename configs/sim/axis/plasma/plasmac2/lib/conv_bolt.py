@@ -29,7 +29,7 @@ for f in sys.path:
         if '/usr' in f:
             localeDir = 'usr/share/locale'
         else:
-            localeDir = os.path.join(f'{f.split("/lib")[0]}','share','locale')
+            localeDir = os.path.join(f"{f.split('/lib')[0]}",'share','locale')
         break
 gettext.install('linuxcnc', localedir=localeDir)
 

@@ -135,7 +135,7 @@ uint16_t Usb::getUsbProductId() const
     return usbProductId;
 }
 // ----------------------------------------------------------------------
-const bool Usb::isDeviceOpen() const
+bool Usb::isDeviceOpen() const
 {
     return deviceHandle != nullptr;
 }
@@ -178,6 +178,11 @@ bool Usb::getDoReconnect() const
 void Usb::setDoReconnect(bool doReconnect)
 {
     this->mDoReconnect = doReconnect;
+}
+// ----------------------------------------------------------------------
+void Usb::setUsbProductId(uint16_t usbProductId)
+{
+    this->usbProductId = usbProductId;
 }
 // ----------------------------------------------------------------------
 Usb::Usb(const char* name, OnUsbInputPackageListener& onDataReceivedCallback, Hal& hal) :

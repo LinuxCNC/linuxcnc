@@ -4,8 +4,8 @@
 [[cha:stepper-quickstart]]
 = Stepper Quickstart
 
-This section assumes you have done a standard install from the Live
-CD. After installation it is recommended that you connect the computer
+This section assumes you have done a standard install from the Live CD.
+After installation it is recommended that you connect the computer
 to the Internet and wait for the update manager to pop up and get the
 latest updates for LinuxCNC and Ubuntu before continuing.
 
@@ -18,15 +18,17 @@ This is the first thing you need to do.
 Follow the instructions <<sec:latency-test,here>> to run the latency test.
 
 [[sec:sherline]]
-== Sherline(((Sherline)))
+== Sherline
 
+(((Sherline)))
 If you have a Sherline several predefined configurations are provided.
 This is on the main menu CNC/EMC then pick the Sherline configuration
 that matches yours and save a copy.
 
 [[sec:xylotex]]
-== Xylotex(((Xylotex)))
+== Xylotex
 
+(((Xylotex)))
 If you have a Xylotex you can skip the following sections and go
 straight to the <<cha:stepconf-wizard,Stepper Config Wizard>>.
 LinuxCNC has provided quick setup for the Xylotex machines.
@@ -73,7 +75,7 @@ PC parallel port.
 |===
 
 Note any pins not used should be set to Unused in the drop down box.
-These can always be changed later by running Stepconf again.
+These can always be changed later by running StepConf again.
 
 == Mechanical Information
 

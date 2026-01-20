@@ -64,7 +64,7 @@ static int pipes[NUM_PIPES][2];
 static bool is_random_toolchanger = 0;
 static char db_childname[PATH_MAX];
 
-static void handle_sigchild(int s)
+static void handle_sigchild(int /*s*/)
 {
     pid_t pid;
     int status;
@@ -89,7 +89,7 @@ static void handle_sigchild(int s)
 #endif
 }
 
-static int fork_create(int myargc,char *const myargv[])
+static int fork_create(int /*myargc*/, char *const myargv[])
 {
     // O_DIRECT:packet mode
     if (pipe2(pipes[PARENT_READ_PIPE],O_DIRECT)) {
@@ -208,7 +208,7 @@ int tooldata_db_getall() {
         int nonran_start_idx = 1;
         tooldata_add_init(nonran_start_idx);
     }
-    int ct=1;
+    //int ct=1;
     while (1) {
         char reply[CANON_TOOL_ENTRY_LEN];
         if (read_reply(reply,sizeof(reply)) <0) {
@@ -223,7 +223,7 @@ int tooldata_db_getall() {
         }
 
         int foundidx = tooldata_read_entry(reply);
-        ct++;
+        //ct++;
         if (foundidx < 0) {
             fprintf(stderr,"!!!tooldata_db_getall %s\n",reply);
             return -1;

@@ -20,14 +20,13 @@ from qtvcp.core import Status, Info, Path
 INFO = Info()
 STATUS = Status()
 PATH = Path()
-TOUCHPLATE_SUBPROGRAM = os.path.abspath(os.path.join(
-            os.path.dirname(__file__), 'lib/touchoff_subprogram.py'))
-
 
 ################################################################
 # Action class
 ################################################################
 class _Lcnc_Action(object):
+    TOUCHOFF_SUBPROGRAM = PATH.TOUCHOFF_SUBPROGRAM
+
     def __init__(self):
         # only initialize once for all instances
         if self.__class__._instanceNum >= 1:
@@ -38,6 +37,11 @@ class _Lcnc_Action(object):
         self.prefilter_path = None
         self.home_all_warning_flag = False
         self.proc = None
+        self.lastOriginSet = [0,0,0,0,0,0,0,0,0]
+
+        # imported here to avoid circular imports
+        from qtvcp.lib.mdi_subprogram.mdi_command_process import MDICommand
+        self.MDIPROCESS = MDICommand()
 
     def SET_DEBUG_LEVEL(self, level):
         self.cmd.debug(level)
@@ -103,7 +107,7 @@ class _Lcnc_Action(object):
                     return
                 length = len(INFO.JOINT_SEQUENCE_LIST)
                 for num, j in enumerate(INFO.JOINT_SEQUENCE_LIST):
-                    print(j, num, len(INFO.JOINT_SEQUENCE_LIST))
+                    #print(j, num, len(INFO.JOINT_SEQUENCE_LIST))
                     # at the end so all homed
                     if num == length - 1:
                         self.home_all_warning_flag = False
@@ -149,10 +153,10 @@ class _Lcnc_Action(object):
             # let calling function know we didn't release the limit override
             return False
         elif not STATUS.is_limits_override_set() and STATUS.is_hard_limits_tripped():
-            STATUS.emit('error', STATUS.TEMPARARY_MESSAGE, 'Hard Limits Are Overridden!')
+            STATUS.emit('error', STATUS.TEMPORARY_MESSAGE, 'Hard Limits Are Overridden!')
             self.cmd.override_limits()
         else:
-            STATUS.emit('error', STATUS.TEMPARARY_MESSAGE, 'Hard Limits Are Reset To Active!')
+            STATUS.emit('error', STATUS.TEMPORARY_MESSAGE, 'Hard Limits Are Reset To Active!')
             self.cmd.override_limits()
 
     def SET_MDI_MODE(self):
@@ -185,6 +189,16 @@ class _Lcnc_Action(object):
             return -1
         self.ensure_mode(linuxcnc.MODE_MDI)
         self.cmd.mdi('%s' % code)
+        return 1
+
+    def CALL_BACKGROUND_MDI(self, code, label='Background MDI',timeout=30):
+        LOG.debug('CALL_MDI Command: {} called {}'.format(label, code))
+        if STATUS.is_auto_running():
+            LOG.error('Can not run MDI command:{} when linuxcnc is running in auto mode'.format(code))
+            return -1
+        self.ensure_mode(linuxcnc.MODE_MDI)
+        self.MDIPROCESS.run(cmdList={'LABEL':label,'COMMANDS':code,'TIMEOUT':timeout})
+        return 1
 
     def CALL_MDI_WAIT(self, code, time=5, mode_return=False):
         LOG.debug('MDI_WAIT_Command= {}, maxt = {}'.format(code, time))
@@ -213,14 +227,22 @@ class _Lcnc_Action(object):
             self.ensure_mode(premode)
         return 0
 
-    def CALL_INI_MDI(self, number):
+    def CALL_INI_MDI(self, key):
         try:
-            mdi = INFO.MDI_COMMAND_LIST[number]
+            # prefer named INI MDI commands
+            mdi = INFO.get_ini_mdi_command(key)
+            LOG.debug('COMMAND= {}'.format(mdi))
+            if mdi is None: raise Exception
         except:
-            msg = 'MDI_COMMAND= # {} Not found under [MDI_COMMAND_LIST] in INI file'.format(number)
-            LOG.error(msg)
-            self.SET_ERROR_MESSAGE(msg)
-            return
+            # fallback to legacy nth line
+            try:
+                mdi = INFO.MDI_COMMAND_LIST[key]
+            except:
+                msg = 'MDI_COMMAND_{} Not found under [MDI_COMMAND_LIST] in INI file'.format(key)
+                LOG.error(msg)
+                self.SET_ERROR_MESSAGE(msg)
+                return
+
         mdi_list = mdi.split(';')
         self.ensure_mode(linuxcnc.MODE_MDI)
         for code in (mdi_list):
@@ -269,11 +291,13 @@ class _Lcnc_Action(object):
         old = STATUS.stat.file
         flt = INFO.get_filter_program(str(fname))
 
-        if os.path.basename(fname).count('.') > 1:
-            e = 'Open File error: Multiple \'.\' not allowed in Linuxcnc'
-            STATUS.emit('error', linuxcnc.OPERATOR_ERROR, e)
-            LOG.debug(e)
-            return
+        # probably not needed now but in case wanted
+        if INFO.INI.find("DISPLAY", "NO_MULTIPLE_DOT_FILENAME"):
+            if os.path.basename(fname).count('.') > 1:
+                e = 'Open File error: Multiple \'.\' not allowed in Linuxcnc'
+                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, e)
+                LOG.debug(e)
+                return
 
         if flt:
             LOG.debug('get {} filtered program {}'.format(flt, fname))
@@ -297,15 +321,20 @@ class _Lcnc_Action(object):
         # normalize to absolute path
         try:
             path = os.path.abspath(fname)
-            if '.' not in path:
-                path += ending
-            if path.count('.') > 1:
-                e = 'Save Error: Multiple \'.\' not allowed in Linuxcnc'
-                STATUS.emit('error', linuxcnc.OPERATOR_ERROR, e)
-                LOG.debug(e)
-                return None
-            name, ext = path.rsplit('.')
-            npath = name + '.' + ext.lower()
+            name, ext = os.path.splitext(path)
+
+            # add extension if missing
+            if ext == '':
+                ext = ending
+            npath = name + ext.lower()
+
+            # might not need this now but here it is in case wanted
+            if INFO.INI.find("DISPLAY", "NO_MULTIPLE_DOT_FILENAME"):
+                if npath.count('.') > 1:
+                    e = 'Save Error: Multiple \'.\' not allowed in Linuxcnc'
+                    STATUS.emit('error', linuxcnc.OPERATOR_ERROR, e)
+                    LOG.debug(e)
+                    return None
         except Exception as e:
             LOG.debug('save error: {}'.format(e))
             LOG.debug('Original save path: {}'.format(fname))
@@ -317,7 +346,7 @@ class _Lcnc_Action(object):
         try:
             outfile = open(npath, 'w')
             outfile.write(source)
-            STATUS.emit('update-machine-log', 'Saved: ' + npath, 'TIME')
+            STATUS.emit('update-machine-log', 'Saved: ' + npath, 'TIME,SUCCESS')
         except Exception as e:
             print(e)
             STATUS.emit('error', linuxcnc.OPERATOR_ERROR, e)
@@ -336,12 +365,28 @@ class _Lcnc_Action(object):
     def SET_AXIS_ORIGIN(self, axis, value):
         if axis == '' or axis.upper() not in ("XYZABCUVW"):
             LOG.warning("Couldn't set origin -axis >{}< not recognized:".format(axis))
+            return
+
+        # record current setting
+        j = "XYZABCUVW"
+        jnum = j.find(axis)
+        p,r,d = STATUS.get_position()
+        if STATUS.is_metric_mode() != INFO.MACHINE_IS_METRIC:
+            r = INFO.convert_units_9(r)
+        self.lastOriginSet[jnum] = r[jnum]
+
+        # set new position
         m = "G10 L20 P0 %s%f" % (axis, value)
         fail, premode = self.ensure_mode(linuxcnc.MODE_MDI)
         self.cmd.mdi(m)
         self.cmd.wait_complete()
         self.ensure_mode(premode)
         self.RELOAD_DISPLAY()
+
+    def GET_LAST_RECORDED_ORIGIN(self, axis):
+        j = "XYZABCUVW"
+        jnum = j.find(axis)
+        return  self.lastOriginSet[jnum]
 
     # Adjust tool offsets so current position ends up the given value
     def SET_TOOL_OFFSET(self, axis, value, fixture=False):
@@ -386,11 +431,26 @@ class _Lcnc_Action(object):
     def ABORT(self):
         self.cmd.abort()
 
+    # much used Legacy code
     def PAUSE(self):
         if not STATUS.stat.paused:
             self.cmd.auto(linuxcnc.AUTO_PAUSE)
         else:
             LOG.debug('resume')
+            self.cmd.auto(linuxcnc.AUTO_RESUME)
+
+    def TOGGLE_PAUSE(self):
+        if not STATUS.stat.paused:
+            self.cmd.auto(linuxcnc.AUTO_PAUSE)
+        else:
+            self.cmd.auto(linuxcnc.AUTO_RESUME)
+
+    def PAUSE_MACHINE(self):
+        if not STATUS.stat.paused:
+            self.cmd.auto(linuxcnc.AUTO_PAUSE)
+
+    def RESUME(self):
+        if STATUS.stat.paused:
             self.cmd.auto(linuxcnc.AUTO_RESUME)
 
     def SET_MAX_VELOCITY_RATE(self, rate):
@@ -527,6 +587,7 @@ class _Lcnc_Action(object):
         return mode
 
     def RESTORE_RECORDED_MODE(self):
+        self.cmd.wait_complete()
         self.ensure_mode(self.last_mode)
 
     def SET_SELECTED_JOINT(self, data):
@@ -629,15 +690,24 @@ class _Lcnc_Action(object):
                             'zoom-in', 'zoom-out', 'pan-up', 'pan-down',
                             'pan-left', 'pan-right', 'rotate-up',
                             'rotate-down', 'rotate-cw', 'rotate-ccw',
-                            'overlay_dro_on', 'overlay_dro_off',
+                            'overlay-dro-on', 'overlay-dro-off',
+                            'dtg-on', 'dtg-off',
                             'overlay-offsets-on', 'overlay-offsets-off',
                             'inhibit-selection-on', 'inhibit-selection-off',
                             'alpha-mode-on', 'alpha-mode-off', 'dimensions-on',
-                            'dimensions-off', 'record-view', 'set-recorded-view'):
+                            'dimensions-off', 'record-view', 'set-recorded-view',
+                            'set-large-dro','set-small-dro',"grid-off"):
             STATUS.emit('graphics-view-changed', view, None)
+
+    def SET_GRAPHICS_GRID_COLOR(self, color):
+        STATUS.emit('graphics-view-changed', 'GRID-COLOR', {'COLOR': color})
 
     def SET_GRAPHICS_GRID_SIZE(self, size):
         STATUS.emit('graphics-view-changed', 'GRID-SIZE', {'SIZE': size})
+
+    def SET_GRAPHICS_SCROLL_MODE(self, mode):
+        STATUS.emit('graphics-view-changed', 'SCROLL-MODE', {'MODE': mode})
+
 
     def ADJUST_GRAPHICS_PAN(self, x, y):
         STATUS.emit('graphics-view-changed', 'pan-view', {'X': x, 'Y': y})
@@ -647,17 +717,14 @@ class _Lcnc_Action(object):
 
     def SHUT_SYSTEM_DOWN_PROMPT(self):
         import subprocess
+        import shutil
         try:
-            try:
+            if shutil.which('gnome-session-quit'):
                 subprocess.call('gnome-session-quit --power-off', shell=True)
-            except:
-                try:
-                    subprocess.call('xfce4-session-logout', shell=True)
-                except:
-                    try:
-                        subprocess.call('systemctl poweroff', shell=True)
-                    except:
-                        raise
+            elif shutil.which('xfce4-session-logout'):
+                subprocess.call('xfce4-session-logout', shell=True)
+            else:
+                subprocess.call('systemctl poweroff', shell=True)
         except Exception as e:
             LOG.warning("Couldn't shut system down: {}".format(e))
 
@@ -666,9 +733,15 @@ class _Lcnc_Action(object):
         subprocess.call('shutdown now')
 
     def UPDATE_MACHINE_LOG(self, text, option=None):
-        if option not in ('TIME', 'DATE', 'DELETE', None):
-            LOG.warning("Machine_log option not recognized: {}".format(option))
-        STATUS.emit('update-machine-log', text, option)
+        valid_options = {'INITIAL', 'TIME', 'DATE', 'DELETE', 'CRITICAL', 'ERROR', 'WARNING', 'SUCCESS', 'DEBUG'}
+        options = set(option.split(',')) if option else {None}
+        
+        if not options.issubset(valid_options):
+            invalid_options = options - valid_options
+            LOG.warning("Machine_log option(s) not recognized: {}".format(', '.join(invalid_options)))
+            options = None
+    
+        STATUS.emit('update-machine-log', text, options)
 
     def CALL_DIALOG(self, command):
         try:
@@ -750,13 +823,47 @@ class _Lcnc_Action(object):
     def SET_ERROR_MESSAGE(self, msg):
         self.cmd.error_msg(msg)
 
+    # TODO remove in future
     def SET_TEMPARARY_MESSAGE(self, msg):
-        STATUS.emit('error', STATUS.TEMPARARY_MESSAGE, msg)
+        STATUS.emit('error', STATUS.TEMPORARY_MESSAGE, msg)
+
+    def SET_TEMPORARY_MESSAGE(self, msg):
+        STATUS.emit('error', STATUS.TEMPORARY_MESSAGE, msg)
 
     def TOUCHPLATE_TOUCHOFF(self, search_vel, probe_vel, max_probe,
-            z_offset, retract_distance, z_safe_travel, rtn_method=None):
+            z_offset, retract_distance, z_safe_travel, rtn_method=None, error_rtn=None):
         # if not none will be called with returned data
         self._touchoff_return = rtn_method
+        self._touchoff_error_return = error_rtn
+
+        if not self.proc is None:
+            return "Touchoff routine is already running"
+        if not os.path.exists(self.TOUCHOFF_SUBPROGRAM):
+            return "Touchoff subroutine path not found at:{}".format(self.TOUCHOFF_SUBPROGRAM)
+        self.proc = QProcess()
+        self.proc.setReadChannel(QProcess.StandardOutput)
+        self.proc.started.connect(self.touchoff_started)
+        self.proc.readyReadStandardOutput.connect(self.read_stdout)
+        self.proc.readyReadStandardError.connect(self.read_stderror)
+        self.proc.finished.connect(self.touchoff_finished)
+        self.proc.start('python3 {}'.format(self.TOUCHOFF_SUBPROGRAM))
+        # probe
+        string_to_send = "touchoff${}${}${}${}${}${}\n".format(str(search_vel),
+                                        str(probe_vel),
+                                        str(max_probe),
+                                        str(retract_distance),
+                                        str(z_safe_travel),
+                                        str(z_offset))
+        #print(string_to_send)
+        # block polling here, the sub program will poll now
+        STATUS.block_error_polling()
+        self.proc.writeData(bytes(string_to_send, 'utf-8'))
+        return 1
+
+    def AUTO_HEIGHT(self, string_to_send, rtn_method=None, error_rtn=None):
+        # if not None, return with returned data
+        self._touchoff_return = rtn_method
+        self._touchoff_error_return = error_rtn
 
         if self.proc is not None:
             return 0
@@ -766,15 +873,7 @@ class _Lcnc_Action(object):
         self.proc.readyReadStandardOutput.connect(self.read_stdout)
         self.proc.readyReadStandardError.connect(self.read_stderror)
         self.proc.finished.connect(self.touchoff_finished)
-        self.proc.start('python3 {}'.format(TOUCHPLATE_SUBPROGRAM))
-        # probe
-        string_to_send = "touchoff${}${}${}${}${}${}\n".format(str(search_vel),
-                                        str(probe_vel),
-                                        str(max_probe),
-                                        str(retract_distance),
-                                        str(z_safe_travel),
-                                        str(z_offset))
-        #print(string_to_send)
+        self.proc.start('python3 {}'.format(self.TOUCHOFF_SUBPROGRAM))
         # block polling here, the sub program will poll now
         STATUS.block_error_polling()
         self.proc.writeData(bytes(string_to_send, 'utf-8'))
@@ -853,7 +952,7 @@ class _Lcnc_Action(object):
     # Action Helper functions
     ######################################
 
-    # adjust the jog rate by one aproximate division of the
+    # adjust the jog rate by one approximate division of the
     # min/max range on an exponential scale.
     # cut off at the upper and lower jog rates as per the INI
     def _step_jograte(self, jograte, minrate, maxrate, inc, divs):
@@ -979,10 +1078,10 @@ class _Lcnc_Action(object):
         if "COMPLETE" in line:
             # did we get a return method to send return data to?
             if self._touchoff_return is None:
-                self.SET_DISPLAY_MESSAGE("Touchplate touchoff routine returned successfully")
+                self.SET_DISPLAY_MESSAGE("Touchoff routine returned successfully")
             else:
                 # strip ugly text
-                s = line[line.find('COMPLETE ')+9:]
+                s = line[line.find('COMPLETE')+9:]
                 self._touchoff_return(s)
 
         # This also gets error text sent from logging of ACTION library in the subprogram
@@ -990,19 +1089,24 @@ class _Lcnc_Action(object):
             # remove preceding text 'ERROR'
             s = line[line.find('ERROR')+6:]
             s = s[s.find(']')+1:]
-            self.SET_ERROR_MESSAGE(s)
+            if self._touchoff_error_return is None:
+                self.SET_ERROR_MESSAGE(s)
+            else:
+                self._touchoff_error_return(s)
+
         elif "DEBUG" in line: # must set DEBUG level on LOG in top of this file
             LOG.debug(line[line.find('DEBUG')+6:])
 
     def touchoff_started(self):
-        LOG.debug("Touchplate touchOff subprogram started with PID {}\n".format(self.proc.processId()))
+        LOG.debug("TouchOff subprogram started with PID {}\n".format(self.proc.processId()))
 
     def touchoff_finished(self, exitCode, exitStatus):
-        LOG.debug("Touchplate touchoff Process finished - exitCode {} exitStatus {}".format(exitCode, exitStatus))
+        LOG.debug("Touchoff Process finished - exitCode {} exitStatus {}".format(exitCode, exitStatus))
         self.proc = None
         STATUS.unblock_error_polling()
         # clean up return method variable
         self._touchoff_return = None
+        self._touchoff_error_return = None
 
     #------- boiler code
 

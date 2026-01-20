@@ -19,10 +19,17 @@ with this program; if not, write to the Free Software Foundation, Inc.,
 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 '''
 
-from PyQt5.QtCore import Qt, QCoreApplication
-from PyQt5.QtWidgets import QLabel, QMessageBox
+import os, sys
+import gettext
 
-_translate = QCoreApplication.translate
+for f in sys.path:
+    if '/lib/python' in f:
+        if '/usr' in f:
+            localeDir = 'usr/share/locale'
+        else:
+            localeDir = os.path.join(f"{f.split('/lib')[0]}",'share','locale')
+        break
+gettext.install('linuxcnc', localedir=localeDir)
 
 def save_clicked(self):
     msg = []
@@ -33,19 +40,19 @@ def save_clicked(self):
     valid, self.leadIn = self.conv_is_float(self.liValue.get())
     if not valid:
         msg = _('Invalid LEAD IN entry detected')
-        error += f'{msg}\n\n'
+        error += f"{msg}\n\n"
     valid, self.leadOut = self.conv_is_float(self.loValue.get())
     if not valid:
         msg = _('Invalid LEAD OUT entry detected')
-        error += f'{msg}\n\n'
+        error += f"{msg}\n\n"
     valid, self.smallHoleDia = self.conv_is_float(self.shValue.get())
     if not valid:
         msg = _('Invalid DIAMETER entry detected')
-        error += f'{msg}\n\n'
+        error += f"{msg}\n\n"
     valid, self.smallHoleSpeed = self.conv_is_int(self.hsValue.get())
     if not valid:
         msg = _('Invalid SPEED % entry detected')
-        error += f'{msg}\n\n'
+        error += f"{msg}\n\n"
     if error:
         self.dialog_show_ok(_('Settings Error'), error)
         return
@@ -62,7 +69,7 @@ def save_clicked(self):
     self.settingsExited = 1
 
 def reload_clicked(self):
-    load(self)
+    load(self, self.preAmble, self.leadIn, self.smallHoleDia, self.postAmble)
     show(self)
     if not self.settingsExited:
         self.settingsExited = 2
@@ -76,13 +83,14 @@ def exit_clicked(self):
         self.settingsExited = 3
     self.shape_request(self.oldConvButton)
 
-def load(self):
-    self.preAmble = self.getPrefs(self.prefs, 'CONVERSATIONAL', 'Preamble', self.ambles, str)
-    self.postAmble = self.getPrefs(self.prefs, 'CONVERSATIONAL', 'Postamble', self.ambles, str)
+def load(self, preAmble, leadin, smallHole, postAmble=None):
+    postAmble = postAmble if postAmble else preAmble
+    self.preAmble = self.getPrefs(self.prefs, 'CONVERSATIONAL', 'Preamble', preAmble, str)
+    self.postAmble = self.getPrefs(self.prefs, 'CONVERSATIONAL', 'Postamble', postAmble, str)
     self.origin = self.getPrefs(self.prefs, 'CONVERSATIONAL', 'Origin', 0, int)
-    self.leadIn = self.getPrefs(self.prefs, 'CONVERSATIONAL', 'Leadin', 0, float)
+    self.leadIn = self.getPrefs(self.prefs, 'CONVERSATIONAL', 'Leadin', leadin, float)
     self.leadOut = self.getPrefs(self.prefs, 'CONVERSATIONAL', 'Leadout', 0, float)
-    self.smallHoleDia = self.getPrefs(self.prefs, 'CONVERSATIONAL', 'Hole diameter', self.smallHoleSet, float)
+    self.smallHoleDia = self.getPrefs(self.prefs, 'CONVERSATIONAL', 'Hole diameter', smallHole, float)
     self.smallHoleSpeed = self.getPrefs(self.prefs, 'CONVERSATIONAL', 'Hole speed', 60, int)
 
 def show(self):
@@ -90,8 +98,8 @@ def show(self):
     self.pstValue.set(self.postAmble)
     self.liValue.set(self.leadIn)
     self.loValue.set(self.leadOut)
-    self.shValue.set(f'{self.smallHoleDia}')
-    self.hsValue.set(f'{self.smallHoleSpeed}')
+    self.shValue.set(f"{self.smallHoleDia}")
+    self.hsValue.set(f"{self.smallHoleSpeed}")
     if self.origin:
         self.spbValue.set('CENTER')
     else:

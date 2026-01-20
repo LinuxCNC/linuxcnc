@@ -1,6 +1,0 @@
-( X and Y goto zero  - CraftsmanCNC )
-o<m106> sub
-G0 Z50
-G0 X0 Y0
-o<m103> endsub
-

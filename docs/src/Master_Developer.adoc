@@ -1,10 +1,9 @@
 :lang: en
 :lversion: {sys: cat ../VERSION}
-:date: {sys: LANG=C date --date="@$(dpkg-parsechangelog --file ../debian/changelog -S timestamp)" '+%d %b %Y'}
 :ascii-ids:
 :masterdir: {indir}
 :revdate: 2021-10-28
-= Developer Manual V{lversion}, {date}
+= Developer Manual V{lversion}
 
 == Introduction
 
@@ -21,6 +20,8 @@ include::code/code-notes.adoc[]
 include::code/nml-messages.adoc[]
 
 include::code/style-guide.adoc[]
+
+include::gui/gui-dev-reference.adoc[]
 
 include::code/building-linuxcnc.adoc[]
 

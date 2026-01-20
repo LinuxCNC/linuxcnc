@@ -40,7 +40,7 @@
 GtkUIManager * uiManager;
 
 static GtkActionEntry ActionEntriesArray[ ] =
-{	{ "FileMenuAction", NULL, N_("File") },
+{	{ "FileMenuAction", NULL, N_("File"), NULL, NULL, NULL },
 	{ "NewAction", GTK_STOCK_NEW, N_("New"), NULL, N_("Create a new project"), G_CALLBACK( DoActionConfirmNewProject ) },
 	{ "LoadAction", GTK_STOCK_OPEN, N_("Load"), NULL, N_("Load an existing project"), G_CALLBACK( DoActionLoadProject ) },
 	{ "SaveAction", GTK_STOCK_SAVE, N_("Save"), NULL, N_("Save current project"), G_CALLBACK( DoActionSave ) },
@@ -53,14 +53,14 @@ static GtkActionEntry ActionEntriesArray[ ] =
 	{ "PrintAction", GTK_STOCK_PRINT, N_("Print"), "<Control>P", N_("Print current section"), G_CALLBACK( PrintGtk ) },
 	{ "QuitAction", GTK_STOCK_QUIT, N_("Quit"), NULL, NULL, G_CALLBACK( ConfirmQuit ) },
 
-	{ "ViewMenuAction", NULL, N_("View") },
+	{ "ViewMenuAction", NULL, N_("View"), NULL, NULL, NULL },
 
-	{ "PLCAction", NULL, N_("PLC") },
+	{ "PLCAction", NULL, N_("PLC"), NULL, NULL, NULL },
 	{ "RunStopAction", GTK_STOCK_EXECUTE, N_("Run logic"), NULL, N_("Start/stop logic"), G_CALLBACK( DoFlipFlopRunStop ) },
 	{ "ResetAction", GTK_STOCK_REFRESH, N_("Reset logic"), NULL, N_("Reset logic"), G_CALLBACK( DoActionResetAndConfirmIfRunning ) },
 	{ "ConfigurationAction", GTK_STOCK_PREFERENCES, N_("Configuration"), NULL, N_("Configuration (sizes, i/o, ...)"), G_CALLBACK( OpenConfigWindowGtk ) },
 
-	{ "HelpMenuAction", NULL, N_("Help") },
+	{ "HelpMenuAction", NULL, N_("Help"), NULL, NULL, NULL },
 	{ "AboutAction", GTK_STOCK_ABOUT, N_("About"), "F1", NULL, G_CALLBACK( DoActionAboutClassicLadder ) },
 };
 static GtkToggleActionEntry ToggleActionEntriesArray[ ] =

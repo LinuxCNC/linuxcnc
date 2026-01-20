@@ -302,7 +302,9 @@ ACTION.SET_TOOL_OFFSET(axis,value,fixture = False)
 
 ACTION.RUN()
 ACTION.ABORT()
-ACTION.PAUSE()
+ACTION.PAUSE()          # Toggles pause/resume
+ACTION.PAUSE_MACHINE()
+ACTION.RESUME()
 
 ACTION.SET_MAX_VELOCITY_RATE(rate)
 ACTION.SET_RAPID_RATE(rate)
@@ -376,6 +378,102 @@ ACTION.BEEP_START():
 
 ACTION.SET_DISPLAY_MESSAGE(string)
 ACTION.SET_ERROR_MESSAGE(string)
+
+ACTION.TOUCHPLATE_TOUCHOFF(search_vel, probe_vel, max_probe,
+       z_offset, retract_distance, z_safe_travel, rtn_method=None, error_rtn = None)
+----
+
+[[cha:qtvcp:Qhal]]
+
+== Qhal
+
+A library for HAL component/system interactions.
+
+=== Attributes
+
+These are the functions that can be called on the Qhal object:
+
+*`setUpdateRate(cyclerate)`*:: Set cycle rate in ms
+*`newPin(name, pin type constant, pin direction constant)`*:: returns a new QPin object
+*`getPinObject(name)`*:: returns an existing named QPin object
+*`getValue(name)`*:: returns the named pin, signal, or parameter's value, use the full component.pin name.
+*`setPin(name,value)`*:: sets the named pin's value, use the full component.pin name.
+*`setSignal(name,value)`*:: sets the named signal's value, use the full component.pin name.
+*`makeUniqueName(name)`*:: returns an unique HAL pin name string by adding '-x' (a number) to the given pin name string
+*`exit()`*:: kills the component
+
+=== Constants
+Here are the available constants:
+
+* *HAL_BIT*
+* *HAL_FLOAT*
+* *HAL_S32*
+* *HAL_U32*
+
+* *HAL_IN*
+* *HAL_OUT*
+* *HAL_IO*
+* *HAL_RO*
+* *HAL_RW*
+
+=== References
+Available object references:
+
+* *comp* the component object
+* *hal* the hal library object
+
+[[cha:qtvcp:QPin]]
+== QPin
+A wrapper class around HAL pins
+
+=== Signals
+There are 3 Qt signals that the QPin pin can be connect to:
+
+* *value_changed* will call a named function with an argument of the current value (depreciated)
+* *pinValueChanged* will call a named function with arguments of the pin object and the current value
+* *isDrivenChanged* will call a named function with arguments of the pin object and current state when
+ the pin is (un)connected to a driving pin
+
+=== Attributes
+These are the functions that can be called on a QPin object:
+
+* *<Pin object>.get()* returns the current value of the pin object
+* *<Pin object>.set(X)* sets the value of the pin object to the value X
+* *<Pin object>.text()* returns the pin name string
+
+=== References
+Available object references:
+
+* *hal* the hal library object
+
+=== Example
+.Add a function that gets called when the pin state changes
+
+[source,python]
+----
+from qtvcp.core import Qhal
+QHAL = Qhal()
+
+##########################################
+# Special Functions called from QtVCP
+##########################################
+
+# at this point:
+# the widgets are instantiated.
+# the HAL pins are built but HAL is not set ready
+def initialized__(self):
+    self.pin_button_in = QHAL.newpin('cycle-start-in',QHAL.HAL_BIT, QHAL.HAL_IN)
+    self.pin_button_in.pinValuechanged.connect(self.buttonChanged)
+    self.pin_button_in.isDrivenChanged.connect(lambda p,s: self.buttonDriven(p,s))
+
+def buttonChanged(self, pinObject, value):
+    print('Pin name:{} changed value to {}'.format(pinObject.text(), value))
+
+def buttonDriven(self, pinObject, state):
+    message = 'not driven by an output pin'
+    if state:
+        message = 'is driven by an output pin'
+    print('Pin name:{} is {}'.format(pinObject.text(), message))
 ----
 
 == `Tool`
@@ -554,7 +652,7 @@ as the widgets get a reference to the `MainWindow` from the `_hal_init()` functi
 from qtvcp.qt_makegui import VCPWindow
 ----
 
-* *Instantiate `VCPWindow` module*+
+* *Instantiate `VCPWindow` module* +
   Add this Python code to your instantiate section:
 +
 [source,python]
@@ -751,128 +849,128 @@ def on_keycall_override(self,event,state,shift,cntrl,value):
 
 Here is a list of recognized key words. Use the quoted text. +
 Letter keys use 'Key_' with the upper or lower letter added. +
-ie. 'Key_a' and 'Key_A'
+e.g., 'Key_a' and 'Key_A'.
 
 [source,python]
 ----
-    keys = {
-        Qt.Key_Escape: "Key_Escape",
-        Qt.Key_Tab: "Key_Tab",
-        Qt.Key_Backtab: "Key_Backtab",
-        Qt.Key_Backspace: "Key_Backspace",
-        Qt.Key_Return: "Key_Return",
-        Qt.Key_Enter: "Key_Enter",
-        Qt.Key_Insert: "Key_Insert",
-        Qt.Key_Delete: "Key_Delete",
-        Qt.Key_Pause: "Key_Pause",
-        Qt.Key_Print: "Key_Print",
-        Qt.Key_SysReq: "Key_SysReq",
-        Qt.Key_Clear: "Key_Clear",
-        Qt.Key_Home: "Key_Home",
-        Qt.Key_End: "Key_End",
-        Qt.Key_Left: "Key_Left",
-        Qt.Key_Up: "Key_Up",
-        Qt.Key_Right: "Key_Right",
-        Qt.Key_Down: "Key_Down",
-        Qt.Key_PageUp: "Key_PageUp",
-        Qt.Key_PageDown: "Key_PageDown",
-        Qt.Key_Shift: "Key_Shift",
-        Qt.Key_Control: "Key_Control",
-        Qt.Key_Meta: "Key_Meta",
-        # Qt.Key_Alt: "Key_Alt",
-        Qt.Key_AltGr: "Key_AltGr",
-        Qt.Key_CapsLock: "Key_CapsLock",
-        Qt.Key_NumLock: "Key_NumLock",
-        Qt.Key_ScrollLock: "Key_ScrollLock",
-        Qt.Key_F1: "Key_F1",
-        Qt.Key_F2: "Key_F2",
-        Qt.Key_F3: "Key_F3",
-        Qt.Key_F4: "Key_F4",
-        Qt.Key_F5: "Key_F5",
-        Qt.Key_F6: "Key_F6",
-        Qt.Key_F7: "Key_F7",
-        Qt.Key_F8: "Key_F8",
-        Qt.Key_F9: "Key_F9",
-        Qt.Key_F10: "Key_F10",
-        Qt.Key_F11: "Key_F11",
-        Qt.Key_F12: "Key_F12",
-        Qt.Key_F13: "Key_F13",
-        Qt.Key_F14: "Key_F14",
-        Qt.Key_F15: "Key_F15",
-        Qt.Key_F16: "Key_F16",
-        Qt.Key_F17: "Key_F17",
-        Qt.Key_F18: "Key_F18",
-        Qt.Key_F19: "Key_F19",
-        Qt.Key_F20: "Key_F20",
-        Qt.Key_F21: "Key_F21",
-        Qt.Key_F22: "Key_F22",
-        Qt.Key_F23: "Key_F23",
-        Qt.Key_F24: "Key_F24",
-        Qt.Key_F25: "Key_F25",
-        Qt.Key_F26: "Key_F26",
-        Qt.Key_F27: "Key_F27",
-        Qt.Key_F28: "Key_F28",
-        Qt.Key_F29: "Key_F29",
-        Qt.Key_F30: "Key_F30",
-        Qt.Key_F31: "Key_F31",
-        Qt.Key_F32: "Key_F32",
-        Qt.Key_F33: "Key_F33",
-        Qt.Key_F34: "Key_F34",
-        Qt.Key_F35: "Key_F35",
-        Qt.Key_Super_L: "Key_Super_L",
-        Qt.Key_Super_R: "Key_Super_R",
-        Qt.Key_Menu: "Key_Menu",
-        Qt.Key_Hyper_L: "Key_HYPER_L",
-        Qt.Key_Hyper_R: "Key_Hyper_R",
-        Qt.Key_Help: "Key_Help",
-        Qt.Key_Direction_L: "Key_Direction_L",
-        Qt.Key_Direction_R: "Key_Direction_R",
-        Qt.Key_Space: "Key_Space",
-        Qt.Key_Any: "Key_Any",
-        Qt.Key_Exclam: "Key_Exclam",
-        Qt.Key_QuoteDbl: "Key_QuoteDdl",
-        Qt.Key_NumberSign: "Key_NumberSign",
-        Qt.Key_Dollar: "Key_Dollar",
-        Qt.Key_Percent: "Key_Percent",
-        Qt.Key_Ampersand: "Key_Ampersand",
-        Qt.Key_Apostrophe: "Key_Apostrophe",
-        Qt.Key_ParenLeft: "Key_ParenLeft",
-        Qt.Key_ParenRight: "Key_ParenRight",
-        Qt.Key_Asterisk: "Key_Asterisk",
-        Qt.Key_Plus: "Key_Plus",
-        Qt.Key_Comma: "Key_Comma",
-        Qt.Key_Minus: "Key_Minus",
-        Qt.Key_Period: "Key_Period",
-        Qt.Key_Slash: "Key_Slash",
-        Qt.Key_0: "Key_0",
-        Qt.Key_1: "Key_1",
-        Qt.Key_2: "Key_2",
-        Qt.Key_3: "Key_3",
-        Qt.Key_4: "Key_4",
-        Qt.Key_5: "Key_5",
-        Qt.Key_6: "Key_6",
-        Qt.Key_7: "Key_7",
-        Qt.Key_8: "Key_8",
-        Qt.Key_9: "Key_9",
-        Qt.Key_Colon: "Key_Colon",
-        Qt.Key_Semicolon: "Key_Semicolon",
-        Qt.Key_Less: "Key_Less",
-        Qt.Key_Equal: "Key_Equal",
-        Qt.Key_Greater: "Key_Greater",
-        Qt.Key_Question: "Key_Question",
-        Qt.Key_At: "Key_At",
-        Qt.Key_BracketLeft: "Key_BracketLeft",
-        Qt.Key_Backslash: "Key_Backslash",
-        Qt.Key_BracketRight: "Key_BracketRight",
-        Qt.Key_AsciiCircum: "Key_AsciiCircum",
-        Qt.Key_Underscore: "Key_Underscore",
-        Qt.Key_QuoteLeft: "Key_QuoteLeft",
-        Qt.Key_BraceLeft: "Key_BraceLeft",
-        Qt.Key_Bar: "Key_Bar",
-        Qt.Key_BraceRight: "Key_BraceRight",
-        Qt.Key_AsciiTilde: "Key_AsciiTilde",
+keys = {
+    Qt.Key_Escape: "Key_Escape",
+    Qt.Key_Tab: "Key_Tab",
+    Qt.Key_Backtab: "Key_Backtab",
+    Qt.Key_Backspace: "Key_Backspace",
+    Qt.Key_Return: "Key_Return",
+    Qt.Key_Enter: "Key_Enter",
+    Qt.Key_Insert: "Key_Insert",
+    Qt.Key_Delete: "Key_Delete",
+    Qt.Key_Pause: "Key_Pause",
+    Qt.Key_Print: "Key_Print",
+    Qt.Key_SysReq: "Key_SysReq",
+    Qt.Key_Clear: "Key_Clear",
+    Qt.Key_Home: "Key_Home",
+    Qt.Key_End: "Key_End",
+    Qt.Key_Left: "Key_Left",
+    Qt.Key_Up: "Key_Up",
+    Qt.Key_Right: "Key_Right",
+    Qt.Key_Down: "Key_Down",
+    Qt.Key_PageUp: "Key_PageUp",
+    Qt.Key_PageDown: "Key_PageDown",
+    Qt.Key_Shift: "Key_Shift",
+    Qt.Key_Control: "Key_Control",
+    Qt.Key_Meta: "Key_Meta",
+    # Qt.Key_Alt: "Key_Alt",
+    Qt.Key_AltGr: "Key_AltGr",
+    Qt.Key_CapsLock: "Key_CapsLock",
+    Qt.Key_NumLock: "Key_NumLock",
+    Qt.Key_ScrollLock: "Key_ScrollLock",
+    Qt.Key_F1: "Key_F1",
+    Qt.Key_F2: "Key_F2",
+    Qt.Key_F3: "Key_F3",
+    Qt.Key_F4: "Key_F4",
+    Qt.Key_F5: "Key_F5",
+    Qt.Key_F6: "Key_F6",
+    Qt.Key_F7: "Key_F7",
+    Qt.Key_F8: "Key_F8",
+    Qt.Key_F9: "Key_F9",
+    Qt.Key_F10: "Key_F10",
+    Qt.Key_F11: "Key_F11",
+    Qt.Key_F12: "Key_F12",
+    Qt.Key_F13: "Key_F13",
+    Qt.Key_F14: "Key_F14",
+    Qt.Key_F15: "Key_F15",
+    Qt.Key_F16: "Key_F16",
+    Qt.Key_F17: "Key_F17",
+    Qt.Key_F18: "Key_F18",
+    Qt.Key_F19: "Key_F19",
+    Qt.Key_F20: "Key_F20",
+    Qt.Key_F21: "Key_F21",
+    Qt.Key_F22: "Key_F22",
+    Qt.Key_F23: "Key_F23",
+    Qt.Key_F24: "Key_F24",
+    Qt.Key_F25: "Key_F25",
+    Qt.Key_F26: "Key_F26",
+    Qt.Key_F27: "Key_F27",
+    Qt.Key_F28: "Key_F28",
+    Qt.Key_F29: "Key_F29",
+    Qt.Key_F30: "Key_F30",
+    Qt.Key_F31: "Key_F31",
+    Qt.Key_F32: "Key_F32",
+    Qt.Key_F33: "Key_F33",
+    Qt.Key_F34: "Key_F34",
+    Qt.Key_F35: "Key_F35",
+    Qt.Key_Super_L: "Key_Super_L",
+    Qt.Key_Super_R: "Key_Super_R",
+    Qt.Key_Menu: "Key_Menu",
+    Qt.Key_Hyper_L: "Key_HYPER_L",
+    Qt.Key_Hyper_R: "Key_Hyper_R",
+    Qt.Key_Help: "Key_Help",
+    Qt.Key_Direction_L: "Key_Direction_L",
+    Qt.Key_Direction_R: "Key_Direction_R",
+    Qt.Key_Space: "Key_Space",
+    Qt.Key_Any: "Key_Any",
+    Qt.Key_Exclam: "Key_Exclam",
+    Qt.Key_QuoteDbl: "Key_QuoteDdl",
+    Qt.Key_NumberSign: "Key_NumberSign",
+    Qt.Key_Dollar: "Key_Dollar",
+    Qt.Key_Percent: "Key_Percent",
+    Qt.Key_Ampersand: "Key_Ampersand",
+    Qt.Key_Apostrophe: "Key_Apostrophe",
+    Qt.Key_ParenLeft: "Key_ParenLeft",
+    Qt.Key_ParenRight: "Key_ParenRight",
+    Qt.Key_Asterisk: "Key_Asterisk",
+    Qt.Key_Plus: "Key_Plus",
+    Qt.Key_Comma: "Key_Comma",
+    Qt.Key_Minus: "Key_Minus",
+    Qt.Key_Period: "Key_Period",
+    Qt.Key_Slash: "Key_Slash",
+    Qt.Key_0: "Key_0",
+    Qt.Key_1: "Key_1",
+    Qt.Key_2: "Key_2",
+    Qt.Key_3: "Key_3",
+    Qt.Key_4: "Key_4",
+    Qt.Key_5: "Key_5",
+    Qt.Key_6: "Key_6",
+    Qt.Key_7: "Key_7",
+    Qt.Key_8: "Key_8",
+    Qt.Key_9: "Key_9",
+    Qt.Key_Colon: "Key_Colon",
+    Qt.Key_Semicolon: "Key_Semicolon",
+    Qt.Key_Less: "Key_Less",
+    Qt.Key_Equal: "Key_Equal",
+    Qt.Key_Greater: "Key_Greater",
+    Qt.Key_Question: "Key_Question",
+    Qt.Key_At: "Key_At",
+    Qt.Key_BracketLeft: "Key_BracketLeft",
+    Qt.Key_Backslash: "Key_Backslash",
+    Qt.Key_BracketRight: "Key_BracketRight",
+    Qt.Key_AsciiCircum: "Key_AsciiCircum",
+    Qt.Key_Underscore: "Key_Underscore",
+    Qt.Key_QuoteLeft: "Key_QuoteLeft",
+    Qt.Key_BraceLeft: "Key_BraceLeft",
+    Qt.Key_Bar: "Key_Bar",
+    Qt.Key_BraceRight: "Key_BraceRight",
+    Qt.Key_AsciiTilde: "Key_AsciiTilde",
 
-    }
+}
 ----
 == `Messages`
 
@@ -883,30 +981,44 @@ These messages are:
 * _defined in the INI file under the `[DISPLAY]` heading_, and
 * _controlled by HAL pins_.
 
+Use this style if you need independent HAL pins for each dialog message.
+
 === Properties
 
-*`_BOLDTEXT`*:: Generally is a title.
-*`_TEXT`*:: Text below title, and usually longer.
-*`_DETAIL`*:: Text hidden unless clicked on.
-*`_PINNAME`*:: Basename of the HAL pin(s).
-*`_TYPE`*:: Specifies whether it is a:
-  * *Status message* - shown in the _status bar and the notify dialog_. +
+*`BOLDTEXT`*:: Generally is a title.
+*`TEXT`*:: Text below title, and usually longer.
+*`DETAIL`*:: Text hidden unless clicked on.
+*`PINNAME`*:: Basename of the HAL pin(s).
+*`TYPE`*:: Specifies whether it is a (can have dialog and status options together):
+  * *status* - shown in the _status bar and the notify dialog_. +
 Requires no user intervention.
-  * *OK message* - _requiring the user to click OK to close the dialog_. +
+  * *nonedialog* - specifically does not show a dialog. +
+  * *okdialog* - _requiring the user to click OK to close the dialog_. +
 OK messages have _two HAL pins_:
   ** One HAL pin to launch the dialog, and
-  ** One to signify it's waiting for response.
-  * *Yes/No message* - _requiring the user to select yes or no buttons to close the dialog_. +
+  ** one to signify it is waiting for a response.
+  * *yesnodialog* - _requiring the user to select yes or no buttons to close the dialog_. +
 Yes/No messages have _three HAL pins_:
   ** One to show the dialog,
   ** One for waiting, and
   ** one for the answer.
+  * *'okcanceldialog'* - _requiring the user to select ok or cancel +
+Ok/Cancel messages have _three HAL pins_:
+  ** One to show the dialog,
+  ** One for waiting, and
+  ** one for the answer.
+  * *'closepromptdialog'* - _requiring the user to select_
 
-//FIXME Messages: means STATUS messages will be generated each
-//  time a focus_overlay is called or an alert sound emitted ?
-By default it will send `STATUS` messages for `focus_overlay` and alert sound.
+By default, `STATUS` messages for `focus_overlay` and alert sound will be sent when the dialog shows. +
+This allows screen 'focus' dimming/blurring and sounds to be added to alerts.
 
-//FIXME Messages: Usage
+=== HAL Pins
+The HAL pin names would use these patterns:
+
+*_<SCREEN BASENAME>.<PINNAME>_*:: invoking s32 pin
+*_<SCREEN BASENAME>.<PINNAME>-waiting_*:: 'Waiting for the user's response' output bit pin
+*_<SCREEN BASENAME>.<PINNAME>-response_*:: 'The user response' output bit pin
+*_<SCREEN BASENAME>.<PINNAME>-response-s32_*:: 'The user response' output s32 pin
 
 === Examples
 
@@ -946,6 +1058,70 @@ MESSAGE_PINNAME = bothtest
 ----
 
 The `ScreenOptions` widget can automatically set up the message system.
+
+==  multimessages
+*`Messages`* module is used to *display pop up dialog messages on the screen*.
+
+These messages are:
+
+* _defined in the INI file under the `[DISPLAY]` heading_, and
+* _controlled by one s32 HAL pin per defined id_.
+* _each message is called by a corresponding number on the s32 pin._
+
+Use this style of user messages for instance when a VFD sends error messages encoded as numbers. +
+It uses common invoke/response/wait HAL pins for all (per ID name) multimessage dialogs.
+The HAL pin names would use these patterns:
+
+*_<SCREEN BASENAME>.<ID NAME>_*:: invoking s32 pin
+*_<SCREEN BASENAME>.<ID NAME>-waiting_*:: 'Waiting for the user's response' output bit pin
+*_<SCREEN BASENAME>.<ID NAME>-response_*:: 'The user response' output bit pin
+*_<SCREEN BASENAME>.<ID NAME>-response-s32_*:: 'The user response' output s32 pin
+
+=== Properties
+
+*`TITLE`*:: This is the title shown on the dialog window.
+*`TEXT`*:: Text below title, and usually longer.
+*`DETAIL`*:: Text hidden unless clicked on.
+*`TYPE`*:: Specifies type of message the user sees (can have dialog and status options together):
+  * *status* - shown in the _status bar and the notify dialog_. +
+Requires no user intervention.
+  * *nonedialog* - specifically does not show a dialog. +
+  * *okdialog* - _requiring the user to click OK to close the dialog_. +
+OK messages use _two HAL pins_:
+  ** One HAL pin to launch the dialog, and
+  ** one to signify it's waiting for response.
+  * *yesnodialog* - _requiring the user to select yes or no buttons to close the dialog_. +
+Yes/No messages use _three HAL pins_:
+  ** One to show the dialog,
+  ** One for waiting, and
+  ** one for the answer.
+
+By default, `STATUS` messages for `focus_overlay` and alert sound will be sent when the dialog shows. +
+This allows screen 'focus' dimming/blurring and sounds to be added to alerts.
+
+=== Examples
+
+Here are sample INI message definition code blocks that would be found under the `[DISPLAY]` heading:
+
+[source,{ini}]
+----
+[DISPLAY]
+MULTIMESSAGE_ID = VFD
+
+MULTIMESSAGE_VFD_NUMBER = 1
+MULTIMESSAGE_VFD_TYPE = okdialog status
+MULTIMESSAGE_VFD_TITLE = VFD Error: 1
+MULTIMESSAGE_VFD_TEXT = This is the longer text FOR MESSAGE NUMBER 1
+MULTIMESSAGE_VFD_DETAILS = DETAILS for VFD error 1
+MULTIMESSAGE_VFD_ICON = WARNING
+
+MULTIMESSAGE_VFD_NUMBER = 2
+MULTIMESSAGE_VFD_TYPE = nonedialog status
+MULTIMESSAGE_VFD_TITLE = VFD Error: 2
+MULTIMESSAGE_VFD_TEXT = This is the longer text FOR MESSAGE NUMBER 2
+MULTIMESSAGE_VFD_DETAILS = DETAILS for VFD error 2
+MULTIMESSAGE_VFD_ICON = INFO
+----
 
 == `Notify`
 
@@ -1086,7 +1262,7 @@ It uses https://launchpad.net/onboard[`Onboard`] or https://git.yoctoproject.org
 
 //TODO Virtual Keyboard: What about other VKB alternatives like:
 //  * kvkbd https://github.com/KDE/kvkbd
-//  * Florence http://florence.sourceforge.net/
+//  * Florence https://florence.sourceforge.net/
 //  * Maliit https://maliit.github.io/, https://github.com/maliit/keyboard
 //    which seems to have interesting contextual features.
 

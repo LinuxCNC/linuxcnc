@@ -34,8 +34,9 @@ if __name__ != '__main__':  # This avoids segfault when testing directly in pyth
     STATUS = Status()
     INFO = Info()
 LOG = logger.getLogger(__name__)
+#LOG.setLevel(logger.VERBOSE) # One of VERBOSE, DEBUG, INFO, WARNING, ERROR, CRITICAL
 
-# Surpress cryptic messages when chacking for useable ports
+# Suppress cryptic messages when checking for useable ports
 os.environ["OPENCV_LOG_LEVEL"]="FATAL"
 
 # If the library is missing don't crash the GUI
@@ -52,6 +53,7 @@ except:
 import numpy as np
 
 
+
 class CamView(QtWidgets.QWidget, _HalWidgetBase):
     def __init__(self, parent=None):
         super(CamView, self).__init__(parent)
@@ -60,10 +62,14 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         self.grabbed = None
         self.frame = None
         self._camNum = 0
+        self.api = CV.CAP_ANY
+        self.resolution=None
         self.diameter = 20
         self.rotation = 0
         self.rotationIncrement = .5
         self.scale = 1
+        self.scaleX = 1.0
+        self.scaleY = 1.0
         self.gap = 5
         self._noRotate = False
         self.setWindowTitle('Cam View')
@@ -79,22 +85,27 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         else:
             self.text = 'Missing\npython-opencv\nLibrary'
         self.pix = None
-        self.stopped = False
         self.degree = str("\N{DEGREE SIGN}")
-        if INFO.PROGRAM_PREFIX is not None:
-            self.user_path = os.path.expanduser(INFO.PROGRAM_PREFIX)
-        else:
+
+        # trap so can run script directly to test
+        try:
+            if INFO.PROGRAM_PREFIX is not None:
+                self.user_path = os.path.expanduser(INFO.PROGRAM_PREFIX)
+        except:
             self.user_path = (os.path.join(os.path.expanduser('~'), 'linuxcnc/nc_files'))
 
         #self.blobInit()
 
     def _hal_init(self):
-        self.pin_ = self.HAL_GCOMP_.newpin('cam-rotation',hal.HAL_FLOAT, hal.HAL_OUT)
+        try:
+            self.pin_ = self.HAL_GCOMP_.newpin('cam-rotation',hal.HAL_FLOAT, hal.HAL_OUT)
+        except:
+            pass
         if LIB_GOOD:
             STATUS.connect('periodic', self.nextFrameSlot)
 
     ##################################
-    # no button scroll = circle dismater
+    # no button scroll = circle diameter
     # left button scroll = zoom
     # right button scroll = cross hair rotation
     ##################################
@@ -103,7 +114,7 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         mouse_state = QtWidgets.qApp.mouseButtons()
         if event.angleDelta().y() < 0:
             if mouse_state == QtCore.Qt.NoButton:
-                self.diameter -= 2
+                self.diameter -= self.rotationIncrement
             if mouse_state == QtCore.Qt.LeftButton:
                 self.scale -= .1
             if mouse_state == QtCore.Qt.RightButton:
@@ -111,7 +122,7 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
                     self.rotation += self.rotationIncrement
         else:
             if mouse_state == QtCore.Qt.NoButton:
-                self.diameter += 2
+                self.diameter += self.rotationIncrement
             if mouse_state == QtCore.Qt.LeftButton:
                 self.scale += .1
             if mouse_state == QtCore.Qt.RightButton:
@@ -139,6 +150,16 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         elif event.button() & QtCore.Qt.MiddleButton:
             self.diameter = 20
 
+    def zoom_in(self):
+        if self.scale >= 5:
+            return
+        self.scale += 0.1
+
+    def zoom_out(self, event):
+        if self.scale <= 1:
+            return
+        self.scale -= 0.1
+
     def limitChecks(self):
         w = self.size().width()
         if self.diameter < 2: self.diameter = 2
@@ -160,6 +181,10 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
 
         # set digital zoom
         frame = self.zoom(frame, self.scale)
+
+        # invert image
+        frame = self.flip(frame)
+
         # make a Q image
         self.pix = self.makeImage(frame, self._qImageFormat)
 
@@ -194,11 +219,10 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
     def makeCVImage(self, frame):
         CV.imshow('CV Image',frame)
 
-    def rescaleFrame(self, frame, scale =1.5):
-        width = int(frame.shape[1] * scale)
-        height = int(frame.shape[0] * scale)
-        dims = (width,height)
-        return CV.resize(frame, dims, interpolation=CV.INTER_CUBIC)
+    def rescaleFrame(self, frame, scale=1, scale_x=1.0, scale_y=1.0):
+        x = abs(scale_x * scale)
+        y = abs(scale_y * scale)
+        return CV.resize(frame, None, fx = x, fy = y, interpolation=CV.INTER_CUBIC)
 
     def zoom(self, frame, scale):
         # get original size of image
@@ -206,7 +230,7 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         #############################
         # scale image
         #############################
-        frame = self.rescaleFrame(frame, scale)
+        frame = self.rescaleFrame(frame, scale,self.scaleX,self.scaleY)
         ##########################
         # crop to the original size of the frame
         # measure from center, so we zoom on center
@@ -220,6 +244,18 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         cow = int(ow/2)
         # NOTE: its img[y: y + h, x: x + w]
         return frame[ch-coh:ch+coh, cw-cow:cw+cow]
+
+    # flip the image based on if scaleX and scaleY are negative
+    def flip(self, image):
+        if self.scaleX > 0 and self.scaleY > 0:
+            return image
+        elif self.scaleX < 0 and self.scaleY < 0:
+            flip = -1
+        elif self.scaleX < 0:
+            flip = 0
+        else:
+            flip = 1
+        return CV.flip(image, flip)
 
     # draw a circle around small holes
     #
@@ -289,15 +325,18 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
 
     def showEvent(self, event):
         if LIB_GOOD:
+          if self.video is None:
             try:
-                self.video = WebcamVideoStream(src=self._camNum)
+                self.video = WebcamVideoStream(src=self._camNum, api=self.api, res = self.resolution )
                 if not self.video.isOpened():
-                    p = self.video.list_ports()[1]
+                    p = self.video.list_ports(api=self.api)[1]
                     self.text = 'Error with video {}\nAvailable ports:\n{}'.format(self._camNum, p)
                 else:
                     self.video.start()
             except Exception as e:
                 LOG.error('Video capture error: {}'.format(e))
+          else:
+            self.video.start()
 
     def hideEvent(self, event):
         if LIB_GOOD:
@@ -305,6 +344,13 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
                 self.video.stop()
             except:
                 pass
+
+    def resizeEvent(self, event):
+        # Create a square base size of 10x10 and scale it to the new size
+        # maintaining aspect ratio.
+        new_size = QtCore.QSize(10, 10)
+        new_size.scale(event.size(), QtCore.Qt.KeepAspectRatio)
+        self.resize(new_size)
 
     def paintEvent(self, event):
         qp = QPainter()
@@ -382,6 +428,47 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
         filepath = '{}/camImage.png'.format(self.user_path)
         self.video.writeFrame(filepath)
 
+    # if data is a string or int, search for name/int in library and use it.
+    def setAPI(self, data):
+        camera_backends = CV.videoio_registry.getCameraBackends()
+
+        if isinstance(data,str):
+            # should we use any backend option?
+            if data in ('','ANY','DEFAULT'):
+                self.api = 0
+                return
+            # is it a string of a number? 
+            if data.isdigit():
+                if int(data) in camera_backends:
+                    self.api = int(data)
+                else:
+                    LOG.warning(f'Backend {data} not found.')
+                return
+            # ok it's a name
+            for backend in camera_backends:
+                if CV.videoio_registry.getBackendName(backend) == data:
+                    self.api = backend
+                    break
+            else:
+                LOG.warning(f'Backend {data} not found.')
+
+        elif isinstance(data,int):
+            if data in camera_backends:
+                self.api = data
+            else:
+                LOG.warning(f'Backend {data} not found.')
+
+    # returns the api backend name from backend int
+    def getAPIName(self, num):
+        return CV.videoio_registry.getBackendName(self.api)
+
+    # sets the resolution tuple (width,height) from a string 'width,height'
+    def setResolution(self, data):
+        if isinstance(data,str):
+            if not data in('','DEFAULT'):
+                data = tuple(int(x) for x in data.split(','))
+                self.resolution = data
+
     #########################################################################
     # This is how designer can interact with our widget properties.
     # designer will show the pyqtProperty properties in the editor
@@ -408,20 +495,39 @@ class CamView(QtWidgets.QWidget, _HalWidgetBase):
     camera_number = QtCore.pyqtProperty(int, get_camnum, set_camnum, reset_camnum)
 
 class WebcamVideoStream:
-    def __init__(self, src=0, api=DEFAULT_API):
-
+    def __init__(self, src=0, api=CV.CAP_ANY, res=None):
+        self.possible_resolutions = []
         # initialize the video camera stream and read the first frame
         # from the stream
-        self.stream = self.openStream(src, api)
+
+        flag = True
+        camera_backends = CV.videoio_registry.getCameraBackends()
+        for backend in camera_backends:
+            if backend == api: flag = False
+            LOG.verbose('Available backend library:{}'.format(CV.videoio_registry.getBackendName(backend)))
+        if flag and api != CV.CAP_ANY:
+            LOG.error('OpenCV backend library {} not available'.format(CV.videoio_registry.getBackendName(api)))
+
+        LOG.debug("Using {} backend".format(CV.videoio_registry.getBackendName(api)))
+
+        self.stream = self.openStream(src, api, res)
 
         if not (self.stream.isOpened()):
+            self.stream.release()
             LOG.error('Could not open video device {}'.format(src))
-            plist = self.list_ports()[1]
+
+            # get a list of ports
+            plist = self.list_ports(api)[1]
             if src not in plist:
                 LOG.error('port number {}, is not a working port- trying: {}'.format(src,plist[0]))
             # try again with a hopefully functioning port
             if plist != []:
-                self.stream = self.openStream(plist[0], api)
+                self.stream = self.openStream(plist[0], api, res)
+
+
+        width = int(self.stream.get(CV.CAP_PROP_FRAME_WIDTH))
+        height = int(self.stream.get(CV.CAP_PROP_FRAME_HEIGHT))
+        LOG.info(f"Current camera resolution: {width}x{height}")
 
         # initialize the variable used to indicate if the thread should
         # be stopped
@@ -435,19 +541,71 @@ class WebcamVideoStream:
         except:
             return False
 
-    def openStream(self, src, api):
+    def openStream(self, src, api, res=None):
         # initialize the video camera stream and read the first frame
         # from the stream
         try:
             stream = CV.VideoCapture(src, api)
-        except:
+        except Exception as e:
+            log.debug(e)
             # try using an older function signature
             stream = CV.VideoCapture(src)
+
+        # seems only val2 is successful changing resolutions
+        if not api == CV.CAP_ANY:
+            w,h = self.getBestResolution(stream)
+            # look for requested resolution
+            if not res is None and res in self.possible_resolutions:
+                w,h=res
+            stream.set(CV.CAP_PROP_FRAME_WIDTH, w)
+            stream.set(CV.CAP_PROP_FRAME_HEIGHT, h)
+
+        # last ditch - sometimes the default resolution can not be changed
+        # if the height is 0 - failed, so just try default
+        actual_height = int(stream.get(CV.CAP_PROP_FRAME_HEIGHT))
+        if actual_height == 0:
+            stream.release()
+            stream = CV.VideoCapture(src, api)
+
         return stream
+
+    def getBestResolution(self, stream):
+        resolutions_to_test = [
+        (320, 240), (640, 480), (800, 600), (1024, 768),
+        (1280, 720), (1920, 1080)
+        ]
+        start_width = int(stream.get(CV.CAP_PROP_FRAME_WIDTH))
+        start_height = int(stream.get(CV.CAP_PROP_FRAME_HEIGHT))
+
+        for width, height in resolutions_to_test:
+            stream.set(CV.CAP_PROP_FRAME_WIDTH, width)
+            stream.set(CV.CAP_PROP_FRAME_HEIGHT, height)
+            actual_width = int(stream.get(CV.CAP_PROP_FRAME_WIDTH))
+            actual_height = int(stream.get(CV.CAP_PROP_FRAME_HEIGHT))
+
+            if actual_width == width and actual_height == height:
+                if not (actual_width,actual_height) in self.possible_resolutions:
+                    self.possible_resolutions.append((actual_width,actual_height))
+            elif actual_width !=0 and actual_height !=0:
+                self.possible_resolutions.append((actual_width,actual_height))
+            else:
+                LOG.verbose(f"Resolution {width}x{height} is NOT supported (actual: {actual_width}x{actual_height}).")
+
+        LOG.verbose("All possible resolutions found:")
+        for res in self.possible_resolutions:
+            LOG.verbose(res)
+        try:
+            best = self.possible_resolutions[len(self.possible_resolutions)-1]
+            LOG.debug('Best resolution:{}'.format(best))
+        except:
+            return (start_width,start_height)
+        return best
 
     def start(self):
         # start the thread to read frames from the video stream
+        self.stopped = False
         Thread.start_new_thread(self._update, ())
+
         return self
 
     def _update(self):
@@ -455,7 +613,6 @@ class WebcamVideoStream:
         while True:
             # if the thread indicator variable is set, stop the thread
             if self.stopped:
-                self.stream.release()
                 return
             # otherwise, read the next frame from the stream
             (self.grabbed, self.frame) = self.stream.read()
@@ -473,7 +630,7 @@ class WebcamVideoStream:
         CV.imwrite(filepath, self.frame)
         print('saved camview image to: {}'.format(filepath))
 
-    def list_ports(self):
+    def list_ports(self,api):
         """
         Test the ports and returns a tuple with the available ports and the ones that are working.
         """
@@ -482,7 +639,7 @@ class WebcamVideoStream:
         working_ports = []
         available_ports = []
         while len(non_working_ports) < 6: # if there are more than 5 non working ports stop the testing.
-            camera = CV.VideoCapture(dev_port)
+            camera = CV.VideoCapture(dev_port, api)
             if not camera.isOpened():
                 non_working_ports.append(dev_port)
                 LOG.debug("Port %s is not working." %dev_port)
@@ -491,24 +648,119 @@ class WebcamVideoStream:
                 w = camera.get(3)
                 h = camera.get(4)
                 if is_reading:
-                    LOG.debug("Port %s is working and reads images (%s x %s)" %(dev_port,h,w))
+                    LOG.debug("Port %s is working and reads images (%s x %s)" %(dev_port,w,h))
                     working_ports.append(dev_port)
                 else:
-                    LOG.debug("Port %s for camera ( %s x %s) is present but does not read." %(dev_port,h,w))
+                    LOG.debug("Port %s for camera ( %s x %s) is present but does not read." %(dev_port,w,h))
                     available_ports.append(dev_port)
             dev_port +=1
+        camera.release()
         return available_ports,working_ports,non_working_ports
+
+class CamAngle(CamView):
+    def __init__(self, parent=None):
+        super(CamAngle, self).__init__(parent)
+
+    def mouseDoubleClickEvent(self, event):
+        if event.button() & QtCore.Qt.LeftButton:
+            # zoom
+            self.scale = 1
+        elif event.button() & QtCore.Qt.MiddleButton:
+            self.diameter = 40
+
+    def wheelEvent(self, event):
+        mouse_state = QtWidgets.qApp.mouseButtons()
+        size = self.size()
+        w = size.width()
+        if event.angleDelta().y() < 0:
+            if mouse_state == QtCore.Qt.NoButton:
+                self.diameter -= 2
+            if mouse_state == QtCore.Qt.LeftButton:
+                self.scale -= .1
+        else:
+            if mouse_state == QtCore.Qt.NoButton:
+                self.diameter += 2
+            if mouse_state == QtCore.Qt.LeftButton:
+                self.scale += .1
+        if self.diameter < 2: self.diameter = 2
+        if self.diameter > w: self.diameter = w
+        if self.scale < 1: self.scale = 1
+        if self.scale > 5: self.scale = 5
+
+    def drawText(self, event, qp):
+        size = self.size()
+        w = size.width()
+        h = size.height()
+        qp.setPen(self.text_color)
+        qp.setFont(self.font)
+        if self.pix:
+            angle = 0.0 if self.rotation == 0 else 360 - self.rotation
+            qp.drawText(self.rect(), QtCore.Qt.AlignTop, '{:0.3f}{}'.format(angle, self.degree))
+        else:
+            qp.drawText(self.rect(), QtCore.Qt.AlignCenter, self.text)
+
 
 if __name__ == '__main__':
 
     import sys
+    from PyQt5.QtWidgets import (QLabel, QSlider, QDial,QWidget, QVBoxLayout,
+        QHBoxLayout)
+    from PyQt5.QtCore import (Qt)
+
+    def hDialMoved():
+        print("Dial value = %i" % (hdial.value()))
+        capture.scaleX = hdial.value()/100
+
+    def vDialMoved():
+        print("VDial value = %i" % (vdial.value()))
+        capture.scaleY = vdial.value()/100
+
+    def setScale():
+        print("slider value = %i" % (slider.value()))
+        capture.scale = slider.value()/100
+
     app = QtWidgets.QApplication(sys.argv)
-    capture = CamView()
-    capture.show()
+    w = QWidget()
+    w.setGeometry(100, 100, 400, 200)
+    w.setWindowTitle('Bar widget')
+    layout = QVBoxLayout(w)
+    hlyt = QHBoxLayout()
+
+    capture = CamAngle()
+
+    slider = QSlider(Qt.Horizontal)
+    slider.setMinimum(100)
+    slider.setMaximum(400)
+    slider.setSingleStep(10)
+    slider.setPageStep(100)
+    slider.valueChanged.connect(setScale)
+    slider.setValue(100)
+
+    hdial = QDial()
+    hdial.setMinimum(100)
+    hdial.setMaximum(200)
+    hdial.setValue(100)
+    hdial.valueChanged.connect(hDialMoved)
+
+    vdial = QDial()
+    vdial.setMinimum(100)
+    vdial.setMaximum(200)
+    vdial.setValue(100)
+    vdial.valueChanged.connect(vDialMoved)
+
+    hlyt.addWidget(capture)
+    hlyt.addWidget(hdial)
+    hlyt.addWidget(vdial)
+
+    layout.addLayout(hlyt)
+    layout.addWidget(slider)
 
     def jump():
         capture.nextFrameSlot(None)
+
     timer = QtCore.QTimer()
     timer.timeout.connect(jump)
-    timer.start(10)
+    timer.start(100)
+
+    w.show()
     sys.exit(app.exec_())

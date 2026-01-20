@@ -517,7 +517,7 @@ CMS_STATUS CMS_ASCII_UPDATER::update(unsigned int &x)
 		x);
 	}
 	end_current_string[7] = 0;
-	sprintf(end_current_string, "%-6d", x);
+	sprintf(end_current_string, "%-6u", x);
 	if (end_current_string[7] != 0 && warning_count < warning_count_max) {
 	    warning_count++;
 	    rcs_print_error
@@ -631,7 +631,7 @@ CMS_STATUS CMS_ASCII_UPDATER::update(unsigned long int &x)
 
     if (encoding) {
 	end_current_string[15] = 0;
-	sprintf(end_current_string, "%-14ld", x);
+	sprintf(end_current_string, "%-14lu", x);
 	if (end_current_string[15] != 0 && warning_count < warning_count_max) {
 	    warning_count++;
 	    rcs_print_error

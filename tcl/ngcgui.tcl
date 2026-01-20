@@ -2659,7 +2659,7 @@ proc ::ngcgui::dcheck {hdl} {
   foreach n [array names ::ngc $hdl,arg,entrywidget,*] {
     set i1 [string last , $n]
     set num02 [string range $n [expr 1 + $i1] end]
-    # under some contitions, this entrywidget may be done:
+    # under some conditions, this entrywidget may be done:
     if ![winfo exists $::ngc($hdl,arg,entrywidget,$num02)] continue
     if {   [info exists ::ngc($hdl,arg,dvalue,$num02)] \
         && "$::ngc($hdl,arg,dvalue,$num02)" \
@@ -3219,7 +3219,7 @@ proc ::ngcgui::wgui {dir} {
   # this proc is useful for testing with tkcon:
   # to debug using tkcon: source this file then % ::ngcgui::wgui dirname
   # to run ngcgui in a frame, use ::ngcgui::gui hdl create frame
-  # multiple intantiations of ngcgui within the same process are not supported
+  # multiple instantiations of ngcgui within the same process are not supported
   package require Tk
   set hdl 0
   catch {unset ::ngc}

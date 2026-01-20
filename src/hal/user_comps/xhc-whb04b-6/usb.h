@@ -17,7 +17,8 @@
    02111-1307 USA.
  */
 
-#pragma once
+#ifndef __XHC_WHB04B_6_USB_H
+#define __XHC_WHB04B_6_USB_H
 
 // system includes
 #include <stdint.h>
@@ -280,7 +281,8 @@ public:
     ~Usb();
     uint16_t getUsbVendorId() const;
     uint16_t getUsbProductId() const;
-    const bool isDeviceOpen() const;
+    void setUsbProductId(uint16_t usbProductId);
+    bool isDeviceOpen() const;
     libusb_context** getContextReference();
     libusb_context* getContext();
     void setContext(libusb_context* context);
@@ -307,7 +309,7 @@ public:
 
 private:
     const uint16_t usbVendorId{0x10ce};
-    const uint16_t usbProductId{0xeb93};
+    uint16_t usbProductId{0xeb93};
     libusb_context      * context{nullptr};
     libusb_device_handle* deviceHandle{nullptr};
     bool                mDoReconnect{false};
@@ -336,3 +338,4 @@ std::ostream& operator<<(std::ostream& os, const UsbOutPackageData& data);
 std::ostream& operator<<(std::ostream& os, const UsbOutPackageBlockFields& block);
 std::ostream& operator<<(std::ostream& os, const UsbOutPackageBlocks& blocks);
 }
+#endif

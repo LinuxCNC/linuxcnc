@@ -133,6 +133,8 @@
 RTAPI_BEGIN_DECLS
 extern char *hal_shmem_base;
 extern struct hal_data_t *hal_data;
+// The false error seems to be a cppcheck 2.13 problem
+// cppcheck-suppress unknownMacro
 RTAPI_END_DECLS
 
 #ifdef __cplusplus
@@ -153,7 +155,7 @@ class hal_shmfield {
 public:
     hal_shmfield() : off{} {}
     hal_shmfield(T *t) : off{hal_shmoff(t)} {}
-    hal_shmfield &operator=(T *t) { off = hal_shmoff(t); }
+    hal_shmfield &operator=(T *t) { off = hal_shmoff(t); return *this; }
     T *get() { return hal_shmptr<T>(off); }
     const T *get() const { return hal_shmptr<T>(off); }
     T *operator *() { return get(); }
@@ -483,20 +485,21 @@ extern hal_pin_t *halpr_find_pin_by_sig(hal_sig_t * sig, hal_pin_t * start);
 
 
 /** hal_port_alloc allocates a new empty hal_port having a buffer of size bytes. 
-    returns a negative value on failure or a hal_port_t which can be used with
-    all other hal_port functions.
+    Returns a negative value on failure. On success zero (0) is returned and
+    the newly allocated hal_port_t is returned in the port argument and can be
+    used with all other hal_port functions.
 */
-extern hal_port_t hal_port_alloc(unsigned size);
+extern int hal_port_alloc(unsigned size, hal_port_t *port);
 
 
 
 #define HAL_STREAM_MAGIC_NUM		0x4649464F
 struct hal_stream_shm {
-    unsigned int magic;
-    volatile unsigned int in;
-    volatile unsigned int out;
+    unsigned magic;
+    volatile unsigned in;
+    volatile unsigned out;
     unsigned this_sample;
-    int depth;
+    unsigned depth;
     int num_pins;
     unsigned long num_overruns, num_underruns;
     hal_type_t type[HAL_STREAM_MAX_PINS];

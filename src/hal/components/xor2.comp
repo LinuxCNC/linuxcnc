@@ -1,28 +1,36 @@
 component xor2 "Two-input XOR (exclusive OR) gate";
-pin in bit in0;
-pin in bit in1;
-pin out bit out """\
-\\fBout\\fR is computed from the value of \\fBin0\\fR and \\fBin1\\fR according
-to the following rule:
-.RS
-.TP
-\\fBin0=TRUE in1=FALSE\\fR
-.TQ
-\\fBin0=FALSE in1=TRUE\\fR
-\\fBout=TRUE\\fR
-.TP
-Otherwise,
-\\fBout=FALSE\\fR""";
+pin in bit in0 "First input";
+pin in bit in1 "Second input";
+pin out bit out "Output";
+
+description """
+The *out* pin is computed from the value of the *in0* and *in1* pins according
+to the following truth table:
+
+[option="header",cols="^1,^1,^1"]
+|===
+^h|in1
+^h|in0
+^h|out
+
+|0|0|0
+|0|1|1
+|1|0|1
+|1|1|0
+|===
+
+""";
 function _ nofp;
 see_also """
-\\fBand2\\fR(9),
-\\fBlogic\\fR(9),
-\\fBlut5\\fR(9),
-\\fBnot\\fR(9),
-\\fBor2\\fR(9).
+*and2*(9),
+*logic*(9),
+*lut5*(9),
+*not*(9),
+*or2*(9).
 """;
 license "GPL";
 author "John Kasunich";
+option period no;
 ;;
 FUNCTION(_) {
     if (( in0 && !in1 ) || ( in1 && !in0 )) {

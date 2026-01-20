@@ -8,7 +8,7 @@
 // Copyright (C) 2011 Mike McCauley
 // $Id: bcm2835.h,v 1.4 2012/07/16 23:57:59 mikem Exp mikem $
 //
-/// \mainpage C library for Broadcom BCM 2835 as used in Raspberry Pi
+/// \brief C library for Broadcom BCM 2835 as used in Raspberry Pi
 ///
 /// This is a C library for Raspberry Pi (RPi). It provides access to
 /// GPIO and other IO functions on the Broadcom BCM 2835 chip,
@@ -696,7 +696,7 @@ extern "C" {
     /// again execute the calling thread.
     /// For times less than about 450 microseconds, uses a busy wait on a high resolution timer.
     /// It is reported that a delay of 0 microseconds on RaspberryPi will in fact
-    /// result in a dleay of about 80 microseconds. Your mileage may vary.
+    /// result in a delay of about 80 microseconds. Your mileage may vary.
     /// \param[in] micros Delay in microseconds
     extern void bcm2835_delayMicroseconds (unsigned int micros);
 

@@ -53,7 +53,7 @@
 #ifdef debug
 #define dbg_printf printf
 #else
-static inline int dbg_printf(char *f, ...) {return 0;}
+static inline int dbg_printf(char *f, ...) { (void)f; return 0;}
 #endif
 
 StrDatasForBase CorresDatasForBase[3] = { {BASE_MINS , TIME_BASE_MINS , "%.1fmn" , "Mins" } ,
@@ -1464,7 +1464,7 @@ void LoadAllLadderDatas(char * DatasDirectory)
 
 	// Sections added since v0.5.5, the format of files has a little changed :
 	// before the prev/next rungs were not saved in each rung...
-	// and the nmber of rungs changed when saved...
+	// and the number of rungs changed when saved...
 	snprintf(FileName, sizeof(FileName),"%s/"FILE_PREFIX"sections.csv",DatasDirectory);
 //	printf("Loading sections data from %s\n",FileName);
 	if ( LoadSectionsParams(FileName) )

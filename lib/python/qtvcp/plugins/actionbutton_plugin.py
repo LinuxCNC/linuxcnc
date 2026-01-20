@@ -247,7 +247,8 @@ class ActionButtonDialog(QtWidgets.QDialog):
                   ('CamView Dialog', ['camview_dialog', 0], []),
                   ('Machine Log Dialog', ['machine_log_dialog', 0], []),
                   ('Origin Offset Dialog', ['origin_offset_dialog', 0], []),
-                  ('Tool Offset Dialog', ['tool_offset_dialog', 0], []))
+                  ('Tool Offset Dialog', ['tool_offset_dialog', 0], []),
+                  ('Tool Chooser Dialog', ['tool_chooser_dialog', 0], []))
         node_4 = (('Launch HALmeter', ['launch_halmeter', 0], []),
                   ('Launch Status', ['launch_status', 0], []),
                   ('Launch HALshow', ['launch_halshow', 0], []),

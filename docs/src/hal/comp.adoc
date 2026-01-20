@@ -2,7 +2,7 @@
 :toc:
 
 [[cha:hal-component-generator]]
-= HAL Component Generator(((HAL Component Generator)))
+= HAL Component Generator
 
 // Custom lang highlight
 // must come after the doc title, to work around a bug in asciidoc 8.6.6
@@ -10,10 +10,12 @@
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
+(((HAL Component Generator)))
+
 == Introduction
 
 This section introduces to the compilation HAL components, i.e. the addition of some machinists' knowledge on how to deal with the machine.
-It should be noted that such components do not neccessarily deal with the hardware directly.
+It should be noted that such components do not necessarily deal with the hardware directly.
 They often do, but not necessarily, e.g. there could be a component to convert between imperial and metric scales,
 so this section does not require to dive into the interaction with hardware.
 
@@ -31,6 +33,7 @@ component ddt "Compute the derivative of the input function";
 pin in float in;
 pin out float out;
 variable double old;
+option period no;
 function _;
 license "GPL"; // indicates GPL v2 or later
 ;;
@@ -54,6 +57,82 @@ sudo apt install linuxcnc-uspace-dev
 
 Another method is using the Synaptic package manager, from the Applications menu, to install the `linuxcnc-dev` or `linuxcnc-uspace-dev` packages.
 
+
+== Compiling 
+
+=== Inside the source tree
+
+Place the `.comp` file in the source directory `linuxcnc/src/hal/components` and re-run `make`.
+'Comp' files are automatically detected by the build system.
+
+If a `.comp` file is a driver for hardware, it may be placed in `linuxcnc/src/hal/drivers`
+and will be built unless LinuxCNC is configured as a non-realtime simulator.
+
+=== Realtime components outside the source tree
+
+'halcompile' can process, compile, and install a realtime component in a single step,
+placing `rtexample.ko` in the LinuxCNC realtime module directory:
+
+----
+[sudo] halcompile --install rtexample.comp
+----
+
+[NOTE]
+sudo (for root permission) is needed when using LinuxCNC from a deb package install.
+When using a Run-In-Place (RIP) build, root privileges should not be needed.
+
+Or, it can process and compile in one step, leaving `example.ko` (or `example.so` for the simulator) in the current directory:
+
+----
+halcompile --compile rtexample.comp
+----
+
+Or it can simply process, leaving `example.c` in the current directory:
+
+----
+halcompile rtexample.comp
+----
+
+'halcompile' can also compile and install a component written in C, using the `--install` and `--compile` options shown above:
+
+----
+[sudo] halcompile --install rtexample2.c
+----
+
+man-format documentation can also be created from the information in the declaration section:
+
+----
+halcompile --document -o example.9 rtexample.comp
+----
+
+The resulting manpage, 'example.9' can be viewed with
+
+----
+man ./example.9
+----
+
+or copied to a standard location for manual pages.
+
+=== Non-realtime components outside the source tree
+
+'halcompile' can process, compile, install, and document non-realtime components:
+
+----
+halcompile non-rt-example.comp
+halcompile --compile non-rt-example.comp
+[sudo] halcompile --install non-rt-example.comp
+halcompile --document non-rt-example.comp
+----
+
+For some libraries (for example modbus) it might be necessary to add extra compiler and linker arguments to enable the compiler to find and link the libraries.
+In the case of .comp files this can be done via "option" statements in the `.comp` file.
+For `.c` files this is not possible so the `--extra-compile-args` and `--extra-link-args` parameters can be used instead.
+As an example, this command line can be used to compile the `vfdb_vfd.c` component out-of-tree.
+----
+halcompile --userspace --install --extra-compile-args="-I/usr/include/modbus" --extra-link-args="-lm -lmodbus -llinuxcncini" vfdb_vfd.c
+----
+NOTE: The effect of using both command-line and in-file extra-args is undefined.
+
 == Using a Component
 
 Components need to be loaded and added to a thread before it can be employed.
@@ -67,21 +146,21 @@ loadrt ddt
 addf ddt.0 servo-thread
 ----
 
-More information on 'loadrt' and 'addf' can be found in the
+More information on `loadrt` and `addf` can be found in the
 <<cha:basic-hal-reference,HAL Basics>>.
 
 To test your component you can follow the examples in the <<cha:hal-tutorial,HAL Tutorial>>.
 
 == Definitions
 
-* 'component' - A component is a single real-time module, which is loaded with 'halcmd loadrt'.
-  One '.comp' file specifies one component. The component name and file name must match.
+* *component* - A component is a single real-time module, which is loaded with `Halcmd loadrt`.
+  One `.comp` file specifies one component. The component name and file name must match.
 
-* 'instance' - A component can have zero or more instances.
+* *instance* - A component can have zero or more instances.
   Each instance of a component is created equal (they all have the same pins, parameters,
   functions, and data) but behave independently when their pins, parameters, and data have different values.
 
-* 'singleton' - It is possible for a component to be a "singleton", in which case exactly one instance is created.
+* *singleton* - It is possible for a component to be a "singleton", in which case exactly one instance is created.
   It seldom makes sense to write a 'singleton' component, unless there can literally only be a single object of that kind in the system
   (for instance, a component whose purpose is to provide a pin with the current UNIX time, or a hardware driver for the internal PC speaker).
 
@@ -97,11 +176,11 @@ If neither 'count' nor 'names' is specified, a single numbered instance is creat
 
 Functions are implicitly passed the 'period' parameter which is the time in nanoseconds of the last period to execute the component.
 Functions which use floating-point can also refer to 'fperiod' which is the floating-point time in seconds, or (period*1e-9).
-This can be useful in components that need the timing information.
+This can be useful in components that need the timing information. See also 'option period' below.
 
 == Syntax
 
-A '.comp' file consists of a number of declarations, followed by ';;' on a line of its own, followed by C code implementing the module's functions.
+A `.comp` file consists of a number of declarations, followed by `;;` on a line of its own, followed by C code implementing the module's functions.
 
 Declarations include:
 
@@ -194,8 +273,8 @@ In this case, r-strings are particularly useful, because the backslashes in an r
 r"\fIexample\fB"
 ----
 
-* 'TYPE' - One of the HAL types: 'bit', 'signed', 'unsigned', or 'float'.
-  The old names 's32' and 'u32' may also be used, but 'signed' and 'unsigned' are preferred.
+* 'TYPE' - One of the HAL types: 'bit', 's32', 'u32', 's64', 'u64' or 'float'.
+  The names 'signed' and 'unsigned' may also be used for 's32' and 'u32' but 's32' and 'u32' are preferred.
 * 'PINDIRECTION' - One of the following: 'in', 'out', or 'io'.
   A component sets a value for an 'out' pin, it reads a value from an 'in' pin, and it may read or set the value of an 'io' pin.
 * 'PARAMDIRECTION' - One of the following: 'r' or 'rw'. A component sets a value for a 'r' parameter, and it may read or set the value of a 'rw' parameter.
@@ -216,18 +295,24 @@ r"\fIexample\fB"
 
 The currently defined options are:
 
-* 'option singleton yes' - (default: no)
-  Do not create a 'count' module parameter, and always create a single instance.
-  With 'singleton', items are named 'component-name.item-name' and without 'singleton', items for numbered instances are named 'component-name.<num>.item-name'.
-* 'option default_count number' - (default: 1)
-  Normally, the module parameter 'count' defaults to 1. If specified, the 'count' will default to this value instead.
-* 'option count_function yes' - (default: no)
-  Normally, the number of instances to create is specified in the module parameter 'count';
-  if 'count_function' is specified, the value returned by the function 'int get_count(void)' is used instead, and the 'count' module parameter is not defined.
-* 'option rtapi_app no' - (default: yes)
+* 'option singleton yes' - (default: no) +
+  Do not create a 'count' module parameter, and always create a single instance. With
+  'singleton', items are named 'component-name.item-name' and without 'singleton', items for
+  numbered instances are named 'component-name.<num>.item-name'.
+
+* 'option default_count number' - (default: 1) +
+  Normally, the module parameter 'count' defaults to 1. If specified, the 'count' will default
+  to this value instead.
+
+* 'option count_function yes' - (default: no) +
+  Normally, the number of instances to create is specified in the module parameter 'count'; if
+  'count_function' is specified, the value returned by the function 'int get_count(void)' is
+  used instead, and the 'count' module parameter is not defined.
+
+* 'option rtapi_app no' - (default: yes) +
   Normally, the functions `rtapi_app_main()` and `rtapi_app_exit()` are automatically defined.
   With 'option rtapi_app no', they are not, and must be provided in the C code.
-  Use the following prototypes:
+  Use the following prototypes: +
 +
 ----
 `int rtapi_app_main(void);`
@@ -263,7 +348,7 @@ When implementing your own `rtapi_app_main()`, call the function `int export(cha
   This function may process the commandline arguments or take other actions.
   Its return type is 'void'; it may call 'exit()' if it wishes to terminate rather than create a HAL component (e.g., because the commandline arguments were invalid).
 
-* 'option extra_link_args "..."' - (default: "")
+* 'option extra_link_args "..."' - (default: "") +
    This option is ignored if the option 'userspace' (see above) is set to 'no'.
    When linking a non-realtime component, the arguments given are inserted in the link line.
    Note that because compilation takes place in a temporary directory,
@@ -271,7 +356,7 @@ When implementing your own `rtapi_app_main()`, call the function `int export(cha
    This option can be set in the halcompile command-line with -extra-link-args="-L.....".
    This alternative provides a way to set extra flags in cases where the input file is a .c file rather than a .comp file.
 
-* 'option extra_compile_args "..."' - (default: "")
+* 'option extra_compile_args "..."' - (default: "") +
    This option is ignored if the option 'userspace' (see above) is set to 'no'.
    When compiling a non-realtime component, the arguments given are inserted in the compiler command line.
    If the input file is a .c file this option can be set in the halcompile command-line with --extra-compile-args="-I.....".
@@ -282,6 +367,14 @@ When implementing your own `rtapi_app_main()`, call the function `int export(cha
 
 * 'option tpmod yes' - (default: no) +
   Module is a custom Trajectory Planning (tp) module loaded using `[TRAJ]TPMOD=`__modulename__ .
+
+* 'option period no' - (default: yes) +
+  Control the implicit 'period' parameter of the function(s) defined in the component. A
+  standard function has an implicit parameter 'period'. Many components do no use the 'period'
+  parameter and would cause a "unused parameter" compiler warning. Setting 'option period no'
+  creates a function declaration omitting the 'period' parameter preventing the warning.
+  Setting this option will also prevent 'fperiod' from being defined, as it depends on
+  'period'.
 
 If an option's VALUE is not specified, then it is equivalent to specifying 'option … yes'. +
 The result of assigning an inappropriate value to an option is undefined. +
@@ -356,9 +449,9 @@ they will generally be referred to using the macros below.
 The details of `struct __comp_state` and these macros may change from one version of 'halcompile' to the next.
 
 * `FUNCTION(`__name__`)` - Use this macro to begin the definition of a realtime function, which was previously declared with 'function NAME'.
-  The function includes a parameter 'period' which is the integer number of nanoseconds between calls to the function.
+  The function includes a parameter 'period' which is the integer number of nanoseconds between calls to the function. See also 'option period' above.
 * `EXTRA_SETUP()` - Use this macro to begin the definition of the function called to perform extra setup of this instance.
-  Return a negative Unix 'errno' value to indicate failure (e.g., 'return -EBUSY' on failure to reserve an I/O port), or 0 to indicate success.
+  Return a negative UNIX 'errno' value to indicate failure (e.g., 'return -EBUSY' on failure to reserve an I/O port), or 0 to indicate success.
 * `EXTRA_CLEANUP()` - Use this macro to begin the definition of the function called to perform extra cleanup of the component.
   Note that this function must clean up all instances of the component, not just one.
   The "pin_name", "parameter_name", and "data" macros may not be used here.
@@ -374,15 +467,15 @@ When the item is a conditional item, it is only legal to refer to it when its 'c
 * 'variable_name' - For each variable 'variable_name' there is a macro which allows the name to be used on its own to refer to the variable.
   When 'variable_name' is an array, the normal C-style subscript is used: 'variable_name[idx]'.
 * 'data' - If "option data" is specified, this macro allows access to the instance data.
-* 'fperiod' - The floating-point number of seconds between calls to this realtime function.
+* 'fperiod' - The floating-point number of seconds between calls to this realtime function. See also 'option period' above.
 * `FOR_ALL_INSTS() {`...`}` - For non-realtime components.
   This macro iterates over all the defined instances.
   Inside the body of the loop, the 'pin_name', 'parameter_name', and 'data' macros work as they do in realtime functions.
 
 == Components with one function
 
-If a component has only one function and the string "FUNCTION" does not appear anywhere after ';;',
-then the portion after ';;' is all taken to be the body of the component's single function.
+If a component has only one function and the string `"FUNCTION"` does not appear anywhere after `;;`,
+then the portion after `;;` is all taken to be the body of the component's single function.
 See the <<code:simple-comp-example,Simple Comp>> for an example of this.
 
 == Component Personality
@@ -417,79 +510,6 @@ If the requested number of instances exceeds the number of allowed personalities
 personalities are assigned by indexing modulo the number of allowed personalities.
 A message is printed denoting such assignments.
 
-== Compiling
-
-Place the '.comp' file in the source directory 'linuxcnc/src/hal/components' and re-run 'make'.
-'Comp' files are automatically detected by the build system.
-
-If a '.comp' file is a driver for hardware, it may be placed in 'linuxcnc/src/hal/drivers'
-and will be built unless LinuxCNC is configured as a non-realtime simulator.
-
-== Compiling realtime components outside the source tree
-
-'halcompile' can process, compile, and install a realtime component in a single step,
-placing 'rtexample.ko' in the LinuxCNC realtime module directory:
-
-----
-[sudo] halcompile --install rtexample.comp
-----
-
-[NOTE]
-sudo (for root permission) is needed when using LinuxCNC from a deb package install.
-When using a Run-In-Place (RIP) build, root privileges should not be needed.
-
-Or, it can process and compile in one step, leaving 'example.ko' (or 'example.so' for the simulator) in the current directory:
-
-----
-halcompile --compile rtexample.comp
-----
-
-Or it can simply process, leaving 'example.c' in the current directory:
-
-----
-halcompile rtexample.comp
-----
-
-'halcompile' can also compile and install a component written in C, using the '--install' and '--compile' options shown above:
-
-----
-[sudo] halcompile --install rtexample2.c
-----
-
-man-format documentation can also be created from the information in the declaration section:
-
-----
-halcompile --document rtexample.comp
-----
-
-The resulting manpage, 'example.9' can be viewed with
-
-----
-man ./example.9
-----
-
-or copied to a standard location for manual pages.
-
-== Compiling non-realtime components outside the source tree
-
-'halcompile' can process, compile, install, and document non-realtime components:
-
-----
-halcompile non-rt-example.comp
-halcompile --compile non-rt-example.comp
-[sudo] halcompile --install non-rt-example.comp
-halcompile --document non-rt-example.comp
-----
-
-For some libraries (for example modbus) it might be necessary to add extra compiler and linker arguments to enable the compiler to find and link the libraries.
-In the case of .comp files this can be done via "option" statements in the .comp file.
-For .c files this is not possible so the --extra-compile-args and --extra-link-args parameters can be used instead.
-As an example, this command line can be used to compile the vfdb_vfd.c component out-of-tree.
-----
-halcompile --userspace --install --extra-compile-args="-I/usr/include/modbus" --extra-link-args="-lm -lmodbus -llinuxcncini" vfdb_vfd.c
-----
-NOTE: The effect of using both command-line and in-file extra-args is undefined.
-
 == Examples
 
 === constant
@@ -502,6 +522,7 @@ The file name must match the component name.
 component constant;
 pin out float out;
 param r float value = 1.0;
+option period no;
 function _;
 license "GPL"; // indicates GPL v2 or later
 ;;
@@ -523,6 +544,7 @@ component sincos;
 pin out float sin_;
 pin out float cos_;
 pin in float theta;
+option period no;
 function _;
 license "GPL"; // indicates GPL v2 or later
 ;;
@@ -545,6 +567,7 @@ param r unsigned ioaddr;
 
 function _;
 
+option period no;
 option count_function;
 option extra_setup;
 option extra_cleanup;
@@ -595,7 +618,8 @@ pin out float example;
 
 This fragment of a component illustrates the use of the 'hal_' prefix in a component name.
 
-`loop` is a common name, and the `hal_` prefix avoids potential name collissions with other unrelated software.  For example, on RTAI realtime systems realtime code runs in the kernel, so if the component were named just `loop` it could easily conflict with the standard `loop` kernel module.
+`loop` is a common name, and the `hal_` prefix avoids potential name collisions with other unrelated software.
+For example, on RTAI realtime systems realtime code runs in the kernel, so if the component were named just `loop` it could easily conflict with the standard `loop` kernel module.
 
 When loaded, 'halcmd show comp' will show a component called 'hal_loop'.
 However, the pin shown by 'halcmd show pin' will be 'loop.0.example', not 'hal-loop.0.example'.
@@ -609,6 +633,7 @@ This realtime component illustrates use of fixed-size arrays:
 component arraydemo "4-bit Shift register";
 pin in bit in;
 pin out bit out-# [4];
+option period no;
 function _ nofp;
 license "GPL"; // indicates GPL v2 or later
 ;;
@@ -639,7 +664,7 @@ void user_mainloop(void) {
 }
 ----
 
-=== logic
+=== logic (using personality)
 
 This realtime component shows how to use "personality" to create variable-size arrays and optional pins.
 
@@ -650,6 +675,7 @@ pin in bit in-##[16 : personality & 0xff];
 pin out bit and if personality & 0x100;
 pin out bit or if personality & 0x200;
 pin out bit xor if personality & 0x400;
+option period no;
 function _ nofp;
 description """
 Experimental general 'logic function' component.  Can perform 'and', 'or'
@@ -702,6 +728,7 @@ pin in s32 in;
 pin out bit out1;
 pin out bit out2;
 
+option period no;
 function _;
 license "GPL";
 ;;

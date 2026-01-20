@@ -327,7 +327,7 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
             canon.parameter_file = temp_parameter
 
             unitcode = "G%d" % (20 + (s.linear_units == 1))
-            initcode = self.inifile.find("RS274NGC", "RS274NGC_STARTUP_CODE") or ""
+            initcode = ""
             result, seq = self.load_preview(filename, canon, unitcode, initcode)
             if result > gcode.MIN_ERROR:
                 self.report_gcode_error(result, seq, filename)
@@ -490,6 +490,13 @@ class Gremlin(Gtk.DrawingArea,rs274.glcanon.GlCanonDraw,glnav.GlNavBase):
 
     @rs274.glcanon.with_context
     def select_fire(self, widget, event):
+        # if program is running, do not update the line:
+        # if the user clicks in the preview, 
+        # Highlighting the line can cause an error with buffer OverflowError
+        #print("DEBUG NORBERT",self.stat.state, linuxcnc.RCS_EXEC)
+        if self.stat.state == linuxcnc.RCS_EXEC:
+            return
+ 
         if not self.select_primed: return
         x, y = self.select_primed
         self.select_primed = None

@@ -1,9 +1,9 @@
 component xhc_hb04_util "xhc-hb04 convenience utility";
 description """Provides logic for a start/pause button and an interface
-to \\fBhalui.program.is_paused\\fR, \\fBis_idle\\fR, \\fBis_running\\fR to generate outputs for \\fBhalui.program.pause\\fR, \\fBresume\\fR, \\fBrun\\fR.
+to *halui.program.is_paused*, *is_idle*, *is_running* to generate outputs for *halui.program.pause*, *resume*, *run*.
 
-Includes 4 simple lowpass filters with \\fBcoef\\fR and \\fBscale\\fR pins.  The coef value should
-be 0 <= coef <=1, smaller coef values slow response.  See the lowpass manpage for
+Includes 4 simple lowpass filters with *coef* and *scale* pins.  The coef value should
+be 0 ≤ coef ≤1, smaller coef values slow response.  See the lowpass manpage for
 calculating the filter time constant ($ man lowpass).
 
 """;
@@ -39,6 +39,7 @@ pin out float divide_by_k_out;
 pin in  float k = 1.0;
 
 option data xhc_data;
+option period no;
 
 variable double value0;
 variable double value1;

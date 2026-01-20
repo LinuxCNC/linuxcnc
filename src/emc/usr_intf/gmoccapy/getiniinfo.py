@@ -29,7 +29,7 @@ import os
 import operator
 
 # Set up logging
-from qtvcp import logger
+from common import logger
 
 LOG = logger.getLogger(__name__)
 # Force the log level for this module
@@ -59,6 +59,10 @@ class GetIniInfo:
     def get_postgui_halfile(self):
         postgui_halfile = self.inifile.findall("HAL", "POSTGUI_HALFILE") or None
         return postgui_halfile
+
+    def get_postgui_halcmds(self):
+        postgui_halcmds = self.inifile.findall("HAL", "POSTGUI_HALCMD") or None
+        return postgui_halcmds
 
     def get_preference_file_path(self):
         # we get the preference file, if there is none given in the INI

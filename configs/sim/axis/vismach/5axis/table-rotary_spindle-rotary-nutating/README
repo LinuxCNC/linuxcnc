@@ -1,0 +1,27 @@
+This is a simulation configuration for a 6 axis machine with one table rotary and two spindle rotary joints
+
+This simulation also includes a python remap of Gcodes for tilted workplane (TWP) functionality.
+Both the kinematic and the twp remap support nutation of the secondary rotary joints (ie A or B ) form 0 to 90°.
+Hence this also works for the 'usual' orthogonal spindle rotary-tilt type machines by setting the nutation angle to 90°.
+
+Implemented TWP functionality:
+G68.2 : defines twp using euler-angles, pitch-roll-yaw, 2-vectors, 3 points, optionally with offset in XYZ and rotation in XY
+G68.3 : defines twp from current tool orientation, optionally with offset in XYZ and rotation in XY
+G68.4 : same as G68.2 but as an incremental definition from an active TWP plane
+G69 : cancels the current twp (resets all parameters, moves to G54 and sets Identity kinematics)
+G53.1 (P) : spindle orientation without tcp, switches to G59 and activates tool kinematics
+G53.3 (P XYZ) : same as G53.1 but with simultaneous move the the XYZ coords on the twp plane
+G53.6 (P) : same as G53.1 but spindle orientation with tcp
+
+- Spindle is C primary, A secondary or B secondary as defined in the [TWP] section of the ini file
+- All G53.x commands will respect axis limits as set in the ini file for the respective primary and secondary spindle joints.
+- The P word sets the orientation strategy: 0(default)=shortest distance,
+                                            1=positive rotation only,
+                                            2=negative rotation only
+                                            (this applies to the primary rotary, the secondary moves the shortest distance)
+
+For more:
+https://forum.linuxcnc.org/show-your-stuff/49103-kinematic-model-for-a-5axis-mill-with-universal-nutating-head?start=0#271334
+
+Full Documentation can be found at:
+https://github.com/Sigma1912/LinuxCNC_Demo_Configs/tree/main/table-rotary_spindle-rotary-nutating/Documentation

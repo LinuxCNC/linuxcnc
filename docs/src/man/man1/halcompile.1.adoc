@@ -1,0 +1,111 @@
+= halcompile(1)
+
+== NAME
+
+halcompile - Build, compile and install LinuxCNC HAL components
+
+== SYNOPSIS
+
+____
+*halcompile* [*--compile*|*--preprocess*|*--document*|*--adoc*|*--view-doc*] compfile...
+____
+
+_sudo_ *halcompile* [*--install*|*--install-doc*] compfile...
+
+____
+*halcompile* *--compile* *--userspace* cfile...
+____
+
+_sudo_ *halcompile* *--install* *--userspace* cfile...
+
+_sudo_ *halcompile* *--install* *--userspace* pyfile...
+
+When personalities are used in a comp file, HAL instances are exported
+sequentially (typically by the mutually exclusive count= or names=
+parameters). If the number of exports exceeds the maximum number of
+personalities, subsequent personalities are assigned modulo the maximum
+number of personalities allowed.
+
+By default, the maximum number of personalities is 64. To alter this
+limit, use the *--personalities=* option with halcompile. For example,
+to set the maximum of personality items to 4: [sudo] *halcompile
+--personalities=4* --install ...
+
+Do not use [sudo] for RIP installation.
+
+== OPTIONS
+
+*-a*, *--adoc*::
+Extract only asciidoc format documentation from the component.
+*-c*, *--compile*::
+Compile a component or C-source module.
+*-d*, *--document*::
+Extract man-page format documentation from the component (builds asciidoc and
+then converts to manpage). This option requires **asciidoctor**(1) or **a2x**(1)
+to be installed on your system.
+*-h*, *-?*, *--help*::
+Show a brief usage message and exit.
+*-i*, *--install*::
+Build and install a component.
+*-J*, *--view-doc*::
+Deprecated. Live view the manpage of the component (builds asciidoc, converts
+to manpage and runs **man**(1)). This option requires **asciidoctor**(1)
+or **a2x**(1) to be installed on your system.
+*-j*, *--install-doc*::
+Install the man-page documentation in _usr/share/man1_ or _usr/share/man9_,
+depending whether this is a userspace or realtime component.
+*-k* _file_, *--keep-adoc*=_file_::
+Keep the generated asciidoc file when generating manpage documentation. The
+file is saved to _file_. You cannot specify multiple input files when using
+this option and it has no effect when only asciidoc formatted documentation is
+requested using the *-a* or *--adoc* option.
+*-l*, *--require-license*::
+Obsolete. The component is always required to have a *licence* tag.
+*-o* _file_, *--outfile*=_file_::
+Write output to _file_. Can _only_ be used with *--preprocess*, *--adoc* and
+*--document* processing.
+*-P* _int_, *--personalities*=_int_ (default: 64)::
+Set the maximum number of personalities in the component.
+*-p*, *--preprocess*::
+Only generate a C-file from the component file.
+*-U*, *--unix*::
+Require the source to have unix-style NL-only line endings.
+*-u*, *--userspace*::
+Create a userspace C-source (non-realtime). Default is to build realtime
+components.
+*--extra-compile-args*=_args_::
+Extra arguments passed to the C-compiler.
+*--extra-link-args*=_args_::
+Extra arguments passed to the linker.
+
+== DESCRIPTION
+
+*halcompile* performs many different functions:
+
+* Compile *.comp* and *.c* files into *.so* or *.ko* HAL realtime
+  components (the *--compile* flag)
+* Compile *.comp* and *.c* files into HAL non-realtime components
+  (the *--compile --userspace* flag)
+* Preprocess *.comp* files into *.c* files (the *--preprocess* flag)
+* Extract documentation from *.comp* files into asciidoc or manpage
+  section *1* or *9* files (the *--adoc* and *--document* flags)
+* Display documentation from *.comp* files onscreen (the *--view-doc* flag)
+* Compile and install *.comp* and *.c* files into the proper directory
+  for HAL realtime components (the *--install* flag),
+  which may require _sudo_ to write to system directories.
+* Install *.c* and *.py* files into the proper directory for HAL
+  non-realtime components (the *--install* *--userspace* flag), which may
+  require _sudo_ to write to system directories.
+* Extract documentation from *.comp* files into *.1* or *.9* manpage
+  files in the proper system directory (the *--install* flag), which may
+  require _sudo_ to write to system directories.
+* Preprocess *.comp* files into *.c* files (the *--preprocess* flag)
+
+== SEE ALSO
+
+* _Halcompile HAL Component Generator_ in the LinuxCNC documentation for a
+  full description of the *.comp* syntax, along with examples
+
+* *pydoc, HAL* and _Creating Non-realtime Python Components_ in the
+  LinuxCNC documentation for documentation on the Python interface to HAL
+  components

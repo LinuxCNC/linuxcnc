@@ -19,6 +19,7 @@ extern "C" {
 #include <stdlib.h>		/* malloc(), free() */
 }
 
+#include <vector>
 #include "cms.hh"		/* class CMS */
 #include "cms_xup.hh"		/* class CMS_XDR_UPDATER */
 #include "rcs_print.hh"		/* rcs_print_error() */
@@ -656,23 +657,20 @@ CMS_STATUS CMS_XDR_UPDATER::update(long double *x, unsigned int len)
 	return (CMS_UPDATE_ERROR);
     }
 
-    unsigned int i;
-    double *y;
-    y = (double *) malloc(sizeof(double) * len);
-    for (i = 0; i < len; i++) {
-	y[i] = (double) x[i];
+    std::vector<double> y(len);
+    for(unsigned i = 0; i < len; i++) {
+        y[i] = (double) x[i];
     }
 
-    if (xdr_vector(current_stream, (char *) y, len, sizeof(double),
+    if (xdr_vector(current_stream, (char *)y.data(), len, sizeof(double),
 	    (xdrproc_t) xdr_double) != TRUE) {
 	rcs_print_error
 	    ("CMS_XDR_UPDATER: xdr_vector(... xdr_double) failed.\n");
 	return (status = CMS_UPDATE_ERROR);
     }
 
-    for (i = 0; i < len; i++) {
+    for(unsigned i = 0; i < len; i++) {
 	x[i] = (long double) y[i];
     }
-    free(y);
     return (status);
 }

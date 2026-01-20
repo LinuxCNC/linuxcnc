@@ -644,6 +644,9 @@ font: 75 12pt &quot;Noto Sans&quot;;</string>
      <property name="joint_number" stdset="0">
       <number>0</number>
      </property>
+     <property name="axis_letter" stdset="0">
+      <string>X</string>
+     </property>
     </widget>
     <widget class="ActionButton" name="actionbutton_2">
      <property name="geometry">
@@ -665,6 +668,9 @@ font: 75 12pt &quot;Noto Sans&quot;;</string>
      </property>
      <property name="joint_number" stdset="0">
       <number>1</number>
+     </property>
+     <property name="axis_letter" stdset="0">
+      <string>U</string>
      </property>
     </widget>
     <widget class="ActionButton" name="actionbutton">
@@ -688,6 +694,9 @@ font: 75 12pt &quot;Noto Sans&quot;;</string>
      <property name="joint_number" stdset="0">
       <number>2</number>
      </property>
+     <property name="axis_letter" stdset="0">
+      <string>Z</string>
+     </property>
     </widget>
     <widget class="ActionButton" name="actionbutton_17">
      <property name="geometry">
@@ -709,6 +718,9 @@ font: 75 12pt &quot;Noto Sans&quot;;</string>
      </property>
      <property name="joint_number" stdset="0">
       <number>3</number>
+     </property>
+     <property name="axis_letter" stdset="0">
+      <string>A</string>
      </property>
     </widget>
     <widget class="ActionButton" name="actionbutton_18">
@@ -732,6 +744,9 @@ font: 75 12pt &quot;Noto Sans&quot;;</string>
      <property name="joint_number" stdset="0">
       <number>4</number>
      </property>
+     <property name="axis_letter" stdset="0">
+      <string>B</string>
+     </property>
     </widget>
     <widget class="ActionButton" name="actionbutton_34">
      <property name="geometry">
@@ -753,6 +768,9 @@ font: 75 12pt &quot;Noto Sans&quot;;</string>
      </property>
      <property name="joint_number" stdset="0">
       <number>5</number>
+     </property>
+     <property name="axis_letter" stdset="0">
+      <string>C</string>
      </property>
     </widget>
     <widget class="ActionButton" name="actionbutton_35">
@@ -776,6 +794,9 @@ font: 75 12pt &quot;Noto Sans&quot;;</string>
      <property name="joint_number" stdset="0">
       <number>6</number>
      </property>
+     <property name="axis_letter" stdset="0">
+      <string>U</string>
+     </property>
     </widget>
     <widget class="ActionButton" name="actionbutton_36">
      <property name="geometry">
@@ -798,6 +819,9 @@ font: 75 12pt &quot;Noto Sans&quot;;</string>
      <property name="joint_number" stdset="0">
       <number>7</number>
      </property>
+     <property name="axis_letter" stdset="0">
+      <string>V</string>
+     </property>
     </widget>
     <widget class="ActionButton" name="actionbutton_37">
      <property name="geometry">
@@ -819,6 +843,9 @@ font: 75 12pt &quot;Noto Sans&quot;;</string>
      </property>
      <property name="joint_number" stdset="0">
       <number>8</number>
+     </property>
+     <property name="axis_letter" stdset="0">
+      <string>W</string>
      </property>
     </widget>
    </widget>
@@ -2024,9 +2051,6 @@ border-image: url(/home/chris/emc-dev/share/qtscreen/images/frame_bg_grey.png) 0
      </property>
      <property name="is_block_delete_status" stdset="0">
       <bool>false</bool>
-     </property>
-     <property name="is_limits_overridden_status" stdset="0">
-      <bool>true</bool>
      </property>
      <property name="is_limits_overridden_status" stdset="0">
       <bool>true</bool>

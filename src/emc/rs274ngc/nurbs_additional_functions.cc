@@ -49,7 +49,7 @@ std::vector<unsigned int> nurbs_G5_knot_vector_creator(unsigned int n, unsigned 
 
 	}
 
-double nurbs_G5_Nmix(unsigned int i, unsigned int k, double u,	std::vector<unsigned int> knot_vector)
+double nurbs_G5_Nmix(unsigned int i, unsigned int k, double u, const std::vector<unsigned int>& knot_vector)
 	{
 	if(k == 1)
 		{
@@ -99,7 +99,7 @@ double nurbs_G5_Nmix(unsigned int i, unsigned int k, double u,	std::vector<unsig
 
 
 
-double nurbs_G5_Rden(double u, unsigned int k,	std::vector<NURBS_CONTROL_POINT> nurbs_control_points, std::vector<unsigned int> knot_vector)
+double nurbs_G5_Rden(double u, unsigned int k, const std::vector<NURBS_CONTROL_POINT>& nurbs_control_points, const std::vector<unsigned int>& knot_vector)
 	{
 	unsigned int i;
 	double d = 0.0;
@@ -110,7 +110,7 @@ double nurbs_G5_Rden(double u, unsigned int k,	std::vector<NURBS_CONTROL_POINT> 
 	return d;
 	}
 
-NURBS_PLANE_POINT nurbs_G5_point(double u, unsigned int k,	std::vector<NURBS_CONTROL_POINT> nurbs_control_points, std::vector<unsigned int> knot_vector)
+NURBS_PLANE_POINT nurbs_G5_point(double u, unsigned int k, const std::vector<NURBS_CONTROL_POINT>& nurbs_control_points, const std::vector<unsigned int>& knot_vector)
 	{
 	unsigned int i;
 	NURBS_PLANE_POINT point;
@@ -125,7 +125,7 @@ NURBS_PLANE_POINT nurbs_G5_point(double u, unsigned int k,	std::vector<NURBS_CON
 	}
 
 #define DU (1e-5)
-NURBS_PLANE_POINT nurbs_G5_tangent(double u, unsigned int k, std::vector<NURBS_CONTROL_POINT> nurbs_control_points, std::vector<unsigned int> knot_vector)
+NURBS_PLANE_POINT nurbs_G5_tangent(double u, unsigned int k, const std::vector<NURBS_CONTROL_POINT>& nurbs_control_points, const std::vector<unsigned int>& knot_vector)
 	{
 	unsigned int n = nurbs_control_points.size() - 1;
 	double umax = n - k + 2;
@@ -153,7 +153,7 @@ static void unit_(NURBS_PLANE_POINT &p)
 		}
 	}
 
-std::vector<double> nurbs_g6_knot_vector_creator(unsigned int n, unsigned int k, std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points)
+std::vector<double> nurbs_g6_knot_vector_creator(unsigned int n, unsigned int k, const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points)
 	{
 	unsigned int i;
 	std::vector<double> knot_vector_;
@@ -164,7 +164,7 @@ std::vector<double> nurbs_g6_knot_vector_creator(unsigned int n, unsigned int k,
 	return knot_vector_;
 	}
 
-double nurbs_G6_Nmix(unsigned int i, unsigned int k, double u, std::vector<double> knot_vector_)
+double nurbs_G6_Nmix(unsigned int i, unsigned int k, double u, const std::vector<double>& knot_vector_)
 	{
 	if(k == 1)
 		{
@@ -213,7 +213,7 @@ double nurbs_G6_Nmix(unsigned int i, unsigned int k, double u, std::vector<doubl
 
 //A6 è la matrice dove sono memorizzati i valori delle funzioni di base Ni,p(u) per dato valore di u
 //A6 ist die Matrix, in der die Werte der Basisfunktionen Ni,p(u) für einen gegebenen Wert von u gespeichert sind
-std::vector< std::vector<double> > nurbs_G6_Nmix_creator(double u, unsigned int k, double n, std::vector<double> knot_vector)
+std::vector< std::vector<double> > nurbs_G6_Nmix_creator(double u, unsigned int k, double n, const std::vector<double>& knot_vector)
 	{
 	std::vector< std::vector<double> > A6; // array
 	//printf("u: %f k: %d n: %f (F: %s L: %d)\n", u, k, n, __FILE__, __LINE__);
@@ -238,7 +238,7 @@ std::vector< std::vector<double> > nurbs_G6_Nmix_creator(double u, unsigned int 
 	return A6;
 	}
 
-double nurbs_Rden_(double u, unsigned int k, std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points, std::vector<double> knot_vector)
+double nurbs_Rden_(double u, unsigned int k, const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points, const std::vector<double>& knot_vector)
 	{
 	unsigned int i;
 	double d = 0.0;
@@ -250,7 +250,7 @@ double nurbs_Rden_(double u, unsigned int k, std::vector<NURBS_G6_CONTROL_POINT>
 	}
 
 // nurbs_G6_point is unused?
-NURBS_PLANE_POINT nurbs_G6_point(double u, unsigned int k, std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points, std::vector<double> knot_vector)
+NURBS_PLANE_POINT nurbs_G6_point(double u, unsigned int k, const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points, const std::vector<double>& knot_vector)
 	{
 	unsigned int i;
 	NURBS_PLANE_POINT point;
@@ -264,7 +264,7 @@ NURBS_PLANE_POINT nurbs_G6_point(double u, unsigned int k, std::vector<NURBS_G6_
 	return point;
 	}
 
-double nurbs_Rdenx(double u, unsigned int k, std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points, std::vector<double> knot_vector, std::vector< std::vector<double> > A6)
+double nurbs_Rdenx(double /*u*/, unsigned int k, const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points, const std::vector<double>& /*knot_vector*/, const std::vector< std::vector<double> >& A6)
 	{
 	unsigned int i;
 	double d = 0.0;
@@ -276,7 +276,7 @@ double nurbs_Rdenx(double u, unsigned int k, std::vector<NURBS_G6_CONTROL_POINT>
 	}
 
 // Algoritmo Cox-Boor
-NURBS_PLANE_POINT nurbs_G6_pointx(double u, unsigned int k,	std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points, std::vector<double> knot_vector, std::vector< std::vector<double> > A6)
+NURBS_PLANE_POINT nurbs_G6_pointx(double u, unsigned int k, const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points, const std::vector<double>& knot_vector, const std::vector< std::vector<double> >& A6)
 	{
 	unsigned int i;
 	NURBS_PLANE_POINT point;
@@ -292,7 +292,7 @@ NURBS_PLANE_POINT nurbs_G6_pointx(double u, unsigned int k,	std::vector<NURBS_G6
 
 //ALGORITMO DE_BOOR
 //////La funzione nurbs_G6_point_x calcola un punto C(u) della curva NURBS per dato valore del parametro u
-NURBS_PLANE_POINT nurbs_G6_point_x(double u, unsigned int k, std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points, std::vector<double> knot_vector)   // è una funzione
+NURBS_PLANE_POINT nurbs_G6_point_x(double u, unsigned int k, const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points, const std::vector<double>& knot_vector)   // è una funzione
 	{
 	NURBS_PLANE_POINT pointx;
 	pointx.NURBS_X = 0;
@@ -379,7 +379,7 @@ NURBS_PLANE_POINT nurbs_G6_point_x(double u, unsigned int k, std::vector<NURBS_G
 	}
 
 //ALGORITMO DI SUDDIVISIONE NURBS. La CURVA è suddivisa in due segmenti.La funzione calcola i punti di controllo del primo sgmento NURBS
-std::vector<double> nurbs_G6_new_control_point_nurbs1(double u, unsigned int k, std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points,	std::vector<double> knot_vector)
+std::vector<double> nurbs_G6_new_control_point_nurbs1(double u, unsigned int k, const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points, const std::vector<double>& knot_vector)
 	{
 	std::vector<NURBS_CONTROL_POINT> nurbs_control_points_a;
 	std::vector<NURBS_CONTROL_POINT> nurbs_control_points_x;
@@ -482,7 +482,7 @@ std::vector<double> nurbs_G6_new_control_point_nurbs1(double u, unsigned int k, 
 
 //La funzione calcola i punti di controllo del secondo segmento NURBS
 // è una funzione
-std::vector<double> nurbs_G6_new_control_point_nurbs2(double u, unsigned int k, std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points,	std::vector<double> knot_vector) 
+std::vector<double> nurbs_G6_new_control_point_nurbs2(double u, unsigned int k, const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points, const std::vector<double>& knot_vector)
 	{
 	std::vector<NURBS_CONTROL_POINT> nurbs_control_points_a;
 	std::vector<NURBS_CONTROL_POINT> nurbs_control_points_x;
@@ -598,7 +598,7 @@ std::vector<double> nurbs_G6_new_control_point_nurbs2(double u, unsigned int k, 
 	}
 
 //Funzione per ridefinire il vettore knot per il segmento 1 e 2  dopo la suddivisione
-std::vector<double> nurbs_G6_knot_vector_new_creator_sgment(unsigned int k, std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points)
+std::vector<double> nurbs_G6_knot_vector_new_creator_sgment(unsigned int k, const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points)
 	{
 	std::vector<double> knot_vector_sgment;
 	int n=nurbs_control_points.size()-1-k;
@@ -628,7 +628,7 @@ std::vector<double> nurbs_G6_knot_vector_new_creator_sgment(unsigned int k, std:
 
 //Per l'algoritmo DE-BOOR
 #define DU (1e-5)
-NURBS_PLANE_POINT nurbs_G6_tangent_x(double u, unsigned int k, std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points, std::vector<double> knot_vector_)
+NURBS_PLANE_POINT nurbs_G6_tangent_x(double u, unsigned int k, const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points, const std::vector<double>& knot_vector_)
 	{
 	NURBS_PLANE_POINT r, P1, P3;
 	//unsigned int n = nurbs_control_points.size() -k - 1;	// warning: unused variable ‘n’
@@ -652,7 +652,7 @@ NURBS_PLANE_POINT nurbs_G6_tangent_x(double u, unsigned int k, std::vector<NURBS
 /******************************************************************************************************************************************/
 // La funzione Nderv restituisce la derivata prima della funzione di base rispetto al parametro u
 // N'i,k(u)=.....
-double Nderv(unsigned int i, unsigned int k, double u, std::vector<double> knot_vector_)
+double Nderv(unsigned int i, unsigned int k, double u, const std::vector<double>& knot_vector_)
 	{
 	if(k == 1)
 		{
@@ -701,7 +701,7 @@ double Nderv(unsigned int i, unsigned int k, double u, std::vector<double> knot_
 
 //**********************************************************************************/
 //calcolo della derivata  della funzione di base razionale
-double Rderv(double u, unsigned int k, unsigned int i, std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points, std::vector<double> knot_vector_,double f,double Rsk)
+double Rderv(double u, unsigned int k, unsigned int i, const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points, const std::vector<double>& knot_vector_,double f,double Rsk)
 	{
 	double d = 0.0;
 	double Nik,DNik;
@@ -712,7 +712,7 @@ double Rderv(double u, unsigned int k, unsigned int i, std::vector<NURBS_G6_CONT
 	}
 
 // LA funzione Dnurbs_point calcola   la derivata della nurbs C'(u) in u  è una funzione
-NURBS_G6_DPLANE_POINT Dnurbs_point(double u, unsigned int k,	std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points, std::vector<double> knot_vector_)
+NURBS_G6_DPLANE_POINT Dnurbs_point(double u, unsigned int k, const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points, const std::vector<double>& knot_vector_)
 	{
 	double DRik;
 	unsigned int i;
@@ -738,7 +738,7 @@ NURBS_G6_DPLANE_POINT Dnurbs_point(double u, unsigned int k,	std::vector<NURBS_G
 	}
 
 // Nel vettore sono definiti gli estremi degli intervalli di integrazione necessari a definire l'inversa della funzione lunghezza
-std::vector<double> nurbs_interval_span_knot_vector_creator(unsigned int n, unsigned int k, std::vector<double> knot_vector_)
+std::vector<double> nurbs_interval_span_knot_vector_creator(unsigned int n, unsigned int k, const std::vector<double>& knot_vector_)
 	{
 	std::vector<double> span_knot_vector;
 	double a, b,c,ac,cb, ac1,ac2, cb1, cb2;
@@ -771,7 +771,7 @@ std::vector<double> nurbs_interval_span_knot_vector_creator(unsigned int n, unsi
 	return span_knot_vector;
 	}
 
-double lderv(double u, unsigned int k, std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points, std::vector<double> knot_vector_)
+double lderv(double u, unsigned int k, const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points, const std::vector<double>& knot_vector_)
 	{
 	NURBS_G6_DPLANE_POINT DP1;
 	DP1 = Dnurbs_point(u,k,nurbs_control_points,knot_vector_);
@@ -784,7 +784,7 @@ double lderv(double u, unsigned int k, std::vector<NURBS_G6_CONTROL_POINT> nurbs
 
 //Regola di Simpsn
 
-double Sa1_b1_length_(double a1, double b1, unsigned int k,	std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points, std::vector<double> knot_vector_)
+double Sa1_b1_length_(double a1, double b1, unsigned int k, const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points, const std::vector<double>& knot_vector_)
 	{
 	double Sa1_b1_,h,c1;
 	h=(b1-a1)/2;
@@ -794,7 +794,7 @@ double Sa1_b1_length_(double a1, double b1, unsigned int k,	std::vector<NURBS_G6
 	}
 
 // Premesso che ciascun span knot è suddiviso in due in due intervalli,di ciascun intervallo occorre calcolarne la lunghezza, nel vettore sono calcolate è memorizzate le lunghezze realative a ciascun intevallo di integrazione
-std::vector<double> nurbs_lenght_vector_creator(unsigned int k,	std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points, std::vector<double> knot_vector_, std::vector<double> span_knot_vector)
+std::vector<double> nurbs_lenght_vector_creator(unsigned int k,	const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points, const std::vector<double>& knot_vector_, const std::vector<double>& span_knot_vector)
 	{
 	std::vector<double> lenght_vector;
 	double a;
@@ -810,7 +810,7 @@ std::vector<double> nurbs_lenght_vector_creator(unsigned int k,	std::vector<NURB
 ///////////////////////////////////////////////////////////////////////////////////////
 
 // Funzione per calcolare la lunghezza totale della curva fino all'intervallo di integrazione dello span knot di estremo superiore bj, [aj,bj] dove j individua l'ultimo intervallo di integrazione.
-double nurbs_lenght_tot(int j, std::vector<double> span_knot_vector, std::vector<double> lenght_vector)
+double nurbs_lenght_tot(int j, const std::vector<double>& /*span_knot_vector*/, const std::vector<double>& lenght_vector)
 	{
 	double ltot=0;
 	for(int i=0; i<=j; ++i)
@@ -821,7 +821,7 @@ double nurbs_lenght_tot(int j, std::vector<double> span_knot_vector, std::vector
 	}
 
 // Funzione per il calcolo della lunghezza della curva per un qualsiasi valore di u. Tale funzione è stata impiegata per realizzare una verifica
-double lenght_l_u(double u, unsigned int k, std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points, std::vector<double> knot_vector_, std::vector<double> span_knot_vector, std::vector<double> lenght_vector)
+double lenght_l_u(double u, unsigned int k, const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points, const std::vector<double>& knot_vector_, const std::vector<double>& span_knot_vector, const std::vector<double>& lenght_vector)
 	{
 	double a,b,c,d,e,f,g,h,at=0;
 	//double l_u; // warning: ‘l_u’ may be used uninitialized
@@ -877,7 +877,7 @@ double lenght_l_u(double u, unsigned int k, std::vector<NURBS_G6_CONTROL_POINT> 
 	}
 
 //vettore dove sono memorizzate le derivate della funzione inversa della funzione lunghezza in corrispondenza u'j(lj) degli estremi degli intervalli di integrazione
-std::vector<double> nurbs_Du_span_knot_vector_creator(unsigned int k,	std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points, std::vector<double> knot_vector_, std::vector<double> span_knot_vector)
+std::vector<double> nurbs_Du_span_knot_vector_creator(unsigned int k, const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points, const std::vector<double>& knot_vector_, const std::vector<double>& span_knot_vector)
 	{
 	std::vector<double> Du_span_knot_vector;
 	for(unsigned ii=0; ii<span_knot_vector.size(); ++ii)
@@ -891,7 +891,7 @@ std::vector<double> nurbs_Du_span_knot_vector_creator(unsigned int k,	std::vecto
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////777
 //In questo vettore sono memorizzati i coefficienti del polinomio di terzo grado impiegato per approssimare la funzione inversa della lunghezza u_l per ogni intervallo di intgrazione; ogni 6 posizioni sono memorizzati i valori relativi a ciascun intervallo di integrazione a_b_c_d_lj_lj1
-std::vector<double> nurbs_costant_crator(std::vector<double> span_knot_vector, std::vector<double> lenght_vector, std::vector<double> Du_span_knot_vector)
+std::vector<double> nurbs_costant_crator(const std::vector<double>& span_knot_vector, const std::vector<double>& lenght_vector, const std::vector<double>& Du_span_knot_vector)
 	{
 	std::vector<double> nurbs_costant;
 	double a,b,c,d,a1,b1,lj1,ll,lj;
@@ -937,7 +937,7 @@ std::vector<double> nurbs_costant_crator(std::vector<double> span_knot_vector, s
 	}
 
 //Funzione inversa u(l)
-double nurbs_uj_l(double l, std::vector<double> span_knot_vector, std::vector<double> lenght_vector, std::vector<double> nurbs_costant)
+double nurbs_uj_l(double l, const std::vector<double>& span_knot_vector, const std::vector<double>& lenght_vector, const std::vector<double>& nurbs_costant)
 	{
 	double a,b,c,d,lj1,lj,u_l=0,at2=0,at=0;
 	int j=0;
@@ -947,7 +947,7 @@ double nurbs_uj_l(double l, std::vector<double> span_knot_vector, std::vector<do
 		}
 	else
 		{
-		for(unsigned ii=0; ii<= nurbs_costant.size(); ii=ii+6)
+		for(unsigned ii=0; ii < nurbs_costant.size() - 5 ; ii=ii+6)
 			{
 			if((l <= lenght_vector[0]) && (at2 == 0) && (l>0))
 				{

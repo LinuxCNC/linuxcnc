@@ -155,15 +155,15 @@ class HandlerClass:
             self.widgets.led_estop.set_active(True)
 
     def on_x_enc_fault(self,hal_object):
-        print"X Encoder Fault"
+        print("X Encoder Fault")
         self.gscreen.add_alarm_entry(_("X Axis Encoder Error"))
 
     def on_y_enc_fault(self,hal_object):
-        print"Y Encoder Fault"
+        print("Y Encoder Fault")
         self.gscreen.add_alarm_entry(_("Y Axis Encoder Error"))
 
     def on_z_enc_fault(self,hal_object):
-        print"Z Encoder Fault"
+        print("Z Encoder Fault")
         self.gscreen.add_alarm_entry(_("Z Axis Encoder Error"))
 
     def homing(self,*args):

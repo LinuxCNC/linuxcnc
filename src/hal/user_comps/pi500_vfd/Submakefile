@@ -8,7 +8,7 @@ $(call TOOBJSDEPS, $(PI500_SRCS)) : EXTRAFLAGS += $(PI500_CFLAGS)
 
 USERSRCS += $(PI500_SRCS)
 
-../bin/pi500_vfd: $(call TOOBJS, $(PI500_SRCS)) ../lib/liblinuxcnchal.so.0 ../lib/liblinuxcncini.so.0
+../bin/pi500_vfd: $(call TOOBJS, $(PI500_SRCS)) ../lib/liblinuxcnchal.so.0
 	$(ECHO) Linking $(notdir $@)
 	$(Q)$(CC) $(LDFLAGS) -o $@ $^ $(PI500_LIBS) 
 
@@ -17,8 +17,10 @@ hal/user_comps/pi500_vfd/pi500_vfd.c: hal/user_comps/pi500_vfd/pi500_vfd.comp ..
 	$(Q)../bin/halcompile -U --preprocess $<
 
 ../docs/man/man1/pi500_vfd.1: hal/user_comps/pi500_vfd/pi500_vfd.comp ../bin/halcompile
-	$(Q)../bin/halcompile -U -u --document $<
-	$(Q)install --mode=0644 hal/user_comps/pi500_vfd/pi500_vfd.1 $@
+	@mkdir -p $(dir $@) objects/man/man1
+	$(Q)../bin/halcompile -U -u --document --keep-adoc=$@.adoc -o $@ $<
+	$(Q)sed -i -e's/^\.als /.\\" .als /' $@
+	$(Q)mv -f $@.adoc objects/man/man1/
 
 clean: pi500_clean
 pi500_clean:

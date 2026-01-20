@@ -239,8 +239,8 @@ Only loop control statements must be included in a for() construct,
 e.g., `sum = 0; for (i=0; i<10; i++) { sum += value[i]; }` +
 NOT: `for (i=0, sum=0; i<10; i++) sum += value[i];`.
 
-Likewise, executable statements in conditionals must be avoided, e.g.,
-`if (fd = open(file_name)` is bad.
+Likewise, executable statements in conditionals must be avoided,
+e.g., `if (fd = open(file_name))` is bad.
 
 Complex conditional statements should be avoided - Introduce temporary
 boolean variables instead.

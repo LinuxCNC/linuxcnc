@@ -1,9 +1,5 @@
-
-
 //
-//  Driver for the Mesa SSI Encoder module.
-//  It is expected that it will be expanded to cover BISS and Fanuc absolute
-//  encoders in the future.
+//  Driver for the Mesa Absolute Encoder modules.
 //
 
 
@@ -20,6 +16,7 @@
 static bool funct_flag = false;
 
 static void hm2_absenc_trigger(void *void_hm2, long period){
+    (void)period;
     hostmot2_t *hm2 = void_hm2;
     rtapi_u32 buff = 0xFFFFFFFF;
     if (hm2->absenc.ssi_global_start_addr){
@@ -90,7 +87,7 @@ int hm2_absenc_register_tram(hostmot2_t *hm2){
             r += hm2_register_tram_read_region(hm2, chan->rw_addr[2],
                     sizeof(rtapi_u32),
                     &chan->read[2]);
-                    /* no break */
+            /* Fallthrough */
         case HM2_GTAG_SSI:
             r += hm2_register_tram_read_region(hm2, chan->rw_addr[1],
                     sizeof(rtapi_u32),
@@ -131,11 +128,8 @@ int hm2_absenc_register_tram(hostmot2_t *hm2){
     // If there is no dpll to link to, then we export the trigger function.
     
     if (hm2->config.num_dplls == 0){
-        char name[HM2_SSERIAL_MAX_STRING_LENGTH+1] = "";
-        rtapi_snprintf(name, sizeof(name),
-                "%s.trigger-encoders", hm2->llio->name);
-        hal_export_funct(name, hm2_absenc_trigger,
-                hm2, 0, 0,hm2->llio->comp_id);
+        hal_export_functf(hm2_absenc_trigger,
+                hm2, 0, 0,hm2->llio->comp_id, "%s.trigger-encoders", hm2->llio->name);
         funct_flag = true;
     }
 
@@ -243,6 +237,7 @@ int hm2_absenc_parse_format(hm2_sserial_remote_t *chan,  hm2_absenc_format_t *de
     char* AA64 = "%5pbatt_fail%1b%2ppos_invalid%1b%9plow%16l%2pencoder%16h%2pcomm%10u%7pcrc%5u";
     char* format = def->string;
     char name[HM2_SSERIAL_MAX_STRING_LENGTH+1] = "";
+    char *nameptr = name;
     
     if (chan->myinst == HM2_GTAG_FABS && strncmp(format, "AA64",4) == 0){
         format = AA64;
@@ -271,7 +266,8 @@ int hm2_absenc_parse_format(hm2_sserial_remote_t *chan,  hm2_absenc_format_t *de
                 conf->ParmAddr = 0;
                 conf->Flags = 0;
                 // Modifier flags
-                while (strchr("gGmM", *format)){
+                // 24/9/23 atp - string literal has a terminating \0 but we want 0 to fail
+                while ( *format && strchr("gGmM", *format)){
                     if (*format=='g' || *format=='G'){
                         conf->Flags |= 0x01;
                         format++;
@@ -331,25 +327,27 @@ int hm2_absenc_parse_format(hm2_sserial_remote_t *chan,  hm2_absenc_format_t *de
                     conf->ParmMin = 0;
                     break;
                 default:
-                    HM2_ERR_NO_LL("The \"g\" and \"m\"format modifiers must be"
-                                  "paired with one of the other data types\n");
+                    HM2_ERR_NO_LL("The \"g\" and \"m\" format modifiers must be"
+                                  " paired with one of the other data types\n");
                     return -EINVAL;
                 }
-                
             }
             else
             {
-                HM2_ERR_NO_LL("Unknown format specifer %s\n", format);
+                HM2_ERR_NO_LL("Unknown format specifier %s\n", format);
                 return -EINVAL;
             }
             //Start a new name
-            rtapi_strxcpy(name, "");
+            nameptr = name;
+            *nameptr = 0;
             //move to the next string
             format++;
         }
         else
         {
-            strncat(name, format++, 1);
+            // Not a % format, append name
+            *nameptr++ = *format++;
+            *nameptr = 0;
         }
     }
     return 0;
@@ -389,7 +387,7 @@ int hm2_absenc_parse_md(hostmot2_t *hm2, int md_index) {
     // looks good (so far), start initializing
     //
 
-    if (hm2->absenc.num_chans) { // first time though
+    if (hm2->absenc.num_chans == 0) { // first time though
         hm2->absenc.clock_frequency = md->clock_freq;
         hm2->absenc.ssi_busy_flags = rtapi_kmalloc(sizeof(rtapi_u32), RTAPI_GFP_KERNEL);
         *hm2->absenc.ssi_busy_flags = 0;
@@ -422,7 +420,7 @@ int hm2_absenc_parse_md(hostmot2_t *hm2, int md_index) {
                 memset(chan, 0, sizeof(hm2_sserial_remote_t));
                 chan->index = index;
                 chan->myinst = md->gtag;
-                
+
                 if (hm2_absenc_parse_format(chan, def) ) goto fail1;
 
                 switch (md->gtag){
@@ -482,7 +480,6 @@ int hm2_absenc_parse_md(hostmot2_t *hm2, int md_index) {
             }
         }
     }
-
     return hm2->absenc.num_chans;
 
     fail1:
@@ -492,6 +489,7 @@ int hm2_absenc_parse_md(hostmot2_t *hm2, int md_index) {
 }
 
 void hm2_absenc_process_tram_read(hostmot2_t *hm2, long period) {
+    (void)period;
     int i;
     static int err_count[MAX_ABSENCS];
     static int err_tag[MAX_ABSENCS];

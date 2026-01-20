@@ -2,7 +2,7 @@
 :toc:
 
 [[cha:halshow]]
-= Halshow(((Halshow)))
+= Halshow
 
 // Custom lang highlight
 // must come after the doc title, to work around a bug in asciidoc 8.6.6
@@ -10,8 +10,9 @@
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
+(((Halshow)))
 The script `halshow` can help you find your way around a running HAL.
-It displays chosen HAL values and updates them continously.
+It displays chosen HAL values and updates them continuously.
 
 This is a very specialized system and it must connect to a working HAL.
 It cannot run standalone because it relies on the ability of HAL to "introspect" and report what it knows of itself through the halcmd interface library.
@@ -122,7 +123,7 @@ The second pin's name contains the complete name of the first.
 ****
 Selected text inside the Show tab can be copied by right-click or CTRL-C. +
 The Show area allows to add pins from selected text by using the right-click menu.
-All valid pins that are enclosed in the selction are added to the Watch tab.
+All valid pins that are enclosed in the selection are added to the Watch tab.
 ****
 
 == Watch Tab Area
@@ -139,7 +140,8 @@ You can also add all sub-items of this node by selecting that in the right click
 The following figure shows this canvas with several pins.
 
 [[fig:halshow-watch-tab-1]]
-.Halshow: Watch Tab(((Halshow: Watch Tab)))
+.Halshow: Watch Tab
+(((Halshow: Watch Tab)))
 image::images/halshow-watch-tab-1.png["Halshow Watch Tab",align="center"]
 
 _Watch_ displays bit type (binary) values using colored circles representing LEDs.
@@ -223,7 +225,7 @@ image::images/halshow-settings.png["Halshow Settings",align="center"]
 
 Let's use this editor to add a differential module to a HAL and connect it to axis position so that we could see the rate of change in position, i.e., acceleration.
 We first need to load a HAL component named ddt, add it to the servo thread, then connect it to the position pin of a joint.
-Once that is done we can find the output of the differentiator in halscope. So let's go. 
+Once that is done we can find the output of the differentiator in halscope. So let's go.
 
 [source,{hal}]
 ----

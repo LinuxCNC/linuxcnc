@@ -1,0 +1,67 @@
+= counter(9)
+
+== NAME
+
+counter - counts input pulses (DEPRECATED)
+
+== SYNOPSIS
+
+*loadrt counter* [**num_chan=**__N__]
+
+== DESCRIPTION
+
+*counter* is a deprecated HAL component and will be removed in a future release.
+Use the *encoder* component with encoder.X.counter-mode set to TRUE.
+
+*counter* is a HAL component that provides software- based counting that
+is useful for spindle position sensing and maybe other things. Instead
+of using a real encoder that outputs quadrature, some lathes have a
+sensor that generates a simple pulse stream as the spindle turns and an
+index pulse once per revolution. This component simply counts up when a
+"count" pulse (phase-A) is received, and if reset is enabled, resets
+when the "index" (phase-Z) pulse is received.
+
+This is of course only useful for a unidirectional spindle, as it is not
+possible to sense the direction of rotation.
+
+*counter* conforms to the "canonical encoder" interface described in the
+HAL manual.
+
+== FUNCTIONS
+
+*counter.capture-position* (uses floating-point)::
+  Updates the counts, position and velocity outputs based on internal counters.
+**counter.update-counters**::
+  Samples the phase-A and phase-Z inputs and updates internal counters.
+
+== PINS
+
+**counter.**_N_**.phase-A** bit in::
+  The primary input signal. The internal counter is incremented on each rising edge.
+**counter.**_N_**.phase-Z** bit in::
+  The index input signal. When the *index-enable* pin is TRUE and a
+  rising edge on *phase-Z* is seen, *index-enable* is set to FALSE and
+  the internal counter is reset to zero.
+**counter.**_N_**.index-enable** bit io::
+   +
+
+**counter.**_N_**.reset** bit io::
+   +
+
+**counter.**_N_**.counts** signed out::
+   +
+
+**counter.**_N_**.position** float out::
+   +
+
+**counter.**_N_**.velocity** float out::
+  These pins function according to the canonical digital encoder interface.
+**counter.**_N_**.position-scale** float rw::
+  This parameter functions according to the canonical digital encoder interface.
+**counter.**_N_**.rawcounts** signed ro::
+  The internal counts value, updated from *update-counters* and
+  reflected in the output pins at the next call to *capture-position*.
+
+== SEE ALSO
+
+encoder(9)

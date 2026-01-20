@@ -1,0 +1,47 @@
+= panelui(1)
+
+== NAME
+
+panelui - interface buttons to LinuxCNC or HAL
+
+== SYNOPSIS
+
+*panelui*
+
+== DESCRIPTION
+
+The non-realtime component *panelui* interfaces buttons to LinuxCNC or HAL.
+It decodes MESA 7I73 style key-scan codes and calls the appropriate routine.
+It gets input from a realtime component - sampler.
+Sampler gets it's input from either the MESA 7i73 or sim_matrix_kb component.
+Panelui is configurable using an INI style text file to define button types, HAL pin types, and/or commands.
+
+Full documentation can be found in the HTML or PDF docs:
+https://linuxcnc.org/docs/html/gui/panelui.html
+
+== SEE ALSO
+
+linuxcnc(1)
+
+Much more information about LinuxCNC and HAL is available in the
+LinuxCNC and HAL User Manuals, found at /usr/share/doc/LinuxCNC/.
+
+== BUGS
+
+None known at this time.
+
+== AUTHOR
+
+This man page written by Andy Pugh, as part of the LinuxCNC project.
+
+== REPORTING BUGS
+
+Report bugs at https://github.com/LinuxCNC/linuxcnc/issues.
+
+== COPYRIGHT
+
+Copyright © 2020 Andy Pugh.
+
+This is free software; see the source for copying conditions. There is
+NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.

@@ -19,7 +19,7 @@ from PyQt5 import QtCore
 
 from qtvcp.widgets.simple_widgets import ScaledLabel
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
-from qtvcp.core import Status
+from qtvcp.core import Status, Info
 from qtvcp import logger
 
 # Instantiate the libraries with global reference
@@ -27,7 +27,7 @@ from qtvcp import logger
 # LOG is for running code logging
 STATUS = Status()
 LOG = logger.getLogger(__name__)
-
+INFO = Info()
 # Force the log level for this module
 # LOG.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL
 
@@ -38,6 +38,7 @@ class StateLabel(ScaledLabel, _HalWidgetBase):
 
         self._true_textTemplate = 'True'
         self._false_textTemplate = 'False'
+        self.machine_units = False
         self.metric_mode = True
         self.css_mode = False
         self.fpr_mode = False
@@ -54,6 +55,8 @@ class StateLabel(ScaledLabel, _HalWidgetBase):
             STATUS.connect('fpr-mode', lambda w, data: _f(data))
         elif self.diameter_mode:
             STATUS.connect('diameter-mode', lambda w, data: _f(data))
+        elif self.machine_units:
+            self._set_text(INFO.MACHINE_IS_METRIC)
 
     def _set_text(self, data):
         if data:
@@ -70,7 +73,8 @@ class StateLabel(ScaledLabel, _HalWidgetBase):
     ########################################################################
 
     def _toggle_properties(self, picked):
-        data = ('metric_mode', 'css_mode', 'fpr_mode', 'diameter_mode')
+        data = ('machine_is_metric', 'metric_mode', 'css_mode', 'fpr_mode',
+             'diameter_mode')
         for i in data:
             if not i == picked:
                 self[i + '_status'] = False
@@ -99,6 +103,16 @@ class StateLabel(ScaledLabel, _HalWidgetBase):
         return self._false_textTemplate
     def reset_false_textTemplate(self):
         self._false_textTemplate = '%s'
+
+    # metric unit status
+    def set_machine_units(self, data):
+        self.machine_units = data
+        if data:
+            self._toggle_properties('machine_is_metric')
+    def get_machine_units(self):
+        return self.machine_units
+    def reset_machine_units(self):
+        self.machine_units = True
 
     # metric mode status
     def set_metric_mode(self, data):
@@ -142,6 +156,7 @@ class StateLabel(ScaledLabel, _HalWidgetBase):
 
     # designer will show these properties in this order:
     # BOOL
+    machine_is_metric_status = QtCore.pyqtProperty(bool, get_machine_units, set_machine_units, reset_machine_units)
     metric_mode_status = QtCore.pyqtProperty(bool, get_metric_mode, set_metric_mode, reset_metric_mode)
     css_mode_status = QtCore.pyqtProperty(bool, get_css_mode, set_css_mode, reset_css_mode)
     fpr_mode_status = QtCore.pyqtProperty(bool, get_fpr_mode, set_fpr_mode, reset_fpr_mode)

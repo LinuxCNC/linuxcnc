@@ -27,7 +27,7 @@ install: install-software install-docs
 install-software: install-kernel-dep install-kernel-indep install-menu
 
 ifeq ($(origin KERNELRELEASE), undefined)
-MAKEFLAGS += --warn-undefined-variables
+#MAKEFLAGS += --warn-undefined-variables
 endif
 
 EXTRAFLAGS :=
@@ -181,7 +181,7 @@ SUBDIRS := \
     emc/usr_intf/axis emc/usr_intf/touchy emc/usr_intf/stepconf emc/usr_intf/pncconf \
     emc/usr_intf/gremlin emc/usr_intf/gscreen emc/usr_intf/pyui emc/usr_intf/qtvcp \
     emc/usr_intf/gmoccapy emc/usr_intf/qtplasmac emc/usr_intf/mdro\
-    emc/usr_intf emc/nml_intf emc/task emc/iotask emc/kinematics emc/tp emc/canterp \
+    emc/usr_intf emc/nml_intf emc/task emc/kinematics emc/tp emc/canterp \
     emc/motion emc/ini emc/rs274ngc emc/sai emc/pythonplugin \
     emc/motion-logger \
     emc/tooldata \
@@ -251,11 +251,10 @@ INCLUDE += $(LIBTIRPC_CFLAGS)
 
 # Compilation options.	Perhaps some of these should come from Makefile.inc? (CXXFLAGS now does)
 INTEGER_OVERFLOW_FLAGS := -fwrapv
-OPT := -Os $(INTEGER_OVERFLOW_FLAGS)
+OPT := -O2 $(INTEGER_OVERFLOW_FLAGS)
 DEBUG := $(DEBUG) -g -Wall -D_FORTIFY_SOURCE=2
-CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) $(EXTRA_DEBUG) -DULAPI -std=gnu11 -Werror=implicit-function-declaration $(CFLAGS) $(CPPFLAGS)
-CXXFLAGS := $(INCLUDE) $(EXTRA_DEBUG) -DULAPI $(DEBUG) $(OPT) -Werror=overloaded-virtual $(CXXFLAGS) $(CPPFLAGS)
-CXXFLAGS += -std=gnu++17
+CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI -std=gnu11 -Werror=implicit-function-declaration $(CFLAGS) $(CPPFLAGS) $(EXTRA_DEBUG)
+CXXFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI -Werror=overloaded-virtual $(CXXFLAGS) $(CPPFLAGS) $(EXTRA_DEBUG)
 # In Debian 11, any inclusion of <boost/python.hpp> leads to several
 # diagnostics from included headers about deprecated features. LinuxCNC does
 # not directly use these deprecated features, but it does use boost::python.
@@ -370,6 +369,7 @@ SRCHEADERS := \
     emc/motion/motion.h \
     emc/motion/homing.h \
     emc/motion/simple_tp.h \
+	emc/motion/sp_scurve.h \
     emc/motion/state_tag.h \
     emc/motion/usrmotintf.h \
     emc/motion/axis.h \
@@ -392,6 +392,7 @@ SRCHEADERS := \
     emc/rs274ngc/modal_state.hh \
     emc/rs274ngc/rs274ngc.hh \
     emc/rs274ngc/saicanon.hh \
+    emc/tooldata/tooldata.hh \
     hal/hal.h \
     hal/hal_parport.h \
     hal/drivers/mesa-hostmot2/hostmot2-serial.h \
@@ -420,8 +421,7 @@ SRCHEADERS := \
     libnml/linklist/linklist.hh \
     libnml/nml/cmd_msg.hh \
     libnml/nml/nml.hh \
-    libnml/nml/nml_mod.hh \
-    libnml/nml/nml_oi.hh \
+	libnml/nml/nml_oi.hh \
     libnml/nml/nml_srv.hh \
     libnml/nml/nml_type.hh \
     libnml/nml/nmldiag.hh \
@@ -688,7 +688,7 @@ install-dirs:
 		$(DESTDIR)$(datadir)/gmoccapy/icons \
 		$(DESTDIR)$(datadir)/glade/catalogs \
 		$(DESTDIR)$(datadir)/glade/pixmaps/hicolor/22x22/actions \
-		$(DESTDIR)$(datadir)/gtksourceview-2.0/language-specs \
+		$(DESTDIR)$(datadir)/gtksourceview-4/language-specs \
 		$(DESTDIR)$(datadir)/linuxcnc/stepconf \
 		$(DESTDIR)$(datadir)/linuxcnc/pncconf \
 		$(DESTDIR)$(datadir)/linuxcnc/pncconf/pncconf-help \
@@ -696,9 +696,8 @@ install-dirs:
 
 install-kernel-indep: install-dirs
 	$(FILE) ../docs/man/man1/*.1 $(DESTDIR)$(mandir)/man1
-	$(FILE) $(filter-out %/skeleton.3hal, $(wildcard ../docs/man/man3/*.3hal)) $(DESTDIR)$(mandir)/man3
-	$(FILE) $(filter-out %/skeleton.3rtapi, $(wildcard ../docs/man/man3/*.3rtapi)) $(DESTDIR)$(mandir)/man3
-	$(FILE) $(filter-out %/skeleton.9, $(wildcard ../docs/man/man9/*.9)) $(DESTDIR)$(mandir)/man9
+	$(FILE) $(wildcard ../docs/man/man3/*.3) $(DESTDIR)$(mandir)/man3
+	$(FILE) $(wildcard ../docs/man/man9/*.9) $(DESTDIR)$(mandir)/man9
 	$(FILE) objects/*.msg $(DESTDIR)$(tcldir)/msgs
 	$(EXE) ../scripts/realtime $(DESTDIR)$(prefix)/lib/linuxcnc
 	$(EXE) ../scripts/halrun $(DESTDIR)$(bindir)
@@ -764,13 +763,14 @@ install-kernel-indep: install-dirs
 	$(FILE) ../lib/python/gladevcp/hal_python.xml $(DESTDIR)$(datadir)/glade/catalogs/
 	$(FILE) ../share/glade/pixmaps/hicolor/22x22/actions/widget*.png  $(DESTDIR)$(datadir)/glade/pixmaps/hicolor/22x22/actions/
 
-	$(FILE) ../share/gtksourceview-2.0/language-specs/*.lang  $(DESTDIR)$(datadir)/gtksourceview-2.0/language-specs/
+	$(FILE) ../share/gtksourceview-4/language-specs/*.lang  $(DESTDIR)$(datadir)/gtksourceview-4/language-specs/
 
 	$(FILE) ../src/hal/drivers/mesa-hostmot2/modbus/*.tmpl  $(DESTDIR)$(prefix)/share/linuxcnc/
 
 install-kernel-indep: install-python
 install-python: install-dirs
 	$(DIR) $(DESTDIR)$(SITEPY) $(DESTDIR)$(SITEPY)/rs274
+	$(DIR) $(DESTDIR)$(SITEPY)/common
 	$(DIR) $(DESTDIR)$(SITEPY)/touchy
 	$(DIR) $(DESTDIR)$(SITEPY)/gscreen
 	$(DIR) $(DESTDIR)$(SITEPY)/qtvcp
@@ -793,6 +793,7 @@ install-python: install-dirs
 	$(DIR) $(DESTDIR)$(SITEPY)/pyui
 	$(DIR) $(DESTDIR)$(SITEPY)/plasmac
 	$(FILE) ../lib/python/*.py ../lib/python/*.so $(DESTDIR)$(SITEPY)
+	$(FILE) ../lib/python/common/*.py $(DESTDIR)$(SITEPY)/common
 	$(FILE) ../lib/python/rs274/*.py $(DESTDIR)$(SITEPY)/rs274
 	$(FILE) ../lib/python/touchy/*.py $(DESTDIR)$(SITEPY)/touchy
 	$(FILE) ../lib/python/gscreen/*.py $(DESTDIR)$(SITEPY)/gscreen
@@ -812,6 +813,7 @@ install-python: install-dirs
 	$(EXE) ../bin/pncconf $(DESTDIR)$(bindir)
 	$(EXE) ../bin/pyui $(DESTDIR)$(bindir)
 	$(EXE) ../bin/hal_input $(DESTDIR)$(bindir)
+	$(EXE) ../bin/hal_bridge $(DESTDIR)$(bindir)
 	$(EXE) ../bin/mitsub_vfd $(DESTDIR)$(bindir)
 	$(EXE) ../bin/mqtt-publisher $(DESTDIR)$(bindir)
 	$(EXE) ../bin/z_level_compensation $(DESTDIR)$(bindir)
@@ -889,7 +891,7 @@ EXTRA_CFLAGS := $(filter-out -ffast-math,$(RTFLAGS)) -D__MODULE__ -I$(BASEPWD)/.
 	-I$(BASEPWD)/emc/nml_intf -I$(BASEPWD)/emc/kinematics -I$(BASEPWD)/emc/tp -I$(BASEPWD)/emc/motion \
 	-DSEQUENTIAL_SUPPORT -DHAL_SUPPORT -DDYNAMIC_PLCSIZE -DRT_SUPPORT -DOLD_TIMERS_MONOS_SUPPORT -DMODBUS_IO_MASTER \
 	-fno-fast-math $(call cc-option,-mieee-fp) -fno-unsafe-math-optimizations \
-	-Werror=frame-larger-than=2560 -Wno-declaration-after-statement \
+	-Wno-declaration-after-statement \
 	$(INTEGER_OVERFLOW_FLAGS)
 ifneq ($(KERNELRELEASE),)
 ifeq ($(RTARCH):$(RTAI):$(filter $(RTFLAGS),-msse),x86_64:3:)
@@ -1004,11 +1006,19 @@ hal_pi_gpio-objs := 				\
     hal/drivers/hal_pi_gpio.o 		\
     hal/drivers/cpuinfo.o 		\
     $(MATHSTUB)
+ifdef LIBGPIOD_VER
+obj-$(CONFIG_HAL_GPIO) += hal_gpio.o
+hal_gpio-objs  :=			\
+    hal/drivers/hal_gpio.o	        \
+    $(MATHSTUB)
+endif
 endif
 
 obj-$(CONFIG_HOSTMOT2) += hostmot2.o hm2_test.o hm2_pci.o hm2_7i43.o hm2_7i90.o setsserial.o
+obj-$(CONFIG_HOSTMOT2) += hm2_modbus.o
 ifeq ($(BUILD_SYS),uspace)
-obj-$(CONFIG_HOSTMOT2) += hm2_eth.o hm2_spi.o hm2_rpspi.o
+obj-$(CONFIG_HOSTMOT2) += hm2_eth.o
+obj-$(CONFIG_HOSTMOT2) += hm2_spi.o hm2_rpspi.o hm2_spix.o
 endif
 hostmot2-objs :=			  \
     hal/drivers/mesa-hostmot2/hostmot2.o  \
@@ -1053,12 +1063,27 @@ hm2_pci-objs  :=			  \
     $(MATHSTUB)
 hm2_eth-objs  :=			  \
     hal/drivers/mesa-hostmot2/hm2_eth.o   \
+    hal/drivers/mesa-hostmot2/eshellf.o   \
     $(MATHSTUB)
 hm2_spi-objs  :=			  \
     hal/drivers/mesa-hostmot2/hm2_spi.o   \
+    hal/drivers/mesa-hostmot2/llio_info.o \
     $(MATHSTUB)
 hm2_rpspi-objs  :=			  \
-    hal/drivers/mesa-hostmot2/hm2_rpspi.o   \
+    hal/drivers/mesa-hostmot2/hm2_rpspi.o \
+    hal/drivers/mesa-hostmot2/llio_info.o \
+    hal/drivers/mesa-hostmot2/eshellf.o   \
+    $(MATHSTUB)
+hm2_spix-objs  :=			  \
+    hal/drivers/mesa-hostmot2/hm2_spix.o  \
+    hal/drivers/mesa-hostmot2/spix_rpi5.o \
+    hal/drivers/mesa-hostmot2/spix_rpi3.o \
+    hal/drivers/mesa-hostmot2/spix_spidev.o \
+    hal/drivers/mesa-hostmot2/llio_info.o \
+    hal/drivers/mesa-hostmot2/eshellf.o \
+    $(MATHSTUB)
+hm2_modbus-objs  :=			  \
+    hal/drivers/mesa-hostmot2/hm2_modbus.o \
     $(MATHSTUB)
 hm2_test-objs :=			  \
     hal/drivers/mesa-hostmot2/hm2_test.o  \
@@ -1205,6 +1230,7 @@ motmod-objs += emc/motion/simple_tp.o
 motmod-objs += emc/motion/emcmotutil.o
 motmod-objs += emc/motion/stashf.o
 motmod-objs += emc/motion/dbuf.o
+motmod-objs += emc/tp/sp_scurve.o
 
 obj-m += homemod.o
 homemod-objs := emc/motion/homemod.o
@@ -1219,11 +1245,12 @@ tpmod-objs += emc/tp/spherical_arc.o
 tpmod-objs += emc/tp/blendmath.o
 tpmod-objs += emc/nml_intf/emcpose.o
 tpmod-objs += libnml/posemath/_posemath.o
+tpmod-objs += emc/tp/sp_scurve.o
 tpmod-objs += libnml/posemath/sincos.o $(MATHSTUB)
 
 TORTOBJS = $(foreach file,$($(patsubst %.o,%,$(1))-objs), objects/rt$(file))
 ifeq ($(BUILD_SYS),uspace)
-EXTRA_CFLAGS += -fPIC -Os
+EXTRA_CFLAGS += -fPIC -O2 $(filter -Wextra,$(CFLAGS)) $(filter -Werror,$(CFLAGS))
 RTOBJS := $(sort $(foreach mod,$(obj-m),$(call TORTOBJS,$(mod))))
 RTDEPS := $(sort $(RTOBJS:.o=.d))
 
@@ -1231,9 +1258,10 @@ modules: $(patsubst %.o,../rtlib/%.so,$(obj-m))
 ../rtlib/%.so:
 	$(ECHO) Linking $@
 	$(Q)ld -d -r -o objects/$*.tmp $^
-	$(Q)objcopy -j .rtapi_export -O binary objects/$*.tmp objects/$*.sym
-	$(Q)(echo '{ global : '; tr -s '\0' < objects/$*.sym | xargs -r0 printf '%s;\n' | grep .; echo 'local : * ; };') > objects/$*.ver
-	$(Q)$(CC) -shared -Bsymbolic $(LDFLAGS) -Wl,--version-script,objects/$*.ver -o $@ $^ -lm
+	$(Q)objdump -w -j .rtapi_export -t objects/$*.tmp \
+	| awk 'BEGIN{print "{ global :"} /rtapi_exported_/{printf("%s;\n", substr($$6,16))} END{print "local : * ; };"}' \
+	> objects/$*.ver
+	$(Q)$(CC) -shared -Bsymbolic -Wl,--version-script,objects/$*.ver -o $@ $^ -lm $(LDFLAGS)
 	$(Q)chmod -x $@
 
 RTFLAGS += -fno-strict-aliasing -fwrapv
@@ -1288,13 +1316,11 @@ endif
 ../rtlib/weighted_sum$(MODULE_EXT): $(addprefix objects/rt,$(weighted_sum-objs))
 ../rtlib/watchdog$(MODULE_EXT): $(addprefix objects/rt,$(watchdog-objs))
 ../rtlib/modmath$(MODULE_EXT): $(addprefix objects/rt,$(modmath-objs))
-../rtlib/t_on$(MODULE_EXT): $(addprefix objects/rt,$(t_on-objs))
-../rtlib/t_off$(MODULE_EXT): $(addprefix objects/rt,$(t_off-objs))
-../rtlib/t_p$(MODULE_EXT): $(addprefix objects/rt,$(t_p-objs))
 ../rtlib/streamer$(MODULE_EXT): $(addprefix objects/rt,$(streamer-objs))
 ../rtlib/sampler$(MODULE_EXT): $(addprefix objects/rt,$(sampler-objs))
 ../rtlib/hal_parport$(MODULE_EXT): $(addprefix objects/rt,$(hal_parport-objs))
 #../rtlib/uparport$(MODULE_EXT): $(addprefix objects/rt,$(uparport-objs))
+ifneq ($(BUILD_SYS),uspace)
 ../rtlib/pci_8255$(MODULE_EXT): $(addprefix objects/rt,$(pci_8255-objs))
 ../rtlib/hal_tiro$(MODULE_EXT): $(addprefix objects/rt,$(hal_tiro-objs))
 ../rtlib/hal_stg$(MODULE_EXT): $(addprefix objects/rt,$(hal_stg-objs))
@@ -1302,12 +1328,13 @@ endif
 ../rtlib/hal_evoreg$(MODULE_EXT): $(addprefix objects/rt,$(hal_evoreg-objs))
 ../rtlib/hal_motenc$(MODULE_EXT): $(addprefix objects/rt,$(hal_motenc-objs))
 ../rtlib/hal_ax5214h$(MODULE_EXT): $(addprefix objects/rt,$(hal_ax5214h-objs))
-../rtlib/hal_ppmc$(MODULE_EXT): $(addprefix objects/rt,$(hal_ppmc-objs))
 ../rtlib/hal_skeleton$(MODULE_EXT): $(addprefix objects/rt,$(hal_skeleton-objs))
+../rtlib/opto_ac5$(MODULE_EXT): $(addprefix objects/rt,$(opto_ac5-objs))
+endif
+../rtlib/hal_ppmc$(MODULE_EXT): $(addprefix objects/rt,$(hal_ppmc-objs))
 ifeq ($(X86ARCH),true)
 ../rtlib/hal_speaker$(MODULE_EXT): $(addprefix objects/rt,$(hal_speaker-objs))
 endif
-../rtlib/opto_ac5$(MODULE_EXT): $(addprefix objects/rt,$(opto_ac5-objs))
 ../rtlib/scope_rt$(MODULE_EXT): $(addprefix objects/rt,$(scope_rt-objs))
 ../rtlib/hal_lib$(MODULE_EXT): $(addprefix objects/rt,$(hal_lib-objs))
 ../rtlib/motmod$(MODULE_EXT): $(addprefix objects/rt,$(motmod-objs))
@@ -1336,8 +1363,13 @@ endif
 ../rtlib/hm2_eth$(MODULE_EXT): $(addprefix objects/rt,$(hm2_eth-objs))
 ../rtlib/hm2_spi$(MODULE_EXT): $(addprefix objects/rt,$(hm2_spi-objs))
 ../rtlib/hm2_rpspi$(MODULE_EXT): $(addprefix objects/rt,$(hm2_rpspi-objs))
+../rtlib/hm2_spix$(MODULE_EXT): $(addprefix objects/rt,$(hm2_spix-objs))
+../rtlib/hm2_modbus$(MODULE_EXT): $(addprefix objects/rt,$(hm2_modbus-objs))
 ../rtlib/hal_bb_gpio$(MODULE_EXT): $(addprefix objects/rt,$(hal_bb_gpio-objs))
 ../rtlib/hal_pi_gpio$(MODULE_EXT): $(addprefix objects/rt,$(hal_pi_gpio-objs))
+ifdef LIBGPIOD_VER
+../rtlib/hal_gpio$(MODULE_EXT): $(addprefix objects/rt,$(hal_gpio-objs))
+endif
 
 #----------------------------------------------------------------
 # SWITCHKINS

@@ -68,13 +68,13 @@ void export_Internals()
 		       bp::make_function( saved_params_w(&saved_params_wrapper),
 					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
 	.add_property( "saved_g_codes",
-		       bp::make_function( active_g_codes_w(&saved_g_codes_wrapper),
+		       bp::make_function( active_g_codes_w_ctx(&saved_g_codes_wrapper),
 					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
 	.add_property( "saved_m_codes",
-		       bp::make_function( active_m_codes_w(&saved_m_codes_wrapper),
+		       bp::make_function( active_m_codes_w_ctx(&saved_m_codes_wrapper),
 					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
 	.add_property( "saved_settings",
-		       bp::make_function( active_settings_w(&saved_settings_wrapper),
+		       bp::make_function( active_settings_w_ctx(&saved_settings_wrapper),
 					  bp::with_custodian_and_ward_postcall< 0, 1 >()))
 	.def_readwrite("context_status", &context::context_status)
 	.def_readwrite("named_params",  &context::named_params)

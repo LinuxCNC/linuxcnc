@@ -10,6 +10,8 @@ The .ts files are the translation source files for the translations. These are t
 
 The .qm files are the compiled translation files used by pyqt.
 
+The directories qtplasmac_4x3/languages and qtplasmac_9x16/languages are only for links to the .qm files in qtplasmac/languages.
+
 The language is determined by an underscore plus the first two letters of the locale, for example if an Italian translation was being done then it would be "_it". We will refer to it in the following as _xx, so "qtplasmac_xx.ts" for an Italian translation would be "qtplasmac_it.ts".
 
 If any of the following utilities are not installed then you will need to install pyqt5-dev-tools:
@@ -24,7 +26,7 @@ $ pyuic5 ../qtplasmac.ui > qtplasmac.py
 You can either create a new translation source file for a non existing language translation or modify an existing translation source file due to changes being made to some text in a QtPlasmaC source file. If modifying an existing translation that has had no source file changes then this step is not required.
 
 Create/edit a .ts file:
-$ langfile xx
+$ ./langfile xx
 
 (this command is a script which runs the following: $ pylupdate5 *.py ../*.py ../../../../../lib/python/qtvcp/lib/qtplasmac/*.py -ts qtplasmac_xx.ts)
 
@@ -40,9 +42,15 @@ When editing is complete save the file: File > Save
 
 Then create the .qm file: File > Release
 
+Close linguist.
+
 Then create links to the compiled .qm file for the other QtPlasmaC GUIs.
-$ ln -s qtplasmac_en.qm ../../qtplasmac_4x3/languages/
-$ ln -s qtplasmac_en.qm ../../qtplasmac_9x16/languages/
+$ ./langlink xx
 
 QtPlasmaC will be translated to the language of the current locale on the next start so long as a .qm file exists in that language.
 
+Users are welcome to submit translation files for inclusion into QtPlasmaC.
+An easy method is to post the up to date qtplasmac_xx.ts file on the forum and the maintainers will install the translations.
+
+The preferred method is to submit a pull request from the users GitHub account as described in the documentation: https://www.linuxcnc.org/docs/html/code/contributing-to-linuxcnc.html
+The files required to be committed are qtplasmac_xx.ts and qtplasmac_xx.qm in the qtplasmc/languages directory plus the links in both the qtplasmac_4x3/languages and qtplasmac_9x16/languages directories.

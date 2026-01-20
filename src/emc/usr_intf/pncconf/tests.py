@@ -179,12 +179,13 @@ But there is not one in the machine-named folder.."""),True)
             options = "-t %s"% (vcptheme)
             print(options)
         halrun = os.popen("cd %s\nhalrun -Is > /dev/null"%(folder), "w" )
+        print(folder)
         if debug:
             halrun.write("echo\n")
         halrun.write("loadusr -Wn displaytest gladevcp -g %(size)s%(pos)s -c displaytest %(option)s gvcp-panel.ui\n" %{
                         'size':size,'pos':pos,'option':options})
         if self.w.spindlespeedbar.get_active():
-            halrun.write("setp displaytest.spindle-speed 500\n")
+            halrun.write("setp displaytest.spindle-speed {}\n".format(self.w.maxspeeddisplay.get_value()/2))
         if self.w.zerox.get_active():
             halrun.write("setp displaytest.zero-x-active true\n")
         if self.w.zeroy.get_active():
@@ -206,16 +207,21 @@ But there is not one in the machine-named folder.."""),True)
         directory = "/tmp/"
         filename = os.path.join(directory, "gvcp-panel.ui")
         file = open(filename, "w")
-        print(("""<?xml version="1.0"?>
+        print(("""
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Generated with glade 3.38.2 -->
 <interface>
-  <!-- interface-requires gladevcp 0.0 -->
   <requires lib="gtk+" version="3.0"/>
-  <!-- interface-naming-policy project-wide -->
+  <requires lib="gladevcp" version="0.0"/>
   <object class="GtkWindow" id="window1">
-    <property name="width_request">100</property>
+    <property name="width-request">100</property>
+    <property name="can-focus">False</property>
     <child>
       <object class="GtkVBox" id="vbox1">
-        <property name="visible">True</property>"""), file=file)
+        <property name="visible">True</property>
+        <property name="can-focus">False</property>
+"""), file=file)
+
         if self.w.spindlespeedbar.get_active():
             print(("""
         <child>
@@ -237,7 +243,9 @@ But there is not one in the machine-named folder.."""),True)
             <property name="expand">False</property>
             <property name="position">0</property>
           </packing>
-        </child>""" ), file=file)
+        </child>
+""" ), file=file)
+
         if self.w.spindleatspeed.get_active():
             print(("""
         <child>
@@ -259,8 +267,9 @@ But there is not one in the machine-named folder.."""),True)
               <object class="HAL_LED" id="spindle-at-speed-led">
                 <property name="visible">True</property>
                 <property name="led_shape">2</property>
-                <property name="on_color">green</property>
+                <property name="on_color">lightgreen</property>
                 <property name="led_size">5</property>
+                <property name="led-blink-rate">0</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -279,8 +288,7 @@ But there is not one in the machine-named folder.."""),True)
         <child>
           <object class="HAL_Table" id="button-box-active">
             <property name="visible">True</property>
-            <property name="n_rows">5</property>
-            <property name="homogeneous">False</property>"""), file=file)
+"""), file=file)
         if self.w.autotouchz.get_active():
             print(("""
             <child>
@@ -301,7 +309,6 @@ But there is not one in the machine-named folder.."""),True)
               </object>
               <packing>
                 <property name="top_attach">4</property>
-                <property name="bottom_attach">5</property>
               </packing>
             </child>"""), file=file)
         if self.w.zeroa.get_active():
@@ -323,7 +330,6 @@ But there is not one in the machine-named folder.."""),True)
               </object>
               <packing>
                 <property name="top_attach">3</property>
-                <property name="bottom_attach">4</property>
               </packing>
             </child>"""), file=file)
         if self.w.zeroz.get_active():
@@ -345,7 +351,6 @@ But there is not one in the machine-named folder.."""),True)
               </object>
               <packing>
                 <property name="top_attach">2</property>
-                <property name="bottom_attach">3</property>
               </packing>
             </child>"""), file=file)
         if self.w.zeroy.get_active():
@@ -367,7 +372,6 @@ But there is not one in the machine-named folder.."""),True)
               </object>
               <packing>
                 <property name="top_attach">1</property>
-                <property name="bottom_attach">2</property>
               </packing>
             </child>"""), file=file)
         if self.w.zerox.get_active():
@@ -387,7 +391,12 @@ But there is not one in the machine-named folder.."""),True)
                   </packing>
                 </child>
               </object>
-            </child>"""), file=file)
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">0</property>
+              </packing>
+            </child>
+"""), file=file)
         print(("""
           </object>
           <packing>

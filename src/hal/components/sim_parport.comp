@@ -4,27 +4,27 @@ description
 """
 Sim_parport is used to replace the pins of a real parport without changing
 any of the pins names in the rest of the config.
-.br
-It has pass-through pins (ending in \-fake) that allows connecting to other components.
 
-eg pin\-02\-in     will follow     pin\-02\-in\-fake 's logic.
-.br
-pin_01_out\-fake     will follow    pin_01_out (possibly modified by pin_01_out\-invert)
+It has pass-through pins (ending in -fake) that allows connecting to other components.
+
+eg pin-02-in     will follow     pin-02-in-fake 's logic.
+
+pin_01_out-fake     will follow    pin_01_out (possibly modified by pin_01_out-invert)
 
 It creates all possible pins of both 'in' and 'out' options of the hal_parport component.
-.br
+
 This allows using other hardware I/O in place of the parport (without having to change the rest of the config)
-.br
+
 or simulating hardware such as limit switches.
-.br
+
 it's primary use is in Stepconf for building simulated configs.
-.br
+
 You must use the names= option to have the right pin names.
-.br
+
 eg. names=parport.0,parport.1
-.br
+
 The read and write functions pass the logic from pins to fake pins or vice vera
-.br
+
 The reset function is a no operation.
  
 """;
@@ -124,6 +124,7 @@ pin out bit pin_15_in_not;
 
 pin in float reset_time;
 
+option period no;
 function read nofp;
 function write nofp;
 function reset nofp;
@@ -180,6 +181,6 @@ FUNCTION(write) {
 }
 
 FUNCTION(reset) {
-
-return;
+    (void)__comp_inst;
+    return;
 }

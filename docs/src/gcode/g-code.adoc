@@ -1032,7 +1032,7 @@ if TOOL_CHANGE_AT_G30=1 is in the [EMCIO] section of the INI file.
 .G30 Example Line
 [source,{ngc}]
 ----
-G30 Z2.5 (rapid to Z2.5 then to the Z location specified in #5i83)
+G30 Z2.5 (rapid to Z2.5 then to the Z location specified in #5183)
 ----
 
 It is an error if :
@@ -1183,7 +1183,7 @@ It is an error if:
   due to the spindle speed
 
 [[gcode:g38]]
-== G38.n Straight Probe(((G38.n Probe)))
+== G38._n_ Straight Probe(((G38.n Probe)))
 
 [source,{ngc}]
 ----
@@ -1202,11 +1202,11 @@ You will not be able to use a probe move until your machine has been set
 up to provide a probe input signal.
 The probe input signal must be connected to 'motion.probe-input' in a .hal
 file.
-G38.n uses motion.probe-input to determine when the probe has made (or
+G38._n_ uses motion.probe-input to determine when the probe has made (or
 lost) contact.
 TRUE for probe contact closed (touching), FALSE for probe contact open.
 
-Program 'G38.n axes' to perform a straight probe operation.
+Program 'G38._n_ axes' to perform a straight probe operation.
 The axis words are optional, except that at least one of them must be
 used.
 The axis words together define the destination point that the probe will
@@ -1248,6 +1248,24 @@ failed.
 If the probing operation failed, G38.2 and G38.4 will signal an error
 by posting an message on screen if the selected GUI supports that.
 And by halting program execution.
+
+Here is an example formula to probe tool height with conversion from a
+local coordinate system Z offset to machine coordinates which is
+stored in the tool table.  The existing tool height compensation is
+first cancelled with G49 to avoid including it in the calculation of
+height, and the new height is loaded from the tool table.  The start
+position must be high enough above the tool height probe to compensate
+for the use of G49.
+
+.G38.2 Example
+[source,{ngc}]
+----
+G49
+G38.2 Z-100 F100
+#<zworkoffset> = [#[5203 + #5220 * 20] + #5213 * #5210]
+G10 L1 P#5400 Z#<zworkoffset> (set new tool offset)
+G43
+----
 
 A comment of the form '(PROBEOPEN filename.txt)' will open
 'filename.txt' and store the 9-number coordinate consisting of
@@ -1387,10 +1405,12 @@ G43 <H->
   a compensated axis is moved, that axis's endpoint is the compensated
   location.
 
-'G43' without an H word uses the currently loaded tool from the last
-'Tn M6'.
+'G43' without an H word uses the currently loaded tool from the last 'T__n__ M6'.
 
-'G43 Hn' uses the offset for tool n.
+'G43 H__n__' uses the offset for tool _n_.
+
+The active tool length compensation values are stored in the numbered
+parameters '5401-5409'.
 
 [NOTE]
 'G43 H0' is a little special.  Its behavior is different on random
@@ -1424,29 +1444,20 @@ It is an error if:
 G43.1 axes
 ----
 
-* 'G43.1 axes' - change subsequent motions by replacing the current
-  offset(s) of axes.
-  G43.1 does not cause any motion. The next time a compensated axis
-  is moved, that axis's endpoint is the compensated location.
-
-////
-FIXME Use of G43.1 with I and K words ?
-To use dynamic tool length compensation in a program, use 'G43.1 I- K-',
-where 'I-' gives the compensation of tool length in X (for lathes) and 'K-'
-gives the compensation length in Z (for lathes and milling machines).
-////
+* 'G43.1 axes' - change subsequent motions by replacing the current offset(s) of axes.
+  G43.1 does not cause any motion. The next time a compensated axis is moved,
+  that axis's endpoint is the compensated location.
 
 .G43.1 Example
 [source,{ngc}]
 ----
 G90 (set absolute mode)
 T1 M6 G43 (load tool 1 and tool length offsets, Z is at machine 0 and DRO shows Z1.500)
-G43.1 Z0.250 (offset current tool offset by 0.250, DRO now shows Z1.250)
+G43.1 Z0.250 (replace current tool offset with 0.250, DRO now shows Z0.250)
 M2 (end program)
 ----
 
-* See <<gcode:g90-g91,G90>> & <<sec:select-tool,T>> & <<mcode:m6,M6>>
-  sections for more information.
+* See <<gcode:g90-g91,G90>> & <<sec:select-tool,T>> & <<mcode:m6,M6>> sections for more information.
 
 It is an error if:
 
@@ -1460,14 +1471,16 @@ G43.1 does not write to the tool table.
 
 [source,{ngc}]
 ----
-G43.2 H- axes-
+G43.2 H- or axes-
 ----
 
 * 'H' - tool number
 
-* 'G43.2' - applies an additional simultaneous tool offset.
+* 'G43.2 H__n__' - applies an additional simultaneous tool offset to subsequent motions by adding the offset(s) of tool _n_.
 
-.G43.2 Example
+* 'G43.2 axes' - applies an additional simultaneous tool offset to subsequent motions by adding the value(s) of any axis words.
+
+.G43.2 H__n__ Example
 [source,{ngc}]
 ----
 G90 (set absolute mode)
@@ -1477,20 +1490,28 @@ G43.2 H10 (also add in T10's tool offset)
 M2 (end program)
 ----
 
+.G43.2 axes Example
+[source,{ngc}]
+----
+G90 (set absolute mode)
+T1 M6 (load tool 1)
+G43 (or G43 H1 - replace all tool offsets with T1's offset)
+G43.2 X0.01 Z0.02 (also add 0.01 to the x tool offset and 0.02 to the z tool offset)
+M2 (end program)
+----
+
 You can sum together an arbitrary number of offsets by calling G43.2
 more times.  There are no built-in assumptions about which numbers are
 geometry offsets and which are wear offsets, or that you should have
 only one of each.
 
 Like the other G43 commands, G43.2 does not cause any motion. The next
-time a compensated axis is moved, that axis's endpoint is the compensated
-location.
+time a compensated axis is moved, that axis's endpoint is the compensated location.
 
 It is an error if:
 
 * 'H' is unspecified and no axis offsets are specified.
-* 'H' is specified and the given tool number does not exist in the tool
-  table.
+* 'H' is specified and the given tool number does not exist in the tool table.
 * 'H' is specified and axes are also specified.
 
 NOTE: G43.2 does not write to the tool table.
@@ -1512,9 +1533,8 @@ used.
 G52 axes
 ----
 
-G52 is used in a part program as a temporary "local coordinate system
-offset" within the workpiece coordinate system. More information on G52
-is in the <<gcode:g52,Local and Global Offsets>> section.
+G52 is used in a part program as a temporary "local coordinate system offset" within the workpiece coordinate system.
+For more information about `G92` and `G52` and how they interact see <<sec:g52-and-g92-offsets,Local and Global Offsets>>.
 
 [[gcode:g53]]
 == G53 Move in Machine Coordinates(((G53 Machine Coordinates)))
@@ -1607,7 +1627,7 @@ G64 <P- <Q->>
 
 * 'P' - motion blending tolerance
 * 'Q' - naive cam tolerance
-* 'G64' - best possible speed. Without P means to keep the best speed
+* 'G64' - best possible speed. Without P (Or a default value in <<sub:ini:sec:rs274ngc,RS274NGC>>) means to keep the best speed
   possible, no matter how far away from the programmed point you end up.
 * 'G64 P-' - Blend between best speed and deviation tolerance
 * 'G64 P- <Q- >' blending with tolerance.
@@ -1634,14 +1654,44 @@ G64 <P- <Q->>
   and use the value of P-.
   Set Q to zero to disable the 'Naive CAM Detector'.
 
-.G64 P- Example Line
+It is a good idea to include a path control specification in the preamble of each G-code file.
+
+.G64 P- Q- Example Line
 [source,{ngc}]
 ----
-G64 P0.015 (set path following to be within 0.015 of the actual path)
+G64 P0.015 Q0.015 (set path following to be within 0.015 of the actual path)
 ----
 
-It is a good idea to include a path control specification in the preamble
-of each G-code file.
+The P- and Q- values ​​are chosen small. Usually smaller than the machine accuracy or the accuracy of commonly manufactured parts. Below are examples with extreme P- and Q- values ​​to understand the G64 function.
+
+.G64 Without values
+[source,{ngc}]
+----
+G64 (set without P- and Q- values)
+----
+
+.G64 Rectangle
+image::images/G64_Rectangle.png["G64 Rectangle",align="center"]
+
+.G64 With big Q- value
+[source,{ngc}]
+----
+G64 P0.015 Q6
+----
+
+.G64 Rectangle with radius before milling
+image::images/G64_Rectangle_with_radius.png["G64 Rectangle with radius before milling",align="center"]
+
+.G64 Rectangle with radius after milling
+image::images/G64_Rectangle_with_radius_q6.png["G64 Rectangle with radius after milling",align="center"]
+
+[source,{ngc}]
+----
+G64 P0.015 Q2
+----
+
+.G64 Heart
+image::images/G64_Heart_Q2.png["G64 Heart",align="center"]
 
 [[gcode:g70]]
 == G70 Lathe finishing cycle(((G70 Lathe finishing cycle)))
@@ -1689,6 +1739,10 @@ It is an error if:
 
 [[gcode:g71-g72]]
 == G71 G72 Lathe roughing cycles(((G71 G72 Lathe roughing cycles)))
+
+[NOTE]
+The G71 and G72 cycles are currently somewhat fragile.
+See issue https://github.com/LinuxCNC/linuxcnc/issues/2939[#2939] for example.
 
 [source,{ngc}]
 ----
@@ -1818,8 +1872,7 @@ the bottom of the hole.
 The length of the dwell is specified by a 'P-' word in the G74 block.
 The feed rate 'F-' is spindle speed multiplied by distance per revolution
 (thread pitch).
-In example S100 with 1.25MM per revolution thread pitch gives a feed of
-F125.
+In example S100 with 1.25MM per revolution thread pitch gives a feed of F125.
 
 [[gcode:g76]]
 == G76 Threading Cycle(((G76 Threading Cycle)))
@@ -1834,19 +1887,15 @@ image::images/g76-threads_en.svg["G76 Threading",align="center"]
 
 * 'Drive Line' - A line through the initial X position parallel to the Z.
 * 'P-' - The 'thread pitch' in distance per revolution.
-* 'Z-' - The final position of threads. At the end of the cycle the tool
-  will be at this Z position.
+* 'Z-' - The final position of threads. At the end of the cycle the tool will be at this Z position.
 
 [NOTE]
-When G7 'Lathe Diameter Mode' is in force the values for 'I', 'J' and 'K'
-are diameter measurements. When G8 'Lathe Radius Mode' is in force the
-values for 'I', 'J' and 'K' are radius measurements.
+When G7 'Lathe Diameter Mode' is in force the values for 'I', 'J' and 'K' are diameter measurements.
+When G8 'Lathe Radius Mode' is in force the values for 'I', 'J' and 'K' are radius measurements.
 
 * 'I-' - The 'thread peak' offset from the 'drive line'.
-  Negative 'I' values are external threads, and positive 'I' values are
-  internal threads.
-  Generally the material has been turned to this size before the 'G76'
-  cycle.
+  Negative 'I' values are external threads, and positive 'I' values are internal threads.
+  Generally the material has been turned to this size before the 'G76' cycle.
 * 'J-' - A positive value specifying the 'initial cut depth'.
   The first threading cut will be 'J' beyond the 'thread peak' position.
 * 'K-' - A positive value specifying the 'full thread depth'.
@@ -1854,41 +1903,29 @@ values for 'I', 'J' and 'K' are radius measurements.
 
 Optional settings
 
-* '$-' - The spindle number to which the motion will be synchronised
-  (default 0).
-  For example if $1 is programmed then the motion will begin on the
-  reset of spindle.1.index-enable and proceed in synchrony with the
-  value of spindle.1.revs
-* 'R-' - The 'depth degression'. 'R1.0' selects constant depth on
-  successive threading passes. 'R2.0' selects constant area.
+* '$-' - The spindle number to which the motion will be synchronised (default 0).
+  For example if $1 is programmed then the motion will begin on the reset of `spindle.1.index-enable` and proceed in synchrony with the value of `spindle.1.revs`.
+* 'R-' - The 'depth degression'. 'R1.0' selects constant depth on successive threading passes. 'R2.0' selects constant area.
   Values between 1.0 and 2.0 select decreasing depth but increasing area.
   Values above 2.0 select decreasing area.
-  Beware that unnecessarily high degression values will cause a large
-  number of passes to be used. (degression = a descent by stages or
-  steps.)
+  Beware that unnecessarily high degression values will cause a large number of passes to be used.
+  (degression = a descent by stages or steps.)
 
 [WARNING]
-Unnecessarily high degression values will produce an unnecessarily high
-number of passes. (degressing = dive in stages)
+Unnecessarily high degression values will produce an unnecessarily high number of passes. (degressing = dive in stages)
 
-* 'Q-' - The 'compound slide angle' is the angle (in degrees) describing
-  to what extent successive passes should be offset along the drive line.
-  This is used to cause one side of the tool to remove more material than
-  the other. A positive 'Q' value causes the leading edge of the tool to
-  cut more heavily.
-  Typical values are 29, 29.5 or 30.
+* 'Q-' - The 'compound slide angle' is the angle (in degrees) describing to what extent successive passes should be offset along the drive line.
+  This is used to cause one side of the tool to remove more material than the other.
+  A positive 'Q' value causes the leading edge of the tool to cut more heavily.  Typical values are 29, 29.5 or 30.
 * 'H-' - The number of 'spring passes'.
   Spring passes are additional passes at full thread depth.
   If no additional passes are desired, program 'H0'.
 
-Thread entries and exits can be programmed tapered with the 'E'
-and 'L' values.
+Thread entries and exits can be programmed tapered with the 'E' and 'L' values.
 
 * 'E-' - Specifies the distance along the drive line used for the taper.
-  The angle of the taper will be so the last pass tapers to the thread
-  crest over the distance specified with E.
-  'E0.2' will give a taper for the first/last 0.2 length units along the
-  thread.
+  The angle of the taper will be so the last pass tapers to the thread crest over the distance specified with E.
+  'E0.2' will give a taper for the first/last 0.2 length units along the thread.
   For a 45 degree taper program E the same as K.
 * 'L-' - Specifies which ends of the thread get the taper.
   Program 'L0' for no taper (the default), 'L1' for entry taper, 'L2'
@@ -1930,7 +1967,7 @@ It is an error if:
 * 'E-' is greater than half the drive line length.
 
 .HAL Connections
-The pins 'spindle.N.at-speed' and the 'encoder.n.phase-Z' for the
+The pins 'spindle.N.at-speed' and the 'encoder._n_.phase-Z' for the
 spindle must be connected in your HAL file before G76 will work.
 See the <<sec:motion-pins,spindle>> pins in the Motion section for more
 information.
@@ -2592,7 +2629,7 @@ program a `G92.2` (to remove them - they are still stored).
 
 [NOTE]
 The 'G52' command can also be used to change this offset;
-see the <<sec:g52-and-g92-offsets,Offsets>> section for more details about `G92` and `G52` and how they interact.
+see the <<sec:g52-and-g92-offsets,Local and Global Offsets>> section for more details about `G92` and `G52` and how they interact.
 
 See the <<cha:coordinate-system,Coordinate System>> section for an overview of coordinate systems.
 
@@ -2640,7 +2677,7 @@ rate mode does not affect `G0` (<<gcode:g0,rapid move>>) motions.
   millimeters per minute, or degrees per minute,
   depending upon what length units are being used and which axis or axes are moving.
 
-* 'G95' - is Units per Revolution Mode
+* 'G95' - is Units per Revolution Mode.
   In units per revolution mode,
   an F-word is interpreted to mean the controlled point should move a certain number of inches per revolution of the spindle,
   depending on what length units are being used and which axis or axes are moving.

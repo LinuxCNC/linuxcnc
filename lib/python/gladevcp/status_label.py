@@ -24,7 +24,7 @@ if __name__ == "__main__":
 else:
     from .hal_widgets import _HalWidgetBase
 
-from hal_glib import GStat
+from gladevcp.core import Status as GStat
 
 GSTAT = GStat()
 

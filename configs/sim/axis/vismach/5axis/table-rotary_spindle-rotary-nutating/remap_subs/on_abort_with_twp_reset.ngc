@@ -1,0 +1,15 @@
+;This is a workaround for a bug that leads to stat.gcodes and parameter[5250]
+;to get out of sync after some program aborts
+;in [RS274NGC] section of the ini add: ON_ABORT_COMMAND = o <on_abort> call
+;save this to a path specified in SUBROUTINE_PATH =
+;NOTE: we cannot run remapped codes here only custom Mcodes (ie M100..M199)
+
+o<on_abort_with_twp_reset> sub
+;(msg, on_abort START)
+M68 E2 Q0       ; reset twp-state to 'undefined' (0)
+M68 E3 Q0       ; set IDENTITY kins
+G64 P0.01       ; reset the toolpath tolerance as this sometimes gets set to zero on estop events
+G54             ; switch to G54
+(msg, on_abort END)
+o<on_abort_with_twp_reset> endsub
+M2

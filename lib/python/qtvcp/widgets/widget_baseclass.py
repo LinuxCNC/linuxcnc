@@ -67,6 +67,7 @@ class _HalWidgetBase_(object):
             self.PREFS_ = self.QTVCP_INSTANCE_.PREFS_
         except:
             self.PREFS_ = None
+        LOG.verbose("HAL_init: ObjectName:'{}'\n    SELF:{}\n    HAL NAME:{}\n    PREFS:{}\n    INSTANMCE:{}".format(self.objectName(),self,self.HAL_NAME_,self.PREFS_ ,self.__class__.THIS_INSTANCE_))
         self._hal_init()
 
     def _hal_init(self):
@@ -89,7 +90,7 @@ class _HalWidgetBase_(object):
 
 # we do this so we can manipulate all instances based on this.
 # we wish to embed variables.
-# This class gets get instatiated in qt_makegui.py
+# This class gets get instantiated in qt_makegui.py
 class _HalWidgetBase(_HalWidgetBase_):
     _instance = None
     _instanceNum = 0

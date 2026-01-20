@@ -158,20 +158,20 @@ int Interp::execute_binary2(double *left,        //!< pointer to the left operan
       *left = (*left < *right) ? 1.0 : 0.0;
       break;
   case EQ:
-      diff = *left - *right;
-      diff = (diff < 0) ? -diff : diff;
+      diff = fabs(*left - *right);
       *left = (diff < TOLERANCE_EQUAL) ? 1.0 : 0.0;
       break;
   case NE:
-      diff = *left - *right;
-      diff = (diff < 0) ? -diff : diff;
+      diff = fabs(*left - *right);
       *left = (diff >= TOLERANCE_EQUAL) ? 1.0 : 0.0;
       break;
   case LE:
-      *left = (*left <= *right) ? 1.0 : 0.0;
+      diff = fabs(*left - *right);
+      *left = ((diff < TOLERANCE_EQUAL) || (*left <= *right)) ? 1.0 : 0.0;
       break;
   case GE:
-      *left = (*left >= *right) ? 1.0 : 0.0;
+      diff = fabs(*left - *right);
+      *left = ((diff < TOLERANCE_EQUAL) || (*left >= *right)) ? 1.0 : 0.0;
       break;
   case GT:
       *left = (*left > *right) ? 1.0 : 0.0;

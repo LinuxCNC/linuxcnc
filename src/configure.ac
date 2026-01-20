@@ -35,13 +35,11 @@ AC_PROG_INSTALL
 
 m4_include([m4/ax_require_defined.m4])
 m4_include([m4/ax_cxx_compile_stdcxx.m4])
-m4_include([m4/ax_cxx_compile_stdcxx_17.m4])
 m4_include([m4/ax_python.m4])
 m4_include([m4/ax_python_devel.m4])
 m4_include([m4/ax_boost_base.m4])
 m4_include([m4/ax_boost_python.m4])
-# make this optional - it will likely only result in warnings
-AX_CXX_COMPILE_STDCXX_17(ext,mandatory)
+AX_CXX_COMPILE_STDCXX(20, , mandatory)
 
 AC_MSG_CHECKING(build toplevel)
 BUILD_TOPLEVEL="$(cd ..; pwd -P)"
@@ -75,12 +73,11 @@ fi
 AC_SUBST([EMC2VERSION])
 
 AC_PATH_PROG(GREP, grep)
-AC_PATH_PROG(EGREP, egrep)
 
 #
 # check for pkg-config
 #
-AC_PATH_PROG([PKG_CONFIG], [pkg-config])
+PKG_PROG_PKG_CONFIG
 if test -z "$PKG_CONFIG"; then
   AC_MSG_ERROR([pkg-config is required to build LinuxCNC])
 fi
@@ -97,7 +94,7 @@ AC_CHECK_HEADER([rpc/rpc.h],[], [
     LIBTIRPC_LIBS=`pkg-config libtirpc --libs`
     AC_SUBST([LIBTIRPC_LIBS])
 
-    CFLAGS+=" `pkg-config libtirpc --cflags` "
+    CFLAGS="${CFLAGS:+$CFLAGS }$(pkg-config libtirpc --cflags)"
   fi
 
   # Update path
@@ -203,7 +200,7 @@ AC_ARG_ENABLE(toolnml,
 
 #at this point if RTS is empty, we need to find RT ourselves
 AC_MSG_CHECKING([for rtai-config])
-if test -z "$RTDIR"; then
+if test -z "$RTS"; then
   DIRS="/usr/realtime-`uname -r` /usr/realtime /usr/realtime* /usr /usr/src/rtai*"
 else
   DIRS="$RTS"
@@ -409,14 +406,6 @@ elif ! test `$CC -dumpversion | cut -d '.' -f 1` -gt 2 ; then
   AC_MSG_ERROR([Compilers older than gcc 3.x are no longer supported])
 fi
 
-# Set flags for C and C++ if supported
-for commonflag in -Wno-stringop-truncation ; do
-  if echo "int main() { return 0;}" | $CC -Werror $commonflag -E - > /dev/null; then
-    CFLAGS="$CFLAGS $flag"
-    CXXFLAGS="$CXXFLAGS $flag"
-  fi
-done
-
 AC_MSG_CHECKING([for usability of linux/hidraw.h])
 AC_LINK_IFELSE([AC_LANG_PROGRAM([[
 #include <sys/ioctl.h>
@@ -529,6 +518,19 @@ install with "sudo apt-get install libusb-1.0-0-dev" or disable with
     ]
 )
 
+
+
+#
+# check for libgpiod
+#
+PKG_CHECK_MODULES([LIBGPIOD], [libgpiod < 3.0.0],
+            [AC_DEFINE_UNQUOTED([LIBGPIOD_VER], `pkg-config libgpiod --modversion | awk -F. '{print ($1 * 100)+($2) }'`,
+            [libgpiod version, undefined if not present])
+            LDFLAGS="$LDFLAGS $LIBGPIOD_LIBS"
+            LIBGPIOD_VERSION=`pkg-config libgpiod --modversion`
+            AC_MSG_NOTICE([libgpiod version $LIBGPIOD_VERSION found])
+            AC_SUBST([LIBGPIOD_VER], `pkg-config libgpiod --modversion | awk -F. '{print ($1 * 100)+($2) }'`)],
+            [AC_MSG_WARN([Could not find libgpiod, not building hal_gpio])])
 
 ##############################################################################
 # Subsection 3.2 - check for the kernel version, with RT patches             #
@@ -679,7 +681,7 @@ fe () {
     # Fully expand argument.  Example:
     # ${datadir} -> ${datarootdir} -> ${prefix}/share -> /usr/local
     case "$1" in
-    *\$*) eval fe \""$1"\" ;;
+    *\$*) eval fe "\"$1\"" ;;
     *) echo "$1" ;;
     esac
 }
@@ -736,6 +738,7 @@ AC_DEFINE_UNQUOTED([EMC2_PO_DIR], "$EMC2_PO_DIR", [Directory for po/mo translati
 AC_DEFINE_UNQUOTED([EMC2_NCFILES_DIR], "$EMC2_NCFILES_DIR", [Directory for nc files])
 AC_DEFINE_UNQUOTED([EMC2_IMAGE_DIR], "$EMC2_IMAGE_DIR", [Directory for images])
 
+AC_SUBST([EMC2_TMP_DIR])
 AC_SUBST([EMC2_BIN_DIR])
 AC_SUBST([EMC2_TCL_DIR])
 AC_SUBST([EMC2_TCL_LIB_DIR])
@@ -758,6 +761,14 @@ LINUXCNC_AUX_GLADEVCP=/usr/share/linuxcnc/aux_gladevcp
 LINUXCNC_AUX_EXAMPLES=/usr/share/linuxcnc/aux_examples
 AC_SUBST([LINUXCNC_AUX_GLADEVCP])
 AC_SUBST([LINUXCNC_AUX_EXAMPLES])
+
+# define temporary directory
+AC_ARG_WITH(tmpdir,
+   [  --with-tmpdir=PATH      Specify path for temporary files],
+   tmpdir="$withval",
+   tmpdir="/tmp")
+AC_DEFINE_UNQUOTED(EMC2_TMP_DIR, "$tmpdir/linuxcnc", [Temporary files directory])
+AC_SUBST(EMC2_TMP_DIR, [$tmpdir])
 
 ##############################################################################
 # Subsection 3.5 - check for GTK                                             #
@@ -959,7 +970,7 @@ AC_SUBST(YAPPS)
 ##############################################################################
 # Subsection 3.7 - check for programs needed to build documentation          #
 #                                                                            #
-# Check for LyX and other programs we need to build and install docs.        #
+# Check for programs we need to build and install docs.                      #
 # (Optional, if not present, just don't build the docs.)                     #
 ##############################################################################
 
@@ -1031,7 +1042,7 @@ if ( test "$BUILD_DOCS" = "yes" ) ; then
 :ascii-ids:
 
 ....
-umläut nuß
+Matúš hat Geläut am Fuß
 ....
 EOF
     if $A2X --dblatex-opts "-P latex.encoding=utf8" $temp_asciidoc > /dev/null 2>&1;
@@ -1517,7 +1528,8 @@ GPL-2 only) and Readline version 6 and greater (GPL-3 or later).])
             AC_MSG_ERROR(
 [To configure LinuxCNC in this way, you must
 invoke configure with "--enable-non-distributable=yes".  Note that on
-Debian-based systems, you may be able to use libreadline-gplv2-dev instead.])
+Debian-based systems, you may be able to use libeditreadline-dev or
+libreadline-gplv2-dev instead of libreadline-dev.])
         fi
 ])
 
@@ -1539,7 +1551,7 @@ AC_SUBST([READLINE_LIBS])
 # if you don't have nls tools, allow a way out!
 
 AC_ARG_ENABLE(nls,
-    AS_HELP_STRING([--disable-nls], [Don't use NLS.]),
+    AS_HELP_STRING([--disable-nls], [Do not use NLS.]),
               USE_NLS=no, USE_NLS=yes)
 AC_SUBST(USE_NLS)
 
@@ -1632,7 +1644,7 @@ fi
 AC_MSG_RESULT([$PYTHON_TK_VERSION])
 
 AC_MSG_CHECKING(for site-package location)
-SITEPY=`$PYTHON -c 'import distutils.sysconfig; print(distutils.sysconfig.get_python_lib())'`
+SITEPY="$($PYTHON -c 'import sysconfig; s = sysconfig.get_scheme_names(); m=list(set(("deb_system", "rpm_prefix")) & set(s)); print(sysconfig.get_path("platlib", m.__getitem__(0))) if m else print("/usr/lib/python3/dist-packages");')"
 AC_MSG_RESULT($SITEPY)
 
 AC_MSG_CHECKING(for working GLU quadrics)
@@ -1649,6 +1661,37 @@ AC_CHECK_HEADERS(X11/Xmu/Xmu.h,[],[AC_MSG_ERROR([Required Xmu header missing.  I
 
 AC_SUBST([LIBPYTHON])
 AC_SUBST([SITEPY])
+
+#
+# Add extra options to CFLAGS and CXXFLAGS
+#
+add_to_cflags() {
+    # Add $1 to CFLAGS and CXXFLAGS if not already there
+    if test -z "$1"; then return; fi
+    if echo "$CFLAGS" | grep -q -w -v -- "$1"; then
+        CFLAGS="${CFLAGS:+$CFLAGS }$1"
+    fi
+    if echo "$CXXFLAGS" | grep -q -w -v -- "$1"; then
+        CXXFLAGS="${CXXFLAGS:+$CXXFLAGS }$1"
+    fi
+}
+
+# Always add -Wextra
+add_to_cflags "-Wextra"
+
+# The last thing before subst-exporting CFLAGS and CXXFLAGS is to add -Werror
+# if requested. Doing it earlier causes conf-tests to fail that are supposed to
+# succeed when they generate warnings.
+AC_ARG_ENABLE(werror,
+    AS_HELP_STRING(
+      [--enable-werror],
+      [Treat all compiler warnings as errors (-Werror).],
+    ),
+    [
+      case "$enableval" in
+        (yes) add_to_cflags "-Werror" ;;
+      esac
+    ])
 
 AC_SUBST([CFLAGS])
 AC_SUBST([CPPFLAGS])

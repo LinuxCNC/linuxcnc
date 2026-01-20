@@ -29,7 +29,7 @@ for f in sys.path:
         if '/usr' in f:
             localeDir = 'usr/share/locale'
         else:
-            localeDir = os.path.join(f'{f.split("/lib")[0]}','share','locale')
+            localeDir = os.path.join(f"{f.split('/lib')[0]}",'share','locale')
         break
 gettext.install('linuxcnc', localedir=localeDir)
 
@@ -68,13 +68,6 @@ def flip_shape(self):
     self.convFlipToggle = True
     preview(self)
 
-def undo_shape(P, W, Conv):
-    self.convMirror = 1
-    self.convMirrorToggle = False
-    self.convFlip = 1
-    self.convFlipToggle = False
-    self.undo_shape()
-
 def get_parameters(self):
     self.wcs_rotation('get')
     inCode = open(self.fNgc, 'r')
@@ -103,17 +96,17 @@ def get_parameters(self):
         for line in inCode:
             line = line.strip().lower()
             if line.startswith('#<array_x_offset>'):
-                self.coValue.set(f'{float(line.split("=")[1].strip()):0.4f}')
+                self.coValue.set(f"{float(line.split('=')[1].strip()):0.4f}")
             elif line.startswith('#<array_y_offset>'):
-                self.roValue.set(f'{float(line.split("=")[1].strip()):0.4f}')
+                self.roValue.set(f"{float(line.split('=')[1].strip()):0.4f}")
             elif line.startswith('#<array_columns>'):
                 self.cnValue.set(line.split('=')[1].strip())
             elif line.startswith('#<array_rows>'):
                 self.rnValue.set(line.split('=')[1].strip())
             elif line.startswith('#<origin_x_offset>'):
-                self.xsValue.set(f'{float(line.split("=")[1].strip()):0.4f}')
+                self.xsValue.set(f"{float(line.split('=')[1].strip()):0.4f}")
             elif line.startswith('#<origin_y_offset>'):
-                self.ysValue.set(f'{float(line.split("=")[1].strip()):0.4f}')
+                self.ysValue.set(f"{float(line.split('=')[1].strip()):0.4f}")
             elif line.startswith('#<array_angle>'):
                 self.aValue.set(line.split('=')[1].strip())
             elif line.startswith('#<blk_scale>'):
@@ -148,21 +141,24 @@ def widgets(self):
     self.rnEntry.grid(column=1, row=3, pady=(4,0))
     self.roLabel.grid(column=2, row=3, pady=(4,0), sticky='e')
     self.roEntry.grid(column=3, row=3, pady=(4,0))
-    self.oLabel.grid(column=0, row=4, pady=(14,0), columnspan=4, sticky='ew')
-    self.xsLabel.grid(column=0, row=5, pady=(4,0), sticky='e')
-    self.xsEntry.grid(column=1, row=5, pady=(4,0))
-    self.ysLabel.grid(column=2, row=5, pady=(4,0), sticky='e')
-    self.ysEntry.grid(column=3, row=5, pady=(4,0))
-    self.ptLabel.grid(column=0, row=6, pady=(14,0), columnspan=4, sticky='ew')
-    self.aLabel.grid(column=0, row=7, pady=(4,0), sticky='e')
-    self.aEntry.grid(column=1, row=7, pady=(4,0))
-    self.bsLabel.grid(column=0, row=8, pady=(14,0), columnspan=4, sticky='ew')
-    self.scLabel.grid(column=0, row=9, pady=(4,0), sticky='e')
-    self.scEntry.grid(column=1, row=9, pady=(4,0))
-    self.rtLabel.grid(column=2, row=9, pady=(4,0), sticky='e')
-    self.rtEntry.grid(column=3, row=9, pady=(4,0))
-    self.mirror.grid(column=1, row=10, pady=(4,0))
-    self.flip.grid(column=3, row=10, pady=(4,0))
+    self.bsLabel.grid(column=0, row=4, pady=(14,0), columnspan=4, sticky='ew')
+    self.scLabel.grid(column=0, row=5, pady=(4,0), sticky='e')
+    self.scEntry.grid(column=1, row=5, pady=(4,0))
+    self.rtLabel.grid(column=2, row=5, pady=(4,0), sticky='e')
+    self.rtEntry.grid(column=3, row=5, pady=(4,0))
+    self.mirror.grid(column=1, row=6, pady=(4,0))
+    self.flip.grid(column=3, row=6, pady=(4,0))
+    self.oLabel.grid(column=0, row=7, pady=(14,0), columnspan=4, sticky='ew')
+    self.xsLabel.grid(column=0, row=8, pady=(4,0), sticky='e')
+    self.xsEntry.grid(column=1, row=8, pady=(4,0))
+    self.ysLabel.grid(column=2, row=8, pady=(4,0), sticky='e')
+    self.ysEntry.grid(column=3, row=8, pady=(4,0))
+    self.aLabel.grid(column=0, row=9, pady=(4,0), sticky='e')
+    self.aEntry.grid(column=1, row=9, pady=(4,0))
     self.cnEntry.focus()
     self.settingsChanged = False
     get_parameters(self)
+    if not self.coValue.get() and self.shapeLen['x'] is not None:
+        self.coValue.set(round(self.shapeLen['x'], 2))
+    if not self.roValue.get() and self.shapeLen['y'] is not None:
+        self.roValue.set(round(self.shapeLen['y'], 2))

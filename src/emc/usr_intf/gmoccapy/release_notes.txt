@@ -1,3 +1,80 @@
+ver 3.5.1 -- LinuxCNC 2.10.0-pre0
+ - Style velocity/spindle info box (remove S-prefix, add units)
+ - Add button "refresh dir" in open file page
+ - Add setting for jog button size + right pane width
+ - Add icon for continuous jog, change alignment of jog increment button box
+ - MDI-entry: bigger enter button (with CSS)
+ - G-code editor:
+    - Add button to show preview beside editor (split view)
+    - Add comment/uncomment button for G-code + keybinding
+    - Re-arrange search and replace bar
+ - Force display of unlocalized float values in Offset page (Thanks @Sigma1912)
+ 
+ - Fix homing abort on focus out event (#3667, thanks @Sigma1912)
+ - Use common logger/istat and common/hal_glib. This removes the qt name from the logging and imports. (Thanks @CMorley)
+ - Move tool table buttons to table frame, add toggle button for calculator use (#3509, thanks @Sigma1912)
+ - Add button to call calculator in mdi and gcode edit modes (#3496, thanks @Sigma1912)
+ - Fix several warnings. Thanks @Sigma1912
+ - Improvements to the calculator widget (#3473, thanks @Sigma1912)
+ - Use calculator widget to edit numeric values in tooltable (optional with button) (#3472, thanks @Sigma1912)
+ - Use calculator widget to edit offset values in offsetpage (with setting to disable) (#3457, thanks @Sigma1912)
+ - Improvements to the offsetpage widget. Especially add column for rotation in offsets G54..G59.3 (#3457, thanks @Sigma1912)
+ - Fix issues #3447 and #982 (#3454, thanks @Sigma1912)
+    - Fix the display of very large numbers for spindle speed and 'Vc' in the gui when using G96
+    - Fix 'spindle.0.speed-out' pins being reset to wrong values when using G96
+    - Fix wrong spindle speed set when using M1 with optional stop enabled
+    - The 'Spindle [rpm]' value will now track hal pin 'spindle.0.speed-out'
+    - The 'S' value in the 'G-Code' frame now tracks 'self.stat.settings[2]'
+ - Fix external_load function -wrong function name - makes external loading of files possible again (Thanks @CMorley)
+
+ver 3.5.0 -- LinuxCNC 2.10.0-pre0
+ - Add startup message to show new features/important hints
+ - Add LinuxCNC version to window title
+ - Add progressbar and elapsed time for running program
+ - Add G-code properties in a tab
+ - Change order of buttons in file chooser page
+ - Read angular values from INI file only if angular joints are present
+ - Add margin to combi DRO
+ - Proper order of boxes in hbox_main_info (for embedding VCPs)
+ - Increase limit of min and default spindle speed
+ - Icon changes for buttons "select file", "spindle-stop"
+ - Keep offsetpage open after editing
+ - Removed internal AUTOMATIC_G43 function, it is recommended to add
+   the M6/M61 remap with the G43 command to the INI configuration.
+   Internal AUTOMATIC_G43 caused bugs in some configurations and situations. (#3113, thanks zz912)
+
+ver 3.4.9
+- Fix problems with duplicated entries in the preferences file
+- Remove Gtk.Paned for upper main area (introduced in 3.4.0)
+- Fix wrong states of spindle button images after program abort
+
+ver 3.4.8
+ - Remove some deprecation warnings (#3130)
+ - Migrate to GtKSourceview 4 (#3083)
+ - Don't hide recurrent gcode errors (#2947, thanks Sigma1912)
+ - re-ordered settings pages to have all appearance-related on one page
+ - add configuration for 800x600 screens
+ - fix gremlin view p wasn't applied at startup
+
+ver 3.4.7.1
+ - Remember window size and position when switching back from fullscreen/maximized
+ - Fix "window does not fit 1024x768 in fullscreen"
+
+ver 3.4.7
+ - Added setting to allow smaller width of virtual keyboard (for widescreens)
+ - Fixed box_dro_side is displayed in the G-code editor (#2627)
+ - Fixed error on error message when sound is not available (reported on Raspberry Pi)
+ - Fixed increasing of window size when clicking edit button
+ - Added setting for G-code theme (GtkSourceView)
+ - Fixed error when trying to hide the turtle-jog button in gmoccapy
+
+ver 3.4.6 -- LinuxCNC 2.9.2
+ - added first steps to solve delay on sound use
+
+ver 3.4.4
+ - 8 and 9 axis made to much ref button due to a show all ccommand. This fixes #2387.
+ - deleted unused code
+
 ver 3.4.3
 
 - fix setting of themes

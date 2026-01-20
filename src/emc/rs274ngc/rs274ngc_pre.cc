@@ -89,7 +89,7 @@ include an option for suppressing superfluous commands.
 #include <set>
 #include <stdexcept>
 #include <new>
-#include <rtapi_string.h>
+#include <rtapi_string.h>	// rtapi_strlcpy()
 
 #include "rtapi.h"
 #include "inifile.hh"		// INIFILE
@@ -667,7 +667,7 @@ int Interp::find_remappings(block_pointer block, setup_pointer settings)
 	    block->remappings.insert(STEP_PREPARE);
     }
     // User defined M-Codes in group 5
-    if (IS_USER_MCODE(block,settings,5) &&
+    if (is_user_defined_m_code(block, settings, 5) &&
 	!(((block->m_modes[5] == 62) && remap_in_progress("M62")) ||
 	  ((block->m_modes[5] == 63) && remap_in_progress("M63")) ||
 	  ((block->m_modes[5] == 64) && remap_in_progress("M64")) ||
@@ -682,32 +682,41 @@ int Interp::find_remappings(block_pointer block, setup_pointer settings)
     // call the remap procedure if it the code in that group is remapped unless:
     // it's an M6 or M61 and a remap is in progress
     // (recursion case)
-    if (IS_USER_MCODE(block,settings,6) &&  
+    if (is_user_defined_m_code(block, settings, 6) &&
 	!(((block->m_modes[6] == 6) && remap_in_progress("M6")) ||
-	  ((block->m_modes[6] == 61) && remap_in_progress("M61")))) {  
+	  ((block->m_modes[6] == 61) && remap_in_progress("M61")))) {
 	block->remappings.insert(STEP_M_6); // then call the remap procedure
     } // else we get the builtin behaviour
     
     // User defined M-Codes in group 7
-    if (IS_USER_MCODE(block,settings,7))
+    if (is_user_defined_m_code(block, settings, 7))
 	block->remappings.insert(STEP_M_7);
 
     // User defined M-Codes in group 8
-    if (IS_USER_MCODE(block,settings,8))
-	block->remappings.insert(STEP_M_8);
+    if (is_user_defined_m_code(block, settings, 8)) {
+        if (((block->m_modes[8] == 7) && remap_in_progress("M7")) ||
+        ((block->m_modes[8] == 8) && remap_in_progress("M8")) ||
+        ((block->m_modes[8] == 9) && remap_in_progress("M9"))){
+        // recursive behavior
+        CONTROLLING_BLOCK(*settings).builtin_used = true;
+        } else {
+        // non-recursive (ie the built in) behavior
+        block->remappings.insert(STEP_M_8);
+        }
+    }
 
     // User defined M-Codes in group 9
-    if (IS_USER_MCODE(block,settings,9))
+    if (is_user_defined_m_code(block, settings, 9))
 	block->remappings.insert(STEP_M_9);
 
     // User defined M-Codes in group 10
-    if (IS_USER_MCODE(block,settings,10))
+    if (is_user_defined_m_code(block, settings, 10))
 	block->remappings.insert(STEP_M_10);
 
     // User-defined motion codes (G0 to G3, G33, G73, G76, G80 to G89)
     // as modified (possibly) by G53.
     int mode = block->g_modes[GM_MOTION];
-    if ((mode != -1) && IS_USER_GCODE(mode))
+    if ((mode != -1) && is_user_defined_g_code(mode))
 	block->remappings.insert(STEP_MOTION);
     
     // this makes it possible to call remapped codes like cycles:
@@ -722,12 +731,12 @@ int Interp::find_remappings(block_pointer block, setup_pointer settings)
     //     return INTERP_OK
 
     mode = block->motion_to_be;
-    if ((mode != -1) && IS_USER_GCODE(mode)) {
+    if ((mode != -1) && is_user_defined_g_code(mode)) {
 	block->remappings.insert(STEP_MOTION);
     }
 
     // User defined M-Codes in group 4 (stopping)
-    if (IS_USER_MCODE(block,settings,4)) {
+    if (is_user_defined_m_code(block, settings, 4)) {
 
 	if (remap_in_progress("M0") ||
 	    remap_in_progress("M1") ||
@@ -860,6 +869,9 @@ int Interp::init()
   _setup.call_state = CS_NORMAL;
   _setup.num_spindles = 1;
 
+  _setup.tolerance_default = 0;
+  _setup.naivecam_tolerance_default = 0;
+
   // default arc radius tolerances
   // we'll try to override these from the INI file below
   _setup.center_arc_radius_tolerance_inch = CENTER_ARC_RADIUS_TOLERANCE_INCH;
@@ -872,7 +884,7 @@ int Interp::init()
           fprintf(stderr,"Unable to open inifile:%s:\n", iniFileName);
       } else {
           bool opt;
-          const char *inistring;
+          std::optional<const char*> inistring;
 
           inifile.Find(&_setup.tool_change_at_g30, "TOOL_CHANGE_AT_G30", "EMCIO");
           inifile.Find(&_setup.tool_change_quill_up, "TOOL_CHANGE_QUILL_UP", "EMCIO");
@@ -882,6 +894,9 @@ int Interp::init()
           inifile.Find(&_setup.c_axis_wrapped, "WRAPPED_ROTARY", "AXIS_C");
           inifile.Find(&_setup.random_toolchanger, "RANDOM_TOOLCHANGER", "EMCIO");
           inifile.Find(&_setup.num_spindles, "SPINDLES", "TRAJ");
+
+          inifile.Find(&_setup.tolerance_default, "G64_DEFAULT_TOLERANCE", "RS274NGC");
+          inifile.Find(&_setup.naivecam_tolerance_default, "G64_DEFAULT_NAIVETOLERANCE", "RS274NGC");
 
           // First the features that default to ON
           opt = true;
@@ -905,14 +920,14 @@ int Interp::init()
           inifile.Find(&opt, "OWORD_WARNONLY", "RS274NGC");
           if (opt) _setup.feature_set |= FEATURE_OWORD_WARNONLY;
 
-          if (NULL != (inistring =inifile.Find("LOCKING_INDEXER_JOINT", "AXIS_A"))) {
-              _setup.a_indexer_jnum = atol(inistring);
+          if ((inistring =inifile.Find("LOCKING_INDEXER_JOINT", "AXIS_A"))) {
+              _setup.a_indexer_jnum = atol(*inistring);
           }
-          if (NULL != (inistring =inifile.Find("LOCKING_INDEXER_JOINT", "AXIS_B"))) {
-              _setup.b_indexer_jnum = atol(inistring);
+          if ((inistring =inifile.Find("LOCKING_INDEXER_JOINT", "AXIS_B"))) {
+              _setup.b_indexer_jnum = atol(*inistring);
           }
-          if (NULL != (inistring =inifile.Find("LOCKING_INDEXER_JOINT", "AXIS_C"))) {
-              _setup.c_indexer_jnum = atol(inistring);
+          if ((inistring =inifile.Find("LOCKING_INDEXER_JOINT", "AXIS_C"))) {
+              _setup.c_indexer_jnum = atol(*inistring);
           }
           inifile.Find(&_setup.orient_offset, "ORIENT_OFFSET", "RS274NGC");
           inifile.Find(&_setup.parameter_g73_peck_clearance, "G73_PECK_CLEARANCE", "RS274NGC");
@@ -922,18 +937,18 @@ int Interp::init()
 
 	  _setup.debugmask |= EMC_DEBUG_UNCONDITIONAL;
 
-          if(NULL != (inistring = inifile.Find("LOG_LEVEL", "RS274NGC")))
+          if((inistring = inifile.Find("LOG_LEVEL", "RS274NGC")))
           {
-              _setup.loggingLevel = atol(inistring);
+              _setup.loggingLevel = atol(*inistring);
           }
 
 	  // default the log_file to stderr.
-          if(NULL != (inistring = inifile.Find("LOG_FILE", "RS274NGC")))
+          if((inistring = inifile.Find("LOG_FILE", "RS274NGC")))
           {
-	      if ((log_file = fopen(inistring, "a"))  == NULL) {
+	      if ((log_file = fopen(*inistring, "a"))  == NULL) {
 		  log_file = stderr;
 		  logDebug( "(%d): Unable to open log file:%s, using stderr",
-			  getpid(), inistring);
+			  getpid(), *inistring);
 	      }
           } else {
 	      log_file = stderr;
@@ -942,30 +957,30 @@ int Interp::init()
           _setup.use_lazy_close = 1;
 
 	  _setup.wizard_root[0] = 0;
-          if(NULL != (inistring = inifile.Find("WIZARD_ROOT", "WIZARD")))
+          if((inistring = inifile.Find("WIZARD_ROOT", "WIZARD")))
           {
-	    logDebug("[WIZARD]WIZARD_ROOT:%s", inistring);
-            if (realpath(inistring, _setup.wizard_root) == NULL) {
+	    logDebug("[WIZARD]WIZARD_ROOT:%s", *inistring);
+            if (realpath(*inistring, _setup.wizard_root) == NULL) {
         	//realpath didn't find the file
-		logDebug("realpath failed to find wizard_root:%s:", inistring);
+		logDebug("realpath failed to find wizard_root:%s:", *inistring);
             }
           }
           logDebug("_setup.wizard_root:%s:", _setup.wizard_root);
 
 	  _setup.program_prefix[0] = 0;
-          if(NULL != (inistring = inifile.Find("PROGRAM_PREFIX", "DISPLAY")))
+          if((inistring = inifile.Find("PROGRAM_PREFIX", "DISPLAY")))
           {
 	    // found it
             char expandinistring[LINELEN];
-            if (inifile.TildeExpansion(inistring,expandinistring,sizeof(expandinistring))) {
-                   logDebug("TildeExpansion failed for: %s",inistring);
+            if (inifile.TildeExpansion(*inistring,expandinistring,sizeof(expandinistring))) {
+                   logDebug("TildeExpansion failed for: %s",*inistring);
             }
             if (realpath(expandinistring, _setup.program_prefix) == NULL){
         	//realpath didn't find the file
-		logDebug("realpath failed to find program_prefix:%s:", inistring);
+		logDebug("realpath failed to find program_prefix:%s:", *inistring);
             }
             logDebug("program prefix:%s: prefix:%s:",
-		     inistring, _setup.program_prefix);
+		     *inistring, _setup.program_prefix);
           }
           else
           {
@@ -973,7 +988,7 @@ int Interp::init()
           }
           logDebug("_setup.program_prefix:%s:", _setup.program_prefix);
 
-          if(NULL != (inistring = inifile.Find("SUBROUTINE_PATH", "RS274NGC")))
+          if((inistring = inifile.Find("SUBROUTINE_PATH", "RS274NGC")))
           {
             // found it
             int dct;
@@ -984,7 +999,7 @@ int Interp::init()
                  _setup.subroutines[dct] = NULL;
             }
 
-            rtapi_strxcpy(tmpdirs,inistring);
+            rtapi_strxcpy(tmpdirs,*inistring);
             nextdir = strtok(tmpdirs,":");  // first token
             dct = 0;
             while (1) {
@@ -1016,15 +1031,15 @@ int Interp::init()
           }
           // subroutine to execute on aborts - for instance to retract
           // toolchange HAL pins
-          if (NULL != (inistring = inifile.Find("ON_ABORT_COMMAND", "RS274NGC"))) {
-	      _setup.on_abort_command = strstore(inistring);
+          if ((inistring = inifile.Find("ON_ABORT_COMMAND", "RS274NGC"))) {
+	      _setup.on_abort_command = strstore(*inistring);
               logDebug("_setup.on_abort_command=%s", _setup.on_abort_command);
           } else {
 	      _setup.on_abort_command = NULL;
           }
 
 	  // initialize the Python plugin singleton
-          if (NULL != (inistring = inifile.Find("TOPLEVEL", "PYTHON"))) {
+          if ((inistring = inifile.Find("TOPLEVEL", "PYTHON"))) {
 	      int status = python_plugin->configure(iniFileName,"PYTHON");
 	      if (status != PLUGIN_OK) {
 		  Error("Python plugin configure() failed, status = %d", status);
@@ -1036,10 +1051,10 @@ int Interp::init()
 	  _setup.g_remapped.clear();
 	  _setup.m_remapped.clear();
 	  _setup.remaps.clear();
-	  while (NULL != (inistring = inifile.Find("REMAP", "RS274NGC",
+	  while ((inistring = inifile.Find("REMAP", "RS274NGC",
 						   n, &lineno))) {
 
-	      CHP(parse_remap( inistring,  lineno));
+	      CHP(parse_remap( *inistring,  lineno));
 	      n++;
 	  }
 
@@ -1854,7 +1869,7 @@ int Interp::restore_parameters(const char *filename)   //!< name of parameter fi
   pars = _setup.parameters;
   k = 0;
   index = 0;
-  required = _required_parameters[index++];
+  required = required_parameters[index++];
   while (feof(infile) == 0) {
     if (fgets(line, 256, infile) == NULL) {
       break;
@@ -1871,13 +1886,13 @@ int Interp::restore_parameters(const char *filename)   //!< name of parameter fi
         } else if (k == variable) {
           pars[k] = value;
           if (k == required)
-            required = _required_parameters[index++];
+            required = required_parameters[index++];
           k++;
           break;
         } else                  // if (k < variable)
         {
           if (k == required)
-            required = _required_parameters[index++];
+            required = required_parameters[index++];
           pars[k] = 0;
         }
       }
@@ -1944,10 +1959,17 @@ int Interp::save_parameters(const char *filename,      //!< name of file to writ
   infile = fopen(filename, "r");
   if(!infile)
     infile = fopen("/dev/null", "r");
+  if(!infile) {
+    // If we can't open the 'filename', we may not be able to open "/dev/null"
+    // either. If so, print an error, close 'outfile' and continue.
+    perror("Interp::save_parameters(): fopen(/dev/null)");
+    fclose(outfile);
+    return INTERP_OK;
+  }
 
   k = 0;
   index = 0;
-  required = _required_parameters[index++];
+  required = required_parameters[index++];
   while (feof(infile) == 0) {
     if (fgets(line, sizeof(line), infile) == NULL) {
       break;
@@ -1966,14 +1988,14 @@ int Interp::save_parameters(const char *filename,      //!< name of file to writ
           snprintf(line, sizeof(line), "%d\t%f\n", k, parameters[k]);
           fputs(line, outfile);
           if (k == required)
-            required = _required_parameters[index++];
+            required = required_parameters[index++];
           k++;
           break;
         } else if (k == required)       // know (k < variable)
         {
           snprintf(line, sizeof(line), "%d\t%f\n", k, parameters[k]);
           fputs(line, outfile);
-          required = _required_parameters[index++];
+          required = required_parameters[index++];
         }
       }
     }
@@ -1983,7 +2005,7 @@ int Interp::save_parameters(const char *filename,      //!< name of file to writ
     if (k == required) {
       snprintf(line, sizeof(line), "%d\t%f\n", k, parameters[k]);
       fputs(line, outfile);
-      required = _required_parameters[index++];
+      required = required_parameters[index++];
     }
   }
 
@@ -2491,7 +2513,7 @@ VARIABLE_FILE = rs274ngc.var
 int Interp::ini_load(const char *filename)
 {
     IniFile inifile;
-    const char *inistring;
+    std::optional<const char*> inistring;
 
     // open it
     if (inifile.Open(filename) == false) {
@@ -2503,13 +2525,13 @@ int Interp::ini_load(const char *filename)
 
 
     char parameter_file_name[LINELEN]={};
-    if (NULL != (inistring = inifile.Find("PARAMETER_FILE", "RS274NGC"))) {
-        strncpy(parameter_file_name, inistring, LINELEN);
-
-        if (parameter_file_name[LINELEN-1] != '\0') {
-            logDebug("%s:[RS274NGC]PARAMETER_FILE is too long (max len %d)", filename, LINELEN-1);
+    if ((inistring = inifile.Find("PARAMETER_FILE", "RS274NGC"))) {
+        if (strlen(*inistring) >= sizeof(parameter_file_name)) {
+            logDebug("%s:[RS274NGC]PARAMETER_FILE is too long (max len %zu)",
+                     filename, sizeof(parameter_file_name)-1);
         } else {
-          logDebug("found PARAMETER_FILE:%s:", parameter_file_name);
+            strncpy(parameter_file_name, *inistring, sizeof(parameter_file_name));
+            logDebug("found PARAMETER_FILE:%s:", parameter_file_name);
         }
     } else {
       // not found, leave RS274NGC_PARAMETER_FILE alone

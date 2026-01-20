@@ -35,7 +35,7 @@ from PyQt5.QtCore import pyqtProperty, pyqtSignal, QSize
 from PyQt5.QtGui import QFont, QFontMetrics, QColor, QIcon
 from PyQt5.QtWidgets import QWidget, QAction,\
         QVBoxLayout, QToolBar, QLineEdit, QHBoxLayout, QMessageBox, \
-        QFrame, QLabel
+        QFrame, QLabel, QStyle
 
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
 from qtvcp.core import Status, Info, Action
@@ -115,10 +115,10 @@ class GcodeLexer(QsciLexerCustom):
 
         re_tokens = {
             1: r"(?:[N]\d+|\(.*?\)|;.*)",                                       # LineNo and Comment
-            2: r"[G]\d{1,2}\.\d|[G]\d{1,2}",                                    # Gcode
-            3: r"[M]\d{1,3}",                                                   # Mcode
-            4: r"[XYZABCUVW]{1}(?:[+-]?[\d\.]+|\#\<.*\>|\[.*\]|\#\d+)",         # Axis
-            5: r"[EFHIJKDQLRPST$]{1}(?:[+-]?[\d\.]+|\#\<.*\>|\[.*\]|\#\d+)",    # Other (feed,rpm,radius,etc)
+            2: r"[G]\s*\d{1,2}\.\d\s|[G]\s*\d{1,2}",                            # Gcode
+            3: r"[M]\s*\d{1,3}",                                                # Mcode
+            4: r"[XYZABCUVW]{1}(?:[+-]?[\d\.\s\][+-]+|\#\<.*\>|\[.*\]|\#\d+)",  # Axis
+            5: r"[EFHIJKDQLRPST$]{1}(?:[+-]?[\d\.\s]+|\#\<.*\>|\[.*\]|\#\d+)",  # Other (feed,rpm,radius,etc)
             0: r"\s+|\w+|\W",                                                   # Default (fallback)
         }
 
@@ -188,7 +188,9 @@ class EditorBase(QsciScintilla):
         "Margins":  QColor("#666769"),      # Margins
     }
 
+    # keep track of the property value
     _styleBackgroundColor = QColor("#c0c0c0")
+    _styleCursorColor = QColor("white")
     _styleMarginsBackgroundColor = QColor("#cccccc")
     _styleMarkerBackgroundColor = QColor("#a5a526")
     _styleSelectionBackgroundColor = QColor("#001111")
@@ -295,7 +297,7 @@ class EditorBase(QsciScintilla):
         fontmetrics = QFontMetrics(self.getFontMargins())
         self.setMarginWidth(0, fontmetrics.width("0" * width) + 6)
 
-    # reset margin width when number od lines change
+    # reset margin width when number of lines change
     def on_lines_changed(self):
         if len(str(self.lines())) < 3:
             self._marginWidth = '0000'
@@ -326,11 +328,17 @@ class EditorBase(QsciScintilla):
 
     def load_text(self, filepath):
         self.filepath = filepath
+        if filepath is None:
+            return
         try:
             fp = os.path.expanduser(filepath)
             with open(fp) as f:
                 self.setText(f.read())
         except OSError as e:
+            LOG.error("load_text(): {}".format(e))
+            self.setText('')
+            return
+        except Exception as e:
             LOG.error("load_text(): {}".format(e))
             self.setText('')
             return
@@ -431,6 +439,14 @@ class EditorBase(QsciScintilla):
         super(EditorBase, self).setMarginsForegroundColor(value)
         self._styleColor["Margins"] = value
     styleColorMarginText = pyqtProperty(QColor, getColorMarginsForeground, setColorMarginsForeground)
+
+    # Cursor Color
+    def getColorCursor(self):
+        return self._styleCursorColor
+    def setColorCursor(self, color):
+        self._styleCursorColor = color
+        super(EditorBase, self).setCaretForegroundColor(color)
+    styleColorCursor = pyqtProperty(QColor, getColorCursor, setColorCursor)
 
     # Backgrounds
     def getColorBackground(self):
@@ -591,6 +607,8 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
         self.auto_show_manual = False
         self.auto_show_preference = True
         self.last_line = 0
+        # keep track of vertical scroll setting in auto mode
+        self._last_auto_scroll = 0
 
     def _hal_init(self):
         self.cursorPositionChanged.connect(self.line_changed)
@@ -600,12 +618,14 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
             STATUS.connect('mode-auto', self.reload_last)
             STATUS.connect('move-text-lineup', self.select_lineup)
             STATUS.connect('move-text-linedown', self.select_linedown)
+            STATUS.connect('mode-manual', self.load_manual)
         if self.auto_show_manual:
             STATUS.connect('mode-manual', self.load_manual)
             STATUS.connect('machine-log-changed', self.load_manual)
         if self.auto_show_preference:
             STATUS.connect('show-preference', self.load_preference)
         STATUS.connect('file-loaded', self.load_program)
+        STATUS.connect('reload-display', self.load_program)
         STATUS.connect('line-changed', self.external_highlight_request)
         STATUS.connect('graphics-line-selected', self.external_highlight_request)
         STATUS.connect('command-stopped', lambda w: self.run_stopped())
@@ -617,6 +637,8 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
     def load_program(self, w, filename=None):
         if filename is None:
             filename = self._last_filename
+        elif 'file_clear.ngc' in filename:
+            self._last_filename = None
         else:
             self._last_filename = filename
         self.load_text(filename)
@@ -624,28 +646,43 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
         self.setCursorPosition(0, 0)
         self.markerDeleteHandle(self.currentHandle)
         self.setModified(False)
+        self._lastUserLine = 0
 
     # when switching from MDI to AUTO we need to reload the
     # last (linuxcnc loaded) program.
     def reload_last(self, w):
         self.load_text(STATUS.old['file'])
         self.setCursorPosition(0, 0)
+        # keep track of vertical scroll bar setting
+        self.verticalScrollBar().setValue(self._last_auto_scroll)
+        #  and margin marker if it is showing
+        if self._lastUserLine >0:
+            self.markerAdd(self._lastUserLine, self.USER_MARKER_NUM)
 
     # With the auto_show__mdi option, MDI history is shown
     def load_mdi(self, w):
+        # record scroll position in auto mode's gcode
+        if STATUS.get_previous_mode() == STATUS.AUTO: 
+            self._last_auto_scroll = self.verticalScrollBar().value()
+
         self.load_text(INFO.MDI_HISTORY_PATH)
         self._last_filename = INFO.MDI_HISTORY_PATH
-        self.setCursorPosition(self.lines(), 0)
+        self.setCursorPosition(self.lines()-1, 0)
+        self.moveMarker(self.lines()-1)
 
     # With the auto_show__mdi option, MDI history is shown
     def load_manual(self, w):
-        if STATUS.is_man_mode():
+        # record scroll position in auto mode's gcode
+        if STATUS.get_previous_mode() == STATUS.AUTO: 
+            self._last_auto_scroll = self.verticalScrollBar().value()
+
+        if self.auto_show_manual and STATUS.is_man_mode():
             self.load_text(INFO.MACHINE_LOG_HISTORY_PATH)
-            self.setCursorPosition(self.lines(), 0)
+            self.setCursorPosition(self.lines()-1, 0)
 
     def load_preference(self, w):
         self.load_text(self.PATHS_.PREFS_FILENAME)
-        self.setCursorPosition(self.lines(), 0)
+        self.setCursorPosition(self.lines()-1, 0)
 
     # external line numbers start at 1 - convert that to start at 0
     def external_highlight_request(self, w, line):
@@ -654,7 +691,7 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
         if STATUS.is_auto_running():
             self.highlight_line(None, line-1)
             return
-        LOG.debug('editor: got external highlight {}'.format(line))
+        LOG.verbose('editor: got external highlight {}'.format(line))
         #self.highlight_line(None, line-1)
         self.ensureLineVisible(line-1)
         #self.setSelection(line-1,0,line-1,self.lineLength(line-1)-1)
@@ -662,7 +699,7 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
         self.selectAll(False)
 
     def moveMarker(self, line):
-        if STATUS.stat.file == '':
+        if STATUS.is_auto_running() and STATUS.stat.file == '':
             self.last_line = 0
             return
         self.markerDeleteHandle(self.currentHandle)
@@ -676,7 +713,7 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
                 LOG.debug('should reload the display')
                 self.load_text(STATUS.old['file'])
                 self._last_filename = STATUS.old['file']
-            self.emit_percent(line*100/self.lines())
+            self.emit_percent(round(line*100/self.lines()))
         self.moveMarker(line)
         self.setCursorPosition(line, 0)
         self.ensureCursorVisible()
@@ -703,24 +740,24 @@ class GcodeDisplay(EditorBase, _HalWidgetBase):
 
     def select_lineup(self, w):
         line, col = self.getCursorPosition()
-        LOG.debug(line)
+        LOG.verbose(line)
         self.setCursorPosition(line-1, 0)
         self.highlight_line(None, line-1)
 
     def select_linedown(self, w):
         line, col = self.getCursorPosition()
-        LOG.debug(line)
+        LOG.verbose(line)
         self.setCursorPosition(line+1, 0)
         self.highlight_line(None, line+1)
 
     def jump_line(self, jump):
         line, col = self.getCursorPosition()
         line = line + jump
-        LOG.debug(line)
+        LOG.verbose(line)
         if line <0:
             line = 0
-        elif line > self.lines():
-            line = self.lines()
+        elif line > self.lines()-1:
+            line = self.lines()-1
         self.setCursorPosition(line, 0)
         self.highlight_line(None, line)
 
@@ -791,19 +828,22 @@ class GcodeEditor(QWidget, _HalWidgetBase):
         ################################
 
         # Create new action
-        self.newAction = QAction(QIcon.fromTheme('document-new'), 'New', self)
+        icon = self.style().standardIcon( QStyle.SP_FileIcon)
+        self.newAction = QAction(icon, 'New', self)
         self.newAction.setShortcut('Ctrl+N')
         self.newAction.setStatusTip('New document')
         self.newAction.triggered.connect(self.newCall)
 
         # Create open action
-        self.openAction = QAction(QIcon.fromTheme('document-open'), '&Open', self)
+        icon = self.style().standardIcon( QStyle.SP_DirOpenIcon)
+        self.openAction = QAction(icon, '&Open', self)
         self.openAction.setShortcut('Ctrl+O')
         self.openAction.setStatusTip('Open document')
         self.openAction.triggered.connect(self.openCall)
 
         # Create save action
-        self.saveAction = QAction(QIcon.fromTheme('document-save'), '&Save', self)
+        icon = self.style().standardIcon( QStyle.SP_DialogSaveButton)
+        self.saveAction = QAction(icon, '&Save', self)
         self.saveAction.setShortcut('Ctrl+S')
         self.saveAction.setStatusTip('Save document')
         self.saveAction.triggered.connect(self.saveCall)
@@ -1042,7 +1082,7 @@ class GcodeEditor(QWidget, _HalWidgetBase):
 
     def getSaveFileName(self):
         mess = {'NAME':self.save_dialog_code,'ID':'%s__' % self.objectName(),
-            'TITLE':'Save Editor'}
+            'TITLE':'Save Editor', 'FILENAME':self.editor._last_filename}
         STATUS.emit('dialog-request', mess)
 
     # process the STATUS return message
@@ -1068,7 +1108,7 @@ class GcodeEditor(QWidget, _HalWidgetBase):
             return False
 
     def emit_percent(self, percent):
-        self.percentDone.emit(percent)
+        self.percentDone.emit(int(percent))
 
     def select_lineup(self):
         self.editor.select_lineup(None)
@@ -1176,3 +1216,4 @@ N98765 G0 Z30"""
         w.label.setText('<b>Edit mode title label</b>')
     w.show()
     sys.exit( app.exec_() )
+

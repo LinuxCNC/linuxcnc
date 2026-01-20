@@ -50,7 +50,7 @@ StandaloneInterpInternals _sai = StandaloneInterpInternals();
 char               _parameter_file_name[PARAMETER_FILE_NAME_LENGTH];
 
 /* where to print */
-FILE * _outfile=nullptr;      /* where to print, set in main */
+FILE * _outfile = stdout;      /* where to print, set in main */
 static bool fo_enable=true, so_enable=true;
 
 /************************************************************************/
@@ -79,11 +79,6 @@ void print_nc_line_number()
   int k;
   int m;
 
-  if(!_outfile)
-    {
-      _outfile = stdout;
-    }
-
   pinterp->line_text(text, 256);
   for (k = 0;
        ((k < 256) &&
@@ -107,7 +102,6 @@ void print_nc_line_number()
 
 #define PRINT(control, ...) do \
 { \
-    _outfile = _outfile ?: stdout; \
     fprintf(_outfile,  "%5d ", _sai._line_number++); \
     print_nc_line_number(); \
     fprintf(_outfile, control, ##__VA_ARGS__); \
@@ -122,7 +116,7 @@ void SET_XY_ROTATION(double t) {
 void SET_G5X_OFFSET(int index,
                     double x, double y, double z,
                     double a, double b, double c,
-                    double u, double v, double w) {
+                    double /*u*/, double /*v*/, double /*w*/) {
 
   ECHO_WITH_ARGS("%d, %.4f, %.4f, %.4f, %.4f, %.4f, %.4f",
           index, x, y, z, a, b, c);
@@ -143,7 +137,7 @@ void SET_G5X_OFFSET(int index,
 
 void SET_G92_OFFSET(double x, double y, double z,
                     double a, double b, double c,
-                    double u, double v, double w) {
+                    double /*u*/, double /*v*/, double /*w*/) {
   ECHO_WITH_ARGS("%.4f, %.4f, %.4f, %.4f, %.4f, %.4f",
                       x, y, z, a, b, c);
   _sai._program_position_x = _sai._program_position_x + _sai._g92_x - x;
@@ -216,12 +210,12 @@ void SET_TRAVERSE_RATE(double rate)
   _sai._traverse_rate = rate;
 }
 
-void STRAIGHT_TRAVERSE( int line_number,
+void STRAIGHT_TRAVERSE( int /*line_number*/,
  double x, double y, double z
  , double a /*AA*/
  , double b /*BB*/
  , double c /*CC*/
- , double u, double v, double w
+ , double /*u*/, double /*v*/, double /*w*/
 )
 {
   ECHO_WITH_ARGS("%.4f, %.4f, %.4f"
@@ -318,30 +312,30 @@ void STOP_SPEED_FEED_SYNCH()
 /* Machining Functions */
 
 /* Machining Functions G_5_2 */
-void NURBS_G5_FEED(int lineno, std::vector<NURBS_CONTROL_POINT> nurbs_control_points, unsigned int nurbs_order, CANON_PLANE plane) {
+void NURBS_G5_FEED(int /*lineno*/, const std::vector<NURBS_CONTROL_POINT>& nurbs_control_points, unsigned int /*nurbs_order*/, CANON_PLANE /*plane*/) {
   ECHO_WITH_ARGS("%lu, ...", (unsigned long)nurbs_control_points.size());
 
-  _sai._program_position_x = nurbs_control_points[nurbs_control_points.size()].NURBS_X;
-  _sai._program_position_y = nurbs_control_points[nurbs_control_points.size()].NURBS_Y;
+  _sai._program_position_x = nurbs_control_points[nurbs_control_points.size()-1].NURBS_X;
+  _sai._program_position_y = nurbs_control_points[nurbs_control_points.size()-1].NURBS_Y;
 }
 
 /* Machining Functions G_6_2 */
-void NURBS_G6_FEED(int lineno, std::vector<NURBS_G6_CONTROL_POINT> nurbs_control_points, unsigned int k, double feedrate, int l, CANON_PLANE plane) {
+void NURBS_G6_FEED(int /*lineno*/, const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points, unsigned int /*k*/, double /*feedrate*/, int /*l*/, CANON_PLANE /*plane*/) {
   //fprintf(_outfile, "%5d ", _line_number++);
   print_nc_line_number();
   fprintf(_outfile, "saicanon NURBS_G6_FEED_(%lu, ...)\n", (unsigned long)nurbs_control_points.size());
 
-  _sai._program_position_x = nurbs_control_points[nurbs_control_points.size()].NURBS_X;
-  _sai._program_position_y = nurbs_control_points[nurbs_control_points.size()].NURBS_Y;
+  _sai._program_position_x = nurbs_control_points[nurbs_control_points.size()-1].NURBS_X;
+  _sai._program_position_y = nurbs_control_points[nurbs_control_points.size()-1].NURBS_Y;
 }
 
-void ARC_FEED(int line_number,
+void ARC_FEED(int /*line_number*/,
  double first_end, double second_end,
  double first_axis, double second_axis, int rotation, double axis_end_point
  , double a /*AA*/
  , double b /*BB*/
  , double c /*CC*/
- , double u, double v, double w
+ , double /*u*/, double /*v*/, double /*w*/
 )
 {
   ECHO_WITH_ARGS("%.4f, %.4f, %.4f, %.4f, %d, %.4f"
@@ -377,12 +371,12 @@ void ARC_FEED(int line_number,
   _sai._program_position_c = c; /*CC*/
 }
 
-void STRAIGHT_FEED(int line_number,
+void STRAIGHT_FEED(int /*line_number*/,
  double x, double y, double z
  , double a /*AA*/
  , double b /*BB*/
  , double c /*CC*/
- , double u, double v, double w
+ , double /*u*/, double /*v*/, double /*w*/
 )
 {
   ECHO_WITH_ARGS("%.4f, %.4f, %.4f"
@@ -407,12 +401,12 @@ void STRAIGHT_FEED(int line_number,
 point towards the previous location after the probing, if the probe
 point is not the same as the previous point -- which it should not be. */
 
-void STRAIGHT_PROBE(int line_number,
+void STRAIGHT_PROBE(int /*line_number*/,
  double x, double y, double z
  , double a /*AA*/
  , double b /*BB*/
  , double c /*CC*/
- , double u, double v, double w, unsigned char probe_type
+ , double /*u*/, double /*v*/, double /*w*/, unsigned char /*probe_type*/
 )
 {
   double distance;
@@ -452,7 +446,7 @@ void STRAIGHT_PROBE(int line_number,
 }
 
 
-void RIGID_TAP(int line_number, double x, double y, double z, double scale)
+void RIGID_TAP(int /*line_number*/, double x, double y, double z, double /*scale*/)
 {
     ECHO_WITH_ARGS("%.4f, %.4f, %.4f", x, y, z);
 }
@@ -471,14 +465,14 @@ void SET_SPINDLE_MODE(int spindle, double arg) {
   PRINT("SET_SPINDLE_MODE(%d %.4f)\n", spindle, arg);
 }
 
-void START_SPINDLE_CLOCKWISE(int spindle, int wait_for_atspeed)
+void START_SPINDLE_CLOCKWISE(int spindle, int /*wait_for_atspeed*/)
 {
   PRINT("START_SPINDLE_CLOCKWISE(%i)\n", spindle);
   _sai._spindle_turning[spindle] = ((_sai._spindle_speed[spindle] == 0) ? CANON_STOPPED :
                                                    CANON_CLOCKWISE);
 }
 
-void START_SPINDLE_COUNTERCLOCKWISE(int spindle, int wait_for_atspeed)
+void START_SPINDLE_COUNTERCLOCKWISE(int spindle, int /*wait_for_atspeed*/)
 {
   PRINT("START_SPINDLE_COUNTERCLOCKWISE(%i)\n", spindle);
   _sai._spindle_turning[spindle] = ((_sai._spindle_speed[spindle] == 0) ? CANON_STOPPED :
@@ -513,7 +507,7 @@ void USE_NO_SPINDLE_FORCE()
 {PRINT("USE_NO_SPINDLE_FORCE()\n");}
 
 /* Tool Functions */
-void SET_TOOL_TABLE_ENTRY(int idx, int toolno, EmcPose offset, double diameter,
+void SET_TOOL_TABLE_ENTRY(int idx, int toolno, const EmcPose& offset, double diameter,
                           double frontangle, double backangle, int orientation) {
 
 #ifdef TOOL_NML //{
@@ -545,22 +539,22 @@ void SET_TOOL_TABLE_ENTRY(int idx, int toolno, EmcPose offset, double diameter,
             frontangle, backangle, orientation);
 }
 
-void USE_TOOL_LENGTH_OFFSET(EmcPose offset)
+void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset)
 {
     _sai._tool_offset = offset;
     ECHO_WITH_ARGS("%.4f %.4f %.4f, %.4f %.4f %.4f, %.4f %.4f %.4f",
          offset.tran.x, offset.tran.y, offset.tran.z, offset.a, offset.b, offset.c, offset.u, offset.v, offset.w);
 }
 
-void CHANGE_TOOL(int slot)
+void CHANGE_TOOL()
 {
-  PRINT("CHANGE_TOOL(%d)\n", slot);
-  _sai._active_slot = slot;
+  PRINT("CHANGE_TOOL()\n");
+  _sai._active_slot = _sai._selected_tool;
 #ifdef TOOL_NML //{
-  _sai._tools[0] = _sai._tools[slot];
+  _sai._tools[0] = _sai._tools[_sai._active_slot];
 #else //}{
     CANON_TOOL_TABLE tdata;
-    if (tooldata_get(&tdata,slot) != IDX_OK) {
+    if (tooldata_get(&tdata,_sai._selected_tool) != IDX_OK) {
         UNEXPECTED_MSG;
     }
     _sai._tools[0] = tdata;
@@ -571,7 +565,10 @@ void CHANGE_TOOL(int slot)
 }
 
 void SELECT_TOOL(int tool)//TODO: fix slot number
-{PRINT("SELECT_TOOL(%d)\n", tool);}
+{
+  PRINT("SELECT_TOOL(%d)\n", tool);
+  _sai._selected_tool = tool;
+}
 
 void CHANGE_TOOL_NUMBER(int tool)
 {
@@ -731,21 +728,21 @@ int GET_EXTERNAL_FEED_OVERRIDE_ENABLE() {return fo_enable;}
 double GET_EXTERNAL_MOTION_CONTROL_TOLERANCE() { return _sai.motion_tolerance;}
 double GET_EXTERNAL_MOTION_CONTROL_NAIVECAM_TOLERANCE()
                                         { return _sai.naivecam_tolerance; }
-double GET_EXTERNAL_LENGTH_UNITS() {return 0.03937007874016;}
+double GET_EXTERNAL_LENGTH_UNITS() {return _sai._external_length_units;}
 int GET_EXTERNAL_FEED_HOLD_ENABLE() {return 1;}
 int GET_EXTERNAL_AXIS_MASK() {return 0x3f;} // XYZABC machine
 double GET_EXTERNAL_ANGLE_UNITS() {return 1.0;}
 int GET_EXTERNAL_SELECTED_TOOL_SLOT() { return 0; }
-int GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE(int spindle) {return so_enable;}
-void START_SPEED_FEED_SYNCH(int spindle, double sync, bool vel)
+int GET_EXTERNAL_SPINDLE_OVERRIDE_ENABLE(int /*spindle*/) {return so_enable;}
+void START_SPEED_FEED_SYNCH(int /*spindle*/, double sync, bool vel)
 {PRINT("START_SPEED_FEED_SYNC(%f,%d)\n", sync, vel);}
 CANON_MOTION_MODE motion_mode;
 
-int GET_EXTERNAL_DIGITAL_INPUT(int index, int def) { return def; }
-double GET_EXTERNAL_ANALOG_INPUT(int index, double def) { return def; }
-int WAIT(int index, int input_type, int wait_type, double timeout) { return 0; }
-int UNLOCK_ROTARY(int line_no, int joint_num) {return 0;}
-int LOCK_ROTARY(int line_no, int joint_num) {return 0;}
+int GET_EXTERNAL_DIGITAL_INPUT(int /*index*/, int def) { return def; }
+double GET_EXTERNAL_ANALOG_INPUT(int /*index*/, double def) { return def; }
+int WAIT(int /*index*/, int /*input_type*/, int /*wait_type*/, double /*timeout*/) { return 0; }
+int UNLOCK_ROTARY(int /*line_no*/, int /*joint_num*/) {return 0;}
+int LOCK_ROTARY(int /*line_no*/, int /*joint_num*/) {return 0;}
 
 /* Returns the system feed rate */
 double GET_EXTERNAL_FEED_RATE()
@@ -779,7 +776,7 @@ extern CANON_MOTION_MODE GET_EXTERNAL_MOTION_CONTROL_MODE()
 
 extern void SET_PARAMETER_FILE_NAME(const char *name)
 {
-  strncpy(_parameter_file_name, name, PARAMETER_FILE_NAME_LENGTH);
+  strncpy(_parameter_file_name, name, PARAMETER_FILE_NAME_LENGTH - 1);
 }
 
 void GET_EXTERNAL_PARAMETER_FILE_NAME(
@@ -1077,11 +1074,6 @@ void ON_RESET(void)
     PRINT("ON_RESET()\n");
 }
 
-void START_CHANGE(void) {
-    PRINT("START_CHANGE()\n");
-}
-
-
 int GET_EXTERNAL_TC_FAULT()
 {
     return _sai._toolchanger_fault;
@@ -1132,15 +1124,7 @@ void CANON_ERROR(const char *fmt, ...)
 	}
     }
 }
-void PLUGIN_CALL(int len, const char *call)
-{
-    printf("PLUGIN_CALL(%d)\n",len);
-}
 
-void IO_PLUGIN_CALL(int len, const char *call)
-{
-    printf("IO_PLUGIN_CALL(%d)\n",len);
-}
 void reset_internals()
 {
   _sai = StandaloneInterpInternals();
@@ -1149,9 +1133,11 @@ void reset_internals()
 StandaloneInterpInternals::StandaloneInterpInternals() :
   _active_plane(CANON_PLANE::XY),
   _active_slot(1),
+  _selected_tool(0),
   _feed_mode(0),
   _feed_rate(0.0),
   _flood(0),
+  _external_length_units(1.0),
   _length_unit_factor(1), /* 1 for MM 25.4 for inch */
   _length_unit_type(CANON_UNITS_MM),
   _line_number(1),
@@ -1199,6 +1185,6 @@ StandaloneInterpInternals::StandaloneInterpInternals() :
   _toolchanger_reason(0)
 {
 }
-void UPDATE_TAG(StateTag tag){
+void UPDATE_TAG(const StateTag& /*tag*/){
     //Do nothing
 }

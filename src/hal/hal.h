@@ -279,9 +279,9 @@ typedef enum {
     HAL_FLOAT = 2,
     HAL_S32 = 3,
     HAL_U32 = 4,
+    HAL_PORT = 5,
     HAL_S64 = 6,
     HAL_U64 = 7,
-    HAL_PORT = 5,
     HAL_TYPE_MAX,
 } hal_type_t;
 
@@ -739,6 +739,14 @@ extern int hal_get_param_value_by_name(
 extern int hal_export_funct(const char *name, void (*funct) (void *, long),
     void *arg, int uses_fp, int reentrant, int comp_id);
 
+/** hal_export_functf is similar to hal_export_funct except that it also does
+    printf-style formatting to compute the function name.
+    If successful, it returns 0.
+    On failure it returns a negative error code.
+*/
+extern int hal_export_functf(void (*funct) (void *, long),
+    void *arg, int uses_fp, int reentrant, int comp_id, const char *fmt, ...);
+
 /** hal_create_thread() establishes a realtime thread that will
     execute one or more HAL functions periodically.
     'name' is the name of the thread, which must be unique in
@@ -858,7 +866,7 @@ extern int hal_set_constructor(int comp_id, constructor make);
         true: count bytes were read into dest
         false: no bytes were read into dest
  */
-extern bool hal_port_read(hal_port_t port, char* dest, unsigned count);
+extern bool hal_port_read(const hal_port_t *port, char* dest, unsigned count);
 
 
 /** hal_port_peek operates the same as hal_port_read but no bytes are consumed
@@ -868,7 +876,7 @@ extern bool hal_port_read(hal_port_t port, char* dest, unsigned count);
         true: count bytes were read into dest
         false: no bytes were read into dest
 */
-extern bool hal_port_peek(hal_port_t port, char* dest, unsigned count);
+extern bool hal_port_peek(const hal_port_t *port, char* dest, unsigned count);
 
 /** hal_port_peek_commit advances the read position in the port buffer
     by count bytes. A hal_port_peek followed by a hal_port_peek_commit
@@ -879,7 +887,7 @@ extern bool hal_port_peek(hal_port_t port, char* dest, unsigned count);
        true: count readable bytes were skipped and are no longer accessible
        false: no bytes wer skipped
 */ 
-extern bool hal_port_peek_commit(hal_port_t port, unsigned count);
+extern bool hal_port_peek_commit(const hal_port_t *port, unsigned count);
 
 /** hal_port_write writes count bytes from src into the port. 
     This function should only be called by the component that owns
@@ -889,28 +897,28 @@ extern bool hal_port_peek_commit(hal_port_t port, unsigned count);
         false: no bytes were written into dest
     
 */
-extern bool hal_port_write(hal_port_t port, const char* src, unsigned count);
+extern bool hal_port_write(const hal_port_t *port, const char* src, unsigned count);
 
 /** hal_port_readable returns the number of bytes available
     for reading from the port.
 */
-extern unsigned hal_port_readable(hal_port_t port);
+extern unsigned hal_port_readable(const hal_port_t *port);
 
 /** hal_port_writable returns the number of bytes that
     can be written into the port
 */
-extern unsigned hal_port_writable(hal_port_t port);
+extern unsigned hal_port_writable(const hal_port_t *port);
 
 /** hal_port_buffer_size returns the total number of bytes
     that a port can buffer
 */
-extern unsigned hal_port_buffer_size(hal_port_t port);
+extern unsigned hal_port_buffer_size(const hal_port_t *port);
 
 /** hal_port_clear emptys a given port of all data
     without consuming any of it.
     hal_port_clear should only be called by a reader
 */
-extern void hal_port_clear(hal_port_t port);
+extern void hal_port_clear(const hal_port_t *port);
 
 
 #ifdef ULAPI
@@ -951,7 +959,7 @@ typedef struct {
 
 #define HAL_STREAM_MAX_PINS (21)
 /** create and attach a stream */
-extern int hal_stream_create(hal_stream_t *stream, int comp, int key, int depth, const char *typestring);
+extern int hal_stream_create(hal_stream_t *stream, int comp, int key, unsigned depth, const char *typestring);
 /** detach and destroy an open stream */
 extern void hal_stream_destroy(hal_stream_t *stream);
 
@@ -968,7 +976,7 @@ extern hal_type_t hal_stream_element_type(hal_stream_t *stream, int idx);
 extern int hal_stream_read(hal_stream_t *stream, union hal_stream_data *buf, unsigned *sampleno);
 extern bool hal_stream_readable(hal_stream_t *stream);
 extern int hal_stream_depth(hal_stream_t *stream);
-extern int hal_stream_maxdepth(hal_stream_t *stream);
+extern unsigned hal_stream_maxdepth(hal_stream_t *stream);
 extern int hal_stream_num_underruns(hal_stream_t *stream);
 extern int hal_stream_num_overruns(hal_stream_t *stream);
 #ifdef ULAPI

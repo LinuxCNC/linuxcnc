@@ -62,6 +62,7 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
     double maxVelocity;
     double maxAcceleration;
     int    lockingjnum = -1; // -1 ==> locking joint not used
+    double maxJerk;
 
     // compose string to match, axis = 0 -> AXIS_X etc.
     switch (axis) {
@@ -149,6 +150,16 @@ static int loadAxis(int axis, EmcIniFile *axisIniFile)
             }
             return -1;
         }
+        
+        maxJerk = DEFAULT_AXIS_MAX_JERK;
+        axisIniFile->Find(&maxJerk, "MAX_JERK", axisString);
+        if (0 != emcAxisSetMaxJerk(axis, maxJerk)) {
+            if (emc_debug & EMC_DEBUG_CONFIG) {
+                rcs_print_error("bad return from emcAxisSetMaxJerk\n");
+            }
+            return -1;
+        }
+        old_inihal_data.axis_jerk[axis] = maxJerk;
     }
 
 

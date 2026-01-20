@@ -28,22 +28,15 @@ RCS_STAT_MSG::RCS_STAT_MSG(NMLTYPE t, size_t sz):NMLmsg(t, sz)
     command_type = -1;
     echo_serial_number = -1;
     status = RCS_STATUS::UNINITIALIZED;
-    state = -1;
-    line = -1;
-    source_line = -1;
-    memset(source_file, 0, 64);
-
+    _state = -1;
 }
 
 int RCS_STAT_MSG_format(NMLTYPE t, void *buf, CMS * cms)
 {
     cms->update(((RCS_STAT_MSG *) buf)->command_type);
     cms->update(((RCS_STAT_MSG *) buf)->echo_serial_number);
-    cms->update((int&)(((RCS_STAT_MSG *) buf)->status));
-    cms->update(((RCS_STAT_MSG *) buf)->state);
-    cms->update(((RCS_STAT_MSG *) buf)->line);
-    cms->update(((RCS_STAT_MSG *) buf)->source_line);
-    cms->update(((RCS_STAT_MSG *) buf)->source_file, 64);
+    cms->update(((RCS_STAT_MSG *) buf)->status_int);
+    cms->update(((RCS_STAT_MSG *) buf)->_state);
 
     switch (t) {
     case RCS_GENERIC_STATUS_TYPE:

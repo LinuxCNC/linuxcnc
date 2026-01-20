@@ -26,11 +26,9 @@ char emc_nmlfile[LINELEN] = EMC2_DEFAULT_NMLFILE;
 char rs274ngc_startup_code[LINELEN] =
     DEFAULT_RS274NGC_STARTUP_CODE;
 
-int emc_debug = 0;		/* initially no debug messages */
+unsigned emc_debug = 0;		/* initially no debug messages */
 
 double emc_task_cycle_time = DEFAULT_EMC_TASK_CYCLE_TIME;
-
-double emc_io_cycle_time = DEFAULT_EMC_IO_CYCLE_TIME;
 
 int emc_task_interp_max_len = DEFAULT_EMC_TASK_INTERP_MAX_LEN;
 

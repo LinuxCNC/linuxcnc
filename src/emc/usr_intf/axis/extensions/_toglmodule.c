@@ -27,6 +27,7 @@ static Tcl_Interp *get_interpreter(PyObject *tkapp) {
 }
 
 PyObject *install(PyObject *s, PyObject *arg) {
+    (void)s;
     Tcl_Interp *trp = get_interpreter(arg);
     if(!trp) {
         PyErr_SetString(PyExc_TypeError, "get_interpreter() returned NULL");
@@ -65,15 +66,19 @@ PyObject *install(PyObject *s, PyObject *arg) {
 
 PyMethodDef togl_methods[] = {
     {"install", (PyCFunction)install, METH_O, "install togl in a tkinter application"},
-    {NULL}
+    {}
 };
 
 static struct PyModuleDef togl_moduledef = {
-    PyModuleDef_HEAD_INIT,
-    "_togl",
-    "togl extension for Tkinter",
-    -1,
-    togl_methods
+    PyModuleDef_HEAD_INIT, /* m_base */
+    "_togl",               /* m_name */
+    "togl extension for Tkinter", /* m_doc */
+    -1,                    /* m_size */
+    togl_methods,          /* m_methods */
+    NULL,                  /* m_slots */
+    NULL,                  /* m_traverse */
+    NULL,                  /* m_clear */
+    NULL,                  /* m_free */
 };
 
 PyMODINIT_FUNC PyInit__togl(void);

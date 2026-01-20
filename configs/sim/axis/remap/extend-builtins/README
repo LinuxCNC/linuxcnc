@@ -13,8 +13,6 @@ to work with the stdglue prologs and epilogs
 'exposed parameters' are local variables in the remap procedure which can be read, and changed - any changes will be picked up by the epilog and used to commit the result
 
 
-Note that using M61 requires iocontrol-v2 as set tool number support in iocontrol is broken.
-
 update:
 
 Remapping and extending of M0,M1,M60 added.

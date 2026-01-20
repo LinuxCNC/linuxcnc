@@ -98,7 +98,7 @@ sleep(1)
 e.set_mode(linuxcnc.MODE_AUTO)
 sleep(1)
 for f in test_files:
-    if re.search('\.ngc$',f) is not None:
+    if re.search('\\.ngc$',f) is not None:
         print("Loading program {0}".format(f))
         e.set_mode(linuxcnc.MODE_AUTO)
         sleep(1)

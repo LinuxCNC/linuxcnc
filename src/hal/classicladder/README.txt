@@ -71,7 +71,7 @@ You can:
 When editing, use the pointer of the toolbar if you want only to modify properties, else select the element
 you want to place in the rung.
 
-Many rungs can be displayed at the same time, and you can use a vertical scollbar.
+Many rungs can be displayed at the same time, and you can use a vertical scrollbar.
 The current rung is the rung with the blue bars on each side. When window resized, it is automatically
 selected by choosing the toppest rung which is completely visible. You can manually select one between the
 others below (if you can see them with a large vertical window).

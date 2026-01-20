@@ -190,7 +190,18 @@ class touchy:
                 self.mdi_control = mdi.mdi_control(Gtk, linuxcnc, mdi_labels, mdi_eventboxes)
 
                 if self.ini:
-                    macros = self.ini.findall("TOUCHY", "MACRO")
+                    # Instruct user to update config
+                    if self.ini.findall("TOUCHY", "MACRO"):
+                        dialog = Gtk.MessageDialog(
+                                 message_type=Gtk.MessageType.WARNING,
+                                 buttons=Gtk.ButtonsType.OK,
+                                 text="MACRO entries found in [TOUCHY] section of INI")
+                        dialog.format_secondary_text(
+                                 "in LinuxCNC 2.10.n and later these now need to be in the [MACROS] section")
+                        response = dialog.run()
+                        dialog.destroy()
+
+                    macros = self.ini.findall("MACROS", "MACRO")
                     if len(macros) > 0:
                         self.mdi_control.mdi.add_macros(macros)
                     else:
@@ -258,7 +269,10 @@ class touchy:
                 units=self.ini.find("TRAJ","LINEAR_UNITS")
 
                 if units==None:
-                        units=self.ini.find("AXIS_X","UNITS")
+                        # complain to user
+                        print("No [TRAJ]UNITS INI file entry, assuming inch")
+                        # Regrettably this has always been the default
+                        units = "inch"
 
                 if units=="mm" or units=="metric" or units == "1.0":
                         self.machine_units_mm=1

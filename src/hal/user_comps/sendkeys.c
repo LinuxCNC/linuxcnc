@@ -66,6 +66,7 @@ void emit(int fd, int type, int code, int val)
 }
 
 static void exit_handler(int sig) {
+    (void)sig;
     printf("sendkeys: exiting\n");
     exit(0);
 }
@@ -271,7 +272,7 @@ int main(int argc, char* argv[]) {
             }
             if (*hal->keycode != param->oldcode) {
                 /* Key press, report the event, send key release, and report again*/
-                if ((*hal->keycode & 0x3F) > param->num_events) continue;
+                if ((int)(*hal->keycode & 0x3F) > param->num_events) continue;
                 if (hal->event[*hal->keycode & 0x3F] == 0) continue;
                 if ((*hal->keycode & 0xC0) == 0xC0){ // keydown
                     emit(param->fd, EV_KEY, hal->event[*hal->keycode & 0x3F], 1);

@@ -198,7 +198,7 @@ so if you like to 'get under the hood' and re-arrange things, be sure to check t
 * `parport.<p>.pin-`__<n>__`-in` (bit) Tracks a physical input pin.
 * `parport.<p>.pin-`__<n>__`-in-not` (bit) Tracks a physical input pin, but inverted.
 
-For each pin, _<p>_ is the port number, and '<n>' is the physical pin number in the 25 pin D-shell connector.
+For each pin, _<p>_ is the port number, and _<n>_ is the physical pin number in the 25 pin D-shell connector.
 
 For each physical output pin, the driver creates a single HAL pin, for example: `parport.0.pin-14-out`.
 
@@ -220,7 +220,7 @@ If `-invert` is TRUE, then setting the HAL `-out` pin TRUE will drive the physic
 [[sub:parport-functions]]
 == Functions
 
-* `parport.`__<p>__`.read' (funct) Reads physical input pins of port number _<p>_ and updates HAL `-in` and `-in-not` pins.
+* `parport.`__<p>__`.read` (funct) Reads physical input pins of port number _<p>_ and updates HAL `-in` and `-in-not` pins.
 * `parport.read-all` (funct) Reads physical input pins of all ports and updates HAL `-in` and `-in-not` pins.
 * `parport.`__<p>__`.write` (funct) Reads HAL `-out` pins of port number _<p>_ and updates that port's physical output pins.
 * `parport.write-all` (funct) Reads HAL `-out` pins of all ports and updates all physical output pins.

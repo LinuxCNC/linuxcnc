@@ -66,6 +66,20 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
         self.blendcode = False
         self.fcode = False
         self.gcodes = False
+        self.gcode_group0 = False
+        self.gcode_group1 = False
+        self.gcode_group2 = False
+        self.gcode_group3 = False
+        self.gcode_group4 = False
+        self.gcode_group5 = False
+        self.gcode_group6 = False
+        self.gcode_group7 = False
+        self.gcode_group8 = False
+        self.gcode_group10 = False
+        self.gcode_group12 = False
+        self.gcode_group13 = False
+        self.gcode_group14 = False
+        self.gcode_group15 = False
         self.mcodes = False
         self.tool_diameter = False
         self.tool_comment = False
@@ -82,6 +96,13 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
         super(StatusLabel, self)._hal_init()
         def _f(data):
             self._set_text(data)
+
+        for g in ('group0','group1','group2','group3','group4','group5',
+                'group6','group7','group8','group10','group12','group13','group14','group15'):
+            if self['gcode_{}'.format(g)]:
+                STATUS.connect('gcode-{}-changed'.format(g), lambda w, data: _f(data))
+                break
+                return
 
         if self.feed_override:
             STATUS.connect('feed-override-changed', lambda w, data: _f(data))
@@ -588,6 +609,146 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
     def reset_gcodes(self):
         self.gcodes = False
 
+    # gcode_group0 status
+    def set_gcode_group0(self, data):
+        self.gcode_group0 = data
+        if data:
+            self._toggle_properties('gcode_group0')
+    def get_gcode_group0(self):
+        return self.gcode_group0
+    def reset_gcode_group0(self):
+        self.gcode_group0 = False
+
+    # gcode_group1 status
+    def set_gcode_group1(self, data):
+        self.gcode_group1 = data
+        if data:
+            self._toggle_properties('gcode_group1')
+    def get_gcode_group1(self):
+        return self.gcode_group1
+    def reset_gcode_group1(self):
+        self.gcode_group1 = False
+
+    # gcode_group2 status
+    def set_gcode_group2(self, data):
+        self.gcode_group2 = data
+        if data:
+            self._toggle_properties('gcode_group2')
+    def get_gcode_group2(self):
+        return self.gcode_group2
+    def reset_gcode_group2(self):
+        self.gcode_group2 = False
+
+    # gcode_group3 status
+    def set_gcode_group3(self, data):
+        self.gcode_group3 = data
+        if data:
+            self._toggle_properties('gcode_group3')
+    def get_gcode_group3(self):
+        return self.gcode_group3
+    def reset_gcode_group3(self):
+        self.gcode_group3 = False
+
+    # gcode_group4 status
+    def set_gcode_group4(self, data):
+        self.gcode_group4 = data
+        if data:
+            self._toggle_properties('gcode_group4')
+    def get_gcode_group4(self):
+        return self.gcode_group4
+    def reset_gcode_group4(self):
+        self.gcode_group4 = False
+
+    # gcode_group5 status
+    def set_gcode_group5(self, data):
+        self.gcode_group5 = data
+        if data:
+            self._toggle_properties('gcode_group5')
+    def get_gcode_group5(self):
+        return self.gcode_group5
+    def reset_gcode_group5(self):
+        self.gcode_group5 = False
+
+    # gcode_group6 status
+    def set_gcode_group6(self, data):
+        self.gcode_group6 = data
+        if data:
+            self._toggle_properties('gcode_group6')
+    def get_gcode_group6(self):
+        return self.gcode_group6
+    def reset_gcode_group6(self):
+        self.gcode_group6 = False
+
+    # gcode_group7 status
+    def set_gcode_group7(self, data):
+        self.gcode_group7 = data
+        if data:
+            self._toggle_properties('gcode_group7')
+    def get_gcode_group7(self):
+        return self.gcode_group7
+    def reset_gcode_group7(self):
+        self.gcode_group7 = False
+
+    # gcode_group8 status
+    def set_gcode_group8(self, data):
+        self.gcode_group8 = data
+        if data:
+            self._toggle_properties('gcode_group8')
+    def get_gcode_group8(self):
+        return self.gcode_group8
+    def reset_gcode_group8(self):
+        self.gcode_group8 = False
+
+    # gcode_group10 status
+    def set_gcode_group10(self, data):
+        self.gcode_group10 = data
+        if data:
+            self._toggle_properties('gcode_group10')
+    def get_gcode_group10(self):
+        return self.gcode_group10
+    def reset_gcode_group10(self):
+        self.gcode_group10 = False
+
+    # gcode_group12 status
+    def set_gcode_group12(self, data):
+        self.gcode_group12 = data
+        if data:
+            self._toggle_properties('gcode_group12')
+    def get_gcode_group12(self):
+        return self.gcode_group12
+    def reset_gcode_group12(self):
+        self.gcode_group12 = False
+
+    # gcode_group13 status
+    def set_gcode_group13(self, data):
+        self.gcode_group13 = data
+        if data:
+            self._toggle_properties('gcode_group13')
+    def get_gcode_group13(self):
+        return self.gcode_group13
+    def reset_gcode_group13(self):
+        self.gcode_group13 = False
+
+    # gcode_group14 status
+    def set_gcode_group14(self, data):
+        self.gcode_group14 = data
+        if data:
+            self._toggle_properties('gcode_group14')
+    def get_gcode_group14(self):
+        return self.gcode_group14
+    def reset_gcode_group14(self):
+        self.gcode_group14 = False
+
+    # gcode_group15 status
+    def set_gcode_group15(self, data):
+        self.gcode_group15 = data
+        if data:
+            self._toggle_properties('gcode_group15')
+    def get_gcode_group15(self):
+        return self.gcode_group15
+    def reset_gcode_group15(self):
+        self.gcode_group15 = False
+
     # mcodes status
     def set_mcodes(self, data):
         self.mcodes = data
@@ -753,6 +914,34 @@ class StatusLabel(ScaledLabel, _HalWidgetBase):
     blendcode_status = QtCore.pyqtProperty(bool, get_blendcode, set_blendcode, reset_blendcode)
     fcode_status = QtCore.pyqtProperty(bool, get_fcode, set_fcode, reset_fcode)
     gcodes_status = QtCore.pyqtProperty(bool, get_gcodes, set_gcodes, reset_gcodes)
+    gcode_group0_status = QtCore.pyqtProperty(bool, get_gcode_group0,
+                                              set_gcode_group0, reset_gcode_group0)
+    gcode_group1_status = QtCore.pyqtProperty(bool, get_gcode_group1,
+                                              set_gcode_group1, reset_gcode_group1)
+    gcode_group2_status = QtCore.pyqtProperty(bool, get_gcode_group2,
+                                              set_gcode_group2, reset_gcode_group2)
+    gcode_group3_status = QtCore.pyqtProperty(bool, get_gcode_group3,
+                                              set_gcode_group3, reset_gcode_group3)
+    gcode_group4_status = QtCore.pyqtProperty(bool, get_gcode_group4,
+                                              set_gcode_group4, reset_gcode_group4)
+    gcode_group5_status = QtCore.pyqtProperty(bool, get_gcode_group5,
+                                              set_gcode_group5, reset_gcode_group5)
+    gcode_group6_status = QtCore.pyqtProperty(bool, get_gcode_group6,
+                                              set_gcode_group6, reset_gcode_group6)
+    gcode_group7_status = QtCore.pyqtProperty(bool, get_gcode_group7,
+                                              set_gcode_group7, reset_gcode_group7)
+    gcode_group8_status = QtCore.pyqtProperty(bool, get_gcode_group8,
+                                              set_gcode_group8, reset_gcode_group8)
+    gcode_group10_status = QtCore.pyqtProperty(bool, get_gcode_group10,
+                                              set_gcode_group10, reset_gcode_group10)
+    gcode_group12_status = QtCore.pyqtProperty(bool, get_gcode_group12,
+                                              set_gcode_group12, reset_gcode_group12)
+    gcode_group13_status = QtCore.pyqtProperty(bool, get_gcode_group13,
+                                              set_gcode_group13, reset_gcode_group13)
+    gcode_group14_status = QtCore.pyqtProperty(bool, get_gcode_group14,
+                                              set_gcode_group14, reset_gcode_group14)
+    gcode_group15_status = QtCore.pyqtProperty(bool, get_gcode_group15,
+                                              set_gcode_group15, reset_gcode_group15)
     mcodes_status = QtCore.pyqtProperty(bool, get_mcodes, set_mcodes, reset_mcodes)
     tool_diameter_status = QtCore.pyqtProperty(bool, get_tool_diameter, set_tool_diameter, reset_tool_diameter)
     tool_comment_status = QtCore.pyqtProperty(bool, get_tool_comment, set_tool_comment, reset_tool_comment)

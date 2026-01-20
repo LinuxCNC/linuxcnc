@@ -8,7 +8,7 @@ halcompile.
 The tpcomp.comp file (src/hal/components/tpcomp.comp)
 illustrates a method to use halcompile to build a
 trajectory planning module based on the files used for the
-default trajectory planner (\\fBtpmod\\fR).
+default trajectory planner (*tpmod*).
 
 The example tpcomp.comp is not usable until modified
 for the user environment.  To create a runnable tpcomp
@@ -18,18 +18,23 @@ code file names for all files used.
 
 To avoid updates that overwrite tpcomp.comp, best practice is
 to rename the file and its component name (example:
-\\fBuser_tpcomp.comp\\fR creates module: \\fBuser_tpcomp\\fR).
+*user_tpcomp.comp* creates module: *user_tpcomp*).
 
 The (renamed) component can be built and installed with
 halcompile and then substituted for the default tp module
-(\\fBtpmod\\fR) using:\n
-  $ linuxcnc \\fB-t user_tpcomp\\fR someconfig.ini\n
-or by inifile setting: \\fB[TRAJ]TPMOD=user_tpcomp\\fR
+(*tpmod*) using:
+....
+  $ linuxcnc *-t user_tpcomp* someconfig.ini
+....
+or by inifile setting: *[TRAJ]TPMOD=user_tpcomp*
 
-\\fBNote:\\fRIf using a deb install:\n
-1) halcompile is provided by the deb package linuxcnc-dev\n
-2) This source file for BRANCHNAME (master,2.9,etc) is downloadable from github:\n
+*Note:*If using a deb install:
+
+1. halcompile is provided by the deb package linuxcnc-dev
+2. This source file for BRANCHNAME (master,2.9,etc) is downloadable from github:
+
 https://github.com/LinuxCNC/linuxcnc/blob/BRANCHNAME/src/hal/components/tpcomp.comp
+
 """;
 
 pin out bit is_module=1; //one pin is required to use halcompile)

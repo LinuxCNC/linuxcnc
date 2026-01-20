@@ -17,7 +17,8 @@
    02111-1307 USA.
  */
 
-#pragma once
+#ifndef __XHC_WHB04B_6_PENDANT_H
+#define __XHC_WHB04B_6_PENDANT_H
 
 // local includes
 #include "pendant-types.h"
@@ -226,6 +227,7 @@ public:
     const KeyCode                           percent_60;
     const KeyCode                           percent_100;
     const KeyCode                           lead;
+    const KeyCode                           lead9B;
     const KeyCode                           undefined;
     const std::map<uint8_t, const KeyCode*> codeMap;
 
@@ -588,8 +590,8 @@ private:
     bool         mIsLeadModeFeed = false;
     bool         mIsStepMode_5_10 = false;
 
-    float mScale;
-    float mMaxVelocity;
+    // float mScale;
+    // float mMaxVelocity;
 
     const char  * mPrefix;
     std::ostream  mDevNull{nullptr};
@@ -611,3 +613,4 @@ private:
 // ----------------------------------------------------------------------
 std::ostream& operator<<(std::ostream& os, const Pendant& data);
 }
+#endif

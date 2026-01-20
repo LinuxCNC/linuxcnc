@@ -3,6 +3,7 @@
 /.tmp_versions
 /Makefile.inc
 /Makefile.modinc
+/aclocal.m4
 /config.guess
 /config.h
 /config.log
@@ -18,5 +19,6 @@
 /TAGS
 /config.h.in
 /configure
+/configure~
 /.html-images-stamp
 /.htmldoc-stamp

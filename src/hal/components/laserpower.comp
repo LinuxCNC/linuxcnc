@@ -8,7 +8,7 @@ pin in bit enabled "True when laser output enabled";
 pin in bit raster_mode "false for vector mode, true for raster mode";
 pin in float raster_power "Requested power level during raster operations";
 
-pin in float vector_power "Requested power level during vector operatons";
+pin in float vector_power "Requested power level during vector operations";
 pin in float distance_to_go "Distance to go of current move";
 
 pin out float power "Current power level command";
@@ -18,18 +18,21 @@ pin out float start_power "Power level when reqPower last changed";
 pin out float start_distance "Distance amount when reqPower last changed";
 pin out float vel_scale "Velocity related scaling component.";
 
-description """During operation laserpower must be scaled proportionally to actual velocity vs commanded velocity.
-               This prevents uneven laser power when rounding tight corners.
+description """
+During operation laserpower must be scaled proportionally to actual velocity vs
+commanded velocity. This prevents uneven laser power when rounding tight
+corners.
             
-            laserpower operates in 2 modes. 
-                Raster mode (when raster_mode = 1). 
-                    During raster mode raster_power is scaled between min_power and max_power proportionally to req_velocity and cur_velocity.
+Component laserpower operates in 2 modes. Raster mode (when *raster_mode*=1).
+During raster mode *raster_power* is scaled between *min_power* and *max_power*
+proportionally to *req_velocity* and *cur_velocity*.
 
-                Velocity mode (when raster_mode = 0). 
-                    During velocity mode vector_power corresponds to the power level desired when reaching the next control point.
-                    This allows vector power to be scaled along moves.
-            """;
+Velocity mode (when *raster_mode*=0). During velocity mode *vector_power*
+corresponds to the power level desired when reaching the next control point.
+This allows vector power to be scaled along moves.
+""";
 
+option period no;
 function _;
 license "GPL";
 

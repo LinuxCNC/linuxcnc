@@ -17,7 +17,8 @@
    02111-1307 USA.
  */
 
-#pragma once
+#ifndef __XHC_WHB04B_6_XHC_WHB04B6_H
+#define __XHC_WHB04B_6_XHC_WHB04B6_H
 
 // system includes
 #include <stdint.h>
@@ -73,6 +74,7 @@ public:
     void setLeadModeSpindle(bool enable);
     void setLeadModeFeed(bool enable);
     void setStepMode_5_10(bool enable);
+    void setUsbProductId(uint16_t usbProductId);
 
 private:
     const char* mName;
@@ -110,3 +112,4 @@ private:
     void printHexdump(const UsbInPackage& inPackage);
 };
 }
+#endif

@@ -38,13 +38,11 @@ extern "C" {
    get these into Tk automatically */
 
     // there's also an emc_Debug function in emc/usr_intf/emcsh.cc
-    extern int emc_debug;
+    extern unsigned emc_debug;
 
     // EMC_DEBUG_* flag definitions moved to debugflags.h
 
-    extern double emc_task_cycle_time;	
-
-    extern double emc_io_cycle_time;
+    extern double emc_task_cycle_time;
 
     extern int emc_task_interp_max_len;
 
@@ -63,15 +61,18 @@ typedef struct JointConfig_t {
     double Units;
     double MaxVel;
     double MaxAccel;
+    double MaxJerk;
     double MinLimit;
     double MaxLimit;
 } JointConfig_t;
 
 typedef struct AxisConfig_t {
     int Inited;
+    int haveMaxJerk;
     unsigned char Type;
     double MaxVel;
     double MaxAccel;
+    double MaxJerk;
     double Home;
     double MinLimit;
     double MaxLimit;
@@ -91,6 +92,7 @@ typedef struct TrajConfig_t {
     int Inited;	// non-zero means traj called init
     int Joints;
     int Spindles;
+    double MaxJerk;
     double MaxAccel;
     double MaxVel;
     int AxisMask;

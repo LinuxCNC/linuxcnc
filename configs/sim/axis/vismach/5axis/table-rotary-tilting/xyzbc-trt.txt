@@ -21,10 +21,17 @@ of rotation of the B axis relative to the center
 of rotation of the C axis.
 
 Hal Input pins:
-  xyzac-trt-kins.x-rot-point
-  xyzac-trt-kins.y-rot-point
-  xyzac-trt-kins.z-rot-point
+  xyzbc-trt-kins.x-rot-point
+  xyzbc-trt-kins.y-rot-point
+  xyzbc-trt-kins.z-rot-point
 
 X, Y and Z rot-point pins represent the
 offsets of the center of rotation of the C axis
 relative to the machine absolute zero
+
+Hal Input pins:
+  xyzbc-trt-kins.conventional-directions
+
+Pin conventional-directions is false by default. If true,
+axis directions follow the conventions as defined
+at https://linuxcnc.org/docs/html/gcode/machining-center.html#_rotational_axes

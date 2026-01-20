@@ -35,6 +35,7 @@
 #include <sys/types.h>
 #endif
 #include "classicladder.h"
+#include "config.h"
 #include "global.h"
 #include "edit.h"
 #include "calc.h"
@@ -107,7 +108,7 @@ void InitTempDir( void )
 {
 	char * TmpEnv = getenv("TMP");
 	if ( TmpEnv==NULL )
-		TmpEnv = "/tmp";
+		TmpEnv = EMC2_TMP_DIR;
 
 	// get a single name directory
 	snprintf(TmpDirectory, sizeof(TmpDirectory), "%s/classicladder_tmp_XXXXXX", TmpEnv );
@@ -229,11 +230,11 @@ char JoinFiles( char * DirAndNameOfProject, char * TmpDirectoryFiles )
 						while( !feof( pParametersFile ) )
 						{
 							char Buff[ 300 ];
-							fgets( Buff, 300, pParametersFile );
-							if (!feof(pParametersFile))
+							if (!fgets( Buff, sizeof(Buff), pParametersFile ) )
 							{
-								fputs( Buff, pProjectFile );
+								break;
 							}
+							fputs( Buff, pProjectFile );
 						}
 						fclose( pParametersFile );
 						snprintf(BuffTemp, sizeof(BuffTemp), "_/FILE-%s\n", pEnt->d_name );
@@ -270,13 +271,20 @@ char SplitFiles( char * DirAndNameOfProject, char * TmpDirectoryFiles )
 	{
 
 		/* start line of project ?*/
-		fgets( Buff, 300, pProjectFile );
+		if( !fgets( Buff, sizeof(Buff), pProjectFile ) )
+		{
+			fclose(pProjectFile);
+			return FALSE;
+		}
 		if ( strncmp( Buff, "_FILES_CLASSICLADDER", strlen( "_FILES_CLASSICLADDER" ) )==0 )
 		{
 
 			while( !feof( pProjectFile ) )
 			{
-				fgets( Buff, 300, pProjectFile );
+				if( !fgets( Buff, sizeof(Buff), pProjectFile ) )
+				{
+					break;
+				}
 				if ( !feof( pProjectFile ) )
 				{
 					// header line for a file parameter ?
@@ -305,7 +313,10 @@ ParametersFile[ strlen(ParametersFile)-1 ] = '\0';
 								fputs( Buff, pParametersFile );
 								while( !feof( pProjectFile ) && !cEndOfFile )
 								{
-									fgets( Buff, 300, pProjectFile );
+									if ( !fgets( Buff, sizeof(Buff), pProjectFile ) )
+									{
+										break;
+									}
 									if (strncmp(Buff,"_/FILE-",strlen("_/FILE-")) !=0)
 									{
 										if (!feof(pProjectFile))

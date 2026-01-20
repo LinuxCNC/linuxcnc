@@ -2,7 +2,9 @@
 :toc:
 
 [[cha:pid-tuning]]
-= PID Tuning(((PID Tuning)))
+= PID Tuning
+
+(((PID Tuning)))
 
 == PID Controller
 
@@ -177,8 +179,8 @@ D controls as the table shows:
 [width="90%",options="header",cols="4*^"]
 |===
 |Control type | P       | I        | D
-|P            | .5K~c~  |          | 
-|PI           | .45K~c~ | P~c~/1.2 | 
+|P            | .5K~c~  |          |
+|PI           | .45K~c~ | P~c~/1.2 |
 |PID          | .6K~c~  | P~c~/2   | P~c~/8
 |===
 
@@ -215,7 +217,7 @@ square wave pattern centered around the 'bias' value on the output pin
 of the PID controller, moving from the positive extreme to the
 negative extreme of the output range.  This can be seen using the HAL
 Scope provided by LinuxCNC.  For a motor controller taking +-10 V as
-its control signal, this might accellerate the motor full speed in one
+its control signal, this might accelerate the motor full speed in one
 direction for a short period before telling it to go full speed in the
 opposite direction.  Make sure to have a lot of room on either side of
 the starting position, and start with a low `tune-effort` value to

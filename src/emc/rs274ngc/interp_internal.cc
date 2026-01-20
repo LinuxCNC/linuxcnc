@@ -193,7 +193,7 @@ int Interp::enhance_block(block_pointer block,   //!< pointer to a block to be c
             mode1 != G_70 &&
             mode1 != G_71 && mode1 != G_71_1 && mode1 != G_71_2 &&
             mode1 != G_72 && mode1 != G_72_1 && mode1 != G_72_2 &&
-	          ! IS_USER_GCODE(mode1)),
+                  !is_user_defined_g_code(mode1)),
           NCE_ALL_AXES_MISSING_WITH_MOTION_CODE);
     }
     block->motion_to_be = mode1;
@@ -274,7 +274,7 @@ int Interp::init_block(block_pointer block)      //!< pointer to a block to be i
   block->dollar_flag = false;
   block->e_flag = false;
   block->f_flag = false;
-  for (n = 0; n < 17; n++) {
+  for (n = 0; n < GM_MAX_MODAL_GROUPS; n++) {
     block->g_modes[n] = -1;
   }
   block->h_flag = false;

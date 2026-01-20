@@ -63,6 +63,6 @@ setp wcomp.3.max -10
 setp wcomp.3.min -15
 setp wcomp.4.max 15
 setp wcomp.4.min 10
-# ArcOK comarator, uses ignition timeout
+# ArcOK comparator, uses ignition timeout
 setp wcomp.5.max 4
 setp wcomp.5.min -1

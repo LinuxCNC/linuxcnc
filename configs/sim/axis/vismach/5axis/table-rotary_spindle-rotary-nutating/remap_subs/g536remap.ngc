@@ -1,0 +1,14 @@
+; this is the wrapper remap to orient the spindle using TCP kinematics G53.6
+
+o<g536remap>sub
+M66 L0 E0                                                   ;force sync, stop read ahead
+o100 if [EXISTS [#<P>]]
+o100 else
+    #<P> = 0                                                ;if no P word has been passed we use the default (0)
+o100 endif
+M68 E3 Q1                                                   ;switch to tcp kinematic
+M66 L0 E0
+M530 P#<P>                                                  ;orient the spindle with P word
+M66 L0 E0
+o<g536remap>endsub
+m2

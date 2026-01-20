@@ -94,6 +94,7 @@ static int loadJoint(int joint, EmcIniFile *jointIniFile)
     int comp_file_type; //type for the compensation file. type==0 means nom, forw, rev. 
     double maxVelocity;
     double maxAcceleration;
+    double maxJerk;
     double ferror;
 
     // compose string to match, joint = 0 -> JOINT_0, etc.
@@ -223,6 +224,13 @@ static int loadJoint(int joint, EmcIniFile *jointIniFile)
             return -1;
         }
         old_inihal_data.joint_max_acceleration[joint] = maxAcceleration;
+
+        maxJerk = DEFAULT_JOINT_MAX_JERK;
+        jointIniFile->Find(&maxJerk, "MAX_JERK", jointString);
+        if (0 != emcJointSetMaxJerk(joint, maxJerk)) {
+            return -1;
+        }
+        old_inihal_data.joint_jerk[joint] = maxJerk;
 
         comp_file_type = 0;             // default
         jointIniFile->Find(&comp_file_type, "COMP_FILE_TYPE", jointString);

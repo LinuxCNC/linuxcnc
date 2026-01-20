@@ -96,6 +96,7 @@ char comp_name[HAL_NAME_LEN+1];	/* name for this instance of sampler */
 static sig_atomic_t stop;
 static void quit(int sig)
 {
+    (void)sig;
     if ( ignore_sig ) {
 	return;
     }
@@ -170,8 +171,8 @@ int main(int argc, char **argv)
     signal(SIGTERM, quit);
     signal(SIGPIPE, quit);
     /* connect to HAL */
-    /* create a unique module name, to allow for multiple samplers */
-    snprintf(comp_name, sizeof(comp_name), "halsampler%d", getpid());
+    /* create module name for specified channel */
+    snprintf(comp_name, sizeof(comp_name), "halsampler%d", channel);
     /* connect to the HAL */
     ignore_sig = 1;
     comp_id = hal_init(comp_name);
@@ -205,7 +206,7 @@ int main(int argc, char **argv)
 	    last_sample = this_sample;
 	}
 	if ( tag ) {
-	    printf ( "%d ", this_sample-1 );
+	    printf ( "%u ", this_sample-1 );
 	}
 	for ( n = 0 ; n < num_pins; n++ ) {
 	    switch ( hal_stream_element_type(&stream, n) ) {

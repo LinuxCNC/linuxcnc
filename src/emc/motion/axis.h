@@ -14,7 +14,7 @@ void axis_initialize_external_offsets(void);
 int axis_init_hal_io(int mot_comp_id);
 
 void axis_handle_jogwheels(bool motion_teleop_flag, bool motion_enable_flag, bool homing_is_active);
-hal_bit_t axis_plan_external_offsets(double servo_period, bool motion_enable_flag, bool all_homed);
+bool axis_plan_external_offsets(double servo_period, bool motion_enable_flag, bool all_homed);
 void axis_check_constraints(double pos[], int failing_axes[]);
 
 void axis_jog_cont(int axis_num, double vel, long servo_period);
@@ -30,6 +30,7 @@ void axis_set_max_pos_limit(int axis_num, double maxLimit);
 void axis_set_min_pos_limit(int axis_num, double minLimit);
 void axis_set_vel_limit(int axis_num, double vel);
 void axis_set_acc_limit(int axis_num, double acc);
+void axis_set_jerk_limit(int axis_num, double jerk);
 void axis_set_ext_offset_vel_limit(int axis_num, double ext_offset_vel);
 void axis_set_ext_offset_acc_limit(int axis_num, double ext_offset_acc);
 void axis_set_locking_joint(int axis_num, int joint);

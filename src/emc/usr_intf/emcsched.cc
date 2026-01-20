@@ -43,7 +43,7 @@
 #define MAX_PRIORITY 0x80000000
 #define POLYNOMIAL 0xD8  /* 11011 followed by 0's */
 #define WIDTH  (8 * sizeof(crc))
-#define TOPBIT (1 << (WIDTH - 1))
+#define TOPBIT (1u << (WIDTH - 1))
 
 typedef uint32_t crc;
 crc crcTable[256];
@@ -74,10 +74,10 @@ class SchedEntry {
     void setOffsets(float x, float y, float z);
     int getZone() const;
     void setZone(int z);
-    string getFileName() const;
-    void setFileName(string s);
-    string getProgramName() const;
-    void setProgramName(string s);
+    const string& getFileName() const;
+    void setFileName(const string& s);
+    const string& getProgramName() const;
+    void setProgramName(const string& s);
     float getFeedOverride() const;
     void setFeedOverride(float f);
     float getSpindleOverride() const;
@@ -86,18 +86,16 @@ class SchedEntry {
     void setTool(int t);
   };
 
-SchedEntry::SchedEntry() {
-    priority = 0;
-    tagId = 0;
-    xpos = 0.0;
-    ypos = 0.0;
-    zpos = 0.0;
-    zone = 0;
-    fileName = "";
-    feedOverride = 100.0;
-    spindleOverride = 100.0;
-    tool = 1;
-  }
+SchedEntry::SchedEntry()
+    : priority(0), tagId(0),
+      xpos(0.0), ypos(0.0), zpos(0.0),
+      zone(0),
+      programName(""), fileName(""),
+      feedOverride(100.0),
+      spindleOverride(100.0),
+      tool(1)
+{
+}
 
 list<SchedEntry> q;
 
@@ -148,19 +146,19 @@ void SchedEntry::setZone(int z) {
   zone = z;
   }
 
-string SchedEntry::getFileName() const {
+const string& SchedEntry::getFileName() const {
   return fileName;
   }
 
-void SchedEntry::setFileName(string s) {
+void SchedEntry::setFileName(const string& s) {
   fileName = s;
   }
 
-string SchedEntry::getProgramName() const {
+const string& SchedEntry::getProgramName() const {
   return programName;
   }
 
-void SchedEntry::setProgramName(string s) {
+void SchedEntry::setProgramName(const string& s) {
   programName = s;
   }
 
@@ -320,7 +318,7 @@ void updateQueue() {
     }
   }
 
-int addProgram(int pri, int tag, float x, float y, float z, int azone, string progName, float feedOvr, float spindleOvr, int toolNum) {
+int addProgram(int pri, int tag, float x, float y, float z, int azone, const string& progName, float feedOvr, float spindleOvr, int toolNum) {
   SchedEntry p;
 
   p.setPriority(pri);
@@ -371,7 +369,7 @@ int getProgramById(int id, qRecType *qRec) {
   for (i=q.begin(); i!=q.end(); ++i) {
     if (i->getTagId() == id) break;
     }
-  if (i->getTagId() != id) return -1;
+  if (i == q.end() || i->getTagId() != id) return -1;
   qRec->priority = i->getPriority();
   qRec->tagId = i->getTagId();
   i->getOffsets(qRec->xpos, qRec->ypos, qRec->zpos);
@@ -386,14 +384,11 @@ int getProgramById(int id, qRecType *qRec) {
 
 int getProgramByIndex(int idx, qRecType *qRec) {
   list<SchedEntry>::iterator i;
-  int index;
 
-  if ((unsigned int) idx >= q.size()) return -1;
-  index = 0;
-  for (i=q.begin(); i!=q.end(); ++i) {
-    if (index == idx) break;
-    index++;
-    }
+  for(i = q.begin(); idx > 0; ++i) {
+    if(i == q.end()) return -1;  // return if idx was larger than number of entries
+    --idx;
+  }
   qRec->priority = i->getPriority();
   qRec->tagId = i->getTagId();
   i->getOffsets(qRec->xpos, qRec->ypos, qRec->zpos);

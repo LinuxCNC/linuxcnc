@@ -17,7 +17,7 @@
 
 component filter_kalman "Unidimensional Kalman filter, also known as linear quadratic estimation (LQE)";
 license "GPL-2.0-or-later";
-author "Dmian Wrobel <dwrobel@ertelnet.rybnik.pl>";
+author "Dmian Wrobel dwrobel.AT.ertelnet.rybnik.pl";
 
 description
 """
@@ -25,38 +25,39 @@ Useful for reducing input signal noise (e.g. from the voltage or temperature sen
 
 More information can be found at https://en.wikipedia.org/wiki/Kalman_filter.
 
-Adjusting \\fBQr\\fR and \\fBQk\\fR covariances:
+Adjusting *Qr* and *Qk* covariances:
 
-Default values of \\fBRk\\fR and \\fBQk\\fR are given for informational purpose only. The nature of the
+Default values of *Rk* and *Qk* are given for informational purpose only. The nature of the
 filter requires the parameters to be individually computed.
 
 One of the possible and quite practical method (probably far from being the best) of
-estimating the \\fBRk\\fR covariance is to collect the raw data from the sensor by
-either asserting the \\fBdebug\\fR pin or using \\fBhalscope\\fR and then compute the covariance
-using \\fBcov()\\fR function from \\fBOctave\\fR package. Ready to use script can be found at
+estimating the *Rk* covariance is to collect the raw data from the sensor by
+either asserting the *debug* pin or using *halscope* and then compute the covariance
+using *cov()* function from *Octave* package. Ready to use script can be found at
 https://github.com/dwrobel/TrivialKalmanFilter/blob/master/examples/DS18B20Test/covariance.m.
 
-Adjusting \\fBQk\\fR covariance mostly depends on the required response time of the filter.
-There is a relationship between \\fBQk\\fR and response time of the filter that the lower
-the \\fBQk\\fR covariance is the slower the response of the filter is.
+Adjusting *Qk* covariance mostly depends on the required response time of the filter.
+There is a relationship between *Qk* and response time of the filter that the lower
+the *Qk* covariance is the slower the response of the filter is.
 
-Common practice is also to conservatively set \\fBRk\\fR and \\fBQk\\fR slightly larger then computed
+Common practice is also to conservatively set *Rk* and *Qk* slightly larger then computed
 ones to get robustness.
 """;
 
 pin    in   bit  debug = FALSE             "When asserted, prints out measured and estimated values.";
 pin    in   bit  passthrough = FALSE       "When asserted, copies measured value into estimated value.";
 pin    in   bit  reset = FALSE
-"""When asserted, resets filter to its initial state and returns 0 as an estimated value (\\fBreset\\fR pin
-has higher priority than \\fBpassthrough\\fR pin).""";
+"""When asserted, resets filter to its initial state and returns 0 as an estimated value (*reset* pin
+has higher priority than *passthrough* pin).""";
 pin    in float     zk                     "Measured value.";
 pin   out float xk_out                     "Estimated value.";
 param  rw float     Rk = 1.17549e-38       "Estimation of the noise covariances (process).";
 param  rw float     Qk = 1.17549e-38       "Estimation of the noise covariances (observation).";
 
 option extra_setup yes;
+option period no;
 
-function _ "Update \\fBxk-out\\fR based on \\fBzk\\fR input.";
+function _ "Update *xk-out* based on *zk* input.";
 
 variable float xk_last;
 variable float Pk_last;
@@ -71,11 +72,11 @@ typedef hal_float_t D; // to Keep code synchronized with C++ based TrivialKalman
 
 // Based on: https://github.com/dwrobel/TrivialKalmanFilter/blob/master/src/TrivialKalmanFilter.h
 // Assumes simplified model
-static const D k    = 1;
+//static const D k  = 1;
 static const D Bk   = 0;
 static const D uk   = 0;
 static const D Fk   = 1;
-static const D T    = 1;
+//static const D T  = 1;
 static const D Fk_T = 1; // pow(Fk, T);
 static const D Hk   = 1;
 static const D Hk_T = 1; // pow(Hk, T);
@@ -87,6 +88,7 @@ static void print_info(const int id, const D in_val, const D out_val) {
 }
 
 EXTRA_SETUP() {
+    (void)prefix;
     cidx = extra_arg; // Let us hope 'extra_arg' will forever contain component index.
     return 0;
 }

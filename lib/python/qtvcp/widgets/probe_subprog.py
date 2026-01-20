@@ -242,12 +242,18 @@ class ProbeSubprog(QObject, ProbeRoutines):
 
     # need to be in the right mode - entries are in machine units
     def prechecks(self):
+        # This is a work around. If a user sets the spindle running in MDI
+        # but turn it off with a manual button, then when M72 will turn the
+        # spindle back on! So we explicitly set M5 here.
+        ACTION.CALL_MDI('M5')
+        # record current G,S,M codes
         ACTION.CALL_MDI('M70')
+
+        # set proper mode based on what machine is based
         if INFO.MACHINE_IS_METRIC and STATUS.is_metric_mode():
             return None
         if not INFO.MACHINE_IS_METRIC and not STATUS.is_metric_mode():
             return None
-        # record motion modes
         if INFO.MACHINE_IS_METRIC:
             ACTION.CALL_MDI('g21')
         else:

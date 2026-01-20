@@ -45,7 +45,7 @@ while (time.time() - start_time) < timeout and \
       hal.get_value(name) == lastpublish:
     time.sleep(0.1)
 if hal.get_value(name) == lastpublish:
-    raise RuntimeError(f"error: no MQTT publishing happend within {timeout} seconds")
+    raise RuntimeError(f"error: no MQTT publishing happened within {timeout} seconds")
 
 print("info: Turning machine off")
 c.state(linuxcnc.STATE_OFF)

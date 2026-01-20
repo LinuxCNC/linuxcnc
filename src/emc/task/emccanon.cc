@@ -63,6 +63,7 @@
 #include <rtapi_string.h>
 #include "modal_state.hh"
 #include "tooldata.hh"
+#include <algorithm>
 
 //#define EMCCANON_DEBUG
 
@@ -92,34 +93,10 @@ static int debug_velacc = 0;
 
 static StateTag _tag;
 
-void UPDATE_TAG(StateTag tag) {
+void UPDATE_TAG(const StateTag& tag) {
     canon_debug("--Got UPDATE_TAG: %d--\n",tag.fields[GM_FIELD_LINE_NUMBER]);
     _tag = tag;
 }
-
-#ifndef MIN
-#define MIN(a,b) ((a)<(b)?(a):(b))
-#endif
-
-#ifndef MIN3
-#define MIN3(a,b,c) (MIN(MIN((a),(b)),(c)))
-#endif
-
-#ifndef MAX
-#define MAX(a,b) ((a)>(b)?(a):(b))
-#endif
-
-#ifndef MAX3
-#define MAX3(a,b,c) (MAX(MAX((a),(b)),(c)))
-#endif
-
-#ifndef MAX4
-#define MAX4(a,b,c,d) (MAX(MAX((a),(b)),MAX((c),(d))))
-#endif
-
-#ifndef MAX9
-#define MAX9(a,b,c,d,e,f,g,h,i) (MAX3((MAX3(a,b,c)),(MAX3(d,e,f)),(MAX3(g,h,i))))
-#endif
 
 /* macros for converting internal (mm/deg) units to external units */
 #define TO_EXT_LEN(mm) ((mm) * GET_EXTERNAL_LENGTH_UNITS())
@@ -163,14 +140,15 @@ struct AccelData{
     double dtot;
 };
 
+struct JerkData{
+    double tmax;
+    double jerk;
+    double dtot;
+};
+
 static PM_QUATERNION quat(1, 0, 0, 0);
 
 static void flush_segments(void);
-
-static inline void add_tag_to_msg(NMLmsg * msg, StateTag const &tag){
-    //FIXME this better be an EMC_TRAJ message or bad things will happen
-    ((EMC_TRAJ_CMD_MSG *) msg)->tag = tag;
-}
 
 
 /**
@@ -178,9 +156,9 @@ static inline void add_tag_to_msg(NMLmsg * msg, StateTag const &tag){
  * Note that the append function takes the message by reference, so this also
  * needs to have the message passed in by reference or it barfs.
  */
-static inline void tag_and_send(NMLmsg &msg, StateTag const &tag) {
-    add_tag_to_msg(&msg,tag);
-    interp_list.append(msg);
+static inline void tag_and_send(std::unique_ptr<EMC_TRAJ_CMD_MSG> &&msg, StateTag const &tag) {
+    msg->tag = tag;
+    interp_list.append(std::move(msg));
 }
 
 /*
@@ -241,7 +219,7 @@ static void rotate_and_offset_xyz(PM_CARTESIAN & xyz) {
 			canon.toolOffset.tran.z);
 }
 
-static CANON_POSITION unoffset_and_unrotate_pos(const CANON_POSITION pos) {
+static CANON_POSITION unoffset_and_unrotate_pos(const CANON_POSITION& pos) {
     CANON_POSITION res;
 
     res = pos;
@@ -292,7 +270,7 @@ static void rotate_and_offset_pos(double &x, double &y, double &z, double &a, do
 }
 
 
-static CANON_POSITION unoffset_and_unrotate_pos(const EmcPose pos) {
+static CANON_POSITION unoffset_and_unrotate_pos(const EmcPose& pos) {
     CANON_POSITION res(pos);
     return unoffset_and_unrotate_pos(res);
 }
@@ -301,8 +279,13 @@ static void from_prog(double &x, double &y, double &z, double &a, double &b, dou
     x = FROM_PROG_LEN(x);
     y = FROM_PROG_LEN(y);
     z = FROM_PROG_LEN(z);
+    // Compiler will optimize: a=FROM_PROG_ANG(a) ==> a=a.
+    // 2.10 cannot handle suppress-macro
+    // cppcheck-suppress selfAssignment
     a = FROM_PROG_ANG(a);
+    // cppcheck-suppress selfAssignment
     b = FROM_PROG_ANG(b);
+    // cppcheck-suppress selfAssignment
     c = FROM_PROG_ANG(c);
     u = FROM_PROG_LEN(u);
     v = FROM_PROG_LEN(v);
@@ -456,18 +439,18 @@ static void send_g5x_msg(int index) {
 
     /* append it to interp list so it gets updated at the right time, not at
        read-ahead time */
-    EMC_TRAJ_SET_G5X set_g5x_msg;
+    auto set_g5x_msg = std::make_unique<EMC_TRAJ_SET_G5X>();
 
-    set_g5x_msg.g5x_index = index;
+    set_g5x_msg->g5x_index = index;
 
-    set_g5x_msg.origin = to_ext_pose(canon.g5xOffset);
+    set_g5x_msg->origin = to_ext_pose(canon.g5xOffset);
 
     for (int s = 0; s < emcStatus->motion.traj.spindles; s++){
         if(canon.spindle[s].css_maximum) {
             SET_SPINDLE_SPEED(s, canon.spindle[s].speed);
         }
     }
-    interp_list.append(set_g5x_msg);
+    interp_list.append(std::move(set_g5x_msg));
 }
 
 static void send_g92_msg(void) {
@@ -475,22 +458,22 @@ static void send_g92_msg(void) {
 
     /* append it to interp list so it gets updated at the right time, not at
        read-ahead time */
-    EMC_TRAJ_SET_G92 set_g92_msg;
+    auto set_g92_msg = std::make_unique<EMC_TRAJ_SET_G92>();
 
-    set_g92_msg.origin = to_ext_pose(canon.g92Offset);
+    set_g92_msg->origin = to_ext_pose(canon.g92Offset);
 
     for (int s = 0; s < emcStatus->motion.traj.spindles; s++){
         if(canon.spindle[s].css_maximum) {
             SET_SPINDLE_SPEED(s, canon.spindle[s].speed);
         }
     }
-    interp_list.append(set_g92_msg);
+    interp_list.append(std::move(set_g92_msg));
 }
 
 void SET_XY_ROTATION(double t) {
-    EMC_TRAJ_SET_ROTATION sr;
-    sr.rotation = t;
-    interp_list.append(sr);
+    auto sr = std::make_unique<EMC_TRAJ_SET_ROTATION>();
+    sr->rotation = t;
+    interp_list.append(std::move(sr));
 
     canon.xy_rotation = t;
 }
@@ -528,7 +511,7 @@ void USE_LENGTH_UNITS(CANON_UNITS in_unit)
 }
 
 /* Free Space Motion */
-void SET_TRAVERSE_RATE(double rate)
+void SET_TRAVERSE_RATE(double /*rate*/)
 {
     // nothing need be done here
 }
@@ -564,7 +547,7 @@ void SET_FEED_RATE(double rate)
     }
 }
 
-void SET_FEED_REFERENCE(CANON_FEED_REFERENCE reference)
+void SET_FEED_REFERENCE(CANON_FEED_REFERENCE /*reference*/)
 {
     // nothing need be done here
 }
@@ -622,7 +605,173 @@ static void applyMinDisplacement(double &dx,
     if(!axis_valid(8) || dw < tiny_linear) dw = 0.0;
 }
 
+#ifndef MIN
+#define MIN(a,b) ((a)<(b)?(a):(b))
+#endif
 
+#ifndef MIN3
+#define MIN3(a,b,c) (MIN(MIN((a),(b)),(c)))
+#endif
+ 
+#ifndef MIN9
+#define MIN9(a,b,c,d,e,f,g,h,i) (MIN3((MIN3(a,b,c)),(MIN3(d,e,f)),(MIN3(g,h,i))))
+#endif
+
+#ifndef MAX
+#define MAX(a,b) ((a)>(b)?(a):(b))
+#endif
+
+#ifndef MAX3
+#define MAX3(a,b,c) (MAX(MAX((a),(b)),(c)))
+#endif
+
+#ifndef MAX4
+#define MAX4(a,b,c,d) (MAX(MAX3((a),(b),(c)),(d)))
+#endif
+
+#ifndef MAX9
+#define MAX9(a,b,c,d,e,f,g,h,i) (MAX3((MAX3(a,b,c)),(MAX3(d,e,f)),(MAX3(g,h,i))))
+#endif
+
+static int __attribute__((unused)) findMinMoveJoint(double &dx,
+                                 double &dy,
+                                 double &dz,
+                                 double &da,
+                                 double &db,
+                                 double &dc,
+                                 double &du,
+                                 double &dv,
+                                 double &dw
+                                 )
+{
+    int saxis = 0;
+    double smoveL = dx==0?1e9:dx;
+    if(dy != 0 && dy < smoveL){smoveL = dy, saxis = 1;}
+    if(dz != 0 && dz < smoveL){smoveL = dz, saxis = 2;}
+    if(da != 0 && da < smoveL){smoveL = da, saxis = 3;}
+    if(db != 0 && db < smoveL){smoveL = db, saxis = 4;}
+    if(dc != 0 && dc < smoveL){smoveL = dc, saxis = 5;}
+    if(du != 0 && du < smoveL){smoveL = du, saxis = 6;}
+    if(dv != 0 && dv < smoveL){smoveL = dv, saxis = 7;}
+    if(dw != 0 && dw < smoveL){smoveL = dw, saxis = 8;}
+    return saxis;
+}
+/**
+ * Get the limiting acceleration for a displacement from the current position to the given position.
+ * returns a single acceleration that is the minimum of all axis accelerations.
+ */
+static double getStraightJerk(double x, double y, double z,
+                               double a, double b, double c,
+                               double u, double v, double w){
+
+    double dx, dy, dz, du, dv, dw, da, db, dc;
+    double tx, ty, tz, tu, tv, tw, ta, tb, tc;
+    JerkData out;
+
+    out.jerk = 0.0; // if a move to nowhere
+    out.tmax = 0.0;
+    out.dtot = 0.0;
+
+    // Compute absolute travel distance for each axis:
+    dx = fabs(x - canon.endPoint.x);
+    dy = fabs(y - canon.endPoint.y);
+    dz = fabs(z - canon.endPoint.z);
+    da = fabs(a - canon.endPoint.a);
+    db = fabs(b - canon.endPoint.b);
+    dc = fabs(c - canon.endPoint.c);
+    du = fabs(u - canon.endPoint.u);
+    dv = fabs(v - canon.endPoint.v);
+    dw = fabs(w - canon.endPoint.w);
+
+    applyMinDisplacement(dx, dy, dz, da, db, dc, du, dv, dw);
+
+    if(debug_velacc)
+        printf("getStraightJerk dx %g dy %g dz %g da %g db %g dc %g du %g dv %g dw %g ",
+               dx, dy, dz, da, db, dc, du, dv, dw);
+
+    // Figure out what kind of move we're making.  This is used to determine
+    // the units of vel/acc.
+    if (dx <= 0.0 && dy <= 0.0 && dz <= 0.0 &&
+        du <= 0.0 && dv <= 0.0 && dw <= 0.0) {
+	canon.cartesian_move = 0;
+    } else {
+	canon.cartesian_move = 1;
+    }
+    if (da <= 0.0 && db <= 0.0 && dc <= 0.0) {
+	canon.angular_move = 0;
+    } else {
+	canon.angular_move = 1;
+    }
+
+    // Pure linear move:
+    if (canon.cartesian_move && !canon.angular_move) {
+        tx = dx? (dx / FROM_EXT_LEN(emcAxisGetMaxJerk(0))): 0.0;
+        ty = dy? (dy / FROM_EXT_LEN(emcAxisGetMaxJerk(1))): 0.0;
+        tz = dz? (dz / FROM_EXT_LEN(emcAxisGetMaxJerk(2))): 0.0;
+        tu = du? (du / FROM_EXT_LEN(emcAxisGetMaxJerk(6))): 0.0;
+        tv = dv? (dv / FROM_EXT_LEN(emcAxisGetMaxJerk(7))): 0.0;
+        tw = dw? (dw / FROM_EXT_LEN(emcAxisGetMaxJerk(8))): 0.0;
+            out.tmax = MAX3(tx, ty ,tz);
+            out.tmax = MAX4(tu, tv, tw, out.tmax);
+
+            if(dx || dy || dz)
+                out.dtot = sqrt(dx * dx + dy * dy + dz * dz);
+            else
+                out.dtot = sqrt(du * du + dv * dv + dw * dw);
+
+        if (out.tmax > 0.0) {
+            out.jerk = out.dtot / (out.tmax * out.tmax);
+        }
+    }
+    // Pure angular move:
+    else if (!canon.cartesian_move && canon.angular_move) {
+        ta = da? (da / FROM_EXT_ANG(emcAxisGetMaxJerk(3))): 0.0;
+        tb = db? (db / FROM_EXT_ANG(emcAxisGetMaxJerk(4))): 0.0;
+        tc = dc? (dc / FROM_EXT_ANG(emcAxisGetMaxJerk(5))): 0.0;
+            out.tmax = MAX3(ta, tb, tc);
+
+        out.dtot = sqrt(da * da + db * db + dc * dc);
+        if (out.tmax > 0.0) {
+            out.jerk = out.dtot / (out.tmax * out.tmax);
+        }
+    }
+    // Combination angular and linear move:
+    else if (canon.cartesian_move && canon.angular_move) {
+        tx = dx? (dx / FROM_EXT_LEN(emcAxisGetMaxJerk(0))): 0.0;
+        ty = dy? (dy / FROM_EXT_LEN(emcAxisGetMaxJerk(1))): 0.0;
+        tz = dz? (dz / FROM_EXT_LEN(emcAxisGetMaxJerk(2))): 0.0;
+        ta = da? (da / FROM_EXT_ANG(emcAxisGetMaxJerk(3))): 0.0;
+        tb = db? (db / FROM_EXT_ANG(emcAxisGetMaxJerk(4))): 0.0;
+        tc = dc? (dc / FROM_EXT_ANG(emcAxisGetMaxJerk(5))): 0.0;
+        tu = du? (du / FROM_EXT_LEN(emcAxisGetMaxJerk(6))): 0.0;
+        tv = dv? (dv / FROM_EXT_LEN(emcAxisGetMaxJerk(7))): 0.0;
+        tw = dw? (dw / FROM_EXT_LEN(emcAxisGetMaxJerk(8))): 0.0;
+            out.tmax = MAX9(tx, ty, tz,
+                        ta, tb, tc,
+                        tu, tv, tw);
+
+        if(debug_velacc)
+            printf("getStraightJerk t^2 tx %g ty %g tz %g ta %g tb %g tc %g tu %g tv %g tw %g\n",
+                tx, ty, tz, ta, tb, tc, tu, tv, tw);
+
+        if(dx || dy || dz)
+            out.dtot = sqrt(dx * dx + dy * dy + dz * dz);
+        else
+            out.dtot = sqrt(du * du + dv * dv + dw * dw);
+
+        if (out.tmax > 0.0) {
+            out.jerk = out.dtot / (out.tmax * out.tmax);
+        }
+    }
+    //if(debug_velacc)
+    //printf("#### CALC THE JERK #### cartesian %d ang %d jerk %g\n", canon.cartesian_move, canon.angular_move, out.jerk);
+    return out.jerk;
+}
+
+static double __attribute__((unused)) getStraightJerk(CANON_POSITION pos)
+{
+    return getStraightJerk(pos.x, pos.y, pos.z, pos.a, pos.b, pos.c, pos.u, pos.v, pos.w);
+}
 /**
  * Get the limiting acceleration for a displacement from the current position to the given position.
  * returns a single acceleration that is the minimum of all axis accelerations.
@@ -678,8 +827,8 @@ static AccelData getStraightAcceleration(double x, double y, double z,
 	tu = du? (du / FROM_EXT_LEN(emcAxisGetMaxAcceleration(6))): 0.0;
 	tv = dv? (dv / FROM_EXT_LEN(emcAxisGetMaxAcceleration(7))): 0.0;
 	tw = dw? (dw / FROM_EXT_LEN(emcAxisGetMaxAcceleration(8))): 0.0;
-        out.tmax = MAX3(tx, ty ,tz);
-        out.tmax = MAX4(tu, tv, tw, out.tmax);
+        out.tmax = std::max({tx, ty ,tz});
+        out.tmax = std::max({tu, tv, tw, out.tmax});
 
         if(dx || dy || dz)
             out.dtot = sqrt(dx * dx + dy * dy + dz * dz);
@@ -695,7 +844,7 @@ static AccelData getStraightAcceleration(double x, double y, double z,
 	ta = da? (da / FROM_EXT_ANG(emcAxisGetMaxAcceleration(3))): 0.0;
 	tb = db? (db / FROM_EXT_ANG(emcAxisGetMaxAcceleration(4))): 0.0;
 	tc = dc? (dc / FROM_EXT_ANG(emcAxisGetMaxAcceleration(5))): 0.0;
-        out.tmax = MAX3(ta, tb, tc);
+        out.tmax = std::max({ta, tb, tc});
 
 	out.dtot = sqrt(da * da + db * db + dc * dc);
 	if (out.tmax > 0.0) {
@@ -713,9 +862,9 @@ static AccelData getStraightAcceleration(double x, double y, double z,
 	tu = du? (du / FROM_EXT_LEN(emcAxisGetMaxAcceleration(6))): 0.0;
 	tv = dv? (dv / FROM_EXT_LEN(emcAxisGetMaxAcceleration(7))): 0.0;
 	tw = dw? (dw / FROM_EXT_LEN(emcAxisGetMaxAcceleration(8))): 0.0;
-        out.tmax = MAX9(tx, ty, tz,
+        out.tmax = std::max({tx, ty, tz,
                     ta, tb, tc,
-                    tu, tv, tw);
+                    tu, tv, tw});
 
         if(debug_velacc)
             printf("getStraightAcceleration t^2 tx %g ty %g tz %g ta %g tb %g tc %g tu %g tv %g tw %g\n",
@@ -740,7 +889,7 @@ static AccelData getStraightAcceleration(double x, double y, double z,
     return out;
 }
 
-static AccelData getStraightAcceleration(CANON_POSITION pos)
+static AccelData getStraightAcceleration(const CANON_POSITION& pos)
 {
 
     return getStraightAcceleration(pos.x,
@@ -807,8 +956,8 @@ static VelData getStraightVelocity(double x, double y, double z,
 	tu = du? fabs(du / FROM_EXT_LEN(emcAxisGetMaxVelocity(6))): 0.0;
 	tv = dv? fabs(dv / FROM_EXT_LEN(emcAxisGetMaxVelocity(7))): 0.0;
 	tw = dw? fabs(dw / FROM_EXT_LEN(emcAxisGetMaxVelocity(8))): 0.0;
-        out.tmax = MAX3(tx, ty ,tz);
-        out.tmax = MAX4(tu, tv, tw, out.tmax);
+        out.tmax = std::max({tx, ty ,tz});
+        out.tmax = std::max({tu, tv, tw, out.tmax});
 
         if(dx || dy || dz)
             out.dtot = sqrt(dx * dx + dy * dy + dz * dz);
@@ -826,7 +975,7 @@ static VelData getStraightVelocity(double x, double y, double z,
 	ta = da? fabs(da / FROM_EXT_ANG(emcAxisGetMaxVelocity(3))): 0.0;
 	tb = db? fabs(db / FROM_EXT_ANG(emcAxisGetMaxVelocity(4))): 0.0;
 	tc = dc? fabs(dc / FROM_EXT_ANG(emcAxisGetMaxVelocity(5))): 0.0;
-        out.tmax = MAX3(ta, tb, tc);
+        out.tmax = std::max({ta, tb, tc});
 
 	out.dtot = sqrt(da * da + db * db + dc * dc);
 	if (out.tmax <= 0.0) {
@@ -846,9 +995,9 @@ static VelData getStraightVelocity(double x, double y, double z,
 	tu = du? fabs(du / FROM_EXT_LEN(emcAxisGetMaxVelocity(6))): 0.0;
 	tv = dv? fabs(dv / FROM_EXT_LEN(emcAxisGetMaxVelocity(7))): 0.0;
 	tw = dw? fabs(dw / FROM_EXT_LEN(emcAxisGetMaxVelocity(8))): 0.0;
-        out.tmax = MAX9(tx, ty, tz,
+        out.tmax = std::max({tx, ty, tz,
                     ta, tb, tc,
-                    tu, tv, tw);
+                    tu, tv, tw});
 
         if(debug_velacc)
             printf("getStraightVelocity times tx %g ty %g tz %g ta %g tb %g tc %g tu %g tv %g tw %g\n",
@@ -876,7 +1025,7 @@ static VelData getStraightVelocity(double x, double y, double z,
     return out;
 }
 
-static VelData getStraightVelocity(CANON_POSITION pos)
+static VelData getStraightVelocity(const CANON_POSITION& pos)
 {
 
     return getStraightVelocity(pos.x,
@@ -920,6 +1069,7 @@ static void flush_segments(void) {
 #endif
 
     VelData linedata = getStraightVelocity(x, y, z, a, b, c, u, v, w);
+    double jerk = getStraightJerk(x, y, z, a, b, c, u, v, w);
     double vel = linedata.vel;
 
     if (canon.cartesian_move && !canon.angular_move) {
@@ -937,34 +1087,35 @@ static void flush_segments(void) {
     }
 
 
-    EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
-    linearMoveMsg.feed_mode = canon.feed_mode;
+    auto linearMoveMsg = std::make_unique<EMC_TRAJ_LINEAR_MOVE>();
+    linearMoveMsg->feed_mode = canon.feed_mode;
 
     // now x, y, z, and b are in absolute mm or degree units
-    linearMoveMsg.end.tran.x = TO_EXT_LEN(x);
-    linearMoveMsg.end.tran.y = TO_EXT_LEN(y);
-    linearMoveMsg.end.tran.z = TO_EXT_LEN(z);
+    linearMoveMsg->end.tran.x = TO_EXT_LEN(x);
+    linearMoveMsg->end.tran.y = TO_EXT_LEN(y);
+    linearMoveMsg->end.tran.z = TO_EXT_LEN(z);
 
-    linearMoveMsg.end.u = TO_EXT_LEN(u);
-    linearMoveMsg.end.v = TO_EXT_LEN(v);
-    linearMoveMsg.end.w = TO_EXT_LEN(w);
+    linearMoveMsg->end.u = TO_EXT_LEN(u);
+    linearMoveMsg->end.v = TO_EXT_LEN(v);
+    linearMoveMsg->end.w = TO_EXT_LEN(w);
 
     // fill in the orientation
-    linearMoveMsg.end.a = TO_EXT_ANG(a);
-    linearMoveMsg.end.b = TO_EXT_ANG(b);
-    linearMoveMsg.end.c = TO_EXT_ANG(c);
+    linearMoveMsg->end.a = TO_EXT_ANG(a);
+    linearMoveMsg->end.b = TO_EXT_ANG(b);
+    linearMoveMsg->end.c = TO_EXT_ANG(c);
 
-    linearMoveMsg.vel = toExtVel(vel);
-    linearMoveMsg.ini_maxvel = toExtVel(linedata.vel);
+    linearMoveMsg->vel = toExtVel(vel);
+    linearMoveMsg->ini_maxvel = toExtVel(linedata.vel);
     AccelData lineaccdata = getStraightAcceleration(x, y, z, a, b, c, u, v, w);
     double acc = lineaccdata.acc;
-    linearMoveMsg.acc = toExtAcc(acc);
+    linearMoveMsg->ini_maxjerk = toExtVel(jerk);
+    linearMoveMsg->acc = toExtAcc(acc);
 
-    linearMoveMsg.type = EMC_MOTION_TYPE_FEED;
-    linearMoveMsg.indexer_jnum = -1;
+    linearMoveMsg->type = EMC_MOTION_TYPE_FEED;
+    linearMoveMsg->indexer_jnum = -1;
     if ((vel && acc) || canon.spindle[canon.spindle_num].synched) {
         interp_list.set_line_number(line_no);
-        tag_and_send(linearMoveMsg,pos.tag);
+        tag_and_send(std::move(linearMoveMsg), pos.tag);
     }
     canonUpdateEndPoint(x, y, z, a, b, c, u, v, w);
 
@@ -1006,7 +1157,7 @@ linkable(double x, double y, double z,
     if(x==canon.endPoint.x && y==canon.endPoint.y && z==canon.endPoint.z) return false;
     
     for(std::vector<struct pt>::iterator it = chained_points.begin();
-            it != chained_points.end(); it++) {
+            it != chained_points.end(); ++it) {
         PM_CARTESIAN M(x-canon.endPoint.x, y-canon.endPoint.y, z-canon.endPoint.z),
                      B(canon.endPoint.x, canon.endPoint.y, canon.endPoint.z),
                      P(it->x, it->y, it->z);
@@ -1022,7 +1173,7 @@ linkable(double x, double y, double z,
 
 static void
 see_segment(int line_number,
-	    StateTag tag,
+	    const StateTag& tag,
 	    double x, double y, double z, 
             double a, double b, double c,
             double u, double v, double w) {
@@ -1053,36 +1204,113 @@ void ON_RESET() {
 }
 
 
+CanonConfig_t& get_canon(){
+    return canon;
+}
+
+void generate_fast_move(double x, double y, double z,
+                              double a, double b, double c,
+                              double u, double v, double w)
+{
+	auto linearMoveMsg = std::make_unique<EMC_TRAJ_LINEAR_MOVE>();
+	linearMoveMsg->feed_mode = canon.feed_mode;;
+
+    flush_segments();
+    VelData veldata = getStraightVelocity(x, y, z, a, b, c, u, v, w);
+    AccelData accdata = getStraightAcceleration(x, y, z, a, b, c, u, v, w);
+    double jerk = getStraightJerk(x, y, z, a, b, c, u, v, w);
+    double vel = veldata.vel;
+    double acc = accdata.acc;
+
+    linearMoveMsg->end = to_ext_pose(x, y, z, a, b, c, u, v, w);
+
+    linearMoveMsg->vel = linearMoveMsg->ini_maxvel = toExtVel(vel);
+    linearMoveMsg->acc = toExtAcc(acc);
+    linearMoveMsg->ini_maxjerk = toExtVel(jerk);
+
+    linearMoveMsg->type = EMC_MOTION_TYPE_FEED;
+    linearMoveMsg->feed_mode = 0;
+    linearMoveMsg->indexer_jnum = -1;
+    int old_feed_mode = canon.feed_mode;
+	if(canon.feed_mode)
+	    STOP_SPEED_FEED_SYNCH();
+
+	if(vel && acc)
+		interp_list.append(std::move(linearMoveMsg));
+
+	if(old_feed_mode)
+	    START_SPEED_FEED_SYNCH(0, canon.linearFeedRate, 1);
+
+    canonUpdateEndPoint(x, y, z, a, b, c, u, v, w);
+}
+
+void generate_move(double vel,double x, double y, double z,
+                              double a, double b, double c,
+                              double u, double v, double w)
+{
+	auto linearMoveMsg = std::make_unique<EMC_TRAJ_LINEAR_MOVE>();
+	 linearMoveMsg->feed_mode = canon.feed_mode;
+	flush_segments();
+
+    AccelData accdata = getStraightAcceleration(x, y, z, a, b, c, u, v, w);
+    double jerk = getStraightJerk(x, y, z, a, b, c, u, v, w);
+    double acc = accdata.acc;
+
+    linearMoveMsg->end = to_ext_pose(x, y, z, a, b, c, u, v, w);
+
+    linearMoveMsg->vel = linearMoveMsg->ini_maxvel = toExtVel(vel);
+    linearMoveMsg->acc = toExtAcc(acc);
+    linearMoveMsg->ini_maxjerk = toExtVel(jerk);
+    linearMoveMsg->type = EMC_MOTION_TYPE_FEED;
+    linearMoveMsg->feed_mode = 0;
+    linearMoveMsg->indexer_jnum = -1;
+    //if(vel && acc)
+    //    interp_list.append(linearMoveMsg);
+    int old_feed_mode = canon.feed_mode;
+	if(canon.feed_mode)
+	    STOP_SPEED_FEED_SYNCH();
+
+	if(vel && acc)
+		interp_list.append(std::move(linearMoveMsg));
+
+	if(old_feed_mode)
+	    START_SPEED_FEED_SYNCH(0, canon.linearFeedRate, 1);
+    canonUpdateEndPoint(x, y, z, a, b, c, u, v, w);
+}
+
+
 void STRAIGHT_TRAVERSE(int line_number,
                        double x, double y, double z,
-		       double a, double b, double c,
+		               double a, double b, double c,
                        double u, double v, double w)
 {
     double vel, acc;
 
     flush_segments();
 
-    EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
+    auto linearMoveMsg = std::make_unique<EMC_TRAJ_LINEAR_MOVE>();
 
-    linearMoveMsg.feed_mode = 0;
+    linearMoveMsg->feed_mode = 0;
     if (canon.rotary_unlock_for_traverse != -1)
-        linearMoveMsg.type = EMC_MOTION_TYPE_INDEXROTARY;
+        linearMoveMsg->type = EMC_MOTION_TYPE_INDEXROTARY;
     else
-        linearMoveMsg.type = EMC_MOTION_TYPE_TRAVERSE;
+        linearMoveMsg->type = EMC_MOTION_TYPE_TRAVERSE;
 
     from_prog(x,y,z,a,b,c,u,v,w);
     rotate_and_offset_pos(x,y,z,a,b,c,u,v,w);
 
     VelData veldata = getStraightVelocity(x, y, z, a, b, c, u, v, w);
     AccelData accdata = getStraightAcceleration(x, y, z, a, b, c, u, v, w);
+    double jerk = getStraightJerk(x, y, z, a, b, c, u, v, w);
 
     vel = veldata.vel;
     acc = accdata.acc;
 
-    linearMoveMsg.end = to_ext_pose(x,y,z,a,b,c,u,v,w);
-    linearMoveMsg.vel = linearMoveMsg.ini_maxvel = toExtVel(vel);
-    linearMoveMsg.acc = toExtAcc(acc);
-    linearMoveMsg.indexer_jnum = canon.rotary_unlock_for_traverse;
+    linearMoveMsg->end = to_ext_pose(x,y,z,a,b,c,u,v,w);
+    linearMoveMsg->vel = linearMoveMsg->ini_maxvel = toExtVel(vel);
+    linearMoveMsg->acc = toExtAcc(acc);
+    linearMoveMsg->ini_maxjerk = toExtVel(jerk);
+    linearMoveMsg->indexer_jnum = canon.rotary_unlock_for_traverse;
 
     int old_feed_mode = canon.feed_mode;
     if(canon.feed_mode)
@@ -1090,7 +1318,7 @@ void STRAIGHT_TRAVERSE(int line_number,
 
     if(vel && acc)  {
         interp_list.set_line_number(line_number);
-        tag_and_send(linearMoveMsg, _tag);
+        tag_and_send(std::move(linearMoveMsg), _tag);
     }
 
     if(old_feed_mode)
@@ -1101,8 +1329,8 @@ void STRAIGHT_TRAVERSE(int line_number,
 
 void STRAIGHT_FEED(int line_number, double x, double y, double z, double a, double b, double c, double u, double v, double w)
 {
-    EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
-    linearMoveMsg.feed_mode = canon.feed_mode;
+    //EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
+    //linearMoveMsg.feed_mode = canon.feed_mode;
 
     from_prog(x,y,z,a,b,c,u,v,w);
     rotate_and_offset_pos(x,y,z,a,b,c,u,v,w);
@@ -1113,7 +1341,7 @@ void STRAIGHT_FEED(int line_number, double x, double y, double z, double a, doub
 void RIGID_TAP(int line_number, double x, double y, double z, double scale)
 {
     double ini_maxvel,acc;
-    EMC_TRAJ_RIGID_TAP rigidTapMsg;
+    auto rigidTapMsg = std::make_unique<EMC_TRAJ_RIGID_TAP>();
     double unused=0;
 
     from_prog(x,y,z,unused,unused,unused,unused,unused,unused);
@@ -1129,19 +1357,24 @@ void RIGID_TAP(int line_number, double x, double y, double z, double scale)
                                   canon.endPoint.u, canon.endPoint.v, canon.endPoint.w);
     acc = accdata.acc;
     
-    rigidTapMsg.pos = to_ext_pose(x,y,z,
+    rigidTapMsg->pos = to_ext_pose(x,y,z,
                                  canon.endPoint.a, canon.endPoint.b, canon.endPoint.c,
                                  canon.endPoint.u, canon.endPoint.v, canon.endPoint.w);
 
-    rigidTapMsg.vel = toExtVel(ini_maxvel);
-    rigidTapMsg.ini_maxvel = toExtVel(ini_maxvel);
-    rigidTapMsg.acc = toExtAcc(acc);
-    rigidTapMsg.scale = scale;
+    double jerk = getStraightJerk(x, y, z,
+                                canon.endPoint.a, canon.endPoint.b, canon.endPoint.c,
+                                canon.endPoint.u, canon.endPoint.v, canon.endPoint.w);
+
+    rigidTapMsg->vel = toExtVel(ini_maxvel);
+    rigidTapMsg->ini_maxvel = toExtVel(ini_maxvel);
+    rigidTapMsg->ini_maxjerk = toExtVel(jerk);
+    rigidTapMsg->acc = toExtAcc(acc);
+    rigidTapMsg->scale = scale;
     flush_segments();
 
     if(ini_maxvel && acc)  {
         interp_list.set_line_number(line_number);
-        interp_list.append(rigidTapMsg);
+        interp_list.append(std::move(rigidTapMsg));
     }
 
     // don't move the endpoint because after this move, we are back where we started
@@ -1160,7 +1393,7 @@ void STRAIGHT_PROBE(int line_number,
                     unsigned char probe_type)
 {
     double ini_maxvel, vel, acc;
-    EMC_TRAJ_PROBE probeMsg;
+    auto probeMsg = std::make_unique<EMC_TRAJ_PROBE>();
 
     from_prog(x,y,z,a,b,c,u,v,w);
     rotate_and_offset_pos(x,y,z,a,b,c,u,v,w);
@@ -1169,6 +1402,7 @@ void STRAIGHT_PROBE(int line_number,
 
     VelData veldata = getStraightVelocity(x, y, z, a, b, c, u, v, w);
     ini_maxvel = vel = veldata.vel;
+    double jerk = getStraightJerk(x, y, z, a, b, c, u, v, w);
 
     if (canon.cartesian_move && !canon.angular_move) {
 	if (vel > canon.linearFeedRate) {
@@ -1187,18 +1421,19 @@ void STRAIGHT_PROBE(int line_number,
     AccelData accdata = getStraightAcceleration(x, y, z, a, b, c, u, v, w);
     acc = accdata.acc;
 
-    probeMsg.vel = toExtVel(vel);
-    probeMsg.ini_maxvel = toExtVel(ini_maxvel);
-    probeMsg.acc = toExtAcc(acc);
+    probeMsg->vel = toExtVel(vel);
+    probeMsg->ini_maxvel = toExtVel(ini_maxvel);
+    probeMsg->acc = toExtAcc(acc);
+    probeMsg->ini_maxjerk = toExtVel(jerk);
 
-    probeMsg.type = EMC_MOTION_TYPE_PROBING;
-    probeMsg.probe_type = probe_type;
+    probeMsg->type = EMC_MOTION_TYPE_PROBING;
+    probeMsg->probe_type = probe_type;
 
-    probeMsg.pos = to_ext_pose(x,y,z,a,b,c,u,v,w);
+    probeMsg->pos = to_ext_pose(x,y,z,a,b,c,u,v,w);
 
     if(vel && acc)  {
         interp_list.set_line_number(line_number);
-        interp_list.append(probeMsg);
+        interp_list.append(std::move(probeMsg));
     }
     canonUpdateEndPoint(x, y, z, a, b, c, u, v, w);
 }
@@ -1207,7 +1442,7 @@ void STRAIGHT_PROBE(int line_number,
 
 void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode, double tolerance)
 {
-    EMC_TRAJ_SET_TERM_COND setTermCondMsg;
+    auto setTermCondMsg = std::make_unique<EMC_TRAJ_SET_TERM_COND>();
 
     flush_segments();
 
@@ -1216,20 +1451,20 @@ void SET_MOTION_CONTROL_MODE(CANON_MOTION_MODE mode, double tolerance)
 
     switch (mode) {
     case CANON_CONTINUOUS:
-        setTermCondMsg.cond = EMC_TRAJ_TERM_COND_BLEND;
-        setTermCondMsg.tolerance = TO_EXT_LEN(canon.motionTolerance);
+        setTermCondMsg->cond = EMC_TRAJ_TERM_COND_BLEND;
+        setTermCondMsg->tolerance = TO_EXT_LEN(canon.motionTolerance);
         break;
     case CANON_EXACT_PATH:
-        setTermCondMsg.cond = EMC_TRAJ_TERM_COND_EXACT;
+        setTermCondMsg->cond = EMC_TRAJ_TERM_COND_EXACT;
         break;
 
     case CANON_EXACT_STOP:
     default:
-        setTermCondMsg.cond = EMC_TRAJ_TERM_COND_STOP;
+        setTermCondMsg->cond = EMC_TRAJ_TERM_COND_STOP;
         break;
     }
 
-    interp_list.append(setTermCondMsg);
+    interp_list.append(std::move(setTermCondMsg));
 }
 
 void SET_NAIVECAM_TOLERANCE(double tolerance)
@@ -1242,12 +1477,12 @@ void SELECT_PLANE(CANON_PLANE in_plane)
     canon.activePlane = in_plane;
 }
 
-void SET_CUTTER_RADIUS_COMPENSATION(double radius)
+void SET_CUTTER_RADIUS_COMPENSATION(double /*radius*/)
 {
     // nothing need be done here
 }
 
-void START_CUTTER_RADIUS_COMPENSATION(int side)
+void START_CUTTER_RADIUS_COMPENSATION(int /*side*/)
 {
     // nothing need be done here
 }
@@ -1262,21 +1497,17 @@ void STOP_CUTTER_RADIUS_COMPENSATION()
 void START_SPEED_FEED_SYNCH(int spindle, double feed_per_revolution, bool velocity_mode)
 {
     flush_segments();
-    EMC_TRAJ_SET_SPINDLESYNC spindlesyncMsg;
-    spindlesyncMsg.spindle = spindle;
-    spindlesyncMsg.feed_per_revolution = TO_EXT_LEN(FROM_PROG_LEN(feed_per_revolution));
-    spindlesyncMsg.velocity_mode = velocity_mode;
-    interp_list.append(spindlesyncMsg);
+    auto spindleSyncMsg = std::make_unique<EMC_TRAJ_SET_SPINDLESYNC>();
+    spindleSyncMsg->spindle = spindle;
+    spindleSyncMsg->feed_per_revolution = TO_EXT_LEN(FROM_PROG_LEN(feed_per_revolution));
+    spindleSyncMsg->velocity_mode = velocity_mode;
+    interp_list.append(std::move(spindleSyncMsg));
     canon.spindle[spindle].synched = 1;
 }
 
 void STOP_SPEED_FEED_SYNCH()
 {
-    flush_segments();
-    EMC_TRAJ_SET_SPINDLESYNC spindlesyncMsg;
-    spindlesyncMsg.feed_per_revolution = 0.0;
-    spindlesyncMsg.velocity_mode = false;
-    interp_list.append(spindlesyncMsg);
+    START_SPEED_FEED_SYNCH(0, 0, false);
     canon.spindle[canon.spindle_num].synched = 0;
 }
 
@@ -1309,10 +1540,6 @@ static double chord_deviation(double sx, double sy, double ex, double ey, double
 
 /* Spline and NURBS additional functions; */
 
-static double max(double a, double b) {
-    if(a < b) return b;
-    return a;
-}
 static void unit(double *x, double *y) {
     double h = hypot(*x, *y);
     if(h != 0) { *x/=h; *y/=h; }
@@ -1387,7 +1614,7 @@ biarc(int lineno, double p0x, double p0y, double tsx, double tsy,
 		return 0;
 	}
 
-	double beta = max(beta1, beta2);
+	double beta = std::max(beta1, beta2);
 	double aa = 1, bb = 0, cc;
 	cc = aa / bb;		//cc=inf
 	//if(beta1 == cc || beta2 == cc) { // original Lo Valvo
@@ -1416,9 +1643,9 @@ biarc(int lineno, double p0x, double p0y, double tsx, double tsy,
 
 //-----------------------------------------------------------------------------------------------------------------------------------------
 void NURBS_G5_FEED(int lineno,
-		   std::vector < NURBS_CONTROL_POINT >
-		   nurbs_control_points, unsigned int nurbs_order,
-		   CANON_PLANE plane)
+		   const std::vector<NURBS_CONTROL_POINT>& nurbs_control_points,
+		   unsigned int nurbs_order,
+		   CANON_PLANE /*plane*/)
 {
 	flush_segments();
 
@@ -1426,7 +1653,7 @@ void NURBS_G5_FEED(int lineno,
 	double umax = n - nurbs_order + 2;
 	unsigned int div = nurbs_control_points.size() * 4;
 
-	std::vector < unsigned int >knot_vector =
+	std::vector<unsigned int> knot_vector =
 	    nurbs_G5_knot_vector_creator(n, nurbs_order);
 	NURBS_PLANE_POINT P0, P0T, P1, P1T;
 
@@ -1454,24 +1681,22 @@ void NURBS_G5_FEED(int lineno,
 // G6.2 Q_option=3=NICL NURBS interpolation with linear motion
 //-----------------------------------------------------------------------------------------------------------------------------------------
 void NURBS_FEED_G6_2_WITH_LINEAR_MOTION(int lineno,
-					std::vector <
-					NURBS_G6_CONTROL_POINT >
-					nurbs_control_points,
-					std::vector < double >knot_vector,
+					const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points,
+					const std::vector<double>& knot_vector,
 					unsigned int k, double feedrate)
 {
 	flush_segments();
 	unsigned int n = nurbs_control_points.size() - 1 - k;
-	std::vector < double >span_knot_vector =
+	std::vector<double> span_knot_vector =
 	    nurbs_interval_span_knot_vector_creator(n, k, knot_vector);
-	std::vector < double >lenght_vector =
+	std::vector<double> lenght_vector =
 	    nurbs_lenght_vector_creator(k, nurbs_control_points,
 					knot_vector, span_knot_vector);
-	std::vector < double >Du_span_knot_vector =
+	std::vector<double> Du_span_knot_vector =
 	    nurbs_Du_span_knot_vector_creator(k, nurbs_control_points,
 					      knot_vector,
 					      span_knot_vector);
-	std::vector < double >nurbs_costant =
+	std::vector<double> nurbs_costant =
 	    nurbs_costant_crator(span_knot_vector, lenght_vector,
 				 Du_span_knot_vector);
 	NURBS_PLANE_POINT P1, P1x;
@@ -1589,7 +1814,6 @@ void NURBS_FEED_G6_2_WITH_LINEAR_MOTION(int lineno,
 			STRAIGHT_FEED(lineno, P1.NURBS_Y, p.y, P1.NURBS_X,
 				      p.a, p.b, p.c, p.u, p.v, p.w);
 		}
-		knot_vector.clear();
 		span_knot_vector.clear();
 		lenght_vector.clear();
 		Du_span_knot_vector.clear();
@@ -1670,7 +1894,6 @@ void NURBS_FEED_G6_2_WITH_LINEAR_MOTION(int lineno,
 			STRAIGHT_FEED(lineno, P1.NURBS_Y, p.y, P1.NURBS_X,
 				      p.a, p.b, p.c, p.u, p.v, p.w);
 		}
-		knot_vector.clear();
 		span_knot_vector.clear();
 		lenght_vector.clear();
 		Du_span_knot_vector.clear();
@@ -1682,25 +1905,22 @@ void NURBS_FEED_G6_2_WITH_LINEAR_MOTION(int lineno,
 // G6.2 Q_option=2=NICC NURBS interpolation with circular motion
 //-----------------------------------------------------------------------------------------------------------------------------------------
 void NURBS_FEED_G6_2_WITH_CIRCULAR_MOTION(int lineno,
-					  std::vector <
-					  NURBS_G6_CONTROL_POINT >
-					  nurbs_control_points,
-					  std::vector <
-					  double >knot_vector,
+					  const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points,
+					  const std::vector<double>& knot_vector,
 					  unsigned int k, double feedrate)
 {
 	flush_segments();
 	unsigned int n = nurbs_control_points.size() - 1 - k;
 	std::vector < double >span_knot_vector =
 	    nurbs_interval_span_knot_vector_creator(n, k, knot_vector);
-	std::vector < double >lenght_vector =
+	std::vector<double> lenght_vector =
 	    nurbs_lenght_vector_creator(k, nurbs_control_points,
 					knot_vector, span_knot_vector);
-	std::vector < double >Du_span_knot_vector =
+	std::vector<double> Du_span_knot_vector =
 	    nurbs_Du_span_knot_vector_creator(k, nurbs_control_points,
 					      knot_vector,
 					      span_knot_vector);
-	std::vector < double >nurbs_costant =
+	std::vector<double> nurbs_costant =
 	    nurbs_costant_crator(span_knot_vector, lenght_vector,
 				 Du_span_knot_vector);
 	NURBS_PLANE_POINT P0, P1, P0T, P1T;
@@ -1802,7 +2022,6 @@ void NURBS_FEED_G6_2_WITH_CIRCULAR_MOTION(int lineno,
 			STRAIGHT_FEED(lineno, P1.NURBS_Y, p.y, P1.NURBS_X,
 				      p.a, p.b, p.c, p.u, p.v, p.w);
 		}
-		knot_vector.clear();
 		span_knot_vector.clear();
 		lenght_vector.clear();
 		Du_span_knot_vector.clear();
@@ -1883,7 +2102,6 @@ void NURBS_FEED_G6_2_WITH_CIRCULAR_MOTION(int lineno,
 			STRAIGHT_FEED(lineno, P1.NURBS_Y, p.y, P1.NURBS_X,
 				      p.a, p.b, p.c, p.u, p.v, p.w);
 		}
-		knot_vector.clear();
 		span_knot_vector.clear();
 		lenght_vector.clear();
 		Du_span_knot_vector.clear();
@@ -1895,12 +2113,9 @@ void NURBS_FEED_G6_2_WITH_CIRCULAR_MOTION(int lineno,
 // G6.2/G6.3 Q_option=1=NICU NURBS interpolation with biarc, du=const
 //-----------------------------------------------------------------------------------------------------------------------------------------
 void NURBS_FEED_G6_2_WITH_BIARCH_DU_CONST(int lineno,
-					  std::vector <
-					  NURBS_G6_CONTROL_POINT >
-					  nurbs_control_points,
-					  std::vector <
-					  double >knot_vector,
-					  unsigned int k, double feedrate)
+					  const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points,
+					  const std::vector<double>& knot_vector,
+					  unsigned int k, double /*feedrate*/)
 {
 	double u = knot_vector[0];
 	int dim = nurbs_control_points.size();
@@ -1908,7 +2123,7 @@ void NURBS_FEED_G6_2_WITH_BIARCH_DU_CONST(int lineno,
 	double umax = knot_vector[knot_vector.size() - 1];
 	unsigned int div = (dim - k) * 15;
 
-	std::vector < std::vector < double >>A6;
+	std::vector<std::vector<double>> A6;
 	if (k >= 3) {
 		NURBS_PLANE_POINT P1, P0, P0T, P1T;
 		CANON_POSITION p =
@@ -1966,7 +2181,6 @@ void NURBS_FEED_G6_2_WITH_BIARCH_DU_CONST(int lineno,
 			STRAIGHT_FEED(lineno, P1.NURBS_Y, p.y, P1.NURBS_X,
 				      p.a, p.b, p.c, p.u, p.v, p.w);
 		}
-		knot_vector.clear();
 		A6.clear();
 	} else {
 		NURBS_PLANE_POINT P1;
@@ -2028,20 +2242,19 @@ void NURBS_FEED_G6_2_WITH_BIARCH_DU_CONST(int lineno,
 			STRAIGHT_FEED(lineno, P1.NURBS_Y, p.y, P1.NURBS_X,
 				      p.a, p.b, p.c, p.u, p.v, p.w);
 		}
-		knot_vector.clear();
 		A6.clear();
 	}
 }
 
 //-----------------------------------------------------------------------------------------------------------------------------------------
 void NURBS_FEED_DIVIDE(int lineno,
-		       std::vector < NURBS_G6_CONTROL_POINT >
+		       std::vector<NURBS_G6_CONTROL_POINT>
 		       nurbs_control_points,
-		       std::vector < double >knot_vector,
+		       std::vector<double> knot_vector,
 		       unsigned int nurbs_order, double feedrate,
 		       int Q_option)
 {
-	std::vector < double >knot_vector_new = knot_vector;
+	std::vector<double> knot_vector_new = knot_vector;
 	int k1 = knot_vector.size() / 2 - 1;
 	double ut;
 	ut = (knot_vector[k1] + 1);
@@ -2070,12 +2283,12 @@ void NURBS_FEED_DIVIDE(int lineno,
 	//Secondo segmento NURBS
 	// si passa il valore u in corrispondenza del quale suddividere la curva
 	// der u-Wert wird übergeben, bei dem die Kurve geteilt werden soll
-	std::vector < double >control_point_nurbs2_new2 =
+	std::vector<double> control_point_nurbs2_new2 =
 	    nurbs_G6_new_control_point_nurbs2(ut, nurbs_order,
 					      nurbs_control_points,
 					      knot_vector);
 
-	std::vector < NURBS_CONTROL_POINT > nurbs_control_points2;
+	std::vector<NURBS_CONTROL_POINT> nurbs_control_points2;
 	NURBS_CONTROL_POINT C_P2;
 	for (long unsigned int i = 0; i < control_point_nurbs2_new2.size();
 	     i = i + 3) {
@@ -2089,7 +2302,7 @@ void NURBS_FEED_DIVIDE(int lineno,
 		// ridefinisco Control_point per il primo SGMENTO (1) NURBS
 		// ich definiere Control_point für die ersten SGMENTO (1) NURBS neu
 		nurbs_control_points.clear();
-		NURBS_G6_CONTROL_POINT CPU;
+		NURBS_G6_CONTROL_POINT CPU = {};
 		if (j_segment == 0) {
 			for (unsigned j = 0;
 			     j < nurbs_control_points1.size(); ++j) {
@@ -2181,9 +2394,8 @@ void NURBS_FEED_DIVIDE(int lineno,
 //Non viene realizzata alcuna suddivisione in quanto il numero dei punti di controllo è <2*k =due volte l'ordine
 //No subdivision is made as the number of control points is <3*k = twice the order
 void NURBS_FEED_NO_SUBDIVISION(int lineno,
-			       std::vector < NURBS_G6_CONTROL_POINT >
-			       nurbs_control_points,
-			       std::vector < double >knot_vector,
+			       const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points,
+			       const std::vector<double>& knot_vector,
 			       unsigned int nurbs_order, double feedrate,
 			       int Q_option)
 {
@@ -2230,12 +2442,12 @@ void NURBS_FEED_NO_SUBDIVISION(int lineno,
 /* Canon calls G_6_2 */
 //-----------------------------------------------------------------------------------------------------------------------------------------
 void NURBS_G6_FEED(int lineno,
-		   std::vector < NURBS_G6_CONTROL_POINT >
-		   nurbs_control_points, unsigned int nurbs_order,
-		   double feedrate, int Q_option, CANON_PLANE plane)
+		   const std::vector<NURBS_G6_CONTROL_POINT>& nurbs_control_points,
+		   unsigned int nurbs_order,
+		   double feedrate, int Q_option, CANON_PLANE /*plane*/)
 {				// (L_option: NICU, NICL, NICC see publication from Lo Valvo and Drago) 
 	int n = nurbs_control_points.size() - 1 - nurbs_order;
-	std::vector < double >knot_vector =
+	std::vector<double> knot_vector =
 	    nurbs_g6_knot_vector_creator(n, nurbs_order,
 					 nurbs_control_points);
 
@@ -2358,10 +2570,10 @@ void ARC_FEED(int line_number,
 				double axis_end_point, 
 				double a, double b, double c,
 				double u, double v, double w)
-	{
+{
 
-	EMC_TRAJ_CIRCULAR_MOVE circularMoveMsg;
-	EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
+	auto circularMoveMsg = std::make_unique<EMC_TRAJ_CIRCULAR_MOVE>();
+	auto linearMoveMsg = std::make_unique<EMC_TRAJ_LINEAR_MOVE>();
 
 	canon_debug("line = %d\n", line_number);
 	canon_debug("first_end = %f, second_end = %f\n", first_end,second_end);
@@ -2378,8 +2590,13 @@ void ARC_FEED(int line_number,
 		rotate_and_offset_pos(fe, se, ae, unused, unused, unused, unused, unused, unused);
 		rotate_and_offset_pos(fa, sa, unused, unused, unused, unused, unused, unused, unused);
         if (chord_deviation(lx, ly, fe, se, fa, sa, rotation, mx, my) < canon.naivecamTolerance) {
+			// Compiler will optimize: a=FROM_PROG_ANG(a) ==> a=a.
+			// 2.10 cannot handle suppress-macro
+			// cppcheck-suppress selfAssignment
 			a = FROM_PROG_ANG(a);
+			// cppcheck-suppress selfAssignment
 			b = FROM_PROG_ANG(b);
+			// cppcheck-suppress selfAssignment
 			c = FROM_PROG_ANG(c);
 			u = FROM_PROG_LEN(u);
 			v = FROM_PROG_LEN(v);
@@ -2399,9 +2616,9 @@ void ARC_FEED(int line_number,
 			}
 		}
 
-  linearMoveMsg.feed_mode = canon.feed_mode;
-  circularMoveMsg.feed_mode = canon.feed_mode;
-  flush_segments();
+    linearMoveMsg->feed_mode = canon.feed_mode;
+    circularMoveMsg->feed_mode = canon.feed_mode;
+    flush_segments();
 
     // Start by defining 3D points for the motion end and center.
     PM_CARTESIAN end_cart(first_end, second_end, axis_end_point);
@@ -2589,12 +2806,16 @@ void ARC_FEED(int line_number,
     // Get planar velocity bounds
     double v1 = FROM_EXT_LEN(emcAxisGetMaxVelocity(axis1));
     double v2 = FROM_EXT_LEN(emcAxisGetMaxVelocity(axis2));
-    double v_max_axes = MIN(v1, v2);
+    double v_max_axes = std::min(v1, v2);
 
     // Get planar acceleration bounds
     double a1 = FROM_EXT_LEN(emcAxisGetMaxAcceleration(axis1));
     double a2 = FROM_EXT_LEN(emcAxisGetMaxAcceleration(axis2));
-    double a_max_axes = MIN(a1, a2);
+    double a_max_axes = std::min(a1, a2);
+
+    double j1 = FROM_EXT_LEN(emcAxisGetMaxJerk(axis1));
+    double j2 = FROM_EXT_LEN(emcAxisGetMaxJerk(axis2));
+    double j_min = MIN(j1, j2);
 
     if(canon.xy_rotation && canon.activePlane != CANON_PLANE::XY) {
         // also consider the third plane's constraint, which may get
@@ -2604,8 +2825,10 @@ void ARC_FEED(int line_number,
         if (axis_valid(axis3)) {
             double v3 = FROM_EXT_LEN(emcAxisGetMaxVelocity(axis3));
             double a3 = FROM_EXT_LEN(emcAxisGetMaxAcceleration(axis3));
-            v_max_axes = MIN(v3, v_max_axes);
-            a_max_axes = MIN(a3, a_max_axes);
+            double j3 = FROM_EXT_LEN(emcAxisGetMaxJerk(axis3));
+            v_max_axes = std::min(v3, v_max_axes);
+            a_max_axes = std::min(a3, a_max_axes);
+            j_min = MIN(j3, j_min);
         }
     }
 
@@ -2618,7 +2841,7 @@ void ARC_FEED(int line_number,
     canon_debug("v_max_radial = %f\n", v_max_radial);
 
     // Restrict our maximum velocity in-plane if need be
-    double v_max_planar = MIN(v_max_radial, v_max_axes);
+    double v_max_planar = std::min(v_max_radial, v_max_axes);
     canon_debug("v_max_planar = %f\n", v_max_planar);
 
     // Find the equivalent maximum velocity for a linear displacement
@@ -2665,7 +2888,7 @@ void ARC_FEED(int line_number,
     double a_max = total_xyz_length / tt_max;
 
     // Limit velocity by maximum
-    double vel = MIN(canon.linearFeedRate, v_max);
+    double vel = std::min(canon.linearFeedRate, v_max);
     canon_debug("current F = %f\n",canon.linearFeedRate);
     canon_debug("vel = %f\n",vel);
 
@@ -2678,41 +2901,43 @@ void ARC_FEED(int line_number,
         // linear move
         // FIXME (Rob) Am I missing something? the P word should never be zero,
         // or we wouldn't be calling ARC_FEED
-        linearMoveMsg.end = to_ext_pose(endpt);
-        linearMoveMsg.type = EMC_MOTION_TYPE_ARC;
-        linearMoveMsg.vel = toExtVel(vel);
-        linearMoveMsg.ini_maxvel = toExtVel(v_max);
-        linearMoveMsg.acc = toExtAcc(a_max);
-        linearMoveMsg.indexer_jnum = -1;
+        linearMoveMsg->end = to_ext_pose(endpt);
+        linearMoveMsg->type = EMC_MOTION_TYPE_ARC;
+        linearMoveMsg->vel = toExtVel(vel);
+        linearMoveMsg->ini_maxvel = toExtVel(v_max);
+        linearMoveMsg->ini_maxjerk = toExtVel(j_min);
+        linearMoveMsg->acc = toExtAcc(a_max);
+        linearMoveMsg->indexer_jnum = -1;
         if(vel && a_max){
             interp_list.set_line_number(line_number);
-            tag_and_send(linearMoveMsg, _tag);
+            tag_and_send(std::move(linearMoveMsg), _tag);
         }
     } else {
-        circularMoveMsg.end = to_ext_pose(endpt);
+        circularMoveMsg->end = to_ext_pose(endpt);
 
         // Convert internal center and normal to external units
-        circularMoveMsg.center = to_ext_len(center_cart);
-        circularMoveMsg.normal = to_ext_len(normal_cart);
+        circularMoveMsg->center = to_ext_len(center_cart);
+        circularMoveMsg->normal = to_ext_len(normal_cart);
 
         if (rotation > 0)
-            circularMoveMsg.turn = rotation - 1;
+            circularMoveMsg->turn = rotation - 1;
         else
             // reverse turn
-            circularMoveMsg.turn = rotation;
+            circularMoveMsg->turn = rotation;
 
-        circularMoveMsg.type = EMC_MOTION_TYPE_ARC;
+        circularMoveMsg->type = EMC_MOTION_TYPE_ARC;
 
-        circularMoveMsg.vel = toExtVel(vel);
-        circularMoveMsg.ini_maxvel = toExtVel(v_max);
-        circularMoveMsg.acc = toExtAcc(a_max);
+        circularMoveMsg->vel = toExtVel(vel);
+        circularMoveMsg->ini_maxvel = toExtVel(v_max);
+        circularMoveMsg->ini_maxjerk = toExtVel(j_min);
+        circularMoveMsg->acc = toExtAcc(a_max);
 
         //FIXME what happens if accel or vel is zero?
         // The end point is still updated, but nothing is added to the interp list
         // seems to be a crude way to indicate a zero length segment?
         if(vel && a_max) {
             interp_list.set_line_number(line_number);
-            tag_and_send(circularMoveMsg, _tag);
+            tag_and_send(std::move(circularMoveMsg), _tag);
         }
     }
     // update the end point
@@ -2722,13 +2947,13 @@ void ARC_FEED(int line_number,
 
 void DWELL(double seconds)
 {
-    EMC_TRAJ_DELAY delayMsg;
+    auto delayMsg = std::make_unique<EMC_TRAJ_DELAY>();
 
     flush_segments();
 
-    delayMsg.delay = seconds;
+    delayMsg->delay = seconds;
 
-    interp_list.append(delayMsg);
+    interp_list.append(std::move(delayMsg));
 }
 
 /* Spindle Functions */
@@ -2741,88 +2966,61 @@ void SET_SPINDLE_MODE(int spindle, double css_max) {
    canon.spindle[spindle].css_maximum = fabs(css_max);
 }
 
-void START_SPINDLE_CLOCKWISE(int s, int wait_for_atspeed)
+template <class MSG=EMC_SPINDLE_ON>
+auto SPINDLE_SPEED_(int s, int dir, double speed)
 {
-    EMC_SPINDLE_ON emc_spindle_on_msg;
+    auto emc_spindle_msg = std::make_unique<MSG>();
 
     flush_segments();
-    canon.spindle[s].dir = 1;
-    emc_spindle_on_msg.spindle = s;
+    if (dir != 0)
+        canon.spindle[s].dir = dir;
+    if (speed != 0)
+    	canon.spindle[s].speed = fabs(speed); // interp will never send negative anyway ...
+
+    emc_spindle_msg->spindle = s;
     if(canon.spindle[s].css_maximum) {
         if(canon.lengthUnits == CANON_UNITS_INCHES){
             canon.spindle[s].css_factor = 12 / (2 * M_PI) * canon.spindle[s].speed * TO_EXT_LEN(25.4);
         } else {
             canon.spindle[s].css_factor = 1000 / (2 * M_PI) * canon.spindle[s].speed * TO_EXT_LEN(1);
 		}
-		emc_spindle_on_msg.speed = canon.spindle[s].dir * canon.spindle[s].css_maximum;
-		emc_spindle_on_msg.factor = canon.spindle[s].dir * canon.spindle[s].css_factor;
-		emc_spindle_on_msg.xoffset = TO_EXT_LEN(canon.g5xOffset.x + canon.g92Offset.x + canon.toolOffset.tran.x);
+		emc_spindle_msg->speed = canon.spindle[s].dir * canon.spindle[s].css_maximum;
+		emc_spindle_msg->factor = canon.spindle[s].dir * canon.spindle[s].css_factor;
+		emc_spindle_msg->xoffset = TO_EXT_LEN(canon.g5xOffset.x + canon.g92Offset.x + canon.toolOffset.tran.x);
     } else {
-        emc_spindle_on_msg.speed = canon.spindle[s].dir * canon.spindle[s].speed;
+        emc_spindle_msg->speed = canon.spindle[s].dir * canon.spindle[s].speed;
      //   canon.css_numerator = 0; FIXME: Do we need this?
     }
-    emc_spindle_on_msg.wait_for_spindle_at_speed = wait_for_atspeed;
-    interp_list.append(emc_spindle_on_msg);
+
+    return emc_spindle_msg;
+}
+
+void START_SPINDLE_CLOCKWISE(int s, int wait_for_atspeed)
+{
+    auto msg = SPINDLE_SPEED_<>(s, 1, 0);
+    msg->wait_for_spindle_at_speed = wait_for_atspeed;
+    interp_list.append(std::move(msg));
 }
 
 void START_SPINDLE_COUNTERCLOCKWISE(int s, int wait_for_atspeed)
 {
-    EMC_SPINDLE_ON emc_spindle_on_msg;
-
-    flush_segments();
-    canon.spindle[s].dir = -1;
-    emc_spindle_on_msg.spindle = s;
-    if(canon.spindle[s].css_maximum) {
-        if(canon.lengthUnits == CANON_UNITS_INCHES){
-            canon.spindle[s].css_factor = 12 / (2 * M_PI) * canon.spindle[s].speed * TO_EXT_LEN(25.4);
-        } else {
-            canon.spindle[s].css_factor = 1000 / (2 * M_PI) * canon.spindle[s].speed * TO_EXT_LEN(1);
-		}
-		emc_spindle_on_msg.speed = canon.spindle[s].dir * canon.spindle[s].css_maximum;
-		emc_spindle_on_msg.factor = canon.spindle[s].dir * canon.spindle[s].css_factor;
-		emc_spindle_on_msg.xoffset = TO_EXT_LEN(canon.g5xOffset.x + canon.g92Offset.x + canon.toolOffset.tran.x);
-    } else {
-        emc_spindle_on_msg.speed = canon.spindle[s].dir * canon.spindle[s].speed;
-     //   canon.css_numerator = 0; FIXME: Do we need this?
-    }
-    emc_spindle_on_msg.wait_for_spindle_at_speed = wait_for_atspeed;
-    interp_list.append(emc_spindle_on_msg);
+    auto msg = SPINDLE_SPEED_<>(s, -1, 0);
+    msg->wait_for_spindle_at_speed = wait_for_atspeed;
+    interp_list.append(std::move(msg));
 }
 
-void SET_SPINDLE_SPEED(int s, double r)
+void SET_SPINDLE_SPEED(int s, double speed_rpm)
 {
-    // speed is in RPMs everywhere
-
-	canon.spindle[s].speed = fabs(r); // interp will never send negative anyway ...
-
-    EMC_SPINDLE_SPEED emc_spindle_speed_msg;
-
-    flush_segments();
-
-    emc_spindle_speed_msg.spindle = s;
-    if(canon.spindle[s].css_maximum) {
-		if(canon.lengthUnits == CANON_UNITS_INCHES){
-			canon.spindle[s].css_factor = 12 / (2 * M_PI) * canon.spindle[s].speed * TO_EXT_LEN(25.4);
-		} else {
-			canon.spindle[s].css_factor = 1000 / (2 * M_PI) * canon.spindle[s].speed * TO_EXT_LEN(1);
-		}
-		emc_spindle_speed_msg.speed =  canon.spindle[s].dir * canon.spindle[s].css_maximum;
-		emc_spindle_speed_msg.factor =  canon.spindle[s].dir * canon.spindle[s].css_factor;
-		emc_spindle_speed_msg.xoffset = TO_EXT_LEN(canon.g5xOffset.x + canon.g92Offset.x + canon.toolOffset.tran.x);
-	} else {
-        emc_spindle_speed_msg.speed = canon.spindle[s].dir * canon.spindle[s].speed;
-		//   canon.css_numerator = 0; FIXME: Do we need this?
-    }
-    interp_list.append(emc_spindle_speed_msg);
+    interp_list.append(SPINDLE_SPEED_<EMC_SPINDLE_SPEED>(s, 0, speed_rpm));
 }
 
 void STOP_SPINDLE_TURNING(int s)
 {
-    EMC_SPINDLE_OFF emc_spindle_off_msg;
+    auto emc_spindle_off_msg = std::make_unique<EMC_SPINDLE_OFF>();
 
     flush_segments();
-    emc_spindle_off_msg.spindle = s;
-    interp_list.append(emc_spindle_off_msg);
+    emc_spindle_off_msg->spindle = s;
+    interp_list.append(std::move(emc_spindle_off_msg));
     // Added by atp 6/1/18 not sure this is right. There is a problem that the _second_ S word starts the spindle without M3/M4
     canon.spindle[s].dir = 0;
 }
@@ -2834,23 +3032,23 @@ void SPINDLE_RETRACT()
 
 void ORIENT_SPINDLE(int s, double orientation, int mode)
 {
-    EMC_SPINDLE_ORIENT o;
+    auto o = std::make_unique<EMC_SPINDLE_ORIENT>();
 
     flush_segments();
-    o.spindle = s;
-    o.orientation = orientation;
-    o.mode = mode;
-    interp_list.append(o);
+    o->spindle = s;
+    o->orientation = orientation;
+    o->mode = mode;
+    interp_list.append(std::move(o));
 }
 
 void WAIT_SPINDLE_ORIENT_COMPLETE(int s, double timeout)
 {
-    EMC_SPINDLE_WAIT_ORIENT_COMPLETE o;
+    auto o = std::make_unique<EMC_SPINDLE_WAIT_ORIENT_COMPLETE>();
 
     flush_segments();
-    o.spindle = s;
-    o.timeout = timeout;
-    interp_list.append(o);
+    o->spindle = s;
+    o->timeout = timeout;
+    interp_list.append(std::move(o));
 }
 
 void USE_SPINDLE_FORCE(void)
@@ -2871,27 +3069,27 @@ void USE_NO_SPINDLE_FORCE(void)
 /* Tool Functions */
 
 /* this is called with distances in external (machine) units */
-void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, EmcPose offset, double diameter,
+void SET_TOOL_TABLE_ENTRY(int pocket, int toolno, const EmcPose& offset, double diameter,
                           double frontangle, double backangle, int orientation) {
-    EMC_TOOL_SET_OFFSET o;
+    auto o = std::make_unique<EMC_TOOL_SET_OFFSET>();
     flush_segments();
-    o.pocket = pocket;
-    o.toolno = toolno;
-    o.offset = offset;
-    o.diameter = diameter;
-    o.frontangle = frontangle;
-    o.backangle = backangle;
-    o.orientation = orientation;
-    interp_list.append(o);
+    o->pocket = pocket;
+    o->toolno = toolno;
+    o->offset = offset;
+    o->diameter = diameter;
+    o->frontangle = frontangle;
+    o->backangle = backangle;
+    o->orientation = orientation;
+    interp_list.append(std::move(o));
 }
 
 /*
   EMC has no tool length offset. To implement it, we save it here,
   and apply it when necessary
   */
-void USE_TOOL_LENGTH_OFFSET(EmcPose offset)
+void USE_TOOL_LENGTH_OFFSET(const EmcPose& offset)
 {
-    EMC_TRAJ_SET_OFFSET set_offset_msg;
+    auto set_offset_msg = std::make_unique<EMC_TRAJ_SET_OFFSET>();
 
     flush_segments();
 
@@ -2908,40 +3106,28 @@ void USE_TOOL_LENGTH_OFFSET(EmcPose offset)
 
     /* append it to interp list so it gets updated at the right time, not at
        read-ahead time */
-    set_offset_msg.offset.tran.x = TO_EXT_LEN(canon.toolOffset.tran.x);
-    set_offset_msg.offset.tran.y = TO_EXT_LEN(canon.toolOffset.tran.y);
-    set_offset_msg.offset.tran.z = TO_EXT_LEN(canon.toolOffset.tran.z);
-    set_offset_msg.offset.a = TO_EXT_ANG(canon.toolOffset.a);
-    set_offset_msg.offset.b = TO_EXT_ANG(canon.toolOffset.b);
-    set_offset_msg.offset.c = TO_EXT_ANG(canon.toolOffset.c);
-    set_offset_msg.offset.u = TO_EXT_LEN(canon.toolOffset.u);
-    set_offset_msg.offset.v = TO_EXT_LEN(canon.toolOffset.v);
-    set_offset_msg.offset.w = TO_EXT_LEN(canon.toolOffset.w);
+    set_offset_msg->offset.tran.x = TO_EXT_LEN(canon.toolOffset.tran.x);
+    set_offset_msg->offset.tran.y = TO_EXT_LEN(canon.toolOffset.tran.y);
+    set_offset_msg->offset.tran.z = TO_EXT_LEN(canon.toolOffset.tran.z);
+    set_offset_msg->offset.a = TO_EXT_ANG(canon.toolOffset.a);
+    set_offset_msg->offset.b = TO_EXT_ANG(canon.toolOffset.b);
+    set_offset_msg->offset.c = TO_EXT_ANG(canon.toolOffset.c);
+    set_offset_msg->offset.u = TO_EXT_LEN(canon.toolOffset.u);
+    set_offset_msg->offset.v = TO_EXT_LEN(canon.toolOffset.v);
+    set_offset_msg->offset.w = TO_EXT_LEN(canon.toolOffset.w);
 
     for (int s = 0; s < emcStatus->motion.traj.spindles; s++){
         if(canon.spindle[s].css_maximum) {
             SET_SPINDLE_SPEED(s, canon.spindle[s].speed);
         }
     }
-    interp_list.append(set_offset_msg);
-}
-
-/* issued at very start of an M6 command. Notification. */
-void START_CHANGE()
-{
-    EMC_TOOL_START_CHANGE emc_start_change_msg;
-
-    flush_segments();
-
-    interp_list.append(emc_start_change_msg);
+    interp_list.append(std::move(set_offset_msg));
 }
 
 /* CHANGE_TOOL results from M6 */
-void CHANGE_TOOL(int slot)
+void CHANGE_TOOL()
 {
-    EMC_TRAJ_LINEAR_MOVE linearMoveMsg;
-    linearMoveMsg.feed_mode = canon.feed_mode;
-    EMC_TOOL_LOAD load_tool_msg;
+    auto load_tool_msg = std::make_unique<EMC_TOOL_LOAD>();
 
     flush_segments();
 
@@ -2980,64 +3166,69 @@ void CHANGE_TOOL(int slot)
 
         VelData veldata = getStraightVelocity(x, y, z, a, b, c, u, v, w);
         AccelData accdata = getStraightAcceleration(x, y, z, a, b, c, u, v, w);
+        double jerk = getStraightJerk(x, y, z, a, b, c, u, v, w);
         vel = veldata.vel;
         acc = accdata.acc;
 
-        linearMoveMsg.end = to_ext_pose(x, y, z, a, b, c, u, v, w);
+        auto linearMoveMsg = std::make_unique<EMC_TRAJ_LINEAR_MOVE>();
+        linearMoveMsg->feed_mode = canon.feed_mode;
 
-        linearMoveMsg.vel = linearMoveMsg.ini_maxvel = toExtVel(vel);
-        linearMoveMsg.acc = toExtAcc(acc);
-        linearMoveMsg.type = EMC_MOTION_TYPE_TOOLCHANGE;
-	linearMoveMsg.feed_mode = 0;
-        linearMoveMsg.indexer_jnum = -1;
+        linearMoveMsg->end = to_ext_pose(x, y, z, a, b, c, u, v, w);
 
-	int old_feed_mode = canon.feed_mode;
-	if(canon.feed_mode)
-	    STOP_SPEED_FEED_SYNCH();
+        linearMoveMsg->vel = linearMoveMsg->ini_maxvel = toExtVel(vel);
+        linearMoveMsg->acc = toExtAcc(acc);
+        linearMoveMsg->ini_maxjerk = toExtVel(jerk);
+        linearMoveMsg->type = EMC_MOTION_TYPE_TOOLCHANGE;
+	    linearMoveMsg->feed_mode = 0;
+        linearMoveMsg->indexer_jnum = -1;
 
-    if(vel && acc)
-        tag_and_send(linearMoveMsg, _tag);
+	    int old_feed_mode = canon.feed_mode;
+	    if(canon.feed_mode)
+	       STOP_SPEED_FEED_SYNCH();
 
-    if(old_feed_mode)
-        START_SPEED_FEED_SYNCH(canon.spindle_num, canon.linearFeedRate, 1);
+        if(vel && acc)
+            tag_and_send(std::move(linearMoveMsg), _tag);
 
-    canonUpdateEndPoint(x, y, z, a, b, c, u, v, w);
+        if(old_feed_mode)
+            START_SPEED_FEED_SYNCH(canon.spindle_num, canon.linearFeedRate, 1);
+
+        canonUpdateEndPoint(x, y, z, a, b, c, u, v, w);
     }
 
     /* regardless of optional moves above, we'll always send a load tool
        message */
-    interp_list.append(load_tool_msg);
+    interp_list.append(std::move(load_tool_msg));
 }
 
 /* SELECT_TOOL results from Tn */
 void SELECT_TOOL(int tool)
 {
-    EMC_TOOL_PREPARE prep_for_tool_msg;
+    auto prep_for_tool_msg = std::make_unique<EMC_TOOL_PREPARE>();
 
-    prep_for_tool_msg.tool = tool;
+    prep_for_tool_msg->tool = tool;
 
-    interp_list.append(prep_for_tool_msg);
+    interp_list.append(std::move(prep_for_tool_msg));
 }
 
 /* CHANGE_TOOL_NUMBER results from M61 */
 void CHANGE_TOOL_NUMBER(int pocket_number)
 {
-    EMC_TOOL_SET_NUMBER emc_tool_set_number_msg;
+    auto emc_tool_set_number_msg = std::make_unique<EMC_TOOL_SET_NUMBER>();
     
-    emc_tool_set_number_msg.tool = pocket_number;
+    emc_tool_set_number_msg->tool = pocket_number;
 
-    interp_list.append(emc_tool_set_number_msg);
+    interp_list.append(std::move(emc_tool_set_number_msg));
 }
 
 void RELOAD_TOOLDATA(void)
 {
-    EMC_TOOL_LOAD_TOOL_TABLE load_tool_table_msg;
-    interp_list.append(load_tool_table_msg);
+    auto load_tool_table_msg = std::make_unique<EMC_TOOL_LOAD_TOOL_TABLE>();
+    interp_list.append(std::move(load_tool_table_msg));
 }
 
 /* Misc Functions */
 
-void CLAMP_AXIS(CANON_AXIS axis)
+void CLAMP_AXIS(CANON_AXIS /*axis*/)
 {
     /*! \todo FIXME-- unimplemented */
 }
@@ -3137,111 +3328,111 @@ void COMMENT(const char *comment)
 }
 
 // refers to feed rate
-void DISABLE_FEED_OVERRIDE()
+void FEED_OVERRIDE_ENABLE_(int mode)
 {
-    EMC_TRAJ_SET_FO_ENABLE set_fo_enable_msg;
+    auto set_fo_enable_msg = std::make_unique<EMC_TRAJ_SET_FO_ENABLE>();
     flush_segments();
     
-    set_fo_enable_msg.mode = 0;
-    interp_list.append(set_fo_enable_msg);
+    set_fo_enable_msg->mode = mode;
+    interp_list.append(std::move(set_fo_enable_msg));
+}
+
+void DISABLE_FEED_OVERRIDE()
+{
+    FEED_OVERRIDE_ENABLE_(0);
 }
 
 void ENABLE_FEED_OVERRIDE()
 {
-    EMC_TRAJ_SET_FO_ENABLE set_fo_enable_msg;
-    flush_segments();
-    
-    set_fo_enable_msg.mode = 1;
-    interp_list.append(set_fo_enable_msg);
+    FEED_OVERRIDE_ENABLE_(1);
 }
 
 
 //refers to adaptive feed override (HAL input, useful for EDM for example)
-void DISABLE_ADAPTIVE_FEED()
+void ADAPTIVE_FEED_ENABLE_(int status)
 {
-    EMC_MOTION_ADAPTIVE emcmotAdaptiveMsg;
+    auto emcmotAdaptiveMsg = std::make_unique<EMC_MOTION_ADAPTIVE>();
     flush_segments();
 
-    emcmotAdaptiveMsg.status = 0;
-    interp_list.append(emcmotAdaptiveMsg);
+    emcmotAdaptiveMsg->status = status;
+    interp_list.append(std::move(emcmotAdaptiveMsg));
+}
+
+void DISABLE_ADAPTIVE_FEED()
+{
+    ADAPTIVE_FEED_ENABLE_(0);
 }
 
 void ENABLE_ADAPTIVE_FEED()
 {
-    EMC_MOTION_ADAPTIVE emcmotAdaptiveMsg;
-    flush_segments();
-
-    emcmotAdaptiveMsg.status = 1;
-    interp_list.append(emcmotAdaptiveMsg);
+    ADAPTIVE_FEED_ENABLE_(1);
 }
 
+void SPEED_OVERRIDE_(int spindle, int mode)
+{
+    auto set_so_enable_msg = std::make_unique<EMC_TRAJ_SET_SO_ENABLE>();
+    flush_segments();
+    
+    set_so_enable_msg->mode = mode;
+    set_so_enable_msg->spindle = spindle;
+    interp_list.append(std::move(set_so_enable_msg));
+}
 //refers to spindle speed
 void DISABLE_SPEED_OVERRIDE(int spindle)
 {
-    EMC_TRAJ_SET_SO_ENABLE set_so_enable_msg;
-    flush_segments();
-    
-    set_so_enable_msg.mode = 0;
-    set_so_enable_msg.spindle = spindle;
-    interp_list.append(set_so_enable_msg);
+    SPEED_OVERRIDE_(spindle, 0);
 }
-
 
 void ENABLE_SPEED_OVERRIDE(int spindle)
 {
-    EMC_TRAJ_SET_SO_ENABLE set_so_enable_msg;
-    flush_segments();
-    
-    set_so_enable_msg.mode = 1;
-    set_so_enable_msg.spindle = spindle;
-    interp_list.append(set_so_enable_msg);
+    SPEED_OVERRIDE_(spindle, 1);
 }
 
+void FEED_HOLD_(int mode)
+{
+    auto set_feed_hold_msg = std::make_unique<EMC_TRAJ_SET_FH_ENABLE>();
+    flush_segments();
+
+    set_feed_hold_msg->mode = mode;
+    interp_list.append(std::move(set_feed_hold_msg));
+}
 void ENABLE_FEED_HOLD()
 {
-    EMC_TRAJ_SET_FH_ENABLE set_feed_hold_msg;
-    flush_segments();
-    
-    set_feed_hold_msg.mode = 1;
-    interp_list.append(set_feed_hold_msg);
+    FEED_HOLD_(1);
 }
 
 void DISABLE_FEED_HOLD()
 {
-    EMC_TRAJ_SET_FH_ENABLE set_feed_hold_msg;
-    flush_segments();
-    
-    set_feed_hold_msg.mode = 0;
-    interp_list.append(set_feed_hold_msg);
+    FEED_HOLD_(0);
+}
+
+template <typename T, bool flush_segments_ = true>
+void SIMPLE_COMMAND_()
+{
+    if (flush_segments_)
+        flush_segments();
+
+    interp_list.append(std::make_unique<T>());
 }
 
 void FLOOD_OFF()
 {
-    EMC_COOLANT_FLOOD_OFF flood_off_msg;
-
-    flush_segments();
-
-    interp_list.append(flood_off_msg);
+    SIMPLE_COMMAND_<EMC_COOLANT_FLOOD_OFF>();
 }
 
 void FLOOD_ON()
 {
-    EMC_COOLANT_FLOOD_ON flood_on_msg;
-
-    flush_segments();
-
-    interp_list.append(flood_on_msg);
+    SIMPLE_COMMAND_<EMC_COOLANT_FLOOD_ON>();
 }
 
 void MESSAGE(char *s)
 {
-    EMC_OPERATOR_DISPLAY operator_display_msg;
+    auto operator_display_msg = std::make_unique<EMC_OPERATOR_DISPLAY>();
 
     flush_segments();
-    operator_display_msg.id = 0;
-    strncpy(operator_display_msg.display, s, LINELEN);
-    operator_display_msg.display[LINELEN - 1] = 0;
-    interp_list.append(operator_display_msg);
+    strncpy(operator_display_msg->display, s, LINELEN);
+    operator_display_msg->display[LINELEN - 1] = 0;
+    interp_list.append(std::move(operator_display_msg));
 }
 
 static FILE *logfile = NULL;
@@ -3274,20 +3465,12 @@ void LOGCLOSE() {
 
 void MIST_OFF()
 {
-    EMC_COOLANT_MIST_OFF mist_off_msg;
-
-    flush_segments();
-
-    interp_list.append(mist_off_msg);
+    SIMPLE_COMMAND_<EMC_COOLANT_MIST_OFF>();
 }
 
 void MIST_ON()
 {
-    EMC_COOLANT_MIST_ON mist_on_msg;
-
-    flush_segments();
-
-    interp_list.append(mist_on_msg);
+    SIMPLE_COMMAND_<EMC_COOLANT_MIST_ON>();
 }
 
 void PALLET_SHUTTLE()
@@ -3302,12 +3485,10 @@ void TURN_PROBE_OFF()
 
 void TURN_PROBE_ON()
 {
-    EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG clearMsg;
-
-    interp_list.append(clearMsg);
+    SIMPLE_COMMAND_<EMC_TRAJ_CLEAR_PROBE_TRIPPED_FLAG, false>();
 }
 
-void UNCLAMP_AXIS(CANON_AXIS axis)
+void UNCLAMP_AXIS(CANON_AXIS /*axis*/)
 {
     /*! \todo FIXME-- unimplemented */
 }
@@ -3318,11 +3499,7 @@ void PROGRAM_STOP()
 {
     /* 
        implement this as a pause. A resume will cause motion to proceed. */
-    EMC_TASK_PLAN_PAUSE pauseMsg;
-
-    flush_segments();
-
-    interp_list.append(pauseMsg);
+    SIMPLE_COMMAND_<EMC_TASK_PLAN_PAUSE>();
 }
 
 void SET_BLOCK_DELETE(bool state)
@@ -3348,20 +3525,13 @@ bool GET_OPTIONAL_PROGRAM_STOP()
 
 void OPTIONAL_PROGRAM_STOP()
 {
-    EMC_TASK_PLAN_OPTIONAL_STOP stopMsg;
-
-    flush_segments();
-
-    interp_list.append(stopMsg);
+    SIMPLE_COMMAND_<EMC_TASK_PLAN_OPTIONAL_STOP>();
 }
 
 void PROGRAM_END()
 {
     flush_segments();
-
-    EMC_TASK_PLAN_END endMsg;
-
-    interp_list.append(endMsg);
+    SIMPLE_COMMAND_<EMC_TASK_PLAN_END, false>();
 }
 
 double GET_EXTERNAL_TOOL_LENGTH_XOFFSET()
@@ -3484,20 +3654,19 @@ void INIT_CANON()
 void CANON_ERROR(const char *fmt, ...)
 {
     va_list ap;
-    EMC_OPERATOR_ERROR operator_error_msg;
+    auto operator_error_msg = std::make_unique<EMC_OPERATOR_ERROR>();
 
     flush_segments();
 
-    operator_error_msg.id = 0;
     if (fmt != NULL) {
-	va_start(ap, fmt);
-	vsnprintf(operator_error_msg.error,sizeof(operator_error_msg.error), fmt, ap);
-	va_end(ap);
+	    va_start(ap, fmt);
+	    vsnprintf(operator_error_msg->error, sizeof(operator_error_msg->error), fmt, ap);
+	    va_end(ap);
     } else {
-	operator_error_msg.error[0] = 0;
+	    operator_error_msg->error[0] = 0;
     }
 
-    interp_list.append(operator_error_msg);
+    interp_list.append(std::move(operator_error_msg));
 }
 
 /*
@@ -3952,7 +4121,7 @@ CANON_PLANE GET_EXTERNAL_PLANE()
 }
 
 /* returns current value of the digital input selected by index.*/
-int GET_EXTERNAL_DIGITAL_INPUT(int index, int def)
+int GET_EXTERNAL_DIGITAL_INPUT(int index, int /*def*/)
 {
     if ((index < 0) || (index >= EMCMOT_MAX_DIO))
 	return -1;
@@ -3966,7 +4135,7 @@ int GET_EXTERNAL_DIGITAL_INPUT(int index, int def)
     return (emcStatus->motion.synch_di[index] != 0) ? 1 : 0;
 }
 
-double GET_EXTERNAL_ANALOG_INPUT(int index, double def)
+double GET_EXTERNAL_ANALOG_INPUT(int index, double /*def*/)
 {
 /* returns current value of the analog input selected by index.*/
 #ifdef INPUT_DEBUG
@@ -3996,6 +4165,22 @@ int USER_DEFINED_FUNCTION_ADD(USER_DEFINED_FUNCTION_TYPE func, int num)
     return 0;
 }
 
+void MOTION_OUTPUT_BIT_(int index, int start, int end, int now)
+{
+    auto dout_msg = std::make_unique<EMC_MOTION_SET_DOUT>();
+
+    flush_segments();
+
+    dout_msg->index = index;
+    dout_msg->start = start;
+    dout_msg->end = end;
+    dout_msg->now = now;
+
+    interp_list.append(std::move(dout_msg));
+
+    return;
+}
+
 /*! \function SET_MOTION_OUTPUT_BIT
 
   sets a DIO pin
@@ -4010,18 +4195,10 @@ int USER_DEFINED_FUNCTION_ADD(USER_DEFINED_FUNCTION_TYPE func, int num)
 */
 void SET_MOTION_OUTPUT_BIT(int index)
 {
-  EMC_MOTION_SET_DOUT dout_msg;
-
-  flush_segments();
-
-  dout_msg.index = index;
-  dout_msg.start = 1;		// startvalue = 1
-  dout_msg.end = 1;		// endvalue = 1, means it doesn't get reset after current motion
-  dout_msg.now = 0;		// not immediate, but synched with motion (goes to the TP)
-
-  interp_list.append(dout_msg);
-
-  return;
+    MOTION_OUTPUT_BIT_(index, 
+                       1,       // startvalue = 1
+                       1,       // endvalue = 1, means it doesn't get reset after current motion
+                       0);      // not immediate, but synched with motion (goes to the TP)
 }
 
 /*! \function CLEAR_MOTION_OUTPUT_BIT
@@ -4038,18 +4215,10 @@ void SET_MOTION_OUTPUT_BIT(int index)
 */
 void CLEAR_MOTION_OUTPUT_BIT(int index)
 {
-  EMC_MOTION_SET_DOUT dout_msg;
-
-  flush_segments();
-
-  dout_msg.index = index;
-  dout_msg.start = 0;           // startvalue = 1
-  dout_msg.end = 0;		// endvalue = 0, means it stays 0 after current motion
-  dout_msg.now = 0;		// not immediate, but synched with motion (goes to the TP)
-
-  interp_list.append(dout_msg);
-
-  return;
+    MOTION_OUTPUT_BIT_(index,
+                       0,       // startvalue = 1
+                       0,       // endvalue = 0, means it stays 0 after current motion
+                       0);      // not immediate, but synched with motion (goes to the TP)
 }
 
 /*! \function SET_AUX_OUTPUT_BIT
@@ -4063,19 +4232,10 @@ void CLEAR_MOTION_OUTPUT_BIT(int index)
 */
 void SET_AUX_OUTPUT_BIT(int index)
 {
-
-  EMC_MOTION_SET_DOUT dout_msg;
-
-  flush_segments();
-
-  dout_msg.index = index;
-  dout_msg.start = 1;		// startvalue = 1
-  dout_msg.end = 1;		// endvalue = 1, means it doesn't get reset after current motion
-  dout_msg.now = 1;		// immediate, we don't care about syncing for AUX
-
-  interp_list.append(dout_msg);
-
-  return;
+    MOTION_OUTPUT_BIT_(index,
+                       1,       // startvalue = 1
+                       1,       // endvalue = 1, means it doesn't get reset after current motion
+                       1);      // immediate, we don't care about syncing for AUX
 }
 
 /*! \function CLEAR_AUX_OUTPUT_BIT
@@ -4089,18 +4249,24 @@ void SET_AUX_OUTPUT_BIT(int index)
 */
 void CLEAR_AUX_OUTPUT_BIT(int index)
 {
-  EMC_MOTION_SET_DOUT dout_msg;
+    MOTION_OUTPUT_BIT_(index,
+                       0,       // startvalue = 1
+                       0,       // endvalue = 0, means it stays 0 after current motion
+                       1);      // immediate, we don't care about syncing for AUX
+}
 
-  flush_segments();
+void MOTION_OUTPUT_VALUE_(int index, double start, double end, int now)
+{
+    auto aout_msg = std::make_unique<EMC_MOTION_SET_AOUT>();
 
-  dout_msg.index = index;
-  dout_msg.start = 0;           // startvalue = 1
-  dout_msg.end = 0;		// endvalue = 0, means it stays 0 after current motion
-  dout_msg.now = 1;		// immediate, we don't care about syncing for AUX
+    flush_segments();
 
-  interp_list.append(dout_msg);
+    aout_msg->index = index;
+    aout_msg->start = start;
+    aout_msg->end = end;
+    aout_msg->now = now;
 
-  return;
+    interp_list.append(std::move(aout_msg));
 }
 
 /*! \function SET_MOTION_OUTPUT_VALUE
@@ -4110,18 +4276,10 @@ void CLEAR_AUX_OUTPUT_BIT(int index)
 */
 void SET_MOTION_OUTPUT_VALUE(int index, double value)
 {
-  EMC_MOTION_SET_AOUT aout_msg;
-
-  flush_segments();
-
-  aout_msg.index = index;	// which output
-  aout_msg.start = value;	// start value
-  aout_msg.end = value;		// end value
-  aout_msg.now = 0;		// immediate=1, or synched when motion start=0
-
-  interp_list.append(aout_msg);
-
-  return;
+    MOTION_OUTPUT_VALUE_(index,     // which output
+                         value,     // start value
+                         value,     // end value
+                        0);         // immediate=1, or synched when motion start=0
 }
 
 /*! \function SET_AUX_OUTPUT_VALUE
@@ -4131,18 +4289,10 @@ void SET_MOTION_OUTPUT_VALUE(int index, double value)
 */
 void SET_AUX_OUTPUT_VALUE(int index, double value)
 {
-  EMC_MOTION_SET_AOUT aout_msg;
-
-  flush_segments();
-
-  aout_msg.index = index;	// which output
-  aout_msg.start = value;	// start value
-  aout_msg.end = value;		// end value
-  aout_msg.now = 1;		// immediate=1, or synched when motion start=0
-
-  interp_list.append(aout_msg);
-
-  return;
+    MOTION_OUTPUT_VALUE_(index,     // which output
+                         value,     // start value
+                         value,	    // end value
+                         1);        // immediate=1, or synched when motion start=0
 }
 
 /*! \function WAIT
@@ -4155,44 +4305,47 @@ int WAIT(int index, /* index of the motion exported input */
 	 int wait_type,  /* 0 - immediate, 1 - rise, 2 - fall, 3 - be high, 4 - be low */
 	 double timeout) /* time to wait [in seconds], if the input didn't change the value -1 is returned */
 {
-  if (input_type == DIGITAL_INPUT) {
-    if ((index < 0) || (index >= EMCMOT_MAX_DIO))
-	return -1;
-  } else if (input_type == ANALOG_INPUT) {
-    if ((index < 0) || (index >= EMCMOT_MAX_AIO))
-	return -1;
-  }
+    if (input_type == DIGITAL_INPUT) {
+        if ((index < 0) || (index >= EMCMOT_MAX_DIO))
+	    return -1;
+    } else if (input_type == ANALOG_INPUT) {
+        if ((index < 0) || (index >= EMCMOT_MAX_AIO))
+	    return -1;
+    }
 
- EMC_AUX_INPUT_WAIT wait_msg;
+    auto wait_msg = std::make_unique<EMC_AUX_INPUT_WAIT>();
  
- flush_segments();
+    flush_segments();
  
- wait_msg.index = index;
- wait_msg.input_type = input_type;
- wait_msg.wait_type = wait_type;
- wait_msg.timeout = timeout;
+    wait_msg->index = index;
+    wait_msg->input_type = input_type;
+    wait_msg->wait_type = wait_type;
+    wait_msg->timeout = timeout;
  
- interp_list.append(wait_msg);
- return 0;
+    interp_list.append(std::move(wait_msg));
+    return 0;
 }
 
-int UNLOCK_ROTARY(int line_number, int joint_num) {
-    EMC_TRAJ_LINEAR_MOVE m;
+int UNLOCK_ROTARY(int line_number, int joint_num)
+{
+    auto m = std::make_unique<EMC_TRAJ_LINEAR_MOVE>();
+
     // first, set up a zero length move to interrupt blending and get to final position
-    m.type = EMC_MOTION_TYPE_TRAVERSE;
-    m.feed_mode = 0;
-    m.end = to_ext_pose(canon.endPoint.x, canon.endPoint.y, canon.endPoint.z,
-                        canon.endPoint.a, canon.endPoint.b, canon.endPoint.c,
-                        canon.endPoint.u, canon.endPoint.v, canon.endPoint.w);
-    m.vel = m.acc = 1; // nonzero but otherwise doesn't matter
-    m.indexer_jnum = -1;
+    m->type = EMC_MOTION_TYPE_TRAVERSE;
+    m->feed_mode = 0;
+    m->end = to_ext_pose(canon.endPoint.x, canon.endPoint.y, canon.endPoint.z,
+                         canon.endPoint.a, canon.endPoint.b, canon.endPoint.c,
+                         canon.endPoint.u, canon.endPoint.v, canon.endPoint.w);
+    m->vel = m->acc = 1; // nonzero but otherwise doesn't matter
+    m->indexer_jnum = -1;
 
     // issue it
     int old_feed_mode = canon.feed_mode;
     if(canon.feed_mode)
 	STOP_SPEED_FEED_SYNCH();
     interp_list.set_line_number(line_number);
-    interp_list.append(m);
+    interp_list.append(std::move(m));
+    
     // no need to update endpoint
     if(old_feed_mode)
 	START_SPEED_FEED_SYNCH(canon.spindle_num, canon.linearFeedRate, 1);
@@ -4202,43 +4355,8 @@ int UNLOCK_ROTARY(int line_number, int joint_num) {
     return 0;
 }
 
-int LOCK_ROTARY(int line_number, int joint_num) {
+int LOCK_ROTARY(int /*line_number*/, int /*joint_num*/) {
     canon.rotary_unlock_for_traverse = -1;
     return 0;
 }
 
-/* PLUGIN_CALL queues a Python tuple for execution by task
- * the tuple is expected to be already pickled
- * The tuple format is: (callable,tupleargs,keywordargs)
- */
-void PLUGIN_CALL(int len, const char *call)
-{
-    EMC_EXEC_PLUGIN_CALL call_msg;
-    if (len > (int) sizeof(call_msg.call)) {
-	// really should call it quits here, this is going to fail
-	printf("PLUGIN_CALL: message size exceeded actual=%d max=%zd\n",len,sizeof(call_msg.call));
-    }
-    memset(call_msg.call, 0, sizeof(call_msg.call));
-    memcpy(call_msg.call, call, len > (int) sizeof(call_msg.call) ? sizeof(call_msg.call) : len);
-    call_msg.len = len;
-
-    printf("canon: PLUGIN_CALL(arglen=%zd)\n",strlen(call));
-
-    interp_list.append(call_msg);
-}
-
-void IO_PLUGIN_CALL(int len, const char *call)
-{
-    EMC_IO_PLUGIN_CALL call_msg;
-    if (len > (int) sizeof(call_msg.call)) {
-	// really should call it quits here, this is going to fail
-	printf("IO_PLUGIN_CALL: message size exceeded actual=%d max=%zd\n",len,sizeof(call_msg.call));
-    }
-    memset(call_msg.call, 0, sizeof(call_msg.call));
-    memcpy(call_msg.call, call, len > (int) sizeof(call_msg.call) ? sizeof(call_msg.call) : len);
-    call_msg.len = len;
-
-    printf("canon: IO_PLUGIN_CALL(arglen=%d)\n",len);
-
-    interp_list.append(call_msg);
-}

@@ -96,7 +96,7 @@ class Table(QtWidgets.QDialog):
 
             fmt.setCellSpacing(space)
 
-            # Inser the new table
+            # Insert the new table
             cursor.insertTable(rows,cols,fmt)
 
             self.close()

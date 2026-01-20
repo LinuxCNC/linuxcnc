@@ -1,0 +1,17 @@
+
+loadrt trivkins coordinates=XYZ
+
+loadrt [EMCMOT]EMCMOT base_period_nsec=[EMCMOT]BASE_PERIOD servo_period_nsec=[EMCMOT]SERVO_PERIOD num_joints=3 num_dio=10 num_aio=10 num_spindles=1
+addf motion-command-handler   servo-thread
+addf motion-controller        servo-thread
+
+
+net x-pos-fb     joint.0.motor-pos-fb   <=  joint.0.motor-pos-cmd
+
+
+net y1-pos-fb     joint.1.motor-pos-fb   <=  joint.1.motor-pos-cmd
+
+
+net z-pos-fb     joint.2.motor-pos-fb   <=  joint.2.motor-pos-cmd 
+
+setp iocontrol.0.emc-enable-in 1

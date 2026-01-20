@@ -1,0 +1,41 @@
+= simulate_probe(1)
+
+== NAME
+
+simulate_probe - simulate a probe input
+
+== SYNOPSIS
+
+*simulate_probe*
+
+== DESCRIPTION
+
+*simulate_probe* Creates an on-screen GUI button to simulate touch probe input.
+Typically used in sim configs or debugging.
+
+== SEE ALSO
+
+linuxcnc(1)
+
+Much more information about LinuxCNC and HAL is available in the
+LinuxCNC and HAL User Manuals, found at /usr/share/doc/LinuxCNC/.
+
+== BUGS
+
+None known at this time.
+
+== AUTHOR
+
+This man page written by Andy Pugh, as part of the LinuxCNC project.
+
+== REPORTING BUGS
+
+Report bugs at https://github.com/LinuxCNC/linuxcnc/issues.
+
+== COPYRIGHT
+
+Copyright © 2020 Andy Pugh.
+
+This is free software; see the source for copying conditions. There is
+NO warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR
+PURPOSE.

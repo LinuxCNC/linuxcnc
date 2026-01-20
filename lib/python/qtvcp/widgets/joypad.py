@@ -15,8 +15,14 @@
 ###############################################################################
 import sys
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtCore import Qt, QPoint, QPointF, QRect, QRectF, QSize, QSizeF, QEvent, Q_ENUM
+from PyQt5.QtCore import Qt, QPoint, QPointF, QRect, QRectF, QSize, QSizeF, QEvent
 from PyQt5.QtGui import QPainter, QPainterPath, QPen, QBrush, QColor, QFont, QPixmap, QRadialGradient
+
+try:
+    from PyQt5.QtCore import Q_ENUM
+except:
+    # before qt5.10
+    from PyQt5.QtCore import Q_ENUMS as Q_ENUM
 
 import hal
 from qtvcp.widgets.widget_baseclass import _HalWidgetBase
@@ -537,6 +543,12 @@ class HALPinType:
 class HALPad(JoyPad, _HalWidgetBase, HALPinType):
     HALPinType = HALPinType
     Q_ENUM(HALPinType)
+
+    # older version of pyqt5 need this as well as Q_ENUM
+    NONE = 0
+    BIT = hal.HAL_BIT
+    S32 = hal.HAL_S32
+    FLOAT = hal.HAL_FLOAT
 
     def __init__(self, parent=None):
         super(HALPad, self).__init__(parent)

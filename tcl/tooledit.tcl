@@ -54,7 +54,9 @@ if [catch {package require Linuxcnc} msg] {
 # since "_" is not defined for standalone usage, make a proc named "_"
 if {"" == [info command "_"]} {
   package require msgcat
-  proc _ {s} {return [::msgcat::mc $s]}
+  proc _ {s} {
+    return [::msgcat::mc $s]
+  }
 }
 #-----------------------------------------------------------------------
 
@@ -62,7 +64,7 @@ if {"" == [info command "_"]} {
 proc ::tooledit::init { {columns ""} } {
   if [file readable ~/.tooleditrc] {
     if [catch {source ~/.tooleditrc} msg] {
-      puts stderr "[_ "Problem reading ~/.tooleditrc"]:"\n$msg"
+      puts stderr "[_ "Problem reading ~/.tooleditrc"]:\n$msg"
     }
     if [info exists geometry] {
       set ::te(top,restore,geometry) $geometry
@@ -96,7 +98,7 @@ proc ::tooledit::init { {columns ""} } {
 
   set ::te(filemod) 0
   set ::te(fmt,int)   %d
-  set ::te(fmt,real)  %g
+  set ::te(fmt,real)  %.9g
   set ::te(fmt,angle) %f
   set ::te(msg,last)  ""
   set ::te(pollms)    2000
@@ -311,7 +313,7 @@ proc ::tooledit::readfile {filename} {
     foreach item {t p x y z a b c u v w d i j q comment} {
       set u($item) ""
     }
-    set newline [string tolower $newline]
+    # extract the comment as is (without converting it to lower case)
     set i1 [string first \; $newline]
     if {$i1 >= 0} {
       set u(comment) [string range $newline [expr $i1 +1] end]
@@ -320,6 +322,7 @@ proc ::tooledit::readfile {filename} {
       set newline    [string trim $newline]
     }
 
+    set newline [string tolower $newline]
     if {"$newline" == ""} {
       lappend ::te(global,comments) $u(comment)
       continue

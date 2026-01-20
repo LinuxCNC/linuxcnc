@@ -105,10 +105,13 @@ class HAL:
         spindle_on = spindle_cw = spindle_ccw = False
         mist = flood = brake = at_speed = bldc = False
         cstart = abort = sstep = False
+        self.dbouncenames = ""
         if self.a.findsignal("s-encoder-a"):
             spindle_enc = True
-        if self.a.findsignal("probe"):
+        if self.a.findsignal("probe-in"):
             probe = True
+            if self.d.debounce_probe:
+                self.dbouncenames = self.dbouncenames + "dbounce.probe,"
         if self.a.findsignal("abort"):
             abort = True
         if self.a.findsignal("s-pwm-pulse"):
@@ -119,6 +122,8 @@ class HAL:
             cstart = True
         if self.a.findsignal("estop-ext"):
             estop = True
+            if self.d.debounce_estop:
+                self.dbouncenames = self.dbouncenames + "dbounce.estop,"
         if self.a.findsignal("single-step"):
             sstep = True
         if self.a.findsignal("spindle-enable"):
@@ -250,6 +255,11 @@ class HAL:
         if temp:
             print("loadrt mux16 names=%s"% (self.d.mux16names), file=file)
 
+        # load dbounce component:
+        self.dbouncenames = self.dbouncenames.rstrip(",")
+        if not self.dbouncenames == "":
+            print("loadrt dbounce names=%s"% (self.dbouncenames), file=file)
+
         # qtplasmac requires plasmac.comp
         if self.d.frontend == _PD._QTPLASMAC:
             print("loadrt plasmac", file=file)
@@ -328,6 +338,14 @@ class HAL:
                 j ='{0:<24}'.format(j)
                 print("addf %s servo-thread"% j, file=file)
 
+        # dbounce addf
+        if not self.dbouncenames == '':
+            temp=self.dbouncenames.split(",")
+            for j in (temp):
+                j ='{0:<24}'.format(j)
+                print("addf %s servo-thread"% j, file=file)
+
+
         for i in self.d.addcompservo:
             if not i == '':
                 print(i +" servo-thread", file=file)
@@ -348,18 +366,18 @@ class HAL:
         if chargepump:
             steppinname = self.a.make_pinname(chargepump, substitution = self.d.useinisubstitution)
             print(file=file)
-            print(_("# ---Chargepump StepGen: 0.25 velocity = 10Khz square wave output---"), file=file)
+            print(_("# ---Chargepump StepGen: 10000 velocity-cmd = 10Khz square wave output---"), file=file)
             print(file=file)
             print("setp   " + steppinname + ".dirsetup        100", file=file)
             print("setp   " + steppinname + ".dirhold         100", file=file)
             print("setp   " + steppinname + ".steplen         100", file=file)
             print("setp   " + steppinname + ".stepspace       100", file=file)
-            print("setp   " + steppinname + ".position-scale  10000", file=file)
             print("setp   " + steppinname + ".step_type       2", file=file)
             print("setp   " + steppinname + ".control-type    1", file=file)
             print("setp   " + steppinname + ".maxaccel        0", file=file)
             print("setp   " + steppinname + ".maxvel          0", file=file)
-            print("setp   " + steppinname + ".velocity-cmd    0.25", file=file)
+            print("setp   " + steppinname + ".position-scale  1", file=file)
+            print("setp   " + steppinname + ".velocity-cmd    10000", file=file)
             print(file=file)
             print("net x-enable                                 => " + steppinname +".enable", file=file)
 
@@ -368,6 +386,7 @@ class HAL:
             self.qtplasmac_connections(file, base)
             prefsfile = os.path.join(base, self.d.machinename + ".prefs")
             self.qtplasmac_prefs(prefsfile)
+            self.qtplasmacpostgui = []
 
         print(file=file)
         self.connect_output(file)
@@ -483,7 +502,13 @@ class HAL:
             print(file=file)
             print(_("#  ---probe signal---"), file=file)
             print(file=file)
-            print("net probe-in     =>  motion.probe-input", file=file)
+            if self.d.debounce_probe:
+                print("setp dbounce.probe.delay %s" % self.d.debounce_cycle_probe, file=file)
+                print("net probe-in     =>  dbounce.probe.in", file=file)
+                print("net probe-db     <=  dbounce.probe.out", file=file)
+                print("net probe-db     =>  motion.probe-input", file=file)
+            else:
+                print("net probe-in     =>  motion.probe-input", file=file)
             print(file=file)
         if self.d.externaljog:
             print(_("# ---jog button signals---"), file=file)
@@ -772,7 +797,13 @@ class HAL:
             print(file=file)
             print(_("# **** Setup for external estop ladder program -END ****"), file=file)
         elif estop:
-            print("net estop-ext     =>  iocontrol.0.emc-enable-in", file=file)
+            if self.d.debounce_probe:
+                print("setp dbounce.estop.delay %s" % self.d.debounce_cycle_estop, file=file)
+                print("net estop-ext    =>  dbounce.estop.in", file=file)
+                print("net estop-db     <=  dbounce.estop.out", file=file)
+                print("net estop-db     =>  iocontrol.0.emc-enable-in", file=file)
+            else:
+                print("net estop-ext     =>  iocontrol.0.emc-enable-in", file=file)
         else:
             print("net estop-out     =>  iocontrol.0.emc-enable-in", file=file)
         print(file=file)
@@ -796,15 +827,33 @@ class HAL:
                     print(file=file)
 
                 if self.d.frontend == _PD._GMOCCAPY:
+                    print(_("#  ---signals to show tool offset in the GUI---"), file=file)
+                    print(file=file)
+                    print("net tooloffset-x  <=  motion.tooloffset.x", file=file)
+                    print("net tooloffset-z  <=  motion.tooloffset.z", file=file)
+                    print(file=file)
                     gm = os.path.join(base, "gmoccapy_postgui.hal")
-                    if not os.path.exists(gm):
-                        f1 = open(gm, "w")
-                        print(_("#  ---manual tool change signals to gmoccapy's dialog---"), file=f1)
-                        print(file=f1)
-                        print("net tool-change-request    => gmoccapy.toolchange-change", file=f1)
-                        print("net tool-change-confirmed  <= gmoccapy.toolchange-changed", file=f1)
-                        print("net tool-number            => gmoccapy.toolchange-number", file=f1)
-                        f1.close()
+                    f1 = open(gm, "w")
+                    print(_("# Generated by PNCconf at %s") % time.asctime(), file=f1)
+                    print(_("# Using LinuxCNC version:  %s") % self.d.linuxcnc_version, file=f1)
+                    print(_("# If you make changes to this file, they will be"), file=f1)
+                    print(_("# overwritten when you run PNCconf again"), file=f1)
+                    print(file=f1)
+                    print(_("#  ---manual tool change signals to gmoccapy's dialog---"), file=f1)
+                    print(file=f1)
+                    print("net tool-change-request    => gmoccapy.toolchange-change", file=f1)
+                    print("net tool-change-confirmed  <= gmoccapy.toolchange-changed", file=f1)
+                    print("net tool-number            => gmoccapy.toolchange-number", file=f1)
+                    print(file=f1)
+                    print(_("#  ---signals to show tool offset in the GUI---"), file=f1)
+                    print(file=f1)
+                    print("net tooloffset-x  => gmoccapy.tooloffset-x", file=f1)
+                    print("net tooloffset-z  => gmoccapy.tooloffset-z", file=f1)
+                    print(file=f1)
+                    print(_("#  ---spindle-at-speed indicator---"), file=f1)
+                    print(file=f1)
+                    print(_("net spindle-at-speed => gmoccapy.spindle_at_speed_led"), file=f1)
+                    f1.close()
                 elif self.d.frontend == _PD._QTDRAGON:
                     qt = os.path.join(base, "qtvcp_postgui.hal")
                     if not os.path.exists(qt):
@@ -951,6 +1000,14 @@ class HAL:
         else:
             if os.path.exists(pyfilename):
                 os.remove(pyfilename)
+
+        # add a postgui halfile for qtplasmac
+        if self.d.frontend == _PD._QTPLASMAC:
+            postgui = os.path.join(base, "qtplasmac_postgui.hal")
+            f1 = open(postgui, "w")
+            for line in self.qtplasmacpostgui:
+                print(line, file=f1)
+            f1.close
 
         # pncconf adds a custom.hal and custom_postgui.hal file if one is not present
         if self.d.frontend != _PD._QTPLASMAC:
@@ -1433,7 +1490,7 @@ class HAL:
                    print("setp   " + steppinname + ".direction.invert_output   true", file=file)
             if let == "s":
                 print(file=file)
-                print("net spindle-enable          =>  " + steppinname + ".enable", file=file)
+                print("net machine-is-on           =>  " + steppinname + ".enable", file=file)
                 print("net spindle-vel-cmd-rps     =>  "+ steppinname + ".velocity-cmd", file=file)
                 if not encoderpinname and not resolverpinname:
                     print("net spindle-vel-fb-rps         <=  "+ steppinname + ".velocity-fb", file=file)
@@ -1560,19 +1617,29 @@ class HAL:
 
     def connect_input(self, file):
         print(_("# external input signals"), file=file)
+        # comments for qtplasmac external pins are saved for a postgui hal file
+        if self.d.frontend == _PD._QTPLASMAC:
+            self.qtplasmacpostgui.append("\n# external input signals")
 
         def write_pins(pname,p,i,t):
             # for input pins
             if t in (_PD.GPIOI, _PD.INM0):
                 if not p == "unused-input":
                     pinname = self.a.make_pinname(pname, substitution = self.d.useinisubstitution)
-                    print("\n# ---",p.upper(),"---", file=file)
+                    # write comments if not a qtplasmac external pin
+                    if not (self.d.frontend == _PD._QTPLASMAC and "ext_" in p):
+                        print("\n# ---",p.upper(),"---", file=file)
                     if "parport" in pinname:
                         if i: print("net %s     <= %s-not" % (p, pinname), file=file)
                         else: print("net %s     <= %s" % (p, pinname), file=file)
                     elif "sserial" in pname or t == _PD.INM0:
                         if i: print("net %s     <=  "% (p)+pinname +"-not", file=file)
                         else: print("net %s     <=  "% (p)+pinname, file=file)
+                    # qtplasmac external pins are saved for a postgui hal file
+                    elif self.d.frontend == _PD._QTPLASMAC and "ext_" in p:
+                        invert = "_not" if i else "    "
+                        self.qtplasmacpostgui.append(f"net {p}  {pinname}.in{invert}  =>  {p.replace('plasmac:', 'qtplasmac.')}")
+                    # all others are written to the hal file
                     else:
                         if i: print("net %s     <=  "% (p)+pinname +".in_not", file=file)
                         else: print("net %s     <=  "% (p)+pinname +".in", file=file)
@@ -1655,13 +1722,18 @@ class HAL:
 
     def connect_output(self, file):
         print(_("# external output signals"), file=file)
+        # comments for qtplasmac external pins are saved for a postgui hal file
+        if self.d.frontend == _PD._QTPLASMAC:
+            self.qtplasmacpostgui.append("\n# external output signals")
 
         def write_pins(pname,p,i,t,boardnum,connector,port,channel,pin):
             # for output /open drain pins
             if t in (_PD.GPIOO,_PD.GPIOD,_PD.SSR0,_PD.OUTM0):
                 if not p == "unused-output":
                     pinname = self.a.make_pinname(pname, substitution = self.d.useinisubstitution)
-                    print("\n# ---",p.upper(),"---", file=file)
+                    # write comments if not a qtplasmac external pin
+                    if not (self.d.frontend == _PD._QTPLASMAC and "plasmac:ext_" in p):
+                        print("\n# ---",p.upper(),"---", file=file)
                     if "parport" in pinname:
                         if p == "force-pin-true":
                             print("setp %s true"% (pinname), file=file)
@@ -1680,18 +1752,41 @@ class HAL:
                                 temp = pinname + ".out"
                         # set pin true if force-pin-true otherwise connect to a signal
                         if p == "force-pin-true":
-                            print("setp %s true"% (temp), file=file)
+                            # qtplasmac external pins are saved for a postgui hal file
+                            if self.d.frontend == _PD._QTPLASMAC and "plasmac:ext_" in p:
+                                self.qtplasmacpostgui.append(f"setp {temp} true")
+                            # all others are written to the hal file
+                            else:
+                                print("setp %s true"% (temp), file=file)
                         else:
                             comment = ""
                             if self.d.frontend == _PD._QTPLASMAC and p in ['dout-01','dout-02','dout-03']:
                                 comment = "#qtplasmac uses digital output %s:\n#" % p
-                            print("%snet %s  =>     %s"% (comment,p,temp), file=file)
+                            # qtplasmac external pins are saved for a postgui hal file
+                            if self.d.frontend == _PD._QTPLASMAC and "plasmac:ext_" in p:
+                                self.qtplasmacpostgui.append(f"net {p}  {p}  =>  {temp}")#  =>  {p.replace('plasmac:', 'qtplasmac.')}")
+                            # all others are written to the hal file
+                            else:
+                                print("%snet %s  =>     %s"% (comment,p,temp), file=file)
                     if i: # invert pin
-                        if "sserial" in pname:
-                            ending = "-invert"
-                        elif "parport" in pinname: ending = "-invert"
-                        else: ending = ".invert_output"
-                        print("setp %s true"%  (pinname + ending ), file=file)
+                        if t in (_PD.SSR0,_PD.OUTM0):
+                            # qtplasmac external pins are saved for a postgui hal file
+                            if self.d.frontend == _PD._QTPLASMAC and "plasmac:ext_" in p:
+                                self.qtplasmacpostgui.append(f"setp {pinname.replace('.out-', '.invert-')} true")
+                            # all others are written to the hal file
+                            else:
+                                print("setp %s true"%  (pinname.replace('.out-', '.invert-')), file=file)
+                        else:
+                            if "sserial" in pname:
+                                ending = "-invert"
+                            elif "parport" in pinname: ending = "-invert"
+                            else: ending = ".invert_output"
+                            # qtplasmac external pins are saved for a postgui hal file
+                            if self.d.frontend == _PD._QTPLASMAC and "plasmac:ext_" in p:
+                                self.qtplasmacpostgui.append(f"setp {pinname + ending}")
+                            # all others are written to the hal file
+                            else:
+                                print("setp %s true"%  (pinname + ending ), file=file)
 
             # for pwm pins
             elif t in (_PD.PWMP,_PD.PDMP,_PD.UDMU):

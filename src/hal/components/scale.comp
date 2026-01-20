@@ -3,6 +3,7 @@ pin in float in;
 pin in float gain;
 pin in float offset;
 pin out float out "out = in * gain + offset";
+option period no;
 function _;
 license "GPL";
 author "Jeff Epler";

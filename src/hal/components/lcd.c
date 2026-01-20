@@ -47,7 +47,7 @@ typedef struct {
 
 typedef struct {
     lcd_page_t *pages;
-    int num_pages;
+    unsigned num_pages;
     hal_u32_t *page_num;
     hal_u32_t last_page;
     hal_u32_t *out;
@@ -75,7 +75,7 @@ static int parse_fmt(char *in, int *ptr, char *out, void *val, char dp);
 char *digits = "0123456789ABCDEF";
 
 char *fmt_strings[MAX_CHAN];
-RTAPI_MP_ARRAY_STRING(fmt_strings, MAX_CHAN, "screen formatting scancodes")
+RTAPI_MP_ARRAY_STRING(fmt_strings, MAX_CHAN, "screen formatting scancodes");
 
 #ifndef do_div
 # define do_div(n,base) ({					 \
@@ -255,6 +255,7 @@ int rtapi_app_main(void){
 }
 
 void write(void *arg, long period){
+    (void)period;
     lcd_t *lcd;
     int i;
     
@@ -347,6 +348,7 @@ static void write_one(lcd_inst_t *inst){
                     inst->f_ptr++;
                     inst->buff[0] = '\\';
                     inst->buff[1] = 0;
+                    /* Fallthrough */
                     
                 default: //check for hex
                     c2 = inst->pages[*inst->page_num].fmt[++inst->f_ptr];
@@ -376,6 +378,7 @@ static void write_one(lcd_inst_t *inst){
                 inst->f_ptr++;
                 return;
             }
+            /* Fallthrough */
         default:
             *inst->out = inst->pages[*inst->page_num].fmt[inst->f_ptr++];
     }
@@ -427,6 +430,7 @@ static int parse_fmt(char *in, int *ptr, char *out, void *val, char dp){
                     fill = '0';
                     break;
                 }
+                /* Fallthrough */
             case '1':
             case '2':
             case '3':
@@ -463,8 +467,10 @@ static int parse_fmt(char *in, int *ptr, char *out, void *val, char dp){
             case 'x':
             case 'X':
                 base = 16;
+                /* Fallthrough */
             case 'o':
                 if (base == 10) base = 8;
+                /* Fallthrough */
             case 'u':
                 if (out == NULL || val == NULL) return 'u';
             {

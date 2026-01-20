@@ -9,11 +9,11 @@ import _hal
 import hal
 import traceback
 
-from hal_glib import GStat
-from qtvcp.qt_istat import _IStat as IStatParent
+from common.hal_glib import GStat
+from common.iniinfo import _IStat as IStatParent
 
 # Set up logging
-from qtvcp import logger
+from common import logger
 log = logger.getLogger(__name__)
 # log.setLevel(logger.INFO) # One of DEBUG, INFO, WARNING, ERROR, CRITICAL, VERBOSE
 
@@ -29,10 +29,6 @@ class Info(IStatParent):
             cls._instance = IStatParent.__new__(cls, *args, **kwargs)
         return cls._instance
 
-
-# Now that the class is defined create a reference to it for the other classes
-INI = Info()
-
 ################################################################
 # GStat class
 ################################################################
@@ -44,7 +40,7 @@ class Status(GStat):
     __gsignals__ = {
         'toolfile-stale': (GObject.SignalFlags.RUN_FIRST, GObject.TYPE_NONE, (GObject.TYPE_PYOBJECT,)),
     }
-    TEMPARARY_MESSAGE = 255
+    TEMPARARY_MESSAGE = 255 # remove in the future
     OPERATOR_ERROR = linuxcnc.OPERATOR_ERROR
     OPERATOR_TEXT = linuxcnc.OPERATOR_TEXT
     NML_ERROR = linuxcnc.NML_ERROR
@@ -61,11 +57,8 @@ class Status(GStat):
         # only initialize once for all instances
         if self.__class__._instanceNum >= 1:
             return
-        GObject.Object.__init__(self)
         self.__class__._instanceNum += 1
-        super(GStat, self).__init__()
-        self.current_jog_rate = INI.DEFAULT_LINEAR_JOG_VEL
-        self.angular_jog_velocity = INI.DEFAULT_ANGULAR_JOG_VEL
+        super(Status, self).__init__()
 
 ################################################################
 # Lcnc_Action class

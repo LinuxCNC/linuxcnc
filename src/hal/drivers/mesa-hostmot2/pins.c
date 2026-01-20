@@ -168,6 +168,14 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
                     case 0x16: return "txen5";
                     case 0x17: return "txen6";
                     case 0x18: return "txen7";
+                    case 0x21: return "ntxen0";
+                    case 0x22: return "ntxen1";
+                    case 0x23: return "ntxen2";
+                    case 0x24: return "ntxen3";
+                    case 0x25: return "ntxen4";
+                    case 0x26: return "ntxen5";
+                    case 0x27: return "ntxen6";
+                    case 0x28: return "ntxen7";
                 }
                 break;
             }else{ // Input Pin Codes
@@ -204,14 +212,14 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
 
         case HM2_GTAG_INM:
             switch (sec_pin) {
-                case 0x1: return "in0";
-                case 0x2: return "in1";
-                case 0x3: return "in2";
-                case 0x4: return "in3";
-                case 0x5: return "in4";
-                case 0x6: return "in5";
-                case 0x7: return "in6";
-                case 0x8: return "in7";
+                case 0x1: return "in0,enca0";
+                case 0x2: return "in1,encb0";
+                case 0x3: return "in2,enca1";
+                case 0x4: return "in3,encb1";
+                case 0x5: return "in4,enca2";
+                case 0x6: return "in5,encb2";
+                case 0x7: return "in6,enca3";
+                case 0x8: return "in7,encb3";
                 case 0x9: return "in8";
                 case 0xA: return "in9";
                 case 0xB: return "in10";
@@ -324,7 +332,8 @@ static const char* hm2_get_pin_secondary_name(hm2_pin_t *pin) {
         case HM2_GTAG_PKTUART_TX:    
             switch (sec_pin) {
                 case 0x1: return "TX Data";
-                case 0x2: return "Drv Enable";
+                case 0x2: return "Drv Enable low";
+                case 0x3: return "Drv Enable high";
             }
             break;
 
@@ -653,7 +662,7 @@ const char* hm2_get_pin_secondary_hal_name(const hm2_pin_t *pin) {
         case HM2_GTAG_UART_TX:
             switch (sec_pin) {
                 case 0x1: return "tx";
-                case 0x2: return "tx-drive-enable";
+                case 0x2: return "tx-drv-en";
             }
             break;
 
@@ -665,7 +674,7 @@ const char* hm2_get_pin_secondary_hal_name(const hm2_pin_t *pin) {
         case HM2_GTAG_PKTUART_TX:
             switch (sec_pin) {
                 case 0x1: return "tx";
-                case 0x2: return "tx-drive-enable";
+                case 0x2: return "tx-drv-en";
             }
             break;
 
@@ -759,8 +768,7 @@ int hm2_read_pin_descriptors(hostmot2_t *hm2) {
         
         pin->port_num = i / hm2->idrom.port_width;
         
-        if ((pin->port_num < 0 ) 
-            || (pin->port_num >= hm2->llio->num_ioport_connectors)){
+        if (pin->port_num >= hm2->llio->num_ioport_connectors) {
             HM2_ERR("hm2_read_pin_descriptors: Calculated port number (%d) is "
                     "invalid\n", pin->port_pin );
             return -EINVAL;
@@ -768,7 +776,7 @@ int hm2_read_pin_descriptors(hostmot2_t *hm2) {
         
         pin->bit_num = i % hm2->idrom.port_width;
         
-        if ((pin->bit_num < 0 ) || (pin->bit_num > 31)){
+        if (pin->bit_num > 31) {
             HM2_ERR("hm2_read_pin_descriptors: Calculated bit number (%d) is "
                     "invalid\n", pin->bit_num );
             return -EINVAL;

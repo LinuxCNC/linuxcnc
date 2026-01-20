@@ -1,38 +1,45 @@
 component histobins
-"""histogram bins utility for scripts/hal-histogram
+"""histogram bins utility for scripts/hal-histogram""";
+description """
+Read *availablebins* pin for the number of bins available. Set the *minvalue*,
+*binsize*, and *nbins* pins and ensure *nbins* ≤ *availablebins*.
 
-Usage:
-  Read availablebins pin for the number of bins available.
-  Set the minvalue, binsize, and nbins pins.
-    Ensure nbins <= availablebins
-    For nbins = N, the bins are numbered: 0 ... N\-1 
-  Iterate:
-    Set index pin to a bin number: 0 <= index < nbins.
-    Read check pin and verify that check pin == index pin.
-    Read outputs: binvalue, pextra, nextra pins.
-         (binvalue is count for the indexed bin)
-         (pextra   is count for all inputs > maxvalue)
-         (nextra   is count for all bins   < minvalue)
+For *nbins* = N, the bins are numbered: 0 ... N-1
 
- If index is out of range (index < 0 or index > maxbinnumber)
- then binvalue == \-1.
- The input-error pin is set when input rules are violated
- and updates cease.
- The reset pin may be used to restart.
- The input used is selected based on pintype:
-   pintype  inputpin
-   -------  -----------
-         0  input
-         1  input-s32
-         2  input-u32
-         3  input-bit
- Additional output statistics pins:
-   input-min
-   input-max
-   nsamples
-   variance
-   mean
- The method input pin selects an alternate variance calculation.
+Iterate:
+
+* Set *index* pin to a bin number: 0 ≤ *index* < *nbins*.
+* Read check pin and verify that check pin == index pin.
+* Read outputs: binvalue, pextra, nextra pins. +
+  (*binvalue* is count for the indexed bin) +
+  (*pextra* is count for all inputs > maxvalue) +
+  (*nextra* is count for all bins   < minvalue)
+
+If *index* is out of range (*index* < 0 or *index* > *maxbinnumber* then
+binvalue == -1. The *input-error* pin is set when input rules are violated and
+updates cease. The reset pin may be used to restart.
+
+The input used is selected based on pintype:
+[options="header",cols="^1,1"]
+|===
+^h|pintype
+^h|inputpin
+
+|0|input
+|1|input-s32
+|2|input-u32
+|3|input-bit
+|===
+
+Additional output statistics pins:
+
+* *input-min*
+* *input-max*
+* *nsamples*
+* *variance*
+* *mean*
+
+The method input pin selects an alternate variance calculation.
 
 Maintainers note: hardcoded for MAXBINNUMBER==200
 """;
@@ -66,11 +73,12 @@ pin out float  mean;
 // user may interrogate availablebins to determine this compiled-in limit
 pin out s32 availablebins = 200; //MAXBINNUMBER
 
+option period no;
 function _ fp;
 
 variable int bin[200]; // MAXBINNUMBER
 variable int first = 1;
-variable int last_nbins    = 0;
+variable unsigned last_nbins    = 0;
 
 variable hal_float_t maxvalue;
 
@@ -86,10 +94,10 @@ author "Dewey Garrett";
 ;;
 
 hal_float_t invalue;
-int i;
+unsigned i;
 int idx;
 check = index;
-if (   (nbins > availablebins)
+if (   (nbins > (unsigned)availablebins)
     || (nbins < 1)
    ) {
   input_error = 1;
@@ -143,7 +151,7 @@ check = index; // user should verify check==index for reading values
 // -1 value indicates illegal index
 if (index < 0) {
   binvalue = -1;
-} else if (index < nbins) {
+} else if (index < (int)nbins) {
   binvalue = bin[index];
 } else {
   binvalue = -1;

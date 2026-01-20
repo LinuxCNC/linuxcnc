@@ -1,0 +1,373 @@
+= pid(9)
+
+== NAME
+
+pid - proportional/integral/derivative controller with automatic tuning
+support
+
+== SYNOPSIS
+
+*loadrt pid* [**num_chan=**_num_ | **names=**_name1_[,_name2_..._]] [debug=*_dbg_]
+
+== DESCRIPTION
+
+*pid* is a classic Proportional/Integral/Derivative controller, used to
+control position or speed feedback loops for servo motors and other
+closed-loop applications.
+
+*pid* supports a maximum of sixteen controllers. The number that are
+actually loaded is set by the *num_chan* argument when the module is
+loaded. Alternatively, specify names= and unique names separated by
+commas.
+
+The *num_chan=* and *names=* specifiers are mutually exclusive. If
+neither *num_chan=* nor *names=* are specified, the default value is
+three. If *debug* is set to 1 (the default is 0), some additional HAL
+parameters will be exported, which might be useful for tuning, but are
+otherwise unnecessary.
+
+In the following description, it is assumed that we are discussing
+position loops. However this component can be used to implement other
+loops such as speed loops, torch height control, and others.
+
+Each loop has a number of pins and parameters, whose names begin with
+'**pid.**_N_**.**', where _N_ is the channel number. Channel numbers start at zero.
+
+The three most important pins are 'command', 'feedback', and 'output'.
+For a position loop, 'command' and 'feedback' are in position units. For
+a linear axis, this could be inches, mm, metres, or whatever is
+relevant. Likewise, for a angular axis, it could be degrees, radians,
+etc. The units of the 'output' pin represent the change needed to make
+the feedback match the command. As such, for a position loop 'output' is
+a velocity, in inches/sec, mm/sec, degrees/sec, etc.
+
+Each loop has several other pins as well. 'error' is equal to 'command'
+minus 'feedback'. 'enable' is a bit that enables the loop. If 'enable'
+is false, all integrators are reset, and the output is forced to zero.
+If 'enable' is true, the loop operates normally.
+
+The PID gains, limits, and other 'tunable' features of the loop are
+implemented as parameters. These are as follows:
+
+*Pgain* Proportional gain
+
+*Igain* Integral gain
+
+*Dgain* Derivative gain
+
+*bias* Constant offset on output
+
+*FF0* Zeroth order Feedforward gain
+
+*FF1* First order Feedforward gain
+
+*FF2* Second order Feedforward gain
+
+*FF3* Third order Feedforward gain
+
+*deadband* Amount of error that will be ignored
+
+*maxerror* Limit on error
+
+*maxerrorI* Limit on error integrator
+
+*maxerrorD* Limit on error differentiator
+
+*maxcmdD* Limit on command differentiator
+
+*maxcmdDD* Limit on command 2nd derivative
+
+*maxcmdDDD* Limit on command 3rd derivative
+
+*maxoutput* Limit on output value
+
+All of the limits (max____) are implemented such that if the parameter
+value is zero, there is no limit.
+
+A number of internal values which may be useful for testing and tuning
+are also available as parameters. To avoid cluttering the parameter
+list, these are only exported if "debug=1" is specified on the insmod
+command line.
+
+*errorI* Integral of error
+
+*errorD* Derivative of error
+
+*commandD* Derivative of the command
+
+*commandDD* 2nd derivative of the command
+
+*commandDDD* 3rd derivative of the command
+
+The PID loop calculations are as follows (see the code in pid.c for all
+the nitty gritty details):
+
+....
+error = command - feedback
+if ( abs(error) < deadband ) then error = 0
+limit error to +/- maxerror
+errorI += error * period
+limit errorI to +/- maxerrorI
+errorD = (error - previouserror) / period
+limit errorD to +/- maxerrorD
+commandD = (command - previouscommand) / period
+limit commandD to +/- maxcmdD
+commandDD = (commandD - previouscommandD) / period
+limit commandDD to +/- maxcmdDD
+commandDDD = (commandDD - previouscommandDD) / period
+limit commandDDD to +/- maxcmdDDD
+output = bias + error * Pgain + errorI * Igain +
+         errorD * Dgain + command * FF0 + commandD * FF1 +
+         commandDD * FF2 + commandDDD * FF3
+limit output to +/- maxoutput
+....
+
+This component has a built in auto tune mode. It works by setting up a
+limit cycle to characterize the process. This is called the Relay method
+and described in the 1984 Automation paper *Automatic Tuning of Simple
+Regulators with Specifications on Phase and Amplitude Margins* by Karl
+Johan Åström and Tore Hägglund (doi:10.1016/0005-1098(84)90014-1),
+https://lup.lub.lu.se/search/ws/files/6340936/8509157.pdf. Using this
+method, *Pgain/Igain/Dgain* or *Pgain/Igain/FF1* can be determined using
+the Ziegler-Nichols algorithm. When using *FF1* tuning, scaling must be
+set so that *output* is in user units per second.
+
+During auto tuning, the *command* input should not change. The limit
+cycle is setup around the commanded position. No initial tuning values
+are required to start auto tuning. Only *tune-cycles*, *tune-effort* and
+*tune-mode* need be set before starting auto tuning. Note that setting
+*tune-mode* to true disable the control loop. When auto tuning
+completes, the tuning parameters will be set, the output set to bias and
+the controller still be disabled. If running from LinuxCNC, the FERROR
+setting for the axis being tuned may need to be loosened up, as it must
+be larger than the limit cycle amplitude in order to avoid a following
+error.
+
+To perform auto tuning, take the following steps. Move the axis to be
+tuned somewhere near the center of it's travel. Set *tune-cycles* (the
+default value should be fine in most cases) and *tune-mode*. Set
+*tune-effort* to a small value. Set *enable* to true. Set *tune-mode* to
+true. Set *tune-start* to true. If no oscillation occurs, or the
+oscillation is too small, slowly increase *tune-effort*. Set
+*tune-start* to true. If no oscillation occurs, or the oscillation is
+too small, slowly increase *tune-effort* Auto tuning can be aborted at
+any time by setting *enable* or *tune-mode* to false.
+
+== NAMING
+
+The names for pins, parameters, and functions are prefixed as: *pid.N.*
+for N=0,1,...,num-1 when using *num_chan=num* *nameN.* for
+nameN=name1,name2,... when using *names=name1,name2,...*
+
+The *pid.N.* format is shown in the following descriptions.
+
+== FUNCTIONS
+
+**pid.**_N_**.do-pid-calcs** (uses floating-point) performs the PID calculations for control loop _N_.
+
+== PINS
+
+**pid.**_N_**.command** float in::
+  The desired (commanded) value for the control loop.
+**pid.**_N_**.Pgain** float in::
+  Proportional gain. Results in a contribution to the output that is the
+  error multiplied by *Pgain*.
+**pid.**_N_**.Igain** float in::
+  Integral gain. Results in a contribution to the output that is the
+  integral of the error multiplied by *Igain*. For example an error of
+  0.02 that lasted 10 seconds would result in an integrated error
+  (*errorI*) of 0.2, and if *Igain* is 20, the integral term would add
+  4.0 to the output.
+**pid.**_N_**.Dgain** float in::
+  Derivative gain. Results in a contribution to the output that is the
+  rate of change (derivative) of the error multiplied by *Dgain*. For
+  example an error that changed from 0.02 to 0.03 over 0.2 seconds would
+  result in an error derivative (*errorD*) of of 0.05, and if *Dgain* is
+  5, the derivative term would add 0.25 to the output.
+**pid.**_N_**.feedback** float in::
+  The actual (feedback) value, from some sensor such as an encoder.
+**pid.**_N_**.output** float out::
+  The output of the PID loop, which goes to some actuator such as a
+  motor.
+**pid.**_N_**.command-deriv** float in::
+  The derivative of the desired (commanded) value for the control loop.
+  If no signal is connected then the derivative will be estimated
+  numerically.
+**pid.**_N_**.feedback-deriv** float in::
+  The derivative of the actual (feedback) value for the control loop. If
+  no signal is connected then the derivative will be estimated
+  numerically. When the feedback is from a quantized position source
+  (e.g., encoder feedback position), behavior of the D term can be
+  improved by using a better velocity estimate here, such as the
+  velocity output of encoder(9) or hostmot2(9).
+**pid.**_N_**.error-previous-target** bit in::
+  Use previous invocation's target vs. current position for error
+  calculation, like the motion controller expects. This may make
+  torque-mode position loops and loops requiring a large I gain easier
+  to tune, by eliminating velocity-dependent following error.
+**pid.**_N_**.error** float out::
+  The difference between command and feedback.
+**pid.**_N_**.enable** bit in::
+  When true, enables the PID calculations. When false, *output* is zero,
+  and all internal integrators, etc, are reset.
+**pid.**_N_**.index-enable** bit in::
+  On the falling edge of *index-enable*, pid does not update the
+  internal command derivative estimate. On systems which use the encoder
+  index pulse, this pin should be connected to the index-enable signal.
+  When this is not done, and FF1 is nonzero, a step change in the input
+  command causes a single-cycle spike in the PID output. On systems
+  which use exactly one of the *-deriv* inputs, this affects the D term
+  as well.
+**pid.**_N_**.bias** float in::
+  *bias* is a constant amount that is added to the output. In most cases
+  it should be left at zero. However, it can sometimes be useful to
+  compensate for offsets in servo amplifiers, or to balance the weight
+  of an object that moves vertically. *bias* is turned off when the PID
+  loop is disabled, just like all other components of the output. If a
+  non-zero output is needed even when the PID loop is disabled, it
+  should be added with an external HAL sum2 block.
+**pid.**_N_**.FF0** float in::
+  Zero order feed-forward term. Produces a contribution to the output
+  that is *FF0* multiplied by the commanded value. For position loops,
+  it should usually be left at zero. For velocity loops, *FF0* can
+  compensate for friction or motor counter-EMF and may permit better
+  tuning if used properly.
+**pid.**_N_**.FF1** float in::
+  First order feed-forward term. Produces a contribution to the output
+  that is *FF1* multiplied by the derivative of the commanded value. For
+  position loops, the contribution is proportional to speed, and can be
+  used to compensate for friction or motor CEMF. For velocity loops, it
+  is proportional to acceleration and can compensate for inertia. In
+  both cases, it can result in better tuning if used properly.
+**pid.**_N_**.FF2** float in::
+  Second order feed-forward term. Produces a contribution to the output
+  that is *FF2* multiplied by the second derivative of the commanded
+  value. For position loops, the contribution is proportional to
+  acceleration, and can be used to compensate for inertia. For velocity
+  loops, the contribution is proportional to jerk, and should usually be
+  left at zero.
+**pid.**_N_**.FF3** float in::
+  Third order feed-forward term. Produces a contribution to the output
+  that is *FF3* multiplied by the third derivative of the commanded
+  value. For position loops, the contribution is proportional to jerk,
+  and can be used to compensate for residual errors during acceleration.
+  For velocity loops, the contribution is proportional to snap(jounce),
+  and should usually be left at zero.
+**pid.**_N_**.deadband** float in::
+  Defines a range of "acceptable" error. If the absolute value of
+  *error* is less than *deadband*, it will be treated as if the error is
+  zero. When using feedback devices such as encoders that are inherently
+  quantized, the deadband should be set slightly more than one-half
+  count, to prevent the control loop from hunting back and forth if the
+  command is between two adjacent encoder values. When the absolute
+  value of the error is greater than the deadband, the deadband value is
+  subtracted from the error before performing the loop calculations, to
+  prevent a step in the transfer function at the edge of the deadband
+  (see *BUGS*).
+**pid.**_N_**.maxoutput** float in::
+  Output limit. The absolute value of the output will not be permitted
+  to exceed *maxoutput*, unless *maxoutput* is zero. When the output is
+  limited, the error integrator will hold instead of integrating, to
+  prevent windup and overshoot.
+**pid.**_N_**.maxerror** float in::
+  Limit on the internal error variable used for P, I, and D. Can be used
+  to prevent high *Pgain* values from generating large outputs under
+  conditions when the error is large (for example, when the command
+  makes a step change). Not normally needed, but can be useful when
+  tuning non-linear systems.
+**pid.**_N_**.maxerrorD** float in::
+  Limit on the error derivative. The rate of change of error used by the
+  *Dgain* term will be limited to this value, unless the value is zero.
+  Can be used to limit the effect of *Dgain* and prevent large output
+  spikes due to steps on the command and/or feedback. Not normally needed.
+**pid.**_N_**.maxerrorI** float in::
+  Limit on error integrator. The error integrator used by the *Igain*
+  term will be limited to this value, unless it is zero. Can be used to
+  prevent integrator windup and the resulting overshoot during/after
+  sustained errors. Not normally needed.
+**pid.**_N_**.maxcmdD** float in::
+  Limit on command derivative. The command derivative used by *FF1* will
+  be limited to this value, unless the value is zero. Can be used to
+  prevent *FF1* from producing large output spikes if there is a step
+  change on the command. Not normally needed.
+**pid.**_N_**.maxcmdDD** float in::
+  Limit on command second derivative. The command second derivative used
+  by *FF2* will be limited to this value, unless the value is zero. Can
+  be used to prevent *FF2* from producing large output spikes if there
+  is a step change on the command. Not normally needed.
+**pid.**_N_**.maxcmdDDD** float in::
+  Limit on command third derivative. The command third derivative used
+  by *FF3* will be limited to this value, unless the value is zero. Can
+  be used to prevent *FF3* from producing large output spikes if there
+  is a step change on the command. Not normally needed.
+**pid.**_N_**.saturated** bit out::
+  When true, the current PID output is saturated. That is,
+  +
+  *output* = ± *maxoutput*.
+**pid.**_N_**.saturated-s** float out::
+
+**pid.**_N_**.saturated-count** s32 out::
+  When true, the output of PID was continually saturated for this many
+  seconds (*saturated-s*) or periods (*saturated-count*).
+
+=== Additional auto tuning pins
+
+**pid.**_N_**.tune-mode** bit in::
+  When true, enables auto tune mode. When false, normal PID calculations are performed.
+**pid.**_N_**.tune-start** bit io::
+  When set to true, starts auto tuning. Cleared when the auto tuning completes.
+**pid.**_N_**.tune-type* u32 rw::
+  When set to 0, *Pgain/Igain/Dgain* are calculated. When set to 1, *Pgain/Igain/FF1* are calculated.
+**pid.**_N_**.tune-cycles** u32 rw::
+  Determines the number of cycles to run to characterize the process.
+  *tune-cycles* actually sets the number of half cycles. More cycles
+  results in a more accurate characterization as the average of all
+  cycles is used.
+**pid.**_N_**.tune-effort** float rw::
+  The maximum output value used during automatic tuning. Determines the
+  effort used in setting up the limit cycle in the process.
+  *tune-effort* should be set to a positive value less than *maxoutput*.
+  Start with something small and work up to a value that results in a
+  good portion of the maximum motor current being used. The smaller the
+  value, the smaller the amplitude of the limit cycle.
+**pid.**_N_**.ultimate-gain** float ro (only if debug=1)::
+  Determined from process characterization. *ultimate-gain* is the ratio
+  of *tune-effort* to the limit cycle amplitude multiplied by 4.0
+  divided by Pi.
+**pid.**_N_**.ultimate-period** float ro (only if debug=1)::
+  Determined from process characterization. *ultimate-period* is the
+  period of the limit cycle.
+
+== PARAMETERS
+
+**pid.**_N_**.errorI** float ro (only if debug=1)::
+  Integral of error. This is the value that is multiplied by *Igain* to
+  produce the Integral term of the output.
+**pid.**_N_**.errorD** float ro (only if debug=1)::
+  Derivative of error. This is the value that is multiplied by *Dgain*
+  to produce the Derivative term of the output.
+**pid.**_N_**.commandD** float ro (only if debug=1)::
+  Derivative of command. This is the value that is multiplied by *FF1*
+  to produce the first order feed-forward term of the output.
+**pid.**_N_**.commandDD** float ro (only if debug=1)::
+  Second derivative of command. This is the value that is multiplied by
+  *FF2* to produce the second order feed-forward term of the output.
+**pid.**_N_**.commandDDD** float ro (only if debug=1)::
+  Third derivative of command. This is the value that is multiplied by
+  *FF3* to produce the third order feed-forward term of the output.
+
+== BUGS
+
+Some people would argue that deadband should be implemented such that
+error is treated as zero if it is within the deadband, and be unmodified
+if it is outside the deadband. This was not done because it would cause
+a step in the transfer function equal to the size of the deadband.
+People who prefer that behavior are welcome to add a parameter that will
+change the behavior, or to write their own version of *pid*. However,
+the default behavior should not be changed.
+
+Negative gains may lead to unwanted behavior. It is possible in some
+situations that negative FF gains make sense, but in general all gains
+should be positive. If some output is in the wrong direction, negating
+gains to fix it is a mistake; set the scaling correctly elsewhere
+instead.

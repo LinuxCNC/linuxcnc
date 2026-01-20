@@ -37,7 +37,7 @@ int tool_nml_register(CANON_TOOL_TABLE *tblptr)
     return 0;
 } //tool_nml_register
 
-void tooldata_last_index_set(int idx)
+void tooldata_last_index_set(int /*idx*/)
 {
     return; //not used with nml
 } //tooldata_last_index_set()

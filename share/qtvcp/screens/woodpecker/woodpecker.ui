@@ -2537,7 +2537,7 @@ FILE</string>
                                       <string/>
                                      </property>
                                      <property name="icon">
-                                      <iconset resource="woodpecker.qrc">
+                                      <iconset>
                                        <normaloff>:/buttons/images/Right_arrow.png</normaloff>:/buttons/images/Right_arrow.png</iconset>
                                      </property>
                                      <property name="iconSize">
@@ -2575,7 +2575,7 @@ FILE</string>
                                       <string/>
                                      </property>
                                      <property name="icon">
-                                      <iconset resource="woodpecker.qrc">
+                                      <iconset>
                                        <normaloff>:/buttons/images/Left_arrow.png</normaloff>:/buttons/images/Left_arrow.png</iconset>
                                      </property>
                                      <property name="iconSize">
@@ -2693,19 +2693,19 @@ GCODE</string>
                                    <property name="cornerButtonEnabled">
                                     <bool>false</bool>
                                    </property>
-                                   <attribute name="horizontalHeaderDefaultSectionSize">
+                                   <attribute name="horizontalHeaderMinimumSectionSize">
                                     <number>80</number>
                                    </attribute>
-                                   <attribute name="horizontalHeaderMinimumSectionSize">
+                                   <attribute name="horizontalHeaderDefaultSectionSize">
                                     <number>80</number>
                                    </attribute>
                                    <attribute name="verticalHeaderCascadingSectionResizes">
                                     <bool>false</bool>
                                    </attribute>
-                                   <attribute name="verticalHeaderDefaultSectionSize">
+                                   <attribute name="verticalHeaderMinimumSectionSize">
                                     <number>30</number>
                                    </attribute>
-                                   <attribute name="verticalHeaderMinimumSectionSize">
+                                   <attribute name="verticalHeaderDefaultSectionSize">
                                     <number>30</number>
                                    </attribute>
                                   </widget>
@@ -2988,19 +2988,13 @@ ROTATION</string>
                                       <verstretch>0</verstretch>
                                      </sizepolicy>
                                     </property>
-                                    <property name="frameShape">
-                                     <enum>QFrame::NoFrame</enum>
-                                    </property>
-                                    <property name="frameShadow">
-                                     <enum>QFrame::Plain</enum>
-                                    </property>
-                                    <property name="documentTitle">
+                                    <property name="documentTitle" stdset="0">
                                      <string>Machine Log</string>
                                     </property>
-                                    <property name="readOnly">
+                                    <property name="readOnly" stdset="0">
                                      <bool>true</bool>
                                     </property>
-                                    <property name="placeholderText">
+                                    <property name="placeholderText" stdset="0">
                                      <string>Machine Log</string>
                                     </property>
                                    </widget>
@@ -3032,23 +3026,17 @@ ROTATION</string>
                                       <verstretch>0</verstretch>
                                      </sizepolicy>
                                     </property>
-                                    <property name="frameShape">
-                                     <enum>QFrame::NoFrame</enum>
-                                    </property>
-                                    <property name="frameShadow">
-                                     <enum>QFrame::Plain</enum>
-                                    </property>
-                                    <property name="documentTitle">
-                                     <string>Integrator Log</string>
-                                    </property>
-                                    <property name="readOnly">
-                                     <bool>true</bool>
-                                    </property>
-                                    <property name="placeholderText">
-                                     <string>Integrator Log</string>
-                                    </property>
                                     <property name="integrator_log_option" stdset="0">
                                      <bool>true</bool>
+                                    </property>
+                                    <property name="documentTitle" stdset="0">
+                                     <string>Integrator Log</string>
+                                    </property>
+                                    <property name="readOnly" stdset="0">
+                                     <bool>true</bool>
+                                    </property>
+                                    <property name="placeholderText" stdset="0">
+                                     <string>Integrator Log</string>
                                     </property>
                                    </widget>
                                   </item>
@@ -5056,7 +5044,7 @@ TO FILE</string>
                                     <double>0.300000000000000</double>
                                    </property>
                                    <property name="circle_diameter" stdset="0">
-                                    <double>10.000000000000000</double>
+                                    <number>10</number>
                                    </property>
                                    <property name="right_edge_offset" stdset="0">
                                     <number>0</number>
@@ -6179,7 +6167,7 @@ History</string>
                                        <string/>
                                       </property>
                                       <property name="icon">
-                                       <iconset resource="woodpecker.qrc">
+                                       <iconset>
                                         <normaloff>:/buttons/images/x_minus_jog_button.png</normaloff>:/buttons/images/x_minus_jog_button.png</iconset>
                                       </property>
                                       <property name="iconSize">
@@ -6335,7 +6323,7 @@ History</string>
                                        <string/>
                                       </property>
                                       <property name="icon">
-                                       <iconset resource="woodpecker.qrc">
+                                       <iconset>
                                         <normaloff>:/buttons/images/x_plus_jog_button.png</normaloff>:/buttons/images/x_plus_jog_button.png</iconset>
                                       </property>
                                       <property name="iconSize">
@@ -11333,7 +11321,7 @@ BLOCK</string>
                               <double>0.200000000000000</double>
                              </property>
                              <property name="circle_diameter" stdset="0">
-                              <double>10.000000000000000</double>
+                              <number>10</number>
                              </property>
                              <property name="right_edge_offset" stdset="0">
                               <number>6</number>
@@ -14143,6 +14131,9 @@ E</string>
                                  <property name="joint_number" stdset="0">
                                   <number>0</number>
                                  </property>
+                                 <property name="axis_letter" stdset="0">
+                                  <string>X</string>
+                                 </property>
                                  <property name="incr_imperial_number" stdset="0">
                                   <double>0.010000000000000</double>
                                  </property>
@@ -14312,6 +14303,9 @@ E</string>
                                  </property>
                                  <property name="joint_number" stdset="0">
                                   <number>2</number>
+                                 </property>
+                                 <property name="axis_letter" stdset="0">
+                                  <string>Z</string>
                                  </property>
                                  <property name="incr_imperial_number" stdset="0">
                                   <double>0.010000000000000</double>
@@ -14534,6 +14528,9 @@ E</string>
                                  </property>
                                  <property name="joint_number" stdset="0">
                                   <number>1</number>
+                                 </property>
+                                 <property name="axis_letter" stdset="0">
+                                  <string>Y</string>
                                  </property>
                                  <property name="incr_imperial_number" stdset="0">
                                   <double>0.010000000000000</double>
@@ -15492,7 +15489,7 @@ Slover</string>
                                      <double>0.300000000000000</double>
                                     </property>
                                     <property name="circle_diameter" stdset="0">
-                                     <double>10.000000000000000</double>
+                                     <number>10</number>
                                     </property>
                                     <property name="right_edge_offset" stdset="0">
                                      <number>6</number>
@@ -15687,7 +15684,7 @@ Slover</string>
                                      <double>0.300000000000000</double>
                                     </property>
                                     <property name="circle_diameter" stdset="0">
-                                     <double>10.000000000000000</double>
+                                     <number>10</number>
                                     </property>
                                     <property name="right_edge_offset" stdset="0">
                                      <number>6</number>
@@ -15882,7 +15879,7 @@ Slover</string>
                                      <double>0.300000000000000</double>
                                     </property>
                                     <property name="circle_diameter" stdset="0">
-                                     <double>10.000000000000000</double>
+                                     <number>10</number>
                                     </property>
                                     <property name="right_edge_offset" stdset="0">
                                      <number>6</number>
@@ -16874,7 +16871,7 @@ WHEEL</string>
   </customwidget>
   <customwidget>
    <class>PushButton</class>
-   <extends>IndicatedPushButton</extends>
+   <extends>QPushButton</extends>
    <header>qtvcp.widgets.simple_widgets</header>
   </customwidget>
   <customwidget>
@@ -16904,7 +16901,7 @@ WHEEL</string>
   </customwidget>
   <customwidget>
    <class>MachineLog</class>
-   <extends>QTextEdit</extends>
+   <extends>QWidget</extends>
    <header>qtvcp.widgets.machine_log</header>
   </customwidget>
   <customwidget>
@@ -16920,7 +16917,7 @@ WHEEL</string>
   </customwidget>
   <customwidget>
    <class>GCodeGraphics</class>
-   <extends>QWidget</extends>
+   <extends>QOpenGLWidget</extends>
    <header>qtvcp.widgets.gcode_graphics</header>
    <container>1</container>
   </customwidget>
@@ -18064,10 +18061,9 @@ WHEEL</string>
   <slot>cmb_tool_icons_clicked()</slot>
  </slots>
  <buttongroups>
-  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="start_buttonGroup"/>
   <buttongroup name="mode_buttonGroup"/>
+  <buttongroup name="page_buttonGroup"/>
   <buttongroup name="axis_buttonGroup"/>
  </buttongroups>
 </ui>
-

@@ -332,8 +332,8 @@ FeedRotaryButtonCodes::FeedRotaryButtonCodes() :
     percent_30(0x10, "1", "30%"),
     percent_60(0x1a, "5", "60%"),
     percent_100(0x1b, "10", "100%"),
-    lead(0x1c, "Lead", ""),  // user jasenk2 seem to need 0x9b for xhc-whb06-4 see : https://github.com/LinuxCNC/linuxcnc/pull/987
-    // solution added in this file for use both know keycodes (0x1c) + Jasenk (0x9b)
+    lead(0x1c, "Lead", ""),  // user jasenk2 seem to need 0x9b for xhc-whb06-4 see : https://github.com/LinuxCNC/linuxcnc/pull/987, zajc3w needs 0x9B for xhc-whb06-6 see: https://github.com/LinuxCNC/linuxcnc/issues/3485
+    lead9B(0x9B, "Lead", ""), //previous solution ommited line 607 and key code 0x9b was still not recognised 
     undefined(0x00, "", ""),
     codeMap{
         {percent_2.code,   &percent_2},
@@ -541,8 +541,10 @@ FeedRotaryButton::FeedRotaryButton(const KeyCode& keyCode,
     mStepMode(stepMode),
     mIsPermitted(false),
     mStepSize(0),
+    mIsStepMode_5_10(false),
     mEventListener(listener)
 {
+    (void)mEventListener;
 }
 // ----------------------------------------------------------------------
 FeedRotaryButton::~FeedRotaryButton()
@@ -566,6 +568,8 @@ FeedRotaryButton& FeedRotaryButton::operator=(const FeedRotaryButton& other)
 {
     RotaryButton::operator=(other);
     mStepMode = other.mStepMode;
+    mStepSize = other.mStepSize;
+    mEventListener = other.mEventListener;
     return *this;
 }
 // ----------------------------------------------------------------------
@@ -600,7 +604,7 @@ void FeedRotaryButton::update()
         return;
     }
 
-    if (*mKey == KeyCodes::Feed.lead)
+    if (*mKey == KeyCodes::Feed.lead || *mKey == KeyCodes::Feed.lead9B)
     {
         mStepSize    = mLeadSizeMapper.getStepSize(HandwheelLeadModeStepSize::PositionNameIndex::LEAD);
         mIsPermitted = mLeadSizeMapper.isPermitted(HandwheelLeadModeStepSize::PositionNameIndex::LEAD);
@@ -647,6 +651,7 @@ AxisRotaryButton::AxisRotaryButton(const KeyCode& keyCode, KeyEventListener* lis
     RotaryButton(keyCode),
     mEventListener(listener)
 {
+    (void)mEventListener;
 }
 // ----------------------------------------------------------------------
 AxisRotaryButton::~AxisRotaryButton()
@@ -666,6 +671,7 @@ std::ostream& operator<<(std::ostream& os, const AxisRotaryButton& data)
 AxisRotaryButton& AxisRotaryButton::operator=(const AxisRotaryButton& other)
 {
     RotaryButton::operator=(other);
+    mEventListener = other.mEventListener;
     return *this;
 }
 // ----------------------------------------------------------------------
@@ -681,6 +687,7 @@ Handwheel::Handwheel(const FeedRotaryButton& feedButton, KeyEventListener* liste
     mWheelCout(&std::cout),
     mPrefix("pndnt ")
 {
+    (void)mFeedButton;
 }
 // ----------------------------------------------------------------------
 Handwheel::~Handwheel()
@@ -753,6 +760,7 @@ ButtonsState::ButtonsState(KeyEventListener* listener, const ButtonsState* previ
     mPreviousState(previousState),
     mEventListener(listener)
 {
+    (void)mPreviousState;
 }
 // ----------------------------------------------------------------------
 ButtonsState::~ButtonsState()
@@ -827,6 +835,8 @@ ButtonsState& ButtonsState::operator=(const ButtonsState& other)
     mCurrentMetaButton = other.mCurrentMetaButton;
     mAxisButton        = other.mAxisButton;
     mFeedButton        = other.mFeedButton;
+    mPreviousState     = other.mPreviousState;
+    mEventListener     = other.mEventListener;
     return *this;
 }
 // ----------------------------------------------------------------------
@@ -1093,12 +1103,6 @@ bool Pendant::onButtonPressedEvent(const MetaButtonCodes& metaButton)
         mHal.setMacro1(true);
         isHandled = true;
     }
-    else if (metaButton == KeyCodes::Meta.macro2)
-    {
-        mHal.toggleLubeOnOff(true);
-        mHal.setMacro2(true);
-        isHandled = true;
-    }
     else if (metaButton == KeyCodes::Meta.macro3)
     {
         mHal.setMacro3(true);
@@ -1261,12 +1265,6 @@ bool Pendant::onButtonReleasedEvent(const MetaButtonCodes& metaButton)
         mHal.setMacro1(false);
         isHandled = true;
     }
-    else if (metaButton == KeyCodes::Meta.macro2)
-    {
-        mHal.toggleLubeOnOff(false);
-        mHal.setMacro2(false);
-        isHandled = true;
-    }
     else if (metaButton == KeyCodes::Meta.macro3)
     {
         mHal.setMacro3(false);
@@ -1356,7 +1354,7 @@ void Pendant::onFeedActiveEvent(const KeyCode& feed)
 // ----------------------------------------------------------------------
 void Pendant::dispatchFeedEventToHandwheel(const KeyCode& feed, bool isActive)
 {
-    if (feed.code == KeyCodes::Feed.lead.code || feed.code == 0x9b) // user jasenk2 seem to need 0x9b for xhc-whb06-4 see : https://github.com/LinuxCNC/linuxcnc/pull/987
+    if (feed.code == KeyCodes::Feed.lead.code || feed.code == KeyCodes::Feed.lead9B.code) // user jasenk2 seem to need 0x9b for xhc-whb06-4 see : https://github.com/LinuxCNC/linuxcnc/pull/987
     {
         mHandWheel.counters().enableLeadCounter(isActive);
     }
@@ -1388,7 +1386,7 @@ void Pendant::dispatchActiveFeedToHal(const KeyCode& feed, bool isActive)
     {
         mHal.setFeedValueSelected100(isActive);
     }
-    else if (feed.code == KeyCodes::Feed.lead.code || feed.code == 0x9b) // user jasenk2 seem to need 0x9b for xhc-whb06-4 see : https://github.com/LinuxCNC/linuxcnc/pull/987
+    else if (feed.code == KeyCodes::Feed.lead.code || feed.code == KeyCodes::Feed.lead9B.code) // user jasenk2 seem to need 0x9b for xhc-whb06-4 see : https://github.com/LinuxCNC/linuxcnc/pull/987
     {
         mHal.setFeedValueSelectedLead(isActive);
         mCurrentButtonsState.feedButton().setStepMode(HandwheelStepmodes::Mode::MPG);
@@ -1565,17 +1563,17 @@ void Pendant::dispatchAxisEventToHal(const KeyCode& axis, bool isActive)
     }
 }
 // ----------------------------------------------------------------------
-void Pendant::setLeadModeSpindle(bool enable)
+void Pendant::setLeadModeSpindle(bool /*enable*/)
 {
     mIsLeadModeSpindle = true;
 }
 // ----------------------------------------------------------------------
-void Pendant::setLeadModeFeed(bool enable)
+void Pendant::setLeadModeFeed(bool /*enable*/)
 {
     mIsLeadModeFeed = true;
 }
 // ----------------------------------------------------------------------
-void Pendant::setStepMode_5_10(bool enable)
+void Pendant::setStepMode_5_10(bool /*enable*/)
 {
     mIsStepMode_5_10 = true;
 }
@@ -1624,7 +1622,7 @@ bool Display::onButtonPressedEvent(const MetaButtonCodes& metaButton)
     return false;
 }
 // ----------------------------------------------------------------------
-bool Display::onButtonReleasedEvent(const MetaButtonCodes& metaButton)
+bool Display::onButtonReleasedEvent(const MetaButtonCodes& /*metaButton*/)
 {
     return false;
 }
@@ -1643,11 +1641,11 @@ void Display::onAxisActiveEvent(const KeyCode& axis)
     }
 }
 // ----------------------------------------------------------------------
-void Display::onAxisInactiveEvent(const KeyCode& axis)
+void Display::onAxisInactiveEvent(const KeyCode& /*axis*/)
 {
 }
 // ----------------------------------------------------------------------
-void Display::onFeedActiveEvent(const KeyCode& feed)
+void Display::onFeedActiveEvent(const KeyCode& /*feed*/)
 {
     if (mCurrentButtonsState.feedButton().stepMode() == HandwheelStepmodes::Mode::STEP)
     {
@@ -1666,11 +1664,11 @@ void Display::onFeedActiveEvent(const KeyCode& feed)
     }
 }
 // ----------------------------------------------------------------------
-void Display::onFeedInactiveEvent(const KeyCode& feed)
+void Display::onFeedInactiveEvent(const KeyCode& /*feed*/)
 {
 }
 // ----------------------------------------------------------------------
-bool Display::onJogDialEvent(const HandWheelCounters& counters, int8_t delta)
+bool Display::onJogDialEvent(const HandWheelCounters& /*counters*/, int8_t /*delta*/)
 {
     return false;
 }

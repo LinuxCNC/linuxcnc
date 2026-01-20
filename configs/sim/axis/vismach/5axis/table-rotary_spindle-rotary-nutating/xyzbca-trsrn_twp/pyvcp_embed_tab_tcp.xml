@@ -1,0 +1,102 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<pyvcp>
+<vbox>
+	  <vbox>
+	  <labelframe text="C Rotation Axis Offset">
+	    <font>("Helvetica",14)</font>
+
+	    <hbox>
+	    <label>
+	       <font>("Helvetica",8)</font>
+	       <text>" "</text>
+	    </label>
+	    </hbox>
+	    <hbox>
+	    <label>
+	       <font>("Helvetica",8)</font>
+	       <text>"Physical location of rotation-axis in the model\n in absolute machine coordinates:"</text>
+	    </label>
+	    </hbox>
+	    <hbox>
+	    <label>
+	       <font>("Helvetica",8)</font>
+	       <text>" x:  1000\n z:  -1000"</text>
+	    </label>
+	    </hbox>
+	    <hbox>
+	    <label>
+	       <font>("Helvetica",8)</font>
+	       <text>" "</text>
+	    </label>
+	    </hbox>
+	    <hbox>
+	    <label>
+	       <font>("Helvetica",8)</font>
+	       <text>"these are also the correct 'rot-axis' settings\n for this model"</text>
+	    </label>
+	    </hbox>
+	    <hbox>
+	    <label>
+	       <text>"x-rot-axis:   "</text>
+	       <font>("Helvetica",10)</font>
+	    </label>
+	    <scale>
+		<font>("Helvetica",10)</font>
+		<width>"12"</width>
+		<halpin>"x-rot-axis"</halpin>
+		<resolution>1</resolution>
+		<orient>HORIZONTAL</orient>
+		<initval>1000</initval>
+		<min_>-1900</min_>
+		<max_>1900</max_>
+	    </scale>
+	    </hbox>
+	    <hbox>
+	    <label>
+	       <text>"z-rot-axis:   "</text>
+	       <font>("Helvetica",10)</font>
+	    </label>
+	    <scale>
+		<font>("Helvetica",10)</font>
+		<width>"12"</width>
+		<halpin>"z-rot-axis"</halpin>
+		<resolution>1</resolution>
+		<orient>HORIZONTAL</orient>
+		<initval>-2000</initval>
+		<min_>-2900</min_>
+		<max_>1100</max_>
+	    </scale>
+	    </hbox>
+	    <hbox>
+	    <label>
+	       <font>("Helvetica",8)</font>
+	       <text>" "</text>
+	    </label>
+	    </hbox>
+	    <hbox>
+	    <label>
+	       <text>"Use hover + mouse wheel to change values"</text>
+	       <font>("Helvetica",6)</font>
+	    </label>
+	    </hbox>
+	  </labelframe>
+	  </vbox>
+	<!-- create a space to the next element -->
+	  <vbox>
+	    <hbox>
+	    <label>
+	       <text>" "</text>
+	       <font>("Helvetica",4)</font>
+	    </label>
+	    </hbox>
+	  </vbox>
+	  <vbox>
+	    <hbox>
+	    <label>
+	       <text>" To test change values above\n reload and restart\n the demo gcode "</text>
+	       <font>("Helvetica",10)</font>
+	    </label>
+	    </hbox>
+	  </vbox>
+    </vbox>
+</pyvcp>

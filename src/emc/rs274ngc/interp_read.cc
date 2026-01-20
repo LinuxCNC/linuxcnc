@@ -29,7 +29,7 @@
 #include "rs274ngc_interp.hh"
 #include "rtapi_math.h"
 #include <cmath>
-#include <rtapi_string.h>
+#include <rtapi_string.h>	// rtapi_strlcpy()
 
 using namespace interp_param_global;
 
@@ -288,7 +288,7 @@ present only so that this will have the same argument list as the other
 int Interp::read_comment(char *line,     //!< string: line of RS274 code being processed   
                         int *counter,   //!< pointer to a counter for position on the line
                         block_pointer block,    //!< pointer to a block being filled from the line
-                        double *parameters)     //!< array of system parameters                   
+                        double * /*parameters*/)     //!< array of system parameters
 {
   int n;
 
@@ -307,8 +307,8 @@ int Interp::read_comment(char *line,     //!< string: line of RS274 code being p
 
 int Interp::read_semicolon(char *line,     //!< string: line of RS274 code being processed   
                            int *counter,   //!< pointer to a counter for position on the line
-                           block_pointer block,    //!< pointer to a block being filled from the line
-                           double *parameters)     //!< array of system parameters                   
+                           block_pointer /*block*/,    //!< pointer to a block being filled from the line
+                           double * /*parameters*/)     //!< array of system parameters
 {
     CHKS((line[*counter] != ';'), NCE_BUG_FUNCTION_SHOULD_NOT_HAVE_BEEN_CALLED);
     (*counter) = strlen(line);
@@ -594,7 +594,7 @@ int Interp::read_g(char *line,   //!< string: line of RS274/NGC code being proce
       block->g_modes[mode] = value;
       return INTERP_OK;
   }
-  mode = _gees[value];
+  mode = gees[value];
   CHKS((mode == -1), NCE_UNKNOWN_G_CODE_USED);
   if ((value == G_80) && (block->g_modes[mode] != -1));
   else {
@@ -1133,7 +1133,7 @@ int Interp::read_m(char *line,   //!< string: line of RS274 code being processed
   }
 
   CHKS((value > 199), NCE_M_CODE_GREATER_THAN_199,value);
-  mode = _ems[value];
+  mode = ems[value];
   CHKS((mode == -1), NCE_UNKNOWN_M_CODE_USED,value);
   CHKS((block->m_modes[mode] != -1),
       NCE_TWO_M_CODES_USED_FROM_SAME_MODAL_GROUP);
@@ -1595,8 +1595,10 @@ int Interp::read_o(    /* ARGUMENTS                                     */
 
 	  // Subroutine name not provided in Fanuc syntax, so pull from
 	  // context
-	  strncpy(oNameBuf, _setup.sub_context[_setup.call_level].subName,
-		  LINELEN+1);
+          if (strlen(_setup.sub_context[_setup.call_level].subName) >= sizeof(oNameBuf))
+              ERS(NCE_UNABLE_TO_OPEN_FILE, _setup.sub_context[_setup.call_level].subName);
+	  rtapi_strlcpy(oNameBuf, _setup.sub_context[_setup.call_level].subName,
+                  sizeof(oNameBuf));
       } else
 	  // any other m-code should have been handled by read_m()
 	  OERR(_("%d: Bug:  Non-m98/m99 M-code passed to read_o(): '%s'"),
@@ -2145,7 +2147,7 @@ to be evaluated. That situation is handled by read_parameter.
 int Interp::read_parameter_setting(
     char *line,   //!< string: line of RS274/NGC code being processed
     int *counter, //!< pointer to a counter for position on the line 
-    block_pointer block,  //!< pointer to a block being filled from the line 
+    block_pointer /*block*/,  //!< pointer to a block being filled from the line
     double *parameters)   //!< array of system parameters
 {
   static char name[] = "read_parameter_setting";
@@ -2188,7 +2190,7 @@ int Interp::read_parameter_setting(
       CHP(read_integer_value(line, counter, &index, parameters));
       CHKS(((index < 1) || (index >= RS274NGC_MAX_PARAMETERS)),
           NCE_PARAMETER_NUMBER_OUT_OF_RANGE);
-      CHKS((isreadonly(index)), NCE_PARAMETER_NUMBER_READONLY);
+      CHKS((is_parameter_readonly(index)), NCE_PARAMETER_NUMBER_READONLY);
       CHKS((line[*counter] != '='),
           NCE_EQUAL_SIGN_MISSING_IN_PARAMETER_SETTING);
       *counter = (*counter + 1);
@@ -2271,7 +2273,7 @@ int Interp::read_named_parameter_setting(
     char *line,   //!< string: line of RS274/NGC code being processed
     int *counter, //!< pointer to a counter for position on the line 
     char **param,  //!< pointer to the char * to be returned 
-    double *parameters)   //!< array of system parameters
+    double * /*parameters*/)   //!< array of system parameters
 {
   static char name[] = "read_named_parameter_setting";
   int status;
@@ -3152,7 +3154,7 @@ int Interp::read_text(
          index--) { // remove space at end of raw_line, especially CR & LF
       raw_line[index] = 0;
     }
-    strncpy(line, raw_line, LINELEN);
+    rtapi_strlcpy(line, raw_line, LINELEN);
     CHP(close_and_downcase(line));
     if ((line[0] == '%') && (line[1] == 0) && (_setup.percent_flag)) {
         FINISH();
@@ -3160,8 +3162,8 @@ int Interp::read_text(
     }
   } else {
     CHKS((strlen(command) >= LINELEN), NCE_COMMAND_TOO_LONG);
-    strncpy(raw_line, command, LINELEN);
-    strncpy(line, command, LINELEN);
+    rtapi_strlcpy(raw_line, command, LINELEN);
+    rtapi_strlcpy(line, command, LINELEN);
     CHP(close_and_downcase(line));
   }
 
@@ -3452,11 +3454,10 @@ int Interp::read_z(char *line,   //!< string: line of RS274 code being processed
   return INTERP_OK;
 }
 
-bool Interp::isreadonly(int index)
+bool Interp::is_parameter_readonly(int index)
 {
-  int i;
-  for (i=0; i< _n_readonly_parameters; i++) {
-    if (_readonly_parameters[i] == index) return 1;
+  for (int i = 0; i < n_readonly_parameters; i++) {
+    if (readonly_parameters[i] == index) return true;
   }
-  return 0;
+  return false;
 }

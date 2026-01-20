@@ -246,7 +246,7 @@ void write_log_file(char *filename)
     scope_vert_t *vert;
     hal_type_t type[16];
 
-    char *label[16];
+    char *label[16] = {};
     char *old_locale, *saved_locale;
     int sample_len, chan_active, chan_num, sample_period_ns, samples, n;
     FILE *fp;
@@ -434,6 +434,7 @@ static int parse_command(char *in)
 
 static char *dummy_cmd(void * arg)
 {
+    (void)arg;
     return "command not implemented";
 }
 
@@ -527,6 +528,7 @@ static char *chan_cmd(void * arg)
 
 static char *choff_cmd(void * arg)
 {
+    (void)arg;
     int chan_num;
 
     if ( deferred_channel != 0 ) {

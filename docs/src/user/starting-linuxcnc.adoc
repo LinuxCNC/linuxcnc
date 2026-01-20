@@ -2,7 +2,9 @@
 :toc:
 
 [[cha:starting-linuxcnc]]
-= Starting LinuxCNC(((Starting LinuxCNC)))
+= Starting LinuxCNC
+
+(((Starting LinuxCNC)))
 
 == Running LinuxCNC
 
@@ -14,7 +16,7 @@ linuxcnc [options] [<INI-file>]
 
 .`linuxcnc` script options
 ----
-linuxcnc: Run LINUXCNC
+linuxcnc: Run LinuxCNC
 
 Usage:
   $ linuxcnc -h
@@ -27,11 +29,15 @@ Usage:
     Name the configuration INI file using its path
 
   $ linuxcnc [Options] -l
-    Use the previously used configuration inifile
+    Use the previously used configuration INI file
 
 Options:
     -d: Turn on "debug" mode
     -v: Turn on "verbose" mode
+    -r: Disable redirection of stdout and stderr to ~/linuxcnc_print.txt and
+        ~/linuxcnc_debug.txt when stdin is not a tty.
+        Used when running linuxcnc tests non-interactively.
+    -l: Use the last-used INI file
     -k: Continue in the presence of errors in HAL files
     -t "tpmodulename [parameters]"
             specify custom trajectory_planning_module
@@ -55,14 +61,15 @@ connections to those pins. See the <<sub:ini:sec:hal,[HAL]>> section of the
 INI configuration for more information.
 
 [[sub:configuration-selector]]
-=== Configuration Selector(((Configuration Selection)))
+=== Configuration Selector
 
+(((Configuration Selection)))
 If no INI file is passed to the linuxcnc script it loads the configuration
 selector so you can choose and save a sample configuration. Once a sample
 configuration has been saved it can be modified to suit your application.
 The configuration files are saved in linuxcnc/configs directory.
 
 //.Configuration Selector
-image::images/configuration-selector.png["LinuxCNC Configuration Selector",align="center"]
+image::../getting-started/images/configuration-selector.png["LinuxCNC Configuration Selector",align="center"]
 
 // vim: set syntax=asciidoc:

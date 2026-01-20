@@ -14,21 +14,31 @@ set -e
 
 usage () {
     P=${0##*/}
-    cat <<EOF
+    cat 1>&2 <<EOF
 $P: Set up debian/ files to build for a particular kernel
 
 Usage:
   $P [no-docs]
 
   Extra options:
-    no-docs
-        Skip building documentation
+
+    no-docs|nodocs|nodoc|no-doc
+        Skip building documentation.
+        Debian packaging will not know about documentation to exist at all.
+        If configured regularly but with the intent not to build the docs,
+        run "DEB_BUILD_OPTIONS=nodocs dpkg-buildpackage".
+
+    sim|uspace|noauto
+        Accepted for compatibility, but now ignored.
+
+    -h|--help|help
+        Show this help.
 EOF
 }
 
 cd "${0%/*}"
 
-if [ "$1" == "-h" -o "$1" == "-help" -o "$1" == "--help" ]; then
+if [ "$1" == "-h" ] || [ "$1" == "-help" ] || [ "$1" == "--help" ]; then
     usage
     exit 0
 fi
@@ -46,9 +56,13 @@ ENABLE_BUILD_DOCUMENTATION=--enable-build-documentation=pdf
 
 while test $# -ne 0; do
     case "$1" in
-    sim|uspace|noauto) echo "$1 is accepted for compatibility, but ignored";;
-    no-docs) unset ENABLE_BUILD_DOCUMENTATION ;;
-    *) echo 1>&2 "Unknown option: $1"; exit 99 ;;
+    sim|uspace|noauto) echo "I: Argument $1 is accepted for compatibility, but ignored";;
+    help|-h|--help) usage; exit 0 ;;
+    no-docs|nodocs|nodoc|no-doc) unset ENABLE_BUILD_DOCUMENTATION ;;
+    *)  echo 1>&2 "Unknown option: $1"
+        echo 1>&2
+        usage
+        exit 99 ;;
     esac
     shift
 done
@@ -74,14 +88,14 @@ if [ -n "$ENABLE_BUILD_DOCUMENTATION" ]; then
     
 
     case $DISTRIB_NAME in
-	Debian-9)
-	    ;; # No xetex in Debian 9 Stretch
-	*)
-	    # Not quite sure which packages is needed for xetex, but
-	    # texlive-xetex seem like a safe choice.  Need xetex to be
-	    # able to build Chinese PDF.
-	    DOC_DEPENDS="$DOC_DEPENDS,\n    texlive-xetex"
-	    ;;
+        Debian-9)
+            ;; # No xetex in Debian 9 Stretch
+        *)
+            # Not quite sure which packages is needed for xetex, but
+            # texlive-xetex seem like a safe choice.  Need xetex to be
+            # able to build Chinese PDF.
+            DOC_DEPENDS="$DOC_DEPENDS,\n    texlive-xetex"
+            ;;
     esac
 else
     DOC_DEPENDS=''
@@ -93,13 +107,13 @@ PYTHON_GST=python3-gst-1.0,gstreamer1.0-plugins-base
 TCLTK_VERSION=8.6
 PYTHON_IMAGING=python3-pil
 PYTHON_IMAGING_TK=python3-pil.imagetk
-QTVCP_DEPENDS="python3-pyqt5,\n    python3-pyqt5.qsci,\n    python3-pyqt5.qtsvg,\n    python3-pyqt5.qtopengl,\n    python3-opencv,\n    python3-dbus,\n    python3-espeak,\n    python3-dbus.mainloop.pyqt5,\n    python3-pyqt5.qtwebkit,\n    espeak-ng,\n    pyqt5-dev-tools,\n    gstreamer1.0-tools,\n    espeak,\n    sound-theme-freedesktop,\n    python3-poppler-qt5"
+QTVCP_DEPENDS="python3-pyqt5,\n    python3-pyqt5.qsci,\n    python3-pyqt5.qtsvg,\n    python3-pyqt5.qtopengl,\n    python3-opencv,\n    python3-dbus,\n    python3-espeak,\n    python3-dbus.mainloop.pyqt5,\n    python3-pyqt5.qtwebengine,\n    espeak-ng,\n    pyqt5-dev-tools,\n    gstreamer1.0-tools,\n    espeak,\n    sound-theme-freedesktop,\n    python3-poppler-qt5"
 YAPPS_RUNTIME="python3-yapps"
 DEBHELPER="debhelper (>= 12)"
 COMPAT="12"
 
 case $DISTRIB_NAME in
-    Ubuntu-21.*|Debian-11|Debian-11.*|Debian-12|Debian-12.*|Debian-testing|Debian-unstable)
+    Ubuntu-25.*|Ubuntu-24.*|Ubuntu-21.*|Debian-11|Debian-11.*|Debian-12|Debian-12.*|Debian-13|Debian-13.*|Debian-testing|Debian-unstable)
         LIBREADLINE_DEV=libeditreadline-dev
         COMPAT=""
         DEBHELPER="debhelper-compat (= 13)"
@@ -109,15 +123,13 @@ case $DISTRIB_NAME in
     Debian-10|Debian-10.*|Raspbian-10|Raspbian-10.*)
         ;;
     *)
-        echo "unknown distribution: $DISTRIB_NAME"
-        echo "detected dependencies may be incomplete or wrong"
-        echo "please consider fixing it and submitting a pull request"
+        echo "W: Unknown distribution: '$DISTRIB_NAME'."
+        echo "   Detected dependencies may be incomplete or wrong."
+        echo "   Please consider fixing it and submitting a pull request."
         ;;
 esac
 
 TARGET=uspace
-MAIN_PACKAGE_NAME=linuxcnc
-OTHER_MAIN_PACKAGE_NAME=linuxcnc-uspace
 EXTRA_RECOMMENDS=hostmot2-firmware-all
 MODULE_PATH=usr/lib/linuxcnc/modules
 MODULE_EXT=.so
@@ -126,9 +138,14 @@ KERNEL_DEPENDS_BUILD=libudev-dev
 KERNEL_HEADERS=
 KERNEL_VERSION=uspace
 MODUTILS_DEPENDS=
+if false; then
+MAIN_PACKAGE_NAME=linuxcnc
+OTHER_MAIN_PACKAGE_NAME=linuxcnc-uspace
+else
 DISTRIB_NAME=uspace-$DISTRIB_NAME
 MAIN_PACKAGE_NAME=linuxcnc-uspace
 OTHER_MAIN_PACKAGE_NAME=linuxcnc
+fi
 
 EXTRA_RECOMMENDS="$EXTRA_RECOMMENDS, linux-image-rt-amd64 [linux-amd64], linux-image-rt-686-pae [linux-i386]"
 CONFIGURE_REALTIME_ARG=--with-realtime=uspace
@@ -165,7 +182,7 @@ sed \
     -e "s|@YAPPS_RUNTIME@|$YAPPS_RUNTIME|g" \
     -e "s#@ENABLE_BUILD_DOCUMENTATION@#$ENABLE_BUILD_DOCUMENTATION#g" \
     -e '/^\s*,\s*$/d' \
-    $*
+    "$@"
 }
 
 if [[ -z "${COMPAT}" ]]; then
@@ -181,6 +198,7 @@ subst control.main-pkg.in >> control
 
 subst linuxcnc.install.in > ${MAIN_PACKAGE_NAME}.install
 subst linuxcnc.lintian-overrides.in > ${MAIN_PACKAGE_NAME}.lintian-overrides
+subst linuxcnc.manpages.in > ${MAIN_PACKAGE_NAME}.manpages
 
 subst rules.in > rules
 chmod +x rules
@@ -191,4 +209,51 @@ fi
 
 
 rm -f ../build-stamp
-echo "successfully configured for '$DISTRIB_NAME'.."
+echo "I: Successfully configured for '$DISTRIB_NAME'."
+
+echo "I: You can now start the build of LinuxCNC Debian packages."
+echo "   To build and test everything: fakeroot debian/rules binary"
+echo "   To build the executables and man pages only: fakeroot debian/rules binary-arch"
+echo "   To avoid tests: DEB_BUILD_OPTIONS=nocheck debian/rules binary"
+if [ -n "$ENABLE_BUILD_DOCUMENTATION" ]; then
+    echo "   To avoid documentation: DEB_BUILD_OPTIONS=nodocs fakeroot debian/rules binary"
+else
+    echo "   Building of documentation is disabled."
+fi
+echo "   The DEB_BUILD_OPTIONS environment variable also works with dpkg-buildpackage."
+
+if command -v dpkg-checkbuilddeps > /dev/null; then
+
+    a=""
+    if [ -n "$ENABLE_BUILD_DOCUMENTATION" ]; then
+        a=$(cd .. && dpkg-checkbuilddeps 2>&1 || true)
+        if [ -n "$a" ]; then
+            echo "W: To successfully build all of LinuxCNC, install the following build dependencies are mising:"
+        else
+            echo "I: All build dependencies available for complete builds including the documentation."
+        fi
+    else
+        a=$(cd .. && dpkg-checkbuilddeps -B 2>&1 || true)
+        if [ -n "$a" ]; then
+            echo "W: To successfully build the architecture-dependent parts of LinuxCNC, the following build dependencies are mising:"
+        else
+            echo "I: No dependencies missing while not building the documentation."
+        fi
+    fi
+    if [ -n "$a" ]; then
+        # The common part once missing packages have been identified
+        echo -n "    "; echo "$a" | cut -f4 -d:
+        echo "   The missing packages are auto-installed by"
+        echo "     sudo apt build-dep ."
+    fi
+else
+    echo "W: Tool to check build-dependenices not found"
+    echo "   You may want to install it as follows:"
+    echo "     sudo apt install dpkg-dev"
+    echo "   and directly execute it like this:"
+    echo "     dpkg-checkbuilddeps"
+    echo "   or just execute"
+    echo "     sudo apt build-dep ."
+fi
+
+# vim: ts=4

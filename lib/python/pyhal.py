@@ -14,28 +14,28 @@ lib.hal_signal_new.argtypes = [c_char_p, c_int]
 
 lib.hal_link.argtypes = [c_char_p, c_char_p]
 
-lib.hal_port_read.argtypes = [c_int, c_char_p, c_uint]
+lib.hal_port_read.argtypes = [POINTER(c_int), c_char_p, c_uint]
 lib.hal_port_read.restype = c_bool
 
-lib.hal_port_peek.argtypes = [c_int, c_char_p, c_uint]
+lib.hal_port_peek.argtypes = [POINTER(c_int), c_char_p, c_uint]
 lib.hal_port_peek.restype = c_bool
 
-lib.hal_port_peek_commit.argtypes = [c_int, c_char_p, c_uint]
+lib.hal_port_peek_commit.argtypes = [POINTER(c_int), c_char_p, c_uint]
 lib.hal_port_peek.restype = c_bool
 
-lib.hal_port_write.argtypes = [c_int, c_char_p, c_uint]
+lib.hal_port_write.argtypes = [POINTER(c_int), c_char_p, c_uint]
 lib.hal_port_write.restype = c_bool
 
-lib.hal_port_readable.argtypes = [c_int]
+lib.hal_port_readable.argtypes = [POINTER(c_int)]
 lib.hal_port_readable.restype = c_uint
 
-lib.hal_port_writable.argtypes = [c_int]
+lib.hal_port_writable.argtypes = [POINTER(c_int)]
 lib.hal_port_writable.restype = c_uint
 
-lib.hal_port_buffer_size.argtypes = [c_int]
+lib.hal_port_buffer_size.argtypes = [POINTER(c_int)]
 lib.hal_port_buffer_size.restype = c_uint
 
-lib.hal_port_clear.argtypes = [c_int]
+lib.hal_port_clear.argtypes = [POINTER(c_int)]
 
 lib.hal_port_wait_readable.argtypes = [POINTER(POINTER(c_int)), c_uint, c_int]
 lib.hal_port_wait_writable.argtypes = [POINTER(POINTER(c_int)), c_uint, c_int]
@@ -101,7 +101,7 @@ class port(pin):
 
     @property
     def __port(self):
-        return self.data_ptr.contents.contents.value
+        return self.data_ptr.contents
 
     def read(self, count):
         if self.dir != pinDir.IN:

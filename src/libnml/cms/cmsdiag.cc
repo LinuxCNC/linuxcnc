@@ -18,13 +18,14 @@
 #include <unistd.h>		/* getpid() */
 #include "timer.hh"		// etime()
 #include <stdlib.h>		// memset()
-#include <string.h>		// strncpy()
+#include <rtapi_string.h> 	// strncpy() -> rtapi_strlcpy()
 #include <time.h>		// time_t, time()
 #include <math.h>		// floor()
 #include "linklist.hh"          // LinkedList
 #include "physmem.hh"           // PHYSMEM_HANDLE
 
 CMS_DIAGNOSTICS_INFO::CMS_DIAGNOSTICS_INFO()
+  : CMS_DIAG_HEADER()
 {
     last_writer_dpi = NULL;
     last_reader_dpi = NULL;
@@ -60,7 +61,7 @@ void CMS::setup_diag_proc_info()
     if (NULL == dpi) {
 	dpi = new CMS_DIAG_PROC_INFO();
     }
-    strncpy(dpi->name, ProcessName, 16);	// process name
+    rtapi_strlcpy(dpi->name, ProcessName, 16);	// process name
     int sysinfo_len = 0;
     memset(dpi->host_sysinfo, 0, 32);
     gethostname(dpi->host_sysinfo, 31);
@@ -227,7 +228,7 @@ void CMS::calculate_and_store_diag_info(PHYSMEM_HANDLE * _handle,
 }
 
 void CMS::internal_retrieve_diag_info(PHYSMEM_HANDLE * _handle,
-    void *_user_data)
+    void * /*_user_data*/)
 {
     if (NULL == _handle || !enable_diagnostics) {
 	return;

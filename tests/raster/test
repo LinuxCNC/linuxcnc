@@ -19,14 +19,14 @@ def assertIdle(pin):
 def waitEnabled(pin):
     stop = time.process_time() + timeout
     while not pin['enabled'].value:
-        assert pin['fault'].value == 0, "Fault occured. Code {0}".format(fault_code.value)
-        assert time.process_time() < stop, "Timeout while wainting" 
+        assert pin['fault'].value == 0, "Fault occurred. Code {0}".format(fault_code.value)
+        assert time.process_time() < stop, "Timeout while waiting" 
 
         
 def waitDisabled():
     stop = time.process_time() + timeout
     while enabled.value:
-        assert fault.value == 0, "Fault occured. Code {0}".format(fault_code.value)
+        assert fault.value == 0, "Fault occurred. Code {0}".format(fault_code.value)
         assert time.process_time() < stop, "Timeout while waiting"
 
 def waitFault(pin):
@@ -37,7 +37,7 @@ def waitFault(pin):
 def waitIdle():
     stop = time.process_time() + timeout
     while pin['state'].value != 0:
-        assert fault.value == 0, "Fault occured. Code {0}".format(fault_code.value)
+        assert fault.value == 0, "Fault occurred. Code {0}".format(fault_code.value)
         assert time.process_time() < stop, "Timeout while waiting"
 
 def resetRaster(prog, pin):

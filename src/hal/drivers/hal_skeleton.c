@@ -137,7 +137,6 @@ static void write_port(void *arg, long period);
 
 int rtapi_app_main(void)
 {
-    char name[HAL_NAME_LEN + 1];
     int n, retval;
 
     /* only one port at the moment */
@@ -173,9 +172,8 @@ int rtapi_app_main(void)
     }
 
     /* STEP 4: export write function */
-    rtapi_snprintf(name, sizeof(name), "skeleton.%d.write", n);
-    retval = hal_export_funct(name, write_port, &(port_data_array[n]), 0, 0,
-	comp_id);
+    retval = hal_export_functf(write_port, &(port_data_array[n]), 0, 0,
+	comp_id, "skeleton.%d.write", n);
     if (retval < 0) {
 	rtapi_print_msg(RTAPI_MSG_ERR,
 	    "SKELETON: ERROR: port %d write funct export failed\n", n);

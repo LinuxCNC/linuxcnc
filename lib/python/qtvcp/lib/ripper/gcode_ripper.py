@@ -82,7 +82,7 @@
                    (It now uses the first Z position in the g-code for the z-safe for probe moves before a z position is specified.)
 
     Version 0.21 - Added option to disable the g-code path display (might speed things up for large g-code files
-                 - Fixed handling of G43 commands with G0 moves mixed in on the same line (whos writes g-code like that anyway...)
+                 - Fixed handling of G43 commands with G0 moves mixed in on the same line (who writes g-code like that anyway...)
                  - Bounding box now displays when in auto-probe mode 
 
     Version 0.22 - Added support for DDCS probing to file
@@ -95,20 +95,10 @@
 version = '0.22'
 
 import sys
-VERSION = sys.version_info[0]
 
-if VERSION == 3:
-    from tkinter import *
-    from tkinter.filedialog import *
-    import tkinter.messagebox
-else:
-    from Tkinter import *
-    from tkFileDialog import *
-    import tkMessageBox
-
-if VERSION < 3 and sys.version_info[1] < 6:
-    def next(item):
-        return item.next()
+from tkinter import *
+from tkinter.filedialog import *
+import tkinter.messagebox
 
 try:
     import psyco
@@ -160,26 +150,14 @@ def debug_message(message):
     global DEBUG
     title = "Debug Message"
     if DEBUG:
-        if VERSION == 3:
-            tkinter.messagebox.showinfo(title,message)
-        else:
-            tkMessageBox.showinfo(title,message)
-            pass
+        tkinter.messagebox.showinfo(title,message)
         
 def message_box(title,message):
-    if VERSION == 3:
-        tkinter.messagebox.showinfo(title,message)
-    else:
-        tkMessageBox.showinfo(title,message)
-        pass
+    tkinter.messagebox.showinfo(title,message)
     
 def message_ask_ok_cancel(title, mess):
-    if VERSION == 3:
-        result=tkinter.messagebox.askokcancel(title, mess)
-    else:
-        result=tkMessageBox.askokcancel(title, mess)
+    result=tkinter.messagebox.askokcancel(title, mess)
     return result
-
 
 def error_message(message):
     error_report = Toplevel(width=525,height=60)
@@ -753,7 +731,7 @@ class Application(Frame):
         self.WriteRoundButton = Button(self.master,text="Stock Rounding",
                                       command=self.STOCK_Round_Window)
 
-        ## Define "Export" mode input feilds here
+        ## Define "Export" mode input fields here
         self.Label_Gcode_Export_Properties = Label(self.master,text="Export Properties:",\
                                            anchor=W)
 
@@ -3435,7 +3413,7 @@ class Application(Frame):
         self.MAXZ=maxz
         self.MINZ=minz
 
-        # Reset Staus Bar and Entry Fields
+        # Reset Status Bar and Entry Fields
 
         self.entry_set(self.Entry_GscaleXY,   self.Entry_GscaleXY_Check() ,1)
         self.entry_set(self.Entry_GscaleZ,    self.Entry_GscaleZ_Check()  ,1)
@@ -5482,7 +5460,7 @@ class G_Code_Rip:
         g_code.append("0")
         g_code.append("ENDSEC")
         
-        #This block section is not necessary but apperantly it's good form to include one anyway.
+        #This block section is not necessary but apparently it's good form to include one anyway.
         #The following is an empty block section.
         g_code.append("0")
         g_code.append("SECTION")
@@ -6052,7 +6030,7 @@ class G_Code_Rip:
         line = line.replace(" ","")
         
         #################################################
-        ###           G-CODE OPPERATORS               ###
+        ###           G-CODE OPERATORS                ###
         ###          In Precedence Order              ###
         #################################################
         ##    **                                        #
@@ -6106,7 +6084,7 @@ class G_Code_Rip:
         #########################################
         ###     Split the text into a list    ###
         #########################################
-        line = re.split( "([\[,\],\^,\*,\/,\%,\+,\-,\|  ,\&  ,\l ,\< ,\g ,\> ,\! ,\= ])", line)
+        line = re.split( r"([\[\]^*/%+\-| &l<g>!=])", line)
         
         #########################################
         ### Remove empty items from the list  ###
@@ -6129,9 +6107,9 @@ class G_Code_Rip:
         ###  While there are still brackets "[...]" keep processing   ###
         #################################################################
         while s != -1:
-            ##############################################################
-            ### Find the first occurence of "]" after the current "["  ###
-            ##############################################################
+            ###############################################################
+            ### Find the first occurrence of "]" after the current "["  ###
+            ###############################################################
             e=-1
             for cnt in range(len(line)-1,s,-1):
                 if line[cnt] == ']':

@@ -5,25 +5,25 @@
 
 == Adding files
 
-The src/Submakefile, src/docs.xml, docs/po4a.cfg and src/index.tmpl
+The `src/Submakefile`, `src/docs.xml`, `docs/po4a.cfg` and `src/index.tmpl`
 files must be updated to add a new document file.
 
 The relevant pdf.adoc must be updated to include the new document in the
-pdf documentation. e.g. if a new document belongs in the Master
-Documentation then an entry is required in src/Master_Documentation.adoc.
+pdf documentation. E.g., a new document belonging to the Master
+Documentation requires an entry in `src/Master_Documentation.adoc`.
 
-docs.xml is used to create the "previous" and "next" buttons at the top
+`docs.xml` is used to create the "previous" and "next" buttons at the top
 of each individual HTML document. It should generally match the order of
 the index.tmpl.
 
-po4a.cfg is used to map source files to translated documentation when
-generating translated files using the files in docs/po/.
+`po4a.cfg` is used to map source files to translated documentation when
+generating translated files using the files in `docs/po/`.
 
 == Notes on LinuxCNC documentation
 
-The main LinuxCNC makefile can optionally build the documentation and
+The main LinuxCNC Makefile can optionally build the documentation and
 other files in this directory tree. Use "--enable-build-documentation"
-when invoking src/configure, and run "make" from src.
+when invoking `src/configure`, and run "make" from `src`.
 
 == Notes about drawings
 
@@ -40,11 +40,11 @@ which is available for many systems, see link:https://repology.org/project/qcad/
 Unfortunately, EasyCAD (and AutoCAD) support a number of entities
 that QCAD does not import properly. Including some that were used
 in the LinuxCNC drawings: filled circles, filled arrowheads, non-zero
-width lines, and dashed lines.  Qcad renders filled circles as
+width lines, and dashed lines.  QCAD renders filled circles as
 hollow, it renders all lines the same width, and it renders dashed
 lines as solid, unless you tell it to do otherwise.  All of these
 things make the drawings less attractive, but are somewhat
-acceptable.  However, Qcad doesn't import filled arrowheads at all,
+acceptable.  However, QCAD doesn't import filled arrowheads at all,
 which seriously hurts the drawings.  So EasyCad was used to convert
 the arrowheads to hollow before exporting them.  Hollow arrowheads
 don't look as nice as solid ones, but at least they are visible.
@@ -53,7 +53,7 @@ Once exported, the arrowheads lose their relationship with the line they
 are on, and need to be moved and/or rotated manually if the line is
 moved.  I believe that even if they were imported back into EasyCad, the
 line/arrow connection would remain broken. New lines with arrowheads can
-be created in Qcad with the 'leader' dimension tool.
+be created in QCAD with the 'leader' dimension tool.
 
 Because the original EPS files with filled lines and circles, wide lines,
 and dashed lines look so much nicer, they will remain in Git and should
@@ -130,7 +130,7 @@ e.g. vec2web drawing.dxf drawing.png
 ```
 
 Initial attempts to use vec2web resulted in the graphical parts of the
-drawing being converted, but all text was lost. I don't know if vec2web
+drawing being converted, but all text was lost. It is not clear if vec2web
 is worth spending much more time on, however, it _is_ GPLv2, and it
 includes a library for reading DXF files, which might be worthwhile to
 the LinuxCNC community.
@@ -183,7 +183,18 @@ the translation level raise to a sensible level (for example not 0%),
 build rules need to be added to use the generated translations to
 build HTML and PDF editions of the translation.
 
-Add the new language code to the proper place in docs/po4a.cfg.
+At the moment, build rules are created for languages with more than 2
+percent translated
+link:https://hosted.weblate.org/projects/linuxcnc/linuxcnc-docs/[according
+to Weblate] or which have been updated the last 12 months according to
+the PO-Revision-Date field in docs/po/*.po.  Documentation packages for
+Debian are build for languages with more than 50 percent translation.
+This ensure translators and proof readers can see the result of their
+effort on https://linuxcnc.org/docs/devel/html/, while we limit the
+time spent building translations to those that are actively worked on
+or at least have a very the bare minimum translated.
+
+Add the new language code to the [po4a_langs] section of docs/po4a.cfg.
 Update build rules for the new language in `docs/src/Submakefile`.
 
 Edit debian/control.in to add the new linuxcnc-doc-$NEWLANG package.

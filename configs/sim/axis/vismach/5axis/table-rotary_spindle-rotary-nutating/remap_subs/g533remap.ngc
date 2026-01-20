@@ -1,0 +1,20 @@
+; this is the wrapper remap to orient the spindle using IDENTITY kinematics G53.3 with simultaneous move to XYZ (in tool coordinates)
+
+o<g533remap>sub
+M66 L0 E0                                                   ;force sync, stop read ahead
+o100 if [[EXISTS [#<X>]] AND [EXISTS [#<Y>]] AND [EXISTS [#<Z>]]]
+ M68 E3 Q0                                                  ;switch to identity kinematic
+o100 else
+ (abort, G53.3: X,Y and Z words are required)               ;it is an error if X,Y or Z word is missing
+o100 endif
+o105 if [EXISTS [#<P>]]                                     ;check if a P word has been passed
+ ;(print, P=#<P>)
+o105 else
+    #<P> = 0                                                ;if no P word has been passed we use the default (0)
+o105 endif
+M66 L0 E0
+;Note we can not pass XYZ words to an m-code so we send coords as ijk and handle it in remap.py
+M530 P#<P> I#<X> J#<Y> K#<Z>                                ;orient the spindle with P word and xyz as ijk
+M66 L0 E0
+o<g533remap>endsub
+m2

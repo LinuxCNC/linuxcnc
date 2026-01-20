@@ -1,0 +1,20 @@
+Subject: Remove redefinition of _FORTIFY_SOURCE
+  Starting Ubuntu 24.04, dpkg-buildflags passes _FORTIFY_SOURCE=3 by default.
+  On Debian, dpkg-buildflags passes _FORTIFY_SOURCE=2. Use of _FORTIFY_SOURCE=2
+  in the Makefile causes redefinition errors on Ubuntu. This patch enforces
+  depending on dpkg-buildflags for the _FORTIFY_SOURCE value.
+Author: Pushkar Kulkarni <pushkar.kulkarni@canonical.com>
+Bug-Ubuntu: https://bugs.launchpad.net/ubuntu/+source/linuxcnc/+bug/2104012
+
+
+--- a/src/Makefile
++++ b/src/Makefile
+@@ -252,7 +252,7 @@
+ # Compilation options.	Perhaps some of these should come from Makefile.inc? (CXXFLAGS now does)
+ INTEGER_OVERFLOW_FLAGS := -fwrapv
+ OPT := -O2 $(INTEGER_OVERFLOW_FLAGS)
+-DEBUG := $(DEBUG) -g -Wall -D_FORTIFY_SOURCE=2
++DEBUG := $(DEBUG) -g -Wall
+ CFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI -std=gnu11 -Werror=implicit-function-declaration $(CFLAGS) $(CPPFLAGS) $(EXTRA_DEBUG)
+ CXXFLAGS := $(INCLUDE) $(OPT) $(DEBUG) -DULAPI -Werror=overloaded-virtual $(CXXFLAGS) $(CPPFLAGS) $(EXTRA_DEBUG)
+ # In Debian 11, any inclusion of <boost/python.hpp> leads to several

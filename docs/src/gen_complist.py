@@ -10,9 +10,9 @@ import re
 import sys
 
 man1_path = '../docs/man/man1'
-man1_files = {f for f in os.listdir(man1_path) if os.path.isfile(os.path.join(man1_path, f))}
+man1_files = {f for f in os.listdir(man1_path) if f[0] != '.' and os.path.isfile(os.path.join(man1_path, f))}
 man9_path = '../docs/man/man9'
-man9_files = {f for f in os.listdir(man9_path) if os.path.isfile(os.path.join(man9_path, f))}
+man9_files = {f for f in os.listdir(man9_path) if f[0] != '.' and os.path.isfile(os.path.join(man9_path, f))}
 man_files = man1_files.union(man9_files)
 complist_doc = set()
 miss_in_man = set()
@@ -41,17 +41,17 @@ def generate_complist(complist_path):
     gen_filename = '../docs/src/hal/components_gen.adoc'
     file2 = open(gen_filename, 'w')
     if len(miss_in_list) > 0:
-        file2.write('=== Not categorized (auto generated from man pages)\n')
-        file2.write('[{tab_options}]\n|=======================\n')
+        file2.write('\n== Not categorized (auto generated from man pages)\n')
+        file2.write('[{tab_options}]\n|===\n')
         for i in sorted(miss_in_list):
             file2.write('| ' + i + ' |||\n')
-        file2.write('|=======================\n')
+        file2.write('|===\n')
     if len(miss_in_man) > 0:
-        file2.write('\n=== Without man page or broken link (auto generated from component list)\n')
-        file2.write('[{tab_options}]\n|=======================\n')
+        file2.write('\n== Without man page or broken link (auto generated from component list)\n')
+        file2.write('[{tab_options}]\n|===\n')
         for i in sorted(miss_in_man):
             file2.write('| ' + i + ' |||\n')
-        file2.write('|=======================\n')
+        file2.write('|===\n')
     file2.close()
 
     generate_links(gen_filename, False, True)
@@ -67,7 +67,7 @@ def generate_links(filename, create_backup=True, add_descr=False):
             splitted = line.split('|')
 
             if 'link:' in splitted[1]:
-                link = re.search('(?<=link:).*(?=\[)', splitted[1]).group()
+                link = re.search('(?<=link:).*(?=\\[)', splitted[1]).group()
                 if not os.path.isfile(os.path.join('../docs/html/hal',link)):
                     print('gen_complist: Broken link:', link)
             else:

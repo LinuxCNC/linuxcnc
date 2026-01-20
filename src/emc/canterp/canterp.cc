@@ -67,41 +67,42 @@ static char the_command_args[LINELEN] = { 0 };	// just the args part
 
 class Canterp : public InterpBase {
 public:
-    Canterp () : f(0) {}
-    char *error_text(int errcode, char *buf, size_t buflen);
-    char *stack_name(int index, char *buf, size_t buflen);
-    char *line_text(char *buf, size_t buflen);
-    char *file_name(char *buf, size_t buflen);
-    size_t line_length();
-    int sequence_number();
-    int ini_load(const char *inifile);
-    int init();
-    int execute();
-    int execute(const char *line);
-    int execute(const char *line, int line_number);
-    int synch();
-    int exit();
-    int open(const char *filename);
-    int read();
-    int read(const char *line);
-    int close();
-    int reset();
-    int line();
-    int call_level();
-    char *command(char *buf, size_t buflen);
-    char *file(char *buf, size_t buflen);
-    int on_abort(int reason, const char *message);
-    void active_g_codes(int active_gcodes[ACTIVE_G_CODES]);
-    void active_m_codes(int active_mcodes[ACTIVE_M_CODES]);
-    void active_settings(double active_settings[ACTIVE_SETTINGS]);
+    Canterp () : f(0), filename{} {}
+    char *error_text(int errcode, char *buf, size_t buflen) override;
+    char *stack_name(int index, char *buf, size_t buflen) override;
+    char *line_text(char *buf, size_t buflen) override;
+    char *file_name(char *buf, size_t buflen) override;
+    size_t line_length() override;
+    int sequence_number() override;
+    int ini_load(const char *inifile) override;
+    int init() override;
+    int execute() override;
+    int execute(const char *line) override;
+    int execute(const char *line, int line_number) override;
+    int synch() override;
+    int exit() override;
+    int open(const char *filename) override;
+    int read() override;
+    int read(const char *line) override;
+    int close() override;
+    int reset() override;
+    int line() override;
+    int call_level() override;
+    char *command(char *buf, size_t buflen) override;
+    char *file(char *buf, size_t buflen) override;
+    int on_abort(int reason, const char *message) override;
+    void active_g_codes(int active_gcodes[ACTIVE_G_CODES]) override;
+    void active_m_codes(int active_mcodes[ACTIVE_M_CODES]) override;
+    void active_settings(double active_settings[ACTIVE_SETTINGS]) override;
     int active_modes(int g_codes[ACTIVE_G_CODES],
             int m_codes[ACTIVE_M_CODES],
             double settings[ACTIVE_SETTINGS],
-            StateTag const &tag);
-    int restore_from_tag(StateTag const &tag);
-    void print_state_tag(StateTag const &tag);
-    void set_loglevel(int level);
-    void set_loop_on_main_m99(bool state);
+            StateTag const &tag) override;
+    int restore_from_tag(StateTag const &tag) override;
+    void print_state_tag(StateTag const &tag) override;
+    void set_loglevel(int level) override;
+    void set_loop_on_main_m99(bool state) override;
+    FILE* get_stdout() override { return NULL; };
     FILE *f;
     char filename[PATH_MAX];
 };
@@ -117,7 +118,7 @@ char *Canterp::stack_name(int index, char *buf, size_t buflen) {
     return buf;
 }
 
-int Canterp::ini_load(const char *inifile) {
+int Canterp::ini_load(const char * /*inifile*/) {
     return 0;
 }
 
@@ -423,10 +424,7 @@ int Canterp::execute(const char *line) {
     }
 
     if (!strcmp(the_command_name, "CHANGE_TOOL")) {
-	if (1 != sscanf(the_command_args, "%d", &i1)) {
-	    return INTERP_ERROR;
-	}
-	CHANGE_TOOL(i1);
+	CHANGE_TOOL();
 	return 0;
     }
 
@@ -588,7 +586,7 @@ int Canterp::execute(const char *line) {
     }
 
     if (!strcmp(the_command_name, "ORIENT_SPINDLE")) {
-	if (3 != sscanf(the_command_args, "%d %lf %s", &i1, &d1, s1)) {
+	if (3 != sscanf(the_command_args, "%d %lf %255s", &i1, &d1, s1)) {
 	    return INTERP_ERROR;
 	}
 	if (!strcmp(s1, "CANON_CLOCKWISE")) {
@@ -689,7 +687,7 @@ int Canterp::execute(const char *line) {
     return INTERP_ERROR;
 }
 
-int Canterp::execute(const char *line, int line_number) {
+int Canterp::execute(const char *line, int /*line_number*/) {
     return execute(line);
 }
 
@@ -743,19 +741,19 @@ int Canterp::sequence_number() {
    return -1;
 }
 int Canterp::init() { return INTERP_OK; }
-void Canterp::active_g_codes(int gees[]) { std::fill(gees, gees + ACTIVE_G_CODES, 0); }
-void Canterp::active_m_codes(int emms[]) { std::fill(emms, emms + ACTIVE_M_CODES, 0); }
-void Canterp::active_settings(double sets[]) { std::fill(sets, sets + ACTIVE_SETTINGS, 0.0); }
+void Canterp::active_g_codes(int gees[ACTIVE_G_CODES]) { std::fill(gees, gees + ACTIVE_G_CODES, 0); }
+void Canterp::active_m_codes(int emms[ACTIVE_M_CODES]) { std::fill(emms, emms + ACTIVE_M_CODES, 0); }
+void Canterp::active_settings(double sets[ACTIVE_SETTINGS]) { std::fill(sets, sets + ACTIVE_SETTINGS, 0.0); }
 //NOT necessary for canterp
-int Canterp::restore_from_tag(StateTag const &tag) {return -1;}
-void Canterp::print_state_tag(StateTag const &tag) {}
+int Canterp::restore_from_tag(StateTag const & /*tag*/) {return -1;}
+void Canterp::print_state_tag(StateTag const & /*tag*/) {}
 
 int Canterp::active_modes(int g_codes[ACTIVE_G_CODES],
 			  int m_codes[ACTIVE_M_CODES],
 			  double settings[ACTIVE_SETTINGS],
-			  StateTag const &tag){ return -1;}
+			  StateTag const & /*tag*/){ (void)g_codes; (void)m_codes; (void)settings; return -1;}
 
-void Canterp::set_loglevel(int level) {}
-void Canterp::set_loop_on_main_m99(bool state) {}
+void Canterp::set_loglevel(int /*level*/) {}
+void Canterp::set_loop_on_main_m99(bool /*state*/) {}
 
 InterpBase *makeInterp() { return new Canterp; }

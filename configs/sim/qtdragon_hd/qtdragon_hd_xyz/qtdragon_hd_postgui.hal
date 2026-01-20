@@ -4,7 +4,7 @@
 loadrt logic names=logic-and personality=0x102
 addf logic-and servo-thread
 
-# load a summing compnent for adding spindle lift and Z compensation
+# load a summing component for adding spindle lift and Z compensation
 loadrt scaled_s32_sums
 addf scaled-s32-sums.0 servo-thread
 
@@ -39,7 +39,8 @@ setp axis.z.eoffset-enable True
 ##################################################
 net eoffset-clear     qtdragon.eoffset-clear
 net eoffset-spindle-count   <= qtdragon.eoffset-spindle-count    
-net spindle-pause     qtdragon.spindle-inhibit spindle.0.inhibit
+net spindle-pause     qtdragon.spindle-inhibit        =>  spindle.0.inhibit
+net eoffset-state     qtdragon.eoffset-is-active      <=  motion.eoffset-active
 
 ## Z level compensation
 ####################################################

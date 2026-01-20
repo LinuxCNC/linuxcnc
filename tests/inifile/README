@@ -1,0 +1,4 @@
+Tests for the library `liblinuxcncini`.
+
+This is the library created from the files `src/libnml/inifile/inifile.*`. To
+simplify the testing we utilize the application `inivar`.

@@ -59,8 +59,8 @@ advantage at all.
 
 == Quick Start ==
 
-Install the linuxcnc-dev package. (FIXME: modcompile and mesa_uart.c are
-not yet included in linuxcnc-dev)
+Install the linuxcnc-uspace-dev or linuxcnc-dev package (depending on the
+LinuxCNC version installed).
 
 Create a new definition file similar to analogue.mod and relayboard.mod
 (the annotated mesa_uart.mod.sample file should help here)
@@ -76,7 +76,7 @@ some realtime implementations of LinuxCNC realtime require that modules
 be kernel modules, and kernel modules have no access to files, the
 mesa_modbus framework compiles-in the modbus register structure and
 HAL pins into an immutable, loadable, module. If you need to change
-the register assigments or add/remove pins/registers then the module
+the register assignments or add/remove pins/registers then the module
 must be recompiled.
 
 Load and activate the module with HAL commands such as
@@ -109,8 +109,8 @@ float pin is specified then two extra HAL pins are created with the
 same name but suffixed with -scale and offset. The value from the
 modbus register will be interpreted as a sighed-16 bit number. It will
 then be multiplied by the scale value and then the offset will be
-added (ie the offset is in engineering units, and the scale converts 16
-bit register values to engineering units)
+added (i.e. the offset is in engineering units, and the scale converts 16
+bit register values to engineering units).
 
 The reverse transformation is performed when writing to the device.
 
@@ -142,8 +142,7 @@ module will create the following pins for each instance of the driver:
 
 *modname.fault* - indicates a fault with the device or comms
 
-*modname.last-error* - indicates the error code that set the fault
-output.
+*modname.last-error* - indicates the error code that set the fault output.
 
 These can be redefined at any time and will take effect the next time
 that a modbus packet is assembled.
@@ -327,14 +326,13 @@ Tx+ to Rx+ and Tx- to Rx-.
 
 Note that there are differing naming standards for Modbus pins.
 Typically Rx+ and TX+ will connect to the B- pin on the modbus device
-and Rx- and Tx- will connect to the A+ pin. (ie, +/- will appear
-reversed.
+and Rx- and Tx- will connect to the A+ pin, i.e., +/- will appear reversed.
 
 
 === Ad-hoc Modbus device access ===
 
 For experimentation and one-off configuration it is possible to send /
-recieve data through the FPGA serial port using the mesaflash utility
+receive data through the FPGA serial port using the mesaflash utility
 in a script. A sample script follows.
 
 [source,bash]

@@ -35,6 +35,7 @@
 
 #include "hostmot2-lowlevel.h"
 #include "hostmot2.h"
+#include "llio_info.h"
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Jeff Epler");
@@ -56,7 +57,7 @@ static char *spidev_path[MAX_BOARDS] = { "/dev/spidev1.0" };
 RTAPI_MP_ARRAY_STRING(spidev_path, MAX_BOARDS, "path to spi device");
 
 static char *config[MAX_BOARDS];
-RTAPI_MP_ARRAY_STRING(config, MAX_BOARDS, "config string for the AnyIO boards (see hostmot2(9) manpage)")
+RTAPI_MP_ARRAY_STRING(config, MAX_BOARDS, "config string for the AnyIO boards (see hostmot2(9) manpage)");
 
 typedef struct {
     hm2_lowlevel_io_t llio;
@@ -72,127 +73,6 @@ static hm2_spi_t boards[MAX_BOARDS];
 static int nboards;
 static int comp_id;
 
-static char *hm2_7c80_pin_names[] = {
-	"TB07-02/TB07-03",	/* Step/Dir/Misc 5V out */
-	"TB07-04/TB07-05",
-	"TB08-02/TB08-03",
-	"TB08-04/TB08-05",
-	"TB09-02/TB09-03",
-	"TB09-04/TB09-05",
-	"TB10-02/TB10-03",
-	"TB10-04/TB10-05",
-	"TB11-02/TB11-03",
-	"TB11-04/TB11-05",
-	"TB12-02/TB12-03",
-	"TB12-04/TB12-05",
-	"TB03-03/TB04-04",	/* RS-422/RS-485 interface */
-	"TB03-05/TB04-06",
-	"TB03-05/TB03-06",
-	"TB04-01/TB04-02",	/* Encoder */
-	"TB04-04/TB04-05",
-	"TB04-07/TB04-08",
-	"TB05-02",		/* Spindle */
-	"TB05-02",
-	"TB05-05/TB05-06",
-	"TB05-07/TB05-08",
-	"Internal InMux0",	/* InMux */
-	"Internal InMux1",
-	"Internal InMux2",
-	"Internal InMux3",
-	"Internal InMux4",
-
-	"Internal InMuxData",
-	"TB13-01/TB13-02",	/* SSR */
-	"TB13-03/TB13-04",
-	"TB13-05/TB13-06",
-	"TB13-07/TB13-08",
-	"TB14-01/TB14-02",
-	"TB14-03/TB14-04",
-	"TB14-05/TB14-06",
-	"TB14-07/TB14-08",
-	"Internal SSR",
-	"P1-01/DB25-01",   /* P1 parallel expansion */
-	"P1-02/DB25-14",
-	"P1-03/DB25-02",
-	"P1-04/DB25-15",
-	"P1-05/DB25-03",
-	"P1-06/DB25-16",
-	"P1-07/DB25-04",
-	"P1-08/DB25-17",
-	"P1-09/DB25-05",
-	"P1-11/DB25-06",
-	"P1-13/DB25-07",
-	"P1-15/DB25-08",
-	"P1-17/DB25-09",
-	"P1-19/DB25-10",
-	"P1-21/DB25-11",
-	"P1-23/DB25-12",
-	"P1-25/DB25-13",
-};
-
-static char *hm2_7c81_pin_names[] = {
-	"P1-01/DB25-01",
-	"P1-02/DB25-14",
-	"P1-03/DB25-02",
-	"P1-04/DB25-15",
-	"P1-05/DB25-03",
-	"P1-06/DB25-16",
-	"P1-07/DB25-04",
-	"P1-08/DB25-17",
-	"P1-09/DB25-05",
-	"P1-11/DB25-06",
-	"P1-13/DB25-07",
-	"P1-15/DB25-08",
-	"P1-17/DB25-09",
-	"P1-19/DB25-10",
-	"P1-21/DB25-11",
-	"P1-23/DB25-12",
-	"P1-25/DB25-13",
-	"J5-TX0",
-	"J6-TX1",
-
-	"P2-01/DB25-01",
-	"P2-02/DB25-14",
-	"P2-03/DB25-02",
-	"P2-04/DB25-15",
-	"P2-05/DB25-03",
-	"P2-06/DB25-16",
-	"P2-07/DB25-04",
-	"P2-08/DB25-17",
-	"P2-09/DB25-05",
-	"P2-11/DB25-06",
-	"P2-13/DB25-07",
-	"P2-15/DB25-08",
-	"P2-17/DB25-09",
-	"P2-19/DB25-10",
-	"P2-21/DB25-11",
-	"P2-23/DB25-12",
-	"P2-25/DB25-13",
-	"J5-TXEN0",
-	"J6-TXEN1",
-
-	"P7-01/DB25-01",
-	"P7-02/DB25-14",
-	"P7-03/DB25-02",
-	"P7-04/DB25-15",
-	"P7-05/DB25-03",
-	"P7-06/DB25-16",
-	"P7-07/DB25-04",
-	"P7-08/DB25-17",
-	"P7-09/DB25-05",
-	"P7-11/DB25-06",
-	"P7-13/DB25-07",
-	"P7-15/DB25-08",
-	"P7-17/DB25-09",
-	"P7-19/DB25-10",
-	"P7-21/DB25-11",
-	"P7-23/DB25-12",
-	"P7-25/DB25-13",
-	"P5-RX0",
-	"P6-RX1"
-};
-
- 
 static uint32_t read_command(uint16_t addr, unsigned nelem) {
     bool increment = true;
     return (addr << 16) | 0xA000 | (increment ? 0x800 : 0) | (nelem << 4);
@@ -210,6 +90,7 @@ static int do_pending(hm2_spi_t *this) {
     t = this->settings;
     t.tx_buf = t.rx_buf = (uint64_t)(uintptr_t)this->trxbuf;
     t.len = 4 * this->nbuf;
+    t.delay_usecs = 10; // Magic is required or timeouts happen
 
     if(this->settings.bits_per_word == 8) {
 	int i;
@@ -336,6 +217,8 @@ static int spidev_set_bits_per_word(int fd, uint8_t bits) {
     return ioctl(fd, SPI_IOC_WR_BITS_PER_WORD, &bits);
 }
 
+/*
+ * Not used anymore. Variable bit sizes doesn't work.
 static int spidev_get_bits_per_word(int fd) {
     uint8_t bits;
     int r;
@@ -343,6 +226,7 @@ static int spidev_get_bits_per_word(int fd) {
     if(r < 0) return -1;
     return bits;
 }
+*/
 
 static int spidev_open_and_configure(char *dev, int rate) {
     int fd = open(dev, O_RDWR);
@@ -355,8 +239,10 @@ static int spidev_open_and_configure(char *dev, int rate) {
     r = spidev_set_mode(fd, 0);
     if(r < 0) goto fail_errno;
 
-    r = spidev_set_bits_per_word(fd, 32);
-    if(r < 0) r = spidev_set_bits_per_word(fd, 8);
+    // Fixed to 8-bit, variable bit sizes does not work
+    // r = spidev_set_bits_per_word(fd, 32);
+    // if(r < 0) r = spidev_set_bits_per_word(fd, 8);
+    r = spidev_set_bits_per_word(fd, 8);
     if(r < 0) goto fail_errno;
 
     r = spidev_set_max_speed_hz(fd, rate);
@@ -385,10 +271,6 @@ static int check_cookie(hm2_spi_t *board) {
     return 0;
 }
 
-static int read_ident(hm2_spi_t *board, char *ident) {
-    return do_read(&board->llio, 0x40c, ident, 8);
-}
-
 static int probe(char *dev, int rate) {
     printf("probe %d\n", rate);
     if(nboards >= MAX_BOARDS) return -ENOSPC;
@@ -398,59 +280,26 @@ static int probe(char *dev, int rate) {
     if(board->fd < 0) return board->fd;
 
     board->settings.speed_hz = rate;
-    board->settings.bits_per_word = spidev_get_bits_per_word(board->fd);
+    // This doesn't work:
+    // board->settings.bits_per_word = spidev_get_bits_per_word(board->fd);
+    // Therefore, fix the transfer word-size to 8 bits.
+    board->settings.bits_per_word = 8;
 
     int r = check_cookie(board);
     if(r < 0) goto fail;
 
-    char ident[8];
-    r = read_ident(board, ident);
-    if(r < 0) goto fail;
+    // Read the IDROM from the board.
+    hm2_idrom_t idrom;
+    if(do_read(&board->llio, 0x400, &idrom, sizeof(hm2_idrom_t)) <= 0) {
+        rtapi_print_msg(RTAPI_MSG_ERR, "Board ident read failed (dev=%s)\n", dev);
+        r = -EIO; // Cookie could be read, so this is a comms error
+        goto fail;
+    }
 
-    char *base;
-
-    if(!memcmp(ident, "MESA7I43", 8)) {
-        base = "hm2_7i43spi";
-        board->llio.num_ioport_connectors = 2;
-        board->llio.pins_per_connector = 24;
-        board->llio.ioport_connector_name[0] = "P4";
-        board->llio.ioport_connector_name[1] = "P3";
-        board->llio.num_leds = 8;
-        board->llio.fpga_part_number = "3s400tq144";
-    } else if(!memcmp(ident, "MESA7I90", 8)) {
-        base = "hm2_7i90";
-        board->llio.num_ioport_connectors = 3;
-        board->llio.pins_per_connector = 24;
-        board->llio.ioport_connector_name[0] = "P1";
-        board->llio.ioport_connector_name[1] = "P2";
-        board->llio.ioport_connector_name[2] = "P3";
-        board->llio.num_leds = 2;
-        board->llio.fpga_part_number = "xc6slx9tq144";
-    } else if(!memcmp(ident, "MESA7C80", 8)){
-            base = "hm2_7c80";
-            board->llio.num_ioport_connectors = 2;
-            board->llio.pins_per_connector = 27;
-            board->llio.ioport_connector_name[0] = "Embedded I/O";
-            board->llio.ioport_connector_name[1] = "Embedded I/O + P1 expansion";
-            board->llio.io_connector_pin_names = hm2_7c80_pin_names;
-            board->llio.num_leds = 4;
-            board->llio.fpga_part_number = "xc6slx9tq144";
-    } else if(!memcmp(ident, "MESA7C81", 8)){
-            base = "hm2_7c81";
-            board->llio.num_ioport_connectors = 3;
-            board->llio.pins_per_connector = 19;
-            board->llio.ioport_connector_name[0] = "P1";
-            board->llio.ioport_connector_name[1] = "P2";
-            board->llio.ioport_connector_name[2] = "P7";
-            board->llio.io_connector_pin_names = hm2_7c81_pin_names;
-            board->llio.num_leds = 4;
-            board->llio.fpga_part_number = "xc6slx9tq144";
-    } else {
-        // peter's been busy
-        int i=0;
-        for(i=0; i<sizeof(ident); i++)
-            if(!isprint(ident[i])) ident[i] = '?';
-        rtapi_print_msg(RTAPI_MSG_ERR, "Unknown board: %.8s\n", ident);
+    // Detect board name and fill in informational values
+    const char *base;
+    if(!(base = set_llio_info_spi(&board->llio, &idrom))) {
+        r = -ENOENT;
         goto fail;
     }
 

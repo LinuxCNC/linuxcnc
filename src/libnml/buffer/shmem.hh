@@ -46,7 +46,6 @@ class SHMEM:public CMS {
   private:
 
     /* data buffer stuff */
-    int fast_mode;
     int open();			/* get shared mem and sem */
     int close();		/* detach from shared mem and sem */
     key_t key;			/* key for shared mem and sem */

@@ -15,6 +15,7 @@
 # GNU General Public License for more details.
 
 import sys, os, linuxcnc, hashlib
+import shutil # for backup of tooltable
 datadir = os.path.abspath(os.path.dirname(__file__))
 KEYWORDS = ['S','T', 'P', 'X', 'Y', 'Z', 'A', 'B', 'C', 'U', 'V', 'W', 'D', 'I', 'J', 'Q', ';']
 
@@ -195,7 +196,7 @@ class ToolEdit(Gtk.Box):
         for path in pathlist:
             liststore.remove(liststore.get_iter(path))
 
-        # return the selected tool number
+        # return tool numbers of all rows with checked checkboxes
     def get_selected_tool(self):
         liststore  = self.model
         def match_value_cb(model, path, iter, pathlist):
@@ -209,6 +210,15 @@ class ToolEdit(Gtk.Box):
             return None
         else:
             return(liststore.get_value(liststore.get_iter(pathlist[0]),1))
+
+        # return tool number of the highlighted (ie selected) row
+    def get_selected_row(self):
+        model, iter = self.view1.get_selection().get_selected()
+        if iter:
+            tool = model.get_value(iter, 1)
+            return tool
+        else:
+            return None
 
     def set_selected_tool(self,toolnumber):
         try:
@@ -230,6 +240,8 @@ class ToolEdit(Gtk.Box):
     def add(self,widget,data=[1,0,0,'0','0','0','0','0','0','0','0','0','0','0','0',0,"comment"]):
         self.model.append(data)
         self.num_of_col +=1
+        liststore = self.model
+        self.wTree.get_object("treeview1").scroll_to_cell(len(liststore)-1)
 
         # this is for adding a filename path after the tooleditor is already loaded.
     def set_filename(self,filename):
@@ -307,7 +319,7 @@ class ToolEdit(Gtk.Box):
                                 print(_("Tooledit widget float error"))
                         else:
                             try:
-                                array[offset]= locale.format_string("%10.4f", float(word.lstrip(i)))
+                                array[offset]= f"{float(word.lstrip(i)):10.4f}"
                             except:
                                 print(_("Tooledit widget float error"))
                         break
@@ -316,7 +328,6 @@ class ToolEdit(Gtk.Box):
             # add array line to liststore
             self.add(None,array)
 
-        # Note we have to save the float info with a decimal even if the locale uses a comma
     def save(self,widget):
         if self.toolfile == None:return
         liststore = self.model
@@ -330,6 +341,11 @@ class ToolEdit(Gtk.Box):
                 self.warning_dialog(line_number)
                 return
 
+        if(locale.getlocale(locale.LC_NUMERIC)[0] is None):
+            raise ExceptionMessage("\n\n"+_("Something wrong with the locale settings. Will not save the tool table."))
+            return
+
+        shutil.copy(self.toolfile, self.toolfile + ".bak")
         file = open(self.toolfile, "w")
         #print self.toolfile
         for row in liststore:
@@ -344,8 +360,12 @@ class ToolEdit(Gtk.Box):
                     test = i.strip()
                     line = line + "%s%s "%(KEYWORDS[num],test)
                 else:
-                    test = i.lstrip() # localized floats
-                    line = line + "%s%s "%(KEYWORDS[num], locale.atof(test))
+                    test = i.lstrip()
+                    try:
+                        line = line + "%s%s "%(KEYWORDS[num], float(test))
+                    except ValueError:
+                        raise ExceptionMessage("\n\n"+_("Error converting a float with the given localization setting. A backup file has been created: "
+                                                    + self.toolfile + ".bak"))
 
             print(line, file=file)
         # These lines are required to make sure the OS doesn't cache the data
@@ -467,7 +487,7 @@ class ToolEdit(Gtk.Box):
         # validate input for float columns
         elif col in range(3,15):
             try:
-                self.model[path][col] = locale.format("%10.4f",locale.atof(new_text))
+                self.model[path][col] = f"{float(new_text.replace(',', '.')):10.4f}"
             except:
                 pass
         # validate input for orientation: check if int and valid range
@@ -694,6 +714,12 @@ class ToolEdit(Gtk.Box):
         else:
             pass
 
+class ExceptionMessage(Exception):
+    """ Exception to display a Message as an Exception.
+    Usage: raise ExceptionMessage(<message>)
+    """
+    def __init__(self, message):
+        super().__init__(message)
 
 # for testing without glade editor:
 # for what ever reason tooledit always shows both display lists,

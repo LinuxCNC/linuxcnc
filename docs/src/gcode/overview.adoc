@@ -1,8 +1,9 @@
 :lang: en
 :toc:
+:toclevels: 3
 
-[[cha:g-code-overview]]
-= G-code Overview
+[[cha:overview-of-g-code-programming]]
+= Overview of G-Code Programming
 
 :ini: {basebackend@docbook:'':ini}
 :hal: {basebackend@docbook:'':hal}
@@ -14,10 +15,10 @@
 
 == Overview
 
-The LinuxCNC G-code language is based on the RS274/NGC language. The G
-Code language is based on lines of code. Each line (also called a
-'block') may include commands to do several different things. Lines of
-code may be collected in a file to make a program.
+The LinuxCNC G-code language is based on the RS274/NGC language.
+The G-code language is based on lines of code.
+Each line (also called a 'block') may include commands to do several different things.
+Lines of code may be collected in a file to make a program.
 
 A typical line of code consists of an optional line number at the
 beginning followed by one or more 'words'. A word consists of a letter
@@ -28,8 +29,9 @@ command meaning 'move in a straight line at the programmed feed
 rate to the programmed end point', and 'X3' provides an argument
 value (the value of X should be 3 at the end of the move).
 Most LinuxCNC G-code commands start with either G or M (for
-General and Miscellaneous). The words for these commands are called 'G
-codes' and 'M-codes'.
+General and Miscellaneous).
+The words for these commands are called 'G-codes' and 'M-codes'.
+Also common are subroutine codes that begin with 'o-' which are called 'o-codes'.
 
 The LinuxCNC language has no indicator for the start of a program. The
 Interpreter, however, deals with files. A single program may be in a
@@ -55,10 +57,14 @@ A permissible line of input code consists of the following, in order,
 with the restriction that there is a maximum (currently 256) to the
 number of characters allowed on a line.
 
-* an optional block delete character, which is a slash '/'.
-* an optional line number.
-* any number of words, parameter settings, and comments.
-* an end of line marker (carriage return or line feed or both).
+. an optional block delete character, which is a slash '/'.
+. an optional line number.
+. Any number of:
+1. words,
+2. parameter settings,
+3. subroutine codes, and
+4. comments.
+. an end of line marker (carriage return or line feed or both).
 
 Any input not explicitly allowed is illegal and will cause the
 Interpreter to signal an error.
@@ -75,8 +81,9 @@ outside a comment may be in upper or lower case without changing the
 meaning of a line.
 
 [[sub:block-delete]]
-=== '/': Block Delete((('/' Block Delete)))
+=== '/': Block Delete
 
+((('/' Block Delete)))
 The optional block delete character the slash '/' when placed first on a line
 can be used by some user interfaces to skip lines of code when needed. In Axis
 the key combination Alt-m-/ toggles block delete on and off. When block delete
@@ -87,8 +94,9 @@ In AXIS, it is also possible to enable block delete with the following icon:
 .AXIS Block Delete Icon
 image:../gui/images/tool_blockdelete.png[]
 
-=== Line Number(((Line Number)))
+=== Optional Line Number
 
+(((Optional Line Number)))
 A line number is the letter N followed by an unsigned integer,
 optionally followed by a period and another unsigned integer. For
 example, 'N1234' and 'N56.78' are valid line numbers. They may be
@@ -97,16 +105,17 @@ such usage. Line numbers may also be skipped, and that is normal
 practice. A line number is not required to be used, but must be in the
 proper place if used.
 
-=== Word(((Words)))
+NOTE: Line numbers are not recommended. See <<gcode:best-practices,Best Practices>>.
 
-A word is a letter other than N followed by a real value.
+=== Words, Parameters, Subroutines, Comments
+
+==== Words
+
+(((Words)))
+A word is a letter other than N or O ("o") followed by a real value.
 
 Words may begin with any of the letters shown in the following Table.
-The table includes N for completeness, even
-though, as defined above, line numbers are not words. Several letters
-(I, J, K, L, P, R) may have different meanings in different contexts.
-Letters which refer to axis names are not valid on a machine which does
-not have the corresponding axis.
+The table includes N and O for completeness, even though, as defined above, line numbers and program flow parameters are not words. Several letters (I, J, K, L, P, R) may have different meanings in different contexts. Letters which refer to axis names are not valid on a machine which does not have the corresponding axis.
 
 .Words and their meanings
 [width="75%",options="header",cols="^1,<5"]
@@ -117,15 +126,16 @@ not have the corresponding axis.
 |C | C axis of machine
 |D | Tool radius compensation number
 |F | Feed rate
-|G | General function (See table  <<cap:modal-groups,Modal Groups>>)
+|G | General function (See table  <<cap:modal-groups,G-code Modal Groups>>)
 |H | Tool length offset index
 |I | X offset for arcs and G87 canned cycles
 |J | Y offset for arcs and G87 canned cycles
 .2+|K | Z offset for arcs and G87 canned cycles.
 <| Spindle-Motion Ratio for G33 synchronized movements.
 |L | generic parameter word for G10, M66 and others
-|M | Miscellaneous function (See table  <<cap:modal-groups,Modal Groups>>)
-|N | Line number
+|M | Miscellaneous function (See table  <<tbl:mcodes-modal-groups,M-code Modal Groups>>)
+|N | Line number (not recommended, see <<gcode:best-practices, Best Practices>>)
+|O | o-codes for program flow control (See <<cha:o-codes,o-Codes>>)
 .2+|P | Dwell time in canned cycles and with G4.
 <| Key used with G10.
 |Q | Feed increment in G73, G83 canned cycles
@@ -140,9 +150,32 @@ not have the corresponding axis.
 |Z | Z axis of machine
 |===
 
-[[gcode:numbers]]
-=== Numbers(((Numbers)))
+==== Parameters
 
+(((Parameters)))
+Parameters are identified with a "#" symbol in front of them. See <<sec:overview-parameters,Parameters Section>> below.
+
+==== Subroutine Codes
+
+(((Subroutine Codes)))
+Also called 'o-codes' these provide program flow control (such as if-else logic and callable subroutines) and are covered fully at the page on <<cha:o-codes,o-Codes>> and also below in <<sub:subroutine-parameters,Subroutine Codes and Parameters>>.
+
+NOTE: o-codes are sometimes also called o-words.
+
+==== Comments
+
+(((Comments)))
+Comments can be embedded in a line using parentheses () or for the remainder of a line using a semi-colon. There are also 'active' comments like MSG, DEBUG, etc. See the <<gcode:comments,section on comments>>.
+
+=== End of Line Marker
+
+(((End of Line Marker)))
+This is any combination of carriage return or line feed.
+
+[[gcode:numbers]]
+== Numbers
+
+(((Numbers)))
 The following rules are used for (explicit) numbers. In these rules a
 digit is a single character between 0 and 9.
 
@@ -150,16 +183,13 @@ digit is a single character between 0 and 9.
 ** an optional plus or minus sign, followed by
 ** zero to many digits, followed, possibly, by
 ** one decimal point, followed by
-** zero to many digits - provided that there is at least
-   one digit somewhere in the number.
+** zero to many digits - provided that there is at least one digit somewhere in the number.
 * There are two kinds of numbers:
 ** Integers, that does not have a decimal point,
 ** Decimals, that do have a decimal point.
-* Numbers may have any number of digits, subject to the limitation on
-  line length. Only about seventeen significant figures will be retained,
-  however (enough for all known applications).
-* A non-zero number with no sign but the first character is assumed to be
-  positive.
+* Numbers may have any number of digits, subject to the limitation on line length.
+  Only about seventeen significant figures will be retained, however (enough for all known applications).
+* A non-zero number with no sign but the first character is assumed to be positive.
 
 Notice that initial (before the decimal point and the first non-zero
 digit) and trailing (after the decimal point and the last non-zero
@@ -176,8 +206,9 @@ which is intended to represent an integer is considered close enough if
 it is within 0.0001 of an integer value.
 
 [[sec:overview-parameters]]
-== Parameters(((Parameters)))
+== Parameters
 
+(((Parameters)))
 The RS274/NGC language supports 'parameters' - what in other
 programming languages would be called 'variables'. There are several
 types of parameter of different purpose and appearance, each described
@@ -197,9 +228,9 @@ Syntax:: There are three kinds of syntactic appearance:
 * 'named local' - #<localvalue>
 * 'named global' - #<_globalvalue>
 
-Scope:: The scope of a parameter is either global, or local within a
-subroutine. Subroutine parameters and local named variables have local
-scope. Global named parameters and numbered parameters starting from
+Scope:: The scope of a parameter is either global, or local within a subroutine.
+Subroutine parameters and local named variables have local scope.
+Global named parameters and numbered parameters starting from
 number 31 are global in scope. RS274/NGC uses 'lexical scoping' -
 in a subroutine only the local variables defined therein, and any
 global variables are visible. The local variables of a
@@ -218,9 +249,9 @@ assignment statement.
 
 Persistence:: When LinuxCNC is shut down, volatile parameters lose their
 values. All parameters except numbered parameters in the current
-persistent range footnoteref:[persistent_range,The range of persistent
+persistent range footnote:[persistent_range,The range of persistent
 parameters may change as development progresses. This range is
-currently 5161- 5390. It is defined in the '_required_parameters array'
+currently 5161- 5390. It is defined in the 'required_parameters array'
 in file the src/emc/rs274ngc/interp_array.cc .]  are volatile.
 Persistent parameters are saved in the .var file and
 restored to their previous values when LinuxCNC is started again. Volatile
@@ -232,16 +263,14 @@ Intended Use::
   available for general-purpose storage of floating-point values, like
   intermediate results, flags etc, throughout program execution. They
   are read/write (can be assigned a value).
-* <<sub:subroutine-parameters,subroutine parameters>> - these are used to
-  hold the actual parameters passed to a subroutine.
-* <<sub:numbered-parameters,numbered parameters>> - most of these are used
-  to access offsets of coordinate systems.
-* <<sub:system-parameters,system parameters>> - used to determine the current
-  running version. They are read-only.
+* <<sub:subroutine-parameters,subroutine parameters>> - these are used to hold the actual parameters passed to a subroutine.
+* <<sub:numbered-parameters,numbered parameters>> - most of these are used to access offsets of coordinate systems.
+* <<sub:system-parameters,system parameters>> - used to determine the current running version. They are read-only.
 
 [[sub:numbered-parameters]]
-=== Numbered Parameters(((Numbered Parameters)))
+=== Numbered Parameters
 
+(((Numbered Parameters)))
 A numbered parameter is the pound character '#' followed by an
 integer between 1 and (currently) 5602 footnote:[The RS274/NGC interpreter
 maintains an array of numbered parameters. Its size is defined by the
@@ -262,8 +291,7 @@ A parameter setting does not take
 effect until after all parameter values on the same line have been
 found. For example, if parameter 3 has been previously set to 15 and
 the line '#3=6 G1 X#3' is interpreted, a straight move to a point
-where X equals 15 will
-occur and the value of parameter 3 will be 6.
+where X equals 15 will occur and the value of parameter 3 will be 6.
 
 The '\#'  character takes precedence over other operations, so that, for
 example, '\#1+2' means the number found by adding 2 to the value of
@@ -283,7 +311,7 @@ example '##2'  means the value of the parameter whose index is the
 * '5161-5169' - "G28" Home for X, Y, Z, A, B, C, U, V & W. Persistent.
 * '5181-5189' - "G30" Home for X, Y, Z, A, B, C, U, V & W. Persistent.
 * '5210' - 1 if "G52" or "G92" offset is currently applied, 0
-  otherwise.  Volatile by default; persistent if
+  otherwise.  Persistent by default; volatile if
   'DISABLE_G92_PERSISTENCE = 1' in the '[RS274NGC]' section of the
   INI file.
 * '5211-5219' - Shared "G52" and "G92" offset for X, Y, Z, A, B, C, U,
@@ -311,7 +339,7 @@ example '##2'  means the value of the parameter whose index is the
   Persistent.
 * '5399' - Result of M66 - Check or wait for input. Volatile.
 * '5400' - Tool Number. Volatile.
-* '5401-5409' - Tool Offsets for X, Y, Z, A, B, C, U, V & W. Volatile.
+* '5401-5409' - Tool Offsets for X, Y, Z, A, B, C, U, V & W. Set by G43. Volatile.
 * '5410' - Tool Diameter. Volatile.
 * '5411' - Tool Front Angle. Volatile.
 * '5412' - Tool Back Angle. Volatile.
@@ -321,11 +349,6 @@ example '##2'  means the value of the parameter whose index is the
   X, Y, Z, A, B, C, U, V & W, volatile.
 * '5599' - Flag for controlling the output of (DEBUG,) statements.
   1=output, 0=no output; default=1. Volatile.
-* '5600' - Toolchanger fault indicator. Used with the iocontrol-v2 component.
-  1: toolchanger faulted, 0: normal. Volatile.
-* '5601' - Toolchanger fault code. Used with the iocontrol-v2 component.
-  Reflects the value of the 'toolchanger-reason' HAL pin if a fault occurred.
-  Volatile.
 
 .Numbered Parameters Persistence
 The values of parameters in the persistent range are retained over
@@ -369,15 +392,21 @@ is written.
 |===
 
 [[sub:subroutine-parameters]]
-=== Subroutine Parameters(((Subroutine Parameters)))
+=== Subroutine Codes and Parameters
 
-* '1-30' Subroutine local parameters of call arguments. These parameters are
-  local to the subroutine. Volatile. See also the chapter on
-  <<cha:o-codes,O-Codes>>.
+(((Subroutine Codes and Parameters)))
+Subroutine codes, or o-codes (sometimes also called o-words), provide for  logic and flow control in NGC programs (as in if-else logic). They are called Subroutine codes because they can also form called subroutines (as in sub-endsub).
+
+See the chapter on <<cha:o-codes,o-Codes>>.
+
+NOTE: If o-codes are used to form subroutines, then o-codes can also call those subroutines and pass up to 30 parameters, which are local to the subroutine and volatile. (Again, see <<cha:o-codes,o-Codes>> for fuller treatment and examples.)
+
+NOTE: While both lower and upper case o- are valid, best practice is using lower case "o-" because it disambiguates 0 (zero) and O (capital o).
 
 [[gcode:named-parameters]]
-=== Named Parameters(((Named Parameters)))
+=== Named Parameters
 
+(((Named Parameters)))
 Named parameters work like numbered parameters but are easier to read.
 All parameter names are converted to lower case and have spaces and
 tabs removed, so '#<param>' and '#<P a R am >' refer to the same
@@ -428,8 +457,9 @@ ends, and have these  values when the program is run again.
 The <<gcode:functions,'EXISTS' function>> tests whether a given named parameter exists.
 
 [[gcode:predefined-named-parameters]]
-=== Predefined Named Parameters(((Predefined Named Parameters)))
+=== Predefined Named Parameters
 
+(((Predefined Named Parameters)))
 The following global read only named parameters are available to
 access internal state of the interpreter and machine state. They can
 be used in arbitrary expressions, for instance to control flow of the
@@ -524,8 +554,9 @@ can be added easily without changes to the source code.
 * '#<_retract_old_z>' - Return 1 if G99 is on, else 0.
 
 [[sub:system-parameters]]
-=== System Parameters(((System Parameters)))
+=== System Parameters
 
+(((System Parameters)))
 * '#<_spindle_rpm_mode>' - Return 1 if spindle rpm mode (G97) is on, else 0.
 * '#<_spindle_css_mode>' - Return 1 if constant surface speed mode (G96) is on, else 0.
 * '#<_ijk_absolute_mode>' - Return 1 if Absolute Arc distance mode (G90.1) is on, else 0.
@@ -562,23 +593,24 @@ can be added easily without changes to the source code.
 * '#<_selected_tool>' - Return number of the selected tool post a T code. Default -1.
 * '#<_selected_pocket>' - Return the tooldata index of the selected pocket post a T code.
   Default -1 (no pocket selected).
-* '#<_value>' - Return value from the last O-word 'return' or 'endsub'. Default
+* '#<_value>' - Return value from the last O-code 'return' or 'endsub'. Default
   value 0 if no expression after 'return' or 'endsub'. Initialized
   to 0 on program start.
-* '#<_value_returned>' - 1.0 if the last O-word 'return' or 'endsub' returned a value, 0
-  otherwise. Cleared by the next O-word call.
+* '#<_value_returned>' - 1.0 if the last O-code 'return' or 'endsub' returned a value, 0
+  otherwise. Cleared by the next O-code call.
 * '#<_task>' - 1.0 if the executing interpreter instance is part of milltask, 0.0
   otherwise. Sometimes it is necessary to treat this case specially
   to retain proper preview, for instance when testing the success of
   a probe (G38.n) by inspecting #5070, which will always fail in the
   preview interpreter (e.g. Axis).
-* '#<_call_level>' - current nesting level of O-word procedures. For debugging.
+* '#<_call_level>' - current nesting level of O-code procedures. For debugging.
 * '#<_remap_level>' - current level of the remap stack. Each remap in a block adds one
   to the remap level. For debugging.
 
 [[gcode:ini-hal-params]]
-== HAL pins and INI values(((HAL pins and INI values)))
+== HAL pins and INI values
 
+(((HAL pins and INI values)))
 If enabled in the <<sub:ini:sec:rs274ngc, INI file>> G-code has access
 to the values of INI file entries and HAL pins.
 
@@ -611,8 +643,9 @@ o100 endif
 
 The value is read from the INI file once, and cached in the
 interpreter. These parameters are read-only - assigning a value will
-cause a runtime error. The names are not case sensitive - they are
-converted to uppercase before consulting the INI file.
+cause a runtime error. In the G-code the names are not case sensitive - they are
+converted to uppercase before consulting the INI file. Hence INI entries that
+contain lowercase characters can not be accessed from G-code.
 
 * '#<_hal[HAL item]>'
   Allows G-code programs to read the values of HAL pins Variable access is
@@ -652,8 +685,9 @@ non-mnemonic namespace and is unnecessarily cumbersome just as a
 UI/Interpreter communications mechanism.
 
 [[gcode:expressions]]
-== Expressions(((Expressions)))
+== Expressions
 
+(((Expressions)))
 An expression is a set of characters starting with a left bracket '['
 and ending with a balancing right bracket ']' . In between the brackets
 are numbers, parameter values, mathematical
@@ -663,8 +697,9 @@ is read, before anything on the line is executed. An example of an
 expression is '[1 + acos[0] - [#3 ** [4.0/2]]]'.
 
 [[gcode:binary-operators]]
-== Binary Operators(((Binary Operators)))
+== Binary Operators
 
+(((Binary Operators)))
 Binary operators only appear inside expressions. There are four basic
 mathematical operations: addition ('+'), subtraction ('-'),
 multiplication ('\*'), and division ('/'). There are three logical
@@ -704,16 +739,16 @@ false, and any non-zero number is equivalent to logical true.
 
 == Equality and floating-point values
 
-The RS274/NGC language only supports floating-point values of finite
-precision. Therefore, testing for equality or inequality of two
-floating-point values is inherently problematic. The interpreter
-solves this problem by considering values equal if their absolute
-difference is less than 0.0001 (this value is defined as
+Testing for equality or inequality of two
+double-precision floating-point values is inherently problematic.
+The interpreter solves this problem by considering values equal if
+their absolute difference is less than 1e-6 (this value is defined as
 'TOLERANCE_EQUAL' in src/emc/rs274ngc/interp_internal.hh).
 
 [[gcode:functions]]
-== Functions(((Functions)))(((Unary operations)))
+== Functions
 
+(((Functions)))(((Unary operations)))
 The available functions are shown in following table. Arguments to unary
 operations which take angle measures ('COS', 'SIN', and 'TAN' ) are in
 degrees. Values returned by unary operations which return angle measures
@@ -833,8 +868,9 @@ axis words or canceling motion.
 For example, G4 (dwell) is non-modal.
 
 [[gcode:polar-coordinates]]
-== Polar Coordinates(((Polar Coordinates)))
+== Polar Coordinates
 
+(((Polar Coordinates)))
 Polar Coordinates can be used to specify the XY coordinate of a move.
 The @n is the distance and ^n is the angle. The advantage of this is
 for things like bolt hole circles which can be done very simply by
@@ -898,15 +934,17 @@ It is an error if:
 * A mix of Polar and X or Y words are used
 
 [[gcode:modal-groups]]
-== Modal Groups(((Modal Groups)))
+== Modal Groups
 
-Modal commands are arranged in sets called 'modal groups', and only
-one member of a modal group may be in force at any given time. In
-general, a modal group contains commands for which it is logically
+(((Modal Groups)))
+Commands are arranged in sets called 'modal groups', and only
+one member of a modal group may be in force at any given time.
+In general, a modal group contains commands for which it is logically
 impossible for two members to be in effect at the same time - like
-measure in inches vs. measure in millimeters. A machining center may be
-in many modes at the same time, with one mode from each modal group
-being in effect. The modal groups are shown in the following Table.
+measure in inches versus measure in millimeters.
+A machining center may be in many modes at the same time,
+with one mode from each modal group being in effect.
+The modal groups are shown in the following Table.
 
 [[cap:modal-groups]]
 .G-code Modal Groups(((Modal Groups: G-codes)))
@@ -914,8 +952,8 @@ being in effect. The modal groups are shown in the following Table.
 |===
 |Modal Group Meaning                    | Member Words
 |Non-modal codes (Group 0)              | G4, G10 G28, G30, G52, G53, G92, G92.1, G92.2, G92.3,
-.2+|Motion (Group 1)                    | G0, G1, G2, G3, G33, G38.n, G73, G76, G80, G81
-                                        | G82, G83, G84, G85, G86, G87, G88, G89
+|Motion (Group 1)                       | G0, G1, G2, G3, G33, G38.n, G73, G76, G80, G81
+                                          G82, G83, G84, G85, G86, G87, G88, G89
 |Plane selection (Group 2)              | G17, G18, G19, G17.1, G18.1, G19.1
 |Distance Mode (Group 3)                | G90, G91
 |Arc IJK Distance Mode (Group 4)        | G90.1, G91.1
@@ -936,8 +974,9 @@ being in effect. The modal groups are shown in the following Table.
 |===
 |Modal Group Meaning         | Member Words
 |Stopping (Group 4)          | M0, M1, M2, M30, M60
-|On/Off I/O ('Group 5')      | FIXME M6 T__n__
-|Toolchange ('Group 6')      | M6 T__n__
+|I/O Pins (Group 5)          | (M62-M65 digital output), (M66 digital or analog input),
+                               (M67, M68 analog output)
+|Toolchange (Group 6)        | M6 T__n__
 |Spindle (Group 7)           | M3, M4, M5
 |Coolant (Group 8)           | (M7 M8 can both be on), M9
 |Override Switches (Group 9) | M48, M49
@@ -966,8 +1005,9 @@ It is an error to include any unrelated words on a line with 'O-' flow
 control.
 
 [[gcode:comments]]
-== Comments(((Comments)))
+== Comments
 
+(((Comments)))
 Comments are purely informative and have no influence on machine behaviour.
 
 Comments can be added to lines of G-code to help clear up the
@@ -1000,12 +1040,13 @@ comment will in effect disable the active comment. For example, '(foo)
 A comment introduced by a semicolon is by definition the last comment
 on that line, and will always be interpreted for active comment syntax.
 
-NOTE: Inline comments on O-words should not be used see the O-code
+NOTE: Inline comments on O-codes should not be used see the O-code
 <<ocode:comments,comments>> section for more information.
 
 [[gcode:messages]]
-== Messages(((Messages)))
+== Messages
 
+(((Messages)))
 * '(MSG,)' - displays message if 'MSG' appears after the left parenthesis
   and before any other printing characters. Variants of 'MSG' which include
   white space and lower case characters are allowed. The rest of the
@@ -1019,8 +1060,9 @@ NOTE: Inline comments on O-words should not be used see the O-code
 ----
 
 [[gcode:probe-logging]]
-== Probe Logging(((Probe Logging)))
+== Probe Logging
 
+(((Probe Logging)))
 * '(PROBEOPEN filename.txt)' - will open filename.txt and store the 9-number
   coordinate consisting of XYZABCUVW of each successful straight probe in it.
 * '(PROBECLOSE)' - will close the open probelog file.
@@ -1028,8 +1070,9 @@ NOTE: Inline comments on O-words should not be used see the O-code
 For more information on probing see the <<gcode:g38,G38>> section.
 
 [[gcode:logging]]
-== Logging(((Logging)))
+== Logging
 
+(((Logging)))
 * '(LOGOPEN,filename.txt)' - opens the named log file. If the file already
   exists, it is truncated.
 * '(LOGAPPEND,filename)' - opens the named log file. If the file already
@@ -1041,21 +1084,30 @@ For more information on probing see the <<gcode:g38,G38>> section.
 Examples of logging are in 'nc_files/examples/smartprobe.ngc' and in
 'nc_files/ngcgui_lib/rectange_probe.ngc' sample G-code files.
 
-[[gcode:debug]]
-== Debug Messages(((Debug Messages)))
+== Abort Messages
 
+(((Abort Messages)))
+* '(ABORT,)' - displays a message like '(MSG,)' with the addition of special
+  handling for comment parameters as described below and of aborting the current running process.
+
+[[gcode:debug]]
+== Debug Messages
+
+(((Debug Messages)))
 * '(DEBUG,)' - displays a message like '(MSG,)' with the addition of special
   handling for comment parameters as described below.
 
 [[gcode:print]]
-== Print Messages(((Print Messages)))
+== Print Messages
 
+(((Print Messages)))
 * '(PRINT,)' - messages are output to 'stderr' with special handling for
   comment parameters as described below.
 
 [[gcode:comment-parameters]]
-== Comment Parameters(((Comment Parameters)))
+== Comment Parameters
 
+(((Comment Parameters)))
 In the DEBUG, PRINT and LOG comments, the values of parameters in the
 message are expanded.
 
@@ -1095,8 +1147,9 @@ If the formatting string is created with the wrong pattern it will be
 printed as characters.
 
 [[gcode:file-requirements]]
-== File Requirements(((File Requirements)))
+== File Requirements
 
+(((File Requirements)))
 A G-code file must contain one or more lines of G-code and be terminated
 with a <<mcode:m2-m30,Program End>>. Any G-code past the program end
 is not evaluated.
@@ -1118,8 +1171,9 @@ The file must be created with a text editor like Gedit and not a word
 processor like Open Office Word Processor.
 
 [[gcode:file-size]]
-== File Size(((File Size)))
+== File Size
 
+(((File Size)))
 The interpreter and task are carefully written so that the only limit
 on part program size is disk capacity. The TkLinuxCNC and Axis interface
 both load the program text to display it to the user, though, so RAM
@@ -1130,12 +1184,13 @@ part programs. In Axis sections of the preview can be turned off using
 <<axis:preview-control,preview control>> comments.
 
 [[gcode:order-of-execution]]
-== G-code Order of Execution(((G-code Order of Execution)))
+== G-code Order of Execution
 
+(((G-code Order of Execution)))
 The order of execution of items on a line is defined not by the
 position of each item on the line, but by the following list:
 
-* O-word commands (optionally followed by a comment but no other words allowed
+* O-code commands (optionally followed by a comment but no other words allowed
   on the same line)
 * Comment (including message)
 * Set feed rate mode (G93, G94).
@@ -1159,13 +1214,15 @@ position of each item on the line, but by the following list:
 * Set distance mode (G90, G91).
 * Set retract mode (G98, G99).
 * Go to reference location (G28, G30) or change coordinate system
-  data (G10) or set axis offsets (G52, G92, G92.1, G92.2, G94).
+  data (G10) or set axis offsets (G52, G92, G92.1, G92.2, G92.3).
 * Perform motion (G0 to G3, G33, G38.n, G73, G76, G80 to G89), as modified
   (possibly) by G53.
 * Stop (M0, M1, M2, M30, M60).
 
 [[gcode:best-practices]]
-== G-code Best Practices(((G-code Best Practices)))
+== G-code Best Practices
+
+(((G-code Best Practices)))
 
 .Use an appropriate decimal precision
 Use at least 3 digits after the decimal when milling in millimeters,

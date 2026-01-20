@@ -81,13 +81,13 @@ int main(int argc, char **argv)
         ERR(gbl.init_dbg, "Unable to create HAL pins");
         goto QUIT_CLEANUP;
     }
-    hal_ready(gbl.hal_mod_id);
-    OK(gbl.init_dbg, "HAL components created OK");
-
-    gbl.quit_flag = 0; //tell the threads to quit (SIGTERM o SIGQUIT) (unloadusr mb2hal).
+    gbl.quit_flag = 0; //tell the threads to quit (SIGTERM or SIGINT) (unloadusr mb2hal).
     signal(SIGINT, quit_signal);
     //unloadusr and unload commands of halrun
     signal(SIGTERM, quit_signal);
+
+    hal_ready(gbl.hal_mod_id);
+    OK(gbl.init_dbg, "HAL components created OK");
 
     /* Each link has it's own thread */
     pthread_attr_init(&thrd_attr);
@@ -149,7 +149,7 @@ void *link_loop_and_logic(void *thrd_link_num)
 
         for (tx_counter = 0; tx_counter < gbl.tot_mb_tx; tx_counter++) {
 
-            if (gbl.quit_flag != 0) { //tell the threads to quit (SIGTERM o SGIQUIT) (unloadusr mb2hal).
+            if (gbl.quit_flag != 0) {
                 return NULL;
             }
 
@@ -225,7 +225,7 @@ void *link_loop_and_logic(void *thrd_link_num)
                 break;
             }
 
-            if (gbl.quit_flag != 0) { //tell the threads to quit (SIGTERM o SGIQUIT) (unloadusr mb2hal).
+            if (gbl.quit_flag != 0) {
                 return NULL;
             }
 
@@ -237,7 +237,7 @@ void *link_loop_and_logic(void *thrd_link_num)
             }
             else if (ret != retOK) {  //transaction failure but link OK
                 (**this_mb_tx->num_errors)++;
-                ERR(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] transaction failure, num_errors[%d]",
+                ERR(this_mb_tx->cfg_debug, "mb_tx_num[%d] mb_links[%d] thread[%d] fd[%d] transaction failure, num_errors[%u]",
                     this_mb_tx_num, this_mb_tx->mb_link_num, this_mb_link_num, modbus_get_socket(this_mb_link->modbus), **this_mb_tx->num_errors);
                 // Clear any unread data. Otherwise the link might get out of sync
                 modbus_flush(this_mb_link->modbus);
@@ -441,7 +441,7 @@ void quit_signal(int signal)
 {
     char *fnct_name = "quit_signal";
 
-    gbl.quit_flag = 1; //tell the threads to quit (SIGTERM o SIGQUIT) (unloadusr mb2hal).
+    gbl.quit_flag = 1; //tell the threads to quit (SIGTERM or SIGINT) (unloadusr mb2hal).
     DBG(gbl.init_dbg, "signal [%d] received", signal);
 }
 
