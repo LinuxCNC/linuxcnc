@@ -43,6 +43,7 @@ int getNext( simple_tp_t *tp, double Vs, double Ve, double period);
 double getNextPoint(simple_tp_t *tp, int n, double T, double* req_v, double* req_a);
 int findSCurveVSpeed(double distence,/* double maxV, */double maxA, double maxJ, double *req_v);
 int findSCurveVSpeedWithEndSpeed(double distence, double Ve, double maxA, double maxJ, double* req_v);
+int findSCurveVSpeedConservative(double distance, double Ve, double maxA, double maxJ, double* req_v);
 double calcDecelerateTimes(double v, double amax, double jerk, double* t1, double* t2);
 double calcSCurveSpeedWithT(double amax, double jerk, double T);
 

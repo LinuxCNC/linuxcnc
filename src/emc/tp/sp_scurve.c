@@ -983,50 +983,82 @@ double stoppingDist(double v, double a, double maxA, double maxJ/*, int* phase*/
 }
 
 double finishWithSpeedDist(double v, double ve, double a, double maxA, double maxJ/*, int* phase*/) {
-    // Already stopped
-    //*phase = 0;
-    if (fabs(v) < 0.0001) return 0;
-    // Handle negative velocity
+    // Handle negative velocity: transform to positive domain
     if (v < 0) {
-    v = -v;
-    a = -a;
-    ve = -ve;
+        v = -v;
+        a = -a;
+        ve = -ve;
+    }
+
+    // Velocity difference too small, no accel/decel needed
+    if (fabs(v - ve) < 0.0001 && fabs(a) < 0.0001) {
+        return 0;
     }
 
     double d = 0;
 
-    //if(ve > v)
-    //  return 0;
-    if(ve > v){
-      
+    // ========== Acceleration case (ve > v) ==========
+    if (ve > v) {
+        // Phase 1: If a < 0 (decelerating), first bring a to 0
+        if (a < 0) {
+            double t = -a / maxJ;
+            d += sc_distance(t, v, a, maxJ);
+            v += velocity(t, a, maxJ);
+            a = 0;
+        }
+
+        // Compute required max acceleration
+        // Amax^2 = (ve - v) * maxJ + 0.5 * a * a
+        double sqrt_arg = (ve - v) * maxJ + 0.5 * a * a;
+        if (sqrt_arg < 0) sqrt_arg = 0;
+        double maxAccel = sqrt(sqrt_arg);
+        if (maxAccel > maxA) maxAccel = maxA;
+
+        // Phase 2: Increase a from current value to maxAccel
+        if (maxAccel > a) {
+            double t = (maxAccel - a) / maxJ;
+            d += sc_distance(t, v, a, maxJ);
+            v += velocity(t, a, maxJ);
+            a = maxAccel;
+        }
+
+        // Compute velocity when entering decel phase
+        double deltaV = ve - 0.5 * a * a / maxJ;
+
+        // Phase 3: Constant acceleration phase (if needed)
+        if (v < deltaV && a > 0.0001) {
+            double t = (deltaV - v) / a;
+            d += sc_distance(t, v, a, 0);
+            v += velocity(t, a, 0);
+        }
+
+        // Phase 4: Decrease a from maxAccel to 0, velocity reaches ve
+        if (a > 0.0001) {
+            double t = a / maxJ;
+            d += sc_distance(t, v, a, -maxJ);
+        }
+
+        return d;
     }
 
-    //double vs = v;
-    // Compute distance and velocity change to accel = 0
-    if (0 < a) {
-      // Compute distance to decrease accel to zero
-      // distance(double t, double v, double a, double j)
-      // distance => v * t + 1/2 * a * t^2 + 1/6 * j * t^3
-      // velocity => a * t + 1/2 * j * t^2
-      double t = a / maxJ;
-      d += sc_distance(t, v, a, -maxJ);
-      v += velocity(t, a, -maxJ);
-      a = 0;
-      //if(*phase == 0) *phase = 3;
+    // ========== Deceleration case (v > ve) ==========
+
+    // Phase 1: If a > 0 (accelerating), first bring a to 0
+    if (a > 0) {
+        double t = a / maxJ;
+        d += sc_distance(t, v, a, -maxJ);
+        v += velocity(t, a, -maxJ);
+        a = 0;
     }
 
-    // Compute max deccel
-    // PT = P0 + V0 * T + 0.5 * A0 * T^2 + J * T^3 / 6
-    // VT = V0 + A0 * T + J * T^2 /2
-    // AT = A0 + J * T
-    // 
-    // Amax^2 = (Vs - Ve) * maxJ + 0.5 * a * a
-    double maxDeccel = -sqrt((v - ve) * maxJ + 0.5 * a * a);
+    // Compute required max deceleration
+    // Amax^2 = (v - ve) * maxJ + 0.5 * a * a
+    double sqrt_arg = (v - ve) * maxJ + 0.5 * a * a;
+    if (sqrt_arg < 0) sqrt_arg = 0;
+    double maxDeccel = -sqrt(sqrt_arg);
     if (maxDeccel < -maxA) maxDeccel = -maxA;
-    //double maxDeccel = -fabs(maxA);
 
-    // Compute distance and velocity change to max deccel
-    // a * t + 1/2 * j * t^2
+    // Phase 2: Decrease a from current value to maxDeccel
     if (maxDeccel < a) {
         double t = (a - maxDeccel) / maxJ;
         d += sc_distance(t, v, a, -maxJ);
@@ -1034,27 +1066,22 @@ double finishWithSpeedDist(double v, double ve, double a, double maxA, double ma
         a = maxDeccel;
     }
 
-    // Compute velocity change over remaining accel
+    // Compute velocity when entering decel end phase
     // VT = Ve + Amax^2 / (2 * J)
     double deltaV = ve + 0.5 * a * a / maxJ;
 
-    // Compute constant deccel period
-    // P = v * t + 1/2 * a * t^2 + 1/6 * j * t^3
-    // VT = V0 + A0 * T + J * T^2 /2
-    if (deltaV < v) {
-      // distance => v * t + 1/2 * a * t^2 + 1/6 * j * t^3
-      // velocity => a * t + 1/2 * j * t^2
-        double t = (v - deltaV) / -a;
+    // Phase 3: Constant deceleration phase (if needed)
+    if (deltaV < v && a < -0.0001) {
+        double t = (v - deltaV) / (-a);
         d += sc_distance(t, v, a, 0);
         v += velocity(t, a, 0);
-        //if(*phase == 0) *phase = 6;
     }
 
-    // Compute distance to ve vel
-    // distance => v * t + 1/2 * a * t^2 + 1/6 * j * t^3
-    // A = J * T
-    d += sc_distance(-a / maxJ, v, a, maxJ);
-    //if(*phase == 0) *phase = 7;
+    // Phase 4: Increase a from maxDeccel to 0, velocity reaches ve
+    if (a < -0.0001) {
+        double t = (-a) / maxJ;
+        d += sc_distance(t, v, a, maxJ);
+    }
 
     return d;
 }
@@ -1350,4 +1377,53 @@ double calcSCurveSpeedWithT(double amax, double jerk, double T) {
 
     // Use fma to optimize multiply-add operations, improving numerical stability
     return fma(jerk * T1, T1 + T2, 0.0);
+}
+
+/**
+ * Conservative S-curve reachable velocity calculation (for lookahead optimization)
+ *
+ * Unlike findSCurveVSpeedWithEndSpeed which assumes decel starts from a=0,
+ * this function considers worst case: decel starting from a=maxA state.
+ *
+ * This ensures lookahead-computed velocities can smoothly decel to target
+ * regardless of current acc state, avoiding acc discontinuities.
+ *
+ * @param distance   Available decel distance
+ * @param Ve         Target end velocity
+ * @param maxA       Maximum acceleration
+ * @param maxJ       Maximum jerk
+ * @param req_v      [output] Computed conservative reachable velocity
+ * @return           1 success, -1 failure
+ */
+int findSCurveVSpeedConservative(double distance, double Ve, double maxA, double maxJ, double* req_v) {
+    if (distance <= 0 || maxA <= 0 || maxJ <= 0) {
+        *req_v = Ve;
+        return -1;
+    }
+
+    // Extra distance needed to bring a from maxA to 0 (velocity still increasing during this)
+    // t = maxA / maxJ, v_increase = 0.5 * maxA^2 / maxJ
+    double v_increase = 0.5 * maxA * maxA / maxJ;
+    double d_extra = maxA * maxA / (2.0 * maxJ);
+
+    // Effective decel distance = total - extra
+    double effective_distance = distance - d_extra;
+
+    if (effective_distance <= 0) {
+        *req_v = Ve;
+        return -1;
+    }
+
+    double vs_from_zero;
+    int res = findSCurveVSpeedWithEndSpeed(effective_distance, Ve, maxA, maxJ, &vs_from_zero);
+
+    if (res != 1) {
+        *req_v = Ve;
+        return -1;
+    }
+
+    // Conservative estimate: subtract velocity increase during acc ramp-down
+    *req_v = fmax(vs_from_zero - v_increase * 0.5, Ve);
+
+    return 1;
 }
