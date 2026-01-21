@@ -403,6 +403,10 @@ uncomment selection</property>
     <property name="visible">True</property>
     <property name="can-focus">False</property>
   </object>
+  <object class="GtkImage" id="img_offset_calculator">
+    <property name="visible">True</property>
+    <property name="can-focus">False</property>
+  </object>
   <object class="GtkImage" id="img_open">
     <property name="visible">True</property>
     <property name="can-focus">False</property>
@@ -759,10 +763,6 @@ uncomment selection</property>
     <property name="can-focus">False</property>
   </object>
   <object class="GtkImage" id="img_zoom_out">
-    <property name="visible">True</property>
-    <property name="can-focus">False</property>
-  </object>
-  <object class="GtkImage" id="img_offset_calculator">
     <property name="visible">True</property>
     <property name="can-focus">False</property>
   </object>
@@ -4011,55 +4011,6 @@ uncomment selection</property>
                               </packing>
                             </child>
                             <child>
-                              <object class="GtkFrame" id="frm_use_calc">
-                                <property name="visible">True</property>
-                                <property name="can-focus">False</property>
-                                <property name="label-xalign">0.5</property>
-                                <child>
-                                  <object class="GtkBox" id="vbox_use_calc">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="margin-start">3</property>
-                                    <property name="margin-end">3</property>
-                                    <property name="margin-top">5</property>
-                                    <property name="margin-bottom">5</property>
-                                    <property name="orientation">vertical</property>
-                                    <child>
-                                      <object class="GtkCheckButton" id="chk_offsetpage_use_calc">
-                                        <property name="label" translatable="yes">Use calculator for offset page</property>
-                                        <property name="use-action-appearance">True</property>
-                                        <property name="visible">True</property>
-                                        <property name="can-focus">True</property>
-                                        <property name="receives-default">False</property>
-                                        <property name="tooltip-text" translatable="yes">Pup up the calculator when editing numerical values in the offset page</property>
-                                        <property name="active">True</property>
-                                        <property name="draw-indicator">True</property>
-                                        <signal name="toggled" handler="on_chk_offsetpage_use_calc_toggled" swapped="no"/>
-                                      </object>
-                                      <packing>
-                                        <property name="expand">False</property>
-                                        <property name="fill">True</property>
-                                        <property name="position">0</property>
-                                      </packing>
-                                    </child>
-                                  </object>
-                                </child>
-                                <child type="label">
-                                  <object class="GtkLabel" id="lbl_frm_use_calc">
-                                    <property name="visible">True</property>
-                                    <property name="can-focus">False</property>
-                                    <property name="label" translatable="yes">&lt;b&gt;Calculator&lt;/b&gt;</property>
-                                    <property name="use-markup">True</property>
-                                  </object>
-                                </child>
-                              </object>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="fill">True</property>
-                                <property name="position">2</property>
-                              </packing>
-                            </child>
-                            <child>
                               <object class="GtkFrame" id="frm_ntb_preview">
                                 <property name="visible">True</property>
                                 <property name="can-focus">False</property>
@@ -4120,8 +4071,11 @@ uncomment selection</property>
                               <packing>
                                 <property name="expand">False</property>
                                 <property name="fill">False</property>
-                                <property name="position">3</property>
+                                <property name="position">2</property>
                               </packing>
+                            </child>
+                            <child>
+                              <placeholder/>
                             </child>
                           </object>
                           <packing>

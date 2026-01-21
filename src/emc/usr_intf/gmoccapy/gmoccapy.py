@@ -549,7 +549,7 @@ class gmoccapy(object):
                     "Automatic reactivation of G43 is possible using a REMAP.\n"\
                     "Examples can be found in the Gmoccapy sim configurations."),
                     _("<b>3.5.1 (LinuxCNC 2.10.0)</b>\n• The tool table and offset page uses now the calculator for entering values by default. "\
-                    "This can be changed in the settings/by a button.\n• A button to call the calculator was added in MDI and G-code edit modes."),
+                    "This can be changed by a button/setting.\n• A button to call the calculator was added in MDI and G-code edit modes."),
                     # _("<b>3.5.2 (LinuxCNC 2.10.x): </b> Example for new feature"),
                     ]
         hide_message = self.prefs.getpref("hide_startup_messsage", 0, int)
@@ -649,7 +649,6 @@ class gmoccapy(object):
         # Activate the recently open tab page
         self.widgets.ntb_tool_and_code_info.set_current_page(self.prefs.getpref("info_tab_page", 0, int))
 
-
         self.jog_btn_size = self.prefs.getpref("jog_btn_size", 48, int)
         self.widgets.adj_jog_btn_size.set_value(self.jog_btn_size)
 
@@ -657,8 +656,9 @@ class gmoccapy(object):
         self.widgets.adj_jog_box_width.set_value(jog_box_width)
         self.widgets.vbx_jog.set_size_request(jog_box_width, -1)
 
-        # calculator use in offset pages
-        self.offsetpages_use_calc = self.prefs.getpref("offsetpages_use_calc", False, bool)
+        # calculator use in offset page/tool table
+        self.toolpage_use_calc = self.prefs.getpref("toolpage_use_calc", True, bool)
+        self.offsetpage_use_calc = self.prefs.getpref("offsetpage_use_calc", True, bool)
 
 ###############################################################################
 ##                     create widgets dynamically                            ##
@@ -1977,9 +1977,8 @@ class gmoccapy(object):
         btn_calculator.set_image(self.widgets.img_tool_calculator)
         btn_calculator.set_tooltip_text(_("Use calculator to edit numeric values"))
         btn_calculator.show_all()
-
-        btn_calculator.set_active(self.offsetpages_use_calc)
-        btn_calculator.connect("toggled", self.on_use_calculator_toggled)
+        btn_calculator.set_active(self.toolpage_use_calc)
+        btn_calculator.connect("toggled", self.on_toolpage_use_calc_toggled)
         self.widgets.tooledit1.btn_calculator = btn_calculator
 
         buttonbox.pack_start(btn_calculator,False,False,50)
@@ -2037,12 +2036,12 @@ class gmoccapy(object):
         else:
             pass
 
-    def on_use_calculator_toggled(self,widget):
-        self.offsetpages_use_calc = widget.get_active()
-        self.prefs.putpref("offsetpages_use_calc", self.offsetpages_use_calc)
+    def on_toolpage_use_calc_toggled(self,widget):
+        self.toolpage_use_calc = widget.get_active()
+        self.prefs.putpref("toolpage_use_calc", self.toolpage_use_calc)
 
     def on_tool_col_edit_started(self, widget, filtered_path, new_text, col):
-        if not self.offsetpages_use_calc:
+        if not self.toolpage_use_calc:
             return
         captations = ["toggle", "Tool#", "Pocket",
                        "X-offset", "Y-offset", "Z-offset",
@@ -2394,8 +2393,8 @@ class gmoccapy(object):
         btn_calculator.set_image(self.widgets.img_offset_calculator)
         btn_calculator.set_tooltip_text(_("Use calculator to edit numeric values"))
         btn_calculator.show_all()
-        btn_calculator.set_active(self.offsetpages_use_calc)
-        btn_calculator.connect("toggled", self.on_use_calculator_toggled)
+        btn_calculator.set_active(self.offsetpage_use_calc)
+        btn_calculator.connect("toggled", self.on_offsetpage_use_calc_toggled)
         self.widgets.offsetpage1.btn_calculator = btn_calculator
         buttonbox.pack_start(btn_calculator,False,False,50)
 
@@ -2415,9 +2414,12 @@ class gmoccapy(object):
             temp = self.widgets.offsetpage1.wTree.get_object("cell_%s" % name)
             temp.connect('editing-started', self.on_offset_col_edit_started, col)
 
-
+    def on_offsetpage_use_calc_toggled(self,widget):
+        self.offsetpage_use_calc = widget.get_active()
+        self.prefs.putpref("offsetpage_use_calc", self.offsetpage_use_calc)
+        
     def on_offset_col_edit_started(self, widget, filtered_path, new_text, col):
-        if not self.offsetpages_use_calc:
+        if not self.offsetpage_use_calc:
             return
         offsetpage = self.widgets.offsetpage1
         offsetview = offsetpage.view2
@@ -2581,7 +2583,7 @@ class gmoccapy(object):
             return
         if state:
             page.show()
-            self.widgets.offsetpage1.btn_calculator.set_active(self.offsetpages_use_calc)
+            self.widgets.offsetpage1.btn_calculator.set_active(self.offsetpage_use_calc)
             self.widgets.ntb_preview.set_property("show-tabs", state)
             self.widgets.ntb_preview.set_current_page(1)
             self.widgets.offsetpage1.mark_active((self.system_list[self.stat.g5x_index]).lower())
@@ -2605,7 +2607,7 @@ class gmoccapy(object):
             return
         if state:
             page.show()
-            self.widgets.tooledit1.btn_calculator.set_active(self.offsetpages_use_calc)
+            self.widgets.tooledit1.btn_calculator.set_active(self.toolpage_use_calc)
             self.widgets.ntb_preview.set_property("show-tabs", not state)
             self.widgets.vbx_jog.hide()
             self.widgets.ntb_preview.set_current_page(2)
@@ -5135,10 +5137,6 @@ class gmoccapy(object):
 
     def on_chk_use_kb_on_file_selection_toggled(self, widget, data=None):
         self.prefs.putpref("show_keyboard_on_file_selection", widget.get_active())
-        
-    def on_chk_offsetpage_use_calc_toggled(self, widget, data=None):
-        self.offsetpage_use_calc = widget.get_active()
-        self.prefs.putpref("offsetpage_use_calc", self.offsetpage_use_calc)
 
     def on_chk_use_kb_shortcuts_toggled(self, widget, data=None):
         self.prefs.putpref("use_keyboard_shortcuts", widget.get_active())
