@@ -4736,6 +4736,24 @@ class gmoccapy(object):
                 result = self.dialogs.yesno_dialog(self, message, _("Attention!"))
                 if not result: # user says no, he want to save
                     return
+            # check if offset values for current tool have been changed
+            tt = self.stat.tool_table[0]
+            new_offset = (tt.xoffset, tt.yoffset, tt.zoffset,
+                          tt.aoffset, tt.boffset, tt.coffset,
+                          tt.uoffset, tt.voffset, tt.woffset)
+            if (new_offset != self.stat.tool_offset) and ("G43" in self.active_gcodes):
+                message = _("Offset values for the tool in the spindle\n" \
+                            "have been changed whith tool compensation (G43) active.\n\n" \
+                            "Do you want the new values to be applied as the currently\n" \
+                            "active tool offset?")
+                result = self.dialogs.yesno_dialog(self, message, _("Attention!"))
+                if result: # user says YES
+                    self.command.mode(linuxcnc.MODE_MDI)
+                    self.command.wait_complete()
+                    self.command.mdi("G43")
+                    self.command.wait_complete()
+                    self.command.mode(linuxcnc.MODE_MANUAL)
+                    self.command.wait_complete()
             self.widgets.ntb_button.set_current_page(_BB_MANUAL)
             self.widgets.ntb_main.set_current_page(0)
             self.widgets.ntb_preview.set_current_page(0)
