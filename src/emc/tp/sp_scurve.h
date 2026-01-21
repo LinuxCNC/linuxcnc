@@ -1,13 +1,3 @@
-/*
- * Author: 杨阳
- * Date: 2020-06-05 22:32:44
- * LastEditors: 杨阳
- * LastEditTime: 2020-07-25 10:47:58
- * Contact: mika-net@outlook.com
- * Copyright (c) 2017-2020: 杨阳
- * FilePath: \pomelo\PROGRAM\linuxcnc\src\emc\tp\sp_scurve.h
- * 
- */ 
 /********************************************************************
 * Description: sp_scurve.h
 *   Discriminate-based trajectory planning
@@ -15,6 +5,7 @@
 *   Derived from a work by 杨阳
 *
 * Author: 杨阳
+* Contact: mika-net@outlook.com
 * License: GPL Version 2
 * System: Linux
 *    
