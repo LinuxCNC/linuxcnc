@@ -47,4 +47,15 @@ int findSCurveVSpeedConservative(double distance, double Ve, double maxA, double
 double calcDecelerateTimes(double v, double amax, double jerk, double* t1, double* t2);
 double calcSCurveSpeedWithT(double amax, double jerk, double T);
 
+/**
+ * tpCalculateSCurveAccel return value definitions
+ *
+ * TP_SCURVE_ACCEL_ERROR - calculation failed (maxjerk invalid or less than/equal to 1)
+ * TP_SCURVE_ACCEL_ACCEL - acceleration or normal state (no deceleration needed)
+ * TP_SCURVE_ACCEL_DECEL - deceleration needed
+ */
+#define TP_SCURVE_ACCEL_ERROR  -5
+#define TP_SCURVE_ACCEL_ACCEL   0
+#define TP_SCURVE_ACCEL_DECEL   1
+
 #endif

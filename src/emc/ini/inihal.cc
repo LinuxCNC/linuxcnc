@@ -297,7 +297,12 @@ int check_ini_hal_items(int numjoints)
     if (CHANGED(traj_planner_type)) {
         if (debug) SHOW_CHANGE_INT(traj_planner_type)
         UPDATE(traj_planner_type);
-        if (0 != emcTrajPlannerType(NEW(traj_planner_type))) {
+        // Only 0 and 1 are supported, set to 0 if invalid
+        int planner_type = NEW(traj_planner_type);
+        if (planner_type != 0 && planner_type != 1) {
+            planner_type = 0;
+        }
+        if (0 != emcTrajPlannerType(planner_type)) {
             if (emc_debug & EMC_DEBUG_CONFIG) {
                 rcs_print("check_ini_hal_items:bad return value from emcTrajPlannerType\n");
             }

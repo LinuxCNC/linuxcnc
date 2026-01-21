@@ -1764,13 +1764,20 @@ STATIC int tpComputeOptimalVelocity(TP_STRUCT const * const tp, TC_STRUCT * cons
     double acc_this = tcGetTangentialMaxAccel(tc);
 
     // Find the reachable velocity of tc, moving backwards in time
-    double vs_back = pmSqrt(pmSq(tc->finalvel) + 2.0 * acc_this * tc->target);
+    double vs_back;
     if(GET_TRAJ_PLANNER_TYPE() == 1){
-        double vs_back2;
-        // Use clamped jerk to match execution phase behavior
+        // S-curve mode: use S-curve kinematics calculations
+        // Starting from finalvel, maximum starting speed achievable within distance tc->target
+        // During actual execution, tpCalculateSCurveAccel will adjust dynamically based on current state (including current acceleration)
+        // Use minimum of segment's max jerk and system max jerk to ensure limits are not exceeded
         double maxjerk = fmin(tc->maxjerk, emcmotStatus->jerk);
-        if(findSCurveVSpeedWithEndSpeed(tc->target * 2.0 , tc->finalvel, acc_this, maxjerk, &vs_back2) == 1)
-            vs_back = vs_back2;
+        if(findSCurveVSpeedWithEndSpeed(tc->target, tc->finalvel, acc_this, maxjerk, &vs_back) != 1){
+            // S-curve calculation failed, use conservative estimate (at least maintain finalvel)
+            vs_back = tc->finalvel;
+        }
+    } else {
+        // Trapezoidal acceleration/deceleration mode: use trapezoidal kinematics formula
+        vs_back = pmSqrt(pmSq(tc->finalvel) + 2.0 * acc_this * tc->target);
     }
     // Find the reachable velocity of prev1_tc, moving forwards in time
 
@@ -2713,7 +2720,7 @@ STATIC int tpCalculateRampAccel(TP_STRUCT const * const tp,
 /**
  * Calculate distance update from velocity and acceleration.
  */
-STATIC int tcUpdateDistFromSCurveAccel(TC_STRUCT *const tc, double acc, double jerk, double vel_desired, double perror, int reverse_run, int dec)
+STATIC int tcUpdateDistFromSCurveAccel(TC_STRUCT *const tc, double acc, double jerk, double vel_desired, double perror __attribute__((unused)), int reverse_run, int dec)
 {
     // If the resulting velocity is less than zero, than we're done. This
     // causes a small overshoot, but in practice it is very small.
@@ -2733,24 +2740,20 @@ STATIC int tcUpdateDistFromSCurveAccel(TC_STRUCT *const tc, double acc, double j
             tc->progress = tcGetTarget(tc,reverse_run);
         }
     } else {
-        if(dx < 1e-6){
+        if(dx < TP_POS_EPSILON){
             tc->progress = tcGetTarget(tc,reverse_run);
         }else{
             // sc_distance(double t, double v, double a, double j);
-            double displacement = sc_distance(tc->cycle_time, tc->currentvel, tc->currentacc, jerk); 
+            double displacement = sc_distance(tc->cycle_time, tc->currentvel, tc->currentacc, jerk);
             // Account for reverse run (flip sign if need be)
             double disp_sign = reverse_run ? -1 : 1;
 
-            if(perror > 0 && tc->last_move_length >= perror && displacement <= perror){
-                tc->progress += (disp_sign * perror);
-                tc->last_move_length = perror;
-                //printf("TRY TO FIX ERROR: %.15f \n", perror);
-                return TP_ERR_OK;
-            }
+            // Update position using calculated displacement
+            // Note: perror is actually margin (dx - dlen1), not position error,
+            // so it should not be used for position correction
             tc->last_move_length = displacement;
-
             tc->progress += (disp_sign * displacement);
-            
+
             //Progress has to be within the allowable range
             tc->progress = bisaturate(tc->progress, tcGetTarget(tc, TC_DIR_FORWARD), tcGetTarget(tc, TC_DIR_REVERSE));
         }
@@ -2791,7 +2794,7 @@ int tpCalculateSCurveAccel(TP_STRUCT const * const tp, TC_STRUCT * const tc, TC_
         maxjerk = 1;
         //rtapi_print_msg(RTAPI_MSG_ERR,
         //        "ERROR!!! maxjerk Is less than 1\n");
-        return -5;
+        return TP_SCURVE_ACCEL_ERROR;
     }
 
     // Find maximum allowed velocity from feed and machine limits
@@ -2810,9 +2813,9 @@ int tpCalculateSCurveAccel(TP_STRUCT const * const tp, TC_STRUCT * const tc, TC_
         *acc = tc->currentacc;
         *vel_desired = tc->currentvel;
         *jerk =0;//(maxnewaccel - tc->currentacc) / dt;
-        return 0;
+        return TP_SCURVE_ACCEL_ACCEL;
     }
-    int res = 1;
+    int res = TP_SCURVE_ACCEL_DECEL;
 
 
     nextSpeed(tc->currentvel, tc->currentacc, tc->cycle_time, tc_target_vel, maxaccel, maxjerk, &req_v, &req_a, &req_j);
@@ -2837,23 +2840,24 @@ int tpCalculateSCurveAccel(TP_STRUCT const * const tp, TC_STRUCT * const tc, TC_
 
     // Handle special case: position overshoot or reached endpoint
     if (dx <= TP_POS_EPSILON) {
+        // Already reached or exceeded endpoint, must decelerate/stop
         nextSpeed(tc->currentvel, tc->currentacc, tc->cycle_time, tc_finalvel, maxaccel, maxjerk, &req_v, &req_a, &req_j);
-        res = 1;
+        res = TP_SCURVE_ACCEL_DECEL;
     }
-    else if(tc->currentvel < 1e-6 && dx > TP_POS_EPSILON && dx < 1e-4){
+    else if(tc->currentvel < TP_VEL_EPSILON && dx > TP_POS_EPSILON && dx < 1e-4){
         // Very low velocity and close to target
-        res = 1;
+        res = TP_SCURVE_ACCEL_DECEL;
     }else{
         // Decel conditions:
-        // 1. margin <= 0: decel distance >= remaining distance
-        // 2. dx - moveL <= dlen2: if we continue accel, next cycle remaining <= decel dist
+        // Condition 1: margin <= 0 - decel distance already >= remaining distance, must decelerate
+        // Condition 2: dx - moveL <= dlen2 - if we continue accel, next cycle remaining <= decel dist
         int need_decel = (margin <= TP_POS_EPSILON) || (dx - moveL <= dlen2);
 
         if (need_decel){
             nextSpeed(tc->currentvel, tc->currentacc, tc->cycle_time, tc_finalvel, maxaccel, maxjerk, &req_v, &req_a, &req_j);
         }else{
             if(tc_finalvel > TP_VEL_EPSILON || tc_target_vel > TP_VEL_EPSILON)
-            res = 0;
+            res = TP_SCURVE_ACCEL_ACCEL;
         }
     }
 
@@ -3510,7 +3514,8 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
         if(*mode == 1){      
             tc->cycle_time = tp->cycleTime;
             int is_dec = tpCalculateSCurveAccel(tp, tc, nexttc, &acc, &jerk, &vel_desired, &perror, 1);
-            if(is_dec == -5){ //If the calculation fails, revert to T-shaped acceleration/deceleration.
+
+            if(is_dec == TP_SCURVE_ACCEL_ERROR){ //If the calculation fails, revert to T-shaped acceleration/deceleration.
                 *mode = -5;
                 res_accel = 1;
                 acc=0, vel_desired=0;
@@ -3527,7 +3532,7 @@ STATIC int tpUpdateCycle(TP_STRUCT * const tp,
             }
         }else{
             int is_dec = tpCalculateSCurveAccel(tp, tc, nexttc, &acc, &jerk, &vel_desired, &perror, 0);
-            if(is_dec == -5){ //If the calculation fails, revert to T-shaped acceleration/deceleration.
+            if(is_dec == TP_SCURVE_ACCEL_ERROR){ //If the calculation fails, revert to T-shaped acceleration/deceleration.
                 *mode = -5;
                 res_accel = 1;
                 acc=0, vel_desired=0;
