@@ -60,8 +60,9 @@
 */
 
 /*
+   # SAMPLES <int>	total sample buffer size (written as comment for compatibility)
    THREAD <string>	name of thread to sample in
-   MAXCHAN <int>	1,2,4,8,16, maximum channel count
+   MAXCHAN <int>	1,2,4,8,16, maximum channel count (ignored, kept for compatibility)
    HMULT <int>		multiplier, sample every N runs of thread
    HZOOM <int>		1-9, horizontal zoom setting
    HPOS <float>		0.0-1.0, horizontal position setting
@@ -467,6 +468,8 @@ static char *samples_cmd(void * arg)
     int *argp;
     /* SAMPLES is handled early in main() before scope_rt is loaded */
     /* Here we just store it in requested_samples so it gets saved back */
+    /* This handles both "SAMPLES nnn" from config files */
+    /* The "# SAMPLES nnn" comment version is handled by read_samples_from_config() */
     argp = (int *)(arg);
     ctrl_usr->horiz.requested_samples = *argp;
     return NULL;

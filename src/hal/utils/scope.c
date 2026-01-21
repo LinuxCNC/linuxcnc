@@ -112,8 +112,13 @@ static int read_samples_from_config(const char *filename)
 	return 0;  /* file doesn't exist, use default */
     }
     while (fgets(buf, sizeof(buf), fp) != NULL) {
+	/* Support both "SAMPLES nnn" and "# SAMPLES nnn" for backward compatibility */
+	/* Older halscope versions will ignore "# SAMPLES" as a comment */
 	if (strncasecmp(buf, "SAMPLES ", 8) == 0) {
 	    samples = atoi(buf + 8);
+	    break;
+	} else if (strncasecmp(buf, "# SAMPLES ", 10) == 0) {
+	    samples = atoi(buf + 10);
 	    break;
 	}
     }
