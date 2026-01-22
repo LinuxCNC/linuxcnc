@@ -1002,7 +1002,7 @@ class gmoccapy(object):
 
         dic = self.axis_list
         num_elements = len(dic)
-        end = 8
+        end = 9
 
         if self.tool_measure_OK:
             end -= 1
@@ -4742,7 +4742,7 @@ class gmoccapy(object):
             widgetlist.append("tbtn_user_tabs")
         self._sensitize_widgets( widgetlist, not state )
         for element in self.touch_button_dic:
-            if self.touch_button_dic[element].get_property("name") in ["edit_offsets", "touch_back"]:
+            if self.touch_button_dic[element].get_property("name") in ["touch_back"]:
                 continue
             self.touch_button_dic[element].set_sensitive(not state)
 

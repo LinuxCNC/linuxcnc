@@ -602,15 +602,15 @@ m| gmoccapy.h-button.button-9 | exit if machine is off, otherwise nothing | open
 [cols="10,10,10,10", options="header"]
 |===
 | Pin                        | Settings Mode         | Homing Mode | Touch off Mode
-m|gmoccapy.h-button.button-0 | delete MDI history    |             | edit offsets
-m|gmoccapy.h-button.button-1 |                       | home all    | touch X
-m|gmoccapy.h-button.button-2 |                       |             | touch Y
-m|gmoccapy.h-button.button-3 |                       | home x      | touch Z
+m|gmoccapy.h-button.button-0 | delete MDI history    |             | touch X
+m|gmoccapy.h-button.button-1 |                       | home all    | touch Y
+m|gmoccapy.h-button.button-2 |                       |             | touch Z
+m|gmoccapy.h-button.button-3 |                       | home x      |
 m|gmoccapy.h-button.button-4 | open classic ladder   | home y      |
 m|gmoccapy.h-button.button-5 | open HAL scope        | home z      |
-m|gmoccapy.h-button.button-6 | open HAL status       |             | zero G92
+m|gmoccapy.h-button.button-6 | open HAL status       |             |
 m|gmoccapy.h-button.button-7 | open HAL meter        |             |
-m|gmoccapy.h-button.button-8 | open HAL calibration  | unhome all  | set selected
+m|gmoccapy.h-button.button-8 | open HAL calibration  | unhome all  |
 m|gmoccapy.h-button.button-9 | open HAL show         | back        | back
 |===
 
