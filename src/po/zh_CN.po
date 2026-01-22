@@ -10,13 +10,14 @@
 # 飞飞 <vip74120@gmail.com>, 2024.
 # Tron Lee <472734894@qq.com>, 2024.
 # Atom <superatom@sohu.com>, 2025.
+# BeginsDuang <enious@outlook.com>, 2026.
 msgid ""
 msgstr ""
 "Project-Id-Version: LinuxCNC EMC2.8.0\n"
 "Report-Msgid-Bugs-To: emc-developers@lists.sourceforge.net\n"
 "POT-Creation-Date: 2024-10-05 14:29+0200\n"
-"PO-Revision-Date: 2025-08-22 12:21+0000\n"
-"Last-Translator: Atom <superatom@sohu.com>\n"
+"PO-Revision-Date: 2026-01-22 09:09+0000\n"
+"Last-Translator: BeginsDuang <enious@outlook.com>\n"
 "Language-Team: Chinese (Simplified) <https://hosted.weblate.org/projects/"
 "linuxcnc/linuxcnc/zh_Hans/>\n"
 "Language: zh_CN\n"
@@ -24,7 +25,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=1; plural=0;\n"
-"X-Generator: Weblate 5.13\n"
+"X-Generator: Weblate 5.16-dev\n"
 "X-Poedit-Language: Chinese\n"
 "X-Poedit-Country: CHINA\n"
 "X-Poedit-SourceCharset: utf-8\n"
@@ -34,7 +35,7 @@ msgstr ""
 msgid ""
 "command (%s) cannot be executed until the machine is out of E-stop and "
 "turned on"
-msgstr "在解除急停开关及开启设备电源之前，无法执行此操作(%s)"
+msgstr "在机床解除紧急停止并重新启动之前，无法执行命令 (%s)"
 
 #: src/emc/task/emctaskmain.cc:1005
 #, c-format
@@ -293,9 +294,8 @@ msgid "nurbs K number is not an integer"
 msgstr "nurbs的K值不是一个整数"
 
 #: src/emc/rs274ngc/interp_convert.cc:437
-#, fuzzy
 msgid "Cannot make a nurbs with 0 feedrate"
-msgstr "无法以0进给率创建NURBS"
+msgstr "无法在进给速度为零时生成 NURBS 曲线"
 
 #: src/emc/rs274ngc/interp_convert.cc:503
 #, fuzzy, c-format
