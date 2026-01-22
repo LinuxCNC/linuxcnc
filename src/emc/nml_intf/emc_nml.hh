@@ -794,8 +794,8 @@ class EMC_TRAJ_SET_TERM_COND:public EMC_TRAJ_CMD_MSG {
     void update(CMS * cms);
 
     int cond;
-    double tolerance; // used to set the precision/tolerance of path deviation 
-		      // during CONTINUOUS motion mode. 
+    double tolerance; // used to set the precision/tolerance of path deviation
+		      // during CONTINUOUS motion mode.
 };
 
 class EMC_TRAJ_SET_SPINDLESYNC:public EMC_TRAJ_CMD_MSG {
@@ -984,6 +984,7 @@ class EMC_TRAJ_STAT:public EMC_TRAJ_STAT_MSG {
     bool queueFull;		// non-zero means can't accept another motion
     int id;			// id of the currently executing motion
     bool paused;			// non-zero means motion paused
+    bool single_stepping;    // non-zero means motion stepping single block
     double scale;		// velocity scale factor
     double rapid_scale;		// rapid scale factor
     //double spindle_scale;	// moved to EMC_SPINDLE_STAT
@@ -1379,7 +1380,7 @@ class EMC_TASK_PLAN_SET_OPTIONAL_STOP:public EMC_TASK_CMD_MSG {
     // Sub-class update() calls base-class update()
     // cppcheck-suppress duplInheritedMember
     void update(CMS * cms);
-    
+
     bool state; //state == ON, optional stop is on (e.g. we stop on any stops)
 };
 
@@ -1394,7 +1395,7 @@ class EMC_TASK_PLAN_SET_BLOCK_DELETE:public EMC_TASK_CMD_MSG {
     // Sub-class update() calls base-class update()
     // cppcheck-suppress duplInheritedMember
     void update(CMS * cms);
-    
+
     bool state; //state == ON, block delete is on, we ignore lines starting with "/"
 };
 
@@ -1408,7 +1409,7 @@ class EMC_TASK_PLAN_OPTIONAL_STOP:public EMC_TASK_CMD_MSG {
     // Sub-class update() calls base-class update()
     // cppcheck-suppress duplInheritedMember
     void update(CMS * cms);
-    
+
 };
 
 
@@ -1460,7 +1461,7 @@ class EMC_TASK_STAT:public EMC_TASK_STAT_MSG {
     double activeSettings[ACTIVE_SETTINGS];
     CANON_UNITS programUnits;	// CANON_UNITS_INCHES, MM, CM
 
-    int interpreter_errcode;	// return value from rs274ngc function 
+    int interpreter_errcode;	// return value from rs274ngc function
     // (only useful for new interpreter.)
     int task_paused;		// non-zero means task is paused
     double delayLeft;           // delay time left of G4, M66..
@@ -1747,7 +1748,7 @@ class EMC_SPINDLE_ORIENT:public EMC_SPINDLE_CMD_MSG {
 
     int spindle;
     double orientation;   // desired spindle position
-    int    mode;   
+    int    mode;
 };
 
 class EMC_SPINDLE_WAIT_ORIENT_COMPLETE:public EMC_SPINDLE_CMD_MSG {
