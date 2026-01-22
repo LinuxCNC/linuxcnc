@@ -1702,6 +1702,7 @@ void EMC_TRAJ_STAT::update(CMS * cms)
     cms->update(queueFull);
     cms->update(id);
     cms->update(paused);
+    cms->update(single_stepping);
     cms->update(scale);
     cms->update(rapid_scale);
     EmcPose_update(cms, &position);
