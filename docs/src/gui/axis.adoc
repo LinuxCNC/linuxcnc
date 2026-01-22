@@ -611,6 +611,12 @@ full list of keyboard shortcuts can be found in the AXIS Quick
 Reference, which can be displayed by choosing Help > Quick Reference.
 Many of the shortcuts are unavailable when in MDI mode.
 
+The keyboard key repeat function is normally forcefully disabled in
+AXIS when LinuxCNC is started and forcefully re-enabled when you exit
+LinuxCNC. You can change this behavior by setting the environment
+variable 'AXIS_NO_XSET' to any value, causing AXIS to refrain from
+touching the key repeat settings.
+
 === Feed Override Keys
 
 [NOTE]
