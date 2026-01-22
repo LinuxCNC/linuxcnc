@@ -184,12 +184,15 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.input_side_edge_length.setText(str(self.PREFS_.getpref( "ps_side_edge_length", 5.0, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_tool_probe_height.setText(str(self.PREFS_.getpref( "ps_probe_height", 20.0, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_tool_block_height.setText(str(self.PREFS_.getpref( "ps_block_height", 20.0, float, 'VERSA_PROBE_OPTIONS')) )
-            self.pbtn_use_tool_measurement.setChecked((self.PREFS_.getpref( "use_tool_measurement", True, bool, 'VERSA_PROBE_OPTIONS')) )
             self.input_adj_x.setText(str(self.PREFS_.getpref( "ps_offs_x", 0.0, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_adj_y.setText(str(self.PREFS_.getpref( "ps_offs_y", 0.0, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_adj_z.setText(str(self.PREFS_.getpref( "ps_offs_z", 0.0, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_adj_angle.setText(str(self.PREFS_.getpref( "ps_offs_angle", 0.0, float, 'VERSA_PROBE_OPTIONS')) )
             self.input_rapid_vel.setText(str(self.PREFS_.getpref( "ps_probe_rapid_vel", 60.0, float, 'VERSA_PROBE_OPTIONS')) )
+
+            self.pbtn_use_tool_measurement.setChecked((self.PREFS_.getpref( "use_tool_measurement", True, bool, 'VERSA_PROBE_OPTIONS')) )
+            self.allow_auto_zero.setChecked((self.PREFS_.getpref( "use_auto_zero", True, bool, 'VERSA_PROBE_OPTIONS')) )
+            self.allow_auto_skew.setChecked((self.PREFS_.getpref( "use_auto_skew", True, bool, 'VERSA_PROBE_OPTIONS')) )
 
         self.z_max_clear = INFO.get_safe_float("VERSA_TOOLSETTER", "Z_MAX_CLEAR")
         self.ts_x =  INFO.get_safe_float('VERSA_TOOLSETTER','X')
@@ -236,12 +239,15 @@ class VersaProbe(QtWidgets.QWidget, _HalWidgetBase):
             self.PREFS_.putpref( "ps_side_edge_length", float(self.input_side_edge_length.text()), float, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_probe_height", float(self.input_tool_probe_height.text()), float, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_block_height", float(self.input_tool_block_height.text()), float, 'VERSA_PROBE_OPTIONS')
-            self.PREFS_.putpref( "use_tool_measurement", bool(self.pbtn_use_tool_measurement.isChecked()), bool, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_offs_x", float(self.input_adj_x.text()), float, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_offs_y", float(self.input_adj_y.text()), float, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_offs_z", float(self.input_adj_z.text()), float, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_offs_angle", float(self.input_adj_angle.text()), float, 'VERSA_PROBE_OPTIONS')
             self.PREFS_.putpref( "ps_probe_rapid_vel", float(self.input_rapid_vel.text()), float, 'VERSA_PROBE_OPTIONS')
+
+            self.PREFS_.putpref( "use_tool_measurement", bool(self.pbtn_use_tool_measurement.isChecked()), bool, 'VERSA_PROBE_OPTIONS')
+            self.PREFS_.putpref( "use_auto_zero", bool(self.allow_auto_zero.isChecked()), bool, 'VERSA_PROBE_OPTIONS')
+            self.PREFS_.putpref( "use_auto_skew", bool(self.allow_auto_skew.isChecked()), bool, 'VERSA_PROBE_OPTIONS')
 
     # process the STATUS return message
     # set the line edit to the value if not cancelled

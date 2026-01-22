@@ -56,6 +56,41 @@ clean () {
 	-print0 | xargs -0 rm -f
 }
 
+wait_for_result_close() {
+    # Test for the 'result' and 'stderr' files in the current testdir to be
+    # closed. The 'checkresult' script cannot be run if these files are still
+    # in use and would cause a race condition.
+    # This function should be called with the test's directory as CWD.
+    presult="$(realpath -e -q "./result")"
+    pstderr="$(realpath -e -q "./stderr")"
+    if [ -z "$presult" ] || [ -z "$pstderr" ]; then
+        echo "Internal error: Missing 'result' or 'stderr' in wait_for_result_close()"
+        exit 2
+    fi
+    timeoutcnt=0
+    while true; do
+        lsof -- "$presult" > /dev/null 2>&1; resresult=$?
+        lsof -- "$pstderr" > /dev/null 2>&1; resstderr=$?
+        if [ $resresult -ne 0 ] && [ $resstderr -ne 0 ]; then
+            # Neither 'result' nor 'stderr' are open anymore
+            break
+        fi
+        if [ $timeoutcnt -ge 30 ]; then
+            if [ $resresult -eq 0 ]; then
+                echo "*** Timeout waiting for 'result' file to close"
+            fi
+            if [ $resstderr -eq 0 ]; then
+                echo "*** Timeout waiting for 'stderr' file to close"
+            fi
+            echo "*** Test results may be invalid when checked."
+            return 1
+        fi
+        sleep 1
+        timeoutcnt=$((timeoutcnt + 1))
+    done
+    return 0
+}
+
 run_shell_script () {
     testname=$(basename $1)
     testdir=$(dirname $1)
@@ -67,8 +102,9 @@ run_shell_script () {
         bash -x $testname > result 2> stderr
     fi
     exitcode=$?
-    popd > /dev/null
-    return $exitcode
+    wait_for_result_close
+    popd > /dev/null || exit 2
+    return "$exitcode"
 }
 
 run_executable () {
@@ -82,8 +118,9 @@ run_executable () {
         ./$testname > result 2> stderr
     fi
     exitcode=$?
-    popd > /dev/null
-    return $exitcode
+    wait_for_result_close
+    popd > /dev/null || exit 2
+    return "$exitcode"
 }
 
 run_without_overruns () {
@@ -99,7 +136,8 @@ run_without_overruns () {
             halrun -f $testname > result 2> stderr
         fi
         exitcode=$?
-        popd > /dev/null
+        wait_for_result_close
+        popd > /dev/null || exit 2
 
         if ! grep -q '^overrun$' $testdir/result; then return $exitcode; fi
     done
@@ -121,7 +159,7 @@ trap "rm -rf $TMPDIR" 0 1 2 3 9 15
 
 
 run_tests () {
-    find $* -name test.hal -or -name test.sh -or -name test \
+    find $@ -name test.hal -or -name test.sh -or -name test \
 	| sort > $TMPDIR/alltests
 
     while read testname; do

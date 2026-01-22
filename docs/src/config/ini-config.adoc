@@ -2,7 +2,9 @@
 :toc:
 
 [[cha:ini-configuration]]
-= INI Configuration(((INI Configuration)))
+= INI Configuration
+
+(((INI Configuration)))
 
 // Custom lang highlight
 // must come after the doc title, to work around a bug in asciidoc 8.6.6
@@ -10,8 +12,9 @@
 :hal: {basebackend@docbook:'':hal}
 :ngc: {basebackend@docbook:'':ngc}
 
-== The INI File Components(((INI File,Components)))
+== The INI File Components
 
+(((INI File,Components)))
 A typical INI file follows a rather simple layout that includes;
 
 * comments
@@ -21,8 +24,9 @@ A typical INI file follows a rather simple layout that includes;
 Each of these elements is separated on single lines.
 Each end of line or newline character creates a new element.
 
-=== Comments(((INI File,Components,Comments)))
+=== Comments
 
+(((INI File,Components,Comments)))
 A comment line is started with a ; or a # mark.
 When the INI reader sees either of these marks at the start a line, the rest of the line is ignored by the software.
 Comments can be used to describe what an INI element will do.
@@ -56,8 +60,9 @@ CORRECT = value
 ----
 
 [[sub:ini:sections]]
-=== Sections(((INI File,Components,Sections)))
+=== Sections
 
+(((INI File, Components, Sections)))
 Related parts of an INI file are separated into sections.
 A section name is enclosed in brackets like this: `[THIS_SECTION]`.
 The order of sections is unimportant.
@@ -81,8 +86,9 @@ The following sections are used by LinuxCNC:
 * <<sub:ini:sec:emcio,`[EMCIO]`>> settings used by the I/O Controller
 
 [[sub:ini:variables]]
-=== Variables(((INI File,Components,Variables)))
+=== Variables
 
+(((INI File, Components, Variables)))
 A variable line is made up of a variable name, an equals sign (`=`), and a value.
 Everything from the first non-white space character after the `=` up to the end of the line is passed as the value,
 so you can embed spaces in string symbols if you want to or need to.
@@ -121,8 +127,9 @@ The following sections detail each section of the configuration file, using samp
 Variables that are used by LinuxCNC must always use the section names and variable names as shown.
 
 [[sub:ini:custom]]
-=== Custom Sections and Variables(((INI File,Components,Custom sections and variables)))
+=== Custom Sections and Variables
 
+(((INI File, Components, Custom sections and variables)))
 Most sample configurations use custom sections and variables to put all of the settings into one location for convenience.
 
 To add a custom variable to an existing LinuxCNC section, simply include the variable in that section.
@@ -173,8 +180,9 @@ G10 L20 P0 Z#<_ini[probe]z_offset>
 ----
 
 [[sub:ini:include]]
-=== Include Files(((INI File,Components,Include)))
+=== Include Files
 
+(((INI File, Components,Include)))
 An INI file may include the contents of another file by using a #INCLUDE directive.
 
 .#INCLUDE Format
@@ -207,11 +215,14 @@ The recommended file extension is '.inc'.
 Do _not_ use a file extension of '.ini' for included files.
 
 [[sec:ini:sections]]
-== INI File Sections(((INI File,Sections)))
+== INI File Sections
+
+(((INI File, Sections)))
 
 [[sub:ini:sec:emc]]
-=== [EMC] Section(((INI File,Sections,[EMC] Section)))
+=== [EMC] Section
 
+(((INI File, Sections, [EMC] Section)))
 * `VERSION = 1.1` - The version number for the configuration.
   Any value other than 1.1 will cause the configuration checker to run and try to update the configuration to the new style joint axes type of configuration.
 * `MACHINE = My Controller` - This is the name of the controller, which is printed out at the top of most graphical interfaces.
@@ -220,8 +231,9 @@ Do _not_ use a file extension of '.ini' for included files.
   Debug flags are usually only useful to developers. See src/emc/nml_intf/debugflags.h for other settings.
 
 [[sub:ini:sec:display]]
-=== [DISPLAY] Section(((INI File,Sections,[DISPLAY] Section)))
+=== [DISPLAY] Section
 
+(((INI File, Sections, [DISPLAY] Section)))
 Different user interface programs use different options, and not every option is supported by every user interface.
 There are several interfaces, like AXIS, GMOCCAPY, Touchy, QtVCP's QtDragon and Gscreen.
 AXIS is an interface for use with normal computer and monitor, Touchy is for use with touch screens.
@@ -386,8 +398,9 @@ The following `[DISPLAY]` item is used by the TKLinuxCNC interface only.
 * `HELP_FILE = tklinucnc.txt` - Path to help file.
 
 [[sub:ini:sec:filter]]
-=== [FILTER] Section(((INI File,Sections,[FILTER] Section)))
+=== [FILTER] Section
 
+(((INI File, Sections, [FILTER] Section)))
 AXIS and GMOCCAPY have the ability to send loaded files through a filter program.
 This filter can do any desired task: Something as simple as making sure the file ends with M2,
 or something as complicated as detecting whether the input is a depth image, and generating G-code to mill the shape it defines.
@@ -484,8 +497,9 @@ if __name__ == "__main__":
   This feature should be used by any filter that runs for a long time.
 
 [[sub:ini:sec:rs274ngc]]
-=== [RS274NGC] Section(((INI File,Sections,[RS274NGC] Section)))
+=== [RS274NGC] Section
 
+(((INI File, Sections, [RS274NGC] Section)))
 * `PARAMETER_FILE = myfile.var` - (((PARAMETER FILE)))
   The file located in the same directory as the INI file which contains the parameters used by the interpreter (saved between runs).
 * `ORIENT_OFFSET = 0` - (((ORIENT OFFSET)))
@@ -571,8 +585,9 @@ FEATURES & 0x20 -> OWORD_WARNONLY
   See <<cha:remap,Remap Extending G-code>> chapter for details.
 
 [[sub:ini:sec:emcmot]]
-=== [EMCMOT] Section(((INI File,Sections,[EMCMOT] Section)))
+=== [EMCMOT] Section
 
+(((INI File,Sections,[EMCMOT] Section)))
 This section is a custom section and is not used by LinuxCNC directly.
 Most configurations use values from this section to load the motion controller.
 For more information on the motion controller see the <<sec:motion,Motion>> section.
@@ -588,8 +603,9 @@ For more information on the motion controller see the <<sec:motion,Motion>> sect
   The setting may be overridden from the command line using the -m option ($ linuxcnc -h).
 
 [[sub:ini:sec:task]]
-=== [TASK] Section(((INI File,Sections,[TASK] Section)))
+=== [TASK] Section
 
+(((INI File, Sections, [TASK] Section)))
 * `TASK = milltask` -
   Specifies the name of the 'task' executable.
   The 'task' executable does various things, such as
@@ -603,8 +619,9 @@ For more information on the motion controller see the <<sec:motion,Motion>> sect
   There is usually no need to change this number.
 
 [[sub:ini:sec:hal]]
-=== [HAL] section(((INI File,Sections,[HAL] Section)))
+=== [HAL] section
 
+(((INI File, Sections, [HAL] Section)))
 * `HALFILE = example.hal` - Execute the file 'example.hal' at start up.
 +
 --
@@ -678,14 +695,16 @@ For more information see the <<cha:hal-twopass,HAL TWOPASS>> chapter.
   For more information see the <<cha:hal-user-interface,HAL User Interface>> chapter.
 
 [[sub:ini:sec:halui]]
-=== [HALUI] section(((INI File,Sections,[HALUI] Section)))
+=== [HALUI] section
 
+(((INI File, Sections, [HALUI] Section)))
 * `MDI_COMMAND = G53 G0 X0 Y0 Z0` -
   An MDI command can be executed by using `halui.mdi-command-00`. Increment the number for each command listed in the [HALUI] section.
 
 [[sub:ini:sec:applications]]
-=== [APPLICATIONS] Section(((INI File,Sections,[APPLICATIONS] Section)))
+=== [APPLICATIONS] Section
 
+(((INI File, Sections, [APPLICATIONS] Section)))
 LinuxCNC can start other applications before the specified GUI is started.
 The applications can be started after a specified delay to allow for GUI-dependent actions (like creating GUI-specific HAL pins).
 
@@ -724,7 +743,9 @@ APP = halscope -i my.halscope
 ----
 
 [[sub:ini:sec:traj]]
-=== [TRAJ] Section(((INI File,Sections,[TRAJ] Section)))
+=== [TRAJ] Section
+
+(((INI File, Sections, [TRAJ] Section)))
 
 [WARNING]
 ====
@@ -869,8 +890,9 @@ LinuxCNC will not know your joint travel limits when using `NO_FORCE_HOMING = 1`
 
 
 [[sub:ini:sec:kins]]
-=== [KINS] Section(((INI File,Sections,KINS Section)))
+=== [KINS] Section
 
+(((INI File, Sections, KINS Section)))
 * `JOINTS = 3` - Specifies the number of joints (motors) in the system.
   For example, a trivkins XYZ machine with a single motor for each axis has 3 joints.
   A gantry machine with one motor on each of two of the axes, and two motors on the third axis, has 4 joints.
@@ -880,8 +902,9 @@ LinuxCNC will not know your joint travel limits when using `NO_FORCE_HOMING = 1`
   For more information on kinematics modules see the manpage: `$ man kins`.
 
 [[sub:ini:sec:axis-letter]]
-=== [AXIS_<letter>] Section(((INI File,Sections,[AXIS_<letter>] Sections)))
+=== [AXIS_<letter>] Section
 
+(((INI File, Sections, [AXIS_<letter>] Sections)))
 The _<letter>_ specifies one of: X Y Z A B C U V W
 
 * `TYPE = LINEAR` - The type of this axis, either `LINEAR` or `ANGULAR`.
@@ -929,8 +952,9 @@ axis.<letter>.eoffset-scale
 See the chapter: <<cha:external-offsets,'External Axis Offsets'>> for usage information.
 
 [[sub:ini:sec:joint-num]]
-=== [JOINT_<num>] Sections(((INI File,Sections,[JOINT_<num>] Sections)))
+=== [JOINT_<num>] Sections
 
+(((INI File,Sections,[JOINT_<num>] Sections)))
 The _<num>_ specifies the joint number 0 ... (num_joints-1)
 The value of 'num_joints' is set by `[KINS]JOINTS=`.
 
@@ -1296,8 +1320,9 @@ image::images/encoder-scale.png[align="center"]
   Subsequent testing has shown that use of `STEPGEN_MAXVEL` does not improve the tuning of StepGen's position loop.
 
 [[sub:ini:sec:spindle-num]]
-=== [SPINDLE_<num>] Section(s)(((INI File,Sections,[SPINDLE_<num>] Section(s))))
+=== [SPINDLE_<num>] Section(s)
 
+(((INI File, Sections, [SPINDLE_<num>] Section(s))))
 The _<num>_ specifies the spindle number 0 ... (num_spindles-1) +
 The value of _num_spindles_ is set by `[TRAJ]SPINDLES=` . +
 By default maximum velocity of the spindle in forward and reverse is approximately 2147483000 RPM. +
@@ -1338,8 +1363,9 @@ Control screens can limit these settings further.
   Set the `HOME_SEARCH_VELOCITY` to zero to avoid spindle rotation during the homing sequence.
 
 [[sub:ini:sec:emcio]]
-=== [EMCIO] Section(((INI File,Sections,[EMCIO] Section)))
+=== [EMCIO] Section
 
+(((INI File, Sections, [EMCIO] Section)))
 * `EMCIO = io` - Name of IO controller program.
 * `CYCLE_TIME = 0.100` - The period, in seconds, at which EMCIO will run.
   Making it 0.0 or a negative number will tell EMCIO not to sleep at all.

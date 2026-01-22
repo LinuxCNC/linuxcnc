@@ -2,7 +2,7 @@
 :toc:
 
 [[cha:qtdragon-gui]]
-= QtDragon GUI(((QtDragon)))
+= QtDragon GUI
 
 :ini: {basebackend@docbook:'':ini}
 :hal: {basebackend@docbook:'':hal}
@@ -10,6 +10,7 @@
 
 == Introduction
 
+(((QtDragon)))
 QtDragon and QtDragon_hd are built with the QtVCP framework.
 It is the creative vision of forum personality Persei8.
 Much of it is based on the excellent work of others in the LinuxCNC community.

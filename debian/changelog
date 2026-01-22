@@ -1,3 +1,139 @@
+linuxcnc (1:2.9.8) UNRELEASED; urgency=medium
+
+  * backport #3516 to fix #3679
+  * Only initialize python if not yet initialized.
+  * hal_gpio: Adapt to use libgpiod3 or libgpiod2 according to what is installed
+  * Merge pull request #3671 from smoe/docs_image_handling
+  * core-components.adoc remove duplicate descriptions
+  * Merge pull request #3642 from LinuxCNC/2.9_#2460
+  * Update LinuxCNC RTAI Install instructions
+  * Merge pull request #3555 from smoe/lintian_warnings
+  * Merge pull request #3588 from f355/2.9
+  * [ci] publish releases with artifacts
+  * debian: Addressed lintian warnings
+  * axis.py: restore mdi queuing provision       #2460 
+
+ -- andypugh <andy@bodgesoc.org>  Wed, 31 Dec 2025 19:39:48 +0000
+
+linuxcnc (1:2.9.7) bookworm; urgency=low
+
+  * [ci] publish releases with artifacts - GitHub now builds release debs
+  * Revert 7d9ee66  to address #3583 - halui functions stop working in 2.9.5/6
+  * Merge pull request #3512 from Sigma1912/patch-1
+  * Gmoccapy: Fix arrow key up/down bug in tooleditor
+
+ -- andypugh <andy@bodgesoc.org>  Wed, 22 Oct 2025 23:43:13 +0100
+
+linuxcnc (1:2.9.6) UNRELEASED; urgency=medium
+
+  * qtvcp -Qt5_graphics: issue 2753; preview wrongly uses INI startup code
+  * Merge pull request #3567 from Sigma1912/2_9-Correct_bad_fix_for_2753
+  * Gremlin: Don't use  RS274NGC_STARTUP_CODE when updating the preview
+  * Docs: Address G52 Circular Link #3565
+
+ -- andypugh <andy@bodgesoc.org>  Mon, 22 Sep 2025 22:55:20 +0100
+
+linuxcnc (1:2.9.5) UNRELEASED; urgency=medium
+
+  * tests: save.1 test removed. It's been skipped for 19 years.
+  * Merge pull request #3529 from LinuxCNC/andypugh/tests/spindle_limits
+  * Merge pull request #3553 from Sigma1912/patch-2
+  * Merge pull request #3552 from Sigma1912/halui_fix_axis_and_mdi_command_pins
+  * halui: on startup, set the first configured axis as 'is-selected' instead of X
+  * halui: Don't create 'halui.axis.'- pins for unconfigured axes
+  * qtvcp versa probe: remember setting of auto skew/zero buttons we reopened
+  * PyVCP test: result file formatting fixes (#3551)
+  * Merge pull request #3537 from DauntlessAq/probe_error_decel_no_inhibit_2.9
+  * stepconf -fix human input names in wrong order
+  * Tests: Add a test for PyVCP - Specifically Issue #3538
+  * Merge pull request #3540 from andronick83/patch-1
+  * Added missing period to description of G95. (PR #3542)
+  * Deprecate gantry.comp
+  * Fix #3538 - "halparam" tag not working in PyVCP
+  * probe_error_decel_no_inhibit rebased for 2.9
+  * Delete tests/spindle_limits/test.ini
+  * tests: Add a test for spindle INI speed limits function
+  * Fix a race; add a test to ensure the 'result' and 'stderr' files are closed before continuing to run 'checkresult'.
+  * Fix command-line directories acceptance by correct expansion.
+  * Fix a race between setting the signal handlers and marking hal_ready().
+  * The quit_flag is volatile because it is changed in a signal and used in threads.
+  * remove buster from CI
+  * debian:  reduce Lintian Warnings. (hardening-no-relro: panelui, module_helper)
+  * Fixed word typo in remap.adoc (numberer->numbered).
+  * docs: Add back German translation link in stable branch index page.
+  * Merge pull request #3493 from BsAtHome/backport_2.9_fix-hm2_modbus
+  * Backport hm2_modbus fixes and additions from master.
+  * Merge pull request #3479 from Sigma1912/patch-1
+  * Update g-code.adoc
+  * Gladevcp: Update the .ui and .glade files in the sample configs to Gtk+3.0
+  * clarify documentation on stat 'gcodes' and (spindle)'speed' attributes
+  * Merge pull request #3460 from Sigma1912/2.9-Fix-preview-update-not-respecting-active-wcs
+  * Don't use  RS274NGC_STARTUP_CODE when updating the preview
+  * Merge pull request #3454 from Sigma1912/2.9_Fix_issue_3447
+  * Gmoccapy: Fix very large numbers for spindle speed and 'Vc' in the gui when using G96
+  * Gmoccapy: Fix 'spindle.0.speed-out' pins being reset to wrong value when using G96
+  * Merge pull request #3446 from BsAtHome/backport_2.9_hm2_modbus
+  * Python 3.7 (Debian 10) has no dictionary merge operator, use alternative syntax.
+  * Split declaration/assignment with label because it is not accepted by the compiler in Debian 10 and 11.
+  * Backport new hm2_modbus driver to 2.9 branch.
+  * Merge pull request #3425 from BsAtHome/backport_2.9_fix-deprecated
+  * Merge pull request #3388 from smoe/patch-18
+  * Merge pull request #3445 from BsAtHome/backport_2.9_fix-python-313
+  * Make 2.9 branch compile with python 3.13
+  * Merge pull request #3422 from BsAtHome/backport_2.9_fix_re-syntax-warning
+  * Merge pull request #3429 from smoe/typos_29
+  * 2.9: typos, punctuation in comments
+  * Make using PyConfig conditional on python version >= 3.8.
+  * Merge pull request #3423 from BsAtHome/backport_2.9_fix_debug-O0
+  * Merge pull request #3424 from BsAtHome/backport_2.9_fix-comment-in-comment
+  * Merge pull request #3421 from BsAtHome/backport_2.9_fix_link-version-script
+  * Fix deprecated Py_SetProgramName() and deprecated use of Py_UnbufferedStdioFlag.
+  * Fix comment in comment
+  * Remove forced -O0 optimization flag.
+  * Fix invalid escape sequence warnings from halcompile and hal components.
+  * Use objdump and awk to extract the rtapi exported symbols
+  * Merge pull request #3416 from BsAtHome/fix_2.9_ci-update
+  * Fix missing parity error definition
+  * Update CI base for 2.9 branch to Ubuntu 24.04.
+  * Backport fix of modcompile
+  * Merge pull request #3412 from BsAtHome/backport_2.9_fix_update-pktuart-v3
+  * Merge pull request #3411 from BsAtHome/backport_fix_make-noise
+  * Merge pull request #3410 from BsAtHome/backport_2.9_fix-pointer-compare
+  * Varargs export of function is not available in 2.9.
+  * Update dependencies with PktUART update. Fix crash bugs and warnings in modbus template.
+  * Update, fix and reorganize hostmot2 PktUART to support V3.
+  * Remove make terminal clutter
+  * Use pointer null compare instead of integer compare.
+  * Merge pull request #3407 from BsAtHome/backport-fix_hm2-constify
+  * Merge pull request #3405 from BsAtHome/backport-fix_test-halcompile
+  * Use const char pointers. Add missing pktuart calls. Prevent hal name overruns.
+  * Add stdio.h header for readline versions that need it.
+  * debian: updating debian-uploads' changelogs
+  * debian: Addressing usrmerge
+  * debian: Added Andy as uploader
+  * debian: Updated policy standard to 4.7.2
+  * orient: Commit 79c0966 had an un-noticed effect on the behaviour of M19 reported in issue #3389
+  * Merge pull request #3392 from Sigma1912/2.9-ServoToGo_remove-web-link-to-spamsite
+  * ServoToGo: remove old weblinks that now redirect to a spam site
+  * halui -fix spindle override using direct value.
+  * gmoccapy: fix setting to disable "run from line"
+  * halscope: set button left and right padding to 0 to allow smaller window size
+  * docs: update halscope channel off function + update images
+  * Fix missing semicolon
+  * qtdragon_hd_vert -add a sample config for vertical layout.
+  * qtvcp -qtdragon_hd_vert: add a vertical layout version
+  * Merge pull request #3339 from NTULINUX/ntulinux/2.9-fixes
+  * getting-linuxcnc.adoc: Remove spurious backslash in path to iso.
+  * .gitignore fixes
+  * Merge pull request #3330 from hansu/gmoccapy-fix-resizing
+  * gmoccapy: change text to icons of undo/redo buttons to fit window size
+  * interp_o_word.cc: Insert almost-certainly-missing "breaks" addresses #3290
+  * qtvcp -vismach gantry_5axis: fix cleanup of HAL component
+  * qtvcp -vismach millturn: fix cleanup of HAL component
+  * qtvcp -vismach_fanuc_200f- fix cleanup of HAL component
+
+ -- andypugh <andy@bodgesoc.org>  Sat, 06 Sep 2025 21:20:33 +0100
+
 linuxcnc (1:2.9.4-2) unstable; urgency=medium
 
   * Team upload.
@@ -44,14 +180,17 @@ linuxcnc (1:2.9.4) UNRELEASED; urgency=medium
   * Update m-code.adoc - typo exection -> execution
   * Merge pull request #3247 from Sigma1912/patch-1
   * gmoccapy.adoc: correct INI section name [MACROS]
-  * Disable "override limits" at the end of the jog. This fixes the issue that the override was not cleared in teleop (homed) mode Issue #2482
+  * Disable "override limits" at the end of the jog.
+    This fixes the issue that the override was not cleared
+    in teleop (homed) mode Issue #2482
   * Doc: User Defined Command, add note on exit codes != 0
   * gmoccapy: update release notes
   * docs: fix list in building-linuxcnc.adoc
   * Typos in carousel.comp
   * Merge pull request #3227 from BsAtHome/backport_2.9_3200-3202
   * Merge pull request #3226 from BsAtHome/backport_2.9_fix-hm2_spi
-  * Backport fix hm2_spi driver. This was discovered in master and fixed in PR #3225.
+  * Backport fix hm2_spi driver.
+    This was discovered in master and fixed in PR #3225.
   * Backport fix superfluous NULL check to 2.9 branch (issue #3202).
   * Backport fix invalid printf format to 2.9 branch (issue #3200).
   * Merge pull request #3212 from BsAtHome/hm2_spix-backport-2.9
@@ -73,7 +212,7 @@ linuxcnc (1:2.9.4) UNRELEASED; urgency=medium
   * Change to raw strings to fix Python SyntaxWarning
   * docs: improve "HAL Component Generator" doc page (halcompile)
   * Merge pull request #3158 from petterreinholdtsen/bug-debian-1080668-python3-setuptools
-  * Dropped use of depricated python3-setuptools / distutils.
+  * Dropped use of deprecated python3-setuptools / distutils.
   * Merge pull request #3159 from petterreinholdtsen/2.9-upstream-ax-python
   * Fetched latest ax_python.m4 and ax_python_devel.m4 from upstream.
   * Revert "Remove remaining use of deprecated distutils."
@@ -87,7 +226,8 @@ linuxcnc (1:2.9.4) UNRELEASED; urgency=medium
   * Merge pull request #3048 from hansu/gmoccapy-gcmc-config
   * qtvcp -action_buttons: fix momentary buttons status indicator
   * Merge pull request #3130 from hansu/gmoccapy-deprecation-warning-2
-  * gmoccapy: fix deprecation warning "Gtk.StyleContext.get_background_color is deprecated"
+  * gmoccapy: fix deprecation warning
+    "Gtk.StyleContext.get_background_color is deprecated"
   * Merge pull request #3115 from zz912/patch-30
   * Merge pull request #3125 from hansu/gmoccapy-deprecation-warning
   * gscreen: remove deprecated use of GtkLabel constructor
@@ -96,15 +236,16 @@ linuxcnc (1:2.9.4) UNRELEASED; urgency=medium
   * lathe_macros.ini - enable postgui.hal
   * Replace non-exist toolchange.py by stdglue.py
   * Merge pull request #3106 from LinuxCNC/andypugh/gscreen
-  * gscreen: Fix Spartan sim homing
-  * gscreen: Further tidying up to clear up runtime errors and startup verbosity
-  * gscreen: Fix broken configs - Silverdragon++ I found how to do settings when fixing gaxis
-  * gscreen: Fix broken configs - tester
-  * gscreen: Fix broken configs - gaxis
-  * gscreen: Fix broken configs - 9-axis
-  * gscreen: Fix broken configs - Spartan
-  * gscreen: Fix broken configs - Industrial
+  * gscreen:
+    - Fix Spartan sim homing
+    - Further tidying up to clear up runtime errors and startup verbosity
   * gscreen: Fix broken configs
+    - Silverdragon++ I found how to do settings when fixing gaxis
+    - tester
+    - gaxis
+    - 9-axis
+    - Spartan
+    - Industrial
   * docs: add note to gmoccapy keyboard shortcuts
   * fix: eliminated printf in shell script
   * Merge pull request #3090 from Sigma1912/2.9-fix-configs-apps-gladevcp
@@ -116,22 +257,27 @@ linuxcnc (1:2.9.4) UNRELEASED; urgency=medium
   * Update configs/apps/gladevcp/animated-backdrop/cairodraw.py
   * Merge pull request #3083 from hansu/gtk-sourceview-4-migration
   * configs/apps/gladevcp/animated-backdrop: partial fix
-  * configs/apps/gladevcp/by-widget/sourceview: fix 'up','down' button functionalitiy
-  * fix configs/apps/gladevcp: update to gtk3 ('sourceview' and 'animated backdrop' still not 100%))
+  * configs/apps/gladevcp/by-widget/sourceview:
+    fix 'up','down' button functionalitiy
+  * fix configs/apps/gladevcp: update to gtk3
+    ('sourceview' and 'animated backdrop' still not 100%))
   * Use now GtkSourceview 4
   * qtplasmac: fix file load after single cut
   * Merge pull request #3076 from Sigma1912/2.9-fix-sim-config-rack-toolchange
-  * Fix glade panel and remove depricated 'Features' entries in ini
+  * Fix glade panel and remove deprecated 'Features' entries in ini
   * qtvcp -tab_widget: fix float/int error with new libraries
   * Merge pull request #3054 from petterreinholdtsen/2.9-build-sid
   * Reinsert github CI test build on sid
   * Merge pull request #3026 from hansu/2966-gmoccapy-destroys-tooltable
   * Merge pull request #3049 from mark-v-d/2.9
-  * We need to turn cutter compensation off for the rapid to the startpoint as well.
+  * We need to turn cutter compensation off
+    for the rapid to the startpoint as well.
   * Merge pull request #3017 from petterreinholdtsen/2-9-smoe-debian_manpages
   * gmoccapy: add sim config for gcmc support
-  * tooledit: throw exeption when locale not set
-  * tooltable: create a backup file when error occurs on saving + add exception message
+  * tooledit: throw exception when locale not set
+  * tooltable:
+    - create a backup file when error occurs on saving
+    - add exception message
   * Adjusted handling of man pages to avoid duplicate lists.
   * Merge pull request #3043 from petterreinholdtsen/2.9-disable-unstable-build
   * Disabled github CI build on unstable/sid until it start working again.
@@ -147,8 +293,11 @@ linuxcnc (1:2.9.4) UNRELEASED; urgency=medium
   * docs: force monospace font in ASCII art (related to #3007)
   * docs: fix missing line break in toggle2nist man page
   * Merge pull request #3020 from mark-v-d/2.9
-  * Fixed bug #2939. But now new and improved. This fixes the case where the sub actually has a leadout, but it is too short.
-  * Fixed bug #2939. When fixing the case where there was no leadout move, I broke the case where the leadout was exceeding the starting point.
+  * Fixed bug #2939. But now new and improved.
+    This fixes the case where the sub actually has a leadout,
+    but it is too short.
+  * Fixed bug #2939. When fixing the case where there was no leadout move,
+    I broke the case where the leadout was exceeding the starting point.
   * Allow uniq_id to be used to select hal_input devices. (#3015)
 
  -- andypugh <andy@bodgesoc.org>  Sat, 25 Jan 2025 12:20:01 +0000
@@ -247,7 +396,7 @@ linuxcnc (1:2.9.3) UNRELEASED; urgency=medium
   * qtvcp -stylesheet editor: add the config's preferred search path
   * qtplasmac: add translation for tool type
   * qtplasmac: fix gcode filter spotting coordinates when overburn is active
-  * qtplasmac:  allow Z DRO to display torch height in manual cut
+  * qtplasmac: allow Z DRO to display torch height in manual cut
   * qtplasmac: run from line fixes
   * qtplasmac: fix state when cut recovery offsets are reset
   * plasmac: fix manual cut abort state
@@ -255,7 +404,8 @@ linuxcnc (1:2.9.3) UNRELEASED; urgency=medium
   * docs - qtplasmac:  fix locale creation
   * Merge pull request #2901 from jethornton/2.9
   * Update python-interface.adoc
-  * Note that the axes stat has been removed and show a way to get the same information from axis_mask
+  * Note that the axes stat has been removed and
+    show a way to get the same information from axis_mask
   * Removing While Loop, Correcting Typo
   * Execute 'aclocal' when generating configuration files
   * qtplasmac: fix missing g64 value in run from line
@@ -319,7 +469,8 @@ linuxcnc (1:2.9.3) UNRELEASED; urgency=medium
   * docs: Eliminated some terminal blanks in docs.
   * Typo found in documentation.
   * qtvcp -docs: add writeup on preferred way to add custom code to screens.
-  * gmoccapy: remember window size and position when switching back from fullscreen/maximized
+  * gmoccapy: remember window size and position
+    when switching back from fullscreen/maximized
   * gmoccapy: fix "window does not fit 1024x768 in fullscreen"
   * Update deprecated Pillow constant
   * docs: 2.9.2 to 2.9.y
@@ -387,14 +538,16 @@ linuxcnc (1:2.9.2) unstable; urgency=medium
   * Add dither option to PWMGen for improved analog resolution
   * axis: Fix run-from-line - bug #2771
   * debian/changelog: fix epoch & white space
-  * deleted craftsman gui, as it is not python 2 nor gtk3 based and not mantained for a long period
+  * deleted craftsman gui, as it is not python 2 nor gtk3 based
+    and not mantained for a long period
   * deleted gmoccapy plasma, as glade panels are still in gtk2
   * Docs: Many updates
   * fix hardcoded description in Spanish language Closes: #1057312
   * Fixes warnings for possible string truncation with strncpy()
   * Gladevcp: fix error on missing filter program
-  * gmoccapy: Fixed Inappropriate Logical Expression (#2769)
-  * gmoccapy: fixes error when trying to hide the turtle-jog button in gmoccapy
+  * gmoccapy:
+    - Fixed Inappropriate Logical Expression (#2769)
+    - Fixed error when trying to hide the turtle-jog button in gmoccapy
   * hal_glib -add get_linuxcnc_version function
   * Increase size of STACK_ENTRY_LEN
   * Merge pull request #2567 from petterreinholdtsen/2.9-gcode-g38.2
@@ -412,8 +565,9 @@ linuxcnc (1:2.9.2) unstable; urgency=medium
   * motion: fix brake/direction setting when S command is sent.
   * motion.c: Improve handling of misc_error pin names See #2780 #2773
   * pmx483-test: change package message to python3-serial
-  * pncconf - change spindle stepgen enable from spindle-enable to machine-is-on
-  * pncconf -fix HAL load command for 2 serialports
+  * pncconf
+    - change spindle stepgen enable from spindle-enable to machine-is-on
+    - fix HAL load command for 2 serialports
   * qtaxis -add version string to log
   * qtdragon -add a default 'factor' to avoid error message
   * qtdragon_hd -fix stylesheets for 5 axis, adjust qtdragon.ui
@@ -444,7 +598,8 @@ linuxcnc (1:2.9.2) unstable; urgency=medium
   * revert changes for strncat()
   * RTAI: Fix build against RTAI+GNU11
   * snprintf uses %d on a double (issue 2784)
-  * stdglue.py: Fix error on loading stdglue remaps using an R word. (The previous code errored on attempted comparison between dict and float)
+  * stdglue.py: Fix error on loading stdglue remaps using an R word.
+    (The previous code errored on attempted comparison between dict and float)
   * tests: status.state should be checked against command execution status
   * Update build-dependency for OpenGL
   * Update combi_dro.py
@@ -681,7 +836,8 @@ linuxcnc (1:2.9.0) unstable; urgency=medium
   * mesa_pktgyro_test.comp Allow use of uarts > 0
   * mesa-7i65: fix a bug with stale data in fifo
   * message: Update HAL component docs to match behavior
-  * Motion Type: Set the motion-type of rigid tap to 2 to match other spindle-sync cycles
+  * Motion Type: Set the motion-type of rigid tap to 2
+    to match other spindle-sync cycles
   * ohmic.comp - fix bugs
   * pncconf - Many updates
   * qt_istat.py: Fix typos
@@ -721,7 +877,7 @@ linuxcnc (1:2.9.0~pre1) UNRELEASED; urgency=medium
   * qtvcp -cam_align panel: add ability to set rotation increment
   * qtvcp -camview_widget: add the rotation increment display
   * qtvcp -cam_align panel: add window size setting option
-  * docs: qtplasmac fix image, add deprication notice
+  * docs: qtplasmac fix image, add deprecation notice
   * docs: add div2 to .gitignore
   * Merge pull request #2119 from Roguish000/component-div2
 
@@ -861,8 +1017,7 @@ linuxcnc (1:2.8.3) buster; urgency=low
   * Update for new version of Rpi400
   * mb2hal: added pins to manpage
   * Merge pull request #1641 from JTrantow/2.8
-  * Change EDITOR = geany. Restore more generous dirhold and dirsetup
-      timing.
+  * Change EDITOR = geany. Restore more generous dirhold and dirsetup timing.
   * Updated the gantry example 
   * linuxcncrsh: check for errors when creating listening socket
   * gscreen -fix error related to keyboard jogging and limit switch
@@ -1637,9 +1792,10 @@ linuxcnc (1:2.7.5) unstable; urgency=medium
 
   * shuttlexpress: clean up the manpage & asciidocs
 
-  * GladeVCP: SpeedControl - changing limits do reset the increment
-  * GladeVCP: SpeedControl - set default increment after setting a new adjustment
-  * GladeVCP: SpeedControl - added widget icon
+  * GladeVCP: SpeedControl
+    - changing limits do reset the increment
+    - set default increment after setting a new adjustment
+    - added widget icon
   * GladeVCP: tooledit.glade - corrected typo
   * GladeVCP: hal_sourceview - fix permissions of created files
   * GladevCP: gremlin - bugfix mouse button modes 4 and 6
@@ -1648,7 +1804,8 @@ linuxcnc (1:2.7.5) unstable; urgency=medium
   * GladeVCP: Fix mdi error with tiny values
   * pyngcgui: find gcmc if not specified in ini
   * pyngcgui: remove mention of incorrect --height argument
-  * hal_glib: add callLevel to EMC_TASK_STAT class, to fix file-loaded bug
+  * hal_glib: add callLevel to EMC_TASK_STAT class,
+    to fix file-loaded bug
 
   * stepconf: fix default pitch for A axis
   * stepconf: dynamically show how step scale is calculated
@@ -1734,8 +1891,8 @@ linuxcnc (1:2.7.4) unstable; urgency=medium
   * docs: github is more official now
   * docs: fix a broken links
   * docs: fix a couple of places to note nine axes or planes supported
-  * docs: add info on how to stop the Axis GUI "do you really want to
-        quit" dialog
+  * docs: add info on how to stop the Axis GUI
+    "do you really want to quit" dialog
   * docs: add info about examples of logging from G-code
   * docs: make example code easier to cut and paste
   * docs: fix descriptions for G43.1 and G43.2
@@ -1766,8 +1923,8 @@ linuxcnc (1:2.7.4) unstable; urgency=medium
   * add gantry.comp from Charles Steinkuehler
   * xhc-hb04: fix negative jogs on non-x86 architectures
   * hostmot2: improved sserial error handling (don't crash)
-  * hy-vfd: set spindle_at_speed correctly when spindle is running
-        reverse
+  * hy-vfd: set spindle_at_speed correctly
+    when spindle is running reverse
   * serport: fix pin-1-in-not
   * sim_parport: fix pin names of inverted input
 
@@ -1776,19 +1933,20 @@ linuxcnc (1:2.7.4) unstable; urgency=medium
   * pncconf: fix setting or PID maxerror on servo configs
   * sample configs: make sim/canterp.ini runnable
   * sample configs: connect the orient mode pin to allow rotation
-        direction to be controlled in the VMC Vismach model
+    direction to be controlled in the VMC Vismach model
 
-  * emcmodule: Fix incorrect memory access by PyArg_ParseTuple and add better checks for string arguments
+  * emcmodule: Fix incorrect memory access by PyArg_ParseTuple and
+    add better checks for string arguments
   * interp: fix two error message typos that would lead a user astray
   * support RTAI 5
   * better error reporting in rtapi/sim
 
-  * realtime script: wait for the last rtapi_app to die when stopping
-        realtime
+  * realtime script: wait for the last rtapi_app to die
+    when stopping realtime
   * tests: verify that the exported realtime math functions exist
   * build: remove unsupported docs/src/Makefile
-  * build: build-depend on docbook-xsl, instead of using the network at
-        build-time
+  * build: build-depend on docbook-xsl,
+    instead of using the network at build-time
   * packaging: include udev rule file for ShuttleXpress USB jog pendant
   * packaging: gmoccapy depends on gstreamer0.10-plugins-base
   * packaging: use "set -e" to fail on error in the postinst script

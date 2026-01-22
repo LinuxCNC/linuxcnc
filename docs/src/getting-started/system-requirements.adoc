@@ -2,10 +2,11 @@
 :toc:
 
 [[cha:system-requirements]]
-= System Requirements(((System Requirements)))
+= System Requirements
 
 == Minimum Requirements
 
+(((System Requirements)))
 The minimum system to run LinuxCNC and Debian / Ubuntu may vary depending
 on the exact usage. Stepper systems in general require faster threads to
 generate step pulses than servo systems. You can use the Live CD to test
@@ -18,15 +19,14 @@ specially modified kernel,
 see <<sec:kernel_and_version_requirements,Kernel and Version Requirements>>.
 
 Additional information is on the LinuxCNC Wiki site:
-https://wiki.linuxcnc.org/cgi-bin/wiki.pl?Hardware_Requirements[Hardware Requirements]
+http://wiki.linuxcnc.org/cgi-bin/wiki.pl?Hardware_Requirements[Hardware Requirements]
 
 LinuxCNC and Debian Linux should run reasonably well on a computer with
 the following minimum hardware specification. These numbers are not the
 absolute minimum but will give reasonable performance for most stepper
 systems.
 
-* 700 MHz x86 processor (1.2 GHz x86 processor recommended) or Raspberry Pi 4 or better.
-* LinuxCNC 2.8 or later from the Live CD expects a 64-bit capable system.
+* 1.2 GHz 64-bit x86 processor or Raspberry Pi 4 or better.
 * 512 MB of RAM, 4 GB with GUI to avoid surprises
 * No hard disk for Live CD, 8 GB or more for permanent installation
 * Graphics card capable of at least 1024x768 resolution, which is not using the NVidia or ATI fglrx proprietary drivers.

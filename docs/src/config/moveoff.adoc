@@ -2,7 +2,7 @@
 :toc:
 
 [[cha:moveoff]]
-= Moveoff Component(((Moveoff)))
+= Moveoff Component
 
 // Custom lang highlight
 // must come after the doc title, to work around a bug in asciidoc 8.6.6

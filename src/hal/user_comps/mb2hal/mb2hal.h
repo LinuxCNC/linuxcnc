@@ -153,7 +153,7 @@ typedef struct {
     int   tot_mb_links;
     //others
     const char *mb_tx_fncts[mbtxMAX];
-    int quit_flag;
+    volatile int quit_flag;
 } gbl_t;
 
 extern gbl_t gbl;

@@ -129,7 +129,9 @@ When the machine moves, it leaves a trail called the backplot. You can
 start the backplot window by selecting View→Backplot.
 
 [[cap:tklinuxcnc-interpreter]]
-=== TkLinuxCNC Interpreter / Automatic Program Control(((TkLinuxCNC Interpreter)))
+=== TkLinuxCNC Interpreter / Automatic Program Control
+
+(((TkLinuxCNC Interpreter)))
 
 image::images/tkemc-interp.png["TkLinuxCNC Interpreter / program control",align="center"]
 

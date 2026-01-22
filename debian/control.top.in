@@ -13,12 +13,12 @@ Build-Depends:
     @KERNEL_HEADERS@,
     @MODUTILS_DEPENDS@,
     @EXTRA_BUILD@,
-    docbook-xsl,
+    docbook-xsl <!nodoc>,
     asciidoc,
-    ghostscript,
-    groff-base,
-    imagemagick,
-    asciidoc-dblatex,
+    ghostscript <!nodoc>,
+    groff-base <!nodoc>,
+    imagemagick <!nodoc>,
+    asciidoc-dblatex <!nodoc>,
     autoconf,
     automake,
     bwidget (>= 1.7),
@@ -38,7 +38,8 @@ Build-Depends:
     libusb-1.0-0-dev,
     libxmu-dev,
     netcat-traditional | netcat-openbsd | netcat,
-    po4a,
+    netpbm,
+    po4a <!nodoc>,
     procps,
     psmisc,
     python3,
@@ -49,6 +50,7 @@ Build-Depends:
     tcl@TCLTK_VERSION@-dev,
     tclx,
     tk@TCLTK_VERSION@-dev,
+    x11-xserver-utils <!nocheck>,
     xvfb,
     yapps2
 Build-Depends-Indep:
@@ -62,13 +64,14 @@ Rules-Requires-Root: binary-targets
 Package: @MAIN_PACKAGE_NAME@-dev
 Architecture: any
 Conflicts: linuxcnc-sim-dev, @OTHER_MAIN_PACKAGE_NAME@-dev
-Depends: ${misc:Depends},
-         ${python3:Depends},
-         @KERNEL_HEADERS@,
-         python3-serial,
-         @MAIN_PACKAGE_NAME@ (= ${binary:Version}),
-         udev,
-         @YAPPS_RUNTIME@
+Depends:
+    ${misc:Depends},
+    ${python3:Depends},
+    @KERNEL_HEADERS@,
+    python3-serial,
+    @MAIN_PACKAGE_NAME@ (= ${binary:Version}),
+    udev,
+    @YAPPS_RUNTIME@
 Section: devel
 Description: PC based motion controller for real-time Linux
  LinuxCNC is a fully-realised CNC machine controller that can interpret

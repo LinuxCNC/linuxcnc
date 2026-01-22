@@ -18,15 +18,17 @@ This is the first thing you need to do.
 Follow the instructions <<sec:latency-test,here>> to run the latency test.
 
 [[sec:sherline]]
-== Sherline(((Sherline)))
+== Sherline
 
+(((Sherline)))
 If you have a Sherline several predefined configurations are provided.
 This is on the main menu CNC/EMC then pick the Sherline configuration
 that matches yours and save a copy.
 
 [[sec:xylotex]]
-== Xylotex(((Xylotex)))
+== Xylotex
 
+(((Xylotex)))
 If you have a Xylotex you can skip the following sections and go
 straight to the <<cha:stepconf-wizard,Stepper Config Wizard>>.
 LinuxCNC has provided quick setup for the Xylotex machines.
