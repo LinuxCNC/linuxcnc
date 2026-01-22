@@ -5472,13 +5472,14 @@ class gmoccapy(object):
         self.widgets.tooledit1.set_selected_tool(self.stat.tool_in_spindle)
 
     def on_btn_tool_touchoff_clicked(self, widget, data=None):
-        if not self.widgets.tooledit1.get_selected_tool():
-            message = _("No or multiple tools selected in the tool table. ")
+        tool = self.widgets.tooledit1.get_selected_row()
+        if not tool:
+            message = _("No tool selected in the tool table. ")
             message += _("Please select only one tool in the table!")
             self.dialogs.warning_dialog(self, _("Warning Tool Touch off not possible!"), message)
             return
 
-        if self.widgets.tooledit1.get_selected_tool() != self.stat.tool_in_spindle:
+        if tool != self.stat.tool_in_spindle:
             message = _("You can not touch off a tool, which is not mounted in the spindle! ")
             message += _("Your selection has been reset to the tool in spindle.")
             self.dialogs.warning_dialog(self, _("Warning Tool Touch off not possible!"), message)
