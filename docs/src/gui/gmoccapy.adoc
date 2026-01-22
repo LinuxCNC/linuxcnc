@@ -619,10 +619,10 @@ m|gmoccapy.h-button.button-9 | open HAL show         | back        | back
 [cols="10,10,10,10", options="header"]
 |===
 | Pin                        | Tool Mode                                | Edit Mode     | Select File
-m|gmoccapy.h-button.button-0 | delete tool(s)                           |               | go to home directory
-m|gmoccapy.h-button.button-1 | new tool                                 | reload file   | one directory level up
-m|gmoccapy.h-button.button-2 | reload tool table                        | save          |
-m|gmoccapy.h-button.button-3 | apply changes                            | save as       | move selection left
+m|gmoccapy.h-button.button-0 |                                          |               | go to home directory
+m|gmoccapy.h-button.button-1 |                                          | reload file   | one directory level up
+m|gmoccapy.h-button.button-2 |                                          | save          |
+m|gmoccapy.h-button.button-3 |                                          | save as       | move selection left
 m|gmoccapy.h-button.button-4 | change tool by number T? M6              |               | move selection right
 m|gmoccapy.h-button.button-5 | set tool by number without change M61 Q? |               | jump to directory as set in settings
 m|gmoccapy.h-button.button-6 | change tool to the selected one          | new file      |
