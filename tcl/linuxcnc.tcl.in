@@ -32,6 +32,7 @@ namespace eval linuxcnc {
     variable REALTIME @REALTIME@
     variable RTS @RTS@
     variable CONFIG_DIR {}
+    variable _dir
     foreach _dir  [split {@LINUXCNC_CONFIG_PATH@} :] {
 	lappend CONFIG_DIR [file normalize $_dir]
     }
@@ -47,7 +48,7 @@ if {[string first $::linuxcnc::BIN_DIR: $env(PATH)] != 0} {
 }
 
 proc linuxcnc::image_search i {
-    set paths "$linuxcnc::IMAGEDIR $linuxcnc::HOME $linuxcnc::HOME/etc/linuxcnc /etc/linuxcnc ."
+    set paths "$::linuxcnc::IMAGEDIR $::linuxcnc::HOME $::linuxcnc::HOME/etc/linuxcnc /etc/linuxcnc ."
     foreach f $paths {
         if [file exists $f/$i] {
             return [image create photo -file $f/$i]
